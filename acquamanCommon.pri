@@ -448,7 +448,8 @@ HEADERS += \
 	source/actions3/actions/AMChangeToleranceActionInfo.h \
 	source/actions3/actions/AMChangeToleranceAction.h \
 	source/ui/util/AMLineEditDialog.h \
-	source/dataman/AMXRFScan.h
+	source/dataman/AMXRFScan.h \
+	source/ui/util/AMChooseDataFolderDialog.h
 
 FORMS += \
 
@@ -859,7 +860,8 @@ SOURCES += \
 	source/actions3/actions/AMChangeToleranceActionInfo.cpp \
 	source/actions3/actions/AMChangeToleranceAction.cpp \
 	source/ui/util/AMLineEditDialog.cpp \
-	source/dataman/AMXRFScan.cpp
+	source/dataman/AMXRFScan.cpp \
+	source/ui/util/AMChooseDataFolderDialog.cpp
 
 RESOURCES *= source/icons/icons.qrc \
 		source/configurationFiles/configurationFiles.qrc \
@@ -876,26 +878,3 @@ contains(DEFINES, AM_BUILD_REPORTER_ENABLED){
 
 	SOURCES *= source/util/AMRunTimeBuildInfo.cpp
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
