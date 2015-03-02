@@ -1,4 +1,5 @@
 #include "BioXASMainMonochromatorRegionControl.h"
+#include "BioXASMainMonochromator.h"
 #include <QDebug>
 
 BioXASMainMonochromatorRegionControl::BioXASMainMonochromatorRegionControl(QObject *parent) :

@@ -77,7 +77,7 @@ public:
 	virtual bool moveInProgress() const { return false; }
 
 signals:
-	/// Notifier that there has been progress in completing a move. Provides information needed for a progress bar display.
+	/// Notifier that there has been progress in completing a crystal change. Provides information suitable for a progress bar display.
 	void moveProgressChanged(double numerator, double denominator);
 	/// Notifier that the current step in a move has changed.
 	void moveStepChanged();
