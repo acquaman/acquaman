@@ -25,28 +25,28 @@
 #define TIMEOUT_BRAGG_MOTOR_LIMIT_REACHED 200.0
 #define TIMEOUT_REGION_STATE_CHANGED 200.0
 
-class BioXASMainMonochromator;
+class BioXASSSRLMonochromator;
 
 class BioXASMainMonochromatorRegionControl : public AMCompositeControl
 {
 	Q_OBJECT
 
 public:
-	/// Enumerates the possible region states.
-	class Region { public: enum State { None = 0, A, B }; enum Status { NotIn = 0, In }; };
+//	/// Enumerates the possible region states.
+//	class Region { public: enum State { None = 0, A, B }; enum Status { NotIn = 0, In }; };
 	/// Constructor.
 	explicit BioXASMainMonochromatorRegionControl(QObject *parent = 0);
 	/// Destructor.
 	virtual ~BioXASMainMonochromatorRegionControl();
 
 	/// Returns the current region.
-	virtual double value() const { return region_; }
+	virtual double value() const { return value_; }
 	/// Returns the current region setpoint.
-	virtual double setpoint() const { return regionSetpoint_; }
+	virtual double setpoint() const { return setpoint_; }
 	/// Returns None, the smallest value the region can take.
-	virtual double minimumValue() const { return Region::None; }
+	virtual double minimumValue() const;
 	/// Returns B, the largest value the region can take.
-	virtual double maximumValue() const { return Region::B; }
+	virtual double maximumValue() const;
 
 	/// Returns true if the region is always measurable (when the control is connected).
 	virtual bool shouldMeasure() const { return true; }
@@ -151,9 +151,9 @@ protected:
 	/// Returns a new action that waits for the crystal change motor to reach its counter-clockwise limit, 0 if not connected.
 	AMAction3* createWaitForCrystalChangeAtCCWLimitAction();
 	/// Returns a new action that moves the crystal change motor to the appropriate limit for the given region destination, 0 if not connected or if the destination is Region::None.
-	AMAction3* createMoveCrystalChangeToRegionLimitAction(Region::State destination);
+	AMAction3* createMoveCrystalChangeToRegionLimitAction(int destination);
 	/// Returns a new action that waits for the mono crystal change motor to reach a limit. Which particular limit (cw, ccw) depends on the region destination. Returns 0 if not connected, or if the destination is Region::None.
-	AMAction3* createWaitForCrystalChangeAtLimitAction(Region::State destination);
+	AMAction3* createWaitForCrystalChangeAtLimitAction(int destination);
 	/// Returns a new action that waits for the mono brake to be turned on, 0 if not connected.
 	AMAction3* createWaitForBrakeEnabledAction();
 	/// Returns a new action that moves the bragg motor into region A, 0 if not connected.
@@ -161,23 +161,23 @@ protected:
 	/// Returns a new action that moves the bragg motor into region B, 0 if not connected.
 	AMAction3* createMoveBraggToRegionBAction();
 	/// Returns a new action that moves the bragg motor into the destination region, 0 if not connected or if the destination is Region::None.
-	AMAction3* createMoveBraggToRegionAction(Region::State destination);
+	AMAction3* createMoveBraggToRegionAction(int destination);
 	/// Returns a new action that waits for the mono to move into region A.
 	AMAction3* createWaitForRegionChangedToAAction();
 	/// Returns a new action that waits for the mono to move into region B.
 	AMAction3* createWaitForRegionChangedToBAction();
 	/// Returns a new action that waits for the mono to move into a new region, 0 if not connected or if the destination is Region::None (to include this option is trickier to implement).
-	AMAction3* createWaitForRegionChangedAction(Region::State destination);
+	AMAction3* createWaitForRegionChangedAction(int destination);
 	/// Returns a new action that waits for the mono region key to be turned CW to Disabled, 0 if not connected.
 	AMAction3* createWaitForKeyDisabledAction();
 	/// Returns a new action that changes the current region to the new, desired region. Performs a crystal change.
-	AMListAction3 *createChangeRegionAction(Region::State newRegion);
+	AMListAction3 *createChangeRegionAction(int newRegion);
 
 protected:
-	/// The current region state.
-	Region::State region_;
+	/// The current region.
+	int value_;
 	/// The region setpoint.
-	Region::State regionSetpoint_;
+	int setpoint_;
 	/// The current move state, true if this control has intiated a move.
 	bool moveInProgress_;
 

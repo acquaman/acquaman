@@ -114,9 +114,9 @@ void BioXASMainMonochromatorRegionView::onRegionChanged()
 	if (mono_ && mono_->regionControl()->isConnected()) {
 		int currentRegion = mono_->regionControl()->value();
 
-		if (currentRegion == BioXASMainMonochromatorRegionControl::Region::A)
+		if (currentRegion == BioXASSSRLMonochromator::Region::A)
 			regionText_->setText("A");
-		else if (currentRegion == BioXASMainMonochromatorRegionControl::Region::B)
+		else if (currentRegion == BioXASSSRLMonochromator::Region::B)
 			regionText_->setText("B");
 		else
 			regionText_->setText("None");
@@ -168,12 +168,12 @@ void BioXASMainMonochromatorRegionView::onRegionButtonClicked()
 		int setpoint;
 		int currentRegion = mono_->regionControl()->value();
 
-		if (currentRegion == BioXASMainMonochromatorRegionControl::Region::A)
-			setpoint = BioXASMainMonochromatorRegionControl::Region::B;
-		else if (currentRegion == BioXASMainMonochromatorRegionControl::Region::B)
-			setpoint = BioXASMainMonochromatorRegionControl::Region::A;
+		if (currentRegion == BioXASSSRLMonochromator::Region::A)
+			setpoint = BioXASSSRLMonochromator::Region::B;
+		else if (currentRegion == BioXASSSRLMonochromator::Region::B)
+			setpoint = BioXASSSRLMonochromator::Region::A;
 		else
-			setpoint = BioXASMainMonochromatorRegionControl::Region::A;
+			setpoint = BioXASSSRLMonochromator::Region::A;
 
 		mono_->regionControl()->move(setpoint);
 	}

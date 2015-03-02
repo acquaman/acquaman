@@ -11,38 +11,26 @@
 #include "actions3/AMListAction3.h"
 #include "beamline/CLS/CLSMAXvMotor.h"
 
+#include "beamline/BioXAS/BioXASSSRLMonochromator.h"
 #include "beamline/BioXAS/BioXASMainMonochromatorControl.h"
 #include "beamline/BioXAS/BioXASMainMonochromatorRegionControl.h"
 
-class BioXASMainMonochromator : public QObject
+class BioXASMainMonochromator : public BioXASSSRLMonochromator
 {
     Q_OBJECT
 
 public:
-	/// Enumerates the possible slits closed states.
-	class Slits { public: enum Status { NotClosed = 0, Closed = 1 }; };
-	/// Enumerates the possible paddle states.
-	class Paddle { public: enum Status { NotOut = 0, Out = 1}; };
-	/// Enumerates the possible key status states.
-	class Key { public: enum Status { Disabled = 0, Enabled = 1 }; };
-	/// Enumerates the possible brake status states.
-	class Brake { public: enum Status { Disabled = 0, Enabled = 1 }; };
-	/// Enumerates the bragg motor position status.
-	class Bragg { public: enum CrystalChangePositionStatus { InPosition = 0, NotInPosition = 1 }; };
-	/// Enumerates the crystal change motor limit status.
-	class CrystalChange { public: enum Limit { NotAtLimit = 0, AtLimit = 1 }; };
-
     /// Constructor.
     explicit BioXASMainMonochromator(QObject *parent = 0);
     /// Destructor.
     virtual ~BioXASMainMonochromator();
 
     /// Returns true if the mono is connected to all of its pvs, false otherwise.
-    bool isConnected() const { return connected_; }
+	virtual bool isConnected() const { return connected_; }
     /// Returns the current region.
-	double region() const { return regionControl_->value(); }
+	virtual double region() const { return regionControl_->value(); }
 	/// Returns the energy feedback.
-	double energy() const { return energy_->value(); }
+	virtual double energy() const { return energy_->value(); }
 
 	/// Returns the region A status control.
 	AMControl* regionAStatus() const { return regionAStatus_; }
@@ -82,30 +70,20 @@ public:
 	AMControl* crystal2RollMotor() const { return crystal2RollMotor_; }
 
 	/// Returns the mono's crystal change control.
-	BioXASMainMonochromatorRegionControl* regionControl() const { return regionControl_; }
+	AMControl* regionControl() const { return regionControl_; }
     /// Returns the energy setpoint control.
     AMControl* energyControl() const { return energy_; }
 
 	/// Returns a new action that sets the region, 0 if not connected.
-	AMAction3* createSetRegionAction(double newRegion);
+	virtual AMAction3* createSetRegionAction(double newRegion);
     /// Returns a new set energy action, 0 if not connected.
-    AMAction3* createSetEnergyAction(double newEnergy);
-
-signals:
-    /// Notifier that the mono's connections with its pvs have changed.
-    void connected(bool isConnected);
-    /// Notifier that the mono's region has changed.
-	void regionChanged(double newRegion);
-    /// Notifier that the energy setpoint has changed.
-    void energySetpointChanged(double newSetpoint);
-    /// Notifier that the energy feedback has changed.
-    void energyFeedbackChanged(double newFeedback);
+	virtual AMAction3* createSetEnergyAction(double newEnergy);
 
 public slots:
 	/// Sets the region to the given region, performing a crystal change if necessary.
-	void setRegion(double newRegion);
+	virtual void setRegion(double newRegion);
     /// Sets the energy setpoint.
-	void setEnergy(double newEnergy);
+	virtual void setEnergy(double newEnergy);
 
 protected slots:
     /// Updates the mono's general connected state based on the connected state of each of its pvs.
@@ -118,6 +96,8 @@ protected:
 protected:
 	/// Connected state.
     bool connected_;
+	/// Current region state.
+	BioXASSSRLMonochromator::Region::State region_;
 	/// Region control.
 	BioXASMainMonochromatorRegionControl* regionControl_;
 	/// Energy control.

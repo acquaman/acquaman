@@ -2,7 +2,7 @@
 #include <QDebug>
 
 BioXASMainMonochromator::BioXASMainMonochromator(QObject *parent) :
-    QObject(parent)
+	BioXASSSRLMonochromator(parent)
 {
     // Initialize variables.
 
@@ -33,6 +33,11 @@ BioXASMainMonochromator::BioXASMainMonochromator(QObject *parent) :
 
 	regionControl_ = new BioXASMainMonochromatorRegionControl(this);
     energy_ = new BioXASMainMonochromatorControl("EnergyEV", "BL1607-5-I21:Energy:EV:fbk", "BL1607-5-I21:Energy:EV", "BL1607-5-I21:Energy:status", QString("BL1607-5-I21:Energy:stop"), this);
+
+	// Listen to controls value changes.
+
+	connect( regionControl_, SIGNAL(valueChanged(double)), this, SLOT(regionChanged(double)) );
+	connect( energy_, SIGNAL(valueChanged(double)), this, SIGNAL(energyChanged(double)) );
 
 	// Listen to component connection states.
 
