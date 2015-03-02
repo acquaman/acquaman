@@ -39,14 +39,6 @@ bool BioXASMainMonochromatorRegionControl::canMove() const
 	return false;
 }
 
-bool BioXASMainMonochromatorRegionControl::canStop() const
-{
-	if (wasConnected_)
-		return true;
-
-	return false;
-}
-
 AMControl::FailureExplanation BioXASMainMonochromatorRegionControl::move(double setpoint)
 {
 	// Setup local vars.
@@ -66,6 +58,7 @@ AMControl::FailureExplanation BioXASMainMonochromatorRegionControl::move(double 
 	if (action) {
 		connect( action, SIGNAL(progressChanged(double, double)), this, SIGNAL(moveProgressChanged(double, double)) );
 		connect( action, SIGNAL(currentSubActionChanged(int)), this, SLOT(onCurrentMoveStepChanged(int)) );
+		connect( action, SIGNAL(started()), this, SLOT(onRegionChangeStarted()) );
 		connect( action, SIGNAL(cancelled()), this, SLOT(onRegionChangeCancelled()) );
 		connect( action, SIGNAL(failed()), this, SLOT(onRegionChangeFailed()) );
 		connect( action, SIGNAL(succeeded()), this, SLOT(onRegionChangeSucceeded()) );
@@ -333,7 +326,7 @@ AMAction3* BioXASMainMonochromatorRegionControl::createCloseUpperSlitAction()
 	if (!upperSlitControl_ || !upperSlitControl_->isConnected())
 		return 0;
 
-	return AMActionSupport::buildControlMoveAction(upperSlitControl_, SETPOINT_SLITS_CLOSED);
+	return AMActionSupport::buildControlMoveAction(upperSlitControl_, BioXASMainMonochromator::Slits::Closed);
 }
 
 AMAction3* BioXASMainMonochromatorRegionControl::createCloseLowerSlitAction()
@@ -341,7 +334,7 @@ AMAction3* BioXASMainMonochromatorRegionControl::createCloseLowerSlitAction()
 	if (!lowerSlitControl_ || lowerSlitControl_->isConnected())
 		return 0;
 
-	return AMActionSupport::buildControlMoveAction(lowerSlitControl_, SETPOINT_SLITS_CLOSED);
+	return AMActionSupport::buildControlMoveAction(lowerSlitControl_, BioXASMainMonochromator::Slits::Closed);
 }
 
 AMAction3* BioXASMainMonochromatorRegionControl::createCloseSlitsAction()
@@ -359,7 +352,7 @@ AMAction3* BioXASMainMonochromatorRegionControl::createWaitForSlitsClosedAction(
 		return 0;
 
 	AMControlInfo setpoint = slitsStatus_->toInfo();
-	setpoint.setValue(STATUS_SLITS_CLOSED);
+	setpoint.setValue(BioXASMainMonochromator::Slits::Closed);
 
 	AMControlWaitAction *action = new AMControlWaitAction(new AMControlWaitActionInfo(setpoint, TIMEOUT_SLITS_CLOSED, AMControlWaitActionInfo::MatchEqual), slitsStatus_);
 	return action;
@@ -370,7 +363,7 @@ AMAction3* BioXASMainMonochromatorRegionControl::createRemovePaddleAction()
 	if (!paddleControl_ || !paddleStatus_->isConnected())
 		return 0;
 
-	return AMActionSupport::buildControlMoveAction(paddleControl_, SETPOINT_PADDLE_REMOVED);
+	return AMActionSupport::buildControlMoveAction(paddleControl_, BioXASMainMonochromator::Paddle::Out);
 }
 
 AMAction3* BioXASMainMonochromatorRegionControl::createWaitForPaddleRemovedAction()
@@ -379,7 +372,7 @@ AMAction3* BioXASMainMonochromatorRegionControl::createWaitForPaddleRemovedActio
 		return 0;
 
 	AMControlInfo setpoint = paddleStatus_->toInfo();
-	setpoint.setValue(STATUS_PADDLE_OUT);
+	setpoint.setValue(BioXASMainMonochromator::Paddle::Out);
 
 	AMControlWaitAction *action = new AMControlWaitAction(new AMControlWaitActionInfo(setpoint, TIMEOUT_PADDLE_OUT, AMControlWaitActionInfo::MatchEqual), paddleStatus_);
 	return action;
@@ -391,7 +384,7 @@ AMAction3* BioXASMainMonochromatorRegionControl::createWaitForKeyEnabledAction()
 		return 0;
 
 	AMControlInfo setpoint = keyStatus_->toInfo();
-	setpoint.setValue(STATUS_KEY_ENABLED);
+	setpoint.setValue(BioXASMainMonochromator::Key::Enabled);
 
 	AMControlWaitAction *action = new AMControlWaitAction(new AMControlWaitActionInfo(setpoint, TIMEOUT_KEY_STATUS_CHANGE, AMControlWaitActionInfo::MatchEqual), keyStatus_);
 	return action;
@@ -416,7 +409,7 @@ AMAction3* BioXASMainMonochromatorRegionControl::createWaitForBraggAtCrystalChan
 		return 0;
 
 	AMControlInfo setpoint = braggAtCrystalChangePositionStatus_->toInfo();
-	setpoint.setValue(STATUS_BRAGG_AT_CRYSTAL_CHANGE_POSITION);
+	setpoint.setValue(BioXASMainMonochromator::Bragg::InPosition);
 
 	AMControlWaitAction *action = new AMControlWaitAction(new AMControlWaitActionInfo(setpoint, TIMEOUT_CRYSTAL_CHANGE_POSITION_REACHED, AMControlWaitActionInfo::MatchEqual), braggAtCrystalChangePositionStatus_);
 	return action;
@@ -428,7 +421,7 @@ AMAction3* BioXASMainMonochromatorRegionControl::createWaitForBrakeDisabledActio
 		return 0;
 
 	AMControlInfo setpoint = brakeStatus_->toInfo();
-	setpoint.setValue(STATUS_BRAKE_DISABLED);
+	setpoint.setValue(BioXASMainMonochromator::Brake::Disabled);
 
 	AMControlWaitAction *action = new AMControlWaitAction(new AMControlWaitActionInfo(setpoint, TIMEOUT_BRAKE_STATUS_CHANGE, AMControlWaitActionInfo::MatchEqual), brakeStatus_);
 	return action;
@@ -448,7 +441,7 @@ AMAction3* BioXASMainMonochromatorRegionControl::createWaitForCrystalChangeAtCWL
 		return 0;
 
 	AMControlInfo setpoint = crystalChangeCWLimitStatus_->toInfo();
-	setpoint.setValue(STATUS_CRYSTAL_CHANGE_AT_LIMIT);
+	setpoint.setValue(BioXASMainMonochromator::CrystalChange::AtLimit);
 
 	AMControlWaitAction *action = new AMControlWaitAction(new AMControlWaitActionInfo(setpoint, TIMEOUT_CRYSTAL_CHANGE_MOTOR_LIMIT_REACHED, AMControlWaitActionInfo::MatchEqual), crystalChangeCWLimitStatus_);
 	return action;
@@ -460,7 +453,7 @@ AMAction3* BioXASMainMonochromatorRegionControl::createWaitForCrystalChangeAtCCW
 		return 0;
 
 	AMControlInfo setpoint = crystalChangeCCWLimitStatus_->toInfo();
-	setpoint.setValue(STATUS_CRYSTAL_CHANGE_AT_LIMIT);
+	setpoint.setValue(BioXASMainMonochromator::CrystalChange::AtLimit);
 
 	AMControlWaitAction *action = new AMControlWaitAction(new AMControlWaitActionInfo(setpoint, TIMEOUT_CRYSTAL_CHANGE_MOTOR_LIMIT_REACHED, AMControlWaitActionInfo::MatchEqual), crystalChangeCCWLimitStatus_);
 	return action;
@@ -496,7 +489,7 @@ AMAction3* BioXASMainMonochromatorRegionControl::createWaitForBrakeEnabledAction
 		return 0;
 
 	AMControlInfo setpoint = brakeStatus_->toInfo();
-	setpoint.setValue(STATUS_BRAKE_ENABLED);
+	setpoint.setValue(BioXASMainMonochromator::Brake::Enabled);
 
 	AMControlWaitAction *action = new AMControlWaitAction(new AMControlWaitActionInfo(setpoint, TIMEOUT_BRAKE_STATUS_CHANGE, AMControlWaitActionInfo::MatchEqual), brakeStatus_);
 	return action;
@@ -536,7 +529,7 @@ AMAction3* BioXASMainMonochromatorRegionControl::createWaitForKeyDisabledAction(
 		return 0;
 
 	AMControlInfo setpoint = keyStatus_->toInfo();
-	setpoint.setValue(STATUS_KEY_DISABLED);
+	setpoint.setValue(BioXASMainMonochromator::Key::Disabled);
 
 	AMControlWaitAction *action = new AMControlWaitAction(new AMControlWaitActionInfo(setpoint, TIMEOUT_KEY_STATUS_CHANGE, AMControlWaitActionInfo::MatchEqual), keyStatus_);
 	return action;
@@ -548,7 +541,7 @@ AMAction3* BioXASMainMonochromatorRegionControl::createWaitForRegionChangedToAAc
 		return 0;
 
 	AMControlInfo setpoint = regionAStatus_->toInfo();
-	setpoint.setValue(STATUS_REGION_IN);
+	setpoint.setValue(Region::In);
 
 	AMControlWaitAction *action = new AMControlWaitAction(new AMControlWaitActionInfo(setpoint, TIMEOUT_REGION_STATE_CHANGED, AMControlWaitActionInfo::MatchEqual), regionAStatus_);
 	return action;
@@ -560,7 +553,7 @@ AMAction3* BioXASMainMonochromatorRegionControl::createWaitForRegionChangedToBAc
 		return 0;
 
 	AMControlInfo setpoint = regionBStatus_->toInfo();
-	setpoint.setValue(STATUS_REGION_IN);
+	setpoint.setValue(Region::In);
 
 	AMControlWaitAction *action = new AMControlWaitAction(new AMControlWaitActionInfo(setpoint, TIMEOUT_REGION_STATE_CHANGED, AMControlWaitActionInfo::MatchEqual), regionBStatus_);
 	return action;
@@ -616,9 +609,9 @@ void BioXASMainMonochromatorRegionControl::onRegionControlValueChanged()
 	int regionAVal = (int)regionAStatus_->value();
 	int regionBVal = (int)regionBStatus_->value();
 
-	if (regionAVal == STATUS_REGION_NOT_IN && regionBVal == STATUS_REGION_IN)
+	if (regionAVal == Region::NotIn && regionBVal == Region::In)
 		newRegion = Region::B;
-	else if (regionAVal == STATUS_REGION_IN && regionBVal == STATUS_REGION_NOT_IN)
+	else if (regionAVal == Region::In && regionBVal == Region::NotIn)
 		newRegion = Region::A;
 	else
 		newRegion = Region::None;
@@ -634,26 +627,34 @@ void BioXASMainMonochromatorRegionControl::onCurrentMoveStepChanged(int stepInde
 	Q_UNUSED(stepIndex)
 }
 
+void BioXASMainMonochromatorRegionControl::onRegionChangeStarted()
+{
+	moveInProgress_ = true;
+	emit moveInProgress();
+}
+
 void BioXASMainMonochromatorRegionControl::onRegionChangeCancelled()
 {
-	disconnect( sender(), 0, this, 0 );
-	sender()->deleteLater();
-
+	moveCleanup(sender());
 	emit moveFailed(AMControl::WasStoppedFailure);
 }
 
 void BioXASMainMonochromatorRegionControl::onRegionChangeFailed()
 {
-	disconnect( sender(), 0, this, 0 );
-	sender()->deleteLater();
-
+	moveCleanup(sender());
 	emit moveFailed(AMControl::OtherFailure);
 }
 
 void BioXASMainMonochromatorRegionControl::onRegionChangeSucceeded()
 {
-	disconnect( sender(), 0, this, 0 );
-	sender()->deleteLater();
-
+	moveCleanup(sender());
 	emit moveSucceeded();
+}
+
+void BioXASMainMonochromatorRegionControl::moveCleanup(QObject *action)
+{
+	moveInProgress_ = false;
+
+	disconnect( action, 0, this, 0 );
+	action->deleteLater();
 }

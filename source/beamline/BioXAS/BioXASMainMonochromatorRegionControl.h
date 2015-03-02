@@ -25,18 +25,7 @@
 #define TIMEOUT_BRAGG_MOTOR_LIMIT_REACHED 200.0
 #define TIMEOUT_REGION_STATE_CHANGED 200.0
 
-// {status}_{component}_{status option} VALUE
-#define STATUS_SLITS_CLOSED 1
-#define STATUS_PADDLE_OUT 1
-#define STATUS_KEY_ENABLED 1
-#define STATUS_BRAGG_AT_CRYSTAL_CHANGE_POSITION 0
-#define STATUS_BRAKE_DISABLED 0
-#define STATUS_CRYSTAL_CHANGE_AT_LIMIT 1
-#define STATUS_CRYSTAL_CHANGE_NOT_AT_LIMIT 0
-#define STATUS_BRAKE_ENABLED 1
-#define STATUS_KEY_DISABLED 0
-#define STATUS_REGION_IN 1
-#define STATUS_REGION_NOT_IN 0
+class BioXASMainMonochromator;
 
 class BioXASMainMonochromatorRegionControl : public AMCompositeControl
 {
@@ -44,8 +33,7 @@ class BioXASMainMonochromatorRegionControl : public AMCompositeControl
 
 public:
 	/// Enumerates the possible region states.
-	class Region { public: enum State { None = 0, A, B }; };
-
+	class Region { public: enum State { None = 0, A, B }; enum Status { NotIn = 0, In }; };
 	/// Constructor.
 	explicit BioXASMainMonochromatorRegionControl(QObject *parent = 0);
 	/// Destructor.
@@ -69,12 +57,12 @@ public:
 	/// Returns true if a move to a new region is possible now.
 	virtual bool canMove() const;
 	/// Returns true if this control can stop a crystal change in progress, provided it is connected.
-	virtual bool shouldStop() const { return true; }
+	virtual bool shouldStop() const { return false; }
 	/// Returns true if this control can stop a change to a new region right now.
-	virtual bool canStop() const;
+	virtual bool canStop() const { return false; }
 
 	/// Returns true if there is a crystal change procedure in progress, as a result of this control's action.
-	virtual bool moveInProgress() const { return false; }
+	virtual bool moveInProgress() const { return moveInProgress_; }
 
 signals:
 	/// Notifier that there has been progress in completing a crystal change. Provides information suitable for a progress bar display.
@@ -124,6 +112,8 @@ protected slots:
 	void onRegionControlValueChanged();
 	/// Handles emitting the appropriate signals when the current step in a move has changed.
 	void onCurrentMoveStepChanged(int stepIndex);
+	/// Called when the internal crystal change action has been started. Handles updating the moveInProgress_ member variable and emitting the moveInProgress() signal.
+	void onRegionChangeStarted();
 	/// Called when the internal crystal change action has been cancelled. Handles emitting moveFailed(...) with the WasStoppedFailure code and deleting the action.
 	void onRegionChangeCancelled();
 	/// Called when the internal crystal change action has failed. Handles emitting moveFailed(...) with the OtherFailure code and deleting the action.
@@ -188,6 +178,8 @@ protected:
 	Region::State region_;
 	/// The region setpoint.
 	Region::State regionSetpoint_;
+	/// The current move state, true if this control has intiated a move.
+	bool moveInProgress_;
 
 	// Child controls.
 
@@ -219,6 +211,10 @@ protected:
 	AMControl* regionAStatus_;
 	/// The region B status control.
 	AMControl* regionBStatus_;
+
+private:
+	/// Handles the region change cleanup: making sure moveInProgress_ is updated, we disconnect from crystal change action signals, and the action is queued for deletion.
+	void moveCleanup(QObject *action);
 
 };
 
