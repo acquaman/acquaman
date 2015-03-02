@@ -273,14 +273,14 @@ void CSRDataModel::computeIntegral()
 		data(i*numberPerRevolution, qMin((i+1)*numberPerRevolution-1, int(2e7-1)), fx.data());
 		timeData(i*numberPerRevolution, qMin((i+1)*numberPerRevolution-1, int(2e7-1)), x.data());
 
-		integral_[i] = fx.first()+fx.last();
+		double partialSum = fx.first()+fx.last();
 
 		for (int j = 1; j < numberPerRevolution-1; j++){
 
-			integral_[i] += 2*fx.at(j);
+			partialSum += 2*fx.at(j);
 		}
 
-		integral_[i] *= (x.last()-x.first())/(2*(numberPerRevolution-1));
+		integral_[i] = partialSum*(x.last()-x.first())/(2*(numberPerRevolution-1));
 	}
 
 	qDebug() << "Time to find the integral: " << time.elapsed() << "ms";
