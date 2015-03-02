@@ -29,10 +29,13 @@ BioXASMainPersistentView::BioXASMainPersistentView(QWidget *parent) :
     energyControlEditor_ = new AMExtendedControlEditor(BioXASMainBeamline::bioXAS()->mono()->energyControl());
     energyControlEditor_->setControlFormat('f', 2);
 
+	regionView_ = new BioXASMainMonochromatorRegionView(BioXASMainBeamline::bioXAS()->mono());
+
     // Create and set layouts.
 
     QVBoxLayout *layout = new QVBoxLayout();
     layout->addWidget(energyControlEditor_);
+	layout->addWidget(regionView_);
     layout->addStretch();
 
     setLayout(layout);

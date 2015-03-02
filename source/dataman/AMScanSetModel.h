@@ -70,7 +70,8 @@ class AMScanSetModel : public QAbstractItemModel {
 public:
 
 	/// Additional custom roles for the data we expose:
-	enum DataRoles { FilledRole = AM::UserRole + 20, FillColorRole, ColorMapRole, UseStandardColorMapRole, StandardColorMapRole, FirstColorRole, SecondColorRole, BrightnessRole, ContrastRole, GammaRole };
+	enum DataRoles { FilledRole = AM::UserRole + 20, FillColorRole, ColorMapRole, UseStandardColorMapRole, StandardColorMapRole, FirstColorRole, SecondColorRole, BrightnessRole, ContrastRole, GammaRole, MarkerColorRole,
+				   MarkerShapeRole};
 
 	/// Default constructor
  	virtual ~AMScanSetModel();
@@ -105,6 +106,16 @@ public:
 	QPen plotPen(int si, int di) const {
 		return sourcePlotSettings_.at(si).at(di).linePen;
 	}
+	/// Returns the marker shape that should be used to draw the markers at \c dataSourceIndex with the scan at \c scanIndex
+	MPlotMarkerShape::Shape markerShape(int si, int di) const {
+		return sourcePlotSettings_.at(si).at(di).markerShape;
+	}
+
+	/// Returns the marker color that should be used to draw the markers at \c dataSourceIndex with the scan at \c scanIndex
+	QColor markerColor(int si, int di) const {
+		return sourcePlotSettings_.at(si).at(di).markerColor;
+	}
+
 	/// Returns the color map to use for data source at \c dataSourceIndex within the scan at \c scanIndex
 	MPlotColorMap plotColorMap(int si, int di) const { return sourcePlotSettings_.at(si).at(di).colorMap; }
 	/// Returns the priority to use for data source at \c dataSourceIndex within the scan at \c scanIndex. The priority is a double value that controls the stacking order of plots on top of each other.

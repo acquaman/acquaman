@@ -44,18 +44,6 @@ AMOldDetectorInfoSet::AMOldDetectorInfoSet(const AMOldDetectorInfoSet& other)
 	connect(signalSource(), SIGNAL(itemChanged(int)), this, SLOT(onDetectorValuesChanged(int)));
 }
 
-AMOldDetectorInfoSet::AMOldDetectorInfoSet(AMDatabase* db, int id)
-	: AMDbObject(), AMOrderedSet<QString, QPair<AMOldDetectorInfo*, bool> >()
-{
-	warningsSuppressed_ = true;
-
-	connect(signalSource(), SIGNAL(itemAdded(int)), this, SLOT(onDetectorAdded(int)));
-	connect(signalSource(), SIGNAL(itemRemoved(int)), this, SLOT(onDetectorRemoved(int)));
-	connect(signalSource(), SIGNAL(itemChanged(int)), this, SLOT(onDetectorValuesChanged(int)));
-
-	loadFromDb(db, id);
-}
-
 AMOldDetectorInfoSet& AMOldDetectorInfoSet::operator=(const AMOldDetectorInfoSet& other) {
 	// always: check for self-assignment
 	if(this != &other) {

@@ -50,6 +50,8 @@ bool VESPERS2011XRFFileLoaderPlugin::load(AMScan *scan, const QString &userDataF
 		elements = 1;
 	else if (scan->rawDataSourceCount() == 12)
 		elements = 4;
+	else if (scan->rawDataSourceCount() == 32)
+		elements = 32;
 	else{
 		errorMonitor->exteriorReport(AMErrorReport(0, AMErrorReport::Alert, VESPERS2011XRFFILELOADERPLUGIN_UNRECOGNIZED_FILE_TYPE, "XRFFileLoader cannot recognize file."));
 		return false;
@@ -69,6 +71,10 @@ bool VESPERS2011XRFFileLoaderPlugin::load(AMScan *scan, const QString &userDataF
 			// Note!  Not general!
 			QList<AMAxisInfo> axisInfo;
 			AMAxisInfo ai("Energy", 2048, "Energy", "eV");
+
+			if (elements == 32)
+				ai.size = 4096;
+
 			ai.increment = 10;
 			ai.start = AMNumber(0);
 			ai.isUniform = true;

@@ -22,7 +22,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "util/AMErrorMonitor.h"
 #include "dataman/AMSamplePlatePre2013.h"
 
-#include "actions3/actions/AMControlMoveAction3.h"
 #include "actions3/AMListAction3.h"
 #include "actions3/AMActionSupport.h"
 

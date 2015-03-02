@@ -72,7 +72,8 @@ public:
 	/// Takes an absolute file path, and if it can be expressed relative to the userDataFolder, returns it as that relative path. (Example: /Users/mboots/acquamanUserData/2010/03/foo.txt becomes 2010/03/foo.txt, if my userDataFolder is /User/mboots/acquamanUserData).  If provided, \c wasInUserDataFolder is set to true if \c absolutePath could be expressed within the userDataFolder, and false if it was outside of that.
 	static QString relativePathFromUserDataFolder(const QString& absolutePath, bool* wasInUserDataFolder = 0);
 
-
+	/// Removes the remote data folder entry.
+	static void removeRemoteDataFolderEntry();
 
 	/// Load settings from disk:
 	static void load() ;
@@ -121,7 +122,7 @@ public:
 
 protected:
 	/// This is a singleton class, so the constructor is protected.
- 	virtual ~AMSettings();
+	virtual ~AMSettings();
 	AMSettings() : mutex_(QReadWriteLock::Recursive) {}
 
 	QString publicDataFolder_;

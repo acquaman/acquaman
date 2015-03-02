@@ -176,17 +176,6 @@ bool AM0DAccumulatorAB::axisValues(int axisNumber, int startIndex, int endIndex,
 	return true;
 }
 
-bool AM0DAccumulatorAB::loadFromDb(AMDatabase *db, int id)
-{
-	bool success = AMDbObject::loadFromDb(db, id);
-
-	if (success) {
-		AMDataSource::name_ = AMDbObject::name();
-	}
-
-	return success;
-}
-
 void AM0DAccumulatorAB::setDataStoredCountMax(int newMax)
 {
 	if (dataMax_ != newMax && newMax > 0) {

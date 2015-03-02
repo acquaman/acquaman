@@ -53,7 +53,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/SGM/SGMMAXvMotor.h"
 #include "util/AMErrorMonitor.h"
 #include "actions3/AMListAction3.h"
-#include "actions3/actions/AMControlMoveAction3.h"
+#include "actions3/AMActionSupport.h"
 
 #define TOPLEFT 0
 #define TOPRIGHT 1
@@ -1295,20 +1295,10 @@ AMAction3* AMSampleCamera::createMoveToSampleAction(const AMSample *sample){
 	upStreamDownStream = shift.y();
 	upDown = shift.z();
 
-	AMControlMoveAction3 *moveAction;
-	AMControlInfo moveControlInfo;
-
 	AMListAction3 *retVal = new AMListAction3(new AMListActionInfo3("Move to sample", "Move to sample"), AMListAction3::Parallel);
 
-	moveControlInfo = ssaManipulatorX_->toInfo();
-	moveControlInfo.setValue(inboardOutboard);
-	moveAction = new AMControlMoveAction3(new AMControlMoveActionInfo3(moveControlInfo), ssaManipulatorX_);
-	retVal->addSubAction(moveAction);
-
-	moveControlInfo = ssaManipulatorZ_->toInfo();
-	moveControlInfo.setValue(upDown);
-	moveAction = new AMControlMoveAction3(new AMControlMoveActionInfo3(moveControlInfo), ssaManipulatorZ_);
-	retVal->addSubAction(moveAction);
+	retVal->addSubAction(AMActionSupport::buildControlMoveAction(ssaManipulatorX_, inboardOutboard));
+	retVal->addSubAction(AMActionSupport::buildControlMoveAction(ssaManipulatorZ_, upDown));
 
 	return retVal;
 }

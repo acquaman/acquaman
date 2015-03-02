@@ -189,17 +189,6 @@ bool AM1DTimedDataAB::axisValues(int axisNumber, int startIndex, int endIndex, A
 	return true;
 }
 
-bool AM1DTimedDataAB::loadFromDb(AMDatabase *db, int id)
-{
-	bool success = AMDbObject::loadFromDb(db, id);
-
-	if (success) {
-		AMDataSource::name_ = AMDbObject::name();
-	}
-
-	return success;
-}
-
 void AM1DTimedDataAB::onDataSourceValuesChanged(const AMnDIndex &start, const AMnDIndex &end)
 {
 	Q_UNUSED(start)

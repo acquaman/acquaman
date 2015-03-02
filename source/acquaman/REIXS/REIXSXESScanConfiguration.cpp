@@ -27,8 +27,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 REIXSXESScanConfiguration::REIXSXESScanConfiguration(QObject *parent) :
 	AMScanConfiguration(parent), mcpDetectorInfo_()
 {
-	setAutoExportEnabled(false);
-
 	gratingNumber_ = 0;
 
 	slitWidth_ = 25;
@@ -63,8 +61,6 @@ REIXSXESScanConfiguration::REIXSXESScanConfiguration(const REIXSXESScanConfigura
 	: AMScanConfiguration()
 {
 	mcpDetectorInfo_ = *(original.mcpDetectorInfo());
-
-	setAutoExportEnabled(false);
 
 	gratingNumber_ = original.gratingNumber();
 

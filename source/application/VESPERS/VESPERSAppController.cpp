@@ -26,6 +26,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/AMMainWindow.h"
 #include "ui/acquaman/AMScanConfigurationViewHolder3.h"
 #include "ui/acquaman/VESPERS/VESPERSScanConfigurationViewHolder3.h"
+#include "ui/util/AMChooseDataFolderDialog.h"
 
 #include "dataman/AMLineScan.h"
 
@@ -38,7 +39,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "ui/VESPERS/VESPERSXRFScanConfigurationView.h"
 #include "ui/VESPERS/VESPERSPersistentView.h"
-#include "dataman/VESPERS/AMXRFScan.h"
 #include "util/AMPeriodicTable.h"
 #include "ui/VESPERS/VESPERSDeviceStatusView.h"
 #include "ui/VESPERS/VESPERSEXAFSScanConfigurationView.h"
@@ -48,7 +48,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/VESPERS/VESPERSSpatialLineScanConfigurationView.h"
 #include "ui/VESPERS/VESPERSEnergyScanConfigurationView.h"
 #include "acquaman/VESPERS/VESPERSScanConfiguration.h"
-#include "ui/VESPERS/VESPERSChooseDataFolderDialog.h"
 #include "ui/VESPERS/VESPERS3DScanConfigurationView.h"
 
 #include "dataman/AMScanEditorModelItem.h"
@@ -137,7 +136,7 @@ VESPERSAppController::VESPERSAppController(QObject *parent) :
 bool VESPERSAppController::startup()
 {
 	// Get a destination folder.
-	if (!VESPERSChooseDataFolderDialog::getDataFolder())
+	if (!AMChooseDataFolderDialog::getDataFolder("/AcquamanLocalData/vespers", "/nas/vespers", "users", QStringList() << "XRD Images"))
 		return false;
 
 	// Start up the main program.
@@ -214,7 +213,6 @@ void VESPERSAppController::shutdown()
 void VESPERSAppController::registerClasses()
 {
 	AMDbObjectSupport::s()->registerClass<VESPERSXRFScanConfiguration>();
-	AMDbObjectSupport::s()->registerClass<AMXRFScan>();
 	AMDbObjectSupport::s()->registerClass<VESPERSEXAFSScanConfiguration>();
 	AMDbObjectSupport::s()->registerClass<VESPERS2DScanConfiguration>();
 	AMDbObjectSupport::s()->registerClass<VESPERSSpatialLineScanConfiguration>();
@@ -230,6 +228,9 @@ void VESPERSAppController::registerClasses()
 	AMOldDetectorViewSupport::registerClass<VESPERSCCDDetectorView, VESPERSRoperCCDDetector>();
 	AMOldDetectorViewSupport::registerClass<VESPERSCCDDetectorView, VESPERSMarCCDDetector>();
 	AMOldDetectorViewSupport::registerClass<VESPERSPilatusCCDDetectorView, VESPERSPilatusCCDDetector>();
+
+	AMExportController::unregisterExporter<AMSMAKExporter>();
+	AMExportController::unregisterExporter<AMExporter2DAscii>();
 
 	AMExportController::registerExporter<VESPERSExporter3DAscii>();
 	AMExportController::registerExporter<VESPERSExporter2DAscii>();

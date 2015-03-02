@@ -192,9 +192,7 @@ public:
 	enum ShiftCurveSmoothing { None, Poly, Median, Average};
 
 	/// Constructor. \c outputName is the name() for the output data source.
-	REIXSXESImageAB(const QString& outputName, QObject* parent = 0);
-	/// This constructor is used to reload analysis blocks directly out of the database
-	Q_INVOKABLE REIXSXESImageAB(AMDatabase* db, int id);
+	Q_INVOKABLE REIXSXESImageAB(const QString& outputName = "InvalidInput", QObject* parent = 0);
 
 	/// Destructor
 	virtual ~REIXSXESImageAB();
