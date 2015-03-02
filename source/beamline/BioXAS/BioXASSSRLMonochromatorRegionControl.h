@@ -1,5 +1,5 @@
-#ifndef BIOXASMAINMONOCHROMATORREGIONCONTROL_H
-#define BIOXASMAINMONOCHROMATORREGIONCONTROL_H
+#ifndef BIOXASSSRLMONOCHROMATORREGIONCONTROL_H
+#define BIOXASSSRLMONOCHROMATORREGIONCONTROL_H
 
 #include "beamline/AMCompositeControl.h"
 #include "actions3/AMActionSupport.h"
@@ -27,17 +27,15 @@
 
 class BioXASSSRLMonochromator;
 
-class BioXASMainMonochromatorRegionControl : public AMCompositeControl
+class BioXASSSRLMonochromatorRegionControl : public AMCompositeControl
 {
 	Q_OBJECT
 
 public:
-//	/// Enumerates the possible region states.
-//	class Region { public: enum State { None = 0, A, B }; enum Status { NotIn = 0, In }; };
 	/// Constructor.
-	explicit BioXASMainMonochromatorRegionControl(QObject *parent = 0);
+	explicit BioXASSSRLMonochromatorRegionControl(QObject *parent = 0);
 	/// Destructor.
-	virtual ~BioXASMainMonochromatorRegionControl();
+	virtual ~BioXASSSRLMonochromatorRegionControl();
 
 	/// Returns the current region.
 	virtual double value() const { return value_; }
@@ -218,4 +216,4 @@ private:
 
 };
 
-#endif // BIOXASMAINMONOCHROMATORREGIONCONTROL_H
+#endif // BIOXASSSRLMONOCHROMATORREGIONCONTROL_H

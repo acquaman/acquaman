@@ -1,8 +1,8 @@
-#include "BioXASMainMonochromatorRegionControl.h"
-#include "BioXASMainMonochromator.h"
+#include "BioXASSSRLMonochromatorRegionControl.h"
+#include "BioXASSSRLMonochromator.h"
 #include <QDebug>
 
-BioXASMainMonochromatorRegionControl::BioXASMainMonochromatorRegionControl(QObject *parent) :
+BioXASSSRLMonochromatorRegionControl::BioXASSSRLMonochromatorRegionControl(QObject *parent) :
 	AMCompositeControl("RegionControl", "", parent, "BioXAS SSRL Monochromator Region Control")
 {
 	// Initialize member variables.
@@ -18,22 +18,22 @@ BioXASMainMonochromatorRegionControl::BioXASMainMonochromatorRegionControl(QObje
 	setContextKnownDescription("Region Control");
 }
 
-BioXASMainMonochromatorRegionControl::~BioXASMainMonochromatorRegionControl()
+BioXASSSRLMonochromatorRegionControl::~BioXASSSRLMonochromatorRegionControl()
 {
 
 }
 
-double BioXASMainMonochromatorRegionControl::minimumValue() const
+double BioXASSSRLMonochromatorRegionControl::minimumValue() const
 {
 	return BioXASSSRLMonochromator::Region::None;
 }
 
-double BioXASMainMonochromatorRegionControl::maximumValue() const
+double BioXASSSRLMonochromatorRegionControl::maximumValue() const
 {
 	return BioXASSSRLMonochromator::Region::B;
 }
 
-bool BioXASMainMonochromatorRegionControl::canMeasure() const
+bool BioXASSSRLMonochromatorRegionControl::canMeasure() const
 {
 	if (wasConnected_)
 		return true;
@@ -41,7 +41,7 @@ bool BioXASMainMonochromatorRegionControl::canMeasure() const
 	return false;
 }
 
-bool BioXASMainMonochromatorRegionControl::canMove() const
+bool BioXASSSRLMonochromatorRegionControl::canMove() const
 {
 	if (wasConnected_)
 		return true;
@@ -49,7 +49,7 @@ bool BioXASMainMonochromatorRegionControl::canMove() const
 	return false;
 }
 
-AMControl::FailureExplanation BioXASMainMonochromatorRegionControl::move(double setpoint)
+AMControl::FailureExplanation BioXASSSRLMonochromatorRegionControl::move(double setpoint)
 {
 	// Setup local vars.
 
@@ -86,7 +86,7 @@ AMControl::FailureExplanation BioXASMainMonochromatorRegionControl::move(double 
 	return failMessage;
 }
 
-AMControl::FailureExplanation BioXASMainMonochromatorRegionControl::moveRelative(double distance, RelativeMoveType relativeMoveType)
+AMControl::FailureExplanation BioXASSSRLMonochromatorRegionControl::moveRelative(double distance, RelativeMoveType relativeMoveType)
 {
 	Q_UNUSED(distance)
 	Q_UNUSED(relativeMoveType)
@@ -96,7 +96,7 @@ AMControl::FailureExplanation BioXASMainMonochromatorRegionControl::moveRelative
 	return AMControl::OtherFailure;
 }
 
-void BioXASMainMonochromatorRegionControl::setUpperSlitControl(AMControl *upperSlit)
+void BioXASSSRLMonochromatorRegionControl::setUpperSlitControl(AMControl *upperSlit)
 {
 	if (upperSlitControl_ != upperSlit) {
 
@@ -113,7 +113,7 @@ void BioXASMainMonochromatorRegionControl::setUpperSlitControl(AMControl *upperS
 	}
 }
 
-void BioXASMainMonochromatorRegionControl::setLowerSlitControl(AMControl *lowerSlit)
+void BioXASSSRLMonochromatorRegionControl::setLowerSlitControl(AMControl *lowerSlit)
 {
 	if (lowerSlitControl_ != lowerSlit) {
 
@@ -130,7 +130,7 @@ void BioXASMainMonochromatorRegionControl::setLowerSlitControl(AMControl *lowerS
 	}
 }
 
-void BioXASMainMonochromatorRegionControl::setSlitsStatusControl(AMControl *slitsClosed)
+void BioXASSSRLMonochromatorRegionControl::setSlitsStatusControl(AMControl *slitsClosed)
 {
 	if (slitsStatus_ != slitsClosed) {
 
@@ -147,7 +147,7 @@ void BioXASMainMonochromatorRegionControl::setSlitsStatusControl(AMControl *slit
 	}
 }
 
-void BioXASMainMonochromatorRegionControl::setPaddleControl(AMControl *paddleControl)
+void BioXASSSRLMonochromatorRegionControl::setPaddleControl(AMControl *paddleControl)
 {
 	if (paddleControl_ != paddleControl) {
 
@@ -164,7 +164,7 @@ void BioXASMainMonochromatorRegionControl::setPaddleControl(AMControl *paddleCon
 	}
 }
 
-void BioXASMainMonochromatorRegionControl::setPaddleStatusControl(AMControl *paddleStatus)
+void BioXASSSRLMonochromatorRegionControl::setPaddleStatusControl(AMControl *paddleStatus)
 {
 	if (paddleStatus_ != paddleStatus) {
 
@@ -181,7 +181,7 @@ void BioXASMainMonochromatorRegionControl::setPaddleStatusControl(AMControl *pad
 	}
 }
 
-void BioXASMainMonochromatorRegionControl::setKeyStatusControl(AMControl *keyStatusControl)
+void BioXASSSRLMonochromatorRegionControl::setKeyStatusControl(AMControl *keyStatusControl)
 {
 	if (keyStatus_ != keyStatusControl) {
 
@@ -198,7 +198,7 @@ void BioXASMainMonochromatorRegionControl::setKeyStatusControl(AMControl *keySta
 	}
 }
 
-void BioXASMainMonochromatorRegionControl::setBraggControl(AMControl *braggControl)
+void BioXASSSRLMonochromatorRegionControl::setBraggControl(AMControl *braggControl)
 {
 	if (braggControl_ != braggControl) {
 
@@ -215,7 +215,7 @@ void BioXASMainMonochromatorRegionControl::setBraggControl(AMControl *braggContr
 	}
 }
 
-void BioXASMainMonochromatorRegionControl::setBraggAtCrystalChangePositionControl(AMControl *braggInPositionControl)
+void BioXASSSRLMonochromatorRegionControl::setBraggAtCrystalChangePositionControl(AMControl *braggInPositionControl)
 {
 	if (braggAtCrystalChangePositionStatus_ != braggInPositionControl) {
 
@@ -232,7 +232,7 @@ void BioXASMainMonochromatorRegionControl::setBraggAtCrystalChangePositionContro
 	}
 }
 
-void BioXASMainMonochromatorRegionControl::setBrakeStatusControl(AMControl *brakeStatusControl)
+void BioXASSSRLMonochromatorRegionControl::setBrakeStatusControl(AMControl *brakeStatusControl)
 {
 	if (brakeStatus_ != brakeStatusControl) {
 
@@ -249,7 +249,7 @@ void BioXASMainMonochromatorRegionControl::setBrakeStatusControl(AMControl *brak
 	}
 }
 
-void BioXASMainMonochromatorRegionControl::setCrystalChangeControl(AMControl *crystalChangeControl)
+void BioXASSSRLMonochromatorRegionControl::setCrystalChangeControl(AMControl *crystalChangeControl)
 {
 	if (crystalChangeControl_ != crystalChangeControl) {
 
@@ -266,7 +266,7 @@ void BioXASMainMonochromatorRegionControl::setCrystalChangeControl(AMControl *cr
 	}
 }
 
-void BioXASMainMonochromatorRegionControl::setCrystalChangeCWLimitControl(AMControl *cwLimitControl)
+void BioXASSSRLMonochromatorRegionControl::setCrystalChangeCWLimitControl(AMControl *cwLimitControl)
 {
 	if (crystalChangeCWLimitStatus_ != cwLimitControl) {
 
@@ -283,7 +283,7 @@ void BioXASMainMonochromatorRegionControl::setCrystalChangeCWLimitControl(AMCont
 	}
 }
 
-void BioXASMainMonochromatorRegionControl::setCrystalChangeCCWLimitControl(AMControl *ccwLimitControl)
+void BioXASSSRLMonochromatorRegionControl::setCrystalChangeCCWLimitControl(AMControl *ccwLimitControl)
 {
 	if (crystalChangeCCWLimitStatus_ != ccwLimitControl) {
 
@@ -300,7 +300,7 @@ void BioXASMainMonochromatorRegionControl::setCrystalChangeCCWLimitControl(AMCon
 	}
 }
 
-void BioXASMainMonochromatorRegionControl::setRegionAStatusControl(AMControl *regionAStatusControl)
+void BioXASSSRLMonochromatorRegionControl::setRegionAStatusControl(AMControl *regionAStatusControl)
 {
 	if (regionAStatus_ != regionAStatusControl) {
 
@@ -319,7 +319,7 @@ void BioXASMainMonochromatorRegionControl::setRegionAStatusControl(AMControl *re
 	}
 }
 
-void BioXASMainMonochromatorRegionControl::setRegionBStatusControl(AMControl *regionBStatusControl)
+void BioXASSSRLMonochromatorRegionControl::setRegionBStatusControl(AMControl *regionBStatusControl)
 {
 	if (regionBStatus_ != regionBStatusControl) {
 
@@ -338,23 +338,23 @@ void BioXASMainMonochromatorRegionControl::setRegionBStatusControl(AMControl *re
 	}
 }
 
-AMAction3* BioXASMainMonochromatorRegionControl::createCloseUpperSlitAction()
+AMAction3* BioXASSSRLMonochromatorRegionControl::createCloseUpperSlitAction()
 {
 	if (!upperSlitControl_ || !upperSlitControl_->isConnected())
 		return 0;
 
-	return AMActionSupport::buildControlMoveAction(upperSlitControl_, BioXASMainMonochromator::Slits::Closed);
+	return AMActionSupport::buildControlMoveAction(upperSlitControl_, BioXASSSRLMonochromator::Slits::Closed);
 }
 
-AMAction3* BioXASMainMonochromatorRegionControl::createCloseLowerSlitAction()
+AMAction3* BioXASSSRLMonochromatorRegionControl::createCloseLowerSlitAction()
 {
 	if (!lowerSlitControl_ || lowerSlitControl_->isConnected())
 		return 0;
 
-	return AMActionSupport::buildControlMoveAction(lowerSlitControl_, BioXASMainMonochromator::Slits::Closed);
+	return AMActionSupport::buildControlMoveAction(lowerSlitControl_, BioXASSSRLMonochromator::Slits::Closed);
 }
 
-AMAction3* BioXASMainMonochromatorRegionControl::createCloseSlitsAction()
+AMAction3* BioXASSSRLMonochromatorRegionControl::createCloseSlitsAction()
 {
 	AMListAction3 *closeSlits = new AMListAction3(new AMListActionInfo3("CloseSlits", "Closing mono slits in preparation for a crystal change"), AMListAction3::Parallel);
 	closeSlits->addSubAction(createCloseUpperSlitAction());
@@ -363,7 +363,7 @@ AMAction3* BioXASMainMonochromatorRegionControl::createCloseSlitsAction()
 	return closeSlits;
 }
 
-AMAction3* BioXASMainMonochromatorRegionControl::createWaitForSlitsClosedAction()
+AMAction3* BioXASSSRLMonochromatorRegionControl::createWaitForSlitsClosedAction()
 {
 	if (!slitsStatus_ || !slitsStatus_->isConnected())
 		return 0;
@@ -375,7 +375,7 @@ AMAction3* BioXASMainMonochromatorRegionControl::createWaitForSlitsClosedAction(
 	return action;
 }
 
-AMAction3* BioXASMainMonochromatorRegionControl::createRemovePaddleAction()
+AMAction3* BioXASSSRLMonochromatorRegionControl::createRemovePaddleAction()
 {
 	if (!paddleControl_ || !paddleStatus_->isConnected())
 		return 0;
@@ -383,7 +383,7 @@ AMAction3* BioXASMainMonochromatorRegionControl::createRemovePaddleAction()
 	return AMActionSupport::buildControlMoveAction(paddleControl_, BioXASSSRLMonochromator::Paddle::Out);
 }
 
-AMAction3* BioXASMainMonochromatorRegionControl::createWaitForPaddleRemovedAction()
+AMAction3* BioXASSSRLMonochromatorRegionControl::createWaitForPaddleRemovedAction()
 {
 	if (!paddleStatus_ || !paddleStatus_->isConnected())
 		return 0;
@@ -395,7 +395,7 @@ AMAction3* BioXASMainMonochromatorRegionControl::createWaitForPaddleRemovedActio
 	return action;
 }
 
-AMAction3* BioXASMainMonochromatorRegionControl::createWaitForKeyEnabledAction()
+AMAction3* BioXASSSRLMonochromatorRegionControl::createWaitForKeyEnabledAction()
 {
 	if (!keyStatus_ || !keyStatus_->isConnected())
 		return 0;
@@ -407,7 +407,7 @@ AMAction3* BioXASMainMonochromatorRegionControl::createWaitForKeyEnabledAction()
 	return action;
 }
 
-AMAction3* BioXASMainMonochromatorRegionControl::createMoveBraggAction(double destination)
+AMAction3* BioXASSSRLMonochromatorRegionControl::createMoveBraggAction(double destination)
 {
 	if (!braggControl_ || !braggControl_->isConnected())
 		return 0;
@@ -415,12 +415,12 @@ AMAction3* BioXASMainMonochromatorRegionControl::createMoveBraggAction(double de
 	return AMActionSupport::buildControlMoveAction(braggControl_, destination);
 }
 
-AMAction3* BioXASMainMonochromatorRegionControl::createMoveBraggToCrystalChangePositionAction()
+AMAction3* BioXASSSRLMonochromatorRegionControl::createMoveBraggToCrystalChangePositionAction()
 {
 	return createMoveBraggAction(SETPOINT_BRAGG_MOTOR_CRYSTAL_CHANGE_POSITION);
 }
 
-AMAction3* BioXASMainMonochromatorRegionControl::createWaitForBraggAtCrystalChangePositionAction()
+AMAction3* BioXASSSRLMonochromatorRegionControl::createWaitForBraggAtCrystalChangePositionAction()
 {
 	if (!braggAtCrystalChangePositionStatus_ || !braggAtCrystalChangePositionStatus_->isConnected())
 		return 0;
@@ -432,7 +432,7 @@ AMAction3* BioXASMainMonochromatorRegionControl::createWaitForBraggAtCrystalChan
 	return action;
 }
 
-AMAction3* BioXASMainMonochromatorRegionControl::createWaitForBrakeDisabledAction()
+AMAction3* BioXASSSRLMonochromatorRegionControl::createWaitForBrakeDisabledAction()
 {
 	if (!brakeStatus_ || !brakeStatus_->isConnected())
 		return 0;
@@ -444,7 +444,7 @@ AMAction3* BioXASMainMonochromatorRegionControl::createWaitForBrakeDisabledActio
 	return action;
 }
 
-AMAction3* BioXASMainMonochromatorRegionControl::createMoveCrystalChangeAction(double destination)
+AMAction3* BioXASSSRLMonochromatorRegionControl::createMoveCrystalChangeAction(double destination)
 {
 	if (!crystalChangeControl_ || !crystalChangeControl_->isConnected())
 		return 0;
@@ -452,7 +452,7 @@ AMAction3* BioXASMainMonochromatorRegionControl::createMoveCrystalChangeAction(d
 	return AMActionSupport::buildControlMoveAction(crystalChangeControl_, destination);
 }
 
-AMAction3* BioXASMainMonochromatorRegionControl::createWaitForCrystalChangeAtCWLimitAction()
+AMAction3* BioXASSSRLMonochromatorRegionControl::createWaitForCrystalChangeAtCWLimitAction()
 {
 	if (!crystalChangeCWLimitStatus_ || !crystalChangeCWLimitStatus_->isConnected())
 		return 0;
@@ -464,7 +464,7 @@ AMAction3* BioXASMainMonochromatorRegionControl::createWaitForCrystalChangeAtCWL
 	return action;
 }
 
-AMAction3* BioXASMainMonochromatorRegionControl::createWaitForCrystalChangeAtCCWLimitAction()
+AMAction3* BioXASSSRLMonochromatorRegionControl::createWaitForCrystalChangeAtCCWLimitAction()
 {
 	if (!crystalChangeCCWLimitStatus_ || !crystalChangeCCWLimitStatus_->isConnected())
 		return 0;
@@ -476,7 +476,7 @@ AMAction3* BioXASMainMonochromatorRegionControl::createWaitForCrystalChangeAtCCW
 	return action;
 }
 
-AMAction3* BioXASMainMonochromatorRegionControl::createMoveCrystalChangeToRegionLimitAction(int destination)
+AMAction3* BioXASSSRLMonochromatorRegionControl::createMoveCrystalChangeToRegionLimitAction(int destination)
 {
 	AMAction3 *action = 0;
 
@@ -488,7 +488,7 @@ AMAction3* BioXASMainMonochromatorRegionControl::createMoveCrystalChangeToRegion
 	return action;
 }
 
-AMAction3* BioXASMainMonochromatorRegionControl::createWaitForCrystalChangeAtLimitAction(int destination)
+AMAction3* BioXASSSRLMonochromatorRegionControl::createWaitForCrystalChangeAtLimitAction(int destination)
 {
 	AMAction3 *action = 0;
 
@@ -500,7 +500,7 @@ AMAction3* BioXASMainMonochromatorRegionControl::createWaitForCrystalChangeAtLim
 	return action;
 }
 
-AMAction3* BioXASMainMonochromatorRegionControl::createWaitForBrakeEnabledAction()
+AMAction3* BioXASSSRLMonochromatorRegionControl::createWaitForBrakeEnabledAction()
 {
 	if (!brakeStatus_ || !brakeStatus_->isConnected())
 		return 0;
@@ -512,7 +512,7 @@ AMAction3* BioXASMainMonochromatorRegionControl::createWaitForBrakeEnabledAction
 	return action;
 }
 
-AMAction3* BioXASMainMonochromatorRegionControl::createMoveBraggToRegionAAction()
+AMAction3* BioXASSSRLMonochromatorRegionControl::createMoveBraggToRegionAAction()
 {
 	if (!braggControl_ || !braggControl_->isConnected())
 		return 0;
@@ -520,7 +520,7 @@ AMAction3* BioXASMainMonochromatorRegionControl::createMoveBraggToRegionAAction(
 	return AMActionSupport::buildControlMoveAction(braggControl_, SETPOINT_BRAGG_MOTOR_REGION_A_DESTINATION);
 }
 
-AMAction3* BioXASMainMonochromatorRegionControl::createMoveBraggToRegionBAction()
+AMAction3* BioXASSSRLMonochromatorRegionControl::createMoveBraggToRegionBAction()
 {
 	if (!braggControl_ || !braggControl_->isConnected())
 		return 0;
@@ -528,7 +528,7 @@ AMAction3* BioXASMainMonochromatorRegionControl::createMoveBraggToRegionBAction(
 	return AMActionSupport::buildControlMoveAction(braggControl_, SETPOINT_BRAGG_MOTOR_REGION_B_DESTINATION);
 }
 
-AMAction3* BioXASMainMonochromatorRegionControl::createMoveBraggToRegionAction(int destination)
+AMAction3* BioXASSSRLMonochromatorRegionControl::createMoveBraggToRegionAction(int destination)
 {
 	AMAction3 *action = 0;
 
@@ -540,7 +540,7 @@ AMAction3* BioXASMainMonochromatorRegionControl::createMoveBraggToRegionAction(i
 	return action;
 }
 
-AMAction3* BioXASMainMonochromatorRegionControl::createWaitForKeyDisabledAction()
+AMAction3* BioXASSSRLMonochromatorRegionControl::createWaitForKeyDisabledAction()
 {
 	if (!keyStatus_ || !keyStatus_->isConnected())
 		return 0;
@@ -552,7 +552,7 @@ AMAction3* BioXASMainMonochromatorRegionControl::createWaitForKeyDisabledAction(
 	return action;
 }
 
-AMAction3* BioXASMainMonochromatorRegionControl::createWaitForRegionChangedToAAction()
+AMAction3* BioXASSSRLMonochromatorRegionControl::createWaitForRegionChangedToAAction()
 {
 	if (!regionAStatus_ || !regionAStatus_->isConnected())
 		return 0;
@@ -564,7 +564,7 @@ AMAction3* BioXASMainMonochromatorRegionControl::createWaitForRegionChangedToAAc
 	return action;
 }
 
-AMAction3* BioXASMainMonochromatorRegionControl::createWaitForRegionChangedToBAction()
+AMAction3* BioXASSSRLMonochromatorRegionControl::createWaitForRegionChangedToBAction()
 {
 	if (!regionBStatus_ || !regionBStatus_->isConnected())
 		return 0;
@@ -576,7 +576,7 @@ AMAction3* BioXASMainMonochromatorRegionControl::createWaitForRegionChangedToBAc
 	return action;
 }
 
-AMAction3* BioXASMainMonochromatorRegionControl::createWaitForRegionChangedAction(int destination)
+AMAction3* BioXASSSRLMonochromatorRegionControl::createWaitForRegionChangedAction(int destination)
 {
 	AMAction3 *action = 0;
 
@@ -588,7 +588,7 @@ AMAction3* BioXASMainMonochromatorRegionControl::createWaitForRegionChangedActio
 	return action;
 }
 
-AMListAction3* BioXASMainMonochromatorRegionControl::createChangeRegionAction(int newRegion)
+AMListAction3* BioXASSSRLMonochromatorRegionControl::createChangeRegionAction(int newRegion)
 {
 	AMListAction3 *changeRegion = 0;
 
@@ -619,7 +619,7 @@ AMListAction3* BioXASMainMonochromatorRegionControl::createChangeRegionAction(in
 	return changeRegion;
 }
 
-void BioXASMainMonochromatorRegionControl::onRegionControlValueChanged()
+void BioXASSSRLMonochromatorRegionControl::onRegionControlValueChanged()
 {
 	BioXASSSRLMonochromator::Region::State newRegion;
 
@@ -639,36 +639,36 @@ void BioXASMainMonochromatorRegionControl::onRegionControlValueChanged()
 	}
 }
 
-void BioXASMainMonochromatorRegionControl::onCurrentMoveStepChanged(int stepIndex)
+void BioXASSSRLMonochromatorRegionControl::onCurrentMoveStepChanged(int stepIndex)
 {
 	Q_UNUSED(stepIndex)
 }
 
-void BioXASMainMonochromatorRegionControl::onRegionChangeStarted()
+void BioXASSSRLMonochromatorRegionControl::onRegionChangeStarted()
 {
 	moveInProgress_ = true;
 	emit moveInProgress();
 }
 
-void BioXASMainMonochromatorRegionControl::onRegionChangeCancelled()
+void BioXASSSRLMonochromatorRegionControl::onRegionChangeCancelled()
 {
 	moveCleanup(sender());
 	emit moveFailed(AMControl::WasStoppedFailure);
 }
 
-void BioXASMainMonochromatorRegionControl::onRegionChangeFailed()
+void BioXASSSRLMonochromatorRegionControl::onRegionChangeFailed()
 {
 	moveCleanup(sender());
 	emit moveFailed(AMControl::OtherFailure);
 }
 
-void BioXASMainMonochromatorRegionControl::onRegionChangeSucceeded()
+void BioXASSSRLMonochromatorRegionControl::onRegionChangeSucceeded()
 {
 	moveCleanup(sender());
 	emit moveSucceeded();
 }
 
-void BioXASMainMonochromatorRegionControl::moveCleanup(QObject *action)
+void BioXASSSRLMonochromatorRegionControl::moveCleanup(QObject *action)
 {
 	moveInProgress_ = false;
 

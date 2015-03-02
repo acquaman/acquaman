@@ -13,7 +13,7 @@
 
 #include "beamline/BioXAS/BioXASSSRLMonochromator.h"
 #include "beamline/BioXAS/BioXASMainMonochromatorControl.h"
-#include "beamline/BioXAS/BioXASMainMonochromatorRegionControl.h"
+#include "beamline/BioXAS/BioXASSSRLMonochromatorRegionControl.h"
 
 class BioXASMainMonochromator : public BioXASSSRLMonochromator
 {
@@ -99,7 +99,7 @@ protected:
 	/// Current region state.
 	BioXASSSRLMonochromator::Region::State region_;
 	/// Region control.
-	BioXASMainMonochromatorRegionControl* regionControl_;
+	BioXASSSRLMonochromatorRegionControl* regionControl_;
 	/// Energy control.
 	BioXASMainMonochromatorControl* energy_;
 

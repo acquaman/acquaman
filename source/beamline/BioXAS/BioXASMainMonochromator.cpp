@@ -31,7 +31,7 @@ BioXASMainMonochromator::BioXASMainMonochromator(QObject *parent) :
 
 	// Create controls.
 
-	regionControl_ = new BioXASMainMonochromatorRegionControl(this);
+	regionControl_ = new BioXASSSRLMonochromatorRegionControl(this);
     energy_ = new BioXASMainMonochromatorControl("EnergyEV", "BL1607-5-I21:Energy:EV:fbk", "BL1607-5-I21:Energy:EV", "BL1607-5-I21:Energy:status", QString("BL1607-5-I21:Energy:stop"), this);
 
 	// Listen to controls value changes.
