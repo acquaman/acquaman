@@ -17,8 +17,6 @@
 #define SETPOINT_PADDLE_OUT -55.0
 #define SETPOINT_SLITS_CLOSED 0.0
 
-class BioXASMainMonochromatorCrystalChangeControl;
-
 class BioXASMainMonochromator : public QObject
 {
     Q_OBJECT
@@ -109,8 +107,6 @@ public:
     AMControl* regionBStatusControl() const { return regionBStatus_; }
     /// Returns the energy setpoint control.
     AMControl* energyControl() const { return energy_; }
-    /// Returns the mono's crystal change control.
-    BioXASMainMonochromatorCrystalChangeControl* crystalChangeControl() const { return crystalChangeControl_; }
 
     /// Returns a new close upper slit action, 0 if not connected.
     AMAction3* createCloseUpperSlitAction();
@@ -233,10 +229,6 @@ protected:
     // Energy control.
 
     AMControl* energy_;
-
-    // Crystal change control.
-
-    BioXASMainMonochromatorCrystalChangeControl *crystalChangeControl_;
 };
 
 

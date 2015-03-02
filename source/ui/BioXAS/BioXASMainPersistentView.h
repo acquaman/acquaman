@@ -28,7 +28,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "beamline/BioXAS/BioXASMainBeamline.h"
 #include "ui/beamline/AMExtendedControlEditor.h"
-#include "ui/BioXAS/BioXASMainMonochromatorCrystalChangeView.h"
 
 class AMExtendedControlEditor;
 
@@ -49,8 +48,6 @@ public slots:
 protected:
     /// Basic editor for selecting mono energy.
     AMExtendedControlEditor *energyControlEditor_;
-    /// A view for the elements important to a crystal change.
-    BioXASMainMonochromatorCrystalChangeView *crystalChangeView_;
 };
 
 #endif // BIOXASMAINPERSISTENTVIEW_H
