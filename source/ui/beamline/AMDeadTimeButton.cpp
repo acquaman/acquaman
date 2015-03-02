@@ -26,6 +26,15 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 AMDeadTimeButton::~AMDeadTimeButton(){}
 
+AMDeadTimeButton::AMDeadTimeButton(QWidget *parent)
+	: QToolButton(parent)
+{
+	inputCountSource_ = 0;
+	outputCountSource_ = 0;
+	goodReferencePoint_ = 0;
+	badReferencecPoint_ = 0;
+}
+
 AMDeadTimeButton::AMDeadTimeButton(AMDataSource *inputCountSource, AMDataSource *outputCountSource, double goodReferencePoint, double badReferencePoint, QWidget *parent)
 	: QToolButton(parent)
 {
@@ -61,14 +70,20 @@ void AMDeadTimeButton::paintEvent(QPaintEvent *e)
 
 	else if (!isChecked()){
 
-		double newValue = 100*(1 - double(outputCountSource_->value(AMnDIndex()))/double(inputCountSource_->value(AMnDIndex())));
+		if (hasDeadTimeSources()){
 
-		if (newValue < goodReferencePoint_)
-			option.palette = QPalette(Qt::black, QColor(20, 220, 20), Qt::gray, Qt::darkGray, QColor(170, 170, 170), Qt::black, Qt::red, Qt::green, QColor(0, 200, 0));
-		else if (newValue >= goodReferencePoint_ && newValue < badReferencecPoint_)
-			option.palette = QPalette(Qt::black, QColor(220, 220, 20), Qt::gray, Qt::darkGray, QColor(170, 170, 170), Qt::black, Qt::red, Qt::yellow, QColor(200, 200, 0));
+			double newValue = 100*(1 - double(outputCountSource_->value(AMnDIndex()))/double(inputCountSource_->value(AMnDIndex())));
+
+			if (newValue < goodReferencePoint_)
+				option.palette = QPalette(Qt::black, QColor(20, 220, 20), Qt::gray, Qt::darkGray, QColor(170, 170, 170), Qt::black, Qt::red, Qt::green, QColor(0, 200, 0));
+			else if (newValue >= goodReferencePoint_ && newValue < badReferencecPoint_)
+				option.palette = QPalette(Qt::black, QColor(220, 220, 20), Qt::gray, Qt::darkGray, QColor(170, 170, 170), Qt::black, Qt::red, Qt::yellow, QColor(200, 200, 0));
+			else
+				option.palette = QPalette(Qt::black, QColor(220, 20, 20), Qt::gray, Qt::darkGray, QColor(170, 170, 170), Qt::black, Qt::red, Qt::red, QColor(200, 0, 0));
+		}
+
 		else
-			option.palette = QPalette(Qt::black, QColor(220, 20, 20), Qt::gray, Qt::darkGray, QColor(170, 170, 170), Qt::black, Qt::red, Qt::red, QColor(200, 0, 0));
+			option.palette = QPalette(Qt::black, QColor(20, 220, 20), Qt::gray, Qt::darkGray, QColor(170, 170, 170), Qt::black, Qt::red, Qt::green, QColor(0, 200, 0));
 	}
 
 	else
@@ -97,4 +112,9 @@ void AMDeadTimeButton::setDeadTimeSources(AMDataSource *inputCountSource, AMData
 	outputCountSource_ = outputCountSource;
 	connect(inputCountSource_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(update()));
 	connect(outputCountSource_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(update()));
+}
+
+bool AMDeadTimeButton::hasDeadTimeSources() const
+{
+	return !(outputCountSource_ == 0 || inputCountSource_ == 0);
 }

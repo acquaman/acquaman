@@ -21,21 +21,13 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMDetectorInfoSet.h"
 
- AMDetectorInfoSet::~AMDetectorInfoSet(){}
+AMDetectorInfoSet::~AMDetectorInfoSet(){}
+
 AMDetectorInfoSet::AMDetectorInfoSet(QObject *parent) :
 	AMDbObject(parent), AMOrderedSet<QString, AMDetectorInfo>(false)
 {
 	connect(signalSource(), SIGNAL(itemAdded(int)), this, SLOT(onDetectorInfoAdded(int)));
 	connect(signalSource(), SIGNAL(itemRemoved(int)), this, SLOT(onDetectorInfoRemoved(int)));
-}
-
-AMDetectorInfoSet::AMDetectorInfoSet(AMDatabase *db, int id) :
-	AMDbObject(), AMOrderedSet<QString, AMDetectorInfo>(false)
-{
-	connect(signalSource(), SIGNAL(itemAdded(int)), this, SLOT(onDetectorInfoAdded(int)));
-	connect(signalSource(), SIGNAL(itemRemoved(int)), this, SLOT(onDetectorInfoRemoved(int)));
-
-	loadFromDb(db, id);
 }
 
 AMDetectorInfoSet::AMDetectorInfoSet(const AMDetectorInfoSet &other) :

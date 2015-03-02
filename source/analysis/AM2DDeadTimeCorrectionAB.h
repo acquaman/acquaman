@@ -33,8 +33,9 @@ class AM2DDeadTimeCorrectionAB : public AMStandardAnalysisBlock
 
 public:
 	/// Constructor.
-	virtual ~AM2DDeadTimeCorrectionAB();
 	Q_INVOKABLE AM2DDeadTimeCorrectionAB(const QString &outputName = "InvalidInput", QObject *parent = 0);
+	/// Destructor.
+	virtual ~AM2DDeadTimeCorrectionAB();
 
 	/// Description.
 	QString infoDescription() const { return QString(); }
@@ -62,9 +63,6 @@ public:
 	virtual AMNumber axisValue(int axisNumber, int index) const;
 	/// Performance optimization of axisValue():  instead of a single value, copies a block of values from \c startIndex to \c endIndex in \c outputValues.  The provided pointer must contain enough space for all the requested values.
 	virtual bool axisValues(int axisNumber, int startIndex, int endIndex, AMNumber *outputValues) const;
-
-	/// Re-implemented from AMDbObject to set the AMDataSource name once we have an AMDbObject::name()
-	bool loadFromDb(AMDatabase *db, int id);
 
 protected slots:
 	/// Connected to be called when the values of the input data source change

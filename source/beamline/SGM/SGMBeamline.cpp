@@ -51,8 +51,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/CLS/CLSBiStateControl.h"
 
 #include "actions3/AMListAction3.h"
-#include "actions3/actions/AMControlMoveAction3.h"
+#include "actions3/AMActionSupport.h"
 #include "actions3/actions/AMControlWaitAction.h"
+
 
 #include "util/AMErrorMonitor.h"
 
@@ -563,25 +564,10 @@ AMAction3* SGMBeamline::createBeamOnActions3(){
 
 	AMListAction3 *beamOnActionsList = new AMListAction3(new AMListActionInfo3("SGM Beam On", "SGM Beam On"), AMListAction3::Parallel);
 
-	AMControlInfo beamOnSetpoint = beamOn_->toInfo();
-	beamOnSetpoint.setValue(1);
-	AMControlMoveAction3 *beamOnAction = new AMControlMoveAction3(new AMControlMoveActionInfo3(beamOnSetpoint), beamOn_);
-	beamOnActionsList->addSubAction(beamOnAction);
-
-	AMControlInfo fastShutterSetpoint = fastShutterVoltage_->toInfo();
-	fastShutterSetpoint.setValue(0);
-	AMControlMoveAction3 *fastShutterAction = new AMControlMoveAction3(new AMControlMoveActionInfo3(fastShutterSetpoint), fastShutterVoltage_);
-	beamOnActionsList->addSubAction(fastShutterAction);
-
-	AMControlInfo frontBypassValveSetpoint = frontBypassValve_->toInfo();
-	frontBypassValveSetpoint.setValue(1);
-	AMControlMoveAction3 *frontBypassValveAction = new AMControlMoveAction3(new AMControlMoveActionInfo3(frontBypassValveSetpoint), frontBypassValve_);
-	beamOnActionsList->addSubAction(frontBypassValveAction);
-
-	AMControlInfo backBypassValveSetpoint = backBypassValve_->toInfo();
-	backBypassValveSetpoint.setValue(1);
-	AMControlMoveAction3 *backBypassValveAction = new AMControlMoveAction3(new AMControlMoveActionInfo3(backBypassValveSetpoint), backBypassValve_);
-	beamOnActionsList->addSubAction(backBypassValveAction);
+	beamOnActionsList->addSubAction(AMActionSupport::buildControlMoveAction(beamOn_, 1));
+	beamOnActionsList->addSubAction(AMActionSupport::buildControlMoveAction(fastShutterVoltage_, 0));
+	beamOnActionsList->addSubAction(AMActionSupport::buildControlMoveAction(frontBypassValve_, 1));
+	beamOnActionsList->addSubAction(AMActionSupport::buildControlMoveAction(backBypassValve_, 1));
 
 	AMControlInfo vvr1611_3_I10_01Info = vvr1611_3_I10_01Shutter_->toInfo();
 	vvr1611_3_I10_01Info.setValue(1);
@@ -691,12 +677,7 @@ AMAction3* SGMBeamline::createTurnOffBeamActions(){
 		return 0;
 	}
 
-	AMControlInfo fastShutterSetpoint = fastShutterVoltage()->toInfo();
-	fastShutterSetpoint.setValue(5);
-	AMControlMoveActionInfo3* fastShutterActionInfo = new AMControlMoveActionInfo3(fastShutterSetpoint);
-	AMControlMoveAction3* fastShutterAction = new AMControlMoveAction3(fastShutterActionInfo, fastShutterVoltage());
-
-	return fastShutterAction;
+	return AMActionSupport::buildControlMoveAction(fastShutterVoltage_, 5);
 }
 
 AMAction3* SGMBeamline::createStopMotorsActions3(){
@@ -730,23 +711,10 @@ AMAction3* SGMBeamline::createGoToTransferPositionActions3(){
 
 	AMListAction3 *goToTransferPostionActionsList = new AMListAction3(new AMListActionInfo3("SGM Go To Tranfer", "SGM Go To Tranfer"), AMListAction3::Parallel);
 
-	AMControlInfo manipulatorXSetpoint = ssaManipulatorX_->toInfo();
-	manipulatorXSetpoint.setValue(0.0);
-	AMControlInfo manipulatorYSetpoint = ssaManipulatorY_->toInfo();
-	manipulatorYSetpoint.setValue(-9.1);
-	AMControlInfo manipulatorZSetpoint = ssaManipulatorZ_->toInfo();
-	manipulatorZSetpoint.setValue(151.0);
-	AMControlInfo manipulatorRSetpoint = ssaManipulatorRot_->toInfo();
-	manipulatorRSetpoint.setValue(0.0);
-
-	AMControlMoveAction3 *manipulatorXAction = new AMControlMoveAction3(new AMControlMoveActionInfo3(manipulatorXSetpoint), ssaManipulatorX_);
-	goToTransferPostionActionsList->addSubAction(manipulatorXAction);
-	AMControlMoveAction3 *manipulatorYAction = new AMControlMoveAction3(new AMControlMoveActionInfo3(manipulatorYSetpoint), ssaManipulatorY_);
-	goToTransferPostionActionsList->addSubAction(manipulatorYAction);
-	AMControlMoveAction3 *manipulatorZAction = new AMControlMoveAction3(new AMControlMoveActionInfo3(manipulatorZSetpoint), ssaManipulatorZ_);
-	goToTransferPostionActionsList->addSubAction(manipulatorZAction);
-	AMControlMoveAction3 *manipulatorRAction = new AMControlMoveAction3(new AMControlMoveActionInfo3(manipulatorRSetpoint), ssaManipulatorRot_);
-	goToTransferPostionActionsList->addSubAction(manipulatorRAction);
+	goToTransferPostionActionsList->addSubAction(AMActionSupport::buildControlMoveAction(ssaManipulatorX_, 0.0));
+	goToTransferPostionActionsList->addSubAction(AMActionSupport::buildControlMoveAction(ssaManipulatorY_, -9.1));
+	goToTransferPostionActionsList->addSubAction(AMActionSupport::buildControlMoveAction(ssaManipulatorZ_, 151.0));
+	goToTransferPostionActionsList->addSubAction(AMActionSupport::buildControlMoveAction(ssaManipulatorRot_, 0.0));
 
 	return goToTransferPostionActionsList;
 }
@@ -757,23 +725,10 @@ AMAction3* SGMBeamline::createGoToMeasurementPositionActions3(){
 
 	AMListAction3 *goToMeasurePostionActionsList = new AMListAction3(new AMListActionInfo3("SGM Go To Measure", "SGM Go To Measure"), AMListAction3::Parallel);
 
-	AMControlInfo manipulatorXSetpoint = ssaManipulatorX_->toInfo();
-	manipulatorXSetpoint.setValue(0.0);
-	AMControlInfo manipulatorYSetpoint = ssaManipulatorY_->toInfo();
-	manipulatorYSetpoint.setValue(0.0);
-	AMControlInfo manipulatorZSetpoint = ssaManipulatorZ_->toInfo();
-	manipulatorZSetpoint.setValue(0.0);
-	AMControlInfo manipulatorRSetpoint = ssaManipulatorRot_->toInfo();
-	manipulatorRSetpoint.setValue(0.0);
-
-	AMControlMoveAction3 *manipulatorXAction = new AMControlMoveAction3(new AMControlMoveActionInfo3(manipulatorXSetpoint), ssaManipulatorX_);
-	goToMeasurePostionActionsList->addSubAction(manipulatorXAction);
-	AMControlMoveAction3 *manipulatorYAction = new AMControlMoveAction3(new AMControlMoveActionInfo3(manipulatorYSetpoint), ssaManipulatorY_);
-	goToMeasurePostionActionsList->addSubAction(manipulatorYAction);
-	AMControlMoveAction3 *manipulatorZAction = new AMControlMoveAction3(new AMControlMoveActionInfo3(manipulatorZSetpoint), ssaManipulatorZ_);
-	goToMeasurePostionActionsList->addSubAction(manipulatorZAction);
-	AMControlMoveAction3 *manipulatorRAction = new AMControlMoveAction3(new AMControlMoveActionInfo3(manipulatorRSetpoint), ssaManipulatorRot_);
-	goToMeasurePostionActionsList->addSubAction(manipulatorRAction);
+	goToMeasurePostionActionsList->addSubAction(AMActionSupport::buildControlMoveAction(ssaManipulatorX_, 0.0));
+	goToMeasurePostionActionsList->addSubAction(AMActionSupport::buildControlMoveAction(ssaManipulatorY_, 0.0));
+	goToMeasurePostionActionsList->addSubAction(AMActionSupport::buildControlMoveAction(ssaManipulatorZ_, 0.0));
+	goToMeasurePostionActionsList->addSubAction(AMActionSupport::buildControlMoveAction(ssaManipulatorRot_, 0.0));
 
 	return goToMeasurePostionActionsList;
 }
@@ -784,48 +739,16 @@ AMAction3* SGMBeamline::createRestorePreFastScanDefaultActions(){
 
 	AMListAction3 *retVal = new AMListAction3(new AMListActionInfo3(QString("Restore beamline defaults"), QString("Restore beamline defaults")), AMListAction3::Parallel);
 
-	AMControlMoveActionInfo3 *moveActionInfo;
-	AMControlMoveAction3 *moveAction;
-	AMControl *tmpControl;
-
-	tmpControl = SGMBeamline::sgm()->gratingVelocity();
-	AMControlInfo gratingVelocityInfo = tmpControl->toInfo();
-	gratingVelocityInfo.setValue(10000);
-	moveActionInfo = new AMControlMoveActionInfo3(gratingVelocityInfo);
-	moveAction = new AMControlMoveAction3(moveActionInfo, tmpControl);
-	retVal->addSubAction(moveAction);
-
-	tmpControl = SGMBeamline::sgm()->gratingBaseVelocity();
-	AMControlInfo gratingBaseVelocityInfo = tmpControl->toInfo();
-	gratingBaseVelocityInfo.setValue(0);
-	moveActionInfo = new AMControlMoveActionInfo3(gratingBaseVelocityInfo);
-	moveAction = new AMControlMoveAction3(moveActionInfo, tmpControl);
-	retVal->addSubAction(moveAction);
-
-	tmpControl = SGMBeamline::sgm()->gratingAcceleration();
-	AMControlInfo gratingAccelerationInfo = tmpControl->toInfo();
-	gratingAccelerationInfo.setValue(5000);
-	moveActionInfo = new AMControlMoveActionInfo3(gratingAccelerationInfo);
-	moveAction = new AMControlMoveAction3(moveActionInfo, tmpControl);
-	retVal->addSubAction(moveAction);
+	retVal->addSubAction(AMActionSupport::buildControlMoveAction(SGMBeamline::sgm()->gratingVelocity(), 10000));
+	retVal->addSubAction(AMActionSupport::buildControlMoveAction(SGMBeamline::sgm()->gratingBaseVelocity(), 0));
+	retVal->addSubAction(AMActionSupport::buildControlMoveAction(SGMBeamline::sgm()->gratingAcceleration(), 5000));
 
 	retVal->addSubAction(rawScaler()->createDwellTimeAction3(1.0));
 	retVal->addSubAction(rawScaler()->createScansPerBufferAction3(1));
 	retVal->addSubAction(rawScaler()->createTotalScansAction3(1));
 
-	tmpControl = SGMBeamline::sgm()->undulatorTracking();
-	AMControlInfo undulatorTrackingInfo = tmpControl->toInfo();
-	undulatorTrackingInfo.setValue(1);
-	moveActionInfo = new AMControlMoveActionInfo3(undulatorTrackingInfo);
-	moveAction = new AMControlMoveAction3(moveActionInfo, tmpControl);
-	retVal->addSubAction(moveAction);
-
-	tmpControl = SGMBeamline::sgm()->exitSlitTracking();
-	AMControlInfo exitSlitTrackingInfo = tmpControl->toInfo();
-	exitSlitTrackingInfo.setValue(1);
-	moveActionInfo = new AMControlMoveActionInfo3(exitSlitTrackingInfo);
-	moveAction = new AMControlMoveAction3(moveActionInfo, tmpControl);
-	retVal->addSubAction(moveAction);
+	retVal->addSubAction(AMActionSupport::buildControlMoveAction(SGMBeamline::sgm()->undulatorTracking(), 1));
+	retVal->addSubAction(AMActionSupport::buildControlMoveAction(SGMBeamline::sgm()->exitSlitTracking(), 1));
 
 	return retVal;
 }

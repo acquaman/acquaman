@@ -41,26 +41,6 @@ AM4DBinningAB::AM4DBinningAB(const QString &outputName, QObject *parent)
 	setState(AMDataSource::InvalidFlag);
 }
 
-AM4DBinningAB::AM4DBinningAB(AMDatabase *db, int id)
-	: AMStandardAnalysisBlock("tempName")
-{
-	sumAxis_ = 3;
-	sumRangeMin_ = 0;
-	sumRangeMax_ = 0;
-
-	inputSource_ = 0;
-	cacheCompletelyInvalid_ = true;
-	// leave sources_ empty for now.
-
-	axes_ << AMAxisInfo("invalid", 0, "No input data") << AMAxisInfo("invalid", 0, "No input data") << AMAxisInfo("invalid", 0, "No input data");
-	setState(AMDataSource::InvalidFlag);
-
-	loadFromDb(db, id);
-		// will restore sumAxis, sumRangeMin, and sumRangeMax. We'll remain invalid until we get connected.
-
-	AMDataSource::name_ = AMDbObject::name();	// normally it's not okay to change a dataSource's name. Here we get away with it because we're within the constructor, and nothing's watching us yet.
-}
-
 // Check if a set of inputs is valid. The empty list (no inputs) must always be valid. For non-empty lists, our specific requirements are...
 /* - there must be a single input source or a list of 4D data sources
 	- the rank() of that input source must be 4 (four-dimensional)

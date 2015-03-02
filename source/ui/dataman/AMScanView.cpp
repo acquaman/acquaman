@@ -598,7 +598,7 @@ MPlotItem* AMScanViewInternal::createPlotItemForDataSource(const AMDataSource* d
 	case 1: {
 		MPlotSeriesBasic* series = new MPlotSeriesBasic();
 		series->setModel(new AMDataSourceSeriesData(dataSource), true);
-		series->setMarker(MPlotMarkerShape::None);
+		series->setMarker(plotSettings.markerShape, 6, QPen(plotSettings.markerColor));
 		series->setLinePen(plotSettings.linePen);
 		rv = series;
 		break; }
@@ -814,6 +814,9 @@ void AMScanViewExclusiveView::onModelDataChanged(const QModelIndex& topLeft, con
 					QPen pen = model()->plotPen(si, di);
 					if(pen != series->linePen())
 						series->setLinePen(pen);
+					MPlotMarkerShape::Shape shape = model()->markerShape(si, di);
+					QColor markerColor = model()->markerColor(si, di);
+					series->setMarker(shape, 6, QPen(markerColor));
 					break; }
 				case 2: {
 					MPlotAbstractImage* image = static_cast<MPlotAbstractImage*>(plotItems_.at(si));
@@ -929,6 +932,9 @@ void AMScanViewExclusiveView::reviewScan(int scanIndex) {
 				}
 				QPen pen = model()->plotPen(scanIndex, dataSourceIndex);
 				series->setLinePen(pen);
+				MPlotMarkerShape::Shape shape = model()->markerShape(scanIndex, dataSourceIndex);
+				QColor markerColor = model()->markerColor(scanIndex, dataSourceIndex);
+				series->setMarker(shape, 6, QPen(markerColor));
 				break; }
 			case 2: {
 				MPlotAbstractImage* image = static_cast<MPlotAbstractImage*>(plotItems_.at(scanIndex));
@@ -1230,6 +1236,9 @@ void AMScanViewMultiView::onModelDataChanged(const QModelIndex& topLeft, const Q
 						QPen pen = model()->plotPen(si, di);
 						if(pen != series->linePen())
 							series->setLinePen(pen);
+						MPlotMarkerShape::Shape shape = model()->markerShape(si, di);
+						QColor markerColor = model()->markerColor(si, di);
+						series->setMarker(shape, 6, QPen(markerColor));
 						break; }
 					case 2: {
 						MPlotAbstractImage* image = static_cast<MPlotAbstractImage*>(plotItem);
@@ -1556,6 +1565,9 @@ void AMScanViewMultiScansView::onModelDataChanged(const QModelIndex& topLeft, co
 						QPen pen = model()->plotPen(si, di);
 						if(pen != series->linePen())
 							series->setLinePen(pen);
+						MPlotMarkerShape::Shape shape = model()->markerShape(si, di);
+						QColor markerColor = model()->markerColor(si, di);
+						series->setMarker(shape, 6, QPen(markerColor));
 						break; }
 					case 2: {
 						MPlotAbstractImage* image = static_cast<MPlotAbstractImage*>(plotItem);
@@ -1817,6 +1829,9 @@ void AMScanViewMultiSourcesView::onModelDataChanged(const QModelIndex& topLeft, 
 					QPen pen = model()->plotPen(si, di);
 					if(pen != series->linePen())
 						series->setLinePen(pen);
+					MPlotMarkerShape::Shape shape = model()->markerShape(si, di);
+					QColor markerColor = model()->markerColor(si, di);
+					series->setMarker(shape, 6, QPen(markerColor));
 					break; }
 				case 2: {
 					MPlotAbstractImage* image = static_cast<MPlotAbstractImage*>(plotItem);

@@ -90,13 +90,16 @@ void AMXRFDetector::allControlsCreated()
 
 	connect(acquisitionStatusControl_, SIGNAL(valueChanged(double)), this, SLOT(onStatusControlChanged()));
 	connect(acquireTimeControl_, SIGNAL(valueChanged(double)), this, SIGNAL(acquisitionTimeChanged(double)));
-	connect(elapsedTimeControl_, SIGNAL(valueChanged(double)), this, SIGNAL(elapsedTimeChanged(double)));
+
+	if (elapsedTimeControl_)
+		connect(elapsedTimeControl_, SIGNAL(valueChanged(double)), this, SIGNAL(elapsedTimeChanged(double)));
 }
 
 void AMXRFDetector::buildSpectrumDataSources()
 {
 	foreach (AMReadOnlyPVControl *spectrum, spectraControls_){
 
+		enabledElements_.append(rawSpectraSources_.size());
 		rawSpectraSources_.append(new AM1DProcessVariableDataSource(spectrum->readPV(), spectrum->name(), this));
 		rawSpectraSources_.last()->setDescription(rawSpectraSources_.last()->name());
 	}
@@ -385,4 +388,44 @@ void AMXRFDetector::onRegionOfInterestBoundingRangeChanged(QObject *region)
 {
 	// This is safe because only regions of interest will be passed into this method.
 	emit regionOfInterestBoundingRangeChanged(qobject_cast<AMRegionOfInterest *>(region));
+}
+
+bool AMXRFDetector::isElementEnabled(int index) const
+{
+	return enabledElements_.contains(index);
+}
+
+void AMXRFDetector::enableElement(int elementId)
+{
+	if (!enabledElements_.contains(elementId)){
+
+		enabledElements_.append(elementId);
+		updatePrimarySpectrumSources();
+		emit elementEnabled(elementId);
+	}
+}
+
+void AMXRFDetector::disableElement(int elementId)
+{
+	if (enabledElements_.contains(elementId)){
+
+		enabledElements_.removeAll(elementId);
+		updatePrimarySpectrumSources();
+		emit elementDisabled(elementId);
+	}
+}
+
+void AMXRFDetector::updatePrimarySpectrumSources()
+{
+		QList<AMDataSource *> newSum;
+
+		if (doDeadTimeCorrection_)
+			foreach(int enabledElement, enabledElements_)
+				newSum << analyzedSpectraSources_.at(enabledElement);
+
+		else
+			foreach(int enabledElement, enabledElements_)
+				newSum << rawSpectraSources_.at(enabledElement);
+
+		((AMAnalysisBlock *)primarySpectrumDataSource_)->setInputDataSources(newSum);
 }

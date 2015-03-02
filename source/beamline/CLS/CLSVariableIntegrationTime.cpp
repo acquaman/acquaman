@@ -21,7 +21,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "CLSVariableIntegrationTime.h"
 
 #include "actions3/AMListAction3.h"
-#include "actions3/actions/AMControlMoveAction3.h"
+#include "actions3/AMActionSupport.h"
 
  CLSVariableIntegrationTime::~CLSVariableIntegrationTime(){}
 CLSVariableIntegrationTime::CLSVariableIntegrationTime(const QString &baseName, QObject *parent)
@@ -56,12 +56,7 @@ AMAction3 *CLSVariableIntegrationTime::createModeAction(Mode mode)
 	if (!mode_->isConnected())
 		return 0;
 
-	AMControlInfo setpoint = mode_->toInfo();
-	setpoint.setValue(double(mode));
-	AMControlMoveActionInfo3 *actionInfo = new AMControlMoveActionInfo3(setpoint);
-	AMAction3 *action = new AMControlMoveAction3(actionInfo, mode_);
-
-	return action;
+	return AMActionSupport::buildControlMoveAction(mode_, double(mode));
 }
 
 AMAction3 *CLSVariableIntegrationTime::createDefaultTimeAction(double time)
@@ -69,12 +64,7 @@ AMAction3 *CLSVariableIntegrationTime::createDefaultTimeAction(double time)
 	if (!defaultTime_->isConnected())
 		return 0;
 
-	AMControlInfo setpoint = defaultTime_->toInfo();
-	setpoint.setValue(time);
-	AMControlMoveActionInfo3 *actionInfo = new AMControlMoveActionInfo3(setpoint);
-	AMAction3 *action = new AMControlMoveAction3(actionInfo, defaultTime_);
-
-	return action;
+	return AMActionSupport::buildControlMoveAction(defaultTime_, time);
 }
 
 AMAction3 *CLSVariableIntegrationTime::createThresholdAction(double threshold)
@@ -82,12 +72,7 @@ AMAction3 *CLSVariableIntegrationTime::createThresholdAction(double threshold)
 	if (!threshold_->isConnected())
 		return 0;
 
-	AMControlInfo setpoint = threshold_->toInfo();
-	setpoint.setValue(threshold);
-	AMControlMoveActionInfo3 *actionInfo = new AMControlMoveActionInfo3(setpoint);
-	AMAction3 *action = new AMControlMoveAction3(actionInfo, threshold_);
-
-	return action;
+	return AMActionSupport::buildControlMoveAction(threshold_, threshold);
 }
 
 AMAction3 *CLSVariableIntegrationTime::createFunctionAction(Function function)
@@ -95,12 +80,7 @@ AMAction3 *CLSVariableIntegrationTime::createFunctionAction(Function function)
 	if (!function_->isConnected())
 		return 0;
 
-	AMControlInfo setpoint = function_->toInfo();
-	setpoint.setValue(double(function));
-	AMControlMoveActionInfo3 *actionInfo = new AMControlMoveActionInfo3(setpoint);
-	AMAction3 *action = new AMControlMoveAction3(actionInfo, function_);
-
-	return action;
+	return AMActionSupport::buildControlMoveAction(function_, double(function));
 }
 
 AMAction3 *CLSVariableIntegrationTime::createLowValueAction(double low)
@@ -108,12 +88,7 @@ AMAction3 *CLSVariableIntegrationTime::createLowValueAction(double low)
 	if (!lowVal_->isConnected())
 		return 0;
 
-	AMControlInfo setpoint = lowVal_->toInfo();
-	setpoint.setValue(low);
-	AMControlMoveActionInfo3 *actionInfo = new AMControlMoveActionInfo3(setpoint);
-	AMAction3 *action = new AMControlMoveAction3(actionInfo, lowVal_);
-
-	return action;
+	return AMActionSupport::buildControlMoveAction(lowVal_, low);
 }
 
 AMAction3 *CLSVariableIntegrationTime::createHighValueAction(double high)
@@ -121,12 +96,7 @@ AMAction3 *CLSVariableIntegrationTime::createHighValueAction(double high)
 	if (!highVal_->isConnected())
 		return 0;
 
-	AMControlInfo setpoint = highVal_->toInfo();
-	setpoint.setValue(high);
-	AMControlMoveActionInfo3 *actionInfo = new AMControlMoveActionInfo3(setpoint);
-	AMAction3 *action = new AMControlMoveAction3(actionInfo, highVal_);
-
-	return action;
+	return AMActionSupport::buildControlMoveAction(highVal_, high);
 }
 
 AMAction3 *CLSVariableIntegrationTime::createMaximumTimeAction(double time)
@@ -134,12 +104,7 @@ AMAction3 *CLSVariableIntegrationTime::createMaximumTimeAction(double time)
 	if (!maxTime_->isConnected())
 		return 0;
 
-	AMControlInfo setpoint = maxTime_->toInfo();
-	setpoint.setValue(time);
-	AMControlMoveActionInfo3 *actionInfo = new AMControlMoveActionInfo3(setpoint);
-	AMAction3 *action = new AMControlMoveAction3(actionInfo, maxTime_);
-
-	return action;
+	return AMActionSupport::buildControlMoveAction(maxTime_, time);
 }
 
 AMAction3 *CLSVariableIntegrationTime::createComputeAction()
@@ -147,12 +112,7 @@ AMAction3 *CLSVariableIntegrationTime::createComputeAction()
 	if (!compute_->isConnected())
 		return 0;
 
-	AMControlInfo setpoint = compute_->toInfo();
-	setpoint.setValue(1.0);
-	AMControlMoveActionInfo3 *actionInfo = new AMControlMoveActionInfo3(setpoint);
-	AMAction3 *action = new AMControlMoveAction3(actionInfo, compute_);
-
-	return action;
+	return AMActionSupport::buildControlMoveAction(compute_, 1.0);
 }
 
 AMAction3 *CLSVariableIntegrationTime::createSetupAction(Mode mode, double defaultTime, double threshold, Function function, double low, double high, double maximumTime)

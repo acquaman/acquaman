@@ -29,10 +29,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 BioXASSideBeamline::BioXASSideBeamline()
 	: AMBeamline("BioXAS Beamline - Side Endstation")
 {
-	// Before the beamline is set up, we assume it is not connected.
 	isConnected_ = false;
 
-//	setupSynchronizedDwellTime();
 	setupComponents();
 	setupDiagnostics();
 	setupSampleStage();
@@ -179,7 +177,7 @@ QList<AMControl *> BioXASSideBeamline::getMotorsByType(BioXASBeamlineDef::BioXAS
 		matchedMotors.append(mono_->braggMotor());
 		matchedMotors.append(mono_->verticalMotor());
 		matchedMotors.append(mono_->lateralMotor());
-		matchedMotors.append(mono_->crystalExchangeMotor());
+		matchedMotors.append(mono_->crystalChangeMotor());
 		matchedMotors.append(mono_->crystal1PitchMotor());
 		matchedMotors.append(mono_->crystal1RollMotor());
 		matchedMotors.append(mono_->crystal2PitchMotor());
@@ -630,6 +628,7 @@ void BioXASSideBeamline::setupDetectors()
 	i0Detector_ = new CLSBasicScalerChannelDetector("I0Detector", "I0 Detector", scaler_, 0, this);
 	iTDetector_ = new CLSBasicScalerChannelDetector("ITDetector", "IT Detector", scaler_, 1, this);
 	i2Detector_ = new CLSBasicScalerChannelDetector("I2Detector", "I2 Detector", scaler_, 15, this);
+	ge32ElementDetector_ = new BioXAS32ElementGeDetector("Ge32Element", "Ge 32 Element", this);
 }
 
 void BioXASSideBeamline::setupControlSets()
@@ -793,4 +792,5 @@ void BioXASSideBeamline::setupExposedDetectors()
 	addExposedDetector(i2Detector_);
 	addExposedDetector(energySetpointDetector_);
 	addExposedDetector(energyFeedbackDetector_);
+	addExposedDetector(ge32ElementDetector_);
 }

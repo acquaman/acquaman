@@ -312,7 +312,8 @@ bool AMScanController::canChangeStateTo(AMScanController::ScanState newState)
 		break;
 
 	case AMScanController::Stopping :
-		canTransition = true;
+		if (isRunning())
+			canTransition = true;
 		break;
 
 	case AMScanController::Cancelling :

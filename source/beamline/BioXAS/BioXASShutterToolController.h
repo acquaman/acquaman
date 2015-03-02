@@ -27,7 +27,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/AMPVControl.h"
 #include "beamline/CLS/CLSBiStateControl.h"
 #include "source/actions3/AMAction3.h"
-#include "source/actions3/actions/AMControlMoveAction3.h"
+#include "actions3/AMActionSupport.h"
 #include "source/actions3/AMListAction3.h"
 
 class BioXASShutterToolController : public QObject

@@ -62,6 +62,16 @@ QFormLayout* AMSortFilterBuilder::formLayout()
 	return layout_;
 }
 
+void AMSortFilterBuilder::setFilterRegExp(const QString &pattern)
+{
+	criteriaLineEdit_->setText(pattern);
+}
+
+void AMSortFilterBuilder::setFilterKeyColumn(int columnIndex)
+{
+	fieldComboBox_->setCurrentIndex(columnIndex);
+}
+
 void AMSortFilterBuilder::clear()
 {
 	criteriaLineEdit_->setText("");
@@ -112,6 +122,19 @@ bool AMSortFilterWidget::isCurrentlyFiltered()
 void AMSortFilterWidget::addManualColumn(const QString &header)
 {
 	filterBuilder_->addField(header);
+}
+
+void AMSortFilterWidget::setFilterRegExp(const QString &pattern)
+{
+	filterBuilder_->setFilterRegExp(pattern);
+
+	setCurrentlyFiltered(!pattern.isEmpty());
+
+}
+
+void AMSortFilterWidget::setFilterKeyColumn(int columnIndex)
+{
+	filterBuilder_->setFilterKeyColumn(columnIndex);
 }
 
 QSortFilterProxyModel *AMSortFilterWidget::proxyModel()
