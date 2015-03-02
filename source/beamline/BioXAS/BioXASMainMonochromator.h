@@ -19,10 +19,18 @@ class BioXASMainMonochromator : public QObject
     Q_OBJECT
 
 public:
+	/// Enumerates the possible slits closed states.
+	class Slits { public: enum Status { NotClosed = 0, Closed = 1 }; };
+	/// Enumerates the possible paddle states.
+	class Paddle { public: enum Status { NotOut = 0, Out = 1}; };
 	/// Enumerates the possible key status states.
-	class Key { public: enum Status { Disabled = 0, Enabled }; };
+	class Key { public: enum Status { Disabled = 0, Enabled = 1 }; };
 	/// Enumerates the possible brake status states.
-	class Brake { public: enum Status { Disabled = 0, Enabled }; };
+	class Brake { public: enum Status { Disabled = 0, Enabled = 1 }; };
+	/// Enumerates the bragg motor position status.
+	class Bragg { public: enum CrystalChangePositionStatus { InPosition = 0, NotInPosition = 1 }; };
+	/// Enumerates the crystal change motor limit status.
+	class CrystalChange { public: enum Limit { NotAtLimit = 0, AtLimit = 1 }; };
 
     /// Constructor.
     explicit BioXASMainMonochromator(QObject *parent = 0);
