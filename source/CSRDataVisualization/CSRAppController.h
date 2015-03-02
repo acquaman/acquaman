@@ -3,6 +3,8 @@
 
 #include <QObject>
 
+#include "CSRDataVisualization/CSRMainWindow.h"
+
 class CSRAppController : public QObject
 {
 	Q_OBJECT
@@ -16,6 +18,9 @@ public slots:
 	/// Starts the application.
 	bool start();
 
+protected:
+	/// The main window.
+	CSRMainWindow *mainWindow_;
 };
 
 #endif // CSRAPPCONTROLLER_H

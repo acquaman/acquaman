@@ -1,6 +1,8 @@
 include ( $$PATH_TO_AM/compositeCommon/AMCommon.pri )
 include ( $$PATH_TO_AM/compositeCommon/AMMPlot.pri )
 
+INCLUDEPATH *= $$PATH_TO_AM/source
+
 TARGET = CSRDataVisualization
 
 FORMS +=

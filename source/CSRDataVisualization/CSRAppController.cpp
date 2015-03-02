@@ -1,6 +1,5 @@
 #include "CSRAppController.h"
 
-#include "CSRDataVisualization/CSRMainWindow.h"
 #include "CSRDataVisualization/CSRDataModel.h"
 
 CSRAppController::CSRAppController(QObject *parent) :
@@ -9,19 +8,14 @@ CSRAppController::CSRAppController(QObject *parent) :
 }
 CSRAppController::~CSRAppController()
 {
-
+	mainWindow_->deleteLater();
 }
 
 bool CSRAppController::start()
 {
 	CSRDataModel *model = new CSRDataModel(this);
-	model->loadDataFile("/home/hunterd/beamline/programming/CSR/CSR-50FBH-L-141208_235004_Ch1.txt");
-	model->computeMeanAndStandardDeviation();
-	model->compute();
-	model->computeIntegral();
-
-	CSRMainWindow *mainWindow = new CSRMainWindow(model);
-	mainWindow->show();
+	mainWindow_ = new CSRMainWindow(model);
+	mainWindow_->show();
 
 	return true;
 }
