@@ -3,6 +3,7 @@
 
 #include <QWidget>
 #include <QLayout>
+#include <QPushButton>
 
 #include "beamline/BioXAS/BioXASMainMonochromator.h"
 #include "ui/BioXAS/BioXASCLSMAXvMotorControlEditor.h"
@@ -28,12 +29,16 @@ public slots:
 	void setMono(BioXASMainMonochromator *newMono);
 
 protected slots:
+	/// Handles updating the view when the mono's connected state changes.
+	void onConnectedChanged();
 	/// Handles updating the view when the mono's region status changes.
 	void onRegionChanged();
 	/// Handles updating the view when the mono's key status changes.
 	void onKeyStatusChanged();
 	/// Handles updating the view when the mono's brake status changes.
 	void onBrakeStatusChanged();
+	/// Handles initiating a region change.
+	void onRegionButtonClicked();
 
 protected:
 	/// The monochromator being viewed.
@@ -56,6 +61,8 @@ protected:
 //	BioXASCLSMAXvMotorControlEditor *braggEditor_;
 //	/// Editor for the mono's crystal change motor.
 //	BioXASCLSMAXvMotorControlEditor *crystalChangeEditor_;
+	/// Button for initiating a region change.
+	QPushButton *regionButton_;
 
 };
 

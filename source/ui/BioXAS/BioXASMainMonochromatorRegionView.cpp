@@ -19,10 +19,13 @@ BioXASMainMonochromatorRegionView::BioXASMainMonochromatorRegionView(BioXASMainM
 	QLabel *brakeStatusPrompt = new QLabel("Brake status:");
 	brakeStatusText_ = new QLabel();
 	brakeStatusLED_ = new QLabel();
+
 //	upperSlitEditor_ = 0;
 //	lowerSlitEditor_ = 0;
 //	braggEditor_ = 0;
 //	crystalChangeEditor_ = 0;
+
+	regionButton_ = new QPushButton("Switch regions");
 
 	// Create and set layouts.
 
@@ -37,14 +40,23 @@ BioXASMainMonochromatorRegionView::BioXASMainMonochromatorRegionView(BioXASMainM
 	statusLayout->addWidget(brakeStatusText_, 2, 1, 1, 1, Qt::AlignLeft);
 	statusLayout->addWidget(brakeStatusLED_, 2, 2, 1, 1, Qt::AlignCenter);
 
+	QHBoxLayout *buttonLayout = new QHBoxLayout();
+	buttonLayout->addStretch();
+	buttonLayout->addWidget(regionButton_);
+
 	QVBoxLayout *layout = new QVBoxLayout();
 	layout->addLayout(statusLayout);
 //	layout->addWidget(upperSlitEditor_);
 //	layout->addWidget(lowerSlitEditor_);
 //	layout->addWidget(braggEditor_);
 //	layout->addWidget(crystalChangeEditor_);
+	layout->addLayout(buttonLayout);
 
 	setLayout(layout);
+
+	// Make connections
+
+	connect( regionButton_, SIGNAL(clicked()), this, SLOT(onRegionButtonClicked()) );
 
 	// Current settings.
 
@@ -73,17 +85,28 @@ void BioXASMainMonochromatorRegionView::setMono(BioXASMainMonochromator *newMono
 		mono_ = newMono;
 
 		if (mono_) {
+			connect( mono_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()) );
 			connect( mono_, SIGNAL(regionChanged(double)), this, SLOT(onRegionChanged()) );
 			connect( mono_->keyStatus(), SIGNAL(valueChanged(double)), this, SLOT(onKeyStatusChanged()) );
 			connect( mono_->brakeStatus(), SIGNAL(valueChanged(double)), this, SLOT(onBrakeStatusChanged()) );
 		}
 
-		onRegionChanged();
-		onKeyStatusChanged();
-		onBrakeStatusChanged();
+		onConnectedChanged();
 
 		emit monoChanged(mono_);
 	}
+}
+
+void BioXASMainMonochromatorRegionView::onConnectedChanged()
+{
+	if (mono_ && mono_->isConnected())
+		regionButton_->setEnabled(true);
+	else
+		regionButton_->setEnabled(false);
+
+	onRegionChanged();
+	onKeyStatusChanged();
+	onBrakeStatusChanged();
 }
 
 void BioXASMainMonochromatorRegionView::onRegionChanged()
@@ -136,5 +159,22 @@ void BioXASMainMonochromatorRegionView::onBrakeStatusChanged()
 	} else {
 		brakeStatusText_->setText("Not connected");
 		brakeStatusLED_->setPixmap(QPixmap(":/22x22/greenLEDOff.png"));
+	}
+}
+
+void BioXASMainMonochromatorRegionView::onRegionButtonClicked()
+{
+	if (mono_ && mono_->regionControl()->isConnected()) {
+		int setpoint;
+		int currentRegion = mono_->regionControl()->value();
+
+		if (currentRegion == BioXASMainMonochromatorRegionControl::Region::A)
+			setpoint = BioXASMainMonochromatorRegionControl::Region::B;
+		else if (currentRegion == BioXASMainMonochromatorRegionControl::Region::B)
+			setpoint = BioXASMainMonochromatorRegionControl::Region::A;
+		else
+			setpoint = BioXASMainMonochromatorRegionControl::Region::A;
+
+		mono_->regionControl()->move(setpoint);
 	}
 }
