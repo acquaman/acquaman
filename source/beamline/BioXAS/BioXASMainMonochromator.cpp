@@ -136,6 +136,7 @@ void BioXASMainMonochromator::initializeRegionControl()
 {
 	regionControl_->setRegionAStatusControl(regionAStatus_);
 	regionControl_->setRegionBStatusControl(regionBStatus_);
+
 	regionControl_->setUpperSlitControl(upperSlitMotor_);
 	regionControl_->setLowerSlitControl(lowerSlitMotor_);
 	regionControl_->setSlitsStatusControl(slitsStatus_);

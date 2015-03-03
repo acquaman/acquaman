@@ -70,7 +70,7 @@ public:
 	AMControl* crystal2RollMotor() const { return crystal2RollMotor_; }
 
 	/// Returns the mono's crystal change control.
-	AMControl* regionControl() const { return regionControl_; }
+	BioXASSSRLMonochromatorRegionControl* regionControl() const { return regionControl_; }
     /// Returns the energy setpoint control.
     AMControl* energyControl() const { return energy_; }
 
