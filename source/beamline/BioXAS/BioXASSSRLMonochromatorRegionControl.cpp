@@ -597,6 +597,7 @@ AMListAction3* BioXASSSRLMonochromatorRegionControl::createChangeRegionAction(in
 		changeRegion = new AMListAction3(new AMListActionInfo3("CrystalChange", "BioXAS SSRL Monochromator crystal change action"), AMListAction3::Sequential);
 		changeRegion->addSubAction(createCloseSlitsAction());
 		changeRegion->addSubAction(createWaitForSlitsClosedAction());
+
 		changeRegion->addSubAction(createRemovePaddleAction());
 		changeRegion->addSubAction(createWaitForPaddleRemovedAction());
 
@@ -641,13 +642,14 @@ void BioXASSSRLMonochromatorRegionControl::onRegionControlValueChanged()
 
 void BioXASSSRLMonochromatorRegionControl::onCurrentMoveStepChanged(int stepIndex)
 {
-	Q_UNUSED(stepIndex)
+	qDebug() << "Executing crystal change step number" << stepIndex;
+	emit moveStepChanged(stepDescription(stepIndex), stepInstruction(stepIndex));
 }
 
 void BioXASSSRLMonochromatorRegionControl::onRegionChangeStarted()
 {
 	moveInProgress_ = true;
-	emit moveInProgress();
+	emit moveStarted();
 }
 
 void BioXASSSRLMonochromatorRegionControl::onRegionChangeCancelled()
@@ -666,6 +668,84 @@ void BioXASSSRLMonochromatorRegionControl::onRegionChangeSucceeded()
 {
 	moveCleanup(sender());
 	emit moveSucceeded();
+}
+
+QString BioXASSSRLMonochromatorRegionControl::stepDescription(int stepIndex)
+{
+	QString result;
+
+	switch (stepIndex) {
+	case CloseSlits:
+		result = "Closing mono slits...";
+		break;
+	case WaitForSlitsClosed:
+		result = "Waiting for mono slits to close.";
+		break;
+	case RemovePaddle:
+		result = "Removing mono phosphor paddle...";
+		break;
+	case WaitForPaddleRemoved:
+		result = "Waiting for mono to finish removing paddle.";
+		break;
+	case WaitForKeyEnabled:
+		result = "Waiting for crystal change key to be turned to 'Enabled'...";
+		break;
+	case MoveBraggIntoPosition:
+		result = "Moving bragg motor to crystal change position...";
+		break;
+	case WaitForBraggInPosition:
+		result = "Waiting for bragg motor to move to crystal change position.";
+		break;
+	case WaitForBrakeDisabled:
+		result = "Waiting for brake switch to be flipped to 'Disabled'...";
+		break;
+	case MoveCrystalChangeIntoPosition:
+		result = "Moving the crystal change motor to its limit...";
+		break;
+	case WaitForCrystalChangeInPosition:
+		result = "Waiting for crystal change motor to reach its limit.";
+		break;
+	case WaitForBrakeEnabled:
+		result = "Waiting for brake switch to be flipped to 'Enabled'...";
+		break;
+	case MoveBraggIntoRegion:
+		result = "Moving bragg motor into new region...";
+		break;
+	case WaitForBraggInRegion:
+		result = "Waiting for bragg motor to reach new region.";
+		break;
+	case WaitForKeyDisabled:
+		result = "Waiting for crystal change key to be turned to 'Disabled'...";
+		break;
+	default:
+		result = "";
+	}
+
+	return result;
+}
+
+QString BioXASSSRLMonochromatorRegionControl::stepInstruction(int stepIndex)
+{
+	QString result;
+
+	switch (stepIndex) {
+	case WaitForKeyEnabled:
+		result = "Turn the crystal change key to 'Enabled,' counter-clockwise.";
+		break;
+	case WaitForBrakeDisabled:
+		result = "Flip the brake switch to 'Disabled.' There is a mandatory 30s wait after the switch is flipped before proceeding.";
+		break;
+	case WaitForBrakeEnabled:
+		result = "Flip the brake switch to 'Enabled.' There is a mandatory 30s wait after the switch is flipped before proceeding.";
+		break;
+	case WaitForKeyDisabled:
+		result = "Turn the crystal change key to 'Disabled,' clockwise.";
+		break;
+	default:
+		result = "";
+	}
+
+	return result;
 }
 
 void BioXASSSRLMonochromatorRegionControl::moveCleanup(QObject *action)

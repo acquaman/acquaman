@@ -32,6 +32,9 @@ class BioXASSSRLMonochromatorRegionControl : public AMCompositeControl
 	Q_OBJECT
 
 public:
+	/// Enum marking possible different crystal change steps.
+	enum Step { CloseSlits = 0, WaitForSlitsClosed, RemovePaddle, WaitForPaddleRemoved, WaitForKeyEnabled, MoveBraggIntoPosition, WaitForBraggInPosition, WaitForBrakeDisabled, MoveCrystalChangeIntoPosition, WaitForCrystalChangeInPosition, WaitForBrakeEnabled, MoveBraggIntoRegion, WaitForBraggInRegion, WaitForKeyDisabled, None };
+
 	/// Constructor.
 	explicit BioXASSSRLMonochromatorRegionControl(QObject *parent = 0);
 	/// Destructor.
@@ -66,7 +69,7 @@ signals:
 	/// Notifier that there has been progress in completing a crystal change. Provides information suitable for a progress bar display.
 	void moveProgressChanged(double numerator, double denominator);
 	/// Notifier that the current step in a move has changed.
-	void moveStepChanged();
+	void moveStepChanged(const QString &newDescription, const QString &newInstruction);
 
 public slots:
 	/// Sets the new region setpoint and performs a crystal change, if necessary.
@@ -211,6 +214,10 @@ protected:
 	AMControl* regionBStatus_;
 
 private:
+	/// Returns the description associated with the given step index. The step index is the index of an action in the crystal change list action.
+	static QString stepDescription(int stepIndex);
+	/// Returns the instruction associated with the given step index, an empty string if there is none. The step index in the index of an action in the crystal change list action.
+	static QString stepInstruction(int stepIndex);
 	/// Handles the region change cleanup: making sure moveInProgress_ is updated, we disconnect from crystal change action signals, and the action is queued for deletion.
 	void moveCleanup(QObject *action);
 
