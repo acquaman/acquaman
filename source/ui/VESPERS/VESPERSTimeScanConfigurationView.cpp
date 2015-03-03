@@ -155,8 +155,7 @@ VESPERSTimeScanConfigurationView::VESPERSTimeScanConfigurationView(VESPERSTimeSc
 	contentsLayout->addWidget(timeGroupBox, 0, 0, 2, 3);
 	contentsLayout->addWidget(scanNameGroupBox, 2, 0, 1, 3);
 	contentsLayout->addWidget(ccdTextBox_, 3, 0, 1, 3);
-	contentsLayout->addWidgetsetTime(original.time());
-	setTimePerAcquisition(original.timePerAcquisition());(detectorGroupBox, 0, 3, 2, 1);
+	contentsLayout->addWidget(detectorGroupBox, 0, 3, 2, 1);
 	contentsLayout->addWidget(autoExportGroupBox, 2, 3, 1, 1);
 
 	QHBoxLayout *squeezeContents = new QHBoxLayout;

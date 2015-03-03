@@ -1,0 +1,10 @@
+#ifndef AMTIMEDSCANACTIONCONTROLLERASSEMBLER_H
+#define AMTIMEDSCANACTIONCONTROLLERASSEMBLER_H
+
+class AMTimedScanActionControllerAssembler
+{
+public:
+    AMTimedScanActionControllerAssembler();
+};
+
+#endif // AMTIMEDSCANACTIONCONTROLLERASSEMBLER_H
