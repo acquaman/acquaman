@@ -82,6 +82,8 @@ public:
 	virtual double deadTime() const;
 	/// Returns a specific dead time as a percentage.
 	virtual double deadTimeAt(int index) const;
+	/// Returns whether the element is enabled or not.  Elements are zero indexed.
+	bool isElementEnabled(int index) const;
 
 	// The dead time data sources.  Dead time corrections are input/output and to get the percentage, 1 - output/input.
 	/// Returns the input count data sources.
@@ -132,6 +134,11 @@ public slots:
 	/// Removes all regions of interest.
 	void removeAllRegionsOfInterest();
 
+	/// Enables the given element.  Elements are zero indexed.
+	void enableElement(int elementId);
+	/// Disables the given element.  Elements are zero indexed.
+	void disableElement(int elementId);
+
 signals:
 	/// Notifier that the elapsed time has updated.
 	void elapsedTimeChanged(double time);
@@ -143,6 +150,10 @@ signals:
 	void regionOfInterestBoundingRangeChanged(AMRegionOfInterest *);
 	/// Notifier that the dead time has updated.
 	void deadTimeChanged();
+	/// Notifier that an element has been enabled.  Passes the element ID.
+	void elementEnabled(int);
+	/// Notifier that an element has been disabled. Passes the element ID.
+	void elementDisabled(int);
 
 protected slots:
 	/// Determines if the detector is connected to ALL controls and process variables.
@@ -169,6 +180,8 @@ protected:
 	virtual void addRegionOfInterestImplementation(AMRegionOfInterest *newRegionOfInterest);
 	/// This function is callled if there is anythign extra you need to do when removing regions of interest.  Default behaviour does nothing extra.
 	virtual void removeRegionOfInterestImplementation(AMRegionOfInterest *regionOfInterest);
+	/// Helper function that updates the primary spectrum source to only use the enabled elements.
+	void updatePrimarySpectrumSources();
 
 	// Controls.  It is up to subclasses to ensure these are properly instantiated.
 	/// Control handling the acquire time.
@@ -200,6 +213,9 @@ protected:
 	QList<AMDataSource *> analyzedSpectraSources_;
 	/// The primary spectrum data source.  This is the data source that will be returned by AMDataSource::dataSource().
 	AMDataSource *primarySpectrumDataSource_;
+
+	/// The list of enabled elements.  Values are 0 indexed.
+	QList<int> enabledElements_;
 
 	// Regions of interest and their data sources.
 	/// List of all the regions of interest.

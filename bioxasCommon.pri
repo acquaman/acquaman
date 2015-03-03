@@ -14,7 +14,8 @@ HEADERS += \
 	source/beamline/BioXAS/BioXAS32ElementGeDetector.h \
 	source/ui/BioXAS/BioXAS32ElementGeDetectorView.h \
 	source/acquaman/BioXAS/BioXASXRFScanConfiguration.h \
-	source/acquaman/BioXAS/BioXASXRFScanController.h
+	source/acquaman/BioXAS/BioXASXRFScanController.h \
+    source/beamline/BioXAS/BioXASSSRLMonochromator.h
 
 SOURCES += \
 	source/beamline/BioXAS/BioXASPseudoMotorControl.cpp \
@@ -22,4 +23,5 @@ SOURCES += \
 	source/beamline/BioXAS/BioXAS32ElementGeDetector.cpp \
 	source/ui/BioXAS/BioXAS32ElementGeDetectorView.cpp \
 	source/acquaman/BioXAS/BioXASXRFScanConfiguration.cpp \
-	source/acquaman/BioXAS/BioXASXRFScanController.cpp
+	source/acquaman/BioXAS/BioXASXRFScanController.cpp \
+    source/beamline/BioXAS/BioXASSSRLMonochromator.cpp
