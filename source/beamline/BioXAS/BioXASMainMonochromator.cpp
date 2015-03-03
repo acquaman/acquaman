@@ -36,7 +36,7 @@ BioXASMainMonochromator::BioXASMainMonochromator(QObject *parent) :
 
 	// Listen to controls value changes.
 
-	connect( regionControl_, SIGNAL(valueChanged(double)), this, SLOT(regionChanged(double)) );
+	connect( regionControl_, SIGNAL(valueChanged(double)), this, SIGNAL(regionChanged(double)) );
 	connect( energy_, SIGNAL(valueChanged(double)), this, SIGNAL(energyChanged(double)) );
 
 	// Listen to component connection states.
