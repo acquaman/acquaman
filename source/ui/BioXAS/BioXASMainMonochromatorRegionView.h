@@ -5,8 +5,8 @@
 #include <QLayout>
 #include <QPushButton>
 
-#include "beamline/BioXAS/BioXASMainMonochromator.h"
-#include "ui/BioXAS/BioXASCLSMAXvMotorControlEditor.h"
+#include "beamline/BioXAS/BioXASMainBeamline.h"
+#include "ui/beamline/AMExtendedControlEditor.h"
 #include "ui/BioXAS/BioXASMainMonochromatorRegionControlView.h"
 
 class BioXASMainMonochromatorRegionView : public QGroupBox
@@ -15,25 +15,13 @@ class BioXASMainMonochromatorRegionView : public QGroupBox
 
 public:
 	/// Constructor.
-	explicit BioXASMainMonochromatorRegionView(BioXASMainMonochromator *mono, QWidget *parent = 0);
+	explicit BioXASMainMonochromatorRegionView(QWidget *parent = 0);
 	/// Destructor.
 	virtual ~BioXASMainMonochromatorRegionView();
-	/// Returns the mono being viewed.
-	BioXASMainMonochromator* mono() const { return mono_; }
-
-signals:
-	/// Notifier that the monochromator being viewed has changed.
-	void monoChanged(BioXASMainMonochromator *newMono);
-
-public slots:
-	/// Sets the monochromator being viewed.
-	void setMono(BioXASMainMonochromator *newMono);
 
 protected slots:
-	/// Handles updating the view when the mono's connected state changes.
-	void onConnectedChanged();
-	/// Handles updating the view when the mono's region status changes.
-	void onRegionChanged();
+	/// Handles updating the view when the mono's region control connected state changes.
+	void onRegionControlConnectedChanged();
 	/// Handles updating the view when the mono's key status changes.
 	void onKeyStatusChanged();
 	/// Handles updating the view when the mono's brake status changes.
@@ -44,8 +32,18 @@ protected slots:
 protected:
 	/// The monochromator being viewed.
 	BioXASMainMonochromator *mono_;
-	/// Label displaying the current region text.
-	QLabel *regionText_;
+	/// Editor for the mono's region control.
+	AMExtendedControlEditor *regionEditor_;
+	/// Editor for the mono's upper slit blade motor.
+	AMExtendedControlEditor *upperSlitEditor_;
+	/// Editor for the mono's lower slit blade motor.
+	AMExtendedControlEditor *lowerSlitEditor_;
+	/// Editor for the mono's bragg motor.
+	AMExtendedControlEditor *braggEditor_;
+	/// Editor for the mono's crystal change motor clockwise limit control.
+	AMExtendedControlEditor *crystalChangeCWEditor_;
+	/// Editor for the mono's crystal change motor counter-clockwise limit control.
+	AMExtendedControlEditor *crystalChangeCCWEditor_;
 	/// Label displaying the key status text.
 	QLabel *keyStatusText_;
 	/// Label displaying the key status LED.
@@ -54,17 +52,8 @@ protected:
 	QLabel *brakeStatusText_;
 	/// Label displaying the brake status LED.
 	QLabel *brakeStatusLED_;
-//	/// Editor for the mono's upper slit blade motor.
-//	BioXASCLSMAXvMotorControlEditor *upperSlitEditor_;
-//	/// Editor for the mono's lower slit blade motor.
-//	BioXASCLSMAXvMotorControlEditor *lowerSlitEditor_;
-//	/// Editor for the mono's bragg motor.
-//	BioXASCLSMAXvMotorControlEditor *braggEditor_;
-//	/// Editor for the mono's crystal change motor.
-//	BioXASCLSMAXvMotorControlEditor *crystalChangeEditor_;
 	/// Button for initiating a region change.
 	QPushButton *regionButton_;
-
 };
 
 #endif // BIOXASMAINMONOCHROMATORREGIONVIEW_H

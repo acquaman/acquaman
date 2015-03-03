@@ -1,16 +1,37 @@
 #include "BioXASMainMonochromatorRegionView.h"
 
-BioXASMainMonochromatorRegionView::BioXASMainMonochromatorRegionView(BioXASMainMonochromator *mono, QWidget *parent) :
+BioXASMainMonochromatorRegionView::BioXASMainMonochromatorRegionView(QWidget *parent) :
 	QGroupBox(parent)
 {
-	// Initialize variables.
+	// Initialize member variables.
 
-	mono_ = 0;
+	mono_ = BioXASMainBeamline::bioXAS()->mono();
 
 	// Create UI elements.
 
-	QLabel *regionPrompt = new QLabel("Region:");
-	regionText_ = new QLabel();
+	regionEditor_ = new AMExtendedControlEditor(mono_->regionControl());
+	regionEditor_->setReadOnly(true);
+	regionEditor_->setTitle("Region");
+
+	upperSlitEditor_ = new AMExtendedControlEditor(mono_->upperSlitBladeMotor());
+	upperSlitEditor_->setReadOnly(true);
+	upperSlitEditor_->setTitle("Upper slit blade");
+
+	lowerSlitEditor_ = new AMExtendedControlEditor(mono_->lowerSlitBladeMotor());
+	lowerSlitEditor_->setReadOnly(true);
+	lowerSlitEditor_->setTitle("Lower slit blade");
+
+	braggEditor_ = new AMExtendedControlEditor(mono_->braggMotor());
+	braggEditor_->setReadOnly(true);
+	braggEditor_->setTitle("Bragg");
+
+	crystalChangeCWEditor_ = new AMExtendedControlEditor(mono_->crystalChangeMotor()->cwLimitControl());
+	crystalChangeCWEditor_->setReadOnly(true);
+	crystalChangeCWEditor_->setTitle("Crystal change CW limit");
+
+	crystalChangeCCWEditor_ = new AMExtendedControlEditor(mono_->crystalChangeMotor()->ccwLimitControl());
+	crystalChangeCCWEditor_->setReadOnly(true);
+	crystalChangeCCWEditor_->setTitle("Crystal change CCW limit");
 
 	QLabel *keyStatusPrompt = new QLabel("Key status:");
 	keyStatusText_ = new QLabel();
@@ -20,53 +41,51 @@ BioXASMainMonochromatorRegionView::BioXASMainMonochromatorRegionView(BioXASMainM
 	brakeStatusText_ = new QLabel();
 	brakeStatusLED_ = new QLabel();
 
-//	upperSlitEditor_ = 0;
-//	lowerSlitEditor_ = 0;
-//	braggEditor_ = 0;
-//	crystalChangeEditor_ = 0;
-
 	regionButton_ = new QPushButton("Switch regions");
 
 	// Create and set layouts.
 
 	QGridLayout *statusLayout = new QGridLayout();
 	statusLayout->setMargin(0);
-	statusLayout->addWidget(regionPrompt, 0, 0, 1, 1, Qt::AlignRight);
-	statusLayout->addWidget(regionText_, 0, 1, 1, 1, Qt::AlignLeft);
-	statusLayout->addWidget(keyStatusPrompt, 1, 0, 1, 1, Qt::AlignRight);
-	statusLayout->addWidget(keyStatusText_, 1, 1, 1, 1, Qt::AlignLeft);
-	statusLayout->addWidget(keyStatusLED_, 1, 2, 1, 1, Qt::AlignCenter);
-	statusLayout->addWidget(brakeStatusPrompt, 2, 0, 1, 1, Qt::AlignRight);
-	statusLayout->addWidget(brakeStatusText_, 2, 1, 1, 1, Qt::AlignLeft);
-	statusLayout->addWidget(brakeStatusLED_, 2, 2, 1, 1, Qt::AlignCenter);
+	statusLayout->addWidget(keyStatusPrompt, 0, 0, 1, 1, Qt::AlignRight);
+	statusLayout->addWidget(keyStatusText_, 0, 1, 1, 1, Qt::AlignLeft);
+	statusLayout->addWidget(keyStatusLED_, 0, 2, 1, 1, Qt::AlignCenter);
+	statusLayout->addWidget(brakeStatusPrompt, 1, 0, 1, 1, Qt::AlignRight);
+	statusLayout->addWidget(brakeStatusText_, 1, 1, 1, 1, Qt::AlignLeft);
+	statusLayout->addWidget(brakeStatusLED_, 1, 2, 1, 1, Qt::AlignCenter);
 
 	QHBoxLayout *buttonLayout = new QHBoxLayout();
 	buttonLayout->addStretch();
 	buttonLayout->addWidget(regionButton_);
 
 	QVBoxLayout *layout = new QVBoxLayout();
+	layout->setMargin(0);
+	layout->addWidget(regionEditor_);
+	layout->addWidget(upperSlitEditor_);
+	layout->addWidget(lowerSlitEditor_);
+	layout->addWidget(braggEditor_);
+	layout->addWidget(crystalChangeCWEditor_);
+	layout->addWidget(crystalChangeCCWEditor_);
 	layout->addLayout(statusLayout);
-//	layout->addWidget(upperSlitEditor_);
-//	layout->addWidget(lowerSlitEditor_);
-//	layout->addWidget(braggEditor_);
-//	layout->addWidget(crystalChangeEditor_);
 	layout->addLayout(buttonLayout);
 
 	setLayout(layout);
 
-	// Make connections
+	// Make connections.
 
+	connect( mono_->regionControl(), SIGNAL(connected(bool)), this, SLOT(onRegionControlConnectedChanged()) );
+	connect( mono_->keyStatus(), SIGNAL(valueChanged(double)), this, SLOT(onKeyStatusChanged()) );
+	connect( mono_->brakeStatus(), SIGNAL(valueChanged(double)), this, SLOT(onBrakeStatusChanged()) );
 	connect( regionButton_, SIGNAL(clicked()), this, SLOT(onRegionButtonClicked()) );
 
 	// Current settings.
 
-	setTitle("Region");
+	setTitle("Region controls");
+	setFlat(true);
 
-	onRegionChanged();
+	onRegionControlConnectedChanged();
 	onKeyStatusChanged();
 	onBrakeStatusChanged();
-
-	setMono(mono);
 }
 
 BioXASMainMonochromatorRegionView::~BioXASMainMonochromatorRegionView()
@@ -74,62 +93,18 @@ BioXASMainMonochromatorRegionView::~BioXASMainMonochromatorRegionView()
 
 }
 
-void BioXASMainMonochromatorRegionView::setMono(BioXASMainMonochromator *newMono)
+void BioXASMainMonochromatorRegionView::onRegionControlConnectedChanged()
 {
-	if (mono_ != newMono) {
-
-		if (mono_) {
-			disconnect( mono_, 0, this, 0 );
-		}
-
-		mono_ = newMono;
-
-		if (mono_) {
-			connect( mono_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()) );
-			connect( mono_, SIGNAL(regionChanged(double)), this, SLOT(onRegionChanged()) );
-			connect( mono_->keyStatus(), SIGNAL(valueChanged(double)), this, SLOT(onKeyStatusChanged()) );
-			connect( mono_->brakeStatus(), SIGNAL(valueChanged(double)), this, SLOT(onBrakeStatusChanged()) );
-		}
-
-		onConnectedChanged();
-
-		emit monoChanged(mono_);
-	}
-}
-
-void BioXASMainMonochromatorRegionView::onConnectedChanged()
-{
-	if (mono_ && mono_->isConnected())
+	if (mono_->regionControl()->isConnected())
 		regionButton_->setEnabled(true);
 	else
 		regionButton_->setEnabled(false);
-
-	onRegionChanged();
-	onKeyStatusChanged();
-	onBrakeStatusChanged();
-}
-
-void BioXASMainMonochromatorRegionView::onRegionChanged()
-{
-	if (mono_ && mono_->regionControl()->isConnected()) {
-		int currentRegion = mono_->regionControl()->value();
-
-		if (currentRegion == BioXASSSRLMonochromator::Region::A)
-			regionText_->setText("A");
-		else if (currentRegion == BioXASSSRLMonochromator::Region::B)
-			regionText_->setText("B");
-		else
-			regionText_->setText("None");
-
-	} else {
-		regionText_->setText("Not connected");
-	}
 }
 
 void BioXASMainMonochromatorRegionView::onKeyStatusChanged()
 {
-	if (mono_ && mono_->keyStatus()->isConnected()) {
-		if (mono_->keyStatus()->value() == BioXASMainMonochromator::Key::Enabled) {
+	if (mono_->keyStatus()->isConnected()) {
+		if (mono_->keyStatus()->value() == BioXASSSRLMonochromator::Key::Enabled) {
 			keyStatusText_->setText("Enabled");
 			keyStatusLED_->setPixmap(QPixmap(":/22x22/greenLEDOn.png"));
 
@@ -146,8 +121,8 @@ void BioXASMainMonochromatorRegionView::onKeyStatusChanged()
 
 void BioXASMainMonochromatorRegionView::onBrakeStatusChanged()
 {
-	if (mono_ && mono_->brakeStatus()->isConnected()) {
-		if (mono_->brakeStatus()->value() == BioXASMainMonochromator::Brake::Enabled) {
+	if (mono_->brakeStatus()->isConnected()) {
+		if (mono_->brakeStatus()->value() == BioXASSSRLMonochromator::Brake::Enabled) {
 			brakeStatusText_->setText("Enabled");
 			brakeStatusLED_->setPixmap(QPixmap(":/22x22/greenLEDOn.png"));
 
@@ -164,15 +139,15 @@ void BioXASMainMonochromatorRegionView::onBrakeStatusChanged()
 
 void BioXASMainMonochromatorRegionView::onRegionButtonClicked()
 {
-	if (mono_ && mono_->regionControl() && mono_->regionControl()->isConnected()) {
+	if (mono_->regionControl()->isConnected()) {
 
-		// display the region control view.
+		// Display the region control view.
 
 		BioXASMainMonochromatorRegionControlView *regionControlView = new BioXASMainMonochromatorRegionControlView(mono_->regionControl(), this);
 		regionControlView->setWindowFlags(Qt::Sheet);
 		regionControlView->show();
 
-		// calculate desired region.
+		// Calculate desired region.
 
 		int setpoint;
 		int currentRegion = mono_->regionControl()->value();
@@ -184,7 +159,7 @@ void BioXASMainMonochromatorRegionView::onRegionButtonClicked()
 		else
 			setpoint = BioXASSSRLMonochromator::Region::A;
 
-		// start the region change process.
+		// Start the region change process.
 
 		mono_->regionControl()->move(setpoint);
 	}

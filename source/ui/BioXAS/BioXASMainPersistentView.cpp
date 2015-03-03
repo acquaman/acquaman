@@ -29,7 +29,7 @@ BioXASMainPersistentView::BioXASMainPersistentView(QWidget *parent) :
     energyControlEditor_ = new AMExtendedControlEditor(BioXASMainBeamline::bioXAS()->mono()->energyControl());
     energyControlEditor_->setControlFormat('f', 2);
 
-	regionView_ = new BioXASMainMonochromatorRegionView(BioXASMainBeamline::bioXAS()->mono());
+	regionView_ = new BioXASMainMonochromatorRegionView();
 
     // Create and set layouts.
 
