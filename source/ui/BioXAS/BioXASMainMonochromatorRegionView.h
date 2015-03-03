@@ -7,6 +7,7 @@
 
 #include "beamline/BioXAS/BioXASMainMonochromator.h"
 #include "ui/BioXAS/BioXASCLSMAXvMotorControlEditor.h"
+#include "ui/BioXAS/BioXASMainMonochromatorRegionControlView.h"
 
 class BioXASMainMonochromatorRegionView : public QGroupBox
 {

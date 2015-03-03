@@ -164,7 +164,16 @@ void BioXASMainMonochromatorRegionView::onBrakeStatusChanged()
 
 void BioXASMainMonochromatorRegionView::onRegionButtonClicked()
 {
-	if (mono_ && mono_->regionControl()->isConnected()) {
+	if (mono_ && mono_->regionControl() && mono_->regionControl()->isConnected()) {
+
+		// display the region control view.
+
+		BioXASMainMonochromatorRegionControlView *regionControlView = new BioXASMainMonochromatorRegionControlView(mono_->regionControl(), this);
+		regionControlView->setWindowFlags(Qt::Sheet);
+		regionControlView->show();
+
+		// calculate desired region.
+
 		int setpoint;
 		int currentRegion = mono_->regionControl()->value();
 
@@ -174,6 +183,8 @@ void BioXASMainMonochromatorRegionView::onRegionButtonClicked()
 			setpoint = BioXASSSRLMonochromator::Region::A;
 		else
 			setpoint = BioXASSSRLMonochromator::Region::A;
+
+		// start the region change process.
 
 		mono_->regionControl()->move(setpoint);
 	}
