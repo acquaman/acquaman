@@ -1,6 +1,6 @@
 #include "BioXASMainMonochromatorRegionControlView.h"
 
-BioXASMainMonochromatorRegionControlView::BioXASMainMonochromatorRegionControlView(BioXASMainMonochromatorRegionControl *regionControl, QWidget *parent) :
+BioXASMainMonochromatorRegionControlView::BioXASMainMonochromatorRegionControlView(BioXASSSRLMonochromatorRegionControl *regionControl, QWidget *parent) :
 	QWidget(parent)
 {
 	// Initialize variables.
@@ -10,7 +10,9 @@ BioXASMainMonochromatorRegionControlView::BioXASMainMonochromatorRegionControlVi
 	// Create UI elements.
 
 	movingView_ = new QWidget();
+	movingProgress_ = new QProgressBar();
 	movingDescription_ = new QLabel();
+	movingInstruction_ = new QLabel();
 
 	failedView_ = new QWidget();
 	failedDescription_ = new QLabel();
@@ -23,17 +25,22 @@ BioXASMainMonochromatorRegionControlView::BioXASMainMonochromatorRegionControlVi
 	// Create and set layouts.
 
 	QVBoxLayout *movingLayout = new QVBoxLayout();
+	movingLayout->setMargin(0);
+	movingLayout->addWidget(movingProgress_);
 	movingLayout->addWidget(movingDescription_);
+	movingLayout->addWidget(movingInstruction_);
 
 	movingView_->setLayout(movingLayout);
 
 	QVBoxLayout *failedLayout = new QVBoxLayout();
+	failedLayout->setMargin(0);
 	failedLayout->addWidget(failedDescription_);
 	failedLayout->addWidget(failedButtons);
 
 	failedView_->setLayout(failedLayout);
 
 	QVBoxLayout *succeededLayout = new QVBoxLayout();
+	succeededLayout->setMargin(0);
 	succeededLayout->addWidget(succeededMessage);
 	succeededLayout->addWidget(succeededButtons);
 
@@ -65,7 +72,7 @@ BioXASMainMonochromatorRegionControlView::~BioXASMainMonochromatorRegionControlV
 
 }
 
-void BioXASMainMonochromatorRegionControlView::setRegionControl(BioXASMainMonochromatorRegionControl *newControl)
+void BioXASMainMonochromatorRegionControlView::setRegionControl(BioXASSSRLMonochromatorRegionControl *newControl)
 {
 	if (regionControl_ != newControl) {
 
@@ -78,6 +85,8 @@ void BioXASMainMonochromatorRegionControlView::setRegionControl(BioXASMainMonoch
 			connect( regionControl_, SIGNAL(moveStarted()), this, SLOT(onMoveStarted()) );
 			connect( regionControl_, SIGNAL(moveFailed(int)), this, SLOT(onMoveFailed(int)) );
 			connect( regionControl_, SIGNAL(moveSucceeded()), this, SLOT(onMoveSucceeded()) );
+			connect( regionControl_, SIGNAL(moveProgressChanged(double,double)), this, SLOT(onMoveProgressChanged(double, double)) );
+			connect( regionControl_, SIGNAL(moveStepChanged(QString, QString)), this, SLOT(onMoveStepChanged(QString, QString)) );
 		}
 
 		emit regionControlChanged(regionControl_);
@@ -97,6 +106,29 @@ void BioXASMainMonochromatorRegionControlView::onMoveFailed(int failureCode)
 void BioXASMainMonochromatorRegionControlView::onMoveSucceeded()
 {
 	showSucceededView();
+}
+
+void BioXASMainMonochromatorRegionControlView::onMoveProgressChanged(double numerator, double denominator)
+{
+	movingProgress_->setValue(numerator);
+	movingProgress_->setMinimum(0);
+	movingProgress_->setMaximum(denominator);
+}
+
+void BioXASMainMonochromatorRegionControlView::onMoveStepChanged(const QString &newDescription, const QString &newInstruction)
+{
+	movingDescription_->setText(newDescription);
+
+	// we only display the instruction label if there is an instruction associated
+	// with this step.
+
+	if (newInstruction != "") {
+		movingInstruction_->setText(newInstruction);
+		movingInstruction_->show();
+
+	} else {
+		movingInstruction_->hide();
+	}
 }
 
 void BioXASMainMonochromatorRegionControlView::showMovingView()
