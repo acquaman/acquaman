@@ -23,6 +23,20 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QTimer>
 
+void AMMessageBoxWTimeout::showMessageWTimeout(QString title, QString message, QString informativeText, QString okButtonText, int timeout)
+{
+	AMMessageBoxWTimeout box(timeout);
+	box.setWindowTitle(title);
+	box.setText(message);
+	box.setInformativeText(informativeText);
+
+	QPushButton *acknowledgeButton = new QPushButton(okButtonText);
+	box.addButton(acknowledgeButton, QMessageBox::AcceptRole);
+	box.setDefaultButton(acknowledgeButton);
+
+	box.execWTimeout();
+}
+
  AMMessageBoxWTimeout::~AMMessageBoxWTimeout(){}
 AMMessageBoxWTimeout::AMMessageBoxWTimeout(int mSecTimeout, QWidget *parent) :
 	QMessageBox(parent)
