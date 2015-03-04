@@ -91,9 +91,6 @@ protected:
 	QTime scanElapsedTime_;
 	/// The assembler that takes in the region scan configuration and turns it into a tree of scanning actions.
 	AMScanActionControllerScanAssembler *scanAssembler_;
-
-	/// A timer used when using AMCDFDataStore.  After a timeout it flushes the contents to disk.
-	QTimer flushToDiskTimer_;
 };
 
 #endif // AMTIMEDSCANACTIONCONTROLLER_H

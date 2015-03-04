@@ -112,15 +112,10 @@ void AMTimedScanActionController::buildScanController()
 		foreach (AMAxisInfo axis, scanAxes)
 			scan_->rawData()->addScanAxis(axis);
 
-		flushToDiskTimer_.setInterval(300000);
-		connect(this, SIGNAL(started()), &flushToDiskTimer_, SLOT(start()));
-		connect(this, SIGNAL(cancelled()), &flushToDiskTimer_, SLOT(stop()));
-		connect(this, SIGNAL(paused()), &flushToDiskTimer_, SLOT(stop()));
-		connect(this, SIGNAL(resumed()), &flushToDiskTimer_, SLOT(start()));
-		connect(this, SIGNAL(failed()), &flushToDiskTimer_, SLOT(stop()));
-		connect(this, SIGNAL(finished()), &flushToDiskTimer_, SLOT(stop()));
-		connect(&flushToDiskTimer_, SIGNAL(timeout()), this, SLOT(flushCDFDataStoreToDisk()));
-		flushToDiskTimer_.start();
+		connect(this, SIGNAL(started()), this, SLOT(flushCDFDataStoreToDisk()));
+		connect(this, SIGNAL(cancelled()), this, SLOT(flushCDFDataStoreToDisk()));
+		connect(this, SIGNAL(failed()), this, SLOT(flushCDFDataStoreToDisk()));
+		connect(this, SIGNAL(finished()), this, SLOT(flushCDFDataStoreToDisk()));
 	}
 
 	qRegisterMetaType<AMScanActionControllerBasicFileWriter::FileWriterError>("FileWriterError");
@@ -216,6 +211,9 @@ bool AMTimedScanActionController::event(QEvent *e)
 
 		case AMAgnosticDataAPIDefinitions::AxisFinished:{
 			scan_->rawData()->endInsertRows();
+			// This should be safe and fine regardless of if the CDF data store is being used or not.
+			flushCDFDataStoreToDisk();
+
 			writeDataToFiles();
 			emit finishWritingToFile();
 			break;}
@@ -240,6 +238,10 @@ bool AMTimedScanActionController::event(QEvent *e)
 				localDetectorData.append(detectorDataValues.at(x).toDouble());
 
 			scan_->rawData()->setValue(currentAxisValueIndex_, scan_->rawData()->idOfMeasurement(message.uniqueID()), localDetectorData.constData());
+
+			// This should be safe and fine regardless of if the CDF data store is being used or not.
+			flushCDFDataStoreToDisk();
+
 			break;}
 
 		case AMAgnosticDataAPIDefinitions::ControlMoved:

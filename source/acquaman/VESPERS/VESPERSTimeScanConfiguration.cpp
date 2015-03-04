@@ -111,7 +111,7 @@ QString VESPERSTimeScanConfiguration::headerText() const
 
 	header.append("\n");
 
-	header.append(QString("Spent"));
+	header.append(QString("Acquired for %1 seconds every %2 seconds %3 times.\n").arg(time()).arg(timePerAcquisition()).arg(iterations()));
 	return header;
 }
 
