@@ -51,13 +51,14 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/dataman/AMGenericScanEditor.h"
 #include "ui/acquaman/AMScanConfigurationViewHolder3.h"
 #include "ui/CLS/CLSSIS3820ScalerView.h"
+#include "ui/util/AMMessageBoxWTimeout.h"
+#include "ui/acquaman/SXRMB/SXRMBOxidationMapScanConfigurationViewHolder.h"
 #include "ui/SXRMB/SXRMBXRFDetailedDetectorView.h"
 #include "ui/SXRMB/SXRMBPersistentView.h"
 #include "ui/SXRMB/SXRMBEXAFSScanConfigurationView.h"
 #include "ui/SXRMB/SXRMB2DMapScanConfigurationView.h"
 #include "ui/SXRMB/SXRMB2DOxidationMapScanConfigurationView.h"
 #include "ui/SXRMB/SXRMBChooseDataFolderDialog.h"
-#include "ui/acquaman/SXRMB/SXRMBOxidationMapScanConfigurationViewHolder.h"
 
 #include "util/AMErrorMonitor.h"
 #include "util/AMPeriodicTable.h"
@@ -101,6 +102,7 @@ void SXRMBAppController::shutdown()
 {
 	// Make sure we release/clean-up the beamline interface
 	AMBeamline::releaseBl();
+	AMStorageRing::releaseStorageRing();
 	AMAppController::shutdown();
 }
 
@@ -195,7 +197,10 @@ void SXRMBAppController::onBeamlineConnected(bool connected)
 
 void SXRMBAppController::onBeamControlShuttersTimeout()
 {
-	AMErrorMon::alert(this, SXRMB::ERR_SXRMB_BEAMLINE_SHUTTERS_TIMEOUT, QString("One (several) Beamline Valve/PSH shutter(s) can't be connected. Please contact beamline staff. This might affect your usage of Acuqaman."));
+	QString errorMessage = "One (several) Beamline Valve/PSH shutter(s) can't be connected. Please contact beamline staff. This might affect your usage of Acuqaman.";
+	AMErrorMon::alert(this, SXRMB::ErrorSXRMBBeamlineShuttersTimeout, errorMessage);
+
+	AMMessageBoxWTimeout::showMessageWTimeout("Warning", errorMessage);
 }
 
 void SXRMBAppController::onBeamAvailabilityChanged(bool beamAvailable)
