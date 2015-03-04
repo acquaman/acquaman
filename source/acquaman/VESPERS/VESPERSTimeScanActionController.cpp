@@ -179,6 +179,12 @@ void VESPERSTimeScanActionController::buildScanControllerImplementation()
 AMAction3* VESPERSTimeScanActionController::createInitializationActions()
 {
 	AMListAction3 *initializationAction = qobject_cast<AMListAction3 *>(buildBaseInitializationAction(timedRegionsConfiguration_->time()));
+
+	if (!configuration_->ccdDetector().testFlag(VESPERS::NoCCD))
+		initializationAction->addSubAction(buildCCDInitializationAction(configuration_->ccdDetector(),
+										 configuration_->ccdFileName(),
+										 scan_->largestNumberInScansWhere(AMDatabase::database("user"), QString(" name = '%1'").arg(scan_->name()))+1));
+
 	return initializationAction;
 }
 
