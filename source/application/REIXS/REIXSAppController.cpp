@@ -24,6 +24,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/REIXS/REIXSBeamline.h"
 #include "beamline/REIXS/REIXSSampleManipulator.h"
 
+#include "ui/util/AMChooseDataFolderDialog.h"
 #include "ui/dataman/AMGenericScanEditor.h"
 #include "dataman/AMScan.h"
 #include "ui/acquaman/AMScanConfigurationView.h"
@@ -72,6 +73,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 REIXSAppController::REIXSAppController(QObject *parent) :
 	AMAppController(parent)
 {
+	setDefaultUseLocalStorage(true);
 }
 
 bool REIXSAppController::startup()
@@ -89,8 +91,8 @@ bool REIXSAppController::startup()
 bool REIXSAppController::startupBeforeAnything() {
 	if(!AMAppController::startupBeforeAnything()) return false;
 
-	// If a command-line option has been specified to choose a new userDataFolder:
-	getUserDataFolderFromDialog();
+	if (!AMChooseDataFolderDialog::getDataFolder("/AcquamanLocalData/reixs", "/home/reixs", "users"))
+		return false;
 
 	// Initialize the central beamline object
 	REIXSBeamline::bl();

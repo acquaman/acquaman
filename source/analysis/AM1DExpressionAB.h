@@ -64,10 +64,9 @@ class AM1DExpressionAB : public AMAnalysisBlock
 
 public:
 	/// Constructor. \c outputName is the name() for the output data source.
+	Q_INVOKABLE AM1DExpressionAB(const QString& outputName = "InvalidInput", QObject* parent = 0);
+	/// Destructor.
 	virtual ~AM1DExpressionAB();
-	Q_INVOKABLE AM1DExpressionAB(const QString& outputName, QObject* parent = 0);
-	/// This constructor is used to reload analysis blocks directly out of the database
-	Q_INVOKABLE AM1DExpressionAB(AMDatabase* db, int id);
 
 	QString infoDescription() const { return QString("(%1)").arg(expression()); }
 

@@ -492,7 +492,8 @@ bool AMInMemoryDataStore::axisValues(int axisId, long axisStartIndex, long axisE
 		return false;
 #endif
 
-	memcpy(outputValues, (axisValues_.at(axisId).constData()+axisStartIndex), (axisEndIndex-axisStartIndex+1)*sizeof(AMNumber));
+	for (int i = 0, size = (axisEndIndex-axisStartIndex+1); i < size; i++)
+		outputValues[i] = axisValues_.at(axisId).at(i+axisStartIndex);
 
 	return true;
 }

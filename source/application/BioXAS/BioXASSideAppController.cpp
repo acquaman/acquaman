@@ -92,6 +92,7 @@ bool BioXASSideAppController::startup()
 		setupExporterOptions();
 		setupUserInterface();
 		makeConnections();
+        applyCurrentSettings();
 
 		return true;
 	}
@@ -108,8 +109,6 @@ void BioXASSideAppController::shutdown()
 
 void BioXASSideAppController::onScalerConnected()
 {
-//	scalerView_ = 0;
-
 	if (BioXASSideBeamline::bioXAS()->scaler()->isConnected() && !scalerView_) {
 		scalerView_ = new CLSSIS3820ScalerView(BioXASSideBeamline::bioXAS()->scaler(), false);
 
@@ -184,7 +183,6 @@ void BioXASSideAppController::setupUserInterface()
 
 	mw_->insertHeading("Detectors", 1);
 
-	connect( BioXASSideBeamline::bioXAS()->scaler(), SIGNAL(connectedChanged(bool)), this, SLOT(onScalerConnected()) );
 
 	if (BioXASSideBeamline::bioXAS()->scaler()->isConnected()) {
 		onScalerConnected();
@@ -198,16 +196,20 @@ void BioXASSideAppController::setupUserInterface()
 
 	mw_->insertHeading("Scans", 2);
 
-
-	persistentPanel_ = new BioXASSidePersistentView();
-	mw_->addRightWidget(persistentPanel_);
-
-	connect( BioXASSideBeamline::bioXAS(), SIGNAL(connected(bool)), this, SLOT(onBeamlineConnected()) );
-	onBeamlineConnected();
+    persistentPanel_ = new BioXASSidePersistentView();
+    mw_->addRightWidget(persistentPanel_);
 }
 
 void BioXASSideAppController::makeConnections()
 {
+    connect( BioXASSideBeamline::bioXAS()->scaler(), SIGNAL(connectedChanged(bool)), this, SLOT(onScalerConnected()) );
+    connect( BioXASSideBeamline::bioXAS(), SIGNAL(connected(bool)), this, SLOT(onBeamlineConnected()) );
+}
+
+void BioXASSideAppController::applyCurrentSettings()
+{
+    onScalerConnected();
+    onBeamlineConnected();
 }
 
 void BioXASSideAppController::onCurrentScanActionStartedImplementation(AMScanAction *action)

@@ -47,32 +47,6 @@ AM1DExpressionAB::AM1DExpressionAB(const QString& outputName, QObject* parent)
 	setState(AMDataSource::InvalidFlag);
 }
 
-// This constructor is used to reload analysis blocks directly out of the database
-AM1DExpressionAB::AM1DExpressionAB(AMDatabase* db, int id)
-	: AMAnalysisBlock("tempName"),
-	  axisInfo_("tempName_x", 0)
-{
-	currentlySettingInputSources_ = false;
-	// We're not using direct evaluation at the start
-	direct_ = xDirect_ = false;
-
-	// initialize the parser:
-	parser_.DefineNameChars("0123456789_:.[]"
-							"abcdefghijklmnopqrstuvwxyz"
-							"ABCDEFGHIJKLMNOPQRSTUVWXYZ");
-	xParser_.DefineNameChars("0123456789_:.[]"
-							 "abcdefghijklmnopqrstuvwxyz"
-							 "ABCDEFGHIJKLMNOPQRSTUVWXYZ");
-
-	// initial state is invalid: no inputs.
-	setState(AMDataSource::InvalidFlag);
-
-	loadFromDb(db, id);	// this will trigger setExpression() and setXExpression(), which will re-evaluate our state.
-
-	AMDataSource::name_ = AMDbObject::name();	// normally it's not okay to change a dataSource's name. Here we get away with it because we're within the constructor, and nothing's watching us yet.
-	axisInfo_ = AMAxisInfo(name() + "_x", 0);
-}
-
 // Check if a set of inputs is valid. The empty list (no inputs) must always be valid. For non-empty lists, the requirements are...
 /* - the rank() of all the inputs is 1
  - the size() of the inputs can be anything, although our output state() will go to InvalidState whenever the sizes are not all matching.

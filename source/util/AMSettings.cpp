@@ -122,7 +122,13 @@ void AMUserSettings::save(bool forceRemoteDataFolderUpdate)
 	settings.setValue("userDatabaseFilename", userDatabaseFilename);
 }
 
+void AMUserSettings::removeRemoteDataFolderEntry()
+{
+	remoteDataFolder = "";
 
+	QSettings settings(QSettings::IniFormat, QSettings::UserScope, "Acquaman", "Acquaman");
+	settings.remove("remoteDataFolder");
+}
 
 
 
