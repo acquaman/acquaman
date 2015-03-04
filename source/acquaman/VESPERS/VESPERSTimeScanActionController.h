@@ -24,8 +24,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "acquaman/AMTimedScanActionController.h"
 #include "acquaman/VESPERS/VESPERSTimeScanConfiguration.h"
+#include "acquaman/VESPERS/VESPERSScanController.h"
 
-class VESPERSTimeScanActionController : public AMTimedScanActionController
+class VESPERSTimeScanActionController : public AMTimedScanActionController, public VESPERSScanController
 {
 	Q_OBJECT
 
@@ -34,6 +35,10 @@ public:
 	virtual ~VESPERSTimeScanActionController(){}
 
 protected:
+	/// Reimplemented to provide actions that will setup the beamline for optimized operation of the XAS scan.
+	AMAction3* createInitializationActions();
+	/// Reimplemented to put the beamline in a good state after a scan has been completed.
+	AMAction3* createCleanupActions();
 
 	/// Adds anything extra (eg: analysis blocks) to the scan before it's started.
 	virtual void buildScanControllerImplementation(){}

@@ -38,6 +38,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "actions3/actions/AMControlMoveAction3.h"
 #include "ui/util/AMMessageBoxWTimeout.h"
 #include "dataman/datastore/AMCDFDataStore.h"
+#include "acquaman/AMTimedScanActionControllerAssembler.h"
 
 AMTimedScanActionController::AMTimedScanActionController(AMTimedRegionScanConfiguration *configuration, QObject *parent)
 	: AMScanActionController(configuration, parent)
@@ -45,7 +46,6 @@ AMTimedScanActionController::AMTimedScanActionController(AMTimedRegionScanConfig
 	timedRegionsConfiguration_ = configuration;
 	currentAxisValueIndex_ = AMnDIndex(0);
 	currentAxisValue_ = 0.0;
-	newScanAssembler_ = new AMGenericScanActionControllerAssembler(this);
 }
 
 AMTimedScanActionController::~AMTimedScanActionController()
@@ -55,6 +55,23 @@ AMTimedScanActionController::~AMTimedScanActionController()
 
 void AMTimedScanActionController::buildScanController()
 {
+	// Build the scan assembler.
+	createScanAssembler();
+
+	currentAxisValueIndex_ = AMnDIndex(scan_->rawData()->scanAxesCount(), AMnDIndex::DoInit, 0);
+
+	// Add all the detectors.
+	for (int i = 0, size = timedRegionsConfiguration_->detectorConfigurations().count(); i < size; i++){
+
+		AMDetector *oneDetector = AMBeamline::bl()->exposedDetectorByInfo(timedRegionsConfiguration_->detectorConfigurations().at(i));
+
+		if (oneDetector && !scanAssembler_->addDetector(oneDetector)){
+
+			AMErrorMon::alert(this, AMTIMESCANACTIONCONTROLLER_COULD_NOT_ADD_DETECTOR, QString("Could not add the following detector to the assembler: %1").arg(oneDetector != 0 ? oneDetector->name() : "Not found"));
+			return;
+		}
+	}
+
 	// Handle some general scan stuff, including setting the default file path.
 	scan_->setRunId(AMUser::user()->currentRunId());
 
@@ -129,29 +146,11 @@ void AMTimedScanActionController::buildScanController()
 			scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), scan_->rawData()->measurementCount()-1), oneDetector->isVisible(), oneDetector->hiddenFromUsers());
 	}
 
-	connect(newScanAssembler_, SIGNAL(actionTreeGenerated(AMAction3*)), this, SLOT(onScanningActionsGenerated(AMAction3*)));
-	newScanAssembler_->generateActionTree();
+	connect(scanAssembler_, SIGNAL(actionTreeGenerated(AMAction3*)), this, SLOT(onScanningActionsGenerated(AMAction3*)));
+	scanAssembler_->generateActionTree();
 
 	buildScanControllerImplementation();
 }
-
-//void AMTimedScanActionController::scheduleForDeletion()
-//{
-//	connect(fileWriterThread_, SIGNAL(destroyed()), this, SLOT(deleteLater()));
-//	if(!fileWriterIsBusy_ && fileWriterThread_->isFinished()){
-//		qDebug() << "Going to clean up the fast scan controller because we're ready right now";
-//		fileWriterThread_->deleteLater();
-//	}
-//	else if(!fileWriterIsBusy_){
-//		qDebug() << "Catch the file writer once its done but before the thread is cleaned up";
-//		deleteFileWriterImmediately_ = true;
-//	}
-//	else{
-//		qDebug() << "Cancel or fail I guess, do manual clean up";
-//		deleteFileWriterImmediately_ = true;
-//		emit finishWritingToFile();
-//	}
-//}
 
 void AMTimedScanActionController::flushCDFDataStoreToDisk()
 {
@@ -334,4 +333,12 @@ void AMTimedScanActionController::writeDataToFiles()
 
 	emit requestWriteToFile(0, rank1String);
 	emit requestWriteToFile(1, rank2String);
+}
+
+void AMTimedScanActionController::createScanAssembler()
+{
+	scanAssembler_ = new AMTimedScanActionControllerAssembler(timedRegionsConfiguration_->time(),
+								  timedRegionsConfiguration_->timePerAcquisition(),
+								  timedRegionsConfiguration_->iterations(),
+								  this);
 }

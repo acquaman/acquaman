@@ -26,7 +26,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/AMLineScan.h"
 
 VESPERSTimeScanActionController::VESPERSTimeScanActionController(VESPERSTimeScanConfiguration *configuration, QObject *parent)
-	: AMTimedScanActionController(configuration, parent)
+	: AMTimedScanActionController(configuration, parent), VESPERSScanController(configuration)
 {
 	configuration_ = configuration;
 
@@ -45,4 +45,17 @@ VESPERSTimeScanActionController::VESPERSTimeScanActionController(VESPERSTimeScan
 	detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("PostIonChamber")->toInfo());
 	detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("SingleElementVortex")->toInfo());
 	configuration_->setDetectorConfigurations(detectors);
+}
+
+AMAction3* VESPERSTimeScanActionController::createInitializationActions()
+{
+	AMListAction3 *initializationAction = qobject_cast<AMListAction3 *>(buildBaseInitializationAction(timedRegionsConfiguration_->time()));
+	return initializationAction;
+}
+
+AMAction3* VESPERSTimeScanActionController::createCleanupActions()
+{
+	AMListAction3 *cleanupAction = qobject_cast<AMListAction3 *>(buildCleanupAction());
+
+	return cleanupAction;
 }
