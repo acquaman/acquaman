@@ -13,6 +13,8 @@
 SXRMBXRFDetailedDetectorView::SXRMBXRFDetailedDetectorView(SXRMBBrukerDetector *detector, QWidget *parent)
 	:AMXRFDetailedDetectorView(detector, parent)
 {
+	chooseScanDialog_ = 0;
+	exportController_ = 0;
 }
 
 SXRMBXRFDetailedDetectorView::~SXRMBXRFDetailedDetectorView()
@@ -22,8 +24,10 @@ SXRMBXRFDetailedDetectorView::~SXRMBXRFDetailedDetectorView()
 
 void SXRMBXRFDetailedDetectorView::enableDeadTimeDisplay()
 {
-	if (deadTimeLabel_)
+	if (deadTimeLabel_) {
 		deadTimeLabel_->setVisible(true);
+		deadTimeLabel_->setText(QString("Dead time: [UNCONNECTED]"));
+	}
 }
 
 void SXRMBXRFDetailedDetectorView::buildDetectorView()
@@ -43,7 +47,6 @@ void SXRMBXRFDetailedDetectorView::onDeadTimeChanged()
 void SXRMBXRFDetailedDetectorView::onSaveButtonClicked()
 {
 	if(!chooseScanDialog_) {
-
 		chooseScanDialog_ = new AMChooseScanDialog(AMDatabase::database("user"), "Choose XRF Spectrum...", "Choose the XRF Spectrum you want to export.", true, this);
 		chooseScanDialog_->setAttribute(Qt::WA_DeleteOnClose, false);
 		connect(chooseScanDialog_, SIGNAL(accepted()), this, SLOT(exportScan()));
