@@ -450,6 +450,7 @@ HEADERS += \
 	source/ui/util/AMLineEditDialog.h \
 	source/dataman/AMXRFScan.h \
 	source/ui/util/AMChooseDataFolderDialog.h \
+	source/acquaman/AMTimedScanActionControllerAssembler.h \
 	source/beamline/CLS/CLSBeamlines.h
 
 FORMS += \
@@ -862,7 +863,8 @@ SOURCES += \
 	source/actions3/actions/AMChangeToleranceAction.cpp \
 	source/ui/util/AMLineEditDialog.cpp \
 	source/dataman/AMXRFScan.cpp \
-	source/ui/util/AMChooseDataFolderDialog.cpp
+	source/ui/util/AMChooseDataFolderDialog.cpp \
+	source/acquaman/AMTimedScanActionControllerAssembler.cpp
 
 RESOURCES *= source/icons/icons.qrc \
 		source/configurationFiles/configurationFiles.qrc \
