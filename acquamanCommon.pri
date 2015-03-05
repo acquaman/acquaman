@@ -449,7 +449,8 @@ HEADERS += \
 	source/actions3/actions/AMChangeToleranceAction.h \
 	source/ui/util/AMLineEditDialog.h \
 	source/dataman/AMXRFScan.h \
-	source/ui/util/AMChooseDataFolderDialog.h
+	source/ui/util/AMChooseDataFolderDialog.h \
+	source/beamline/CLS/CLSBeamlines.h
 
 FORMS += \
 

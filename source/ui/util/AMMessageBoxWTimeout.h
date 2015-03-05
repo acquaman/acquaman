@@ -31,6 +31,8 @@ class AMMessageBoxWTimeout : public QMessageBox
 {
 Q_OBJECT
 public:
+	static void showMessageWTimeout(QString title, QString message, QString informativeText="", QString okButtonText="OK", int timeout = 30000);
+
  	virtual ~AMMessageBoxWTimeout();
 	AMMessageBoxWTimeout(int mSecTimeout = 30000, QWidget *parent = 0);
 
