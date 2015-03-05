@@ -24,13 +24,13 @@ AMTimedScanActionControllerAssembler::~AMTimedScanActionControllerAssembler()
 
 bool AMTimedScanActionControllerAssembler::generateActionTreeImplmentation()
 {
-	AMLoopAction3 *actionTree = new AMLoopAction3(iterations_);
-	actionTree->addSubAction(generateActionListForDetectorAcquisition());
-	actionTree->addSubAction(new AMWaitAction(new AMWaitActionInfo(timePerAcquisition_-acquisitionTime_)));
+	AMLoopAction3 *valueLoopTree = new AMLoopAction3(iterations_);
+	valueLoopTree->addSubAction(generateActionListForDetectorAcquisition());
+	valueLoopTree->addSubAction(new AMWaitAction(new AMWaitActionInfo(timePerAcquisition_-acquisitionTime_)));
 	AMAxisValueFinishedActionInfo *axisValueFinishedInfo = new AMAxisValueFinishedActionInfo;
 	axisValueFinishedInfo->setShortDescription(QString("Time axis value finshed"));
 	AMAxisValueFinishedAction *axisValueFinishedAction = new AMAxisValueFinishedAction(axisValueFinishedInfo);
-	actionTree->addSubAction(axisValueFinishedAction);
+	valueLoopTree->addSubAction(axisValueFinishedAction);
 
 	AMListAction3 *detectorSetDwellList = new AMListAction3(new AMListActionInfo3(QString("Set All Detectors Dwell Times"), QString("Set %1 Detectors").arg(detectors_->count())), AMListAction3::Parallel);
 
@@ -46,7 +46,7 @@ bool AMTimedScanActionControllerAssembler::generateActionTreeImplmentation()
 	scanActions->addSubAction(new AMAxisStartedAction(new AMAxisStartedActionInfo(QString("Time Axis"), AMScanAxis::StepAxis)));
 	scanActions->addSubAction(generateActionListForDetectorInitialization());
 	scanActions->addSubAction(detectorSetDwellList);
-	scanActions->addSubAction(actionTree);
+	scanActions->addSubAction(valueLoopTree);
 	scanActions->addSubAction(generateActionListForDetectorCleanup());
 	scanActions->addSubAction(new AMAxisFinishedAction(new AMAxisFinishedActionInfo(QString("Time Axis"))));
 
@@ -58,7 +58,6 @@ bool AMTimedScanActionControllerAssembler::generateActionTreeImplmentation()
 AMAction3* AMTimedScanActionControllerAssembler::generateActionListForDetectorAcquisition()
 {
 	AMListAction3 *retVal = new AMListAction3(new AMListActionInfo3(QString("Acquire All Detectors"), QString("Acquire %1 Detectors").arg(detectors_->count())), AMListAction3::Parallel);
-	qDebug() << detectors_->count();
 	AMAction3 *detectorAction;
 	AMListAction3 *detectorAcquisitionListAction;
 	for(int x = 0; x < detectors_->count(); x++){
