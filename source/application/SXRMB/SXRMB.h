@@ -19,7 +19,7 @@
 namespace SXRMB {
 
 	enum SXRMBErrorCodes {
-		ERR_SXRMB_BEAMLINE_SHUTTERS_TIMEOUT = 290101  // 2-CLS 9-SXRMB 01 module-01 errorID-01
+		ErrorSXRMBBeamlineShuttersTimeout = 290101  // 2-CLS 9-SXRMB 01 module-01 errorID-01
 	};
 
 	/// Helper method that takes a time in seconds and returns a string of d:h:m:s.

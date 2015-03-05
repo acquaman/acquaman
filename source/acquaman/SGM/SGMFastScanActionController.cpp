@@ -137,17 +137,9 @@ void SGMFastScanActionController::onFileWriterError(AMScanActionControllerBasicF
 
 	setFailed();
 
-	AMMessageBoxWTimeout box(30000);
-	box.setWindowTitle("Sorry! Your scan has been cancelled because a file writing error occured.");
-	box.setText("Acquaman saves files for long term storage, but some sort of error occured for your scan.");
-	box.setInformativeText(userErrorString);
-
-	QPushButton *acknowledgeButton_ = new QPushButton("Ok");
-
-	box.addButton(acknowledgeButton_, QMessageBox::AcceptRole);
-	box.setDefaultButton(acknowledgeButton_);
-
-	box.execWTimeout();
+	AMMessageBoxWTimeout::showMessageWTimeout("Sorry! Your scan has been cancelled because a file writing error occured.",
+											  "Acquaman saves files for long term storage, but some sort of error occured for your scan.",
+											  userErrorString);
 }
 
 void SGMFastScanActionController::onEverythingFinished(){
