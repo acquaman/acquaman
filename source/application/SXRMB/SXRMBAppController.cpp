@@ -21,6 +21,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "SXRMBAppController.h"
 
+#include <QMessageBox>
+
 #include "application/AMAppControllerSupport.h"
 #include "application/SXRMB/SXRMB.h"
 #include "acquaman/SXRMB/SXRMBEXAFSScanConfiguration.h"
@@ -48,17 +50,17 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/dataman/AMGenericScanEditor.h"
 #include "ui/acquaman/AMScanConfigurationViewHolder3.h"
 #include "ui/CLS/CLSSIS3820ScalerView.h"
+#include "ui/util/AMMessageBoxWTimeout.h"
+#include "ui/acquaman/SXRMB/SXRMBOxidationMapScanConfigurationViewHolder.h"
 #include "ui/SXRMB/SXRMBXRFDetailedDetectorView.h"
 #include "ui/SXRMB/SXRMBPersistentView.h"
 #include "ui/SXRMB/SXRMBEXAFSScanConfigurationView.h"
 #include "ui/SXRMB/SXRMB2DMapScanConfigurationView.h"
 #include "ui/SXRMB/SXRMB2DOxidationMapScanConfigurationView.h"
 #include "ui/SXRMB/SXRMBChooseDataFolderDialog.h"
-#include "ui/acquaman/SXRMB/SXRMBOxidationMapScanConfigurationViewHolder.h"
 
+#include "util/AMErrorMonitor.h"
 #include "util/AMPeriodicTable.h"
-
-#include <QMessageBox>
 
 SXRMBAppController::SXRMBAppController(QObject *parent)
 	: AMAppController(parent)
@@ -76,13 +78,12 @@ bool SXRMBAppController::startup()
 	// Start up the main program.
 	if(AMAppController::startup()) {
 
-
+		// initialize the instance of CLSStorageRing
+		CLSStorageRing::sr1();
 		// Initialize central beamline object
 		SXRMBBeamline::sxrmb();
 		// Initialize the periodic table object.
 		AMPeriodicTable::table();
-		// Initialize the storage ring
-		CLSStorageRing::sr1();
 
 		registerClasses();
 
@@ -113,6 +114,7 @@ void SXRMBAppController::shutdown()
 {
 	// Make sure we release/clean-up the beamline interface
 	AMBeamline::releaseBl();
+	AMStorageRing::releaseStorageRing();
 	AMAppController::shutdown();
 }
 
@@ -189,7 +191,6 @@ void SXRMBAppController::onBeamlineConnected(bool connected)
 	}
 
 	if (connected && !userConfiguration_){
-		qDebug() << "Going to set user configuration for the first time";
 		userConfiguration_ = new SXRMBUserConfiguration(this);
 
 		// It is sufficient to only connect the user configuration to the single element because the single element and four element are synchronized together.
@@ -204,6 +205,14 @@ void SXRMBAppController::onBeamlineConnected(bool connected)
 			connect(detector, SIGNAL(removedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestRemoved(AMRegionOfInterest*)));
 		}
 	}
+}
+
+void SXRMBAppController::onBeamControlShuttersTimeout()
+{
+	QString errorMessage = "One (several) Beamline Valve/PSH shutter(s) can't be connected. Please contact beamline staff. This might affect your usage of Acuqaman.";
+	AMErrorMon::alert(this, SXRMB::ErrorSXRMBBeamlineShuttersTimeout, errorMessage);
+
+	AMMessageBoxWTimeout::showMessageWTimeout("Warning", errorMessage);
 }
 
 void SXRMBAppController::onBeamAvailabilityChanged(bool beamAvailable)
@@ -304,8 +313,14 @@ void SXRMBAppController::setupUserInterface()
 	mw_->addPane(brukerView, "Detectors", "Bruker", ":/system-search.png");
 
 	mw_->insertHeading("Scans", 2);
+}
+
+void SXRMBAppController::makeConnections()
+{
+	connect(this, SIGNAL(scanEditorCreated(AMGenericScanEditor*)), this, SLOT(onScanEditorCreated(AMGenericScanEditor*)));
 
 	connect(SXRMBBeamline::sxrmb(), SIGNAL(connected(bool)), this, SLOT(onBeamlineConnected(bool)));
+	connect(SXRMBBeamline::sxrmb(), SIGNAL(beamlineControlShuttersTimeout()), this, SLOT(onBeamControlShuttersTimeout()));
 	connect(SXRMBBeamline::sxrmb()->scaler(), SIGNAL(connectedChanged(bool)), this, SLOT(onScalerConnected(bool)));
 
 	if(SXRMBBeamline::sxrmb()->isConnected()){
@@ -315,17 +330,12 @@ void SXRMBAppController::setupUserInterface()
 	}
 }
 
-void SXRMBAppController::makeConnections()
-{
-	connect(this, SIGNAL(scanEditorCreated(AMGenericScanEditor*)), this, SLOT(onScanEditorCreated(AMGenericScanEditor*)));
-}
-
 void SXRMBAppController::onCurrentScanActionStartedImplementation(AMScanAction *action)
 {
 	Q_UNUSED(action)
 
 	// start to listen to the beamAvaliability signal for scan auto-pause purpose
-	connect(CLSStorageRing::sr1(), SIGNAL(beamAvaliability(bool)), this, SLOT(onBeamAvailabilityChanged(bool)));
+	connect(SXRMBBeamline::sxrmb(), SIGNAL(beamAvaliability(bool)), this, SLOT(onBeamAvailabilityChanged(bool)));
 
 	userConfiguration_->storeToDb(AMDatabase::database("user"));
 }
@@ -335,7 +345,7 @@ void SXRMBAppController::onCurrentScanActionFinishedImplementation(AMScanAction 
 	Q_UNUSED(action)
 
 	// stop listening to the beamAvaliability signal for scan auto-pause purpose
-	disconnect(CLSStorageRing::sr1(), SIGNAL(beamAvaliability(bool)), this, SLOT(onBeamAvailabilityChanged(bool)));
+	disconnect(SXRMBBeamline::sxrmb(), SIGNAL(beamAvaliability(bool)), this, SLOT(onBeamAvailabilityChanged(bool)));
 
 	userConfiguration_->storeToDb(AMDatabase::database("user"));
 }

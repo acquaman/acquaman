@@ -450,7 +450,8 @@ HEADERS += \
 	source/ui/util/AMLineEditDialog.h \
 	source/dataman/AMXRFScan.h \
 	source/ui/util/AMChooseDataFolderDialog.h \
-	source/acquaman/AMTimedScanActionControllerAssembler.h
+	source/acquaman/AMTimedScanActionControllerAssembler.h \
+	source/beamline/CLS/CLSBeamlines.h
 
 FORMS += \
 
