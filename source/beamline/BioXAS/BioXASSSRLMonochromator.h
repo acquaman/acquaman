@@ -19,9 +19,9 @@ public:
 	/// Enumerates the key status options.
 	class Key { public: enum Status { Disabled = 0, Enabled }; };
 	/// Enumerates the brake status options.
-	class Brake { public: enum Status { Disabled = 0, Enabled }; };
+	class Brake { public: enum Status { Enabled = 0, Disabled }; };
 	/// Enumerates the position status of the bragg motor, whether it is at the crystal change position.
-	class Bragg { public: enum CrystalChangePosition { InPosition = 0, NotInPosition }; };
+	class Bragg { public: enum CrystalChangePosition { NotInPosition = 0, InPosition = 1 }; };
 	/// Enumerates the limit options for the crystal change motor.
 	class CrystalChange { public: enum Limit { AtLimit = 0, NotAtLimit }; };
 
@@ -48,6 +48,16 @@ signals:
 	void energyChanged(double newEnergy);
 	/// Notifier that the current region has changed.
 	void regionChanged(double newRegion);
+	/// Notifier that the slits status has changed
+	void slitsStatusChanged(bool closed);
+	/// Notifier that the paddle status has changed.
+	void paddleStatusChanged(bool removed);
+	/// Notifier that the key status has changed.
+	void keyStatusChanged(bool enabled);
+	/// Notifier that the brake status has changed.
+	void brakeStatusChanged(bool enabled);
+	/// Notifier that the bragg angle just reached or just left the crystal change position.
+	void braggAtCrystalChangePositionStatusChanged(bool inPosition);
 
 public slots:
 	/// Sets the energy setpoint.

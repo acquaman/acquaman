@@ -13,7 +13,7 @@
 
 #include "beamline/BioXAS/BioXASSSRLMonochromator.h"
 #include "beamline/BioXAS/BioXASMainMonochromatorControl.h"
-#include "beamline/BioXAS/BioXASSSRLMonochromatorRegionControl.h"
+#include "beamline/BioXAS/BioXASMainMonochromatorRegionControl.h"
 
 class BioXASMainMonochromator : public BioXASSSRLMonochromator
 {
@@ -28,51 +28,55 @@ public:
     /// Returns true if the mono is connected to all of its pvs, false otherwise.
 	virtual bool isConnected() const { return connected_; }
     /// Returns the current region.
-	virtual double region() const { return regionControl_->value(); }
+	virtual double region() const { return region_->value(); }
 	/// Returns the energy feedback.
 	virtual double energy() const { return energy_->value(); }
+	/// Returns the slits status.
+	double slitsStatus() const { return slitsStatus_->value(); }
+	/// Returns the paddle status.
+	double paddleStatus() const { return paddleStatus_->value(); }
+	/// Returns the key status.
+	double keyStatus() const { return keyStatus_->value(); }
+	/// Returns the brake status.
+	double brakeStatus() const { return brakeStatus_->value(); }
 
-	/// Returns the region A status control.
-	AMControl* regionAStatus() const { return regionAStatus_; }
-	/// Returns the region B status control.
-	AMControl* regionBStatus() const { return regionBStatus_; }
     /// Returns the upper slit blade motor.
-	AMControl* upperSlitBladeMotor() const { return upperSlitMotor_; }
+	CLSMAXvMotor* upperSlitBladeMotor() const { return upperSlitMotor_; }
     /// Returns the lower slit blade motor.
-	AMControl* lowerSlitBladeMotor() const { return lowerSlitMotor_; }
-	/// Returns the slits status control.
-	AMControl* slitsStatus() const { return slitsStatus_; }
+	CLSMAXvMotor* lowerSlitBladeMotor() const { return lowerSlitMotor_; }
 	/// Returns the phosphor paddle motor.
-	AMControl* paddleMotor() { return paddleMotor_; }
-	/// Returns the phosphor paddle status control.
-	AMControl* paddleStatus() { return paddleStatus_; }
-	/// Returns the key status control.
-	AMControl* keyStatus() const { return keyStatus_; }
+	CLSMAXvMotor* paddleMotor() { return paddleMotor_; }
     /// Returns the bragg motor.
-	AMControl* braggMotor() const { return braggMotor_; }
-	/// Returns the bragg motor status, whether or not it is at the crystal change position.
-	AMControl* braggMotorCrystalChangeStatus() const { return braggMotorCrystalChangeStatus_; }
+	CLSMAXvMotor* braggMotor() const { return braggMotor_; }
     /// Returns the vertical motor.
-	AMControl* verticalMotor() const { return verticalMotor_; }
+	CLSMAXvMotor* verticalMotor() const { return verticalMotor_; }
     /// Returns the lateral motor.
-	AMControl* lateralMotor() const { return lateralMotor_; }
-	/// Returns the brake status control.
-	AMControl* brakeStatus() const { return brakeStatus_; }
+	CLSMAXvMotor* lateralMotor() const { return lateralMotor_; }
     /// Returns the crystal change motor.
-	AMControl* crystalChangeMotor() const { return crystalChangeMotor_; }
+	CLSMAXvMotor* crystalChangeMotor() const { return crystalChangeMotor_; }
     /// Returns the crystal 1 pitch motor.
-	AMControl* crystal1PitchMotor() const { return crystal1PitchMotor_; }
+	CLSMAXvMotor* crystal1PitchMotor() const { return crystal1PitchMotor_; }
     /// Returns the crystal 1 roll motor.
-	AMControl* crystal1RollMotor() const { return crystal1RollMotor_; }
+	CLSMAXvMotor* crystal1RollMotor() const { return crystal1RollMotor_; }
     /// Returns the crystal 2 pitch motor.
-	AMControl* crystal2PitchMotor() const { return crystal2PitchMotor_; }
+	CLSMAXvMotor* crystal2PitchMotor() const { return crystal2PitchMotor_; }
     /// Returns the crystal 2 roll motor.
-	AMControl* crystal2RollMotor() const { return crystal2RollMotor_; }
+	CLSMAXvMotor* crystal2RollMotor() const { return crystal2RollMotor_; }
 
 	/// Returns the mono's crystal change control.
-	BioXASSSRLMonochromatorRegionControl* regionControl() const { return regionControl_; }
+	BioXASSSRLMonochromatorRegionControl* regionControl() const { return region_; }
     /// Returns the energy setpoint control.
     AMControl* energyControl() const { return energy_; }
+	/// Returns the slits status control.
+	AMControl* slitsStatusControl() const { return slitsStatus_; }
+	/// Returns the paddle status control.
+	AMControl* paddleStatusControl() const { return paddleStatus_; }
+	/// Returns the key status control.
+	AMControl* keyStatusControl() const { return keyStatus_; }
+	/// Returns the brake status control.
+	AMControl* brakeStatusControl() const { return brakeStatus_; }
+	/// Returns the bragg at crystal change position status control.
+	AMControl* braggAtCrystalChangePositionStatusControl() const { return braggAtCrystalChangePositionStatus_; }
 
 	/// Returns a new action that sets the region, 0 if not connected.
 	virtual AMAction3* createSetRegionAction(double newRegion);
@@ -88,36 +92,43 @@ public slots:
 protected slots:
     /// Updates the mono's general connected state based on the connected state of each of its pvs.
     void onConnectedChanged();
-
-protected:
-	/// Creates the region control.
-	void initializeRegionControl();
+	/// Emits the slitsStatusChanged(bool) signal once the slits status has changed.
+	void onSlitsStatusChanged(double status) { emit slitsStatusChanged(status == BioXASSSRLMonochromator::Slits::Closed); }
+	/// Emits the paddleStatusChanged(bool) signal once the slits status has changed.
+	void onPaddleStatusChanged(double status) { emit paddleStatusChanged(status == BioXASSSRLMonochromator::Paddle::Out); }
+	/// Emits the keyStatusChanged(bool) signal once the key status has changed.
+	void onKeyStatusChanged(double status) { emit keyStatusChanged(status == BioXASSSRLMonochromator::Key::Enabled); }
+	/// Emits the brakeStatusChanged(bool) signal once the brake status has changed.
+	void onBrakeStatusChanged(double status) { emit brakeStatusChanged(status == BioXASSSRLMonochromator::Brake::Enabled); }
+	/// Emits the braggAtCrystalChangePositionStatusChanged(bool) signal once the bragg position status has changed.
+	void onBraggAtCrystalChangePositionStatusChanged(double status) { emit braggAtCrystalChangePositionStatusChanged(status == BioXASSSRLMonochromator::Bragg::InPosition); }
 
 protected:
 	/// Connected state.
     bool connected_;
-	/// Current region state.
-	BioXASSSRLMonochromator::Region::State region_;
 	/// Region control.
-	BioXASSSRLMonochromatorRegionControl* regionControl_;
+	BioXASMainMonochromatorRegionControl* region_;
 	/// Energy control.
 	BioXASMainMonochromatorControl* energy_;
+	/// Slits status control.
+	AMControl *slitsStatus_;
+	/// Paddle status control.
+	AMControl *paddleStatus_;
+	/// Key status control.
+	AMControl *keyStatus_;
+	/// Brake status control.
+	AMControl *brakeStatus_;
+	/// Bragg at crystal change position status control.
+	AMControl* braggAtCrystalChangePositionStatus_;
 
 	// Controls
 
-	AMControl* regionAStatus_;
-	AMControl* regionBStatus_;
 	CLSMAXvMotor *upperSlitMotor_;
 	CLSMAXvMotor *lowerSlitMotor_;
-	AMControl* slitsStatus_;
 	CLSMAXvMotor *paddleMotor_;
-	AMControl* paddleStatus_;
-	AMControl* keyStatus_;
     CLSMAXvMotor *braggMotor_;
-	AMControl* braggMotorCrystalChangeStatus_;
     CLSMAXvMotor *verticalMotor_;
     CLSMAXvMotor *lateralMotor_;
-	AMControl* brakeStatus_;
 	CLSMAXvMotor *crystalChangeMotor_;
     CLSMAXvMotor *crystal1PitchMotor_;
     CLSMAXvMotor *crystal1RollMotor_;

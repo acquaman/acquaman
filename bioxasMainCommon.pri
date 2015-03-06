@@ -12,11 +12,13 @@ HEADERS += \
     source/beamline/BioXAS/BioXASMainMonochromatorControl.h \
 	source/ui/BioXAS/BioXASMainPersistentView.h \
     source/ui/BioXAS/BioXASMainMonochromatorRegionControlView.h \
-	source/ui/BioXAS/BioXASMainMonochromatorRegionView.h
+	source/ui/BioXAS/BioXASMainMonochromatorRegionView.h \
+    source/beamline/BioXAS/BioXASMainMonochromatorRegionControl.h
 
 SOURCES += \
 	source/beamline/BioXAS/BioXASMainMonochromator.cpp \
     source/beamline/BioXAS/BioXASMainMonochromatorControl.cpp \
 	source/ui/BioXAS/BioXASMainPersistentView.cpp \
     source/ui/BioXAS/BioXASMainMonochromatorRegionControlView.cpp \
-	source/ui/BioXAS/BioXASMainMonochromatorRegionView.cpp
+	source/ui/BioXAS/BioXASMainMonochromatorRegionView.cpp \
+    source/beamline/BioXAS/BioXASMainMonochromatorRegionControl.cpp
