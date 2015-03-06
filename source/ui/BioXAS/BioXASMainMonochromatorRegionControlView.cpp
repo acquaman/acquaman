@@ -13,6 +13,7 @@ BioXASMainMonochromatorRegionControlView::BioXASMainMonochromatorRegionControlVi
 	movingProgress_ = new QProgressBar();
 	movingDescription_ = new QLabel();
 	movingInstruction_ = new QLabel();
+	movingInstruction_->setWordWrap(true);
 
 	failedView_ = new QWidget();
 	failedDescription_ = new QLabel();
@@ -124,10 +125,12 @@ void BioXASMainMonochromatorRegionControlView::onMoveStepChanged(const QString &
 
 	if (newInstruction != "") {
 		movingInstruction_->setText(newInstruction);
+		movingInstruction_->updateGeometry();
 		movingInstruction_->show();
 
 	} else {
 		movingInstruction_->hide();
+		movingInstruction_->updateGeometry();
 	}
 }
 
