@@ -34,7 +34,8 @@ class AMTimedRegionScanConfiguration : public AMScanConfiguration
 	Q_OBJECT
 
 	Q_PROPERTY(double time READ time WRITE setTime)
-	Q_PROPERTY(double totalTime READ totalTime WRITE setTotalTime)
+	Q_PROPERTY(double timePerAcquisition READ timePerAcquisition WRITE setTimePerAcquisition)
+	Q_PROPERTY(int iterations READ iterations WRITE setIterations)
 
 	Q_CLASSINFO("AMDbObject_Attributes", "description=Generic Time Scan Configuration")
 
@@ -52,18 +53,20 @@ public:
 	/// Returns the time per point.
 	double time() const;
 	/// Returns the total time for the scan.
-	double totalTime() const;
+	double timePerAcquisition() const;
+	/// Returns the number of iterations.
+	int iterations() const;
 
 	/// A human-readable description of this scan configuration. Can be re-implemented to provide more details. Used by scan action to set the title for the action view.
 	virtual QString description() const
 	{
-		return QString("Time Scan of %1s in %2s time steps.").arg(totalTime_).arg(time_);
+		return QString("Time Scan of %1s in %2s time steps.").arg(timePerAcquisition_).arg(time_);
 	}
 
 	/// A human-readable synopsis of this scan configuration. Can be re-implemented to proved more details. Used by scan action to set the main text in the action view.
 	virtual QString detailedDescription() const
 	{
-		return QString("Time Scan of %1s in %2s time steps.").arg(totalTime_).arg(time_);
+		return QString("Time Scan of %1s in %2s time steps.").arg(timePerAcquisition_).arg(time_);
 	}
 
 	/// The auto-generated scan name. Can be re-implemented to customize for each scan type.
@@ -76,19 +79,25 @@ signals:
 	/// Notifier that the time per point changed.
 	void timeChanged(double);
 	/// Notifier that the total time of the scan changed.
-	void totalTimeChanged(double);
+	void timePerAcquisitionChanged(double);
+	/// Notifier that the number of iterations has changed.
+	void iterationsChanged(int);
 
 public slots:
 	/// Sets the time per point.
 	void setTime(double newTime);
 	/// Sets the total time of the scan.
-	void setTotalTime(double newTotalTime);
+	void setTimePerAcquisition(double newTotalTime);
+	/// Sets the number of iterations.
+	void setIterations(int newIteration);
 
 protected:
 	/// Holds the time.
 	double time_;
 	/// Holds the total time.
-	double totalTime_;
+	double timePerAcquisition_;
+	/// The number of times we will acquire.
+	int iterations_;
 };
 
 #endif // AMTIMEDREGIONSCANCONFIGURATION_H

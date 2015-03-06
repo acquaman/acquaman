@@ -294,6 +294,7 @@ QDoubleSpinBox *VESPERSScanConfigurationView::createDwellTimeSpinBox(double time
 	dwellTime->setAlignment(Qt::AlignCenter);
 	dwellTime->setDecimals(1);
 	dwellTime->setValue(time);
+	dwellTime->setMinimumWidth(100);
 
 	return dwellTime;
 }

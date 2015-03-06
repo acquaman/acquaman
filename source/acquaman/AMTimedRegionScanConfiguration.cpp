@@ -28,15 +28,17 @@ AMTimedRegionScanConfiguration::AMTimedRegionScanConfiguration(QObject *parent)
 {
 	userScanName_ = "$sample - $technique";
 	time_ = 0.0;
-	totalTime_ = 0.0;
+	timePerAcquisition_ = 0.0;
+	iterations_ = 0;
 }
 
 AMTimedRegionScanConfiguration::AMTimedRegionScanConfiguration(const AMTimedRegionScanConfiguration &original)
 	: AMScanConfiguration()
 {
-	userScanName_ = original.userScanName();
+	userScanName_ = original.name();
 	time_ = original.time();
-	totalTime_ = original.totalTime();
+	timePerAcquisition_ = original.timePerAcquisition();
+	iterations_ = original.iterations();
 }
 
 const QMetaObject *AMTimedRegionScanConfiguration::getMetaObject()
@@ -49,9 +51,9 @@ double AMTimedRegionScanConfiguration::time() const
 	return time_;
 }
 
-double AMTimedRegionScanConfiguration::totalTime() const
+double AMTimedRegionScanConfiguration::timePerAcquisition() const
 {
-	return totalTime_;
+	return timePerAcquisition_;
 }
 
 void AMTimedRegionScanConfiguration::setTime(double newTime)
@@ -64,12 +66,27 @@ void AMTimedRegionScanConfiguration::setTime(double newTime)
 	}
 }
 
-void AMTimedRegionScanConfiguration::setTotalTime(double newTotalTime)
+void AMTimedRegionScanConfiguration::setTimePerAcquisition(double newTotalTime)
 {
-	if (totalTime_ != newTotalTime){
+	if (timePerAcquisition_ != newTotalTime){
 
-		totalTime_ = newTotalTime;
-		emit timeChanged(totalTime_);
+		timePerAcquisition_ = newTotalTime;
+		emit timePerAcquisitionChanged(timePerAcquisition_);
 		setModified(true);
 	}
+}
+
+void AMTimedRegionScanConfiguration::setIterations(int newIteration)
+{
+	if (iterations_ != newIteration){
+
+		iterations_ = newIteration;
+		emit iterationsChanged(iterations_);
+		setModified(true);
+	}
+}
+
+int AMTimedRegionScanConfiguration::iterations() const
+{
+	return iterations_;
 }

@@ -24,8 +24,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "acquaman/AMTimedScanActionController.h"
 #include "acquaman/VESPERS/VESPERSTimeScanConfiguration.h"
+#include "acquaman/VESPERS/VESPERSScanController.h"
 
-class VESPERSTimeScanActionController : public AMTimedScanActionController
+class VESPERSTimeScanActionController : public AMTimedScanActionController, public VESPERSScanController
 {
 	Q_OBJECT
 
@@ -33,13 +34,28 @@ public:
 	VESPERSTimeScanActionController(VESPERSTimeScanConfiguration *configuration, QObject *parent = 0);
 	virtual ~VESPERSTimeScanActionController(){}
 
+protected slots:
+	/// Helper slot that handles the progress update.
+	void onScanTimerUpdate();
+
 protected:
+	/// Reimplemented to provide actions that will setup the beamline for optimized operation of the XAS scan.
+	AMAction3* createInitializationActions();
+	/// Reimplemented to put the beamline in a good state after a scan has been completed.
+	AMAction3* createCleanupActions();
 
 	/// Adds anything extra (eg: analysis blocks) to the scan before it's started.
-	virtual void buildScanControllerImplementation(){}
+	virtual void buildScanControllerImplementation();
 
 	/// Specific scan configuration with all the VESPERS specific information inside.
 	VESPERSTimeScanConfiguration *configuration_;
+
+	/// Timer used for determining the elapsed time for a scan.
+	QTimer elapsedTime_;
+	/// Number of seconds since the timer started.
+	double secondsElapsed_;
+	/// Number of seconds total for the scan to complete (estimate).
+	double secondsTotal_;
 };
 
 #endif // VESPERSTIMESCANACTIONCONTROLLER_H

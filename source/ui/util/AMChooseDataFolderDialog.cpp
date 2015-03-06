@@ -119,15 +119,15 @@ bool AMChooseDataFolderDialog::getDataFolder(const QString &localRootDirectory, 
 
 			if (isFirstTimeUser){
 
-				AMUserSettings::userDataFolder = QString("%1/%2/%3/userData").arg(remoteRootDirectory).arg(destination).arg(dialogInput);
+				AMUserSettings::userDataFolder = QString("%1/%2/%3/userData/").arg(remoteRootDirectory).arg(destination).arg(dialogInput);
 				AMUserSettings::remoteDataFolder = "";
 				AMUserSettings::save(true);
 			}
 
 			else {
 
-				AMUserSettings::userDataFolder = QString("%1/%2/%3/userData").arg(localRootDirectory).arg(destination).arg(dialogInput);
-				AMUserSettings::remoteDataFolder = QString("%1/%2/%3/userData").arg(remoteRootDirectory).arg(destination).arg(dialogInput);
+				AMUserSettings::userDataFolder = QString("%1/%2/%3/userData/").arg(localRootDirectory).arg(destination).arg(dialogInput);
+				AMUserSettings::remoteDataFolder = QString("%1/%2/%3/userData/").arg(remoteRootDirectory).arg(destination).arg(dialogInput);
 				AMUserSettings::save();
 			}
 		}

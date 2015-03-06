@@ -35,7 +35,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/SXRMB/SXRMBBrukerDetector.h"
 #include "beamline/AMMotorGroup.h"
 
-#include "util/AMErrorMonitor.h"
 #include "util/AMBiHash.h"
 
 class AMBasicControlDetectorEmulator;
@@ -99,43 +98,57 @@ public:
 	/// Returns the list of actions to turn the beam off (just photon shutter 2 right now)
 	AMAction3* createBeamOffActions() const;
 
+signals:
+	void beamAvaliability(bool beamOn);
+	void beamlineControlShuttersTimeout();
+
 protected:
+	/// Constructor. This is a singleton class, access it through SXRMBBeamline::sxrmb().
+	SXRMBBeamline();
+
 	/// Sets up the synchronized dwell time.
 	void setupSynchronizedDwellTime();
-	/// Sets up the readings such as pressure, flow switches, temperature, etc.
-	void setupDiagnostics();
-	/// Sets up logical groupings of controls into sets.
-	void setupControlSets();
-	/// Sets up all the detectors.
-	void setupDetectors();
-	/// Sets up the sample stage motors.
-	void setupSampleStage();
-	/// Sets up mono settings.
-	void setupMono();
 	/// Sets up various beamline components.
 	void setupComponents();
-	/// Sets up the exposed actions.
-	void setupExposedControls();
-	/// Sets up the exposed detectors.
-	void setupExposedDetectors();
+	/// Sets up the readings such as pressure, flow switches, temperature, etc.
+	void setupDiagnostics();
+	/// Sets up the sample stage motors.
+	void setupSampleStage();
+	/// Sets up all the detectors.
+	void setupDetectors();
+	/// Sets up logical groupings of controls into sets.
+	void setupControlSets();
+	/// Sets up mono settings.
+	void setupMono();
 	/// Sets up the motor group for the various sample stages.
 	void setupMotorGroup();
 	/// Sets up all of the detectors that need to be added to scans that aren't a part of typical detectors.  This may just be temporary, not sure.
 	void setupControlsAsDetectors();
+	/// Sets up the exposed actions.
+	void setupExposedControls();
+	/// Sets up the exposed detectors.
+	void setupExposedDetectors();
+	/// Sets up the SIGNAL and SLOT connections.
+	void setupConnections();
 
+	/// Helper function to check for the beam availability
+	void beamAvailabilityHelper();
 	/// Helper function to check for changes in the connected state
 	void connectedHelper();
 
-	/// Constructor. This is a singleton class, access it through SXRMBBeamline::sxrmb().
-	SXRMBBeamline();
-
 protected slots:
-	/// Handles connected status of the energy
-	void onEnergyPVConnected(bool);
+	/// Handles the beamAvailability signal of the Storage ring
+	void onStorageRingBeamAvailabilityChanged(bool value);
+	/// Handles value changed signal of the beamline status
+	void onBeamlineStatusPVValueChanged(double value);
 	/// Handles connected status of the beamline status
 	void onBeamlineStatusPVConnected(bool);
+	/// Handles connected status of the energy
+	void onEnergyPVConnected(bool);
 	/// Handles connected status of all of the microprobe sample stage controls
 	void onMicroprobeSampleStagePVsConnected(bool);
+	/// Handles connected status of all of the beam on/off control shutters
+	void onBeamlineControlShuttersConnected(bool);
 
 protected:
 	/// Scaler for SXRMB
@@ -176,15 +189,16 @@ protected:
 	/// The bruker detector.
 	SXRMBBrukerDetector *brukerDetector_;
 
-	/// Beamline valves
-	AMControl *PSH1406B1002Shutter_;
-	AMControl *VVR16064B1003Valve_;
-	AMControl *VVR16064B1004Valve_;
+	/// Beamline valves, the valves involved in the Beam on/off action
+	AMControlSet * beamlineControlShutterSet_;
+	CLSBiStateControl *PSH1406B1002Shutter_;
+	CLSBiStateControl *VVR16064B1003Valve_;
+	CLSBiStateControl *VVR16064B1004Valve_;
 	// NOT THIS ONE! It's connected to the pump on the mono
-//	AMControl *VVR16064B1005Valve_;
-	AMControl *VVR16064B1006Valve_;
-	AMControl *VVR16064B1007Valve_;
-	AMControl *VVR16065B1001Valve_;
+	//CLSBiStateControl *VVR16064B1005Valve_;
+	CLSBiStateControl *VVR16064B1006Valve_;
+	CLSBiStateControl *VVR16064B1007Valve_;
+	CLSBiStateControl *VVR16065B1001Valve_;
 };
 
 #endif // SXRMBBEAMLINE_H

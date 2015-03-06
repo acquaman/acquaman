@@ -47,6 +47,8 @@ class AMGenericScanEditor;
 class AMListAction3;
 class VESPERSUserConfiguration;
 class AMRegionOfInterest;
+class VESPERSTimeScanConfiguration;
+class VESPERSTimeScanConfigurationView;
 
 #define VESPERSAPPCONTROLLER_COULD_NOT_CREATE_VESPERS_FOLDER 999000
 #define VESPERSAPPCONTROLLER_AURORA_PATH_NOT_FOUND 999001
@@ -192,6 +194,13 @@ protected:
 	VESPERSEnergyScanConfigurationView *energyScanConfigurationView_;
 	/// The (new holder for the energy scan configuration.
 	AMScanConfigurationViewHolder3 *energyScanConfigurationViewHolder3_;
+
+	/// The energy scan configuration.
+	VESPERSTimeScanConfiguration *timeScanConfiguration_;
+	/// The energy scan configuration view.
+	VESPERSTimeScanConfigurationView *timeScanConfigurationView_;
+	/// The (new holder for the energy scan configuration.
+	AMScanConfigurationViewHolder3 *timeScanConfigurationViewHolder3_;
 
 	/// Pointer to the list action that is used to move the sample stage.
 	AMListAction3 *moveImmediatelyAction_;
