@@ -43,6 +43,8 @@ public:
 	virtual bool crystalChangeAtCWLimit() const { return ((int)crystalChangeMotorCWLimitStatus_->value() == CrystalChangeMotor::AtLimit); }
 	/// Returns true if the crystal change motor is at its counter-clockwise limit, false otherwise.
 	virtual bool crystalChangeAtCCWLimit() const { return ((int)crystalChangeMotorCCWLimitStatus_->value() == CrystalChangeMotor::AtLimit); }
+	/// Returns the bragg motor angle offset.
+	virtual double braggAngleOffset() const { return braggMotor_->EGUOffset(); }
 
     /// Returns the phosphor paddle motor.
     CLSMAXvMotor* phosphorPaddleMotor() const { return phosphorPaddleMotor_; }
@@ -117,6 +119,8 @@ public slots:
 	virtual void setBraggMotorPosition(double degDestination);
 	/// Sets the position of the crystal change motor.
 	virtual void setCrystalChangeMotorPosition(double relDestination);
+    /// Sets the bragg motor angle offset.
+    virtual void setBraggAngleOffset(double newOffset);
 
 protected slots:
     /// Updates the mono's general connected state based on the connected state of each of its pvs.

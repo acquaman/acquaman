@@ -166,6 +166,11 @@ void BioXASSideMonochromator::setCrystalChangeMotorPosition(double relDestinatio
 		crystalChangeMotorRel_->move(relDestination);
 }
 
+void BioXASSideMonochromator::setBraggAngleOffset(double newOffset)
+{
+	braggMotor_->setEGUOffset(newOffset);
+}
+
 AMAction3* BioXASSideMonochromator::createWaitForKeyEnabledAction()
 {
 	if (!keyStatus_->isConnected())

@@ -52,6 +52,8 @@ public:
 	virtual bool crystalChangeAtCWLimit() const = 0;
 	/// Returns true if the crystal change motor is at its counter-clockwise limit.
 	virtual bool crystalChangeAtCCWLimit() const = 0;
+	/// Returns the bragg angle offset.
+	virtual double braggAngleOffset() const = 0;
 
 	/// Returns a new 'set energy' action, 0 if not connected. The argument is the desired energy.
 	virtual AMAction3* createSetEnergyAction(double newEnergy) = 0;
@@ -99,6 +101,8 @@ public slots:
 	virtual void setBraggMotorPosition(double degDestination) = 0;
 	/// Sets the position of the crystal change motor.
 	virtual void setCrystalChangeMotorPosition(double relDestination) = 0;
+	/// Sets the bragg angle offset.
+	virtual void setBraggAngleOffset(double newOffset) = 0;
 };
 
 #endif // BIOXASSSRLMONOCHROMATOR_H
