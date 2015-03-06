@@ -27,7 +27,14 @@ BioXASMainPersistentView::BioXASMainPersistentView(QWidget *parent) :
     // Create UI elements.
 
     energyControlEditor_ = new AMExtendedControlEditor(BioXASMainBeamline::bioXAS()->mono()->energyControl());
-    energyControlEditor_->setControlFormat('f', 2);
+	energyControlEditor_->setTitle("Energy");
+	energyControlEditor_->setControlFormat('f', 2);
+
+	regionControlEditor_ = new AMExtendedControlEditor(BioXASMainBeamline::bioXAS()->mono()->regionControl());
+	regionControlEditor_->setTitle("Region");
+
+	braggControlEditor_ = new AMExtendedControlEditor(BioXASMainBeamline::bioXAS()->mono()->braggMotor());
+	braggControlEditor_->setTitle("Bragg");
 
 	regionView_ = new BioXASMainMonochromatorRegionView();
 
@@ -35,6 +42,8 @@ BioXASMainPersistentView::BioXASMainPersistentView(QWidget *parent) :
 
     QVBoxLayout *layout = new QVBoxLayout();
     layout->addWidget(energyControlEditor_);
+	layout->addWidget(regionControlEditor_);
+	layout->addWidget(braggControlEditor_);
 	layout->addWidget(regionView_);
     layout->addStretch();
 

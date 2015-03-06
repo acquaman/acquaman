@@ -49,6 +49,10 @@ public slots:
 protected:
 	/// Editor that selects the mono energy.
     AMExtendedControlEditor *energyControlEditor_;
+	/// Editor that selects the mono region.
+	AMExtendedControlEditor *regionControlEditor_;
+	/// Editor that selects the mono bragg position.
+	AMExtendedControlEditor *braggControlEditor_;
 	/// Editor that views mono components related to a region change.
 	BioXASMainMonochromatorRegionView *regionView_;
 };
