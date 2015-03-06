@@ -15,7 +15,6 @@ AMLightweightScanInfo::AMLightweightScanInfo(int id,
 		int thumbnailFirstId,
 		int thumbnailCount,
 		AMDatabase *database,
-		int experimentId,
 		QObject *parent)
 	: QObject(parent)
 {
@@ -26,7 +25,6 @@ AMLightweightScanInfo::AMLightweightScanInfo(int id,
 	scanType_ = scanType;
 	runId_ = runId;
 	runName_ = runName;
-	experimentId_ = experimentId;
 	notes_ = notes;
 	sampleName_ = sampleName;
 	database_ = database;
@@ -179,12 +177,7 @@ void AMLightweightScanInfo::clearThumbnails()
 	thumbnailsMap_.clear();
 }
 
-int AMLightweightScanInfo::experimentId() const
+QList<int> AMLightweightScanInfo::experimentIds() const
 {
-	return experimentId_;
-}
-
-void AMLightweightScanInfo::setExperimentId(int id)
-{
-	experimentId_ = id;
+	return experimentIds_;
 }

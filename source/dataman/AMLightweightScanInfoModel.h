@@ -43,6 +43,9 @@ public:
 	QUrl rowToUrl(const QModelIndex& index);
 	/// Returns a map of all the known runs. Maps runIDs to runNames.
 	const QHash<int, QString> runMap();
+	/// Whether or not the scan with the provided Index belongs to the experiment with the
+	/// provided id.
+	bool belongsToExperiment(const QModelIndex index, int experimentId);
 public slots:
 
 	// Functions which respond to signals indicating changes in the underlying collection

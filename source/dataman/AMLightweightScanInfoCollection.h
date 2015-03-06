@@ -84,7 +84,7 @@ protected:
 	/// format TABLE_NAME;ID
 	QString getSampleName(const QString& sampleResult) const;
 	/// Looks up the ExperimentId for a given scanId, returns -1 if no mapping is found in the hash table
-	int getExperimentId(int scanId) const;
+	QList<int> getExperimentIds(int scanId) const;
 	/// Returns the Id of the scan to which a given thumbnail id refers. If the given thumbnailId
 	/// does not refer to a scan, then -1 is returned.
 	int getScanIdFromThumbnailId(int thumbnailId);
@@ -100,8 +100,8 @@ private:
 	QHash< QString, QHash < int, QString> > sampleNameMap_;
 	/// A list of the contained AMLightweightScanInfos
 	QList<AMLightweightScanInfo*> scanInfos_;
-	/// A mapping of scan id to experiment id. If entry is found for a scan, it's experimentId is set to -1
-	QHash<int, int> experimentIdMap_;
+	/// A mapping of scan id to experiment ids.
+	QHash<int, QList<int> > experimentIdMap_;
 	/// The Id of the scan which was last updated in the database
 	int lastUpdatedScanId_;
 };

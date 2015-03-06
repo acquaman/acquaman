@@ -107,6 +107,13 @@ const QHash<int, QString> AMLightweightScanInfoModel::runMap()
 	return scanInfo_->runMap();
 }
 
+bool AMLightweightScanInfoModel::belongsToExperiment(const QModelIndex index, int experimentId)
+{
+	AMLightweightScanInfo* info = scanInfo_->at(index.row());
+
+	return info->experimentIds().contains(experimentId);
+}
+
 QVariant AMLightweightScanInfoModel::getScanData(const QModelIndex &index, int role) const
 {
 
@@ -173,8 +180,6 @@ QVariant AMLightweightScanInfoModel::getScanData(const QModelIndex &index, int r
 			return info->sampleName();
 		case 8:
 			return info->notes();
-		case 9:
-			return info->experimentId();
 		default:
 			return QVariant();
 		}

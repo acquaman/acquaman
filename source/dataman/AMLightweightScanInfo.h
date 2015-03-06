@@ -35,7 +35,6 @@ public:
 						int thumbnailFirstId,
 						int thumbnailCount,
 						AMDatabase* database,
-						int experimentId = -1,
 						QObject* parent = 0);
 
 
@@ -69,7 +68,7 @@ public:
 	/// Clears all the thumbnails for this scan
 	void clearThumbnails();
 	/// The id (if any) of the experiment this scan is associated with
-	int experimentId() const;
+	QList<int> experimentIds() const;
 
 	/// Sets the descriptive name of the scan
 	void setName(const QString& name);
@@ -87,8 +86,6 @@ public:
 	void setNotes(const QString& notes);
 	/// Sets the descriptive name of the sample upon which the scan was performed
 	void setSampleName(const QString& sampleName);
-	/// Sets the id of the experiment this scan is associated with
-	void setExperimentId(int id);
 
 protected:
 
@@ -102,7 +99,7 @@ private:
 	QString scanType_;
 	int runId_;
 	QString runName_;
-	int experimentId_;
+	QList<int> experimentIds_;
 	QString notes_;
 	QString sampleName_;
 	QList<int> thumbnailIds_;
