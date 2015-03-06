@@ -171,12 +171,7 @@ AMAction3* BioXASSideMonochromator::createWaitForKeyEnabledAction()
 	if (!keyStatus_->isConnected())
 		return 0;
 
-	AMControlInfo setpoint = keyStatus_->toInfo();
-	setpoint.setValue(Key::Enabled);
-	AMControlWaitActionInfo *actionInfo = new AMControlWaitActionInfo(setpoint);
-	AMControlWaitAction *action = new AMControlWaitAction(actionInfo, keyStatus_);
-
-	return action;
+	return AMActionSupport::buildControlWaitAction(keyStatus_, Key::Enabled);
 }
 
 AMAction3* BioXASSideMonochromator::createMoveToCrystalChangePositionAction()
@@ -189,12 +184,7 @@ AMAction3* BioXASSideMonochromator::createWaitForBrakeDisabledAction()
 	if (!brakeStatus_->isConnected())
 		return 0;
 
-	AMControlInfo setpoint = brakeStatus_->toInfo();
-	setpoint.setValue(Brake::Disabled);
-	AMControlWaitActionInfo *actionInfo = new AMControlWaitActionInfo(setpoint);
-	AMControlWaitAction *action = new AMControlWaitAction(actionInfo, brakeStatus_);
-
-	return action;
+	return AMActionSupport::buildControlWaitAction(brakeStatus_, Brake::Disabled);
 }
 
 AMAction3* BioXASSideMonochromator::createWaitForBrakeEnabledAction()
@@ -202,12 +192,7 @@ AMAction3* BioXASSideMonochromator::createWaitForBrakeEnabledAction()
 	if (!brakeStatus_->isConnected())
 		return 0;
 
-	AMControlInfo setpoint = brakeStatus_->toInfo();
-	setpoint.setValue(Brake::Enabled);
-	AMControlWaitActionInfo *actionInfo = new AMControlWaitActionInfo(setpoint);
-	AMControlWaitAction *action = new AMControlWaitAction(actionInfo, brakeStatus_);
-
-	return action;
+	return AMActionSupport::buildControlWaitAction(brakeStatus_, Brake::Enabled);
 }
 
 AMAction3* BioXASSideMonochromator::createWaitForKeyDisabledAction()
@@ -215,12 +200,7 @@ AMAction3* BioXASSideMonochromator::createWaitForKeyDisabledAction()
 	if (!keyStatus_->isConnected())
 		return 0;
 
-	AMControlInfo setpoint = keyStatus_->toInfo();
-	setpoint.setValue(Key::Disabled);
-	AMControlWaitActionInfo *actionInfo = new AMControlWaitActionInfo(setpoint);
-	AMControlWaitAction *action = new AMControlWaitAction(actionInfo, keyStatus_);
-
-	return action;
+	return AMActionSupport::buildControlWaitAction(keyStatus_, Key::Disabled);
 }
 
 

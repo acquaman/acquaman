@@ -209,17 +209,9 @@ AMAction3* SXRMBBeamline::createBeamOffActions() const
 	if(!isConnected() || PSH1406B1002Shutter_->isClosed())
 		return 0;
 
-	AMControlInfo PSH1406B1002ShutterSetpoint = PSH1406B1002Shutter_->toInfo();
-	PSH1406B1002ShutterSetpoint.setValue(0);
-	AMControlMoveAction3 *PSH1406B1002ShutterCloseAction = new AMControlMoveAction3(new AMControlMoveActionInfo3(PSH1406B1002ShutterSetpoint), PSH1406B1002Shutter_);
-
-	AMControlInfo PSH1406B1002ShutterWaitSetpoint = PSH1406B1002Shutter_->toInfo();
-	PSH1406B1002ShutterWaitSetpoint.setValue(0);
-	AMControlWaitAction *PSH1406B1002ShutterWaitAction = new AMControlWaitAction(new AMControlWaitActionInfo(PSH1406B1002ShutterWaitSetpoint, 10, AMControlWaitActionInfo::MatchEqual), PSH1406B1002Shutter_);
-
 	AMListAction3 *beamOffActionsList = new AMListAction3(new AMListActionInfo3("SXRMB Beam Off", "SXRMB Beam Off"), AMListAction3::Parallel);
-	beamOffActionsList->addSubAction(PSH1406B1002ShutterCloseAction);
-	beamOffActionsList->addSubAction(PSH1406B1002ShutterWaitAction);
+	beamOffActionsList->addSubAction(AMActionSupport::buildControlWaitAction(PSH1406B1002Shutter_, 0));
+	beamOffActionsList->addSubAction(AMActionSupport::buildControlWaitAction(PSH1406B1002Shutter_, 0));
 
 	return beamOffActionsList;
 }
