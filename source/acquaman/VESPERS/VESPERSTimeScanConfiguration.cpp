@@ -25,16 +25,41 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/VESPERS/VESPERSTimeScanConfigurationView.h"
 
 VESPERSTimeScanConfiguration::VESPERSTimeScanConfiguration(QObject *parent)
-	: AMTimedRegionScanConfiguration(parent)
+	: AMTimedRegionScanConfiguration(parent), VESPERSScanConfiguration()
 {
+	setName("Timed Scan");
+	setUserScanName("Timed Scan");
+	dbObject_->setParent(this);
+	setIncomingChoice(VESPERS::Imini);
+	setFluorescenceDetector(VESPERS::SingleElement);
+	setCCDDetector(VESPERS::NoCCD);
+	setCCDFileName("");
+	setExportSpectraSources(true);
+	setExportSpectraInRows(true);
 	setTime(1);
-	setTotalTime(10);
+	setTimePerAcquisition(10);
+	setIterations(1);
+	computeTotalTime();
+
+	connect(this, SIGNAL(timeChanged(double)), this, SLOT(computeTotalTime()));
+	connect(this, SIGNAL(timePerAcquisitionChanged(double)), this, SLOT(computeTotalTime()));
+	connect(this, SIGNAL(iterationsChanged(int)), this, SLOT(computeTotalTime()));
+	connect(dbObject_, SIGNAL(ccdDetectorChanged(int)), this, SLOT(computeTotalTime()));
 }
 
 VESPERSTimeScanConfiguration::VESPERSTimeScanConfiguration(const VESPERSTimeScanConfiguration &original)
-	: AMTimedRegionScanConfiguration(original)
+	: AMTimedRegionScanConfiguration(original), VESPERSScanConfiguration(original)
 {
+	setName(original.name());
+	setUserScanName(original.name());
+	dbObject_->setParent(this);
+	setExportSpectraSources(original.exportSpectraSources());
+	computeTotalTime();
 
+	connect(this, SIGNAL(timeChanged(double)), this, SLOT(computeTotalTime()));
+	connect(this, SIGNAL(timePerAcquisitionChanged(double)), this, SLOT(computeTotalTime()));
+	connect(this, SIGNAL(iterationsChanged(int)), this, SLOT(computeTotalTime()));
+	connect(dbObject_, SIGNAL(ccdDetectorChanged(int)), this, SLOT(computeTotalTime()));
 }
 
 AMScanConfiguration *VESPERSTimeScanConfiguration::createCopy() const
@@ -55,4 +80,71 @@ AMScanController *VESPERSTimeScanConfiguration::createController()
 AMScanConfigurationView *VESPERSTimeScanConfiguration::createView()
 {
 	return new VESPERSTimeScanConfigurationView(this);
+}
+
+QString VESPERSTimeScanConfiguration::technique() const
+{
+	return "Timed Scan";
+}
+
+QString VESPERSTimeScanConfiguration::description() const
+{
+	return "Timed Scan";
+}
+
+QString VESPERSTimeScanConfiguration::detailedDescription() const
+{
+	if (ccdDetector() != VESPERS::NoCCD)
+		return "Timed x-ray fluorescence scan using a CCD for x-ray diffraction.";
+
+	return "Timed x-ray fluorescence scan";
+}
+
+QString VESPERSTimeScanConfiguration::headerText() const
+{
+	QString header("Configuration of the Scan\n\n");
+
+	header.append(fluorescenceHeaderString(fluorescenceDetector()));
+	header.append(incomingChoiceHeaderString(incomingChoice()));
+	header.append(regionsOfInterestHeaderString(regionsOfInterest()) % "\n");
+	header.append(ccdDetectorHeaderString(ccdDetector()));
+
+	header.append("\n");
+
+	header.append(QString("Acquired for %1 seconds every %2 seconds %3 times.\n").arg(time()).arg(timePerAcquisition()).arg(iterations()));
+	return header;
+}
+
+void VESPERSTimeScanConfiguration::computeTotalTimeImplementation()
+{
+	double totalTime = 0;
+
+	// Factor in the time per point.  There is an extra 6 seconds for CCD images for the Roper and Mar.
+	if (ccdDetector() == VESPERS::Roper)
+		totalTime += timePerAcquisition() + timeOffset_ + 6.0;
+	else if (ccdDetector() == VESPERS::Mar)
+		totalTime += timePerAcquisition() + timeOffset_ + 3.0;
+	else
+		totalTime += timePerAcquisition() + timeOffset_;
+
+	totalTime_ = iterations_*totalTime;
+	setExpectedDuration(totalTime_);
+	emit totalTimeChanged(totalTime_);
+}
+
+void VESPERSTimeScanConfiguration::setExportSpectraSources(bool exportSpectra)
+{
+	if (exportSpectraSources_ == exportSpectra)
+		return;
+
+	exportSpectraSources_ = exportSpectra;
+}
+
+
+void VESPERSTimeScanConfiguration::setExportSpectraInRows(bool exportInRows)
+{
+	if (exportSpectraInRows_ == exportInRows)
+		return;
+
+	exportSpectraInRows_ = exportInRows;
 }

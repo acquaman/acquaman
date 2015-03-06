@@ -38,6 +38,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "actions3/actions/AMControlMoveAction3.h"
 #include "ui/util/AMMessageBoxWTimeout.h"
 #include "dataman/datastore/AMCDFDataStore.h"
+#include "acquaman/AMTimedScanActionControllerAssembler.h"
 
 AMTimedScanActionController::AMTimedScanActionController(AMTimedRegionScanConfiguration *configuration, QObject *parent)
 	: AMScanActionController(configuration, parent)
@@ -45,7 +46,6 @@ AMTimedScanActionController::AMTimedScanActionController(AMTimedRegionScanConfig
 	timedRegionsConfiguration_ = configuration;
 	currentAxisValueIndex_ = AMnDIndex(0);
 	currentAxisValue_ = 0.0;
-	newScanAssembler_ = new AMGenericScanActionControllerAssembler(this);
 }
 
 AMTimedScanActionController::~AMTimedScanActionController()
@@ -55,6 +55,23 @@ AMTimedScanActionController::~AMTimedScanActionController()
 
 void AMTimedScanActionController::buildScanController()
 {
+	// Build the scan assembler.
+	createScanAssembler();
+
+	currentAxisValueIndex_ = AMnDIndex(scan_->rawData()->scanAxesCount(), AMnDIndex::DoInit, 0);
+
+	// Add all the detectors.
+	for (int i = 0, size = timedRegionsConfiguration_->detectorConfigurations().count(); i < size; i++){
+
+		AMDetector *oneDetector = AMBeamline::bl()->exposedDetectorByInfo(timedRegionsConfiguration_->detectorConfigurations().at(i));
+
+		if (oneDetector && !scanAssembler_->addDetector(oneDetector)){
+
+			AMErrorMon::alert(this, AMTIMESCANACTIONCONTROLLER_COULD_NOT_ADD_DETECTOR, QString("Could not add the following detector to the assembler: %1").arg(oneDetector != 0 ? oneDetector->name() : "Not found"));
+			return;
+		}
+	}
+
 	// Handle some general scan stuff, including setting the default file path.
 	scan_->setRunId(AMUser::user()->currentRunId());
 
@@ -95,15 +112,10 @@ void AMTimedScanActionController::buildScanController()
 		foreach (AMAxisInfo axis, scanAxes)
 			scan_->rawData()->addScanAxis(axis);
 
-		flushToDiskTimer_.setInterval(300000);
-		connect(this, SIGNAL(started()), &flushToDiskTimer_, SLOT(start()));
-		connect(this, SIGNAL(cancelled()), &flushToDiskTimer_, SLOT(stop()));
-		connect(this, SIGNAL(paused()), &flushToDiskTimer_, SLOT(stop()));
-		connect(this, SIGNAL(resumed()), &flushToDiskTimer_, SLOT(start()));
-		connect(this, SIGNAL(failed()), &flushToDiskTimer_, SLOT(stop()));
-		connect(this, SIGNAL(finished()), &flushToDiskTimer_, SLOT(stop()));
-		connect(&flushToDiskTimer_, SIGNAL(timeout()), this, SLOT(flushCDFDataStoreToDisk()));
-		flushToDiskTimer_.start();
+		connect(this, SIGNAL(started()), this, SLOT(flushCDFDataStoreToDisk()));
+		connect(this, SIGNAL(cancelled()), this, SLOT(flushCDFDataStoreToDisk()));
+		connect(this, SIGNAL(failed()), this, SLOT(flushCDFDataStoreToDisk()));
+		connect(this, SIGNAL(finished()), this, SLOT(flushCDFDataStoreToDisk()));
 	}
 
 	qRegisterMetaType<AMScanActionControllerBasicFileWriter::FileWriterError>("FileWriterError");
@@ -129,29 +141,11 @@ void AMTimedScanActionController::buildScanController()
 			scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), scan_->rawData()->measurementCount()-1), oneDetector->isVisible(), oneDetector->hiddenFromUsers());
 	}
 
-	connect(newScanAssembler_, SIGNAL(actionTreeGenerated(AMAction3*)), this, SLOT(onScanningActionsGenerated(AMAction3*)));
-	newScanAssembler_->generateActionTree();
+	connect(scanAssembler_, SIGNAL(actionTreeGenerated(AMAction3*)), this, SLOT(onScanningActionsGenerated(AMAction3*)));
+	scanAssembler_->generateActionTree();
 
 	buildScanControllerImplementation();
 }
-
-//void AMTimedScanActionController::scheduleForDeletion()
-//{
-//	connect(fileWriterThread_, SIGNAL(destroyed()), this, SLOT(deleteLater()));
-//	if(!fileWriterIsBusy_ && fileWriterThread_->isFinished()){
-//		qDebug() << "Going to clean up the fast scan controller because we're ready right now";
-//		fileWriterThread_->deleteLater();
-//	}
-//	else if(!fileWriterIsBusy_){
-//		qDebug() << "Catch the file writer once its done but before the thread is cleaned up";
-//		deleteFileWriterImmediately_ = true;
-//	}
-//	else{
-//		qDebug() << "Cancel or fail I guess, do manual clean up";
-//		deleteFileWriterImmediately_ = true;
-//		emit finishWritingToFile();
-//	}
-//}
 
 void AMTimedScanActionController::flushCDFDataStoreToDisk()
 {
@@ -189,17 +183,9 @@ void AMTimedScanActionController::onFileWriterError(AMScanActionControllerBasicF
 
 	setFailed();
 
-	AMMessageBoxWTimeout box(30000);
-	box.setWindowTitle("Sorry! Your scan has been cancelled because a file writing error occured.");
-	box.setText("Acquaman saves files for long term storage, but some sort of error occured for your scan.");
-	box.setInformativeText(userErrorString);
-
-	QPushButton *acknowledgeButton_ = new QPushButton("Ok");
-
-	box.addButton(acknowledgeButton_, QMessageBox::AcceptRole);
-	box.setDefaultButton(acknowledgeButton_);
-
-	box.execWTimeout();
+	AMMessageBoxWTimeout::showMessageWTimeout("Sorry! Your scan has been cancelled because a file writing error occured.",
+											  "Acquaman saves files for long term storage, but some sort of error occured for your scan.",
+											  userErrorString);
 }
 
 bool AMTimedScanActionController::event(QEvent *e)
@@ -217,6 +203,9 @@ bool AMTimedScanActionController::event(QEvent *e)
 
 		case AMAgnosticDataAPIDefinitions::AxisFinished:{
 			scan_->rawData()->endInsertRows();
+			// This should be safe and fine regardless of if the CDF data store is being used or not.
+			flushCDFDataStoreToDisk();
+
 			writeDataToFiles();
 			emit finishWritingToFile();
 			break;}
@@ -241,6 +230,10 @@ bool AMTimedScanActionController::event(QEvent *e)
 				localDetectorData.append(detectorDataValues.at(x).toDouble());
 
 			scan_->rawData()->setValue(currentAxisValueIndex_, scan_->rawData()->idOfMeasurement(message.uniqueID()), localDetectorData.constData());
+
+			// This should be safe and fine regardless of if the CDF data store is being used or not.
+			flushCDFDataStoreToDisk();
+
 			break;}
 
 		case AMAgnosticDataAPIDefinitions::ControlMoved:
@@ -334,4 +327,12 @@ void AMTimedScanActionController::writeDataToFiles()
 
 	emit requestWriteToFile(0, rank1String);
 	emit requestWriteToFile(1, rank2String);
+}
+
+void AMTimedScanActionController::createScanAssembler()
+{
+	scanAssembler_ = new AMTimedScanActionControllerAssembler(timedRegionsConfiguration_->time(),
+								  timedRegionsConfiguration_->timePerAcquisition(),
+								  timedRegionsConfiguration_->iterations(),
+								  this);
 }
