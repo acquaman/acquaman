@@ -210,6 +210,14 @@ public:
 	AMBasicControlDetectorEmulator* energyFeedbackDetector() const { return energyFeedbackDetector_; }
 	AMBasicControlDetectorEmulator* energySetpointDetector() const { return energySetpointDetector_; }
 	AMBasicControlDetectorEmulator* dwellTimeDetector() { return dwellTimeDetector_; }
+	/// Returns the bragg move retries detector.
+	AMBasicControlDetectorEmulator* braggMoveRetriesDetector() const { return braggMoveRetriesDetector_; }
+	/// Returns the bragg move max retries detector.
+	AMBasicControlDetectorEmulator* braggMoveRetriesMaxDetector() const { return braggMoveRetriesMaxDetector_; }
+	/// Returns the bragg step setpoint detector.
+	AMBasicControlDetectorEmulator* braggStepSetpointDetector() const { return braggStepSetpointDetector_; }
+	/// Returns the bragg degree setpoint detector.
+	AMBasicControlDetectorEmulator* braggDegreeSetpointDetector() const { return braggDegreeSetpointDetector_; }
 
 	/// Returns the 32 element Ge detector.
 	BioXAS32ElementGeDetector *ge32ElementDetector() const { return ge32ElementDetector_; }
@@ -259,8 +267,6 @@ protected slots:
 	void onTemperatureError();
 
 protected:
-	/// Sets up the synchronized dwell time.
-//	void setupSynchronizedDwellTime();
 	/// Sets up the readings such as pressure, flow switches, temperature, etc.
 	void setupDiagnostics();
 	/// Sets up logical groupings of controls into sets.
@@ -297,6 +303,11 @@ protected:
 	AMBasicControlDetectorEmulator *energySetpointDetector_;
 	AMBasicControlDetectorEmulator *energyFeedbackDetector_;
 	AMBasicControlDetectorEmulator *dwellTimeDetector_;
+	AMBasicControlDetectorEmulator *braggMoveRetriesDetector_;
+	AMBasicControlDetectorEmulator *braggMoveRetriesMaxDetector_;
+	AMBasicControlDetectorEmulator *braggStepSetpointDetector_;
+	AMBasicControlDetectorEmulator *braggDegreeSetpointDetector_;
+//	AMBasicControlDetectorEmulator *braggAngle_;
 	BioXAS32ElementGeDetector *ge32ElementDetector_;
 
 	// Monochromator

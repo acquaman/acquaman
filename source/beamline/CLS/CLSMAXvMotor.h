@@ -184,6 +184,14 @@ public:
 
 	/// Returns the status PV control, which can be used as the statusTagControl for control editor
 	AMReadOnlyPVControl *statusPVControl();
+	/// Returns the retries PV control.
+	AMReadOnlyPVControl *retries() const { return retries_; }
+	/// Returns the max retries PV control.
+	AMReadOnlyPVControl *maxRetriesControl() const { return maxRetries_; }
+	/// Returns the step setpoint PV control.
+	AMReadOnlyPVControl *stepSetpointControl() const { return stepSetpoint_; }
+	/// Returns the degree setpoint PV control.
+	AMReadOnlyPVControl *degreeSetpointControl() const { return degreeSetpoint_; }
 
 	/// Returns a newly created action to move the motor. This is a convenience function that calls the EGU move action. Returns 0 if the control is not connected.
 	AMAction3* createMotorMoveAction(double position);
@@ -416,6 +424,11 @@ protected:
 	/// the baseName of the MAXvMotor PVs
 	QString pvBaseName_;
 
+	/// Read-only control for the step setpoint.
+	AMReadOnlyPVControl *stepSetpoint_;
+	/// Read-only control for the degree setpoint.
+	AMReadOnlyPVControl *degreeSetpoint_;
+
 	/// Read-write control for the (EGU) velocity setting
 	AMPVControl *EGUVelocity_;
 	/// Read-write control for (EGU) base velocity setting
@@ -484,6 +497,8 @@ protected:
 	AMPVControl *preDeadBand_;
 	/// Read-write control for post-deadband value
 	AMPVControl *postDeadBand_;
+	/// Read-only control for the number of retries.
+	AMReadOnlyPVControl *retries_;
 	/// Read-write control for the max retries value
 	AMPVControl *maxRetries_;
 	/// Read-write control for the encoder percent approach
