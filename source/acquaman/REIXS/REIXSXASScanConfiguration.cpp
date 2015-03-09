@@ -24,8 +24,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 REIXSXASScanConfiguration::REIXSXASScanConfiguration(QObject *parent) :
 	AMStepScanConfiguration(parent)
 {
-	setAutoExportEnabled(false);
-
 	scanNumber_ = 0;
 	sampleId_ = -1;
 	namedAutomatically_ = true;
@@ -89,10 +87,10 @@ REIXSXASScanConfiguration::REIXSXASScanConfiguration(const REIXSXASScanConfigura
 	minEnergy_ = other.minEnergy();
 	maxEnergy_ = other.maxEnergy();
 	totalPoints_ = other.totalPoints();
-	////////////////////////
-	setAutoExportEnabled(false);
 
-		computeTotalTime();
+	////////////////////////
+
+	computeTotalTime();
 
 	connect(scanAxisAt(0), SIGNAL(regionAdded(AMScanAxisRegion*)), this, SLOT(onRegionAdded(AMScanAxisRegion*)));
 	connect(scanAxisAt(0), SIGNAL(regionRemoved(AMScanAxisRegion*)), this, SLOT(onRegionRemoved(AMScanAxisRegion*)));

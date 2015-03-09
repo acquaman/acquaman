@@ -179,9 +179,11 @@ protected slots:
 	/// Handles updating the dead time label.
 	void onDeadTimeChanged();
 	/// Handles changing the data sources used for the corrected sum PV.
-	void onDeadTimeButtonClicked();
+	void onDeadTimeButtonClicked(int deadTimeButtonId);
+	/// Handles updating the look of a button if it is enabled or not.
+	void onElementEnabledOrDisabled(int elementId);
 	/// Handles updating the region of interest markers using the signal mapper.
-	void onRegionOfInterestBoundsChanged(int id);
+	void onRegionOfInterestBoundsChanged(QObject *id);
 	/// Handles changing the scale of the axis to logarithmic or linear.
 	void onLogScaleClicked(bool logScale);
 	/// Handles setting the minimum energy after a new input from the spin box.
@@ -197,8 +199,8 @@ protected slots:
 protected:
 	/// Method that highlights the region of interest of the current element (if it has been selected).
 	void highlightCurrentElementRegionOfInterest();
-	/// Updates the buttons in the periodic table view based on the selected emission lines.  Uses the emission line for appropriate lookups.
-	void updatePeriodicTableButtonColors(const AMEmissionLine &line);
+	/// Updates the buttons in the periodic table view based on the selected emission lines.  Uses the element symbol for appropriate lookups.
+	void updatePeriodicTableButtonColors(const QString &symbol);
 	/// Method that builds the style sheet for the regions of interest color.  The key is a string that can have any of the keys mashed together (eg: "KL").  If multiple lines exist then it will make a linear gradient of multiple colors.  Subclasses can re-implement for different stylesheets.
 	virtual const QString buildStyleSheet(const QString &colorMapKey) const;
 	/// Method that builds the periodic table view and element view and adds it to the detector layout.
@@ -217,6 +219,8 @@ protected:
 	void removeAllPlotItems(QList<MPlotItem *> &items);
 	/// Method that takes two AMEmissionLines and adds them to the plot as a pile up peak if it would fit.
 	void addPileUpMarker(const AMEmissionLine &firstLine, const AMEmissionLine &secondLine);
+	/// Removes all the region of interest pieces from the view.
+	void removeRegionOfInterestItems(AMRegionOfInterest *region);
 
 	/// Helper method to show or hide the periodic table related views and fix the header button
 	void hidePeriodicTableViews(bool setHidden);
@@ -246,7 +250,7 @@ protected:
 	/// The list of emission line markers.
 	QList<MPlotItem *> emissionLineMarkers_;
 	/// A mapping of emission lines to region of interest markers.
-	QMap<AMEmissionLine, MPlotMarkerTransparentVerticalRectangle *> regionOfInterestMarkers_;
+	QMap<AMRegionOfInterest *, MPlotMarkerTransparentVerticalRectangle *> regionOfInterestMarkers_;
 	/// A signal mapper that maps the MPlotItems to the regions they represent.  Allows easy manipulation of the item's shape.
 	QSignalMapper *regionOfInterestMapper_;
 	/// A simple map for the line colors.
@@ -296,6 +300,9 @@ protected:
 	QDoubleSpinBox *minimumEnergySpinBox_;
 	/// The maximum energy spin box.
 	QDoubleSpinBox *maximumEnergySpinBox_;
+
+	/// A dead time view factor.  Should be customized in the constructor.
+	int deadTimeViewFactor_;
 };
 
 #endif // AMXRFDETAILEDDETECTORVIEW_H

@@ -195,17 +195,6 @@ bool ST0DTimestampAB::axisValues(int axisNumber, int startIndex, int endIndex, A
 	return true;
 }
 
-bool ST0DTimestampAB::loadFromDb(AMDatabase *db, int id)
-{
-	bool success = AMDbObject::loadFromDb(db, id);
-
-	if (success) {
-		AMDataSource::name_ = AMDbObject::name();
-	}
-
-	return success;
-}
-
 void ST0DTimestampAB::setDataStoredCountMax(int newMax)
 {
 	if (dataMax_ != newMax && newMax > 0) {

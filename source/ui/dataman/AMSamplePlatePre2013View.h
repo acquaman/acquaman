@@ -22,18 +22,18 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef AMSAMPLEPLATEVIEWPRE2013_H
 #define AMSAMPLEPLATEVIEWPRE2013_H
 
-
-
 #include <QListView>
 #include <QPushButton>
 #include <QStyledItemDelegate>
-
+#include <QApplication>
+#include <QGridLayout>
 
 #include "dataman/AMSamplePlatePre2013.h"
 #include "dataman/database/AMDatabase.h"
 
-#include "ui_AMSamplePlateSelector.h"
 #include "ui/dataman/AMSamplePre2013Editor.h"
+#include "ui/AMHeaderButton.h"
+#include "ui/AMWrappingLineEdit.h"
 
 #include "util/AMDeferredFunctionCall.h"
 #include "util/AMDateTimeUtils.h"
@@ -57,6 +57,8 @@ class AMSamplePlatePre2013ItemModel : public QAbstractListModel {
 public:
 	/// Constructor requires a valid \c plate to expose as a QAbstractListModel. The sample/position pairs (AMSamplePosition) will provide the data for the items in the list.
 	AMSamplePlatePre2013ItemModel(AMSamplePlatePre2013* plate, QObject* parent = 0);
+
+	virtual ~AMSamplePlatePre2013ItemModel();
 
 	/// Reimplemented from QAbstractListModel
 	int rowCount(const QModelIndex &parent) const {
@@ -220,10 +222,11 @@ protected:
 /// This class provides a widget that can be used to select and load a sample plate object, out of the available set of user-defined sample plates. It can also be used to create new sample plates.
 /*! This widget operates on an "active" or "current" sample plate, and causes it to be re-loaded to become a different plate when activated by the user.  This active plate can be retrieved with samplePlate().  If an AMSamplePlate pointer is provided in the constructor, we use this as the active plate; otherwise we create an internal AMSamplePlate object.
   */
-class AMSamplePlatePre2013Selector : public QWidget, private Ui::AMSamplePlateSelector {
+class AMSamplePlatePre2013Selector : public QWidget {
 	Q_OBJECT
 public:
 	explicit AMSamplePlatePre2013Selector(AMSamplePlatePre2013* sourcePlate = 0, QWidget* parent = 0);
+	virtual ~AMSamplePlatePre2013Selector();
 
 	/// Returns the active sample plate object
 	AMSamplePlatePre2013* samplePlate() { return plate_; }
@@ -272,7 +275,18 @@ protected slots:
 
 
 protected:
-	Ui::AMSamplePlateSelector ui_;
+
+	void setupUi();
+
+	QGridLayout *gridLayout;
+	QComboBox *plateComboBox;
+	QLabel *nameLabel;
+	QLineEdit *nameEdit;
+	QLabel *createdLabelLabel;
+	QLabel *createdLabel;
+	QVBoxLayout *verticalLayout;
+	AMHeaderButton *notesHeaderButton;
+	AMWrappingLineEdit *notesEditor;
 
 	AMSamplePlatePre2013* plate_;
 
@@ -296,6 +310,7 @@ class AMSamplePlatePre2013View : public QWidget
 public:
 	/// Create a sample plate editor, to modify/view an existing sample plate \c existingPlate.  If \c existingPlate is 0, it will create a new sample plate to work with.
 	explicit AMSamplePlatePre2013View(AMSamplePlatePre2013* existingPlate = 0, QWidget *parent = 0);
+	virtual ~AMSamplePlatePre2013View();
 
 	/// Returns the current sample plate
 	AMSamplePlatePre2013* samplePlate() { return samplePlate_; }
@@ -355,6 +370,7 @@ class AMSamplePlatePre2013PositionInfo : public QObject
 Q_OBJECT
 public:
 	AMSamplePlatePre2013PositionInfo(AMSamplePlatePre2013 *samplePlate, int index, const QString &description, MPlotAxisScale *horizontalScale, MPlotAxisScale *verticalScale, QObject *parent = 0);
+	virtual ~AMSamplePlatePre2013PositionInfo();
 
 	MPlotRectangle* area() const;
 	MPlotPoint* position() const;
@@ -381,6 +397,7 @@ class AMSamplePlatePre2013PositionInfoView : public QFrame
 Q_OBJECT
 public:
 	AMSamplePlatePre2013PositionInfoView(AMSamplePlatePre2013PositionInfo *positionInfo, QWidget *parent = 0);
+	virtual ~AMSamplePlatePre2013PositionInfoView();
 
 public slots:
 	void setHighlighted(bool isHighlighted);
@@ -408,6 +425,7 @@ class AMSamplePlatePre2013PositionInfoListView : public QWidget
 Q_OBJECT
 public:
 	AMSamplePlatePre2013PositionInfoListView(QList<AMSamplePlatePre2013PositionInfoView*> infoViews, QWidget *parent = 0);
+	virtual ~AMSamplePlatePre2013PositionInfoListView();
 
 protected slots:
 	void onSamplePlatePositionInfoViewBecameHighlighted(bool isHighlighted);
@@ -421,6 +439,7 @@ class AMScrollViewWidget : public QWidget
 Q_OBJECT
 public:
 	AMScrollViewWidget(QLayout *layout, QWidget *parent = 0);
+	virtual ~AMScrollViewWidget();
 };
 
 #include "MPlot/MPlotWidget.h"
@@ -429,6 +448,7 @@ class AMSamplePlatePre2013AdditionalInformationView : public QWidget
 Q_OBJECT
 public:
 	AMSamplePlatePre2013AdditionalInformationView(AMSamplePlatePre2013 *samplePlate, AMSamplePlatePre2013ItemModel* samplePlateModel, QWidget *parent = 0);
+	virtual ~AMSamplePlatePre2013AdditionalInformationView();
 
 protected:
 	AMSamplePlatePre2013 *samplePlate_;
@@ -450,6 +470,7 @@ class AMSamplePositionPre2013ManuallyEnterView : public QDialog
 Q_OBJECT
 public:
 	AMSamplePositionPre2013ManuallyEnterView(QWidget *parent = 0);
+	virtual ~AMSamplePositionPre2013ManuallyEnterView();
 
 signals:
 	void finished(double upDown, double inOut, double upStDownSt, double rot);
@@ -480,6 +501,7 @@ class AMSamplePositionPre2013AdditionalInformationView : public QDialog
 Q_OBJECT
 public:
 	AMSamplePositionPre2013AdditionalInformationView(AMSampleManipulator *manipulator, AMSamplePositionPre2013 *samplePosition, QWidget *parent = 0);
+	virtual ~AMSamplePositionPre2013AdditionalInformationView();
 
 signals:
 	void finished();

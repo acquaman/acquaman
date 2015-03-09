@@ -29,8 +29,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/datastore/AMCDFDataStore.h"
 #include "dataman/AMTextStream.h"
 
+#include "actions3/AMActionSupport.h"
 #include "actions3/AMListAction3.h"
-#include "actions3/actions/AMControlMoveAction3.h"
 #include "actions3/AMActionRunner3.h"
 #include "actions3/actions/AMWaitAction.h"
 #include "ui/util/AMMessageBoxWTimeout.h"
@@ -38,6 +38,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QThread>
 #include <QFileInfo>
 #include <QStringBuilder>
+
+
 
 REIXSXESScanActionController::REIXSXESScanActionController(REIXSXESScanConfiguration *configuration, QObject *parent) :
 	AMScanActionController(configuration, parent)
@@ -262,9 +264,6 @@ void REIXSXESScanActionController::onInitializationActionsListFailed(){
 
 
 AMAction3* REIXSXESScanActionController::createInitializationActions(){
-	AMControlMoveActionInfo3 *moveActionInfo;
-	AMControlMoveAction3 *moveAction;
-	AMControl *tmpControl;
 
 	AMListAction3 *initializationActions = new AMListAction3(new AMListActionInfo3("REIXS XES Initialization Actions",
 																				   "REIXS XES Initialization Actions"),
@@ -281,63 +280,31 @@ AMAction3* REIXSXESScanActionController::createInitializationActions(){
 
 
 
-	if(configuration_->applyPolarization() && configuration_->polarization() == 5 && configuration_->polarizationAngle() != REIXSBeamline::bl()->photonSource()->epuPolarizationAngle()->value()){
-		tmpControl = REIXSBeamline::bl()->photonSource()->epuPolarizationAngle();
-		AMControlInfo polarizationAngleSetpoint = tmpControl->toInfo();
-		polarizationAngleSetpoint.setValue(configuration_->polarizationAngle());
-		moveActionInfo = new AMControlMoveActionInfo3(polarizationAngleSetpoint);
-		moveAction = new AMControlMoveAction3(moveActionInfo, tmpControl);
-		initializationPreActions->addSubAction(moveAction);
+	if(configuration_->applyPolarization() && configuration_->polarization() == 5 && configuration_->polarizationAngle() != REIXSBeamline::bl()->photonSource()->epuPolarizationAngle()->value())
+		initializationPreActions->addSubAction(AMActionSupport::buildControlMoveAction(REIXSBeamline::bl()->photonSource()->epuPolarizationAngle(), configuration_->polarizationAngle()));
 
-	}
-
-	if(configuration_->applyPolarization() && REIXSBeamline::bl()->photonSource()->epuPolarization()->value() != configuration_->polarization()){
-		tmpControl = REIXSBeamline::bl()->photonSource()->epuPolarization();
-		AMControlInfo polarizationSetpoint = tmpControl->toInfo();
-		polarizationSetpoint.setValue(configuration_->polarization());
-		moveActionInfo = new AMControlMoveActionInfo3(polarizationSetpoint);
-		moveAction = new AMControlMoveAction3(moveActionInfo, tmpControl);
-		initializationActions->addSubAction(moveAction);
-	}
+	if(configuration_->applyPolarization() && REIXSBeamline::bl()->photonSource()->epuPolarization()->value() != configuration_->polarization())
+		initializationActions->addSubAction(AMActionSupport::buildControlMoveAction(REIXSBeamline::bl()->photonSource()->epuPolarization(), configuration_->polarization()));
 
 
 
-	if(configuration_->applySlitWidth()){
-		tmpControl = REIXSBeamline::bl()->photonSource()->monoSlit();
-		AMControlInfo monoSlitSetpoint = tmpControl->toInfo();
-		monoSlitSetpoint.setValue(configuration_->slitWidth());
-		moveActionInfo = new AMControlMoveActionInfo3(monoSlitSetpoint);
-		moveAction = new AMControlMoveAction3(moveActionInfo, tmpControl);
-		initializationActions->addSubAction(moveAction);
-	}
+	if(configuration_->applySlitWidth())
+		initializationActions->addSubAction(AMActionSupport::buildControlMoveAction(REIXSBeamline::bl()->photonSource()->monoSlit(), configuration_->slitWidth()));
 
 
 	if(configuration_->applyEnergy()){
 		AMListAction3 *energyMoveAction = new AMListAction3(new AMListActionInfo3("REIXS Mono Energy Initialization Actions",
-																					   "REIXS Mono Energy Initialization Actions"),
-																 AMListAction3::Sequential);
+											  "REIXS Mono Energy Initialization Actions"),
+								    AMListAction3::Sequential);
 
-
-		tmpControl = REIXSBeamline::bl()->photonSource()->energy();
-		AMControlInfo energySetpoint = tmpControl->toInfo();
-		energySetpoint.setValue(configuration_->energy());
-
-		moveActionInfo = new AMControlMoveActionInfo3(energySetpoint);
-		moveAction = new AMControlMoveAction3(moveActionInfo, tmpControl);
-		energyMoveAction->addSubAction(moveAction);
-
+		energyMoveAction->addSubAction(AMActionSupport::buildControlMoveAction(REIXSBeamline::bl()->photonSource()->energy(), configuration_->energy()));
 		energyMoveAction->addSubAction(new AMWaitAction(new AMWaitActionInfo(1.1)));  // for mono encoder time averaging to settle
 
-
-		moveAction = new AMControlMoveAction3(moveActionInfo, tmpControl);
-		energyMoveAction->addSubAction(moveAction);  //Yes, three times to be sure that we're there, but REIXSBrokenMonoContorl will ignore latter moves if we already made it.
-
+		energyMoveAction->addSubAction(AMActionSupport::buildControlMoveAction(REIXSBeamline::bl()->photonSource()->energy(), configuration_->energy()));
+		//Yes, three times to be sure that we're         there, but REIXSBrokenMonoContorl will ignore latter moves if we already made it.
 		energyMoveAction->addSubAction(new AMWaitAction(new AMWaitActionInfo(1.1)));  // for mono encoder time averaging to settle
 
-
-		moveAction = new AMControlMoveAction3(moveActionInfo, tmpControl);
-		energyMoveAction->addSubAction(moveAction);
-
+		energyMoveAction->addSubAction(AMActionSupport::buildControlMoveAction(REIXSBeamline::bl()->photonSource()->energy(), configuration_->energy()));
 		energyMoveAction->addSubAction(new AMWaitAction(new AMWaitActionInfo(1.1)));  // for mono encoder time averaging to settle
 
 		initializationActions->addSubAction(energyMoveAction);
@@ -536,17 +503,9 @@ void REIXSXESScanActionController::onFileWriterError(AMScanActionControllerBasic
 
 	setFailed();
 
-	AMMessageBoxWTimeout box(30000);
-	box.setWindowTitle("Sorry! Your scan has been cancelled because a file writing error occured.");
-	box.setText("Acquaman saves files for long term storage, but some sort of error occured for your scan.");
-	box.setInformativeText(userErrorString);
-
-	QPushButton *acknowledgeButton_ = new QPushButton("Ok");
-
-	box.addButton(acknowledgeButton_, QMessageBox::AcceptRole);
-	box.setDefaultButton(acknowledgeButton_);
-
-	box.execWTimeout();
+	AMMessageBoxWTimeout::showMessageWTimeout("Sorry! Your scan has been cancelled because a file writing error occured.",
+											  "Acquaman saves files for long term storage, but some sort of error occured for your scan.",
+											  userErrorString);
 }
 
 //void REIXSXESScanActionController::onFileWriterIsBusy(bool isBusy)

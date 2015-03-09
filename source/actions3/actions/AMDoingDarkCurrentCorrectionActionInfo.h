@@ -27,35 +27,35 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 class AMDoingDarkCurrentCorrectionActionInfo : public AMActionInfo3
 {
-    Q_OBJECT
+	Q_OBJECT
 
-    Q_PROPERTY(double dwellTime READ dwellTime WRITE setDwellTime)
+	Q_PROPERTY(double dwellTime READ dwellTime WRITE setDwellTime)
 
 public:
-    Q_INVOKABLE AMDoingDarkCurrentCorrectionActionInfo(AMDetectorDwellTimeSource* dwellTimeSource, int newTime, QObject *parent = 0);
-    virtual ~AMDoingDarkCurrentCorrectionActionInfo();
+	Q_INVOKABLE AMDoingDarkCurrentCorrectionActionInfo(AMDetectorDwellTimeSource* dwellTimeSource = 0, int newTime = 0, QObject *parent = 0);
+	virtual ~AMDoingDarkCurrentCorrectionActionInfo();
 
-    /// Copy Constructor
-    AMDoingDarkCurrentCorrectionActionInfo(const AMDoingDarkCurrentCorrectionActionInfo &other);
+	/// Copy Constructor
+	AMDoingDarkCurrentCorrectionActionInfo(const AMDoingDarkCurrentCorrectionActionInfo &other);
 
-    /// This function is used as a virtual copy constructor
-    virtual AMActionInfo3* createCopy() const;
+	/// This function is used as a virtual copy constructor
+	virtual AMActionInfo3* createCopy() const;
 
-    /// This should describe the type of the action
-    virtual QString typeDescription() const;
+	/// This should describe the type of the action
+	virtual QString typeDescription() const;
 
-    AMDetectorDwellTimeSource* dwellTimeSource() const;
-    double dwellTime() const;
+	AMDetectorDwellTimeSource* dwellTimeSource() const;
+	double dwellTime() const;
 
 public slots:
-    void setDwellTimeSource(AMDetectorDwellTimeSource* newDwellTimeSource);
-    void setDwellTime(double newTime);
+	void setDwellTimeSource(AMDetectorDwellTimeSource* newDwellTimeSource);
+	void setDwellTime(double newTime);
 
 protected:
-    /// The detector taking a dark currents measurement.
-    AMDetectorDwellTimeSource* dwellTimeSource_;
-    /// The dwell time for the dark current correction presently taking place.
-    double dwellTime_;
+	/// The detector taking a dark currents measurement.
+	AMDetectorDwellTimeSource* dwellTimeSource_;
+	/// The dwell time for the dark current correction presently taking place.
+	double dwellTime_;
 };
 
 #endif // AMDOINGDARKCURRENTCORRECTIONACTIONINFO_H

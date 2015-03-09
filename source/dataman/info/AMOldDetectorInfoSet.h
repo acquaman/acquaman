@@ -39,9 +39,7 @@ Q_OBJECT
 	Q_PROPERTY(QString activeDetectorInfos READ dbReadActiveDetectorInfos WRITE dbLoadActiveDetectorInfos)
 
 public:
-	explicit AMOldDetectorInfoSet(QObject *parent = 0);
-	/// Loading-from-database constructor
-	Q_INVOKABLE AMOldDetectorInfoSet(AMDatabase* db, int id);
+	Q_INVOKABLE explicit AMOldDetectorInfoSet(QObject *parent = 0);
 	/// Copy constructor
 	AMOldDetectorInfoSet(const AMOldDetectorInfoSet& other);
 	/// Assignment operator

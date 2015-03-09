@@ -347,10 +347,3 @@ QWidget *AM2DNormalizationAB::createEditorWidget()
 {
 	return new AM2DNormalizationABEditor(this);
 }
-
-bool AM2DNormalizationAB::loadFromDb(AMDatabase *db, int id) {
-	bool success = AMDbObject::loadFromDb(db, id);
-	if(success)
-		AMDataSource::name_ = AMDbObject::name();	/// \todo This might change the name of a data-source in mid-life, which is technically not allowed.
-	return success;
-}

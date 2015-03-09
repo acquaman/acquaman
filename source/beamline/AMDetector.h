@@ -218,7 +218,7 @@ public:
 	/// Returns a string describing the given state
 	QString initializationStateDescription(AMDetector::InitializationState state);
 	/// Returns whether or not this detector currently requires initialization
-	bool requiresInitialization() const { return initializationState() == AMDetector::requiresInitialization(); }
+	bool requiresInitialization() const { return initializationState() == AMDetector::InitializationRequired; }
 	/// Returns whether or not this detector is currently initializing
 	bool isInitializing() const { return initializationState() == AMDetector::Initializing; }
 	/// Returns whether or not this detector has been initialized

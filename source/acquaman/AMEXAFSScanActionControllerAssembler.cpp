@@ -23,7 +23,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "actions3/AMListAction3.h"
 #include "actions3/AMLoopAction3.h"
-#include "actions3/actions/AMControlMoveAction3.h"
+#include "actions3/AMActionSupport.h"
 #include "actions3/actions/AMAxisStartedAction.h"
 #include "actions3/actions/AMAxisFinishedAction.h"
 #include "actions3/actions/AMAxisValueFinishedAction.h"
@@ -79,9 +79,8 @@ bool AMEXAFSScanActionControllerAssembler::generateActionTreeImplmentation()
 
 		// generate axis initialization list
 		AMListAction3 *initializationActions = new AMListAction3(new AMListActionInfo3(QString("Initializing %1").arg(axisControl->name()), QString("Initializing Axis with Control %1").arg(axisControl->name())), AMListAction3::Sequential);
-		AMControlInfo initializeControlPositionSetpoint = axisControl->toInfo();
-		initializeControlPositionSetpoint.setValue(axis->axisStart());
-		AMControlMoveAction3 *initializeControlPosition = new AMControlMoveAction3(new AMControlMoveActionInfo3(initializeControlPositionSetpoint), axisControl);
+
+		AMAction3 *initializeControlPosition = AMActionSupport::buildControlMoveAction(axisControl, axis->axisStart());
 		initializeControlPosition->setGenerateScanActionMessage(true);
 		initializationActions->addSubAction(initializeControlPosition);
 		axisActions->addSubAction(initializationActions);
@@ -172,11 +171,7 @@ AMAction3 *AMEXAFSScanActionControllerAssembler::generateActionTreeForEXAFSStepA
 
 		for (int i = 0; i < extendedPoints; i++){
 
-			AMControlInfo controlLoopMoveInfoSetpoint = axisControl->toInfo();
-			controlLoopMoveInfoSetpoint.setValue(energyPositions.at(i));
-			AMControlMoveActionInfo3 *controlMoveInfo = new AMControlMoveActionInfo3(controlLoopMoveInfoSetpoint);
-			controlMoveInfo->setIsRelativeMove(false);
-			AMControlMoveAction3 *controlMove = new AMControlMoveAction3(controlMoveInfo, axisControl);
+			AMAction3 *controlMove = AMActionSupport::buildControlMoveAction(axisControl, energyPositions.at(i), false);
 			controlMove->setGenerateScanActionMessage(true);
 			regionList->addSubAction(controlMove);
 			AMListAction3 *nextLevelHolderAction = new AMListAction3(new AMListActionInfo3("Holder Action for the Next Sublevel", "Holder Action for the Next Sublevel"));
@@ -189,11 +184,7 @@ AMAction3 *AMEXAFSScanActionControllerAssembler::generateActionTreeForEXAFSStepA
 
 		if (isFinalRegion){
 
-			AMControlInfo controlLoopMoveInfoSetpoint = axisControl->toInfo();
-			controlLoopMoveInfoSetpoint.setValue(double(calculator.energy(exafsRegion->regionEnd())));
-			AMControlMoveActionInfo3 *controlMoveInfo = new AMControlMoveActionInfo3(controlLoopMoveInfoSetpoint);
-			controlMoveInfo->setIsRelativeMove(false);
-			AMControlMoveAction3 *controlMove = new AMControlMoveAction3(controlMoveInfo, axisControl);
+			AMAction3 *controlMove = AMActionSupport::buildControlMoveAction(axisControl, double(calculator.energy(exafsRegion->regionEnd())), false);
 			controlMove->setGenerateScanActionMessage(true);
 			regionList->addSubAction(controlMove);
 			AMListAction3 *nextLevelHolderAction = new AMListAction3(new AMListActionInfo3("Holder Action for the Next Sublevel", "Holder Action for the Next Sublevel"));
@@ -230,11 +221,8 @@ AMAction3 *AMEXAFSScanActionControllerAssembler::generateActionTreeForEXAFSStepA
 
 			regionList->addSubAction(detectorSetDwellList);
 
-			AMControlInfo controlLoopMoveInfoSetpoint = axisControl->toInfo();
-			controlLoopMoveInfoSetpoint.setValue(energyPositions.at(i));
-			AMControlMoveActionInfo3 *controlMoveInfo = new AMControlMoveActionInfo3(controlLoopMoveInfoSetpoint);
-			controlMoveInfo->setIsRelativeMove(false);
-			AMControlMoveAction3 *controlMove = new AMControlMoveAction3(controlMoveInfo, axisControl);
+			AMAction3 *controlMove = AMActionSupport::buildControlMoveAction(axisControl, energyPositions.at(i), false);
+
 			controlMove->setGenerateScanActionMessage(true);
 			regionList->addSubAction(controlMove);
 			AMListAction3 *nextLevelHolderAction = new AMListAction3(new AMListActionInfo3("Holder Action for the Next Sublevel", "Holder Action for the Next Sublevel"));
@@ -259,11 +247,8 @@ AMAction3 *AMEXAFSScanActionControllerAssembler::generateActionTreeForEXAFSStepA
 
 			regionList->addSubAction(detectorSetDwellList);
 
-			AMControlInfo controlLoopMoveInfoSetpoint = axisControl->toInfo();
-			controlLoopMoveInfoSetpoint.setValue(double(kCalculator.energy(exafsRegion->regionEnd())));
-			AMControlMoveActionInfo3 *controlMoveInfo = new AMControlMoveActionInfo3(controlLoopMoveInfoSetpoint);
-			controlMoveInfo->setIsRelativeMove(false);
-			AMControlMoveAction3 *controlMove = new AMControlMoveAction3(controlMoveInfo, axisControl);
+			AMAction3 *controlMove = AMActionSupport::buildControlMoveAction(axisControl, double(kCalculator.energy(exafsRegion->regionEnd())), false);
+
 			controlMove->setGenerateScanActionMessage(true);
 			regionList->addSubAction(controlMove);
 			AMListAction3 *nextLevelHolderAction = new AMListAction3(new AMListActionInfo3("Holder Action for the Next Sublevel", "Holder Action for the Next Sublevel"));

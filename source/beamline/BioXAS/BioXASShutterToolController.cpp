@@ -21,6 +21,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "BioXASShutterToolController.h"
 
+
 #include <QDebug>
 
 BioXASShutterToolController::BioXASShutterToolController(QObject *parent) : QObject(parent)
@@ -306,17 +307,8 @@ AMAction3* BioXASShutterToolController::createOpenShuttersAction()
 {
     AMSequentialListAction3 *openShuttersAction = new AMSequentialListAction3(new AMSequentialListActionInfo3("Opens safety and photon shutters.", "Opens safety and photon shutters."));
 
-    AMControlInfo setpoint = safetyShutter_->toInfo();
-	setpoint.setValue(BioXASShutterToolController::Open);
-    AMControlMoveActionInfo3 *openShutterInfo = new AMControlMoveActionInfo3(setpoint);
-    AMControlMoveAction3 *openShutterAction = new AMControlMoveAction3(openShutterInfo, safetyShutter_);
-    openShuttersAction->addSubAction(openShutterAction);
-
-    setpoint = photonShutter_->toInfo();
-	setpoint.setValue(BioXASShutterToolController::Open);
-    openShutterInfo = new AMControlMoveActionInfo3(setpoint);
-    openShutterAction = new AMControlMoveAction3(openShutterInfo, photonShutter_);
-    openShuttersAction->addSubAction(openShutterAction);
+    openShuttersAction->addSubAction(AMActionSupport::buildControlMoveAction(safetyShutter_, BioXASShutterToolController::Open));
+    openShuttersAction->addSubAction(AMActionSupport::buildControlMoveAction(photonShutter_, BioXASShutterToolController::Open));
 
     return openShuttersAction;
 }
@@ -327,17 +319,8 @@ AMAction3* BioXASShutterToolController::createCloseShuttersAction()
 {
     AMSequentialListAction3 *closeShuttersAction = new AMSequentialListAction3(new AMSequentialListActionInfo3("Closes photon and safety shutters.", "Closes photon and safety shutters."));
 
-    AMControlInfo setpoint = photonShutter_->toInfo();
-	setpoint.setValue(BioXASShutterToolController::Closed);
-    AMControlMoveActionInfo3 *closeShutterInfo = new AMControlMoveActionInfo3(setpoint);
-    AMControlMoveAction3 *closeShutterAction = new AMControlMoveAction3(closeShutterInfo, photonShutter_);
-    closeShuttersAction->addSubAction(closeShutterAction);
-
-    setpoint = safetyShutter_->toInfo();
-	setpoint.setValue(BioXASShutterToolController::Closed);
-    closeShutterInfo = new AMControlMoveActionInfo3(setpoint);
-    closeShutterAction = new AMControlMoveAction3(closeShutterInfo, safetyShutter_);
-    closeShuttersAction->addSubAction(closeShutterAction);
+    closeShuttersAction->addSubAction(AMActionSupport::buildControlMoveAction(photonShutter_, BioXASShutterToolController::Closed));
+    closeShuttersAction->addSubAction(AMActionSupport::buildControlMoveAction(safetyShutter_, BioXASShutterToolController::Closed));
 
     return closeShuttersAction;
 }

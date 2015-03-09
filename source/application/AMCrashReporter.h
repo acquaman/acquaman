@@ -21,6 +21,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QWidget>
 #include <QSocketNotifier>
+#include <QMap>
 
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -30,6 +31,8 @@ class QProcess;
 class QProgressBar;
 class QLabel;
 class QCloseEvent;
+
+class AMProcessWatcher;
 
 class AMCrashReporterUnixSignalHandler : public QObject
 {
@@ -118,9 +121,9 @@ protected slots:
 	void onCrashReporterPIDTimerTimeout();
 
 	/// Handles output from an AMProcessWatcher signal, if the process for the Acquaman application wasn't found then the crash monitor dies gracefully
-	void onWatchingPIDFoundProcess(bool wasFound);
+	void onWatchingPIDFoundProcess(bool wasFound, uint instanceID);
 	/// Handles output from an AMProcessWatcher signal, if the process for the crash reporter wasn't found then the crash monitor dies gracefully
-	void onCrashReporterPIDFoundProcess(bool wasFound);
+	void onCrashReporterPIDFoundProcess(bool wasFound, uint instanceID);
 
 protected:
 	/// Holds the Acquaman application full file path (used to find the name of the application)
@@ -140,6 +143,9 @@ protected:
 	QTimer *watchingPIDTimer_;
 	/// Timer that goes off every 5 seconds after an Acquaman application crash to make sure we didn't miss the crash reporter closing
 	QTimer *crashReporterPIDTimer_;
+
+	/// the mapping of AMProcessWatcher
+	 QMap<int, AMProcessWatcher *> processWatchers_;
 };
 
 class AMCrashReporter : public QWidget
@@ -203,13 +209,16 @@ public:
 	/// Small class to look for a PID using a call to ps
 	AMProcessWatcher(qint64 watchPID, QObject *parent = 0);
 
+	/// get the instanceID of the process watcher
+	uint instanceID() const;
+
 public slots:
 	/// Starts the ps process
 	void startWatching();
 
 signals:
 	/// Emits whether we found that PID or not
-	void foundWatchPID(bool wasFound);
+	void foundWatchPID(bool wasFound, uint instanceID);
 
 protected slots:
 	/// Handles the standard output of the ps command
@@ -218,6 +227,9 @@ protected slots:
 	void onProcessFinished();
 
 protected:
+	/// the instance ID of the processWatcher
+	uint instanceID_;
+
 	/// PID we want to look for
 	qint64 watchPID_;
 

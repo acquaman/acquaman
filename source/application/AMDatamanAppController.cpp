@@ -64,6 +64,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/AMScan.h"
 #include "acquaman/AMScanConfiguration.h"
 #include "acquaman/AMStepScanConfiguration.h"
+#include "acquaman/AMTimedRegionScanConfiguration.h"
 
 // Necessary for registering database types:
 ////////////////////////////
@@ -79,10 +80,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <dataman/info/AMSpectralOutputDetectorInfo.h>
 #include "dataman/AMUser.h"
 #include "dataman/AMXESScan.h"
+#include "dataman/AMXRFScan.h"
 #include "analysis/AM1DExpressionAB.h"
 #include "analysis/AM2DSummingAB.h"
 #include "analysis/AM1DDerivativeAB.h"
-#include "analysis/AMExternalScanDataSourceAB.h"
 #include "analysis/AM1DSummingAB.h"
 #include "analysis/AMDeadTimeAB.h"
 #include "dataman/export/AMExporterOptionGeneralAscii.h"
@@ -712,8 +713,10 @@ bool AMDatamanAppController::startupRegisterDatabases()
 	success &= AMDbObjectSupport::s()->registerClass<AMXESScan>();
 	success &= AMDbObjectSupport::s()->registerClass<AM2DScan>();
 	success &= AMDbObjectSupport::s()->registerClass<AM3DScan>();
+	success &= AMDbObjectSupport::s()->registerClass<AMXRFScan>();
 
 	success &= AMDbObjectSupport::s()->registerClass<AMStepScanConfiguration>();
+	success &= AMDbObjectSupport::s()->registerClass<AMTimedRegionScanConfiguration>();
 
 	success &= AMDbObjectSupport::s()->registerClass<AMRun>();
 	success &= AMDbObjectSupport::s()->registerClass<AMExperiment>();
@@ -726,7 +729,6 @@ bool AMDatamanAppController::startupRegisterDatabases()
 	success &= AMDbObjectSupport::s()->registerClass<AM2DSummingAB>();
 	success &= AMDbObjectSupport::s()->registerClass<AM1DDerivativeAB>();
 	success &= AMDbObjectSupport::s()->registerClass<AM1DIntegralAB>();
-	success &= AMDbObjectSupport::s()->registerClass<AMExternalScanDataSourceAB>();
 	success &= AMDbObjectSupport::s()->registerClass<AM1DSummingAB>();
 	success &= AMDbObjectSupport::s()->registerClass<AMDeadTimeAB>();
 	success &= AMDbObjectSupport::s()->registerClass<AM2DNormalizationAB>();

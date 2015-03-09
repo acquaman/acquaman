@@ -21,7 +21,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMMotorGroup.h"
 
-#include "actions3/actions/AMControlMoveAction3.h"
+#include "actions3/AMActionSupport.h"
 #include "actions3/actions/AMControlStopAction.h"
 #include "actions3/AMListAction3.h"
 
@@ -209,12 +209,7 @@ AMAction3 *AMMotorGroupObject::createHorizontalMoveAction(double position)
 	if (!horizontalControl()->isConnected())
 		return 0;
 
-	AMControlInfo setpoint = horizontalControl()->toInfo();
-	setpoint.setValue(position);
-	AMControlMoveActionInfo3 *actionInfo = new AMControlMoveActionInfo3(setpoint);
-	AMAction3 *action = new AMControlMoveAction3(actionInfo, horizontalControl());
-
-	return action;
+	return AMActionSupport::buildControlMoveAction(horizontalControl(), position);
 }
 
 AMAction3 *AMMotorGroupObject::createHorizontalStopAction()
@@ -234,12 +229,7 @@ AMAction3 *AMMotorGroupObject::createVerticalMoveAction(double position)
 	if (!verticalControl()->isConnected())
 		return 0;
 
-	AMControlInfo setpoint = verticalControl()->toInfo();
-	setpoint.setValue(position);
-	AMControlMoveActionInfo3 *actionInfo = new AMControlMoveActionInfo3(setpoint);
-	AMAction3 *action = new AMControlMoveAction3(actionInfo, verticalControl());
-
-	return action;
+	return AMActionSupport::buildControlMoveAction(verticalControl(), position);
 }
 
 AMAction3 *AMMotorGroupObject::createVerticalStopAction()
@@ -259,12 +249,7 @@ AMAction3 *AMMotorGroupObject::createNormalMoveAction(double position)
 	if (!normalControl()->isConnected())
 		return 0;
 
-	AMControlInfo setpoint = normalControl()->toInfo();
-	setpoint.setValue(position);
-	AMControlMoveActionInfo3 *actionInfo = new AMControlMoveActionInfo3(setpoint);
-	AMAction3 *action = new AMControlMoveAction3(actionInfo, normalControl());
-
-	return action;
+	return AMActionSupport::buildControlMoveAction(normalControl(), position);
 }
 
 AMAction3 *AMMotorGroupObject::createNormalStopAction()

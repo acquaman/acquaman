@@ -34,10 +34,9 @@ Q_PROPERTY(AMDbObjectList detectorInfos READ dbReadDetectorInfos WRITE dbLoadDet
 
 public:
 	/// Constructor
- 	virtual ~AMDetectorInfoSet();
-	explicit AMDetectorInfoSet(QObject *parent = 0);
-	/// Database loading constructor
-	Q_INVOKABLE AMDetectorInfoSet(AMDatabase *db, int id);
+	Q_INVOKABLE explicit AMDetectorInfoSet(QObject *parent = 0);
+	/// Destructor.
+	virtual ~AMDetectorInfoSet();
 	/// Copy Constructor
 	AMDetectorInfoSet(const AMDetectorInfoSet &other);
 	/// Assignment operator

@@ -34,7 +34,7 @@ class AMAxisStartedActionInfo : public AMActionInfo3
 
 public:
 	/// Constructor
-	Q_INVOKABLE AMAxisStartedActionInfo(const QString &axisName, AMScanAxis::AxisType axisType, QObject *parent = 0);
+	Q_INVOKABLE AMAxisStartedActionInfo(const QString &axisName = "", AMScanAxis::AxisType axisType = AMScanAxis::InvalidAxisType, QObject *parent = 0);
 	/// Destructor.
 	virtual ~AMAxisStartedActionInfo();
 

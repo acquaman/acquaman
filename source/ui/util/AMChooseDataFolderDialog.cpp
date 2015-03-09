@@ -1,27 +1,4 @@
-/*
-Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
-Copyright 2013-2014 David Chevrier and Darren Hunter.
-
-This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
-
-Acquaman is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-Acquaman is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
-*/
-
-
-#include "VESPERSChooseDataFolderDialog.h"
-
-#include "application/VESPERS/VESPERS.h"
+#include "AMChooseDataFolderDialog.h"
 
 #include <QLabel>
 #include <QFileDialog>
@@ -34,9 +11,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QStringBuilder>
 #include <QComboBox>
 
-VESPERSChooseDataFolderDialog::~VESPERSChooseDataFolderDialog(){}
-
-VESPERSChooseDataFolderDialog::VESPERSChooseDataFolderDialog(const QString &dataFolder, QWidget *parent)
+AMChooseDataFolderDialog::AMChooseDataFolderDialog(const QString &dataFolder, const QString &localPath, const QString &remotePath, QWidget *parent)
 	: QDialog(parent)
 {
 	setWindowTitle("Choose Data Ouput Destination");
@@ -68,7 +43,15 @@ VESPERSChooseDataFolderDialog::VESPERSChooseDataFolderDialog(const QString &data
 	folderButton->setIcon(QIcon(":/22x22/folder.png"));
 	okButton_ = new QPushButton(QIcon(":/22x22/greenCheck.png"), "Okay");
 	QPushButton *cancelButton = new QPushButton(QIcon(":/22x22/list-remove-2.png"), "Cancel");
-	QString shortFormPath = VESPERS::getProposalNumber(folder_);
+	QString shortFormPath = "";
+
+	if (folder_.contains(localPath) || folder_.contains(remotePath)){
+
+		shortFormPath = folder_;
+		shortFormPath = shortFormPath.remove(QRegExp(QString("%1|%2").arg(localPath).arg(remotePath)));
+		shortFormPath = shortFormPath.remove("/userData");
+		shortFormPath = shortFormPath.remove("/");
+	}
 
 	connect(folderButton, SIGNAL(clicked()), this, SLOT(getFilePath()));
 	connect(okButton_, SIGNAL(clicked()), this, SLOT(accept()));
@@ -110,41 +93,50 @@ VESPERSChooseDataFolderDialog::VESPERSChooseDataFolderDialog(const QString &data
 // Static member
 //////////////////////////////////////
 
-bool VESPERSChooseDataFolderDialog::getDataFolder(QWidget *parent)
+bool AMChooseDataFolderDialog::getDataFolder(const QString &localRootDirectory, const QString &remoteRootDirectory, const QString &destination, const QStringList &extraDestinations, QWidget *parent)
 {
 	AMUserSettings::load();
 
-	VESPERSChooseDataFolderDialog dialog(AMUserSettings::userDataFolder, parent);
+	AMChooseDataFolderDialog dialog(AMUserSettings::userDataFolder, QString("%1/%2").arg(localRootDirectory).arg(destination), QString("%1/%2").arg(remoteRootDirectory).arg(destination), parent);
 	dialog.exec();
 
 	if (dialog.result() == QDialog::Accepted){
 
 		if (!dialog.isFullPath()){
 
-			QString originalInput = dialog.filePath();
-			QFileInfo remoteFullPath("/nas/vespers/users/" % originalInput);
+			QString dialogInput = dialog.filePath();
+			QFileInfo remoteFullPath(QString("%1/%2/%3").arg(remoteRootDirectory).arg(destination).arg(dialogInput));
 			bool isFirstTimeUser = !remoteFullPath.exists();
 
 			if (!remoteFullPath.exists()){
 
-				QDir newPath("/nas/vespers/users");
-				newPath.mkpath(QString("%1/userData").arg(originalInput));
-				newPath.mkpath(QString("%1/XRD Images").arg(originalInput));
+				QDir newPath(QString("%1/%2").arg(remoteRootDirectory).arg(destination));
+				newPath.mkpath(QString("%1/userData").arg(dialogInput));
+
+				foreach (QString newExtraDestination, extraDestinations)
+					newPath.mkpath(QString("%1/%2").arg(dialogInput).arg(newExtraDestination));
 			}
 
 			if (isFirstTimeUser){
 
-				AMUserSettings::userDataFolder = QString("/nas/vespers/users/%1/userData/").arg(originalInput);
+				AMUserSettings::userDataFolder = QString("%1/%2/%3/userData/").arg(remoteRootDirectory).arg(destination).arg(dialogInput);
 				AMUserSettings::remoteDataFolder = "";
 				AMUserSettings::save(true);
 			}
 
 			else {
 
-				AMUserSettings::userDataFolder = QString("/AcquamanLocalData/vespers/users/%1/userData/").arg(originalInput);
-				AMUserSettings::remoteDataFolder = QString("/nas/vespers/users/%1/userData/").arg(originalInput);
+				AMUserSettings::userDataFolder = QString("%1/%2/%3/userData/").arg(localRootDirectory).arg(destination).arg(dialogInput);
+				AMUserSettings::remoteDataFolder = QString("%1/%2/%3/userData/").arg(remoteRootDirectory).arg(destination).arg(dialogInput);
 				AMUserSettings::save();
 			}
+		}
+
+		else {
+
+			AMUserSettings::removeRemoteDataFolderEntry();
+			AMUserSettings::userDataFolder = dialog.filePath();
+			AMUserSettings::save();
 		}
 
 		return true;
@@ -156,7 +148,7 @@ bool VESPERSChooseDataFolderDialog::getDataFolder(QWidget *parent)
 
 //////////////////////////////////////
 
-void VESPERSChooseDataFolderDialog::onTextChanged(const QString &text)
+void AMChooseDataFolderDialog::onTextChanged(const QString &text)
 {
 	QPalette palette(this->palette());
 	QPalette pathPalette(this->palette());
@@ -179,12 +171,12 @@ void VESPERSChooseDataFolderDialog::onTextChanged(const QString &text)
 	folder_ = text;
 }
 
-QString VESPERSChooseDataFolderDialog::pathStatus(const QString &path) const
+QString AMChooseDataFolderDialog::pathStatus(const QString &path) const
 {
 	if (advancedCheck_->isChecked())
 		return QFileInfo(path).exists() ? "Absolute path okay!" : "Absolute path does not exist!";
 
-	else if (!VESPERS::getProposalNumber(path).isEmpty())
+	else if (isProposalNumber(path))
 		return "Valid proposal number!";
 
 	else if (directories_.contains(path))
@@ -194,7 +186,12 @@ QString VESPERSChooseDataFolderDialog::pathStatus(const QString &path) const
 		return "New experiment!";
 }
 
-void VESPERSChooseDataFolderDialog::getFilePath()
+bool AMChooseDataFolderDialog::isProposalNumber(const QString &path) const
+{
+	return path.contains(QRegExp("^\\d{2,2}-\\d{4,4}$"));
+}
+
+void AMChooseDataFolderDialog::getFilePath()
 {
 	QString path = folder_;
 	path.chop(1);
