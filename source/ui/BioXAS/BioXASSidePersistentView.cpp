@@ -35,6 +35,7 @@ BioXASSidePersistentView::BioXASSidePersistentView(QWidget *parent) :
     layout->addStretch();
 
     setLayout(layout);
+    setFixedWidth(200);
 }
 
 BioXASSidePersistentView::~BioXASSidePersistentView()
