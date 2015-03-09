@@ -31,6 +31,10 @@ BioXASSideMonochromator::BioXASSideMonochromator(QObject *parent) :
 	regionAStatus_ = new AMReadOnlyPVControl("RegionAStatus", "BL1607-5-I22:Mono:Region:A", this);
 	regionBStatus_ = new AMReadOnlyPVControl("RegionBStatus", "BL1607-5-I22:Mono:Region:B", this);
 
+	hcControl_ = new AMReadOnlyPVControl("hc Constant", "BL1607-5-I22:Energy:EV:fbk:tr.A", this);
+	crystal2DControl_ = new AMReadOnlyPVControl("Crystal 2D Spacing", "BL1607-5-I22:Energy:EV:fbk:tr.B", this);
+	braggAngleControl_ = new AMReadOnlyPVControl("BraggAngle", "BL1607-5-I22:Energy:EV:fbk:tr.K", this);
+
 	energy_ = new BioXASSideMonochromatorControl("EnergyEV", "BL1607-5-I22:Energy:EV:fbk", "BL1607-5-I22:Energy:EV", "BL1607-5-I22:Energy:status", QString("BL1607-5-I22:Energy:stop"), this);
 
 	// Controls value changes.
@@ -166,7 +170,7 @@ void BioXASSideMonochromator::setCrystalChangeMotorPosition(double relDestinatio
 		crystalChangeMotorRel_->move(relDestination);
 }
 
-void BioXASSideMonochromator::setBraggAngleOffset(double newOffset)
+void BioXASSideMonochromator::setBraggMotorAngleOffset(double newOffset)
 {
 	braggMotor_->setEGUOffset(newOffset);
 }
@@ -238,11 +242,11 @@ AMAction3* BioXASSideMonochromator::createCrystalChangeAction(Region::State newR
 	double newRegionDestination;
 
 	if (newRegion == Region::A) {
-		crystalChangeMotorDestination = -12,000;
+		crystalChangeMotorDestination = -12000;
 		newRegionDestination = 350;
 
 	} else {
-		crystalChangeMotorDestination = 12,000;
+		crystalChangeMotorDestination = 12000;
 		newRegionDestination = 140;
 	}
 

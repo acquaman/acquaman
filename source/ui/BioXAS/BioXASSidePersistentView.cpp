@@ -63,7 +63,18 @@ void BioXASSidePersistentView::onCalibrateEnergyButtonClicked()
 	double newEnergy = QInputDialog::getDouble(this, "Monochromator Energy Calibration", "Enter current calibrated energy:", BioXASSideBeamline::bioXAS()->mono()->energyControl()->value(), 0, 10000000, 1, &inputOK, Qt::Sheet);
 
 	if (inputOK) {
-		double deltaEnergy = newEnergy - BioXASSideBeamline::bioXAS()->mono()->energy();
-//		BioXASSideBeamline::bioXAS()->mono()->setBraggAngleOffset(newOffset);
+		// Gather pre-calibration information.
+		double hc = BioXASSideBeamline::bioXAS()->mono()->hc();
+		double energy = BioXASSideBeamline::bioXAS()->mono()->energy();
+		double crystal2D = BioXASSideBeamline::bioXAS()->mono()->crystal2D();
+		double braggAngle = BioXASSideBeamline::bioXAS()->mono()->braggAngle();
+		double angleOffset = BioXASSideBeamline::bioXAS()->mono()->braggMotorAngleOffset();
+
+		// Calculate changes needed for calibration.
+		double deltaEnergy = newEnergy - energy;
+		double deltaOffset = hc / (crystal2D * energy * energy * cos(braggAngle * M_PI / 180)) * deltaEnergy * 180 / M_PI;
+
+		// Set the bragg angle offset s.t. the current energy is the new energy.
+		BioXASSideBeamline::bioXAS()->mono()->setBraggMotorAngleOffset(angleOffset + deltaOffset);
 	}
 }

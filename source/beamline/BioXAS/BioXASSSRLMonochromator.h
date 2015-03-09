@@ -3,7 +3,7 @@
 
 #include <QObject>
 
-#include <actions3/AMAction3.h>
+#include "actions3/AMAction3.h"
 
 #define BRAGG_MOTOR_CRYSTAL_CHANGE_POSITION 55.0
 
@@ -53,7 +53,13 @@ public:
 	/// Returns true if the crystal change motor is at its counter-clockwise limit.
 	virtual bool crystalChangeAtCCWLimit() const = 0;
 	/// Returns the bragg angle offset.
-	virtual double braggAngleOffset() const = 0;
+	virtual double braggMotorAngleOffset() const = 0;
+	/// Returns the hc constant, used to convert between energies and angles.
+	virtual double hc() const = 0;
+	/// Returns the crystal 2D spacing.
+	virtual double crystal2D() const = 0;
+	/// Returns the current physical bragg angle.
+	virtual double braggAngle() const = 0;
 
 	/// Returns a new 'set energy' action, 0 if not connected. The argument is the desired energy.
 	virtual AMAction3* createSetEnergyAction(double newEnergy) = 0;
@@ -102,7 +108,7 @@ public slots:
 	/// Sets the position of the crystal change motor.
 	virtual void setCrystalChangeMotorPosition(double relDestination) = 0;
 	/// Sets the bragg angle offset.
-	virtual void setBraggAngleOffset(double newOffset) = 0;
+	virtual void setBraggMotorAngleOffset(double newOffset) = 0;
 };
 
 #endif // BIOXASSSRLMONOCHROMATOR_H
