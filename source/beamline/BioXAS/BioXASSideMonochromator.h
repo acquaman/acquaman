@@ -43,14 +43,6 @@ public:
 	virtual bool crystalChangeAtCWLimit() const { return ((int)crystalChangeMotorCWLimitStatus_->value() == CrystalChangeMotor::AtLimit); }
 	/// Returns true if the crystal change motor is at its counter-clockwise limit, false otherwise.
 	virtual bool crystalChangeAtCCWLimit() const { return ((int)crystalChangeMotorCCWLimitStatus_->value() == CrystalChangeMotor::AtLimit); }
-	/// Returns the bragg motor angle offset.
-	virtual double braggMotorAngleOffset() const { return braggMotor_->EGUOffset(); }
-	/// Returns the hc constant, used to convert between energies and angles.
-	virtual double hc() const { return hcControl_->value(); }
-	/// Returns the physical bragg angle.
-	virtual double braggAngle() const { return braggAngleControl_->value(); }
-	/// Returns the 2D crystal spacing.
-	virtual double crystal2D() const { return crystal2DControl_->value(); }
 
 	/// Returns the phosphor paddle motor.
 	CLSMAXvMotor* phosphorPaddleMotor() const { return phosphorPaddleMotor_; }
@@ -98,6 +90,8 @@ public:
 
 	/// Returns a new set energy action, 0 if not connected.
 	virtual AMAction3* createSetEnergyAction(double newEnergy);
+	/// Returns a new action that calculates and applies the needed bragg angle offset s.t. the mono energy is the desired energy.
+	virtual AMAction3* createSetEnergyCalibrationAction(double newEnergy);
 	/// Returns a new close slits action, 0 if not connected.
 	virtual AMAction3* createCloseSlitsAction();
 	/// Returns a new remove paddle action, 0 if not connected.
@@ -106,7 +100,6 @@ public:
 	virtual AMAction3* createMoveBraggMotorAction(double degDestination);
 	/// Returns a new action that moves the crystal change motor by the given degrees (relative).
 	virtual AMAction3* createMoveCrystalChangeMotorAction(int relDestination);
-
 	/// Returns a new action that turns on the bragg motor, 0 if not connected.
 	AMAction3* createSetBraggMotorPowerOnAction();
 	/// Returns a new action that sets the bragg motor power to auto-software.
@@ -115,6 +108,8 @@ public:
 public slots:
 	/// Sets the energy setpoint.
 	virtual void setEnergy(double newEnergy);
+	/// Sets the bragg offset such that the mono energy matches the desired energy.
+	virtual void setEnergyCalibration(double newEnergy);
 	/// Sets the region.
 	virtual void setRegion(Region::State newRegion);
 	/// Closes both slits.
@@ -125,8 +120,6 @@ public slots:
 	virtual void setBraggMotorPosition(double degDestination);
 	/// Sets the position of the crystal change motor.
 	virtual void setCrystalChangeMotorPosition(double relDestination);
-	/// Sets the bragg motor angle offset.
-	virtual void setBraggMotorAngleOffset(double newOffset);
 
 protected slots:
 	/// Updates the mono's general connected state based on the connected state of each of its pvs.
@@ -161,6 +154,7 @@ protected:
 	AMAction3* createWaitForKeyDisabledAction();
 	/// Returns a new crystal change action that moves to desired region, 0 if not connected.
 	AMAction3* createCrystalChangeAction(Region::State newRegion);
+
 
 protected:
 	/// Connected state.
@@ -199,6 +193,10 @@ protected:
 	AMControl* hcControl_;
 	AMControl* crystal2DControl_;
 	AMControl* braggAngleControl_;
+
+private:
+	/// Returns the bragg motor offset needed in order for the given energy to match the desired energy.
+	double calibrateEnergy(double currentEnergy, double newEnergy);
 };
 
 #endif // BIOXASSIDEMONOCHROMATOR_H
