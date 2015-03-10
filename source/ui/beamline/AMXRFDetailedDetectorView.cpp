@@ -125,7 +125,11 @@ void AMXRFDetailedDetectorView::buildDeadTimeView()
 		}
 	}
 
-	connect(deadTimeButtons_, SIGNAL(buttonClicked(int)), this, SLOT(onDeadTimeButtonClicked(int)));
+	if (deadTimeButtons_->buttons().size() > 1) {
+		connect(deadTimeButtons_, SIGNAL(buttonClicked(int)), this, SLOT(onDeadTimeButtonClicked(int)));
+	} else{
+		deadTimeButtons_->button(0)->setCheckable(false);
+	}
 	connect(detector_, SIGNAL(elementEnabled(int)), this, SLOT(onElementEnabledOrDisabled(int)));
 	connect(detector_, SIGNAL(elementDisabled(int)), this, SLOT(onElementEnabledOrDisabled(int)));
 
