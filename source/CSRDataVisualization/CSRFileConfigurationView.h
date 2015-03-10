@@ -6,7 +6,6 @@
 #include "CSRDataVisualization/CSRFileConfiguration.h"
 
 #include <QSpinBox>
-#include <QToolButton>
 
 /// Simple view that allows you to edit a file configuration.
 class CSRFileConfigurationView : public QWidget
@@ -17,7 +16,12 @@ public:
 	/// Constructor.
 	explicit CSRFileConfigurationView(CSRFileConfiguration *info, QWidget *parent = 0);
 
+	/// Returns the file configuration this view visualizes.
+	CSRFileConfiguration *fileConfiguration() const { return fileConfiguration_; }
+
 signals:
+	/// Notifier that the delete button was clicked.  Passes the pointer of the widget.
+	void deleteRequested(CSRFileConfigurationView *);
 
 public slots:
 
@@ -28,6 +32,8 @@ protected slots:
 	void onNumberOfPointsChanged();
 	/// Handles the number of revolutions changed.
 	void onNumberOfRevolutionsChanged();
+	/// Handles emitting the delete signal.
+	void onDeleteRequested();
 
 protected:
 	/// The file configuration.

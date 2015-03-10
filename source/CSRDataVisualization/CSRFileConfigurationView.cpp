@@ -2,6 +2,7 @@
 
 #include <math.h>
 #include <QHBoxLayout>
+#include <QPushButton>
 
 CSRFileConfigurationView::CSRFileConfigurationView(CSRFileConfiguration *info, QWidget *parent)
 	: QWidget(parent)
@@ -27,10 +28,14 @@ CSRFileConfigurationView::CSRFileConfigurationView(CSRFileConfiguration *info, Q
 	numberOfRevolutions_->setValue(fileConfiguration_->numberOfRevolutions());
 	connect(numberOfRevolutions_, SIGNAL(editingFinished()), this, SLOT(onNumberOfRevolutionsChanged()));
 
+	QPushButton *deleteButton = new QPushButton("Remove");
+	connect(deleteButton, SIGNAL(clicked()), this, SLOT(onDeleteRequested()));
+
 	QHBoxLayout *layout = new QHBoxLayout;
 	layout->addWidget(fileSize_, 0, Qt::AlignCenter);
 	layout->addWidget(numberOfPoints_, 0, Qt::AlignCenter);
 	layout->addWidget(numberOfRevolutions_, 0, Qt::AlignCenter);
+	layout->addWidget(deleteButton, 0, Qt::AlignCenter);
 
 	setLayout(layout);
 }
@@ -48,4 +53,9 @@ void CSRFileConfigurationView::onNumberOfPointsChanged()
 void CSRFileConfigurationView::onNumberOfRevolutionsChanged()
 {
 	fileConfiguration_->setNumberOfRevolutions(numberOfRevolutions_->value());
+}
+
+void CSRFileConfigurationView::onDeleteRequested()
+{
+	emit deleteRequested(this);
 }

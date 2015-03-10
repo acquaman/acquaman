@@ -25,6 +25,8 @@ public:
 
 	/// Adds a file configuration.
 	void addFileConfiguration(CSRFileConfiguration *info);
+	/// Removes a file configuraiton.
+	void removeFileConfiguration(CSRFileConfiguration *info);
 	/// Returns a configuration.
 	CSRFileConfiguration *fileConfigurationAt(int index) const;
 	/// Returns the number of configurations.

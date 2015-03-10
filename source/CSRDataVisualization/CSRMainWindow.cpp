@@ -1,9 +1,10 @@
 #include "CSRMainWindow.h"
 
-#include <QVBoxLayout>
 #include <QGroupBox>
 #include <QFileDialog>
 #include <QHBoxLayout>
+#include <QPushButton>
+
 #include <math.h>
 
 #include <QDebug>
@@ -25,19 +26,25 @@ CSRMainWindow::CSRMainWindow(CSRDataModel *model, QWidget *parent)
 	computeButton_->setDisabled(true);
 	connect(computeButton_, SIGNAL(clicked()), this, SLOT(onComputeClicked()));
 
-	QVBoxLayout *configurationLayout = new QVBoxLayout;
+	configurationLayout_ = new QVBoxLayout;
+
+	QPushButton *addButton = new QPushButton("Add File Type");
+	connect(addButton, SIGNAL(clicked()), this, SLOT(onFileConfigurationAddRequested()));
+	configurationLayout_->addWidget(addButton, 0, Qt::AlignRight);
 
 	for (int i = 0, size = model_->fileConfigurationCount(); i < size; i++){
 
 		CSRFileConfigurationView *view = new CSRFileConfigurationView(model_->fileConfigurationAt(i));
-		configurationLayout->addWidget(view);
+		fileConfigurationViews_ << view;
+		configurationLayout_->addWidget(view);
+		connect(view, SIGNAL(deleteRequested(CSRFileConfigurationView*)), this, SLOT(onFileConfigurationDeleteRequested(CSRFileConfigurationView*)));
 	}
 
 	fileInformationLabel_ = new QLabel("No directory chosen.");
 
 	QVBoxLayout *mainLayout = new QVBoxLayout;
 	mainLayout->addLayout(directoryLayout);
-	mainLayout->addLayout(configurationLayout);
+	mainLayout->addLayout(configurationLayout_);
 	mainLayout->addWidget(fileInformationLabel_, 0, Qt::AlignLeft);
 	mainLayout->addWidget(computeButton_, 0, Qt::AlignRight);
 
@@ -103,3 +110,20 @@ void CSRMainWindow::onComputeClicked()
 
 }
 
+void CSRMainWindow::onFileConfigurationDeleteRequested(CSRFileConfigurationView *view)
+{
+	configurationLayout_->removeWidget(view);
+	fileConfigurationViews_.removeOne(view);
+	model_->removeFileConfiguration(view->fileConfiguration());
+	view->deleteLater();
+}
+
+void CSRMainWindow::onFileConfigurationAddRequested()
+{
+	CSRFileConfiguration *info = new CSRFileConfiguration(0, 0, 0);
+	CSRFileConfigurationView *view = new CSRFileConfigurationView(info);
+	model_->addFileConfiguration(info);
+	fileConfigurationViews_ << view;
+	configurationLayout_->addWidget(view);
+	connect(view, SIGNAL(deleteRequested(CSRFileConfigurationView*)), this, SLOT(onFileConfigurationDeleteRequested(CSRFileConfigurationView*)));
+}

@@ -7,6 +7,7 @@
 #include <QPushButton>
 #include <QComboBox>
 #include <QDir>
+#include <QVBoxLayout>
 
 #include "CSRDataVisualization/CSRDataModel.h"
 #include "CSRDataVisualization/CSRFileConfigurationView.h"
@@ -29,6 +30,10 @@ protected slots:
 	void onGetDirectoryButtonClicked();
 	/// Gets the ball rolling on the computation.
 	void onComputeClicked();
+	/// Handles adding a file configuration.
+	void onFileConfigurationAddRequested();
+	/// Handles removing and deleting file configurations.
+	void onFileConfigurationDeleteRequested(CSRFileConfigurationView *view);
 
 protected:
 	/// The data model.
@@ -45,6 +50,8 @@ protected:
 	QPushButton *computeButton_;
 	/// List of file configuration views.
 	QList<CSRFileConfigurationView *> fileConfigurationViews_;
+	/// The layout for the file configuration views.
+	QVBoxLayout *configurationLayout_;
 };
 
 #endif // CSRMAINWINDOW_H

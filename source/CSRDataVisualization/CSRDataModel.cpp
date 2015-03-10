@@ -146,3 +146,9 @@ CSRFileConfiguration * CSRDataModel::fileConfigurationAt(int index) const
 {
 	return fileConfigurations_.at(index);
 }
+
+void CSRDataModel::removeFileConfiguration(CSRFileConfiguration *info)
+{
+	fileConfigurations_.removeOne(info);
+	info->deleteLater();
+}
