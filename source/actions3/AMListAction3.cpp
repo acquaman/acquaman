@@ -673,9 +673,9 @@ void AMListAction3::internalDisconnectAction(AMAction3 *action)
 	AMListAction3 *listAction = qobject_cast<AMListAction3 *>(action);
 	if (listAction){
 
-		connect(listAction, SIGNAL(scanActionCreated(AMScanAction*)), this, SIGNAL(scanActionCreated(AMScanAction*)));
-		connect(listAction, SIGNAL(scanActionStarted(AMScanAction*)), this, SIGNAL(scanActionStarted(AMScanAction*)));
-		connect(listAction, SIGNAL(scanActionFinished(AMScanAction*)), this, SIGNAL(scanActionFinished(AMScanAction*)));
+		disconnect(listAction, SIGNAL(scanActionCreated(AMScanAction*)), this, SIGNAL(scanActionCreated(AMScanAction*)));
+		disconnect(listAction, SIGNAL(scanActionStarted(AMScanAction*)), this, SIGNAL(scanActionStarted(AMScanAction*)));
+		disconnect(listAction, SIGNAL(scanActionFinished(AMScanAction*)), this, SIGNAL(scanActionFinished(AMScanAction*)));
 	}
 }
 

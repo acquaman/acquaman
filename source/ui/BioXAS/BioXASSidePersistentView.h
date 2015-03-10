@@ -24,6 +24,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QWidget>
 #include <QLayout>
+#include <QPushButton>
+#include <QInputDialog>
 
 #include "beamline/CLS/CLSMAXvMotor.h"
 
@@ -42,8 +44,13 @@ signals:
 
 public slots:
 
+protected slots:
+	/// Presents a view for the user to calibrate the mono energy.
+	void onCalibrateEnergyButtonClicked();
+
 protected:
     AMExtendedControlEditor *energyControlEditor_;
+    QPushButton *calibrateEnergyButton_;
 };
 
 #endif // BIOXASSIDEPERSISTENTVIEW_H

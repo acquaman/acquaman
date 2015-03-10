@@ -31,6 +31,10 @@ BioXASSideMonochromator::BioXASSideMonochromator(QObject *parent) :
 	regionAStatus_ = new AMReadOnlyPVControl("RegionAStatus", "BL1607-5-I22:Mono:Region:A", this);
 	regionBStatus_ = new AMReadOnlyPVControl("RegionBStatus", "BL1607-5-I22:Mono:Region:B", this);
 
+	hcControl_ = new AMReadOnlyPVControl("hc Constant", "BL1607-5-I22:Energy:EV:fbk:tr.A", this);
+	crystal2DControl_ = new AMReadOnlyPVControl("Crystal 2D Spacing", "BL1607-5-I22:Energy:EV:fbk:tr.B", this);
+	braggAngleControl_ = new AMReadOnlyPVControl("BraggAngle", "BL1607-5-I22:Energy:EV:fbk:tr.K", this);
+
 	energy_ = new BioXASSideMonochromatorControl("EnergyEV", "BL1607-5-I22:Energy:EV:fbk", "BL1607-5-I22:Energy:EV", "BL1607-5-I22:Energy:status", QString("BL1607-5-I22:Energy:stop"), this);
 
 	// Controls value changes.
@@ -86,6 +90,21 @@ AMAction3* BioXASSideMonochromator::createSetEnergyAction(double newEnergy)
 	return AMActionSupport::buildControlMoveAction(energy_, newEnergy);
 }
 
+AMAction3* BioXASSideMonochromator::createSetEnergyCalibrationAction(double newEnergy)
+{
+	AMAction3 *action = 0;
+
+	if (connected_) {
+		// Calculate needed offset.
+		double newOffset = calibrateEnergy(energy_->value(), newEnergy);
+
+		// Set the new angle offset.
+		action = braggMotor_->createEGUOffsetAction(newOffset);
+	}
+
+	return action;
+}
+
 AMAction3* BioXASSideMonochromator::createCloseSlitsAction()
 {
 	if (!slitsStatus_->isConnected())
@@ -132,6 +151,17 @@ void BioXASSideMonochromator::setEnergy(double newEnergy)
 {
 	if (energy_->isConnected())
 		energy_->move(newEnergy);
+}
+
+void BioXASSideMonochromator::setEnergyCalibration(double newEnergy)
+{
+	if (connected_) {
+		// Calculate needed offset.
+		double newOffset = calibrateEnergy(energy_->value(), newEnergy);
+
+		// Set the new angle offset.
+		braggMotor_->setEGUOffset(newOffset);
+	}
 }
 
 void BioXASSideMonochromator::setRegion(Region::State newRegion)
@@ -223,7 +253,6 @@ AMAction3* BioXASSideMonochromator::createWaitForKeyDisabledAction()
 	return action;
 }
 
-
 AMAction3* BioXASSideMonochromator::createCrystalChangeAction(Region::State newRegion)
 {
 	if (!connected_ || region_ == newRegion || newRegion == Region::None)
@@ -233,11 +262,11 @@ AMAction3* BioXASSideMonochromator::createCrystalChangeAction(Region::State newR
 	double newRegionDestination;
 
 	if (newRegion == Region::A) {
-		crystalChangeMotorDestination = -12,000;
+		crystalChangeMotorDestination = -12000;
 		newRegionDestination = 350;
 
 	} else {
-		crystalChangeMotorDestination = 12,000;
+		crystalChangeMotorDestination = 12000;
 		newRegionDestination = 140;
 	}
 
@@ -281,7 +310,6 @@ void BioXASSideMonochromator::onConnectedChanged()
 				crystal2RollMotor_->isConnected() &&
 
 				// Controls
-				//braggMotorPower_->isConnected() && slitsClosed_->isConnected() && paddleOut_->isConnected() &&
 				braggMotorPower_->isConnected() &&
 				keyStatus_->isConnected() &&
 				braggAtCrystalChangePositionStatus_->isConnected() &&
@@ -323,4 +351,22 @@ void BioXASSideMonochromator::onRegionChanged()
 		emit regionChanged(region_);
 	}
 
+}
+
+double BioXASSideMonochromator::calibrateEnergy(double currentEnergy, double newEnergy)
+{
+	// Gather pre-calibration information.
+	double hc = hcControl_->value();
+	double crystal2D = crystal2DControl_->value();
+	double braggAngle = braggAngleControl_->value();
+	double angleOffset = braggMotor_->EGUOffset();
+
+	// Calculate changes needed for calibration.
+	double deltaEnergy = newEnergy - currentEnergy;
+	double deltaOffset = hc / (crystal2D * currentEnergy * currentEnergy * cos(braggAngle * M_PI / 180)) * deltaEnergy * 180 / M_PI;
+
+	// Calibration results.
+	double newOffset = angleOffset + deltaOffset;
+
+	return newOffset;
 }

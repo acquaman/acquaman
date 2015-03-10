@@ -3,7 +3,7 @@
 
 #include <QObject>
 
-#include <actions3/AMAction3.h>
+#include "actions3/AMAction3.h"
 
 class BioXASSSRLMonochromator : public QObject
 {
@@ -38,8 +38,18 @@ public:
 
 	/// Returns a new 'set energy' action, 0 if not connected. The argument is the desired energy.
 	virtual AMAction3* createSetEnergyAction(double newEnergy) = 0;
+	/// Returns a new action that adjusts the bragg motor offset s.t. the mono energy matches the desired energy.
+	virtual AMAction3* createSetEnergyCalibrationAction(double newEnergy) = 0;
 	/// Returns a new 'set region' action, 0 if not connected. The argument is the desired region.
 	virtual AMAction3* createSetRegionAction(double newRegion) = 0;
+	/// Returns a new 'close slits' action, 0 if not connected.
+	virtual AMAction3* createCloseSlitsAction() = 0;
+	/// Returns a new 'remove paddle' action, 0 if not connected.
+	virtual AMAction3* createRemovePaddleAction() = 0;
+	/// Returns a new 'move bragg motor' action, 0 if not connected. The argument is the desired destination.
+	virtual AMAction3* createMoveBraggMotorAction(double degDestination) = 0;
+	/// Returns a new 'move crystal change motor' action, 0 if not connected. The argument is the desired relative move.
+	virtual AMAction3* createMoveCrystalChangeMotorAction(int relDestination) = 0;
 
 signals:
 	/// Notifier that the connected state has changed.
@@ -62,6 +72,8 @@ signals:
 public slots:
 	/// Sets the energy setpoint.
 	virtual void setEnergy(double newEnergy) = 0;
+	/// Sets the bragg offset such that the mono energy matches the desired energy.
+	virtual void setEnergyCalibration(double newEnergy) = 0;
 	/// Sets the region.
 	virtual void setRegion(double newRegion) = 0;
 };

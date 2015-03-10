@@ -221,9 +221,8 @@ void VESPERSAppController::registerClasses()
 	AMDbObjectSupport::s()->registerClass<VESPERSScanConfigurationDbObject>();
 	AMDbObjectSupport::s()->registerClass<VESPERS3DScanConfiguration>();
 	AMDbObjectSupport::s()->registerClass<VESPERSUserConfiguration>();
-	AMDbObjectSupport::s()->registerClass<VESPERSSetStringActionInfo>();
-
 	AMDbObjectSupport::s()->registerClass<VESPERSTimeScanConfiguration>();
+	AMDbObjectSupport::s()->registerClass<VESPERSSetStringActionInfo>();
 
 	AMOldDetectorViewSupport::registerClass<VESPERSCCDDetectorView, VESPERSRoperCCDDetector>();
 	AMOldDetectorViewSupport::registerClass<VESPERSCCDDetectorView, VESPERSMarCCDDetector>();
@@ -259,6 +258,11 @@ void VESPERSAppController::setupExporterOptions()
 	vespersDefault = VESPERS::buildStandardExporterOption("VESPERSEnergyScanDefault", true, true, true, true);
 	if(vespersDefault->id() > 0)
 		AMAppControllerSupport::registerClass<VESPERSEnergyScanConfiguration, VESPERSExporterLineScanAscii, AMExporterOptionGeneralAscii>(vespersDefault->id());
+
+	vespersDefault = VESPERS::buildStandardExporterOption("VESPERSTimeScanDefault", true, false, false, true);
+	if(vespersDefault->id() > 0)
+		AMAppControllerSupport::registerClass<VESPERSTimeScanConfiguration, VESPERSExporterLineScanAscii, AMExporterOptionGeneralAscii>(vespersDefault->id());
+
 }
 
 void VESPERSAppController::setupUserInterface()
@@ -358,9 +362,9 @@ void VESPERSAppController::setupUserInterface()
 	energyScanConfigurationView_ = new VESPERSEnergyScanConfigurationView(energyScanConfiguration_);
 	energyScanConfigurationViewHolder3_ = new AMScanConfigurationViewHolder3(energyScanConfigurationView_);
 
-	VESPERSTimeScanConfiguration *timeConfig = new VESPERSTimeScanConfiguration;
-	VESPERSTimeScanConfigurationView *timeView = new VESPERSTimeScanConfigurationView(timeConfig);
-	AMScanConfigurationViewHolder3 *timeViewHolder = new AMScanConfigurationViewHolder3(timeView);
+	timeScanConfiguration_ = new VESPERSTimeScanConfiguration;
+	timeScanConfigurationView_ = new VESPERSTimeScanConfigurationView(timeScanConfiguration_);
+	timeScanConfigurationViewHolder3_ = new AMScanConfigurationViewHolder3(timeScanConfigurationView_);
 
 	mw_->insertHeading("Scans", 2);
 	mw_->addPane(exafsConfigurationViewHolder3_, "Scans", "XAS", ":/utilities-system-monitor.png");
@@ -368,7 +372,7 @@ void VESPERSAppController::setupUserInterface()
 	mw_->addPane(lineScanConfigurationViewHolder3_, "Scans", "Line Scan", ":/utilities-system-monitor.png");
 	mw_->addPane(energyScanConfigurationViewHolder3_, "Scans", "XRD Energy Scan", ":/utilities-system-monitor.png");
 	mw_->addPane(map3DScanConfigurationViewHolder3_, "Scans", "3D Maps", ":/utilities-system-monitor.png");
-	mw_->addPane(timeViewHolder, "Scans", "Time Config", ":/utilities-system-monitor.png");
+	mw_->addPane(timeScanConfigurationViewHolder3_, "Scans", "Timed Scan", ":/utilities-system-monitor.png");
 
 	// This is the right hand panel that is always visible.  Has important information such as shutter status and overall controls status.  Also controls the sample stage.
 	persistentView_ = new VESPERSPersistentView;
@@ -964,7 +968,8 @@ void VESPERSAppController::onUserConfigurationLoadedFromDb()
 			<< mapScanConfiguration_
 			<< lineScanConfiguration_
 			<< energyScanConfiguration_
-			<< map3DScanConfiguration_;
+			<< map3DScanConfiguration_
+			<< timeScanConfiguration_;
 
 	persistentView_->motorGroupView()->setMotorGroupView(VESPERSBeamline::vespers()->motorGroupName(userConfiguration_->motor()));
 
@@ -986,6 +991,7 @@ void VESPERSAppController::onUserConfigurationLoadedFromDb()
 		map3DScanConfiguration_->addRegionOfInterest(region);
 		exafsScanConfiguration_->addRegionOfInterest(region);
 		lineScanConfiguration_->addRegionOfInterest(region);
+		timeScanConfiguration_->addRegionOfInterest(region);
 	}
 
 	// This is connected here because we want to listen to the detectors for updates, but don't want to double add regions on startup.
@@ -1000,6 +1006,7 @@ void VESPERSAppController::onRegionOfInterestAdded(AMRegionOfInterest *region)
 	map3DScanConfiguration_->addRegionOfInterest(region);
 	exafsScanConfiguration_->addRegionOfInterest(region);
 	lineScanConfiguration_->addRegionOfInterest(region);
+	timeScanConfiguration_->addRegionOfInterest(region);
 }
 
 void VESPERSAppController::onRegionOfInterestRemoved(AMRegionOfInterest *region)
@@ -1009,4 +1016,5 @@ void VESPERSAppController::onRegionOfInterestRemoved(AMRegionOfInterest *region)
 	map3DScanConfiguration_->removeRegionOfInterest(region);
 	exafsScanConfiguration_->removeRegionOfInterest(region);
 	lineScanConfiguration_->removeRegionOfInterest(region);
+	timeScanConfiguration_->removeRegionOfInterest(region);
 }
