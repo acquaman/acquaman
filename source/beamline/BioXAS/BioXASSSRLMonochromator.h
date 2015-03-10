@@ -3,7 +3,7 @@
 
 #include <QObject>
 
-#include <actions3/AMAction3.h>
+#include "actions3/AMAction3.h"
 
 #define BRAGG_MOTOR_CRYSTAL_CHANGE_POSITION 55.0
 
@@ -55,6 +55,8 @@ public:
 
 	/// Returns a new 'set energy' action, 0 if not connected. The argument is the desired energy.
 	virtual AMAction3* createSetEnergyAction(double newEnergy) = 0;
+	/// Returns a new action that adjusts the bragg motor offset s.t. the mono energy matches the desired energy.
+	virtual AMAction3* createSetEnergyCalibrationAction(double newEnergy) = 0;
 	/// Returns a new 'close slits' action, 0 if not connected.
 	virtual AMAction3* createCloseSlitsAction() = 0;
 	/// Returns a new 'remove paddle' action, 0 if not connected.
@@ -89,6 +91,8 @@ signals:
 public slots:
 	/// Sets the energy setpoint.
 	virtual void setEnergy(double newEnergy) = 0;
+	/// Sets the bragg offset such that the mono energy matches the desired energy.
+	virtual void setEnergyCalibration(double newEnergy) = 0;
 	/// Sets the region.
 	virtual void setRegion(Region::State newRegion) = 0;
 	/// Sets the status of both slits.
