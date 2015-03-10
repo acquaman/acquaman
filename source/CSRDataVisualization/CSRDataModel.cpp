@@ -3,12 +3,23 @@
 #include <QTextStream>
 #include <QStringList>
 #include <QDataStream>
+#include <QFileInfo>
 #include <QDebug>
 
 CSRDataModel::CSRDataModel(QObject *parent) :
 	QObject(parent)
 {
 	dataFile_ = 0;
+}
+
+CSRDataModel::CSRDataModel(const CSRDataModel &original)
+	: QObject()
+{
+	dataFile_ = 0;
+	fileNames_ = original.fileNames();
+
+	for (int i = 0, size = original.fileConfigurationCount(); i < size; i++)
+		fileConfigurations_ << new CSRFileConfiguration(*(original.fileConfigurationAt(i)));
 }
 
 CSRDataModel::~CSRDataModel()
@@ -29,6 +40,7 @@ bool CSRDataModel::loadDataFile(const QString &filePath)
 {
 	QString binaryPath = filePath;
 	binaryPath = binaryPath.replace(".txt", ".dat");
+	binaryPath.insert(binaryPath.lastIndexOf("/"), "/dataStore");
 
 	if (!QFile::exists(binaryPath)){
 
@@ -40,10 +52,10 @@ bool CSRDataModel::loadDataFile(const QString &filePath)
 
 		QTextStream in(&file);
 
-		QVector<double> timeData = QVector<double>(2e7, 0);
-		QVector<double> data = QVector<double>(2e7, 0);
+		QVector<double> timeData = QVector<double>(numberOfPoints_, 0);
+		QVector<double> data = QVector<double>(numberOfPoints_, 0);
 
-		for (int i = 0; i < 2e7; i++){
+		for (int i = 0; i < numberOfPoints_; i++){
 
 			QStringList line = in.readLine().split("\t");
 			timeData[i] = line.at(3).toDouble();
@@ -94,7 +106,7 @@ void CSRDataModel::timeData(int start, int end, double *newData) const
 
 void CSRDataModel::data(int start, int end, double *newData) const
 {
-	dataFile_->seek((2e7+start)*sizeof(double));
+	dataFile_->seek((numberOfPoints_+start)*sizeof(double));
 	int size = end-start+1;
 	QVector<double> data = QVector<double>(size, 0);
 
@@ -108,18 +120,18 @@ void CSRDataModel::data(int start, int end, double *newData) const
 
 void CSRDataModel::computeIntegral()
 {
-	int size = 877;
-	int numberPerRevolution = 2e7/size;
+	int revolutions = numberOfRevolutions_;
+	int numberPerRevolution = numberOfPoints_/revolutions;
 
-	integral_ = QVector<double>(size, 0);
+	integral_ = QVector<double>(revolutions, 0);
 
-	for (int i = 0; i < size; i++){
+	for (int i = 0; i < revolutions; i++){
 
 		QVector<double> x = QVector<double>(numberPerRevolution, 0);
 		QVector<double> fx = QVector<double>(numberPerRevolution, 0);
 
-		data(i*numberPerRevolution, qMin((i+1)*numberPerRevolution-1, int(2e7-1)), fx.data());
-		timeData(i*numberPerRevolution, qMin((i+1)*numberPerRevolution-1, int(2e7-1)), x.data());
+		data(i*numberPerRevolution, qMin((i+1)*numberPerRevolution-1, int(numberOfPoints_-1)), fx.data());
+		timeData(i*numberPerRevolution, qMin((i+1)*numberPerRevolution-1, int(numberOfPoints_-1)), x.data());
 
 		double partialSum = fx.first()+fx.last();
 
@@ -151,4 +163,71 @@ void CSRDataModel::removeFileConfiguration(CSRFileConfiguration *info)
 {
 	fileConfigurations_.removeOne(info);
 	info->deleteLater();
+}
+
+void CSRDataModel::setFileNames(const QStringList &newFileNames)
+{
+	fileNames_ = newFileNames;
+}
+
+void CSRDataModel::start()
+{
+	for (int i = 0, size = fileNames_.size(); i < size; i++){
+
+		setupFileParameters(fileNames_.at(i));
+		loadDataFile(fileNames_.at(i));
+		computeIntegral();
+		writeOutputFile(fileNames_.at(i));
+		dataFile_->close();
+		dataFile_->deleteLater();
+		dataFile_ = 0;
+		emit progress(i+1);
+	}
+
+	emit finished();
+}
+
+void CSRDataModel::writeOutputFile(const QString &filePath)
+{
+	QString outputPath = filePath;
+	outputPath = outputPath.replace(".txt", "_analyzed.txt");
+	outputPath.insert(outputPath.lastIndexOf("/"), "/AnalyzedFiles");
+
+	QFile file(outputPath);
+
+	if(!file.open(QIODevice::WriteOnly))
+		return;
+
+	QTextStream out(&file);
+
+	out << "Revolutions\tIntegral\n";
+
+	for (int i = 0, size = integral_.size(); i < size; i++)
+		out << QString("%1\t%2\n").arg(i+1).arg(integral_.at(i), 0, 'g', 10);
+
+	file.close();
+}
+
+void CSRDataModel::setupFileParameters(const QString &filePath)
+{
+	bool fileAccountedFor = false;
+	QFileInfo info(filePath);
+
+	for (int i = 0, size = fileConfigurations_.size(); i < size; i++){
+
+		if (abs(info.size()-fileConfigurations_.at(i)->fileSize()) < int(fileConfigurations_.at(i)->fileSize()*0.05)){
+
+			fileAccountedFor = true;
+			fileSize_ = fileConfigurations_.at(i)->fileSize();
+			numberOfPoints_ = fileConfigurations_.at(i)->numberOfPoints();
+			numberOfRevolutions_ = fileConfigurations_.at(i)->numberOfRevolutions();
+		}
+	}
+
+	if (!fileAccountedFor){
+
+		fileSize_ = 0;
+		numberOfPoints_ = 0;
+		numberOfRevolutions_ = 0;
+	}
 }
