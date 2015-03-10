@@ -39,6 +39,7 @@ BioXASMainXASScanActionController::BioXASMainXASScanActionController(BioXASMainX
     scan_->setScanConfiguration(configuration);
     scan_->setIndexType("fileSystem");
     scan_->rawData()->addScanAxis(AMAxisInfo("eV", 0, "Incident Energy", "eV"));
+    scan_->setNotes(buildNotes());
 
     AMControlInfoList list;
     configuration_->setAxisControlInfos(list);
@@ -52,6 +53,12 @@ BioXASMainXASScanActionController::BioXASMainXASScanActionController(BioXASMainX
 
 BioXASMainXASScanActionController::~BioXASMainXASScanActionController()
 {
+
+}
+
+QString BioXASMainXASScanActionController::beamlineSettings()
+{
+	return QString();
 }
 
 AMAction3* BioXASMainXASScanActionController::createInitializationActions()
