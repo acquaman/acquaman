@@ -9,6 +9,7 @@
 #include <QDir>
 
 #include "CSRDataVisualization/CSRDataModel.h"
+#include "CSRDataVisualization/CSRFileConfigurationView.h"
 
 class CSRMainWindow : public QWidget
 {
@@ -38,8 +39,12 @@ protected:
 	QDir destinationDirectory_;
 	/// Label that holds the directory that was chosen.
 	QLabel *directoryLabel_;
+	/// Label to display how many files of various types there are.
+	QLabel *fileInformationLabel_;
 	/// The compute button.
 	QPushButton *computeButton_;
+	/// List of file configuration views.
+	QList<CSRFileConfigurationView *> fileConfigurationViews_;
 };
 
 #endif // CSRMAINWINDOW_H

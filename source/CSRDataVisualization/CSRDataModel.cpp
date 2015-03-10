@@ -18,6 +18,11 @@ CSRDataModel::~CSRDataModel()
 		dataFile_->close();
 		dataFile_->deleteLater();
 	}
+
+	foreach (CSRFileConfiguration *info, fileConfigurations_)
+		info->deleteLater();
+
+	fileConfigurations_.clear();
 }
 
 bool CSRDataModel::loadDataFile(const QString &filePath)
@@ -125,4 +130,19 @@ void CSRDataModel::computeIntegral()
 
 		integral_[i] = partialSum*(x.last()-x.first())/(2*(numberPerRevolution-1));
 	}
+}
+
+void CSRDataModel::addFileConfiguration(CSRFileConfiguration *info)
+{
+	fileConfigurations_ << info;
+}
+
+int CSRDataModel::fileConfigurationCount() const
+{
+	return fileConfigurations_.size();
+}
+
+CSRFileConfiguration * CSRDataModel::fileConfigurationAt(int index) const
+{
+	return fileConfigurations_.at(index);
 }

@@ -14,6 +14,9 @@ CSRAppController::~CSRAppController()
 bool CSRAppController::start()
 {
 	CSRDataModel *model = new CSRDataModel(this);
+	model->addFileConfiguration(new CSRFileConfiguration(735000000, 20000000, 877));
+	model->addFileConfiguration(new CSRFileConfiguration(1500000000, 39999994, 1754));
+
 	mainWindow_ = new CSRMainWindow(model);
 	mainWindow_->show();
 

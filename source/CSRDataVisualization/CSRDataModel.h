@@ -6,6 +6,8 @@
 #include <QVector>
 #include <QFile>
 
+#include "CSRDataVisualization/CSRFileConfiguration.h"
+
 class CSRDataModel : public QObject
 {
 	Q_OBJECT
@@ -21,6 +23,13 @@ public:
 	/// Returns the integral of the data set where each point corresponds to a rotation.
 	const QVector<double> &integral() const { return integral_; }
 
+	/// Adds a file configuration.
+	void addFileConfiguration(CSRFileConfiguration *info);
+	/// Returns a configuration.
+	CSRFileConfiguration *fileConfigurationAt(int index) const;
+	/// Returns the number of configurations.
+	int fileConfigurationCount() const;
+
 signals:
 
 public slots:
@@ -34,6 +43,8 @@ protected:
 	mutable QFile *dataFile_;
 	/// The integral where each point is the integral over a single revolution.
 	QVector<double> integral_;
+	/// List of file configurations.
+	QList<CSRFileConfiguration *> fileConfigurations_;
 };
 
 #endif // CSRDATAMODEL_H
