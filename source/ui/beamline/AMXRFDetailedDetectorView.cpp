@@ -532,6 +532,7 @@ void AMXRFDetailedDetectorView::onRegionOfInterestRemoved(AMRegionOfInterest *re
 	if (!emissionLine.isNull()){
 
 		element->deselectEmissionLine(emissionLine);
+		removeRegionOfInterestItems(region);
 		elementView_->updateEmissionLineViewList();
 	}
 }
