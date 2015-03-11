@@ -54,14 +54,14 @@ BioXASMainMonochromator::BioXASMainMonochromator(QObject *parent) :
 	connect( upperSlitMotor_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()) );
 	connect( lowerSlitMotor_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()) );
 	connect( paddleMotor_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()) );
-    connect( braggMotor_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()) );
-    connect( verticalMotor_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()) );
-    connect( lateralMotor_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()) );
+	connect( braggMotor_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()) );
+	connect( verticalMotor_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()) );
+	connect( lateralMotor_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()) );
 	connect( crystalChangeMotor_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()) );
-    connect( crystal1PitchMotor_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()) );
-    connect( crystal1RollMotor_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()) );
-    connect( crystal2PitchMotor_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()) );
-    connect( crystal2RollMotor_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()) );
+	connect( crystal1PitchMotor_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()) );
+	connect( crystal1RollMotor_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()) );
+	connect( crystal2PitchMotor_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()) );
+	connect( crystal2RollMotor_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()) );
 
     // Current settings.
 

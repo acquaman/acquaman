@@ -74,7 +74,8 @@ BioXASMainMonochromatorRegionView::BioXASMainMonochromatorRegionView(QWidget *pa
 	connect( mono_, SIGNAL(paddleStatusChanged(bool)), this, SLOT(onPaddleStatusChanged()) );
 	connect( mono_, SIGNAL(keyStatusChanged(bool)), this, SLOT(onKeyStatusChanged()) );
 	connect( mono_, SIGNAL(brakeStatusChanged(bool)), this, SLOT(onBrakeStatusChanged()) );
-	connect( mono_->crystalChangeMotor(), SIGNAL(atLimitChanged(CLSMAXvMotor::Limit)), this, SLOT(onLimitStatusChanged()) );
+	connect( mono_->crystalChangeMotor()->cwLimitControl(), SIGNAL(valueChanged(double)), this, SLOT(onLimitStatusChanged()) );
+	connect( mono_->crystalChangeMotor()->ccwLimitControl(), SIGNAL(valueChanged(double)), this, SLOT(onLimitStatusChanged()) );
 	connect( mono_->regionControl(), SIGNAL(connected(bool)), this, SLOT(onRegionControlConnectedChanged()) );
 	connect( regionButton_, SIGNAL(clicked()), this, SLOT(onRegionButtonClicked()) );
 
@@ -176,18 +177,42 @@ void BioXASMainMonochromatorRegionView::onBrakeStatusChanged()
 void BioXASMainMonochromatorRegionView::onLimitStatusChanged()
 {
 	if (mono_->crystalChangeMotor()->isConnected()) {
-		if (mono_->crystalChangeMotor()->atLimit() == CLSMAXvMotor::LimitCW) {
+		CLSMAXvMotor::Limit limit = mono_->crystalChangeMotor()->atLimit();
+
+		if (limit == CLSMAXvMotor::LimitNone) {
+			qDebug() << "Crystal change motor is not at a limit.";
+
+			crystal1StatusGreen_->setPixmap(QPixmap(":/22x22/greenLEDOff.png"));
+			crystal1StatusRed_->setPixmap(QPixmap(":/22x22/redLEDOff.png"));
+
+			crystal2StatusGreen_->setPixmap(QPixmap(":/22x22/greenLEDOff.png"));
+			crystal2StatusRed_->setPixmap(QPixmap(":/22x22/redLEDOff.png"));
+
+		} else if (limit == CLSMAXvMotor::LimitCW) {
+			qDebug() << "Crystal change motor is at cw limit.";
+
 			crystal1StatusGreen_->setPixmap(QPixmap(":/22x22/greenLEDOn.png"));
 			crystal1StatusRed_->setPixmap(QPixmap(":/22x22/redLEDOff.png"));
 
 			crystal2StatusGreen_->setPixmap(QPixmap(":/22x22/greenLEDOff.png"));
 			crystal2StatusRed_->setPixmap(QPixmap(":/22x22/redLEDOn.png"));
 
-		} else if (mono_->crystalChangeMotor()->atLimit() == CLSMAXvMotor::LimitCCW){
+		} else if (limit == CLSMAXvMotor::LimitCCW) {
+			qDebug() << "Crystal change motor is at ccw limit.";
+
 			crystal1StatusGreen_->setPixmap(QPixmap(":/22x22/greenLEDOff.png"));
 			crystal1StatusRed_->setPixmap(QPixmap(":/22x22/redLEDOn.png"));
 
 			crystal2StatusGreen_->setPixmap(QPixmap(":/22x22/greenLEDOn.png"));
+			crystal2StatusRed_->setPixmap(QPixmap(":/22x22/redLEDOff.png"));
+
+		} else if (limit == CLSMAXvMotor::LimitError) {
+			qDebug() << "Crystal change motor reports a limit error.";
+
+			crystal1StatusGreen_->setPixmap(QPixmap(":/22x22/greenLEDOff.png"));
+			crystal1StatusRed_->setPixmap(QPixmap(":/22x22/redLEDOff.png"));
+
+			crystal2StatusGreen_->setPixmap(QPixmap(":/22x22/greenLEDOff.png"));
 			crystal2StatusRed_->setPixmap(QPixmap(":/22x22/redLEDOff.png"));
 		}
 
