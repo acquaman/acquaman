@@ -28,10 +28,10 @@ protected slots:
 	void onKeyStatusChanged();
 	/// Handles updating the brake status view when the mono's brake status changes.
 	void onBrakeStatusChanged();
-	/// Handles updating the crystal 1 status view when the crystal change motor indicates it's at a cw limit.
-	void onCWLimitStatusChanged();
-	/// Handles updating the crystal 2 status view when the crystal change motor indicates it's at a ccw limit.
-	void onCCWLimitStatusChanged();
+//	/// Handles updating the crystal 1 status view when the crystal change motor indicates it's at a cw limit.
+//	void onCWLimitStatusChanged();
+//	/// Handles updating the crystal 2 status view when the crystal change motor indicates it's at a ccw limit.
+//	void onCCWLimitStatusChanged();
 
 protected:
 	/// The monochromator being viewed.
@@ -53,14 +53,14 @@ protected:
 	QLabel *brakeStatusGreen_;
 	/// Label displaying the brake status red LED.
 	QLabel *brakeStatusRed_;
-	/// Label displaying the crystal 1 active green LED.
-	QLabel *crystal1StatusGreen_;
-	/// Label displaying the crystal 1 active red LED.
-	QLabel *crystal1StatusRed_;
-	/// Label displaying the crystal 2 active green LED.
-	QLabel *crystal2StatusGreen_;
-	/// Label displaying the crystal 2 active red LED.
-	QLabel *crystal2StatusRed_;
+//	/// Label displaying the crystal 1 active green LED.
+//	QLabel *crystal1StatusGreen_;
+//	/// Label displaying the crystal 1 active red LED.
+//	QLabel *crystal1StatusRed_;
+//	/// Label displaying the crystal 2 active green LED.
+//	QLabel *crystal2StatusGreen_;
+//	/// Label displaying the crystal 2 active red LED.
+//	QLabel *crystal2StatusRed_;
 };
 
 #endif // BIOXASMAINMONOCHROMATORREGIONVIEW_H

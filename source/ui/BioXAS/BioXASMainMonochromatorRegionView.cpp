@@ -25,13 +25,13 @@ BioXASMainMonochromatorRegionView::BioXASMainMonochromatorRegionView(QWidget *pa
 	brakeStatusGreen_ = new QLabel();
 	brakeStatusRed_ = new QLabel();
 
-	QLabel *crystal1StatusPrompt = new QLabel("Crystal 1 status:");
-	crystal1StatusGreen_ = new QLabel();
-	crystal1StatusRed_ = new QLabel();
+//	QLabel *crystal1StatusPrompt = new QLabel("Crystal 1 status:");
+//	crystal1StatusGreen_ = new QLabel();
+//	crystal1StatusRed_ = new QLabel();
 
-	QLabel *crystal2StatusPrompt = new QLabel("Crystal 2 status:");
-	crystal2StatusGreen_ = new QLabel();
-	crystal2StatusRed_ = new QLabel();
+//	QLabel *crystal2StatusPrompt = new QLabel("Crystal 2 status:");
+//	crystal2StatusGreen_ = new QLabel();
+//	crystal2StatusRed_ = new QLabel();
 
 	// Create and set layouts.
 
@@ -49,12 +49,12 @@ BioXASMainMonochromatorRegionView::BioXASMainMonochromatorRegionView(QWidget *pa
 	statusLayout->addWidget(brakeStatusPrompt, 3, 0, 1, 1, Qt::AlignRight);
 	statusLayout->addWidget(brakeStatusGreen_, 3, 1, 1, 1, Qt::AlignCenter);
 	statusLayout->addWidget(brakeStatusRed_, 3, 2, 1, 1, Qt::AlignCenter);
-	statusLayout->addWidget(crystal1StatusPrompt, 4, 0, 1, 1, Qt::AlignRight);
-	statusLayout->addWidget(crystal1StatusGreen_, 4, 1, 1, 1, Qt::AlignCenter);
-	statusLayout->addWidget(crystal1StatusRed_, 4, 2, 1, 1, Qt::AlignCenter);
-	statusLayout->addWidget(crystal2StatusPrompt, 5, 0, 1, 1, Qt::AlignRight);
-	statusLayout->addWidget(crystal2StatusGreen_, 5, 1, 1, 1, Qt::AlignCenter);
-	statusLayout->addWidget(crystal2StatusRed_, 5, 2, 1, 1, Qt::AlignCenter);
+//	statusLayout->addWidget(crystal1StatusPrompt, 4, 0, 1, 1, Qt::AlignRight);
+//	statusLayout->addWidget(crystal1StatusGreen_, 4, 1, 1, 1, Qt::AlignCenter);
+//	statusLayout->addWidget(crystal1StatusRed_, 4, 2, 1, 1, Qt::AlignCenter);
+//	statusLayout->addWidget(crystal2StatusPrompt, 5, 0, 1, 1, Qt::AlignRight);
+//	statusLayout->addWidget(crystal2StatusGreen_, 5, 1, 1, 1, Qt::AlignCenter);
+//	statusLayout->addWidget(crystal2StatusRed_, 5, 2, 1, 1, Qt::AlignCenter);
 
 	setLayout(statusLayout);
 
@@ -64,8 +64,8 @@ BioXASMainMonochromatorRegionView::BioXASMainMonochromatorRegionView(QWidget *pa
 	connect( mono_, SIGNAL(paddleStatusChanged(bool)), this, SLOT(onPaddleStatusChanged()) );
 	connect( mono_, SIGNAL(keyStatusChanged(bool)), this, SLOT(onKeyStatusChanged()) );
 	connect( mono_, SIGNAL(brakeStatusChanged(bool)), this, SLOT(onBrakeStatusChanged()) );
-	connect( mono_->crystalChangeMotor()->cwLimitControl(), SIGNAL(valueChanged(double)), this, SLOT(onCWLimitStatusChanged()) );
-	connect( mono_->crystalChangeMotor()->ccwLimitControl(), SIGNAL(valueChanged(double)), this, SLOT(onCCWLimitStatusChanged()) );
+//	connect( mono_->crystalChangeMotor()->cwLimitControl(), SIGNAL(valueChanged(double)), this, SLOT(onCWLimitStatusChanged()) );
+//	connect( mono_->crystalChangeMotor()->ccwLimitControl(), SIGNAL(valueChanged(double)), this, SLOT(onCCWLimitStatusChanged()) );
 
 	// Current settings.
 
@@ -75,8 +75,8 @@ BioXASMainMonochromatorRegionView::BioXASMainMonochromatorRegionView(QWidget *pa
 	onPaddleStatusChanged();
 	onKeyStatusChanged();
 	onBrakeStatusChanged();
-	onCWLimitStatusChanged();
-	onCCWLimitStatusChanged();
+//	onCWLimitStatusChanged();
+//	onCCWLimitStatusChanged();
 }
 
 BioXASMainMonochromatorRegionView::~BioXASMainMonochromatorRegionView()
@@ -154,58 +154,58 @@ void BioXASMainMonochromatorRegionView::onBrakeStatusChanged()
 	}
 }
 
-void BioXASMainMonochromatorRegionView::onCWLimitStatusChanged()
-{
-	if (mono_->crystalChangeMotor()->cwLimitControl()->isConnected()) {
-		qDebug() << "Crystal change motor cw limit is connected.";
+//void BioXASMainMonochromatorRegionView::onCWLimitStatusChanged()
+//{
+//	if (mono_->crystalChangeMotor()->cwLimitControl()->isConnected()) {
+//		qDebug() << "Crystal change motor cw limit is connected.";
 
-		double value = mono_->crystalChangeMotor()->cwLimitControl()->value();
+//		double value = mono_->crystalChangeMotor()->cwLimitControl()->value();
 
-		if (value == 1) {
-			qDebug() << "Crystal change motor is at cw limit.";
+//		if (value == 1) {
+//			qDebug() << "Crystal change motor is at cw limit.";
 
-			crystal1StatusGreen_->setPixmap(QPixmap(":/22x22/greenLEDOn.png"));
-			crystal1StatusRed_->setPixmap(QPixmap(":/22x22/redLEDOff.png"));
+//			crystal1StatusGreen_->setPixmap(QPixmap(":/22x22/greenLEDOn.png"));
+//			crystal1StatusRed_->setPixmap(QPixmap(":/22x22/redLEDOff.png"));
 
-		} else {
-			qDebug() << "Crystal change motor is not at cw limit.";
+//		} else {
+//			qDebug() << "Crystal change motor is not at cw limit.";
 
-			crystal1StatusGreen_->setPixmap(QPixmap(":/22x22/greenLEDOff.png"));
-			crystal1StatusRed_->setPixmap(QPixmap(":/22x22/redLEDOff.png"));
-		}
+//			crystal1StatusGreen_->setPixmap(QPixmap(":/22x22/greenLEDOff.png"));
+//			crystal1StatusRed_->setPixmap(QPixmap(":/22x22/redLEDOff.png"));
+//		}
 
-	} else {
-		qDebug() << "Crystal change motor cw limit is not connected.";
+//	} else {
+//		qDebug() << "Crystal change motor cw limit is not connected.";
 
-		crystal1StatusGreen_->setPixmap(QPixmap(":/22x22/greenLEDOff.png"));
-		crystal1StatusRed_->setPixmap(QPixmap(":/22x22/redLEDOff.png"));
-	}
-}
+//		crystal1StatusGreen_->setPixmap(QPixmap(":/22x22/greenLEDOff.png"));
+//		crystal1StatusRed_->setPixmap(QPixmap(":/22x22/redLEDOff.png"));
+//	}
+//}
 
-void BioXASMainMonochromatorRegionView::onCCWLimitStatusChanged()
-{
-	if (mono_->crystalChangeMotor()->ccwLimitControl()->isConnected()) {
-		qDebug() << "Crystal change motor ccw limit is connected.";
+//void BioXASMainMonochromatorRegionView::onCCWLimitStatusChanged()
+//{
+//	if (mono_->crystalChangeMotor()->ccwLimitControl()->isConnected()) {
+//		qDebug() << "Crystal change motor ccw limit is connected.";
 
-		double value = mono_->crystalChangeMotor()->cwLimitControl()->value();
+//		double value = mono_->crystalChangeMotor()->cwLimitControl()->value();
 
-		if (value == 1) {
-			qDebug() << "Crystal change motor is at ccw limit.";
+//		if (value == 1) {
+//			qDebug() << "Crystal change motor is at ccw limit.";
 
-			crystal2StatusGreen_->setPixmap(QPixmap(":/22x22/greenLEDOn.png"));
-			crystal2StatusRed_->setPixmap(QPixmap(":/22x22/redLEDOff.png"));
+//			crystal2StatusGreen_->setPixmap(QPixmap(":/22x22/greenLEDOn.png"));
+//			crystal2StatusRed_->setPixmap(QPixmap(":/22x22/redLEDOff.png"));
 
-		} else {
-			qDebug() << "Crystal change motor is not at ccw limit.";
+//		} else {
+//			qDebug() << "Crystal change motor is not at ccw limit.";
 
-			crystal2StatusGreen_->setPixmap(QPixmap(":/22x22/greenLEDOff.png"));
-			crystal2StatusRed_->setPixmap(QPixmap(":/22x22/redLEDOff.png"));
-		}
+//			crystal2StatusGreen_->setPixmap(QPixmap(":/22x22/greenLEDOff.png"));
+//			crystal2StatusRed_->setPixmap(QPixmap(":/22x22/redLEDOff.png"));
+//		}
 
-	} else {
-		qDebug() << "Crystal change motor ccw limit is not connected.";
+//	} else {
+//		qDebug() << "Crystal change motor ccw limit is not connected.";
 
-		crystal2StatusGreen_->setPixmap(QPixmap(":/22x22/greenLEDOff.png"));
-		crystal2StatusRed_->setPixmap(QPixmap(":/22x22/redLEDOff.png"));
-	}
-}
+//		crystal2StatusGreen_->setPixmap(QPixmap(":/22x22/greenLEDOff.png"));
+//		crystal2StatusRed_->setPixmap(QPixmap(":/22x22/redLEDOff.png"));
+//	}
+//}
