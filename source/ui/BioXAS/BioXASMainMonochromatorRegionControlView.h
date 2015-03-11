@@ -7,17 +7,32 @@
 #include <QDialogButtonBox>
 #include <QProgressBar>
 
-#include "beamline/BioXAS/BioXASSSRLMonochromatorRegionControl.h"
+#include "beamline/BioXAS/BioXASMainMonochromatorRegionControl.h"
+#include "ui/beamline/AMExtendedControlEditor.h"
 
-class BioXASMainMonochromatorRegionControlView : public QWidget
+class BioXASMainMonochromatorRegionControlEditor : public AMExtendedControlEditor
+{
+	Q_OBJECT
+public:
+	/// Constructor.
+	explicit BioXASMainMonochromatorRegionControlEditor(QWidget *parent = 0);
+	/// Destructor.
+	virtual ~BioXASMainMonochromatorRegionControlEditor();
+
+protected slots:
+	/// Shows the moving view, called when the region control indicates that a move has started.
+	void onRegionControlMoveStarted();
+};
+
+class BioXASSSRLMonochromatorRegionControlMovingView : public QWidget
 {
 	Q_OBJECT
 
 public:
 	/// Constructor.
-	explicit BioXASMainMonochromatorRegionControlView(BioXASSSRLMonochromatorRegionControl *regionControl, QWidget *parent = 0);
+	explicit BioXASSSRLMonochromatorRegionControlMovingView(BioXASSSRLMonochromatorRegionControl *regionControl, QWidget *parent = 0);
 	/// Destructor.
-	virtual ~BioXASMainMonochromatorRegionControlView();
+	virtual ~BioXASSSRLMonochromatorRegionControlMovingView();
 	/// Returns the region control being viewed.
 	AMControl* regionControl() const { return regionControl_; }
 

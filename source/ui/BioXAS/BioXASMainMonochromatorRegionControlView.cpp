@@ -1,6 +1,34 @@
 #include "BioXASMainMonochromatorRegionControlView.h"
+#include "beamline/BioXAS/BioXASMainBeamline.h"
 
-BioXASMainMonochromatorRegionControlView::BioXASMainMonochromatorRegionControlView(BioXASSSRLMonochromatorRegionControl *regionControl, QWidget *parent) :
+BioXASMainMonochromatorRegionControlEditor::BioXASMainMonochromatorRegionControlEditor(QWidget *parent) :
+	AMExtendedControlEditor(BioXASMainBeamline::bioXAS()->mono()->regionControl(), 0, false, false, parent)
+{
+	connect( BioXASMainBeamline::bioXAS()->mono()->regionControl(), SIGNAL(moveStarted()), this, SLOT(onRegionControlMoveStarted()) );
+}
+
+BioXASMainMonochromatorRegionControlEditor::~BioXASMainMonochromatorRegionControlEditor()
+{
+
+}
+
+void BioXASMainMonochromatorRegionControlEditor::onRegionControlMoveStarted()
+{
+	BioXASSSRLMonochromatorRegionControlMovingView *movingView = new BioXASSSRLMonochromatorRegionControlMovingView(BioXASMainBeamline::bioXAS()->mono()->regionControl(), this);
+	movingView->setWindowFlags(Qt::Sheet);
+	movingView->show();
+}
+
+
+
+
+
+
+
+
+
+
+BioXASSSRLMonochromatorRegionControlMovingView::BioXASSSRLMonochromatorRegionControlMovingView(BioXASSSRLMonochromatorRegionControl *regionControl, QWidget *parent) :
 	QWidget(parent)
 {
 	// Initialize variables.
@@ -54,6 +82,12 @@ BioXASMainMonochromatorRegionControlView::BioXASMainMonochromatorRegionControlVi
 
 	setLayout(layout);
 
+	// Initial settings.
+
+	movingView_->hide();
+	failedView_->hide();
+	succeededView_->hide();
+
 	// Make connections.
 
 	connect( failedButtons, SIGNAL(accepted()), this, SLOT(close()) );
@@ -61,19 +95,15 @@ BioXASMainMonochromatorRegionControlView::BioXASMainMonochromatorRegionControlVi
 
 	// Current settings.
 
-	movingView_->hide();
-	failedView_->hide();
-	succeededView_->hide();
-
 	setRegionControl(regionControl);
 }
 
-BioXASMainMonochromatorRegionControlView::~BioXASMainMonochromatorRegionControlView()
+BioXASSSRLMonochromatorRegionControlMovingView::~BioXASSSRLMonochromatorRegionControlMovingView()
 {
 
 }
 
-void BioXASMainMonochromatorRegionControlView::setRegionControl(BioXASSSRLMonochromatorRegionControl *newControl)
+void BioXASSSRLMonochromatorRegionControlMovingView::setRegionControl(BioXASSSRLMonochromatorRegionControl *newControl)
 {
 	if (regionControl_ != newControl) {
 
@@ -90,33 +120,36 @@ void BioXASMainMonochromatorRegionControlView::setRegionControl(BioXASSSRLMonoch
 			connect( regionControl_, SIGNAL(moveStepChanged(QString, QString)), this, SLOT(onMoveStepChanged(QString, QString)) );
 		}
 
+		onMoveStarted();
+
 		emit regionControlChanged(regionControl_);
 	}
 }
 
-void BioXASMainMonochromatorRegionControlView::onMoveStarted()
+void BioXASSSRLMonochromatorRegionControlMovingView::onMoveStarted()
 {
-	showMovingView();
+	if (regionControl_ && regionControl_->moveInProgress())
+		showMovingView();
 }
 
-void BioXASMainMonochromatorRegionControlView::onMoveFailed(int failureCode)
+void BioXASSSRLMonochromatorRegionControlMovingView::onMoveFailed(int failureCode)
 {
 	showFailedView(AMControl::failureExplanation(failureCode));
 }
 
-void BioXASMainMonochromatorRegionControlView::onMoveSucceeded()
+void BioXASSSRLMonochromatorRegionControlMovingView::onMoveSucceeded()
 {
 	showSucceededView();
 }
 
-void BioXASMainMonochromatorRegionControlView::onMoveProgressChanged(double numerator, double denominator)
+void BioXASSSRLMonochromatorRegionControlMovingView::onMoveProgressChanged(double numerator, double denominator)
 {
 	movingProgress_->setValue(numerator);
 	movingProgress_->setMinimum(0);
 	movingProgress_->setMaximum(denominator);
 }
 
-void BioXASMainMonochromatorRegionControlView::onMoveStepChanged(const QString &newDescription, const QString &newInstruction)
+void BioXASSSRLMonochromatorRegionControlMovingView::onMoveStepChanged(const QString &newDescription, const QString &newInstruction)
 {
 	movingDescription_->setText(newDescription);
 
@@ -134,7 +167,7 @@ void BioXASMainMonochromatorRegionControlView::onMoveStepChanged(const QString &
 	}
 }
 
-void BioXASMainMonochromatorRegionControlView::showMovingView()
+void BioXASSSRLMonochromatorRegionControlMovingView::showMovingView()
 {
 	// Hide other views.
 
@@ -146,7 +179,7 @@ void BioXASMainMonochromatorRegionControlView::showMovingView()
 	movingView_->show();
 }
 
-void BioXASMainMonochromatorRegionControlView::showFailedView(const QString &message)
+void BioXASSSRLMonochromatorRegionControlMovingView::showFailedView(const QString &message)
 {
 	// Hide other views.
 
@@ -162,7 +195,7 @@ void BioXASMainMonochromatorRegionControlView::showFailedView(const QString &mes
 	failedView_->show();
 }
 
-void BioXASMainMonochromatorRegionControlView::showSucceededView()
+void BioXASSSRLMonochromatorRegionControlMovingView::showSucceededView()
 {
 	// Hide other views.
 

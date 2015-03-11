@@ -33,8 +33,6 @@ BioXASMainMonochromatorRegionView::BioXASMainMonochromatorRegionView(QWidget *pa
 	crystal2StatusGreen_ = new QLabel();
 	crystal2StatusRed_ = new QLabel();
 
-	regionButton_ = new QPushButton("Switch regions");
-
 	// Create and set layouts.
 
 	QGridLayout *statusLayout = new QGridLayout();
@@ -58,15 +56,7 @@ BioXASMainMonochromatorRegionView::BioXASMainMonochromatorRegionView(QWidget *pa
 	statusLayout->addWidget(crystal2StatusGreen_, 5, 1, 1, 1, Qt::AlignCenter);
 	statusLayout->addWidget(crystal2StatusRed_, 5, 2, 1, 1, Qt::AlignCenter);
 
-	QHBoxLayout *buttonLayout = new QHBoxLayout();
-	buttonLayout->addStretch();
-	buttonLayout->addWidget(regionButton_);
-
-	QVBoxLayout *layout = new QVBoxLayout();
-	layout->addLayout(statusLayout);
-	layout->addLayout(buttonLayout);
-
-	setLayout(layout);
+	setLayout(statusLayout);
 
 	// Make connections.
 
@@ -76,8 +66,6 @@ BioXASMainMonochromatorRegionView::BioXASMainMonochromatorRegionView(QWidget *pa
 	connect( mono_, SIGNAL(brakeStatusChanged(bool)), this, SLOT(onBrakeStatusChanged()) );
 	connect( mono_->crystalChangeMotor()->cwLimitControl(), SIGNAL(valueChanged(double)), this, SLOT(onCWLimitStatusChanged()) );
 	connect( mono_->crystalChangeMotor()->ccwLimitControl(), SIGNAL(valueChanged(double)), this, SLOT(onCCWLimitStatusChanged()) );
-	connect( mono_->regionControl(), SIGNAL(connected(bool)), this, SLOT(onRegionControlConnectedChanged()) );
-	connect( regionButton_, SIGNAL(clicked()), this, SLOT(onRegionButtonClicked()) );
 
 	// Current settings.
 
@@ -89,20 +77,11 @@ BioXASMainMonochromatorRegionView::BioXASMainMonochromatorRegionView(QWidget *pa
 	onBrakeStatusChanged();
 	onCWLimitStatusChanged();
 	onCCWLimitStatusChanged();
-	onRegionControlConnectedChanged();
 }
 
 BioXASMainMonochromatorRegionView::~BioXASMainMonochromatorRegionView()
 {
 
-}
-
-void BioXASMainMonochromatorRegionView::onRegionControlConnectedChanged()
-{
-	if (mono_->regionControl()->isConnected())
-		regionButton_->setEnabled(true);
-	else
-		regionButton_->setEnabled(false);
 }
 
 void BioXASMainMonochromatorRegionView::onSlitsStatusChanged()
@@ -228,33 +207,5 @@ void BioXASMainMonochromatorRegionView::onCCWLimitStatusChanged()
 
 		crystal2StatusGreen_->setPixmap(QPixmap(":/22x22/greenLEDOff.png"));
 		crystal2StatusRed_->setPixmap(QPixmap(":/22x22/redLEDOff.png"));
-	}
-}
-
-void BioXASMainMonochromatorRegionView::onRegionButtonClicked()
-{
-	if (mono_->regionControl()->isConnected()) {
-
-		// Display the region control view.
-
-		BioXASMainMonochromatorRegionControlView *regionControlView = new BioXASMainMonochromatorRegionControlView(mono_->regionControl(), this);
-		regionControlView->setWindowFlags(Qt::Sheet);
-		regionControlView->show();
-
-		// Calculate desired region.
-
-		int setpoint;
-		int currentRegion = mono_->regionControl()->value();
-
-		if (currentRegion == BioXASSSRLMonochromator::Region::A)
-			setpoint = BioXASSSRLMonochromator::Region::B;
-		else if (currentRegion == BioXASSSRLMonochromator::Region::B)
-			setpoint = BioXASSSRLMonochromator::Region::A;
-		else
-			setpoint = BioXASSSRLMonochromator::Region::A;
-
-		// Start the region change process.
-
-		mono_->regionControl()->move(setpoint);
 	}
 }

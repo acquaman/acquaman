@@ -32,10 +32,6 @@ protected slots:
 	void onCWLimitStatusChanged();
 	/// Handles updating the crystal 2 status view when the crystal change motor indicates it's at a ccw limit.
 	void onCCWLimitStatusChanged();
-	/// Handles updating the region control button when the mono's region control connected state changes--only enabled when connected, disabled otherwise.
-	void onRegionControlConnectedChanged();
-	/// Handles initiating a region change.
-	void onRegionButtonClicked();
 
 protected:
 	/// The monochromator being viewed.
@@ -65,8 +61,6 @@ protected:
 	QLabel *crystal2StatusGreen_;
 	/// Label displaying the crystal 2 active red LED.
 	QLabel *crystal2StatusRed_;
-	/// Button for initiating a region change.
-	QPushButton *regionButton_;
 };
 
 #endif // BIOXASMAINMONOCHROMATORREGIONVIEW_H
