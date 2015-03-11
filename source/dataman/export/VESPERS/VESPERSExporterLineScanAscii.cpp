@@ -25,6 +25,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "util/AMErrorMonitor.h"
 #include "acquaman/VESPERS/VESPERSSpatialLineScanConfiguration.h"
 #include "acquaman/VESPERS/VESPERSEnergyScanConfiguration.h"
+#include "acquaman/VESPERS/VESPERSTimeScanConfiguration.h"
 
 #include <QStringBuilder>
 #include <QFile>
@@ -121,33 +122,34 @@ void VESPERSExporterLineScanAscii::writeMainTable()
 
 	// 2. rows
 	QString ccdFileName;
-	VESPERSSpatialLineScanConfiguration *config = qobject_cast<VESPERSSpatialLineScanConfiguration *>(const_cast<AMScanConfiguration *>(currentScan_->scanConfiguration()));
+	VESPERSSpatialLineScanConfiguration *lineConfig = qobject_cast<VESPERSSpatialLineScanConfiguration *>(const_cast<AMScanConfiguration *>(currentScan_->scanConfiguration()));
 	VESPERSEnergyScanConfiguration *energyConfig = qobject_cast<VESPERSEnergyScanConfiguration *>(const_cast<AMScanConfiguration *>(currentScan_->scanConfiguration()));
+	VESPERSTimeScanConfiguration *timeConfig = qobject_cast<VESPERSTimeScanConfiguration *>(const_cast<AMScanConfiguration *>(currentScan_->scanConfiguration()));
 
 	QString ccdString = QString();
 	int shiftOffset = 0;
 	// This will return -1 if it fails.  This means any checks inside this loop will always fail if the CCD was not included.
 	int indexOfCCDName = -1;
 
-	if (config){
+	if (lineConfig){
 
-		ccdFileName = config->ccdFileName();
+		ccdFileName = lineConfig->ccdFileName();
 
-		if (config->ccdDetector() == VESPERS::Roper){
+		if (lineConfig->ccdDetector() == VESPERS::Roper){
 
 			ccdString = ccdFileName % "_%1.spe";
 			shiftOffset = -1;	// The -1 is because the value stored here is the NEXT number in the scan.  Purely a nomenclature setup from the EPICS interface.
 			indexOfCCDName = currentScan_->indexOfDataSource("RoperFileNumber");
 		}
 
-		else if (config->ccdDetector() == VESPERS::Mar){
+		else if (lineConfig->ccdDetector() == VESPERS::Mar){
 
 			ccdString = ccdFileName % "_%1.tif";
 			shiftOffset = -1;	// The -1 is because the value stored here is the NEXT number in the scan.  Purely a nomenclature setup from the EPICS interface.
 			indexOfCCDName = currentScan_->indexOfDataSource("MarFileNumber");
 		}
 
-		else if (config->ccdDetector() == VESPERS::Pilatus){
+		else if (lineConfig->ccdDetector() == VESPERS::Pilatus){
 
 			ccdString = ccdFileName % "-%1.tif";
 			shiftOffset = -1;	// The -1 is because the value stored here is the NEXT number in the scan.  Purely a nomenclature setup from the EPICS interface.
@@ -175,6 +177,33 @@ void VESPERSExporterLineScanAscii::writeMainTable()
 		}
 
 		else if (energyConfig->ccdDetector() == VESPERS::Pilatus){
+
+			ccdString = ccdFileName % "-%1.tif";
+			shiftOffset = -1;	// The -1 is because the value stored here is the NEXT number in the scan.  Purely a nomenclature setup from the EPICS interface.
+			indexOfCCDName = currentScan_->indexOfDataSource("PilatusFileNumber");
+		}
+	}
+
+	else if (timeConfig){
+
+		ccdFileName = timeConfig->ccdFileName();
+
+		if (timeConfig->ccdDetector() == VESPERS::Roper){
+
+			ccdString = ccdFileName % "_%1.spe";
+			shiftOffset = -1;	// The -1 is because the value stored here is the NEXT number in the scan.  Purely a nomenclature setup from the EPICS interface.
+			indexOfCCDName = currentScan_->indexOfDataSource("RoperFileNumber");
+
+		}
+
+		else if (timeConfig->ccdDetector() == VESPERS::Mar){
+
+			ccdString = ccdFileName % "_%1.tif";
+			shiftOffset = -1;	// The -1 is because the value stored here is the NEXT number in the scan.  Purely a nomenclature setup from the EPICS interface.
+			indexOfCCDName = currentScan_->indexOfDataSource("MarFileNumber");
+		}
+
+		else if (timeConfig->ccdDetector() == VESPERS::Pilatus){
 
 			ccdString = ccdFileName % "-%1.tif";
 			shiftOffset = -1;	// The -1 is because the value stored here is the NEXT number in the scan.  Purely a nomenclature setup from the EPICS interface.

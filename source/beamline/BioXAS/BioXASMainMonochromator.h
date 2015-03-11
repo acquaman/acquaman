@@ -82,12 +82,16 @@ public:
 	virtual AMAction3* createSetRegionAction(double newRegion);
     /// Returns a new set energy action, 0 if not connected.
 	virtual AMAction3* createSetEnergyAction(double newEnergy);
+	/// Returns a new action that adjusts the bragg motor offset such that the current energy matches the desired energy.
+	virtual AMAction3* createSetEnergyCalibrationAction(double newEnergy) { Q_UNUSED(newEnergy) return 0; }
 
 public slots:
 	/// Sets the region to the given region, performing a crystal change if necessary.
 	virtual void setRegion(double newRegion);
     /// Sets the energy setpoint.
 	virtual void setEnergy(double newEnergy);
+	/// Sets the bragg motor offset such that the current energy matches the desired energy.
+	virtual void setEnergyCalibration(double newEnergy) { Q_UNUSED(newEnergy) return; }
 
 protected slots:
     /// Updates the mono's general connected state based on the connected state of each of its pvs.

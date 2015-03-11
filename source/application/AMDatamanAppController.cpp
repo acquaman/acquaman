@@ -64,6 +64,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/AMScan.h"
 #include "acquaman/AMScanConfiguration.h"
 #include "acquaman/AMStepScanConfiguration.h"
+#include "acquaman/AMTimedRegionScanConfiguration.h"
 
 // Necessary for registering database types:
 ////////////////////////////
@@ -715,6 +716,7 @@ bool AMDatamanAppController::startupRegisterDatabases()
 	success &= AMDbObjectSupport::s()->registerClass<AMXRFScan>();
 
 	success &= AMDbObjectSupport::s()->registerClass<AMStepScanConfiguration>();
+	success &= AMDbObjectSupport::s()->registerClass<AMTimedRegionScanConfiguration>();
 
 	success &= AMDbObjectSupport::s()->registerClass<AMRun>();
 	success &= AMDbObjectSupport::s()->registerClass<AMExperiment>();

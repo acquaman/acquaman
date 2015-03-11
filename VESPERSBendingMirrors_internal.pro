@@ -1,4 +1,5 @@
-include ( acquamanCommon.pri )
+include ( $$PATH_TO_AM/compositeCommon/AMCommon.pri )
+include ( $$PATH_TO_AM/compositeCommon/AMPVControl.pri )
 
 TARGET = VESPERSBendingMirrors
 

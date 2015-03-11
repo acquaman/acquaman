@@ -27,17 +27,43 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 BioXASSidePersistentView::BioXASSidePersistentView(QWidget *parent) :
     QWidget(parent)
 {
+	// Create UI elements.
+
     energyControlEditor_ = new AMExtendedControlEditor(BioXASSideBeamline::bioXAS()->mono()->energyControl());
     energyControlEditor_->setControlFormat('f', 2);
 
+    calibrateEnergyButton_ = new QPushButton("Calibrate energy");
+
+    // Create and set layouts.
+
+    QHBoxLayout *energyButtonLayout = new QHBoxLayout();
+    energyButtonLayout->addStretch();
+    energyButtonLayout->addWidget(calibrateEnergyButton_);
+
     QVBoxLayout *layout = new QVBoxLayout();
     layout->addWidget(energyControlEditor_);
+    layout->addLayout(energyButtonLayout);
     layout->addStretch();
 
     setLayout(layout);
+    setFixedWidth(200);
+
+    // Make connections.
+
+    connect( calibrateEnergyButton_, SIGNAL(clicked()), this, SLOT(onCalibrateEnergyButtonClicked()) );
 }
 
 BioXASSidePersistentView::~BioXASSidePersistentView()
 {
 
+}
+
+void BioXASSidePersistentView::onCalibrateEnergyButtonClicked()
+{
+	bool inputOK = false;
+	double newEnergy = QInputDialog::getDouble(this, "Monochromator Energy Calibration", "Enter current calibrated energy:", BioXASSideBeamline::bioXAS()->mono()->energyControl()->value(), 0, 10000000, 1, &inputOK, Qt::Sheet);
+
+	if (inputOK) {
+		BioXASSideBeamline::bioXAS()->mono()->setEnergyCalibration(newEnergy);
+	}
 }

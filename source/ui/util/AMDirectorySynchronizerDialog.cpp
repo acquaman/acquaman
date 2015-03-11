@@ -425,20 +425,16 @@ void AMDirectorySynchronizerDialog::onSynchronizerComplete()
 		mainStatusLabel_->setText("Synchronization succeeded.");
 
 		if(timedWarningOnCompletion_){
-			AMMessageBoxWTimeout box(30000);
-			box.setWindowTitle("Synchronization Complete.");
-			box.setText("Synchronization Complete.");
+			QString informativeText = "";
 			if(lastCompareResult_ == AMRecursiveDirectoryCompare::Side1ModifiedResult)
-				box.setInformativeText(QString("Acquaman has successfully copied files from %1 to %2.").arg(side1DirectoryName_).arg(side2DirectoryName_));
+				informativeText = QString("Acquaman has successfully copied files from %1 to %2.").arg(side1DirectoryName_).arg(side2DirectoryName_);
 			else if(lastCompareResult_ == AMRecursiveDirectoryCompare::Side2ModifiedResult || lastCompareResult_ == AMRecursiveDirectoryCompare::Side1DoesNotExistResult)
-				box.setInformativeText(QString("Acquaman has successfully copied files from %1 to %2.").arg(side2DirectoryName_).arg(side1DirectoryName_));
+				informativeText = QString("Acquaman has successfully copied files from %1 to %2.").arg(side2DirectoryName_).arg(side1DirectoryName_);
 
-			QPushButton *acknowledgeButton_ = new QPushButton("Ok");
+			AMMessageBoxWTimeout::showMessageWTimeout("Synchronization Complete.",
+													  "Synchronization Complete.",
+													  informativeText);
 
-			box.addButton(acknowledgeButton_, QMessageBox::AcceptRole);
-			box.setDefaultButton(acknowledgeButton_);
-
-			box.execWTimeout();
 			close();
 		}
 		else
@@ -469,20 +465,15 @@ void AMDirectorySynchronizerDialog::onSynchronizerFailed()
 		mainStatusLabel_->setText("Synchronization failed. Press Close to end program.");
 
 		if(timedWarningOnCompletion_){
-			AMMessageBoxWTimeout box(30000);
-			box.setWindowTitle("Synchronization Failed.");
-			box.setText("Synchronization Failed.");
+			QString informativeText = "";
 			if(lastCompareResult_ == AMRecursiveDirectoryCompare::Side1ModifiedResult)
-				box.setInformativeText(QString("Acquaman failed to copy files from %1 to %2.").arg(side1DirectoryName_).arg(side2DirectoryName_));
+				informativeText = QString("Acquaman failed to copy files from %1 to %2.").arg(side1DirectoryName_).arg(side2DirectoryName_);
 			else if(lastCompareResult_ == AMRecursiveDirectoryCompare::Side2ModifiedResult || lastCompareResult_ == AMRecursiveDirectoryCompare::Side1DoesNotExistResult)
-				box.setInformativeText(QString("Acquaman failed to copy files from %1 to %2.").arg(side2DirectoryName_).arg(side1DirectoryName_));
+				informativeText = QString("Acquaman failed to copy files from %1 to %2.").arg(side2DirectoryName_).arg(side1DirectoryName_);
 
-			QPushButton *acknowledgeButton_ = new QPushButton("Ok");
-
-			box.addButton(acknowledgeButton_, QMessageBox::AcceptRole);
-			box.setDefaultButton(acknowledgeButton_);
-
-			box.execWTimeout();
+			AMMessageBoxWTimeout::showMessageWTimeout("Synchronization Failed.",
+													  "Synchronization Failed.",
+													  informativeText);
 			close();
 		}
 		else
