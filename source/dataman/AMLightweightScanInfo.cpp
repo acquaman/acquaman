@@ -16,8 +16,7 @@ AMLightweightScanInfo::AMLightweightScanInfo(int id,
 		int thumbnailCount,
 		AMDatabase *database,
 		QObject *parent)
-	: QObject(parent)
-{
+	: QObject(parent) {
 	id_ = id;
 	name_ = name;
 	number_ = number;
@@ -30,114 +29,92 @@ AMLightweightScanInfo::AMLightweightScanInfo(int id,
 	database_ = database;
 	if(thumbnailCount == 0)
 		return;
-	for(int iThumbnailId = 0; iThumbnailId < thumbnailCount; iThumbnailId++)
-	{
+	for(int iThumbnailId = 0; iThumbnailId < thumbnailCount; iThumbnailId++) {
 		thumbnailIds_.append(thumbnailFirstId);
 		thumbnailFirstId++;
 	}
 }
 
-int AMLightweightScanInfo::id() const
-{
+int AMLightweightScanInfo::id() const {
 	return id_;
 }
 
-QString AMLightweightScanInfo::name() const
-{
+QString AMLightweightScanInfo::name() const {
 	return name_;
 }
 
-void AMLightweightScanInfo::setName(const QString &name)
-{
+void AMLightweightScanInfo::setName(const QString &name) {
 	name_ = name;
 }
 
-int AMLightweightScanInfo::number() const
-{
+int AMLightweightScanInfo::number() const {
 	return number_;
 }
 
-void AMLightweightScanInfo::setNumber(int number)
-{
+void AMLightweightScanInfo::setNumber(int number) {
 	number_ = number;
 }
 
-QDateTime AMLightweightScanInfo::dateTime() const
-{
+QDateTime AMLightweightScanInfo::dateTime() const {
 	return dateTime_;
 }
 
-void AMLightweightScanInfo::setDateTime(const QDateTime &dateTime)
-{
+void AMLightweightScanInfo::setDateTime(const QDateTime &dateTime) {
 	dateTime_ = dateTime;
 }
 
-QString AMLightweightScanInfo::scanType() const
-{
+QString AMLightweightScanInfo::scanType() const {
 	return scanType_;
 }
 
-void AMLightweightScanInfo::setScanType(const QString &scanType)
-{
+void AMLightweightScanInfo::setScanType(const QString &scanType) {
 	scanType_ = scanType;
 }
 
-int AMLightweightScanInfo::runId() const
-{
+int AMLightweightScanInfo::runId() const {
 	return runId_;
 }
 
-void AMLightweightScanInfo::setRunId(int runId)
-{
+void AMLightweightScanInfo::setRunId(int runId) {
 	runId_ = runId;
 }
 
-QString AMLightweightScanInfo::runName() const
-{
+QString AMLightweightScanInfo::runName() const {
 	return runName_;
 }
 
-void AMLightweightScanInfo::setRunName(const QString &runName)
-{
+void AMLightweightScanInfo::setRunName(const QString &runName) {
 	runName_ = runName;
 }
 
-QString AMLightweightScanInfo::notes() const
-{
+QString AMLightweightScanInfo::notes() const {
 	return notes_;
 }
 
-void AMLightweightScanInfo::setNotes(const QString &notes)
-{
+void AMLightweightScanInfo::setNotes(const QString &notes) {
 	notes_ = notes;
 }
 
-QString AMLightweightScanInfo::sampleName() const
-{
+QString AMLightweightScanInfo::sampleName() const {
 	return sampleName_;
 }
 
-void AMLightweightScanInfo::setSampleName(const QString &sampleName)
-{
+void AMLightweightScanInfo::setSampleName(const QString &sampleName) {
 	sampleName_ = sampleName;
 }
 
-AMDbThumbnail *AMLightweightScanInfo::thumbnailAt(int index) const
-{
+AMDbThumbnail *AMLightweightScanInfo::thumbnailAt(int index) const {
 	/// Scan doesn't have this many thumbnails, return 0
 	if(index >= thumbnailCount())
 		return 0;
 
 	/// Thumbnails hasn't been loaded yet, load
-	if(!thumbnailsMap_.contains(thumbnailIds_.at(index)))
-	{
+	if(!thumbnailsMap_.contains(thumbnailIds_.at(index))) {
 		AMDatabase* db = AMDatabase::database("user");
 
 		QSqlQuery query = db->select(AMDbObjectSupport::thumbnailTableName(), "type, title, subtitle, thumbnail", QString("id = %1").arg(thumbnailIds_.at(index)));
-		if(query.exec())
-		{
-			while(query.next())
-			{
+		if(query.exec()) {
+			while(query.next()) {
 				AMDbThumbnail::ThumbnailType type;
 				if(query.value(0).toString() == "PNG")
 					type = AMDbThumbnail::PNGType;
@@ -150,34 +127,41 @@ AMDbThumbnail *AMLightweightScanInfo::thumbnailAt(int index) const
 
 				thumbnailsMap_.insert(thumbnailIds_.at(index), new AMDbThumbnail(title, subtitle, type, thumbnail));
 			}
-		} else
-		{
+		} else {
 			AMErrorMon::alert(this, AMLIGHTWEIGHTSCANINFO_SQL_ERROR, QString("Could not complete query with error: %1").arg(query.lastError().text()));
 		}
 		query.finish();
 	}
 
 	return thumbnailsMap_.value(thumbnailIds_.at(index));
-
 }
 
-int AMLightweightScanInfo::thumbnailCount() const
-{
+int AMLightweightScanInfo::thumbnailCount() const {
 	return thumbnailIds_.count();
 }
 
-void AMLightweightScanInfo::addThumbnailId(int thumbnailId)
-{
-	thumbnailIds_.append(thumbnailId);
+void AMLightweightScanInfo::refreshThumbnails(int thumbnailFirstId, int thumbnailCount) {
+	clearThumbnails();
+	if(thumbnailCount == 0)
+		return;
+	for(int iThumbnailId = 0; iThumbnailId < thumbnailCount; iThumbnailId++) {
+		thumbnailIds_.append(thumbnailFirstId);
+		thumbnailFirstId++;
+	}
 }
 
-void AMLightweightScanInfo::clearThumbnails()
-{
+int AMLightweightScanInfo::thumbnailFirstId() const {
+	if(thumbnailIds_.isEmpty())
+		return -1;
+
+	return thumbnailIds_.at(0);
+}
+
+void AMLightweightScanInfo::clearThumbnails() {
 	thumbnailIds_.clear();
 	thumbnailsMap_.clear();
 }
 
-QList<int> AMLightweightScanInfo::experimentIds() const
-{
+QList<int> AMLightweightScanInfo::experimentIds() const {
 	return experimentIds_;
 }

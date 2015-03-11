@@ -20,7 +20,76 @@ QList<AMLightweightScanInfo *> AMLightweightScanInfoFactory::all(AMDatabase *dat
 }
 
 AMLightweightScanInfo *AMLightweightScanInfoFactory::single(int scanId, AMDatabase *database) {
+	AMLightweightScanInfo* returnScanInfo = 0;
 
+	QSqlQuery selectQuery = database->select(
+				AMDbObjectSupport::s()->tableNameForClass("AMScan"), "*",
+				QString("id = %1").arg(scanId));
+
+
+	if(selectQuery.exec()){
+		while(selectQuery.next()) {
+			QSqlRecord currentRecord = selectQuery.record();
+			int id = selectQuery.value(currentRecord.indexOf("id")).toInt();
+			QString name = selectQuery.value(currentRecord.indexOf("name")).toString();
+			int number = selectQuery.value(currentRecord.indexOf("number")).toInt();
+			int thumbnailFirstId = selectQuery.value(currentRecord.indexOf("thumbnailFirstId")).toInt();
+			int thumbnailCount = selectQuery.value(currentRecord.indexOf("thumbnailCount")).toInt();
+			QDateTime dateTime = selectQuery.value(currentRecord.indexOf("dateTime")).toDateTime();
+			int runId = selectQuery.value(currentRecord.indexOf("runId")).toInt();
+			QString runName = AMLightweightScanInfoFactory::loadRunName(database, runId);
+			QString scanTypeClass = selectQuery.value(currentRecord.indexOf("AMDbObjectType")).toString();
+
+			QString scanType = AMLightweightScanInfoFactory::loadScanType(database, scanTypeClass);
+			QString notes = selectQuery.value(currentRecord.indexOf("notes")).toString();
+
+			QString samplePre2013 = selectQuery.value(currentRecord.indexOf("samplePre2013")).toString();
+			QString sampleTableEntry = selectQuery.value(currentRecord.indexOf("Sample")).toString();
+
+
+
+			QString sampleName = AMLightweightScanInfoFactory::loadSampleName(database, samplePre2013, sampleTableEntry);
+
+			returnScanInfo = new AMLightweightScanInfo(
+						id, name, number, dateTime, scanType, runId, runName, notes,
+						sampleName, thumbnailFirstId, thumbnailCount, database, 0);
+
+
+			QList<int> experimentIds = AMLightweightScanInfoFactory::loadExperimentIds(
+						database, scanId);
+
+			for (int iExperimentId=0, count = experimentIds.count();
+				 iExperimentId < count;
+				 ++iExperimentId) {
+				returnScanInfo->experimentIds().append(experimentIds.at(iExperimentId));
+			}
+		}
+	} else {
+	AMErrorMon::alert(0, AMLIGHTWEIGHTSCANINFOFACTORY_SCANS_SQL_ERROR, QString("Could not complete query to load scans, with error: %1").arg(selectQuery.lastError().text()));
+
+	}
+	selectQuery.finish();
+	return returnScanInfo;
+
+}
+
+void AMLightweightScanInfoFactory::updateSingle(AMLightweightScanInfo *info, AMDatabase *database)
+{
+	AMLightweightScanInfo* updatedScanInfo = AMLightweightScanInfoFactory::single(info->id(), database);
+
+	info->setName(updatedScanInfo->name());
+	info->setNumber(updatedScanInfo->number());
+	info->setDateTime(updatedScanInfo->dateTime());
+	info->setScanType(updatedScanInfo->scanType());
+	info->setRunId(updatedScanInfo->runId());
+	info->setRunName(updatedScanInfo->runName());
+	info->setNotes(updatedScanInfo->notes());
+	info->setSampleName(updatedScanInfo->sampleName());
+
+	info->refreshThumbnails(updatedScanInfo->thumbnailFirstId(),
+							updatedScanInfo->thumbnailCount());
+
+	updatedScanInfo->deleteLater();
 }
 
 AMLightweightScanInfoFactory::AMLightweightScanInfoFactory() {
@@ -35,10 +104,8 @@ QList<AMLightweightScanInfo*> AMLightweightScanInfoFactory::loadAll() {
 
 	QSqlQuery selectQuery = database_->select(AMDbObjectSupport::s()->tableNameForClass("AMScan"), "*");
 
-	if(selectQuery.exec())
-	{
-		while(selectQuery.next())
-		{
+	if(selectQuery.exec()) {
+		while(selectQuery.next()) {
 			QSqlRecord currentRecord = selectQuery.record();
 			int id = selectQuery.value(currentRecord.indexOf("id")).toInt();
 			QString name = selectQuery.value(currentRecord.indexOf("name")).toString();
@@ -58,7 +125,7 @@ QList<AMLightweightScanInfo*> AMLightweightScanInfoFactory::loadAll() {
 
 
 
-			QString sampleName = parseSampleName(samplePre2013, sampleTableEntry);
+			QString sampleName = getSampleName(samplePre2013, sampleTableEntry);
 
 			AMLightweightScanInfo* currentLightweightScanInfo = new AMLightweightScanInfo(
 						id, name, number, dateTime, scanType, runId, runName, notes,
@@ -76,9 +143,7 @@ QList<AMLightweightScanInfo*> AMLightweightScanInfoFactory::loadAll() {
 			returnCollection.append(currentLightweightScanInfo);
 		}
 
-	}
-	else
-	{
+	} else {
 		AMErrorMon::alert(0, AMLIGHTWEIGHTSCANINFOFACTORY_SCANS_SQL_ERROR, QString("Could not complete query to load scans, with error: %1").arg(selectQuery.lastError().text()));
 	}
 	selectQuery.finish();
@@ -89,23 +154,23 @@ QList<AMLightweightScanInfo*> AMLightweightScanInfoFactory::loadAll() {
 void AMLightweightScanInfoFactory::populateExperimentIds() {
 	QSqlQuery selectQuery = database_->select("ObjectExperimentEntries", "objectId, ExperimentId");
 
-	if(!selectQuery.exec()) {
-		selectQuery.finish();
-		return;
-	}
+	if(selectQuery.exec()) {
+		while(selectQuery.next()) {
+			int scanId = selectQuery.value(0).toInt();
+			int experimentId = selectQuery.value(1).toInt();
 
-	while(selectQuery.next()) {
-		int scanId = selectQuery.value(0).toInt();
-		int experimentId = selectQuery.value(1).toInt();
-
-		if(experimentMap_.contains(scanId)) {
-			experimentMap_[scanId].append(experimentId);
-		} else {
-			QList<int> experimentIds;
-			experimentIds.append(experimentId);
-			experimentMap_.insert(scanId, experimentIds);
+			if(experimentMap_.contains(scanId)) {
+				experimentMap_[scanId].append(experimentId);
+			} else {
+				QList<int> experimentIds;
+				experimentIds.append(experimentId);
+				experimentMap_.insert(scanId, experimentIds);
+			}
 		}
+	} else {
+		AMErrorMon::alert(0, AMLIGHTWEIGHTSCANINFOFACTORY_EXPERIMENTS_SQL_ERROR, QString("Could not complete query to load experiments, with error: %1").arg(selectQuery.lastError().text()));
 	}
+	selectQuery.finish();
 }
 
 void AMLightweightScanInfoFactory::populateSamples()
@@ -194,8 +259,7 @@ void AMLightweightScanInfoFactory::populateRuns() {
 	selectQuery.finish();
 }
 
-QString AMLightweightScanInfoFactory::parseSampleName(const QString &sampleNamePre2013, const QString &sampleTableEntry) const
-{
+QString AMLightweightScanInfoFactory::getSampleName(const QString &sampleNamePre2013, const QString &sampleTableEntry) const {
 	if(sampleTableEntry.length()==0)
 		return sampleNamePre2013;
 
@@ -218,4 +282,102 @@ QString AMLightweightScanInfoFactory::parseSampleName(const QString &sampleNameP
 		return QString();
 
 	return sampleMap_.value(tableName).value(id);
+}
+
+QString AMLightweightScanInfoFactory::loadRunName(AMDatabase *database, int runId) {
+	QString returnName;
+
+	if(runId > 0) {
+		QSqlQuery selectQuery = database->select(
+					AMDbObjectSupport::s()->tableNameForClass("AMRun"),
+					"name", QString("id = %1").arg(runId));
+
+
+		if(selectQuery.exec()) {
+			while(selectQuery.next()) {
+				returnName = selectQuery.value(0).toString();
+			}
+		} else {
+			AMErrorMon::alert(0, AMLIGHTWEIGHTSCANINFOFACTORY_RUNS_SQL_ERROR, QString("Could not complete query to load run name with error: %1").arg(selectQuery.lastError().text()));
+		}
+	}
+	return returnName;
+}
+
+QString AMLightweightScanInfoFactory::loadScanType(AMDatabase *database, const QString &className) {
+	QString returnName;
+
+	QSqlQuery selectQuery = database->select(
+				"AMDbObjectTypes_table",
+				"description",
+				QString("AMDbObjectType = '%1'").arg(className));
+
+
+	if(selectQuery.exec()) {
+		while(selectQuery.next()) {
+			returnName = selectQuery.value(0).toString();
+		}
+	} else {
+		AMErrorMon::alert(0, AMLIGHTWEIGHTSCANINFOFACTORY_OBJECT_TYPES_SQL_ERROR, QString("Could not complete query to load object types, with error: %1").arg(selectQuery.lastError().text()));
+	}
+	selectQuery.finish();
+	return returnName;
+}
+
+QString AMLightweightScanInfoFactory::loadSampleName(AMDatabase *database,
+													 const QString &sampleNamePre2013,
+													 const QString &sampleTableEntry) {
+	QString returnValue;
+
+	if(sampleNamePre2013 != "") {
+		returnValue = sampleNamePre2013;
+		return returnValue;
+	}
+
+	if(sampleTableEntry == "")
+		return returnValue;
+
+
+	QStringList splitResults = sampleTableEntry.split(";");
+
+	if(splitResults.count() < 2)
+		return returnValue;
+
+	QString sampleTableName = splitResults.at(0);
+	int id = splitResults.at(1).toInt();
+
+	QSqlQuery selectQuery = database->select(sampleTableName,
+											 "name",
+											 QString("id = %1").arg(id));
+
+	if(selectQuery.exec()) {
+		while(selectQuery.next()) {
+			returnValue = selectQuery.value(0).toString();
+		}
+	} else {
+		AMErrorMon::alert(0, AMLIGHTWEIGHTSCANINFOFACTORY_SAMPLES_SQL_ERROR, QString("Could not complete query to load sample, with error: %1").arg(selectQuery.lastError().text()));
+	}
+	selectQuery.finish();
+
+	return returnValue;
+}
+
+QList<int> AMLightweightScanInfoFactory::loadExperimentIds(AMDatabase *database, int scanId) {
+	QList<int> returnList;
+
+	QSqlQuery selectQuery = database->select("ObjectExperimentEntries",
+											 "ExperimentId",
+											 QString("objectId = %1").arg(scanId));
+
+	if(selectQuery.exec()) {
+		while(selectQuery.next()) {
+			int experimentId = selectQuery.value(0).toInt();
+			returnList.append(experimentId);
+		}
+	} else {
+		AMErrorMon::alert(0, AMLIGHTWEIGHTSCANINFOFACTORY_EXPERIMENTS_SQL_ERROR, QString("Could not complete query to load experiments, with error: %1").arg(selectQuery.lastError().text()));
+	}
+	selectQuery.finish();
+
+	return returnList;
 }

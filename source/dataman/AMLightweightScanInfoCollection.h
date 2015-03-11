@@ -54,7 +54,9 @@ protected slots:
 	/// Slot to handle the database signal indicating that an item has been removed from the database
 	void onDbItemRemoved(const QString& tableName, int oldId);
 protected:
-
+	/// The index in the list of the Scan info with the provided id, or -1 if
+	/// none is matched.
+	int indexOfScanWithId(int id);
 private:
 	/// The database from which the scan infos will be retrieved
 	AMDatabase* database_;

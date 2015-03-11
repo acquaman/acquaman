@@ -5,6 +5,7 @@
 #define AMLIGHTWEIGHTSCANINFOFACTORY_OBJECT_TYPES_SQL_ERROR 45978
 #define AMLIGHTWEIGHTSCANINFOFACTORY_SCANS_SQL_ERROR 45979
 #define AMLIGHTWEIGHTSCANINFOFACTORY_RUNS_SQL_ERROR 45980
+#define AMLIGHTWEIGHTSCANINFOFACTORY_EXPERIMENTS_SQL_ERROR 45981
 
 #include <QList>
 #include <QHash>
@@ -15,7 +16,13 @@ class AMDatabase;
 class AMLightweightScanInfo;
 /**
  * Factory class designed for optimized building of bulk and single
- * AMLightweightScanInfos
+ * AMLightweightScanInfos.
+ * -----
+ * For bulk loads an instance of the class is created which is then used to
+ * store persistant data for the length of the load. For single loads no
+ * instance is created. As such the helper methods defined below are static
+ * in the case that they are used in loading a single Scan Info, and not in
+ * the case they they are used in the bulk load
  */
 class AMLightweightScanInfoFactory
 {
@@ -23,10 +30,14 @@ public:
 	/// Builds a collection of AMLightweightScanInfos from the database
 	/// in bulk
 	static QList<AMLightweightScanInfo*> all(AMDatabase* database);
+
 	/// Retrieves a single AMLightweightScanInfo for the scan with the provided
 	/// id from the passed database
 	static AMLightweightScanInfo* single(int scanId, AMDatabase* database);
 
+	///  Refreshes the passed in AMLightweightScanInfo with the information
+	/// currently in the database
+	static void updateSingle(AMLightweightScanInfo* info, AMDatabase* database);
 protected:
 	/// Protected default c'tor to stop instances of class being created
 	AMLightweightScanInfoFactory();
@@ -52,8 +63,22 @@ protected:
 	/// Loads the info for the Run Map from the database
 	void populateRuns();
 
-	// HelperFunction for parsing record data
-	QString parseSampleName(const QString& sampleNamePre2013, const QString& sampleTableEntry) const;
+	/// Returns the used sample name from the two entries in the Scan table:
+	/// SampleNamePre2013 and Sample
+	QString getSampleName(const QString& sampleNamePre2013, const QString& sampleTableEntry) const;
+
+	// Helper methods used for getting single scan accompanying info
+
+	/// Returns the run name from the provided runId
+	static QString loadRunName(AMDatabase* database, int runId);
+	/// Returns the scan type for the provided class name
+	static QString loadScanType(AMDatabase* database, const QString& className);
+	/// Returns the name of the sample from the provided Sample entry in the Scan table
+	static QString loadSampleName(AMDatabase* database,
+								  const QString& sampleNamePre2013,
+								  const QString& sampleTableEntry);
+	/// Returns the list of experimentIds to which the scan with the provided id belongs
+	static QList<int> loadExperimentIds(AMDatabase* database, int scanId);
 
 	// Member Variables used to store persistant data during the bulk load
 
