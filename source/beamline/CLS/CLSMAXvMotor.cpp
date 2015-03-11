@@ -703,6 +703,17 @@ AMAction3 *CLSMAXvMotor::createEncoderStepSoftRatioAction(double encoderStepSoft
 	return AMActionSupport::buildControlMoveAction(encoderStepSoftRatio_, encoderStepSoftRatio);
 }
 
+AMAction3 *CLSMAXvMotor::createPowerAction(CLSMAXvMotor::PowerState newState)
+{
+	AMAction3 *action = 0;
+
+	if (powerState_->isConnected()) {
+		action = AMActionSupport::buildControlMoveAction(powerState_, newState);
+	}
+
+	return action;
+}
+
 void CLSMAXvMotor::setEGUVelocity(double velocity){
 	if(isConnected())
 		EGUVelocity_->move(velocity);
