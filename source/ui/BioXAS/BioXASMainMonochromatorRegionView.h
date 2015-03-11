@@ -20,17 +20,19 @@ public:
 	virtual ~BioXASMainMonochromatorRegionView();
 
 protected slots:
-	/// Handles updating the view when the mono's slits status changes.
+	/// Handles updating the slits status view when the mono's slits status changes.
 	void onSlitsStatusChanged();
-	/// Handles updating the view when the mono's paddle status changes.
+	/// Handles updating the paddle status view when the mono's paddle status changes.
 	void onPaddleStatusChanged();
-	/// Handles updating the view when the mono's key status changes.
+	/// Handles updating the key status view when the mono's key status changes.
 	void onKeyStatusChanged();
-	/// Handles updating the view when the mono's brake status changes.
+	/// Handles updating the brake status view when the mono's brake status changes.
 	void onBrakeStatusChanged();
-	/// Handles updating the view when the crystal change motor's limit status changes.
-	void onLimitStatusChanged();
-	/// Handles updating the view when the mono's region control connected state changes.
+	/// Handles updating the crystal 1 status view when the crystal change motor indicates it's at a cw limit.
+	void onCWLimitStatusChanged();
+	/// Handles updating the crystal 2 status view when the crystal change motor indicates it's at a ccw limit.
+	void onCCWLimitStatusChanged();
+	/// Handles updating the region control button when the mono's region control connected state changes--only enabled when connected, disabled otherwise.
 	void onRegionControlConnectedChanged();
 	/// Handles initiating a region change.
 	void onRegionButtonClicked();
@@ -38,6 +40,7 @@ protected slots:
 protected:
 	/// The monochromator being viewed.
 	BioXASMainMonochromator *mono_;
+
 	/// Label displaying the slits status green LED.
 	QLabel *slitsStatusGreen_;
 	/// Label displaying the slits status red LED.
