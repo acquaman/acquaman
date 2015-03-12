@@ -263,30 +263,68 @@ AMAction3* BioXASMainMonochromatorRegionControl::createMoveCrystalChangeToRegion
 
 AMAction3* BioXASMainMonochromatorRegionControl::createWaitForCrystalChangeAtCWLimitAction()
 {
-	AMAction3 *action = 0;
+	AMListAction3 *action = new AMListAction3(new AMListActionInfo3("Confirm cw limit reached", "Confirms crystal change motor cw limit was reached"), AMListAction3::Sequential);
 
 	if (crystalChangeCWLimitStatus_ && crystalChangeCWLimitStatus_->isConnected()) {
 		AMControlInfo setpoint = crystalChangeCWLimitStatus_->toInfo();
 		setpoint.setValue(BioXASSSRLMonochromator::CrystalChange::AtLimit);
 
-		action = new AMControlWaitAction(new AMControlWaitActionInfo(setpoint, TIMEOUT_CRYSTAL_CHANGE_MOTOR_LIMIT_REACHED, AMControlWaitActionInfo::MatchEqual), crystalChangeCWLimitStatus_);
+		AMControlWaitAction *limitReached = new AMControlWaitAction(new AMControlWaitActionInfo(setpoint, TIMEOUT_CRYSTAL_CHANGE_MOTOR_LIMIT_REACHED, AMControlWaitActionInfo::MatchEqual), crystalChangeCWLimitStatus_);
+		action->addSubAction(limitReached);
+
+		AMWaitAction *wait = new AMWaitAction(new AMWaitActionInfo(TIMEOUT_CRYSTAL_CHANGE_MOVE_WAIT));
+		action->addSubAction(wait);
+
+		AMControlWaitAction *doubleCheck = new AMControlWaitAction(*limitReached);
+		action->addSubAction(doubleCheck);
 	}
 
 	return action;
+
+
+//	AMAction3 *action = 0;
+
+//	if (crystalChangeCWLimitStatus_ && crystalChangeCWLimitStatus_->isConnected()) {
+//		AMControlInfo setpoint = crystalChangeCWLimitStatus_->toInfo();
+//		setpoint.setValue(BioXASSSRLMonochromator::CrystalChange::AtLimit);
+
+//		action = new AMControlWaitAction(new AMControlWaitActionInfo(setpoint, TIMEOUT_CRYSTAL_CHANGE_MOTOR_LIMIT_REACHED, AMControlWaitActionInfo::MatchEqual), crystalChangeCWLimitStatus_);
+//	}
+
+//	return action;
 }
 
 AMAction3* BioXASMainMonochromatorRegionControl::createWaitForCrystalChangeAtCCWLimitAction()
 {
-	AMAction3 *action = 0;
+	AMListAction3 *action = new AMListAction3(new AMListActionInfo3("Confirm ccw limit reached", "Confirms crystal change motor ccw limit was reached"), AMListAction3::Sequential);
 
 	if (crystalChangeCCWLimitStatus_ && crystalChangeCCWLimitStatus_->isConnected()) {
 		AMControlInfo setpoint = crystalChangeCCWLimitStatus_->toInfo();
 		setpoint.setValue(BioXASSSRLMonochromator::CrystalChange::AtLimit);
 
-		action = new AMControlWaitAction(new AMControlWaitActionInfo(setpoint, TIMEOUT_CRYSTAL_CHANGE_MOTOR_LIMIT_REACHED, AMControlWaitActionInfo::MatchEqual), crystalChangeCCWLimitStatus_);
+		AMControlWaitAction *limitReached = new AMControlWaitAction(new AMControlWaitActionInfo(setpoint, TIMEOUT_CRYSTAL_CHANGE_MOTOR_LIMIT_REACHED, AMControlWaitActionInfo::MatchEqual), crystalChangeCCWLimitStatus_);
+		action->addSubAction(limitReached);
+
+		AMWaitAction *wait = new AMWaitAction(new AMWaitActionInfo(TIMEOUT_CRYSTAL_CHANGE_MOVE_WAIT));
+		action->addSubAction(wait);
+
+		AMControlWaitAction *doubleCheck = new AMControlWaitAction(*limitReached);
+		action->addSubAction(doubleCheck);
 	}
 
 	return action;
+
+
+//	AMAction3 *action = 0;
+
+//	if (crystalChangeCCWLimitStatus_ && crystalChangeCCWLimitStatus_->isConnected()) {
+//		AMControlInfo setpoint = crystalChangeCCWLimitStatus_->toInfo();
+//		setpoint.setValue(BioXASSSRLMonochromator::CrystalChange::AtLimit);
+
+//		action = new AMControlWaitAction(new AMControlWaitActionInfo(setpoint, TIMEOUT_CRYSTAL_CHANGE_MOTOR_LIMIT_REACHED, AMControlWaitActionInfo::MatchEqual), crystalChangeCCWLimitStatus_);
+//	}
+
+//	return action;
 }
 
 AMAction3* BioXASMainMonochromatorRegionControl::createWaitForCrystalChangeAtRegionLimitAction(int region)

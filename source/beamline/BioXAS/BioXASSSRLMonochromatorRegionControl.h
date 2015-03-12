@@ -5,6 +5,7 @@
 #include "beamline/AMPVControl.h"
 #include "actions3/AMActionSupport.h"
 #include "actions3/actions/AMControlWaitAction.h"
+#include "actions3/actions/AMWaitAction.h"
 #include "actions3/AMListAction3.h"
 
 // {setpoint}_{motor}_{property} VALUE
@@ -25,6 +26,7 @@
 #define TIMEOUT_CRYSTAL_CHANGE_MOTOR_LIMIT_REACHED 60
 #define TIMEOUT_BRAGG_MOTOR_LIMIT_REACHED 200.0
 #define TIMEOUT_REGION_STATE_CHANGED 200.0
+#define TIMEOUT_CRYSTAL_CHANGE_MOVE_WAIT 1.0
 
 class BioXASSSRLMonochromator;
 
