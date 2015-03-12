@@ -29,7 +29,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/BioXAS/BioXASMainBeamline.h"
 #include "ui/beamline/AMExtendedControlEditor.h"
 #include "ui/BioXAS/BioXASSSRLMonochromatorRegionControlEditor.h"
-#include "ui/BioXAS/BioXASMainMonochromatorRegionView.h"
+#include "ui/BioXAS/BioXASSSRLMonochromatorRegionView.h"
 
 class AMExtendedControlEditor;
 
@@ -55,7 +55,7 @@ protected:
 	/// Editor that selects the mono bragg position.
 	AMExtendedControlEditor *braggControlEditor_;
 	/// Editor that views mono components related to a region change.
-	BioXASMainMonochromatorRegionView *regionView_;
+	BioXASSSRLMonochromatorRegionView *regionView_;
 };
 
 #endif // BIOXASMAINPERSISTENTVIEW_H

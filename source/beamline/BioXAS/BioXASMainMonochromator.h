@@ -31,14 +31,6 @@ public:
 	virtual double region() const { return region_->value(); }
 	/// Returns the energy feedback.
 	virtual double energy() const { return energy_->value(); }
-	/// Returns the slits status.
-	double slitsStatus() const { return slitsStatus_->value(); }
-	/// Returns the paddle status.
-	double paddleStatus() const { return paddleStatus_->value(); }
-	/// Returns the key status.
-	double keyStatus() const { return keyStatus_->value(); }
-	/// Returns the brake status.
-	double brakeStatus() const { return brakeStatus_->value(); }
 
     /// Returns the upper slit blade motor.
 	CLSMAXvMotor* upperSlitBladeMotor() const { return upperSlitMotor_; }
@@ -63,20 +55,20 @@ public:
     /// Returns the crystal 2 roll motor.
 	CLSMAXvMotor* crystal2RollMotor() const { return crystal2RollMotor_; }
 
-	/// Returns the mono's crystal change control.
+	/// Returns the mono's region control.
 	BioXASSSRLMonochromatorRegionControl* regionControl() const { return region_; }
-    /// Returns the energy setpoint control.
-    AMControl* energyControl() const { return energy_; }
+	/// Returns the energy setpoint control.
+	AMControl* energyControl() const { return energy_; }
 	/// Returns the slits status control.
-	AMControl* slitsStatusControl() const { return slitsStatus_; }
+	virtual AMControl* slitsStatusControl() const { return slitsStatus_; }
 	/// Returns the paddle status control.
-	AMControl* paddleStatusControl() const { return paddleStatus_; }
+	virtual AMControl* paddleStatusControl() const { return paddleStatus_; }
 	/// Returns the key status control.
-	AMControl* keyStatusControl() const { return keyStatus_; }
+	virtual AMControl* keyStatusControl() const { return keyStatus_; }
 	/// Returns the brake status control.
-	AMControl* brakeStatusControl() const { return brakeStatus_; }
+	virtual AMControl* brakeStatusControl() const { return brakeStatus_; }
 	/// Returns the bragg at crystal change position status control.
-	AMControl* braggAtCrystalChangePositionStatusControl() const { return braggAtCrystalChangePositionStatus_; }
+	virtual AMControl* braggAtCrystalChangePositionStatusControl() const { return braggAtCrystalChangePositionStatus_; }
 
 	/// Returns a new action that sets the region, 0 if not connected.
 	virtual AMAction3* createSetRegionAction(double newRegion);
@@ -109,7 +101,10 @@ protected slots:
 
 protected:
 	/// Connected state.
-    bool connected_;
+	bool connected_;
+
+	// Controls
+
 	/// Region control.
 	BioXASMainMonochromatorRegionControl* region_;
 	/// Energy control.
@@ -125,19 +120,30 @@ protected:
 	/// Bragg at crystal change position status control.
 	AMControl* braggAtCrystalChangePositionStatus_;
 
-	// Controls
+	// Physical motors
 
+	/// Upper slit blade motor.
 	CLSMAXvMotor *upperSlitMotor_;
+	/// Lower slit blade motor.
 	CLSMAXvMotor *lowerSlitMotor_;
+	/// Paddle motor.
 	CLSMAXvMotor *paddleMotor_;
-    CLSMAXvMotor *braggMotor_;
-    CLSMAXvMotor *verticalMotor_;
-    CLSMAXvMotor *lateralMotor_;
+	/// Bragg motor.
+	CLSMAXvMotor *braggMotor_;
+	/// Vertical motor.
+	CLSMAXvMotor *verticalMotor_;
+	/// Lateral motor.
+	CLSMAXvMotor *lateralMotor_;
+	/// Crystal change motor.
 	CLSMAXvMotor *crystalChangeMotor_;
-    CLSMAXvMotor *crystal1PitchMotor_;
-    CLSMAXvMotor *crystal1RollMotor_;
-    CLSMAXvMotor *crystal2PitchMotor_;
-    CLSMAXvMotor *crystal2RollMotor_;
+	/// Crystal 1 pitch motor.
+	CLSMAXvMotor *crystal1PitchMotor_;
+	/// Crystal 1 roll motor.
+	CLSMAXvMotor *crystal1RollMotor_;
+	/// Crystal 2 pitch motor.
+	CLSMAXvMotor *crystal2PitchMotor_;
+	/// Crystal 2 roll motor.
+	CLSMAXvMotor *crystal2RollMotor_;
 };
 
 

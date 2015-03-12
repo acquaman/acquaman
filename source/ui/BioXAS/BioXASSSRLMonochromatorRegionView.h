@@ -1,5 +1,5 @@
-#ifndef BIOXASMAINMONOCHROMATORREGIONVIEW_H
-#define BIOXASMAINMONOCHROMATORREGIONVIEW_H
+#ifndef BIOXASSSRLMONOCHROMATORREGIONVIEW_H
+#define BIOXASSSRLMONOCHROMATORREGIONVIEW_H
 
 #include <QWidget>
 #include <QLayout>
@@ -8,15 +8,25 @@
 
 #include "beamline/BioXAS/BioXASMainBeamline.h"
 
-class BioXASMainMonochromatorRegionView : public QGroupBox
+class BioXASSSRLMonochromatorRegionView : public QGroupBox
 {
 	Q_OBJECT
 
 public:
 	/// Constructor.
-	explicit BioXASMainMonochromatorRegionView(QWidget *parent = 0);
+	explicit BioXASSSRLMonochromatorRegionView(BioXASSSRLMonochromator *mono, QWidget *parent = 0);
 	/// Destructor.
-	virtual ~BioXASMainMonochromatorRegionView();
+	virtual ~BioXASSSRLMonochromatorRegionView();
+	/// Returns the monochromator being viewed.
+	BioXASSSRLMonochromator* mono() const { return mono_; }
+
+signals:
+	/// Notifier that the monochromator being viewed has changed.
+	void monoChanged(BioXASSSRLMonochromator *newMono);
+
+public slots:
+	/// Sets the mono being viewed.
+	void setMono(BioXASSSRLMonochromator *newMono);
 
 protected slots:
 	/// Handles updating the slits status view when the mono's slits status changes.
@@ -27,14 +37,10 @@ protected slots:
 	void onKeyStatusChanged();
 	/// Handles updating the brake status view when the mono's brake status changes.
 	void onBrakeStatusChanged();
-//	/// Handles updating the crystal 1 status view when the crystal change motor indicates it's at a cw limit.
-//	void onCWLimitStatusChanged();
-//	/// Handles updating the crystal 2 status view when the crystal change motor indicates it's at a ccw limit.
-//	void onCCWLimitStatusChanged();
 
 protected:
 	/// The monochromator being viewed.
-	BioXASMainMonochromator *mono_;
+	BioXASSSRLMonochromator *mono_;
 
 	/// Label displaying the slits status green LED.
 	QLabel *slitsStatusGreen_;
@@ -52,14 +58,6 @@ protected:
 	QLabel *brakeStatusGreen_;
 	/// Label displaying the brake status red LED.
 	QLabel *brakeStatusRed_;
-//	/// Label displaying the crystal 1 active green LED.
-//	QLabel *crystal1StatusGreen_;
-//	/// Label displaying the crystal 1 active red LED.
-//	QLabel *crystal1StatusRed_;
-//	/// Label displaying the crystal 2 active green LED.
-//	QLabel *crystal2StatusGreen_;
-//	/// Label displaying the crystal 2 active red LED.
-//	QLabel *crystal2StatusRed_;
 };
 
-#endif // BIOXASMAINMONOCHROMATORREGIONVIEW_H
+#endif // BIOXASSSRLMONOCHROMATORREGIONVIEW_H
