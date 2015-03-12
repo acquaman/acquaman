@@ -12,6 +12,8 @@ class BioXASSSRLMonochromator : public QObject
 public:
 	/// Enumerates the different region states.
 	class Region { public: enum State { None = 0, A, B }; enum Status { NotIn = 0, In = 1}; };
+	/// Enumerates the different active crystal states.
+	class Crystal { public: enum Status { None = 0, A, B }; };
 	/// Enumerates the paddle status options.
 	class Paddle { public: enum Status { NotOut = 0, Out }; };
 	/// Enumerates the slits status options.
@@ -23,7 +25,7 @@ public:
 	/// Enumerates the position status of the bragg motor, whether it is at the crystal change position.
 	class Bragg { public: enum CrystalChangePosition { NotInPosition = 0, InPosition = 1 }; };
 	/// Enumerates the limit options for the crystal change motor.
-	class CrystalChange { public: enum Limit { AtLimit = 0, NotAtLimit }; };
+	class CrystalChange { public: enum Limit { NotAtLimit = 0, AtLimit }; };
 
 	/// Constructor.
 	explicit BioXASSSRLMonochromator(QObject *parent = 0);
