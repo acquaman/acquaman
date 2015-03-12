@@ -30,7 +30,7 @@ BioXASMainPersistentView::BioXASMainPersistentView(QWidget *parent) :
 	energyControlEditor_->setTitle("Energy");
 	energyControlEditor_->setControlFormat('f', 2);
 
-	regionControlEditor_ = new BioXASMainMonochromatorRegionControlEditor();
+	regionControlEditor_ = new BioXASSSRLMonochromatorRegionControlEditor(BioXASMainBeamline::bioXAS()->mono()->regionControl());
 	regionControlEditor_->setTitle("Region");
 
 	braggControlEditor_ = new AMExtendedControlEditor(BioXASMainBeamline::bioXAS()->mono()->braggMotor());

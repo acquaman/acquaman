@@ -28,7 +28,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "beamline/BioXAS/BioXASMainBeamline.h"
 #include "ui/beamline/AMExtendedControlEditor.h"
-#include "ui/BioXAS/BioXASMainMonochromatorRegionControlView.h"
+#include "ui/BioXAS/BioXASSSRLMonochromatorRegionControlEditor.h"
 #include "ui/BioXAS/BioXASMainMonochromatorRegionView.h"
 
 class AMExtendedControlEditor;
@@ -51,7 +51,7 @@ protected:
 	/// Editor that selects the mono energy.
     AMExtendedControlEditor *energyControlEditor_;
 	/// Editor that selects the mono region.
-	BioXASMainMonochromatorRegionControlEditor *regionControlEditor_;
+	BioXASSSRLMonochromatorRegionControlEditor *regionControlEditor_;
 	/// Editor that selects the mono bragg position.
 	AMExtendedControlEditor *braggControlEditor_;
 	/// Editor that views mono components related to a region change.

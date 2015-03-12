@@ -1,21 +1,21 @@
-#include "BioXASMainMonochromatorRegionControlView.h"
+#include "BioXASSSRLMonochromatorRegionControlEditor.h"
 #include "beamline/BioXAS/BioXASMainBeamline.h"
 
-BioXASMainMonochromatorRegionControlEditor::BioXASMainMonochromatorRegionControlEditor(QWidget *parent) :
-	AMExtendedControlEditor(BioXASMainBeamline::bioXAS()->mono()->regionControl(), 0, false, false, parent)
+BioXASSSRLMonochromatorRegionControlEditor::BioXASSSRLMonochromatorRegionControlEditor(BioXASSSRLMonochromatorRegionControl *regionControl, QWidget *parent) :
+	AMExtendedControlEditor(regionControl, 0, false, false, parent)
 {
 	if (control_->isEnum())
 		qDebug() << "\n\nHey, control is an enum:" << control_->enumNames() << "\n\n";
 
-	connect( BioXASMainBeamline::bioXAS()->mono()->regionControl(), SIGNAL(moveStarted()), this, SLOT(onRegionControlMoveStarted()) );
+	connect( control_, SIGNAL(moveStarted()), this, SLOT(onRegionControlMoveStarted()) );
 }
 
-BioXASMainMonochromatorRegionControlEditor::~BioXASMainMonochromatorRegionControlEditor()
+BioXASSSRLMonochromatorRegionControlEditor::~BioXASSSRLMonochromatorRegionControlEditor()
 {
 
 }
 
-void BioXASMainMonochromatorRegionControlEditor::onControlEnumChanged()
+void BioXASSSRLMonochromatorRegionControlEditor::onControlEnumChanged()
 {
 	if (control_->isEnum())
 		qDebug() << "\n\nHey, control is an enum:" << control_->enumNames() << "\n\n";
@@ -25,7 +25,7 @@ void BioXASMainMonochromatorRegionControlEditor::onControlEnumChanged()
 	AMExtendedControlEditor::onControlEnumChanged();
 }
 
-void BioXASMainMonochromatorRegionControlEditor::onRegionControlMoveStarted()
+void BioXASSSRLMonochromatorRegionControlEditor::onRegionControlMoveStarted()
 {
 	BioXASSSRLMonochromatorRegionControlMovingView *movingView = new BioXASSSRLMonochromatorRegionControlMovingView(BioXASMainBeamline::bioXAS()->mono()->regionControl(), this);
 	movingView->setWindowFlags(Qt::Sheet);

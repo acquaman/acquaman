@@ -3,11 +3,10 @@
 
 #include <QWidget>
 #include <QLayout>
-#include <QPushButton>
+#include <QLabel>
+#include <QGroupBox>
 
 #include "beamline/BioXAS/BioXASMainBeamline.h"
-#include "ui/beamline/AMExtendedControlEditor.h"
-#include "ui/BioXAS/BioXASMainMonochromatorRegionControlView.h"
 
 class BioXASMainMonochromatorRegionView : public QGroupBox
 {

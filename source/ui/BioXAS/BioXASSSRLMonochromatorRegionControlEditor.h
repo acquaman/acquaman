@@ -10,14 +10,14 @@
 #include "beamline/BioXAS/BioXASMainMonochromatorRegionControl.h"
 #include "ui/beamline/AMExtendedControlEditor.h"
 
-class BioXASMainMonochromatorRegionControlEditor : public AMExtendedControlEditor
+class BioXASSSRLMonochromatorRegionControlEditor : public AMExtendedControlEditor
 {
 	Q_OBJECT
 public:
 	/// Constructor.
-	explicit BioXASMainMonochromatorRegionControlEditor(QWidget *parent = 0);
+	explicit BioXASSSRLMonochromatorRegionControlEditor(BioXASSSRLMonochromatorRegionControl *regionControl, QWidget *parent = 0);
 	/// Destructor.
-	virtual ~BioXASMainMonochromatorRegionControlEditor();
+	virtual ~BioXASSSRLMonochromatorRegionControlEditor();
 
 protected slots:
 	/// Temporary reimplementation of AMExtendedControlEditor::onControlEnumChanged(). Trying to solve problem where the region control editor is not displaying enum names correctly.
