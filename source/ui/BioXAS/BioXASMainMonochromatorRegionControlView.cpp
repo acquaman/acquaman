@@ -4,6 +4,9 @@
 BioXASMainMonochromatorRegionControlEditor::BioXASMainMonochromatorRegionControlEditor(QWidget *parent) :
 	AMExtendedControlEditor(BioXASMainBeamline::bioXAS()->mono()->regionControl(), 0, false, false, parent)
 {
+	if (control_->isEnum())
+		qDebug() << "\n\nHey, control is an enum:" << control_->enumNames() << "\n\n";
+
 	connect( BioXASMainBeamline::bioXAS()->mono()->regionControl(), SIGNAL(moveStarted()), this, SLOT(onRegionControlMoveStarted()) );
 }
 
@@ -12,10 +15,21 @@ BioXASMainMonochromatorRegionControlEditor::~BioXASMainMonochromatorRegionContro
 
 }
 
+void BioXASMainMonochromatorRegionControlEditor::onControlEnumChanged()
+{
+	if (control_->isEnum())
+		qDebug() << "\n\nHey, control is an enum:" << control_->enumNames() << "\n\n";
+	else
+		qDebug() << "\n\nHey, control is not an enum.\n\n";
+
+	AMExtendedControlEditor::onControlEnumChanged();
+}
+
 void BioXASMainMonochromatorRegionControlEditor::onRegionControlMoveStarted()
 {
 	BioXASSSRLMonochromatorRegionControlMovingView *movingView = new BioXASSSRLMonochromatorRegionControlMovingView(BioXASMainBeamline::bioXAS()->mono()->regionControl(), this);
 	movingView->setWindowFlags(Qt::Sheet);
+	movingView->setWindowModality(Qt::WindowModal);
 	movingView->show();
 }
 

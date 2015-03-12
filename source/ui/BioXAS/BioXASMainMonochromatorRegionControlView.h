@@ -20,6 +20,8 @@ public:
 	virtual ~BioXASMainMonochromatorRegionControlEditor();
 
 protected slots:
+	/// Temporary reimplementation of AMExtendedControlEditor::onControlEnumChanged(). Trying to solve problem where the region control editor is not displaying enum names correctly.
+	virtual void onControlEnumChanged();
 	/// Shows the moving view, called when the region control indicates that a move has started.
 	void onRegionControlMoveStarted();
 };

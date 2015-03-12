@@ -33,6 +33,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QLabel>
 #include <QFont>
 #include <QMenu>
+#include <QDebug>
 
 #include "util/AMFontSizes.h"
 
@@ -304,6 +305,12 @@ AMExtendedControlEditorStyledInputDialog::AMExtendedControlEditorStyledInputDial
 	label_ = new QLabel("New value:");
 	label_->setAlignment(Qt::AlignCenter);
 	enumNames_ = enumNames;
+
+	if (enumNames_ == QStringList())
+		qDebug() << "This is a dialog for non-enum controls.";
+	else
+		qDebug() << "This is a dialog for enum controls.";
+
 	isEnum_ = false; //IS THIS THE MISSING PIECE?
 	if(enumNames_.count() > 0)
 		isEnum_ = true;
@@ -387,12 +394,15 @@ void AMExtendedControlEditorStyledInputDialog::setEnumNames(const QStringList &s
 	comboBox_->addItems(enumNames_);
 	if(oldIsEnum != isEnum_){
 		if(!isEnum_){
+			qDebug() << "This is a dialog for non-enum controls.";
+
 			vl_->removeWidget(comboBox_);
 			vl_->insertWidget(1, spinBox_);
 			comboBox_->hide();
 			spinBox_->show();
 		}
 		else{
+			qDebug() << "This is a dialog for enum controls.";
 			vl_->removeWidget(spinBox_);
 			vl_->insertWidget(1, comboBox_);
 			spinBox_->hide();
