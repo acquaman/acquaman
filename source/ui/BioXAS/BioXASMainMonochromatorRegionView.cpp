@@ -36,7 +36,7 @@ BioXASMainMonochromatorRegionView::BioXASMainMonochromatorRegionView(QWidget *pa
 	// Create and set layouts.
 
 	QGridLayout *statusLayout = new QGridLayout();
-	statusLayout->setMargin(0);
+//	statusLayout->setMargin(0);
 	statusLayout->addWidget(slitsStatusPrompt, 0, 0, 1, 1, Qt::AlignRight);
 	statusLayout->addWidget(slitsStatusGreen_, 0, 1, 1, 1, Qt::AlignCenter);
 	statusLayout->addWidget(slitsStatusRed_, 0, 2, 1, 1, Qt::AlignCenter);
