@@ -105,8 +105,9 @@ AMScanThumbnailView::AMScanThumbnailView(QWidget *parent)
 	setMouseTracking(true);
 	currentGridRowMouseOver_ = -1;
 	connect(&hoverTimer_, SIGNAL(timeout()), this, SLOT(onTimerTimout()));
-	doubleClickDelay_ = 500;
+	doubleClickDelay_ = 350;
 	doubleClickTimer_.setSingleShot(true);
+	lastClickedRowIndex_ = -1;
 }
 
 QModelIndex AMScanThumbnailView::indexAt(const QPoint &point) const
@@ -535,15 +536,16 @@ void AMScanThumbnailView::mouseReleaseEvent(QMouseEvent *event)
 			rubberBandStart_.setX(0);
 			rubberBandStart_.setY(0);
 
-			if(doubleClickTimer_.isActive())
+			QModelIndex indexUnderMouse = indexAt(event->pos());
+			if(doubleClickTimer_.isActive() && indexUnderMouse.row() == lastClickedRowIndex_)
 			{
-				QModelIndex indexUnderMouse = indexAt(event->pos());
 				if(!indexUnderMouse.isValid())
 					return;
 				emit doubleClicked(indexUnderMouse);
 			}
 			else
 			{
+				lastClickedRowIndex_ = indexUnderMouse.row();
 				doubleClickTimer_.start(doubleClickDelay_);
 			}
 		}

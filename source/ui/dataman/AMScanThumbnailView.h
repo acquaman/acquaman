@@ -132,10 +132,13 @@ private:
 	int currentGridRowMouseOver_;
 	/// Whether the mouse, in its current position, could be considered to be hovering
 	bool isMouseHovering_;
-	/// The time interval (ms) to use to consider two consequtive clicks to be a single double-click
+	/// The time interval (ms) to use to consider two consequtive clicks to be a single or double-click
 	double doubleClickDelay_;
 	/// The timer used to measure consequtive clicks in order to determine whether they are a double-click
 	QTimer doubleClickTimer_;
+	/// The index of the item which was last clicked. Used to ensure that two consecutive clicks on
+	/// different indices are never interpreted as a double click
+	int lastClickedRowIndex_;
 };
 
 
