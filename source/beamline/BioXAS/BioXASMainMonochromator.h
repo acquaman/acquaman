@@ -43,7 +43,7 @@ public:
 	/// Returns the lower slit blade motor.
 	CLSMAXvMotor* lowerSlitBladeMotor() const { return lowerSlitMotor_; }
 	/// Returns the phosphor paddle motor.
-	CLSMAXvMotor* paddleMotor() { return paddleMotor_; }
+	CLSMAXvMotor* paddleMotor() const { return paddleMotor_; }
 	/// Returns the bragg motor.
 	CLSMAXvMotor* braggMotor() const { return braggMotor_; }
 	/// Returns the vertical motor.
