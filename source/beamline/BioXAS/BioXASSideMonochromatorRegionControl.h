@@ -8,7 +8,7 @@
 #include "beamline/BioXAS/BioXASSSRLMonochromator.h"
 #include "beamline/BioXAS/BioXASSSRLMonochromatorRegionControl.h"
 
-class BioXASSideMonochromatorRegionControl : public QObject
+class BioXASSideMonochromatorRegionControl : public BioXASSSRLMonochromatorRegionControl
 {
     Q_OBJECT
 
