@@ -50,7 +50,6 @@ void AMLightweightScanInfoCollection::onDbItemAdded(const QString &tableName, in
 		if(addedScanInfo) {
 			scanInfos_.append(addedScanInfo);
 		}
-
 		emit scanAdded();
 	}
 }
@@ -60,14 +59,31 @@ void AMLightweightScanInfoCollection::onDbItemUpdated(const QString &tableName, 
 		int dirtyScanInfoIndex = indexOfScanWithId(id);
 		if(dirtyScanInfoIndex >= 0) {
 			AMLightweightScanInfo* dirtyScanInfo = scanInfos_.at(dirtyScanInfoIndex);
+			if(dirtyScanInfo->thumbnailCount() > 0) {
+				emit scanThumbnailAboutToBeRemoved(dirtyScanInfoIndex, 0, dirtyScanInfo->thumbnailCount()-1);
+				emit scanThumbnailRemoved();
+			}
+
 			AMLightweightScanInfoFactory::updateSingle(dirtyScanInfo, database_);
+
+			if(dirtyScanInfo->thumbnailCount() > 0) {
+				emit scanThumbnailAboutToBeAdded();
+				emit scanThumbnailAdded();
+			}
 			emit scanUpdated(dirtyScanInfoIndex);
 		}
 	}
 }
 
 void AMLightweightScanInfoCollection::onDbItemRemoved(const QString &tableName, int oldId) {
-
+	if(tableName == AMDbObjectSupport::s()->tableNameForClass("AMScan")) {
+		int scanInfoToBeRemovedIndex = indexOfScanWithId(oldId);
+		if(scanInfoToBeRemovedIndex >= 0) {
+			emit scanAboutToBeRemoved(scanInfoToBeRemovedIndex);
+			scanInfos_.removeAt(scanInfoToBeRemovedIndex);
+			emit scanRemoved();
+		}
+	}
 }
 
 int AMLightweightScanInfoCollection::indexOfScanWithId(int id) {
