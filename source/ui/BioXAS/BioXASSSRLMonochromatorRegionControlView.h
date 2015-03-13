@@ -1,32 +1,33 @@
-#ifndef BIOXASSSRLMONOCHROMATORREGIONVIEW_H
-#define BIOXASSSRLMONOCHROMATORREGIONVIEW_H
+#ifndef BIOXASSSRLMONOCHROMATORREGIONCONTROLVIEW_H
+#define BIOXASSSRLMONOCHROMATORREGIONCONTROLVIEW_H
 
 #include <QWidget>
 #include <QLayout>
 #include <QLabel>
 #include <QGroupBox>
 
-#include "beamline/BioXAS/BioXASMainBeamline.h"
+#include "beamline/BioXAS/BioXASSSRLMonochromator.h"
+#include "beamline/BioXAS/BioXASSSRLMonochromatorRegionControl.h"
 
-class BioXASSSRLMonochromatorRegionView : public QGroupBox
+class BioXASSSRLMonochromatorRegionControlView : public QGroupBox
 {
 	Q_OBJECT
 
 public:
 	/// Constructor.
-	explicit BioXASSSRLMonochromatorRegionView(BioXASSSRLMonochromator *mono, QWidget *parent = 0);
+	explicit BioXASSSRLMonochromatorRegionControlView(BioXASSSRLMonochromatorRegionControl *regionControl, QWidget *parent = 0);
 	/// Destructor.
-	virtual ~BioXASSSRLMonochromatorRegionView();
-	/// Returns the monochromator being viewed.
-	BioXASSSRLMonochromator* mono() const { return mono_; }
+	virtual ~BioXASSSRLMonochromatorRegionControlView();
+	/// Returns the region control being viewed.
+	BioXASSSRLMonochromatorRegionControl* regionControl() const { return regionControl_; }
 
 signals:
-	/// Notifier that the monochromator being viewed has changed.
-	void monoChanged(BioXASSSRLMonochromator *newMono);
+	/// Notifier that the region control being viewed has changed.
+	void regionControlChanged(BioXASSSRLMonochromatorRegionControl *newControl);
 
 public slots:
-	/// Sets the mono being viewed.
-	void setMono(BioXASSSRLMonochromator *newMono);
+	/// Sets the region control being viewed.
+	void setRegionControl(BioXASSSRLMonochromatorRegionControl *newControl);
 
 protected slots:
 	/// Handles updating the slits status view when the mono's slits status changes.
@@ -39,8 +40,8 @@ protected slots:
 	void onBrakeStatusChanged();
 
 protected:
-	/// The monochromator being viewed.
-	BioXASSSRLMonochromator *mono_;
+	/// The region control being viewed.
+	BioXASSSRLMonochromatorRegionControl *regionControl_;
 
 	/// Label displaying the slits status green LED.
 	QLabel *slitsStatusGreen_;
@@ -60,4 +61,4 @@ protected:
 	QLabel *brakeStatusRed_;
 };
 
-#endif // BIOXASSSRLMONOCHROMATORREGIONVIEW_H
+#endif // BIOXASSSRLMONOCHROMATORREGIONCONTROLVIEW_H

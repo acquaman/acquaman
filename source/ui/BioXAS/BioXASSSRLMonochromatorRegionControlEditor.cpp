@@ -4,9 +4,6 @@
 BioXASSSRLMonochromatorRegionControlEditor::BioXASSSRLMonochromatorRegionControlEditor(BioXASSSRLMonochromatorRegionControl *regionControl, QWidget *parent) :
 	AMExtendedControlEditor(regionControl, 0, false, false, parent)
 {
-	if (control_->isEnum())
-		qDebug() << "\n\nHey, control is an enum:" << control_->enumNames() << "\n\n";
-
 	connect( control_, SIGNAL(moveStarted()), this, SLOT(onRegionControlMoveStarted()) );
 }
 

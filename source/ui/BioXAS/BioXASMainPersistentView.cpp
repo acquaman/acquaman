@@ -36,7 +36,7 @@ BioXASMainPersistentView::BioXASMainPersistentView(QWidget *parent) :
 	braggControlEditor_ = new AMExtendedControlEditor(BioXASMainBeamline::bioXAS()->mono()->braggMotor());
 	braggControlEditor_->setTitle("Bragg motor position");
 
-	regionView_ = new BioXASSSRLMonochromatorRegionView(BioXASMainBeamline::bioXAS()->mono());
+	regionView_ = new BioXASSSRLMonochromatorRegionControlView(BioXASMainBeamline::bioXAS()->mono()->regionControl());
 
     // Create and set layouts.
 

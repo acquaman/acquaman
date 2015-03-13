@@ -5,6 +5,8 @@
 
 #include "actions3/AMAction3.h"
 #include "beamline/AMControl.h"
+#include "beamline/CLS/CLSMAXvMotor.h"
+#include "beamline/BioXAS/BioXASSSRLMonochromatorRegionControl.h"
 
 class BioXASSSRLMonochromator : public QObject
 {
@@ -32,32 +34,54 @@ public:
 	explicit BioXASSSRLMonochromator(QObject *parent = 0);
 	/// Destructor.
 	virtual ~BioXASSSRLMonochromator();
+
 	/// Returns true if the mono is connected, false otherwise.
 	virtual bool isConnected() const = 0;
 	/// Returns the current energy feedback.
 	virtual double energy() const = 0;
 	/// Returns the current region.
 	virtual double region() const = 0;
+	/// Returns the hc constant.
+	virtual double hc() const = 0;
+	/// Returns the crystal 2D spacing.
+	virtual double crystal2D() const = 0;
+	/// Returns the physical bragg angle.
+	virtual double braggAngle() const = 0;
+
+	/// Returns the upper slit blade motor.
+	virtual CLSMAXvMotor* upperSlitBladeMotor() const = 0;
+	/// Returns the lower slit blade motor.
+	virtual CLSMAXvMotor* lowerSlitBladeMotor() const = 0;
+	/// Returns the phosphor paddle motor.
+	virtual CLSMAXvMotor* paddleMotor() = 0;
+	/// Returns the bragg motor.
+	virtual CLSMAXvMotor* braggMotor() const = 0;
+	/// Returns the vertical motor.
+	virtual CLSMAXvMotor* verticalMotor() const = 0;
+	/// Returns the lateral motor.
+	virtual CLSMAXvMotor* lateralMotor() const = 0;
+	/// Returns the crystal change motor.
+	virtual CLSMAXvMotor* crystalChangeMotor() const = 0;
+	/// Returns the crystal 1 pitch motor.
+	virtual CLSMAXvMotor* crystal1PitchMotor() const = 0;
+	/// Returns the crystal 1 roll motor.
+	virtual CLSMAXvMotor* crystal1RollMotor() const = 0;
+	/// Returns the crystal 2 pitch motor.
+	virtual CLSMAXvMotor* crystal2PitchMotor() const = 0;
+	/// Returns the crystal 2 roll motor.
+	virtual CLSMAXvMotor* crystal2RollMotor() const = 0;
 
 	/// Returns the energy control.
 	virtual AMControl* energyControl() const = 0;
 	/// Returns the region control.
-	virtual AMControl* regionControl() const = 0;
-	/// Returns the slits status control.
-	virtual AMControl* slitsStatusControl() const = 0;
-	/// Returns the paddle status control.
-	virtual AMControl* paddleStatusControl() const = 0;
-	/// Returns the key status control.
-	virtual AMControl* keyStatusControl() const = 0;
-	/// Returns the brake status control.
-	virtual AMControl* brakeStatusControl() const = 0;
+	virtual BioXASSSRLMonochromatorRegionControl* regionControl() const = 0;
 
 	/// Returns a new 'set energy' action, 0 if not connected. The argument is the desired energy.
-	virtual AMAction3* createSetEnergyAction(double newEnergy) = 0;
+	virtual AMAction3* createSetEnergyAction(double newEnergy);
 	/// Returns a new action that adjusts the bragg motor offset s.t. the mono energy matches the desired energy.
-	virtual AMAction3* createSetEnergyCalibrationAction(double newEnergy) = 0;
+	virtual AMAction3* createSetEnergyCalibrationAction(double newEnergy);
 	/// Returns a new 'set region' action, 0 if not connected. The argument is the desired region.
-	virtual AMAction3* createSetRegionAction(double newRegion) = 0;
+	virtual AMAction3* createSetRegionAction(double newRegion);
 
 signals:
 	/// Notifier that the connected state has changed.
@@ -79,11 +103,15 @@ signals:
 
 public slots:
 	/// Sets the energy setpoint.
-	virtual void setEnergy(double newEnergy) = 0;
+	void setEnergy(double newEnergy);
 	/// Sets the bragg offset such that the mono energy matches the desired energy.
-	virtual void setEnergyCalibration(double newEnergy) = 0;
+	void setEnergyCalibration(double newEnergy);
 	/// Sets the region.
-	virtual void setRegion(double newRegion) = 0;
+	void setRegion(double newRegion);
+
+private:
+	/// Returns the bragg motor degree offset needed in order for the old energy to match the desired new energy.
+	double calibrateEnergy(double oldEnergy, double newEnergy) const;
 };
 
 #endif // BIOXASSSRLMONOCHROMATOR_H

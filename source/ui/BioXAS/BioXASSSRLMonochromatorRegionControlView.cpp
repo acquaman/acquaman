@@ -1,11 +1,11 @@
-#include "BioXASSSRLMonochromatorRegionView.h"
+#include "BioXASSSRLMonochromatorRegionControlView.h"
 
-BioXASSSRLMonochromatorRegionView::BioXASSSRLMonochromatorRegionView(BioXASSSRLMonochromator *mono, QWidget *parent) :
+BioXASSSRLMonochromatorRegionControlView::BioXASSSRLMonochromatorRegionControlView(BioXASSSRLMonochromatorRegionControl *regionControl, QWidget *parent) :
 	QGroupBox(parent)
 {
 	// Initialize member variables.
 
-	mono_ = 0;
+	regionControl_ = 0;
 
 	// Create UI elements.
 
@@ -60,51 +60,40 @@ BioXASSSRLMonochromatorRegionView::BioXASSSRLMonochromatorRegionView(BioXASSSRLM
 
 	// Current settings.
 
-	setMono(mono);
+	setRegionControl(regionControl);
 }
 
-BioXASSSRLMonochromatorRegionView::~BioXASSSRLMonochromatorRegionView()
+BioXASSSRLMonochromatorRegionControlView::~BioXASSSRLMonochromatorRegionControlView()
 {
 
 }
 
-void BioXASSSRLMonochromatorRegionView::setMono(BioXASSSRLMonochromator *newMono)
+void BioXASSSRLMonochromatorRegionControlView::setRegionControl(BioXASSSRLMonochromatorRegionControl *newControl)
 {
-	if (mono_ != newMono) {
+	if (regionControl_ != newControl) {
 
-		if (mono_) {
-			disconnect( mono_->slitsStatusControl(), 0, this, 0 );
-			disconnect( mono_->paddleStatusControl(), 0, this, 0 );
-			disconnect( mono_->keyStatusControl(), 0, this, 0 );
-			disconnect( mono_->brakeStatusControl(), 0, this, 0 );
+		if (regionControl_)
+			disconnect( regionControl_, 0, this, 0 );
+
+		regionControl_ = newControl;
+
+		if (regionControl_) {
+			connect( regionControl_, SIGNAL(slitsStatusChanged(double)), this, SLOT(onSlitsStatusChanged()) );
+			connect( regionControl_, SIGNAL(paddleStatusChanged(double)), this, SLOT(onPaddleStatusChanged()) );
+			connect( regionControl_, SIGNAL(keyStatusChanged(double)), this, SLOT(onKeyStatusChanged()) );
+			connect( regionControl_, SIGNAL(brakeStatusChanged(double)), this, SLOT(onBrakeStatusChanged()) );
 		}
-
-		mono_ = newMono;
-
-		if (mono_) {
-			connect( mono_->slitsStatusControl(), SIGNAL(valueChanged(double)), this, SLOT(onSlitsStatusChanged()) );
-			connect( mono_->paddleStatusControl(), SIGNAL(valueChanged(double)), this, SLOT(onPaddleStatusChanged()) );
-			connect( mono_->keyStatusControl(), SIGNAL(valueChanged(double)), this, SLOT(onKeyStatusChanged()) );
-			connect( mono_->brakeStatusControl(), SIGNAL(valueChanged(double)), this, SLOT(onBrakeStatusChanged()) );
-		}
-
-		onSlitsStatusChanged();
-		onPaddleStatusChanged();
-		onKeyStatusChanged();
-		onBrakeStatusChanged();
-
-		emit monoChanged(mono_);
 	}
 }
 
-void BioXASSSRLMonochromatorRegionView::onSlitsStatusChanged()
+void BioXASSSRLMonochromatorRegionControlView::onSlitsStatusChanged()
 {
-	if (mono_ && mono_->slitsStatusControl()->isConnected()) {
-		if (mono_->slitsStatusControl()->value() == BioXASSSRLMonochromator::Slits::Closed) {
+	if (regionControl_ && regionControl_->slitsStatusControl()->isConnected()) {
+		if (regionControl_->slitsStatusControl()->value() == BioXASSSRLMonochromator::Slits::Closed) {
 			slitsStatusGreen_->setPixmap(QPixmap(":/22x22/greenLEDOn.png"));
 			slitsStatusRed_->setPixmap(QPixmap(":/22x22/redLEDOff.png"));
 
-		} else if (mono_->slitsStatusControl()->value() == BioXASSSRLMonochromator::Slits::NotClosed){
+		} else if (regionControl_->slitsStatusControl()->value() == BioXASSSRLMonochromator::Slits::NotClosed){
 			slitsStatusGreen_->setPixmap(QPixmap(":/22x22/greenLEDOff.png"));
 			slitsStatusRed_->setPixmap(QPixmap(":/22x22/redLEDOn.png"));
 
@@ -119,14 +108,14 @@ void BioXASSSRLMonochromatorRegionView::onSlitsStatusChanged()
 	}
 }
 
-void BioXASSSRLMonochromatorRegionView::onPaddleStatusChanged()
+void BioXASSSRLMonochromatorRegionControlView::onPaddleStatusChanged()
 {
-	if (mono_ && mono_->paddleStatusControl()->isConnected()) {
-		if (mono_->paddleStatusControl()->value() == BioXASSSRLMonochromator::Paddle::Out) {
+	if (regionControl_ && regionControl_->paddleStatusControl()->isConnected()) {
+		if (regionControl_->paddleStatusControl()->value() == BioXASSSRLMonochromator::Paddle::Out) {
 			paddleStatusGreen_->setPixmap(QPixmap(":/22x22/greenLEDOn.png"));
 			paddleStatusRed_->setPixmap(QPixmap(":/22x22/redLEDOff.png"));
 
-		} else if (mono_->paddleStatusControl()->value() == BioXASSSRLMonochromator::Paddle::NotOut){
+		} else if (regionControl_->paddleStatusControl()->value() == BioXASSSRLMonochromator::Paddle::NotOut){
 			paddleStatusGreen_->setPixmap(QPixmap(":/22x22/greenLEDOff.png"));
 			paddleStatusRed_->setPixmap(QPixmap(":/22x22/redLEDOn.png"));
 
@@ -141,14 +130,14 @@ void BioXASSSRLMonochromatorRegionView::onPaddleStatusChanged()
 	}
 }
 
-void BioXASSSRLMonochromatorRegionView::onKeyStatusChanged()
+void BioXASSSRLMonochromatorRegionControlView::onKeyStatusChanged()
 {
-	if (mono_ && mono_->keyStatusControl()->isConnected()) {
-		if (mono_->keyStatusControl()->value() == BioXASSSRLMonochromator::Key::Enabled) {
+	if (regionControl_ && regionControl_->keyStatusControl()->isConnected()) {
+		if (regionControl_->keyStatusControl()->value() == BioXASSSRLMonochromator::Key::Enabled) {
 			keyStatusGreen_->setPixmap(QPixmap(":/22x22/greenLEDOn.png"));
 			keyStatusRed_->setPixmap(QPixmap(":/22x22/redLEDOff.png"));
 
-		} else if (mono_->keyStatusControl()->value() == BioXASSSRLMonochromator::Key::Disabled){
+		} else if (regionControl_->keyStatusControl()->value() == BioXASSSRLMonochromator::Key::Disabled){
 			keyStatusGreen_->setPixmap(QPixmap(":/22x22/greenLEDOff.png"));
 			keyStatusRed_->setPixmap(QPixmap(":/22x22/redLEDOn.png"));
 
@@ -163,14 +152,14 @@ void BioXASSSRLMonochromatorRegionView::onKeyStatusChanged()
 	}
 }
 
-void BioXASSSRLMonochromatorRegionView::onBrakeStatusChanged()
+void BioXASSSRLMonochromatorRegionControlView::onBrakeStatusChanged()
 {
-	if (mono_ && mono_->brakeStatusControl()->isConnected()) {
-		if (mono_->brakeStatusControl()->value() == BioXASSSRLMonochromator::Brake::Enabled) {
+	if (regionControl_ && regionControl_->brakeStatusControl()->isConnected()) {
+		if (regionControl_->brakeStatusControl()->value() == BioXASSSRLMonochromator::Brake::Enabled) {
 			brakeStatusGreen_->setPixmap(QPixmap(":/22x22/greenLEDOn.png"));
 			brakeStatusRed_->setPixmap(QPixmap(":/22x22/redLEDOff.png"));
 
-		} else if (mono_->brakeStatusControl()->value() == BioXASSSRLMonochromator::Brake::Disabled){
+		} else if (regionControl_->brakeStatusControl()->value() == BioXASSSRLMonochromator::Brake::Disabled){
 			brakeStatusGreen_->setPixmap(QPixmap(":/22x22/greenLEDOff.png"));
 			brakeStatusRed_->setPixmap(QPixmap(":/22x22/redLEDOn.png"));
 
