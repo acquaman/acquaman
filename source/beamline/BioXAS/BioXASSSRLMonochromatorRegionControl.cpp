@@ -235,8 +235,6 @@ void BioXASSSRLMonochromatorRegionControl::setRegionBStatusControl(AMControl *re
 void BioXASSSRLMonochromatorRegionControl::setValue(double newValue)
 {
 	if (value_ != newValue) {
-		qDebug() << "Setting mono region to" << newValue;
-
 		value_ = newValue;
 		emit valueChanged(value_);
 		emit enumChanged();

@@ -65,7 +65,6 @@ public:
 	/// Returns true if this control can stop a change to a new region right now.
 	virtual bool canStop() const { return false; }
 
-
 	/// Returns the upper slit control.
 	virtual AMControl* upperSlitControl() const { return upperSlit_; }
 	/// Returns the lower slit control.
