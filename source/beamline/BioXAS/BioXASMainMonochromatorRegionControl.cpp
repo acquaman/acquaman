@@ -1,6 +1,4 @@
 #include "BioXASMainMonochromatorRegionControl.h"
-#include "beamline/BioXAS/BioXASMainBeamline.h"
-#include <QDebug>
 
 BioXASMainMonochromatorRegionControl::BioXASMainMonochromatorRegionControl(QObject *parent) :
 	BioXASSSRLMonochromatorRegionControl(parent)

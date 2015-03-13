@@ -51,10 +51,15 @@ double BioXASSSRLMonochromatorRegionControl::maximumValue() const
 
 bool BioXASSSRLMonochromatorRegionControl::canMove() const
 {
-	if (!isMoving())
-		return true;
-	else
-		return false;
+	bool canMove = (
+		upperSlit_->canMove() &&
+		lowerSlit_->canMove() &&
+		paddle_->canMove() &&
+		bragg_->canMove() &&
+		crystalChange_->canMove()
+	);
+
+	return canMove;
 }
 
 AMControl::FailureExplanation BioXASSSRLMonochromatorRegionControl::move(double setpoint)
@@ -64,6 +69,9 @@ AMControl::FailureExplanation BioXASSSRLMonochromatorRegionControl::move(double 
 
 	if (isMoving())
 		return AMControl::AlreadyMovingFailure;
+
+	if (!canMove())
+		return AMControl::LimitFailure;
 
 	// Now we can assume that the mono is not moving and is valid/connected.
 	// Setup local vars.

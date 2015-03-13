@@ -69,16 +69,6 @@ public:
 protected slots:
 	/// Updates the mono's general connected state based on the connected state of each of its pvs.
 	void onConnectedChanged();
-	/// Emits the slitsStatusChanged(bool) signal once the slits status has changed.
-	void onSlitsStatusChanged(double status) { emit slitsStatusChanged(status == BioXASSSRLMonochromator::Slits::Closed); }
-	/// Emits the paddleStatusChanged(bool) signal once the slits status has changed.
-	void onPaddleStatusChanged(double status) { emit paddleStatusChanged(status == BioXASSSRLMonochromator::Paddle::Out); }
-	/// Emits the keyStatusChanged(bool) signal once the key status has changed.
-	void onKeyStatusChanged(double status) { emit keyStatusChanged(status == BioXASSSRLMonochromator::Key::Enabled); }
-	/// Emits the brakeStatusChanged(bool) signal once the brake status has changed.
-	void onBrakeStatusChanged(double status) { emit brakeStatusChanged(status == BioXASSSRLMonochromator::Brake::Enabled); }
-	/// Emits the braggAtCrystalChangePositionStatusChanged(bool) signal once the bragg position status has changed.
-	void onBraggAtCrystalChangePositionStatusChanged(double status) { emit braggAtCrystalChangePositionStatusChanged(status == BioXASSSRLMonochromator::Bragg::InPosition); }
 
 protected:
 	// Variables

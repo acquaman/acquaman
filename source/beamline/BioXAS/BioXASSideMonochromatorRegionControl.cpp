@@ -1,5 +1,4 @@
 #include "BioXASSideMonochromatorRegionControl.h"
-#include "beamline/BioXAS/BioXASSideBeamline.h"
 
 BioXASSideMonochromatorRegionControl::BioXASSideMonochromatorRegionControl(QObject *parent) :
 	BioXASSSRLMonochromatorRegionControl(parent)
