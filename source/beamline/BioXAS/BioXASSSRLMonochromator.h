@@ -53,7 +53,7 @@ public:
 	/// Returns the lower slit blade motor.
 	virtual CLSMAXvMotor* lowerSlitBladeMotor() const = 0;
 	/// Returns the phosphor paddle motor.
-	virtual CLSMAXvMotor* paddleMotor() = 0;
+	virtual CLSMAXvMotor* paddleMotor() const = 0;
 	/// Returns the bragg motor.
 	virtual CLSMAXvMotor* braggMotor() const = 0;
 	/// Returns the vertical motor.
@@ -91,15 +91,15 @@ signals:
 	/// Notifier that the current region has changed.
 	void regionChanged(double newRegion);
 	/// Notifier that the slits status has changed
-	void slitsStatusChanged(bool closed);
+	void slitsStatusChanged(double status);
 	/// Notifier that the paddle status has changed.
-	void paddleStatusChanged(bool removed);
+	void paddleStatusChanged(double status);
 	/// Notifier that the key status has changed.
-	void keyStatusChanged(bool enabled);
+	void keyStatusChanged(double status);
 	/// Notifier that the brake status has changed.
-	void brakeStatusChanged(bool enabled);
+	void brakeStatusChanged(double status);
 	/// Notifier that the bragg angle just reached or just left the crystal change position.
-	void braggAtCrystalChangePositionStatusChanged(bool inPosition);
+	void braggAtCrystalChangePositionStatusChanged(double status);
 
 public slots:
 	/// Sets the energy setpoint.

@@ -1,5 +1,4 @@
 #include "BioXASSSRLMonochromatorRegionControlEditor.h"
-#include "beamline/BioXAS/BioXASMainBeamline.h"
 
 BioXASSSRLMonochromatorRegionControlEditor::BioXASSSRLMonochromatorRegionControlEditor(BioXASSSRLMonochromatorRegionControl *regionControl, QWidget *parent) :
 	AMExtendedControlEditor(regionControl, 0, false, false, parent)
@@ -12,22 +11,14 @@ BioXASSSRLMonochromatorRegionControlEditor::~BioXASSSRLMonochromatorRegionContro
 
 }
 
-void BioXASSSRLMonochromatorRegionControlEditor::onControlEnumChanged()
-{
-	if (control_->isEnum())
-		qDebug() << "\n\nHey, control is an enum:" << control_->enumNames() << "\n\n";
-	else
-		qDebug() << "\n\nHey, control is not an enum.\n\n";
-
-	AMExtendedControlEditor::onControlEnumChanged();
-}
-
 void BioXASSSRLMonochromatorRegionControlEditor::onRegionControlMoveStarted()
 {
-	BioXASSSRLMonochromatorRegionControlMovingView *movingView = new BioXASSSRLMonochromatorRegionControlMovingView(BioXASMainBeamline::bioXAS()->mono()->regionControl(), this);
-	movingView->setWindowFlags(Qt::Sheet);
-	movingView->setWindowModality(Qt::WindowModal);
-	movingView->show();
+	if (control_ && control_->isConnected()) {
+		BioXASSSRLMonochromatorRegionControlMovingView *movingView = new BioXASSSRLMonochromatorRegionControlMovingView(qobject_cast<BioXASSSRLMonochromatorRegionControl*>(control_), this);
+		movingView->setWindowFlags(Qt::Sheet);
+		movingView->setWindowModality(Qt::WindowModal);
+		movingView->show();
+	}
 }
 
 

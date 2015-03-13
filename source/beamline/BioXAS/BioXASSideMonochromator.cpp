@@ -72,11 +72,6 @@ void BioXASSideMonochromator::onConnectedChanged()
 
 		region_->isConnected() &&
 		energy_->isConnected() &&
-		slitsStatus_->isConnected() &&
-		paddleStatus_->isConnected() &&
-		keyStatus_->isConnected() &&
-		brakeStatus_->isConnected() &&
-		braggAtCrystalChangePositionStatus_->isConnected() &&
 		hc_->isConnected() &&
 		crystal2D_->isConnected() &&
 		braggAngle_->isConnected() &&
