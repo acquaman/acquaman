@@ -156,6 +156,8 @@ void BioXASMainBeamline::setupSampleStage()
 
 void BioXASMainBeamline::setupMono()
 {
+	qDebug() << "About to set up the main mono.";
+
 	mono_ = new BioXASMainMonochromator(this);
 }
 

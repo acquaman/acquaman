@@ -7,17 +7,34 @@
 #include <QDialogButtonBox>
 #include <QProgressBar>
 
-#include "beamline/BioXAS/BioXASSSRLMonochromatorRegionControl.h"
+#include "beamline/BioXAS/BioXASMainMonochromatorRegionControl.h"
+#include "ui/beamline/AMExtendedControlEditor.h"
 
-class BioXASMainMonochromatorRegionControlView : public QWidget
+class BioXASSSRLMonochromatorRegionControlEditor : public AMExtendedControlEditor
+{
+	Q_OBJECT
+public:
+	/// Constructor.
+	explicit BioXASSSRLMonochromatorRegionControlEditor(BioXASSSRLMonochromatorRegionControl *regionControl, QWidget *parent = 0);
+	/// Destructor.
+	virtual ~BioXASSSRLMonochromatorRegionControlEditor();
+
+protected slots:
+	/// Temporary reimplementation of AMExtendedControlEditor::onControlEnumChanged(). Trying to solve problem where the region control editor is not displaying enum names correctly.
+	virtual void onControlEnumChanged();
+	/// Shows the moving view, called when the region control indicates that a move has started.
+	void onRegionControlMoveStarted();
+};
+
+class BioXASSSRLMonochromatorRegionControlMovingView : public QWidget
 {
 	Q_OBJECT
 
 public:
 	/// Constructor.
-	explicit BioXASMainMonochromatorRegionControlView(BioXASSSRLMonochromatorRegionControl *regionControl, QWidget *parent = 0);
+	explicit BioXASSSRLMonochromatorRegionControlMovingView(BioXASSSRLMonochromatorRegionControl *regionControl, QWidget *parent = 0);
 	/// Destructor.
-	virtual ~BioXASMainMonochromatorRegionControlView();
+	virtual ~BioXASSSRLMonochromatorRegionControlMovingView();
 	/// Returns the region control being viewed.
 	AMControl* regionControl() const { return regionControl_; }
 

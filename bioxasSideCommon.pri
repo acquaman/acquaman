@@ -10,12 +10,16 @@ include ( bioxasCommon.pri )
 HEADERS += \
 	source/beamline/BioXAS/BioXASSideBeamline.h \
 	source/beamline/BioXAS/BioXASSideMonochromatorControl.h \
-	source/beamline/BioXAS/BioXASSideMonochromator.h
+	source/beamline/BioXAS/BioXASSideMonochromator.h \
+    source/beamline/BioXAS/BioXASSideMonochromatorRegionControl.h
 
 SOURCES += \
 	source/beamline/BioXAS/BioXASSideBeamline.cpp \
 	source/beamline/BioXAS/BioXASSideMonochromatorControl.cpp \
-	source/beamline/BioXAS/BioXASSideMonochromator.cpp
+	source/beamline/BioXAS/BioXASSideMonochromator.cpp \
+    source/beamline/BioXAS/BioXASSideMonochromatorRegionControl.cpp
+
+
 
 
 

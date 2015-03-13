@@ -33,6 +33,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QLabel>
 #include <QFont>
 #include <QMenu>
+#include <QDebug>
 
 #include "util/AMFontSizes.h"
 
@@ -304,6 +305,7 @@ AMExtendedControlEditorStyledInputDialog::AMExtendedControlEditorStyledInputDial
 	label_ = new QLabel("New value:");
 	label_->setAlignment(Qt::AlignCenter);
 	enumNames_ = enumNames;
+
 	isEnum_ = false; //IS THIS THE MISSING PIECE?
 	if(enumNames_.count() > 0)
 		isEnum_ = true;
@@ -321,10 +323,12 @@ AMExtendedControlEditorStyledInputDialog::AMExtendedControlEditorStyledInputDial
 	vl_ = new QVBoxLayout();
 	vl_->addWidget(label_);
 	if(!isEnum_){
+		qDebug() << "Initially, this is a dialog for enum controls.";
 		vl_->addWidget(spinBox_);
 		comboBox_->hide();
 	}
 	else{
+		qDebug() << "Initially, this is a dialog for non-enum controls.";
 		vl_->addWidget(comboBox_);
 		spinBox_->hide();
 	}
@@ -359,7 +363,7 @@ void AMExtendedControlEditorStyledInputDialog::setDoubleValue(double d) {
 
 void AMExtendedControlEditorStyledInputDialog::setDoubleMaximum(double d) {
 	if(!isEnum_)
-	spinBox_->setMaximum(d);
+		spinBox_->setMaximum(d);
 }
 
 void AMExtendedControlEditorStyledInputDialog::setDoubleMinimum(double d) {
@@ -387,12 +391,15 @@ void AMExtendedControlEditorStyledInputDialog::setEnumNames(const QStringList &s
 	comboBox_->addItems(enumNames_);
 	if(oldIsEnum != isEnum_){
 		if(!isEnum_){
+			qDebug() << "This is a dialog for non-enum controls.";
+
 			vl_->removeWidget(comboBox_);
 			vl_->insertWidget(1, spinBox_);
 			comboBox_->hide();
 			spinBox_->show();
 		}
 		else{
+			qDebug() << "This is a dialog for enum controls.";
 			vl_->removeWidget(spinBox_);
 			vl_->insertWidget(1, comboBox_);
 			spinBox_->hide();
@@ -437,7 +444,7 @@ void AMExtendedControlEditorStyledInputDialog::showEvent ( QShowEvent * event ) 
 
 void AMExtendedControlEditor::onControlEnumChanged()
 {
-	dialog_->setEnumNames(control_->enumNames());
+	dialog_->setEnumNames(control_->moveEnumNames());
 }
 
 void AMExtendedControlEditor::onControlMoveStarted(){
