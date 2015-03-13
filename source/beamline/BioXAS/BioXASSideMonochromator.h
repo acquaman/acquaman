@@ -32,7 +32,7 @@ public:
 	/// Returns the current region.
 	virtual double region() const { return region_->value(); }
 	/// Returns the hc constant.
-	virtual double hc() const { return hcControl_->value(); }
+	virtual double hc() const { return hc_->value(); }
 	/// Returns the crystal 2D spacing.
 	virtual double crystal2D() const { return crystal2D_->value(); }
 	/// Returns the physical bragg angle.
@@ -43,7 +43,7 @@ public:
 	/// Returns the lower slit blade motor.
 	virtual CLSMAXvMotor* lowerSlitBladeMotor() const { return lowerSlitMotor_; }
 	/// Returns the phosphor paddle motor.
-	virtual CLSMAXvMotor* paddleMotor() const { return phosphorPaddleMotor_; }
+	virtual CLSMAXvMotor* paddleMotor() const { return paddleMotor_; }
 	/// Returns the bragg motor.
 	virtual CLSMAXvMotor* braggMotor() const { return braggMotor_; }
 	/// Returns the vertical motor.
@@ -84,20 +84,20 @@ public:
 protected slots:
 	/// Updates the mono's general connected state based on the connected state of each of its pvs.
 	void onConnectedChanged();
-	/// Emits the appropriate signal when the mono's slits closed status has changed.
-	void onSlitsClosedChanged(double value) { emit slitsStatusChanged((int)value == Slits::Closed); }
-	/// Emits the appropriate signal when the paddle is out.
-	void onPaddleOutChanged(double value) { emit paddleStatusChanged((int)value == Paddle::Out); }
-	/// Emits the appropriate signal when the crystal change motor is enabled/disabled.
-	void onCrystalChangeEnabled(double value) { emit keyStatusChanged((int)value == Key::Enabled); }
-	/// Emits the appropriate signal when the crystal change position status has changed.
-	void onCrystalChangePositionStatusChanged(double value) { emit braggCrystalChangePositionStatusChanged((int)value == Bragg::InPosition); }
-	/// Emits the appropriate signal when the crystal change brake is enabled/disabled.
-	void onCrystalChangeBrakeEnabledChanged(double value) { emit brakeStatusChanged((int) value == Brake::Enabled); }
-	/// Emits the appropriate signal when the crystal change motor reaches/leaves the CW limit.
-	void onCrystalChangeMotorCWLimitStatusChanged(double value) { emit crystalChangeCWLimitStatusChanged((int)value == CrystalChangeMotor::AtLimit); }
-	/// Emits the appropriate signal when the crystal change motor reaches/leaves the CCW limit.
-	void onCrystalChangeMotorCCWLimitStatusChanged(double value) { emit crystalChangeCCWLimitStatusChanged((int)value == CrystalChangeMotor::AtLimit); }
+//	/// Emits the appropriate signal when the mono's slits closed status has changed.
+//	void onSlitsClosedChanged(double value) { emit slitsStatusChanged((int)value == Slits::Closed); }
+//	/// Emits the appropriate signal when the paddle is out.
+//	void onPaddleOutChanged(double value) { emit paddleStatusChanged((int)value == Paddle::Out); }
+//	/// Emits the appropriate signal when the crystal change motor is enabled/disabled.
+//	void onCrystalChangeEnabled(double value) { emit keyStatusChanged((int)value == Key::Enabled); }
+//	/// Emits the appropriate signal when the crystal change position status has changed.
+//	void onCrystalChangePositionStatusChanged(double value) { emit braggCrystalChangePositionStatusChanged((int)value == Bragg::InPosition); }
+//	/// Emits the appropriate signal when the crystal change brake is enabled/disabled.
+//	void onCrystalChangeBrakeEnabledChanged(double value) { emit brakeStatusChanged((int) value == Brake::Enabled); }
+//	/// Emits the appropriate signal when the crystal change motor reaches/leaves the CW limit.
+//	void onCrystalChangeMotorCWLimitStatusChanged(double value) { emit crystalChangeCWLimitStatusChanged((int)value == CrystalChange::AtLimit); }
+//	/// Emits the appropriate signal when the crystal change motor reaches/leaves the CCW limit.
+//	void onCrystalChangeMotorCCWLimitStatusChanged(double value) { emit crystalChangeCCWLimitStatusChanged((int)value == CrystalChange::AtLimit); }
 
 
 protected:

@@ -25,6 +25,10 @@ BioXASSideMonochromator::BioXASSideMonochromator(QObject *parent) :
 
 	// Create controls.
 
+	hc_ = new AMReadOnlyPVControl(QString("hcConstant"), QString("BL1607-5-I22:Energy:EV:fbk:tr.A"), this);
+	crystal2D_ = new AMReadOnlyPVControl(QString("Crystal2DSpacing"), QString("BL1607-5-I22:Energy:EV:fbk:tr.B"), this);
+	braggAngle_ = new AMReadOnlyPVControl(QString("BraggAngle"), QString("BL1607-5-I22:Energy:EV:fbk:tr.K"), this);
+
 	region_ = new BioXASSideMonochromatorRegionControl(this);
 	energy_ = new BioXASSideMonochromatorControl("EnergyEV", "BL1607-5-I22:Energy:EV:fbk", "BL1607-5-I22:Energy:EV", "BL1607-5-I22:Energy:status", QString("BL1607-5-I22:Energy:stop"), this);
 
@@ -32,21 +36,11 @@ BioXASSideMonochromator::BioXASSideMonochromator(QObject *parent) :
 
 	connect( region_, SIGNAL(valueChanged(double)), this, SIGNAL(regionChanged(double)) );
 	connect( energy_, SIGNAL(valueChanged(double)), this, SIGNAL(energyChanged(double)) );
-	connect( slitsStatus_, SIGNAL(valueChanged(double)), this, SLOT(onSlitsStatusChanged(double)) );
-	connect( paddleStatus_, SIGNAL(valueChanged(double)), this, SLOT(onPaddleStatusChanged(double)) );
-	connect( keyStatus_, SIGNAL(valueChanged(double)), this, SLOT(onKeyStatusChanged(double)) );
-	connect( brakeStatus_, SIGNAL(valueChanged(double)), this, SLOT(onBrakeStatusChanged(double)) );
-	connect( braggAtCrystalChangePositionStatus_, SIGNAL(valueChanged(double)), SLOT(onBraggAtCrystalChangePositionStatusChanged(double)) );
 
 	// Listen to connection states.
 
 	connect( region_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()) );
 	connect( energy_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()) );
-	connect( slitsStatus_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()) );
-	connect( paddleStatus_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()) );
-	connect( keyStatus_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()) );
-	connect( brakeStatus_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()) );
-	connect( braggAtCrystalChangePositionStatus_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()) );
 	connect( hc_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()) );
 	connect( crystal2D_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()) );
 	connect( braggAngle_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()) );
