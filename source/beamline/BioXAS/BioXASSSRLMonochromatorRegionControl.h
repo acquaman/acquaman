@@ -60,7 +60,7 @@ public:
 	virtual bool shouldMove() const { return true; }
 	/// Returns true if this control can stop a crystal change in progress, provided it is connected.
 	virtual bool shouldStop() const { return false; }
-	/// Returns true if this control can move, provided it is connected.
+	/// Returns true if this control can move right now.
 	virtual bool canMove() const;
 	/// Returns true if this control can stop a change to a new region right now.
 	virtual bool canStop() const { return false; }

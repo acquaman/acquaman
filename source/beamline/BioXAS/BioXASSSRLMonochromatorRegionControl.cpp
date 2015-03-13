@@ -51,7 +51,18 @@ double BioXASSSRLMonochromatorRegionControl::maximumValue() const
 
 bool BioXASSSRLMonochromatorRegionControl::canMove() const
 {
-	bool canMove = (
+	bool exists = false;
+	bool canMove = false;
+
+	exists = (
+		upperSlit_ &&
+		lowerSlit_ &&
+		paddle_ &&
+		bragg_ &&
+		crystalChange_
+	);
+
+	canMove = (
 		upperSlit_->canMove() &&
 		lowerSlit_->canMove() &&
 		paddle_->canMove() &&
@@ -59,7 +70,7 @@ bool BioXASSSRLMonochromatorRegionControl::canMove() const
 		crystalChange_->canMove()
 	);
 
-	return canMove;
+	return (exists && isConnected() && canMove);
 }
 
 AMControl::FailureExplanation BioXASSSRLMonochromatorRegionControl::move(double setpoint)
