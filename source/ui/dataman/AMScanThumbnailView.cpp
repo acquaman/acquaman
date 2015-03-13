@@ -307,7 +307,11 @@ void AMScanThumbnailView::setSelectionBetween(const QModelIndex &start, const QM
 
 	QItemSelection newSelectedItems;
 
-	newSelectedItems.select(start, end);
+	if(start.row() < end.row())
+		newSelectedItems.select(start, end);
+	else
+		newSelectedItems.select(end, start);
+
 	selectionModel()->select(newSelectedItems, command | QItemSelectionModel::Rows);
 
 }
@@ -487,34 +491,68 @@ void AMScanThumbnailView::mouseMoveEvent(QMouseEvent *event)
 	}
 
 }
-
+#include <QDebug>
 void AMScanThumbnailView::mouseReleaseEvent(QMouseEvent *event)
 {
 	if(event->button() == Qt::LeftButton)
 	{
 		if(event->modifiers() & Qt::ShiftModifier)
 		{
+			// Shift is held
 			QModelIndex indexUnderMouse = indexAt(event->pos());
 			if(!indexUnderMouse.isValid())
 				return;
 
-			if(indexUnderMouse.row() == 1)
-				setSelectionBetween(indexUnderMouse, indexUnderMouse, QItemSelectionModel::Select);
-			else
+			// Get the lowest currently selected row index
+			int lowestSelectedRowIndex = 0;
+			int rowCount = model()->rowCount();
+			bool lowestSelectedRowIndexFound = false;
+			while(lowestSelectedRowIndex < rowCount && !lowestSelectedRowIndexFound)
 			{
-
-
-				int rowCursor = indexUnderMouse.row() - 1;
-				QModelIndex previousIndexCursor = model()->index(rowCursor, 1, QModelIndex());
-				bool indexIsSelected = selectionModel()->isSelected(previousIndexCursor);
-				while(!indexIsSelected && rowCursor >= 0)
+				qDebug() << QString("Checking row %1 for selection").arg(lowestSelectedRowIndex);
+				if(selectionModel()->isRowSelected(lowestSelectedRowIndex, QModelIndex()))
 				{
-					rowCursor--;
-					previousIndexCursor = model()->index(rowCursor, 1, QModelIndex());
-					indexIsSelected = selectionModel()->isSelected(previousIndexCursor);
+					lowestSelectedRowIndexFound = true;
+					qDebug() << QString("Row %1 is selected").arg(lowestSelectedRowIndex);
 				}
-				setSelectionBetween(previousIndexCursor, indexUnderMouse, QItemSelectionModel::Select);
+				else
+				{
+					++lowestSelectedRowIndex;
+					qDebug() << QString("Row %1 is not selected").arg(lowestSelectedRowIndex);
+				}
 			}
+
+			if(lowestSelectedRowIndexFound)
+			{
+				QModelIndex lowestSelectedModelIndex =
+						model()->index(lowestSelectedRowIndex, 1, QModelIndex());
+
+				if(lowestSelectedModelIndex.isValid())
+					setSelectionBetween(indexUnderMouse,
+										lowestSelectedModelIndex,
+										QItemSelectionModel::Select);
+			}
+
+//			if(indexUnderMouse.row() == 0)
+//				setSelectionBetween(indexUnderMouse, indexUnderMouse, QItemSelectionModel::Select);
+//			else
+//			{
+//				int rowCursor = indexUnderMouse.row() - 1;
+//				QModelIndex previousIndexCursor = model()->index(rowCursor, 1, QModelIndex());
+//				bool indexIsSelected = selectionModel()->isSelected(previousIndexCursor);
+//				while(!indexIsSelected && rowCursor > 0)
+//				{
+//					rowCursor--;
+//					previousIndexCursor = model()->index(rowCursor, 1, QModelIndex());
+//					indexIsSelected = selectionModel()->isSelected(previousIndexCursor);
+//				}
+
+//				if(!indexIsSelected && rowCursor == 0)
+//				{
+
+//				}
+//				setSelectionBetween(previousIndexCursor, indexUnderMouse, QItemSelectionModel::Select);
+//			}
 			if(!selectionRubberBand_->isHidden())
 			{
 				selectionRubberBand_->hide();
