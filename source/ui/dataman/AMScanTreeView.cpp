@@ -50,10 +50,24 @@ void AMScanTreeViewDelegate::paint(QPainter *painter, const QStyleOptionViewItem
 	{
 		QString indexDisplayStringData = indexDisplayData.toString();
 
-		if(option.fontMetrics.width(indexDisplayStringData) > option.rect.width())
-			painter->drawText(option.rect, option.fontMetrics.elidedText(indexDisplayStringData.trimmed(), Qt::ElideRight, option.rect.width()));
-		else
+		if(option.fontMetrics.width(indexDisplayStringData) > option.rect.width()) {
+			drawDisplay(painter, option, option.rect,
+						option.fontMetrics.elidedText(indexDisplayStringData.trimmed(), Qt::ElideRight, option.rect.width()));
+
+//			if(option.state & QStyle::State_Selected)
+//			{
+//				painter->save();
+//				painter->setPen(option.palette.color(QPalette::Normal, QPalette::HighlightedText));
+//				painter->drawRect(option.rect);
+//				painter->setBrush(option.palette.color(QPalette::Active, QPalette::Highlight));
+//				painter->drawText(option.rect, option.fontMetrics.elidedText(indexDisplayStringData.trimmed(), Qt::ElideRight, option.rect.width()));
+//				painter->restore();
+//			} else {
+//				painter->drawText(option.rect, option.fontMetrics.elidedText(indexDisplayStringData.trimmed(), Qt::ElideRight, option.rect.width()));
+//			}
+		} else {
 			QItemDelegate::paint(painter, option, index);
+		}
 	}
 	else
 		QItemDelegate::paint(painter, option, index);
