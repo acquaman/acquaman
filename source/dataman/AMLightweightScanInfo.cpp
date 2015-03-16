@@ -157,11 +157,16 @@ int AMLightweightScanInfo::thumbnailFirstId() const {
 	return thumbnailIds_.at(0);
 }
 
+void AMLightweightScanInfo::addExperimentId(int experimentId)
+{
+	experimentIds_.append(experimentId);
+}
+
 void AMLightweightScanInfo::clearThumbnails() {
 	thumbnailIds_.clear();
 	thumbnailsMap_.clear();
 }
 
-QList<int> AMLightweightScanInfo::experimentIds() const {
+const QList<int> AMLightweightScanInfo::experimentIds() {
 	return experimentIds_;
 }

@@ -137,11 +137,16 @@ bool AMLightweightScanInfoFilterProxyModel::filterAcceptsScan(int sourceRow, con
 		}
 		else if(experimentId() > -1)
 		{
-			QModelIndex sourceIndex = sourceModel()->index(sourceRow, 9, parent);
-			int sourceExperimentId = sourceModel()->data(sourceIndex, Qt::UserRole).toInt();
+			QAbstractItemModel* model = sourceModel();
+			if(model)
+			{
+				QModelIndex sourceIndex = sourceModel()->index(sourceRow, 0, parent);
+				AMLightweightScanInfoModel* actualModel =
+						qobject_cast<AMLightweightScanInfoModel*>(model);
 
-			if(sourceExperimentId != experimentId())
-				return false;
+				if(actualModel)
+					return actualModel->belongsToExperiment(sourceIndex, experimentId());
+			}
 		}
 	}
 	return QSortFilterProxyModel::filterAcceptsRow(sourceRow, parent);

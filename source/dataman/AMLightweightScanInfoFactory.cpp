@@ -57,11 +57,10 @@ AMLightweightScanInfo *AMLightweightScanInfoFactory::single(int scanId, AMDataba
 
 			QList<int> experimentIds = AMLightweightScanInfoFactory::loadExperimentIds(
 						database, scanId);
-
 			for (int iExperimentId=0, count = experimentIds.count();
 				 iExperimentId < count;
 				 ++iExperimentId) {
-				returnScanInfo->experimentIds().append(experimentIds.at(iExperimentId));
+				returnScanInfo->addExperimentId(experimentIds.at(iExperimentId));
 			}
 		}
 	} else {
@@ -133,13 +132,11 @@ QList<AMLightweightScanInfo*> AMLightweightScanInfoFactory::loadAll() {
 
 
 			QList<int> experimentIds = experimentMap_.value(id, QList<int>());
-
 			for (int iExperimentId=0, count = experimentIds.count();
 				 iExperimentId < count;
 				 ++iExperimentId) {
-				currentLightweightScanInfo->experimentIds().append(experimentIds.at(iExperimentId));
+				currentLightweightScanInfo->addExperimentId(experimentIds.at(iExperimentId));
 			}
-
 			returnCollection.append(currentLightweightScanInfo);
 		}
 

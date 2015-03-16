@@ -139,6 +139,8 @@ void AMBrowseScansView::addChildView(QAbstractItemView *childView, const QIcon &
 	viewButtonGroup_->setId(viewButton, viewButtonGroup_->buttons().count()-1);
 
 	childView->setContextMenuPolicy(Qt::CustomContextMenu);
+	childView->setDragEnabled(true);
+	childView->setDropIndicatorShown(true);
 	connect(childView, SIGNAL(doubleClicked(const QModelIndex&)), this, SIGNAL(childViewDoubleClicked(const QModelIndex&)));
 	connect(childView, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(onContextMenuRequested(const QPoint&)));
 	connect(childView->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)), this, SLOT(onChildViewSelectionChanged()));

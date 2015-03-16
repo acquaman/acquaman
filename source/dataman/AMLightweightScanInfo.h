@@ -70,8 +70,10 @@ public:
 	void refreshThumbnails(int thumbnailFirstId, int thumbnailCount);
 	/// The id of the first thumbnail associated with this Scan
 	int thumbnailFirstId() const;
+	/// Adds the provided experimentId to the Scan
+	void addExperimentId(int experimentId);
 	/// The id (if any) of the experiment this scan is associated with
-	QList<int> experimentIds() const;
+	const QList<int> experimentIds();
 
 	/// Sets the descriptive name of the scan
 	void setName(const QString& name);

@@ -5,6 +5,7 @@ AMLightweightScanInfoModel::AMLightweightScanInfoModel(AMLightweightScanInfoColl
 	QAbstractItemModel(parent)
 {
 	scanInfo_ = scanInfo;
+	setSupportedDragActions(Qt::CopyAction | Qt::LinkAction | Qt::MoveAction);
 	connect(scanInfo_, SIGNAL(scanAboutToBeAdded(int)), this, SLOT(onScanInfoAboutToBeAdded(int)));
 	connect(scanInfo_,SIGNAL(scanAboutToBeRemoved(int)), this, SLOT(onScanInfoAboutToBeRemoved(int)));
 	connect(scanInfo_, SIGNAL(scanAdded()), this, SLOT(onScanInfoAdded()));
@@ -94,7 +95,7 @@ QModelIndex AMLightweightScanInfoModel::parent(const QModelIndex &child) const
 	return createIndex(child.internalId(), 0, -1);
 }
 
-QUrl AMLightweightScanInfoModel::rowToUrl(const QModelIndex &index)
+QUrl AMLightweightScanInfoModel::rowToUrl(const QModelIndex &index) const
 {
 	if(index.parent().isValid())
 		return rowToUrl(index.parent());
@@ -107,10 +108,41 @@ const QHash<int, QString> AMLightweightScanInfoModel::runMap()
 	return scanInfo_->runMap();
 }
 
+Qt::ItemFlags AMLightweightScanInfoModel::flags(const QModelIndex &index) const
+{
+	Qt::ItemFlags defaultFlags = QAbstractItemModel::flags(index);
+
+	if(index.isValid() && !index.parent().isValid())
+		return Qt::ItemIsDragEnabled | defaultFlags;
+	else
+		return defaultFlags;
+}
+
+QMimeData *AMLightweightScanInfoModel::mimeData(const QModelIndexList &indexes) const
+{
+	QMimeData* data = new QMimeData();
+
+	if(indexes.count() == 0)
+	return data;
+
+	QList<QUrl> urls;
+
+	for(int iModelIndex = 0, modelIndexCount = indexes.count();
+		iModelIndex < modelIndexCount;
+		++iModelIndex) {
+		QModelIndex currentIndex = indexes.at(iModelIndex);
+		if(!currentIndex.parent().isValid() && currentIndex.column() == 0)
+			urls.append(rowToUrl(currentIndex));
+	}
+
+	data->setUrls(urls);
+
+	return data;
+}
+
 bool AMLightweightScanInfoModel::belongsToExperiment(const QModelIndex index, int experimentId)
 {
 	AMLightweightScanInfo* info = scanInfo_->at(index.row());
-
 	return info->experimentIds().contains(experimentId);
 }
 

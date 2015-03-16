@@ -40,9 +40,16 @@ public:
 	/// returns a standard url for the given index.
 	/// URL format: amd://databaseConnectionName/tableName/objectId
 	/// If the index refers to a thumbnail, then the URL of the parent scan is returned
-	QUrl rowToUrl(const QModelIndex& index);
+	QUrl rowToUrl(const QModelIndex& index) const;
 	/// Returns a map of all the known runs. Maps runIDs to runNames.
 	const QHash<int, QString> runMap();
+	/// Returns the flags for the items. In cases where the index is valid and has no
+	/// valid parent (ie is for a scan, not a data source) then the flags are default
+	/// with DragEnabled, else they are just the default flags obtains from QAbstractItemModel::flags()
+	Qt::ItemFlags flags(const QModelIndex& index) const;
+	/// Returns the data for drag operations which will be passed outside of the views. In this case
+	/// it is a list of QUrls which indicate where the Scans can be loaded from.
+	QMimeData* mimeData(const QModelIndexList &indexes) const;
 	/// Whether or not the scan with the provided Index belongs to the experiment with the
 	/// provided id.
 	bool belongsToExperiment(const QModelIndex index, int experimentId);
