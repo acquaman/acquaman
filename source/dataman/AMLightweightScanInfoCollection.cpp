@@ -51,6 +51,19 @@ void AMLightweightScanInfoCollection::onDbItemAdded(const QString &tableName, in
 			scanInfos_.append(addedScanInfo);
 		}
 		emit scanAdded();
+	} else if(tableName == "ObjectExperimentEntries") {
+		int updatedScanId = AMLightweightScanInfoFactory::scanIdForExperimentEntry(id, database_);
+
+		if(updatedScanId == -1)
+			return;
+
+		int dirtyScanInfoIndex = indexOfScanWithId(updatedScanId);
+		if(dirtyScanInfoIndex >= 0) {
+			AMLightweightScanInfo* dirtyScanInfo = scanInfos_.at(dirtyScanInfoIndex);
+			AMLightweightScanInfoFactory::updateSingle(dirtyScanInfo, database_);
+
+			emit scanUpdated(dirtyScanInfoIndex);
+		}
 	}
 }
 

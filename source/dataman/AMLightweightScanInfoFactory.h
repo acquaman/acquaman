@@ -38,6 +38,10 @@ public:
 	///  Refreshes the passed in AMLightweightScanInfo with the information
 	/// currently in the database
 	static void updateSingle(AMLightweightScanInfo* info, AMDatabase* database);
+
+	/// Returns the scanId for the scanId refered to in the ObjectExperimentEntries table
+	/// with the provided id
+	static int scanIdForExperimentEntry(int id, AMDatabase* database);
 protected:
 	/// Protected default c'tor to stop instances of class being created
 	AMLightweightScanInfoFactory();

@@ -88,7 +88,34 @@ void AMLightweightScanInfoFactory::updateSingle(AMLightweightScanInfo *info, AMD
 	info->refreshThumbnails(updatedScanInfo->thumbnailFirstId(),
 							updatedScanInfo->thumbnailCount());
 
+	if(info->experimentIds().count() != updatedScanInfo->experimentIds().count()) {
+		for(int iExperimentId = 0, experimentIdCount = updatedScanInfo->experimentIds().count();
+			iExperimentId < experimentIdCount; ++iExperimentId) {
+			if(!info->experimentIds().contains(updatedScanInfo->experimentIds().at(iExperimentId)))
+				info->addExperimentId(updatedScanInfo->experimentIds().at(iExperimentId));
+		}
+	}
 	updatedScanInfo->deleteLater();
+}
+
+int AMLightweightScanInfoFactory::scanIdForExperimentEntry(int id, AMDatabase *database)
+{
+	int returnScanId = -1;
+	QSqlQuery selectQuery = database->select("ObjectExperimentEntries", "objectId",
+											  QString("id = %1").arg(id));
+
+	if(selectQuery.exec()) {
+		while(selectQuery.next()) {
+			QSqlRecord currentRecord = selectQuery.record();
+			int scanId = currentRecord.value(0).toInt();
+			returnScanId = scanId;
+		}
+	} else {
+		AMErrorMon::alert(0, AMLIGHTWEIGHTSCANINFOFACTORY_EXPERIMENTS_SQL_ERROR, QString("Could not complete query to obtain the scanId for experiment entry, with error: %1").arg(selectQuery.lastError().text()));
+	}
+	selectQuery.finish();
+
+	return returnScanId;
 }
 
 AMLightweightScanInfoFactory::AMLightweightScanInfoFactory() {
