@@ -2,7 +2,7 @@
 #define BIOXASMAINXASSCANCONFIGURATIONVIEW_H
 
 #include "ui/acquaman/AMScanConfigurationView.h"
-#include "acquaman/BioXASMain/BioXASMainXASScanConfiguration.h"
+#include "acquaman/BioXAS/BioXASMainXASScanConfiguration.h"
 #include "util/AMElement.h"
 
 #include <QPushButton>

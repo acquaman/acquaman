@@ -45,8 +45,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/BioXAS/BioXASMainPersistentView.h"
 #include "ui/CLS/CLSSIS3820ScalerView.h"
 #include "beamline/CLS/CLSSIS3820Scaler.h"
-#include "acquaman/BioXAS/BioXASXASScanConfiguration.h"
-#include "ui/BioXAS/BioXASXASScanConfigurationView.h"
+#include "acquaman/BioXAS/BioXASMainXASScanConfiguration.h"
+#include "ui/BioXAS/BioXASMainXASScanConfigurationView.h"
 #include "ui/acquaman/AMScanConfigurationViewHolder3.h"
 #include "dataman/AMScanAxisEXAFSRegion.h"
 
@@ -120,10 +120,10 @@ void BioXASMainAppController::onScalerConnected()
 void BioXASMainAppController::onBeamlineConnected()
 {
     if (BioXASMainBeamline::bioXAS()->isConnected() && !configurationView_) {
-	configuration_ = new BioXASXASScanConfiguration();
+	configuration_ = new BioXASMainXASScanConfiguration();
         configuration_->setEdgeEnergy(10000);
 
-	configurationView_ = new BioXASXASScanConfigurationView(configuration_);
+	configurationView_ = new BioXASMainXASScanConfigurationView(configuration_);
 
         configurationViewHolder_ = new AMScanConfigurationViewHolder3(configurationView_);
 
@@ -133,7 +133,7 @@ void BioXASMainAppController::onBeamlineConnected()
 
 void BioXASMainAppController::registerClasses()
 {
-    AMDbObjectSupport::s()->registerClass<BioXASXASScanConfiguration>();
+    AMDbObjectSupport::s()->registerClass<BioXASMainXASScanConfiguration>();
 }
 
 void BioXASMainAppController::setupExporterOptions()
@@ -163,7 +163,7 @@ void BioXASMainAppController::setupExporterOptions()
 	bioXASDefaultXAS->storeToDb(AMDatabase::database("user"));
 
     if(bioXASDefaultXAS->id() > 0)
-	    AMAppControllerSupport::registerClass<BioXASXASScanConfiguration, AMExporterGeneralAscii, AMExporterOptionGeneralAscii>(bioXASDefaultXAS->id());
+	    AMAppControllerSupport::registerClass<BioXASMainXASScanConfiguration, AMExporterGeneralAscii, AMExporterOptionGeneralAscii>(bioXASDefaultXAS->id());
 }
 
 void BioXASMainAppController::setupUserInterface()

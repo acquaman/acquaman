@@ -19,9 +19,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#include "BioXASXASScanActionController.h"
+#include "BioXASSideXASScanActionController.h"
 
-#include "acquaman/BioXAS/BioXASXASScanConfiguration.h"
+#include "acquaman/BioXAS/BioXASSideXASScanConfiguration.h"
 #include "dataman/AMXASScan.h"
 #include "beamline/BioXAS/BioXASSideBeamline.h"
 #include "beamline/CLS/CLSMAXvMotor.h"
@@ -29,7 +29,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "acquaman/AMEXAFSScanActionControllerAssembler.h"
 #include "beamline/AMBasicControlDetectorEmulator.h"
 
-BioXASXASScanActionController::BioXASXASScanActionController(BioXASXASScanConfiguration *configuration, QObject *parent) :
+BioXASSideXASScanActionController::BioXASSideXASScanActionController(BioXASSideXASScanConfiguration *configuration, QObject *parent) :
     AMStepScanActionController(configuration, parent)
 {
     configuration_ = configuration;
@@ -54,11 +54,11 @@ BioXASXASScanActionController::BioXASXASScanActionController(BioXASXASScanConfig
     configuration_->setDetectorConfigurations(bioXASDetectors);
 }
 
-BioXASXASScanActionController::~BioXASXASScanActionController()
+BioXASSideXASScanActionController::~BioXASSideXASScanActionController()
 {
 }
 
-AMAction3* BioXASXASScanActionController::createInitializationActions()
+AMAction3* BioXASSideXASScanActionController::createInitializationActions()
 {
 	AMSequentialListAction3 *initializationAction = new AMSequentialListAction3(new AMSequentialListActionInfo3("BioXAS Side Scan Initialization Actions", "BioXAS Side Scan Initialization Actions"));
 	CLSSIS3820Scaler *scaler = BioXASSideBeamline::bioXAS()->scaler();
@@ -91,7 +91,7 @@ AMAction3* BioXASXASScanActionController::createInitializationActions()
 	return initializationAction;
 }
 
-AMAction3* BioXASXASScanActionController::createCleanupActions()
+AMAction3* BioXASSideXASScanActionController::createCleanupActions()
 {
 	CLSSIS3820Scaler *scaler = BioXASSideBeamline::bioXAS()->scaler();
 
@@ -102,12 +102,12 @@ AMAction3* BioXASXASScanActionController::createCleanupActions()
 	return cleanup;
 }
 
-void BioXASXASScanActionController::buildScanControllerImplementation()
+void BioXASSideXASScanActionController::buildScanControllerImplementation()
 {
 
 }
 
-void BioXASXASScanActionController::createScanAssembler()
+void BioXASSideXASScanActionController::createScanAssembler()
 {
     scanAssembler_ = new AMEXAFSScanActionControllerAssembler(this);
 }

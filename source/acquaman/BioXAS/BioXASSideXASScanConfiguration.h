@@ -26,7 +26,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "acquaman/AMStepScanConfiguration.h"
 
-class BioXASXASScanConfiguration : public AMStepScanConfiguration
+class BioXASSideXASScanConfiguration : public AMStepScanConfiguration
 {
 	Q_OBJECT
 
@@ -34,11 +34,11 @@ class BioXASXASScanConfiguration : public AMStepScanConfiguration
 
 public:
 	/// Constructor.
-	Q_INVOKABLE BioXASXASScanConfiguration(QObject *parent = 0);
+	Q_INVOKABLE BioXASSideXASScanConfiguration(QObject *parent = 0);
 	/// Copy Constructor.
-	BioXASXASScanConfiguration(const BioXASXASScanConfiguration &original);
+	BioXASSideXASScanConfiguration(const BioXASSideXASScanConfiguration &original);
 	///Destructor.
-	virtual ~BioXASXASScanConfiguration();
+	virtual ~BioXASSideXASScanConfiguration();
 
 	/// Returns a pointer to a newly-created copy of this scan configuration.  (It takes the role of a copy constructor, but is virtual so that our high-level classes can copy a scan configuration without knowing exactly what kind it is.)
 	virtual AMScanConfiguration* createCopy() const;

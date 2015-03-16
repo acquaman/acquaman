@@ -23,18 +23,18 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "acquaman/AMStepScanActionController.h"
 
-class BioXASXASScanConfiguration;
+class BioXASSideXASScanConfiguration;
 
-class BioXASXASScanActionController : public AMStepScanActionController
+class BioXASSideXASScanActionController : public AMStepScanActionController
 {
 	Q_OBJECT
 
 public:
 	/// Constructor takes a BioXASXAS scan configuration
-	explicit BioXASXASScanActionController(BioXASXASScanConfiguration *configuration, QObject *parent = 0);
+	explicit BioXASSideXASScanActionController(BioXASSideXASScanConfiguration *configuration, QObject *parent = 0);
 
 	/// Destructor
-	virtual ~BioXASXASScanActionController();
+	virtual ~BioXASSideXASScanActionController();
 
 signals:
 
@@ -53,7 +53,7 @@ protected:
 
 
 protected:
-	BioXASXASScanConfiguration *configuration_;
+	BioXASSideXASScanConfiguration *configuration_;
 
 };
 

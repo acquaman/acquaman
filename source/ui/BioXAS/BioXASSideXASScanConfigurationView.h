@@ -19,11 +19,11 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#ifndef BIOXASXASSCANCONFIGURATIONVIEW_H
-#define BIOXASXASSCANCONFIGURATIONVIEW_H
+#ifndef BIOXASSIDEXASSCANCONFIGURATIONVIEW_H
+#define BIOXASSIDEXASSCANCONFIGURATIONVIEW_H
 
 #include "ui/acquaman/AMScanConfigurationView.h"
-#include "acquaman/BioXAS/BioXASXASScanConfiguration.h"
+#include "acquaman/BioXAS/BioXASSideXASScanConfiguration.h"
 #include "util/AMElement.h"
 
 #include <QPushButton>
@@ -38,14 +38,14 @@ class AMScanController;
 class AMEXAFSScanAxisView;
 class AMTopFrame;
 
-class BioXASXASScanConfigurationView : public AMScanConfigurationView
+class BioXASSideXASScanConfigurationView : public AMScanConfigurationView
 {
 
 Q_OBJECT
 
 public:
-	BioXASXASScanConfigurationView(BioXASXASScanConfiguration *configuration, QWidget *parent = 0);
-	virtual ~BioXASXASScanConfigurationView();
+	BioXASSideXASScanConfigurationView(BioXASSideXASScanConfiguration *configuration, QWidget *parent = 0);
+	virtual ~BioXASSideXASScanConfigurationView();
 
 	virtual const AMScanConfiguration* configuration() const;
 
@@ -70,7 +70,7 @@ protected slots:
 	void onEdgeChanged();
 
 protected:
-	BioXASXASScanConfiguration *configuration_;
+	BioXASSideXASScanConfiguration *configuration_;
 
 	AMTopFrame *topFrame_;
 	AMEXAFSScanAxisView *regionsView_;
