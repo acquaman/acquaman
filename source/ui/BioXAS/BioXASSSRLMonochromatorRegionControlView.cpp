@@ -1,4 +1,6 @@
 #include "BioXASSSRLMonochromatorRegionControlView.h"
+#include "beamline/BioXAS/BioXASSSRLMonochromator.h"
+#include "beamline/BioXAS/BioXASSSRLMonochromatorRegionControl.h"
 
 BioXASSSRLMonochromatorRegionControlView::BioXASSSRLMonochromatorRegionControlView(BioXASSSRLMonochromatorRegionControl *regionControl, QWidget *parent) :
 	QGroupBox(parent)
@@ -88,7 +90,7 @@ void BioXASSSRLMonochromatorRegionControlView::setRegionControl(BioXASSSRLMonoch
 
 void BioXASSSRLMonochromatorRegionControlView::onSlitsStatusChanged()
 {
-	if (regionControl_ && regionControl_->slitsStatusControl()->isConnected()) {
+	if (regionControl_ && regionControl_->slitsStatusControl() && regionControl_->slitsStatusControl()->isConnected()) {
 		if (regionControl_->slitsStatusControl()->value() == BioXASSSRLMonochromator::Slits::Closed) {
 			slitsStatusGreen_->setPixmap(QPixmap(":/22x22/greenLEDOn.png"));
 			slitsStatusRed_->setPixmap(QPixmap(":/22x22/redLEDOff.png"));

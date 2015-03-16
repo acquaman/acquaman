@@ -2,12 +2,10 @@
 #define BIOXASSSRLMONOCHROMATORREGIONCONTROL_H
 
 #include "beamline/AMCompositeControl.h"
-#include "beamline/AMPVControl.h"
 #include "actions3/AMActionSupport.h"
 #include "actions3/actions/AMControlWaitAction.h"
 #include "actions3/actions/AMWaitAction.h"
 #include "actions3/AMListAction3.h"
-#include "beamline/CLS/CLSMAXvMotor.h"
 
 // {setpoint}_{motor}_{property} VALUE
 #define SETPOINT_SLIT_CLOSED 0.0
@@ -28,8 +26,6 @@
 #define TIMEOUT_BRAGG_MOTOR_LIMIT_REACHED 200.0
 #define TIMEOUT_REGION_STATE_CHANGED 200.0
 #define TIMEOUT_CRYSTAL_CHANGE_MOVE_WAIT 1
-
-class BioXASSSRLMonochromator;
 
 class BioXASSSRLMonochromatorRegionControl : public AMCompositeControl
 {
@@ -66,29 +62,29 @@ public:
 	virtual bool canStop() const { return false; }
 
 	/// Returns the upper slit control.
-	virtual AMControl* upperSlitControl() const { return upperSlit_; }
+	AMControl* upperSlitControl() const { return upperSlit_; }
 	/// Returns the lower slit control.
-	virtual AMControl* lowerSlitControl() const { return lowerSlit_; }
+	AMControl* lowerSlitControl() const { return lowerSlit_; }
 	/// Returns the slits status control.
-	virtual AMControl* slitsStatusControl() const { return slitsStatus_; }
+	AMControl* slitsStatusControl() const { return slitsStatus_; }
 	/// Returns the paddle control.
-	virtual AMControl* paddleControl() const { return paddle_; }
+	AMControl* paddleControl() const { return paddle_; }
 	/// Returns the paddle status control.
-	virtual AMControl* paddleStatusControl() const { return paddleStatus_; }
+	AMControl* paddleStatusControl() const { return paddleStatus_; }
 	/// Returns the key status control.
-	virtual AMControl* keyStatusControl() const { return keyStatus_; }
+	AMControl* keyStatusControl() const { return keyStatus_; }
 	/// Returns the brake status control.
-	virtual AMControl* brakeStatusControl() const { return brakeStatus_; }
+	AMControl* brakeStatusControl() const { return brakeStatus_; }
 	/// Returns the bragg control.
-	virtual AMControl* braggControl() const { return bragg_; }
+	AMControl* braggControl() const { return bragg_; }
 	/// Returns the bragg motor at crystal change position status control.
-	virtual AMControl* braggAtCrystalChangePositionStatusControl() const { return braggAtCrystalChangePositionStatus_; }
+	AMControl* braggAtCrystalChangePositionStatusControl() const { return braggAtCrystalChangePositionStatus_; }
 	/// Returns the crystal change control.
-	virtual AMControl* crystalChangeControl() const { return crystalChange_; }
+	AMControl* crystalChangeControl() const { return crystalChange_; }
 	/// Returns the region A status control.
-	virtual AMControl* regionAStatusControl() const { return regionAStatus_; }
+	AMControl* regionAStatusControl() const { return regionAStatus_; }
 	/// Returns the region B status control.
-	virtual AMControl* regionBStatusControl() const { return regionBStatus_; }
+	AMControl* regionBStatusControl() const { return regionBStatus_; }
 
 signals:
 	/// Notifier that there has been progress in completing a crystal change. Provides information suitable for a progress bar display.

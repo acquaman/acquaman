@@ -1,4 +1,5 @@
 #include "BioXASSSRLMonochromatorRegionControlEditor.h"
+#include "beamline/BioXAS/BioXASSSRLMonochromatorRegionControl.h"
 
 BioXASSSRLMonochromatorRegionControlEditor::BioXASSSRLMonochromatorRegionControlEditor(BioXASSSRLMonochromatorRegionControl *regionControl, QWidget *parent) :
 	AMExtendedControlEditor(regionControl, 0, false, false, parent)

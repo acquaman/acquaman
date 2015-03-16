@@ -1,4 +1,5 @@
 #include "BioXASSideMonochromatorRegionControl.h"
+#include "beamline/AMPVControl.h"
 
 BioXASSideMonochromatorRegionControl::BioXASSideMonochromatorRegionControl(QObject *parent) :
 	BioXASSSRLMonochromatorRegionControl(parent)

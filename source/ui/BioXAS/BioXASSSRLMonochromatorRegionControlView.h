@@ -6,8 +6,7 @@
 #include <QLabel>
 #include <QGroupBox>
 
-#include "beamline/BioXAS/BioXASSSRLMonochromator.h"
-#include "beamline/BioXAS/BioXASSSRLMonochromatorRegionControl.h"
+class BioXASSSRLMonochromatorRegionControl;
 
 class BioXASSSRLMonochromatorRegionControlView : public QGroupBox
 {

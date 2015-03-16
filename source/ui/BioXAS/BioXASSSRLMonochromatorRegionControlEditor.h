@@ -7,8 +7,9 @@
 #include <QDialogButtonBox>
 #include <QProgressBar>
 
-#include "beamline/BioXAS/BioXASMainMonochromatorRegionControl.h"
 #include "ui/beamline/AMExtendedControlEditor.h"
+
+class BioXASSSRLMonochromatorRegionControl;
 
 class BioXASSSRLMonochromatorRegionControlEditor : public AMExtendedControlEditor
 {
@@ -34,7 +35,7 @@ public:
 	/// Destructor.
 	virtual ~BioXASSSRLMonochromatorRegionControlMovingView();
 	/// Returns the region control being viewed.
-	AMControl* regionControl() const { return regionControl_; }
+	BioXASSSRLMonochromatorRegionControl* regionControl() const { return regionControl_; }
 
 signals:
 	/// Notifier that the region control being viewed has changed.

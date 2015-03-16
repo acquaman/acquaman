@@ -26,12 +26,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QLayout>
 #include <QPushButton>
 
-#include "beamline/BioXAS/BioXASMainBeamline.h"
-#include "ui/beamline/AMExtendedControlEditor.h"
 #include "ui/BioXAS/BioXASSSRLMonochromatorRegionControlEditor.h"
 #include "ui/BioXAS/BioXASSSRLMonochromatorRegionControlView.h"
-
-class AMExtendedControlEditor;
 
 class BioXASMainPersistentView : public QWidget
 {

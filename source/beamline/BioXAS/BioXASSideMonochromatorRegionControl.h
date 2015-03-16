@@ -3,9 +3,6 @@
 
 #include <QObject>
 
-#include "beamline/AMPVControl.h"
-
-#include "beamline/BioXAS/BioXASSSRLMonochromator.h"
 #include "beamline/BioXAS/BioXASSSRLMonochromatorRegionControl.h"
 
 class BioXASSideMonochromatorRegionControl : public BioXASSSRLMonochromatorRegionControl
