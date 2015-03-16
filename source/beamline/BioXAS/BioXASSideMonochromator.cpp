@@ -30,7 +30,7 @@ BioXASSideMonochromator::BioXASSideMonochromator(QObject *parent) :
 	braggAngle_ = new AMReadOnlyPVControl(QString("BraggAngle"), QString("BL1607-5-I22:Energy:EV:fbk:tr.K"), this);
 
 	region_ = new BioXASSideMonochromatorRegionControl(this);
-	energy_ = new BioXASSideMonochromatorControl("EnergyEV", "BL1607-5-I22:Energy:EV:fbk", "BL1607-5-I22:Energy:EV", "BL1607-5-I22:Energy:status", QString("BL1607-5-I22:Energy:stop"), this);
+	energy_ = new BioXASSideMonochromatorEnergyControl(this);
 
 	// Listen to value changes.
 

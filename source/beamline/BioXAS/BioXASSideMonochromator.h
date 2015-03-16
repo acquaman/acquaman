@@ -3,16 +3,8 @@
 
 #include <QObject>
 
-#include "beamline/AMControl.h"
-#include "beamline/AMPVControl.h"
-#include "actions3/AMAction3.h"
-#include "actions3/AMActionSupport.h"
-#include "actions3/actions/AMControlWaitAction.h"
-#include "actions3/AMListAction3.h"
-#include "beamline/CLS/CLSMAXvMotor.h"
-
 #include "beamline/BioXAS/BioXASSSRLMonochromator.h"
-#include "beamline/BioXAS/BioXASSideMonochromatorControl.h"
+#include "beamline/BioXAS/BioXASSideMonochromatorEnergyControl.h"
 #include "beamline/BioXAS/BioXASSideMonochromatorRegionControl.h"
 
 class BioXASSideMonochromator : public BioXASSSRLMonochromator
@@ -61,8 +53,8 @@ public:
 	/// Returns the crystal 2 roll motor.
 	virtual CLSMAXvMotor* crystal2RollMotor() const { return crystal2RollMotor_; }
 
-	/// Returns the energy setpoint control.
-	virtual AMControl* energyControl() const { return energy_; }
+	/// Returns the energy control.
+	virtual BioXASSSRLMonochromatorEnergyControl* energyControl() const { return energy_; }
 	/// Returns the region control.
 	virtual BioXASSSRLMonochromatorRegionControl* regionControl() const { return region_; }
 
@@ -79,7 +71,7 @@ protected:
 	// Controls
 
 	/// Energy control.
-	AMControl* energy_;
+	BioXASSideMonochromatorEnergyControl *energy_;
 	/// Region control.
 	BioXASSideMonochromatorRegionControl *region_;
 	/// The hc constant.

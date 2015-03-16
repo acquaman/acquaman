@@ -1,7 +1,5 @@
 #include "BioXASMainMonochromator.h"
 
-#include <QDebug>
-
 BioXASMainMonochromator::BioXASMainMonochromator(QObject *parent) :
 	BioXASSSRLMonochromator(parent)
 {
@@ -30,7 +28,7 @@ BioXASMainMonochromator::BioXASMainMonochromator(QObject *parent) :
 	braggAngle_ = new AMReadOnlyPVControl(QString("BraggAngle"), QString("BL1607-5-I21:Energy:EV:fbk:tr.K"), this);
 
 	region_ = new BioXASMainMonochromatorRegionControl(this);
-	energy_ = new BioXASMainMonochromatorControl("EnergyEV", "BL1607-5-I21:Energy:EV:fbk", "BL1607-5-I21:Energy:EV", "BL1607-5-I21:Energy:status", QString("BL1607-5-I21:Energy:stop"), this);
+	energy_ = new BioXASMainMonochromatorEnergyControl(this);
 
 
 	// Listen to value changes.

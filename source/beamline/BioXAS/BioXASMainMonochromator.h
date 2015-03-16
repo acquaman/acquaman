@@ -3,16 +3,8 @@
 
 #include <QObject>
 
-#include "beamline/AMControl.h"
-#include "beamline/AMPVControl.h"
-#include "actions3/AMAction3.h"
-#include "actions3/actions/AMControlMoveAction3.h"
-#include "actions3/actions/AMControlWaitAction.h"
-#include "actions3/AMListAction3.h"
-#include "beamline/CLS/CLSMAXvMotor.h"
-
 #include "beamline/BioXAS/BioXASSSRLMonochromator.h"
-#include "beamline/BioXAS/BioXASMainMonochromatorControl.h"
+#include "beamline/BioXAS/BioXASMainMonochromatorEnergyControl.h"
 #include "beamline/BioXAS/BioXASMainMonochromatorRegionControl.h"
 
 class BioXASMainMonochromator : public BioXASSSRLMonochromator
@@ -64,7 +56,7 @@ public:
 	/// Returns the mono's region control.
 	virtual BioXASSSRLMonochromatorRegionControl* regionControl() const { return region_; }
 	/// Returns the energy setpoint control.
-	virtual AMControl* energyControl() const { return energy_; }
+	virtual BioXASSSRLMonochromatorEnergyControl* energyControl() const { return energy_; }
 
 protected slots:
 	/// Updates the mono's general connected state based on the connected state of each of its pvs.
@@ -81,7 +73,7 @@ protected:
 	/// Region control.
 	BioXASMainMonochromatorRegionControl *region_;
 	/// Energy control.
-	BioXASMainMonochromatorControl *energy_;
+	BioXASMainMonochromatorEnergyControl *energy_;
 	/// The hc constant.
 	AMControl *hc_;
 	/// The crystal 2D spacing.

@@ -3,9 +3,10 @@
 
 #include <QObject>
 
-#include "actions3/AMAction3.h"
+#include "actions3/AMActionSupport.h"
 #include "beamline/AMControl.h"
 #include "beamline/CLS/CLSMAXvMotor.h"
+#include "beamline/BioXAS/BioXASSSRLMonochromatorEnergyControl.h"
 #include "beamline/BioXAS/BioXASSSRLMonochromatorRegionControl.h"
 
 class BioXASSSRLMonochromator : public QObject
@@ -72,7 +73,7 @@ public:
 	virtual CLSMAXvMotor* crystal2RollMotor() const = 0;
 
 	/// Returns the energy control.
-	virtual AMControl* energyControl() const = 0;
+	virtual BioXASSSRLMonochromatorEnergyControl* energyControl() const = 0;
 	/// Returns the region control.
 	virtual BioXASSSRLMonochromatorRegionControl* regionControl() const = 0;
 
