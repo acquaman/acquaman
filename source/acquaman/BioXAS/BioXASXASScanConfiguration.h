@@ -19,26 +19,26 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#ifndef BIOXASSIDEXASSCANCONFIGURATION_H
-#define BIOXASSIDEXASSCANCONFIGURATION_H
+#ifndef BIOXASXASSCANCONFIGURATION_H
+#define BIOXASXASSCANCONFIGURATION_H
 
 #include <QObject>
 
 #include "acquaman/AMStepScanConfiguration.h"
 
-class BioXASSideXASScanConfiguration : public AMStepScanConfiguration
+class BioXASXASScanConfiguration : public AMStepScanConfiguration
 {
 	Q_OBJECT
 
-	Q_CLASSINFO("AMDbObject_Attributes", "description=BioXAS Side XAS Scan Configuration")
+	Q_CLASSINFO("AMDbObject_Attributes", "description=BioXAS XAS Scan Configuration")
 
 public:
 	/// Constructor.
-	Q_INVOKABLE BioXASSideXASScanConfiguration(QObject *parent = 0);
+	Q_INVOKABLE BioXASXASScanConfiguration(QObject *parent = 0);
 	/// Copy Constructor.
-	BioXASSideXASScanConfiguration(const BioXASSideXASScanConfiguration &original);
+	BioXASXASScanConfiguration(const BioXASXASScanConfiguration &original);
 	///Destructor.
-	virtual ~BioXASSideXASScanConfiguration();
+	virtual ~BioXASXASScanConfiguration();
 
 	/// Returns a pointer to a newly-created copy of this scan configuration.  (It takes the role of a copy constructor, but is virtual so that our high-level classes can copy a scan configuration without knowing exactly what kind it is.)
 	virtual AMScanConfiguration* createCopy() const;
@@ -74,4 +74,4 @@ protected:
 
 };
 
-#endif // BIOXASSIDEXASSCANCONFIGURATION_H
+#endif // BIOXASXASSCANCONFIGURATION_H

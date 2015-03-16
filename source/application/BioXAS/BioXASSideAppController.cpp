@@ -44,8 +44,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/CLS/CLSSIS3820ScalerView.h"
 #include "beamline/CLS/CLSSIS3820Scaler.h"
 #include "ui/BioXAS/BioXASSidePersistentView.h"
-#include "acquaman/BioXASSide/BioXASSideXASScanConfiguration.h"
-#include "ui/BioXAS/BioXASSideXASScanConfigurationView.h"
+#include "acquaman/BioXAS/BioXASXASScanConfiguration.h"
+#include "ui/BioXAS/BioXASXASScanConfigurationView.h"
 #include "ui/acquaman/AMScanConfigurationViewHolder3.h"
 #include "dataman/AMScanAxisEXAFSRegion.h"
 #include "ui/BioXAS/BioXAS32ElementGeDetectorView.h"
@@ -119,7 +119,7 @@ void BioXASSideAppController::onScalerConnected()
 void BioXASSideAppController::onBeamlineConnected()
 {
 	if (BioXASSideBeamline::bioXAS()->isConnected() && !configurationView_) {
-		configuration_ = new BioXASSideXASScanConfiguration();
+		configuration_ = new BioXASXASScanConfiguration();
 		configuration_->setEdgeEnergy(10000);
 		/*
 		configuration_->scanAxisAt(0)->regionAt(0)->setRegionStart(10000);
@@ -128,7 +128,7 @@ void BioXASSideAppController::onBeamlineConnected()
 		configuration_->scanAxisAt(0)->regionAt(0)->setRegionTime(1.0);
 		*/
 
-		configurationView_ = new BioXASSideXASScanConfigurationView(configuration_);
+		configurationView_ = new BioXASXASScanConfigurationView(configuration_);
 
 		configurationViewHolder_ = new AMScanConfigurationViewHolder3(configurationView_);
 
@@ -138,7 +138,7 @@ void BioXASSideAppController::onBeamlineConnected()
 
 void BioXASSideAppController::registerClasses()
 {
-	AMDbObjectSupport::s()->registerClass<BioXASSideXASScanConfiguration>();
+	AMDbObjectSupport::s()->registerClass<BioXASXASScanConfiguration>();
 	AMDbObjectSupport::s()->registerClass<BioXASXRFScanConfiguration>();
 }
 
@@ -169,7 +169,7 @@ void BioXASSideAppController::setupExporterOptions()
 	bioXASDefaultXAS->storeToDb(AMDatabase::database("user"));
 
 	if (bioXASDefaultXAS->id() > 0) {
-		AMAppControllerSupport::registerClass<BioXASSideXASScanConfiguration, AMExporterGeneralAscii, AMExporterOptionGeneralAscii>(bioXASDefaultXAS->id());
+		AMAppControllerSupport::registerClass<BioXASXASScanConfiguration, AMExporterGeneralAscii, AMExporterOptionGeneralAscii>(bioXASDefaultXAS->id());
 	}
 
 }

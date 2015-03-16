@@ -26,8 +26,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 class CLSSIS3820ScalerView;
 class BioXASSidePersistentView;
-class BioXASSideXASScanConfiguration;
-class BioXASSideXASScanConfigurationView;
+class BioXASXASScanConfiguration;
+class BioXASXASScanConfigurationView;
 class AMScanConfigurationViewHolder3;
 
 class BioXASSideAppController : public AMAppController
@@ -74,9 +74,9 @@ protected:
 
     BioXASSidePersistentView *persistentPanel_;
 
-    BioXASSideXASScanConfiguration *configuration_;
+    BioXASXASScanConfiguration *configuration_;
 
-    BioXASSideXASScanConfigurationView *configurationView_;
+    BioXASXASScanConfigurationView *configurationView_;
 
     AMScanConfigurationViewHolder3 *configurationViewHolder_;
 

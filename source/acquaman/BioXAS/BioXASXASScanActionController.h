@@ -18,23 +18,23 @@ You should have received a copy of the GNU General Public License
 along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef BIOXASSIDEXASSCANACTIONCONTROLLER_H
-#define BIOXASSIDEXASSCANACTIONCONTROLLER_H
+#ifndef BIOXASXASSCANACTIONCONTROLLER_H
+#define BIOXASXASSCANACTIONCONTROLLER_H
 
 #include "acquaman/AMStepScanActionController.h"
 
-class BioXASSideXASScanConfiguration;
+class BioXASXASScanConfiguration;
 
-class BioXASSideXASScanActionController : public AMStepScanActionController
+class BioXASXASScanActionController : public AMStepScanActionController
 {
 	Q_OBJECT
 
 public:
-	/// Constructor takes a BioXASSideXAS scan configuration
-	explicit BioXASSideXASScanActionController(BioXASSideXASScanConfiguration *configuration, QObject *parent = 0);
+	/// Constructor takes a BioXASXAS scan configuration
+	explicit BioXASXASScanActionController(BioXASXASScanConfiguration *configuration, QObject *parent = 0);
 
 	/// Destructor
-	virtual ~BioXASSideXASScanActionController();
+	virtual ~BioXASXASScanActionController();
 
 signals:
 
@@ -53,7 +53,7 @@ protected:
 
 
 protected:
-	BioXASSideXASScanConfiguration *configuration_;
+	BioXASXASScanConfiguration *configuration_;
 
 };
 

@@ -19,7 +19,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#include "BioXASSideXASScanConfigurationView.h"
+#include "BioXASXASScanConfigurationView.h"
 
 #include <QBoxLayout>
 #include <QFormLayout>
@@ -28,7 +28,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QStringBuilder>
 
 #include "acquaman/AMScanController.h"
-#include "beamline/IDEAS/IDEASBeamline.h"
 #include "ui/AMTopFrame.h"
 #include "ui/dataman/AMEXAFSScanAxisView.h"
 #include "util/AMEnergyToKSpaceCalculator.h"
@@ -36,7 +35,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "util/AMPeriodicTable.h"
 
 
-BioXASSideXASScanConfigurationView::BioXASSideXASScanConfigurationView(BioXASSideXASScanConfiguration *configuration, QWidget *parent) :
+BioXASXASScanConfigurationView::BioXASXASScanConfigurationView(BioXASXASScanConfiguration *configuration, QWidget *parent) :
 	AMScanConfigurationView(parent)
 {
 	configuration_ = configuration;
@@ -123,18 +122,18 @@ BioXASSideXASScanConfigurationView::BioXASSideXASScanConfigurationView(BioXASSid
 	setLayout(mainVL);
 }
 
-BioXASSideXASScanConfigurationView::~BioXASSideXASScanConfigurationView()
+BioXASXASScanConfigurationView::~BioXASXASScanConfigurationView()
 {
 
 }
 
-const AMScanConfiguration* BioXASSideXASScanConfigurationView::configuration() const
+const AMScanConfiguration* BioXASXASScanConfigurationView::configuration() const
 {
 	return configuration_;
 }
 
 
-void BioXASSideXASScanConfigurationView::setupDefaultXANESScanRegions()
+void BioXASXASScanConfigurationView::setupDefaultXANESScanRegions()
 {
 	while (configuration_->scanAxisAt(0)->regionCount())
 	{
@@ -150,7 +149,7 @@ void BioXASSideXASScanConfigurationView::setupDefaultXANESScanRegions()
 	regionsView_->insertEXAFSRegion(0, region);
 }
 
-void BioXASSideXASScanConfigurationView::setupDefaultEXAFSScanRegions()
+void BioXASXASScanConfigurationView::setupDefaultEXAFSScanRegions()
 {
 
 	while (configuration_->scanAxisAt(0)->regionCount())
@@ -185,19 +184,19 @@ void BioXASSideXASScanConfigurationView::setupDefaultEXAFSScanRegions()
 	regionsView_->insertEXAFSRegion(2, region);
 }
 
-void BioXASSideXASScanConfigurationView::onScanNameEdited()
+void BioXASXASScanConfigurationView::onScanNameEdited()
 {
 	configuration_->setName(scanName_->text());
 	configuration_->setUserScanName(scanName_->text());
 }
 
-void BioXASSideXASScanConfigurationView::setEnergy()
+void BioXASXASScanConfigurationView::setEnergy()
 {
 	configuration_->setEdgeEnergy(energy_->value());
 	regionsView_->setEdgeEnergy(energy_->value());
 }
 
-void BioXASSideXASScanConfigurationView::onElementChoiceClicked()
+void BioXASXASScanConfigurationView::onElementChoiceClicked()
 {
 	AMElement *el = AMPeriodicTableDialog::getElement(this);
 
@@ -209,7 +208,7 @@ void BioXASSideXASScanConfigurationView::onElementChoiceClicked()
 	}
 }
 
-void BioXASSideXASScanConfigurationView::fillLinesComboBox(AMElement *el)
+void BioXASXASScanConfigurationView::fillLinesComboBox(AMElement *el)
 {
 	if (!el)
 		return;
@@ -228,7 +227,7 @@ void BioXASSideXASScanConfigurationView::fillLinesComboBox(AMElement *el)
 	lineChoice_->setCurrentIndex(-1);
 }
 
-void BioXASSideXASScanConfigurationView::onLinesComboBoxIndexChanged(int index)
+void BioXASXASScanConfigurationView::onLinesComboBoxIndexChanged(int index)
 {
 	if (lineChoice_->count() == 0 || index == -1)
 		return;
@@ -238,7 +237,7 @@ void BioXASSideXASScanConfigurationView::onLinesComboBoxIndexChanged(int index)
 	configuration_->setEdge(lineChoice_->itemText(index).split(":").first());
 }
 
-void BioXASSideXASScanConfigurationView::onEdgeChanged()
+void BioXASXASScanConfigurationView::onEdgeChanged()
 {
 	QString currentChoice = lineChoice_->itemText(lineChoice_->currentIndex()).split(":").first();
 	if (configuration_->edge() == currentChoice)

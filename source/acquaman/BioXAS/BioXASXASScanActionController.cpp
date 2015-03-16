@@ -19,9 +19,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#include "BioXASSideXASScanActionController.h"
+#include "BioXASXASScanActionController.h"
 
-#include "acquaman/BioXASSide/BioXASSideXASScanConfiguration.h"
+#include "acquaman/BioXAS/BioXASXASScanConfiguration.h"
 #include "dataman/AMXASScan.h"
 #include "beamline/BioXAS/BioXASSideBeamline.h"
 #include "beamline/CLS/CLSMAXvMotor.h"
@@ -29,13 +29,12 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "acquaman/AMEXAFSScanActionControllerAssembler.h"
 #include "beamline/AMBasicControlDetectorEmulator.h"
 
-BioXASSideXASScanActionController::BioXASSideXASScanActionController(BioXASSideXASScanConfiguration *configuration, QObject *parent) :
+BioXASXASScanActionController::BioXASXASScanActionController(BioXASXASScanConfiguration *configuration, QObject *parent) :
     AMStepScanActionController(configuration, parent)
 {
     configuration_ = configuration;
 
     scan_ = new AMXASScan();
-//    scan_->setFileFormat("amRegionAscii2013");
     scan_->setFileFormat("amCDFv1");
     scan_->setScanConfiguration(configuration);
     scan_->setIndexType("fileSystem");
@@ -55,11 +54,11 @@ BioXASSideXASScanActionController::BioXASSideXASScanActionController(BioXASSideX
     configuration_->setDetectorConfigurations(bioXASDetectors);
 }
 
-BioXASSideXASScanActionController::~BioXASSideXASScanActionController()
+BioXASXASScanActionController::~BioXASXASScanActionController()
 {
 }
 
-AMAction3* BioXASSideXASScanActionController::createInitializationActions()
+AMAction3* BioXASXASScanActionController::createInitializationActions()
 {
 	AMSequentialListAction3 *initializationAction = new AMSequentialListAction3(new AMSequentialListActionInfo3("BioXAS Side Scan Initialization Actions", "BioXAS Side Scan Initialization Actions"));
 	CLSSIS3820Scaler *scaler = BioXASSideBeamline::bioXAS()->scaler();
@@ -92,7 +91,7 @@ AMAction3* BioXASSideXASScanActionController::createInitializationActions()
 	return initializationAction;
 }
 
-AMAction3* BioXASSideXASScanActionController::createCleanupActions()
+AMAction3* BioXASXASScanActionController::createCleanupActions()
 {
 	CLSSIS3820Scaler *scaler = BioXASSideBeamline::bioXAS()->scaler();
 
@@ -103,12 +102,12 @@ AMAction3* BioXASSideXASScanActionController::createCleanupActions()
 	return cleanup;
 }
 
-void BioXASSideXASScanActionController::buildScanControllerImplementation()
+void BioXASXASScanActionController::buildScanControllerImplementation()
 {
 
 }
 
-void BioXASSideXASScanActionController::createScanAssembler()
+void BioXASXASScanActionController::createScanAssembler()
 {
     scanAssembler_ = new AMEXAFSScanActionControllerAssembler(this);
 }
