@@ -1,9 +1,12 @@
 #include "BioXASSSRLMonochromatorRegionControlEditor.h"
 #include "beamline/BioXAS/BioXASSSRLMonochromatorRegionControl.h"
+#include <QDebug>
 
 BioXASSSRLMonochromatorRegionControlEditor::BioXASSSRLMonochromatorRegionControlEditor(BioXASSSRLMonochromatorRegionControl *regionControl, QWidget *parent) :
 	AMExtendedControlEditor(regionControl, 0, false, false, parent)
 {
+	setNoUnitsBox(true);
+
 	connect( control_, SIGNAL(moveStarted()), this, SLOT(onRegionControlMoveStarted()) );
 }
 
@@ -14,7 +17,11 @@ BioXASSSRLMonochromatorRegionControlEditor::~BioXASSSRLMonochromatorRegionContro
 
 void BioXASSSRLMonochromatorRegionControlEditor::onRegionControlMoveStarted()
 {
+	qDebug() << "Checking to see if region control is connected.";
+
 	if (control_ && control_->isConnected()) {
+		qDebug() << "Region control is connected. Starting region change.";
+
 		BioXASSSRLMonochromatorRegionControlMovingView *movingView = new BioXASSSRLMonochromatorRegionControlMovingView(qobject_cast<BioXASSSRLMonochromatorRegionControl*>(control_), this);
 		movingView->setWindowFlags(Qt::Sheet);
 		movingView->setWindowModality(Qt::WindowModal);

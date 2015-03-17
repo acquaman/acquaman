@@ -22,7 +22,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "BioXASSidePersistentView.h"
 
 #include "beamline/BioXAS/BioXASSideBeamline.h"
-#include "ui/beamline/AMExtendedControlEditor.h"
 
 BioXASSidePersistentView::BioXASSidePersistentView(QWidget *parent) :
     QWidget(parent)
@@ -32,7 +31,15 @@ BioXASSidePersistentView::BioXASSidePersistentView(QWidget *parent) :
     energyControlEditor_ = new AMExtendedControlEditor(BioXASSideBeamline::bioXAS()->mono()->energyControl());
     energyControlEditor_->setControlFormat('f', 2);
 
+    regionControlEditor_ = new BioXASSSRLMonochromatorRegionControlEditor(BioXASSideBeamline::bioXAS()->mono()->regionControl());
+    regionControlEditor_->setTitle("Region");
+
+    braggControlEditor_ = new AMExtendedControlEditor(BioXASSideBeamline::bioXAS()->mono()->braggMotor());
+    braggControlEditor_->setTitle("Bragg motor");
+
     calibrateEnergyButton_ = new QPushButton("Calibrate energy");
+
+    regionView_ = new BioXASSSRLMonochromatorRegionControlView(BioXASSideBeamline::bioXAS()->mono()->regionControl());
 
     // Create and set layouts.
 
@@ -42,11 +49,14 @@ BioXASSidePersistentView::BioXASSidePersistentView(QWidget *parent) :
 
     QVBoxLayout *layout = new QVBoxLayout();
     layout->addWidget(energyControlEditor_);
+    layout->addWidget(regionControlEditor_);
+    layout->addWidget(braggControlEditor_);
     layout->addLayout(energyButtonLayout);
+    layout->addWidget(regionView_);
     layout->addStretch();
 
     setLayout(layout);
-    setFixedWidth(200);
+    setFixedWidth(300);
 
     // Make connections.
 

@@ -18,6 +18,8 @@ BioXASSideMonochromatorRegionControl::BioXASSideMonochromatorRegionControl(QObje
 	setCrystalChangeCCWLimitStatusControl(new AMReadOnlyPVControl("CrystalChangeCCWStatus", "SMTR1607-5-I22-22:ccw", this));
 	setRegionAStatusControl(new AMReadOnlyPVControl("RegionAStatus", "BL1607-5-I22:Mono:Region:A", this));
 	setRegionBStatusControl(new AMReadOnlyPVControl("RegionBStatus", "BL1607-5-I22:Mono:Region:B", this));
+
+	onRegionControlValueChanged();
 }
 
 BioXASSideMonochromatorRegionControl::~BioXASSideMonochromatorRegionControl()

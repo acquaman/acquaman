@@ -32,6 +32,8 @@ class BioXASSSRLMonochromatorRegionControl : public AMCompositeControl
 	Q_OBJECT
 
 public:
+	/// Enum marking possible different region setpoints. This is a subset of all possible region states. \see BioXASSSRLMonochromator.
+	class Region { public: enum Setpoint { A = 0, B }; };
 	/// Enum marking possible different crystal change steps.
 	enum Step { CloseSlits = 0, RemovePaddle, WaitForKeyEnabled, MoveBraggIntoPosition, WaitForBrakeDisabled, MoveCrystalChangeIntoPosition, WaitForBrakeEnabled, MoveBraggIntoRegion, WaitForKeyDisabled, None };
 
@@ -40,15 +42,15 @@ public:
 	/// Destructor.
 	virtual ~BioXASSSRLMonochromatorRegionControl();
 
-	/// Returns the current region.
+	/// Returns the current region state.
 	virtual double value() const { return value_; }
 	/// Returns the current region setpoint.
 	virtual double setpoint() const { return setpoint_; }
 	/// Returns true if there is a crystal change procedure in progress, as a result of this control's action.
 	virtual bool moveInProgress() const { return moveInProgress_; }
-	/// Returns Region::None, the smallest value this control can assume.
+	/// Returns Region::A, the smallest value this control can assume.
 	virtual double minimumValue() const;
-	/// Returns Region::B, the largest value this control can assume.
+	/// Returns Region::None, the largest value this control can assume.
 	virtual double maximumValue() const;
 	/// Returns true if the region is always measurable (when the control is connected).
 	virtual bool shouldMeasure() const { return true; }
@@ -144,7 +146,12 @@ public slots:
 
 protected slots:
 	/// Updates the current value_ and emits the valueChanged() signal.
-	void setValue(double newValue);
+	void setValue(int newValue);
+	/// Updates the current setpoint_ and emits the setpointChanged() signal.
+	void setSetpoint(int newSetpoint);
+	/// Updates the current moveInProgress_ value and emits the moveChanged() signal. The moveStarted() signal is also emitted if the change is to true.
+	void setMoveInProgress(bool isMoving);
+
 	/// Handles emitting the appropriate signals when the current step in a move has changed.
 	void onCurrentMoveStepChanged(int stepIndex);
 	/// Handles updating the region value and emitting the value changed signal.
@@ -217,8 +224,18 @@ protected:
 	/// Returns a new action that waits for the mono region key to be turned CW to Disabled, 0 if not connected.
 	AMAction3* createWaitForKeyDisabledAction();
 
-	/// Returns true if the given value is a valid region.
-	static bool validRegion(int region);
+	/// Returns true if the given value is a valid region state, false otherwise.
+	static bool validRegionState(int regionState);
+	/// Returns true if the given value is a valid region setpoint, false otherwise.
+	static bool validRegionSetpoint(int regionSetpoint);
+	/// Returns a string representation of the given region state.
+	static QString regionStateToString(int region);
+	/// Returns the region state corresponding to the given string.
+	static int stringToRegionState(const QString &string);
+	/// Returns the region state corresponding to the given region setpoint.
+	static int regionSetpointToState(int regionSetpoint);
+	/// Returns the region setpoint corresponding to the given region state.
+	static int regionStateToSetpoint(int regionState);
 	/// Returns the description associated with the given step index. The step index is the index of an action in the crystal change list action.
 	static QString stepDescription(int stepIndex);
 	/// Returns the instruction associated with the given step index, an empty string if there is none. The step index in the index of an action in the crystal change list action.
@@ -227,11 +244,11 @@ protected:
 	void moveCleanup(QObject *action);
 
 protected:
-	/// The current region.
-	double value_;
-	/// The region setpoint.
+	/// The current region state.
+	int value_;
+	/// The current region setpoint.
 	int setpoint_;
-	/// The current move state, true if this control has intiated a move.
+	/// The current move state, true if this control has initiated a move.
 	bool moveInProgress_;
 
 	/// The upper slit motor.
