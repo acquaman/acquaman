@@ -60,9 +60,9 @@ QString BioXASMainXASScanActionController::beamlineSettings()
 {
 	QString notes;
 
-	notes.append(QString("Bragg motor base velocity:\t%1").arg(BioXASMainBeamline::bioXAS()->mono()->braggMotor()->EGUBaseVelocity()));
-	notes.append(QString("Bragg motor acceleration:\t%1").arg(BioXASMainBeamline::bioXAS()->mono()->braggMotor()->EGUAcceleration()));
-	notes.append(QString("Bragg motor velocity:\t%1").arg(BioXASMainBeamline::bioXAS()->mono()->braggMotor()->EGUVelocity()));
+//	notes.append(QString("Bragg motor base velocity:\t%1").arg(BioXASMainBeamline::bioXAS()->mono()->braggMotor()->EGUBaseVelocity()));
+//	notes.append(QString("Bragg motor acceleration:\t%1").arg(BioXASMainBeamline::bioXAS()->mono()->braggMotor()->EGUAcceleration()));
+//	notes.append(QString("Bragg motor velocity:\t%1").arg(BioXASMainBeamline::bioXAS()->mono()->braggMotor()->EGUVelocity()));
 
 	return notes;
 }
