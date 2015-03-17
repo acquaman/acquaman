@@ -3,7 +3,6 @@
 BioXASSSRLMonochromator::BioXASSSRLMonochromator(QObject *parent) :
 	QObject(parent)
 {
-
 }
 
 BioXASSSRLMonochromator::~BioXASSSRLMonochromator()
