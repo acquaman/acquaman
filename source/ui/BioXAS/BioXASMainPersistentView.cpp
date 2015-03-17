@@ -27,9 +27,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 BioXASMainPersistentView::BioXASMainPersistentView(QWidget *parent) :
     QWidget(parent)
 {
-    // Create UI elements.
+	// Create UI elements.
 
-    energyControlEditor_ = new AMExtendedControlEditor(BioXASMainBeamline::bioXAS()->mono()->energyControl());
+	energyControlEditor_ = new AMExtendedControlEditor(BioXASMainBeamline::bioXAS()->mono()->energyControl());
 	energyControlEditor_->setTitle("Energy");
 	energyControlEditor_->setControlFormat('f', 2);
 
@@ -39,21 +39,43 @@ BioXASMainPersistentView::BioXASMainPersistentView(QWidget *parent) :
 	braggControlEditor_ = new AMExtendedControlEditor(BioXASMainBeamline::bioXAS()->mono()->braggMotor());
 	braggControlEditor_->setTitle("Bragg motor position");
 
+	calibrateEnergyButton_ = new QPushButton("Calibrate energy", this);
+
 	regionView_ = new BioXASSSRLMonochromatorRegionControlView(BioXASMainBeamline::bioXAS()->mono()->regionControl());
 
-    // Create and set layouts.
+	// Create and set layouts.
 
-    QVBoxLayout *layout = new QVBoxLayout();
-    layout->addWidget(energyControlEditor_);
+	QHBoxLayout *buttonLayout = new QHBoxLayout();
+	buttonLayout->addStretch();
+	buttonLayout->addWidget(calibrateEnergyButton_);
+
+	QVBoxLayout *layout = new QVBoxLayout();
+	layout->addWidget(energyControlEditor_);
 	layout->addWidget(regionControlEditor_);
 	layout->addWidget(braggControlEditor_);
+	layout->addLayout(buttonLayout);
 	layout->addWidget(regionView_);
-    layout->addStretch();
+	layout->addStretch();
 
-    setLayout(layout);
+	setLayout(layout);
+	setFixedWidth(300);
+
+	// Make connections
+
+	connect( calibrateEnergyButton_, SIGNAL(clicked()), this, SLOT(onCalibrateEnergyButtonClicked()) );
 }
 
 BioXASMainPersistentView::~BioXASMainPersistentView()
 {
 
+}
+
+void BioXASMainPersistentView::onCalibrateEnergyButtonClicked()
+{
+	bool inputOK = false;
+	double newEnergy = QInputDialog::getDouble(this, "Monochromator Energy Calibration", "Enter current calibrated energy:", BioXASMainBeamline::bioXAS()->mono()->energyControl()->value(), -100000000, 10000000, 1, &inputOK, Qt::Sheet);
+
+	if (inputOK) {
+		BioXASMainBeamline::bioXAS()->mono()->setEnergyCalibration(newEnergy);
+	}
 }

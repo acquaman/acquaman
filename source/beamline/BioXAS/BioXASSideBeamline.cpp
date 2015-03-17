@@ -782,6 +782,7 @@ void BioXASSideBeamline::setupControlsAsDetectors()
 void BioXASSideBeamline::setupExposedControls()
 {
 	addExposedControl(mono_->energyControl());
+	addExposedControl(mono_->regionControl());
 }
 
 void BioXASSideBeamline::setupExposedDetectors()

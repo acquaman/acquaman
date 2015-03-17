@@ -55,7 +55,7 @@ protected slots:
 	/// Handles updating the progress bar when the region control reports move progress has been made.
 	void onMoveProgressChanged(double numerator, double denominator);
 	/// Handles updating the moving view description and instruction when the region control reports the current step in the move has changed.
-	void onMoveStepChanged(const QString &newDescription, const QString &newInstruction);
+	void onMoveStepChanged(const QString &newDescription, const QString &newInstruction, const QString &newNotes);
 
 protected:
 	/// The region control being viewed.
@@ -68,6 +68,8 @@ protected:
 	QLabel *movingDescription_;
 	/// The label in the moving view that informs the user of an action they should take.
 	QLabel *movingInstruction_;
+	/// The label in the moving view that presents general notes related to the current step.
+	QLabel *movingNotes_;
 	/// The view displayed when the region control reports a move has failed.
 	QWidget *failedView_;
 	/// The label in the failed view that provides the failure explaination.

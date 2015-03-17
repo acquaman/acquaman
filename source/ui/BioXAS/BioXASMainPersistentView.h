@@ -25,6 +25,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QWidget>
 #include <QLayout>
 #include <QPushButton>
+#include <QInputDialog>
 
 #include "ui/BioXAS/BioXASSSRLMonochromatorRegionControlEditor.h"
 #include "ui/BioXAS/BioXASSSRLMonochromatorRegionControlView.h"
@@ -43,13 +44,19 @@ signals:
 
 public slots:
 
+protected slots:
+	/// Presents a view for the user to calibrate the mono energy.
+	void onCalibrateEnergyButtonClicked();
+
 protected:
 	/// Editor that selects the mono energy.
-    AMExtendedControlEditor *energyControlEditor_;
+	AMExtendedControlEditor *energyControlEditor_;
 	/// Editor that selects the mono region.
 	BioXASSSRLMonochromatorRegionControlEditor *regionControlEditor_;
 	/// Editor that selects the mono bragg position.
 	AMExtendedControlEditor *braggControlEditor_;
+	/// Button that allows the user to calibrate the mono energy when clicked.
+	QPushButton *calibrateEnergyButton_;
 	/// Editor that views mono components related to a region change.
 	BioXASSSRLMonochromatorRegionControlView *regionView_;
 };

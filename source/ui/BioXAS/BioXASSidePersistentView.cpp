@@ -29,13 +29,14 @@ BioXASSidePersistentView::BioXASSidePersistentView(QWidget *parent) :
 	// Create UI elements.
 
     energyControlEditor_ = new AMExtendedControlEditor(BioXASSideBeamline::bioXAS()->mono()->energyControl());
+    energyControlEditor_->setTitle("Energy");
     energyControlEditor_->setControlFormat('f', 2);
 
     regionControlEditor_ = new BioXASSSRLMonochromatorRegionControlEditor(BioXASSideBeamline::bioXAS()->mono()->regionControl());
     regionControlEditor_->setTitle("Region");
 
     braggControlEditor_ = new AMExtendedControlEditor(BioXASSideBeamline::bioXAS()->mono()->braggMotor());
-    braggControlEditor_->setTitle("Bragg motor");
+    braggControlEditor_->setTitle("Bragg motor position");
 
     calibrateEnergyButton_ = new QPushButton("Calibrate energy");
 
@@ -71,7 +72,7 @@ BioXASSidePersistentView::~BioXASSidePersistentView()
 void BioXASSidePersistentView::onCalibrateEnergyButtonClicked()
 {
 	bool inputOK = false;
-	double newEnergy = QInputDialog::getDouble(this, "Monochromator Energy Calibration", "Enter current calibrated energy:", BioXASSideBeamline::bioXAS()->mono()->energyControl()->value(), 0, 10000000, 1, &inputOK, Qt::Sheet);
+	double newEnergy = QInputDialog::getDouble(this, "Monochromator Energy Calibration", "Enter current calibrated energy:", BioXASSideBeamline::bioXAS()->mono()->energyControl()->value(), -10000000, 10000000, 1, &inputOK, Qt::Sheet);
 
 	if (inputOK) {
 		BioXASSideBeamline::bioXAS()->mono()->setEnergyCalibration(newEnergy);

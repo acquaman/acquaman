@@ -1,6 +1,5 @@
 #include "BioXASSSRLMonochromatorRegionControl.h"
 #include "BioXASSSRLMonochromator.h"
-#include <QDebug>
 
 BioXASSSRLMonochromatorRegionControl::BioXASSSRLMonochromatorRegionControl(QObject *parent) :
 	AMCompositeControl("RegionControl", "", parent, "BioXAS SSRL Monochromator Region Control")
@@ -28,10 +27,16 @@ BioXASSSRLMonochromatorRegionControl::BioXASSSRLMonochromatorRegionControl(QObje
 
 	// Initialize inherited variables.
 
-	setEnumStates(QStringList() << "None" << "A" << "B");
+	setEnumStates(QStringList() << "A" << "B" << "None");
 	setMoveEnumStates(QStringList() << "A" << "B");
 	setAllowsMovesWhileMoving(false);
 	setContextKnownDescription("Region Control");
+
+	// Make connections
+
+	connect( this, SIGNAL(connected(bool)), this, SIGNAL(enumChanged()) );
+	connect( this, SIGNAL(valueChanged(double)), this, SIGNAL(enumChanged()) );
+	connect( this, SIGNAL(setpointChanged(double)), this, SIGNAL(enumChanged()) );
 }
 
 BioXASSSRLMonochromatorRegionControl::~BioXASSSRLMonochromatorRegionControl()
@@ -105,25 +110,23 @@ AMControl::FailureExplanation BioXASSSRLMonochromatorRegionControl::move(double 
 	setSetpoint((int)setpoint);
 
 	if (!validRegionSetpoint(setpoint_)) {
-		qDebug() << "Destination" << regionStateToString(regionSetpointToState(setpoint_)) << "is not a valid control setpoint.";
 		return AMControl::LimitFailure;
 	}
 
 	// Resolve the given setpoint to a region state, create the appropriate action.
 
-	AMListAction3 *action = createChangeRegionAction(regionSetpointToState(setpoint_));
+	AMListAction3 *action = createChangeRegionAction(setpoint_);
 
 	// If a valid action was NOT generated, there must be some problem with one of the child controls.
 
 	if (!action) {
-		qDebug() << "Invalid crystal change action generated.";
 		return AMControl::LimitFailure;
 	}
 
 	// If a valid action was generated, make connections and run it.
 
-	connect( action, SIGNAL(progressChanged(double, double)), this, SIGNAL(moveProgressChanged(double, double)) );
-	connect( action, SIGNAL(currentSubActionChanged(int)), this, SLOT(onCurrentMoveStepChanged(int)) );
+	connect( action, SIGNAL(progressChanged(double, double)), this, SIGNAL(moveProgressChanged(double,double)) );
+	connect( action, SIGNAL(currentSubActionChanged(int)), this, SLOT(onActionStepChanged(int)) );
 	connect( action, SIGNAL(started()), this, SLOT(onRegionChangeStarted()) );
 	connect( action, SIGNAL(cancelled()), this, SLOT(onRegionChangeCancelled()) );
 	connect( action, SIGNAL(failed()), this, SLOT(onRegionChangeFailed()) );
@@ -285,21 +288,16 @@ void BioXASSSRLMonochromatorRegionControl::setRegionBStatusControl(AMControl *re
 void BioXASSSRLMonochromatorRegionControl::setValue(int newValue)
 {
 	if (value_ != newValue) {
-		qDebug() << "Updating region control value to " << regionStateToString(newValue);
-
 		value_ = newValue;
 		emit valueChanged(value_);
-		emit enumChanged();
 	}
 }
 
 void BioXASSSRLMonochromatorRegionControl::setSetpoint(int newSetpoint)
 {
 	if (setpoint_ != newSetpoint) {
-		qDebug() << "Updating region control setpoint to " << regionStateToString(regionSetpointToState(newSetpoint));
 		setpoint_ = newSetpoint;
 		emit setpointChanged(setpoint_);
-		emit enumChanged();
 	}
 }
 
@@ -309,20 +307,14 @@ void BioXASSSRLMonochromatorRegionControl::setMoveInProgress(bool isMoving)
 		moveInProgress_ = isMoving;
 		emit movingChanged(moveInProgress_);
 
-
-		if (moveInProgress_) {
-			qDebug() << "Updating move in progress: a control move has started.";
+		if (moveInProgress_)
 			emit moveStarted();
-		} else {
-			qDebug() << "Updating move in progress: a control move has finished.";
-		}
 	}
 }
 
-void BioXASSSRLMonochromatorRegionControl::onCurrentMoveStepChanged(int stepIndex)
+void BioXASSSRLMonochromatorRegionControl::onActionStepChanged(int stepIndex)
 {
-	qDebug() << "Executing crystal change step number" << stepIndex;
-	emit moveStepChanged(stepDescription(stepIndex), stepInstruction(stepIndex));
+	emit moveStepChanged(stepDescription(stepIndex), stepInstruction(stepIndex), stepNotes(stepIndex));
 }
 
 void BioXASSSRLMonochromatorRegionControl::onRegionControlValueChanged()
@@ -370,11 +362,7 @@ AMListAction3* BioXASSSRLMonochromatorRegionControl::createChangeRegionAction(in
 {
 	AMListAction3 *action = 0;
 
-	qDebug() << "About to create crystal change action from:" << regionStateToString(value_) << "to:" << regionStateToString(newRegion);
-
-	if (value_ != newRegion && validRegionSetpoint(newRegion)) {
-
-		qDebug() << "Creating crystal change action.";
+	if (value_ != newRegion && validRegionState(newRegion)) {
 
 		action = new AMListAction3(new AMListActionInfo3("CrystalChange", "BioXAS SSRL Mono Crystal Change Action"), AMListAction3::Sequential);
 		action->addSubAction(createCloseSlitsAction());
@@ -385,7 +373,7 @@ AMListAction3* BioXASSSRLMonochromatorRegionControl::createChangeRegionAction(in
 		action->addSubAction(createMoveCrystalChangeToRegionLimitAction(newRegion));
 		action->addSubAction(createWaitForBrakeEnabledAction());
 		action->addSubAction(createMoveBraggToRegionAction(newRegion));
-		action->addSubAction(createWaitForKeyDisabledAction());
+		action->addSubAction(createWaitForKeyDisabledAction());	
 	}
 
 	return action;
@@ -512,9 +500,6 @@ AMAction3* BioXASSSRLMonochromatorRegionControl::createWaitForBraggAtCrystalChan
 		setpoint.setValue(BioXASSSRLMonochromator::Bragg::InPosition);
 
 		action = new AMControlWaitAction(new AMControlWaitActionInfo(setpoint, TIMEOUT_BRAGG_MOTOR_LIMIT_REACHED, AMControlWaitActionInfo::MatchEqual), control);
-
-	} else {
-		qDebug() << "Action was not created: wait for bragg at crystal change position.";
 	}
 
 	return action;
@@ -570,7 +555,7 @@ AMAction3* BioXASSSRLMonochromatorRegionControl::createWaitForCrystalChangeAtCWL
 		AMWaitAction *wait = new AMWaitAction(new AMWaitActionInfo(TIMEOUT_CRYSTAL_CHANGE_MOVE_WAIT));
 		action->addSubAction(wait);
 
-		AMControlWaitAction *doubleCheck = new AMControlWaitAction(*limitReached);
+		AMControlWaitAction *doubleCheck = new AMControlWaitAction(new AMControlWaitActionInfo(setpoint, TIMEOUT_CRYSTAL_CHANGE_MOTOR_LIMIT_REACHED, AMControlWaitActionInfo::MatchEqual), control);
 		action->addSubAction(doubleCheck);
 	}
 
@@ -592,7 +577,7 @@ AMAction3* BioXASSSRLMonochromatorRegionControl::createWaitForCrystalChangeAtCCW
 		AMWaitAction *wait = new AMWaitAction(new AMWaitActionInfo(TIMEOUT_CRYSTAL_CHANGE_MOVE_WAIT));
 		action->addSubAction(wait);
 
-		AMControlWaitAction *doubleCheck = new AMControlWaitAction(*limitReached);
+		AMControlWaitAction *doubleCheck = new AMControlWaitAction(new AMControlWaitActionInfo(setpoint, TIMEOUT_CRYSTAL_CHANGE_MOTOR_LIMIT_REACHED, AMControlWaitActionInfo::MatchEqual), control);
 		action->addSubAction(doubleCheck);
 	}
 
@@ -682,8 +667,6 @@ AMAction3* BioXASSSRLMonochromatorRegionControl::createWaitForRegionChangedActio
 		action = createWaitForRegionChangedToAAction();
 	else if (regionDestination == BioXASSSRLMonochromator::Region::B)
 		action = createWaitForRegionChangedToBAction();
-	else
-		qDebug() << "Failed to create action: wait for region changed.";
 
 	return action;
 }
@@ -737,7 +720,7 @@ bool BioXASSSRLMonochromatorRegionControl::validRegionSetpoint(int regionSetpoin
 {
 	bool isValid = false;
 
-	if (regionSetpoint == BioXASSSRLMonochromatorRegionControl::Region::A || regionSetpoint == BioXASSSRLMonochromatorRegionControl::Region::B)
+	if (regionSetpoint == BioXASSSRLMonochromator::Region::A || regionSetpoint == BioXASSSRLMonochromator::Region::B)
 		isValid = true;
 
 	return isValid;
@@ -758,7 +741,7 @@ QString BioXASSSRLMonochromatorRegionControl::regionStateToString(int region)
 		result = "None";
 		break;
 	default:
-		result = "ERROR";
+		result = "";
 		break;
 	}
 
@@ -775,46 +758,6 @@ int BioXASSSRLMonochromatorRegionControl::stringToRegionState(const QString &str
 		result = BioXASSSRLMonochromator::Region::B;
 	else if (string == "None")
 		result = BioXASSSRLMonochromator::Region::None;
-
-	return result;
-}
-
-int BioXASSSRLMonochromatorRegionControl::regionSetpointToState(int regionSetpoint)
-{
-	int result;
-
-	switch (regionSetpoint) {
-	case BioXASSSRLMonochromatorRegionControl::Region::A:
-		result = BioXASSSRLMonochromator::Region::A;
-		break;
-	case BioXASSSRLMonochromatorRegionControl::Region::B:
-		result = BioXASSSRLMonochromator::Region::B;
-		break;
-	default:
-		qDebug() << "Region setpoint" << regionSetpoint << "does not correspond to a valid region state.";
-		result = -1;
-		break;
-	}
-
-	return result;
-}
-
-int BioXASSSRLMonochromatorRegionControl::regionStateToSetpoint(int regionState)
-{
-	int result;
-
-	switch (regionState) {
-	case BioXASSSRLMonochromator::Region::A:
-		result = Region::A;
-		break;
-	case BioXASSSRLMonochromator::Region::B:
-		result = Region::B;
-		break;
-	default:
-		qDebug() << "Region state" << regionState << "does not correspond to a valid region setpoint.";
-		result = -1;
-		break;
-	}
 
 	return result;
 }
@@ -867,16 +810,27 @@ QString BioXASSSRLMonochromatorRegionControl::stepInstruction(int stepIndex)
 		result = "Turn the crystal change key to 'Enabled,' counter-clockwise.";
 		break;
 	case WaitForBrakeDisabled:
-		result = "Flip the brake switch to 'Disabled.' There is a mandatory 30s wait after the switch is flipped before proceeding.";
+		result = "Flip the brake switch to 'Disabled.'";
 		break;
 	case WaitForBrakeEnabled:
-		result = "Flip the brake switch to 'Enabled.' There is a mandatory 30s wait after the switch is flipped before proceeding.";
+		result = "Flip the brake switch to 'Enabled.'";
 		break;
 	case WaitForKeyDisabled:
 		result = "Turn the crystal change key to 'Disabled,' clockwise.";
 		break;
 	default:
 		result = "";
+	}
+
+	return result;
+}
+
+QString BioXASSSRLMonochromatorRegionControl::stepNotes(int stepIndex)
+{
+	QString result = "";
+
+	if (stepIndex == WaitForBrakeDisabled || stepIndex == WaitForBrakeEnabled) {
+		result = "There is a mandatory 1m30s wait after the switch is flipped before proceeding.";
 	}
 
 	return result;

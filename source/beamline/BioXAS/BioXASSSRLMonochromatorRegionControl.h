@@ -32,8 +32,6 @@ class BioXASSSRLMonochromatorRegionControl : public AMCompositeControl
 	Q_OBJECT
 
 public:
-	/// Enum marking possible different region setpoints. This is a subset of all possible region states. \see BioXASSSRLMonochromator.
-	class Region { public: enum Setpoint { A = 0, B }; };
 	/// Enum marking possible different crystal change steps.
 	enum Step { CloseSlits = 0, RemovePaddle, WaitForKeyEnabled, MoveBraggIntoPosition, WaitForBrakeDisabled, MoveCrystalChangeIntoPosition, WaitForBrakeEnabled, MoveBraggIntoRegion, WaitForKeyDisabled, None };
 
@@ -83,16 +81,20 @@ public:
 	AMControl* braggAtCrystalChangePositionStatusControl() const { return braggAtCrystalChangePositionStatus_; }
 	/// Returns the crystal change control.
 	AMControl* crystalChangeControl() const { return crystalChange_; }
+	/// Returns the crystal change cw limit status control.
+	AMControl* crystalChangeCWLimitStatusControl() const { return crystalChangeCWLimitStatus_; }
+	/// Returns the crystal change ccw limit status control.
+	AMControl* crystalChangeCCWLimitStatusControl() const { return crystalChangeCCWLimitStatus_; }
 	/// Returns the region A status control.
 	AMControl* regionAStatusControl() const { return regionAStatus_; }
 	/// Returns the region B status control.
 	AMControl* regionBStatusControl() const { return regionBStatus_; }
 
 signals:
-	/// Notifier that there has been progress in completing a crystal change. Provides information suitable for a progress bar display.
+	/// Notifier that there has been progress in completing a crystal change.
 	void moveProgressChanged(double numerator, double denominator);
 	/// Notifier that the current step in a move has changed.
-	void moveStepChanged(const QString &newDescription, const QString &newInstruction);
+	void moveStepChanged(const QString &newDescription, const QString &newInstruction, const QString &newNotes);
 
 	/// Notifier that the slits status has changed.
 	void slitsStatusChanged(double status);
@@ -153,7 +155,7 @@ protected slots:
 	void setMoveInProgress(bool isMoving);
 
 	/// Handles emitting the appropriate signals when the current step in a move has changed.
-	void onCurrentMoveStepChanged(int stepIndex);
+	void onActionStepChanged(int stepIndex);
 	/// Handles updating the region value and emitting the value changed signal.
 	void onRegionControlValueChanged();
 	/// Called when the internal crystal change action has been started. Handles updating the moveInProgress_ member variable and emitting the moveInProgress() signal.
@@ -232,14 +234,12 @@ protected:
 	static QString regionStateToString(int region);
 	/// Returns the region state corresponding to the given string.
 	static int stringToRegionState(const QString &string);
-	/// Returns the region state corresponding to the given region setpoint.
-	static int regionSetpointToState(int regionSetpoint);
-	/// Returns the region setpoint corresponding to the given region state.
-	static int regionStateToSetpoint(int regionState);
 	/// Returns the description associated with the given step index. The step index is the index of an action in the crystal change list action.
 	static QString stepDescription(int stepIndex);
 	/// Returns the instruction associated with the given step index, an empty string if there is none. The step index in the index of an action in the crystal change list action.
 	static QString stepInstruction(int stepIndex);
+	/// Returns the notes associated with the given step index, an empty string if there is none.  The step index in the index of an action in the crystal change list action.
+	static QString stepNotes(int stepIndex);
 	/// Handles the region change cleanup: making sure moveInProgress_ is updated, we disconnect from crystal change action signals, and the action is queued for deletion.
 	void moveCleanup(QObject *action);
 

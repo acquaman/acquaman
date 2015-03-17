@@ -1,6 +1,5 @@
 #include "BioXASSSRLMonochromatorRegionControlEditor.h"
 #include "beamline/BioXAS/BioXASSSRLMonochromatorRegionControl.h"
-#include <QDebug>
 
 BioXASSSRLMonochromatorRegionControlEditor::BioXASSSRLMonochromatorRegionControlEditor(BioXASSSRLMonochromatorRegionControl *regionControl, QWidget *parent) :
 	AMExtendedControlEditor(regionControl, 0, false, false, parent)
@@ -17,14 +16,10 @@ BioXASSSRLMonochromatorRegionControlEditor::~BioXASSSRLMonochromatorRegionContro
 
 void BioXASSSRLMonochromatorRegionControlEditor::onRegionControlMoveStarted()
 {
-	qDebug() << "Checking to see if region control is connected.";
-
 	if (control_ && control_->isConnected()) {
-		qDebug() << "Region control is connected. Starting region change.";
-
 		BioXASSSRLMonochromatorRegionControlMovingView *movingView = new BioXASSSRLMonochromatorRegionControlMovingView(qobject_cast<BioXASSSRLMonochromatorRegionControl*>(control_), this);
-		movingView->setWindowFlags(Qt::Sheet);
 		movingView->setWindowModality(Qt::WindowModal);
+		movingView->setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
 		movingView->show();
 	}
 }
@@ -51,7 +46,7 @@ BioXASSSRLMonochromatorRegionControlMovingView::BioXASSSRLMonochromatorRegionCon
 	movingProgress_ = new QProgressBar();
 	movingDescription_ = new QLabel();
 	movingInstruction_ = new QLabel();
-	movingInstruction_->setWordWrap(true);
+	movingNotes_ = new QLabel();
 
 	failedView_ = new QWidget();
 	failedDescription_ = new QLabel();
@@ -68,6 +63,7 @@ BioXASSSRLMonochromatorRegionControlMovingView::BioXASSSRLMonochromatorRegionCon
 	movingLayout->addWidget(movingProgress_);
 	movingLayout->addWidget(movingDescription_);
 	movingLayout->addWidget(movingInstruction_);
+	movingLayout->addWidget(movingNotes_);
 
 	movingView_->setLayout(movingLayout);
 
@@ -127,7 +123,7 @@ void BioXASSSRLMonochromatorRegionControlMovingView::setRegionControl(BioXASSSRL
 			connect( regionControl_, SIGNAL(moveFailed(int)), this, SLOT(onMoveFailed(int)) );
 			connect( regionControl_, SIGNAL(moveSucceeded()), this, SLOT(onMoveSucceeded()) );
 			connect( regionControl_, SIGNAL(moveProgressChanged(double,double)), this, SLOT(onMoveProgressChanged(double, double)) );
-			connect( regionControl_, SIGNAL(moveStepChanged(QString, QString)), this, SLOT(onMoveStepChanged(QString, QString)) );
+			connect( regionControl_, SIGNAL(moveStepChanged(QString, QString, QString)), this, SLOT(onMoveStepChanged(QString, QString, QString)) );
 		}
 
 		onMoveStarted();
@@ -154,26 +150,32 @@ void BioXASSSRLMonochromatorRegionControlMovingView::onMoveSucceeded()
 
 void BioXASSSRLMonochromatorRegionControlMovingView::onMoveProgressChanged(double numerator, double denominator)
 {
-	movingProgress_->setValue(numerator);
+	movingProgress_->setValue((int)numerator);
 	movingProgress_->setMinimum(0);
-	movingProgress_->setMaximum(denominator);
+	movingProgress_->setMaximum((int)denominator);
 }
 
-void BioXASSSRLMonochromatorRegionControlMovingView::onMoveStepChanged(const QString &newDescription, const QString &newInstruction)
+void BioXASSSRLMonochromatorRegionControlMovingView::onMoveStepChanged(const QString &newDescription, const QString &newInstruction, const QString &newNotes)
 {
 	movingDescription_->setText(newDescription);
 
-	// we only display the instruction label if there is an instruction associated
-	// with this step.
+	// we only display the instructions if there is an instruction associated with this step.
 
 	if (newInstruction != "") {
 		movingInstruction_->setText(newInstruction);
-		movingInstruction_->updateGeometry();
 		movingInstruction_->show();
 
 	} else {
 		movingInstruction_->hide();
-		movingInstruction_->updateGeometry();
+	}
+
+	// we only display the notes if there are notes associated with this step.
+
+	if (newNotes != "") {
+		movingNotes_->setText(newNotes);
+		movingNotes_->show();
+	} else {
+		movingNotes_->hide();
 	}
 }
 

@@ -127,7 +127,7 @@ AMExtendedControlEditor::AMExtendedControlEditor(AMControl* control, AMControl* 
 			onUnitsChanged(control_->units());
 			onMotion(control_->isMoving());
 			if(control_->isEnum())
-				dialog_->setEnumNames(control_->enumNames());
+				dialog_->setEnumNames(control_->moveEnumNames());
 		}
 	}
 	if(statusTagControl_) {
@@ -237,8 +237,10 @@ void AMExtendedControlEditor::onEditStart() {
 	dialog_->setDoubleMaximum(control_->maximumValue());
 	dialog_->setDoubleMinimum(control_->minimumValue());
 
-	if(configureOnly_ && control_->isEnum() && control_->enumNames().contains(valueLabel_->text()))
-		dialog_->setDoubleValue(control_->enumNames().indexOf(valueLabel_->text()));
+	if(configureOnly_ && control_->isEnum() && control_->moveEnumNames().contains(valueLabel_->text()))
+		dialog_->setDoubleValue(control_->moveEnumNames().indexOf(valueLabel_->text()));
+	else if (control_->isEnum() && control_->moveEnumNames().contains(valueLabel_->text()))
+		dialog_->setDoubleValue(control_->moveEnumNames().indexOf(valueLabel_->text()));
 	else if(configureOnly_ && ! control_->isEnum()){
 		bool conversionOk = false;
 		double valueForText = valueLabel_->text().toDouble(&conversionOk);
@@ -379,6 +381,7 @@ void AMExtendedControlEditorStyledInputDialog::setLabelText(const QString& s) {
 }
 
 void AMExtendedControlEditorStyledInputDialog::setEnumNames(const QStringList &sl){
+
 	bool oldIsEnum = isEnum_;
 	if(sl.count() > 0)
 		isEnum_ = true;
