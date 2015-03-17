@@ -81,6 +81,8 @@ bool BioXASSSRLMonochromatorRegionControl::canMove() const
 		connected = isConnected();
 
 		canMove = (
+			!moveInProgress_ &&
+
 			upperSlit_->canMove() &&
 			lowerSlit_->canMove() &&
 			paddle_->canMove() &&
@@ -103,8 +105,7 @@ AMControl::FailureExplanation BioXASSSRLMonochromatorRegionControl::move(double 
 	if (!canMove())
 		return AMControl::LimitFailure;
 
-	// Now we can assume that the mono is not moving and is valid/connected.
-
+	// Now we can assume that the region control is ready for a crystal change.
 	// Update the saved setpoint value.
 
 	setSetpoint((int)setpoint);
