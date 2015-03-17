@@ -33,6 +33,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/CLS/CLSKeithley428.h"
 #include "beamline/CLS/CLSBasicCompositeScalerChannelDetector.h"
 #include "beamline/CLS/CLSMAXvMotor.h"
+#include "beamline/AMPVControl.h"
 
 #include "util/AMErrorMonitor.h"
 #include "util/AMBiHash.h"
@@ -465,6 +466,7 @@ protected:
 	BioXASPseudoMotorControl *m2PseudoLateral_;
 
 	BioXASPseudoMotorControl *monoPseudoEnergy_;
+	AMPVwStatusControl *monoBraggAngle_;
 };
 
 #endif // BIOXASSIDEBEAMLINE_H
