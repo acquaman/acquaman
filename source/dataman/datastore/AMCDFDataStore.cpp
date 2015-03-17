@@ -627,6 +627,39 @@ bool AMCDFDataStore::setAxisValue(int axisId, long axisIndex, AMNumber newValue)
 	return true;
 }
 
+bool AMCDFDataStore::setAxisValues(int axisId, long startAxisIndex, long endAxisIndex, double *inputData)
+{
+	if(readOnly_) {
+		AMErrorMon::debug(0, -4005, "AMCDFDataStore: Modifications are not allowed in read-only mode.");
+		return false;
+	}
+
+	if((unsigned)axisId >= (unsigned)axes_.count())
+		return false;	// invalid axis specified.
+
+#ifdef AM_ENABLE_BOUNDS_CHECKING
+	if((unsigned)startAxisIndex >= (unsigned)axes_.at(axisId).size || startAxisIndex >= endAxisIndex)
+		return false;
+#endif
+
+	if(axes_.at(axisId).isUniform)
+		return false;
+
+	long varNum = axisValueVarNums_.at(axisId);
+	if(varNum < 0) {
+		AMErrorMon::debug(0, -109, "AMCDFDataStore: Could not set axis value: there was no CDF variable stored for that axis. Please report this bug to the Acquaman developers.");
+		return false;
+	}
+
+	CDFstatus s = CDFhyperPutzVarData(cdfId_, varNum, startAxisIndex, (endAxisIndex-startAxisIndex+1), 1L, 0, 0, 0, inputData);
+	if(s < CDF_OK) {
+		AMErrorMon::debug(0, -108, "AMCDFDataStore: could not put to variable. Please report this bug to the Acquaman developers.");
+		return false;
+	}
+
+	return true;
+}
+
 bool AMCDFDataStore::beginInsertRowsImplementation(long numRows, long atRowIndex)
 {
 	if(readOnly_) {
@@ -1548,9 +1581,4 @@ bool AMCDFDataStore::flushToDisk()
 
 	return true;
 }
-
-
-
-
-
 

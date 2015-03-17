@@ -452,14 +452,14 @@ void AMStepScanActionController::prefillScanPoints()
 
 		if (scanRank == 2){
 
-			for (int j = 0; j < axisSizes.at(1); j++){
+			for (int i = 0, size = axisSizes.size(); i < size; i++){
 
-				for (int i = 0; i < axisSizes.at(0); i++){
+				QVector<double> axisData = QVector<double>(axisSizes.at(i), 0);
 
-					insertIndex = AMnDIndex(i, j);
-					scan_->rawData()->setAxisValue(0, insertIndex.i(), starts.at(0) + i*steps.at(0));
-					scan_->rawData()->setAxisValue(1, insertIndex.j(), starts.at(1) + j*steps.at(1));
-				}
+				for (int j = 0, jSize = axisSizes.size(); j < jSize; j++)
+					axisData[j] = starts.at(i) + j*steps.at(i);
+
+				scan_->rawData()->setAxisValues(i, 0, size-1, axisData.data());
 			}
 		}
 

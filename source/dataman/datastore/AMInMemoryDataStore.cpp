@@ -673,3 +673,22 @@ void AMInMemoryDataStore::valuesImplementationRecursive(const AMnDIndex &siStart
 		}
 	}
 }
+
+bool AMInMemoryDataStore::setAxisValues(int axisId, long startAxisIndex, long endAxisIndex, double *inputData)
+{
+	if((unsigned)axisId >= (unsigned)axes_.count())
+		return false;	// invalid axis specified.
+
+#ifdef AM_ENABLE_BOUNDS_CHECKING
+	if((unsigned)startAxisIndex >= (unsigned)axes_.at(axisId).size || startAxisIndex >= endAxisIndex)
+		return false;
+#endif
+
+	if(axes_.at(axisId).isUniform)
+		return false;
+
+	for (int i = 0, size = endAxisIndex-startAxisIndex+1; i < size; i++)
+		axisValues_[axisId][i+startAxisIndex] = AMNumber(inputData[i]);
+
+	return true;
+}

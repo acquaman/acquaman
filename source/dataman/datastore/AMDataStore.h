@@ -121,6 +121,8 @@ If you want to retrieve axes by name, \c axisDetails must contain a unique \c na
 	virtual bool setValue(const AMnDIndex& scanIndex, int measurementId, const AMnDIndex& measurementIndex, const AMNumber& newValue) = 0;
 	/// Set the independent variable along an axis \c axisId, at a specific scan point \c axisIndex. This is necessary after adding a row with beginInsertRows(), unless the axis scale is uniform. (See AMAxisInfo::isUniform).
 	virtual bool setAxisValue(int axisId, long axisIndex, AMNumber newValue) = 0;
+	/// Sets a set of independent varaibles along an axis \c axisId.
+	virtual bool setAxisValues(int axisId, long startAxisIndex, long endAxisIndex, double *inputData) = 0;
 
 
 	/// Performance optimization of axisValue().  This will provide all the axis values desired in a single call.  Requires the id of the axis and the range of axis values you request.  Lastly, you need to provide a valid pointer to accept the new data tha must have the necessary space to hold the requested data.

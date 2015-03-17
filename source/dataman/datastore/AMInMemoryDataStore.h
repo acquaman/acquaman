@@ -132,6 +132,8 @@ If you want to retrieve axes by name, \c axisDetails must contain a unique \c na
 
 	/// Set the independent variable along an axis \c axisId, at a specific scan point \c axisIndex. This is necessary after adding a "row" with beginInsertRows(), unless the axis scale is uniform. (See AMAxisInfo::isUniform).
 	virtual bool setAxisValue(int axisId, long axisIndex, AMNumber newValue);
+	/// Sets a set of independent varaibles along an axis \c axisId.
+	virtual bool setAxisValues(int axisId, long startAxisIndex, long endAxisIndex, double *inputData);
 
 
 protected:
