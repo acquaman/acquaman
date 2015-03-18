@@ -221,7 +221,7 @@ void MotorToolMainScreen::setupMotorsLayout(BioXASBeamlineDef::BioXASMotorType m
 					motorEditor = new AMExtendedControlEditor(pvWStatusControl);
 			}
 		} else {
-			CLSMAXvMotor * clsMAXvMotor = qobject_cast<CLSMAXvMotor *>matchedMotors[i];
+			CLSMAXvMotor * clsMAXvMotor = qobject_cast<CLSMAXvMotor *>(matchedMotors[i]);
 			if (clsMAXvMotor)
 				motorEditor = new BioXASCLSMAXvMotorControlEditor(clsMAXvMotor, clsMAXvMotor->statusPVControl());
 		}
