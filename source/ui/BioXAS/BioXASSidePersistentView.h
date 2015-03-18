@@ -29,6 +29,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "ui/BioXAS/BioXASSSRLMonochromatorRegionControlEditor.h"
 #include "ui/BioXAS/BioXASSSRLMonochromatorRegionControlView.h"
+#include "ui/BioXAS/BioXASSSRLMonochromatorConfigurationView.h"
 
 class BioXASSidePersistentView : public QWidget
 {
@@ -56,8 +57,6 @@ protected:
 	AMExtendedControlEditor *braggControlEditor_;
 	/// Button that allows the user to calibrate the mono energy when clicked.
 	QPushButton *calibrateEnergyButton_;
-	/// General status view for mono components related to a crystal change.
-	BioXASSSRLMonochromatorRegionControlView *regionView_;
 };
 
 #endif // BIOXASSIDEPERSISTENTVIEW_H

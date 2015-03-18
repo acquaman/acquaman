@@ -49,6 +49,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/BioXAS/BioXASMainXASScanConfigurationView.h"
 #include "ui/acquaman/AMScanConfigurationViewHolder3.h"
 #include "dataman/AMScanAxisEXAFSRegion.h"
+#include "ui/BioXAS/BioXASSSRLMonochromatorConfigurationView.h"
 
 BioXASMainAppController::BioXASMainAppController(QObject *parent)
 	: AMAppController(parent)
@@ -174,14 +175,17 @@ void BioXASMainAppController::setupUserInterface()
 
 	mw_->insertHeading("General", 0);
 
+	// Create mono configuration view and add to 'General' category.
+	monoConfigView_ = new BioXASSSRLMonochromatorConfigurationView(BioXASMainBeamline::bioXAS()->mono());
+	mw_->addPane(monoConfigView_, "General", "Mono", ":/system-software-update.png");
+
 	mw_->insertHeading("Detectors", 1);
 
 	mw_->insertHeading("Scans", 2);
 
-    persistentPanel_ = new BioXASMainPersistentView();
-    persistentPanel_->setMaximumWidth(300);
-    mw_->addRightWidget(persistentPanel_);
-
+	// Create persistent view panel and add to right side.
+	persistentPanel_ = new BioXASMainPersistentView();
+	mw_->addRightWidget(persistentPanel_);
 }
 
 void BioXASMainAppController::makeConnections()

@@ -3,7 +3,7 @@
 #include "beamline/BioXAS/BioXASSSRLMonochromatorRegionControl.h"
 
 BioXASSSRLMonochromatorRegionControlView::BioXASSSRLMonochromatorRegionControlView(BioXASSSRLMonochromatorRegionControl *regionControl, QWidget *parent) :
-	QGroupBox(parent)
+	QWidget(parent)
 {
 	// Initialize member variables.
 
@@ -15,7 +15,7 @@ BioXASSSRLMonochromatorRegionControlView::BioXASSSRLMonochromatorRegionControlVi
 	slitsStatusGreen_ = new QLabel();
 	slitsStatusRed_ = new QLabel();
 
-	QLabel *paddleStatusPrompt = new QLabel ("Paddle status:");
+	QLabel *paddleStatusPrompt = new QLabel("Paddle status:");
 	paddleStatusGreen_ = new QLabel();
 	paddleStatusRed_ = new QLabel();
 
@@ -44,7 +44,6 @@ BioXASSSRLMonochromatorRegionControlView::BioXASSSRLMonochromatorRegionControlVi
 	statusLayout->addWidget(brakeStatusRed_, 3, 2, 1, 1, Qt::AlignCenter);
 
 	setLayout(statusLayout);
-	setFlat(true);
 
 	// Initial settings.
 

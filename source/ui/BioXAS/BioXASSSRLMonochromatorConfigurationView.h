@@ -1,12 +1,18 @@
 #ifndef BIOXASSSRLMONOCHROMATORCONFIGURATIONVIEW_H
 #define BIOXASSSRLMONOCHROMATORCONFIGURATIONVIEW_H
 
-#include <QWidget>
+#include <QGroupBox>
 #include <QDoubleSpinBox>
 #include <QComboBox>
 #include <QLayout>
+#include <QLabel>
 
 #include "beamline/BioXAS/BioXASSSRLMonochromator.h"
+#include "ui/BioXAS/BioXASSSRLMonochromatorRegionControlView.h"
+#include "ui/BioXAS/BioXASSSRLMonochromatorRegionControlEditor.h"
+
+#define BRAGG_OFFSET_MIN -1000
+#define BRAGG_OFFSET_MAX 1000
 
 class BioXASSSRLMonochromatorConfigurationView : public QWidget
 {
@@ -17,6 +23,9 @@ public:
 	explicit BioXASSSRLMonochromatorConfigurationView(BioXASSSRLMonochromator *mono, QWidget *parent = 0);
 	/// Destructor.
 	virtual ~BioXASSSRLMonochromatorConfigurationView();
+
+	/// Returns the mono being viewed.
+	BioXASSSRLMonochromator* mono() const { return mono_; }
 
 signals:
 	/// Notifier that the mono being viewed has changed.
@@ -34,10 +43,25 @@ protected slots:
 	/// Updates the view when the bragg motor settling time has changed.
 	void onBraggMotorSettlingTimeChanged();
 
+	/// Clears UI elements of mono-specific settings. Leaves the view looking as it should if there was no valid mono provided.
+	void clearUI();
+	/// Initializes UI elements with mono-specific settings.
+	void initializeUI();
+	/// Clears and re-initializes the UI elements.
+	void refreshUI();
+
 protected:
 	/// The mono being viewed.
 	BioXASSSRLMonochromator *mono_;
 
+	// The region editor.
+	BioXASSSRLMonochromatorRegionControlEditor *regionEditor_;
+	// The energy editor.
+	AMExtendedControlEditor *energyEditor_;
+	/// The bragg motor position editor.
+	AMExtendedControlEditor *braggMotorEditor_;
+	/// The region status display.
+	BioXASSSRLMonochromatorRegionControlView *regionStatusWidget_;
 	/// Display for the bragg motor degree offset.
 	QDoubleSpinBox *braggOffset_;
 	/// Display for the bragg motor encoder move type.

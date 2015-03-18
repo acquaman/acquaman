@@ -8,7 +8,7 @@
 
 class BioXASSSRLMonochromatorRegionControl;
 
-class BioXASSSRLMonochromatorRegionControlView : public QGroupBox
+class BioXASSSRLMonochromatorRegionControlView : public QWidget
 {
 	Q_OBJECT
 

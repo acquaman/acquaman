@@ -50,6 +50,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/AMScanAxisEXAFSRegion.h"
 #include "ui/BioXAS/BioXAS32ElementGeDetectorView.h"
 #include "acquaman/BioXAS/BioXASXRFScanConfiguration.h"
+#include "ui/BioXAS/BioXASSSRLMonochromatorConfigurationView.h"
 
 BioXASSideAppController::BioXASSideAppController(QObject *parent)
 	: AMAppController(parent)
@@ -176,28 +177,40 @@ void BioXASSideAppController::setupExporterOptions()
 
 void BioXASSideAppController::setupUserInterface()
 {
-	// Create panes in the main window:
-	////////////////////////////////////
+	// Create UI elements:
+	//////////////////////
 
-	mw_->insertHeading("General", 0);
+	// Set up the general monochromator configuration view.
+	monoConfigView_ = new BioXASSSRLMonochromatorConfigurationView(BioXASSideBeamline::bioXAS()->mono());
 
-	mw_->insertHeading("Detectors", 1);
-
-
+	// Create scaler view, if scaler is present and connected.
 	if (BioXASSideBeamline::bioXAS()->scaler()->isConnected()) {
 		onScalerConnected();
 	}
 
+	// Create the 32 element Ge detector view.
 	BioXAS32ElementGeDetectorView *view = new BioXAS32ElementGeDetectorView(BioXASSideBeamline::bioXAS()->ge32ElementDetector());
 	view->buildDetectorView();
 	view->addEmissionLineNameFilter(QRegExp("1"));
 	view->addPileUpPeakNameFilter(QRegExp("(K.1|L.1|Ma1)"));
+
+	// Create right side panel.
+	persistentPanel_ = new BioXASSidePersistentView();
+
+	// Add views to 'General'.
+	mw_->insertHeading("General", 0);
+	mw_->addPane(monoConfigView_, "General", "Mono", ":/system-software-update.png");
+
+	// Add views to 'Detectors'.
+	mw_->insertHeading("Detectors", 1);
 	mw_->addPane(view, "Detectors", "Ge 32-el", ":/system-search.png");
 
+	// Add views to 'Scans'.
 	mw_->insertHeading("Scans", 2);
 
-    persistentPanel_ = new BioXASSidePersistentView();
-    mw_->addRightWidget(persistentPanel_);
+	// Add right side panel.
+
+	mw_->addRightWidget(persistentPanel_);
 }
 
 void BioXASSideAppController::makeConnections()
