@@ -28,7 +28,7 @@ class SXRMBXRFScanConfiguration : public AMScanConfiguration
 {
 	Q_OBJECT
 
-	Q_CLASSINFO("AMDbObject_Attributes", "description=VESPERS XRF Scan Configuration")
+	Q_CLASSINFO("AMDbObject_Attributes", "description=SXRMB XRF Scan Configuration")
 
 public:
 	/// Default constructor.
