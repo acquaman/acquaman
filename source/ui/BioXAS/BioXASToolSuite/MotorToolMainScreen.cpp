@@ -210,7 +210,7 @@ void MotorToolMainScreen::setupMotorsLayout(BioXASBeamlineDef::BioXASMotorType m
 
 	bool pseudoMotor = BioXASBeamlineDef::isPseudoMotor(motorType);//(motorType >= BioXASBeamlineDef::PseudoFilterMotor && motorType <= BioXASBeamlineDef::PseudoM2Motor);
 	for (int i = 0; i < matchedMotors.size(); i++) {
-		AMExtendedControlEditor *motorEditor;
+		AMExtendedControlEditor *motorEditor = 0;
 		if (pseudoMotor) {
 			BioXASPseudoMotorControl * clsPseudoMotor = qobject_cast<BioXASPseudoMotorControl*>(matchedMotors[i]);
 			if(clsPseudoMotor)
