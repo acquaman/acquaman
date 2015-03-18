@@ -147,6 +147,7 @@ void BioXASSSRLMonochromatorBraggConfigurationView::setBraggMotor(CLSMAXvMotor *
 			connect( braggMotor_, SIGNAL(connected(bool)), this, SLOT(onBraggMotorConnectedChanged()) );
 			connect( braggMotor_, SIGNAL(EGUOffsetChanged(double)), this, SLOT(onBraggMotorOffsetChanged()) );
 			connect( braggMotor_, SIGNAL(encoderMovementTypeChanged(CLSMAXvMotor::EncoderMovementType)), this, SLOT(onBraggMotorEncoderMoveTypeChanged()) );
+			connect( braggMotor_, SIGNAL(settlingTimeChanged(double)), this, SLOT(onBraggMotorSettlingTimeChanged()) );
 		}
 
 		onBraggMotorConnectedChanged();
@@ -182,6 +183,11 @@ void BioXASSSRLMonochromatorBraggConfigurationView::initializeUI()
 		braggEncoderMoveType_->addItem("Increase");
 		braggEncoderMoveType_->addItem("Decrease");
 		braggEncoderMoveType_->setCurrentIndex(braggMotor_->encoderMovementType());
+
+		braggSettlingTime_->setEnabled(true);
+		braggSettlingTime_->setMinimum(BRAGG_SETTLING_TIME_MIN);
+		braggSettlingTime_->setMaximum(BRAGG_SETTLING_TIME_MAX);
+		braggSettlingTime_->setValue(braggMotor_->settlingTime());
 	}
 }
 
@@ -212,7 +218,9 @@ void BioXASSSRLMonochromatorBraggConfigurationView::onBraggMotorEncoderMoveTypeC
 
 void BioXASSSRLMonochromatorBraggConfigurationView::onBraggMotorSettlingTimeChanged()
 {
-
+	if (braggMotor_ && braggMotor_->isConnected()) {
+		braggSettlingTime_->setValue(braggMotor_->settlingTime());
+	}
 }
 
 void BioXASSSRLMonochromatorBraggConfigurationView::setBraggMotorOffset(double newValue)
@@ -249,5 +257,7 @@ void BioXASSSRLMonochromatorBraggConfigurationView::setBraggMotorEncoderMovement
 
 void BioXASSSRLMonochromatorBraggConfigurationView::setBraggMotorSettlingTime(double newTime)
 {
-	Q_UNUSED(newTime)
+	if (braggMotor_) {
+		braggMotor_->setSettlingTime(newTime);
+	}
 }

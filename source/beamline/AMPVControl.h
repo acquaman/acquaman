@@ -610,7 +610,7 @@ public slots:
 	void setMoveStartTimeout(double seconds) { moveStartTimeout_ = seconds; }
 
 	/// Set the settling time that is allowed after the hardware reports "move done", in seconds. \see settlingTime().
-	void setSettlingTime(double seconds) { settlingTime_ = seconds; }
+	void setSettlingTime(double seconds) { settlingTime_ = seconds; emit settlingTimeChanged(settlingTime_); }
 
 
 signals:
@@ -619,6 +619,8 @@ signals:
 	/// Signals changes in writePVValue().
 	/*! Normally we expect that only this program is changing the setpoint and causing motion, using move().  If someone else changes the writePV (setpoint PV), this will signal you with the new value.*/
 	void setpointChanged(double);
+	/// Notifier that the settling time has changed.
+	void settlingTimeChanged(double seconds);
 
 protected:
 	/// This PV is used for the setpoint:

@@ -13,6 +13,8 @@
 
 #define BRAGG_OFFSET_MIN -1000
 #define BRAGG_OFFSET_MAX 1000
+#define BRAGG_SETTLING_TIME_MIN -1000
+#define BRAGG_SETTLING_TIME_MAX 1000
 
 class BioXASSSRLMonochromatorBraggConfigurationView;
 
@@ -40,6 +42,7 @@ public slots:
 protected:
 	/// The mono being viewed.
 	BioXASSSRLMonochromator *mono_;
+
 	/// The region status display.
 	BioXASSSRLMonochromatorRegionControlView *regionStatusWidget_;
 	/// The bragg configuration view.
