@@ -212,6 +212,7 @@ QList<AMControl *> BioXASSideBeamline::getMotorsByType(BioXASBeamlineDef::BioXAS
 
 	case BioXASBeamlineDef::PseudoMonoMotor: // BioXAS Pseudo Mono motor
 		matchedMotors.append(monoPseudoEnergy_);
+		matchedMotors.append(monoBraggAngle_);
 		break;
 
 	default:
@@ -621,6 +622,7 @@ void BioXASSideBeamline::setupMotorGroup()
 
 	// BioXAS Mono Pseudo motors					   name,				   pvBaseName,				readPVname,	writePVname, movingPVname,	enabledPVname, stopPVname, tolerance, moveStartTimeoutSeconds, statusChecker, stopValue, description, parent = 0
 	monoPseudoEnergy_ = new BioXASPseudoMotorControl("BL1607-5-I22 Side Mono Energy", "BL1607-5-I22:Energy", ":EV:fbk", ":EV", ":status", ":enabled", ":stop");
+	monoBraggAngle_ = new AMPVwStatusControl("BL1607-5-I22 Side Mono Bragg Angle", "BL1607-5-I22:Energy:EV:fbk:tr.K", "BL1607-5-I22:Energy:EV:sp:tr.E", "BL1607-5-I22:Energy:status", "BL1607-5-I22:Energy:stop", this, 0.05);
 }
 
 void BioXASSideBeamline::setupDetectors()

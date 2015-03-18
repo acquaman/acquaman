@@ -212,8 +212,15 @@ void MotorToolMainScreen::setupMotorsLayout(BioXASBeamlineDef::BioXASMotorType m
 	for (int i = 0; i < matchedMotors.size(); i++) {
 		AMExtendedControlEditor *motorEditor;
 		if (pseudoMotor) {
-			BioXASPseudoMotorControl * clsPseudoMotor = (BioXASPseudoMotorControl *)matchedMotors[i];
-			motorEditor = new BioXASPseudoMotorControlEditor(clsPseudoMotor, clsPseudoMotor->statusPVControl());
+//			BioXASPseudoMotorControl * clsPseudoMotor = (BioXASPseudoMotorControl *)matchedMotors[i];
+			BioXASPseudoMotorControl * clsPseudoMotor = qobject_cast<BioXASPseudoMotorControl*>(matchedMotors[i]);
+			if(clsPseudoMotor)
+				motorEditor = new BioXASPseudoMotorControlEditor(clsPseudoMotor, clsPseudoMotor->statusPVControl());
+			else{
+				AMPVwStatusControl *pvWStatusControl = qobject_cast<AMPVwStatusControl*>(matchedMotors[i]);
+				if(pvWStatusControl)
+					motorEditor = new AMExtendedControlEditor(pvWStatusControl);
+			}
 		} else {
 			CLSMAXvMotor * clsMAXvMotor = (CLSMAXvMotor *)matchedMotors[i];
 			motorEditor = new BioXASCLSMAXvMotorControlEditor(clsMAXvMotor, clsMAXvMotor->statusPVControl());
