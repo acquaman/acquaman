@@ -19,8 +19,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#ifndef VESPERSXRFSCANCONFIGURATION_H
-#define VESPERSXRFSCANCONFIGURATION_H
+#ifndef SXRMBXRFSCANCONFIGURATION_H
+#define SXRMBXRFSCANCONFIGURATION_H
 
 #include "acquaman/AMScanConfiguration.h"
 
@@ -58,4 +58,4 @@ public slots:
 protected:
 };
 
-#endif // VESPERSXRFSCANCONFIGURATION_H
+#endif // SXRMBXRFSCANCONFIGURATION_H
