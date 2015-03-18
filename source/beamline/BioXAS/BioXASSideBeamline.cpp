@@ -308,7 +308,7 @@ void BioXASSideBeamline::onValveError()
 
 			AMReadOnlyPVwStatusControl *first = qobject_cast<AMReadOnlyPVwStatusControl *>(valveSet_->at(i));
 
-			if (first && first->isMoving()) // Closed is 0.
+			if (first && first->isMoving())
 				error += QString("%1 (%2)\n").arg(first->name()).arg(first->movingPVName());
 		}
 
@@ -316,7 +316,7 @@ void BioXASSideBeamline::onValveError()
 
 			current = qobject_cast<CLSBiStateControl *>(valveSet_->at(i));
 
-			if (current && current->state() == 0) // Closed is 0.
+			if (current && current->isClosed())
 				error += QString("%1 (%2)\n").arg(current->name()).arg(current->statePVName());
 		}
 	}
