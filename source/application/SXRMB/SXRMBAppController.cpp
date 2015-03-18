@@ -25,6 +25,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "application/AMAppControllerSupport.h"
 #include "application/SXRMB/SXRMB.h"
+#include "acquaman/SXRMB/SXRMBXRFScanConfiguration.h"
 #include "acquaman/SXRMB/SXRMBEXAFSScanConfiguration.h"
 
 #include "beamline/CLS/CLSBeamlines.h"
@@ -51,7 +52,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/dataman/AMGenericScanEditor.h"
 #include "ui/acquaman/AMScanConfigurationViewHolder3.h"
 #include "ui/CLS/CLSSIS3820ScalerView.h"
-#include "ui/util/AMMessageBoxWTimeout.h"
 #include "ui/acquaman/SXRMB/SXRMBOxidationMapScanConfigurationViewHolder.h"
 #include "ui/SXRMB/SXRMBXRFDetailedDetectorView.h"
 #include "ui/SXRMB/SXRMBPersistentView.h"
@@ -198,9 +198,7 @@ void SXRMBAppController::onBeamlineConnected(bool connected)
 void SXRMBAppController::onBeamControlShuttersTimeout()
 {
 	QString errorMessage = "One (several) Beamline Valve/PSH shutter(s) can't be connected. Please contact beamline staff. This might affect your usage of Acuqaman.";
-	AMErrorMon::alert(this, SXRMB::ErrorSXRMBBeamlineShuttersTimeout, errorMessage);
-
-	AMMessageBoxWTimeout::showMessageWTimeout("Warning", errorMessage);
+	AMErrorMon::alert(this, SXRMB::ErrorSXRMBBeamlineShuttersTimeout, errorMessage, true);
 }
 
 void SXRMBAppController::onBeamAvailabilityChanged(bool beamAvailable)
@@ -245,6 +243,7 @@ void SXRMBAppController::onScalerConnected(bool isConnected){
 void SXRMBAppController::registerClasses()
 {
 	AMDbObjectSupport::s()->registerClass<SXRMBScanConfigurationDbObject>();
+	AMDbObjectSupport::s()->registerClass<SXRMBXRFScanConfiguration>();
 	AMDbObjectSupport::s()->registerClass<SXRMBEXAFSScanConfiguration>();
 	AMDbObjectSupport::s()->registerClass<SXRMB2DMapScanConfiguration>();
 	AMDbObjectSupport::s()->registerClass<SXRMBUserConfiguration>();

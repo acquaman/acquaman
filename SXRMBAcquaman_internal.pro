@@ -10,6 +10,7 @@ HEADERS += \
 	source/beamline/SXRMB/SXRMBBeamline.h \
 	source/beamline/SXRMB/SXRMBBrukerDetector.h \
 	source/acquaman/SXRMB/SXRMBXRFScanConfiguration.h \
+	source/acquaman/SXRMB/SXRMBXRFScanController.h \
 	source/acquaman/SXRMB/SXRMBEXAFSScanConfiguration.h \
 	source/acquaman/SXRMB/SXRMBEXAFSScanActionController.h \
 	source/acquaman/SXRMB/SXRMB2DMapScanConfiguration.h \
@@ -32,6 +33,7 @@ SOURCES += \
 	source/beamline/SXRMB/SXRMBBeamline.cpp \
 	source/beamline/SXRMB/SXRMBBrukerDetector.cpp \
 	source/acquaman/SXRMB/SXRMBXRFScanConfiguration.cpp \
+	source/acquaman/SXRMB/SXRMBXRFScanController.cpp \
 	source/acquaman/SXRMB/SXRMBEXAFSScanConfiguration.cpp \
 	source/acquaman/SXRMB/SXRMBEXAFSScanActionController.cpp \
 	source/acquaman/SXRMB/SXRMB2DMapScanConfiguration.cpp \

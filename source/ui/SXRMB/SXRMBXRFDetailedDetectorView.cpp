@@ -46,6 +46,7 @@ void SXRMBXRFDetailedDetectorView::onDeadTimeChanged()
 
 void SXRMBXRFDetailedDetectorView::onSaveButtonClicked()
 {
+
 	if(!chooseScanDialog_) {
 		chooseScanDialog_ = new AMChooseScanDialog(AMDatabase::database("user"), "Choose XRF Spectrum...", "Choose the XRF Spectrum you want to export.", true, this);
 		chooseScanDialog_->setAttribute(Qt::WA_DeleteOnClose, false);
@@ -57,14 +58,17 @@ void SXRMBXRFDetailedDetectorView::onSaveButtonClicked()
 	chooseScanDialog_->show();
 }
 
-
 void SXRMBXRFDetailedDetectorView::exportScan()
 {
 	QList<AMScan *> scans;
 
 	foreach (QUrl scanUrl, chooseScanDialog_->getSelectedScans()){
-
 		AMScan *scan = AMScan::createFromDatabaseUrl(scanUrl, false);
+		if (!scan) {
+			QString errorMessage = QString("Failed to open AMScan for %1").arg(scanUrl.toString());
+			AMErrorMon::alert(this, SXRMB::ErrorSXRMBBeamlineXRFDetectorScanNotExist, errorMessage);
+			return;
+		}
 
 		QString scanName = AMLineEditDialog::retrieveAnswer("Choose a scan name...",
 															"Please choose the name you wish to name the scan.",

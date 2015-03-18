@@ -20,7 +20,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 
 #include "SXRMBXRFScanConfiguration.h"
-//#include "acquaman/VESPERS/VESPERSXRFScanController.h"
+#include "acquaman/SXRMB/SXRMBXRFScanController.h"
 
 SXRMBXRFScanConfiguration::SXRMBXRFScanConfiguration(QObject *parent)
 	: AMScanConfiguration(parent)
@@ -48,8 +48,7 @@ AMScanConfiguration *SXRMBXRFScanConfiguration::createCopy() const
 
 AMScanController *SXRMBXRFScanConfiguration::createController()
 {
-//	return new VESPERSXRFScanController(this);
-	return 0;
+	return new SXRMBXRFScanController(this);
 }
 
 QString SXRMBXRFScanConfiguration::detailedDescription() const

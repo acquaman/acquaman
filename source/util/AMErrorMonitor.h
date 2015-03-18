@@ -29,6 +29,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QMutex>
 #include <QReadWriteLock>
 
+#include "ui/util/AMMessageBoxWTimeout.h"
+
 /// This class encapsulates an error message (who it's from, the level or "severity", an error code defined by the originator, and a description)
 /*! Error levels are defined as:
 
@@ -161,9 +163,11 @@ public:
 	}
 
 	/// Report an alert level AMErrorReport.  Builds an AMErrorReport using the information provided. This function is thread-safe.
-	static void alert(const QObject *src = 0, int code = 0, const QString &desc = "")
+	static void alert(const QObject *src = 0, int code = 0, const QString &desc = "", bool showWarningMessage=false)
 	{
 		mon()->reportF(AMErrorReport(src, AMErrorReport::Alert, code, desc));
+		if(showWarningMessage)
+			AMMessageBoxWTimeout::showMessageWTimeout("Warning", desc);
 	}
 
 	/// Report an alert level AMErrorReport and return either true or false (false by default). Builds an AMErrorReport using the information provided. This function is thread-safe.
