@@ -271,7 +271,7 @@ void BioXASSideBeamline::onPressureError()
 
 		current = qobject_cast<AMReadOnlyPVwStatusControl *>(pressureSet_->at(i));
 
-		if (current->isMoving())
+		if (current && current->isMoving())
 			error += tr("%1 (%2) %3 %4\n").arg(current->name()).arg(current->readPVName()).arg(current->value(), 0, 'e', 3).arg(current->units());
 	}
 
@@ -308,7 +308,7 @@ void BioXASSideBeamline::onValveError()
 
 			AMReadOnlyPVwStatusControl *first = qobject_cast<AMReadOnlyPVwStatusControl *>(valveSet_->at(i));
 
-			if (first->isMoving()) // Closed is 0.
+			if (first && first->isMoving()) // Closed is 0.
 				error += QString("%1 (%2)\n").arg(first->name()).arg(first->movingPVName());
 		}
 
@@ -316,7 +316,7 @@ void BioXASSideBeamline::onValveError()
 
 			current = qobject_cast<CLSBiStateControl *>(valveSet_->at(i));
 
-			if (current->state() == 0) // Closed is 0.
+			if (current && current->state() == 0) // Closed is 0.
 				error += QString("%1 (%2)\n").arg(current->name()).arg(current->statePVName());
 		}
 	}
@@ -352,7 +352,7 @@ void BioXASSideBeamline::onIonPumpError()
 
 		current = qobject_cast<AMReadOnlyPVControl *>(ionPumpSet_->at(i));
 
-		if (!current->value())
+		if (current && !current->value())
 			error += tr("%1 (%2)\n").arg(current->name()).arg(current->readPVName());
 	}
 
@@ -389,7 +389,7 @@ void BioXASSideBeamline::onFlowTransducerError()
 
 		current = qobject_cast<AMReadOnlyPVwStatusControl *>(flowTransducerSet_->at(i));
 
-		if (current->isMoving())
+		if (current && current->isMoving())
 			error += tr("%1 (%2) %3 %4\n").arg(current->name()).arg(current->readPVName()).arg(current->value(), 0, 'e', 3).arg(current->units());
 	}
 
@@ -424,7 +424,7 @@ void BioXASSideBeamline::onFlowSwitchError()
 
 		current = qobject_cast<AMReadOnlyPVControl *>(flowSwitchSet_->at(i));
 
-		if (!current->value())
+		if (current && !current->value())
 			error += tr("%1 (%2)\n").arg(current->name()).arg(current->readPVName());
 	}
 
@@ -461,7 +461,7 @@ void BioXASSideBeamline::onTemperatureError()
 
 		current = qobject_cast<AMReadOnlyPVwStatusControl *>(temperatureSet_->at(i));
 
-		if (current->isMoving())
+		if (current && current->isMoving())
 			error += tr("%1 (%2) %3 %4\n").arg(current->name()).arg(current->readPVName()).arg(current->value(), 0, 'e', 3).arg(current->units());
 	}
 

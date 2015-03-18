@@ -212,7 +212,6 @@ void MotorToolMainScreen::setupMotorsLayout(BioXASBeamlineDef::BioXASMotorType m
 	for (int i = 0; i < matchedMotors.size(); i++) {
 		AMExtendedControlEditor *motorEditor;
 		if (pseudoMotor) {
-//			BioXASPseudoMotorControl * clsPseudoMotor = (BioXASPseudoMotorControl *)matchedMotors[i];
 			BioXASPseudoMotorControl * clsPseudoMotor = qobject_cast<BioXASPseudoMotorControl*>(matchedMotors[i]);
 			if(clsPseudoMotor)
 				motorEditor = new BioXASPseudoMotorControlEditor(clsPseudoMotor, clsPseudoMotor->statusPVControl());
@@ -222,12 +221,15 @@ void MotorToolMainScreen::setupMotorsLayout(BioXASBeamlineDef::BioXASMotorType m
 					motorEditor = new AMExtendedControlEditor(pvWStatusControl);
 			}
 		} else {
-			CLSMAXvMotor * clsMAXvMotor = (CLSMAXvMotor *)matchedMotors[i];
-			motorEditor = new BioXASCLSMAXvMotorControlEditor(clsMAXvMotor, clsMAXvMotor->statusPVControl());
+			CLSMAXvMotor * clsMAXvMotor = qobject_case<CLSMAXvMotor *>matchedMotors[i];
+			if (clsMAXvMotor)
+				motorEditor = new BioXASCLSMAXvMotorControlEditor(clsMAXvMotor, clsMAXvMotor->statusPVControl());
 		}
 
-		motorEditor->setControlFormat('f', 4);
-		pvLayoutBox->addWidget(motorEditor);
+		if (motorEditor) {
+			motorEditor->setControlFormat('f', 4);
+			pvLayoutBox->addWidget(motorEditor);
+		}
 	}
 
 	pvLayoutBox->addStretch();
