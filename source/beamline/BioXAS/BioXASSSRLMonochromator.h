@@ -3,10 +3,11 @@
 
 #include <QObject>
 
-#include "actions3/AMAction3.h"
-
-#define BRAGG_MOTOR_CRYSTAL_CHANGE_POSITION 55.0
-
+#include "actions3/AMActionSupport.h"
+#include "beamline/AMControl.h"
+#include "beamline/CLS/CLSMAXvMotor.h"
+#include "beamline/BioXAS/BioXASSSRLMonochromatorEnergyControl.h"
+#include "beamline/BioXAS/BioXASSSRLMonochromatorRegionControl.h"
 
 class BioXASSSRLMonochromator : public QObject
 {
@@ -14,7 +15,7 @@ class BioXASSSRLMonochromator : public QObject
 
 public:
 	/// Enumerates the different region states.
-	class Region { public: enum State { None = 0, A, B }; };
+	class Region { public: enum State { A = 0, B, None }; enum Status { NotIn = 0, In = 1}; };
 	/// Enumerates the paddle status options.
 	class Paddle { public: enum Status { NotOut = 0, Out }; };
 	/// Enumerates the slits status options.
@@ -22,49 +23,64 @@ public:
 	/// Enumerates the key status options.
 	class Key { public: enum Status { Disabled = 0, Enabled }; };
 	/// Enumerates the brake status options.
-	class Brake { public: enum Status { Disabled = 0, Enabled }; };
+	class Brake { public: enum Status { Enabled = 0, Disabled }; };
 	/// Enumerates the position status of the bragg motor, whether it is at the crystal change position.
-	class Bragg { public: enum CrystalChangePosition { InPosition = 0, NotInPosition }; };
+	class Bragg { public: enum CrystalChangePosition { NotInPosition = 0, InPosition = 1 }; };
 	/// Enumerates the limit options for the crystal change motor.
-	class CrystalChangeMotor { public: enum Limit { AtLimit = 0, NotAtLimit }; };
+	class CrystalChange { public: enum Limit { NotAtLimit = 0, AtLimit }; };
 
 	/// Constructor.
 	explicit BioXASSSRLMonochromator(QObject *parent = 0);
 	/// Destructor.
 	virtual ~BioXASSSRLMonochromator();
+
 	/// Returns true if the mono is connected, false otherwise.
 	virtual bool isConnected() const = 0;
 	/// Returns the current energy feedback.
 	virtual double energy() const = 0;
 	/// Returns the current region.
-	virtual Region::State region() const = 0;
-	/// Returns true if both the upper and lower slits are closed, false otherwise.
-	virtual bool slitsClosed() const = 0;
-	/// Returns true if paddle is completely removed, false otherwise.
-	virtual bool paddleOut() const = 0;
-	/// Returns true if the key is enabled, false otherwise.
-	virtual bool keyEnabled() const = 0;
-	/// Returns true if the bragg motor is at the crystal change position, false otherwise.
-	virtual bool braggAtCrystalChangePosition() const = 0;
-	/// Returns true if the brake is enabled, false otherwise.
-	virtual bool brakeEnabled() const = 0;
-	/// Returns true if the crystal change motor is at its clockwise limit.
-	virtual bool crystalChangeAtCWLimit() const = 0;
-	/// Returns true if the crystal change motor is at its counter-clockwise limit.
-	virtual bool crystalChangeAtCCWLimit() const = 0;
+	virtual double region() const = 0;
+	/// Returns the hc constant.
+	virtual double hc() const = 0;
+	/// Returns the crystal 2D spacing.
+	virtual double crystal2D() const = 0;
+	/// Returns the physical bragg angle.
+	virtual double braggAngle() const = 0;
+
+	/// Returns the upper slit blade motor.
+	virtual CLSMAXvMotor* upperSlitBladeMotor() const = 0;
+	/// Returns the lower slit blade motor.
+	virtual CLSMAXvMotor* lowerSlitBladeMotor() const = 0;
+	/// Returns the phosphor paddle motor.
+	virtual CLSMAXvMotor* paddleMotor() const = 0;
+	/// Returns the bragg motor.
+	virtual CLSMAXvMotor* braggMotor() const = 0;
+	/// Returns the vertical motor.
+	virtual CLSMAXvMotor* verticalMotor() const = 0;
+	/// Returns the lateral motor.
+	virtual CLSMAXvMotor* lateralMotor() const = 0;
+	/// Returns the crystal change motor.
+	virtual CLSMAXvMotor* crystalChangeMotor() const = 0;
+	/// Returns the crystal 1 pitch motor.
+	virtual CLSMAXvMotor* crystal1PitchMotor() const = 0;
+	/// Returns the crystal 1 roll motor.
+	virtual CLSMAXvMotor* crystal1RollMotor() const = 0;
+	/// Returns the crystal 2 pitch motor.
+	virtual CLSMAXvMotor* crystal2PitchMotor() const = 0;
+	/// Returns the crystal 2 roll motor.
+	virtual CLSMAXvMotor* crystal2RollMotor() const = 0;
+
+	/// Returns the energy control.
+	virtual BioXASSSRLMonochromatorEnergyControl* energyControl() const = 0;
+	/// Returns the region control.
+	virtual BioXASSSRLMonochromatorRegionControl* regionControl() const = 0;
 
 	/// Returns a new 'set energy' action, 0 if not connected. The argument is the desired energy.
-	virtual AMAction3* createSetEnergyAction(double newEnergy) = 0;
+	virtual AMAction3* createSetEnergyAction(double newEnergy);
 	/// Returns a new action that adjusts the bragg motor offset s.t. the mono energy matches the desired energy.
-	virtual AMAction3* createSetEnergyCalibrationAction(double newEnergy) = 0;
-	/// Returns a new 'close slits' action, 0 if not connected.
-	virtual AMAction3* createCloseSlitsAction() = 0;
-	/// Returns a new 'remove paddle' action, 0 if not connected.
-	virtual AMAction3* createRemovePaddleAction() = 0;
-	/// Returns a new 'move bragg motor' action, 0 if not connected. The argument is the desired destination.
-	virtual AMAction3* createMoveBraggMotorAction(double degDestination) = 0;
-	/// Returns a new 'move crystal change motor' action, 0 if not connected. The argument is the desired relative move.
-	virtual AMAction3* createMoveCrystalChangeMotorAction(int relDestination) = 0;
+	virtual AMAction3* createSetEnergyCalibrationAction(double newEnergy);
+	/// Returns a new 'set region' action, 0 if not connected. The argument is the desired region.
+	virtual AMAction3* createSetRegionAction(double newRegion);
 
 signals:
 	/// Notifier that the connected state has changed.
@@ -72,37 +88,29 @@ signals:
 	/// Notifier that the energy has changed.
 	void energyChanged(double newEnergy);
 	/// Notifier that the current region has changed.
-	void regionChanged(Region::State newRegion);
-	/// Notifier that the status of the slits has changed, either they are closed (true) or not closed (false).
-	void slitsStatusChanged(bool closed);
-	/// Notifier that the paddle status has changed, either it is fully removed (true) or not (false).
-	void paddleStatusChanged(bool removed);
+	void regionChanged(double newRegion);
+	/// Notifier that the slits status has changed
+	void slitsStatusChanged(double status);
+	/// Notifier that the paddle status has changed.
+	void paddleStatusChanged(double status);
 	/// Notifier that the key status has changed.
-	void keyStatusChanged(bool enabled);
-	/// Notifier that the bragg crystal change position status has changed, either it is in position (true) or not (false).
-	void braggCrystalChangePositionStatusChanged(bool inPosition);
+	void keyStatusChanged(double status);
 	/// Notifier that the brake status has changed.
-	void brakeStatusChanged(bool enabled);
-	/// Notifier that the status of the crystal change clockwise limit switch has changed, either the crystal change motor is at the limit (true) or not (false).
-	void crystalChangeCWLimitStatusChanged(bool atLimit);
-	/// Notifier that the status of the crystal change counter-clockwise limit switch has changed, either the crystal change motor is at the limit (true) or not (false).
-	void crystalChangeCCWLimitStatusChanged(bool atLimit);
+	void brakeStatusChanged(double status);
+	/// Notifier that the bragg angle just reached or just left the crystal change position.
+	void braggAtCrystalChangePositionStatusChanged(double status);
 
 public slots:
 	/// Sets the energy setpoint.
-	virtual void setEnergy(double newEnergy) = 0;
+	void setEnergy(double newEnergy);
 	/// Sets the bragg offset such that the mono energy matches the desired energy.
-	virtual void setEnergyCalibration(double newEnergy) = 0;
+	void setEnergyCalibration(double newEnergy);
 	/// Sets the region.
-	virtual void setRegion(Region::State newRegion) = 0;
-	/// Sets the status of both slits.
-	virtual void setSlitsClosed() = 0;
-	/// Removes the paddle.
-	virtual void setPaddleOut() = 0;
-	/// Sets the position of the bragg motor.
-	virtual void setBraggMotorPosition(double degDestination) = 0;
-	/// Sets the position of the crystal change motor.
-	virtual void setCrystalChangeMotorPosition(double relDestination) = 0;
+	void setRegion(double newRegion);
+
+private:
+	/// Returns the bragg motor degree offset needed in order for the old energy to match the desired new energy.
+	double calibrateEnergy(double oldEnergy, double newEnergy) const;
 };
 
 #endif // BIOXASSSRLMONOCHROMATOR_H

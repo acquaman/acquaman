@@ -32,10 +32,11 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/CLS/CLSBasicScalerChannelDetector.h"
 #include "beamline/CLS/CLSBasicCompositeScalerChannelDetector.h"
 #include "beamline/CLS/CLSMAXvMotor.h"
+#include "beamline/CLS/CLSKeithley428.h"
 
 #include "beamline/BioXAS/BioXASPseudoMotorControl.h"
 #include "beamline/BioXAS/BioXASBeamlineDef.h"
-#include "beamline/CLS/CLSKeithley428.h"
+#include "beamline/BioXAS/BioXASMainMonochromator.h"
 
 #include "util/AMErrorMonitor.h"
 #include "util/AMBiHash.h"
@@ -58,8 +59,11 @@ public:
 
 	/// Destructor.
 	virtual ~BioXASMainBeamline();
+
     /// Returns true if all beamline components are connected, false otherwise.
     virtual bool isConnected() const { return connected_; }
+	/// Returns the beamline monochromator.
+	BioXASMainMonochromator *mono() const { return mono_; }
     /// Returns the scaler.
     CLSSIS3820Scaler* scaler() const { return scaler_; }
     /// Returns the I0 amplifier.
@@ -125,16 +129,9 @@ protected:
 	CLSMAXvMotor *variableMaskVertUpperBlade_;
 	CLSMAXvMotor *variableMaskVertLowerBlade_;
 
-	/// BioXAS Mono motors
-	CLSMAXvMotor *monoPhosphorPaddle_;
-	CLSMAXvMotor *monoBragg_;
-	CLSMAXvMotor *monoVertical_;
-	CLSMAXvMotor *monoLateral_;
-	CLSMAXvMotor *monoXtalXchage_;
-	CLSMAXvMotor *monoXtal1Pitch_;
-	CLSMAXvMotor *monoXtal1Roll_;
-	CLSMAXvMotor *monoXtal2Pitch_;
-	CLSMAXvMotor *monoXtal2Roll_;
+    // Monochromator
+
+    BioXASMainMonochromator *mono_;
 
 	/// BioXAS M2 motors
 	CLSMAXvMotor *m2VertUpstreamINB_;
