@@ -94,7 +94,7 @@ QList<AMControl *> BioXASMainBeamline::getMotorsByType(BioXASBeamlineDef::BioXAS
 
     case BioXASBeamlineDef::PseudoMonoMotor: // BioXAS Pseudo Mono motor
         matchedMotors.append(monoPseudoEnergy_);
-	matchedMotors.append(monoBraggAngle_);
+		matchedMotors.append(monoBraggAngle_);
         break;
 
     default:
