@@ -96,14 +96,20 @@ bool BioXASSSRLMonochromatorRegionControl::canMove() const
 
 AMControl::FailureExplanation BioXASSSRLMonochromatorRegionControl::move(double setpoint)
 {
-	if (!isConnected())
+	if (!isConnected()) {
+		AMErrorMon::error(this, AMErrorReport::Alert, "Region control is not connected. Cannot complete move.");
 		return AMControl::NotConnectedFailure;
+	}
 
-	if (isMoving())
+	if (isMoving()) {
+		AMErrorMon::error(this, AMErrorReport::Alert, "Region control is already moving. Cannot start a new move until one one is complete.");
 		return AMControl::AlreadyMovingFailure;
+	}
 
-	if (!canMove())
+	if (!canMove()) {
+		AMErrorMon::error(this, AMErrorReport::Alert, "Region control cannot move. Child controls may be set improperly or unable to move themselves.");
 		return AMControl::LimitFailure;
+	}
 
 	// Now we can assume that the region control is ready for a crystal change.
 	// Update the saved setpoint value.
@@ -111,6 +117,7 @@ AMControl::FailureExplanation BioXASSSRLMonochromatorRegionControl::move(double 
 	setSetpoint((int)setpoint);
 
 	if (!validRegionSetpoint(setpoint_)) {
+		AMErrorMon::error(this, AMErrorReport::Alert, "Region control cannot move. The setpoint given is invalid.");
 		return AMControl::LimitFailure;
 	}
 
@@ -121,6 +128,7 @@ AMControl::FailureExplanation BioXASSSRLMonochromatorRegionControl::move(double 
 	// If a valid action was NOT generated, there must be some problem with one of the child controls.
 
 	if (!action) {
+		AMErrorMon::error(this, AMErrorReport::Alert, "Region control cannot move. The problem is most likely that the destination is not a valid region.");
 		return AMControl::LimitFailure;
 	}
 
@@ -140,7 +148,7 @@ AMControl::FailureExplanation BioXASSSRLMonochromatorRegionControl::move(double 
 
 void BioXASSSRLMonochromatorRegionControl::setUpperSlitControl(AMControl *upperSlit)
 {
-	if (!upperSlit_ && upperSlit_ != upperSlit) {
+	if (upperSlit_ != upperSlit) {
 		upperSlit_ = upperSlit;
 		addChildControl(upperSlit_);
 

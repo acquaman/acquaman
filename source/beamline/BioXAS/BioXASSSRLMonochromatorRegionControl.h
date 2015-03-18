@@ -6,6 +6,7 @@
 #include "actions3/actions/AMControlWaitAction.h"
 #include "actions3/actions/AMWaitAction.h"
 #include "actions3/AMListAction3.h"
+#include "util/AMErrorMonitor.h"
 
 // {setpoint}_{motor}_{property} VALUE
 #define SETPOINT_SLIT_CLOSED 0.0
