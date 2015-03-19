@@ -29,6 +29,7 @@ class BioXASSidePersistentView;
 class BioXASSideXASScanConfiguration;
 class BioXASSideXASScanConfigurationView;
 class AMScanConfigurationViewHolder3;
+class BioXASSSRLMonochromatorConfigurationView;
 
 class BioXASSideAppController : public AMAppController
 {
@@ -71,6 +72,8 @@ protected:
 protected:
     /// View for the BioXAS Side scaler.
     CLSSIS3820ScalerView *scalerView_;
+    /// The mono configuration view.
+    BioXASSSRLMonochromatorConfigurationView *monoConfigView_;
 
     BioXASSidePersistentView *persistentPanel_;
 

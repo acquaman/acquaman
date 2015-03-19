@@ -41,8 +41,6 @@ BioXASMainPersistentView::BioXASMainPersistentView(QWidget *parent) :
 
 	calibrateEnergyButton_ = new QPushButton("Calibrate energy", this);
 
-	regionView_ = new BioXASSSRLMonochromatorRegionControlView(BioXASMainBeamline::bioXAS()->mono()->regionControl());
-
 	// Create and set layouts.
 
 	QHBoxLayout *buttonLayout = new QHBoxLayout();
@@ -54,7 +52,6 @@ BioXASMainPersistentView::BioXASMainPersistentView(QWidget *parent) :
 	layout->addWidget(regionControlEditor_);
 	layout->addWidget(braggControlEditor_);
 	layout->addLayout(buttonLayout);
-	layout->addWidget(regionView_);
 	layout->addStretch();
 
 	setLayout(layout);
