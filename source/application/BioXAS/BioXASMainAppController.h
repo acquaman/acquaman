@@ -24,6 +24,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "application/AMAppController.h"
 
+class BioXASMainPersistentView;
 class CLSSIS3820ScalerView;
 class BioXASMainXASScanConfiguration;
 class BioXASMainXASScanConfigurationView;
@@ -76,6 +77,10 @@ protected:
     BioXASMainXASScanConfigurationView *configurationView_;
     /// XAS scan configuration view holder.
     AMScanConfigurationViewHolder3 *configurationViewHolder_;
+
+protected:
+    /// The side panel view.
+    BioXASMainPersistentView *persistentPanel_;
 
 };
 

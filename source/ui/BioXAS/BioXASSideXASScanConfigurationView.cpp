@@ -28,7 +28,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QStringBuilder>
 
 #include "acquaman/AMScanController.h"
-#include "beamline/IDEAS/IDEASBeamline.h"
 #include "ui/AMTopFrame.h"
 #include "ui/dataman/AMEXAFSScanAxisView.h"
 #include "util/AMEnergyToKSpaceCalculator.h"

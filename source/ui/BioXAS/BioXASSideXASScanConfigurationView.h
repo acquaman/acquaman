@@ -23,7 +23,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define BIOXASSIDEXASSCANCONFIGURATIONVIEW_H
 
 #include "ui/acquaman/AMScanConfigurationView.h"
-#include "acquaman/BioXASSide/BioXASSideXASScanConfiguration.h"
+#include "acquaman/BioXAS/BioXASSideXASScanConfiguration.h"
 #include "util/AMElement.h"
 
 #include <QPushButton>
@@ -91,4 +91,4 @@ protected:
 	QLabel *scanEnergyRange_;
 };
 
-#endif // BIOXASSIDEXASSCANCONFIGURATIONVIEW_H
+#endif // BIOXASXASSCANCONFIGURATIONVIEW_H

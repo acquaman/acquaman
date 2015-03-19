@@ -1,7 +1,7 @@
 #include "BioXASMainXASScanConfiguration.h"
 
 #include "dataman/AMScanAxisEXAFSRegion.h"
-#include "acquaman/BioXASMain/BioXASMainXASScanActionController.h"
+#include "acquaman/BioXAS/BioXASMainXASScanActionController.h"
 #include "ui/BioXAS/BioXASMainXASScanConfigurationView.h"
 
 BioXASMainXASScanConfiguration::BioXASMainXASScanConfiguration(QObject *parent) : AMStepScanConfiguration(parent)

@@ -21,10 +21,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "BioXASSideXASScanConfiguration.h"
 
-#include <QDebug>
-
 #include "dataman/AMScanAxisEXAFSRegion.h"
-#include "acquaman/BioXASSide/BioXASSideXASScanActionController.h"
+#include "acquaman/BioXAS/BioXASSideXASScanActionController.h"
 #include "ui/BioXAS/BioXASSideXASScanConfigurationView.h"
 
 BioXASSideXASScanConfiguration::BioXASSideXASScanConfiguration(QObject *parent) :
@@ -76,7 +74,7 @@ AMScanConfigurationView* BioXASSideXASScanConfiguration::createView()
 
 QString BioXASSideXASScanConfiguration::detailedDescription() const
 {
-	return "BioXAS Side XAS Scan";
+	return "BioXAS XAS Scan";
 }
 
 double BioXASSideXASScanConfiguration::edgeEnergy() const

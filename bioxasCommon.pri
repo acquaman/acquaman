@@ -5,8 +5,6 @@
 # Source Files (BioXAS Common)
 #######################
 
-FORMS +=
-
 HEADERS += \
 	source/beamline/BioXAS/BioXASBeamlineDef.h \
 	source/beamline/BioXAS/BioXASPseudoMotorControl.h \
@@ -15,7 +13,11 @@ HEADERS += \
 	source/ui/BioXAS/BioXAS32ElementGeDetectorView.h \
 	source/acquaman/BioXAS/BioXASXRFScanConfiguration.h \
 	source/acquaman/BioXAS/BioXASXRFScanController.h \
-    source/beamline/BioXAS/BioXASSSRLMonochromator.h
+	source/beamline/BioXAS/BioXASSSRLMonochromator.h \
+    source/beamline/BioXAS/BioXASSSRLMonochromatorRegionControl.h \
+    source/ui/BioXAS/BioXASSSRLMonochromatorRegionControlEditor.h \
+    source/ui/BioXAS/BioXASSSRLMonochromatorRegionControlView.h \
+    source/beamline/BioXAS/BioXASSSRLMonochromatorEnergyControl.h
 
 SOURCES += \
 	source/beamline/BioXAS/BioXASPseudoMotorControl.cpp \
@@ -24,4 +26,31 @@ SOURCES += \
 	source/ui/BioXAS/BioXAS32ElementGeDetectorView.cpp \
 	source/acquaman/BioXAS/BioXASXRFScanConfiguration.cpp \
 	source/acquaman/BioXAS/BioXASXRFScanController.cpp \
-    source/beamline/BioXAS/BioXASSSRLMonochromator.cpp
+	source/beamline/BioXAS/BioXASSSRLMonochromator.cpp \
+    source/beamline/BioXAS/BioXASSSRLMonochromatorRegionControl.cpp \
+    source/ui/BioXAS/BioXASSSRLMonochromatorRegionControlEditor.cpp \
+    source/ui/BioXAS/BioXASSSRLMonochromatorRegionControlView.cpp \
+    source/beamline/BioXAS/BioXASSSRLMonochromatorEnergyControl.cpp
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

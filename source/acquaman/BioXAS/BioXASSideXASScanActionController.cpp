@@ -21,7 +21,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "BioXASSideXASScanActionController.h"
 
-#include "acquaman/BioXASSide/BioXASSideXASScanConfiguration.h"
+#include "acquaman/BioXAS/BioXASSideXASScanConfiguration.h"
 #include "dataman/AMXASScan.h"
 #include "beamline/BioXAS/BioXASSideBeamline.h"
 #include "beamline/CLS/CLSMAXvMotor.h"
@@ -35,7 +35,6 @@ BioXASSideXASScanActionController::BioXASSideXASScanActionController(BioXASSideX
     configuration_ = configuration;
 
     scan_ = new AMXASScan();
-//    scan_->setFileFormat("amRegionAscii2013");
     scan_->setFileFormat("amCDFv1");
     scan_->setScanConfiguration(configuration);
     scan_->setIndexType("fileSystem");
