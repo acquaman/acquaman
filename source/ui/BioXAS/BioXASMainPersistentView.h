@@ -57,8 +57,6 @@ protected:
 	AMExtendedControlEditor *braggControlEditor_;
 	/// Button that allows the user to calibrate the mono energy when clicked.
 	QPushButton *calibrateEnergyButton_;
-	/// Editor that views mono components related to a region change.
-	BioXASSSRLMonochromatorRegionControlView *regionView_;
 };
 
 #endif // BIOXASMAINPERSISTENTVIEW_H
