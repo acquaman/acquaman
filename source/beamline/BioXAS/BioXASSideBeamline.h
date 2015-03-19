@@ -208,8 +208,11 @@ public:
 	CLSBasicScalerChannelDetector* i0Detector() const { return i0Detector_; }
 	CLSBasicScalerChannelDetector* iTDetector() const { return iTDetector_; }
 	CLSBasicScalerChannelDetector* i2Detector() const { return i2Detector_; }
-	AMBasicControlDetectorEmulator* energyFeedbackDetector() const { return energyFeedbackDetector_; }
+	/// Returns the energy setpoint detector.
 	AMBasicControlDetectorEmulator* energySetpointDetector() const { return energySetpointDetector_; }
+	/// Returns the energy feedback detector.
+	AMBasicControlDetectorEmulator* energyFeedbackDetector() const { return energyFeedbackDetector_; }
+	/// Returns the scaler dwell time detector.
 	AMBasicControlDetectorEmulator* dwellTimeDetector() { return dwellTimeDetector_; }
 	/// Returns the bragg move retries detector.
 	AMBasicControlDetectorEmulator* braggMoveRetriesDetector() const { return braggMoveRetriesDetector_; }
@@ -219,7 +222,8 @@ public:
 	AMBasicControlDetectorEmulator* braggStepSetpointDetector() const { return braggStepSetpointDetector_; }
 	/// Returns the bragg degree setpoint detector.
 	AMBasicControlDetectorEmulator* braggDegreeSetpointDetector() const { return braggDegreeSetpointDetector_; }
-
+	/// Returns the physical bragg angle detector.
+	AMBasicControlDetectorEmulator* braggAngleDetector() const { return braggAngleDetector_; }
 	/// Returns the 32 element Ge detector.
 	BioXAS32ElementGeDetector *ge32ElementDetector() const { return ge32ElementDetector_; }
 
@@ -308,7 +312,7 @@ protected:
 	AMBasicControlDetectorEmulator *braggMoveRetriesMaxDetector_;
 	AMBasicControlDetectorEmulator *braggStepSetpointDetector_;
 	AMBasicControlDetectorEmulator *braggDegreeSetpointDetector_;
-//	AMBasicControlDetectorEmulator *braggAngle_;
+	AMBasicControlDetectorEmulator *braggAngleDetector_;
 	BioXAS32ElementGeDetector *ge32ElementDetector_;
 
 	// Monochromator

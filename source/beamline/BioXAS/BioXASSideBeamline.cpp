@@ -766,9 +766,9 @@ void BioXASSideBeamline::setupComponents()
 
 void BioXASSideBeamline::setupControlsAsDetectors()
 {
-//	energySetpointDetector_ = new AMBasicControlDetectorEmulator("EnergySetpoint", "Energy Setpoint", mono_->energyControl(), 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
-//	energySetpointDetector_->setHiddenFromUsers(true);
-//	energySetpointDetector_->setIsVisible(false);
+	energySetpointDetector_ = new AMBasicControlDetectorEmulator("EnergySetpoint", "Energy Setpoint", mono_->energyControl(), 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	energySetpointDetector_->setHiddenFromUsers(true);
+	energySetpointDetector_->setIsVisible(false);
 
 	energyFeedbackDetector_ = new AMBasicControlDetectorEmulator("EnergyFeedback", "Energy Feedback", mono_->energyControl(), 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
 	energyFeedbackDetector_->setHiddenFromUsers(true);
@@ -794,7 +794,9 @@ void BioXASSideBeamline::setupControlsAsDetectors()
 	braggDegreeSetpointDetector_->setHiddenFromUsers(true);
 	braggDegreeSetpointDetector_->setIsVisible(false);
 
-	//	braggAngle_ = new AMBasicControlDetectorEmulator("PhysicalBraggAngle", "Physical bragg angle", mono_->braggAngleControl(), 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	braggAngleDetector_ = new AMBasicControlDetectorEmulator("PhysicalBraggAngle", "Physical bragg angle", mono_->braggAngleControl(), 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	braggAngleDetector_->setHiddenFromUsers(true);
+	braggAngleDetector_->setIsVisible(false);
 }
 
 void BioXASSideBeamline::setupExposedControls()
@@ -815,5 +817,6 @@ void BioXASSideBeamline::setupExposedDetectors()
 	addExposedDetector(braggMoveRetriesMaxDetector_);
 	addExposedDetector(braggStepSetpointDetector_);
 	addExposedDetector(braggDegreeSetpointDetector_);
+	addExposedDetector(braggAngleDetector_);
 	addExposedDetector(ge32ElementDetector_);
 }
