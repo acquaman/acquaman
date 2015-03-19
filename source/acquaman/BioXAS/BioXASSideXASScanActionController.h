@@ -41,6 +41,8 @@ signals:
 public slots:
 
 protected:
+	/// Provides a string of beamline settings for the scan notes.
+	QString beamlineSettings();
 	/// Reimplemented to provide actions that will setupd the beamine for optimzed operation of the XAS scan.
 	AMAction3* createInitializationActions();
 	/// Reimplemented to put the beamline in a good state after a scan has been completed.
