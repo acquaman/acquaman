@@ -141,13 +141,12 @@ void BioXASMainBeamline::setupControlSets()
 void BioXASMainBeamline::setupDetectors()
 {
     i0Detector_ = new CLSBasicScalerChannelDetector("I0Detector", "I0 Detector", scaler_, 0, this);
-    scaler_->channelAt(0)->setDetector(i0Detector_);
 
     iTDetector_ = new CLSBasicScalerChannelDetector("ITDetector", "IT Detector", scaler_, 1, this);
-    scaler_->channelAt(1)->setDetector(iTDetector_);
 
     i2Detector_ = new CLSBasicScalerChannelDetector("I2Detector", "I2 Detector", scaler_, 15, this);
-    scaler_->channelAt(15)->setDetector(i2Detector_);
+
+    ge32ElementDetector_ = new BioXAS32ElementGeDetector("Ge32Element", "Ge 32 Element", this);
 }
 
 void BioXASMainBeamline::setupSampleStage()
@@ -174,19 +173,23 @@ void BioXASMainBeamline::setupComponents()
     i0Keithley_ = new CLSKeithley428("I0 Channel", "AMP1607-701:Gain", this);
     scaler_->channelAt(0)->setCustomChannelName("I0 Channel");
     scaler_->channelAt(0)->setCurrentAmplifier(i0Keithley_);
+    scaler_->channelAt(0)->setDetector(i0Detector_);
 
     iTKeithley_ = new CLSKeithley428("IT Channel", "AMP1607-702:Gain", this);
     scaler_->channelAt(1)->setCustomChannelName("IT Channel");
     scaler_->channelAt(1)->setCurrentAmplifier(iTKeithley_);
+    scaler_->channelAt(1)->setDetector(iTDetector_);
 
     i2Keithley_ = new CLSKeithley428("I2 Channel", "AMP1607-703:Gain", this);
     scaler_->channelAt(15)->setCustomChannelName("I2 Channel");
     scaler_->channelAt(15)->setCurrentAmplifier(iTKeithley_);
+    scaler_->channelAt(15)->setDetector(i2Detector_);
 }
 
 void BioXASMainBeamline::setupExposedControls()
 {
-
+	addExposedControl(mono_->energyControl());
+	addExposedControl(mono_->regionControl());
 }
 
 void BioXASMainBeamline::setupExposedDetectors()
@@ -194,6 +197,13 @@ void BioXASMainBeamline::setupExposedDetectors()
     addExposedDetector(i0Detector_);
     addExposedDetector(iTDetector_);
     addExposedDetector(i2Detector_);
+    addExposedDetector(energyFeedbackDetector_);
+    addExposedDetector(braggMoveRetriesDetector_);
+    addExposedDetector(braggMoveRetriesMaxDetector_);
+    addExposedDetector(braggStepSetpointDetector_);
+    addExposedDetector(braggDegreeSetpointDetector_);
+    addExposedDetector(braggAngleDetector_);
+    addExposedDetector(ge32ElementDetector_);
 }
 
 void BioXASMainBeamline::setupMotorGroup()
@@ -246,7 +256,33 @@ void BioXASMainBeamline::setupMotorGroup()
 
 void BioXASMainBeamline::setupControlsAsDetectors()
 {
+	energyFeedbackDetector_ = new AMBasicControlDetectorEmulator("EnergyFeedback", "Energy Feedback", mono_->energyControl(), 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	energyFeedbackDetector_->setHiddenFromUsers(true);
+	energyFeedbackDetector_->setIsVisible(false);
 
+	dwellTimeDetector_ = new AMBasicControlDetectorEmulator("DwellTimeFeedback", "Dwell Time Feedback", scalerDwellTime_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	dwellTimeDetector_->setHiddenFromUsers(true);
+	dwellTimeDetector_->setIsVisible(false);
+
+	braggMoveRetriesDetector_ = new AMBasicControlDetectorEmulator("BraggMoveRetries", "Number of bragg move retries", mono_->braggMotor()->retries(), 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	braggMoveRetriesDetector_->setHiddenFromUsers(true);
+	braggMoveRetriesDetector_->setIsVisible(false);
+
+	braggMoveRetriesMaxDetector_ = new AMBasicControlDetectorEmulator("BraggMoveRetriesMax", "Max number of bragg move retries", mono_->braggMotor()->maxRetriesControl(), 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	braggMoveRetriesMaxDetector_->setHiddenFromUsers(true);
+	braggMoveRetriesMaxDetector_->setIsVisible(false);
+
+	braggStepSetpointDetector_ = new AMBasicControlDetectorEmulator("BraggStepSetpoint", "Bragg motor step setpoint", mono_->braggMotor()->stepSetpointControl(), 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	braggStepSetpointDetector_->setHiddenFromUsers(true);
+	braggStepSetpointDetector_->setIsVisible(false);
+
+	braggDegreeSetpointDetector_ = new AMBasicControlDetectorEmulator("BraggDegreeSetpoint", "Bragg motor degree setpoint", mono_->braggMotor()->degreeSetpointControl(), 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	braggDegreeSetpointDetector_->setHiddenFromUsers(true);
+	braggDegreeSetpointDetector_->setIsVisible(false);
+
+	braggAngleDetector_ = new AMBasicControlDetectorEmulator("PhysicalBraggAngle", "Physical bragg angle", mono_->braggAngleControl(), 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	braggAngleDetector_->setHiddenFromUsers(true);
+	braggAngleDetector_->setIsVisible(false);
 }
 
 BioXASMainBeamline::BioXASMainBeamline()

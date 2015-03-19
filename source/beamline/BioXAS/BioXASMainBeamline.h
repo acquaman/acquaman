@@ -25,6 +25,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/AMBeamline.h"
 #include "beamline/AMControlSet.h"
 #include "beamline/AMMotorGroup.h"
+#include "beamline/AMBasicControlDetectorEmulator.h"
 #include "beamline/CLS/CLSSynchronizedDwellTime.h"
 #include "beamline/CLS/CLSSIS3820Scaler.h"
 #include "beamline/CLS/CLSBiStateControl.h"
@@ -37,6 +38,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/BioXAS/BioXASPseudoMotorControl.h"
 #include "beamline/BioXAS/BioXASBeamlineDef.h"
 #include "beamline/BioXAS/BioXASMainMonochromator.h"
+#include "beamline/BioXAS/BioXAS32ElementGeDetector.h"
 
 #include "util/AMErrorMonitor.h"
 #include "util/AMBiHash.h"
@@ -62,6 +64,7 @@ public:
 
     /// Returns true if all beamline components are connected, false otherwise.
     virtual bool isConnected() const { return connected_; }
+
 	/// Returns the beamline monochromator.
 	BioXASMainMonochromator *mono() const { return mono_; }
     /// Returns the scaler.
@@ -72,12 +75,30 @@ public:
     CLSKeithley428* iTKeithley() const { return iTKeithley_; }
     /// Returns the I2 amplifier.
     CLSKeithley428* i2Keithley() const { return i2Keithley_; }
+
     /// Returns the I0 detector.
     CLSBasicScalerChannelDetector* i0Detector() const { return i0Detector_; }
     /// Returns the IT detector.
     CLSBasicScalerChannelDetector* iTDetector() const { return iTDetector_; }
     /// Returns the I2 detector.
     CLSBasicScalerChannelDetector* i2Detector() const { return i2Detector_; }
+    /// Returns the energy feedback detector.
+    AMBasicControlDetectorEmulator* energyFeedbackDetector() const { return energyFeedbackDetector_; }
+    /// Returns the scaler dwell time detector.
+    AMBasicControlDetectorEmulator* dwellTimeDetector() { return dwellTimeDetector_; }
+    /// Returns the bragg move retries detector.
+    AMBasicControlDetectorEmulator* braggMoveRetriesDetector() const { return braggMoveRetriesDetector_; }
+    /// Returns the bragg move max retries detector.
+    AMBasicControlDetectorEmulator* braggMoveRetriesMaxDetector() const { return braggMoveRetriesMaxDetector_; }
+    /// Returns the bragg step setpoint detector.
+    AMBasicControlDetectorEmulator* braggStepSetpointDetector() const { return braggStepSetpointDetector_; }
+    /// Returns the bragg degree setpoint detector.
+    AMBasicControlDetectorEmulator* braggDegreeSetpointDetector() const { return braggDegreeSetpointDetector_; }
+    /// Returns the physical bragg angle detector.
+    AMBasicControlDetectorEmulator* braggAngleDetector() const { return braggAngleDetector_; }
+    /// Returns the 32 element Ge detector.
+    BioXAS32ElementGeDetector *ge32ElementDetector() const { return ge32ElementDetector_; }
+
     /// Return the set of BioXAS Motors by given motor category.
 	QList<AMControl *> getMotorsByType(BioXASBeamlineDef::BioXASMotorType category);
 
@@ -166,6 +187,15 @@ protected:
     CLSBasicScalerChannelDetector *i0Detector_;
     CLSBasicScalerChannelDetector *iTDetector_;
     CLSBasicScalerChannelDetector *i2Detector_;
+    AMBasicControlDetectorEmulator *energyFeedbackDetector_;
+    AMBasicControlDetectorEmulator *dwellTimeDetector_;
+    AMBasicControlDetectorEmulator *braggMoveRetriesDetector_;
+    AMBasicControlDetectorEmulator *braggMoveRetriesMaxDetector_;
+    AMBasicControlDetectorEmulator *braggStepSetpointDetector_;
+    AMBasicControlDetectorEmulator *braggDegreeSetpointDetector_;
+    AMBasicControlDetectorEmulator *braggAngleDetector_;
+    BioXAS32ElementGeDetector *ge32ElementDetector_;
+
 
     // Scaler
     CLSSIS3820Scaler *scaler_;
