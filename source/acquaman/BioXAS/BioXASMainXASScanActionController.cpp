@@ -21,7 +21,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "BioXASMainXASScanActionController.h"
 
-#include "acquaman/BioXASMain/BioXASMainXASScanConfiguration.h"
+#include "acquaman/BioXAS/BioXASMainXASScanConfiguration.h"
 #include "dataman/AMXASScan.h"
 #include "beamline/BioXAS/BioXASMainBeamline.h"
 #include "beamline/CLS/CLSMAXvMotor.h"

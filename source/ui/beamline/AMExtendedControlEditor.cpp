@@ -33,6 +33,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QLabel>
 #include <QFont>
 #include <QMenu>
+#include <QDebug>
 
 #include "util/AMFontSizes.h"
 
@@ -126,7 +127,7 @@ AMExtendedControlEditor::AMExtendedControlEditor(AMControl* control, AMControl* 
 			onUnitsChanged(control_->units());
 			onMotion(control_->isMoving());
 			if(control_->isEnum())
-				dialog_->setEnumNames(control_->enumNames());
+				dialog_->setEnumNames(control_->moveEnumNames());
 		}
 	}
 	if(statusTagControl_) {
@@ -236,8 +237,10 @@ void AMExtendedControlEditor::onEditStart() {
 	dialog_->setDoubleMaximum(control_->maximumValue());
 	dialog_->setDoubleMinimum(control_->minimumValue());
 
-	if(configureOnly_ && control_->isEnum() && control_->enumNames().contains(valueLabel_->text()))
-		dialog_->setDoubleValue(control_->enumNames().indexOf(valueLabel_->text()));
+	if(configureOnly_ && control_->isEnum() && control_->moveEnumNames().contains(valueLabel_->text()))
+		dialog_->setDoubleValue(control_->moveEnumNames().indexOf(valueLabel_->text()));
+	else if (control_->isEnum() && control_->moveEnumNames().contains(valueLabel_->text()))
+		dialog_->setDoubleValue(control_->moveEnumNames().indexOf(valueLabel_->text()));
 	else if(configureOnly_ && ! control_->isEnum()){
 		bool conversionOk = false;
 		double valueForText = valueLabel_->text().toDouble(&conversionOk);
@@ -304,6 +307,7 @@ AMExtendedControlEditorStyledInputDialog::AMExtendedControlEditorStyledInputDial
 	label_ = new QLabel("New value:");
 	label_->setAlignment(Qt::AlignCenter);
 	enumNames_ = enumNames;
+
 	isEnum_ = false; //IS THIS THE MISSING PIECE?
 	if(enumNames_.count() > 0)
 		isEnum_ = true;
@@ -359,7 +363,7 @@ void AMExtendedControlEditorStyledInputDialog::setDoubleValue(double d) {
 
 void AMExtendedControlEditorStyledInputDialog::setDoubleMaximum(double d) {
 	if(!isEnum_)
-	spinBox_->setMaximum(d);
+		spinBox_->setMaximum(d);
 }
 
 void AMExtendedControlEditorStyledInputDialog::setDoubleMinimum(double d) {
@@ -377,6 +381,7 @@ void AMExtendedControlEditorStyledInputDialog::setLabelText(const QString& s) {
 }
 
 void AMExtendedControlEditorStyledInputDialog::setEnumNames(const QStringList &sl){
+
 	bool oldIsEnum = isEnum_;
 	if(sl.count() > 0)
 		isEnum_ = true;
@@ -437,7 +442,7 @@ void AMExtendedControlEditorStyledInputDialog::showEvent ( QShowEvent * event ) 
 
 void AMExtendedControlEditor::onControlEnumChanged()
 {
-	dialog_->setEnumNames(control_->enumNames());
+	dialog_->setEnumNames(control_->moveEnumNames());
 }
 
 void AMExtendedControlEditor::onControlMoveStarted(){

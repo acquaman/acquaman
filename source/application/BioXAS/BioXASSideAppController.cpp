@@ -44,7 +44,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/CLS/CLSSIS3820ScalerView.h"
 #include "beamline/CLS/CLSSIS3820Scaler.h"
 #include "ui/BioXAS/BioXASSidePersistentView.h"
-#include "acquaman/BioXASSide/BioXASSideXASScanConfiguration.h"
+#include "acquaman/BioXAS/BioXASSideXASScanConfiguration.h"
 #include "ui/BioXAS/BioXASSideXASScanConfigurationView.h"
 #include "ui/acquaman/AMScanConfigurationViewHolder3.h"
 #include "dataman/AMScanAxisEXAFSRegion.h"

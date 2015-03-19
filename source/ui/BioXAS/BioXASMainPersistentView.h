@@ -19,8 +19,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#ifndef BIOXASSIDEPERSISTENTVIEW_H
-#define BIOXASSIDEPERSISTENTVIEW_H
+#ifndef BIOXASMAINPERSISTENTVIEW_H
+#define BIOXASMAINPERSISTENTVIEW_H
 
 #include <QWidget>
 #include <QLayout>
@@ -30,14 +30,15 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/BioXAS/BioXASSSRLMonochromatorRegionControlEditor.h"
 #include "ui/BioXAS/BioXASSSRLMonochromatorRegionControlView.h"
 
-class BioXASSidePersistentView : public QWidget
+class BioXASMainPersistentView : public QWidget
 {
     Q_OBJECT
 
 public:
     /// Constructor.
-    explicit BioXASSidePersistentView(QWidget *parent = 0);
-    virtual ~BioXASSidePersistentView();
+    explicit BioXASMainPersistentView(QWidget *parent = 0);
+    /// Destructor.
+    virtual ~BioXASMainPersistentView();
 
 signals:
 
@@ -48,16 +49,16 @@ protected slots:
 	void onCalibrateEnergyButtonClicked();
 
 protected:
-	/// Editor for the mono's energy.
+	/// Editor that selects the mono energy.
 	AMExtendedControlEditor *energyControlEditor_;
-	/// Editor for the mono's region.
+	/// Editor that selects the mono region.
 	BioXASSSRLMonochromatorRegionControlEditor *regionControlEditor_;
-	/// Editor for the mono's bragg motor angle.
+	/// Editor that selects the mono bragg position.
 	AMExtendedControlEditor *braggControlEditor_;
 	/// Button that allows the user to calibrate the mono energy when clicked.
 	QPushButton *calibrateEnergyButton_;
-	/// General status view for mono components related to a crystal change.
+	/// Editor that views mono components related to a region change.
 	BioXASSSRLMonochromatorRegionControlView *regionView_;
 };
 
-#endif // BIOXASSIDEPERSISTENTVIEW_H
+#endif // BIOXASMAINPERSISTENTVIEW_H

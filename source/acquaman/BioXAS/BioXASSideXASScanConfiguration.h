@@ -19,8 +19,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#ifndef BIOXASSIDEXASSCANCONFIGURATION_H
-#define BIOXASSIDEXASSCANCONFIGURATION_H
+#ifndef BIOXASXASSCANCONFIGURATION_H
+#define BIOXASXASSCANCONFIGURATION_H
 
 #include <QObject>
 
@@ -30,7 +30,7 @@ class BioXASSideXASScanConfiguration : public AMStepScanConfiguration
 {
 	Q_OBJECT
 
-	Q_CLASSINFO("AMDbObject_Attributes", "description=BioXAS Side XAS Scan Configuration")
+	Q_CLASSINFO("AMDbObject_Attributes", "description=BioXAS XAS Scan Configuration")
 
 public:
 	/// Constructor.
@@ -74,4 +74,4 @@ protected:
 
 };
 
-#endif // BIOXASSIDEXASSCANCONFIGURATION_H
+#endif // BIOXASXASSCANCONFIGURATION_H
