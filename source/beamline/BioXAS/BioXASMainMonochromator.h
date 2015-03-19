@@ -58,6 +58,13 @@ public:
 	/// Returns the energy setpoint control.
 	virtual BioXASSSRLMonochromatorEnergyControl* energyControl() const { return energy_; }
 
+	/// Returns the mono's hc constant control.
+	virtual AMControl *hcControl() const { return hc_; }
+	/// Returns the mono's crystal 2D spacing control.
+	virtual AMControl *crystal2DControl() const { return crystal2D_; }
+	/// Returns the mono's physical bragg angle control.
+	virtual AMControl *braggAngleControl() const { return braggAngle_; }
+
 protected slots:
 	/// Updates the mono's general connected state based on the connected state of each of its pvs.
 	void onConnectedChanged();

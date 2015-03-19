@@ -75,6 +75,13 @@ public:
 	/// Returns the region control.
 	virtual BioXASSSRLMonochromatorRegionControl* regionControl() const = 0;
 
+	/// Returns the hc constant control.
+	virtual AMControl* hcControl() const = 0;
+	/// Returns the crystal 2D control.
+	virtual AMControl* crystal2DControl() const = 0;
+	/// Returns the physical bragg angle control.
+	virtual AMControl* braggAngleControl() const = 0;
+
 	/// Returns a new 'set energy' action, 0 if not connected. The argument is the desired energy.
 	virtual AMAction3* createSetEnergyAction(double newEnergy);
 	/// Returns a new action that adjusts the bragg motor offset s.t. the mono energy matches the desired energy.
