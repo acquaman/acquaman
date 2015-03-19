@@ -35,11 +35,12 @@ BioXASMainXASScanActionController::BioXASMainXASScanActionController(BioXASMainX
     configuration_ = configuration;
 
     scan_ = new AMXASScan();
+    scan_->setName(configuration_->name());
     scan_->setFileFormat("amCDFv1");
     scan_->setScanConfiguration(configuration);
     scan_->setIndexType("fileSystem");
     scan_->rawData()->addScanAxis(AMAxisInfo("eV", 0, "Incident Energy", "eV"));
-    scan_->setNotes(buildNotes());
+    scan_->setNotes(beamlineSettings());
 
     AMControlInfoList list;
     configuration_->setAxisControlInfos(list);
@@ -48,6 +49,14 @@ BioXASMainXASScanActionController::BioXASMainXASScanActionController(BioXASMainX
     detectorSet.addDetectorInfo(BioXASMainBeamline::bioXAS()->i0Detector()->toInfo());
     detectorSet.addDetectorInfo(BioXASMainBeamline::bioXAS()->iTDetector()->toInfo());
     detectorSet.addDetectorInfo(BioXASMainBeamline::bioXAS()->i2Detector()->toInfo());
+    detectorSet.addDetectorInfo(BioXASMainBeamline::bioXAS()->energyFeedbackDetector()->toInfo());
+    detectorSet.addDetectorInfo(BioXASMainBeamline::bioXAS()->dwellTimeDetector()->toInfo());
+    detectorSet.addDetectorInfo(BioXASMainBeamline::bioXAS()->braggMoveRetriesDetector()->toInfo());
+    detectorSet.addDetectorInfo(BioXASMainBeamline::bioXAS()->braggMoveRetriesMaxDetector()->toInfo());
+    detectorSet.addDetectorInfo(BioXASMainBeamline::bioXAS()->braggStepSetpointDetector()->toInfo());
+    detectorSet.addDetectorInfo(BioXASMainBeamline::bioXAS()->braggDegreeSetpointDetector()->toInfo());
+    detectorSet.addDetectorInfo(BioXASMainBeamline::bioXAS()->braggAngleDetector()->toInfo());
+
     configuration_->setDetectorConfigurations(detectorSet);
 }
 
@@ -60,9 +69,9 @@ QString BioXASMainXASScanActionController::beamlineSettings()
 {
 	QString notes;
 
-//	notes.append(QString("Bragg motor base velocity:\t%1").arg(BioXASMainBeamline::bioXAS()->mono()->braggMotor()->EGUBaseVelocity()));
-//	notes.append(QString("Bragg motor acceleration:\t%1").arg(BioXASMainBeamline::bioXAS()->mono()->braggMotor()->EGUAcceleration()));
-//	notes.append(QString("Bragg motor velocity:\t%1").arg(BioXASMainBeamline::bioXAS()->mono()->braggMotor()->EGUVelocity()));
+	notes.append(QString("Bragg motor base velocity:\t%1").arg(BioXASMainBeamline::bioXAS()->mono()->braggMotor()->EGUBaseVelocity()));
+	notes.append(QString("Bragg motor acceleration:\t%1").arg(BioXASMainBeamline::bioXAS()->mono()->braggMotor()->EGUAcceleration()));
+	notes.append(QString("Bragg motor velocity:\t%1").arg(BioXASMainBeamline::bioXAS()->mono()->braggMotor()->EGUVelocity()));
 
 	return notes;
 }
