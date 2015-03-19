@@ -156,6 +156,7 @@ protected:
 	BioXASPseudoMotorControl *m2PseudoLateral_;
 
 	BioXASPseudoMotorControl *monoPseudoEnergy_;
+	AMPVwStatusControl *monoBraggAngle_;
 
 protected:
     // Connected

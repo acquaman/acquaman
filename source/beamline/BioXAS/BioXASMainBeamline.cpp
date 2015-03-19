@@ -94,6 +94,7 @@ QList<AMControl *> BioXASMainBeamline::getMotorsByType(BioXASBeamlineDef::BioXAS
 
     case BioXASBeamlineDef::PseudoMonoMotor: // BioXAS Pseudo Mono motor
         matchedMotors.append(monoPseudoEnergy_);
+		matchedMotors.append(monoBraggAngle_);
         break;
 
     default:
@@ -156,8 +157,6 @@ void BioXASMainBeamline::setupSampleStage()
 
 void BioXASMainBeamline::setupMono()
 {
-	qDebug() << "About to set up the main mono.";
-
 	mono_ = new BioXASMainMonochromator(this);
 }
 
@@ -242,6 +241,7 @@ void BioXASMainBeamline::setupMotorGroup()
 
     // BioXAS Mono Pseudo motors					   name,				   pvBaseName,				readPVname,	writePVname, movingPVname,	enabledPVname, stopPVname, tolerance, moveStartTimeoutSeconds, statusChecker, stopValue, description, parent = 0
     monoPseudoEnergy_ = new BioXASPseudoMotorControl("BL1607-5-I21 Main Mono Energy", "BL1607-5-I21:Energy", ":EV:fbk", ":EV", ":status", ":enabled", ":stop");
+    monoBraggAngle_ = new AMPVwStatusControl("BL1607-5-I21 Main Mono Bragg Angle", "BL1607-5-I21:Energy:EV:fbk:tr.K", "BL1607-5-I21:Energy:EV:sp:tr.E", "BL1607-5-I21:Energy:status", "BL1607-5-I21:Energy:stop", this, 0.05);
 }
 
 void BioXASMainBeamline::setupControlsAsDetectors()

@@ -212,6 +212,7 @@ QList<AMControl *> BioXASSideBeamline::getMotorsByType(BioXASBeamlineDef::BioXAS
 
 	case BioXASBeamlineDef::PseudoMonoMotor: // BioXAS Pseudo Mono motor
 		matchedMotors.append(monoPseudoEnergy_);
+		matchedMotors.append(monoBraggAngle_);
 		break;
 
 	default:
@@ -270,7 +271,7 @@ void BioXASSideBeamline::onPressureError()
 
 		current = qobject_cast<AMReadOnlyPVwStatusControl *>(pressureSet_->at(i));
 
-		if (current->isMoving())
+		if (current && current->isMoving())
 			error += tr("%1 (%2) %3 %4\n").arg(current->name()).arg(current->readPVName()).arg(current->value(), 0, 'e', 3).arg(current->units());
 	}
 
@@ -307,7 +308,7 @@ void BioXASSideBeamline::onValveError()
 
 			AMReadOnlyPVwStatusControl *first = qobject_cast<AMReadOnlyPVwStatusControl *>(valveSet_->at(i));
 
-			if (first->isMoving()) // Closed is 0.
+			if (first && first->isMoving())
 				error += QString("%1 (%2)\n").arg(first->name()).arg(first->movingPVName());
 		}
 
@@ -315,7 +316,7 @@ void BioXASSideBeamline::onValveError()
 
 			current = qobject_cast<CLSBiStateControl *>(valveSet_->at(i));
 
-			if (current->state() == 0) // Closed is 0.
+			if (current && current->isClosed())
 				error += QString("%1 (%2)\n").arg(current->name()).arg(current->statePVName());
 		}
 	}
@@ -351,7 +352,7 @@ void BioXASSideBeamline::onIonPumpError()
 
 		current = qobject_cast<AMReadOnlyPVControl *>(ionPumpSet_->at(i));
 
-		if (!current->value())
+		if (current && !current->value())
 			error += tr("%1 (%2)\n").arg(current->name()).arg(current->readPVName());
 	}
 
@@ -388,7 +389,7 @@ void BioXASSideBeamline::onFlowTransducerError()
 
 		current = qobject_cast<AMReadOnlyPVwStatusControl *>(flowTransducerSet_->at(i));
 
-		if (current->isMoving())
+		if (current && current->isMoving())
 			error += tr("%1 (%2) %3 %4\n").arg(current->name()).arg(current->readPVName()).arg(current->value(), 0, 'e', 3).arg(current->units());
 	}
 
@@ -423,7 +424,7 @@ void BioXASSideBeamline::onFlowSwitchError()
 
 		current = qobject_cast<AMReadOnlyPVControl *>(flowSwitchSet_->at(i));
 
-		if (!current->value())
+		if (current && !current->value())
 			error += tr("%1 (%2)\n").arg(current->name()).arg(current->readPVName());
 	}
 
@@ -460,7 +461,7 @@ void BioXASSideBeamline::onTemperatureError()
 
 		current = qobject_cast<AMReadOnlyPVwStatusControl *>(temperatureSet_->at(i));
 
-		if (current->isMoving())
+		if (current && current->isMoving())
 			error += tr("%1 (%2) %3 %4\n").arg(current->name()).arg(current->readPVName()).arg(current->value(), 0, 'e', 3).arg(current->units());
 	}
 
@@ -621,6 +622,7 @@ void BioXASSideBeamline::setupMotorGroup()
 
 	// BioXAS Mono Pseudo motors					   name,				   pvBaseName,				readPVname,	writePVname, movingPVname,	enabledPVname, stopPVname, tolerance, moveStartTimeoutSeconds, statusChecker, stopValue, description, parent = 0
 	monoPseudoEnergy_ = new BioXASPseudoMotorControl("BL1607-5-I22 Side Mono Energy", "BL1607-5-I22:Energy", ":EV:fbk", ":EV", ":status", ":enabled", ":stop");
+	monoBraggAngle_ = new AMPVwStatusControl("BL1607-5-I22 Side Mono Bragg Angle", "BL1607-5-I22:Energy:EV:fbk:tr.K", "BL1607-5-I22:Energy:EV:sp:tr.E", "BL1607-5-I22:Energy:status", "BL1607-5-I22:Energy:stop", this, 0.05);
 }
 
 void BioXASSideBeamline::setupDetectors()
