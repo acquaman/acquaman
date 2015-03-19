@@ -16,13 +16,12 @@
 #include "dataman/export/AMExporterOptionSMAK.h"
 #include "dataman/database/AMDbObjectSupport.h"
 
+
 namespace SXRMB {
 
-	enum SXRMBErrorCodes {
-		ErrorSXRMBBeamlineShuttersTimeout = 290101,  // 2-CLS 9-SXRMB 01 module-01 errorID-01
-		ErrorSXRMBBeamlineXRFDetectorScanNotExist = 290201, // 2-CLS 9-SXRMB 01 module XRF detector failed to create scan for exporting
-		ErrorSXRMBBeamlineXRFDetectorNotConnected = 290202  // 2-CLS 9-SXRMB 01 module XRF detector not initialized
-	};
+	#define ERR_SXRMB_SHUTTERS_TIMEOUT 290101
+	#define ERR_SXRMB_XRF_DETECTOR_NOT_CONNECTED 290201 //XRF detector not initialized
+	#define ERR_SXRMB_XRF_DETECTOR_SCAN_NOT_EXIST 290201 //XRF detector failed to create scan for exporting
 
 	/// Helper method that takes a time in seconds and returns a string of d:h:m:s.
 	inline QString convertTimeToString(double time)

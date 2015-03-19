@@ -71,7 +71,7 @@ bool BioXASImagingAppController::startup()
 		// We'll use loading a run from the db as a sign of whether this is the first time an application has been run because startupIsFirstTime will return false after the user data folder is created.
 		if (!existingRun.loadFromDb(AMDatabase::database("user"), 1)){
 
-			AMRun firstRun(CLSBeamline::BioXAS_Imaging_bl_name, CLSBeamline::BioXASImagingBeamline); //8: BioXAS Imaging Beamline
+			AMRun firstRun(CLSBeamline::beamlineName(CLSBeamline::BioXASImagingBeamline), CLSBeamline::BioXASImagingBeamline); //8: BioXAS Imaging Beamline
 			firstRun.storeToDb(AMDatabase::database("user"));
 		}
 

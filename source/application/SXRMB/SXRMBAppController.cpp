@@ -198,7 +198,7 @@ void SXRMBAppController::onBeamlineConnected(bool connected)
 void SXRMBAppController::onBeamControlShuttersTimeout()
 {
 	QString errorMessage = "One (several) Beamline Valve/PSH shutter(s) can't be connected. Please contact beamline staff. This might affect your usage of Acuqaman.";
-	AMErrorMon::alert(this, SXRMB::ErrorSXRMBBeamlineShuttersTimeout, errorMessage, true);
+	AMErrorMon::alert(this, ERR_SXRMB_SHUTTERS_TIMEOUT, errorMessage, true);
 }
 
 void SXRMBAppController::onBeamAvailabilityChanged(bool beamAvailable)
@@ -255,7 +255,7 @@ void SXRMBAppController::setupOnFirstRun()
 	AMRun existingRun;
 	// We'll use loading a run from the db as a sign of whether this is the first time an application has been run because startupIsFirstTime will return false after the user data folder is created.
 	if (!existingRun.loadFromDb(AMDatabase::database("user"), 1)){
-		AMRun firstRun(CLSBeamline::SXRMB_bl_name, CLSBeamline::SXRMBBeamline); //9: SXRMB Beamline
+		AMRun firstRun(CLSBeamline::beamlineName(CLSBeamline::SXRMBBeamline), CLSBeamline::SXRMBBeamline); //9: SXRMB Beamline
 		firstRun.storeToDb(AMDatabase::database("user"));
 	}
 }

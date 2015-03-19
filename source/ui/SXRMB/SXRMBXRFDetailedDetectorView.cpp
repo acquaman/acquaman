@@ -66,7 +66,7 @@ void SXRMBXRFDetailedDetectorView::exportScan()
 		AMScan *scan = AMScan::createFromDatabaseUrl(scanUrl, false);
 		if (!scan) {
 			QString errorMessage = QString("Failed to open AMScan for %1").arg(scanUrl.toString());
-			AMErrorMon::alert(this, SXRMB::ErrorSXRMBBeamlineXRFDetectorScanNotExist, errorMessage);
+			AMErrorMon::alert(this, ERR_SXRMB_XRF_DETECTOR_SCAN_NOT_EXIST, errorMessage);
 			return;
 		}
 

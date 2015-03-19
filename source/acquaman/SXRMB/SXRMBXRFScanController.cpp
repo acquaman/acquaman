@@ -101,7 +101,7 @@ bool SXRMBXRFScanController::startImplementation()
 {
 	if (!detector_->isConnected() || !detector_->isInitialized()) {
 		QString errorMessage = QString("The bruker detector %1 is not connected or initialized.").arg(detector_->name());
-		AMErrorMon::alert(this, SXRMB::ErrorSXRMBBeamlineXRFDetectorNotConnected, errorMessage, true);
+		AMErrorMon::alert(this, ERR_SXRMB_XRF_DETECTOR_NOT_CONNECTED, errorMessage, true);
 		return false;
 	}
 
@@ -125,10 +125,10 @@ void SXRMBXRFScanController::onDetectorAcquisitionFinished()
 
 		detector_->rawSpectrumSources().at(i)->values(AMnDIndex(0), AMnDIndex(detector_->size(0)-1), spectrum.data());
 		scan_->rawData()->setValue(AMnDIndex(), i, spectrum.constData());
-		if (detector_->inputCountSourceAt(i))
+		if (detector_->inputCountSources().size() > 0)
 			scan_->rawData()->setValue(AMnDIndex(), i+elements, AMnDIndex(), detector_->inputCountSourceAt(i)->value(AMnDIndex()));
 
-		if (detector_->inputCountSourceAt(i))
+		if (detector_->outputCountSources().size() > 0)
 			scan_->rawData()->setValue(AMnDIndex(), i+2*elements, AMnDIndex(), detector_->outputCountSourceAt(i)->value(AMnDIndex()));
 	}
 

@@ -220,7 +220,7 @@ bool SGMAppController::startup() {
 	AMRun existingRun;
 	if(!existingRun.loadFromDb(AMDatabase::database("user"), 1)) {
 		// no run yet... let's create one.
-		AMRun firstRun(CLSBeamline::SGM_bl_name, CLSBeamline::SGMBeamline); //3: SGM Beamline
+		AMRun firstRun(CLSBeamline::beamlineName(CLSBeamline::SGMBeamline), CLSBeamline::SGMBeamline); //3: SGM Beamline
 		firstRun.storeToDb(AMDatabase::database("user"));
 	}
 

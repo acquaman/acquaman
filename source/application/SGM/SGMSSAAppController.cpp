@@ -52,7 +52,7 @@ bool SGMSSAAppController::startup() {
 		AMRun existingRun;
 		if(!existingRun.loadFromDb(AMDatabase::database("user"), 1)) {
 			// no run yet... let's create one.
-			AMRun firstRun(CLSBeamline::SGMSS_bl_name, CLSBeamline::SGMSSBeamline); //3: SGMSS Beamline
+			AMRun firstRun(CLSBeamline::SGMSSBeamlineName, CLSBeamline::SGMSSBeamline); //3: SGMSS Beamline
 			firstRun.storeToDb(AMDatabase::database("user"));
 		}
 

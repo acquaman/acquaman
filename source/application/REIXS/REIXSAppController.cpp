@@ -215,7 +215,7 @@ bool REIXSAppController::startupAfterEverything() {
 	AMRun existingRun;
 	if(!existingRun.loadFromDb(AMDatabase::database("user"), 1)) {
 		// no run yet... let's create one.
-		AMRun firstRun(CLSBeamline::REIXS_bl_name, CLSBeamline::REIXSBeamline); //5: REIXS Beamline
+		AMRun firstRun(CLSBeamline::beamlineName(CLSBeamline::REIXSBeamline), CLSBeamline::REIXSBeamline); //5: REIXS Beamline
 		firstRun.storeToDb(AMDatabase::database("user"));
 	}
 
