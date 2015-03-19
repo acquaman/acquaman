@@ -56,16 +56,20 @@ SXRMBXRFScanController::SXRMBXRFScanController(SXRMBXRFScanConfiguration *scanCo
 		scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), i), true, false);
 	}
 
-	for (int i = 0; i < elements; i++){
+	if (detector_->inputCountSources().size() > 0) {
+		for (int i = 0; i < elements; i++){
 
-		scan_->rawData()->addMeasurement(AMMeasurementInfo(QString("icr%1").arg(i+1), QString("Input count rate %1").arg(i+1), "%", QList<AMAxisInfo>()));
-		scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), i+elements), false, true);
+			scan_->rawData()->addMeasurement(AMMeasurementInfo(QString("icr%1").arg(i+1), QString("Input count rate %1").arg(i+1), "%", QList<AMAxisInfo>()));
+			scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), i+elements), false, true);
+		}
 	}
 
-	for (int i = 0; i < elements; i++){
+	if (detector_->outputCountSources().size() > 0) {
+		for (int i = 0; i < elements; i++){
 
-		scan_->rawData()->addMeasurement(AMMeasurementInfo(QString("ocr%1").arg(i+1), QString("Output count rate %1").arg(i+1), "%", QList<AMAxisInfo>()));
-		scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), i+2*elements), false, true);
+			scan_->rawData()->addMeasurement(AMMeasurementInfo(QString("ocr%1").arg(i+1), QString("Output count rate %1").arg(i+1), "%", QList<AMAxisInfo>()));
+			scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), i+2*elements), false, true);
+		}
 	}
 
 	for (int i = 0; i < elements; i++){
