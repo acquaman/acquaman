@@ -161,14 +161,12 @@ void BioXASMainBeamline::setupMono()
 
 void BioXASMainBeamline::setupComponents()
 {
-    // Scaler
-
     scaler_ = new CLSSIS3820Scaler("BL1607-5-I21:mcs", this);
     connect( scaler_, SIGNAL(connectedChanged(bool)), this, SLOT(onComponentConnectedChanged(bool)) );
 
     scalerDwellTime_ = new AMReadOnlyPVControl("ScalerDwellTime", "BL1607-5-I21:mcs:delay", this, "Scaler dwell time");
 
-    // Amplifiers
+    setupDetectors();
 
     i0Keithley_ = new CLSKeithley428("I0 Channel", "AMP1607-701:Gain", this);
     scaler_->channelAt(0)->setCustomChannelName("I0 Channel");
@@ -293,7 +291,6 @@ BioXASMainBeamline::BioXASMainBeamline()
     setupComponents();
     setupDiagnostics();
     setupSampleStage();
-    setupDetectors();
     setupControlSets();
     setupMono();
     setupMotorGroup();
