@@ -34,7 +34,6 @@ BioXASSideBeamline::BioXASSideBeamline()
 	setupComponents();
 	setupDiagnostics();
 	setupSampleStage();
-//	setupDetectors();
 	setupControlSets();
 	setupMono();
 	setupMotorGroup();
