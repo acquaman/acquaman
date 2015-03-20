@@ -30,7 +30,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "util/AMEmissionLine.h"
 
 #include <QSignalMapper>
-
+#include <QDebug>
 #define AMXRFDETECTOR_SPECTRUMSIZE_DEADTIMESIZE_MISMATCH 678000
 
 /// This is the new base class that all XRF detectors should inherit from.  It should contain all the necessary prerequisites for a quick start up and also provide a basis for more elaborate requirements for more complicated detectors.
@@ -89,11 +89,17 @@ public:
 	/// Returns the input count data sources.
 	QList<AMDataSource *> inputCountSources() const { return icrSources_; }
 	/// Returns the input count data source at the given index.
-	AMDataSource *inputCountSourceAt(int index) const { return icrSources_.at(index); }
+	AMDataSource *inputCountSourceAt(int index) const {
+		qDebug() << "========== ICR =======: count - " << icrSources_.count() << " index - "<< index << " result - " << icrSources_.at(index);
+		return icrSources_.at(index);
+	}
 	/// Returns the output count data sources.
 	QList<AMDataSource *> outputCountSources() const { return ocrSources_; }
 	/// Returns the output count data source at the given index.
-	AMDataSource *outputCountSourceAt(int index) const { return ocrSources_.at(index); }
+	AMDataSource *outputCountSourceAt(int index) const {
+		qDebug() << "========== OCR =======: count - " << ocrSources_.count() << " index - "<< index << " result - " << ocrSources_.at(index);
+
+		return ocrSources_.at(index); }
 
 	/// Returns the primary data source for viewing the detector's output.
 	virtual AMDataSource *dataSource() const { return primarySpectrumDataSource_; }

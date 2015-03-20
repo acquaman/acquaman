@@ -72,11 +72,13 @@ SXRMBXRFScanController::SXRMBXRFScanController(SXRMBXRFScanConfiguration *scanCo
 		}
 	}
 
-	for (int i = 0; i < elements; i++){
+	if (detector_->inputCountSources().size() > 0 && detector_->outputCountSources().size() > 0) {
+		for (int i = 0; i < elements; i++){
 
-		AMDeadTimeAB *temp = new AMDeadTimeAB(QString("Corrected %1").arg(i+1));
-		temp->setInputDataSourcesImplementation(QList<AMDataSource *>() << (AMDataSource *)scan_->rawDataSources()->at(i) << (AMDataSource *)scan_->rawDataSources()->at(i+elements) << (AMDataSource *)scan_->rawDataSources()->at(i+2*elements));
-		scan_->addAnalyzedDataSource(temp, true, false);
+			AMDeadTimeAB *temp = new AMDeadTimeAB(QString("Corrected %1").arg(i+1));
+			temp->setInputDataSourcesImplementation(QList<AMDataSource *>() << (AMDataSource *)scan_->rawDataSources()->at(i) << (AMDataSource *)scan_->rawDataSources()->at(i+elements) << (AMDataSource *)scan_->rawDataSources()->at(i+2*elements));
+			scan_->addAnalyzedDataSource(temp, true, false);
+		}
 	}
 
 	if (elements > 1){
