@@ -452,7 +452,8 @@ HEADERS += \
 	source/ui/util/AMChooseDataFolderDialog.h \
 	source/acquaman/AMTimedScanActionControllerAssembler.h \
 	source/beamline/CLS/CLSBeamlines.h \
-    source/dataman/AMLightweightScanInfoFactory.h
+    source/dataman/AMLightweightScanInfoFactory.h \
+    source/ui/util/AMUniformGridLayout.h
 
 FORMS += \
 
@@ -866,7 +867,8 @@ SOURCES += \
 	source/dataman/AMXRFScan.cpp \
 	source/ui/util/AMChooseDataFolderDialog.cpp \
 	source/acquaman/AMTimedScanActionControllerAssembler.cpp \
-    source/dataman/AMLightweightScanInfoFactory.cpp
+    source/dataman/AMLightweightScanInfoFactory.cpp \
+    source/ui/util/AMUniformGridLayout.cpp
 
 RESOURCES *= source/icons/icons.qrc \
 		source/configurationFiles/configurationFiles.qrc \
