@@ -96,8 +96,6 @@ public:
     AMBasicControlDetectorEmulator* braggDegreeSetpointDetector() const { return braggDegreeSetpointDetector_; }
     /// Returns the physical bragg angle detector.
     AMBasicControlDetectorEmulator* braggAngleDetector() const { return braggAngleDetector_; }
-    /// Returns the 32 element Ge detector.
-    BioXAS32ElementGeDetector *ge32ElementDetector() const { return ge32ElementDetector_; }
 
     /// Return the set of BioXAS Motors by given motor category.
 	QList<AMControl *> getMotorsByType(BioXASBeamlineDef::BioXASMotorType category);
@@ -194,8 +192,6 @@ protected:
     AMBasicControlDetectorEmulator *braggStepSetpointDetector_;
     AMBasicControlDetectorEmulator *braggDegreeSetpointDetector_;
     AMBasicControlDetectorEmulator *braggAngleDetector_;
-    BioXAS32ElementGeDetector *ge32ElementDetector_;
-
 
     // Scaler
     CLSSIS3820Scaler *scaler_;

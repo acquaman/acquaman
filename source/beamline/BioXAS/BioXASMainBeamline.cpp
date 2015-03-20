@@ -145,8 +145,6 @@ void BioXASMainBeamline::setupDetectors()
     iTDetector_ = new CLSBasicScalerChannelDetector("ITDetector", "IT Detector", scaler_, 1, this);
 
     i2Detector_ = new CLSBasicScalerChannelDetector("I2Detector", "I2 Detector", scaler_, 15, this);
-
-    ge32ElementDetector_ = new BioXAS32ElementGeDetector("Ge32Element", "Ge 32 Element", this);
 }
 
 void BioXASMainBeamline::setupSampleStage()
@@ -167,6 +165,10 @@ void BioXASMainBeamline::setupComponents()
     connect( scaler_, SIGNAL(connectedChanged(bool)), this, SLOT(onComponentConnectedChanged(bool)) );
 
     scalerDwellTime_ = new AMReadOnlyPVControl("ScalerDwellTime", "BL1607-5-I21:mcs:delay", this, "Scaler dwell time");
+
+    // Detectors
+
+    setupDetectors();
 
     // Amplifiers
 
@@ -203,7 +205,6 @@ void BioXASMainBeamline::setupExposedDetectors()
     addExposedDetector(braggStepSetpointDetector_);
     addExposedDetector(braggDegreeSetpointDetector_);
     addExposedDetector(braggAngleDetector_);
-    addExposedDetector(ge32ElementDetector_);
 }
 
 void BioXASMainBeamline::setupMotorGroup()
@@ -293,7 +294,6 @@ BioXASMainBeamline::BioXASMainBeamline()
     setupComponents();
     setupDiagnostics();
     setupSampleStage();
-    setupDetectors();
     setupControlSets();
     setupMono();
     setupMotorGroup();

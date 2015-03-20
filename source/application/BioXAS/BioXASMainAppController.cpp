@@ -32,7 +32,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "application/AMAppControllerSupport.h"
 
-#include "dataman/database/AMDbObjectSupport.h"
+#include "source/dataman/database/AMDbObjectSupport.h"
 #include "dataman/export/AMExportController.h"
 #include "dataman/export/AMExporterOptionGeneralAscii.h"
 #include "dataman/export/AMExporterGeneralAscii.h"
@@ -93,7 +93,7 @@ bool BioXASMainAppController::startup()
 		setupExporterOptions();
 		setupUserInterface();
 		makeConnections();
-        applyCurrentSettings();
+	applyCurrentSettings();
 
 		return true;
 
@@ -112,9 +112,11 @@ void BioXASMainAppController::shutdown()
 
 void BioXASMainAppController::onScalerConnected()
 {
-    if (BioXASMainBeamline::bioXAS()->scaler()->isConnected() && !scalerView_) {
-        scalerView_ = new CLSSIS3820ScalerView(BioXASMainBeamline::bioXAS()->scaler(), false);
-        mw_->addPane(scalerView_, "Detectors", "Scaler", ":/system-search.png", true);
+	CLSSIS3820Scaler *scaler = BioXASMainBeamline::bioXAS()->scaler();
+
+    if (scaler && scaler->isConnected() && !scalerView_) {
+	scalerView_ = new CLSSIS3820ScalerView(scaler, false);
+	mw_->addPane(scalerView_, "Detectors", "Scaler", ":/system-search.png", true);
     }
 }
 
