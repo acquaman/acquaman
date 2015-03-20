@@ -31,7 +31,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "ui/util/AMMessageBoxWTimeout.h"
 
-
 AMErrorMon* AMErrorMon::instance_ = 0;
 QMutex AMErrorMon::instanceMutex_(QMutex::Recursive);
 

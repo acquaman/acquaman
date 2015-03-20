@@ -78,10 +78,13 @@ void SXRMBXRFDetailedDetectorView::exportScan()
 
 			scan->setName(scanName);
 			scan->storeToDb(AMDatabase::database("user"));
+			scans << scan;
 		}
-
-		scans << scan;
 	}
+
+	// exporting is cancelled
+	if (scans.size() == 0)
+		return;
 
 	exportController_ = new AMExportController(scans);
 	connect(exportController_, SIGNAL(stateChanged(int)), this, SLOT(onExportControllerStateChanged(int)));

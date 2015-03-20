@@ -260,7 +260,6 @@ HEADERS += \
 	source/acquaman/AMNestedAxisTypeValidator.h \
 	source/dataman/AM3DScan.h \
 	source/dataman/AMTextStream.h \
-	source/ui/util/AMMessageBoxWTimeout.h \
 	source/beamline/CLS/CLSPGTDetectorV2.h \
 	source/beamline/CLS/CLSQE65000Detector.h \
 	source/acquaman/AMDetectorDwellTimeSourceScanOptimizer.h \
@@ -674,7 +673,6 @@ SOURCES += \
 	source/acquaman/AMNestedAxisTypeValidator.cpp \
 	source/dataman/AM3DScan.cpp \
 	source/dataman/AMTextStream.cpp \
-	source/ui/util/AMMessageBoxWTimeout.cpp \
 	source/beamline/CLS/CLSPGTDetectorV2.cpp \
 	source/beamline/CLS/CLSQE65000Detector.cpp \
 	source/acquaman/AMDetectorDwellTimeSourceScanOptimizer.cpp \

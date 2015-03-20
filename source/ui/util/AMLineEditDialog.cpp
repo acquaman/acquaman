@@ -40,5 +40,5 @@ AMLineEditDialog::AMLineEditDialog(const QString &title, const QString &question
 QString AMLineEditDialog::retrieveAnswer(const QString &title, const QString &question, const QString &defaultAnswer, QWidget *parent)
 {
 	AMLineEditDialog dialog(title, question, defaultAnswer, parent);
-	return dialog.exec() ? dialog.answer() : defaultAnswer;
+	return dialog.exec() ? dialog.answer() : "";
 }
