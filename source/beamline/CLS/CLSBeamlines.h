@@ -1,6 +1,8 @@
 #ifndef CLSBEAMLINES_H
 #define CLSBEAMLINES_H
 
+#include <QString>
+
 namespace CLSBeamline {
 	enum CLSBeamlines
 	{
@@ -25,7 +27,7 @@ namespace CLSBeamline {
 	const QString BioXASImagingBeamlineName = "BioXASImaging";
 	const QString SXRMBBeamlineName = "SXRMB";
 
-	QString beamlineName(CLSBeamline::CLSBeamlines beamline) {
+	inline QString beamlineName(CLSBeamline::CLSBeamlines beamline) {
 		QString name;
 		switch (beamline) {
 		case CLSBeamline::SGMBeamline:
