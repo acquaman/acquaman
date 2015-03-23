@@ -1,5 +1,6 @@
 #include "BioXASSSRLMonochromatorRegionControl.h"
 #include "BioXASSSRLMonochromator.h"
+#include <QDebug>
 
 BioXASSSRLMonochromatorRegionControl::BioXASSSRLMonochromatorRegionControl(QObject *parent) :
 	AMCompositeControl("RegionControl", "", parent, "BioXAS SSRL Monochromator Region Control")
@@ -371,18 +372,24 @@ void BioXASSSRLMonochromatorRegionControl::onRegionChangeStarted()
 
 void BioXASSSRLMonochromatorRegionControl::onRegionChangeCancelled(QObject *action)
 {
+	qDebug() << "\n\nRegion change successfully cancelled.\n\n";
+
 	moveCleanup(action);
 	emit moveFailed(AMControl::WasStoppedFailure);
 }
 
 void BioXASSSRLMonochromatorRegionControl::onRegionChangeFailed(QObject *action)
 {
+	qDebug() << "\n\nRegion change successfully failed.\n\n";
+
 	moveCleanup(action);
 	emit moveFailed(AMControl::OtherFailure);
 }
 
 void BioXASSSRLMonochromatorRegionControl::onRegionChangeSucceeded(QObject *action)
 {
+	qDebug() << "\n\nRegion change successfully succeeded. :)\n\n";
+
 	moveCleanup(action);
 	emit moveSucceeded();
 }
@@ -919,6 +926,10 @@ void BioXASSSRLMonochromatorRegionControl::moveCleanup(QObject *action)
 		disconnect( action, 0, actionFailedMapper_, 0 );
 		disconnect( action, 0, actionSucceededMapper_, 0 );
 		disconnect( action, 0, this, 0 );
+
+		actionCancelledMapper_->removeMappings(action);
+		actionFailedMapper_->removeMappings(action);
+		actionSucceededMapper_->removeMappings(action);
 
 		action->deleteLater();
 	}
