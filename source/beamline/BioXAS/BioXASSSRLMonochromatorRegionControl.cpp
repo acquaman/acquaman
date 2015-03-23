@@ -97,17 +97,17 @@ bool BioXASSSRLMonochromatorRegionControl::canMove() const
 AMControl::FailureExplanation BioXASSSRLMonochromatorRegionControl::move(double setpoint)
 {
 	if (!isConnected()) {
-		AMErrorMon::error(this, AMErrorReport::Alert, "Region control is not connected. Cannot complete move.");
+		AMErrorMon::error(this, BioXAS_MONO_REGION_NOT_CONNECTED, "Region control is not connected. Cannot complete move.");
 		return AMControl::NotConnectedFailure;
 	}
 
 	if (isMoving()) {
-		AMErrorMon::error(this, AMErrorReport::Alert, "Region control is already moving. Cannot start a new move until one one is complete.");
+		AMErrorMon::error(this, BioXAS_MONO_REGION_ALREADY_MOVING, "Region control is already moving. Cannot start a new move until one one is complete.");
 		return AMControl::AlreadyMovingFailure;
 	}
 
 	if (!canMove()) {
-		AMErrorMon::error(this, AMErrorReport::Alert, "Region control cannot move. Child controls may be set improperly or unable to move themselves.");
+		AMErrorMon::error(this, BioXAS_MONO_REGION_CANNOT_MOVE, "Region control cannot move. Child controls may be set improperly or unable to move themselves.");
 		return AMControl::LimitFailure;
 	}
 
@@ -117,7 +117,7 @@ AMControl::FailureExplanation BioXASSSRLMonochromatorRegionControl::move(double 
 	setSetpoint((int)setpoint);
 
 	if (!validRegionSetpoint(setpoint_)) {
-		AMErrorMon::error(this, AMErrorReport::Alert, "Region control cannot move. The setpoint given is invalid.");
+		AMErrorMon::error(this, BioXAS_MONO_REGION_INVALID_SETPOINT, "Region control cannot move. The setpoint given is invalid.");
 		return AMControl::LimitFailure;
 	}
 
@@ -128,7 +128,7 @@ AMControl::FailureExplanation BioXASSSRLMonochromatorRegionControl::move(double 
 	// If a valid action was NOT generated, there must be some problem with one of the child controls.
 
 	if (!action) {
-		AMErrorMon::error(this, AMErrorReport::Alert, "Region control cannot move. The problem is most likely that the destination is not a valid region.");
+		AMErrorMon::error(this, BioXAS_MONO_REGION_INVALID_ACTION, "Region control cannot move. The problem is most likely that the destination is not a valid region.");
 		return AMControl::LimitFailure;
 	}
 
@@ -397,7 +397,7 @@ AMAction3* BioXASSSRLMonochromatorRegionControl::createCloseUpperSlitAction()
 		action = AMActionSupport::buildControlMoveAction(control, SETPOINT_SLIT_CLOSED);
 
 	if (!action)
-		AMErrorMon::error(this, AMErrorReport::Alert, "Failed to create action to close mono upper slit.");
+		AMErrorMon::error(this, BioXAS_MONO_REGION_CLOSE_UPPER_SLIT_FAILED, "Failed to create action to close mono upper slit.");
 
 	return action;
 }
@@ -411,7 +411,7 @@ AMAction3* BioXASSSRLMonochromatorRegionControl::createCloseLowerSlitAction()
 		action = AMActionSupport::buildControlMoveAction(control, SETPOINT_SLIT_CLOSED);
 
 	if (!action)
-		AMErrorMon::error(this, AMErrorReport::Alert, "Failed to create action to close mono lower slit.");
+		AMErrorMon::error(this, BioXAS_MONO_REGION_CLOSE_LOWER_SLIT_FAILED, "Failed to create action to close mono lower slit.");
 
 	return action;
 }
@@ -429,7 +429,7 @@ AMAction3* BioXASSSRLMonochromatorRegionControl::createWaitForSlitsClosedAction(
 	}
 
 	if (!action)
-		AMErrorMon::error(this, AMErrorReport::Alert, "Failed to create action to wait for both mono slits to be closed.");
+		AMErrorMon::error(this, BioXAS_MONO_REGION_CLOSE_SLITS_FAILED, "Failed to create action to wait for both mono slits to be closed.");
 
 	return action;
 }
@@ -456,7 +456,7 @@ AMAction3* BioXASSSRLMonochromatorRegionControl::createMovePaddleAction(double d
 		action = AMActionSupport::buildControlMoveAction(control, destination);
 
 	if (!action)
-		AMErrorMon::error(this, AMErrorReport::Alert, "Failed to create action to move the mono paddle motor to destination " + QString::number(destination));
+		AMErrorMon::error(this, BioXAS_MONO_REGION_MOVE_PADDLE_FAILED, "Failed to create action to move the mono paddle motor to destination " + QString::number(destination));
 
 	return action;
 }
@@ -474,7 +474,7 @@ AMAction3* BioXASSSRLMonochromatorRegionControl::createWaitForPaddleRemovedActio
 	}
 
 	if (!action)
-		AMErrorMon::error(this, AMErrorReport::Alert, "Failed to create action to wait until mono paddle motor is removed.");
+		AMErrorMon::error(this, BioXAS_MONO_REGION_PADDLE_WAIT_FAILED, "Failed to create action to wait until mono paddle motor is removed.");
 
 	return action;
 }
@@ -501,7 +501,7 @@ AMAction3* BioXASSSRLMonochromatorRegionControl::createWaitForKeyEnabledAction()
 	}
 
 	if (!action)
-		AMErrorMon::error(this, AMErrorReport::Alert, "Failed to create action to wait for the mono key to be turned to 'Enabled.'");
+		AMErrorMon::error(this, BioXAS_MONO_REGION_KEY_ENABLED_WAIT_FAILED, "Failed to create action to wait for the mono key to be turned to 'Enabled.'");
 
 	return action;
 }
@@ -515,7 +515,7 @@ AMAction3* BioXASSSRLMonochromatorRegionControl::createMoveBraggAction(double de
 		action = AMActionSupport::buildControlMoveAction(control, destination);
 
 	if (!action)
-		AMErrorMon::error(this, AMErrorReport::Alert, "Failed to create action to move the mono bragg motor to destination " + QString::number(destination));
+		AMErrorMon::error(this, BioXAS_MONO_REGION_MOVE_BRAGG_FAILED, "Failed to create action to move the mono bragg motor to destination " + QString::number(destination));
 
 	return action;
 }
@@ -533,7 +533,7 @@ AMAction3* BioXASSSRLMonochromatorRegionControl::createWaitForBraggAtCrystalChan
 	}
 
 	if (!action)
-		AMErrorMon::error(this, AMErrorReport::Alert, "Failed to create action to wait for the mono bragg motor to reach the crystal change position.");
+		AMErrorMon::error(this, BioXAS_MONO_REGION_BRAGG_WAIT_FAILED, "Failed to create action to wait for the mono bragg motor to reach the crystal change position.");
 
 	return action;
 }
@@ -551,7 +551,7 @@ AMAction3* BioXASSSRLMonochromatorRegionControl::createWaitForBrakeDisabledActio
 	}
 
 	if (!action)
-		AMErrorMon::error(this, AMErrorReport::Alert, "Failed to create action to wait for the mono brake to be disabled.");
+		AMErrorMon::error(this, BioXAS_MONO_REGION_BRAKE_DISABLED_WAIT_FAILED, "Failed to create action to wait for the mono brake to be disabled.");
 
 	return action;
 }
@@ -574,7 +574,7 @@ AMAction3* BioXASSSRLMonochromatorRegionControl::createMoveCrystalChangeAction(d
 		action = AMActionSupport::buildControlMoveAction(control, destination);
 
 	if (!action)
-		AMErrorMon::error(this, AMErrorReport::Alert, "Failed to create action to move the mono crystal change motor to destination " + QString::number(destination));
+		AMErrorMon::error(this, BioXAS_MONO_REGION_MOVE_CRYSTAL_CHANGE_FAILED, "Failed to create action to move the mono crystal change motor to destination " + QString::number(destination));
 
 	return action;
 }
@@ -633,7 +633,7 @@ AMAction3* BioXASSSRLMonochromatorRegionControl::createWaitForCrystalChangeAtReg
 		action = createWaitForCrystalChangeAtCCWLimitAction();
 
 	if (!action)
-		AMErrorMon::error(this, AMErrorReport::Alert, "Failed to create action to wait for the mono crystal change motor to reach region " + regionStateToString(region));
+		AMErrorMon::error(this, BioXAS_MONO_REGION_CRYSTAL_CHANGE_WAIT_FAILED, "Failed to create action to wait for the mono crystal change motor to reach region " + regionStateToString(region));
 
 	return action;
 }
@@ -669,7 +669,7 @@ AMAction3* BioXASSSRLMonochromatorRegionControl::createWaitForBrakeEnabledAction
 	}
 
 	if (!action)
-		AMErrorMon::error(this, AMErrorReport::Alert, "Failed to create action to wait for the mono brake to be enabled.");
+		AMErrorMon::error(this, BioXAS_MONO_REGION_BRAKE_ENABLED_WAIT_FAILED, "Failed to create action to wait for the mono brake to be enabled.");
 
 	return action;
 }
@@ -687,7 +687,7 @@ AMAction3* BioXASSSRLMonochromatorRegionControl::createWaitForRegionChangedToAAc
 	}
 
 	if (!action)
-		AMErrorMon::error(this, AMErrorReport::Alert, "Failed to create action to wait for the mono to reach region A.");
+		AMErrorMon::error(this, BioXAS_MONO_REGION_REGION_A_WAIT_FAILED, "Failed to create action to wait for the mono to reach region A.");
 
 	return action;
 }
@@ -705,7 +705,7 @@ AMAction3* BioXASSSRLMonochromatorRegionControl::createWaitForRegionChangedToBAc
 	}
 
 	if (!action)
-		AMErrorMon::error(this, AMErrorReport::Alert, "Failed to create action to wait for the mono to reach region B.");
+		AMErrorMon::error(this, BioXAS_MONO_REGION_REGION_B_WAIT_FAILED, "Failed to create action to wait for the mono to reach region B.");
 
 	return action;
 }
@@ -753,7 +753,7 @@ AMAction3* BioXASSSRLMonochromatorRegionControl::createWaitForKeyDisabledAction(
 	}
 
 	if (!action)
-		AMErrorMon::error(this, AMErrorReport::Alert, "Failed to create action to wait for the mono key to be turned to 'Disabled.'");
+		AMErrorMon::error(this, BioXAS_MONO_REGION_KEY_DISABLED_WAIT_FAILED, "Failed to create action to wait for the mono key to be turned to 'Disabled.'");
 
 	return action;
 }
