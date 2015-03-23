@@ -14,7 +14,7 @@ class SXRMBXRFDetailedDetectorView : public AMXRFDetailedDetectorView
 
 public:
 	/// Constructor.  Builds a more detailed view for SXRMBBrukerDetector.
-	SXRMBXRFDetailedDetectorView(SXRMBBrukerDetector *detector, QWidget *parent = 0);
+	SXRMBXRFDetailedDetectorView(AMXRFDetector *detector, QWidget *parent = 0);
 	/// Destructor.
 	virtual ~SXRMBXRFDetailedDetectorView();
 

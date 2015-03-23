@@ -10,7 +10,7 @@
 #include "acquaman/SXRMB/SXRMBXRFScanConfiguration.h"
 #include "application/SXRMB/SXRMB.h"
 
-SXRMBXRFDetailedDetectorView::SXRMBXRFDetailedDetectorView(SXRMBBrukerDetector *detector, QWidget *parent)
+SXRMBXRFDetailedDetectorView::SXRMBXRFDetailedDetectorView(AMXRFDetector *detector, QWidget *parent)
 	:AMXRFDetailedDetectorView(detector, parent)
 {
 	chooseScanDialog_ = 0;
