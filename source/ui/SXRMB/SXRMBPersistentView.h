@@ -66,6 +66,15 @@ protected:
 	AMAction3 *beamOnAction_;
 	/// Our copy of the beam off action
 	AMAction3 *beamOffAction_;
+
+	/// layout the beamline status component and beam control buttons
+	void layoutBeamlineStatus();
+	/// layout the beamline Energy component
+	void layoutBeamlineEnergy();
+	/// layout the beamline motor view and the PVs
+	void layoutMotorGroup();
+	/// layout the beamline Scaler views
+	void layoutScalers();
 };
 
 #endif // SXRMBPERSISTENTVIEW_H
