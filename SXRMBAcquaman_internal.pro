@@ -24,7 +24,8 @@ HEADERS += \
 	source/ui/SXRMB/SXRMBChooseDataFolderDialog.h \
 	source/ui/SXRMB/SXRMB2DOxidationMapScanConfigurationView.h \
 	source/ui/SXRMB/SXRMBXRFDetailedDetectorView.h \
-	source/ui/acquaman/SXRMB/SXRMBOxidationMapScanConfigurationViewHolder.h
+	source/ui/acquaman/SXRMB/SXRMBOxidationMapScanConfigurationViewHolder.h \
+    source/beamline/SXRMB/SXRMBFourElementVortexDetector.h
 
 
 SOURCES += \
@@ -47,7 +48,10 @@ SOURCES += \
 	source/ui/SXRMB/SXRMBChooseDataFolderDialog.cpp \
 	source/ui/SXRMB/SXRMB2DOxidationMapScanConfigurationView.cpp \
 	source/ui/SXRMB/SXRMBXRFDetailedDetectorView.cpp \
-	source/ui/acquaman/SXRMB/SXRMBOxidationMapScanConfigurationViewHolder.cpp
+	source/ui/acquaman/SXRMB/SXRMBOxidationMapScanConfigurationViewHolder.cpp \
+    source/beamline/SXRMB/SXRMBFourElementVortexDetector.cpp
+
+
 
 
 

@@ -1,0 +1,10 @@
+#ifndef SXRMBFOURELEMENTVORTEXDETECTOR_H
+#define SXRMBFOURELEMENTVORTEXDETECTOR_H
+
+class SXRMBFourElementVortexDetector
+{
+public:
+    SXRMBFourElementVortexDetector();
+};
+
+#endif // SXRMBFOURELEMENTVORTEXDETECTOR_H
