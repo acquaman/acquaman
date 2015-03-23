@@ -372,24 +372,18 @@ void BioXASSSRLMonochromatorRegionControl::onRegionChangeStarted()
 
 void BioXASSSRLMonochromatorRegionControl::onRegionChangeCancelled(QObject *action)
 {
-	qDebug() << "\n\nRegion change successfully cancelled.\n\n";
-
 	moveCleanup(action);
 	emit moveFailed(AMControl::WasStoppedFailure);
 }
 
 void BioXASSSRLMonochromatorRegionControl::onRegionChangeFailed(QObject *action)
 {
-	qDebug() << "\n\nRegion change successfully failed.\n\n";
-
 	moveCleanup(action);
 	emit moveFailed(AMControl::OtherFailure);
 }
 
 void BioXASSSRLMonochromatorRegionControl::onRegionChangeSucceeded(QObject *action)
 {
-	qDebug() << "\n\nRegion change successfully succeeded. :)\n\n";
-
 	moveCleanup(action);
 	emit moveSucceeded();
 }
