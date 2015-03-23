@@ -87,7 +87,7 @@ void AMXRFDetailedDetectorView::buildRegionOfInterestViews()
 	connect(editRegionsOfInterestButton_, SIGNAL(clicked()), view, SLOT(show()));
 	connect(editRegionsOfInterestButton_, SIGNAL(clicked()), view, SLOT(raise()));
 
-	rightLayout_->addWidget(editRegionsOfInterestButton_);
+	energyRangeLayout_->insertWidget(0, editRegionsOfInterestButton_);
 }
 
 void AMXRFDetailedDetectorView::buildDeadTimeView()

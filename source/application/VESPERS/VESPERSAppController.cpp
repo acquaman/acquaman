@@ -21,6 +21,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "VESPERSAppController.h"
 
+#include "beamline/CLS/CLSBeamlines.h"
 #include "beamline/VESPERS/VESPERSBeamline.h"
 #include "ui/VESPERS/VESPERSEndstationView.h"
 #include "ui/AMMainWindow.h"
@@ -160,7 +161,7 @@ bool VESPERSAppController::startup()
 		// We'll use loading a run from the db as a sign of whether this is the first time an application has been run because startupIsFirstTime will return false after the user data folder is created.
 		if (!existingRun.loadFromDb(AMDatabase::database("user"), 1)){
 
-			AMRun firstRun("VESPERS", 4);	/// \todo For now, we know that 4 is the ID of the VESPERS facility, but this is a hardcoded hack.
+			AMRun firstRun(CLSBeamline::beamlineName(CLSBeamline::VESPERSBeamline), CLSBeamline::VESPERSBeamline); //4: VESPERS Beamline
 			firstRun.storeToDb(AMDatabase::database("user"));
 		}
 

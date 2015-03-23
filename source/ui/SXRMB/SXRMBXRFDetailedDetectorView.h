@@ -1,8 +1,12 @@
 #ifndef SXRMBXRFDETAILEDDETECTORVIEW_H
 #define SXRMBXRFDETAILEDDETECTORVIEW_H
 
-#include "ui/beamline/AMXRFDetailedDetectorView.h"
 #include "beamline/SXRMB/SXRMBBrukerDetector.h"
+
+#include "ui/beamline/AMXRFDetailedDetectorView.h"
+#include "ui/dataman/AMChooseScanDialog.h"
+
+class AMExportController;
 
 class SXRMBXRFDetailedDetectorView : public AMXRFDetailedDetectorView
 {
@@ -17,9 +21,27 @@ public:
 	/// enable the deadtimeLabel
 	void enableDeadTimeDisplay();
 
+	/// Re-implementing to add the save button.
+	virtual void buildDetectorView();
+
 protected slots:
+	/// Starts the acquisition.  Calls acquire() but subclasses can reimplement if there is a more sofisticated start routine.
+	virtual void startAcquisition();
 	/// Handles updating the dead time label.
 	virtual void onDeadTimeChanged();
+
+	/// Handles bringing up and exporting the given XRF scans.
+	void onSaveButtonClicked();
+	/// Handles grabbing the scan and exporting it.
+	void exportScan();
+	/// Handles deleting the export controller.
+	void onExportControllerStateChanged(int state);
+
+private:
+	/// Choose scan dialog.
+	AMChooseScanDialog *chooseScanDialog_;
+	/// The export controller.
+	AMExportController *exportController_;
 
 };
 

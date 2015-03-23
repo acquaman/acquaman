@@ -25,8 +25,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "application/AMAppControllerSupport.h"
 #include "application/SXRMB/SXRMB.h"
+#include "acquaman/SXRMB/SXRMBXRFScanConfiguration.h"
 #include "acquaman/SXRMB/SXRMBEXAFSScanConfiguration.h"
 
+#include "beamline/CLS/CLSBeamlines.h"
 #include "beamline/CLS/CLSStorageRing.h"
 #include "beamline/SXRMB/SXRMBBeamline.h"
 
@@ -50,7 +52,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/dataman/AMGenericScanEditor.h"
 #include "ui/acquaman/AMScanConfigurationViewHolder3.h"
 #include "ui/CLS/CLSSIS3820ScalerView.h"
-#include "ui/util/AMMessageBoxWTimeout.h"
 #include "ui/acquaman/SXRMB/SXRMBOxidationMapScanConfigurationViewHolder.h"
 #include "ui/SXRMB/SXRMBXRFDetailedDetectorView.h"
 #include "ui/SXRMB/SXRMBPersistentView.h"
@@ -76,38 +77,25 @@ bool SXRMBAppController::startup()
 		return false;
 
 	// Start up the main program.
-	if(AMAppController::startup()) {
-
-		// initialize the instance of CLSStorageRing
-		CLSStorageRing::sr1();
-		// Initialize central beamline object
-		SXRMBBeamline::sxrmb();
-		// Initialize the periodic table object.
-		AMPeriodicTable::table();
-
-		registerClasses();
-
-		// Ensuring we automatically switch scan editors for new scans.
-		setAutomaticBringScanEditorToFront(true);
-
-		// Some first time things.
-		AMRun existingRun;
-
-		// We'll use loading a run from the db as a sign of whether this is the first time an application has been run because startupIsFirstTime will return false after the user data folder is created.
-		if (!existingRun.loadFromDb(AMDatabase::database("user"), 1)){
-
-			AMRun firstRun("SXRMB", 9);	/// \todo For now, we know that 7 is the ID of the BioXAS main endstation facility, but this is a hardcoded hack.
-			firstRun.storeToDb(AMDatabase::database("user"));
-		}
-
-		setupExporterOptions();
-		setupUserInterface();
-		makeConnections();
-
-		return true;
-	}
-	else
+	if(!AMAppController::startup())
 		return false;
+
+	// Initialize central beamline object
+	SXRMBBeamline::sxrmb();
+	// Initialize the periodic table object.
+	AMPeriodicTable::table();
+
+	registerClasses();
+	setupOnFirstRun();
+
+	setupExporterOptions();
+	setupUserInterface();
+	makeConnections();
+
+	// Ensuring we automatically switch scan editors for new scans.
+	setAutomaticBringScanEditorToFront(true);
+
+	return true;
 }
 
 void SXRMBAppController::shutdown()
@@ -210,9 +198,7 @@ void SXRMBAppController::onBeamlineConnected(bool connected)
 void SXRMBAppController::onBeamControlShuttersTimeout()
 {
 	QString errorMessage = "One (several) Beamline Valve/PSH shutter(s) can't be connected. Please contact beamline staff. This might affect your usage of Acuqaman.";
-	AMErrorMon::alert(this, SXRMB::ErrorSXRMBBeamlineShuttersTimeout, errorMessage);
-
-	AMMessageBoxWTimeout::showMessageWTimeout("Warning", errorMessage);
+	AMErrorMon::alert(this, ERR_SXRMB_SHUTTERS_TIMEOUT, errorMessage, true);
 }
 
 void SXRMBAppController::onBeamAvailabilityChanged(bool beamAvailable)
@@ -257,9 +243,21 @@ void SXRMBAppController::onScalerConnected(bool isConnected){
 void SXRMBAppController::registerClasses()
 {
 	AMDbObjectSupport::s()->registerClass<SXRMBScanConfigurationDbObject>();
+	AMDbObjectSupport::s()->registerClass<SXRMBXRFScanConfiguration>();
 	AMDbObjectSupport::s()->registerClass<SXRMBEXAFSScanConfiguration>();
 	AMDbObjectSupport::s()->registerClass<SXRMB2DMapScanConfiguration>();
 	AMDbObjectSupport::s()->registerClass<SXRMBUserConfiguration>();
+}
+
+void SXRMBAppController::setupOnFirstRun()
+{
+	// Some first time things.
+	AMRun existingRun;
+	// We'll use loading a run from the db as a sign of whether this is the first time an application has been run because startupIsFirstTime will return false after the user data folder is created.
+	if (!existingRun.loadFromDb(AMDatabase::database("user"), 1)){
+		AMRun firstRun(CLSBeamline::beamlineName(CLSBeamline::SXRMBBeamline), CLSBeamline::SXRMBBeamline); //9: SXRMB Beamline
+		firstRun.storeToDb(AMDatabase::database("user"));
+	}
 }
 
 void SXRMBAppController::setupExporterOptions()
