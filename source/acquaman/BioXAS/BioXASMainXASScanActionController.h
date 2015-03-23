@@ -18,14 +18,16 @@ public:
     virtual ~BioXASMainXASScanActionController();
 
 protected:
-    /// Reimplemented to provide actions that will setupd the beamine for optimzed operation of the XAS scan.
-    AMAction3* createInitializationActions();
-    /// Reimplemented to put the beamline in a good state after a scan has been completed.
-    AMAction3* createCleanupActions();
-    /// Sets the scan axis and adds anything extra.
-    virtual void buildScanControllerImplementation();
-    /// Reimplemented for EXAFS capabilities.  Creates the scan assembler that builds all the actions used to run the scan.
-    virtual void createScanAssembler();
+	/// Provides details for the beamline current settings.
+	QString beamlineSettings();
+	/// Reimplemented to provide actions that will setupd the beamine for optimzed operation of the XAS scan.
+	AMAction3* createInitializationActions();
+	/// Reimplemented to put the beamline in a good state after a scan has been completed.
+	AMAction3* createCleanupActions();
+	/// Sets the scan axis and adds anything extra.
+	virtual void buildScanControllerImplementation();
+	/// Reimplemented for EXAFS capabilities.  Creates the scan assembler that builds all the actions used to run the scan.
+	virtual void createScanAssembler();
 
 protected:
     BioXASMainXASScanConfiguration *configuration_;

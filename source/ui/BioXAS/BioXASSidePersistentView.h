@@ -27,9 +27,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QPushButton>
 #include <QInputDialog>
 
-#include "beamline/CLS/CLSMAXvMotor.h"
-
-class AMExtendedControlEditor;
+#include "ui/BioXAS/BioXASSSRLMonochromatorRegionControlEditor.h"
+#include "ui/BioXAS/BioXASSSRLMonochromatorRegionControlView.h"
+#include "ui/BioXAS/BioXASSSRLMonochromatorConfigurationView.h"
 
 class BioXASSidePersistentView : public QWidget
 {
@@ -49,8 +49,14 @@ protected slots:
 	void onCalibrateEnergyButtonClicked();
 
 protected:
-    AMExtendedControlEditor *energyControlEditor_;
-    QPushButton *calibrateEnergyButton_;
+	/// Editor for the mono's energy.
+	AMExtendedControlEditor *energyControlEditor_;
+	/// Editor for the mono's region.
+	BioXASSSRLMonochromatorRegionControlEditor *regionControlEditor_;
+	/// Editor for the mono's bragg motor angle.
+	AMExtendedControlEditor *braggControlEditor_;
+	/// Button that allows the user to calibrate the mono energy when clicked.
+	QPushButton *calibrateEnergyButton_;
 };
 
 #endif // BIOXASSIDEPERSISTENTVIEW_H

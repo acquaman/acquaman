@@ -32,7 +32,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "application/AMAppControllerSupport.h"
 
-#include "dataman/database/AMDbObjectSupport.h"
+#include "source/dataman/database/AMDbObjectSupport.h"
 #include "dataman/export/AMExportController.h"
 #include "dataman/export/AMExporterOptionGeneralAscii.h"
 #include "dataman/export/AMExporterGeneralAscii.h"
@@ -41,12 +41,15 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "util/AMPeriodicTable.h"
 
+
+#include "ui/BioXAS/BioXASMainPersistentView.h"
 #include "ui/CLS/CLSSIS3820ScalerView.h"
 #include "beamline/CLS/CLSSIS3820Scaler.h"
-#include "acquaman/BioXASMain/BioXASMainXASScanConfiguration.h"
+#include "acquaman/BioXAS/BioXASMainXASScanConfiguration.h"
 #include "ui/BioXAS/BioXASMainXASScanConfigurationView.h"
 #include "ui/acquaman/AMScanConfigurationViewHolder3.h"
 #include "dataman/AMScanAxisEXAFSRegion.h"
+#include "ui/BioXAS/BioXASSSRLMonochromatorConfigurationView.h"
 
 BioXASMainAppController::BioXASMainAppController(QObject *parent)
 	: AMAppController(parent)
@@ -90,7 +93,7 @@ bool BioXASMainAppController::startup()
 		setupExporterOptions();
 		setupUserInterface();
 		makeConnections();
-        applyCurrentSettings();
+	applyCurrentSettings();
 
 		return true;
 
@@ -109,19 +112,21 @@ void BioXASMainAppController::shutdown()
 
 void BioXASMainAppController::onScalerConnected()
 {
-    if (BioXASMainBeamline::bioXAS()->scaler()->isConnected() && !scalerView_) {
-        scalerView_ = new CLSSIS3820ScalerView(BioXASMainBeamline::bioXAS()->scaler(), false);
-        mw_->addPane(scalerView_, "Detectors", "Scaler", ":/system-search.png", true);
+	CLSSIS3820Scaler *scaler = BioXASMainBeamline::bioXAS()->scaler();
+
+    if (scaler && scaler->isConnected() && !scalerView_) {
+	scalerView_ = new CLSSIS3820ScalerView(scaler, false);
+	mw_->addPane(scalerView_, "Detectors", "Scaler", ":/system-search.png", true);
     }
 }
 
 void BioXASMainAppController::onBeamlineConnected()
 {
     if (BioXASMainBeamline::bioXAS()->isConnected() && !configurationView_) {
-        configuration_ = new BioXASMainXASScanConfiguration();
+	configuration_ = new BioXASMainXASScanConfiguration();
         configuration_->setEdgeEnergy(10000);
 
-        configurationView_ = new BioXASMainXASScanConfigurationView(configuration_);
+	configurationView_ = new BioXASMainXASScanConfigurationView(configuration_);
 
         configurationViewHolder_ = new AMScanConfigurationViewHolder3(configurationView_);
 
@@ -161,7 +166,7 @@ void BioXASMainAppController::setupExporterOptions()
 	bioXASDefaultXAS->storeToDb(AMDatabase::database("user"));
 
     if(bioXASDefaultXAS->id() > 0)
-            AMAppControllerSupport::registerClass<BioXASMainXASScanConfiguration, AMExporterGeneralAscii, AMExporterOptionGeneralAscii>(bioXASDefaultXAS->id());
+	    AMAppControllerSupport::registerClass<BioXASMainXASScanConfiguration, AMExporterGeneralAscii, AMExporterOptionGeneralAscii>(bioXASDefaultXAS->id());
 }
 
 void BioXASMainAppController::setupUserInterface()
@@ -172,10 +177,17 @@ void BioXASMainAppController::setupUserInterface()
 
 	mw_->insertHeading("General", 0);
 
+	// Create mono configuration view and add to 'General' category.
+	monoConfigView_ = new BioXASSSRLMonochromatorConfigurationView(BioXASMainBeamline::bioXAS()->mono());
+	mw_->addPane(monoConfigView_, "General", "Mono", ":/system-software-update.png");
+
 	mw_->insertHeading("Detectors", 1);
 
 	mw_->insertHeading("Scans", 2);
 
+	// Create persistent view panel and add to right side.
+	persistentPanel_ = new BioXASMainPersistentView();
+	mw_->addRightWidget(persistentPanel_);
 }
 
 void BioXASMainAppController::makeConnections()

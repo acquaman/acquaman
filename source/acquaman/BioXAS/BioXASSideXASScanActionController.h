@@ -18,8 +18,8 @@ You should have received a copy of the GNU General Public License
 along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef BIOXASSIDEXASSCANACTIONCONTROLLER_H
-#define BIOXASSIDEXASSCANACTIONCONTROLLER_H
+#ifndef BIOXASXASSCANACTIONCONTROLLER_H
+#define BIOXASXASSCANACTIONCONTROLLER_H
 
 #include "acquaman/AMStepScanActionController.h"
 
@@ -30,7 +30,7 @@ class BioXASSideXASScanActionController : public AMStepScanActionController
 	Q_OBJECT
 
 public:
-	/// Constructor takes a BioXASSideXAS scan configuration
+	/// Constructor takes a BioXASXAS scan configuration
 	explicit BioXASSideXASScanActionController(BioXASSideXASScanConfiguration *configuration, QObject *parent = 0);
 
 	/// Destructor
@@ -41,6 +41,8 @@ signals:
 public slots:
 
 protected:
+	/// Provides a string of beamline settings for the scan notes.
+	QString beamlineSettings();
 	/// Reimplemented to provide actions that will setupd the beamine for optimzed operation of the XAS scan.
 	AMAction3* createInitializationActions();
 	/// Reimplemented to put the beamline in a good state after a scan has been completed.

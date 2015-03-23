@@ -173,7 +173,7 @@ QList<AMControl *> BioXASSideBeamline::getMotorsByType(BioXASBeamlineDef::BioXAS
 		break;
 
 	case BioXASBeamlineDef::MonoMotor:	// Mono motors
-		matchedMotors.append(mono_->phosphorPaddleMotor());
+		matchedMotors.append(mono_->paddleMotor());
 		matchedMotors.append(mono_->braggMotor());
 		matchedMotors.append(mono_->verticalMotor());
 		matchedMotors.append(mono_->lateralMotor());
@@ -212,6 +212,7 @@ QList<AMControl *> BioXASSideBeamline::getMotorsByType(BioXASBeamlineDef::BioXAS
 
 	case BioXASBeamlineDef::PseudoMonoMotor: // BioXAS Pseudo Mono motor
 		matchedMotors.append(monoPseudoEnergy_);
+		matchedMotors.append(monoBraggAngle_);
 		break;
 
 	default:
@@ -270,7 +271,7 @@ void BioXASSideBeamline::onPressureError()
 
 		current = qobject_cast<AMReadOnlyPVwStatusControl *>(pressureSet_->at(i));
 
-		if (current->isMoving())
+		if (current && current->isMoving())
 			error += tr("%1 (%2) %3 %4\n").arg(current->name()).arg(current->readPVName()).arg(current->value(), 0, 'e', 3).arg(current->units());
 	}
 
@@ -307,7 +308,7 @@ void BioXASSideBeamline::onValveError()
 
 			AMReadOnlyPVwStatusControl *first = qobject_cast<AMReadOnlyPVwStatusControl *>(valveSet_->at(i));
 
-			if (first->isMoving()) // Closed is 0.
+			if (first && first->isMoving())
 				error += QString("%1 (%2)\n").arg(first->name()).arg(first->movingPVName());
 		}
 
@@ -315,7 +316,7 @@ void BioXASSideBeamline::onValveError()
 
 			current = qobject_cast<CLSBiStateControl *>(valveSet_->at(i));
 
-			if (current->state() == 0) // Closed is 0.
+			if (current && current->isClosed())
 				error += QString("%1 (%2)\n").arg(current->name()).arg(current->statePVName());
 		}
 	}
@@ -351,7 +352,7 @@ void BioXASSideBeamline::onIonPumpError()
 
 		current = qobject_cast<AMReadOnlyPVControl *>(ionPumpSet_->at(i));
 
-		if (!current->value())
+		if (current && !current->value())
 			error += tr("%1 (%2)\n").arg(current->name()).arg(current->readPVName());
 	}
 
@@ -388,7 +389,7 @@ void BioXASSideBeamline::onFlowTransducerError()
 
 		current = qobject_cast<AMReadOnlyPVwStatusControl *>(flowTransducerSet_->at(i));
 
-		if (current->isMoving())
+		if (current && current->isMoving())
 			error += tr("%1 (%2) %3 %4\n").arg(current->name()).arg(current->readPVName()).arg(current->value(), 0, 'e', 3).arg(current->units());
 	}
 
@@ -423,7 +424,7 @@ void BioXASSideBeamline::onFlowSwitchError()
 
 		current = qobject_cast<AMReadOnlyPVControl *>(flowSwitchSet_->at(i));
 
-		if (!current->value())
+		if (current && !current->value())
 			error += tr("%1 (%2)\n").arg(current->name()).arg(current->readPVName());
 	}
 
@@ -460,7 +461,7 @@ void BioXASSideBeamline::onTemperatureError()
 
 		current = qobject_cast<AMReadOnlyPVwStatusControl *>(temperatureSet_->at(i));
 
-		if (current->isMoving())
+		if (current && current->isMoving())
 			error += tr("%1 (%2) %3 %4\n").arg(current->name()).arg(current->readPVName()).arg(current->value(), 0, 'e', 3).arg(current->units());
 	}
 
@@ -621,6 +622,7 @@ void BioXASSideBeamline::setupMotorGroup()
 
 	// BioXAS Mono Pseudo motors					   name,				   pvBaseName,				readPVname,	writePVname, movingPVname,	enabledPVname, stopPVname, tolerance, moveStartTimeoutSeconds, statusChecker, stopValue, description, parent = 0
 	monoPseudoEnergy_ = new BioXASPseudoMotorControl("BL1607-5-I22 Side Mono Energy", "BL1607-5-I22:Energy", ":EV:fbk", ":EV", ":status", ":enabled", ":stop");
+	monoBraggAngle_ = new AMPVwStatusControl("BL1607-5-I22 Side Mono Bragg Angle", "BL1607-5-I22:Energy:EV:fbk:tr.K", "BL1607-5-I22:Energy:EV:sp:tr.E", "BL1607-5-I22:Energy:status", "BL1607-5-I22:Energy:stop", this, 0.05);
 }
 
 void BioXASSideBeamline::setupDetectors()
@@ -735,8 +737,6 @@ void BioXASSideBeamline::setupMono()
 {
 	mono_ = new BioXASSideMonochromator(this);
 	connect( mono_, SIGNAL(connected(bool)), this, SLOT(onConnectionChanged()) );
-
-	energySetpointControl_ = new AMReadOnlyPVControl("EnergySetpoint", "BL1607-5-I22:Energy:EV", this);
 }
 
 void BioXASSideBeamline::setupComponents()
@@ -766,10 +766,6 @@ void BioXASSideBeamline::setupComponents()
 
 void BioXASSideBeamline::setupControlsAsDetectors()
 {
-	energySetpointDetector_ = new AMBasicControlDetectorEmulator("EnergySetpoint", "Energy Setpoint", energySetpointControl_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
-	energySetpointDetector_->setHiddenFromUsers(true);
-	energySetpointDetector_->setIsVisible(false);
-
 	energyFeedbackDetector_ = new AMBasicControlDetectorEmulator("EnergyFeedback", "Energy Feedback", mono_->energyControl(), 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
 	energyFeedbackDetector_->setHiddenFromUsers(true);
 	energyFeedbackDetector_->setIsVisible(false);
@@ -777,11 +773,32 @@ void BioXASSideBeamline::setupControlsAsDetectors()
 	dwellTimeDetector_ = new AMBasicControlDetectorEmulator("DwellTimeFeedback", "Dwell Time Feedback", scalerDwellTime_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
 	dwellTimeDetector_->setHiddenFromUsers(true);
 	dwellTimeDetector_->setIsVisible(false);
+
+	braggMoveRetriesDetector_ = new AMBasicControlDetectorEmulator("BraggMoveRetries", "Number of bragg move retries", mono_->braggMotor()->retries(), 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	braggMoveRetriesDetector_->setHiddenFromUsers(true);
+	braggMoveRetriesDetector_->setIsVisible(false);
+
+	braggMoveRetriesMaxDetector_ = new AMBasicControlDetectorEmulator("BraggMoveRetriesMax", "Max number of bragg move retries", mono_->braggMotor()->maxRetriesControl(), 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	braggMoveRetriesMaxDetector_->setHiddenFromUsers(true);
+	braggMoveRetriesMaxDetector_->setIsVisible(false);
+
+	braggStepSetpointDetector_ = new AMBasicControlDetectorEmulator("BraggStepSetpoint", "Bragg motor step setpoint", mono_->braggMotor()->stepSetpointControl(), 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	braggStepSetpointDetector_->setHiddenFromUsers(true);
+	braggStepSetpointDetector_->setIsVisible(false);
+
+	braggDegreeSetpointDetector_ = new AMBasicControlDetectorEmulator("BraggDegreeSetpoint", "Bragg motor degree setpoint", mono_->braggMotor()->degreeSetpointControl(), 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	braggDegreeSetpointDetector_->setHiddenFromUsers(true);
+	braggDegreeSetpointDetector_->setIsVisible(false);
+
+	braggAngleDetector_ = new AMBasicControlDetectorEmulator("PhysicalBraggAngle", "Physical bragg angle", mono_->braggAngleControl(), 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	braggAngleDetector_->setHiddenFromUsers(true);
+	braggAngleDetector_->setIsVisible(false);
 }
 
 void BioXASSideBeamline::setupExposedControls()
 {
 	addExposedControl(mono_->energyControl());
+	addExposedControl(mono_->regionControl());
 }
 
 void BioXASSideBeamline::setupExposedDetectors()
@@ -790,7 +807,11 @@ void BioXASSideBeamline::setupExposedDetectors()
 	addExposedDetector(i0Detector_);
 	addExposedDetector(iTDetector_);
 	addExposedDetector(i2Detector_);
-	addExposedDetector(energySetpointDetector_);
 	addExposedDetector(energyFeedbackDetector_);
+	addExposedDetector(braggMoveRetriesDetector_);
+	addExposedDetector(braggMoveRetriesMaxDetector_);
+	addExposedDetector(braggStepSetpointDetector_);
+	addExposedDetector(braggDegreeSetpointDetector_);
+	addExposedDetector(braggAngleDetector_);
 	addExposedDetector(ge32ElementDetector_);
 }

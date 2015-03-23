@@ -55,15 +55,15 @@ QList<AMControl *> BioXASMainBeamline::getMotorsByType(BioXASBeamlineDef::BioXAS
         break;
 
     case BioXASBeamlineDef::MonoMotor:	// BioXAS Mono motors
-        matchedMotors.append(monoPhosphorPaddle_);
-        matchedMotors.append(monoBragg_);
-        matchedMotors.append(monoVertical_);
-        matchedMotors.append(monoLateral_);
-        matchedMotors.append(monoXtalXchage_);
-        matchedMotors.append(monoXtal1Pitch_);
-        matchedMotors.append(monoXtal1Roll_);
-        matchedMotors.append(monoXtal2Pitch_);
-        matchedMotors.append(monoXtal2Roll_);
+		matchedMotors.append(mono_->paddleMotor());
+		matchedMotors.append(mono_->braggMotor());
+		matchedMotors.append(mono_->verticalMotor());
+		matchedMotors.append(mono_->lateralMotor());
+		matchedMotors.append(mono_->crystalChangeMotor());
+		matchedMotors.append(mono_->crystal1PitchMotor());
+		matchedMotors.append(mono_->crystal1RollMotor());
+		matchedMotors.append(mono_->crystal2PitchMotor());
+		matchedMotors.append(mono_->crystal2RollMotor());
         break;
 
     case BioXASBeamlineDef::M2Motor:	// BioXAS M2 motors
@@ -94,6 +94,7 @@ QList<AMControl *> BioXASMainBeamline::getMotorsByType(BioXASBeamlineDef::BioXAS
 
     case BioXASBeamlineDef::PseudoMonoMotor: // BioXAS Pseudo Mono motor
         matchedMotors.append(monoPseudoEnergy_);
+		matchedMotors.append(monoBraggAngle_);
         break;
 
     default:
@@ -140,13 +141,10 @@ void BioXASMainBeamline::setupControlSets()
 void BioXASMainBeamline::setupDetectors()
 {
     i0Detector_ = new CLSBasicScalerChannelDetector("I0Detector", "I0 Detector", scaler_, 0, this);
-    scaler_->channelAt(0)->setDetector(i0Detector_);
 
     iTDetector_ = new CLSBasicScalerChannelDetector("ITDetector", "IT Detector", scaler_, 1, this);
-    scaler_->channelAt(1)->setDetector(iTDetector_);
 
     i2Detector_ = new CLSBasicScalerChannelDetector("I2Detector", "I2 Detector", scaler_, 15, this);
-    scaler_->channelAt(15)->setDetector(i2Detector_);
 }
 
 void BioXASMainBeamline::setupSampleStage()
@@ -156,7 +154,7 @@ void BioXASMainBeamline::setupSampleStage()
 
 void BioXASMainBeamline::setupMono()
 {
-
+	mono_ = new BioXASMainMonochromator(this);
 }
 
 void BioXASMainBeamline::setupComponents()
@@ -168,24 +166,32 @@ void BioXASMainBeamline::setupComponents()
 
     scalerDwellTime_ = new AMReadOnlyPVControl("ScalerDwellTime", "BL1607-5-I21:mcs:delay", this, "Scaler dwell time");
 
+    // Detectors
+
+    setupDetectors();
+
     // Amplifiers
 
     i0Keithley_ = new CLSKeithley428("I0 Channel", "AMP1607-701:Gain", this);
     scaler_->channelAt(0)->setCustomChannelName("I0 Channel");
     scaler_->channelAt(0)->setCurrentAmplifier(i0Keithley_);
+    scaler_->channelAt(0)->setDetector(i0Detector_);
 
     iTKeithley_ = new CLSKeithley428("IT Channel", "AMP1607-702:Gain", this);
     scaler_->channelAt(1)->setCustomChannelName("IT Channel");
     scaler_->channelAt(1)->setCurrentAmplifier(iTKeithley_);
+    scaler_->channelAt(1)->setDetector(iTDetector_);
 
     i2Keithley_ = new CLSKeithley428("I2 Channel", "AMP1607-703:Gain", this);
     scaler_->channelAt(15)->setCustomChannelName("I2 Channel");
     scaler_->channelAt(15)->setCurrentAmplifier(iTKeithley_);
+    scaler_->channelAt(15)->setDetector(i2Detector_);
 }
 
 void BioXASMainBeamline::setupExposedControls()
 {
-
+	addExposedControl(mono_->energyControl());
+	addExposedControl(mono_->regionControl());
 }
 
 void BioXASMainBeamline::setupExposedDetectors()
@@ -193,6 +199,12 @@ void BioXASMainBeamline::setupExposedDetectors()
     addExposedDetector(i0Detector_);
     addExposedDetector(iTDetector_);
     addExposedDetector(i2Detector_);
+    addExposedDetector(energyFeedbackDetector_);
+    addExposedDetector(braggMoveRetriesDetector_);
+    addExposedDetector(braggMoveRetriesMaxDetector_);
+    addExposedDetector(braggStepSetpointDetector_);
+    addExposedDetector(braggDegreeSetpointDetector_);
+    addExposedDetector(braggAngleDetector_);
 }
 
 void BioXASMainBeamline::setupMotorGroup()
@@ -214,17 +226,6 @@ void BioXASMainBeamline::setupMotorGroup()
     // BioXAS Variable Mask motors
     variableMaskVertUpperBlade_ = new CLSMAXvMotor(QString("SMTR1607-5-I21-09 VERT UPPER BLADE"), QString("SMTR1607-5-I21-09"), QString("SMTR1607-5-I21-09 VERT UPPER BLADE"), true, 0.05, 2.0, this, QString(":mm"));
     variableMaskVertLowerBlade_ = new CLSMAXvMotor(QString("SMTR1607-5-I21-10 VERT LOWER BLADE"), QString("SMTR1607-5-I21-10"), QString("SMTR1607-5-I21-10 VERT LOWER BLADE"), true, 0.05, 2.0, this, QString(":mm"));
-
-    // BioXAS Mono motors
-    monoPhosphorPaddle_ = new CLSMAXvMotor(QString("SMTR1607-5-I21-11 PHOSPHOR PADDLE"), QString("SMTR1607-5-I21-11"), QString("SMTR1607-5-I21-11 PHOSPHOR PADDLE"), true, 0.05, 2.0, this, QString(":mm"));
-    monoBragg_ = new CLSMAXvMotor(QString("SMTR1607-5-I21-12 BRAGG"), QString("SMTR1607-5-I21-12"), QString("SMTR1607-5-I21-12 BRAGG"), true, 0.05, 2.0, this, QString(":deg"));
-    monoVertical_ = new CLSMAXvMotor(QString("SMTR1607-5-I21-13 VERTICAL"), QString("SMTR1607-5-I21-13"), QString("SMTR1607-5-I21-13 VERTICAL"), true, 0.05, 2.0, this, QString(":mm"));
-    monoLateral_ = new CLSMAXvMotor(QString("SMTR1607-5-I21-14 LATERAL"), QString("SMTR1607-5-I21-14"), QString("SMTR1607-5-I21-14 LATERAL"), true, 0.05, 2.0, this, QString(":mm"));
-    monoXtalXchage_ = new CLSMAXvMotor(QString("SMTR1607-5-I21-22 XTAL XCHAGE"), QString("SMTR1607-5-I21-22"), QString("SMTR1607-5-I21-22 XTAL XCHAGE"), true, 0.05, 2.0, this, QString(":mm"));
-    monoXtal1Pitch_ = new CLSMAXvMotor(QString("SMTR1607-5-I21-23 XTAL 1 PITCH"), QString("SMTR1607-5-I21-23"), QString("SMTR1607-5-I21-23 XTAL 1 PITCH"), true, 0.05, 2.0, this, QString(":V"));
-    monoXtal1Roll_ = new CLSMAXvMotor(QString("SMTR1607-5-I21-24 XTAL 1 ROLL"), QString("SMTR1607-5-I21-24"), QString("SMTR1607-5-I21-24 XTAL 1 ROLL"), true, 0.05, 2.0, this, QString(":V"));
-    monoXtal2Pitch_ = new CLSMAXvMotor(QString("SMTR1607-5-I21-25 XTAL 2 PITCH"), QString("SMTR1607-5-I21-25"), QString("SMTR1607-5-I21-25 XTAL 2 PITCH"), true, 0.05, 2.0, this, QString(":V"));
-    monoXtal2Roll_ = new CLSMAXvMotor(QString("SMTR1607-5-I21-26 XTAL 2 ROLL"), QString("SMTR1607-5-I21-26"), QString("SMTR1607-5-I21-26 XTAL 2 ROLL"), true, 0.05, 2.0, this, QString(":V"));
 
     // BioXAS M2 motors
     m2VertUpstreamINB_ = new CLSMAXvMotor(QString("SMTR1607-5-I21-15 VERT INB (UPSTREAM)"), QString("SMTR1607-5-I21-15"), QString("SMTR1607-5-I21-15 VERT INB (UPSTREAM)"), true, 0.05, 2.0, this, QString(":mm"));
@@ -251,11 +252,38 @@ void BioXASMainBeamline::setupMotorGroup()
 
     // BioXAS Mono Pseudo motors					   name,				   pvBaseName,				readPVname,	writePVname, movingPVname,	enabledPVname, stopPVname, tolerance, moveStartTimeoutSeconds, statusChecker, stopValue, description, parent = 0
     monoPseudoEnergy_ = new BioXASPseudoMotorControl("BL1607-5-I21 Main Mono Energy", "BL1607-5-I21:Energy", ":EV:fbk", ":EV", ":status", ":enabled", ":stop");
+    monoBraggAngle_ = new AMPVwStatusControl("BL1607-5-I21 Main Mono Bragg Angle", "BL1607-5-I21:Energy:EV:fbk:tr.K", "BL1607-5-I21:Energy:EV:sp:tr.E", "BL1607-5-I21:Energy:status", "BL1607-5-I21:Energy:stop", this, 0.05);
 }
 
 void BioXASMainBeamline::setupControlsAsDetectors()
 {
+	energyFeedbackDetector_ = new AMBasicControlDetectorEmulator("EnergyFeedback", "Energy Feedback", mono_->energyControl(), 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	energyFeedbackDetector_->setHiddenFromUsers(true);
+	energyFeedbackDetector_->setIsVisible(false);
 
+	dwellTimeDetector_ = new AMBasicControlDetectorEmulator("DwellTimeFeedback", "Dwell Time Feedback", scalerDwellTime_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	dwellTimeDetector_->setHiddenFromUsers(true);
+	dwellTimeDetector_->setIsVisible(false);
+
+	braggMoveRetriesDetector_ = new AMBasicControlDetectorEmulator("BraggMoveRetries", "Number of bragg move retries", mono_->braggMotor()->retries(), 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	braggMoveRetriesDetector_->setHiddenFromUsers(true);
+	braggMoveRetriesDetector_->setIsVisible(false);
+
+	braggMoveRetriesMaxDetector_ = new AMBasicControlDetectorEmulator("BraggMoveRetriesMax", "Max number of bragg move retries", mono_->braggMotor()->maxRetriesControl(), 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	braggMoveRetriesMaxDetector_->setHiddenFromUsers(true);
+	braggMoveRetriesMaxDetector_->setIsVisible(false);
+
+	braggStepSetpointDetector_ = new AMBasicControlDetectorEmulator("BraggStepSetpoint", "Bragg motor step setpoint", mono_->braggMotor()->stepSetpointControl(), 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	braggStepSetpointDetector_->setHiddenFromUsers(true);
+	braggStepSetpointDetector_->setIsVisible(false);
+
+	braggDegreeSetpointDetector_ = new AMBasicControlDetectorEmulator("BraggDegreeSetpoint", "Bragg motor degree setpoint", mono_->braggMotor()->degreeSetpointControl(), 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	braggDegreeSetpointDetector_->setHiddenFromUsers(true);
+	braggDegreeSetpointDetector_->setIsVisible(false);
+
+	braggAngleDetector_ = new AMBasicControlDetectorEmulator("PhysicalBraggAngle", "Physical bragg angle", mono_->braggAngleControl(), 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	braggAngleDetector_->setHiddenFromUsers(true);
+	braggAngleDetector_->setIsVisible(false);
 }
 
 BioXASMainBeamline::BioXASMainBeamline()
@@ -266,7 +294,6 @@ BioXASMainBeamline::BioXASMainBeamline()
     setupComponents();
     setupDiagnostics();
     setupSampleStage();
-    setupDetectors();
     setupControlSets();
     setupMono();
     setupMotorGroup();

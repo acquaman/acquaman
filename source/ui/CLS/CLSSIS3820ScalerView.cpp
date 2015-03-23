@@ -143,7 +143,7 @@ CLSSIS3820ScalerView::CLSSIS3820ScalerView(CLSSIS3820Scaler *scaler, bool enable
 	for (int i = 0; i < channelCount; i++){
 		CLSSIS3820ScalerChannel *channel = scaler_->channelAt(i);
 
-        if (!showDarkCurrentWidget && channel->detector() && channel->detector()->canDoDarkCurrentCorrection() && enableDarkCurrentCorrection_)
+	if (!showDarkCurrentWidget && channel && channel->detector() && channel->detector()->canDoDarkCurrentCorrection() && enableDarkCurrentCorrection_)
             showDarkCurrentWidget = true;
 
 		if(channel->detector() && channel->detector()->canDoDarkCurrentCorrection() && enableDarkCurrentCorrection_)
