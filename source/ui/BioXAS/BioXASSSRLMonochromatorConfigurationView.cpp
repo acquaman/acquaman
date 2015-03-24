@@ -126,10 +126,6 @@ BioXASSSRLMonochromatorBraggConfigurationView::BioXASSSRLMonochromatorBraggConfi
 
 	// Create UI elements.
 
-	QLabel *braggOffsetPrompt = new QLabel("Offset:");
-
-	braggOffset_ = new QDoubleSpinBox();
-
 	QLabel *braggEncoderMoveTypePrompt = new QLabel("Encoder move type:");
 
 	braggEncoderMoveType_ = new QComboBox();
@@ -141,8 +137,6 @@ BioXASSSRLMonochromatorBraggConfigurationView::BioXASSSRLMonochromatorBraggConfi
 	// Create and set layouts.
 
 	QGridLayout *layout = new QGridLayout();
-	layout->addWidget(braggOffsetPrompt, 0, 0, 1, 1, Qt::AlignRight);
-	layout->addWidget(braggOffset_, 0, 1, 1, 1, Qt::AlignCenter);
 	layout->addWidget(braggEncoderMoveTypePrompt, 1, 0, 1, 1, Qt::AlignRight);
 	layout->addWidget(braggEncoderMoveType_, 1, 1, 1, 1, Qt::AlignCenter);
 	layout->addWidget(braggSettlingTimePrompt, 2, 0, 1, 1, Qt::AlignRight);
@@ -156,7 +150,6 @@ BioXASSSRLMonochromatorBraggConfigurationView::BioXASSSRLMonochromatorBraggConfi
 
 	// Make connections.
 
-	connect( braggOffset_, SIGNAL(valueChanged(double)), this, SLOT(setBraggMotorOffset(double)) );
 	connect( braggEncoderMoveType_, SIGNAL(currentIndexChanged(int)), this, SLOT(setBraggMotorEncoderMovementType(int)) );
 	connect( braggSettlingTime_, SIGNAL(valueChanged(double)), this, SLOT(setBraggMotorSettlingTime(double)) );
 
@@ -182,7 +175,6 @@ void BioXASSSRLMonochromatorBraggConfigurationView::setBraggMotor(CLSMAXvMotor *
 
 		if (braggMotor_) {
 			connect( braggMotor_, SIGNAL(connected(bool)), this, SLOT(onBraggMotorConnectedChanged()) );
-			connect( braggMotor_, SIGNAL(EGUOffsetChanged(double)), this, SLOT(onBraggMotorOffsetChanged()) );
 			connect( braggMotor_, SIGNAL(encoderMovementTypeChanged(CLSMAXvMotor::EncoderMovementType)), this, SLOT(onBraggMotorEncoderMoveTypeChanged()) );
 			connect( braggMotor_, SIGNAL(settlingTimeChanged(double)), this, SLOT(onBraggMotorSettlingTimeChanged()) );
 		}
@@ -195,9 +187,6 @@ void BioXASSSRLMonochromatorBraggConfigurationView::setBraggMotor(CLSMAXvMotor *
 
 void BioXASSSRLMonochromatorBraggConfigurationView::clearUI()
 {
-	braggOffset_->clear();
-	braggOffset_->setEnabled(false);
-
 	braggEncoderMoveType_->clear();
 	braggEncoderMoveType_->setEnabled(false);
 
@@ -208,10 +197,6 @@ void BioXASSSRLMonochromatorBraggConfigurationView::clearUI()
 void BioXASSSRLMonochromatorBraggConfigurationView::initializeUI()
 {
 	if (braggMotor_ && braggMotor_->isConnected()) {
-		braggOffset_->setEnabled(true);
-		braggOffset_->setMinimum(BRAGG_OFFSET_MIN);
-		braggOffset_->setMaximum(BRAGG_OFFSET_MAX);
-		braggOffset_->setValue(braggMotor_->EGUOffset());
 
 		braggEncoderMoveType_->setEnabled(true);
 		braggEncoderMoveType_->addItem("Off");
@@ -239,13 +224,6 @@ void BioXASSSRLMonochromatorBraggConfigurationView::onBraggMotorConnectedChanged
 	refreshUI();
 }
 
-void BioXASSSRLMonochromatorBraggConfigurationView::onBraggMotorOffsetChanged()
-{
-	if (braggMotor_ && braggMotor_->isConnected()) {
-		braggOffset_->setValue(braggMotor_->EGUOffset());
-	}
-}
-
 void BioXASSSRLMonochromatorBraggConfigurationView::onBraggMotorEncoderMoveTypeChanged()
 {
 	if (braggMotor_ && braggMotor_->isConnected()) {
@@ -257,13 +235,6 @@ void BioXASSSRLMonochromatorBraggConfigurationView::onBraggMotorSettlingTimeChan
 {
 	if (braggMotor_ && braggMotor_->isConnected()) {
 		braggSettlingTime_->setValue(braggMotor_->settlingTime());
-	}
-}
-
-void BioXASSSRLMonochromatorBraggConfigurationView::setBraggMotorOffset(double newValue)
-{
-	if (braggMotor_) {
-		braggMotor_->setEGUOffset(newValue);
 	}
 }
 
