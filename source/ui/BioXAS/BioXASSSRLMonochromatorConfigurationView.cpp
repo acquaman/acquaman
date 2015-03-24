@@ -99,7 +99,7 @@ void BioXASSSRLMonochromatorConfigurationView::onCalibrateEnergyButtonClicked()
 		double newEnergy = QInputDialog::getDouble(this, "Monochromator Energy Calibration", "Enter current calibrated energy:", mono_->energyControl()->value(), -100000000, 10000000, 1, &inputOK, Qt::Sheet);
 
 		if (inputOK) {
-			mono_->setEnergyCalibration(newEnergy);
+			mono_->energyControl()->setEnergyCalibration(newEnergy);
 		}
 	}
 }

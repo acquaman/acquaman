@@ -11,13 +11,67 @@ BioXASSSRLMonochromatorEnergyControl::~BioXASSSRLMonochromatorEnergyControl()
 
 }
 
-AMControl::FailureExplanation BioXASSSRLMonochromatorEnergyControl::move(double setpoint)
+bool BioXASSSRLMonochromatorEnergyControl::isConnected() const
 {
-    if (qAbs(setpoint-setpoint_) < 0.001){
+	bool connected = (
+				AMPVwStatusControl::isConnected() &&
+				hcControl()->isConnected() &&
+				crystal2DControl()->isConnected() &&
+				braggAngleControl()->isConnected() &&
+				angleOffsetControl()->isConnected()
+				);
 
-	emit moveSucceeded();
-	return AMControl::NoFailure;
-    }
+	return connected;
+}
 
-    return AMPVwStatusControl::move(setpoint);
+//AMControl::FailureExplanation BioXASSSRLMonochromatorEnergyControl::move(double setpoint)
+//{
+//    if (qAbs(setpoint-setpoint_) < 0.001){
+
+//	emit moveSucceeded();
+//	return AMControl::NoFailure;
+//    }
+
+//    return AMPVwStatusControl::move(setpoint);
+//}
+
+void BioXASSSRLMonochromatorEnergyControl::setEnergyCalibration(double newEnergy)
+{
+	if (isConnected()) {
+		// Calculate needed offset.
+		double newOffset = calibrateEnergy(value(), newEnergy);
+
+		// Set the new angle offset.
+		angleOffsetControl()->move(newOffset);
+	}
+}
+
+AMAction3* BioXASSSRLMonochromatorEnergyControl::createSetEnergyCalibrationAction(double newEnergy)
+{
+	AMAction3 *action = 0;
+
+	if (isConnected()) {
+		// Calculate needed offset.
+		double newOffset = calibrateEnergy(value(), newEnergy);
+
+		// Set the new angle offset.
+		action = AMActionSupport::buildControlMoveAction(angleOffsetControl(), newOffset, false);
+	}
+
+	return action;
+}
+
+double BioXASSSRLMonochromatorEnergyControl::calibrateEnergy(double oldEnergy, double newEnergy) const
+{
+	// Gather pre-calibration information.
+	double oldOffset = angleOffsetControl()->value();
+
+	// Calculate changes needed for calibration.
+	double deltaEnergy = newEnergy - oldEnergy;
+	double deltaOffset = hc() / (crystal2D() * oldEnergy * oldEnergy * cos(braggAngle() * M_PI / 180)) * deltaEnergy * 180 / M_PI;
+
+	// Calibration results.
+	double newOffset = oldOffset + deltaOffset;
+
+	return newOffset;
 }
