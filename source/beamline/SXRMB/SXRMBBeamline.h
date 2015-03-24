@@ -61,9 +61,6 @@ public:
 	/// Destructor.
 	virtual ~SXRMBBeamline();
 
-	/// switch the running endstation
-	void switchEndStation(SXRMB::Endsation endStation);
-
 	/// Returns the scaler for SXRMB
 	CLSSIS3820Scaler* scaler() const;
 
@@ -115,6 +112,10 @@ signals:
 	void beamlineControlShuttersTimeout();
 
 	void endStationChanged(SXRMB::Endsation endStation);
+
+public slots:
+	/// switch the running endstation
+	void switchEndStation(SXRMB::Endsation endStation);
 
 protected:
 	/// Constructor. This is a singleton class, access it through SXRMBBeamline::sxrmb().

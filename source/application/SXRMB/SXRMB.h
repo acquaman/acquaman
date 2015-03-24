@@ -31,10 +31,10 @@ namespace SXRMB {
 	  */
 	enum Endsation
 	{
-		SolidState = 0,
+		Invalid = 0,
+		SolidState,
 		Ambiant,
-		Microprobe,
-		UnknownEndStation
+		Microprobe
 	};
 
 	/// Enum for making the decision on what fluorescence detector the user wants to use.

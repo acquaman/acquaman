@@ -32,7 +32,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 SXRMBBeamline::SXRMBBeamline()
 	: AMBeamline("SXRMB Beamline")
 {
-	currentEndStation_ = SXRMB::UnknownEndStation;
+	currentEndStation_ = SXRMB::Invalid;
 
 	setupSynchronizedDwellTime();
 	setupComponents();
@@ -58,6 +58,7 @@ SXRMBBeamline::~SXRMBBeamline()
 void SXRMBBeamline::switchEndStation(SXRMB::Endsation endStation)
 {
 	if (currentEndStation_ != endStation) {
+
 		currentEndStation_ = endStation;
 		emit endStationChanged(currentEndStation_);
 	}
@@ -108,12 +109,15 @@ QString SXRMBBeamline::currentMotorGroupName() const
 	QString motorGroupName;
 
 	switch (currentEndStation_) {
+
 	case SXRMB::SolidState:
 		motorGroupName = solidStateSampleStageMotorGroupObject()->name();
 		break;
+
 	case SXRMB::Microprobe:
 		motorGroupName = microprobeSampleStageMotorGroupObject()->name();
 		break;
+
 	case SXRMB::Ambiant:
 	default:
 		motorGroupName = "Unknown";
@@ -459,11 +463,14 @@ void SXRMBBeamline::beamAvailabilityHelper()
 void SXRMBBeamline::sampleStageHelper()
 {
 	// check the available endstation if it is NOT assigned yet and whether sample stage is connected or not
-	if (currentEndStation_ == SXRMB::UnknownEndStation) {
+	if (currentEndStation_ == SXRMB::Invalid) {
+
 		if (microprobeSampleStageControlSet_->isConnected())
 			switchEndStation( SXRMB::Microprobe );
+
 		else if (solidStateSampleStageControlSet_->isConnected())
 			switchEndStation( SXRMB::SolidState );
+
 		else if (ambiantSampleStageControlSet_->isConnected())
 			switchEndStation( SXRMB::Ambiant );
 	}
