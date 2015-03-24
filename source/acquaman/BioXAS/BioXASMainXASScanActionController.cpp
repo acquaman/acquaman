@@ -103,9 +103,9 @@ AMAction3* BioXASMainXASScanActionController::createInitializationActions()
 
 //    AMListAction3 *darkCurrentSetup = new AMListAction3(new AMListActionInfo3("BioXAS Main Dark Current Setup", "BioXAS Main Dark Current Setup"), AMListAction3::Sequential);
 
-//    bool sharedSourceFound = false;
 //    for (int i = 0, size = configuration_->detectorConfigurations().count(); i < size; i++) {
 //	    AMDetector *detector = AMBeamline::bl()->exposedDetectorByInfo(configuration_->detectorConfigurations().at(i));
+//	    bool sharedSourceFound = false;
 
 //	    if (detector) {
 //		    int detectorIndex = scan_->indexOfDataSource(detector->name());
@@ -114,9 +114,9 @@ AMAction3* BioXASMainXASScanActionController::createInitializationActions()
 //			    bool sourceShared = detector->sharesDetectorTriggerSource();
 
 //			    if (sourceShared && !sharedSourceFound)
-//				darkCurrentSetup->addSubAction(detector->createDarkCurrentCorrectionActions(10));
+//				darkCurrentSetup->addSubAction(detector->createDarkCurrentCorrectionActions(detector->darkCurrentMeasurementTime()));
 //			    else if (!sourceShared)
-//				    darkCurrentSetup->addSubAction(detector->createDarkCurrentCorrectionActions(10));
+//				    darkCurrentSetup->addSubAction(detector->createDarkCurrentCorrectionActions(detector->darkCurrentMeasurementTime()));
 //		    }
 //	    }
 //    }
