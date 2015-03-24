@@ -54,13 +54,3 @@ BioXASSidePersistentView::~BioXASSidePersistentView()
 {
 
 }
-
-void BioXASSidePersistentView::onCalibrateEnergyButtonClicked()
-{
-	bool inputOK = false;
-	double newEnergy = QInputDialog::getDouble(this, "Monochromator Energy Calibration", "Enter current calibrated energy:", BioXASSideBeamline::bioXAS()->mono()->energyControl()->value(), -10000000, 10000000, 1, &inputOK, Qt::Sheet);
-
-	if (inputOK) {
-		BioXASSideBeamline::bioXAS()->mono()->setEnergyCalibration(newEnergy);
-	}
-}
