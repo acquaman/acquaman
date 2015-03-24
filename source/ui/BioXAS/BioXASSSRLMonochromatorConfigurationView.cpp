@@ -6,46 +6,85 @@ BioXASSSRLMonochromatorConfigurationView::BioXASSSRLMonochromatorConfigurationVi
 {
 	// Initialize member variables.
 
-	mono_ = 0;
+	mono_ = mono;
 
-	// Create UI elements.
+	regionEditor_ = 0;
+	energyEditor_ = 0;
+	braggEditor_ = 0;
 
-	QGroupBox *regionStatusView = new QGroupBox("Region status");
+	regionStatusWidget_ = 0;
+	braggConfigWidget_ = 0;
 
-	regionStatusWidget_ = new BioXASSSRLMonochromatorRegionControlView(0);
+	if (mono_) {
 
-	QGroupBox *braggConfigView = new QGroupBox("Bragg configuration");
+		// Create UI elements.
 
-	braggConfigWidget_ = new BioXASSSRLMonochromatorBraggConfigurationView(0);
+		regionEditor_ = new BioXASSSRLMonochromatorRegionControlEditor(mono_->regionControl());
+		regionEditor_->setTitle("Region");
 
-	// Create and set layouts.
+		energyEditor_ = new AMExtendedControlEditor(mono_->energyControl());
+		energyEditor_->setTitle("Energy EV");
+		energyEditor_->setControlFormat('f', 2);
 
-	QVBoxLayout *regionStatusViewLayout = new QVBoxLayout();
-	regionStatusViewLayout->setMargin(0);
-	regionStatusViewLayout->addWidget(regionStatusWidget_);
+		calibrateEnergyButton_ = new QPushButton("Calibrate");
 
-	regionStatusView->setLayout(regionStatusViewLayout);
+		braggEditor_ = new AMExtendedControlEditor(mono_->braggMotor());
+		braggEditor_->setTitle("Bragg motor position");
 
-	QVBoxLayout *braggConfigViewLayout = new QVBoxLayout();
-	braggConfigViewLayout->setMargin(0);
-	braggConfigViewLayout->addWidget(braggConfigWidget_);
+		calibrateBraggButton_ = new QPushButton("Calibrate");
+		calibrateBraggButton_->setEnabled(false);
 
-	braggConfigView->setLayout(braggConfigViewLayout);
+		QGroupBox *regionStatusView = new QGroupBox("Region status");
 
-	QVBoxLayout *layoutV = new QVBoxLayout();
-	layoutV->addWidget(regionStatusView);
-	layoutV->addWidget(braggConfigView);
-	layoutV->addStretch();
+		regionStatusWidget_ = new BioXASSSRLMonochromatorRegionControlView(mono_->regionControl());
 
-	QHBoxLayout *layoutH = new QHBoxLayout();
-	layoutH->addLayout(layoutV);
-	layoutH->addStretch();
+		QGroupBox *braggConfigView = new QGroupBox("Bragg configuration");
 
-	setLayout(layoutH);
+		braggConfigWidget_ = new BioXASSSRLMonochromatorBraggConfigurationView(mono_->braggMotor());
 
-	// Current settings.
+		// Create and set layouts.
 
-	setMono(mono);
+		QHBoxLayout *energyLayout = new QHBoxLayout();
+		energyLayout->setMargin(0);
+		energyLayout->addWidget(energyEditor_);
+		energyLayout->addWidget(calibrateEnergyButton_);
+
+		QHBoxLayout *braggLayout = new QHBoxLayout();
+		braggLayout->setMargin(0);
+		braggLayout->addWidget(braggEditor_);
+		braggLayout->addWidget(calibrateBraggButton_);
+
+		QVBoxLayout *regionStatusViewLayout = new QVBoxLayout();
+		regionStatusViewLayout->setMargin(0);
+		regionStatusViewLayout->addWidget(regionStatusWidget_);
+
+		regionStatusView->setLayout(regionStatusViewLayout);
+
+		QVBoxLayout *braggConfigViewLayout = new QVBoxLayout();
+		braggConfigViewLayout->setMargin(0);
+		braggConfigViewLayout->addWidget(braggConfigWidget_);
+
+		braggConfigView->setLayout(braggConfigViewLayout);
+
+		QVBoxLayout *layoutV = new QVBoxLayout();
+		layoutV->addWidget(regionEditor_);
+		layoutV->addLayout(energyLayout);
+		layoutV->addLayout(braggLayout);
+		layoutV->addWidget(regionStatusView);
+		layoutV->addWidget(braggConfigView);
+		layoutV->addStretch();
+
+		QHBoxLayout *layoutH = new QHBoxLayout();
+		layoutH->addLayout(layoutV);
+		layoutH->addStretch();
+
+		setLayout(layoutH);
+
+		// Make connections
+
+		connect( calibrateEnergyButton_, SIGNAL(clicked()), this, SLOT(onCalibrateEnergyButtonClicked()) );
+		connect( calibrateBraggButton_, SIGNAL(clicked()), this, SLOT(onCalibrateBraggButtonClicked()) );
+	}
 }
 
 BioXASSSRLMonochromatorConfigurationView::~BioXASSSRLMonochromatorConfigurationView()
@@ -53,24 +92,21 @@ BioXASSSRLMonochromatorConfigurationView::~BioXASSSRLMonochromatorConfigurationV
 
 }
 
-void BioXASSSRLMonochromatorConfigurationView::setMono(BioXASSSRLMonochromator *newMono)
+void BioXASSSRLMonochromatorConfigurationView::onCalibrateEnergyButtonClicked()
 {
-	if (mono_ != newMono) {
+	if (mono_) {
+		bool inputOK = false;
+		double newEnergy = QInputDialog::getDouble(this, "Monochromator Energy Calibration", "Enter current calibrated energy:", mono_->energyControl()->value(), -100000000, 10000000, 1, &inputOK, Qt::Sheet);
 
-		if (mono_) {
-			regionStatusWidget_->setRegionControl(0);
-			braggConfigWidget_->setBraggMotor(0);
+		if (inputOK) {
+			mono_->setEnergyCalibration(newEnergy);
 		}
-
-		mono_ = newMono;
-
-		if (mono_) {
-			regionStatusWidget_->setRegionControl(mono_->regionControl());
-			braggConfigWidget_->setBraggMotor(mono_->braggMotor());
-		}
-
-		emit monoChanged(mono_);
 	}
+}
+
+void BioXASSSRLMonochromatorConfigurationView::onCalibrateBraggButtonClicked()
+{
+
 }
 
 

@@ -4,8 +4,10 @@
 #include <QGroupBox>
 #include <QDoubleSpinBox>
 #include <QComboBox>
+#include <QPushButton>
 #include <QLayout>
 #include <QLabel>
+#include <QInputDialog>
 
 #include "beamline/BioXAS/BioXASSSRLMonochromator.h"
 #include "ui/BioXAS/BioXASSSRLMonochromatorRegionControlView.h"
@@ -32,16 +34,29 @@ public:
 	BioXASSSRLMonochromator* mono() const { return mono_; }
 
 signals:
-	/// Notifier that the mono being viewed has changed.
-	void monoChanged(BioXASSSRLMonochromator *newMono);
 
 public slots:
-	/// Sets the mono being viewed.
-	void setMono(BioXASSSRLMonochromator *newMono);
+
+protected slots:
+	/// Displays a dialog for the user to set the calibrated energy.
+	void onCalibrateEnergyButtonClicked();
+	/// Displays a dialog for the user to set the calibrated bragg position.
+	void onCalibrateBraggButtonClicked();
 
 protected:
 	/// The mono being viewed.
 	BioXASSSRLMonochromator *mono_;
+
+	/// The region editor.
+	BioXASSSRLMonochromatorRegionControlEditor *regionEditor_;
+	/// The energy editor.
+	AMExtendedControlEditor *energyEditor_;
+	/// The calibrate energy button.
+	QPushButton *calibrateEnergyButton_;
+	/// The bragg motor position editor.
+	AMExtendedControlEditor *braggEditor_;
+	/// The calibrate bragg button.
+	QPushButton *calibrateBraggButton_;
 
 	/// The region status display.
 	BioXASSSRLMonochromatorRegionControlView *regionStatusWidget_;
