@@ -1,6 +1,8 @@
 #ifndef BIOXASSSRLMONOCHROMATORREGIONCONTROL_H
 #define BIOXASSSRLMONOCHROMATORREGIONCONTROL_H
 
+#include <QSignalMapper>
+
 #include "beamline/AMCompositeControl.h"
 #include "actions3/AMActionSupport.h"
 #include "actions3/actions/AMControlWaitAction.h"
@@ -184,11 +186,11 @@ protected slots:
 	/// Called when the internal crystal change action has been started. Handles updating the moveInProgress_ member variable and emitting the moveInProgress() signal.
 	void onRegionChangeStarted();
 	/// Called when the internal crystal change action has been cancelled. Handles emitting moveFailed(...) with the WasStoppedFailure code and deleting the action.
-	void onRegionChangeCancelled();
+	void onRegionChangeCancelled(QObject *action);
 	/// Called when the internal crystal change action has failed. Handles emitting moveFailed(...) with the OtherFailure code and deleting the action.
-	void onRegionChangeFailed();
+	void onRegionChangeFailed(QObject *action);
 	/// Called when the internal crystal change action has succeeded! Handles emitting moveSucceeded() and deleting the action.
-	void onRegionChangeSucceeded();
+	void onRegionChangeSucceeded(QObject *action);
 
 protected:
 	/// Returns a new action that performs a crystal change to change the region.
@@ -302,6 +304,13 @@ protected:
 	AMControl *regionAStatus_;
 	/// The region B status.
 	AMControl *regionBStatus_;
+
+	/// A signal mapper that allows an AMAction to identify itself as the origin of the action cancelled signal.
+	QSignalMapper *actionCancelledMapper_;
+	/// A signal mapper that allows an AMAction to identify itself as the origin of the action failed signal.
+	QSignalMapper *actionFailedMapper_;
+	/// A signal mapper that allows an AMAction to identify itself as the origin of the action succeeded signal.
+	QSignalMapper *actionSucceededMapper_;
 };
 
 #endif // BIOXASSSRLMONOCHROMATORREGIONCONTROL_H

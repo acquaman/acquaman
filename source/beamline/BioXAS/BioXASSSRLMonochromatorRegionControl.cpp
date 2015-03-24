@@ -1,5 +1,6 @@
 #include "BioXASSSRLMonochromatorRegionControl.h"
 #include "BioXASSSRLMonochromator.h"
+#include <QDebug>
 
 BioXASSSRLMonochromatorRegionControl::BioXASSSRLMonochromatorRegionControl(QObject *parent) :
 	AMCompositeControl("RegionControl", "", parent, "BioXAS SSRL Monochromator Region Control")
@@ -24,6 +25,10 @@ BioXASSSRLMonochromatorRegionControl::BioXASSSRLMonochromatorRegionControl(QObje
 	crystalChangeCCWLimitStatus_ = 0;
 	regionAStatus_ = 0;
 	regionBStatus_ = 0;
+
+	actionCancelledMapper_ = new QSignalMapper(this);
+	actionFailedMapper_ = new QSignalMapper(this);
+	actionSucceededMapper_ = new QSignalMapper(this);
 
 	// Initialize inherited variables.
 
@@ -132,14 +137,30 @@ AMControl::FailureExplanation BioXASSSRLMonochromatorRegionControl::move(double 
 		return AMControl::LimitFailure;
 	}
 
-	// If a valid action was generated, make connections and run it.
+	// Create signal mappings for this action.
+
+	actionCancelledMapper_->setMapping(action, action);
+	connect( action, SIGNAL(cancelled()), actionCancelledMapper_, SLOT(map()) );
+
+	actionFailedMapper_->setMapping(action, action);
+	connect( action, SIGNAL(failed()), actionFailedMapper_, SLOT(map()) );
+
+	actionSucceededMapper_->setMapping(action, action);
+	connect( action, SIGNAL(succeeded()), actionSucceededMapper_, SLOT(map()) );
+
+	// Connect signal mappers to slots that handle different action states.
+
+	connect( actionCancelledMapper_, SIGNAL(mapped(QObject*)), this, SLOT(onRegionChangeCancelled(QObject*)) );
+	connect( actionFailedMapper_, SIGNAL(mapped(QObject*)), this, SLOT(onRegionChangeFailed(QObject*)) );
+	connect( actionSucceededMapper_, SIGNAL(mapped(QObject*)), this, SLOT(onRegionChangeSucceeded(QObject*)) );
+
+	// Make remaining action connections.
 
 	connect( action, SIGNAL(progressChanged(double, double)), this, SIGNAL(moveProgressChanged(double,double)) );
 	connect( action, SIGNAL(currentSubActionChanged(int)), this, SLOT(onActionStepChanged(int)) );
 	connect( action, SIGNAL(started()), this, SLOT(onRegionChangeStarted()) );
-	connect( action, SIGNAL(cancelled()), this, SLOT(onRegionChangeCancelled()) );
-	connect( action, SIGNAL(failed()), this, SLOT(onRegionChangeFailed()) );
-	connect( action, SIGNAL(succeeded()), this, SLOT(onRegionChangeSucceeded()) );
+
+	// Run action.
 
 	action->start();
 
@@ -349,21 +370,21 @@ void BioXASSSRLMonochromatorRegionControl::onRegionChangeStarted()
 	setMoveInProgress(true);
 }
 
-void BioXASSSRLMonochromatorRegionControl::onRegionChangeCancelled()
+void BioXASSSRLMonochromatorRegionControl::onRegionChangeCancelled(QObject *action)
 {
-	moveCleanup(sender());
+	moveCleanup(action);
 	emit moveFailed(AMControl::WasStoppedFailure);
 }
 
-void BioXASSSRLMonochromatorRegionControl::onRegionChangeFailed()
+void BioXASSSRLMonochromatorRegionControl::onRegionChangeFailed(QObject *action)
 {
-	moveCleanup(sender());
+	moveCleanup(action);
 	emit moveFailed(AMControl::OtherFailure);
 }
 
-void BioXASSSRLMonochromatorRegionControl::onRegionChangeSucceeded()
+void BioXASSSRLMonochromatorRegionControl::onRegionChangeSucceeded(QObject *action)
 {
-	moveCleanup(sender());
+	moveCleanup(action);
 	emit moveSucceeded();
 }
 
@@ -892,8 +913,18 @@ QString BioXASSSRLMonochromatorRegionControl::stepNotes(int stepIndex)
 
 void BioXASSSRLMonochromatorRegionControl::moveCleanup(QObject *action)
 {
-	setMoveInProgress(false);
+	if (action) {
+		setMoveInProgress(false);
 
-	disconnect( action, 0, this, 0 );
-	action->deleteLater();
+		disconnect( action, 0, actionCancelledMapper_, 0 );
+		disconnect( action, 0, actionFailedMapper_, 0 );
+		disconnect( action, 0, actionSucceededMapper_, 0 );
+		disconnect( action, 0, this, 0 );
+
+		actionCancelledMapper_->removeMappings(action);
+		actionFailedMapper_->removeMappings(action);
+		actionSucceededMapper_->removeMappings(action);
+
+		action->deleteLater();
+	}
 }
