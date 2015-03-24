@@ -1,19 +1,19 @@
-#ifndef VESPERSFOURELEMENTVORTEXDETECTORVIEW_H
-#define VESPERSFOURELEMENTVORTEXDETECTORVIEW_H
+#ifndef SXRMBFOURELEMENTVORTEXDETECTORVIEW_H
+#define SXRMBFOURELEMENTVORTEXDETECTORVIEW_H
 
-#include "ui/VESPERS/VESPERSXRFDetailedDetectorView.h"
-#include "beamline/VESPERS/VESPERSFourElementVortexDetector.h"
+#include "ui/SXRMB/SXRMBXRFDetailedDetectorView.h"
+#include "beamline/SXRMB/SXRMBFourElementVortexDetector.h"
 
-/// Subclass that allows for setting the maximum energy and peaking time to the four element detector.
-class VESPERSFourElementVortexDetectorView : public VESPERSXRFDetailedDetectorView
+/// Sublcass that allows for setting the maximum energy and peaking time to the four element vortex detector.
+class SXRMBFourElementVortexDetectorView : public SXRMBXRFDetailedDetectorView
 {
 	Q_OBJECT
 
 public:
 	/// Constructor.
-	VESPERSFourElementVortexDetectorView(VESPERSFourElementVortexDetector *detector, QWidget *parent = 0);
+	SXRMBFourElementVortexDetectorView(SXRMBFourElementVortexDetector *detector, QWidget *parent = 0);
 	/// Destructor.
-	virtual ~VESPERSFourElementVortexDetectorView(){}
+	virtual ~SXRMBFourElementVortexDetectorView(){}
 
 	/// Re-implementing to add the peaking time spin box.
 	virtual void buildDetectorView();
@@ -27,10 +27,10 @@ protected:
 	virtual void setMaximumEnergyImplementation(double energy);
 
 	/// Pointer to the actual VESPERSSingleElementVortexDetector for setting the peaking time and maximum energy.
-	VESPERSFourElementVortexDetector *fourElementVortexDetector_;
+	SXRMBFourElementVortexDetector *fourElementVortexDetector_;
 
 	/// Spin box for the peaking time.
 	QDoubleSpinBox *peakingTimeSpinBox_;
 };
 
-#endif // VESPERSFOURELEMENTVORTEXDETECTORVIEW_H
+#endif // SXRMBFOURELEMENTVORTEXDETECTORVIEW_H

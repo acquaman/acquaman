@@ -23,6 +23,38 @@ namespace SXRMB {
 	#define ERR_SXRMB_XRF_DETECTOR_NOT_CONNECTED 290201 //XRF detector not initialized
 	#define ERR_SXRMB_XRF_DETECTOR_SCAN_NOT_EXIST 290201 //XRF detector failed to create scan for exporting
 
+	/// Enum for the different endstations.
+	/*!
+	  - Solid State is the in-vacuum XAS endstation.
+	  - Ambiant is the ambiant XAS endstation.
+	  - Microprobe is for the microprobe mapping and XAS endstation.
+	  */
+	enum Endsation
+	{
+		SolidState = 0,
+		Ambiant,
+		Microprobe
+	};
+
+	/// Enum for making the decision on what fluorescence detector the user wants to use.
+	enum FluorescenceDetector
+	{
+		NoXRF = 0,
+		Bruker = 1,
+		FourElement = 2
+	};
+	Q_DECLARE_FLAGS(FluorescenceDetectors, FluorescenceDetector)
+
+	/// Enum for the ion chambers used in scans.  These are used for the incoming or transmitted total intensity.
+	enum IonChamber
+	{
+		BeamlineI0 = 0,
+		Chamber0 = 1,
+		Chamber1 = 2,
+		TEY = 4
+	};
+	Q_DECLARE_FLAGS(IonChambers, IonChamber)
+
 	/// Helper method that takes a time in seconds and returns a string of d:h:m:s.
 	inline QString convertTimeToString(double time)
 	{
@@ -141,5 +173,8 @@ namespace SXRMB {
 		return pathParts.at(index);
 	}
 }
+
+Q_DECLARE_OPERATORS_FOR_FLAGS(SXRMB::FluorescenceDetectors)
+Q_DECLARE_OPERATORS_FOR_FLAGS(SXRMB::IonChambers)
 
 #endif // SXRMB_H
