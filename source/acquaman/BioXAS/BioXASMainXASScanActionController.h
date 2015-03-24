@@ -4,6 +4,7 @@
 #include <QObject>
 
 #include "acquaman/AMStepScanActionController.h"
+#include "analysis/AM1DDarkCurrentCorrectionAB.h"
 
 class BioXASMainXASScanConfiguration;
 

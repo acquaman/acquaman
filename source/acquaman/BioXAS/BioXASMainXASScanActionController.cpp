@@ -99,11 +99,34 @@ AMAction3* BioXASMainXASScanActionController::createInitializationActions()
     stage4->addSubAction(scaler->createStartAction3(true));
     stage4->addSubAction(scaler->createWaitForDwellFinishedAction(regionTime + 5.0));
 
+//    // setup beamline for dark current correction.
+
+//    AMListAction3 *darkCurrentSetup = new AMListAction3(new AMListActionInfo3("BioXAS Main Dark Current Setup", "BioXAS Main Dark Current Setup"), AMListAction3::Sequential);
+
+//    bool sharedSourceFound = false;
+//    for (int i = 0, size = configuration_->detectorConfigurations().count(); i < size; i++) {
+//	    AMDetector *detector = AMBeamline::bl()->exposedDetectorByInfo(configuration_->detectorConfigurations().at(i));
+
+//	    if (detector) {
+//		    int detectorIndex = scan_->indexOfDataSource(detector->name());
+
+//		    if (detectorIndex != -1 && detector->rank() == 0 && detector->canDoDarkCurrentCorrection()) {
+//			    bool sourceShared = detector->sharesDetectorTriggerSource();
+
+//			    if (sourceShared && !sharedSourceFound)
+//				darkCurrentSetup->addSubAction(detector->createDarkCurrentCorrectionActions(10));
+//			    else if (!sourceShared)
+//				    darkCurrentSetup->addSubAction(detector->createDarkCurrentCorrectionActions(10));
+//		    }
+//	    }
+//    }
+
     initializationAction->addSubAction(stage1);
     initializationAction->addSubAction(stage2);
     initializationAction->addSubAction(scaler->createDwellTimeAction3(double(configuration_->scanAxisAt(0)->regionAt(0)->regionTime())));
     initializationAction->addSubAction(stage3);
     initializationAction->addSubAction(stage4);
+//    initializationAction->addSubAction(darkCurrentSetup);
 
     // Set the bragg motor power to PowerOn.
     initializationAction->addSubAction(BioXASMainBeamline::bioXAS()->mono()->braggMotor()->createPowerAction(CLSMAXvMotor::PowerOn));
@@ -127,7 +150,37 @@ AMAction3* BioXASMainXASScanActionController::createCleanupActions()
 
 void BioXASMainXASScanActionController::buildScanControllerImplementation()
 {
+//	// Create data sources of dark current corrected measurements of each detector in the configuration_ that can perform dark current correction.
+//	// Add data sources to list of analyzed data sources.
 
+//	int dwellTimeIndex = scan_->indexOfDataSource(BioXASMainBeamline::bioXAS()->dwellTimeDetector()->name());
+
+//	if (dwellTimeIndex != -1) {
+//		AMDataSource *dwellTimeSource = scan_->dataSourceAt(dwellTimeIndex);
+
+//		for (int i = 0, size = configuration_->detectorConfigurations().count(); i < size; i++) {
+//			AMDetector *detector = AMBeamline::bl()->exposedDetectorByInfo(configuration_->detectorConfigurations().at(i));
+
+//			if (detector) {
+//				int detectorIndex = scan_->indexOfDataSource(detector->name());
+
+//				if (detectorIndex != -1 && detector->rank() == 0 && detector->canDoDarkCurrentCorrection()) {
+//					AMDataSource *detectorSource = scan_->dataSourceAt(detectorIndex);
+
+//					AM1DDarkCurrentCorrectionAB *detectorCorrection = new AM1DDarkCurrentCorrectionAB(QString("%1_DarkCorrect").arg(detector->name()));
+//					detectorCorrection->setDescription(QString("%1 Dark Current Correction").arg(detector->name()));
+//					detectorCorrection->setDataName(detectorSource->name());
+//					detectorCorrection->setDwellTimeName(dwellTimeSource->name());
+//					detectorCorrection->setInputDataSources(QList<AMDataSource*>() << detectorSource << dwellTimeSource);
+//					detectorCorrection->setTimeUnitMultiplier(0.001);
+
+//					connect( detector, SIGNAL(newDarkCurrentMeasurementValueReady(double)), detectorCorrection, SLOT(setDarkCurrent(double)) );
+
+//					scan_->addAnalyzedDataSource(detectorCorrection, true, false);
+//				}
+//			}
+//		}
+//	}
 }
 
 void BioXASMainXASScanActionController::createScanAssembler()
