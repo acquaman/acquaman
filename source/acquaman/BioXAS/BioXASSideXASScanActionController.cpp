@@ -106,6 +106,9 @@ AMAction3* BioXASSideXASScanActionController::createInitializationActions()
 	initializationAction->addSubAction(stage3);
 	initializationAction->addSubAction(stage4);
 
+	// Set the bragg motor power to PowerOn.
+	initializationAction->addSubAction(BioXASSideBeamline::bioXAS()->mono()->braggMotor()->createPowerAction(CLSMAXvMotor::PowerOn));
+
 	return initializationAction;
 }
 
@@ -116,6 +119,9 @@ AMAction3* BioXASSideXASScanActionController::createCleanupActions()
 	AMListAction3 *cleanup = new AMListAction3(new AMListActionInfo3("BioXAS Side Cleanup", "BioXAS Cleanup"), AMListAction3::Sequential);
 	cleanup->addSubAction(scaler->createDwellTimeAction3(1.0));
 	cleanup->addSubAction(scaler->createContinuousEnableAction3(true));
+
+	// Set the bragg motor power to PowerAutoHardware.
+	cleanup->addSubAction(BioXASSideBeamline::bioXAS()->mono()->braggMotor()->createPowerAction(CLSMAXvMotor::PowerAutoHardware));
 
 	return cleanup;
 }
