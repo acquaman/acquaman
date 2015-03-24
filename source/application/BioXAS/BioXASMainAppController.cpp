@@ -180,7 +180,7 @@ void BioXASMainAppController::setupUserInterface()
 
 	// Create mono configuration view and add to 'General' category.
 	monoConfigView_ = new BioXASSSRLMonochromatorConfigurationView(BioXASMainBeamline::bioXAS()->mono());
-	mw_->addPane(monoConfigView_, "General", "Mono", ":/system-software-update.png");
+	mw_->addPane(monoConfigView_, "General", "Monochromator", ":/system-software-update.png");
 
 	mw_->insertHeading("Detectors", 1);
 

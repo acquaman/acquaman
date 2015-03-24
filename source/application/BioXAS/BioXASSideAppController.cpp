@@ -200,7 +200,7 @@ void BioXASSideAppController::setupUserInterface()
 
 	// Add views to 'General'.
 	mw_->insertHeading("General", 0);
-	mw_->addPane(monoConfigView_, "General", "Mono", ":/system-software-update.png");
+	mw_->addPane(monoConfigView_, "General", "Monochromator", ":/system-software-update.png");
 
 	// Add views to 'Detectors'.
 	mw_->insertHeading("Detectors", 1);
