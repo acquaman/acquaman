@@ -21,8 +21,6 @@ SXRMBBrukerDetector::SXRMBBrukerDetector(const QString &name, const QString &des
 	acquireTimeControl_ = new AMSinglePVControl("Integration Time", "mca1606-B10-03:mca1.PRTM", this, 0.001);
 	elapsedTimeControl_ = new AMReadOnlyPVControl("Elapsed Time", "mca1606-B10-03:mca1.ERTM", this);
 
-//	icrControls_.append(new AMReadOnlyPVControl("Input Counts", "IOC1607-004:dxp1.ICR", this, "The input counts for the single element."));
-//	ocrControls_.append(new AMReadOnlyPVControl("Output Counts", "IOC1607-004:dxp1.OCR", this, "The output counts for the single element."));
 	spectraControls_.append(new AMReadOnlyPVControl("Raw Spectrum", "mca1606-B10-03:mca1", this));
 
 	allControlsCreated();
@@ -46,7 +44,7 @@ SXRMBBrukerDetector::~SXRMBBrukerDetector()
 
 double SXRMBBrukerDetector::deadTime() const
 {
-	return deadTimeControl_->value();
+	return deadTimeControl_->value()/100.0;
 }
 
 double SXRMBBrukerDetector::deadTimeAt(int index) const

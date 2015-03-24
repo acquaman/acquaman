@@ -34,6 +34,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/CLS/CLSMAXvMotor.h"
 #include "beamline/SXRMB/SXRMBBrukerDetector.h"
 #include "beamline/AMMotorGroup.h"
+#include "beamline/SXRMB/SXRMBFourElementVortexDetector.h"
 
 #include "util/AMBiHash.h"
 
@@ -92,6 +93,8 @@ public:
 
 	/// Returns the bruker fluorescence detector.
 	SXRMBBrukerDetector *brukerDetector() const;
+	/// Returns the four element vortex detector.
+	SXRMBFourElementVortexDetector *fourElementVortexDetector() const;
 
 	/// Returns the list of actions to turn the beam on
 	AMAction3* createBeamOnActions() const;
@@ -188,6 +191,8 @@ protected:
 
 	/// The bruker detector.
 	SXRMBBrukerDetector *brukerDetector_;
+	/// The four element vortex detector.
+	SXRMBFourElementVortexDetector *fourElementVortexDetector_;
 
 	/// Beamline valves, the valves involved in the Beam on/off action
 	AMControlSet * beamlineControlShutterSet_;

@@ -121,6 +121,11 @@ SXRMBBrukerDetector* SXRMBBeamline::brukerDetector() const
 	return brukerDetector_;
 }
 
+SXRMBFourElementVortexDetector *SXRMBBeamline::fourElementVortexDetector() const
+{
+	return fourElementVortexDetector_;
+}
+
 AMAction3* SXRMBBeamline::createBeamOnActions() const
 {
 	if(!isConnected())
@@ -284,6 +289,7 @@ void SXRMBBeamline::setupSampleStage()
 void SXRMBBeamline::setupDetectors()
 {
 	brukerDetector_ = new SXRMBBrukerDetector("Bruker", "Bruker XRF detector", this);
+	fourElementVortexDetector_ = new SXRMBFourElementVortexDetector("FourElementVortex", "Four element Vortex detector", this);
 
 	i0Detector_ = new CLSBasicScalerChannelDetector("I0Detector", "I0 Detector", scaler_, 17, this);
 	scaler_->channelAt(17)->setDetector(i0Detector_);
@@ -337,6 +343,7 @@ void SXRMBBeamline::setupExposedDetectors()
 	addExposedDetector(teyDetector_);
 	addExposedDetector(energyFeedbackDetector_);
 	addExposedDetector(brukerDetector_);
+	addExposedDetector(fourElementVortexDetector_);
 }
 
 void SXRMBBeamline::setupConnections()
