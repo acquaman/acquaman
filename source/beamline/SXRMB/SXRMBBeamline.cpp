@@ -97,8 +97,11 @@ AMReadOnlyPVControl* SXRMBBeamline::beamlineStatus() const
 
 bool SXRMBBeamline::isConnected() const
 {
+	bool sampleStageConnected = microprobeSampleStageControlSet_->isConnected();
+
+	// return whether the expected PVs are connected or not
 	return energy_->isConnected() && beamlineStatus_->isConnected()
-			&& microprobeSampleStageControlSet_->isConnected() && beamlineControlShutterSet_->isConnected();
+			&& beamlineControlShutterSet_->isConnected() && sampleStageConnected;
 }
 
 CLSBasicScalerChannelDetector* SXRMBBeamline::i0Detector() const
@@ -284,6 +287,17 @@ void SXRMBBeamline::setupSampleStage()
 	microprobeSampleStageControlSet_->addControl(microprobeSampleStageY_);
 	microprobeSampleStageControlSet_->addControl(microprobeSampleStageZ_);
 
+	// Solid State Endstation sample stage
+	solidStateSampleStageX_ = new AMPVwStatusControl("SolidStateSampleStageX", "SMTR0000-E01-01:mm:sp", "SMTR0000-E01-01:mm", "SMTR0000-E01-01:status", "SMTR0000-E01-01:stop", this, 0.005, 2.0, new AMControlStatusCheckerCLSMAXv());
+	solidStateSampleStageY_ = new AMPVwStatusControl("SolidStateSampleStageY", "SMTR0000-E01-02:mm:sp", "SMTR0000-E01-02:mm", "SMTR0000-E01-02:status", "SMTR0000-E01-02:stop", this, 0.005, 2.0, new AMControlStatusCheckerCLSMAXv());
+	solidStateSampleStageZ_ = new AMPVwStatusControl("SolidStateSampleStageZ", "SMTR0000-E01-03:mm:sp", "SMTR0000-E01-03:mm", "SMTR0000-E01-03:status", "SMTR0000-E01-03:stop", this, 0.005, 2.0, new AMControlStatusCheckerCLSMAXv());
+	solidStateSampleStageR_ = new AMPVwStatusControl("SolidStateSampleStageR", "SMTR0000-E01-04:dgr:sp", "SMTR0000-E01-04:dgr", "SMTR0000-E01-04:status", "SMTR0000-E01-04:stop", this, 0.005, 2.0, new AMControlStatusCheckerCLSMAXv());
+
+	solidStateSampleStageControlSet_ = new AMControlSet(this);
+	solidStateSampleStageControlSet_->addControl(solidStateSampleStageX_);
+	solidStateSampleStageControlSet_->addControl(solidStateSampleStageY_);
+	solidStateSampleStageControlSet_->addControl(solidStateSampleStageZ_);
+	solidStateSampleStageControlSet_->addControl(solidStateSampleStageR_);
 }
 
 void SXRMBBeamline::setupDetectors()
@@ -310,16 +324,30 @@ void SXRMBBeamline::setupMono()
 
 void SXRMBBeamline::setupMotorGroup()
 {
-	AMMotorGroupObject *motorObject = new AMMotorGroupObject("Microprobe Stage - X, Z, Y",
+	motorGroup_ = new AMMotorGroup(this);
+
+	AMMotorGroupObject *motorObject;
+
+	// Microprobe motor group
+	motorObject = new AMMotorGroupObject("Microprobe Stage - X, Z, Y",
 										 QStringList() << "X" << "Z" << "Y",
 										 QStringList() << "mm" << "mm" << "mm",
 										 QList<AMControl *>() << microprobeSampleStageX_ << microprobeSampleStageZ_ << microprobeSampleStageY_,
 										 QList<AMMotorGroupObject::Orientation>() << AMMotorGroupObject::Horizontal << AMMotorGroupObject::Vertical << AMMotorGroupObject::Normal,
 										 QList<AMMotorGroupObject::MotionType>() << AMMotorGroupObject::Translational << AMMotorGroupObject::Translational << AMMotorGroupObject::Translational,
 										 this);
-
-	motorGroup_ = new AMMotorGroup(this);
 	motorGroup_->addMotorGroupObject(motorObject->name(), motorObject);
+
+	// Solidstate motor group
+	motorObject = new AM4DMotorGroupObject("Solid State - X, Z, Y, R",
+										 QStringList() << "X" << "Z" << "Y" << "R",
+										 QStringList() << "mm" << "mm" << "mm" << "deg",
+										 QList<AMControl *>() << solidStateSampleStageX_ << solidStateSampleStageZ_ << solidStateSampleStageY_ << solidStateSampleStageR_,
+										 QList<AMMotorGroupObject::Orientation>() << AMMotorGroupObject::Horizontal << AMMotorGroupObject::Vertical << AMMotorGroupObject::Normal << AMMotorGroupObject::Other,
+										 QList<AMMotorGroupObject::MotionType>() << AMMotorGroupObject::Translational << AMMotorGroupObject::Translational << AMMotorGroupObject::Translational << AMMotorGroupObject::Rotational,
+										 this);
+	motorGroup_->addMotorGroupObject(motorObject->name(), motorObject);
+
 }
 
 void SXRMBBeamline::setupControlsAsDetectors()
@@ -354,6 +382,7 @@ void SXRMBBeamline::setupConnections()
 
 	connect(energy_, SIGNAL(connected(bool)), this, SLOT(onEnergyPVConnected(bool)));
 	connect(microprobeSampleStageControlSet_, SIGNAL(connected(bool)), this, SLOT(onMicroprobeSampleStagePVsConnected(bool)));
+	connect(solidStateSampleStageControlSet_, SIGNAL(connected(bool)), this, SLOT(onSolidStateSampleStagePVsConnected(bool)));
 	connect(beamlineControlShutterSet_, SIGNAL(connected(bool)), this, SLOT(onBeamlineControlShuttersConnected(bool)));
 	connect(beamlineControlShutterSet_, SIGNAL(controlSetTimedOut()), this, SIGNAL(beamlineControlShuttersTimeout()));
 
@@ -402,6 +431,10 @@ void SXRMBBeamline::onEnergyPVConnected(bool) {
 }
 
 void SXRMBBeamline::onMicroprobeSampleStagePVsConnected(bool) {
+	connectedHelper();
+}
+
+void SXRMBBeamline::onSolidStateSampleStagePVsConnected(bool) {
 	connectedHelper();
 }
 

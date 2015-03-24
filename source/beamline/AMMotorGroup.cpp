@@ -204,6 +204,16 @@ AMMotorGroupObject::MotionType AMMotorGroupObject::normalMotionType() const
 	return motionTypes_.at(index);
 }
 
+bool AMMotorGroupObject::isMotorMoving() const
+{
+	bool isMoving = false;
+
+	foreach (AMControl *control, controls())
+		isMoving |= control->isMoving();
+
+	return isMoving;
+}
+
 AMAction3 *AMMotorGroupObject::createHorizontalMoveAction(double position)
 {
 	if (!horizontalControl()->isConnected())

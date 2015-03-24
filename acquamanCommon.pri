@@ -273,9 +273,11 @@ HEADERS += \
 	source/analysis/AMOrderReductionAB.h \
 	source/analysis/AMOrderReductionABEditor.h \
 	source/beamline/AMMotorGroup.h \
-	source/ui/AMMotorGroupView.h \
-	source/ui/CLS/CLSPseudoMotorGroupView.h \
+	source/beamline/AM4DMotorGroup.h \
 	source/beamline/CLS/CLSPseudoMotorGroup.h \
+	source/ui/AMMotorGroupView.h \
+	source/ui/AM4DMotorGroupView.h \
+	source/ui/CLS/CLSPseudoMotorGroupView.h \
 	source/util/AMPointerTree.h \
 	source/dataman/AMDbUpgrade1Pt4.h \
 	source/dataman/AMSamplePre2013.h \
@@ -687,9 +689,11 @@ SOURCES += \
 	source/analysis/AMOrderReductionAB.cpp \
 	source/analysis/AMOrderReductionABEditor.cpp \
 	source/beamline/AMMotorGroup.cpp \
-	source/ui/AMMotorGroupView.cpp \
-	source/ui/CLS/CLSPseudoMotorGroupView.cpp \
+	source/beamline/AM4DMotorGroup.cpp \
 	source/beamline/CLS/CLSPseudoMotorGroup.cpp \
+	source/ui/AMMotorGroupView.cpp \
+	source/ui/AM4DMotorGroupView.cpp \
+	source/ui/CLS/CLSPseudoMotorGroupView.cpp \
 	source/util/AMPointerTree.cpp \
 	source/dataman/AMDbUpgrade1Pt4.cpp \
 	source/dataman/AMSamplePre2013.cpp \

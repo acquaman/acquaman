@@ -25,6 +25,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/AMBeamline.h"
 #include "beamline/AMControlSet.h"
 #include "beamline/AMMotorGroup.h"
+#include "beamline/AM4DMotorGroup.h"
 #include "beamline/CLS/CLSSynchronizedDwellTime.h"
 #include "beamline/CLS/CLSSIS3820Scaler.h"
 #include "beamline/CLS/CLSBiStateControl.h"
@@ -32,8 +33,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/CLS/CLSBasicScalerChannelDetector.h"
 #include "beamline/CLS/CLSBasicCompositeScalerChannelDetector.h"
 #include "beamline/CLS/CLSMAXvMotor.h"
+
+#include "application/SXRMB/SXRMB.h"
 #include "beamline/SXRMB/SXRMBBrukerDetector.h"
-#include "beamline/AMMotorGroup.h"
 #include "beamline/SXRMB/SXRMBFourElementVortexDetector.h"
 
 #include "util/AMBiHash.h"
@@ -150,6 +152,8 @@ protected slots:
 	void onEnergyPVConnected(bool);
 	/// Handles connected status of all of the microprobe sample stage controls
 	void onMicroprobeSampleStagePVsConnected(bool);
+	/// Handles connected status of all of the SolidState sample stage controls
+	void onSolidStateSampleStagePVsConnected(bool);
 	/// Handles connected status of all of the beam on/off control shutters
 	void onBeamlineControlShuttersConnected(bool);
 
@@ -171,14 +175,25 @@ protected:
 	AMPVwStatusControl *microprobeSampleStageY_;
 	/// Z Stage for the microrobe sample stage
 	AMPVwStatusControl *microprobeSampleStageZ_;
+	/// Control set for microprobe sample stage
+	AMControlSet *microprobeSampleStageControlSet_;
+
+	/// X Stage for the Solid State sample stage
+	AMPVwStatusControl *solidStateSampleStageX_;
+	/// Y Stage for the Solid State sample stage
+	AMPVwStatusControl *solidStateSampleStageY_;
+	/// Z Stage for the Solid State sample stage
+	AMPVwStatusControl *solidStateSampleStageZ_;
+	/// R Stage for the Solid State sample stage
+	AMPVwStatusControl *solidStateSampleStageR_;
+	/// Control set for Solid State sample stage
+	AMControlSet *solidStateSampleStageControlSet_;
 
 	/// Detector for the I0Detector channel on the scaler
 	CLSBasicScalerChannelDetector *i0Detector_;
 	/// Detector for the TEYDetctor channel on the scaler
 	CLSBasicScalerChannelDetector *teyDetector_;
 
-	/// Control set for microprobe sample stage
-	AMControlSet *microprobeSampleStageControlSet_;
 
 	/// Motor group.  Holds sets of motors that are used together.
 	AMMotorGroup *motorGroup_;
