@@ -310,83 +310,20 @@ void AMMotorGroupObjectView::onThirdControlSetpoint()
 
 // AMMotorGroupView
 /////////////////////////////////////////////
+AMMotorGroupView::~AMMotorGroupView()
+{
+}
+
 AMMotorGroupView::AMMotorGroupView(AMMotorGroup *motorGroup, QWidget *parent)
 	: QWidget(parent)
 {
-	viewMode_ = Exclusive;
-	motorGroup_ = motorGroup;
-
-	availableMotorGroupObjects_ = new QComboBox;
-
-	QString name;
-	for(int x = 0; x < motorGroup_->size(); x++){
-		name = motorGroup_->names().at(x);
-		availableMotorGroupObjects_->addItem(name);
-		AMMotorGroupObjectView *motorGroupObjectView = motorGroup->motorGroupObjects().at(x)->createMotorGroupObjectView();
-		if(motorGroupObjectView)
-			motorGroupViews_.insert(name, motorGroupObjectView);
-	}
-
-	foreach (AMMotorGroupObjectView *view, motorGroupViews_.values())
-		view->setTitleVisible(false);
-
-	connect(this, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(onCustomContextMenuRequested(QPoint)));
-	setContextMenuPolicy(Qt::CustomContextMenu);
-
-	QVBoxLayout *groupLayout = new QVBoxLayout;
-	groupLayout->addWidget(availableMotorGroupObjects_, 0, Qt::AlignLeft);
-
-	foreach (AMMotorGroupObjectView *view, motorGroupViews_.values())
-		groupLayout->addWidget(view);
-
-	setLayout(groupLayout);
-}
-
-AMMotorGroupView::~AMMotorGroupView()
-{
+	initAndLayoutMotorGroupView(motorGroup, Exclusive);
 }
 
 AMMotorGroupView::AMMotorGroupView(AMMotorGroup *motorGroup, ViewMode viewMode, QWidget *parent)
 	: QWidget(parent)
 {
-	viewMode_ = viewMode;
-	motorGroup_ = motorGroup;
-
-	availableMotorGroupObjects_ = new QComboBox;
-
-	foreach(QString name, motorGroup_->names()){
-
-		availableMotorGroupObjects_->addItem(name);
-		motorGroupViews_.insert(name, new AMMotorGroupObjectView(motorGroup_->motorGroupObject(name)));
-	}
-
-	if (viewMode_ == Exclusive)
-		foreach (AMMotorGroupObjectView *view, motorGroupViews_.values())
-			view->setTitleVisible(false);
-
-	else if (viewMode_ == Multiple){
-
-		availableMotorGroupObjects_->hide();
-
-		foreach (AMMotorGroupObjectView *view, motorGroupViews_.values())
-			view->hide();
-	}
-
-	foreach (AMMotorGroupObjectView *view, motorGroupViews_.values())
-		view->setTitleVisible(false);
-
-	connect(this, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(onCustomContextMenuRequested(QPoint)));
-	setContextMenuPolicy(Qt::CustomContextMenu);
-
-	connect(availableMotorGroupObjects_, SIGNAL(currentIndexChanged(QString)), this, SLOT(setMotorGroupView(QString)));
-
-	QVBoxLayout *groupLayout = new QVBoxLayout;
-	groupLayout->addWidget(availableMotorGroupObjects_, 0, Qt::AlignLeft);
-
-	foreach (AMMotorGroupObjectView *view, motorGroupViews_.values())
-		groupLayout->addWidget(view);
-
-	setLayout(groupLayout);
+	initAndLayoutMotorGroupView(motorGroup, viewMode);
 }
 
 void AMMotorGroupView::onCustomContextMenuRequested(const QPoint &pos)
@@ -555,4 +492,43 @@ QList<AMMotorGroupObjectView *> AMMotorGroupView::visibleMotorGroupObjectViews()
 
 	else
 		return QList<AMMotorGroupObjectView *>();
+}
+
+void AMMotorGroupView::initAndLayoutMotorGroupView(AMMotorGroup *motorGroup, ViewMode viewMode)
+{
+	viewMode_ = viewMode;
+	motorGroup_ = motorGroup;
+
+	availableMotorGroupObjects_ = new QComboBox;
+
+	QString name;
+	for(int x = 0; x < motorGroup_->size(); x++){
+		name = motorGroup_->names().at(x);
+		availableMotorGroupObjects_->addItem(name);
+		AMMotorGroupObjectView *motorGroupObjectView = motorGroup->motorGroupObjects().at(x)->createMotorGroupObjectView();
+		if(!motorGroupObjectView)
+			motorGroupObjectView = new AMMotorGroupObjectView(motorGroup_->motorGroupObject(name));
+		motorGroupViews_.insert(name, motorGroupObjectView);
+	}
+
+	if (viewMode_ == Multiple){
+		availableMotorGroupObjects_->hide();
+		foreach (AMMotorGroupObjectView *view, motorGroupViews_.values())
+			view->hide();
+	}
+
+	foreach (AMMotorGroupObjectView *view, motorGroupViews_.values())
+		view->setTitleVisible(false);
+
+	QVBoxLayout *groupLayout = new QVBoxLayout;
+	groupLayout->addWidget(availableMotorGroupObjects_, 0, Qt::AlignLeft);
+
+	foreach (AMMotorGroupObjectView *view, motorGroupViews_.values())
+		groupLayout->addWidget(view);
+
+	setLayout(groupLayout);
+	setContextMenuPolicy(Qt::CustomContextMenu);
+
+	connect(this, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(onCustomContextMenuRequested(QPoint)));
+	connect(availableMotorGroupObjects_, SIGNAL(currentIndexChanged(QString)), this, SLOT(setMotorGroupView(QString)));
 }
