@@ -41,6 +41,7 @@ SXRMBPersistentView::SXRMBPersistentView(QWidget *parent) :
 	// connect to signals
 	connect(beamOnButton_, SIGNAL(clicked()), this, SLOT(onBeamOnButtonClicked()));
 	connect(beamOffButton_, SIGNAL(clicked()), this, SLOT(onBeamOffButtonClicked()));
+	connect(SXRMBBeamline::sxrmb(), SIGNAL(endStationChanged(SXRMB::Endsation)), this, SLOT(onBeamlineEndStationChanged(SXRMB::Endsation)));
 }
 
 SXRMBPersistentView::~SXRMBPersistentView()
@@ -91,6 +92,11 @@ void SXRMBPersistentView::onBeamOffActionFinished(){
 	beamOffAction_ = 0; //NULL
 }
 
+void SXRMBPersistentView::onBeamlineEndStationChanged(SXRMB::Endsation)
+{
+	motorGroupView_->setMotorGroupView(SXRMBBeamline::sxrmb()->currentMotorGroupName());
+}
+
 void SXRMBPersistentView::layoutBeamlineStatus()
 {
 	//create Beamline Status components group
@@ -121,7 +127,7 @@ void SXRMBPersistentView::layoutMotorGroup()
 {
 	// create motor groups
 	motorGroupView_ = new AMMotorGroupView(SXRMBBeamline::sxrmb()->motorGroup());
-	motorGroupView_->setMotorGroupView("Microprobe Stage - X, Z, Y");
+	motorGroupView_->setMotorGroupView(SXRMBBeamline::sxrmb()->currentMotorGroupName());
 
 	QVBoxLayout *motorGroupLayout = new QVBoxLayout();
 	motorGroupLayout->setContentsMargins(4, 0, 4, 0);

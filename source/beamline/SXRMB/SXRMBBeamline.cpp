@@ -21,8 +21,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "SXRMBBeamline.h"
 
-#include <QDebug>
-
 #include "actions3/AMActionSupport.h"
 #include "actions3/actions/AMControlWaitAction.h"
 
@@ -34,6 +32,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 SXRMBBeamline::SXRMBBeamline()
 	: AMBeamline("SXRMB Beamline")
 {
+	currentEndStation_ = SXRMB::UnknownEndStation;
+
 	setupSynchronizedDwellTime();
 	setupComponents();
 	setupDiagnostics();
@@ -53,6 +53,14 @@ SXRMBBeamline::SXRMBBeamline()
 
 SXRMBBeamline::~SXRMBBeamline()
 {
+}
+
+void SXRMBBeamline::switchEndStation(SXRMB::Endsation endStation)
+{
+	if (currentEndStation_ != endStation) {
+		currentEndStation_ = endStation;
+		emit endStationChanged(currentEndStation_);
+	}
 }
 
 CLSSIS3820Scaler* SXRMBBeamline::scaler() const
@@ -90,6 +98,32 @@ AMMotorGroupObject *SXRMBBeamline::microprobeSampleStageMotorGroupObject() const
 	return motorGroup_->motorGroupObject("Microprobe Stage - X, Z, Y");
 }
 
+AMMotorGroupObject *SXRMBBeamline::solidStateSampleStageMotorGroupObject() const
+{
+	return motorGroup_->motorGroupObject("Solid State - X, Z, Y, R");
+}
+
+QString SXRMBBeamline::currentMotorGroupName() const
+{
+	QString motorGroupName;
+
+	switch (currentEndStation_) {
+	case SXRMB::SolidState:
+		motorGroupName = solidStateSampleStageMotorGroupObject()->name();
+		break;
+	case SXRMB::Microprobe:
+		motorGroupName = microprobeSampleStageMotorGroupObject()->name();
+		break;
+	case SXRMB::Ambiant:
+	default:
+		motorGroupName = "Unknown";
+		break;
+	}
+
+	return motorGroupName;
+}
+
+
 AMReadOnlyPVControl* SXRMBBeamline::beamlineStatus() const
 {
 	return beamlineStatus_;
@@ -97,7 +131,22 @@ AMReadOnlyPVControl* SXRMBBeamline::beamlineStatus() const
 
 bool SXRMBBeamline::isConnected() const
 {
-	bool sampleStageConnected = microprobeSampleStageControlSet_->isConnected();
+	// check whether the sample stage is connected or not
+	bool sampleStageConnected = false;
+	switch (currentEndStation_) {
+	case SXRMB::SolidState:
+		sampleStageConnected = solidStateSampleStageControlSet_->isConnected();
+		break;
+	case SXRMB::Ambiant:
+		sampleStageConnected = ambiantSampleStageControlSet_->isConnected();
+		break;
+	case SXRMB::Microprobe:
+		sampleStageConnected = microprobeSampleStageControlSet_->isConnected();
+		break;
+	default:
+		sampleStageConnected = false;
+		break;
+	}
 
 	// return whether the expected PVs are connected or not
 	return energy_->isConnected() && beamlineStatus_->isConnected()
@@ -298,6 +347,9 @@ void SXRMBBeamline::setupSampleStage()
 	solidStateSampleStageControlSet_->addControl(solidStateSampleStageY_);
 	solidStateSampleStageControlSet_->addControl(solidStateSampleStageZ_);
 	solidStateSampleStageControlSet_->addControl(solidStateSampleStageR_);
+
+	// Ambiant Endstation sample state
+	ambiantSampleStageControlSet_ = new AMControlSet(this);
 }
 
 void SXRMBBeamline::setupDetectors()
@@ -389,6 +441,12 @@ void SXRMBBeamline::setupConnections()
 	if (beamlineStatus_->isConnected()) {
 		onBeamlineStatusPVConnected(true);
 	}
+	if (microprobeSampleStageControlSet_->isConnected()) {
+		onMicroprobeSampleStagePVsConnected(true);
+	}
+	if (solidStateSampleStageControlSet_->isConnected()) {
+		onSolidStateSampleStagePVsConnected(true);
+	}
 }
 
 void SXRMBBeamline::beamAvailabilityHelper()
@@ -396,6 +454,19 @@ void SXRMBBeamline::beamAvailabilityHelper()
 	bool beamOn = (CLSStorageRing::sr1()->beamAvailable()) && ( beamlineStatus_->value() == 1);
 
 	emit beamAvaliability(beamOn);
+}
+
+void SXRMBBeamline::sampleStageHelper()
+{
+	// check the available endstation if it is NOT assigned yet and whether sample stage is connected or not
+	if (currentEndStation_ == SXRMB::UnknownEndStation) {
+		if (microprobeSampleStageControlSet_->isConnected())
+			switchEndStation( SXRMB::Microprobe );
+		else if (solidStateSampleStageControlSet_->isConnected())
+			switchEndStation( SXRMB::SolidState );
+		else if (ambiantSampleStageControlSet_->isConnected())
+			switchEndStation( SXRMB::Ambiant );
+	}
 }
 
 void SXRMBBeamline::connectedHelper(){
@@ -431,10 +502,12 @@ void SXRMBBeamline::onEnergyPVConnected(bool) {
 }
 
 void SXRMBBeamline::onMicroprobeSampleStagePVsConnected(bool) {
+	sampleStageHelper();
 	connectedHelper();
 }
 
 void SXRMBBeamline::onSolidStateSampleStagePVsConnected(bool) {
+	sampleStageHelper();
 	connectedHelper();
 }
 

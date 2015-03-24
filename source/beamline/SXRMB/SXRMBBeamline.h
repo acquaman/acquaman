@@ -61,6 +61,9 @@ public:
 	/// Destructor.
 	virtual ~SXRMBBeamline();
 
+	/// switch the running endstation
+	void switchEndStation(SXRMB::Endsation endStation);
+
 	/// Returns the scaler for SXRMB
 	CLSSIS3820Scaler* scaler() const;
 
@@ -78,6 +81,10 @@ public:
 	AMMotorGroup *motorGroup() const;
 	/// Returns the microprobe stage motor group object.
 	AMMotorGroupObject *microprobeSampleStageMotorGroupObject() const;
+	/// Returns the solid state stage motor group object.
+	AMMotorGroupObject *solidStateSampleStageMotorGroupObject() const;
+	/// Returns the motorGroup name of the current running endstation
+	QString currentMotorGroupName() const;
 
 	/// Returns the SXRMB overall status control
 	AMReadOnlyPVControl* beamlineStatus() const;
@@ -106,6 +113,8 @@ public:
 signals:
 	void beamAvaliability(bool beamOn);
 	void beamlineControlShuttersTimeout();
+
+	void endStationChanged(SXRMB::Endsation endStation);
 
 protected:
 	/// Constructor. This is a singleton class, access it through SXRMBBeamline::sxrmb().
@@ -138,6 +147,8 @@ protected:
 
 	/// Helper function to check for the beam availability
 	void beamAvailabilityHelper();
+	/// Helper function to detemine the current connected endstation if it is NOT preset
+	void sampleStageHelper();
 	/// Helper function to check for changes in the connected state
 	void connectedHelper();
 
@@ -158,6 +169,9 @@ protected slots:
 	void onBeamlineControlShuttersConnected(bool);
 
 protected:
+	/// the Endstation using right now
+	SXRMB::Endsation currentEndStation_;
+
 	/// Scaler for SXRMB
 	CLSSIS3820Scaler *scaler_;
 
@@ -188,6 +202,9 @@ protected:
 	AMPVwStatusControl *solidStateSampleStageR_;
 	/// Control set for Solid State sample stage
 	AMControlSet *solidStateSampleStageControlSet_;
+
+	/// Control set for Ambiant sample stage
+	AMControlSet *ambiantSampleStageControlSet_;
 
 	/// Detector for the I0Detector channel on the scaler
 	CLSBasicScalerChannelDetector *i0Detector_;

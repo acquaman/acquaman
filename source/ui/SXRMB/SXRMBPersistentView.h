@@ -3,6 +3,8 @@
 
 #include <QWidget>
 
+#include "application/SXRMB/SXRMB.h"
+
 class QPushButton;
 class QVBoxLayout;
 class QGroupBox;
@@ -34,6 +36,9 @@ protected slots:
 	void onBeamOffButtonClicked();
 	/// Handles disconnecting signals and deleting when beam off action is done
 	void onBeamOffActionFinished();
+	/// Handles SXRMBBeamline endStationChanged signal
+	void onBeamlineEndStationChanged(SXRMB::Endsation);
+
 
 protected:
 	/// Main layout holding overall group box
