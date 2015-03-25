@@ -89,6 +89,26 @@ AMPVwStatusControl* SXRMBBeamline::microprobeSampleStageZ() const
 	return microprobeSampleStageZ_;
 }
 
+AMPVwStatusControl* SXRMBBeamline::solidStaeSampleStageX() const
+{
+	return solidStateSampleStageX_;
+}
+
+AMPVwStatusControl* SXRMBBeamline::solidStaeSampleStageY() const
+{
+	return solidStateSampleStageY_;
+}
+
+AMPVwStatusControl* SXRMBBeamline::solidStaeSampleStageZ() const
+{
+	return solidStateSampleStageZ_;
+}
+
+AMPVwStatusControl* SXRMBBeamline::solidStaeSampleStageR() const
+{
+	return solidStateSampleStageR_;
+}
+
 AMMotorGroup *SXRMBBeamline::motorGroup() const
 {
 	return motorGroup_;
@@ -419,6 +439,11 @@ void SXRMBBeamline::setupExposedControls()
 	addExposedControl(microprobeSampleStageX_);
 	addExposedControl(microprobeSampleStageY_);
 	addExposedControl(microprobeSampleStageZ_);
+
+	addExposedControl(solidStateSampleStageX_);
+	addExposedControl(solidStateSampleStageY_);
+	addExposedControl(solidStateSampleStageZ_);
+	addExposedControl(solidStateSampleStageR_);
 }
 
 void SXRMBBeamline::setupExposedDetectors()

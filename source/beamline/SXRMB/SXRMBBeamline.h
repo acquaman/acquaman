@@ -74,6 +74,15 @@ public:
 	/// Returns the Z Stage for the microrobe sample stage
 	AMPVwStatusControl* microprobeSampleStageZ() const;
 
+	/// Returns the X Stage for the SolidState End Station sample stage
+	AMPVwStatusControl* solidStateSampleStageX() const;
+	/// Returns the Y Stage for the SolidState End Station sample stage
+	AMPVwStatusControl* solidStateSampleStageY() const;
+	/// Returns the Z Stage for the SolidState End Station sample stage
+	AMPVwStatusControl* solidStateSampleStageZ() const;
+	/// Returns the R Stage for the SolidState End Station sample stage
+	AMPVwStatusControl* solidStateSampleStageR const;
+
 	/// Returns the motor group for this beamline.
 	AMMotorGroup *motorGroup() const;
 	/// Returns the microprobe stage motor group object.
