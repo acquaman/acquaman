@@ -89,6 +89,10 @@ public:
 	AMMotorGroupObject *microprobeSampleStageMotorGroupObject() const;
 	/// Returns the solid state stage motor group object.
 	AMMotorGroupObject *solidStateSampleStageMotorGroupObject() const;
+	/// Returns the ambiant with gas chamber stage motor group object.
+	AMMotorGroupObject *ambiantWithGasChamberSampleStageMotorGroupObject() const;
+	/// Returns the ambiant without gas chamber sample stage motor group object.
+	AMMotorGroupObject *ambiantWithoutGasChamberSampleStageMotorGroupObject() const;
 	/// Returns the motorGroup name of the current running endstation
 	QString currentMotorGroupName() const;
 
@@ -158,7 +162,7 @@ protected:
 	/// Helper function to check for the beam availability
 	void beamAvailabilityHelper();
 	/// Helper function to detemine the current connected endstation if it is NOT preset
-	void sampleStageHelper();
+	void sampleStageConnectHelper();
 	/// Helper function to check for changes in the connected state
 	void connectedHelper();
 
@@ -171,10 +175,8 @@ protected slots:
 	void onBeamlineStatusPVConnected(bool);
 	/// Handles connected status of the energy
 	void onEnergyPVConnected(bool);
-	/// Handles connected status of all of the microprobe sample stage controls
-	void onMicroprobeSampleStagePVsConnected(bool);
-	/// Handles connected status of all of the SolidState sample stage controls
-	void onSolidStateSampleStagePVsConnected(bool);
+	/// Handles connected status of all of the sample stage controls
+	void onSampleStagePVsConnected(bool);
 	/// Handles connected status of all of the beam on/off control shutters
 	void onBeamlineControlShuttersConnected(bool);
 
@@ -213,8 +215,20 @@ protected:
 	/// Control set for Solid State sample stage
 	AMControlSet *solidStateSampleStageControlSet_;
 
-	/// Control set for Ambiant sample stage
-	AMControlSet *ambiantSampleStageControlSet_;
+	/// X Stage for the Ambiant sample stage
+	AMPVwStatusControl *ambiantSampleStageX_;
+	/// Z Stage for the Solid State sample stage
+	AMPVwStatusControl *ambiantSampleStageZ_;
+	/// Z Stage for the Ambiant sample holder
+	AMPVwStatusControl *ambiantSampleHolderZ_;
+	/// R Stage for the Solid State sample holder
+	AMPVwStatusControl *ambiantSampleHolderR_;
+
+	/// Control set for Ambiant with gas chamber sample stage
+	AMControlSet *ambiantWithGasChamberSampleStageControlSet_;
+
+	/// Control set for Ambiant w/o gas chamber sample stage
+	AMControlSet *ambiantWithoutGasChamberSampleStageControlSet_;
 
 	/// Detector for the I0Detector channel on the scaler
 	CLSBasicScalerChannelDetector *i0Detector_;

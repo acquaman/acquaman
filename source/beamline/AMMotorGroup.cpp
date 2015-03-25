@@ -84,6 +84,17 @@ int AMMotorGroupObject::normalIndex() const
 	return index;
 }
 
+int AMMotorGroupObject::otherIndex() const
+{
+	int index = -1;
+
+	for (int i = 0, size = orientations_.size(); i < size; i++)
+		if (orientations_.at(i) == Other)
+			index = i;
+
+	return index;
+}
+
 QString AMMotorGroupObject::horizontalPrefix() const
 {
 	int index = horizontalIndex();

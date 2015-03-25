@@ -38,8 +38,13 @@ AM4DMotorGroupObjectView::AM4DMotorGroupObjectView(AMMotorGroupObject *motorGrou
 	// create new components of AM4DMotorGroupObjectView
 	rotateCW_ = new QToolButton();
 	rotateCCW_ = new QToolButton();
-	rotateCW_->setIcon(QIcon(":/ArrowCW.png"));
-	rotateCCW_->setIcon(QIcon(":/ArrowCCW.png"));
+	if (motorGroupObject_->otherIndex() == -1){
+		rotateCW_->hide();
+		rotateCCW_->hide();
+	} else {
+		rotateCW_->setIcon(QIcon(":/ArrowCW.png"));
+		rotateCCW_->setIcon(QIcon(":/ArrowCCW.png"));
+	}
 
 	setInFocusButton_ = new QPushButton("Set In Focus");
 	moveInFocusFocusCheckBox_ = new QCheckBox("Move In Focus");
@@ -58,8 +63,8 @@ AM4DMotorGroupObjectView::AM4DMotorGroupObjectView(AMMotorGroupObject *motorGrou
 	// === new Layout: ===
 	// left side (vertically): arrowLayout, status button, move in focus layout
 	QVBoxLayout *leftVL = new QVBoxLayout();
-	leftVL->addLayout(arrowLayout_);
 	leftVL->addWidget(status_, 0, Qt::AlignHCenter);
+	leftVL->addLayout(arrowLayout_);
 
 	QHBoxLayout *focusHL = new QHBoxLayout();
 	focusHL->addWidget(setInFocusButton_);

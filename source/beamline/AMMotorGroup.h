@@ -79,6 +79,8 @@ public:
 	int verticalIndex() const;
 	/// Returns the index of the normal control (or -1 if no normal orientation control exists).
 	int normalIndex() const;
+	/// Returns the index of the other control (or -1 if no other orientation control exists).
+	int otherIndex() const;
 
 	/// Returns the prefix of the horizontal control, if it exists.  Returns an empty string otherwise.
 	QString horizontalPrefix() const;
