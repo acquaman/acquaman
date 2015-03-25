@@ -151,6 +151,8 @@ public:
 	double stepCalibrationSlope() const;
 	/// Returns the encoder calibration offset.Returns 0 if the motor isn't connected yet.
 	double encoderCalibrationOffset() const;
+	/// Returns the encoder calibration absolute offset. Returns 0 if the motor isn't connected yet.
+	double encoderCalibrationAbsoluteOffset() const;
 	/// Returns the step calibration offset. Returns 0 if the motor isn't connected yet.
 	double stepCalibrationOffset() const;
 
@@ -231,6 +233,8 @@ public:
 	AMAction3 *createStepCalibrationSlopeAction(double stepCalibrationSlope);
 	/// Returns a newly created action to change the encoder calibration offset. Returns 0 if the control is not connected.
 	AMAction3 *createEncoderCalibrationOffsetAction(double encoderCalibrationAbsoluteOffset);
+	/// Returns a newly created action to change the encoder calibration absolute offset. Returns 0 if the control is not connected.
+	AMAction3 *createEncoderCalibrationAbsoluteOffsetAction(double encoderCalibrationAbsoluteOffset);
 	/// Returns a newly created action to change the step calibration offset. Returns 0 if the control is not connected.
 	AMAction3 *createStepCalibrationOffsetAction(double stepCalibrationOffset);
 
@@ -295,6 +299,8 @@ public slots:
 	void setStepCalibrationSlope(double stepCalibrationSlope);
 	/// Sets the encoder calibration offset
 	void setEncoderCalibrationOffset(double encoderCalibrationAbsoluteOffset);
+	/// Sets the encoder calibration absolute offset.
+	void setEncoderCalibrationAbsoluteOffset(double encoderCalibrationAbsoluteOffset);
 	/// Sets the step calibration offset
 	void setStepCalibrationOffset(double stepCalibrationOffset);
 
@@ -365,6 +371,8 @@ signals:
 	void stepCalibrationSlopeChanged(double newCalibration);
 	/// Emitted when the encoder calibration offset changes
 	void encoderCalibrationOffsetChanged(double newCalibration);
+	/// Emitted when the encoder calibration absolute offset changes.
+	void encoderCalibrationAbsoluteOffsetChanged(double newOffset);
 	/// Emitted when the step calibration offset changes
 	void stepCalibrationOffsetChanged(double newCalibration);
 
@@ -479,6 +487,8 @@ protected:
 	AMPVControl *stepCalibrationSlope_;
 	/// Read-write control for the encoder calibration offset
 	AMPVControl *encoderCalibrationOffset_;
+	/// Read-write control for the encoder calibration absolute offset.
+	AMPVControl *encoderCalibrationAbsoluteOffset_;
 	/// Read-write control for the step calibration offset
 	AMPVControl *stepCalibrationOffset_;
 

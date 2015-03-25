@@ -63,6 +63,7 @@ CLSMAXvMotor::CLSMAXvMotor(const QString &name, const QString &baseName, const Q
 	encoderCalibrationSlope_ = new AMPVControl(name+"EncoderCalibrationSlope", baseName+":enc:slope", baseName+":enc:slope", QString(), this, 0.00001);
 	stepCalibrationSlope_ = new AMPVControl(name+"StepCalibrationSlope", baseName+":step:slope", baseName+":step:slope", QString(), this, 0.00001);
 	encoderCalibrationOffset_ = new AMPVControl(name+"EncoderCalibrationOffset", baseName+":enc:offset", baseName+":enc:offset", QString(), this, 0.001);
+	encoderCalibrationAbsoluteOffset_ = new AMPVControl(name+"EncoderCalibrationAbsOffset", baseName+":enc:absOffset", baseName+":enc:absOffset", QString(), this);
 	stepCalibrationOffset_ = new AMPVControl(name+"StepCalibrationOffset", baseName+":step:offset", baseName+":step:offset", QString(), this, 0.001);
 
 	motorType_ = new AMPVControl(name+"MotorType", baseName+":motorType:sp", baseName+":motorType", QString(), this, 0.1);
@@ -120,6 +121,8 @@ CLSMAXvMotor::CLSMAXvMotor(const QString &name, const QString &baseName, const Q
 	connect(stepCalibrationSlope_, SIGNAL(valueChanged(double)), this, SIGNAL(stepCalibrationSlopeChanged(double)));
 	connect(encoderCalibrationOffset_, SIGNAL(connected(bool)), this, SLOT(onPVConnected(bool)));
 	connect(encoderCalibrationOffset_, SIGNAL(valueChanged(double)), this, SIGNAL(encoderCalibrationOffsetChanged(double)));
+	connect(encoderCalibrationAbsoluteOffset_, SIGNAL(valueChanged(double)), this, SIGNAL(encoderCalibrationAbsoluteOffsetChanged(double)));
+	connect(encoderCalibrationAbsoluteOffset_, SIGNAL(connected(bool)), this, SLOT(onPVConnected(bool)) );
 	connect(stepCalibrationOffset_, SIGNAL(connected(bool)), this, SLOT(onPVConnected(bool)));
 	connect(stepCalibrationOffset_, SIGNAL(valueChanged(double)), this, SIGNAL(stepCalibrationOffsetChanged(double)));
 
@@ -178,7 +181,7 @@ bool CLSMAXvMotor::isConnected() const{
 	if(hasEncoder_)
 		encoderFunctions = encoderCalibrationSlope_->isConnected()
 			&& encoderCalibrationOffset_->isConnected()
-			&& encoderCalibrationOffset_->isConnected()
+			&& encoderCalibrationAbsoluteOffset_->isConnected()
 			&& closedLoopEnabled_->isConnected()
 			&& servoPIDEnabled_->isConnected()
 			&& encoderTarget_->isConnected()
@@ -349,6 +352,13 @@ double CLSMAXvMotor::stepCalibrationSlope() const{
 double CLSMAXvMotor::encoderCalibrationOffset() const{
 	if(isConnected())
 		return encoderCalibrationOffset_->value();
+	return 0.0;
+}
+
+double CLSMAXvMotor::encoderCalibrationAbsoluteOffset() const {
+	if (isConnected())
+		return encoderCalibrationAbsoluteOffset_->value();
+
 	return 0.0;
 }
 
@@ -602,6 +612,14 @@ AMAction3 *CLSMAXvMotor::createEncoderCalibrationOffsetAction(double encoderCali
 	return AMActionSupport::buildControlMoveAction(encoderCalibrationOffset_, encoderCalibrationOffset);
 }
 
+AMAction3 *CLSMAXvMotor::createEncoderCalibrationAbsoluteOffsetAction(double newAbsoluteOffset)
+{
+	if (!isConnected())
+		return 0;
+
+	return AMActionSupport::buildControlMoveAction(encoderCalibrationAbsoluteOffset_, newAbsoluteOffset);
+}
+
 AMAction3 *CLSMAXvMotor::createStepCalibrationOffsetAction(double stepCalibrationOffset)
 {
 	if(!isConnected())
@@ -790,6 +808,11 @@ void CLSMAXvMotor::setStepCalibrationSlope(double stepCalibrationSlope){
 void CLSMAXvMotor::setEncoderCalibrationOffset(double encoderCalibrationOffset){
 	if(isConnected())
 		encoderCalibrationOffset_->move(encoderCalibrationOffset);
+}
+
+void CLSMAXvMotor::setEncoderCalibrationAbsoluteOffset(double encoderCalibrationAbsoluteOffset) {
+	if (isConnected())
+		encoderCalibrationAbsoluteOffset_->move(encoderCalibrationAbsoluteOffset);
 }
 
 void CLSMAXvMotor::setStepCalibrationOffset(double stepCalibrationOffset){
