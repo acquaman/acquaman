@@ -25,9 +25,8 @@ class SXRMBScanConfigurationDbObject : public AMDbObject
 	Q_PROPERTY(double energy READ energy WRITE setEnergy)
 	Q_PROPERTY(AMDbObjectList regionsOfInterest READ dbReadRegionsOfInterest WRITE dbLoadRegionsOfInterest)
 
-	Q_PROPERTY(bool enableBrukerDetector READ enableBrukerDetector WRITE setEnableBrukerDetector)
-
-	Q_CLASSINFO("enableBrukerDetector", "upgradeDefault=false")
+	Q_CLASSINFO("endstation", "upgradeDefault=4")
+	Q_CLASSINFO("rotation", "upgradeDefault=0.0")
 
 	Q_CLASSINFO("AMDbObject_Attributes", "description=SXRMB Scan Configuration Database Object")
 

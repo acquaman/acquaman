@@ -3,15 +3,25 @@
 SXRMBScanConfigurationDbObject::SXRMBScanConfigurationDbObject(QObject *parent)
 	: AMDbObject(parent)
 {
+	endstation_ = SXRMB::Invalid;
+	fluorescenceDetectors_ = SXRMB::NoXRF;
+	x_ = 0.0;
 	y_ = 0.0;
-	enableBrukerDetector_ = true;
+	z_ = 0.0;
+	rotation_ = 0.0;
+	energy_ = 0.0;
 }
 
 SXRMBScanConfigurationDbObject::SXRMBScanConfigurationDbObject(const SXRMBScanConfigurationDbObject &original)
 	: AMDbObject(original)
 {
+	endstation_ = original.endstation();
+	fluorescenceDetectors_ = original.fluorescenceDetectors();
+	x_ = original.x();
 	y_ = original.y();
-	enableBrukerDetector_ = original.enableBrukerDetector();
+	z_ = original.z();
+	rotation_ = original.rotation();
+	energy_ = original.energy();
 
 	foreach (AMRegionOfInterest *region, original.regionsOfInterest())
 		addRegionOfInterest(region->createCopy());
