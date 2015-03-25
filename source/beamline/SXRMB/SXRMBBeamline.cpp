@@ -48,7 +48,7 @@ SXRMBBeamline::SXRMBBeamline()
 	setupConnections();
 
 	wasConnected_ = false;
-	sampleStageHelper();
+	sampleStageConnectHelper();
 	connectedHelper();
 }
 
@@ -485,7 +485,7 @@ void SXRMBBeamline::beamAvailabilityHelper()
 	emit beamAvaliability(beamOn);
 }
 
-void SXRMBBeamline::sampleStageHelper()
+void SXRMBBeamline::sampleStageConnectHelper()
 {
 	// check the available endstation if it is NOT assigned yet and whether sample stage is connected or not
 	if (currentEndStation_ == SXRMB::Invalid) {
@@ -533,12 +533,12 @@ void SXRMBBeamline::onEnergyPVConnected(bool) {
 }
 
 void SXRMBBeamline::onMicroprobeSampleStagePVsConnected(bool) {
-	sampleStageHelper();
+	sampleStageConnectHelper();
 	connectedHelper();
 }
 
 void SXRMBBeamline::onSolidStateSampleStagePVsConnected(bool) {
-	sampleStageHelper();
+	sampleStageConnectHelper();
 	connectedHelper();
 }
 
