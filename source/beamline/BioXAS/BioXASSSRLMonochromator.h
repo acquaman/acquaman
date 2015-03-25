@@ -74,6 +74,9 @@ public:
 	/// Returns a new 'set region' action, 0 if not connected. The argument is the desired region.
 	virtual AMAction3* createSetRegionAction(double newRegion);
 
+	/// Returns a new action that calibrates the bragg motor. The argument is the desired position.
+	virtual AMAction3* createCalibrateBraggPositionAction(double newPosition);
+
 signals:
 	/// Notifier that the connected state has changed.
 	void connected(bool isConnected);
@@ -97,6 +100,9 @@ public slots:
 	void setEnergy(double newEnergy);
 	/// Sets the region.
 	void setRegion(double newRegion);
+
+	/// Sets the calibrated bragg position.
+	void calibrateBraggPosition(double newPosition);
 };
 
 #endif // BIOXASSSRLMONOCHROMATOR_H
