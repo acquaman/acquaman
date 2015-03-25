@@ -448,11 +448,11 @@ HEADERS += \
 	source/ui/AMPlotMarkerComboBox.h \
 	source/actions3/actions/AMChangeToleranceActionInfo.h \
 	source/actions3/actions/AMChangeToleranceAction.h \
-	source/ui/util/AMLineEditDialog.h \
 	source/dataman/AMXRFScan.h \
-	source/ui/util/AMChooseDataFolderDialog.h \
 	source/acquaman/AMTimedScanActionControllerAssembler.h \
-	source/beamline/CLS/CLSBeamlines.h
+	source/beamline/CLS/CLSBeamlines.h \
+	source/ui/util/AMChooseDataFolderDialog.h \
+	source/ui/util/AMDialog.h
 
 FORMS += \
 
@@ -863,10 +863,10 @@ SOURCES += \
 	source/ui/AMPlotMarkerComboBox.cpp \
 	source/actions3/actions/AMChangeToleranceActionInfo.cpp \
 	source/actions3/actions/AMChangeToleranceAction.cpp \
-	source/ui/util/AMLineEditDialog.cpp \
 	source/dataman/AMXRFScan.cpp \
+	source/acquaman/AMTimedScanActionControllerAssembler.cpp \
 	source/ui/util/AMChooseDataFolderDialog.cpp \
-	source/acquaman/AMTimedScanActionControllerAssembler.cpp
+	source/ui/util/AMDialog.cpp
 
 RESOURCES *= source/icons/icons.qrc \
 		source/configurationFiles/configurationFiles.qrc \

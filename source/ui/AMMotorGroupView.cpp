@@ -425,6 +425,13 @@ void AMMotorGroupView::setViewMode(ViewMode mode)
 	}
 }
 
+void AMMotorGroupView::setMotorViewChangable(bool changable)
+{
+	if (viewMode_ == Exclusive) {
+		availableMotorGroupObjects_->setEnabled(changable);
+	}
+}
+
 void AMMotorGroupView::buildStandardMenuItems(QMenu *menu)
 {
 	if (viewMode_ == Exclusive){

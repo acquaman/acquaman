@@ -49,8 +49,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/SXRMB/SXRMBUserConfiguration.h"
 
 #include "ui/AMMainWindow.h"
+#include "ui/AMMotorGroupView.h"
 #include "ui/dataman/AMGenericScanEditor.h"
 #include "ui/acquaman/AMScanConfigurationViewHolder3.h"
+#include "ui/util/AMDialog.h"
 #include "ui/CLS/CLSSIS3820ScalerView.h"
 #include "ui/acquaman/SXRMB/SXRMBOxidationMapScanConfigurationViewHolder.h"
 #include "ui/SXRMB/SXRMBBrukerDetectorView.h"
@@ -105,6 +107,21 @@ void SXRMBAppController::shutdown()
 	AMBeamline::releaseBl();
 	AMStorageRing::releaseStorageRing();
 	AMAppController::shutdown();
+}
+
+bool SXRMBAppController::startupInstallActions()
+{
+	if(AMAppController::startupInstallActions()) {
+		QAction *ambiantWithGasChamberMotorViewAction = new QAction("See Ambiant Sample Stage Motors ...", mw_);
+		ambiantWithGasChamberMotorViewAction->setStatusTip("Display the motors of the Ambiant Sample Stage.");
+		connect(ambiantWithGasChamberMotorViewAction, SIGNAL(triggered()), this, SLOT(onShowAmbiantSampleStageMotorsTriggered()));
+
+		viewMenu_->addSeparator();
+		viewMenu_->addAction(ambiantWithGasChamberMotorViewAction);
+
+		return true;
+	} else
+		return false;
 }
 
 void SXRMBAppController::onBeamlineConnected(bool connected)
@@ -388,6 +405,17 @@ void SXRMBAppController::onRegionOfInterestRemoved(AMRegionOfInterest *region)
 	microProbe2DScanConfiguration_->removeRegionOfInterest(region);
 	exafsScanConfiguration_->removeRegionOfInterest(region);
 	microProbe2DOxidationScanConfiguration_->removeRegionOfInterest(region);
+}
+
+void SXRMBAppController::onShowAmbiantSampleStageMotorsTriggered()
+{
+	AMMotorGroupView *motorGroupView = new AMMotorGroupView(SXRMBBeamline::sxrmb()->motorGroup(), AMMotorGroupView::Exclusive);
+	motorGroupView->setMotorGroupView(SXRMBBeamline::sxrmb()->ambiantWithoutGasChamberSampleStageMotorGroupObject()->name());
+	motorGroupView->setMotorViewChangable(false);
+
+	AMDialog *showMotorDialog = new AMDialog("Motor Group View");
+	showMotorDialog->layoutDialogContent(motorGroupView);
+	showMotorDialog->exec();
 }
 
 void SXRMBAppController::onScanEditorCreated(AMGenericScanEditor *editor)

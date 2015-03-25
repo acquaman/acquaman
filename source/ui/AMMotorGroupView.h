@@ -194,6 +194,8 @@ public slots:
 	virtual void setMotorGroupView(const QString &name);
 	/// Sets the view mode.  Changes necessary items to ensure view modes are consistent with constructed functionality.
 	void setViewMode(ViewMode mode);
+	/// Sets the combobox of exclusive view changable
+	void setMotorViewChangable(bool changable);
 
 protected slots:
 	/// Handles the popup menu that allows you to change the motors you want to change.
