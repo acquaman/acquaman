@@ -33,7 +33,8 @@ namespace SXRMB {
 	{
 		Invalid = 0,
 		SolidState,
-		Ambiant,
+		AmbiantWithGasChamber,
+		AmbiantWithoutGasChamber,
 		Microprobe
 	};
 
