@@ -7,11 +7,9 @@ SXRMBBrukerDetector::SXRMBBrukerDetector(const QString &name, const QString &des
 {
 	units_ = "Counts";
 
-	eVPerBin_ = 5.0;
-
 	AMAxisInfo ai("Energy", 2048, "Energy", "eV");
 	ai.start = AMNumber(-450);
-	ai.increment = eVPerBin_;
+	ai.increment = 5.0;
 	ai.isUniform = true;
 	axes_ << ai;
 
@@ -32,9 +30,6 @@ SXRMBBrukerDetector::SXRMBBrukerDetector(const QString &name, const QString &des
 	deadTimeControl_ = new AMReadOnlyPVControl("Dead Time", "mca1606-B10-03:mca1.DTIM", this);
 	connect(deadTimeControl_, SIGNAL(connected(bool)), this, SLOT(onDeadTimeControlConnected(bool)));
 	connect(deadTimeControl_, SIGNAL(valueChanged(double)), this, SIGNAL(deadTimeChanged()));
-	if (deadTimeControl_->isConnected())
-		emit deadTimeChanged();
-
 }
 
 SXRMBBrukerDetector::~SXRMBBrukerDetector()
