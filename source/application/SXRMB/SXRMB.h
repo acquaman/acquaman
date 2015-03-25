@@ -29,7 +29,7 @@ namespace SXRMB {
 	  - Ambiant is the ambiant XAS endstation.
 	  - Microprobe is for the microprobe mapping and XAS endstation.
 	  */
-	enum Endsation
+	enum Endstation
 	{
 		Invalid = 0,
 		SolidState,
@@ -46,16 +46,6 @@ namespace SXRMB {
 		FourElement = 2
 	};
 	Q_DECLARE_FLAGS(FluorescenceDetectors, FluorescenceDetector)
-
-	/// Enum for the ion chambers used in scans.  These are used for the incoming or transmitted total intensity.
-	enum IonChamber
-	{
-		BeamlineI0 = 0,
-		Chamber0 = 1,
-		Chamber1 = 2,
-		TEY = 4
-	};
-	Q_DECLARE_FLAGS(IonChambers, IonChamber)
 
 	/// Helper method that takes a time in seconds and returns a string of d:h:m:s.
 	inline QString convertTimeToString(double time)
@@ -177,6 +167,5 @@ namespace SXRMB {
 }
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(SXRMB::FluorescenceDetectors)
-Q_DECLARE_OPERATORS_FOR_FLAGS(SXRMB::IonChambers)
 
 #endif // SXRMB_H

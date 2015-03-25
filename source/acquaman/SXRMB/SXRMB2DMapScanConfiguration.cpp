@@ -17,7 +17,6 @@ SXRMB2DMapScanConfiguration::SXRMB2DMapScanConfiguration(QObject *parent)
 	setUserScanName("2D Map");
 
 	exportAsAscii_ = false;
-	setEnableBrukerDetector(true);
 
 	AMScanAxisRegion *region = new AMScanAxisRegion;
 	AMScanAxis *axis = new AMScanAxis(AMScanAxis::StepAxis, region);
@@ -44,7 +43,6 @@ SXRMB2DMapScanConfiguration::SXRMB2DMapScanConfiguration(const SXRMB2DMapScanCon
 	setUserScanName(original.userScanName());
 
 	exportAsAscii_ = original.exportAsAscii();
-	setEnableBrukerDetector(original.enableBrukerDetector());
 
 	connect(scanAxisAt(0)->regionAt(0), SIGNAL(regionStartChanged(AMNumber)), this, SLOT(computeTotalTime()));
 	connect(scanAxisAt(0)->regionAt(0), SIGNAL(regionStepChanged(AMNumber)), this, SLOT(computeTotalTime()));
@@ -90,7 +88,7 @@ QString SXRMB2DMapScanConfiguration::headerText() const
 	header.append(QString("Start:\t%1 mm\tEnd:\t%2 mm\n").arg(double(scanAxisAt(1)->regionAt(0)->regionStart())).arg(double(scanAxisAt(1)->regionAt(0)->regionEnd())));
 	header.append(QString("Step Size:\t%1 mm\n").arg(double(scanAxisAt(1)->regionAt(0)->regionStep())));
 	header.append("\n");
-	header.append(QString("Focus position:\t%1 mm\n").arg(normalPosition()));
+	header.append(QString("Focus position:\t%1 mm\n").arg(y()));
 
 	return header;
 }

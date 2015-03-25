@@ -124,11 +124,11 @@ signals:
 	void beamAvaliability(bool beamOn);
 	void beamlineControlShuttersTimeout();
 
-	void endStationChanged(SXRMB::Endsation endStation);
+	void endStationChanged(SXRMB::Endstation endStation);
 
 public slots:
 	/// switch the running endstation
-	void switchEndStation(SXRMB::Endsation endStation);
+	void switchEndStation(SXRMB::Endstation endStation);
 
 protected:
 	/// Constructor. This is a singleton class, access it through SXRMBBeamline::sxrmb().
@@ -182,7 +182,7 @@ protected slots:
 
 protected:
 	/// the Endstation using right now
-	SXRMB::Endsation currentEndStation_;
+	SXRMB::Endstation currentEndStation_;
 
 	/// Scaler for SXRMB
 	CLSSIS3820Scaler *scaler_;

@@ -123,7 +123,7 @@ SXRMBEXAFSScanConfigurationView::SXRMBEXAFSScanConfigurationView(SXRMBEXAFSScanC
 	SXRMBBeamline *sxrmbBL = SXRMBBeamline::sxrmb();
 	sampleStageXSpinBox_ = createSampleStageSpinBox("mm", sxrmbBL->microprobeSampleStageX()->minimumValue(), sxrmbBL->microprobeSampleStageX()->maximumValue(), configuration_->microprobeSampleStageX());
 	sampleStageZSpinBox_ = createSampleStageSpinBox("mm", sxrmbBL->microprobeSampleStageZ()->minimumValue(), sxrmbBL->microprobeSampleStageZ()->maximumValue(), configuration_->microprobeSampleStageZ());
-	sampleStageNormalSpinBox_ = createSampleStageSpinBox("mm", sxrmbBL->microprobeSampleStageY()->minimumValue(), sxrmbBL->microprobeSampleStageY()->maximumValue(), configuration_->normalPosition());
+	sampleStageNormalSpinBox_ = createSampleStageSpinBox("mm", sxrmbBL->microprobeSampleStageY()->minimumValue(), sxrmbBL->microprobeSampleStageY()->maximumValue(), configuration_->y());
 	sampleStageWarningLabel_ = new QLabel("Settings do not match beamline.");
 	sampleStageWarningLabel_->setStyleSheet("QLabel {color: red}");
 	setSampleStageFromBeamlineButton_ = new QPushButton("Set From Beamline");
@@ -141,7 +141,7 @@ SXRMBEXAFSScanConfigurationView::SXRMBEXAFSScanConfigurationView(SXRMBEXAFSScanC
 
 	connect(configuration, SIGNAL(microprobeSampleStageXChanged(double)), this, SLOT(onScanConfigurationMicroprobeSampleStageXChanged(double)));
 	connect(configuration, SIGNAL(microprobeSampleStageZChanged(double)), this, SLOT(onScanConfigurationMicroprobeSampleStageZChanged(double)));
-	connect(configuration->dbObject(), SIGNAL(normalPositionChanged(double)), this, SLOT(onScanConfigurationMicroprobeNormalChanged(double)));
+	connect(configuration->dbObject(), SIGNAL(yChanged(double)), this, SLOT(onScanConfigurationMicroprobeNormalChanged(double)));
 
 	QFormLayout *sampleStageFL = new QFormLayout();
 	sampleStageFL->addRow("X Position", sampleStageXSpinBox_);
@@ -159,7 +159,7 @@ SXRMBEXAFSScanConfigurationView::SXRMBEXAFSScanConfigurationView(SXRMBEXAFSScanC
 
 	// Bruker detector setting
 	enableBrukerDetector_ = new QCheckBox("Enable Bruker Detector");
-	enableBrukerDetector_->setChecked(configuration_->enableBrukerDetector());
+	enableBrukerDetector_->setChecked(false);
 	connect(enableBrukerDetector_, SIGNAL(stateChanged(int)), this, SLOT(onEnableBrukerDetectorChanged(int)));
 
 	QVBoxLayout *detectorBoxLayout = new QVBoxLayout;
@@ -344,7 +344,7 @@ void SXRMBEXAFSScanConfigurationView::onSampleStageZSpinBoxEditingFinished(){
 
 void SXRMBEXAFSScanConfigurationView::onSampleStageNormalSpinBoxEditingFinished(){
 
-	configuration_->setNormalPosition(sampleStageNormalSpinBox_->value());
+	configuration_->setY(sampleStageNormalSpinBox_->value());
 	onMicroprobeSampleStagePositionChanged(-1);
 }
 
@@ -387,10 +387,7 @@ void SXRMBEXAFSScanConfigurationView::onScanConfigurationMicroprobeNormalChanged
 
 void SXRMBEXAFSScanConfigurationView::onEnableBrukerDetectorChanged(int state)
 {
-	if(state == Qt::Checked)
-		configuration_->setEnableBrukerDetector(true);
-	else
-		configuration_->setEnableBrukerDetector(false);
+
 }
 
 QDoubleSpinBox *SXRMBEXAFSScanConfigurationView::createSampleStageSpinBox(QString units, double minimumValue, double maximumValue, double defaultValue) {

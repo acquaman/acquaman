@@ -20,7 +20,6 @@ SXRMBEXAFSScanConfiguration::SXRMBEXAFSScanConfiguration(QObject *parent) :
 
 	microprobeSampleStageX_ = 0.0;
 	microprobeSampleStageZ_ = 0.0;
-	setEnableBrukerDetector(true);
 
 	AMScanAxisEXAFSRegion *region = new AMScanAxisEXAFSRegion;
 	AMScanAxis *axis = new AMScanAxis(AMScanAxis::StepAxis, region);
@@ -47,7 +46,6 @@ SXRMBEXAFSScanConfiguration::SXRMBEXAFSScanConfiguration(const SXRMBEXAFSScanCon
 
 	microprobeSampleStageX_ = original.microprobeSampleStageX();
 	microprobeSampleStageZ_ = original.microprobeSampleStageZ();
-	setEnableBrukerDetector(original.enableBrukerDetector());
 
 	computeTotalTime();
 
@@ -142,7 +140,7 @@ QString SXRMBEXAFSScanConfiguration::headerText() const
 	QString header("Configuration of the Scan\n\n");
 
 	header.append("Scanned Edge:\t" + edge() + "\n");
-	header.append(QString("Focus position:\t%1 mm\n").arg(normalPosition()));
+	header.append(QString("Focus position:\t%1 mm\n").arg(y()));
 
 	header.append(regionsOfInterestHeaderString(regionsOfInterest()) % "\n");
 	header.append("\n");
@@ -154,25 +152,25 @@ QString SXRMBEXAFSScanConfiguration::headerText() const
 
 		if (exafsRegion->inKSpace() && (exafsRegion->maximumTime().isValid() || exafsRegion->maximumTime() == exafsRegion->regionTime()))
 			header.append(QString("Start: %1 eV\tDelta: %2 k\tEnd: %3 k\tTime: %4 s\n")
-				      .arg(double(AMEnergyToKSpaceCalculator::energy(edgeEnergy_, exafsRegion->regionStart())))
-				      .arg(double(exafsRegion->regionStep()))
-				      .arg(double(exafsRegion->regionEnd()))
-				      .arg(double(exafsRegion->regionTime())));
+					  .arg(double(AMEnergyToKSpaceCalculator::energy(edgeEnergy_, exafsRegion->regionStart())))
+					  .arg(double(exafsRegion->regionStep()))
+					  .arg(double(exafsRegion->regionEnd()))
+					  .arg(double(exafsRegion->regionTime())));
 
 		else if (exafsRegion->inKSpace() && exafsRegion->maximumTime().isValid())
 			header.append(QString("Start: %1 eV\tDelta: %2 k\tEnd: %3 k\tStart time: %4 s\tMaximum time (used with variable integration time): %5 s\n")
-				      .arg(double(AMEnergyToKSpaceCalculator::energy(edgeEnergy_, exafsRegion->regionStart())))
-				      .arg(double(exafsRegion->regionStep()))
-				      .arg(double(exafsRegion->regionEnd()))
-				      .arg(double(exafsRegion->regionTime()))
-				      .arg(double(exafsRegion->maximumTime())));
+					  .arg(double(AMEnergyToKSpaceCalculator::energy(edgeEnergy_, exafsRegion->regionStart())))
+					  .arg(double(exafsRegion->regionStep()))
+					  .arg(double(exafsRegion->regionEnd()))
+					  .arg(double(exafsRegion->regionTime()))
+					  .arg(double(exafsRegion->maximumTime())));
 
 		else
 			header.append(QString("Start: %1 eV\tDelta: %2 eV\tEnd: %3 eV\tTime: %4 s\n")
-				      .arg(double(exafsRegion->regionStart()))
-				      .arg(double(exafsRegion->regionStep()))
-				      .arg(double(exafsRegion->regionEnd()))
-				      .arg(double(exafsRegion->regionTime())));
+					  .arg(double(exafsRegion->regionStart()))
+					  .arg(double(exafsRegion->regionStep()))
+					  .arg(double(exafsRegion->regionEnd()))
+					  .arg(double(exafsRegion->regionTime())));
 	}
 
 	return header;

@@ -37,7 +37,7 @@ protected slots:
 	/// Handles disconnecting signals and deleting when beam off action is done
 	void onBeamOffActionFinished();
 	/// Handles SXRMBBeamline endStationChanged signal
-	void onBeamlineEndStationChanged(SXRMB::Endsation);
+	void onBeamlineEndStationChanged(SXRMB::Endstation);
 
 
 protected:

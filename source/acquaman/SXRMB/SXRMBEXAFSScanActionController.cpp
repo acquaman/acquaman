@@ -35,8 +35,10 @@ SXRMBEXAFSScanActionController::SXRMBEXAFSScanActionController(SXRMBEXAFSScanCon
 	sxrmbDetectors.addDetectorInfo(SXRMBBeamline::sxrmb()->i0Detector()->toInfo());
 	sxrmbDetectors.addDetectorInfo(SXRMBBeamline::sxrmb()->teyDetector()->toInfo());
 	sxrmbDetectors.addDetectorInfo(SXRMBBeamline::sxrmb()->energyFeedbackDetector()->toInfo());
-	if (configuration_->enableBrukerDetector())
+
+	if (configuration_->fluorescenceDetectors().testFlag(SXRMB::Bruker))
 		sxrmbDetectors.addDetectorInfo(SXRMBBeamline::sxrmb()->brukerDetector()->toInfo());
+
 	configuration_->setDetectorConfigurations(sxrmbDetectors);
 
 	secondsElapsed_ = 0;
@@ -60,7 +62,7 @@ AMAction3* SXRMBEXAFSScanActionController::createInitializationActions()
 	AMListAction3 *initializationActions = new AMListAction3(new AMListActionInfo3("SXRMB EXAFS Initialization Actions", "SXRMB EXAFS Initialization Actions"), AMListAction3::Sequential);
 
 
-	initializationActions->addSubAction(AMActionSupport::buildControlMoveAction(SXRMBBeamline::sxrmb()->microprobeSampleStageY(), configuration_->normalPosition()));
+	initializationActions->addSubAction(AMActionSupport::buildControlMoveAction(SXRMBBeamline::sxrmb()->microprobeSampleStageY(), configuration_->y()));
 
 	initializationActions->addSubAction(AMActionSupport::buildControlMoveAction(SXRMBBeamline::sxrmb()->microprobeSampleStageX(), configuration_->microprobeSampleStageX()));
 
@@ -92,7 +94,8 @@ AMAction3* SXRMBEXAFSScanActionController::createCleanupActions()
 
 void SXRMBEXAFSScanActionController::buildScanControllerImplementation()
 {
-	if (configuration_->enableBrukerDetector()){
+	if (configuration_->fluorescenceDetectors().testFlag(SXRMB::Bruker)){
+
 		AMXRFDetector *detector = SXRMBBeamline::sxrmb()->brukerDetector();
 
 		detector->removeAllRegionsOfInterest();

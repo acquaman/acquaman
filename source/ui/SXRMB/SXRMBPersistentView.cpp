@@ -41,7 +41,7 @@ SXRMBPersistentView::SXRMBPersistentView(QWidget *parent) :
 	// connect to signals
 	connect(beamOnButton_, SIGNAL(clicked()), this, SLOT(onBeamOnButtonClicked()));
 	connect(beamOffButton_, SIGNAL(clicked()), this, SLOT(onBeamOffButtonClicked()));
-	connect(SXRMBBeamline::sxrmb(), SIGNAL(endStationChanged(SXRMB::Endsation)), this, SLOT(onBeamlineEndStationChanged(SXRMB::Endsation)));
+	connect(SXRMBBeamline::sxrmb(), SIGNAL(endStationChanged(SXRMB::Endstation)), this, SLOT(onBeamlineEndStationChanged(SXRMB::Endstation)));
 }
 
 SXRMBPersistentView::~SXRMBPersistentView()
@@ -92,7 +92,7 @@ void SXRMBPersistentView::onBeamOffActionFinished(){
 	beamOffAction_ = 0; //NULL
 }
 
-void SXRMBPersistentView::onBeamlineEndStationChanged(SXRMB::Endsation)
+void SXRMBPersistentView::onBeamlineEndStationChanged(SXRMB::Endstation)
 {
 	motorGroupView_->setMotorGroupView(SXRMBBeamline::sxrmb()->currentMotorGroupName());
 }

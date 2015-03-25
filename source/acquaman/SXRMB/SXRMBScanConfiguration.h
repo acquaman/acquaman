@@ -31,8 +31,20 @@ public:
 	// Getters
 	/////////////////////////////////////////
 
-	/// Returns the normal position.
-	double normalPosition() const { return dbObject_->normalPosition(); }
+	/// Returns the endstation.
+	SXRMB::Endstation endstation() const { return dbObject_->endstation(); }
+	/// Returns the fluorescence detectors.
+	SXRMB::FluorescenceDetectors fluorescenceDetectors() const { return dbObject_->fluorescenceDetectors(); }
+	/// Returns the x position.
+	double x() const { return dbObject_->x(); }
+	/// Returns the y position.
+	double y() const { return dbObject_->y(); }
+	/// Returns the z position.
+	double z() const { return dbObject_->z(); }
+	/// Returns the rotation.
+	double rotation() const { return dbObject_->rotation(); }
+	/// Returns the energy.
+	double energy() const { return dbObject_->energy(); }
 	/// Returns the list of regions of interest.
 	QList<AMRegionOfInterest *> regionsOfInterest() const { return dbObject_->regionsOfInterest(); }
 
@@ -43,14 +55,23 @@ public:
 	/// Returns the time offset.
 	double timeOffset() const { return timeOffset_; }
 
-	/// Returns whether we are enabling Bruker Detector
-	bool enableBrukerDetector() const { return dbObject_->enableBrukerDetector(); }
-
 	// Setters
 	////////////////////////////////////////
 
-	/// Sets the normal position.
-	void setNormalPosition(double newPosition) { dbObject_->setNormalPosition(newPosition); }
+	/// Sets the endstation.
+	void setEndstation(SXRMB::Endstation newEndstation) { dbObject_->setEndstation(newEndstation); }
+	/// Sets the fluorescence detectors.
+	void setFluorescenceDetectors(SXRMB::FluorescenceDetectors newFluorescenceDetectors) { dbObject_->setFluorescenceDetectors(newFluorescenceDetectors); }
+	/// Sets the x position.
+	void setX(double newX) { dbObject_->setX(newX); }
+	/// Sets the y position.
+	void setY(double newY) { dbObject_->setY(newY); }
+	/// Sets the z position.
+	void setZ(double newZ) { dbObject_->setZ(newZ); }
+	/// Sets the rotation position.
+	void setRotation(double newRotation) { dbObject_->setRotation(newRotation); }
+	/// Sets the energy.
+	void setEnergy(double newEnergy) { dbObject_->setEnergy(newEnergy); }
 	/// Adds a region of interest to the list.
 	void addRegionOfInterest(AMRegionOfInterest *region) { dbObject_->addRegionOfInterest(region); }
 	/// Removes a region of interest from the list.
@@ -58,9 +79,6 @@ public:
 
 	/// Sets the time offset used for estimating the scan time.
 	void setTimeOffset(double offset) { timeOffset_ = offset; computeTotalTimeImplementation(); }
-
-	/// Sets the Bruker detector setting
-	void setEnableBrukerDetector(bool enable) { dbObject_->setEnableBrukerDetector(enable); }
 
 protected:
 	/// Computes the total time any time the regions list changes.  It is expected that subclasses will have a signal totalTimeChanged(double) that is emitted by this method.

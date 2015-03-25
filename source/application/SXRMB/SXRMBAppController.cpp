@@ -129,7 +129,7 @@ void SXRMBAppController::onBeamlineConnected(bool connected)
 	if (connected && !exafsScanConfigurationView_) {
 		exafsScanConfiguration_ = new SXRMBEXAFSScanConfiguration();
 
-		exafsScanConfiguration_->setNormalPosition(SXRMBBeamline::sxrmb()->microprobeSampleStageY()->value());
+		exafsScanConfiguration_->setY(SXRMBBeamline::sxrmb()->microprobeSampleStageY()->value());
 		exafsScanConfiguration_->setMicroprobeSampleStageX(SXRMBBeamline::sxrmb()->microprobeSampleStageX()->value());
 		exafsScanConfiguration_->setMicroprobeSampleStageZ(SXRMBBeamline::sxrmb()->microprobeSampleStageZ()->value());
 
@@ -476,7 +476,7 @@ void SXRMBAppController::onDataPositionChanged(AMGenericScanEditor *editor, cons
 	text = QString("Setup at (H,V,N): (%1 mm, %2 mm, %3 mm)")
 			.arg(editor->dataPosition().x(), 0, 'f', 3)
 			.arg(editor->dataPosition().y(), 0, 'f', 3)
-			.arg(config->normalPosition());
+			.arg(config->y());
 
 	QMenu popup(text, editor);
 	QAction *temp = popup.addAction(text);
@@ -518,7 +518,7 @@ void SXRMBAppController::moveImmediately(const AMGenericScanEditor *editor)
 	moveImmediatelyAction_ = new AMListAction3(new AMListActionInfo3("Move immediately", "Moves sample stage to given coordinates."), AMListAction3::Sequential);
 	moveImmediatelyAction_->addSubAction(SXRMBBeamline::sxrmb()->microprobeSampleStageMotorGroupObject()->createHorizontalMoveAction(editor->dataPosition().x()));
 	moveImmediatelyAction_->addSubAction(SXRMBBeamline::sxrmb()->microprobeSampleStageMotorGroupObject()->createVerticalMoveAction(editor->dataPosition().y()));
-	moveImmediatelyAction_->addSubAction(SXRMBBeamline::sxrmb()->microprobeSampleStageMotorGroupObject()->createNormalMoveAction(config->normalPosition()));
+	moveImmediatelyAction_->addSubAction(SXRMBBeamline::sxrmb()->microprobeSampleStageMotorGroupObject()->createNormalMoveAction(config->y()));
 
 	connect(moveImmediatelyAction_, SIGNAL(succeeded()), this, SLOT(onMoveImmediatelySuccess()));
 	connect(moveImmediatelyAction_, SIGNAL(failed()), this, SLOT(onMoveImmediatelyFailure()));
@@ -570,7 +570,7 @@ void SXRMBAppController::setupXASScan(const AMGenericScanEditor *editor, bool se
 	if (configuration){
 
 		exafsScanConfiguration_->setName(configuration->name());
-		exafsScanConfiguration_->setNormalPosition(configuration->normalPosition());
+		exafsScanConfiguration_->setY(configuration->y());
 	}
 
 	if (setupEXAFS)
@@ -600,7 +600,7 @@ void SXRMBAppController::setup2DXRFScan(const AMGenericScanEditor *editor)
 		microProbe2DScanConfiguration_->scanAxisAt(1)->regionAt(0)->setRegionStep(0.01);
 		microProbe2DScanConfiguration_->scanAxisAt(1)->regionAt(0)->setRegionEnd(mapRect.top());
 		microProbe2DScanConfiguration_->scanAxisAt(1)->regionAt(0)->setRegionTime(config->scanAxisAt(1)->regionAt(0)->regionTime());
-		microProbe2DScanConfiguration_->setNormalPosition(config->normalPosition());
+		microProbe2DScanConfiguration_->setY(config->y());
 		microProbe2DScanConfigurationView_->updateMapInfo();
 	}
 
