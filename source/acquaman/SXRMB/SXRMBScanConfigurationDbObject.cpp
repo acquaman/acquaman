@@ -76,3 +76,30 @@ void SXRMBScanConfigurationDbObject::setEnableBrukerDetector(bool enableDetector
 	if (enableBrukerDetector_ != enableDetector)
 		enableBrukerDetector_ = enableDetector;
 }
+
+void SXRMBScanConfigurationDbObject::setEndstation(SXRMB::Endsation endstation)
+{
+	if (endstation_ != endstation){
+
+		endstation_ = endstation;
+		setModified(true);
+	}
+}
+
+void SXRMBScanConfigurationDbObject::setFluorescenceDetectors(SXRMB::FluorescenceDetectors detector)
+{
+	if (fluorescenceDetectors_ != detector){
+
+		fluorescenceDetectors_ = detector;
+		setModified(true);
+	}
+}
+
+void SXRMBScanConfigurationDbObject::setIonChambers(SXRMB::IonChambers ionChamber)
+{
+	if (ionChambers_ != ionChamber){
+
+		ionChambers_ = ionChamber;
+		setModified(true);
+	}
+}
