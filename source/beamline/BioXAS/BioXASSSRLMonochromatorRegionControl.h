@@ -1,6 +1,8 @@
 #ifndef BIOXASSSRLMONOCHROMATORREGIONCONTROL_H
 #define BIOXASSSRLMONOCHROMATORREGIONCONTROL_H
 
+#include <QSignalMapper>
+
 #include "beamline/AMCompositeControl.h"
 #include "actions3/AMActionSupport.h"
 #include "actions3/actions/AMControlWaitAction.h"
@@ -27,6 +29,28 @@
 #define TIMEOUT_BRAGG_MOTOR_LIMIT_REACHED 200.0
 #define TIMEOUT_REGION_STATE_CHANGED 200.0
 #define TIMEOUT_CRYSTAL_CHANGE_MOVE_WAIT 1
+
+// Error codes
+#define BioXAS_MONO_REGION_NOT_CONNECTED 1407701
+#define BioXAS_MONO_REGION_ALREADY_MOVING 1407702
+#define BioXAS_MONO_REGION_CANNOT_MOVE 1407703
+#define BioXAS_MONO_REGION_INVALID_SETPOINT 1407704
+#define BioXAS_MONO_REGION_INVALID_ACTION 1407705
+#define BioXAS_MONO_REGION_CLOSE_UPPER_SLIT_FAILED 1407706
+#define BioXAS_MONO_REGION_CLOSE_LOWER_SLIT_FAILED 1407707
+#define BioXAS_MONO_REGION_CLOSE_SLITS_FAILED 1407708
+#define BioXAS_MONO_REGION_MOVE_PADDLE_FAILED 1407709
+#define BioXAS_MONO_REGION_PADDLE_WAIT_FAILED 1407710
+#define BioXAS_MONO_REGION_KEY_ENABLED_WAIT_FAILED 1407711
+#define BioXAS_MONO_REGION_MOVE_BRAGG_FAILED 1407712
+#define BioXAS_MONO_REGION_BRAGG_WAIT_FAILED 1407713
+#define BioXAS_MONO_REGION_BRAKE_DISABLED_WAIT_FAILED 1407714
+#define BioXAS_MONO_REGION_MOVE_CRYSTAL_CHANGE_FAILED 1407715
+#define BioXAS_MONO_REGION_CRYSTAL_CHANGE_WAIT_FAILED 1407716
+#define BioXAS_MONO_REGION_BRAKE_ENABLED_WAIT_FAILED 1407717
+#define BioXAS_MONO_REGION_REGION_A_WAIT_FAILED 1407718
+#define BioXAS_MONO_REGION_REGION_B_WAIT_FAILED 1407719
+#define BioXAS_MONO_REGION_KEY_DISABLED_WAIT_FAILED 1407720
 
 class BioXASSSRLMonochromatorRegionControl : public AMCompositeControl
 {
@@ -162,11 +186,11 @@ protected slots:
 	/// Called when the internal crystal change action has been started. Handles updating the moveInProgress_ member variable and emitting the moveInProgress() signal.
 	void onRegionChangeStarted();
 	/// Called when the internal crystal change action has been cancelled. Handles emitting moveFailed(...) with the WasStoppedFailure code and deleting the action.
-	void onRegionChangeCancelled();
+	void onRegionChangeCancelled(QObject *action);
 	/// Called when the internal crystal change action has failed. Handles emitting moveFailed(...) with the OtherFailure code and deleting the action.
-	void onRegionChangeFailed();
+	void onRegionChangeFailed(QObject *action);
 	/// Called when the internal crystal change action has succeeded! Handles emitting moveSucceeded() and deleting the action.
-	void onRegionChangeSucceeded();
+	void onRegionChangeSucceeded(QObject *action);
 
 protected:
 	/// Returns a new action that performs a crystal change to change the region.
@@ -280,6 +304,13 @@ protected:
 	AMControl *regionAStatus_;
 	/// The region B status.
 	AMControl *regionBStatus_;
+
+	/// A signal mapper that allows an AMAction to identify itself as the origin of the action cancelled signal.
+	QSignalMapper *actionCancelledMapper_;
+	/// A signal mapper that allows an AMAction to identify itself as the origin of the action failed signal.
+	QSignalMapper *actionFailedMapper_;
+	/// A signal mapper that allows an AMAction to identify itself as the origin of the action succeeded signal.
+	QSignalMapper *actionSucceededMapper_;
 };
 
 #endif // BIOXASSSRLMONOCHROMATORREGIONCONTROL_H

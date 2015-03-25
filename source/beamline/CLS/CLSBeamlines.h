@@ -1,6 +1,8 @@
 #ifndef CLSBEAMLINES_H
 #define CLSBEAMLINES_H
 
+#include <QString>
+
 namespace CLSBeamline {
 	enum CLSBeamlines
 	{
@@ -15,15 +17,53 @@ namespace CLSBeamline {
 		SXRMBBeamline = 9
 	};
 
-	const QString SGM_bl_name = "SGM";
-	const QString SGMSS_bl_name = "SGM";
-	const QString VESPERS_bl_name = "VESPERS";
-	const QString REIXS_bl_name = "REIXS";
-	const QString IDEAS_bl_name = "IDEAS";
-	const QString BioXAS_Main_bl_name = "BioXASMain";
-	const QString BioXAS_Side_bl_name = "BioXASSide";
-	const QString BioXAS_Imaging_bl_name = "BioXASImaging";
-	const QString SXRMB_bl_name = "SXRMB";
+	const QString SGMBeamlineName = "SGM";
+	const QString SGMSSBeamlineName = "SGM";
+	const QString VESPERSBeamlineName = "VESPERS";
+	const QString REIXSBeamlineName = "REIXS";
+	const QString IDEASBeamlineName = "IDEAS";
+	const QString BioXASMainBeamlineName = "BioXASMain";
+	const QString BioXASSideBeamlineName = "BioXASSide";
+	const QString BioXASImagingBeamlineName = "BioXASImaging";
+	const QString SXRMBBeamlineName = "SXRMB";
+
+	inline QString beamlineName(CLSBeamline::CLSBeamlines beamline) {
+		QString name;
+		switch (beamline) {
+		case CLSBeamline::SGMBeamline:
+			name = CLSBeamline::SGMBeamlineName;
+			break;
+//		case CLSBeamline::SGMSSBeamline: //Same as SGM
+//			name = CLSBeamline::SGMSSBeamlineName;
+//			break;
+		case CLSBeamline::VESPERSBeamline:
+			name = CLSBeamline::VESPERSBeamlineName;
+			break;
+		case CLSBeamline::REIXSBeamline:
+			name = CLSBeamline::REIXSBeamlineName;
+			break;
+//		case CLSBeamline::IDEASBeamline: //same as REIX
+//			name = CLSBeamline::IDEASBeamlineName;
+//			break;
+		case CLSBeamline::BioXASMainBeamline:
+			name = CLSBeamline::BioXASMainBeamlineName;
+			break;
+		case CLSBeamline::BioXASSideBeamline:
+			name = CLSBeamline::BioXASSideBeamlineName;
+			break;
+		case CLSBeamline::BioXASImagingBeamline:
+			name = CLSBeamline::BioXASImagingBeamlineName;
+			break;
+		case CLSBeamline::SXRMBBeamline:
+			name = CLSBeamline::SXRMBBeamlineName;
+			break;
+		default:
+			name = "Unknown";
+			break;
+		}
+
+		return name;
+	}
 }
 
 

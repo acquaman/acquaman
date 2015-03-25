@@ -218,6 +218,10 @@ protected:
 	QComboBox *availableMotorGroupObjects_;
 	/// Holds the current list visible motor group objects and their visibility.  Used only for Multiple view.
 	QMap<QString, AMMotorGroupObjectView *> visibleMotorGroupObjectViews_;
+
+private:
+	/// The common function to initialize and layout the components of the MotorGroupView
+	void initAndLayoutMotorGroupView(AMMotorGroup *motorGroup, ViewMode viewMode);
 };
 
 #endif // AMMOTORGROUPVIEW_H
