@@ -15,11 +15,7 @@ SXRMBEXAFSScanConfiguration::SXRMBEXAFSScanConfiguration(QObject *parent) :
 	setName("EXAFS Scan");
 	setUserScanName("EXAFS Scan");
 
-	edgeEnergy_ = -1;
 	edge_ = "";
-
-	microprobeSampleStageX_ = 0.0;
-	microprobeSampleStageZ_ = 0.0;
 
 	AMScanAxisEXAFSRegion *region = new AMScanAxisEXAFSRegion;
 	AMScanAxis *axis = new AMScanAxis(AMScanAxis::StepAxis, region);
@@ -41,11 +37,7 @@ SXRMBEXAFSScanConfiguration::SXRMBEXAFSScanConfiguration(const SXRMBEXAFSScanCon
 	setName(original.name());
 	setUserScanName(original.userScanName());
 
-	edgeEnergy_ = original.edgeEnergy();
 	edge_ = original.edge();
-
-	microprobeSampleStageX_ = original.microprobeSampleStageX();
-	microprobeSampleStageZ_ = original.microprobeSampleStageZ();
 
 	computeTotalTime();
 
@@ -94,43 +86,12 @@ QString SXRMBEXAFSScanConfiguration::detailedDescription() const
 	return "SXRMB EXAFS Scan";
 }
 
-double SXRMBEXAFSScanConfiguration::edgeEnergy() const
-{
-	return edgeEnergy_;
-}
-
-void SXRMBEXAFSScanConfiguration::setEdgeEnergy(double edgeEnergy){
-	if(edgeEnergy_ != edgeEnergy){
-		edgeEnergy_ = edgeEnergy;
-		emit edgeEnergyChanged(edgeEnergy_);
-		setModified(true);
-	}
-}
-
 void SXRMBEXAFSScanConfiguration::setEdge(QString edgeName)
 {
 	if (edge_ != edgeName){
 
 		edge_ = edgeName;
 		emit edgeChanged(edgeName);
-		setModified(true);
-	}
-}
-
-void SXRMBEXAFSScanConfiguration::setMicroprobeSampleStageX(double microprobeSampleStageX)
-{
-	if(microprobeSampleStageX_ != microprobeSampleStageX){
-		microprobeSampleStageX_ = microprobeSampleStageX;
-		emit microprobeSampleStageXChanged(microprobeSampleStageX_);
-		setModified(true);
-	}
-}
-
-void SXRMBEXAFSScanConfiguration::setMicroprobeSampleStageZ(double microprobeSampleStageZ)
-{
-	if(microprobeSampleStageZ_ != microprobeSampleStageZ){
-		microprobeSampleStageZ_ = microprobeSampleStageZ;
-		emit microprobeSampleStageZChanged(microprobeSampleStageZ_);
 		setModified(true);
 	}
 }
@@ -152,14 +113,14 @@ QString SXRMBEXAFSScanConfiguration::headerText() const
 
 		if (exafsRegion->inKSpace() && (exafsRegion->maximumTime().isValid() || exafsRegion->maximumTime() == exafsRegion->regionTime()))
 			header.append(QString("Start: %1 eV\tDelta: %2 k\tEnd: %3 k\tTime: %4 s\n")
-					  .arg(double(AMEnergyToKSpaceCalculator::energy(edgeEnergy_, exafsRegion->regionStart())))
-					  .arg(double(exafsRegion->regionStep()))
-					  .arg(double(exafsRegion->regionEnd()))
-					  .arg(double(exafsRegion->regionTime())));
+						.arg(double(AMEnergyToKSpaceCalculator::energy(energy(), exafsRegion->regionStart())))
+						.arg(double(exafsRegion->regionStep()))
+						.arg(double(exafsRegion->regionEnd()))
+						.arg(double(exafsRegion->regionTime())));
 
 		else if (exafsRegion->inKSpace() && exafsRegion->maximumTime().isValid())
 			header.append(QString("Start: %1 eV\tDelta: %2 k\tEnd: %3 k\tStart time: %4 s\tMaximum time (used with variable integration time): %5 s\n")
-					  .arg(double(AMEnergyToKSpaceCalculator::energy(edgeEnergy_, exafsRegion->regionStart())))
+					  .arg(double(AMEnergyToKSpaceCalculator::energy(energy(), exafsRegion->regionStart())))
 					  .arg(double(exafsRegion->regionStep()))
 					  .arg(double(exafsRegion->regionEnd()))
 					  .arg(double(exafsRegion->regionTime()))
@@ -174,16 +135,6 @@ QString SXRMBEXAFSScanConfiguration::headerText() const
 	}
 
 	return header;
-}
-
-double SXRMBEXAFSScanConfiguration::microprobeSampleStageX() const
-{
-	return microprobeSampleStageX_;
-}
-
-double SXRMBEXAFSScanConfiguration::microprobeSampleStageZ() const
-{
-	return microprobeSampleStageZ_;
 }
 
 void SXRMBEXAFSScanConfiguration::computeTotalTimeImplementation()

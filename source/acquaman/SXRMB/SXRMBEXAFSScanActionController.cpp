@@ -64,9 +64,9 @@ AMAction3* SXRMBEXAFSScanActionController::createInitializationActions()
 
 	initializationActions->addSubAction(AMActionSupport::buildControlMoveAction(SXRMBBeamline::sxrmb()->microprobeSampleStageY(), configuration_->y()));
 
-	initializationActions->addSubAction(AMActionSupport::buildControlMoveAction(SXRMBBeamline::sxrmb()->microprobeSampleStageX(), configuration_->microprobeSampleStageX()));
+	initializationActions->addSubAction(AMActionSupport::buildControlMoveAction(SXRMBBeamline::sxrmb()->microprobeSampleStageX(), configuration_->x()));
 
-	initializationActions->addSubAction(AMActionSupport::buildControlMoveAction(SXRMBBeamline::sxrmb()->microprobeSampleStageZ(), configuration_->microprobeSampleStageZ()));
+	initializationActions->addSubAction(AMActionSupport::buildControlMoveAction(SXRMBBeamline::sxrmb()->microprobeSampleStageZ(), configuration_->z()));
 
 	CLSSIS3820Scaler *scaler = SXRMBBeamline::sxrmb()->scaler();
 	initializationActions->addSubAction(scaler->createStartAction3(false));

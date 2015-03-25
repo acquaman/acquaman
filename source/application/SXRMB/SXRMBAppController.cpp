@@ -113,8 +113,8 @@ void SXRMBAppController::onBeamlineConnected(bool connected)
 		exafsScanConfiguration_ = new SXRMBEXAFSScanConfiguration();
 
 		exafsScanConfiguration_->setY(SXRMBBeamline::sxrmb()->microprobeSampleStageY()->value());
-		exafsScanConfiguration_->setMicroprobeSampleStageX(SXRMBBeamline::sxrmb()->microprobeSampleStageX()->value());
-		exafsScanConfiguration_->setMicroprobeSampleStageZ(SXRMBBeamline::sxrmb()->microprobeSampleStageZ()->value());
+		exafsScanConfiguration_->setX(SXRMBBeamline::sxrmb()->microprobeSampleStageX()->value());
+		exafsScanConfiguration_->setZ(SXRMBBeamline::sxrmb()->microprobeSampleStageZ()->value());
 
 		exafsScanConfiguration_->scanAxisAt(0)->regionAt(0)->setRegionStart(-11);
 		exafsScanConfiguration_->scanAxisAt(0)->regionAt(0)->setRegionStep(0.5);
@@ -130,7 +130,7 @@ void SXRMBAppController::onBeamlineConnected(bool connected)
 	if (connected && !microProbe2DScanConfigurationView_) {
 		microProbe2DScanConfiguration_ = new SXRMB2DMapScanConfiguration();
 
-		microProbe2DScanConfiguration_->setExcitationEnergy(SXRMBBeamline::sxrmb()->energy()->value());
+		microProbe2DScanConfiguration_->setEnergy(SXRMBBeamline::sxrmb()->energy()->value());
 
 		microProbe2DScanConfiguration_->scanAxisAt(0)->regionAt(0)->setRegionStart(0.0);
 		microProbe2DScanConfiguration_->scanAxisAt(0)->regionAt(0)->setRegionStep(0.01);
@@ -154,7 +154,7 @@ void SXRMBAppController::onBeamlineConnected(bool connected)
 		microProbe2DOxidationScanConfiguration_->setName("Oxidation Map");
 		microProbe2DOxidationScanConfiguration_->setUserScanName("Oxidation Map");
 
-		microProbe2DScanConfiguration_->setExcitationEnergy(SXRMBBeamline::sxrmb()->energy()->value());
+		microProbe2DScanConfiguration_->setEnergy(SXRMBBeamline::sxrmb()->energy()->value());
 
 		microProbe2DOxidationScanConfiguration_->scanAxisAt(0)->regionAt(0)->setRegionStart(0.0);
 		microProbe2DOxidationScanConfiguration_->scanAxisAt(0)->regionAt(0)->setRegionStep(0.01);
@@ -532,10 +532,10 @@ void SXRMBAppController::setupXASScan(const AMGenericScanEditor *editor, bool se
 		edge.append("1");
 
 	exafsScanConfiguration_->setEdge(edge);
-	exafsScanConfiguration_->setMicroprobeSampleStageX(editor->dataPosition().x());
-	exafsScanConfiguration_->setMicroprobeSampleStageZ(editor->dataPosition().y());
+	exafsScanConfiguration_->setX(editor->dataPosition().x());
+	exafsScanConfiguration_->setZ(editor->dataPosition().y());
 
-	qDebug() << "Config " << exafsScanConfiguration_->microprobeSampleStageX() << exafsScanConfiguration_->microprobeSampleStageZ() << " editor " << editor->dataPosition().x() << editor->dataPosition().y();
+	qDebug() << "Config " << exafsScanConfiguration_->x() << exafsScanConfiguration_->z() << " editor " << editor->dataPosition().x() << editor->dataPosition().y();
 
 	// This should always succeed because the only way to get into this function is using the 2D scan view which currently only is accessed by 2D scans.
 	SXRMB2DMapScanConfiguration *configuration = qobject_cast<SXRMB2DMapScanConfiguration *>(editor->currentScan()->scanConfiguration());

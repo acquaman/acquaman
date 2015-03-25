@@ -11,10 +11,10 @@ SXRMB2DMapScanConfiguration::SXRMB2DMapScanConfiguration(QObject *parent)
 	: AMStepScanConfiguration(parent), SXRMBScanConfiguration()
 {
 	timeOffset_ = 0.8;
-	excitationEnergy_ = 3000.0;
 
 	setName("2D Map");
 	setUserScanName("2D Map");
+	setEnergy(3000.0);
 
 	exportAsAscii_ = false;
 
@@ -37,8 +37,6 @@ SXRMB2DMapScanConfiguration::SXRMB2DMapScanConfiguration(QObject *parent)
 SXRMB2DMapScanConfiguration::SXRMB2DMapScanConfiguration(const SXRMB2DMapScanConfiguration &original)
 	: AMStepScanConfiguration(original), SXRMBScanConfiguration(original)
 {
-	setExcitationEnergy(original.excitationEnergy());
-
 	setName(original.name());
 	setUserScanName(original.userScanName());
 
@@ -93,11 +91,6 @@ QString SXRMB2DMapScanConfiguration::headerText() const
 	return header;
 }
 
-double SXRMB2DMapScanConfiguration::excitationEnergy() const
-{
-	return excitationEnergy_;
-}
-
 void SXRMB2DMapScanConfiguration::computeTotalTimeImplementation()
 {
 	double time = 0;
@@ -119,13 +112,4 @@ void SXRMB2DMapScanConfiguration::setExportAsAscii(bool exportAsAscii)
 		return;
 
 	exportAsAscii_ = exportAsAscii;
-}
-
-void SXRMB2DMapScanConfiguration::setExcitationEnergy(double excitationEnergy)
-{
-	if(excitationEnergy_ != excitationEnergy){
-		excitationEnergy_ = excitationEnergy;
-		emit excitationEnergyChanged(excitationEnergy_);
-		setModified(true);
-	}
 }

@@ -139,7 +139,7 @@ SXRMB2DMapScanConfigurationView::SXRMB2DMapScanConfigurationView(SXRMB2DMapScanC
 
 	// BL energy setting
 	SXRMBBeamline *sxrmbBL = SXRMBBeamline::sxrmb();
-	scanEnergySpinBox_ = createEnergySpinBox("eV", sxrmbBL->energy()->minimumValue(), sxrmbBL->energy()->maximumValue(), configuration_->excitationEnergy());
+	scanEnergySpinBox_ = createEnergySpinBox("eV", sxrmbBL->energy()->minimumValue(), sxrmbBL->energy()->maximumValue(), configuration_->energy());
 	scanEnergySettingWarningLabel_ = new QLabel("Settings do not match beamline.");
 	scanEnergySettingWarningLabel_->setStyleSheet("QLabel {color: red}");
 	setScanEnergyFromBeamlineButton_ = new QPushButton("Set From Beamline");
@@ -372,7 +372,7 @@ void SXRMB2DMapScanConfigurationView::onDwellTimeChanged()
 }
 
 void SXRMB2DMapScanConfigurationView::onScanEnergySpinBoxEditingFinished() {
-	configuration_->setExcitationEnergy(scanEnergySpinBox_->value());
+	configuration_->setEnergy(scanEnergySpinBox_->value());
 	if (SXRMBBeamline::sxrmb()->energy()->withinTolerance(scanEnergySpinBox_->value()))
 		scanEnergySettingWarningLabel_->hide();
 	else
