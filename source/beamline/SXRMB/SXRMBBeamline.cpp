@@ -462,7 +462,7 @@ void SXRMBBeamline::setupMotorGroup()
 	motorGroup_->addMotorGroupObject(motorObject->name(), motorObject);
 
 	// Ambiant with gas chamber motor group
-	motorObject = new AM4DMotorGroupObject("Ambiant With Gas Chamber - Z, R",
+	motorObject = new AMMotorGroupObject("Ambiant With Gas Chamber - Z, R",
 										   QStringList() << "Z" << "R",
 										   QStringList() << "mm" << "deg",
 										   QList<AMControl *>() << ambiantSampleHolderZ_ << ambiantSampleHolderR_ ,
@@ -472,7 +472,7 @@ void SXRMBBeamline::setupMotorGroup()
 	motorGroup_->addMotorGroupObject(motorObject->name(), motorObject);
 
 	// Ambiant without gas chamber motor group
-	motorObject = new AM4DMotorGroupObject("Ambiant Without Gas Chamber - X, Z",
+	motorObject = new AMMotorGroupObject("Ambiant Without Gas Chamber - X, Z",
 										   QStringList() << "X" << "Z",
 										   QStringList() << "mm" << "mm",
 										   QList<AMControl *>() << ambiantSampleStageX_ << ambiantSampleStageZ_ ,

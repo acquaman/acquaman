@@ -38,8 +38,13 @@ AM4DMotorGroupObjectView::AM4DMotorGroupObjectView(AMMotorGroupObject *motorGrou
 	// create new components of AM4DMotorGroupObjectView
 	rotateCW_ = new QToolButton();
 	rotateCCW_ = new QToolButton();
-	rotateCW_->setIcon(QIcon(":/ArrowCW.png"));
-	rotateCCW_->setIcon(QIcon(":/ArrowCCW.png"));
+	if (motorGroupObject_->otherIndex() == -1){
+		rotateCW_->hide();
+		rotateCCW_->hide();
+	} else {
+		rotateCW_->setIcon(QIcon(":/ArrowCW.png"));
+		rotateCCW_->setIcon(QIcon(":/ArrowCCW.png"));
+	}
 
 	setInFocusButton_ = new QPushButton("Set In Focus");
 	moveInFocusFocusCheckBox_ = new QCheckBox("Move In Focus");
