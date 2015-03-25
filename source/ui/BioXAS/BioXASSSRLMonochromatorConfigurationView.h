@@ -13,10 +13,10 @@
 #include "ui/BioXAS/BioXASSSRLMonochromatorRegionControlView.h"
 #include "ui/BioXAS/BioXASSSRLMonochromatorRegionControlEditor.h"
 
-#define BRAGG_OFFSET_MIN -1000
-#define BRAGG_OFFSET_MAX 1000
-#define BRAGG_SETTLING_TIME_MIN -1000
-#define BRAGG_SETTLING_TIME_MAX 1000
+#define ENERGY_MIN -1000000
+#define ENERGY_MAX 1000000
+#define BRAGG_POSITION_MIN -1000000
+#define BRAGG_POSITION_MAX 1000000
 
 class BioXASSSRLMonochromatorBraggConfigurationView;
 
@@ -71,6 +71,9 @@ protected:
 
 
 
+
+#define BRAGG_SETTLING_TIME_MIN -1000
+#define BRAGG_SETTLING_TIME_MAX 1000
 
 class BioXASSSRLMonochromatorBraggConfigurationView : public QWidget
 {

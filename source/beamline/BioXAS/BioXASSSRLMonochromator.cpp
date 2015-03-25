@@ -37,10 +37,10 @@ AMAction3* BioXASSSRLMonochromator::createCalibrateBraggPositionAction(double ne
 
 	if (braggMotor()->isConnected()) {
 		// calculate the needed offset.
-		double newOffset = calculateEncoderOffset(braggMotor()->value(), newPosition);
+		double newOffset = calculateBraggEncoderOffset(braggMotor()->value(), newPosition);
 
 		// set the new offset.
-		action = AMActionSupport::buildControlMoveAction(braggMotor()->encoderCalibrationOffsetControl(), newOffset, false);
+		action = braggMotor()->createEncoderCalibrationOffsetAction(newOffset);
 	}
 
 	return action;
@@ -62,14 +62,14 @@ void BioXASSSRLMonochromator::calibrateBraggPosition(double newBraggPosition)
 {
 	if (braggMotor()->isConnected()) {
 		// calculate the needed encoder calibration offset.
-		double newEncoderOffset = calculateEncoderOffset(braggMotor()->value(), newBraggPosition);
+		double newEncoderOffset = calculateBraggEncoderOffset(braggMotor()->value(), newBraggPosition);
 
 		// apply the new encoder offset.
 		braggMotor()->setEncoderCalibrationOffset(newEncoderOffset);
 	}
 }
 
-double BioXASSSRLMonochromator::calculateEncoderOffset(double oldPosition, double newPosition)
+double BioXASSSRLMonochromator::calculateBraggEncoderOffset(double oldPosition, double newPosition)
 {
 	// calculate the new total bragg offset to be applied, in deg.
 	double newBraggOffset = newPosition - oldPosition;

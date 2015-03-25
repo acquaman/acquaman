@@ -10,7 +10,9 @@ BioXASSSRLMonochromatorConfigurationView::BioXASSSRLMonochromatorConfigurationVi
 
 	regionEditor_ = 0;
 	energyEditor_ = 0;
+	calibrateEnergyButton_ = 0;
 	braggEditor_ = 0;
+	calibrateBraggButton_ = 0;
 
 	regionStatusWidget_ = 0;
 	braggConfigWidget_ = 0;
@@ -32,7 +34,6 @@ BioXASSSRLMonochromatorConfigurationView::BioXASSSRLMonochromatorConfigurationVi
 		braggEditor_->setTitle("Bragg motor position");
 
 		calibrateBraggButton_ = new QPushButton("Calibrate");
-		calibrateBraggButton_->setEnabled(false);
 
 		QGroupBox *regionStatusView = new QGroupBox("Region status");
 
@@ -96,7 +97,7 @@ void BioXASSSRLMonochromatorConfigurationView::onCalibrateEnergyButtonClicked()
 {
 	if (mono_) {
 		bool inputOK = false;
-		double newEnergy = QInputDialog::getDouble(this, "Monochromator Energy Calibration", "Enter current calibrated energy:", mono_->energyControl()->value(), -100000000, 10000000, 1, &inputOK, Qt::Sheet);
+		double newEnergy = QInputDialog::getDouble(this, "Energy Calibration", "Enter calibrated energy:", mono_->energyControl()->value(), ENERGY_MIN, ENERGY_MAX, 1, &inputOK);
 
 		if (inputOK) {
 			mono_->energyControl()->setEnergyCalibration(newEnergy);
@@ -106,7 +107,14 @@ void BioXASSSRLMonochromatorConfigurationView::onCalibrateEnergyButtonClicked()
 
 void BioXASSSRLMonochromatorConfigurationView::onCalibrateBraggButtonClicked()
 {
+	if (mono_) {
+		bool inputOK = false;
+		double newPosition = QInputDialog::getDouble(this, "Bragg Position Calibration", "Enter calibrated position:", mono_->braggMotor()->value(), BRAGG_POSITION_MIN, BRAGG_POSITION_MAX, 1, &inputOK);
 
+		if (inputOK) {
+			mono_->calibrateBraggPosition(newPosition);
+		}
+	}
 }
 
 
