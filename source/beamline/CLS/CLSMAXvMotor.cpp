@@ -718,6 +718,24 @@ AMAction3 *CLSMAXvMotor::createPowerAction(CLSMAXvMotor::PowerState newState)
 	return action;
 }
 
+AMAction3 *CLSMAXvMotor::createCCWLimitWaitAction(CLSMAXvMotor::Limit ccwLimitState)
+{
+	if(!isConnected())
+		return 0;
+
+	return AMActionSupport::buildControlWaitAction(ccwLimit_, ccwLimitState);
+
+}
+
+AMAction3 *CLSMAXvMotor::createCWLimitWaitAction(CLSMAXvMotor::Limit cwLimitState)
+{
+	if(!isConnected())
+		return 0;
+
+	return AMActionSupport::buildControlWaitAction(cwLimit_, cwLimitState);
+
+}
+
 void CLSMAXvMotor::setEGUVelocity(double velocity){
 	if(isConnected())
 		EGUVelocity_->move(velocity);
