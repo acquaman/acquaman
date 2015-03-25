@@ -87,7 +87,7 @@ void SXRMBScanConfigurationDbObject::setEnableBrukerDetector(bool enableDetector
 		enableBrukerDetector_ = enableDetector;
 }
 
-void SXRMBScanConfigurationDbObject::setEndstation(SXRMB::Endsation endstation)
+void SXRMBScanConfigurationDbObject::setEndstation(SXRMB::Endstation endstation)
 {
 	if (endstation_ != endstation){
 
@@ -109,7 +109,7 @@ void SXRMBScanConfigurationDbObject::setFluorescenceDetectors(SXRMB::Fluorescenc
 
 void SXRMBScanConfigurationDbObject::setEndstation(int endstation)
 {
-	setEndstation(SXRMB::Endsation(endstation));
+	setEndstation(SXRMB::Endstation(endstation));
 }
 
 void SXRMBScanConfigurationDbObject::setFluorescenceDetectors(int detector)

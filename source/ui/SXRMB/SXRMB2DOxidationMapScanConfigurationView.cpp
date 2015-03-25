@@ -58,7 +58,7 @@ SXRMB2DOxidationMapScanConfigurationView::SXRMB2DOxidationMapScanConfigurationVi
 	connect(configuration_->scanAxisAt(1)->regionAt(0), SIGNAL(regionStepChanged(AMNumber)), this, SLOT(setYAxisStep(AMNumber)));
 
 	// 4th row: set the focus position
-	normalPosition_ = createPositionDoubleSpinBox("N: ", " mm", configuration_->normalPosition(), 3);
+	normalPosition_ = createPositionDoubleSpinBox("N: ", " mm", configuration_->y(), 3);
 	connect(normalPosition_, SIGNAL(editingFinished()), this, SLOT(onNormalPositionChanged()));
 	connect(configuration_->dbObject(), SIGNAL(yChanged(double)), normalPosition_, SLOT(setValue(double)));
 
@@ -249,7 +249,7 @@ void SXRMB2DOxidationMapScanConfigurationView::onSetStartPosition()
 
 	configuration_->scanAxisAt(0)->regionAt(0)->setRegionStart(h);
 	configuration_->scanAxisAt(1)->regionAt(0)->setRegionStart(v);
-	configuration_->setNormalPosition(n);
+	configuration_->setY(n);
 	hStart_->setValue(h);
 	vStart_->setValue(v);
 	updateMapInfo();
@@ -272,7 +272,7 @@ void SXRMB2DOxidationMapScanConfigurationView::onSetEndPosition()
 void SXRMB2DOxidationMapScanConfigurationView::onSetNormalPosition()
 {
 	double n = SXRMBBeamline::sxrmb()->microprobeSampleStageY()->value();
-	configuration_->setNormalPosition(n);
+	configuration_->setY(n);
 	updateMapInfo();
 	checkScanAxisValidity();
 }
@@ -321,7 +321,7 @@ void SXRMB2DOxidationMapScanConfigurationView::onYStepChanged()
 
 void SXRMB2DOxidationMapScanConfigurationView::onNormalPositionChanged()
 {
-	configuration_->setNormalPosition(normalPosition_->value());
+	configuration_->setY(normalPosition_->value());
 	updateMapInfo();
 	checkScanAxisValidity();
 }

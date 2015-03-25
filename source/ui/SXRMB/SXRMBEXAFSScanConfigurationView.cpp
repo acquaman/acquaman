@@ -123,7 +123,7 @@ SXRMBEXAFSScanConfigurationView::SXRMBEXAFSScanConfigurationView(SXRMBEXAFSScanC
 	SXRMBBeamline *sxrmbBL = SXRMBBeamline::sxrmb();
 	sampleStageXSpinBox_ = createSampleStageSpinBox("mm", sxrmbBL->microprobeSampleStageX()->minimumValue(), sxrmbBL->microprobeSampleStageX()->maximumValue(), configuration_->microprobeSampleStageX());
 	sampleStageZSpinBox_ = createSampleStageSpinBox("mm", sxrmbBL->microprobeSampleStageZ()->minimumValue(), sxrmbBL->microprobeSampleStageZ()->maximumValue(), configuration_->microprobeSampleStageZ());
-	sampleStageNormalSpinBox_ = createSampleStageSpinBox("mm", sxrmbBL->microprobeSampleStageY()->minimumValue(), sxrmbBL->microprobeSampleStageY()->maximumValue(), configuration_->normalPosition());
+	sampleStageNormalSpinBox_ = createSampleStageSpinBox("mm", sxrmbBL->microprobeSampleStageY()->minimumValue(), sxrmbBL->microprobeSampleStageY()->maximumValue(), configuration_->y());
 	sampleStageWarningLabel_ = new QLabel("Settings do not match beamline.");
 	sampleStageWarningLabel_->setStyleSheet("QLabel {color: red}");
 	setSampleStageFromBeamlineButton_ = new QPushButton("Set From Beamline");
@@ -344,7 +344,7 @@ void SXRMBEXAFSScanConfigurationView::onSampleStageZSpinBoxEditingFinished(){
 
 void SXRMBEXAFSScanConfigurationView::onSampleStageNormalSpinBoxEditingFinished(){
 
-	configuration_->setNormalPosition(sampleStageNormalSpinBox_->value());
+	configuration_->setY(sampleStageNormalSpinBox_->value());
 	onMicroprobeSampleStagePositionChanged(-1);
 }
 

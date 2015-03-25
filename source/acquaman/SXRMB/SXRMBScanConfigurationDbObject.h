@@ -39,7 +39,7 @@ public:
 	virtual ~SXRMBScanConfigurationDbObject();
 
 	/// Returns the endstation configuration of this configuration.
-	SXRMB::Endsation endstation() const { return endstation_; }
+	SXRMB::Endstation endstation() const { return endstation_; }
 	/// Returns the fluorescence detector configuration.
 	SXRMB::FluorescenceDetectors fluorescenceDetectors() const { return fluorescenceDetectors_; }
 	/// Returns the x position.
@@ -60,7 +60,7 @@ public:
 
 signals:
 	/// Notifier that the endstation has changed.
-	void endstationChanged(SXRMB::Endsation);
+	void endstationChanged(SXRMB::Endstation);
 	/// Notifier that the fluorescence detectors have changed.
 	void fluorescenceDetectorsChanged(SXRMB::FluorescenceDetectors);
 	/// Notifier that the x position has changed.
@@ -76,7 +76,7 @@ signals:
 
 public slots:
 	/// Sets the endstation value.
-	void setEndstation(SXRMB::Endsation endstation);
+	void setEndstation(SXRMB::Endstation endstation);
 	/// Sets the choice for the fluorescence detector.
 	void setFluorescenceDetectors(SXRMB::FluorescenceDetectors detector);
 	/// Sets the x position.
@@ -108,7 +108,7 @@ protected:
 	void dbLoadRegionsOfInterest(const AMDbObjectList &newRegions);
 
 	/// The endstation this scan was used on.
-	SXRMB::Endsation endstation_;
+	SXRMB::Endstation endstation_;
 	/// The fluorescence detector enum.
 	SXRMB::FluorescenceDetectors fluorescenceDetectors_;
 	/// The x position of the scan.

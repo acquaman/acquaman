@@ -31,8 +31,20 @@ public:
 	// Getters
 	/////////////////////////////////////////
 
-	/// Returns the normal position.
-	double normalPosition() const { return dbObject_->y(); }
+	/// Returns the endstation.
+	SXRMB::Endstation endstation() const { return dbObject_->endstation(); }
+	/// Returns the fluorescence detectors.
+	SXRMB::FluorescenceDetectors fluorescenceDetectors() const { return dbObject_->fluorescenceDetectors(); }
+	/// Returns the x position.
+	double x() const { return dbObject_->x(); }
+	/// Returns the y position.
+	double y() const { return dbObject_->y(); }
+	/// Returns the z position.
+	double z() const { return dbObject_->z(); }
+	/// Returns the rotation.
+	double rotation() const { return dbObject_->rotation(); }
+	/// Returns the energy.
+	double energy() const { return dbObject_->energy(); }
 	/// Returns the list of regions of interest.
 	QList<AMRegionOfInterest *> regionsOfInterest() const { return dbObject_->regionsOfInterest(); }
 
@@ -49,8 +61,20 @@ public:
 	// Setters
 	////////////////////////////////////////
 
-	/// Sets the normal position.
-	void setNormalPosition(double newPosition) { dbObject_->setY(newPosition); }
+	/// Sets the endstation.
+	void setEndstation(SXRMB::Endstation newEndstation) { dbObject_->setEndstation(newEndstation); }
+	/// Sets the fluorescence detectors.
+	void setFluorescenceDetectors(SXRMB::FluorescenceDetectors newFluorescenceDetectors) { dbObject_->setFluorescenceDetectors(newFluorescenceDetectors); }
+	/// Sets the x position.
+	void setX(double newX) { dbObject_->setX(newX); }
+	/// Sets the y position.
+	void setY(double newY) { dbObject_->setY(newY); }
+	/// Sets the z position.
+	void setZ(double newZ) { dbObject_->setZ(newZ); }
+	/// Sets the rotation position.
+	void setRotation(double newRotation) { dbObject_->setRotation(newRotation); }
+	/// Sets the energy.
+	void setEnergy(double newEnergy) { dbObject_->setEnergy(newEnergy); }
 	/// Adds a region of interest to the list.
 	void addRegionOfInterest(AMRegionOfInterest *region) { dbObject_->addRegionOfInterest(region); }
 	/// Removes a region of interest from the list.

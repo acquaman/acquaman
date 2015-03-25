@@ -56,7 +56,7 @@ SXRMBBeamline::~SXRMBBeamline()
 {
 }
 
-void SXRMBBeamline::switchEndStation(SXRMB::Endsation endStation)
+void SXRMBBeamline::switchEndStation(SXRMB::Endstation endStation)
 {
 	if (currentEndStation_ != endStation) {
 		currentEndStation_ = endStation;

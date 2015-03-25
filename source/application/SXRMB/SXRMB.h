@@ -29,7 +29,7 @@ namespace SXRMB {
 	  - Ambiant is the ambiant XAS endstation.
 	  - Microprobe is for the microprobe mapping and XAS endstation.
 	  */
-	enum Endsation
+	enum Endstation
 	{
 		Invalid = 0,
 		SolidState,
