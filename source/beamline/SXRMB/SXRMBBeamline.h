@@ -158,7 +158,7 @@ protected:
 	/// Helper function to check for the beam availability
 	void beamAvailabilityHelper();
 	/// Helper function to detemine the current connected endstation if it is NOT preset
-	void sampleStageHelper();
+	void sampleStageConnectHelper();
 	/// Helper function to check for changes in the connected state
 	void connectedHelper();
 

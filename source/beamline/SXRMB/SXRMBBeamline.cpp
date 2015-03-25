@@ -48,6 +48,7 @@ SXRMBBeamline::SXRMBBeamline()
 	setupConnections();
 
 	wasConnected_ = false;
+	sampleStageHelper();
 	connectedHelper();
 }
 
@@ -58,7 +59,6 @@ SXRMBBeamline::~SXRMBBeamline()
 void SXRMBBeamline::switchEndStation(SXRMB::Endsation endStation)
 {
 	if (currentEndStation_ != endStation) {
-
 		currentEndStation_ = endStation;
 		emit endStationChanged(currentEndStation_);
 	}
@@ -489,15 +489,14 @@ void SXRMBBeamline::sampleStageHelper()
 {
 	// check the available endstation if it is NOT assigned yet and whether sample stage is connected or not
 	if (currentEndStation_ == SXRMB::Invalid) {
-
 		if (microprobeSampleStageControlSet_->isConnected())
 			switchEndStation( SXRMB::Microprobe );
 
 		else if (solidStateSampleStageControlSet_->isConnected())
 			switchEndStation( SXRMB::SolidState );
 
-		else if (ambiantSampleStageControlSet_->isConnected())
-			switchEndStation( SXRMB::Ambiant );
+//		else if (ambiantSampleStageControlSet_->isConnected())
+//			switchEndStation( SXRMB::Ambiant );
 	}
 }
 
