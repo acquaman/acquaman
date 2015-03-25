@@ -81,7 +81,7 @@ public:
 	/// Returns the Z Stage for the SolidState End Station sample stage
 	AMPVwStatusControl* solidStateSampleStageZ() const;
 	/// Returns the R Stage for the SolidState End Station sample stage
-	AMPVwStatusControl* solidStateSampleStageR const;
+	AMPVwStatusControl* solidStateSampleStageR() const;
 
 	/// Returns the motor group for this beamline.
 	AMMotorGroup *motorGroup() const;

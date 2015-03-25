@@ -89,22 +89,22 @@ AMPVwStatusControl* SXRMBBeamline::microprobeSampleStageZ() const
 	return microprobeSampleStageZ_;
 }
 
-AMPVwStatusControl* SXRMBBeamline::solidStaeSampleStageX() const
+AMPVwStatusControl* SXRMBBeamline::solidStateSampleStageX() const
 {
 	return solidStateSampleStageX_;
 }
 
-AMPVwStatusControl* SXRMBBeamline::solidStaeSampleStageY() const
+AMPVwStatusControl* SXRMBBeamline::solidStateSampleStageY() const
 {
 	return solidStateSampleStageY_;
 }
 
-AMPVwStatusControl* SXRMBBeamline::solidStaeSampleStageZ() const
+AMPVwStatusControl* SXRMBBeamline::solidStateSampleStageZ() const
 {
 	return solidStateSampleStageZ_;
 }
 
-AMPVwStatusControl* SXRMBBeamline::solidStaeSampleStageR() const
+AMPVwStatusControl* SXRMBBeamline::solidStateSampleStageR() const
 {
 	return solidStateSampleStageR_;
 }
