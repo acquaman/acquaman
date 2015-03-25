@@ -124,6 +124,16 @@ AMMotorGroupObject *SXRMBBeamline::solidStateSampleStageMotorGroupObject() const
 	return motorGroup_->motorGroupObject("Solid State - X, Z, Y, R");
 }
 
+AMMotorGroupObject *SXRMBBeamline::ambiantWithGasChamberSampleStageMotorGroupObject() const
+{
+	return motorGroup_->motorGroupObject("Ambiant With Gas Chamber - Z, R");
+}
+
+AMMotorGroupObject *SXRMBBeamline::ambiantWithoutGasChamberSampleStageMotorGroupObject() const
+{
+	return motorGroup_->motorGroupObject("Ambiant Without Gas Chamber - X, Z");
+}
+
 QString SXRMBBeamline::currentMotorGroupName() const
 {
 	QString motorGroupName;
@@ -134,12 +144,18 @@ QString SXRMBBeamline::currentMotorGroupName() const
 		motorGroupName = solidStateSampleStageMotorGroupObject()->name();
 		break;
 
+	case SXRMB::AmbiantWithGasChamber:
+		motorGroupName = ambiantWithGasChamberSampleStageMotorGroupObject()->name();
+		break;
+
+	case SXRMB::AmbiantWithoutGasChamber:
+		motorGroupName = ambiantWithoutGasChamberSampleStageMotorGroupObject()->name();
+		break;
+
 	case SXRMB::Microprobe:
 		motorGroupName = microprobeSampleStageMotorGroupObject()->name();
 		break;
 
-	case SXRMB::AmbiantWithGasChamber:
-	case SXRMB::AmbiantWithoutGasChamber:
 	default:
 		motorGroupName = "Unknown";
 		break;
@@ -162,13 +178,19 @@ bool SXRMBBeamline::isConnected() const
 	case SXRMB::SolidState:
 		sampleStageConnected = solidStateSampleStageControlSet_->isConnected();
 		break;
+
 	case SXRMB::AmbiantWithGasChamber:
-	case SXRMB::AmbiantWithoutGasChamber:
-		sampleStageConnected = ambiantSampleStageControlSet_->isConnected();
+		sampleStageConnected = ambiantWithGasChamberSampleStageControlSet_->isConnected();
 		break;
+
+	case SXRMB::AmbiantWithoutGasChamber:
+		sampleStageConnected = ambiantWithoutGasChamberSampleStageControlSet_->isConnected();
+		break;
+
 	case SXRMB::Microprobe:
 		sampleStageConnected = microprobeSampleStageControlSet_->isConnected();
 		break;
+
 	default:
 		sampleStageConnected = false;
 		break;
@@ -375,7 +397,20 @@ void SXRMBBeamline::setupSampleStage()
 	solidStateSampleStageControlSet_->addControl(solidStateSampleStageR_);
 
 	// Ambiant Endstation sample state
-	ambiantSampleStageControlSet_ = new AMControlSet(this);
+	ambiantSampleStageX_ = new AMPVwStatusControl("ambiantSampleStageX", "SMTR0000-E07-15:mm:sp", "SMTR0000-E07-15:mm", "SMTR0000-E07-15:status", "SMTR0000-E07-15:stop", this, 0.005, 2.0, new AMControlStatusCheckerCLSMAXv());
+	ambiantSampleStageZ_ = new AMPVwStatusControl("ambiantSampleStageZ", "SMTR0000-E07-16:mm:sp", "SMTR0000-E07-16:mm", "SMTR0000-E07-16:status", "SMTR0000-E07-16:stop", this, 0.005, 2.0, new AMControlStatusCheckerCLSMAXv());
+	ambiantSampleHolderZ_ = new AMPVwStatusControl("ambiantSampleHolderZ", "SMTR0000-E07-04:mm:sp", "SMTR0000-E07-04:mm", "SMTR0000-E07-04:status", "SMTR0000-E07-04:stop", this, 0.005, 2.0, new AMControlStatusCheckerCLSMAXv());
+	ambiantSampleHolderR_ = new AMPVwStatusControl("ambiantSampleHolderR", "SMTR0000-E07-05:dgr:sp", "SMTR0000-E07-05:dgr", "SMTR0000-E07-05:status", "SMTR0000-E07-05:stop", this, 0.005, 2.0, new AMControlStatusCheckerCLSMAXv());
+
+	ambiantWithGasChamberSampleStageControlSet_ = new AMControlSet(this);
+	ambiantWithGasChamberSampleStageControlSet_->addControl(ambiantSampleStageX_);
+	ambiantWithGasChamberSampleStageControlSet_->addControl(ambiantSampleStageZ_);
+	ambiantWithGasChamberSampleStageControlSet_->addControl(ambiantSampleHolderZ_);
+	ambiantWithGasChamberSampleStageControlSet_->addControl(ambiantSampleHolderR_);
+
+	ambiantWithoutGasChamberSampleStageControlSet_ = new AMControlSet(this);
+	ambiantWithoutGasChamberSampleStageControlSet_->addControl(ambiantSampleStageX_);
+	ambiantWithoutGasChamberSampleStageControlSet_->addControl(ambiantSampleStageZ_);
 }
 
 void SXRMBBeamline::setupDetectors()
@@ -426,6 +461,26 @@ void SXRMBBeamline::setupMotorGroup()
 										 this);
 	motorGroup_->addMotorGroupObject(motorObject->name(), motorObject);
 
+	// Ambiant with gas chamber motor group
+	motorObject = new AM4DMotorGroupObject("Ambiant With Gas Chamber - Z, R",
+										   QStringList() << "Z" << "R",
+										   QStringList() << "mm" << "deg",
+										   QList<AMControl *>() << ambiantSampleHolderZ_ << ambiantSampleHolderR_ ,
+										   QList<AMMotorGroupObject::Orientation>() << AMMotorGroupObject::Vertical << AMMotorGroupObject::Horizontal,
+										   QList<AMMotorGroupObject::MotionType>() << AMMotorGroupObject::Translational << AMMotorGroupObject::Rotational,
+										   this);
+	motorGroup_->addMotorGroupObject(motorObject->name(), motorObject);
+
+	// Ambiant without gas chamber motor group
+	motorObject = new AM4DMotorGroupObject("Ambiant Without Gas Chamber - X, Z",
+										   QStringList() << "X" << "Z",
+										   QStringList() << "mm" << "mm",
+										   QList<AMControl *>() << ambiantSampleStageX_ << ambiantSampleStageZ_ ,
+										   QList<AMMotorGroupObject::Orientation>() << AMMotorGroupObject::Horizontal << AMMotorGroupObject::Vertical,
+										   QList<AMMotorGroupObject::MotionType>() << AMMotorGroupObject::Translational << AMMotorGroupObject::Translational,
+										   this);
+	motorGroup_->addMotorGroupObject(motorObject->name(), motorObject);
+
 }
 
 void SXRMBBeamline::setupControlsAsDetectors()
@@ -446,6 +501,11 @@ void SXRMBBeamline::setupExposedControls()
 	addExposedControl(solidStateSampleStageY_);
 	addExposedControl(solidStateSampleStageZ_);
 	addExposedControl(solidStateSampleStageR_);
+
+	addExposedControl(ambiantSampleStageX_);
+	addExposedControl(ambiantSampleStageZ_);
+	addExposedControl(ambiantSampleHolderZ_);
+	addExposedControl(ambiantSampleHolderR_);
 }
 
 void SXRMBBeamline::setupExposedDetectors()
@@ -464,19 +524,15 @@ void SXRMBBeamline::setupConnections()
 	connect(beamlineStatus_, SIGNAL(connected(bool)), this, SLOT(onBeamlineStatusPVConnected(bool)));
 
 	connect(energy_, SIGNAL(connected(bool)), this, SLOT(onEnergyPVConnected(bool)));
-	connect(microprobeSampleStageControlSet_, SIGNAL(connected(bool)), this, SLOT(onMicroprobeSampleStagePVsConnected(bool)));
-	connect(solidStateSampleStageControlSet_, SIGNAL(connected(bool)), this, SLOT(onSolidStateSampleStagePVsConnected(bool)));
+	connect(microprobeSampleStageControlSet_, SIGNAL(connected(bool)), this, SLOT(onSampleStagePVsConnected(bool)));
+	connect(solidStateSampleStageControlSet_, SIGNAL(connected(bool)), this, SLOT(onSampleStagePVsConnected(bool)));
+	connect(ambiantWithGasChamberSampleStageControlSet_, SIGNAL(connected(bool)), this, SLOT(onSampleStagePVsConnected(bool)));
+	connect(ambiantWithoutGasChamberSampleStageControlSet_, SIGNAL(connected(bool)), this, SLOT(onSampleStagePVsConnected(bool)));
 	connect(beamlineControlShutterSet_, SIGNAL(connected(bool)), this, SLOT(onBeamlineControlShuttersConnected(bool)));
 	connect(beamlineControlShutterSet_, SIGNAL(controlSetTimedOut()), this, SIGNAL(beamlineControlShuttersTimeout()));
 
 	if (beamlineStatus_->isConnected()) {
 		onBeamlineStatusPVConnected(true);
-	}
-	if (microprobeSampleStageControlSet_->isConnected()) {
-		onMicroprobeSampleStagePVsConnected(true);
-	}
-	if (solidStateSampleStageControlSet_->isConnected()) {
-		onSolidStateSampleStagePVsConnected(true);
 	}
 }
 
@@ -497,8 +553,11 @@ void SXRMBBeamline::sampleStageConnectHelper()
 		else if (solidStateSampleStageControlSet_->isConnected())
 			switchEndStation( SXRMB::SolidState );
 
-		else if (ambiantSampleStageControlSet_->isConnected())
+		else if (ambiantWithGasChamberSampleStageControlSet_->isConnected())
 			switchEndStation( SXRMB::AmbiantWithGasChamber );
+
+		else if (ambiantWithoutGasChamberSampleStageControlSet_->isConnected())
+			switchEndStation( SXRMB::AmbiantWithoutGasChamber );
 	}
 }
 
@@ -534,12 +593,7 @@ void SXRMBBeamline::onEnergyPVConnected(bool) {
 	connectedHelper();
 }
 
-void SXRMBBeamline::onMicroprobeSampleStagePVsConnected(bool) {
-	sampleStageConnectHelper();
-	connectedHelper();
-}
-
-void SXRMBBeamline::onSolidStateSampleStagePVsConnected(bool) {
+void SXRMBBeamline::onSampleStagePVsConnected(bool) {
 	sampleStageConnectHelper();
 	connectedHelper();
 }

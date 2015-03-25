@@ -58,8 +58,8 @@ AM4DMotorGroupObjectView::AM4DMotorGroupObjectView(AMMotorGroupObject *motorGrou
 	// === new Layout: ===
 	// left side (vertically): arrowLayout, status button, move in focus layout
 	QVBoxLayout *leftVL = new QVBoxLayout();
-	leftVL->addLayout(arrowLayout_);
 	leftVL->addWidget(status_, 0, Qt::AlignHCenter);
+	leftVL->addLayout(arrowLayout_);
 
 	QHBoxLayout *focusHL = new QHBoxLayout();
 	focusHL->addWidget(setInFocusButton_);
