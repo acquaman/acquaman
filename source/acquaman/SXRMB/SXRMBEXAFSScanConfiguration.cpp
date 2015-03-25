@@ -20,7 +20,6 @@ SXRMBEXAFSScanConfiguration::SXRMBEXAFSScanConfiguration(QObject *parent) :
 
 	microprobeSampleStageX_ = 0.0;
 	microprobeSampleStageZ_ = 0.0;
-	setEnableBrukerDetector(true);
 
 	AMScanAxisEXAFSRegion *region = new AMScanAxisEXAFSRegion;
 	AMScanAxis *axis = new AMScanAxis(AMScanAxis::StepAxis, region);
@@ -47,7 +46,6 @@ SXRMBEXAFSScanConfiguration::SXRMBEXAFSScanConfiguration(const SXRMBEXAFSScanCon
 
 	microprobeSampleStageX_ = original.microprobeSampleStageX();
 	microprobeSampleStageZ_ = original.microprobeSampleStageZ();
-	setEnableBrukerDetector(original.enableBrukerDetector());
 
 	computeTotalTime();
 

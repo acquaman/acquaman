@@ -55,9 +55,6 @@ public:
 	/// Returns the list of regions the configuration has a hold of.
 	QList<AMRegionOfInterest *> regionsOfInterest() const { return regionsOfInterest_; }
 
-	/// Returns whether we are enabling Bruker Detector
-	bool enableBrukerDetector() const { return enableBrukerDetector_; }
-
 signals:
 	/// Notifier that the endstation has changed.
 	void endstationChanged(SXRMB::Endstation);
@@ -94,9 +91,6 @@ public slots:
 	/// Removes a region of interest from the list.
 	void removeRegionOfInterest(AMRegionOfInterest *region);
 
-	/// Sets the Bruker detector setting
-	void setEnableBrukerDetector(bool enable);
-
 protected:
 	/// Overloaded.  Used for database loading.
 	void setEndstation(int endstation);
@@ -123,9 +117,6 @@ protected:
 	double energy_;
 	/// The list of the regions of interest.
 	QList<AMRegionOfInterest *> regionsOfInterest_;
-
-	/// Flag to enable Bruker Detector, default: enable
-	bool enableBrukerDetector_;
 };
 
 #endif // SXRMBSCANCONFIGURATIONDBOBJECT_H

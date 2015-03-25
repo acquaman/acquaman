@@ -159,7 +159,7 @@ SXRMBEXAFSScanConfigurationView::SXRMBEXAFSScanConfigurationView(SXRMBEXAFSScanC
 
 	// Bruker detector setting
 	enableBrukerDetector_ = new QCheckBox("Enable Bruker Detector");
-	enableBrukerDetector_->setChecked(configuration_->enableBrukerDetector());
+	enableBrukerDetector_->setChecked(false);
 	connect(enableBrukerDetector_, SIGNAL(stateChanged(int)), this, SLOT(onEnableBrukerDetectorChanged(int)));
 
 	QVBoxLayout *detectorBoxLayout = new QVBoxLayout;
@@ -387,10 +387,7 @@ void SXRMBEXAFSScanConfigurationView::onScanConfigurationMicroprobeNormalChanged
 
 void SXRMBEXAFSScanConfigurationView::onEnableBrukerDetectorChanged(int state)
 {
-	if(state == Qt::Checked)
-		configuration_->setEnableBrukerDetector(true);
-	else
-		configuration_->setEnableBrukerDetector(false);
+
 }
 
 QDoubleSpinBox *SXRMBEXAFSScanConfigurationView::createSampleStageSpinBox(QString units, double minimumValue, double maximumValue, double defaultValue) {

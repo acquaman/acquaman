@@ -81,12 +81,6 @@ void SXRMBScanConfigurationDbObject::removeRegionOfInterest(AMRegionOfInterest *
 		}
 }
 
-void SXRMBScanConfigurationDbObject::setEnableBrukerDetector(bool enableDetector)
-{
-	if (enableBrukerDetector_ != enableDetector)
-		enableBrukerDetector_ = enableDetector;
-}
-
 void SXRMBScanConfigurationDbObject::setEndstation(SXRMB::Endstation endstation)
 {
 	if (endstation_ != endstation){
