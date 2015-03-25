@@ -32,7 +32,7 @@ public:
 	/////////////////////////////////////////
 
 	/// Returns the normal position.
-	double normalPosition() const { return dbObject_->normalPosition(); }
+	double normalPosition() const { return dbObject_->y(); }
 	/// Returns the list of regions of interest.
 	QList<AMRegionOfInterest *> regionsOfInterest() const { return dbObject_->regionsOfInterest(); }
 
@@ -50,7 +50,7 @@ public:
 	////////////////////////////////////////
 
 	/// Sets the normal position.
-	void setNormalPosition(double newPosition) { dbObject_->setNormalPosition(newPosition); }
+	void setNormalPosition(double newPosition) { dbObject_->setY(newPosition); }
 	/// Adds a region of interest to the list.
 	void addRegionOfInterest(AMRegionOfInterest *region) { dbObject_->addRegionOfInterest(region); }
 	/// Removes a region of interest from the list.

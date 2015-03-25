@@ -3,14 +3,14 @@
 SXRMBScanConfigurationDbObject::SXRMBScanConfigurationDbObject(QObject *parent)
 	: AMDbObject(parent)
 {
-	normalPosition_ = 0.0;
+	y_ = 0.0;
 	enableBrukerDetector_ = true;
 }
 
 SXRMBScanConfigurationDbObject::SXRMBScanConfigurationDbObject(const SXRMBScanConfigurationDbObject &original)
 	: AMDbObject(original)
 {
-	normalPosition_ = original.normalPosition();
+	y_ = original.y();
 	enableBrukerDetector_ = original.enableBrukerDetector();
 
 	foreach (AMRegionOfInterest *region, original.regionsOfInterest())
@@ -22,12 +22,12 @@ SXRMBScanConfigurationDbObject::~SXRMBScanConfigurationDbObject()
 
 }
 
-void SXRMBScanConfigurationDbObject::setNormalPosition(double newPosition)
+void SXRMBScanConfigurationDbObject::setY(double newY)
 {
-	if (normalPosition_ != newPosition){
+	if (y_ != newY){
 
-		normalPosition_ = newPosition;
-		emit normalPositionChanged(newPosition);
+		y_ = newY;
+		emit yChanged(y_);
 		setModified(true);
 	}
 }
@@ -82,6 +82,7 @@ void SXRMBScanConfigurationDbObject::setEndstation(SXRMB::Endsation endstation)
 	if (endstation_ != endstation){
 
 		endstation_ = endstation;
+		emit endstationChanged(endstation_);
 		setModified(true);
 	}
 }
@@ -91,15 +92,57 @@ void SXRMBScanConfigurationDbObject::setFluorescenceDetectors(SXRMB::Fluorescenc
 	if (fluorescenceDetectors_ != detector){
 
 		fluorescenceDetectors_ = detector;
+		emit fluorescenceDetectorsChanged(fluorescenceDetectors_);
 		setModified(true);
 	}
 }
 
-void SXRMBScanConfigurationDbObject::setIonChambers(SXRMB::IonChambers ionChamber)
+void SXRMBScanConfigurationDbObject::setEndstation(int endstation)
 {
-	if (ionChambers_ != ionChamber){
+	setEndstation(SXRMB::Endsation(endstation));
+}
 
-		ionChambers_ = ionChamber;
+void SXRMBScanConfigurationDbObject::setFluorescenceDetectors(int detector)
+{
+	setFluorescenceDetectors(SXRMB::FluorescenceDetectors(detector));
+}
+
+void SXRMBScanConfigurationDbObject::setX(double newX)
+{
+	if (x_ != newX){
+
+		x_ = newX;
+		emit xChanged(x_);
+		setModified(true);
+	}
+}
+
+void SXRMBScanConfigurationDbObject::setZ(double newZ)
+{
+	if (z_ != newZ){
+
+		z_ = newZ;
+		emit zChanged(z_);
+		setModified(true);
+	}
+}
+
+void SXRMBScanConfigurationDbObject::setRotation(double newRotation)
+{
+	if (rotation_ != newRotation){
+
+		rotation_ = newRotation;
+		emit rotationChanged(rotation_);
+		setModified(true);
+	}
+}
+
+void SXRMBScanConfigurationDbObject::setEnergy(double newEnergy)
+{
+	if (energy_ != newEnergy){
+
+		energy_ = newEnergy;
+		emit energyChanged(energy_);
 		setModified(true);
 	}
 }

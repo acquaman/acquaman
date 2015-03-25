@@ -141,7 +141,7 @@ SXRMBEXAFSScanConfigurationView::SXRMBEXAFSScanConfigurationView(SXRMBEXAFSScanC
 
 	connect(configuration, SIGNAL(microprobeSampleStageXChanged(double)), this, SLOT(onScanConfigurationMicroprobeSampleStageXChanged(double)));
 	connect(configuration, SIGNAL(microprobeSampleStageZChanged(double)), this, SLOT(onScanConfigurationMicroprobeSampleStageZChanged(double)));
-	connect(configuration->dbObject(), SIGNAL(normalPositionChanged(double)), this, SLOT(onScanConfigurationMicroprobeNormalChanged(double)));
+	connect(configuration->dbObject(), SIGNAL(yChanged(double)), this, SLOT(onScanConfigurationMicroprobeNormalChanged(double)));
 
 	QFormLayout *sampleStageFL = new QFormLayout();
 	sampleStageFL->addRow("X Position", sampleStageXSpinBox_);
