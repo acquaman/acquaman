@@ -5,7 +5,7 @@
 #include "dataman/export/AMExporter.h"
 #include "dataman/export/AMExporterOption.h"
 #include "dataman/AMScan.h"
-#include "ui/util/AMLineEditDialog.h"
+#include "ui/util/AMDialog.h"
 
 #include "acquaman/SXRMB/SXRMBXRFScanConfiguration.h"
 #include "application/SXRMB/SXRMB.h"
