@@ -89,6 +89,26 @@ AMPVwStatusControl* SXRMBBeamline::microprobeSampleStageZ() const
 	return microprobeSampleStageZ_;
 }
 
+AMPVwStatusControl* SXRMBBeamline::solidStateSampleStageX() const
+{
+	return solidStateSampleStageX_;
+}
+
+AMPVwStatusControl* SXRMBBeamline::solidStateSampleStageY() const
+{
+	return solidStateSampleStageY_;
+}
+
+AMPVwStatusControl* SXRMBBeamline::solidStateSampleStageZ() const
+{
+	return solidStateSampleStageZ_;
+}
+
+AMPVwStatusControl* SXRMBBeamline::solidStateSampleStageR() const
+{
+	return solidStateSampleStageR_;
+}
+
 AMMotorGroup *SXRMBBeamline::motorGroup() const
 {
 	return motorGroup_;
@@ -343,10 +363,10 @@ void SXRMBBeamline::setupSampleStage()
 	microprobeSampleStageControlSet_->addControl(microprobeSampleStageZ_);
 
 	// Solid State Endstation sample stage
-	solidStateSampleStageX_ = new AMPVwStatusControl("SolidStateSampleStageX", "SMTR0000-E01-01:mm:sp", "SMTR0000-E01-01:mm", "SMTR0000-E01-01:status", "SMTR0000-E01-01:stop", this, 0.005, 2.0, new AMControlStatusCheckerCLSMAXv());
-	solidStateSampleStageY_ = new AMPVwStatusControl("SolidStateSampleStageY", "SMTR0000-E01-02:mm:sp", "SMTR0000-E01-02:mm", "SMTR0000-E01-02:status", "SMTR0000-E01-02:stop", this, 0.005, 2.0, new AMControlStatusCheckerCLSMAXv());
-	solidStateSampleStageZ_ = new AMPVwStatusControl("SolidStateSampleStageZ", "SMTR0000-E01-03:mm:sp", "SMTR0000-E01-03:mm", "SMTR0000-E01-03:status", "SMTR0000-E01-03:stop", this, 0.005, 2.0, new AMControlStatusCheckerCLSMAXv());
-	solidStateSampleStageR_ = new AMPVwStatusControl("SolidStateSampleStageR", "SMTR0000-E01-04:dgr:sp", "SMTR0000-E01-04:dgr", "SMTR0000-E01-04:status", "SMTR0000-E01-04:stop", this, 0.005, 2.0, new AMControlStatusCheckerCLSMAXv());
+	solidStateSampleStageX_ = new AMPVwStatusControl("SolidStateSampleStageX", "SMTR0000-E01-01:mm:sp", "SMTR0000-E01-01:mm", "SMTR0000-E01-01:status", "MSD1606-5-01:stop", this, 0.005, 2.0, new AMControlStatusCheckerCLSMAXv());
+	solidStateSampleStageY_ = new AMPVwStatusControl("SolidStateSampleStageY", "SMTR0000-E01-02:mm:sp", "SMTR0000-E01-02:mm", "SMTR0000-E01-02:status", "MSD1606-5-02:stop", this, 0.005, 2.0, new AMControlStatusCheckerCLSMAXv());
+	solidStateSampleStageZ_ = new AMPVwStatusControl("SolidStateSampleStageZ", "SMTR0000-E01-03:mm:sp", "SMTR0000-E01-03:mm", "SMTR0000-E01-03:status", "MSD1606-5-03:stop", this, 0.005, 2.0, new AMControlStatusCheckerCLSMAXv());
+	solidStateSampleStageR_ = new AMPVwStatusControl("SolidStateSampleStageR", "SMTR0000-E01-04:dgr:sp", "SMTR0000-E01-04:dgr", "SMTR0000-E01-04:status", "MSD1606-5-04:stop", this, 0.005, 2.0, new AMControlStatusCheckerCLSMAXv());
 
 	solidStateSampleStageControlSet_ = new AMControlSet(this);
 	solidStateSampleStageControlSet_->addControl(solidStateSampleStageX_);
@@ -421,6 +441,11 @@ void SXRMBBeamline::setupExposedControls()
 	addExposedControl(microprobeSampleStageX_);
 	addExposedControl(microprobeSampleStageY_);
 	addExposedControl(microprobeSampleStageZ_);
+
+	addExposedControl(solidStateSampleStageX_);
+	addExposedControl(solidStateSampleStageY_);
+	addExposedControl(solidStateSampleStageZ_);
+	addExposedControl(solidStateSampleStageR_);
 }
 
 void SXRMBBeamline::setupExposedDetectors()
