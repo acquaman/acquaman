@@ -37,10 +37,10 @@ AMAction3* BioXASSSRLMonochromator::createCalibrateBraggPositionAction(double ne
 
 	if (braggMotor()->isConnected()) {
 		// calculate the needed offset.
-		double newOffset = calculateBraggEncoderOffset(braggMotor()->value(), newPosition);
+		double newOffset = calculateBraggEncoderOffset(braggMotor()->value(), braggMotor()->encoderCalibrationAbsoluteOffset(), newPosition, braggMotor()->encoderCalibrationSlope());
 
 		// set the new offset.
-		action = braggMotor()->createEncoderCalibrationOffsetAction(newOffset);
+		action = braggMotor()->createEncoderCalibrationAbsoluteOffsetAction(newOffset);
 	}
 
 	return action;
@@ -62,20 +62,17 @@ void BioXASSSRLMonochromator::calibrateBraggPosition(double newBraggPosition)
 {
 	if (braggMotor()->isConnected()) {
 		// calculate the needed encoder calibration offset.
-		double newEncoderOffset = calculateBraggEncoderOffset(braggMotor()->value(), newBraggPosition);
+		double newEncoderOffset = calculateBraggEncoderOffset(braggMotor()->value(), braggMotor()->encoderCalibrationAbsoluteOffset(), newBraggPosition, braggMotor()->encoderCalibrationSlope());
 
 		// apply the new encoder offset.
-		braggMotor()->setEncoderCalibrationOffset(newEncoderOffset);
+		braggMotor()->setEncoderCalibrationAbsoluteOffset(newEncoderOffset);
 	}
 }
 
-double BioXASSSRLMonochromator::calculateBraggEncoderOffset(double oldPosition, double newPosition)
+double BioXASSSRLMonochromator:: calculateBraggEncoderOffset(double oldPosition, double oldEncoderOffset, double newPosition, double encoderSlope)
 {
-	// calculate the new total bragg offset to be applied, in deg.
-	double newBraggOffset = newPosition - oldPosition;
-
-	// the offset must be applied as an encoder offset, so convert newBraggOffset to encoder values.
-	double newEncoderOffset = braggMotor()->encoderTarget() - (newBraggOffset / braggMotor()->encoderCalibrationSlope());
+	// Calculate the new offset.
+	double newEncoderOffset = oldEncoderOffset + (oldPosition - newPosition) / encoderSlope;
 
 	return newEncoderOffset;
 }
