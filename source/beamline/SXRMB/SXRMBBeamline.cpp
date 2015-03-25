@@ -138,7 +138,8 @@ QString SXRMBBeamline::currentMotorGroupName() const
 		motorGroupName = microprobeSampleStageMotorGroupObject()->name();
 		break;
 
-	case SXRMB::Ambiant:
+	case SXRMB::AmbiantWithGasChamber:
+	case SXRMB::AmbiantWithoutGasChamber:
 	default:
 		motorGroupName = "Unknown";
 		break;
@@ -161,7 +162,8 @@ bool SXRMBBeamline::isConnected() const
 	case SXRMB::SolidState:
 		sampleStageConnected = solidStateSampleStageControlSet_->isConnected();
 		break;
-	case SXRMB::Ambiant:
+	case SXRMB::AmbiantWithGasChamber:
+	case SXRMB::AmbiantWithoutGasChamber:
 		sampleStageConnected = ambiantSampleStageControlSet_->isConnected();
 		break;
 	case SXRMB::Microprobe:
@@ -495,8 +497,8 @@ void SXRMBBeamline::sampleStageConnectHelper()
 		else if (solidStateSampleStageControlSet_->isConnected())
 			switchEndStation( SXRMB::SolidState );
 
-//		else if (ambiantSampleStageControlSet_->isConnected())
-//			switchEndStation( SXRMB::Ambiant );
+		else if (ambiantSampleStageControlSet_->isConnected())
+			switchEndStation( SXRMB::AmbiantWithGasChamber );
 	}
 }
 
