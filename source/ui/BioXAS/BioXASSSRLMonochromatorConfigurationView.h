@@ -72,6 +72,12 @@ protected:
 
 
 
+#define BRAGG_VELOCITY_MIN 0
+#define BRAGG_VELOCITY_MAX 1000
+#define BRAGG_BASE_VELOCITY_MIN 0
+#define BRAGG_BASE_VELOCITY_MAX 1000
+#define BRAGG_ACCELERATION_MIN 0
+#define BRAGG_ACCELERATION_MAX 1000
 #define BRAGG_SETTLING_TIME_MIN -1000
 #define BRAGG_SETTLING_TIME_MAX 1000
 
@@ -105,11 +111,23 @@ protected slots:
 
 	/// Updates the view when the bragg motor connected state changes.
 	void onBraggMotorConnectedChanged();
+	/// Updates the view when the bragg motor velocity changes.
+	void onBraggMotorVelocityChanged();
+	/// Updates the view when the bragg motor velocity base changes.
+	void onBraggMotorVelocityBaseChanged();
+	/// Updates the view when the bragg motor acceleration changes.
+	void onBraggMotorAccelerationChanged();
 	/// Updates the view when the bragg encoder move type has changed.
 	void onBraggMotorEncoderMoveTypeChanged();
 	/// Updates the view when the bragg motor settling time has changed.
 	void onBraggMotorSettlingTimeChanged();
 
+	/// Sets the bragg motor velocity when a user selection has been made.
+	void setBraggMotorVelocity(double newVelocity);
+	/// Sets the bragg motor velocity base when a user selection has been made.
+	void setBraggMotorVelocityBase(double newBase);
+	/// Sets the bragg motor acceleration when a user selection has been made.
+	void setBraggMotorAcceleration(double newAcceleration);
 	/// Sets the bragg motor encoder movement type when a user selection has been made.
 	void setBraggMotorEncoderMovementType(int newType);
 	/// Sets the bragg motor settling time when a user selection has been made.
@@ -119,6 +137,12 @@ protected:
 	/// The bragg motor being displayed.
 	CLSMAXvMotor *braggMotor_;
 
+	/// Display for the bragg motor velocity.
+	QDoubleSpinBox *braggVelocity_;
+	/// Display for the bragg motor velocity base.
+	QDoubleSpinBox *braggVelocityBase_;
+	/// Display for the bragg motor acceleration.
+	QDoubleSpinBox *braggAcceleration_;
 	/// Display for the bragg motor encoder move type.
 	QComboBox *braggEncoderMoveType_;
 	/// Display for the bragg motor move settling time.
