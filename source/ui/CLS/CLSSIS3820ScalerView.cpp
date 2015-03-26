@@ -127,13 +127,18 @@ CLSSIS3820ScalerView::CLSSIS3820ScalerView(CLSSIS3820Scaler *scaler, bool enable
 	bool showDarkCurrentWidget = false;
 	darkCurrentWidget->hide();
 
+	QHBoxLayout *darkCurrentLayout = new QHBoxLayout();
+	darkCurrentLayout->addWidget(darkCurrentWidget);
+	darkCurrentLayout->addStretch();
+
 	// Build the channel views.
 	channelLayout_ = new QVBoxLayout;
 
 	mainVL_ = new QVBoxLayout();
 	mainVL_->addLayout(topLayout);
 	mainVL_->addLayout(channelLayout_);
-	mainVL_->addWidget(darkCurrentWidget);
+	mainVL_->addStretch();
+	mainVL_->addLayout(darkCurrentLayout);
 
 	setLayout(mainVL_);
 
@@ -161,8 +166,10 @@ CLSSIS3820ScalerView::CLSSIS3820ScalerView(CLSSIS3820Scaler *scaler, bool enable
 
 
 	// if one of the detectors associated with a channel can perform dark current correction, show the 'do dark current' widget.
-	if (showDarkCurrentWidget)
+	if (showDarkCurrentWidget) {
+		connect( darkCurrentWidget, SIGNAL(collectButtonClicked(double)), scaler_, SLOT(doDarkCurrentCorrection(double)) );
 		darkCurrentWidget->show();
+	}
 }
 
 CLSSIS3820ScalerView::~CLSSIS3820ScalerView(){}
