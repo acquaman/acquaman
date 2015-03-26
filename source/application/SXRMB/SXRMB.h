@@ -47,6 +47,35 @@ namespace SXRMB {
 	};
 	Q_DECLARE_FLAGS(FluorescenceDetectors, FluorescenceDetector)
 
+	/// Helper to convert SXRMB Endstation ID to endStation Name
+	inline QString sxrmbEndStationName(Endstation id) {
+		QString name;
+
+		switch (id)
+		{
+		case SolidState:
+			name = "Solid State";
+			break;
+
+		case AmbiantWithGasChamber:
+			name = "Ambiant with Gas Chamber";
+			break;
+
+		case AmbiantWithoutGasChamber:
+			name = "Ambiant without Gas Chamber";
+			break;
+
+		case Microprobe:
+			name = "Microprobe";
+			break;
+
+		default:
+			name = "Invalid EndStation ID";
+		}
+
+		return name;
+	}
+
 	/// Helper method that takes a time in seconds and returns a string of d:h:m:s.
 	inline QString convertTimeToString(double time)
 	{

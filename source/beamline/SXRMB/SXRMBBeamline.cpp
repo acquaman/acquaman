@@ -74,6 +74,11 @@ AMPVwStatusControl* SXRMBBeamline::energy() const
 	return energy_;
 }
 
+SXRMB::Endstation SXRMBBeamline::currentEndStation() const
+{
+	return currentEndStation_;
+}
+
 AMPVwStatusControl* SXRMBBeamline::microprobeSampleStageX() const
 {
 	return microprobeSampleStageX_;

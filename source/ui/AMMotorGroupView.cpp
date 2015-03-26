@@ -392,7 +392,7 @@ void AMMotorGroupView::setViewMode(ViewMode mode)
 
 		viewMode_ = mode;
 
-		availableMotorGroupObjects_->setVisible(viewMode_ == Exclusive);
+		showAvailableMotorGroupChoices(viewMode_ == Exclusive);
 
 		// Since Multiple view is the only one currently that shows the titles, I'm cheating by checking only against it.
 		foreach (AMMotorGroupObjectView *view, motorGroupViews_.values()){
@@ -425,11 +425,9 @@ void AMMotorGroupView::setViewMode(ViewMode mode)
 	}
 }
 
-void AMMotorGroupView::setMotorViewChangable(bool changable)
+void AMMotorGroupView::showAvailableMotorGroupChoices(bool show)
 {
-	if (viewMode_ == Exclusive) {
-		availableMotorGroupObjects_->setEnabled(changable);
-	}
+	availableMotorGroupObjects_->setVisible(show);
 }
 
 void AMMotorGroupView::buildStandardMenuItems(QMenu *menu)
@@ -516,7 +514,7 @@ void AMMotorGroupView::initAndLayoutMotorGroupView(AMMotorGroup *motorGroup, Vie
 	}
 
 	if (viewMode_ == Multiple){
-		availableMotorGroupObjects_->hide();
+		showAvailableMotorGroupChoices(false);
 		foreach (AMMotorGroupObjectView *view, motorGroupViews_.values())
 			view->hide();
 	}
