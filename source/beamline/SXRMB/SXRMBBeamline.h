@@ -77,6 +77,15 @@ public:
 	/// Returns the Z Stage for the microrobe sample stage
 	AMPVwStatusControl* microprobeSampleStageZ() const;
 
+	/// Returns the X stage for the ambiant endstation.
+	AMPVwStatusControl *ambiantSampleStageX() const;
+	/// Returns the Z stage for the ambiant endstation.
+	AMPVwStatusControl *ambiantSampleStageZ() const;
+	/// Returns the Z motor from the ambiant sample manipulator.
+	AMPVwStatusControl *ambiantSampleHolderZ() const;
+	/// Returns the R motor from the ambiant sample manipulator.
+	AMPVwStatusControl *ambiantSampleHolderR() const;
+
 	/// Returns the X Stage for the SolidState End Station sample stage
 	AMPVwStatusControl* solidStateSampleStageX() const;
 	/// Returns the Y Stage for the SolidState End Station sample stage

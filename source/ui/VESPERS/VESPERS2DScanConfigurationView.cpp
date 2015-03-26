@@ -308,7 +308,7 @@ void VESPERS2DScanConfigurationView::checkCCDFileNames(const QString &name) cons
 
 void VESPERS2DScanConfigurationView::onFluorescenceChoiceChanged(int id)
 {
-	configuration_->setFluorescenceDetector((SXRMB::FluorescenceDetectors)id);
+	configuration_->setFluorescenceDetector((VESPERS::FluorescenceDetectors)id);
 }
 
 void VESPERS2DScanConfigurationView::onMotorChanged(int id)

@@ -722,3 +722,23 @@ void SXRMBBeamline::onSampleStagePVsConnected(bool) {
 void SXRMBBeamline::onBeamlineControlShuttersConnected(bool) {
 	connectedHelper();
 }
+
+AMPVwStatusControl * SXRMBBeamline::ambiantSampleStageX() const
+{
+	return ambiantSampleStageX_;
+}
+
+AMPVwStatusControl * SXRMBBeamline::ambiantSampleStageZ() const
+{
+	return ambiantSampleStageZ_;
+}
+
+AMPVwStatusControl * SXRMBBeamline::ambiantSampleHolderZ() const
+{
+	return ambiantSampleHolderZ_;
+}
+
+AMPVwStatusControl * SXRMBBeamline::ambiantSampleHolderR() const
+{
+	return ambiantSampleHolderR_;
+}
