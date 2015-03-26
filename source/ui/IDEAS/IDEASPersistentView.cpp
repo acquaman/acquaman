@@ -242,7 +242,6 @@ IDEASPersistentView::IDEASPersistentView(QWidget *parent) :
 	mainPanelLayout->addLayout(monoEnergyLayout);
 	mainPanelLayout->addWidget(monoCrystal_);
 	mainPanelLayout->addWidget(monoEnergyRange_);
-	//mainPanelLayout->addStretch();
 	mainPanelLayout->addWidget(stripTool_);
 
 	QVBoxLayout *scalerPanelLayout = new QVBoxLayout;
