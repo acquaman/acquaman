@@ -8,6 +8,7 @@
 class QPushButton;
 class QVBoxLayout;
 class QGroupBox;
+class QLabel;
 
 class AMMotorGroupView;
 class AMExtendedControlEditor;
@@ -49,10 +50,17 @@ protected:
 	/// Main vertical layout inside of group box
 	QVBoxLayout *mainVL_;
 
-	/// Control editor for the energy
-	AMExtendedControlEditor *energyControlEditor_;
+	/// Label to display the current endstation name
+	QLabel *endStationLabel_;
 	/// Control editor for the status (read only)
 	AMExtendedControlEditor *statusControlEditor_;
+	/// Button to turn on beam
+	QPushButton *beamOnButton_;
+	/// Button to turn off beam
+	QPushButton *beamOffButton_;
+
+	/// Control editor for the energy
+	AMExtendedControlEditor *energyControlEditor_;
 
 	/// The view that holds all the motor group objects.
 	AMMotorGroupView *motorGroupView_;
@@ -61,11 +69,6 @@ protected:
 	CLSSIS3820ScalerChannelView *i0DetectorSR570View_;
 	/// View for the TEYDetector SR570
 	CLSSIS3820ScalerChannelView *teyDetectorSR570View_;
-
-	/// Button to turn on beam
-	QPushButton *beamOnButton_;
-	/// Button to turn off beam
-	QPushButton *beamOffButton_;
 
 	/// Our copy of the beam on action
 	AMAction3 *beamOnAction_;
