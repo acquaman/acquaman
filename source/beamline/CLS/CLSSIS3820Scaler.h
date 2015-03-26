@@ -109,11 +109,10 @@ public:
 
 	AMAction3* createDoingDarkCurrentCorrectionAction(int dwellTime);
 
-	/// Creates the actions needed to perform a dark current correction and executes them.
-	void doDarkCurrentCorrection(double dwellSeconds);
-
 
 public slots:
+	/// Creates the actions needed to perform a dark current correction and executes them.
+	void doDarkCurrentCorrection(double dwellSeconds);
 	/// Sets the scaler to be scanning or not.
 	void setScanning(bool isScanning);
 	/// Sets the mode of the scaler to either continuous or single shot.
