@@ -6,7 +6,7 @@ AMDialog::~AMDialog()
 }
 
 AMDialog::AMDialog(const QString &title, QWidget *parent) :
-    QDialog(parent)
+	QDialog(parent)
 {
 	setWindowTitle(title);
 

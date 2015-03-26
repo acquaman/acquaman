@@ -120,11 +120,16 @@ void SXRMBAppController::shutdown()
 bool SXRMBAppController::startupInstallActions()
 {
 	if(AMAppController::startupInstallActions()) {
+		QAction *switchEndStationAction = new QAction("Switch Beamline EndStation ...", mw_);
+		switchEndStationAction->setStatusTip("Switch beamline endstation.");
+		connect(switchEndStationAction, SIGNAL(triggered()), this, SLOT(onSwitchBeamlineEndstationTriggered()));
+
 		QAction *ambiantWithGasChamberMotorViewAction = new QAction("See Ambiant Sample Stage Motors ...", mw_);
 		ambiantWithGasChamberMotorViewAction->setStatusTip("Display the motors of the Ambiant Sample Stage.");
 		connect(ambiantWithGasChamberMotorViewAction, SIGNAL(triggered()), this, SLOT(onShowAmbiantSampleStageMotorsTriggered()));
 
 		viewMenu_->addSeparator();
+		viewMenu_->addAction(switchEndStationAction);
 		viewMenu_->addAction(ambiantWithGasChamberMotorViewAction);
 
 		return true;
@@ -417,13 +422,35 @@ void SXRMBAppController::onRegionOfInterestRemoved(AMRegionOfInterest *region)
 
 void SXRMBAppController::onShowAmbiantSampleStageMotorsTriggered()
 {
-	AMMotorGroupView *motorGroupView = new AMMotorGroupView(SXRMBBeamline::sxrmb()->motorGroup(), AMMotorGroupView::Exclusive);
-	motorGroupView->setMotorGroupView(SXRMBBeamline::sxrmb()->ambiantWithoutGasChamberSampleStageMotorGroupObject()->name());
-	motorGroupView->setMotorViewChangable(false);
+	QString motorGroupName = SXRMBBeamline::sxrmb()->ambiantWithoutGasChamberSampleStageMotorGroupObject()->name();
 
-	AMDialog *showMotorDialog = new AMDialog("Motor Group View");
+	AMMotorGroupView *motorGroupView = new AMMotorGroupView(SXRMBBeamline::sxrmb()->motorGroup(), AMMotorGroupView::Exclusive);
+	motorGroupView->setMotorGroupView(motorGroupName);
+	motorGroupView->showAvailableMotorGroupChoices(false);
+
+	AMDialog *showMotorDialog = new AMDialog(motorGroupName);
 	showMotorDialog->layoutDialogContent(motorGroupView);
 	showMotorDialog->exec();
+}
+
+void SXRMBAppController::onSwitchBeamlineEndstationTriggered()
+{
+	QStringList endStations;
+	endStations.append(SXRMB::sxrmbEndStationName(SXRMB::SolidState));
+	endStations.append(SXRMB::sxrmbEndStationName(SXRMB::AmbiantWithGasChamber));
+	endStations.append(SXRMB::sxrmbEndStationName(SXRMB::AmbiantWithoutGasChamber));
+	endStations.append(SXRMB::sxrmbEndStationName(SXRMB::Microprobe));
+
+	QComboBox *availableBeamlineEndstations = new QComboBox;
+	availableBeamlineEndstations->addItems(endStations);
+	availableBeamlineEndstations->setCurrentIndex(SXRMBBeamline::sxrmb()->currentEndStation() - 1);
+
+	AMDialog *showMotorDialog = new AMDialog("Switch SXRMB EndStation");
+	showMotorDialog->layoutDialogContent(availableBeamlineEndstations);
+	if (showMotorDialog->exec()) {
+		int selectedEndStationIndex = availableBeamlineEndstations->currentIndex() + 1;
+		SXRMBBeamline::sxrmb()->switchEndStation(static_cast<SXRMB::Endstation>(selectedEndStationIndex));
+	}
 }
 
 void SXRMBAppController::onScanEditorCreated(AMGenericScanEditor *editor)

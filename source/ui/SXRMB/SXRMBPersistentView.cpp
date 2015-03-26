@@ -42,6 +42,8 @@ SXRMBPersistentView::SXRMBPersistentView(QWidget *parent) :
 	connect(beamOnButton_, SIGNAL(clicked()), this, SLOT(onBeamOnButtonClicked()));
 	connect(beamOffButton_, SIGNAL(clicked()), this, SLOT(onBeamOffButtonClicked()));
 	connect(SXRMBBeamline::sxrmb(), SIGNAL(endStationChanged(SXRMB::Endstation)), this, SLOT(onBeamlineEndStationChanged(SXRMB::Endstation)));
+
+	onBeamlineEndStationChanged(SXRMBBeamline::sxrmb()->currentEndStation());
 }
 
 SXRMBPersistentView::~SXRMBPersistentView()
@@ -94,11 +96,20 @@ void SXRMBPersistentView::onBeamOffActionFinished(){
 
 void SXRMBPersistentView::onBeamlineEndStationChanged(SXRMB::Endstation)
 {
-	motorGroupView_->setMotorGroupView(SXRMBBeamline::sxrmb()->currentMotorGroupName());
+	QString endStationName = SXRMB::sxrmbEndStationName(SXRMBBeamline::sxrmb()->currentEndStation());
+	QString motorGroupName = SXRMBBeamline::sxrmb()->currentMotorGroupName();
+
+	endStationLabel_->setText("Endstation: <b><i>" + endStationName + "</i></b>");
+	motorGroupView_->setMotorGroupView(motorGroupName);
 }
 
 void SXRMBPersistentView::layoutBeamlineStatus()
 {
+	// create beamline endstation label
+	endStationLabel_ = new QLabel("Endstation: ");
+	endStationLabel_->setMargin(5);
+	mainVL_->addWidget(endStationLabel_);
+
 	//create Beamline Status components group
 	statusControlEditor_ = new AMExtendedControlEditor(SXRMBBeamline::sxrmb()->beamlineStatus(), 0, true);
 	mainVL_->addWidget(statusControlEditor_);
@@ -126,7 +137,8 @@ void SXRMBPersistentView::layoutBeamlineEnergy()
 void SXRMBPersistentView::layoutMotorGroup()
 {
 	// create motor groups
-	motorGroupView_ = new AMMotorGroupView(SXRMBBeamline::sxrmb()->motorGroup(), AMMotorGroupView::Multiple);
+	motorGroupView_ = new AMMotorGroupView(SXRMBBeamline::sxrmb()->motorGroup(), AMMotorGroupView::Exclusive);
+	motorGroupView_->showAvailableMotorGroupChoices(false);
 	motorGroupView_->setMotorGroupView(SXRMBBeamline::sxrmb()->currentMotorGroupName());
 
 	QVBoxLayout *motorGroupLayout = new QVBoxLayout();

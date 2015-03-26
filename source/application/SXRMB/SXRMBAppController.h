@@ -89,6 +89,8 @@ protected slots:
 
 	/// Hanldes the action to show the sample stage motors for Ambiant with gas chamber endstation
 	void onShowAmbiantSampleStageMotorsTriggered();
+	/// Hanldes the action to switch beamline endstation
+	void onSwitchBeamlineEndstationTriggered();
 
 protected:
 	/// Implementation method that individual applications can flesh out if extra setup is required when a scan action is started.  This is not pure virtual because there is no requirement to do anything to scan actions.

@@ -67,6 +67,9 @@ public:
 	/// ReturnsEnergy control for SXRMB
 	AMPVwStatusControl* energy() const;
 
+	/// Returns the current working endstation
+	SXRMB::Endstation currentEndStation() const;
+
 	/// Returns the X Stage for the microrobe sample stage
 	AMPVwStatusControl* microprobeSampleStageX() const;
 	/// Returns the Y Stage for the microrobe sample stage
