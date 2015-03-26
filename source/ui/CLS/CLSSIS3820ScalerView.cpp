@@ -123,7 +123,7 @@ CLSSIS3820ScalerView::CLSSIS3820ScalerView(CLSSIS3820Scaler *scaler, bool enable
 	topLayout->addLayout(spinBoxLayout);
 
 	// Dark current widget
-	CLSDarkCurrentWidget *darkCurrentWidget = new CLSDarkCurrentWidget(10, this);
+	CLSDarkCurrentWidget *darkCurrentWidget = new CLSDarkCurrentWidget(scaler_, this);
 	bool showDarkCurrentWidget = false;
 	darkCurrentWidget->hide();
 
@@ -167,7 +167,6 @@ CLSSIS3820ScalerView::CLSSIS3820ScalerView(CLSSIS3820Scaler *scaler, bool enable
 
 	// if one of the detectors associated with a channel can perform dark current correction, show the 'do dark current' widget.
 	if (showDarkCurrentWidget) {
-		connect( darkCurrentWidget, SIGNAL(collectButtonClicked(double)), scaler_, SLOT(doDarkCurrentCorrection(double)) );
 		darkCurrentWidget->show();
 	}
 }
