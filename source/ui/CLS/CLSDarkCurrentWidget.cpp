@@ -22,64 +22,50 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "CLSDarkCurrentWidget.h"
 
 CLSDarkCurrentWidget::CLSDarkCurrentWidget(double dwellSeconds, QWidget *parent) :
-    QWidget(parent)
+    QGroupBox("Dark current correction", parent)
 {
-    dwellTime_ = dwellSeconds;
+	// Create UI elements.
 
-    QLabel *widgetTitle = new QLabel("Dark Current Correction");
+	QLabel *timePrompt = new QLabel("Dwell time (s): ");
+	timeEntry_ = new QDoubleSpinBox();
+	collectButton_ = new QPushButton("Collect");
 
-    QLabel *dwellTimeLabel = new QLabel("Dwell time (s): ");
-    dwellTimeEntry_ = new QLineEdit(QString::number(dwellTime_));
+	// Create and set layouts.
 
-    darkCurrentButton_ = new QPushButton("Collect");
-    darkCurrentButton_->setEnabled(true);
-    connect( darkCurrentButton_, SIGNAL(clicked()), this, SLOT(onDarkCurrentButtonClicked()) );
+	QHBoxLayout *layout = new QHBoxLayout();
+	layout->addWidget(timePrompt);
+	layout->addWidget(timeEntry_);
+	layout->addWidget(collectButton_);
 
-    QGridLayout *layout = new QGridLayout();
-    layout->addWidget(widgetTitle, 0, 0);
-    layout->addWidget(dwellTimeLabel, 1, 0);
-    layout->addWidget(dwellTimeEntry_, 1, 1);
-    layout->addWidget(darkCurrentButton_, 2, 1);
+	setLayout(layout);
 
-    setLayout(layout);
+	// Initial settings.
+
+	timeEntry_->setMinimum(DARK_CURRENT_DWELL_TIME_MIN);
+	timeEntry_->setMaximum(DARK_CURRENT_DWELL_TIME_MAX);
+	timeEntry_->setValue(dwellSeconds);
+
+	collectButton_->setEnabled(true);
+
+	// Make connections.
+
+	connect( collectButton_, SIGNAL(clicked()), this, SLOT(onCollectButtonClicked()) );
 }
-
-
 
 CLSDarkCurrentWidget::~CLSDarkCurrentWidget()
 {
 }
 
-
-
-void CLSDarkCurrentWidget::disableDarkCurrentButton()
+void CLSDarkCurrentWidget::setCollectButtonEnabled(bool isEnabled)
 {
-    darkCurrentButton_->setEnabled(false);
+    collectButton_->setEnabled(isEnabled);
 }
 
-
-
-void CLSDarkCurrentWidget::enableDarkCurrentButton()
+void CLSDarkCurrentWidget::onCollectButtonClicked()
 {
-    darkCurrentButton_->setEnabled(true);
-}
+    double timeEntered = timeEntry_->text().toDouble();
 
-
-
-void CLSDarkCurrentWidget::setDarkCurrentButtonEnabled(bool isEnabled)
-{
-    darkCurrentButton_->setEnabled(isEnabled);
-}
-
-
-
-void CLSDarkCurrentWidget::onDarkCurrentButtonClicked()
-{
-    double dwellEntered = dwellTimeEntry_->text().toDouble();
-
-    if (dwellEntered <= 0) {
-        return;
+    if (timeEntered > 0) {
+	    emit collectButtonClicked(timeEntered);
     }
-
-    emit darkCurrentButtonClicked(dwellTime_ = dwellEntered);
 }
