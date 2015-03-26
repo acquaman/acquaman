@@ -47,6 +47,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/export/AMSMAKExporter.h"
 #include "dataman/export/AMExporter2DAscii.h"
 #include "dataman/SXRMB/SXRMBUserConfiguration.h"
+#include "dataman/SXRMB/SXRMBDbUpgrade1pt1.h"
 
 #include "ui/AMMainWindow.h"
 #include "ui/AMMotorGroupView.h"
@@ -71,6 +72,13 @@ SXRMBAppController::SXRMBAppController(QObject *parent)
 {
 	userConfiguration_ = 0;
 	moveImmediatelyAction_ = 0;
+
+	// Remember!!!!  Every upgrade needs to be done to the user AND actions databases!
+	////////////////////////////////////////////////////////////////////////////////////////
+	AMDbUpgrade *sxrmb1Pt1UserDb = new SXRMBDbUpgrade1pt1("user", this);
+	appendDatabaseUpgrade(sxrmb1Pt1UserDb);
+	AMDbUpgrade *sxrmb1Pt1ActionDb = new SXRMBDbUpgrade1pt1("actions", this);
+	appendDatabaseUpgrade(sxrmb1Pt1ActionDb);
 }
 
 bool SXRMBAppController::startup()

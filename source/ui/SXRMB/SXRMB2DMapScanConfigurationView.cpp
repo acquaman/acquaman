@@ -63,7 +63,7 @@ SXRMB2DMapScanConfigurationView::SXRMB2DMapScanConfigurationView(SXRMB2DMapScanC
 	// 4th row: set the focus position
 	normalPosition_ = createPositionDoubleSpinBox("N: ", " mm", configuration_->y(), 3);
 	connect(normalPosition_, SIGNAL(editingFinished()), this, SLOT(onNormalPositionChanged()));
-	connect(configuration_->dbObject(), SIGNAL(normalPositionChanged(double)), normalPosition_, SLOT(setValue(double)));
+	connect(configuration_->dbObject(), SIGNAL(yChanged(double)), normalPosition_, SLOT(setValue(double)));
 
 	QPushButton *updateNormalPosition = new QPushButton("Set Normal");
 	connect(updateNormalPosition, SIGNAL(clicked()), this, SLOT(onSetNormalPosition()));

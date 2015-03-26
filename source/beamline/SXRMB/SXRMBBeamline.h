@@ -105,10 +105,14 @@ public:
 	/// Returns whether the PVs are connected or not
 	virtual bool isConnected() const;
 
+	/// Returns the beamline I0 Detector
+	CLSBasicScalerChannelDetector* beamlineI0Detector() const;
 	/// Returns the I0 Detector
 	CLSBasicScalerChannelDetector* i0Detector() const;
 	/// Returns the TEY Detector
 	CLSBasicScalerChannelDetector* teyDetector() const;
+	/// Returns the transmission Detector
+	CLSBasicScalerChannelDetector* transmissionDetector() const;
 
 	/// Returns the energy feedback detector (emulator)
 	AMBasicControlDetectorEmulator* energyFeedbackDetector() const;
@@ -131,7 +135,7 @@ signals:
 
 public slots:
 	/// switch the running endstation
-	void switchEndStation(SXRMB::Endstation endStation);
+	void switchEndStation(SXRMB::Endstation endstation);
 
 protected:
 	/// Constructor. This is a singleton class, access it through SXRMBBeamline::sxrmb().
@@ -233,10 +237,14 @@ protected:
 	/// Control set for Ambiant w/o gas chamber sample stage
 	AMControlSet *ambiantWithoutGasChamberSampleStageControlSet_;
 
+	/// Detector for the beamline I0 detector channel on the scaler.
+	CLSBasicScalerChannelDetector *beamlineI0Detector_;
 	/// Detector for the I0Detector channel on the scaler
 	CLSBasicScalerChannelDetector *i0Detector_;
 	/// Detector for the TEYDetctor channel on the scaler
 	CLSBasicScalerChannelDetector *teyDetector_;
+	/// Detector for the transmission ion chamber on the scaler.
+	CLSBasicScalerChannelDetector *transmissionDetector_;
 
 
 	/// Motor group.  Holds sets of motors that are used together.
