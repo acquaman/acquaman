@@ -56,10 +56,85 @@ SXRMBBeamline::~SXRMBBeamline()
 {
 }
 
-void SXRMBBeamline::switchEndStation(SXRMB::Endstation endStation)
+void SXRMBBeamline::switchEndStation(SXRMB::Endstation endstation)
 {
-	if (currentEndStation_ != endStation) {
-		currentEndStation_ = endStation;
+	if (currentEndStation_ != endstation) {
+
+		switch (currentEndStation_){
+
+		case SXRMB::SolidState:
+
+			removeExposedControl(solidStateSampleStageX_);
+			removeExposedControl(solidStateSampleStageY_);
+			removeExposedControl(solidStateSampleStageZ_);
+			removeExposedControl(solidStateSampleStageR_);
+
+			break;
+
+		case SXRMB::AmbiantWithGasChamber:
+
+			removeExposedControl(ambiantSampleHolderZ_);
+			removeExposedControl(ambiantSampleHolderR_);
+
+			break;
+
+		case SXRMB::AmbiantWithoutGasChamber:
+
+			removeExposedControl(ambiantSampleStageX_);
+			removeExposedControl(ambiantSampleStageZ_);
+
+			break;
+
+		case SXRMB::Microprobe:
+
+			removeExposedControl(microprobeSampleStageX_);
+			removeExposedControl(microprobeSampleStageY_);
+			removeExposedControl(microprobeSampleStageZ_);
+
+			break;
+
+		default:
+			break;
+		}
+
+		switch (endstation){
+
+		case SXRMB::SolidState:
+
+			addExposedControl(solidStateSampleStageX_);
+			addExposedControl(solidStateSampleStageY_);
+			addExposedControl(solidStateSampleStageZ_);
+			addExposedControl(solidStateSampleStageR_);
+
+			break;
+
+		case SXRMB::AmbiantWithGasChamber:
+
+			addExposedControl(ambiantSampleHolderZ_);
+			addExposedControl(ambiantSampleHolderR_);
+
+			break;
+
+		case SXRMB::AmbiantWithoutGasChamber:
+
+			addExposedControl(ambiantSampleStageX_);
+			addExposedControl(ambiantSampleStageZ_);
+
+			break;
+
+		case SXRMB::Microprobe:
+
+			addExposedControl(microprobeSampleStageX_);
+			addExposedControl(microprobeSampleStageY_);
+			addExposedControl(microprobeSampleStageZ_);
+
+			break;
+
+		default:
+			break;
+		}
+
+		currentEndStation_ = endstation;
 		emit endStationChanged(currentEndStation_);
 	}
 }
@@ -498,19 +573,19 @@ void SXRMBBeamline::setupExposedControls()
 {
 	addExposedControl(energy_);
 
-	addExposedControl(microprobeSampleStageX_);
-	addExposedControl(microprobeSampleStageY_);
-	addExposedControl(microprobeSampleStageZ_);
+//	addExposedControl(microprobeSampleStageX_);
+//	addExposedControl(microprobeSampleStageY_);
+//	addExposedControl(microprobeSampleStageZ_);
 
-	addExposedControl(solidStateSampleStageX_);
-	addExposedControl(solidStateSampleStageY_);
-	addExposedControl(solidStateSampleStageZ_);
-	addExposedControl(solidStateSampleStageR_);
+//	addExposedControl(solidStateSampleStageX_);
+//	addExposedControl(solidStateSampleStageY_);
+//	addExposedControl(solidStateSampleStageZ_);
+//	addExposedControl(solidStateSampleStageR_);
 
-	addExposedControl(ambiantSampleStageX_);
-	addExposedControl(ambiantSampleStageZ_);
-	addExposedControl(ambiantSampleHolderZ_);
-	addExposedControl(ambiantSampleHolderR_);
+//	addExposedControl(ambiantSampleStageX_);
+//	addExposedControl(ambiantSampleStageZ_);
+//	addExposedControl(ambiantSampleHolderZ_);
+//	addExposedControl(ambiantSampleHolderR_);
 }
 
 void SXRMBBeamline::setupExposedDetectors()

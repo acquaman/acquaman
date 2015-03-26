@@ -131,7 +131,7 @@ signals:
 
 public slots:
 	/// switch the running endstation
-	void switchEndStation(SXRMB::Endstation endStation);
+	void switchEndStation(SXRMB::Endstation endstation);
 
 protected:
 	/// Constructor. This is a singleton class, access it through SXRMBBeamline::sxrmb().
