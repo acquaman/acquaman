@@ -94,13 +94,18 @@ void SXRMBPersistentView::onBeamOffActionFinished(){
 	beamOffAction_ = 0; //NULL
 }
 
-void SXRMBPersistentView::onBeamlineEndStationChanged(SXRMB::Endstation)
+void SXRMBPersistentView::onBeamlineEndStationChanged(SXRMB::Endstation endstation)
 {
 	QString endStationName = SXRMB::sxrmbEndStationName(SXRMBBeamline::sxrmb()->currentEndStation());
 	QString motorGroupName = SXRMBBeamline::sxrmb()->currentMotorGroupName();
 
 	endStationLabel_->setText("Endstation: <b><i>" + endStationName + "</i></b>");
 	motorGroupView_->setMotorGroupView(motorGroupName);
+
+	beamlineI0DetectorSR570View_->setVisible(endstation != SXRMB::Microprobe);
+	i0DetectorSR570View_->setVisible(endstation != SXRMB::SolidState);
+	teyDetectorSR570View_->setVisible((endstation != SXRMB::AmbiantWithGasChamber && endstation != SXRMB::AmbiantWithoutGasChamber));
+	transmissionDetectorSR570View_->setVisible((endstation == SXRMB::AmbiantWithGasChamber || endstation == SXRMB::AmbiantWithoutGasChamber));
 }
 
 void SXRMBPersistentView::layoutBeamlineStatus()
@@ -154,6 +159,11 @@ void SXRMBPersistentView::layoutMotorGroup()
 void SXRMBPersistentView::layoutScalers()
 {
 	//create scale groups
+	beamlineI0DetectorSR570View_ = new CLSSIS3820ScalerChannelView(SXRMBBeamline::sxrmb()->scaler()->channelAt(16));
+	beamlineI0DetectorSR570View_->setEnableCheckBoxVisibility(false);
+	beamlineI0DetectorSR570View_->setAmplifierViewPrecision(3);
+	beamlineI0DetectorSR570View_->setAmplifierViewFormat('g');
+
 	i0DetectorSR570View_ = new CLSSIS3820ScalerChannelView(SXRMBBeamline::sxrmb()->scaler()->channelAt(17));
 	i0DetectorSR570View_->setEnableCheckBoxVisibility(false);
 	i0DetectorSR570View_->setAmplifierViewPrecision(3);
@@ -164,10 +174,17 @@ void SXRMBPersistentView::layoutScalers()
 	teyDetectorSR570View_->setAmplifierViewPrecision(3);
 	teyDetectorSR570View_->setAmplifierViewFormat('g');
 
+	transmissionDetectorSR570View_ = new CLSSIS3820ScalerChannelView(SXRMBBeamline::sxrmb()->scaler()->channelAt(19));
+	transmissionDetectorSR570View_->setEnableCheckBoxVisibility(false);
+	transmissionDetectorSR570View_->setAmplifierViewPrecision(3);
+	transmissionDetectorSR570View_->setAmplifierViewFormat('g');
+
 	QVBoxLayout *scalerGroupLayout = new QVBoxLayout();
 	scalerGroupLayout->setContentsMargins(4, 0, 4, 0);
+	scalerGroupLayout->addWidget(beamlineI0DetectorSR570View_);
 	scalerGroupLayout->addWidget(i0DetectorSR570View_);
 	scalerGroupLayout->addWidget(teyDetectorSR570View_);
+	scalerGroupLayout->addWidget(transmissionDetectorSR570View_);
 
 	QGroupBox *scalerGroupBox = new QGroupBox("Scalers");
 	scalerGroupBox->setLayout(scalerGroupLayout);

@@ -38,7 +38,7 @@ protected slots:
 	/// Handles disconnecting signals and deleting when beam off action is done
 	void onBeamOffActionFinished();
 	/// Handles SXRMBBeamline endStationChanged signal
-	void onBeamlineEndStationChanged(SXRMB::Endstation);
+	void onBeamlineEndStationChanged(SXRMB::Endstation endstation);
 
 
 protected:
@@ -65,10 +65,14 @@ protected:
 	/// The view that holds all the motor group objects.
 	AMMotorGroupView *motorGroupView_;
 
+	/// View for the beamline I0 detector SR570.
+	CLSSIS3820ScalerChannelView *beamlineI0DetectorSR570View_;
 	/// View for the I0Detector SR570
 	CLSSIS3820ScalerChannelView *i0DetectorSR570View_;
 	/// View for the TEYDetector SR570
 	CLSSIS3820ScalerChannelView *teyDetectorSR570View_;
+	/// View for the transmission detector SR570.
+	CLSSIS3820ScalerChannelView *transmissionDetectorSR570View_;
 
 	/// Our copy of the beam on action
 	AMAction3 *beamOnAction_;

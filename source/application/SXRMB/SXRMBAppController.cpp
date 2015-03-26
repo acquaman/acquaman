@@ -120,7 +120,7 @@ void SXRMBAppController::shutdown()
 bool SXRMBAppController::startupInstallActions()
 {
 	if(AMAppController::startupInstallActions()) {
-		QAction *switchEndStationAction = new QAction("Switch Beamline EndStation ...", mw_);
+		QAction *switchEndStationAction = new QAction("Switch Beamline Endstation ...", mw_);
 		switchEndStationAction->setStatusTip("Switch beamline endstation.");
 		connect(switchEndStationAction, SIGNAL(triggered()), this, SLOT(onSwitchBeamlineEndstationTriggered()));
 
@@ -176,7 +176,8 @@ void SXRMBAppController::onBeamlineConnected(bool connected)
 		microProbe2DScanConfigurationView_ = new SXRMB2DMapScanConfigurationView(microProbe2DScanConfiguration_);
 		microProbe2DScanConfigurationViewHolder_ = new AMScanConfigurationViewHolder3(microProbe2DScanConfigurationView_);
 
-		mw_->addPane(microProbe2DScanConfigurationViewHolder_, "Scans", "2D Scan", ":/utilites-system-monitor.png");
+		if (SXRMBBeamline::sxrmb()->currentEndStation() == SXRMB::Microprobe)
+			mw_->addPane(microProbe2DScanConfigurationViewHolder_, "Scans", "2D Scan", ":/utilites-system-monitor.png");
 	}
 
 	if (connected && !microProbe2DOxidationScanConfigurationView_) {
@@ -200,7 +201,8 @@ void SXRMBAppController::onBeamlineConnected(bool connected)
 		microProbe2DOxidationScanConfigurationView_ = new SXRMB2DOxidationMapScanConfigurationView(microProbe2DOxidationScanConfiguration_);
 		microProbe2DOxidationScanConfigurationViewHolder_ = new SXRMBOxidationMapScanConfigurationViewHolder(microProbe2DOxidationScanConfigurationView_);
 
-		mw_->addPane(microProbe2DOxidationScanConfigurationViewHolder_, "Scans", "Oxidation Map", ":/utilites-system-monitor.png");
+		if (SXRMBBeamline::sxrmb()->currentEndStation() == SXRMB::Microprobe)
+			mw_->addPane(microProbe2DOxidationScanConfigurationViewHolder_, "Scans", "Oxidation Map", ":/utilites-system-monitor.png");
 	}
 
 	if (connected && !sxrmbPersistentView_){
@@ -455,6 +457,21 @@ void SXRMBAppController::onSwitchBeamlineEndstationTriggered()
 		microProbe2DScanConfiguration_->setEndstation(newEndstation);
 		exafsScanConfiguration_->setEndstation(newEndstation);
 		microProbe2DOxidationScanConfiguration_->setEndstation(newEndstation);
+
+		if (newEndstation == SXRMB::Microprobe){
+
+			mw_->addPane(microProbe2DScanConfigurationViewHolder_, "Scans", "2D Scan", ":/utilites-system-monitor.png");
+			mw_->addPane(microProbe2DOxidationScanConfigurationViewHolder_, "Scans", "Oxidation Map", ":/utilites-system-monitor.png");
+		}
+
+		else {
+
+			mw_->removePane(microProbe2DScanConfigurationViewHolder_);
+			mw_->removePane(microProbe2DOxidationScanConfigurationViewHolder_);
+
+			microProbe2DScanConfigurationViewHolder_->hide();
+			microProbe2DOxidationScanConfigurationViewHolder_->hide();
+		}
 	}
 }
 
