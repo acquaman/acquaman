@@ -27,7 +27,8 @@ HEADERS += \
 	source/ui/SXRMB/SXRMB2DOxidationMapScanConfigurationView.h \
 	source/ui/SXRMB/SXRMBXRFDetailedDetectorView.h \
 	source/ui/SXRMB/SXRMBBrukerDetectorView.h \
-	source/ui/SXRMB/SXRMBFourElementVortexDetectorView.h
+	source/ui/SXRMB/SXRMBFourElementVortexDetectorView.h \
+    source/dataman/SXRMB/SXRMBDbUpgrade1pt1.h
 
 
 SOURCES += \
@@ -53,4 +54,7 @@ SOURCES += \
 	source/ui/SXRMB/SXRMB2DOxidationMapScanConfigurationView.cpp \
 	source/ui/SXRMB/SXRMBXRFDetailedDetectorView.cpp \
 	source/ui/SXRMB/SXRMBBrukerDetectorView.cpp \
-	source/ui/SXRMB/SXRMBFourElementVortexDetectorView.cpp
+	source/ui/SXRMB/SXRMBFourElementVortexDetectorView.cpp \
+    source/dataman/SXRMB/SXRMBDbUpgrade1pt1.cpp
+
+
