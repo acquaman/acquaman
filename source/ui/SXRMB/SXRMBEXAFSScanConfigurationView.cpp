@@ -30,8 +30,10 @@
 
 
 SXRMBEXAFSScanConfigurationView::SXRMBEXAFSScanConfigurationView(SXRMBEXAFSScanConfiguration *configuration, QWidget *parent) :
-	AMScanConfigurationView(parent)
+	SXRMBScanConfigurationView(parent)
 {
+	SXRMBBeamline *sxrmbBL = SXRMBBeamline::sxrmb();
+
 	configuration_ = configuration;
 
 	topFrame_ = new AMTopFrame("Configure an XAS Scan");
@@ -120,7 +122,6 @@ SXRMBEXAFSScanConfigurationView::SXRMBEXAFSScanConfigurationView(SXRMBEXAFSScanC
 	scanInfoGroupBox->setLayout(scanInfoBoxLayout);
 
 	// Beamline setting layout
-	SXRMBBeamline *sxrmbBL = SXRMBBeamline::sxrmb();
 	sampleStageXSpinBox_ = createSampleStageSpinBox("mm", sxrmbBL->microprobeSampleStageX()->minimumValue(), sxrmbBL->microprobeSampleStageX()->maximumValue(), configuration_->x());
 	sampleStageZSpinBox_ = createSampleStageSpinBox("mm", sxrmbBL->microprobeSampleStageZ()->minimumValue(), sxrmbBL->microprobeSampleStageZ()->maximumValue(), configuration_->z());
 	sampleStageNormalSpinBox_ = createSampleStageSpinBox("mm", sxrmbBL->microprobeSampleStageY()->minimumValue(), sxrmbBL->microprobeSampleStageY()->maximumValue(), configuration_->y());
@@ -158,12 +159,12 @@ SXRMBEXAFSScanConfigurationView::SXRMBEXAFSScanConfigurationView(SXRMBEXAFSScanC
 	beamlineSettingsGroupBox->setLayout(beamlineSettingsGroupBoxVL);
 
 	// Bruker detector setting
-	enableBrukerDetector_ = new QCheckBox("Enable Bruker Detector");
-	enableBrukerDetector_->setChecked(false);
-	connect(enableBrukerDetector_, SIGNAL(stateChanged(int)), this, SLOT(onEnableBrukerDetectorChanged(int)));
+	fluorescenceDetectorComboBox_ = createFluorescenceComboBox();
+	connect(fluorescenceDetectorComboBox_, SIGNAL(currentIndexChanged(int)), this, SLOT(onFluorescenceDetectorChanged(int)));
+	connect(configuration_->dbObject(), SIGNAL(fluorescenceDetectorChanged(int)), this, SLOT(updateFluorescenceDetectorComboBox(int)));
 
 	QVBoxLayout *detectorBoxLayout = new QVBoxLayout;
-	detectorBoxLayout->addWidget(enableBrukerDetector_);
+	detectorBoxLayout->addWidget(fluorescenceDetectorComboBox_);
 
 	QGroupBox *detectorGroupBox = new QGroupBox("Detector Setting");
 	detectorGroupBox->setLayout(detectorBoxLayout);
@@ -255,6 +256,16 @@ void SXRMBEXAFSScanConfigurationView::setupDefaultEXAFSScanRegions()
 	region->setRegionTime(1.0);
 	region->setMaximumTime(10.0);
 	regionsView_->insertEXAFSRegion(2, region);
+}
+
+void SXRMBEXAFSScanConfigurationView::updateFluorescenceDetectorComboBox(int detector)
+{
+	fluorescenceDetectorComboBox_->setCurrentIndex(detector);
+}
+
+void SXRMBEXAFSScanConfigurationView::onFluorescenceDetectorChanged(int detector)
+{
+	configuration_->setFluorescenceDetectors((SXRMB::FluorescenceDetector)detector);
 }
 
 void SXRMBEXAFSScanConfigurationView::onScanNameEdited()
@@ -383,11 +394,6 @@ void SXRMBEXAFSScanConfigurationView::onScanConfigurationMicroprobeNormalChanged
 	sampleStageNormalSpinBox_->setValue(value);
 
 	onSampleStageNormalSpinBoxEditingFinished();
-}
-
-void SXRMBEXAFSScanConfigurationView::onEnableBrukerDetectorChanged(int state)
-{
-
 }
 
 QDoubleSpinBox *SXRMBEXAFSScanConfigurationView::createSampleStageSpinBox(QString units, double minimumValue, double maximumValue, double defaultValue) {

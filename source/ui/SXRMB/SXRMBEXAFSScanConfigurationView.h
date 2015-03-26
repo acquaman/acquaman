@@ -1,11 +1,10 @@
 #ifndef SXRMBEXAFSSCANCONFIGURATIONVIEW_H
 #define SXRMBEXAFSSCANCONFIGURATIONVIEW_H
 
-#include "ui/acquaman/AMScanConfigurationView.h"
+#include "ui/SXRMB/SXRMBScanConfigurationView.h"
 
 class QPushButton;
 class QComboBox;
-class QCheckBox;
 class QDoubleSpinBox;
 class QLineEdit;
 class QLabel;
@@ -17,7 +16,7 @@ class AMTopFrame;
 class SXRMBEXAFSScanConfiguration;
 class AMElement;
 
-class SXRMBEXAFSScanConfigurationView : public AMScanConfigurationView
+class SXRMBEXAFSScanConfigurationView : public SXRMBScanConfigurationView
 {
 	Q_OBJECT
 public:
@@ -36,6 +35,11 @@ public slots:
 	void setupDefaultEXAFSScanRegions();
 
 protected slots:
+	/// Slot that updates the fluorescence detector buttons.
+	void updateFluorescenceDetectorComboBox(int detector);
+	/// Handles changes to detector selection
+	void onFluorescenceDetectorChanged(int detector);
+
 	/// Handles setting the name of the configuration from the line edit.
 	void onScanNameEdited();
 	/// Helper slot that handles the setting the estimated time label.
@@ -70,9 +74,6 @@ protected slots:
 	/// Handles changes to sample stage normal from the scan configuration
 	void onScanConfigurationMicroprobeNormalChanged(double value);
 
-	/// Handles changes to enable bruker detector
-	void onEnableBrukerDetectorChanged(int state);
-
 protected:
 	/// create spinbox for sample sate
 	QDoubleSpinBox *createSampleStageSpinBox(QString units, double minimumValue, double maximumValue, double defaultValue);
@@ -94,8 +95,8 @@ protected:
 	QLineEdit *scanName_;
 	/// Label holding the current estimated time for the scan to complete.  Takes into account extra time per point based on experience on the beamline.
 	QLabel *estimatedTime_;
-	/// Checkbox for enabling/disabling Bruker detector
-	QCheckBox *enableBrukerDetector_;
+	/// ComboBox for enabling/disabling Bruker detector
+	QComboBox *fluorescenceDetectorComboBox_;
 
 	/// Double spin box for changing the energy.
 	QDoubleSpinBox *energy_;

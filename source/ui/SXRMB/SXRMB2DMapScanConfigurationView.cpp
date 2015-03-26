@@ -1,8 +1,9 @@
 #include "SXRMB2DMapScanConfigurationView.h"
 
-#include "beamline/SXRMB/SXRMBBeamline.h"
-#include "ui/AMTopFrame.h"
 #include "application/SXRMB/SXRMB.h"
+#include "beamline/SXRMB/SXRMBBeamline.h"
+
+#include "ui/AMTopFrame.h"
 
 #include <QGridLayout>
 #include <QVBoxLayout>
@@ -15,8 +16,10 @@
 #include <QMenu>
 
 SXRMB2DMapScanConfigurationView::SXRMB2DMapScanConfigurationView(SXRMB2DMapScanConfiguration *configuration, QWidget *parent)
-	: AMScanConfigurationView(parent)
+	: SXRMBScanConfigurationView(parent)
 {
+	SXRMBBeamline *sxrmbBL = SXRMBBeamline::sxrmb();
+
 	configuration_ = configuration;
 	excitationEnergyIsHidden_ = false;
 
@@ -138,7 +141,6 @@ SXRMB2DMapScanConfigurationView::SXRMB2DMapScanConfigurationView(SXRMB2DMapScanC
 	autoExportButtonGroup_->button(configuration_->exportAsAscii() ? 0 : 1)->click();
 
 	// BL energy setting
-	SXRMBBeamline *sxrmbBL = SXRMBBeamline::sxrmb();
 	scanEnergySpinBox_ = createEnergySpinBox("eV", sxrmbBL->energy()->minimumValue(), sxrmbBL->energy()->maximumValue(), configuration_->energy());
 	scanEnergySettingWarningLabel_ = new QLabel("Settings do not match beamline.");
 	scanEnergySettingWarningLabel_->setStyleSheet("QLabel {color: red}");
@@ -163,12 +165,12 @@ SXRMB2DMapScanConfigurationView::SXRMB2DMapScanConfigurationView(SXRMB2DMapScanC
 	beamlineSettingsGroupBox_->setLayout(beamlineSettingsGroupBoxVL);
 
 	// detector setting
-	enableBrukerDetector_ = new QCheckBox("Enable Bruker Detector");
-	enableBrukerDetector_->setChecked(false);
-	connect(enableBrukerDetector_, SIGNAL(stateChanged(int)), this, SLOT(onEnableBrukerDetectorChanged(int)));
+	fluorescenceDetectorComboBox_ = createFluorescenceComboBox();
+	connect(fluorescenceDetectorComboBox_, SIGNAL(currentIndexChanged(int)), this, SLOT(onFluorescenceDetectorChanged(int)));
+	connect(configuration_->dbObject(), SIGNAL(fluorescenceDetectorChanged(int)), this, SLOT(updateFluorescenceDetectorComboBox(int)));
 
 	QVBoxLayout * detectorBoxLayout = new QVBoxLayout;
-	detectorBoxLayout->addWidget(enableBrukerDetector_);
+	detectorBoxLayout->addWidget(fluorescenceDetectorComboBox_);
 
 	QGroupBox * detectorSettingGroupBox = new QGroupBox("Detector Setting");
 	detectorSettingGroupBox->setLayout(detectorBoxLayout);
@@ -475,6 +477,16 @@ void SXRMB2DMapScanConfigurationView::updateAutoExporter(int useAscii)
 	configuration_->setExportAsAscii(useAscii == 0);
 }
 
+void SXRMB2DMapScanConfigurationView::updateFluorescenceDetectorComboBox(int detector)
+{
+	fluorescenceDetectorComboBox_->setCurrentIndex(detector);
+}
+
+void SXRMB2DMapScanConfigurationView::onFluorescenceDetectorChanged(int detector)
+{
+	configuration_->setFluorescenceDetectors((SXRMB::FluorescenceDetector)detector);
+}
+
 void SXRMB2DMapScanConfigurationView::checkScanAxisValidity()
 {
 	QString errorString = "";
@@ -503,7 +515,3 @@ void SXRMB2DMapScanConfigurationView::checkScanAxisValidity()
 	errorLabel_->setText(errorString);
 }
 
-void SXRMB2DMapScanConfigurationView::onEnableBrukerDetectorChanged(int state)
-{
-
-}
