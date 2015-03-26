@@ -69,12 +69,19 @@ void SXRMBBeamline::switchEndStation(SXRMB::Endstation endstation)
 			removeExposedControl(solidStateSampleStageZ_);
 			removeExposedControl(solidStateSampleStageR_);
 
+			removeExposedDetector(beamlineI0Detector_);
+			removeExposedDetector(teyDetector_);
+
 			break;
 
 		case SXRMB::AmbiantWithGasChamber:
 
 			removeExposedControl(ambiantSampleHolderZ_);
 			removeExposedControl(ambiantSampleHolderR_);
+
+			removeExposedDetector(beamlineI0Detector_);
+			removeExposedDetector(i0Detector_);
+			removeExposedDetector(transmissionDetector_);
 
 			break;
 
@@ -83,6 +90,10 @@ void SXRMBBeamline::switchEndStation(SXRMB::Endstation endstation)
 			removeExposedControl(ambiantSampleStageX_);
 			removeExposedControl(ambiantSampleStageZ_);
 
+			removeExposedDetector(beamlineI0Detector_);
+			removeExposedDetector(i0Detector_);
+			removeExposedDetector(transmissionDetector_);
+
 			break;
 
 		case SXRMB::Microprobe:
@@ -90,6 +101,9 @@ void SXRMBBeamline::switchEndStation(SXRMB::Endstation endstation)
 			removeExposedControl(microprobeSampleStageX_);
 			removeExposedControl(microprobeSampleStageY_);
 			removeExposedControl(microprobeSampleStageZ_);
+
+			removeExposedDetector(i0Detector_);
+			removeExposedDetector(teyDetector_);
 
 			break;
 
@@ -106,12 +120,19 @@ void SXRMBBeamline::switchEndStation(SXRMB::Endstation endstation)
 			addExposedControl(solidStateSampleStageZ_);
 			addExposedControl(solidStateSampleStageR_);
 
+			addExposedDetector(beamlineI0Detector_);
+			addExposedDetector(teyDetector_);
+
 			break;
 
 		case SXRMB::AmbiantWithGasChamber:
 
 			addExposedControl(ambiantSampleHolderZ_);
 			addExposedControl(ambiantSampleHolderR_);
+
+			addExposedDetector(beamlineI0Detector_);
+			addExposedDetector(i0Detector_);
+			addExposedDetector(transmissionDetector_);
 
 			break;
 
@@ -120,6 +141,10 @@ void SXRMBBeamline::switchEndStation(SXRMB::Endstation endstation)
 			addExposedControl(ambiantSampleStageX_);
 			addExposedControl(ambiantSampleStageZ_);
 
+			addExposedDetector(beamlineI0Detector_);
+			addExposedDetector(i0Detector_);
+			addExposedDetector(transmissionDetector_);
+
 			break;
 
 		case SXRMB::Microprobe:
@@ -127,6 +152,9 @@ void SXRMBBeamline::switchEndStation(SXRMB::Endstation endstation)
 			addExposedControl(microprobeSampleStageX_);
 			addExposedControl(microprobeSampleStageY_);
 			addExposedControl(microprobeSampleStageZ_);
+
+			addExposedDetector(i0Detector_);
+			addExposedDetector(teyDetector_);
 
 			break;
 
@@ -281,6 +309,12 @@ bool SXRMBBeamline::isConnected() const
 			&& beamlineControlShutterSet_->isConnected() && sampleStageConnected;
 }
 
+
+CLSBasicScalerChannelDetector* SXRMBBeamline::beamlineI0Detector() const
+{
+	return beamlineI0Detector_;
+}
+
 CLSBasicScalerChannelDetector* SXRMBBeamline::i0Detector() const
 {
 	return i0Detector_;
@@ -289,6 +323,12 @@ CLSBasicScalerChannelDetector* SXRMBBeamline::i0Detector() const
 CLSBasicScalerChannelDetector* SXRMBBeamline::teyDetector() const
 {
 	return teyDetector_;
+}
+
+
+CLSBasicScalerChannelDetector* SXRMBBeamline::transmissionDetector() const
+{
+	return transmissionDetector_;
 }
 
 AMBasicControlDetectorEmulator* SXRMBBeamline::energyFeedbackDetector() const
@@ -498,11 +538,17 @@ void SXRMBBeamline::setupDetectors()
 	brukerDetector_ = new SXRMBBrukerDetector("Bruker", "Bruker XRF detector", this);
 	fourElementVortexDetector_ = new SXRMBFourElementVortexDetector("FourElementVortex", "Four element Vortex detector", this);
 
+	beamlineI0Detector_ = new CLSBasicScalerChannelDetector("BeamlineI0Detector", "Beamline I0 Detector", scaler_, 16, this);
+	scaler_->channelAt(16)->setDetector(beamlineI0Detector_);
+
 	i0Detector_ = new CLSBasicScalerChannelDetector("I0Detector", "I0 Detector", scaler_, 17, this);
 	scaler_->channelAt(17)->setDetector(i0Detector_);
 
 	teyDetector_ = new CLSBasicScalerChannelDetector("TEYDetector", "TEY Detector", scaler_, 18, this);
 	scaler_->channelAt(18)->setDetector(teyDetector_);
+
+	transmissionDetector_ = new CLSBasicScalerChannelDetector("TransmissionDetector", "Transmission Detector", scaler_, 18, this);
+	scaler_->channelAt(18)->setDetector(i0Detector_);
 }
 
 void SXRMBBeamline::setupControlSets()
@@ -572,26 +618,10 @@ void SXRMBBeamline::setupControlsAsDetectors()
 void SXRMBBeamline::setupExposedControls()
 {
 	addExposedControl(energy_);
-
-//	addExposedControl(microprobeSampleStageX_);
-//	addExposedControl(microprobeSampleStageY_);
-//	addExposedControl(microprobeSampleStageZ_);
-
-//	addExposedControl(solidStateSampleStageX_);
-//	addExposedControl(solidStateSampleStageY_);
-//	addExposedControl(solidStateSampleStageZ_);
-//	addExposedControl(solidStateSampleStageR_);
-
-//	addExposedControl(ambiantSampleStageX_);
-//	addExposedControl(ambiantSampleStageZ_);
-//	addExposedControl(ambiantSampleHolderZ_);
-//	addExposedControl(ambiantSampleHolderR_);
 }
 
 void SXRMBBeamline::setupExposedDetectors()
 {
-	addExposedDetector(i0Detector_);
-	addExposedDetector(teyDetector_);
 	addExposedDetector(energyFeedbackDetector_);
 	addExposedDetector(brukerDetector_);
 	addExposedDetector(fourElementVortexDetector_);
