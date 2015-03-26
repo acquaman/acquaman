@@ -21,13 +21,22 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "CLSDarkCurrentWidget.h"
 
-CLSDarkCurrentWidget::CLSDarkCurrentWidget(double dwellSeconds, QWidget *parent) :
+CLSDarkCurrentWidget::CLSDarkCurrentWidget(CLSSIS3820Scaler *scaler, QWidget *parent) :
     QGroupBox("Dark current correction", parent)
 {
+	// Initialize member variables.
+
+	scaler_ = 0;
+
 	// Create UI elements.
 
-	QLabel *timePrompt = new QLabel("Dwell time (s): ");
-	timeEntry_ = new QDoubleSpinBox();
+	QLabel *timePrompt = new QLabel("Dwell time: ");
+
+	timeEntry_ = new QSpinBox();
+	timeEntry_->setRange(DARK_CURRENT_DWELL_TIME_MIN, DARK_CURRENT_DWELL_TIME_MAX);
+	timeEntry_->setValue(0);
+	timeEntry_->setSuffix(" ms");
+
 	collectButton_ = new QPushButton("Collect");
 
 	// Create and set layouts.
@@ -39,33 +48,53 @@ CLSDarkCurrentWidget::CLSDarkCurrentWidget(double dwellSeconds, QWidget *parent)
 
 	setLayout(layout);
 
-	// Initial settings.
-
-	timeEntry_->setMinimum(DARK_CURRENT_DWELL_TIME_MIN);
-	timeEntry_->setMaximum(DARK_CURRENT_DWELL_TIME_MAX);
-	timeEntry_->setValue(dwellSeconds);
-
-	collectButton_->setEnabled(true);
-
 	// Make connections.
 
 	connect( collectButton_, SIGNAL(clicked()), this, SLOT(onCollectButtonClicked()) );
+
+	// Current settings.
+
+	setScaler(scaler);
 }
 
 CLSDarkCurrentWidget::~CLSDarkCurrentWidget()
 {
+
 }
 
-void CLSDarkCurrentWidget::setCollectButtonEnabled(bool isEnabled)
+void CLSDarkCurrentWidget::setScaler(CLSSIS3820Scaler *newScaler)
 {
-    collectButton_->setEnabled(isEnabled);
+	if (scaler_ != newScaler) {
+
+		if (scaler_) {
+			disconnect( scaler_, 0, this, 0 );
+		}
+
+		scaler_ = newScaler;
+
+		if (scaler_) {
+			connect( scaler_, SIGNAL(scanningChanged(bool)), this, SLOT(onScalerScanningChanged()) );
+
+			timeEntry_->setValue(scaler_->dwellTime() * 1000);
+		}
+
+		emit scalerChanged(scaler_);
+	}
+}
+
+void CLSDarkCurrentWidget::onScalerScanningChanged()
+{
+	if (scaler_ && !scaler_->isScanning())
+		collectButton_->setEnabled(true);
+	else
+		collectButton_->setEnabled(false);
 }
 
 void CLSDarkCurrentWidget::onCollectButtonClicked()
 {
-    double timeEntered = timeEntry_->text().toDouble();
+	double secondsEntered = timeEntry_->value() / 1000.0;
 
-    if (timeEntered > 0) {
-	    emit collectButtonClicked(timeEntered);
-    }
+	if (scaler_ && secondsEntered > 0) {
+		scaler_->doDarkCurrentCorrection(secondsEntered);
+	}
 }

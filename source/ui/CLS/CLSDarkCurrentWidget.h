@@ -23,15 +23,16 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define CLSDARKCURRENTWIDGET_H
 
 #include <QGroupBox>
-#include <QLineEdit>
 #include <QPushButton>
 #include <QLayout>
 #include <QDebug>
 #include <QLabel>
-#include <QDoubleSpinBox>
+#include <QSpinBox>
+
+#include "beamline/CLS/CLSSIS3820Scaler.h"
 
 #define DARK_CURRENT_DWELL_TIME_MIN 0
-#define DARK_CURRENT_DWELL_TIME_MAX 1000
+#define DARK_CURRENT_DWELL_TIME_MAX 10000
 
 /// This is a class that allows a user to manually instigate the chain of events leading to a dark current correction measurement.
 class CLSDarkCurrentWidget : public QGroupBox
@@ -39,27 +40,31 @@ class CLSDarkCurrentWidget : public QGroupBox
     Q_OBJECT
 
 public:
-    /// This constructor takes a double value to initialize the dwell time displayed in the dwell time entry field.
-    explicit CLSDarkCurrentWidget(double dwellSeconds, QWidget *parent = 0);
+    /// Constructor.
+    explicit CLSDarkCurrentWidget(CLSSIS3820Scaler *scaler, QWidget *parent = 0);
 	/// Destructor.
     virtual ~CLSDarkCurrentWidget();
 
 signals:
-    /// Emitted when the collect button is clicked and the dwell time entered is positive and non-zero.
-    void collectButtonClicked(double dwellSeconds);
+	/// Emitted when the scaler being viewed has changed.
+	void scalerChanged(CLSSIS3820Scaler *newScaler);
 
 public slots:
-    /// Sets the collect button as enabled or disabled, according to the boolean argument.
-    void setCollectButtonEnabled(bool isEnabled);
+    /// Sets the scaler being viewed.
+    void setScaler(CLSSIS3820Scaler *newScaler);
 
 protected slots:
+    /// Handles setting the collect button as 'Enabled' when the scaler is not scanning, and 'Disabled' when it is.
+    void onScalerScanningChanged();
     /// Handles emitting collectButtonClicked() signal when the collect button is clicked, with the dwell time entered argument. Signal is emitted only if the time entered is greater than zero.
     void onCollectButtonClicked();
 
 protected:
+    /// The scaler being viewed.
+    CLSSIS3820Scaler *scaler_;
     /// The entry widget for updating the desired dwell time.
-    QDoubleSpinBox* timeEntry_;
-    /// Pressing this button should start the process of taking a dark current measurement. Button should be disabled when a measurement isn't possible.
+    QSpinBox* timeEntry_;
+    /// Pressing this button should start the process of taking a dark current measurement.
     QPushButton* collectButton_;
 
 };
