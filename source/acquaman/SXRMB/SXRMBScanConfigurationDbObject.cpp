@@ -101,14 +101,14 @@ void SXRMBScanConfigurationDbObject::setFluorescenceDetectors(SXRMB::Fluorescenc
 	}
 }
 
-void SXRMBScanConfigurationDbObject::setEndstation(int endstation)
-{
-	setEndstation(SXRMB::Endstation(endstation));
-}
-
 void SXRMBScanConfigurationDbObject::setFluorescenceDetectors(int detector)
 {
 	setFluorescenceDetectors(SXRMB::FluorescenceDetectors(detector));
+}
+
+void SXRMBScanConfigurationDbObject::setEndstation(int endstation)
+{
+	setEndstation(SXRMB::Endstation(endstation));
 }
 
 void SXRMBScanConfigurationDbObject::setX(double newX)

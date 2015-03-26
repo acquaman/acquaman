@@ -7,14 +7,15 @@
 #include <QLineEdit>
 #include <QGroupBox>
 #include <QButtonGroup>
-#include <QCheckBox>
+#include <QComboBox>
 
 
 #include "acquaman/SXRMB/SXRMB2DMapScanConfiguration.h"
-#include "ui/acquaman/AMScanConfigurationView.h"
-#include "ui/util/AMEnergyListView.h"
 
-class SXRMB2DOxidationMapScanConfigurationView : public AMScanConfigurationView
+#include "ui/util/AMEnergyListView.h"
+#include "ui/SXRMB/SXRMBScanConfigurationView.h"
+
+class SXRMB2DOxidationMapScanConfigurationView : public SXRMBScanConfigurationView
 {
 	Q_OBJECT
 
@@ -78,12 +79,13 @@ protected slots:
 	void onEstimatedTimeChanged();
 	/// Helper slot that sets whether we use SMAK or Ascii for the auto exporter.
 	void updateAutoExporter(int useAscii);
+	/// Slot that updates the fluorescence detector buttons.
+	void updateFluorescenceDetectorComboBox(int detector);
+	/// Handles changes to detector selection
+	void onFluorescenceDetectorChanged(int detector);
 
 	/// Helper method that checks to see if the map dimensions are acceptable.  Makes visual changes if not valid.
 	void checkScanAxisValidity();
-
-	/// Handles changes to enable bruker detector
-	void onEnableBrukerDetectorChanged(int state);
 
 protected:
 	/// Add the export options view.  Returns a pointer to the widget.
@@ -102,8 +104,8 @@ protected:
 	QDoubleSpinBox *dwellTime_;
 	/// Line edit for changing the name of the scan.
 	QLineEdit *scanName_;
-	/// Checkbox for enabling/disabling Bruker detector
-	QCheckBox *enableBrukerDetector_;
+	/// ComboBox for enabling/disabling Bruker detector
+	QComboBox *fluorescenceDetectorComboBox_;
 	/// Pointer to the horizontal start point.
 	QDoubleSpinBox *hStart_;
 	/// Pointer to the horizontal end point.

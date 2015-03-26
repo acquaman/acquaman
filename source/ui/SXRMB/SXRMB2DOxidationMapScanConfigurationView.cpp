@@ -16,8 +16,10 @@
 #include "util/AMPeriodicTable.h"
 
 SXRMB2DOxidationMapScanConfigurationView::SXRMB2DOxidationMapScanConfigurationView(SXRMB2DMapScanConfiguration *configuration, QWidget *parent)
-	: AMScanConfigurationView(parent)
+	: SXRMBScanConfigurationView( parent)
 {
+	SXRMBBeamline *sxrmbBL = SXRMBBeamline::sxrmb();
+
 	configuration_ = configuration;
 
 	AMTopFrame *frame = new AMTopFrame("SXRMB Oxidation Map Configuration");
@@ -141,7 +143,7 @@ SXRMB2DOxidationMapScanConfigurationView::SXRMB2DOxidationMapScanConfigurationVi
 	AMEnergyList energyList;
 	energyList.insertEnergy(0, AMPeriodicTable::table()->elementBySymbol("S")->KEdge().energy());
 	oxidationEnergyListView_ = new AMEnergyListView("", energyList);
-	oxidationEnergyListView_->setRange(SXRMBBeamline::sxrmb()->energy()->minimumValue(), SXRMBBeamline::sxrmb()->energy()->maximumValue());
+	oxidationEnergyListView_->setRange(sxrmbBL->energy()->minimumValue(), sxrmbBL->energy()->maximumValue());
 
 	QVBoxLayout *energyListViewBoxLayout = new QVBoxLayout;
 	energyListViewBoxLayout->addWidget(oxidationEnergyListView_);
@@ -151,12 +153,12 @@ SXRMB2DOxidationMapScanConfigurationView::SXRMB2DOxidationMapScanConfigurationVi
 	energyListViewBox->setLayout(energyListViewBoxLayout);
 
 	// detector setting
-	enableBrukerDetector_ = new QCheckBox("Enable Bruker Detector");
-	enableBrukerDetector_->setChecked(false);
-	connect(enableBrukerDetector_, SIGNAL(stateChanged(int)), this, SLOT(onEnableBrukerDetectorChanged(int)));
+	fluorescenceDetectorComboBox_ = createFluorescenceComboBox();
+	connect(fluorescenceDetectorComboBox_, SIGNAL(currentIndexChanged(int)), this, SLOT(onFluorescenceDetectorChanged(int)));
+	connect(configuration_->dbObject(), SIGNAL(fluorescenceDetectorChanged(int)), this, SLOT(updateFluorescenceDetectorComboBox(int)));
 
 	QVBoxLayout * detectorBoxLayout = new QVBoxLayout;
-	detectorBoxLayout->addWidget(enableBrukerDetector_);
+	detectorBoxLayout->addWidget(fluorescenceDetectorComboBox_);
 
 	QGroupBox * detectorSettingGroupBox = new QGroupBox("Detector Setting");
 	detectorSettingGroupBox->setLayout(detectorBoxLayout);
@@ -417,6 +419,15 @@ void SXRMB2DOxidationMapScanConfigurationView::updateAutoExporter(int useAscii)
 	configuration_->setExportAsAscii(useAscii == 0);
 }
 
+void SXRMB2DOxidationMapScanConfigurationView::updateFluorescenceDetectorComboBox(int detector)
+{
+	fluorescenceDetectorComboBox_->setCurrentIndex(detector);
+}
+
+void SXRMB2DOxidationMapScanConfigurationView::onFluorescenceDetectorChanged(int detector)
+{
+	configuration_->setFluorescenceDetectors((SXRMB::FluorescenceDetector)detector);
+}
 
 void SXRMB2DOxidationMapScanConfigurationView::checkScanAxisValidity()
 {
@@ -446,7 +457,3 @@ void SXRMB2DOxidationMapScanConfigurationView::checkScanAxisValidity()
 	errorLabel_->setText(errorString);
 }
 
-void SXRMB2DOxidationMapScanConfigurationView::onEnableBrukerDetectorChanged(int state)
-{
-
-}
