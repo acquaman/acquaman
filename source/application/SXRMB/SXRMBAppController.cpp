@@ -447,9 +447,14 @@ void SXRMBAppController::onSwitchBeamlineEndstationTriggered()
 
 	AMDialog *showMotorDialog = new AMDialog("Switch SXRMB EndStation");
 	showMotorDialog->layoutDialogContent(availableBeamlineEndstations);
+
 	if (showMotorDialog->exec()) {
-		int selectedEndStationIndex = availableBeamlineEndstations->currentIndex() + 1;
-		SXRMBBeamline::sxrmb()->switchEndStation(static_cast<SXRMB::Endstation>(selectedEndStationIndex));
+
+		SXRMB::Endstation newEndstation = SXRMB::Endstation(availableBeamlineEndstations->currentIndex() + 1);
+		SXRMBBeamline::sxrmb()->switchEndStation(newEndstation);
+		microProbe2DScanConfiguration_->setEndstation(newEndstation);
+		exafsScanConfiguration_->setEndstation(newEndstation);
+		microProbe2DOxidationScanConfiguration_->setEndstation(newEndstation);
 	}
 }
 
