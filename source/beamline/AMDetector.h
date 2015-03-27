@@ -410,7 +410,10 @@ signals:
 	void hiddenFromUsersChanged(bool);
 
 	/// New dark current correction value ready, passes new dark current value.
-	void newDarkCurrentMeasurementValueReady(double newValue);
+	void darkCurrentValueChanged(double newValue);
+	/// Notifier that the dark current dwell time has changed, passes new dwell time value.
+	void darkCurrentTimeChanged(double newTime);
+//	void newDarkCurrentMeasurementValueReady(double newValue);
 	/// Indicates that the darkCurrentCorrection_ value stored is out of date. A new dark current measurement should be taken.
 	void requiresNewDarkCurrentMeasurement(bool needsUpdate);
 
@@ -444,6 +447,11 @@ protected slots:
 	void setCleanedUp();
 	/// Call this after receiving cleanupImplementation() to inform the base class that the detector clean up has failed, and we should go to from CleaningUp to CleanupRequired
 	void setCleanupRequired();
+
+	/// Updates the most recently saved dark current value.
+	void updateDarkCurrentValue(double newValue);
+	/// Updates the most recently saved dark current dwell time.
+	void updateDarkCurrentTime(double newTime);
 
 protected:
 	// The following functions are used to define the unique behaviour of the detector.  We set them up in this way so that subclasses don't need to worry about (and cannot) break the state machine logic, they only need to fill in their pieces.

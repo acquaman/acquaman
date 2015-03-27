@@ -383,6 +383,18 @@ void AMDetector::setCleanupRequired(){
 	setCleanupState(CleanupRequired);
 }
 
+void AMDetector::updateDarkCurrentValue(double newValue)
+{
+	darkCurrentMeasurementValue_ = newValue;
+	emit darkCurrentValueChanged(darkCurrentMeasurementValue_);
+}
+
+void AMDetector::updateDarkCurrentTime(double newTime)
+{
+	darkCurrentMeasurementTime_ = newTime;
+	emit darkCurrentTimeChanged(darkCurrentMeasurementTime_);
+}
+
 bool AMDetector::initialize(){
 	if(acceptableChangeInitializationState(Initializing)){
 		if(autoSetInitializing_)
@@ -430,19 +442,19 @@ bool AMDetector::clear(){
 
 void AMDetector::setAsDarkCurrentMeasurementValue(){
 	if (canDoDarkCurrentCorrection()){
-		darkCurrentMeasurementValue_ = double(singleReading()) / acquisitionTime();
+		double newValue = double(singleReading()) / acquisitionTime();
+		updateDarkCurrentValue(newValue);
+
 		setRequiresNewDarkCurrentMeasurement(false);
-		emit newDarkCurrentMeasurementValueReady(darkCurrentMeasurementValue_);
 	}
 }
 
 void AMDetector::setAsDarkCurrentMeasurementTime(double lastTime) {
 	if (canDoDarkCurrentCorrection()) {
-
 		if (lastTime > darkCurrentMeasurementTime_)
 			setRequiresNewDarkCurrentMeasurement(true);
 
-		darkCurrentMeasurementTime_ = lastTime;
+		updateDarkCurrentTime(lastTime);
 	}
 }
 
