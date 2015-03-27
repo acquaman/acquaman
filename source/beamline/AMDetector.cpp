@@ -37,6 +37,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "actions3/actions/AMDetectorTriggerAction.h"
 #include "actions3/actions/AMDetectorReadAction.h"
 #include "actions3/actions/AMDetectorCleanupAction.h"
+#include "actions3/actions/AMDetectorSetAsDarkCurrentTimeAction.h"
 
 
 AMDetector::AMDetector(const QString &name, const QString &description, QObject *parent) :
@@ -305,6 +306,11 @@ AMAction3* AMDetector::createSetAsDarkCurrentCorrectionAction(){
 	return new AMDetectorSetAsDarkCurrentCorrectionAction(new AMDetectorSetAsDarkCurrentCorrectionActionInfo(toInfo()), this);
 }
 
+AMAction3* AMDetector::createSetAsDarkCurrentTimeAction(double secondsDwell)
+{
+	return new AMDetectorSetAsDarkCurrentTimeAction(new AMDetectorSetAsDarkCurrentTimeActionInfo(toInfo(), secondsDwell), this);
+}
+
 void AMDetector::setInitializing(){
 	if(!acceptableChangeInitializationState(Initializing))
 		AMErrorMon::debug(this, AMDETECTOR_NOTIFIED_INITIALIZING_UNEXPECTEDLY, QString("An unexpected transition occured to Initializing. Detector name: %1. Current state: %2.").arg(name()).arg(initializationStateDescription(initializationState())) );
@@ -442,6 +448,7 @@ bool AMDetector::clear(){
 
 void AMDetector::setAsDarkCurrentMeasurementValue(){
 	if (canDoDarkCurrentCorrection()){
+		updateDarkCurrentTime(acquisitionTime());
 		double newValue = double(singleReading()) / acquisitionTime();
 		updateDarkCurrentValue(newValue);
 

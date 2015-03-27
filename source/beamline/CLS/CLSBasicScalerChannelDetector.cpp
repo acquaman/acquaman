@@ -105,16 +105,24 @@ bool CLSBasicScalerChannelDetector::lastContinuousReading(double *outputValues) 
 	return false;
 }
 
-AMAction3* CLSBasicScalerChannelDetector::createDarkCurrentCorrectionActions(double dwellTime){
-    if (dwellTime <= 0)
-        return 0;
+AMAction3* CLSBasicScalerChannelDetector::createDarkCurrentCorrectionActions(double dwellTime)
+{
+	AMAction3 *action = 0;
 
-    AMListAction3* darkCurrentCorrectionActions = new AMListAction3(new AMListActionInfo3("BasicScalerChannelDetector Dark Current Correction", "BasicScalerChannelDetector Dark Current Correction"), AMListAction3::Sequential);
-    darkCurrentCorrectionActions->addSubAction(AMBeamline::bl()->createTurnOffBeamActions());
-    AMDoDarkCurrentCorrectionActionInfo *actionInfo = new AMDoDarkCurrentCorrectionActionInfo(scaler_, dwellTime);
-    AMDoDarkCurrentCorrectionAction *action = new AMDoDarkCurrentCorrectionAction(actionInfo);
-    darkCurrentCorrectionActions->addSubAction(action);
-    return darkCurrentCorrectionActions;
+	if (scaler_)
+		action = scaler_->createMeasureDarkCurrentAction(dwellTime);
+
+	return action;
+
+//    if (dwellTime <= 0)
+//        return 0;
+
+//    AMListAction3* darkCurrentCorrectionActions = new AMListAction3(new AMListActionInfo3("BasicScalerChannelDetector Dark Current Correction", "BasicScalerChannelDetector Dark Current Correction"), AMListAction3::Sequential);
+//    darkCurrentCorrectionActions->addSubAction(AMBeamline::bl()->createTurnOffBeamActions());
+//    AMDoDarkCurrentCorrectionActionInfo *actionInfo = new AMDoDarkCurrentCorrectionActionInfo(scaler_, dwellTime);
+//    AMDoDarkCurrentCorrectionAction *action = new AMDoDarkCurrentCorrectionAction(actionInfo);
+//    darkCurrentCorrectionActions->addSubAction(action);
+//    return darkCurrentCorrectionActions;
 }
 
 bool CLSBasicScalerChannelDetector::setAcquisitionTime(double seconds){

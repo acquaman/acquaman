@@ -30,6 +30,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QSpinBox>
 
 #include "beamline/CLS/CLSSIS3820Scaler.h"
+#include "actions3/AMActionRunner3.h"
 
 #define DARK_CURRENT_DWELL_TIME_MIN 0
 #define DARK_CURRENT_DWELL_TIME_MAX 10000
@@ -60,8 +61,6 @@ protected slots:
     void onScalerScanningChanged();
     /// Handles emitting collectButtonClicked() signal when the collect button is clicked, with the dwell time entered argument. Signal is emitted only if the time entered is greater than zero.
     void onCollectButtonClicked();
-    /// Handles disconnecting from an action and setting it to be deleted later.
-    void actionCleanup(QObject *action);
 
 protected:
     /// The scaler being viewed.

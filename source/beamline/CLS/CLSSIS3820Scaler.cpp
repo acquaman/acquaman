@@ -28,6 +28,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QStringBuilder>
 
 #include "actions3/actions/AMDoDarkCurrentCorrectionAction.h"
+#include "actions3/actions/CLSSIS3820ScalerDarkCurrentMeasurementAction.h"
 
 
 // CLSSIS3820Scalar
@@ -59,10 +60,9 @@ CLSSIS3820Scaler::CLSSIS3820Scaler(const QString &baseName, QObject *parent) :
 		connect(tmpChannel, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()));
 		connect(tmpChannel, SIGNAL(sensitivityChanged()), this, SIGNAL(sensitivityChanged()));
 		connect(tmpChannel, SIGNAL(readingChanged(int)), triggerChannelMapper_, SLOT(map()));
-		/*
-		connect( this, SIGNAL(newDarkCurrentMeasurementValue(double)), tmpChannel, SIGNAL(newDarkCurrentMeasurementValue(double)) );
-		connect( this, SIGNAL(newDarkCurrentMeasurementState(CLSSIS3820Scaler::DarkCurrentCorrectionState)), tmpChannel, SIGNAL(newDarkCurrentMeasurementState(CLSSIS3820Scaler::DarkCurrentCorrectionState)) );
-		*/
+
+//		connect( this, SIGNAL(newDarkCurrentMeasurementValue(double)), tmpChannel, SIGNAL(newDarkCurrentMeasurementValue(double)) );
+//		connect( this, SIGNAL(newDarkCurrentMeasurementState(CLSSIS3820Scaler::DarkCurrentCorrectionState)), tmpChannel, SIGNAL(newDarkCurrentMeasurementState(CLSSIS3820Scaler::DarkCurrentCorrectionState)) );
 	}
 
 	startToggle_ = new AMPVControl("Start/Scanning", baseName+":startScan", baseName+":startScan", QString(), this, 0.1);
@@ -255,36 +255,59 @@ AMAction3* CLSSIS3820Scaler::createWaitForDwellFinishedAction(double timeoutTime
 	return action;
 }
 
-AMAction3* CLSSIS3820Scaler::createDoingDarkCurrentCorrectionAction(int dwellTime)
-{
-	AMDoingDarkCurrentCorrectionActionInfo *actionInfo = new AMDoingDarkCurrentCorrectionActionInfo(dwellTimeSource(), dwellTime);
-	AMDoingDarkCurrentCorrectionAction *action = new AMDoingDarkCurrentCorrectionAction(actionInfo);
+//AMAction3* CLSSIS3820Scaler::createDoingDarkCurrentCorrectionAction(int dwellTime)
+//{
+//	AMDoingDarkCurrentCorrectionActionInfo *actionInfo = new AMDoingDarkCurrentCorrectionActionInfo(dwellTimeSource(), dwellTime);
+//	AMDoingDarkCurrentCorrectionAction *action = new AMDoingDarkCurrentCorrectionAction(actionInfo);
 
-	if (!action)
-		return 0;
+//	return action;
+//}
+
+AMAction3* CLSSIS3820Scaler::createMeasureDarkCurrentAction(int secondsDwell)
+{
+	return new CLSSIS3820ScalerDarkCurrentMeasurementAction(new CLSSIS3820ScalerDarkCurrentMeasurementActionInfo(this, secondsDwell));
+}
+
+AMAction3* CLSSIS3820Scaler::createSetAsDarkCurrentMeasurementAction()
+{
+	AMListAction3 *action = 0;
+
+	if (isConnected()) {
+		action = new AMListAction3(new AMListActionInfo3("Set dark current measurement values", "Set dark current measurement values"), AMListAction3::Parallel);
+
+		for (int i = 0; i < scalerChannels_.count(); i++) {
+
+			CLSSIS3820ScalerChannel *channel = scalerChannels_.at(i);
+
+			if (channel && channel->isEnabled() && channel->detector() && channel->detector()->canDoDarkCurrentCorrection()) {
+				action->addSubAction(channel->detector()->createSetAsDarkCurrentCorrectionAction());
+				action->addSubAction(channel->detector()->createSetAsDarkCurrentTimeAction(dwellTime()));
+			}
+		}
+	}
 
 	return action;
 }
 
-void CLSSIS3820Scaler::doDarkCurrentCorrection(double dwellSeconds)
-{
-	lastDwellTime_ = dwellTime();
-	doingDarkCurrentCorrection_ = true;
-	emit newDarkCurrentMeasurementState(STARTED);
+//void CLSSIS3820Scaler::doDarkCurrentCorrection(double dwellSeconds)
+//{
+//	lastDwellTime_ = dwellTime();
+//	doingDarkCurrentCorrection_ = true;
+//	emit newDarkCurrentMeasurementState(STARTED);
 
-	AMListActionInfo3 *actionInfo = new AMListActionInfo3("Perform dark current correction.", "Perform dark current correction.");
-	AMListAction3 *action = new AMListAction3(actionInfo, AMListAction3::Sequential);
+//	AMListActionInfo3 *actionInfo = new AMListActionInfo3("Perform dark current correction.", "Perform dark current correction.");
+//	AMListAction3 *action = new AMListAction3(actionInfo, AMListAction3::Sequential);
 
-	action->addSubAction(createDwellTimeAction3(dwellSeconds));
-	action->addSubAction(createStartAction3(true));
+//	action->addSubAction(createDwellTimeAction3(dwellSeconds));
+//	action->addSubAction(createStartAction3(true));
 
-	connect( action, SIGNAL(failed()), this, SLOT(onDarkCurrentCorrectionFailed()) );
-	connect( action, SIGNAL(failed()), action, SLOT(deleteLater()) );
-	connect( action, SIGNAL(succeeded()), action, SLOT(deleteLater()) );
-	connect( action, SIGNAL(cancelled()), action, SLOT(deleteLater()) );
+//	connect( action, SIGNAL(failed()), this, SLOT(onDarkCurrentCorrectionFailed()) );
+//	connect( action, SIGNAL(failed()), action, SLOT(deleteLater()) );
+//	connect( action, SIGNAL(succeeded()), action, SLOT(deleteLater()) );
+//	connect( action, SIGNAL(cancelled()), action, SLOT(deleteLater()) );
 
-	action->start();
-}
+//	action->start();
+//}
 
 void CLSSIS3820Scaler::setScanning(bool isScanning){
 
@@ -335,6 +358,19 @@ void CLSSIS3820Scaler::setTotalScans(int totalScans){
 
 	if(!totalScans_->withinTolerance((double)totalScans))
 		totalScans_->move(totalScans);
+}
+
+void CLSSIS3820Scaler::measureDarkCurrent(int secondsDwell)
+{
+	AMAction3 *action = createMeasureDarkCurrentAction(secondsDwell);
+
+	if (action) {
+		connect( action, SIGNAL(cancelled()), action, SLOT(deleteLater()) );
+		connect( action, SIGNAL(failed()), action, SLOT(deleteLater()) );
+		connect( action, SIGNAL(succeeded()), action, SLOT(deleteLater()) );
+
+		action->start();
+	}
 }
 
 void CLSSIS3820Scaler::onScanningToggleChanged(){
@@ -683,22 +719,6 @@ void CLSSIS3820ScalerChannel::setCurrentAmplifier(AMCurrentAmplifier *amplifier)
 	emit currentAmplifierAttached();
 }
 
-void CLSSIS3820ScalerChannel::setDetector(AMDetector *detector)
-{
-	/*
-	if (detector_) {
-	disconnect( detector_, SIGNAL(newDarkCurrentMeasurementValueReady(double)), this, SIGNAL(newDarkCurrentMeasurementValue(double)) );
-	disconnect( detector_, SIGNAL(requiresNewDarkCurrentMeasurement(bool)), this, SIGNAL(newDarkCurrentMeasurementState(bool)) );
-	}
-	*/
-
-	detector_ = detector;
-	/*
-	connect( detector_, SIGNAL(newDarkCurrentMeasurementValueReady(double)), this, SIGNAL(newDarkCurrentMeasurementValue(double)) );
-	connect( detector_, SIGNAL(requiresNewDarkCurrentMeasurement(bool)), this, SIGNAL(newDarkCurrentMeasurementState(bool)) );
-	*/
-}
-
 void CLSSIS3820ScalerChannel::setMinimumVoltage(double min)
 {
 	if (voltageRange_.minimum() != min){
@@ -729,4 +749,12 @@ void CLSSIS3820ScalerChannel::setVoltagRange(const AMRange &range)
 void CLSSIS3820ScalerChannel::setVoltagRange(double min, double max)
 {
 	setVoltagRange(AMRange(min, max));
+}
+
+void CLSSIS3820ScalerChannel::setDetector(AMDetector *detector)
+{
+	if (detector_ != detector) {
+		detector_ = detector;
+		emit detectorChanged(detector_);
+	}
 }

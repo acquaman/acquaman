@@ -450,7 +450,11 @@ HEADERS += \
 	source/dataman/AMXRFScan.h \
 	source/ui/util/AMChooseDataFolderDialog.h \
 	source/acquaman/AMTimedScanActionControllerAssembler.h \
-	source/beamline/CLS/CLSBeamlines.h
+	source/beamline/CLS/CLSBeamlines.h \
+    source/actions3/actions/CLSSIS3820ScalerDarkCurrentMeasurementAction.h \
+    source/actions3/actions/CLSSIS3820ScalerDarkCurrentMeasurementActionInfo.h \
+    source/actions3/actions/AMDetectorSetAsDarkCurrentTimeAction.h \
+    source/actions3/actions/AMDetectorSetAsDarkCurrentTimeActionInfo.h
 
 FORMS += \
 
@@ -862,7 +866,11 @@ SOURCES += \
 	source/ui/util/AMLineEditDialog.cpp \
 	source/dataman/AMXRFScan.cpp \
 	source/ui/util/AMChooseDataFolderDialog.cpp \
-	source/acquaman/AMTimedScanActionControllerAssembler.cpp
+	source/acquaman/AMTimedScanActionControllerAssembler.cpp \
+    source/actions3/actions/CLSSIS3820ScalerDarkCurrentMeasurementAction.cpp \
+    source/actions3/actions/CLSSIS3820ScalerDarkCurrentMeasurementActionInfo.cpp \
+    source/actions3/actions/AMDetectorSetAsDarkCurrentTimeAction.cpp \
+    source/actions3/actions/AMDetectorSetAsDarkCurrentTimeActionInfo.cpp
 
 RESOURCES *= source/icons/icons.qrc \
 		source/configurationFiles/configurationFiles.qrc \
@@ -879,3 +887,15 @@ contains(DEFINES, AM_BUILD_REPORTER_ENABLED){
 
 	SOURCES *= source/util/AMRunTimeBuildInfo.cpp
 }
+
+
+
+
+
+
+
+
+
+
+
+

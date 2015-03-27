@@ -27,23 +27,20 @@ CLSSIS3820ScalerChannelViewWithDarkCurrent::CLSSIS3820ScalerChannelViewWithDarkC
 	CLSSIS3820ScalerChannelView(channel, parent)
 {
 	darkCurrentValueLabel_ = new QLabel();
-	setDarkCurrentValueLabel(channel_->detector()->darkCurrentMeasurementValue());
+	setDarkCurrentValue(0);
 
-	correctedMeasurementLabel_ = new QLabel();
-	setCorrectedMeasurementLabel(0);
+	darkCurrentCorrectedLabel_ = new QLabel();
+	setDarkCurrentCorrected(0);
 
 	content_ = new QVBoxLayout();
 	content_->addWidget(darkCurrentValueLabel_);
-	content_->addWidget(correctedMeasurementLabel_);
+	content_->addWidget(darkCurrentCorrectedLabel_);
 
-	setLayout(content_);
+	if (channel_ && channel_->detector() && channel_->detector()->canDoDarkCurrentCorrection()) {
+		setDarkCurrentValue(channel_->detector()->darkCurrentMeasurementValue());
 
-	if (channel_->detector()->canDoDarkCurrentCorrection()) {
-
-		connect( channel_->detector(), SIGNAL(newDarkCurrentMeasurementValueReady(double)), this, SLOT(onNewDarkCurrentMeasurementValue(double)) );
-		connect( channel_->detector(), SIGNAL(requiresNewDarkCurrentMeasurement(bool)), this, SLOT(onNewDarkCurrentMeasurementState(bool)) );
-		connect( channel_->detector(), SIGNAL(newValuesAvailable()), this, SLOT(onDetectorNewValuesAvailable()) );
-
+		connect( channel_->detector(), SIGNAL(darkCurrentValueChanged(double)), this, SLOT(setDarkCurrentValue(double)) );
+//		connect( channel_, SIGNAL(requiresNewDarkCurrentMeasurement(bool)), this, SLOT(setDarkCurrentValueState(bool)) );
 		setDarkCurrentViewMode(Show);
 
 	} else {
@@ -51,91 +48,69 @@ CLSSIS3820ScalerChannelViewWithDarkCurrent::CLSSIS3820ScalerChannelViewWithDarkC
 	}
 }
 
-
-
 CLSSIS3820ScalerChannelViewWithDarkCurrent::~CLSSIS3820ScalerChannelViewWithDarkCurrent()
 {
 
 }
 
-
-
-CLSSIS3820ScalerChannelViewWithDarkCurrent::DarkCurrentViewMode CLSSIS3820ScalerChannelViewWithDarkCurrent::darkCurrentViewMode()
-{
-	return darkCurrentViewMode_;
-}
-
-
-
 void CLSSIS3820ScalerChannelViewWithDarkCurrent::setDarkCurrentViewMode(DarkCurrentViewMode newMode)
 {
-	darkCurrentViewMode_ = newMode;
+	if (channel_ && channel_->detector() && channel_->detector()->canDoDarkCurrentCorrection()) {
 
-	if (darkCurrentViewMode_ == Hide) {
-		channelLayout_->removeItem(content_);
-		emit darkCurrentViewModeChanged(darkCurrentViewMode_);
+		if (darkCurrentViewMode_ != newMode) {
+			darkCurrentViewMode_ = newMode;
 
-	} else if (darkCurrentViewMode_ == Show) {
-		channelLayout_->addLayout(content_);
-		emit darkCurrentViewModeChanged(darkCurrentViewMode_);
+			if (darkCurrentViewMode_ == Hide) {
+				channelLayout_->removeItem(content_);
 
-	} else {
-		setDarkCurrentViewMode(Hide);
+			} else if (darkCurrentViewMode_ == Show) {
+				channelLayout_->addLayout(content_);
+
+			} else {
+				darkCurrentViewMode_ = Hide;
+			}
+
+			emit darkCurrentViewModeChanged(darkCurrentViewMode_);
+		}
 	}
 }
 
-
-
-void CLSSIS3820ScalerChannelViewWithDarkCurrent::onNewDarkCurrentMeasurementValue(double newValue)
+void CLSSIS3820ScalerChannelViewWithDarkCurrent::setDarkCurrentValue(double newValue)
 {
-	setDarkCurrentValueLabel(newValue);
+	darkCurrentValueLabel_->setText(QString("Dark current value : %1").arg(newValue, 0, 'f', 2));
 }
 
-
-
-void CLSSIS3820ScalerChannelViewWithDarkCurrent::onNewDarkCurrentMeasurementState(bool measurementUpToDate)
+void CLSSIS3820ScalerChannelViewWithDarkCurrent::setDarkCurrentCorrected(double newValue)
 {
-	if (measurementUpToDate)
+	darkCurrentCorrectedLabel_->setText(QString("Corrected measurement : %1").arg(newValue, 0, 'f', 2));
+}
+
+void CLSSIS3820ScalerChannelViewWithDarkCurrent::setDarkCurrentValueState(bool valid)
+{
+	if (valid)
 		darkCurrentValueLabel_->setStyleSheet("color: blue;");
 
 	else
 		darkCurrentValueLabel_->setStyleSheet("color: red;");
 }
 
-
-
 void CLSSIS3820ScalerChannelViewWithDarkCurrent::onDetectorNewValuesAvailable()
 {
-	// we arrive at a dark current corrected value by dividing the number of counts aquired by the measurement dwell time, and subtract the dark current.
-	double *newValue = 0;
-	channel_->detector()->data(newValue);
+	if (channel_ && channel_->detector() && channel_->detector()->canDoDarkCurrentCorrection()) {
+		// we arrive at a corrected value by dividing the number of counts acquired by the measurement dwell time, and then subtracting the dark current.
 
-	double dwellTime = channel_->detector()->acquisitionTime();
+		double *newValue = 0;
+		channel_->detector()->data(newValue);
 
-	// the latest value of the detector's dark current. this is normalized by its acquisition time already (see AMDetector::setAsDarkCurrentMeasurementValue()).
-	double darkCurrent = channel_->detector()->darkCurrentMeasurementValue();
+		double measurement = *newValue / channel_->detector()->acquisitionTime();
 
-	double correctedMeasurement_ = *newValue / dwellTime - darkCurrent;
+		// the latest value of the detector's dark current. this is normalized by its acquisition time already (see AMDetector::setAsDarkCurrentMeasurementValue()).
+		double darkCurrent = channel_->detector()->darkCurrentMeasurementValue();
 
-	qDebug() << "CLSSIS3820ScalerChannelView has new DC corrected value : " << correctedMeasurement_;
+		double correctedMeasurement = measurement - darkCurrent;
 
-	setCorrectedMeasurementLabel(correctedMeasurement_);
+		qDebug() << "CLSSIS3820ScalerChannelView has new DC corrected value : " << correctedMeasurement;
+
+		setDarkCurrentCorrected(correctedMeasurement);
+	}
 }
-
-
-
-void CLSSIS3820ScalerChannelViewWithDarkCurrent::setDarkCurrentValueLabel(double displayValue)
-{
-	darkCurrentValueLabel_->setText(QString("Dark current value : %1").arg(displayValue, 0, 'f', 2));
-}
-
-
-
-void CLSSIS3820ScalerChannelViewWithDarkCurrent::setCorrectedMeasurementLabel(double displayValue)
-{
-	correctedMeasurementLabel_->setText(QString("Corrected measurement : %1").arg(displayValue, 0, 'f', 2));
-}
-
-
-
-

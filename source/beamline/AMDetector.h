@@ -302,6 +302,8 @@ int outputSize = indexStart.totalPointsTo(indexEnd);
 	virtual AMAction3* createDarkCurrentCorrectionActions(double dwellTime);
 	/// Returns an action that sets the current detector value as the dark current correction value. Your subclass will probably call this in createDarkCurrentCorrectionActions.
 	virtual AMAction3* createSetAsDarkCurrentCorrectionAction();
+	/// Returns an action that sets the given time as the dark current time.
+	virtual AMAction3* createSetAsDarkCurrentTimeAction(double secondsDwell);
 
 	/// Returns a data source for viewing this detector's output
 	virtual AMDataSource* dataSource() const = 0;
@@ -346,7 +348,9 @@ public slots:
 	/// For clearable detectors, clears the current data. Returns whether the clear was possible.
 	bool clear();
 
+	/// Sets the latest measurement acquired as the new dark current value.
 	virtual void setAsDarkCurrentMeasurementValue();
+	/// Sets the given time as the dark current time.
 	virtual void setAsDarkCurrentMeasurementTime(double lastTime);
 	virtual void setRequiresNewDarkCurrentMeasurement(bool needsNewDCC);
 

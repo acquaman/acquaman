@@ -55,21 +55,26 @@ int AMDoDarkCurrentCorrectionAction::numberOfChildren() const {
 }
 
 void AMDoDarkCurrentCorrectionAction::onNewDarkCurrentMeasurementState(CLSSIS3820Scaler::DarkCurrentCorrectionState newState) {
-    if (newState == CLSSIS3820Scaler::SUCCEEDED)
+	qDebug() << "Scaler dark current measurement state changed.";
+
+    if (newState == CLSSIS3820Scaler::SUCCEEDED) {
+	    qDebug() << "\tDark current measurement succeeded.";
         setSucceeded();
-    else if (newState == CLSSIS3820Scaler::FAILED)
+    } else if (newState == CLSSIS3820Scaler::FAILED) {
+	    qDebug() << "\tDark current measurement failed.";
         setFailed();
+    }
 }
 
 void AMDoDarkCurrentCorrectionAction::startImplementation() {
-    qDebug() << "AMDoDarkCurrentCorrectionAction::startImplementation is executing.";
+//    qDebug() << "AMDoDarkCurrentCorrectionAction::startImplementation is executing.";
 
-    CLSSIS3820Scaler *scaler = doDarkCurrentCorrectionInfo()->scaler();
-    connect( scaler, SIGNAL(newDarkCurrentMeasurementState(CLSSIS3820Scaler::DarkCurrentCorrectionState)), this, SLOT(onNewDarkCurrentMeasurementState(CLSSIS3820Scaler::DarkCurrentCorrectionState)) );
-    double dwellTime = doDarkCurrentCorrectionInfo()->dwellTime();
+//    CLSSIS3820Scaler *scaler = doDarkCurrentCorrectionInfo()->scaler();
+//    connect( scaler, SIGNAL(newDarkCurrentMeasurementState(CLSSIS3820Scaler::DarkCurrentCorrectionState)), this, SLOT(onNewDarkCurrentMeasurementState(CLSSIS3820Scaler::DarkCurrentCorrectionState)) );
+//    double dwellTime = doDarkCurrentCorrectionInfo()->dwellTime();
 
-    setStarted();
-    scaler->doDarkCurrentCorrection(dwellTime);
+//    setStarted();
+//    scaler->doDarkCurrentCorrection(dwellTime);
 }
 
 void AMDoDarkCurrentCorrectionAction::pauseImplementation() {

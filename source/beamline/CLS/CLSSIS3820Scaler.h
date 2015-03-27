@@ -107,12 +107,15 @@ public:
 	/// Creates an action that waits for the acquisition to finish.  Provide an acceptable time wait so that you don't hang up indefinitely.
 	AMAction3* createWaitForDwellFinishedAction(double timeoutTime = 10.0);
 
-	AMAction3* createDoingDarkCurrentCorrectionAction(int dwellTime);
+//	AMAction3* createDoingDarkCurrentCorrectionAction(int dwellTime);
+
+	/// Creates a new action that causes this scaler to take a dark current measurement.
+	AMAction3* createMeasureDarkCurrentAction(int secondsDwell);
+	/// Creates a new action that sets the last measurement made as the dark current value for all capable channels. The current dwell time is also set as the dark current time.
+	AMAction3* createSetAsDarkCurrentMeasurementAction();
 
 
 public slots:
-	/// Creates the actions needed to perform a dark current correction and executes them.
-	void doDarkCurrentCorrection(double dwellSeconds);
 	/// Sets the scaler to be scanning or not.
 	void setScanning(bool isScanning);
 	/// Sets the mode of the scaler to either continuous or single shot.
@@ -123,6 +126,9 @@ public slots:
 	void setScansPerBuffer(int scansPerBuffer);
 	/// Sets the number of total scans.
 	void setTotalScans(int totalScans);
+
+	/// Creates the needed actions to perform a dark current correction on all available and able channels, and executes them.
+	void measureDarkCurrent(int secondsDwell);
 
 signals:
 	/// Notifier that the scanning flag has changed.  Returns the new state.
@@ -260,8 +266,6 @@ public:
 	/// Returns the SR570 that this scaler channel uses for sensitivity changes.  Returns 0 if not set.
 	AMCurrentAmplifier *currentAmplifier() const { return currentAmplifier_; }
 
-	/// Sets an AMDetector to this particular channel. This connection grants us access to the detector's dark current measurement/correction abilities.
-	void setDetector(AMDetector *detector);
 	/// Returns the AMDetector that this scaler channel uses.
 	AMDetector* detector() const { return detector_; }
 
@@ -294,6 +298,9 @@ public slots:
 	/// Overloaded.  Sets the linear voltage range.
 	void setVoltagRange(double min, double max);
 
+	/// Sets an AMDetector to this particular channel. This connection grants us access to the detector's dark current measurement/correction abilities.
+	void setDetector(AMDetector *detector);
+
 signals:
 	/// Notifier that the enabled state of the channel has changed.  Passes the new state.
 	void enabledChanged(bool isEnabled);
@@ -311,14 +318,8 @@ signals:
 	void voltageRangeChanged(const AMRange &);
 	/// Notifier that the SR570 sensitivity has changed.
 	void sensitivityChanged();
-
-	/*
-	use detector() to access these signals!
-	/// Emitted when the scaler channel is notified of a change in the dark current measurement value. Communicates change to scaler channel view.
-	void newDarkCurrentMeasurementValue(double newValue);
-	/// Emitted when the scaler channel is notified of a change in the dark current measurement status. Communicates change to the scaler channel view.
-	void newDarkCurrentMeasurementState(bool);
-	*/
+	/// Notifier that the detector for this channel has changed.
+	void detectorChanged(AMDetector *newDetector);
 
 
 protected slots:
@@ -353,7 +354,7 @@ protected:
 	/// Holds the pointer to the current amplifier (if it has one), which controls the sensitivity of the scalar channel.
 	AMCurrentAmplifier *currentAmplifier_;
 
-	/// Holds the pointer to the AMDetector (if it has one).
+	/// The channel detector.
 	AMDetector *detector_;
 };
 
