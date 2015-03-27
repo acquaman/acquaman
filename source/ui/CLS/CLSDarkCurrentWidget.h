@@ -34,6 +34,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define DARK_CURRENT_DWELL_TIME_MIN 0
 #define DARK_CURRENT_DWELL_TIME_MAX 10000
 
+#define MILLISECONDS_PER_SECOND 1000
+
 /// This is a class that allows a user to manually instigate the chain of events leading to a dark current correction measurement.
 class CLSDarkCurrentWidget : public QGroupBox
 {
@@ -58,10 +60,14 @@ protected slots:
     void onScalerScanningChanged();
     /// Handles emitting collectButtonClicked() signal when the collect button is clicked, with the dwell time entered argument. Signal is emitted only if the time entered is greater than zero.
     void onCollectButtonClicked();
+    /// Handles disconnecting from an action and setting it to be deleted later.
+    void actionCleanup(QObject *action);
 
 protected:
     /// The scaler being viewed.
     CLSSIS3820Scaler *scaler_;
+    /// A signal mapper to catch a running action's signals.
+    QSignalMapper *actionMapper_;
     /// The entry widget for updating the desired dwell time.
     QSpinBox* timeEntry_;
     /// Pressing this button should start the process of taking a dark current measurement.

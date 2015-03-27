@@ -27,6 +27,7 @@ CLSDarkCurrentWidget::CLSDarkCurrentWidget(CLSSIS3820Scaler *scaler, QWidget *pa
 	// Initialize member variables.
 
 	scaler_ = 0;
+	actionMapper_ = new QSignalMapper(this);
 
 	// Create UI elements.
 
@@ -50,6 +51,7 @@ CLSDarkCurrentWidget::CLSDarkCurrentWidget(CLSSIS3820Scaler *scaler, QWidget *pa
 
 	// Make connections.
 
+	connect( actionMapper_, SIGNAL(mapped(QObject*)), this, SLOT(actionCleanup(QObject*)) );
 	connect( collectButton_, SIGNAL(clicked()), this, SLOT(onCollectButtonClicked()) );
 
 	// Current settings.
@@ -75,8 +77,10 @@ void CLSDarkCurrentWidget::setScaler(CLSSIS3820Scaler *newScaler)
 		if (scaler_) {
 			connect( scaler_, SIGNAL(scanningChanged(bool)), this, SLOT(onScalerScanningChanged()) );
 
-			timeEntry_->setValue(scaler_->dwellTime() * 1000);
+			timeEntry_->setValue(scaler_->dwellTime() * MILLISECONDS_PER_SECOND);
 		}
+
+		onScalerScanningChanged();
 
 		emit scalerChanged(scaler_);
 	}
@@ -92,9 +96,39 @@ void CLSDarkCurrentWidget::onScalerScanningChanged()
 
 void CLSDarkCurrentWidget::onCollectButtonClicked()
 {
-	double secondsEntered = timeEntry_->value() / 1000.0;
+	double secondsEntered = timeEntry_->value() / MILLISECONDS_PER_SECOND;
 
 	if (scaler_ && secondsEntered > 0) {
-		scaler_->doDarkCurrentCorrection(secondsEntered);
+//		scaler_->doDarkCurrentCorrection(secondsEntered);
+
+		foreach (CLSSIS3820ScalerChannel *channel, scaler_->channels()) {
+			if (channel && channel->detector() && channel->detector()->canDoDarkCurrentCorrection()) {
+				AMAction3 *action = channel->detector()->createDarkCurrentCorrectionActions(secondsEntered);
+
+				if (action) {
+					// set up signal mapper action mappings and connect action.
+					actionMapper_->setMapping(action, action);
+
+					connect( action, SIGNAL(cancelled()), actionMapper_, SLOT(map()) );
+					connect( action, SIGNAL(failed()), actionMapper_, SLOT(map()) );
+					connect( action, SIGNAL(succeeded()), actionMapper_, SLOT(map()) );
+
+					// run action.
+					action->start();
+				}
+			}
+		}
+	}
+}
+
+void CLSDarkCurrentWidget::actionCleanup(QObject *action)
+{
+	if (action) {
+		// disconnect action and reset action mapper mappings.
+		disconnect( action, 0, actionMapper_, 0 );
+		actionMapper_->removeMappings(action);
+
+		// delete action.
+		action->deleteLater();
 	}
 }
