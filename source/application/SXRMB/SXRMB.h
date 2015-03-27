@@ -47,8 +47,8 @@ namespace SXRMB {
 	};
 	Q_DECLARE_FLAGS(FluorescenceDetectors, FluorescenceDetector)
 
-	/// Helper to convert SXRMB Endstation ID to endStation Name
-	inline QString sxrmbEndStationName(Endstation id) {
+	/// Helper to convert SXRMB Endstation ID to endstation Name
+	inline QString sxrmbEndstationName(Endstation id) {
 		QString name;
 
 		switch (id)
@@ -70,7 +70,7 @@ namespace SXRMB {
 			break;
 
 		default:
-			name = "Invalid EndStation ID";
+			name = "Invalid Endstation ID";
 		}
 
 		return name;

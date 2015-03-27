@@ -120,16 +120,16 @@ void SXRMBAppController::shutdown()
 bool SXRMBAppController::startupInstallActions()
 {
 	if(AMAppController::startupInstallActions()) {
-		QAction *switchEndStationAction = new QAction("Switch Beamline Endstation ...", mw_);
-		switchEndStationAction->setStatusTip("Switch beamline endstation.");
-		connect(switchEndStationAction, SIGNAL(triggered()), this, SLOT(onSwitchBeamlineEndstationTriggered()));
+		QAction *switchEndstationAction = new QAction("Switch Beamline Endstation ...", mw_);
+		switchEndstationAction->setStatusTip("Switch beamline endstation.");
+		connect(switchEndstationAction, SIGNAL(triggered()), this, SLOT(onSwitchBeamlineEndstationTriggered()));
 
 		QAction *ambiantWithGasChamberMotorViewAction = new QAction("See Ambiant Sample Stage Motors ...", mw_);
 		ambiantWithGasChamberMotorViewAction->setStatusTip("Display the motors of the Ambiant Sample Stage.");
 		connect(ambiantWithGasChamberMotorViewAction, SIGNAL(triggered()), this, SLOT(onShowAmbiantSampleStageMotorsTriggered()));
 
 		viewMenu_->addSeparator();
-		viewMenu_->addAction(switchEndStationAction);
+		viewMenu_->addAction(switchEndstationAction);
 		viewMenu_->addAction(ambiantWithGasChamberMotorViewAction);
 
 		return true;
@@ -176,7 +176,7 @@ void SXRMBAppController::onBeamlineConnected(bool connected)
 		microProbe2DScanConfigurationView_ = new SXRMB2DMapScanConfigurationView(microProbe2DScanConfiguration_);
 		microProbe2DScanConfigurationViewHolder_ = new AMScanConfigurationViewHolder3(microProbe2DScanConfigurationView_);
 
-		if (SXRMBBeamline::sxrmb()->currentEndStation() == SXRMB::Microprobe)
+		if (SXRMBBeamline::sxrmb()->currentEndstation() == SXRMB::Microprobe)
 			mw_->addPane(microProbe2DScanConfigurationViewHolder_, "Scans", "2D Scan", ":/utilites-system-monitor.png");
 	}
 
@@ -201,7 +201,7 @@ void SXRMBAppController::onBeamlineConnected(bool connected)
 		microProbe2DOxidationScanConfigurationView_ = new SXRMB2DOxidationMapScanConfigurationView(microProbe2DOxidationScanConfiguration_);
 		microProbe2DOxidationScanConfigurationViewHolder_ = new SXRMBOxidationMapScanConfigurationViewHolder(microProbe2DOxidationScanConfigurationView_);
 
-		if (SXRMBBeamline::sxrmb()->currentEndStation() == SXRMB::Microprobe)
+		if (SXRMBBeamline::sxrmb()->currentEndstation() == SXRMB::Microprobe)
 			mw_->addPane(microProbe2DOxidationScanConfigurationViewHolder_, "Scans", "Oxidation Map", ":/utilites-system-monitor.png");
 	}
 
@@ -437,23 +437,23 @@ void SXRMBAppController::onShowAmbiantSampleStageMotorsTriggered()
 
 void SXRMBAppController::onSwitchBeamlineEndstationTriggered()
 {
-	QStringList endStations;
-	endStations.append(SXRMB::sxrmbEndStationName(SXRMB::SolidState));
-	endStations.append(SXRMB::sxrmbEndStationName(SXRMB::AmbiantWithGasChamber));
-	endStations.append(SXRMB::sxrmbEndStationName(SXRMB::AmbiantWithoutGasChamber));
-	endStations.append(SXRMB::sxrmbEndStationName(SXRMB::Microprobe));
+	QStringList endstations;
+	endstations.append(SXRMB::sxrmbEndstationName(SXRMB::SolidState));
+	endstations.append(SXRMB::sxrmbEndstationName(SXRMB::AmbiantWithGasChamber));
+	endstations.append(SXRMB::sxrmbEndstationName(SXRMB::AmbiantWithoutGasChamber));
+	endstations.append(SXRMB::sxrmbEndstationName(SXRMB::Microprobe));
 
 	QComboBox *availableBeamlineEndstations = new QComboBox;
-	availableBeamlineEndstations->addItems(endStations);
-	availableBeamlineEndstations->setCurrentIndex(SXRMBBeamline::sxrmb()->currentEndStation() - 1);
+	availableBeamlineEndstations->addItems(endstations);
+	availableBeamlineEndstations->setCurrentIndex(SXRMBBeamline::sxrmb()->currentEndstation() - 1);
 
-	AMDialog *showMotorDialog = new AMDialog("Switch SXRMB EndStation");
+	AMDialog *showMotorDialog = new AMDialog("Switch SXRMB Endstation");
 	showMotorDialog->layoutDialogContent(availableBeamlineEndstations);
 
 	if (showMotorDialog->exec()) {
 
 		SXRMB::Endstation newEndstation = SXRMB::Endstation(availableBeamlineEndstations->currentIndex() + 1);
-		SXRMBBeamline::sxrmb()->switchEndStation(newEndstation);
+		SXRMBBeamline::sxrmb()->switchEndstation(newEndstation);
 		microProbe2DScanConfiguration_->setEndstation(newEndstation);
 		exafsScanConfiguration_->setEndstation(newEndstation);
 		microProbe2DOxidationScanConfiguration_->setEndstation(newEndstation);

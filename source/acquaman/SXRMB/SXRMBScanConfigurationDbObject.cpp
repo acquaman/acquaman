@@ -85,8 +85,9 @@ void SXRMBScanConfigurationDbObject::setEndstation(SXRMB::Endstation endstation)
 {
 	if (endstation_ != endstation){
 
+		SXRMB::Endstation fromEndstation = endstation_;
 		endstation_ = endstation;
-		emit endstationChanged(endstation_);
+		emit endstationChanged(fromEndstation, endstation_);
 		setModified(true);
 	}
 }

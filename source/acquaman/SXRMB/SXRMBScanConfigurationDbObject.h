@@ -57,7 +57,7 @@ public:
 
 signals:
 	/// Notifier that the endstation has changed.
-	void endstationChanged(SXRMB::Endstation);
+	void endstationChanged(SXRMB::Endstation, SXRMB::Endstation);
 	/// Notifier that the fluorescence detectors have changed.
 	void fluorescenceDetectorsChanged(SXRMB::FluorescenceDetectors);
 	/// Notifier that the x position has changed.

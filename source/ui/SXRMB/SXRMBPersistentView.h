@@ -37,8 +37,8 @@ protected slots:
 	void onBeamOffButtonClicked();
 	/// Handles disconnecting signals and deleting when beam off action is done
 	void onBeamOffActionFinished();
-	/// Handles SXRMBBeamline endStationChanged signal
-	void onBeamlineEndStationChanged(SXRMB::Endstation endstation);
+	/// Handles SXRMBBeamline endstationChanged signal
+	void onBeamlineEndstationChanged(SXRMB::Endstation fromEndstation, SXRMB::Endstation toEndstation);
 
 
 protected:
@@ -51,7 +51,7 @@ protected:
 	QVBoxLayout *mainVL_;
 
 	/// Label to display the current endstation name
-	QLabel *endStationLabel_;
+	QLabel *endstationLabel_;
 	/// Control editor for the status (read only)
 	AMExtendedControlEditor *statusControlEditor_;
 	/// Button to turn on beam

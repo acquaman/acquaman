@@ -32,7 +32,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 SXRMBBeamline::SXRMBBeamline()
 	: AMBeamline("SXRMB Beamline")
 {
-	currentEndStation_ = SXRMB::Invalid;
+	currentEndstation_ = SXRMB::Invalid;
 
 	setupSynchronizedDwellTime();
 	setupComponents();
@@ -56,11 +56,11 @@ SXRMBBeamline::~SXRMBBeamline()
 {
 }
 
-void SXRMBBeamline::switchEndStation(SXRMB::Endstation endstation)
+void SXRMBBeamline::switchEndstation(SXRMB::Endstation endstation)
 {
-	if (currentEndStation_ != endstation) {
+	if (currentEndstation_ != endstation) {
 
-		switch (currentEndStation_){
+		switch (currentEndstation_){
 
 		case SXRMB::SolidState:
 
@@ -162,8 +162,9 @@ void SXRMBBeamline::switchEndStation(SXRMB::Endstation endstation)
 			break;
 		}
 
-		currentEndStation_ = endstation;
-		emit endStationChanged(currentEndStation_);
+		SXRMB::Endstation fromEndstation = currentEndstation_;
+		currentEndstation_ = endstation;
+		emit endstationChanged(fromEndstation, currentEndstation_);
 	}
 }
 
@@ -177,10 +178,95 @@ AMPVwStatusControl* SXRMBBeamline::energy() const
 	return energy_;
 }
 
-SXRMB::Endstation SXRMBBeamline::currentEndStation() const
+SXRMB::Endstation SXRMBBeamline::currentEndstation() const
 {
-	return currentEndStation_;
+	return currentEndstation_;
 }
+
+AMPVwStatusControl* SXRMBBeamline::endstationSampleStageX(SXRMB::Endstation endstation) const
+{
+	AMPVwStatusControl* statusControl;
+	switch (endstation) {
+	case SXRMB::SolidState:
+		statusControl = solidStateSampleStageX();
+		break;
+	case SXRMB::AmbiantWithoutGasChamber:
+		statusControl = ambiantSampleStageX();
+		break;
+	case SXRMB::Microprobe:
+		statusControl = microprobeSampleStageX();
+		break;
+	case SXRMB::AmbiantWithGasChamber:
+	default:
+		statusControl = 0;
+	}
+
+	return statusControl;
+}
+
+AMPVwStatusControl* SXRMBBeamline::endstationSampleStageY(SXRMB::Endstation endstation) const
+{
+	AMPVwStatusControl* statusControl;
+	switch (endstation) {
+	case SXRMB::SolidState:
+		statusControl = solidStateSampleStageY();
+		break;
+	case SXRMB::Microprobe:
+		statusControl = microprobeSampleStageY();
+		break;
+	case SXRMB::AmbiantWithGasChamber:
+	case SXRMB::AmbiantWithoutGasChamber:
+	default:
+		statusControl = 0;
+	}
+
+	return statusControl;
+}
+
+AMPVwStatusControl* SXRMBBeamline::endstationSampleStageZ(SXRMB::Endstation endstation) const
+{
+	AMPVwStatusControl* statusControl;
+	switch (endstation) {
+	case SXRMB::SolidState:
+		statusControl = solidStateSampleStageZ();
+		break;
+	case SXRMB::AmbiantWithGasChamber:
+		statusControl = ambiantSampleHolderZ();
+		break;
+	case SXRMB::AmbiantWithoutGasChamber:
+		statusControl = ambiantSampleStageZ();
+		break;
+	case SXRMB::Microprobe:
+		statusControl = microprobeSampleStageZ();
+		break;
+	default:
+		statusControl = 0;
+	}
+
+	return statusControl;
+}
+
+AMPVwStatusControl* SXRMBBeamline::endstationSampleStageR(SXRMB::Endstation endstation) const
+{
+	AMPVwStatusControl* statusControl;
+
+	switch (endstation) {
+	case SXRMB::SolidState:
+		statusControl = solidStateSampleStageR();
+		break;
+	case SXRMB::AmbiantWithGasChamber:
+		statusControl = ambiantSampleHolderR();
+		break;
+	case SXRMB::AmbiantWithoutGasChamber:
+	case SXRMB::Microprobe:
+	default:
+		statusControl = 0;
+	}
+
+	return statusControl;
+}
+
+
 
 AMPVwStatusControl* SXRMBBeamline::microprobeSampleStageX() const
 {
@@ -246,7 +332,7 @@ QString SXRMBBeamline::currentMotorGroupName() const
 {
 	QString motorGroupName;
 
-	switch (currentEndStation_) {
+	switch (currentEndstation_) {
 
 	case SXRMB::SolidState:
 		motorGroupName = solidStateSampleStageMotorGroupObject()->name();
@@ -282,7 +368,7 @@ bool SXRMBBeamline::isConnected() const
 {
 	// check whether the sample stage is connected or not
 	bool sampleStageConnected = false;
-	switch (currentEndStation_) {
+	switch (currentEndstation_) {
 	case SXRMB::SolidState:
 		sampleStageConnected = solidStateSampleStageControlSet_->isConnected();
 		break;
@@ -667,18 +753,18 @@ void SXRMBBeamline::beamAvailabilityHelper()
 void SXRMBBeamline::sampleStageConnectHelper()
 {
 	// check the available endstation if it is NOT assigned yet and whether sample stage is connected or not
-	if (currentEndStation_ == SXRMB::Invalid) {
+	if (currentEndstation_ == SXRMB::Invalid) {
 		if (microprobeSampleStageControlSet_->isConnected())
-			switchEndStation( SXRMB::Microprobe );
+			switchEndstation( SXRMB::Microprobe );
 
 		else if (solidStateSampleStageControlSet_->isConnected())
-			switchEndStation( SXRMB::SolidState );
+			switchEndstation( SXRMB::SolidState );
 
 		else if (ambiantWithGasChamberSampleStageControlSet_->isConnected())
-			switchEndStation( SXRMB::AmbiantWithGasChamber );
+			switchEndstation( SXRMB::AmbiantWithGasChamber );
 
 		else if (ambiantWithoutGasChamberSampleStageControlSet_->isConnected())
-			switchEndStation( SXRMB::AmbiantWithoutGasChamber );
+			switchEndstation( SXRMB::AmbiantWithoutGasChamber );
 	}
 }
 
