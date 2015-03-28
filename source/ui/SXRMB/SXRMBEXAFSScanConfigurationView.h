@@ -3,6 +3,8 @@
 
 #include "ui/SXRMB/SXRMBScanConfigurationView.h"
 
+#include "application/SXRMB/SXRMB.h"
+
 class QPushButton;
 class QComboBox;
 class QDoubleSpinBox;
@@ -36,7 +38,7 @@ public slots:
 
 protected slots:
 	/// Slot that updates the fluorescence detector buttons.
-	void updateFluorescenceDetectorComboBox(int detector);
+	void updateFluorescenceDetectorComboBox(SXRMB::FluorescenceDetectors detector);
 	/// Handles changes to detector selection
 	void onFluorescenceDetectorChanged(int detector);
 

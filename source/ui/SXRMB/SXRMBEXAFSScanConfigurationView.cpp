@@ -161,7 +161,7 @@ SXRMBEXAFSScanConfigurationView::SXRMBEXAFSScanConfigurationView(SXRMBEXAFSScanC
 	// Bruker detector setting
 	fluorescenceDetectorComboBox_ = createFluorescenceComboBox();
 	connect(fluorescenceDetectorComboBox_, SIGNAL(currentIndexChanged(int)), this, SLOT(onFluorescenceDetectorChanged(int)));
-	connect(configuration_->dbObject(), SIGNAL(fluorescenceDetectorChanged(int)), this, SLOT(updateFluorescenceDetectorComboBox(int)));
+	connect(configuration_->dbObject(), SIGNAL(fluorescenceDetectorsChanged(SXRMB::FluorescenceDetectors)), this, SLOT(updateFluorescenceDetectorComboBox(SXRMB::FluorescenceDetectors)));
 
 	QVBoxLayout *detectorBoxLayout = new QVBoxLayout;
 	detectorBoxLayout->addWidget(fluorescenceDetectorComboBox_);
@@ -258,14 +258,14 @@ void SXRMBEXAFSScanConfigurationView::setupDefaultEXAFSScanRegions()
 	regionsView_->insertEXAFSRegion(2, region);
 }
 
-void SXRMBEXAFSScanConfigurationView::updateFluorescenceDetectorComboBox(int detector)
+void SXRMBEXAFSScanConfigurationView::updateFluorescenceDetectorComboBox(SXRMB::FluorescenceDetectors detector)
 {
-	fluorescenceDetectorComboBox_->setCurrentIndex(detector);
+	fluorescenceDetectorComboBox_->setCurrentIndex(int(detector));
 }
 
 void SXRMBEXAFSScanConfigurationView::onFluorescenceDetectorChanged(int detector)
 {
-	configuration_->setFluorescenceDetectors((SXRMB::FluorescenceDetector)detector);
+	configuration_->setFluorescenceDetectors((SXRMB::FluorescenceDetectors)detector);
 }
 
 void SXRMBEXAFSScanConfigurationView::onScanNameEdited()

@@ -91,7 +91,7 @@ protected slots:
 	/// Helper slot that sets whether we use SMAK or Ascii for the auto exporter.
 	void updateAutoExporter(int useAscii);
 	/// Slot that updates the fluorescence detector buttons.
-	void updateFluorescenceDetectorComboBox(int detector);
+	void updateFluorescenceDetectorComboBox(SXRMB::FluorescenceDetectors detector);
 	/// Handles changes to detector selection
 	void onFluorescenceDetectorChanged(int detector);
 

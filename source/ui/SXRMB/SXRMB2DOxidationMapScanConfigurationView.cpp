@@ -155,7 +155,7 @@ SXRMB2DOxidationMapScanConfigurationView::SXRMB2DOxidationMapScanConfigurationVi
 	// detector setting
 	fluorescenceDetectorComboBox_ = createFluorescenceComboBox();
 	connect(fluorescenceDetectorComboBox_, SIGNAL(currentIndexChanged(int)), this, SLOT(onFluorescenceDetectorChanged(int)));
-	connect(configuration_->dbObject(), SIGNAL(fluorescenceDetectorChanged(int)), this, SLOT(updateFluorescenceDetectorComboBox(int)));
+	connect(configuration_->dbObject(), SIGNAL(fluorescenceDetectorsChanged(SXRMB::FluorescenceDetectors)), this, SLOT(updateFluorescenceDetectorComboBox(SXRMB::FluorescenceDetectors)));
 
 	QVBoxLayout * detectorBoxLayout = new QVBoxLayout;
 	detectorBoxLayout->addWidget(fluorescenceDetectorComboBox_);
@@ -419,14 +419,14 @@ void SXRMB2DOxidationMapScanConfigurationView::updateAutoExporter(int useAscii)
 	configuration_->setExportAsAscii(useAscii == 0);
 }
 
-void SXRMB2DOxidationMapScanConfigurationView::updateFluorescenceDetectorComboBox(int detector)
+void SXRMB2DOxidationMapScanConfigurationView::updateFluorescenceDetectorComboBox(SXRMB::FluorescenceDetectors detector)
 {
-	fluorescenceDetectorComboBox_->setCurrentIndex(detector);
+	fluorescenceDetectorComboBox_->setCurrentIndex(int(detector));
 }
 
 void SXRMB2DOxidationMapScanConfigurationView::onFluorescenceDetectorChanged(int detector)
 {
-	configuration_->setFluorescenceDetectors((SXRMB::FluorescenceDetector)detector);
+	configuration_->setFluorescenceDetectors((SXRMB::FluorescenceDetectors)detector);
 }
 
 void SXRMB2DOxidationMapScanConfigurationView::checkScanAxisValidity()
