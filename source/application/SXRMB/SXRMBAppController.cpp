@@ -55,6 +55,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/acquaman/AMScanConfigurationViewHolder3.h"
 #include "ui/util/AMDialog.h"
 #include "ui/CLS/CLSSIS3820ScalerView.h"
+#include "ui/CLS/CLSCrossHairGeneratorControlView.h"
 #include "ui/acquaman/SXRMB/SXRMBOxidationMapScanConfigurationViewHolder.h"
 #include "ui/SXRMB/SXRMBBrukerDetectorView.h"
 #include "ui/SXRMB/SXRMBFourElementVortexDetectorView.h"
@@ -331,6 +332,24 @@ void SXRMBAppController::setupUserInterface()
 
 
 	mw_->insertHeading("General", 0);
+
+	CLSCrossHairGeneratorControlView *crossHairView = new CLSCrossHairGeneratorControlView(SXRMBBeamline::sxrmb()->crossHairGenerator());
+	QGroupBox *crossHairGroupBox = new QGroupBox;
+	crossHairGroupBox->setFlat(true);
+
+	QHBoxLayout *crossHairHorizontalSqueezeLayout = new QHBoxLayout;
+	crossHairHorizontalSqueezeLayout->addStretch();
+	crossHairHorizontalSqueezeLayout->addWidget(crossHairView);
+	crossHairHorizontalSqueezeLayout->addStretch();
+
+	QVBoxLayout *crossHairVerticalSqueezeLayout = new QVBoxLayout;
+	crossHairVerticalSqueezeLayout->addWidget(new AMTopFrame("Video Cross hairs"));
+	crossHairVerticalSqueezeLayout->addStretch();
+	crossHairVerticalSqueezeLayout->addLayout(crossHairHorizontalSqueezeLayout);
+	crossHairVerticalSqueezeLayout->addStretch();
+	crossHairGroupBox->setLayout(crossHairVerticalSqueezeLayout);
+	mw_->addPane(crossHairGroupBox, "General", "Cross Hairs", ":/system-search.png", true);
+
 	mw_->insertHeading("Detectors", 1);
 
 	SXRMBBrukerDetectorView *brukerView = new SXRMBBrukerDetectorView(SXRMBBeamline::sxrmb()->brukerDetector());

@@ -453,7 +453,8 @@ HEADERS += \
 	source/beamline/CLS/CLSBeamlines.h \
 	source/ui/util/AMChooseDataFolderDialog.h \
 	source/ui/util/AMDialog.h \
-    source/beamline/CLS/CLSCrossHairGeneratorControl.h
+    source/beamline/CLS/CLSCrossHairGeneratorControl.h \
+    source/ui/CLS/CLSCrossHairGeneratorControlView.h
 
 FORMS += \
 
@@ -868,7 +869,8 @@ SOURCES += \
 	source/acquaman/AMTimedScanActionControllerAssembler.cpp \
 	source/ui/util/AMChooseDataFolderDialog.cpp \
 	source/ui/util/AMDialog.cpp \
-    source/beamline/CLS/CLSCrossHairGeneratorControl.cpp
+    source/beamline/CLS/CLSCrossHairGeneratorControl.cpp \
+    source/ui/CLS/CLSCrossHairGeneratorControlView.cpp
 
 RESOURCES *= source/icons/icons.qrc \
 		source/configurationFiles/configurationFiles.qrc \
@@ -885,5 +887,7 @@ contains(DEFINES, AM_BUILD_REPORTER_ENABLED){
 
 	SOURCES *= source/util/AMRunTimeBuildInfo.cpp
 }
+
+
 
 

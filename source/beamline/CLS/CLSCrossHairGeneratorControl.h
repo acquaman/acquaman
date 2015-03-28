@@ -88,7 +88,7 @@ public slots:
 	/// Sets the second horizontal type.
 	void setHorizontalType2(int value);
 	/// Sets the first vertical type.
-	void setVerticaType1(int value);
+	void setVerticalType1(int value);
 	/// Sets the first vertical type.
 	void setVerticalType2(int value);
 

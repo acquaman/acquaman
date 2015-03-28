@@ -137,7 +137,7 @@ void CLSCrossHairGeneratorControl::setHorizontalType2(int value)
 		horizontalType2_->move(value);
 }
 
-void CLSCrossHairGeneratorControl::setVerticaType1(int value)
+void CLSCrossHairGeneratorControl::setVerticalType1(int value)
 {
 	if (verticalType1() != value)
 		verticalType1_->move(value);
