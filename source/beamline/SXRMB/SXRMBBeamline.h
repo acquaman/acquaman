@@ -69,7 +69,16 @@ public:
 	AMPVwStatusControl* energy() const;
 
 	/// Returns the current working endstation
-	SXRMB::Endstation currentEndStation() const;
+	SXRMB::Endstation currentEndstation() const;
+
+	/// Returns the X Stage for the microrobe sample stage
+	AMPVwStatusControl* endstationSampleStageX(SXRMB::Endstation) const;
+	/// Returns the Y Stage for the microrobe sample stage
+	AMPVwStatusControl* endstationSampleStageY(SXRMB::Endstation) const;
+	/// Returns the Z Stage for the microrobe sample stage
+	AMPVwStatusControl* endstationSampleStageZ(SXRMB::Endstation) const;
+	/// Returns the R Stage for the microrobe sample stage
+	AMPVwStatusControl* endstationSampleStageR(SXRMB::Endstation) const;
 
 	/// Returns the X Stage for the microrobe sample stage
 	AMPVwStatusControl* microprobeSampleStageX() const;
@@ -144,11 +153,11 @@ signals:
 	void beamAvaliability(bool beamOn);
 	void beamlineControlShuttersTimeout();
 
-	void endStationChanged(SXRMB::Endstation endStation);
+	void endstationChanged(SXRMB::Endstation fromEndstation, SXRMB::Endstation toEndstation);
 
 public slots:
 	/// switch the running endstation
-	void switchEndStation(SXRMB::Endstation endstation);
+	void switchEndstation(SXRMB::Endstation endstation);
 
 protected:
 	/// Constructor. This is a singleton class, access it through SXRMBBeamline::sxrmb().
@@ -202,7 +211,7 @@ protected slots:
 
 protected:
 	/// the Endstation using right now
-	SXRMB::Endstation currentEndStation_;
+	SXRMB::Endstation currentEndstation_;
 
 	/// Scaler for SXRMB
 	CLSSIS3820Scaler *scaler_;

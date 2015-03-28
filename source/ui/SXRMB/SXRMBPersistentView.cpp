@@ -41,9 +41,9 @@ SXRMBPersistentView::SXRMBPersistentView(QWidget *parent) :
 	// connect to signals
 	connect(beamOnButton_, SIGNAL(clicked()), this, SLOT(onBeamOnButtonClicked()));
 	connect(beamOffButton_, SIGNAL(clicked()), this, SLOT(onBeamOffButtonClicked()));
-	connect(SXRMBBeamline::sxrmb(), SIGNAL(endStationChanged(SXRMB::Endstation)), this, SLOT(onBeamlineEndStationChanged(SXRMB::Endstation)));
+	connect(SXRMBBeamline::sxrmb(), SIGNAL(endstationChanged(SXRMB::Endstation, SXRMB::Endstation)), this, SLOT(onBeamlineEndstationChanged(SXRMB::Endstation, SXRMB::Endstation)));
 
-	onBeamlineEndStationChanged(SXRMBBeamline::sxrmb()->currentEndStation());
+	onBeamlineEndstationChanged(SXRMBBeamline::sxrmb()->currentEndstation(), SXRMBBeamline::sxrmb()->currentEndstation());
 }
 
 SXRMBPersistentView::~SXRMBPersistentView()
@@ -94,26 +94,28 @@ void SXRMBPersistentView::onBeamOffActionFinished(){
 	beamOffAction_ = 0; //NULL
 }
 
-void SXRMBPersistentView::onBeamlineEndStationChanged(SXRMB::Endstation endstation)
+void SXRMBPersistentView::onBeamlineEndstationChanged(SXRMB::Endstation fromEndstation, SXRMB::Endstation toEndstation)
 {
-	QString endStationName = SXRMB::sxrmbEndStationName(SXRMBBeamline::sxrmb()->currentEndStation());
+	Q_UNUSED(fromEndstation)
+
+	QString endstationName = SXRMB::sxrmbEndstationName(SXRMBBeamline::sxrmb()->currentEndstation());
 	QString motorGroupName = SXRMBBeamline::sxrmb()->currentMotorGroupName();
 
-	endStationLabel_->setText("Endstation: <b><i>" + endStationName + "</i></b>");
+	endstationLabel_->setText("Endstation: <b><i>" + endstationName + "</i></b>");
 	motorGroupView_->setMotorGroupView(motorGroupName);
 
-	beamlineI0DetectorSR570View_->setVisible(endstation != SXRMB::Microprobe);
-	i0DetectorSR570View_->setVisible(endstation != SXRMB::SolidState);
-	teyDetectorSR570View_->setVisible((endstation != SXRMB::AmbiantWithGasChamber && endstation != SXRMB::AmbiantWithoutGasChamber));
-	transmissionDetectorSR570View_->setVisible((endstation == SXRMB::AmbiantWithGasChamber || endstation == SXRMB::AmbiantWithoutGasChamber));
+	beamlineI0DetectorSR570View_->setVisible(toEndstation != SXRMB::Microprobe);
+	i0DetectorSR570View_->setVisible(toEndstation != SXRMB::SolidState);
+	teyDetectorSR570View_->setVisible((toEndstation != SXRMB::AmbiantWithGasChamber && toEndstation != SXRMB::AmbiantWithoutGasChamber));
+	transmissionDetectorSR570View_->setVisible((toEndstation == SXRMB::AmbiantWithGasChamber || toEndstation == SXRMB::AmbiantWithoutGasChamber));
 }
 
 void SXRMBPersistentView::layoutBeamlineStatus()
 {
 	// create beamline endstation label
-	endStationLabel_ = new QLabel("Endstation: ");
-	endStationLabel_->setMargin(5);
-	mainVL_->addWidget(endStationLabel_);
+	endstationLabel_ = new QLabel("Endstation: ");
+	endstationLabel_->setMargin(5);
+	mainVL_->addWidget(endstationLabel_);
 
 	//create Beamline Status components group
 	statusControlEditor_ = new AMExtendedControlEditor(SXRMBBeamline::sxrmb()->beamlineStatus(), 0, true);
