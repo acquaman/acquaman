@@ -99,36 +99,35 @@ AMAction3* BioXASMainXASScanActionController::createInitializationActions()
     stage4->addSubAction(scaler->createStartAction3(true));
     stage4->addSubAction(scaler->createWaitForDwellFinishedAction(regionTime + 5.0));
 
-//    // setup beamline for dark current correction.
+    // setup beamline for dark current correction.
 
-//    AMListAction3 *darkCurrentSetup = new AMListAction3(new AMListActionInfo3("BioXAS Main Dark Current Setup", "BioXAS Main Dark Current Setup"), AMListAction3::Sequential);
+    AMListAction3 *darkCurrentSetup = new AMListAction3(new AMListActionInfo3("BioXAS Main Dark Current Setup", "BioXAS Main Dark Current Setup"), AMListAction3::Parallel);
 
-//    for (int i = 0, size = configuration_->detectorConfigurations().count(); i < size; i++) {
-//	    AMDetector *detector = AMBeamline::bl()->exposedDetectorByInfo(configuration_->detectorConfigurations().at(i));
-//	    bool sharedSourceFound = false;
+    for (int i = 0, size = configuration_->detectorConfigurations().count(); i < size; i++) {
+	    AMDetector *detector = AMBeamline::bl()->exposedDetectorByInfo(configuration_->detectorConfigurations().at(i));
+	    bool sharedSourceFound = false;
 
-//	    if (detector) {
-//		    int detectorIndex = scan_->indexOfDataSource(detector->name());
+	    if (detector) {
+		    int detectorIndex = scan_->indexOfDataSource(detector->name());
 
-//		    if (detectorIndex != -1 && detector->rank() == 0 && detector->canDoDarkCurrentCorrection()) {
-//			    bool sourceShared = detector->sharesDetectorTriggerSource();
+		    // if we have a valid detector that can perform dark current correction, make that detector perform a dark current measurement.
+		    if (detectorIndex != -1 && detector->rank() == 0 && detector->canDoDarkCurrentCorrection()) {
+			    bool sourceShared = detector->sharesDetectorTriggerSource();
 
-//			    if (sourceShared && !sharedSourceFound)
-//				darkCurrentSetup->addSubAction(detector->createDarkCurrentCorrectionActions(detector->darkCurrentMeasurementTime()));
-//			    else if (!sourceShared)
-//				    darkCurrentSetup->addSubAction(detector->createDarkCurrentCorrectionActions(detector->darkCurrentMeasurementTime()));
-//		    }
-//	    }
-//    }
+			    if ((sourceShared && !sharedSourceFound) || !sourceShared)
+				    darkCurrentSetup->addSubAction(detector->createDarkCurrentMeasurementAction(detector->acquisitionTime()));
+		    }
+	    }
+    }
 
     initializationAction->addSubAction(stage1);
     initializationAction->addSubAction(stage2);
     initializationAction->addSubAction(scaler->createDwellTimeAction3(double(configuration_->scanAxisAt(0)->regionAt(0)->regionTime())));
     initializationAction->addSubAction(stage3);
     initializationAction->addSubAction(stage4);
-//    initializationAction->addSubAction(darkCurrentSetup);
+    initializationAction->addSubAction(darkCurrentSetup);
 
-    // Set the bragg motor power to PowerOn.
+    // Set the bragg motor power to PowerOn, must be on to move/scan.
     initializationAction->addSubAction(BioXASMainBeamline::bioXAS()->mono()->braggMotor()->createPowerAction(CLSMAXvMotor::PowerOn));
 
     return initializationAction;
@@ -142,7 +141,7 @@ AMAction3* BioXASMainXASScanActionController::createCleanupActions()
     cleanup->addSubAction(scaler->createDwellTimeAction3(1.0));
     cleanup->addSubAction(scaler->createContinuousEnableAction3(true));
 
-    // Set the bragg motor power to PowerAutoHardware.
+    // Set the bragg motor power to PowerAutoHardware. The motor can get too warm when left on for too long, that's why we turn it off when not in use.
     cleanup->addSubAction(BioXASMainBeamline::bioXAS()->mono()->braggMotor()->createPowerAction(CLSMAXvMotor::PowerAutoHardware));
 
     return cleanup;
@@ -150,37 +149,39 @@ AMAction3* BioXASMainXASScanActionController::createCleanupActions()
 
 void BioXASMainXASScanActionController::buildScanControllerImplementation()
 {
-//	// Create data sources of dark current corrected measurements of each detector in the configuration_ that can perform dark current correction.
-//	// Add data sources to list of analyzed data sources.
+	// Create data sources for the dark current corrected measurements of each able detector in the configuration.
+	// Add data sources to list of sources associated with this scan.
 
-//	int dwellTimeIndex = scan_->indexOfDataSource(BioXASMainBeamline::bioXAS()->dwellTimeDetector()->name());
+	int dwellTimeIndex = scan_->indexOfDataSource(BioXASMainBeamline::bioXAS()->dwellTimeDetector()->name());
 
-//	if (dwellTimeIndex != -1) {
-//		AMDataSource *dwellTimeSource = scan_->dataSourceAt(dwellTimeIndex);
+	if (dwellTimeIndex != -1) {
+		AMDataSource *dwellTimeSource = scan_->dataSourceAt(dwellTimeIndex);
 
-//		for (int i = 0, size = configuration_->detectorConfigurations().count(); i < size; i++) {
-//			AMDetector *detector = AMBeamline::bl()->exposedDetectorByInfo(configuration_->detectorConfigurations().at(i));
+		for (int i = 0, size = configuration_->detectorConfigurations().count(); i < size; i++) {
+			AMDetector *detector = AMBeamline::bl()->exposedDetectorByInfo(configuration_->detectorConfigurations().at(i));
 
-//			if (detector) {
-//				int detectorIndex = scan_->indexOfDataSource(detector->name());
+			if (detector) {
+				int detectorIndex = scan_->indexOfDataSource(detector->name());
 
-//				if (detectorIndex != -1 && detector->rank() == 0 && detector->canDoDarkCurrentCorrection()) {
-//					AMDataSource *detectorSource = scan_->dataSourceAt(detectorIndex);
+				// If the detector is valid and able to perform dark current correction,
+				// create an instance of the dark current correction analysis block and add it to the list of sources associated with this scan.
+				if (detectorIndex != -1 && detector->rank() == 0 && detector->canDoDarkCurrentCorrection()) {
+					AMDataSource *detectorSource = scan_->dataSourceAt(detectorIndex);
 
-//					AM1DDarkCurrentCorrectionAB *detectorCorrection = new AM1DDarkCurrentCorrectionAB(QString("%1_DarkCorrect").arg(detector->name()));
-//					detectorCorrection->setDescription(QString("%1 Dark Current Correction").arg(detector->name()));
-//					detectorCorrection->setDataName(detectorSource->name());
-//					detectorCorrection->setDwellTimeName(dwellTimeSource->name());
-//					detectorCorrection->setInputDataSources(QList<AMDataSource*>() << detectorSource << dwellTimeSource);
-//					detectorCorrection->setTimeUnitMultiplier(0.001);
+					AM1DDarkCurrentCorrectionAB *detectorCorrected = new AM1DDarkCurrentCorrectionAB(QString("%1_DarkCorrect").arg(detector->name()));
+					detectorCorrected->setDescription(QString("%1 Dark Current Corrected").arg(detector->name()));
+					detectorCorrected->setDataName(detectorSource->name());
+					detectorCorrected->setDwellTimeName(dwellTimeSource->name());
+					detectorCorrected->setInputDataSources(QList<AMDataSource*>() << detectorSource << dwellTimeSource);
+					detectorCorrected->setTimeUnitMultiplier(0.001);
 
-//					connect( detector, SIGNAL(newDarkCurrentMeasurementValueReady(double)), detectorCorrection, SLOT(setDarkCurrent(double)) );
+					connect( detector, SIGNAL(darkCurrentValueChanged(double)), detectorCorrected, SLOT(setDarkCurrent(double)) );
 
-//					scan_->addAnalyzedDataSource(detectorCorrection, true, false);
-//				}
-//			}
-//		}
-//	}
+					scan_->addAnalyzedDataSource(detectorCorrected, true, false);
+				}
+			}
+		}
+	}
 }
 
 void BioXASMainXASScanActionController::createScanAssembler()
