@@ -87,6 +87,8 @@ protected:
 	void layoutMotorGroup();
 	/// layout the beamline Scaler views
 	void layoutScalers();
+	/// layout the beamline HV Control views
+	void layoutHVControls();
 };
 
 #endif // SXRMBPERSISTENTVIEW_H

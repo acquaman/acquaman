@@ -43,6 +43,7 @@ SXRMBBeamline::SXRMBBeamline()
 	setupMono();
 	setupMotorGroup();
 	setupControlsAsDetectors();
+	setupHVControls();
 	setupExposedControls();
 	setupExposedDetectors();
 	setupConnections();
@@ -432,6 +433,31 @@ SXRMBFourElementVortexDetector *SXRMBBeamline::fourElementVortexDetector() const
 	return fourElementVortexDetector_;
 }
 
+AMControlSet *SXRMBBeamline::beamlineHVControlSet() const
+{
+	return beamlineHVControlSet_;
+}
+
+AMControlSet *SXRMBBeamline::beamlinePersistentHVControlSet() const
+{
+	return beamlinePersistentHVControlSet_;
+}
+
+SXRMBHVControl *SXRMBBeamline::i0HVControl() const
+{
+	return i0HVControl_;
+}
+
+SXRMBHVControl *SXRMBBeamline::teyHVControl() const
+{
+	return teyHVControl_;
+}
+
+SXRMBHVControl *SXRMBBeamline::microProbeTEYHVControl() const
+{
+	return microProbTEYHVControl_;
+}
+
 AMAction3* SXRMBBeamline::createBeamOnActions() const
 {
 	if(!isConnected())
@@ -710,6 +736,22 @@ void SXRMBBeamline::setupControlsAsDetectors()
 {
 	energyFeedbackControl_ = new AMReadOnlyPVControl("EnergyFeedback", "BL1606-B1-1:Energy:fbk", this);
 	energyFeedbackDetector_ = new AMBasicControlDetectorEmulator("EnergyFeedback", "Energy Feedback", energyFeedbackControl_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+}
+
+void SXRMBBeamline::setupHVControls()
+{
+	i0HVControl_ = new SXRMBHVControl("I0", "PS1606506:100", ":vmon", ":v0set", ":pwonoff", ":status", ":imon");
+	teyHVControl_ = new SXRMBHVControl("TEY", "PS1606506:101", ":vmon", ":v0set", ":pwonoff", ":status", ":imon");
+	microProbTEYHVControl_ = new SXRMBHVControl("CHANNEL02", "PS1606506:102", ":vmon", ":v0set", ":pwonoff", ":status", ":imon");
+
+	beamlineHVControlSet_ = new AMControlSet(this);
+	beamlineHVControlSet_->addControl(i0HVControl_);
+	beamlineHVControlSet_->addControl(teyHVControl_);
+	beamlineHVControlSet_->addControl(microProbTEYHVControl_);
+
+	beamlinePersistentHVControlSet_ = new AMControlSet(this);
+	beamlinePersistentHVControlSet_->addControl(i0HVControl_);
+	beamlinePersistentHVControlSet_->addControl(teyHVControl_);
 }
 
 void SXRMBBeamline::setupExposedControls()

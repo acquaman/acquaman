@@ -24,6 +24,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "application/AMAppController.h"
 
+class QGroupBox;
+
 class AMScanConfigurationViewHolder3;
 class SXRMBPersistentView;
 class SXRMBEXAFSScanConfiguration;
@@ -120,6 +122,9 @@ protected:
 	void setupUserInterface();
 	/// Sets up all of the connections.
 	void makeConnections();
+
+	/// create the squeeze layout for Topframe content
+	QGroupBox * createTopFrameSqueezeContent(QWidget *widget, QString topFrameTitle);
 
 protected:
 	/// Persistent sidebar for SXRMB

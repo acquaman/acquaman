@@ -63,6 +63,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/SXRMB/SXRMB2DMapScanConfigurationView.h"
 #include "ui/SXRMB/SXRMB2DOxidationMapScanConfigurationView.h"
 #include "ui/SXRMB/SXRMBChooseDataFolderDialog.h"
+#include "ui/SXRMB/SXRMBHVControlView.h"
 
 #include "util/AMErrorMonitor.h"
 #include "util/AMPeriodicTable.h"
@@ -253,20 +254,7 @@ void SXRMBAppController::onScalerConnected(bool isConnected){
 			scalerView_->setAmplifierViewPrecision(3);
 		}
 
-		QGroupBox *scalerGroupBox = new QGroupBox;
-		scalerGroupBox->setFlat(true);
-
-		QHBoxLayout *scalerHorizontalSqueezeLayout = new QHBoxLayout;
-		scalerHorizontalSqueezeLayout->addStretch();
-		scalerHorizontalSqueezeLayout->addWidget(scalerView_);
-		scalerHorizontalSqueezeLayout->addStretch();
-
-		QVBoxLayout *scalerVerticalSqueezeLayout = new QVBoxLayout;
-		scalerVerticalSqueezeLayout->addWidget(new AMTopFrame("Scaler"));
-		scalerVerticalSqueezeLayout->addStretch();
-		scalerVerticalSqueezeLayout->addLayout(scalerHorizontalSqueezeLayout);
-		scalerVerticalSqueezeLayout->addStretch();
-		scalerGroupBox->setLayout(scalerVerticalSqueezeLayout);
+		QGroupBox *scalerGroupBox = createTopFrameSqueezeContent(scalerView_, "Scaler");
 		mw_->addPane(scalerGroupBox, "Detectors", "Scaler", ":/system-search.png", true);
 	}
 	else if(scalerView_)
@@ -331,6 +319,10 @@ void SXRMBAppController::setupUserInterface()
 
 
 	mw_->insertHeading("General", 0);
+	SXRMBHVControlView *hvControlView = new SXRMBHVControlView(SXRMBBeamline::sxrmb()->beamlineHVControlSet(), false);
+	QGroupBox *hvControlGroupBox = createTopFrameSqueezeContent(hvControlView, "HV Controls");
+	mw_->addPane(hvControlGroupBox, "General", "HV Controls", ":/system-search.png");
+
 	mw_->insertHeading("Detectors", 1);
 
 	SXRMBBrukerDetectorView *brukerView = new SXRMBBrukerDetectorView(SXRMBBeamline::sxrmb()->brukerDetector());
@@ -369,6 +361,27 @@ void SXRMBAppController::makeConnections()
 			onScalerConnected(true);
 	}
 }
+
+QGroupBox* SXRMBAppController::createTopFrameSqueezeContent(QWidget *widget, QString topFrameTitle)
+{
+	QHBoxLayout *horizontalSqueezeLayout = new QHBoxLayout;
+	horizontalSqueezeLayout->addStretch();
+	horizontalSqueezeLayout->addWidget(widget);
+	horizontalSqueezeLayout->addStretch();
+
+	QVBoxLayout *verticalSqueezeLayout = new QVBoxLayout;
+	verticalSqueezeLayout->addWidget(new AMTopFrame(topFrameTitle));
+	verticalSqueezeLayout->addStretch();
+	verticalSqueezeLayout->addLayout(horizontalSqueezeLayout);
+	verticalSqueezeLayout->addStretch();
+
+	QGroupBox *controlGroupBox = new QGroupBox;
+	controlGroupBox->setFlat(true);
+	controlGroupBox->setLayout(verticalSqueezeLayout);
+
+	return 	controlGroupBox;
+}
+
 
 void SXRMBAppController::onCurrentScanActionStartedImplementation(AMScanAction *action)
 {

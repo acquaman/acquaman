@@ -37,6 +37,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "application/SXRMB/SXRMB.h"
 #include "beamline/SXRMB/SXRMBBrukerDetector.h"
 #include "beamline/SXRMB/SXRMBFourElementVortexDetector.h"
+#include "beamline/SXRMB/SXRMBHVControl.h"
 
 #include "util/AMBiHash.h"
 
@@ -140,6 +141,17 @@ public:
 	/// Returns the four element vortex detector.
 	SXRMBFourElementVortexDetector *fourElementVortexDetector() const;
 
+	/// Returns the control set of the HV controls
+	AMControlSet *beamlineHVControlSet() const;
+	/// Returns the control set of the HV controls
+	AMControlSet *beamlinePersistentHVControlSet() const;
+	/// Returns the I0 HV control
+	SXRMBHVControl *i0HVControl() const;
+	/// Returns the TEY HV control
+	SXRMBHVControl *teyHVControl() const;
+	/// Returns the microProbe TEY HV control
+	SXRMBHVControl *microProbeTEYHVControl() const;
+
 	/// Returns the list of actions to turn the beam on
 	AMAction3* createBeamOnActions() const;
 	/// Returns the list of actions to turn the beam off (just photon shutter 2 right now)
@@ -177,6 +189,8 @@ protected:
 	void setupMotorGroup();
 	/// Sets up all of the detectors that need to be added to scans that aren't a part of typical detectors.  This may just be temporary, not sure.
 	void setupControlsAsDetectors();
+	/// Sets up the High Voltage Controls.
+	void setupHVControls();
 	/// Sets up the exposed actions.
 	void setupExposedControls();
 	/// Sets up the exposed detectors.
@@ -278,6 +292,17 @@ protected:
 	SXRMBBrukerDetector *brukerDetector_;
 	/// The four element vortex detector.
 	SXRMBFourElementVortexDetector *fourElementVortexDetector_;
+
+	/// The control set of the HV controls
+	AMControlSet *beamlineHVControlSet_;
+	/// The control set of the HV controls
+	AMControlSet *beamlinePersistentHVControlSet_;
+	/// The IO HV control
+	SXRMBHVControl *i0HVControl_;
+	/// The TEY HV control
+	SXRMBHVControl *teyHVControl_;
+	/// The microProb TEY HV control
+	SXRMBHVControl *microProbTEYHVControl_;
 
 	/// Beamline valves, the valves involved in the Beam on/off action
 	AMControlSet * beamlineControlShutterSet_;

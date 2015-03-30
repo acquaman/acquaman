@@ -8,6 +8,7 @@
 #include "ui/beamline/AMExtendedControlEditor.h"
 #include "ui/AMMotorGroupView.h"
 #include "ui/CLS/CLSSIS3820ScalerView.h"
+#include "ui/SXRMB/SXRMBHVControlView.h"
 
 #include "util/AMErrorMonitor.h"
 
@@ -25,6 +26,7 @@ SXRMBPersistentView::SXRMBPersistentView(QWidget *parent) :
 	layoutBeamlineEnergy();
 	layoutMotorGroup();
 	layoutScalers();
+	layoutHVControls();
 
 	// add stretch for display purpose
 	mainVL_->addStretch();
@@ -192,4 +194,19 @@ void SXRMBPersistentView::layoutScalers()
 	scalerGroupBox->setLayout(scalerGroupLayout);
 
 	mainVL_->addWidget(scalerGroupBox);
+}
+
+void SXRMBPersistentView::layoutHVControls()
+{
+	SXRMBHVControlView *hvControlView = new SXRMBHVControlView(SXRMBBeamline::sxrmb()->beamlinePersistentHVControlSet(), true);
+
+	QVBoxLayout *hvControlsLayout = new QVBoxLayout();
+	hvControlsLayout->setContentsMargins(4, 0, 4, 0);
+	hvControlsLayout->addWidget(hvControlView);
+
+	QGroupBox *hvControlGroupBox = new QGroupBox("HV Controls");
+	hvControlGroupBox->setLayout(hvControlsLayout);
+
+	mainVL_->addWidget(hvControlGroupBox);
+
 }

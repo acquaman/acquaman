@@ -10,6 +10,7 @@ HEADERS += \
 	source/beamline/SXRMB/SXRMBBeamline.h \
 	source/beamline/SXRMB/SXRMBBrukerDetector.h \
 	source/beamline/SXRMB/SXRMBFourElementVortexDetector.h \
+	source/beamline/SXRMB/SXRMBHVControl.h \
 	source/acquaman/SXRMB/SXRMBXRFScanConfiguration.h \
 	source/acquaman/SXRMB/SXRMBXRFScanController.h \
 	source/acquaman/SXRMB/SXRMBEXAFSScanConfiguration.h \
@@ -19,6 +20,7 @@ HEADERS += \
 	source/acquaman/SXRMB/SXRMBScanConfiguration.h \
 	source/acquaman/SXRMB/SXRMBScanConfigurationDbObject.h \
 	source/dataman/SXRMB/SXRMBUserConfiguration.h \
+	source/dataman/SXRMB/SXRMBDbUpgrade1pt1.h \
 	source/ui/acquaman/SXRMB/SXRMBOxidationMapScanConfigurationViewHolder.h \
 	source/ui/SXRMB/SXRMBPersistentView.h \
 	source/ui/SXRMB/SXRMBScanConfigurationView.h \
@@ -29,7 +31,7 @@ HEADERS += \
 	source/ui/SXRMB/SXRMBXRFDetailedDetectorView.h \
 	source/ui/SXRMB/SXRMBBrukerDetectorView.h \
 	source/ui/SXRMB/SXRMBFourElementVortexDetectorView.h \
-    source/dataman/SXRMB/SXRMBDbUpgrade1pt1.h
+	source/ui/SXRMB/SXRMBHVControlView.h
 
 
 SOURCES += \
@@ -38,6 +40,7 @@ SOURCES += \
 	source/beamline/SXRMB/SXRMBBeamline.cpp \
 	source/beamline/SXRMB/SXRMBBrukerDetector.cpp \
 	source/beamline/SXRMB/SXRMBFourElementVortexDetector.cpp \
+	source/beamline/SXRMB/SXRMBHVControl.cpp \
 	source/acquaman/SXRMB/SXRMBXRFScanConfiguration.cpp \
 	source/acquaman/SXRMB/SXRMBXRFScanController.cpp \
 	source/acquaman/SXRMB/SXRMBEXAFSScanConfiguration.cpp \
@@ -47,6 +50,7 @@ SOURCES += \
 	source/acquaman/SXRMB/SXRMBScanConfiguration.cpp \
 	source/acquaman/SXRMB/SXRMBScanConfigurationDbObject.cpp \
 	source/dataman/SXRMB/SXRMBUserConfiguration.cpp \
+	source/dataman/SXRMB/SXRMBDbUpgrade1pt1.cpp \
 	source/ui/acquaman/SXRMB/SXRMBOxidationMapScanConfigurationViewHolder.cpp \
 	source/ui/SXRMB/SXRMBPersistentView.cpp \
 	source/ui/SXRMB/SXRMBScanConfigurationView.cpp \
@@ -57,6 +61,10 @@ SOURCES += \
 	source/ui/SXRMB/SXRMBXRFDetailedDetectorView.cpp \
 	source/ui/SXRMB/SXRMBBrukerDetectorView.cpp \
 	source/ui/SXRMB/SXRMBFourElementVortexDetectorView.cpp \
-    source/dataman/SXRMB/SXRMBDbUpgrade1pt1.cpp
+	source/ui/SXRMB/SXRMBHVControlView.cpp
+
+
+
+
 
 
