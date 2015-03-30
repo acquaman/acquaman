@@ -79,12 +79,12 @@ void CLSSIS3820ScalerChannelViewWithDarkCurrent::setDarkCurrentViewMode(DarkCurr
 
 void CLSSIS3820ScalerChannelViewWithDarkCurrent::setDarkCurrentValue(double newValue)
 {
-	darkCurrentValueLabel_->setText(QString("Dark current value : %1").arg(newValue, 0, 'f', 2));
+	darkCurrentValueLabel_->setText(QString("Dark current value : %1").arg((int)newValue));
 }
 
 void CLSSIS3820ScalerChannelViewWithDarkCurrent::setDarkCurrentCorrected(double newValue)
 {
-	darkCurrentCorrectedLabel_->setText(QString("Corrected measurement : %1").arg(newValue, 0, 'f', 2));
+	darkCurrentCorrectedLabel_->setText(QString("Corrected measurement : %1").arg((int)newValue));
 }
 
 void CLSSIS3820ScalerChannelViewWithDarkCurrent::setDarkCurrentState(bool valid)
