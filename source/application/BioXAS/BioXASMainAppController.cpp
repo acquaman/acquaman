@@ -52,6 +52,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/AMScanAxisEXAFSRegion.h"
 #include "ui/BioXAS/BioXASSSRLMonochromatorConfigurationView.h"
 
+#include "ui/AMTopFrame.h"
+
 BioXASMainAppController::BioXASMainAppController(QObject *parent)
 	: AMAppController(parent)
 {
@@ -121,6 +123,32 @@ void BioXASMainAppController::onScalerConnected()
     }
 }
 
+void BioXASMainAppController::onMonoConnected()
+{
+	BioXASMainMonochromator *mono = BioXASMainBeamline::bioXAS()->mono();
+
+	if (mono && mono->isConnected() && !monoConfigView_) {
+		monoConfigView_ = new BioXASSSRLMonochromatorConfigurationView(mono);
+
+		QHBoxLayout *hLayout = new QHBoxLayout();
+		hLayout->addStretch();
+		hLayout->addWidget(monoConfigView_);
+		hLayout->addStretch();
+
+		QVBoxLayout *vLayout = new QVBoxLayout();
+		vLayout->addWidget(new AMTopFrame("Monochromator", QIcon(":/utilities-system-monitor.png")));
+		vLayout->addStretch();
+		vLayout->addLayout(hLayout);
+		vLayout->addStretch();
+
+		QGroupBox *monoBox = new QGroupBox();
+		monoBox->setFlat(true);
+		monoBox->setLayout(vLayout);
+
+		mw_->addPane(monoBox, "General", "Monochromator", ":/utilities-system-monitor.png");
+	}
+}
+
 void BioXASMainAppController::onBeamlineConnected()
 {
     if (BioXASMainBeamline::bioXAS()->isConnected() && !configurationView_) {
@@ -178,10 +206,6 @@ void BioXASMainAppController::setupUserInterface()
 
 	mw_->insertHeading("General", 0);
 
-	// Create mono configuration view and add to 'General' category.
-	monoConfigView_ = new BioXASSSRLMonochromatorConfigurationView(BioXASMainBeamline::bioXAS()->mono());
-	mw_->addPane(monoConfigView_, "General", "Monochromator", ":/system-software-update.png");
-
 	mw_->insertHeading("Detectors", 1);
 
 	mw_->insertHeading("Scans", 2);
@@ -194,6 +218,7 @@ void BioXASMainAppController::setupUserInterface()
 void BioXASMainAppController::makeConnections()
 {
     connect( BioXASMainBeamline::bioXAS()->scaler(), SIGNAL(connectedChanged(bool)), this, SLOT(onScalerConnected()) );
+    connect( BioXASMainBeamline::bioXAS()->mono(), SIGNAL(connected(bool)), this, SLOT(onMonoConnected()) );
     connect( BioXASMainBeamline::bioXAS(), SIGNAL(connected(bool)), this, SLOT(onBeamlineConnected()) );
 }
 
