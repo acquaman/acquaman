@@ -109,19 +109,19 @@ void CLSSIS3820ScalerChannelViewWithDarkCurrent::onDetectorAcquisitionStateChang
 
 void CLSSIS3820ScalerChannelViewWithDarkCurrent::onDetectorAcquisitionSucceeded()
 {
-//	if (channel_ && channel_->isEnabled() && channel_->detector() && channel_->detector()->canDoDarkCurrentCorrection()) {
+	if (channel_ && channel_->isEnabled() && channel_->detector() && channel_->detector()->canDoDarkCurrentCorrection()) {
 
-//		// we arrive at a corrected value by dividing the number of counts acquired by the measurement dwell time, and then subtracting the dark current.
+		// we arrive at a corrected value by dividing the number of counts acquired by the measurement dwell time, and then subtracting the dark current.
 
-//		double *newValue = 0;
-//		channel_->detector()->data(newValue);
+		double newValue = 0;
+		channel_->detector()->data(&newValue);
 
-//		double measurement = *newValue / channel_->detector()->acquisitionTime();
+		double measurement = newValue / channel_->detector()->acquisitionTime();
 
-//		double correctedMeasurement = measurement - channel_->detector()->darkCurrentValue();
+		double correctedMeasurement = measurement - channel_->detector()->darkCurrentValue();
 
-//		qDebug() << "CLSSIS3820ScalerChannelView has new DC corrected value : " << correctedMeasurement;
+		qDebug() << "CLSSIS3820ScalerChannelView has new DC corrected value : " << correctedMeasurement;
 
-//		setDarkCurrentCorrected(correctedMeasurement);
-//	}
+		setDarkCurrentCorrected(correctedMeasurement);
+	}
 }
