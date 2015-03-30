@@ -23,9 +23,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "beamline/CLS/CLSSIS3820Scaler.h"
 #include "beamline/AMDetectorTriggerSource.h"
-#include "actions3/actions/AMDoDarkCurrentCorrectionAction.h"
 #include "actions3/AMListAction3.h"
-
 
 CLSBasicScalerChannelDetector::CLSBasicScalerChannelDetector(const QString &name, const QString &description, CLSSIS3820Scaler *scaler, int channelIndex, QObject *parent) :
 	AMDetector(name, description, parent)

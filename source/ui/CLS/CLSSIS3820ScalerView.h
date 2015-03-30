@@ -32,9 +32,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 class CLSSIS3820Scaler;
 class CLSSIS3820ScalerChannel;
-class CLSDarkCurrentWidget;
 
-#include "ui/CLS/CLSDarkCurrentWidget.h"
 #include "source/ui/beamline/AMCurrentAmplifierSingleView.h"
 
 /*!
