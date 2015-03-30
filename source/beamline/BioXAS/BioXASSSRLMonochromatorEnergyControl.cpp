@@ -15,25 +15,14 @@ bool BioXASSSRLMonochromatorEnergyControl::isConnected() const
 {
 	bool connected = (
 				AMPVwStatusControl::isConnected() &&
-				hcControl()->isConnected() &&
-				crystal2DControl()->isConnected() &&
-				braggAngleControl()->isConnected() &&
-				angleOffsetControl()->isConnected()
+				hc_->isConnected() &&
+				crystal2D_->isConnected() &&
+				braggAngle_->isConnected() &&
+				angleOffset_->isConnected()
 				);
 
 	return connected;
 }
-
-//AMControl::FailureExplanation BioXASSSRLMonochromatorEnergyControl::move(double setpoint)
-//{
-//    if (qAbs(setpoint-setpoint_) < 0.001){
-
-//	emit moveSucceeded();
-//	return AMControl::NoFailure;
-//    }
-
-//    return AMPVwStatusControl::move(setpoint);
-//}
 
 void BioXASSSRLMonochromatorEnergyControl::setEnergyCalibration(double newEnergy)
 {
@@ -42,7 +31,7 @@ void BioXASSSRLMonochromatorEnergyControl::setEnergyCalibration(double newEnergy
 		double newOffset = calibrateEnergy(value(), newEnergy);
 
 		// Set the new angle offset.
-		angleOffsetControl()->move(newOffset);
+		angleOffset_->move(newOffset);
 	}
 }
 
@@ -55,7 +44,7 @@ AMAction3* BioXASSSRLMonochromatorEnergyControl::createSetEnergyCalibrationActio
 		double newOffset = calibrateEnergy(value(), newEnergy);
 
 		// Set the new angle offset.
-		action = AMActionSupport::buildControlMoveAction(angleOffsetControl(), newOffset, false);
+		action = AMActionSupport::buildControlMoveAction(angleOffset_, newOffset, false);
 	}
 
 	return action;
@@ -64,11 +53,14 @@ AMAction3* BioXASSSRLMonochromatorEnergyControl::createSetEnergyCalibrationActio
 double BioXASSSRLMonochromatorEnergyControl::calibrateEnergy(double oldEnergy, double newEnergy) const
 {
 	// Gather pre-calibration information.
-	double oldOffset = angleOffsetControl()->value();
+	double oldOffset = angleOffset_->value();
+	double hc = hc_->value();
+	double crystal2D = crystal2D_->value();
+	double braggAngle = braggAngle_->value();
 
 	// Calculate changes needed for calibration.
 	double deltaEnergy = newEnergy - oldEnergy;
-	double deltaOffset = hc() / (crystal2D() * oldEnergy * oldEnergy * cos(braggAngle() * M_PI / 180)) * deltaEnergy * 180 / M_PI;
+	double deltaOffset = hc / (crystal2D * oldEnergy * oldEnergy * cos(braggAngle * M_PI / 180)) * deltaEnergy * 180 / M_PI;
 
 	// Calibration results.
 	double newOffset = oldOffset + deltaOffset;
