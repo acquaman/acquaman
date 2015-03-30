@@ -314,7 +314,7 @@ protected:
 	/// The TEY HV control
 	SXRMBHVControl *teyHVControl_;
 	/// The microProb TEY HV control
-	SXRMBHVControl *microProbTEYHVControl_;
+	SXRMBHVControl *microProbeTEYHVControl_;
 
 	/// Beamline valves, the valves involved in the Beam on/off action
 	AMControlSet * beamlineControlShutterSet_;

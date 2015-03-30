@@ -327,38 +327,10 @@ void SXRMBAppController::setupUserInterface()
 
 	CLSCrossHairGeneratorControlView *crossHairView = new CLSCrossHairGeneratorControlView(SXRMBBeamline::sxrmb()->crossHairGenerator());
 	QGroupBox *crossHairGroupBox = createTopFrameSqueezeContent(crossHairView, "Video Cross hairs");
-//	QGroupBox *crossHairGroupBox = new QGroupBox;
-//	crossHairGroupBox->setFlat(true);
-
-//	QHBoxLayout *crossHairHorizontalSqueezeLayout = new QHBoxLayout;
-//	crossHairHorizontalSqueezeLayout->addStretch();
-//	crossHairHorizontalSqueezeLayout->addWidget(crossHairView);
-//	crossHairHorizontalSqueezeLayout->addStretch();
-
-//	QVBoxLayout *crossHairVerticalSqueezeLayout = new QVBoxLayout;
-//	crossHairVerticalSqueezeLayout->addWidget(new AMTopFrame("Video Cross hairs"));
-//	crossHairVerticalSqueezeLayout->addStretch();
-//	crossHairVerticalSqueezeLayout->addLayout(crossHairHorizontalSqueezeLayout);
-//	crossHairVerticalSqueezeLayout->addStretch();
-//	crossHairGroupBox->setLayout(crossHairVerticalSqueezeLayout);
 	mw_->addPane(crossHairGroupBox, "General", "Cross Hairs", ":/system-search.png", true);
 
 	SXRMBCrystalChangeView *crystalChangeView = new SXRMBCrystalChangeView(SXRMBBeamline::sxrmb()->crystalSelection());
 	QGroupBox *crystalChangeGroupBox = createTopFrameSqueezeContent(crystalChangeView, "Crystal Selection");
-//	QGroupBox *crystalChangeGroupBox = new QGroupBox;
-//	crystalChangeGroupBox->setFlat(true);
-
-//	QHBoxLayout *crystalChangeHorizontalSqueezeLayout = new QHBoxLayout;
-//	crystalChangeHorizontalSqueezeLayout->addStretch();
-//	crystalChangeHorizontalSqueezeLayout->addWidget(crystalChangeView);
-//	crystalChangeHorizontalSqueezeLayout->addStretch();
-
-//	QVBoxLayout *crystalChangeVerticalSqueezeLayout = new QVBoxLayout;
-//	crystalChangeVerticalSqueezeLayout->addWidget(new AMTopFrame("Crystal Selection"));
-//	crystalChangeVerticalSqueezeLayout->addStretch();
-//	crystalChangeVerticalSqueezeLayout->addLayout(crystalChangeHorizontalSqueezeLayout);
-//	crystalChangeVerticalSqueezeLayout->addStretch();
-//	crystalChangeGroupBox->setLayout(crystalChangeVerticalSqueezeLayout);
 	mw_->addPane(crystalChangeGroupBox, "General", "Crystal Change", ":/system-search.png", true);
 
 	mw_->insertHeading("Detectors", 1);

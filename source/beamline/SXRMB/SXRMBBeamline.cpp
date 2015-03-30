@@ -455,7 +455,7 @@ SXRMBHVControl *SXRMBBeamline::teyHVControl() const
 
 SXRMBHVControl *SXRMBBeamline::microProbeTEYHVControl() const
 {
-	return microProbTEYHVControl_;
+	return microProbeTEYHVControl_;
 }
 
 AMAction3* SXRMBBeamline::createBeamOnActions() const
@@ -554,11 +554,37 @@ AMAction3* SXRMBBeamline::createBeamOffActions() const
 	PSH1406B1002ShutterWaitSetpoint.setValue(0);
 	AMControlWaitAction *PSH1406B1002ShutterWaitAction = new AMControlWaitAction(new AMControlWaitActionInfo(PSH1406B1002ShutterWaitSetpoint, 10, AMControlWaitActionInfo::MatchEqual), PSH1406B1002Shutter_);
 
-	AMListAction3 *beamOffActionsList = new AMListAction3(new AMListActionInfo3("SXRMB Beam Off", "SXRMB Beam Off"), AMListAction3::Parallel);
-	beamOffActionsList->addSubAction(PSH1406B1002ShutterCloseAction);
-	beamOffActionsList->addSubAction(PSH1406B1002ShutterWaitAction);
+	AMControlInfo teyHVPowerOffSetpoint = teyHVControl_->toInfo();
+	teyHVPowerOffSetpoint.setValue(0);
+	AMControlMoveAction3 *teyHVControlPowerOffAction = new AMControlMoveAction3(new AMControlMoveActionInfo3(teyHVPowerOffSetpoint), teyHVControl_);
 
-	return beamOffActionsList;
+	AMControlInfo teyHVPowerOffWaitSetpoint = teyHVControl_->toInfo();
+	teyHVPowerOffWaitSetpoint.setValue(0);
+	AMControlWaitAction *teyHVControlPowerOffWaitAction = new AMControlWaitAction(new AMControlWaitActionInfo(teyHVPowerOffWaitSetpoint, 10, AMControlWaitActionInfo::MatchEqual), teyHVControl_);
+
+	AMControlInfo microProbeTeyHVPowerOffSetpoint = microProbeTEYHVControl_->toInfo();
+	microProbeTeyHVPowerOffSetpoint.setValue(0);
+	AMControlMoveAction3 *microProbeTeyHVControlPowerOffAction = new AMControlMoveAction3(new AMControlMoveActionInfo3(microProbeTeyHVPowerOffSetpoint), microProbeTEYHVControl_);
+
+	AMControlInfo microProbeTeyHVPowerOffWaitSetpoint = microProbeTEYHVControl_->toInfo();
+	microProbeTeyHVPowerOffWaitSetpoint.setValue(0);
+	AMControlWaitAction *microProbeTeyHVControlPowerOffWaitAction = new AMControlWaitAction(new AMControlWaitActionInfo(microProbeTeyHVPowerOffWaitSetpoint, 10, AMControlWaitActionInfo::MatchEqual), microProbeTEYHVControl_);
+
+	AMListAction3 *beamOffActionsList = new AMListAction3(new AMListActionInfo3("SXRMB Beam off action list", "SXRMB Beam off "), AMListAction3::Sequential);
+	beamOffActionsList->addSubAction(PSH1406B1002ShutterCloseAction);
+	beamOffActionsList->addSubAction(teyHVControlPowerOffAction);
+	beamOffActionsList->addSubAction(microProbeTeyHVControlPowerOffAction);
+
+	AMListAction3 *beamOffWaitActionsList = new AMListAction3(new AMListActionInfo3("SXRMB Beam off Wait action list", "SXRMB Beam off"), AMListAction3::Parallel);
+	beamOffWaitActionsList->addSubAction(PSH1406B1002ShutterWaitAction);
+	beamOffWaitActionsList->addSubAction(teyHVControlPowerOffWaitAction);
+	beamOffWaitActionsList->addSubAction(microProbeTeyHVControlPowerOffWaitAction);
+
+	AMListAction3 *beamOffControlActionsList = new AMListAction3(new AMListActionInfo3("SXRMB Beam Off", "SXRMB Beam Off"), AMListAction3::Parallel);
+	beamOffControlActionsList->addSubAction(beamOffActionsList);
+	beamOffControlActionsList->addSubAction(beamOffWaitActionsList);
+
+	return beamOffControlActionsList;
 }
 
 void SXRMBBeamline::setupSynchronizedDwellTime()
@@ -744,12 +770,12 @@ void SXRMBBeamline::setupHVControls()
 {
 	i0HVControl_ = new SXRMBHVControl("I0", "PS1606506:100", ":vmon", ":v0set", ":pwonoff", ":status", ":imon");
 	teyHVControl_ = new SXRMBHVControl("TEY", "PS1606506:101", ":vmon", ":v0set", ":pwonoff", ":status", ":imon");
-	microProbTEYHVControl_ = new SXRMBHVControl("CHANNEL02", "PS1606506:102", ":vmon", ":v0set", ":pwonoff", ":status", ":imon");
+	microProbeTEYHVControl_ = new SXRMBHVControl("CHANNEL02", "PS1606506:102", ":vmon", ":v0set", ":pwonoff", ":status", ":imon");
 
 	beamlineHVControlSet_ = new AMControlSet(this);
 	beamlineHVControlSet_->addControl(i0HVControl_);
 	beamlineHVControlSet_->addControl(teyHVControl_);
-	beamlineHVControlSet_->addControl(microProbTEYHVControl_);
+	beamlineHVControlSet_->addControl(microProbeTEYHVControl_);
 
 	beamlinePersistentHVControlSet_ = new AMControlSet(this);
 	beamlinePersistentHVControlSet_->addControl(i0HVControl_);
