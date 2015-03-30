@@ -115,6 +115,7 @@ protected slots:
 //    void onScalerDarkCurrentTimeChanged(double dwellSeconds);
 //    void onScalerDarkCurrentValueChanged();
     void onScalerSensitivityChanged();
+    void onScalerDwellTimeChanged();
 
 protected:
 	bool initializeImplementation();
