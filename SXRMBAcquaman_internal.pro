@@ -22,7 +22,6 @@ HEADERS += \
 	source/acquaman/SXRMB/SXRMBScanConfigurationDbObject.h \
 	source/dataman/SXRMB/SXRMBUserConfiguration.h \
 	source/dataman/SXRMB/SXRMBDbUpgrade1pt1.h \
-	source/dataman/SXRMB/SXRMBDbUpgrade1pt1.h \
 	source/ui/acquaman/SXRMB/SXRMBOxidationMapScanConfigurationViewHolder.h \
 	source/ui/SXRMB/SXRMBPersistentView.h \
 	source/ui/SXRMB/SXRMBScanConfigurationView.h \
@@ -54,7 +53,6 @@ SOURCES += \
 	source/acquaman/SXRMB/SXRMBScanConfiguration.cpp \
 	source/acquaman/SXRMB/SXRMBScanConfigurationDbObject.cpp \
 	source/dataman/SXRMB/SXRMBUserConfiguration.cpp \
-	source/dataman/SXRMB/SXRMBDbUpgrade1pt1.cpp \
 	source/dataman/SXRMB/SXRMBDbUpgrade1pt1.cpp \
 	source/ui/acquaman/SXRMB/SXRMBOxidationMapScanConfigurationViewHolder.cpp \
 	source/ui/SXRMB/SXRMBPersistentView.cpp \
