@@ -65,8 +65,6 @@ protected slots:
 protected:
     /// The scaler being viewed.
     CLSSIS3820Scaler *scaler_;
-    /// A signal mapper to catch a running action's signals.
-    QSignalMapper *actionMapper_;
     /// The entry widget for updating the desired dwell time.
     QSpinBox* timeEntry_;
     /// Pressing this button should start the process of taking a dark current measurement.

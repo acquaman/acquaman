@@ -33,7 +33,6 @@ class AMCurrentAmplifier;
 
 #include "dataman/info/AMDetectorInfo.h"
 #include "util/AMRange.h"
-#include "actions3/actions/AMDoingDarkCurrentCorrectionAction.h"
 #include "actions3/AMListAction3.h"
 #include "source/beamline/AMDetector.h"
 
@@ -107,13 +106,8 @@ public:
 	/// Creates an action that waits for the acquisition to finish.  Provide an acceptable time wait so that you don't hang up indefinitely.
 	AMAction3* createWaitForDwellFinishedAction(double timeoutTime = 10.0);
 
-//	AMAction3* createDoingDarkCurrentCorrectionAction(int dwellTime);
-
 	/// Creates a new action that causes this scaler to take a dark current measurement.
 	AMAction3* createMeasureDarkCurrentAction(int secondsDwell);
-	/// Creates a new action that sets the last measurement made as the dark current value for all capable channels. The current dwell time is also set as the dark current time.
-	AMAction3* createSetAsDarkCurrentMeasurementAction();
-
 
 public slots:
 	/// Sets the scaler to be scanning or not.
@@ -145,15 +139,6 @@ signals:
 	void readingChanged();
 	/// Notifier that the overall state of the scaler is connected or not.
 	void connectedChanged(bool isConnected);
-
-	/// Emitted on completion of a dark current measurement.
-	void newDarkCurrentCorrectionValue();
-	/// Communicates the detector's new dark current measurement value to the scaler view, passes the new value as an argument.
-	void newDarkCurrentMeasurementValue(double newMeasurement);
-	/// Emitted on completion of a dark current measurement, passes the dwell time of the measurement.
-	void newDarkCurrentMeasurementTime(double dwellSeconds);
-	/// Emitted when the DarkCurrentCorrectionState changes, passes the new state.
-	void newDarkCurrentMeasurementState(CLSSIS3820Scaler::DarkCurrentCorrectionState newState);
 	/// Emitted when the scaler channel sr570 sensitivity changes.
 	void sensitivityChanged();
 
@@ -181,11 +166,11 @@ protected slots:
 	void onChannelReadingChanged(int channelIndex);
 
 	void onDwellTimeSourceSetDwellTime(double dwellSeconds);
-	void onDwellTimeSourceSetDarkCurrentCorrectionTime(double timeSeconds);
+//	void onDwellTimeSourceSetDarkCurrentCorrectionTime(double timeSeconds);
 
-	void onDarkCurrentCorrectionDwellTimeReset();
-	void onDarkCurrentCorrectionStateChanged(CLSSIS3820Scaler::DarkCurrentCorrectionState);
-	void onDarkCurrentCorrectionFailed();
+//	void onDarkCurrentCorrectionDwellTimeReset();
+//	void onDarkCurrentCorrectionStateChanged(CLSSIS3820Scaler::DarkCurrentCorrectionState);
+//	void onDarkCurrentCorrectionFailed();
 
 protected:
 	AMDetectorDefinitions::ReadMode readModeFromSettings();
@@ -221,9 +206,6 @@ protected:
 	/// The common dwell time source for this system. Detector implementations can return this as a common means for triggering and comparing shared triggers.
 	AMDetectorDwellTimeSource *dwellTimeSource_;
 	QString synchronizedDwellKey_;
-
-	bool doingDarkCurrentCorrection_;
-	double lastDwellTime_;
 
 	/// Holds the mapping of the enabled channels during an acquisition.
 	QSignalMapper *triggerChannelMapper_;

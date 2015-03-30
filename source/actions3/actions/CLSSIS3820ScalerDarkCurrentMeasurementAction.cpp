@@ -14,13 +14,26 @@ CLSSIS3820ScalerDarkCurrentMeasurementAction::CLSSIS3820ScalerDarkCurrentMeasure
 
 		// first turn off beam.
 		addSubAction(AMBeamline::bl()->createTurnOffBeamActions());
+
 		// set the scaler's dwell time to new time.
 		addSubAction(scaler->createDwellTimeAction3(secondsDwell));
-		// make a scaler measurement.
+
+		// initiate a scaler measurement and wait until it is complete.
 		addSubAction(scaler->createStartAction3(true));
 		addSubAction(scaler->createWaitForDwellFinishedAction(secondsDwell + 5.0));
+
 		// notify attached and able scaler channel detectors that the latest measurement was a dark current measurement.
-		addSubAction(scaler->createSetAsDarkCurrentMeasurementAction());
+		AMListAction3 *notifyChannelDetectors = new AMListAction3(new AMListActionInfo3("Set last measurement as dark current measurement", "Set last measurement as dark current measurement"));
+
+		for (int i = 0; i < scaler->channels().count(); i++) {
+			CLSSIS3820ScalerChannel *channel = scaler->channelAt(i);
+
+			if (channel && channel->isEnabled() && channel->detector() && channel->detector()->canDoDarkCurrentCorrection()) {
+				notifyChannelDetectors->addSubAction(channel->detector()->createSetLastMeasurementAsDarkCurrentAction());
+			}
+		}
+
+		addSubAction(notifyChannelDetectors);
 
 		// reset settings to pre-measurement conditions.
 		addSubAction(scaler->createDwellTimeAction3(oldDwell));

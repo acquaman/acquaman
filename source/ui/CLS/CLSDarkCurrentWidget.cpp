@@ -27,7 +27,6 @@ CLSDarkCurrentWidget::CLSDarkCurrentWidget(CLSSIS3820Scaler *scaler, QWidget *pa
 	// Initialize member variables.
 
 	scaler_ = 0;
-	actionMapper_ = new QSignalMapper(this);
 
 	// Create UI elements.
 
@@ -51,7 +50,6 @@ CLSDarkCurrentWidget::CLSDarkCurrentWidget(CLSSIS3820Scaler *scaler, QWidget *pa
 
 	// Make connections.
 
-	connect( actionMapper_, SIGNAL(mapped(QObject*)), this, SLOT(actionCleanup(QObject*)) );
 	connect( collectButton_, SIGNAL(clicked()), this, SLOT(onCollectButtonClicked()) );
 
 	// Current settings.

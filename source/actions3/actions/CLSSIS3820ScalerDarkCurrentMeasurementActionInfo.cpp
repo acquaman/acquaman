@@ -1,10 +1,13 @@
 #include "CLSSIS3820ScalerDarkCurrentMeasurementActionInfo.h"
 
 CLSSIS3820ScalerDarkCurrentMeasurementActionInfo::CLSSIS3820ScalerDarkCurrentMeasurementActionInfo(CLSSIS3820Scaler *scaler, double secondsDwell, QObject *parent) :
-	AMListActionInfo3("Make dark current measurement.", "Make dark current measurement.", ":/system-run.png", parent)
+	AMListActionInfo3(QString(), QString(), QString(), parent)
 {
 	scaler_ = scaler;
 	secondsDwell_ = secondsDwell;
+
+	setShortDescription(typeDescription());
+	setLongDescription(typeDescription());
 }
 
 CLSSIS3820ScalerDarkCurrentMeasurementActionInfo::CLSSIS3820ScalerDarkCurrentMeasurementActionInfo(const CLSSIS3820ScalerDarkCurrentMeasurementActionInfo &other) :

@@ -35,11 +35,11 @@ CLSBasicScalerChannelDetector::CLSBasicScalerChannelDetector(const QString &name
 
 	connect(scaler_, SIGNAL(connectedChanged(bool)), this, SLOT(onScalerConnected(bool)));
 	connect(scaler_, SIGNAL(scanningChanged(bool)), this, SLOT(onScalerScanningChanged(bool)));
-	connect(scaler_, SIGNAL(newDarkCurrentCorrectionValue()), this, SLOT(onScalerDarkCurrentValueChanged()) );
-	connect( scaler_, SIGNAL(newDarkCurrentMeasurementTime(double)), this, SLOT(onScalerDarkCurrentTimeChanged(double)) );
+//	connect(scaler_, SIGNAL(newDarkCurrentCorrectionValue()), this, SLOT(onScalerDarkCurrentValueChanged()) );
+//	connect( scaler_, SIGNAL(newDarkCurrentMeasurementTime(double)), this, SLOT(onScalerDarkCurrentTimeChanged(double)) );
 	connect( scaler_, SIGNAL(sensitivityChanged()), this, SLOT(onScalerSensitivityChanged()) );
 
-	connect( this, SIGNAL(darkCurrentValueChanged(double)), scaler_, SIGNAL(newDarkCurrentMeasurementValue(double)) );
+//	connect( this, SIGNAL(darkCurrentValueChanged(double)), scaler_, SIGNAL(newDarkCurrentMeasurementValue(double)) );
 }
 
 CLSBasicScalerChannelDetector::~CLSBasicScalerChannelDetector(){}
@@ -105,24 +105,14 @@ bool CLSBasicScalerChannelDetector::lastContinuousReading(double *outputValues) 
 	return false;
 }
 
-AMAction3* CLSBasicScalerChannelDetector::createDarkCurrentCorrectionActions(double dwellTime)
+AMAction3* CLSBasicScalerChannelDetector::createDarkCurrentMeasurementAction(double dwellTime)
 {
 	AMAction3 *action = 0;
 
 	if (scaler_)
-		action = scaler_->createMeasureDarkCurrentAction(dwellTime);
+		action = scaler_->createMeasureDarkCurrentAction((int)dwellTime);
 
 	return action;
-
-//    if (dwellTime <= 0)
-//        return 0;
-
-//    AMListAction3* darkCurrentCorrectionActions = new AMListAction3(new AMListActionInfo3("BasicScalerChannelDetector Dark Current Correction", "BasicScalerChannelDetector Dark Current Correction"), AMListAction3::Sequential);
-//    darkCurrentCorrectionActions->addSubAction(AMBeamline::bl()->createTurnOffBeamActions());
-//    AMDoDarkCurrentCorrectionActionInfo *actionInfo = new AMDoDarkCurrentCorrectionActionInfo(scaler_, dwellTime);
-//    AMDoDarkCurrentCorrectionAction *action = new AMDoDarkCurrentCorrectionAction(actionInfo);
-//    darkCurrentCorrectionActions->addSubAction(action);
-//    return darkCurrentCorrectionActions;
 }
 
 bool CLSBasicScalerChannelDetector::setAcquisitionTime(double seconds){
@@ -170,16 +160,16 @@ bool CLSBasicScalerChannelDetector::triggerScalerAcquisition(bool isContinuous){
 }
 
 
-void CLSBasicScalerChannelDetector::onScalerDarkCurrentTimeChanged(double dwellSeconds) {
-    setAsDarkCurrentMeasurementTime(dwellSeconds);
-}
+//void CLSBasicScalerChannelDetector::onScalerDarkCurrentTimeChanged(double dwellSeconds) {
+//    setAsDarkCurrentMeasurementTime(dwellSeconds);
+//}
 
-void CLSBasicScalerChannelDetector::onScalerDarkCurrentValueChanged() {
-    setAsDarkCurrentMeasurementValue();
-}
+//void CLSBasicScalerChannelDetector::onScalerDarkCurrentValueChanged() {
+//    setAsDarkCurrentMeasurementValue();
+//}
 
 void CLSBasicScalerChannelDetector::onScalerSensitivityChanged() {
-    setRequiresNewDarkCurrentMeasurement(true);
+	setDarkCurrentValidState(false);
 }
 
 

@@ -90,8 +90,8 @@ public:
 	/// Returns a AM1DProcessVariableDataSource suitable for viewing
 	virtual AMDataSource* dataSource() const { return 0; }
 
-    /// Returns a list of actions to perform dark current correction, using the provided dwell time.
-    virtual AMAction3* createDarkCurrentCorrectionActions(double dwellTime);
+    /// Returns a new action that performs a dark current measurement, uses the provided dwell time.
+    virtual AMAction3* createDarkCurrentMeasurementAction(double secondsDwell);
 
 public slots:
 	/// Set the acquisition dwell time for triggered (RequestRead) detectors
@@ -112,8 +112,8 @@ protected slots:
 	/// Handles triggering the actual acquisition even if the scaler needs to switch to single read from continuous
 	bool triggerScalerAcquisition(bool isContinuous);
 
-    void onScalerDarkCurrentTimeChanged(double dwellSeconds);
-    void onScalerDarkCurrentValueChanged();
+//    void onScalerDarkCurrentTimeChanged(double dwellSeconds);
+//    void onScalerDarkCurrentValueChanged();
     void onScalerSensitivityChanged();
 
 protected:

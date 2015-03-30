@@ -1,26 +1,24 @@
-#ifndef AMDETECTORSETASDARKCURRENTTIMEACTION_H
-#define AMDETECTORSETASDARKCURRENTTIMEACTION_H
+#ifndef AMDETECTORSETDARKCURRENTVALUEACTION_H
+#define AMDETECTORSETDARKCURRENTVALUEACTION_H
 
 #include "actions3/AMAction3.h"
-#include "actions3/actions/AMDetectorSetAsDarkCurrentTimeActionInfo.h"
+#include "actions3/actions/AMDetectorSetDarkCurrentValueActionInfo.h"
 #include "beamline/AMDetector.h"
 
-class AMDetectorSetAsDarkCurrentTimeAction : public AMAction3
+class AMDetectorSetDarkCurrentValueAction : public AMAction3
 {
     Q_OBJECT
 
 public:
 	/// Constructor.
-	explicit AMDetectorSetAsDarkCurrentTimeAction(AMDetectorSetAsDarkCurrentTimeActionInfo *info, AMDetector *detector, QObject *parent = 0);
+	Q_INVOKABLE AMDetectorSetDarkCurrentValueAction(AMDetectorSetDarkCurrentValueActionInfo *info, AMDetector *detector, QObject *parent = 0);
 	/// Copy constructor.
-	AMDetectorSetAsDarkCurrentTimeAction(const AMDetectorSetAsDarkCurrentTimeAction &other);
+	AMDetectorSetDarkCurrentValueAction(const AMDetectorSetDarkCurrentValueAction &other);
 	/// Destructor.
-	virtual ~AMDetectorSetAsDarkCurrentTimeAction();
+	virtual ~AMDetectorSetDarkCurrentValueAction();
 
 	/// Virtual copy constructor.
-	virtual AMAction3* createCopy() const { return new AMDetectorSetAsDarkCurrentTimeAction(*this); }
-	/// Returns the detector.
-	AMDetector* detector() const { return detector_; }
+	virtual AMAction3* createCopy() const { return new AMDetectorSetDarkCurrentValueAction(*this); }
 	/// Returns whether this action can be paused, false in this case.
 	virtual bool canPause() const { return false; }
 	/// Returns whether this action can be skipped, false in this case.
@@ -29,6 +27,9 @@ public:
 	virtual bool hasChildren() const { return false; }
 	/// Returns the number of child actions.
 	virtual int numberOfChildren() const { return 0; }
+
+	/// Returns the detector.
+	AMDetector* detector() const { return detector_; }
 
 protected:
 	/// This function is called from the Starting state when the implementation should initiate the action. Once the action is started, you should call notifyStarted().
@@ -44,14 +45,17 @@ protected:
 	virtual void skipImplementation(const QString &command) { Q_UNUSED(command); }
 
 	/// Returns action-specific info.
-	const AMDetectorSetAsDarkCurrentTimeActionInfo* detectorSetAsDarkCurrentTimeActionInfo() const { return qobject_cast<const AMDetectorSetAsDarkCurrentTimeActionInfo*>(info()); }
+	const AMDetectorSetDarkCurrentValueActionInfo* detectorSetDarkCurrentValueActionInfo() const { return qobject_cast<const AMDetectorSetDarkCurrentValueActionInfo*>(info()); }
 	/// Returns action-specific info.
-	AMDetectorSetAsDarkCurrentTimeActionInfo* detectorSetAsDarkCurrentTimeActionInfo() { return qobject_cast<AMDetectorSetAsDarkCurrentTimeActionInfo*>(info()); }
+	AMDetectorSetDarkCurrentValueActionInfo* detectorSetDarkCurrentValueActionInfo() { return qobject_cast<AMDetectorSetDarkCurrentValueActionInfo*>(info()); }
 
 protected:
 	/// The detector.
 	AMDetector *detector_;
 
+private:
+	/// If the current detector is null, attempts to set the detector using the action info's detector info.
+	void setDetector(AMDetector *newDetector);
 };
 
-#endif // AMDETECTORSETASDARKCURRENTTIMEACTION_H
+#endif // AMDETECTORSETDARKCURRENTVALUEACTION_H

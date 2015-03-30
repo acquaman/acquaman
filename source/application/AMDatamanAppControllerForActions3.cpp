@@ -46,10 +46,12 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "actions3/actions/AMAxisFinishedActionInfo.h"
 #include "actions3/actions/AMAxisValueFinishedActionInfo.h"
 #include "actions3/actions/AMControlWaitActionInfo.h"
-#include "actions3/actions/AMDoDarkCurrentCorrectionActionInfo.h"
-#include "actions3/actions/AMDoingDarkCurrentCorrectionActionInfo.h"
 #include "actions3/actions/AMWaitActionInfo.h"
 #include "actions3/actions/AMChangeToleranceActionInfo.h"
+#include "actions3/actions/AMDetectorSetDarkCurrentValueActionInfo.h"
+#include "actions3/actions/AMDetectorSetDarkCurrentTimeActionInfo.h"
+#include "actions3/actions/AMDetectorSetDarkCurrentValidStateActionInfo.h"
+#include "actions3/actions/AMDetectorSetLastMeasurementAsDarkCurrentActionInfo.h"
 
 #include "util/AMErrorMonitor.h"
 
@@ -176,8 +178,10 @@ bool AMDatamanAppControllerForActions3::startupRegisterDatabases()
 	AMDbObjectSupport::s()->registerClass<AMWaitActionInfo>();
 	AMDbObjectSupport::s()->registerClass<AMChangeToleranceActionInfo>();
 	AMDbObjectSupport::s()->registerClass<AMControlWaitActionInfo>();
-	AMDbObjectSupport::s()->registerClass<AMDoDarkCurrentCorrectionActionInfo>();
-	AMDbObjectSupport::s()->registerClass<AMDoingDarkCurrentCorrectionActionInfo>();
+	AMDbObjectSupport::s()->registerClass<AMDetectorSetDarkCurrentValueActionInfo>();
+	AMDbObjectSupport::s()->registerClass<AMDetectorSetDarkCurrentTimeActionInfo>();
+	AMDbObjectSupport::s()->registerClass<AMDetectorSetDarkCurrentValidStateActionInfo>();
+	AMDbObjectSupport::s()->registerClass<AMDetectorSetLastMeasurementAsDarkCurrentActionInfo>();
 
 	return true;
 }

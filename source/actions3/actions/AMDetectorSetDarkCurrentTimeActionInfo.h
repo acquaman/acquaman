@@ -1,25 +1,25 @@
-#ifndef AMDETECTORSETASDARKCURRENTTIMEACTIONINFO_H
-#define AMDETECTORSETASDARKCURRENTTIMEACTIONINFO_H
+#ifndef AMDETECTORSETDARKCURRENTTIMEACTIONINFO_H
+#define AMDETECTORSETDARKCURRENTTIMEACTIONINFO_H
 
 #include "actions3/AMActionInfo3.h"
 #include "dataman/info/AMDetectorInfo.h"
 
-class AMDetectorSetAsDarkCurrentTimeActionInfo : public AMActionInfo3
+class AMDetectorSetDarkCurrentTimeActionInfo : public AMActionInfo3
 {
     Q_OBJECT
 
 public:
 	/// Constructor.
-	Q_INVOKABLE AMDetectorSetAsDarkCurrentTimeActionInfo(const AMDetectorInfo &detectorInfo = AMDetectorInfo(), double secondsDwell = 0, QObject *parent = 0);
+	Q_INVOKABLE AMDetectorSetDarkCurrentTimeActionInfo(double secondsDwell, const AMDetectorInfo &detectorInfo = AMDetectorInfo(), QObject *parent = 0);
 	/// Copy constructor.
-	AMDetectorSetAsDarkCurrentTimeActionInfo(const AMDetectorSetAsDarkCurrentTimeActionInfo &other);
+	AMDetectorSetDarkCurrentTimeActionInfo(const AMDetectorSetDarkCurrentTimeActionInfo &other);
 	/// Destructor.
-	virtual ~AMDetectorSetAsDarkCurrentTimeActionInfo();
+	virtual ~AMDetectorSetDarkCurrentTimeActionInfo();
 
 	/// Virtual copy constructor.
 	virtual AMActionInfo3* createCopy() const;
 	/// Returns this action's type description.
-	virtual QString typeDescription() const { return "Detector Set Dark Current Time"; }
+	virtual QString typeDescription() const { return "Set Detector Dark Current Time"; }
 
 	/// Returns the detector info.
 	const AMDetectorInfo* detectorInfo() const { return &detectorInfo_; }
@@ -38,4 +38,4 @@ protected:
 	double darkCurrentTime_;
 };
 
-#endif // AMDETECTORSETASDARKCURRENTTIMEACTIONINFO_H
+#endif // AMDETECTORSETDARKCURRENTTIMEACTIONINFO_H

@@ -56,11 +56,13 @@ public slots:
     /// Sets the dark current corrected measurement label with the given value.
     void setDarkCurrentCorrected(double newValue);
     /// Sets the valid-status of the current dark current value and corrected measurement. 'Stale' values are red, valid values are blue. Black values are the default, they haven't been set yet.
-    void setDarkCurrentValueState(bool valid);
+    void setDarkCurrentState(bool valid);
 
 protected slots:
     /// Handles updating the displayed corrected measurement, once a measurement with the detector has been made.
-    void onDetectorNewValuesAvailable();
+    void onDetectorAcquisitionStateChanged(AMDetector::AcqusitionState newState);
+    /// Handles updating the displayed corrected measurement, once the detector has acquired new value.
+    void onDetectorAcquisitionSucceeded();
 
 private:
     /// Enum value indicating whether or not to display dark current information.
