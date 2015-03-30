@@ -1,7 +1,5 @@
 #include "SXRMBCrystalChangeView.h"
 
-#include "ui/beamline/AMExtendedControlEditor.h"
-
 #include <QVBoxLayout>
 
 SXRMBCrystalChangeView::SXRMBCrystalChangeView(SXRMBCrystalChangeModel *crystalChange, QWidget *parent)
@@ -9,20 +7,21 @@ SXRMBCrystalChangeView::SXRMBCrystalChangeView(SXRMBCrystalChangeModel *crystalC
 {
 	crystalChange_ = crystalChange;
 
+	connect(crystalChange_, SIGNAL(crystalSelectionChanged()), this, SLOT(onCrystalSelectionChanged()));
+
 	QVBoxLayout *editorLayout = new QVBoxLayout;
 
-	AMExtendedControlEditor *editor = new AMExtendedControlEditor(crystalChange_->crystalSelectionControl());
-	editor->setControlFormat('f', 2);
-	editorLayout->addWidget(editor);
-	editor = new AMExtendedControlEditor(crystalChange_->crystalYControl());
-	editor->setControlFormat('f', 4);
-	editorLayout->addWidget(editor);
-	editor = new AMExtendedControlEditor(crystalChange_->crystalThetaControl());
-	editor->setControlFormat('f', 4);
-	editorLayout->addWidget(editor);
-	editor = new AMExtendedControlEditor(crystalChange_->crystalChiControl());
-	editor->setControlFormat('f', 4);
-	editorLayout->addWidget(editor);
+	crystalSelectionEditor_ = new AMExtendedControlEditor(crystalChange_->crystalSelectionControl());
+	editorLayout->addWidget(crystalSelectionEditor_);
+	crystalYEditor_ = new AMExtendedControlEditor(crystalChange_->crystalYControl());
+	crystalYEditor_->setControlFormat('f', 4);
+	editorLayout->addWidget(crystalYEditor_);
+	crystalThetaEditor_ = new AMExtendedControlEditor(crystalChange_->crystalThetaControl());
+	crystalThetaEditor_->setControlFormat('f', 4);
+	editorLayout->addWidget(crystalThetaEditor_);
+	crystalChiEditor_ = new AMExtendedControlEditor(crystalChange_->crystalChiControl());
+	crystalChiEditor_->setControlFormat('f', 4);
+	editorLayout->addWidget(crystalChiEditor_);
 
 	setLayout(editorLayout);
 }
@@ -30,4 +29,12 @@ SXRMBCrystalChangeView::SXRMBCrystalChangeView(SXRMBCrystalChangeModel *crystalC
 SXRMBCrystalChangeView::~SXRMBCrystalChangeView()
 {
 
+}
+
+void SXRMBCrystalChangeView::onCrystalSelectionChanged()
+{
+	bool isInBetween = (crystalChange_->crystalSelection() == 0 || crystalChange_->crystalSelection() == 3);
+	crystalYEditor_->setDisabled(isInBetween);
+	crystalThetaEditor_->setDisabled(isInBetween);
+	crystalChiEditor_->setDisabled(isInBetween);
 }

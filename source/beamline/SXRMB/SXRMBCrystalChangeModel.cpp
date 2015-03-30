@@ -3,10 +3,15 @@
 SXRMBCrystalChangeModel::SXRMBCrystalChangeModel(QObject *parent)
 	: QObject(parent)
 {
-	crystalSelection_ = new AMPVControl("Crystal Selection", "MONO1606-4-B10-01:CrysSel:fbk", "MONO1606-4-B10-01:CrysSel:fbk", QString(), this, 0.1);
+	crystalSelection_ = new AMPVControl("Crystal Selection", "MONO1606-4-B10-01:CrysSel:fbk", "MONO1606-4-B10-01:CrysSel", QString(), this, 0.1);
 	crystalY_ = new AMPVwStatusControl("Crystal Y", "SMTR1606-4-B10-12:mm:sp", "SMTR1606-4-B10-12:mm", "SMTR1606-4-B10-12:status", "SMTR1606-4-B10-12:stop", this, 0.1);
 	crystalTheta_ = new AMPVwStatusControl("Crystal Theta", "SMTR1606-4-B10-13:dgr:sp", "SMTR1606-4-B10-13:dgr", "SMTR1606-4-B10-13:status", "SMTR1606-4-B10-13:stop", this, 0.1);
 	crystalChi_ = new AMPVwStatusControl("Crystal Chi", "SMTR1606-4-B10-14:dgr:sp", "SMTR1606-4-B10-14:dgr", "SMTR1606-4-B10-14:status", "SMTR1606-4-B10-14:stop", this, 0.1);
+
+	connect(crystalSelection_, SIGNAL(valueChanged(double)), this, SIGNAL(crystalSelectionChanged()));
+	connect(crystalY_, SIGNAL(valueChanged(double)), this, SIGNAL(crystalYChanged(double)));
+	connect(crystalTheta_, SIGNAL(valueChanged(double)), this, SIGNAL(crystalThetaChanged(double)));
+	connect(crystalChi_, SIGNAL(valueChanged(double)), this, SIGNAL(crystalChiChanged(double)));
 }
 
 SXRMBCrystalChangeModel::~SXRMBCrystalChangeModel()
@@ -14,9 +19,9 @@ SXRMBCrystalChangeModel::~SXRMBCrystalChangeModel()
 
 }
 
-double SXRMBCrystalChangeModel::crystalSelection() const
+int SXRMBCrystalChangeModel::crystalSelection() const
 {
-	return crystalSelection_->value();
+	return int(crystalSelection_->value());
 }
 
 double SXRMBCrystalChangeModel::crystalY() const

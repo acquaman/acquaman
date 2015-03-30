@@ -17,7 +17,7 @@ public:
 	~SXRMBCrystalChangeModel();
 
 	/// Returns the crystal selection.
-	double crystalSelection() const;
+	int crystalSelection() const;
 	/// Returns the crystal Y position.
 	double crystalY() const;
 	/// Returns the crystal theta position.
@@ -35,6 +35,15 @@ public:
 	AMControl *crystalChiControl() const;
 
 signals:
+
+	/// Notifier that the crystal selection has changed.
+	void crystalSelectionChanged();
+	/// Notifier that the crystal Y position has changed.
+	void crystalYChanged(double);
+	/// Notifier that the crystal Theta position has changed.
+	void crystalThetaChanged(double);
+	/// Notifier that the crystal Chi position has changed.
+	void crystalChiChanged(double);
 
 public slots:
 
