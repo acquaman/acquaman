@@ -47,7 +47,6 @@ CLSSIS3820Scaler::CLSSIS3820Scaler(const QString &baseName, QObject *parent) :
 
 	dwellTimeSource_ = new AMDetectorDwellTimeSource(QString("%1DwellTimeSource").arg(baseName), this);
 	connect(dwellTimeSource_, SIGNAL(setDwellTime(double)), this, SLOT(onDwellTimeSourceSetDwellTime(double)));
-//	connect(dwellTimeSource_, SIGNAL(setDarkCurrentCorrectionTime(double)), this, SLOT(onDwellTimeSourceSetDarkCurrentCorrectionTime(double)) );
 
 	synchronizedDwellKey_ = QString("%1:startScan NPP NMS").arg(baseName);
 
@@ -250,38 +249,10 @@ AMAction3* CLSSIS3820Scaler::createWaitForDwellFinishedAction(double timeoutTime
 	return action;
 }
 
-//AMAction3* CLSSIS3820Scaler::createDoingDarkCurrentCorrectionAction(int dwellTime)
-//{
-//	AMDoingDarkCurrentCorrectionActionInfo *actionInfo = new AMDoingDarkCurrentCorrectionActionInfo(dwellTimeSource(), dwellTime);
-//	AMDoingDarkCurrentCorrectionAction *action = new AMDoingDarkCurrentCorrectionAction(actionInfo);
-
-//	return action;
-//}
-
 AMAction3* CLSSIS3820Scaler::createMeasureDarkCurrentAction(int secondsDwell)
 {
 	return new CLSSIS3820ScalerDarkCurrentMeasurementAction(new CLSSIS3820ScalerDarkCurrentMeasurementActionInfo(this, secondsDwell));
 }
-
-//void CLSSIS3820Scaler::doDarkCurrentCorrection(double dwellSeconds)
-//{
-//	lastDwellTime_ = dwellTime();
-//	doingDarkCurrentCorrection_ = true;
-//	emit newDarkCurrentMeasurementState(STARTED);
-
-//	AMListActionInfo3 *actionInfo = new AMListActionInfo3("Perform dark current correction.", "Perform dark current correction.");
-//	AMListAction3 *action = new AMListAction3(actionInfo, AMListAction3::Sequential);
-
-//	action->addSubAction(createDwellTimeAction3(dwellSeconds));
-//	action->addSubAction(createStartAction3(true));
-
-//	connect( action, SIGNAL(failed()), this, SLOT(onDarkCurrentCorrectionFailed()) );
-//	connect( action, SIGNAL(failed()), action, SLOT(deleteLater()) );
-//	connect( action, SIGNAL(succeeded()), action, SLOT(deleteLater()) );
-//	connect( action, SIGNAL(cancelled()), action, SLOT(deleteLater()) );
-
-//	action->start();
-//}
 
 void CLSSIS3820Scaler::setScanning(bool isScanning){
 
@@ -358,24 +329,6 @@ void CLSSIS3820Scaler::onScanningToggleChanged(){
 	else{
 		emit scanningChanged(false);
 	}
-
-//	/////////////
-//	if (startToggle_->withinTolerance(0) && doingDarkCurrentCorrection_) {
-//		emit newDarkCurrentCorrectionValue();
-//		emit newDarkCurrentMeasurementTime(dwellTime_->value());
-
-//		qDebug() << "CLSSIS3820Scaler::onScanningToggleChanged : dark current measurement is complete, resetting dwell time.";
-
-//		AMAction3 *resetDwellTime = createDwellTimeAction3(lastDwellTime_);
-//		connect( resetDwellTime, SIGNAL(succeeded()), this, SLOT(onDarkCurrentCorrectionDwellTimeReset()) );
-//		connect( resetDwellTime, SIGNAL(failed()), this, SLOT(onDarkCurrentCorrectionFailed()) );
-
-//		connect( resetDwellTime, SIGNAL(failed()), resetDwellTime, SLOT(deleteLater()) );
-//		connect( resetDwellTime, SIGNAL(succeeded()), resetDwellTime, SLOT(deleteLater()) );
-//		connect( resetDwellTime, SIGNAL(cancelled()), resetDwellTime, SLOT(deleteLater()) );
-
-//		resetDwellTime->start();
-//	}
 }
 
 void CLSSIS3820Scaler::onContinuousToggleChanged(){
@@ -538,31 +491,6 @@ void CLSSIS3820Scaler::onDwellTimeSourceSetDwellTime(double dwellSeconds){
 	else
 		dwellTimeSource_->setSucceeded();
 }
-
-//void CLSSIS3820Scaler::onDwellTimeSourceSetDarkCurrentCorrectionTime(double dwellSeconds) {
-//	if (!isConnected() || isScanning())
-//		return;
-
-//	emit newDarkCurrentMeasurementTime(dwellSeconds);
-//	dwellTimeSource_->setSucceeded();
-//}
-
-//void CLSSIS3820Scaler::onDarkCurrentCorrectionDwellTimeReset() {
-//	doingDarkCurrentCorrection_ = false;
-//	emit newDarkCurrentMeasurementState(SUCCEEDED);
-//	disconnect(this, SLOT(onDarkCurrentCorrectionDwellTimeReset()));
-//}
-
-//void CLSSIS3820Scaler::onDarkCurrentCorrectionStateChanged(CLSSIS3820Scaler::DarkCurrentCorrectionState) {
-
-//}
-
-//void CLSSIS3820Scaler::onDarkCurrentCorrectionFailed() {
-//	doingDarkCurrentCorrection_ = false;
-//	emit newDarkCurrentMeasurementState(FAILED);
-
-//	// reset original params?
-//}
 
 AMDetectorDefinitions::ReadMode CLSSIS3820Scaler::readModeFromSettings(){
 	if(scansPerBuffer() == 1 && totalScans() == 1)

@@ -25,7 +25,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/CLS/CLSSIS3820Scaler.h"
 
 #include "ui/CLS/CLSSIS3820ScalerChannelViewWithDarkCurrent.h"
-#include "ui/CLS/CLSDarkCurrentWidget.h"
+#include "ui/CLS/CLSSIS3820ScalerDarkCurrentWidget.h"
 
 // CLSSIS3820ScalerView
 ///////////////////////////////////////////////
@@ -123,7 +123,7 @@ CLSSIS3820ScalerView::CLSSIS3820ScalerView(CLSSIS3820Scaler *scaler, bool enable
 	topLayout->addLayout(spinBoxLayout);
 
 	// Dark current widget
-	CLSDarkCurrentWidget *darkCurrentWidget = new CLSDarkCurrentWidget(scaler_, this);
+	CLSSIS3820ScalerDarkCurrentWidget *darkCurrentWidget = new CLSSIS3820ScalerDarkCurrentWidget(scaler_, this);
 	bool showDarkCurrentWidget = false;
 	darkCurrentWidget->hide();
 

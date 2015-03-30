@@ -120,8 +120,6 @@ void CLSSIS3820ScalerChannelViewWithDarkCurrent::onDetectorAcquisitionSucceeded(
 
 		double correctedMeasurement = measurement - channel_->detector()->darkCurrentValue();
 
-		qDebug() << "CLSSIS3820ScalerChannelView has new DC corrected value : " << correctedMeasurement;
-
 		setDarkCurrentCorrected(correctedMeasurement);
 	}
 }

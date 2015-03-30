@@ -48,15 +48,6 @@ class CLSSIS3820Scaler : public QObject
 	Q_OBJECT
 
 public:
-	/// This enum describes the states this detector can take on when performing a dark current correction measurement.
-	enum DarkCurrentCorrectionState {
-		READY = 0,
-		NOT_READY = 1,
-		STARTED = 2,
-		SUCCEEDED = 3,
-		FAILED = 4
-	};
-
 	/// Constructor.  Takes the baseName of the PV's as parameters.
 	CLSSIS3820Scaler(const QString &baseName, QObject *parent = 0);
 	/// Destructor.
@@ -142,7 +133,6 @@ signals:
 	/// Emitted when the scaler channel sr570 sensitivity changes.
 	void sensitivityChanged();
 
-
 protected slots:
 	/// Helper slot that handles changes in the scanning status.
 	void onScanningToggleChanged();
@@ -166,11 +156,6 @@ protected slots:
 	void onChannelReadingChanged(int channelIndex);
 
 	void onDwellTimeSourceSetDwellTime(double dwellSeconds);
-//	void onDwellTimeSourceSetDarkCurrentCorrectionTime(double timeSeconds);
-
-//	void onDarkCurrentCorrectionDwellTimeReset();
-//	void onDarkCurrentCorrectionStateChanged(CLSSIS3820Scaler::DarkCurrentCorrectionState);
-//	void onDarkCurrentCorrectionFailed();
 
 protected:
 	AMDetectorDefinitions::ReadMode readModeFromSettings();
