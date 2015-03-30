@@ -266,14 +266,14 @@ void SXRMBEXAFSScanConfigurationView::onBeamlineEndstationChanged(SXRMB::Endstat
 	onEndstationSampleStagePositionChanged(-1);
 }
 
-void SXRMBEXAFSScanConfigurationView::updateFluorescenceDetectorComboBox(int detector)
+void SXRMBEXAFSScanConfigurationView::updateFluorescenceDetectorComboBox(SXRMB::FluorescenceDetectors detector)
 {
-	fluorescenceDetectorComboBox_->setCurrentIndex(detector);
+	fluorescenceDetectorComboBox_->setCurrentIndex(int(detector));
 }
 
 void SXRMBEXAFSScanConfigurationView::onFluorescenceDetectorChanged(int detector)
 {
-	configuration_->setFluorescenceDetectors((SXRMB::FluorescenceDetector)detector);
+	configuration_->setFluorescenceDetectors((SXRMB::FluorescenceDetectors)detector);
 }
 
 void SXRMBEXAFSScanConfigurationView::onScanNameEdited()

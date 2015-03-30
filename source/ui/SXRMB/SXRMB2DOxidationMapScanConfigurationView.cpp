@@ -421,12 +421,12 @@ void SXRMB2DOxidationMapScanConfigurationView::updateAutoExporter(int useAscii)
 
 void SXRMB2DOxidationMapScanConfigurationView::updateFluorescenceDetectorComboBox(SXRMB::FluorescenceDetectors detector)
 {
-	fluorescenceDetectorComboBox_->setCurrentIndex(detector);
+	fluorescenceDetectorComboBox_->setCurrentIndex(int(detector));
 }
 
 void SXRMB2DOxidationMapScanConfigurationView::onFluorescenceDetectorChanged(int detector)
 {
-	configuration_->setFluorescenceDetectors((SXRMB::FluorescenceDetector)detector);
+	configuration_->setFluorescenceDetectors((SXRMB::FluorescenceDetectors)detector);
 }
 
 void SXRMB2DOxidationMapScanConfigurationView::checkScanAxisValidity()

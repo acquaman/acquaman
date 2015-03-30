@@ -4,6 +4,8 @@
 #include "application/SXRMB/SXRMB.h"
 #include "ui/SXRMB/SXRMBScanConfigurationView.h"
 
+#include "application/SXRMB/SXRMB.h"
+
 class QFormLayout;
 class QGroupBox;
 class QPushButton;
@@ -41,7 +43,7 @@ protected slots:
 	/// SLot that handles beamline endstation switched signal
 	void onBeamlineEndstationChanged(SXRMB::Endstation fromEndstation, SXRMB::Endstation toEndstation);
 	/// Slot that updates the fluorescence detector buttons.
-	void updateFluorescenceDetectorComboBox(int detector);
+	void updateFluorescenceDetectorComboBox(SXRMB::FluorescenceDetectors detector);
 	/// Handles changes to detector selection
 	void onFluorescenceDetectorChanged(int detector);
 

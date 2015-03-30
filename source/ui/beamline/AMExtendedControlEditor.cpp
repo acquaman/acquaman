@@ -83,10 +83,10 @@ AMExtendedControlEditor::AMExtendedControlEditor(AMControl* control, AMControl* 
 	hl->setMargin(2);
 	vl->addLayout(hl);
 	if(statusTagControl_){
-                statusLayout_ = new QHBoxLayout();
-                statusLayout_->addWidget(statusLabel_, Qt::AlignCenter);
-                statusLayout_->setStretch(0, 2);
-                vl->addLayout(statusLayout_);
+				statusLayout_ = new QHBoxLayout();
+				statusLayout_->addWidget(statusLabel_, Qt::AlignCenter);
+				statusLayout_->setStretch(0, 2);
+				vl->addLayout(statusLayout_);
 	}
 	vl->setSpacing(1);
 	vl->setMargin(2);
@@ -96,7 +96,7 @@ AMExtendedControlEditor::AMExtendedControlEditor(AMControl* control, AMControl* 
 	// Style: TODO: move out of this constructor into app-wide stylesheet
 	valueLabel_->setStyleSheet("color: rgb(0, 0, 0); background-color: rgb(255, 255, 255);");
 	valueLabel_->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
-        valueLabel_->setAlignment(Qt::AlignCenter);
+		valueLabel_->setAlignment(Qt::AlignCenter);
 
 	setHappy(false);
 	setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
@@ -153,6 +153,7 @@ bool AMExtendedControlEditor::setControlFormat(const QChar& format, int precisio
 	if(format == 'g' || format == 'G' || format == 'e' || format == 'E' || format == 'f'){
 		format_ = format;
 		precision_ = precision;
+		dialog_->setDoubleDecimals(precision_);
 		if(control_->isConnected())
 			onValueChanged(control_->value());
 		return true;
@@ -186,7 +187,7 @@ void AMExtendedControlEditor::onValueChanged(double newVal) {
 	if(configureOnly_ && connectedOnce_)
 		return;
 	if(control_->isEnum()){
-        valueLabel_->setText(control_->enumNameAt(newVal));
+		valueLabel_->setText(control_->enumNameAt(newVal));
 		unitsLabel_->setText("");
 	}
 	else

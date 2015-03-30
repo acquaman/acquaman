@@ -55,6 +55,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/acquaman/AMScanConfigurationViewHolder3.h"
 #include "ui/util/AMDialog.h"
 #include "ui/CLS/CLSSIS3820ScalerView.h"
+#include "ui/CLS/CLSCrossHairGeneratorControlView.h"
 #include "ui/acquaman/SXRMB/SXRMBOxidationMapScanConfigurationViewHolder.h"
 #include "ui/SXRMB/SXRMBBrukerDetectorView.h"
 #include "ui/SXRMB/SXRMBFourElementVortexDetectorView.h"
@@ -64,6 +65,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/SXRMB/SXRMB2DOxidationMapScanConfigurationView.h"
 #include "ui/SXRMB/SXRMBChooseDataFolderDialog.h"
 #include "ui/SXRMB/SXRMBHVControlView.h"
+#include "ui/SXRMB/SXRMBCrystalChangeView.h"
 
 #include "util/AMErrorMonitor.h"
 #include "util/AMPeriodicTable.h"
@@ -322,6 +324,42 @@ void SXRMBAppController::setupUserInterface()
 	SXRMBHVControlView *hvControlView = new SXRMBHVControlView(SXRMBBeamline::sxrmb()->beamlineHVControlSet(), false);
 	QGroupBox *hvControlGroupBox = createTopFrameSqueezeContent(hvControlView, "HV Controls");
 	mw_->addPane(hvControlGroupBox, "General", "HV Controls", ":/system-search.png");
+
+	CLSCrossHairGeneratorControlView *crossHairView = new CLSCrossHairGeneratorControlView(SXRMBBeamline::sxrmb()->crossHairGenerator());
+	QGroupBox *crossHairGroupBox = createTopFrameSqueezeContent(crossHairView, "Video Cross hairs");
+//	QGroupBox *crossHairGroupBox = new QGroupBox;
+//	crossHairGroupBox->setFlat(true);
+
+//	QHBoxLayout *crossHairHorizontalSqueezeLayout = new QHBoxLayout;
+//	crossHairHorizontalSqueezeLayout->addStretch();
+//	crossHairHorizontalSqueezeLayout->addWidget(crossHairView);
+//	crossHairHorizontalSqueezeLayout->addStretch();
+
+//	QVBoxLayout *crossHairVerticalSqueezeLayout = new QVBoxLayout;
+//	crossHairVerticalSqueezeLayout->addWidget(new AMTopFrame("Video Cross hairs"));
+//	crossHairVerticalSqueezeLayout->addStretch();
+//	crossHairVerticalSqueezeLayout->addLayout(crossHairHorizontalSqueezeLayout);
+//	crossHairVerticalSqueezeLayout->addStretch();
+//	crossHairGroupBox->setLayout(crossHairVerticalSqueezeLayout);
+	mw_->addPane(crossHairGroupBox, "General", "Cross Hairs", ":/system-search.png", true);
+
+	SXRMBCrystalChangeView *crystalChangeView = new SXRMBCrystalChangeView(SXRMBBeamline::sxrmb()->crystalSelection());
+	QGroupBox *crystalChangeGroupBox = createTopFrameSqueezeContent(crystalChangeView, "Crystal Selection");
+//	QGroupBox *crystalChangeGroupBox = new QGroupBox;
+//	crystalChangeGroupBox->setFlat(true);
+
+//	QHBoxLayout *crystalChangeHorizontalSqueezeLayout = new QHBoxLayout;
+//	crystalChangeHorizontalSqueezeLayout->addStretch();
+//	crystalChangeHorizontalSqueezeLayout->addWidget(crystalChangeView);
+//	crystalChangeHorizontalSqueezeLayout->addStretch();
+
+//	QVBoxLayout *crystalChangeVerticalSqueezeLayout = new QVBoxLayout;
+//	crystalChangeVerticalSqueezeLayout->addWidget(new AMTopFrame("Crystal Selection"));
+//	crystalChangeVerticalSqueezeLayout->addStretch();
+//	crystalChangeVerticalSqueezeLayout->addLayout(crystalChangeHorizontalSqueezeLayout);
+//	crystalChangeVerticalSqueezeLayout->addStretch();
+//	crystalChangeGroupBox->setLayout(crystalChangeVerticalSqueezeLayout);
+	mw_->addPane(crystalChangeGroupBox, "General", "Crystal Change", ":/system-search.png", true);
 
 	mw_->insertHeading("Detectors", 1);
 
