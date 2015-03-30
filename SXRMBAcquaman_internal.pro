@@ -29,7 +29,9 @@ HEADERS += \
 	source/ui/SXRMB/SXRMBXRFDetailedDetectorView.h \
 	source/ui/SXRMB/SXRMBBrukerDetectorView.h \
 	source/ui/SXRMB/SXRMBFourElementVortexDetectorView.h \
-    source/dataman/SXRMB/SXRMBDbUpgrade1pt1.h
+    source/dataman/SXRMB/SXRMBDbUpgrade1pt1.h \
+    source/beamline/SXRMB/SXRMBCrystalChangeModel.h \
+    source/ui/SXRMB/SXRMBCrystalChangeView.h
 
 
 SOURCES += \
@@ -57,6 +59,12 @@ SOURCES += \
 	source/ui/SXRMB/SXRMBXRFDetailedDetectorView.cpp \
 	source/ui/SXRMB/SXRMBBrukerDetectorView.cpp \
 	source/ui/SXRMB/SXRMBFourElementVortexDetectorView.cpp \
-    source/dataman/SXRMB/SXRMBDbUpgrade1pt1.cpp
+    source/dataman/SXRMB/SXRMBDbUpgrade1pt1.cpp \
+    source/beamline/SXRMB/SXRMBCrystalChangeModel.cpp \
+    source/ui/SXRMB/SXRMBCrystalChangeView.cpp
+
+
+
+
 
 

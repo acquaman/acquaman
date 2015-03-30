@@ -543,6 +543,7 @@ void SXRMBBeamline::setupComponents()
 {
 	beamlineStatus_ = new AMReadOnlyPVControl("BeamlineStatus", "BL1606-B01:ready:status", this);
 	crossHairGenerator_ = new CLSCrossHairGeneratorControl("MUX1606-601", "VLG1606-601", this);
+	crystalSelection_ = new SXRMBCrystalChangeModel(this);
 
 	//energy_ = new AMPVwStatusControl("Energy", "BL1606-B1-1:Energy:fbk", "BL1606-B1-1:Energy", "BL1606-B1-1:Energy:status", QString(), this, 0.1, 2.0, new AMControlStatusCheckerCLSMAXv());
 	energy_ = new AMPVwStatusControl("Energy", "BL1606-B1-1:AddOns:Energy:fbk", "BL1606-B1-1:AddOns:Energy", "BL1606-B1-1:AddOns:Energy:status", "BL1606-B1-1:AddOns:Energy:stop", this, 0.05, 2.0, new AMControlStatusCheckerCLSMAXv());
@@ -833,4 +834,9 @@ AMPVwStatusControl * SXRMBBeamline::ambiantSampleHolderR() const
 CLSCrossHairGeneratorControl * SXRMBBeamline::crossHairGenerator() const
 {
 	return crossHairGenerator_;
+}
+
+SXRMBCrystalChangeModel * SXRMBBeamline::crystalSelection() const
+{
+	return crystalSelection_;
 }

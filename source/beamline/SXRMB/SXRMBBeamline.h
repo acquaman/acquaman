@@ -34,6 +34,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/CLS/CLSBasicCompositeScalerChannelDetector.h"
 #include "beamline/CLS/CLSMAXvMotor.h"
 #include "beamline/CLS/CLSCrossHairGeneratorControl.h"
+#include "beamline/SXRMB/SXRMBCrystalChangeModel.h"
 
 #include "application/SXRMB/SXRMB.h"
 #include "beamline/SXRMB/SXRMBBrukerDetector.h"
@@ -123,6 +124,8 @@ public:
 
 	/// Returns the cross hair generator.
 	CLSCrossHairGeneratorControl *crossHairGenerator() const;
+	/// Returns the crystal selection model.
+	SXRMBCrystalChangeModel *crystalSelection() const;
 
 	/// Returns whether the PVs are connected or not
 	virtual bool isConnected() const;
@@ -277,6 +280,8 @@ protected:
 
 	/// The cross hair generator.
 	CLSCrossHairGeneratorControl *crossHairGenerator_;
+	/// The crystal selection model.
+	SXRMBCrystalChangeModel *crystalSelection_;
 
 	/// Previous connected state for the whole SXRMB beamline
 	bool wasConnected_;

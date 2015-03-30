@@ -64,6 +64,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/SXRMB/SXRMB2DMapScanConfigurationView.h"
 #include "ui/SXRMB/SXRMB2DOxidationMapScanConfigurationView.h"
 #include "ui/SXRMB/SXRMBChooseDataFolderDialog.h"
+#include "ui/SXRMB/SXRMBCrystalChangeView.h"
 
 #include "util/AMErrorMonitor.h"
 #include "util/AMPeriodicTable.h"
@@ -349,6 +350,23 @@ void SXRMBAppController::setupUserInterface()
 	crossHairVerticalSqueezeLayout->addStretch();
 	crossHairGroupBox->setLayout(crossHairVerticalSqueezeLayout);
 	mw_->addPane(crossHairGroupBox, "General", "Cross Hairs", ":/system-search.png", true);
+
+	SXRMBCrystalChangeView *crystalChangeView = new SXRMBCrystalChangeView(SXRMBBeamline::sxrmb()->crystalSelection());
+	QGroupBox *crystalChangeGroupBox = new QGroupBox;
+	crystalChangeGroupBox->setFlat(true);
+
+	QHBoxLayout *crystalChangeHorizontalSqueezeLayout = new QHBoxLayout;
+	crystalChangeHorizontalSqueezeLayout->addStretch();
+	crystalChangeHorizontalSqueezeLayout->addWidget(crystalChangeView);
+	crystalChangeHorizontalSqueezeLayout->addStretch();
+
+	QVBoxLayout *crystalChangeVerticalSqueezeLayout = new QVBoxLayout;
+	crystalChangeVerticalSqueezeLayout->addWidget(new AMTopFrame("Crystal Selection"));
+	crystalChangeVerticalSqueezeLayout->addStretch();
+	crystalChangeVerticalSqueezeLayout->addLayout(crystalChangeHorizontalSqueezeLayout);
+	crystalChangeVerticalSqueezeLayout->addStretch();
+	crystalChangeGroupBox->setLayout(crystalChangeVerticalSqueezeLayout);
+	mw_->addPane(crystalChangeGroupBox, "General", "Crystal Change", ":/system-search.png", true);
 
 	mw_->insertHeading("Detectors", 1);
 
