@@ -38,6 +38,8 @@ CLSSIS3820ScalerDarkCurrentMeasurementAction::CLSSIS3820ScalerDarkCurrentMeasure
 		// reset settings to pre-measurement conditions.
 		addSubAction(scaler->createDwellTimeAction3(oldDwell));
 	}
+
+	connect( this, SIGNAL(failed()), this, SLOT(onActionFailed()) );
 }
 
 CLSSIS3820ScalerDarkCurrentMeasurementAction::CLSSIS3820ScalerDarkCurrentMeasurementAction(const CLSSIS3820ScalerDarkCurrentMeasurementAction &other) :
@@ -51,7 +53,23 @@ CLSSIS3820ScalerDarkCurrentMeasurementAction::~CLSSIS3820ScalerDarkCurrentMeasur
 
 }
 
-void CLSSIS3820ScalerDarkCurrentMeasurementAction::initialize()
+void CLSSIS3820ScalerDarkCurrentMeasurementAction::onActionFailed()
 {
+	CLSSIS3820Scaler *scaler = scalerDarkCurrentMeasurementActionInfo()->scaler();
+
+	if (scaler && scaler->isConnected()) {
+
+		// Notify each able channel detector that the dark current measurement has failed.
+
+		for (int i = 0; i < scaler->channels().count(); i++) {
+			CLSSIS3820ScalerChannel *channel = scaler->channelAt(i);
+
+			if (channel && channel->isEnabled() && channel->detector() && channel->detector()->canDoDarkCurrentCorrection()) {
+				channel->detector()->setDarkCurrentValue(-1);
+				channel->detector()->setDarkCurrentValidState(false);
+			}
+		}
+	}
+
 
 }

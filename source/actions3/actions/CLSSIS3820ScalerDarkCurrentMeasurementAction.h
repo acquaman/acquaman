@@ -23,14 +23,19 @@ public:
 	/// Returns whether this action can be skipped, false for this action.
 	virtual bool canSkip() const { return false; }
 
-protected:
-	/// Populates this action with its child actions.
-	void initialize();
+protected slots:
+	/// Handles setting detector dark current value, time, and state when the dark current measurement action fails.
+	void onActionFailed();
 
+protected:
 	/// Returns the specific action info for this class.
 	const CLSSIS3820ScalerDarkCurrentMeasurementActionInfo* scalerDarkCurrentMeasurementActionInfo() const { return qobject_cast<const CLSSIS3820ScalerDarkCurrentMeasurementActionInfo*>(info()); }
 	/// Returns the specific action info for this class.
 	const CLSSIS3820ScalerDarkCurrentMeasurementActionInfo* scalerDarkCurrentMeasurementActionInfo() { return qobject_cast<CLSSIS3820ScalerDarkCurrentMeasurementActionInfo*>(info()); }
+
+protected:
+	/// Bool indicates whether this action has been initialized.
+	bool initialized_;
 };
 
 #endif // CLSSIS3820SCALERDARKCURRENTMEASUREMENTACTION_H
