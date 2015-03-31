@@ -22,7 +22,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef AM_SGMBEAMLINE_H
 #define AM_SGMBEAMLINE_H
 
-#include "beamline/AMBeamline.h"
+#include "beamline/CLS/CLSBeamline.h"
 #include "dataman/SGM/SGMBeamlineInfo.h"
 
 #include "beamline/AMDetectorGroup.h"
@@ -45,7 +45,7 @@ class CLSQE65000Detector;
 class CLSAdvancedScalerChannelDetector;
 class AMBasicControlDetectorEmulator;
 
-class SGMBeamline : public AMBeamline
+class SGMBeamline : public CLSBeamline
 {
 Q_OBJECT
 public:

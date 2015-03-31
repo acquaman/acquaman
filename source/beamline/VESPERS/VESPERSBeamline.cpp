@@ -32,7 +32,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 
 VESPERSBeamline::VESPERSBeamline()
-	: AMBeamline("VESPERS Beamline")
+	: CLSBeamline("VESPERS Beamline")
 {
 	setupComponents();
 	setupDiagnostics();

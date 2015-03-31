@@ -26,7 +26,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "application/AMAppControllerSupport.h"
 #include "application/AMPluginsManager.h"
 
-#include "beamline/CLS/CLSBeamlines.h"
+#include "beamline/CLS/CLSFacilityID.h"
 #include "beamline/SGM/SGMBeamline.h"
 //#include "beamline/CLS/CLSProcServManager.h"
 #include "beamline/AMDetectorSelector.h"
@@ -220,7 +220,7 @@ bool SGMAppController::startup() {
 	AMRun existingRun;
 	if(!existingRun.loadFromDb(AMDatabase::database("user"), 1)) {
 		// no run yet... let's create one.
-		AMRun firstRun(CLSBeamline::beamlineName(CLSBeamline::SGMBeamline), CLSBeamline::SGMBeamline); //3: SGM Beamline
+		AMRun firstRun(CLSFacilityID::beamlineName(CLSFacilityID::SGMBeamline), CLSFacilityID::SGMBeamline); //3: SGM Beamline
 		firstRun.storeToDb(AMDatabase::database("user"));
 	}
 

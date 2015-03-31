@@ -32,7 +32,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/AMBasicControlDetectorEmulator.h"
 
 SXRMBBeamline::SXRMBBeamline()
-	: AMBeamline("SXRMB Beamline")
+	: CLSBeamline("SXRMB Beamline")
 {
 	setupSynchronizedDwellTime();
 	setupComponents();
