@@ -55,10 +55,3 @@ void CLSSIS3820ScalerDarkCurrentMeasurementAction::initialize()
 {
 
 }
-
-void CLSSIS3820ScalerDarkCurrentMeasurementAction::startImplementation()
-{
-	qDebug() << "CLSSIS3820ScalerDarkCurrentMeasurementAction::startImplementation is executing.";
-
-	AMListAction3::startImplementation();
-}

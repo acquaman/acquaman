@@ -26,8 +26,6 @@ public:
 protected:
 	/// Populates this action with its child actions.
 	void initialize();
-	/// Reimplementation of AMListAction3::startImplementation(). Used for initial testing.
-	virtual void startImplementation();
 
 	/// Returns the specific action info for this class.
 	const CLSSIS3820ScalerDarkCurrentMeasurementActionInfo* scalerDarkCurrentMeasurementActionInfo() const { return qobject_cast<const CLSSIS3820ScalerDarkCurrentMeasurementActionInfo*>(info()); }
