@@ -1,0 +1,10 @@
+#ifndef AMGENERICSTEPSCANCONFIGURATIONVIEW_H
+#define AMGENERICSTEPSCANCONFIGURATIONVIEW_H
+
+class AMGenericStepScanConfigurationView
+{
+public:
+    AMGenericStepScanConfigurationView();
+};
+
+#endif // AMGENERICSTEPSCANCONFIGURATIONVIEW_H
