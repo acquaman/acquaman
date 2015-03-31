@@ -5,6 +5,8 @@
 #include "actions3/actions/AMDetectorSetDarkCurrentTimeActionInfo.h"
 #include "beamline/AMDetector.h"
 
+#define AMDETECTORSETDARKCURRENTTIMEACTION_DETECTOR_NOT_FOUND 55302201
+
 class AMDetectorSetDarkCurrentTimeAction : public AMAction3
 {
     Q_OBJECT
@@ -54,8 +56,8 @@ protected:
 	AMDetector *detector_;
 
 private:
-	/// If the current detector is null, attempts to set the detector using the action info's detector info.
-	void setDetector(AMDetector *newDetector);
+	/// Sets the detector to the given newDetector. If afterwards detector is null, attempts to find the detector by detector info. If still null, returns false. Otherwise returns true.
+	bool setDetector(AMDetector *newDetector);
 };
 
 #endif // AMDETECTORSETDARKCURRENTTIMEACTION_H

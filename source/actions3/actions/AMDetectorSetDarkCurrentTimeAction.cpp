@@ -1,5 +1,6 @@
 #include "AMDetectorSetDarkCurrentTimeAction.h"
 #include "beamline/AMBeamlineSupport.h"
+#include "util/AMErrorMonitor.h"
 
 AMDetectorSetDarkCurrentTimeAction::AMDetectorSetDarkCurrentTimeAction(AMDetectorSetDarkCurrentTimeActionInfo *info, AMDetector *detector, QObject *parent) :
     AMAction3(info, parent)
@@ -31,14 +32,22 @@ void AMDetectorSetDarkCurrentTimeAction::startImplementation()
 		setSucceeded();
 
 	} else {
+		AMErrorMon::alert(this, AMDETECTORSETDARKCURRENTTIMEACTION_DETECTOR_NOT_FOUND, "Failed to set detector dark current dwell time--detector not found.");
 		setFailed();
 	}
 }
 
-void AMDetectorSetDarkCurrentTimeAction::setDetector(AMDetector *newDetector)
+bool AMDetectorSetDarkCurrentTimeAction::setDetector(AMDetector *newDetector)
 {
+	bool result = false;
+
 	detector_ = newDetector;
 
 	if (!detector_ && AMBeamlineSupport::beamlineDetectorAPI())
 		detector_ = AMBeamlineSupport::beamlineDetectorAPI()->exposedDetectorByInfo( *(detectorSetDarkCurrentTimeActionInfo()->detectorInfo()) );
+
+	if (detector_)
+		result = true;
+
+	return result;
 }

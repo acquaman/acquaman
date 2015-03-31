@@ -1,5 +1,6 @@
 #include "AMDetectorSetDarkCurrentValueAction.h"
 #include "beamline/AMBeamlineSupport.h"
+#include "util/AMErrorMonitor.h"
 
 AMDetectorSetDarkCurrentValueAction::AMDetectorSetDarkCurrentValueAction(AMDetectorSetDarkCurrentValueActionInfo *info, AMDetector *detector, QObject *parent) :
     AMAction3(info, parent)
@@ -31,14 +32,22 @@ void AMDetectorSetDarkCurrentValueAction::startImplementation()
 		setSucceeded();
 
 	} else {
+		AMErrorMon::alert(this, AMDETECTORSETDARKCURRENTVALUEACTION_DETECTOR_NOT_FOUND, "Failed to set detector dark current value--detector not found.");
 		setFailed();
 	}
 }
 
-void AMDetectorSetDarkCurrentValueAction::setDetector(AMDetector *newDetector)
+bool AMDetectorSetDarkCurrentValueAction::setDetector(AMDetector *newDetector)
 {
+	bool result = false;
+
 	detector_ = newDetector;
 
 	if (!detector_ && AMBeamlineSupport::beamlineDetectorAPI())
 		detector_ = AMBeamlineSupport::beamlineDetectorAPI()->exposedDetectorByInfo( *(detectorSetDarkCurrentValueActionInfo()->detectorInfo()) );
+
+	if (detector_)
+		result = true;
+
+	return result;
 }

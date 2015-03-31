@@ -1,5 +1,6 @@
 #include "AMDetectorSetDarkCurrentValidStateAction.h"
 #include "beamline/AMBeamlineSupport.h"
+#include "util/AMErrorMonitor.h"
 
 AMDetectorSetDarkCurrentValidStateAction::AMDetectorSetDarkCurrentValidStateAction(AMDetectorSetDarkCurrentValidStateActionInfo *info, AMDetector *detector, QObject *parent) :
     AMAction3(info, parent)
@@ -31,14 +32,22 @@ void AMDetectorSetDarkCurrentValidStateAction::startImplementation()
 		setSucceeded();
 
 	} else {
+		AMErrorMon::alert(this, AMDETECTORSETDARKCURRENTVALIDSTATEACTION_DETECTOR_NOT_FOUND, "Failed to set dark current valid state--detector not found.");
 		setFailed();
 	}
 }
 
-void AMDetectorSetDarkCurrentValidStateAction::setDetector(AMDetector *newDetector)
+bool AMDetectorSetDarkCurrentValidStateAction::setDetector(AMDetector *newDetector)
 {
+	bool result = false;
+
 	detector_ = newDetector;
 
 	if (!detector_ && AMBeamlineSupport::beamlineDetectorAPI())
 		detector_ = AMBeamlineSupport::beamlineDetectorAPI()->exposedDetectorByInfo( *(detectorSetDarkCurrentValidStateActionInfo()->detectorInfo()) );
+
+	if (detector_)
+		result = true;
+
+	return result;
 }
