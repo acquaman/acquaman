@@ -61,6 +61,8 @@ CLSSIS3820ScalerDarkCurrentMeasurementAction::~CLSSIS3820ScalerDarkCurrentMeasur
 
 void CLSSIS3820ScalerDarkCurrentMeasurementAction::onActionFailed()
 {
+	AMErrorMon::alert(this, CLSSIS3820SCALERDARKCURRENTMEASUREMENTACTION_ACTION_FAILED, "Failed to complete dark current measurement.");
+
 	CLSSIS3820Scaler *scaler = CLSBeamline::clsBeamline()->scaler();
 
 	if (scaler && scaler->isConnected()) {
