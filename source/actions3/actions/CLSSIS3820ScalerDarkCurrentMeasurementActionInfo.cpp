@@ -1,9 +1,10 @@
 #include "CLSSIS3820ScalerDarkCurrentMeasurementActionInfo.h"
+#include "beamline/CLS/CLSBeamline.h"
 
-CLSSIS3820ScalerDarkCurrentMeasurementActionInfo::CLSSIS3820ScalerDarkCurrentMeasurementActionInfo(CLSSIS3820Scaler *scaler, double secondsDwell, QObject *parent) :
+CLSSIS3820ScalerDarkCurrentMeasurementActionInfo::CLSSIS3820ScalerDarkCurrentMeasurementActionInfo(double secondsDwell, QObject *parent) :
 	AMListActionInfo3(QString(), QString(), QString(), parent)
 {
-	scaler_ = scaler;
+	scaler_ = CLSBeamline::clsBeamline()->scaler();
 	secondsDwell_ = secondsDwell;
 
 	setShortDescription(typeDescription());
