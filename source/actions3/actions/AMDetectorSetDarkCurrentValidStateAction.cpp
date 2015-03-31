@@ -29,6 +29,9 @@ void AMDetectorSetDarkCurrentValidStateAction::startImplementation()
 		setStarted();
 		detector_->setDarkCurrentValidState( detectorSetDarkCurrentValidStateActionInfo()->darkCurrentState() );
 		setSucceeded();
+
+	} else {
+		setFailed();
 	}
 }
 

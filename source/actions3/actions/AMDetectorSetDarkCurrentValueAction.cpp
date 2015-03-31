@@ -29,6 +29,9 @@ void AMDetectorSetDarkCurrentValueAction::startImplementation()
 		setStarted();
 		detector_->setDarkCurrentValue(detectorSetDarkCurrentValueActionInfo()->darkCurrentValue());
 		setSucceeded();
+
+	} else {
+		setFailed();
 	}
 }
 

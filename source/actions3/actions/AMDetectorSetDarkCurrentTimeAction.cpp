@@ -29,6 +29,9 @@ void AMDetectorSetDarkCurrentTimeAction::startImplementation()
 		setStarted();
 		detector_->setDarkCurrentTime(detectorSetDarkCurrentTimeActionInfo()->darkCurrentTime());
 		setSucceeded();
+
+	} else {
+		setFailed();
 	}
 }
 
