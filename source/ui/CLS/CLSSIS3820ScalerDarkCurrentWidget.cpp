@@ -97,6 +97,6 @@ void CLSSIS3820ScalerDarkCurrentWidget::onCollectButtonClicked()
 	double secondsEntered = timeEntry_->value() / MILLISECONDS_PER_SECOND;
 
 	if (scaler_ && secondsEntered > 0) {
-		scaler_->measureDarkCurrent(secondsEntered);
+		scaler_->measureDarkCurrent((int)secondsEntered);
 	}
 }
