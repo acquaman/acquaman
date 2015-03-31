@@ -114,9 +114,14 @@ AMAction3* BioXASMainXASScanActionController::createInitializationActions()
 		    if (detectorIndex != -1 && detector->rank() == 0 && detector->canDoDarkCurrentCorrection()) {
 			    bool sourceShared = detector->sharesDetectorTriggerSource();
 
-			    if ((sourceShared && !sharedSourceFound) || !sourceShared)
+				if (sourceShared && !sharedSourceFound) {
+					sharedSourceFound = true;
 				    darkCurrentSetup->addSubAction(detector->createDarkCurrentMeasurementAction(detector->acquisitionTime()));
-		    }
+
+				} else if (!sourceShared) {
+					darkCurrentSetup->addSubAction(detector->createDarkCurrentMeasurementAction(detector->acquisitionTime()));
+				}
+			}
 	    }
     }
 
