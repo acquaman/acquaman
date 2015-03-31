@@ -154,7 +154,7 @@ SXRMB2DOxidationMapScanConfigurationView::SXRMB2DOxidationMapScanConfigurationVi
 
 	// detector setting
 	powerOnTEYHVControlCheckBox_ = new QCheckBox("Power on TEY HV Control automatically");
-	connect(powerOnTEYHVControlCheckBox_, SIGNAL(clicked(bool)), configuration_, SLOT(onPowerOnTEYHVControlEnabled(bool)));
+	connect(powerOnTEYHVControlCheckBox_, SIGNAL(clicked(bool)), this, SLOT(onPowerOnTEYHVControlEnabled(bool)));
 
 	fluorescenceDetectorComboBox_ = createFluorescenceComboBox();
 	connect(fluorescenceDetectorComboBox_, SIGNAL(currentIndexChanged(int)), this, SLOT(onFluorescenceDetectorChanged(int)));
@@ -390,7 +390,7 @@ void SXRMB2DOxidationMapScanConfigurationView::onBeamlineEndstationChanged(SXRMB
 	Q_UNUSED(fromEndstation)
 
 	if (toEndstation == SXRMB::AmbiantWithGasChamber || toEndstation == SXRMB::AmbiantWithoutGasChamber) {
-		powerOnTEYHVControlCheckBox_->setEnabled(false);
+		powerOnTEYHVControlCheckBox_->setChecked(false);
 		powerOnTEYHVControlCheckBox_->setVisible(false);
 	} else{
 		powerOnTEYHVControlCheckBox_->setVisible(true);
@@ -445,6 +445,11 @@ void SXRMB2DOxidationMapScanConfigurationView::updateFluorescenceDetectorComboBo
 void SXRMB2DOxidationMapScanConfigurationView::onFluorescenceDetectorChanged(int detector)
 {
 	configuration_->setFluorescenceDetectors((SXRMB::FluorescenceDetectors)detector);
+}
+
+void SXRMB2DOxidationMapScanConfigurationView::onPowerOnTEYHVControlEnabled(bool value)
+{
+	configuration_->setPowerOnTEYHVControlEnabled(value);
 }
 
 void SXRMB2DOxidationMapScanConfigurationView::checkScanAxisValidity()

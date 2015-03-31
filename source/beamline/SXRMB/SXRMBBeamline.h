@@ -209,16 +209,21 @@ protected:
 	void beamAvailabilityHelper();
 	/// Helper function to detemine the current connected endstation if it is NOT preset
 	void sampleStageConnectHelper();
-	/// Helper function to check for changes in the connected state
-	void connectedHelper();
 
 protected slots:
+	/// Helper function to check for changes in the connected state
+	void onPVConnectedHelper();
+
 	/// Handles the beamAvailability signal of the Storage ring
 	void onStorageRingBeamAvailabilityChanged(bool value);
 	/// Handles value changed signal of the beamline status
 	void onBeamlineStatusPVValueChanged(double value);
 	/// Handles connected status of the beamline status
 	void onBeamlineStatusPVConnected(bool);
+	/// Handles connected status of the SXRMB Endstation PV
+	void onEndstationPVConnected(bool);
+	/// Handles value change of the SXRMB Endstation PV
+	void onEndstationPVValueChanged(double);
 	/// Handles connected status of the energy
 	void onEnergyPVConnected(bool);
 	/// Handles connected status of all of the sample stage controls
@@ -232,6 +237,9 @@ protected:
 
 	/// Scaler for SXRMB
 	CLSSIS3820Scaler *scaler_;
+
+	/// Endstation control for SXRMB
+	AMPVControl *endstationControl_;
 
 	/// Energy control for SXRMB
 	AMPVwStatusControl *energy_;

@@ -98,6 +98,8 @@ protected slots:
 	void updateFluorescenceDetectorComboBox(SXRMB::FluorescenceDetectors detector);
 	/// Handles changes to detector selection
 	void onFluorescenceDetectorChanged(int detector);
+	/// Handles changes to power on TEY HV control flag
+	void onPowerOnTEYHVControlEnabled(bool);
 
 	/// Helper method that checks to see if the map dimensions are acceptable.  Makes visual changes if not valid.
 	void checkScanAxisValidity();

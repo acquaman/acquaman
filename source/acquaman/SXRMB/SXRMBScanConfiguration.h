@@ -36,7 +36,7 @@ public:
 	/// Returns the fluorescence detectors.
 	SXRMB::FluorescenceDetectors fluorescenceDetectors() const { return dbObject_->fluorescenceDetectors(); }
 	/// Returns the flag to power on TEY HV control
-	bool powerOnTEYHVControl() const { return powerOnTEYHVControl_; }
+	bool powerOnTEYHVControl() const;
 	/// Returns the x position.
 	double x() const { return dbObject_->x(); }
 	/// Returns the y position.
@@ -82,9 +82,8 @@ public:
 	/// Sets the time offset used for estimating the scan time.
 	void setTimeOffset(double offset) { timeOffset_ = offset; computeTotalTimeImplementation(); }
 
-public slots:
-	/// to handle power on TEY HV Control flag
-	void onPowerOnTEYHVControlEnabled(bool);
+	/// Sets power on TEY HV Control flag
+	void setPowerOnTEYHVControlEnabled(bool value) { powerOnTEYHVControl_ = value; }
 
 protected:
 	/// Computes the total time any time the regions list changes.  It is expected that subclasses will have a signal totalTimeChanged(double) that is emitted by this method.

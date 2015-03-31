@@ -50,7 +50,7 @@ SXRMBBeamline::SXRMBBeamline()
 
 	wasConnected_ = false;
 	sampleStageConnectHelper();
-	connectedHelper();
+	onPVConnectedHelper();
 }
 
 SXRMBBeamline::~SXRMBBeamline()
@@ -166,6 +166,8 @@ void SXRMBBeamline::switchEndstation(SXRMB::Endstation endstation)
 		SXRMB::Endstation fromEndstation = currentEndstation_;
 		currentEndstation_ = endstation;
 		emit endstationChanged(fromEndstation, currentEndstation_);
+
+		endstationControl_->move(currentEndstation_);
 	}
 }
 
@@ -392,7 +394,7 @@ bool SXRMBBeamline::isConnected() const
 	}
 
 	// return whether the expected PVs are connected or not
-	return energy_->isConnected() && beamlineStatus_->isConnected()
+	return endstationControl_->isConnected() && energy_->isConnected() && beamlineStatus_->isConnected()
 			&& beamlineControlShutterSet_->isConnected() && sampleStageConnected;
 }
 
@@ -572,6 +574,7 @@ void SXRMBBeamline::setupComponents()
 	beamlineStatus_ = new AMReadOnlyPVControl("BeamlineStatus", "BL1606-B01:ready:status", this);
 	crossHairGenerator_ = new CLSCrossHairGeneratorControl("MUX1606-601", "VLG1606-601", this);
 	crystalSelection_ = new SXRMBCrystalChangeModel(this);
+	endstationControl_ = new AMPVControl("SXRMB Endstation", "BL1606-B1-1:AddOns:Endstation:fbk", "BL1606-B1-1:AddOns:Endstation");
 
 	//energy_ = new AMPVwStatusControl("Energy", "BL1606-B1-1:Energy:fbk", "BL1606-B1-1:Energy", "BL1606-B1-1:Energy:status", QString(), this, 0.1, 2.0, new AMControlStatusCheckerCLSMAXv());
 	energy_ = new AMPVwStatusControl("Energy", "BL1606-B1-1:AddOns:Energy:fbk", "BL1606-B1-1:AddOns:Energy", "BL1606-B1-1:AddOns:Energy:status", "BL1606-B1-1:AddOns:Energy:stop", this, 0.05, 2.0, new AMControlStatusCheckerCLSMAXv());
@@ -776,6 +779,9 @@ void SXRMBBeamline::setupConnections()
 	connect(beamlineStatus_, SIGNAL(valueChanged(double)), this, SLOT(onBeamlineStatusPVValueChanged(double)));
 	connect(beamlineStatus_, SIGNAL(connected(bool)), this, SLOT(onBeamlineStatusPVConnected(bool)));
 
+	connect(endstationControl_, SIGNAL(connected(bool)), this, SLOT(onEndstationPVConnected(bool)));
+	connect(endstationControl_, SIGNAL(valueChanged(double)), this, SLOT(onEndstationPVValueChanged(double)));
+
 	connect(energy_, SIGNAL(connected(bool)), this, SLOT(onEnergyPVConnected(bool)));
 	connect(microprobeSampleStageControlSet_, SIGNAL(connected(bool)), this, SLOT(onSampleStagePVsConnected(bool)));
 	connect(solidStateSampleStageControlSet_, SIGNAL(connected(bool)), this, SLOT(onSampleStagePVsConnected(bool)));
@@ -786,6 +792,9 @@ void SXRMBBeamline::setupConnections()
 
 	if (beamlineStatus_->isConnected()) {
 		onBeamlineStatusPVConnected(true);
+	}
+	if (endstationControl_->isConnected()) {
+		onEndstationPVValueChanged(endstationControl_->value());
 	}
 }
 
@@ -814,7 +823,7 @@ void SXRMBBeamline::sampleStageConnectHelper()
 	}
 }
 
-void SXRMBBeamline::connectedHelper(){
+void SXRMBBeamline::onPVConnectedHelper(){
 	if (wasConnected_ && !isConnected()) {
 		emit connected(false);
 		wasConnected_ = false;
@@ -835,24 +844,40 @@ void SXRMBBeamline::onBeamlineStatusPVValueChanged(double)
 }
 
 void SXRMBBeamline::onBeamlineStatusPVConnected(bool value) {
-	connectedHelper();
+	onPVConnectedHelper();
 
 	if (value) {
 		beamAvailabilityHelper();
 	}
 }
 
+void SXRMBBeamline::onEndstationPVConnected(bool value)
+{
+	if (value) {
+		switchEndstation(SXRMB::Endstation(endstationControl_->value()));
+	}
+
+	onPVConnectedHelper();;
+}
+
+void SXRMBBeamline::onEndstationPVValueChanged(double value)
+{
+	Q_UNUSED(value)
+
+	switchEndstation(SXRMB::Endstation(endstationControl_->value()));
+}
+
 void SXRMBBeamline::onEnergyPVConnected(bool) {
-	connectedHelper();
+	onPVConnectedHelper();
 }
 
 void SXRMBBeamline::onSampleStagePVsConnected(bool) {
 	sampleStageConnectHelper();
-	connectedHelper();
+	onPVConnectedHelper();
 }
 
 void SXRMBBeamline::onBeamlineControlShuttersConnected(bool) {
-	connectedHelper();
+	onPVConnectedHelper();
 }
 
 AMPVwStatusControl * SXRMBBeamline::ambiantSampleStageX() const

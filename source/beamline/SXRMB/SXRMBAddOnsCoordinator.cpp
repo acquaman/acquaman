@@ -27,6 +27,8 @@ SXRMBAddOnsCoordinator::SXRMBAddOnsCoordinator(QObject *parent) :
 {
 	connectedOnce_ = false;
 
+	addOnsEndstation_ = new AMSinglePVControl("AddOnsEndstation", "BL1606-B1-1:AddOns:Endstation", this, 0.5);
+
 	oldEnergy_ =  new AMSinglePVControl("OldEnergy", "BL1606-B1-1:Energy", this, 0.01);
 	oldEnergyFeedback_ = new AMReadOnlyPVControl("OldEnergyFeedback", "BL1606-B1-1:Energy:fbk", this);
 	oldEnergyStatus_ = new AMReadOnlyPVControl("OldEnergyStatus", "BL1606-B1-1:Energy:status", this);
@@ -77,6 +79,7 @@ SXRMBAddOnsCoordinator::SXRMBAddOnsCoordinator(QObject *parent) :
 	addOnsMicroprobeSampleStageDRVLZ_ = new AMSinglePVControl("AddOnsMicroprobleSampleStageDRVLZ", "BL1606-B1-1:AddOns:uProbe:SampleStage:Z:mm.DRVL", this, 0.0001);
 
 	allControls_ = new AMControlSet(this);
+	allControls_->addControl(addOnsEndstation_);
 	allControls_->addControl(oldEnergy_);
 	allControls_->addControl(oldEnergyFeedback_);
 	allControls_->addControl(oldEnergyStatus_);
@@ -116,6 +119,8 @@ SXRMBAddOnsCoordinator::SXRMBAddOnsCoordinator(QObject *parent) :
 
 	connect(allControls_, SIGNAL(connected(bool)), this, SLOT(onAllControlsConnected(bool)));
 
+	connect(addOnsEndstation_, SIGNAL(valueChanged(double)), this, SLOT(onEndstationValueChanged(double)));
+
 	connect(oldEnergy_, SIGNAL(valueChanged(double)), this, SLOT(onOldEnergyValueChanged(double)));
 	connect(oldEnergyFeedback_, SIGNAL(valueChanged(double)), this, SLOT(onOldEnergyFeedbackValueChanged(double)));
 	connect(oldEnergyStatus_, SIGNAL(valueChanged(double)), this, SLOT(onOldEnergyStatusValueChanged(double)));
@@ -145,6 +150,8 @@ SXRMBAddOnsCoordinator::~SXRMBAddOnsCoordinator(){}
 void SXRMBAddOnsCoordinator::onAllControlsConnected(bool connected){
 	if(connected){
 		connectedOnce_ = true;
+
+		qDebug() << "Checking start up value for Endstation: " << addOnsEndstation_->value();
 
 		qDebug() << "Checking start up value from the OLD energy as " << oldEnergy_->value();
 		onOldEnergyValueChanged(oldEnergy_->value());
@@ -191,6 +198,15 @@ void SXRMBAddOnsCoordinator::onAllControlsConnected(bool connected){
 		addOnsMicroprobeSampleStageDRVLZ_->move(sxrmbMicroprobeSampleStageZ_->minimumValue());
 	}
 }
+
+void SXRMBAddOnsCoordinator::onEndstationValueChanged(double value){
+	Q_UNUSED(value)
+	if(!connectedOnce_)
+		return;
+
+	qDebug() << "Detected Endstation change to " << addOnsEndstation_->value();
+}
+
 
 void SXRMBAddOnsCoordinator::onOldEnergyValueChanged(double value){
 	Q_UNUSED(value)

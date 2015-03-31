@@ -125,7 +125,7 @@ SXRMBEXAFSScanConfigurationView::SXRMBEXAFSScanConfigurationView(SXRMBEXAFSScanC
 
 	// Bruker detector setting
 	powerOnTEYHVControlCheckBox_ = new QCheckBox("Power on TEY HV Control automatically");
-	connect(powerOnTEYHVControlCheckBox_, SIGNAL(clicked(bool)), configuration_, SLOT(onPowerOnTEYHVControlEnabled(bool)));
+	connect(powerOnTEYHVControlCheckBox_, SIGNAL(clicked(bool)), this, SLOT(onPowerOnTEYHVControlEnabled(bool)));
 
 	fluorescenceDetectorComboBox_ = createFluorescenceComboBox();
 	connect(fluorescenceDetectorComboBox_, SIGNAL(currentIndexChanged(int)), this, SLOT(onFluorescenceDetectorChanged(int)));
@@ -265,7 +265,7 @@ void SXRMBEXAFSScanConfigurationView::onBeamlineEndstationChanged(SXRMB::Endstat
 	// recreate the component for the new endstation
 	createAndLayoutSampleStageSpinBox(sampleStageFL_);
 	if (toEndstation == SXRMB::AmbiantWithGasChamber || toEndstation == SXRMB::AmbiantWithoutGasChamber) {
-		powerOnTEYHVControlCheckBox_->setEnabled(false);
+		powerOnTEYHVControlCheckBox_->setChecked(false);
 		powerOnTEYHVControlCheckBox_->setVisible(false);
 	} else {
 		powerOnTEYHVControlCheckBox_->setVisible(true);
@@ -282,6 +282,11 @@ void SXRMBEXAFSScanConfigurationView::updateFluorescenceDetectorComboBox(SXRMB::
 void SXRMBEXAFSScanConfigurationView::onFluorescenceDetectorChanged(int detector)
 {
 	configuration_->setFluorescenceDetectors((SXRMB::FluorescenceDetectors)detector);
+}
+
+void SXRMBEXAFSScanConfigurationView::onPowerOnTEYHVControlEnabled(bool value)
+{
+	configuration_->setPowerOnTEYHVControlEnabled(value);
 }
 
 void SXRMBEXAFSScanConfigurationView::onScanNameEdited()

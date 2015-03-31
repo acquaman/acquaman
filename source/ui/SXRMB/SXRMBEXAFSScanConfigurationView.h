@@ -47,6 +47,8 @@ protected slots:
 	void updateFluorescenceDetectorComboBox(SXRMB::FluorescenceDetectors detector);
 	/// Handles changes to detector selection
 	void onFluorescenceDetectorChanged(int detector);
+	/// Handles changes to power on TEY HV control flag
+	void onPowerOnTEYHVControlEnabled(bool);
 
 	/// Handles setting the name of the configuration from the line edit.
 	void onScanNameEdited();
