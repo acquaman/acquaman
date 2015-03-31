@@ -14,7 +14,7 @@ AMDetectorSetDarkCurrentTimeActionInfo::AMDetectorSetDarkCurrentTimeActionInfo(c
 	AMActionInfo3(other)
 {
 	detectorInfo_.setValuesFrom( *(other.detectorInfo()) );
-	darkCurrentTime_ = other.darkCurrentTime_;
+	darkCurrentTime_ = other.darkCurrentTime();
 }
 
 AMDetectorSetDarkCurrentTimeActionInfo::~AMDetectorSetDarkCurrentTimeActionInfo()

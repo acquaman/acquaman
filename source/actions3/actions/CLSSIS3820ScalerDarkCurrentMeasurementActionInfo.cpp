@@ -13,8 +13,8 @@ CLSSIS3820ScalerDarkCurrentMeasurementActionInfo::CLSSIS3820ScalerDarkCurrentMea
 CLSSIS3820ScalerDarkCurrentMeasurementActionInfo::CLSSIS3820ScalerDarkCurrentMeasurementActionInfo(const CLSSIS3820ScalerDarkCurrentMeasurementActionInfo &other) :
 	AMListActionInfo3(other)
 {
-	scaler_ = other.scaler_;
-	secondsDwell_ = other.secondsDwell_;
+	scaler_ = other.scaler();
+	secondsDwell_ = other.dwellTime();
 }
 
 CLSSIS3820ScalerDarkCurrentMeasurementActionInfo::~CLSSIS3820ScalerDarkCurrentMeasurementActionInfo()

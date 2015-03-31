@@ -13,7 +13,7 @@ AMDetectorSetDarkCurrentValueActionInfo::AMDetectorSetDarkCurrentValueActionInfo
 AMDetectorSetDarkCurrentValueActionInfo::AMDetectorSetDarkCurrentValueActionInfo(const AMDetectorSetDarkCurrentValueActionInfo &other):
 	AMActionInfo3(other)
 {
-	darkCurrentValue_ = other.darkCurrentValue_;
+	darkCurrentValue_ = other.darkCurrentValue();
 	detectorInfo_.setValuesFrom( *(other.detectorInfo()) );
 }
 
