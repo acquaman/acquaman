@@ -6,46 +6,86 @@ BioXASSSRLMonochromatorConfigurationView::BioXASSSRLMonochromatorConfigurationVi
 {
 	// Initialize member variables.
 
-	mono_ = 0;
+	mono_ = mono;
 
-	// Create UI elements.
+	regionEditor_ = 0;
+	energyEditor_ = 0;
+	calibrateEnergyButton_ = 0;
+	braggEditor_ = 0;
+	calibrateBraggButton_ = 0;
 
-	QGroupBox *regionStatusView = new QGroupBox("Region status");
+	regionStatusWidget_ = 0;
+	braggConfigWidget_ = 0;
 
-	regionStatusWidget_ = new BioXASSSRLMonochromatorRegionControlView(0);
+	if (mono_) {
 
-	QGroupBox *braggConfigView = new QGroupBox("Bragg configuration");
+		// Create UI elements.
 
-	braggConfigWidget_ = new BioXASSSRLMonochromatorBraggConfigurationView(0);
+		regionEditor_ = new BioXASSSRLMonochromatorRegionControlEditor(mono_->regionControl());
+		regionEditor_->setTitle("Region");
 
-	// Create and set layouts.
+		energyEditor_ = new AMExtendedControlEditor(mono_->energyControl());
+		energyEditor_->setTitle("Energy EV");
+		energyEditor_->setControlFormat('f', 2);
 
-	QVBoxLayout *regionStatusViewLayout = new QVBoxLayout();
-	regionStatusViewLayout->setMargin(0);
-	regionStatusViewLayout->addWidget(regionStatusWidget_);
+		calibrateEnergyButton_ = new QPushButton("Calibrate");
 
-	regionStatusView->setLayout(regionStatusViewLayout);
+		braggEditor_ = new AMExtendedControlEditor(mono_->braggMotor());
+		braggEditor_->setTitle("Bragg motor position");
 
-	QVBoxLayout *braggConfigViewLayout = new QVBoxLayout();
-	braggConfigViewLayout->setMargin(0);
-	braggConfigViewLayout->addWidget(braggConfigWidget_);
+		calibrateBraggButton_ = new QPushButton("Calibrate");
 
-	braggConfigView->setLayout(braggConfigViewLayout);
+		QGroupBox *regionStatusView = new QGroupBox("Region status");
 
-	QVBoxLayout *layoutV = new QVBoxLayout();
-	layoutV->addWidget(regionStatusView);
-	layoutV->addWidget(braggConfigView);
-	layoutV->addStretch();
+		regionStatusWidget_ = new BioXASSSRLMonochromatorRegionControlView(mono_->regionControl());
 
-	QHBoxLayout *layoutH = new QHBoxLayout();
-	layoutH->addLayout(layoutV);
-	layoutH->addStretch();
+		QGroupBox *braggConfigView = new QGroupBox("Bragg configuration");
 
-	setLayout(layoutH);
+		braggConfigWidget_ = new BioXASSSRLMonochromatorBraggConfigurationView(mono_->braggMotor());
 
-	// Current settings.
+		// Create and set layouts.
 
-	setMono(mono);
+		QHBoxLayout *energyLayout = new QHBoxLayout();
+		energyLayout->setMargin(0);
+		energyLayout->addWidget(energyEditor_);
+		energyLayout->addWidget(calibrateEnergyButton_);
+
+		QHBoxLayout *braggLayout = new QHBoxLayout();
+		braggLayout->setMargin(0);
+		braggLayout->addWidget(braggEditor_);
+		braggLayout->addWidget(calibrateBraggButton_);
+
+		QVBoxLayout *regionStatusViewLayout = new QVBoxLayout();
+		regionStatusViewLayout->setMargin(0);
+		regionStatusViewLayout->addWidget(regionStatusWidget_);
+
+		regionStatusView->setLayout(regionStatusViewLayout);
+
+		QVBoxLayout *braggConfigViewLayout = new QVBoxLayout();
+		braggConfigViewLayout->setMargin(0);
+		braggConfigViewLayout->addWidget(braggConfigWidget_);
+
+		braggConfigView->setLayout(braggConfigViewLayout);
+
+		QVBoxLayout *layoutV = new QVBoxLayout();
+		layoutV->addWidget(regionEditor_);
+		layoutV->addLayout(energyLayout);
+		layoutV->addLayout(braggLayout);
+		layoutV->addWidget(regionStatusView);
+		layoutV->addWidget(braggConfigView);
+		layoutV->addStretch();
+
+		QHBoxLayout *layoutH = new QHBoxLayout();
+		layoutH->addLayout(layoutV);
+		layoutH->addStretch();
+
+		setLayout(layoutH);
+
+		// Make connections
+
+		connect( calibrateEnergyButton_, SIGNAL(clicked()), this, SLOT(onCalibrateEnergyButtonClicked()) );
+		connect( calibrateBraggButton_, SIGNAL(clicked()), this, SLOT(onCalibrateBraggButtonClicked()) );
+	}
 }
 
 BioXASSSRLMonochromatorConfigurationView::~BioXASSSRLMonochromatorConfigurationView()
@@ -53,23 +93,27 @@ BioXASSSRLMonochromatorConfigurationView::~BioXASSSRLMonochromatorConfigurationV
 
 }
 
-void BioXASSSRLMonochromatorConfigurationView::setMono(BioXASSSRLMonochromator *newMono)
+void BioXASSSRLMonochromatorConfigurationView::onCalibrateEnergyButtonClicked()
 {
-	if (mono_ != newMono) {
+	if (mono_) {
+		bool inputOK = false;
+		double newEnergy = QInputDialog::getDouble(this, "Energy Calibration", "Enter calibrated energy:", mono_->energyControl()->value(), ENERGY_MIN, ENERGY_MAX, 1, &inputOK);
 
-		if (mono_) {
-			regionStatusWidget_->setRegionControl(0);
-			braggConfigWidget_->setBraggMotor(0);
+		if (inputOK) {
+			mono_->energyControl()->setEnergyCalibration(newEnergy);
 		}
+	}
+}
 
-		mono_ = newMono;
+void BioXASSSRLMonochromatorConfigurationView::onCalibrateBraggButtonClicked()
+{
+	if (mono_) {
+		bool inputOK = false;
+		double newPosition = QInputDialog::getDouble(this, "Bragg Position Calibration", "Enter calibrated position:", mono_->braggMotor()->value(), BRAGG_POSITION_MIN, BRAGG_POSITION_MAX, 1, &inputOK);
 
-		if (mono_) {
-			regionStatusWidget_->setRegionControl(mono_->regionControl());
-			braggConfigWidget_->setBraggMotor(mono_->braggMotor());
+		if (inputOK) {
+			mono_->calibrateBraggPosition(newPosition);
 		}
-
-		emit monoChanged(mono_);
 	}
 }
 
@@ -90,9 +134,17 @@ BioXASSSRLMonochromatorBraggConfigurationView::BioXASSSRLMonochromatorBraggConfi
 
 	// Create UI elements.
 
-	QLabel *braggOffsetPrompt = new QLabel("Offset:");
+	QLabel *braggVelocityPrompt = new QLabel("Velocity:");
 
-	braggOffset_ = new QDoubleSpinBox();
+	braggVelocity_ = new QDoubleSpinBox();
+
+	QLabel *braggVelocityBasePrompt = new QLabel("Velocity base:");
+
+	braggVelocityBase_ = new QDoubleSpinBox();
+
+	QLabel *braggAccelerationPrompt = new QLabel("Acceleration:");
+
+	braggAcceleration_ = new QDoubleSpinBox();
 
 	QLabel *braggEncoderMoveTypePrompt = new QLabel("Encoder move type:");
 
@@ -105,12 +157,16 @@ BioXASSSRLMonochromatorBraggConfigurationView::BioXASSSRLMonochromatorBraggConfi
 	// Create and set layouts.
 
 	QGridLayout *layout = new QGridLayout();
-	layout->addWidget(braggOffsetPrompt, 0, 0, 1, 1, Qt::AlignRight);
-	layout->addWidget(braggOffset_, 0, 1, 1, 1, Qt::AlignCenter);
-	layout->addWidget(braggEncoderMoveTypePrompt, 1, 0, 1, 1, Qt::AlignRight);
-	layout->addWidget(braggEncoderMoveType_, 1, 1, 1, 1, Qt::AlignCenter);
-	layout->addWidget(braggSettlingTimePrompt, 2, 0, 1, 1, Qt::AlignRight);
-	layout->addWidget(braggSettlingTime_, 2, 1, 1, 1, Qt::AlignCenter);
+	layout->addWidget(braggVelocityPrompt, 0, 0, 1, 1, Qt::AlignRight);
+	layout->addWidget(braggVelocity_, 0, 1, 1, 1, Qt::AlignLeft);
+	layout->addWidget(braggVelocityBasePrompt, 1, 0, 1, 1, Qt::AlignRight);
+	layout->addWidget(braggVelocityBase_, 1, 1, 1, 1, Qt::AlignLeft);
+	layout->addWidget(braggAccelerationPrompt, 2, 0, 1, 1, Qt::AlignRight);
+	layout->addWidget(braggAcceleration_, 2, 1, 1, 1, Qt::AlignLeft);
+	layout->addWidget(braggEncoderMoveTypePrompt, 3, 0, 1, 1, Qt::AlignRight);
+	layout->addWidget(braggEncoderMoveType_, 3, 1, 1, 1, Qt::AlignLeft);
+	layout->addWidget(braggSettlingTimePrompt, 4, 0, 1, 1, Qt::AlignRight);
+	layout->addWidget(braggSettlingTime_, 4, 1, 1, 1, Qt::AlignLeft);
 
 	setLayout(layout);
 
@@ -120,7 +176,9 @@ BioXASSSRLMonochromatorBraggConfigurationView::BioXASSSRLMonochromatorBraggConfi
 
 	// Make connections.
 
-	connect( braggOffset_, SIGNAL(valueChanged(double)), this, SLOT(setBraggMotorOffset(double)) );
+	connect( braggVelocity_, SIGNAL(valueChanged(double)), this, SLOT(setBraggMotorVelocity(double)) );
+	connect( braggVelocityBase_, SIGNAL(valueChanged(double)), this, SLOT(setBraggMotorVelocityBase(double)) );
+	connect( braggAcceleration_, SIGNAL(valueChanged(double)), this, SLOT(setBraggMotorAcceleration(double)) );
 	connect( braggEncoderMoveType_, SIGNAL(currentIndexChanged(int)), this, SLOT(setBraggMotorEncoderMovementType(int)) );
 	connect( braggSettlingTime_, SIGNAL(valueChanged(double)), this, SLOT(setBraggMotorSettlingTime(double)) );
 
@@ -146,7 +204,9 @@ void BioXASSSRLMonochromatorBraggConfigurationView::setBraggMotor(CLSMAXvMotor *
 
 		if (braggMotor_) {
 			connect( braggMotor_, SIGNAL(connected(bool)), this, SLOT(onBraggMotorConnectedChanged()) );
-			connect( braggMotor_, SIGNAL(EGUOffsetChanged(double)), this, SLOT(onBraggMotorOffsetChanged()) );
+			connect( braggMotor_, SIGNAL(EGUVelocityChanged(double)), this, SLOT(onBraggMotorVelocityChanged()) );
+			connect( braggMotor_, SIGNAL(EGUBaseVelocityChanged(double)), this, SLOT(onBraggMotorVelocityBaseChanged()) );
+			connect( braggMotor_, SIGNAL(EGUAccelerationChanged(double)), this, SLOT(onBraggMotorAccelerationChanged()) );
 			connect( braggMotor_, SIGNAL(encoderMovementTypeChanged(CLSMAXvMotor::EncoderMovementType)), this, SLOT(onBraggMotorEncoderMoveTypeChanged()) );
 			connect( braggMotor_, SIGNAL(settlingTimeChanged(double)), this, SLOT(onBraggMotorSettlingTimeChanged()) );
 		}
@@ -159,8 +219,14 @@ void BioXASSSRLMonochromatorBraggConfigurationView::setBraggMotor(CLSMAXvMotor *
 
 void BioXASSSRLMonochromatorBraggConfigurationView::clearUI()
 {
-	braggOffset_->clear();
-	braggOffset_->setEnabled(false);
+	braggVelocity_->clear();
+	braggVelocity_->setEnabled(false);
+
+	braggVelocityBase_->clear();
+	braggVelocityBase_->setEnabled(false);
+
+	braggAcceleration_->clear();
+	braggAcceleration_->setEnabled(false);
 
 	braggEncoderMoveType_->clear();
 	braggEncoderMoveType_->setEnabled(false);
@@ -172,10 +238,21 @@ void BioXASSSRLMonochromatorBraggConfigurationView::clearUI()
 void BioXASSSRLMonochromatorBraggConfigurationView::initializeUI()
 {
 	if (braggMotor_ && braggMotor_->isConnected()) {
-		braggOffset_->setEnabled(true);
-		braggOffset_->setMinimum(BRAGG_OFFSET_MIN);
-		braggOffset_->setMaximum(BRAGG_OFFSET_MAX);
-		braggOffset_->setValue(braggMotor_->EGUOffset());
+
+		braggVelocity_->setEnabled(true);
+		braggVelocity_->setMinimum(BRAGG_VELOCITY_MIN);
+		braggVelocity_->setMaximum(BRAGG_VELOCITY_MAX);
+		braggVelocity_->setValue(braggMotor_->EGUVelocity());
+
+		braggVelocityBase_->setEnabled(true);
+		braggVelocityBase_->setMinimum(BRAGG_BASE_VELOCITY_MIN);
+		braggVelocityBase_->setMaximum(BRAGG_BASE_VELOCITY_MAX);
+		braggVelocityBase_->setValue(braggMotor_->EGUBaseVelocity());
+
+		braggAcceleration_->setEnabled(true);
+		braggAcceleration_->setMinimum(BRAGG_ACCELERATION_MIN);
+		braggAcceleration_->setMaximum(BRAGG_ACCELERATION_MAX);
+		braggAcceleration_->setValue(braggMotor_->EGUAcceleration());
 
 		braggEncoderMoveType_->setEnabled(true);
 		braggEncoderMoveType_->addItem("Off");
@@ -203,10 +280,24 @@ void BioXASSSRLMonochromatorBraggConfigurationView::onBraggMotorConnectedChanged
 	refreshUI();
 }
 
-void BioXASSSRLMonochromatorBraggConfigurationView::onBraggMotorOffsetChanged()
+void BioXASSSRLMonochromatorBraggConfigurationView::onBraggMotorVelocityChanged()
 {
 	if (braggMotor_ && braggMotor_->isConnected()) {
-		braggOffset_->setValue(braggMotor_->EGUOffset());
+		braggVelocity_->setValue(braggMotor_->EGUVelocity());
+	}
+}
+
+void BioXASSSRLMonochromatorBraggConfigurationView::onBraggMotorVelocityBaseChanged()
+{
+	if (braggMotor_ && braggMotor_->isConnected()) {
+		braggVelocityBase_->setValue(braggMotor_->EGUBaseVelocity());
+	}
+}
+
+void BioXASSSRLMonochromatorBraggConfigurationView::onBraggMotorAccelerationChanged()
+{
+	if (braggMotor_ && braggMotor_->isConnected()) {
+		braggAcceleration_->setValue(braggMotor_->EGUAcceleration());
 	}
 }
 
@@ -224,10 +315,24 @@ void BioXASSSRLMonochromatorBraggConfigurationView::onBraggMotorSettlingTimeChan
 	}
 }
 
-void BioXASSSRLMonochromatorBraggConfigurationView::setBraggMotorOffset(double newValue)
+void BioXASSSRLMonochromatorBraggConfigurationView::setBraggMotorVelocity(double newVelocity)
 {
-	if (braggMotor_) {
-		braggMotor_->setEGUOffset(newValue);
+	if (braggMotor_ && braggMotor_->isConnected()) {
+		braggMotor_->setEGUVelocity(newVelocity);
+	}
+}
+
+void BioXASSSRLMonochromatorBraggConfigurationView::setBraggMotorVelocityBase(double newBase)
+{
+	if (braggMotor_ && braggMotor_->isConnected()) {
+		braggMotor_->setEGUBaseVelocity(newBase);
+	}
+}
+
+void BioXASSSRLMonochromatorBraggConfigurationView::setBraggMotorAcceleration(double newAcceleration)
+{
+	if (braggMotor_ && braggMotor_->isConnected()) {
+		braggMotor_->setEGUAcceleration(newAcceleration);
 	}
 }
 

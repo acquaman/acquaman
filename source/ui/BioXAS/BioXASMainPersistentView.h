@@ -45,8 +45,6 @@ signals:
 public slots:
 
 protected slots:
-	/// Presents a view for the user to calibrate the mono energy.
-	void onCalibrateEnergyButtonClicked();
 
 protected:
 	/// Editor that selects the mono energy.
@@ -55,8 +53,6 @@ protected:
 	BioXASSSRLMonochromatorRegionControlEditor *regionControlEditor_;
 	/// Editor that selects the mono bragg position.
 	AMExtendedControlEditor *braggControlEditor_;
-	/// Button that allows the user to calibrate the mono energy when clicked.
-	QPushButton *calibrateEnergyButton_;
 };
 
 #endif // BIOXASMAINPERSISTENTVIEW_H

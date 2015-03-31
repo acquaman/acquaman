@@ -790,7 +790,7 @@ void BioXASSideBeamline::setupControlsAsDetectors()
 	braggDegreeSetpointDetector_->setHiddenFromUsers(true);
 	braggDegreeSetpointDetector_->setIsVisible(false);
 
-	braggAngleDetector_ = new AMBasicControlDetectorEmulator("PhysicalBraggAngle", "Physical bragg angle", mono_->braggAngleControl(), 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	braggAngleDetector_ = new AMBasicControlDetectorEmulator("PhysicalBraggAngle", "Physical bragg angle", mono_->energyControl()->braggAngleControl(), 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
 	braggAngleDetector_->setHiddenFromUsers(true);
 	braggAngleDetector_->setIsVisible(false);
 }

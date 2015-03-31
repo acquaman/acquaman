@@ -23,10 +23,6 @@ BioXASMainMonochromator::BioXASMainMonochromator(QObject *parent) :
 
 	// Create controls.
 
-	hc_ = new AMReadOnlyPVControl(QString("hcConstant"), QString("BL1607-5-I21:Energy:EV:fbk:tr.A"), this);
-	crystal2D_ = new AMReadOnlyPVControl(QString("Crystal2DSpacing"), QString("BL1607-5-I21:Energy:EV:fbk:tr.B"), this);
-	braggAngle_ = new AMReadOnlyPVControl(QString("BraggAngle"), QString("BL1607-5-I21:Energy:EV:fbk:tr.K"), this);
-
 	region_ = new BioXASMainMonochromatorRegionControl(this);
 	energy_ = new BioXASMainMonochromatorEnergyControl(this);
 
@@ -40,9 +36,6 @@ BioXASMainMonochromator::BioXASMainMonochromator(QObject *parent) :
 
 	connect( region_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()) );
 	connect( energy_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()) );
-	connect( hc_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()) );
-	connect( crystal2D_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()) );
-	connect( braggAngle_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()) );
 	connect( upperSlitMotor_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()) );
 	connect( lowerSlitMotor_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()) );
 	connect( paddleMotor_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()) );
@@ -71,9 +64,6 @@ void BioXASMainMonochromator::onConnectedChanged()
 
 		region_->isConnected() &&
 		energy_->isConnected() &&
-		hc_->isConnected() &&
-		crystal2D_->isConnected() &&
-		braggAngle_->isConnected() &&
 
 		upperSlitMotor_->isConnected() &&
 		lowerSlitMotor_->isConnected() &&

@@ -40,12 +40,6 @@ public:
 	virtual double energy() const = 0;
 	/// Returns the current region.
 	virtual double region() const = 0;
-	/// Returns the hc constant.
-	virtual double hc() const = 0;
-	/// Returns the crystal 2D spacing.
-	virtual double crystal2D() const = 0;
-	/// Returns the physical bragg angle.
-	virtual double braggAngle() const = 0;
 
 	/// Returns the upper slit blade motor.
 	virtual CLSMAXvMotor* upperSlitBladeMotor() const = 0;
@@ -75,19 +69,13 @@ public:
 	/// Returns the region control.
 	virtual BioXASSSRLMonochromatorRegionControl* regionControl() const = 0;
 
-	/// Returns the hc constant control.
-	virtual AMControl* hcControl() const = 0;
-	/// Returns the crystal 2D control.
-	virtual AMControl* crystal2DControl() const = 0;
-	/// Returns the physical bragg angle control.
-	virtual AMControl* braggAngleControl() const = 0;
-
 	/// Returns a new 'set energy' action, 0 if not connected. The argument is the desired energy.
 	virtual AMAction3* createSetEnergyAction(double newEnergy);
-	/// Returns a new action that adjusts the bragg motor offset s.t. the mono energy matches the desired energy.
-	virtual AMAction3* createSetEnergyCalibrationAction(double newEnergy);
 	/// Returns a new 'set region' action, 0 if not connected. The argument is the desired region.
 	virtual AMAction3* createSetRegionAction(double newRegion);
+
+	/// Returns a new action that calibrates the bragg motor. The argument is the desired position.
+	virtual AMAction3* createCalibrateBraggPositionAction(double newPosition);
 
 signals:
 	/// Notifier that the connected state has changed.
@@ -110,14 +98,15 @@ signals:
 public slots:
 	/// Sets the energy setpoint.
 	void setEnergy(double newEnergy);
-	/// Sets the bragg offset such that the mono energy matches the desired energy.
-	void setEnergyCalibration(double newEnergy);
 	/// Sets the region.
 	void setRegion(double newRegion);
 
+	/// Sets the calibrated bragg position.
+	void calibrateBraggPosition(double newPosition);
+
 private:
-	/// Returns the bragg motor degree offset needed in order for the old energy to match the desired new energy.
-	double calibrateEnergy(double oldEnergy, double newEnergy) const;
+	/// Returns the encoder calibration offset that would be needed to change the current bragg motor position to the newPosition.
+	static double calculateBraggEncoderOffset(double oldPosition, double oldEncoderOffset, double newPosition, double encoderSlope);
 };
 
 #endif // BIOXASSSRLMONOCHROMATOR_H

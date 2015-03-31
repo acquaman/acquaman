@@ -20,7 +20,7 @@ public:
 protected:
 	/// Provides details for the beamline current settings.
 	QString beamlineSettings();
-	/// Reimplemented to provide actions that will setupd the beamine for optimzed operation of the XAS scan.
+	/// Reimplemented to provide actions that will setup the beamine for optimized operation of the XAS scan.
 	AMAction3* createInitializationActions();
 	/// Reimplemented to put the beamline in a good state after a scan has been completed.
 	AMAction3* createCleanupActions();
