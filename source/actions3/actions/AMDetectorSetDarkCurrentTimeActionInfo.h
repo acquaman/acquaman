@@ -10,7 +10,7 @@ class AMDetectorSetDarkCurrentTimeActionInfo : public AMActionInfo3
 
 public:
 	/// Constructor.
-	Q_INVOKABLE AMDetectorSetDarkCurrentTimeActionInfo(double secondsDwell, const AMDetectorInfo &detectorInfo = AMDetectorInfo(), QObject *parent = 0);
+	Q_INVOKABLE AMDetectorSetDarkCurrentTimeActionInfo(double secondsDwell = 0, const AMDetectorInfo &detectorInfo = AMDetectorInfo(), QObject *parent = 0);
 	/// Copy constructor.
 	AMDetectorSetDarkCurrentTimeActionInfo(const AMDetectorSetDarkCurrentTimeActionInfo &other);
 	/// Destructor.

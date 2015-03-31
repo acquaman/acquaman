@@ -10,7 +10,7 @@ class AMDetectorSetDarkCurrentValueActionInfo : public AMActionInfo3
 
 public:
 	/// Constructor.
-	Q_INVOKABLE AMDetectorSetDarkCurrentValueActionInfo(double newValue, const AMDetectorInfo &detectorInfo = AMDetectorInfo(), QObject *parent = 0);
+	Q_INVOKABLE AMDetectorSetDarkCurrentValueActionInfo(double newValue = 0, const AMDetectorInfo &detectorInfo = AMDetectorInfo(), QObject *parent = 0);
 	/// Copy constructor.
 	AMDetectorSetDarkCurrentValueActionInfo(const AMDetectorSetDarkCurrentValueActionInfo &other);
 	/// Destructor.
