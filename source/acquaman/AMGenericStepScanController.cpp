@@ -1,5 +1,63 @@
 #include "AMGenericStepScanController.h"
 
-AMGenericStepScanController::AMGenericStepScanController()
+AMGenericStepScanController::AMGenericStepScanController(AMGenericStepScanConfiguration *configuration, QObject *parent)
+	: AMStepScanActionController(configuration, parent)
+{
+	configuration_ = configuration;
+
+	scan_ = new AMScan();
+	scan_->setName(configuration_->name());
+	scan_->setScanConfiguration(configuration_);
+	scan_->setFileFormat("amCDFv1");
+	scan_->setIndexType("fileSystem");
+
+	AMControlInfoList controls;
+	AMDetectorInfoSet detectors;
+
+	configuration_->setAxisControlInfos(controls);
+
+	configuration_->setDetectorConfigurations(detectors);
+
+	secondsElapsed_ = 0;
+	secondsTotal_ = configuration_->totalTime();
+	elapsedTime_.setInterval(1000);
+	connect(this, SIGNAL(started()), &elapsedTime_, SLOT(start()));
+	connect(this, SIGNAL(cancelled()), &elapsedTime_, SLOT(stop()));
+	connect(this, SIGNAL(paused()), &elapsedTime_, SLOT(stop()));
+	connect(this, SIGNAL(resumed()), &elapsedTime_, SLOT(start()));
+	connect(this, SIGNAL(failed()), &elapsedTime_, SLOT(stop()));
+	connect(this, SIGNAL(finished()), &elapsedTime_, SLOT(stop()));
+	connect(&elapsedTime_, SIGNAL(timeout()), this, SLOT(onScanTimerUpdate()));
+}
+
+AMGenericStepScanController::~AMGenericStepScanController()
+{
+
+}
+
+void AMGenericStepScanController::onScanTimerUpdate()
+{
+	if (elapsedTime_.isActive()){
+
+		if (secondsElapsed_ >= secondsTotal_)
+			secondsElapsed_ = secondsTotal_;
+		else
+			secondsElapsed_ += 1.0;
+
+		emit progress(secondsElapsed_, secondsTotal_);
+	}
+}
+
+AMAction3 * AMGenericStepScanController::createInitializationActions()
+{
+	return 0;
+}
+
+AMAction3 * AMGenericStepScanController::createCleanupActions()
+{
+	return 0;
+}
+
+void AMGenericStepScanController::buildScanControllerImplementation()
 {
 }

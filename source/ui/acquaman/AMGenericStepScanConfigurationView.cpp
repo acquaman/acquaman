@@ -1,5 +1,7 @@
 #include "AMGenericStepScanConfigurationView.h"
 
-AMGenericStepScanConfigurationView::AMGenericStepScanConfigurationView()
+AMGenericStepScanConfigurationView::AMGenericStepScanConfigurationView(AMGenericStepScanConfiguration *configuration, QWidget *parent)
+	: AMScanConfigurationView(parent)
 {
+	configuration_ = configuration;
 }
