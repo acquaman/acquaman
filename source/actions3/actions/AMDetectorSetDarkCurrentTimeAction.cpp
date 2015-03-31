@@ -12,7 +12,7 @@ AMDetectorSetDarkCurrentTimeAction::AMDetectorSetDarkCurrentTimeAction(const AMD
 	AMAction3(other)
 {
 	detector_ = 0;
-	setDetector(other.detector_);
+	setDetector(other.detector());
 }
 
 AMDetectorSetDarkCurrentTimeAction::~AMDetectorSetDarkCurrentTimeAction()

@@ -12,7 +12,7 @@ AMDetectorSetDarkCurrentValidStateAction::AMDetectorSetDarkCurrentValidStateActi
 	AMAction3(other)
 {
 	detector_ = 0;
-	setDetector(other.detector_);
+	setDetector(other.detector());
 }
 
 AMDetectorSetDarkCurrentValidStateAction::~AMDetectorSetDarkCurrentValidStateAction()
