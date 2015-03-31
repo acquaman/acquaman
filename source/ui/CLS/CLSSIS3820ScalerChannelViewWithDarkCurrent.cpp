@@ -20,6 +20,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 
 #include "CLSSIS3820ScalerChannelViewWithDarkCurrent.h"
+#include "util/AMErrorMonitor.h"
 
 #include <QDebug>
 

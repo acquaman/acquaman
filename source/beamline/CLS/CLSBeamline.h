@@ -24,7 +24,7 @@ public:
 	virtual ~CLSBeamline();
 
 	/// Returns the beamline's scaler.
-	virtual CLSSIS3820Scaler* scaler() { return 0; }
+	virtual CLSSIS3820Scaler* scaler() const { return 0; }
 
 protected:
 	/// Protected constructor, for singleton pattern.

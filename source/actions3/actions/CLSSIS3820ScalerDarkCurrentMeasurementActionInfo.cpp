@@ -4,7 +4,6 @@
 CLSSIS3820ScalerDarkCurrentMeasurementActionInfo::CLSSIS3820ScalerDarkCurrentMeasurementActionInfo(double secondsDwell, QObject *parent) :
 	AMListActionInfo3(QString(), QString(), QString(), parent)
 {
-	scaler_ = CLSBeamline::clsBeamline()->scaler();
 	secondsDwell_ = secondsDwell;
 
 	setShortDescription(typeDescription());
@@ -14,7 +13,6 @@ CLSSIS3820ScalerDarkCurrentMeasurementActionInfo::CLSSIS3820ScalerDarkCurrentMea
 CLSSIS3820ScalerDarkCurrentMeasurementActionInfo::CLSSIS3820ScalerDarkCurrentMeasurementActionInfo(const CLSSIS3820ScalerDarkCurrentMeasurementActionInfo &other) :
 	AMListActionInfo3(other)
 {
-	scaler_ = other.scaler();
 	secondsDwell_ = other.dwellTime();
 }
 

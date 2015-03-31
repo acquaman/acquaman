@@ -104,8 +104,9 @@ AMAction3* CLSBasicScalerChannelDetector::createDarkCurrentMeasurementAction(dou
 {
 	AMAction3 *action = 0;
 
-	if (scaler_)
+	if (scaler_) {
 		action = scaler_->createMeasureDarkCurrentAction((int)dwellTime);
+	}
 
 	return action;
 }

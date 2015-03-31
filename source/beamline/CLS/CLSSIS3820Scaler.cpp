@@ -251,6 +251,7 @@ AMAction3* CLSSIS3820Scaler::createWaitForDwellFinishedAction(double timeoutTime
 
 AMAction3* CLSSIS3820Scaler::createMeasureDarkCurrentAction(int secondsDwell)
 {
+	qDebug() << "Scaler creating dark current measurement for " << secondsDwell << "seconds.";
 	return new CLSSIS3820ScalerDarkCurrentMeasurementAction(new CLSSIS3820ScalerDarkCurrentMeasurementActionInfo(secondsDwell));
 }
 
@@ -310,6 +311,8 @@ void CLSSIS3820Scaler::measureDarkCurrent(int secondsDwell)
 	AMAction3 *action = createMeasureDarkCurrentAction(secondsDwell);
 
 	if (action) {
+		qDebug() << "Dark current action steps: " << action->children();
+
 		connect( action, SIGNAL(cancelled()), action, SLOT(deleteLater()) );
 		connect( action, SIGNAL(failed()), action, SLOT(deleteLater()) );
 		connect( action, SIGNAL(succeeded()), action, SLOT(deleteLater()) );

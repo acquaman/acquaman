@@ -21,14 +21,10 @@ public:
 	/// Returns this action info's description.
 	virtual QString typeDescription() const { return "Make scaler channel dark current measurement"; }
 
-	/// Returns the scaler to execute the dark current measurement.
-	CLSSIS3820Scaler* scaler() const { return scaler_; }
 	/// Returns the dwell time to use for the dark current measurement, in seconds.
 	double dwellTime() const { return secondsDwell_; }
 
 protected:
-	/// The scaler to execute the dark current measurement.
-	CLSSIS3820Scaler *scaler_;
 	/// The time to use for the dark current measurement, in seconds.
 	double secondsDwell_;
 

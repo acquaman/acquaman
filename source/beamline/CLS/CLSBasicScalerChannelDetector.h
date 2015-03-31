@@ -112,8 +112,6 @@ protected slots:
 	/// Handles triggering the actual acquisition even if the scaler needs to switch to single read from continuous
 	bool triggerScalerAcquisition(bool isContinuous);
 
-//    void onScalerDarkCurrentTimeChanged(double dwellSeconds);
-//    void onScalerDarkCurrentValueChanged();
     void onScalerSensitivityChanged();
     void onScalerDwellTimeChanged();
 

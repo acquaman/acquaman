@@ -27,6 +27,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QGroupBox>
 
+#define CLSSIS3820SCALERCHANNELVIEWWITHDARKCURRENT_ACTION_FAILED 2348970
+
 class CLSSIS3820Scaler;
 
 class CLSSIS3820ScalerChannelViewWithDarkCurrent : public CLSSIS3820ScalerChannelView

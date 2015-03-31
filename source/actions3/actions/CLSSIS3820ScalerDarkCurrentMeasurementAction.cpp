@@ -1,11 +1,14 @@
 #include "CLSSIS3820ScalerDarkCurrentMeasurementAction.h"
-#include "beamline/AMBeamline.h"
+#include "beamline/CLS/CLSBeamline.h"
+#include "util/AMErrorMonitor.h"
 
 CLSSIS3820ScalerDarkCurrentMeasurementAction::CLSSIS3820ScalerDarkCurrentMeasurementAction(CLSSIS3820ScalerDarkCurrentMeasurementActionInfo *info, QObject *parent) :
     AMListAction3(info, AMListAction3::Sequential, parent)
 {
-	CLSSIS3820Scaler *scaler = scalerDarkCurrentMeasurementActionInfo()->scaler();
+	CLSSIS3820Scaler *scaler = CLSBeamline::clsBeamline()->scaler();
 	double secondsDwell = scalerDarkCurrentMeasurementActionInfo()->dwellTime();
+
+	connect( this, SIGNAL(failed()), this, SLOT(onActionFailed()) );
 
 	if (scaler && scaler->isConnected() && secondsDwell > 0) {
 
@@ -37,9 +40,12 @@ CLSSIS3820ScalerDarkCurrentMeasurementAction::CLSSIS3820ScalerDarkCurrentMeasure
 
 		// reset settings to pre-measurement conditions.
 		addSubAction(scaler->createDwellTimeAction3(oldDwell));
+
+	} else {
+		AMErrorMon::alert(this, CLSSIS3820SCALERDARKCURRENTMEASUREMENTACTION_SCALER_NOT_VALID, "Failed to complete dark current measurement--scaler not valid.");
+		setFailed();
 	}
 
-	connect( this, SIGNAL(failed()), this, SLOT(onActionFailed()) );
 }
 
 CLSSIS3820ScalerDarkCurrentMeasurementAction::CLSSIS3820ScalerDarkCurrentMeasurementAction(const CLSSIS3820ScalerDarkCurrentMeasurementAction &other) :
@@ -55,7 +61,7 @@ CLSSIS3820ScalerDarkCurrentMeasurementAction::~CLSSIS3820ScalerDarkCurrentMeasur
 
 void CLSSIS3820ScalerDarkCurrentMeasurementAction::onActionFailed()
 {
-	CLSSIS3820Scaler *scaler = scalerDarkCurrentMeasurementActionInfo()->scaler();
+	CLSSIS3820Scaler *scaler = CLSBeamline::clsBeamline()->scaler();
 
 	if (scaler && scaler->isConnected()) {
 
@@ -65,11 +71,9 @@ void CLSSIS3820ScalerDarkCurrentMeasurementAction::onActionFailed()
 			CLSSIS3820ScalerChannel *channel = scaler->channelAt(i);
 
 			if (channel && channel->isEnabled() && channel->detector() && channel->detector()->canDoDarkCurrentCorrection()) {
-				channel->detector()->setDarkCurrentValue(-1);
+				channel->detector()->setDarkCurrentValue(0);
 				channel->detector()->setDarkCurrentValidState(false);
 			}
 		}
 	}
-
-
 }

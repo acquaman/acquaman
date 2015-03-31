@@ -4,6 +4,8 @@
 #include "actions3/AMAction3.h"
 #include "actions3/actions/CLSSIS3820ScalerDarkCurrentMeasurementActionInfo.h"
 
+#define CLSSIS3820SCALERDARKCURRENTMEASUREMENTACTION_SCALER_NOT_VALID 98230221
+
 class CLSSIS3820ScalerDarkCurrentMeasurementAction : public AMListAction3
 {
     Q_OBJECT
@@ -32,10 +34,6 @@ protected:
 	const CLSSIS3820ScalerDarkCurrentMeasurementActionInfo* scalerDarkCurrentMeasurementActionInfo() const { return qobject_cast<const CLSSIS3820ScalerDarkCurrentMeasurementActionInfo*>(info()); }
 	/// Returns the specific action info for this class.
 	const CLSSIS3820ScalerDarkCurrentMeasurementActionInfo* scalerDarkCurrentMeasurementActionInfo() { return qobject_cast<CLSSIS3820ScalerDarkCurrentMeasurementActionInfo*>(info()); }
-
-protected:
-	/// Bool indicates whether this action has been initialized.
-	bool initialized_;
 };
 
 #endif // CLSSIS3820SCALERDARKCURRENTMEASUREMENTACTION_H
