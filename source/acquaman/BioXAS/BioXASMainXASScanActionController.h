@@ -6,6 +6,9 @@
 #include "acquaman/AMStepScanActionController.h"
 #include "analysis/AM1DDarkCurrentCorrectionAB.h"
 
+#define BIOXASMAINXASSCANACTIONCONTROLLER_DETECTOR_NOT_FOUND 6638201
+
+
 class BioXASMainXASScanConfiguration;
 
 class BioXASMainXASScanActionController : public AMStepScanActionController

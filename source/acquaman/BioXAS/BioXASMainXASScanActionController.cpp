@@ -28,6 +28,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "acquaman/AMGenericScanActionControllerAssembler.h"
 #include "acquaman/AMEXAFSScanActionControllerAssembler.h"
 #include "beamline/AMBasicControlDetectorEmulator.h"
+#include "util/AMErrorMonitor.h"
 
 BioXASMainXASScanActionController::BioXASMainXASScanActionController(BioXASMainXASScanConfiguration *configuration, QObject *parent) :
     AMStepScanActionController(configuration, parent)
@@ -122,7 +123,9 @@ AMAction3* BioXASMainXASScanActionController::createInitializationActions()
 					darkCurrentSetup->addSubAction(detector->createDarkCurrentMeasurementAction(detector->acquisitionTime()));
 				}
 			}
-	    }
+		} else {
+			AMErrorMon::alert(this, BIOXASMAINXASSCANACTIONCONTROLLER_DETECTOR_NOT_FOUND, "Unable to find a required detector in scan initialization.");
+		}
     }
 
     initializationAction->addSubAction(stage1);
@@ -183,6 +186,9 @@ void BioXASMainXASScanActionController::buildScanControllerImplementation()
 					connect( detector, SIGNAL(darkCurrentValueChanged(double)), detectorCorrected, SLOT(setDarkCurrent(double)) );
 
 					scan_->addAnalyzedDataSource(detectorCorrected, true, false);
+
+				} else {
+					AMErrorMon::alert(this, BIOXASMAINXASSCANACTIONCONTROLLER_DETECTOR_NOT_FOUND, "Unable to find a required detector in scan controller.");
 				}
 			}
 		}
