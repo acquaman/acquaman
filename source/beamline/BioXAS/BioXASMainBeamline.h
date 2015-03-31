@@ -22,7 +22,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef BIOXASMAINBEAMLINE_H
 #define BIOXASMAINBEAMLINE_H
 
-#include "beamline/AMBeamline.h"
+#include "beamline/CLS/CLSBeamline.h"
 #include "beamline/AMControlSet.h"
 #include "beamline/AMMotorGroup.h"
 #include "beamline/AMBasicControlDetectorEmulator.h"
@@ -43,7 +43,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "util/AMErrorMonitor.h"
 #include "util/AMBiHash.h"
 
-class BioXASMainBeamline : public AMBeamline
+class BioXASMainBeamline : public CLSBeamline
 {
 	Q_OBJECT
 

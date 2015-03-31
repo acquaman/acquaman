@@ -445,11 +445,11 @@ HEADERS += \
 	source/dataman/AMXRFScan.h \
 	source/ui/util/AMChooseDataFolderDialog.h \
 	source/acquaman/AMTimedScanActionControllerAssembler.h \
-	source/beamline/CLS/CLSBeamlines.h \
     source/actions3/actions/CLSSIS3820ScalerDarkCurrentMeasurementAction.h \
     source/actions3/actions/CLSSIS3820ScalerDarkCurrentMeasurementActionInfo.h \
     source/ui/CLS/CLSSIS3820ScalerDarkCurrentWidget.h \
-    source/beamline/CLS/CLSBeamline.h
+    source/beamline/CLS/CLSBeamline.h \
+    source/beamline/CLS/CLSFacilityID.h
 
 FORMS += \
 
@@ -877,5 +877,7 @@ contains(DEFINES, AM_BUILD_REPORTER_ENABLED){
 
 	SOURCES *= source/util/AMRunTimeBuildInfo.cpp
 }
+
+
 
 

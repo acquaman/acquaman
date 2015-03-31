@@ -35,7 +35,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QTimer>
 
 REIXSBeamline::REIXSBeamline() :
-	AMBeamline("REIXSBeamline")
+	CLSBeamline("REIXSBeamline")
 {
 	// Upstream controls
 	photonSource_ = new REIXSPhotonSource(this);

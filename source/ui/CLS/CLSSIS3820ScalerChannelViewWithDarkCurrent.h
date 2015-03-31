@@ -63,6 +63,7 @@ protected slots:
     void onDetectorAcquisitionStateChanged(AMDetector::AcqusitionState newState);
     /// Handles updating the displayed corrected measurement, once the detector has acquired new value.
     void onDetectorAcquisitionSucceeded();
+    /// Handles updating the display when the detector
 
 private:
     /// Enum value indicating whether or not to display dark current information.
