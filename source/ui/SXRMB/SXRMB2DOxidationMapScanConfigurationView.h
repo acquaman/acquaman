@@ -8,6 +8,7 @@
 #include <QGroupBox>
 #include <QButtonGroup>
 #include <QComboBox>
+#include <QCheckBox>
 
 
 #include "acquaman/SXRMB/SXRMB2DMapScanConfiguration.h"
@@ -35,6 +36,9 @@ public:
 	QList<double> oxidationEnergies() const { return oxidationEnergyListView_->energies().energies(); }
 
 protected slots:
+	/// SLot that handles beamline endstation switched signal
+	void onBeamlineEndstationChanged(SXRMB::Endstation fromEndstation, SXRMB::Endstation toEndstation);
+
 	/// Sets the x-axis start position.
 	void setXAxisStart(const AMNumber &value);
 	/// Sets the y-axis start position.
@@ -104,6 +108,8 @@ protected:
 	QDoubleSpinBox *dwellTime_;
 	/// Line edit for changing the name of the scan.
 	QLineEdit *scanName_;
+	/// Checkbox for enabling the TEY HV control automatically
+	QCheckBox *powerOnTEYHVControlCheckBox_;
 	/// ComboBox for enabling/disabling Bruker detector
 	QComboBox *fluorescenceDetectorComboBox_;
 	/// Pointer to the horizontal start point.

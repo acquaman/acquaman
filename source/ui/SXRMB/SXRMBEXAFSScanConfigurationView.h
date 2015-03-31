@@ -14,6 +14,7 @@ class QDoubleSpinBox;
 class QLineEdit;
 class QLabel;
 class QToolButton;
+class QCheckBox;
 
 class AMScanController;
 class AMEXAFSScanAxisView;
@@ -113,6 +114,8 @@ protected:
 	QLineEdit *scanName_;
 	/// Label holding the current estimated time for the scan to complete.  Takes into account extra time per point based on experience on the beamline.
 	QLabel *estimatedTime_;
+	/// Checkbox for enabling the TEY HV control automatically
+	QCheckBox *powerOnTEYHVControlCheckBox_;
 	/// ComboBox for enabling/disabling Bruker detector
 	QComboBox *fluorescenceDetectorComboBox_;
 

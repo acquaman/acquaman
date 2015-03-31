@@ -157,7 +157,7 @@ public:
 	/// Returns the TEY HV control
 	SXRMBHVControl *teyHVControl() const;
 	/// Returns the microProbe TEY HV control
-	SXRMBHVControl *microProbeTEYHVControl() const;
+	SXRMBHVControl *microprobeTEYHVControl() const;
 
 	/// Returns the list of actions to turn the beam on
 	AMAction3* createBeamOnActions() const;
@@ -314,7 +314,7 @@ protected:
 	/// The TEY HV control
 	SXRMBHVControl *teyHVControl_;
 	/// The microProb TEY HV control
-	SXRMBHVControl *microProbeTEYHVControl_;
+	SXRMBHVControl *microprobeTEYHVControl_;
 
 	/// Beamline valves, the valves involved in the Beam on/off action
 	AMControlSet * beamlineControlShutterSet_;

@@ -52,3 +52,8 @@ QString SXRMBScanConfiguration::regionsOfInterestHeaderString(const QList<AMRegi
 
 	return string;
 }
+
+void SXRMBScanConfiguration::onPowerOnTEYHVControlEnabled(bool powerOn)
+{
+	powerOnTEYHVControl_ = powerOn;
+}

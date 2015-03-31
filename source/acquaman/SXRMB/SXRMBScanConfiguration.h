@@ -35,6 +35,8 @@ public:
 	SXRMB::Endstation endstation() const { return dbObject_->endstation(); }
 	/// Returns the fluorescence detectors.
 	SXRMB::FluorescenceDetectors fluorescenceDetectors() const { return dbObject_->fluorescenceDetectors(); }
+	/// Returns the flag to power on TEY HV control
+	bool powerOnTEYHVControl() const { return powerOnTEYHVControl_; }
 	/// Returns the x position.
 	double x() const { return dbObject_->x(); }
 	/// Returns the y position.
@@ -80,6 +82,10 @@ public:
 	/// Sets the time offset used for estimating the scan time.
 	void setTimeOffset(double offset) { timeOffset_ = offset; computeTotalTimeImplementation(); }
 
+public slots:
+	/// to handle power on TEY HV Control flag
+	void onPowerOnTEYHVControlEnabled(bool);
+
 protected:
 	/// Computes the total time any time the regions list changes.  It is expected that subclasses will have a signal totalTimeChanged(double) that is emitted by this method.
 	virtual void computeTotalTimeImplementation() = 0;
@@ -94,8 +100,8 @@ protected:
 	/// Returns a string that displays all the regions of interest.
 	QString regionsOfInterestHeaderString(const QList<AMRegionOfInterest *> &regions) const;
 
-	////////////////////////////////////////
 
+protected:
 	/// The database object we're encapsulating.
 	SXRMBScanConfigurationDbObject *dbObject_;
 
@@ -103,6 +109,9 @@ protected:
 	double totalTime_;
 	/// Holds the offset per point of extra time when doing a scan.
 	double timeOffset_;
+
+	/// the flag to auto turn the TEY HV control on
+	bool powerOnTEYHVControl_;
 };
 
 #endif // SXRMBSCANCONFIGURATION_H

@@ -124,11 +124,15 @@ SXRMBEXAFSScanConfigurationView::SXRMBEXAFSScanConfigurationView(SXRMBEXAFSScanC
 	QGroupBox *beamlineSettingsGroupBox = createAndLayoutBeamlineSettings();
 
 	// Bruker detector setting
+	powerOnTEYHVControlCheckBox_ = new QCheckBox("Power on TEY HV Control automatically");
+	connect(powerOnTEYHVControlCheckBox_, SIGNAL(clicked(bool)), configuration_, SLOT(onPowerOnTEYHVControlEnabled(bool)));
+
 	fluorescenceDetectorComboBox_ = createFluorescenceComboBox();
 	connect(fluorescenceDetectorComboBox_, SIGNAL(currentIndexChanged(int)), this, SLOT(onFluorescenceDetectorChanged(int)));
 	connect(configuration_->dbObject(), SIGNAL(fluorescenceDetectorsChanged(SXRMB::FluorescenceDetectors)), this, SLOT(updateFluorescenceDetectorComboBox(SXRMB::FluorescenceDetectors)));
 
 	QVBoxLayout *detectorBoxLayout = new QVBoxLayout;
+	detectorBoxLayout->addWidget(powerOnTEYHVControlCheckBox_);
 	detectorBoxLayout->addWidget(fluorescenceDetectorComboBox_);
 
 	QGroupBox *detectorGroupBox = new QGroupBox("Detector Setting");
@@ -234,8 +238,6 @@ void SXRMBEXAFSScanConfigurationView::setupDefaultEXAFSScanRegions()
 
 void SXRMBEXAFSScanConfigurationView::onBeamlineEndstationChanged(SXRMB::Endstation fromEndstation, SXRMB::Endstation toEndstation)
 {
-	Q_UNUSED(toEndstation)
-
 	// disconnect the signal/slot from the prior endstation
 	SXRMBBeamline *sxrmbBL = SXRMBBeamline::sxrmb();
 	AMPVwStatusControl* sampleStageXControl = sxrmbBL->endstationSampleStageX(fromEndstation);
@@ -262,6 +264,12 @@ void SXRMBEXAFSScanConfigurationView::onBeamlineEndstationChanged(SXRMB::Endstat
 
 	// recreate the component for the new endstation
 	createAndLayoutSampleStageSpinBox(sampleStageFL_);
+	if (toEndstation == SXRMB::AmbiantWithGasChamber || toEndstation == SXRMB::AmbiantWithoutGasChamber) {
+		powerOnTEYHVControlCheckBox_->setEnabled(false);
+		powerOnTEYHVControlCheckBox_->setVisible(false);
+	} else {
+		powerOnTEYHVControlCheckBox_->setVisible(true);
+	}
 
 	onEndstationSampleStagePositionChanged(-1);
 }

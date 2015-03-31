@@ -165,11 +165,15 @@ SXRMB2DMapScanConfigurationView::SXRMB2DMapScanConfigurationView(SXRMB2DMapScanC
 	beamlineSettingsGroupBox_->setLayout(beamlineSettingsGroupBoxVL);
 
 	// detector setting
+	powerOnTEYHVControlCheckBox_ = new QCheckBox("Power on TEY HV Control automatically");
+	connect(powerOnTEYHVControlCheckBox_, SIGNAL(clicked(bool)), configuration_, SLOT(onPowerOnTEYHVControlEnabled(bool)));
+
 	fluorescenceDetectorComboBox_ = createFluorescenceComboBox();
 	connect(fluorescenceDetectorComboBox_, SIGNAL(currentIndexChanged(int)), this, SLOT(onFluorescenceDetectorChanged(int)));
 	connect(configuration_->dbObject(), SIGNAL(fluorescenceDetectorsChanged(SXRMB::FluorescenceDetectors)), this, SLOT(updateFluorescenceDetectorComboBox(SXRMB::FluorescenceDetectors)));
 
 	QVBoxLayout * detectorBoxLayout = new QVBoxLayout;
+	detectorBoxLayout->addWidget(powerOnTEYHVControlCheckBox_);
 	detectorBoxLayout->addWidget(fluorescenceDetectorComboBox_);
 
 	QGroupBox * detectorSettingGroupBox = new QGroupBox("Detector Setting");
@@ -208,6 +212,8 @@ SXRMB2DMapScanConfigurationView::SXRMB2DMapScanConfigurationView(SXRMB2DMapScanC
 	configViewLayout->addStretch();
 
 	setLayout(configViewLayout);
+
+	connect(sxrmbBL, SIGNAL(endstationChanged(SXRMB::Endstation, SXRMB::Endstation)), this, SLOT(onBeamlineEndstationChanged(SXRMB::Endstation, SXRMB::Endstation)));
 }
 
 QLineEdit *SXRMB2DMapScanConfigurationView::createScanNameView(const QString &name)
@@ -435,6 +441,18 @@ QGroupBox *SXRMB2DMapScanConfigurationView::addExporterOptionsView(QStringList l
 	autoExportGroupBox->setLayout(autoExportLayout);
 
 	return autoExportGroupBox;
+}
+
+void SXRMB2DMapScanConfigurationView::onBeamlineEndstationChanged(SXRMB::Endstation fromEndstation, SXRMB::Endstation toEndstation)
+{
+	Q_UNUSED(fromEndstation)
+
+	if (toEndstation == SXRMB::AmbiantWithGasChamber || toEndstation == SXRMB::AmbiantWithoutGasChamber) {
+		powerOnTEYHVControlCheckBox_->setEnabled(false);
+		powerOnTEYHVControlCheckBox_->setVisible(false);
+	} else {
+		powerOnTEYHVControlCheckBox_->setVisible(true);
+	}
 }
 
 void SXRMB2DMapScanConfigurationView::setXAxisStart(const AMNumber &value)
