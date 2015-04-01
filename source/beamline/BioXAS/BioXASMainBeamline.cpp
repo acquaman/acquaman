@@ -287,7 +287,7 @@ void BioXASMainBeamline::setupControlsAsDetectors()
 }
 
 BioXASMainBeamline::BioXASMainBeamline()
-    : AMBeamline("BioXAS Beamline - Main Endstation")
+    : CLSBeamline("BioXAS Beamline - Main Endstation")
 {
     connected_ = false;
 

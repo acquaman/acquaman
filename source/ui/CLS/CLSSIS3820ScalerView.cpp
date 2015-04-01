@@ -25,7 +25,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/CLS/CLSSIS3820Scaler.h"
 
 #include "ui/CLS/CLSSIS3820ScalerChannelViewWithDarkCurrent.h"
-#include "ui/CLS/CLSDarkCurrentWidget.h"
+#include "ui/CLS/CLSSIS3820ScalerDarkCurrentWidget.h"
 
 // CLSSIS3820ScalerView
 ///////////////////////////////////////////////
@@ -123,9 +123,13 @@ CLSSIS3820ScalerView::CLSSIS3820ScalerView(CLSSIS3820Scaler *scaler, bool enable
 	topLayout->addLayout(spinBoxLayout);
 
 	// Dark current widget
-	CLSDarkCurrentWidget *darkCurrentWidget = new CLSDarkCurrentWidget(10, this);
+	CLSSIS3820ScalerDarkCurrentWidget *darkCurrentWidget = new CLSSIS3820ScalerDarkCurrentWidget(scaler_, this);
 	bool showDarkCurrentWidget = false;
 	darkCurrentWidget->hide();
+
+	QHBoxLayout *darkCurrentLayout = new QHBoxLayout();
+	darkCurrentLayout->addWidget(darkCurrentWidget);
+	darkCurrentLayout->addStretch();
 
 	// Build the channel views.
 	channelLayout_ = new QVBoxLayout;
@@ -133,7 +137,8 @@ CLSSIS3820ScalerView::CLSSIS3820ScalerView(CLSSIS3820Scaler *scaler, bool enable
 	mainVL_ = new QVBoxLayout();
 	mainVL_->addLayout(topLayout);
 	mainVL_->addLayout(channelLayout_);
-	mainVL_->addWidget(darkCurrentWidget);
+	mainVL_->addStretch();
+	mainVL_->addLayout(darkCurrentLayout);
 
 	setLayout(mainVL_);
 
@@ -161,8 +166,9 @@ CLSSIS3820ScalerView::CLSSIS3820ScalerView(CLSSIS3820Scaler *scaler, bool enable
 
 
 	// if one of the detectors associated with a channel can perform dark current correction, show the 'do dark current' widget.
-	if (showDarkCurrentWidget)
+	if (showDarkCurrentWidget) {
 		darkCurrentWidget->show();
+	}
 }
 
 CLSSIS3820ScalerView::~CLSSIS3820ScalerView(){}

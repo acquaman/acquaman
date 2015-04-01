@@ -21,7 +21,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef VESPERSBEAMLINE_H
 #define VESPERSBEAMLINE_H
 
-#include "beamline/AMBeamline.h"
+#include "beamline/CLS/CLSBeamline.h"
 #include "beamline/AMControlSet.h"
 #include "beamline/VESPERS/VESPERSPIDLoopControl.h"
 #include "beamline/VESPERS/VESPERSMonochromator.h"
@@ -59,7 +59,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 class CLSBiStateControl;
 
 /// This class is the master class that holds EVERY control inside the VESPERS beamline.
-class VESPERSBeamline : public AMBeamline
+class VESPERSBeamline : public CLSBeamline
 {
 	Q_OBJECT
 public:

@@ -30,7 +30,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 
 IDEASBeamline::IDEASBeamline()
-	: AMBeamline("IDEAS Beamline")
+	: CLSBeamline("IDEAS Beamline")
 {
 	setupComponents();
 	setupDiagnostics();

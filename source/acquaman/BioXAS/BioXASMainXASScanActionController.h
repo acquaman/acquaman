@@ -4,6 +4,10 @@
 #include <QObject>
 
 #include "acquaman/AMStepScanActionController.h"
+#include "analysis/AM1DDarkCurrentCorrectionAB.h"
+
+#define BIOXASMAINXASSCANACTIONCONTROLLER_DETECTOR_NOT_FOUND 6638201
+#define BIOXASMAINXASSCANACTIONCONTROLLER_SCALER_NOT_FOUND 6638202
 
 class BioXASMainXASScanConfiguration;
 

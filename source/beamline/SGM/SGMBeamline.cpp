@@ -57,7 +57,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "util/AMErrorMonitor.h"
 
-SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
+SGMBeamline::SGMBeamline() : CLSBeamline("SGMBeamline") {
 	infoObject_ = SGMBeamlineInfo::sgmInfo();
 
 	beamlineIsInitialized_ = false;
