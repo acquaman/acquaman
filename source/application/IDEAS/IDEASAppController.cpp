@@ -87,7 +87,7 @@ bool IDEASAppController::startup()
 		if (!existingRun.loadFromDb(AMDatabase::database("user"), 1)){
 
 //			AMRun firstRun(CLSBeamline::beamlineName(CLSBeamline::IDEASBeamline), CLSBeamline::IDEASBeamline); //5: Ideas Beamline
-			AMRun firstRun(CLSFacilityID::IDEASBeamlineName, CLSBeamline::IDEASBeamline); //5: Ideas Beamline
+			AMRun firstRun(CLSFacilityID::IDEASBeamlineName, CLSFacilityID::IDEASBeamline); //5: Ideas Beamline
 			firstRun.storeToDb(AMDatabase::database("user"));
 		}
 
