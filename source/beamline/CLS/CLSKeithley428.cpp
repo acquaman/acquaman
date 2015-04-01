@@ -25,14 +25,24 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QDebug>
 
-CLSKeithley428::CLSKeithley428(const QString &name, const QString &valueName, QObject *parent) :
+CLSKeithley428::CLSKeithley428(const QString &name, const QString &valueName, const QString &voltageBiasEnabled, const QString &voltageBias, QObject *parent) :
     AMCurrentAmplifier(name, parent)
 {
     supportsSensitivityMode_ = true;
     supportsGainMode_ = true;
 
     valueControl_ = new AMProcessVariable(valueName, true, this);
+    biasVoltageEnabled_ = new AMPVControl("BiasVoltageEnabled", voltageBiasEnabled+":fbk", voltageBiasEnabled, QString(), this);
+    biasVoltage_ = new AMPVControl("BiasVoltage", voltageBias+":fbk", voltageBias, QString(), this);
+
+    // Listen for changes to connect states.
+
     connect( valueControl_, SIGNAL(connected(bool)), this, SLOT(onConnectedStateChanged(bool)) );
+    connect( biasVoltageEnabled_, SIGNAL(connected(bool)), this, SLOT(onConnectedStateChanged(bool)) );
+    connect( biasVoltage_, SIGNAL(connected(bool)), this, SLOT(onConnectedStateChanged(bool)) );
+
+    // Listen for value changes.
+
     connect( valueControl_, SIGNAL(valueChanged(int)), this, SLOT(onValueChanged(int)) );
 
     // populate gains list in increasing order.
@@ -215,6 +225,19 @@ bool CLSKeithley428::decreaseSensitivity()
     increaseGain();
 
     return true;
+}
+
+void CLSKeithley428::setBiasVoltageEnabled(bool enabled)
+{
+	if (enabled)
+		biasVoltageEnabled_->move(BiasVoltage::On);
+	else
+		biasVoltageEnabled_->move(BiasVoltage::Off);
+}
+
+void CLSKeithley428::setBiasVoltage(double newValue)
+{
+	biasVoltage_->move(newValue);
 }
 
 void CLSKeithley428::onValueChanged(int newIndex)
