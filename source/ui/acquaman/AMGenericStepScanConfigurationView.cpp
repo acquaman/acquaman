@@ -30,10 +30,9 @@ AMGenericStepScanConfigurationView::AMGenericStepScanConfigurationView(AMGeneric
 	dwellTime_->setSuffix(" s");
 	dwellTime_->setAlignment(Qt::AlignCenter);
 	dwellTime_->setDecimals(1);
-	dwellTime_->setValue(double(configuration_->scanAxisAt(0)->regionAt(0)->regionTime()));
+	dwellTime_->setValue(configuration_->scanAxes().size() > 0 ? double(configuration_->scanAxisAt(0)->regionAt(0)->regionTime()) : 1.0);
 	dwellTime_->setMinimumWidth(100);
 	connect(dwellTime_, SIGNAL(editingFinished()), this, SLOT(onDwellTimeChanged()));
-	connect(configuration_->scanAxisAt(0)->regionAt(0), SIGNAL(regionTimeChanged(AMNumber)), this, SLOT(setDwellTime(AMNumber)));
 
 	QHBoxLayout *timeLayout = new QHBoxLayout;
 	timeLayout->addWidget(new QLabel("Dwell Time:"));
@@ -44,9 +43,12 @@ AMGenericStepScanConfigurationView::AMGenericStepScanConfigurationView(AMGeneric
 	connect(configuration_, SIGNAL(totalTimeChanged(double)), this, SLOT(onEstimatedTimeChanged()));
 	onEstimatedTimeChanged();
 
+	scanInformation_ = new QLabel("Scan Size:");
+
 	QVBoxLayout *timeBoxLayout = new QVBoxLayout;
 	timeBoxLayout->addLayout(timeLayout);
 	timeBoxLayout->addWidget(estimatedTime_);
+	timeBoxLayout->addWidget(scanInformation_);
 
 	QGroupBox *timeGroupBox = new QGroupBox("Time");
 	timeGroupBox->setLayout(timeBoxLayout);
@@ -70,12 +72,12 @@ AMGenericStepScanConfigurationView::AMGenericStepScanConfigurationView(AMGeneric
 	// Setup the group box for setting the start and end points.
 	QGroupBox *positionsBox = new QGroupBox("Positions");
 
-	axisStart1_ = createPositionDoubleSpinBox("Start: ", "", double(configuration_->scanAxisAt(0)->regionAt(0)->regionStart()), 3);
-	axisStep1_ = createPositionDoubleSpinBox("Step: ", "", double(configuration_->scanAxisAt(0)->regionAt(0)->regionStep()), 3);
-	axisEnd1_ = createPositionDoubleSpinBox("End: ", "", double(configuration_->scanAxisAt(0)->regionAt(0)->regionStart()), 3);
-	axisStart2_ = createPositionDoubleSpinBox("Start: ", "", double(configuration_->scanAxisAt(0)->regionAt(0)->regionStart()), 3);
-	axisStep2_ = createPositionDoubleSpinBox("Step: ", "", double(configuration_->scanAxisAt(0)->regionAt(0)->regionStart()), 3);
-	axisEnd2_ = createPositionDoubleSpinBox("End: ", "", double(configuration_->scanAxisAt(0)->regionAt(0)->regionStart()), 3);
+	axisStart1_ = createPositionDoubleSpinBox("Start: ", "", configuration_->scanAxes().size() > 0 ? double(configuration_->scanAxisAt(0)->regionAt(0)->regionStart()) : -1.0, 3);
+	axisStep1_ = createPositionDoubleSpinBox("Step: ", "", configuration_->scanAxes().size() > 0 ? double(configuration_->scanAxisAt(0)->regionAt(0)->regionStep()) : -1.0, 3);
+	axisEnd1_ = createPositionDoubleSpinBox("End: ", "", configuration_->scanAxes().size() > 0 ? double(configuration_->scanAxisAt(0)->regionAt(0)->regionEnd()) : -1.0, 3);
+	axisStart2_ = createPositionDoubleSpinBox("Start: ", "", configuration_->scanAxes().size() > 1 ? double(configuration_->scanAxisAt(1)->regionAt(0)->regionStart()) : -1.0, 3);
+	axisStep2_ = createPositionDoubleSpinBox("Step: ", "", configuration_->scanAxes().size() > 1 ? double(configuration_->scanAxisAt(1)->regionAt(0)->regionStep()) : -1.0, 3);
+	axisEnd2_ = createPositionDoubleSpinBox("End: ", "", configuration_->scanAxes().size() > 1 ? double(configuration_->scanAxisAt(1)->regionAt(0)->regionEnd()) : -1.0, 3);
 
 	connect(configuration_, SIGNAL(scanAxisAdded(AMScanAxis*)), this, SLOT(onScanAxisAdded(AMScanAxis*)));
 
@@ -315,7 +317,47 @@ void AMGenericStepScanConfigurationView::onDwellTimeChanged()
 
 void AMGenericStepScanConfigurationView::updateMapInfo()
 {
+	if (configuration_->scanAxes().size() == 1){
 
+		double size = fabs(double(configuration_->scanAxisAt(0)->regionAt(0)->regionEnd())-double(configuration_->scanAxisAt(0)->regionAt(0)->regionStart()));
+		int points = int((size)/double(configuration_->scanAxisAt(0)->regionAt(0)->regionStep()));
+
+		if ((size - (points + 0.01)*double(configuration_->scanAxisAt(0)->regionAt(0)->regionStep())) < 0)
+			points += 1;
+
+		else
+			points += 2;
+
+		scanInformation_->setText(QString("Scan Size: %1\t Points: %2")
+						  .arg(QString::number(size, 'f', 1))
+						  .arg(points)
+						  );
+	}
+
+	else if (configuration_->scanAxes().size() == 2){
+
+		double hSize = fabs(double(configuration_->scanAxisAt(0)->regionAt(0)->regionEnd())-double(configuration_->scanAxisAt(0)->regionAt(0)->regionStart()));
+		double vSize = fabs(double(configuration_->scanAxisAt(1)->regionAt(0)->regionEnd())-double(configuration_->scanAxisAt(1)->regionAt(0)->regionStart()));
+
+		int hPoints = int((hSize)/double(configuration_->scanAxisAt(0)->regionAt(0)->regionStep()));
+		if ((hSize - (hPoints + 0.01)*double(configuration_->scanAxisAt(0)->regionAt(0)->regionStep())) < 0)
+			hPoints += 1;
+		else
+			hPoints += 2;
+
+		int vPoints = int((vSize)/double(configuration_->scanAxisAt(1)->regionAt(0)->regionStep()));
+		if ((vSize - (vPoints + 0.01)*double(configuration_->scanAxisAt(1)->regionAt(0)->regionStep())) < 0)
+			vPoints += 1;
+		else
+			vPoints += 2;
+
+		scanInformation_->setText(QString("Scan Size: %1 x %2 \t Points: %3 x %4")
+						  .arg(QString::number(hSize, 'f', 1))
+						  .arg(QString::number(vSize, 'f', 1))
+						  .arg(hPoints)
+						  .arg(vPoints)
+						  );
+	}
 }
 
 void AMGenericStepScanConfigurationView::setStart1(const AMNumber &value)

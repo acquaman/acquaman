@@ -8,15 +8,6 @@ AMGenericStepScanConfiguration::AMGenericStepScanConfiguration(QObject *parent)
 {
 	setName("Generic Scan");
 	setUserScanName("Generic Scan");
-
-	AMScanAxisRegion *region = new AMScanAxisRegion;
-	AMScanAxis *axis = new AMScanAxis(AMScanAxis::StepAxis, region);
-	appendScanAxis(axis);
-
-	connect(scanAxisAt(0)->regionAt(0), SIGNAL(regionStartChanged(AMNumber)), this, SLOT(computeTotalTime()));
-	connect(scanAxisAt(0)->regionAt(0), SIGNAL(regionStepChanged(AMNumber)), this, SLOT(computeTotalTime()));
-	connect(scanAxisAt(0)->regionAt(0), SIGNAL(regionEndChanged(AMNumber)), this, SLOT(computeTotalTime()));
-	connect(scanAxisAt(0)->regionAt(0), SIGNAL(regionTimeChanged(AMNumber)), this, SLOT(computeTotalTime()));
 }
 
 AMGenericStepScanConfiguration::AMGenericStepScanConfiguration(const AMGenericStepScanConfiguration &original)
@@ -26,10 +17,14 @@ AMGenericStepScanConfiguration::AMGenericStepScanConfiguration(const AMGenericSt
 	setUserScanName(original.name());
 
 	computeTotalTime();
-	connect(scanAxisAt(0)->regionAt(0), SIGNAL(regionStartChanged(AMNumber)), this, SLOT(computeTotalTime()));
-	connect(scanAxisAt(0)->regionAt(0), SIGNAL(regionStepChanged(AMNumber)), this, SLOT(computeTotalTime()));
-	connect(scanAxisAt(0)->regionAt(0), SIGNAL(regionEndChanged(AMNumber)), this, SLOT(computeTotalTime()));
-	connect(scanAxisAt(0)->regionAt(0), SIGNAL(regionTimeChanged(AMNumber)), this, SLOT(computeTotalTime()));
+
+	for (int i = 0, size = scanAxes_.count(); i < size; i++){
+
+		connect(scanAxisAt(i)->regionAt(0), SIGNAL(regionStartChanged(AMNumber)), this, SLOT(computeTotalTime()));
+		connect(scanAxisAt(i)->regionAt(0), SIGNAL(regionStepChanged(AMNumber)), this, SLOT(computeTotalTime()));
+		connect(scanAxisAt(i)->regionAt(0), SIGNAL(regionEndChanged(AMNumber)), this, SLOT(computeTotalTime()));
+		connect(scanAxisAt(i)->regionAt(0), SIGNAL(regionTimeChanged(AMNumber)), this, SLOT(computeTotalTime()));
+	}
 }
 
 AMGenericStepScanConfiguration::~AMGenericStepScanConfiguration(){}
