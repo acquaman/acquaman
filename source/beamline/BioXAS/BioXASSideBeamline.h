@@ -78,7 +78,7 @@ public:
 	/// Returns the beamline monochromator.
 	BioXASSideMonochromator *mono() const { return mono_; }
 	/// Returns the scaler.
-	CLSSIS3820Scaler* scaler() { return scaler_; }
+	CLSSIS3820Scaler* scaler() const { return scaler_; }
 
 	// Photon and safety shutters.
 

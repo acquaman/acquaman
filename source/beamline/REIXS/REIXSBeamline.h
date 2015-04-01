@@ -456,7 +456,7 @@ public:
 	/// All temperature monitors set
 	AMControlSet* tmset() { return tmSet_; }
 
-	CLSSIS3820Scaler *scaler() { return scaler_; }
+	virtual CLSSIS3820Scaler *scaler() const { return scaler_; }
 
 	/// Build a list of actions that opens/closes necessary shutters.
 	AMAction3 *buildBeamStateChangeAction(bool beamOn) const;

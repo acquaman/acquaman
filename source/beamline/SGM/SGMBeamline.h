@@ -189,7 +189,7 @@ public:
 	QString currentEndstation() const;
 
 	/// Returns a pointer to the scaler IF the scaler IS connected
-	CLSSIS3820Scaler* scaler();
+	virtual CLSSIS3820Scaler* scaler() const;
 	/// Returns a pointer to the scaler EVEN IF the scaler ISN'T yet connected
 	CLSSIS3820Scaler* rawScaler();
 

@@ -753,7 +753,7 @@ AMAction3* SGMBeamline::createRestorePreFastScanDefaultActions(){
 	return retVal;
 }
 
-CLSSIS3820Scaler* SGMBeamline::scaler(){
+CLSSIS3820Scaler* SGMBeamline::scaler() const{
 	if(scaler_->isConnected())
 		return scaler_;
 	return 0; //NULL
