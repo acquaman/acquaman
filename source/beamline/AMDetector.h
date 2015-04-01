@@ -298,9 +298,6 @@ int outputSize = indexStart.totalPointsTo(indexEnd);
 	/// Returns a newly created action (possibly list of actions) to perfrom the detector cleanup
 	virtual AMAction3* createCleanupActions();
 
-	/// Returns new action that initiates a dark current measurement, uses the provided dwell time. An AMDetector subclass that can do dark current correction would have to implement this.
-	virtual AMAction3* createDarkCurrentMeasurementAction(double secondsDwell) { Q_UNUSED(secondsDwell) return 0; }
-
 	/// Returns new action that sets the last measurement value and acquisition time as the dark current value and time, if the detector can do dark current correction. Updates the dark current valid state to true, as the DC value and time are up-to-date.
 	virtual AMAction3* createSetLastMeasurementAsDarkCurrentAction();
 	/// Returns new action that sets the dark current value, if the detector can do dark current correction.

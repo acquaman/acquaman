@@ -100,17 +100,6 @@ bool CLSBasicScalerChannelDetector::lastContinuousReading(double *outputValues) 
 	return false;
 }
 
-AMAction3* CLSBasicScalerChannelDetector::createDarkCurrentMeasurementAction(double dwellTime)
-{
-	AMAction3 *action = 0;
-
-	if (scaler_) {
-		action = scaler_->createMeasureDarkCurrentAction((int)dwellTime);
-	}
-
-	return action;
-}
-
 bool CLSBasicScalerChannelDetector::setAcquisitionTime(double seconds){
 	if(!isConnected())
 		return false;

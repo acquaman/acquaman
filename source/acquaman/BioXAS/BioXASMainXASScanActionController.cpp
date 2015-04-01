@@ -80,63 +80,43 @@ QString BioXASMainXASScanActionController::beamlineSettings()
 AMAction3* BioXASMainXASScanActionController::createInitializationActions()
 {
     AMSequentialListAction3 *initializationAction = new AMSequentialListAction3(new AMSequentialListActionInfo3("BioXAS Main Scan Initialization Actions", "BioXAS Main Scan Initialization Actions"));
-    CLSSIS3820Scaler *scaler = BioXASMainBeamline::bioXAS()->scaler();
+    CLSSIS3820Scaler *scaler = CLSBeamline::clsBeamline()->scaler();
     double regionTime = double(configuration_->scanAxisAt(0)->regionAt(0)->regionTime());
 
-    AMListAction3 *stage1 = new AMListAction3(new AMListActionInfo3("BioXAS Main Initialization Stage 1", "BioXAS Main Initialization Stage 1"), AMListAction3::Parallel);
-    stage1->addSubAction(scaler->createContinuousEnableAction3(false));
+    if (scaler) {
+	    AMListAction3 *stage1 = new AMListAction3(new AMListActionInfo3("BioXAS Main Initialization Stage 1", "BioXAS Main Initialization Stage 1"), AMListAction3::Parallel);
+	    stage1->addSubAction(scaler->createContinuousEnableAction3(false));
 
-    AMListAction3 *stage2 = new AMListAction3(new AMListActionInfo3("BioXAS Main Initialization Stage 2", "BioXAS Main Initialization Stage 2"), AMListAction3::Parallel);
+	    AMListAction3 *stage2 = new AMListAction3(new AMListActionInfo3("BioXAS Main Initialization Stage 2", "BioXAS Main Initialization Stage 2"), AMListAction3::Parallel);
 
-    stage2->addSubAction(scaler->createStartAction3(false));
-    stage2->addSubAction(scaler->createScansPerBufferAction3(1));
-    stage2->addSubAction(scaler->createTotalScansAction3(1));
+	    stage2->addSubAction(scaler->createStartAction3(false));
+	    stage2->addSubAction(scaler->createScansPerBufferAction3(1));
+	    stage2->addSubAction(scaler->createTotalScansAction3(1));
 
-    AMListAction3 *stage3 = new AMListAction3(new AMListActionInfo3("BioXAS Main Initialization Stage 3", "BioXAS Main Initialization Stage 3"), AMListAction3::Parallel);
-    stage3->addSubAction(scaler->createStartAction3(true));
-    stage3->addSubAction(scaler->createWaitForDwellFinishedAction(regionTime + 5.0));
+	    AMListAction3 *stage3 = new AMListAction3(new AMListActionInfo3("BioXAS Main Initialization Stage 3", "BioXAS Main Initialization Stage 3"), AMListAction3::Parallel);
+	    stage3->addSubAction(scaler->createStartAction3(true));
+	    stage3->addSubAction(scaler->createWaitForDwellFinishedAction(regionTime + 5.0));
 
-    AMListAction3 *stage4 = new AMListAction3(new AMListActionInfo3("BioXAS Main Initialization Stage 4", "BioXAS Main Initialization Stage 4"), AMListAction3::Parallel);
-    stage4->addSubAction(scaler->createStartAction3(true));
-    stage4->addSubAction(scaler->createWaitForDwellFinishedAction(regionTime + 5.0));
+	    AMListAction3 *stage4 = new AMListAction3(new AMListActionInfo3("BioXAS Main Initialization Stage 4", "BioXAS Main Initialization Stage 4"), AMListAction3::Parallel);
+	    stage4->addSubAction(scaler->createStartAction3(true));
+	    stage4->addSubAction(scaler->createWaitForDwellFinishedAction(regionTime + 5.0));
 
-    // setup beamline for dark current correction.
+	    // if we have a valid scaler on the beamline, perform a dark current measurement for the same length of time as the dwell time.
+	    AMAction3 *darkCurrentSetup = scaler->createMeasureDarkCurrentAction((int)scaler->dwellTime());
 
-    AMListAction3 *darkCurrentSetup = new AMListAction3(new AMListActionInfo3("BioXAS Main Dark Current Setup", "BioXAS Main Dark Current Setup"), AMListAction3::Parallel);
+	    initializationAction->addSubAction(stage1);
+	    initializationAction->addSubAction(stage2);
+	    initializationAction->addSubAction(scaler->createDwellTimeAction3(double(configuration_->scanAxisAt(0)->regionAt(0)->regionTime())));
+	    initializationAction->addSubAction(stage3);
+	    initializationAction->addSubAction(stage4);
+	    initializationAction->addSubAction(darkCurrentSetup);
 
-    for (int i = 0, size = configuration_->detectorConfigurations().count(); i < size; i++) {
-	    AMDetector *detector = AMBeamline::bl()->exposedDetectorByInfo(configuration_->detectorConfigurations().at(i));
-	    bool sharedSourceFound = false;
+	    // Set the bragg motor power to PowerOn, must be on to move/scan.
+	    initializationAction->addSubAction(BioXASMainBeamline::bioXAS()->mono()->braggMotor()->createPowerAction(CLSMAXvMotor::PowerOn));
 
-	    if (detector) {
-		    int detectorIndex = scan_->indexOfDataSource(detector->name());
-
-		    // if we have a valid detector that can perform dark current correction, make that detector perform a dark current measurement.
-		    if (detectorIndex != -1 && detector->rank() == 0 && detector->canDoDarkCurrentCorrection()) {
-			    bool sourceShared = detector->sharesDetectorTriggerSource();
-
-				if (sourceShared && !sharedSourceFound) {
-					sharedSourceFound = true;
-				    darkCurrentSetup->addSubAction(detector->createDarkCurrentMeasurementAction(detector->acquisitionTime()));
-
-				} else if (!sourceShared) {
-					darkCurrentSetup->addSubAction(detector->createDarkCurrentMeasurementAction(detector->acquisitionTime()));
-				}
-			}
-		} else {
-			AMErrorMon::alert(this, BIOXASMAINXASSCANACTIONCONTROLLER_DETECTOR_NOT_FOUND, "Unable to find a required detector in scan initialization.");
-		}
+    } else {
+	    AMErrorMon::alert(this, BIOXASMAINXASSCANACTIONCONTROLLER_SCALER_NOT_FOUND, "Failed to complete scan initialization--valid scaler not found.");
     }
-
-    initializationAction->addSubAction(stage1);
-    initializationAction->addSubAction(stage2);
-    initializationAction->addSubAction(scaler->createDwellTimeAction3(double(configuration_->scanAxisAt(0)->regionAt(0)->regionTime())));
-    initializationAction->addSubAction(stage3);
-    initializationAction->addSubAction(stage4);
-    initializationAction->addSubAction(darkCurrentSetup);
-
-    // Set the bragg motor power to PowerOn, must be on to move/scan.
-    initializationAction->addSubAction(BioXASMainBeamline::bioXAS()->mono()->braggMotor()->createPowerAction(CLSMAXvMotor::PowerOn));
 
     return initializationAction;
 }

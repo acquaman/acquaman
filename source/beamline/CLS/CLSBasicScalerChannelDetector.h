@@ -90,9 +90,6 @@ public:
 	/// Returns a AM1DProcessVariableDataSource suitable for viewing
 	virtual AMDataSource* dataSource() const { return 0; }
 
-    /// Returns a new action that performs a dark current measurement, uses the provided dwell time.
-    virtual AMAction3* createDarkCurrentMeasurementAction(double secondsDwell);
-
 public slots:
 	/// Set the acquisition dwell time for triggered (RequestRead) detectors
 	virtual bool setAcquisitionTime(double seconds);
