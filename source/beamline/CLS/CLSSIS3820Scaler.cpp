@@ -311,8 +311,6 @@ void CLSSIS3820Scaler::measureDarkCurrent(int secondsDwell)
 	AMAction3 *action = createMeasureDarkCurrentAction(secondsDwell);
 
 	if (action) {
-		qDebug() << "Dark current action steps: " << action->children();
-
 		connect( action, SIGNAL(cancelled()), action, SLOT(deleteLater()) );
 		connect( action, SIGNAL(failed()), action, SLOT(deleteLater()) );
 		connect( action, SIGNAL(succeeded()), action, SLOT(deleteLater()) );
