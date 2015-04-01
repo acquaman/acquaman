@@ -23,11 +23,36 @@ public:
 	const AMScanConfiguration *configuration() const { return configuration_; }
 
 protected slots:
+	/// Sets the axis 1 start position.
+	void setStart1(const AMNumber &value);
+	/// Sets the axis 1 step size.
+	void setStep1(const AMNumber &value);
+	/// Sets the axis 1 end position.
+	void setEnd1(const AMNumber &value);
+	/// Sets the axis 2 start position.
+	void setStart2(const AMNumber &value);
+	/// Sets the axis 2 step size.
+	void setStep2(const AMNumber &value);
+	/// Sets the axis 2 end position.
+	void setEnd2(const AMNumber &value);
 	/// Sets the dwell time.
 	void setDwellTime(const AMNumber &value);
 
+	/// Helper slot that manages setting the axis 1 start position.
+	void onStart1Changed();
+	/// Helper slot that manages setting the axis 1 step size.
+	void onStep1Changed();
+	/// Helper slot that manages setting the axis 1 end position.
+	void onEnd1Changed();
+	/// Helper slot that manages setting the axis 2 start position.
+	void onStart2Changed();
+	/// Helper slot that manages setting the axis 2 step size.
+	void onStep2Changed();
+	/// Helper slot that manages setting the axis 2 end position.
+	void onEnd2Changed();
 	/// Helper slot that manages setting the time per point.
 	void onDwellTimeChanged();
+
 	/// Handles setting the name of the configuration from the line edit.
 	void onScanNameEdited();
 	/// Helper slot that handles the setting the estimated time label.
@@ -37,7 +62,12 @@ protected slots:
 	/// Handles setting the configurations axis 2 control info.
 	void onAxisControlChoice2Changed();
 
+	/// Handles doing some connections when an scan axis has been added or removed.
+	void onScanAxisAdded(AMScanAxis *axis);
+
 protected:
+	/// Method that updates the map info label based on the current values of the start, end, and step size.
+	void updateMapInfo();
 	/// Helper method that takes a time in seconds and returns a string of d:h:m:s.
 	QString convertTimeToString(double time);
 	/// Creates a double spin box for the position spin boxes.

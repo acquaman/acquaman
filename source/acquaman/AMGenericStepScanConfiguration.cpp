@@ -79,5 +79,58 @@ void AMGenericStepScanConfiguration::computeTotalTime()
 
 //	totalTime_ = time;
 //	setExpectedDuration(totalTime_);
-//	emit totalTimeChanged(totalTime_);
+	//	emit totalTimeChanged(totalTime_);
+}
+
+void AMGenericStepScanConfiguration::setControl(int axisId, AMControlInfo newInfo)
+{
+	if (axisId == 0 && controls_.isEmpty()){
+
+		controls_.append(newInfo);
+
+		AMScanAxisRegion *region = new AMScanAxisRegion;
+		AMScanAxis *axis = new AMScanAxis(AMScanAxis::StepAxis, region);
+		appendScanAxis(axis);
+
+		connect(scanAxisAt(0)->regionAt(0), SIGNAL(regionStartChanged(AMNumber)), this, SLOT(computeTotalTime()));
+		connect(scanAxisAt(0)->regionAt(0), SIGNAL(regionStepChanged(AMNumber)), this, SLOT(computeTotalTime()));
+		connect(scanAxisAt(0)->regionAt(0), SIGNAL(regionEndChanged(AMNumber)), this, SLOT(computeTotalTime()));
+		connect(scanAxisAt(0)->regionAt(0), SIGNAL(regionTimeChanged(AMNumber)), this, SLOT(computeTotalTime()));
+	}
+
+	else if (axisId == 0){
+
+		controls_.replace(0, newInfo);
+	}
+
+	else if (axisId == 1 && controls_.size() == 1){
+
+		controls_.append(newInfo);
+
+		AMScanAxisRegion *region = new AMScanAxisRegion;
+		AMScanAxis *axis = new AMScanAxis(AMScanAxis::StepAxis, region);
+		appendScanAxis(axis);
+
+		connect(scanAxisAt(1)->regionAt(0), SIGNAL(regionStartChanged(AMNumber)), this, SLOT(computeTotalTime()));
+		connect(scanAxisAt(1)->regionAt(0), SIGNAL(regionStepChanged(AMNumber)), this, SLOT(computeTotalTime()));
+		connect(scanAxisAt(1)->regionAt(0), SIGNAL(regionEndChanged(AMNumber)), this, SLOT(computeTotalTime()));
+		connect(scanAxisAt(1)->regionAt(0), SIGNAL(regionTimeChanged(AMNumber)), this, SLOT(computeTotalTime()));
+	}
+
+	else if (axisId == 1){
+
+		controls_.replace(1, newInfo);
+	}
+}
+
+void AMGenericStepScanConfiguration::removeControl(int axisId)
+{
+	if (axisId < controls_.size() && axisId >= 0){
+
+		AMScanAxis *axis = removeScanAxis(axisId);
+		axis->regionAt(0)->disconnect();
+		axis->regionAt(0)->deleteLater();
+		axis->deleteLater();
+		controls_.removeAt(axisId);
+	}
 }

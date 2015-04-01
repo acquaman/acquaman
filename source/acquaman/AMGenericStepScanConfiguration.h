@@ -54,6 +54,12 @@ signals:
 	/// Notifier that the total time estimate has changed.
 	void totalTimeChanged(double);
 
+public slots:
+	/// Sets a controlInfo to an axis.  If the axis has no control associated with it yet, then it will add it to the list, otherwise it will replace it.
+	void setControl(int axisId, AMControlInfo newInfo);
+	/// Removes a control from the given axis.  Also removes the axis.
+	void removeControl(int axisId);
+
 protected slots:
 	/// Computes the total time any time the regions list changes.
 	void computeTotalTime();

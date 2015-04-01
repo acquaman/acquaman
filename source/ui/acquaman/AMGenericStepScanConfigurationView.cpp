@@ -3,6 +3,8 @@
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QGroupBox>
+#include <QScrollArea>
+#include <QCheckBox>
 
 #include "ui/AMTopFrame.h"
 #include "beamline/AMBeamline.h"
@@ -68,28 +70,13 @@ AMGenericStepScanConfigurationView::AMGenericStepScanConfigurationView(AMGeneric
 	QGroupBox *positionsBox = new QGroupBox("Positions");
 
 	axisStart1_ = createPositionDoubleSpinBox("Start: ", "", double(configuration_->scanAxisAt(0)->regionAt(0)->regionStart()), 3);
-//	connect(axisStart1_, SIGNAL(editingFinished()), this, SLOT(onStartChanged()));
-//	connect(configuration_, SIGNAL(), axisStart1_, SLOT(setValue(double)));
-
-	axisStep1_ = createPositionDoubleSpinBox("Step: ", "", double(configuration_->scanAxisAt(0)->regionAt(0)->regionStart()), 3);
-//	connect(axisStep1_, SIGNAL(editingFinished()), this, SLOT(onStartChanged()));
-//	connect(configuration_, SIGNAL(startChanged(double)), axisStep1_, SLOT(setValue(double)));
-
+	axisStep1_ = createPositionDoubleSpinBox("Step: ", "", double(configuration_->scanAxisAt(0)->regionAt(0)->regionStep()), 3);
 	axisEnd1_ = createPositionDoubleSpinBox("End: ", "", double(configuration_->scanAxisAt(0)->regionAt(0)->regionStart()), 3);
-//	connect(axisEnd1_, SIGNAL(editingFinished()), this, SLOT(onStartChanged()));
-//	connect(configuration_, SIGNAL(startChanged(double)), axisEnd1_, SLOT(setValue(double)));
-
 	axisStart2_ = createPositionDoubleSpinBox("Start: ", "", double(configuration_->scanAxisAt(0)->regionAt(0)->regionStart()), 3);
-//	connect(axisStart2_, SIGNAL(editingFinished()), this, SLOT(onStartChanged()));
-//	connect(configuration_, SIGNAL(startChanged(double)), axisStart2_, SLOT(setValue(double)));
-
 	axisStep2_ = createPositionDoubleSpinBox("Step: ", "", double(configuration_->scanAxisAt(0)->regionAt(0)->regionStart()), 3);
-//	connect(axisStep2_, SIGNAL(editingFinished()), this, SLOT(onStartChanged()));
-//	connect(configuration_, SIGNAL(startChanged(double)), axisStep2_, SLOT(setValue(double)));
-
 	axisEnd2_ = createPositionDoubleSpinBox("End: ", "", double(configuration_->scanAxisAt(0)->regionAt(0)->regionStart()), 3);
-//	connect(axisEnd2_, SIGNAL(editingFinished()), this, SLOT(onStartChanged()));
-//	connect(configuration_, SIGNAL(startChanged(double)), axisEnd2_, SLOT(setValue(double)));
+
+	connect(configuration_, SIGNAL(scanAxisAdded(AMScanAxis*)), this, SLOT(onScanAxisAdded(AMScanAxis*)));
 
 	QHBoxLayout *axis1Layout = new QHBoxLayout;
 	axis1Layout->addWidget(axisStart1_);
@@ -112,15 +99,36 @@ AMGenericStepScanConfigurationView::AMGenericStepScanConfigurationView(AMGeneric
 	onAxisControlChoice1Changed();
 	onAxisControlChoice2Changed();
 
+	QScrollArea *detectorScrollArea = new QScrollArea;
+	QGroupBox *detectorGroupBox = new QGroupBox("Detectors");
+	QVBoxLayout *detectorLayout = new QVBoxLayout;
+	AMDetectorSet *detectors = AMBeamline::bl()->exposedDetectors();
+
+	for (int i = 0, size = detectors->count(); i < size; i++){
+
+		detectorLayout->addWidget(new QCheckBox(detectors->at(i)->name()));
+	}
+
+	detectorGroupBox->setLayout(detectorLayout);
+	detectorGroupBox->setFlat(true);
+	detectorScrollArea->setWidget(detectorGroupBox);
+	detectorScrollArea->setFrameStyle(QFrame::NoFrame);
+
 	QVBoxLayout *layout = new QVBoxLayout;
 	layout->addWidget(positionsBox);
 	layout->addWidget(scanName_);
 	layout->addWidget(timeGroupBox);
 
+	QHBoxLayout *moreLayout = new QHBoxLayout;
+	moreLayout->addStretch();
+	moreLayout->addLayout(layout);
+	moreLayout->addWidget(detectorScrollArea);
+	moreLayout->addStretch();
+
 	QVBoxLayout *configViewLayout = new QVBoxLayout;
 	configViewLayout->addWidget(frame);
 	configViewLayout->addStretch();
-	configViewLayout->addLayout(layout);
+	configViewLayout->addLayout(moreLayout);
 	configViewLayout->addStretch();
 
 	setLayout(configViewLayout);
@@ -172,16 +180,6 @@ QString AMGenericStepScanConfigurationView::convertTimeToString(double time)
 	return timeString;
 }
 
-void AMGenericStepScanConfigurationView::onDwellTimeChanged()
-{
-	configuration_->scanAxisAt(0)->regionAt(0)->setRegionTime(dwellTime_->value());
-}
-
-void AMGenericStepScanConfigurationView::setDwellTime(const AMNumber &value)
-{
-	dwellTime_->setValue(double(value));
-}
-
 QDoubleSpinBox * AMGenericStepScanConfigurationView::createPositionDoubleSpinBox(const QString &prefix, const QString &suffix, double value, int decimals)
 {
 	QDoubleSpinBox *box = new QDoubleSpinBox;
@@ -203,6 +201,8 @@ void AMGenericStepScanConfigurationView::onAxisControlChoice1Changed()
 		axisStep1_->setEnabled(false);
 		axisEnd1_->setEnabled(false);
 		axisControlChoice2_->setEnabled(false);
+
+		configuration_->removeControl(0);
 	}
 
 	else{
@@ -211,6 +211,8 @@ void AMGenericStepScanConfigurationView::onAxisControlChoice1Changed()
 		axisStep1_->setEnabled(true);
 		axisEnd1_->setEnabled(true);
 		axisControlChoice2_->setEnabled(true);
+
+		configuration_->setControl(0, AMBeamline::bl()->exposedControlByName(axisControlChoice1_->itemText(axisControlChoice1_->currentIndex()))->toInfo());
 	}
 
 	onAxisControlChoice2Changed();
@@ -228,6 +230,8 @@ void AMGenericStepScanConfigurationView::onAxisControlChoice2Changed()
 		axisStart2_->setEnabled(false);
 		axisStep2_->setEnabled(false);
 		axisEnd2_->setEnabled(false);
+
+		configuration_->removeControl(1);
 	}
 
 	else{
@@ -235,12 +239,128 @@ void AMGenericStepScanConfigurationView::onAxisControlChoice2Changed()
 		axisStart2_->setEnabled(true);
 		axisStep2_->setEnabled(true);
 		axisEnd2_->setEnabled(true);
-	}
 
+		configuration_->setControl(1, AMBeamline::bl()->exposedControlByName(axisControlChoice2_->itemText(axisControlChoice2_->currentIndex()))->toInfo());
+	}
 
 	QStandardItemModel *model = qobject_cast<QStandardItemModel *>(axisControlChoice1_->model());
 
 	for (int i = 1; i < axisControlChoice1_->count(); i++)
 		model->item(i)->setFlags(i == axisControlChoice2_->currentIndex() ? Qt::NoItemFlags : Qt::ItemIsEnabled | Qt::ItemIsSelectable);
+
+	model->item(0)->setFlags(axisControlChoice2_->currentIndex() > 0 ? Qt::NoItemFlags : Qt::ItemIsEnabled | Qt::ItemIsSelectable);
 }
 
+void AMGenericStepScanConfigurationView::onStart1Changed()
+{
+	configuration_->scanAxisAt(0)->regionAt(0)->setRegionStart(axisStart1_->value());
+	updateMapInfo();
+}
+
+void AMGenericStepScanConfigurationView::onStep1Changed()
+{
+	configuration_->scanAxisAt(0)->regionAt(0)->setRegionStart(axisStep1_->value());
+	updateMapInfo();
+}
+
+void AMGenericStepScanConfigurationView::onEnd1Changed()
+{
+	configuration_->scanAxisAt(0)->regionAt(0)->setRegionStart(axisEnd1_->value());
+	updateMapInfo();
+}
+
+void AMGenericStepScanConfigurationView::onStart2Changed()
+{
+	configuration_->scanAxisAt(1)->regionAt(0)->setRegionStart(axisStart2_->value());
+	updateMapInfo();
+}
+
+void AMGenericStepScanConfigurationView::onStep2Changed()
+{
+	configuration_->scanAxisAt(1)->regionAt(0)->setRegionStart(axisStep2_->value());
+	updateMapInfo();
+}
+
+void AMGenericStepScanConfigurationView::onEnd2Changed()
+{
+	configuration_->scanAxisAt(1)->regionAt(0)->setRegionStart(axisEnd2_->value());
+	updateMapInfo();
+}
+
+void AMGenericStepScanConfigurationView::onDwellTimeChanged()
+{
+	if (configuration_->scanAxes().size() > 0){
+
+		configuration_->scanAxisAt(0)->regionAt(0)->setRegionTime(dwellTime_->value());
+
+		if (configuration_->scanAxes().size() == 2)
+			configuration_->scanAxisAt(1)->regionAt(0)->setRegionTime(dwellTime_->value());
+	}
+}
+
+void AMGenericStepScanConfigurationView::updateMapInfo()
+{
+
+}
+
+void AMGenericStepScanConfigurationView::setStart1(const AMNumber &value)
+{
+	axisStart1_->setValue(double(value));
+}
+
+void AMGenericStepScanConfigurationView::setStep1(const AMNumber &value)
+{
+	axisStep1_->setValue(double(value));
+}
+
+void AMGenericStepScanConfigurationView::setEnd1(const AMNumber &value)
+{
+	axisEnd1_->setValue(double(value));
+}
+
+void AMGenericStepScanConfigurationView::setStart2(const AMNumber &value)
+{
+	axisStart2_->setValue(double(value));
+}
+
+void AMGenericStepScanConfigurationView::setStep2(const AMNumber &value)
+{
+	axisStep2_->setValue(double(value));
+}
+
+void AMGenericStepScanConfigurationView::setEnd2(const AMNumber &value)
+{
+	axisEnd2_->setValue(double(value));
+}
+
+void AMGenericStepScanConfigurationView::setDwellTime(const AMNumber &value)
+{
+	dwellTime_->setValue(double(value));
+}
+
+void AMGenericStepScanConfigurationView::onScanAxisAdded(AMScanAxis *axis)
+{
+	if (configuration_->scanAxes().size() == 1){
+
+		connect(axisStart1_, SIGNAL(editingFinished()), this, SLOT(onStart1Changed()));
+		connect(axisStep1_, SIGNAL(editingFinished()), this, SLOT(onStep1Changed()));
+		connect(axisEnd1_, SIGNAL(editingFinished()), this, SLOT(onEnd1Changed()));
+		connect(dwellTime_, SIGNAL(editingFinished()), this, SLOT(onDwellTimeChanged()));
+
+		connect(axis->regionAt(0), SIGNAL(regionStartChanged(AMNumber)), this, SLOT(setStart1(AMNumber)));
+		connect(axis->regionAt(0), SIGNAL(regionStepChanged(AMNumber)), this, SLOT(setStep1(AMNumber)));
+		connect(axis->regionAt(0), SIGNAL(regionEndChanged(AMNumber)), this, SLOT(setEnd1(AMNumber)));
+		connect(axis->regionAt(0), SIGNAL(regionTimeChanged(AMNumber)), this, SLOT(setDwellTime(AMNumber)));
+	}
+
+	else if (configuration_->scanAxes().size() == 2){
+
+		connect(axisStart2_, SIGNAL(editingFinished()), this, SLOT(onStart2Changed()));
+		connect(axisStep2_, SIGNAL(editingFinished()), this, SLOT(onStep2Changed()));
+		connect(axisEnd2_, SIGNAL(editingFinished()), this, SLOT(onEnd2Changed()));
+
+		connect(axis->regionAt(0), SIGNAL(regionStartChanged(AMNumber)), this, SLOT(setStart2(AMNumber)));
+		connect(axis->regionAt(0), SIGNAL(regionStepChanged(AMNumber)), this, SLOT(setStep2(AMNumber)));
+		connect(axis->regionAt(0), SIGNAL(regionEndChanged(AMNumber)), this, SLOT(setEnd2(AMNumber)));
+	}
+}
