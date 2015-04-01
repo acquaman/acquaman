@@ -62,7 +62,7 @@ signals:
 
 public slots:
 	/// Convenience method that sets the output view mode for the channel.
-	void setOutputViewMode(CLSSIS3820ScalerChannelView::OutputViewMode mode);
+	virtual void setOutputViewMode(CLSSIS3820ScalerChannelView::OutputViewMode mode);
 	/// Convenience method that sets the view mode of the current amplifier.
 	void setAmplifierViewMode(AMCurrentAmplifierView::ViewMode newMode);
 	/// Sets the visibility for the enable check box.
@@ -82,7 +82,7 @@ public slots:
 
 protected slots:
 	/// Handles building the appropriate string when the reading changed.
-	void onReadingChanged();
+	virtual void onReadingChanged();
 	/// Handles changing the view mode when the scaler output button is clicked.
 	void onScalerOutputClicked();
 	/// Handles updating the status label.  Includes the color and updating the tool tip.
