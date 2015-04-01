@@ -42,6 +42,11 @@ public:
 	/// A human-readable synopsis of this scan configuration. Can be re-implemented to proved more details. Used by scan action to set the main text in the action view.
 	virtual QString detailedDescription() const;
 
+	/// Returns the controls used for this configuration.
+	QList<AMControlInfo> controls() const { return controls_; }
+	/// Returns the detectors that will be used for this scan.
+	QList<AMDetectorInfo> detectors() const { return detectors_; }
+
 	/// Returns the current total estimated time for a scan to complete.
 	double totalTime() const { return totalTime_; }
 
@@ -54,6 +59,11 @@ protected slots:
 	void computeTotalTime();
 
 protected:
+	/// The list of controls.  This should almost always have one element in it, sometimes two.
+	QList<AMControlInfo> controls_;
+	/// List of detectors that will be used.
+	QList<AMDetectorInfo> detectors_;
+
 	/// Holds the total time in seconds that the scan is estimated to take.
 	double totalTime_;
 };

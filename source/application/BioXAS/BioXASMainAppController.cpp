@@ -54,15 +54,17 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "ui/AMTopFrame.h"
 
+#include "ui/acquaman/AMGenericStepScanConfigurationView.h"
+
 BioXASMainAppController::BioXASMainAppController(QObject *parent)
 	: AMAppController(parent)
 {
-    // Initialize variables.
+	// Initialize variables.
 
-    scalerView_ = 0;
-    configuration_ = 0;
-    configurationView_ = 0;
-    configurationViewHolder_ = 0;
+	scalerView_ = 0;
+	configuration_ = 0;
+	configurationView_ = 0;
+	configurationViewHolder_ = 0;
 }
 
 bool BioXASMainAppController::startup()
@@ -100,10 +102,10 @@ bool BioXASMainAppController::startup()
 
 		return true;
 
-    } else {
+	} else {
 
 		return false;
-    }
+	}
 }
 
 void BioXASMainAppController::shutdown()
@@ -117,10 +119,10 @@ void BioXASMainAppController::onScalerConnected()
 {
 	CLSSIS3820Scaler *scaler = BioXASMainBeamline::bioXAS()->scaler();
 
-    if (scaler && scaler->isConnected() && !scalerView_) {
+	if (scaler && scaler->isConnected() && !scalerView_) {
 	scalerView_ = new CLSSIS3820ScalerView(scaler, false);
 	mw_->addPane(scalerView_, "Detectors", "Scaler", ":/system-search.png", true);
-    }
+	}
 }
 
 void BioXASMainAppController::onMonoConnected()
@@ -151,21 +153,27 @@ void BioXASMainAppController::onMonoConnected()
 
 void BioXASMainAppController::onBeamlineConnected()
 {
-    if (BioXASMainBeamline::bioXAS()->isConnected() && !configurationView_) {
-	configuration_ = new BioXASMainXASScanConfiguration();
-        configuration_->setEdgeEnergy(10000);
+	if (BioXASMainBeamline::bioXAS()->isConnected() && !configurationView_) {
 
-	configurationView_ = new BioXASMainXASScanConfigurationView(configuration_);
+		configuration_ = new BioXASMainXASScanConfiguration();
+		configuration_->setEdgeEnergy(10000);
 
-        configurationViewHolder_ = new AMScanConfigurationViewHolder3(configurationView_);
+		configurationView_ = new BioXASMainXASScanConfigurationView(configuration_);
+		configurationViewHolder_ = new AMScanConfigurationViewHolder3(configurationView_);
 
-        mw_->addPane(configurationViewHolder_, "Scans", "Test Scan", ":/utilities-system-monitor.png");
-    }
+		mw_->addPane(configurationViewHolder_, "Scans", "Test Scan", ":/utilities-system-monitor.png");
+
+		commissioningConfiguration_ = new AMGenericStepScanConfiguration;
+		commissioningConfigurationView_ = new AMGenericStepScanConfigurationView(commissioningConfiguration_);
+		commissioningConfigurationViewHolder_ = new AMScanConfigurationViewHolder3(commissioningConfigurationView_);
+
+		mw_->addPane(commissioningConfigurationViewHolder_, "Scans", "Commissioning Tool", ":/utilities-system-monitor.png");
+	}
 }
 
 void BioXASMainAppController::registerClasses()
 {
-    AMDbObjectSupport::s()->registerClass<BioXASMainXASScanConfiguration>();
+	AMDbObjectSupport::s()->registerClass<BioXASMainXASScanConfiguration>();
 }
 
 void BioXASMainAppController::setupExporterOptions()
@@ -177,7 +185,7 @@ void BioXASMainAppController::setupExporterOptions()
 	if (matchIDs.count() != 0)
 			bioXASDefaultXAS->loadFromDb(AMDatabase::database("user"), matchIDs.at(0));
 
-    bioXASDefaultXAS->setName("BioXAS Default XAS");
+	bioXASDefaultXAS->setName("BioXAS Default XAS");
 	bioXASDefaultXAS->setFileName("$name_$fsIndex.dat");
 	bioXASDefaultXAS->setHeaderText("Scan: $name #$number\nDate: $dateTime\nSample: $sample\nFacility: $facilityDescription\n\n$scanConfiguration[header]\n\n$notes\n\n");
 	bioXASDefaultXAS->setHeaderIncluded(true);
@@ -194,8 +202,8 @@ void BioXASMainAppController::setupExporterOptions()
 	bioXASDefaultXAS->setHigherDimensionsInRows(true);
 	bioXASDefaultXAS->storeToDb(AMDatabase::database("user"));
 
-    if(bioXASDefaultXAS->id() > 0)
-	    AMAppControllerSupport::registerClass<BioXASMainXASScanConfiguration, AMExporterGeneralAscii, AMExporterOptionGeneralAscii>(bioXASDefaultXAS->id());
+	if(bioXASDefaultXAS->id() > 0)
+		AMAppControllerSupport::registerClass<BioXASMainXASScanConfiguration, AMExporterGeneralAscii, AMExporterOptionGeneralAscii>(bioXASDefaultXAS->id());
 }
 
 void BioXASMainAppController::setupUserInterface()
@@ -217,15 +225,15 @@ void BioXASMainAppController::setupUserInterface()
 
 void BioXASMainAppController::makeConnections()
 {
-    connect( BioXASMainBeamline::bioXAS()->scaler(), SIGNAL(connectedChanged(bool)), this, SLOT(onScalerConnected()) );
-    connect( BioXASMainBeamline::bioXAS()->mono(), SIGNAL(connected(bool)), this, SLOT(onMonoConnected()) );
-    connect( BioXASMainBeamline::bioXAS(), SIGNAL(connected(bool)), this, SLOT(onBeamlineConnected()) );
+	connect( BioXASMainBeamline::bioXAS()->scaler(), SIGNAL(connectedChanged(bool)), this, SLOT(onScalerConnected()) );
+	connect( BioXASMainBeamline::bioXAS()->mono(), SIGNAL(connected(bool)), this, SLOT(onMonoConnected()) );
+	connect( BioXASMainBeamline::bioXAS(), SIGNAL(connected(bool)), this, SLOT(onBeamlineConnected()) );
 }
 
 void BioXASMainAppController::applyCurrentSettings()
 {
-    onScalerConnected();
-    onBeamlineConnected();
+	onScalerConnected();
+	onBeamlineConnected();
 }
 
 void BioXASMainAppController::onCurrentScanActionStartedImplementation(AMScanAction *action)
