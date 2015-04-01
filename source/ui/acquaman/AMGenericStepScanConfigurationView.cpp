@@ -5,6 +5,7 @@
 #include <QGroupBox>
 #include <QScrollArea>
 #include <QCheckBox>
+#include <QButtonGroup>
 
 #include "ui/AMTopFrame.h"
 #include "beamline/AMBeamline.h"
@@ -102,12 +103,18 @@ AMGenericStepScanConfigurationView::AMGenericStepScanConfigurationView(AMGeneric
 	QScrollArea *detectorScrollArea = new QScrollArea;
 	QGroupBox *detectorGroupBox = new QGroupBox("Detectors");
 	QVBoxLayout *detectorLayout = new QVBoxLayout;
+	QButtonGroup *detectorGroup = new QButtonGroup;
+	detectorGroup->setExclusive(false);
 	AMDetectorSet *detectors = AMBeamline::bl()->exposedDetectors();
 
 	for (int i = 0, size = detectors->count(); i < size; i++){
 
-		detectorLayout->addWidget(new QCheckBox(detectors->at(i)->name()));
+		QCheckBox *checkBox = new QCheckBox(detectors->at(i)->name());
+		detectorGroup->addButton(checkBox);
+		detectorLayout->addWidget(checkBox);
 	}
+
+	connect(detectorGroup, SIGNAL(buttonClicked(QAbstractButton*)), this, SLOT(onDetectorSelectionChanged(QAbstractButton*)));
 
 	detectorGroupBox->setLayout(detectorLayout);
 	detectorGroupBox->setFlat(true);
@@ -212,7 +219,11 @@ void AMGenericStepScanConfigurationView::onAxisControlChoice1Changed()
 		axisEnd1_->setEnabled(true);
 		axisControlChoice2_->setEnabled(true);
 
-		configuration_->setControl(0, AMBeamline::bl()->exposedControlByName(axisControlChoice1_->itemText(axisControlChoice1_->currentIndex()))->toInfo());
+		AMControl *control = AMBeamline::bl()->exposedControlByName(axisControlChoice1_->itemText(axisControlChoice1_->currentIndex()));
+		setStart1(control->value());
+		setStep1(1.0);
+		setEnd1(control->value()+10);
+		configuration_->setControl(0, control->toInfo());
 	}
 
 	onAxisControlChoice2Changed();
@@ -240,7 +251,11 @@ void AMGenericStepScanConfigurationView::onAxisControlChoice2Changed()
 		axisStep2_->setEnabled(true);
 		axisEnd2_->setEnabled(true);
 
-		configuration_->setControl(1, AMBeamline::bl()->exposedControlByName(axisControlChoice2_->itemText(axisControlChoice2_->currentIndex()))->toInfo());
+		AMControl *control = AMBeamline::bl()->exposedControlByName(axisControlChoice2_->itemText(axisControlChoice2_->currentIndex()));
+		setStart2(control->value());
+		setStep2(1.0);
+		setEnd2(control->value()+10);
+		configuration_->setControl(1, control->toInfo());
 	}
 
 	QStandardItemModel *model = qobject_cast<QStandardItemModel *>(axisControlChoice1_->model());
@@ -363,4 +378,13 @@ void AMGenericStepScanConfigurationView::onScanAxisAdded(AMScanAxis *axis)
 		connect(axis->regionAt(0), SIGNAL(regionStepChanged(AMNumber)), this, SLOT(setStep2(AMNumber)));
 		connect(axis->regionAt(0), SIGNAL(regionEndChanged(AMNumber)), this, SLOT(setEnd2(AMNumber)));
 	}
+}
+
+void AMGenericStepScanConfigurationView::onDetectorSelectionChanged(QAbstractButton *button)
+{
+	if (button->isChecked())
+		configuration_->addDetector(AMBeamline::bl()->exposedDetectorByName(button->text())->toInfo());
+
+	else
+		configuration_->removeDetector(AMBeamline::bl()->exposedDetectorByName(button->text())->toInfo());
 }

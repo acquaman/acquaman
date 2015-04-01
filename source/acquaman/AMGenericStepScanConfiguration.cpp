@@ -134,3 +134,31 @@ void AMGenericStepScanConfiguration::removeControl(int axisId)
 		controls_.removeAt(axisId);
 	}
 }
+
+void AMGenericStepScanConfiguration::addDetector(AMDetectorInfo newInfo)
+{
+	bool containsDetector = false;
+
+	for (int i = 0, size = detectors_.size(); i < size; i++){
+
+		if (newInfo.name() == detectors_.at(i).name())
+			containsDetector = true;
+	}
+
+	if (!containsDetector)
+		detectors_.append(newInfo);
+}
+
+void AMGenericStepScanConfiguration::removeDetector(AMDetectorInfo info)
+{
+	bool detectorRemoved = false;
+
+	for (int i = 0, size = detectors_.size(); i < size && !detectorRemoved; i++){
+
+		if (info.name() == detectors_.at(i).name()){
+
+			detectorRemoved = true;
+			detectors_.removeAt(i);
+		}
+	}
+}

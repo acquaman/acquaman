@@ -59,6 +59,10 @@ public slots:
 	void setControl(int axisId, AMControlInfo newInfo);
 	/// Removes a control from the given axis.  Also removes the axis.
 	void removeControl(int axisId);
+	/// Adds a detector to the detector info list.
+	void addDetector(AMDetectorInfo newInfo);
+	/// Removes the detector from the detector info list.
+	void removeDetector(AMDetectorInfo info);
 
 protected slots:
 	/// Computes the total time any time the regions list changes.

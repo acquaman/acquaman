@@ -9,6 +9,8 @@
 #include <QComboBox>
 #include <QDoubleSpinBox>
 
+class QAbstractButton;
+
 class AMGenericStepScanConfigurationView : public AMScanConfigurationView
 {
 	Q_OBJECT
@@ -61,6 +63,8 @@ protected slots:
 	void onAxisControlChoice1Changed();
 	/// Handles setting the configurations axis 2 control info.
 	void onAxisControlChoice2Changed();
+	/// Handles updating the configurations detector infos.
+	void onDetectorSelectionChanged(QAbstractButton *button);
 
 	/// Handles doing some connections when an scan axis has been added or removed.
 	void onScanAxisAdded(AMScanAxis *axis);
