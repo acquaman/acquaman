@@ -25,15 +25,15 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QDebug>
 
-CLSKeithley428::CLSKeithley428(const QString &name, const QString &valueName, const QString &voltageBiasEnabled, const QString &voltageBias, QObject *parent) :
+CLSKeithley428::CLSKeithley428(const QString &name, const QString &valueName, const QString &biasVoltageEnabled, const QString &biasVoltage, const QString &biasVoltageFbk, QObject *parent) :
     AMCurrentAmplifier(name, parent)
 {
     supportsSensitivityMode_ = true;
     supportsGainMode_ = true;
 
     valueControl_ = new AMProcessVariable(valueName, true, this);
-    biasVoltageEnabled_ = new AMPVControl("BiasVoltageEnabled", voltageBiasEnabled+":fbk", voltageBiasEnabled, QString(), this);
-    biasVoltage_ = new AMPVControl("BiasVoltage", voltageBias+":fbk", voltageBias, QString(), this);
+    biasVoltageEnabled_ = new AMPVControl("BiasVoltageEnabled", biasVoltageEnabled+":fbk", biasVoltageEnabled, QString(), this);
+    biasVoltage_ = new AMPVControl("BiasVoltage", biasVoltageFbk, biasVoltage, QString(), this);
 
     // Listen for changes to connect states.
 
@@ -259,10 +259,20 @@ void CLSKeithley428::onValueChanged(int newIndex)
 
 void CLSKeithley428::onConnectedStateChanged(bool connectState)
 {
-    if (connected_ != connectState) {
-        connected_ = connectState;
-        emit isConnected(connected_);
-    }
+	bool connectedNow = false;
+
+	if (connectState == true) {
+		connectedNow = (
+					valueControl_->isConnected() &&
+					biasVoltageEnabled_->isConnected() &&
+					biasVoltage_->isConnected()
+					);
+	}
+
+	if (connected_ != connectedNow) {
+		connected_ = connectedNow;
+		emit isConnected(connected_);
+	}
 }
 
 double CLSKeithley428::toSensitivity(double gain) const
