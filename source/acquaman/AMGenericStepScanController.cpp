@@ -1,5 +1,7 @@
 #include "AMGenericStepScanController.h"
 
+#include "beamline/AMBeamline.h"
+
 AMGenericStepScanController::AMGenericStepScanController(AMGenericStepScanConfiguration *configuration, QObject *parent)
 	: AMStepScanActionController(configuration, parent)
 {
@@ -12,9 +14,25 @@ AMGenericStepScanController::AMGenericStepScanController(AMGenericStepScanConfig
 	scan_->setIndexType("fileSystem");
 
 	AMControlInfoList controls;
-	AMDetectorInfoSet detectors;
+
+	AMControlInfo axisControlInfo1 = configuration_->controls().at(0);
+	controls.append(axisControlInfo1);
+	scan_->rawData()->addScanAxis(AMAxisInfo(axisControlInfo1.name(), 0, axisControlInfo1.description()));
+
+	if (configuration_->scanAxes().size() == 2){
+
+		int yPoints = int(round((double(configuration_->scanAxisAt(1)->regionAt(0)->regionEnd()) - double(configuration_->scanAxisAt(1)->regionAt(0)->regionStart()))/double(configuration_->scanAxisAt(1)->regionAt(0)->regionStep()))) + 1;
+		AMControlInfo axisControlInfo2 = configuration_->controls().at(1);
+		controls.append(axisControlInfo2);
+		scan_->rawData()->addScanAxis(AMAxisInfo(axisControlInfo2.name(), yPoints, axisControlInfo2.description()));
+	}
 
 	configuration_->setAxisControlInfos(controls);
+
+	AMDetectorInfoSet detectors;
+
+	for (int i = 0, size = configuration_->detectors().size(); i < size; i++)
+		detectors.addDetectorInfo(configuration_->detectors().at(i));
 
 	configuration_->setDetectorConfigurations(detectors);
 
