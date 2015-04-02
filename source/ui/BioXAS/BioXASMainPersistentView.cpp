@@ -56,6 +56,7 @@ BioXASMainPersistentView::BioXASMainPersistentView(QWidget *parent) :
 	}
 
 	QGroupBox *channelViews = new QGroupBox();
+	channelViews->setTitle("Scaler channels");
 	channelViews->setLayout(channelLayout);
 
 	// Create and set layouts.

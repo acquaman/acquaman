@@ -41,6 +41,7 @@ BioXASSIS3820ScalerChannelView::BioXASSIS3820ScalerChannelView(CLSSIS3820ScalerC
 	// Create and set main layout.
 
 	QVBoxLayout *layout = new QVBoxLayout();
+	layout->setMargin(0);
 	layout->addLayout(channelLayout);
 	layout->addLayout(keithleyLayout);
 
