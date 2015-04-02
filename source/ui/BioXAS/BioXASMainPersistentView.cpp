@@ -23,8 +23,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "beamline/BioXAS/BioXASMainBeamline.h"
 #include "ui/beamline/AMExtendedControlEditor.h"
-#include "ui/BioXAS/BioXASSIS3820ScalerChannelView.h"
-
+#include "ui/CLS/CLSSIS3820ScalerView.h"
 
 BioXASMainPersistentView::BioXASMainPersistentView(QWidget *parent) :
     QWidget(parent)
@@ -47,13 +46,13 @@ BioXASMainPersistentView::BioXASMainPersistentView(QWidget *parent) :
 	QVBoxLayout *channelLayout = new QVBoxLayout();
 
 	if (scaler) {
-		BioXASSIS3820ScalerChannelView *i0View = new BioXASSIS3820ScalerChannelView(scaler->channelAt(0));
+		CLSSIS3820ScalerChannelView *i0View = new CLSSIS3820ScalerChannelView(scaler->channelAt(0));
 		channelLayout->addWidget(i0View);
 
-		BioXASSIS3820ScalerChannelView *iTView = new BioXASSIS3820ScalerChannelView(scaler->channelAt(1));
+		CLSSIS3820ScalerChannelView *iTView = new CLSSIS3820ScalerChannelView(scaler->channelAt(1));
 		channelLayout->addWidget(iTView);
 
-		BioXASSIS3820ScalerChannelView *i2View = new BioXASSIS3820ScalerChannelView(scaler->channelAt(15));
+		CLSSIS3820ScalerChannelView *i2View = new CLSSIS3820ScalerChannelView(scaler->channelAt(15));
 		channelLayout->addWidget(i2View);
 	}
 
@@ -71,7 +70,7 @@ BioXASMainPersistentView::BioXASMainPersistentView(QWidget *parent) :
 	layout->addStretch();
 
 	setLayout(layout);
-	setFixedWidth(350);
+	setFixedWidth(300);
 
 	// Initial settings.
 
