@@ -22,7 +22,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef BIOXASSIDEBEAMLINE_H
 #define BIOXASSIDEBEAMLINE_H
 
-#include "beamline/AMBeamline.h"
+#include "beamline/CLS/CLSBeamline.h"
 #include "beamline/AMControlSet.h"
 #include "beamline/AMMotorGroup.h"
 #include "beamline/CLS/CLSSynchronizedDwellTime.h"
@@ -53,7 +53,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 class CLSMAXvMotor;
 class AMBasicControlDetectorEmulator;
 
-class BioXASSideBeamline : public AMBeamline
+class BioXASSideBeamline : public CLSBeamline
 {
 	Q_OBJECT
 
@@ -78,7 +78,7 @@ public:
 	/// Returns the beamline monochromator.
 	BioXASSideMonochromator *mono() const { return mono_; }
 	/// Returns the scaler.
-	CLSSIS3820Scaler* scaler() { return scaler_; }
+	CLSSIS3820Scaler* scaler() const { return scaler_; }
 
 	// Photon and safety shutters.
 

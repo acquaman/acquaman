@@ -57,7 +57,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "util/AMErrorMonitor.h"
 
-SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
+SGMBeamline::SGMBeamline() : CLSBeamline("SGMBeamline") {
 	infoObject_ = SGMBeamlineInfo::sgmInfo();
 
 	beamlineIsInitialized_ = false;
@@ -753,7 +753,7 @@ AMAction3* SGMBeamline::createRestorePreFastScanDefaultActions(){
 	return retVal;
 }
 
-CLSSIS3820Scaler* SGMBeamline::scaler(){
+CLSSIS3820Scaler* SGMBeamline::scaler() const{
 	if(scaler_->isConnected())
 		return scaler_;
 	return 0; //NULL

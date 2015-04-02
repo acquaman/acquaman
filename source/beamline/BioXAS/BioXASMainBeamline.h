@@ -22,7 +22,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef BIOXASMAINBEAMLINE_H
 #define BIOXASMAINBEAMLINE_H
 
-#include "beamline/AMBeamline.h"
+#include "beamline/CLS/CLSBeamline.h"
 #include "beamline/AMControlSet.h"
 #include "beamline/AMMotorGroup.h"
 #include "beamline/AMBasicControlDetectorEmulator.h"
@@ -43,7 +43,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "util/AMErrorMonitor.h"
 #include "util/AMBiHash.h"
 
-class BioXASMainBeamline : public AMBeamline
+class BioXASMainBeamline : public CLSBeamline
 {
 	Q_OBJECT
 
@@ -68,7 +68,7 @@ public:
 	/// Returns the beamline monochromator.
 	BioXASMainMonochromator *mono() const { return mono_; }
     /// Returns the scaler.
-    CLSSIS3820Scaler* scaler() const { return scaler_; }
+    virtual CLSSIS3820Scaler* scaler() const { return scaler_; }
     /// Returns the I0 amplifier.
     CLSKeithley428* i0Keithley() const { return i0Keithley_; }
     /// Returns the IT amplifier.

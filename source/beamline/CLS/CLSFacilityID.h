@@ -1,10 +1,10 @@
-#ifndef CLSBEAMLINES_H
-#define CLSBEAMLINES_H
+#ifndef CLSFACILITYID_H
+#define CLSFACILITYID_H
 
 #include <QString>
 
-namespace CLSBeamline {
-	enum CLSBeamlines
+namespace CLSFacilityID {
+	enum Beamlines
 	{
 		SGMBeamline = 3,
 		SGMSSBeamline = 3, //??
@@ -27,35 +27,35 @@ namespace CLSBeamline {
 	const QString BioXASImagingBeamlineName = "BioXASImaging";
 	const QString SXRMBBeamlineName = "SXRMB";
 
-	inline QString beamlineName(CLSBeamline::CLSBeamlines beamline) {
+	inline QString beamlineName(CLSFacilityID::Beamlines beamline) {
 		QString name;
 		switch (beamline) {
-		case CLSBeamline::SGMBeamline:
-			name = CLSBeamline::SGMBeamlineName;
+		case CLSFacilityID::SGMBeamline:
+			name = CLSFacilityID::SGMBeamlineName;
 			break;
 //		case CLSBeamline::SGMSSBeamline: //Same as SGM
 //			name = CLSBeamline::SGMSSBeamlineName;
 //			break;
-		case CLSBeamline::VESPERSBeamline:
-			name = CLSBeamline::VESPERSBeamlineName;
+		case CLSFacilityID::VESPERSBeamline:
+			name = CLSFacilityID::VESPERSBeamlineName;
 			break;
-		case CLSBeamline::REIXSBeamline:
-			name = CLSBeamline::REIXSBeamlineName;
+		case CLSFacilityID::REIXSBeamline:
+			name = CLSFacilityID::REIXSBeamlineName;
 			break;
 //		case CLSBeamline::IDEASBeamline: //same as REIX
 //			name = CLSBeamline::IDEASBeamlineName;
 //			break;
-		case CLSBeamline::BioXASMainBeamline:
-			name = CLSBeamline::BioXASMainBeamlineName;
+		case CLSFacilityID::BioXASMainBeamline:
+			name = CLSFacilityID::BioXASMainBeamlineName;
 			break;
-		case CLSBeamline::BioXASSideBeamline:
-			name = CLSBeamline::BioXASSideBeamlineName;
+		case CLSFacilityID::BioXASSideBeamline:
+			name = CLSFacilityID::BioXASSideBeamlineName;
 			break;
-		case CLSBeamline::BioXASImagingBeamline:
-			name = CLSBeamline::BioXASImagingBeamlineName;
+		case CLSFacilityID::BioXASImagingBeamline:
+			name = CLSFacilityID::BioXASImagingBeamlineName;
 			break;
-		case CLSBeamline::SXRMBBeamline:
-			name = CLSBeamline::SXRMBBeamlineName;
+		case CLSFacilityID::SXRMBBeamline:
+			name = CLSFacilityID::SXRMBBeamlineName;
 			break;
 		default:
 			name = "Unknown";
@@ -67,4 +67,4 @@ namespace CLSBeamline {
 }
 
 
-#endif // CLSBEAMLINES_H
+#endif // CLSFACILITYID_H

@@ -21,7 +21,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef IDEASBEAMLINE_H
 #define IDEASBEAMLINE_H
 
-#include "beamline/AMBeamline.h"
+#include "beamline/CLS/CLSBeamline.h"
 #include "beamline/AMControlSet.h"
 #include "beamline/CLS/CLSSIS3820Scaler.h"
 #include "beamline/AMMotorGroup.h"
@@ -41,7 +41,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/IDEAS/IDEAS13ElementGeDetector.h"
 
 /// This class is the master class that holds EVERY control inside the VESPERS beamline.
-class IDEASBeamline : public AMBeamline
+class IDEASBeamline : public CLSBeamline
 {
 	Q_OBJECT
 

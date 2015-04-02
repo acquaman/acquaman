@@ -21,35 +21,39 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "BioXASMainAppController.h"
 
-#include "beamline/CLS/CLSBeamlines.h"
-#include "beamline/BioXAS/BioXASMainBeamline.h"
+#include "application/AMAppControllerSupport.h"
 
-#include "ui/AMMainWindow.h"
-#include "ui/dataman/AMGenericScanEditor.h"
+#include "beamline/CLS/CLSFacilityID.h"
+#include "beamline/BioXAS/BioXASMainBeamline.h"
+#include "beamline/CLS/CLSSIS3820Scaler.h"
 
 #include "actions3/AMActionRunner3.h"
 #include "actions3/actions/AMScanAction.h"
 #include "actions3/AMListAction3.h"
 
-#include "application/AMAppControllerSupport.h"
-
-#include "source/dataman/database/AMDbObjectSupport.h"
+#include "dataman/database/AMDbObjectSupport.h"
 #include "dataman/export/AMExportController.h"
 #include "dataman/export/AMExporterOptionGeneralAscii.h"
 #include "dataman/export/AMExporterGeneralAscii.h"
 #include "dataman/export/AMExporterAthena.h"
 #include "dataman/AMRun.h"
+#include "dataman/AMScanAxisEXAFSRegion.h"
+
+#include "acquaman/BioXAS/BioXASMainXASScanConfiguration.h"
 
 #include "util/AMPeriodicTable.h"
 
+#include "ui/AMMainWindow.h"
+#include "ui/AMTopFrame.h"
 
-#include "ui/BioXAS/BioXASMainPersistentView.h"
-#include "ui/CLS/CLSSIS3820ScalerView.h"
-#include "beamline/CLS/CLSSIS3820Scaler.h"
-#include "acquaman/BioXAS/BioXASMainXASScanConfiguration.h"
-#include "ui/BioXAS/BioXASMainXASScanConfigurationView.h"
+#include "ui/dataman/AMGenericScanEditor.h"
+
 #include "ui/acquaman/AMScanConfigurationViewHolder3.h"
-#include "dataman/AMScanAxisEXAFSRegion.h"
+
+#include "ui/CLS/CLSSIS3820ScalerView.h"
+
+#include "ui/BioXAS/BioXASMainXASScanConfigurationView.h"
+#include "ui/BioXAS/BioXASMainPersistentView.h"
 #include "ui/BioXAS/BioXASSSRLMonochromatorConfigurationView.h"
 
 #include "ui/AMTopFrame.h"
@@ -89,7 +93,7 @@ bool BioXASMainAppController::startup()
 		// We'll use loading a run from the db as a sign of whether this is the first time an application has been run because startupIsFirstTime will return false after the user data folder is created.
 		if (!existingRun.loadFromDb(AMDatabase::database("user"), 1)){
 
-			AMRun firstRun(CLSBeamline::beamlineName(CLSBeamline::BioXASMainBeamline), CLSBeamline::BioXASMainBeamline); //7: BioXAS main Beamline
+			AMRun firstRun(CLSFacilityID::beamlineName(CLSFacilityID::BioXASMainBeamline), CLSFacilityID::BioXASMainBeamline); //7: BioXAS main Beamline
 			firstRun.storeToDb(AMDatabase::database("user"));
 		}
 
@@ -118,8 +122,25 @@ void BioXASMainAppController::onScalerConnected()
 	CLSSIS3820Scaler *scaler = BioXASMainBeamline::bioXAS()->scaler();
 
     if (scaler && scaler->isConnected() && !scalerView_) {
-	scalerView_ = new CLSSIS3820ScalerView(scaler, false);
-	mw_->addPane(scalerView_, "Detectors", "Scaler", ":/system-search.png", true);
+
+	    scalerView_ = new CLSSIS3820ScalerView(scaler, true);
+
+	    QHBoxLayout *horizontalLayout = new QHBoxLayout();
+	    horizontalLayout->addStretch();
+	    horizontalLayout->addWidget(scalerView_);
+	    horizontalLayout->addStretch();
+
+	    QVBoxLayout *verticalLayout = new QVBoxLayout();
+	    verticalLayout->addWidget(new AMTopFrame("Scaler", QIcon(":/utilities-system-monitor.png")));
+	    verticalLayout->addStretch();
+	    verticalLayout->addLayout(horizontalLayout);
+	    verticalLayout->addStretch();
+
+	    QGroupBox *scalerBox = new QGroupBox();
+	    scalerBox->setFlat(true);
+	    scalerBox->setLayout(verticalLayout);
+
+	mw_->addPane(scalerBox, "Detectors", "Scaler", ":/utilities-system-monitor.png", true);
     }
 }
 
