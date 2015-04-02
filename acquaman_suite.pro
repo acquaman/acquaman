@@ -13,7 +13,7 @@ SUBDIRS += \
 	BioXASMainAcquaman.pro \
 	BioXASSideAcquaman.pro \
 	BioXASImagingAcquaman.pro \
-        BioXASSideTableCoordinator.pro \
+	BioXASSideTableCoordinator.pro \
 	BioXASToolSuite.pro \
 	MidIRBPM.pro \
 	REIXSTest.pro \
@@ -25,7 +25,7 @@ SUBDIRS += \
 	SGMLookupTableCoordinator.pro \
 	SGMSSAAcquaman.pro \
 	SXRMBAcquaman.pro \
-        SXRMBAddOnsCoordinator.pro \
+	SXRMBAddOnsCoordinator.pro \
 	VESPERSAcquaman.pro \
 	VESPERSBendingMirrors.pro \
 	VESPERSDatabaseDuplicateEntryPatch.pro \
