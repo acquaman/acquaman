@@ -30,8 +30,11 @@ BioXASSIS3820ScalerChannelView::BioXASSIS3820ScalerChannelView(CLSSIS3820ScalerC
 
 		if (keithley) {
 
-			AMExtendedControlEditor *biasEnabledEditor = new AMExtendedControlEditor(keithley->biasVoltageEnabledControl());
+			AMExtendedControlEditor *biasEnabledEditor = new AMExtendedControlEditor(keithley->biasVoltageEnabledControl());\
+			biasEnabledEditor->setNoUnitsBox(true);
+
 			AMExtendedControlEditor *biasEditor = new AMExtendedControlEditor(keithley->biasVoltageControl());
+			biasEditor->setUnits("V");
 
 			keithleyLayout->addWidget(biasEnabledEditor);
 			keithleyLayout->addWidget(biasEditor);
