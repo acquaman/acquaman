@@ -18,7 +18,8 @@ HEADERS += \
     source/ui/BioXAS/BioXASSSRLMonochromatorRegionControlEditor.h \
     source/ui/BioXAS/BioXASSSRLMonochromatorRegionControlView.h \
     source/beamline/BioXAS/BioXASSSRLMonochromatorEnergyControl.h \
-    source/ui/BioXAS/BioXASSSRLMonochromatorConfigurationView.h
+    source/ui/BioXAS/BioXASSSRLMonochromatorConfigurationView.h \
+    source/ui/BioXAS/BioXASSIS3820ScalerChannelView.h
 
 SOURCES += \
 	source/beamline/BioXAS/BioXASPseudoMotorControl.cpp \
@@ -32,4 +33,11 @@ SOURCES += \
     source/ui/BioXAS/BioXASSSRLMonochromatorRegionControlEditor.cpp \
     source/ui/BioXAS/BioXASSSRLMonochromatorRegionControlView.cpp \
     source/beamline/BioXAS/BioXASSSRLMonochromatorEnergyControl.cpp \
-    source/ui/BioXAS/BioXASSSRLMonochromatorConfigurationView.cpp
+    source/ui/BioXAS/BioXASSSRLMonochromatorConfigurationView.cpp \
+    source/ui/BioXAS/BioXASSIS3820ScalerChannelView.cpp
+
+
+
+
+
+

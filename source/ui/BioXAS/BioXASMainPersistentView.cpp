@@ -23,6 +23,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "beamline/BioXAS/BioXASMainBeamline.h"
 #include "ui/beamline/AMExtendedControlEditor.h"
+#include "ui/BioXAS/BioXASSIS3820ScalerChannelView.h"
+
 
 BioXASMainPersistentView::BioXASMainPersistentView(QWidget *parent) :
     QWidget(parent)
@@ -39,16 +41,34 @@ BioXASMainPersistentView::BioXASMainPersistentView(QWidget *parent) :
 	braggControlEditor_ = new AMExtendedControlEditor(BioXASMainBeamline::bioXAS()->mono()->braggMotor());
 	braggControlEditor_->setTitle("Bragg motor position");
 
+	CLSSIS3820Scaler *scaler = BioXASMainBeamline::bioXAS()->scaler();
+	QVBoxLayout *channelLayout = new QVBoxLayout();
+
+	if (scaler) {
+		BioXASSIS3820ScalerChannelView *i0View = new BioXASSIS3820ScalerChannelView(scaler->channelAt(0));
+		channelLayout->addWidget(i0View);
+
+		BioXASSIS3820ScalerChannelView *iTView = new BioXASSIS3820ScalerChannelView(scaler->channelAt(1));
+		channelLayout->addWidget(iTView);
+
+		BioXASSIS3820ScalerChannelView *i2View = new BioXASSIS3820ScalerChannelView(scaler->channelAt(2));
+		channelLayout->addWidget(i2View);
+	}
+
+	QGroupBox *channelViews = new QGroupBox();
+	channelViews->setLayout(channelLayout);
+
 	// Create and set layouts.
 
 	QVBoxLayout *layout = new QVBoxLayout();
 	layout->addWidget(energyControlEditor_);
 	layout->addWidget(regionControlEditor_);
 	layout->addWidget(braggControlEditor_);
+	layout->addWidget(channelViews);
 	layout->addStretch();
 
 	setLayout(layout);
-	setFixedWidth(300);
+	setFixedWidth(350);
 }
 
 BioXASMainPersistentView::~BioXASMainPersistentView()
