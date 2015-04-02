@@ -51,7 +51,7 @@ BioXASMainPersistentView::BioXASMainPersistentView(QWidget *parent) :
 		BioXASSIS3820ScalerChannelView *iTView = new BioXASSIS3820ScalerChannelView(scaler->channelAt(1));
 		channelLayout->addWidget(iTView);
 
-		BioXASSIS3820ScalerChannelView *i2View = new BioXASSIS3820ScalerChannelView(scaler->channelAt(2));
+		BioXASSIS3820ScalerChannelView *i2View = new BioXASSIS3820ScalerChannelView(scaler->channelAt(15));
 		channelLayout->addWidget(i2View);
 	}
 
