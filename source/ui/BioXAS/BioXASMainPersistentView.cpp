@@ -46,14 +46,14 @@ BioXASMainPersistentView::BioXASMainPersistentView(QWidget *parent) :
 	QVBoxLayout *channelLayout = new QVBoxLayout();
 
 	if (scaler) {
-		CLSSIS3820ScalerChannelView *i0View = new CLSSIS3820ScalerChannelView(scaler->channelAt(0));
-		channelLayout->addWidget(i0View);
+		for (int i = 0; i < scaler->channels().count(); i++) {
+			CLSSIS3820ScalerChannel *channel = scaler->channelAt(i);
 
-		CLSSIS3820ScalerChannelView *iTView = new CLSSIS3820ScalerChannelView(scaler->channelAt(1));
-		channelLayout->addWidget(iTView);
-
-		CLSSIS3820ScalerChannelView *i2View = new CLSSIS3820ScalerChannelView(scaler->channelAt(15));
-		channelLayout->addWidget(i2View);
+			if (channel && !channel->customChannelName().isEmpty()) {
+				CLSSIS3820ScalerChannelView *channelView = new CLSSIS3820ScalerChannelView(channel);
+				channelLayout->addWidget(channelView);
+			}
+		}
 	}
 
 	channelViews_ = new QGroupBox();
