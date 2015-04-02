@@ -25,15 +25,15 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QDebug>
 
-CLSKeithley428::CLSKeithley428(const QString &name, const QString &valueName, const QString &biasVoltageEnabled, const QString &biasVoltage, const QString &biasVoltageFbk, QObject *parent) :
+CLSKeithley428::CLSKeithley428(const QString &name, const QString &baseName, QObject *parent) :
     AMCurrentAmplifier(name, parent)
 {
     supportsSensitivityMode_ = true;
     supportsGainMode_ = true;
 
-    valueControl_ = new AMProcessVariable(valueName, true, this);
-    biasVoltageEnabled_ = new AMPVControl("BiasVoltageEnabled", biasVoltageEnabled+":fbk", biasVoltageEnabled, QString(), this);
-    biasVoltage_ = new AMPVControl("BiasVoltage", biasVoltageFbk, biasVoltage, QString(), this);
+    valueControl_ = new AMProcessVariable(baseName+":Gain", true, this);
+    biasVoltageEnabled_ = new AMPVControl("BiasVoltageEnabled", baseName+":BiasEnable:fbk", baseName+":BiasEnable", QString(), this);
+    biasVoltage_ = new AMPVControl("BiasVoltage", baseName+":BiasVoltage:fbk", baseName+":BiasValue", QString(), this);
 
     // Listen for changes to connect states.
 

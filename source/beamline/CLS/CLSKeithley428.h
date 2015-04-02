@@ -40,7 +40,7 @@ public:
 	class BiasVoltage { public: enum State { Off = 0, On }; };
 
     /// Constructor.
-    explicit CLSKeithley428(const QString &name, const QString &valueName, const QString &vbiasVoltageEnabled, const QString &biasVoltage, const QString &biasVoltageFbk, QObject *parent = 0);
+    explicit CLSKeithley428(const QString &name, const QString &baseName, QObject *parent = 0);
     /// Destructor.
     virtual ~CLSKeithley428();
 
