@@ -746,6 +746,8 @@ void BioXASSideBeamline::setupComponents()
 
 	scalerDwellTime_ = new AMReadOnlyPVControl("ScalerDwellTime", "BL07ID-Side:mcs:delay", this, "Scaler Dwell Time");
 
+	standardsWheel_ = new CLSStandardsWheel("StandardsWheel", "SMTR1607-6-I22-19", this);
+
 	setupDetectors();
 
 	i0Keithley_ = new CLSKeithley428("I0 Channel", "AMP1607-601:Gain");

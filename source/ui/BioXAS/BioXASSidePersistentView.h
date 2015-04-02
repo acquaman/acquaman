@@ -33,18 +33,20 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 class BioXASSidePersistentView : public QWidget
 {
-    Q_OBJECT
+	Q_OBJECT
 
 public:
-    /// Constructor.
-    explicit BioXASSidePersistentView(QWidget *parent = 0);
-    virtual ~BioXASSidePersistentView();
+	/// Constructor.
+	explicit BioXASSidePersistentView(QWidget *parent = 0);
+	virtual ~BioXASSidePersistentView();
 
 signals:
 
 public slots:
 
 protected slots:
+	/// Test slot for the standards wheel.
+	void onStandardsWheelIndexChanged(int index);
 
 protected:
 	/// Editor for the mono's energy.

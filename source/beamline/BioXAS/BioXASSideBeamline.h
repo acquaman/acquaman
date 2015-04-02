@@ -43,6 +43,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/BioXAS/BioXASPseudoMotorControl.h"
 #include "beamline/BioXAS/BioXAS32ElementGeDetector.h"
 
+#include "beamline/CLS/CLSStandardsWheel.h"
+
 #define BIOXASSIDEBEAMLINE_PRESSURE_TOO_HIGH 54600
 #define BIOXASSIDEBEAMLINE_VALVES_CLOSED 54601
 #define BIOXASSIDEBEAMLINE_TEMPERATURE_TOO_HIGH 54602
@@ -79,6 +81,8 @@ public:
 	BioXASSideMonochromator *mono() const { return mono_; }
 	/// Returns the scaler.
 	CLSSIS3820Scaler* scaler() const { return scaler_; }
+	/// Returns the standards wheel.
+	CLSStandardsWheel *standardsWheel() const { return standardsWheel_; }
 
 	// Photon and safety shutters.
 
@@ -338,6 +342,10 @@ protected:
 	CLSBiStateControl *ssh1_;
 
 	CLSBiStateControl *sshSide1_;
+
+	// Extras
+
+	CLSStandardsWheel *standardsWheel_;
 
 	// Pressure controls
 
