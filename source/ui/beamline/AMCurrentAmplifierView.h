@@ -113,7 +113,7 @@ protected:
     /// The format used to display values: 'f' for normal, 'e' for scientific, 'g' for whichever is more concise.
     char format_;
     /// Holds the view's name.
-    QLabel *name_;\
+    QLabel *name_;
     /// Minus button.
     QToolButton *minus_;
     /// Plus button.
