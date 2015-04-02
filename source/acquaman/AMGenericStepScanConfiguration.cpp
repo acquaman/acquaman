@@ -3,6 +3,8 @@
 #include "ui/acquaman/AMGenericStepScanConfigurationView.h"
 #include "acquaman/AMGenericStepScanController.h"
 
+#include <math.h>
+
 AMGenericStepScanConfiguration::AMGenericStepScanConfiguration(QObject *parent)
 	: AMStepScanConfiguration(parent)
 {
@@ -66,15 +68,41 @@ QString AMGenericStepScanConfiguration::detailedDescription() const
 
 void AMGenericStepScanConfiguration::computeTotalTime()
 {
-//	double time = 0;
+	if (scanAxes_.count() == 1){
 
-//	// Get the number of points.
-//	time = 	fabs((double(scanAxisAt(0)->regionAt(0)->regionEnd())-double(scanAxisAt(0)->regionAt(0)->regionStart()))/double(scanAxisAt(0)->regionAt(0)->regionStep())+1)
-//			*fabs((double(scanAxisAt(1)->regionAt(0)->regionEnd())-double(scanAxisAt(1)->regionAt(0)->regionStart()))/double(scanAxisAt(1)->regionAt(0)->regionStep())+1);
+		double size = fabs(double(scanAxes_.at(0)->regionAt(0)->regionEnd())-double(scanAxes_.at(0)->regionAt(0)->regionStart()));
+		int points = int((size)/double(scanAxes_.at(0)->regionAt(0)->regionStep()));
 
-//	totalTime_ = time;
-//	setExpectedDuration(totalTime_);
-	//	emit totalTimeChanged(totalTime_);
+		if ((size - (points + 0.01)*double(scanAxes_.at(0)->regionAt(0)->regionStep())) < 0)
+			points += 1;
+
+		else
+			points += 2;
+
+	}
+
+	else if (scanAxes_.count() == 2){
+
+		double hSize = fabs(double(scanAxes_.at(0)->regionAt(0)->regionEnd())-double(scanAxes_.at(0)->regionAt(0)->regionStart()));
+		double vSize = fabs(double(scanAxes_.at(1)->regionAt(0)->regionEnd())-double(scanAxes_.at(1)->regionAt(0)->regionStart()));
+
+		int hPoints = int((hSize)/double(scanAxes_.at(0)->regionAt(0)->regionStep()));
+		if ((hSize - (hPoints + 0.01)*double(scanAxes_.at(0)->regionAt(0)->regionStep())) < 0)
+			hPoints += 1;
+		else
+			hPoints += 2;
+
+		int vPoints = int((vSize)/double(scanAxes_.at(1)->regionAt(0)->regionStep()));
+		if ((vSize - (vPoints + 0.01)*double(scanAxes_.at(1)->regionAt(0)->regionStep())) < 0)
+			vPoints += 1;
+		else
+			vPoints += 2;
+
+		totalTime_ = hPoints*vPoints*double(scanAxes_.at(0)->regionAt(0)->regionTime());
+	}
+
+	setExpectedDuration(totalTime_);
+	emit totalTimeChanged(totalTime_);
 }
 
 void AMGenericStepScanConfiguration::setControl(int axisId, AMControlInfo newInfo)

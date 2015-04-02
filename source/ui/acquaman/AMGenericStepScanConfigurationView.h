@@ -71,7 +71,7 @@ protected slots:
 
 protected:
 	/// Method that updates the map info label based on the current values of the start, end, and step size.
-	void updateMapInfo();
+	void updateScanInformation();
 	/// Helper method that takes a time in seconds and returns a string of d:h:m:s.
 	QString convertTimeToString(double time);
 	/// Creates a double spin box for the position spin boxes.

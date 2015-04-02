@@ -212,6 +212,10 @@ void AMGenericStepScanConfigurationView::onAxisControlChoice1Changed()
 		axisControlChoice2_->setEnabled(false);
 
 		configuration_->removeControl(0);
+
+		setStart1(-1.0);
+		setStep1(-1.0);
+		setEnd1(-1.0);
 	}
 
 	else{
@@ -222,10 +226,13 @@ void AMGenericStepScanConfigurationView::onAxisControlChoice1Changed()
 		axisControlChoice2_->setEnabled(true);
 
 		AMControl *control = AMBeamline::bl()->exposedControlByName(axisControlChoice1_->itemText(axisControlChoice1_->currentIndex()));
+		configuration_->setControl(0, control->toInfo());
 		setStart1(control->value());
 		setStep1(1.0);
 		setEnd1(control->value()+10);
-		configuration_->setControl(0, control->toInfo());
+		onStart1Changed();
+		onStep1Changed();
+		onEnd1Changed();
 	}
 
 	onAxisControlChoice2Changed();
@@ -234,6 +241,8 @@ void AMGenericStepScanConfigurationView::onAxisControlChoice1Changed()
 
 	for (int i = 1; i < axisControlChoice2_->count(); i++)
 		model->item(i)->setFlags(i == axisControlChoice1_->currentIndex() ? Qt::NoItemFlags : Qt::ItemIsEnabled | Qt::ItemIsSelectable);
+
+	updateScanInformation();
 }
 
 void AMGenericStepScanConfigurationView::onAxisControlChoice2Changed()
@@ -245,6 +254,10 @@ void AMGenericStepScanConfigurationView::onAxisControlChoice2Changed()
 		axisEnd2_->setEnabled(false);
 
 		configuration_->removeControl(1);
+
+		setStart2(-1.0);
+		setStep2(-1.0);
+		setEnd2(-1.0);
 	}
 
 	else{
@@ -254,10 +267,13 @@ void AMGenericStepScanConfigurationView::onAxisControlChoice2Changed()
 		axisEnd2_->setEnabled(true);
 
 		AMControl *control = AMBeamline::bl()->exposedControlByName(axisControlChoice2_->itemText(axisControlChoice2_->currentIndex()));
+		configuration_->setControl(1, control->toInfo());
 		setStart2(control->value());
 		setStep2(1.0);
 		setEnd2(control->value()+10);
-		configuration_->setControl(1, control->toInfo());
+		onStart2Changed();
+		onStep2Changed();
+		onEnd2Changed();
 	}
 
 	QStandardItemModel *model = qobject_cast<QStandardItemModel *>(axisControlChoice1_->model());
@@ -266,42 +282,44 @@ void AMGenericStepScanConfigurationView::onAxisControlChoice2Changed()
 		model->item(i)->setFlags(i == axisControlChoice2_->currentIndex() ? Qt::NoItemFlags : Qt::ItemIsEnabled | Qt::ItemIsSelectable);
 
 	model->item(0)->setFlags(axisControlChoice2_->currentIndex() > 0 ? Qt::NoItemFlags : Qt::ItemIsEnabled | Qt::ItemIsSelectable);
+
+	updateScanInformation();
 }
 
 void AMGenericStepScanConfigurationView::onStart1Changed()
 {
 	configuration_->scanAxisAt(0)->regionAt(0)->setRegionStart(axisStart1_->value());
-	updateMapInfo();
+	updateScanInformation();
 }
 
 void AMGenericStepScanConfigurationView::onStep1Changed()
 {
-	configuration_->scanAxisAt(0)->regionAt(0)->setRegionStart(axisStep1_->value());
-	updateMapInfo();
+	configuration_->scanAxisAt(0)->regionAt(0)->setRegionStep(axisStep1_->value());
+	updateScanInformation();
 }
 
 void AMGenericStepScanConfigurationView::onEnd1Changed()
 {
-	configuration_->scanAxisAt(0)->regionAt(0)->setRegionStart(axisEnd1_->value());
-	updateMapInfo();
+	configuration_->scanAxisAt(0)->regionAt(0)->setRegionEnd(axisEnd1_->value());
+	updateScanInformation();
 }
 
 void AMGenericStepScanConfigurationView::onStart2Changed()
 {
 	configuration_->scanAxisAt(1)->regionAt(0)->setRegionStart(axisStart2_->value());
-	updateMapInfo();
+	updateScanInformation();
 }
 
 void AMGenericStepScanConfigurationView::onStep2Changed()
 {
-	configuration_->scanAxisAt(1)->regionAt(0)->setRegionStart(axisStep2_->value());
-	updateMapInfo();
+	configuration_->scanAxisAt(1)->regionAt(0)->setRegionStep(axisStep2_->value());
+	updateScanInformation();
 }
 
 void AMGenericStepScanConfigurationView::onEnd2Changed()
 {
-	configuration_->scanAxisAt(1)->regionAt(0)->setRegionStart(axisEnd2_->value());
-	updateMapInfo();
+	configuration_->scanAxisAt(1)->regionAt(0)->setRegionEnd(axisEnd2_->value());
+	updateScanInformation();
 }
 
 void AMGenericStepScanConfigurationView::onDwellTimeChanged()
@@ -315,7 +333,7 @@ void AMGenericStepScanConfigurationView::onDwellTimeChanged()
 	}
 }
 
-void AMGenericStepScanConfigurationView::updateMapInfo()
+void AMGenericStepScanConfigurationView::updateScanInformation()
 {
 	if (configuration_->scanAxes().size() == 1){
 
