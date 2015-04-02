@@ -26,6 +26,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QLayout>
 #include <QPushButton>
 #include <QInputDialog>
+#include <QGroupBox>
 
 #include "ui/BioXAS/BioXASSSRLMonochromatorRegionControlEditor.h"
 #include "ui/BioXAS/BioXASSSRLMonochromatorRegionControlView.h"
@@ -45,6 +46,8 @@ signals:
 public slots:
 
 protected slots:
+	/// Handles updating the view when the scaler connection state changes.
+	void onScalerConnectedChanged();
 
 protected:
 	/// Editor that selects the mono energy.
@@ -53,6 +56,8 @@ protected:
 	BioXASSSRLMonochromatorRegionControlEditor *regionControlEditor_;
 	/// Editor that selects the mono bragg position.
 	AMExtendedControlEditor *braggControlEditor_;
+	/// The scaler channel views for the i0, iT, and i2 channels.
+	QGroupBox *channelViews_;
 };
 
 #endif // BIOXASMAINPERSISTENTVIEW_H

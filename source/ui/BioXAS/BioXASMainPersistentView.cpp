@@ -41,6 +41,8 @@ BioXASMainPersistentView::BioXASMainPersistentView(QWidget *parent) :
 	braggControlEditor_ = new AMExtendedControlEditor(BioXASMainBeamline::bioXAS()->mono()->braggMotor());
 	braggControlEditor_->setTitle("Bragg motor position");
 
+	// Create the scaler channel views.
+
 	CLSSIS3820Scaler *scaler = BioXASMainBeamline::bioXAS()->scaler();
 	QVBoxLayout *channelLayout = new QVBoxLayout();
 
@@ -55,24 +57,47 @@ BioXASMainPersistentView::BioXASMainPersistentView(QWidget *parent) :
 		channelLayout->addWidget(i2View);
 	}
 
-	QGroupBox *channelViews = new QGroupBox();
-	channelViews->setTitle("Scaler channels");
-	channelViews->setLayout(channelLayout);
+	channelViews_ = new QGroupBox();
+	channelViews_->setTitle("Scaler channels");
+	channelViews_->setLayout(channelLayout);
 
-	// Create and set layouts.
+	// Create and set main layout.
 
 	QVBoxLayout *layout = new QVBoxLayout();
 	layout->addWidget(energyControlEditor_);
 	layout->addWidget(regionControlEditor_);
 	layout->addWidget(braggControlEditor_);
-	layout->addWidget(channelViews);
+	layout->addWidget(channelViews_);
 	layout->addStretch();
 
 	setLayout(layout);
 	setFixedWidth(350);
+
+	// Initial settings.
+
+	channelViews_->hide();
+
+	// Make connections.
+
+	connect( scaler, SIGNAL(connectedChanged(bool)), this, SLOT(onScalerConnectedChanged()) );
+
+	// Current settings.
+
+	onScalerConnectedChanged();
 }
 
 BioXASMainPersistentView::~BioXASMainPersistentView()
 {
 
+}
+
+void BioXASMainPersistentView::onScalerConnectedChanged()
+{
+	CLSSIS3820Scaler *scaler = BioXASMainBeamline::bioXAS()->scaler();
+
+	if (scaler && scaler->isConnected()) {
+		channelViews_->show();
+	} else {
+		channelViews_->hide();
+	}
 }
