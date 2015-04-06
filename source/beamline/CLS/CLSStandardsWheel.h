@@ -54,6 +54,11 @@ public:
 	/// Returns the name of the element at \param index.
 	const QString &name(int index) const { return wheelElements_.at(index)->name(); }
 
+	/// Returns the list of elements.
+	QList<CLSStandardsWheelElement *> wheelElements() const { return wheelElements_; }
+	/// Returns the element at the given index.
+	CLSStandardsWheelElement *wheelElementAt(int index) const { return wheelElements_.at(index); }
+
 signals:
 
 public slots:
