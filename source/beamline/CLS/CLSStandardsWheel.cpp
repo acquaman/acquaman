@@ -43,7 +43,7 @@ CLSStandardsWheel::CLSStandardsWheel(const QString &name, const QString &basePVN
 	wheel_ = new CLSMAXvMotor(name, basePVName, name, true, 0.1, 2.0, this, ":deg");
 
 	for (int i = 0; i < 12; i++)
-		wheelElements_ << new CLSStandardsWheelElement("", i*30.0, this);
+		wheelElements_ << new CLSStandardsWheelElement(QString("%1").arg(i+1), i*30.0, this);
 }
 
 CLSStandardsWheel::~CLSStandardsWheel()
@@ -55,4 +55,9 @@ void CLSStandardsWheel::moveToIndex(int index)
 {
 	if (index < 12 && index >= 0)
 		wheel_->move(wheelElements_.at(index)->position());
+}
+
+void CLSStandardsWheel::setName(int index, const QString &newName)
+{
+	wheelElements_.at(index)->setName(newName);
 }

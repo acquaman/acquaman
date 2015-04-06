@@ -43,7 +43,7 @@ BioXASSidePersistentView::BioXASSidePersistentView(QWidget *parent) :
 	QComboBox *standardsComboBox = new QComboBox;
 
 	for (int i = 0; i < 12; i++)
-		standardsComboBox->addItem(QString("%1").arg(i+1));
+		standardsComboBox->addItem(BioXASSideBeamline::bioXAS()->standardsWheel()->name(i));
 
 	connect(standardsComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(onStandardsWheelIndexChanged(int)));
 

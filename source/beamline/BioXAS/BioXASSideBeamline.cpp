@@ -747,6 +747,11 @@ void BioXASSideBeamline::setupComponents()
 	scalerDwellTime_ = new AMReadOnlyPVControl("ScalerDwellTime", "BL07ID-Side:mcs:delay", this, "Scaler Dwell Time");
 
 	standardsWheel_ = new CLSStandardsWheel("StandardsWheel", "SMTR1607-6-I22-19", this);
+	standardsWheel_->setName(0, "Cu");
+	standardsWheel_->setName(1, "Fe");
+	standardsWheel_->setName(2, "Ni");
+	standardsWheel_->setName(3, "As");
+	standardsWheel_->setName(4, "Zn");
 
 	setupDetectors();
 

@@ -51,9 +51,15 @@ public:
 	/// Destructor.
 	~CLSStandardsWheel();
 
+	/// Returns the name of the element at \param index.
+	const QString &name(int index) const { return wheelElements_.at(index)->name(); }
+
 signals:
 
 public slots:
+	/// Sets the name of a given element.
+	void setName(int index, const QString &newName);
+
 	/// Moves the wheel to the specified index.
 	void moveToIndex(int index);
 
