@@ -159,21 +159,6 @@ void BioXASSideTableCoordinator::onAllControlsConnected(bool connected){
 
 
 		// Max / Min value?
-//		qDebug() << "Checking start up range for OLD energy as " << oldEnergy_->minimumValue() << oldEnergy_->maximumValue();
-//		addOnsEnergyDRVH_->move(oldEnergy_->maximumValue());
-//		addOnsEnergyDRVL_->move(oldEnergy_->minimumValue());
-
-//		qDebug() << "Checking start up range for OLD sample X as " << sxrmbMicroprobeSampleStageX_->minimumValue() << sxrmbMicroprobeSampleStageX_->maximumValue();
-//		addOnsMicroprobeSampleStageDRVHX_->move(sxrmbMicroprobeSampleStageX_->maxi156mumValue());
-//		addOnsMicroprobeSampleStageDRVLX_->move(sxrmbMicroprobeSampleStageX_->minimumValue());
-
-//		qDebug() << "Checking start up range for OLD sample Y as " << sxrmbMicroprobeSampleStageY_->minimumValue() << sxrmbMicroprobeSampleStageY_->maximumValue();
-//		addOnsMicroprobeSampleStageDRVHY_->move(sxrmbMicroprobeSampleStageY_->maximumValue());
-//		addOnsMicroprobeSampleStageDRVLY_->move(sxrmbMicroprobeSampleStageY_->minimumValue());
-
-//		qDebug() << "Checking start up range for OLD sample Z as " << sxrmbMicroprobeSampleStageZ_->minimumValue() << sxrmbMicroprobeSampleStageZ_->maximumValue();
-//		addOnsMicroprobeSampleStageDRVHZ_->move(sxrmbMicroprobeSampleStageZ_->maximumValue());
-//		addOnsMicroprobeSampleStageDRVLZ_->move(sxrmbMicroprobeSampleStageZ_->minimumValue());
 	}
 }
 
