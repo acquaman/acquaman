@@ -42,23 +42,14 @@ BioXASMainPersistentView::BioXASMainPersistentView(QWidget *parent) :
 
 	// Create the scaler channel views.
 
-	CLSSIS3820Scaler *scaler = BioXASMainBeamline::bioXAS()->scaler();
-	QVBoxLayout *channelLayout = new QVBoxLayout();
+	BioXASSIS3820ScalerChannelsView *channels = new BioXASSIS3820ScalerChannelsView(BioXASMainBeamline::bioXAS()->scaler());
 
-	if (scaler) {
-		for (int i = 0; i < scaler->channels().count(); i++) {
-			CLSSIS3820ScalerChannel *channel = scaler->channelAt(i);
+	QVBoxLayout *channelsLayout = new QVBoxLayout();
+	channelsLayout->addWidget(channels);
 
-			if (channel && !channel->customChannelName().isEmpty()) {
-				CLSSIS3820ScalerChannelView *channelView = new CLSSIS3820ScalerChannelView(channel);
-				channelLayout->addWidget(channelView);
-			}
-		}
-	}
-
-	channelViews_ = new QGroupBox();
-	channelViews_->setTitle("Scaler channels");
-	channelViews_->setLayout(channelLayout);
+	channelsView_ = new QGroupBox();
+	channelsView_->setTitle("Scaler channels");
+	channelsView_->setLayout(channelsLayout);
 
 	// Create and set main layout.
 
@@ -66,23 +57,22 @@ BioXASMainPersistentView::BioXASMainPersistentView(QWidget *parent) :
 	layout->addWidget(energyControlEditor_);
 	layout->addWidget(regionControlEditor_);
 	layout->addWidget(braggControlEditor_);
-	layout->addWidget(channelViews_);
+	layout->addWidget(channelsView_);
 	layout->addStretch();
 
 	setLayout(layout);
-	setFixedWidth(300);
 
 	// Initial settings.
 
-	channelViews_->hide();
+	channelsView_->hide();
 
 	// Make connections.
 
-	connect( scaler, SIGNAL(connectedChanged(bool)), this, SLOT(onScalerConnectedChanged()) );
+	connect( BioXASMainBeamline::bioXAS()->scaler(), SIGNAL(connectedChanged(bool)), this, SLOT(showScalerChannels(bool)) );
 
 	// Current settings.
 
-	onScalerConnectedChanged();
+	showScalerChannels(BioXASMainBeamline::bioXAS()->scaler()->isConnected());
 }
 
 BioXASMainPersistentView::~BioXASMainPersistentView()
@@ -90,13 +80,7 @@ BioXASMainPersistentView::~BioXASMainPersistentView()
 
 }
 
-void BioXASMainPersistentView::onScalerConnectedChanged()
+void BioXASMainPersistentView::showScalerChannels(bool show)
 {
-	CLSSIS3820Scaler *scaler = BioXASMainBeamline::bioXAS()->scaler();
-
-	if (scaler && scaler->isConnected()) {
-		channelViews_->show();
-	} else {
-		channelViews_->hide();
-	}
+	channelsView_->setShown(show);
 }

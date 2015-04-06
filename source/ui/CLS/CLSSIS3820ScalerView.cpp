@@ -304,6 +304,7 @@ CLSSIS3820ScalerChannelView::CLSSIS3820ScalerChannelView(CLSSIS3820ScalerChannel
 	connect(enableBox_, SIGNAL(toggled(bool)), channel_, SLOT(setEnabled(bool)));
 
 	channelName_ = new QLabel(channel_->customChannelName());
+	channelName_->setFixedWidth(80);
 
 	amplifierView_ = 0;
 
@@ -317,6 +318,7 @@ CLSSIS3820ScalerChannelView::CLSSIS3820ScalerChannelView(CLSSIS3820ScalerChannel
 	}
 
 	scalerOutput_ = new QToolButton;
+	scalerOutput_->setFixedWidth(100);
 	scalerOutput_->setAutoRaise(true);
 
 
