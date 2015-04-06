@@ -199,13 +199,15 @@ AMAction3* CLSSIS3820Scaler::createContinuousEnableAction3(bool enableContinuous
 	return action;
 }
 
-AMAction3* CLSSIS3820Scaler::createDwellTimeAction3(double dwellTime) {
+AMAction3* CLSSIS3820Scaler::createDwellTimeAction3(double dwellTime)
+{
 	if(!isConnected())
 		return 0; //NULL
 
-	AMAction3 *action = AMActionSupport::buildControlMoveAction(dwellTime_, dwellTime*1000);
-	if(!action)
-		return 0; //NULL
+	AMAction3 *action = 0;
+
+	if (!dwellTime_->withinTolerance(dwellTime * 1000))
+		action = AMActionSupport::buildControlMoveAction(dwellTime_, dwellTime*1000);
 
 	return action;
 }
@@ -251,7 +253,6 @@ AMAction3* CLSSIS3820Scaler::createWaitForDwellFinishedAction(double timeoutTime
 
 AMAction3* CLSSIS3820Scaler::createMeasureDarkCurrentAction(int secondsDwell)
 {
-	qDebug() << "Scaler creating dark current measurement for " << secondsDwell << "seconds.";
 	return new CLSSIS3820ScalerDarkCurrentMeasurementAction(new CLSSIS3820ScalerDarkCurrentMeasurementActionInfo(secondsDwell));
 }
 
