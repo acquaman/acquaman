@@ -5,6 +5,41 @@
 
 #include "beamline/CLS/CLSMAXvMotor.h"
 
+/// This is a wheel element.  For the time being it only holds the name and position on the wheel.
+class CLSStandardsWheelElement : public QObject
+{
+	Q_OBJECT
+
+public:
+	/// Constructor.  Builds a wheel element with the given name and position (should be between 0 and 360).
+	explicit CLSStandardsWheelElement(const QString &name = "", double position = 0.0, QObject *parent = 0);
+	/// Destructor.
+	~CLSStandardsWheelElement();
+
+	/// Returns the name.
+	const QString &name() const { return name_; }
+	/// Returns the position.
+	double position() const { return position_; }
+
+signals:
+	/// Notifier that the name has changed.
+	void nameChanged(const QString &);
+	/// Notifier that the position has changed.
+	void positionChanged(double);
+
+public slots:
+	/// Sets the name of the element.
+	void setName(const QString &newName);
+	/// Sets the position of the element.
+	void setPosition(double newPosition);
+
+protected:
+	/// The name of the wheel element.
+	QString name_;
+	/// The position of this element.
+	double position_;
+};
+
 /// This class encapsulates a reference wheel and provides a means of interacting with it using it's concept rather than the raw control.
 class CLSStandardsWheel : public QObject
 {
@@ -23,11 +58,11 @@ public slots:
 	void moveToIndex(int index);
 
 protected:
-	/// Returns degrees for a given index.
-	double indexToDegrees(int index) const;
-
 	/// The control that moves the motor.
 	CLSMAXvMotor *wheel_;
+
+	/// The list of elements for this wheel.
+	QList<CLSStandardsWheelElement *> wheelElements_;
 };
 
 #endif // CLSSTANDARDSWHEEL_H
