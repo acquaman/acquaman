@@ -79,10 +79,10 @@ CLSSIS3820ScalerControlsView::CLSSIS3820ScalerControlsView(CLSSIS3820Scaler *sca
 
 	connect(startButton_, SIGNAL(clicked()), this, SLOT(startScanning()));
 	connect(stopButton_, SIGNAL(clicked()), this, SLOT(stopScanning()));
-	connect(modeChoice_, SIGNAL(currentIndexChanged(int)), this, SLOT(setContinuous(int)));
-	connect(time_, SIGNAL(editingFinished()), this, SLOT(setTime()));
+	connect(modeChoice_, SIGNAL(currentIndexChanged(int)), this, SLOT(setContinuous()));
+	connect(time_, SIGNAL(editingFinished()), this, SLOT(setDwellTime()));
 	connect(scansPerBuffer_, SIGNAL(editingFinished()), this, SLOT(setScansPerBuffer()));
-	connect(totalScans_, SIGNAL(editingFinished()), this, SLOT(setTotalNumberOfScans()));
+	connect(totalScans_, SIGNAL(editingFinished()), this, SLOT(setTotalScans()));
 
 	// Current settings.
 
@@ -99,11 +99,7 @@ void CLSSIS3820ScalerControlsView::setScaler(CLSSIS3820Scaler *newScaler)
 	if (scaler_ != newScaler) {
 
 		if (scaler_) {
-			disconnect(scaler_, SIGNAL(scanningChanged(bool)), this, SLOT(onScanningChanged()) );
-			disconnect(scaler_, SIGNAL(continuousChanged(bool)), this, SLOT(onContinuousChanged()));
-			disconnect(scaler_, SIGNAL(dwellTimeChanged(double)), this, SLOT(onDwellTimeChanged()));
-			disconnect(scaler_, SIGNAL(scansPerBufferChanged(int)), this, SLOT(onScansPerBufferChanged()));
-			disconnect(scaler_, SIGNAL(totalScansChanged(int)), this, SLOT(onTotalScansChanged()));
+			disconnect( scaler_, 0, this, 0 );
 		}
 
 		scaler_ = newScaler;
@@ -136,10 +132,12 @@ void CLSSIS3820ScalerControlsView::stopScanning()
 		scaler_->setScanning(false);
 }
 
-void CLSSIS3820ScalerControlsView::setContinuous(int index)
+void CLSSIS3820ScalerControlsView::setContinuous()
 {
 	if (scaler_) {
 		scaler_->blockSignals(true);
+
+		int index = modeChoice_->currentIndex();
 
 		if (index == 1 && !scaler_->isContinuous())
 			scaler_->setContinuous(true);
@@ -151,12 +149,12 @@ void CLSSIS3820ScalerControlsView::setContinuous(int index)
 	}
 }
 
-void CLSSIS3820ScalerControlsView::setDwellTime(int msDwell)
+void CLSSIS3820ScalerControlsView::setDwellTime()
 {
 	if (scaler_) {
 		scaler_->blockSignals(true);
 
-		double secondsDwell = (double)msDwell / MILLISECONDS_PER_SECOND;
+		double secondsDwell = (double)time_->value() / MILLISECONDS_PER_SECOND;
 
 		if (secondsDwell != scaler_->dwellTime())
 			scaler_->setDwellTime(secondsDwell);
@@ -165,10 +163,12 @@ void CLSSIS3820ScalerControlsView::setDwellTime(int msDwell)
 	}
 }
 
-void CLSSIS3820ScalerControlsView::setScansPerBuffer(int newValue)
+void CLSSIS3820ScalerControlsView::setScansPerBuffer()
 {
 	if (scaler_) {
 		scaler_->blockSignals(true);
+
+		int newValue = scansPerBuffer_->value();
 
 		if (newValue != scaler_->scansPerBuffer())
 			scaler_->setScansPerBuffer(newValue);
@@ -177,10 +177,12 @@ void CLSSIS3820ScalerControlsView::setScansPerBuffer(int newValue)
 	}
 }
 
-void CLSSIS3820ScalerControlsView::setTotalScans(int newValue)
+void CLSSIS3820ScalerControlsView::setTotalScans()
 {
 	if (scaler_) {
 		scaler_->blockSignals(true);
+
+		int newValue = totalScans_->value();
 
 		if (newValue != scaler_->totalScans())
 			scaler_->setTotalScans(newValue);

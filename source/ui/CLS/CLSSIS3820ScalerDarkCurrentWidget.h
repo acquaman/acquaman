@@ -22,7 +22,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef CLSSIS3820SCALERDARKCURRENTWIDGET_H
 #define CLSSIS3820SCALERDARKCURRENTWIDGET_H
 
-#include <QGroupBox>
+#include <QWidget>
 #include <QPushButton>
 #include <QLayout>
 #include <QDebug>
@@ -38,7 +38,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define MILLISECONDS_PER_SECOND 1000
 
 /// This is a class that allows a user to manually instigate the chain of events leading to a dark current correction measurement.
-class CLSSIS3820ScalerDarkCurrentWidget : public QGroupBox
+class CLSSIS3820ScalerDarkCurrentWidget : public QWidget
 {
     Q_OBJECT
 

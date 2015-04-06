@@ -35,14 +35,14 @@ protected slots:
 	void startScanning();
 	/// Stops a scan.
 	void stopScanning();
-	/// Sets the scaler scan mode.
-	void setContinuous(int index);
-	/// Sets the scaler dwell time.
-	void setDwellTime(int newTime);
-	/// Sets the scaler's number of scans per buffer.
-	void setScansPerBuffer(int newValue);
-	/// Sets the scaler's total number of scans.
-	void setTotalScans(int newValue);
+	/// Sets the scaler scan mode, using the view input.
+	void setContinuous();
+	/// Sets the scaler dwell time, using the view input.
+	void setDwellTime();
+	/// Sets the scaler's number of scans per buffer, using the view input.
+	void setScansPerBuffer();
+	/// Sets the scaler's total number of scans, using the view input.
+	void setTotalScans();
 
 	/// Handles updating the start and stop buttons' enabled state and the scanning status LED, in response to the scaler's scanning status changed.
 	void onScanningChanged();

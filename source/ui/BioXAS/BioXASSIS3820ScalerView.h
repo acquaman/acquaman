@@ -3,9 +3,9 @@
 
 #include <QWidget>
 #include <QGroupBox>
+#include <QCheckBox>
 
 #include "beamline/CLS/CLSSIS3820Scaler.h"
-#include "ui/CLS/CLSSIS3820ScalerControlsView.h"
 
 class BioXASSIS3820ScalerView : public QWidget
 {
@@ -13,7 +13,7 @@ class BioXASSIS3820ScalerView : public QWidget
 
 public:
 	/// Constructor.
-	explicit BioXASSIS3820ScalerView(CLSSIS3820Scaler *scaler, QWidget *parent = 0);
+	explicit BioXASSIS3820ScalerView(CLSSIS3820Scaler *scaler, bool showOptions = false, QWidget *parent = 0);
 	/// Destructor.
 	virtual ~BioXASSIS3820ScalerView();
 	/// Returns the scaler being viewed.
@@ -22,20 +22,25 @@ public:
 signals:
 
 public slots:
-
-protected slots:
-	/// Handles showing or hiding the scaler channels view, in response to a change in the scaler's connection state.
-	void onScalerConnectedChanged();
+	/// Sets whether the scaler view options are shown.
+	void showOptions(bool shown);
+	/// Sets whether the scaler channel views are shown.
+	void showChannelViews(bool shown);
+	/// Sets whether the dark current widget is shown.
+	void showDarkCurrentWidget(bool shown);
 
 protected:
 	/// The scaler being viewed.
 	CLSSIS3820Scaler *scaler_;
 
 	/// The scaler controls view.
-	CLSSIS3820ScalerControlsView *controlsView_;
+	QGroupBox *controlsBox_;
+	/// The scaler view options.
+	QGroupBox *optionsBox_;
 	/// The scaler channels view.
-	QGroupBox *channelsView_;
-
+	QGroupBox *channelsBox_;
+	/// The scaler dark current widget.
+	QGroupBox *darkCurrentBox_;
 };
 
 #endif // BIOXASSIS3820SCALERVIEW_H

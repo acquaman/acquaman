@@ -124,7 +124,7 @@ void BioXASMainAppController::onScalerConnected()
 
     if (scaler && scaler->isConnected() && !scalerView_) {
 
-	    scalerView_ = new BioXASSIS3820ScalerView(scaler);
+	    scalerView_ = new BioXASSIS3820ScalerView(scaler, true);
 
 	    QHBoxLayout *horizontalLayout = new QHBoxLayout();
 	    horizontalLayout->addStretch();
@@ -234,6 +234,7 @@ void BioXASMainAppController::setupUserInterface()
 
 	// Create persistent view panel and add to right side.
 	persistentPanel_ = new BioXASMainPersistentView();
+	persistentPanel_->setFixedWidth(320);
 	mw_->addRightWidget(persistentPanel_);
 }
 
