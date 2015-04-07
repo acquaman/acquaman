@@ -1,0 +1,93 @@
+
+DESTDIR = build
+
+include ( $$PATH_TO_AM/acquamanCommon.pri )
+
+HEADERS *=\
+	source/beamline/CLS/CLSFacilityID.h \
+	source/beamline/CLS/CLSBeamline.h \
+	source/dataman/SGM/SGM2004FileLoader.h \
+	source/dataman/SGM/SGM2010FastFileLoader.h \
+	source/dataman/SGM/SGMMCPDetectorInfo.h \
+	source/dataman/info/CLSPGTDetectorInfo.h \
+	source/dataman/info/CLSOceanOptics65000DetectorInfo.h \
+	source/dataman/SGM/SGM2011XASFileLoader.h \
+	source/beamline/CLS/CLSMAXvMotor.h \
+	source/beamline/CLS/CLSSynchronizedDwellTime.h \
+	source/ui/CLS/CLSSynchronizedDwellTimeView.h \
+	source/dataman/VESPERS/VESPERSXASDataLoader.h \
+	source/beamline/CLS/CLSBiStateControl.h \
+	source/beamline/CLS/CLSMDriveMotorControl.h \
+	source/beamline/CLS/CLSVariableIntegrationTime.h \
+	source/beamline/CLS/CLSOMS58Motor.h \
+	source/beamline/CLS/CLSSIS3820Scaler.h \
+	source/ui/CLS/CLSSIS3820ScalerView.h \
+	source/dataman/info/CLSAmptekSDD123DetectorInfo.h \
+	source/dataman/REIXS/REIXSXESCalibration2.h \
+	source/beamline/CLS/CLSAmptekSDD123DetectorNew.h \
+	source/beamline/CLS/CLSBasicScalerChannelDetector.h \
+	source/beamline/CLS/CLSPGTDetectorV2.h \
+	source/beamline/CLS/CLSQE65000Detector.h \
+	source/beamline/CLS/CLSAdvancedScalerChannelDetector.h \
+	source/dataman/info/CLSSynchronizedDwellTimeConfigurationInfo.h \
+	source/beamline/CLS/CLSSynchronizedDwellTimeConfiguration.h \
+	source/ui/CLS/CLSPseudoMotorGroupView.h \
+	source/beamline/CLS/CLSPseudoMotorGroup.h \
+	source/ui/CLS/CLSPGTDetectorV2View.h \
+	source/ui/CLS/CLSAmptekSDD123DetectorNewView.h \
+	source/dataman/export/SGM/SGMAxis2000Exporter.h \
+	source/ui/CLS/CLSAmptekSDD123DetailedDetectorView.h \
+	source/ui/CLS/CLSSIS3820CompositeScalerChannelView.h \
+	source/beamline/CLS/CLSBasicCompositeScalerChannelDetector.h \
+	source/ui/CLS/CLSSIS3820ScalerChannelViewWithDarkCurrent.h \
+	source/beamline/CLS/CLSPseudoMotorControl.h \
+	source/beamline/CLS/CLSKeithley428.h \
+	source/beamline/CLS/CLSStorageRing.h \
+	source/beamline/CLS/CLSSR570.h \
+	source/actions3/actions/CLSSIS3820ScalerDarkCurrentMeasurementAction.h \
+	source/actions3/actions/CLSSIS3820ScalerDarkCurrentMeasurementActionInfo.h \
+	source/ui/CLS/CLSSIS3820ScalerDarkCurrentWidget.h
+
+SOURCES *= \
+	source/beamline/CLS/CLSBeamline.cpp \
+	source/dataman/SGM/SGM2004FileLoader.cpp \
+	source/dataman/SGM/SGM2010FastFileLoader.cpp \
+	source/dataman/REIXS/REIXSXESRawFileLoader.cpp \
+	source/dataman/SGM/SGMMCPDetectorInfo.cpp \
+	source/dataman/info/CLSPGTDetectorInfo.cpp \
+	source/dataman/info/CLSOceanOptics65000DetectorInfo.cpp \
+	source/dataman/SGM/SGM2011XASFileLoader.cpp \
+	source/beamline/CLS/CLSMAXvMotor.cpp \
+	source/beamline/CLS/CLSSynchronizedDwellTime.cpp \
+	source/ui/CLS/CLSSynchronizedDwellTimeView.cpp \
+	source/dataman/VESPERS/VESPERSXASDataLoader.cpp \
+	source/beamline/CLS/CLSBiStateControl.cpp \
+	source/beamline/CLS/CLSMDriveMotorControl.cpp \
+	source/beamline/CLS/CLSVariableIntegrationTime.cpp \
+	source/beamline/CLS/CLSSIS3820Scaler.cpp \
+	source/ui/CLS/CLSSIS3820ScalerView.cpp \
+	source/dataman/info/CLSAmptekSDD123DetectorInfo.cpp \
+	source/dataman/REIXS/REIXSXESCalibration2.cpp \
+	source/beamline/CLS/CLSAmptekSDD123DetectorNew.cpp \
+	source/beamline/CLS/CLSBasicScalerChannelDetector.cpp \
+	source/beamline/CLS/CLSPGTDetectorV2.cpp \
+	source/beamline/CLS/CLSQE65000Detector.cpp \
+	source/beamline/CLS/CLSAdvancedScalerChannelDetector.cpp \
+	source/dataman/info/CLSSynchronizedDwellTimeConfigurationInfo.cpp \
+	source/beamline/CLS/CLSSynchronizedDwellTimeConfiguration.cpp \
+	source/ui/CLS/CLSPseudoMotorGroupView.cpp \
+	source/beamline/CLS/CLSPseudoMotorGroup.cpp \
+	source/ui/CLS/CLSPGTDetectorV2View.cpp \
+	source/ui/CLS/CLSAmptekSDD123DetectorNewView.cpp \
+	source/dataman/export/SGM/SGMAxis2000Exporter.cpp \
+	source/ui/CLS/CLSAmptekSDD123DetailedDetectorView.cpp \
+	source/ui/CLS/CLSSIS3820CompositeScalerChannelView.cpp \
+	source/beamline/CLS/CLSBasicCompositeScalerChannelDetector.cpp \
+	source/ui/CLS/CLSSIS3820ScalerChannelViewWithDarkCurrent.cpp \
+	source/beamline/CLS/CLSPseudoMotorControl.cpp \
+	source/beamline/CLS/CLSKeithley428.cpp \
+	source/beamline/CLS/CLSStorageRing.cpp \
+	source/beamline/CLS/CLSSR570.cpp \
+	source/actions3/actions/CLSSIS3820ScalerDarkCurrentMeasurementAction.cpp \
+	source/actions3/actions/CLSSIS3820ScalerDarkCurrentMeasurementActionInfo.cpp \
+	source/ui/CLS/CLSSIS3820ScalerDarkCurrentWidget.cpp

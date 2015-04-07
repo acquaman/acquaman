@@ -1,4 +1,6 @@
-include ( acquamanCommon.pri )
+
+include ( $$PATH_TO_AM/clsCompositeCommon/CLSAcquamanCommon.pri )
+
 include ( bioxasCommon.pri )
 include ( bioxasSideCommon.pri )
 

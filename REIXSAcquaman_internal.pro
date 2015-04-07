@@ -1,5 +1,4 @@
-include ( acquamanCommon.pri )
-
+include ( $$PATH_TO_AM/clsCompositeCommon/CLSAcquamanCommon.pri )
 include ( $$PATH_TO_AM/compositeCommon/AMGSL.pri )
 
 TARGET = REIXSAcquaman
