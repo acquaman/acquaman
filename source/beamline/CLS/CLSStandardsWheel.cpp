@@ -41,9 +41,17 @@ CLSStandardsWheel::CLSStandardsWheel(const QString &name, const QString &basePVN
 	: QObject(parent)
 {
 	wheel_ = new CLSMAXvMotor(name, basePVName, name, true, 0.1, 2.0, this, ":deg");
+	elementMapper_ = new QSignalMapper;
 
-	for (int i = 0; i < 12; i++)
-		wheelElements_ << new CLSStandardsWheelElement(QString("%1").arg(i+1), i*30.0, this);
+	for (int i = 0; i < 12; i++){
+
+		CLSStandardsWheelElement *element = new CLSStandardsWheelElement(QString("%1").arg(i+1), i*30.0, this);
+		wheelElements_ << element;
+		elementMapper_->setMapping(element, i);
+		connect(element, SIGNAL(nameChanged(QString)), elementMapper_, SLOT(map()));
+	}
+
+	connect(elementMapper_, SIGNAL(mapped(int)), this, SLOT(onMappedElementChanged(int)));
 }
 
 CLSStandardsWheel::~CLSStandardsWheel()
@@ -60,4 +68,9 @@ void CLSStandardsWheel::moveToIndex(int index)
 void CLSStandardsWheel::setName(int index, const QString &newName)
 {
 	wheelElements_.at(index)->setName(newName);
+}
+
+void CLSStandardsWheel::onMappedElementChanged(int id)
+{
+	emit nameChanged(id, wheelElements_.at(id)->name());
 }

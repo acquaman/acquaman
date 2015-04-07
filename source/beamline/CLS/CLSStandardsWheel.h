@@ -5,6 +5,8 @@
 
 #include "beamline/CLS/CLSMAXvMotor.h"
 
+#include <QSignalMapper>
+
 /// This is a wheel element.  For the time being it only holds the name and position on the wheel.
 class CLSStandardsWheelElement : public QObject
 {
@@ -60,6 +62,8 @@ public:
 	CLSStandardsWheelElement *wheelElementAt(int index) const { return wheelElements_.at(index); }
 
 signals:
+	/// Notifier that the name changed for the given element.
+	void nameChanged(int, const QString &);
 
 public slots:
 	/// Sets the name of a given element.
@@ -68,12 +72,19 @@ public slots:
 	/// Moves the wheel to the specified index.
 	void moveToIndex(int index);
 
+protected slots:
+	/// Handles emitting signals based on the mapping.
+	void onMappedElementChanged(int id);
+
 protected:
 	/// The control that moves the motor.
 	CLSMAXvMotor *wheel_;
 
 	/// The list of elements for this wheel.
 	QList<CLSStandardsWheelElement *> wheelElements_;
+
+	/// Signal mapper to make sure that the pieces of the information buried in the elements gets properly passed to other objects.
+	QSignalMapper *elementMapper_;
 };
 
 #endif // CLSSTANDARDSWHEEL_H

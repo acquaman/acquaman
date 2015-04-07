@@ -40,12 +40,13 @@ BioXASSidePersistentView::BioXASSidePersistentView(QWidget *parent) :
 	braggControlEditor_ = new AMExtendedControlEditor(BioXASSideBeamline::bioXAS()->mono()->braggMotor());
 	braggControlEditor_->setTitle("Bragg motor position");
 
-	QComboBox *standardsComboBox = new QComboBox;
+	standardsComboBox_ = new QComboBox;
 
 	foreach (CLSStandardsWheelElement *element, BioXASSideBeamline::bioXAS()->standardsWheel()->wheelElements())
-		standardsComboBox->addItem(element->name());
+		standardsComboBox_->addItem(element->name());
 
-	connect(standardsComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(onStandardsWheelIndexChanged(int)));
+	connect(standardsComboBox_, SIGNAL(currentIndexChanged(int)), this, SLOT(onStandardsWheelIndexChanged(int)));
+	connect(BioXASSideBeamline::bioXAS()->standardsWheel(), SIGNAL(nameChanged(int,QString)), this, SLOT(onStandardsWheelNameChanged(int,QString)));
 
 	// Create and set layouts.
 
@@ -53,7 +54,7 @@ BioXASSidePersistentView::BioXASSidePersistentView(QWidget *parent) :
 	layout->addWidget(energyControlEditor_);
 	layout->addWidget(regionControlEditor_);
 	layout->addWidget(braggControlEditor_);
-	layout->addWidget(standardsComboBox);
+	layout->addWidget(standardsComboBox_);
 	layout->addStretch();
 
 	setLayout(layout);
@@ -68,4 +69,9 @@ BioXASSidePersistentView::~BioXASSidePersistentView()
 void BioXASSidePersistentView::onStandardsWheelIndexChanged(int index)
 {
 	BioXASSideBeamline::bioXAS()->standardsWheel()->moveToIndex(index);
+}
+
+void BioXASSidePersistentView::onStandardsWheelNameChanged(int index, const QString &newName)
+{
+	standardsComboBox_->setItemText(index, newName);
 }

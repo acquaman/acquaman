@@ -47,6 +47,8 @@ public slots:
 protected slots:
 	/// Test slot for the standards wheel.
 	void onStandardsWheelIndexChanged(int index);
+	/// Handles updating the standards wheel names.
+	void onStandardsWheelNameChanged(int index, const QString &newName);
 
 protected:
 	/// Editor for the mono's energy.
@@ -55,6 +57,8 @@ protected:
 	BioXASSSRLMonochromatorRegionControlEditor *regionControlEditor_;
 	/// Editor for the mono's bragg motor angle.
 	AMExtendedControlEditor *braggControlEditor_;
+	/// Combo box for the standards wheel.
+	QComboBox *standardsComboBox_;
 };
 
 #endif // BIOXASSIDEPERSISTENTVIEW_H
