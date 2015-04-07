@@ -30,23 +30,13 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 // CLSSIS3820ScalerView
 ///////////////////////////////////////////////
 
-CLSSIS3820ScalerView::CLSSIS3820ScalerView(CLSSIS3820Scaler *scaler, bool enableDarkCurrentCorrection, QWidget *parent) :
+CLSSIS3820ScalerView::CLSSIS3820ScalerView(CLSSIS3820Scaler *scaler, QWidget *parent) :
 	QWidget(parent)
 {
 	scaler_ = scaler;
 
-	enableDarkCurrentCorrection_ = enableDarkCurrentCorrection;
-
+	// Build the top scaler controls.
 	controlsView_ = new CLSSIS3820ScalerControlsView(scaler_);
-
-	// Dark current widget
-	CLSSIS3820ScalerDarkCurrentWidget *darkCurrentWidget = new CLSSIS3820ScalerDarkCurrentWidget(scaler_, this);
-	bool showDarkCurrentWidget = false;
-	darkCurrentWidget->hide();
-
-	QHBoxLayout *darkCurrentLayout = new QHBoxLayout();
-	darkCurrentLayout->addWidget(darkCurrentWidget);
-	darkCurrentLayout->addStretch();
 
 	// Build the channel views.
 	channelLayout_ = new QVBoxLayout;
@@ -54,37 +44,21 @@ CLSSIS3820ScalerView::CLSSIS3820ScalerView(CLSSIS3820Scaler *scaler, bool enable
 	mainVL_ = new QVBoxLayout();
 	mainVL_->addWidget(controlsView_);
 	mainVL_->addLayout(channelLayout_);
-	mainVL_->addStretch();
-	mainVL_->addLayout(darkCurrentLayout);
 
 	setLayout(mainVL_);
 
 	CLSSIS3820ScalerChannelView *channelView = 0;
 	int channelCount = scaler_->channels().count();
 
-	for (int i = 0; i < channelCount; i++){
-		CLSSIS3820ScalerChannel *channel = scaler_->channelAt(i);
-
-	if (!showDarkCurrentWidget && channel && channel->detector() && channel->detector()->canDoDarkCurrentCorrection() && enableDarkCurrentCorrection_)
-            showDarkCurrentWidget = true;
-
-		if(channel->detector() && channel->detector()->canDoDarkCurrentCorrection() && enableDarkCurrentCorrection_)
-			channelView = new CLSSIS3820ScalerChannelViewWithDarkCurrent(channel);
-		else
-			channelView = new CLSSIS3820ScalerChannelView(scaler_->channelAt(i));
-
+	for (int i = 0; i < channelCount; i++) {
+		channelView = new CLSSIS3820ScalerChannelView(scaler_->channelAt(i));
 		channelViews_ << channelView;
+
 		connect(channelView, SIGNAL(amplifierViewModeChanged(AMCurrentAmplifierView::ViewMode)), this, SLOT(onAmplifierViewChanged(AMCurrentAmplifierView::ViewMode)));
 		connect(channelView, SIGNAL(outputViewModeChanged(CLSSIS3820ScalerChannelView::OutputViewMode)), this, SLOT(onOutputViewModeChanged(CLSSIS3820ScalerChannelView::OutputViewMode)));
 
 		channelLayout_->addWidget(channelView);
 		channelView->setVisible(!scaler_->channelAt(i)->customChannelName().isEmpty());
-	}
-
-
-	// if one of the detectors associated with a channel can perform dark current correction, show the 'do dark current' widget.
-	if (showDarkCurrentWidget) {
-		darkCurrentWidget->show();
 	}
 }
 
@@ -108,11 +82,6 @@ void CLSSIS3820ScalerView::onOutputViewModeChanged(CLSSIS3820ScalerChannelView::
 		channel->setOutputViewMode(mode);
 		channel->blockSignals(false);
 	}
-}
-
-bool CLSSIS3820ScalerView::darkCurrentCorrectionEnabled() const
-{
-	return enableDarkCurrentCorrection_;
 }
 
 void CLSSIS3820ScalerView::setAmplifierViewPrecision(int newPrecision)

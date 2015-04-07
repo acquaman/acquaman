@@ -112,7 +112,7 @@ void BioXASSideAppController::shutdown()
 void BioXASSideAppController::onScalerConnected()
 {
 	if (BioXASSideBeamline::bioXAS()->scaler()->isConnected() && !scalerView_) {
-		scalerView_ = new CLSSIS3820ScalerView(BioXASSideBeamline::bioXAS()->scaler(), false);
+		scalerView_ = new CLSSIS3820ScalerView(BioXASSideBeamline::bioXAS()->scaler());
 
 		mw_->addPane(scalerView_, "Detectors", "Scaler", ":/system-search.png", true);
 	}

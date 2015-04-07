@@ -122,11 +122,8 @@ Q_OBJECT
 
 public:
 	/// Constructor.  Takes a scalar object.
-	CLSSIS3820ScalerView(CLSSIS3820Scaler *scaler, bool enableDarkCurrentCorrection = true, QWidget *parent = 0);
+	CLSSIS3820ScalerView(CLSSIS3820Scaler *scaler, QWidget *parent = 0);
 	virtual ~CLSSIS3820ScalerView();
-
-	/// Returns whether or not dark current correction views are enabled
-	bool darkCurrentCorrectionEnabled() const;
 
 	/// Sets the precision for the composite view.
 	void setAmplifierViewPrecision(int newPrecision);
@@ -147,9 +144,6 @@ protected:
 	CLSSIS3820ScalerControlsView *controlsView_;
 	/// Holds all of the individual channel views.
 	QList<CLSSIS3820ScalerChannelView *> channelViews_;
-
-	/// Option to enable to disable dark current correction views (enabled by default)
-	bool enableDarkCurrentCorrection_;
 
 	/// A layout for all of the channel views
 	QVBoxLayout *channelLayout_;
