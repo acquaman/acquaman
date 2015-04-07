@@ -3,14 +3,14 @@
 #include "ui/beamline/AMExtendedControlEditor.h"
 #include "ui/CLS/CLSSIS3820ScalerView.h"
 
-BioXASSIS3820ScalerChannelView::BioXASSIS3820ScalerChannelView(CLSSIS3820ScalerChannel *channel, bool biasEnabledShown, bool biasShown, bool darkCurrentShown, QWidget *parent) :
+BioXASSIS3820ScalerChannelView::BioXASSIS3820ScalerChannelView(CLSSIS3820ScalerChannel *channel, bool biasEnabledVisible, bool biasVisible, bool darkCurrentVisible, QWidget *parent) :
 	CLSSIS3820ScalerChannelView(channel, parent)
 {
 	// Initialize member variables.
 
-	biasEnabledShown_ = false;
-	biasShown_ = false;
-	darkCurrentShown_ = false;
+	biasEnabledVisible_ = false;
+	biasVisible_ = false;
+	darkCurrentVisible_ = false;
 
 	biasEnabledEditor_ = 0;
 	biasEditor_ = 0;
@@ -83,9 +83,9 @@ BioXASSIS3820ScalerChannelView::BioXASSIS3820ScalerChannelView(CLSSIS3820ScalerC
 
 	// Current settings.
 
-	setBiasEnabledEditorShown(biasEnabledShown);
-	setBiasEditorShown(biasShown);
-	setDarkCurrentShown(darkCurrentShown);
+	setBiasEnabledEditorVisible(biasEnabledVisible);
+	setBiasEditorVisible(biasVisible);
+	setDarkCurrentVisible(darkCurrentVisible);
 
 	if (channel_ && channel_->detector()) {
 		setDarkCurrentValue(channel_->detector()->darkCurrentValue());
@@ -98,36 +98,32 @@ BioXASSIS3820ScalerChannelView::~BioXASSIS3820ScalerChannelView()
 
 }
 
-void BioXASSIS3820ScalerChannelView::setBiasEnabledEditorShown(bool shown)
+void BioXASSIS3820ScalerChannelView::setBiasEnabledEditorVisible(bool isVisible)
 {
 	// if the scaler channel given in the constructor is invalid or doesn't have a Keithley amplifier,
 	// then the bias enabled editor will never have been instantiated. Must check whether it's possible
-	// to show the editor, as well as whether the 'shown' arg is different than the current state.
+	// to show the editor, as well as whether the 'isVisible' arg is different than the current state.
 
-	if (biasEnabledEditor_ && biasEnabledShown_ != shown) {
-		biasEnabledEditor_->setShown(biasEnabledShown_ = shown);
+	if (biasEnabledEditor_ && biasEnabledVisible_ != isVisible) {
+		biasEnabledEditor_->setVisible(biasEnabledVisible_ = isVisible);
 	}
 }
 
-void BioXASSIS3820ScalerChannelView::setBiasEditorShown(bool shown)
+void BioXASSIS3820ScalerChannelView::setBiasEditorVisible(bool isVisible)
 {
 	// if the scaler channel given in the constructor is invalid or doesn't have a Keithley amplifier,
 	// then the bias editor will never have been instantiated. Must check whether it's possible
-	// to show the editor, as well as whether the 'shown' arg is different than the current state.
+	// to show the editor, as well as whether the 'isVisible' arg is different than the current state.
 
-	if (biasEditor_ && biasShown_ != shown) {
-		biasEditor_->setShown(biasShown_ = shown);
+	if (biasEditor_ && biasVisible_ != isVisible) {
+		biasEditor_->setVisible(biasVisible_ = isVisible);
 	}
 }
 
-void BioXASSIS3820ScalerChannelView::setDarkCurrentShown(bool shown)
+void BioXASSIS3820ScalerChannelView::setDarkCurrentVisible(bool isVisible)
 {
-	// if the scaler channel given in the constructor is invalid or doesn't have a Keithley amplifier,
-	// then the dark current display will never have been instantiated. Must check whether it's possible
-	// to show the display, as well as whether the 'shown' arg is different than the current state.
-
-	if (darkCurrentDisplay_ && darkCurrentShown_ != shown) {
-		darkCurrentDisplay_->setShown(darkCurrentShown_ = shown);
+	if (darkCurrentDisplay_ && darkCurrentVisible_ != isVisible) {
+		darkCurrentDisplay_->setVisible(darkCurrentVisible_ = isVisible);
 	}
 }
 

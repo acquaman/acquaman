@@ -23,11 +23,11 @@ signals:
 
 public slots:
 	/// Sets whether the scaler view options are shown.
-	void showOptions(bool shown);
+	void setOptionsVisible(bool isVisible);
 	/// Sets whether the scaler channel views are shown.
-	void showChannelViews(bool shown);
+	void setChannelViewsVisible(bool isVisible);
 	/// Sets whether the dark current widget is shown.
-	void showDarkCurrentWidget(bool shown);
+	void setDarkCurrentVisible(bool isVisible);
 
 protected:
 	/// The scaler being viewed.

@@ -15,25 +15,25 @@ class BioXASSIS3820ScalerChannelView : public CLSSIS3820ScalerChannelView
 
 public:
 	/// Constructor.
-	explicit BioXASSIS3820ScalerChannelView(CLSSIS3820ScalerChannel *channel, bool biasEnabledShown = false, bool biasShown = false, bool darkCurrentShown = false, QWidget *parent = 0);
+	explicit BioXASSIS3820ScalerChannelView(CLSSIS3820ScalerChannel *channel, bool biasEnabledVisible = false, bool biasVisible = false, bool darkCurrentVisible = false, QWidget *parent = 0);
 	/// Destructor.
 	virtual ~BioXASSIS3820ScalerChannelView();
 	/// Returns the channel being viewed.
 	CLSSIS3820ScalerChannel* channel() const { return channel_; }
 	/// Returns whether the bias enabled editor is shown.
-	bool biasEnabledShown() const { return biasEnabledShown_; }
+	bool biasEnabledVisible() const { return biasEnabledVisible_; }
 	/// Returns whether the bias editor is shown.
-	bool biasShown() const { return biasShown_; }
+	bool biasVisible() const { return biasVisible_; }
 	/// Returns whether the dark current is shown.
-	bool darkCurrentShown() const { return darkCurrentShown_; }
+	bool darkCurrentVisible() const { return darkCurrentVisible_; }
 
 public slots:
 	/// Sets whether the bias enabled editor is shown.
-	void setBiasEnabledEditorShown(bool shown);
+	void setBiasEnabledEditorVisible(bool isVisible);
 	/// Sets whether the bias editor is shown.
-	void setBiasEditorShown(bool shown);
+	void setBiasEditorVisible(bool isVisible);
 	/// Sets whether the dark current is shown.
-	void setDarkCurrentShown(bool shown);
+	void setDarkCurrentVisible(bool isVisible);
 	/// Sets the value of the dark current display.
 	void setDarkCurrentValue(double newValue);
 	/// Sets whether the dark current displayed is valid (black) or invalid (red).
@@ -41,11 +41,11 @@ public slots:
 
 protected:
 	/// Bool indicating whether the bias enabled editor should be shown.
-	bool biasEnabledShown_;
+	bool biasEnabledVisible_;
 	/// Bool indicating whether the bias editor should be shown.
-	bool biasShown_;
+	bool biasVisible_;
 	/// Bool indicating whether the dark current value should be shown.
-	bool darkCurrentShown_;
+	bool darkCurrentVisible_;
 
 	/// The bias enabled editor.
 	AMExtendedControlEditor *biasEnabledEditor_;

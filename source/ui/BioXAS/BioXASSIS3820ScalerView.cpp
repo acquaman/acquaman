@@ -3,7 +3,7 @@
 #include "ui/BioXAS/BioXASSIS3820ScalerChannelsView.h"
 #include "ui/CLS/CLSSIS3820ScalerDarkCurrentWidget.h"
 
-BioXASSIS3820ScalerView::BioXASSIS3820ScalerView(CLSSIS3820Scaler *scaler, bool optionsShown, QWidget *parent) :
+BioXASSIS3820ScalerView::BioXASSIS3820ScalerView(CLSSIS3820Scaler *scaler, bool optionsVisible, QWidget *parent) :
     QWidget(parent)
 {
 	// Initialize member variables.
@@ -17,9 +17,9 @@ BioXASSIS3820ScalerView::BioXASSIS3820ScalerView(CLSSIS3820Scaler *scaler, bool 
 	controlsBox_ = new QGroupBox();
 	controlsBox_->setTitle("Controls");
 
-	QCheckBox *biasEnabledShown = new QCheckBox("Bias voltage enabled");
-	QCheckBox *biasShown = new QCheckBox("Bias voltage");
-	QCheckBox *darkCurrentShown = new QCheckBox("Dark current");
+	QCheckBox *biasEnabledVisible = new QCheckBox("Bias voltage enabled");
+	QCheckBox *biasVisible = new QCheckBox("Bias voltage");
+	QCheckBox *darkCurrentVisible = new QCheckBox("Dark current");
 
 	optionsBox_ = new QGroupBox();
 	optionsBox_->setTitle("Options");
@@ -45,9 +45,9 @@ BioXASSIS3820ScalerView::BioXASSIS3820ScalerView(CLSSIS3820Scaler *scaler, bool 
 
 	QHBoxLayout *optionsLayout = new QHBoxLayout();
 	optionsLayout->addStretch();
-	optionsLayout->addWidget(biasEnabledShown);
-	optionsLayout->addWidget(biasShown);
-	optionsLayout->addWidget(darkCurrentShown);
+	optionsLayout->addWidget(biasEnabledVisible);
+	optionsLayout->addWidget(biasVisible);
+	optionsLayout->addWidget(darkCurrentVisible);
 	optionsLayout->addStretch();
 
 	optionsBox_->setLayout(optionsLayout);
@@ -74,9 +74,9 @@ BioXASSIS3820ScalerView::BioXASSIS3820ScalerView(CLSSIS3820Scaler *scaler, bool 
 
 	// Initial settings.
 
-	biasEnabledShown->setChecked(false);
-	biasShown->setChecked(false);
-	darkCurrentShown->setChecked(false);
+	biasEnabledVisible->setChecked(false);
+	biasVisible->setChecked(false);
+	darkCurrentVisible->setChecked(false);
 
 	optionsBox_->hide();
 	channelsBox_->hide();
@@ -84,26 +84,26 @@ BioXASSIS3820ScalerView::BioXASSIS3820ScalerView(CLSSIS3820Scaler *scaler, bool 
 
 	// Make connections.
 
-	connect( biasEnabledShown, SIGNAL(clicked(bool)), channelsView, SLOT(setBiasEnabledEditorShown(bool)) );
-	connect( biasShown, SIGNAL(clicked(bool)), channelsView, SLOT(setBiasEditorShown(bool)) );
-	connect( darkCurrentShown, SIGNAL(clicked(bool)), channelsView, SLOT(setDarkCurrentShown(bool)) );
-	connect( darkCurrentShown, SIGNAL(clicked(bool)), this, SLOT(showDarkCurrentWidget(bool)) );
+	connect( biasEnabledVisible, SIGNAL(clicked(bool)), channelsView, SLOT(setBiasEnabledEditorVisible(bool)) );
+	connect( biasVisible, SIGNAL(clicked(bool)), channelsView, SLOT(setBiasEditorVisible(bool)) );
+	connect( darkCurrentVisible, SIGNAL(clicked(bool)), channelsView, SLOT(setDarkCurrentVisible(bool)) );
+	connect( darkCurrentVisible, SIGNAL(clicked(bool)), this, SLOT(setDarkCurrentVisible(bool)) );
 
 	if (scaler_)
-		connect( scaler_, SIGNAL(connectedChanged(bool)), this, SLOT(showChannelViews(bool)) );
+		connect( scaler_, SIGNAL(connectedChanged(bool)), this, SLOT(setChannelViewsVisible(bool)) );
 
-	connect( channelsView, SIGNAL(biasEnabledEditorShownChanged(bool)), biasEnabledShown, SLOT(setChecked(bool)) );
-	connect( channelsView, SIGNAL(biasEditorShownChanged(bool)), biasShown, SLOT(setChecked(bool)) );
+	connect( channelsView, SIGNAL(biasEnabledEditorVisibleChanged(bool)), biasEnabledVisible, SLOT(setChecked(bool)) );
+	connect( channelsView, SIGNAL(biasEditorVisibleChanged(bool)), biasVisible, SLOT(setChecked(bool)) );
 
 	// Current settings.
 
-	biasEnabledShown->setChecked(channelsView->biasEnabledEditorShown());
-	biasShown->setChecked(channelsView->biasEditorShown());
-	darkCurrentShown->setChecked(channelsView->darkCurrentShown());
+	biasEnabledVisible->setChecked(channelsView->biasEnabledEditorVisible());
+	biasVisible->setChecked(channelsView->biasEditorVisible());
+	darkCurrentVisible->setChecked(channelsView->darkCurrentVisible());
 
-	showOptions(optionsShown);
+	setOptionsVisible(optionsVisible);
 
-	showChannelViews(true);
+	setChannelViewsVisible(true);
 }
 
 BioXASSIS3820ScalerView::~BioXASSIS3820ScalerView()
@@ -111,23 +111,23 @@ BioXASSIS3820ScalerView::~BioXASSIS3820ScalerView()
 
 }
 
-void BioXASSIS3820ScalerView::showOptions(bool shown)
+void BioXASSIS3820ScalerView::setOptionsVisible(bool isVisible)
 {
-	optionsBox_->setShown(shown);
+	optionsBox_->setVisible(isVisible);
 }
 
-void BioXASSIS3820ScalerView::showChannelViews(bool shown)
+void BioXASSIS3820ScalerView::setChannelViewsVisible(bool isVisible)
 {
-	if (scaler_ && scaler_->isConnected() && shown)
-		channelsBox_->setShown(true);
+	if (scaler_ && scaler_->isConnected() && isVisible)
+		channelsBox_->setVisible(true);
 	else
-		channelsBox_->setShown(false);
+		channelsBox_->setVisible(false);
 }
 
-void BioXASSIS3820ScalerView::showDarkCurrentWidget(bool shown)
+void BioXASSIS3820ScalerView::setDarkCurrentVisible(bool isVisible)
 {
-	if (scaler_ && shown)
-		darkCurrentBox_->setShown(true);
+	if (scaler_ && isVisible)
+		darkCurrentBox_->setVisible(true);
 	else
-		darkCurrentBox_->setShown(false);
+		darkCurrentBox_->setVisible(false);
 }
