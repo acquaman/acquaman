@@ -68,11 +68,11 @@ BioXASMainPersistentView::BioXASMainPersistentView(QWidget *parent) :
 
 	// Make connections.
 
-	connect( BioXASMainBeamline::bioXAS()->scaler(), SIGNAL(connectedChanged(bool)), this, SLOT(showScalerChannels(bool)) );
+	connect( BioXASMainBeamline::bioXAS()->scaler(), SIGNAL(connectedChanged(bool)), this, SLOT(setScalerChannelsVisible(bool)) );
 
 	// Current settings.
 
-	showScalerChannels(BioXASMainBeamline::bioXAS()->scaler()->isConnected());
+	setScalerChannelsVisible(BioXASMainBeamline::bioXAS()->scaler()->isConnected());
 }
 
 BioXASMainPersistentView::~BioXASMainPersistentView()
@@ -80,7 +80,7 @@ BioXASMainPersistentView::~BioXASMainPersistentView()
 
 }
 
-void BioXASMainPersistentView::showScalerChannels(bool show)
+void BioXASMainPersistentView::setScalerChannelsVisible(bool show)
 {
-	channelsView_->setShown(show);
+	channelsView_->setVisible(show);
 }

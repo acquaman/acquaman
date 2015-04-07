@@ -46,7 +46,7 @@ signals:
 
 public slots:
 	/// Sets the visibility of the scaler channels view.
-	void showScalerChannels(bool show);
+	void setScalerChannelsVisible(bool isVisible);
 
 protected:
 	/// Editor that selects the mono energy.
