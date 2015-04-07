@@ -52,6 +52,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/BioXAS/BioXAS32ElementGeDetectorView.h"
 #include "acquaman/BioXAS/BioXASXRFScanConfiguration.h"
 #include "ui/BioXAS/BioXASSSRLMonochromatorConfigurationView.h"
+#include "ui/CLS/CLSStandardsWheelConfigurationView.h"
 
 BioXASSideAppController::BioXASSideAppController(QObject *parent)
 	: AMAppController(parent)
@@ -94,7 +95,7 @@ bool BioXASSideAppController::startup()
 		setupExporterOptions();
 		setupUserInterface();
 		makeConnections();
-        applyCurrentSettings();
+		applyCurrentSettings();
 
 		return true;
 	}
@@ -198,9 +199,29 @@ void BioXASSideAppController::setupUserInterface()
 	// Create right side panel.
 	persistentPanel_ = new BioXASSidePersistentView();
 
+
 	// Add views to 'General'.
 	mw_->insertHeading("General", 0);
 	mw_->addPane(monoConfigView_, "General", "Monochromator", ":/system-software-update.png");
+
+	CLSStandardsWheelConfigurationView *wheelView = new CLSStandardsWheelConfigurationView(BioXASSideBeamline::bioXAS()->standardsWheel());
+
+	QHBoxLayout *horizontalWheelLayout = new QHBoxLayout();
+	horizontalWheelLayout->addStretch();
+	horizontalWheelLayout->addWidget(wheelView);
+	horizontalWheelLayout->addStretch();
+
+	QVBoxLayout *verticalWheelLayout = new QVBoxLayout();
+	verticalWheelLayout->addWidget(new AMTopFrame("Standards Wheel", QIcon(":/utilities-system-monitor.png")));
+	verticalWheelLayout->addStretch();
+	verticalWheelLayout->addLayout(horizontalWheelLayout);
+	verticalWheelLayout->addStretch();
+
+	QGroupBox *standardsWheelBox = new QGroupBox();
+	standardsWheelBox->setFlat(true);
+	standardsWheelBox->setLayout(verticalWheelLayout);
+
+	mw_->addPane(standardsWheelBox, "General", "Standards Wheel", ":/utilities-system-monitor.png");
 
 	// Add views to 'Detectors'.
 	mw_->insertHeading("Detectors", 1);
@@ -216,14 +237,14 @@ void BioXASSideAppController::setupUserInterface()
 
 void BioXASSideAppController::makeConnections()
 {
-    connect( BioXASSideBeamline::bioXAS()->scaler(), SIGNAL(connectedChanged(bool)), this, SLOT(onScalerConnected()) );
-    connect( BioXASSideBeamline::bioXAS(), SIGNAL(connected(bool)), this, SLOT(onBeamlineConnected()) );
+	connect( BioXASSideBeamline::bioXAS()->scaler(), SIGNAL(connectedChanged(bool)), this, SLOT(onScalerConnected()) );
+	connect( BioXASSideBeamline::bioXAS(), SIGNAL(connected(bool)), this, SLOT(onBeamlineConnected()) );
 }
 
 void BioXASSideAppController::applyCurrentSettings()
 {
-    onScalerConnected();
-    onBeamlineConnected();
+	onScalerConnected();
+	onBeamlineConnected();
 }
 
 void BioXASSideAppController::onCurrentScanActionStartedImplementation(AMScanAction *action)

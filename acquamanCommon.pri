@@ -450,7 +450,8 @@ HEADERS += \
     source/ui/CLS/CLSSIS3820ScalerDarkCurrentWidget.h \
     source/beamline/CLS/CLSBeamline.h \
     source/beamline/CLS/CLSFacilityID.h \
-    source/beamline/CLS/CLSStandardsWheel.h
+    source/beamline/CLS/CLSStandardsWheel.h \
+    source/ui/CLS/CLSStandardsWheelConfigurationView.h
 
 FORMS += \
 
@@ -862,7 +863,8 @@ SOURCES += \
     source/actions3/actions/CLSSIS3820ScalerDarkCurrentMeasurementActionInfo.cpp \
     source/ui/CLS/CLSSIS3820ScalerDarkCurrentWidget.cpp \
     source/beamline/CLS/CLSBeamline.cpp \
-    source/beamline/CLS/CLSStandardsWheel.cpp
+    source/beamline/CLS/CLSStandardsWheel.cpp \
+    source/ui/CLS/CLSStandardsWheelConfigurationView.cpp
 
 RESOURCES *= source/icons/icons.qrc \
 		source/configurationFiles/configurationFiles.qrc \
@@ -879,6 +881,8 @@ contains(DEFINES, AM_BUILD_REPORTER_ENABLED){
 
 	SOURCES *= source/util/AMRunTimeBuildInfo.cpp
 }
+
+
 
 
 
