@@ -363,7 +363,6 @@ HEADERS += \
 	source/actions3/actions/AMControlWaitActionInfo.h \
 	source/actions3/actions/AMControlWaitAction.h \
 	source/analysis/AM1DDarkCurrentCorrectionAB.h \
-	source/ui/CLS/CLSSIS3820ScalerChannelViewWithDarkCurrent.h \
 	source/analysis/AM1DDarkCurrentCorrectionABEditor.h \
 	source/beamline/AMCurrentAmplifier.h \
 	source/beamline/AMAdvancedControlDetectorEmulator.h \
@@ -775,7 +774,6 @@ SOURCES += \
 	source/actions3/actions/AMControlWaitActionInfo.cpp \
 	source/actions3/actions/AMControlWaitAction.cpp \
 	source/analysis/AM1DDarkCurrentCorrectionAB.cpp \
-	source/ui/CLS/CLSSIS3820ScalerChannelViewWithDarkCurrent.cpp \
 	source/analysis/AM1DDarkCurrentCorrectionABEditor.cpp \
 	source/beamline/AMCurrentAmplifier.cpp \
 	source/beamline/AMAdvancedControlDetectorEmulator.cpp \
@@ -879,6 +877,8 @@ contains(DEFINES, AM_BUILD_REPORTER_ENABLED){
 
 	SOURCES *= source/util/AMRunTimeBuildInfo.cpp
 }
+
+
 
 
 
