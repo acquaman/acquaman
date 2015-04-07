@@ -135,8 +135,6 @@ void CLSSIS3820ScalerControlsView::stopScanning()
 void CLSSIS3820ScalerControlsView::setContinuous()
 {
 	if (scaler_) {
-		scaler_->blockSignals(true);
-
 		int index = modeChoice_->currentIndex();
 
 		if (index == 1 && !scaler_->isContinuous())
@@ -144,50 +142,36 @@ void CLSSIS3820ScalerControlsView::setContinuous()
 
 		else if (index == 0 && scaler_->isContinuous())
 			scaler_->setContinuous(false);
-
-		scaler_->blockSignals(false);
 	}
 }
 
 void CLSSIS3820ScalerControlsView::setDwellTime()
 {
 	if (scaler_) {
-		scaler_->blockSignals(true);
-
 		double secondsDwell = (double)time_->value() / MILLISECONDS_PER_SECOND;
 
 		if (secondsDwell != scaler_->dwellTime())
 			scaler_->setDwellTime(secondsDwell);
-
-		scaler_->blockSignals(false);
 	}
 }
 
 void CLSSIS3820ScalerControlsView::setScansPerBuffer()
 {
 	if (scaler_) {
-		scaler_->blockSignals(true);
-
 		int newValue = scansPerBuffer_->value();
 
 		if (newValue != scaler_->scansPerBuffer())
 			scaler_->setScansPerBuffer(newValue);
-
-		scaler_->blockSignals(false);
 	}
 }
 
 void CLSSIS3820ScalerControlsView::setTotalScans()
 {
 	if (scaler_) {
-		scaler_->blockSignals(true);
-
 		int newValue = totalScans_->value();
 
 		if (newValue != scaler_->totalScans())
 			scaler_->setTotalScans(newValue);
-
-		scaler_->blockSignals(false);
 	}
 }
 
@@ -225,22 +209,27 @@ void CLSSIS3820ScalerControlsView::onContinuousChanged()
 void CLSSIS3820ScalerControlsView::onDwellTimeChanged()
 {
 	if (scaler_) {
+		scaler_->blockSignals(true);
 		double seconds = scaler_->dwellTime();
-
 		time_->setValue((int)seconds * MILLISECONDS_PER_SECOND);
+		scaler_->blockSignals(false);
 	}
 }
 
 void CLSSIS3820ScalerControlsView::onScansPerBufferChanged()
 {
 	if (scaler_) {
+		scaler_->blockSignals(true);
 		scansPerBuffer_->setValue(scaler_->scansPerBuffer());
+		scaler_->blockSignals(false);
 	}
 }
 
 void CLSSIS3820ScalerControlsView::onTotalScansChanged()
 {
 	if (scaler_) {
+		scaler_->blockSignals(true);
 		totalScans_->setValue(scaler_->totalScans());
+		scaler_->blockSignals(false);
 	}
 }
