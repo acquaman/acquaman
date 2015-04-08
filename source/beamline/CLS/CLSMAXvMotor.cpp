@@ -26,7 +26,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 CLSMAXvMotor::~CLSMAXvMotor(){}
 CLSMAXvMotor::CLSMAXvMotor(const QString &name, const QString &baseName, const QString &description, bool hasEncoder, double tolerance, double moveStartTimeoutSeconds, QObject *parent, QString pvUnitFieldName) :
-	AMPVwStatusControl(name, hasEncoder ? baseName+pvUnitFieldName+":fbk" : baseName+pvUnitFieldName+":sp", baseName+pvUnitFieldName, baseName+":status", baseName+":stop", parent, tolerance, moveStartTimeoutSeconds, new AMControlStatusCheckerCLSMAXv(), 1, description)
+	AMPVwStatusControl(name, hasEncoder ? baseName+pvUnitFieldName+":fbk" : baseName+pvUnitFieldName+":sp", baseName+pvUnitFieldName, baseName+":status", baseName+":stop", parent, tolerance, moveStartTimeoutSeconds, new CLSMAXvControlStatusChecker(), 1, description)
 		//AMPVwStatusControl(name, baseName+":mm:fbk", baseName+":mm", baseName+":status", baseName+":stop", parent, tolerance, moveStartTimeoutSeconds, new AMControlStatusCheckerStopped(0), 1, description)
 {
 	pvBaseName_ = baseName;
@@ -74,7 +74,7 @@ CLSMAXvMotor::CLSMAXvMotor(const QString &name, const QString &baseName, const Q
 	closedLoopEnabled_ = new AMPVControl(name+"ClosedLoopEnabled", baseName+":closedLoop", baseName+":closedLoop", QString(), this, 0.1);
 	servoPIDEnabled_ = new AMPVControl(name+"ServoPIDEnabled", baseName+":hold:sp", baseName+":hold", QString(), this, 0.1);
 
-	encoderTarget_ = new AMPVwStatusControl(name+"EncoderTarget", baseName+":enc:fbk", baseName+":encTarget", baseName+":status", QString(), this, 10, 2.0, new AMControlStatusCheckerCLSMAXv(), 1);
+	encoderTarget_ = new AMPVwStatusControl(name+"EncoderTarget", baseName+":enc:fbk", baseName+":encTarget", baseName+":status", QString(), this, 10, 2.0, new CLSMAXvControlStatusChecker(), 1);
 	encoderMovementType_ = new AMPVControl(name+"EncoderMovementType", baseName+":encMoveType", baseName+":selEncMvType", QString(), this, 0.1);
 	preDeadBand_ = new AMPVControl(name+"PreDeadBand", baseName+":preDBand", baseName+":preDBand", QString(), this, 1);
 	postDeadBand_ = new AMPVControl(name+"PostDeadBand", baseName+":postDBand", baseName+":postDBand", QString(), this, 1);
@@ -1080,4 +1080,4 @@ void CLSMAXvMotor::onEncoderMovementTypeChanged(double value){
 	}
 
 }
- AMControlStatusCheckerCLSMAXv::~AMControlStatusCheckerCLSMAXv(){}
+ CLSMAXvControlStatusChecker::~CLSMAXvControlStatusChecker(){}
