@@ -30,6 +30,11 @@ public:
 	/// Returns the total time.
 	double totalTime() const { return totalTime_; }
 
+	/// Returns the X motor soller slit control info.
+	AMControlInfo sollerSlitX() const { return axisControlInfos_.at(0); }
+	/// Returns the Z motor soller slit control info.
+	AMControlInfo sollerSlitZ() const { return axisControlInfos_.at(1); }
+
 signals:
 	/// Notifier that the total time changed.
 	void totalTimeChanged(double);
