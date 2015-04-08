@@ -52,6 +52,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/BioXAS/BioXAS32ElementGeDetectorView.h"
 #include "acquaman/BioXAS/BioXASXRFScanConfiguration.h"
 #include "ui/BioXAS/BioXASSSRLMonochromatorConfigurationView.h"
+#include "ui/BioXAS/BioXASSollerSlitScanConfigurationView.h"
 
 BioXASSideAppController::BioXASSideAppController(QObject *parent)
 	: AMAppController(parent)
@@ -94,7 +95,7 @@ bool BioXASSideAppController::startup()
 		setupExporterOptions();
 		setupUserInterface();
 		makeConnections();
-        applyCurrentSettings();
+		applyCurrentSettings();
 
 		return true;
 	}
@@ -198,6 +199,25 @@ void BioXASSideAppController::setupUserInterface()
 	// Create right side panel.
 	persistentPanel_ = new BioXASSidePersistentView();
 
+	sollerSlitConfiguration_ = new BioXASSollerSlitScanConfiguration();
+	sollerSlitConfiguration_->setSollerSlitX(BioXASSideBeamline::bioXAS()->sollerSlitX()->toInfo());
+	sollerSlitConfiguration_->setSollerSlitZ(BioXASSideBeamline::bioXAS()->sollerSlitZ()->toInfo());
+	sollerSlitConfiguration_->setDetector(BioXASSideBeamline::bioXAS()->ge32ElementDetector()->toInfo());
+
+	sollerSlitConfiguration_->scanAxisAt(0)->regionAt(0)->setRegionStart(0.0);
+	sollerSlitConfiguration_->scanAxisAt(0)->regionAt(0)->setRegionStep(0.1);
+	sollerSlitConfiguration_->scanAxisAt(0)->regionAt(0)->setRegionEnd(4.0);
+	sollerSlitConfiguration_->scanAxisAt(0)->regionAt(0)->setRegionTime(0.1);
+
+	sollerSlitConfiguration_->scanAxisAt(1)->regionAt(0)->setRegionStart(0.0);
+	sollerSlitConfiguration_->scanAxisAt(1)->regionAt(0)->setRegionStep(0.1);
+	sollerSlitConfiguration_->scanAxisAt(1)->regionAt(0)->setRegionEnd(4.0);
+	sollerSlitConfiguration_->scanAxisAt(1)->regionAt(0)->setRegionTime(0.1);
+
+	sollerSlitConfigurationView_ = new BioXASSollerSlitScanConfigurationView(sollerSlitConfiguration_);
+
+	sollerSlitConfigurationViewHolder_ = new AMScanConfigurationViewHolder3(sollerSlitConfigurationView_);
+
 	// Add views to 'General'.
 	mw_->insertHeading("General", 0);
 	mw_->addPane(monoConfigView_, "General", "Monochromator", ":/system-software-update.png");
@@ -208,6 +228,7 @@ void BioXASSideAppController::setupUserInterface()
 
 	// Add views to 'Scans'.
 	mw_->insertHeading("Scans", 2);
+	mw_->addPane(sollerSlitConfigurationViewHolder_, "Scans", "Soller Slits", ":/system-search.png");
 
 	// Add right side panel.
 
@@ -216,14 +237,14 @@ void BioXASSideAppController::setupUserInterface()
 
 void BioXASSideAppController::makeConnections()
 {
-    connect( BioXASSideBeamline::bioXAS()->scaler(), SIGNAL(connectedChanged(bool)), this, SLOT(onScalerConnected()) );
-    connect( BioXASSideBeamline::bioXAS(), SIGNAL(connected(bool)), this, SLOT(onBeamlineConnected()) );
+	connect( BioXASSideBeamline::bioXAS()->scaler(), SIGNAL(connectedChanged(bool)), this, SLOT(onScalerConnected()) );
+	connect( BioXASSideBeamline::bioXAS(), SIGNAL(connected(bool)), this, SLOT(onBeamlineConnected()) );
 }
 
 void BioXASSideAppController::applyCurrentSettings()
 {
-    onScalerConnected();
-    onBeamlineConnected();
+	onScalerConnected();
+	onBeamlineConnected();
 }
 
 void BioXASSideAppController::onCurrentScanActionStartedImplementation(AMScanAction *action)

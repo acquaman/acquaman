@@ -26,6 +26,29 @@ public:
 
 	/// A human-readable synopsis of this scan configuration. Can be re-implemented to proved more details. Used by scan action to set the main text in the action view.
 	virtual QString detailedDescription() const;
+
+	/// Returns the total time.
+	double totalTime() const { return totalTime_; }
+
+signals:
+	/// Notifier that the total time changed.
+	void totalTimeChanged(double);
+
+public slots:
+	/// Set the X motor for the soller slits.
+	void setSollerSlitX(const AMControlInfo &info);
+	/// Set the Z motor for the soller slits.
+	void setSollerSlitZ(const AMControlInfo &info);
+	/// Sets which detector is going to be used.
+	void setDetector(const AMDetectorInfo &info);
+
+protected slots:
+	/// Computes the total time required for the scan.
+	void computeTotalTime();
+
+protected:
+	/// Holds the total time.
+	double totalTime_;
 };
 
 #endif // BIOXASSOLLERSLITSCANCONFIGURATION_H

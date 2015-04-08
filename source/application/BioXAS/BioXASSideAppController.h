@@ -30,6 +30,8 @@ class BioXASSideXASScanConfiguration;
 class BioXASSideXASScanConfigurationView;
 class AMScanConfigurationViewHolder3;
 class BioXASSSRLMonochromatorConfigurationView;
+class BioXASSollerSlitScanConfiguration;
+class BioXASSollerSlitScanConfigurationView;
 
 class BioXASSideAppController : public AMAppController
 {
@@ -48,8 +50,8 @@ public:
 	virtual void shutdown();
 
 protected slots:
-    void onScalerConnected();
-    void onBeamlineConnected();
+	void onScalerConnected();
+	void onBeamlineConnected();
 
 protected:
 	/// Implementation method that individual applications can flesh out if extra setup is required when a scan action is started.  This is not pure virtual because there is no requirement to do anything to scan actions.
@@ -65,24 +67,31 @@ protected:
 	/// Sets up the user interface by specifying the extra pieces that will be added to the main window.
 	void setupUserInterface();
 	/// Sets up all of the connections.
-	void makeConnections();    
-    /// Applies the current settings.
-    void applyCurrentSettings();
+	void makeConnections();
+	/// Applies the current settings.
+	void applyCurrentSettings();
 
 protected:
-    /// View for the BioXAS Side scaler.
-    CLSSIS3820ScalerView *scalerView_;
-    /// The mono configuration view.
-    BioXASSSRLMonochromatorConfigurationView *monoConfigView_;
+	/// View for the BioXAS Side scaler.
+	CLSSIS3820ScalerView *scalerView_;
+	/// The mono configuration view.
+	BioXASSSRLMonochromatorConfigurationView *monoConfigView_;
 
-    BioXASSidePersistentView *persistentPanel_;
+	BioXASSidePersistentView *persistentPanel_;
 
-    BioXASSideXASScanConfiguration *configuration_;
+	/// XAS configuration.
+	BioXASSideXASScanConfiguration *configuration_;
+	/// XAS configuration view.
+	BioXASSideXASScanConfigurationView *configurationView_;
+	/// XAS configuration view holder.
+	AMScanConfigurationViewHolder3 *configurationViewHolder_;
 
-    BioXASSideXASScanConfigurationView *configurationView_;
-
-    AMScanConfigurationViewHolder3 *configurationViewHolder_;
-
+	/// Soller slit configuration.
+	BioXASSollerSlitScanConfiguration *sollerSlitConfiguration_;
+	/// Soller slit configuration view.
+	BioXASSollerSlitScanConfigurationView *sollerSlitConfigurationView_;
+	/// Soller slit configuration view holder.
+	AMScanConfigurationViewHolder3 *sollerSlitConfigurationViewHolder_;
 
 };
 

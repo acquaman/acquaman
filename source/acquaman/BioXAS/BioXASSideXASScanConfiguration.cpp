@@ -42,7 +42,7 @@ BioXASSideXASScanConfiguration::BioXASSideXASScanConfiguration(const BioXASSideX
 	: AMStepScanConfiguration(original)
 {
 	setName(original.name());
-	setUserScanName(original.userScanName());
+	setUserScanName(original.name());
 
 	edgeEnergy_ = original.edgeEnergy();
 }
