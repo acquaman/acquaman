@@ -24,30 +24,35 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/BioXAS/BioXASSideBeamline.h"
 
 BioXASSidePersistentView::BioXASSidePersistentView(QWidget *parent) :
-    QWidget(parent)
+	QWidget(parent)
 {
 	// Create UI elements.
 
-    energyControlEditor_ = new AMExtendedControlEditor(BioXASSideBeamline::bioXAS()->mono()->energyControl());
-    energyControlEditor_->setTitle("Energy");
-    energyControlEditor_->setControlFormat('f', 2);
+	energyControlEditor_ = new AMExtendedControlEditor(BioXASSideBeamline::bioXAS()->mono()->energyControl());
+	energyControlEditor_->setTitle("Energy");
+	energyControlEditor_->setControlFormat('f', 2);
 
-    regionControlEditor_ = new BioXASSSRLMonochromatorRegionControlEditor(BioXASSideBeamline::bioXAS()->mono()->regionControl());
-    regionControlEditor_->setTitle("Region");
+	regionControlEditor_ = new BioXASSSRLMonochromatorRegionControlEditor(BioXASSideBeamline::bioXAS()->mono()->regionControl());
+	regionControlEditor_->setTitle("Region");
 
-    braggControlEditor_ = new AMExtendedControlEditor(BioXASSideBeamline::bioXAS()->mono()->braggMotor());
-    braggControlEditor_->setTitle("Bragg motor position");
+	braggControlEditor_ = new AMExtendedControlEditor(BioXASSideBeamline::bioXAS()->mono()->braggMotor());
+	braggControlEditor_->setTitle("Bragg motor position");
 
-    // Create and set layouts.
+	AMExtendedControlEditor *sollerSlitXEditor = new AMExtendedControlEditor(BioXASSideBeamline::bioXAS()->sollerSlitX());
+	AMExtendedControlEditor *sollerSlitZEditor = new AMExtendedControlEditor(BioXASSideBeamline::bioXAS()->sollerSlitZ());
 
-    QVBoxLayout *layout = new QVBoxLayout();
-    layout->addWidget(energyControlEditor_);
-    layout->addWidget(regionControlEditor_);
-    layout->addWidget(braggControlEditor_);
-    layout->addStretch();
+	// Create and set layouts.
 
-    setLayout(layout);
-    setFixedWidth(300);
+	QVBoxLayout *layout = new QVBoxLayout();
+	layout->addWidget(energyControlEditor_);
+	layout->addWidget(regionControlEditor_);
+	layout->addWidget(braggControlEditor_);
+	layout->addWidget(sollerSlitXEditor);
+	layout->addWidget(sollerSlitZEditor);
+	layout->addStretch();
+
+	setLayout(layout);
+	setFixedWidth(300);
 }
 
 BioXASSidePersistentView::~BioXASSidePersistentView()

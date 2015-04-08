@@ -194,6 +194,11 @@ public:
 
 	AMControlSet *temperatureSet() const { return temperatureSet_; }
 
+	/// Returns the X motor of the soller slits.
+	AMControl *sollerSlitX() const { return sollerSlitX_; }
+	/// Returns the Z motor of the soller slits.
+	AMControl *sollerSlitZ() const { return sollerSlitZ_; }
+
 	/// return the set of BioXAS Motors by given motor category
 	QList<AMControl *> getMotorsByType(BioXASBeamlineDef::BioXASMotorType category) const;
 
@@ -464,7 +469,12 @@ protected:
 	CLSMAXvMotor *m2BenderUpstream_;
 	CLSMAXvMotor *m2BenderDownStream_;
 
-	/// BioXAS Pseudo motors
+	// Soller slit motors.
+
+	CLSMAXvMotor *sollerSlitX_;
+	CLSMAXvMotor *sollerSlitZ_;
+
+	// BioXAS Pseudo motors
 	BioXASPseudoMotorControl *m1PseudoRoll_;
 	BioXASPseudoMotorControl *m1PseudoPitch_;
 	BioXASPseudoMotorControl *m1PseudoHeight_;

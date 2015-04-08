@@ -623,6 +623,10 @@ void BioXASSideBeamline::setupMotorGroup()
 	// BioXAS Mono Pseudo motors					   name,				   pvBaseName,				readPVname,	writePVname, movingPVname,	enabledPVname, stopPVname, tolerance, moveStartTimeoutSeconds, statusChecker, stopValue, description, parent = 0
 	monoPseudoEnergy_ = new BioXASPseudoMotorControl("BL1607-5-I22 Side Mono Energy", "BL1607-5-I22:Energy", ":EV:fbk", ":EV", ":status", ":enabled", ":stop");
 	monoBraggAngle_ = new AMPVwStatusControl("BL1607-5-I22 Side Mono Bragg Angle", "BL1607-5-I22:Energy:EV:fbk:tr.K", "BL1607-5-I22:Energy:EV:sp:tr.E", "BL1607-5-I22:Energy:status", "BL1607-5-I22:Energy:stop", this, 0.05);
+
+	// Soller slit motors.
+	sollerSlitX_ = new CLSMAXvMotor("SollerSlitX", "SMTR1607-6-I22-17", "Soller Slit X Position", true, 0.05, 2.0, this, ":mm");
+	sollerSlitZ_ = new CLSMAXvMotor("SollerSlitZ", "SMTR1607-6-I22-18", "Soller Slit Z Position", true, 0.05, 2.0, this, ":mm");
 }
 
 void BioXASSideBeamline::setupDetectors()
@@ -799,6 +803,8 @@ void BioXASSideBeamline::setupExposedControls()
 {
 	addExposedControl(mono_->energyControl());
 	addExposedControl(mono_->regionControl());
+	addExposedControl(sollerSlitX_);
+	addExposedControl(sollerSlitZ_);
 }
 
 void BioXASSideBeamline::setupExposedDetectors()
