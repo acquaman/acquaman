@@ -21,11 +21,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "BioXASSideAppController.h"
 
-#include "beamline/CLS/CLSFacilityID.h"
-#include "beamline/BioXAS/BioXASSideBeamline.h"
-
-#include "ui/AMMainWindow.h"
-#include "ui/dataman/AMGenericScanEditor.h"
+#include <QGroupBox>
+#include <QWidget>
 
 #include "actions3/AMActionRunner3.h"
 #include "actions3/actions/AMScanAction.h"
@@ -33,24 +30,33 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "application/AMAppControllerSupport.h"
 
+#include "dataman/AMRun.h"
+#include "dataman/AMScanAxisEXAFSRegion.h"
 #include "dataman/database/AMDbObjectSupport.h"
 #include "dataman/export/AMExportController.h"
 #include "dataman/export/AMExporterOptionGeneralAscii.h"
 #include "dataman/export/AMExporterGeneralAscii.h"
 #include "dataman/export/AMExporterAthena.h"
-#include "dataman/AMRun.h"
 
 #include "util/AMPeriodicTable.h"
 
-#include "ui/CLS/CLSSIS3820ScalerView.h"
+#include "beamline/CLS/CLSFacilityID.h"
 #include "beamline/CLS/CLSSIS3820Scaler.h"
-#include "ui/BioXAS/BioXASSidePersistentView.h"
+
 #include "acquaman/BioXAS/BioXASSideXASScanConfiguration.h"
-#include "ui/BioXAS/BioXASSideXASScanConfigurationView.h"
-#include "ui/acquaman/AMScanConfigurationViewHolder3.h"
-#include "dataman/AMScanAxisEXAFSRegion.h"
-#include "ui/BioXAS/BioXAS32ElementGeDetectorView.h"
 #include "acquaman/BioXAS/BioXASXRFScanConfiguration.h"
+#include "beamline/BioXAS/BioXASSideBeamline.h"
+
+#include "ui/AMMainWindow.h"
+#include "ui/acquaman/AMScanConfigurationViewHolder3.h"
+#include "ui/dataman/AMGenericScanEditor.h"
+
+#include "ui/CLS/CLSSIS3820ScalerView.h"
+#include "ui/CLS/CLSJJSlitView.h"
+
+#include "ui/BioXAS/BioXASSidePersistentView.h"
+#include "ui/BioXAS/BioXASSideXASScanConfigurationView.h"
+#include "ui/BioXAS/BioXAS32ElementGeDetectorView.h"
 #include "ui/BioXAS/BioXASSSRLMonochromatorConfigurationView.h"
 
 BioXASSideAppController::BioXASSideAppController(QObject *parent)
@@ -183,6 +189,7 @@ void BioXASSideAppController::setupUserInterface()
 
 	// Set up the general monochromator configuration view.
 	monoConfigView_ = new BioXASSSRLMonochromatorConfigurationView(BioXASSideBeamline::bioXAS()->mono());
+	jjSlitView_ = new CLSJJSlitView(BioXASSideBeamline::bioXAS()->jjSlit());
 
 	// Create scaler view, if scaler is present and connected.
 	if (BioXASSideBeamline::bioXAS()->scaler()->isConnected()) {
@@ -190,10 +197,10 @@ void BioXASSideAppController::setupUserInterface()
 	}
 
 	// Create the 32 element Ge detector view.
-	BioXAS32ElementGeDetectorView *view = new BioXAS32ElementGeDetectorView(BioXASSideBeamline::bioXAS()->ge32ElementDetector());
-	view->buildDetectorView();
-	view->addEmissionLineNameFilter(QRegExp("1"));
-	view->addPileUpPeakNameFilter(QRegExp("(K.1|L.1|Ma1)"));
+	BioXAS32ElementGeDetectorView *geDetectorView = new BioXAS32ElementGeDetectorView(BioXASSideBeamline::bioXAS()->ge32ElementDetector());
+	geDetectorView->buildDetectorView();
+	geDetectorView->addEmissionLineNameFilter(QRegExp("1"));
+	geDetectorView->addPileUpPeakNameFilter(QRegExp("(K.1|L.1|Ma1)"));
 
 	// Create right side panel.
 	persistentPanel_ = new BioXASSidePersistentView();
@@ -201,10 +208,11 @@ void BioXASSideAppController::setupUserInterface()
 	// Add views to 'General'.
 	mw_->insertHeading("General", 0);
 	mw_->addPane(monoConfigView_, "General", "Monochromator", ":/system-software-update.png");
+	mw_->addPane(createSqeezeGroupBoxWithView("", jjSlitView_), "General", "JJ Slit", ":/system-software-update.png");
 
 	// Add views to 'Detectors'.
 	mw_->insertHeading("Detectors", 1);
-	mw_->addPane(view, "Detectors", "Ge 32-el", ":/system-search.png");
+	mw_->addPane(geDetectorView, "Detectors", "Ge 32-el", ":/system-search.png");
 
 	// Add views to 'Scans'.
 	mw_->insertHeading("Scans", 2);
@@ -234,4 +242,22 @@ void BioXASSideAppController::onCurrentScanActionStartedImplementation(AMScanAct
 void BioXASSideAppController::onCurrentScanActionFinishedImplementation(AMScanAction *action)
 {
 	Q_UNUSED(action)
+}
+
+QGroupBox *BioXASSideAppController::createSqeezeGroupBoxWithView(QString title, QWidget *view)
+{
+	QHBoxLayout *horizontalLayout = new QHBoxLayout;
+	horizontalLayout->addStretch();
+	horizontalLayout->addWidget(view);
+	horizontalLayout->addStretch();
+
+	QVBoxLayout *verticalLayout = new QVBoxLayout;
+	verticalLayout->addStretch();
+	verticalLayout->addLayout(horizontalLayout);
+	verticalLayout->addStretch();
+
+	QGroupBox *groupBox = new QGroupBox(title);
+	groupBox->setFlat(true);
+	groupBox->setLayout(verticalLayout);
+	return groupBox;
 }

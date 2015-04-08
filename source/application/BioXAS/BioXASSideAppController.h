@@ -24,7 +24,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "application/AMAppController.h"
 
+class QGroupBox;
+class QWidget;
 class CLSSIS3820ScalerView;
+class CLSJJSlitView;
 class BioXASSidePersistentView;
 class BioXASSideXASScanConfiguration;
 class BioXASSideXASScanConfigurationView;
@@ -69,11 +72,16 @@ protected:
     /// Applies the current settings.
     void applyCurrentSettings();
 
+	/// create squeeze groupbox layout
+	QGroupBox *createSqeezeGroupBoxWithView(QString title, QWidget *view);
+
 protected:
     /// View for the BioXAS Side scaler.
     CLSSIS3820ScalerView *scalerView_;
     /// The mono configuration view.
     BioXASSSRLMonochromatorConfigurationView *monoConfigView_;
+	/// The JJ slit view
+	CLSJJSlitView *jjSlitView_;
 
     BioXASSidePersistentView *persistentPanel_;
 

@@ -53,6 +53,8 @@ public:
 	double center() const { return centerPVControl_->value(); }
 	/// return the current status
 	double status()  const { return statusPVControl_->value(); }
+	/// return the current status string
+	QString statusString()  const { return statusPVControl_->enumNameAt(statusPVControl_->value()); }
 
 signals:
 	/// the signal to indicate whether the JJ slit is connected or not
@@ -63,16 +65,19 @@ signals:
 	/// the signal to indicate that the center of the JJ slit changed
 	void centerValueChanged(double);
 	/// the signal to indicate that the status of the JJ slit changed
-	void statusValueChanged(double);
+	void statusStringChanged(QString);
 
 public slots:
-	/// to handle the connected signal of the PV controls (gap, center, and status)
-	void onPVControlConnected(bool);
-
 	/// to set the gap of the JJ slit
 	void moveGap(double setpoint);
 	/// to set the center of the JJ slit
 	void moveCenter(double setpoint);
+
+protected slots:
+	/// to handle the connected signal of the PV controls (gap, center, and status)
+	void onPVControlConnected();
+	/// to handle the signale of the status PV value changed
+	void onStatusValueChanged();
 
 protected:
 	/// the direction of the blade
@@ -129,14 +134,14 @@ signals:
 	/// the signal to indicate that the vertical center of the JJ slit changed
 	void verticalCenterValueChanged(double);
 	/// the signal to indicate that the status of the vetical motors of JJ slit changed
-	void verticalStatusValueChanged(double);
+	void verticalStatusStringChanged(QString);
 
 	/// the signal to indicate that the horizontal gap of the JJ slit changed
 	void horizontalGapValueChanged(double);
 	/// the signal to indicate that the horizontal center of the JJ slit changed
 	void horizontalCenterValueChanged(double);
 	/// the signal to indicate that the status of the vetical motors of JJ slit changed
-	void horizontalStatusValueChanged(double);
+	void horizontalStatusStringChanged(QString);
 
 public slots:
 	/// to handle the connected signal of the CLSJJSlitBladeControl
