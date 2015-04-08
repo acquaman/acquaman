@@ -48,7 +48,8 @@ HEADERS *=\
 	source/ui/CLS/CLSSIS3820CompositeScalerChannelView.h \
 	source/ui/CLS/CLSSIS3820ScalerChannelViewWithDarkCurrent.h \
 	source/ui/CLS/CLSSIS3820ScalerDarkCurrentWidget.h \
-    source/ui/CLS/CLSJJSlitView.h
+	source/ui/CLS/CLSSIS3820ScalerControlsView.h \
+	source/ui/CLS/CLSJJSlitView.h
 
 SOURCES *= \
 	source/actions3/actions/CLSSIS3820ScalerDarkCurrentMeasurementAction.cpp \
@@ -94,6 +95,5 @@ SOURCES *= \
 	source/ui/CLS/CLSSIS3820CompositeScalerChannelView.cpp \
 	source/ui/CLS/CLSSIS3820ScalerChannelViewWithDarkCurrent.cpp \
 	source/ui/CLS/CLSSIS3820ScalerDarkCurrentWidget.cpp \
-    source/ui/CLS/CLSJJSlitView.cpp
-
-
+	source/ui/CLS/CLSSIS3820ScalerControlsView.cpp \
+	source/ui/CLS/CLSJJSlitView.cpp
