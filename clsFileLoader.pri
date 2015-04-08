@@ -1,8 +1,6 @@
 
 DESTDIR = build
 
-include ( $$PATH_TO_AM/acquamanCommon.pri )
-
 HEADERS *=\
 	source/dataman/SGM/SGM2004FileLoader.h \
 	source/dataman/SGM/SGM2010FastFileLoader.h \
