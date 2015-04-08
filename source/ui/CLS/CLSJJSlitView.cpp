@@ -13,12 +13,12 @@ CLSJJSlitView::CLSJJSlitView(CLSJJSlit *clsJJSlit, QWidget *parent) :
 {
 	clsJJSlit_ = clsJJSlit;
 
-	verticalGapSpinBox_ = createDoubleSpinBox();
-	verticalCenterSpinBox_ = createDoubleSpinBox();
+	verticalGapSpinBox_ = createDoubleSpinBox(clsJJSlit_->limit());
+	verticalCenterSpinBox_ = createDoubleSpinBox(clsJJSlit_->limit());
 	verticalStatusLabel_ = new QLabel("NOT CONNECTED");
 
-	horizontalGapSpinBox_ = createDoubleSpinBox();
-	horizontalCenterSpinBox_ = createDoubleSpinBox();
+	horizontalGapSpinBox_ = createDoubleSpinBox(clsJJSlit_->limit());
+	horizontalCenterSpinBox_ = createDoubleSpinBox(clsJJSlit_->limit());
 	horizontalStatusLabel_ = new QLabel("NOT CONNECTED");
 
 
@@ -92,7 +92,7 @@ void CLSJJSlitView::onHorizontalCenterSpinBoxEditFinished()
 	clsJJSlit_->moveHorizontalCenter(horizontalCenterSpinBox_->value());
 }
 
-QDoubleSpinBox * CLSJJSlitView::createDoubleSpinBox()
+QDoubleSpinBox * CLSJJSlitView::createDoubleSpinBox(double limit)
 {
 	QDoubleSpinBox *spinBox = new QDoubleSpinBox;
 	spinBox->setMinimumWidth(150);
@@ -100,7 +100,7 @@ QDoubleSpinBox * CLSJJSlitView::createDoubleSpinBox()
 	spinBox->setSuffix(" mm");
 	spinBox->setDecimals(3);
 	spinBox->setSingleStep(0.001);
-	spinBox->setRange(-10, 10);
+	spinBox->setRange(limit * (-1), limit);
 
 	return spinBox;
 }

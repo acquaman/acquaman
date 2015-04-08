@@ -104,11 +104,13 @@ public:
 	  \param description A human readable description for this JJ slit
 	  \param parent QObject parent class
 	  */
-	CLSJJSlit(const QString &name, const QString &description, const QString &verticalBladesPVBaseName, const QString &horizontalBladesPVBaseName, double tolerance = AMCONTROL_TOLERANCE_DONT_CARE, double moveStartTimeoutSeconds = 2.0, QObject *parent = 0);
+	CLSJJSlit(const QString &name, const QString &description, const QString &verticalBladesPVBaseName, const QString &horizontalBladesPVBaseName, double tolerance = AMCONTROL_TOLERANCE_DONT_CARE, double moveStartTimeoutSeconds = 2.0, double limit = 11.0, QObject *parent = 0);
 
 	/// check whether the JJ slit is connected or not
 	bool isConnected() const;
 
+	/// return the limit of the slit
+	double limit() const { return limit_; }
 	/// return the vertical blade control
 	CLSJJSlitBladesControl * verticalBladesControl() const { return verticalBladesControl_; }
 	/// return the horizontal blade control
@@ -151,6 +153,8 @@ protected:
 	QString name_;
 	/// a brief description of the JJ slit
 	QString description_;
+	/// the limit of the slit
+	double limit_;
 
 	/// flag of connection
 	bool wasConnected_;

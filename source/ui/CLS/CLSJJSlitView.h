@@ -30,7 +30,7 @@ protected slots:
 
 protected:
 	/// helper function to create double spinbox for gap/center operation
-	QDoubleSpinBox * createDoubleSpinBox();
+	QDoubleSpinBox * createDoubleSpinBox(double limit);
 
 protected:
 	/// the instance of CLSJJSlit

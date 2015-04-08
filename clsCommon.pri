@@ -93,7 +93,6 @@ SOURCES *= \
 	source/ui/CLS/CLSAmptekSDD123DetailedDetectorView.cpp \
 	source/ui/CLS/CLSSIS3820ScalerView.cpp \
 	source/ui/CLS/CLSSIS3820CompositeScalerChannelView.cpp \
-	source/ui/CLS/CLSSIS3820ScalerChannelViewWithDarkCurrent.cpp \
 	source/ui/CLS/CLSSIS3820ScalerDarkCurrentWidget.cpp \
 	source/ui/CLS/CLSSIS3820ScalerControlsView.cpp \
 	source/ui/CLS/CLSJJSlitView.cpp

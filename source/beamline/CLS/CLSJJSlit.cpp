@@ -67,7 +67,7 @@ CLSJJSlit::~CLSJJSlit()
 
 }
 
-CLSJJSlit::CLSJJSlit(const QString &name, const QString &description, const QString &verticalBladesPVBaseName, const QString &horizontalBladesPVBaseName, double tolerance, double moveStartTimeoutSeconds, QObject *parent):
+CLSJJSlit::CLSJJSlit(const QString &name, const QString &description, const QString &verticalBladesPVBaseName, const QString &horizontalBladesPVBaseName, double tolerance, double moveStartTimeoutSeconds, double limit, QObject *parent):
 	QObject(parent)
 {
 	name_ = name;
