@@ -34,6 +34,7 @@ class CLSSIS3820Scaler;
 class CLSSIS3820ScalerChannel;
 
 #include "source/ui/beamline/AMCurrentAmplifierSingleView.h"
+#include "ui/CLS/CLSSIS3820ScalerControlsView.h"
 
 /*!
   This class builds a view around a CLSSIS3820ScalerChannel.  It provides a simple view that has a check box
@@ -121,11 +122,8 @@ Q_OBJECT
 
 public:
 	/// Constructor.  Takes a scalar object.
-	CLSSIS3820ScalerView(CLSSIS3820Scaler *scaler, bool enableDarkCurrentCorrection = true, QWidget *parent = 0);
+	CLSSIS3820ScalerView(CLSSIS3820Scaler *scaler, QWidget *parent = 0);
 	virtual ~CLSSIS3820ScalerView();
-
-	/// Returns whether or not dark current correction views are enabled
-	bool darkCurrentCorrectionEnabled() const;
 
 	/// Sets the precision for the composite view.
 	void setAmplifierViewPrecision(int newPrecision);
@@ -133,25 +131,6 @@ public:
 	void setAmplifierViewFormat(char newFormat);
 
 protected slots:
-	/// Handles starting the scaler.
-	void startScanning();
-	/// Hanldes stopping the scaler.
-	void stopScanning();
-	/// Handles setting the mode.
-	void setContinuous(int index);
-	/// Handles updating the combo box if the mode was changed from elsewhere.
-	void onContinuousChanged(bool isContinuous);
-	/// Handles changing the icon when the status changes.
-	void onStatusChanged(bool status);
-	/// Handles setting the time.
-	void setTime();
-	/// Handles setting the spin box when the time changes on the scaler.
-	void onTimeChanged(double time);
-	/// Handles setting the number of scans per buffer.
-	void setScansPerBuffer();
-	/// Handles setting the number of total scans.
-	void setTotalNumberOfScans();
-
 	/// Handles switching all the SR570 views to match the most recent change.
 	void onAmplifierViewChanged(AMCurrentAmplifierView::ViewMode mode);
 	/// Handles switching all the output views to match the most recent change.
@@ -161,25 +140,10 @@ protected:
 	/// Pointer to the scalar being viewed.
 	CLSSIS3820Scaler *scaler_;
 
-	/// Button that handles starting the scanning mode of the scaler.
-	QPushButton *startButton_;
-	/// Button that handles stopping the scanning mode of the scaler.
-	QPushButton *stopButton_;
-	/// Button that handles setting the mode of the scaler.
-	QComboBox *modeChoice_;
-	/// Label holding the overal scanning status of the scaler.  Matches the scanning button.
-	QLabel *status_;
-	/// Spin box holding the amount of time to per point.
-	QSpinBox *time_;
-	/// Spin box holding the number of scans per buffer.
-	QSpinBox *scansPerBuffer_;
-	/// Spin box holding the total number of scans.
-	QSpinBox *totalScans_;
+	/// The scaler controls view.
+	CLSSIS3820ScalerControlsView *controlsView_;
 	/// Holds all of the individual channel views.
 	QList<CLSSIS3820ScalerChannelView *> channelViews_;
-
-	/// Option to enable to disable dark current correction views (enabled by default)
-	bool enableDarkCurrentCorrection_;
 
 	/// A layout for all of the channel views
 	QVBoxLayout *channelLayout_;

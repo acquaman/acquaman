@@ -20,7 +20,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 
 #include "BioXASSidePersistentView.h"
-
+#include "ui/CLS/CLSSIS3820ScalerView.h"
 #include "beamline/BioXAS/BioXASSideBeamline.h"
 
 BioXASSidePersistentView::BioXASSidePersistentView(QWidget *parent) :
@@ -28,29 +28,73 @@ BioXASSidePersistentView::BioXASSidePersistentView(QWidget *parent) :
 {
 	// Create UI elements.
 
-    energyControlEditor_ = new AMExtendedControlEditor(BioXASSideBeamline::bioXAS()->mono()->energyControl());
-    energyControlEditor_->setTitle("Energy");
-    energyControlEditor_->setControlFormat('f', 2);
+	energyControlEditor_ = new AMExtendedControlEditor(BioXASSideBeamline::bioXAS()->mono()->energyControl());
+	energyControlEditor_->setTitle("Energy");
+	energyControlEditor_->setControlFormat('f', 2);
 
-    regionControlEditor_ = new BioXASSSRLMonochromatorRegionControlEditor(BioXASSideBeamline::bioXAS()->mono()->regionControl());
-    regionControlEditor_->setTitle("Region");
+	regionControlEditor_ = new BioXASSSRLMonochromatorRegionControlEditor(BioXASSideBeamline::bioXAS()->mono()->regionControl());
+	regionControlEditor_->setTitle("Region");
 
-    braggControlEditor_ = new AMExtendedControlEditor(BioXASSideBeamline::bioXAS()->mono()->braggMotor());
-    braggControlEditor_->setTitle("Bragg motor position");
+	braggControlEditor_ = new AMExtendedControlEditor(BioXASSideBeamline::bioXAS()->mono()->braggMotor());
+	braggControlEditor_->setTitle("Bragg motor position");
 
-    // Create and set layouts.
+	// Create scaler channel views.
 
-    QVBoxLayout *layout = new QVBoxLayout();
-    layout->addWidget(energyControlEditor_);
-    layout->addWidget(regionControlEditor_);
-    layout->addWidget(braggControlEditor_);
-    layout->addStretch();
+	CLSSIS3820Scaler *scaler = BioXASSideBeamline::bioXAS()->scaler();
+	QVBoxLayout *channelLayout = new QVBoxLayout();
 
-    setLayout(layout);
-    setFixedWidth(300);
+	if (scaler) {
+		CLSSIS3820ScalerChannelView *i0View = new CLSSIS3820ScalerChannelView(scaler->channelAt(0));
+		channelLayout->addWidget(i0View);
+
+		CLSSIS3820ScalerChannelView *iTView = new CLSSIS3820ScalerChannelView(scaler->channelAt(1));
+		channelLayout->addWidget(iTView);
+
+		CLSSIS3820ScalerChannelView *i2View = new CLSSIS3820ScalerChannelView(scaler->channelAt(15));
+		channelLayout->addWidget(i2View);
+	}
+
+	channelViews_ = new QGroupBox();
+	channelViews_->setTitle("Scaler channels");
+	channelViews_->setLayout(channelLayout);
+
+	// Create and set main layout.
+
+	QVBoxLayout *layout = new QVBoxLayout();
+	layout->addWidget(energyControlEditor_);
+	layout->addWidget(regionControlEditor_);
+	layout->addWidget(braggControlEditor_);
+	layout->addWidget(channelViews_);
+	layout->addStretch();
+
+	setLayout(layout);
+	setFixedWidth(350);
+
+	// Initial settings.
+
+	channelViews_->hide();
+
+	// Make connections.
+
+	connect( scaler, SIGNAL(connectedChanged(bool)), this, SLOT(onScalerConnectedChanged()) );
+
+	// Current settings.
+
+	onScalerConnectedChanged();
 }
 
 BioXASSidePersistentView::~BioXASSidePersistentView()
 {
 
+}
+
+void BioXASSidePersistentView::onScalerConnectedChanged()
+{
+	CLSSIS3820Scaler *scaler = BioXASSideBeamline::bioXAS()->scaler();
+
+	if (scaler && scaler->isConnected()) {
+		channelViews_->show();
+	} else {
+		channelViews_->hide();
+	}
 }
