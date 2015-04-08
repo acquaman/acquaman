@@ -3,17 +3,6 @@
 
 #include "beamline/AMPVControl.h"
 
-/// This function object provides the moving check for the CLSMAXvMotors
-class CLSJJSlitControlStatusChecker : public AMAbstractControlStatusChecker {
-public:
-	/// Status values will be compare to \c isStoppedValue, and return true if the status value is not equal to isStoppedValue (something that isn't stopped is moving)
-	virtual ~CLSJJSlitControlStatusChecker() {}
-	CLSJJSlitControlStatusChecker() {}
-
-	/// Return true (moving) if the \c statusValue is not 0 (STOPPED) and is not 2 (AT LIMIT) and is not 3 (FORCED STOP) and is not 4 (ERROR)
-	virtual bool operator()(quint32 statusValue) { return (statusValue != 0) && (statusValue != 2) && (statusValue != 3) && (statusValue != 4); }
-};
-
 
 /// The definitions of CLSJJSlitBladesControl, which contains a gapPVControl, a centerPVControl and a statusPVControl
 class CLSJJSlitBladesControl : public QObject
