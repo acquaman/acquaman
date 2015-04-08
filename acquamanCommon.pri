@@ -363,7 +363,6 @@ HEADERS += \
 	source/actions3/actions/AMControlWaitActionInfo.h \
 	source/actions3/actions/AMControlWaitAction.h \
 	source/analysis/AM1DDarkCurrentCorrectionAB.h \
-	source/ui/CLS/CLSSIS3820ScalerChannelViewWithDarkCurrent.h \
 	source/analysis/AM1DDarkCurrentCorrectionABEditor.h \
 	source/beamline/AMCurrentAmplifier.h \
 	source/beamline/AMAdvancedControlDetectorEmulator.h \
@@ -449,7 +448,8 @@ HEADERS += \
     source/actions3/actions/CLSSIS3820ScalerDarkCurrentMeasurementActionInfo.h \
     source/ui/CLS/CLSSIS3820ScalerDarkCurrentWidget.h \
     source/beamline/CLS/CLSBeamline.h \
-    source/beamline/CLS/CLSFacilityID.h
+    source/beamline/CLS/CLSFacilityID.h \
+    source/ui/CLS/CLSSIS3820ScalerControlsView.h
 
 FORMS += \
 
@@ -774,7 +774,6 @@ SOURCES += \
 	source/actions3/actions/AMControlWaitActionInfo.cpp \
 	source/actions3/actions/AMControlWaitAction.cpp \
 	source/analysis/AM1DDarkCurrentCorrectionAB.cpp \
-	source/ui/CLS/CLSSIS3820ScalerChannelViewWithDarkCurrent.cpp \
 	source/analysis/AM1DDarkCurrentCorrectionABEditor.cpp \
 	source/beamline/AMCurrentAmplifier.cpp \
 	source/beamline/AMAdvancedControlDetectorEmulator.cpp \
@@ -860,7 +859,8 @@ SOURCES += \
     source/actions3/actions/CLSSIS3820ScalerDarkCurrentMeasurementAction.cpp \
     source/actions3/actions/CLSSIS3820ScalerDarkCurrentMeasurementActionInfo.cpp \
     source/ui/CLS/CLSSIS3820ScalerDarkCurrentWidget.cpp \
-    source/beamline/CLS/CLSBeamline.cpp
+    source/beamline/CLS/CLSBeamline.cpp \
+    source/ui/CLS/CLSSIS3820ScalerControlsView.cpp
 
 RESOURCES *= source/icons/icons.qrc \
 		source/configurationFiles/configurationFiles.qrc \
@@ -877,6 +877,10 @@ contains(DEFINES, AM_BUILD_REPORTER_ENABLED){
 
 	SOURCES *= source/util/AMRunTimeBuildInfo.cpp
 }
+
+
+
+
 
 
 
