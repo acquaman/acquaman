@@ -18,7 +18,10 @@ HEADERS += \
     source/ui/BioXAS/BioXASSSRLMonochromatorRegionControlEditor.h \
     source/ui/BioXAS/BioXASSSRLMonochromatorRegionControlView.h \
     source/beamline/BioXAS/BioXASSSRLMonochromatorEnergyControl.h \
-    source/ui/BioXAS/BioXASSSRLMonochromatorConfigurationView.h
+    source/ui/BioXAS/BioXASSSRLMonochromatorConfigurationView.h \
+    source/acquaman/BioXAS/BioXASSollerSlitScanConfiguration.h \
+    source/acquaman/BioXAS/BioXASSollerSlitScanController.h \
+    source/ui/BioXAS/BioXASSollerSlitScanConfigurationView.h
 
 SOURCES += \
 	source/beamline/BioXAS/BioXASPseudoMotorControl.cpp \
@@ -32,4 +35,13 @@ SOURCES += \
     source/ui/BioXAS/BioXASSSRLMonochromatorRegionControlEditor.cpp \
     source/ui/BioXAS/BioXASSSRLMonochromatorRegionControlView.cpp \
     source/beamline/BioXAS/BioXASSSRLMonochromatorEnergyControl.cpp \
-    source/ui/BioXAS/BioXASSSRLMonochromatorConfigurationView.cpp
+    source/ui/BioXAS/BioXASSSRLMonochromatorConfigurationView.cpp \
+    source/acquaman/BioXAS/BioXASSollerSlitScanConfiguration.cpp \
+    source/acquaman/BioXAS/BioXASSollerSlitScanController.cpp \
+    source/ui/BioXAS/BioXASSollerSlitScanConfigurationView.cpp
+
+
+
+
+
+

@@ -37,7 +37,7 @@ public:
 	Q_INVOKABLE BioXASSideXASScanConfiguration(QObject *parent = 0);
 	/// Copy Constructor.
 	BioXASSideXASScanConfiguration(const BioXASSideXASScanConfiguration &original);
-	///Destructor.
+	/// Destructor.
 	virtual ~BioXASSideXASScanConfiguration();
 
 	/// Returns a pointer to a newly-created copy of this scan configuration.  (It takes the role of a copy constructor, but is virtual so that our high-level classes can copy a scan configuration without knowing exactly what kind it is.)
