@@ -13,6 +13,8 @@ QT *= network
 # Note that as of November 18, 2011, building in debug mode triggers a failure in the dacq library: the main (eV) PV ends up disabled in the dacq scan config.  This is likely a serious memory error.
 # CONFIG += debug
 
+include ( $$PATH_TO_AM/clsFileLoader.pri )
+
 include ( $$PATH_TO_AM/compositeCommon/AMMPlot.pri )
 
 include ( $$PATH_TO_AM/compositeCommon/AMMobility.pri )
@@ -41,7 +43,6 @@ HEADERS += \
 	source/dataman/AMScan.h \
 	source/dataman/AMScanSetModel.h \
 	source/dataman/AMXASScan.h \
-	source/dataman/SGM/SGM2004FileLoader.h \
 	source/ui/dataman/AMRunSelector.h \
 	source/ui/beamline/AMControlSetView.h \
 	source/ui/dataman/AMCramBarHorizontal.h \
@@ -422,7 +423,6 @@ SOURCES += \
 	source/dataman/AMScan.cpp \
 	source/dataman/AMScanSetModel.cpp \
 	source/dataman/AMXASScan.cpp \
-	source/dataman/SGM/SGM2004FileLoader.cpp \
 	source/ui/dataman/AMRunSelector.cpp \
 	source/ui/beamline/AMControlSetView.cpp \
 	source/ui/dataman/AMCramBarHorizontal.cpp \
