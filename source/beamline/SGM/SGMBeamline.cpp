@@ -1069,7 +1069,7 @@ void SGMBeamline::setupControls(){
 	energyThetaParam_ = new AMReadOnlyPVControl("energyThetaParam", sgmPVName, this);
 
 	sgmPVName = amNames2pvNames_.valueF("mono");
-	AMPVwStatusControl *mono = new AMPVwStatusControl("mono", sgmPVName+":enc:fbk", sgmPVName+":encTarget", sgmPVName+":status", "SMTR16114I1002:stop", energy_, 5, 2.0, new AMControlStatusCheckerCLSMAXv(), 1);
+	AMPVwStatusControl *mono = new AMPVwStatusControl("mono", sgmPVName+":enc:fbk", sgmPVName+":encTarget", sgmPVName+":status", "SMTR16114I1002:stop", energy_, 5, 2.0, new CLSMAXvControlStatusChecker(), 1);
 	mono->setDescription("Monochromator");
 	sgmPVName = amNames2pvNames_.valueF("undulator");
 	AMPVwStatusControl *undulator = new AMPVwStatusControl("undulator", sgmPVName+":gap:mm:fbk", sgmPVName+":gap:mm", sgmPVName+":moveStatus", "UND1411-01:stop", energy_, 0.1);
