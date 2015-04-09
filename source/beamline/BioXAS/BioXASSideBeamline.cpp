@@ -805,6 +805,11 @@ void BioXASSideBeamline::setupExposedControls()
 {
 	addExposedControl(mono_->energyControl());
 	addExposedControl(mono_->regionControl());
+
+	addExposedControl(jjSlit_->verticalBladesControl()->gapPVControl());
+	addExposedControl(jjSlit_->verticalBladesControl()->centerPVControl());
+	addExposedControl(jjSlit_->horizontalBladesControl()->gapPVControl());
+	addExposedControl(jjSlit_->horizontalBladesControl()->centerPVControl());
 }
 
 void BioXASSideBeamline::setupExposedDetectors()
