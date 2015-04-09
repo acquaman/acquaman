@@ -575,6 +575,8 @@ void BioXASSideBeamline::setupSampleStage()
 
 void BioXASSideBeamline::setupMotorGroup()
 {
+	// Side Endstation table
+	endstationTable_ = new BioXASEndstationTable("SideBL endstation table", "BL1607-6-I22", false, this);
 	// Filter farm motors
 
 	carbonFilterFarm1_ = new CLSMAXvMotor(QString("SMTR1607-5-I00-01 Filter 1"), QString("SMTR1607-5-I00-01"), QString("SMTR1607-5-I00-01 Filter 1"), true, 0.05, 2.0, this, QString(":mm"));

@@ -42,6 +42,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/BioXAS/BioXASSideMonochromator.h"
 #include "beamline/BioXAS/BioXASPseudoMotorControl.h"
 #include "beamline/BioXAS/BioXAS32ElementGeDetector.h"
+#include "beamline/BioXAS/BioXASEndstationTable.h"
 
 #define BIOXASSIDEBEAMLINE_PRESSURE_TOO_HIGH 54600
 #define BIOXASSIDEBEAMLINE_VALVES_CLOSED 54601
@@ -224,6 +225,9 @@ public:
 	AMBasicControlDetectorEmulator* braggAngleDetector() const { return braggAngleDetector_; }
 	/// Returns the 32 element Ge detector.
 	BioXAS32ElementGeDetector *ge32ElementDetector() const { return ge32ElementDetector_; }
+
+	// Endstation table
+	BioXASEndstationTable *endstationTable() const { return endstationTable_; }
 
 signals:
 	/// Notifier that the beamline's global connection state has changed.
@@ -432,6 +436,9 @@ protected:
 	AMControl *tm5_;
 
 	AMControlSet *temperatureSet_;
+
+	// endstation table
+	BioXASEndstationTable *endstationTable_;
 
 	// Filter motors
 
