@@ -19,22 +19,14 @@ protected slots:
 	/// handle the signal of CLSJJSlit connected, prefill the values to the spinbox
 	void onJJSlitConnected();
 
-	/// handle the signal of spinbox editfinished to move the PV of JJslit
-	void onVerticalGapSpinBoxEditFinished();
-	/// handle the signal of spinbox editfinished to move the PV of JJslit
-	void onVerticalCenterSpinBoxEditFinished();
-	/// handle the signal of spinbox editfinished to move the PV of JJslit
-	void onHorizontalGapSpinBoxEditFinished();
-	/// handle the signal of spinbox editfinished to move the PV of JJslit
-	void onHorizontalCenterSpinBoxEditFinished();
-
-protected:
-	/// helper function to create double spinbox for gap/center operation
-	QDoubleSpinBox * createDoubleSpinBox(double limit);
-
 protected:
 	/// the instance of CLSJJSlit
 	CLSJJSlit * clsJJSlit_;
+
+	AMExtendedControlEditor *verticalGapEditor_;
+	AMExtendedControlEditor *verticalCenterEditor_;
+	AMExtendedControlEditor *horizontalGapEditor_;
+	AMExtendedControlEditor *horizontalCenterEditor_;
 
 	/// the spinbox for vertical Gap
 	QDoubleSpinBox * verticalGapSpinBox_;

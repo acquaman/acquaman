@@ -24,7 +24,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "beamline/CLS/CLSSIS3820Scaler.h"
 
-#include "ui/CLS/CLSSIS3820ScalerChannelViewWithDarkCurrent.h"
 #include "ui/CLS/CLSSIS3820ScalerDarkCurrentWidget.h"
 
 // CLSSIS3820ScalerView
