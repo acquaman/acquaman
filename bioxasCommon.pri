@@ -20,7 +20,10 @@ HEADERS += \
     source/beamline/BioXAS/BioXASSSRLMonochromatorEnergyControl.h \
     source/ui/BioXAS/BioXASSSRLMonochromatorConfigurationView.h \
     source/beamline/BioXAS/BioXASCarbonFilterFarm.h \
-    source/beamline/BioXAS/BioXASCarbonFilterFarmActuatorControl.h
+	source/beamline/BioXAS/BioXASCarbonFilterFarmActuatorControl.h \
+    source/ui/BioXAS/BioXASSIS3820ScalerChannelView.h \
+    source/ui/BioXAS/BioXASSIS3820ScalerView.h \
+    source/ui/BioXAS/BioXASSIS3820ScalerChannelsView.h
 
 SOURCES += \
 	source/beamline/BioXAS/BioXASPseudoMotorControl.cpp \
@@ -36,12 +39,7 @@ SOURCES += \
     source/beamline/BioXAS/BioXASSSRLMonochromatorEnergyControl.cpp \
     source/ui/BioXAS/BioXASSSRLMonochromatorConfigurationView.cpp \
     source/beamline/BioXAS/BioXASCarbonFilterFarm.cpp \
-    source/beamline/BioXAS/BioXASCarbonFilterFarmActuatorControl.cpp
-
-
-
-
-
-
-
-
+	source/beamline/BioXAS/BioXASCarbonFilterFarmActuatorControl.cpp \
+    source/ui/BioXAS/BioXASSIS3820ScalerChannelView.cpp \
+    source/ui/BioXAS/BioXASSIS3820ScalerView.cpp \
+    source/ui/BioXAS/BioXASSIS3820ScalerChannelsView.cpp

@@ -27,6 +27,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "beamline/AMCurrentAmplifier.h"
 #include "beamline/AMProcessVariable.h"
+#include "beamline/AMPVControl.h"
 
 class CLSKeithley428ValueMap;
 
@@ -35,8 +36,11 @@ class CLSKeithley428 : public AMCurrentAmplifier
     Q_OBJECT
 
 public:
+	/// Enumerates the different bias voltage enabled states.
+	class BiasVoltage { public: enum State { Off = 0, On }; };
+
     /// Constructor.
-    explicit CLSKeithley428(const QString &name, const QString &valueName, QObject *parent = 0);
+    explicit CLSKeithley428(const QString &name, const QString &baseName, QObject *parent = 0);
     /// Destructor.
     virtual ~CLSKeithley428();
 
@@ -48,6 +52,11 @@ public:
     int valueIndex() const;
     /// Returns the list of possible values.
     virtual QList<double> values() const;
+
+    /// Returns the voltage bias enabled control value.
+    double biasVoltageEnabled() const { return biasVoltageEnabled_->value(); }
+    /// Returns the voltage bias control value.
+    double biasVoltage() const { return biasVoltage_->value(); }
 
     /// Returns string representing the units to use, depending on the display mode.
     virtual QString units() const;
@@ -67,6 +76,11 @@ public:
     /// Returns true if the current index corresponds to the minimum sensitivity allowed, false otherwise.
     virtual bool atMinimumSensitivity() const;
 
+    /// Returns the bias voltage enabled control.
+    AMPVControl* biasVoltageEnabledControl() const { return biasVoltageEnabled_; }
+    /// Returns the bias voltage control.
+    AMPVControl* biasVoltageControl() const { return biasVoltage_; }
+
 public slots:
     /// Increases the gain by one value index, if not at maximum.
     virtual bool increaseGain();
@@ -76,6 +90,11 @@ public slots:
     virtual bool increaseSensitivity();
     /// Decreases the sensitivity by one value index, if not at minimum.
     virtual bool decreaseSensitivity();
+
+    /// Sets the value of the bias voltage enabled control.
+    void setBiasVoltageEnabled(bool enabled);
+    /// Sets the value of the bias voltage control.
+    void setBiasVoltage(double newValue);
 
 protected slots:
     /// Sets the gain value by index.
@@ -96,6 +115,10 @@ protected:
 protected:    
     /// Pointer to the pv controlling Keithley value.
     AMProcessVariable *valueControl_;
+    /// The bias voltage enabled control.
+    AMPVControl *biasVoltageEnabled_;
+    /// The bias voltage control.
+    AMPVControl *biasVoltage_;
     /// List of available gain values.
     QList<double> gains_;
     /// String list of the available units.
