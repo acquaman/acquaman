@@ -30,8 +30,6 @@ public:
 protected:
 	/// Returns a new action that moves the actuators to the desired filter thickness setpoint.
 	virtual AMAction3* createMoveAction(double setpoint);
-	/// Returns a new action that waits for the actuators to arrive at a valid setpoint.
-	virtual AMAction3* createWaitAction(double setpoint);
 };
 
 #endif // BIOXASSIDECARBONFILTERFARMCONTROL_H

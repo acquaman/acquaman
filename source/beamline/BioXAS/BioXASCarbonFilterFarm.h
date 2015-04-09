@@ -5,13 +5,21 @@
 
 #include "beamline/BioXAS/BioXASCarbonFilterFarmActuatorControl.h"
 
+// error codes.
+
+#define BIOXAS_FILTER_FARM_NOT_CONNECTED 23048701
+#define BIOXAS_FILTER_FARM_ALREADY_MOVING 23048702
+#define BIOXAS_FILTER_FARM_INVALID_SETPOINT 23048703
+#define BIOXAS_FILTER_FARM_MOVE_FAILED 23048704
+
+
 class BioXASCarbonFilterFarmControl : public AMCompositeControl
 {
     Q_OBJECT
 
 public:
-	/// Enum defining the possible thickness selections.
-	class Filter { public: enum Thickness { None = 0, Between, Fifty, SeventyFive, FiveHundred, FiveHundredSeventyFive, SevenHundred, SevenHundredFifty }; };
+	/// Enum defining all possible filter thickness combinations.
+	class Filter { public: enum Thickness { Invalid = 0, None, Fifty, SeventyFive, FiveHundred, FiveHundredSeventyFive, SevenHundred, SevenHundredFifty }; };
 	/// Enum defining the different actuators.
 	class Actuator { public: enum Position { Upstream = 0, Downstream }; };
 
@@ -27,7 +35,7 @@ public:
 	/// Returns true if the filter farm is moving, as a result of this control's action.
 	virtual bool moveInProgress() const { return moveInProgress_; }
 	/// Returns the smallest value this control can take.
-	virtual double minimumValue() const { return Filter::None; }
+	virtual double minimumValue() const { return Filter::Invalid; }
 	/// Returns the largest value this control can take.
 	virtual double maximumValue() const { return Filter::SevenHundredFifty; }
 	/// Returns true if the total filter thickness is always measurable, if connected. False otherwise.
@@ -53,10 +61,18 @@ public:
 
 	/// Returns a string representation of the given filter thickness.
 	static QString filterToString(Filter::Thickness value);
+	/// Returns a filter corresponding to the given string representation. Returns Filter::Invalid if no filter match found.
+	static Filter::Thickness stringToFilter(const QString &string);
 	/// Returns a double representation of the given filter thickness.
 	static double filterToDouble(Filter::Thickness value);
 	/// Returns the filter corresponding to the given double respresentation.
 	static Filter::Thickness doubleToFilter(double filterThickness);
+
+	/// Returns the filter corresponding to the given enum index.
+	static Filter::Thickness filter(double index);
+
+	/// Returns the filter corresponding to the given actuator and window. Returns Filter::Invalid if filter not found.
+	Filter::Thickness filterAtWindow(Actuator::Position actuator, BioXASCarbonFilterFarmActuatorControl::Window::Selection window);
 
 public slots:
 	/// Sets the new filter thickness setpoint and moves the actuators.
@@ -68,10 +84,12 @@ protected slots:
 	/// Sets the filter thickness setpoint.
 	void setFilterSetpoint(double newSetpoint);
 	/// Sets a window to filter thickness mapping.
-	void setFilterMapping(Actuator::Position actuator, double window, Filter::Thickness filterThickness);
+	void setWindowFilter(Actuator::Position actuator, BioXASCarbonFilterFarmActuatorControl::Window::Selection window, Filter::Thickness filterThickness);
 	/// Sets the move in progress.
 	void setMoveInProgress(bool isMoving);
 
+	/// Handles emitting the appropriate signals when the move action has started.
+	void onMoveStarted();
 	/// Handles emitting the appropriate signals and performing action cleanup when the move action is cancelled.
 	void onMoveCancelled(QObject *action);
 	/// Handles emitting the appropriate signals and performing action cleanup when the move action fails.
@@ -85,11 +103,9 @@ protected slots:
 protected:
 	/// Returns a new action that moves the actuators to the desired filter thickness setpoint.
 	virtual AMAction3* createMoveAction(double setpoint) = 0;
-	/// Returns a new action that waits for the actuators to arrive at a valid setpoint.
-	virtual AMAction3* createWaitAction(double setpoint) = 0;
 
 	/// Returns the total filter thickness, according to the given active actuator windows.
-	Filter::Thickness calculateTotalFilterFromWindows(double upstreamWindow, double downstreamWindow);
+	Filter::Thickness calculateTotalFilterFromWindows(BioXASCarbonFilterFarmActuatorControl::Window::Selection upstreamWindow, BioXASCarbonFilterFarmActuatorControl::Window::Selection downstreamWindow);
 	/// Returns the total filter thickness, according to the given active upstream and downstream filters.
 	static Filter::Thickness calculateTotalFilter(Filter::Thickness upstreamFilter, Filter::Thickness downstreamFilter);
 
@@ -101,12 +117,12 @@ protected:
 	/// The current move state, true if this control has initiated a move.
 	bool moveInProgress_;
 	/// The mapping between window and filter thickness, for the upstream actuator.
-	QMap<double, Filter::Thickness> upstreamFilterMap_;
+	QMap<BioXASCarbonFilterFarmActuatorControl::Window::Selection, Filter::Thickness> upstreamFilterMap_;
 	/// The mapping between window and filter thickness, for the downstream actuator.
-	QMap<double, Filter::Thickness> downstreamFilterMap_;
-	/// The upstream filter arm.
+	QMap<BioXASCarbonFilterFarmActuatorControl::Window::Selection, Filter::Thickness> downstreamFilterMap_;
+	/// The upstream filter actuator.
 	BioXASCarbonFilterFarmActuatorControl *upstreamActuator_;
-	/// The downstream filter arm.
+	/// The downstream filter actuator.
 	BioXASCarbonFilterFarmActuatorControl *downstreamActuator_;
 
 	/// The signal mapper for move cancelled.

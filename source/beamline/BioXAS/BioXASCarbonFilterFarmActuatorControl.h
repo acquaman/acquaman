@@ -24,13 +24,13 @@ class BioXASCarbonFilterFarmActuatorControl : public AMCompositeControl
     Q_OBJECT
 
 public:
-	/// Enum defining the active window options.
+	/// Enum defining the active window options. Removed, First, and Second are all valid options; None would represent some kind of error state.
 	class Window { public: enum Selection { None = 0, Removed, First, Second }; };
 	/// Enum defining the possible position states.
 	class Position { public: enum State { NotSafe = 0, Safe }; };
 
 	/// Constructor.
-	explicit BioXASCarbonFilterFarmActuatorControl(QString &name, QObject *parent);
+	explicit BioXASCarbonFilterFarmActuatorControl(QString name, QObject *parent = 0);
 	/// Destructor.
 	virtual ~BioXASCarbonFilterFarmActuatorControl();
 
@@ -62,14 +62,18 @@ public:
 	static bool validWindow(double value);
 	/// Returns true if the given value corresponds to a valid window setpoint, false otherwise.
 	static bool validWindowSetpoint(double value);
+
 	/// Returns a string representation of the given window value.
 	static QString windowToString(Window::Selection value);
-	/// Returns the window corresponding to the given double setpoint.
-	static Window::Selection window(double value);
+	/// Returns the filter corresponding to the given string respresentation. Returns Window::None if no filter found.
+	static Window::Selection stringToWindow(const QString &string);
 
-	/// Returns the window corresponding to the given position.
+	/// Returns the window corresponding to the given enum index.
+	static Window::Selection window(double index);
+
+	/// Returns the window corresponding to the given position. Returns Window::None if no window found.
 	Window::Selection windowAtPosition(double position) const;
-	/// Returns the position of the given window.
+	/// Returns the position of the given window. Returns 0 if no position was found.
 	double positionOfWindow(Window::Selection window) const;
 
 public slots:
@@ -87,6 +91,8 @@ protected slots:
 	/// Sets the move in progress.
 	void setMoveInProgress(bool isMoving);
 
+	/// Handles emitting the appropriate signals when the move action has started.
+	void onMoveStarted();
 	/// Handles emitting the appropriate signals and performing action cleanup when the move action is cancelled.
 	void onMoveCancelled(QObject *action);
 	/// Handles emitting the appropriate signals and performing action cleanup when the move action fails.
@@ -125,10 +131,6 @@ protected:
 private:
 	/// Handles disconnecting from a move action and removing the signal mappings when the action is complete.
 	void moveCleanup(QObject *action);
-
-
-//	carbonFilterFarm1_ = new CLSMAXvMotor(QString("SMTR1607-5-I00-01 Filter 1"), QString("SMTR1607-5-I00-01"), QString("SMTR1607-5-I00-01 Filter 1"), true, 0.05, 2.0, this, QString(":mm"));
-//	carbonFilterFarm2_ = new CLSMAXvMotor(QString("SMTR1607-5-I00-02 Filter 2"), QString("SMTR1607-5-I00-02"), QString("SMTR1607-5-I00-02 Filter 2"), true, 0.05, 2.0, this, QString(":mm"));
 
 };
 

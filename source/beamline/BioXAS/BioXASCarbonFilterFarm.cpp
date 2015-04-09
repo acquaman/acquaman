@@ -1,4 +1,5 @@
 #include "BioXASCarbonFilterFarm.h"
+#include "util/AMErrorMonitor.h"
 
 BioXASCarbonFilterFarmControl::BioXASCarbonFilterFarmControl(QObject *parent) :
 	AMCompositeControl("BioXAS Carbon Filter Farm", "mm", parent)
@@ -68,11 +69,11 @@ QString BioXASCarbonFilterFarmControl::filterToString(Filter::Thickness value)
 	QString result = QString();
 
 	switch (value) {
+	case Filter::Invalid:
+		result = "Invalid";
+		break;
 	case Filter::None:
 		result = "None";
-		break;
-	case Filter::Between:
-		result = "Between";
 		break;
 	case Filter::Fifty:
 		result = "50";
@@ -94,6 +95,30 @@ QString BioXASCarbonFilterFarmControl::filterToString(Filter::Thickness value)
 		break;
 	default:
 		break;
+	}
+
+	return result;
+}
+
+BioXASCarbonFilterFarmControl::Filter::Thickness BioXASCarbonFilterFarmControl::stringToFilter(const QString &string)
+{
+	Filter::Thickness result = Filter::Invalid;
+
+	if (!string.isEmpty()) {
+		if (string == "None")
+			result= Filter::None;
+		else if (string == "50")
+			result = Filter::Fifty;
+		else if (string == "75")
+			result = Filter::SeventyFive;
+		else if (string == "500")
+			result = Filter::FiveHundred;
+		else if (string == "575")
+			result = Filter::FiveHundredSeventyFive;
+		else if (string == "700")
+			result = Filter::SevenHundred;
+		else if (string == "750")
+			result = Filter::SevenHundredFifty;
 	}
 
 	return result;
@@ -162,17 +187,67 @@ BioXASCarbonFilterFarmControl::Filter::Thickness BioXASCarbonFilterFarmControl::
 	return filter;
 }
 
+BioXASCarbonFilterFarmControl::Filter::Thickness BioXASCarbonFilterFarmControl::filter(double index)
+{
+	Filter::Thickness result = Filter::Invalid;
+
+	switch ((int)index) {
+	case Filter::None:
+		result = Filter::None;
+		break;
+	case Filter::Fifty:
+		result = Filter::Fifty;
+		break;
+	case Filter::SeventyFive:
+		result = Filter::SeventyFive;
+		break;
+	case Filter::FiveHundred:
+		result = Filter::FiveHundred;
+		break;
+	case Filter::FiveHundredSeventyFive:
+		result = Filter::FiveHundredSeventyFive;
+		break;
+	case Filter::SevenHundred:
+		result = Filter::SevenHundred;
+		break;
+	case Filter::SevenHundredFifty:
+		result = Filter::SevenHundredFifty;
+		break;
+	default:
+		break;
+	}
+
+	return result;
+}
+
+BioXASCarbonFilterFarmControl::Filter::Thickness BioXASCarbonFilterFarmControl::filterAtWindow(Actuator::Position actuator, BioXASCarbonFilterFarmActuatorControl::Window::Selection window)
+{
+	Filter::Thickness filter = Filter::Invalid;
+
+	if (actuator == Actuator::Upstream) {
+		filter = upstreamFilterMap_.value(window, Filter::Invalid);
+
+	} else if (actuator == Actuator::Downstream) {
+		filter = downstreamFilterMap_.value(window, Filter::Invalid);
+	}
+
+	return filter;
+}
+
 AMControl::FailureExplanation BioXASCarbonFilterFarmControl::move(double setpoint)
 {
 	if (!isConnected()) {
+		AMErrorMon::alert(this, BIOXAS_FILTER_FARM_NOT_CONNECTED, "Failed to change filters: filter farm not connected.");
 		return AMControl::NotConnectedFailure;
 	}
 
 	if (isMoving()) {
+		AMErrorMon::alert(this, BIOXAS_FILTER_FARM_ALREADY_MOVING, "Failed to change filters: filter farm already moving.");
 		return AMControl::AlreadyMovingFailure;
 	}
 
 	if (!validFilterSetpoint(setpoint)) {
+		AMErrorMon::alert(this, BIOXAS_FILTER_FARM_INVALID_SETPOINT, "Failed to change filters: invalid setpoint.");
 		return AMControl::LimitFailure;
 	}
 
@@ -180,25 +255,31 @@ AMControl::FailureExplanation BioXASCarbonFilterFarmControl::move(double setpoin
 
 	setFilterSetpoint(setpoint);
 
-	// Create actions that move the appropriate actuators to the desired filter thickness, and confirm a valid position has been reached.
+	// Create actions that move the appropriate actuators to the desired filter thickness.
 
-	AMListAction3 *moveAndConfirm = new AMListAction3(new AMListActionInfo3("Set filter thickness", "Set filter thickness"), AMListAction3::Sequential);
-	moveAndConfirm->addSubAction(createMoveAction(setpoint));
-	moveAndConfirm->addSubAction(createWaitAction(setpoint));
+	AMAction3 *moveAction = createMoveAction(setpoint);
 
-	if (!moveAndConfirm) {
+	if (!moveAction) {
+		AMErrorMon::alert(this, BIOXAS_FILTER_FARM_MOVE_FAILED, "Failed to change filters.");
 		return AMControl::LimitFailure;
 	}
 
 	// Create move action signal mappings.
 
-	cancelledMapper_->setMapping(moveAndConfirm, moveAndConfirm);
-	failedMapper_->setMapping(moveAndConfirm, moveAndConfirm);
-	succeededMapper_->setMapping(moveAndConfirm, moveAndConfirm);
+	connect( moveAction, SIGNAL(started()), this, SLOT(onMoveStarted()) );
+
+	cancelledMapper_->setMapping(moveAction, moveAction);
+	connect( moveAction, SIGNAL(cancelled()), cancelledMapper_, SLOT(map()) );
+
+	failedMapper_->setMapping(moveAction, moveAction);
+	connect( moveAction, SIGNAL(failed()), failedMapper_, SLOT(map()) );
+
+	succeededMapper_->setMapping(moveAction, moveAction);
+	connect( moveAction, SIGNAL(succeeded()), succeededMapper_, SLOT(map()) );
 
 	// Run action.
 
-	moveAndConfirm->start();
+	moveAction->start();
 
 	return AMControl::NoFailure;
 }
@@ -219,7 +300,7 @@ void BioXASCarbonFilterFarmControl::setFilterSetpoint(double newSetpoint)
 	}
 }
 
-void BioXASCarbonFilterFarmControl::setFilterMapping(Actuator::Position actuator, double window, Filter::Thickness filterThickness)
+void BioXASCarbonFilterFarmControl::setWindowFilter(Actuator::Position actuator, BioXASCarbonFilterFarmActuatorControl::Window::Selection window, Filter::Thickness filterThickness)
 {
 	if (actuator == Actuator::Upstream) {
 		upstreamFilterMap_.insert(window, filterThickness);
@@ -238,6 +319,11 @@ void BioXASCarbonFilterFarmControl::setMoveInProgress(bool isMoving)
 		if (moveInProgress_)
 			emit moveStarted();
 	}
+}
+
+void BioXASCarbonFilterFarmControl::onMoveStarted()
+{
+	setMoveInProgress(true);
 }
 
 void BioXASCarbonFilterFarmControl::onMoveCancelled(QObject *action)
@@ -260,21 +346,29 @@ void BioXASCarbonFilterFarmControl::onMoveSucceeded(QObject *action)
 
 void BioXASCarbonFilterFarmControl::updateFilter()
 {
-	double newFilter = calculateTotalFilterFromWindows(upstreamActuator_->value(), downstreamActuator_->value());
+	Filter::Thickness newFilter = Filter::Invalid;
+
+	if (upstreamActuator_ && upstreamActuator_->isConnected() && downstreamActuator_ && downstreamActuator_->isConnected()) {
+		BioXASCarbonFilterFarmActuatorControl::Window::Selection upstreamWindow = upstreamActuator_->window(upstreamActuator_->value());
+		BioXASCarbonFilterFarmActuatorControl::Window::Selection downstreamWindow = downstreamActuator_->window(downstreamActuator_->value());
+
+		newFilter = calculateTotalFilterFromWindows(upstreamWindow, downstreamWindow);
+	}
+
 	setFilter(newFilter);
 }
 
-BioXASCarbonFilterFarmControl::Filter::Thickness BioXASCarbonFilterFarmControl::calculateTotalFilterFromWindows(double upstreamWindow, double downstreamWindow)
+BioXASCarbonFilterFarmControl::Filter::Thickness BioXASCarbonFilterFarmControl::calculateTotalFilterFromWindows(BioXASCarbonFilterFarmActuatorControl::Window::Selection upstreamWindow, BioXASCarbonFilterFarmActuatorControl::Window::Selection downstreamWindow)
 {
-	Filter::Thickness upstreamThickness = Filter::None;
-	Filter::Thickness downstreamThickness = Filter::None;
+	Filter::Thickness upstreamThickness = Filter::Invalid;
+	Filter::Thickness downstreamThickness = Filter::Invalid;
 
-	if (upstreamActuator_->validWindow(upstreamWindow) && upstreamFilterMap_.contains(upstreamWindow)) {
-		upstreamThickness = upstreamFilterMap_.value(upstreamWindow);
+	if (upstreamActuator_ && upstreamActuator_->validWindow(upstreamWindow) && upstreamFilterMap_.contains(upstreamWindow)) {
+		upstreamThickness = filterAtWindow(Actuator::Upstream, upstreamWindow);
 	}
 
-	if (downstreamActuator_->validWindow(downstreamWindow) && downstreamFilterMap_.contains(downstreamWindow)) {
-		downstreamThickness = downstreamFilterMap_.value(downstreamWindow);
+	if (downstreamActuator_ && downstreamActuator_->validWindow(downstreamWindow) && downstreamFilterMap_.contains(downstreamWindow)) {
+		downstreamThickness = filterAtWindow(Actuator::Downstream, downstreamWindow);
 	}
 
 	return calculateTotalFilter(upstreamThickness, downstreamThickness);
