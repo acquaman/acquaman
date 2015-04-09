@@ -34,6 +34,9 @@ AMXRFDetector::AMXRFDetector(const QString &name, const QString &description, QO
 	acquisitionStatusControl_ = 0; //NULL
 	acquireControl_ = 0; //NULL
 
+	triggerSourceTriggered_ = false;
+	triggerCounter_ = 0;
+
 	doDeadTimeCorrection_ = false;
 	units_ = "Counts";
 
