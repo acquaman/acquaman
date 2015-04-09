@@ -26,12 +26,13 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 class QGroupBox;
 class QWidget;
+class AMScanConfigurationViewHolder3;
 class CLSSIS3820ScalerView;
 class CLSJJSlitView;
+class BioXASEndstationTableView;
 class BioXASSidePersistentView;
 class BioXASSideXASScanConfiguration;
 class BioXASSideXASScanConfigurationView;
-class AMScanConfigurationViewHolder3;
 class BioXASSSRLMonochromatorConfigurationView;
 
 class BioXASSideAppController : public AMAppController
@@ -82,6 +83,8 @@ protected:
     BioXASSSRLMonochromatorConfigurationView *monoConfigView_;
 	/// The JJ slit view
 	CLSJJSlitView *jjSlitView_;
+	/// The endstation table view
+	BioXASEndstationTableView *endstationTableView_;
 
     BioXASSidePersistentView *persistentPanel_;
 

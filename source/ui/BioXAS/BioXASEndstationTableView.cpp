@@ -12,11 +12,17 @@ BioXASEndstationTableView::BioXASEndstationTableView(BioXASEndstationTable *ends
 	endstationTable_ = endstationTable;
 
 	heightControlEditor_ = new AMExtendedControlEditor(endstationTable_->heightPVController());
+	heightControlEditor_->hideBorder();
 	pitchControlEditor_ = new AMExtendedControlEditor(endstationTable_->pitchPVController());
+	pitchControlEditor_->hideBorder();
 	lateralControlEditor_ = new AMExtendedControlEditor(endstationTable_->lateralPVController());
+	lateralControlEditor_->hideBorder();
 	yawControlEditor_ = new AMExtendedControlEditor(endstationTable_->yawPVController());
-	if (endstationTable->rollPVController())
+	yawControlEditor_->hideBorder();
+	if (endstationTable->rollPVController()) {
 		rollControlEditor_ = new AMExtendedControlEditor(endstationTable_->rollPVController());
+		rollControlEditor_->hideBorder();
+	}
 
 	QGridLayout *tableControlLayout = new QGridLayout;
 	tableControlLayout->addWidget(new QLabel("Height"),   0, 0, 1, 1);

@@ -54,6 +54,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/CLS/CLSSIS3820ScalerView.h"
 #include "ui/CLS/CLSJJSlitView.h"
 
+#include "ui/BioXAS/BioXASEndstationTableView.h"
 #include "ui/BioXAS/BioXASSidePersistentView.h"
 #include "ui/BioXAS/BioXASSideXASScanConfigurationView.h"
 #include "ui/BioXAS/BioXAS32ElementGeDetectorView.h"
@@ -190,6 +191,7 @@ void BioXASSideAppController::setupUserInterface()
 	// Set up the general monochromator configuration view.
 	monoConfigView_ = new BioXASSSRLMonochromatorConfigurationView(BioXASSideBeamline::bioXAS()->mono());
 	jjSlitView_ = new CLSJJSlitView(BioXASSideBeamline::bioXAS()->jjSlit());
+	endstationTableView_ = new BioXASEndstationTableView(BioXASSideBeamline::bioXAS()->endstationTable());
 
 	// Create scaler view, if scaler is present and connected.
 	if (BioXASSideBeamline::bioXAS()->scaler()->isConnected()) {
@@ -209,6 +211,7 @@ void BioXASSideAppController::setupUserInterface()
 	mw_->insertHeading("General", 0);
 	mw_->addPane(monoConfigView_, "General", "Monochromator", ":/system-software-update.png");
 	mw_->addPane(createSqeezeGroupBoxWithView("", jjSlitView_), "General", "JJ Slit", ":/system-software-update.png");
+	mw_->addPane(createSqeezeGroupBoxWithView("", endstationTableView_), "General", "Endstation Table", ":/system-software-update.png");
 
 	// Add views to 'Detectors'.
 	mw_->insertHeading("Detectors", 1);
