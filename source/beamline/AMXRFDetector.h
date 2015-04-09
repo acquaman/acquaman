@@ -163,6 +163,8 @@ protected slots:
 	virtual void onStatusControlChanged();
 	/// Handles emitting the bounding range changed signal for regions of interest.
 	void onRegionOfInterestBoundingRangeChanged(QObject *region);
+	/// Handles listening to the primary spectrum source to determine whether the detector is finished acquiring.
+	void onSpectrumSourceUpdated();
 
 protected:
 	/// A helper method that adds all of this classes controls to the allControls_ control set.  This is required because we don't know in advance how many elements/spectra will be in the detector.  It also builds all of the spectra data sources and creates analysis blocks if necessary.
@@ -225,6 +227,11 @@ protected:
 	// Extras
 	/// Flag that holds whether the detector will do dead time corrections or not.
 	bool doDeadTimeCorrection_;
+
+	/// Flag for knowing if the scaler has been triggered.
+	bool triggerSourceTriggered_;
+	/// The counter for how many updates we need to wait for to finish an acquisition.
+	int triggerCounter_;
 
 private:
 	/// Internal method that builds process variable data sources for the spectrum controls.
