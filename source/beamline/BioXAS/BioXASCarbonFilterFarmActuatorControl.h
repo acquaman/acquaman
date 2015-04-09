@@ -125,6 +125,11 @@ protected:
 private:
 	/// Handles disconnecting from a move action and removing the signal mappings when the action is complete.
 	void moveCleanup(QObject *action);
+
+
+//	carbonFilterFarm1_ = new CLSMAXvMotor(QString("SMTR1607-5-I00-01 Filter 1"), QString("SMTR1607-5-I00-01"), QString("SMTR1607-5-I00-01 Filter 1"), true, 0.05, 2.0, this, QString(":mm"));
+//	carbonFilterFarm2_ = new CLSMAXvMotor(QString("SMTR1607-5-I00-02 Filter 2"), QString("SMTR1607-5-I00-02"), QString("SMTR1607-5-I00-02 Filter 2"), true, 0.05, 2.0, this, QString(":mm"));
+
 };
 
 #endif // BIOXASCARBONFILTERFARMACTUATORCONTROL_H

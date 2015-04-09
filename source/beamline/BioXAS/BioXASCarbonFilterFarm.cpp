@@ -180,23 +180,25 @@ AMControl::FailureExplanation BioXASCarbonFilterFarmControl::move(double setpoin
 
 	setFilterSetpoint(setpoint);
 
-	// Create an action that moves the appropriate actuators to the desired filter thickness.
+	// Create actions that move the appropriate actuators to the desired filter thickness, and confirm a valid position has been reached.
 
-	AMAction3 *moveAction = createMoveAction(setpoint_);
+	AMListAction3 *moveAndConfirm = new AMListAction3(new AMListActionInfo3("Set filter thickness", "Set filter thickness"), AMListAction3::Sequential);
+	moveAndConfirm->addSubAction(createMoveAction(setpoint));
+	moveAndConfirm->addSubAction(createWaitAction(setpoint));
 
-	if (!moveAction) {
+	if (!moveAndConfirm) {
 		return AMControl::LimitFailure;
 	}
 
 	// Create move action signal mappings.
 
-	cancelledMapper_->setMapping(moveAction, moveAction);
-	failedMapper_->setMapping(moveAction, moveAction);
-	succeededMapper_->setMapping(moveAction, moveAction);
+	cancelledMapper_->setMapping(moveAndConfirm, moveAndConfirm);
+	failedMapper_->setMapping(moveAndConfirm, moveAndConfirm);
+	succeededMapper_->setMapping(moveAndConfirm, moveAndConfirm);
 
 	// Run action.
 
-	moveAction->start();
+	moveAndConfirm->start();
 
 	return AMControl::NoFailure;
 }

@@ -42,6 +42,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/BioXAS/BioXASSideMonochromator.h"
 #include "beamline/BioXAS/BioXASPseudoMotorControl.h"
 #include "beamline/BioXAS/BioXAS32ElementGeDetector.h"
+#include "beamline/BioXAS/BioXASSideCarbonFilterFarmControl.h"
 
 #define BIOXASSIDEBEAMLINE_PRESSURE_TOO_HIGH 54600
 #define BIOXASSIDEBEAMLINE_VALVES_CLOSED 54601
@@ -78,7 +79,9 @@ public:
 	/// Returns the beamline monochromator.
 	BioXASSideMonochromator *mono() const { return mono_; }
 	/// Returns the scaler.
-	CLSSIS3820Scaler* scaler() const { return scaler_; }
+	virtual CLSSIS3820Scaler* scaler() const { return scaler_; }
+	/// Returns the carbon filter farm.
+	BioXASSideCarbonFilterFarmControl* carbonFilterFarm() const { return carbonFilterFarm_; }
 
 	// Photon and safety shutters.
 
@@ -326,6 +329,10 @@ protected:
 	CLSKeithley428 *i0Keithley_;
 	CLSKeithley428 *iTKeithley_;
 	CLSKeithley428 *i2Keithley_;
+
+	// Carbon filter farm.
+
+	BioXASSideCarbonFilterFarmControl *carbonFilterFarm_;
 
 	// Misc controls
 

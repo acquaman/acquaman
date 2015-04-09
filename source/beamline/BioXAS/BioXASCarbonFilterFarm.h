@@ -83,8 +83,10 @@ protected slots:
 	void updateFilter();
 
 protected:
-	/// Returns a new action that moves the actuator to the desired filter thickness setpoint. Returns 0 if unable to move or if the setpoint is invalid.
+	/// Returns a new action that moves the actuators to the desired filter thickness setpoint.
 	virtual AMAction3* createMoveAction(double setpoint) = 0;
+	/// Returns a new action that waits for the actuators to arrive at a valid setpoint.
+	virtual AMAction3* createWaitAction(double setpoint) = 0;
 
 	/// Returns the total filter thickness, according to the given active actuator windows.
 	Filter::Thickness calculateTotalFilterFromWindows(double upstreamWindow, double downstreamWindow);
