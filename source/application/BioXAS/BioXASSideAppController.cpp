@@ -100,7 +100,7 @@ bool BioXASSideAppController::startup()
 		setupExporterOptions();
 		setupUserInterface();
 		makeConnections();
-        applyCurrentSettings();
+		applyCurrentSettings();
 
 		return true;
 	}
@@ -128,7 +128,7 @@ void BioXASSideAppController::onBeamlineConnected()
 {
 	if (BioXASSideBeamline::bioXAS()->isConnected() && !configurationView_) {
 		configuration_ = new BioXASSideXASScanConfiguration();
-		configuration_->setEdgeEnergy(10000);
+		configuration_->setEnergy(10000);
 		/*
 		configuration_->scanAxisAt(0)->regionAt(0)->setRegionStart(10000);
 		configuration_->scanAxisAt(0)->regionAt(0)->setRegionStep(1);
@@ -224,14 +224,14 @@ void BioXASSideAppController::setupUserInterface()
 
 void BioXASSideAppController::makeConnections()
 {
-    connect( BioXASSideBeamline::bioXAS()->scaler(), SIGNAL(connectedChanged(bool)), this, SLOT(onScalerConnected()) );
-    connect( BioXASSideBeamline::bioXAS(), SIGNAL(connected(bool)), this, SLOT(onBeamlineConnected()) );
+	connect( BioXASSideBeamline::bioXAS()->scaler(), SIGNAL(connectedChanged(bool)), this, SLOT(onScalerConnected()) );
+	connect( BioXASSideBeamline::bioXAS(), SIGNAL(connected(bool)), this, SLOT(onBeamlineConnected()) );
 }
 
 void BioXASSideAppController::applyCurrentSettings()
 {
-    onScalerConnected();
-    onBeamlineConnected();
+	onScalerConnected();
+	onBeamlineConnected();
 }
 
 void BioXASSideAppController::onCurrentScanActionStartedImplementation(AMScanAction *action)

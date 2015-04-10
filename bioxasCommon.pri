@@ -14,16 +14,18 @@ HEADERS += \
 	source/acquaman/BioXAS/BioXASXRFScanConfiguration.h \
 	source/acquaman/BioXAS/BioXASXRFScanController.h \
 	source/beamline/BioXAS/BioXASSSRLMonochromator.h \
-    source/beamline/BioXAS/BioXASSSRLMonochromatorRegionControl.h \
-    source/ui/BioXAS/BioXASSSRLMonochromatorRegionControlEditor.h \
-    source/ui/BioXAS/BioXASSSRLMonochromatorRegionControlView.h \
-    source/beamline/BioXAS/BioXASSSRLMonochromatorEnergyControl.h \
-    source/ui/BioXAS/BioXASSSRLMonochromatorConfigurationView.h \
-    source/beamline/BioXAS/BioXASCarbonFilterFarm.h \
+	source/beamline/BioXAS/BioXASSSRLMonochromatorRegionControl.h \
+	source/ui/BioXAS/BioXASSSRLMonochromatorRegionControlEditor.h \
+	source/ui/BioXAS/BioXASSSRLMonochromatorRegionControlView.h \
+	source/beamline/BioXAS/BioXASSSRLMonochromatorEnergyControl.h \
+	source/ui/BioXAS/BioXASSSRLMonochromatorConfigurationView.h \
+	source/acquaman/BioXAS/BioXASScanConfigurationDbObject.h \
+	source/acquaman/BioXAS/BioXASScanConfiguration.h \
+	source/beamline/BioXAS/BioXASCarbonFilterFarm.h \
 	source/beamline/BioXAS/BioXASCarbonFilterFarmActuatorControl.h \
-    source/ui/BioXAS/BioXASSIS3820ScalerChannelView.h \
-    source/ui/BioXAS/BioXASSIS3820ScalerView.h \
-    source/ui/BioXAS/BioXASSIS3820ScalerChannelsView.h
+	source/ui/BioXAS/BioXASSIS3820ScalerChannelView.h \
+	source/ui/BioXAS/BioXASSIS3820ScalerView.h \
+	source/ui/BioXAS/BioXASSIS3820ScalerChannelsView.h
 
 SOURCES += \
 	source/beamline/BioXAS/BioXASPseudoMotorControl.cpp \
@@ -33,13 +35,15 @@ SOURCES += \
 	source/acquaman/BioXAS/BioXASXRFScanConfiguration.cpp \
 	source/acquaman/BioXAS/BioXASXRFScanController.cpp \
 	source/beamline/BioXAS/BioXASSSRLMonochromator.cpp \
-    source/beamline/BioXAS/BioXASSSRLMonochromatorRegionControl.cpp \
-    source/ui/BioXAS/BioXASSSRLMonochromatorRegionControlEditor.cpp \
-    source/ui/BioXAS/BioXASSSRLMonochromatorRegionControlView.cpp \
-    source/beamline/BioXAS/BioXASSSRLMonochromatorEnergyControl.cpp \
-    source/ui/BioXAS/BioXASSSRLMonochromatorConfigurationView.cpp \
-    source/beamline/BioXAS/BioXASCarbonFilterFarm.cpp \
+	source/beamline/BioXAS/BioXASSSRLMonochromatorRegionControl.cpp \
+	source/ui/BioXAS/BioXASSSRLMonochromatorRegionControlEditor.cpp \
+	source/ui/BioXAS/BioXASSSRLMonochromatorRegionControlView.cpp \
+	source/beamline/BioXAS/BioXASSSRLMonochromatorEnergyControl.cpp \
+	source/ui/BioXAS/BioXASSSRLMonochromatorConfigurationView.cpp \
+	source/acquaman/BioXAS/BioXASScanConfigurationDbObject.cpp \
+	source/acquaman/BioXAS/BioXASScanConfiguration.cpp \
+	source/beamline/BioXAS/BioXASCarbonFilterFarm.cpp \
 	source/beamline/BioXAS/BioXASCarbonFilterFarmActuatorControl.cpp \
-    source/ui/BioXAS/BioXASSIS3820ScalerChannelView.cpp \
-    source/ui/BioXAS/BioXASSIS3820ScalerView.cpp \
-    source/ui/BioXAS/BioXASSIS3820ScalerChannelsView.cpp
+	source/ui/BioXAS/BioXASSIS3820ScalerChannelView.cpp \
+	source/ui/BioXAS/BioXASSIS3820ScalerView.cpp \
+	source/ui/BioXAS/BioXASSIS3820ScalerChannelsView.cpp
