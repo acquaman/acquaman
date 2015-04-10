@@ -372,6 +372,8 @@ BioXASCarbonFilterFarmControl::Filter::Thickness BioXASCarbonFilterFarmControl::
 void BioXASCarbonFilterFarmControl::moveCleanup(QObject *action)
 {
 	if (action) {
+		setMoveInProgress(false);
+
 		disconnect( action, 0, cancelledMapper_, 0 );
 		disconnect( action, 0, failedMapper_, 0 );
 		disconnect( action, 0, succeededMapper_, 0 );
