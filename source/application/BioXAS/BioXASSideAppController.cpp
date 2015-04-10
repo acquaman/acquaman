@@ -270,7 +270,7 @@ void BioXASSideAppController::onUserConfigurationLoadedFromDb()
 
 		AMRegionOfInterest *newRegion = region->createCopy();
 		detector->addRegionOfInterest(newRegion);
-//		configuration_->addRegionOfInterest(region);
+		configuration_->addRegionOfInterest(region);
 	}
 
 	// This is connected here because we want to listen to the detectors for updates, but don't want to double add regions on startup.
@@ -281,13 +281,13 @@ void BioXASSideAppController::onUserConfigurationLoadedFromDb()
 void BioXASSideAppController::onRegionOfInterestAdded(AMRegionOfInterest *region)
 {
 	userConfiguration_->addRegionOfInterest(region);
-//	configuration_->addRegionOfInterest(region);
+	configuration_->addRegionOfInterest(region);
 }
 
 void BioXASSideAppController::onRegionOfInterestRemoved(AMRegionOfInterest *region)
 {
 	userConfiguration_->removeRegionOfInterest(region);
-//	configuration_->removeRegionOfInterest(region);
+	configuration_->removeRegionOfInterest(region);
 }
 
 QGroupBox *BioXASSideAppController::createSqeezeGroupBoxWithView(QString title, QWidget *view)
