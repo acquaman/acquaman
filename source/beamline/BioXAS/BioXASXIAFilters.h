@@ -8,6 +8,13 @@
 #include "beamline/CLS/CLSBiStateControl.h"
 #include "actions3/AMAction3.h"
 
+// Error codes.
+
+#define BIOXAS_XIA_FILTERS_NOT_CONNECTED 29348721
+#define BIOXAS_XIA_FILTERS_ALREADY_MOVING 29348722
+#define BIOXAS_XIA_FILTERS_INVALID_SETPOINT 29348723
+#define BIOXAS_XIA_FILTERS_MOVE_FAILED 29348724
+
 class BioXASXIAFilters : public AMCompositeControl
 {
     Q_OBJECT
@@ -77,6 +84,15 @@ protected slots:
 	/// Sets the position of the given filter control.
 	void setFilterPosition(Filter::Name filter, Filter::Position position);
 
+	/// Handles emitting the appropriate signals when a move has been started.
+	void onMoveStarted();
+	/// Handles cleaning up the move action and emitting the appropriate signals when a move has been cancelled.
+	void onMoveCancelled(QObject *action);
+	/// Handles cleaning up the move action and emitting the appropriate signals when a move has failed.
+	void onMoveFailed(QObject *action);
+	/// Handles cleaning up the move action and emitting the appropriate signals when a move has succeeded.
+	void onMoveSucceeded(QObject *action);
+
 protected:
 	/// Returns a new action that moves the current filter to the desired setpoint.
 	AMAction3* createMoveAction();
@@ -104,6 +120,10 @@ protected:
 	QSignalMapper *moveFailedMapper_;
 	/// Signal mapper for the move action succeeded.
 	QSignalMapper *moveSucceededMapper_;
+
+private:
+	/// Disconnects the given action, removes its mappings, updates the control's 'moveInProgress' state, and frees memory.
+	void moveCleanup(QObject *action);
 
 };
 

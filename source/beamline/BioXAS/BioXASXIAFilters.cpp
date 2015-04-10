@@ -1,4 +1,5 @@
 #include "BioXASXIAFilters.h"
+#include "util/AMErrorMonitor.h"
 
 BioXASXIAFilters::BioXASXIAFilters(QObject *parent) :
 	AMCompositeControl("BioXAS XIA Filter Control", "", parent)
@@ -88,6 +89,41 @@ AMControl* BioXASXIAFilters::filterControl(Filter::Name name) const
 AMControl::FailureExplanation BioXASXIAFilters::move(double setpoint)
 {
 	Q_UNUSED(setpoint)
+
+	if (!isConnected()) {
+		AMErrorMon::alert(this, BIOXAS_XIA_FILTERS_NOT_CONNECTED, "Failed to move XIA filters: filters not connected.");
+		return AMControl::NotConnectedFailure;
+	}
+
+	if (isMoving()) {
+		AMErrorMon::alert(this, BIOXAS_XIA_FILTERS_ALREADY_MOVING, "Failed to move XIA filters: filters already moving.");
+		return AMControl::AlreadyMovingFailure;
+	}
+
+	AMAction3 *moveAction = createMoveAction();
+
+	if (!moveAction) {
+		AMErrorMon::alert(this, BIOXAS_XIA_FILTERS_MOVE_FAILED, "Failed to move XIA filters.");
+		return AMControl::LimitFailure;
+	}
+
+	// Create signal mappings for this action.
+
+	connect( moveAction, SIGNAL(started()), this, SLOT(onMoveStarted()) );
+
+	moveCancelledMapper_->setMapping(moveAction, moveAction);
+	connect( moveAction, SIGNAL(cancelled()), moveCancelledMapper_, SLOT(map()) );
+
+	moveFailedMapper_->setMapping(moveAction, moveAction);
+	connect( moveAction, SIGNAL(failed()), moveFailedMapper_, SLOT(map()) );
+
+	moveSucceededMapper_->setMapping(moveAction, moveAction);
+	connect( moveAction, SIGNAL(succeeded()), moveSucceededMapper_, SLOT(map()) );
+
+	// Run action.
+
+	moveAction->start();
+
 	return AMControl::NoFailure;
 }
 
@@ -126,7 +162,46 @@ void BioXASXIAFilters::setFilterPosition(Filter::Name name, Filter::Position pos
 		filter->move(position);
 }
 
+void BioXASXIAFilters::onMoveStarted()
+{
+	setMoveInProgress(true);
+}
+
+void BioXASXIAFilters::onMoveCancelled(QObject *action)
+{
+	moveCleanup(action);
+	emit moveFailed(AMControl::WasStoppedFailure);
+}
+
+void BioXASXIAFilters::onMoveFailed(QObject *action)
+{
+	moveCleanup(action);
+	emit moveFailed(AMControl::OtherFailure);
+}
+
+void BioXASXIAFilters::onMoveSucceeded(QObject *action)
+{
+	moveCleanup(action);
+	emit moveSucceeded();
+}
+
 AMAction3* BioXASXIAFilters::createMoveAction()
 {
 	return 0;
+}
+
+void BioXASXIAFilters::moveCleanup(QObject *action)
+{
+	if (action) {
+
+		setMoveInProgress(false);
+
+		action->disconnect();
+
+		moveCancelledMapper_->removeMappings(action);
+		moveFailedMapper_->removeMappings(action);
+		moveSucceededMapper_->removeMappings(action);
+
+		action->deleteLater();
+	}
 }
