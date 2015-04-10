@@ -103,10 +103,6 @@ public slots:
 
 	/// Sets the calibrated bragg position.
 	void calibrateBraggPosition(double newPosition);
-
-private:
-	/// Returns the encoder calibration offset that would be needed to change the current bragg motor position to the newPosition.
-	static double calculateBraggEncoderOffset(double oldPosition, double oldEncoderOffset, double newPosition, double encoderSlope);
 };
 
 #endif // BIOXASSSRLMONOCHROMATOR_H

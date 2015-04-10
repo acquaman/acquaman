@@ -34,6 +34,7 @@ BioXASSideBeamline::BioXASSideBeamline()
 	setupComponents();
 	setupDiagnostics();
 	setupSampleStage();
+	setupDetectorStage();
 //	setupDetectors();
 	setupControlSets();
 	setupMono();
@@ -230,8 +231,12 @@ void BioXASSideBeamline::onConnectionChanged()
 				// Mono.
 				mono_->isConnected() &&
 
+				//JJSlit
+				jjSlit_->isConnected() &&
+
 				// Scaler.
-				scaler_->isConnected() && scalerDwellTime_->isConnected() &&
+				scaler_->isConnected() &&
+				scalerDwellTime_->isConnected() &&
 
 				// Carbon filter farm.
 				carbonFilterFarm_->isConnected() &&
@@ -576,6 +581,11 @@ void BioXASSideBeamline::setupSampleStage()
 
 }
 
+void BioXASSideBeamline::setupDetectorStage()
+{
+	detectorStageLateral_ = new CLSMAXvMotor("SMTR1607-6-I22-16 Side Detector Lateral", "SMTR1607-6-I22-16", "SMTR1607-6-I22-16 Side Detector Lateral", true, 0.05, 2.0, this, ":mm");
+}
+
 void BioXASSideBeamline::setupMotorGroup()
 {
 	// Filter farm motors
@@ -767,6 +777,9 @@ void BioXASSideBeamline::setupComponents()
 	scaler_->channelAt(15)->setDetector(i2Detector_);
 
 	carbonFilterFarm_ = new BioXASSideCarbonFilterFarmControl(this);
+
+	jjSlit_ = new CLSJJSlit("Side BL", "JJSlit of the side beamline", "PSL1607-6-I22-01", "PSL1607-6-I22-02");
+	connect(jjSlit_, SIGNAL(connected(bool)), this, SLOT(onConnectionChanged()));
 }
 
 void BioXASSideBeamline::setupControlsAsDetectors()
@@ -802,8 +815,19 @@ void BioXASSideBeamline::setupControlsAsDetectors()
 
 void BioXASSideBeamline::setupExposedControls()
 {
+	// Mono controls.
+
 	addExposedControl(mono_->energyControl());
 	addExposedControl(mono_->regionControl());
+
+	addExposedControl(jjSlit_->verticalBladesControl()->gapPVControl());
+	addExposedControl(jjSlit_->verticalBladesControl()->centerPVControl());
+	addExposedControl(jjSlit_->horizontalBladesControl()->gapPVControl());
+	addExposedControl(jjSlit_->horizontalBladesControl()->centerPVControl());
+
+	// Detector stage controls.
+
+	addExposedControl(detectorStageLateral_);
 }
 
 void BioXASSideBeamline::setupExposedDetectors()
