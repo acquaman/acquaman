@@ -102,7 +102,7 @@ protected slots:
 
 protected:
 	/// Returns a new action that moves the actuators to the desired filter thickness setpoint.
-	virtual AMAction3* createMoveAction(double setpoint) = 0;
+	AMAction3* createMoveAction(double setpoint);
 
 	/// Returns the total filter thickness, according to the given active actuator windows.
 	Filter::Thickness calculateTotalFilterFromWindows(BioXASCarbonFilterFarmActuatorControl::Window::Selection upstreamWindow, BioXASCarbonFilterFarmActuatorControl::Window::Selection downstreamWindow);

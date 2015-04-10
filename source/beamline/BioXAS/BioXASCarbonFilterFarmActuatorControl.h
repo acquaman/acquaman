@@ -24,10 +24,10 @@ class BioXASCarbonFilterFarmActuatorControl : public AMCompositeControl
     Q_OBJECT
 
 public:
-	/// Enum defining the active window options. Removed, First, and Second are all valid options; None would represent some kind of error state.
-	class Window { public: enum Selection { None = 0, Removed, First, Second }; };
+	/// Enum defining the active window options. None, Bottom, and Top are all valid options; Invalid would represent some kind of error state.
+	class Window { public: enum Selection { Invalid = 0, None, Bottom, Top }; };
 	/// Enum defining the possible position states.
-	class Position { public: enum State { NotSafe = 0, Safe }; };
+	class Position { public: enum State { Invalid = 0, Valid }; };
 
 	/// Constructor.
 	explicit BioXASCarbonFilterFarmActuatorControl(QString name, QObject *parent = 0);
@@ -41,9 +41,9 @@ public:
 	/// Returns true if the arm is moving, as a result of this control's action.
 	virtual bool moveInProgress() const { return moveInProgress_; }
 	/// Returns the smallest value this control can take.
-	virtual double minimumValue() const { return Window::None; }
+	virtual double minimumValue() const { return Window::Invalid; }
 	/// Returns the largest value this control can take.
-	virtual double maximumValue() const { return Window::Second; }
+	virtual double maximumValue() const { return Window::Top; }
 	/// Returns true if the active window is always measurable, if connected. False otherwise.
 	virtual bool shouldMeasure() const { return true; }
 	/// Returns true if a move to a new active window is always possible, if connected. False otherwise.

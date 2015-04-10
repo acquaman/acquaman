@@ -149,7 +149,7 @@ double BioXASCarbonFilterFarmControl::filterToDouble(Filter::Thickness filter)
 
 BioXASCarbonFilterFarmControl::Filter::Thickness BioXASCarbonFilterFarmControl::doubleToFilter(double value)
 {
-	Filter::Thickness filter = Filter::None;
+	Filter::Thickness filter = Filter::Invalid;
 
 	switch ((int)value) {
 	case 50:
@@ -348,6 +348,55 @@ void BioXASCarbonFilterFarmControl::updateFilter()
 	setFilter(newFilter);
 }
 
+AMAction3* BioXASCarbonFilterFarmControl::createMoveAction(double setpoint)
+{
+	AMListAction3 *action = new AMListAction3(new AMListActionInfo3("Moving filter farm actuators", "Moving filter farm actuators"), AMListAction3::Parallel);
+
+	switch ((int)setpoint) {
+
+	case Filter::None: // Main, Side, Imaging
+		action->addSubAction(AMActionSupport::buildControlMoveAction(upstreamActuator_, BioXASCarbonFilterFarmActuatorControl::Window::None));
+		action->addSubAction(AMActionSupport::buildControlMoveAction(downstreamActuator_, BioXASCarbonFilterFarmActuatorControl::Window::None));
+		break;
+
+	case Filter::Fifty: // Main, Side
+		action->addSubAction(AMActionSupport::buildControlMoveAction(upstreamActuator_, BioXASCarbonFilterFarmActuatorControl::Window::Bottom));
+		action->addSubAction(AMActionSupport::buildControlMoveAction(downstreamActuator_, BioXASCarbonFilterFarmActuatorControl::Window::None));
+		break;
+
+	case Filter::SeventyFive: // Imaging
+		action->addSubAction(AMActionSupport::buildControlMoveAction(upstreamActuator_, BioXASCarbonFilterFarmActuatorControl::Window::Bottom));
+		action->addSubAction(AMActionSupport::buildControlMoveAction(downstreamActuator_, BioXASCarbonFilterFarmActuatorControl::Window::None));
+		break;
+
+	case Filter::FiveHundred: // Imaging
+		action->addSubAction(AMActionSupport::buildControlMoveAction(upstreamActuator_, BioXASCarbonFilterFarmActuatorControl::Window::None));
+		action->addSubAction(AMActionSupport::buildControlMoveAction(downstreamActuator_, BioXASCarbonFilterFarmActuatorControl::Window::Bottom));
+		break;
+
+	case Filter::FiveHundredSeventyFive: // Imaging
+		action->addSubAction(AMActionSupport::buildControlMoveAction(upstreamActuator_, BioXASCarbonFilterFarmActuatorControl::Window::Bottom));
+		action->addSubAction(AMActionSupport::buildControlMoveAction(downstreamActuator_, BioXASCarbonFilterFarmActuatorControl::Window::Bottom));
+		break;
+
+	case Filter::SevenHundred: // Main, Side
+		action->addSubAction(AMActionSupport::buildControlMoveAction(upstreamActuator_, BioXASCarbonFilterFarmActuatorControl::Window::None));
+		action->addSubAction(AMActionSupport::buildControlMoveAction(downstreamActuator_, BioXASCarbonFilterFarmActuatorControl::Window::Bottom));
+		break;
+
+	case Filter::SevenHundredFifty: // Main, Side
+		action->addSubAction(AMActionSupport::buildControlMoveAction(upstreamActuator_, BioXASCarbonFilterFarmActuatorControl::Window::Bottom));
+		action->addSubAction(AMActionSupport::buildControlMoveAction(downstreamActuator_, BioXASCarbonFilterFarmActuatorControl::Window::Bottom));
+		break;
+	default:
+		action->deleteLater();
+		action = 0;
+		break;
+	}
+
+	return action;
+}
+
 BioXASCarbonFilterFarmControl::Filter::Thickness BioXASCarbonFilterFarmControl::calculateTotalFilterFromWindows(BioXASCarbonFilterFarmActuatorControl::Window::Selection upstreamWindow, BioXASCarbonFilterFarmActuatorControl::Window::Selection downstreamWindow)
 {
 	Filter::Thickness upstreamThickness = Filter::Invalid;
@@ -374,9 +423,7 @@ void BioXASCarbonFilterFarmControl::moveCleanup(QObject *action)
 	if (action) {
 		setMoveInProgress(false);
 
-		disconnect( action, 0, cancelledMapper_, 0 );
-		disconnect( action, 0, failedMapper_, 0 );
-		disconnect( action, 0, succeededMapper_, 0 );
+		action->disconnect();
 
 		cancelledMapper_->removeMappings(action);
 		failedMapper_->removeMappings(action);

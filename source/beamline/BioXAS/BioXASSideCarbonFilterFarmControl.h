@@ -26,10 +26,6 @@ public:
 	virtual bool validFilter(double value);
 	/// Returns true if the given value corresponds to a valid filter setpoint, false otherwise.
 	virtual bool validFilterSetpoint(double value);
-
-protected:
-	/// Returns a new action that moves the actuators to the desired filter thickness setpoint.
-	virtual AMAction3* createMoveAction(double setpoint);
 };
 
 #endif // BIOXASSIDECARBONFILTERFARMCONTROL_H
