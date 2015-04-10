@@ -34,6 +34,7 @@ BioXASSideBeamline::BioXASSideBeamline()
 	setupComponents();
 	setupDiagnostics();
 	setupSampleStage();
+	setupDetectorStage();
 //	setupDetectors();
 	setupControlSets();
 	setupMono();
@@ -231,7 +232,8 @@ void BioXASSideBeamline::onConnectionChanged()
 				mono_->isConnected() &&
 
 				// Scaler.
-				scaler_->isConnected() && scalerDwellTime_->isConnected() &&
+				scaler_->isConnected() &&
+				scalerDwellTime_->isConnected() &&
 
 				// Control sets.
 				//pressureSet_->isConnected() && valveSet_->isConnected() &&
@@ -573,6 +575,11 @@ void BioXASSideBeamline::setupSampleStage()
 
 }
 
+void BioXASSideBeamline::setupDetectorStage()
+{
+	detectorStageLateral_ = new CLSMAXvMotor("SMTR1607-6-I22-16 Side Detector Lateral", "SMTR1607-6-I22-16", "SMTR1607-6-I22-16 Side Detector Lateral", true, 0.05, 2.0, this, ":mm");
+}
+
 void BioXASSideBeamline::setupMotorGroup()
 {
 	// Filter farm motors
@@ -797,8 +804,14 @@ void BioXASSideBeamline::setupControlsAsDetectors()
 
 void BioXASSideBeamline::setupExposedControls()
 {
+	// Mono controls.
+
 	addExposedControl(mono_->energyControl());
 	addExposedControl(mono_->regionControl());
+
+	// Detector stage controls.
+
+	addExposedControl(detectorStageLateral_);
 }
 
 void BioXASSideBeamline::setupExposedDetectors()
