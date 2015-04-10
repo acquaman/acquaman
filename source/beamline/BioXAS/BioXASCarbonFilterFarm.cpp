@@ -43,6 +43,11 @@ BioXASCarbonFilterFarmControl::~BioXASCarbonFilterFarmControl()
 
 }
 
+bool BioXASCarbonFilterFarmControl::canStop() const
+{
+	return isConnected() && upstreamActuator_->canStop() && downstreamActuator_->canStop();
+}
+
 bool BioXASCarbonFilterFarmControl::isConnected() const
 {
 	bool result = false;
