@@ -105,30 +105,30 @@ BioXASSideTableCoordinator::BioXASSideTableCoordinator(QObject *parent) :
 
 	connect(allControls_, SIGNAL(connected(bool)), this, SLOT(onAllControlsConnected(bool)));
 
-	connect(verticalUpstreamControl_, SIGNAL(valueChanged(double)), this, SLOT(onVerticalControlValueChanged(double)));
-	connect(verticalUpstreamFeedbackControl_, SIGNAL(valueChanged(double)), this, SLOT(onVerticalFeedbackControlValueChanged(double)));
-	connect(verticalUpstreamStatusControl_, SIGNAL(valueChanged(double)), this, SLOT(onVerticalStatusControlValueChanged(double)));
+	connect(verticalUpstreamControl_, SIGNAL(valueChanged(double)), this, SLOT(onVerticalControlValueChanged()));
+	connect(verticalUpstreamFeedbackControl_, SIGNAL(valueChanged(double)), this, SLOT(onVerticalFeedbackControlValueChanged()));
+	connect(verticalUpstreamStatusControl_, SIGNAL(valueChanged(double)), this, SLOT(onVerticalStatusControlValueChanged()));
 
-	connect(verticalDownstreamControl_, SIGNAL(valueChanged(double)), this, SLOT(onVerticalControlValueChanged(double)));
-	connect(verticalDownstreamFeedbackControl_, SIGNAL(valueChanged(double)), this, SLOT(onVerticalFeedbackControlValueChanged(double)));
-	connect(verticalDownstreamStatusControl_, SIGNAL(valueChanged(double)), this, SLOT(onVerticalStatusControlValueChanged(double)));
+	connect(verticalDownstreamControl_, SIGNAL(valueChanged(double)), this, SLOT(onVerticalControlValueChanged()));
+	connect(verticalDownstreamFeedbackControl_, SIGNAL(valueChanged(double)), this, SLOT(onVerticalFeedbackControlValueChanged()));
+	connect(verticalDownstreamStatusControl_, SIGNAL(valueChanged(double)), this, SLOT(onVerticalStatusControlValueChanged()));
 
-	connect(horizontalUpstreamControl_, SIGNAL(valueChanged(double)), this, SLOT(onHorizontalControlValueChanged(double)));
-	connect(horizontalUpstreamFeedbackControl_, SIGNAL(valueChanged(double)), this, SLOT(onHorizontalFeedbackControlValueChanged(double)));
-	connect(horizontalUpstreamStatusControl_, SIGNAL(valueChanged(double)), this, SLOT(onHorizontalStatusControlValueChanged(double)));
+	connect(horizontalUpstreamControl_, SIGNAL(valueChanged(double)), this, SLOT(onHorizontalControlValueChanged()));
+	connect(horizontalUpstreamFeedbackControl_, SIGNAL(valueChanged(double)), this, SLOT(onHorizontalFeedbackControlValueChanged()));
+	connect(horizontalUpstreamStatusControl_, SIGNAL(valueChanged(double)), this, SLOT(onHorizontalStatusControlValueChanged()));
 
-	connect(horizontalDownstreamControl_, SIGNAL(valueChanged(double)), this, SLOT(onHorizontalControlValueChanged(double)));
-	connect(horizontalDownstreamFeedbackControl_, SIGNAL(valueChanged(double)), this, SLOT(onHorizontalFeedbackControlValueChanged(double)));
-	connect(horizontalDownstreamStatusControl_, SIGNAL(valueChanged(double)), this, SLOT(onHorizontalStatusControlValueChanged(double)));
+	connect(horizontalDownstreamControl_, SIGNAL(valueChanged(double)), this, SLOT(onHorizontalControlValueChanged()));
+	connect(horizontalDownstreamFeedbackControl_, SIGNAL(valueChanged(double)), this, SLOT(onHorizontalFeedbackControlValueChanged()));
+	connect(horizontalDownstreamStatusControl_, SIGNAL(valueChanged(double)), this, SLOT(onHorizontalStatusControlValueChanged()));
 
-	connect(softIOCHeightControl_, SIGNAL(valueChanged(double)), this, SLOT(onHeightControlValueChanged(double)));
-	connect(softIOCHeightStopControl_, SIGNAL(valueChanged(double)), this, SLOT(onHeightControlStopChanged(double)));
-	connect(softIOCPitchControl_, SIGNAL(valueChanged(double)), this, SLOT(onPitchControlValueChanged(double)));
-	connect(softIOCPitchStopControl_, SIGNAL(valueChanged(double)), this, SLOT(onPitchStopControlValueChanged(double)));
-	connect(softIOCLateralControl_, SIGNAL(valueChanged(double)), this, SLOT(onLateralControlValueChanged(double)));
-	connect(softIOCLateralStopControl_, SIGNAL(valueChanged(double)), this, SLOT(onLateralStopControlValueChanged(double)));
-	connect(softIOCYawControl_, SIGNAL(valueChanged(double)), this, SLOT(onYawControlValueChanged(double)));
-	connect(softIOCYawStopControl_, SIGNAL(valueChanged(double)), this, SLOT(onYawStopControlValueChanged(double)));
+	connect(softIOCHeightControl_, SIGNAL(valueChanged(double)), this, SLOT(onHeightControlValueChanged()));
+	connect(softIOCHeightStopControl_, SIGNAL(valueChanged(double)), this, SLOT(onHeightControlStopChanged()));
+	connect(softIOCPitchControl_, SIGNAL(valueChanged(double)), this, SLOT(onPitchControlValueChanged()));
+	connect(softIOCPitchStopControl_, SIGNAL(valueChanged(double)), this, SLOT(onPitchStopControlValueChanged()));
+	connect(softIOCLateralControl_, SIGNAL(valueChanged(double)), this, SLOT(onLateralControlValueChanged()));
+	connect(softIOCLateralStopControl_, SIGNAL(valueChanged(double)), this, SLOT(onLateralStopControlValueChanged()));
+	connect(softIOCYawControl_, SIGNAL(valueChanged(double)), this, SLOT(onYawControlValueChanged()));
+	connect(softIOCYawStopControl_, SIGNAL(valueChanged(double)), this, SLOT(onYawStopControlValueChanged()));
 }
 
 BioXASSideTableCoordinator::~BioXASSideTableCoordinator(){}
@@ -139,32 +139,31 @@ void BioXASSideTableCoordinator::onAllControlsConnected(bool connected){
 
 		qDebug() << "Checking start up value from the OLD vertical upstream as " << verticalUpstreamControl_->value();
 		qDebug() << "Checking start up value from the OLD vertical DownStream as " << verticalDownstreamControl_->value();
-		onVerticalControlValueChanged(verticalUpstreamControl_->value());
+		onVerticalControlValueChanged();
 		qDebug() << "Checking start up value from the OLD vertical upstream feedback as " << verticalUpstreamFeedbackControl_->value();
 		qDebug() << "Checking start up value from the OLD vertical DownStream feedback as " << verticalDownstreamFeedbackControl_->value();
-		onVerticalFeedbackControlValueChanged(verticalUpstreamFeedbackControl_->value());
+		onVerticalFeedbackControlValueChanged();
 		qDebug() << "Checking start up value from the OLD vertical upstream status as " << verticalUpstreamStatusControl_->value();
 		qDebug() << "Checking start up value from the OLD vertical DownStream status as " << verticalDownstreamStatusControl_->value();
-		onVerticalStatusControlValueChanged(verticalUpstreamStatusControl_->value());
+		onVerticalStatusControlValueChanged();
 
 		qDebug() << "Checking start up value from the OLD Horizontal upstream as " << horizontalUpstreamControl_->value();
 		qDebug() << "Checking start up value from the OLD Horizontal DownStream as " << horizontalDownstreamControl_->value();
-		onHorizontalControlValueChanged(horizontalUpstreamControl_->value());
+		onHorizontalControlValueChanged();
 		qDebug() << "Checking start up value from the OLD Horizontal upstream feedback as " << horizontalUpstreamFeedbackControl_->value();
 		qDebug() << "Checking start up value from the OLD Horizontal DownStream feedback as " << horizontalDownstreamFeedbackControl_->value();
-		onHorizontalFeedbackControlValueChanged(horizontalUpstreamFeedbackControl_->value());
+		onHorizontalFeedbackControlValueChanged();
 		qDebug() << "Checking start up value from the OLD Horizontal upstream status as " << horizontalUpstreamStatusControl_->value();
 		qDebug() << "Checking start up value from the OLD Horizontal DownStream status as " << horizontalDownstreamStatusControl_->value();
-		onHorizontalStatusControlValueChanged(horizontalUpstreamStatusControl_->value());
+		onHorizontalStatusControlValueChanged();
 
 
 		// Max / Min value?
 	}
 }
 
-void BioXASSideTableCoordinator::onVerticalControlValueChanged(double value)
+void BioXASSideTableCoordinator::onVerticalControlValueChanged()
 {
-	Q_UNUSED(value)
 	if(!connectedOnce_)
 		return;
 
@@ -173,9 +172,8 @@ void BioXASSideTableCoordinator::onVerticalControlValueChanged(double value)
 	manipulateVerticalPVChange(upstreamHeight, downstreamHeight, softIOCHeightControl_, softIOCPitchControl_);
 }
 
-void BioXASSideTableCoordinator::onVerticalFeedbackControlValueChanged(double value)
+void BioXASSideTableCoordinator::onVerticalFeedbackControlValueChanged()
 {
-	Q_UNUSED(value)
 	if(!connectedOnce_)
 		return;
 
@@ -184,9 +182,8 @@ void BioXASSideTableCoordinator::onVerticalFeedbackControlValueChanged(double va
 	manipulateVerticalPVChange(upstreamHeight, downstreamHeight, softIOCHeightFeedbackControl_, softIOCPitchFeedbackControl_);
 }
 
-void BioXASSideTableCoordinator::onVerticalStatusControlValueChanged(double value)
+void BioXASSideTableCoordinator::onVerticalStatusControlValueChanged()
 {
-	Q_UNUSED(value)
 	if(!connectedOnce_)
 		return;
 
@@ -210,9 +207,8 @@ void BioXASSideTableCoordinator::onVerticalStatusControlValueChanged(double valu
 }
 
 
-void BioXASSideTableCoordinator::onHorizontalControlValueChanged(double value)
+void BioXASSideTableCoordinator::onHorizontalControlValueChanged()
 {
-	Q_UNUSED(value)
 	if(!connectedOnce_)
 		return;
 
@@ -221,9 +217,8 @@ void BioXASSideTableCoordinator::onHorizontalControlValueChanged(double value)
 	manipulateHorizontalPVChange(horizontalUpstreamValue, horizontalDownstreamValue, softIOCLateralControl_, softIOCYawControl_);
 }
 
-void BioXASSideTableCoordinator::onHorizontalFeedbackControlValueChanged(double value)
+void BioXASSideTableCoordinator::onHorizontalFeedbackControlValueChanged()
 {
-	Q_UNUSED(value)
 	if(!connectedOnce_)
 		return;
 
@@ -232,9 +227,8 @@ void BioXASSideTableCoordinator::onHorizontalFeedbackControlValueChanged(double 
 	manipulateHorizontalPVChange(horizontalUpstreamFeedbackValue, horizontalDownstreamFeedbackValue, softIOCLateralFeedbackControl_, softIOCYawFeedbackControl_);
 }
 
-void BioXASSideTableCoordinator::onHorizontalStatusControlValueChanged(double value)
+void BioXASSideTableCoordinator::onHorizontalStatusControlValueChanged()
 {
-	Q_UNUSED(value)
 	if(!connectedOnce_)
 		return;
 
@@ -257,7 +251,6 @@ void BioXASSideTableCoordinator::onHorizontalStatusControlValueChanged(double va
 
 void BioXASSideTableCoordinator::onHeightControlValueChanged(double value)
 {
-	Q_UNUSED(value)
 	if(!connectedOnce_)
 		return;
 
@@ -274,9 +267,8 @@ void BioXASSideTableCoordinator::onHeightControlValueChanged(double value)
 	}
 }
 
-void BioXASSideTableCoordinator::onHeightStopControlValueChanged(double value)
+void BioXASSideTableCoordinator::onHeightStopControlValueChanged()
 {
-	Q_UNUSED(value)
 	if(!connectedOnce_)
 		return;
 
@@ -290,7 +282,6 @@ void BioXASSideTableCoordinator::onHeightStopControlValueChanged(double value)
 
 void BioXASSideTableCoordinator::onPitchControlValueChanged(double angle)
 {
-	Q_UNUSED(angle)
 	if(!connectedOnce_)
 		return;
 
@@ -308,9 +299,8 @@ void BioXASSideTableCoordinator::onPitchControlValueChanged(double angle)
 	}
 }
 
-void BioXASSideTableCoordinator::onPitchStopControlValueChanged(double value)
+void BioXASSideTableCoordinator::onPitchStopControlValueChanged()
 {
-	Q_UNUSED(value)
 	if(!connectedOnce_)
 		return;
 
@@ -324,7 +314,6 @@ void BioXASSideTableCoordinator::onPitchStopControlValueChanged(double value)
 
 void BioXASSideTableCoordinator::onLateralControlValueChanged(double value)
 {
-	Q_UNUSED(value)
 	if(!connectedOnce_)
 		return;
 
@@ -341,9 +330,8 @@ void BioXASSideTableCoordinator::onLateralControlValueChanged(double value)
 	}
 }
 
-void BioXASSideTableCoordinator::onLateralStopControlValueChanged(double value)
+void BioXASSideTableCoordinator::onLateralStopControlValueChanged()
 {
-	Q_UNUSED(value)
 	if(!connectedOnce_)
 		return;
 
@@ -357,23 +345,21 @@ void BioXASSideTableCoordinator::onLateralStopControlValueChanged(double value)
 
 void BioXASSideTableCoordinator::onYawControlValueChanged(double angle)
 {
-	Q_UNUSED(angle)
 	if(!connectedOnce_)
 		return;
 
-	double delta = tableHorizontalMotorPosition_ * tan(degreeToRadian(angle));
+	double setpoint = tableHorizontalMotorPosition_ * tan(degreeToRadian(angle));
 
-	if (!horizontalUpstreamControl_->withinTolerance(-delta)) {
-		horizontalUpstreamControl_->move(-delta);
+	if (!horizontalUpstreamControl_->withinTolerance(-setpoint)) {
+		horizontalUpstreamControl_->move(-setpoint);
 	}
-	if (!horizontalDownstreamControl_->withinTolerance(delta)) {
-		horizontalDownstreamControl_->move(delta);
+	if (!horizontalDownstreamControl_->withinTolerance(setpoint)) {
+		horizontalDownstreamControl_->move(setpoint);
 	}
 }
 
-void BioXASSideTableCoordinator::onYawStopControlValueChanged(double value)
+void BioXASSideTableCoordinator::onYawStopControlValueChanged()
 {
-	Q_UNUSED(value)
 	if(!connectedOnce_)
 		return;
 

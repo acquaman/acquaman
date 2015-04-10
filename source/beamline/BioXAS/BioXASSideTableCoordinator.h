@@ -44,37 +44,37 @@ protected slots:
 
 	/// ===== Handles changes coming from the MaxVMotor controls ====
 	/// Handles Vertical Upstream/Downstream control value changed
-	void onVerticalControlValueChanged(double value);
+	void onVerticalControlValueChanged();
 	/// Handles Vertical Upstream/Downstream feedback control value changed
-	void onVerticalFeedbackControlValueChanged(double value);
+	void onVerticalFeedbackControlValueChanged();
 	/// Handles Vertical Upstream/Downstream status control value changed
-	void onVerticalStatusControlValueChanged(double value);
+	void onVerticalStatusControlValueChanged();
 
 
 	/// Handles Horizontal Upstream/Downstrea control value changed
-	void onHorizontalControlValueChanged(double value);
+	void onHorizontalControlValueChanged();
 	/// Handles Horizontal Upstream/Downstrea feedback control value changed
-	void onHorizontalFeedbackControlValueChanged(double value);
+	void onHorizontalFeedbackControlValueChanged();
 	/// Handles Horizontal Upstream/Downstrea status control value changed
-	void onHorizontalStatusControlValueChanged(double value);
+	void onHorizontalStatusControlValueChanged();
 
 	/// ==== Handles changes coming from the softIOC conrols ====
 	/// Handles table Height control value changed
 	void onHeightControlValueChanged(double value);
 	/// Handles table Height stop control value changed
-	void onHeightStopControlValueChanged(double value);
+	void onHeightStopControlValueChanged();
 	/// Handles table Pitch control value changed
 	void onPitchControlValueChanged(double angle);
 	/// Handles table Pitch stop control value changed
-	void onPitchStopControlValueChanged(double value);
+	void onPitchStopControlValueChanged();
 	/// Handles table Lateral control value changed
 	void onLateralControlValueChanged(double value);
 	/// Handles table Lateral stop control value changed
-	void onLateralStopControlValueChanged(double value);
+	void onLateralStopControlValueChanged();
 	/// Handles table Yaw control value changed
 	void onYawControlValueChanged(double angle);
 	/// Handles table yaw stop control value changed
-	void onYawStopControlValueChanged(double value);
+	void onYawStopControlValueChanged();
 
 
 protected:
