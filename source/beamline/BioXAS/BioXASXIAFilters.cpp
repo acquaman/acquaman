@@ -56,9 +56,9 @@ bool BioXASXIAFilters::isConnected() const
 	return (filter1OK && filter2OK && filter3OK && filter4OK);
 }
 
-AMPVControl* BioXASXIAFilters::filterControl(Filter::Name name) const
+AMControl* BioXASXIAFilters::filterControl(Filter::Name name) const
 {
-	AMPVControl *result = 0;
+	AMControl *result = 0;
 
 	switch (name) {
 

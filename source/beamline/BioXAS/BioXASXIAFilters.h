@@ -5,7 +5,7 @@
 #include <QSignalMapper>
 
 #include "beamline/AMCompositeControl.h"
-#include "beamline/AMPVControl.h"
+#include "beamline/CLS/CLSBiStateControl.h"
 #include "actions3/AMAction3.h"
 
 class BioXASXIAFilters : public AMCompositeControl
@@ -49,16 +49,16 @@ public:
 	virtual bool isConnected() const;
 
 	/// Returns the first filter control.
-	AMPVControl* filter1() const { return filter1_; }
+	AMControl* filter1() const { return filter1_; }
 	/// Returns the second filter control.
-	AMPVControl* filter2() const { return filter2_; }
+	AMControl* filter2() const { return filter2_; }
 	/// Returns the third filter control.
-	AMPVControl* filter3() const { return filter3_; }
+	AMControl* filter3() const { return filter3_; }
 	/// Returns the fourth filter control.
-	AMPVControl* filter4() const { return filter4_; }
+	AMControl* filter4() const { return filter4_; }
 
 	/// Returns the filter corresponding to the given filter name. Returns 0 if there is no matching control.
-	AMPVControl* filterControl(Filter::Name name) const;
+	AMControl* filterControl(Filter::Name name) const;
 
 signals:
 
@@ -89,14 +89,14 @@ protected:
 	/// The current move state, true if this control has initiated a move.
 	bool moveInProgress_;
 
-	/// Control for the first filter.
-	AMPVControl *filter1_;
+	/// Controls for the first filter.
+	CLSBiStateControl *filter1_;
 	/// Control for the second filter.
-	AMPVControl *filter2_;
+	CLSBiStateControl *filter2_;
 	/// Control for the third filter.
-	AMPVControl *filter3_;
+	CLSBiStateControl *filter3_;
 	/// Control for the fourth filter.
-	AMPVControl *filter4_;
+	CLSBiStateControl *filter4_;
 
 	/// Signal mapper for the move action cancelled.
 	QSignalMapper *moveCancelledMapper_;
