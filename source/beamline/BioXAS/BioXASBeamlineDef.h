@@ -20,7 +20,8 @@ namespace BioXASBeamlineDef {
 		PseudoM1Motor,
 		PseudoMaskMotor,
 		PseudoMonoMotor,
-		PseudoM2Motor
+		PseudoM2Motor,
+		DetectorStageMotor
 	};
 
 	/// check whether a given motor type is pseudo motor or not
