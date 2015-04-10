@@ -132,7 +132,22 @@ public:
 
 	// End of scaler.
 
+	/// Returns a newly created action to move sample platform vertical. Returns 0 if the control is not connected.
+	AMAction3 *createSamplePlatformMoveVertical(double verticalPosition);
+	/// Returns a newly created action to move sample platform horizontal. Returns 0 if the control is not connected.
+	AMAction3 *createSamplePlatformMoveHorizontal(double verticalPosition);
 
+	/// Returns a newly created action to move move vaccum sample stage. Returns 0 if the control is not connected.
+	AMAction3 *createVaccumSampleStageMove(double vaccumStagePosition);
+
+	/// Returns a newly created action to move jjSlitHorizontalGap. Returns 0 if the control is not connected.
+	AMAction3 *createJJSlitHGapMove(double jjSlitHGapPosition);
+	/// Returns a newly created action to move jjSlitHorizontalCenter. Returns 0 if the control is not connected.
+	AMAction3 *createJJSlitHCenterMove(double jjSlitHCenterPosition);
+	/// Returns a newly created action to move  jjSlitVerticalGap. Returns 0 if the control is not connected.
+	AMAction3 *createJJSlitVGapMove(double jjSlitVGapPosition);
+	/// Returns a newly created action to move  jjSlitVerticalCenter. Returns 0 if the control is not connected.
+	AMAction3 *createJJSlitVCenterMove(double jjSlitVCenterPosition);
 
 
 

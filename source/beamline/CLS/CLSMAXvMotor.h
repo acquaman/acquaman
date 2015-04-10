@@ -26,11 +26,11 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "actions3/AMAction3.h"
 
 /// This function object provides the moving check for the CLSMAXvMotors
-class AMControlStatusCheckerCLSMAXv : public AMAbstractControlStatusChecker {
+class CLSMAXvControlStatusChecker : public AMAbstractControlStatusChecker {
 public:
 	/// Status values will be compare to \c isStoppedValue, and return true if the status value is not equal to isStoppedValue (something that isn't stopped is moving)
-	virtual ~AMControlStatusCheckerCLSMAXv();
-	AMControlStatusCheckerCLSMAXv() {}
+	virtual ~CLSMAXvControlStatusChecker();
+	CLSMAXvControlStatusChecker() {}
 
 	/// Return true (moving) if the \c statusValue is not 0 (STOPPED) and is not 2 (AT LIMIT) and is not 3 (FORCED STOP) and is not 4 (ERROR)
 	virtual bool operator()(quint32 statusValue) { return (statusValue != 0) && (statusValue != 2) && (statusValue != 3) && (statusValue != 4); }

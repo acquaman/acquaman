@@ -81,6 +81,7 @@ public:
 	AMControl* control() const;
 
 	bool setControlFormat(const QChar& format, int precision);
+	void hideBorder();
 
 signals:
 	void moveRequested(double);
