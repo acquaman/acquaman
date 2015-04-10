@@ -58,6 +58,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/BioXAS/BioXASSideXASScanConfigurationView.h"
 #include "ui/BioXAS/BioXAS32ElementGeDetectorView.h"
 #include "ui/BioXAS/BioXASSSRLMonochromatorConfigurationView.h"
+#include "dataman/BioXAS/BioXASUserConfiguration.h"
 
 BioXASSideAppController::BioXASSideAppController(QObject *parent)
 	: AMAppController(parent)
@@ -67,6 +68,8 @@ BioXASSideAppController::BioXASSideAppController(QObject *parent)
 	configuration_ = 0;
 	configurationView_ = 0;
 	configurationViewHolder_ = 0;
+
+	userConfiguration_ = new BioXASUserConfiguration(this);
 }
 
 bool BioXASSideAppController::startup()
@@ -101,6 +104,12 @@ bool BioXASSideAppController::startup()
 		setupUserInterface();
 		makeConnections();
 		applyCurrentSettings();
+
+		if (!userConfiguration_->loadFromDb(AMDatabase::database("user"), 1)){
+
+			userConfiguration_->storeToDb(AMDatabase::database("user"));
+			onUserConfigurationLoadedFromDb();
+		}
 
 		return true;
 	}
@@ -226,6 +235,9 @@ void BioXASSideAppController::makeConnections()
 {
 	connect( BioXASSideBeamline::bioXAS()->scaler(), SIGNAL(connectedChanged(bool)), this, SLOT(onScalerConnected()) );
 	connect( BioXASSideBeamline::bioXAS(), SIGNAL(connected(bool)), this, SLOT(onBeamlineConnected()) );
+
+	// It is sufficient to only connect the user configuration to the single element because the single element and four element are synchronized together.
+	connect(userConfiguration_, SIGNAL(loadedFromDb()), this, SLOT(onUserConfigurationLoadedFromDb()));
 }
 
 void BioXASSideAppController::applyCurrentSettings()
@@ -237,11 +249,43 @@ void BioXASSideAppController::applyCurrentSettings()
 void BioXASSideAppController::onCurrentScanActionStartedImplementation(AMScanAction *action)
 {
 	Q_UNUSED(action)
+
+	userConfiguration_->storeToDb(AMDatabase::database("user"));
 }
 
 void BioXASSideAppController::onCurrentScanActionFinishedImplementation(AMScanAction *action)
 {
 	Q_UNUSED(action)
+
+	userConfiguration_->storeToDb(AMDatabase::database("user"));
+}
+
+void BioXASSideAppController::onUserConfigurationLoadedFromDb()
+{
+	AMXRFDetector *detector = BioXASSideBeamline::bioXAS()->ge32ElementDetector();
+
+	foreach (AMRegionOfInterest *region, userConfiguration_->regionsOfInterest()){
+
+		AMRegionOfInterest *newRegion = region->createCopy();
+		detector->addRegionOfInterest(newRegion);
+		configuration_->addRegionOfInterest(region);
+	}
+
+	// This is connected here because we want to listen to the detectors for updates, but don't want to double add regions on startup.
+	connect(BioXASSideBeamline::bioXAS()->ge32ElementDetector(), SIGNAL(addedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestAdded(AMRegionOfInterest*)));
+	connect(BioXASSideBeamline::bioXAS()->ge32ElementDetector(), SIGNAL(removedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestRemoved(AMRegionOfInterest*)));
+}
+
+void BioXASSideAppController::onRegionOfInterestAdded(AMRegionOfInterest *region)
+{
+	userConfiguration_->addRegionOfInterest(region);
+	configuration_->addRegionOfInterest(region);
+}
+
+void BioXASSideAppController::onRegionOfInterestRemoved(AMRegionOfInterest *region)
+{
+	userConfiguration_->removeRegionOfInterest(region);
+	configuration_->removeRegionOfInterest(region);
 }
 
 QGroupBox *BioXASSideAppController::createSqeezeGroupBoxWithView(QString title, QWidget *view)
