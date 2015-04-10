@@ -231,9 +231,15 @@ void BioXASSideBeamline::onConnectionChanged()
 				// Mono.
 				mono_->isConnected() &&
 
+				//JJSlit
+				jjSlit_->isConnected() &&
+
 				// Scaler.
 				scaler_->isConnected() &&
 				scalerDwellTime_->isConnected() &&
+
+				// Carbon filter farm.
+				carbonFilterFarm_->isConnected() &&
 
 				// Control sets.
 				//pressureSet_->isConnected() && valveSet_->isConnected() &&
@@ -769,6 +775,11 @@ void BioXASSideBeamline::setupComponents()
 	scaler_->channelAt(15)->setCustomChannelName("I2 Channel");
 	scaler_->channelAt(15)->setCurrentAmplifier(i2Keithley_);
 	scaler_->channelAt(15)->setDetector(i2Detector_);
+
+	carbonFilterFarm_ = new BioXASSideCarbonFilterFarmControl(this);
+
+	jjSlit_ = new CLSJJSlit("Side BL", "JJSlit of the side beamline", "PSL1607-6-I22-01", "PSL1607-6-I22-02");
+	connect(jjSlit_, SIGNAL(connected(bool)), this, SLOT(onConnectionChanged()));
 }
 
 void BioXASSideBeamline::setupControlsAsDetectors()
@@ -808,6 +819,11 @@ void BioXASSideBeamline::setupExposedControls()
 
 	addExposedControl(mono_->energyControl());
 	addExposedControl(mono_->regionControl());
+
+	addExposedControl(jjSlit_->verticalBladesControl()->gapPVControl());
+	addExposedControl(jjSlit_->verticalBladesControl()->centerPVControl());
+	addExposedControl(jjSlit_->horizontalBladesControl()->gapPVControl());
+	addExposedControl(jjSlit_->horizontalBladesControl()->centerPVControl());
 
 	// Detector stage controls.
 

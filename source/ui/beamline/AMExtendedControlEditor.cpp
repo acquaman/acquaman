@@ -161,6 +161,12 @@ bool AMExtendedControlEditor::setControlFormat(const QChar& format, int precisio
 	return false;
 }
 
+void AMExtendedControlEditor::hideBorder()
+{
+	setStyleSheet("border:0;");
+	setTitle("");
+}
+
 void AMExtendedControlEditor::setReadOnly(bool readOnly){
 	readOnly_ = readOnly;
 	if(!control_->canMove())

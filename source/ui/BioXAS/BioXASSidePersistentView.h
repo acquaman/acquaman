@@ -57,6 +57,8 @@ protected:
 	AMExtendedControlEditor *braggControlEditor_;
 	/// Scaler channel views for i0, iT, and i2 channels.
 	QGroupBox *channelViews_;
+	/// Carbon filter farm, filter thickness selection.
+	AMExtendedControlEditor *carbonFilterFarmEditor_;
 };
 
 #endif // BIOXASSIDEPERSISTENTVIEW_H

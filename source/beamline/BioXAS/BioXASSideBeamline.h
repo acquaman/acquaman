@@ -22,9 +22,11 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef BIOXASSIDEBEAMLINE_H
 #define BIOXASSIDEBEAMLINE_H
 
-#include "beamline/CLS/CLSBeamline.h"
 #include "beamline/AMControlSet.h"
 #include "beamline/AMMotorGroup.h"
+#include "beamline/AMPVControl.h"
+
+#include "beamline/CLS/CLSBeamline.h"
 #include "beamline/CLS/CLSSynchronizedDwellTime.h"
 #include "beamline/CLS/CLSSIS3820Scaler.h"
 #include "beamline/CLS/CLSBiStateControl.h"
@@ -33,7 +35,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/CLS/CLSKeithley428.h"
 #include "beamline/CLS/CLSBasicCompositeScalerChannelDetector.h"
 #include "beamline/CLS/CLSMAXvMotor.h"
-#include "beamline/AMPVControl.h"
+#include "beamline/CLS/CLSJJSlit.h"
 
 #include "util/AMErrorMonitor.h"
 #include "util/AMBiHash.h"
@@ -42,6 +44,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/BioXAS/BioXASSideMonochromator.h"
 #include "beamline/BioXAS/BioXASPseudoMotorControl.h"
 #include "beamline/BioXAS/BioXAS32ElementGeDetector.h"
+#include "beamline/BioXAS/BioXASSideCarbonFilterFarmControl.h"
 
 #define BIOXASSIDEBEAMLINE_PRESSURE_TOO_HIGH 54600
 #define BIOXASSIDEBEAMLINE_VALVES_CLOSED 54601
@@ -50,7 +53,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define BIOXASSIDEBEAMLINE_WATER_FLOW_TOO_LOW 54604
 #define BIOXASSIDEBEAMLINE_ION_PUMP_TRIP 54605
 
-class CLSMAXvMotor;
 class AMBasicControlDetectorEmulator;
 
 class BioXASSideBeamline : public CLSBeamline
@@ -77,8 +79,12 @@ public:
 
 	/// Returns the beamline monochromator.
 	BioXASSideMonochromator *mono() const { return mono_; }
+	/// Returns the beamline JJ Slit.
+	CLSJJSlit *jjSlit() const { return jjSlit_; }
 	/// Returns the scaler.
-	CLSSIS3820Scaler* scaler() const { return scaler_; }
+	virtual CLSSIS3820Scaler* scaler() const { return scaler_; }
+	/// Returns the carbon filter farm.
+	BioXASSideCarbonFilterFarmControl* carbonFilterFarm() const { return carbonFilterFarm_; }
 
 	// Photon and safety shutters.
 	/// Returns the first photon shutter.
@@ -324,6 +330,9 @@ protected:
 
 	BioXASSideMonochromator *mono_;
 
+	/// The JJ slit
+	CLSJJSlit *jjSlit_;
+
 	// Scaler
 
 	CLSSIS3820Scaler *scaler_;
@@ -334,6 +343,10 @@ protected:
 	CLSKeithley428 *i0Keithley_;
 	CLSKeithley428 *iTKeithley_;
 	CLSKeithley428 *i2Keithley_;
+
+	// Carbon filter farm.
+
+	BioXASSideCarbonFilterFarmControl *carbonFilterFarm_;
 
 	// Misc controls
 
