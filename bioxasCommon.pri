@@ -21,7 +21,8 @@ HEADERS += \
     source/ui/BioXAS/BioXASSSRLMonochromatorConfigurationView.h \
     source/ui/BioXAS/BioXASSIS3820ScalerChannelView.h \
     source/ui/BioXAS/BioXASSIS3820ScalerView.h \
-    source/ui/BioXAS/BioXASSIS3820ScalerChannelsView.h
+    source/ui/BioXAS/BioXASSIS3820ScalerChannelsView.h \
+    source/beamline/BioXAS/BioXASXIAFilters.h
 
 SOURCES += \
 	source/beamline/BioXAS/BioXASPseudoMotorControl.cpp \
@@ -38,7 +39,10 @@ SOURCES += \
     source/ui/BioXAS/BioXASSSRLMonochromatorConfigurationView.cpp \
     source/ui/BioXAS/BioXASSIS3820ScalerChannelView.cpp \
     source/ui/BioXAS/BioXASSIS3820ScalerView.cpp \
-    source/ui/BioXAS/BioXASSIS3820ScalerChannelsView.cpp
+    source/ui/BioXAS/BioXASSIS3820ScalerChannelsView.cpp \
+    source/beamline/BioXAS/BioXASXIAFilters.cpp
+
+
 
 
 
