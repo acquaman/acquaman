@@ -42,6 +42,7 @@ CLSMAXvMotor::CLSMAXvMotor(const QString &name, const QString &baseName, const Q
 	EGUBaseVelocity_ = new AMPVControl(name+"EGUBaseVelocity", baseName+":vBase"+pvUnitFieldName+"ps:sp", baseName+":vBase"+pvUnitFieldName+"ps", QString(), this, 0.05);
 	EGUAcceleration_ = new AMPVControl(name+"EGUAcceleration", baseName+":acc"+pvUnitFieldName+"pss:sp", baseName+":accel"+pvUnitFieldName+"pss", QString(), this, 2);
 	EGUCurrentVelocity_ = new AMReadOnlyPVControl(name+"EGUCurrentVelocity", baseName+":vel"+pvUnitFieldName+"ps:fbk", this);
+	EGUSetPosition_ = new AMPVControl(name+"EGUSetPostion", baseName+pvUnitFieldName+":setPosn", baseName+pvUnitFieldName+":setPosn", QString(), this, 0.005);
 	EGUOffset_ = new AMPVControl(name+"EGUOffset", baseName+pvUnitFieldName+":offset", baseName+pvUnitFieldName+":offset", QString(), this, 0.005);
 
 	step_ = new AMPVControl(name+"Step", baseName+":step:sp", baseName+":step", QString(), this, 20);
@@ -91,6 +92,8 @@ CLSMAXvMotor::CLSMAXvMotor(const QString &name, const QString &baseName, const Q
 	connect(EGUAcceleration_, SIGNAL(valueChanged(double)), this, SIGNAL(EGUAccelerationChanged(double)));
 	connect(EGUCurrentVelocity_, SIGNAL(connected(bool)), this, SLOT(onPVConnected(bool)));
 	connect(EGUCurrentVelocity_, SIGNAL(valueChanged(double)), this, SIGNAL(EGUCurrentVelocityChanged(double)));
+	connect(EGUSetPosition_, SIGNAL(connected(bool)), this, SLOT(onPVConnected(bool)));
+	connect(EGUSetPosition_, SIGNAL(valueChanged(double)), this, SIGNAL(EGUSetPoistionChanged(double)));
 	connect(EGUOffset_, SIGNAL(connected(bool)), this, SLOT(onPVConnected(bool)));
 	connect(EGUOffset_, SIGNAL(valueChanged(double)), this, SIGNAL(EGUOffsetChanged(double)));
 
@@ -163,6 +166,7 @@ bool CLSMAXvMotor::isConnected() const{
 			&& EGUBaseVelocity_->isConnected()
 			&& EGUAcceleration_->isConnected()
 			&& EGUCurrentVelocity_->isConnected()
+			&& EGUSetPosition_->isConnected()
 			&& EGUOffset_->isConnected()
 			&& step_->isConnected()
 			&& stepVelocity_->isConnected()
@@ -243,6 +247,12 @@ double CLSMAXvMotor::EGUCurrentVelocity() const{
 	if(isConnected())
 		return EGUCurrentVelocity_->value();
 
+	return 0.0;
+}
+
+double CLSMAXvMotor::EGUSetPosition() const{
+	if(isConnected())
+		return EGUSetPosition_->value();
 	return 0.0;
 }
 
@@ -536,6 +546,14 @@ AMAction3 *CLSMAXvMotor::createEGUAccelerationAction(double EGUAcceleration)
 	return AMActionSupport::buildControlMoveAction(EGUAcceleration_, EGUAcceleration);
 }
 
+AMAction3 *CLSMAXvMotor::createEGUSetPositionAction(double EGUSetPosition)
+{
+	if(!isConnected())
+		return 0;
+
+	return AMActionSupport::buildControlMoveAction(EGUSetPosition_, EGUSetPosition);
+}
+
 AMAction3 *CLSMAXvMotor::createEGUOffsetAction(double EGUOffset)
 {
 	if(!isConnected())
@@ -749,6 +767,11 @@ void CLSMAXvMotor::setEGUBaseVelocity(double baseVelocity){
 void CLSMAXvMotor::setEGUAcceleration(double acceleration){
 	if(isConnected())
 		EGUAcceleration_->move(acceleration);
+}
+
+void CLSMAXvMotor::setEGUSetPosition(double EGUSetPosition){
+	if(isConnected())
+		EGUSetPosition_->move(EGUSetPosition);
 }
 
 void CLSMAXvMotor::setEGUOffset(double EGUOffset){

@@ -13,6 +13,7 @@ SUBDIRS += \
 	BioXASMainAcquaman.pro \
 	BioXASSideAcquaman.pro \
 	BioXASImagingAcquaman.pro \
+	BioXASSideTableCoordinator.pro \
 	BioXASToolSuite.pro \
 	MidIRBPM.pro \
 	REIXSTest.pro \
