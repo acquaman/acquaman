@@ -81,7 +81,6 @@ public:
 	CLSSIS3820Scaler* scaler() const { return scaler_; }
 
 	// Photon and safety shutters.
-
 	/// Returns the first photon shutter.
 	AMControl *photonShutter1() const { return psh1_; }
 	/// Returns the second photon shutter.
@@ -101,7 +100,6 @@ public:
 	bool closeSafetyShutter2();
 
 	// Pressure monitors.
-
 	AMControl *ccg1() const { return ccg1_; }
 	AMControl *ccg2() const { return ccg2_; }
 	AMControl *ccg3() const { return ccg3_; }
@@ -197,16 +195,24 @@ public:
 	/// return the set of BioXAS Motors by given motor category
 	QList<AMControl *> getMotorsByType(BioXASBeamlineDef::BioXASMotorType category) const;
 
-	// Current amplifiers
+	// Motor controls.
+	/// Returns the lateral detector stage motor.
+	AMControl* detectorStageLateral() const { return detectorStageLateral_; }
 
+	// Current amplifiers
+	/// Returns the I0 Keithley428 amplifier.
 	CLSKeithley428* i0Keithley() const { return i0Keithley_; }
+	/// Returns the IT Keithley428 amplifier.
 	CLSKeithley428* iTKeithley() const { return iTKeithley_; }
+	/// Returns the I2 Keithley 428 amplifier.
 	CLSKeithley428* i2Keithley() const { return i2Keithley_; }
 
 	// Detectors
-
+	/// Returns the I0 scaler channel detector.
 	CLSBasicScalerChannelDetector* i0Detector() const { return i0Detector_; }
+	/// Returns the IT scaler channel detector.
 	CLSBasicScalerChannelDetector* iTDetector() const { return iTDetector_; }
+	/// Returns the I2 scaler channel detector.
 	CLSBasicScalerChannelDetector* i2Detector() const { return i2Detector_; }
 	/// Returns the energy feedback detector.
 	AMBasicControlDetectorEmulator* energyFeedbackDetector() const { return energyFeedbackDetector_; }
@@ -278,6 +284,8 @@ protected:
 	void setupDetectors();
 	/// Sets up the sample stage motors.
 	void setupSampleStage();
+	/// Sets up the detector stage motors.
+	void setupDetectorStage();
 	/// Sets up mono settings.
 	void setupMono();
 	/// Sets up various beamline components.
@@ -479,6 +487,10 @@ protected:
 
 	BioXASPseudoMotorControl *monoPseudoEnergy_;
 	AMPVwStatusControl *monoBraggAngle_;
+
+	/// Detector motors.
+
+	AMPVwStatusControl *detectorStageLateral_;
 };
 
 #endif // BIOXASSIDEBEAMLINE_H

@@ -34,6 +34,7 @@ BioXASSideBeamline::BioXASSideBeamline()
 	setupComponents();
 	setupDiagnostics();
 	setupSampleStage();
+	setupDetectorStage();
 //	setupDetectors();
 	setupControlSets();
 	setupMono();
@@ -215,6 +216,9 @@ QList<AMControl *> BioXASSideBeamline::getMotorsByType(BioXASBeamlineDef::BioXAS
 		matchedMotors.append(monoBraggAngle_);
 		break;
 
+	case BioXASBeamlineDef::DetectorStageMotor:
+		matchedMotors.append(detectorStageLateral_);
+
 	default:
 		qDebug() << "ERROR: invalid BioXAS Motor category: " << category;
 		break;
@@ -231,7 +235,8 @@ void BioXASSideBeamline::onConnectionChanged()
 				mono_->isConnected() &&
 
 				// Scaler.
-				scaler_->isConnected() && scalerDwellTime_->isConnected() &&
+				scaler_->isConnected() &&
+				scalerDwellTime_->isConnected() &&
 
 				// Control sets.
 				//pressureSet_->isConnected() && valveSet_->isConnected() &&
@@ -573,6 +578,11 @@ void BioXASSideBeamline::setupSampleStage()
 
 }
 
+void BioXASSideBeamline::setupDetectorStage()
+{
+	detectorStageLateral_ = new AMPVwStatusControl("Lateral Motor Detector Stage", "SMTR1607-6-I22-16:mm:fbk", "SMTR1607-6-I22-16:mm:sp", "SMTR1607-6-I22-16:status", "SMTR1607-6-I22-16:stop", this, 0.001);
+}
+
 void BioXASSideBeamline::setupMotorGroup()
 {
 	// Filter farm motors
@@ -797,8 +807,14 @@ void BioXASSideBeamline::setupControlsAsDetectors()
 
 void BioXASSideBeamline::setupExposedControls()
 {
+	// Mono controls.
+
 	addExposedControl(mono_->energyControl());
 	addExposedControl(mono_->regionControl());
+
+	// Detector stage controls.
+
+	addExposedControl(detectorStageLateral_);
 }
 
 void BioXASSideBeamline::setupExposedDetectors()
