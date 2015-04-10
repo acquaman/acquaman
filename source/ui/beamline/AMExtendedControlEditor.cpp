@@ -52,6 +52,7 @@ AMExtendedControlEditor::AMExtendedControlEditor(AMControl* control, AMControl* 
 	newValueOnce_ = false;
 	format_ = 'g';
 	precision_ = 3;
+	unitsSetManually_ = false;
 
 	statusTagControl_ = statusTagControl;
 	if(control_ && !control_->canMove())
@@ -160,6 +161,12 @@ bool AMExtendedControlEditor::setControlFormat(const QChar& format, int precisio
 	return false;
 }
 
+void AMExtendedControlEditor::hideBorder()
+{
+	setStyleSheet("border:0;");
+	setTitle("");
+}
+
 void AMExtendedControlEditor::setReadOnly(bool readOnly){
 	readOnly_ = readOnly;
 	if(!control_->canMove())
@@ -196,10 +203,12 @@ void AMExtendedControlEditor::onValueChanged(double newVal) {
 void AMExtendedControlEditor::onUnitsChanged(const QString& units) {
 	if(configureOnly_ && connectedOnce_)
 		return;
+	if (unitsSetManually_)
+		return;
 	if(control_->isEnum())
-		unitsLabel_->setText("");
+		setUnitsText("");
 	else
-		unitsLabel_->setText(units);
+		setUnitsText(units);
 }
 
 
@@ -218,6 +227,11 @@ void AMExtendedControlEditor::setHappy(bool happy) {
 	}
 	else
 		unitsLabel_->setStyleSheet("border: 1px outset #f20000; background: #ffdfdf;	padding: 1px; color: #f20000;");
+}
+
+void AMExtendedControlEditor::setUnitsText(const QString &newUnits)
+{
+	unitsLabel_->setText(newUnits);
 }
 
 void AMExtendedControlEditor::onMotion(bool moving) {
@@ -287,6 +301,19 @@ QSize AMExtendedControlEditor::sizeHint() const{
 	QSize newHint = QGroupBox::sizeHint();
 	newHint.setHeight(newHint.height()+6);
 	return newHint;
+}
+
+void AMExtendedControlEditor::setUnits(const QString &newUnits)
+{
+	setUnitsManually(true);
+	setUnitsText(newUnits);
+}
+
+void AMExtendedControlEditor::setUnitsManually(bool manual)
+{
+	if (unitsSetManually_ != manual) {
+		unitsSetManually_ = manual;
+	}
 }
 
 void AMExtendedControlEditor::mouseReleaseEvent ( QMouseEvent * event ) {

@@ -23,6 +23,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "beamline/BioXAS/BioXASMainBeamline.h"
 #include "ui/beamline/AMExtendedControlEditor.h"
+#include "ui/CLS/CLSSIS3820ScalerView.h"
 
 BioXASMainPersistentView::BioXASMainPersistentView(QWidget *parent) :
     QWidget(parent)
@@ -39,19 +40,47 @@ BioXASMainPersistentView::BioXASMainPersistentView(QWidget *parent) :
 	braggControlEditor_ = new AMExtendedControlEditor(BioXASMainBeamline::bioXAS()->mono()->braggMotor());
 	braggControlEditor_->setTitle("Bragg motor position");
 
-	// Create and set layouts.
+	// Create the scaler channel views.
+
+	BioXASSIS3820ScalerChannelsView *channels = new BioXASSIS3820ScalerChannelsView(BioXASMainBeamline::bioXAS()->scaler());
+
+	QVBoxLayout *channelsLayout = new QVBoxLayout();
+	channelsLayout->addWidget(channels);
+
+	channelsView_ = new QGroupBox();
+	channelsView_->setTitle("Scaler channels");
+	channelsView_->setLayout(channelsLayout);
+
+	// Create and set main layout.
 
 	QVBoxLayout *layout = new QVBoxLayout();
 	layout->addWidget(energyControlEditor_);
 	layout->addWidget(regionControlEditor_);
 	layout->addWidget(braggControlEditor_);
+	layout->addWidget(channelsView_);
 	layout->addStretch();
 
 	setLayout(layout);
-	setFixedWidth(300);
+
+	// Initial settings.
+
+	channelsView_->hide();
+
+	// Make connections.
+
+	connect( BioXASMainBeamline::bioXAS()->scaler(), SIGNAL(connectedChanged(bool)), this, SLOT(setScalerChannelsVisible(bool)) );
+
+	// Current settings.
+
+	setScalerChannelsVisible(BioXASMainBeamline::bioXAS()->scaler()->isConnected());
 }
 
 BioXASMainPersistentView::~BioXASMainPersistentView()
 {
 
+}
+
+void BioXASMainPersistentView::setScalerChannelsVisible(bool show)
+{
+	channelsView_->setVisible(show);
 }

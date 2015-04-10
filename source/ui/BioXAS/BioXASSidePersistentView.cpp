@@ -20,37 +20,86 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 
 #include "BioXASSidePersistentView.h"
-
+#include "ui/BioXAS/BioXASSIS3820ScalerChannelsView.h"
 #include "beamline/BioXAS/BioXASSideBeamline.h"
 
 BioXASSidePersistentView::BioXASSidePersistentView(QWidget *parent) :
     QWidget(parent)
 {
-	// Create UI elements.
+	// Energy control editor.
 
-    energyControlEditor_ = new AMExtendedControlEditor(BioXASSideBeamline::bioXAS()->mono()->energyControl());
-    energyControlEditor_->setTitle("Energy");
-    energyControlEditor_->setControlFormat('f', 2);
+	energyControlEditor_ = new AMExtendedControlEditor(BioXASSideBeamline::bioXAS()->mono()->energyControl());
+	energyControlEditor_->setTitle("Mono Energy");
+	energyControlEditor_->setControlFormat('f', 2);
 
-    regionControlEditor_ = new BioXASSSRLMonochromatorRegionControlEditor(BioXASSideBeamline::bioXAS()->mono()->regionControl());
-    regionControlEditor_->setTitle("Region");
+	// Region control editor.
 
-    braggControlEditor_ = new AMExtendedControlEditor(BioXASSideBeamline::bioXAS()->mono()->braggMotor());
-    braggControlEditor_->setTitle("Bragg motor position");
+	regionControlEditor_ = new BioXASSSRLMonochromatorRegionControlEditor(BioXASSideBeamline::bioXAS()->mono()->regionControl());
+	regionControlEditor_->setTitle("Mono Region");
 
-    // Create and set layouts.
+	// Bragg control editor.
 
-    QVBoxLayout *layout = new QVBoxLayout();
-    layout->addWidget(energyControlEditor_);
-    layout->addWidget(regionControlEditor_);
-    layout->addWidget(braggControlEditor_);
-    layout->addStretch();
+	braggControlEditor_ = new AMExtendedControlEditor(BioXASSideBeamline::bioXAS()->mono()->braggMotor());
+	braggControlEditor_->setTitle("Bragg motor position");
 
-    setLayout(layout);
-    setFixedWidth(300);
+	// Carbon filter farm filter thickness editor.
+
+	carbonFilterFarmEditor_ = new AMExtendedControlEditor(BioXASSideBeamline::bioXAS()->carbonFilterFarm());
+	carbonFilterFarmEditor_->setTitle("Filter Farm");
+
+	AMExtendedControlEditor *actuatorEditor = new AMExtendedControlEditor(BioXASSideBeamline::bioXAS()->carbonFilterFarm()->upstreamActuatorControl());
+	actuatorEditor->setTitle("Filter Farm - upstream actuator");
+
+	// Scaler channel views.
+
+	BioXASSIS3820ScalerChannelsView *channels = new BioXASSIS3820ScalerChannelsView(BioXASSideBeamline::bioXAS()->scaler());
+
+	QVBoxLayout *channelsLayout = new QVBoxLayout();
+	channelsLayout->addWidget(channels);
+
+	channelViews_ = new QGroupBox();
+	channelViews_->setTitle("Scaler channels");
+	channelViews_->setLayout(channelsLayout);
+
+	// Create and set main layout.
+
+	QVBoxLayout *layout = new QVBoxLayout();
+	layout->addWidget(energyControlEditor_);
+	layout->addWidget(regionControlEditor_);
+	layout->addWidget(braggControlEditor_);
+	layout->addWidget(carbonFilterFarmEditor_);
+	layout->addWidget(actuatorEditor);
+	layout->addWidget(channelViews_);
+	layout->addStretch();
+
+	setLayout(layout);
+	setFixedWidth(355);
+
+	// Initial settings.
+
+	channelViews_->hide();
+
+	// Make connections.
+
+	connect( BioXASSideBeamline::bioXAS()->scaler(), SIGNAL(connectedChanged(bool)), this, SLOT(onScalerConnectedChanged()) );
+
+	// Current settings.
+
+	onScalerConnectedChanged();
 }
 
 BioXASSidePersistentView::~BioXASSidePersistentView()
 {
 
+}
+
+void BioXASSidePersistentView::onScalerConnectedChanged()
+{
+	CLSSIS3820Scaler *scaler = BioXASSideBeamline::bioXAS()->scaler();
+
+	if (scaler && scaler->isConnected()) {
+		channelViews_->show();
+	} else {
+		channelViews_->hide();
+	}
 }

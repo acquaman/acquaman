@@ -81,6 +81,7 @@ public:
 	AMControl* control() const;
 
 	bool setControlFormat(const QChar& format, int precision);
+	void hideBorder();
 
 signals:
 	void moveRequested(double);
@@ -99,9 +100,17 @@ public slots:
 	*/
 	QSize sizeHint() const;
 
+	/// Sets the units text box and prevents them from being set by control updates.
+	void setUnits(const QString &newUnits);
+	/// Sets the manual override flag for the units text.
+	void setUnitsManually(bool manual);
+
 protected slots:
 	void setHappy(bool happy = true);
 	void setUnhappy() { setHappy(false); }
+
+	/// Sets the units label text to the given newUnits, if the units haven't been overridden.
+	void setUnitsText(const QString &newUnits);
 
 	void onValueChanged(double newVal);
 	void onUnitsChanged(const QString& units);
@@ -135,6 +144,9 @@ protected:
 	AMExtendedControlEditorStyledInputDialog* dialog_;
 
 	int moveCounter_;
+
+	/// Flag that indicates whether or not the units should be updated when the control indicates they have changed.
+	bool unitsSetManually_;
 };
 
 #endif // AMEXTENDEDCONTROLEDITOR_H

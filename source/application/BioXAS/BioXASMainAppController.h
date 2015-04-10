@@ -25,7 +25,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "application/AMAppController.h"
 
 class BioXASMainPersistentView;
-class CLSSIS3820ScalerView;
+class BioXASSIS3820ScalerView;
 class BioXASMainXASScanConfiguration;
 class BioXASMainXASScanConfigurationView;
 class AMScanConfigurationViewHolder3;
@@ -75,7 +75,7 @@ protected:
     /// Mono configuration view.
     BioXASSSRLMonochromatorConfigurationView *monoConfigView_;
     /// Scaler view.
-    CLSSIS3820ScalerView *scalerView_;
+    BioXASSIS3820ScalerView *scalerView_;
     /// XAS scan configuration.
     BioXASMainXASScanConfiguration *configuration_;
     /// XAS scan configuration view.

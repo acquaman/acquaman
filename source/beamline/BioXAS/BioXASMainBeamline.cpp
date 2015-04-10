@@ -172,17 +172,17 @@ void BioXASMainBeamline::setupComponents()
 
     // Amplifiers
 
-    i0Keithley_ = new CLSKeithley428("I0 Channel", "AMP1607-701:Gain", this);
+    i0Keithley_ = new CLSKeithley428("I0 Channel", "AMP1607-701", this);
     scaler_->channelAt(0)->setCustomChannelName("I0 Channel");
     scaler_->channelAt(0)->setCurrentAmplifier(i0Keithley_);
     scaler_->channelAt(0)->setDetector(i0Detector_);
 
-    iTKeithley_ = new CLSKeithley428("IT Channel", "AMP1607-702:Gain", this);
+    iTKeithley_ = new CLSKeithley428("IT Channel", "AMP1607-702", this);
     scaler_->channelAt(1)->setCustomChannelName("IT Channel");
     scaler_->channelAt(1)->setCurrentAmplifier(iTKeithley_);
     scaler_->channelAt(1)->setDetector(iTDetector_);
 
-    i2Keithley_ = new CLSKeithley428("I2 Channel", "AMP1607-703:Gain", this);
+    i2Keithley_ = new CLSKeithley428("I2 Channel", "AMP1607-703", this);
     scaler_->channelAt(15)->setCustomChannelName("I2 Channel");
     scaler_->channelAt(15)->setCurrentAmplifier(iTKeithley_);
     scaler_->channelAt(15)->setDetector(i2Detector_);

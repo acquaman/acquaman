@@ -22,7 +22,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "CLSSIS3820ScalerDarkCurrentWidget.h"
 
 CLSSIS3820ScalerDarkCurrentWidget::CLSSIS3820ScalerDarkCurrentWidget(CLSSIS3820Scaler *scaler, QWidget *parent) :
-    QGroupBox("Dark current correction", parent)
+    QWidget(parent)
 {
 	// Initialize member variables.
 
@@ -42,6 +42,7 @@ CLSSIS3820ScalerDarkCurrentWidget::CLSSIS3820ScalerDarkCurrentWidget(CLSSIS3820S
 	// Create and set layouts.
 
 	QHBoxLayout *layout = new QHBoxLayout();
+	layout->setMargin(0);
 	layout->addWidget(timePrompt);
 	layout->addWidget(timeEntry_);
 	layout->addWidget(collectButton_);

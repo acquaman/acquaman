@@ -65,11 +65,11 @@ namespace AMActionSupport
 	}
 
 	/// Helper method that takes an AMControl and a desired setpoint and creates all necessary components.  Caller is responsible for memory.
-	inline AMAction3 *buildControlWaitAction(AMControl *control, double setpoint)
+	inline AMAction3 *buildControlWaitAction(AMControl *control, double setpoint, double timeout = 10)
 	{
 		AMControlInfo info = control->toInfo();
 		info.setValue(setpoint);
-		AMControlWaitActionInfo *actionInfo = new AMControlWaitActionInfo(info, 10, AMControlWaitActionInfo::MatchEqual);
+		AMControlWaitActionInfo *actionInfo = new AMControlWaitActionInfo(info, timeout, AMControlWaitActionInfo::MatchEqual);
 		AMControlWaitAction *action = new AMControlWaitAction(actionInfo, control);
 		return action;
 	}

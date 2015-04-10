@@ -26,11 +26,11 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "actions3/AMAction3.h"
 
 /// This function object provides the moving check for the CLSMAXvMotors
-class AMControlStatusCheckerCLSMAXv : public AMAbstractControlStatusChecker {
+class CLSMAXvControlStatusChecker : public AMAbstractControlStatusChecker {
 public:
 	/// Status values will be compare to \c isStoppedValue, and return true if the status value is not equal to isStoppedValue (something that isn't stopped is moving)
-	virtual ~AMControlStatusCheckerCLSMAXv();
-	AMControlStatusCheckerCLSMAXv() {}
+	virtual ~CLSMAXvControlStatusChecker();
+	CLSMAXvControlStatusChecker() {}
 
 	/// Return true (moving) if the \c statusValue is not 0 (STOPPED) and is not 2 (AT LIMIT) and is not 3 (FORCED STOP) and is not 4 (ERROR)
 	virtual bool operator()(quint32 statusValue) { return (statusValue != 0) && (statusValue != 2) && (statusValue != 3) && (statusValue != 4); }
@@ -120,6 +120,8 @@ public:
 	double EGUAcceleration() const;
 	/// Returns the (EGU) current velocity of the motor (zero when not moving, presumably non-zero when in motion).  Returns 0 if the motor isn't connected yet.
 	double EGUCurrentVelocity() const;
+	/// Returns the EGU set position of the motor. Returns 0 if the motor isn't connected yet.
+	double EGUSetPosition() const;
 	/// Returns the EGU offset of the motor. Returns 0 if the motor isn't connected yet.
 	double EGUOffset() const;
 
@@ -212,6 +214,8 @@ public:
 	AMAction3 *createEGUBaseVelocityAction(double EGUBaseVelocity);
 	/// Returns a newly created action to change the EGU acceleration. Returns 0 if the control is not connected.
 	AMAction3 *createEGUAccelerationAction(double EGUAcceleration);
+	/// Returns a newly created action to change the EGU Set Position. Returns 0 if the control is not connected.
+	AMAction3 *createEGUSetPositionAction(double EGUOffset);
 	/// Returns a newly created action to change the EGU offset. Returns 0 if the control is not connected.
 	AMAction3 *createEGUOffsetAction(double EGUOffset);
 
@@ -275,6 +279,8 @@ public slots:
 	void setEGUBaseVelocity(double EGUBaseVelocity);
 	/// Sets the (EGU) acceleration setting for the velocity profile
 	void setEGUAcceleration(double EGUAcceleration);
+	/// Sets the EGU offset for the motor
+	void setEGUSetPosition(double EGUSetPosition);
 	/// Sets the EGU offset for the motor
 	void setEGUOffset(double EGUOffset);
 
@@ -343,6 +349,8 @@ signals:
 	void EGUAccelerationChanged(double EGUAcceleration);
 	/// Emitted when the (EGU) current velocity reading changes
 	void EGUCurrentVelocityChanged(double EGUCurrentVelocity);
+	/// Emitted when the EGU set position changes
+	void EGUSetPositionChanged(double EGUSetPosition);
 	/// Emitted when the EGU offset changes
 	void EGUOffsetChanged(double EGUOffset);
 
@@ -451,6 +459,8 @@ protected:
 	AMPVControl *EGUAcceleration_;
 	/// Readonly control for actual (EGU) velocity feedback
 	AMReadOnlyPVControl *EGUCurrentVelocity_;
+	/// Read-write control for the EGU set position
+	AMPVControl *EGUSetPosition_;
 	/// Read-write control for the EGU offset
 	AMPVControl *EGUOffset_;
 
