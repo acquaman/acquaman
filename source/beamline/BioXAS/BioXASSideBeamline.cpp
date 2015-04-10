@@ -216,9 +216,6 @@ QList<AMControl *> BioXASSideBeamline::getMotorsByType(BioXASBeamlineDef::BioXAS
 		matchedMotors.append(monoBraggAngle_);
 		break;
 
-	case BioXASBeamlineDef::DetectorStageMotor:
-		matchedMotors.append(detectorStageLateral_);
-
 	default:
 		qDebug() << "ERROR: invalid BioXAS Motor category: " << category;
 		break;
@@ -580,7 +577,7 @@ void BioXASSideBeamline::setupSampleStage()
 
 void BioXASSideBeamline::setupDetectorStage()
 {
-	detectorStageLateral_ = new AMPVwStatusControl("Lateral Motor Detector Stage", "SMTR1607-6-I22-16:mm:fbk", "SMTR1607-6-I22-16:mm:sp", "SMTR1607-6-I22-16:status", "SMTR1607-6-I22-16:stop", this, 0.001);
+	detectorStageLateral_ = new CLSMAXvMotor("SMTR1607-6-I22-16 Side Detector Lateral", "SMTR1607-6-I22-16", "SMTR1607-6-I22-16 Side Detector Lateral", true, 0.05, 2.0, this, ":mm");
 }
 
 void BioXASSideBeamline::setupMotorGroup()

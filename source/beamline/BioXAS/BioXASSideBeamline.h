@@ -197,7 +197,7 @@ public:
 
 	// Motor controls.
 	/// Returns the lateral detector stage motor.
-	AMControl* detectorStageLateral() const { return detectorStageLateral_; }
+	CLSMAXvMotor* detectorStageLateral() const { return detectorStageLateral_; }
 
 	// Current amplifiers
 	/// Returns the I0 Keithley428 amplifier.
@@ -490,7 +490,7 @@ protected:
 
 	/// Detector motors.
 
-	AMPVwStatusControl *detectorStageLateral_;
+	CLSMAXvMotor *detectorStageLateral_;
 };
 
 #endif // BIOXASSIDEBEAMLINE_H
