@@ -42,7 +42,7 @@ CLSMAXvMotor::CLSMAXvMotor(const QString &name, const QString &baseName, const Q
 	EGUBaseVelocity_ = new AMPVControl(name+"EGUBaseVelocity", baseName+":vBase"+pvUnitFieldName+"ps:sp", baseName+":vBase"+pvUnitFieldName+"ps", QString(), this, 0.05);
 	EGUAcceleration_ = new AMPVControl(name+"EGUAcceleration", baseName+":acc"+pvUnitFieldName+"pss:sp", baseName+":accel"+pvUnitFieldName+"pss", QString(), this, 2);
 	EGUCurrentVelocity_ = new AMReadOnlyPVControl(name+"EGUCurrentVelocity", baseName+":vel"+pvUnitFieldName+"ps:fbk", this);
-	EGUSetPosition_ = new AMPVControl(name+"EGUSetPostion", baseName+pvUnitFieldName+":setPosn", baseName+pvUnitFieldName+":setPosn", QString(), this, 0.005);
+	EGUSetPosition_ = new AMPVControl(name+"EGUSetPosition", baseName+pvUnitFieldName+":setPosn", baseName+pvUnitFieldName+":setPosn", QString(), this, 0.005);
 	EGUOffset_ = new AMPVControl(name+"EGUOffset", baseName+pvUnitFieldName+":offset", baseName+pvUnitFieldName+":offset", QString(), this, 0.005);
 
 	step_ = new AMPVControl(name+"Step", baseName+":step:sp", baseName+":step", QString(), this, 20);
@@ -93,7 +93,7 @@ CLSMAXvMotor::CLSMAXvMotor(const QString &name, const QString &baseName, const Q
 	connect(EGUCurrentVelocity_, SIGNAL(connected(bool)), this, SLOT(onPVConnected(bool)));
 	connect(EGUCurrentVelocity_, SIGNAL(valueChanged(double)), this, SIGNAL(EGUCurrentVelocityChanged(double)));
 	connect(EGUSetPosition_, SIGNAL(connected(bool)), this, SLOT(onPVConnected(bool)));
-	connect(EGUSetPosition_, SIGNAL(valueChanged(double)), this, SIGNAL(EGUSetPoistionChanged(double)));
+	connect(EGUSetPosition_, SIGNAL(valueChanged(double)), this, SIGNAL(EGUSetPositionChanged(double)));
 	connect(EGUOffset_, SIGNAL(connected(bool)), this, SLOT(onPVConnected(bool)));
 	connect(EGUOffset_, SIGNAL(valueChanged(double)), this, SIGNAL(EGUOffsetChanged(double)));
 
