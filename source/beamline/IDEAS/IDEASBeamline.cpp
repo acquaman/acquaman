@@ -251,7 +251,7 @@ void IDEASBeamline::onShutterStatusChanged()
 
 AMAction3 *IDEASBeamline::createSamplePlatformMoveVertical(double verticalPosition)
 {
-	if(!IDEASBeamline::samplePlatformVertical_->isConnected())
+	if(!samplePlatformVertical_->isConnected())
 		return 0;
 
 	return AMActionSupport::buildControlMoveAction(samplePlatformVertical_, verticalPosition);
@@ -259,7 +259,7 @@ AMAction3 *IDEASBeamline::createSamplePlatformMoveVertical(double verticalPositi
 
 AMAction3 *IDEASBeamline::createSamplePlatformMoveHorizontal(double horiztonalPosition)
 {
-	if(!IDEASBeamline::samplePlatformHorizontal_->isConnected())
+	if(!samplePlatformHorizontal_->isConnected())
 		return 0;
 
 	return AMActionSupport::buildControlMoveAction(samplePlatformHorizontal_, horiztonalPosition);
@@ -267,7 +267,7 @@ AMAction3 *IDEASBeamline::createSamplePlatformMoveHorizontal(double horiztonalPo
 
 AMAction3 *IDEASBeamline::createVaccumSampleStageMove(double vaccumStagePosition)
 {
-	if(!IDEASBeamline::vacuumSampleStage_->isConnected())
+	if(!vacuumSampleStage_->isConnected())
 		return 0;
 
 	return AMActionSupport::buildControlMoveAction(vacuumSampleStage_, vaccumStagePosition);
@@ -275,7 +275,7 @@ AMAction3 *IDEASBeamline::createVaccumSampleStageMove(double vaccumStagePosition
 
 AMAction3 *IDEASBeamline::createJJSlitHGapMove(double jjSlitHGapPosition)
 {
-	if(!IDEASBeamline::jjSlitHGap_->isConnected())
+	if(!jjSlitHGap_->isConnected())
 		return 0;
 
 	return AMActionSupport::buildControlMoveAction(jjSlitHGap_, jjSlitHGapPosition);
@@ -283,7 +283,7 @@ AMAction3 *IDEASBeamline::createJJSlitHGapMove(double jjSlitHGapPosition)
 
 AMAction3 *IDEASBeamline::createJJSlitHCenterMove(double jjSlitHCenterPosition)
 {
-	if(!IDEASBeamline::jjSlitHCenter_->isConnected())
+	if(!jjSlitHCenter_->isConnected())
 		return 0;
 
 	return AMActionSupport::buildControlMoveAction(jjSlitHCenter_, jjSlitHCenterPosition);
@@ -291,7 +291,7 @@ AMAction3 *IDEASBeamline::createJJSlitHCenterMove(double jjSlitHCenterPosition)
 
 AMAction3 *IDEASBeamline::createJJSlitVGapMove(double jjSlitVGapPosition)
 {
-	if(!IDEASBeamline::jjSlitVGap_->isConnected())
+	if(!jjSlitVGap_->isConnected())
 		return 0;
 
 	return AMActionSupport::buildControlMoveAction(jjSlitVGap_, jjSlitVGapPosition);
@@ -299,7 +299,7 @@ AMAction3 *IDEASBeamline::createJJSlitVGapMove(double jjSlitVGapPosition)
 
 AMAction3 *IDEASBeamline::createJJSlitVCenterMove(double jjSlitVCenterPosition)
 {
-	if(!IDEASBeamline::jjSlitVCenter_->isConnected())
+	if(!jjSlitVCenter_->isConnected())
 		return 0;
 
 	return AMActionSupport::buildControlMoveAction(jjSlitVCenter_, jjSlitVCenterPosition);
