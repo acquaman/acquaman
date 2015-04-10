@@ -43,16 +43,6 @@ BioXASCarbonFilterFarmControl::~BioXASCarbonFilterFarmControl()
 
 }
 
-bool BioXASCarbonFilterFarmControl::canStop() const
-{
-	bool result = false;
-
-	if (isConnected())
-		result = true;
-
-	return result;
-}
-
 bool BioXASCarbonFilterFarmControl::isConnected() const
 {
 	bool result = false;

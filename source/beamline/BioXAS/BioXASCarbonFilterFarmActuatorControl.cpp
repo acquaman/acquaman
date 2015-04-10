@@ -49,16 +49,6 @@ BioXASCarbonFilterFarmActuatorControl::~BioXASCarbonFilterFarmActuatorControl()
 
 }
 
-bool BioXASCarbonFilterFarmActuatorControl::canStop() const
-{
-	bool result = false;
-
-	if (position_->isConnected())
-		result = position_->canStop();
-
-	return result;
-}
-
 bool BioXASCarbonFilterFarmActuatorControl::validWindow(double value)
 {
 	bool result = false;

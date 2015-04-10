@@ -51,7 +51,7 @@ public:
 	/// Returns true if this control can stop a move in progress, if connected. False otherwise.
 	virtual bool shouldStop() const { return true; }
 	/// Returns true if this control can stop a move right now. False otherwise.
-	virtual bool canStop() const;
+	virtual bool canStop() const { return isConnected(); }
 
 	/// Returns the position control.
 	AMPVControl* positionControl() const { return position_; }
