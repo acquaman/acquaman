@@ -95,12 +95,12 @@ BioXASXIAFilters::Filter::Position BioXASXIAFilters::filterPosition(Filter::Name
 {
 	Filter::Position result = Filter::Other;
 
-	AMControl *filterControl = filterControl(name);
+	AMControl *control = filterControl(name);
 
-	if (filterControlIn(filterControl))
+	if (filterControlIn(control))
 		result = Filter::In;
 
-	else if (filterControlOut(filterControl))
+	else if (filterControlOut(control))
 		result = Filter::Out;
 
 	return result;
@@ -110,6 +110,18 @@ BioXASXIAFilters::Filter::Thickness BioXASXIAFilters::filterThickness(double val
 {
 	Q_UNUSED(value)
 	return Filter::Invalid;
+}
+
+bool BioXASXIAFilters::validFilter(double value) const
+{
+	Q_UNUSED(value)
+	return false;
+}
+
+bool BioXASXIAFilters::validFilterSetpoint(double value) const
+{
+	Q_UNUSED(value)
+	return false;
 }
 
 AMControl::FailureExplanation BioXASXIAFilters::move(double setpoint)
@@ -128,7 +140,7 @@ AMControl::FailureExplanation BioXASXIAFilters::move(double setpoint)
 
 	Filter::Thickness thicknessSetpoint = filterThickness(setpoint);
 
-	if (!validSetpoint(thicknessSetpoint)) {
+	if (!validFilterSetpoint(thicknessSetpoint)) {
 		AMErrorMon::alert(this, BIOXAS_XIA_FILTERS_INVALID_SETPOINT, "Failed to move XIA filters: invalid setpoint.");
 		return AMControl::LimitFailure;
 	}

@@ -78,6 +78,11 @@ public:
 	/// Returns the filter thickness corresponding to the given double value. Returns Filter::Invalid if there is no matching thickness.
 	static Filter::Thickness filterThickness(double value);
 
+	/// Returns true if the given value corresponds to a valid filter thickness, false otherwise.
+	bool validFilter(double value) const;
+	/// Returns true if the given value corresponds to a valid filter thickness setpoint, false otherwise.
+	bool validFilterSetpoint(double value) const;
+
 public slots:
 	/// Sets the new filter setpoint and changes filters.
 	virtual FailureExplanation move(double setpoint);
