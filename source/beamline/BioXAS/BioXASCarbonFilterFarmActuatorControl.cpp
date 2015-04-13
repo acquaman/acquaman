@@ -10,11 +10,11 @@ BioXASCarbonFilterFarmActuatorControl::BioXASCarbonFilterFarmActuatorControl(QSt
 	setpoint_ = Window::Invalid;
 	moveInProgress_ = false;
 
-	position_ = new AMPVControl("PositionControl", name+":mm:fbk", name+":mm", name+":stop", this, 0.001);
-	connect( position_, SIGNAL(valueChanged(double)), this, SLOT(updateWindow) );
+	position_ = new AMPVControl("Carbon Filter Farm Actuator Position Control", name+":mm:fbk", name+":mm", name+":stop", this, 0.001);
+	connect( position_, SIGNAL(valueChanged(double)), this, SLOT(updateWindow()) );
 	addChildControl(position_);
 
-	status_ = new AMReadOnlyPVControl("StatusControl", name+":inPosition", this);
+	status_ = new AMReadOnlyPVControl("Carbon Filter Farm Actuator Status Control", name+":inPosition", this);
 	addChildControl(status_);
 
 	cancelledMapper_ = new QSignalMapper(this);
