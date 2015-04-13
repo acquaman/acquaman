@@ -226,12 +226,11 @@ QList<AMControl *> BioXASSideBeamline::getMotorsByType(BioXASBeamlineDef::BioXAS
 
 void BioXASSideBeamline::onConnectionChanged()
 {
-	qDebug() << pressureSet_->isConnected() << valveSet_->isConnected();
 	bool newState = (
 				// Mono.
 				mono_->isConnected() &&
 
-				//JJSlit
+				// JJSlit
 				jjSlit_->isConnected() &&
 
 				// Scaler.
@@ -242,10 +241,12 @@ void BioXASSideBeamline::onConnectionChanged()
 				carbonFilterFarm_->isConnected() &&
 
 				// Control sets.
-				//pressureSet_->isConnected() && valveSet_->isConnected() &&
 				pressureSet_->isConnected() &&
-				ionPumpSet_->isConnected() && flowTransducerSet_->isConnected() &&
-				flowSwitchSet_->isConnected() && temperatureSet_->isConnected()
+				//valveSet_->isConnected() &&
+				ionPumpSet_->isConnected() &&
+				flowTransducerSet_->isConnected() &&
+				flowSwitchSet_->isConnected() &&
+				temperatureSet_->isConnected()
 
 				);
 
@@ -777,6 +778,7 @@ void BioXASSideBeamline::setupComponents()
 	scaler_->channelAt(15)->setDetector(i2Detector_);
 
 	carbonFilterFarm_ = new BioXASSideCarbonFilterFarmControl(this);
+	connect( carbonFilterFarm_, SIGNAL(connected(bool)), this, SLOT(onConnectionChanged()) );
 
 	jjSlit_ = new CLSJJSlit("Side BL", "JJSlit of the side beamline", "PSL1607-6-I22-01", "PSL1607-6-I22-02");
 	connect(jjSlit_, SIGNAL(connected(bool)), this, SLOT(onConnectionChanged()));
@@ -820,10 +822,16 @@ void BioXASSideBeamline::setupExposedControls()
 	addExposedControl(mono_->energyControl());
 	addExposedControl(mono_->regionControl());
 
+	// JJ slit controls.
+
 	addExposedControl(jjSlit_->verticalBladesControl()->gapPVControl());
 	addExposedControl(jjSlit_->verticalBladesControl()->centerPVControl());
 	addExposedControl(jjSlit_->horizontalBladesControl()->gapPVControl());
 	addExposedControl(jjSlit_->horizontalBladesControl()->centerPVControl());
+
+	// Carbon filter farm control.
+
+	addExposedControl(carbonFilterFarm_);
 
 	// Detector stage controls.
 
