@@ -21,6 +21,7 @@ BioXASXIAFilters::BioXASXIAFilters(QObject *parent) :
 	moveSucceededMapper_ = new QSignalMapper(this);
 
 	// Initialize inherited variables.
+	// If enum states and move states end up being beamline specific, they should be initialized in the beamline subclass constructors.
 
 	setEnumStates(QStringList());
 	setMoveEnumStates(QStringList());

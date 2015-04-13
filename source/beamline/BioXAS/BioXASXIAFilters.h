@@ -28,7 +28,7 @@ public:
 	class Filter { public:
 				   enum Name { First = 0, Second, Third, Fourth };
 				   enum Position { Out = 0, In, Other };
-				   enum Thickness { Invalid = 0, None, One, Two, Three, Four, Five, Six };
+				   enum Thickness { Invalid = 0 };
 				 };
 
 	/// Constructor.
@@ -45,7 +45,7 @@ public:
 	/// Returns the smallest value this control can assume.
 	virtual double minimumValue() const { return Filter::Invalid; }
 	/// Returns the largest value this control can assume.
-	virtual double maximumValue() const { return Filter::Six; }
+	virtual double maximumValue() const { return Filter::Invalid; }
 	/// Returns true if the region is always measurable (when the control is connected). False otherwise.
 	virtual bool shouldMeasure() const { return true; }
 	/// Returns true if a move to a new filter is always possible, provided control is connected. False otherwise.
