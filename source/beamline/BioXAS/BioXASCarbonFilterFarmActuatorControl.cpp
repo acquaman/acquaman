@@ -2,7 +2,7 @@
 #include "util/AMErrorMonitor.h"
 
 BioXASCarbonFilterFarmActuatorControl::BioXASCarbonFilterFarmActuatorControl(QString name, QObject *parent) :
-	AMCompositeControl(QString(), QString(), parent, "BioXAS Carbon Filter Farm Actuator Control")
+	AMCompositeControl("BioXASCarbonFilterFarmActuatorControl", QString(), parent, "BioXAS Carbon Filter Farm Actuator Control")
 {
 	// Initialize local variables.
 
