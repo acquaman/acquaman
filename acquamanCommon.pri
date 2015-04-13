@@ -407,7 +407,8 @@ HEADERS += \
 	source/ui/util/AMLineEditDialog.h \
 	source/dataman/AMXRFScan.h \
 	source/ui/util/AMChooseDataFolderDialog.h \
-	source/acquaman/AMTimedScanActionControllerAssembler.h
+	source/acquaman/AMTimedScanActionControllerAssembler.h \
+    source/util/AMCSVParser.h
 
 FORMS += \
 
@@ -776,7 +777,8 @@ SOURCES += \
 	source/ui/util/AMLineEditDialog.cpp \
 	source/dataman/AMXRFScan.cpp \
 	source/ui/util/AMChooseDataFolderDialog.cpp \
-	source/acquaman/AMTimedScanActionControllerAssembler.cpp
+	source/acquaman/AMTimedScanActionControllerAssembler.cpp \
+    source/util/AMCSVParser.cpp
 
 RESOURCES *= source/icons/icons.qrc \
 		source/configurationFiles/configurationFiles.qrc \
@@ -793,6 +795,8 @@ contains(DEFINES, AM_BUILD_REPORTER_ENABLED){
 
 	SOURCES *= source/util/AMRunTimeBuildInfo.cpp
 }
+
+
 
 
 
