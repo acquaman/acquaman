@@ -821,6 +821,9 @@ void BioXASSideBeamline::setupExposedControls()
 
 	addExposedControl(mono_->energyControl());
 	addExposedControl(mono_->regionControl());
+	addExposedControl(mono_->braggMotor()->EGUVelocityControl());
+	addExposedControl(mono_->braggMotor()->EGUBaseVelocityControl());
+	addExposedControl(mono_->braggMotor()->EGUAccelerationControl());
 
 	// JJ slit controls.
 
