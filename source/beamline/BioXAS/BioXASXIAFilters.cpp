@@ -1,13 +1,14 @@
 #include "BioXASXIAFilters.h"
 #include "util/AMErrorMonitor.h"
+#include "actions3/AMActionSupport.h"
 
 BioXASXIAFilters::BioXASXIAFilters(QObject *parent) :
 	AMCompositeControl("BioXAS XIA Filter Control", "", parent)
 {
 	// Initialize local variables.
 
-	value_ = 0;
-	setpoint_ = 0;
+	value_ = Filter::Invalid;
+	setpoint_ = Filter::Invalid;
 	moveInProgress_ = false;
 
 	filter1_ = 0;
@@ -35,6 +36,10 @@ BioXASXIAFilters::BioXASXIAFilters(QObject *parent) :
 	connect( moveCancelledMapper_, SIGNAL(mapped(QObject*)), this, SLOT(onMoveCancelled(QObject*)) );
 	connect( moveFailedMapper_, SIGNAL(mapped(QObject*)), this, SLOT(onMoveFailed(QObject*)) );
 	connect( moveSucceededMapper_, SIGNAL(mapped(QObject*)), this, SLOT(onMoveSucceeded(QObject*)) );
+
+	// Current settings.
+
+	updateValue();
 }
 
 BioXASXIAFilters::~BioXASXIAFilters()
@@ -86,6 +91,27 @@ AMControl* BioXASXIAFilters::filterControl(Filter::Name name) const
 	return result;
 }
 
+BioXASXIAFilters::Filter::Position BioXASXIAFilters::filterPosition(Filter::Name name) const
+{
+	Filter::Position result = Filter::Other;
+
+	AMControl *filterControl = filterControl(name);
+
+	if (filterControlIn(filterControl))
+		result = Filter::In;
+
+	else if (filterControlOut(filterControl))
+		result = Filter::Out;
+
+	return result;
+}
+
+BioXASXIAFilters::Filter::Thickness BioXASXIAFilters::filterThickness(double value)
+{
+	Q_UNUSED(value)
+	return Filter::Invalid;
+}
+
 AMControl::FailureExplanation BioXASXIAFilters::move(double setpoint)
 {
 	Q_UNUSED(setpoint)
@@ -100,7 +126,14 @@ AMControl::FailureExplanation BioXASXIAFilters::move(double setpoint)
 		return AMControl::AlreadyMovingFailure;
 	}
 
-	AMAction3 *moveAction = createMoveAction();
+	Filter::Thickness thicknessSetpoint = filterThickness(setpoint);
+
+	if (!validSetpoint(thicknessSetpoint)) {
+		AMErrorMon::alert(this, BIOXAS_XIA_FILTERS_INVALID_SETPOINT, "Failed to move XIA filters: invalid setpoint.");
+		return AMControl::LimitFailure;
+	}
+
+	AMAction3 *moveAction = createMoveAction(thicknessSetpoint);
 
 	if (!moveAction) {
 		AMErrorMon::alert(this, BIOXAS_XIA_FILTERS_MOVE_FAILED, "Failed to move XIA filters.");
@@ -127,19 +160,19 @@ AMControl::FailureExplanation BioXASXIAFilters::move(double setpoint)
 	return AMControl::NoFailure;
 }
 
-void BioXASXIAFilters::setValue(double newValue)
+void BioXASXIAFilters::setValue(Filter::Thickness newValue)
 {
 	if (value_ != newValue) {
 		value_ = newValue;
-		emit valueChanged(value_);
+		emit valueChanged((double)value_);
 	}
 }
 
-void BioXASXIAFilters::setSetpoint(double newValue)
+void BioXASXIAFilters::setSetpoint(Filter::Thickness newValue)
 {
 	if (setpoint_ != newValue) {
 		setpoint_ = newValue;
-		emit setpointChanged(setpoint_);
+		emit setpointChanged((double)setpoint_);
 	}
 }
 
@@ -154,12 +187,58 @@ void BioXASXIAFilters::setMoveInProgress(bool isMoving)
 	}
 }
 
-void BioXASXIAFilters::setFilterPosition(Filter::Name name, Filter::Position position)
+void BioXASXIAFilters::updateValue()
 {
-	AMControl *filter = filterControl(name);
+	return;
+}
 
-	if (filter)
-		filter->move(position);
+bool BioXASXIAFilters::setFilterPosition(Filter::Name name, Filter::Position position)
+{
+	return setFilterControlPosition(filterControl(name), position);
+}
+
+bool BioXASXIAFilters::setFilterControlPosition(AMControl *filterControl, Filter::Position position)
+{
+	bool result = false;
+
+	if (filterControl) {
+		switch (position) {
+		case Filter::In:
+			result = setFilterControlIn(filterControl);
+			break;
+		case Filter::Out:
+			result = setFilterControlOut(filterControl);
+			break;
+		default:
+			break;
+		}
+	}
+
+	return result;
+}
+
+bool BioXASXIAFilters::setFilterControlIn(AMControl *filterControl)
+{
+	bool result = false;
+
+	if (filterControl) {
+		AMControl::FailureExplanation moveResult = filterControl->move(BIOXAS_XIA_FILTERS_POSITION_IN);
+		result = (moveResult == AMControl::NoFailure);
+	}
+
+	return result;
+}
+
+bool BioXASXIAFilters::setFilterControlOut(AMControl *filterControl)
+{
+	bool result = false;
+
+	if (filterControl) {
+		AMControl::FailureExplanation moveResult = filterControl->move(BIOXAS_XIA_FILTERS_POSITION_OUT);
+		result = (moveResult == AMControl::NoFailure);
+	}
+
+	return result;
 }
 
 void BioXASXIAFilters::onMoveStarted()
@@ -185,9 +264,110 @@ void BioXASXIAFilters::onMoveSucceeded(QObject *action)
 	emit moveSucceeded();
 }
 
-AMAction3* BioXASXIAFilters::createMoveAction()
+AMAction3* BioXASXIAFilters::createMoveAction(Filter::Thickness setpoint)
 {
+	Q_UNUSED(setpoint)
 	return 0;
+}
+
+AMAction3* BioXASXIAFilters::createSetFilterPositionAction(Filter::Name name, Filter::Position position)
+{
+	return createSetFilterControlPositionAction(filterControl(name), position);
+}
+
+AMAction3* BioXASXIAFilters::createSetFilterControlPositionAction(AMControl *filterControl, Filter::Position position)
+{
+	AMAction3 *result = 0;
+
+	if (filterControl) {
+		switch (position) {
+		case Filter::In:
+			result = createSetFilterControlIn(filterControl);
+			break;
+		case Filter::Out:
+			result = createSetFilterControlOut(filterControl);
+			break;
+		default:
+			break;
+		}
+	}
+
+	return result;
+}
+
+AMAction3* BioXASXIAFilters::createSetFilterControlIn(AMControl *filterControl)
+{
+	AMAction3 *result = 0;
+
+	if (filterControl) {
+		result = AMActionSupport::buildControlMoveAction(filterControl, BIOXAS_XIA_FILTERS_POSITION_IN);
+	}
+
+	return result;
+}
+
+AMAction3* BioXASXIAFilters::createSetFilterControlOut(AMControl *filterControl)
+{
+	AMAction3 *result = 0;
+
+	if (filterControl) {
+		result = AMActionSupport::buildControlMoveAction(filterControl, BIOXAS_XIA_FILTERS_POSITION_OUT);
+	}
+
+	return result;
+}
+
+bool BioXASXIAFilters::filterControlInPosition(AMControl *filterControl, Filter::Position position) const
+{
+	bool result = false;
+
+	if (filterControl) {
+		switch (position) {
+		case Filter::Out:
+			result = filterControlOut(filterControl);
+			break;
+		case Filter::In:
+			result = filterControlOut(filterControl);
+			break;
+		case Filter::Other:
+			result = filterControlOther(filterControl);
+			break;
+		default:
+			break;
+		}
+	}
+
+	return result;
+}
+
+bool BioXASXIAFilters::filterControlIn(AMControl *filterControl) const
+{
+	bool result = false;
+
+	if (filterControl)
+		result = ( fabs(filterControl->value() - BIOXAS_XIA_FILTERS_POSITION_IN) < BIOXAS_XIA_FILTERS_POSITION_TOLERANCE );
+
+	return result;
+}
+
+bool BioXASXIAFilters::filterControlOut(AMControl *filterControl) const
+{
+	bool result = false;
+
+	if (filterControl)
+		result = ( fabs(filterControl->value() - BIOXAS_XIA_FILTERS_POSITION_OUT) < BIOXAS_XIA_FILTERS_POSITION_TOLERANCE );
+
+	return result;
+}
+
+bool BioXASXIAFilters::filterControlOther(AMControl *filterControl) const
+{
+	bool result = false;
+
+	if (filterControl)
+		result = (!filterControlIn(filterControl) && !filterControlOut(filterControl));
+
+	return result;
 }
 
 void BioXASXIAFilters::moveCleanup(QObject *action)
