@@ -171,8 +171,10 @@ void BioXASSSRLMonochromatorRegionControl::setUpperSlitControl(AMControl *upperS
 {
 	if (upperSlit_ != upperSlit) {
 
-		if (upperSlit_)
+		if (upperSlit_) {
 			controlCleanup(upperSlit_);
+			upperSlit_ = 0;
+		}
 
 		upperSlit_ = upperSlit;
 
@@ -183,139 +185,223 @@ void BioXASSSRLMonochromatorRegionControl::setUpperSlitControl(AMControl *upperS
 
 void BioXASSSRLMonochromatorRegionControl::setLowerSlitControl(AMControl *lowerSlit)
 {
-	if (!lowerSlit_ && lowerSlit_ != lowerSlit) {
-		lowerSlit_ = lowerSlit;
-		addChildControl(lowerSlit_);
+	if (lowerSlit_ != lowerSlit) {
 
-		connect( lowerSlit_, SIGNAL(movingChanged(bool)), this, SIGNAL(movingChanged(bool)) );
+		if (lowerSlit_) {
+			controlCleanup(lowerSlit_);
+			lowerSlit_ = 0;
+		}
+
+		lowerSlit_ = lowerSlit;
+
+		if (lowerSlit_)
+			controlSetup(lowerSlit_);
 	}
 }
 
 void BioXASSSRLMonochromatorRegionControl::setSlitsStatusControl(AMControl *slitsStatus)
 {
-	if (!slitsStatus_ && slitsStatus_ != slitsStatus) {
-		slitsStatus_ = slitsStatus;
-		addChildControl(slitsStatus_);
+	if (slitsStatus_ != slitsStatus) {
 
-		connect( slitsStatus_, SIGNAL(valueChanged(double)), this, SIGNAL(slitsStatusChanged(double)) );
-		connect( slitsStatus_, SIGNAL(movingChanged(bool)), this, SIGNAL(movingChanged(bool)) );
+		if (slitsStatus_) {
+			controlCleanup(slitsStatus_);
+			slitsStatus_ = 0;
+		}
+
+		slitsStatus_ = slitsStatus;
+
+		if (slitsStatus_) {
+			controlSetup(slitsStatus_);
+			connect( slitsStatus_, SIGNAL(valueChanged(double)), this, SIGNAL(slitsStatusChanged(double)) );
+		}
 	}
 }
 
 void BioXASSSRLMonochromatorRegionControl::setPaddleControl(AMControl *paddle)
 {
-	if (!paddle_ && paddle_ != paddle) {
-		paddle_ = paddle;
-		addChildControl(paddle_);
+	if (paddle_ != paddle) {
 
-		connect( paddle_, SIGNAL(movingChanged(bool)), this, SIGNAL(movingChanged(bool)) );
+		if (paddle_) {
+			controlCleanup(paddle_);
+			paddle_ = 0;
+		}
+
+		paddle_ = paddle;
+
+		if (paddle_)
+			controlSetup(paddle_);
 	}
 }
 
 void BioXASSSRLMonochromatorRegionControl::setPaddleStatusControl(AMControl *paddleStatus)
 {
-	if (!paddleStatus_ && paddleStatus_ != paddleStatus) {
-		paddleStatus_ = paddleStatus;
-		addChildControl(paddleStatus_);
+	if (paddleStatus_ != paddleStatus) {
 
-		connect( paddleStatus_, SIGNAL(valueChanged(double)), this, SIGNAL(paddleStatusChanged(double)) );
-		connect( paddleStatus_, SIGNAL(movingChanged(bool)), this, SIGNAL(movingChanged(bool)) );
+		if (paddleStatus_) {
+			controlCleanup(paddleStatus_);
+			paddleStatus_ = 0;
+		}
+
+		paddleStatus_ = paddleStatus;
+
+		if (paddleStatus_) {
+			controlSetup(paddleStatus_);
+			connect( paddleStatus_, SIGNAL(valueChanged(double)), this, SIGNAL(paddleStatusChanged(double)) );
+		}
 	}
 }
 
 void BioXASSSRLMonochromatorRegionControl::setKeyStatusControl(AMControl *keyStatus)
 {
-	if (!keyStatus_ && keyStatus_ != keyStatus) {
-		keyStatus_ = keyStatus;
-		addChildControl(keyStatus_);
+	if (keyStatus_ != keyStatus) {
 
-		connect( keyStatus_, SIGNAL(valueChanged(double)), this, SIGNAL(keyStatusChanged(double)) );
-		connect( keyStatus_, SIGNAL(movingChanged(bool)), this, SIGNAL(movingChanged(bool)) );
+		if (keyStatus_) {
+			controlCleanup(keyStatus_);
+			keyStatus_ = 0;
+		}
+
+		keyStatus_ = keyStatus;
+
+		if (keyStatus_) {
+			controlSetup(keyStatus_);
+			connect( keyStatus_, SIGNAL(valueChanged(double)), this, SIGNAL(keyStatusChanged(double)) );
+		}
 	}
 }
 
 void BioXASSSRLMonochromatorRegionControl::setBrakeStatusControl(AMControl *brakeStatus)
 {
-	if (!brakeStatus_ && brakeStatus_ != brakeStatus) {
-		brakeStatus_ = brakeStatus;
-		addChildControl(brakeStatus_);
+	if (brakeStatus_ != brakeStatus) {
 
-		connect( brakeStatus_, SIGNAL(valueChanged(double)), this, SIGNAL(brakeStatusChanged(double)) );
-		connect( brakeStatus_, SIGNAL(movingChanged(bool)), this, SIGNAL(movingChanged(bool)) );
+		if (brakeStatus_) {
+			controlCleanup(brakeStatus_);
+			brakeStatus_ = 0;
+		}
+
+		brakeStatus_ = brakeStatus;
+
+		if (brakeStatus_) {
+			controlSetup(brakeStatus_);
+			connect( brakeStatus_, SIGNAL(valueChanged(double)), this, SIGNAL(brakeStatusChanged(double)) );
+		}
 	}
 }
 
 void BioXASSSRLMonochromatorRegionControl::setBraggControl(AMControl *bragg)
 {
-	if (!bragg_ && bragg_ != bragg) {
-		bragg_ = bragg;
-		addChildControl(bragg_);
+	if (bragg_ != bragg) {
 
-		connect( bragg_, SIGNAL(movingChanged(bool)), this, SIGNAL(movingChanged(bool)) );
+		if (bragg_) {
+			controlCleanup(bragg_);
+			bragg_ = 0;
+		}
+
+		bragg_ = bragg;
+
+		if (bragg_)
+			controlSetup(bragg_);
 	}
 }
 
 void BioXASSSRLMonochromatorRegionControl::setBraggAtCrystalChangePositionStatusControl(AMControl *inPosition)
 {
-	if (!braggAtCrystalChangePositionStatus_ && braggAtCrystalChangePositionStatus_ != inPosition) {
-		braggAtCrystalChangePositionStatus_ = inPosition;
-		addChildControl(braggAtCrystalChangePositionStatus_);
+	if (braggAtCrystalChangePositionStatus_ != inPosition) {
 
-		connect( braggAtCrystalChangePositionStatus_, SIGNAL(valueChanged(double)), this, SIGNAL(braggAtCrystalChangePositionStatusChanged(double)) );
-		connect( braggAtCrystalChangePositionStatus_, SIGNAL(movingChanged(bool)), this, SIGNAL(movingChanged(bool)) );
+		if (braggAtCrystalChangePositionStatus_) {
+			controlCleanup(braggAtCrystalChangePositionStatus_);
+			braggAtCrystalChangePositionStatus_ = 0;
+		}
+
+		braggAtCrystalChangePositionStatus_ = inPosition;
+
+		if (braggAtCrystalChangePositionStatus_) {
+			controlSetup(braggAtCrystalChangePositionStatus_);
+			connect( braggAtCrystalChangePositionStatus_, SIGNAL(valueChanged(double)), this, SIGNAL(braggAtCrystalChangePositionStatusChanged(double)) );
+		}
 	}
 }
 
 void BioXASSSRLMonochromatorRegionControl::setCrystalChangeControl(AMControl *crystalChange)
 {
-	if (!crystalChange_ && crystalChange_ != crystalChange) {
-		crystalChange_ = crystalChange;
-		addChildControl(crystalChange_);
+	if (crystalChange_ != crystalChange) {
 
-		connect( crystalChange_, SIGNAL(movingChanged(bool)), this, SIGNAL(movingChanged(bool)) );
+		if (crystalChange_) {
+			controlCleanup(crystalChange_);
+			crystalChange_ = 0;
+		}
+
+		crystalChange_ = crystalChange;
+
+		if (crystalChange_)
+			controlSetup(crystalChange_);
 	}
 }
 
 void BioXASSSRLMonochromatorRegionControl::setCrystalChangeCWLimitStatusControl(AMControl *limitStatus)
 {
-	if (!crystalChangeCWLimitStatus_ && crystalChangeCWLimitStatus_ != limitStatus) {
-		crystalChangeCWLimitStatus_ = limitStatus;
-		addChildControl(crystalChangeCWLimitStatus_);
+	if (crystalChangeCWLimitStatus_ != limitStatus) {
 
-		connect( crystalChangeCWLimitStatus_, SIGNAL(movingChanged(bool)), this, SIGNAL(movingChanged(bool)) );
+		if (crystalChangeCWLimitStatus_) {
+			controlCleanup(crystalChangeCWLimitStatus_);
+			crystalChangeCWLimitStatus_ = 0;
+		}
+
+		crystalChangeCWLimitStatus_ = limitStatus;
+
+		if (crystalChangeCWLimitStatus_)
+			controlSetup(crystalChangeCWLimitStatus_);
 	}
 }
 
 void BioXASSSRLMonochromatorRegionControl::setCrystalChangeCCWLimitStatusControl(AMControl *limitStatus)
 {
-	if (!crystalChangeCCWLimitStatus_ && crystalChangeCCWLimitStatus_ != limitStatus) {
+	if (crystalChangeCCWLimitStatus_ != limitStatus) {
+
+		if (crystalChangeCCWLimitStatus_) {
+			controlCleanup(crystalChangeCCWLimitStatus_);
+			crystalChangeCCWLimitStatus_ = 0;
+		}
+
 		crystalChangeCCWLimitStatus_ = limitStatus;
-		addChildControl(crystalChangeCWLimitStatus_);
 
-		connect( crystalChangeCCWLimitStatus_, SIGNAL(movingChanged(bool)), this, SIGNAL(movingChanged(bool)) );
+		if (crystalChangeCCWLimitStatus_)
+			controlSetup(crystalChangeCCWLimitStatus_);
 	}
-
 }
 
 void BioXASSSRLMonochromatorRegionControl::setRegionAStatusControl(AMControl *regionStatus)
 {
-	if (!regionAStatus_ && regionAStatus_ != regionStatus) {
-		regionAStatus_ = regionStatus;
-		addChildControl(regionAStatus_);
+	if (regionAStatus_ != regionStatus) {
 
-		connect( regionAStatus_, SIGNAL(valueChanged(double)), this, SLOT(onRegionControlValueChanged()) );
-		connect( regionAStatus_, SIGNAL(movingChanged(bool)), this, SIGNAL(movingChanged(bool)) );
+		if (regionAStatus_) {
+			controlCleanup(regionAStatus_);
+			regionAStatus_ = 0;
+		}
+
+		regionAStatus_ = regionStatus;
+
+		if (regionAStatus_) {
+			controlSetup(regionAStatus_);
+			connect( regionAStatus_, SIGNAL(valueChanged(double)), this, SLOT(onRegionControlValueChanged()) );
+		}
 	}
 }
 
 void BioXASSSRLMonochromatorRegionControl::setRegionBStatusControl(AMControl *regionStatus)
 {
-	if (!regionBStatus_ && regionBStatus_ != regionStatus) {
-		regionBStatus_ = regionStatus;
-		addChildControl(regionBStatus_);
+	if (regionBStatus_ != regionStatus) {
 
-		connect( regionBStatus_, SIGNAL(valueChanged(double)), this, SLOT(onRegionControlValueChanged()) );
-		connect( regionBStatus_, SIGNAL(movingChanged(bool)), this, SIGNAL(movingChanged(bool)) );
+		if (regionBStatus_) {
+			controlCleanup(regionBStatus_);
+			regionBStatus_ = 0;
+		}
+
+		regionBStatus_ = regionStatus;
+
+		if (regionBStatus_) {
+			controlSetup(regionBStatus_);
+			connect( regionBStatus_, SIGNAL(valueChanged(double)), this, SLOT(onRegionControlValueChanged()) );
+		}
 	}
 }
 
