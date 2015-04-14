@@ -911,6 +911,23 @@ QString BioXASSSRLMonochromatorRegionControl::stepNotes(int stepIndex)
 	return result;
 }
 
+void BioXASSSRLMonochromatorRegionControl::controlSetup(AMControl *control)
+{
+	if (control) {
+		control->setParent(this);
+		addChildControl(control);
+	}
+}
+
+void BioXASSSRLMonochromatorRegionControl::controlCleanup(AMControl *control)
+{
+	if (control) {
+		control->disconnect();
+		children_.removeOne(control);
+		control->deleteLater();
+	}
+}
+
 void BioXASSSRLMonochromatorRegionControl::moveCleanup(QObject *action)
 {
 	if (action) {
