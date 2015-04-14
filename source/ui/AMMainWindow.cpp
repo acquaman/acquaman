@@ -326,3 +326,25 @@ QWidget * AMMainWindow::currentPane() const
 {
 	return stackWidget_->currentWidget();
 }
+
+QWidget *AMMainWindow::buildMainWindowPane(const QString &name, const QString &iconPath, QWidget *appWidget)
+{
+	QHBoxLayout *horizontalLayout = new QHBoxLayout();
+	horizontalLayout->addStretch();
+	horizontalLayout->addWidget(appWidget);
+	horizontalLayout->addStretch();
+
+	QVBoxLayout *verticalLayout = new QVBoxLayout();
+	verticalLayout->addWidget(new AMTopFrame(name, QIcon(iconPath)));
+	verticalLayout->addStretch();
+	verticalLayout->addLayout(horizontalLayout);
+	verticalLayout->addStretch();
+
+	QGroupBox *scalarBox = new QGroupBox();
+	scalarBox->setFlat(true);
+	scalarBox->setLayout(verticalLayout);
+
+	return scalarBox;
+
+}
+

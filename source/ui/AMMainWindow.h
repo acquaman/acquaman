@@ -94,6 +94,8 @@ public:
 	/// Returns the pane that is currently selected in the sidebar of the main window. (Does not consider undocked windows.)  Returns 0 if none exist.
 	QWidget* currentPane() const;
 
+	/// Returns a widget pane that has been squished and fitted to be placed in a mainwindow
+	static QWidget *buildMainWindowPane(const QString &name, const QString &iconPath, QWidget *appWidget);
 
 public slots:
 	/// move a pane from inside the main window to a separate window.
