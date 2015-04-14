@@ -28,6 +28,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "acquaman/AMGenericScanActionControllerAssembler.h"
 #include "acquaman/AMEXAFSScanActionControllerAssembler.h"
 #include "beamline/AMBasicControlDetectorEmulator.h"
+#include "analysis/AM1DExpressionAB.h"
 
 BioXASSideXASScanActionController::BioXASSideXASScanActionController(BioXASSideXASScanConfiguration *configuration, QObject *parent) :
     AMStepScanActionController(configuration, parent)
@@ -128,7 +129,21 @@ AMAction3* BioXASSideXASScanActionController::createCleanupActions()
 
 void BioXASSideXASScanActionController::buildScanControllerImplementation()
 {
+	// Create data sources for monochromator measurement information.
 
+	// Energy setpoint/feedback
+
+	int energyDetectorIndex = scan_->indexOfDataSource(BioXASSideBeamline::bioXAS()->energyFeedbackDetector()->name());
+
+	if (energyDetectorIndex != -1) {
+		AMDataSource *energyFeedbackSource = scan_->dataSourceAt(energyDetectorIndex);
+
+		AM1DExpressionAB *deltaEnergy = new AM1DExpressionAB("Energy feedback - setpoint");
+		deltaEnergy->setInputDataSources(QList<AMDataSource*>() << energyFeedbackSource);
+		deltaEnergy->setExpression("EnergyFeedback - EnergyFeedback.X");
+
+		scan_->addAnalyzedDataSource(deltaEnergy, true, false);
+	}
 }
 
 void BioXASSideXASScanActionController::createScanAssembler()
