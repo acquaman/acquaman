@@ -170,10 +170,14 @@ AMControl::FailureExplanation BioXASSSRLMonochromatorRegionControl::move(double 
 void BioXASSSRLMonochromatorRegionControl::setUpperSlitControl(AMControl *upperSlit)
 {
 	if (upperSlit_ != upperSlit) {
-		upperSlit_ = upperSlit;
-		addChildControl(upperSlit_);
 
-		connect( upperSlit_, SIGNAL(movingChanged(bool)), this, SIGNAL(movingChanged(bool)) );
+		if (upperSlit_)
+			controlCleanup(upperSlit_);
+
+		upperSlit_ = upperSlit;
+
+		if (upperSlit_)
+			controlSetup(upperSlit_);
 	}
 }
 
