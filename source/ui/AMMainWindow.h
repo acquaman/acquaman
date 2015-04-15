@@ -26,6 +26,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QLabel>
 #include <QPushButton>
 #include <QHBoxLayout>
+#include <QGroupBox>
 
 #include <QStackedWidget>
 
