@@ -51,12 +51,12 @@ BioXASSSRLMonochromatorRegionControl::~BioXASSSRLMonochromatorRegionControl()
 
 double BioXASSSRLMonochromatorRegionControl::minimumValue() const
 {
-	return BioXASSSRLMonochromator::Region::None;
+	return BioXASSSRLMonochromator::Region::A;
 }
 
 double BioXASSSRLMonochromatorRegionControl::maximumValue() const
 {
-	return BioXASSSRLMonochromator::Region::B;
+	return BioXASSSRLMonochromator::Region::None;
 }
 
 bool BioXASSSRLMonochromatorRegionControl::canMove() const

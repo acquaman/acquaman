@@ -45,6 +45,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/BioXAS/BioXASPseudoMotorControl.h"
 #include "beamline/BioXAS/BioXAS32ElementGeDetector.h"
 #include "beamline/BioXAS/BioXASSideCarbonFilterFarmControl.h"
+#include "beamline/BioXAS/BioXASSideXIAFilters.h"
 
 #define BIOXASSIDEBEAMLINE_PRESSURE_TOO_HIGH 54600
 #define BIOXASSIDEBEAMLINE_VALVES_CLOSED 54601
@@ -85,6 +86,8 @@ public:
 	virtual CLSSIS3820Scaler* scaler() const { return scaler_; }
 	/// Returns the carbon filter farm.
 	BioXASSideCarbonFilterFarmControl* carbonFilterFarm() const { return carbonFilterFarm_; }
+	/// Returns the XIA filters.
+	BioXASSideXIAFilters* xiaFilters() const { return xiaFilters_; }
 
 	// Photon and safety shutters.
 	/// Returns the first photon shutter.
@@ -347,9 +350,10 @@ protected:
 	CLSKeithley428 *iTKeithley_;
 	CLSKeithley428 *i2Keithley_;
 
-	// Carbon filter farm.
+	// Filters.
 
 	BioXASSideCarbonFilterFarmControl *carbonFilterFarm_;
+	BioXASSideXIAFilters *xiaFilters_;
 
 	// Misc controls
 

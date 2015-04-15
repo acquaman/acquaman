@@ -35,6 +35,8 @@ class AMScanConfigurationViewHolder3;
 class BioXASSSRLMonochromatorConfigurationView;
 class BioXASUserConfiguration;
 class AMRegionOfInterest;
+class BioXASXIAFiltersView;
+class BioXASCarbonFilterFarmView;
 
 class BioXASSideAppController : public AMAppController
 {
@@ -82,7 +84,7 @@ protected:
 	void applyCurrentSettings();
 
 	/// create squeeze groupbox layout
-	QGroupBox *createSqeezeGroupBoxWithView(QString title, QWidget *view);
+	QGroupBox *createSqueezeGroupBoxWithView(QString title, QWidget *view);
 
 protected:
 	/// View for the BioXAS Side scaler.
@@ -91,6 +93,10 @@ protected:
 	BioXASSSRLMonochromatorConfigurationView *monoConfigView_;
 	/// The JJ slit view
 	CLSJJSlitView *jjSlitView_;
+	/// The XIA filters view.
+	BioXASXIAFiltersView *xiaFiltersView_;
+	/// The carbon filter farm view.
+	BioXASCarbonFilterFarmView *carbonFilterFarmView_;
 
 	BioXASSidePersistentView *persistentPanel_;
 
