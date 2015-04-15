@@ -194,6 +194,7 @@ void BioXASMainBeamline::setupExposedControls()
 
 	addExposedControl(mono_->energyControl());
 	addExposedControl(mono_->regionControl());
+	addExposedControl(mono_->braggMotor());
 	addExposedControl(mono_->braggMotor()->EGUVelocityControl());
 	addExposedControl(mono_->braggMotor()->EGUBaseVelocityControl());
 	addExposedControl(mono_->braggMotor()->EGUAccelerationControl());
@@ -205,6 +206,7 @@ void BioXASMainBeamline::setupExposedDetectors()
     addExposedDetector(iTDetector_);
     addExposedDetector(i2Detector_);
     addExposedDetector(energyFeedbackDetector_);
+	addExposedDetector(dwellTimeDetector_);
 	addExposedDetector(braggDetector_);
     addExposedDetector(braggMoveRetriesDetector_);
     addExposedDetector(braggMoveRetriesMaxDetector_);
@@ -297,7 +299,7 @@ void BioXASMainBeamline::setupControlsAsDetectors()
 }
 
 BioXASMainBeamline::BioXASMainBeamline()
-    : CLSBeamline("BioXAS Beamline - Main Endstation")
+	: BioXASBeamline("BioXAS Beamline - Main Endstation")
 {
     connected_ = false;
 

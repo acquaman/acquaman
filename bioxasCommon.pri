@@ -26,7 +26,9 @@ HEADERS += \
 	source/acquaman/BioXAS/BioXASScanConfigurationDbObject.h \
 	source/acquaman/BioXAS/BioXASScanConfiguration.h \
 	source/beamline/BioXAS/BioXASCarbonFilterFarm.h \
-	source/beamline/BioXAS/BioXASCarbonFilterFarmActuatorControl.h
+	source/beamline/BioXAS/BioXASCarbonFilterFarmActuatorControl.h \
+    source/beamline/BioXAS/BioXASBeamline.h \
+    source/beamline/BioXAS/BioXASMonochromator.h
 
 SOURCES += \
 	source/beamline/BioXAS/BioXASPseudoMotorControl.cpp \
@@ -48,4 +50,18 @@ SOURCES += \
 	source/acquaman/BioXAS/BioXASScanConfigurationDbObject.cpp \
 	source/acquaman/BioXAS/BioXASScanConfiguration.cpp \
 	source/beamline/BioXAS/BioXASCarbonFilterFarm.cpp \
-	source/beamline/BioXAS/BioXASCarbonFilterFarmActuatorControl.cpp
+	source/beamline/BioXAS/BioXASCarbonFilterFarmActuatorControl.cpp \
+    source/beamline/BioXAS/BioXASBeamline.cpp \
+    source/beamline/BioXAS/BioXASMonochromator.cpp
+
+
+
+
+
+
+
+
+
+
+
+

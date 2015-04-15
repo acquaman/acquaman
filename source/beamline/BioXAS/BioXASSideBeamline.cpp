@@ -27,7 +27,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/AMBasicControlDetectorEmulator.h"
 
 BioXASSideBeamline::BioXASSideBeamline()
-	: CLSBeamline("BioXAS Beamline - Side Endstation")
+	: BioXASBeamline("BioXAS Beamline - Side Endstation")
 {
 	isConnected_ = false;
 
