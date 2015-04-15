@@ -19,7 +19,7 @@ public:
 	virtual ~BioXASCarbonFilterFarmView();
 
 	/// Returns the carbon filter farm being viewed.
-	BioXASCarbonFilterFarm* filterFarm() const { return filterFarm_; }
+	BioXASCarbonFilterFarmControl* filterFarm() const { return filterFarm_; }
 
 signals:
 	/// Notifier that the filter farm being viewed has changed.
