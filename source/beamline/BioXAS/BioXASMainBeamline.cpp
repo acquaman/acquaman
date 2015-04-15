@@ -205,6 +205,7 @@ void BioXASMainBeamline::setupExposedDetectors()
     addExposedDetector(iTDetector_);
     addExposedDetector(i2Detector_);
     addExposedDetector(energyFeedbackDetector_);
+	addExposedDetector(braggDetector_);
     addExposedDetector(braggMoveRetriesDetector_);
     addExposedDetector(braggMoveRetriesMaxDetector_);
     addExposedDetector(braggStepSetpointDetector_);
@@ -269,6 +270,10 @@ void BioXASMainBeamline::setupControlsAsDetectors()
 	dwellTimeDetector_ = new AMBasicControlDetectorEmulator("DwellTimeFeedback", "Dwell Time Feedback", scalerDwellTime_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
 	dwellTimeDetector_->setHiddenFromUsers(false);
 	dwellTimeDetector_->setIsVisible(true);
+
+	braggDetector_ = new AMBasicControlDetectorEmulator("BraggFeedback", "Bragg Motor Feedback", mono_->braggMotor(), 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	braggDetector_->setHiddenFromUsers(false);
+	braggDetector_->setIsVisible(true);
 
 	braggMoveRetriesDetector_ = new AMBasicControlDetectorEmulator("BraggMoveRetries", "Number of bragg move retries", mono_->braggMotor()->retries(), 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
 	braggMoveRetriesDetector_->setHiddenFromUsers(false);
