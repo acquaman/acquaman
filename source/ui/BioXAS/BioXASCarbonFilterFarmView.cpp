@@ -7,6 +7,12 @@ BioXASCarbonFilterFarmView::BioXASCarbonFilterFarmView(BioXASCarbonFilterFarmCon
 	// Initialize member variables.
 
 	filterFarm_ = 0;
+	editor_ = 0;
+
+	// Create and set main layout.
+
+	layout_ = new QVBoxLayout();
+	setLayout(layout_);
 
 	// Current settings.
 
@@ -23,8 +29,12 @@ void BioXASCarbonFilterFarmView::setFilterFarm(BioXASCarbonFilterFarmControl *ne
 	if (filterFarm_ != newFilterFarm) {
 
 		if (filterFarm_) {
-			layout()->deleteLater();
-			setLayout(0);
+
+			// Clear UI elements.
+
+			layout_->removeWidget(editor_);
+			editor_->deleteLater();
+			editor_ = 0;
 		}
 
 		filterFarm_ = newFilterFarm;
@@ -33,14 +43,8 @@ void BioXASCarbonFilterFarmView::setFilterFarm(BioXASCarbonFilterFarmControl *ne
 
 			// Create new UI elements.
 
-			AMExtendedControlEditor *filterFarmEditor = new AMExtendedControlEditor(filterFarm_);
-
-			// Create and set new layout, takes ownership of the UI elements.
-
-			QVBoxLayout *layout = new QVBoxLayout();
-			layout->addWidget(filterFarmEditor);
-
-			setLayout(layout);
+			editor_ = new AMExtendedControlEditor(filterFarm_);
+			layout_->addWidget(editor_);
 		}
 
 		emit filterFarmChanged(filterFarm_);

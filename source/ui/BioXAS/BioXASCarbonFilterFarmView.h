@@ -6,6 +6,8 @@
 
 #include "beamline/BioXAS/BioXASCarbonFilterFarm.h"
 
+class AMExtendedControlEditor;
+
 class BioXASCarbonFilterFarmView : public QWidget
 {
     Q_OBJECT
@@ -30,6 +32,11 @@ public slots:
 protected:
 	/// The filter farm being viewed.
 	BioXASCarbonFilterFarmControl *filterFarm_;
+
+	/// The main layout.
+	QVBoxLayout *layout_;
+	/// The filter farm control editor.
+	AMExtendedControlEditor *editor_;
 
 };
 
