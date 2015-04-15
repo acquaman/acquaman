@@ -42,14 +42,6 @@ BioXASSidePersistentView::BioXASSidePersistentView(QWidget *parent) :
 	braggControlEditor_ = new AMExtendedControlEditor(BioXASSideBeamline::bioXAS()->mono()->braggMotor());
 	braggControlEditor_->setTitle("Bragg motor position");
 
-	// Carbon filter farm filter thickness editor.
-
-	carbonFilterFarmEditor_ = new AMExtendedControlEditor(BioXASSideBeamline::bioXAS()->carbonFilterFarm());
-	carbonFilterFarmEditor_->setTitle("Filter Farm");
-
-	AMExtendedControlEditor *actuatorEditor = new AMExtendedControlEditor(BioXASSideBeamline::bioXAS()->carbonFilterFarm()->upstreamActuatorControl());
-	actuatorEditor->setTitle("Filter Farm - upstream actuator");
-
 	// Scaler channel views.
 
 	BioXASSIS3820ScalerChannelsView *channels = new BioXASSIS3820ScalerChannelsView(BioXASSideBeamline::bioXAS()->scaler());
@@ -67,8 +59,6 @@ BioXASSidePersistentView::BioXASSidePersistentView(QWidget *parent) :
 	layout->addWidget(energyControlEditor_);
 	layout->addWidget(regionControlEditor_);
 	layout->addWidget(braggControlEditor_);
-	layout->addWidget(carbonFilterFarmEditor_);
-	layout->addWidget(actuatorEditor);
 	layout->addWidget(channelViews_);
 	layout->addStretch();
 

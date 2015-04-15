@@ -36,6 +36,7 @@ class BioXASSSRLMonochromatorConfigurationView;
 class BioXASUserConfiguration;
 class AMRegionOfInterest;
 class BioXASXIAFiltersView;
+class BioXASCarbonFilterFarmView;
 
 class BioXASSideAppController : public AMAppController
 {
@@ -94,6 +95,8 @@ protected:
 	CLSJJSlitView *jjSlitView_;
 	/// The XIA filters view.
 	BioXASXIAFiltersView *xiaFiltersView_;
+	/// The carbon filter farm view.
+	BioXASCarbonFilterFarmView *carbonFilterFarmView_;
 
 	BioXASSidePersistentView *persistentPanel_;
 
