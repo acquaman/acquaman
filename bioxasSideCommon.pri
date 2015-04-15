@@ -16,7 +16,8 @@ HEADERS += \
     source/ui/BioXAS/BioXASSideXASScanConfigurationView.h \
     source/ui/BioXAS/BioXASSidePersistentView.h \
     source/beamline/BioXAS/BioXASSideCarbonFilterFarmControl.h \
-    source/beamline/BioXAS/BioXASSideM2Mirror.h
+	source/beamline/BioXAS/BioXASSideM2Mirror.h \
+	source/beamline/BioXAS/BioXASSideXIAFilters.h
 
 SOURCES += \
     source/application/BioXAS/BioXASSideAppController.cpp \
@@ -29,30 +30,5 @@ SOURCES += \
     source/ui/BioXAS/BioXASSideXASScanConfigurationView.cpp \
     source/ui/BioXAS/BioXASSidePersistentView.cpp \
     source/beamline/BioXAS/BioXASSideCarbonFilterFarmControl.cpp \
-    source/beamline/BioXAS/BioXASSideM2Mirror.cpp
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+	source/beamline/BioXAS/BioXASSideM2Mirror.cpp \
+	source/beamline/BioXAS/BioXASSideXIAFilters.cpp

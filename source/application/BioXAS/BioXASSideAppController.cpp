@@ -37,6 +37,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/export/AMExporterOptionGeneralAscii.h"
 #include "dataman/export/AMExporterGeneralAscii.h"
 #include "dataman/export/AMExporterAthena.h"
+#include "dataman/BioXAS/BioXASUserConfiguration.h"
 
 #include "util/AMPeriodicTable.h"
 
@@ -58,13 +59,20 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/BioXAS/BioXASSideXASScanConfigurationView.h"
 #include "ui/BioXAS/BioXAS32ElementGeDetectorView.h"
 #include "ui/BioXAS/BioXASSSRLMonochromatorConfigurationView.h"
-#include "dataman/BioXAS/BioXASUserConfiguration.h"
+#include "ui/BioXAS/BioXASXIAFiltersView.h"
+#include "ui/BioXAS/BioXASCarbonFilterFarmView.h"
 
 BioXASSideAppController::BioXASSideAppController(QObject *parent)
 	: AMAppController(parent)
 {
 	scalerView_ = 0;
+	monoConfigView_ = 0;
+	jjSlitView_ = 0;
+	xiaFiltersView_ = 0;
+	carbonFilterFarmView_ = 0;
+
 	persistentPanel_ = 0;
+
 	configuration_ = 0;
 	configurationView_ = 0;
 	configurationViewHolder_ = 0;
@@ -138,12 +146,6 @@ void BioXASSideAppController::onBeamlineConnected()
 	if (BioXASSideBeamline::bioXAS()->isConnected() && !configurationView_) {
 		configuration_ = new BioXASSideXASScanConfiguration();
 		configuration_->setEnergy(10000);
-		/*
-		configuration_->scanAxisAt(0)->regionAt(0)->setRegionStart(10000);
-		configuration_->scanAxisAt(0)->regionAt(0)->setRegionStep(1);
-		configuration_->scanAxisAt(0)->regionAt(0)->setRegionEnd(10010);
-		configuration_->scanAxisAt(0)->regionAt(0)->setRegionTime(1.0);
-		*/
 
 		configurationView_ = new BioXASSideXASScanConfigurationView(configuration_);
 
@@ -198,7 +200,15 @@ void BioXASSideAppController::setupUserInterface()
 
 	// Set up the general monochromator configuration view.
 	monoConfigView_ = new BioXASSSRLMonochromatorConfigurationView(BioXASSideBeamline::bioXAS()->mono());
+
+	// Create JJ slits view.
 	jjSlitView_ = new CLSJJSlitView(BioXASSideBeamline::bioXAS()->jjSlit());
+
+	// Create XIA filters view.
+	xiaFiltersView_ = new BioXASXIAFiltersView(BioXASSideBeamline::bioXAS()->xiaFilters());
+
+	// Create carbon filter farm view.
+	carbonFilterFarmView_ = new BioXASCarbonFilterFarmView(BioXASSideBeamline::bioXAS()->carbonFilterFarm());
 
 	// Create scaler view, if scaler is present and connected.
 	if (BioXASSideBeamline::bioXAS()->scaler()->isConnected()) {
@@ -217,7 +227,9 @@ void BioXASSideAppController::setupUserInterface()
 	// Add views to 'General'.
 	mw_->insertHeading("General", 0);
 	mw_->addPane(monoConfigView_, "General", "Monochromator", ":/system-software-update.png");
-	mw_->addPane(createSqeezeGroupBoxWithView("", jjSlitView_), "General", "JJ Slit", ":/system-software-update.png");
+	mw_->addPane(createSqueezeGroupBoxWithView("", jjSlitView_), "General", "JJ Slit", ":/system-software-update.png");
+	mw_->addPane(createSqueezeGroupBoxWithView("", xiaFiltersView_), "General", "XIA Filters", ":/system-software-update.png");
+	mw_->addPane(createSqueezeGroupBoxWithView("", carbonFilterFarmView_), "General", "Carbon filter farm", ":/system-software-update.png");
 
 	// Add views to 'Detectors'.
 	mw_->insertHeading("Detectors", 1);
@@ -227,7 +239,6 @@ void BioXASSideAppController::setupUserInterface()
 	mw_->insertHeading("Scans", 2);
 
 	// Add right side panel.
-
 	mw_->addRightWidget(persistentPanel_);
 }
 
@@ -288,7 +299,7 @@ void BioXASSideAppController::onRegionOfInterestRemoved(AMRegionOfInterest *regi
 	configuration_->removeRegionOfInterest(region);
 }
 
-QGroupBox *BioXASSideAppController::createSqeezeGroupBoxWithView(QString title, QWidget *view)
+QGroupBox *BioXASSideAppController::createSqueezeGroupBoxWithView(QString title, QWidget *view)
 {
 	QHBoxLayout *horizontalLayout = new QHBoxLayout;
 	horizontalLayout->addStretch();
