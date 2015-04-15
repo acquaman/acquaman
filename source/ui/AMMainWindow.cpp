@@ -25,6 +25,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "util/AMFontSizes.h"
 #include "ui/util/AMDirectorySynchronizerDialog.h"
 #include "util/AMSettings.h"
+
 // Default constructor
 AMMainWindow::AMMainWindow(QWidget *parent) : QWidget(parent) {
 
@@ -333,6 +334,7 @@ QWidget *AMMainWindow::buildMainWindowPane(const QString &name, const QString &i
 	horizontalLayout->addStretch();
 	horizontalLayout->addWidget(appWidget);
 	horizontalLayout->addStretch();
+
 
 	QVBoxLayout *verticalLayout = new QVBoxLayout();
 	verticalLayout->addWidget(new AMTopFrame(name, QIcon(iconPath)));
