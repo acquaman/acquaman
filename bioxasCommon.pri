@@ -29,7 +29,9 @@ HEADERS += \
 	source/beamline/BioXAS/BioXASCarbonFilterFarmActuatorControl.h \
 	source/beamline/BioXAS/BioXASXIAFilters.h \
     source/ui/BioXAS/BioXASXIAFiltersView.h \
-    source/ui/BioXAS/BioXASCarbonFilterFarmView.h
+	source/ui/BioXAS/BioXASCarbonFilterFarmView.h \
+    source/beamline/BioXAS/BioXASBeamline.h \
+    source/beamline/BioXAS/BioXASMonochromator.h
 
 SOURCES += \
 	source/beamline/BioXAS/BioXASPseudoMotorControl.cpp \
@@ -54,8 +56,6 @@ SOURCES += \
 	source/beamline/BioXAS/BioXASCarbonFilterFarmActuatorControl.cpp \
 	source/beamline/BioXAS/BioXASXIAFilters.cpp \
     source/ui/BioXAS/BioXASXIAFiltersView.cpp \
-    source/ui/BioXAS/BioXASCarbonFilterFarmView.cpp
-
-
-
-
+	source/ui/BioXAS/BioXASCarbonFilterFarmView.cpp \
+    source/beamline/BioXAS/BioXASBeamline.cpp \
+    source/beamline/BioXAS/BioXASMonochromator.cpp

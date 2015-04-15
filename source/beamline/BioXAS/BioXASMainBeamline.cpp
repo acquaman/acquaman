@@ -194,6 +194,7 @@ void BioXASMainBeamline::setupExposedControls()
 
 	addExposedControl(mono_->energyControl());
 	addExposedControl(mono_->regionControl());
+	addExposedControl(mono_->braggMotor());
 	addExposedControl(mono_->braggMotor()->EGUVelocityControl());
 	addExposedControl(mono_->braggMotor()->EGUBaseVelocityControl());
 	addExposedControl(mono_->braggMotor()->EGUAccelerationControl());
@@ -205,6 +206,8 @@ void BioXASMainBeamline::setupExposedDetectors()
     addExposedDetector(iTDetector_);
     addExposedDetector(i2Detector_);
     addExposedDetector(energyFeedbackDetector_);
+	addExposedDetector(dwellTimeDetector_);
+	addExposedDetector(braggDetector_);
     addExposedDetector(braggMoveRetriesDetector_);
     addExposedDetector(braggMoveRetriesMaxDetector_);
     addExposedDetector(braggStepSetpointDetector_);
@@ -263,36 +266,40 @@ void BioXASMainBeamline::setupMotorGroup()
 void BioXASMainBeamline::setupControlsAsDetectors()
 {
 	energyFeedbackDetector_ = new AMBasicControlDetectorEmulator("EnergyFeedback", "Energy Feedback", mono_->energyControl(), 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
-	energyFeedbackDetector_->setHiddenFromUsers(true);
-	energyFeedbackDetector_->setIsVisible(false);
+	energyFeedbackDetector_->setHiddenFromUsers(false);
+	energyFeedbackDetector_->setIsVisible(true);
 
 	dwellTimeDetector_ = new AMBasicControlDetectorEmulator("DwellTimeFeedback", "Dwell Time Feedback", scalerDwellTime_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
-	dwellTimeDetector_->setHiddenFromUsers(true);
-	dwellTimeDetector_->setIsVisible(false);
+	dwellTimeDetector_->setHiddenFromUsers(false);
+	dwellTimeDetector_->setIsVisible(true);
+
+	braggDetector_ = new AMBasicControlDetectorEmulator("BraggFeedback", "Bragg Motor Feedback", mono_->braggMotor(), 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	braggDetector_->setHiddenFromUsers(false);
+	braggDetector_->setIsVisible(true);
 
 	braggMoveRetriesDetector_ = new AMBasicControlDetectorEmulator("BraggMoveRetries", "Number of bragg move retries", mono_->braggMotor()->retries(), 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
-	braggMoveRetriesDetector_->setHiddenFromUsers(true);
-	braggMoveRetriesDetector_->setIsVisible(false);
+	braggMoveRetriesDetector_->setHiddenFromUsers(false);
+	braggMoveRetriesDetector_->setIsVisible(true);
 
 	braggMoveRetriesMaxDetector_ = new AMBasicControlDetectorEmulator("BraggMoveRetriesMax", "Max number of bragg move retries", mono_->braggMotor()->maxRetriesControl(), 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
-	braggMoveRetriesMaxDetector_->setHiddenFromUsers(true);
-	braggMoveRetriesMaxDetector_->setIsVisible(false);
+	braggMoveRetriesMaxDetector_->setHiddenFromUsers(false);
+	braggMoveRetriesMaxDetector_->setIsVisible(true);
 
 	braggStepSetpointDetector_ = new AMBasicControlDetectorEmulator("BraggStepSetpoint", "Bragg motor step setpoint", mono_->braggMotor()->stepSetpointControl(), 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
-	braggStepSetpointDetector_->setHiddenFromUsers(true);
-	braggStepSetpointDetector_->setIsVisible(false);
+	braggStepSetpointDetector_->setHiddenFromUsers(false);
+	braggStepSetpointDetector_->setIsVisible(true);
 
 	braggDegreeSetpointDetector_ = new AMBasicControlDetectorEmulator("BraggDegreeSetpoint", "Bragg motor degree setpoint", mono_->braggMotor()->degreeSetpointControl(), 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
-	braggDegreeSetpointDetector_->setHiddenFromUsers(true);
-	braggDegreeSetpointDetector_->setIsVisible(false);
+	braggDegreeSetpointDetector_->setHiddenFromUsers(false);
+	braggDegreeSetpointDetector_->setIsVisible(true);
 
 	braggAngleDetector_ = new AMBasicControlDetectorEmulator("PhysicalBraggAngle", "Physical bragg angle", mono_->energyControl()->braggAngleControl(), 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
-	braggAngleDetector_->setHiddenFromUsers(true);
-	braggAngleDetector_->setIsVisible(false);
+	braggAngleDetector_->setHiddenFromUsers(false);
+	braggAngleDetector_->setIsVisible(true);
 }
 
 BioXASMainBeamline::BioXASMainBeamline()
-    : CLSBeamline("BioXAS Beamline - Main Endstation")
+	: BioXASBeamline("BioXAS Beamline - Main Endstation")
 {
     connected_ = false;
 

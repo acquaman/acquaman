@@ -29,6 +29,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "acquaman/AMEXAFSScanActionControllerAssembler.h"
 #include "beamline/AMBasicControlDetectorEmulator.h"
 #include "util/AMErrorMonitor.h"
+#include "analysis/AM1DExpressionAB.h"
 
 BioXASMainXASScanActionController::BioXASMainXASScanActionController(BioXASMainXASScanConfiguration *configuration, QObject *parent) :
     AMStepScanActionController(configuration, parent)
@@ -52,6 +53,7 @@ BioXASMainXASScanActionController::BioXASMainXASScanActionController(BioXASMainX
     detectorSet.addDetectorInfo(BioXASMainBeamline::bioXAS()->i2Detector()->toInfo());
     detectorSet.addDetectorInfo(BioXASMainBeamline::bioXAS()->energyFeedbackDetector()->toInfo());
     detectorSet.addDetectorInfo(BioXASMainBeamline::bioXAS()->dwellTimeDetector()->toInfo());
+	detectorSet.addDetectorInfo(BioXASMainBeamline::bioXAS()->braggDetector()->toInfo());
     detectorSet.addDetectorInfo(BioXASMainBeamline::bioXAS()->braggMoveRetriesDetector()->toInfo());
     detectorSet.addDetectorInfo(BioXASMainBeamline::bioXAS()->braggMoveRetriesMaxDetector()->toInfo());
     detectorSet.addDetectorInfo(BioXASMainBeamline::bioXAS()->braggStepSetpointDetector()->toInfo());
@@ -137,7 +139,32 @@ AMAction3* BioXASMainXASScanActionController::createCleanupActions()
 
 void BioXASMainXASScanActionController::buildScanControllerImplementation()
 {
-	// Create data sources for the dark current corrected measurements of each able detector in the configuration.
+	// Create analyzed data sources for the monochromator testing measurements.
+
+	int energyDetectorIndex = scan_->indexOfDataSource(BioXASMainBeamline::bioXAS()->energyFeedbackDetector()->name());
+	if (energyDetectorIndex != -1) {
+		AMDataSource *energyFeedbackSource = scan_->dataSourceAt(energyDetectorIndex);
+
+		AM1DExpressionAB *deltaEnergy = new AM1DExpressionAB("Energy feedback - setpoint");
+		deltaEnergy->setInputDataSources(QList<AMDataSource*>() << energyFeedbackSource);
+		deltaEnergy->setExpression("EnergyFeedback - EnergyFeedback.X");
+
+		scan_->addAnalyzedDataSource(deltaEnergy, true, false);
+	}
+
+//	int braggDetectorIndex = scan_->indexOfDataSource(BioXASMainBeamline::bioXAS()->braggDetector()->name());
+//	if (braggDetectorIndex != -1) {
+//		AMDataSource *braggDetectorDataSource = scan_->dataSourceAt(braggDetectorIndex);
+//		scan_->addRawDataSource(braggDetectorDataSource);
+//	}
+
+//	int braggStepSetpointDetectorIndex = scan_->indexOfDataSource(BioXASMainBeamline::bioXAS()->braggStepSetpointDetector()->name());
+//	if (braggStepSetpointDetectorIndex != -1) {
+//		AMDataSource *braggStepSetpointDataSource = scan_->dataSourceAt(braggStepSetpointDetectorIndex);
+//		scan_->addRawDataSource(braggStepSetpointDataSource);
+//	}
+
+	// Create analyzed data sources for the dark current corrected measurements of each able detector in the configuration.
 	// Add data sources to list of sources associated with this scan.
 
 	int dwellTimeIndex = scan_->indexOfDataSource(BioXASMainBeamline::bioXAS()->dwellTimeDetector()->name());

@@ -22,7 +22,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef BIOXASMAINBEAMLINE_H
 #define BIOXASMAINBEAMLINE_H
 
-#include "beamline/CLS/CLSBeamline.h"
+#include "beamline/BioXAS/BioXASBeamline.h"
 #include "beamline/AMControlSet.h"
 #include "beamline/AMMotorGroup.h"
 #include "beamline/AMBasicControlDetectorEmulator.h"
@@ -43,7 +43,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "util/AMErrorMonitor.h"
 #include "util/AMBiHash.h"
 
-class BioXASMainBeamline : public CLSBeamline
+class BioXASMainBeamline : public BioXASBeamline
 {
 	Q_OBJECT
 
@@ -66,7 +66,7 @@ public:
     virtual bool isConnected() const { return connected_; }
 
 	/// Returns the beamline monochromator.
-	BioXASMainMonochromator *mono() const { return mono_; }
+	virtual BioXASMainMonochromator *mono() const { return mono_; }
     /// Returns the scaler.
     virtual CLSSIS3820Scaler* scaler() const { return scaler_; }
     /// Returns the I0 amplifier.
@@ -85,7 +85,9 @@ public:
     /// Returns the energy feedback detector.
     AMBasicControlDetectorEmulator* energyFeedbackDetector() const { return energyFeedbackDetector_; }
     /// Returns the scaler dwell time detector.
-    AMBasicControlDetectorEmulator* dwellTimeDetector() { return dwellTimeDetector_; }
+	AMBasicControlDetectorEmulator* dwellTimeDetector() const { return dwellTimeDetector_; }
+	/// Returns the bragg motor detector.
+	AMBasicControlDetectorEmulator* braggDetector() const { return braggDetector_; }
     /// Returns the bragg move retries detector.
     AMBasicControlDetectorEmulator* braggMoveRetriesDetector() const { return braggMoveRetriesDetector_; }
     /// Returns the bragg move max retries detector.
@@ -187,6 +189,7 @@ protected:
     CLSBasicScalerChannelDetector *i2Detector_;
     AMBasicControlDetectorEmulator *energyFeedbackDetector_;
     AMBasicControlDetectorEmulator *dwellTimeDetector_;
+	AMBasicControlDetectorEmulator *braggDetector_;
     AMBasicControlDetectorEmulator *braggMoveRetriesDetector_;
     AMBasicControlDetectorEmulator *braggMoveRetriesMaxDetector_;
     AMBasicControlDetectorEmulator *braggStepSetpointDetector_;
