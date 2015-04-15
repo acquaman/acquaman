@@ -7,6 +7,8 @@
 
 #include "beamline/BioXAS/BioXASXIAFilters.h"
 
+class AMExtendedControlEditor;
+
 class BioXASXIAFiltersView : public QWidget
 {
     Q_OBJECT
@@ -31,6 +33,17 @@ public slots:
 protected:
 	/// The filters being viewed.
 	BioXASXIAFilters *filters_;
+
+	/// The main layout.
+	QVBoxLayout *layout_;
+	/// The editor for the first filter.
+	AMExtendedControlEditor *editor1_;
+	/// The editor for the second filter.
+	AMExtendedControlEditor *editor2_;
+	/// The editor for the third filter.
+	AMExtendedControlEditor *editor3_;
+	/// The editor for the fourth filter.
+	AMExtendedControlEditor *editor4_;
 
 };
 

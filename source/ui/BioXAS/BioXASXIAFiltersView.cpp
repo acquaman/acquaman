@@ -8,6 +8,16 @@ BioXASXIAFiltersView::BioXASXIAFiltersView(BioXASXIAFilters *filters, QWidget *p
 
 	filters_ = 0;
 
+	editor1_ = 0;
+	editor2_ = 0;
+	editor3_ = 0;
+	editor4_ = 0;
+
+	// Create and set layout.
+
+	layout_ = new QVBoxLayout();
+	setLayout(layout_);
+
 	// Current settings.
 
 	setFilters(filters);
@@ -23,8 +33,23 @@ void BioXASXIAFiltersView::setFilters(BioXASXIAFilters *newFilters)
 	if (filters_ != newFilters) {
 
 		if (filters_) {
-			layout()->deleteLater();
-			setLayout(0);
+
+			// Clear UI elements.
+
+			layout_->removeWidget(editor1_);
+			layout_->removeWidget(editor2_);
+			layout_->removeWidget(editor3_);
+			layout_->removeWidget(editor4_);
+
+			editor1_->deleteLater();
+			editor2_->deleteLater();
+			editor3_->deleteLater();
+			editor4_->deleteLater();
+
+			editor1_ = 0;
+			editor2_ = 0;
+			editor3_ = 0;
+			editor4_ = 0;
 		}
 
 		filters_ = newFilters;
@@ -33,20 +58,16 @@ void BioXASXIAFiltersView::setFilters(BioXASXIAFilters *newFilters)
 
 			// Create new UI elements.
 
-			AMExtendedControlEditor *filter1 = new AMExtendedControlEditor(filters_->filter1());
-			AMExtendedControlEditor *filter2 = new AMExtendedControlEditor(filters_->filter2());
-			AMExtendedControlEditor *filter3 = new AMExtendedControlEditor(filters_->filter3());
-			AMExtendedControlEditor *filter4 = new AMExtendedControlEditor(filters_->filter4());
+			editor1_ = new AMExtendedControlEditor(filters_->filter1());
+			editor2_ = new AMExtendedControlEditor(filters_->filter2());
+			editor3_ = new AMExtendedControlEditor(filters_->filter3());
+			editor4_ = new AMExtendedControlEditor(filters_->filter4());
 
-			// Create and set new layout, takes ownership of the UI elements.
-
-			QVBoxLayout *layout = new QVBoxLayout();
-			layout->addWidget(filter1);
-			layout->addWidget(filter2);
-			layout->addWidget(filter3);
-			layout->addWidget(filter4);
-
-			setLayout(layout);
+			layout_ = new QVBoxLayout();
+			layout_->addWidget(editor1_);
+			layout_->addWidget(editor2_);
+			layout_->addWidget(editor3_);
+			layout_->addWidget(editor4_);
 		}
 
 		emit filtersChanged(filters_);
