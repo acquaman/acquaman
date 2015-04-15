@@ -29,7 +29,8 @@ HEADERS += \
 	source/beamline/BioXAS/BioXASCarbonFilterFarmActuatorControl.h \
     source/beamline/BioXAS/BioXASBeamline.h \
     source/beamline/BioXAS/BioXASMonochromator.h \
-    source/beamline/BioXAS/BioXASM2Mirror.h
+    source/beamline/BioXAS/BioXASM2Mirror.h \
+    source/ui/BioXAS/BioXASM2MirrorView.h
 
 SOURCES += \
 	source/beamline/BioXAS/BioXASPseudoMotorControl.cpp \
@@ -54,7 +55,10 @@ SOURCES += \
 	source/beamline/BioXAS/BioXASCarbonFilterFarmActuatorControl.cpp \
     source/beamline/BioXAS/BioXASBeamline.cpp \
     source/beamline/BioXAS/BioXASMonochromator.cpp \
-    source/beamline/BioXAS/BioXASM2Mirror.cpp
+    source/beamline/BioXAS/BioXASM2Mirror.cpp \
+    source/ui/BioXAS/BioXASM2MirrorView.cpp
+
+
 
 
 
