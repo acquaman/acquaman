@@ -1,5 +1,6 @@
 #include "BioXASXIAFiltersView.h"
 #include "ui/beamline/AMExtendedControlEditor.h"
+#include <QDebug>
 
 BioXASXIAFiltersView::BioXASXIAFiltersView(BioXASXIAFilters *filters, QWidget *parent) :
     QWidget(parent)
@@ -63,7 +64,6 @@ void BioXASXIAFiltersView::setFilters(BioXASXIAFilters *newFilters)
 			editor3_ = new AMExtendedControlEditor(filters_->filter3());
 			editor4_ = new AMExtendedControlEditor(filters_->filter4());
 
-			layout_ = new QVBoxLayout();
 			layout_->addWidget(editor1_);
 			layout_->addWidget(editor2_);
 			layout_->addWidget(editor3_);
