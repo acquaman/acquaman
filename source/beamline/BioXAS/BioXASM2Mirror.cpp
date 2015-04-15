@@ -3,7 +3,7 @@
 BioXASM2Mirror::BioXASM2Mirror(QObject *parent) :
     QObject(parent)
 {
-	// Initialize member variables.
+	// Initialize class variables.
 	// Subclasses should create instances of each control.
 
 	screen_ = 0;
@@ -27,7 +27,7 @@ double BioXASM2Mirror::screenPosition() const
 
 void BioXASM2Mirror::setScreenPosition(Screen::Position newPosition)
 {
-	if (screen_ && screen_->isConnected()) {
+	if (screen_ && screen_->isConnected() && newPosition != Screen::Invalid) {
 		screen_->move(newPosition);
 	}
 }
