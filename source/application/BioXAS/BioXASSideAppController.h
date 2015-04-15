@@ -37,6 +37,7 @@ class BioXASUserConfiguration;
 class AMRegionOfInterest;
 class BioXASXIAFiltersView;
 class BioXASCarbonFilterFarmView;
+class BioXASM2MirrorView;
 
 class BioXASSideAppController : public AMAppController
 {
@@ -97,6 +98,8 @@ protected:
 	BioXASXIAFiltersView *xiaFiltersView_;
 	/// The carbon filter farm view.
 	BioXASCarbonFilterFarmView *carbonFilterFarmView_;
+	/// The m2 mirror view.
+	BioXASM2MirrorView *m2MirrorView_;
 
 	BioXASSidePersistentView *persistentPanel_;
 

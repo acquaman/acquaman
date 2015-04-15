@@ -18,6 +18,8 @@ public:
 	/// Destructor.
 	virtual ~BioXASM2Mirror();
 
+	/// Returns true if the mirror is connected, false otherwise.
+	bool isConnected() const { return isConnected_; }
 	/// Returns the current fluorescence screen position.
 	double screenPosition() const;
 
@@ -25,12 +27,23 @@ public:
 	AMPVControl* screenControl() const { return screen_; }
 
 signals:
+	/// Notifier that the mirror's connected state has changed.
+	void connected(bool isConnected);
 
 public slots:
 	/// Sets the screen control position.
 	void setScreenPosition(Screen::Position newPosition);
 
+protected slots:
+	/// Sets the current connected state.
+	void setConnected(bool isConnected);
+
+	/// Handles updating the current connected state.
+	void onConnectedChanged();
+
 protected:
+	/// The current connected state.
+	bool isConnected_;
 	/// The control for the mirror fluorescence screen.
 	AMPVControl *screen_;
 

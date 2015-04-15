@@ -227,6 +227,9 @@ QList<AMControl *> BioXASSideBeamline::getMotorsByType(BioXASBeamlineDef::BioXAS
 void BioXASSideBeamline::onConnectionChanged()
 {
 	bool newState = (
+				// M2 mirror.
+				m2Mirror_->isConnected() &&
+
 				// Mono.
 				mono_->isConnected() &&
 
@@ -786,6 +789,9 @@ void BioXASSideBeamline::setupComponents()
 
 	jjSlit_ = new CLSJJSlit("Side BL", "JJSlit of the side beamline", "PSL1607-6-I22-01", "PSL1607-6-I22-02");
 	connect(jjSlit_, SIGNAL(connected(bool)), this, SLOT(onConnectionChanged()));
+
+	m2Mirror_ = new BioXASSideM2Mirror(this);
+	connect( m2Mirror_, SIGNAL(connected(bool)), this, SLOT(onConnectionChanged()) );
 }
 
 void BioXASSideBeamline::setupControlsAsDetectors()

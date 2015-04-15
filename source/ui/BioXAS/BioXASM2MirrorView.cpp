@@ -47,6 +47,9 @@ void BioXASM2MirrorView::setMirror(BioXASM2Mirror *newMirror)
 			// Create UI elements.
 
 			screenEditor_ = new AMExtendedControlEditor(mirror_->screenControl());
+			screenEditor_->setNoUnitsBox(true);
+			screenEditor_->setTitle("Fluorescence Screen");
+
 			layout_->addWidget(screenEditor_);
 		}
 	}
