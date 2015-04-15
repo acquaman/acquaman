@@ -237,8 +237,9 @@ void BioXASSideBeamline::onConnectionChanged()
 				scaler_->isConnected() &&
 				scalerDwellTime_->isConnected() &&
 
-				// Carbon filter farm.
+				// Filters
 				carbonFilterFarm_->isConnected() &&
+				xiaFilters_->isConnected() &&
 
 				// Control sets.
 				pressureSet_->isConnected() &&
@@ -779,6 +780,9 @@ void BioXASSideBeamline::setupComponents()
 
 	carbonFilterFarm_ = new BioXASSideCarbonFilterFarmControl(this);
 	connect( carbonFilterFarm_, SIGNAL(connected(bool)), this, SLOT(onConnectionChanged()) );
+
+	xiaFilters_ = new BioXASSideXIAFilters(this);
+	connect( xiaFilters_, SIGNAL(connectedChanged(bool)), this, SLOT(onConnectionChanged()) );
 
 	jjSlit_ = new CLSJJSlit("Side BL", "JJSlit of the side beamline", "PSL1607-6-I22-01", "PSL1607-6-I22-02");
 	connect(jjSlit_, SIGNAL(connected(bool)), this, SLOT(onConnectionChanged()));

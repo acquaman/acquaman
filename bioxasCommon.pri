@@ -27,7 +27,8 @@ HEADERS += \
 	source/acquaman/BioXAS/BioXASScanConfiguration.h \
 	source/beamline/BioXAS/BioXASCarbonFilterFarm.h \
 	source/beamline/BioXAS/BioXASCarbonFilterFarmActuatorControl.h \
-	source/beamline/BioXAS/BioXASXIAFilters.h
+	source/beamline/BioXAS/BioXASXIAFilters.h \
+    source/ui/BioXAS/BioXASXIAFiltersView.h
 
 SOURCES += \
 	source/beamline/BioXAS/BioXASPseudoMotorControl.cpp \
@@ -50,4 +51,7 @@ SOURCES += \
 	source/acquaman/BioXAS/BioXASScanConfiguration.cpp \
 	source/beamline/BioXAS/BioXASCarbonFilterFarm.cpp \
 	source/beamline/BioXAS/BioXASCarbonFilterFarmActuatorControl.cpp \
-	source/beamline/BioXAS/BioXASXIAFilters.cpp
+	source/beamline/BioXAS/BioXASXIAFilters.cpp \
+    source/ui/BioXAS/BioXASXIAFiltersView.cpp
+
+
