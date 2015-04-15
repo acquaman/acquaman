@@ -17,6 +17,9 @@ public:
 	/// Destructor.
 	virtual ~BioXASXIAFiltersView();
 
+	/// Returns the XIA filters being viewed.
+	BioXASXIAFilters* filters() const { return filters_; }
+
 signals:
 	/// Notifier that the filters being viewed have changed.
 	void filtersChanged(BioXASXIAFilters *newFilters);
