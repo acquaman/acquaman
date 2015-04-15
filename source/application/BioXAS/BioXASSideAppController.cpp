@@ -228,7 +228,7 @@ void BioXASSideAppController::setupUserInterface()
 	mw_->insertHeading("General", 0);
 	mw_->addPane(monoConfigView_, "General", "Monochromator", ":/system-software-update.png");
 	mw_->addPane(createSqueezeGroupBoxWithView("", jjSlitView_), "General", "JJ Slit", ":/system-software-update.png");
-	mw_->addPane(createSqueezeGroupBoxWithView("XIA Filters", xiaFiltersView_), "General", "XIA Filters", ":/system-software-update.png");
+	mw_->addPane(createSqueezeGroupBoxWithView("", xiaFiltersView_), "General", "XIA Filters", ":/system-software-update.png");
 	mw_->addPane(createSqueezeGroupBoxWithView("", carbonFilterFarmView_), "General", "Carbon filter farm", ":/system-software-update.png");
 
 	// Add views to 'Detectors'.
