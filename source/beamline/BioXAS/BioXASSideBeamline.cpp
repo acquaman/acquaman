@@ -831,6 +831,10 @@ void BioXASSideBeamline::setupControlsAsDetectors()
 
 void BioXASSideBeamline::setupExposedControls()
 {
+	// M2 mirror controls.
+
+	addExposedControl(m2Mirror_->screenControl());
+
 	// Mono controls.
 
 	addExposedControl(mono_->energyControl());
