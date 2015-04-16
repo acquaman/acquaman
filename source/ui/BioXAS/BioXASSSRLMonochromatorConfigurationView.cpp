@@ -174,14 +174,6 @@ BioXASSSRLMonochromatorBraggConfigurationView::BioXASSSRLMonochromatorBraggConfi
 
 	clearUI();
 
-	// Make connections.
-
-	connect( braggVelocity_, SIGNAL(valueChanged(double)), this, SLOT(setBraggMotorVelocity(double)) );
-	connect( braggVelocityBase_, SIGNAL(valueChanged(double)), this, SLOT(setBraggMotorVelocityBase(double)) );
-	connect( braggAcceleration_, SIGNAL(valueChanged(double)), this, SLOT(setBraggMotorAcceleration(double)) );
-	connect( braggEncoderMoveType_, SIGNAL(currentIndexChanged(int)), this, SLOT(setBraggMotorEncoderMovementType(int)) );
-	connect( braggSettlingTime_, SIGNAL(valueChanged(double)), this, SLOT(setBraggMotorSettlingTime(double)) );
-
 	// Current settings.
 
 	setBraggMotor(braggMotor);
@@ -219,18 +211,23 @@ void BioXASSSRLMonochromatorBraggConfigurationView::setBraggMotor(CLSMAXvMotor *
 
 void BioXASSSRLMonochromatorBraggConfigurationView::clearUI()
 {
+	braggVelocity_->disconnect();
 	braggVelocity_->clear();
 	braggVelocity_->setEnabled(false);
 
+	braggVelocityBase_->disconnect();
 	braggVelocityBase_->clear();
 	braggVelocityBase_->setEnabled(false);
 
+	braggAcceleration_->disconnect();
 	braggAcceleration_->clear();
 	braggAcceleration_->setEnabled(false);
 
+	braggEncoderMoveType_->disconnect();
 	braggEncoderMoveType_->clear();
 	braggEncoderMoveType_->setEnabled(false);
 
+	braggSettlingTime_->disconnect();
 	braggSettlingTime_->clear();
 	braggSettlingTime_->setEnabled(false);
 }
@@ -266,6 +263,12 @@ void BioXASSSRLMonochromatorBraggConfigurationView::initializeUI()
 		braggSettlingTime_->setMinimum(BRAGG_SETTLING_TIME_MIN);
 		braggSettlingTime_->setMaximum(BRAGG_SETTLING_TIME_MAX);
 		braggSettlingTime_->setValue(braggMotor_->settlingTime());
+
+		connect( braggVelocity_, SIGNAL(valueChanged(double)), this, SLOT(setBraggMotorVelocity(double)) );
+		connect( braggVelocityBase_, SIGNAL(valueChanged(double)), this, SLOT(setBraggMotorVelocityBase(double)) );
+		connect( braggAcceleration_, SIGNAL(valueChanged(double)), this, SLOT(setBraggMotorAcceleration(double)) );
+		connect( braggEncoderMoveType_, SIGNAL(currentIndexChanged(int)), this, SLOT(setBraggMotorEncoderMovementType(int)) );
+		connect( braggSettlingTime_, SIGNAL(valueChanged(double)), this, SLOT(setBraggMotorSettlingTime(double)) );
 	}
 }
 
