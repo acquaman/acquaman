@@ -20,18 +20,18 @@ class AMChooseDataFolderDialog : public QDialog
 	Q_OBJECT
 
 public:
+	/// Static method that makes and pops up the dialog.  Returns whether it was successful at updating the user settings or not.
+	static bool getDataFolder(const QString &localRootDirectory, const QString &remoteRootDirectory, const QString &dataDirectory, const QStringList &extraDataDirectory = QStringList(), QWidget *parent = 0);
+
 	/// Constructor.  Builds the dialog.  Requires a folder to know where it should be looking.
-	AMChooseDataFolderDialog(const QString &dataFolder, const QString &localPath = "", const QString &remotePath = "", QWidget *parent = 0);
+	AMChooseDataFolderDialog(const QString &dataFolder, const QString &localRootDirectory, const QString &remoteRootDirectory, const QString dataDirectory, QWidget *parent = 0);
 	/// Destructor.
 	virtual ~AMChooseDataFolderDialog(){}
-
-	/// Static method that makes and pops up the dialog.  Returns whether it was successful at updating the user settings or not.
-	static bool getDataFolder(const QString &localRootDirectory, const QString &remoteRootDirectory, const QString &destination, const QStringList &extraDestinations = QStringList(), QWidget *parent = 0);
 
 	/// Returns the current path.
 	QString filePath() const { return folder_; }
 	/// Returns the state of the advanced check box.
-	bool isFullPath() const { return advancedCheck_->isChecked(); }
+	bool isFullPath() const { return advancedCheckBox_->isChecked(); }
 
 protected slots:
 	/// Slot that does the work of opening a file dialog and getting the new file path.
@@ -48,9 +48,9 @@ protected:
 	bool isProposalNumber(const QString &path) const;
 
 	/// The line edit that holds the proposal number or the path to a folder.
-	QComboBox *path_;
+	QComboBox *pathComboBox_;
 	/// The check box for the advanced choice.
-	QCheckBox *advancedCheck_;
+	QCheckBox *advancedCheckBox_;
 	/// The actual path stored as a string.
 	QString folder_;
 	/// The list of all the folders in the users folder.
