@@ -13,10 +13,6 @@ public:
 	/// Destructor.
 	virtual ~BioXASSideM2Mirror();
 
-signals:
-
-public slots:
-
 };
 
 #endif // BIOXASSIDEM2MIRROR_H

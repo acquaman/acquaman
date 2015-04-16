@@ -30,6 +30,7 @@ class BioXASMainXASScanConfiguration;
 class BioXASMainXASScanConfigurationView;
 class AMScanConfigurationViewHolder3;
 class BioXASSSRLMonochromatorConfigurationView;
+class BioXASM2MirrorView;
 
 class BioXASMainAppController  : public AMAppController
 {
@@ -76,6 +77,9 @@ protected:
     BioXASSSRLMonochromatorConfigurationView *monoConfigView_;
     /// Scaler view.
     BioXASSIS3820ScalerView *scalerView_;
+	/// M2 Mirror view.
+	BioXASM2MirrorView *m2MirrorView_;
+
     /// XAS scan configuration.
     BioXASMainXASScanConfiguration *configuration_;
     /// XAS scan configuration view.
