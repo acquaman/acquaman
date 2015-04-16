@@ -29,6 +29,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/database/AMDbObjectSupport.h"
 
 #include "actions3/AMLoopActionInfo3.h"
+#include "actions3/AMTimeoutLoopActionInfo.h"
 #include "actions3/actions/AMNumberChangeAction.h"
 #include "actions3/AMActionInfo3.h"
 #include "actions3/AMActionLog3.h"
@@ -160,6 +161,7 @@ bool AMDatamanAppControllerForActions3::startupRegisterDatabases()
 	AMDbObjectSupport::s()->registerClass<AMSequentialListActionInfo3>();
 	AMDbObjectSupport::s()->registerClass<AMParallelListActionInfo3>();
 	AMDbObjectSupport::s()->registerClass<AMLoopActionInfo3>();
+	AMDbObjectSupport::s()->registerClass<AMTimeoutLoopActionInfo>();
 	AMDbObjectSupport::s()->registerClass<AMActionLog3>();
 	AMDbObjectSupport::s()->registerClass<AMNumberChangeActionInfo>();
 	AMDbObjectSupport::s()->registerClass<AMControlMoveActionInfo3>();
