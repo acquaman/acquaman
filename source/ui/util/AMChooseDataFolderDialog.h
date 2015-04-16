@@ -11,6 +11,7 @@ class QLabel;
 class QFileDialog;
 class QDir;
 class QPushButton;
+class QToolButton;
 class QComboBox;
 
 /// This class provides a dialog to setup the local and remote paths for AM applications.
@@ -37,6 +38,8 @@ protected slots:
 	void getFilePath();
 	/// Slot that handles when the path text changes.
 	void onTextChanged(const QString &text);
+	/// Slot that handles when the advanced checkbox clicked.
+	void onAdvancedCheckboxToggled(bool);
 
 protected:
 	/// Method that checks whether the input is valid or not.  Takes into account whether in advanced or not-advanced mode.
@@ -52,6 +55,8 @@ protected:
 	QString folder_;
 	/// The list of all the folders in the users folder.
 	QStringList directories_;
+	/// The folder button
+	QToolButton *folderButton_;
 	/// The okay button.
 	QPushButton *okButton_;
 	/// The path status label.

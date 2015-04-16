@@ -39,8 +39,8 @@ AMChooseDataFolderDialog::AMChooseDataFolderDialog(const QString &dataFolder, co
 	pathStatusLabel_->setFont(pathFont);
 
 	advancedCheck_ = new QCheckBox("Advanced");
-	QToolButton *folderButton = new QToolButton;
-	folderButton->setIcon(QIcon(":/22x22/folder.png"));
+	folderButton_ = new QToolButton;
+	folderButton_->setIcon(QIcon(":/22x22/folder.png"));
 	okButton_ = new QPushButton(QIcon(":/22x22/greenCheck.png"), "Okay");
 	QPushButton *cancelButton = new QPushButton(QIcon(":/22x22/list-remove-2.png"), "Cancel");
 	QString shortFormPath = "";
@@ -53,14 +53,14 @@ AMChooseDataFolderDialog::AMChooseDataFolderDialog(const QString &dataFolder, co
 		shortFormPath = shortFormPath.remove("/");
 	}
 
-	connect(folderButton, SIGNAL(clicked()), this, SLOT(getFilePath()));
+	connect(folderButton_, SIGNAL(clicked()), this, SLOT(getFilePath()));
 	connect(okButton_, SIGNAL(clicked()), this, SLOT(accept()));
 	connect(cancelButton, SIGNAL(clicked()), this, SLOT(reject()));
 	connect(path_, SIGNAL(editTextChanged(QString)), this, SLOT(onTextChanged(QString)));
-	connect(advancedCheck_, SIGNAL(toggled(bool)), folderButton, SLOT(setEnabled(bool)));
+	connect(advancedCheck_, SIGNAL(toggled(bool)), this, SLOT(onAdvancedCheckboxToggled(bool)));
 
 	advancedCheck_->setChecked(shortFormPath.isEmpty());
-	folderButton->setEnabled(shortFormPath.isEmpty());
+	folderButton_->setEnabled(shortFormPath.isEmpty());
 
 	// If small form could not be resolved, then just use a full path.  Otherwise, set the folder text to the short form.
 	if (shortFormPath.isEmpty())
@@ -74,7 +74,7 @@ AMChooseDataFolderDialog::AMChooseDataFolderDialog(const QString &dataFolder, co
 	QHBoxLayout *lineEditLayout = new QHBoxLayout;
 	lineEditLayout->addWidget(path_);
 	lineEditLayout->addWidget(pathStatusLabel_);
-	lineEditLayout->addWidget(folderButton);
+	lineEditLayout->addWidget(folderButton_);
 	lineEditLayout->addWidget(advancedCheck_);
 
 	QHBoxLayout *buttonLayout = new QHBoxLayout;
@@ -169,6 +169,12 @@ void AMChooseDataFolderDialog::onTextChanged(const QString &text)
 	pathStatusLabel_->setPalette(pathPalette);
 	path_->setPalette(palette);
 	folder_ = text;
+}
+
+void AMChooseDataFolderDialog::onAdvancedCheckboxToggled(bool value)
+{
+	folderButton_->setEnabled(value);
+	onTextChanged(path_->currentText());
 }
 
 QString AMChooseDataFolderDialog::pathStatus(const QString &path) const

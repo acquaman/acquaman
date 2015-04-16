@@ -52,6 +52,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "ui/CLS/CLSSIS3820ScalerView.h"
 
+#include "ui/util/AMChooseDataFolderDialog.h"
+
 #include "ui/BioXAS/BioXASMainXASScanConfigurationView.h"
 #include "ui/BioXAS/BioXASMainPersistentView.h"
 #include "ui/BioXAS/BioXASSSRLMonochromatorConfigurationView.h"
@@ -68,11 +70,15 @@ BioXASMainAppController::BioXASMainAppController(QObject *parent)
 	configuration_ = 0;
 	configurationView_ = 0;
 	configurationViewHolder_ = 0;
+
+	setDefaultUseLocalStorage(true);
 }
 
 bool BioXASMainAppController::startup()
 {
-	getUserDataFolderFromDialog();
+	// Get a destination folder.
+	if ( !AMChooseDataFolderDialog::getDataFolder("/AcquamanLocalData/bioxas/AcquamanMainData", "/home/bioxas/AcquamanMainData", "users", QStringList()) )
+		return false;
 
 	// Start up the main program.
 	if(AMAppController::startup()) {
