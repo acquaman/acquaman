@@ -192,8 +192,10 @@ void BioXASMainBeamline::setupComponents()
 
 void BioXASMainBeamline::setupExposedControls()
 {
-	// Mono controls.
+	// M2 mirror controls.
+	addExposedControl(m2Mirror_->screenControl());
 
+	// Mono controls.
 	addExposedControl(mono_->energyControl());
 	addExposedControl(mono_->regionControl());
 	addExposedControl(mono_->braggMotor());
