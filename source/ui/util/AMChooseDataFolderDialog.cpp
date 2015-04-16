@@ -23,6 +23,9 @@ bool AMChooseDataFolderDialog::getDataFolder(const QString &localRootDirectory, 
 
 	if (dialog.result() == QDialog::Accepted){
 
+		// when we are using this dialog, we are not user-account based storage
+		AMUserSettings::userBasedDataStorage = false;
+
 		if (!dialog.isFullPath()){
 
 			QString dialogInput = dialog.filePath();
@@ -55,7 +58,6 @@ bool AMChooseDataFolderDialog::getDataFolder(const QString &localRootDirectory, 
 
 		else {
 
-			AMUserSettings::removeRemoteDataFolderEntry();
 			AMUserSettings::userDataFolder = dialog.filePath();
 			AMUserSettings::save();
 		}
@@ -155,7 +157,7 @@ AMChooseDataFolderDialog::AMChooseDataFolderDialog(const QString &dataFolder, co
 
 void AMChooseDataFolderDialog::onTextChanged(const QString &text)
 {
-	advancedCheckBox_->setChecked(text.length() > 0 && text.startsWith("/"));
+	advancedCheckBox_->setChecked(text.length() == 0 || text.startsWith("/"));
 
 	QPalette palette(this->palette());
 	QPalette pathPalette(this->palette());

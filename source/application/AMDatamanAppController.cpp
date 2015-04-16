@@ -305,11 +305,11 @@ bool AMDatamanAppController::startupIsFirstTime()
 	// check for missing user settings:
 	QSettings s(QSettings::IniFormat, QSettings::UserScope, "Acquaman", "Acquaman");
 	if(!s.contains("userDataFolder") && s.contains("remoteDataFolder")) {
-		QMessageBox::warning(0, "Local Storage Problem?", "Acquaman has detected a problem with your local storage.\n\nIt appears that synchronization was done at some point, but has since had information removed from the configuration.\nPlease stop and contact your beamline's Acquaman Developer for assistance.", QMessageBox::Ok);
+		QMessageBox::warning(0, "Local Storage Problem?", "Acquaman has detected a problem with your local storage.\n\nIt appears that synchronization was done at some point, but the local storage information has since been removed from the configuration.\nPlease stop and contact your beamline's Acquaman Developer for assistance.", QMessageBox::Ok);
 		firstTimeError_ = true;
 	}
 	else if(!s.contains("remoteDataFolder") && s.contains("userDataFolder") && s.value("userDataFolder").toString().startsWith("/AcquamanLocalData")){
-		QMessageBox::warning(0, "Local Storage Problem?", "Acquaman has detected a problem with your local storage.\n\nIt appears that synchronization was done at some point, but the configuration file has since been manually edited incorrectly.\nPlease stop and contact your beamline's Acquaman Developer for assistance.", QMessageBox::Ok);
+		QMessageBox::warning(0, "Local Storage Problem?", "Acquaman has detected a problem with your local storage.\n\nIt appears that synchronization was done at some point, but the remote storage information has since been manually edited incorrectly.\nPlease stop and contact your beamline's Acquaman Developer for assistance.", QMessageBox::Ok);
 		firstTimeError_ = true;
 	}
 	else if(!s.contains("userDataFolder")) {
@@ -356,16 +356,16 @@ bool AMDatamanAppController::startupOnFirstTime()
 			return false;
 	}
 	else{
-		AMFirstTimeWizard ftw;
+		AMFirstTimeWizard *firstTimeWizard = new AMFirstTimeWizard(AMUserSettings::userBasedDataStorage);
 
-		ftw.setField("useLocalStorage", QVariant(defaultUseLocalStorage_));
+		firstTimeWizard->setField("useLocalStorage", QVariant(defaultUseLocalStorage_));
 
 		// We're pretty forceful here... The user needs to accept this dialog.
-		if(ftw.exec() != QDialog::Accepted)
+		if(firstTimeWizard->exec() != QDialog::Accepted)
 			return false;
 
-		if(ftw.field("useLocalStorage").toBool()){
-			AMUserSettings::remoteDataFolder = ftw.field("userDataFolder").toString();
+		if(firstTimeWizard->field("useLocalStorage").toBool()){
+			AMUserSettings::remoteDataFolder = firstTimeWizard->field("userDataFolder").toString();
 			if(!AMUserSettings::remoteDataFolder.endsWith('/'))
 				AMUserSettings::remoteDataFolder.append("/");
 
@@ -373,7 +373,7 @@ bool AMDatamanAppController::startupOnFirstTime()
 			AMUserSettings::userDataFolder = localUserDataFolder.section('/', 2, -1).prepend("/AcquamanLocalData/");
 		}
 		else{
-			AMUserSettings::userDataFolder = ftw.field("userDataFolder").toString();
+			AMUserSettings::userDataFolder = firstTimeWizard->field("userDataFolder").toString();
 			if(!AMUserSettings::userDataFolder.endsWith('/'))
 				AMUserSettings::userDataFolder.append("/");
 		}
@@ -390,7 +390,7 @@ bool AMDatamanAppController::startupOnFirstTime()
 			}
 		}
 
-		if(ftw.field("useLocalStorage").toBool()){
+		if(firstTimeWizard->field("useLocalStorage").toBool()){
 			// Attempt to create user's data folder, only if it doesn't exist:
 			QDir remoteDataDir(AMUserSettings::remoteDataFolder);
 			if(!remoteDataDir.exists()) {
@@ -403,7 +403,7 @@ bool AMDatamanAppController::startupOnFirstTime()
 		}
 
 		// Find out the user's name:
-		AMUser::user()->setName( ftw.field("userName").toString() );
+		AMUser::user()->setName( firstTimeWizard->field("userName").toString() );
 
 		if(!startupCreateDatabases())
 			return false;
@@ -412,7 +412,7 @@ bool AMDatamanAppController::startupOnFirstTime()
 		if(!startupDatabaseUpgrades())
 			return false;
 
-		if(ftw.field("useLocalStorage").toBool()){
+		if(firstTimeWizard->field("useLocalStorage").toBool()){
 			QDir userDataFolder(AMUserSettings::userDataFolder);
 			QStringList dataFolderFilters;
 			dataFolderFilters << "*.db";
