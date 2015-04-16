@@ -92,6 +92,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "acquaman/VESPERS/VESPERSTimeScanConfiguration.h"
 #include "ui/VESPERS/VESPERSTimeScanConfigurationView.h"
+#include "acquaman/VESPERS/VESPERSTimedLineScanConfiguration.h"
+#include "ui/VESPERS/VESPERSTimedLineScanConfigurationView.h"
 
 VESPERSAppController::VESPERSAppController(QObject *parent) :
 	AMAppController(parent)
@@ -367,6 +369,14 @@ void VESPERSAppController::setupUserInterface()
 	timeScanConfigurationView_ = new VESPERSTimeScanConfigurationView(timeScanConfiguration_);
 	timeScanConfigurationViewHolder3_ = new AMScanConfigurationViewHolder3(timeScanConfigurationView_);
 
+	timedLineScanConfiguration_ = new VESPERSTimedLineScanConfiguration;
+	timedLineScanConfiguration_->scanAxisAt(0)->regionAt(0)->setRegionStart(0.0);
+	timedLineScanConfiguration_->scanAxisAt(0)->regionAt(0)->setRegionStep(0.005);
+	timedLineScanConfiguration_->scanAxisAt(0)->regionAt(0)->setRegionEnd(1.0);
+	timedLineScanConfiguration_->scanAxisAt(0)->regionAt(0)->setRegionTime(1.0);
+	timedLineScanConfigurationView_ = new VESPERSTimedLineScanConfigurationView(timedLineScanConfiguration_);
+	timedLineScanConfigurationViewHolder3_ = new AMScanConfigurationViewHolder3(timedLineScanConfigurationView_);
+
 	mw_->insertHeading("Scans", 2);
 	mw_->addPane(exafsConfigurationViewHolder3_, "Scans", "XAS", ":/utilities-system-monitor.png");
 	mw_->addPane(mapScanConfigurationViewHolder3_, "Scans", "2D Maps", ":/utilities-system-monitor.png");
@@ -374,6 +384,7 @@ void VESPERSAppController::setupUserInterface()
 	mw_->addPane(energyScanConfigurationViewHolder3_, "Scans", "XRD Energy Scan", ":/utilities-system-monitor.png");
 	mw_->addPane(map3DScanConfigurationViewHolder3_, "Scans", "3D Maps", ":/utilities-system-monitor.png");
 	mw_->addPane(timeScanConfigurationViewHolder3_, "Scans", "Timed Scan", ":/utilities-system-monitor.png");
+	mw_->addPane(timedLineScanConfigurationViewHolder3_, "Scans", "Timed Line Scan", ":/utilities-system-monitor.png");
 
 	// This is the right hand panel that is always visible.  Has important information such as shutter status and overall controls status.  Also controls the sample stage.
 	persistentView_ = new VESPERSPersistentView;
