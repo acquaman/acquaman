@@ -11,7 +11,6 @@
 #include <QStringBuilder>
 #include <QComboBox>
 
-#include <QDebug>
 // Static member
 //////////////////////////////////////
 
@@ -93,8 +92,6 @@ AMChooseDataFolderDialog::AMChooseDataFolderDialog(const QString &dataFolder, co
 		directories_ = dir.entryList(QDir::Dirs | QDir::NoDotAndDotDot, QDir::Name);
 	}
 
-	qDebug() << "==== " << folder_;
-	qDebug() << "==== " << directories_;
 	pathComboBox_->addItems(directories_);
 
 	pathStatusLabel_ = new QLabel;
