@@ -4,6 +4,8 @@
 #include "actions3/AMLoopAction3.h"
 #include "actions3/AMTimeoutLoopActionInfo.h"
 
+#include <QTimer>
+
 /// Class extends the normal loop action to have a timeout before it starts the next set of actions.
 class AMTimeoutLoopAction : public AMLoopAction3
 {
@@ -37,6 +39,8 @@ public slots:
 protected slots:
 	/// Helper function that handles starting the next iteration.
 	virtual void internalDoNextIteration();
+	/// Updates the timer if the info timeout time changes.
+	void onTimeoutTimeChanged();
 
 protected:
 	/// Helper function to manage action and loop iterations. Does everything we need to do to move onto the next action (either at the beginning, or after the last one completes).
@@ -49,6 +53,8 @@ protected:
 
 	/// Flag for letting us know if we are waiting on the timeout.  If the timer goes off and we aren't ready we should fail.
 	bool waitingForTimeout_;
+	/// The timer used for the timeout.
+	QTimer timeoutTimer_;
 };
 
 #endif // AMTIMEOUTLOOPACTION_H

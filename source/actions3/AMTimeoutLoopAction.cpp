@@ -4,18 +4,42 @@ AMTimeoutLoopAction::AMTimeoutLoopAction(AMTimeoutLoopActionInfo *info, QObject 
 	: AMLoopAction3(info, parent)
 {
 	waitingForTimeout_ = false;
+	timeoutTimer_.setInterval(info->timeoutTime()*1000);
+	connect(&timeoutTimer_, SIGNAL(timeout()), this, SLOT(internalDoNextIteration()));
+	connect(this, SIGNAL(paused()), &timeoutTimer_, SLOT(stop()));
+	connect(this, SIGNAL(resumed()), &timeoutTimer_, SLOT(start()));
+	connect(this, SIGNAL(started()), &timeoutTimer_, SLOT(start()));
+	connect(this, SIGNAL(cancelled()), &timeoutTimer_, SLOT(stop()));
+	connect(this, SIGNAL(failed()), &timeoutTimer_, SLOT(stop()));
+	connect(this, SIGNAL(succeeded()), &timeoutTimer_, SLOT(stop()));
 }
 
 AMTimeoutLoopAction::AMTimeoutLoopAction(int iterations, double timeoutTime, QObject *parent)
 	: AMLoopAction3(new AMTimeoutLoopActionInfo(iterations, timeoutTime), parent)
 {
 	waitingForTimeout_ = false;
+	timeoutTimer_.setInterval(timeoutTime*1000);
+	connect(&timeoutTimer_, SIGNAL(timeout()), this, SLOT(internalDoNextIteration()));
+	connect(this, SIGNAL(paused()), &timeoutTimer_, SLOT(stop()));
+	connect(this, SIGNAL(resumed()), &timeoutTimer_, SLOT(start()));
+	connect(this, SIGNAL(started()), &timeoutTimer_, SLOT(start()));
+	connect(this, SIGNAL(cancelled()), &timeoutTimer_, SLOT(stop()));
+	connect(this, SIGNAL(failed()), &timeoutTimer_, SLOT(stop()));
+	connect(this, SIGNAL(succeeded()), &timeoutTimer_, SLOT(stop()));
 }
 
 AMTimeoutLoopAction::AMTimeoutLoopAction(const AMTimeoutLoopAction &original)
 	: AMLoopAction3(original)
 {
 	waitingForTimeout_ = false;
+	timeoutTimer_.setInterval(original.timeoutLoopInfo()->timeoutTime()*1000);
+	connect(&timeoutTimer_, SIGNAL(timeout()), this, SLOT(internalDoNextIteration()));
+	connect(this, SIGNAL(paused()), &timeoutTimer_, SLOT(stop()));
+	connect(this, SIGNAL(resumed()), &timeoutTimer_, SLOT(start()));
+	connect(this, SIGNAL(started()), &timeoutTimer_, SLOT(start()));
+	connect(this, SIGNAL(cancelled()), &timeoutTimer_, SLOT(stop()));
+	connect(this, SIGNAL(failed()), &timeoutTimer_, SLOT(stop()));
+	connect(this, SIGNAL(succeeded()), &timeoutTimer_, SLOT(stop()));
 }
 
 AMTimeoutLoopAction::~AMTimeoutLoopAction()
@@ -81,6 +105,8 @@ void AMTimeoutLoopAction::internalDoNextIteration()
 		currentSubAction_ = subActions_.at(currentSubActionIndex_)->createCopy();
 		internalConnectAction(currentSubAction_);
 
+		timeoutTimer_.start(timeoutLoopInfo()->timeoutTime()*1000);
+
 		if(state() == AMAction3::Pausing)
 			setPaused();
 		else if(state() == AMAction3::Running)
@@ -89,4 +115,9 @@ void AMTimeoutLoopAction::internalDoNextIteration()
 
 	else
 		setFailed("Timeout before loop iteration completed.");
+}
+
+void AMTimeoutLoopAction::onTimeoutTimeChanged()
+{
+	timeoutTimer_.setInterval(timeoutLoopInfo()->timeoutTime()*1000);
 }
