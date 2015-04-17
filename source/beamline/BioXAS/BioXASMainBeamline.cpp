@@ -198,6 +198,13 @@ void BioXASMainBeamline::setupExposedControls()
 	addExposedControl(mono_->braggMotor()->EGUVelocityControl());
 	addExposedControl(mono_->braggMotor()->EGUBaseVelocityControl());
 	addExposedControl(mono_->braggMotor()->EGUAccelerationControl());
+	addExposedControl(mono_->braggMotor()->preDeadBandControl());
+	addExposedControl(mono_->braggMotor()->postDeadBandControl());
+	addExposedControl(mono_->braggMotor()->encoderMovementTypeControl());
+	addExposedControl(mono_->braggMotor()->encoderStepSoftRatioControl());
+	addExposedControl(mono_->braggMotor()->encoderCalibrationSlopeControl());
+	addExposedControl(mono_->braggMotor()->stepCalibrationSlopeControl());
+	addExposedControl(mono_->braggMotor()->retries());
 }
 
 void BioXASMainBeamline::setupExposedDetectors()
@@ -205,11 +212,11 @@ void BioXASMainBeamline::setupExposedDetectors()
     addExposedDetector(i0Detector_);
     addExposedDetector(iTDetector_);
     addExposedDetector(i2Detector_);
-    addExposedDetector(energyFeedbackDetector_);
+	addExposedDetector(energySetpointDetector_);
+	addExposedDetector(energyFeedbackDetector_);
 	addExposedDetector(dwellTimeDetector_);
 	addExposedDetector(braggDetector_);
     addExposedDetector(braggMoveRetriesDetector_);
-    addExposedDetector(braggMoveRetriesMaxDetector_);
     addExposedDetector(braggStepSetpointDetector_);
     addExposedDetector(braggDegreeSetpointDetector_);
     addExposedDetector(braggAngleDetector_);
@@ -265,35 +272,35 @@ void BioXASMainBeamline::setupMotorGroup()
 
 void BioXASMainBeamline::setupControlsAsDetectors()
 {
-	energyFeedbackDetector_ = new AMBasicControlDetectorEmulator("EnergyFeedback", "Energy Feedback", mono_->energyControl(), 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	energySetpointDetector_ = new AMBasicControlDetectorEmulator("EnergySetpoint", "EnergySetpoint", new AMReadOnlyPVControl("EnergySetpoint", "BL1607-5-I21:Energy:EV:fbk", this), 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	energySetpointDetector_->setHiddenFromUsers(false);
+	energySetpointDetector_->setIsVisible(true);
+
+	energyFeedbackDetector_ = new AMBasicControlDetectorEmulator("EnergyFeedback", "EnergyFeedback", new AMReadOnlyPVControl("EnergyFeedback", "BL1607-5-I21:Energy:EV", this), 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
 	energyFeedbackDetector_->setHiddenFromUsers(false);
 	energyFeedbackDetector_->setIsVisible(true);
 
 	dwellTimeDetector_ = new AMBasicControlDetectorEmulator("DwellTimeFeedback", "Dwell Time Feedback", scalerDwellTime_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
-	dwellTimeDetector_->setHiddenFromUsers(false);
-	dwellTimeDetector_->setIsVisible(true);
+	dwellTimeDetector_->setHiddenFromUsers(true);
+	dwellTimeDetector_->setIsVisible(false);
 
-	braggDetector_ = new AMBasicControlDetectorEmulator("BraggFeedback", "Bragg Motor Feedback", mono_->braggMotor(), 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	braggDetector_ = new AMBasicControlDetectorEmulator("MonoFeedback", "Mono Bragg Motor Feedback", mono_->braggMotor(), 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
 	braggDetector_->setHiddenFromUsers(false);
 	braggDetector_->setIsVisible(true);
 
-	braggMoveRetriesDetector_ = new AMBasicControlDetectorEmulator("BraggMoveRetries", "Number of bragg move retries", mono_->braggMotor()->retries(), 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	braggMoveRetriesDetector_ = new AMBasicControlDetectorEmulator("MonoMoveRetries", "Number of mono bragg move retries", mono_->braggMotor()->retries(), 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
 	braggMoveRetriesDetector_->setHiddenFromUsers(false);
 	braggMoveRetriesDetector_->setIsVisible(true);
 
-	braggMoveRetriesMaxDetector_ = new AMBasicControlDetectorEmulator("BraggMoveRetriesMax", "Max number of bragg move retries", mono_->braggMotor()->maxRetriesControl(), 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
-	braggMoveRetriesMaxDetector_->setHiddenFromUsers(false);
-	braggMoveRetriesMaxDetector_->setIsVisible(true);
-
-	braggStepSetpointDetector_ = new AMBasicControlDetectorEmulator("BraggStepSetpoint", "Bragg motor step setpoint", mono_->braggMotor()->stepSetpointControl(), 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	braggStepSetpointDetector_ = new AMBasicControlDetectorEmulator("MonoStepSetpoint", "Mono bragg motor step setpoint", mono_->braggMotor()->stepSetpointControl(), 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
 	braggStepSetpointDetector_->setHiddenFromUsers(false);
 	braggStepSetpointDetector_->setIsVisible(true);
 
-	braggDegreeSetpointDetector_ = new AMBasicControlDetectorEmulator("BraggDegreeSetpoint", "Bragg motor degree setpoint", mono_->braggMotor()->degreeSetpointControl(), 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	braggDegreeSetpointDetector_ = new AMBasicControlDetectorEmulator("MonoDegreeSetpoint", "Mono bragg motor degree setpoint", mono_->braggMotor()->degreeSetpointControl(), 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
 	braggDegreeSetpointDetector_->setHiddenFromUsers(false);
 	braggDegreeSetpointDetector_->setIsVisible(true);
 
-	braggAngleDetector_ = new AMBasicControlDetectorEmulator("PhysicalBraggAngle", "Physical bragg angle", mono_->energyControl()->braggAngleControl(), 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	braggAngleDetector_ = new AMBasicControlDetectorEmulator("BraggAngle", "Physical bragg angle", mono_->energyControl()->braggAngleControl(), 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
 	braggAngleDetector_->setHiddenFromUsers(false);
 	braggAngleDetector_->setIsVisible(true);
 }
