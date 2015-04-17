@@ -26,22 +26,20 @@ bool AMChooseDataFolderDialog::getDataFolder(const QString &localRootDirectory, 
 		// when we are using this dialog, we are not user-account based storage
 		AMUserSettings::userBasedDataStorage = false;
 
+		QString dialogInput = dialog.filePath();
+
 		if (!dialog.isFullPath()){
 
-			QString dialogInput = dialog.filePath();
 			QFileInfo remoteFullPath(QString("%1/%2/%3").arg(remoteRootDirectory).arg(dataDirectory).arg(dialogInput));
-			bool isFirstTimeUser = !remoteFullPath.exists();
 
-			if (!remoteFullPath.exists()){
+			bool isFirstTimeUser = !remoteFullPath.exists();
+			if (isFirstTimeUser){
 
 				QDir newPath(QString("%1/%2").arg(remoteRootDirectory).arg(dataDirectory));
 				newPath.mkpath(QString("%1/userData").arg(dialogInput));
 
 				foreach (QString newExtraDestination, extraDataDirectory)
 					newPath.mkpath(QString("%1/%2").arg(dialogInput).arg(newExtraDestination));
-			}
-
-			if (isFirstTimeUser){
 
 				AMUserSettings::userDataFolder = QString("%1/%2/%3/userData/").arg(remoteRootDirectory).arg(dataDirectory).arg(dialogInput);
 				AMUserSettings::remoteDataFolder = "";
@@ -58,7 +56,23 @@ bool AMChooseDataFolderDialog::getDataFolder(const QString &localRootDirectory, 
 
 		else {
 
-			AMUserSettings::userDataFolder = dialog.filePath();
+			QString userDataPath;
+			if (dialogInput.endsWith("/userData") || dialogInput.endsWith("/userData/")) {
+				userDataPath = dialogInput;
+			} else {
+				userDataPath = QString("%1/userData").arg(dialogInput);
+			}
+
+			QFileInfo remoteFullPath(userDataPath);
+			if (!remoteFullPath.exists()) {
+				QDir newPath(dialogInput);
+				newPath.mkpath(userDataPath);
+			}
+
+			if (!userDataPath.endsWith("/"))
+				userDataPath.append("/");
+
+			AMUserSettings::userDataFolder = userDataPath;
 			AMUserSettings::save();
 		}
 

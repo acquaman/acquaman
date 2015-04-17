@@ -516,6 +516,7 @@ bool AMDatamanAppController::startupBackupDataDirectory()
 		excludePatterns.append("*.db.bk.*");
 		excludePatterns.append("*.BACKUPS");
 		excludePatterns.append("*.db-journal");
+		excludePatterns.append("*exportData*");
 		for(int x = 0, size = excludePatterns.size(); x < size; x++)
 			synchronizer->appendExcludePattern(excludePatterns.at(x));
 
@@ -531,7 +532,9 @@ bool AMDatamanAppController::startupCheckExportDirectory()
 		exportDir.setCurrent(AMUserSettings::remoteDataFolder);
 	else
 		exportDir.setCurrent(AMUserSettings::userDataFolder);
-	exportDir.cdUp();
+
+	if (exportDir.absolutePath().contains("/userData"))
+		exportDir.cdUp();
 
 	if(!exportDir.entryList(QDir::AllDirs).contains("exportData")){
 		if(!exportDir.mkdir("exportData"))
