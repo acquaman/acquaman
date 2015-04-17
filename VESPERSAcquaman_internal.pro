@@ -74,7 +74,8 @@ HEADERS +=	source/application/VESPERS/VESPERSAppController.h \
 	source/ui/VESPERS/VESPERSFourElementVortexDetectorView.h \
     source/acquaman/VESPERS/VESPERSTimedLineScanConfiguration.h \
     source/ui/VESPERS/VESPERSTimedLineScanConfigurationView.h \
-    source/acquaman/VESPERS/VESPERSTimedLineScanActionController.h
+    source/acquaman/VESPERS/VESPERSTimedLineScanActionController.h \
+    source/acquaman/VESPERS/VESPERSTimedLineScanActionControllerAssembler.h
 
 SOURCES +=	source/application/VESPERS/VESPERSAppController.cpp \
 	source/application/VESPERS/VESPERSMain.cpp \
@@ -146,10 +147,13 @@ SOURCES +=	source/application/VESPERS/VESPERSAppController.cpp \
 	source/ui/VESPERS/VESPERSFourElementVortexDetectorView.cpp \
     source/acquaman/VESPERS/VESPERSTimedLineScanConfiguration.cpp \
     source/ui/VESPERS/VESPERSTimedLineScanConfigurationView.cpp \
-    source/acquaman/VESPERS/VESPERSTimedLineScanActionController.cpp
+    source/acquaman/VESPERS/VESPERSTimedLineScanActionController.cpp \
+    source/acquaman/VESPERS/VESPERSTimedLineScanActionControllerAssembler.cpp
 
 RESOURCES += \
 	source/icons/VESPERS/vespersIcons.qrc
+
+
 
 
 
