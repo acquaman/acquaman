@@ -335,16 +335,15 @@ QWidget *AMMainWindow::buildMainWindowPane(const QString &name, const QString &i
 	horizontalLayout->addWidget(appWidget);
 	horizontalLayout->addStretch();
 
-
 	QVBoxLayout *verticalLayout = new QVBoxLayout();
 	verticalLayout->addWidget(new AMTopFrame(name, QIcon(iconPath)));
 	verticalLayout->addStretch();
 	verticalLayout->addLayout(horizontalLayout);
 	verticalLayout->addStretch();
 
-	QGroupBox *scalarBox = new QGroupBox();
-	scalarBox->setFlat(true);
-	scalarBox->setLayout(verticalLayout);
+	QGroupBox *groupBox = new QGroupBox();
+	groupBox->setFlat(true);
+	groupBox->setLayout(verticalLayout);
 
 	return scalarBox;
 
