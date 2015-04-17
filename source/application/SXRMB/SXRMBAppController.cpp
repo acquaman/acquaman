@@ -220,21 +220,7 @@ void SXRMBAppController::onScalerConnected(bool isConnected){
 			scalerView_->setAmplifierViewPrecision(3);
 		}
 
-		QGroupBox *scalerGroupBox = new QGroupBox;
-		scalerGroupBox->setFlat(true);
-
-		QHBoxLayout *scalerHorizontalSqueezeLayout = new QHBoxLayout;
-		scalerHorizontalSqueezeLayout->addStretch();
-		scalerHorizontalSqueezeLayout->addWidget(scalerView_);
-		scalerHorizontalSqueezeLayout->addStretch();
-
-		QVBoxLayout *scalerVerticalSqueezeLayout = new QVBoxLayout;
-		scalerVerticalSqueezeLayout->addWidget(new AMTopFrame("Scaler"));
-		scalerVerticalSqueezeLayout->addStretch();
-		scalerVerticalSqueezeLayout->addLayout(scalerHorizontalSqueezeLayout);
-		scalerVerticalSqueezeLayout->addStretch();
-		scalerGroupBox->setLayout(scalerVerticalSqueezeLayout);
-		mw_->addPane(scalerGroupBox, "Detectors", "Scaler", ":/system-search.png", true);
+		mw_->addPane(AMMainWindow::buildMainWindowPane("Scaler", ":/system-search.png", scalerView_), "Detectors", "Scaler", ":/system-search.png", true);
 	}
 	else if(scalerView_)
 		mw_->removePane(scalerView_);
