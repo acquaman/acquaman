@@ -13,6 +13,13 @@ public:
 	VESPERSTimedLineScanActionController(VESPERSTimedLineScanConfiguration *configuration, QObject *parent = 0);
 	/// Destructor.
 	~VESPERSTimedLineScanActionController();
+
+protected:
+	/// Creates the scan assembler that builds all the actions used to run the scan.
+	virtual void createScanAssembler();
+
+	/// The timed line scan configuration.
+	VESPERSTimedLineScanConfiguration *timedConfiguration_;
 };
 
 #endif // VESPERSTIMEDLINESCANACTIONCONTROLLER_H
