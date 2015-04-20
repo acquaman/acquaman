@@ -82,8 +82,16 @@ public:
 signals:
 	/// Emitted when the widget is clicked to bring up the setpoint editor dialog.
 	void clicked();
+	/// Emitted when the control being viewed/edited has changed.
+	void controlChanged(AMControl *newControl);
+	/// Emitted when the secondary control being viewed/edited has changed.
+	void secondaryControlChanged(AMControl *newControl);
 
 public slots:
+	/// Sets the control.
+	void setControl(AMControl *newControl);
+	/// Sets the secondary control.
+	void setSecondaryControl(AMControl *newControl);
 	/// If you want to prevent users from editing a control using this widget, you can set it to readOnly().
 	void setReadOnly(bool readOnly);
 
