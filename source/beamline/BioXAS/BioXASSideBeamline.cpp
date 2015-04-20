@@ -852,6 +852,12 @@ void BioXASSideBeamline::setupExposedControls()
 
 	addExposedControl(carbonFilterFarm_);
 
+	// Mirror controls.
+
+	addExposedControl(dbhrMirror_->pitchControl());
+	addExposedControl(dbhrMirror_->m1VerticalControl());
+	addExposedControl(dbhrMirror_->m2VerticalControl());
+
 	// Detector stage controls.
 
 	addExposedControl(detectorStageLateral_);
