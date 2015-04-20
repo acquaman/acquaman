@@ -67,6 +67,7 @@ BioXASMainAppController::BioXASMainAppController(QObject *parent)
 {
 	// Initialize variables.
 
+	monoConfigView_ = 0;
 	scalerView_ = 0;
 	configuration_ = 0;
 	configurationView_ = 0;
