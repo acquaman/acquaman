@@ -345,7 +345,23 @@ QWidget *AMMainWindow::buildMainWindowPane(const QString &name, const QString &i
 	groupBox->setFlat(true);
 	groupBox->setLayout(verticalLayout);
 
-	return scalarBox;
+	return groupBox;
 
 }
 
+QWidget *AMMainWindow::buildMainWindowConfigurationPane(const QString &topFrameName, AMScanConfigurationView *configView)
+{
+	AMTopFrame *frame = new AMTopFrame(topFrameName);
+	AMScanConfigurationViewHolder3 *configViewHolder = new AMScanConfigurationViewHolder3(configView);
+
+	QVBoxLayout *verticalLayout = new QVBoxLayout();
+	verticalLayout->addWidget(frame);
+	verticalLayout->addStretch();
+	verticalLayout->addWidget(configViewHolder);
+
+	QGroupBox *groupBox = new QGroupBox();
+	groupBox->setFlat(true);
+	groupBox->setLayout(verticalLayout);
+
+	return groupBox;
+}
