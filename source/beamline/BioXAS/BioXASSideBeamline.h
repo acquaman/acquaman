@@ -26,7 +26,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/AMMotorGroup.h"
 #include "beamline/AMPVControl.h"
 
-#include "beamline/CLS/CLSBeamline.h"
 #include "beamline/CLS/CLSSynchronizedDwellTime.h"
 #include "beamline/CLS/CLSSIS3820Scaler.h"
 #include "beamline/CLS/CLSBiStateControl.h"
@@ -40,11 +39,14 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "util/AMErrorMonitor.h"
 #include "util/AMBiHash.h"
 
+#include "beamline/BioXAS/BioXASBeamline.h"
 #include "beamline/BioXAS/BioXASBeamlineDef.h"
 #include "beamline/BioXAS/BioXASSideMonochromator.h"
 #include "beamline/BioXAS/BioXASPseudoMotorControl.h"
 #include "beamline/BioXAS/BioXAS32ElementGeDetector.h"
 #include "beamline/BioXAS/BioXASSideCarbonFilterFarmControl.h"
+#include "beamline/BioXAS/BioXASSideXIAFilters.h"
+#include "beamline/BioXAS/BioXASSideDBHRMirror.h"
 
 #define BIOXASSIDEBEAMLINE_PRESSURE_TOO_HIGH 54600
 #define BIOXASSIDEBEAMLINE_VALVES_CLOSED 54601
@@ -55,7 +57,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 class AMBasicControlDetectorEmulator;
 
-class BioXASSideBeamline : public CLSBeamline
+class BioXASSideBeamline : public BioXASBeamline
 {
 	Q_OBJECT
 
@@ -85,6 +87,10 @@ public:
 	virtual CLSSIS3820Scaler* scaler() const { return scaler_; }
 	/// Returns the carbon filter farm.
 	BioXASSideCarbonFilterFarmControl* carbonFilterFarm() const { return carbonFilterFarm_; }
+	/// Returns the XIA filters.
+	BioXASSideXIAFilters* xiaFilters() const { return xiaFilters_; }
+	/// Returns the DBHR mirrors.
+	BioXASSideDBHRMirror* dbhrMirror() const { return dbhrMirror_; }
 
 	// Photon and safety shutters.
 	/// Returns the first photon shutter.
@@ -223,7 +229,9 @@ public:
 	/// Returns the energy feedback detector.
 	AMBasicControlDetectorEmulator* energyFeedbackDetector() const { return energyFeedbackDetector_; }
 	/// Returns the scaler dwell time detector.
-	AMBasicControlDetectorEmulator* dwellTimeDetector() { return dwellTimeDetector_; }
+	AMBasicControlDetectorEmulator* dwellTimeDetector() const { return dwellTimeDetector_; }
+	/// Returns the bragg motor detector.
+	AMBasicControlDetectorEmulator* braggDetector() const { return braggDetector_; }
 	/// Returns the bragg move retries detector.
 	AMBasicControlDetectorEmulator* braggMoveRetriesDetector() const { return braggMoveRetriesDetector_; }
 	/// Returns the bragg move max retries detector.
@@ -319,6 +327,7 @@ protected:
 	CLSBasicScalerChannelDetector *i2Detector_;
 	AMBasicControlDetectorEmulator *energyFeedbackDetector_;
 	AMBasicControlDetectorEmulator *dwellTimeDetector_;
+	AMBasicControlDetectorEmulator *braggDetector_;
 	AMBasicControlDetectorEmulator *braggMoveRetriesDetector_;
 	AMBasicControlDetectorEmulator *braggMoveRetriesMaxDetector_;
 	AMBasicControlDetectorEmulator *braggStepSetpointDetector_;
@@ -344,9 +353,14 @@ protected:
 	CLSKeithley428 *iTKeithley_;
 	CLSKeithley428 *i2Keithley_;
 
-	// Carbon filter farm.
+	// Filters.
 
 	BioXASSideCarbonFilterFarmControl *carbonFilterFarm_;
+	BioXASSideXIAFilters *xiaFilters_;
+
+	// DBHR mirror.
+
+	BioXASSideDBHRMirror *dbhrMirror_;
 
 	// Misc controls
 

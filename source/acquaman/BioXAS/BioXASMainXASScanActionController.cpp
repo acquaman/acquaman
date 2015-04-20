@@ -29,6 +29,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "acquaman/AMEXAFSScanActionControllerAssembler.h"
 #include "beamline/AMBasicControlDetectorEmulator.h"
 #include "util/AMErrorMonitor.h"
+#include "analysis/AM1DExpressionAB.h"
+#include "dataman/export/AMExporterOptionGeneralAscii.h"
 
 BioXASMainXASScanActionController::BioXASMainXASScanActionController(BioXASMainXASScanConfiguration *configuration, QObject *parent) :
     AMStepScanActionController(configuration, parent)
@@ -44,21 +46,36 @@ BioXASMainXASScanActionController::BioXASMainXASScanActionController(BioXASMainX
     scan_->setNotes(beamlineSettings());
 
     AMControlInfoList list;
+	list.append(BioXASMainBeamline::bioXAS()->mono()->energyControl()->toInfo());
     configuration_->setAxisControlInfos(list);
 
+	useFeedback_ = true;
+
     AMDetectorInfoSet detectorSet;
-    detectorSet.addDetectorInfo(BioXASMainBeamline::bioXAS()->i0Detector()->toInfo());
-    detectorSet.addDetectorInfo(BioXASMainBeamline::bioXAS()->iTDetector()->toInfo());
-    detectorSet.addDetectorInfo(BioXASMainBeamline::bioXAS()->i2Detector()->toInfo());
-    detectorSet.addDetectorInfo(BioXASMainBeamline::bioXAS()->energyFeedbackDetector()->toInfo());
-    detectorSet.addDetectorInfo(BioXASMainBeamline::bioXAS()->dwellTimeDetector()->toInfo());
-    detectorSet.addDetectorInfo(BioXASMainBeamline::bioXAS()->braggMoveRetriesDetector()->toInfo());
-    detectorSet.addDetectorInfo(BioXASMainBeamline::bioXAS()->braggMoveRetriesMaxDetector()->toInfo());
-    detectorSet.addDetectorInfo(BioXASMainBeamline::bioXAS()->braggStepSetpointDetector()->toInfo());
-    detectorSet.addDetectorInfo(BioXASMainBeamline::bioXAS()->braggDegreeSetpointDetector()->toInfo());
-    detectorSet.addDetectorInfo(BioXASMainBeamline::bioXAS()->braggAngleDetector()->toInfo());
+	detectorSet.addDetectorInfo(BioXASMainBeamline::bioXAS()->exposedDetectorByName("I0Detector")->toInfo());
+	detectorSet.addDetectorInfo(BioXASMainBeamline::bioXAS()->exposedDetectorByName("ITDetector")->toInfo());
+	detectorSet.addDetectorInfo(BioXASMainBeamline::bioXAS()->exposedDetectorByName("I2Detector")->toInfo());
+	detectorSet.addDetectorInfo(BioXASMainBeamline::bioXAS()->exposedDetectorByName("EnergySetpoint")->toInfo());
+	detectorSet.addDetectorInfo(BioXASMainBeamline::bioXAS()->exposedDetectorByName("EnergyFeedback")->toInfo());
+	detectorSet.addDetectorInfo(BioXASMainBeamline::bioXAS()->exposedDetectorByName("DwellTimeFeedback")->toInfo());
+	detectorSet.addDetectorInfo(BioXASMainBeamline::bioXAS()->exposedDetectorByName("MonoFeedback")->toInfo());
+	detectorSet.addDetectorInfo(BioXASMainBeamline::bioXAS()->exposedDetectorByName("MonoMoveRetries")->toInfo());
+	detectorSet.addDetectorInfo(BioXASMainBeamline::bioXAS()->exposedDetectorByName("MonoStepSetpoint")->toInfo());
+	detectorSet.addDetectorInfo(BioXASMainBeamline::bioXAS()->exposedDetectorByName("MonoDegreeSetpoint")->toInfo());
+	detectorSet.addDetectorInfo(BioXASMainBeamline::bioXAS()->exposedDetectorByName("BraggAngle")->toInfo());
 
     configuration_->setDetectorConfigurations(detectorSet);
+
+	secondsElapsed_ = 0;
+	secondsTotal_ = configuration_->totalTime();
+	elapsedTime_.setInterval(1000);
+	connect(this, SIGNAL(started()), &elapsedTime_, SLOT(start()));
+	connect(this, SIGNAL(cancelled()), &elapsedTime_, SLOT(stop()));
+	connect(this, SIGNAL(paused()), &elapsedTime_, SLOT(stop()));
+	connect(this, SIGNAL(resumed()), &elapsedTime_, SLOT(start()));
+	connect(this, SIGNAL(failed()), &elapsedTime_, SLOT(stop()));
+	connect(this, SIGNAL(finished()), &elapsedTime_, SLOT(stop()));
+	connect(&elapsedTime_, SIGNAL(timeout()), this, SLOT(onScanTimerUpdate()));
 }
 
 BioXASMainXASScanActionController::~BioXASMainXASScanActionController()
@@ -66,13 +83,31 @@ BioXASMainXASScanActionController::~BioXASMainXASScanActionController()
 
 }
 
+void BioXASMainXASScanActionController::onScanTimerUpdate()
+{
+	if (elapsedTime_.isActive()){
+
+		if (secondsElapsed_ >= secondsTotal_)
+			secondsElapsed_ = secondsTotal_;
+		else
+			secondsElapsed_ += 1.0;
+
+		emit progress(secondsElapsed_, secondsTotal_);
+	}
+}
+
 QString BioXASMainXASScanActionController::beamlineSettings()
 {
 	QString notes;
 
-	notes.append(QString("Bragg motor base velocity:\t%1").arg(BioXASMainBeamline::bioXAS()->mono()->braggMotor()->EGUBaseVelocity()));
-	notes.append(QString("Bragg motor acceleration:\t%1").arg(BioXASMainBeamline::bioXAS()->mono()->braggMotor()->EGUAcceleration()));
-	notes.append(QString("Bragg motor velocity:\t%1").arg(BioXASMainBeamline::bioXAS()->mono()->braggMotor()->EGUVelocity()));
+	notes.append(QString("Bragg motor base velocity:\t%1\n").arg(BioXASMainBeamline::bioXAS()->mono()->braggMotor()->EGUBaseVelocity()));
+	notes.append(QString("Bragg motor acceleration:\t%1\n").arg(BioXASMainBeamline::bioXAS()->mono()->braggMotor()->EGUAcceleration()));
+	notes.append(QString("Bragg motor velocity:\t%1\n").arg(BioXASMainBeamline::bioXAS()->mono()->braggMotor()->EGUVelocity()));
+	notes.append(QString("Bragg motor max retries:\t%1\n").arg(BioXASMainBeamline::bioXAS()->mono()->braggMotor()->maxRetries()));
+	notes.append(QString("Bragg motor encoder move type:\t%1\n").arg(BioXASMainBeamline::bioXAS()->mono()->braggMotor()->encoderMovementType()));
+	notes.append(QString("Bragg motor encoder step soft ratio:\t%1\n").arg(BioXASMainBeamline::bioXAS()->mono()->braggMotor()->encoderStepSoftRatio()));
+	notes.append(QString("Bragg motor encoder slope:\t%1\n").arg(BioXASMainBeamline::bioXAS()->mono()->braggMotor()->encoderCalibrationSlope()));
+	notes.append(QString("Bragg motor step calibration slope:\t%1\n").arg(BioXASMainBeamline::bioXAS()->mono()->braggMotor()->stepCalibrationSlope()));
 
 	return notes;
 }
@@ -137,8 +172,21 @@ AMAction3* BioXASMainXASScanActionController::createCleanupActions()
 
 void BioXASMainXASScanActionController::buildScanControllerImplementation()
 {
-	// Create data sources for the dark current corrected measurements of each able detector in the configuration.
-	// Add data sources to list of sources associated with this scan.
+	// Create analyzed data sources for the monochromator testing measurements.
+
+	int energyDetectorIndex = scan_->indexOfDataSource(BioXASMainBeamline::bioXAS()->energyFeedbackDetector()->name());
+	if (energyDetectorIndex != -1) {
+		AMDataSource *energyFeedbackSource = scan_->dataSourceAt(energyDetectorIndex);
+
+		AM1DExpressionAB *deltaEnergy = new AM1DExpressionAB("EnergySetpointFeedback");
+		deltaEnergy->setInputDataSources(QList<AMDataSource *>() << energyFeedbackSource << scan_->dataSourceAt(scan_->indexOfDataSource("EnergySetpoint")));
+		deltaEnergy->setExpression("EnergySetpoint-EnergyFeedback");
+
+		scan_->addAnalyzedDataSource(deltaEnergy, true, false);
+	}
+
+//	 Create analyzed data sources for the dark current corrected measurements of each able detector in the configuration.
+//	 Add data sources to list of sources associated with this scan.
 
 	int dwellTimeIndex = scan_->indexOfDataSource(BioXASMainBeamline::bioXAS()->dwellTimeDetector()->name());
 
@@ -166,10 +214,10 @@ void BioXASMainXASScanActionController::buildScanControllerImplementation()
 					connect( detector, SIGNAL(darkCurrentValueChanged(double)), detectorCorrected, SLOT(setDarkCurrent(double)) );
 
 					scan_->addAnalyzedDataSource(detectorCorrected, true, false);
-
-				} else {
-					AMErrorMon::alert(this, BIOXASMAINXASSCANACTIONCONTROLLER_DETECTOR_NOT_FOUND, "Unable to find a required detector in scan controller.");
 				}
+
+			} else {
+				AMErrorMon::alert(this, BIOXASMAINXASSCANACTIONCONTROLLER_DETECTOR_NOT_FOUND, "Unable to find a required detector in scan controller.");
 			}
 		}
 	}

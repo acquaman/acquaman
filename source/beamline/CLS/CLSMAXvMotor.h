@@ -202,6 +202,24 @@ public:
 	AMReadOnlyPVControl *cwLimitControl() const { return cwLimit_; }
 	/// Returns the counter-clockwise limit status PV control.
 	AMReadOnlyPVControl *ccwLimitControl() const { return ccwLimit_; }
+	/// Returns the EGU velocity PV control.
+	AMPVControl* EGUVelocityControl() const { return EGUVelocity_; }
+	/// Returns the EGU base velocity PV control.
+	AMPVControl* EGUBaseVelocityControl() const { return EGUBaseVelocity_; }
+	/// Returns the EGU acceleration PV control.
+	AMPVControl* EGUAccelerationControl() const { return EGUAcceleration_; }
+	/// Returns the pre-deadband PV control.
+	AMPVControl* preDeadBandControl() const { return preDeadBand_; }
+	/// Returns the post-deadband PV control.
+	AMPVControl* postDeadBandControl() const { return postDeadBand_; }
+	/// Returns the encoder movement type PV control.
+	AMPVControl* encoderMovementTypeControl() const { return encoderMovementType_; }
+	/// Returns the encoder/step soft ratio PV control.
+	AMPVControl* encoderStepSoftRatioControl() const { return encoderStepSoftRatio_; }
+	/// Returns the encoder calibration slope PV control.
+	AMPVControl* encoderCalibrationSlopeControl() const { return encoderCalibrationSlope_; }
+	/// Returns the step calibration slope PV control.
+	AMPVControl* stepCalibrationSlopeControl() const { return stepCalibrationSlope_; }
 
 	/// Returns a newly created action to move the motor. This is a convenience function that calls the EGU move action. Returns 0 if the control is not connected.
 	AMAction3* createMotorMoveAction(double position);

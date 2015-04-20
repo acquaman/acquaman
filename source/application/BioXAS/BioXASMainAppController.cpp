@@ -30,6 +30,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "actions3/AMActionRunner3.h"
 #include "actions3/actions/AMScanAction.h"
 #include "actions3/AMListAction3.h"
+#include "actions3/actions/CLSSIS3820ScalerDarkCurrentMeasurementAction.h"
+
+#include "analysis/AM1DDarkCurrentCorrectionAB.h"
 
 #include "dataman/database/AMDbObjectSupport.h"
 #include "dataman/export/AMExportController.h"
@@ -64,6 +67,7 @@ BioXASMainAppController::BioXASMainAppController(QObject *parent)
 {
 	// Initialize variables.
 
+	monoConfigView_ = 0;
 	scalerView_ = 0;
 	configuration_ = 0;
 	configurationView_ = 0;
@@ -187,7 +191,12 @@ void BioXASMainAppController::onBeamlineConnected()
 
 void BioXASMainAppController::registerClasses()
 {
+	AMDbObjectSupport::s()->registerClass<CLSSIS3820ScalerDarkCurrentMeasurementActionInfo>();
+
+	AMDbObjectSupport::s()->registerClass<AM1DDarkCurrentCorrectionAB>();
+
 	AMDbObjectSupport::s()->registerClass<BioXASMainXASScanConfiguration>();
+	AMDbObjectSupport::s()->registerClass<BioXASScanConfigurationDbObject>();
 }
 
 void BioXASMainAppController::setupExporterOptions()
