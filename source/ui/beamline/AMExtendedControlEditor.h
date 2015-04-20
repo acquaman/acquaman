@@ -87,8 +87,17 @@ signals:
 	void moveRequested(double);
 	void setpointRequested(double);
 	void clicked();
+	/// Notifier that the control being edited has changed.
+	void controlChanged(AMControl *newControl);
+	/// Notifier that the status control has changed.
+	void statusControlChanged(AMControl *newControl);
 
 public slots:
+	/// Sets the control being viewed.
+	void setControl(AMControl *newControl);
+	/// Sets the status control.
+	void setStatusControl(AMControl *newControl);
+
 	void setReadOnly(bool readOnly);
 	void setNoUnitsBox(bool noUnitsBox);
 	void overrideTitle(const QString& title);
