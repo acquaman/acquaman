@@ -12,6 +12,23 @@ VESPERSTimedLineScanActionController::VESPERSTimedLineScanActionController(VESPE
 
 	int yPoints = int(round((double(configuration_->scanAxisAt(1)->regionAt(0)->regionEnd()) - double(configuration_->scanAxisAt(1)->regionAt(0)->regionStart()))/double(configuration_->scanAxisAt(1)->regionAt(0)->regionStep()))) + 1;
 	scan_->rawData()->addScanAxis(AMAxisInfo("Time", yPoints, "Time", "s"));
+
+	VESPERS::FluorescenceDetectors xrfDetector = configuration_->fluorescenceDetector();
+	AMDetector *detector = 0;
+
+	if (xrfDetector.testFlag(VESPERS::SingleElement)){
+
+		detector = AMBeamline::bl()->exposedDetectorByName("SingleElementVortex");
+		detector->setHiddenFromUsers(true);
+		detector->setIsVisible(false);
+	}
+
+	if (xrfDetector.testFlag(VESPERS::FourElement)){
+
+		detector = AMBeamline::bl()->exposedDetectorByName("FourElementVortex");
+		detector->setHiddenFromUsers(true);
+		detector->setIsVisible(false);
+	}
 }
 
 VESPERSTimedLineScanActionController::~VESPERSTimedLineScanActionController()
