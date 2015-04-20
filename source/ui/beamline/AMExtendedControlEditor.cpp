@@ -73,26 +73,23 @@ AMExtendedControlEditor::AMExtendedControlEditor(AMControl* control, AMControl* 
 	statusLabel_->hide();
 
 	// Layout:
-	QHBoxLayout* hl = new QHBoxLayout();
-	QVBoxLayout* vl = new QVBoxLayout();
-	hl->addWidget(valueLabel_, 2);
-	hl->addSpacing(2);
-	hl->addWidget(unitsLabel_, 0);
-	hl->setMargin(2);
-	vl->addLayout(hl);
+	QHBoxLayout* valueLayout = new QHBoxLayout();
+	valueLayout->addWidget(valueLabel_, 2);
+	valueLayout->addSpacing(2);
+	valueLayout->addWidget(unitsLabel_, 0);
+	valueLayout->setMargin(2);
 
-//	statusLayout_ = new QHBoxLayout();
-//	if(statusTagControl_){
-//		statusLayout_->addWidget(statusLabel_, Qt::AlignCenter);
-//		statusLayout_->setStretch(0, 2);
-//	}
-//	vl->addLayout(statusLayout_);
-	vl->addWidget(statusLabel_);
-	vl->setSpacing(1);
-	vl->setMargin(2);
+	QHBoxLayout *statusLayout = new QHBoxLayout();
+	statusLayout->addWidget(statusLabel_, Qt::AlignCenter);
+	statusLayout->setStretch(0, 2);
 
-	setLayout(vl);
+	QVBoxLayout* layout = new QVBoxLayout();
+	layout->addLayout(valueLayout);
+	layout->addLayout(statusLayout);
+	layout->setSpacing(1);
+	layout->setMargin(2);
 
+	setLayout(layout);
 	setHappy(false);
 	setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
 
