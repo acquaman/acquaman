@@ -14,9 +14,14 @@ public:
 	/// Destructor.
 	~VESPERSTimedLineScanActionController();
 
+	/// Method that builds all the general aspects, such as measurements and raw data sources, and the file writer capabilities for the scan controller.
+	virtual void buildScanController();
+
 protected:
 	/// Creates the scan assembler that builds all the actions used to run the scan.
 	virtual void createScanAssembler();
+	/// Method that prefills the scan's raw data store for 2D and higher dimensionality scans.
+	virtual void prefillScanPoints();
 
 	/// The timed line scan configuration.
 	VESPERSTimedLineScanConfiguration *timedConfiguration_;

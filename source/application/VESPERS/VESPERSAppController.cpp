@@ -226,6 +226,7 @@ void VESPERSAppController::registerClasses()
 	AMDbObjectSupport::s()->registerClass<VESPERSUserConfiguration>();
 	AMDbObjectSupport::s()->registerClass<VESPERSTimeScanConfiguration>();
 	AMDbObjectSupport::s()->registerClass<VESPERSSetStringActionInfo>();
+	AMDbObjectSupport::s()->registerClass<VESPERSTimedLineScanConfiguration>();
 
 	AMOldDetectorViewSupport::registerClass<VESPERSCCDDetectorView, VESPERSRoperCCDDetector>();
 	AMOldDetectorViewSupport::registerClass<VESPERSCCDDetectorView, VESPERSMarCCDDetector>();
@@ -266,6 +267,9 @@ void VESPERSAppController::setupExporterOptions()
 	if(vespersDefault->id() > 0)
 		AMAppControllerSupport::registerClass<VESPERSTimeScanConfiguration, VESPERSExporterLineScanAscii, AMExporterOptionGeneralAscii>(vespersDefault->id());
 
+	vespersDefault = VESPERS::buildStandardExporterOption("VESPERSTimeLineScanDefault", true, false, false, true);
+	if(vespersDefault->id() > 0)
+		AMAppControllerSupport::registerClass<VESPERSTimedLineScanConfiguration, VESPERSExporter2DAscii, AMExporterOptionGeneralAscii>(vespersDefault->id());
 }
 
 void VESPERSAppController::setupUserInterface()

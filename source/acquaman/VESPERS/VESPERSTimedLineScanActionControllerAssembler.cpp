@@ -22,6 +22,20 @@ bool VESPERSTimedLineScanActionControllerAssembler::generateActionTreeImplmentat
 	AMAxisValueFinishedAction *axisValueFinishedAction = new AMAxisValueFinishedAction(axisValueFinishedInfo);
 	timeoutLoopTree->addSubAction(axisValueFinishedAction);
 
+	QList<AMAction3*> detectorInsertionPoints = findInsertionPoints(timeoutLoopTree);
+
+	for(int x = 0; x < detectorInsertionPoints.count(); x++){
+
+		AMListAction3 *castParentToListAction = qobject_cast<AMListAction3*>(detectorInsertionPoints.at(x)->parentAction());
+
+		if(castParentToListAction){
+
+			int indexOfAction = castParentToListAction->indexOfSubAction(detectorInsertionPoints.at(x));
+			castParentToListAction->insertSubAction(generateActionListForDetectorAcquisition(), indexOfAction);
+			castParentToListAction->deleteSubAction(indexOfAction+1);
+		}
+	}
+
 	AMListAction3 *scanActions = new AMSequentialListAction3(new AMSequentialListActionInfo3("Timed Line Scan Actions", "Timed Line Scan Actions"));
 	scanActions->addSubAction(new AMAxisStartedAction(new AMAxisStartedActionInfo(QString("Time Axis"), AMScanAxis::StepAxis)));
 	scanActions->addSubAction(generateActionListForDetectorInitialization());

@@ -9,6 +9,10 @@ VESPERSTimedLineScanConfiguration::VESPERSTimedLineScanConfiguration(QObject *pa
 	timePerAcquisition_ = 0.0;
 	iterations_ = 0;
 
+	AMScanAxisRegion *region = new AMScanAxisRegion;
+	AMScanAxis *axis = new AMScanAxis(AMScanAxis::StepAxis, region);
+	appendScanAxis(axis);
+
 	connect(this, SIGNAL(timePerAcquisitionChanged(double)), this, SLOT(computeTotalTime()));
 	connect(this, SIGNAL(iterationsChanged(int)), this, SLOT(computeTotalTime()));
 }
@@ -82,6 +86,9 @@ void VESPERSTimedLineScanConfiguration::setTimePerAcquisition(double newTotalTim
 	if (timePerAcquisition_ != newTotalTime){
 
 		timePerAcquisition_ = newTotalTime;
+		scanAxes_.at(1)->regionAt(0)->setRegionStart(0);
+		scanAxes_.at(1)->regionAt(0)->setRegionStep(timePerAcquisition_);
+		scanAxes_.at(1)->regionAt(0)->setRegionEnd(timePerAcquisition_*iterations_);
 		emit timePerAcquisitionChanged(timePerAcquisition_);
 		setModified(true);
 	}
@@ -92,6 +99,9 @@ void VESPERSTimedLineScanConfiguration::setIterations(int newIteration)
 	if (iterations_ != newIteration){
 
 		iterations_ = newIteration;
+		scanAxes_.at(1)->regionAt(0)->setRegionStart(0);
+		scanAxes_.at(1)->regionAt(0)->setRegionStep(timePerAcquisition_);
+		scanAxes_.at(1)->regionAt(0)->setRegionEnd(timePerAcquisition_*iterations_);
 		emit iterationsChanged(iterations_);
 		setModified(true);
 	}
