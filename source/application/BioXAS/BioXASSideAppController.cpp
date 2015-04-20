@@ -61,6 +61,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/BioXAS/BioXASSSRLMonochromatorConfigurationView.h"
 #include "ui/BioXAS/BioXASXIAFiltersView.h"
 #include "ui/BioXAS/BioXASCarbonFilterFarmView.h"
+#include "ui/BioXAS/BioXASDBHRMirrorView.h"
 
 BioXASSideAppController::BioXASSideAppController(QObject *parent)
 	: AMAppController(parent)
@@ -70,6 +71,7 @@ BioXASSideAppController::BioXASSideAppController(QObject *parent)
 	jjSlitView_ = 0;
 	xiaFiltersView_ = 0;
 	carbonFilterFarmView_ = 0;
+	dbhrView_ = 0;
 
 	persistentPanel_ = 0;
 
@@ -210,6 +212,9 @@ void BioXASSideAppController::setupUserInterface()
 	// Create carbon filter farm view.
 	carbonFilterFarmView_ = new BioXASCarbonFilterFarmView(BioXASSideBeamline::bioXAS()->carbonFilterFarm());
 
+	// Create DBHR mirror view.
+	dbhrView_ = new BioXASDBHRMirrorView(BioXASSideBeamline::bioXAS()->dbhrMirror());
+
 	// Create scaler view, if scaler is present and connected.
 	if (BioXASSideBeamline::bioXAS()->scaler()->isConnected()) {
 		onScalerConnected();
@@ -226,10 +231,11 @@ void BioXASSideAppController::setupUserInterface()
 
 	// Add views to 'General'.
 	mw_->insertHeading("General", 0);
-	mw_->addPane(monoConfigView_, "General", "Monochromator", ":/system-software-update.png");
+	mw_->addPane(createSqueezeGroupBoxWithView("", monoConfigView_), "General", "Monochromator", ":/system-software-update.png");
 	mw_->addPane(createSqueezeGroupBoxWithView("", jjSlitView_), "General", "JJ Slit", ":/system-software-update.png");
 	mw_->addPane(createSqueezeGroupBoxWithView("", xiaFiltersView_), "General", "XIA Filters", ":/system-software-update.png");
 	mw_->addPane(createSqueezeGroupBoxWithView("", carbonFilterFarmView_), "General", "Carbon filter farm", ":/system-software-update.png");
+	mw_->addPane(createSqueezeGroupBoxWithView("", dbhrView_), "General", "DBHR Mirror", ":/system-software-update.png");
 
 	// Add views to 'Detectors'.
 	mw_->insertHeading("Detectors", 1);

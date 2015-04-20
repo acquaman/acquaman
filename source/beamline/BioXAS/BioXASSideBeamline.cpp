@@ -241,6 +241,10 @@ void BioXASSideBeamline::onConnectionChanged()
 				carbonFilterFarm_->isConnected() &&
 				xiaFilters_->isConnected() &&
 
+				// Mirrors.
+
+				dbhrMirror_->isConnected() &&
+
 				// Control sets.
 				pressureSet_->isConnected() &&
 				//valveSet_->isConnected() &&
@@ -786,6 +790,9 @@ void BioXASSideBeamline::setupComponents()
 
 	jjSlit_ = new CLSJJSlit("Side BL", "JJSlit of the side beamline", "PSL1607-6-I22-01", "PSL1607-6-I22-02");
 	connect(jjSlit_, SIGNAL(connected(bool)), this, SLOT(onConnectionChanged()));
+
+	dbhrMirror_ = new BioXASSideDBHRMirror(this);
+	connect( dbhrMirror_, SIGNAL(connectedChanged(bool)), this, SLOT(onConnectionChanged()) );
 }
 
 void BioXASSideBeamline::setupControlsAsDetectors()
@@ -844,6 +851,12 @@ void BioXASSideBeamline::setupExposedControls()
 	// Carbon filter farm control.
 
 	addExposedControl(carbonFilterFarm_);
+
+	// Mirror controls.
+
+	addExposedControl(dbhrMirror_->pitchControl());
+	addExposedControl(dbhrMirror_->m1VerticalControl());
+	addExposedControl(dbhrMirror_->m2VerticalControl());
 
 	// Detector stage controls.
 
