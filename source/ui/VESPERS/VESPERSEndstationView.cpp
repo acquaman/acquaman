@@ -378,7 +378,7 @@ void VESPERSEndstationLimitsView::saveFile()
 	QString filePath = VESPERS::getHomeDirectory() % "/acquaman/build/endstation.config";
 
 	if (filePath.contains("hunterd"))
-		filePath = "/home/hunterd/beamline/programming/VESPERSAcquaman-build-desktop/build";
+		filePath = "/home/hunterd/beamline/programming/VESPERSAcquaman-build-desktop/build/endstation.config";
 
 	QFile file(filePath);
 
@@ -427,7 +427,7 @@ void VESPERSEndstationLimitsView::loadFile()
 	QString filePath = VESPERS::getHomeDirectory() % "/acquaman/build/endstation.config";
 
 	if (filePath.contains("hunterd"))
-		filePath = "/home/hunterd/beamline/programming/VESPERSAcquaman-build-desktop/build";
+		filePath = "/home/hunterd/beamline/programming/VESPERSAcquaman-build-desktop/build/endstation.config";
 
 	QFile file(filePath);
 

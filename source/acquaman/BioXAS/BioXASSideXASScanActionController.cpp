@@ -72,9 +72,14 @@ QString BioXASSideXASScanActionController::beamlineSettings()
 {
 	QString notes;
 
-	notes.append(QString("Bragg motor base velocity:\t%1").arg(BioXASSideBeamline::bioXAS()->mono()->braggMotor()->EGUBaseVelocity()));
-	notes.append(QString("Bragg motor acceleration:\t%1").arg(BioXASSideBeamline::bioXAS()->mono()->braggMotor()->EGUAcceleration()));
-	notes.append(QString("Bragg motor velocity:\t%1").arg(BioXASSideBeamline::bioXAS()->mono()->braggMotor()->EGUVelocity()));
+	notes.append(QString("Bragg motor base velocity:\t%1\n").arg(BioXASSideBeamline::bioXAS()->mono()->braggMotor()->EGUBaseVelocity()));
+	notes.append(QString("Bragg motor acceleration:\t%1\n").arg(BioXASSideBeamline::bioXAS()->mono()->braggMotor()->EGUAcceleration()));
+	notes.append(QString("Bragg motor velocity:\t%1\n").arg(BioXASSideBeamline::bioXAS()->mono()->braggMotor()->EGUVelocity()));
+	notes.append(QString("Bragg motor max retries:\t%1\n").arg(BioXASSideBeamline::bioXAS()->mono()->braggMotor()->maxRetries()));
+	notes.append(QString("Bragg motor encoder move type:\t%1\n").arg(BioXASSideBeamline::bioXAS()->mono()->braggMotor()->encoderMovementType()));
+	notes.append(QString("Bragg motor encoder step soft ratio:\t%1\n").arg(BioXASSideBeamline::bioXAS()->mono()->braggMotor()->encoderStepSoftRatio()));
+	notes.append(QString("Bragg motor encoder slope:\t%1\n").arg(BioXASSideBeamline::bioXAS()->mono()->braggMotor()->encoderCalibrationSlope()));
+	notes.append(QString("Bragg motor step calibration slope:\t%1\n").arg(BioXASSideBeamline::bioXAS()->mono()->braggMotor()->stepCalibrationSlope()));
 
 	return notes;
 }
