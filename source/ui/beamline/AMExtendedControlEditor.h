@@ -148,7 +148,9 @@ protected:
 
 	QLabel* valueLabel_;
 	QLabel* unitsLabel_;
-//	QHBoxLayout* statusLayout_;
+	QHBoxLayout* valueLayout_;
+	QHBoxLayout* statusLayout_;
+	QVBoxLayout* layout_;
 	QLabel* statusLabel_;
 	AMExtendedControlEditorStyledInputDialog* dialog_;
 

@@ -73,23 +73,23 @@ AMExtendedControlEditor::AMExtendedControlEditor(AMControl* control, AMControl* 
 	statusLabel_->hide();
 
 	// Layout:
-	QHBoxLayout* valueLayout = new QHBoxLayout();
-	valueLayout->addWidget(valueLabel_, 2);
-	valueLayout->addSpacing(2);
-	valueLayout->addWidget(unitsLabel_, 0);
-	valueLayout->setMargin(2);
+	valueLayout_ = new QHBoxLayout();
+	valueLayout_->addWidget(valueLabel_, 2);
+	valueLayout_->addSpacing(2);
+	valueLayout_->addWidget(unitsLabel_, 0);
+	valueLayout_->setMargin(2);
 
-	QHBoxLayout *statusLayout = new QHBoxLayout();
-	statusLayout->addWidget(statusLabel_, Qt::AlignCenter);
-	statusLayout->setStretch(0, 2);
+	statusLayout_ = new QHBoxLayout();
+	statusLayout_->addWidget(statusLabel_, Qt::AlignCenter);
+	statusLayout_->setStretch(0, 2);
 
-	QVBoxLayout* layout = new QVBoxLayout();
-	layout->addLayout(valueLayout);
-	layout->addLayout(statusLayout);
-	layout->setSpacing(1);
-	layout->setMargin(2);
+	layout_ = new QVBoxLayout();
+	layout_->addLayout(valueLayout_);
+	layout_->addLayout(statusLayout_);
+	layout_->setSpacing(1);
+	layout_->setMargin(2);
 
-	setLayout(layout);
+	setLayout(layout_);
 	setHappy(false);
 	setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
 
@@ -110,7 +110,6 @@ AMExtendedControlEditor::AMExtendedControlEditor(AMControl* control, AMControl* 
 	// Apply current control settings.
 	setControl(control);
 	setStatusControl(statusTagControl);
-
 }
 
 double AMExtendedControlEditor::setpoint() const{
@@ -125,7 +124,7 @@ bool AMExtendedControlEditor::setControlFormat(const QChar& format, int precisio
 	if(format == 'g' || format == 'G' || format == 'e' || format == 'E' || format == 'f'){
 		format_ = format;
 		precision_ = precision;
-		if(control_->isConnected())
+		if(control_ && control_->isConnected())
 			onValueChanged(control_->value());
 		return true;
 	}
@@ -286,33 +285,31 @@ void AMExtendedControlEditor::onMotion(bool moving) {
 
 void AMExtendedControlEditor::onEditStart() {
 
-	if (control_) {
-		if(readOnly_ || !control_->canMove()) {
-			QApplication::beep();
-			return;
-		}
-
-		dialog_->setDoubleMaximum(control_->maximumValue());
-		dialog_->setDoubleMinimum(control_->minimumValue());
-
-		if(configureOnly_ && control_->isEnum() && control_->moveEnumNames().contains(valueLabel_->text()))
-			dialog_->setDoubleValue(control_->moveEnumNames().indexOf(valueLabel_->text()));
-		else if (control_->isEnum() && control_->moveEnumNames().contains(valueLabel_->text()))
-			dialog_->setDoubleValue(control_->moveEnumNames().indexOf(valueLabel_->text()));
-		else if(configureOnly_ && ! control_->isEnum()){
-			bool conversionOk = false;
-			double valueForText = valueLabel_->text().toDouble(&conversionOk);
-			if(conversionOk)
-				dialog_->setDoubleValue(valueForText);
-		}
-		else
-			dialog_->setDoubleValue(control_->value());
-		dialog_->setDoubleDecimals(precision_);
-		dialog_->setLabelText(control_->objectName());
-		dialog_->setSuffix(control_->units());
-		dialog_->show();
-		dialog_->move( mapToGlobal(QPoint(width()/2,height()/2)) - QPoint(dialog_->width()/2, dialog_->height()/2) );
+	if(!control_ || readOnly_ || !control_->canMove()) {
+		QApplication::beep();
+		return;
 	}
+
+	dialog_->setDoubleMaximum(control_->maximumValue());
+	dialog_->setDoubleMinimum(control_->minimumValue());
+
+	if(configureOnly_ && control_->isEnum() && control_->moveEnumNames().contains(valueLabel_->text()))
+		dialog_->setDoubleValue(control_->moveEnumNames().indexOf(valueLabel_->text()));
+	else if (control_->isEnum() && control_->moveEnumNames().contains(valueLabel_->text()))
+		dialog_->setDoubleValue(control_->moveEnumNames().indexOf(valueLabel_->text()));
+	else if(configureOnly_ && ! control_->isEnum()){
+		bool conversionOk = false;
+		double valueForText = valueLabel_->text().toDouble(&conversionOk);
+		if(conversionOk)
+			dialog_->setDoubleValue(valueForText);
+	}
+	else
+		dialog_->setDoubleValue(control_->value());
+	dialog_->setDoubleDecimals(precision_);
+	dialog_->setLabelText(control_->objectName());
+	dialog_->setSuffix(control_->units());
+	dialog_->show();
+	dialog_->move( mapToGlobal(QPoint(width()/2,height()/2)) - QPoint(dialog_->width()/2, dialog_->height()/2) );
 }
 
 void AMExtendedControlEditor::onNewSetpoint(double newVal){

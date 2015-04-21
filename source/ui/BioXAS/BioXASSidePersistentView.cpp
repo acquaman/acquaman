@@ -22,6 +22,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "BioXASSidePersistentView.h"
 #include "ui/BioXAS/BioXASSIS3820ScalerChannelsView.h"
 #include "beamline/BioXAS/BioXASSideBeamline.h"
+#include "ui/beamline/AMControlEditor.h"
 
 BioXASSidePersistentView::BioXASSidePersistentView(QWidget *parent) :
     QWidget(parent)
@@ -53,6 +54,15 @@ BioXASSidePersistentView::BioXASSidePersistentView(QWidget *parent) :
 	channelViews_->setTitle("Scaler channels");
 	channelViews_->setLayout(channelsLayout);
 
+	// AMExtendedControlEditor and AMControlEditor testing.
+
+	AMExtendedControlEditor *extendedEditor = new AMExtendedControlEditor(0);
+	AMControlEditor *controlEditor = new AMControlEditor(0);
+
+	QVBoxLayout *testingLayout = new QVBoxLayout();
+	testingLayout->addWidget(extendedEditor);
+	testingLayout->addWidget(controlEditor);
+
 	// Create and set main layout.
 
 	QVBoxLayout *layout = new QVBoxLayout();
@@ -60,6 +70,7 @@ BioXASSidePersistentView::BioXASSidePersistentView(QWidget *parent) :
 	layout->addWidget(regionControlEditor_);
 	layout->addWidget(braggControlEditor_);
 	layout->addWidget(channelViews_);
+	layout->addLayout(testingLayout);
 	layout->addStretch();
 
 	setLayout(layout);
