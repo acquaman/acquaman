@@ -7,12 +7,23 @@ BioXASDBHRMirrorView::BioXASDBHRMirrorView(BioXASDBHRMirror *mirror, QWidget *pa
 
 	mirror_ = 0;
 
-	layout_ = new QVBoxLayout();
-	setLayout(layout_);
+	pitchEditor_ = new AMExtendedControlEditor(0);
+	pitchEditor_->setTitle("Pitch");
 
-	pitchEditor_ = 0;
-	m1Editor_ = 0;
-	m2Editor_ = 0;
+	m1Editor_ = new AMExtendedControlEditor(0);
+	m1Editor_->setTitle("M1 Vertical");
+
+	m2Editor_ = new AMExtendedControlEditor(0);
+	m2Editor_->setTitle("M2 Vertical");
+
+	// Create and set layouts.
+
+	QVBoxLayout *layout = new QVBoxLayout();
+	layout->addWidget(pitchEditor_);
+	layout->addWidget(m1Editor_);
+	layout->addWidget(m2Editor_);
+
+	setLayout(layout);
 
 	// Current settings.
 
@@ -30,41 +41,22 @@ void BioXASDBHRMirrorView::setMirror(BioXASDBHRMirror *newMirror)
 
 		if (mirror_) {
 
-			// remove mirror editors from view layout.
+			// Clear UI elements.
 
-			layout_->removeWidget(pitchEditor_);
-			layout_->removeWidget(m1Editor_);
-			layout_->removeWidget(m2Editor_);
-
-			// delete mirror editors.
-
-			pitchEditor_->deleteLater();
-			pitchEditor_ = 0;
-
-			m1Editor_->deleteLater();
-			m1Editor_ = 0;
-
-			m2Editor_->deleteLater();
-			m2Editor_ = 0;
+			pitchEditor_->setControl(0);
+			m1Editor_->setControl(0);
+			m2Editor_->setControl(0);
 		}
 
 		mirror_ = newMirror;
 
 		if (mirror_) {
 
-			// create mirror editors, add to view layout.
+			// Update UI elements.
 
-			pitchEditor_ = new AMExtendedControlEditor(mirror_->pitchControl());
-			pitchEditor_->setTitle("Pitch");
-			layout_->addWidget(pitchEditor_);
-
-			m1Editor_ = new AMExtendedControlEditor(mirror_->m1VerticalControl());
-			m1Editor_->setTitle("M1 Vertical");
-			layout_->addWidget(m1Editor_);
-
-			m2Editor_ = new AMExtendedControlEditor(mirror_->m2VerticalControl());
-			m2Editor_->setTitle("M2 Vertical");
-			layout_->addWidget(m2Editor_);
+			pitchEditor_->setControl(mirror_->pitchControl());
+			m1Editor_->setControl(mirror_->m1VerticalControl());
+			m2Editor_->setControl(mirror_->m2VerticalControl());
 		}
 
 		emit mirrorChanged(mirror_);
