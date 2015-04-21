@@ -999,7 +999,8 @@ void VESPERSAppController::onUserConfigurationLoadedFromDb()
 			<< lineScanConfiguration_
 			<< energyScanConfiguration_
 			<< map3DScanConfiguration_
-			<< timeScanConfiguration_;
+			<< timeScanConfiguration_
+			<< timedLineScanConfiguration_;
 
 	persistentView_->motorGroupView()->setMotorGroupView(VESPERSBeamline::vespers()->motorGroupName(userConfiguration_->motor()));
 
@@ -1022,6 +1023,7 @@ void VESPERSAppController::onUserConfigurationLoadedFromDb()
 		exafsScanConfiguration_->addRegionOfInterest(region);
 		lineScanConfiguration_->addRegionOfInterest(region);
 		timeScanConfiguration_->addRegionOfInterest(region);
+		timedLineScanConfiguration_->addRegionOfInterest(region);
 	}
 
 	// This is connected here because we want to listen to the detectors for updates, but don't want to double add regions on startup.
@@ -1037,6 +1039,7 @@ void VESPERSAppController::onRegionOfInterestAdded(AMRegionOfInterest *region)
 	exafsScanConfiguration_->addRegionOfInterest(region);
 	lineScanConfiguration_->addRegionOfInterest(region);
 	timeScanConfiguration_->addRegionOfInterest(region);
+	timedLineScanConfiguration_->addRegionOfInterest(region);
 }
 
 void VESPERSAppController::onRegionOfInterestRemoved(AMRegionOfInterest *region)
@@ -1047,4 +1050,5 @@ void VESPERSAppController::onRegionOfInterestRemoved(AMRegionOfInterest *region)
 	exafsScanConfiguration_->removeRegionOfInterest(region);
 	lineScanConfiguration_->removeRegionOfInterest(region);
 	timeScanConfiguration_->removeRegionOfInterest(region);
+	timedLineScanConfiguration_->removeRegionOfInterest(region);
 }

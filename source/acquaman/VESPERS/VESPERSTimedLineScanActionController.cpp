@@ -4,13 +4,15 @@
 #include "beamline/AMBeamline.h"
 #include "dataman/datastore/AMCDFDataStore.h"
 #include "dataman/datastore/AMInMemoryDataStore.h"
+#include "analysis/AM3DAdditionAB.h"
+#include "analysis/AM2DNormalizationAB.h"
 
 VESPERSTimedLineScanActionController::VESPERSTimedLineScanActionController(VESPERSTimedLineScanConfiguration *configuration, QObject *parent)
 	: VESPERSSpatialLineScanActionController(configuration, parent)
 {
 	timedConfiguration_ = configuration;
 
-	int yPoints = int(round((double(configuration_->scanAxisAt(1)->regionAt(0)->regionEnd()) - double(configuration_->scanAxisAt(1)->regionAt(0)->regionStart()))/double(configuration_->scanAxisAt(1)->regionAt(0)->regionStep()))) + 1;
+	int yPoints = int(round((double(configuration_->scanAxisAt(1)->regionAt(0)->regionEnd()) - double(configuration_->scanAxisAt(1)->regionAt(0)->regionStart()))/double(configuration_->scanAxisAt(1)->regionAt(0)->regionStep())));
 	scan_->rawData()->addScanAxis(AMAxisInfo("Time", yPoints, "Time", "s"));
 
 	VESPERS::FluorescenceDetectors xrfDetector = configuration_->fluorescenceDetector();
@@ -70,6 +72,8 @@ void VESPERSTimedLineScanActionController::prefillScanPoints()
 			scan_->rawData()->setAxisValue(1, insertIndex.j(), starts.at(1) + j*steps.at(1));
 		}
 	}
+
+	scan_->rawData()->endInsertRows();
 }
 
 void VESPERSTimedLineScanActionController::buildScanController()
@@ -183,3 +187,53 @@ void VESPERSTimedLineScanActionController::buildScanController()
 		setFailed();
 }
 
+void VESPERSTimedLineScanActionController::buildScanControllerImplementation()
+{
+	VESPERS::FluorescenceDetectors xrfDetector = configuration_->fluorescenceDetector();
+	AMXRFDetector *detector = 0;
+
+	if (xrfDetector.testFlag(VESPERS::SingleElement))
+		detector = qobject_cast<AMXRFDetector *>(AMBeamline::bl()->exposedDetectorByName("SingleElementVortex"));
+
+	else if (xrfDetector.testFlag(VESPERS::FourElement))
+		detector = qobject_cast<AMXRFDetector *>(AMBeamline::bl()->exposedDetectorByName("FourElementVortex"));
+
+	if (detector){
+
+		detector->removeAllRegionsOfInterest();
+
+		QList<AMDataSource *> i0Sources = QList<AMDataSource *>()
+				<< scan_->dataSourceAt(scan_->indexOfDataSource("SplitIonChamber"))
+				   << scan_->dataSourceAt(scan_->indexOfDataSource("PreKBIonChamber"))
+					  << scan_->dataSourceAt(scan_->indexOfDataSource("MiniIonChamber"));
+
+		AMDataSource *spectraSource = 0;
+
+		if (xrfDetector.testFlag(VESPERS::SingleElement) && xrfDetector.testFlag(VESPERS::FourElement)){
+
+			AM3DAdditionAB *sumSpectra = new AM3DAdditionAB("SingleAndFourSpectra");
+			sumSpectra->setInputDataSources(QList<AMDataSource *>() << scan_->dataSourceAt(scan_->indexOfDataSource("SingleElementVortex")) << scan_->dataSourceAt(scan_->indexOfDataSource("FourElementVortex")));
+			scan_->addAnalyzedDataSource(sumSpectra, false, true);
+			spectraSource = sumSpectra;
+		}
+
+		else
+			spectraSource = scan_->dataSourceAt(scan_->indexOfDataSource(detector->name()));
+
+		foreach (AMRegionOfInterest *region, configuration_->regionsOfInterest()){
+
+			AMRegionOfInterestAB *regionAB = (AMRegionOfInterestAB *)region->valueSource();
+			AMRegionOfInterestAB *newRegion = new AMRegionOfInterestAB(regionAB->name().remove(' '));
+			newRegion->setBinningRange(regionAB->binningRange());
+			newRegion->setInputDataSources(QList<AMDataSource *>() << spectraSource);
+			scan_->addAnalyzedDataSource(newRegion, false, true);
+			detector->addRegionOfInterest(region);
+
+			AM2DNormalizationAB *normalizedRegion = new AM2DNormalizationAB(QString("norm_%1").arg(newRegion->name()));
+			normalizedRegion->setInputDataSources(QList<AMDataSource *>() << newRegion << i0Sources);
+			normalizedRegion->setDataName(newRegion->name());
+			normalizedRegion->setNormalizationName(i0Sources.at(int(configuration_->incomingChoice()))->name());
+			scan_->addAnalyzedDataSource(normalizedRegion, true, false);
+		}
+	}
+}
