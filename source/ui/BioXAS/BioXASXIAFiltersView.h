@@ -34,8 +34,6 @@ protected:
 	/// The filters being viewed.
 	BioXASXIAFilters *filters_;
 
-	/// The main layout.
-	QVBoxLayout *layout_;
 	/// The editor for the first filter.
 	AMExtendedControlEditor *editor1_;
 	/// The editor for the second filter.
