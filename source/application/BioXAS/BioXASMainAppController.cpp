@@ -41,6 +41,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/export/AMExporterAthena.h"
 #include "dataman/AMRun.h"
 #include "dataman/AMScanAxisEXAFSRegion.h"
+#include "dataman/BioXAS/BioXASUserConfiguration.h"
 
 #include "acquaman/BioXAS/BioXASMainXASScanConfiguration.h"
 
@@ -197,6 +198,7 @@ void BioXASMainAppController::registerClasses()
 
 	AMDbObjectSupport::s()->registerClass<BioXASMainXASScanConfiguration>();
 	AMDbObjectSupport::s()->registerClass<BioXASScanConfigurationDbObject>();
+	AMDbObjectSupport::s()->registerClass<BioXASUserConfiguration>();
 }
 
 void BioXASMainAppController::setupExporterOptions()

@@ -152,6 +152,8 @@ void BioXASSideAppController::onBeamlineConnected()
 void BioXASSideAppController::registerClasses()
 {
 	AMDbObjectSupport::s()->registerClass<BioXASSideXASScanConfiguration>();
+	AMDbObjectSupport::s()->registerClass<BioXASScanConfigurationDbObject>();
+	AMDbObjectSupport::s()->registerClass<BioXASUserConfiguration>();
 	AMDbObjectSupport::s()->registerClass<BioXASXRFScanConfiguration>();
 }
 
