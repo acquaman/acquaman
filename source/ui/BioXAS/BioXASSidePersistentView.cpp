@@ -54,19 +54,6 @@ BioXASSidePersistentView::BioXASSidePersistentView(QWidget *parent) :
 	channelViews_->setTitle("Scaler channels");
 	channelViews_->setLayout(channelsLayout);
 
-	// AMExtendedControlEditor and AMControlEditor testing.
-
-	AMExtendedControlEditor *extendedEditor = new AMExtendedControlEditor(0);
-	extendedEditor->setControl(BioXASSideBeamline::bioXAS()->dbhrMirror()->pitchControl());
-
-	AMControlEditor *controlEditor = new AMControlEditor(0);
-	controlEditor->setControl(BioXASSideBeamline::bioXAS()->dbhrMirror()->pitchControl());
-	controlEditor->setSecondaryControl(BioXASSideBeamline::bioXAS()->dbhrMirror()->m1VerticalControl());
-
-	QVBoxLayout *testingLayout = new QVBoxLayout();
-	testingLayout->addWidget(extendedEditor);
-	testingLayout->addWidget(controlEditor);
-
 	// Create and set main layout.
 
 	QVBoxLayout *layout = new QVBoxLayout();
@@ -74,7 +61,6 @@ BioXASSidePersistentView::BioXASSidePersistentView(QWidget *parent) :
 	layout->addWidget(regionControlEditor_);
 	layout->addWidget(braggControlEditor_);
 	layout->addWidget(channelViews_);
-	layout->addLayout(testingLayout);
 	layout->addStretch();
 
 	setLayout(layout);
