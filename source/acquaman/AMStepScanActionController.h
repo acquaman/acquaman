@@ -91,7 +91,7 @@ protected:
 	void writeDataToFiles();
 
 	/// Method that prefills the scan's raw data store for 2D and higher dimensionality scans.
-	void prefillScanPoints();
+	virtual void prefillScanPoints();
 
 	/// The assembler that takes in the region scan configuration and turns it into a tree of scanning actions.
 	AMScanActionControllerScanAssembler *scanAssembler_;

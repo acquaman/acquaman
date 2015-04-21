@@ -232,7 +232,7 @@ VESPERSSpatialLineScanActionController::VESPERSSpatialLineScanActionController(V
 	configuration_->setDetectorConfigurations(detectors);
 
 	secondsElapsed_ = 0;
-	secondsTotal_ = configuration_->totalTime();
+	secondsTotal_ = configuration_->totalTime(true);
 	elapsedTime_.setInterval(1000);
 	connect(this, SIGNAL(started()), &elapsedTime_, SLOT(start()));
 	connect(this, SIGNAL(cancelled()), &elapsedTime_, SLOT(stop()));
