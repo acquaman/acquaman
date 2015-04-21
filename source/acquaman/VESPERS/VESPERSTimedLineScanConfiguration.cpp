@@ -113,3 +113,35 @@ void VESPERSTimedLineScanConfiguration::computeTotalTimeImplementation()
 	setExpectedDuration(totalTime_);
 	emit totalTimeChanged(totalTime_);
 }
+
+QString VESPERSTimedLineScanConfiguration::headerText() const
+{
+	QString header("Configuration of the Scan\n\n");
+
+	header.append(fluorescenceHeaderString(fluorescenceDetector()));
+	header.append(incomingChoiceHeaderString(incomingChoice()));
+	header.append(regionsOfInterestHeaderString(regionsOfInterest()) % "\n");
+	header.append(motorHeaderString(motor()));
+	header.append(ccdDetectorHeaderString(ccdDetector()));
+
+	header.append("\n");
+	header.append("Line Dimensions\n");
+	header.append(QString("Start:\t%1 mm\tEnd:\t%2 mm\n").arg(start()).arg(end()));
+	header.append(QString("Step Size:\t%1 mm\n").arg(step()));
+	header.append(QString("Time per point: %1 s\n").arg(time()));
+
+	header.append("\n");
+	header.append("Time Dimensions\n");
+	header.append(QString("Time Per Acquisition:\t%1 s and # of iterations: %2\n").arg(start()).arg(end()));
+
+	header.append("\nEven though the time in the time column appears to be the same, the actual time would be the listed time plus the point in the line times the time.\n");
+	header.append("\nExample: 5 point line scan with 1 second time per point while waiting for 20 seconds between line scans should read 0, 1, 2, 3, 4, 20, 21, 22, 23, 24, etc.\n");
+
+	header.append("\n");
+	header.append(QString("Focus position:\t%1 mm\n").arg(normalPosition()));
+
+	if (hasOtherPosition())
+		header.append(QString("%1 position: %2 mm\n").arg(otherMotorString(motor())).arg(otherPosition()));
+
+	return header;
+}

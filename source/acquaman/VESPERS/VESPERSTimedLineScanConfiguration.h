@@ -37,6 +37,9 @@ public:
 	/// A human-readable synopsis of this scan configuration. Can be re-implemented to proved more details. Used by scan action to set the main text in the action view.
 	virtual QString detailedDescription() const;
 
+	/// Get a nice looking string that contains all the standard information in an XAS scan.   Used when exporting.
+	QString headerText() const;
+
 	/// Returns the total time for the scan.
 	double timePerAcquisition() const;
 	/// Returns the number of iterations.
