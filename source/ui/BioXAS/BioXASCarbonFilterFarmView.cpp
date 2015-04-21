@@ -7,12 +7,26 @@ BioXASCarbonFilterFarmView::BioXASCarbonFilterFarmView(BioXASCarbonFilterFarmCon
 	// Initialize member variables.
 
 	filterFarm_ = 0;
-	editor_ = 0;
 
-	// Create and set main layout.
+	editor_ = new AMExtendedControlEditor(0);
 
-	layout_ = new QVBoxLayout();
-	setLayout(layout_);
+	upstreamEditor_ = new AMExtendedControlEditor(0);
+	downstreamEditor_ = new AMExtendedControlEditor(0);
+
+	// Create and set layouts.
+
+	QVBoxLayout *subControlLayout = new QVBoxLayout();
+	subControlLayout->addWidget(upstreamEditor_);
+	subControlLayout->addWidget(downstreamEditor_);
+
+	QGroupBox *subControls = new QGroupBox("Sub-controls");
+	subControls->setLayout(subControlLayout);
+
+	QVBoxLayout *layout = new QVBoxLayout();
+	layout->addWidget(editor_);
+	layout->addWidget(subControls);
+
+	setLayout(layout);
 
 	// Current settings.
 
@@ -32,19 +46,22 @@ void BioXASCarbonFilterFarmView::setFilterFarm(BioXASCarbonFilterFarmControl *ne
 
 			// Clear UI elements.
 
-			layout_->removeWidget(editor_);
-			editor_->deleteLater();
-			editor_ = 0;
+			editor_->setControl(0);
+
+			upstreamEditor_->setControl(0);
+			downstreamEditor_->setControl(0);
 		}
 
 		filterFarm_ = newFilterFarm;
 
 		if (filterFarm_) {
 
-			// Create new UI elements.
+			// Update UI elements.
 
-			editor_ = new AMExtendedControlEditor(filterFarm_);
-			layout_->addWidget(editor_);
+			editor_->setControl(filterFarm_);
+
+			upstreamEditor_->setControl(filterFarm_->upstreamActuatorControl());
+			downstreamEditor_->setControl(filterFarm_->downstreamActuatorControl());
 		}
 
 		emit filterFarmChanged(filterFarm_);
