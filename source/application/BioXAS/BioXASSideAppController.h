@@ -26,7 +26,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 class QGroupBox;
 class QWidget;
-class CLSSIS3820ScalerView;
+class BioXASSIS3820ScalerView;
 class CLSJJSlitView;
 class BioXASSidePersistentView;
 class BioXASSideXASScanConfiguration;
@@ -73,7 +73,7 @@ protected:
 	virtual void onCurrentScanActionFinishedImplementation(AMScanAction *action);
 
 	// Things to do on startup.
-	/// Registers all of the necessary classes that are VESPERS specific.
+	/// Registers all of the necessary classes that are specific to this beamline.
 	void registerClasses();
 	/// Sets up all of the exporter options for the various scan types.
 	void setupExporterOptions();
@@ -89,7 +89,7 @@ protected:
 
 protected:
 	/// View for the BioXAS Side scaler.
-	CLSSIS3820ScalerView *scalerView_;
+	BioXASSIS3820ScalerView *scalerView_;
 	/// The mono configuration view.
 	BioXASSSRLMonochromatorConfigurationView *monoConfigView_;
 	/// The JJ slit view
