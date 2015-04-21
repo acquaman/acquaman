@@ -191,13 +191,11 @@ void AMControlEditor::setSecondaryControl(AMControl *newControl)
 		secondaryControl_ = newControl;
 
 		if (secondaryControl_) {
+			connect( secondaryControl_, SIGNAL(connected(bool)), this, SLOT(onSecondaryConnectedChanged()) );
 			connect(secondaryControl_, SIGNAL(valueChanged(double)), this, SLOT(onSecondaryValueChanged(double)));
 			connect(secondaryControl_, SIGNAL(unitsChanged(QString)), this, SLOT(onSecondaryUnitsChanged(QString)));
 
-			if (secondaryControl_->isConnected()) {
-				onSecondaryValueChanged(secondaryControl_->value());
-				onSecondaryUnitsChanged(secondaryControl_->units());
-			}
+			onSecondaryConnectedChanged();
 
 			// if the secondary control is null but the primary control is not, can update value and units labels.
 		} else if (control_ && control_->isConnected()) {
@@ -404,6 +402,14 @@ void AMControlEditor::onNewSetpointChosen(double value)
 void AMControlEditor::onDisplayPrecisionChanged(int displayPrecision)
 {
 	dialog_->setDoubleDecimals(displayPrecision);
+}
+
+void AMControlEditor::onSecondaryConnectedChanged()
+{
+	if (secondaryControl_ && secondaryControl_->isConnected()) {
+		onSecondaryValueChanged(secondaryControl_->value());
+		onSecondaryUnitsChanged(secondaryControl_->units());
+	}
 }
 
 void AMControlEditor::onSecondaryValueChanged(double newValue)

@@ -106,6 +106,8 @@ protected slots:
 	void onUnitsChanged(const QString& units);
 	/// Called when the control's display precision changes, updates the number of decimals for the setpoint box.
 	void onDisplayPrecisionChanged(int displayPrecision);
+	/// Called when the secondary control's connected state changes, updates the displayed value and units.
+	void onSecondaryConnectedChanged();
 	/// Called when the secondary control's value changes, updates the secondaryValueLabel_.
 	void onSecondaryValueChanged(double newValue);
 	/// Called when the secondary control's units change, updates the value suffix.

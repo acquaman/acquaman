@@ -61,6 +61,7 @@ BioXASSidePersistentView::BioXASSidePersistentView(QWidget *parent) :
 
 	AMControlEditor *controlEditor = new AMControlEditor(0);
 	controlEditor->setControl(BioXASSideBeamline::bioXAS()->dbhrMirror()->pitchControl());
+	controlEditor->setSecondaryControl(BioXASSideBeamline::bioXAS()->dbhrMirror()->m1VerticalControl());
 
 	QVBoxLayout *testingLayout = new QVBoxLayout();
 	testingLayout->addWidget(extendedEditor);
