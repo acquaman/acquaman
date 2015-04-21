@@ -145,14 +145,7 @@ void BioXASSideAppController::onScalerConnected()
 void BioXASSideAppController::onBeamlineConnected()
 {
 	if (BioXASSideBeamline::bioXAS()->isConnected() && !configurationView_) {
-		configuration_ = new BioXASSideXASScanConfiguration();
-		configuration_->setEnergy(10000);
 
-		configurationView_ = new BioXASSideXASScanConfigurationView(configuration_);
-
-		configurationViewHolder_ = new AMScanConfigurationViewHolder3(configurationView_);
-
-		mw_->addPane(configurationViewHolder_, "Scans", "Test Scan", ":/utilities-system-monitor.png");
 	}
 }
 
@@ -245,6 +238,17 @@ void BioXASSideAppController::setupUserInterface()
 
 	// Add right side panel.
 	mw_->addRightWidget(persistentPanel_);
+
+	// Scan configuration stuff.
+
+	configuration_ = new BioXASSideXASScanConfiguration();
+	configuration_->setEnergy(10000);
+
+	configurationView_ = new BioXASSideXASScanConfigurationView(configuration_);
+
+	configurationViewHolder_ = new AMScanConfigurationViewHolder3(configurationView_);
+
+	mw_->addPane(configurationViewHolder_, "Scans", "Test Scan", ":/utilities-system-monitor.png");
 }
 
 void BioXASSideAppController::makeConnections()
