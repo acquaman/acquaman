@@ -8,6 +8,9 @@ class VESPERSTimedLineScanConfiguration : public VESPERSSpatialLineScanConfigura
 {
 	Q_OBJECT
 
+	Q_PROPERTY(double timePerAcquisition READ timePerAcquisition WRITE setTimePerAcquisition)
+	Q_PROPERTY(int iterations READ iterations WRITE setIterations)
+
 	Q_CLASSINFO("AMDbObject_Attributes", "description=VESPERS Timed Line Scan Configuration")
 
 public:

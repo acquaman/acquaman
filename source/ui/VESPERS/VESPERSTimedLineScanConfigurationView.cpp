@@ -50,7 +50,6 @@ VESPERSTimedLineScanConfiguration * VESPERSTimedLineScanConfigurationView::timed
 void VESPERSTimedLineScanConfigurationView::onTimePerAcquisitionChanged()
 {
 	timedLineConfiguration()->setTimePerAcquisition(timePerAcquisitionBox_->value());
-	dwellTime_->setMaximum(timePerAcquisitionBox_->value());
 }
 
 void VESPERSTimedLineScanConfigurationView::onIterationsChanged()
