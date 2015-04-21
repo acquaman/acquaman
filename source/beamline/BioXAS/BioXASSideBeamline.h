@@ -226,6 +226,8 @@ public:
 	CLSBasicScalerChannelDetector* iTDetector() const { return iTDetector_; }
 	/// Returns the I2 scaler channel detector.
 	CLSBasicScalerChannelDetector* i2Detector() const { return i2Detector_; }
+	/// Returns the energy setpoint detector.
+	AMBasicControlDetectorEmulator* energySetpointDetector() const { return energySetpointDetector_; }
 	/// Returns the energy feedback detector.
 	AMBasicControlDetectorEmulator* energyFeedbackDetector() const { return energyFeedbackDetector_; }
 	/// Returns the scaler dwell time detector.
@@ -325,6 +327,7 @@ protected:
 	CLSBasicScalerChannelDetector *i0Detector_;
 	CLSBasicScalerChannelDetector *iTDetector_;
 	CLSBasicScalerChannelDetector *i2Detector_;
+	AMBasicControlDetectorEmulator *energySetpointDetector_;
 	AMBasicControlDetectorEmulator *energyFeedbackDetector_;
 	AMBasicControlDetectorEmulator *dwellTimeDetector_;
 	AMBasicControlDetectorEmulator *braggDetector_;

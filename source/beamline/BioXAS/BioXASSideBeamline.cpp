@@ -824,8 +824,12 @@ void BioXASSideBeamline::setupComponents()
 }
 
 void BioXASSideBeamline::setupControlsAsDetectors()
-{
-	energyFeedbackDetector_ = new AMBasicControlDetectorEmulator("EnergyFeedback", "Energy Feedback", mono_->energyControl(), 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+{	
+	energySetpointDetector_ = new AMBasicControlDetectorEmulator("EnergySetpoint", "EnergySetpoint", new AMReadOnlyPVControl("EnergySetpoint", "BL1607-5-I22:Energy:EV:fbk", this), 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	energySetpointDetector_->setHiddenFromUsers(false);
+	energySetpointDetector_->setIsVisible(true);
+
+	energyFeedbackDetector_ = new AMBasicControlDetectorEmulator("EnergyFeedback", "EnergyFeedback", new AMReadOnlyPVControl("EnergyFeedback", "BL1607-5-I22:Energy:EV", this), 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
 	energyFeedbackDetector_->setHiddenFromUsers(false);
 	energyFeedbackDetector_->setIsVisible(true);
 
@@ -897,6 +901,7 @@ void BioXASSideBeamline::setupExposedDetectors()
 	addExposedDetector(i0Detector_);
 	addExposedDetector(iTDetector_);
 	addExposedDetector(i2Detector_);
+	addExposedDetector(energySetpointDetector_);
 	addExposedDetector(energyFeedbackDetector_);
 	addExposedDetector(braggDetector_);
 	addExposedDetector(braggMoveRetriesDetector_);
