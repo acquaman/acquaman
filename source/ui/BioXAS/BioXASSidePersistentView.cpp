@@ -56,8 +56,11 @@ BioXASSidePersistentView::BioXASSidePersistentView(QWidget *parent) :
 
 	// AMExtendedControlEditor and AMControlEditor testing.
 
-	AMExtendedControlEditor *extendedEditor = new AMExtendedControlEditor(BioXASSideBeamline::bioXAS()->dbhrMirror()->pitchControl());
-	AMControlEditor *controlEditor = new AMControlEditor(BioXASSideBeamline::bioXAS()->dbhrMirror()->pitchControl());
+	AMExtendedControlEditor *extendedEditor = new AMExtendedControlEditor(0);
+	extendedEditor->setControl(BioXASSideBeamline::bioXAS()->dbhrMirror()->pitchControl());
+
+	AMControlEditor *controlEditor = new AMControlEditor(0);
+	controlEditor->setControl(BioXASSideBeamline::bioXAS()->dbhrMirror()->pitchControl());
 
 	QVBoxLayout *testingLayout = new QVBoxLayout();
 	testingLayout->addWidget(extendedEditor);
