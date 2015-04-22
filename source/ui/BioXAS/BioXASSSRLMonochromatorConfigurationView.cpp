@@ -26,6 +26,15 @@ BioXASSSRLMonochromatorConfigurationView::BioXASSSRLMonochromatorConfigurationVi
 
 	braggConfigWidget_ = new BioXASSSRLMonochromatorBraggConfigurationView(0);
 
+	QLabel *settlingTimeLabel = new QLabel("Settling time:");
+
+	settlingTime_ = new QDoubleSpinBox();
+	settlingTime_->setMinimum(SETTLING_TIME_MIN);
+	settlingTime_->setMaximum(SETTLING_TIME_MAX);
+	settlingTime_->setSuffix(" s");
+	settlingTime_->setValue(0);
+	settlingTime_->setEnabled(false);
+
 	// Create and set layouts.
 
 	QHBoxLayout *energyLayout = new QHBoxLayout();
@@ -52,12 +61,17 @@ BioXASSSRLMonochromatorConfigurationView::BioXASSSRLMonochromatorConfigurationVi
 	QGroupBox *braggConfigView = new QGroupBox("Bragg configuration");
 	braggConfigView->setLayout(braggConfigViewLayout);
 
+	QHBoxLayout *settlingTimeLayout = new QHBoxLayout();
+	settlingTimeLayout->addWidget(settlingTimeLabel);
+	settlingTimeLayout->addWidget(settlingTime_);
+
 	QVBoxLayout *layout = new QVBoxLayout();
 	layout->addWidget(regionEditor_);
 	layout->addLayout(energyLayout);
 	layout->addLayout(braggLayout);
 	layout->addWidget(regionStatusView);
 	layout->addWidget(braggConfigView);
+	layout->addLayout(settlingTimeLayout);
 	layout->addStretch();
 
 	setLayout(layout);
@@ -66,6 +80,7 @@ BioXASSSRLMonochromatorConfigurationView::BioXASSSRLMonochromatorConfigurationVi
 
 	connect( calibrateEnergyButton_, SIGNAL(clicked()), this, SLOT(onCalibrateEnergyButtonClicked()) );
 	connect( calibrateBraggButton_, SIGNAL(clicked()), this, SLOT(onCalibrateBraggButtonClicked()) );
+	connect( settlingTime_, SIGNAL(valueChanged(double)), this, SLOT(setMonoSettlingTime(double)) );
 
 	// Current settings
 
@@ -83,11 +98,15 @@ void BioXASSSRLMonochromatorConfigurationView::setMono(BioXASSSRLMonochromator *
 
 		if (mono_) {
 
+			disconnect( mono_->energyControl(), 0, this, 0 );
+
 			// Clear UI elements.
 
 			regionEditor_->setControl(0);
 			energyEditor_->setControl(0);
 			braggEditor_->setControl(0);
+
+			settlingTime_->setEnabled(false);
 
 			regionStatusWidget_->setRegionControl(0);
 			braggConfigWidget_->setBraggMotor(0);
@@ -97,17 +116,36 @@ void BioXASSSRLMonochromatorConfigurationView::setMono(BioXASSSRLMonochromator *
 
 		if (mono_) {
 
+			connect( mono_->energyControl(), SIGNAL(settlingTimeChanged(double)), this, SLOT(onMonoSettlingTimeChanged()) );
+
 			// Update UI elements.
 
 			regionEditor_->setControl(mono_->regionControl());
 			energyEditor_->setControl(mono_->energyControl());
 			braggEditor_->setControl(mono_->braggMotor());
 
+			settlingTime_->setEnabled(true);
+			settlingTime_->setValue(mono_->energyControl()->settlingTime());
+
 			regionStatusWidget_->setRegionControl(mono_->regionControl());
 			braggConfigWidget_->setBraggMotor(mono_->braggMotor());
 		}
 
 		emit monoChanged(mono_);
+	}
+}
+
+void BioXASSSRLMonochromatorConfigurationView::setMonoSettlingTime(double newSeconds)
+{
+	if (mono_) {
+		mono_->energyControl()->setSettlingTime(newSeconds);
+	}
+}
+
+void BioXASSSRLMonochromatorConfigurationView::onMonoSettlingTimeChanged()
+{
+	if (mono_) {
+		settlingTime_->setValue(mono_->energyControl()->settlingTime());
 	}
 }
 
@@ -168,10 +206,6 @@ BioXASSSRLMonochromatorBraggConfigurationView::BioXASSSRLMonochromatorBraggConfi
 
 	braggEncoderMoveType_ = new QComboBox();
 
-	QLabel *braggSettlingTimePrompt = new QLabel("Settling time:");
-
-	braggSettlingTime_ = new QDoubleSpinBox();
-
 	// Create and set layouts.
 
 	QGridLayout *layout = new QGridLayout();
@@ -183,8 +217,6 @@ BioXASSSRLMonochromatorBraggConfigurationView::BioXASSSRLMonochromatorBraggConfi
 	layout->addWidget(braggAcceleration_, 2, 1, 1, 1, Qt::AlignLeft);
 	layout->addWidget(braggEncoderMoveTypePrompt, 3, 0, 1, 1, Qt::AlignRight);
 	layout->addWidget(braggEncoderMoveType_, 3, 1, 1, 1, Qt::AlignLeft);
-	layout->addWidget(braggSettlingTimePrompt, 4, 0, 1, 1, Qt::AlignRight);
-	layout->addWidget(braggSettlingTime_, 4, 1, 1, 1, Qt::AlignLeft);
 
 	setLayout(layout);
 
@@ -218,7 +250,6 @@ void BioXASSSRLMonochromatorBraggConfigurationView::setBraggMotor(CLSMAXvMotor *
 			connect( braggMotor_, SIGNAL(EGUBaseVelocityChanged(double)), this, SLOT(onBraggMotorVelocityBaseChanged()) );
 			connect( braggMotor_, SIGNAL(EGUAccelerationChanged(double)), this, SLOT(onBraggMotorAccelerationChanged()) );
 			connect( braggMotor_, SIGNAL(encoderMovementTypeChanged(CLSMAXvMotor::EncoderMovementType)), this, SLOT(onBraggMotorEncoderMoveTypeChanged()) );
-			connect( braggMotor_, SIGNAL(settlingTimeChanged(double)), this, SLOT(onBraggMotorSettlingTimeChanged()) );
 		}
 
 		onBraggMotorConnectedChanged();
@@ -244,10 +275,6 @@ void BioXASSSRLMonochromatorBraggConfigurationView::clearUI()
 	braggEncoderMoveType_->disconnect();
 	braggEncoderMoveType_->clear();
 	braggEncoderMoveType_->setEnabled(false);
-
-	braggSettlingTime_->disconnect();
-	braggSettlingTime_->clear();
-	braggSettlingTime_->setEnabled(false);
 }
 
 void BioXASSSRLMonochromatorBraggConfigurationView::initializeUI()
@@ -277,17 +304,10 @@ void BioXASSSRLMonochromatorBraggConfigurationView::initializeUI()
 		braggEncoderMoveType_->addItem("Decrease");
 		braggEncoderMoveType_->setCurrentIndex(braggMotor_->encoderMovementType());
 
-		braggSettlingTime_->setEnabled(true);
-		braggSettlingTime_->setSuffix(" s");
-		braggSettlingTime_->setMinimum(BRAGG_SETTLING_TIME_MIN);
-		braggSettlingTime_->setMaximum(BRAGG_SETTLING_TIME_MAX);
-		braggSettlingTime_->setValue(braggMotor_->settlingTime());
-
 		connect( braggVelocity_, SIGNAL(valueChanged(double)), this, SLOT(setBraggMotorVelocity(double)) );
 		connect( braggVelocityBase_, SIGNAL(valueChanged(double)), this, SLOT(setBraggMotorVelocityBase(double)) );
 		connect( braggAcceleration_, SIGNAL(valueChanged(double)), this, SLOT(setBraggMotorAcceleration(double)) );
 		connect( braggEncoderMoveType_, SIGNAL(currentIndexChanged(int)), this, SLOT(setBraggMotorEncoderMovementType(int)) );
-		connect( braggSettlingTime_, SIGNAL(valueChanged(double)), this, SLOT(setBraggMotorSettlingTime(double)) );
 	}
 }
 
@@ -327,13 +347,6 @@ void BioXASSSRLMonochromatorBraggConfigurationView::onBraggMotorEncoderMoveTypeC
 {
 	if (braggMotor_ && braggMotor_->isConnected()) {
 		braggEncoderMoveType_->setCurrentIndex(braggMotor_->encoderMovementType());
-	}
-}
-
-void BioXASSSRLMonochromatorBraggConfigurationView::onBraggMotorSettlingTimeChanged()
-{
-	if (braggMotor_ && braggMotor_->isConnected()) {
-		braggSettlingTime_->setValue(braggMotor_->settlingTime());
 	}
 }
 
@@ -380,12 +393,5 @@ void BioXASSSRLMonochromatorBraggConfigurationView::setBraggMotorEncoderMovement
 		default:
 			break;
 		}
-	}
-}
-
-void BioXASSSRLMonochromatorBraggConfigurationView::setBraggMotorSettlingTime(double newTime)
-{
-	if (braggMotor_) {
-		braggMotor_->setSettlingTime(newTime);
 	}
 }
