@@ -94,7 +94,7 @@ signals:
 
 public slots:
 	/// Sets the control being viewed.
-	void setControl(AMControl *newControl);
+	virtual void setControl(AMControl *newControl);
 	/// Sets the status control.
 	void setStatusControl(AMControl *newControl);
 

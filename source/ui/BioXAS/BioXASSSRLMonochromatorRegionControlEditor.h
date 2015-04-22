@@ -22,7 +22,7 @@ public:
 
 public slots:
 	/// Sets the control. Calls AMExtendedControlEditor::setControl(), and then makes an additional connect statement.
-	void setControl(AMControl *newControl);
+	virtual void setControl(AMControl *newControl);
 
 protected slots:
 	/// Shows the moving view, called when the region control indicates that a move has started.
