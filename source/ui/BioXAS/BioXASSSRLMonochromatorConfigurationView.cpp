@@ -260,6 +260,7 @@ void BioXASSSRLMonochromatorBraggConfigurationView::initializeUI()
 		braggEncoderMoveType_->setCurrentIndex(braggMotor_->encoderMovementType());
 
 		braggSettlingTime_->setEnabled(true);
+		braggSettlingTime_->setSuffix(" s");
 		braggSettlingTime_->setMinimum(BRAGG_SETTLING_TIME_MIN);
 		braggSettlingTime_->setMaximum(BRAGG_SETTLING_TIME_MAX);
 		braggSettlingTime_->setValue(braggMotor_->settlingTime());
