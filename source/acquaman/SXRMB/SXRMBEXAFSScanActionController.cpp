@@ -103,7 +103,7 @@ AMAction3* SXRMBEXAFSScanActionController::createInitializationActions()
 		initializationActions->addSubAction(AMActionSupport::buildControlMoveAction(SXRMBBeamline::sxrmb()->solidStateSampleStageR(), configuration_->rotation()));
 
 		if (configuration_->powerOnTEYHVControl())
-			initializationActions->addSubAction(AMActionSupport::buildControlMoveAction(SXRMBBeamline::sxrmb()->teyHVControl(), 1));
+			initializationActions->addSubAction(AMActionSupport::buildControlMoveAction(SXRMBBeamline::sxrmb()->teyHVControl()->powerOnOffControl(), 1));
 		break;
 
 	case SXRMB::AmbiantWithGasChamber:
@@ -127,7 +127,7 @@ AMAction3* SXRMBEXAFSScanActionController::createInitializationActions()
 		initializationActions->addSubAction(AMActionSupport::buildControlMoveAction(SXRMBBeamline::sxrmb()->microprobeSampleStageZ(), configuration_->z()));
 
 		if (configuration_->powerOnTEYHVControl())
-			initializationActions->addSubAction(AMActionSupport::buildControlMoveAction(SXRMBBeamline::sxrmb()->microprobeTEYHVControl(), 1));
+			initializationActions->addSubAction(AMActionSupport::buildControlMoveAction(SXRMBBeamline::sxrmb()->microprobeTEYHVControl()->powerOnOffControl(), 1));
 		break;
 
 	default:

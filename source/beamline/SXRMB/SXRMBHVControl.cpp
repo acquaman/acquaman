@@ -11,6 +11,8 @@ SXRMBHVControl::SXRMBHVControl( const QString& name, const QString& basePVName, 
 								QObject* parent, double tolerance, double moveStartTimeoutSeconds, int stopValue, const QString &description)
 	:AMPVControl(name, basePVName + readPVName, basePVName + writePVName, QString(), parent, tolerance, moveStartTimeoutSeconds, stopValue, description)
 {
+	powerOnOffControl_ = new AMPVControl("HV Power OnOff control", basePVName + powerPVName, basePVName + powerPVName, QString(), this);
+
 	powerPV_ = new AMProcessVariable(basePVName + powerPVName, true, this);
 	connect(powerPV_, SIGNAL(writeReadyChanged(bool)), this, SLOT(onPVConnected(bool)));
 //	connect(powerPV_, SIGNAL(error(int)), this, SLOT(onPowerPVError(int)));
@@ -43,6 +45,11 @@ double SXRMBHVControl::voltage() const
 double SXRMBHVControl::measuredCurrent() const
 {
 	return measuredCurrentPV_->getDouble();
+}
+
+AMControl *SXRMBHVControl::powerOnOffControl() const
+{
+	return powerOnOffControl_;
 }
 
 bool SXRMBHVControl::isConnected() const {

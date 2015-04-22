@@ -43,6 +43,8 @@ public:
 	double voltage() const;
 	/// return the value of the measured current
 	double measuredCurrent() const;
+	/// return the AMControl for HV power
+	AMControl *powerOnOffControl() const;
 
 
 	/// override: Indicates that the Control is ready for use.  In this case, means that the readPV is connected and readable.
@@ -63,6 +65,8 @@ public slots:
 protected slots:
 
 protected:
+	/// Pointer to AMPVControl used to write feedback value
+	AMControl* powerOnOffControl_;
 	/// Pointer to ProcessVariable used to write feedback value
 	AMProcessVariable* powerPV_;
 	/// Pointer to ProcessVariable used to write feedback value

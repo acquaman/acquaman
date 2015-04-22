@@ -550,13 +550,13 @@ AMAction3* SXRMBBeamline::createBeamOffActions() const
 
 	AMListAction3 *beamOffControlActionsList = new AMListAction3(new AMListActionInfo3("SXRMB Beam off action list", "SXRMB Beam off "), AMListAction3::Sequential);
 	beamOffControlActionsList->addSubAction(AMActionSupport::buildControlMoveAction(PSH1406B1002Shutter_, 0));
-	beamOffControlActionsList->addSubAction(AMActionSupport::buildControlMoveAction(teyHVControl_, 0));
-	beamOffControlActionsList->addSubAction(AMActionSupport::buildControlMoveAction(microprobeTEYHVControl_, 0));
+	beamOffControlActionsList->addSubAction(AMActionSupport::buildControlMoveAction(teyHVControl_->powerOnOffControl(), 0));
+	beamOffControlActionsList->addSubAction(AMActionSupport::buildControlMoveAction(microprobeTEYHVControl_->powerOnOffControl(), 0));
 
 	AMListAction3 *beamOffControlWaitActionsList = new AMListAction3(new AMListActionInfo3("SXRMB Beam off Wait action list", "SXRMB Beam off"), AMListAction3::Parallel);
 	beamOffControlWaitActionsList->addSubAction(AMActionSupport::buildControlWaitAction(PSH1406B1002Shutter_, 0));
-	beamOffControlWaitActionsList->addSubAction(AMActionSupport::buildControlMoveAction(teyHVControl_, 0));
-	beamOffControlWaitActionsList->addSubAction(AMActionSupport::buildControlMoveAction(microprobeTEYHVControl_, 0));
+	beamOffControlWaitActionsList->addSubAction(AMActionSupport::buildControlMoveAction(teyHVControl_->powerOnOffControl(), 0));
+	beamOffControlWaitActionsList->addSubAction(AMActionSupport::buildControlMoveAction(microprobeTEYHVControl_->powerOnOffControl(), 0));
 
 	AMListAction3 *beamOffActionsList = new AMListAction3(new AMListActionInfo3("SXRMB Beam Off", "SXRMB Beam Off"), AMListAction3::Parallel);
 	beamOffActionsList->addSubAction(beamOffControlActionsList);
