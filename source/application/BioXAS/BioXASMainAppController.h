@@ -48,8 +48,6 @@ public:
 protected slots:
     /// Handles adding scaler view pane to the main window when the scaler is connected.
     void onScalerConnected();
-    /// Handles adding mono view pane to the main window when the mono is connected.
-    void onMonoConnected();
     /// Handles adding the XAS scan configuration view pane to the main window when the beamline is connected.
     void onBeamlineConnected();
 
