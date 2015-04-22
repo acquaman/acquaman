@@ -610,7 +610,7 @@ public slots:
 	void setMoveStartTimeout(double seconds) { moveStartTimeout_ = seconds; }
 
 	/// Set the settling time that is allowed after the hardware reports "move done", in seconds. \see settlingTime().
-	void setSettlingTime(double seconds) { settlingTime_ = seconds; emit settlingTimeChanged(settlingTime_); }
+	void setSettlingTime(double seconds);
 
 
 signals:
