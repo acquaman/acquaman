@@ -32,8 +32,6 @@ protected:
 	/// The mirror being viewed.
 	BioXASDBHRMirror *mirror_;
 
-	/// The main layout.
-	QVBoxLayout *layout_;
 	/// Editor for the mirror pitch control.
 	AMExtendedControlEditor *pitchEditor_;
 	/// Editor for the mirror's m1 vertical control.

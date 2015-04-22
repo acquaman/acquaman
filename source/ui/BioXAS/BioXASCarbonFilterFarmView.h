@@ -33,10 +33,14 @@ protected:
 	/// The filter farm being viewed.
 	BioXASCarbonFilterFarmControl *filterFarm_;
 
-	/// The main layout.
-	QVBoxLayout *layout_;
-	/// The filter farm control editor.
+	/// The filter farm total thickness control editor.
 	AMExtendedControlEditor *editor_;
+
+	// For testing
+	// The upstream actuator control editor.
+	AMExtendedControlEditor *upstreamEditor_;
+	// The downstream actuator control editor.
+	AMExtendedControlEditor *downstreamEditor_;
 
 };
 
