@@ -34,8 +34,12 @@ public:
 	BioXASSSRLMonochromator* mono() const { return mono_; }
 
 signals:
+	/// Notifier that the mono being viewed has changed.
+	void monoChanged(BioXASSSRLMonochromator *newMono);
 
 public slots:
+	/// Sets the mono being viewed.
+	void setMono(BioXASSSRLMonochromator *newMono);
 
 protected slots:
 	/// Displays a dialog for the user to set the calibrated energy.

@@ -760,27 +760,55 @@ void BioXASSideBeamline::setupMono()
 
 void BioXASSideBeamline::setupComponents()
 {
-	scaler_ = new CLSSIS3820Scaler("BL07ID-Side:mcs", this);
+	// Original Side scaler and Keithley objects.
+
+//	scaler_ = new CLSSIS3820Scaler("BL07ID-Side:mcs", this);
+//	connect( scaler_, SIGNAL(connectedChanged(bool)), this, SLOT(onConnectionChanged()) );
+
+//	scalerDwellTime_ = new AMReadOnlyPVControl("ScalerDwellTime", "BL07ID-Side:mcs:delay", this, "Scaler Dwell Time");
+
+//	setupDetectors();
+
+//	i0Keithley_ = new CLSKeithley428("I0 Channel", "AMP1607-601", this);
+//	scaler_->channelAt(0)->setCustomChannelName("I0 Channel");
+//	scaler_->channelAt(0)->setCurrentAmplifier(i0Keithley_);
+//	scaler_->channelAt(0)->setDetector(i0Detector_);
+
+//	iTKeithley_ = new CLSKeithley428("IT Channel", "AMP1607-602", this);
+//	scaler_->channelAt(1)->setCustomChannelName("IT Channel");
+//	scaler_->channelAt(1)->setCurrentAmplifier(iTKeithley_);
+//	scaler_->channelAt(1)->setDetector(iTDetector_);
+
+//	i2Keithley_ = new CLSKeithley428("I2 Channel", "AMP1607-603", this);
+//	scaler_->channelAt(15)->setCustomChannelName("I2 Channel");
+//	scaler_->channelAt(15)->setCurrentAmplifier(i2Keithley_);
+//	scaler_->channelAt(15)->setDetector(i2Detector_);
+
+	// New scaler and Keithley objects, used for testing. They use Main beamline pvs.
+
+	scaler_ = new CLSSIS3820Scaler("BL1607-5-I21:mcs", this);
 	connect( scaler_, SIGNAL(connectedChanged(bool)), this, SLOT(onConnectionChanged()) );
 
-	scalerDwellTime_ = new AMReadOnlyPVControl("ScalerDwellTime", "BL07ID-Side:mcs:delay", this, "Scaler Dwell Time");
+	scalerDwellTime_ = new AMReadOnlyPVControl("ScalerDwellTime", "BL1607-5-I21:mcs:delay", this, "Scaler dwell time");
 
 	setupDetectors();
 
-	i0Keithley_ = new CLSKeithley428("I0 Channel", "AMP1607-601", this);
+	i0Keithley_ = new CLSKeithley428("I0 Channel", "AMP1607-701", this);
 	scaler_->channelAt(0)->setCustomChannelName("I0 Channel");
 	scaler_->channelAt(0)->setCurrentAmplifier(i0Keithley_);
 	scaler_->channelAt(0)->setDetector(i0Detector_);
 
-	iTKeithley_ = new CLSKeithley428("IT Channel", "AMP1607-602", this);
+	iTKeithley_ = new CLSKeithley428("IT Channel", "AMP1607-702", this);
 	scaler_->channelAt(1)->setCustomChannelName("IT Channel");
 	scaler_->channelAt(1)->setCurrentAmplifier(iTKeithley_);
 	scaler_->channelAt(1)->setDetector(iTDetector_);
 
-	i2Keithley_ = new CLSKeithley428("I2 Channel", "AMP1607-603", this);
+	i2Keithley_ = new CLSKeithley428("I2 Channel", "AMP1607-703", this);
 	scaler_->channelAt(15)->setCustomChannelName("I2 Channel");
-	scaler_->channelAt(15)->setCurrentAmplifier(i2Keithley_);
+	scaler_->channelAt(15)->setCurrentAmplifier(iTKeithley_);
 	scaler_->channelAt(15)->setDetector(i2Detector_);
+
+	// End scaler and Keithley testing.
 
 	carbonFilterFarm_ = new BioXASSideCarbonFilterFarmControl(this);
 	connect( carbonFilterFarm_, SIGNAL(connected(bool)), this, SLOT(onConnectionChanged()) );
@@ -796,8 +824,12 @@ void BioXASSideBeamline::setupComponents()
 }
 
 void BioXASSideBeamline::setupControlsAsDetectors()
-{
-	energyFeedbackDetector_ = new AMBasicControlDetectorEmulator("EnergyFeedback", "Energy Feedback", mono_->energyControl(), 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+{	
+	energySetpointDetector_ = new AMBasicControlDetectorEmulator("EnergySetpoint", "EnergySetpoint", new AMReadOnlyPVControl("EnergySetpoint", "BL1607-5-I22:Energy:EV:fbk", this), 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	energySetpointDetector_->setHiddenFromUsers(false);
+	energySetpointDetector_->setIsVisible(true);
+
+	energyFeedbackDetector_ = new AMBasicControlDetectorEmulator("EnergyFeedback", "EnergyFeedback", new AMReadOnlyPVControl("EnergyFeedback", "BL1607-5-I22:Energy:EV", this), 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
 	energyFeedbackDetector_->setHiddenFromUsers(false);
 	energyFeedbackDetector_->setIsVisible(true);
 
@@ -876,6 +908,7 @@ void BioXASSideBeamline::setupExposedDetectors()
 	addExposedDetector(i0Detector_);
 	addExposedDetector(iTDetector_);
 	addExposedDetector(i2Detector_);
+	addExposedDetector(energySetpointDetector_);
 	addExposedDetector(energyFeedbackDetector_);
 	addExposedDetector(braggDetector_);
 	addExposedDetector(braggMoveRetriesDetector_);

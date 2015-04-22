@@ -52,7 +52,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/acquaman/AMScanConfigurationViewHolder3.h"
 #include "ui/dataman/AMGenericScanEditor.h"
 
-#include "ui/CLS/CLSSIS3820ScalerView.h"
 #include "ui/CLS/CLSJJSlitView.h"
 
 #include "ui/BioXAS/BioXASSidePersistentView.h"
@@ -62,6 +61,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/BioXAS/BioXASXIAFiltersView.h"
 #include "ui/BioXAS/BioXASCarbonFilterFarmView.h"
 #include "ui/BioXAS/BioXASDBHRMirrorView.h"
+#include "ui/BioXAS/BioXASSIS3820ScalerView.h"
 
 BioXASSideAppController::BioXASSideAppController(QObject *parent)
 	: AMAppController(parent)
@@ -137,23 +137,15 @@ void BioXASSideAppController::shutdown()
 void BioXASSideAppController::onScalerConnected()
 {
 	if (BioXASSideBeamline::bioXAS()->scaler()->isConnected() && !scalerView_) {
-		scalerView_ = new CLSSIS3820ScalerView(BioXASSideBeamline::bioXAS()->scaler());
-
-		mw_->addPane(scalerView_, "Detectors", "Scaler", ":/system-search.png", true);
+		scalerView_ = new BioXASSIS3820ScalerView(BioXASSideBeamline::bioXAS()->scaler(), true);
+		mw_->addPane(createSqueezeGroupBoxWithView("", scalerView_), "Detectors", "Scaler", ":/system-search.png", true);
 	}
 }
 
 void BioXASSideAppController::onBeamlineConnected()
 {
 	if (BioXASSideBeamline::bioXAS()->isConnected() && !configurationView_) {
-		configuration_ = new BioXASSideXASScanConfiguration();
-		configuration_->setEnergy(10000);
 
-		configurationView_ = new BioXASSideXASScanConfigurationView(configuration_);
-
-		configurationViewHolder_ = new AMScanConfigurationViewHolder3(configurationView_);
-
-		mw_->addPane(configurationViewHolder_, "Scans", "Test Scan", ":/utilities-system-monitor.png");
 	}
 }
 
@@ -248,6 +240,17 @@ void BioXASSideAppController::setupUserInterface()
 
 	// Add right side panel.
 	mw_->addRightWidget(persistentPanel_);
+
+	// Scan configuration stuff.
+
+	configuration_ = new BioXASSideXASScanConfiguration();
+	configuration_->setEnergy(10000);
+
+	configurationView_ = new BioXASSideXASScanConfigurationView(configuration_);
+
+	configurationViewHolder_ = new AMScanConfigurationViewHolder3(configurationView_);
+
+	mw_->addPane(configurationViewHolder_, "Scans", "Test Scan", ":/utilities-system-monitor.png");
 }
 
 void BioXASSideAppController::makeConnections()
