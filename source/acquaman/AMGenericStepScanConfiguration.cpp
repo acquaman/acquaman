@@ -79,6 +79,7 @@ void AMGenericStepScanConfiguration::computeTotalTime()
 		else
 			points += 2;
 
+		totalTime_ = points*double(scanAxes_.at(0)->regionAt(0)->regionTime());
 	}
 
 	else if (scanAxes_.count() == 2){
