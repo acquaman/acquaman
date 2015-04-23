@@ -25,7 +25,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "application/AMAppController.h"
 
 class BioXASMainPersistentView;
-class CLSSIS3820ScalerView;
+class BioXASSIS3820ScalerView;
 class BioXASMainXASScanConfiguration;
 class BioXASMainXASScanConfigurationView;
 class AMScanConfigurationViewHolder3;
@@ -48,12 +48,10 @@ public:
 	virtual void shutdown();
 
 protected slots:
-	/// Handles adding scaler view pane to the main window when the scaler is connected.
-	void onScalerConnected();
-	/// Handles adding mono view pane to the main window when the mono is connected.
-	void onMonoConnected();
-	/// Handles adding the XAS scan configuration view pane to the main window when the beamline is connected.
-	void onBeamlineConnected();
+    /// Handles adding scaler view pane to the main window when the scaler is connected.
+    void onScalerConnected();
+    /// Handles adding the XAS scan configuration view pane to the main window when the beamline is connected.
+    void onBeamlineConnected();
 
 protected:
 	/// Implementation method that individual applications can flesh out if extra setup is required when a scan action is started.  This is not pure virtual because there is no requirement to do anything to scan actions.
@@ -76,8 +74,6 @@ protected:
 protected:
 	/// Mono configuration view.
 	BioXASSSRLMonochromatorConfigurationView *monoConfigView_;
-	/// Scaler view.
-	CLSSIS3820ScalerView *scalerView_;
 	/// XAS scan configuration.
 	BioXASMainXASScanConfiguration *configuration_;
 	/// The commissioning tool configuration.
@@ -92,7 +88,6 @@ protected:
 	AMScanConfigurationViewHolder3 *configurationViewHolder_;
 	/// The side panel view.
 	BioXASMainPersistentView *persistentPanel_;
-
 };
 
 #endif // BIOXASMAINAPPCONTROLLER_H

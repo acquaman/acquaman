@@ -26,7 +26,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 CLSMAXvMotor::~CLSMAXvMotor(){}
 CLSMAXvMotor::CLSMAXvMotor(const QString &name, const QString &baseName, const QString &description, bool hasEncoder, double tolerance, double moveStartTimeoutSeconds, QObject *parent, QString pvUnitFieldName) :
-	AMPVwStatusControl(name, hasEncoder ? baseName+pvUnitFieldName+":fbk" : baseName+pvUnitFieldName+":sp", baseName+pvUnitFieldName, baseName+":status", baseName+":stop", parent, tolerance, moveStartTimeoutSeconds, new AMControlStatusCheckerCLSMAXv(), 1, description)
+	AMPVwStatusControl(name, hasEncoder ? baseName+pvUnitFieldName+":fbk" : baseName+pvUnitFieldName+":sp", baseName+pvUnitFieldName, baseName+":status", baseName+":stop", parent, tolerance, moveStartTimeoutSeconds, new CLSMAXvControlStatusChecker(), 1, description)
 		//AMPVwStatusControl(name, baseName+":mm:fbk", baseName+":mm", baseName+":status", baseName+":stop", parent, tolerance, moveStartTimeoutSeconds, new AMControlStatusCheckerStopped(0), 1, description)
 {
 	pvBaseName_ = baseName;
@@ -35,13 +35,14 @@ CLSMAXvMotor::CLSMAXvMotor(const QString &name, const QString &baseName, const Q
 	usingKill_ = false;
 	killPV_ = new AMProcessVariable(baseName+":kill", true, this);
 
-	stepSetpoint_ = new AMReadOnlyPVControl(name+"StepSetpoint", baseName+":step", this);
+	stepSetpoint_ = new AMReadOnlyPVControl(name+"StepSetpoint", baseName+":step:sp", this);
 	degreeSetpoint_ = new AMReadOnlyPVControl(name+"DegreeSetpoint", baseName+":deg", this);
 
 	EGUVelocity_ = new AMPVControl(name+"EGUVelocity", baseName+":vel"+pvUnitFieldName+"ps:sp", baseName+":velo"+pvUnitFieldName+"ps", QString(), this, 0.05);
 	EGUBaseVelocity_ = new AMPVControl(name+"EGUBaseVelocity", baseName+":vBase"+pvUnitFieldName+"ps:sp", baseName+":vBase"+pvUnitFieldName+"ps", QString(), this, 0.05);
 	EGUAcceleration_ = new AMPVControl(name+"EGUAcceleration", baseName+":acc"+pvUnitFieldName+"pss:sp", baseName+":accel"+pvUnitFieldName+"pss", QString(), this, 2);
 	EGUCurrentVelocity_ = new AMReadOnlyPVControl(name+"EGUCurrentVelocity", baseName+":vel"+pvUnitFieldName+"ps:fbk", this);
+	EGUSetPosition_ = new AMPVControl(name+"EGUSetPosition", baseName+pvUnitFieldName+":setPosn", baseName+pvUnitFieldName+":setPosn", QString(), this, 0.005);
 	EGUOffset_ = new AMPVControl(name+"EGUOffset", baseName+pvUnitFieldName+":offset", baseName+pvUnitFieldName+":offset", QString(), this, 0.005);
 
 	step_ = new AMPVControl(name+"Step", baseName+":step:sp", baseName+":step", QString(), this, 20);
@@ -74,7 +75,7 @@ CLSMAXvMotor::CLSMAXvMotor(const QString &name, const QString &baseName, const Q
 	closedLoopEnabled_ = new AMPVControl(name+"ClosedLoopEnabled", baseName+":closedLoop", baseName+":closedLoop", QString(), this, 0.1);
 	servoPIDEnabled_ = new AMPVControl(name+"ServoPIDEnabled", baseName+":hold:sp", baseName+":hold", QString(), this, 0.1);
 
-	encoderTarget_ = new AMPVwStatusControl(name+"EncoderTarget", baseName+":enc:fbk", baseName+":encTarget", baseName+":status", QString(), this, 10, 2.0, new AMControlStatusCheckerCLSMAXv(), 1);
+	encoderTarget_ = new AMPVwStatusControl(name+"EncoderTarget", baseName+":enc:fbk", baseName+":encTarget", baseName+":status", QString(), this, 10, 2.0, new CLSMAXvControlStatusChecker(), 1);
 	encoderMovementType_ = new AMPVControl(name+"EncoderMovementType", baseName+":encMoveType", baseName+":selEncMvType", QString(), this, 0.1);
 	preDeadBand_ = new AMPVControl(name+"PreDeadBand", baseName+":preDBand", baseName+":preDBand", QString(), this, 1);
 	postDeadBand_ = new AMPVControl(name+"PostDeadBand", baseName+":postDBand", baseName+":postDBand", QString(), this, 1);
@@ -91,6 +92,8 @@ CLSMAXvMotor::CLSMAXvMotor(const QString &name, const QString &baseName, const Q
 	connect(EGUAcceleration_, SIGNAL(valueChanged(double)), this, SIGNAL(EGUAccelerationChanged(double)));
 	connect(EGUCurrentVelocity_, SIGNAL(connected(bool)), this, SLOT(onPVConnected(bool)));
 	connect(EGUCurrentVelocity_, SIGNAL(valueChanged(double)), this, SIGNAL(EGUCurrentVelocityChanged(double)));
+	connect(EGUSetPosition_, SIGNAL(connected(bool)), this, SLOT(onPVConnected(bool)));
+	connect(EGUSetPosition_, SIGNAL(valueChanged(double)), this, SIGNAL(EGUSetPositionChanged(double)));
 	connect(EGUOffset_, SIGNAL(connected(bool)), this, SLOT(onPVConnected(bool)));
 	connect(EGUOffset_, SIGNAL(valueChanged(double)), this, SIGNAL(EGUOffsetChanged(double)));
 
@@ -163,6 +166,7 @@ bool CLSMAXvMotor::isConnected() const{
 			&& EGUBaseVelocity_->isConnected()
 			&& EGUAcceleration_->isConnected()
 			&& EGUCurrentVelocity_->isConnected()
+			&& EGUSetPosition_->isConnected()
 			&& EGUOffset_->isConnected()
 			&& step_->isConnected()
 			&& stepVelocity_->isConnected()
@@ -243,6 +247,12 @@ double CLSMAXvMotor::EGUCurrentVelocity() const{
 	if(isConnected())
 		return EGUCurrentVelocity_->value();
 
+	return 0.0;
+}
+
+double CLSMAXvMotor::EGUSetPosition() const{
+	if(isConnected())
+		return EGUSetPosition_->value();
 	return 0.0;
 }
 
@@ -536,6 +546,14 @@ AMAction3 *CLSMAXvMotor::createEGUAccelerationAction(double EGUAcceleration)
 	return AMActionSupport::buildControlMoveAction(EGUAcceleration_, EGUAcceleration);
 }
 
+AMAction3 *CLSMAXvMotor::createEGUSetPositionAction(double EGUSetPosition)
+{
+	if(!isConnected())
+		return 0;
+
+	return AMActionSupport::buildControlMoveAction(EGUSetPosition_, EGUSetPosition);
+}
+
 AMAction3 *CLSMAXvMotor::createEGUOffsetAction(double EGUOffset)
 {
 	if(!isConnected())
@@ -749,6 +767,11 @@ void CLSMAXvMotor::setEGUBaseVelocity(double baseVelocity){
 void CLSMAXvMotor::setEGUAcceleration(double acceleration){
 	if(isConnected())
 		EGUAcceleration_->move(acceleration);
+}
+
+void CLSMAXvMotor::setEGUSetPosition(double EGUSetPosition){
+	if(isConnected())
+		EGUSetPosition_->move(EGUSetPosition);
 }
 
 void CLSMAXvMotor::setEGUOffset(double EGUOffset){
@@ -1080,4 +1103,4 @@ void CLSMAXvMotor::onEncoderMovementTypeChanged(double value){
 	}
 
 }
- AMControlStatusCheckerCLSMAXv::~AMControlStatusCheckerCLSMAXv(){}
+ CLSMAXvControlStatusChecker::~CLSMAXvControlStatusChecker(){}

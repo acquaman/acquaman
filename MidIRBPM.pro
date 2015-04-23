@@ -1,4 +1,4 @@
-include ( acquamanCommon.pri )
+include ( clsCommon.pri )
 
 TARGET = MidIRBPM
 

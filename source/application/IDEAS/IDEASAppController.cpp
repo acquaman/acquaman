@@ -21,7 +21,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "IDEASAppController.h"
 
-#include "beamline/CLS/CLSBeamlines.h"
+#include "beamline/CLS/CLSFacilityID.h"
 #include "beamline/IDEAS/IDEASBeamline.h"
 
 #include "ui/IDEAS/IDEASScanConfigurationViewHolder3.h"
@@ -87,7 +87,7 @@ bool IDEASAppController::startup()
 		if (!existingRun.loadFromDb(AMDatabase::database("user"), 1)){
 
 //			AMRun firstRun(CLSBeamline::beamlineName(CLSBeamline::IDEASBeamline), CLSBeamline::IDEASBeamline); //5: Ideas Beamline
-			AMRun firstRun(CLSBeamline::IDEASBeamlineName, CLSBeamline::IDEASBeamline); //5: Ideas Beamline
+			AMRun firstRun(CLSFacilityID::IDEASBeamlineName, CLSFacilityID::IDEASBeamline); //5: Ideas Beamline
 			firstRun.storeToDb(AMDatabase::database("user"));
 		}
 

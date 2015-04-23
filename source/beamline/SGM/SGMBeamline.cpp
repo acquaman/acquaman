@@ -57,7 +57,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "util/AMErrorMonitor.h"
 
-SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
+SGMBeamline::SGMBeamline() : CLSBeamline("SGMBeamline") {
 	infoObject_ = SGMBeamlineInfo::sgmInfo();
 
 	beamlineIsInitialized_ = false;
@@ -753,7 +753,7 @@ AMAction3* SGMBeamline::createRestorePreFastScanDefaultActions(){
 	return retVal;
 }
 
-CLSSIS3820Scaler* SGMBeamline::scaler(){
+CLSSIS3820Scaler* SGMBeamline::scaler() const{
 	if(scaler_->isConnected())
 		return scaler_;
 	return 0; //NULL
@@ -1069,7 +1069,7 @@ void SGMBeamline::setupControls(){
 	energyThetaParam_ = new AMReadOnlyPVControl("energyThetaParam", sgmPVName, this);
 
 	sgmPVName = amNames2pvNames_.valueF("mono");
-	AMPVwStatusControl *mono = new AMPVwStatusControl("mono", sgmPVName+":enc:fbk", sgmPVName+":encTarget", sgmPVName+":status", "SMTR16114I1002:stop", energy_, 5, 2.0, new AMControlStatusCheckerCLSMAXv(), 1);
+	AMPVwStatusControl *mono = new AMPVwStatusControl("mono", sgmPVName+":enc:fbk", sgmPVName+":encTarget", sgmPVName+":status", "SMTR16114I1002:stop", energy_, 5, 2.0, new CLSMAXvControlStatusChecker(), 1);
 	mono->setDescription("Monochromator");
 	sgmPVName = amNames2pvNames_.valueF("undulator");
 	AMPVwStatusControl *undulator = new AMPVwStatusControl("undulator", sgmPVName+":gap:mm:fbk", sgmPVName+":gap:mm", sgmPVName+":moveStatus", "UND1411-01:stop", energy_, 0.1);
