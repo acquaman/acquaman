@@ -107,9 +107,10 @@ void AMGenericStepScanConfiguration::computeTotalTime()
 
 void AMGenericStepScanConfiguration::setControl(int axisId, AMControlInfo newInfo)
 {
-	if (axisId == 0 && controls_.isEmpty()){
+	if (axisId == 0 && axisControlInfos_.isEmpty()){
 
-		controls_.append(newInfo);
+		axisControlInfos_.append(newInfo);
+		setModified(true);
 
 		AMScanAxisRegion *region = new AMScanAxisRegion;
 		AMScanAxis *axis = new AMScanAxis(AMScanAxis::StepAxis, region);
@@ -123,12 +124,14 @@ void AMGenericStepScanConfiguration::setControl(int axisId, AMControlInfo newInf
 
 	else if (axisId == 0){
 
-		controls_.replace(0, newInfo);
+		axisControlInfos_.replace(0, newInfo);
+		setModified(true);
 	}
 
-	else if (axisId == 1 && controls_.size() == 1){
+	else if (axisId == 1 && axisControlInfos_.count() == 1){
 
-		controls_.append(newInfo);
+		axisControlInfos_.append(newInfo);
+		setModified(true);
 
 		AMScanAxisRegion *region = new AMScanAxisRegion;
 		AMScanAxis *axis = new AMScanAxis(AMScanAxis::StepAxis, region);
@@ -142,19 +145,21 @@ void AMGenericStepScanConfiguration::setControl(int axisId, AMControlInfo newInf
 
 	else if (axisId == 1){
 
-		controls_.replace(1, newInfo);
+		axisControlInfos_.replace(1, newInfo);
+		setModified(true);
 	}
 }
 
 void AMGenericStepScanConfiguration::removeControl(int axisId)
 {
-	if (axisId < controls_.size() && axisId >= 0){
+	if (axisId < axisControlInfos_.count() && axisId >= 0){
 
 		AMScanAxis *axis = removeScanAxis(axisId);
 		axis->regionAt(0)->disconnect();
 		axis->regionAt(0)->deleteLater();
 		axis->deleteLater();
-		controls_.removeAt(axisId);
+		axisControlInfos_.remove(axisId);
+		setModified(true);
 	}
 }
 
@@ -162,26 +167,30 @@ void AMGenericStepScanConfiguration::addDetector(AMDetectorInfo newInfo)
 {
 	bool containsDetector = false;
 
-	for (int i = 0, size = detectors_.size(); i < size; i++){
+	for (int i = 0, size = detectorConfigurations_.count(); i < size; i++){
 
-		if (newInfo.name() == detectors_.at(i).name())
+		if (newInfo.name() == detectorConfigurations_.at(i).name())
 			containsDetector = true;
 	}
 
-	if (!containsDetector)
-		detectors_.append(newInfo);
+	if (!containsDetector){
+
+		detectorConfigurations_.append(newInfo, newInfo.name());
+		setModified(true);
+	}
 }
 
 void AMGenericStepScanConfiguration::removeDetector(AMDetectorInfo info)
 {
 	bool detectorRemoved = false;
 
-	for (int i = 0, size = detectors_.size(); i < size && !detectorRemoved; i++){
+	for (int i = 0, size = detectorConfigurations_.count(); i < size && !detectorRemoved; i++){
 
-		if (info.name() == detectors_.at(i).name()){
+		if (info.name() == detectorConfigurations_.at(i).name()){
 
 			detectorRemoved = true;
-			detectors_.removeAt(i);
+			detectorConfigurations_.remove(i);
+			setModified(true);
 		}
 	}
 }

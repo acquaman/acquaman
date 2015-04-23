@@ -13,28 +13,15 @@ AMGenericStepScanController::AMGenericStepScanController(AMGenericStepScanConfig
 	scan_->setFileFormat("amCDFv1");
 	scan_->setIndexType("fileSystem");
 
-	AMControlInfoList controls;
-
-	AMControlInfo axisControlInfo1 = configuration_->controls().at(0);
-	controls.append(axisControlInfo1);
+	AMControlInfo axisControlInfo1 = configuration_->axisControlInfos().at(0);
 	scan_->rawData()->addScanAxis(AMAxisInfo(axisControlInfo1.name(), 0, axisControlInfo1.description()));
 
 	if (configuration_->scanAxes().size() == 2){
 
 		int yPoints = int(round((double(configuration_->scanAxisAt(1)->regionAt(0)->regionEnd()) - double(configuration_->scanAxisAt(1)->regionAt(0)->regionStart()))/double(configuration_->scanAxisAt(1)->regionAt(0)->regionStep()))) + 1;
-		AMControlInfo axisControlInfo2 = configuration_->controls().at(1);
-		controls.append(axisControlInfo2);
+		AMControlInfo axisControlInfo2 = configuration_->axisControlInfos().at(1);
 		scan_->rawData()->addScanAxis(AMAxisInfo(axisControlInfo2.name(), yPoints, axisControlInfo2.description()));
 	}
-
-	configuration_->setAxisControlInfos(controls);
-
-	AMDetectorInfoSet detectors;
-
-	for (int i = 0, size = configuration_->detectors().size(); i < size; i++)
-		detectors.addDetectorInfo(configuration_->detectors().at(i));
-
-	configuration_->setDetectorConfigurations(detectors);
 
 	secondsElapsed_ = 0;
 	secondsTotal_ = configuration_->totalTime();
@@ -51,6 +38,20 @@ AMGenericStepScanController::AMGenericStepScanController(AMGenericStepScanConfig
 AMGenericStepScanController::~AMGenericStepScanController()
 {
 
+}
+
+void AMGenericStepScanController::createAxisOrderMap()
+{
+	if (scan_->scanRank() == 1){
+
+		axisOrderMap_.insert(scan_->rawData()->scanAxisAt(0).name, 0);
+	}
+
+	else if (scan_->scanRank() == 2){
+
+		axisOrderMap_.insert(scan_->rawData()->scanAxisAt(0).name, 1);
+		axisOrderMap_.insert(scan_->rawData()->scanAxisAt(1).name, 0);
+	}
 }
 
 void AMGenericStepScanController::onScanTimerUpdate()

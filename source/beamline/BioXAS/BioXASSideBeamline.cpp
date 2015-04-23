@@ -786,6 +786,7 @@ void BioXASSideBeamline::setupComponents()
 
 	// New scaler and Keithley objects, used for testing. They use Main beamline pvs.
 
+//	scaler_ = new CLSSIS3820Scaler("BL1607-5-I21:mcs", this);
 	scaler_ = new CLSSIS3820Scaler("BL1607-5-I21:mcs", this);
 	connect( scaler_, SIGNAL(connectedChanged(bool)), this, SLOT(onConnectionChanged()) );
 

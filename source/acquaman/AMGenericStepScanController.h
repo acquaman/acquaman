@@ -27,6 +27,8 @@ protected:
 
 	/// Adds anything extra (eg: analysis blocks) to the scan before it's started.
 	virtual void buildScanControllerImplementation();
+	/// Creates the axis order for higher dimensional scans.  Changed order to axis 1, 0.
+	virtual void createAxisOrderMap();
 
 	/// Specific scan configuration with all the VESPERS specific information inside.
 	AMGenericStepScanConfiguration *configuration_;
