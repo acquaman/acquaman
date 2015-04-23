@@ -167,12 +167,12 @@ AMMotorGroupObjectView::AMMotorGroupObjectView(AMMotorGroupObject *motorGroupObj
 	for (int i = 0, size = motorGroupObject_->size(); i < size; i++){
 
 		QDoubleSpinBox *setpoint = new QDoubleSpinBox;
-		setpoint->setSuffix(" " % motorGroupObject_->unitAt(i));
-		setpoint->setSingleStep(0.001);
-		setpoint->setRange(-100, 100);
-		setpoint->setDecimals(controlSetpointsPrecision_);
 		setpoint->setAlignment(Qt::AlignCenter);
 		setpoint->setFixedWidth(110);
+		setpoint->setSingleStep(0.001);
+		setpoint->setDecimals(controlSetpointsPrecision_);
+		setpoint->setSuffix(" " % motorGroupObject_->unitAt(i));
+		setpoint->setRange(-200, 200);
 		controlSetpoints_ << setpoint;
 
 		QHBoxLayout *hLayout = new QHBoxLayout;
