@@ -32,7 +32,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 SXRMBBeamline::SXRMBBeamline()
 	: AMBeamline("SXRMB Beamline")
 {
-	currentEndstation_ = SXRMB::Invalid;
+	currentEndstation_ = SXRMB::InvalidEndstation;
 
 	setupSynchronizedDwellTime();
 	setupComponents();
@@ -49,8 +49,8 @@ SXRMBBeamline::SXRMBBeamline()
 	setupConnections();
 
 	wasConnected_ = false;
-	sampleStageConnectHelper();
 	onPVConnectedHelper();
+	onEndstationPVConnected(endstationControl_->isConnected());
 }
 
 SXRMBBeamline::~SXRMBBeamline()
@@ -395,7 +395,7 @@ bool SXRMBBeamline::isConnected() const
 
 	// return whether the expected PVs are connected or not
 	return endstationControl_->isConnected() && energy_->isConnected() && beamlineStatus_->isConnected()
-			&& beamlineControlShutterSet_->isConnected() && sampleStageConnected;
+			&& sampleStageConnected;
 }
 
 
@@ -807,8 +807,9 @@ void SXRMBBeamline::beamAvailabilityHelper()
 
 void SXRMBBeamline::sampleStageConnectHelper()
 {
+
 	// check the available endstation if it is NOT assigned yet and whether sample stage is connected or not
-	if (currentEndstation_ == SXRMB::Invalid) {
+	if (currentEndstation_ == SXRMB::InvalidEndstation) {
 		if (microprobeSampleStageControlSet_->isConnected())
 			switchEndstation( SXRMB::Microprobe );
 

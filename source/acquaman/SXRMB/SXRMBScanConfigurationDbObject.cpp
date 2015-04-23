@@ -3,8 +3,8 @@
 SXRMBScanConfigurationDbObject::SXRMBScanConfigurationDbObject(QObject *parent)
 	: AMDbObject(parent)
 {
-	endstation_ = SXRMB::Invalid;
-	fluorescenceDetectors_ = SXRMB::NoXRF;
+	endstation_ = SXRMB::InvalidEndstation;
+	fluorescenceDetectors_ = SXRMB::Bruker;
 	x_ = 0.0;
 	y_ = 0.0;
 	z_ = 0.0;

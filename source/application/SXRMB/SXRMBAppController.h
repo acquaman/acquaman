@@ -23,6 +23,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define SXRMBAPPCONTROLLER_H
 
 #include "application/AMAppController.h"
+#include "application/SXRMB/SXRMB.h"
 
 class QGroupBox;
 
@@ -65,6 +66,8 @@ protected slots:
 	void onBeamlineConnected(bool);
 	/// slot to handle Beamline control shutters timeout
 	void onBeamControlShuttersTimeout();
+	/// slot to handle Beamline endstation switched
+	void onBeamlineEndstationSwitched(SXRMB::Endstation fromEndstation, SXRMB::Endstation toEndstation);
 	/// Helper slot that handles the workflow pausing/resuming when the beam dumps or is restored.
 	void onBeamAvailabilityChanged(bool beamAvailable);
 

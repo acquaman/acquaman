@@ -161,7 +161,6 @@ AMAction3* SXRMBEXAFSScanActionController::createCleanupActions()
 void SXRMBEXAFSScanActionController::buildScanControllerImplementation()
 {
 	QList<AMDataSource *> i0Sources;
-
 	if (configuration_->endstation() == SXRMB::SolidState)
 		i0Sources = QList<AMDataSource *>() << scan_->dataSourceAt(scan_->indexOfDataSource("BeamlineI0Detector"));
 

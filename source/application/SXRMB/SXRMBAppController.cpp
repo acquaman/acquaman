@@ -142,12 +142,14 @@ bool SXRMBAppController::startupInstallActions()
 
 void SXRMBAppController::onBeamlineConnected(bool connected)
 {
+	SXRMBBeamline * sxrmbBL = SXRMBBeamline::sxrmb();
+
 	if (connected && !exafsScanConfigurationView_) {
 		exafsScanConfiguration_ = new SXRMBEXAFSScanConfiguration();
 
-		exafsScanConfiguration_->setY(SXRMBBeamline::sxrmb()->microprobeSampleStageY()->value());
-		exafsScanConfiguration_->setX(SXRMBBeamline::sxrmb()->microprobeSampleStageX()->value());
-		exafsScanConfiguration_->setZ(SXRMBBeamline::sxrmb()->microprobeSampleStageZ()->value());
+		exafsScanConfiguration_->setY(sxrmbBL->microprobeSampleStageY()->value());
+		exafsScanConfiguration_->setX(sxrmbBL->microprobeSampleStageX()->value());
+		exafsScanConfiguration_->setZ(sxrmbBL->microprobeSampleStageZ()->value());
 
 		exafsScanConfiguration_->scanAxisAt(0)->regionAt(0)->setRegionStart(-11);
 		exafsScanConfiguration_->scanAxisAt(0)->regionAt(0)->setRegionStep(0.5);
@@ -163,7 +165,7 @@ void SXRMBAppController::onBeamlineConnected(bool connected)
 	if (connected && !microProbe2DScanConfigurationView_) {
 		microProbe2DScanConfiguration_ = new SXRMB2DMapScanConfiguration();
 
-		microProbe2DScanConfiguration_->setEnergy(SXRMBBeamline::sxrmb()->energy()->value());
+		microProbe2DScanConfiguration_->setEnergy(sxrmbBL->energy()->value());
 
 		microProbe2DScanConfiguration_->scanAxisAt(0)->regionAt(0)->setRegionStart(0.0);
 		microProbe2DScanConfiguration_->scanAxisAt(0)->regionAt(0)->setRegionStep(0.01);
@@ -178,9 +180,6 @@ void SXRMBAppController::onBeamlineConnected(bool connected)
 
 		microProbe2DScanConfigurationView_ = new SXRMB2DMapScanConfigurationView(microProbe2DScanConfiguration_);
 		microProbe2DScanConfigurationViewHolder_ = new AMScanConfigurationViewHolder3(microProbe2DScanConfigurationView_);
-
-		if (SXRMBBeamline::sxrmb()->currentEndstation() == SXRMB::Microprobe)
-			mw_->addPane(microProbe2DScanConfigurationViewHolder_, "Scans", "2D Scan", ":/utilites-system-monitor.png");
 	}
 
 	if (connected && !microProbe2DOxidationScanConfigurationView_) {
@@ -188,7 +187,7 @@ void SXRMBAppController::onBeamlineConnected(bool connected)
 		microProbe2DOxidationScanConfiguration_->setName("Oxidation Map");
 		microProbe2DOxidationScanConfiguration_->setUserScanName("Oxidation Map");
 
-		microProbe2DScanConfiguration_->setEnergy(SXRMBBeamline::sxrmb()->energy()->value());
+		microProbe2DScanConfiguration_->setEnergy(sxrmbBL->energy()->value());
 
 		microProbe2DOxidationScanConfiguration_->scanAxisAt(0)->regionAt(0)->setRegionStart(0.0);
 		microProbe2DOxidationScanConfiguration_->scanAxisAt(0)->regionAt(0)->setRegionStep(0.01);
@@ -203,9 +202,6 @@ void SXRMBAppController::onBeamlineConnected(bool connected)
 
 		microProbe2DOxidationScanConfigurationView_ = new SXRMB2DOxidationMapScanConfigurationView(microProbe2DOxidationScanConfiguration_);
 		microProbe2DOxidationScanConfigurationViewHolder_ = new SXRMBOxidationMapScanConfigurationViewHolder(microProbe2DOxidationScanConfigurationView_);
-
-		if (SXRMBBeamline::sxrmb()->currentEndstation() == SXRMB::Microprobe)
-			mw_->addPane(microProbe2DOxidationScanConfigurationViewHolder_, "Scans", "Oxidation Map", ":/utilites-system-monitor.png");
 	}
 
 	if (connected && !sxrmbPersistentView_){
@@ -223,18 +219,51 @@ void SXRMBAppController::onBeamlineConnected(bool connected)
 		if (!userConfiguration_->loadFromDb(AMDatabase::database("user"), 1)){
 			userConfiguration_->storeToDb(AMDatabase::database("user"));
 
-			AMDetector *detector = SXRMBBeamline::sxrmb()->brukerDetector();
+			AMDetector *detector = sxrmbBL->brukerDetector();
 			// This is connected here because we want to listen to the detectors for updates, but don't want to double add regions on startup.
 			connect(detector, SIGNAL(addedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestAdded(AMRegionOfInterest*)));
 			connect(detector, SIGNAL(removedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestRemoved(AMRegionOfInterest*)));
 		}
 	}
+
+	if (connected)
+		onBeamlineEndstationSwitched(sxrmbBL->currentEndstation(), sxrmbBL->currentEndstation());
 }
 
 void SXRMBAppController::onBeamControlShuttersTimeout()
 {
 	QString errorMessage = "One (several) Beamline Valve/PSH shutter(s) can't be connected. Please contact beamline staff. This might affect your usage of Acuqaman.";
 	AMErrorMon::alert(this, ERR_SXRMB_SHUTTERS_TIMEOUT, errorMessage, true);
+}
+
+void SXRMBAppController::onBeamlineEndstationSwitched(SXRMB::Endstation fromEndstation, SXRMB::Endstation toEndstation)
+{
+	Q_UNUSED(fromEndstation)
+
+	if (toEndstation == SXRMB::InvalidEndstation)
+		return;
+
+	if (!microProbe2DScanConfiguration_ || !exafsScanConfiguration_ || !microProbe2DOxidationScanConfiguration_)
+		return;
+
+	microProbe2DScanConfiguration_->setEndstation(toEndstation);
+	exafsScanConfiguration_->setEndstation(toEndstation);
+	microProbe2DOxidationScanConfiguration_->setEndstation(toEndstation);
+
+	if (toEndstation == SXRMB::Microprobe){
+
+		mw_->addPane(microProbe2DScanConfigurationViewHolder_, "Scans", "2D Scan", ":/utilites-system-monitor.png");
+		mw_->addPane(microProbe2DOxidationScanConfigurationViewHolder_, "Scans", "Oxidation Map", ":/utilites-system-monitor.png");
+	}
+
+	else {
+
+		mw_->removePane(microProbe2DScanConfigurationViewHolder_);
+		mw_->removePane(microProbe2DOxidationScanConfigurationViewHolder_);
+
+		microProbe2DScanConfigurationViewHolder_->hide();
+		microProbe2DOxidationScanConfigurationViewHolder_->hide();
+	}
 }
 
 void SXRMBAppController::onBeamAvailabilityChanged(bool beamAvailable)
@@ -359,15 +388,18 @@ void SXRMBAppController::setupUserInterface()
 
 void SXRMBAppController::makeConnections()
 {
+	SXRMBBeamline *sxrmbBL = SXRMBBeamline::sxrmb();
+
 	connect(this, SIGNAL(scanEditorCreated(AMGenericScanEditor*)), this, SLOT(onScanEditorCreated(AMGenericScanEditor*)));
 
-	connect(SXRMBBeamline::sxrmb(), SIGNAL(connected(bool)), this, SLOT(onBeamlineConnected(bool)));
-	connect(SXRMBBeamline::sxrmb(), SIGNAL(beamlineControlShuttersTimeout()), this, SLOT(onBeamControlShuttersTimeout()));
-	connect(SXRMBBeamline::sxrmb()->scaler(), SIGNAL(connectedChanged(bool)), this, SLOT(onScalerConnected(bool)));
+	connect(sxrmbBL, SIGNAL(connected(bool)), this, SLOT(onBeamlineConnected(bool)));
+	connect(sxrmbBL, SIGNAL(beamlineControlShuttersTimeout()), this, SLOT(onBeamControlShuttersTimeout()));
+	connect(sxrmbBL, SIGNAL(endstationChanged(SXRMB::Endstation, SXRMB::Endstation)), this, SLOT(onBeamlineEndstationSwitched(SXRMB::Endstation, SXRMB::Endstation)));
+	connect(sxrmbBL->scaler(), SIGNAL(connectedChanged(bool)), this, SLOT(onScalerConnected(bool)));
 
-	if(SXRMBBeamline::sxrmb()->isConnected()){
+	if(sxrmbBL->isConnected()){
 		onBeamlineConnected(true);
-		if(SXRMBBeamline::sxrmb()->scaler()->isConnected())
+		if(sxrmbBL->scaler()->isConnected())
 			onScalerConnected(true);
 	}
 }
@@ -470,31 +502,13 @@ void SXRMBAppController::onSwitchBeamlineEndstationTriggered()
 	availableBeamlineEndstations->addItems(endstations);
 	availableBeamlineEndstations->setCurrentIndex(SXRMBBeamline::sxrmb()->currentEndstation() - 1);
 
-	AMDialog *showMotorDialog = new AMDialog("Switch SXRMB Endstation");
-	showMotorDialog->layoutDialogContent(availableBeamlineEndstations);
+	AMDialog *switchEndstationDialog = new AMDialog("Switch SXRMB Endstation");
+	switchEndstationDialog->layoutDialogContent(availableBeamlineEndstations);
 
-	if (showMotorDialog->exec()) {
+	if (switchEndstationDialog->exec()) {
 
 		SXRMB::Endstation newEndstation = SXRMB::Endstation(availableBeamlineEndstations->currentIndex() + 1);
 		SXRMBBeamline::sxrmb()->switchEndstation(newEndstation);
-		microProbe2DScanConfiguration_->setEndstation(newEndstation);
-		exafsScanConfiguration_->setEndstation(newEndstation);
-		microProbe2DOxidationScanConfiguration_->setEndstation(newEndstation);
-
-		if (newEndstation == SXRMB::Microprobe){
-
-			mw_->addPane(microProbe2DScanConfigurationViewHolder_, "Scans", "2D Scan", ":/utilites-system-monitor.png");
-			mw_->addPane(microProbe2DOxidationScanConfigurationViewHolder_, "Scans", "Oxidation Map", ":/utilites-system-monitor.png");
-		}
-
-		else {
-
-			mw_->removePane(microProbe2DScanConfigurationViewHolder_);
-			mw_->removePane(microProbe2DOxidationScanConfigurationViewHolder_);
-
-			microProbe2DScanConfigurationViewHolder_->hide();
-			microProbe2DOxidationScanConfigurationViewHolder_->hide();
-		}
 	}
 }
 
