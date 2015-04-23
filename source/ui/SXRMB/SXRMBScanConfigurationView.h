@@ -12,6 +12,8 @@ class QGroupBox;
 
 class SXRMBScanConfigurationView : public AMScanConfigurationView
 {
+	Q_OBJECT
+
 public:
 	/// Constructor takes an SXRMB scan configuration to view
 	SXRMBScanConfigurationView(QWidget *parent = 0);

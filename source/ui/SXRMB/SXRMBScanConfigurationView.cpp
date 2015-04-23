@@ -1,3 +1,4 @@
+
 #include "SXRMBScanConfigurationView.h"
 
 #include <QGroupBox>
