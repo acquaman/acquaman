@@ -83,8 +83,6 @@ protected slots:
 	void onEstimatedTimeChanged();
 	/// Helper slot that sets whether we use SMAK or Ascii for the auto exporter.
 	void updateAutoExporter(int useAscii);
-	/// Slot that updates the fluorescence detector buttons.
-	void updateFluorescenceDetectorComboBox(SXRMB::FluorescenceDetectors detector);
 	/// Handles changes to detector selection
 	void onFluorescenceDetectorChanged(int detector);
 	/// Handles changes to power on TEY HV control flag
@@ -110,10 +108,6 @@ protected:
 	QDoubleSpinBox *dwellTime_;
 	/// Line edit for changing the name of the scan.
 	QLineEdit *scanName_;
-	/// Checkbox for enabling the TEY HV control automatically
-	QCheckBox *powerOnTEYHVControlCheckBox_;
-	/// ComboBox for enabling/disabling Bruker detector
-	QComboBox *fluorescenceDetectorComboBox_;
 	/// Pointer to the horizontal start point.
 	QDoubleSpinBox *hStart_;
 	/// Pointer to the horizontal end point.

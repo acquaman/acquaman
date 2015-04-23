@@ -165,19 +165,7 @@ SXRMB2DMapScanConfigurationView::SXRMB2DMapScanConfigurationView(SXRMB2DMapScanC
 	beamlineSettingsGroupBox_->setLayout(beamlineSettingsGroupBoxVL);
 
 	// detector setting
-	powerOnTEYHVControlCheckBox_ = new QCheckBox("Power on TEY HV Control automatically");
-	connect(powerOnTEYHVControlCheckBox_, SIGNAL(clicked(bool)), this, SLOT(onPowerOnTEYHVControlEnabled(bool)));
-
-	fluorescenceDetectorComboBox_ = createFluorescenceComboBox();
-	connect(fluorescenceDetectorComboBox_, SIGNAL(currentIndexChanged(int)), this, SLOT(onFluorescenceDetectorChanged(int)));
-	connect(configuration_->dbObject(), SIGNAL(fluorescenceDetectorsChanged(SXRMB::FluorescenceDetectors)), this, SLOT(updateFluorescenceDetectorComboBox(SXRMB::FluorescenceDetectors)));
-
-	QVBoxLayout * detectorBoxLayout = new QVBoxLayout;
-	detectorBoxLayout->addWidget(powerOnTEYHVControlCheckBox_);
-	detectorBoxLayout->addWidget(fluorescenceDetectorComboBox_);
-
-	QGroupBox * detectorSettingGroupBox = new QGroupBox("Detector Setting");
-	detectorSettingGroupBox->setLayout(detectorBoxLayout);
+	QGroupBox *detectorSettingGroupBox = createAndLayoutDetectorSettings(configuration_);
 
 	// Error label.
 	errorLabel_ = new QLabel;
@@ -493,11 +481,6 @@ void SXRMB2DMapScanConfigurationView::setDwellTime(const AMNumber &value)
 void SXRMB2DMapScanConfigurationView::updateAutoExporter(int useAscii)
 {
 	configuration_->setExportAsAscii(useAscii == 0);
-}
-
-void SXRMB2DMapScanConfigurationView::updateFluorescenceDetectorComboBox(SXRMB::FluorescenceDetectors detector)
-{
-	fluorescenceDetectorComboBox_->setCurrentIndex(int(detector));
 }
 
 void SXRMB2DMapScanConfigurationView::onFluorescenceDetectorChanged(int detector)

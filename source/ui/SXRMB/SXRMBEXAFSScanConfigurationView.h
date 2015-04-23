@@ -43,12 +43,10 @@ public slots:
 protected slots:
 	/// SLot that handles beamline endstation switched signal
 	void onBeamlineEndstationChanged(SXRMB::Endstation fromEndstation, SXRMB::Endstation toEndstation);
-	/// Slot that updates the fluorescence detector buttons.
-	void updateFluorescenceDetectorComboBox(SXRMB::FluorescenceDetectors detector);
 	/// Handles changes to detector selection
-	void onFluorescenceDetectorChanged(int detector);
+	virtual void onFluorescenceDetectorChanged(int detector);
 	/// Handles changes to power on TEY HV control flag
-	void onPowerOnTEYHVControlEnabled(bool);
+	virtual void onPowerOnTEYHVControlEnabled(bool);
 
 	/// Handles setting the name of the configuration from the line edit.
 	void onScanNameEdited();
@@ -116,10 +114,6 @@ protected:
 	QLineEdit *scanName_;
 	/// Label holding the current estimated time for the scan to complete.  Takes into account extra time per point based on experience on the beamline.
 	QLabel *estimatedTime_;
-	/// Checkbox for enabling the TEY HV control automatically
-	QCheckBox *powerOnTEYHVControlCheckBox_;
-	/// ComboBox for enabling/disabling Bruker detector
-	QComboBox *fluorescenceDetectorComboBox_;
 
 	/// Double spin box for changing the energy.
 	QDoubleSpinBox *energy_;

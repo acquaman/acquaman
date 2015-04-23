@@ -124,26 +124,14 @@ SXRMBEXAFSScanConfigurationView::SXRMBEXAFSScanConfigurationView(SXRMBEXAFSScanC
 	QGroupBox *beamlineSettingsGroupBox = createAndLayoutBeamlineSettings();
 
 	// Bruker detector setting
-	powerOnTEYHVControlCheckBox_ = new QCheckBox("Power on TEY HV Control automatically");
-	connect(powerOnTEYHVControlCheckBox_, SIGNAL(clicked(bool)), this, SLOT(onPowerOnTEYHVControlEnabled(bool)));
-
-	fluorescenceDetectorComboBox_ = createFluorescenceComboBox();
-	connect(fluorescenceDetectorComboBox_, SIGNAL(currentIndexChanged(int)), this, SLOT(onFluorescenceDetectorChanged(int)));
-	connect(configuration_->dbObject(), SIGNAL(fluorescenceDetectorsChanged(SXRMB::FluorescenceDetectors)), this, SLOT(updateFluorescenceDetectorComboBox(SXRMB::FluorescenceDetectors)));
-
-	QVBoxLayout *detectorBoxLayout = new QVBoxLayout;
-	detectorBoxLayout->addWidget(powerOnTEYHVControlCheckBox_);
-	detectorBoxLayout->addWidget(fluorescenceDetectorComboBox_);
-
-	QGroupBox *detectorGroupBox = new QGroupBox("Detector Setting");
-	detectorGroupBox->setLayout(detectorBoxLayout);
+	QGroupBox *detectorSettingGroupBox = createAndLayoutDetectorSettings(configuration_);
 
 	// layout the contents
 	QGridLayout *contentLayout = new QGridLayout();
 	contentLayout->addWidget(scanRegionConfigurationGroupBox, 0, 0, 1, 1);
 	contentLayout->addWidget(scanInfoGroupBox, 1, 0, 1, 1);
 	contentLayout->addWidget(beamlineSettingsGroupBox, 0, 4, 1, 1);
-	contentLayout->addWidget(detectorGroupBox, 1, 4, 1, 1);
+	contentLayout->addWidget(detectorSettingGroupBox, 1, 4, 1, 1);
 
 	// setup the squeeze contents
 	QHBoxLayout *squeezeContents = new QHBoxLayout;
@@ -272,11 +260,6 @@ void SXRMBEXAFSScanConfigurationView::onBeamlineEndstationChanged(SXRMB::Endstat
 	}
 
 	onEndstationSampleStagePositionChanged(-1);
-}
-
-void SXRMBEXAFSScanConfigurationView::updateFluorescenceDetectorComboBox(SXRMB::FluorescenceDetectors detector)
-{
-	fluorescenceDetectorComboBox_->setCurrentIndex(int(detector));
 }
 
 void SXRMBEXAFSScanConfigurationView::onFluorescenceDetectorChanged(int detector)
