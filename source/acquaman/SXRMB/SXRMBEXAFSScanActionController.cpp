@@ -65,10 +65,10 @@ SXRMBEXAFSScanActionController::SXRMBEXAFSScanActionController(SXRMBEXAFSScanCon
 		break;
 	}
 
-	if (configuration_->fluorescenceDetectors().testFlag(SXRMB::Bruker))
+	if (configuration_->fluorescenceDetector().testFlag(SXRMB::Bruker))
 		sxrmbDetectors.addDetectorInfo(SXRMBBeamline::sxrmb()->exposedDetectorByName("Bruker")->toInfo());
 
-	if (configuration_->fluorescenceDetectors().testFlag(SXRMB::FourElement))
+	if (configuration_->fluorescenceDetector().testFlag(SXRMB::FourElement))
 		sxrmbDetectors.addDetectorInfo(SXRMBBeamline::sxrmb()->exposedDetectorByName("FourElementVortex")->toInfo());
 
 	configuration_->setDetectorConfigurations(sxrmbDetectors);
@@ -167,7 +167,7 @@ void SXRMBEXAFSScanActionController::buildScanControllerImplementation()
 	else
 		i0Sources = QList<AMDataSource *>() << scan_->dataSourceAt(scan_->indexOfDataSource("I0Detector"));
 
-	if (configuration_->fluorescenceDetectors().testFlag(SXRMB::Bruker)){
+	if (configuration_->fluorescenceDetector().testFlag(SXRMB::Bruker)){
 
 		AMXRFDetector *detector = SXRMBBeamline::sxrmb()->brukerDetector();
 
@@ -175,7 +175,7 @@ void SXRMBEXAFSScanActionController::buildScanControllerImplementation()
 
 		AMDataSource *spectraSource = 0;
 
-		SXRMB::FluorescenceDetectors xrfDetector = configuration_->fluorescenceDetectors();
+		SXRMB::FluorescenceDetectors xrfDetector = configuration_->fluorescenceDetector();
 
 		if (xrfDetector.testFlag(SXRMB::Bruker) && xrfDetector.testFlag(SXRMB::FourElement)){
 

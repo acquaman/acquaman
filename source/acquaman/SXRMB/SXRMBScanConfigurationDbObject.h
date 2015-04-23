@@ -17,7 +17,7 @@ class SXRMBScanConfigurationDbObject : public AMDbObject
 	Q_OBJECT
 
 	Q_PROPERTY(int endstation READ endstation WRITE setEndstation)
-	Q_PROPERTY(int fluorescenceDetectors READ fluorescenceDetectors WRITE setFluorescenceDetectors)
+	Q_PROPERTY(int fluorescenceDetectors READ fluorescenceDetector WRITE setFluorescenceDetector)
 	Q_PROPERTY(double x READ x WRITE setX)
 	Q_PROPERTY(double y READ y WRITE setY)
 	Q_PROPERTY(double z READ z WRITE setZ)
@@ -41,7 +41,7 @@ public:
 	/// Returns the endstation configuration of this configuration.
 	SXRMB::Endstation endstation() const { return endstation_; }
 	/// Returns the fluorescence detector configuration.
-	SXRMB::FluorescenceDetectors fluorescenceDetectors() const { return fluorescenceDetectors_; }
+	SXRMB::FluorescenceDetectors fluorescenceDetector() const { return fluorescenceDetector_; }
 	/// Returns the x position.
 	double x() const { return x_; }
 	/// Returns the y position.
@@ -59,7 +59,7 @@ signals:
 	/// Notifier that the endstation has changed.
 	void endstationChanged(SXRMB::Endstation, SXRMB::Endstation);
 	/// Notifier that the fluorescence detectors have changed.
-	void fluorescenceDetectorsChanged(SXRMB::FluorescenceDetectors);
+	void fluorescenceDetectorChanged(SXRMB::FluorescenceDetectors);
 	/// Notifier that the x position has changed.
 	void xChanged(double);
 	/// Notifier that the y position has changed.
@@ -75,7 +75,7 @@ public slots:
 	/// Sets the endstation value.
 	void setEndstation(SXRMB::Endstation endstation);
 	/// Sets the choice for the fluorescence detector.
-	void setFluorescenceDetectors(SXRMB::FluorescenceDetectors detector);
+	void setFluorescenceDetector(SXRMB::FluorescenceDetectors detector);
 	/// Sets the x position.
 	void setX(double newX);
 	/// Sets the y position.
@@ -95,7 +95,7 @@ protected:
 	/// Overloaded.  Used for database loading.
 	void setEndstation(int endstation);
 	/// Overloaded.  Used for database loading.
-	void setFluorescenceDetectors(int detector);
+	void setFluorescenceDetector(int detector);
 	/// Returns the regions of interest list.
 	AMDbObjectList dbReadRegionsOfInterest();
 	/// Called by the dtabase system on loadFromDb() to give us our new list of AMRegionOfInterest.
@@ -104,7 +104,7 @@ protected:
 	/// The endstation this scan was used on.
 	SXRMB::Endstation endstation_;
 	/// The fluorescence detector enum.
-	SXRMB::FluorescenceDetectors fluorescenceDetectors_;
+	SXRMB::FluorescenceDetectors fluorescenceDetector_;
 	/// The x position of the scan.
 	double x_;
 	/// The y position of the scan.

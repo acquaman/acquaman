@@ -4,7 +4,7 @@ SXRMBScanConfigurationDbObject::SXRMBScanConfigurationDbObject(QObject *parent)
 	: AMDbObject(parent)
 {
 	endstation_ = SXRMB::InvalidEndstation;
-	fluorescenceDetectors_ = SXRMB::Bruker;
+	setFluorescenceDetector(SXRMB::Bruker);
 	x_ = 0.0;
 	y_ = 0.0;
 	z_ = 0.0;
@@ -16,7 +16,7 @@ SXRMBScanConfigurationDbObject::SXRMBScanConfigurationDbObject(const SXRMBScanCo
 	: AMDbObject(original)
 {
 	endstation_ = original.endstation();
-	fluorescenceDetectors_ = original.fluorescenceDetectors();
+	fluorescenceDetector_ = original.fluorescenceDetector();
 	x_ = original.x();
 	y_ = original.y();
 	z_ = original.z();
@@ -92,19 +92,19 @@ void SXRMBScanConfigurationDbObject::setEndstation(SXRMB::Endstation endstation)
 	}
 }
 
-void SXRMBScanConfigurationDbObject::setFluorescenceDetectors(SXRMB::FluorescenceDetectors detector)
+void SXRMBScanConfigurationDbObject::setFluorescenceDetector(SXRMB::FluorescenceDetectors detector)
 {
-	if (fluorescenceDetectors_ != detector){
+	if (fluorescenceDetector_ != detector){
 
-		fluorescenceDetectors_ = detector;
-		emit fluorescenceDetectorsChanged(fluorescenceDetectors_);
+		fluorescenceDetector_ = detector;
+		emit fluorescenceDetectorChanged(fluorescenceDetector_);
 		setModified(true);
 	}
 }
 
-void SXRMBScanConfigurationDbObject::setFluorescenceDetectors(int detector)
+void SXRMBScanConfigurationDbObject::setFluorescenceDetector(int detector)
 {
-	setFluorescenceDetectors(SXRMB::FluorescenceDetectors(detector));
+	setFluorescenceDetector(SXRMB::FluorescenceDetectors(detector));
 }
 
 void SXRMBScanConfigurationDbObject::setEndstation(int endstation)

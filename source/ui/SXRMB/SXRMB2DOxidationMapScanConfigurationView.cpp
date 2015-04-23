@@ -427,7 +427,7 @@ void SXRMB2DOxidationMapScanConfigurationView::updateAutoExporter(int useAscii)
 
 void SXRMB2DOxidationMapScanConfigurationView::onFluorescenceDetectorChanged(int detector)
 {
-	configuration_->setFluorescenceDetectors((SXRMB::FluorescenceDetectors)detector);
+	configuration_->setFluorescenceDetector((SXRMB::FluorescenceDetectors)detector);
 }
 
 void SXRMB2DOxidationMapScanConfigurationView::onPowerOnTEYHVControlEnabled(bool value)

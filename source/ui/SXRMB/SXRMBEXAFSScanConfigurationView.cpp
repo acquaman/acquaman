@@ -264,7 +264,7 @@ void SXRMBEXAFSScanConfigurationView::onBeamlineEndstationChanged(SXRMB::Endstat
 
 void SXRMBEXAFSScanConfigurationView::onFluorescenceDetectorChanged(int detector)
 {
-	configuration_->setFluorescenceDetectors((SXRMB::FluorescenceDetectors)detector);
+	configuration_->setFluorescenceDetector((SXRMB::FluorescenceDetectors)detector);
 }
 
 void SXRMBEXAFSScanConfigurationView::onPowerOnTEYHVControlEnabled(bool value)

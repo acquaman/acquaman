@@ -442,7 +442,16 @@ void SXRMBAppController::onCurrentScanActionFinishedImplementation(AMScanAction 
 	// stop listening to the beamAvaliability signal for scan auto-pause purpose
 	disconnect(SXRMBBeamline::sxrmb(), SIGNAL(beamAvaliability(bool)), this, SLOT(onBeamAvailabilityChanged(bool)));
 
-	userConfiguration_->storeToDb(AMDatabase::database("user"));
+	// Save the current configuration to the database.
+	// Being explicit due to the nature of how many casts were necessary.  I could probably explicitly check to ensure each cast is successful, but I'll risk it for now.
+	const AMScanActionInfo *actionInfo = qobject_cast<const AMScanActionInfo *>(action->info());
+	const SXRMBScanConfiguration *sxrmbScanConfig = dynamic_cast<const SXRMBScanConfiguration *>(actionInfo->configuration());
+	SXRMBScanConfigurationDbObject *configDB = qobject_cast<SXRMBScanConfigurationDbObject *>(sxrmbScanConfig->dbObject());
+
+	if (configDB){
+		userConfiguration_->setFluorescenceDetector(configDB->fluorescenceDetector());
+		userConfiguration_->storeToDb(AMDatabase::database("user"));
+	}
 }
 
 void SXRMBAppController::onUserConfigurationLoadedFromDb()

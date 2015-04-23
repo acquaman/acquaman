@@ -58,7 +58,7 @@ SXRMB2DScanActionController::SXRMB2DScanActionController(SXRMB2DMapScanConfigura
 	detectors.addDetectorInfo(SXRMBBeamline::sxrmb()->exposedDetectorByName("I0Detector")->toInfo());
 	detectors.addDetectorInfo(SXRMBBeamline::sxrmb()->exposedDetectorByName("TEYDetector")->toInfo());
 
-	if (configuration_->fluorescenceDetectors().testFlag(SXRMB::Bruker)) {
+	if (configuration_->fluorescenceDetector().testFlag(SXRMB::Bruker)) {
 
 		SXRMBBeamline::sxrmb()->brukerDetector()->setIsVisible(false);
 		SXRMBBeamline::sxrmb()->brukerDetector()->setHiddenFromUsers(true);
@@ -81,7 +81,7 @@ SXRMB2DScanActionController::SXRMB2DScanActionController(SXRMB2DMapScanConfigura
 
 void SXRMB2DScanActionController::buildScanControllerImplementation()
 {
-	if (configuration_->fluorescenceDetectors().testFlag(SXRMB::Bruker)){
+	if (configuration_->fluorescenceDetector().testFlag(SXRMB::Bruker)){
 
 		AMXRFDetector *detector = SXRMBBeamline::sxrmb()->brukerDetector();
 

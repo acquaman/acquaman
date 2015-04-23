@@ -34,7 +34,7 @@ public:
 	/// Returns the endstation.
 	SXRMB::Endstation endstation() const { return dbObject_->endstation(); }
 	/// Returns the fluorescence detectors.
-	SXRMB::FluorescenceDetectors fluorescenceDetectors() const { return dbObject_->fluorescenceDetectors(); }
+	SXRMB::FluorescenceDetectors fluorescenceDetector() const { return dbObject_->fluorescenceDetector(); }
 	/// Returns the flag to power on TEY HV control
 	bool powerOnTEYHVControl() const;
 	/// Returns the x position.
@@ -63,7 +63,7 @@ public:
 	/// Sets the endstation.
 	void setEndstation(SXRMB::Endstation newEndstation) { dbObject_->setEndstation(newEndstation); }
 	/// Sets the fluorescence detectors.
-	void setFluorescenceDetectors(SXRMB::FluorescenceDetectors newFluorescenceDetectors) { dbObject_->setFluorescenceDetectors(newFluorescenceDetectors); }
+	void setFluorescenceDetector(SXRMB::FluorescenceDetectors newFluorescenceDetectors) { dbObject_->setFluorescenceDetector(newFluorescenceDetectors); }
 	/// Sets the x position.
 	void setX(double newX) { dbObject_->setX(newX); }
 	/// Sets the y position.
