@@ -8,8 +8,9 @@
 #include "beamline/CLS/CLSMAXvMotor.h"
 #include "beamline/BioXAS/BioXASSSRLMonochromatorEnergyControl.h"
 #include "beamline/BioXAS/BioXASSSRLMonochromatorRegionControl.h"
+#include "beamline/BioXAS/BioXASMonochromator.h"
 
-class BioXASSSRLMonochromator : public QObject
+class BioXASSSRLMonochromator : public BioXASMonochromator
 {
 	Q_OBJECT
 
@@ -78,10 +79,6 @@ public:
 	virtual AMAction3* createCalibrateBraggPositionAction(double newPosition);
 
 signals:
-	/// Notifier that the connected state has changed.
-	void connected(bool isConnected);
-	/// Notifier that the energy has changed.
-	void energyChanged(double newEnergy);
 	/// Notifier that the current region has changed.
 	void regionChanged(double newRegion);
 	/// Notifier that the slits status has changed
@@ -97,7 +94,7 @@ signals:
 
 public slots:
 	/// Sets the energy setpoint.
-	void setEnergy(double newEnergy);
+	virtual void setEnergy(double newEnergy);
 	/// Sets the region.
 	void setRegion(double newRegion);
 

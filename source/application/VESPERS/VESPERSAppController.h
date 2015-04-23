@@ -49,6 +49,8 @@ class VESPERSUserConfiguration;
 class AMRegionOfInterest;
 class VESPERSTimeScanConfiguration;
 class VESPERSTimeScanConfigurationView;
+class VESPERSTimedLineScanConfiguration;
+class VESPERSTimedLineScanConfigurationView;
 
 #define VESPERSAPPCONTROLLER_COULD_NOT_CREATE_VESPERS_FOLDER 999000
 #define VESPERSAPPCONTROLLER_AURORA_PATH_NOT_FOUND 999001
@@ -185,22 +187,29 @@ protected:
 	VESPERSSpatialLineScanConfiguration *lineScanConfiguration_;
 	/// The line scan configuration view.
 	VESPERSSpatialLineScanConfigurationView *lineScanConfigurationView_;
-	/// The (new holder for the line scan configuration.
+	/// The (new) holder for the line scan configuration.
 	AMScanConfigurationViewHolder3 *lineScanConfigurationViewHolder3_;
 
 	/// The energy scan configuration.
 	VESPERSEnergyScanConfiguration *energyScanConfiguration_;
 	/// The energy scan configuration view.
 	VESPERSEnergyScanConfigurationView *energyScanConfigurationView_;
-	/// The (new holder for the energy scan configuration.
+	/// The (new) holder for the energy scan configuration.
 	AMScanConfigurationViewHolder3 *energyScanConfigurationViewHolder3_;
 
-	/// The energy scan configuration.
+	/// The time scan configuration.
 	VESPERSTimeScanConfiguration *timeScanConfiguration_;
-	/// The energy scan configuration view.
+	/// The time scan configuration view.
 	VESPERSTimeScanConfigurationView *timeScanConfigurationView_;
-	/// The (new holder for the energy scan configuration.
+	/// The (new) holder for the time scan configuration.
 	AMScanConfigurationViewHolder3 *timeScanConfigurationViewHolder3_;
+
+	/// The timed line scan configuration.
+	VESPERSTimedLineScanConfiguration *timedLineScanConfiguration_;
+	/// The timed line scan configuration view.
+	VESPERSTimedLineScanConfigurationView *timedLineScanConfigurationView_;
+	/// The (new) holder for the timed line scan configuration.
+	AMScanConfigurationViewHolder3 *timedLineScanConfigurationViewHolder3_;
 
 	/// Pointer to the list action that is used to move the sample stage.
 	AMListAction3 *moveImmediatelyAction_;

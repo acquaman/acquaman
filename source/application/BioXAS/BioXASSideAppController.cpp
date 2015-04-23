@@ -37,6 +37,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/export/AMExporterOptionGeneralAscii.h"
 #include "dataman/export/AMExporterGeneralAscii.h"
 #include "dataman/export/AMExporterAthena.h"
+#include "dataman/BioXAS/BioXASUserConfiguration.h"
 
 #include "util/AMPeriodicTable.h"
 
@@ -51,22 +52,34 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/acquaman/AMScanConfigurationViewHolder3.h"
 #include "ui/dataman/AMGenericScanEditor.h"
 
-#include "ui/CLS/CLSSIS3820ScalerView.h"
 #include "ui/CLS/CLSJJSlitView.h"
 
 #include "ui/BioXAS/BioXASSidePersistentView.h"
 #include "ui/BioXAS/BioXASSideXASScanConfigurationView.h"
 #include "ui/BioXAS/BioXAS32ElementGeDetectorView.h"
 #include "ui/BioXAS/BioXASSSRLMonochromatorConfigurationView.h"
+#include "ui/BioXAS/BioXASXIAFiltersView.h"
+#include "ui/BioXAS/BioXASCarbonFilterFarmView.h"
+#include "ui/BioXAS/BioXASDBHRMirrorView.h"
+#include "ui/BioXAS/BioXASSIS3820ScalerView.h"
 
 BioXASSideAppController::BioXASSideAppController(QObject *parent)
 	: AMAppController(parent)
 {
 	scalerView_ = 0;
+	monoConfigView_ = 0;
+	jjSlitView_ = 0;
+	xiaFiltersView_ = 0;
+	carbonFilterFarmView_ = 0;
+	dbhrView_ = 0;
+
 	persistentPanel_ = 0;
+
 	configuration_ = 0;
 	configurationView_ = 0;
 	configurationViewHolder_ = 0;
+
+	userConfiguration_ = new BioXASUserConfiguration(this);
 }
 
 bool BioXASSideAppController::startup()
@@ -102,6 +115,12 @@ bool BioXASSideAppController::startup()
 		makeConnections();
 		applyCurrentSettings();
 
+		if (!userConfiguration_->loadFromDb(AMDatabase::database("user"), 1)){
+
+			userConfiguration_->storeToDb(AMDatabase::database("user"));
+			onUserConfigurationLoadedFromDb();
+		}
+
 		return true;
 	}
 	else
@@ -118,35 +137,23 @@ void BioXASSideAppController::shutdown()
 void BioXASSideAppController::onScalerConnected()
 {
 	if (BioXASSideBeamline::bioXAS()->scaler()->isConnected() && !scalerView_) {
-		scalerView_ = new CLSSIS3820ScalerView(BioXASSideBeamline::bioXAS()->scaler());
-
-		mw_->addPane(scalerView_, "Detectors", "Scaler", ":/system-search.png", true);
+		scalerView_ = new BioXASSIS3820ScalerView(BioXASSideBeamline::bioXAS()->scaler(), true);
+		mw_->addPane(createSqueezeGroupBoxWithView("", scalerView_), "Detectors", "Scaler", ":/system-search.png", true);
 	}
 }
 
 void BioXASSideAppController::onBeamlineConnected()
 {
 	if (BioXASSideBeamline::bioXAS()->isConnected() && !configurationView_) {
-		configuration_ = new BioXASSideXASScanConfiguration();
-		configuration_->setEnergy(10000);
-		/*
-		configuration_->scanAxisAt(0)->regionAt(0)->setRegionStart(10000);
-		configuration_->scanAxisAt(0)->regionAt(0)->setRegionStep(1);
-		configuration_->scanAxisAt(0)->regionAt(0)->setRegionEnd(10010);
-		configuration_->scanAxisAt(0)->regionAt(0)->setRegionTime(1.0);
-		*/
 
-		configurationView_ = new BioXASSideXASScanConfigurationView(configuration_);
-
-		configurationViewHolder_ = new AMScanConfigurationViewHolder3(configurationView_);
-
-		mw_->addPane(configurationViewHolder_, "Scans", "Test Scan", ":/utilities-system-monitor.png");
 	}
 }
 
 void BioXASSideAppController::registerClasses()
 {
 	AMDbObjectSupport::s()->registerClass<BioXASSideXASScanConfiguration>();
+	AMDbObjectSupport::s()->registerClass<BioXASScanConfigurationDbObject>();
+	AMDbObjectSupport::s()->registerClass<BioXASUserConfiguration>();
 	AMDbObjectSupport::s()->registerClass<BioXASXRFScanConfiguration>();
 }
 
@@ -189,7 +196,18 @@ void BioXASSideAppController::setupUserInterface()
 
 	// Set up the general monochromator configuration view.
 	monoConfigView_ = new BioXASSSRLMonochromatorConfigurationView(BioXASSideBeamline::bioXAS()->mono());
+
+	// Create JJ slits view.
 	jjSlitView_ = new CLSJJSlitView(BioXASSideBeamline::bioXAS()->jjSlit());
+
+	// Create XIA filters view.
+	xiaFiltersView_ = new BioXASXIAFiltersView(BioXASSideBeamline::bioXAS()->xiaFilters());
+
+	// Create carbon filter farm view.
+	carbonFilterFarmView_ = new BioXASCarbonFilterFarmView(BioXASSideBeamline::bioXAS()->carbonFilterFarm());
+
+	// Create DBHR mirror view.
+	dbhrView_ = new BioXASDBHRMirrorView(BioXASSideBeamline::bioXAS()->dbhrMirror());
 
 	// Create scaler view, if scaler is present and connected.
 	if (BioXASSideBeamline::bioXAS()->scaler()->isConnected()) {
@@ -207,8 +225,11 @@ void BioXASSideAppController::setupUserInterface()
 
 	// Add views to 'General'.
 	mw_->insertHeading("General", 0);
-	mw_->addPane(monoConfigView_, "General", "Monochromator", ":/system-software-update.png");
-	mw_->addPane(createSqeezeGroupBoxWithView("", jjSlitView_), "General", "JJ Slit", ":/system-software-update.png");
+	mw_->addPane(createSqueezeGroupBoxWithView("", monoConfigView_), "General", "Monochromator", ":/system-software-update.png");
+	mw_->addPane(createSqueezeGroupBoxWithView("", jjSlitView_), "General", "JJ Slit", ":/system-software-update.png");
+	mw_->addPane(createSqueezeGroupBoxWithView("", xiaFiltersView_), "General", "XIA Filters", ":/system-software-update.png");
+	mw_->addPane(createSqueezeGroupBoxWithView("", carbonFilterFarmView_), "General", "Carbon filter farm", ":/system-software-update.png");
+	mw_->addPane(createSqueezeGroupBoxWithView("", dbhrView_), "General", "DBHR Mirror", ":/system-software-update.png");
 
 	// Add views to 'Detectors'.
 	mw_->insertHeading("Detectors", 1);
@@ -218,14 +239,27 @@ void BioXASSideAppController::setupUserInterface()
 	mw_->insertHeading("Scans", 2);
 
 	// Add right side panel.
-
 	mw_->addRightWidget(persistentPanel_);
+
+	// Scan configuration stuff.
+
+	configuration_ = new BioXASSideXASScanConfiguration();
+	configuration_->setEnergy(10000);
+
+	configurationView_ = new BioXASSideXASScanConfigurationView(configuration_);
+
+	configurationViewHolder_ = new AMScanConfigurationViewHolder3(configurationView_);
+
+	mw_->addPane(configurationViewHolder_, "Scans", "Test Scan", ":/utilities-system-monitor.png");
 }
 
 void BioXASSideAppController::makeConnections()
 {
 	connect( BioXASSideBeamline::bioXAS()->scaler(), SIGNAL(connectedChanged(bool)), this, SLOT(onScalerConnected()) );
 	connect( BioXASSideBeamline::bioXAS(), SIGNAL(connected(bool)), this, SLOT(onBeamlineConnected()) );
+
+	// It is sufficient to only connect the user configuration to the single element because the single element and four element are synchronized together.
+	connect(userConfiguration_, SIGNAL(loadedFromDb()), this, SLOT(onUserConfigurationLoadedFromDb()));
 }
 
 void BioXASSideAppController::applyCurrentSettings()
@@ -237,14 +271,46 @@ void BioXASSideAppController::applyCurrentSettings()
 void BioXASSideAppController::onCurrentScanActionStartedImplementation(AMScanAction *action)
 {
 	Q_UNUSED(action)
+
+	userConfiguration_->storeToDb(AMDatabase::database("user"));
 }
 
 void BioXASSideAppController::onCurrentScanActionFinishedImplementation(AMScanAction *action)
 {
 	Q_UNUSED(action)
+
+	userConfiguration_->storeToDb(AMDatabase::database("user"));
 }
 
-QGroupBox *BioXASSideAppController::createSqeezeGroupBoxWithView(QString title, QWidget *view)
+void BioXASSideAppController::onUserConfigurationLoadedFromDb()
+{
+	AMXRFDetector *detector = BioXASSideBeamline::bioXAS()->ge32ElementDetector();
+
+	foreach (AMRegionOfInterest *region, userConfiguration_->regionsOfInterest()){
+
+		AMRegionOfInterest *newRegion = region->createCopy();
+		detector->addRegionOfInterest(newRegion);
+		configuration_->addRegionOfInterest(region);
+	}
+
+	// This is connected here because we want to listen to the detectors for updates, but don't want to double add regions on startup.
+	connect(BioXASSideBeamline::bioXAS()->ge32ElementDetector(), SIGNAL(addedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestAdded(AMRegionOfInterest*)));
+	connect(BioXASSideBeamline::bioXAS()->ge32ElementDetector(), SIGNAL(removedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestRemoved(AMRegionOfInterest*)));
+}
+
+void BioXASSideAppController::onRegionOfInterestAdded(AMRegionOfInterest *region)
+{
+	userConfiguration_->addRegionOfInterest(region);
+	configuration_->addRegionOfInterest(region);
+}
+
+void BioXASSideAppController::onRegionOfInterestRemoved(AMRegionOfInterest *region)
+{
+	userConfiguration_->removeRegionOfInterest(region);
+	configuration_->removeRegionOfInterest(region);
+}
+
+QGroupBox *BioXASSideAppController::createSqueezeGroupBoxWithView(QString title, QWidget *view)
 {
 	QHBoxLayout *horizontalLayout = new QHBoxLayout;
 	horizontalLayout->addStretch();
