@@ -153,8 +153,8 @@ QList<AMControl *> BioXASSideBeamline::getMotorsByType(BioXASBeamlineDef::BioXAS
 
 	switch (category) {
 	case BioXASBeamlineDef::FilterMotor: // BioXAS Filter motors
-		matchedMotors.append(carbonFilterFarm1_);
-		matchedMotors.append(carbonFilterFarm2_);
+		matchedMotors.append(carbonFilterFarm_->upstreamActuatorControl()->positionControl());
+		matchedMotors.append(carbonFilterFarm_->downstreamActuatorControl()->positionControl());
 		break;
 
 	case BioXASBeamlineDef::M1Motor:	// BioXAS M1 motors
@@ -593,11 +593,6 @@ void BioXASSideBeamline::setupDetectorStage()
 
 void BioXASSideBeamline::setupMotorGroup()
 {
-	// Filter farm motors
-
-	carbonFilterFarm1_ = new CLSMAXvMotor(QString("SMTR1607-5-I00-01 Filter 1"), QString("SMTR1607-5-I00-01"), QString("SMTR1607-5-I00-01 Filter 1"), true, 0.05, 2.0, this, QString(":mm"));
-	carbonFilterFarm2_ = new CLSMAXvMotor(QString("SMTR1607-5-I00-02 Filter 2"), QString("SMTR1607-5-I00-02"), QString("SMTR1607-5-I00-02 Filter 2"), true, 0.05, 2.0, this, QString(":mm"));
-
 	// M1 motors
 
 	m1VertUpStreamINB_ = new CLSMAXvMotor(QString("SMTR1607-5-I22-01 VERT INB (UPSTREAM)"), QString("SMTR1607-5-I22-01"), QString("SMTR1607-5-I22-01 VERT INB (UPSTREAM)"), true, 0.05, 2.0, this, QString(":mm"));
