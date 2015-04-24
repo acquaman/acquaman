@@ -27,6 +27,7 @@ HEADERS *=\
 	source/beamline/CLS/CLSKeithley428.h \
 	source/beamline/CLS/CLSStorageRing.h \
 	source/beamline/CLS/CLSSR570.h \
+	source/beamline/CLS/CLSCrossHairGeneratorControl.h \
 	source/beamline/CLS/CLSJJSlit.h \
 	source/dataman/info/CLSPGTDetectorInfo.h \
 	source/dataman/info/CLSOceanOptics65000DetectorInfo.h \
@@ -41,6 +42,7 @@ HEADERS *=\
 	source/ui/CLS/CLSSIS3820CompositeScalerChannelView.h \
 	source/ui/CLS/CLSSIS3820ScalerDarkCurrentWidget.h \
 	source/ui/CLS/CLSSIS3820ScalerControlsView.h \
+	source/ui/CLS/CLSCrossHairGeneratorControlView.h \
 	source/ui/CLS/CLSJJSlitView.h
 
 SOURCES *= \
@@ -65,6 +67,7 @@ SOURCES *= \
 	source/beamline/CLS/CLSKeithley428.cpp \
 	source/beamline/CLS/CLSStorageRing.cpp \
 	source/beamline/CLS/CLSSR570.cpp \
+	source/beamline/CLS/CLSCrossHairGeneratorControl.cpp \
 	source/beamline/CLS/CLSJJSlit.cpp \
 	source/dataman/info/CLSPGTDetectorInfo.cpp \
 	source/dataman/info/CLSOceanOptics65000DetectorInfo.cpp \
@@ -79,4 +82,5 @@ SOURCES *= \
 	source/ui/CLS/CLSSIS3820CompositeScalerChannelView.cpp \
 	source/ui/CLS/CLSSIS3820ScalerDarkCurrentWidget.cpp \
 	source/ui/CLS/CLSSIS3820ScalerControlsView.cpp \
+	source/ui/CLS/CLSCrossHairGeneratorControlView.cpp \
 	source/ui/CLS/CLSJJSlitView.cpp

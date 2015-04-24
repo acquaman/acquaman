@@ -635,10 +635,10 @@ void SXRMBBeamline::setupSampleStage()
 	microprobeSampleStageControlSet_->addControl(microprobeSampleStageZ_);
 
 	// Solid State Endstation sample stage
-	solidStateSampleStageX_ = new AMPVwStatusControl("SolidStateSampleStageX", "SMTR0000-E01-01:mm:sp", "SMTR0000-E01-01:mm", "SMTR0000-E01-01:status", "SMTR0000-E01-01:stop", this, 0.005, 2.0, new AMControlStatusCheckerCLSMAXv());
-	solidStateSampleStageY_ = new AMPVwStatusControl("SolidStateSampleStageY", "SMTR0000-E01-02:mm:sp", "SMTR0000-E01-02:mm", "SMTR0000-E01-02:status", "SMTR0000-E01-02:stop", this, 0.005, 2.0, new AMControlStatusCheckerCLSMAXv());
-	solidStateSampleStageZ_ = new AMPVwStatusControl("SolidStateSampleStageZ", "SMTR0000-E01-03:mm:sp", "SMTR0000-E01-03:mm", "SMTR0000-E01-03:status", "SMTR0000-E01-03:stop", this, 0.005, 2.0, new AMControlStatusCheckerCLSMAXv());
-	solidStateSampleStageR_ = new AMPVwStatusControl("SolidStateSampleStageR", "SMTR0000-E01-04:dgr:sp", "SMTR0000-E01-04:dgr", "SMTR0000-E01-04:status", "SMTR0000-E01-04:stop", this, 0.005, 2.0, new AMControlStatusCheckerCLSMAXv());
+	solidStateSampleStageX_ = new AMPVwStatusControl("SolidStateSampleStageX", "SMTR0000-E01-01:mm:sp", "SMTR0000-E01-01:mm", "SMTR0000-E01-01:status", "SMTR0000-E01-01:stop", this, 0.005, 2.0, new CLSMAXvControlStatusChecker());
+	solidStateSampleStageY_ = new AMPVwStatusControl("SolidStateSampleStageY", "SMTR0000-E01-02:mm:sp", "SMTR0000-E01-02:mm", "SMTR0000-E01-02:status", "SMTR0000-E01-02:stop", this, 0.005, 2.0, new CLSMAXvControlStatusChecker());
+	solidStateSampleStageZ_ = new AMPVwStatusControl("SolidStateSampleStageZ", "SMTR0000-E01-03:mm:sp", "SMTR0000-E01-03:mm", "SMTR0000-E01-03:status", "SMTR0000-E01-03:stop", this, 0.005, 2.0, new CLSMAXvControlStatusChecker());
+	solidStateSampleStageR_ = new AMPVwStatusControl("SolidStateSampleStageR", "SMTR0000-E01-04:dgr:sp", "SMTR0000-E01-04:dgr", "SMTR0000-E01-04:status", "SMTR0000-E01-04:stop", this, 0.005, 2.0, new CLSMAXvControlStatusChecker());
 
 	solidStateSampleStageControlSet_ = new AMControlSet(this);
 	solidStateSampleStageControlSet_->addControl(solidStateSampleStageX_);
@@ -647,10 +647,10 @@ void SXRMBBeamline::setupSampleStage()
 	solidStateSampleStageControlSet_->addControl(solidStateSampleStageR_);
 
 	// Ambiant Endstation sample state
-	ambiantSampleStageX_ = new AMPVwStatusControl("ambiantSampleStageX", "SMTR0000-E07-15:mm:sp", "SMTR0000-E07-15:mm", "SMTR0000-E07-15:status", "SMTR0000-E07-15:stop", this, 0.005, 2.0, new AMControlStatusCheckerCLSMAXv());
-	ambiantSampleStageZ_ = new AMPVwStatusControl("ambiantSampleStageZ", "SMTR0000-E07-16:mm:sp", "SMTR0000-E07-16:mm", "SMTR0000-E07-16:status", "SMTR0000-E07-16:stop", this, 0.005, 2.0, new AMControlStatusCheckerCLSMAXv());
-	ambiantSampleHolderZ_ = new AMPVwStatusControl("ambiantSampleHolderZ", "SMTR0000-E07-04:mm:sp", "SMTR0000-E07-04:mm", "SMTR0000-E07-04:status", "SMTR0000-E07-04:stop", this, 0.005, 2.0, new AMControlStatusCheckerCLSMAXv());
-	ambiantSampleHolderR_ = new AMPVwStatusControl("ambiantSampleHolderR", "SMTR0000-E07-05:dgr:sp", "SMTR0000-E07-05:dgr", "SMTR0000-E07-05:status", "SMTR0000-E07-05:stop", this, 0.005, 2.0, new AMControlStatusCheckerCLSMAXv());
+	ambiantSampleStageX_ = new AMPVwStatusControl("ambiantSampleStageX", "SMTR0000-E07-15:mm:sp", "SMTR0000-E07-15:mm", "SMTR0000-E07-15:status", "SMTR0000-E07-15:stop", this, 0.005, 2.0, new CLSMAXvControlStatusChecker());
+	ambiantSampleStageZ_ = new AMPVwStatusControl("ambiantSampleStageZ", "SMTR0000-E07-16:mm:sp", "SMTR0000-E07-16:mm", "SMTR0000-E07-16:status", "SMTR0000-E07-16:stop", this, 0.005, 2.0, new CLSMAXvControlStatusChecker());
+	ambiantSampleHolderZ_ = new AMPVwStatusControl("ambiantSampleHolderZ", "SMTR0000-E07-04:mm:sp", "SMTR0000-E07-04:mm", "SMTR0000-E07-04:status", "SMTR0000-E07-04:stop", this, 0.005, 2.0, new CLSMAXvControlStatusChecker());
+	ambiantSampleHolderR_ = new AMPVwStatusControl("ambiantSampleHolderR", "SMTR0000-E07-05:dgr:sp", "SMTR0000-E07-05:dgr", "SMTR0000-E07-05:status", "SMTR0000-E07-05:stop", this, 0.005, 2.0, new CLSMAXvControlStatusChecker());
 
 	ambiantWithGasChamberSampleStageControlSet_ = new AMControlSet(this);
 	ambiantWithGasChamberSampleStageControlSet_->addControl(ambiantSampleStageX_);

@@ -250,7 +250,7 @@ HEADERS += \
 	source/analysis/AMOrderReductionABEditor.h \
 	source/beamline/AMMotorGroup.h \
 	source/beamline/AM4DMotorGroup.h \
-	source/beamline/CLS/CLSPseudoMotorGroup.h \
+	source/ui/AM4DMotorGroupView.h \
 	source/ui/AMMotorGroupView.h \
 	source/util/AMPointerTree.h \
 	source/dataman/AMDbUpgrade1Pt4.h \
@@ -372,6 +372,7 @@ HEADERS += \
 	source/ui/dataman/AMScanTreeView.h \
 	source/util/AMRecursiveDirectoryCompare.h \
 	source/util/AMDirectorySynchronizer.h \
+	source/ui/util/AMDialog.h \
 	source/ui/util/AMDirectorySynchronizerDialog.h \
 	source/actions3/actions/AMDirectorySynchronizationAction.h \
 	source/ui/beamline/AMCurrentAmplifierCompositeView.h \
@@ -407,6 +408,7 @@ HEADERS += \
 	source/actions3/actions/AMChangeToleranceActionInfo.h \
 	source/actions3/actions/AMChangeToleranceAction.h \
 	source/dataman/AMXRFScan.h \
+	source/ui/util/AMChooseDataFolderDialog.h \
 	source/acquaman/AMTimedScanActionControllerAssembler.h \
     source/acquaman/AMGenericStepScanController.h \
     source/acquaman/AMGenericStepScanConfiguration.h \
@@ -626,7 +628,7 @@ SOURCES += \
 	source/analysis/AMOrderReductionABEditor.cpp \
 	source/beamline/AMMotorGroup.cpp \
 	source/beamline/AM4DMotorGroup.cpp \
-	source/beamline/CLS/CLSPseudoMotorGroup.cpp \
+	source/ui/AM4DMotorGroupView.cpp \
 	source/ui/AMMotorGroupView.cpp \
 	source/util/AMPointerTree.cpp \
 	source/dataman/AMDbUpgrade1Pt4.cpp \
@@ -746,6 +748,7 @@ SOURCES += \
 	source/ui/dataman/AMScanTreeView.cpp \
 	source/util/AMRecursiveDirectoryCompare.cpp \
 	source/util/AMDirectorySynchronizer.cpp \
+	source/ui/util/AMDialog.cpp \
 	source/ui/util/AMDirectorySynchronizerDialog.cpp \
 	source/actions3/actions/AMDirectorySynchronizationAction.cpp \
 	source/ui/beamline/AMCurrentAmplifierCompositeView.cpp \
@@ -782,7 +785,6 @@ SOURCES += \
 	source/actions3/actions/AMChangeToleranceActionInfo.cpp \
 	source/actions3/actions/AMChangeToleranceAction.cpp \
 	source/dataman/AMXRFScan.cpp \
-	source/acquaman/AMTimedScanActionControllerAssembler.cpp \
 	source/ui/util/AMChooseDataFolderDialog.cpp \
 	source/acquaman/AMTimedScanActionControllerAssembler.cpp \
     source/acquaman/AMGenericStepScanController.cpp \
