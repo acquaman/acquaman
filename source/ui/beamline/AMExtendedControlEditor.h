@@ -83,6 +83,11 @@ public:
 	bool setControlFormat(const QChar& format, int precision);
 	void hideBorder();
 
+	/// Returns the read-only status of the editor. This is always false if the control cannot move.
+	bool readOnly() const { return readOnly_; }
+	/// Returns the preferred read-only status of the editor.
+	bool readOnlyPreference() const { return readOnlyPreference_; }
+
 signals:
 	void moveRequested(double);
 	void setpointRequested(double);
@@ -91,14 +96,22 @@ signals:
 	void controlChanged(AMControl *newControl);
 	/// Notifier that the status control has changed.
 	void statusControlChanged(AMControl *newControl);
+	/// Notifier that the read only status of the editor has changed.
+	void readOnlyChanged(bool readOnly);
+	/// Notifier that the preferred read-only status of the editor has changed.
+	void readOnlyPreferenceChanged(bool readOnly);
 
 public slots:
 	/// Sets the control being viewed.
 	void setControl(AMControl *newControl);
 	/// Sets the status control.
 	void setStatusControl(AMControl *newControl);
-
-	void setReadOnly(bool readOnly);
+	/// Sets the preferred read-only status of the editor.
+	void setReadOnlyPreference(bool readOnly);
+	/// Sets the units text box and prevents them from being set by control updates.
+	void setUnits(const QString &newUnits);
+	/// Sets the manual override flag for the units text.
+	void setUnitsManually(bool manual);
 	void setNoUnitsBox(bool noUnitsBox);
 	void overrideTitle(const QString& title);
 
@@ -109,17 +122,18 @@ public slots:
 	*/
 	QSize sizeHint() const;
 
-	/// Sets the units text box and prevents them from being set by control updates.
-	void setUnits(const QString &newUnits);
-	/// Sets the manual override flag for the units text.
-	void setUnitsManually(bool manual);
 
 protected slots:
 	void setHappy(bool happy = true);
 	void setUnhappy() { setHappy(false); }
 
-	/// Sets the units label text to the given newUnits, if the units haven't been overridden.
+	/// Sets the units label text.
 	void setUnitsText(const QString &newUnits);
+	/// Sets the editor's read-only status.
+	void setReadOnly(bool readOnly);
+
+	/// Updates the read-only status of the editor, according to the current control.
+	void updateReadOnlyStatus();
 
 	void onValueChanged(double newVal);
 	void onUnitsChanged(const QString& units);
@@ -140,6 +154,7 @@ protected:
 	AMControl* control_;
 	AMControl* statusTagControl_;
 	bool readOnly_;
+	bool readOnlyPreference_;
 	bool configureOnly_;
 	bool connectedOnce_;
 	bool newValueOnce_;
