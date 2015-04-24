@@ -290,6 +290,13 @@ public:
 	/// Returns a newly created action to change the power state. Returns 0 if the control is not connected.
 	AMAction3 *createPowerAction(CLSMAXvMotor::PowerState newState);
 
+	/// Returns a newly created action to alert when CCW is at limit
+	AMAction3 *createCCWLimitWaitAction(CLSMAXvMotor::Limit ccwLimitState);
+
+	/// Returns a newly created action to alert when CW is at limit
+	AMAction3 *createCCWLimitWaitAction(CLSMAXvMotor::Limit ccwLimitState);
+
+
 public slots:
 	/// Sets the (EGU) velocity setting for the velocity profile
 	void setEGUVelocity(double EGUVelocity);
