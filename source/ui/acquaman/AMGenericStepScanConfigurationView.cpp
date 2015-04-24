@@ -114,6 +114,9 @@ AMGenericStepScanConfigurationView::AMGenericStepScanConfigurationView(AMGeneric
 		QCheckBox *checkBox = new QCheckBox(detectors->at(i)->name());
 		detectorGroup->addButton(checkBox);
 		detectorLayout->addWidget(checkBox);
+
+		if (configuration_->detectorConfigurations().contains(detectors->at(i)->name()))
+			checkBox->setChecked(true);
 	}
 
 	connect(detectorGroup, SIGNAL(buttonClicked(QAbstractButton*)), this, SLOT(onDetectorSelectionChanged(QAbstractButton*)));
