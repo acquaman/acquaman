@@ -46,7 +46,8 @@ AMExtendedControlEditor::AMExtendedControlEditor(AMControl* control, AMControl* 
 	moveCounter_ = 0;
 
 	control_ = 0;
-	readOnly_ = readOnly;
+	readOnly_ = true;
+	readOnlyPreference_ = true;
 	configureOnly_ = configureOnly;
 	connectedOnce_ = false;
 	newValueOnce_ = false;
@@ -103,9 +104,10 @@ AMExtendedControlEditor::AMExtendedControlEditor(AMControl* control, AMControl* 
 	// Make connections:
 	connect(this, SIGNAL(clicked()), this, SLOT(onEditStart()));
 
-	// Apply current control settings.
+	// Apply current settings.
 	setControl(control);
 	setStatusControl(statusTagControl);
+	setReadOnlyPreference(readOnly);
 }
 
 double AMExtendedControlEditor::setpoint() const{
@@ -171,8 +173,6 @@ void AMExtendedControlEditor::setControl(AMControl *newControl)
 			else
 				connect(dialog_, SIGNAL(doubleValueSelected(double)), this, SLOT(onNewSetpoint(double)));
 
-//			if(control_ && !control_->canMove())
-//				readOnly_ = true;
 
 			if (title().isEmpty()) {
 				if(control_->description() != "")
@@ -181,6 +181,8 @@ void AMExtendedControlEditor::setControl(AMControl *newControl)
 					setTitle(control_->name());
 			}
 		}
+
+		updateReadOnlyStatus();
 
 		emit controlChanged(control_);
 	}
@@ -211,10 +213,20 @@ void AMExtendedControlEditor::setStatusControl(AMControl *newControl)
 	}
 }
 
-void AMExtendedControlEditor::setReadOnly(bool readOnly){
-	readOnly_ = readOnly;
-	if(control_ && !control_->canMove())
-		readOnly_ = true;
+void AMExtendedControlEditor::setReadOnlyPreference(bool readOnly)
+{
+	if (readOnlyPreference_ != readOnly) {
+		readOnlyPreference_ = readOnly;
+		emit readOnlyPreferenceChanged(readOnlyPreference_);
+	}
+
+	updateReadOnlyStatus();
+}
+
+void AMExtendedControlEditor::setUnits(const QString &newUnits)
+{
+	setUnitsManually(true);
+	setUnitsText(newUnits);
 }
 
 void AMExtendedControlEditor::setNoUnitsBox(bool noUnitsBox){
@@ -259,23 +271,49 @@ void AMExtendedControlEditor::onUnitsChanged(const QString& units) {
 void AMExtendedControlEditor::setHappy(bool happy) {
 	if(control_ && happy){
 		unitsLabel_->setStyleSheet("border: 1px outset #00df00; background: #d4ffdf; padding: 1px; width: 100%; color: #00df00;");
-		readOnly_ = !control_->canMove();
+
 		onUnitsChanged(control_->units());
 		onValueChanged(control_->value());
+
 		if(!connectedOnce_){
 			dialog_->setDoubleMaximum(control_->maximumValue());
 			dialog_->setDoubleMinimum(control_->minimumValue());
 			dialog_->setDoubleValue(control_->value());
 			connectedOnce_ = true;
 		}
-	}
-	else
+
+	} else {
 		unitsLabel_->setStyleSheet("border: 1px outset #f20000; background: #ffdfdf;	padding: 1px; color: #f20000;");
+	}
 }
 
 void AMExtendedControlEditor::setUnitsText(const QString &newUnits)
 {
 	unitsLabel_->setText(newUnits);
+}
+
+void AMExtendedControlEditor::setUnitsManually(bool manual)
+{
+	if (unitsSetManually_ != manual) {
+		unitsSetManually_ = manual;
+	}
+}
+
+void AMExtendedControlEditor::setReadOnly(bool readOnly)
+{
+	if (readOnly_ != readOnly) {
+		readOnly_ = readOnly;
+
+		emit readOnlyChanged(readOnly_);
+	}
+}
+
+void AMExtendedControlEditor::updateReadOnlyStatus()
+{
+	if (control_ && control_->canMove())
+		setReadOnly(readOnlyPreference_);
+	else
+		setReadOnly(true);
 }
 
 void AMExtendedControlEditor::onMotion(bool moving) {
@@ -348,19 +386,6 @@ QSize AMExtendedControlEditor::sizeHint() const{
 	QSize newHint = QGroupBox::sizeHint();
 	newHint.setHeight(newHint.height()+6);
 	return newHint;
-}
-
-void AMExtendedControlEditor::setUnits(const QString &newUnits)
-{
-	setUnitsManually(true);
-	setUnitsText(newUnits);
-}
-
-void AMExtendedControlEditor::setUnitsManually(bool manual)
-{
-	if (unitsSetManually_ != manual) {
-		unitsSetManually_ = manual;
-	}
 }
 
 void AMExtendedControlEditor::mouseReleaseEvent ( QMouseEvent * event ) {
