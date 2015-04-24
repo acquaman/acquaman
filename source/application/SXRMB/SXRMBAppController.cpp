@@ -47,18 +47,25 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/export/AMSMAKExporter.h"
 #include "dataman/export/AMExporter2DAscii.h"
 #include "dataman/SXRMB/SXRMBUserConfiguration.h"
+#include "dataman/SXRMB/SXRMBDbUpgrade1pt1.h"
 
 #include "ui/AMMainWindow.h"
+#include "ui/AMMotorGroupView.h"
 #include "ui/dataman/AMGenericScanEditor.h"
 #include "ui/acquaman/AMScanConfigurationViewHolder3.h"
+#include "ui/util/AMDialog.h"
 #include "ui/CLS/CLSSIS3820ScalerView.h"
+#include "ui/CLS/CLSCrossHairGeneratorControlView.h"
 #include "ui/acquaman/SXRMB/SXRMBOxidationMapScanConfigurationViewHolder.h"
-#include "ui/SXRMB/SXRMBXRFDetailedDetectorView.h"
+#include "ui/SXRMB/SXRMBBrukerDetectorView.h"
+#include "ui/SXRMB/SXRMBFourElementVortexDetectorView.h"
 #include "ui/SXRMB/SXRMBPersistentView.h"
 #include "ui/SXRMB/SXRMBEXAFSScanConfigurationView.h"
 #include "ui/SXRMB/SXRMB2DMapScanConfigurationView.h"
 #include "ui/SXRMB/SXRMB2DOxidationMapScanConfigurationView.h"
 #include "ui/SXRMB/SXRMBChooseDataFolderDialog.h"
+#include "ui/SXRMB/SXRMBHVControlView.h"
+#include "ui/SXRMB/SXRMBCrystalChangeView.h"
 
 #include "util/AMErrorMonitor.h"
 #include "util/AMPeriodicTable.h"
@@ -68,6 +75,13 @@ SXRMBAppController::SXRMBAppController(QObject *parent)
 {
 	userConfiguration_ = 0;
 	moveImmediatelyAction_ = 0;
+
+	// Remember!!!!  Every upgrade needs to be done to the user AND actions databases!
+	////////////////////////////////////////////////////////////////////////////////////////
+	AMDbUpgrade *sxrmb1Pt1UserDb = new SXRMBDbUpgrade1pt1("user", this);
+	appendDatabaseUpgrade(sxrmb1Pt1UserDb);
+	AMDbUpgrade *sxrmb1Pt1ActionDb = new SXRMBDbUpgrade1pt1("actions", this);
+	appendDatabaseUpgrade(sxrmb1Pt1ActionDb);
 }
 
 bool SXRMBAppController::startup()
@@ -106,14 +120,36 @@ void SXRMBAppController::shutdown()
 	AMAppController::shutdown();
 }
 
+bool SXRMBAppController::startupInstallActions()
+{
+	if(AMAppController::startupInstallActions()) {
+		QAction *switchEndstationAction = new QAction("Switch Beamline Endstation ...", mw_);
+		switchEndstationAction->setStatusTip("Switch beamline endstation.");
+		connect(switchEndstationAction, SIGNAL(triggered()), this, SLOT(onSwitchBeamlineEndstationTriggered()));
+
+		QAction *ambiantWithGasChamberMotorViewAction = new QAction("See Ambiant Sample Stage Motors ...", mw_);
+		ambiantWithGasChamberMotorViewAction->setStatusTip("Display the motors of the Ambiant Sample Stage.");
+		connect(ambiantWithGasChamberMotorViewAction, SIGNAL(triggered()), this, SLOT(onShowAmbiantSampleStageMotorsTriggered()));
+
+		viewMenu_->addSeparator();
+		viewMenu_->addAction(switchEndstationAction);
+		viewMenu_->addAction(ambiantWithGasChamberMotorViewAction);
+
+		return true;
+	} else
+		return false;
+}
+
 void SXRMBAppController::onBeamlineConnected(bool connected)
 {
+	SXRMBBeamline * sxrmbBL = SXRMBBeamline::sxrmb();
+
 	if (connected && !exafsScanConfigurationView_) {
 		exafsScanConfiguration_ = new SXRMBEXAFSScanConfiguration();
 
-		exafsScanConfiguration_->setNormalPosition(SXRMBBeamline::sxrmb()->microprobeSampleStageY()->value());
-		exafsScanConfiguration_->setMicroprobeSampleStageX(SXRMBBeamline::sxrmb()->microprobeSampleStageX()->value());
-		exafsScanConfiguration_->setMicroprobeSampleStageZ(SXRMBBeamline::sxrmb()->microprobeSampleStageZ()->value());
+		exafsScanConfiguration_->setY(sxrmbBL->microprobeSampleStageY()->value());
+		exafsScanConfiguration_->setX(sxrmbBL->microprobeSampleStageX()->value());
+		exafsScanConfiguration_->setZ(sxrmbBL->microprobeSampleStageZ()->value());
 
 		exafsScanConfiguration_->scanAxisAt(0)->regionAt(0)->setRegionStart(-11);
 		exafsScanConfiguration_->scanAxisAt(0)->regionAt(0)->setRegionStep(0.5);
@@ -129,7 +165,7 @@ void SXRMBAppController::onBeamlineConnected(bool connected)
 	if (connected && !microProbe2DScanConfigurationView_) {
 		microProbe2DScanConfiguration_ = new SXRMB2DMapScanConfiguration();
 
-		microProbe2DScanConfiguration_->setExcitationEnergy(SXRMBBeamline::sxrmb()->energy()->value());
+		microProbe2DScanConfiguration_->setEnergy(sxrmbBL->energy()->value());
 
 		microProbe2DScanConfiguration_->scanAxisAt(0)->regionAt(0)->setRegionStart(0.0);
 		microProbe2DScanConfiguration_->scanAxisAt(0)->regionAt(0)->setRegionStep(0.01);
@@ -144,8 +180,6 @@ void SXRMBAppController::onBeamlineConnected(bool connected)
 
 		microProbe2DScanConfigurationView_ = new SXRMB2DMapScanConfigurationView(microProbe2DScanConfiguration_);
 		microProbe2DScanConfigurationViewHolder_ = new AMScanConfigurationViewHolder3(microProbe2DScanConfigurationView_);
-
-		mw_->addPane(microProbe2DScanConfigurationViewHolder_, "Scans", "2D Scan", ":/utilites-system-monitor.png");
 	}
 
 	if (connected && !microProbe2DOxidationScanConfigurationView_) {
@@ -153,7 +187,7 @@ void SXRMBAppController::onBeamlineConnected(bool connected)
 		microProbe2DOxidationScanConfiguration_->setName("Oxidation Map");
 		microProbe2DOxidationScanConfiguration_->setUserScanName("Oxidation Map");
 
-		microProbe2DScanConfiguration_->setExcitationEnergy(SXRMBBeamline::sxrmb()->energy()->value());
+		microProbe2DScanConfiguration_->setEnergy(sxrmbBL->energy()->value());
 
 		microProbe2DOxidationScanConfiguration_->scanAxisAt(0)->regionAt(0)->setRegionStart(0.0);
 		microProbe2DOxidationScanConfiguration_->scanAxisAt(0)->regionAt(0)->setRegionStep(0.01);
@@ -168,8 +202,6 @@ void SXRMBAppController::onBeamlineConnected(bool connected)
 
 		microProbe2DOxidationScanConfigurationView_ = new SXRMB2DOxidationMapScanConfigurationView(microProbe2DOxidationScanConfiguration_);
 		microProbe2DOxidationScanConfigurationViewHolder_ = new SXRMBOxidationMapScanConfigurationViewHolder(microProbe2DOxidationScanConfigurationView_);
-
-		mw_->addPane(microProbe2DOxidationScanConfigurationViewHolder_, "Scans", "Oxidation Map", ":/utilites-system-monitor.png");
 	}
 
 	if (connected && !sxrmbPersistentView_){
@@ -187,18 +219,51 @@ void SXRMBAppController::onBeamlineConnected(bool connected)
 		if (!userConfiguration_->loadFromDb(AMDatabase::database("user"), 1)){
 			userConfiguration_->storeToDb(AMDatabase::database("user"));
 
-			AMDetector *detector = SXRMBBeamline::sxrmb()->brukerDetector();
+			AMDetector *detector = sxrmbBL->brukerDetector();
 			// This is connected here because we want to listen to the detectors for updates, but don't want to double add regions on startup.
 			connect(detector, SIGNAL(addedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestAdded(AMRegionOfInterest*)));
 			connect(detector, SIGNAL(removedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestRemoved(AMRegionOfInterest*)));
 		}
 	}
+
+	if (connected)
+		onBeamlineEndstationSwitched(sxrmbBL->currentEndstation(), sxrmbBL->currentEndstation());
 }
 
 void SXRMBAppController::onBeamControlShuttersTimeout()
 {
 	QString errorMessage = "One (several) Beamline Valve/PSH shutter(s) can't be connected. Please contact beamline staff. This might affect your usage of Acuqaman.";
 	AMErrorMon::alert(this, ERR_SXRMB_SHUTTERS_TIMEOUT, errorMessage, true);
+}
+
+void SXRMBAppController::onBeamlineEndstationSwitched(SXRMB::Endstation fromEndstation, SXRMB::Endstation toEndstation)
+{
+	Q_UNUSED(fromEndstation)
+
+	if (toEndstation == SXRMB::InvalidEndstation)
+		return;
+
+	if (!microProbe2DScanConfiguration_ || !exafsScanConfiguration_ || !microProbe2DOxidationScanConfiguration_)
+		return;
+
+	microProbe2DScanConfiguration_->setEndstation(toEndstation);
+	exafsScanConfiguration_->setEndstation(toEndstation);
+	microProbe2DOxidationScanConfiguration_->setEndstation(toEndstation);
+
+	if (toEndstation == SXRMB::Microprobe){
+
+		mw_->addPane(microProbe2DScanConfigurationViewHolder_, "Scans", "2D Scan", ":/utilites-system-monitor.png");
+		mw_->addPane(microProbe2DOxidationScanConfigurationViewHolder_, "Scans", "Oxidation Map", ":/utilites-system-monitor.png");
+	}
+
+	else {
+
+		mw_->removePane(microProbe2DScanConfigurationViewHolder_);
+		mw_->removePane(microProbe2DOxidationScanConfigurationViewHolder_);
+
+		microProbe2DScanConfigurationViewHolder_->hide();
+		microProbe2DOxidationScanConfigurationViewHolder_->hide();
+	}
 }
 
 void SXRMBAppController::onBeamAvailabilityChanged(bool beamAvailable)
@@ -220,20 +285,7 @@ void SXRMBAppController::onScalerConnected(bool isConnected){
 			scalerView_->setAmplifierViewPrecision(3);
 		}
 
-		QGroupBox *scalerGroupBox = new QGroupBox;
-		scalerGroupBox->setFlat(true);
-
-		QHBoxLayout *scalerHorizontalSqueezeLayout = new QHBoxLayout;
-		scalerHorizontalSqueezeLayout->addStretch();
-		scalerHorizontalSqueezeLayout->addWidget(scalerView_);
-		scalerHorizontalSqueezeLayout->addStretch();
-
-		QVBoxLayout *scalerVerticalSqueezeLayout = new QVBoxLayout;
-		scalerVerticalSqueezeLayout->addWidget(new AMTopFrame("Scaler"));
-		scalerVerticalSqueezeLayout->addStretch();
-		scalerVerticalSqueezeLayout->addLayout(scalerHorizontalSqueezeLayout);
-		scalerVerticalSqueezeLayout->addStretch();
-		scalerGroupBox->setLayout(scalerVerticalSqueezeLayout);
+		QGroupBox *scalerGroupBox = createTopFrameSqueezeContent(scalerView_, "Scaler");
 		mw_->addPane(scalerGroupBox, "Detectors", "Scaler", ":/system-search.png", true);
 	}
 	else if(scalerView_)
@@ -298,9 +350,21 @@ void SXRMBAppController::setupUserInterface()
 
 
 	mw_->insertHeading("General", 0);
+	SXRMBHVControlView *hvControlView = new SXRMBHVControlView(SXRMBBeamline::sxrmb()->beamlineHVControlSet(), false);
+	QGroupBox *hvControlGroupBox = createTopFrameSqueezeContent(hvControlView, "HV Controls");
+	mw_->addPane(hvControlGroupBox, "General", "HV Controls", ":/system-search.png");
+
+	CLSCrossHairGeneratorControlView *crossHairView = new CLSCrossHairGeneratorControlView(SXRMBBeamline::sxrmb()->crossHairGenerator());
+	QGroupBox *crossHairGroupBox = createTopFrameSqueezeContent(crossHairView, "Video Cross hairs");
+	mw_->addPane(crossHairGroupBox, "General", "Cross Hairs", ":/system-search.png", true);
+
+	SXRMBCrystalChangeView *crystalChangeView = new SXRMBCrystalChangeView(SXRMBBeamline::sxrmb()->crystalSelection());
+	QGroupBox *crystalChangeGroupBox = createTopFrameSqueezeContent(crystalChangeView, "Crystal Selection");
+	mw_->addPane(crystalChangeGroupBox, "General", "Crystal Change", ":/system-search.png", true);
+
 	mw_->insertHeading("Detectors", 1);
 
-	SXRMBXRFDetailedDetectorView *brukerView = new SXRMBXRFDetailedDetectorView(SXRMBBeamline::sxrmb()->brukerDetector());
+	SXRMBBrukerDetectorView *brukerView = new SXRMBBrukerDetectorView(SXRMBBeamline::sxrmb()->brukerDetector());
 	brukerView->buildDetectorView();
 	brukerView->setEnergyRange(1700, 10000);
 	brukerView->addEmissionLineNameFilter(QRegExp("1"));
@@ -310,23 +374,56 @@ void SXRMBAppController::setupUserInterface()
 
 	mw_->addPane(brukerView, "Detectors", "Bruker", ":/system-search.png");
 
+	SXRMBFourElementVortexDetectorView *fourElementVortexView = new SXRMBFourElementVortexDetectorView(SXRMBBeamline::sxrmb()->fourElementVortexDetector());
+	fourElementVortexView->buildDetectorView();
+	fourElementVortexView->setEnergyRange(1700, 10000);
+	fourElementVortexView->addEmissionLineNameFilter(QRegExp("1"));
+	fourElementVortexView->addPileUpPeakNameFilter(QRegExp("(K.1|L.1|Ma1)"));
+	fourElementVortexView->addCombinationPileUpPeakNameFilter(QRegExp("(Ka1|La1|Ma1)"));
+
+	mw_->addPane(fourElementVortexView, "Detectors", "4-el Vortex", ":/system-search.png");
+
 	mw_->insertHeading("Scans", 2);
 }
 
 void SXRMBAppController::makeConnections()
 {
+	SXRMBBeamline *sxrmbBL = SXRMBBeamline::sxrmb();
+
 	connect(this, SIGNAL(scanEditorCreated(AMGenericScanEditor*)), this, SLOT(onScanEditorCreated(AMGenericScanEditor*)));
 
-	connect(SXRMBBeamline::sxrmb(), SIGNAL(connected(bool)), this, SLOT(onBeamlineConnected(bool)));
-	connect(SXRMBBeamline::sxrmb(), SIGNAL(beamlineControlShuttersTimeout()), this, SLOT(onBeamControlShuttersTimeout()));
-	connect(SXRMBBeamline::sxrmb()->scaler(), SIGNAL(connectedChanged(bool)), this, SLOT(onScalerConnected(bool)));
+	connect(sxrmbBL, SIGNAL(connected(bool)), this, SLOT(onBeamlineConnected(bool)));
+	connect(sxrmbBL, SIGNAL(beamlineControlShuttersTimeout()), this, SLOT(onBeamControlShuttersTimeout()));
+	connect(sxrmbBL, SIGNAL(endstationChanged(SXRMB::Endstation, SXRMB::Endstation)), this, SLOT(onBeamlineEndstationSwitched(SXRMB::Endstation, SXRMB::Endstation)));
+	connect(sxrmbBL->scaler(), SIGNAL(connectedChanged(bool)), this, SLOT(onScalerConnected(bool)));
 
-	if(SXRMBBeamline::sxrmb()->isConnected()){
+	if(sxrmbBL->isConnected()){
 		onBeamlineConnected(true);
-		if(SXRMBBeamline::sxrmb()->scaler()->isConnected())
+		if(sxrmbBL->scaler()->isConnected())
 			onScalerConnected(true);
 	}
 }
+
+QGroupBox* SXRMBAppController::createTopFrameSqueezeContent(QWidget *widget, QString topFrameTitle)
+{
+	QHBoxLayout *horizontalSqueezeLayout = new QHBoxLayout;
+	horizontalSqueezeLayout->addStretch();
+	horizontalSqueezeLayout->addWidget(widget);
+	horizontalSqueezeLayout->addStretch();
+
+	QVBoxLayout *verticalSqueezeLayout = new QVBoxLayout;
+	verticalSqueezeLayout->addWidget(new AMTopFrame(topFrameTitle));
+	verticalSqueezeLayout->addStretch();
+	verticalSqueezeLayout->addLayout(horizontalSqueezeLayout);
+	verticalSqueezeLayout->addStretch();
+
+	QGroupBox *controlGroupBox = new QGroupBox;
+	controlGroupBox->setFlat(true);
+	controlGroupBox->setLayout(verticalSqueezeLayout);
+
+	return 	controlGroupBox;
+}
+
 
 void SXRMBAppController::onCurrentScanActionStartedImplementation(AMScanAction *action)
 {
@@ -345,7 +442,16 @@ void SXRMBAppController::onCurrentScanActionFinishedImplementation(AMScanAction 
 	// stop listening to the beamAvaliability signal for scan auto-pause purpose
 	disconnect(SXRMBBeamline::sxrmb(), SIGNAL(beamAvaliability(bool)), this, SLOT(onBeamAvailabilityChanged(bool)));
 
-	userConfiguration_->storeToDb(AMDatabase::database("user"));
+	// Save the current configuration to the database.
+	// Being explicit due to the nature of how many casts were necessary.  I could probably explicitly check to ensure each cast is successful, but I'll risk it for now.
+	const AMScanActionInfo *actionInfo = qobject_cast<const AMScanActionInfo *>(action->info());
+	const SXRMBScanConfiguration *sxrmbScanConfig = dynamic_cast<const SXRMBScanConfiguration *>(actionInfo->configuration());
+	SXRMBScanConfigurationDbObject *configDB = qobject_cast<SXRMBScanConfigurationDbObject *>(sxrmbScanConfig->dbObject());
+
+	if (configDB){
+		userConfiguration_->setFluorescenceDetector(configDB->fluorescenceDetector());
+		userConfiguration_->storeToDb(AMDatabase::database("user"));
+	}
 }
 
 void SXRMBAppController::onUserConfigurationLoadedFromDb()
@@ -378,6 +484,41 @@ void SXRMBAppController::onRegionOfInterestRemoved(AMRegionOfInterest *region)
 	microProbe2DScanConfiguration_->removeRegionOfInterest(region);
 	exafsScanConfiguration_->removeRegionOfInterest(region);
 	microProbe2DOxidationScanConfiguration_->removeRegionOfInterest(region);
+}
+
+void SXRMBAppController::onShowAmbiantSampleStageMotorsTriggered()
+{
+	QString motorGroupName = SXRMBBeamline::sxrmb()->ambiantWithoutGasChamberSampleStageMotorGroupObject()->name();
+
+	AMMotorGroupView *motorGroupView = new AMMotorGroupView(SXRMBBeamline::sxrmb()->motorGroup(), AMMotorGroupView::Exclusive);
+	motorGroupView->setMotorGroupView(motorGroupName);
+	motorGroupView->showAvailableMotorGroupChoices(false);
+
+	AMDialog *showMotorDialog = new AMDialog(motorGroupName);
+	showMotorDialog->layoutDialogContent(motorGroupView);
+	showMotorDialog->exec();
+}
+
+void SXRMBAppController::onSwitchBeamlineEndstationTriggered()
+{
+	QStringList endstations;
+	endstations.append(SXRMB::sxrmbEndstationName(SXRMB::SolidState));
+	endstations.append(SXRMB::sxrmbEndstationName(SXRMB::AmbiantWithGasChamber));
+	endstations.append(SXRMB::sxrmbEndstationName(SXRMB::AmbiantWithoutGasChamber));
+	endstations.append(SXRMB::sxrmbEndstationName(SXRMB::Microprobe));
+
+	QComboBox *availableBeamlineEndstations = new QComboBox;
+	availableBeamlineEndstations->addItems(endstations);
+	availableBeamlineEndstations->setCurrentIndex(SXRMBBeamline::sxrmb()->currentEndstation() - 1);
+
+	AMDialog *switchEndstationDialog = new AMDialog("Switch SXRMB Endstation");
+	switchEndstationDialog->layoutDialogContent(availableBeamlineEndstations);
+
+	if (switchEndstationDialog->exec()) {
+
+		SXRMB::Endstation newEndstation = SXRMB::Endstation(availableBeamlineEndstations->currentIndex() + 1);
+		SXRMBBeamline::sxrmb()->switchEndstation(newEndstation);
+	}
 }
 
 void SXRMBAppController::onScanEditorCreated(AMGenericScanEditor *editor)
@@ -438,7 +579,7 @@ void SXRMBAppController::onDataPositionChanged(AMGenericScanEditor *editor, cons
 	text = QString("Setup at (H,V,N): (%1 mm, %2 mm, %3 mm)")
 			.arg(editor->dataPosition().x(), 0, 'f', 3)
 			.arg(editor->dataPosition().y(), 0, 'f', 3)
-			.arg(config->normalPosition());
+			.arg(config->y());
 
 	QMenu popup(text, editor);
 	QAction *temp = popup.addAction(text);
@@ -480,7 +621,7 @@ void SXRMBAppController::moveImmediately(const AMGenericScanEditor *editor)
 	moveImmediatelyAction_ = new AMListAction3(new AMListActionInfo3("Move immediately", "Moves sample stage to given coordinates."), AMListAction3::Sequential);
 	moveImmediatelyAction_->addSubAction(SXRMBBeamline::sxrmb()->microprobeSampleStageMotorGroupObject()->createHorizontalMoveAction(editor->dataPosition().x()));
 	moveImmediatelyAction_->addSubAction(SXRMBBeamline::sxrmb()->microprobeSampleStageMotorGroupObject()->createVerticalMoveAction(editor->dataPosition().y()));
-	moveImmediatelyAction_->addSubAction(SXRMBBeamline::sxrmb()->microprobeSampleStageMotorGroupObject()->createNormalMoveAction(config->normalPosition()));
+	moveImmediatelyAction_->addSubAction(SXRMBBeamline::sxrmb()->microprobeSampleStageMotorGroupObject()->createNormalMoveAction(config->y()));
 
 	connect(moveImmediatelyAction_, SIGNAL(succeeded()), this, SLOT(onMoveImmediatelySuccess()));
 	connect(moveImmediatelyAction_, SIGNAL(failed()), this, SLOT(onMoveImmediatelyFailure()));
@@ -522,17 +663,17 @@ void SXRMBAppController::setupXASScan(const AMGenericScanEditor *editor, bool se
 		edge.append("1");
 
 	exafsScanConfiguration_->setEdge(edge);
-	exafsScanConfiguration_->setMicroprobeSampleStageX(editor->dataPosition().x());
-	exafsScanConfiguration_->setMicroprobeSampleStageZ(editor->dataPosition().y());
+	exafsScanConfiguration_->setX(editor->dataPosition().x());
+	exafsScanConfiguration_->setZ(editor->dataPosition().y());
 
-	qDebug() << "Config " << exafsScanConfiguration_->microprobeSampleStageX() << exafsScanConfiguration_->microprobeSampleStageZ() << " editor " << editor->dataPosition().x() << editor->dataPosition().y();
+	qDebug() << "Config " << exafsScanConfiguration_->x() << exafsScanConfiguration_->z() << " editor " << editor->dataPosition().x() << editor->dataPosition().y();
 
 	// This should always succeed because the only way to get into this function is using the 2D scan view which currently only is accessed by 2D scans.
 	SXRMB2DMapScanConfiguration *configuration = qobject_cast<SXRMB2DMapScanConfiguration *>(editor->currentScan()->scanConfiguration());
 	if (configuration){
 
 		exafsScanConfiguration_->setName(configuration->name());
-		exafsScanConfiguration_->setNormalPosition(configuration->normalPosition());
+		exafsScanConfiguration_->setY(configuration->y());
 	}
 
 	if (setupEXAFS)
@@ -562,7 +703,7 @@ void SXRMBAppController::setup2DXRFScan(const AMGenericScanEditor *editor)
 		microProbe2DScanConfiguration_->scanAxisAt(1)->regionAt(0)->setRegionStep(0.01);
 		microProbe2DScanConfiguration_->scanAxisAt(1)->regionAt(0)->setRegionEnd(mapRect.top());
 		microProbe2DScanConfiguration_->scanAxisAt(1)->regionAt(0)->setRegionTime(config->scanAxisAt(1)->regionAt(0)->regionTime());
-		microProbe2DScanConfiguration_->setNormalPosition(config->normalPosition());
+		microProbe2DScanConfiguration_->setY(config->y());
 		microProbe2DScanConfigurationView_->updateMapInfo();
 	}
 

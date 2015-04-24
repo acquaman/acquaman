@@ -30,6 +30,14 @@ void SXRMBScanConfiguration::dbWriteScanConfigurationDbObject(AMDbObject *object
 		object->deleteLater();
 }
 
+bool SXRMBScanConfiguration::powerOnTEYHVControl() const {
+	// protection to make sure we won't power on TEY HV control by accident for Ambiant endstation
+	if (endstation() == SXRMB::AmbiantWithGasChamber || endstation() == SXRMB::AmbiantWithoutGasChamber)
+		return false;
+
+	return powerOnTEYHVControl_;
+}
+
 double SXRMBScanConfiguration::totalTime(bool recompute)
 {
 	if (recompute)

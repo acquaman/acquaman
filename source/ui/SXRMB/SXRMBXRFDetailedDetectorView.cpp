@@ -5,12 +5,12 @@
 #include "dataman/export/AMExporter.h"
 #include "dataman/export/AMExporterOption.h"
 #include "dataman/AMScan.h"
-#include "ui/util/AMLineEditDialog.h"
+#include "ui/util/AMDialog.h"
 
 #include "acquaman/SXRMB/SXRMBXRFScanConfiguration.h"
 #include "application/SXRMB/SXRMB.h"
 
-SXRMBXRFDetailedDetectorView::SXRMBXRFDetailedDetectorView(SXRMBBrukerDetector *detector, QWidget *parent)
+SXRMBXRFDetailedDetectorView::SXRMBXRFDetailedDetectorView(AMXRFDetector *detector, QWidget *parent)
 	:AMXRFDetailedDetectorView(detector, parent)
 {
 	chooseScanDialog_ = 0;
@@ -22,14 +22,6 @@ SXRMBXRFDetailedDetectorView::~SXRMBXRFDetailedDetectorView()
 
 }
 
-void SXRMBXRFDetailedDetectorView::enableDeadTimeDisplay()
-{
-	if (deadTimeLabel_) {
-		deadTimeLabel_->setVisible(true);
-		deadTimeLabel_->setText(QString("Dead time: [UNCONNECTED]"));
-	}
-}
-
 void SXRMBXRFDetailedDetectorView::buildDetectorView()
 {
 	AMXRFDetailedDetectorView::buildDetectorView();
@@ -37,11 +29,6 @@ void SXRMBXRFDetailedDetectorView::buildDetectorView()
 	QPushButton *saveButton = new QPushButton(QIcon(), "Save");
 	connect(saveButton, SIGNAL(clicked()), this, SLOT(onSaveButtonClicked()));
 	energyRangeLayout_->insertWidget(0, saveButton);
-}
-
-void SXRMBXRFDetailedDetectorView::onDeadTimeChanged()
-{
-	deadTimeLabel_->setText(QString("Dead time: %1").arg(detector_->deadTime()));
 }
 
 void SXRMBXRFDetailedDetectorView::onSaveButtonClicked()

@@ -105,8 +105,9 @@ void SXRMBXRFScanController::onStatusChanged()
 
 bool SXRMBXRFScanController::startImplementation()
 {
-	if (!detector_->isConnected() || !detector_->isInitialized()) {
-		QString errorMessage = QString("The bruker detector %1 is not connected or initialized.").arg(detector_->name());
+	if (!detector_->isConnected()) {
+
+		QString errorMessage = QString("The bruker detector %1 is not connected.").arg(detector_->name());
 		AMErrorMon::alert(this, ERR_SXRMB_XRF_DETECTOR_NOT_CONNECTED, errorMessage, true);
 		return false;
 	}
