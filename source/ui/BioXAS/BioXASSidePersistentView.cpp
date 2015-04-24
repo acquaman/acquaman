@@ -36,12 +36,12 @@ BioXASSidePersistentView::BioXASSidePersistentView(QWidget *parent) :
 	// Region control editor.
 
 	regionControlEditor_ = new BioXASSSRLMonochromatorRegionControlEditor(BioXASSideBeamline::bioXAS()->mono()->regionControl());
-	regionControlEditor_->setTitle("Mono Region");
+	regionControlEditor_->setTitle("Mono Crystal Region");
 
 	// Bragg control editor.
 
 	braggControlEditor_ = new AMExtendedControlEditor(BioXASSideBeamline::bioXAS()->mono()->braggMotor());
-	braggControlEditor_->setTitle("Bragg motor position");
+	braggControlEditor_->setTitle("Mono Goniometer Angle");
 
 	// Scaler channel views.
 

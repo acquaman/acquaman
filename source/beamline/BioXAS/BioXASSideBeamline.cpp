@@ -817,7 +817,7 @@ void BioXASSideBeamline::setupComponents()
 	xiaFilters_ = new BioXASSideXIAFilters(this);
 	connect( xiaFilters_, SIGNAL(connectedChanged(bool)), this, SLOT(onConnectionChanged()) );
 
-	jjSlit_ = new CLSJJSlit("Side BL", "JJSlit of the side beamline", "PSL1607-6-I22-01", "PSL1607-6-I22-02", 0.01, 10);
+	jjSlit_ = new CLSJJSlit("Side BL JJ Slit", "JJSlit of the side beamline", "PSL1607-6-I22-01", "PSL1607-6-I22-02", 0.01, 10);
 	connect(jjSlit_, SIGNAL(connected(bool)), this, SLOT(onConnectionChanged()));
 
 	dbhrMirror_ = new BioXASSideDBHRMirror(this);
