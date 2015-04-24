@@ -157,7 +157,7 @@ void BioXASMainAppController::onBeamlineConnected()
 	if (BioXASMainBeamline::bioXAS()->isConnected() && !configurationView_) {
 
 		configuration_ = new BioXASMainXASScanConfiguration();
-		configuration_->setEdgeEnergy(10000);
+		configuration_->setEnergy(10000);
 
 		configurationView_ = new BioXASMainXASScanConfigurationView(configuration_);
 		configurationViewHolder_ = new AMScanConfigurationViewHolder3(configurationView_);
