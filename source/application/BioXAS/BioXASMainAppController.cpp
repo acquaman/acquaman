@@ -63,6 +63,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "ui/AMTopFrame.h"
 
+#include "ui/acquaman/AMGenericStepScanConfigurationView.h"
+
 BioXASMainAppController::BioXASMainAppController(QObject *parent)
 	: AMAppController(parent)
 {
@@ -153,14 +155,24 @@ void BioXASMainAppController::onScalerConnected()
 void BioXASMainAppController::onBeamlineConnected()
 {
 	if (BioXASMainBeamline::bioXAS()->isConnected() && !configurationView_) {
+
 		configuration_ = new BioXASMainXASScanConfiguration();
-		configuration_->setEnergy(10000);
+		configuration_->setEdgeEnergy(10000);
 
 		configurationView_ = new BioXASMainXASScanConfigurationView(configuration_);
-
 		configurationViewHolder_ = new AMScanConfigurationViewHolder3(configurationView_);
 
+<<<<<<< HEAD
 		mw_->addPane(configurationViewHolder_, "Scans", "XAS Scan", ":/utilities-system-monitor.png");
+=======
+		mw_->addPane(configurationViewHolder_, "Scans", "Test Scan", ":/utilities-system-monitor.png");
+
+		commissioningConfiguration_ = new AMGenericStepScanConfiguration;
+		commissioningConfigurationView_ = new AMGenericStepScanConfigurationView(commissioningConfiguration_);
+		commissioningConfigurationViewHolder_ = new AMScanConfigurationViewHolder3(commissioningConfigurationView_);
+
+		mw_->addPane(commissioningConfigurationViewHolder_, "Scans", "Commissioning Tool", ":/utilities-system-monitor.png");
+>>>>>>> 0d13b63733d3cc6319d8bc9047cfe985dc6afcee
 	}
 }
 

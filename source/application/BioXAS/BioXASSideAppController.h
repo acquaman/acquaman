@@ -38,6 +38,8 @@ class AMRegionOfInterest;
 class BioXASXIAFiltersView;
 class BioXASCarbonFilterFarmView;
 class BioXASDBHRMirrorView;
+class AMGenericStepScanConfiguration;
+class AMGenericStepScanConfigurationView;
 
 class BioXASSideAppController : public AMAppController
 {
@@ -108,6 +110,13 @@ protected:
 	BioXASSideXASScanConfigurationView *configurationView_;
 
 	AMScanConfigurationViewHolder3 *configurationViewHolder_;
+
+	/// The commissioning tool configuration.
+	AMGenericStepScanConfiguration *commissioningConfiguration_;
+	/// The commissioning tool configuration view.
+	AMGenericStepScanConfigurationView *commissioningConfigurationView_;
+	/// The commissioning tool configuration view holder.
+	AMScanConfigurationViewHolder3 *commissioningConfigurationViewHolder_;
 
 	/// Holds the user configuration used for automatically setting up some simple aspects of the user interface.
 	BioXASUserConfiguration *userConfiguration_;
