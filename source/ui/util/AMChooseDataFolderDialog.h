@@ -24,7 +24,7 @@ public:
 	static bool getDataFolder(const QString &localRootDirectory, const QString &remoteRootDirectory, const QString &dataDirectory, const QStringList &extraDataDirectory = QStringList(), QWidget *parent = 0);
 
 	/// Constructor.  Builds the dialog.  Requires a folder to know where it should be looking.
-	AMChooseDataFolderDialog(const QString &dataFolder, const QString &localRootDirectory, const QString &remoteRootDirectory, const QString dataDirectory, QWidget *parent = 0);
+	AMChooseDataFolderDialog(const QString &dataFolder, const QString &localRootDirectory, const QString &remoteRootDirectory, const QString &dataDirectory, QWidget *parent = 0);
 	/// Destructor.
 	virtual ~AMChooseDataFolderDialog(){}
 
