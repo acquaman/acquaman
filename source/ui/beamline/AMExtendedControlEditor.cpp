@@ -47,7 +47,7 @@ AMExtendedControlEditor::AMExtendedControlEditor(AMControl* control, AMControl* 
 
 	control_ = 0;
 	readOnly_ = true;
-	readOnlyPreference_ = readOnly;
+	readOnlyPreference_ = true;
 	configureOnly_ = configureOnly;
 	connectedOnce_ = false;
 	newValueOnce_ = false;
@@ -107,6 +107,7 @@ AMExtendedControlEditor::AMExtendedControlEditor(AMControl* control, AMControl* 
 	// Apply current settings.
 	setControl(control);
 	setStatusControl(statusTagControl);
+	setReadOnlyPreference(readOnly);
 }
 
 double AMExtendedControlEditor::setpoint() const{
@@ -302,6 +303,7 @@ void AMExtendedControlEditor::setReadOnly(bool readOnly)
 {
 	if (readOnly_ != readOnly) {
 		readOnly_ = readOnly;
+
 		emit readOnlyChanged(readOnly_);
 	}
 }
