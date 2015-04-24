@@ -236,6 +236,7 @@ void AMGenericStepScanConfigurationView::onAxisControlChoice1Changed()
 		onStart1Changed();
 		onStep1Changed();
 		onEnd1Changed();
+		onDwellTimeChanged();
 	}
 
 	onAxisControlChoice2Changed();
@@ -277,6 +278,7 @@ void AMGenericStepScanConfigurationView::onAxisControlChoice2Changed()
 		onStart2Changed();
 		onStep2Changed();
 		onEnd2Changed();
+		onDwellTimeChanged();
 	}
 
 	QStandardItemModel *model = qobject_cast<QStandardItemModel *>(axisControlChoice1_->model());

@@ -242,6 +242,7 @@ void BioXASSideAppController::setupUserInterface()
 	mw_->insertHeading("Scans", 2);
 
 	commissioningConfiguration_ = new AMGenericStepScanConfiguration;
+	commissioningConfiguration_->setAutoExportEnabled(false);
 	commissioningConfiguration_->addDetector(BioXASSideBeamline::bioXAS()->exposedDetectorByName("I0Detector")->toInfo());
 	commissioningConfigurationView_ = new AMGenericStepScanConfigurationView(commissioningConfiguration_);
 	commissioningConfigurationViewHolder_ = new AMScanConfigurationViewHolder3(commissioningConfigurationView_);
