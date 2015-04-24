@@ -44,7 +44,7 @@ void SXRMBHVControlChannelView::onHVControlStatusChanged(int status)
 	if (status == 1) {
 		statusLabel_->setPixmap(QIcon(":/ON.png").pixmap(22));
 
-		powerOnOffButton_->setText("Off");
+		powerOnOffButton_->setText("Turn Off");
 		disconnect(powerOnOffButton_, SIGNAL(clicked()), hvControl_, SLOT(onPowerOn()));
 		connect(powerOnOffButton_, SIGNAL(clicked()), hvControl_, SLOT(onPowerOff()));
 
@@ -54,7 +54,7 @@ void SXRMBHVControlChannelView::onHVControlStatusChanged(int status)
 	} else {
 		statusLabel_->setPixmap(QIcon(":/OFF.png").pixmap(22));
 
-		powerOnOffButton_->setText("On");
+		powerOnOffButton_->setText("Turn On");
 		disconnect(powerOnOffButton_, SIGNAL(clicked()), hvControl_, SLOT(onPowerOff()));
 		connect(powerOnOffButton_, SIGNAL(clicked()), hvControl_, SLOT(onPowerOn()));
 
@@ -112,7 +112,7 @@ void SXRMBHVControlChannelView::layoutHVControl(SXRMBHVControl *hvControl, bool 
 	measuredCurrentLabel_->setFixedWidth(90);
 	measuredCurrentLabel_->setAlignment(Qt::AlignVCenter | Qt::AlignRight);
 
-	powerOnOffButton_ = new QPushButton("Off");
+	powerOnOffButton_ = new QPushButton("Turn Off");
 	powerOnOffButton_->setMaximumWidth(40);
 
 	statusLabel_ = new QLabel;
