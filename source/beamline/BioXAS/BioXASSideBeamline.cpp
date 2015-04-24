@@ -169,8 +169,8 @@ QList<AMControl *> BioXASSideBeamline::getMotorsByType(BioXASBeamlineDef::BioXAS
 		break;
 
 	case BioXASBeamlineDef::MaskMotor:	// BioXAS Variable Mask motors
-		matchedMotors.append(variableMaskVertUpperBlade_);
-		matchedMotors.append(variableMaskVertLowerBlade_);
+		matchedMotors.append(mono_->upperSlitBladeMotor());
+		matchedMotors.append(mono_->lowerSlitBladeMotor());
 		break;
 
 	case BioXASBeamlineDef::MonoMotor:	// Mono motors
@@ -594,7 +594,6 @@ void BioXASSideBeamline::setupDetectorStage()
 void BioXASSideBeamline::setupMotorGroup()
 {
 	// M1 motors
-
 	m1VertUpStreamINB_ = new CLSMAXvMotor(QString("SMTR1607-5-I22-01 VERT INB (UPSTREAM)"), QString("SMTR1607-5-I22-01"), QString("SMTR1607-5-I22-01 VERT INB (UPSTREAM)"), true, 0.05, 2.0, this, QString(":mm"));
 	m1VertUpStreamOUTB_ = new CLSMAXvMotor(QString("SMTR1607-5-I22-02 VERT OUTB (UPSTREAM)"), QString("SMTR1607-5-I22-02"), QString("SMTR1607-5-I22-02 VERT OUTB (UPSTREAM)"), true, 0.05, 2.0, this, QString(":mm"));
 	m1VertDownStream_ = new CLSMAXvMotor(QString("SMTR1607-5-I22-03 VERT (DOWNSTREAM)"), QString("SMTR1607-5-I22-03"), QString("SMTR1607-5-I22-03 VERT (DOWNSTREAM)"), true, 0.05, 2.0, this, QString(":mm"));
@@ -603,11 +602,6 @@ void BioXASSideBeamline::setupMotorGroup()
 	m1BenderUpstream_ = new CLSMAXvMotor(QString("SMTR1607-5-I22-06 BENDER (UPSTREAM)"), QString("SMTR1607-5-I22-06"), QString("SMTR1607-5-I22-06 BENDER (UPSTREAM)"), true, 0.05, 2.0, this, QString(":lbs"));
 	m1BenderDownStream_ = new CLSMAXvMotor(QString("SMTR1607-5-I22-07 BENDER (DOWNSTREAM)"), QString("SMTR1607-5-I22-07"), QString("SMTR1607-5-I22-07 BENDER (DOWNSTREAM)"), true, 0.05, 2.0, this, QString(":lbs"));
 	m1UpperSlitBlade_ = new CLSMAXvMotor(QString("SMTR1607-5-I22-08 UPPER SLIT BLADE"), QString("SMTR1607-5-I22-08"), QString("SMTR1607-5-I22-08 UPPER SLIT BLADE"), true, 0.05, 2.0, this, QString(":mm"));
-
-	// Variable mask motors
-
-	variableMaskVertUpperBlade_ = new CLSMAXvMotor(QString("SMTR1607-5-I22-09 VERT UPPER BLADE"), QString("SMTR1607-5-I22-09"), QString("SMTR1607-5-I22-09 VERT UPPER BLADE"), true, 0.05, 2.0, this, QString(":mm"));
-	variableMaskVertLowerBlade_ = new CLSMAXvMotor(QString("SMTR1607-5-I22-10 VERT LOWER BLADE"), QString("SMTR1607-5-I22-10"), QString("SMTR1607-5-I22-10 VERT LOWER BLADE"), true, 0.05, 2.0, this, QString(":mm"));
 
 	// BioXAS M1 Pseudo motors					   name,				   pvBaseName,				readPVname,	writePVname, movingPVname,	enabledPVname, stopPVname, tolerance, moveStartTimeoutSeconds, statusChecker, stopValue, description, parent = 0
 	m1PseudoRoll_ = new BioXASPseudoMotorControl("BL1607-5-I22 Side M1 Roll", "BL1607-5-I22:M1:Roll", ":deg:fbk", ":deg", ":status", ":enabled", ":stop");
