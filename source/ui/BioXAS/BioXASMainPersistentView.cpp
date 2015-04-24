@@ -23,6 +23,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "beamline/BioXAS/BioXASMainBeamline.h"
 #include "ui/beamline/AMExtendedControlEditor.h"
+#include "ui/CLS/CLSSIS3820ScalerView.h"
 
 BioXASMainPersistentView::BioXASMainPersistentView(QWidget *parent) :
     QWidget(parent)
@@ -39,27 +40,39 @@ BioXASMainPersistentView::BioXASMainPersistentView(QWidget *parent) :
 	braggControlEditor_ = new AMExtendedControlEditor(BioXASMainBeamline::bioXAS()->mono()->braggMotor());
 	braggControlEditor_->setTitle("Bragg motor position");
 
-	calibrateEnergyButton_ = new QPushButton("Calibrate energy", this);
+	// Create the scaler channel views.
 
-	// Create and set layouts.
+	BioXASSIS3820ScalerChannelsView *channels = new BioXASSIS3820ScalerChannelsView(BioXASMainBeamline::bioXAS()->scaler());
 
-	QHBoxLayout *buttonLayout = new QHBoxLayout();
-	buttonLayout->addStretch();
-	buttonLayout->addWidget(calibrateEnergyButton_);
+	QVBoxLayout *channelsLayout = new QVBoxLayout();
+	channelsLayout->addWidget(channels);
+
+	channelsView_ = new QGroupBox();
+	channelsView_->setTitle("Scaler channels");
+	channelsView_->setLayout(channelsLayout);
+
+	// Create and set main layout.
 
 	QVBoxLayout *layout = new QVBoxLayout();
 	layout->addWidget(energyControlEditor_);
 	layout->addWidget(regionControlEditor_);
 	layout->addWidget(braggControlEditor_);
-	layout->addLayout(buttonLayout);
+	layout->addWidget(channelsView_);
 	layout->addStretch();
 
 	setLayout(layout);
-	setFixedWidth(300);
 
-	// Make connections
+	// Initial settings.
 
-	connect( calibrateEnergyButton_, SIGNAL(clicked()), this, SLOT(onCalibrateEnergyButtonClicked()) );
+	channelsView_->hide();
+
+	// Make connections.
+
+	connect( BioXASMainBeamline::bioXAS()->scaler(), SIGNAL(connectedChanged(bool)), this, SLOT(setScalerChannelsVisible(bool)) );
+
+	// Current settings.
+
+	setScalerChannelsVisible(BioXASMainBeamline::bioXAS()->scaler()->isConnected());
 }
 
 BioXASMainPersistentView::~BioXASMainPersistentView()
@@ -67,12 +80,7 @@ BioXASMainPersistentView::~BioXASMainPersistentView()
 
 }
 
-void BioXASMainPersistentView::onCalibrateEnergyButtonClicked()
+void BioXASMainPersistentView::setScalerChannelsVisible(bool show)
 {
-	bool inputOK = false;
-	double newEnergy = QInputDialog::getDouble(this, "Monochromator Energy Calibration", "Enter current calibrated energy:", BioXASMainBeamline::bioXAS()->mono()->energyControl()->value(), -100000000, 10000000, 1, &inputOK, Qt::Sheet);
-
-	if (inputOK) {
-		BioXASMainBeamline::bioXAS()->mono()->setEnergyCalibration(newEnergy);
-	}
+	channelsView_->setVisible(show);
 }

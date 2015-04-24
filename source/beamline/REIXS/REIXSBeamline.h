@@ -20,7 +20,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef REIXSBEAMLINE_H
 #define REIXSBEAMLINE_H
 
-#include "beamline/AMBeamline.h"
+#include "beamline/CLS/CLSBeamline.h"
 #include "beamline/AMControlSet.h"
 #include "acquaman/REIXS/REIXSXESMCPDetectorPre2013.h"	///< \todo Move this to beamline, not acquaman.
 #include "beamline/REIXS/REIXSXESMCPDetector.h"
@@ -409,7 +409,7 @@ protected:
 
 
 /// This class creates and provides access to the AMControl objects with the power to move the REIXS beamline and spectrometer
-class REIXSBeamline : public AMBeamline
+class REIXSBeamline : public CLSBeamline
 {
 	Q_OBJECT
 public:
@@ -456,7 +456,7 @@ public:
 	/// All temperature monitors set
 	AMControlSet* tmset() { return tmSet_; }
 
-	CLSSIS3820Scaler *scaler() { return scaler_; }
+	virtual CLSSIS3820Scaler *scaler() const { return scaler_; }
 
 	/// Build a list of actions that opens/closes necessary shutters.
 	AMAction3 *buildBeamStateChangeAction(bool beamOn) const;

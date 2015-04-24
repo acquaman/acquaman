@@ -28,7 +28,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "acquaman/SXRMB/SXRMBXRFScanConfiguration.h"
 #include "acquaman/SXRMB/SXRMBEXAFSScanConfiguration.h"
 
-#include "beamline/CLS/CLSBeamlines.h"
+#include "beamline/CLS/CLSFacilityID.h"
 #include "beamline/CLS/CLSStorageRing.h"
 #include "beamline/SXRMB/SXRMBBeamline.h"
 
@@ -280,7 +280,7 @@ void SXRMBAppController::onScalerConnected(bool isConnected){
 	if(isConnected && SXRMBBeamline::sxrmb()->isConnected()){
 		if(!scalerView_){
 
-			scalerView_ = new CLSSIS3820ScalerView(SXRMBBeamline::sxrmb()->scaler(), false);
+			scalerView_ = new CLSSIS3820ScalerView(SXRMBBeamline::sxrmb()->scaler());
 			scalerView_->setAmplifierViewFormat('g');
 			scalerView_->setAmplifierViewPrecision(3);
 		}
@@ -307,7 +307,7 @@ void SXRMBAppController::setupOnFirstRun()
 	AMRun existingRun;
 	// We'll use loading a run from the db as a sign of whether this is the first time an application has been run because startupIsFirstTime will return false after the user data folder is created.
 	if (!existingRun.loadFromDb(AMDatabase::database("user"), 1)){
-		AMRun firstRun(CLSBeamline::beamlineName(CLSBeamline::SXRMBBeamline), CLSBeamline::SXRMBBeamline); //9: SXRMB Beamline
+		AMRun firstRun(CLSFacilityID::beamlineName(CLSFacilityID::SXRMBBeamline), CLSFacilityID::SXRMBBeamline); //9: SXRMB Beamline
 		firstRun.storeToDb(AMDatabase::database("user"));
 	}
 }

@@ -1,7 +1,7 @@
 #include "BioXASSSRLMonochromator.h"
 
 BioXASSSRLMonochromator::BioXASSSRLMonochromator(QObject *parent) :
-	QObject(parent)
+	BioXASMonochromator(parent)
 {
 
 }
@@ -21,21 +21,6 @@ AMAction3* BioXASSSRLMonochromator::createSetEnergyAction(double newEnergy)
 	return action;
 }
 
-AMAction3* BioXASSSRLMonochromator::createSetEnergyCalibrationAction(double newEnergy)
-{
-	AMAction3 *action = 0;
-
-	if (isConnected()) {
-		// Calculate needed offset.
-		double newOffset = calibrateEnergy(energyControl()->value(), newEnergy);
-
-		// Set the new angle offset.
-		action = braggMotor()->createEGUOffsetAction(newOffset);
-	}
-
-	return action;
-}
-
 AMAction3* BioXASSSRLMonochromator::createSetRegionAction(double newRegion)
 {
 	AMAction3 *action = 0;
@@ -46,21 +31,21 @@ AMAction3* BioXASSSRLMonochromator::createSetRegionAction(double newRegion)
 	return action;
 }
 
+AMAction3* BioXASSSRLMonochromator::createCalibrateBraggPositionAction(double newPosition)
+{
+	AMAction3 *action = 0;
+
+	if (braggMotor()->isConnected()) {
+		action = braggMotor()->createEGUSetPositionAction(newPosition);
+	}
+
+	return action;
+}
+
 void BioXASSSRLMonochromator::setEnergy(double newEnergy)
 {
 	if (energyControl()->isConnected())
 		energyControl()->move(newEnergy);
-}
-
-void BioXASSSRLMonochromator::setEnergyCalibration(double newEnergy)
-{
-	if (isConnected()) {
-		// Calculate needed offset.
-		double newOffset = calibrateEnergy(energyControl()->value(), newEnergy);
-
-		// Set the new angle offset.
-		braggMotor()->setEGUOffset(newOffset);
-	}
 }
 
 void BioXASSSRLMonochromator::setRegion(double newRegion)
@@ -69,17 +54,9 @@ void BioXASSSRLMonochromator::setRegion(double newRegion)
 		regionControl()->move(newRegion);
 }
 
-double BioXASSSRLMonochromator::calibrateEnergy(double oldEnergy, double newEnergy) const
+void BioXASSSRLMonochromator::calibrateBraggPosition(double newBraggPosition)
 {
-	// Gather pre-calibration information.
-	double oldOffset = braggMotor()->EGUOffset();
-
-	// Calculate changes needed for calibration.
-	double deltaEnergy = newEnergy - oldEnergy;
-	double deltaOffset = hc() / (crystal2D() * oldEnergy * oldEnergy * cos(braggAngle() * M_PI / 180)) * deltaEnergy * 180 / M_PI;
-
-	// Calibration results.
-	double newOffset = oldOffset + deltaOffset;
-
-	return newOffset;
+	if (braggMotor()->isConnected()) {
+		braggMotor()->setEGUSetPosition(newBraggPosition);
+	}
 }

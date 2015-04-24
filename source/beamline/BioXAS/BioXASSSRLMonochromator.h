@@ -8,8 +8,9 @@
 #include "beamline/CLS/CLSMAXvMotor.h"
 #include "beamline/BioXAS/BioXASSSRLMonochromatorEnergyControl.h"
 #include "beamline/BioXAS/BioXASSSRLMonochromatorRegionControl.h"
+#include "beamline/BioXAS/BioXASMonochromator.h"
 
-class BioXASSSRLMonochromator : public QObject
+class BioXASSSRLMonochromator : public BioXASMonochromator
 {
 	Q_OBJECT
 
@@ -40,12 +41,6 @@ public:
 	virtual double energy() const = 0;
 	/// Returns the current region.
 	virtual double region() const = 0;
-	/// Returns the hc constant.
-	virtual double hc() const = 0;
-	/// Returns the crystal 2D spacing.
-	virtual double crystal2D() const = 0;
-	/// Returns the physical bragg angle.
-	virtual double braggAngle() const = 0;
 
 	/// Returns the upper slit blade motor.
 	virtual CLSMAXvMotor* upperSlitBladeMotor() const = 0;
@@ -75,25 +70,15 @@ public:
 	/// Returns the region control.
 	virtual BioXASSSRLMonochromatorRegionControl* regionControl() const = 0;
 
-	/// Returns the hc constant control.
-	virtual AMControl* hcControl() const = 0;
-	/// Returns the crystal 2D control.
-	virtual AMControl* crystal2DControl() const = 0;
-	/// Returns the physical bragg angle control.
-	virtual AMControl* braggAngleControl() const = 0;
-
 	/// Returns a new 'set energy' action, 0 if not connected. The argument is the desired energy.
 	virtual AMAction3* createSetEnergyAction(double newEnergy);
-	/// Returns a new action that adjusts the bragg motor offset s.t. the mono energy matches the desired energy.
-	virtual AMAction3* createSetEnergyCalibrationAction(double newEnergy);
 	/// Returns a new 'set region' action, 0 if not connected. The argument is the desired region.
 	virtual AMAction3* createSetRegionAction(double newRegion);
 
+	/// Returns a new action that calibrates the bragg motor. The argument is the desired position.
+	virtual AMAction3* createCalibrateBraggPositionAction(double newPosition);
+
 signals:
-	/// Notifier that the connected state has changed.
-	void connected(bool isConnected);
-	/// Notifier that the energy has changed.
-	void energyChanged(double newEnergy);
 	/// Notifier that the current region has changed.
 	void regionChanged(double newRegion);
 	/// Notifier that the slits status has changed
@@ -109,15 +94,12 @@ signals:
 
 public slots:
 	/// Sets the energy setpoint.
-	void setEnergy(double newEnergy);
-	/// Sets the bragg offset such that the mono energy matches the desired energy.
-	void setEnergyCalibration(double newEnergy);
+	virtual void setEnergy(double newEnergy);
 	/// Sets the region.
 	void setRegion(double newRegion);
 
-private:
-	/// Returns the bragg motor degree offset needed in order for the old energy to match the desired new energy.
-	double calibrateEnergy(double oldEnergy, double newEnergy) const;
+	/// Sets the calibrated bragg position.
+	void calibrateBraggPosition(double newPosition);
 };
 
 #endif // BIOXASSSRLMONOCHROMATOR_H

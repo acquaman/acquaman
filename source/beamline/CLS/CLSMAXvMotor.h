@@ -26,11 +26,11 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "actions3/AMAction3.h"
 
 /// This function object provides the moving check for the CLSMAXvMotors
-class AMControlStatusCheckerCLSMAXv : public AMAbstractControlStatusChecker {
+class CLSMAXvControlStatusChecker : public AMAbstractControlStatusChecker {
 public:
 	/// Status values will be compare to \c isStoppedValue, and return true if the status value is not equal to isStoppedValue (something that isn't stopped is moving)
-	virtual ~AMControlStatusCheckerCLSMAXv();
-	AMControlStatusCheckerCLSMAXv() {}
+	virtual ~CLSMAXvControlStatusChecker();
+	CLSMAXvControlStatusChecker() {}
 
 	/// Return true (moving) if the \c statusValue is not 0 (STOPPED) and is not 2 (AT LIMIT) and is not 3 (FORCED STOP) and is not 4 (ERROR)
 	virtual bool operator()(quint32 statusValue) { return (statusValue != 0) && (statusValue != 2) && (statusValue != 3) && (statusValue != 4); }
@@ -120,6 +120,8 @@ public:
 	double EGUAcceleration() const;
 	/// Returns the (EGU) current velocity of the motor (zero when not moving, presumably non-zero when in motion).  Returns 0 if the motor isn't connected yet.
 	double EGUCurrentVelocity() const;
+	/// Returns the EGU set position of the motor. Returns 0 if the motor isn't connected yet.
+	double EGUSetPosition() const;
 	/// Returns the EGU offset of the motor. Returns 0 if the motor isn't connected yet.
 	double EGUOffset() const;
 
@@ -151,6 +153,8 @@ public:
 	double stepCalibrationSlope() const;
 	/// Returns the encoder calibration offset.Returns 0 if the motor isn't connected yet.
 	double encoderCalibrationOffset() const;
+	/// Returns the encoder calibration absolute offset. Returns 0 if the motor isn't connected yet.
+	double encoderCalibrationAbsoluteOffset() const;
 	/// Returns the step calibration offset. Returns 0 if the motor isn't connected yet.
 	double stepCalibrationOffset() const;
 
@@ -198,6 +202,24 @@ public:
 	AMReadOnlyPVControl *cwLimitControl() const { return cwLimit_; }
 	/// Returns the counter-clockwise limit status PV control.
 	AMReadOnlyPVControl *ccwLimitControl() const { return ccwLimit_; }
+	/// Returns the EGU velocity PV control.
+	AMPVControl* EGUVelocityControl() const { return EGUVelocity_; }
+	/// Returns the EGU base velocity PV control.
+	AMPVControl* EGUBaseVelocityControl() const { return EGUBaseVelocity_; }
+	/// Returns the EGU acceleration PV control.
+	AMPVControl* EGUAccelerationControl() const { return EGUAcceleration_; }
+	/// Returns the pre-deadband PV control.
+	AMPVControl* preDeadBandControl() const { return preDeadBand_; }
+	/// Returns the post-deadband PV control.
+	AMPVControl* postDeadBandControl() const { return postDeadBand_; }
+	/// Returns the encoder movement type PV control.
+	AMPVControl* encoderMovementTypeControl() const { return encoderMovementType_; }
+	/// Returns the encoder/step soft ratio PV control.
+	AMPVControl* encoderStepSoftRatioControl() const { return encoderStepSoftRatio_; }
+	/// Returns the encoder calibration slope PV control.
+	AMPVControl* encoderCalibrationSlopeControl() const { return encoderCalibrationSlope_; }
+	/// Returns the step calibration slope PV control.
+	AMPVControl* stepCalibrationSlopeControl() const { return stepCalibrationSlope_; }
 
 	/// Returns a newly created action to move the motor. This is a convenience function that calls the EGU move action. Returns 0 if the control is not connected.
 	AMAction3* createMotorMoveAction(double position);
@@ -210,6 +232,8 @@ public:
 	AMAction3 *createEGUBaseVelocityAction(double EGUBaseVelocity);
 	/// Returns a newly created action to change the EGU acceleration. Returns 0 if the control is not connected.
 	AMAction3 *createEGUAccelerationAction(double EGUAcceleration);
+	/// Returns a newly created action to change the EGU Set Position. Returns 0 if the control is not connected.
+	AMAction3 *createEGUSetPositionAction(double EGUOffset);
 	/// Returns a newly created action to change the EGU offset. Returns 0 if the control is not connected.
 	AMAction3 *createEGUOffsetAction(double EGUOffset);
 
@@ -231,6 +255,8 @@ public:
 	AMAction3 *createStepCalibrationSlopeAction(double stepCalibrationSlope);
 	/// Returns a newly created action to change the encoder calibration offset. Returns 0 if the control is not connected.
 	AMAction3 *createEncoderCalibrationOffsetAction(double encoderCalibrationAbsoluteOffset);
+	/// Returns a newly created action to change the encoder calibration absolute offset. Returns 0 if the control is not connected.
+	AMAction3 *createEncoderCalibrationAbsoluteOffsetAction(double encoderCalibrationAbsoluteOffset);
 	/// Returns a newly created action to change the step calibration offset. Returns 0 if the control is not connected.
 	AMAction3 *createStepCalibrationOffsetAction(double stepCalibrationOffset);
 
@@ -272,6 +298,8 @@ public slots:
 	/// Sets the (EGU) acceleration setting for the velocity profile
 	void setEGUAcceleration(double EGUAcceleration);
 	/// Sets the EGU offset for the motor
+	void setEGUSetPosition(double EGUSetPosition);
+	/// Sets the EGU offset for the motor
 	void setEGUOffset(double EGUOffset);
 
 	/// Sets the step setting.  NOTE: This will move the motor based on the value you give it.  Similar to \code move(double).
@@ -295,6 +323,8 @@ public slots:
 	void setStepCalibrationSlope(double stepCalibrationSlope);
 	/// Sets the encoder calibration offset
 	void setEncoderCalibrationOffset(double encoderCalibrationAbsoluteOffset);
+	/// Sets the encoder calibration absolute offset.
+	void setEncoderCalibrationAbsoluteOffset(double encoderCalibrationAbsoluteOffset);
 	/// Sets the step calibration offset
 	void setStepCalibrationOffset(double stepCalibrationOffset);
 
@@ -337,6 +367,8 @@ signals:
 	void EGUAccelerationChanged(double EGUAcceleration);
 	/// Emitted when the (EGU) current velocity reading changes
 	void EGUCurrentVelocityChanged(double EGUCurrentVelocity);
+	/// Emitted when the EGU set position changes
+	void EGUSetPositionChanged(double EGUSetPosition);
 	/// Emitted when the EGU offset changes
 	void EGUOffsetChanged(double EGUOffset);
 
@@ -365,6 +397,8 @@ signals:
 	void stepCalibrationSlopeChanged(double newCalibration);
 	/// Emitted when the encoder calibration offset changes
 	void encoderCalibrationOffsetChanged(double newCalibration);
+	/// Emitted when the encoder calibration absolute offset changes.
+	void encoderCalibrationAbsoluteOffsetChanged(double newOffset);
 	/// Emitted when the step calibration offset changes
 	void stepCalibrationOffsetChanged(double newCalibration);
 
@@ -443,6 +477,8 @@ protected:
 	AMPVControl *EGUAcceleration_;
 	/// Readonly control for actual (EGU) velocity feedback
 	AMReadOnlyPVControl *EGUCurrentVelocity_;
+	/// Read-write control for the EGU set position
+	AMPVControl *EGUSetPosition_;
 	/// Read-write control for the EGU offset
 	AMPVControl *EGUOffset_;
 
@@ -479,6 +515,8 @@ protected:
 	AMPVControl *stepCalibrationSlope_;
 	/// Read-write control for the encoder calibration offset
 	AMPVControl *encoderCalibrationOffset_;
+	/// Read-write control for the encoder calibration absolute offset.
+	AMPVControl *encoderCalibrationAbsoluteOffset_;
 	/// Read-write control for the step calibration offset
 	AMPVControl *stepCalibrationOffset_;
 

@@ -23,12 +23,6 @@ public:
 	virtual double region() const { return region_->value(); }
 	/// Returns the energy feedback.
 	virtual double energy() const { return energy_->value(); }
-	/// Returns the hc constant.
-	virtual double hc() const { return hc_->value(); }
-	/// Returns the crystal 2D spacing.
-	virtual double crystal2D() const { return crystal2D_->value(); }
-	/// Returns the physical bragg angle.
-	virtual double braggAngle() const { return braggAngle_->value(); }
 
 	/// Returns the upper slit blade motor.
 	CLSMAXvMotor* upperSlitBladeMotor() const { return upperSlitMotor_; }
@@ -58,13 +52,6 @@ public:
 	/// Returns the energy setpoint control.
 	virtual BioXASSSRLMonochromatorEnergyControl* energyControl() const { return energy_; }
 
-	/// Returns the mono's hc constant control.
-	virtual AMControl *hcControl() const { return hc_; }
-	/// Returns the mono's crystal 2D spacing control.
-	virtual AMControl *crystal2DControl() const { return crystal2D_; }
-	/// Returns the mono's physical bragg angle control.
-	virtual AMControl *braggAngleControl() const { return braggAngle_; }
-
 protected slots:
 	/// Updates the mono's general connected state based on the connected state of each of its pvs.
 	void onConnectedChanged();
@@ -81,12 +68,6 @@ protected:
 	BioXASMainMonochromatorRegionControl *region_;
 	/// Energy control.
 	BioXASMainMonochromatorEnergyControl *energy_;
-	/// The hc constant.
-	AMControl *hc_;
-	/// The crystal 2D spacing.
-	AMControl *crystal2D_;
-	/// The physical bragg angle.
-	AMControl *braggAngle_;
 
 	// Physical motors
 

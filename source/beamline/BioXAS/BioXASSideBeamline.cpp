@@ -27,13 +27,14 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/AMBasicControlDetectorEmulator.h"
 
 BioXASSideBeamline::BioXASSideBeamline()
-	: AMBeamline("BioXAS Beamline - Side Endstation")
+	: BioXASBeamline("BioXAS Beamline - Side Endstation")
 {
 	isConnected_ = false;
 
 	setupComponents();
 	setupDiagnostics();
 	setupSampleStage();
+	setupDetectorStage();
 //	setupDetectors();
 	setupControlSets();
 	setupMono();
@@ -225,19 +226,32 @@ QList<AMControl *> BioXASSideBeamline::getMotorsByType(BioXASBeamlineDef::BioXAS
 
 void BioXASSideBeamline::onConnectionChanged()
 {
-	qDebug() << pressureSet_->isConnected() << valveSet_->isConnected();
 	bool newState = (
 				// Mono.
 				mono_->isConnected() &&
 
+				// JJSlit
+				jjSlit_->isConnected() &&
+
 				// Scaler.
-				scaler_->isConnected() && scalerDwellTime_->isConnected() &&
+				scaler_->isConnected() &&
+				scalerDwellTime_->isConnected() &&
+
+				// Filters
+				carbonFilterFarm_->isConnected() &&
+				xiaFilters_->isConnected() &&
+
+				// Mirrors.
+
+				dbhrMirror_->isConnected() &&
 
 				// Control sets.
-				//pressureSet_->isConnected() && valveSet_->isConnected() &&
 				pressureSet_->isConnected() &&
-				ionPumpSet_->isConnected() && flowTransducerSet_->isConnected() &&
-				flowSwitchSet_->isConnected() && temperatureSet_->isConnected()
+				//valveSet_->isConnected() &&
+				ionPumpSet_->isConnected() &&
+				flowTransducerSet_->isConnected() &&
+				flowSwitchSet_->isConnected() &&
+				temperatureSet_->isConnected()
 
 				);
 
@@ -573,6 +587,11 @@ void BioXASSideBeamline::setupSampleStage()
 
 }
 
+void BioXASSideBeamline::setupDetectorStage()
+{
+	detectorStageLateral_ = new CLSMAXvMotor("SMTR1607-6-I22-16 Side Detector Lateral", "SMTR1607-6-I22-16", "SMTR1607-6-I22-16 Side Detector Lateral", true, 0.05, 2.0, this, ":mm");
+}
+
 void BioXASSideBeamline::setupMotorGroup()
 {
 	// Filter farm motors
@@ -741,64 +760,147 @@ void BioXASSideBeamline::setupMono()
 
 void BioXASSideBeamline::setupComponents()
 {
-	scaler_ = new CLSSIS3820Scaler("BL07ID-Side:mcs", this);
+	// Original Side scaler and Keithley objects.
+
+//	scaler_ = new CLSSIS3820Scaler("BL07ID-Side:mcs", this);
+//	connect( scaler_, SIGNAL(connectedChanged(bool)), this, SLOT(onConnectionChanged()) );
+
+//	scalerDwellTime_ = new AMReadOnlyPVControl("ScalerDwellTime", "BL07ID-Side:mcs:delay", this, "Scaler Dwell Time");
+
+//	setupDetectors();
+
+//	i0Keithley_ = new CLSKeithley428("I0 Channel", "AMP1607-601", this);
+//	scaler_->channelAt(0)->setCustomChannelName("I0 Channel");
+//	scaler_->channelAt(0)->setCurrentAmplifier(i0Keithley_);
+//	scaler_->channelAt(0)->setDetector(i0Detector_);
+
+//	iTKeithley_ = new CLSKeithley428("IT Channel", "AMP1607-602", this);
+//	scaler_->channelAt(1)->setCustomChannelName("IT Channel");
+//	scaler_->channelAt(1)->setCurrentAmplifier(iTKeithley_);
+//	scaler_->channelAt(1)->setDetector(iTDetector_);
+
+//	i2Keithley_ = new CLSKeithley428("I2 Channel", "AMP1607-603", this);
+//	scaler_->channelAt(15)->setCustomChannelName("I2 Channel");
+//	scaler_->channelAt(15)->setCurrentAmplifier(i2Keithley_);
+//	scaler_->channelAt(15)->setDetector(i2Detector_);
+
+	// New scaler and Keithley objects, used for testing. They use Main beamline pvs.
+
+//	scaler_ = new CLSSIS3820Scaler("BL1607-5-I21:mcs", this);
+	scaler_ = new CLSSIS3820Scaler("BL1607-5-I21:mcs", this);
 	connect( scaler_, SIGNAL(connectedChanged(bool)), this, SLOT(onConnectionChanged()) );
 
-	scalerDwellTime_ = new AMReadOnlyPVControl("ScalerDwellTime", "BL07ID-Side:mcs:delay", this, "Scaler Dwell Time");
+	scalerDwellTime_ = new AMReadOnlyPVControl("ScalerDwellTime", "BL1607-5-I21:mcs:delay", this, "Scaler dwell time");
 
 	setupDetectors();
 
-	i0Keithley_ = new CLSKeithley428("I0 Channel", "AMP1607-601:Gain");
+	i0Keithley_ = new CLSKeithley428("I0 Channel", "AMP1607-701", this);
 	scaler_->channelAt(0)->setCustomChannelName("I0 Channel");
 	scaler_->channelAt(0)->setCurrentAmplifier(i0Keithley_);
 	scaler_->channelAt(0)->setDetector(i0Detector_);
 
-	iTKeithley_ = new CLSKeithley428("IT Channel", "AMP1607-602:Gain");
+	iTKeithley_ = new CLSKeithley428("IT Channel", "AMP1607-702", this);
 	scaler_->channelAt(1)->setCustomChannelName("IT Channel");
 	scaler_->channelAt(1)->setCurrentAmplifier(iTKeithley_);
 	scaler_->channelAt(1)->setDetector(iTDetector_);
 
-	i2Keithley_ = new CLSKeithley428("I2 Channel", "AMP1607-603:Gain");
+	i2Keithley_ = new CLSKeithley428("I2 Channel", "AMP1607-703", this);
 	scaler_->channelAt(15)->setCustomChannelName("I2 Channel");
-	scaler_->channelAt(15)->setCurrentAmplifier(i2Keithley_);
+	scaler_->channelAt(15)->setCurrentAmplifier(iTKeithley_);
 	scaler_->channelAt(15)->setDetector(i2Detector_);
+
+	// End scaler and Keithley testing.
+
+	carbonFilterFarm_ = new BioXASSideCarbonFilterFarmControl(this);
+	connect( carbonFilterFarm_, SIGNAL(connected(bool)), this, SLOT(onConnectionChanged()) );
+
+	xiaFilters_ = new BioXASSideXIAFilters(this);
+	connect( xiaFilters_, SIGNAL(connectedChanged(bool)), this, SLOT(onConnectionChanged()) );
+
+	jjSlit_ = new CLSJJSlit("Side BL JJ Slit", "JJSlit of the side beamline", "PSL1607-6-I22-01", "PSL1607-6-I22-02", 0.01, 10);
+	connect(jjSlit_, SIGNAL(connected(bool)), this, SLOT(onConnectionChanged()));
+
+	dbhrMirror_ = new BioXASSideDBHRMirror(this);
+	connect( dbhrMirror_, SIGNAL(connectedChanged(bool)), this, SLOT(onConnectionChanged()) );
 }
 
 void BioXASSideBeamline::setupControlsAsDetectors()
-{
-	energyFeedbackDetector_ = new AMBasicControlDetectorEmulator("EnergyFeedback", "Energy Feedback", mono_->energyControl(), 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
-	energyFeedbackDetector_->setHiddenFromUsers(true);
-	energyFeedbackDetector_->setIsVisible(false);
+{	
+	energySetpointDetector_ = new AMBasicControlDetectorEmulator("EnergySetpoint", "EnergySetpoint", new AMReadOnlyPVControl("EnergySetpoint", "BL1607-5-I22:Energy:EV:fbk", this), 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	energySetpointDetector_->setHiddenFromUsers(false);
+	energySetpointDetector_->setIsVisible(true);
+
+	energyFeedbackDetector_ = new AMBasicControlDetectorEmulator("EnergyFeedback", "EnergyFeedback", new AMReadOnlyPVControl("EnergyFeedback", "BL1607-5-I22:Energy:EV", this), 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	energyFeedbackDetector_->setHiddenFromUsers(false);
+	energyFeedbackDetector_->setIsVisible(true);
 
 	dwellTimeDetector_ = new AMBasicControlDetectorEmulator("DwellTimeFeedback", "Dwell Time Feedback", scalerDwellTime_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
-	dwellTimeDetector_->setHiddenFromUsers(true);
-	dwellTimeDetector_->setIsVisible(false);
+	dwellTimeDetector_->setHiddenFromUsers(false);
+	dwellTimeDetector_->setIsVisible(true);
+
+	braggDetector_ = new AMBasicControlDetectorEmulator("BraggFeedback", "Bragg Motor Feedback", mono_->braggMotor(), 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	braggDetector_->setHiddenFromUsers(false);
+	braggDetector_->setIsVisible(true);
 
 	braggMoveRetriesDetector_ = new AMBasicControlDetectorEmulator("BraggMoveRetries", "Number of bragg move retries", mono_->braggMotor()->retries(), 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
-	braggMoveRetriesDetector_->setHiddenFromUsers(true);
-	braggMoveRetriesDetector_->setIsVisible(false);
+	braggMoveRetriesDetector_->setHiddenFromUsers(false);
+	braggMoveRetriesDetector_->setIsVisible(true);
 
 	braggMoveRetriesMaxDetector_ = new AMBasicControlDetectorEmulator("BraggMoveRetriesMax", "Max number of bragg move retries", mono_->braggMotor()->maxRetriesControl(), 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
-	braggMoveRetriesMaxDetector_->setHiddenFromUsers(true);
-	braggMoveRetriesMaxDetector_->setIsVisible(false);
+	braggMoveRetriesMaxDetector_->setHiddenFromUsers(false);
+	braggMoveRetriesMaxDetector_->setIsVisible(true);
 
 	braggStepSetpointDetector_ = new AMBasicControlDetectorEmulator("BraggStepSetpoint", "Bragg motor step setpoint", mono_->braggMotor()->stepSetpointControl(), 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
-	braggStepSetpointDetector_->setHiddenFromUsers(true);
-	braggStepSetpointDetector_->setIsVisible(false);
+	braggStepSetpointDetector_->setHiddenFromUsers(false);
+	braggStepSetpointDetector_->setIsVisible(true);
 
 	braggDegreeSetpointDetector_ = new AMBasicControlDetectorEmulator("BraggDegreeSetpoint", "Bragg motor degree setpoint", mono_->braggMotor()->degreeSetpointControl(), 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
-	braggDegreeSetpointDetector_->setHiddenFromUsers(true);
-	braggDegreeSetpointDetector_->setIsVisible(false);
+	braggDegreeSetpointDetector_->setHiddenFromUsers(false);
+	braggDegreeSetpointDetector_->setIsVisible(true);
 
-	braggAngleDetector_ = new AMBasicControlDetectorEmulator("PhysicalBraggAngle", "Physical bragg angle", mono_->braggAngleControl(), 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
-	braggAngleDetector_->setHiddenFromUsers(true);
-	braggAngleDetector_->setIsVisible(false);
+	braggAngleDetector_ = new AMBasicControlDetectorEmulator("PhysicalBraggAngle", "Physical bragg angle", mono_->energyControl()->braggAngleControl(), 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	braggAngleDetector_->setHiddenFromUsers(false);
+	braggAngleDetector_->setIsVisible(true);
 }
 
 void BioXASSideBeamline::setupExposedControls()
 {
+	// Mono controls.
+
 	addExposedControl(mono_->energyControl());
 	addExposedControl(mono_->regionControl());
+	addExposedControl(mono_->braggMotor());
+	addExposedControl(mono_->braggMotor()->EGUVelocityControl());
+	addExposedControl(mono_->braggMotor()->EGUBaseVelocityControl());
+	addExposedControl(mono_->braggMotor()->EGUAccelerationControl());
+	addExposedControl(mono_->braggMotor()->preDeadBandControl());
+	addExposedControl(mono_->braggMotor()->postDeadBandControl());
+	addExposedControl(mono_->braggMotor()->encoderMovementTypeControl());
+	addExposedControl(mono_->braggMotor()->encoderStepSoftRatioControl());
+	addExposedControl(mono_->braggMotor()->encoderCalibrationSlopeControl());
+	addExposedControl(mono_->braggMotor()->stepCalibrationSlopeControl());
+	addExposedControl(mono_->braggMotor()->retries());
+
+	// JJ slit controls.
+
+	addExposedControl(jjSlit_->verticalBladesControl()->gapPVControl());
+	addExposedControl(jjSlit_->verticalBladesControl()->centerPVControl());
+	addExposedControl(jjSlit_->horizontalBladesControl()->gapPVControl());
+	addExposedControl(jjSlit_->horizontalBladesControl()->centerPVControl());
+
+	// Carbon filter farm control.
+
+	addExposedControl(carbonFilterFarm_);
+
+	// Mirror controls.
+
+	addExposedControl(dbhrMirror_->pitchControl());
+	addExposedControl(dbhrMirror_->m1VerticalControl());
+	addExposedControl(dbhrMirror_->m2VerticalControl());
+
+	// Detector stage controls.
+
+	addExposedControl(detectorStageLateral_);
 }
 
 void BioXASSideBeamline::setupExposedDetectors()
@@ -807,7 +909,9 @@ void BioXASSideBeamline::setupExposedDetectors()
 	addExposedDetector(i0Detector_);
 	addExposedDetector(iTDetector_);
 	addExposedDetector(i2Detector_);
+	addExposedDetector(energySetpointDetector_);
 	addExposedDetector(energyFeedbackDetector_);
+	addExposedDetector(braggDetector_);
 	addExposedDetector(braggMoveRetriesDetector_);
 	addExposedDetector(braggMoveRetriesMaxDetector_);
 	addExposedDetector(braggStepSetpointDetector_);

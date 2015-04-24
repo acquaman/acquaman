@@ -45,8 +45,8 @@ signals:
 public slots:
 
 protected slots:
-	/// Presents a view for the user to calibrate the mono energy.
-	void onCalibrateEnergyButtonClicked();
+	/// Handles updating the view when the scaler connection state changes.
+	void onScalerConnectedChanged();
 
 protected:
 	/// Editor for the mono's energy.
@@ -55,8 +55,8 @@ protected:
 	BioXASSSRLMonochromatorRegionControlEditor *regionControlEditor_;
 	/// Editor for the mono's bragg motor angle.
 	AMExtendedControlEditor *braggControlEditor_;
-	/// Button that allows the user to calibrate the mono energy when clicked.
-	QPushButton *calibrateEnergyButton_;
+	/// Scaler channel views for i0, iT, and i2 channels.
+	QGroupBox *channelViews_;
 };
 
 #endif // BIOXASSIDEPERSISTENTVIEW_H

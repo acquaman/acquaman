@@ -255,6 +255,7 @@ protected:
 	static bool validRegionState(int regionState);
 	/// Returns true if the given value is a valid region setpoint, false otherwise.
 	static bool validRegionSetpoint(int regionSetpoint);
+
 	/// Returns a string representation of the given region state.
 	static QString regionStateToString(int region);
 	/// Returns the region state corresponding to the given string.
@@ -265,6 +266,12 @@ protected:
 	static QString stepInstruction(int stepIndex);
 	/// Returns the notes associated with the given step index, an empty string if there is none.  The step index in the index of an action in the crystal change list action.
 	static QString stepNotes(int stepIndex);
+
+	/// Handles control setup: makes sure the given control has the proper parent and is added to the list of children.
+	void controlSetup(AMControl *control);
+	/// Handles control cleanup: making sure the given control is removed from the list of children, disconnected, and deleted.
+	void controlCleanup(AMControl *control);
+
 	/// Handles the region change cleanup: making sure moveInProgress_ is updated, we disconnect from crystal change action signals, and the action is queued for deletion.
 	void moveCleanup(QObject *action);
 

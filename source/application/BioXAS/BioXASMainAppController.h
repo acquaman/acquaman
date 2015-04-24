@@ -25,11 +25,14 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "application/AMAppController.h"
 
 class BioXASMainPersistentView;
-class CLSSIS3820ScalerView;
+class BioXASSIS3820ScalerView;
 class BioXASMainXASScanConfiguration;
 class BioXASMainXASScanConfigurationView;
 class AMScanConfigurationViewHolder3;
 class BioXASSSRLMonochromatorConfigurationView;
+class AMGenericStepScanConfiguration;
+class AMGenericStepScanConfigurationView;
+class BioXASSIS3820ScalerView;
 
 class BioXASMainAppController  : public AMAppController
 {
@@ -66,23 +69,28 @@ protected:
 	void setupUserInterface();
 	/// Sets up all of the connections.
 	void makeConnections();
-    /// Applies current settings.
-    void applyCurrentSettings();
+	/// Applies current settings.
+	void applyCurrentSettings();
 
 protected:
-    /// Mono configuration view.
-    BioXASSSRLMonochromatorConfigurationView *monoConfigView_;
-    /// Scaler view.
-    CLSSIS3820ScalerView *scalerView_;
-    /// XAS scan configuration.
-    BioXASMainXASScanConfiguration *configuration_;
-    /// XAS scan configuration view.
-    BioXASMainXASScanConfigurationView *configurationView_;
-    /// XAS scan configuration view holder.
-    AMScanConfigurationViewHolder3 *configurationViewHolder_;
-    /// The side panel view.
-    BioXASMainPersistentView *persistentPanel_;
-
+	/// Mono configuration view.
+	BioXASSSRLMonochromatorConfigurationView *monoConfigView_;
+	/// Scaler view.
+	BioXASSIS3820ScalerView *scalerView_;
+	/// XAS scan configuration.
+	BioXASMainXASScanConfiguration *configuration_;
+	/// The commissioning tool configuration.
+	AMGenericStepScanConfiguration *commissioningConfiguration_;
+	/// The commissioning tool configuration view.
+	AMGenericStepScanConfigurationView *commissioningConfigurationView_;
+	/// The commissioning tool configuration view holder.
+	AMScanConfigurationViewHolder3 *commissioningConfigurationViewHolder_;
+	/// XAS scan configuration view.
+	BioXASMainXASScanConfigurationView *configurationView_;
+	/// XAS scan configuration view holder.
+	AMScanConfigurationViewHolder3 *configurationViewHolder_;
+	/// The side panel view.
+	BioXASMainPersistentView *persistentPanel_;
 };
 
 #endif // BIOXASMAINAPPCONTROLLER_H

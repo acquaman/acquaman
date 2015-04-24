@@ -21,7 +21,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "REIXSAppController.h"
 
-#include "beamline/CLS/CLSBeamlines.h"
+#include "beamline/CLS/CLSFacilityID.h"
 #include "beamline/CLS/CLSStorageRing.h"
 
 #include "beamline/REIXS/REIXSBeamline.h"
@@ -215,7 +215,7 @@ bool REIXSAppController::startupAfterEverything() {
 	AMRun existingRun;
 	if(!existingRun.loadFromDb(AMDatabase::database("user"), 1)) {
 		// no run yet... let's create one.
-		AMRun firstRun(CLSBeamline::beamlineName(CLSBeamline::REIXSBeamline), CLSBeamline::REIXSBeamline); //5: REIXS Beamline
+		AMRun firstRun(CLSFacilityID::beamlineName(CLSFacilityID::REIXSBeamline), CLSFacilityID::REIXSBeamline); //5: REIXS Beamline
 		firstRun.storeToDb(AMDatabase::database("user"));
 	}
 

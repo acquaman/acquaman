@@ -26,9 +26,11 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QLayout>
 #include <QPushButton>
 #include <QInputDialog>
+#include <QGroupBox>
 
 #include "ui/BioXAS/BioXASSSRLMonochromatorRegionControlEditor.h"
 #include "ui/BioXAS/BioXASSSRLMonochromatorRegionControlView.h"
+#include "ui/BioXAS/BioXASSIS3820ScalerChannelsView.h"
 
 class BioXASMainPersistentView : public QWidget
 {
@@ -43,10 +45,8 @@ public:
 signals:
 
 public slots:
-
-protected slots:
-	/// Presents a view for the user to calibrate the mono energy.
-	void onCalibrateEnergyButtonClicked();
+	/// Sets the visibility of the scaler channels view.
+	void setScalerChannelsVisible(bool isVisible);
 
 protected:
 	/// Editor that selects the mono energy.
@@ -55,8 +55,8 @@ protected:
 	BioXASSSRLMonochromatorRegionControlEditor *regionControlEditor_;
 	/// Editor that selects the mono bragg position.
 	AMExtendedControlEditor *braggControlEditor_;
-	/// Button that allows the user to calibrate the mono energy when clicked.
-	QPushButton *calibrateEnergyButton_;
+	/// The scaler channel views for the i0, iT, and i2 channels.
+	QGroupBox *channelsView_;
 };
 
 #endif // BIOXASMAINPERSISTENTVIEW_H

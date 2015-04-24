@@ -25,19 +25,23 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QObject>
 
 #include "acquaman/AMStepScanConfiguration.h"
+#include "acquaman/BioXAS/BioXASScanConfiguration.h"
 
-class BioXASSideXASScanConfiguration : public AMStepScanConfiguration
+class BioXASSideXASScanConfiguration : public AMStepScanConfiguration, public BioXASScanConfiguration
 {
 	Q_OBJECT
 
-	Q_CLASSINFO("AMDbObject_Attributes", "description=BioXAS XAS Scan Configuration")
+	Q_PROPERTY(AMDbObject* configurationDbObject READ dbReadScanConfigurationDbObject WRITE dbWriteScanConfigurationDbObject)
+	Q_PROPERTY(QString header READ headerText WRITE setHeaderText)
+
+	Q_CLASSINFO("AMDbObject_Attributes", "description=BioXAS Side XAS Scan Configuration")
 
 public:
 	/// Constructor.
 	Q_INVOKABLE BioXASSideXASScanConfiguration(QObject *parent = 0);
 	/// Copy Constructor.
 	BioXASSideXASScanConfiguration(const BioXASSideXASScanConfiguration &original);
-	///Destructor.
+	/// Destructor.
 	virtual ~BioXASSideXASScanConfiguration();
 
 	/// Returns a pointer to a newly-created copy of this scan configuration.  (It takes the role of a copy constructor, but is virtual so that our high-level classes can copy a scan configuration without knowing exactly what kind it is.)
@@ -52,26 +56,26 @@ public:
 	/// A human-readable synopsis of this scan configuration. Can be re-implemented to proved more details. Used by scan action to set the main text in the action view.
 	virtual QString detailedDescription() const;
 
-	double edgeEnergy() const;
-
-	/// Returns the name of the current edge.
-	QString edge() const { return edge_; }
+	/// Get a nice looking string that contains all the standard information in an XAS scan.  Used when exporting.
+	virtual QString headerText() const;
 
 signals:
-	void edgeEnergyChanged(double edgeEnergy);
-	void edgeChanged(const QString &edge);
+	/// Notifier that the total time estimate has changed.
+	void totalTimeChanged(double);
 
 public slots:
-	void setEdgeEnergy(double edgeEnergy);
 
-	/// Sets the current edge for the scan.
-	void setEdge(QString edgeName);
+protected slots:
+	/// Computes the total time any time the regions list changes.
+	void computeTotalTime() { computeTotalTimeImplementation(); }
+	/// Helper slot that connects the new region ot the computeTotalTime slot.
+	void onRegionAdded(AMScanAxisRegion *region);
+	/// Helper slot that disconnects the region from the computeTotalTime slot.
+	void onRegionRemoved(AMScanAxisRegion *region);
 
 protected:
-	double edgeEnergy_;
-	/// The edge being scanned.
-	QString edge_;
-
+	/// Method that does all the calculations for calculating the estimated scan time.
+	virtual void computeTotalTimeImplementation();
 };
 
 #endif // BIOXASXASSCANCONFIGURATION_H

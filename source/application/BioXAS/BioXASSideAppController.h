@@ -24,12 +24,22 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "application/AMAppController.h"
 
-class CLSSIS3820ScalerView;
+class QGroupBox;
+class QWidget;
+class BioXASSIS3820ScalerView;
+class CLSJJSlitView;
 class BioXASSidePersistentView;
 class BioXASSideXASScanConfiguration;
 class BioXASSideXASScanConfigurationView;
 class AMScanConfigurationViewHolder3;
 class BioXASSSRLMonochromatorConfigurationView;
+class BioXASUserConfiguration;
+class AMRegionOfInterest;
+class BioXASXIAFiltersView;
+class BioXASCarbonFilterFarmView;
+class BioXASDBHRMirrorView;
+class AMGenericStepScanConfiguration;
+class AMGenericStepScanConfigurationView;
 
 class BioXASSideAppController : public AMAppController
 {
@@ -48,8 +58,15 @@ public:
 	virtual void shutdown();
 
 protected slots:
-    void onScalerConnected();
-    void onBeamlineConnected();
+	void onScalerConnected();
+	void onBeamlineConnected();
+
+	/// Handles setting up all the necessary settings based on the loaded user configuration.
+	void onUserConfigurationLoadedFromDb();
+	/// Handles adding regions of interest to all the configurations that would care.
+	void onRegionOfInterestAdded(AMRegionOfInterest *region);
+	/// Handles removing regions of interest from all the configurations that would care.
+	void onRegionOfInterestRemoved(AMRegionOfInterest *region);
 
 protected:
 	/// Implementation method that individual applications can flesh out if extra setup is required when a scan action is started.  This is not pure virtual because there is no requirement to do anything to scan actions.
@@ -58,32 +75,51 @@ protected:
 	virtual void onCurrentScanActionFinishedImplementation(AMScanAction *action);
 
 	// Things to do on startup.
-	/// Registers all of the necessary classes that are VESPERS specific.
+	/// Registers all of the necessary classes that are specific to this beamline.
 	void registerClasses();
 	/// Sets up all of the exporter options for the various scan types.
 	void setupExporterOptions();
 	/// Sets up the user interface by specifying the extra pieces that will be added to the main window.
 	void setupUserInterface();
 	/// Sets up all of the connections.
-	void makeConnections();    
-    /// Applies the current settings.
-    void applyCurrentSettings();
+	void makeConnections();
+	/// Applies the current settings.
+	void applyCurrentSettings();
+
+	/// create squeeze groupbox layout
+	QGroupBox *createSqueezeGroupBoxWithView(QString title, QWidget *view);
 
 protected:
-    /// View for the BioXAS Side scaler.
-    CLSSIS3820ScalerView *scalerView_;
-    /// The mono configuration view.
-    BioXASSSRLMonochromatorConfigurationView *monoConfigView_;
+	/// View for the BioXAS Side scaler.
+	BioXASSIS3820ScalerView *scalerView_;
+	/// The mono configuration view.
+	BioXASSSRLMonochromatorConfigurationView *monoConfigView_;
+	/// The JJ slit view
+	CLSJJSlitView *jjSlitView_;
+	/// The XIA filters view.
+	BioXASXIAFiltersView *xiaFiltersView_;
+	/// The carbon filter farm view.
+	BioXASCarbonFilterFarmView *carbonFilterFarmView_;
+	/// The dbhr mirror view.
+	BioXASDBHRMirrorView *dbhrView_;
 
-    BioXASSidePersistentView *persistentPanel_;
+	BioXASSidePersistentView *persistentPanel_;
 
-    BioXASSideXASScanConfiguration *configuration_;
+	BioXASSideXASScanConfiguration *configuration_;
 
-    BioXASSideXASScanConfigurationView *configurationView_;
+	BioXASSideXASScanConfigurationView *configurationView_;
 
-    AMScanConfigurationViewHolder3 *configurationViewHolder_;
+	AMScanConfigurationViewHolder3 *configurationViewHolder_;
 
+	/// The commissioning tool configuration.
+	AMGenericStepScanConfiguration *commissioningConfiguration_;
+	/// The commissioning tool configuration view.
+	AMGenericStepScanConfigurationView *commissioningConfigurationView_;
+	/// The commissioning tool configuration view holder.
+	AMScanConfigurationViewHolder3 *commissioningConfigurationViewHolder_;
 
+	/// Holds the user configuration used for automatically setting up some simple aspects of the user interface.
+	BioXASUserConfiguration *userConfiguration_;
 };
 
 #endif // BIOXASSIDEAPPCONTROLLER_H
