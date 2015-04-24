@@ -32,6 +32,7 @@ class AMScanConfigurationViewHolder3;
 class BioXASSSRLMonochromatorConfigurationView;
 class AMGenericStepScanConfiguration;
 class AMGenericStepScanConfigurationView;
+class BioXASSIS3820ScalerView;
 
 class BioXASMainAppController  : public AMAppController
 {
@@ -76,6 +77,8 @@ protected:
 	BioXASSIS3820ScalerView *scalerView_;
 	/// Mono configuration view.
 	BioXASSSRLMonochromatorConfigurationView *monoConfigView_;
+	/// Scaler view.
+	BioXASSIS3820ScalerView *scalerView_;
 	/// XAS scan configuration.
 	BioXASMainXASScanConfiguration *configuration_;
 	/// The commissioning tool configuration.

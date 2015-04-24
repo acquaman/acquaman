@@ -408,7 +408,7 @@ HEADERS += \
 	source/dataman/AMXRFScan.h \
 	source/ui/util/AMChooseDataFolderDialog.h \
 	source/acquaman/AMTimedScanActionControllerAssembler.h \
-	source/beamline/CLS/CLSBeamlines.h \
+#	source/beamline/CLS/CLSBeamlines.h \
     source/acquaman/AMGenericStepScanController.h \
     source/acquaman/AMGenericStepScanConfiguration.h \
 	source/ui/acquaman/AMGenericStepScanConfigurationView.h \

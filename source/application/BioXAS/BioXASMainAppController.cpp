@@ -157,12 +157,12 @@ void BioXASMainAppController::onBeamlineConnected()
 	if (BioXASMainBeamline::bioXAS()->isConnected() && !configurationView_) {
 
 		configuration_ = new BioXASMainXASScanConfiguration();
-		configuration_->setEdgeEnergy(10000);
+		configuration_->setEnergy(10000);
 
 		configurationView_ = new BioXASMainXASScanConfigurationView(configuration_);
 		configurationViewHolder_ = new AMScanConfigurationViewHolder3(configurationView_);
 
-		mw_->addPane(configurationViewHolder_, "Scans", "Test Scan", ":/utilities-system-monitor.png");
+		mw_->addPane(configurationViewHolder_, "Scans", "XAS Scan", ":/utilities-system-monitor.png");
 
 		commissioningConfiguration_ = new AMGenericStepScanConfiguration;
 		commissioningConfigurationView_ = new AMGenericStepScanConfigurationView(commissioningConfiguration_);
