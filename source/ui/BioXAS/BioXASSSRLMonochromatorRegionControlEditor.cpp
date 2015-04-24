@@ -5,13 +5,24 @@ BioXASSSRLMonochromatorRegionControlEditor::BioXASSSRLMonochromatorRegionControl
 	AMExtendedControlEditor(regionControl, 0, false, false, parent)
 {
 	setNoUnitsBox(true);
-
-	connect( control_, SIGNAL(moveStarted()), this, SLOT(onRegionControlMoveStarted()) );
 }
 
 BioXASSSRLMonochromatorRegionControlEditor::~BioXASSSRLMonochromatorRegionControlEditor()
 {
 
+}
+
+void BioXASSSRLMonochromatorRegionControlEditor::setControl(AMControl *newControl)
+{
+	if (control_) {
+		disconnect( control_, 0, this, 0 );
+	}
+
+	AMExtendedControlEditor::setControl(newControl);
+
+	if (control_) {
+		connect( control_, SIGNAL(moveStarted()), this, SLOT(onRegionControlMoveStarted()) );
+	}
 }
 
 void BioXASSSRLMonochromatorRegionControlEditor::onRegionControlMoveStarted()

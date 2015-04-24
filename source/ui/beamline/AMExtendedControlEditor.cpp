@@ -100,10 +100,6 @@ AMExtendedControlEditor::AMExtendedControlEditor(AMControl* control, AMControl* 
 	dialog_ = new AMExtendedControlEditorStyledInputDialog(enumNames, this);
 	dialog_->hide();
 	dialog_->setWindowModality(Qt::NonModal);
-	if(!configureOnly_)
-		connect(dialog_, SIGNAL(doubleValueSelected(double)), control_, SLOT(move(double)));
-	else
-		connect(dialog_, SIGNAL(doubleValueSelected(double)), this, SLOT(onNewSetpoint(double)));
 
 	// Make connections:
 	connect(this, SIGNAL(clicked()), this, SLOT(onEditStart()));
@@ -144,6 +140,7 @@ void AMExtendedControlEditor::setControl(AMControl *newControl)
 
 		if (control_) {
 			disconnect( control_, 0, this, 0 );
+			disconnect( dialog_, 0, control_, 0 );
 
 			valueLabel_->setText("[Not Connected]");
 			unitsLabel_->setText("?");
@@ -173,6 +170,12 @@ void AMExtendedControlEditor::setControl(AMControl *newControl)
 			}
 
 			updateReadOnlyStatus();
+
+			if(!configureOnly_)
+				connect(dialog_, SIGNAL(doubleValueSelected(double)), control_, SLOT(move(double)));
+			else
+				connect(dialog_, SIGNAL(doubleValueSelected(double)), this, SLOT(onNewSetpoint(double)));
+
 
 			if (title().isEmpty()) {
 				if(control_->description() != "")
