@@ -85,7 +85,7 @@ bool AMChooseDataFolderDialog::getDataFolder(const QString &localRootDirectory, 
 
 //////////////////////////////////////
 
-AMChooseDataFolderDialog::AMChooseDataFolderDialog(const QString &dataFolder, const QString &localRootDirectory, const QString &remoteRootDirectory, const QString dataDirectory, QWidget *parent)
+AMChooseDataFolderDialog::AMChooseDataFolderDialog(const QString &dataFolder, const QString &localRootDirectory, const QString &remoteRootDirectory, const QString &dataDirectory, QWidget *parent)
 	: QDialog(parent)
 {
 	setWindowTitle("Choose Data Ouput Destination");
