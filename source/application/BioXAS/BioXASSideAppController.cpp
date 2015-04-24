@@ -49,6 +49,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/BioXAS/BioXASSideBeamline.h"
 
 #include "ui/AMMainWindow.h"
+#include "ui/acquaman/AMGenericStepScanConfigurationView.h"
 #include "ui/acquaman/AMScanConfigurationViewHolder3.h"
 #include "ui/dataman/AMGenericScanEditor.h"
 
@@ -146,6 +147,8 @@ void BioXASSideAppController::onBeamlineConnected()
 {
 	if (BioXASSideBeamline::bioXAS()->isConnected() && !configurationView_) {
 
+
+
 	}
 }
 
@@ -237,6 +240,14 @@ void BioXASSideAppController::setupUserInterface()
 
 	// Add views to 'Scans'.
 	mw_->insertHeading("Scans", 2);
+
+	commissioningConfiguration_ = new AMGenericStepScanConfiguration;
+	commissioningConfiguration_->setAutoExportEnabled(false);
+	commissioningConfiguration_->addDetector(BioXASSideBeamline::bioXAS()->exposedDetectorByName("I0Detector")->toInfo());
+	commissioningConfigurationView_ = new AMGenericStepScanConfigurationView(commissioningConfiguration_);
+	commissioningConfigurationViewHolder_ = new AMScanConfigurationViewHolder3(commissioningConfigurationView_);
+
+	mw_->addPane(commissioningConfigurationViewHolder_, "Scans", "Commissioning Tool", ":/utilities-system-monitor.png");
 
 	// Add right side panel.
 	mw_->addRightWidget(persistentPanel_);
