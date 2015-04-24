@@ -73,8 +73,6 @@ protected:
 	void applyCurrentSettings();
 
 protected:
-	/// View for the BioXAS Side scaler.
-	BioXASSIS3820ScalerView *scalerView_;
 	/// Mono configuration view.
 	BioXASSSRLMonochromatorConfigurationView *monoConfigView_;
 	/// Scaler view.
