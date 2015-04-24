@@ -294,7 +294,7 @@ public:
 	AMAction3 *createCCWLimitWaitAction(CLSMAXvMotor::Limit ccwLimitState);
 
 	/// Returns a newly created action to alert when CW is at limit
-	AMAction3 *createCCWLimitWaitAction(CLSMAXvMotor::Limit ccwLimitState);
+	AMAction3 *createCWLimitWaitAction(CLSMAXvMotor::Limit ccwLimitState);
 
 
 public slots:
