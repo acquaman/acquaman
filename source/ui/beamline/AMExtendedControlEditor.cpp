@@ -145,8 +145,6 @@ void AMExtendedControlEditor::setControl(AMControl *newControl)
 			valueLabel_->setText("[Not Connected]");
 			unitsLabel_->setText("?");
 			setHappy(false);
-
-			updateReadOnlyStatus();
 		}
 
 		control_ = newControl;
@@ -169,8 +167,6 @@ void AMExtendedControlEditor::setControl(AMControl *newControl)
 					dialog_->setEnumNames(control_->moveEnumNames());
 			}
 
-			updateReadOnlyStatus();
-
 			if(!configureOnly_)
 				connect(dialog_, SIGNAL(doubleValueSelected(double)), control_, SLOT(move(double)));
 			else
@@ -184,6 +180,8 @@ void AMExtendedControlEditor::setControl(AMControl *newControl)
 					setTitle(control_->name());
 			}
 		}
+
+		updateReadOnlyStatus();
 
 		emit controlChanged(control_);
 	}
