@@ -86,16 +86,16 @@ public:
     CLSBasicScalerChannelDetector* iTDetector() const { return iTDetector_; }
     /// Returns the I2 detector.
     CLSBasicScalerChannelDetector* i2Detector() const { return i2Detector_; }
-    /// Returns the energy feedback detector.
-    AMBasicControlDetectorEmulator* energyFeedbackDetector() const { return energyFeedbackDetector_; }
-    /// Returns the scaler dwell time detector.
+	/// Returns the energy setpoint detector.
+	AMBasicControlDetectorEmulator* energySetpointDetector() const { return energySetpointDetector_; }
+	/// Returns the energy feedback detector.
+	AMBasicControlDetectorEmulator* energyFeedbackDetector() const { return energyFeedbackDetector_; }
+	/// Returns the scaler dwell time detector.
 	AMBasicControlDetectorEmulator* dwellTimeDetector() const { return dwellTimeDetector_; }
 	/// Returns the bragg motor detector.
 	AMBasicControlDetectorEmulator* braggDetector() const { return braggDetector_; }
     /// Returns the bragg move retries detector.
     AMBasicControlDetectorEmulator* braggMoveRetriesDetector() const { return braggMoveRetriesDetector_; }
-    /// Returns the bragg move max retries detector.
-    AMBasicControlDetectorEmulator* braggMoveRetriesMaxDetector() const { return braggMoveRetriesMaxDetector_; }
     /// Returns the bragg step setpoint detector.
     AMBasicControlDetectorEmulator* braggStepSetpointDetector() const { return braggStepSetpointDetector_; }
     /// Returns the bragg degree setpoint detector.
@@ -186,11 +186,11 @@ protected:
     CLSBasicScalerChannelDetector *i0Detector_;
     CLSBasicScalerChannelDetector *iTDetector_;
     CLSBasicScalerChannelDetector *i2Detector_;
-    AMBasicControlDetectorEmulator *energyFeedbackDetector_;
+	AMBasicControlDetectorEmulator *energySetpointDetector_;
+	AMBasicControlDetectorEmulator *energyFeedbackDetector_;
     AMBasicControlDetectorEmulator *dwellTimeDetector_;
 	AMBasicControlDetectorEmulator *braggDetector_;
     AMBasicControlDetectorEmulator *braggMoveRetriesDetector_;
-    AMBasicControlDetectorEmulator *braggMoveRetriesMaxDetector_;
     AMBasicControlDetectorEmulator *braggStepSetpointDetector_;
     AMBasicControlDetectorEmulator *braggDegreeSetpointDetector_;
     AMBasicControlDetectorEmulator *braggAngleDetector_;

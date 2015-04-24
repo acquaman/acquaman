@@ -227,9 +227,6 @@ QList<AMControl *> BioXASSideBeamline::getMotorsByType(BioXASBeamlineDef::BioXAS
 void BioXASSideBeamline::onConnectionChanged()
 {
 	bool newState = (
-				// M2 mirror.
-				m2Mirror_->isConnected() &&
-
 				// Mono.
 				mono_->isConnected() &&
 
@@ -242,6 +239,10 @@ void BioXASSideBeamline::onConnectionChanged()
 				// Filters
 				carbonFilterFarm_->isConnected() &&
 				xiaFilters_->isConnected() &&
+
+				// Mirrors.
+				m2Mirror_->isConnected() &&
+				dbhrMirror_->isConnected() &&
 
 				// Control sets.
 				pressureSet_->isConnected() &&
@@ -741,27 +742,55 @@ void BioXASSideBeamline::setupMono()
 
 void BioXASSideBeamline::setupComponents()
 {
-	scaler_ = new CLSSIS3820Scaler("BL07ID-Side:mcs", this);
+	// Original Side scaler and Keithley objects.
+
+//	scaler_ = new CLSSIS3820Scaler("BL07ID-Side:mcs", this);
+//	connect( scaler_, SIGNAL(connectedChanged(bool)), this, SLOT(onConnectionChanged()) );
+
+//	scalerDwellTime_ = new AMReadOnlyPVControl("ScalerDwellTime", "BL07ID-Side:mcs:delay", this, "Scaler Dwell Time");
+
+//	setupDetectors();
+
+//	i0Keithley_ = new CLSKeithley428("I0 Channel", "AMP1607-601", this);
+//	scaler_->channelAt(0)->setCustomChannelName("I0 Channel");
+//	scaler_->channelAt(0)->setCurrentAmplifier(i0Keithley_);
+//	scaler_->channelAt(0)->setDetector(i0Detector_);
+
+//	iTKeithley_ = new CLSKeithley428("IT Channel", "AMP1607-602", this);
+//	scaler_->channelAt(1)->setCustomChannelName("IT Channel");
+//	scaler_->channelAt(1)->setCurrentAmplifier(iTKeithley_);
+//	scaler_->channelAt(1)->setDetector(iTDetector_);
+
+//	i2Keithley_ = new CLSKeithley428("I2 Channel", "AMP1607-603", this);
+//	scaler_->channelAt(15)->setCustomChannelName("I2 Channel");
+//	scaler_->channelAt(15)->setCurrentAmplifier(i2Keithley_);
+//	scaler_->channelAt(15)->setDetector(i2Detector_);
+
+	// New scaler and Keithley objects, used for testing. They use Main beamline pvs.
+
+	scaler_ = new CLSSIS3820Scaler("BL1607-5-I21:mcs", this);
 	connect( scaler_, SIGNAL(connectedChanged(bool)), this, SLOT(onConnectionChanged()) );
 
-	scalerDwellTime_ = new AMReadOnlyPVControl("ScalerDwellTime", "BL07ID-Side:mcs:delay", this, "Scaler Dwell Time");
+	scalerDwellTime_ = new AMReadOnlyPVControl("ScalerDwellTime", "BL1607-5-I21:mcs:delay", this, "Scaler dwell time");
 
 	setupDetectors();
 
-	i0Keithley_ = new CLSKeithley428("I0 Channel", "AMP1607-601", this);
+	i0Keithley_ = new CLSKeithley428("I0 Channel", "AMP1607-701", this);
 	scaler_->channelAt(0)->setCustomChannelName("I0 Channel");
 	scaler_->channelAt(0)->setCurrentAmplifier(i0Keithley_);
 	scaler_->channelAt(0)->setDetector(i0Detector_);
 
-	iTKeithley_ = new CLSKeithley428("IT Channel", "AMP1607-602", this);
+	iTKeithley_ = new CLSKeithley428("IT Channel", "AMP1607-702", this);
 	scaler_->channelAt(1)->setCustomChannelName("IT Channel");
 	scaler_->channelAt(1)->setCurrentAmplifier(iTKeithley_);
 	scaler_->channelAt(1)->setDetector(iTDetector_);
 
-	i2Keithley_ = new CLSKeithley428("I2 Channel", "AMP1607-603", this);
+	i2Keithley_ = new CLSKeithley428("I2 Channel", "AMP1607-703", this);
 	scaler_->channelAt(15)->setCustomChannelName("I2 Channel");
-	scaler_->channelAt(15)->setCurrentAmplifier(i2Keithley_);
+	scaler_->channelAt(15)->setCurrentAmplifier(iTKeithley_);
 	scaler_->channelAt(15)->setDetector(i2Detector_);
+
+	// End scaler and Keithley testing.
 
 	carbonFilterFarm_ = new BioXASSideCarbonFilterFarmControl(this);
 	connect( carbonFilterFarm_, SIGNAL(connected(bool)), this, SLOT(onConnectionChanged()) );
@@ -769,16 +798,23 @@ void BioXASSideBeamline::setupComponents()
 	xiaFilters_ = new BioXASSideXIAFilters(this);
 	connect( xiaFilters_, SIGNAL(connectedChanged(bool)), this, SLOT(onConnectionChanged()) );
 
-	jjSlit_ = new CLSJJSlit("Side BL", "JJSlit of the side beamline", "PSL1607-6-I22-01", "PSL1607-6-I22-02");
+	jjSlit_ = new CLSJJSlit("Side BL JJ Slit", "JJSlit of the side beamline", "PSL1607-6-I22-01", "PSL1607-6-I22-02", 0.01, 10);
 	connect(jjSlit_, SIGNAL(connected(bool)), this, SLOT(onConnectionChanged()));
 
 	m2Mirror_ = new BioXASSideM2Mirror(this);
 	connect( m2Mirror_, SIGNAL(connected(bool)), this, SLOT(onConnectionChanged()) );
+
+	dbhrMirror_ = new BioXASSideDBHRMirror(this);
+	connect( dbhrMirror_, SIGNAL(connectedChanged(bool)), this, SLOT(onConnectionChanged()) );
 }
 
 void BioXASSideBeamline::setupControlsAsDetectors()
-{
-	energyFeedbackDetector_ = new AMBasicControlDetectorEmulator("EnergyFeedback", "Energy Feedback", mono_->energyControl(), 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+{	
+	energySetpointDetector_ = new AMBasicControlDetectorEmulator("EnergySetpoint", "EnergySetpoint", new AMReadOnlyPVControl("EnergySetpoint", "BL1607-5-I22:Energy:EV:fbk", this), 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	energySetpointDetector_->setHiddenFromUsers(false);
+	energySetpointDetector_->setIsVisible(true);
+
+	energyFeedbackDetector_ = new AMBasicControlDetectorEmulator("EnergyFeedback", "EnergyFeedback", new AMReadOnlyPVControl("EnergyFeedback", "BL1607-5-I22:Energy:EV", this), 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
 	energyFeedbackDetector_->setHiddenFromUsers(false);
 	energyFeedbackDetector_->setIsVisible(true);
 
@@ -825,6 +861,13 @@ void BioXASSideBeamline::setupExposedControls()
 	addExposedControl(mono_->braggMotor()->EGUVelocityControl());
 	addExposedControl(mono_->braggMotor()->EGUBaseVelocityControl());
 	addExposedControl(mono_->braggMotor()->EGUAccelerationControl());
+	addExposedControl(mono_->braggMotor()->preDeadBandControl());
+	addExposedControl(mono_->braggMotor()->postDeadBandControl());
+	addExposedControl(mono_->braggMotor()->encoderMovementTypeControl());
+	addExposedControl(mono_->braggMotor()->encoderStepSoftRatioControl());
+	addExposedControl(mono_->braggMotor()->encoderCalibrationSlopeControl());
+	addExposedControl(mono_->braggMotor()->stepCalibrationSlopeControl());
+	addExposedControl(mono_->braggMotor()->retries());
 
 	// JJ slit controls.
 
@@ -837,6 +880,12 @@ void BioXASSideBeamline::setupExposedControls()
 
 	addExposedControl(carbonFilterFarm_);
 
+	// Mirror controls.
+
+	addExposedControl(dbhrMirror_->pitchControl());
+	addExposedControl(dbhrMirror_->m1VerticalControl());
+	addExposedControl(dbhrMirror_->m2VerticalControl());
+
 	// Detector stage controls.
 
 	addExposedControl(detectorStageLateral_);
@@ -848,6 +897,7 @@ void BioXASSideBeamline::setupExposedDetectors()
 	addExposedDetector(i0Detector_);
 	addExposedDetector(iTDetector_);
 	addExposedDetector(i2Detector_);
+	addExposedDetector(energySetpointDetector_);
 	addExposedDetector(energyFeedbackDetector_);
 	addExposedDetector(braggDetector_);
 	addExposedDetector(braggMoveRetriesDetector_);

@@ -9,15 +9,20 @@ BioXASXIAFiltersView::BioXASXIAFiltersView(BioXASXIAFilters *filters, QWidget *p
 
 	filters_ = 0;
 
-	editor1_ = 0;
-	editor2_ = 0;
-	editor3_ = 0;
-	editor4_ = 0;
+	editor1_ = new AMExtendedControlEditor(0);
+	editor2_ = new AMExtendedControlEditor(0);
+	editor3_ = new AMExtendedControlEditor(0);
+	editor4_ = new AMExtendedControlEditor(0);
 
 	// Create and set layout.
 
-	layout_ = new QVBoxLayout();
-	setLayout(layout_);
+	QVBoxLayout *layout = new QVBoxLayout();
+	layout->addWidget(editor1_);
+	layout->addWidget(editor2_);
+	layout->addWidget(editor3_);
+	layout->addWidget(editor4_);
+
+	setLayout(layout);
 
 	// Current settings.
 
@@ -37,37 +42,22 @@ void BioXASXIAFiltersView::setFilters(BioXASXIAFilters *newFilters)
 
 			// Clear UI elements.
 
-			layout_->removeWidget(editor1_);
-			layout_->removeWidget(editor2_);
-			layout_->removeWidget(editor3_);
-			layout_->removeWidget(editor4_);
-
-			editor1_->deleteLater();
-			editor2_->deleteLater();
-			editor3_->deleteLater();
-			editor4_->deleteLater();
-
-			editor1_ = 0;
-			editor2_ = 0;
-			editor3_ = 0;
-			editor4_ = 0;
+			editor1_->setControl(0);
+			editor2_->setControl(0);
+			editor3_->setControl(0);
+			editor4_->setControl(0);
 		}
 
 		filters_ = newFilters;
 
 		if (filters_) {
 
-			// Create new UI elements.
+			// Update UI elements.
 
-			editor1_ = new AMExtendedControlEditor(filters_->filter1());
-			editor2_ = new AMExtendedControlEditor(filters_->filter2());
-			editor3_ = new AMExtendedControlEditor(filters_->filter3());
-			editor4_ = new AMExtendedControlEditor(filters_->filter4());
-
-			layout_->addWidget(editor1_);
-			layout_->addWidget(editor2_);
-			layout_->addWidget(editor3_);
-			layout_->addWidget(editor4_);
+			editor1_->setControl(filters_->filter1());
+			editor2_->setControl(filters_->filter2());
+			editor3_->setControl(filters_->filter3());
+			editor4_->setControl(filters_->filter4());
 		}
 
 		emit filtersChanged(filters_);

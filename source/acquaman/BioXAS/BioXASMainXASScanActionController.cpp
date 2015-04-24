@@ -55,14 +55,14 @@ BioXASMainXASScanActionController::BioXASMainXASScanActionController(BioXASMainX
 	detectorSet.addDetectorInfo(BioXASMainBeamline::bioXAS()->exposedDetectorByName("I0Detector")->toInfo());
 	detectorSet.addDetectorInfo(BioXASMainBeamline::bioXAS()->exposedDetectorByName("ITDetector")->toInfo());
 	detectorSet.addDetectorInfo(BioXASMainBeamline::bioXAS()->exposedDetectorByName("I2Detector")->toInfo());
+	detectorSet.addDetectorInfo(BioXASMainBeamline::bioXAS()->exposedDetectorByName("EnergySetpoint")->toInfo());
 	detectorSet.addDetectorInfo(BioXASMainBeamline::bioXAS()->exposedDetectorByName("EnergyFeedback")->toInfo());
 	detectorSet.addDetectorInfo(BioXASMainBeamline::bioXAS()->exposedDetectorByName("DwellTimeFeedback")->toInfo());
-	detectorSet.addDetectorInfo(BioXASMainBeamline::bioXAS()->exposedDetectorByName("BraggFeedback")->toInfo());
-	detectorSet.addDetectorInfo(BioXASMainBeamline::bioXAS()->exposedDetectorByName("BraggMoveRetries")->toInfo());
-	detectorSet.addDetectorInfo(BioXASMainBeamline::bioXAS()->exposedDetectorByName("BraggMoveRetriesMax")->toInfo());
-	detectorSet.addDetectorInfo(BioXASMainBeamline::bioXAS()->exposedDetectorByName("BraggStepSetpoint")->toInfo());
-	detectorSet.addDetectorInfo(BioXASMainBeamline::bioXAS()->exposedDetectorByName("BraggDegreeSetpoint")->toInfo());
-	detectorSet.addDetectorInfo(BioXASMainBeamline::bioXAS()->exposedDetectorByName("PhysicalBraggAngle")->toInfo());
+	detectorSet.addDetectorInfo(BioXASMainBeamline::bioXAS()->exposedDetectorByName("MonoFeedback")->toInfo());
+	detectorSet.addDetectorInfo(BioXASMainBeamline::bioXAS()->exposedDetectorByName("MonoMoveRetries")->toInfo());
+	detectorSet.addDetectorInfo(BioXASMainBeamline::bioXAS()->exposedDetectorByName("MonoStepSetpoint")->toInfo());
+	detectorSet.addDetectorInfo(BioXASMainBeamline::bioXAS()->exposedDetectorByName("MonoDegreeSetpoint")->toInfo());
+	detectorSet.addDetectorInfo(BioXASMainBeamline::bioXAS()->exposedDetectorByName("BraggAngle")->toInfo());
 
     configuration_->setDetectorConfigurations(detectorSet);
 
@@ -103,6 +103,11 @@ QString BioXASMainXASScanActionController::beamlineSettings()
 	notes.append(QString("Bragg motor base velocity:\t%1\n").arg(BioXASMainBeamline::bioXAS()->mono()->braggMotor()->EGUBaseVelocity()));
 	notes.append(QString("Bragg motor acceleration:\t%1\n").arg(BioXASMainBeamline::bioXAS()->mono()->braggMotor()->EGUAcceleration()));
 	notes.append(QString("Bragg motor velocity:\t%1\n").arg(BioXASMainBeamline::bioXAS()->mono()->braggMotor()->EGUVelocity()));
+	notes.append(QString("Bragg motor max retries:\t%1\n").arg(BioXASMainBeamline::bioXAS()->mono()->braggMotor()->maxRetries()));
+	notes.append(QString("Bragg motor encoder move type:\t%1\n").arg(BioXASMainBeamline::bioXAS()->mono()->braggMotor()->encoderMovementType()));
+	notes.append(QString("Bragg motor encoder step soft ratio:\t%1\n").arg(BioXASMainBeamline::bioXAS()->mono()->braggMotor()->encoderStepSoftRatio()));
+	notes.append(QString("Bragg motor encoder slope:\t%1\n").arg(BioXASMainBeamline::bioXAS()->mono()->braggMotor()->encoderCalibrationSlope()));
+	notes.append(QString("Bragg motor step calibration slope:\t%1\n").arg(BioXASMainBeamline::bioXAS()->mono()->braggMotor()->stepCalibrationSlope()));
 
 	return notes;
 }
@@ -173,9 +178,9 @@ void BioXASMainXASScanActionController::buildScanControllerImplementation()
 	if (energyDetectorIndex != -1) {
 		AMDataSource *energyFeedbackSource = scan_->dataSourceAt(energyDetectorIndex);
 
-		AM1DExpressionAB *deltaEnergy = new AM1DExpressionAB("Energy feedback - setpoint");
-		deltaEnergy->setInputDataSources(QList<AMDataSource*>() << energyFeedbackSource);
-		deltaEnergy->setExpression("EnergyFeedback - EnergyFeedback.X");
+		AM1DExpressionAB *deltaEnergy = new AM1DExpressionAB("EnergySetpointFeedback");
+		deltaEnergy->setInputDataSources(QList<AMDataSource *>() << energyFeedbackSource << scan_->dataSourceAt(scan_->indexOfDataSource("EnergySetpoint")));
+		deltaEnergy->setExpression("EnergySetpoint-EnergyFeedback");
 
 		scan_->addAnalyzedDataSource(deltaEnergy, true, false);
 	}

@@ -51,6 +51,7 @@ BioXASSideXASScanActionController::BioXASSideXASScanActionController(BioXASSideX
     bioXASDetectors.addDetectorInfo(BioXASSideBeamline::bioXAS()->i0Detector()->toInfo());
     bioXASDetectors.addDetectorInfo(BioXASSideBeamline::bioXAS()->iTDetector()->toInfo());
     bioXASDetectors.addDetectorInfo(BioXASSideBeamline::bioXAS()->i2Detector()->toInfo());
+	bioXASDetectors.addDetectorInfo(BioXASSideBeamline::bioXAS()->energySetpointDetector()->toInfo());
     bioXASDetectors.addDetectorInfo(BioXASSideBeamline::bioXAS()->energyFeedbackDetector()->toInfo());
     bioXASDetectors.addDetectorInfo(BioXASSideBeamline::bioXAS()->dwellTimeDetector()->toInfo());
 	bioXASDetectors.addDetectorInfo(BioXASSideBeamline::bioXAS()->braggDetector()->toInfo());
@@ -71,9 +72,14 @@ QString BioXASSideXASScanActionController::beamlineSettings()
 {
 	QString notes;
 
-	notes.append(QString("Bragg motor base velocity:\t%1").arg(BioXASSideBeamline::bioXAS()->mono()->braggMotor()->EGUBaseVelocity()));
-	notes.append(QString("Bragg motor acceleration:\t%1").arg(BioXASSideBeamline::bioXAS()->mono()->braggMotor()->EGUAcceleration()));
-	notes.append(QString("Bragg motor velocity:\t%1").arg(BioXASSideBeamline::bioXAS()->mono()->braggMotor()->EGUVelocity()));
+	notes.append(QString("Bragg motor base velocity:\t%1\n").arg(BioXASSideBeamline::bioXAS()->mono()->braggMotor()->EGUBaseVelocity()));
+	notes.append(QString("Bragg motor acceleration:\t%1\n").arg(BioXASSideBeamline::bioXAS()->mono()->braggMotor()->EGUAcceleration()));
+	notes.append(QString("Bragg motor velocity:\t%1\n").arg(BioXASSideBeamline::bioXAS()->mono()->braggMotor()->EGUVelocity()));
+	notes.append(QString("Bragg motor max retries:\t%1\n").arg(BioXASSideBeamline::bioXAS()->mono()->braggMotor()->maxRetries()));
+	notes.append(QString("Bragg motor encoder move type:\t%1\n").arg(BioXASSideBeamline::bioXAS()->mono()->braggMotor()->encoderMovementType()));
+	notes.append(QString("Bragg motor encoder step soft ratio:\t%1\n").arg(BioXASSideBeamline::bioXAS()->mono()->braggMotor()->encoderStepSoftRatio()));
+	notes.append(QString("Bragg motor encoder slope:\t%1\n").arg(BioXASSideBeamline::bioXAS()->mono()->braggMotor()->encoderCalibrationSlope()));
+	notes.append(QString("Bragg motor step calibration slope:\t%1\n").arg(BioXASSideBeamline::bioXAS()->mono()->braggMotor()->stepCalibrationSlope()));
 
 	return notes;
 }
@@ -130,17 +136,15 @@ AMAction3* BioXASSideXASScanActionController::createCleanupActions()
 
 void BioXASSideXASScanActionController::buildScanControllerImplementation()
 {
-	// Create data sources for monochromator measurement information.
-
-	// Energy setpoint/feedback
+	// Create analyzed data sources for the monochromator testing measurements.
 
 	int energyDetectorIndex = scan_->indexOfDataSource(BioXASSideBeamline::bioXAS()->energyFeedbackDetector()->name());
 	if (energyDetectorIndex != -1) {
 		AMDataSource *energyFeedbackSource = scan_->dataSourceAt(energyDetectorIndex);
 
-		AM1DExpressionAB *deltaEnergy = new AM1DExpressionAB("Energy feedback - setpoint");
-		deltaEnergy->setInputDataSources(QList<AMDataSource*>() << energyFeedbackSource);
-		deltaEnergy->setExpression("EnergyFeedback - EnergyFeedback.X");
+		AM1DExpressionAB *deltaEnergy = new AM1DExpressionAB("EnergySetpointFeedback");
+		deltaEnergy->setInputDataSources(QList<AMDataSource *>() << energyFeedbackSource << scan_->dataSourceAt(scan_->indexOfDataSource("EnergySetpoint")));
+		deltaEnergy->setExpression("EnergySetpoint-EnergyFeedback");
 
 		scan_->addAnalyzedDataSource(deltaEnergy, true, false);
 	}

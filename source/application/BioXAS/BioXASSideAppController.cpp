@@ -49,10 +49,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/BioXAS/BioXASSideBeamline.h"
 
 #include "ui/AMMainWindow.h"
+#include "ui/acquaman/AMGenericStepScanConfigurationView.h"
 #include "ui/acquaman/AMScanConfigurationViewHolder3.h"
 #include "ui/dataman/AMGenericScanEditor.h"
 
-#include "ui/CLS/CLSSIS3820ScalerView.h"
 #include "ui/CLS/CLSJJSlitView.h"
 
 #include "ui/BioXAS/BioXASSidePersistentView.h"
@@ -62,6 +62,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/BioXAS/BioXASXIAFiltersView.h"
 #include "ui/BioXAS/BioXASCarbonFilterFarmView.h"
 #include "ui/BioXAS/BioXASM2MirrorView.h"
+#include "ui/BioXAS/BioXASDBHRMirrorView.h"
+#include "ui/BioXAS/BioXASSIS3820ScalerView.h"
 
 BioXASSideAppController::BioXASSideAppController(QObject *parent)
 	: AMAppController(parent)
@@ -72,6 +74,7 @@ BioXASSideAppController::BioXASSideAppController(QObject *parent)
 	xiaFiltersView_ = 0;
 	carbonFilterFarmView_ = 0;
 	m2MirrorView_ = 0;
+	dbhrView_ = 0;
 
 	persistentPanel_ = 0;
 
@@ -136,30 +139,19 @@ void BioXASSideAppController::shutdown()
 
 void BioXASSideAppController::onScalerConnected()
 {
-	if (BioXASSideBeamline::bioXAS()->scaler()->isConnected() && !scalerView_) {
-		scalerView_ = new CLSSIS3820ScalerView(BioXASSideBeamline::bioXAS()->scaler());
+	CLSSIS3820Scaler *scaler = BioXASSideBeamline::bioXAS()->scaler();
 
-		mw_->addPane(scalerView_, "Detectors", "Scaler", ":/system-search.png", true);
-	}
-}
-
-void BioXASSideAppController::onBeamlineConnected()
-{
-	if (BioXASSideBeamline::bioXAS()->isConnected() && !configurationView_) {
-		configuration_ = new BioXASSideXASScanConfiguration();
-		configuration_->setEnergy(10000);
-
-		configurationView_ = new BioXASSideXASScanConfigurationView(configuration_);
-
-		configurationViewHolder_ = new AMScanConfigurationViewHolder3(configurationView_);
-
-		mw_->addPane(configurationViewHolder_, "Scans", "Test Scan", ":/utilities-system-monitor.png");
+	if (scaler && scaler->isConnected() && !scalerView_) {
+		scalerView_ = new BioXASSIS3820ScalerView(scaler, true);
+		mw_->addPane(createSqueezeGroupBoxWithView("", scalerView_), "Detectors", "Scaler", ":/system-search.png", true);
 	}
 }
 
 void BioXASSideAppController::registerClasses()
 {
 	AMDbObjectSupport::s()->registerClass<BioXASSideXASScanConfiguration>();
+	AMDbObjectSupport::s()->registerClass<BioXASScanConfigurationDbObject>();
+	AMDbObjectSupport::s()->registerClass<BioXASUserConfiguration>();
 	AMDbObjectSupport::s()->registerClass<BioXASXRFScanConfiguration>();
 }
 
@@ -215,10 +207,11 @@ void BioXASSideAppController::setupUserInterface()
 	// Create m2 mirror view.
 	m2MirrorView_ = new BioXASM2MirrorView(BioXASSideBeamline::bioXAS()->m2Mirror());
 
+	// Create DBHR mirror view.
+	dbhrView_ = new BioXASDBHRMirrorView(BioXASSideBeamline::bioXAS()->dbhrMirror());
+
 	// Create scaler view, if scaler is present and connected.
-	if (BioXASSideBeamline::bioXAS()->scaler()->isConnected()) {
-		onScalerConnected();
-	}
+	onScalerConnected();
 
 	// Create the 32 element Ge detector view.
 	BioXAS32ElementGeDetectorView *geDetectorView = new BioXAS32ElementGeDetectorView(BioXASSideBeamline::bioXAS()->ge32ElementDetector());
@@ -231,11 +224,12 @@ void BioXASSideAppController::setupUserInterface()
 
 	// Add views to 'General'.
 	mw_->insertHeading("General", 0);
-	mw_->addPane(monoConfigView_, "General", "Monochromator", ":/system-software-update.png");
+	mw_->addPane(createSqueezeGroupBoxWithView("", monoConfigView_), "General", "Monochromator", ":/system-software-update.png");
 	mw_->addPane(createSqueezeGroupBoxWithView("", jjSlitView_), "General", "JJ Slit", ":/system-software-update.png");
 	mw_->addPane(createSqueezeGroupBoxWithView("", xiaFiltersView_), "General", "XIA Filters", ":/system-software-update.png");
 	mw_->addPane(createSqueezeGroupBoxWithView("", carbonFilterFarmView_), "General", "Carbon filter farm", ":/system-software-update.png");
 	mw_->addPane(createSqueezeGroupBoxWithView("", m2MirrorView_), "General", "M2 Mirror", ":/system-software-update.png");
+	mw_->addPane(createSqueezeGroupBoxWithView("", dbhrView_), "General", "DBHR Mirror", ":/system-software-update.png");
 
 	// Add views to 'Detectors'.
 	mw_->insertHeading("Detectors", 1);
@@ -244,14 +238,32 @@ void BioXASSideAppController::setupUserInterface()
 	// Add views to 'Scans'.
 	mw_->insertHeading("Scans", 2);
 
+	commissioningConfiguration_ = new AMGenericStepScanConfiguration;
+	commissioningConfiguration_->setAutoExportEnabled(false);
+	commissioningConfiguration_->addDetector(BioXASSideBeamline::bioXAS()->exposedDetectorByName("I0Detector")->toInfo());
+	commissioningConfigurationView_ = new AMGenericStepScanConfigurationView(commissioningConfiguration_);
+	commissioningConfigurationViewHolder_ = new AMScanConfigurationViewHolder3(commissioningConfigurationView_);
+
+	mw_->addPane(commissioningConfigurationViewHolder_, "Scans", "Commissioning Tool", ":/utilities-system-monitor.png");
+
 	// Add right side panel.
 	mw_->addRightWidget(persistentPanel_);
+
+	// Scan configuration stuff.
+
+	configuration_ = new BioXASSideXASScanConfiguration();
+	configuration_->setEnergy(10000);
+
+	configurationView_ = new BioXASSideXASScanConfigurationView(configuration_);
+
+	configurationViewHolder_ = new AMScanConfigurationViewHolder3(configurationView_);
+
+	mw_->addPane(configurationViewHolder_, "Scans", "XAS Scan", ":/utilities-system-monitor.png");
 }
 
 void BioXASSideAppController::makeConnections()
 {
 	connect( BioXASSideBeamline::bioXAS()->scaler(), SIGNAL(connectedChanged(bool)), this, SLOT(onScalerConnected()) );
-	connect( BioXASSideBeamline::bioXAS(), SIGNAL(connected(bool)), this, SLOT(onBeamlineConnected()) );
 
 	// It is sufficient to only connect the user configuration to the single element because the single element and four element are synchronized together.
 	connect(userConfiguration_, SIGNAL(loadedFromDb()), this, SLOT(onUserConfigurationLoadedFromDb()));
@@ -260,7 +272,6 @@ void BioXASSideAppController::makeConnections()
 void BioXASSideAppController::applyCurrentSettings()
 {
 	onScalerConnected();
-	onBeamlineConnected();
 }
 
 void BioXASSideAppController::onCurrentScanActionStartedImplementation(AMScanAction *action)

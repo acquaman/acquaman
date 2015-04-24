@@ -35,7 +35,7 @@ CLSMAXvMotor::CLSMAXvMotor(const QString &name, const QString &baseName, const Q
 	usingKill_ = false;
 	killPV_ = new AMProcessVariable(baseName+":kill", true, this);
 
-	stepSetpoint_ = new AMReadOnlyPVControl(name+"StepSetpoint", baseName+":step", this);
+	stepSetpoint_ = new AMReadOnlyPVControl(name+"StepSetpoint", baseName+":step:sp", this);
 	degreeSetpoint_ = new AMReadOnlyPVControl(name+"DegreeSetpoint", baseName+":deg", this);
 
 	EGUVelocity_ = new AMPVControl(name+"EGUVelocity", baseName+":vel"+pvUnitFieldName+"ps:sp", baseName+":velo"+pvUnitFieldName+"ps", QString(), this, 0.05);

@@ -407,7 +407,14 @@ HEADERS += \
 	source/ui/util/AMLineEditDialog.h \
 	source/dataman/AMXRFScan.h \
 	source/ui/util/AMChooseDataFolderDialog.h \
-	source/acquaman/AMTimedScanActionControllerAssembler.h
+	source/acquaman/AMTimedScanActionControllerAssembler.h \
+#	source/beamline/CLS/CLSBeamlines.h \
+    source/acquaman/AMGenericStepScanController.h \
+    source/acquaman/AMGenericStepScanConfiguration.h \
+	source/ui/acquaman/AMGenericStepScanConfigurationView.h \
+	source/util/AMCSVParser.h \
+	source/actions3/AMTimeoutLoopActionInfo.h \
+	source/actions3/AMTimeoutLoopAction.h
 
 FORMS += \
 
@@ -776,7 +783,13 @@ SOURCES += \
 	source/ui/util/AMLineEditDialog.cpp \
 	source/dataman/AMXRFScan.cpp \
 	source/ui/util/AMChooseDataFolderDialog.cpp \
-	source/acquaman/AMTimedScanActionControllerAssembler.cpp
+	source/acquaman/AMTimedScanActionControllerAssembler.cpp \
+    source/acquaman/AMGenericStepScanController.cpp \
+    source/acquaman/AMGenericStepScanConfiguration.cpp \
+	source/ui/acquaman/AMGenericStepScanConfigurationView.cpp \
+	source/util/AMCSVParser.cpp \
+	source/actions3/AMTimeoutLoopActionInfo.cpp \
+	source/actions3/AMTimeoutLoopAction.cpp
 
 RESOURCES *= source/icons/icons.qrc \
 		source/configurationFiles/configurationFiles.qrc \
@@ -793,11 +806,3 @@ contains(DEFINES, AM_BUILD_REPORTER_ENABLED){
 
 	SOURCES *= source/util/AMRunTimeBuildInfo.cpp
 }
-
-
-
-
-
-
-
-

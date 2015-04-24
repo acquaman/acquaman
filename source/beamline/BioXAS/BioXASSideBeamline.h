@@ -47,6 +47,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/BioXAS/BioXASSideCarbonFilterFarmControl.h"
 #include "beamline/BioXAS/BioXASSideXIAFilters.h"
 #include "beamline/BioXAS/BioXASSideM2Mirror.h"
+#include "beamline/BioXAS/BioXASSideDBHRMirror.h"
 
 #define BIOXASSIDEBEAMLINE_PRESSURE_TOO_HIGH 54600
 #define BIOXASSIDEBEAMLINE_VALVES_CLOSED 54601
@@ -91,6 +92,8 @@ public:
 	BioXASSideCarbonFilterFarmControl* carbonFilterFarm() const { return carbonFilterFarm_; }
 	/// Returns the XIA filters.
 	BioXASSideXIAFilters* xiaFilters() const { return xiaFilters_; }
+	/// Returns the DBHR mirrors.
+	BioXASSideDBHRMirror* dbhrMirror() const { return dbhrMirror_; }
 
 	// Photon and safety shutters.
 	/// Returns the first photon shutter.
@@ -226,6 +229,8 @@ public:
 	CLSBasicScalerChannelDetector* iTDetector() const { return iTDetector_; }
 	/// Returns the I2 scaler channel detector.
 	CLSBasicScalerChannelDetector* i2Detector() const { return i2Detector_; }
+	/// Returns the energy setpoint detector.
+	AMBasicControlDetectorEmulator* energySetpointDetector() const { return energySetpointDetector_; }
 	/// Returns the energy feedback detector.
 	AMBasicControlDetectorEmulator* energyFeedbackDetector() const { return energyFeedbackDetector_; }
 	/// Returns the scaler dwell time detector.
@@ -325,6 +330,7 @@ protected:
 	CLSBasicScalerChannelDetector *i0Detector_;
 	CLSBasicScalerChannelDetector *iTDetector_;
 	CLSBasicScalerChannelDetector *i2Detector_;
+	AMBasicControlDetectorEmulator *energySetpointDetector_;
 	AMBasicControlDetectorEmulator *energyFeedbackDetector_;
 	AMBasicControlDetectorEmulator *dwellTimeDetector_;
 	AMBasicControlDetectorEmulator *braggDetector_;
@@ -361,6 +367,10 @@ protected:
 
 	BioXASSideCarbonFilterFarmControl *carbonFilterFarm_;
 	BioXASSideXIAFilters *xiaFilters_;
+
+	// DBHR mirror.
+
+	BioXASSideDBHRMirror *dbhrMirror_;
 
 	// Misc controls
 

@@ -1375,11 +1375,11 @@ void REIXSXESImageInterpolationABEditor::onApplyToOtherScansChosen()
 					xesAB->setCorrelation2CenterPixel(analysisBlock_->correlation2CenterPixel());
 					xesAB->setCorrelation2HalfWidth(analysisBlock_->correlation2HalfWidth());
 					xesAB->setCorrelation2Smoothing(analysisBlock_->correlation2Smoothing());
-
 				}
 				if(batchApplyShiftCurve_->isChecked()) {
 					xesAB->setShiftValues1(analysisBlock_->shiftValues1());
 					xesAB->setShiftValues2(analysisBlock_->shiftValues2());
+					xesAB->setCurve2Disabled(analysisBlock_->curve2Disabled());
 
 				}
 			}

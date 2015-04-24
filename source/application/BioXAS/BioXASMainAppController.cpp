@@ -41,6 +41,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/export/AMExporterAthena.h"
 #include "dataman/AMRun.h"
 #include "dataman/AMScanAxisEXAFSRegion.h"
+#include "dataman/BioXAS/BioXASUserConfiguration.h"
 
 #include "acquaman/BioXAS/BioXASMainXASScanConfiguration.h"
 
@@ -64,11 +65,14 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "ui/AMTopFrame.h"
 
+#include "ui/acquaman/AMGenericStepScanConfigurationView.h"
+
 BioXASMainAppController::BioXASMainAppController(QObject *parent)
 	: AMAppController(parent)
 {
 	// Initialize variables.
 
+	monoConfigView_ = 0;
 	scalerView_ = 0;
 	configuration_ = 0;
 	configurationView_ = 0;
@@ -146,47 +150,27 @@ void BioXASMainAppController::onScalerConnected()
 		scalerBox->setFlat(true);
 		scalerBox->setLayout(verticalLayout);
 
-	mw_->addPane(scalerBox, "Detectors", "Scaler", ":/utilities-system-monitor.png", true);
-	}
-}
-
-void BioXASMainAppController::onMonoConnected()
-{
-	BioXASMainMonochromator *mono = BioXASMainBeamline::bioXAS()->mono();
-
-	if (mono && mono->isConnected() && !monoConfigView_) {
-		monoConfigView_ = new BioXASSSRLMonochromatorConfigurationView(mono);
-
-		QHBoxLayout *hLayout = new QHBoxLayout();
-		hLayout->addStretch();
-		hLayout->addWidget(monoConfigView_);
-		hLayout->addStretch();
-
-		QVBoxLayout *vLayout = new QVBoxLayout();
-		vLayout->addWidget(new AMTopFrame("Monochromator", QIcon(":/utilities-system-monitor.png")));
-		vLayout->addStretch();
-		vLayout->addLayout(hLayout);
-		vLayout->addStretch();
-
-		QGroupBox *monoBox = new QGroupBox();
-		monoBox->setFlat(true);
-		monoBox->setLayout(vLayout);
-
-		mw_->addPane(monoBox, "General", "Monochromator", ":/utilities-system-monitor.png");
+		mw_->addPane(scalerBox, "Detectors", "Scaler", ":/utilities-system-monitor.png", true);
 	}
 }
 
 void BioXASMainAppController::onBeamlineConnected()
 {
 	if (BioXASMainBeamline::bioXAS()->isConnected() && !configurationView_) {
+
 		configuration_ = new BioXASMainXASScanConfiguration();
 		configuration_->setEnergy(10000);
 
 		configurationView_ = new BioXASMainXASScanConfigurationView(configuration_);
-
 		configurationViewHolder_ = new AMScanConfigurationViewHolder3(configurationView_);
 
-		mw_->addPane(configurationViewHolder_, "Scans", "Test Scan", ":/utilities-system-monitor.png");
+		mw_->addPane(configurationViewHolder_, "Scans", "XAS Scan", ":/utilities-system-monitor.png");
+
+		commissioningConfiguration_ = new AMGenericStepScanConfiguration;
+		commissioningConfigurationView_ = new AMGenericStepScanConfigurationView(commissioningConfiguration_);
+		commissioningConfigurationViewHolder_ = new AMScanConfigurationViewHolder3(commissioningConfigurationView_);
+
+		mw_->addPane(commissioningConfigurationViewHolder_, "Scans", "Commissioning Tool", ":/utilities-system-monitor.png");
 	}
 }
 
@@ -198,6 +182,7 @@ void BioXASMainAppController::registerClasses()
 
 	AMDbObjectSupport::s()->registerClass<BioXASMainXASScanConfiguration>();
 	AMDbObjectSupport::s()->registerClass<BioXASScanConfigurationDbObject>();
+	AMDbObjectSupport::s()->registerClass<BioXASUserConfiguration>();
 }
 
 void BioXASMainAppController::setupExporterOptions()
@@ -235,9 +220,25 @@ void BioXASMainAppController::setupUserInterface()
 	// Create panes in the main window:
 	////////////////////////////////////
 
-	// Create 'General' views.
+	monoConfigView_ = new BioXASSSRLMonochromatorConfigurationView(BioXASMainBeamline::bioXAS()->mono());
+
+	QHBoxLayout *hLayout = new QHBoxLayout();
+	hLayout->addStretch();
+	hLayout->addWidget(monoConfigView_);
+	hLayout->addStretch();
+
+	QVBoxLayout *vLayout = new QVBoxLayout();
+	vLayout->addWidget(new AMTopFrame("Monochromator", QIcon(":/utilities-system-monitor.png")));
+	vLayout->addStretch();
+	vLayout->addLayout(hLayout);
+	vLayout->addStretch();
+
+	QGroupBox *monoBox = new QGroupBox();
+	monoBox->setFlat(true);
+	monoBox->setLayout(vLayout);
 
 	mw_->insertHeading("General", 0);
+	mw_->addPane(monoBox, "General", "Monochromator", ":/utilities-system-monitor.png");
 
 	BioXASM2MirrorView *m2MirrorView = new BioXASM2MirrorView(BioXASMainBeamline::bioXAS()->m2Mirror());
 
@@ -271,7 +272,6 @@ void BioXASMainAppController::setupUserInterface()
 void BioXASMainAppController::makeConnections()
 {
 	connect( BioXASMainBeamline::bioXAS()->scaler(), SIGNAL(connectedChanged(bool)), this, SLOT(onScalerConnected()) );
-	connect( BioXASMainBeamline::bioXAS()->mono(), SIGNAL(connected(bool)), this, SLOT(onMonoConnected()) );
 	connect( BioXASMainBeamline::bioXAS(), SIGNAL(connected(bool)), this, SLOT(onBeamlineConnected()) );
 }
 
