@@ -61,6 +61,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/BioXAS/BioXASSSRLMonochromatorConfigurationView.h"
 #include "ui/BioXAS/BioXASXIAFiltersView.h"
 #include "ui/BioXAS/BioXASCarbonFilterFarmView.h"
+#include "ui/BioXAS/BioXASM2MirrorView.h"
 #include "ui/BioXAS/BioXASDBHRMirrorView.h"
 #include "ui/BioXAS/BioXASSIS3820ScalerView.h"
 
@@ -72,6 +73,7 @@ BioXASSideAppController::BioXASSideAppController(QObject *parent)
 	jjSlitView_ = 0;
 	xiaFiltersView_ = 0;
 	carbonFilterFarmView_ = 0;
+	m2MirrorView_ = 0;
 	dbhrView_ = 0;
 
 	persistentPanel_ = 0;
@@ -137,18 +139,11 @@ void BioXASSideAppController::shutdown()
 
 void BioXASSideAppController::onScalerConnected()
 {
-	if (BioXASSideBeamline::bioXAS()->scaler()->isConnected() && !scalerView_) {
-		scalerView_ = new BioXASSIS3820ScalerView(BioXASSideBeamline::bioXAS()->scaler(), true);
+	CLSSIS3820Scaler *scaler = BioXASSideBeamline::bioXAS()->scaler();
+
+	if (scaler && scaler->isConnected() && !scalerView_) {
+		scalerView_ = new BioXASSIS3820ScalerView(scaler, true);
 		mw_->addPane(createSqueezeGroupBoxWithView("", scalerView_), "Detectors", "Scaler", ":/system-search.png", true);
-	}
-}
-
-void BioXASSideAppController::onBeamlineConnected()
-{
-	if (BioXASSideBeamline::bioXAS()->isConnected() && !configurationView_) {
-
-
-
 	}
 }
 
@@ -209,13 +204,14 @@ void BioXASSideAppController::setupUserInterface()
 	// Create carbon filter farm view.
 	carbonFilterFarmView_ = new BioXASCarbonFilterFarmView(BioXASSideBeamline::bioXAS()->carbonFilterFarm());
 
+	// Create m2 mirror view.
+	m2MirrorView_ = new BioXASM2MirrorView(BioXASSideBeamline::bioXAS()->m2Mirror());
+
 	// Create DBHR mirror view.
 	dbhrView_ = new BioXASDBHRMirrorView(BioXASSideBeamline::bioXAS()->dbhrMirror());
 
 	// Create scaler view, if scaler is present and connected.
-	if (BioXASSideBeamline::bioXAS()->scaler()->isConnected()) {
-		onScalerConnected();
-	}
+	onScalerConnected();
 
 	// Create the 32 element Ge detector view.
 	BioXAS32ElementGeDetectorView *geDetectorView = new BioXAS32ElementGeDetectorView(BioXASSideBeamline::bioXAS()->ge32ElementDetector());
@@ -232,6 +228,7 @@ void BioXASSideAppController::setupUserInterface()
 	mw_->addPane(createSqueezeGroupBoxWithView("", jjSlitView_), "General", "JJ Slit", ":/system-software-update.png");
 	mw_->addPane(createSqueezeGroupBoxWithView("", xiaFiltersView_), "General", "XIA Filters", ":/system-software-update.png");
 	mw_->addPane(createSqueezeGroupBoxWithView("", carbonFilterFarmView_), "General", "Carbon filter farm", ":/system-software-update.png");
+	mw_->addPane(createSqueezeGroupBoxWithView("", m2MirrorView_), "General", "M2 Mirror", ":/system-software-update.png");
 	mw_->addPane(createSqueezeGroupBoxWithView("", dbhrView_), "General", "DBHR Mirror", ":/system-software-update.png");
 
 	// Add views to 'Detectors'.
@@ -267,7 +264,6 @@ void BioXASSideAppController::setupUserInterface()
 void BioXASSideAppController::makeConnections()
 {
 	connect( BioXASSideBeamline::bioXAS()->scaler(), SIGNAL(connectedChanged(bool)), this, SLOT(onScalerConnected()) );
-	connect( BioXASSideBeamline::bioXAS(), SIGNAL(connected(bool)), this, SLOT(onBeamlineConnected()) );
 
 	// It is sufficient to only connect the user configuration to the single element because the single element and four element are synchronized together.
 	connect(userConfiguration_, SIGNAL(loadedFromDb()), this, SLOT(onUserConfigurationLoadedFromDb()));
@@ -276,7 +272,6 @@ void BioXASSideAppController::makeConnections()
 void BioXASSideAppController::applyCurrentSettings()
 {
 	onScalerConnected();
-	onBeamlineConnected();
 }
 
 void BioXASSideAppController::onCurrentScanActionStartedImplementation(AMScanAction *action)

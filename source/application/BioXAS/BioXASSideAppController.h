@@ -37,6 +37,7 @@ class BioXASUserConfiguration;
 class AMRegionOfInterest;
 class BioXASXIAFiltersView;
 class BioXASCarbonFilterFarmView;
+class BioXASM2MirrorView;
 class BioXASDBHRMirrorView;
 class AMGenericStepScanConfiguration;
 class AMGenericStepScanConfigurationView;
@@ -58,8 +59,8 @@ public:
 	virtual void shutdown();
 
 protected slots:
+	/// Creates the scaler view and adds it to the 'Detectors' pane, if the scaler is connected and the view hasn't been created previously.
 	void onScalerConnected();
-	void onBeamlineConnected();
 
 	/// Handles setting up all the necessary settings based on the loaded user configuration.
 	void onUserConfigurationLoadedFromDb();
@@ -90,7 +91,7 @@ protected:
 	QGroupBox *createSqueezeGroupBoxWithView(QString title, QWidget *view);
 
 protected:
-	/// View for the BioXAS Side scaler.
+	/// The scaler view.
 	BioXASSIS3820ScalerView *scalerView_;
 	/// The mono configuration view.
 	BioXASSSRLMonochromatorConfigurationView *monoConfigView_;
@@ -100,15 +101,18 @@ protected:
 	BioXASXIAFiltersView *xiaFiltersView_;
 	/// The carbon filter farm view.
 	BioXASCarbonFilterFarmView *carbonFilterFarmView_;
+	/// The m2 mirror view.
+	BioXASM2MirrorView *m2MirrorView_;
 	/// The dbhr mirror view.
 	BioXASDBHRMirrorView *dbhrView_;
-
+	/// The right-side persistent view.
 	BioXASSidePersistentView *persistentPanel_;
 
+	/// The XAS scan configuration.
 	BioXASSideXASScanConfiguration *configuration_;
-
+	/// The XAS scan configuration view.
 	BioXASSideXASScanConfigurationView *configurationView_;
-
+	/// The XAS scan configuration view holder.
 	AMScanConfigurationViewHolder3 *configurationViewHolder_;
 
 	/// The commissioning tool configuration.

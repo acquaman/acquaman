@@ -32,6 +32,8 @@ HEADERS += \
 	source/ui/BioXAS/BioXASCarbonFilterFarmView.h \
     source/beamline/BioXAS/BioXASBeamline.h \
     source/beamline/BioXAS/BioXASMonochromator.h \
+    source/beamline/BioXAS/BioXASM2Mirror.h \
+	source/ui/BioXAS/BioXASM2MirrorView.h \
     source/beamline/BioXAS/BioXASDBHRMirror.h \
     source/ui/BioXAS/BioXASDBHRMirrorView.h
 
@@ -60,10 +62,8 @@ SOURCES += \
     source/ui/BioXAS/BioXASXIAFiltersView.cpp \
 	source/ui/BioXAS/BioXASCarbonFilterFarmView.cpp \
     source/beamline/BioXAS/BioXASBeamline.cpp \
-    source/beamline/BioXAS/BioXASMonochromator.cpp \
+	source/beamline/BioXAS/BioXASMonochromator.cpp \
+    source/beamline/BioXAS/BioXASM2Mirror.cpp \
+	source/ui/BioXAS/BioXASM2MirrorView.cpp \
     source/beamline/BioXAS/BioXASDBHRMirror.cpp \
     source/ui/BioXAS/BioXASDBHRMirrorView.cpp
-
-
-
-

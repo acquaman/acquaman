@@ -1,5 +1,6 @@
 #include "BioXASXIAFiltersView.h"
 #include "ui/beamline/AMExtendedControlEditor.h"
+#include <QDebug>
 
 BioXASXIAFiltersView::BioXASXIAFiltersView(BioXASXIAFilters *filters, QWidget *parent) :
     QWidget(parent)

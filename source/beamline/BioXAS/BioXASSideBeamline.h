@@ -46,6 +46,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/BioXAS/BioXAS32ElementGeDetector.h"
 #include "beamline/BioXAS/BioXASSideCarbonFilterFarmControl.h"
 #include "beamline/BioXAS/BioXASSideXIAFilters.h"
+#include "beamline/BioXAS/BioXASSideM2Mirror.h"
 #include "beamline/BioXAS/BioXASSideDBHRMirror.h"
 
 #define BIOXASSIDEBEAMLINE_PRESSURE_TOO_HIGH 54600
@@ -79,6 +80,8 @@ public:
 	/// Returns the most recent connection state of the beamline.
 	virtual bool isConnected() const { return isConnected_; }
 
+	/// Returns the m2 mirrors.
+	BioXASSideM2Mirror* m2Mirror() const { return m2Mirror_; }
 	/// Returns the beamline monochromator.
 	BioXASSideMonochromator *mono() const { return mono_; }
 	/// Returns the beamline JJ Slit.
@@ -337,6 +340,10 @@ protected:
 	AMBasicControlDetectorEmulator *braggDegreeSetpointDetector_;
 	AMBasicControlDetectorEmulator *braggAngleDetector_;
 	BioXAS32ElementGeDetector *ge32ElementDetector_;
+
+	// M2 mirror
+
+	BioXASSideM2Mirror *m2Mirror_;
 
 	// Monochromator
 

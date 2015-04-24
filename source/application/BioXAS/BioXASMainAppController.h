@@ -30,6 +30,7 @@ class BioXASMainXASScanConfiguration;
 class BioXASMainXASScanConfigurationView;
 class AMScanConfigurationViewHolder3;
 class BioXASSSRLMonochromatorConfigurationView;
+class BioXASM2MirrorView;
 class AMGenericStepScanConfiguration;
 class AMGenericStepScanConfigurationView;
 class BioXASSIS3820ScalerView;

@@ -52,6 +52,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "ui/dataman/AMGenericScanEditor.h"
 
+#include "ui/AMTopFrame.h"
 #include "ui/acquaman/AMScanConfigurationViewHolder3.h"
 
 #include "ui/CLS/CLSSIS3820ScalerView.h"
@@ -60,6 +61,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/BioXAS/BioXASMainPersistentView.h"
 #include "ui/BioXAS/BioXASSSRLMonochromatorConfigurationView.h"
 #include "ui/BioXAS/BioXASSIS3820ScalerView.h"
+#include "ui/BioXAS/BioXASM2MirrorView.h"
 
 #include "ui/AMTopFrame.h"
 
@@ -148,7 +150,7 @@ void BioXASMainAppController::onScalerConnected()
 		scalerBox->setFlat(true);
 		scalerBox->setLayout(verticalLayout);
 
-	mw_->addPane(scalerBox, "Detectors", "Scaler", ":/utilities-system-monitor.png", true);
+		mw_->addPane(scalerBox, "Detectors", "Scaler", ":/utilities-system-monitor.png", true);
 	}
 }
 
@@ -237,6 +239,25 @@ void BioXASMainAppController::setupUserInterface()
 
 	mw_->insertHeading("General", 0);
 	mw_->addPane(monoBox, "General", "Monochromator", ":/utilities-system-monitor.png");
+
+	BioXASM2MirrorView *m2MirrorView = new BioXASM2MirrorView(BioXASMainBeamline::bioXAS()->m2Mirror());
+
+	QHBoxLayout *hSqueeze = new QHBoxLayout();
+	hSqueeze->addStretch();
+	hSqueeze->addWidget(m2MirrorView);
+	hSqueeze->addStretch();
+
+	QVBoxLayout *vSqueeze = new QVBoxLayout();
+	vSqueeze->addWidget(new AMTopFrame("M2 Mirror"));
+	vSqueeze->addStretch();
+	vSqueeze->addLayout(hSqueeze);
+	vSqueeze->addStretch();
+
+	QGroupBox *m2Box = new QGroupBox();
+	m2Box->setFlat(true);
+	m2Box->setLayout(vSqueeze);
+
+	mw_->addPane(m2Box, "General", "M2 Mirror", ":/system-software-update.png");
 
 	mw_->insertHeading("Detectors", 1);
 

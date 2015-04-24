@@ -39,6 +39,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/BioXAS/BioXASBeamlineDef.h"
 #include "beamline/BioXAS/BioXASMainMonochromator.h"
 #include "beamline/BioXAS/BioXAS32ElementGeDetector.h"
+#include "beamline/BioXAS/BioXASMainM2Mirror.h"
 
 #include "util/AMErrorMonitor.h"
 #include "util/AMBiHash.h"
@@ -65,10 +66,13 @@ public:
     /// Returns true if all beamline components are connected, false otherwise.
     virtual bool isConnected() const { return connected_; }
 
+	/// Returns the beamline m2 mirror.
+	virtual BioXASM2Mirror *m2Mirror() const { return m2Mirror_; }
 	/// Returns the beamline monochromator.
 	virtual BioXASMainMonochromator *mono() const { return mono_; }
     /// Returns the scaler.
     virtual CLSSIS3820Scaler* scaler() const { return scaler_; }
+
     /// Returns the I0 amplifier.
     CLSKeithley428* i0Keithley() const { return i0Keithley_; }
     /// Returns the IT amplifier.
@@ -103,8 +107,8 @@ public:
 	QList<AMControl *> getMotorsByType(BioXASBeamlineDef::BioXASMotorType category);
 
 protected slots:
-    /// Handles updating connected_ with changes in each components connection state.
-    void onComponentConnectedChanged(bool isConnected);
+	/// Updates the beamline's reported connection state.
+	void onConnectedChanged();
 
 protected:
 	/// Sets up the readings such as pressure, flow switches, temperature, etc.
@@ -154,14 +158,9 @@ protected:
 
     BioXASMainMonochromator *mono_;
 
-	/// BioXAS M2 motors
-	CLSMAXvMotor *m2VertUpstreamINB_;
-	CLSMAXvMotor *m2VertUpstreamOUTB_;
-	CLSMAXvMotor *m2VertDownstream_;
-	CLSMAXvMotor *m2StripeSelect_;
-	CLSMAXvMotor *m2Yaw_;
-	CLSMAXvMotor *m2BenderUpstream_;
-	CLSMAXvMotor *m2BenderDownStream_;
+	// M2 mirror
+
+	BioXASMainM2Mirror *m2Mirror_;
 
 	/// BioXAS Pseudo motors
 	BioXASPseudoMotorControl *m1PseudoRoll_;
