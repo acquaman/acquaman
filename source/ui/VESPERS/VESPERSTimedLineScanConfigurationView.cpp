@@ -80,7 +80,7 @@ void VESPERSTimedLineScanConfigurationView::onTimesChanged()
 
 	AMScanAxisRegion *region = configuration_->scanAxisAt(0)->regionAt(0);
 
-	if (points*double(region->regionTime()) < timedLineConfiguration()->timePerAcquisition()){
+	if (points*(double(region->regionTime())+configuration_->timeOffset()) < timedLineConfiguration()->timePerAcquisition()){
 
 		timePerAcquisitionBox_->setPalette(good);
 		helpMessage_->hide();
