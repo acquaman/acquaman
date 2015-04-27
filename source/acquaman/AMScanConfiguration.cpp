@@ -37,6 +37,8 @@ AMScanConfiguration::AMScanConfiguration(const AMScanConfiguration &original)
 	userExportName_ = original.userExportName();
 	autoExportEnabled_ = original.autoExportEnabled();
 	expectedDuration_ = original.expectedDuration();
+	axisControlInfos_ = original.axisControlInfos();
+	detectorConfigurations_ = original.detectorConfigurations();
 }
 
 const QMetaObject* AMScanConfiguration::getMetaObject(){

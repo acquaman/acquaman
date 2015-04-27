@@ -95,6 +95,8 @@ public:
 
 	/// Adds a control to the exposed set.
 	virtual bool addExposedControl(AMControl *control) { return exposedControls_->addControl(control); }
+	/// Removes a control from the exposed set.
+	virtual bool removeExposedControl(AMControl *control) { return exposedControls_->removeControl(control); }
 
 	/// Returns the detector set that contains all of the public detectors. These are used with scan actions and configurations for automatic lookup.
 	virtual AMDetectorSet* exposedDetectors() const { return exposedDetectors_; }
@@ -109,6 +111,8 @@ public:
 
 	/// Adds a detector to the exposed set. Returns whether or not the detector was successfully added.
 	virtual bool addExposedDetector(AMDetector *detector) { return exposedDetectors_->addDetector(detector); }
+	/// Removes a detector from the exposed set.  Returns whether or not the detector was successfully removed.
+	virtual bool removeExposedDetector(AMDetector *detector) { return exposedDetectors_->removeDetector(detector); }
 
 	/// Returns the list of the exposed detector groups.
 	QList<AMDetectorGroup*> exposedDetectorGroups() const { return exposedDetectorGroups_; }

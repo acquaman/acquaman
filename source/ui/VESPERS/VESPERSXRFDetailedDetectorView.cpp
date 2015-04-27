@@ -7,7 +7,7 @@
 #include "dataman/export/AMExporterOption.h"
 #include "dataman/AMScan.h"
 #include "application/VESPERS/VESPERS.h"
-#include "ui/util/AMLineEditDialog.h"
+#include "ui/util/AMDialog.h"
 
 #include <QDir>
 

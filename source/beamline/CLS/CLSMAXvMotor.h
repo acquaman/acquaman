@@ -120,6 +120,8 @@ public:
 	double EGUAcceleration() const;
 	/// Returns the (EGU) current velocity of the motor (zero when not moving, presumably non-zero when in motion).  Returns 0 if the motor isn't connected yet.
 	double EGUCurrentVelocity() const;
+	/// Returns the EGU set position of the motor. Returns 0 if the motor isn't connected yet.
+	double EGUSetPosition() const;
 	/// Returns the EGU offset of the motor. Returns 0 if the motor isn't connected yet.
 	double EGUOffset() const;
 
@@ -200,6 +202,24 @@ public:
 	AMReadOnlyPVControl *cwLimitControl() const { return cwLimit_; }
 	/// Returns the counter-clockwise limit status PV control.
 	AMReadOnlyPVControl *ccwLimitControl() const { return ccwLimit_; }
+	/// Returns the EGU velocity PV control.
+	AMPVControl* EGUVelocityControl() const { return EGUVelocity_; }
+	/// Returns the EGU base velocity PV control.
+	AMPVControl* EGUBaseVelocityControl() const { return EGUBaseVelocity_; }
+	/// Returns the EGU acceleration PV control.
+	AMPVControl* EGUAccelerationControl() const { return EGUAcceleration_; }
+	/// Returns the pre-deadband PV control.
+	AMPVControl* preDeadBandControl() const { return preDeadBand_; }
+	/// Returns the post-deadband PV control.
+	AMPVControl* postDeadBandControl() const { return postDeadBand_; }
+	/// Returns the encoder movement type PV control.
+	AMPVControl* encoderMovementTypeControl() const { return encoderMovementType_; }
+	/// Returns the encoder/step soft ratio PV control.
+	AMPVControl* encoderStepSoftRatioControl() const { return encoderStepSoftRatio_; }
+	/// Returns the encoder calibration slope PV control.
+	AMPVControl* encoderCalibrationSlopeControl() const { return encoderCalibrationSlope_; }
+	/// Returns the step calibration slope PV control.
+	AMPVControl* stepCalibrationSlopeControl() const { return stepCalibrationSlope_; }
 
 	/// Returns a newly created action to move the motor. This is a convenience function that calls the EGU move action. Returns 0 if the control is not connected.
 	AMAction3* createMotorMoveAction(double position);
@@ -212,6 +232,8 @@ public:
 	AMAction3 *createEGUBaseVelocityAction(double EGUBaseVelocity);
 	/// Returns a newly created action to change the EGU acceleration. Returns 0 if the control is not connected.
 	AMAction3 *createEGUAccelerationAction(double EGUAcceleration);
+	/// Returns a newly created action to change the EGU Set Position. Returns 0 if the control is not connected.
+	AMAction3 *createEGUSetPositionAction(double EGUOffset);
 	/// Returns a newly created action to change the EGU offset. Returns 0 if the control is not connected.
 	AMAction3 *createEGUOffsetAction(double EGUOffset);
 
@@ -268,6 +290,13 @@ public:
 	/// Returns a newly created action to change the power state. Returns 0 if the control is not connected.
 	AMAction3 *createPowerAction(CLSMAXvMotor::PowerState newState);
 
+	/// Returns a newly created action to alert when CCW is at limit
+	AMAction3 *createCCWLimitWaitAction(CLSMAXvMotor::Limit ccwLimitState);
+
+	/// Returns a newly created action to alert when CW is at limit
+	AMAction3 *createCWLimitWaitAction(CLSMAXvMotor::Limit ccwLimitState);
+
+
 public slots:
 	/// Sets the (EGU) velocity setting for the velocity profile
 	void setEGUVelocity(double EGUVelocity);
@@ -275,6 +304,8 @@ public slots:
 	void setEGUBaseVelocity(double EGUBaseVelocity);
 	/// Sets the (EGU) acceleration setting for the velocity profile
 	void setEGUAcceleration(double EGUAcceleration);
+	/// Sets the EGU offset for the motor
+	void setEGUSetPosition(double EGUSetPosition);
 	/// Sets the EGU offset for the motor
 	void setEGUOffset(double EGUOffset);
 
@@ -343,6 +374,8 @@ signals:
 	void EGUAccelerationChanged(double EGUAcceleration);
 	/// Emitted when the (EGU) current velocity reading changes
 	void EGUCurrentVelocityChanged(double EGUCurrentVelocity);
+	/// Emitted when the EGU set position changes
+	void EGUSetPositionChanged(double EGUSetPosition);
 	/// Emitted when the EGU offset changes
 	void EGUOffsetChanged(double EGUOffset);
 
@@ -451,6 +484,8 @@ protected:
 	AMPVControl *EGUAcceleration_;
 	/// Readonly control for actual (EGU) velocity feedback
 	AMReadOnlyPVControl *EGUCurrentVelocity_;
+	/// Read-write control for the EGU set position
+	AMPVControl *EGUSetPosition_;
 	/// Read-write control for the EGU offset
 	AMPVControl *EGUOffset_;
 
