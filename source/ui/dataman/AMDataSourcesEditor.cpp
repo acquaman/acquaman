@@ -152,8 +152,6 @@ AMDataSourcesEditor::AMDataSourcesEditor(AMScanSetModel* model, QWidget *parent)
 	connect(scanSetView_, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(onCustomContextMenuRequested(QPoint)));
 
 	setLayout(verticalLayout_);
-
-	connect( scanSetView_->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)), this, SIGNAL(selectionChanged()) );
 }
 
 AMDataSourcesEditor::~AMDataSourcesEditor()
@@ -283,6 +281,9 @@ void AMDataSourcesEditor::onSetViewIndexChanged(const QModelIndex &selected, con
 	descriptionEdit_->setReadOnly(false);
 
 	installDetailEditor(dataSource->createEditorWidget());
+
+	// Set the new selected data source as the exclusive view preference.
+	model_->setExclusiveDataSourceByName(dataSource->name());
 }
 
 void AMDataSourcesEditor::onDataSourceDescriptionChanged()

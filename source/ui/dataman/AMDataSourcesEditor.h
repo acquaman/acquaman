@@ -53,8 +53,6 @@ public:
 
 
 signals:
-	/// Notifier that the selected data source has changed.
-	void selectionChanged();
 
 public slots:
 	/// Call this to set the current scan that we edit data sources for
