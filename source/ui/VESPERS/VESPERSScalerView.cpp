@@ -48,8 +48,6 @@ VESPERSScalerView::VESPERSScalerView(QWidget *parent)
 	for (int i = 7; i <= 9; i++){
 
 		CLSSIS3820ScalerChannelView *view = new CLSSIS3820ScalerChannelView(scaler->channelAt(i));
-//		view->setFixedHeight(55);
-//		view->setFixedWidth(300);
 		view->setAmplifierViewPrecision(3);
 		view->setAmplifierViewFormat('g');
 		view->setEnableCheckBoxVisibility(false);
