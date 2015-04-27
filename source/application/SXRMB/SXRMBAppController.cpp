@@ -496,6 +496,7 @@ void SXRMBAppController::onShowAmbiantSampleStageMotorsTriggered()
 
 	AMDialog *showMotorDialog = new AMDialog(motorGroupName);
 	showMotorDialog->layoutDialogContent(motorGroupView);
+	showMotorDialog->setEnableDialogEnterKeyBehavior(false);
 	showMotorDialog->exec();
 }
 

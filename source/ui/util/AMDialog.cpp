@@ -1,5 +1,7 @@
 #include "AMDialog.h"
 
+#include <QPushButton>
+
 AMDialog::~AMDialog()
 {
 
@@ -19,6 +21,8 @@ AMDialog::AMDialog(const QString &title, QWidget *parent) :
 	setLayout(layout);
 
 	layoutDialogButtons();
+
+	setEnableDialogEnterKeyBehavior(true);
 }
 
 void AMDialog::layoutDialogContent(QWidget *widget)
@@ -37,6 +41,24 @@ void AMDialog::layoutDialogButtons()
 	buttonsLayout_->addWidget(buttonBox);
 }
 
+void AMDialog::setEnableDialogEnterKeyBehavior(bool enable)
+{
+	enableDefaultEnterBehavior_ = enable;
+}
+
+void AMDialog::keyPressEvent(QKeyEvent *e)
+{
+	switch (e->key ()) {
+	case Qt::Key_Return:
+	case Qt::Key_Enter:
+		if (enableDefaultEnterBehavior_)
+			QDialog::keyPressEvent(e);
+		break;
+
+	default:
+		QDialog::keyPressEvent (e);
+	}
+}
 
 ///================= AMLineEditDialog =====================
 ///which provides a question and will return an answer
