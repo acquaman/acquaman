@@ -220,6 +220,8 @@ protected slots:
 	void onBeamlineStatusPVValueChanged(double value);
 	/// Handles connected status of the beamline status
 	void onBeamlineStatusPVConnected(bool);
+	/// Handles PhotonShutter State changed signal, turn off TEY HV Control
+	void onPhotonShutterStateChanged();
 	/// Handles connected status of the SXRMB Endstation PV
 	void onEndstationPVConnected(bool);
 	/// Handles value change of the SXRMB Endstation PV

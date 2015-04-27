@@ -550,13 +550,9 @@ AMAction3* SXRMBBeamline::createBeamOffActions() const
 
 	AMListAction3 *beamOffControlActionsList = new AMListAction3(new AMListActionInfo3("SXRMB Beam off action list", "SXRMB Beam off "), AMListAction3::Sequential);
 	beamOffControlActionsList->addSubAction(AMActionSupport::buildControlMoveAction(PSH1406B1002Shutter_, 0));
-	beamOffControlActionsList->addSubAction(AMActionSupport::buildControlMoveAction(teyHVControl_->powerOnOffControl(), 0));
-	beamOffControlActionsList->addSubAction(AMActionSupport::buildControlMoveAction(microprobeTEYHVControl_->powerOnOffControl(), 0));
 
 	AMListAction3 *beamOffControlWaitActionsList = new AMListAction3(new AMListActionInfo3("SXRMB Beam off Wait action list", "SXRMB Beam off"), AMListAction3::Parallel);
 	beamOffControlWaitActionsList->addSubAction(AMActionSupport::buildControlWaitAction(PSH1406B1002Shutter_, 0));
-	beamOffControlWaitActionsList->addSubAction(AMActionSupport::buildControlMoveAction(teyHVControl_->powerOnOffControl(), 0));
-	beamOffControlWaitActionsList->addSubAction(AMActionSupport::buildControlMoveAction(microprobeTEYHVControl_->powerOnOffControl(), 0));
 
 	AMListAction3 *beamOffActionsList = new AMListAction3(new AMListActionInfo3("SXRMB Beam Off", "SXRMB Beam Off"), AMListAction3::Parallel);
 	beamOffActionsList->addSubAction(beamOffControlActionsList);
@@ -779,6 +775,8 @@ void SXRMBBeamline::setupConnections()
 	connect(beamlineStatus_, SIGNAL(valueChanged(double)), this, SLOT(onBeamlineStatusPVValueChanged(double)));
 	connect(beamlineStatus_, SIGNAL(connected(bool)), this, SLOT(onBeamlineStatusPVConnected(bool)));
 
+	connect(PSH1406B1002Shutter_, SIGNAL(stateChanged(int)), this, SLOT(onPhotonShutterStateChanged()));
+
 	connect(endstationControl_, SIGNAL(connected(bool)), this, SLOT(onEndstationPVConnected(bool)));
 	connect(endstationControl_, SIGNAL(valueChanged(double)), this, SLOT(onEndstationPVValueChanged(double)));
 
@@ -849,6 +847,14 @@ void SXRMBBeamline::onBeamlineStatusPVConnected(bool value) {
 
 	if (value) {
 		beamAvailabilityHelper();
+	}
+}
+
+void SXRMBBeamline::onPhotonShutterStateChanged()
+{
+	if (PSH1406B1002Shutter_->isClosed()) {
+		teyHVControl_->onPowerOff();
+		microprobeTEYHVControl_->onPowerOff();
 	}
 }
 
