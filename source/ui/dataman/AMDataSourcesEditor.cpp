@@ -152,6 +152,8 @@ AMDataSourcesEditor::AMDataSourcesEditor(AMScanSetModel* model, QWidget *parent)
 	connect(scanSetView_, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(onCustomContextMenuRequested(QPoint)));
 
 	setLayout(verticalLayout_);
+
+	connect( scanSetView_->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)), this, SIGNAL(selectionChanged()) );
 }
 
 AMDataSourcesEditor::~AMDataSourcesEditor()
