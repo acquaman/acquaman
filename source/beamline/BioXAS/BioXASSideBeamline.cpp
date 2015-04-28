@@ -894,7 +894,7 @@ void BioXASSideBeamline::setupExposedDetectors()
 	addExposedDetector(energySetpointDetector_);
 	addExposedDetector(energyFeedbackDetector_);
 	addExposedDetector(braggDetector_);
-	addExposedDetector(braggEncoderFeedback_);
+	addExposedDetector(braggEncoderFeedbackDetector_);
 	addExposedDetector(braggMoveRetriesDetector_);
 	addExposedDetector(braggMoveRetriesMaxDetector_);
 	addExposedDetector(braggStepSetpointDetector_);
