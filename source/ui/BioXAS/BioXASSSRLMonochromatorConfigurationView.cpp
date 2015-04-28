@@ -31,7 +31,7 @@ BioXASSSRLMonochromatorConfigurationView::BioXASSSRLMonochromatorConfigurationVi
 	settlingTime_->setValue(0);
 	settlingTime_->setEnabled(false);
 
-	QGroupBox *settlingTimeBox = new QGroupBox("Move settling time");
+	QGroupBox *settlingTimeBox = new QGroupBox("Move settings");
 
 	regionStatusWidget_ = new BioXASSSRLMonochromatorRegionControlView(0);
 
