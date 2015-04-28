@@ -43,7 +43,8 @@ HEADERS *=\
 	source/ui/CLS/CLSSIS3820ScalerDarkCurrentWidget.h \
 	source/ui/CLS/CLSSIS3820ScalerControlsView.h \
 	source/ui/CLS/CLSCrossHairGeneratorControlView.h \
-	source/ui/CLS/CLSJJSlitView.h
+	source/ui/CLS/CLSJJSlitView.h \
+    source/beamline/CLS/CLSJJSlitGapControl.h
 
 SOURCES *= \
 	source/actions3/actions/CLSSIS3820ScalerDarkCurrentMeasurementAction.cpp \
@@ -83,4 +84,7 @@ SOURCES *= \
 	source/ui/CLS/CLSSIS3820ScalerDarkCurrentWidget.cpp \
 	source/ui/CLS/CLSSIS3820ScalerControlsView.cpp \
 	source/ui/CLS/CLSCrossHairGeneratorControlView.cpp \
-	source/ui/CLS/CLSJJSlitView.cpp
+	source/ui/CLS/CLSJJSlitView.cpp \
+    source/beamline/CLS/CLSJJSlitGapControl.cpp
+
+
