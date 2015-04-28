@@ -47,6 +47,8 @@ BioXASSideXASScanActionController::BioXASSideXASScanActionController(BioXASSideX
     list.append(BioXASSideBeamline::bioXAS()->mono()->energyControl()->toInfo());
     configuration_->setAxisControlInfos(list);
 
+	useFeedback_ = true;
+
     AMDetectorInfoSet bioXASDetectors;
     bioXASDetectors.addDetectorInfo(BioXASSideBeamline::bioXAS()->i0Detector()->toInfo());
     bioXASDetectors.addDetectorInfo(BioXASSideBeamline::bioXAS()->iTDetector()->toInfo());
@@ -62,10 +64,35 @@ BioXASSideXASScanActionController::BioXASSideXASScanActionController(BioXASSideX
     bioXASDetectors.addDetectorInfo(BioXASSideBeamline::bioXAS()->braggAngleDetector()->toInfo());
 
     configuration_->setDetectorConfigurations(bioXASDetectors);
+
+	secondsElapsed_ = 0;
+	secondsTotal_ = configuration_->totalTime();
+	elapsedTime_.setInterval(1000);
+	connect(this, SIGNAL(started()), &elapsedTime_, SLOT(start()));
+	connect(this, SIGNAL(cancelled()), &elapsedTime_, SLOT(stop()));
+	connect(this, SIGNAL(paused()), &elapsedTime_, SLOT(stop()));
+	connect(this, SIGNAL(resumed()), &elapsedTime_, SLOT(start()));
+	connect(this, SIGNAL(failed()), &elapsedTime_, SLOT(stop()));
+	connect(this, SIGNAL(finished()), &elapsedTime_, SLOT(stop()));
+	connect(&elapsedTime_, SIGNAL(timeout()), this, SLOT(onScanTimerUpdate()));
 }
 
 BioXASSideXASScanActionController::~BioXASSideXASScanActionController()
 {
+
+}
+
+void BioXASSideXASScanActionController::onScanTimerUpdate()
+{
+	if (elapsedTime_.isActive()){
+
+		if (secondsElapsed_ >= secondsTotal_)
+			secondsElapsed_ = secondsTotal_;
+		else
+			secondsElapsed_ += 1.0;
+
+		emit progress(secondsElapsed_, secondsTotal_);
+	}
 }
 
 QString BioXASSideXASScanActionController::beamlineSettings()
