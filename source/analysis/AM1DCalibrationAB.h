@@ -69,9 +69,6 @@ public:
 	/// Returns the desired rank for input sources.
 	virtual int desiredInputRank() const { return 1; }
 
-	/// Set the data source inputs.
-	virtual void setInputDataSourcesImplementation(const QList<AMDataSource*>& dataSources);
-
 	/// Set the analyzed data source name.
 	void setDataName(const QString &name);
 	/// Returns the current analyzed data source name.  If none have been set then this returns an empty string.
@@ -84,8 +81,6 @@ public:
 	bool canAnalyze() const { return canAnalyze_; }
 	/// Returns whether the data source can be evaluated by passing in both names, \param dataName and \param NormalizationName.  Even though, the analysis block can be evaluated regardless of the name if there is only one data source, this will return true even if the name doesn't match.
 	bool canAnalyze(const QString &dataName, const QString &NormalizationName) const;
-
-
 
 	// Data Retrieval
 
@@ -134,6 +129,9 @@ protected slots:
 	/// Connected to be called when the state() flags of any input source change
 	void onInputSourceStateChanged();
 
+protected:
+	/// Set the data source inputs.
+	virtual void setInputDataSourcesImplementation(const QList<AMDataSource*>& dataSources);
 
 public slots:
 	/// Sets the energy axis offset for calibration
