@@ -10,7 +10,10 @@ BioXASSIS3820ScalerChannelsView::BioXASSIS3820ScalerChannelsView(CLSSIS3820Scale
 	biasEditorVisible_ = false;
 	darkCurrentVisible_ = false;
 
-	// Create UI elements.
+	// Create UI elements and set layout.
+
+	QGridLayout *layout = new QGridLayout();
+	layout->setMargin(0);
 
 	if (scaler_) {
 		for (int i = 0, size = scaler_->channels().count(); i < size; i++) {
@@ -28,13 +31,9 @@ BioXASSIS3820ScalerChannelsView::BioXASSIS3820ScalerChannelsView(CLSSIS3820Scale
 		}
 	}
 
-	// Create and set layouts.
-
-	QVBoxLayout *layout = new QVBoxLayout();
-	layout->setMargin(0);
-
-	foreach (BioXASSIS3820ScalerChannelView *channelView, channelViews_) {
-		layout->addWidget(channelView);
+	for (int i = 0, viewCount = channelViews_.count(); i < viewCount; i++) {
+		BioXASSIS3820ScalerChannelView *channelView = channelViews_.at(i);
+		layout->addWidget(channelView, i, 0);
 	}
 
 	setLayout(layout);
