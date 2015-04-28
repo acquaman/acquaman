@@ -212,6 +212,8 @@ public:
 	AMPVControl* preDeadBandControl() const { return preDeadBand_; }
 	/// Returns the post-deadband PV control.
 	AMPVControl* postDeadBandControl() const { return postDeadBand_; }
+	/// Returns the encoder feedback PV control.
+	AMReadOnlyPVControl *encoderFeedbackControl() const { return encoderFeedback_; }
 	/// Returns the encoder movement type PV control.
 	AMPVControl* encoderMovementTypeControl() const { return encoderMovementType_; }
 	/// Returns the encoder/step soft ratio PV control.
@@ -542,6 +544,8 @@ protected:
 
 	/// Read-write control for the encoder target
 	AMPVwStatusControl *encoderTarget_;
+	/// Read-only control for the encoder feedback.
+	AMReadOnlyPVControl *encoderFeedback_;
 	/// Read-write control for the encoder movement type
 	AMPVControl *encoderMovementType_;
 	/// Read-write control for pre-deadband value

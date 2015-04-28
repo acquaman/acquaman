@@ -76,6 +76,7 @@ CLSMAXvMotor::CLSMAXvMotor(const QString &name, const QString &baseName, const Q
 	servoPIDEnabled_ = new AMPVControl(name+"ServoPIDEnabled", baseName+":hold:sp", baseName+":hold", QString(), this, 0.1);
 
 	encoderTarget_ = new AMPVwStatusControl(name+"EncoderTarget", baseName+":enc:fbk", baseName+":encTarget", baseName+":status", QString(), this, 10, 2.0, new CLSMAXvControlStatusChecker(), 1);
+	encoderFeedback_ = new AMReadOnlyPVControl(name+"EncFeedback", baseName+":enc:fbk", this);
 	encoderMovementType_ = new AMPVControl(name+"EncoderMovementType", baseName+":encMoveType", baseName+":selEncMvType", QString(), this, 0.1);
 	preDeadBand_ = new AMPVControl(name+"PreDeadBand", baseName+":preDBand", baseName+":preDBand", QString(), this, 1);
 	postDeadBand_ = new AMPVControl(name+"PostDeadBand", baseName+":postDBand", baseName+":postDBand", QString(), this, 1);
