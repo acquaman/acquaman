@@ -12,19 +12,15 @@ BioXASSSRLMonochromatorConfigurationView::BioXASSSRLMonochromatorConfigurationVi
 	regionEditor_->setTitle("Region");
 
 	energyEditor_ = new AMExtendedControlEditor(0);
-	energyEditor_->setTitle("Energy EV");
+	energyEditor_->setTitle("Energy");
 	energyEditor_->setControlFormat('f', 2);
 
 	calibrateEnergyButton_ = new QPushButton("Calibrate");
 
 	braggEditor_ = new AMExtendedControlEditor(0);
-	braggEditor_->setTitle("Bragg motor position");
+	braggEditor_->setTitle("Goniometer angle");
 
 	calibrateBraggButton_ = new QPushButton("Calibrate");
-
-	regionStatusWidget_ = new BioXASSSRLMonochromatorRegionControlView(0);
-
-	braggConfigWidget_ = new BioXASSSRLMonochromatorBraggConfigurationView(0);
 
 	QLabel *settlingTimeLabel = new QLabel("Settling time:");
 
@@ -34,6 +30,12 @@ BioXASSSRLMonochromatorConfigurationView::BioXASSSRLMonochromatorConfigurationVi
 	settlingTime_->setSuffix(" s");
 	settlingTime_->setValue(0);
 	settlingTime_->setEnabled(false);
+
+	QGroupBox *settlingTimeBox = new QGroupBox("Move settling time");
+
+	regionStatusWidget_ = new BioXASSSRLMonochromatorRegionControlView(0);
+
+	braggConfigWidget_ = new BioXASSSRLMonochromatorBraggConfigurationView(0);
 
 	// Create and set layouts.
 
@@ -46,6 +48,14 @@ BioXASSSRLMonochromatorConfigurationView::BioXASSSRLMonochromatorConfigurationVi
 	braggLayout->setMargin(0);
 	braggLayout->addWidget(braggEditor_);
 	braggLayout->addWidget(calibrateBraggButton_);
+
+	QHBoxLayout *settlingTimeLayout = new QHBoxLayout();
+	settlingTimeLayout->addStretch();
+	settlingTimeLayout->addWidget(settlingTimeLabel);
+	settlingTimeLayout->addWidget(settlingTime_);
+	settlingTimeLayout->addStretch();
+
+	settlingTimeBox->setLayout(settlingTimeLayout);
 
 	QVBoxLayout *regionStatusViewLayout = new QVBoxLayout();
 	regionStatusViewLayout->setMargin(0);
@@ -61,17 +71,13 @@ BioXASSSRLMonochromatorConfigurationView::BioXASSSRLMonochromatorConfigurationVi
 	QGroupBox *braggConfigView = new QGroupBox("Bragg configuration");
 	braggConfigView->setLayout(braggConfigViewLayout);
 
-	QHBoxLayout *settlingTimeLayout = new QHBoxLayout();
-	settlingTimeLayout->addWidget(settlingTimeLabel);
-	settlingTimeLayout->addWidget(settlingTime_);
-
 	QVBoxLayout *layout = new QVBoxLayout();
 	layout->addWidget(regionEditor_);
 	layout->addLayout(energyLayout);
 	layout->addLayout(braggLayout);
+	layout->addWidget(settlingTimeBox);
 	layout->addWidget(regionStatusView);
 	layout->addWidget(braggConfigView);
-	layout->addLayout(settlingTimeLayout);
 	layout->addStretch();
 
 	setLayout(layout);
@@ -285,16 +291,19 @@ void BioXASSSRLMonochromatorBraggConfigurationView::initializeUI()
 		braggVelocity_->setMinimum(BRAGG_VELOCITY_MIN);
 		braggVelocity_->setMaximum(BRAGG_VELOCITY_MAX);
 		braggVelocity_->setValue(braggMotor_->EGUVelocity());
+		braggVelocity_->setSuffix(" deg/s");
 
 		braggVelocityBase_->setEnabled(true);
 		braggVelocityBase_->setMinimum(BRAGG_BASE_VELOCITY_MIN);
 		braggVelocityBase_->setMaximum(BRAGG_BASE_VELOCITY_MAX);
 		braggVelocityBase_->setValue(braggMotor_->EGUBaseVelocity());
+		braggVelocityBase_->setSuffix(" deg/s");
 
 		braggAcceleration_->setEnabled(true);
 		braggAcceleration_->setMinimum(BRAGG_ACCELERATION_MIN);
 		braggAcceleration_->setMaximum(BRAGG_ACCELERATION_MAX);
 		braggAcceleration_->setValue(braggMotor_->EGUAcceleration());
+		braggAcceleration_->setSuffix(" deg/s/s");
 
 		braggEncoderMoveType_->setEnabled(true);
 		braggEncoderMoveType_->addItem("Off");
