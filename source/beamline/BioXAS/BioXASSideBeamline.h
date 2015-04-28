@@ -237,6 +237,8 @@ public:
 	AMBasicControlDetectorEmulator* dwellTimeDetector() const { return dwellTimeDetector_; }
 	/// Returns the bragg motor detector.
 	AMBasicControlDetectorEmulator* braggDetector() const { return braggDetector_; }
+	/// Returns the bragg motor encoder feedback detector.
+	AMBasicControlDetectorEmulator* braggEncoderFeedbackDetector() const { return braggEncoderFeedbackDetector_; }
 	/// Returns the bragg move retries detector.
 	AMBasicControlDetectorEmulator* braggMoveRetriesDetector() const { return braggMoveRetriesDetector_; }
 	/// Returns the bragg move max retries detector.
@@ -339,6 +341,7 @@ protected:
 	AMBasicControlDetectorEmulator *braggStepSetpointDetector_;
 	AMBasicControlDetectorEmulator *braggDegreeSetpointDetector_;
 	AMBasicControlDetectorEmulator *braggAngleDetector_;
+	AMBasicControlDetectorEmulator *braggEncoderFeedbackDetector_;
 	BioXAS32ElementGeDetector *ge32ElementDetector_;
 
 	// M2 mirror
