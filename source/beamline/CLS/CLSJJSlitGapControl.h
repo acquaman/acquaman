@@ -1,7 +1,16 @@
 #ifndef CLSJJSLITGAPCONTROL_H
 #define CLSJJSLITGAPCONTROL_H
 
+#include <QSignalMapper>
+
 #include "beamline/AMCompositeControl.h"
+
+// error codes.
+#define CLSJJSLITGAPCONTROL_NOT_CONNECTED 23487200
+#define CLSJJSLITGAPCONTROL_ALREADY_MOVING 23487201
+#define CLSJJSLITGAPCONTROL_CANNOT_MOVE 23487202
+#define CLSJJSLITGAPCONTROL_INVALID_ACTION 23487203
+#define CLSJJSLITGAPCONTROL_CANNOT_STOP 23487204
 
 class CLSMAXvMotor;
 
@@ -22,6 +31,8 @@ public:
 	/// Returns true if the gap is moving, as a result of this control's action.
 	virtual bool moveInProgress() const { return moveInProgress_; }
 
+	/// Returns true if the first and second motor controls are valid and connected, false otherwise.
+	virtual bool isConnected() const;
 	/// Returns true if the region is always measurable (when the control is connected), false otherwise.
 	virtual bool shouldMeasure() const { return true; }
 	/// Returns true if a move is always possible, provided the control is connected. False otherwise.
@@ -63,6 +74,19 @@ protected slots:
 	/// Updates the move in progress status and emits the moveChanged() signal. The moveStarted() signal is emitted if a move is started.
 	void setMoveInProgress(bool isMoving);
 
+	/// Handles updating the saved gap value.
+	void updateValue();
+
+	/// Handles the situation where the move action is cancelled.
+	void onMoveCancelled(QObject *action);
+	/// Handles the situation where the move action failed.
+	void onMoveFailed(QObject *action);
+	/// Handles the situation where the move action succeeded.
+	void onMoveSucceeded(QObject *action);
+
+	/// Handles cleaning up after completed move action.
+	void moveCleanup(QObject *action);
+
 protected:
 	/// The current gap value.
 	double value_;
@@ -75,6 +99,13 @@ protected:
 	AMControl *firstMotor_;
 	/// The second blade motor.
 	AMControl *secondMotor_;
+
+	/// Signal mapper for the move action cancelled.
+	QSignalMapper *moveCancelled_;
+	/// Signal mapper for the move action failed.
+	QSignalMapper *moveFailed_;
+	/// Signal mapper for the move action succeeded.
+	QSignalMapper *moveSucceeded_;
 
 };
 
