@@ -818,6 +818,10 @@ void BioXASSideBeamline::setupControlsAsDetectors()
 	braggDetector_->setHiddenFromUsers(false);
 	braggDetector_->setIsVisible(true);
 
+	braggEncoderFeedbackDetector_ = new AMBasicControlDetectorEmulator("BraggEncoderFeedback", "Bragg Motor Encoder Feedback", mono_->braggMotor()->encoderFeedbackControl(), 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	braggEncoderFeedbackDetector_->setHiddenFromUsers(false);
+	braggEncoderFeedbackDetector_->setIsVisible(true);
+
 	braggMoveRetriesDetector_ = new AMBasicControlDetectorEmulator("BraggMoveRetries", "Number of bragg move retries", mono_->braggMotor()->retries(), 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
 	braggMoveRetriesDetector_->setHiddenFromUsers(false);
 	braggMoveRetriesDetector_->setIsVisible(true);
@@ -855,6 +859,7 @@ void BioXASSideBeamline::setupExposedControls()
 	addExposedControl(mono_->braggMotor()->EGUAccelerationControl());
 	addExposedControl(mono_->braggMotor()->preDeadBandControl());
 	addExposedControl(mono_->braggMotor()->postDeadBandControl());
+	addExposedControl(mono_->braggMotor()->encoderFeedbackControl());
 	addExposedControl(mono_->braggMotor()->encoderMovementTypeControl());
 	addExposedControl(mono_->braggMotor()->encoderStepSoftRatioControl());
 	addExposedControl(mono_->braggMotor()->encoderCalibrationSlopeControl());
@@ -892,6 +897,7 @@ void BioXASSideBeamline::setupExposedDetectors()
 	addExposedDetector(energySetpointDetector_);
 	addExposedDetector(energyFeedbackDetector_);
 	addExposedDetector(braggDetector_);
+	addExposedDetector(braggEncoderFeedbackDetector_);
 	addExposedDetector(braggMoveRetriesDetector_);
 	addExposedDetector(braggMoveRetriesMaxDetector_);
 	addExposedDetector(braggStepSetpointDetector_);

@@ -195,11 +195,25 @@ void BioXASSideAppController::setupUserInterface()
 
 	// Set up the general monochromator configuration view.
 	monoConfigView_ = new BioXASSSRLMonochromatorConfigurationView(BioXASSideBeamline::bioXAS()->mono());
+
+	// Create JJ slits view.
 	jjSlitView_ = new CLSJJSlitView(BioXASSideBeamline::bioXAS()->jjSlit());
 	endstationTableView_ = new BioXASEndstationTableView(BioXASSideBeamline::bioXAS()->endstationTable());
 
 	// Create JJ slits view.
 	jjSlitView_ = new CLSJJSlitView(BioXASSideBeamline::bioXAS()->jjSlit());
+
+	// Create XIA filters view.
+	xiaFiltersView_ = new BioXASXIAFiltersView(BioXASSideBeamline::bioXAS()->xiaFilters());
+
+	// Create carbon filter farm view.
+	carbonFilterFarmView_ = new BioXASCarbonFilterFarmView(BioXASSideBeamline::bioXAS()->carbonFilterFarm());
+
+	// Create m2 mirror view.
+	m2MirrorView_ = new BioXASM2MirrorView(BioXASSideBeamline::bioXAS()->m2Mirror());
+
+	// Create DBHR mirror view.
+	dbhrView_ = new BioXASDBHRMirrorView(BioXASSideBeamline::bioXAS()->dbhrMirror());
 
 	// Create XIA filters view.
 	xiaFiltersView_ = new BioXASXIAFiltersView(BioXASSideBeamline::bioXAS()->xiaFilters());

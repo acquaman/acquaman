@@ -73,7 +73,6 @@ BioXASSideTableCoordinator::BioXASSideTableCoordinator(QObject *parent) :
 	softIOCYawStatusControl_ = new AMSinglePVControl("Side softIOC Yaw Status", "BL1607-6-I22:Yaw:status", this, 0.5);
 	softIOCYawStopControl_ = new AMSinglePVControl("Side softIOC Yaw Stop", "BL1607-6-I22:Yaw:stop", this, 0.5);
 
-
 	allControls_ = new AMControlSet(this);
 	allControls_->addControl(verticalUpstreamControl_);
 	allControls_->addControl(verticalUpstreamFeedbackControl_);
@@ -185,7 +184,6 @@ void BioXASSideTableCoordinator::onVerticalFeedbackControlValueChanged()
 
 	double upstreamHeight = verticalUpstreamFeedbackControl_->value();
 	double downstreamHeight = verticalDownstreamFeedbackControl_->value();
-
 	manipulateVerticalPVChange(upstreamHeight, downstreamHeight, softIOCHeightFeedbackControl_, softIOCPitchFeedbackControl_);
 }
 
@@ -234,7 +232,6 @@ void BioXASSideTableCoordinator::onHorizontalFeedbackControlValueChanged()
 
 	double horizontalUpstreamFeedbackValue = horizontalUpstreamFeedbackControl_->value();
 	double horizontalDownstreamFeedbackValue = horizontalDownstreamFeedbackControl_->value();
-
 	manipulateHorizontalPVChange(horizontalUpstreamFeedbackValue, horizontalDownstreamFeedbackValue, softIOCLateralFeedbackControl_, softIOCYawFeedbackControl_);
 }
 

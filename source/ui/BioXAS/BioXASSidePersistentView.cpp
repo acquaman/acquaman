@@ -64,7 +64,7 @@ BioXASSidePersistentView::BioXASSidePersistentView(QWidget *parent) :
 	layout->addStretch();
 
 	setLayout(layout);
-	setFixedWidth(355);
+	setFixedWidth(400);
 
 	// Initial settings.
 

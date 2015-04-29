@@ -52,40 +52,6 @@ bool AMOrderReductionAB::areInputDataSourcesAcceptable(const QList<AMDataSource 
 	return false;
 }
 
-void AMOrderReductionAB::setInputDataSourcesImplementation(const QList<AMDataSource *> &dataSources)
-{
-	if (source_){
-
-		disconnect(source_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onInputSourceValuesChanged(AMnDIndex,AMnDIndex)));
-		disconnect(source_->signalSource(), SIGNAL(sizeChanged(int)), this, SLOT(onInputSourceSizeChanged()));
-		disconnect(source_->signalSource(), SIGNAL(stateChanged(int)), this, SLOT(onInputSourceStateChanged()));
-		source_ = 0;
-	}
-
-	if (dataSources.isEmpty()){
-
-		source_ = 0;
-		sources_.clear();
-
-		setReducedAxis(-1);
-		axes_.clear();
-		setDescription("Order Reduction Data Source");
-	}
-
-	else{
-
-		sources_ = dataSources;
-		setInputSources();
-	}
-
-	reviewState();
-
-	emitSizeChanged();
-	emitValuesChanged();
-	emitAxisInfoChanged();
-	emitInfoChanged();
-}
-
 void AMOrderReductionAB::setSelectedName(const QString &name)
 {
 	selectedName_ = name;
@@ -495,6 +461,40 @@ void AMOrderReductionAB::onInputSourceStateChanged()
 {
 	onInputSourceSizeChanged();
 	reviewState();
+}
+
+void AMOrderReductionAB::setInputDataSourcesImplementation(const QList<AMDataSource *> &dataSources)
+{
+	if (source_){
+
+		disconnect(source_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onInputSourceValuesChanged(AMnDIndex,AMnDIndex)));
+		disconnect(source_->signalSource(), SIGNAL(sizeChanged(int)), this, SLOT(onInputSourceSizeChanged()));
+		disconnect(source_->signalSource(), SIGNAL(stateChanged(int)), this, SLOT(onInputSourceStateChanged()));
+		source_ = 0;
+	}
+
+	if (dataSources.isEmpty()){
+
+		source_ = 0;
+		sources_.clear();
+
+		setReducedAxis(-1);
+		axes_.clear();
+		setDescription("Order Reduction Data Source");
+	}
+
+	else{
+
+		sources_ = dataSources;
+		setInputSources();
+	}
+
+	reviewState();
+
+	emitSizeChanged();
+	emitValuesChanged();
+	emitAxisInfoChanged();
+	emitInfoChanged();
 }
 
 void AMOrderReductionAB::reviewState()

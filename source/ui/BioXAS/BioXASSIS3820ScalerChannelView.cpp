@@ -74,6 +74,10 @@ BioXASSIS3820ScalerChannelView::BioXASSIS3820ScalerChannelView(CLSSIS3820ScalerC
 	if (darkCurrentDisplay_)
 		darkCurrentDisplay_->hide();
 
+	scalerOutput_->setFixedWidth(100);
+
+	channelName_->setAlignment(Qt::AlignCenter);
+
 	// Make connections.
 
 	if (channel_ && channel_->detector()) {
