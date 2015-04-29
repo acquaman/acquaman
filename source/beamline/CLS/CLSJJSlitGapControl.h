@@ -44,6 +44,11 @@ public:
 	/// Returns true if this control can stop a move right now.
 	virtual bool canStop() const;
 
+	/// Returns the minimum value this control can take.
+	virtual double minimumValue() const;
+	/// Returns the maximum value this control can take.
+	virtual double maximumValue() const;
+
 	/// Returns the upper blade motor.
 	AMControl* upperBladeControl() const { return upperBladeControl_; }
 	/// Returns the lower blade motor.
@@ -82,6 +87,8 @@ protected slots:
 	/// Handles updating the saved gap value, according to the current motor control values.
 	void updateValue();
 
+	/// Handles the situation where the move action is started.
+	void onMoveStarted();
 	/// Handles the situation where the move action is cancelled.
 	void onMoveCancelled(QObject *action);
 	/// Handles the situation where the move action failed.

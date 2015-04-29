@@ -790,6 +790,8 @@ void BioXASSideBeamline::setupComponents()
 	jjSlit_ = new CLSJJSlit("Side BL JJ Slit", "JJSlit of the side beamline", "PSL1607-6-I22-01", "PSL1607-6-I22-02", 0.01, 10);
 	connect(jjSlit_, SIGNAL(connected(bool)), this, SLOT(onConnectionChanged()));
 
+	jjSlitsGap_ = new CLSJJSlitGapControl(new AMPVwStatusControl("JJSlitsUpperBlade", "SMTR1607-6-I22-10:mm:fbk", "SMTR1607-6-I22-10:mm", "SMTR1607-6-I22-10:status", "SMTR1607-6-I22-10:stop", this, 0.001), new AMPVwStatusControl("JJSlitsLowerBlade", "SMTR1607-6-I22-09:mm:fbk", "SMTR1607-6-I22-09:mm", "SMTR1607-6-I22-09:status", "SMTR1607-6-I22-09:stop", this, 0.001));
+
 	m2Mirror_ = new BioXASSideM2Mirror(this);
 	connect( m2Mirror_, SIGNAL(connected(bool)), this, SLOT(onConnectionChanged()) );
 
@@ -869,6 +871,8 @@ void BioXASSideBeamline::setupExposedControls()
 	addExposedControl(jjSlit_->verticalBladesControl()->centerPVControl());
 	addExposedControl(jjSlit_->horizontalBladesControl()->gapPVControl());
 	addExposedControl(jjSlit_->horizontalBladesControl()->centerPVControl());
+
+	addExposedControl(jjSlitsGap_);
 
 	// Carbon filter farm control.
 

@@ -4,6 +4,8 @@
 #include "actions3/AMListAction3.h"
 #include "actions3/AMActionSupport.h"
 
+#include <QDebug>
+
 CLSJJSlitGapControl::CLSJJSlitGapControl(AMControl *upperBladeControl, AMControl *lowerBladeControl, QObject *parent) :
 	AMCompositeControl("JJSlitsGapControl", "mm", parent, "JJ Slits Gap Control")
 {
@@ -29,6 +31,8 @@ CLSJJSlitGapControl::CLSJJSlitGapControl(AMControl *upperBladeControl, AMControl
 	// Initialize inherited variables.
 
 	setAllowsMovesWhileMoving(false);
+	setDisplayPrecision(2);
+	setTolerance(0.1);
 	setContextKnownDescription("JJ Gap Control");
 
 	// Current settings.
@@ -63,6 +67,16 @@ bool CLSJJSlitGapControl::canStop() const
 	return result;
 }
 
+double CLSJJSlitGapControl::minimumValue() const
+{
+	return -30;
+}
+
+double CLSJJSlitGapControl::maximumValue() const
+{
+	return 30;
+}
+
 AMControl::FailureExplanation CLSJJSlitGapControl::move(double setpoint)
 {
 	if (!isConnected()) {
@@ -95,14 +109,16 @@ AMControl::FailureExplanation CLSJJSlitGapControl::move(double setpoint)
 
 	// Create signal mappings for this action.
 
+	connect( moveAction, SIGNAL(started()), this, SLOT(onMoveStarted()) );
+
 	moveCancelled_->setMapping(moveAction, moveAction);
-	connect( moveAction, SIGNAL(cancelled()), moveCancelled_, SLOT(map(QObject*)) );
+	connect( moveAction, SIGNAL(cancelled()), moveCancelled_, SLOT(map()) );
 
 	moveFailed_->setMapping(moveAction, moveAction);
-	connect( moveAction, SIGNAL(failed()), moveFailed_, SLOT(map(QObject*)) );
+	connect( moveAction, SIGNAL(failed()), moveFailed_, SLOT(map()) );
 
 	moveSucceeded_->setMapping(moveAction, moveAction);
-	connect( moveAction, SIGNAL(succeeded()), moveSucceeded_, SLOT(map(QObject*)) );
+	connect( moveAction, SIGNAL(succeeded()), moveSucceeded_, SLOT(map()) );
 
 	// Run action.
 
@@ -152,7 +168,11 @@ void CLSJJSlitGapControl::setUpperBladeControl(AMControl *newControl)
 
 		if (upperBladeControl_) {
 			addChildControl(upperBladeControl_);
+
 			connect( upperBladeControl_, SIGNAL(valueChanged(double)), this, SLOT(updateValue()) );
+			connect( upperBladeControl_, SIGNAL(connected(bool)), this, SLOT(updateValue()) );
+			connect( upperBladeControl_, SIGNAL(alarmChanged(int,int)), this, SIGNAL(alarmChanged(int,int)) );
+			connect( upperBladeControl_, SIGNAL(error(int)), this, SIGNAL(error(int)) );
 		}
 
 		emit upperBladeControlChanged(upperBladeControl_);
@@ -172,7 +192,11 @@ void CLSJJSlitGapControl::setLowerBladeControl(AMControl *newControl)
 
 		if (lowerBladeControl_) {
 			addChildControl(lowerBladeControl_);
+
 			connect( lowerBladeControl_, SIGNAL(valueChanged(double)), this, SLOT(updateValue()) );
+			connect( lowerBladeControl_, SIGNAL(connected(bool)), this, SLOT(updateValue()) );
+			connect( lowerBladeControl_, SIGNAL(alarmChanged(int,int)), this, SIGNAL(alarmChanged(int,int)) );
+			connect( lowerBladeControl_, SIGNAL(error(int)), this, SIGNAL(error(int)) );
 		}
 
 		emit lowerBladeControlChanged(lowerBladeControl_);
@@ -200,9 +224,6 @@ void CLSJJSlitGapControl::setMoveInProgress(bool isMoving)
 	if (moveInProgress_ != isMoving) {
 		moveInProgress_ = isMoving;
 		emit movingChanged(moveInProgress_);
-
-		if (moveInProgress_)
-			emit moveStarted();
 	}
 }
 
@@ -212,6 +233,12 @@ void CLSJJSlitGapControl::updateValue()
 		double gap = calculateGap(upperBladeControl_->value(), lowerBladeControl_->value());
 		setValue(gap);
 	}
+}
+
+void CLSJJSlitGapControl::onMoveStarted()
+{
+	setMoveInProgress(true);
+	emit moveStarted();
 }
 
 void CLSJJSlitGapControl::onMoveCancelled(QObject *action)
