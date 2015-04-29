@@ -1,20 +1,19 @@
 #include "CLSJJSlitGapControl.h"
 
-#include "beamline/CLS/CLSMAXvMotor.h"
 #include "util/AMErrorMonitor.h"
 #include "actions3/AMListAction3.h"
 
-CLSJJSlitGapControl::CLSJJSlitGapControl(AMControl *firstMotorControl, AMControl *secondMotorControl, QObject *parent) :
+CLSJJSlitGapControl::CLSJJSlitGapControl(AMControl *upperBladeControl, AMControl *lowerBladeControl, QObject *parent) :
 	AMCompositeControl("JJSlitsGapControl", "mm", parent, "JJ Slits Gap Control")
 {
-	/// Initialize member variables.
+	// Initialize member variables.
 
 	value_ = 0.0;
 	setpoint_ = 0.0;
 	moveInProgress_ = false;
 
-	firstMotor_ = 0;
-	secondMotor_ = 0;
+	upperBladeControl_ = 0;
+	lowerBladeControl_ = 0;
 
 	moveCancelled_ = new QSignalMapper(this);
 	connect( moveCancelled_, SIGNAL(mapped(QObject*)), this, SLOT(onMoveCancelled(QObject*)) );
@@ -32,8 +31,8 @@ CLSJJSlitGapControl::CLSJJSlitGapControl(AMControl *firstMotorControl, AMControl
 
 	// Current settings.
 
-	setFirstMotorControl(firstMotorControl);
-	setSecondMotorControl(secondMotorControl);
+	setUpperBladeControl(upperBladeControl);
+	setLowerBladeControl(lowerBladeControl);
 }
 
 CLSJJSlitGapControl::~CLSJJSlitGapControl()
@@ -43,32 +42,27 @@ CLSJJSlitGapControl::~CLSJJSlitGapControl()
 
 bool CLSJJSlitGapControl::isConnected() const
 {
-	bool firstMotorOK = (firstMotor_ && firstMotor_->isConnected());
-	bool secondMotorOK = (secondMotor_ && secondMotor_->isConnected());
+	bool result = (upperBladeControl_ && lowerBladeControl_ && AMCompositeControl::isConnected());
 
-	return (firstMotorOK && secondMotorOK);
+	return result;
 }
 
 bool CLSJJSlitGapControl::canMove() const
 {
-	bool firstMotorOK = (firstMotor_ && firstMotor_->canMove());
-	bool secondMotorOK = (secondMotor_ && secondMotor_->canMove());
+	bool result = (isConnected() && upperBladeControl_->canMove() && lowerBladeControl_->canMove());
 
-	return (firstMotorOK && secondMotorOK && isConnected());
+	return result;
 }
 
 bool CLSJJSlitGapControl::canStop() const
 {
-	bool firstMotorOK = (firstMotor_ && firstMotor_->canStop());
-	bool secondMotorOK = (secondMotor_ && secondMotor_->canStop());
+	bool result = (isConnected() && upperBladeControl_->canStop() && lowerBladeControl_->canStop());
 
-	return (firstMotorOK && secondMotorOK && isConnected());
+	return result;
 }
 
 AMControl::FailureExplanation CLSJJSlitGapControl::move(double setpoint)
 {
-	Q_UNUSED(setpoint)
-
 	if (!isConnected()) {
 		AMErrorMon::error(this, CLSJJSLITGAPCONTROL_NOT_CONNECTED, "JJ slits gap control not connected. Cannot complete move as requested.");
 		return AMControl::NotConnectedFailure;
@@ -91,6 +85,7 @@ AMControl::FailureExplanation CLSJJSlitGapControl::move(double setpoint)
 	// Create move action.
 
 	AMListAction3 *moveAction = new AMListAction3(new AMListActionInfo3("JJSlitsGapControlMove", "JJSlitsGapControlMove"), AMListAction3::Parallel);
+
 
 	if (!moveAction) {
 		AMErrorMon::error(this, CLSJJSLITGAPCONTROL_INVALID_ACTION, "JJ slits gap control cannot move. The move action generated was invalid.");
@@ -117,55 +112,57 @@ AMControl::FailureExplanation CLSJJSlitGapControl::move(double setpoint)
 
 bool CLSJJSlitGapControl::stop()
 {
-	bool result = false;
+	bool result;
 
 	if (!canStop()) {
 		AMErrorMon::error(this, CLSJJSLITGAPCONTROL_CANNOT_STOP, "JJ slit gap control cannot stop.");
 
+		result = false;
+
 	} else {
 
-		bool firstStop = firstMotor_->stop();
-		bool secondStop = secondMotor_->stop();
+		bool upperStop = upperBladeControl_->stop();
+		bool lowerStop = lowerBladeControl_->stop();
 
-		result = (firstStop && secondStop);
+		result = (upperStop && lowerStop);
 	}
 
 	return result;
 }
 
-void CLSJJSlitGapControl::setFirstMotorControl(AMControl *newControl)
+void CLSJJSlitGapControl::setUpperBladeControl(AMControl *newControl)
 {
-	if (firstMotor_ != newControl) {
+	if (upperBladeControl_ != newControl) {
 
-		if (firstMotor_) {
-			children_.removeOne(firstMotor_);
+		if (upperBladeControl_) {
+			children_.removeOne(upperBladeControl_);
 		}
 
-		firstMotor_ = newControl;
+		upperBladeControl_ = newControl;
 
-		if (firstMotor_) {
-			addChildControl(firstMotor_);
+		if (upperBladeControl_) {
+			addChildControl(upperBladeControl_);
 		}
 
-		emit firstMotorChanged(firstMotor_);
+		emit upperBladeControlChanged(upperBladeControl_);
 	}
 }
 
-void CLSJJSlitGapControl::setSecondMotorControl(AMControl *newControl)
+void CLSJJSlitGapControl::setLowerBladeControl(AMControl *newControl)
 {
-	if (secondMotor_ != newControl) {
+	if (lowerBladeControl_ != newControl) {
 
-		if (secondMotor_) {
-			children_.removeOne(secondMotor_);
+		if (lowerBladeControl_) {
+			children_.removeOne(lowerBladeControl_);
 		}
 
-		secondMotor_ = newControl;
+		lowerBladeControl_ = newControl;
 
-		if (secondMotor_) {
-			addChildControl(secondMotor_);
+		if (lowerBladeControl_) {
+			addChildControl(lowerBladeControl_);
 		}
 
-		emit secondMotorChanged(secondMotor_);
+		emit lowerBladeControlChanged(lowerBladeControl_);
 	}
 }
 
@@ -199,8 +196,8 @@ void CLSJJSlitGapControl::setMoveInProgress(bool isMoving)
 void CLSJJSlitGapControl::updateValue()
 {
 	if (isConnected()) {
-		double firstMotorValue = firstMotor_->value();
-		double secondMotorValue = secondMotor_->value();
+		double upperValue = upperBladeControl_->value();
+		double lowerValue = lowerBladeControl_->value();
 
 		// draw conclusions about the current gap value.
 

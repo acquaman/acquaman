@@ -12,8 +12,6 @@
 #define CLSJJSLITGAPCONTROL_INVALID_ACTION 23487203
 #define CLSJJSLITGAPCONTROL_CANNOT_STOP 23487204
 
-class CLSMAXvMotor;
-
 class CLSJJSlitGapControl : public AMCompositeControl
 {
     Q_OBJECT
@@ -28,32 +26,32 @@ public:
 	virtual double value() const { return value_; }
 	/// Returns the current gap setpoint.
 	virtual double setpoint() const { return setpoint_; }
-	/// Returns true if the gap is moving, as a result of this control's action.
+	/// Returns true if the gap is changing, as a result of this control's action.
 	virtual bool moveInProgress() const { return moveInProgress_; }
 
 	/// Returns true if the first and second motor controls are valid and connected, false otherwise.
 	virtual bool isConnected() const;
-	/// Returns true if the region is always measurable (when the control is connected), false otherwise.
+	/// Returns true if the gap is always measurable, provided the controls are connected. False otherwise.
 	virtual bool shouldMeasure() const { return true; }
-	/// Returns true if a move is always possible, provided the control is connected. False otherwise.
+	/// Returns true if a gap change is always possible, provided the controls are connected. False otherwise.
 	virtual bool shouldMove() const { return true; }
-	/// Returns true if this control can stop a move in progress, provided it is connected. False otherwise.
+	/// Returns true if this control can stop a gap change in progress, provided the controls are connected. False otherwise.
 	virtual bool shouldStop() const { return false; }
 	/// Returns true if this control can move right now.
 	virtual bool canMove() const;
 	/// Returns true if this control can stop a move right now.
 	virtual bool canStop() const;
 
-	/// Returns the first blade motor.
-	AMControl* firstMotorControl() const { return firstMotor_; }
-	/// Returns the second blade motor.
-	AMControl* secondMotorControl() const { return secondMotor_; }
+	/// Returns the upper blade motor.
+	AMControl* upperBladeControl() const { return upperBladeControl_; }
+	/// Returns the lower blade motor.
+	AMControl* lowerBladeControl() const { return lowerBladeControl_; }
 
 signals:
-	/// Notifier that the first motor control has changed.
-	void firstMotorChanged(AMControl *newControl);
-	/// Notifier that the second motor control has changed.
-	void secondMotorChanged(AMControl *newControl);
+	/// Notifier that the upper blade motor control has changed.
+	void upperBladeControlChanged(AMControl *newControl);
+	/// Notifier that the lower blade motor control has changed.
+	void lowerBladeControlChanged(AMControl *newControl);
 
 public slots:
 	/// Sets the new gap setpoint and performs a move, if necessary.
@@ -61,10 +59,10 @@ public slots:
 	/// Stops a move in progress.
 	virtual bool stop();
 
-	/// Sets the first motor control.
-	void setFirstMotorControl(AMControl *firstControl);
-	/// Sets the second motor control.
-	void setSecondMotorControl(AMControl *secondControl);
+	/// Sets the upper blade motor control.
+	void setUpperBladeControl(AMControl *newControl);
+	/// Sets the lower blade motor control.
+	void setLowerBladeControl(AMControl *newControl);
 
 protected slots:
 	/// Updates the current gap value and emits the valueChanged() signal.
@@ -74,7 +72,7 @@ protected slots:
 	/// Updates the move in progress status and emits the moveChanged() signal. The moveStarted() signal is emitted if a move is started.
 	void setMoveInProgress(bool isMoving);
 
-	/// Handles updating the saved gap value.
+	/// Handles updating the saved gap value, according to the current motor control values.
 	void updateValue();
 
 	/// Handles the situation where the move action is cancelled.
@@ -95,10 +93,10 @@ protected:
 	/// Indicates whether the control is moving as a result of this control's action.
 	bool moveInProgress_;
 
-	/// The first blade motor.
-	AMControl *firstMotor_;
-	/// The second blade motor.
-	AMControl *secondMotor_;
+	/// The upper blade motor control.
+	AMControl *upperBladeControl_;
+	/// The lower blade motor control.
+	AMControl *lowerBladeControl_;
 
 	/// Signal mapper for the move action cancelled.
 	QSignalMapper *moveCancelled_;
