@@ -2,6 +2,7 @@
 
 #include "util/AMErrorMonitor.h"
 #include "actions3/AMListAction3.h"
+#include "actions3/AMActionSupport.h"
 
 CLSJJSlitGapControl::CLSJJSlitGapControl(AMControl *upperBladeControl, AMControl *lowerBladeControl, QObject *parent) :
 	AMCompositeControl("JJSlitsGapControl", "mm", parent, "JJ Slits Gap Control")
@@ -10,6 +11,7 @@ CLSJJSlitGapControl::CLSJJSlitGapControl(AMControl *upperBladeControl, AMControl
 
 	value_ = 0.0;
 	setpoint_ = 0.0;
+	centerPosition_ = 0.0;
 	moveInProgress_ = false;
 
 	upperBladeControl_ = 0;
@@ -49,7 +51,7 @@ bool CLSJJSlitGapControl::isConnected() const
 
 bool CLSJJSlitGapControl::canMove() const
 {
-	bool result = (isConnected() && upperBladeControl_->canMove() && lowerBladeControl_->canMove());
+	bool result = (!isMoving() && isConnected() && upperBladeControl_->canMove() && lowerBladeControl_->canMove());
 
 	return result;
 }
@@ -86,11 +88,10 @@ AMControl::FailureExplanation CLSJJSlitGapControl::move(double setpoint)
 
 	AMListAction3 *moveAction = new AMListAction3(new AMListActionInfo3("JJSlitsGapControlMove", "JJSlitsGapControlMove"), AMListAction3::Parallel);
 
+	double offset = calculatePositionOffset(setpoint_, centerPosition_);
 
-	if (!moveAction) {
-		AMErrorMon::error(this, CLSJJSLITGAPCONTROL_INVALID_ACTION, "JJ slits gap control cannot move. The move action generated was invalid.");
-		return AMControl::LimitFailure;
-	}
+	moveAction->addSubAction(AMActionSupport::buildControlMoveAction(upperBladeControl_, -offset));
+	moveAction->addSubAction(AMActionSupport::buildControlMoveAction(lowerBladeControl_, offset));
 
 	// Create signal mappings for this action.
 
@@ -130,11 +131,20 @@ bool CLSJJSlitGapControl::stop()
 	return result;
 }
 
+void CLSJJSlitGapControl::setCenterPosition(double newValue)
+{
+	if (centerPosition_ != newValue) {
+		centerPosition_ = newValue;
+		emit centerPositionChanged(centerPosition_);
+	}
+}
+
 void CLSJJSlitGapControl::setUpperBladeControl(AMControl *newControl)
 {
 	if (upperBladeControl_ != newControl) {
 
 		if (upperBladeControl_) {
+			disconnect( upperBladeControl_, 0, this, 0 );
 			children_.removeOne(upperBladeControl_);
 		}
 
@@ -142,6 +152,7 @@ void CLSJJSlitGapControl::setUpperBladeControl(AMControl *newControl)
 
 		if (upperBladeControl_) {
 			addChildControl(upperBladeControl_);
+			connect( upperBladeControl_, SIGNAL(valueChanged(double)), this, SLOT(updateValue()) );
 		}
 
 		emit upperBladeControlChanged(upperBladeControl_);
@@ -153,6 +164,7 @@ void CLSJJSlitGapControl::setLowerBladeControl(AMControl *newControl)
 	if (lowerBladeControl_ != newControl) {
 
 		if (lowerBladeControl_) {
+			disconnect( lowerBladeControl_, 0, this, 0 );
 			children_.removeOne(lowerBladeControl_);
 		}
 
@@ -160,6 +172,7 @@ void CLSJJSlitGapControl::setLowerBladeControl(AMControl *newControl)
 
 		if (lowerBladeControl_) {
 			addChildControl(lowerBladeControl_);
+			connect( lowerBladeControl_, SIGNAL(valueChanged(double)), this, SLOT(updateValue()) );
 		}
 
 		emit lowerBladeControlChanged(lowerBladeControl_);
@@ -196,14 +209,8 @@ void CLSJJSlitGapControl::setMoveInProgress(bool isMoving)
 void CLSJJSlitGapControl::updateValue()
 {
 	if (isConnected()) {
-		double upperValue = upperBladeControl_->value();
-		double lowerValue = lowerBladeControl_->value();
-
-		// draw conclusions about the current gap value.
-
-		// set new gap.
-
-		setValue(0);
+		double gap = calculateGap(upperBladeControl_->value(), lowerBladeControl_->value());
+		setValue(gap);
 	}
 }
 
@@ -240,4 +247,15 @@ void CLSJJSlitGapControl::moveCleanup(QObject *action)
 
 		action->deleteLater();
 	}
+}
+
+double CLSJJSlitGapControl::calculatePositionOffset(double gap, double center)
+{
+	return (gap/2) + center;
+}
+
+double CLSJJSlitGapControl::calculateGap(double upperBladePosition, double lowerBladePosition)
+{
+	// Upper blade opens with a negative setpoint; lower blade opens with positive.
+	return (lowerBladePosition - upperBladePosition);
 }

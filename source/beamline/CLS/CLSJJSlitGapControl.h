@@ -26,6 +26,8 @@ public:
 	virtual double value() const { return value_; }
 	/// Returns the current gap setpoint.
 	virtual double setpoint() const { return setpoint_; }
+	/// Returns the center position.
+	double centerPosition() const { return centerPosition_; }
 	/// Returns true if the gap is changing, as a result of this control's action.
 	virtual bool moveInProgress() const { return moveInProgress_; }
 
@@ -48,6 +50,8 @@ public:
 	AMControl* lowerBladeControl() const { return lowerBladeControl_; }
 
 signals:
+	/// Notifier that the center position has changed.
+	void centerPositionChanged(double newValue);
 	/// Notifier that the upper blade motor control has changed.
 	void upperBladeControlChanged(AMControl *newControl);
 	/// Notifier that the lower blade motor control has changed.
@@ -58,6 +62,9 @@ public slots:
 	virtual FailureExplanation move(double setpoint);
 	/// Stops a move in progress.
 	virtual bool stop();
+
+	/// Sets the center position value.
+	void setCenterPosition(double newValue);
 
 	/// Sets the upper blade motor control.
 	void setUpperBladeControl(AMControl *newControl);
@@ -86,10 +93,18 @@ protected slots:
 	void moveCleanup(QObject *action);
 
 protected:
+	/// Calculate the basic position offset for a motor from the given gap and center position.
+	static double calculatePositionOffset(double gap, double center);
+	/// Calculate the gap from the given motor positions.
+	static double calculateGap(double upperBladePosition, double lowerBladePosition);
+
+protected:
 	/// The current gap value.
 	double value_;
 	/// The current gap setpoint.
 	double setpoint_;
+	/// The current center position, about which the gap is centered.
+	double centerPosition_;
 	/// Indicates whether the control is moving as a result of this control's action.
 	bool moveInProgress_;
 
