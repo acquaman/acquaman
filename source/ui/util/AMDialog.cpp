@@ -1,7 +1,5 @@
 #include "AMDialog.h"
 
-#include <QPushButton>
-
 AMDialog::~AMDialog()
 {
 
@@ -38,6 +36,7 @@ void AMDialog::layoutDialogButtons()
 
 	buttonsLayout_->addWidget(buttonBox);
 }
+
 
 ///================= AMLineEditDialog =====================
 ///which provides a question and will return an answer

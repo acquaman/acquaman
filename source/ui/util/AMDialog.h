@@ -8,7 +8,6 @@
 #include <QDialogButtonBox>
 #include <QLineEdit>
 #include <QLabel>
-#include <QKeyEvent>
 
 class AMDialog : public QDialog
 {
