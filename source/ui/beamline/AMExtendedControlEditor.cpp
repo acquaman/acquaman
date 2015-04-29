@@ -140,49 +140,40 @@ void AMExtendedControlEditor::setControl(AMControl *newControl)
 	if (control_ != newControl) {
 
 		if (control_) {
+			// Disconnect from control.
 			disconnect( control_, 0, this, 0 );
 			disconnect( dialog_, 0, control_, 0 );
 
-			valueLabel_->setText("[Not Connected]");
-			unitsLabel_->setText("?");
-			setHappy(false);
+			// Clear the frame title.
+			setTitle("");
+
+			control_ = 0;
 		}
 
 		control_ = newControl;
 
 		if (control_) {
+			// Make connections.
 			connect(control_, SIGNAL(valueChanged(double)), this, SLOT(onValueChanged(double)));
 			connect(control_, SIGNAL(unitsChanged(QString)), this, SLOT(onUnitsChanged(QString)));
-			connect(control_, SIGNAL(connected(bool)), this, SLOT(setHappy(bool)));
+			connect(control_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()) );
 			connect(control_, SIGNAL(movingChanged(bool)), this, SLOT(onMotion(bool)));
 			connect(control_, SIGNAL(enumChanged()), this, SLOT(onControlEnumChanged()));
 			connect(control_, SIGNAL(moveStarted()), this, SLOT(onControlMoveStarted()));
-
-			// If the control is connected already, update our state right now. (We won't get the connected() signal later.)
-			if (control_->isConnected()) {
-				setHappy(true);
-				onValueChanged(control_->value());
-				onUnitsChanged(control_->units());
-				onMotion(control_->isMoving());
-				if(control_->isEnum())
-					dialog_->setEnumNames(control_->moveEnumNames());
-			}
 
 			if(!configureOnly_)
 				connect(dialog_, SIGNAL(doubleValueSelected(double)), control_, SLOT(move(double)));
 			else
 				connect(dialog_, SIGNAL(doubleValueSelected(double)), this, SLOT(onNewSetpoint(double)));
 
-
-			if (title().isEmpty()) {
-				if(control_->description() != "")
-					setTitle(control_->description());
-				else
-					setTitle(control_->name());
-			}
+			// Update the frame title.
+			if(control_->description() != "")
+				setTitle(control_->description());
+			else
+				setTitle(control_->name());
 		}
 
-		updateReadOnlyStatus();
+		onConnectedChanged();
 
 		emit controlChanged(control_);
 	}
@@ -316,6 +307,33 @@ void AMExtendedControlEditor::updateReadOnlyStatus()
 		setReadOnly(true);
 }
 
+void AMExtendedControlEditor::onConnectedChanged()
+{
+	if (control_ && control_->isConnected()) {
+
+		onValueChanged(control_->value());
+		onUnitsChanged(control_->units());
+		onMotion(control_->isMoving());
+
+		if (control_->isEnum())
+			dialog_->setEnumNames(control_->moveEnumNames());
+
+		setHappy(true);
+
+	} else {
+
+		valueLabel_->setText("[Not Connected]");
+		unitsLabel_->setText("?");
+		onMotion(false);
+
+		dialog_->setEnumNames(QStringList());
+
+		setHappy(false);
+	}
+
+	updateReadOnlyStatus();
+}
+
 void AMExtendedControlEditor::onMotion(bool moving) {
 	if(moving)
 		unitsLabel_->setStyleSheet("border: 1px outset blue; background: #ffdfdf;	padding: 1px; color: blue;");
@@ -343,8 +361,10 @@ void AMExtendedControlEditor::onEditStart() {
 		if(conversionOk)
 			dialog_->setDoubleValue(valueForText);
 	}
-	else
+	else {
 		dialog_->setDoubleValue(control_->value());
+	}
+
 	dialog_->setDoubleDecimals(precision_);
 	dialog_->setLabelText(control_->objectName());
 	dialog_->setSuffix(control_->units());
@@ -454,10 +474,11 @@ double AMExtendedControlEditorStyledInputDialog::setpoint() const{
 }
 
 void AMExtendedControlEditorStyledInputDialog::setDoubleValue(double d) {
-	if(!isEnum_)
+	if(!isEnum_) {
 		spinBox_->setValue(d);
-	else
+	} else {
 		comboBox_->setCurrentIndex((int)d);
+	}
 }
 
 void AMExtendedControlEditorStyledInputDialog::setDoubleMaximum(double d) {
