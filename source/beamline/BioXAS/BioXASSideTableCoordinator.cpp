@@ -158,9 +158,6 @@ void BioXASSideTableCoordinator::onAllControlsConnected(bool connected){
 		qDebug() << "Checking start up value from the OLD Horizontal DownStream status as " << horizontalDownstreamStatusControl_->value();
 		onHorizontalStatusControlValueChanged();
 
-
-		// Max / Min value?
-
 		initialized_ = true;
 	} else {
 		initialized_ = false;
@@ -172,7 +169,7 @@ void BioXASSideTableCoordinator::onVerticalControlValueChanged()
 	if ( !connectedOnce_ )
 		return;
 
-	if (softIOCHeightStatusControl_->withinTolerance(1) || softIOCPitchStatusControl_->withinTolerance(1))
+	if (softIOCHeightStatusControl_->isMoving() || softIOCPitchStatusControl_->isMoving())
 		return;
 
 	double upstreamHeight = verticalUpstreamControl_->value();
@@ -200,7 +197,7 @@ void BioXASSideTableCoordinator::onVerticalStatusControlValueChanged()
 	// Status value: 0 - "MOVE DONE";  1 - "MOVE ACTIVE"; 2 - "AT LIMIT" ("MINOR"); 3 - "FORCED STOP" ("MINOR"); 4 - "ERROR" ("MAJOR")
 	// Status is "MOVE ACTIVE" if at least one motor is moving or the largest status value
 	double status = 0;
-	if (verticalUpstreamStatusControl_->withinTolerance(1) || verticalDownstreamStatusControl_->withinTolerance(1)) {
+	if (verticalUpstreamStatusControl_->isMoving() || verticalDownstreamStatusControl_->isMoving()) {
 		status = 1;
 	} else {
 		double verticalUpstreamControlStatus = verticalUpstreamStatusControl_->value();
@@ -221,7 +218,7 @@ void BioXASSideTableCoordinator::onHorizontalControlValueChanged()
 	if ( !connectedOnce_ )
 		return;
 
-	if (softIOCLateralStatusControl_->withinTolerance(1) || softIOCYawStatusControl_->withinTolerance(1))
+	if (softIOCLateralStatusControl_->isMoving() || softIOCYawStatusControl_->isMoving())
 		return;
 
 	double horizontalUpstreamValue = horizontalUpstreamControl_->value();
@@ -249,7 +246,7 @@ void BioXASSideTableCoordinator::onHorizontalStatusControlValueChanged()
 	// Status value: 0 - "MOVE DONE";  1 - "MOVE ACTIVE"; 2 - "AT LIMIT" ("MINOR"); 3 - "FORCED STOP" ("MINOR"); 4 - "ERROR" ("MAJOR")
 	// Status is "MOVE ACTIVE" if at least one motor is moving or the largest status value
 	double status = 0;
-	if (horizontalUpstreamStatusControl_->withinTolerance(1) || horizontalDownstreamStatusControl_->withinTolerance(1)) {
+	if (horizontalUpstreamStatusControl_->isMoving() || horizontalDownstreamStatusControl_->isMoving()) {
 		status = 1;
 	} else {
 		double horizontalUpstreamControlStatus = horizontalUpstreamStatusControl_->value();
@@ -297,7 +294,7 @@ void BioXASSideTableCoordinator::onHeightStopControlValueChanged()
 	if(!initialized_)
 		return;
 
-	if (softIOCHeightStopControl_->withinTolerance(1)) {
+	if (softIOCHeightStopControl_->isMoving()) {
 		verticalUpstreamControl_->stop();
 		verticalDownstreamControl_->stop();
 
@@ -337,7 +334,7 @@ void BioXASSideTableCoordinator::onPitchStopControlValueChanged()
 	if(!initialized_)
 		return;
 
-	if (softIOCPitchStopControl_->withinTolerance(1)) {
+	if (softIOCPitchStopControl_->isMoving()) {
 		verticalUpstreamControl_->stop();
 		verticalDownstreamControl_->stop();
 
@@ -378,7 +375,7 @@ void BioXASSideTableCoordinator::onLateralStopControlValueChanged()
 	if(!initialized_)
 		return;
 
-	if (softIOCLateralStopControl_->withinTolerance(1)) {
+	if (softIOCLateralStopControl_->isMoving()) {
 		horizontalUpstreamControl_->stop();
 		horizontalDownstreamControl_->stop();
 
@@ -417,7 +414,7 @@ void BioXASSideTableCoordinator::onYawStopControlValueChanged()
 	if(!initialized_)
 		return;
 
-	if (softIOCYawStopControl_->withinTolerance(1)) {
+	if (softIOCYawStopControl_->isMoving()) {
 		horizontalUpstreamControl_->stop();
 		horizontalDownstreamControl_->stop();
 
