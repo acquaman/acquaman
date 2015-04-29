@@ -18,7 +18,7 @@ class CLSJJSlitGapControl : public AMCompositeControl
 
 public:
 	/// Constructor.
-	explicit CLSJJSlitGapControl(AMControl *firstMotorControl, AMControl *secondMotorControl, QObject *parent = 0);
+	explicit CLSJJSlitGapControl(AMControl *firstMotorControl, AMControl *secondMotorControl, QObject *parent = 0, double tolerance = 0.005);
 	/// Destructor.
 	virtual ~CLSJJSlitGapControl();
 

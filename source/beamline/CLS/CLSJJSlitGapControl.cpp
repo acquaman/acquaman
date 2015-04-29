@@ -6,7 +6,7 @@
 
 #include <QDebug>
 
-CLSJJSlitGapControl::CLSJJSlitGapControl(AMControl *upperBladeControl, AMControl *lowerBladeControl, QObject *parent) :
+CLSJJSlitGapControl::CLSJJSlitGapControl(AMControl *upperBladeControl, AMControl *lowerBladeControl, QObject *parent, double tolerance) :
 	AMCompositeControl("JJSlitsGapControl", "mm", parent, "JJ Slits Gap Control")
 {
 	// Initialize member variables.
@@ -32,8 +32,8 @@ CLSJJSlitGapControl::CLSJJSlitGapControl(AMControl *upperBladeControl, AMControl
 
 	setAllowsMovesWhileMoving(false);
 	setDisplayPrecision(2);
-	setTolerance(0.1);
-	setContextKnownDescription("JJ Gap Control");
+	setTolerance(tolerance);
+	setContextKnownDescription("JJ Slits Gap Control");
 
 	// Current settings.
 
