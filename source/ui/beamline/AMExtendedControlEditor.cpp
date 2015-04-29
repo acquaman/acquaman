@@ -361,9 +361,8 @@ void AMExtendedControlEditor::onEditStart() {
 		if(conversionOk)
 			dialog_->setDoubleValue(valueForText);
 	}
-	else {
+	else
 		dialog_->setDoubleValue(control_->value());
-	}
 
 	dialog_->setDoubleDecimals(precision_);
 	dialog_->setLabelText(control_->objectName());
