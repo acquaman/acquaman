@@ -31,40 +31,39 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "analysis/AM1DExpressionAB.h"
 
 BioXASSideXASScanActionController::BioXASSideXASScanActionController(BioXASSideXASScanConfiguration *configuration, QObject *parent) :
-    AMStepScanActionController(configuration, parent)
+	AMStepScanActionController(configuration, parent)
 {
-    configuration_ = configuration;
+	configuration_ = configuration;
 
-    scan_ = new AMXASScan();
-    scan_->setName(configuration_->name());
-    scan_->setFileFormat("amCDFv1");
-    scan_->setScanConfiguration(configuration);
-    scan_->setIndexType("fileSystem");
-    scan_->rawData()->addScanAxis(AMAxisInfo("eV", 0, "Incident Energy", "eV"));
-    scan_->setNotes(beamlineSettings());
+	scan_ = new AMXASScan();
+	scan_->setName(configuration_->name());
+	scan_->setFileFormat("amCDFv1");
+	scan_->setScanConfiguration(configuration);
+	scan_->setIndexType("fileSystem");
+	scan_->rawData()->addScanAxis(AMAxisInfo("eV", 0, "Incident Energy", "eV"));
+	scan_->setNotes(beamlineSettings());
 
-    AMControlInfoList list;
-    list.append(BioXASSideBeamline::bioXAS()->mono()->energyControl()->toInfo());
-    configuration_->setAxisControlInfos(list);
+	AMControlInfoList list;
+	list.append(BioXASSideBeamline::bioXAS()->mono()->energyControl()->toInfo());
+	configuration_->setAxisControlInfos(list);
 
 	useFeedback_ = true;
 
-    AMDetectorInfoSet bioXASDetectors;
-    bioXASDetectors.addDetectorInfo(BioXASSideBeamline::bioXAS()->i0Detector()->toInfo());
-    bioXASDetectors.addDetectorInfo(BioXASSideBeamline::bioXAS()->iTDetector()->toInfo());
-    bioXASDetectors.addDetectorInfo(BioXASSideBeamline::bioXAS()->i2Detector()->toInfo());
+	AMDetectorInfoSet bioXASDetectors;
+	bioXASDetectors.addDetectorInfo(BioXASSideBeamline::bioXAS()->i0Detector()->toInfo());
+	bioXASDetectors.addDetectorInfo(BioXASSideBeamline::bioXAS()->iTDetector()->toInfo());
+	bioXASDetectors.addDetectorInfo(BioXASSideBeamline::bioXAS()->i2Detector()->toInfo());
 	bioXASDetectors.addDetectorInfo(BioXASSideBeamline::bioXAS()->energySetpointDetector()->toInfo());
-    bioXASDetectors.addDetectorInfo(BioXASSideBeamline::bioXAS()->energyFeedbackDetector()->toInfo());
-    bioXASDetectors.addDetectorInfo(BioXASSideBeamline::bioXAS()->dwellTimeDetector()->toInfo());
+	bioXASDetectors.addDetectorInfo(BioXASSideBeamline::bioXAS()->energyFeedbackDetector()->toInfo());
+	bioXASDetectors.addDetectorInfo(BioXASSideBeamline::bioXAS()->dwellTimeDetector()->toInfo());
 	bioXASDetectors.addDetectorInfo(BioXASSideBeamline::bioXAS()->braggDetector()->toInfo());
 	bioXASDetectors.addDetectorInfo(BioXASSideBeamline::bioXAS()->braggEncoderFeedbackDetector()->toInfo());
-    bioXASDetectors.addDetectorInfo(BioXASSideBeamline::bioXAS()->braggMoveRetriesDetector()->toInfo());
-    bioXASDetectors.addDetectorInfo(BioXASSideBeamline::bioXAS()->braggMoveRetriesMaxDetector()->toInfo());
-    bioXASDetectors.addDetectorInfo(BioXASSideBeamline::bioXAS()->braggStepSetpointDetector()->toInfo());
-    bioXASDetectors.addDetectorInfo(BioXASSideBeamline::bioXAS()->braggDegreeSetpointDetector()->toInfo());
-    bioXASDetectors.addDetectorInfo(BioXASSideBeamline::bioXAS()->braggAngleDetector()->toInfo());
+	bioXASDetectors.addDetectorInfo(BioXASSideBeamline::bioXAS()->braggMoveRetriesDetector()->toInfo());
+	bioXASDetectors.addDetectorInfo(BioXASSideBeamline::bioXAS()->braggMoveRetriesMaxDetector()->toInfo());
+	bioXASDetectors.addDetectorInfo(BioXASSideBeamline::bioXAS()->braggStepSetpointDetector()->toInfo());
+	bioXASDetectors.addDetectorInfo(BioXASSideBeamline::bioXAS()->braggAngleDetector()->toInfo());
 
-    configuration_->setDetectorConfigurations(bioXASDetectors);
+	configuration_->setDetectorConfigurations(bioXASDetectors);
 
 	secondsElapsed_ = 0;
 	secondsTotal_ = configuration_->totalTime();
@@ -169,6 +168,6 @@ void BioXASSideXASScanActionController::buildScanControllerImplementation()
 
 void BioXASSideXASScanActionController::createScanAssembler()
 {
-    scanAssembler_ = new AMEXAFSScanActionControllerAssembler(this);
+	scanAssembler_ = new AMEXAFSScanActionControllerAssembler(this);
 }
 
