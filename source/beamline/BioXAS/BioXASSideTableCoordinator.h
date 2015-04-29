@@ -78,8 +78,17 @@ protected slots:
 
 
 protected:
-	double radianToDegree(double radian) { return radian * 57.2957795; }
-	double degreeToRadian(double degree) { return degree * 0.0174532925; }
+	double radianToDegree(double radian) const { return radian * 57.2957795; }
+	double degreeToRadian(double degree) const { return degree * 0.0174532925; }
+
+	/// get the current height of the tablle
+	double calculateTableHeight(const double upstreamHeight, const double downstreamHeight) const;
+	/// get the current pitch of the tablle
+	double calculateTablePitch(const double upstreamHeight, const double downstreamHeight) const;
+	/// get the current lateral of the tablle
+	double calculateTableLateral(const double upstreamLateral, const double downstreamLateral) const;
+	/// get the current yaw of the tablle
+	double calculateTableYaw(const double upstreamLateral, const double downstreamLateral) const;
 
 	/// Apply the value changes of the vertical (feedback) PVs to the softIOC height (feedback) PV and Pitch (feedback) PV
 	void manipulateVerticalPVChange(double upstreamHeight, double downstreamHeight, AMControl* heightPV, AMControl *pitchPV);
@@ -91,6 +100,8 @@ protected:
 	double tableVerticalMotorPosition_; // the distance between the upstream / downstream motor to the center of the table, which is fixed
 	double tableHorizontalMotorPosition_; // the distance between the upstream / downstream motor to the center of the table, which is fixed
 
+	/// flag of whether the coordinator is initialized or not
+	bool initialized_;
 	/// Holds whether or not we've connected at least once
 	bool connectedOnce_;
 	/// All the controls (for checking connectivity)
