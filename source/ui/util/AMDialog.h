@@ -24,16 +24,7 @@ public:
 	/// layout the buttons of the dialog
 	virtual void layoutDialogButtons();
 
-	/// function to set the default behavior for enter key
-	void setEnableDialogEnterKeyBehavior(bool enable);
-
 protected:
-	void keyPressEvent(QKeyEvent * e);
-
-protected:
-	/// flag to disable the default enter key behavior
-	bool enableDefaultEnterBehavior_;
-
 	/// the layout box to contain the content
 	QVBoxLayout *contentLayout_;
 

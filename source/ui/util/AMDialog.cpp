@@ -21,8 +21,6 @@ AMDialog::AMDialog(const QString &title, QWidget *parent) :
 	setLayout(layout);
 
 	layoutDialogButtons();
-
-	setEnableDialogEnterKeyBehavior(true);
 }
 
 void AMDialog::layoutDialogContent(QWidget *widget)
@@ -39,25 +37,6 @@ void AMDialog::layoutDialogButtons()
 	connect(buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
 
 	buttonsLayout_->addWidget(buttonBox);
-}
-
-void AMDialog::setEnableDialogEnterKeyBehavior(bool enable)
-{
-	enableDefaultEnterBehavior_ = enable;
-}
-
-void AMDialog::keyPressEvent(QKeyEvent *e)
-{
-	switch (e->key ()) {
-	case Qt::Key_Return:
-	case Qt::Key_Enter:
-		if (enableDefaultEnterBehavior_)
-			QDialog::keyPressEvent(e);
-		break;
-
-	default:
-		QDialog::keyPressEvent (e);
-	}
 }
 
 ///================= AMLineEditDialog =====================
