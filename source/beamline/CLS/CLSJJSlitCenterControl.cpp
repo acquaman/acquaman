@@ -226,14 +226,6 @@ void CLSJJSlitCenterControl::setSetpoint(double newValue)
 	}
 }
 
-void CLSJJSlitCenterControl::setIsMoving(bool isMoving)
-{
-	if (isMoving_ != isMoving) {
-		isMoving_ = isMoving;
-		emit movingChanged(isMoving_);
-	}
-}
-
 void CLSJJSlitCenterControl::setMoveInProgress(bool isMoving)
 {
 	if (moveInProgress_ != isMoving) {
@@ -245,25 +237,7 @@ void CLSJJSlitCenterControl::setMoveInProgress(bool isMoving)
 void CLSJJSlitCenterControl::updateValue()
 {
 	if (isConnected()) {
-		setValue(calculateCenterPosition(upperBladeControl_->value(), lowerBladeControl_->value()));
-	}
-}
-
-void CLSJJSlitCenterControl::onChildControlMovingChanged()
-{
-	if (isConnected()) {
-		double oldCenter = value_;
-
-		updateValue();
-
-		double newCenter = value_;
-
-		if (oldCenter != newCenter) {
-			setIsMoving(true);
-		} else {
-			setIsMoving(false);
-		}
-
+		setValue( calculateCenterPosition(upperBladeControl_->value(), lowerBladeControl_->value()) );
 	}
 }
 

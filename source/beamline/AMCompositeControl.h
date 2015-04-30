@@ -76,7 +76,7 @@ signals:
 public slots:
 
 protected slots:
-	void onChildControlConnected();
+	virtual void onChildControlConnected();
 	virtual void onChildControlMovingChanged();
 
 protected:
