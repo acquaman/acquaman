@@ -6,7 +6,7 @@
 #include "dataman/AMLightweightScanInfoCollection.h"
 #include "dataman/AMLightweightScanInfoModel.h"
 #include "dataman/AMLightweightScanInfoFilterProxyModel.h"
-
+#include "ui/dataman/AMScanThumbnailGridView.h"
 AMBrowseScansView::AMBrowseScansView(AMDatabase *database, QWidget *parent) :
 	QWidget(parent)
 {
@@ -175,6 +175,10 @@ void AMBrowseScansView::initializeChildViews()
 	treeIcon.addFile(QString::fromUtf8(":/22x22/view-list-compact-symbolic_dark.png"), QSize(), QIcon::Normal, QIcon::On);
 
 	addChildView(treeView, treeIcon);
+
+	AMScanThumbnailGridView* thumbnailGridView = new AMScanThumbnailGridView(this);
+	thumbnailGridView->setContextMenuPolicy(Qt::CustomContextMenu);
+	addChildView(thumbnailGridView, thumbnailIcon);
 }
 
 QAbstractItemView *AMBrowseScansView::currentView()

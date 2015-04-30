@@ -453,7 +453,12 @@ HEADERS += \
 	source/acquaman/AMTimedScanActionControllerAssembler.h \
 	source/beamline/CLS/CLSBeamlines.h \
     source/dataman/AMLightweightScanInfoFactory.h \
-    source/ui/util/AMUniformGridLayout.h
+    source/ui/util/AMUniformGridLayout.h \
+    source/ui/util/AMGridFlowGeometryManager.h \
+    source/ui/dataman/AMScanThumbnailGridViewItemDelegate.h \
+    source/ui/dataman/AMScanThumbnailGridView.h \
+    source/ui/dataman/AMScanThumnailGridGeometryManager.h \
+    source/ui/dataman/AMScanThumbnailGridInputManager.h
 
 FORMS += \
 
@@ -868,7 +873,12 @@ SOURCES += \
 	source/ui/util/AMChooseDataFolderDialog.cpp \
 	source/acquaman/AMTimedScanActionControllerAssembler.cpp \
     source/dataman/AMLightweightScanInfoFactory.cpp \
-    source/ui/util/AMUniformGridLayout.cpp
+    source/ui/util/AMUniformGridLayout.cpp \
+    source/ui/util/AMGridFlowGeometryManager.cpp \
+    source/ui/dataman/AMScanThumbnailGridViewItemDelegate.cpp \
+    source/ui/dataman/AMScanThumbnailGridView.cpp \
+    source/ui/dataman/AMScanThumnailGridGeometryManager.cpp \
+    source/ui/dataman/AMScanThumbnailGridInputManager.cpp
 
 RESOURCES *= source/icons/icons.qrc \
 		source/configurationFiles/configurationFiles.qrc \

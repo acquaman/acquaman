@@ -39,25 +39,49 @@ public:
 	void addItem(QLayoutItem *item);
 
 	/**
-	 * @return The preferred size of this item
+	 * Adds the provided QLayoutItem to the provided position in the layout. All
+	 * subsequent layout items are moved one index up.
+	 * @param item::QLayoutItem* ~ The layout item to add
+	 * @param index::int ~ The index position to add the item at.
+	 */
+	void addItemAt(QLayoutItem* item, int index);
+
+	/**
+	 * The preferred size of this item
 	 */
 	QSize sizeHint() const;
 
 	/**
-	 * @return The smallest size that the layout can have
+	 * The smallest size that the layout can have
 	 */
 	QSize minimumSize() const;
 
 	/**
-	 * @return The number of child items within the layout
+	 * The number of child items within the layout
 	 */
 	int count() const;
 
 	/**
+	 * The index of the QLayoutItem at the provided point, or -1 if no
+	 * QLayoutItem is found at the provided point.
+	 * @param point::QPoint ~ The 2d point to return the QLayoutItem of
+	 * NOTE: If a layout item is floating within a cell, and the point is in
+	 * the padding area, then this is considered not on the QLayoutItem
+	 */
+	int layoutItemIndexAt(const QPoint& point);
+
+	/**
+	 * A list of all the indices of the QLayoutItems which are intersected by
+	 * the provided rectangle.
+	 * @param rect::QRect ~ The rectangle to check if each QLayoutItem intersects
+	 */
+	QList<int> layoutItemIndicesWithin(const QRect& rect);
+
+	/**
+	 * The child layout item at the provided index, or 0 if not item was
+	 * found at the provided index.
 	 * @param index::int ~ The index of the child item within the layout to
 	 * return
-	 * @return The child layout item at the provided index, or 0 if not item was
-	 * found at the provided index.
 	 */
 	QLayoutItem* itemAt(int index) const;
 
@@ -79,7 +103,7 @@ public:
 
 	// Public Methods
 	/**
-	 * @return The height of an individual cell of the grid
+	 * The height of an individual cell of the grid
 	 */
 	int cellHeight() const;
 
@@ -90,7 +114,7 @@ public:
 	void setCellHeight(int cellHeight);
 
 	/**
-	 * @return The width of an individual cell of the grid
+	 * The width of an individual cell of the grid
 	 */
 	int cellWidth() const;
 
@@ -101,7 +125,7 @@ public:
 	void setCellWidth(int cellWidth);
 
 	/**
-	 * @return The current alignment of the child item in each cell
+	 * The current alignment of the child item in each cell
 	 */
 	Qt::Alignment cellContentAlignment() const;
 
@@ -113,7 +137,7 @@ public:
 	void setCellContentAlignment(Qt::Alignment cellContentAlignment);
 
 	/**
-	 * @return The margin between the left most edge of the layout and the position
+	 * The margin between the left most edge of the layout and the position
 	 * of the first column of children.
 	 */
 	int marginLeft() const;
@@ -124,7 +148,7 @@ public:
 	 */
 	void setMarginLeft(int marginLeft);
 	/**
-	 * @return The margin between the right most edge of the layout and the position
+	 * The margin between the right most edge of the layout and the position
 	 * of the last column of children.
 	 */
 	int marginRight() const;
@@ -135,7 +159,7 @@ public:
 	 */
 	void setMarginRight(int marginRight);
 	/**
-	 * @return The margin between the top most edge of the layout and the position
+	 * The margin between the top most edge of the layout and the position
 	 * of the first row of children
 	 */
 	int marginTop() const;
@@ -146,7 +170,7 @@ public:
 	 */
 	void setMarginTop(int marginTop);
 	/**
-	 * @return The margin between the bottm most edge of the layout and the position
+	 * The margin between the bottm most edge of the layout and the position
 	 * of the last row of children
 	 */
 	int marginBottom() const;
@@ -169,7 +193,7 @@ public:
 protected:
 	// Protected Methods
 	/**
-	 * @return The number of cells which are displayed in a row. This value depends
+	 * The number of cells which are displayed in a row. This value depends
 	 * on the current width of the layout, the width of the left and right margins,
 	 * and the size specified for each cell.
 	 */

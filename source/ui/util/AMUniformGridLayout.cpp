@@ -22,6 +22,11 @@ void AMUniformGridLayout::addItem(QLayoutItem *item) {
 	children_.append(item);
 }
 
+void AMUniformGridLayout::addItemAt(QLayoutItem *item, int index)
+{
+	children_.insert(index, item);
+}
+
 QSize AMUniformGridLayout::sizeHint() const {
 	return minimumSize();
 }
@@ -49,6 +54,53 @@ QSize AMUniformGridLayout::minimumSize() const {
 
 int AMUniformGridLayout::count() const {
 	return children_.count();
+}
+
+int AMUniformGridLayout::layoutItemIndexAt(const QPoint &point) {
+	// Check some pre-requisites (point can't be null, point must be inside this
+	// layout, and the cell width and height can't be zero
+	if(point.isNull())
+		return -1;
+
+	if(point.x() > geometry().width() || point.y() > geometry().height())
+		return -1;
+
+	if(point.x() < 0 || point.y() < 0 || cellWidth_ == 0 || cellHeight_ == 0)
+		return -1;
+
+	// Calculate the index of the cell under the point
+	int cellColumnIndex = point.x() / cellWidth_;
+	int cellRowIndex = point.y() / cellHeight_;
+
+	int cellIndex = cellRowIndex * cellsPerRow() + cellColumnIndex;
+
+	// Ensure that the point is within the contents of that cell
+	QRect contentRectOfCell = geometryWithinCellAt(cellIndex);
+
+	if(!contentRectOfCell.isValid())
+		return -1;
+
+	if(contentRectOfCell.contains(point)) {
+		return cellIndex;
+	}
+
+	return -1;
+}
+
+QList<int> AMUniformGridLayout::layoutItemIndicesWithin(const QRect &rect)
+{
+	QList<int> returnList;
+
+	for (int iLayoutItem = 0, layoutCount = children_.count();
+		 iLayoutItem < layoutCount;
+		 ++iLayoutItem) {
+
+		QLayoutItem* itemAt = children_.at(iLayoutItem);
+		if(itemAt->geometry().intersects(rect))
+			returnList.append(iLayoutItem);
+	}
+
+	return returnList;
 }
 
 QLayoutItem *AMUniformGridLayout::itemAt(int index) const {
@@ -133,6 +185,9 @@ QRect AMUniformGridLayout::geometryWithinCellAt(int cellIndex)
 
 	// Calculate the geomerty of the cell which contains the child
 	int currentCellsPerRow = cellsPerRow();
+	if(currentCellsPerRow == 0)
+		return QRect();
+
 	int gridColumn = cellIndex % currentCellsPerRow;
 	int gridRow = cellIndex / currentCellsPerRow;
 	QRect currentGeometry = geometry();
