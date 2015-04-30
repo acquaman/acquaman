@@ -36,6 +36,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/CLS/CLSMAXvMotor.h"
 #include "beamline/CLS/CLSJJSlit.h"
 #include "beamline/CLS/CLSJJSlitGapControl.h"
+#include "beamline/CLS/CLSJJSlitCenterControl.h"
 
 #include "util/AMErrorMonitor.h"
 #include "util/AMBiHash.h"
@@ -89,6 +90,8 @@ public:
 	CLSJJSlit *jjSlit() const { return jjSlit_; }
 	/// Returns the JJ slits gap control.
 	CLSJJSlitGapControl* jjSlitsGapControl() const { return jjSlitsGap_; }
+	/// Returns the JJ slits center control.
+	CLSJJSlitCenterControl* jjSlitsCenterControl() const { return jjSlitsCenter_; }
 	/// Returns the scaler.
 	virtual CLSSIS3820Scaler* scaler() const { return scaler_; }
 	/// Returns the carbon filter farm.
@@ -359,6 +362,7 @@ protected:
 	CLSJJSlit *jjSlit_;
 
 	CLSJJSlitGapControl *jjSlitsGap_;
+	CLSJJSlitCenterControl *jjSlitsCenter_;
 
 	// Scaler
 

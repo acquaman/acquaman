@@ -791,6 +791,7 @@ void BioXASSideBeamline::setupComponents()
 	connect(jjSlit_, SIGNAL(connected(bool)), this, SLOT(onConnectionChanged()));
 
 	jjSlitsGap_ = new CLSJJSlitGapControl(new AMPVwStatusControl("JJSlitsUpperBlade", "SMTR1607-6-I22-10:mm:fbk", "SMTR1607-6-I22-10:mm", "SMTR1607-6-I22-10:status", "SMTR1607-6-I22-10:stop", this, 0.001), new AMPVwStatusControl("JJSlitsLowerBlade", "SMTR1607-6-I22-09:mm:fbk", "SMTR1607-6-I22-09:mm", "SMTR1607-6-I22-09:status", "SMTR1607-6-I22-09:stop", this, 0.001));
+	jjSlitsCenter_ = new CLSJJSlitCenterControl(new AMPVwStatusControl("JJSlitsUpperBlade", "SMTR1607-6-I22-10:mm:fbk", "SMTR1607-6-I22-10:mm", "SMTR1607-6-I22-10:status", "SMTR1607-6-I22-10:stop", this, 0.001), new AMPVwStatusControl("JJSlitsLowerBlade", "SMTR1607-6-I22-09:mm:fbk", "SMTR1607-6-I22-09:mm", "SMTR1607-6-I22-09:status", "SMTR1607-6-I22-09:stop", this, 0.001));
 
 	m2Mirror_ = new BioXASSideM2Mirror(this);
 	connect( m2Mirror_, SIGNAL(connected(bool)), this, SLOT(onConnectionChanged()) );

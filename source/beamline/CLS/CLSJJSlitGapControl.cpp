@@ -175,6 +175,8 @@ void CLSJJSlitGapControl::setUpperBladeControl(AMControl *newControl)
 			connect( upperBladeControl_, SIGNAL(error(int)), this, SIGNAL(error(int)) );
 		}
 
+		updateValue();
+
 		emit upperBladeControlChanged(upperBladeControl_);
 	}
 }
@@ -198,6 +200,8 @@ void CLSJJSlitGapControl::setLowerBladeControl(AMControl *newControl)
 			connect( lowerBladeControl_, SIGNAL(alarmChanged(int,int)), this, SIGNAL(alarmChanged(int,int)) );
 			connect( lowerBladeControl_, SIGNAL(error(int)), this, SIGNAL(error(int)) );
 		}
+
+		updateValue();
 
 		emit lowerBladeControlChanged(lowerBladeControl_);
 	}
