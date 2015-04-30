@@ -33,6 +33,8 @@ public:
 
 	/// Returns true if the first and second motor controls are valid and connected, false otherwise.
 	virtual bool isConnected() const;
+	/// Returns true if the center position value is changing/moving.
+	virtual bool isMoving() const { return isMoving_; }
 	/// Returns true if the center position is always measurable, provided the controls are connected. False otherwise.
 	virtual bool shouldMeasure() const { return true; }
 	/// Returns true if a center position change is always possible, provided the controls are connected. False otherwise.
@@ -81,11 +83,16 @@ protected slots:
 	void setValue(double newValue);
 	/// Updates the current center position setpoint and emits the setpointChanged() signal.
 	void setSetpoint(double newValue);
+	/// Updates the 'is moving' status.
+	void setIsMoving(bool isMoving);
 	/// Updates the move in progress status and emits the moveChanged() signal. The moveStarted() signal is emitted if a move is started.
 	void setMoveInProgress(bool isMoving);
 
 	/// Handles updating the saved center position value, according to the current motor control values.
 	void updateValue();
+
+	/// Handles updating the 'is moving' status of this control when the status of one of the children changes.
+	virtual void onChildControlMovingChanged();
 
 	/// Handles the situation where the move action is started.
 	void onMoveStarted();
@@ -114,6 +121,8 @@ protected:
 	double setpoint_;
 	/// The current gap value.
 	double gap_;
+	/// Indicates whether the control is moving.
+	bool isMoving_;
 	/// Indicates whether the control is moving as a result of this control's action.
 	bool moveInProgress_;
 
