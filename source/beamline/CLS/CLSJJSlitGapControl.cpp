@@ -14,6 +14,7 @@ CLSJJSlitGapControl::CLSJJSlitGapControl(AMControl *upperBladeControl, AMControl
 	value_ = 0.0;
 	setpoint_ = 0.0;
 	centerPosition_ = 0.0;
+	isMoving_ = false;
 	moveInProgress_ = false;
 
 	upperBladeControl_ = 0;
@@ -223,6 +224,14 @@ void CLSJJSlitGapControl::setSetpoint(double newValue)
 	}
 }
 
+void CLSJJSlitGapControl::setIsMoving(bool isMoving)
+{
+	if (isMoving_ != isMoving) {
+		isMoving_ = isMoving;
+		emit movingChanged(isMoving_);
+	}
+}
+
 void CLSJJSlitGapControl::setMoveInProgress(bool isMoving)
 {
 	if (moveInProgress_ != isMoving) {
@@ -236,6 +245,24 @@ void CLSJJSlitGapControl::updateValue()
 	if (isConnected()) {
 		double gap = calculateGap(upperBladeControl_->value(), lowerBladeControl_->value());
 		setValue(gap);
+	}
+}
+
+void CLSJJSlitGapControl::onChildControlMovingChanged()
+{
+	if (isConnected()) {
+		double oldGap = value_;
+
+		updateValue();
+
+		double newGap = value_;
+
+		if (oldGap != newGap) {
+			setIsMoving(true);
+		} else {
+			setIsMoving(false);
+		}
+
 	}
 }
 

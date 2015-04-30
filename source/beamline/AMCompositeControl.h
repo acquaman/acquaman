@@ -77,7 +77,7 @@ public slots:
 
 protected slots:
 	void onChildControlConnected();
-	void onChildControlMovingChanged();
+	virtual void onChildControlMovingChanged();
 
 protected:
 	/// used to detect changes in the moving state
