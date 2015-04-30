@@ -61,9 +61,6 @@ protected slots:
 protected:
 	/// Control handling the bruker deadtime.
 	AMReadOnlyPVControl *deadTimeControl_;
-
-	/// The eV/bin ratio for this detector
-	double eVPerBin_;
 };
 
 #endif // SXRMBBRUKERDETECTOR_H

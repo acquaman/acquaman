@@ -1,7 +1,7 @@
 #include "BioXASSSRLMonochromator.h"
 
 BioXASSSRLMonochromator::BioXASSSRLMonochromator(QObject *parent) :
-	QObject(parent)
+	BioXASMonochromator(parent)
 {
 
 }

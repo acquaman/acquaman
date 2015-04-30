@@ -82,8 +82,16 @@ public:
 signals:
 	/// Emitted when the widget is clicked to bring up the setpoint editor dialog.
 	void clicked();
+	/// Emitted when the control being viewed/edited has changed.
+	void controlChanged(AMControl *newControl);
+	/// Emitted when the secondary control being viewed/edited has changed.
+	void secondaryControlChanged(AMControl *newControl);
 
 public slots:
+	/// Sets the control.
+	void setControl(AMControl *newControl);
+	/// Sets the secondary control.
+	void setSecondaryControl(AMControl *newControl);
 	/// If you want to prevent users from editing a control using this widget, you can set it to readOnly().
 	void setReadOnly(bool readOnly);
 
@@ -98,6 +106,8 @@ protected slots:
 	void onUnitsChanged(const QString& units);
 	/// Called when the control's display precision changes, updates the number of decimals for the setpoint box.
 	void onDisplayPrecisionChanged(int displayPrecision);
+	/// Called when the secondary control's connected state changes, updates the displayed value and units.
+	void onSecondaryConnectedChanged();
 	/// Called when the secondary control's value changes, updates the secondaryValueLabel_.
 	void onSecondaryValueChanged(double newValue);
 	/// Called when the secondary control's units change, updates the value suffix.

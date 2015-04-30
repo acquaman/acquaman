@@ -58,6 +58,14 @@ bool AM1DDerivativeAB::areInputDataSourcesAcceptable(const QList<AMDataSource*>&
 	return false;
 }
 
+void AM1DDerivativeAB::setAnalyzedName(const QString &name)
+{
+	analyzedName_ = name;
+	setModified(true);
+	canAnalyze_ = canAnalyze(name);
+	setInputSource();
+}
+
 void AM1DDerivativeAB::setInputDataSourcesImplementation(const QList<AMDataSource*>& dataSources)
 {
 	// disconnect connections from old source, if it exists.
@@ -107,14 +115,6 @@ void AM1DDerivativeAB::setInputDataSourcesImplementation(const QList<AMDataSourc
 	emitValuesChanged();
 	emitAxisInfoChanged(0);
 	emitInfoChanged();
-}
-
-void AM1DDerivativeAB::setAnalyzedName(const QString &name)
-{
-	analyzedName_ = name;
-	setModified(true);
-	canAnalyze_ = canAnalyze(name);
-	setInputSource();
 }
 
 void AM1DDerivativeAB::setInputSource()

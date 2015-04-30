@@ -296,7 +296,7 @@ AMReadOnlyPVwStatusControl::AMReadOnlyPVwStatusControl(const QString& name, cons
 	// If any PVs were already connected on creation [possible if sharing an existing connection]:
 	wasConnected_ = (readPV_->readReady() && movingPV_->readReady());	// equivalent to isConnected(), but we cannot call virtual functions inside a constructor, potentially breaks subclasses.
 	if(movingPV_->readReady())
-		wasMoving_ = (*statusChecker_)(movingPV_->lastValue());
+		wasMoving_ = (*statusChecker_)((int)movingPV_->lastValue());
 
 }
 
@@ -372,7 +372,7 @@ AMPVwStatusControl::AMPVwStatusControl(const QString& name, const QString& readP
 	if(writePV_->isInitialized())
 		setMoveEnumStates(writePV_->enumStrings());
 	if(movingPV_->readReady())
-		hardwareWasMoving_ = (*statusChecker_)(movingPV_->lastValue());
+		hardwareWasMoving_ = (*statusChecker_)((int)movingPV_->lastValue());
 
 }
 
@@ -404,11 +404,13 @@ AMControl::FailureExplanation AMPVwStatusControl::move(double Setpoint) {
 		// Otherwise: This control supports mid-move updates, and we're already moving. We just need to update the setpoint and send it.
 		setpoint_ = Setpoint;
 		writePV_->setValue(setpoint_);
+
 		// since the settling phase is considered part of a move, it's OK to be here while settling... But for Acquaman purposes, this will be considered a single re-targetted move, even though the hardware will see two.  If we're settling, disable the settling timer, because we only want to respond to the end of the second move.
 		if(settlingInProgress_) {
 			settlingInProgress_ = false;
 			settlingTimer_.stop();
 		}
+
 		emit moveReTargetted(); // re-targetted moves will emit moveReTargetted(), although no moveSucceeded()/moveFailed() will be issued for the initial move.
 	}
 
@@ -449,6 +451,14 @@ bool AMPVwStatusControl::stop() {
 	return true;
 }
 
+void AMPVwStatusControl::setSettlingTime(double seconds)
+{
+	if (settlingTime_ != seconds) {
+		settlingTime_ = seconds;
+		emit settlingTimeChanged(settlingTime_);
+	}
+}
+
 // This is used to handle errors from the status pv
 void AMPVwStatusControl::onWritePVError(int errorCode) {
 	// TODO: figure out how to handle this best.
@@ -479,6 +489,7 @@ void AMPVwStatusControl::onMoveStartTimeout() {
 
 // Re-implemented from AMReadOnlyPVwStatusControl:
 void AMPVwStatusControl::onMovingChanged(int isMovingValue) {
+
 	bool nowMoving = (*statusChecker_)(isMovingValue);	// according to the hardware.  For checking moveSucceeded/moveStarted/moveFailed, use the value delivered in the signal argument, instead of re-checking the PV, in case we respond late and the hardware has already changed again.
 
 	// In case the hardware is being silly and sending multiple MOVE ACTIVE, MOVE ACTIVE, MOVE ACTIVE states in a row, or MOVE DONE, MOVE DONE, MOVE DONE states in a row: only act on changes. [Edge detection]
@@ -504,24 +515,26 @@ void AMPVwStatusControl::onMovingChanged(int isMovingValue) {
 
 	// If one of our moves was running, and we stopped moving:
 	if(moveInProgress_ && !nowMoving) {
+
 		// Mode 1: No settling:
-		if(settlingTime_ == 0.0) {
+		if( settlingTime_ == 0.0) {
 			// That's the end of our move
 			moveInProgress_ = false;
 
 			// Check if we succeeded...
 			if(inPosition()) {
 				emit moveSucceeded();
-			}
-			else {
+
+			} else {
 				emit moveFailed(AMControl::ToleranceFailure);
+
 			}
 		}
 		// Mode 2: allow settling
 		else {
 			if(!settlingInProgress_) {
 				settlingInProgress_ = true;
-				settlingTimer_.start(int(settlingTime_*1000));
+				settlingTimer_.start(int(settlingTime_*1000)); // QTimer uses millisecond time intervals.
 			}
 		}
 	}

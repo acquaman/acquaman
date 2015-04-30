@@ -62,6 +62,14 @@ bool AM1DIntegralAB::areInputDataSourcesAcceptable(const QList<AMDataSource*>& d
 	return false;
 }
 
+void AM1DIntegralAB::setAnalyzedName(const QString &name)
+{
+	analyzedName_ = name;
+	setModified(true);
+	canAnalyze_ = canAnalyze(name);
+	setInputSource();
+}
+
 // Set the data source inputs.
 void AM1DIntegralAB::setInputDataSourcesImplementation(const QList<AMDataSource*>& dataSources) {
 
@@ -111,14 +119,6 @@ void AM1DIntegralAB::setInputDataSourcesImplementation(const QList<AMDataSource*
 	emitValuesChanged();
 	emitAxisInfoChanged(0);
 	emitInfoChanged();
-}
-
-void AM1DIntegralAB::setAnalyzedName(const QString &name)
-{
-	analyzedName_ = name;
-	setModified(true);
-	canAnalyze_ = canAnalyze(name);
-	setInputSource();
 }
 
 void AM1DIntegralAB::setInputSource()

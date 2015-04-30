@@ -167,12 +167,12 @@ AMMotorGroupObjectView::AMMotorGroupObjectView(AMMotorGroupObject *motorGroupObj
 	for (int i = 0, size = motorGroupObject_->size(); i < size; i++){
 
 		QDoubleSpinBox *setpoint = new QDoubleSpinBox;
-		setpoint->setSuffix(" " % motorGroupObject_->unitAt(i));
-		setpoint->setSingleStep(0.001);
-		setpoint->setRange(-100, 100);
-		setpoint->setDecimals(controlSetpointsPrecision_);
 		setpoint->setAlignment(Qt::AlignCenter);
 		setpoint->setFixedWidth(110);
+		setpoint->setSingleStep(0.001);
+		setpoint->setDecimals(controlSetpointsPrecision_);
+		setpoint->setSuffix(" " % motorGroupObject_->unitAt(i));
+		setpoint->setRange(-200, 200);
 		controlSetpoints_ << setpoint;
 
 		QHBoxLayout *hLayout = new QHBoxLayout;
@@ -278,10 +278,7 @@ void AMMotorGroupObjectView::onStopClicked()
 
 void AMMotorGroupObjectView::onMovingChanged()
 {
-	bool isMoving = false;
-
-	foreach (AMControl *control, motorGroupObject_->controls())
-		isMoving |= control->isMoving();
+	bool isMoving = motorGroupObject_->isMotorMoving();
 
 	status_->setPixmap(QIcon(isMoving ? ":/ON.png" : ":/OFF.png").pixmap(25));
 
@@ -395,7 +392,7 @@ void AMMotorGroupView::setViewMode(ViewMode mode)
 
 		viewMode_ = mode;
 
-		availableMotorGroupObjects_->setVisible(viewMode_ == Exclusive);
+		showAvailableMotorGroupChoices(viewMode_ == Exclusive);
 
 		// Since Multiple view is the only one currently that shows the titles, I'm cheating by checking only against it.
 		foreach (AMMotorGroupObjectView *view, motorGroupViews_.values()){
@@ -426,6 +423,11 @@ void AMMotorGroupView::setViewMode(ViewMode mode)
 			emit motorGroupVisibilityChanged("");
 		}
 	}
+}
+
+void AMMotorGroupView::showAvailableMotorGroupChoices(bool show)
+{
+	availableMotorGroupObjects_->setVisible(show);
 }
 
 void AMMotorGroupView::buildStandardMenuItems(QMenu *menu)
@@ -512,7 +514,7 @@ void AMMotorGroupView::initAndLayoutMotorGroupView(AMMotorGroup *motorGroup, Vie
 	}
 
 	if (viewMode_ == Multiple){
-		availableMotorGroupObjects_->hide();
+		showAvailableMotorGroupChoices(false);
 		foreach (AMMotorGroupObjectView *view, motorGroupViews_.values())
 			view->hide();
 	}

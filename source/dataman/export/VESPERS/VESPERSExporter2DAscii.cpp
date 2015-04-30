@@ -24,6 +24,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/AMScan.h"
 #include "util/AMErrorMonitor.h"
 #include "acquaman/VESPERS/VESPERS2DScanConfiguration.h"
+#include "acquaman/VESPERS/VESPERSTimedLineScanConfiguration.h"
 
 #include <QStringBuilder>
 #include <QFile>
@@ -59,24 +60,41 @@ void VESPERSExporter2DAscii::writeMainTable()
 	ts << option_->newlineDelimiter() << option_->columnHeaderDelimiter() << option_->newlineDelimiter();
 
 	// 2. rows
-	VESPERS2DScanConfiguration *config = qobject_cast<VESPERS2DScanConfiguration *>(const_cast<AMScanConfiguration *>(currentScan_->scanConfiguration()));
-	if (!config)
-		return;
+	VESPERS::CCDDetectors ccdDetector;
+	QString ccdFileName = "";
 
-	// This will return -1 if it fails.  This means any checks inside this loop will always fail if the CCD was not included.
-	QString ccdFileName = config->ccdFileName();
-	int yRange = yRange_ == -1 ? currentScan_->scanSize(1) : (yRange_-1);
-	int xRange = currentScan_->scanSize(0);
+	VESPERS2DScanConfiguration *configuration2D = qobject_cast<VESPERS2DScanConfiguration *>(const_cast<AMScanConfiguration *>(currentScan_->scanConfiguration()));
+	VESPERSTimedLineScanConfiguration *timedConfiguration = qobject_cast<VESPERSTimedLineScanConfiguration *>(const_cast<AMScanConfiguration *>(currentScan_->scanConfiguration()));
+
+	if (configuration2D){
+
+		ccdDetector = configuration2D->ccdDetector();
+		ccdFileName = configuration2D->ccdFileName();
+	}
+
+	else if (timedConfiguration){
+
+		ccdDetector = timedConfiguration->ccdDetector();
+		ccdFileName = timedConfiguration->ccdFileName();
+	}
+
+	else
+		return;
 
 	QString ccdString;
 
-	if (config->ccdDetector().testFlag(VESPERS::Roper))
+	// This will return -1 if it fails.  This means any checks inside this loop will always fail if the CCD was not included.
+	int yRange = yRange_ == -1 ? currentScan_->scanSize(1) : (yRange_-1);
+	int xRange = currentScan_->scanSize(0);
+
+
+	if (ccdDetector.testFlag(VESPERS::Roper))
 		ccdString = ccdFileName % "_%1.spe";
 
-	else if (config->ccdDetector().testFlag(VESPERS::Mar))
+	else if (ccdDetector.testFlag(VESPERS::Mar))
 		ccdString = ccdFileName % "_%1.tif";
 
-	else if (config->ccdDetector().testFlag(VESPERS::Pilatus))
+	else if (ccdDetector.testFlag(VESPERS::Pilatus))
 		ccdString = ccdFileName % "-%1.tif";
 	else
 		ccdString = "";
