@@ -494,9 +494,7 @@ void SXRMBAppController::onShowAmbiantSampleStageMotorsTriggered()
 	motorGroupView->setMotorGroupView(motorGroupName);
 	motorGroupView->showAvailableMotorGroupChoices(false);
 
-	AMDialog *showMotorDialog = new AMDialog(motorGroupName);
-	showMotorDialog->layoutDialogContent(motorGroupView);
-	showMotorDialog->exec();
+	motorGroupView->show();
 }
 
 void SXRMBAppController::onSwitchBeamlineEndstationTriggered()
