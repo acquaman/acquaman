@@ -642,19 +642,22 @@ void SXRMBBeamline::setupSampleStage()
 	solidStateSampleStageControlSet_->addControl(solidStateSampleStageZ_);
 	solidStateSampleStageControlSet_->addControl(solidStateSampleStageR_);
 
-	// Ambiant Endstation sample state
+	// Ambiant Endstation sample stage
+	ambiantTableHeight_ = new AMPVwStatusControl("Ambiant Table Height", "TBL0000-E07-01:Y:mm:fbk", "TBL0000-E07-01:Y:mm", "TBL0000-E07-01:Y:mm:status", QString(), this, 0.005, 2.0, new CLSMAXvControlStatusChecker());
 	ambiantSampleStageX_ = new AMPVwStatusControl("ambiantSampleStageX", "SMTR0000-E07-15:mm:sp", "SMTR0000-E07-15:mm", "SMTR0000-E07-15:status", "SMTR0000-E07-15:stop", this, 0.005, 2.0, new CLSMAXvControlStatusChecker());
 	ambiantSampleStageZ_ = new AMPVwStatusControl("ambiantSampleStageZ", "SMTR0000-E07-16:mm:sp", "SMTR0000-E07-16:mm", "SMTR0000-E07-16:status", "SMTR0000-E07-16:stop", this, 0.005, 2.0, new CLSMAXvControlStatusChecker());
 	ambiantSampleHolderZ_ = new AMPVwStatusControl("ambiantSampleHolderZ", "SMTR0000-E07-04:mm:sp", "SMTR0000-E07-04:mm", "SMTR0000-E07-04:status", "SMTR0000-E07-04:stop", this, 0.005, 2.0, new CLSMAXvControlStatusChecker());
 	ambiantSampleHolderR_ = new AMPVwStatusControl("ambiantSampleHolderR", "SMTR0000-E07-05:dgr:sp", "SMTR0000-E07-05:dgr", "SMTR0000-E07-05:status", "SMTR0000-E07-05:stop", this, 0.005, 2.0, new CLSMAXvControlStatusChecker());
 
 	ambiantWithGasChamberSampleStageControlSet_ = new AMControlSet(this);
+	ambiantWithGasChamberSampleStageControlSet_->addControl(ambiantTableHeight_);
 	ambiantWithGasChamberSampleStageControlSet_->addControl(ambiantSampleStageX_);
 	ambiantWithGasChamberSampleStageControlSet_->addControl(ambiantSampleStageZ_);
 	ambiantWithGasChamberSampleStageControlSet_->addControl(ambiantSampleHolderZ_);
 	ambiantWithGasChamberSampleStageControlSet_->addControl(ambiantSampleHolderR_);
 
 	ambiantWithoutGasChamberSampleStageControlSet_ = new AMControlSet(this);
+	ambiantWithoutGasChamberSampleStageControlSet_->addControl(ambiantTableHeight_);
 	ambiantWithoutGasChamberSampleStageControlSet_->addControl(ambiantSampleStageX_);
 	ambiantWithoutGasChamberSampleStageControlSet_->addControl(ambiantSampleStageZ_);
 }
@@ -885,6 +888,11 @@ void SXRMBBeamline::onSampleStagePVsConnected(bool) {
 
 void SXRMBBeamline::onBeamlineControlShuttersConnected(bool) {
 	onPVConnectedHelper();
+}
+
+AMPVwStatusControl *SXRMBBeamline::ambiantTableHeight() const
+{
+	return ambiantTableHeight_;
 }
 
 AMPVwStatusControl * SXRMBBeamline::ambiantSampleStageX() const

@@ -494,6 +494,11 @@ void SXRMBAppController::onShowAmbiantSampleStageMotorsTriggered()
 	motorGroupView->setMotorGroupView(motorGroupName);
 	motorGroupView->showAvailableMotorGroupChoices(false);
 
+	AMExtendedControlEditor * ambiantTableHeightControlEditor = new AMExtendedControlEditor(SXRMBBeamline::sxrmb()->ambiantTableHeight());
+	ambiantTableHeightControlEditor->setControlFormat('f', 2);
+
+	motorGroupView->layout()->addWidget(ambiantTableHeightControlEditor);
+
 	motorGroupView->show();
 }
 
