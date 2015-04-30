@@ -121,7 +121,8 @@ void SXRMBAppController::onBeamlineConnected(bool connected)
 		exafsScanConfiguration_->scanAxisAt(0)->regionAt(0)->setRegionTime(1.0);
 
 		exafsScanConfigurationView_ = new SXRMBEXAFSScanConfigurationView(exafsScanConfiguration_);
-		exafsScanConfigurationViewHolder_ = new AMScanConfigurationViewHolder3(exafsScanConfigurationView_);
+
+		exafsScanConfigurationViewHolder_ = new AMScanConfigurationViewHolder3("TESTING", true, exafsScanConfigurationView_);
 
 		mw_->addPane(exafsScanConfigurationViewHolder_, "Scans", "EXAFS Scan", ":/utilites-system-monitor.png");
 	}

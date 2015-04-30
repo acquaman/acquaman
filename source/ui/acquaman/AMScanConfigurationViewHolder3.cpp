@@ -32,6 +32,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/acquaman/AMScanConfigurationView.h"
 #include "actions3/actions/AMScanAction.h"
 
+#include "ui/AMTopFrame.h"
+
  AMScanConfigurationViewHolder3::~AMScanConfigurationViewHolder3(){}
 AMScanConfigurationViewHolder3::AMScanConfigurationViewHolder3(AMScanConfigurationView* view, QWidget *parent) :
 	AMActionRunnerAddActionBar3("Scan", parent)
@@ -50,6 +52,39 @@ AMScanConfigurationViewHolder3::AMScanConfigurationViewHolder3(AMScanConfigurati
 
 
 }
+
+AMScanConfigurationViewHolder3::AMScanConfigurationViewHolder3(const QString &frameName, bool squeezeWidget, AMScanConfigurationView* view,  QWidget *parent) :
+	AMActionRunnerAddActionBar3("Scan", parent)
+{
+	view_ = view;
+
+	AMTopFrame *frame = new AMTopFrame(frameName);
+
+	if(view_){
+
+		addWidget(frame);
+
+		if(squeezeWidget){
+
+			layout_->addStretch();
+			addWidget(view_);
+	  }
+	  else
+		addWidget(view_);
+	}
+	disabledWarning_ = new QLabel("");
+	QFont warningsFont;
+	warningsFont.setPointSize(32);
+	disabledWarning_->setFont(warningsFont);
+	disabledWarning_->setStyleSheet( "QLabel{ color: red }" );
+	addWidget(disabledWarning_);
+
+
+}
+
+
+
+
 
 void AMScanConfigurationViewHolder3::setView(AMScanConfigurationView *view) {
 	// delete old view, if it exists

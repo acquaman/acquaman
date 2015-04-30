@@ -34,7 +34,7 @@ SXRMBEXAFSScanConfigurationView::SXRMBEXAFSScanConfigurationView(SXRMBEXAFSScanC
 {
 	configuration_ = configuration;
 
-	topFrame_ = new AMTopFrame("Configure an XAS Scan");
+	//topFrame_ = new AMTopFrame("Configure an XAS Scan");
 	topFrame_->setIcon(QIcon(":/utilities-system-monitor.png"));
 
 	regionsView_ = new AMEXAFSScanAxisView("SXRMB Region Configuration", configuration_);

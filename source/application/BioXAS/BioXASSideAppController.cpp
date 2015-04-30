@@ -147,7 +147,8 @@ void BioXASSideAppController::onBeamlineConnected()
 
 		configurationView_ = new BioXASSideXASScanConfigurationView(configuration_);
 
-		configurationViewHolder_ = new AMScanConfigurationViewHolder3(configurationView_);
+		//configurationViewHolder_ = new AMScanConfigurationViewHolder3(configurationView_);
+		configurationViewHolder_ = new AMScanConfigurationViewHolder3("testing",true, configurationView_);
 
 		mw_->addPane(configurationViewHolder_, "Scans", "Test Scan", ":/utilities-system-monitor.png");
 	}

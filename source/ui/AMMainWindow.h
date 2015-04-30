@@ -103,6 +103,8 @@ public:
 	/// Returns a widget composed of the Top Frame and Configuration View
 	static QWidget *buildMainWindowConfigurationPane(const QString &topFrameName, AMScanConfigurationView *configView);
 
+
+
 public slots:
 	/// move a pane from inside the main window to a separate window.
 	void undock(QWidget* pane) {
