@@ -9,6 +9,7 @@ SXRMBCrystalChangeModel::SXRMBCrystalChangeModel(QObject *parent)
 	crystalChi_ = new AMPVwStatusControl("Crystal Chi", "SMTR1606-4-B10-14:dgr:sp", "SMTR1606-4-B10-14:dgr", "SMTR1606-4-B10-14:status", "SMTR1606-4-B10-14:stop", this, 0.1);
 
 	connect(crystalSelection_, SIGNAL(valueChanged(double)), this, SIGNAL(crystalSelectionChanged()));
+	connect(crystalSelection_, SIGNAL(moveSucceeded()), this, SLOT(onCrystalSelectionChangeCompleted()));
 	connect(crystalY_, SIGNAL(valueChanged(double)), this, SIGNAL(crystalYChanged(double)));
 	connect(crystalTheta_, SIGNAL(valueChanged(double)), this, SIGNAL(crystalThetaChanged(double)));
 	connect(crystalChi_, SIGNAL(valueChanged(double)), this, SIGNAL(crystalChiChanged(double)));
@@ -19,9 +20,16 @@ SXRMBCrystalChangeModel::~SXRMBCrystalChangeModel()
 
 }
 
-int SXRMBCrystalChangeModel::crystalSelection() const
+bool SXRMBCrystalChangeModel::isInBetween() const
 {
-	return int(crystalSelection_->value());
+	SXRMBCrystalChangeModel::CrystalSelection curCrystalSelection = crystalSelection();
+	return (curCrystalSelection == Unknown || curCrystalSelection == InBetween);
+}
+
+SXRMBCrystalChangeModel::CrystalSelection SXRMBCrystalChangeModel::crystalSelection() const
+{
+	int crystalSelectionValue = int(crystalSelection_->value());
+	return SXRMBCrystalChangeModel::CrystalSelection(crystalSelectionValue);
 }
 
 double SXRMBCrystalChangeModel::crystalY() const
@@ -57,4 +65,22 @@ AMControl * SXRMBCrystalChangeModel::crystalThetaControl() const
 AMControl * SXRMBCrystalChangeModel::crystalChiControl() const
 {
 	return crystalChi_;
+}
+
+void SXRMBCrystalChangeModel::onCrystalSelectionChangeCompleted()
+{
+	SXRMBCrystalChangeModel::CrystalSelection curCrystalSelection = crystalSelection();
+	switch (curCrystalSelection) {
+	case SXRMBCrystalChangeModel::InSb:
+		crystalTheta_->move(0.064);
+		crystalChi_->move(0.067);
+		break;
+
+	case SXRMBCrystalChangeModel::Si:
+		crystalTheta_->move(0.0975);
+		crystalChi_->move(-0.02);
+		break;
+
+	default: ;
+	}
 }

@@ -10,14 +10,23 @@ class SXRMBCrystalChangeModel : public QObject
 {
 	Q_OBJECT
 
+	enum CrystalSelection {
+		Unknown = 0,
+		InSb,
+		Si,
+		InBetween
+	};
+
 public:
 	/// Constructor.
 	explicit SXRMBCrystalChangeModel(QObject *parent = 0);
 	/// Destructor.
 	~SXRMBCrystalChangeModel();
 
-	/// Returns the crystal selection.
-	int crystalSelection() const;
+	/// Returns whehter the crystal selection is in between (unknown or inBetween.
+	bool isInBetween() const;
+	/// Returns the crystal selection
+	SXRMBCrystalChangeModel::CrystalSelection crystalSelection() const;
 	/// Returns the crystal Y position.
 	double crystalY() const;
 	/// Returns the crystal theta position.
@@ -45,7 +54,9 @@ signals:
 	/// Notifier that the crystal Chi position has changed.
 	void crystalChiChanged(double);
 
-public slots:
+protected slots:
+	/// SLOT to change the values of Theta and Chi when crystal selection change completed
+	void onCrystalSelectionChangeCompleted();
 
 protected:
 	/// The crystal selection control.
