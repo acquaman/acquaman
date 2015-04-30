@@ -13,7 +13,7 @@ CLSJJSlitCenterControl::CLSJJSlitCenterControl(AMControl *upperBladeControl, AMC
 
 	value_ = 0.0;
 	setpoint_ = 0.0;
-	gap_ = 0.0;
+	gap_ = 2.0;
 	moveInProgress_ = false;
 
 	upperBladeControl_ = 0;
@@ -102,10 +102,14 @@ AMControl::FailureExplanation CLSJJSlitCenterControl::move(double setpoint)
 
 	AMListAction3 *moveAction = new AMListAction3(new AMListActionInfo3("JJSlitsCenterControlMove", "JJSlitsCenterControlMove"), AMListAction3::Parallel);
 
-	double offset = calculatePositionOffset(gap_, setpoint_);
+	double lowerPosition = calculateLowerPosition(gap_, setpoint_);
+	double upperPosition = calculateUpperPosition(gap_, setpoint_);
 
-	moveAction->addSubAction(AMActionSupport::buildControlMoveAction(upperBladeControl_, -offset));
-	moveAction->addSubAction(AMActionSupport::buildControlMoveAction(lowerBladeControl_, offset));
+	qDebug() << "\nNew lower: " << lowerPosition;
+	qDebug() << "New upper: " << upperPosition << "\n";
+
+	moveAction->addSubAction(AMActionSupport::buildControlMoveAction(upperBladeControl_, upperPosition));
+	moveAction->addSubAction(AMActionSupport::buildControlMoveAction(lowerBladeControl_, lowerPosition));
 
 	// Create signal mappings for this action.
 
@@ -132,7 +136,7 @@ bool CLSJJSlitCenterControl::stop()
 	bool result;
 
 	if (!canStop()) {
-		AMErrorMon::error(this, CLSJJSLITCENTERCONTROL_CANNOT_STOP, "JJ slit gap control cannot stop.");
+		AMErrorMon::error(this, CLSJJSLITCENTERCONTROL_CANNOT_STOP, "JJ slit center control cannot stop.");
 		result = false;
 
 	} else {
@@ -174,6 +178,8 @@ void CLSJJSlitCenterControl::setUpperBladeControl(AMControl *newControl)
 			connect( upperBladeControl_, SIGNAL(error(int)), this, SIGNAL(error(int)) );
 		}
 
+		updateValue();
+
 		emit upperBladeControlChanged(upperBladeControl_);
 	}
 }
@@ -197,6 +203,8 @@ void CLSJJSlitCenterControl::setLowerBladeControl(AMControl *newControl)
 			connect( lowerBladeControl_, SIGNAL(alarmChanged(int,int)), this, SIGNAL(alarmChanged(int,int)) );
 			connect( lowerBladeControl_, SIGNAL(error(int)), this, SIGNAL(error(int)) );
 		}
+
+		updateValue();
 
 		emit lowerBladeControlChanged(lowerBladeControl_);
 	}
@@ -229,8 +237,7 @@ void CLSJJSlitCenterControl::setMoveInProgress(bool isMoving)
 void CLSJJSlitCenterControl::updateValue()
 {
 	if (isConnected()) {
-		double newPosition = calculateCenterPosition(upperBladeControl_->value(), lowerBladeControl_->value());
-		setValue(newPosition);
+		setValue(calculateCenterPosition(upperBladeControl_->value(), lowerBladeControl_->value()));
 	}
 }
 
@@ -275,22 +282,19 @@ void CLSJJSlitCenterControl::moveCleanup(QObject *action)
 	}
 }
 
-double CLSJJSlitCenterControl::calculatePositionOffset(double gap, double center)
+double CLSJJSlitCenterControl::calculateLowerPosition(double gap, double center)
 {
-	return (gap/2) + center;
+	return center + (gap / 2.0);
+}
+
+double CLSJJSlitCenterControl::calculateUpperPosition(double gap, double center)
+{
+	return center - (gap / 2.0);
 }
 
 double CLSJJSlitCenterControl::calculateCenterPosition(double upperBladePosition, double lowerBladePosition)
 {
-	double result = 0;
-
-	if (lowerBladePosition > upperBladePosition) {
-		result = (upperBladePosition - lowerBladePosition)/2 + lowerBladePosition;
-	} else {
-		result = (lowerBladePosition - upperBladePosition)/2 + upperBladePosition;
-	}
-
-	return result;
+	return ((upperBladePosition - lowerBladePosition) / 2.0 + lowerBladePosition);
 }
 
 

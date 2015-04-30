@@ -100,8 +100,10 @@ protected slots:
 	void moveCleanup(QObject *action);
 
 protected:
-	/// Calculates the basic position offset for a motor from the given gap and center position.
-	static double calculatePositionOffset(double gap, double center);
+	/// Calculates the position the lower blade should take to achieve the given gap and center.
+	static double calculateLowerPosition(double gap, double center);
+	/// Calculates the position the upper blade should take to achieve the given gap and center.
+	static double calculateUpperPosition(double gap, double center);
 	/// Calculates the center position, from the given motor positions.
 	static double calculateCenterPosition(double upperBladePosition, double lowerBladePosition);
 
