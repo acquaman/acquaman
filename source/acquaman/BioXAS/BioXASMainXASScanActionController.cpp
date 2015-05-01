@@ -34,25 +34,25 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/export/AMExporterOptionGeneralAscii.h"
 
 BioXASMainXASScanActionController::BioXASMainXASScanActionController(BioXASMainXASScanConfiguration *configuration, QObject *parent) :
-    AMStepScanActionController(configuration, parent)
+	AMStepScanActionController(configuration, parent)
 {
-    configuration_ = configuration;
+	configuration_ = configuration;
 
-    scan_ = new AMXASScan();
-    scan_->setName(configuration_->name());
-    scan_->setFileFormat("amCDFv1");
-    scan_->setScanConfiguration(configuration);
-    scan_->setIndexType("fileSystem");
-    scan_->rawData()->addScanAxis(AMAxisInfo("eV", 0, "Incident Energy", "eV"));
-    scan_->setNotes(beamlineSettings());
+	scan_ = new AMXASScan();
+	scan_->setName(configuration_->name());
+	scan_->setFileFormat("amCDFv1");
+	scan_->setScanConfiguration(configuration);
+	scan_->setIndexType("fileSystem");
+	scan_->rawData()->addScanAxis(AMAxisInfo("eV", 0, "Incident Energy", "eV"));
+	scan_->setNotes(beamlineSettings());
 
-    AMControlInfoList list;
+	AMControlInfoList list;
 	list.append(BioXASMainBeamline::bioXAS()->mono()->energyControl()->toInfo());
-    configuration_->setAxisControlInfos(list);
+	configuration_->setAxisControlInfos(list);
 
 	useFeedback_ = true;
 
-    AMDetectorInfoSet detectorSet;
+	AMDetectorInfoSet detectorSet;
 	detectorSet.addDetectorInfo(BioXASMainBeamline::bioXAS()->exposedDetectorByName("I0Detector")->toInfo());
 	detectorSet.addDetectorInfo(BioXASMainBeamline::bioXAS()->exposedDetectorByName("ITDetector")->toInfo());
 	detectorSet.addDetectorInfo(BioXASMainBeamline::bioXAS()->exposedDetectorByName("I2Detector")->toInfo());
@@ -62,10 +62,9 @@ BioXASMainXASScanActionController::BioXASMainXASScanActionController(BioXASMainX
 	detectorSet.addDetectorInfo(BioXASMainBeamline::bioXAS()->exposedDetectorByName("MonoFeedback")->toInfo());
 	detectorSet.addDetectorInfo(BioXASMainBeamline::bioXAS()->exposedDetectorByName("MonoMoveRetries")->toInfo());
 	detectorSet.addDetectorInfo(BioXASMainBeamline::bioXAS()->exposedDetectorByName("MonoStepSetpoint")->toInfo());
-	detectorSet.addDetectorInfo(BioXASMainBeamline::bioXAS()->exposedDetectorByName("MonoDegreeSetpoint")->toInfo());
 	detectorSet.addDetectorInfo(BioXASMainBeamline::bioXAS()->exposedDetectorByName("BraggAngle")->toInfo());
 
-    configuration_->setDetectorConfigurations(detectorSet);
+	configuration_->setDetectorConfigurations(detectorSet);
 
 	secondsElapsed_ = 0;
 	secondsTotal_ = configuration_->totalTime();
@@ -115,60 +114,60 @@ QString BioXASMainXASScanActionController::beamlineSettings()
 
 AMAction3* BioXASMainXASScanActionController::createInitializationActions()
 {
-    AMSequentialListAction3 *initializationAction = new AMSequentialListAction3(new AMSequentialListActionInfo3("BioXAS Main Scan Initialization Actions", "BioXAS Main Scan Initialization Actions"));
-    CLSSIS3820Scaler *scaler = CLSBeamline::clsBeamline()->scaler();
-    double regionTime = double(configuration_->scanAxisAt(0)->regionAt(0)->regionTime());
+	AMSequentialListAction3 *initializationAction = new AMSequentialListAction3(new AMSequentialListActionInfo3("BioXAS Main Scan Initialization Actions", "BioXAS Main Scan Initialization Actions"));
+	CLSSIS3820Scaler *scaler = CLSBeamline::clsBeamline()->scaler();
+	double regionTime = double(configuration_->scanAxisAt(0)->regionAt(0)->regionTime());
 
-    if (scaler) {
-	    AMListAction3 *stage1 = new AMListAction3(new AMListActionInfo3("BioXAS Main Initialization Stage 1", "BioXAS Main Initialization Stage 1"), AMListAction3::Parallel);
-	    stage1->addSubAction(scaler->createContinuousEnableAction3(false));
+	if (scaler) {
+		AMListAction3 *stage1 = new AMListAction3(new AMListActionInfo3("BioXAS Main Initialization Stage 1", "BioXAS Main Initialization Stage 1"), AMListAction3::Parallel);
+		stage1->addSubAction(scaler->createContinuousEnableAction3(false));
 
-	    AMListAction3 *stage2 = new AMListAction3(new AMListActionInfo3("BioXAS Main Initialization Stage 2", "BioXAS Main Initialization Stage 2"), AMListAction3::Parallel);
+		AMListAction3 *stage2 = new AMListAction3(new AMListActionInfo3("BioXAS Main Initialization Stage 2", "BioXAS Main Initialization Stage 2"), AMListAction3::Parallel);
 
-	    stage2->addSubAction(scaler->createStartAction3(false));
-	    stage2->addSubAction(scaler->createScansPerBufferAction3(1));
-	    stage2->addSubAction(scaler->createTotalScansAction3(1));
+		stage2->addSubAction(scaler->createStartAction3(false));
+		stage2->addSubAction(scaler->createScansPerBufferAction3(1));
+		stage2->addSubAction(scaler->createTotalScansAction3(1));
 
-	    AMListAction3 *stage3 = new AMListAction3(new AMListActionInfo3("BioXAS Main Initialization Stage 3", "BioXAS Main Initialization Stage 3"), AMListAction3::Parallel);
-	    stage3->addSubAction(scaler->createStartAction3(true));
-	    stage3->addSubAction(scaler->createWaitForDwellFinishedAction(regionTime + 5.0));
+		AMListAction3 *stage3 = new AMListAction3(new AMListActionInfo3("BioXAS Main Initialization Stage 3", "BioXAS Main Initialization Stage 3"), AMListAction3::Parallel);
+		stage3->addSubAction(scaler->createStartAction3(true));
+		stage3->addSubAction(scaler->createWaitForDwellFinishedAction(regionTime + 5.0));
 
-	    AMListAction3 *stage4 = new AMListAction3(new AMListActionInfo3("BioXAS Main Initialization Stage 4", "BioXAS Main Initialization Stage 4"), AMListAction3::Parallel);
-	    stage4->addSubAction(scaler->createStartAction3(true));
-	    stage4->addSubAction(scaler->createWaitForDwellFinishedAction(regionTime + 5.0));
+		AMListAction3 *stage4 = new AMListAction3(new AMListActionInfo3("BioXAS Main Initialization Stage 4", "BioXAS Main Initialization Stage 4"), AMListAction3::Parallel);
+		stage4->addSubAction(scaler->createStartAction3(true));
+		stage4->addSubAction(scaler->createWaitForDwellFinishedAction(regionTime + 5.0));
 
-	    // if we have a valid scaler on the beamline, perform a dark current measurement for the same length of time as the dwell time.
-	    AMAction3 *darkCurrentSetup = scaler->createMeasureDarkCurrentAction((int)scaler->dwellTime());
+		// if we have a valid scaler on the beamline, perform a dark current measurement for the same length of time as the dwell time.
+		AMAction3 *darkCurrentSetup = scaler->createMeasureDarkCurrentAction((int)scaler->dwellTime());
 
-	    initializationAction->addSubAction(stage1);
-	    initializationAction->addSubAction(stage2);
-	    initializationAction->addSubAction(scaler->createDwellTimeAction3(double(configuration_->scanAxisAt(0)->regionAt(0)->regionTime())));
-	    initializationAction->addSubAction(stage3);
-	    initializationAction->addSubAction(stage4);
-	    initializationAction->addSubAction(darkCurrentSetup);
+		initializationAction->addSubAction(stage1);
+		initializationAction->addSubAction(stage2);
+		initializationAction->addSubAction(scaler->createDwellTimeAction3(double(configuration_->scanAxisAt(0)->regionAt(0)->regionTime())));
+		initializationAction->addSubAction(stage3);
+		initializationAction->addSubAction(stage4);
+		initializationAction->addSubAction(darkCurrentSetup);
 
-	    // Set the bragg motor power to PowerOn, must be on to move/scan.
-	    initializationAction->addSubAction(BioXASMainBeamline::bioXAS()->mono()->braggMotor()->createPowerAction(CLSMAXvMotor::PowerOn));
+		// Set the bragg motor power to PowerOn, must be on to move/scan.
+		initializationAction->addSubAction(BioXASMainBeamline::bioXAS()->mono()->braggMotor()->createPowerAction(CLSMAXvMotor::PowerOn));
 
-    } else {
-	    AMErrorMon::alert(this, BIOXASMAINXASSCANACTIONCONTROLLER_SCALER_NOT_FOUND, "Failed to complete scan initialization--valid scaler not found.");
-    }
+	} else {
+		AMErrorMon::alert(this, BIOXASMAINXASSCANACTIONCONTROLLER_SCALER_NOT_FOUND, "Failed to complete scan initialization--valid scaler not found.");
+	}
 
-    return initializationAction;
+	return initializationAction;
 }
 
 AMAction3* BioXASMainXASScanActionController::createCleanupActions()
 {
-    CLSSIS3820Scaler *scaler = BioXASMainBeamline::bioXAS()->scaler();
+	CLSSIS3820Scaler *scaler = BioXASMainBeamline::bioXAS()->scaler();
 
-    AMListAction3 *cleanup = new AMListAction3(new AMListActionInfo3("BioXAS Main Cleanup", "BioXAS Main Cleanup"), AMListAction3::Sequential);
-    cleanup->addSubAction(scaler->createDwellTimeAction3(1.0));
-    cleanup->addSubAction(scaler->createContinuousEnableAction3(true));
+	AMListAction3 *cleanup = new AMListAction3(new AMListActionInfo3("BioXAS Main Cleanup", "BioXAS Main Cleanup"), AMListAction3::Sequential);
+	cleanup->addSubAction(scaler->createDwellTimeAction3(1.0));
+	cleanup->addSubAction(scaler->createContinuousEnableAction3(true));
 
-    // Set the bragg motor power to PowerAutoHardware. The motor can get too warm when left on for too long, that's why we turn it off when not in use.
-    cleanup->addSubAction(BioXASMainBeamline::bioXAS()->mono()->braggMotor()->createPowerAction(CLSMAXvMotor::PowerAutoHardware));
+	// Set the bragg motor power to PowerAutoHardware. The motor can get too warm when left on for too long, that's why we turn it off when not in use.
+	cleanup->addSubAction(BioXASMainBeamline::bioXAS()->mono()->braggMotor()->createPowerAction(CLSMAXvMotor::PowerAutoHardware));
 
-    return cleanup;
+	return cleanup;
 }
 
 void BioXASMainXASScanActionController::buildScanControllerImplementation()
@@ -273,5 +272,5 @@ void BioXASMainXASScanActionController::buildScanControllerImplementation()
 
 void BioXASMainXASScanActionController::createScanAssembler()
 {
-    scanAssembler_ = new AMEXAFSScanActionControllerAssembler(this);
+	scanAssembler_ = new AMEXAFSScanActionControllerAssembler(this);
 }
