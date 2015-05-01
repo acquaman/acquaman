@@ -108,7 +108,7 @@ public:
 	  \param description A human readable description for this JJ slit
 	  \param parent QObject parent class
 	  */
-	explicit CLSJJSlit(const QString &name, const QString &description, const QString &verticalBladesPVBaseName, const QString &horizontalBladesPVBaseName, double tolerance = AMCONTROL_TOLERANCE_DONT_CARE, double moveStartTimeoutSeconds = 2.0, double limit = 11.0, QObject *parent = 0);
+	explicit CLSJJSlit(const QString &name, const QString &description, const QString &upperBladePVName, const QString &lowerBladePVName, const QString &inboardBladePVName, const QString &outboardBladePVName, double tolerance = AMCONTROL_TOLERANCE_DONT_CARE, double moveStartTimeoutSeconds = 2.0, double limit = 11.0, QObject *parent = 0);
 
 	/// check whether the JJ slit is connected or not
 	bool isConnected() const;
@@ -159,6 +159,11 @@ signals:
 public slots:
 	/// to handle the connected signal of the CLSJJSlitBladeControl
 	void onBladesControlConnected(bool);
+
+	/// Handles updating controls when the vertical gap changes.
+	void onVerticalGapChanged();
+	/// Handles updating controls when the vertical center changes.
+	void onVerticalCenterChanged();
 
 //	/// to set the Vertical gap of the JJ slit
 //	void moveVerticalGap(double setpoint);

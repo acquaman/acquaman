@@ -43,7 +43,7 @@ CLSJJSlitView::CLSJJSlitView(CLSJJSlit *clsJJSlit, QWidget *parent) :
 	contentGridLayout->addWidget(new QLabel("Direction"),  0, 0, 1, 1);
 	contentGridLayout->addWidget(new QLabel("Gap"),        0, 1, 1, 1);
 	contentGridLayout->addWidget(new QLabel("Center"),     0, 2, 1, 1);
-	contentGridLayout->addWidget(new QLabel("Status"),     0, 3, 1, 1);
+//	contentGridLayout->addWidget(new QLabel("Status"),     0, 3, 1, 1);
 
 	contentGridLayout->addWidget(new QLabel("Vertical"),   1, 0, 1, 1);
 	contentGridLayout->addWidget(verticalGapEditor_,       1, 1, 1, 1);

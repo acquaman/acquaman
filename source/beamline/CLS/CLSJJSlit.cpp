@@ -72,25 +72,25 @@ CLSJJSlit::~CLSJJSlit()
 
 }
 
-CLSJJSlit::CLSJJSlit(const QString &name, const QString &description, const QString &verticalBladesPVBaseName, const QString &horizontalBladesPVBaseName, double tolerance, double moveStartTimeoutSeconds, double limit, QObject *parent):
+CLSJJSlit::CLSJJSlit(const QString &name, const QString &description, const QString &upperBladePVName, const QString &lowerBladePVName, const QString &inboardBladePVName, const QString &outboardBladePVName, double tolerance, double moveStartTimeoutSeconds, double limit, QObject *parent) :
 	QObject(parent)
 {
 	name_ = name;
 	description_ = description;
 	limit_ = limit;
 
-	upperBlade_ = new CLSMAXvMotor(name+"UpperBlade", verticalBladesPVBaseName, description+" UpperBlade", true, tolerance, moveStartTimeoutSeconds, this);
-	lowerBlade_ = new CLSMAXvMotor(name+"LowerBlade", verticalBladesPVBaseName, description+" LowerBlade", true, tolerance, moveStartTimeoutSeconds, this);
-	inboardBlade_ = new CLSMAXvMotor(name+"InboardBlade", horizontalBladesPVBaseName, description+" InboardBlade", true, tolerance, moveStartTimeoutSeconds, this);
-	outboardBlade_ = new CLSMAXvMotor(name+"OutboardBlade", horizontalBladesPVBaseName, description+" OutboardBlade", true, tolerance, moveStartTimeoutSeconds, this);
+	upperBlade_ = new CLSMAXvMotor(name+"UpperBlade", upperBladePVName, description+" UpperBlade", true, tolerance, moveStartTimeoutSeconds, this);
+	lowerBlade_ = new CLSMAXvMotor(name+"LowerBlade", lowerBladePVName, description+" LowerBlade", true, tolerance, moveStartTimeoutSeconds, this);
+	inboardBlade_ = new CLSMAXvMotor(name+"InboardBlade", inboardBladePVName, description+" InboardBlade", true, tolerance, moveStartTimeoutSeconds, this);
+	outboardBlade_ = new CLSMAXvMotor(name+"OutboardBlade", outboardBladePVName, description+" OutboardBlade", true, tolerance, moveStartTimeoutSeconds, this);
 
 //	verticalBladesControl_ = new CLSJJSlitBladesControl(name+" Vertical", description+" Vertical", CLSJJSlitBladesControl::Vertical, verticalBladesPVBaseName, tolerance, moveStartTimeoutSeconds, this);
 //	horizontalBladesControl_ = new CLSJJSlitBladesControl(name+" Horizontal", description+" Horizontal", CLSJJSlitBladesControl::Horizontal, horizontalBladesPVBaseName, tolerance, moveStartTimeoutSeconds, this);
 
 	verticalGap_ = new CLSJJSlitGapControl(upperBlade_, lowerBlade_, this);
 	verticalCenter_ = new CLSJJSlitCenterControl(upperBlade_, lowerBlade_, this);
-	horizontalGap_ = 0;
-	horizontalCenter_ = 0;
+	horizontalGap_ = new CLSJJSlitGapControl(inboardBlade_, outboardBlade_, this);
+	horizontalCenter_ = new CLSJJSlitCenterControl(inboardBlade_, outboardBlade_, this);
 
 //	connect(verticalBladesControl_, SIGNAL(connected(bool)), this, SLOT(onBladesControlConnected(bool)));
 //	connect(verticalBladesControl_, SIGNAL(gapValueChanged(double)), this, SIGNAL(verticalGapValueChanged(double)));
@@ -109,18 +109,22 @@ CLSJJSlit::CLSJJSlit(const QString &name, const QString &description, const QStr
 
 	// Listen for value changes.
 	connect( verticalGap_, SIGNAL(valueChanged(double)), this, SIGNAL(verticalGapValueChanged(double)) );
+	connect( verticalGap_, SIGNAL(valueChanged(double)), this, SLOT(onVerticalGapChanged()) );
 	connect( verticalCenter_, SIGNAL(valueChanged(double)), this, SIGNAL(verticalCenterValueChanged(double)) );
+	connect( verticalCenter_, SIGNAL(valueChanged(double)), this, SLOT(onVerticalCenterChanged()) );
 	connect( horizontalGap_, SIGNAL(valueChanged(double)), this, SIGNAL(horizontalGapValueChanged(double)) );
 	connect( horizontalCenter_, SIGNAL(valueChanged(double)), this, SIGNAL(horizontalCenterValueChanged(double)) );
 
 	wasConnected_ = false;
 	onBladesControlConnected(false);
+	onVerticalGapChanged();
+	onVerticalCenterChanged();
 }
 
 bool CLSJJSlit::isConnected() const
 {
 //	return verticalBladesControl_->isConnected() && verticalBladesControl_->isConnected();
-	return (verticalGap_->isConnected() && verticalCenter_->isConnected());
+	return (verticalGap_->isConnected() && verticalCenter_->isConnected() && horizontalGap_->isConnected() && horizontalCenter_->isConnected());
 }
 
 void CLSJJSlit::onBladesControlConnected(bool value)
@@ -132,6 +136,25 @@ void CLSJJSlit::onBladesControlConnected(bool value)
 	if (wasConnected_ != connectionStatus) {
 		wasConnected_ = connectionStatus;
 		emit connected(wasConnected_);
+	}
+
+	if (wasConnected_) {
+		verticalCenter_->setGap(verticalGap_->value());
+		verticalGap_->setCenterPosition(verticalCenter_->value());
+	}
+}
+
+void CLSJJSlit::onVerticalGapChanged()
+{
+	if (isConnected()) {
+		verticalCenter_->setGap(verticalGap_->value());
+	}
+}
+
+void CLSJJSlit::onVerticalCenterChanged()
+{
+	if (isConnected()) {
+		verticalGap_->setCenterPosition(verticalCenter_->value());
 	}
 }
 

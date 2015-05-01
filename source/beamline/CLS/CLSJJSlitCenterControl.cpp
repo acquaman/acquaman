@@ -105,9 +105,6 @@ AMControl::FailureExplanation CLSJJSlitCenterControl::move(double setpoint)
 	double lowerPosition = calculateLowerPosition(gap_, setpoint_);
 	double upperPosition = calculateUpperPosition(gap_, setpoint_);
 
-	qDebug() << "\nNew lower: " << lowerPosition;
-	qDebug() << "New upper: " << upperPosition << "\n";
-
 	moveAction->addSubAction(AMActionSupport::buildControlMoveAction(upperBladeControl_, upperPosition));
 	moveAction->addSubAction(AMActionSupport::buildControlMoveAction(lowerBladeControl_, lowerPosition));
 
