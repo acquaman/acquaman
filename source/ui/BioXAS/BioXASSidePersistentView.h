@@ -55,10 +55,6 @@ protected:
 	BioXASSSRLMonochromatorRegionControlEditor *regionControlEditor_;
 	/// Editor for the mono's bragg motor angle.
 	AMExtendedControlEditor *braggControlEditor_;
-	/// Editor for the JJ slits gap control.
-	AMExtendedControlEditor *jjSlitsGapEditor_;
-	/// Editor for the JJ slits center control.
-	AMExtendedControlEditor *jjSlitsCenterEditor_;
 	/// Scaler channel views for i0, iT, and i2 channels.
 	QGroupBox *channelViews_;
 };

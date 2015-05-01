@@ -43,14 +43,6 @@ BioXASSidePersistentView::BioXASSidePersistentView(QWidget *parent) :
 	braggControlEditor_ = new AMExtendedControlEditor(BioXASSideBeamline::bioXAS()->mono()->braggMotor());
 	braggControlEditor_->setTitle("Mono Goniometer Angle");
 
-	// Testing - JJ slits gap and center editors.
-
-	jjSlitsGapEditor_ = new AMExtendedControlEditor(BioXASSideBeamline::bioXAS()->jjSlitsGapControl());
-	jjSlitsGapEditor_->setTitle("JJ Slits Gap");
-
-	jjSlitsCenterEditor_ = new AMExtendedControlEditor(BioXASSideBeamline::bioXAS()->jjSlitsCenterControl());
-	jjSlitsCenterEditor_->setTitle("JJ Slits Center");
-
 	// Scaler channel views.
 
 	BioXASSIS3820ScalerChannelsView *channels = new BioXASSIS3820ScalerChannelsView(BioXASSideBeamline::bioXAS()->scaler());
@@ -68,8 +60,6 @@ BioXASSidePersistentView::BioXASSidePersistentView(QWidget *parent) :
 	layout->addWidget(energyControlEditor_);
 	layout->addWidget(regionControlEditor_);
 	layout->addWidget(braggControlEditor_);
-	layout->addWidget(jjSlitsGapEditor_);
-	layout->addWidget(jjSlitsCenterEditor_);
 	layout->addWidget(channelViews_);
 	layout->addStretch();
 
