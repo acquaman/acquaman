@@ -185,7 +185,7 @@ void BioXASMainXASScanActionController::buildScanControllerImplementation()
 		scan_->addAnalyzedDataSource(deltaEnergy, true, false);
 	}
 
-	// Create analyzed data source for the transmittance.
+	// Create analyzed data source for the absorbance.
 
 	AMDataSource *i0DetectorSource = 0;
 	int i0DetectorIndex = scan_->indexOfDataSource(BioXASMainBeamline::bioXAS()->i0Detector()->name());
@@ -200,11 +200,11 @@ void BioXASMainXASScanActionController::buildScanControllerImplementation()
 	}
 
 	if (i0DetectorSource && i2DetectorSource) {
-		AM1DExpressionAB *transmittance = new AM1DExpressionAB("Transmittance");
-		transmittance->setInputDataSources(QList<AMDataSource*>() << i0DetectorSource << i2DetectorSource);
-		transmittance->setExpression("log(I0Detector/I2Detector)");
+		AM1DExpressionAB *absorbance = new AM1DExpressionAB("Absorbance");
+		absorbance->setInputDataSources(QList<AMDataSource*>() << i0DetectorSource << i2DetectorSource);
+		absorbance->setExpression("log(I0Detector/I2Detector)");
 
-		scan_->addAnalyzedDataSource(transmittance);
+		scan_->addAnalyzedDataSource(absorbance);
 	}
 
 //	 Create analyzed data sources for the dark current corrected measurements of each able detector in the configuration.
