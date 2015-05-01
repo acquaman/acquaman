@@ -88,6 +88,10 @@ protected:
 	AMControl *statusPVControl_;
 };
 
+class CLSMAXvMotor;
+class CLSJJSlitGapControl;
+class CLSJJSlitCenterControl;
+
 /// The class definition of CLSJJSlit, which contains a vertical CLSJJSlitBladesControl and a horizontal CLSJJSlitBladesControl
 class CLSJJSlit : public QObject
 {
@@ -104,17 +108,35 @@ public:
 	  \param description A human readable description for this JJ slit
 	  \param parent QObject parent class
 	  */
-	CLSJJSlit(const QString &name, const QString &description, const QString &verticalBladesPVBaseName, const QString &horizontalBladesPVBaseName, double tolerance = AMCONTROL_TOLERANCE_DONT_CARE, double moveStartTimeoutSeconds = 2.0, double limit = 11.0, QObject *parent = 0);
+	explicit CLSJJSlit(const QString &name, const QString &description, const QString &verticalBladesPVBaseName, const QString &horizontalBladesPVBaseName, double tolerance = AMCONTROL_TOLERANCE_DONT_CARE, double moveStartTimeoutSeconds = 2.0, double limit = 11.0, QObject *parent = 0);
 
 	/// check whether the JJ slit is connected or not
 	bool isConnected() const;
-
 	/// return the limit of the slit
 	double limit() const { return limit_; }
-	/// return the vertical blade control
-	CLSJJSlitBladesControl * verticalBladesControl() const { return verticalBladesControl_; }
-	/// return the horizontal blade control
-	CLSJJSlitBladesControl * horizontalBladesControl() const { return horizontalBladesControl_; }
+
+	/// Returns the upper blade motor control.
+	CLSMAXvMotor* upperBladeControl() const { return upperBlade_; }
+	/// Returns the lower blade motor control.
+	CLSMAXvMotor* lowerBladeControl() const { return lowerBlade_; }
+	/// Returns the inboard blade motor control.
+	CLSMAXvMotor* inboardBladeControl() const { return inboardBlade_; }
+	/// Returns the outboard blade motor control.
+	CLSMAXvMotor* outboardBladeControl() const { return outboardBlade_; }
+
+//	/// return the vertical blade control
+//	CLSJJSlitBladesControl * verticalBladesControl() const { return verticalBladesControl_; }
+//	/// return the horizontal blade control
+//	CLSJJSlitBladesControl * horizontalBladesControl() const { return horizontalBladesControl_; }
+
+	/// Returns the vertical blades gap control.
+	CLSJJSlitGapControl* verticalGapControl() const { return verticalGap_; }
+	/// Returns the vertical blades center control.
+	CLSJJSlitCenterControl* verticalCenterControl() const { return verticalCenter_; }
+	/// Returns the horizontal blades gap control.
+	CLSJJSlitGapControl* horizontalGapControl() const { return horizontalGap_; }
+	/// Returns the horizontal blades center control.
+	CLSJJSlitCenterControl* horizontalCenterControl() const { return horizontalCenter_; }
 
 signals:
 	/// the signal to indicate whether the JJ slit is connected or not
@@ -138,15 +160,15 @@ public slots:
 	/// to handle the connected signal of the CLSJJSlitBladeControl
 	void onBladesControlConnected(bool);
 
-	/// to set the Vertical gap of the JJ slit
-	void moveVerticalGap(double setpoint);
-	/// to set the Vertical center of the JJ slit
-	void moveVerticalCenter(double setpoint);
+//	/// to set the Vertical gap of the JJ slit
+//	void moveVerticalGap(double setpoint);
+//	/// to set the Vertical center of the JJ slit
+//	void moveVerticalCenter(double setpoint);
 
-	/// to set the Horizontal gap of the JJ slit
-	void moveHorizontalGap(double setpoint);
-	/// to set the Horizontal center of the JJ slit
-	void moveHorizontalCenter(double setpoint);
+//	/// to set the Horizontal gap of the JJ slit
+//	void moveHorizontalGap(double setpoint);
+//	/// to set the Horizontal center of the JJ slit
+//	void moveHorizontalCenter(double setpoint);
 
 protected:
 	/// the name of the JJ slit
@@ -159,10 +181,28 @@ protected:
 	/// flag of connection
 	bool wasConnected_;
 
-	/// vertical blades
-	CLSJJSlitBladesControl * verticalBladesControl_;
-	/// horizotnal blades
-	CLSJJSlitBladesControl * horizontalBladesControl_;
+//	/// vertical blades
+//	CLSJJSlitBladesControl * verticalBladesControl_;
+//	/// horizotnal blades
+//	CLSJJSlitBladesControl * horizontalBladesControl_;
+
+	/// Upper blade motor control.
+	CLSMAXvMotor *upperBlade_;
+	/// Lower blade motor control.
+	CLSMAXvMotor *lowerBlade_;
+	/// Inboard blade motor control.
+	CLSMAXvMotor *inboardBlade_;
+	/// Outboard blade motor control.
+	CLSMAXvMotor *outboardBlade_;
+
+	/// Vertical blades gap control.
+	CLSJJSlitGapControl *verticalGap_;
+	/// Vertical blades center control.
+	CLSJJSlitCenterControl *verticalCenter_;
+	/// Horizontal blades gap control.
+	CLSJJSlitGapControl *horizontalGap_;
+	/// Horizontal blades center control.
+	CLSJJSlitCenterControl *horizontalCenter_;
 
 };
 
