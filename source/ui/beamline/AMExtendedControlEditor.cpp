@@ -110,6 +110,11 @@ AMExtendedControlEditor::AMExtendedControlEditor(AMControl* control, AMControl* 
 	setReadOnlyPreference(readOnly);
 }
 
+AMExtendedControlEditor::~AMExtendedControlEditor()
+{
+
+}
+
 double AMExtendedControlEditor::setpoint() const{
 	return dialog_->setpoint();
 }
