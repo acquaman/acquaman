@@ -158,6 +158,10 @@ public:
 	SXRMBHVControl *teyHVControl() const;
 	/// Returns the microProbe TEY HV control
 	SXRMBHVControl *microprobeTEYHVControl() const;
+	/// Returns the ambiant IC0 HV control
+	SXRMBHVControl *ambiantIC0HVControl() const;
+	/// Returns the ambiant IC1 HV control
+	SXRMBHVControl *ambiantIC1HVControl() const;
 
 	/// Returns the list of actions to turn the beam on
 	AMAction3* createBeamOnActions() const;
@@ -325,6 +329,10 @@ protected:
 	SXRMBHVControl *teyHVControl_;
 	/// The microProb TEY HV control
 	SXRMBHVControl *microprobeTEYHVControl_;
+	/// The ambiant IC0 HV control
+	SXRMBHVControl *ambiantIC0HVControl_;
+	/// The ambiant IC1 HV control
+	SXRMBHVControl *ambiantIC1HVControl_;
 
 	/// Beamline valves, the valves involved in the Beam on/off action
 	AMControlSet * beamlineControlShutterSet_;
