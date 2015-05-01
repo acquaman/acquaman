@@ -43,6 +43,10 @@ BioXASSidePersistentView::BioXASSidePersistentView(QWidget *parent) :
 	braggControlEditor_ = new AMExtendedControlEditor(BioXASSideBeamline::bioXAS()->mono()->braggMotor());
 	braggControlEditor_->setTitle("Mono Goniometer Angle");
 
+	// Test editors.
+
+	AMExtendedControlEditor *gapEditor = new AMExtendedControlEditor(BioXASSideBeamline::bioXAS()->jjSlit()->verticalGapControl());
+
 	// Scaler channel views.
 
 	BioXASSIS3820ScalerChannelsView *channels = new BioXASSIS3820ScalerChannelsView(BioXASSideBeamline::bioXAS()->scaler());
@@ -60,6 +64,7 @@ BioXASSidePersistentView::BioXASSidePersistentView(QWidget *parent) :
 	layout->addWidget(energyControlEditor_);
 	layout->addWidget(regionControlEditor_);
 	layout->addWidget(braggControlEditor_);
+	layout->addWidget(gapEditor);
 	layout->addWidget(channelViews_);
 	layout->addStretch();
 

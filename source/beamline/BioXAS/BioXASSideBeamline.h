@@ -88,10 +88,6 @@ public:
 	BioXASSideMonochromator *mono() const { return mono_; }
 	/// Returns the beamline JJ Slit.
 	CLSJJSlit *jjSlit() const { return jjSlit_; }
-	/// Returns the JJ slits gap control.
-	CLSJJSlitGapControl* jjSlitsGapControl() const { return jjSlitsGap_; }
-	/// Returns the JJ slits center control.
-	CLSJJSlitCenterControl* jjSlitsCenterControl() const { return jjSlitsCenter_; }
 	/// Returns the scaler.
 	virtual CLSSIS3820Scaler* scaler() const { return scaler_; }
 	/// Returns the carbon filter farm.
@@ -360,9 +356,6 @@ protected:
 
 	/// The JJ slit
 	CLSJJSlit *jjSlit_;
-
-	CLSJJSlitGapControl *jjSlitsGap_;
-	CLSJJSlitCenterControl *jjSlitsCenter_;
 
 	// Scaler
 

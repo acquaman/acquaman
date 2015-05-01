@@ -14,6 +14,8 @@ class CLSJJSlitView : public QWidget
 public:
 	/// Constructor
 	explicit CLSJJSlitView(CLSJJSlit *clsJJSlit, QWidget *parent = 0);
+	/// Destructor.
+	virtual ~CLSJJSlitView();
 
 protected slots:
 	/// handle the signal of CLSJJSlit connected, prefill the values to the spinbox
@@ -28,19 +30,19 @@ protected:
 	AMExtendedControlEditor *horizontalGapEditor_;
 	AMExtendedControlEditor *horizontalCenterEditor_;
 
-	/// the spinbox for vertical Gap
-	QDoubleSpinBox * verticalGapSpinBox_;
-	/// the spinbox for vertical Center
-	QDoubleSpinBox * verticalCenterSpinBox_;
-	/// the spinbox for vertical Status
-	QLabel * verticalStatusLabel_;
+//	/// the spinbox for vertical Gap
+//	QDoubleSpinBox * verticalGapSpinBox_;
+//	/// the spinbox for vertical Center
+//	QDoubleSpinBox * verticalCenterSpinBox_;
+//	/// the spinbox for vertical Status
+//	QLabel * verticalStatusLabel_;
 
-	/// the spinbox for horizontal Gap
-	QDoubleSpinBox * horizontalGapSpinBox_;
-	/// the spinbox for horizontal Center
-	QDoubleSpinBox * horizontalCenterSpinBox_;
+//	/// the spinbox for horizontal Gap
+//	QDoubleSpinBox * horizontalGapSpinBox_;
+//	/// the spinbox for horizontal Center
+//	QDoubleSpinBox * horizontalCenterSpinBox_;
 	/// the spinbox for horizontal Status
-	QLabel * horizontalStatusLabel_;
+//	QLabel * horizontalStatusLabel_;
 };
 
 #endif // CLSJJSLITVIEW_H
