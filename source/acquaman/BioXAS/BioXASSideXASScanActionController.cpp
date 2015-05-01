@@ -29,6 +29,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "acquaman/AMEXAFSScanActionControllerAssembler.h"
 #include "beamline/AMBasicControlDetectorEmulator.h"
 #include "analysis/AM1DExpressionAB.h"
+#include "analysis/AM1DDerivativeAB.h"
 
 BioXASSideXASScanActionController::BioXASSideXASScanActionController(BioXASSideXASScanConfiguration *configuration, QObject *parent) :
     AMStepScanActionController(configuration, parent)
@@ -155,37 +156,61 @@ void BioXASSideXASScanActionController::buildScanControllerImplementation()
 {
 	// Create analyzed data sources for the monochromator testing measurements.
 
-	int energyDetectorIndex = scan_->indexOfDataSource(BioXASSideBeamline::bioXAS()->energyFeedbackDetector()->name());
-	if (energyDetectorIndex != -1) {
-		AMDataSource *energyFeedbackSource = scan_->dataSourceAt(energyDetectorIndex);
+	AMDataSource *energySetpointSource = 0;
+	AMDataSource *energyFeedbackSource = 0;
+	AM1DExpressionAB *deltaEnergySource = 0;
 
-		AM1DExpressionAB *deltaEnergy = new AM1DExpressionAB("EnergySetpointFeedback");
-		deltaEnergy->setInputDataSources(QList<AMDataSource *>() << energyFeedbackSource << scan_->dataSourceAt(scan_->indexOfDataSource("EnergySetpoint")));
-		deltaEnergy->setExpression("EnergySetpoint-EnergyFeedback");
+	int energySetpointDetectorIndex = scan_->indexOfDataSource(BioXASSideBeamline::bioXAS()->energySetpointDetector()->name());
+	if (energySetpointDetectorIndex) {
+		energySetpointSource = scan_->dataSourceAt(energySetpointDetectorIndex);
+	}
 
-		scan_->addAnalyzedDataSource(deltaEnergy, true, false);
+	int energyFeedbackDetectorIndex = scan_->indexOfDataSource(BioXASSideBeamline::bioXAS()->energyFeedbackDetector()->name());
+	if (energyFeedbackDetectorIndex != -1) {
+		energyFeedbackSource = scan_->dataSourceAt(energyFeedbackDetectorIndex);
+	}
+
+	if (energySetpointSource && energyFeedbackSource) {
+		deltaEnergySource = new AM1DExpressionAB("EnergySetpointFeedback");
+		deltaEnergySource->setInputDataSources(QList<AMDataSource *>() << energySetpointSource << energyFeedbackSource);
+		deltaEnergySource->setExpression("EnergySetpoint-EnergyFeedback");
+
+		scan_->addAnalyzedDataSource(deltaEnergySource, true, false);
 	}
 
 	// Create analyzed data source for the absorbance.
 
 	AMDataSource *i0DetectorSource = 0;
+	AMDataSource *i2DetectorSource = 0;
+	AM1DExpressionAB *absorbanceSource = 0;
+
 	int i0DetectorIndex = scan_->indexOfDataSource(BioXASSideBeamline::bioXAS()->i0Detector()->name());
 	if (i0DetectorIndex != -1) {
 		i0DetectorSource = scan_->dataSourceAt(i0DetectorIndex);
 	}
 
-	AMDataSource *i2DetectorSource = 0;
 	int i2DetectorIndex = scan_->indexOfDataSource(BioXASSideBeamline::bioXAS()->i2Detector()->name());
 	if (i2DetectorIndex != -1) {
 		i2DetectorSource = scan_->dataSourceAt(i2DetectorIndex);
 	}
 
 	if (i0DetectorSource && i2DetectorSource) {
-		AM1DExpressionAB *absorbance = new AM1DExpressionAB("Absorbance");
-		absorbance->setInputDataSources(QList<AMDataSource*>() << i0DetectorSource << i2DetectorSource);
-		absorbance->setExpression("log(I0Detector/I2Detector)");
+		absorbanceSource = new AM1DExpressionAB("Absorbance");
+		absorbanceSource->setInputDataSources(QList<AMDataSource*>() << i0DetectorSource << i2DetectorSource);
+		absorbanceSource->setExpression("log(I0Detector/I2Detector)");
 
-		scan_->addAnalyzedDataSource(absorbance);
+		scan_->addAnalyzedDataSource(absorbanceSource, true, false);
+	}
+
+	// Create analyzed data source for the derivative of the absorbance.
+
+	AM1DDerivativeAB *derivAbsorbanceSource = 0;
+
+	if (absorbanceSource) {
+		derivAbsorbanceSource = new AM1DDerivativeAB("DerivAbsorbance");
+		derivAbsorbanceSource->setInputDataSources(QList<AMDataSource*>() << absorbanceSource);
+
+		scan_->addAnalyzedDataSource(derivAbsorbanceSource, true, false);
 	}
 }
 

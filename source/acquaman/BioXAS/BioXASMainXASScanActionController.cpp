@@ -30,6 +30,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/AMBasicControlDetectorEmulator.h"
 #include "util/AMErrorMonitor.h"
 #include "analysis/AM1DExpressionAB.h"
+#include "analysis/AM1DDerivativeAB.h"
 #include "dataman/export/AMExporterOptionGeneralAscii.h"
 
 BioXASMainXASScanActionController::BioXASMainXASScanActionController(BioXASMainXASScanConfiguration *configuration, QObject *parent) :
@@ -174,45 +175,70 @@ void BioXASMainXASScanActionController::buildScanControllerImplementation()
 {
 	// Create analyzed data sources for the monochromator testing measurements.
 
-	int energyDetectorIndex = scan_->indexOfDataSource(BioXASMainBeamline::bioXAS()->energyFeedbackDetector()->name());
-	if (energyDetectorIndex != -1) {
-		AMDataSource *energyFeedbackSource = scan_->dataSourceAt(energyDetectorIndex);
+	AMDataSource *energySetpointSource = 0;
+	AMDataSource *energyFeedbackSource = 0;
+	AM1DExpressionAB *deltaEnergySource = 0;
 
-		AM1DExpressionAB *deltaEnergy = new AM1DExpressionAB("EnergySetpointFeedback");
-		deltaEnergy->setInputDataSources(QList<AMDataSource *>() << energyFeedbackSource << scan_->dataSourceAt(scan_->indexOfDataSource("EnergySetpoint")));
-		deltaEnergy->setExpression("EnergySetpoint-EnergyFeedback");
+	int energySetpointDetectorIndex = scan_->indexOfDataSource(BioXASMainBeamline::bioXAS()->energySetpointDetector()->name());
+	if (energySetpointDetectorIndex) {
+		energySetpointSource = scan_->dataSourceAt(energySetpointDetectorIndex);
+	}
 
-		scan_->addAnalyzedDataSource(deltaEnergy, true, false);
+	int energyFeedbackDetectorIndex = scan_->indexOfDataSource(BioXASMainBeamline::bioXAS()->energyFeedbackDetector()->name());
+	if (energyFeedbackDetectorIndex != -1) {
+		energyFeedbackSource = scan_->dataSourceAt(energyFeedbackDetectorIndex);
+	}
+
+	if (energySetpointSource && energyFeedbackSource) {
+		deltaEnergySource = new AM1DExpressionAB("EnergySetpointFeedback");
+		deltaEnergySource->setInputDataSources(QList<AMDataSource *>() << energySetpointSource << energyFeedbackSource);
+		deltaEnergySource->setExpression("EnergySetpoint-EnergyFeedback");
+
+		scan_->addAnalyzedDataSource(deltaEnergySource, true, false);
 	}
 
 	// Create analyzed data source for the absorbance.
 
 	AMDataSource *i0DetectorSource = 0;
+	AMDataSource *i2DetectorSource = 0;
+	AM1DExpressionAB *absorbanceSource = 0;
+
 	int i0DetectorIndex = scan_->indexOfDataSource(BioXASMainBeamline::bioXAS()->i0Detector()->name());
 	if (i0DetectorIndex != -1) {
 		i0DetectorSource = scan_->dataSourceAt(i0DetectorIndex);
 	}
 
-	AMDataSource *i2DetectorSource = 0;
 	int i2DetectorIndex = scan_->indexOfDataSource(BioXASMainBeamline::bioXAS()->i2Detector()->name());
 	if (i2DetectorIndex != -1) {
 		i2DetectorSource = scan_->dataSourceAt(i2DetectorIndex);
 	}
 
 	if (i0DetectorSource && i2DetectorSource) {
-		AM1DExpressionAB *absorbance = new AM1DExpressionAB("Absorbance");
-		absorbance->setInputDataSources(QList<AMDataSource*>() << i0DetectorSource << i2DetectorSource);
-		absorbance->setExpression("log(I0Detector/I2Detector)");
+		absorbanceSource = new AM1DExpressionAB("Absorbance");
+		absorbanceSource->setInputDataSources(QList<AMDataSource*>() << i0DetectorSource << i2DetectorSource);
+		absorbanceSource->setExpression("log(I0Detector/I2Detector)");
 
-		scan_->addAnalyzedDataSource(absorbance);
+		scan_->addAnalyzedDataSource(absorbanceSource, true, false);
 	}
 
-//	 Create analyzed data sources for the dark current corrected measurements of each able detector in the configuration.
+	// Create analyzed data source for the derivative of the absorbance.
+
+	AM1DDerivativeAB *derivAbsorbanceSource = 0;
+
+	if (absorbanceSource) {
+		derivAbsorbanceSource = new AM1DDerivativeAB("DerivAbsorbance");
+		derivAbsorbanceSource->setInputDataSources(QList<AMDataSource*>() << absorbanceSource);
+
+		scan_->addAnalyzedDataSource(derivAbsorbanceSource, true, false);
+	}
+
+	// Create analyzed data sources for the dark current corrected measurements of each able detector in the configuration.
+
+	AMDataSource *dwellTimeSource = 0;
 
 	int dwellTimeIndex = scan_->indexOfDataSource(BioXASMainBeamline::bioXAS()->dwellTimeDetector()->name());
-
 	if (dwellTimeIndex != -1) {
-		AMDataSource *dwellTimeSource = scan_->dataSourceAt(dwellTimeIndex);
+		dwellTimeSource = scan_->dataSourceAt(dwellTimeIndex);
 
 		for (int i = 0, size = configuration_->detectorConfigurations().count(); i < size; i++) {
 			AMDetector *detector = AMBeamline::bl()->exposedDetectorByInfo(configuration_->detectorConfigurations().at(i));
@@ -222,19 +248,20 @@ void BioXASMainXASScanActionController::buildScanControllerImplementation()
 
 				// If the detector is valid and able to perform dark current correction,
 				// create an instance of the dark current correction analysis block and add it to the list of sources associated with this scan.
+
 				if (detectorIndex != -1 && detector->rank() == 0 && detector->canDoDarkCurrentCorrection()) {
 					AMDataSource *detectorSource = scan_->dataSourceAt(detectorIndex);
 
-					AM1DDarkCurrentCorrectionAB *detectorCorrected = new AM1DDarkCurrentCorrectionAB(QString("%1_DarkCorrect").arg(detector->name()));
-					detectorCorrected->setDescription(QString("%1 Dark Current Corrected").arg(detector->name()));
-					detectorCorrected->setDataName(detectorSource->name());
-					detectorCorrected->setDwellTimeName(dwellTimeSource->name());
-					detectorCorrected->setInputDataSources(QList<AMDataSource*>() << detectorSource << dwellTimeSource);
-					detectorCorrected->setTimeUnitMultiplier(0.001);
+					AM1DDarkCurrentCorrectionAB *detectorCorrectedSource = new AM1DDarkCurrentCorrectionAB(QString("%1_DarkCorrect").arg(detector->name()));
+					detectorCorrectedSource->setDescription(QString("%1 Dark Current Corrected").arg(detector->name()));
+					detectorCorrectedSource->setDataName(detectorSource->name());
+					detectorCorrectedSource->setDwellTimeName(dwellTimeSource->name());
+					detectorCorrectedSource->setInputDataSources(QList<AMDataSource*>() << detectorSource << dwellTimeSource);
+					detectorCorrectedSource->setTimeUnitMultiplier(0.001);
 
-					connect( detector, SIGNAL(darkCurrentValueChanged(double)), detectorCorrected, SLOT(setDarkCurrent(double)) );
+					connect( detector, SIGNAL(darkCurrentValueChanged(double)), detectorCorrectedSource, SLOT(setDarkCurrent(double)) );
 
-					scan_->addAnalyzedDataSource(detectorCorrected, true, false);
+					scan_->addAnalyzedDataSource(detectorCorrectedSource, true, false);
 				}
 
 			} else {
