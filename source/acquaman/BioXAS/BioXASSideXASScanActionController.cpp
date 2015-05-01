@@ -165,6 +165,28 @@ void BioXASSideXASScanActionController::buildScanControllerImplementation()
 
 		scan_->addAnalyzedDataSource(deltaEnergy, true, false);
 	}
+
+	// Create analyzed data source for the transmittance.
+
+	AMDataSource *i0DetectorSource = 0;
+	int i0DetectorIndex = scan_->indexOfDataSource(BioXASSideBeamline::bioXAS()->i0Detector()->name());
+	if (i0DetectorIndex != -1) {
+		i0DetectorSource = scan_->dataSourceAt(i0DetectorIndex);
+	}
+
+	AMDataSource *i2DetectorSource = 0;
+	int i2DetectorIndex = scan_->indexOfDataSource(BioXASSideBeamline::bioXAS()->i2Detector()->name());
+	if (i2DetectorIndex != -1) {
+		i2DetectorSource = scan_->dataSourceAt(i2DetectorIndex);
+	}
+
+	if (i0DetectorSource && i2DetectorSource) {
+		AM1DExpressionAB *transmittance = new AM1DExpressionAB("Transmittance");
+		transmittance->setInputDataSources(QList<AMDataSource*>() << i0DetectorSource << i2DetectorSource);
+		transmittance->setExpression("log(I0Detector/I2Detector)");
+
+		scan_->addAnalyzedDataSource(transmittance);
+	}
 }
 
 void BioXASSideXASScanActionController::createScanAssembler()
