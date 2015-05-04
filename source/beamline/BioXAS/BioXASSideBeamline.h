@@ -247,8 +247,6 @@ public:
 	AMBasicControlDetectorEmulator* braggMoveRetriesMaxDetector() const { return braggMoveRetriesMaxDetector_; }
 	/// Returns the bragg step setpoint detector.
 	AMBasicControlDetectorEmulator* braggStepSetpointDetector() const { return braggStepSetpointDetector_; }
-	/// Returns the bragg degree setpoint detector.
-	AMBasicControlDetectorEmulator* braggDegreeSetpointDetector() const { return braggDegreeSetpointDetector_; }
 	/// Returns the physical bragg angle detector.
 	AMBasicControlDetectorEmulator* braggAngleDetector() const { return braggAngleDetector_; }
 	/// Returns the 32 element Ge detector.
@@ -341,7 +339,6 @@ protected:
 	AMBasicControlDetectorEmulator *braggMoveRetriesDetector_;
 	AMBasicControlDetectorEmulator *braggMoveRetriesMaxDetector_;
 	AMBasicControlDetectorEmulator *braggStepSetpointDetector_;
-	AMBasicControlDetectorEmulator *braggDegreeSetpointDetector_;
 	AMBasicControlDetectorEmulator *braggAngleDetector_;
 	AMBasicControlDetectorEmulator *braggEncoderFeedbackDetector_;
 	BioXAS32ElementGeDetector *ge32ElementDetector_;

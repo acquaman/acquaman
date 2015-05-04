@@ -517,7 +517,7 @@ void VESPERSBeamline::setupComponents()
 	beamPositions_.insert(VESPERS::Si, -17.5);
 	beamPositions_.insert(VESPERS::OnePointSixPercent, -22.5);
 
-	beamSelectionMotor_ = new CLSMAXvMotor("MonoBeamSelectionMotor", "SMTR1607-1-B20-21", "Motor that controls which beam makes it down the pipe.", false, 1, 2.0, this);
+	beamSelectionMotor_ = new AMPVwStatusControl("MonoBeamSelectionMotor", "SMTR1607-1-B20-21:mm:sp", "SMTR1607-1-B20-21:mm", "SMTR1607-1-B20-21:status", "SMTR1607-1-B20-21:stop", this, 1, 2.0);
 	connect(beamSelectionMotor_, SIGNAL(movingChanged(bool)), this, SLOT(determineBeam()));
 	connect(beamSelectionMotor_, SIGNAL(valueChanged(double)), this, SLOT(onBeamSelectionMotorConnected()));
 
@@ -912,8 +912,8 @@ AMAction3 *VESPERSBeamline::createBeamChangeAction(VESPERS::Beam beam)
 
 	AMListAction3 *changeBeamAction = new AMSequentialListAction3(new AMSequentialListActionInfo3("Change Beam Action", "Does all the necessary work to switch beams by ensuring all steps are done correctly."));
 
-    changeBeamAction->addSubAction(mono()->createAllowScanningAction(false));
-    changeBeamAction->addSubAction(AMActionSupport::buildControlMoveAction(beamSelectionMotor_, (beamPositions_.value(beam))));
+	changeBeamAction->addSubAction(mono()->createAllowScanningAction(false));
+	changeBeamAction->addSubAction(AMActionSupport::buildControlMoveAction(beamSelectionMotor_, (beamPositions_.value(beam))));
 
 	if (beam != VESPERS::Pink)
 		changeBeamAction->addSubAction(mono()->createAllowScanningAction(true));
@@ -926,9 +926,9 @@ AMAction3 *VESPERSBeamline::createBeamOnAction()
 	// The correct order for turning the beam on is turning on the safety shutter and then the second photon shutter.
 	AMSequentialListAction3 *beamOnAction = new AMSequentialListAction3(new AMSequentialListActionInfo3("The beam on action.", "The beam on action."));
 
-    beamOnAction->addSubAction(AMActionSupport::buildControlMoveAction(safetyShutter1_, 1));
-    beamOnAction->addSubAction(AMActionSupport::buildControlMoveAction(photonShutter2_, 1));
-    beamOnAction->addSubAction(AMActionSupport::buildControlMoveAction(safetyShutter2_, 1));
+	beamOnAction->addSubAction(AMActionSupport::buildControlMoveAction(safetyShutter1_, 1));
+	beamOnAction->addSubAction(AMActionSupport::buildControlMoveAction(photonShutter2_, 1));
+	beamOnAction->addSubAction(AMActionSupport::buildControlMoveAction(safetyShutter2_, 1));
 
 	return beamOnAction;
 }
@@ -937,9 +937,9 @@ AMAction3 *VESPERSBeamline::createBeamOffAction()
 {
 	// The correct order for turning the beam off is turning off the second photon shutter and then the safety shutter.
 
-    ///should this close photon shutter too?
+	///should this close photon shutter too?
 
-    return AMActionSupport::buildControlMoveAction(safetyShutter2_, 0);
+	return AMActionSupport::buildControlMoveAction(safetyShutter2_, 0);
 }
 
 void VESPERSBeamline::determineBeam()
@@ -1341,4 +1341,10 @@ bool VESPERSBeamline::closeSafetyShutter2()
 	}
 
 	return false;
+}
+
+void VESPERSBeamline::onBeamSelectionMotorConnected()
+{
+	disconnect(beamSelectionMotor_, SIGNAL(valueChanged(double)), this, SLOT(onBeamSelectionMotorConnected()));
+	determineBeam();
 }
