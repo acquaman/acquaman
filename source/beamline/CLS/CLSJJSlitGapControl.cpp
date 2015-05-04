@@ -107,6 +107,8 @@ AMControl::FailureExplanation CLSJJSlitGapControl::move(double setpoint)
 	moveAction->addSubAction(AMActionSupport::buildControlMoveAction(upperBladeControl_, -offset));
 	moveAction->addSubAction(AMActionSupport::buildControlMoveAction(lowerBladeControl_, offset));
 
+	qDebug() << "\nJJSlit Gap move to " << setpoint_ << "\n";
+
 	// Create signal mappings for this action.
 
 	connect( moveAction, SIGNAL(started()), this, SLOT(onMoveStarted()) );

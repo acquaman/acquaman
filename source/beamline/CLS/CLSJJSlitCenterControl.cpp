@@ -108,6 +108,8 @@ AMControl::FailureExplanation CLSJJSlitCenterControl::move(double setpoint)
 	moveAction->addSubAction(AMActionSupport::buildControlMoveAction(upperBladeControl_, upperPosition));
 	moveAction->addSubAction(AMActionSupport::buildControlMoveAction(lowerBladeControl_, lowerPosition));
 
+	qDebug() << "\nJJSlit Center move to" << setpoint_ << "\n";
+
 	// Create signal mappings for this action.
 
 	connect( moveAction, SIGNAL(started()), this, SLOT(onMoveStarted()) );
