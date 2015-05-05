@@ -37,8 +37,15 @@ protected slots:
 	/// Handles watching for when the controls actually connect
 	void onAllControlsConnected(bool connected);
 
-	/// Handles chagnes of Endstation
+	/// Handles changes of Endstation
 	void onEndstationValueChanged(double value);
+
+	/// Handles changes of the oldCrystalSelection PV
+	void onOldCrystalSelectionValueChanged();
+	/// Handles changes of the oldCrystalSelectionFeedback PV
+	void onOldCrystalSelectionFeedbackValueChanged();
+	/// Handles changes of the addOnsCrystalSelection PV
+	void onAddOnsCrystalSelectionValueChanged();
 
 	/// Handles changes coming from the old energy control
 	void onOldEnergyValueChanged(double value);
@@ -96,6 +103,15 @@ protected:
 protected:
 	/// New AddOns beamline endstation
 	AMControl *addOnsEndstation_;
+
+	/// Old SXRMB crystal selection
+	AMControl *oldCrystalSelection_;
+	/// Old SXRMB crystal selection feedback
+	AMControl *oldCrystalSelectionFeedback_;
+	/// New AddOns crystal selection
+	AMControl *addOnsCrystalSelection_;
+	/// New AddOns crystal selection feedback
+	AMControl *addOnsCrystalSelectionFeedback_;
 
 	/// Old SXRMB Energy control
 	AMControl *oldEnergy_;

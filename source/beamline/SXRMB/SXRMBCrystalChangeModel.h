@@ -11,10 +11,10 @@ class SXRMBCrystalChangeModel : public QObject
 	Q_OBJECT
 
 	enum CrystalSelection {
-		Unknown = 0,
-		InSb,
+		InSb = 0,
 		Si,
-		InBetween
+		InBetween,
+		Unknown
 	};
 
 public:

@@ -29,6 +29,11 @@ SXRMBAddOnsCoordinator::SXRMBAddOnsCoordinator(QObject *parent) :
 
 	addOnsEndstation_ = new AMSinglePVControl("AddOnsEndstation", "BL1606-B1-1:AddOns:Endstation", this, 0.5);
 
+	oldCrystalSelection_ = new AMSinglePVControl("OldCrystalSelection", "MONO1606-4-B10-01:CrysSel", this, 0.5);
+	oldCrystalSelectionFeedback_ =  new AMSinglePVControl("OldCrystalSelectionFeedback", "MONO1606-4-B10-01:CrysSel:fbk", this, 0.5);
+	addOnsCrystalSelection_ =  new AMSinglePVControl("AddOnsCrystalSelection", "BL1606-B1-1:AddOns:CrystalSelection", this, 0.5);
+	addOnsCrystalSelectionFeedback_ =  new AMSinglePVControl("AddOnsCrystalSelectionFeedback", "BL1606-B1-1:AddOns:CrystalSelection:fbk", this, 0.5);
+
 	oldEnergy_ =  new AMSinglePVControl("OldEnergy", "BL1606-B1-1:Energy", this, 0.01);
 	oldEnergyFeedback_ = new AMReadOnlyPVControl("OldEnergyFeedback", "BL1606-B1-1:Energy:fbk", this);
 	oldEnergyStatus_ = new AMReadOnlyPVControl("OldEnergyStatus", "BL1606-B1-1:Energy:status", this);
@@ -80,6 +85,10 @@ SXRMBAddOnsCoordinator::SXRMBAddOnsCoordinator(QObject *parent) :
 
 	allControls_ = new AMControlSet(this);
 	allControls_->addControl(addOnsEndstation_);
+	allControls_->addControl(oldCrystalSelection_);
+	allControls_->addControl(oldCrystalSelectionFeedback_);
+	allControls_->addControl(addOnsCrystalSelection_);
+	allControls_->addControl(addOnsCrystalSelectionFeedback_);
 	allControls_->addControl(oldEnergy_);
 	allControls_->addControl(oldEnergyFeedback_);
 	allControls_->addControl(oldEnergyStatus_);
@@ -121,6 +130,10 @@ SXRMBAddOnsCoordinator::SXRMBAddOnsCoordinator(QObject *parent) :
 
 	connect(addOnsEndstation_, SIGNAL(valueChanged(double)), this, SLOT(onEndstationValueChanged(double)));
 
+	connect(oldCrystalSelection_, SIGNAL(valueChanged(double)), this, SLOT(onOldCrystalSelectionValueChanged()));
+	connect(oldCrystalSelectionFeedback_, SIGNAL(valueChanged(double)), this, SLOT(onOldCrystalSelectionFeedbackValueChanged()));
+	connect(addOnsCrystalSelection_, SIGNAL(valueChanged(double)), this, SLOT(onAddOnsCrystalSelectionFeedbackValueChanged()));
+
 	connect(oldEnergy_, SIGNAL(valueChanged(double)), this, SLOT(onOldEnergyValueChanged(double)));
 	connect(oldEnergyFeedback_, SIGNAL(valueChanged(double)), this, SLOT(onOldEnergyFeedbackValueChanged(double)));
 	connect(oldEnergyStatus_, SIGNAL(valueChanged(double)), this, SLOT(onOldEnergyStatusValueChanged(double)));
@@ -152,6 +165,11 @@ void SXRMBAddOnsCoordinator::onAllControlsConnected(bool connected){
 		connectedOnce_ = true;
 
 		qDebug() << "Checking start up value for Endstation: " << addOnsEndstation_->value();
+
+		qDebug() << "Checking start up value for crystal Selection: " << oldCrystalSelection_->value();
+		onOldCrystalSelectionValueChanged();
+		qDebug() << "Checking start up value for crystal Selection Feedback: " << oldCrystalSelectionFeedback_->value();
+		onOldCrystalSelectionFeedbackValueChanged();
 
 		qDebug() << "Checking start up value from the OLD energy as " << oldEnergy_->value();
 		onOldEnergyValueChanged(oldEnergy_->value());
@@ -207,6 +225,49 @@ void SXRMBAddOnsCoordinator::onEndstationValueChanged(double value){
 	qDebug() << "Detected Endstation change to " << addOnsEndstation_->value();
 }
 
+void SXRMBAddOnsCoordinator::onOldCrystalSelectionValueChanged()
+{
+	if (!connectedOnce_)
+		return;
+
+	qDebug() << "Detected OLD crystal selection move requested for " << oldCrystalSelection_->value() << " versus " << addOnsCrystalSelection_->value();
+
+	if(!addOnsCrystalSelection_->withinTolerance(oldCrystalSelection_->value()))
+		addOnsCrystalSelection_->move(oldCrystalSelection_->value());
+}
+
+///
+/// Crystal Selection Feedback value mappings are
+/// Old					addOns
+/// [ 0] Unknown        [ 3] Unknown
+/// [ 1] InSb (111)     [ 0] InSb (111)
+/// [ 2] Si (111)       [ 1] Si (111)
+/// [ 3] In Between     [ 2] In Between
+///
+void SXRMBAddOnsCoordinator::onOldCrystalSelectionFeedbackValueChanged()
+{
+	if (!connectedOnce_)
+		return;
+
+	int oldCrystalSelectionFeedbackValue = int(oldCrystalSelectionFeedback_->value());
+	int mappedCrystalSelectionFeedbackValue = (oldCrystalSelectionFeedbackValue + 3) % 4;
+
+	qDebug() << QString("Detected OLD crystal selection feedback move requested for %1 (mapped to %2) versus %3").arg(oldCrystalSelectionFeedbackValue).arg(mappedCrystalSelectionFeedbackValue).arg(addOnsCrystalSelectionFeedback_->value());
+
+	if(!addOnsCrystalSelectionFeedback_->withinTolerance(mappedCrystalSelectionFeedbackValue))
+		addOnsCrystalSelectionFeedback_->move(mappedCrystalSelectionFeedbackValue);
+}
+
+void SXRMBAddOnsCoordinator::onAddOnsCrystalSelectionValueChanged()
+{
+	if (!connectedOnce_)
+		return;
+
+	qDebug() << "Detected addOns crystal selection move requested for " << addOnsCrystalSelection_->value() << " versus " << oldCrystalSelection_->value();
+
+	if(!oldCrystalSelection_->withinTolerance(addOnsCrystalSelection_->value()))
+		oldCrystalSelection_->move(addOnsCrystalSelection_->value());
+}
 
 void SXRMBAddOnsCoordinator::onOldEnergyValueChanged(double value){
 	Q_UNUSED(value)
