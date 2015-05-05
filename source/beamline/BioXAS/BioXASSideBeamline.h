@@ -87,7 +87,7 @@ public:
 	/// Returns the beamline monochromator.
 	BioXASSideMonochromator *mono() const { return mono_; }
 	/// Returns the beamline JJ Slit.
-	CLSJJSlit *jjSlit() const { return jjSlit_; }
+	CLSJJSlits *jjSlits() const { return jjSlits_; }
 	/// Returns the scaler.
 	virtual CLSSIS3820Scaler* scaler() const { return scaler_; }
 	/// Returns the carbon filter farm.
@@ -351,8 +351,8 @@ protected:
 
 	BioXASSideMonochromator *mono_;
 
-	/// The JJ slit
-	CLSJJSlit *jjSlit_;
+	/// The JJ slits
+	CLSJJSlits *jjSlits_;
 
 	// Scaler
 

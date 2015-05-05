@@ -189,6 +189,8 @@ void BioXASSideAppController::setupExporterOptions()
 
 void BioXASSideAppController::setupUserInterface()
 {
+	mw_->setWindowTitle("Acquaman - BioXAS Side");
+
 	// Create UI elements:
 	//////////////////////
 
@@ -196,7 +198,7 @@ void BioXASSideAppController::setupUserInterface()
 	monoConfigView_ = new BioXASSSRLMonochromatorConfigurationView(BioXASSideBeamline::bioXAS()->mono());
 
 	// Create JJ slits view.
-	jjSlitView_ = new CLSJJSlitView(BioXASSideBeamline::bioXAS()->jjSlit());
+	jjSlitView_ = new CLSJJSlitView(BioXASSideBeamline::bioXAS()->jjSlits());
 
 	// Create XIA filters view.
 	xiaFiltersView_ = new BioXASXIAFiltersView(BioXASSideBeamline::bioXAS()->xiaFilters());

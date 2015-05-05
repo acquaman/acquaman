@@ -230,8 +230,8 @@ void BioXASSideBeamline::onConnectionChanged()
 				// Mono.
 				mono_->isConnected() &&
 
-				// JJSlit
-				jjSlit_->isConnected() &&
+				// JJSlits
+				jjSlits_->isConnected() &&
 
 				// Scaler.
 				scaler_->isConnected() &&
@@ -787,8 +787,8 @@ void BioXASSideBeamline::setupComponents()
 	xiaFilters_ = new BioXASSideXIAFilters(this);
 	connect( xiaFilters_, SIGNAL(connectedChanged(bool)), this, SLOT(onConnectionChanged()) );
 
-	jjSlit_ = new CLSJJSlit("Side BL JJ Slit", "JJSlit of the side beamline", "SMTR1607-6-I22-10", "SMTR1607-6-I22-09", "SMTR1607-6-I22-11", "SMTR1607-6-I22-12", 0.01, 10, 11.0, this);
-	connect(jjSlit_, SIGNAL(connected(bool)), this, SLOT(onConnectionChanged()));
+	jjSlits_ = new CLSJJSlits("JJSlits", "SMTR1607-6-I22-10", "SMTR1607-6-I22-09", "SMTR1607-6-I22-11", "SMTR1607-6-I22-12", this);
+	connect( jjSlits_, SIGNAL(connectedChanged(bool)), this, SLOT(onConnectionChanged()) );
 
 	m2Mirror_ = new BioXASSideM2Mirror(this);
 	connect( m2Mirror_, SIGNAL(connected(bool)), this, SLOT(onConnectionChanged()) );
@@ -798,7 +798,7 @@ void BioXASSideBeamline::setupComponents()
 }
 
 void BioXASSideBeamline::setupControlsAsDetectors()
-{
+{	
 	energySetpointDetector_ = new AMBasicControlDetectorEmulator("EnergySetpoint", "EnergySetpoint", new AMReadOnlyPVControl("EnergySetpoint", "BL1607-5-I22:Energy:EV", this), 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
 	energySetpointDetector_->setHiddenFromUsers(false);
 	energySetpointDetector_->setIsVisible(true);
@@ -861,13 +861,8 @@ void BioXASSideBeamline::setupExposedControls()
 
 	// JJ slit controls.
 
-//	addExposedControl(jjSlit_->verticalBladesControl()->gapPVControl());
-//	addExposedControl(jjSlit_->verticalBladesControl()->centerPVControl());
-//	addExposedControl(jjSlit_->horizontalBladesControl()->gapPVControl());
-//	addExposedControl(jjSlit_->horizontalBladesControl()->centerPVControl());
-
-	addExposedControl(jjSlit_->verticalCenterControl());
-	addExposedControl(jjSlit_->verticalGapControl());
+	addExposedControl(jjSlits_->verticalCenterControl());
+	addExposedControl(jjSlits_->verticalGapControl());
 //	addExposedControl(jjSlit_->horizontalCenterControl());
 //	addExposedControl(jjSlit_->horizontalGapControl());
 

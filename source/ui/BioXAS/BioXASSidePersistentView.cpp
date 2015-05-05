@@ -45,7 +45,8 @@ BioXASSidePersistentView::BioXASSidePersistentView(QWidget *parent) :
 
 	// Test editors.
 
-	AMExtendedControlEditor *gapEditor = new AMExtendedControlEditor(BioXASSideBeamline::bioXAS()->jjSlit()->verticalGapControl());
+	AMExtendedControlEditor *gapEditor = new AMExtendedControlEditor(BioXASSideBeamline::bioXAS()->jjSlits()->verticalGapControl());
+	AMExtendedControlEditor *centerEditor = new AMExtendedControlEditor(BioXASSideBeamline::bioXAS()->jjSlits()->verticalCenterControl());
 
 	// Scaler channel views.
 
@@ -65,6 +66,7 @@ BioXASSidePersistentView::BioXASSidePersistentView(QWidget *parent) :
 	layout->addWidget(regionControlEditor_);
 	layout->addWidget(braggControlEditor_);
 	layout->addWidget(gapEditor);
+	layout->addWidget(centerEditor);
 	layout->addWidget(channelViews_);
 	layout->addStretch();
 

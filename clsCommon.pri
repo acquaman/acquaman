@@ -45,7 +45,8 @@ HEADERS *=\
 	source/ui/CLS/CLSCrossHairGeneratorControlView.h \
 	source/ui/CLS/CLSJJSlitView.h \
     source/beamline/CLS/CLSJJSlitGapControl.h \
-    source/beamline/CLS/CLSJJSlitCenterControl.h
+    source/beamline/CLS/CLSJJSlitCenterControl.h \
+    source/beamline/CLS/CLSJJSlitsBladesControl.h
 
 SOURCES *= \
 	source/actions3/actions/CLSSIS3820ScalerDarkCurrentMeasurementAction.cpp \
@@ -87,7 +88,10 @@ SOURCES *= \
 	source/ui/CLS/CLSCrossHairGeneratorControlView.cpp \
 	source/ui/CLS/CLSJJSlitView.cpp \
     source/beamline/CLS/CLSJJSlitGapControl.cpp \
-    source/beamline/CLS/CLSJJSlitCenterControl.cpp
+    source/beamline/CLS/CLSJJSlitCenterControl.cpp \
+    source/beamline/CLS/CLSJJSlitsBladesControl.cpp
+
+
 
 
 

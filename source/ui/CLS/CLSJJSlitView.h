@@ -5,7 +5,7 @@
 #include <QDoubleSpinBox>
 #include <QLabel>
 
-class CLSJJSlit;
+class CLSJJSlits;
 class AMExtendedControlEditor;
 
 class CLSJJSlitView : public QWidget
@@ -13,36 +13,32 @@ class CLSJJSlitView : public QWidget
     Q_OBJECT
 public:
 	/// Constructor
-	explicit CLSJJSlitView(CLSJJSlit *clsJJSlit, QWidget *parent = 0);
+	explicit CLSJJSlitView(CLSJJSlits *jjSlit, QWidget *parent = 0);
 	/// Destructor.
 	virtual ~CLSJJSlitView();
+	/// Returns the JJ slits being viewed.
+	CLSJJSlits* jjSlits() const { return jjSlits_; }
 
-protected slots:
-	/// handle the signal of CLSJJSlit connected, prefill the values to the spinbox
-	void onJJSlitConnected();
+signals:
+	/// Notifier that the JJ slits being viewed have changed.
+	void jjSlitsChanged(CLSJJSlits *newSlits);
+
+public slots:
+	/// Sets the JJ slits being viewed.
+	void setJJSlits(CLSJJSlits *newSlits);
 
 protected:
-	/// the instance of CLSJJSlit
-	CLSJJSlit * clsJJSlit_;
+	/// The JJ slits being viewed.
+	CLSJJSlits *jjSlits_;
 
+	/// The gap editor for the vertical blades.
 	AMExtendedControlEditor *verticalGapEditor_;
+	/// The center editor for the vertical blades.
 	AMExtendedControlEditor *verticalCenterEditor_;
+	/// The gap editor for the horizontal blades.
 	AMExtendedControlEditor *horizontalGapEditor_;
+	/// The center editor for the horizontal blades.
 	AMExtendedControlEditor *horizontalCenterEditor_;
-
-//	/// the spinbox for vertical Gap
-//	QDoubleSpinBox * verticalGapSpinBox_;
-//	/// the spinbox for vertical Center
-//	QDoubleSpinBox * verticalCenterSpinBox_;
-//	/// the spinbox for vertical Status
-//	QLabel * verticalStatusLabel_;
-
-//	/// the spinbox for horizontal Gap
-//	QDoubleSpinBox * horizontalGapSpinBox_;
-//	/// the spinbox for horizontal Center
-//	QDoubleSpinBox * horizontalCenterSpinBox_;
-	/// the spinbox for horizontal Status
-//	QLabel * horizontalStatusLabel_;
 };
 
 #endif // CLSJJSLITVIEW_H

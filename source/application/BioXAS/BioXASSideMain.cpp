@@ -21,13 +21,13 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QApplication>
 #include <QFile>
+#include <QTextStream>
 
 #include "application/BioXAS/BioXASSideAppController.h"
 #include "application/AMCrashMonitorSupport.h"
 
 int main(int argc, char *argv[])
 {
-
 	/// Program Startup:
 	// =================================
 	QApplication app(argc, argv);
