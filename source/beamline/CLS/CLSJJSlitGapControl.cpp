@@ -24,6 +24,8 @@ CLSJJSlitGapControl::~CLSJJSlitGapControl()
 
 void CLSJJSlitGapControl::updateValue()
 {
+	qDebug() << "GapControl::updateValue()";
+
 	if (isConnected()) {
 		setValue( calculateGap(upperBladeControl_->value(), lowerBladeControl_->value()) );
 	}

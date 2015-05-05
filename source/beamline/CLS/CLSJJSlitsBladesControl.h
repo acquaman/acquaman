@@ -96,10 +96,11 @@ protected slots:
 
 	/// Handles updating the control's states: connected, value, gap, center position.
 	void updateControlStates();
+
 	/// Handles updating the control's connected state, called when a child control's connected state changes.
 	void updateConnected();
 	/// Handles updating the control's value, called when a child control's value changes. Subclasses must implement this.
-	virtual void updateValue() = 0;
+	virtual void updateValue() { return; }
 	/// Handles updating the saved gap value, according to the current motor control values.
 	void updateGap();
 	/// Handles updating the saved center position value, according to the current motor control values.

@@ -114,7 +114,7 @@ AMControl::FailureExplanation CLSJJSlitsBladesControl::move(double setpoint)
 
 bool CLSJJSlitsBladesControl::stop()
 {
-	bool result;
+	bool result = false;
 
 	if (!canStop()) {
 		AMErrorMon::error(this, CLSJJSLITSCONTROL_CANNOT_STOP, "JJ slits cannot stop.");
@@ -145,15 +145,13 @@ void CLSJJSlitsBladesControl::setUpperBladeControl(AMControl *newControl)
 		if (upperBladeControl_) {
 			addChildControl(upperBladeControl_);
 
-			connect( upperBladeControl_, SIGNAL(valueChanged(double)), this, SLOT(updateValue()) );
-			connect( upperBladeControl_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+			connect( upperBladeControl_, SIGNAL(valueChanged(double)), this, SLOT(updateControlStates()) );
+			connect( upperBladeControl_, SIGNAL(connected(bool)), this, SLOT(updateControlStates()) );
 			connect( upperBladeControl_, SIGNAL(alarmChanged(int,int)), this, SIGNAL(alarmChanged(int,int)) );
 			connect( upperBladeControl_, SIGNAL(error(int)), this, SIGNAL(error(int)) );
 		}
 
-		updateConnected();
-		updateGap();
-		updateCenterPosition();
+		updateControlStates();
 
 		emit upperBladeControlChanged(upperBladeControl_);
 	}
@@ -179,9 +177,7 @@ void CLSJJSlitsBladesControl::setLowerBladeControl(AMControl *newControl)
 			connect( lowerBladeControl_, SIGNAL(error(int)), this, SIGNAL(error(int)) );
 		}
 
-		updateConnected();
-		updateGap();
-		updateCenterPosition();
+		updateControlStates();
 
 		emit lowerBladeControlChanged(lowerBladeControl_);
 	}
@@ -221,7 +217,7 @@ void CLSJJSlitsBladesControl::setMoveInProgress(bool isMoving)
 
 void CLSJJSlitsBladesControl::setGap(double newValue)
 {
-	if (fabs(gap_ - newValue) > tolerance()) {
+	if (gap_ != newValue) {
 		gap_ = newValue;
 		emit gapChanged(gap_);
 	}
@@ -229,7 +225,7 @@ void CLSJJSlitsBladesControl::setGap(double newValue)
 
 void CLSJJSlitsBladesControl::setCenterPosition(double newValue)
 {
-	if (fabs(centerPosition_ - newValue) > tolerance()) {
+	if (centerPosition_ != newValue) {
 		centerPosition_ = newValue;
 		emit centerPositionChanged(centerPosition_);
 	}
@@ -250,8 +246,18 @@ void CLSJJSlitsBladesControl::updateConnected()
 
 	bool connected = (upperControlOK && lowerControlOK);
 
+	if (connected)
+		qDebug() << name() << "connected.";
+	else
+		qDebug() << name() << "NOT connected.";
+
 	setConnected(connected);
 }
+
+//void CLSJJSlitsBladesControl::updateValue()
+//{
+//	qDebug() << "BladesControl::updateValue()";
+//}
 
 void CLSJJSlitsBladesControl::updateGap()
 {

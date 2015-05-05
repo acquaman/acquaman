@@ -30,13 +30,13 @@ public:
 	bool isConnected() const { return connected_; }
 
 	/// Returns the upper blade motor control.
-	CLSMAXvMotor* upperBladeControl() const { return upperBlade_; }
+	AMControl* upperBladeControl() const { return upperBlade_; }
 	/// Returns the lower blade motor control.
-	CLSMAXvMotor* lowerBladeControl() const { return lowerBlade_; }
+	AMControl* lowerBladeControl() const { return lowerBlade_; }
 	/// Returns the inboard blade motor control.
-	CLSMAXvMotor* inboardBladeControl() const { return inboardBlade_; }
+	AMControl* inboardBladeControl() const { return inboardBlade_; }
 	/// Returns the outboard blade motor control.
-	CLSMAXvMotor* outboardBladeControl() const { return outboardBlade_; }
+	AMControl* outboardBladeControl() const { return outboardBlade_; }
 
 	/// Returns the vertical blades gap control.
 	CLSJJSlitGapControl* verticalGapControl() const { return verticalGap_; }
@@ -65,13 +65,13 @@ protected:
 	bool connected_;
 
 	/// Upper blade motor control.
-	CLSMAXvMotor *upperBlade_;
+	AMPVwStatusControl *upperBlade_;
 	/// Lower blade motor control.
-	CLSMAXvMotor *lowerBlade_;
+	AMPVwStatusControl *lowerBlade_;
 	/// Inboard blade motor control.
-	CLSMAXvMotor *inboardBlade_;
+	AMPVwStatusControl *inboardBlade_;
 	/// Outboard blade motor control.
-	CLSMAXvMotor *outboardBlade_;
+	AMPVwStatusControl *outboardBlade_;
 
 	/// Vertical blades gap control.
 	CLSJJSlitGapControl *verticalGap_;

@@ -8,14 +8,14 @@
 class CLSJJSlits;
 class AMExtendedControlEditor;
 
-class CLSJJSlitView : public QWidget
+class CLSJJSlitsView : public QWidget
 {
     Q_OBJECT
 public:
 	/// Constructor
-	explicit CLSJJSlitView(CLSJJSlits *jjSlit, QWidget *parent = 0);
+	explicit CLSJJSlitsView(CLSJJSlits *jjSlit, QWidget *parent = 0);
 	/// Destructor.
-	virtual ~CLSJJSlitView();
+	virtual ~CLSJJSlitsView();
 	/// Returns the JJ slits being viewed.
 	CLSJJSlits* jjSlits() const { return jjSlits_; }
 

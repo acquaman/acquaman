@@ -863,8 +863,8 @@ void BioXASSideBeamline::setupExposedControls()
 
 	addExposedControl(jjSlits_->verticalCenterControl());
 	addExposedControl(jjSlits_->verticalGapControl());
-//	addExposedControl(jjSlit_->horizontalCenterControl());
-//	addExposedControl(jjSlit_->horizontalGapControl());
+	addExposedControl(jjSlits_->horizontalCenterControl());
+	addExposedControl(jjSlits_->horizontalGapControl());
 
 	// Carbon filter farm control.
 

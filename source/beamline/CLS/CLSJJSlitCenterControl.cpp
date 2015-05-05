@@ -25,6 +25,8 @@ CLSJJSlitCenterControl::~CLSJJSlitCenterControl()
 
 void CLSJJSlitCenterControl::updateValue()
 {
+	qDebug() << "CenterControl::updateValue()";
+
 	if (isConnected()) {
 		setValue( calculateCenterPosition(upperBladeControl_->value(), lowerBladeControl_->value()) );
 	}

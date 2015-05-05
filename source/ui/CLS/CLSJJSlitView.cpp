@@ -9,7 +9,7 @@
 #include "beamline/BioXAS/BioXASSideBeamline.h"
 #include "ui/beamline/AMExtendedControlEditor.h"
 
-CLSJJSlitView::CLSJJSlitView(CLSJJSlits *jjSlits, QWidget *parent) :
+CLSJJSlitsView::CLSJJSlitsView(CLSJJSlits *jjSlits, QWidget *parent) :
     QWidget(parent)
 {
 	// Initialize member variables.
@@ -37,15 +37,15 @@ CLSJJSlitView::CLSJJSlitView(CLSJJSlits *jjSlits, QWidget *parent) :
 	// Create and set layouts.
 
 	QGridLayout *contentGridLayout = new QGridLayout;
-	contentGridLayout->addWidget(new QLabel("Direction"),  0, 0, 1, 1);
-	contentGridLayout->addWidget(new QLabel("Gap"),        0, 1, 1, 1);
-	contentGridLayout->addWidget(new QLabel("Center"),     0, 2, 1, 1);
+	contentGridLayout->addWidget(new QLabel("Direction"),  0, 0, 1, 1, Qt::AlignRight);
+	contentGridLayout->addWidget(new QLabel("Gap"),        0, 1, 1, 1, Qt::AlignCenter);
+	contentGridLayout->addWidget(new QLabel("Center"),     0, 2, 1, 1, Qt::AlignCenter);
 
-	contentGridLayout->addWidget(new QLabel("Vertical"),   1, 0, 1, 1);
+	contentGridLayout->addWidget(new QLabel("Vertical"),   1, 0, 1, 1, Qt::AlignRight);
 	contentGridLayout->addWidget(verticalGapEditor_,       1, 1, 1, 1);
 	contentGridLayout->addWidget(verticalCenterEditor_,    1, 2, 1, 1);
 
-	contentGridLayout->addWidget(new QLabel("Horizontal"), 2, 0, 1, 1);
+	contentGridLayout->addWidget(new QLabel("Horizontal"), 2, 0, 1, 1, Qt::AlignRight);
 	contentGridLayout->addWidget(horizontalGapEditor_,     2, 1, 1, 1);
 	contentGridLayout->addWidget(horizontalCenterEditor_,  2, 2, 1, 1);
 
@@ -56,11 +56,11 @@ CLSJJSlitView::CLSJJSlitView(CLSJJSlits *jjSlits, QWidget *parent) :
 	setJJSlits(jjSlits);
 }
 
-CLSJJSlitView::~CLSJJSlitView()
+CLSJJSlitsView::~CLSJJSlitsView()
 {
 }
 
-void CLSJJSlitView::setJJSlits(CLSJJSlits *newSlits)
+void CLSJJSlitsView::setJJSlits(CLSJJSlits *newSlits)
 {
 	if (jjSlits_ != newSlits) {
 
@@ -75,9 +75,16 @@ void CLSJJSlitView::setJJSlits(CLSJJSlits *newSlits)
 
 		if (jjSlits_) {
 			verticalGapEditor_->setControl(jjSlits_->verticalGapControl());
+			verticalGapEditor_->setTitle("");
+
 			verticalCenterEditor_->setControl(jjSlits_->verticalCenterControl());
+			verticalCenterEditor_->setTitle("");
+
 			horizontalGapEditor_->setControl(jjSlits_->horizontalGapControl());
+			horizontalGapEditor_->setTitle("");
+
 			horizontalCenterEditor_->setControl(jjSlits_->horizontalCenterControl());
+			horizontalCenterEditor_->setTitle("");
 		}
 
 		emit jjSlitsChanged(jjSlits_);
