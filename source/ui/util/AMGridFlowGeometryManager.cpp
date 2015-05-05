@@ -101,16 +101,16 @@ int AMGridFlowGeometryManager::indexAt(const QPoint &point, int horizontalOffset
 		return -1;
 
 	// Calculate the index of the cell under the point
-	int cellColumnIndex = (point.x() - marginLeft_) / cellWidth_;
-	int cellRowIndex = (point.y() - marginTop_) / cellHeight_;
+	int cellColumnIndex = (point.x() + horizontalOffset - marginLeft_) / cellWidth_;
+	int cellRowIndex = (point.y() + verticalOffset - marginTop_) / cellHeight_;
 
 	int cellIndex = (cellRowIndex * cellsPerRow() + cellColumnIndex);
 
 	// Get the rectangle of the item in the cell at the located index
-	QRect itemRectangle = contentGeometryAt(cellIndex, horizontalOffset, verticalOffset);
+	QRect itemRectangle = contentGeometryAt(cellIndex);
 
 	// if the item rectangle contains our point, return the cellIndex
-	if(itemRectangle.contains(point))
+	if(itemRectangle.contains(QPoint(point.x() + horizontalOffset, point.y() + verticalOffset)))
 		return cellIndex;
 	else
 		// otherwise return -1
