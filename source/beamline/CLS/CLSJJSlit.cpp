@@ -19,7 +19,7 @@ CLSJJSlits::CLSJJSlits(const QString &name, const QString &upperBladePVName, con
 
 	upperBlade_ = new AMPVwStatusControl(name_+"UpperBlade", upperBladePVName+":mm:fbk", upperBladePVName+":mm", upperBladePVName+":status", upperBladePVName+":stop", this, 0.005);
 	lowerBlade_ = new AMPVwStatusControl(name_+"LowerBlade", lowerBladePVName+":mm:fbk", lowerBladePVName+":mm", lowerBladePVName+":status", lowerBladePVName+":stop", this, 0.005);
-	inboardBlade_ = new AMPVwStatusControl(name_+"InboardBlade", inboardBladePVName+":mm:fbk", inboardBladePVName+":mm", inboardBladePVName+":status", inboardBladePVName+":stop", this, 0.005);
+	inboardBlade_ = new AMPVwStatusControl(name_+"InboardBlade", inboardBladePVName+":mm", inboardBladePVName+":mm", inboardBladePVName+":status", inboardBladePVName+":stop", this, 0.005);
 	outboardBlade_ = new AMPVwStatusControl(name_+"OutboardBlade", outboardBladePVName+":mm:fbk", outboardBladePVName+":mm", outboardBladePVName+":status", outboardBladePVName+":stop", this, 0.005);
 
 
