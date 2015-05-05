@@ -13,10 +13,13 @@
 #define TRAVEL_TOLERANCE 50
 // The time between two clicks before they are considered separate, and not
 // part of the same double click.
-#define DOUBLE_CLICK_INTERVAL_MS 1000
+#define DOUBLE_CLICK_INTERVAL_MS 450
 // The time that a mouse is over a given item index before it is considered to
 // be hovering.
-#define HOVER_INTERVAL_MS 10000
+#define HOVER_INTERVAL_MS 500
+// The distance which the mouse has to move between signals are emitted to inform
+// listeners that the mouse has been moved while hovering over a given itemIndex
+#define HOVER_TRAVEL_UPDATE_DISTANCE 20
 
 
 
@@ -105,9 +108,9 @@ signals:
 	/// provided selection flag modifiers
 	void selectionRectangleEnded(QItemSelectionModel::SelectionFlags command);
 
-	/// Indicates that the mouse has moved over a the provided index by the provided
-	/// deltas while a hover interaction is taking place
-	void hoverMove(int itemIndex, int deltaX, int deltaY);
+	/// Indicates that the mouse has moved over the provided index by the provided
+	/// delta horizontally while a hover interaction is taking place
+	void hoverMove(int itemIndex, int deltaX);
 
 public slots:
 
@@ -148,6 +151,9 @@ private:
 	/// The index of the item which was under the mouse last time the mouse moved
 	int lastMouseOverItemIndex_;
 	
+	/// The X position of the cursor the last time a hover position update was emitted
+	int lastHoverUpdatePositionX_;
+
 	/// Timer used to distinguish between a single and double click
 	QTimer doubleClickTimer_;
 

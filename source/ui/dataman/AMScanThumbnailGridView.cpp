@@ -14,6 +14,7 @@ AMScanThumbnailGridView::AMScanThumbnailGridView(QWidget *parent) :
 	connect(inputManager_, SIGNAL(dragBegun(int)), this, SLOT(onDragBegun(int)));
 	connect(inputManager_, SIGNAL(selectionRectangleChanged(QRect)), this, SLOT(onSelectionRectangleChanged(QRect)));
 	connect(inputManager_, SIGNAL(selectionRectangleEnded(QItemSelectionModel::SelectionFlags)), this, SLOT(onSelectionRectangleEnded(QRect,QItemSelectionModel::SelectionFlags)));
+	connect(inputManager_, SIGNAL(hoverMove(int,int)), this, SLOT(onHoverMove(int,int)));
 
 	// Have to set mouse tracking in order to receive events when no mouse button is held
 	setMouseTracking(true);
@@ -120,6 +121,11 @@ void AMScanThumbnailGridView::onSelectionRectangleChanged(const QRect &selection
 void AMScanThumbnailGridView::onSelectionRectangleEnded(const QRect &selectionRectangle, QItemSelectionModel::SelectionFlags flags)
 {
 	qDebug() << QString("Selection rectangle x:%1, y:%2, width:%3, height:%4 ended").arg(selectionRectangle.x()).arg(selectionRectangle.y()).arg(selectionRectangle.width()).arg(selectionRectangle.height());
+}
+
+void AMScanThumbnailGridView::onHoverMove(int itemIndex, int deltaX)
+{
+	qDebug() << QString("Hover moved over index %1 by %2 pixels horizontally").arg(itemIndex).arg(deltaX);
 }
 
 int AMScanThumbnailGridView::horizontalOffset() const {
@@ -231,10 +237,8 @@ void AMScanThumbnailGridView::mousePressEvent(QMouseEvent *event) {
 }
 
 void AMScanThumbnailGridView::mouseMoveEvent(QMouseEvent *event) {
-	qDebug() << "Mouse Move event";
-		inputManager_->mouseMovedTo(geometryManager_->indexAt(event->pos(), horizontalOffset(), verticalOffset()),
-									event->pos().x(), event->pos().y(), event->buttons());
-
+	inputManager_->mouseMovedTo(geometryManager_->indexAt(event->pos(), horizontalOffset(), verticalOffset()),
+								event->pos().x(), event->pos().y(), event->buttons());
 }
 
 
@@ -260,4 +264,5 @@ void AMScanThumbnailGridView::updateScrollBars() {
 	verticalScrollBar()->setSingleStep(15);
 	verticalScrollBar()->setPageStep(geometryManager_->cellHeight());
 }
+
 
