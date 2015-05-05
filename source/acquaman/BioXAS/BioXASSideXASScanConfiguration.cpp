@@ -31,8 +31,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 BioXASSideXASScanConfiguration::BioXASSideXASScanConfiguration(QObject *parent) :
 	AMStepScanConfiguration(parent), BioXASScanConfiguration()
 {
-	setName("Unnamed Scan");
-	setUserScanName("Unnamed Scan");
+	setName("XAS Scan");
+	setUserScanName("XAS Scan");
 
 	AMScanAxisEXAFSRegion *region = new AMScanAxisEXAFSRegion;
 	AMScanAxis *axis = new AMScanAxis(AMScanAxis::StepAxis, region);
@@ -96,9 +96,19 @@ AMScanConfigurationView* BioXASSideXASScanConfiguration::createView()
 	return new BioXASSideXASScanConfigurationView(this);
 }
 
+QString BioXASSideXASScanConfiguration::technique() const
+{
+	return "XAS Scan";
+}
+
+QString BioXASSideXASScanConfiguration::description() const
+{
+	return "XAS Scan";
+}
+
 QString BioXASSideXASScanConfiguration::detailedDescription() const
 {
-	return "BioXAS XAS Scan";
+	return "XAS Scan";
 }
 
 QString BioXASSideXASScanConfiguration::headerText() const
