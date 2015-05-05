@@ -135,7 +135,11 @@ protected slots:
 	/// Updates the read-only status of the editor, according to the current control.
 	void updateReadOnlyStatus();
 
+	/// Updates the editor when the control connected state changes.
+	void onConnectedChanged();
+	/// Updates the editor when the control value changes.
 	void onValueChanged(double newVal);
+	/// Updates the editor when the control units change.
 	void onUnitsChanged(const QString& units);
 	void onMotion(bool moving);
 

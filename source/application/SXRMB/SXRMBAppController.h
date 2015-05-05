@@ -28,6 +28,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 class QGroupBox;
 
 class AMScanConfigurationViewHolder3;
+class AMMotorGroupView;
 class SXRMBPersistentView;
 class SXRMBEXAFSScanConfiguration;
 class SXRMBEXAFSScanConfigurationView;
@@ -156,6 +157,9 @@ protected:
 
 	/// The view for SXRMB's scaler
 	CLSSIS3820ScalerView *scalerView_;
+
+	/// The Motor group view for Ambiant Sample stage endstation
+	AMMotorGroupView *ambiantSampleStageMotorGroupView;
 
 	/// Pointer to the list action that is used to move the sample stage.
 	AMListAction3 *moveImmediatelyAction_;
