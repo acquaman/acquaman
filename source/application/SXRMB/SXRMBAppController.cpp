@@ -490,11 +490,15 @@ void SXRMBAppController::onShowAmbiantSampleStageMotorsTriggered()
 {
 	QString motorGroupName = SXRMBBeamline::sxrmb()->ambiantWithoutGasChamberSampleStageMotorGroupObject()->name();
 
-	AMMotorGroupView *motorGroupView = new AMMotorGroupView(SXRMBBeamline::sxrmb()->motorGroup(), AMMotorGroupView::Exclusive);
-	motorGroupView->setMotorGroupView(motorGroupName);
-	motorGroupView->showAvailableMotorGroupChoices(false);
+	if (!ambiantSampleStageMotorGroupView) {
+		ambiantSampleStageMotorGroupView = new AMMotorGroupView(SXRMBBeamline::sxrmb()->motorGroup(), AMMotorGroupView::Exclusive);
+		ambiantSampleStageMotorGroupView->setMotorGroupView(motorGroupName);
+		ambiantSampleStageMotorGroupView->showAvailableMotorGroupChoices(false);
+	}
 
-	motorGroupView->show();
+	ambiantSampleStageMotorGroupView->raise();
+	ambiantSampleStageMotorGroupView->activateWindow();
+	ambiantSampleStageMotorGroupView->showNormal();
 }
 
 void SXRMBAppController::onSwitchBeamlineEndstationTriggered()
