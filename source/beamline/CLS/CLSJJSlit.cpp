@@ -12,11 +12,6 @@ CLSJJSlits::CLSJJSlits(const QString &name, const QString &upperBladePVName, con
 	name_ = name;
 	connected_ = false;
 
-//	upperBlade_ = new CLSMAXvMotor(name_+"UpperBlade", upperBladePVName, name_+" UpperBlade", true, 0.005, 10.0, this, "mm");
-//	lowerBlade_ = new CLSMAXvMotor(name_+"LowerBlade", lowerBladePVName, name_+" LowerBlade", true, 0.005, 10.0, this, "mm");
-//	inboardBlade_ = new CLSMAXvMotor(name_+"InboardBlade", inboardBladePVName, name_+" InboardBlade", true, 0.005, 10.0, this, "mm");
-//	outboardBlade_ = new CLSMAXvMotor(name_+"OutboardBlade", outboardBladePVName, name_+" OutboardBlade", true, 0.005, 10.0, this, "mm");
-
 	upperBlade_ = new AMPVwStatusControl(name_+"UpperBlade", upperBladePVName+":mm:fbk", upperBladePVName+":mm", upperBladePVName+":status", upperBladePVName+":stop", this, 0.005);
 	lowerBlade_ = new AMPVwStatusControl(name_+"LowerBlade", lowerBladePVName+":mm:fbk", lowerBladePVName+":mm", lowerBladePVName+":status", lowerBladePVName+":stop", this, 0.005);
 	inboardBlade_ = new AMPVwStatusControl(name_+"InboardBlade", inboardBladePVName+":mm", inboardBladePVName+":mm", inboardBladePVName+":status", inboardBladePVName+":stop", this, 0.005);

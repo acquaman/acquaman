@@ -7,20 +7,13 @@ class CLSMAXvMotor;
 class CLSJJSlitGapControl;
 class CLSJJSlitCenterControl;
 
-/// The class definition of CLSJJSlit, which contains a vertical CLSJJSlitBladesControl and a horizontal CLSJJSlitBladesControl
+/// The class definition of CLSJJSlit, which contains a vertical CLSJJSlitsBladesControl and a horizontal CLSJJSlitsBladesControl
 class CLSJJSlits : public QObject
 {
 	Q_OBJECT
 
 public:
 	/// Constructor
-	/*!
-	  \param name A unique description of this motor
-	  \param verticalBladesPVBaseName The base of the PV name of the vertical blades (if the motor status was "SMTR16114I1022:status" then the base is "SMTR16114I1022")
-	  \param horizontalBladesPVBaseName The base of the PV name o the horizontal blades (if the motor status was "SMTR16114I1022:status" then the base is "SMTR16114I1022")
-	  \param description A human readable description for this JJ slit
-	  \param parent QObject parent class
-	  */
 	explicit CLSJJSlits(const QString &name, const QString &upperBladePVName, const QString &lowerBladePVName, const QString &inboardBladePVName, const QString &outboardBladePVName, QObject*parent = 0);
 	/// Destructor
 	virtual ~CLSJJSlits();
