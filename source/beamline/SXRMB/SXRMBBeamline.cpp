@@ -323,7 +323,7 @@ AMMotorGroupObject *SXRMBBeamline::solidStateSampleStageMotorGroupObject() const
 
 AMMotorGroupObject *SXRMBBeamline::ambiantWithGasChamberSampleStageMotorGroupObject() const
 {
-	return motorGroup_->motorGroupObject("Ambiant With Gas Chamber - Z, R");
+	return motorGroup_->motorGroupObject("Ambiant With Gas Chamber - X, Z, R");
 }
 
 AMMotorGroupObject *SXRMBBeamline::ambiantWithoutGasChamberSampleStageMotorGroupObject() const
@@ -717,12 +717,12 @@ void SXRMBBeamline::setupMotorGroup()
 	motorGroup_->addMotorGroupObject(motorObject->name(), motorObject);
 
 	// Ambiant with gas chamber motor group
-	motorObject = new AMMotorGroupObject("Ambiant With Gas Chamber - Z, R",
-										   QStringList() << "Z" << "R",
-										   QStringList() << "mm" << "deg",
-										   QList<AMControl *>() << ambiantSampleHolderZ_ << ambiantSampleHolderR_ ,
-										   QList<AMMotorGroupObject::Orientation>() << AMMotorGroupObject::Vertical << AMMotorGroupObject::Horizontal,
-										   QList<AMMotorGroupObject::MotionType>() << AMMotorGroupObject::Translational << AMMotorGroupObject::Rotational,
+	motorObject = new AMMotorGroupObject("Ambiant With Gas Chamber - X, Z, R",
+										   QStringList() << "X" << "Z" << "R",
+										   QStringList() << "mm" << "mm" << "deg",
+										   QList<AMControl *>() << ambiantSampleStageX_ << ambiantSampleHolderZ_ << ambiantSampleHolderR_ ,
+										   QList<AMMotorGroupObject::Orientation>() << AMMotorGroupObject::Horizontal << AMMotorGroupObject::Vertical << AMMotorGroupObject::Normal,
+										   QList<AMMotorGroupObject::MotionType>() << AMMotorGroupObject::Translational << AMMotorGroupObject::Translational << AMMotorGroupObject::Rotational,
 										   this);
 	motorGroup_->addMotorGroupObject(motorObject->name(), motorObject);
 
