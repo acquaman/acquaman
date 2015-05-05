@@ -61,6 +61,7 @@ AMActionRunnerAddActionBar3::AMActionRunnerAddActionBar3(const QString& actionCa
 	optionsHL->addWidget(goToWorkflowOption_);
 	optionsHL->addWidget(setupAnotherActionOption_);
 	optionsHL->addStretch();
+	optionsHL->addWidget(new QLabel("Scan iterations:"));
 	optionsHL->addWidget(iterationsBox_);
 	optionsHL->addWidget(addToQueueButton_);
 	optionsHL->addWidget(startActionButton_);
