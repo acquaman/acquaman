@@ -51,7 +51,7 @@ public:
 
 	/// whether we need to insert tasks to the beginning of the queue
 	static bool insertTaskToBeginning(const QueueOperation operation) {
-		return operation == RunAtOnce || operation == AddToBeginningAndStart;
+		return operation == RunAtOnce || operation == RunOnlyThisOne || operation == AddToBeginningAndStart;
 	}
 
 	/// whether we need to start the queue
