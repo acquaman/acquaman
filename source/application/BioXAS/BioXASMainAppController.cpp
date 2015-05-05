@@ -154,26 +154,6 @@ void BioXASMainAppController::onScalerConnected()
 	}
 }
 
-void BioXASMainAppController::onBeamlineConnected()
-{
-	if (BioXASMainBeamline::bioXAS()->isConnected() && !configurationView_) {
-
-		configuration_ = new BioXASMainXASScanConfiguration();
-		configuration_->setEnergy(10000);
-
-		configurationView_ = new BioXASMainXASScanConfigurationView(configuration_);
-		configurationViewHolder_ = new AMScanConfigurationViewHolder3(configurationView_);
-
-		mw_->addPane(configurationViewHolder_, "Scans", "XAS Scan", ":/utilities-system-monitor.png");
-
-		commissioningConfiguration_ = new AMGenericStepScanConfiguration;
-		commissioningConfigurationView_ = new AMGenericStepScanConfigurationView(commissioningConfiguration_);
-		commissioningConfigurationViewHolder_ = new AMScanConfigurationViewHolder3(commissioningConfigurationView_);
-
-		mw_->addPane(commissioningConfigurationViewHolder_, "Scans", "Commissioning Tool", ":/utilities-system-monitor.png");
-	}
-}
-
 void BioXASMainAppController::registerClasses()
 {
 	AMDbObjectSupport::s()->registerClass<CLSSIS3820ScalerDarkCurrentMeasurementActionInfo>();
@@ -267,18 +247,32 @@ void BioXASMainAppController::setupUserInterface()
 	persistentPanel_ = new BioXASMainPersistentView();
 	persistentPanel_->setFixedWidth(320);
 	mw_->addRightWidget(persistentPanel_);
+
+	// Add scan views.
+
+	configuration_ = new BioXASMainXASScanConfiguration();
+	configuration_->setEnergy(10000);
+
+	configurationView_ = new BioXASMainXASScanConfigurationView(configuration_);
+	configurationViewHolder_ = new AMScanConfigurationViewHolder3(configurationView_);
+
+	mw_->addPane(configurationViewHolder_, "Scans", "XAS Scan", ":/utilities-system-monitor.png");
+
+	commissioningConfiguration_ = new AMGenericStepScanConfiguration;
+	commissioningConfigurationView_ = new AMGenericStepScanConfigurationView(commissioningConfiguration_);
+	commissioningConfigurationViewHolder_ = new AMScanConfigurationViewHolder3(commissioningConfigurationView_);
+
+	mw_->addPane(commissioningConfigurationViewHolder_, "Scans", "Commissioning Tool", ":/utilities-system-monitor.png");
 }
 
 void BioXASMainAppController::makeConnections()
 {
 	connect( BioXASMainBeamline::bioXAS()->scaler(), SIGNAL(connectedChanged(bool)), this, SLOT(onScalerConnected()) );
-	connect( BioXASMainBeamline::bioXAS(), SIGNAL(connected(bool)), this, SLOT(onBeamlineConnected()) );
 }
 
 void BioXASMainAppController::applyCurrentSettings()
 {
 	onScalerConnected();
-	onBeamlineConnected();
 }
 
 void BioXASMainAppController::onCurrentScanActionStartedImplementation(AMScanAction *action)

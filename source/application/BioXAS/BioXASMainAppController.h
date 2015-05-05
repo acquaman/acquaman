@@ -52,8 +52,6 @@ public:
 protected slots:
     /// Handles adding scaler view pane to the main window when the scaler is connected.
     void onScalerConnected();
-    /// Handles adding the XAS scan configuration view pane to the main window when the beamline is connected.
-    void onBeamlineConnected();
 
 protected:
 	/// Implementation method that individual applications can flesh out if extra setup is required when a scan action is started.  This is not pure virtual because there is no requirement to do anything to scan actions.

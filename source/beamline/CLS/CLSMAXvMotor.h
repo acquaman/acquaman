@@ -194,8 +194,6 @@ public:
 	AMReadOnlyPVControl *maxRetriesControl() const { return maxRetries_; }
 	/// Returns the step setpoint PV control.
 	AMReadOnlyPVControl *stepSetpointControl() const { return stepSetpoint_; }
-	/// Returns the degree setpoint PV control.
-	AMReadOnlyPVControl *degreeSetpointControl() const { return degreeSetpoint_; }
 	/// Returns the power state PV control.
 	AMPVControl *powerStateControl() const { return powerState_; }
 	/// Returns the clockwise limit status PV control.
@@ -475,8 +473,6 @@ protected:
 
 	/// Read-only control for the step setpoint.
 	AMReadOnlyPVControl *stepSetpoint_;
-	/// Read-only control for the degree setpoint.
-	AMReadOnlyPVControl *degreeSetpoint_;
 
 	/// Read-write control for the (EGU) velocity setting
 	AMPVControl *EGUVelocity_;
