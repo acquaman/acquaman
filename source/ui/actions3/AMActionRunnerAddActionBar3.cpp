@@ -116,7 +116,7 @@ void AMActionRunnerAddActionBar3::onStartActionRequested(){
 		operation = ActionQueue::RunAtOnce;
 
 	} else if (result == runOnlyThisOne) { // there are other actions, but we only want to run this one.
-		operation = ActionQueue::RunAtOnce;
+		operation = ActionQueue::RunOnlyThisOne;
 
 	} else if (result == addToBeginningAndStart) {
 		operation = ActionQueue::AddToBeginningAndStart;
@@ -124,7 +124,7 @@ void AMActionRunnerAddActionBar3::onStartActionRequested(){
 	} else if (result == addToEndAndStart) {
 		operation = ActionQueue::AddToEndAndStart;
 
-	} if (result == addToEnd) {
+	} else if (result == addToEnd) {
 		operation = ActionQueue::AddToEnd;
 	}
 
@@ -163,24 +163,35 @@ void AMActionRunnerAddActionBar3::addWidget(QWidget *widget)
 
 void AMActionRunnerAddActionBar3::addActionToQueue(ActionQueue::QueueOperation operation)
 {
-	int insertIndex = ActionQueue::insertTaskToBeginning(operation) ? 0: -1;
-
-	AMAction3 * action = 0;
 	AMActionRunner3* workflow = AMActionRunner3::workflow();
+	AMAction3 * action = 0;
 
-	// add actions to queue
-	int iterationTimes = iterationsBox_->value();
-	for (int i = 0; i < iterationTimes; i++) {
+	if (operation == ActionQueue::RunOnlyThisOne) {
+		// we will ignore the iteration times for this case
 		action = createAction();
 		if (!action)
 			return;
 
-		workflow->insertActionInQueue(action, insertIndex);
-	}
+		workflow->runActionImmediatelyInQueue(action);
 
-	// start the queue
-	if (ActionQueue::startQueue(operation)) {
-		workflow->setQueuePaused(false);
+	} else {
+		// add actions to queue
+
+		int insertIndex = ActionQueue::insertTaskToBeginning(operation) ? 0: -1;
+		int iterationTimes = iterationsBox_->value();
+
+		for (int i = 0; i < iterationTimes; i++) {
+			action = createAction();
+			if (!action)
+				return;
+
+			workflow->insertActionInQueue(action, insertIndex);
+		}
+
+		// start the queue
+		if (ActionQueue::startQueue(operation)) {
+			workflow->setQueuePaused(false);
+		}
 	}
 
 	if(goToWorkflowOption_->isChecked())

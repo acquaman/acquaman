@@ -42,6 +42,7 @@ public:
 	/// Queue operations
 	enum QueueOperation {
 		RunAtOnce = 0,
+		RunOnlyThisOne,
 		AddToBeginningAndStart,
 		AddToEndAndStart,
 		AddToEnd,
