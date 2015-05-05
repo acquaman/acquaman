@@ -37,6 +37,9 @@ protected slots:
 	/// Handles watching for when the controls actually connect
 	void onAllControlsConnected(bool connected);
 
+	/// Handles chagnes of Endstation
+	void onEndstationValueChanged(double value);
+
 	/// Handles changes coming from the old energy control
 	void onOldEnergyValueChanged(double value);
 	/// Handles changes coming from the old energy feedback control
@@ -91,6 +94,9 @@ protected:
 
 
 protected:
+	/// New AddOns beamline endstation
+	AMControl *addOnsEndstation_;
+
 	/// Old SXRMB Energy control
 	AMControl *oldEnergy_;
 	/// New AddOns Energy control

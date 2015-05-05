@@ -29,6 +29,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QThread>
 #include <QApplication>
 
+#include "ui/util/AMMessageBoxWTimeout.h"
+
 AMErrorMon* AMErrorMon::instance_ = 0;
 QMutex AMErrorMon::instanceMutex_(QMutex::Recursive);
 
@@ -97,7 +99,10 @@ void AMErrorMon::unsubscribeI(QObject* notifyMe, const char* errorSlot) {
 }
 
 
-void AMErrorMon::reportF(AMErrorReport e) {
+void AMErrorMon::reportF(AMErrorReport e, bool showTimeoutMsgBox, QString msgBoxTitle) {
+	if (showTimeoutMsgBox)
+		AMMessageBoxWTimeout::showMessageWTimeout(msgBoxTitle, e.description);
+
 	QString className;
 	if(e.source && e.source->metaObject()) {
 		className = e.source->metaObject()->className();

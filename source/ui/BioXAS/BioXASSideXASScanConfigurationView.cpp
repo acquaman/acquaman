@@ -28,7 +28,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QStringBuilder>
 
 #include "acquaman/AMScanController.h"
-#include "beamline/IDEAS/IDEASBeamline.h"
 #include "ui/AMTopFrame.h"
 #include "ui/dataman/AMEXAFSScanAxisView.h"
 #include "util/AMEnergyToKSpaceCalculator.h"
@@ -84,7 +83,7 @@ BioXASSideXASScanConfigurationView::BioXASSideXASScanConfigurationView(BioXASSid
 		fillLinesComboBox(AMPeriodicTable::table()->elementBySymbol(elementChoice_->text()));
 		lineChoice_->setCurrentIndex(lineChoice_->findText(configuration_->edge(), Qt::MatchStartsWith | Qt::MatchCaseSensitive));
 		lineChoice_->blockSignals(false);
-		energy_->setValue(configuration_->edgeEnergy());
+		energy_->setValue(configuration_->energy());
 	}
 
 	connect(configuration_, SIGNAL(edgeChanged(QString)), this, SLOT(onEdgeChanged()));
@@ -142,10 +141,10 @@ void BioXASSideXASScanConfigurationView::setupDefaultXANESScanRegions()
 	}
 
 	AMScanAxisEXAFSRegion *region = new AMScanAxisEXAFSRegion;
-	region->setEdgeEnergy(configuration_->edgeEnergy());
-	region->setRegionStart(configuration_->edgeEnergy() - 30);
+	region->setEdgeEnergy(configuration_->energy());
+	region->setRegionStart(configuration_->energy() - 30);
 	region->setRegionStep(0.5);
-	region->setRegionEnd(configuration_->edgeEnergy() + 40);
+	region->setRegionEnd(configuration_->energy() + 40);
 	region->setRegionTime(1.0);
 	regionsView_->insertEXAFSRegion(0, region);
 }
@@ -159,25 +158,25 @@ void BioXASSideXASScanConfigurationView::setupDefaultEXAFSScanRegions()
 	}
 
 	AMScanAxisEXAFSRegion *region = new AMScanAxisEXAFSRegion;
-	region->setEdgeEnergy(configuration_->edgeEnergy());
-	region->setRegionStart(configuration_->edgeEnergy() - 200);
+	region->setEdgeEnergy(configuration_->energy());
+	region->setRegionStart(configuration_->energy() - 200);
 	region->setRegionStep(10);
-	region->setRegionEnd(configuration_->edgeEnergy() - 30);
+	region->setRegionEnd(configuration_->energy() - 30);
 	region->setRegionTime(1.0);
 	regionsView_->insertEXAFSRegion(0, region);
 
 	region = new AMScanAxisEXAFSRegion;
-	region->setEdgeEnergy(configuration_->edgeEnergy());
-	region->setRegionStart(configuration_->edgeEnergy() - 30);
+	region->setEdgeEnergy(configuration_->energy());
+	region->setRegionStart(configuration_->energy() - 30);
 	region->setRegionStep(0.5);
-	region->setRegionEnd(configuration_->edgeEnergy() + 40);
+	region->setRegionEnd(configuration_->energy() + 40);
 	region->setRegionTime(1.0);
 	regionsView_->insertEXAFSRegion(1, region);
 
 	region = new AMScanAxisEXAFSRegion;
-	region->setEdgeEnergy(configuration_->edgeEnergy());
+	region->setEdgeEnergy(configuration_->energy());
 	region->setInKSpace(true);
-	region->setRegionStart(AMEnergyToKSpaceCalculator::k(region->edgeEnergy(), configuration_->edgeEnergy() + 40));
+	region->setRegionStart(AMEnergyToKSpaceCalculator::k(region->edgeEnergy(), double(region->edgeEnergy()) + 40));
 	region->setRegionStep(0.05);
 	region->setRegionEnd(10);
 	region->setRegionTime(1.0);
@@ -193,7 +192,7 @@ void BioXASSideXASScanConfigurationView::onScanNameEdited()
 
 void BioXASSideXASScanConfigurationView::setEnergy()
 {
-	configuration_->setEdgeEnergy(energy_->value());
+	configuration_->setEnergy(energy_->value());
 	regionsView_->setEdgeEnergy(energy_->value());
 }
 
@@ -250,6 +249,6 @@ void BioXASSideXASScanConfigurationView::onEdgeChanged()
 	lineChoice_->blockSignals(false);
 	lineChoice_->setCurrentIndex(lineChoice_->findText(configuration_->edge(), Qt::MatchStartsWith | Qt::MatchCaseSensitive));
 
-	if (energy_->value() != configuration_->edgeEnergy())
-		energy_->setValue(configuration_->edgeEnergy());
+	if (energy_->value() != configuration_->energy())
+		energy_->setValue(configuration_->energy());
 }

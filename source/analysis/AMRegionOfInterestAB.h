@@ -60,9 +60,6 @@ public:
 	/// Returns the desired rank for input sources.  Can be anything >= 1 so I'm setting it to -1.
 	virtual int desiredInputRank() const { return -1; }
 
-	/// Set the data source inputs.  Requires one data source.
-	virtual void setInputDataSourcesImplementation(const QList<AMDataSource*>& dataSources);
-
 	/// Returns the dependent value at a (complete) set of axis indexes. Returns an invalid AMNumber if the indexes are insuffient or any are out of range, or if the data is not ready.
 	virtual AMNumber value(const AMnDIndex &indexes) const;
 	/// Performance optimization of value(): instead of a single value, copies a block of values from \c indexStart to \c indexEnd (inclusive), into \c outputValues.  The values are returned in row-major order (ie: with the first index varying the slowest). Returns false if the indexes have the wrong dimension, or (if AM_ENABLE_BOUNDS_CHECKING is defined, the indexes are out-of-range).
@@ -95,7 +92,8 @@ protected slots:
 	void onInputSourceStateChanged();
 
 protected:
-
+	/// Set the data source inputs.  Requires one data source.
+	virtual void setInputDataSourcesImplementation(const QList<AMDataSource*>& dataSources);
 	/// Helper function to look at our overall situation and determine what the output state should be.
 	void reviewState();
 

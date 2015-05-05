@@ -27,7 +27,7 @@ AMAction3 * SXRMBOxidationMapScanConfigurationViewHolder::createAction()
 			configuration = qobject_cast<SXRMB2DMapScanConfiguration *>(configurationView->configuration()->createCopy());
 			configuration->setName(QString("%1_%2eV").arg(configuration->name()).arg(energy, 0, 'f', 2));
 			configuration->setUserScanName(configuration->name());
-			configuration->setExcitationEnergy(energy);
+			configuration->setEnergy(energy);
 			scanList->addSubAction(new AMScanAction(new AMScanActionInfo(configuration->createCopy())));
 		}
 

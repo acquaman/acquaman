@@ -281,6 +281,9 @@ void AMDataSourcesEditor::onSetViewIndexChanged(const QModelIndex &selected, con
 	descriptionEdit_->setReadOnly(false);
 
 	installDetailEditor(dataSource->createEditorWidget());
+
+	// Set the new selected data source as the exclusive view preference.
+	model_->setExclusiveDataSourceByName(dataSource->name());
 }
 
 void AMDataSourcesEditor::onDataSourceDescriptionChanged()

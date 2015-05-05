@@ -116,6 +116,8 @@ public:
  	virtual ~AMScanViewSourceSelector();
 	explicit AMScanViewSourceSelector(AMScanSetModel* model = 0, QWidget* parent = 0);
 	void setModel(AMScanSetModel* model);
+	/// Returns true if the exclusive view mode is on, false otherwise.
+	bool exclusiveModeOn() const { return exclusiveModeOn_; }
 
 public slots:
 	/// ScanBars have two behaviours.  When exclusiveMode is on, they only allow one data source to be "checked" or selected at a time, and tell the model to make this the exclusive data source.  Otherwise, they allows multiple data sources within each Scan to be checked, and toggle the data sources' visibility in the model.

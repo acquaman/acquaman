@@ -50,8 +50,6 @@ public:
 	virtual bool areInputDataSourcesAcceptable(const QList<AMDataSource *> &dataSources) const;
 	/// Returns the desired rank for input sources.
 	virtual int desiredInputRank() const { return 0; }
-	/// Set the data source inputs.
-	virtual void setInputDataSourcesImplementation(const QList<AMDataSource *> &dataSources);
 	/// Returns the dependent value at a (complete) set of axis indexes. Returns an invalid AMNumber if the indexes are out of range, are incomplete, or the data is not ready.
 	virtual AMNumber value(const AMnDIndex &indexes) const;
 	/// Returns the block of values from indexStart to indexEnd, copied into outputValues. Returns false if the provided AMnDIndex values have the wrong dimension or if they are out of range.
@@ -76,6 +74,8 @@ protected slots:
 	void onInputSourceStateChanged();
 
 protected:
+	/// Set the data source inputs.
+	virtual void setInputDataSourcesImplementation(const QList<AMDataSource *> &dataSources);
 	/// Helper function that reviews this AB's current state.
 	void reviewState();
 

@@ -31,6 +31,8 @@ IDEASXRFDetailedDetectorViewWithSave::IDEASXRFDetailedDetectorViewWithSave(AMXRF
 {
 	config_ = new IDEASXRFScanConfiguration;
 
+	setMaximumHeight(885);
+
 	if (detector_->name() == "KETEK")
 		config_->setFluorescenceDetector(IDEASXRFScanConfiguration::Ketek);
 

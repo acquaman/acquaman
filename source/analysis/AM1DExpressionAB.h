@@ -80,9 +80,6 @@ public:
 	/// Returns the desired rank for input sources.
 	virtual int desiredInputRank() const { return 1; }
 
-	/// Set the data source inputs.  The existing expression() and xExpression() are preserved
-	virtual void setInputDataSourcesImplementation(const QList<AMDataSource*>& dataSources);
-
 	// Access to input data sources
 	//////////////////////////
 
@@ -183,6 +180,8 @@ protected slots:
 	void onInputSourceStateChanged();
 
 protected:
+	/// Set the data source inputs.  The existing expression() and xExpression() are preserved
+	virtual void setInputDataSourcesImplementation(const QList<AMDataSource*>& dataSources);
 	/// Method that checks whether all the sizes of used variables match.
 	bool allUsedSizesMatch() const;
 	/// caches whether the current expressions are valid. Set by setExpression(), setXExpression().

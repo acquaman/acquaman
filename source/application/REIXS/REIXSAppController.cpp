@@ -21,6 +21,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "REIXSAppController.h"
 
+#include "beamline/CLS/CLSFacilityID.h"
+#include "beamline/CLS/CLSStorageRing.h"
+
 #include "beamline/REIXS/REIXSBeamline.h"
 #include "beamline/REIXS/REIXSSampleManipulator.h"
 
@@ -37,8 +40,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/AMMainWindow.h"
 
 #include "actions3/AMActionRunner3.h"
-
-#include "beamline/CLS/CLSStorageRing.h"
 
 #include "util/AMErrorMonitor.h"
 #include "dataman/database/AMDbObjectSupport.h"
@@ -214,7 +215,7 @@ bool REIXSAppController::startupAfterEverything() {
 	AMRun existingRun;
 	if(!existingRun.loadFromDb(AMDatabase::database("user"), 1)) {
 		// no run yet... let's create one.
-		AMRun firstRun("REIXS", 5);	/// \todo For now, we know that 5 is the ID of the REIXS facility, but this is a hardcoded hack. See AMFirstTimeController::onFirstTime() for where the facilities are created.
+		AMRun firstRun(CLSFacilityID::beamlineName(CLSFacilityID::REIXSBeamline), CLSFacilityID::REIXSBeamline); //5: REIXS Beamline
 		firstRun.storeToDb(AMDatabase::database("user"));
 	}
 

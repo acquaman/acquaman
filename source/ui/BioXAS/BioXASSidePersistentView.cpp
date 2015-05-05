@@ -20,37 +20,63 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 
 #include "BioXASSidePersistentView.h"
-
+#include "ui/BioXAS/BioXASSIS3820ScalerChannelsView.h"
 #include "beamline/BioXAS/BioXASSideBeamline.h"
-#include "ui/beamline/AMExtendedControlEditor.h"
+#include "ui/beamline/AMControlEditor.h"
 
 BioXASSidePersistentView::BioXASSidePersistentView(QWidget *parent) :
     QWidget(parent)
 {
-	// Create UI elements.
+	// Energy control editor.
 
-    energyControlEditor_ = new AMExtendedControlEditor(BioXASSideBeamline::bioXAS()->mono()->energyControl());
-    energyControlEditor_->setControlFormat('f', 2);
+	energyControlEditor_ = new AMExtendedControlEditor(BioXASSideBeamline::bioXAS()->mono()->energyControl());
+	energyControlEditor_->setTitle("Mono Energy");
+	energyControlEditor_->setControlFormat('f', 2);
 
-    calibrateEnergyButton_ = new QPushButton("Calibrate energy");
+	// Region control editor.
 
-    // Create and set layouts.
+	regionControlEditor_ = new BioXASSSRLMonochromatorRegionControlEditor(BioXASSideBeamline::bioXAS()->mono()->regionControl());
+	regionControlEditor_->setTitle("Mono Crystal Region");
 
-    QHBoxLayout *energyButtonLayout = new QHBoxLayout();
-    energyButtonLayout->addStretch();
-    energyButtonLayout->addWidget(calibrateEnergyButton_);
+	// Bragg control editor.
 
-    QVBoxLayout *layout = new QVBoxLayout();
-    layout->addWidget(energyControlEditor_);
-    layout->addLayout(energyButtonLayout);
-    layout->addStretch();
+	braggControlEditor_ = new AMExtendedControlEditor(BioXASSideBeamline::bioXAS()->mono()->braggMotor());
+	braggControlEditor_->setTitle("Mono Goniometer Angle");
 
-    setLayout(layout);
-    setFixedWidth(200);
+	// Scaler channel views.
 
-    // Make connections.
+	BioXASSIS3820ScalerChannelsView *channels = new BioXASSIS3820ScalerChannelsView(BioXASSideBeamline::bioXAS()->scaler());
 
-    connect( calibrateEnergyButton_, SIGNAL(clicked()), this, SLOT(onCalibrateEnergyButtonClicked()) );
+	QVBoxLayout *channelsLayout = new QVBoxLayout();
+	channelsLayout->addWidget(channels);
+
+	channelViews_ = new QGroupBox();
+	channelViews_->setTitle("Scaler channels");
+	channelViews_->setLayout(channelsLayout);
+
+	// Create and set main layout.
+
+	QVBoxLayout *layout = new QVBoxLayout();
+	layout->addWidget(energyControlEditor_);
+	layout->addWidget(regionControlEditor_);
+	layout->addWidget(braggControlEditor_);
+	layout->addWidget(channelViews_);
+	layout->addStretch();
+
+	setLayout(layout);
+	setFixedWidth(400);
+
+	// Initial settings.
+
+	channelViews_->hide();
+
+	// Make connections.
+
+	connect( BioXASSideBeamline::bioXAS()->scaler(), SIGNAL(connectedChanged(bool)), this, SLOT(onScalerConnectedChanged()) );
+
+	// Current settings.
+
+	onScalerConnectedChanged();
 }
 
 BioXASSidePersistentView::~BioXASSidePersistentView()
@@ -58,12 +84,13 @@ BioXASSidePersistentView::~BioXASSidePersistentView()
 
 }
 
-void BioXASSidePersistentView::onCalibrateEnergyButtonClicked()
+void BioXASSidePersistentView::onScalerConnectedChanged()
 {
-	bool inputOK = false;
-	double newEnergy = QInputDialog::getDouble(this, "Monochromator Energy Calibration", "Enter current calibrated energy:", BioXASSideBeamline::bioXAS()->mono()->energyControl()->value(), 0, 10000000, 1, &inputOK, Qt::Sheet);
+	CLSSIS3820Scaler *scaler = BioXASSideBeamline::bioXAS()->scaler();
 
-	if (inputOK) {
-		BioXASSideBeamline::bioXAS()->mono()->setEnergyCalibration(newEnergy);
+	if (scaler && scaler->isConnected()) {
+		channelViews_->show();
+	} else {
+		channelViews_->hide();
 	}
 }

@@ -194,6 +194,8 @@ public slots:
 	virtual void setMotorGroupView(const QString &name);
 	/// Sets the view mode.  Changes necessary items to ensure view modes are consistent with constructed functionality.
 	void setViewMode(ViewMode mode);
+	/// Show/Hide availableMotorGroupObjects_
+	void showAvailableMotorGroupChoices(bool show);
 
 protected slots:
 	/// Handles the popup menu that allows you to change the motors you want to change.
@@ -218,6 +220,10 @@ protected:
 	QComboBox *availableMotorGroupObjects_;
 	/// Holds the current list visible motor group objects and their visibility.  Used only for Multiple view.
 	QMap<QString, AMMotorGroupObjectView *> visibleMotorGroupObjectViews_;
+
+private:
+	/// The common function to initialize and layout the components of the MotorGroupView
+	void initAndLayoutMotorGroupView(AMMotorGroup *motorGroup, ViewMode viewMode);
 };
 
 #endif // AMMOTORGROUPVIEW_H

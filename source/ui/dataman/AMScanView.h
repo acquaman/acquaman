@@ -159,6 +159,9 @@ public:
 	/// returns the AMScanSetModel used internally to hold the scans/data sources.
 	AMScanSetModel* model() const { return scansModel_; }
 
+	/// Returns the current view mode.
+	AMScanView::ViewMode viewMode() const { return mode_; }
+
 	/// Sets the default axis information for the spectrum view. Set \param propogateToPlotRange to false if you don't want the information to propogate.
 	void setAxisInfoForSpectrumView(const AMAxisInfo &info, bool propogateToPlotRange = true);
 	/// Sets the plot range for the spectrum view.

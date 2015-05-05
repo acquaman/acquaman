@@ -16,8 +16,10 @@
 #include "util/AMPeriodicTable.h"
 
 SXRMB2DOxidationMapScanConfigurationView::SXRMB2DOxidationMapScanConfigurationView(SXRMB2DMapScanConfiguration *configuration, QWidget *parent)
-	: AMScanConfigurationView(parent)
+	: SXRMBScanConfigurationView( parent)
 {
+	SXRMBBeamline *sxrmbBL = SXRMBBeamline::sxrmb();
+
 	configuration_ = configuration;
 
 	AMTopFrame *frame = new AMTopFrame("SXRMB Oxidation Map Configuration");
@@ -58,9 +60,9 @@ SXRMB2DOxidationMapScanConfigurationView::SXRMB2DOxidationMapScanConfigurationVi
 	connect(configuration_->scanAxisAt(1)->regionAt(0), SIGNAL(regionStepChanged(AMNumber)), this, SLOT(setYAxisStep(AMNumber)));
 
 	// 4th row: set the focus position
-	normalPosition_ = createPositionDoubleSpinBox("N: ", " mm", configuration_->normalPosition(), 3);
+	normalPosition_ = createPositionDoubleSpinBox("N: ", " mm", configuration_->y(), 3);
 	connect(normalPosition_, SIGNAL(editingFinished()), this, SLOT(onNormalPositionChanged()));
-	connect(configuration_->dbObject(), SIGNAL(normalPositionChanged(double)), normalPosition_, SLOT(setValue(double)));
+	connect(configuration_->dbObject(), SIGNAL(yChanged(double)), normalPosition_, SLOT(setValue(double)));
 
 	QPushButton *updateNormalPosition = new QPushButton("Set Normal");
 	connect(updateNormalPosition, SIGNAL(clicked()), this, SLOT(onSetNormalPosition()));
@@ -141,7 +143,7 @@ SXRMB2DOxidationMapScanConfigurationView::SXRMB2DOxidationMapScanConfigurationVi
 	AMEnergyList energyList;
 	energyList.insertEnergy(0, AMPeriodicTable::table()->elementBySymbol("S")->KEdge().energy());
 	oxidationEnergyListView_ = new AMEnergyListView("", energyList);
-	oxidationEnergyListView_->setRange(SXRMBBeamline::sxrmb()->energy()->minimumValue(), SXRMBBeamline::sxrmb()->energy()->maximumValue());
+	oxidationEnergyListView_->setRange(sxrmbBL->energy()->minimumValue(), sxrmbBL->energy()->maximumValue());
 
 	QVBoxLayout *energyListViewBoxLayout = new QVBoxLayout;
 	energyListViewBoxLayout->addWidget(oxidationEnergyListView_);
@@ -151,15 +153,7 @@ SXRMB2DOxidationMapScanConfigurationView::SXRMB2DOxidationMapScanConfigurationVi
 	energyListViewBox->setLayout(energyListViewBoxLayout);
 
 	// detector setting
-	enableBrukerDetector_ = new QCheckBox("Enable Bruker Detector");
-	enableBrukerDetector_->setChecked(configuration_->enableBrukerDetector());
-	connect(enableBrukerDetector_, SIGNAL(stateChanged(int)), this, SLOT(onEnableBrukerDetectorChanged(int)));
-
-	QVBoxLayout * detectorBoxLayout = new QVBoxLayout;
-	detectorBoxLayout->addWidget(enableBrukerDetector_);
-
-	QGroupBox * detectorSettingGroupBox = new QGroupBox("Detector Setting");
-	detectorSettingGroupBox->setLayout(detectorBoxLayout);
+	QGroupBox *detectorSettingGroupBox = createAndLayoutDetectorSettings(configuration_);
 
 	// Error label.
 	errorLabel_ = new QLabel;
@@ -193,6 +187,8 @@ SXRMB2DOxidationMapScanConfigurationView::SXRMB2DOxidationMapScanConfigurationVi
 	configViewLayout->addStretch();
 
 	setLayout(configViewLayout);
+
+	connect(sxrmbBL, SIGNAL(endstationChanged(SXRMB::Endstation, SXRMB::Endstation)), this, SLOT(onBeamlineEndstationChanged(SXRMB::Endstation, SXRMB::Endstation)));
 }
 
 QLineEdit *SXRMB2DOxidationMapScanConfigurationView::createScanNameView(const QString &name)
@@ -249,7 +245,7 @@ void SXRMB2DOxidationMapScanConfigurationView::onSetStartPosition()
 
 	configuration_->scanAxisAt(0)->regionAt(0)->setRegionStart(h);
 	configuration_->scanAxisAt(1)->regionAt(0)->setRegionStart(v);
-	configuration_->setNormalPosition(n);
+	configuration_->setY(n);
 	hStart_->setValue(h);
 	vStart_->setValue(v);
 	updateMapInfo();
@@ -272,7 +268,7 @@ void SXRMB2DOxidationMapScanConfigurationView::onSetEndPosition()
 void SXRMB2DOxidationMapScanConfigurationView::onSetNormalPosition()
 {
 	double n = SXRMBBeamline::sxrmb()->microprobeSampleStageY()->value();
-	configuration_->setNormalPosition(n);
+	configuration_->setY(n);
 	updateMapInfo();
 	checkScanAxisValidity();
 }
@@ -321,7 +317,7 @@ void SXRMB2DOxidationMapScanConfigurationView::onYStepChanged()
 
 void SXRMB2DOxidationMapScanConfigurationView::onNormalPositionChanged()
 {
-	configuration_->setNormalPosition(normalPosition_->value());
+	configuration_->setY(normalPosition_->value());
 	updateMapInfo();
 	checkScanAxisValidity();
 }
@@ -377,6 +373,18 @@ QGroupBox *SXRMB2DOxidationMapScanConfigurationView::addExporterOptionsView(QStr
 	return autoExportGroupBox;
 }
 
+void SXRMB2DOxidationMapScanConfigurationView::onBeamlineEndstationChanged(SXRMB::Endstation fromEndstation, SXRMB::Endstation toEndstation)
+{
+	Q_UNUSED(fromEndstation)
+
+	if (toEndstation == SXRMB::AmbiantWithGasChamber || toEndstation == SXRMB::AmbiantWithoutGasChamber) {
+		powerOnTEYHVControlCheckBox_->setChecked(false);
+		powerOnTEYHVControlCheckBox_->setVisible(false);
+	} else{
+		powerOnTEYHVControlCheckBox_->setVisible(true);
+	}
+}
+
 void SXRMB2DOxidationMapScanConfigurationView::setXAxisStart(const AMNumber &value)
 {
 	hStart_->setValue(double(value));
@@ -417,6 +425,15 @@ void SXRMB2DOxidationMapScanConfigurationView::updateAutoExporter(int useAscii)
 	configuration_->setExportAsAscii(useAscii == 0);
 }
 
+void SXRMB2DOxidationMapScanConfigurationView::onFluorescenceDetectorChanged(int detector)
+{
+	configuration_->setFluorescenceDetector((SXRMB::FluorescenceDetectors)detector);
+}
+
+void SXRMB2DOxidationMapScanConfigurationView::onPowerOnTEYHVControlEnabled(bool value)
+{
+	configuration_->setPowerOnTEYHVControlEnabled(value);
+}
 
 void SXRMB2DOxidationMapScanConfigurationView::checkScanAxisValidity()
 {
@@ -446,10 +463,3 @@ void SXRMB2DOxidationMapScanConfigurationView::checkScanAxisValidity()
 	errorLabel_->setText(errorString);
 }
 
-void SXRMB2DOxidationMapScanConfigurationView::onEnableBrukerDetectorChanged(int state)
-{
-	if(state == Qt::Checked)
-		configuration_->setEnableBrukerDetector(true);
-	else
-		configuration_->setEnableBrukerDetector(false);
-}
