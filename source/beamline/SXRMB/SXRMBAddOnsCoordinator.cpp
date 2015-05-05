@@ -132,7 +132,7 @@ SXRMBAddOnsCoordinator::SXRMBAddOnsCoordinator(QObject *parent) :
 
 	connect(oldCrystalSelection_, SIGNAL(valueChanged(double)), this, SLOT(onOldCrystalSelectionValueChanged()));
 	connect(oldCrystalSelectionFeedback_, SIGNAL(valueChanged(double)), this, SLOT(onOldCrystalSelectionFeedbackValueChanged()));
-	connect(addOnsCrystalSelection_, SIGNAL(valueChanged(double)), this, SLOT(onAddOnsCrystalSelectionFeedbackValueChanged()));
+	connect(addOnsCrystalSelection_, SIGNAL(valueChanged(double)), this, SLOT(onAddOnsCrystalSelectionValueChanged()));
 
 	connect(oldEnergy_, SIGNAL(valueChanged(double)), this, SLOT(onOldEnergyValueChanged(double)));
 	connect(oldEnergyFeedback_, SIGNAL(valueChanged(double)), this, SLOT(onOldEnergyFeedbackValueChanged(double)));
