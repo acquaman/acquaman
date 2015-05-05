@@ -3,10 +3,10 @@
 SXRMBCrystalChangeModel::SXRMBCrystalChangeModel(QObject *parent)
 	: QObject(parent)
 {
-	crystalSelection_ = new AMPVControl("Crystal Selection", "BL1606-B1-1:AddOns:CrystalSelection:fbk", "BL1606-B1-1:AddOns:CrystalSelection", QString(), this, 0.1);
+	crystalSelection_ = new AMPVControl("Crystal Selection", "BL1606-B1-1:AddOns:CrystalSelection:fbk", "BL1606-B1-1:AddOns:CrystalSelection", QString(), this, 0.1, 60);
 	crystalY_ = new AMPVwStatusControl("Crystal Y", "SMTR1606-4-B10-12:mm:sp", "SMTR1606-4-B10-12:mm", "SMTR1606-4-B10-12:status", "SMTR1606-4-B10-12:stop", this, 0.1);
-	crystalTheta_ = new AMPVwStatusControl("Crystal Theta", "SMTR1606-4-B10-13:dgr:sp", "SMTR1606-4-B10-13:dgr", "SMTR1606-4-B10-13:status", "SMTR1606-4-B10-13:stop", this, 0.1);
-	crystalChi_ = new AMPVwStatusControl("Crystal Chi", "SMTR1606-4-B10-14:dgr:sp", "SMTR1606-4-B10-14:dgr", "SMTR1606-4-B10-14:status", "SMTR1606-4-B10-14:stop", this, 0.1);
+	crystalTheta_ = new AMPVwStatusControl("Crystal Theta", "SMTR1606-4-B10-13:dgr:sp", "SMTR1606-4-B10-13:dgr", "SMTR1606-4-B10-13:status", "SMTR1606-4-B10-13:stop", this, 0.01);
+	crystalChi_ = new AMPVwStatusControl("Crystal Chi", "SMTR1606-4-B10-14:dgr:sp", "SMTR1606-4-B10-14:dgr", "SMTR1606-4-B10-14:status", "SMTR1606-4-B10-14:stop", this, 0.01);
 
 	connect(crystalSelection_, SIGNAL(valueChanged(double)), this, SIGNAL(crystalSelectionChanged()));
 	connect(crystalSelection_, SIGNAL(moveSucceeded()), this, SLOT(onCrystalSelectionChangeCompleted()));
