@@ -259,17 +259,15 @@ void BioXASMainBeamline::setupMotorGroup()
 
 void BioXASMainBeamline::setupControlsAsDetectors()
 {
-	energySetpointDetector_ = new AMBasicControlDetectorEmulator("EnergySetpoint", "EnergySetpoint", new AMReadOnlyPVControl("EnergySetpoint", "BL1607-5-I21:Energy:EV:fbk", this), 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	energySetpointDetector_ = new AMBasicControlDetectorEmulator("EnergySetpoint", "EnergySetpoint", new AMReadOnlyPVControl("EnergySetpoint", "BL1607-5-I21:Energy:EV", this), 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
 	energySetpointDetector_->setHiddenFromUsers(false);
 	energySetpointDetector_->setIsVisible(true);
 
-	energyFeedbackDetector_ = new AMBasicControlDetectorEmulator("EnergyFeedback", "EnergyFeedback", new AMReadOnlyPVControl("EnergyFeedback", "BL1607-5-I21:Energy:EV", this), 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	energyFeedbackDetector_ = new AMBasicControlDetectorEmulator("EnergyFeedback", "EnergyFeedback", new AMReadOnlyPVControl("EnergyFeedback", "BL1607-5-I21:Energy:EV:fbk", this), 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
 	energyFeedbackDetector_->setHiddenFromUsers(false);
 	energyFeedbackDetector_->setIsVisible(true);
 
 	dwellTimeDetector_ = new AMBasicControlDetectorEmulator("DwellTimeFeedback", "Dwell Time Feedback", scalerDwellTime_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
-	dwellTimeDetector_->setHiddenFromUsers(true);
-	dwellTimeDetector_->setIsVisible(false);
 
 	braggDetector_ = new AMBasicControlDetectorEmulator("MonoFeedback", "Mono Bragg Motor Feedback", mono_->braggMotor(), 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
 	braggDetector_->setHiddenFromUsers(false);
