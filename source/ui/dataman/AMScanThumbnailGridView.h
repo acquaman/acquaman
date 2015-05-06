@@ -8,7 +8,7 @@
 /**
  * View class which displays a list of Scan Thumbnails in a flow grid style
  */
-class AMScanThumnailGridGeometryManager;
+class AMScanThumbnailGridGeometryManager;
 class AMScanThumbnailGridInputManager;
 class AMScanThumbnailGridView : public QAbstractItemView
 {
@@ -68,7 +68,7 @@ private slots:
 private:
 
 	// Private Member Variables
-	AMScanThumnailGridGeometryManager* geometryManager_;
+	AMScanThumbnailGridGeometryManager* geometryManager_;
 	AMScanThumbnailGridInputManager* inputManager_;
 };
 

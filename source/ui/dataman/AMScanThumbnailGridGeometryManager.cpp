@@ -1,12 +1,12 @@
-#include "AMScanThumnailGridGeometryManager.h"
+#include "AMScanThumbnailGridGeometryManager.h"
 
-AMScanThumnailGridGeometryManager::AMScanThumnailGridGeometryManager(int width)
+AMScanThumbnailGridGeometryManager::AMScanThumbnailGridGeometryManager(int width)
 	: AMGridFlowGeometryManager(width, GRID_CELL_WIDTH, GRID_CELL_HEIGHT,
 								THUMBNAIL_WIDTH, THUMBNAIL_HEIGHT, Qt::AlignCenter) {
 
 }
 
-QRect AMScanThumnailGridGeometryManager::scanNameRectangle(const QRect &contentRect) const {
+QRect AMScanThumbnailGridGeometryManager::scanNameRectangle(const QRect &contentRect) const {
 
 	int nameRectWidth = contentRect.width() * 0.9;
 	int nameRectHeight = contentRect.height() * 0.1;
@@ -16,7 +16,7 @@ QRect AMScanThumnailGridGeometryManager::scanNameRectangle(const QRect &contentR
 	return QRect(nameRectX, nameRectY, nameRectWidth, nameRectHeight);
 }
 
-QRect AMScanThumnailGridGeometryManager::scanDateRectangle(const QRect &contentRect) const {
+QRect AMScanThumbnailGridGeometryManager::scanDateRectangle(const QRect &contentRect) const {
 
 	int dateRectWidth = contentRect.width() * 0.9;
 	int dateRectHeight = contentRect.height() * 0.1;
@@ -26,7 +26,7 @@ QRect AMScanThumnailGridGeometryManager::scanDateRectangle(const QRect &contentR
 	return QRect(dateRectX, dateRectY, dateRectWidth, dateRectHeight);
 }
 
-QRect AMScanThumnailGridGeometryManager::scanTechniqueRectangle(const QRect &contentRect) const {
+QRect AMScanThumbnailGridGeometryManager::scanTechniqueRectangle(const QRect &contentRect) const {
 	int techniqueRectWidth = contentRect.width() * 0.9;
 	int techniqueRectHeight = contentRect.height() * 0.1;
 
@@ -36,7 +36,7 @@ QRect AMScanThumnailGridGeometryManager::scanTechniqueRectangle(const QRect &con
 	return QRect(techniqueRectX, techniqueRectY, techniqueRectWidth, techniqueRectHeight);
 }
 
-QRect AMScanThumnailGridGeometryManager::thumbnailTitleRectangle(const QRect &contentRect) const {
+QRect AMScanThumbnailGridGeometryManager::thumbnailTitleRectangle(const QRect &contentRect) const {
 	int titleRectWidth = contentRect.width() * 0.9;
 	int titleRectHeight = contentRect.height() * 0.1;
 
@@ -46,7 +46,7 @@ QRect AMScanThumnailGridGeometryManager::thumbnailTitleRectangle(const QRect &co
 	return QRect(titleRectX, titleRectY, titleRectWidth, titleRectHeight);
 }
 
-QRect AMScanThumnailGridGeometryManager::thumbnailImageRectangle(const QRect &contentRect) const {
+QRect AMScanThumbnailGridGeometryManager::thumbnailImageRectangle(const QRect &contentRect) const {
 	int imageRectWidth = contentRect.width() * 0.9;
 	int imageRectHeight = contentRect.height() * 0.65;
 

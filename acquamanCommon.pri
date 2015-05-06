@@ -457,8 +457,8 @@ HEADERS += \
     source/ui/util/AMGridFlowGeometryManager.h \
     source/ui/dataman/AMScanThumbnailGridViewItemDelegate.h \
     source/ui/dataman/AMScanThumbnailGridView.h \
-    source/ui/dataman/AMScanThumnailGridGeometryManager.h \
-    source/ui/dataman/AMScanThumbnailGridInputManager.h
+    source/ui/dataman/AMScanThumbnailGridInputManager.h \
+    source/ui/dataman/AMScanThumbnailGridGeometryManager.h
 
 FORMS += \
 
@@ -877,8 +877,8 @@ SOURCES += \
     source/ui/util/AMGridFlowGeometryManager.cpp \
     source/ui/dataman/AMScanThumbnailGridViewItemDelegate.cpp \
     source/ui/dataman/AMScanThumbnailGridView.cpp \
-    source/ui/dataman/AMScanThumnailGridGeometryManager.cpp \
-    source/ui/dataman/AMScanThumbnailGridInputManager.cpp
+    source/ui/dataman/AMScanThumbnailGridInputManager.cpp \
+    source/ui/dataman/AMScanThumbnailGridGeometryManager.cpp
 
 RESOURCES *= source/icons/icons.qrc \
 		source/configurationFiles/configurationFiles.qrc \
@@ -895,3 +895,7 @@ contains(DEFINES, AM_BUILD_REPORTER_ENABLED){
 
 	SOURCES *= source/util/AMRunTimeBuildInfo.cpp
 }
+
+
+
+

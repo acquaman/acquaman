@@ -14,7 +14,7 @@
  * questions about flow geometry, also answer questions regarding the specific geometry
  * for the fields required by AMScanThumbnailGridView
  */
-class AMScanThumnailGridGeometryManager : public AMGridFlowGeometryManager
+class AMScanThumbnailGridGeometryManager : public AMGridFlowGeometryManager
 {
 public:
 	/**
@@ -23,7 +23,7 @@ public:
 	 * @param width::int ~ The width of the area which the geometry manager will
 	 * be managing.
 	 */
-	explicit AMScanThumnailGridGeometryManager(int width);
+	explicit AMScanThumbnailGridGeometryManager(int width);
 
 	/**
 	 * The rectangle for displaying the scan name within the provided content

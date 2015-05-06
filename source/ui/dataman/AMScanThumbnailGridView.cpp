@@ -1,12 +1,12 @@
 #include "AMScanThumbnailGridView.h"
-#include "ui/dataman/AMScanThumnailGridGeometryManager.h"
+#include "ui/dataman/AMScanThumbnailGridGeometryManager.h"
 #include "ui/dataman/AMScanThumbnailGridViewItemDelegate.h"
 #include "ui/dataman/AMScanThumbnailGridInputManager.h"
 
 AMScanThumbnailGridView::AMScanThumbnailGridView(QWidget *parent) :
 	QAbstractItemView(parent)
 {
-	geometryManager_ = new AMScanThumnailGridGeometryManager(sizeHint().width());
+	geometryManager_ = new AMScanThumbnailGridGeometryManager(sizeHint().width());
 	// Wire up the input manager to this view
 	inputManager_ = new AMScanThumbnailGridInputManager();
 	connect(inputManager_, SIGNAL(itemSelected(int,QItemSelectionModel::SelectionFlags)), this, SLOT(onItemSelected(int,QItemSelectionModel::SelectionFlags)));
