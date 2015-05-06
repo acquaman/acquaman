@@ -159,7 +159,7 @@ protected:
 	CLSSIS3820ScalerView *scalerView_;
 
 	/// The Motor group view for Ambiant Sample stage endstation
-	AMMotorGroupView *ambiantSampleStageMotorGroupView;
+	AMMotorGroupView *ambiantSampleStageMotorGroupView_;
 
 	/// Pointer to the list action that is used to move the sample stage.
 	AMListAction3 *moveImmediatelyAction_;
