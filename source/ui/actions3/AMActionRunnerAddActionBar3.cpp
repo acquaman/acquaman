@@ -164,30 +164,19 @@ void AMActionRunnerAddActionBar3::addWidget(QWidget *widget)
 
 void AMActionRunnerAddActionBar3::addActionToQueue(ActionQueue::QueueOperation operation)
 {
+	AMAction3 * action = createLoopAction();
+	if (!action)
+		return;
+
 	AMActionRunner3* workflow = AMActionRunner3::workflow();
-	AMAction3 * action = 0;
 
 	if (operation == ActionQueue::RunOnlyThisOne) {
-		// we will ignore the iteration times for this case
-		action = createAction();
-		if (!action)
-			return;
-
 		workflow->runActionImmediatelyInQueue(action);
 
 	} else {
 		// add actions to queue
-
 		int insertIndex = ActionQueue::insertTaskToBeginning(operation) ? 0: -1;
-		int iterationTimes = iterationsBox_->value();
-
-		for (int i = 0; i < iterationTimes; i++) {
-			action = createAction();
-			if (!action)
-				return;
-
-			workflow->insertActionInQueue(action, insertIndex);
-		}
+		workflow->insertActionInQueue(action, insertIndex);
 
 		// start the queue
 		if (ActionQueue::startQueue(operation)) {

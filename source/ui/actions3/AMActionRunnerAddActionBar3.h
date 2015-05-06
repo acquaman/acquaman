@@ -89,6 +89,7 @@ protected slots:
 protected:
 	/// This function is called to get the action that should be added to the queue. The base class implementation returns 0 for no valid action, so it must be re-implemented.
 	virtual AMAction3* createAction() { return 0; }
+	virtual AMAction3* createLoopAction() { return 0; }
 
 	/// create and add actions to the queue
 	void addActionToQueue(ActionQueue::QueueOperation operation);

@@ -20,17 +20,13 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMScanConfigurationViewHolder3.h"
 
-#include <QRadioButton>
-#include <QPushButton>
+#include <QSpinBox>
 #include <QLabel>
-#include <QLineEdit>
-#include <QCheckBox>
-#include <QVBoxLayout>
-#include <QButtonGroup>
 
 #include "acquaman/AMScanConfiguration.h"
-#include "ui/acquaman/AMScanConfigurationView.h"
+#include "actions3/AMLoopAction3.h"
 #include "actions3/actions/AMScanAction.h"
+#include "ui/acquaman/AMScanConfigurationView.h"
 
  AMScanConfigurationViewHolder3::~AMScanConfigurationViewHolder3(){}
 AMScanConfigurationViewHolder3::AMScanConfigurationViewHolder3(AMScanConfigurationView* view, QWidget *parent) :
@@ -75,6 +71,21 @@ AMAction3 * AMScanConfigurationViewHolder3::createAction()
 {
 	if(view_)
 		return new AMScanAction(new AMScanActionInfo(view_->configuration()->createCopy()));
+
+	return 0;
+}
+
+AMAction3* AMScanConfigurationViewHolder3::createLoopAction()
+{
+	if (view_){
+
+		const AMScanConfiguration *config = view_->configuration();
+		if (config) {
+			AMLoopAction3 *loop = new AMLoopAction3(new AMLoopActionInfo3(iterationsBox_->value(), config->name(), config->description()));
+			loop->addSubAction(createAction());
+			return loop;
+		}
+	}
 
 	return 0;
 }
