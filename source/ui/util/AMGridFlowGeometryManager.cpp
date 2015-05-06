@@ -51,7 +51,7 @@ int AMGridFlowGeometryManager::cellHeight() const
 	return cellHeight_;
 }
 
-int AMGridFlowGeometryManager::setCellHeight(int cellHeight)
+void AMGridFlowGeometryManager::setCellHeight(int cellHeight)
 {
 	cellHeight_ = cellHeight;
 }
@@ -116,16 +116,12 @@ void AMGridFlowGeometryManager::setCellContentAlignment(Qt::Alignment cellConten
 	cellContentAlignment_ = cellContentAlignment;
 }
 
-int AMGridFlowGeometryManager::indexAt(const QPoint &point, int horizontalOffset, int verticalOffset) const
+int AMGridFlowGeometryManager::contentIndexAt(const QPoint &point, int horizontalOffset, int verticalOffset) const
 {
 	if(point.isNull())
 		return -1;
 
-	// Calculate the index of the cell under the point
-	int cellColumnIndex = (point.x() + horizontalOffset - marginLeft_) / cellWidth_;
-	int cellRowIndex = (point.y() + verticalOffset - marginTop_) / cellHeight_;
-
-	int cellIndex = (cellRowIndex * cellsPerRow() + cellColumnIndex);
+	int cellIndex = cellIndexAt(point, horizontalOffset, verticalOffset);
 
 	// Get the rectangle of the item in the cell at the located index
 	QRect itemRectangle = contentGeometryAt(cellIndex);
@@ -138,16 +134,36 @@ int AMGridFlowGeometryManager::indexAt(const QPoint &point, int horizontalOffset
 		return -1;
 }
 
+int AMGridFlowGeometryManager::cellIndexAt(const QPoint &point, int horizontalOffset, int verticalOffset) const
+{
+	if(point.isNull())
+		return -1;
+
+	// Calculate the index of the cell under the point
+	int cellColumnIndex = (point.x() + horizontalOffset - marginLeft_) / cellWidth_;
+	int cellRowIndex = (point.y() + verticalOffset - marginTop_) / cellHeight_;
+
+	return (cellRowIndex * cellsPerRow() + cellColumnIndex);
+}
+
 QList<int> AMGridFlowGeometryManager::indicesWithin(const QRect &rect, int horizontalOffset, int verticalOffset) const
 {
 	QList<int> returnList;
 
-	for(int iCellIndex = 0, lastIndex = indexAt(rect.bottomRight());
-		iCellIndex < lastIndex;
+	QRect offsetRect = QRect(rect.x() + horizontalOffset,
+							 rect.y() + verticalOffset,
+							 rect.width(),
+							 rect.height());
+
+	int firstIndex = cellIndexAt(offsetRect.topLeft());
+	int lastIndex = cellIndexAt(offsetRect.bottomRight());
+
+	for(int iCellIndex = firstIndex ;iCellIndex <= lastIndex;
 		++iCellIndex) {
 
-		QRect currentCellGeometry = cellGeometryAt(iCellIndex, horizontalOffset, verticalOffset);
-		if(rect.intersects(currentCellGeometry))
+		QRect currentCellGeometry = contentGeometryAt(iCellIndex);
+
+		if(offsetRect.intersects(currentCellGeometry))
 			returnList.append(iCellIndex);
 	}
 
@@ -254,3 +270,5 @@ QRect AMGridFlowGeometryManager::contentGeometryFromCell(const QRect &cellGeomet
 	return QRect(itemXPosition, itemYPosition, itemWidth_, itemHeight_);
 
 }
+
+

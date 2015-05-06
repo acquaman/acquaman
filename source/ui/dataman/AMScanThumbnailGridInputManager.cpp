@@ -13,7 +13,7 @@ AMScanThumbnailGridInputManager::AMScanThumbnailGridInputManager(QObject *parent
 void AMScanThumbnailGridInputManager::mouseDownAt(int itemIndex, int positionX, int positionY, Qt::MouseButtons mouseButtons, bool itemIsSelected)
 {
 	if(mouseButtons & Qt::LeftButton) {
-		qDebug() << "Left button pressed";
+		qDebug() << QString("Left mouse clicked at %1, %2").arg(positionX).arg(positionY);
 		// Left mouse button is clicked
 		startPositionX_ = positionX;
 		startPositionY_ = positionY;
@@ -133,6 +133,7 @@ void AMScanThumbnailGridInputManager::mouseMovedTo(int itemIndex, int positionX,
 
 void AMScanThumbnailGridInputManager::mouseReleasedAt(int positionX, int positionY, Qt::MouseButtons mouseButtons, Qt::KeyboardModifiers keys)
 {
+	qDebug() << QString("Mouse release at %1, %2").arg(positionX).arg(positionY);
 	if(startPositionX_ == -1 && startPositionY_ == -1) {
 		// No interaction is currently being performed. Just return.
 		qDebug() << "No interaction is currently being performed";
@@ -158,12 +159,14 @@ void AMScanThumbnailGridInputManager::mouseReleasedAt(int positionX, int positio
 				if(keys & Qt::ShiftModifier || keys & Qt::ControlModifier) {
 					// Shift or Control is held
 					qDebug() << "Shift or Control is held";
-					emit selectionRectangleEnded(QItemSelectionModel::Select);
+					QRect finalSelectionRectangle(startPositionX_, startPositionY_, positionX - startPositionX_, positionY - startPositionY_);
+					emit selectionRectangleEnded(finalSelectionRectangle.normalized(), QItemSelectionModel::Select);
 					resetInteraction();
 				} else {
 					// No key modifier is held
 					qDebug() << "No key modifier held";
-					emit selectionRectangleEnded(QItemSelectionModel::ClearAndSelect);
+					QRect finalSelectionRectangle(startPositionX_, startPositionY_, positionX - startPositionX_, positionY - startPositionY_);
+					emit selectionRectangleEnded(finalSelectionRectangle.normalized(), QItemSelectionModel::ClearAndSelect);
 					resetInteraction();
 				}
 			} else {
@@ -202,21 +205,6 @@ void AMScanThumbnailGridInputManager::mouseReleasedAt(int positionX, int positio
 		}
 	}
 
-}
-
-void AMScanThumbnailGridInputManager::onDoubleClickTimerExpired()
-{
-	if(keys_ & Qt::ControlModifier) {
-		// Control held - toggle the specified index without clearing
-		emit itemSelected(lastClickedItemIndex_, QItemSelectionModel::Toggle);
-	} else if(keys_ & Qt::ShiftModifier) {
-		// Shift held - extend the current selection to the last clicked index
-		emit selectionExtended(lastClickedItemIndex_);
-	} else {
-		// Nothing held - clear current selection and select the lastClickedItemIndex_
-		emit itemSelected(lastClickedItemIndex_, QItemSelectionModel::ClearAndSelect);
-	}
-	resetInteraction();
 }
 
 void AMScanThumbnailGridInputManager::resetInteraction()

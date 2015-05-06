@@ -4,6 +4,7 @@
 #include <QAbstractItemView>
 #include <QScrollBar>
 #include <QMouseEvent>
+#include <QRubberBand>
 
 /**
  * View class which displays a list of Scan Thumbnails in a flow grid style
@@ -37,7 +38,7 @@ protected slots:
 	void onItemDoubleClicked(int itemIndex);
 	void onDragBegun();
 	void onSelectionRectangleChanged(const QRect& selectionRectangle);
-	void onSelectionRectangleEnded(QItemSelectionModel::SelectionFlags);
+	void onSelectionRectangleEnded(const QRect& selectionRectangle, QItemSelectionModel::SelectionFlags);
 	void onHoverMove(int itemIndex, int deltaX);
 protected:
 	int horizontalOffset() const;
@@ -70,6 +71,7 @@ private:
 	// Private Member Variables
 	AMScanThumbnailGridGeometryManager* geometryManager_;
 	AMScanThumbnailGridInputManager* inputManager_;
+	QRubberBand* rubberBand_;
 };
 
 

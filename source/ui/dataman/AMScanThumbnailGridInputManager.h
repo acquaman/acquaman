@@ -10,7 +10,7 @@
 
 // The distance which the mouse can travel before it is considered
 // a drag operation rather than just a slight drift in a point operation.
-#define TRAVEL_TOLERANCE 50
+#define TRAVEL_TOLERANCE 20
 // The time between two clicks before they are considered separate, and not
 // part of the same double click.
 #define DOUBLE_CLICK_INTERVAL_MS 250
@@ -105,7 +105,7 @@ signals:
 
 	/// Indicates that the current selection drag rectangle has ended with the
 	/// provided selection flag modifiers
-	void selectionRectangleEnded(QItemSelectionModel::SelectionFlags command);
+	void selectionRectangleEnded(const QRect& selectionRectangle, QItemSelectionModel::SelectionFlags command);
 
 	/// Indicates that the mouse has moved over the provided index by the provided
 	/// delta horizontally while a hover interaction is taking place
@@ -114,11 +114,6 @@ signals:
 public slots:
 
 protected slots:
-	/// Handles the double click timer expiring. This timer is used to give time for
-	/// another click to occur to distinguish between a single click and a double
-	/// click ie. when this timer expires it indicates a single click has just
-	/// occured
-	void onDoubleClickTimerExpired();
 
 private:
 

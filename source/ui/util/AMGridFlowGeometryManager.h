@@ -69,7 +69,7 @@ public:
 	 * Sets the height of a single cell within the grid
 	 * @param cellHeight::int ~ The new height of a single cell within the grid
 	 */
-	int setCellHeight(int cellHeight);
+	void setCellHeight(int cellHeight);
 
 	/**
 	 * The width of the item within each cell
@@ -145,12 +145,19 @@ public:
 	void setCellContentAlignment(Qt::Alignment cellContentAlignment);
 
 	/**
-	 * The index of the cell at the given point, or -1 if the point lies between
+	 * The index of the content rectangle at the given point, or -1 if the point lies between
 	 * items or in the margins
-	 * @param point::QPoint ~ The point to return the cell index underneath
+	 * @param point::QPoint ~ The point to return the content index underneath
 	 */
-	int indexAt(const QPoint& point, int horizontalOffset = 0,
+	int contentIndexAt(const QPoint& point, int horizontalOffset = 0,
 				int verticalOffset = 0) const;
+
+	/**
+	  * The index of the cell at the given point
+	  * @param point::QPoint ~ The point to return the cell index underneat
+	  */
+	int cellIndexAt(const QPoint& point, int horizontalOffset = 0,
+					int verticalOffset = 0) const;
 
 	/**
 	 * Returns a list of the indices of cells which are contained within the
