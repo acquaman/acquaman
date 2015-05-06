@@ -11,8 +11,8 @@ AMPseudoMotorControl::AMPseudoMotorControl(const QString &name, const QString &u
 	setpoint_ = 0;
 	moveInProgress_ = false;
 	isMoving_ = false;
-//	minimumValue_ = 0;
-//	maximumValue_ = 0;
+	minimumValue_ = 0;
+	maximumValue_ = 0;
 
 	cancelledMapper_ = new QSignalMapper(this);
 	connect( cancelledMapper_, SIGNAL(mapped(QObject*)), this, SLOT(onMoveCancelled(QObject*)) );

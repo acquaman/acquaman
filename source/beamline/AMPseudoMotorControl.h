@@ -24,20 +24,21 @@ public:
 	/// Destructor.
 	virtual ~AMPseudoMotorControl();
 
-	/// Returns true if this control is connected, false otherwise.
-	virtual bool isConnected() const { return connected_; }
 	/// Returns the current value.
 	virtual double value() const { return value_; }
 	/// Returns the current setpoint.
 	virtual double setpoint() const { return setpoint_; }
-	/// Returns true if the control is moving, as a result of this control's action.
-	virtual bool moveInProgress() const { return moveInProgress_; }
+	/// Returns the smallest value this control can take.
+	virtual double minimumValue() const { return minimumValue_; }
+	/// Returns the largest value this control can take.
+	virtual double maximumValue() const { return maximumValue_; }
+
+	/// Returns true if this control is connected, false otherwise.
+	virtual bool isConnected() const { return connected_; }
 	/// Returns true if the control is moving.
 	virtual bool isMoving() const { return isMoving_; }
-//	/// Returns the smallest value this control can take.
-//	virtual double minimumValue() const { return minimumValue_; }
-//	/// Returns the largest value this control can take.
-//	virtual double maximumValue() const { return maximumValue_; }
+	/// Returns true if the control is moving, as a result of this control's action.
+	virtual bool moveInProgress() const { return moveInProgress_; }
 
 //	/// Returns true if the control value is always measureable, provided it is connected. False otherwise.
 //	virtual bool shouldMeasure() { return false; }
@@ -115,6 +116,10 @@ protected:
 	bool moveInProgress_;
 	/// The flag indicating whether the control is moving.
 	bool isMoving_;
+	/// The minimum value this control can take.
+	double minimumValue_;
+	/// The maximum value this control can take.
+	double maximumValue_;
 
 	/// The signal mapper for move cancelled.
 	QSignalMapper *cancelledMapper_;

@@ -69,22 +69,36 @@ public:
 	virtual double value() const { return value_; }
 	/// Returns the current region setpoint.
 	virtual double setpoint() const { return setpoint_; }
-	/// Returns true if there is a crystal change procedure in progress, as a result of this control's action.
-	virtual bool moveInProgress() const { return moveInProgress_; }
 	/// Returns Region::A, the smallest value this control can assume.
 	virtual double minimumValue() const;
 	/// Returns Region::None, the largest value this control can assume.
 	virtual double maximumValue() const;
+
+	/// Returns true if this control is connected, false otherwise.
+	virtual bool isConnected() const { return connected_; }
+	/// Returns true if the control is moving.
+	virtual bool isMoving() const { return isMoving_; }
+	/// Returns true if there is a crystal change procedure in progress, as a result of this control's action.
+	virtual bool moveInProgress() const { return moveInProgress_; }
+
 	/// Returns true if the region is always measurable (when the control is connected).
 	virtual bool shouldMeasure() const { return true; }
 	/// Returns true if a move to a new region is always possible, provided control is connected.
 	virtual bool shouldMove() const { return true; }
 	/// Returns true if this control can stop a crystal change in progress, provided it is connected.
 	virtual bool shouldStop() const { return false; }
+
+	/// Returns true if this control can take a measurement right now.
+	virtual bool canMeasure() const;
 	/// Returns true if this control can move right now.
 	virtual bool canMove() const;
 	/// Returns true if this control can stop a change to a new region right now.
 	virtual bool canStop() const { return false; }
+
+	/// Returns true if the given value is a valid value for this control, false otherwise.
+	virtual bool validValue(double value) const;
+	/// Returns true if the given value is a valid setpoint for this control, false otherwise.
+	virtual bool validSetpoint(double value) const;
 
 	/// Returns the upper slit control.
 	AMControl* upperSlitControl() const { return upperSlit_; }
@@ -139,8 +153,6 @@ signals:
 public slots:
 	/// Sets the new region setpoint and performs a crystal change, if necessary.
 	virtual FailureExplanation move(double setpoint);
-	/// Stops a crystal change in progress.
-	virtual bool stop() { return false; }
 
 	// Sets the upper slit motor control.
 	void setUpperSlitControl(AMControl *upperSlit);
@@ -172,12 +184,23 @@ public slots:
 	void setRegionBStatusControl(AMControl *regionStatus);
 
 protected slots:
-	/// Updates the current value_ and emits the valueChanged() signal.
-	void setValue(int newValue);
-	/// Updates the current setpoint_ and emits the setpointChanged() signal.
-	void setSetpoint(int newSetpoint);
-	/// Updates the current moveInProgress_ value and emits the moveChanged() signal. The moveStarted() signal is also emitted if the change is to true.
+	/// Sets the connected state.
+	void setConnected(bool isConnected);
+	/// Sets the value.
+	void setValue(double newValue);
+	/// Sets the setpoint.
+	void setSetpoint(double newValue);
+	/// Sets the 'move in progress' state.
 	void setMoveInProgress(bool isMoving);
+	/// Sets the 'is moving' state.
+	void setIsMoving(bool isMoving);
+
+	/// Updates the connected state.
+	virtual void updateConnected();
+	/// Updates the current value.
+	virtual void updateValue();
+	/// Updates the 'is moving' state.
+	virtual void updateIsMoving();
 
 	/// Handles emitting the appropriate signals when the current step in a move has changed.
 	void onActionStepChanged(int stepIndex);
@@ -193,8 +216,8 @@ protected slots:
 	void onRegionChangeSucceeded(QObject *action);
 
 protected:
-	/// Returns a new action that performs a crystal change to change the region.
-	AMListAction3* createChangeRegionAction(int newRegion);
+	/// Returns a new action that performs a crystal change to the new region.
+	AMAction3* createMoveAction(double newRegion);
 
 	/// Returns a new action that closes the upper slit, 0 if not connected.
 	AMAction3* createCloseUpperSlitAction();
@@ -276,12 +299,16 @@ protected:
 	void moveCleanup(QObject *action);
 
 protected:
-	/// The current region state.
-	int value_;
-	/// The current region setpoint.
-	int setpoint_;
-	/// The current move state, true if this control has initiated a move.
+	/// The flag indicating whether this control is connected.
+	bool connected_;
+	/// The current value.
+	double value_;
+	/// The current setpoint.
+	double setpoint_;
+	/// The flag indicating whether the control is moving as a result of the move() slot.
 	bool moveInProgress_;
+	/// The flag indicating whether the control is moving.
+	bool isMoving_;
 
 	/// The upper slit motor.
 	AMControl *upperSlit_;
