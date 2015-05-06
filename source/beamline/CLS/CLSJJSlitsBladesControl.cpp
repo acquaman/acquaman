@@ -1,5 +1,7 @@
 #include "CLSJJSlitsBladesControl.h"
-#include <QDebug>
+
+#include "actions3/AMAction3.h"
+#include "util/AMErrorMonitor.h"
 
 CLSJJSlitsBladesControl::CLSJJSlitsBladesControl(const QString &name, AMControl *upperBladeControl, AMControl *lowerBladeControl, QObject *parent, const QString &units, const QString &description, double tolerance) :
 	AMCompositeControl(name, units, parent, description)
@@ -246,18 +248,8 @@ void CLSJJSlitsBladesControl::updateConnected()
 
 	bool connected = (upperControlOK && lowerControlOK);
 
-	if (connected)
-		qDebug() << name() << "connected.";
-	else
-		qDebug() << name() << "NOT connected.";
-
 	setConnected(connected);
 }
-
-//void CLSJJSlitsBladesControl::updateValue()
-//{
-//	qDebug() << "BladesControl::updateValue()";
-//}
 
 void CLSJJSlitsBladesControl::updateGap()
 {
@@ -302,9 +294,7 @@ void CLSJJSlitsBladesControl::moveCleanup(QObject *action)
 	if (action) {
 		setMoveInProgress(false);
 
-		disconnect( action, 0, moveCancelled_, 0 );
-		disconnect( action, 0, moveFailed_, 0 );
-		disconnect( action, 0, moveSucceeded_, 0 );
+		action->disconnect();
 
 		moveCancelled_->removeMappings(action);
 		moveFailed_->removeMappings(action);

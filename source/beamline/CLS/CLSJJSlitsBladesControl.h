@@ -4,10 +4,8 @@
 #include <QSignalMapper>
 
 #include "beamline/AMCompositeControl.h"
-#include "actions3/AMAction3.h"
-#include "util/AMErrorMonitor.h"
 
-// error codes.
+// Error codes.
 #define CLSJJSLITSCONTROL_NOT_CONNECTED 23487300
 #define CLSJJSLITSCONTROL_ALREADY_MOVING 23487301
 #define CLSJJSLITSCONTROL_CANNOT_MOVE 23487302
@@ -42,7 +40,7 @@ public:
 	/// Returns true if a gap change is always possible, provided the controls are connected. False otherwise.
 	virtual bool shouldMove() const { return true; }
 	/// Returns true if this control can stop a gap change in progress, provided the controls are connected. False otherwise.
-	virtual bool shouldStop() const { return false; }
+	virtual bool shouldStop() const { return true; }
 	/// Returns true if this control can move right now.
 	virtual bool canMove() const;
 	/// Returns true if this control can stop a move right now.

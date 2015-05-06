@@ -1,6 +1,5 @@
 #include "CLSJJSlit.h"
 
-#include "beamline/CLS/CLSMAXvMotor.h"
 #include "beamline/CLS/CLSJJSlitGapControl.h"
 #include "beamline/CLS/CLSJJSlitCenterControl.h"
 
