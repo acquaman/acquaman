@@ -490,15 +490,20 @@ void SXRMBAppController::onShowAmbiantSampleStageMotorsTriggered()
 {
 	QString motorGroupName = SXRMBBeamline::sxrmb()->ambiantWithoutGasChamberSampleStageMotorGroupObject()->name();
 
-	if (!ambiantSampleStageMotorGroupView) {
-		ambiantSampleStageMotorGroupView = new AMMotorGroupView(SXRMBBeamline::sxrmb()->motorGroup(), AMMotorGroupView::Exclusive);
-		ambiantSampleStageMotorGroupView->setMotorGroupView(motorGroupName);
-		ambiantSampleStageMotorGroupView->showAvailableMotorGroupChoices(false);
+	if (!ambiantSampleStageMotorGroupView_) {
+		ambiantSampleStageMotorGroupView_ = new AMMotorGroupView(SXRMBBeamline::sxrmb()->motorGroup(), AMMotorGroupView::Exclusive);
+		ambiantSampleStageMotorGroupView_->setMotorGroupView(motorGroupName);
+		ambiantSampleStageMotorGroupView_->showAvailableMotorGroupChoices(false);
+
+		AMExtendedControlEditor * ambiantTableHeightControlEditor = new AMExtendedControlEditor(SXRMBBeamline::sxrmb()->ambiantTableHeight());
+		ambiantTableHeightControlEditor->setControlFormat('f', 2);
+
+		ambiantSampleStageMotorGroupView_->layout()->addWidget(ambiantTableHeightControlEditor);
 	}
 
-	ambiantSampleStageMotorGroupView->raise();
-	ambiantSampleStageMotorGroupView->activateWindow();
-	ambiantSampleStageMotorGroupView->showNormal();
+	ambiantSampleStageMotorGroupView_->raise();
+	ambiantSampleStageMotorGroupView_->activateWindow();
+	ambiantSampleStageMotorGroupView_->showNormal();
 }
 
 void SXRMBAppController::onSwitchBeamlineEndstationTriggered()
