@@ -149,7 +149,7 @@ void AMScanThumbnailGridView::onItemDoubleClicked(int itemIndex)
 void AMScanThumbnailGridView::onDragBegun()
 {
 	QDrag* drag = new QDrag(this);
-	QMimeData* mimeData = new QMimeData();
+	QMimeData* mimeData = model()->mimeData(selectionModel()->selectedIndexes());
 	drag->setMimeData(mimeData);
 	drag->setHotSpot(QPoint(15,15));
 	drag->exec(Qt::CopyAction);
