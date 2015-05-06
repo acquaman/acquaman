@@ -1,10 +1,7 @@
 #include "CLSJJSlitCenterControl.h"
 
-#include "util/AMErrorMonitor.h"
 #include "actions3/AMListAction3.h"
 #include "actions3/AMActionSupport.h"
-
-#include <QDebug>
 
 CLSJJSlitCenterControl::CLSJJSlitCenterControl(const QString &name, AMControl *upperBladeControl, AMControl *lowerBladeControl, QObject *parent) :
 	CLSJJSlitsBladesControl(name, upperBladeControl, lowerBladeControl, parent, "mm")
@@ -25,8 +22,6 @@ CLSJJSlitCenterControl::~CLSJJSlitCenterControl()
 
 void CLSJJSlitCenterControl::updateValue()
 {
-	qDebug() << "CenterControl::updateValue()";
-
 	if (isConnected()) {
 		setValue( calculateCenterPosition(upperBladeControl_->value(), lowerBladeControl_->value()) );
 	}
