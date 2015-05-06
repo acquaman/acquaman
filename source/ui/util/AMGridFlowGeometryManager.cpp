@@ -1,6 +1,7 @@
 #include "AMGridFlowGeometryManager.h"
 
-AMGridFlowGeometryManager::AMGridFlowGeometryManager(int width, int cellWidth, int cellHeight, int itemWidth, int itemHeight, Qt::Alignment cellContentAlignment) {
+AMGridFlowGeometryManager::AMGridFlowGeometryManager(int width, int cellWidth, int cellHeight, int itemWidth, int itemHeight, Qt::Alignment cellContentAlignment)
+{
 	width_ = width;
 	cellWidth_ = cellWidth;
 	cellHeight_ = cellHeight;
@@ -13,11 +14,13 @@ AMGridFlowGeometryManager::AMGridFlowGeometryManager(int width, int cellWidth, i
 	cellContentAlignment_ = cellContentAlignment;
 }
 
-int AMGridFlowGeometryManager::width() const {
+int AMGridFlowGeometryManager::width() const
+{
 	return width_;
 }
 
-int AMGridFlowGeometryManager::heightFor(int itemCount) const {
+int AMGridFlowGeometryManager::heightFor(int itemCount) const
+{
 	int currentCellsPerRow = cellsPerRow();
 
 	if(currentCellsPerRow == 0)
@@ -28,75 +31,93 @@ int AMGridFlowGeometryManager::heightFor(int itemCount) const {
 	return marginTop_ + (currentRowCount * cellHeight_) + marginBottom_;
 }
 
-void AMGridFlowGeometryManager::setWidth(int width) {
+void AMGridFlowGeometryManager::setWidth(int width)
+{
 	width_ = width;
 }
 
-int AMGridFlowGeometryManager::cellWidth() const {
+int AMGridFlowGeometryManager::cellWidth() const
+{
 	return cellWidth_;
 }
 
-void AMGridFlowGeometryManager::setCellWidth(int cellWidth) {
+void AMGridFlowGeometryManager::setCellWidth(int cellWidth)
+{
 	cellWidth_ = cellWidth;
 }
 
-int AMGridFlowGeometryManager::cellHeight() const {
+int AMGridFlowGeometryManager::cellHeight() const
+{
 	return cellHeight_;
 }
 
-int AMGridFlowGeometryManager::setCellHeight(int cellHeight) {
+int AMGridFlowGeometryManager::setCellHeight(int cellHeight)
+{
 	cellHeight_ = cellHeight;
 }
 
-int AMGridFlowGeometryManager::itemWidth() const {
+int AMGridFlowGeometryManager::itemWidth() const
+{
 	return itemWidth_;
 }
 
-int AMGridFlowGeometryManager::itemHeight() const {
+int AMGridFlowGeometryManager::itemHeight() const
+{
 	return itemHeight_;
 }
 
-int AMGridFlowGeometryManager::marginLeft() const {
+int AMGridFlowGeometryManager::marginLeft() const
+{
 	return marginLeft_;
 }
 
-void AMGridFlowGeometryManager::setMarginLeft(int marginLeft) {
+void AMGridFlowGeometryManager::setMarginLeft(int marginLeft)
+{
 	marginLeft_ = marginLeft;
 }
 
-int AMGridFlowGeometryManager::marginRight() const {
+int AMGridFlowGeometryManager::marginRight() const
+{
 	return marginRight_;
 }
 
-void AMGridFlowGeometryManager::setMarginRight(int marginRight) {
+void AMGridFlowGeometryManager::setMarginRight(int marginRight)
+{
 	marginRight_ = marginRight;
 }
 
-int AMGridFlowGeometryManager::marginTop() const {
+int AMGridFlowGeometryManager::marginTop() const
+{
 	return marginTop_;
 }
 
-void AMGridFlowGeometryManager::setMarginTop(int marginTop) {
+void AMGridFlowGeometryManager::setMarginTop(int marginTop)
+{
 	marginTop_ = marginTop;
 }
 
-int AMGridFlowGeometryManager::marginBottom() const {
+int AMGridFlowGeometryManager::marginBottom() const
+{
 	return marginBottom_;
 }
 
-void AMGridFlowGeometryManager::setMarginBottom(int marginBottom) {
+void AMGridFlowGeometryManager::setMarginBottom(int marginBottom)
+{
 	marginBottom_ = marginBottom;
 }
 
-Qt::Alignment AMGridFlowGeometryManager::cellContentAlignment() const {
+Qt::Alignment AMGridFlowGeometryManager::cellContentAlignment() const
+{
 	return cellContentAlignment_;
 }
 
-void AMGridFlowGeometryManager::setCellContentAlignment(Qt::Alignment cellContentAlignment) {
+void AMGridFlowGeometryManager::setCellContentAlignment(Qt::Alignment cellContentAlignment)
+{
 	cellContentAlignment_ = cellContentAlignment;
 }
 
-int AMGridFlowGeometryManager::indexAt(const QPoint &point, int horizontalOffset, int verticalOffset) const {
+int AMGridFlowGeometryManager::indexAt(const QPoint &point, int horizontalOffset, int verticalOffset) const
+{
 	if(point.isNull())
 		return -1;
 
@@ -117,7 +138,8 @@ int AMGridFlowGeometryManager::indexAt(const QPoint &point, int horizontalOffset
 		return -1;
 }
 
-QList<int> AMGridFlowGeometryManager::indicesWithin(const QRect &rect, int horizontalOffset, int verticalOffset) const {
+QList<int> AMGridFlowGeometryManager::indicesWithin(const QRect &rect, int horizontalOffset, int verticalOffset) const
+{
 	QList<int> returnList;
 
 	for(int iCellIndex = 0, lastIndex = indexAt(rect.bottomRight());
@@ -133,7 +155,8 @@ QList<int> AMGridFlowGeometryManager::indicesWithin(const QRect &rect, int horiz
 }
 
 QRect AMGridFlowGeometryManager::cellGeometryAt(int index, int horizontalOffset,
-												int verticalOffset) const {
+												int verticalOffset) const
+{
 	if(index < 0)
 		return QRect();
 
@@ -152,7 +175,8 @@ QRect AMGridFlowGeometryManager::cellGeometryAt(int index, int horizontalOffset,
 }
 
 QRect AMGridFlowGeometryManager::cellGeometryAt(const QPoint &point, int horizontalOffset,
-												int verticalOffset) const {
+												int verticalOffset) const
+{
 	if(point.isNull())
 		return QRect();
 
@@ -165,15 +189,18 @@ QRect AMGridFlowGeometryManager::cellGeometryAt(const QPoint &point, int horizon
 	return cellGeometryAt(cellIndex);
 }
 
-QRect AMGridFlowGeometryManager::contentGeometryAt(int index, int horizontalOffset, int verticalOffset) const {
+QRect AMGridFlowGeometryManager::contentGeometryAt(int index, int horizontalOffset, int verticalOffset) const
+{
 	return contentGeometryFromCell(cellGeometryAt(index, horizontalOffset, verticalOffset));
 }
 
-QRect AMGridFlowGeometryManager::contentGeometryAt(const QPoint &point, int horizontalOffset, int verticalOffset) const {
+QRect AMGridFlowGeometryManager::contentGeometryAt(const QPoint &point, int horizontalOffset, int verticalOffset) const
+{
 	return contentGeometryFromCell(cellGeometryAt(point, horizontalOffset, verticalOffset));
 }
 
-int AMGridFlowGeometryManager::cellsPerRow() const {
+int AMGridFlowGeometryManager::cellsPerRow() const
+{
 	int cellsPerRow = 0;
 
 	if(cellWidth_ < 1)
@@ -191,7 +218,8 @@ int AMGridFlowGeometryManager::cellsPerRow() const {
 	return cellsPerRow;
 }
 
-QRect AMGridFlowGeometryManager::contentGeometryFromCell(const QRect &cellGeometry) const {
+QRect AMGridFlowGeometryManager::contentGeometryFromCell(const QRect &cellGeometry) const
+{
 	if(!cellGeometry.isValid() || cellGeometry.isEmpty() || cellGeometry.isNull())
 		return QRect();
 

@@ -9,37 +9,45 @@ AMScanThumbnailGridInputManager::AMScanThumbnailGridInputManager(QObject *parent
 	hoverTimer_.setSingleShot(true);
 	doubleClickTimer_.setSingleShot(true);
 }
-
-void AMScanThumbnailGridInputManager::mouseDownAt(int itemIndex, int positionX, int positionY, Qt::MouseButtons mouseButtons)
+#include <QDebug>
+void AMScanThumbnailGridInputManager::mouseDownAt(int itemIndex, int positionX, int positionY, Qt::MouseButtons mouseButtons, bool itemIsSelected)
 {
 	if(mouseButtons & Qt::LeftButton) {
+		qDebug() << "Left button pressed";
 		// Left mouse button is clicked
 		startPositionX_ = positionX;
 		startPositionY_ = positionY;
 
 		if(itemIndex != -1) {
+			qDebug() << "Mouse is over an item";
 			// Mouse is on a item
 
 			if(doubleClickTimer_.isActive()) {
+				qDebug() << "Double click timer is running";
 				// Double click timer is running
 
 				if(lastClickedItemIndex_ == itemIndex) {
 					// Still over the same index on the second click
-
+					qDebug() << "Still over the same index on the second click";
 					emit itemDoubleClicked(itemIndex);
 					resetInteraction();
 
 				} else {
 					// Second click is on a different index
+					qDebug() << "Second click is on a different index";
 					lastClickedItemIndex_ = itemIndex;
 				}
 			} else {
 				// Double click timer is not running
+				qDebug() << "Double click timer is not running";
 				lastClickedItemIndex_ = itemIndex;
+				startItemSelected_ = itemIsSelected;
 			}
 		} else {
 			// Mouse is not on an item
+			qDebug() << "Mouse is not on an item";
 			lastClickedItemIndex_ = -1;
+			startItemSelected_ = false;
 			doubleClickTimer_.stop();
 		}
 	}
@@ -65,12 +73,14 @@ void AMScanThumbnailGridInputManager::mouseMovedTo(int itemIndex, int positionX,
 				// Current input coordinate is far enough from the start to consider
 				// this a drag operation
 
-				if(lastClickedItemIndex_ != -1) {
-					// Mouse was over an item at start of interaction (ie this is a drag)
+				if(startItemSelected_) {
+					qDebug() << "Drag Begun";
+					// Item the mouse was over at the start was selected (need to start a drag)
 					dragInProgress_ = true;
 					emit dragBegun();
+					resetInteraction();
 				} else {
-					// Mouse was not over an item (ie. a rectangle selection operation)
+					// Item the mouse was over at start was not selected (ie. a rectangle selection operation)
 					emit selectionRectangleChanged(QRect(startPositionX_,
 														 startPositionY_,
 														 lastUpdatePositionX_ - startPositionX_,
@@ -125,43 +135,51 @@ void AMScanThumbnailGridInputManager::mouseReleasedAt(int positionX, int positio
 {
 	if(startPositionX_ == -1 && startPositionY_ == -1) {
 		// No interaction is currently being performed. Just return.
+		qDebug() << "No interaction is currently being performed";
 		return;
 	}
 
 	if(!mouseButtons & Qt::LeftButton) {
 		// Left button clicked
-
+		qDebug() << "Left button clicked";
 		if(dragInProgress_) {
 			// Drag has stopped here - We don't accept drags, so nothing doing
-
+			qDebug() << "Drag stopped here";
 			resetInteraction();
 		} else {
 			// No Drag is happening
-
+			qDebug() << "No drag happening";
 			int travelDistanceX = int(std::abs(double(positionX - startPositionX_)));
 			int travelDistanceY = int(std::abs(double(positionY - startPositionY_)));
 			if(travelDistanceX > TRAVEL_TOLERANCE ||
 					travelDistanceY > TRAVEL_TOLERANCE) {
 				// We've moved far enough that this must be a rectangle, not a point, selection
-
+				qDebug() << "Must be a rectangle selection";
 				if(keys & Qt::ShiftModifier || keys & Qt::ControlModifier) {
 					// Shift or Control is held
+					qDebug() << "Shift or Control is held";
 					emit selectionRectangleEnded(QItemSelectionModel::Select);
 					resetInteraction();
 				} else {
+					// No key modifier is held
+					qDebug() << "No key modifier held";
 					emit selectionRectangleEnded(QItemSelectionModel::ClearAndSelect);
 					resetInteraction();
 				}
 			} else {
 				// Just a single point click
+				qDebug() << "Single point selection";
 				if(keys & Qt::ControlModifier) {
 					// Control held - toggle the specified index without clearing
+					qDebug() << "Control modifier held";
 					emit itemSelected(lastClickedItemIndex_, QItemSelectionModel::Toggle);
 				} else if(keys & Qt::ShiftModifier) {
 					// Shift held - extend the current selection to the last clicked index
+					qDebug() << "Shift is held";
 					emit selectionExtended(lastClickedItemIndex_);
 				} else {
 					// Nothing held - clear current selection and select the lastClickedItemIndex_
+					qDebug() << "No modifier is held";
 					emit itemSelected(lastClickedItemIndex_, QItemSelectionModel::ClearAndSelect);
 				}
 				resetInteraction();
@@ -178,7 +196,7 @@ void AMScanThumbnailGridInputManager::mouseReleasedAt(int positionX, int positio
 			int travelDistanceY = int(std::abs(double(positionY - startPositionY_)));
 			if(travelDistanceX > TRAVEL_TOLERANCE ||
 					travelDistanceY > TRAVEL_TOLERANCE) {
-				// We've moved far enough that this must be a rectanglecd plugin selection
+				// We've moved far enough that this must be a rectangle selection
 				// we need to cancel it
 			}
 		}
@@ -203,13 +221,14 @@ void AMScanThumbnailGridInputManager::onDoubleClickTimerExpired()
 
 void AMScanThumbnailGridInputManager::resetInteraction()
 {
+	qDebug() << "Interaction reset";
 	startPositionX_ = -1;
 	startPositionY_ = -1;
 
 	lastUpdatePositionX_ = -1;
 	lastUpdatePositionY_ = -1;
 
-	//lastClickedItemIndex_ = -1;
+	startItemSelected_ = false;
 
 	dragInProgress_ = false;
 }

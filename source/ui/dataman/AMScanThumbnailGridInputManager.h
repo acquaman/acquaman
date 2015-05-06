@@ -49,8 +49,9 @@ public:
 	  * was pressed.
 	  * @param mouseButtons::MouseButtons ~ A set of flags indicating which mouse buttons
 	  * were pressed
+	  * @param itemIsSelected::bool ~ Whether the item which the mouse was over is already selected
 	  */
-	void mouseDownAt(int itemIndex, int positionX, int positionY, Qt::MouseButtons mouseButtons);
+	void mouseDownAt(int itemIndex, int positionX, int positionY, Qt::MouseButtons mouseButtons, bool itemIsSelected);
 
 	/**
 	  * Informs the input manager that the mouse was moved as part of the current interaction.
@@ -79,8 +80,6 @@ public:
 	  * button was released
 	  */
 	void mouseReleasedAt(int positionX, int positionY, Qt::MouseButtons mouseButtons, Qt::KeyboardModifiers keys);
-
-
 
 signals:
 
@@ -127,6 +126,11 @@ private:
 	/// that one entire interaction cycle has taken place, and the input manager
 	/// is now in a state ready for another to being.
 	void resetInteraction();
+
+	/// Stores the selection state of the item which the mouse was over when the
+	/// interaction began. Is used to determine whether a rectangle selection or
+	/// a drag operation should be begun
+	bool startItemSelected_;
 
 	/// The X position of the mouse cursor at the beginning of the current interaction
 	/// (is -1 if no interaction is currently in progress)

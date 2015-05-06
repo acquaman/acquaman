@@ -281,8 +281,9 @@ void AMScanThumbnailGridView::resizeEvent(QResizeEvent *event)
 
 void AMScanThumbnailGridView::mousePressEvent(QMouseEvent *event)
 {
-	inputManager_->mouseDownAt(geometryManager_->indexAt(event->pos(), horizontalOffset(), verticalOffset()),
-							   event->pos().x(), event->pos().y(), event->buttons());
+	int indexOfItemUnderMouse = geometryManager_->indexAt(event->pos(), horizontalOffset(), verticalOffset());
+	bool itemIsSelected = selectionModel()->isRowSelected(indexOfItemUnderMouse, QModelIndex());
+	inputManager_->mouseDownAt(indexOfItemUnderMouse, event->pos().x(), event->pos().y(), event->buttons(), itemIsSelected);
 }
 
 void AMScanThumbnailGridView::mouseMoveEvent(QMouseEvent *event)
@@ -316,5 +317,6 @@ void AMScanThumbnailGridView::updateScrollBars()
 	verticalScrollBar()->setSingleStep(15);
 	verticalScrollBar()->setPageStep(geometryManager_->cellHeight());
 }
+
 
 
