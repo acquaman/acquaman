@@ -31,7 +31,6 @@ class IDEASXASScanConfiguration : public AMStepScanConfiguration
 	Q_PROPERTY(QString edge READ edge WRITE setEdge)
 	Q_PROPERTY(double edgeEnergy READ energy WRITE setEnergy)
 	Q_PROPERTY(bool useFixedTime READ useFixedTime WRITE setUseFixedTime)
-	Q_PROPERTY(int numberOfScans READ numberOfScans WRITE setNumberOfScans)
 
 	Q_PROPERTY(bool isXRFScan READ isXRFScan WRITE setIsXRFScan)
 	Q_PROPERTY(bool isTransScan READ isTransScan WRITE setIsTransScan)
@@ -106,8 +105,6 @@ public:
 
 	/// Returns whether the scan should use fixed or variable integration time.  The default is to use the variable integration time.
 	bool useFixedTime() const { return useFixedTime_; }
-	/// Returns the number of times this scan will be run.
-	int numberOfScans() const { return numberOfScans_; }
 
 	/// Returns the current fluorescence detector choice.
 	IDEASXASScanConfiguration::FluorescenceDetector fluorescenceDetector() const { return fluorescenceDetector_; }
@@ -124,8 +121,6 @@ signals:
 	void useFixedTimeChanged(bool);
 	/// Notifier that the total time estimate has changed.
 	void totalTimeChanged(double);
-	/// Notifier that the number of scans has changed.
-	void numberOfScansChanged(int);
 	/// Notifier that the fluorescence choice has changed.
 	void fluorescenceDetectorChanged(IDEASXASScanConfiguration::FluorescenceDetector);
 	/// Same signal.  Just passing as an int.
@@ -146,8 +141,6 @@ public slots:
 
 	/// Sets whether the scan should use fixed or variable integration time for EXAFS.
 	void setUseFixedTime(bool fixed);
-	/// Sets the number of times this scan should be repeated.
-	void setNumberOfScans(int num);
 	/// Sets the choice for the fluorescence detector.
 	void setFluorescenceDetector(IDEASXASScanConfiguration::FluorescenceDetector detector);
 	/// Overloaded.  Used for database loading.
@@ -172,8 +165,6 @@ protected:
 	double energy_;
 	/// Holds whether the EXAFS scan will use fixed or variable integration time.
 	bool useFixedTime_;
-	/// Holds the number of times this scan should be repeated.
-	int numberOfScans_;
 	/// Holds the offset per point of extra time when doing a scan.
 	double timeOffset_;
 	/// Holds the total time in seconds that the scan is estimated to take.
