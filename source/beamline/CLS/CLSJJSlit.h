@@ -32,13 +32,13 @@ public:
 	AMControl* outboardBladeControl() const { return outboardBlade_; }
 
 	/// Returns the vertical blades gap control.
-	CLSJJSlitGapControl* verticalGapControl() const { return verticalGap_; }
+	AMControl* verticalGapControl() const { return verticalGap_; }
 	/// Returns the vertical blades center control.
-	CLSJJSlitCenterControl* verticalCenterControl() const { return verticalCenter_; }
+	AMControl* verticalCenterControl() const { return verticalCenter_; }
 	/// Returns the horizontal blades gap control.
-	CLSJJSlitGapControl* horizontalGapControl() const { return horizontalGap_; }
+	AMControl* horizontalGapControl() const { return horizontalGap_; }
 	/// Returns the horizontal blades center control.
-	CLSJJSlitCenterControl* horizontalCenterControl() const { return horizontalCenter_; }
+	AMControl* horizontalCenterControl() const { return horizontalCenter_; }
 
 signals:
 	/// Notifier that the connected state has changed.
