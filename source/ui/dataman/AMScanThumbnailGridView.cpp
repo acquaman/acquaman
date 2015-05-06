@@ -4,16 +4,17 @@
 #include "ui/dataman/AMScanThumbnailGridInputManager.h"
 
 AMScanThumbnailGridView::AMScanThumbnailGridView(QWidget *parent) :
-	QAbstractItemView(parent) {
+	QAbstractItemView(parent)
+{
 	geometryManager_ = new AMScanThumnailGridGeometryManager(sizeHint().width());
 	// Wire up the input manager to this view
 	inputManager_ = new AMScanThumbnailGridInputManager();
 	connect(inputManager_, SIGNAL(itemSelected(int,QItemSelectionModel::SelectionFlags)), this, SLOT(onItemSelected(int,QItemSelectionModel::SelectionFlags)));
 	connect(inputManager_, SIGNAL(selectionExtended(int)), this, SLOT(onSelectionExtended(int)));
 	connect(inputManager_, SIGNAL(itemDoubleClicked(int)), this, SLOT(onItemDoubleClicked(int)));
-	connect(inputManager_, SIGNAL(dragBegun(int)), this, SLOT(onDragBegun(int)));
+	connect(inputManager_, SIGNAL(dragBegun()), this, SLOT(onDragBegun()));
 	connect(inputManager_, SIGNAL(selectionRectangleChanged(QRect)), this, SLOT(onSelectionRectangleChanged(QRect)));
-	connect(inputManager_, SIGNAL(selectionRectangleEnded(QItemSelectionModel::SelectionFlags)), this, SLOT(onSelectionRectangleEnded(QRect,QItemSelectionModel::SelectionFlags)));
+	connect(inputManager_, SIGNAL(selectionRectangleEnded(QItemSelectionModel::SelectionFlags)), this, SLOT(onSelectionRectangleEnded(QItemSelectionModel::SelectionFlags)));
 	connect(inputManager_, SIGNAL(hoverMove(int,int)), this, SLOT(onHoverMove(int,int)));
 
 	// Have to set mouse tracking in order to receive events when no mouse button is held
@@ -24,7 +25,8 @@ AMScanThumbnailGridView::AMScanThumbnailGridView(QWidget *parent) :
 	updateScrollBars();
 }
 
-QModelIndex AMScanThumbnailGridView::indexAt(const QPoint &point) const {
+QModelIndex AMScanThumbnailGridView::indexAt(const QPoint &point) const
+{
 	if(!model())
 		return QModelIndex();
 
@@ -39,7 +41,8 @@ QModelIndex AMScanThumbnailGridView::indexAt(const QPoint &point) const {
 	return model()->index(integerIndexAt, 0, QModelIndex());
 }
 
-QRect AMScanThumbnailGridView::visualRect(const QModelIndex &index) const {
+QRect AMScanThumbnailGridView::visualRect(const QModelIndex &index) const
+{
 
 	QRect rowContentRect;
 
@@ -85,67 +88,108 @@ QRect AMScanThumbnailGridView::visualRect(const QModelIndex &index) const {
 
 }
 
-void AMScanThumbnailGridView::scrollTo(const QModelIndex &index, QAbstractItemView::ScrollHint hint) {
+void AMScanThumbnailGridView::scrollTo(const QModelIndex &index, QAbstractItemView::ScrollHint hint)
+{
 
 }
-#include <QDebug>
-void AMScanThumbnailGridView::onItemSelected(int itemIndex, QItemSelectionModel::SelectionFlags flags) {
-	qDebug() << QString("Item selected at index %1 in slot onItemSelected").arg(itemIndex);
+
+void AMScanThumbnailGridView::onItemSelected(int itemIndex, QItemSelectionModel::SelectionFlags flags)
+{
 	if(itemIndex < 0)
 		return;
 
-
 	QModelIndex selectedItemIndex = model()->index(itemIndex, 0, QModelIndex());
-	selectionModel()->select(selectedItemIndex, QItemSelectionModel::Rows);
+	selectionModel()->select(selectedItemIndex, flags | QItemSelectionModel::Rows);
 }
 
 void AMScanThumbnailGridView::onSelectionExtended(int itemIndex)
 {
-	qDebug() << QString("Selection extended to %1").arg(itemIndex);
+	QModelIndex extendToIndex = model()->index(itemIndex, 0, QModelIndex());
+	if(!extendToIndex.isValid())
+		return;
+
+	// Get the lowest currently selected row index
+	int lowestSelectedRowIndex = 0;
+	int rowCount = model()->rowCount();
+	bool lowestSelectedRowIndexFound = false;
+	while(lowestSelectedRowIndex < rowCount && !lowestSelectedRowIndexFound) {
+		if(selectionModel()->isRowSelected(lowestSelectedRowIndex, QModelIndex())) {
+			lowestSelectedRowIndexFound = true;
+		} else {
+			++lowestSelectedRowIndex;
+		}
+	}
+
+	if(lowestSelectedRowIndexFound)	{
+		QModelIndex lowestSelectedModelIndex =
+				model()->index(lowestSelectedRowIndex, 1, QModelIndex());
+
+		if(lowestSelectedModelIndex.isValid()) {
+
+			QItemSelection newSelectedItems;
+
+			if(extendToIndex.row() < lowestSelectedModelIndex.row())
+				newSelectedItems.select(extendToIndex, lowestSelectedModelIndex);
+			else
+				newSelectedItems.select(lowestSelectedModelIndex, extendToIndex);
+
+			selectionModel()->select(newSelectedItems, QItemSelectionModel::Select | QItemSelectionModel::Rows);
+		}
+	}
 }
 
 void AMScanThumbnailGridView::onItemDoubleClicked(int itemIndex)
 {
-	qDebug() << QString("Item %1 double clicked").arg(itemIndex);
+	QModelIndex doubleClickedItemIndex = model()->index(itemIndex, 0, QModelIndex());
+	emit doubleClicked(doubleClickedItemIndex);
 }
 
-void AMScanThumbnailGridView::onDragBegun(int itemIndex)
+void AMScanThumbnailGridView::onDragBegun()
 {
-	qDebug() << QString("Drag of item %1 begun").arg(itemIndex);
+	QDrag* drag = new QDrag(this);
+	QMimeData* mimeData = new QMimeData();
+	drag->setMimeData(mimeData);
+	drag->setHotSpot(QPoint(15,15));
+	drag->exec(Qt::CopyAction);
 }
 
 void AMScanThumbnailGridView::onSelectionRectangleChanged(const QRect &selectionRectangle)
 {
+
 }
 
-void AMScanThumbnailGridView::onSelectionRectangleEnded(const QRect &selectionRectangle, QItemSelectionModel::SelectionFlags flags)
+void AMScanThumbnailGridView::onSelectionRectangleEnded(QItemSelectionModel::SelectionFlags flags)
 {
-	qDebug() << QString("Selection rectangle x:%1, y:%2, width:%3, height:%4 ended").arg(selectionRectangle.x()).arg(selectionRectangle.y()).arg(selectionRectangle.width()).arg(selectionRectangle.height());
+
 }
 
 void AMScanThumbnailGridView::onHoverMove(int itemIndex, int deltaX)
 {
-	qDebug() << QString("Hover moved over index %1 by %2 pixels horizontally").arg(itemIndex).arg(deltaX);
+
 }
 
-int AMScanThumbnailGridView::horizontalOffset() const {
+int AMScanThumbnailGridView::horizontalOffset() const
+{
 	return horizontalScrollBar()->value();
 }
 
-bool AMScanThumbnailGridView::isIndexHidden(const QModelIndex &index) const {
+bool AMScanThumbnailGridView::isIndexHidden(const QModelIndex &index) const
+{
 	Q_UNUSED(index)
 	return false;
 }
 
 QModelIndex AMScanThumbnailGridView::moveCursor(QAbstractItemView::CursorAction cursorAction,
-											Qt::KeyboardModifiers modifiers) {
+											Qt::KeyboardModifiers modifiers)
+{
 	//STUB
 	Q_UNUSED(cursorAction)
 	Q_UNUSED(modifiers)
 	return QModelIndex();
 }
 
-void AMScanThumbnailGridView::setSelection(const QRect &rect, QItemSelectionModel::SelectionFlags command) {
+void AMScanThumbnailGridView::setSelection(const QRect &rect, QItemSelectionModel::SelectionFlags command)
+{
 	QList<int> containedCellIndices = geometryManager_->indicesWithin(rect, horizontalOffset(), verticalOffset());
 
 	if(containedCellIndices.isEmpty())
@@ -167,16 +211,19 @@ void AMScanThumbnailGridView::setSelection(const QRect &rect, QItemSelectionMode
 
 }
 
-int AMScanThumbnailGridView::verticalOffset() const {
+int AMScanThumbnailGridView::verticalOffset() const
+{
 	return verticalScrollBar()->value();
 }
 
-QRegion AMScanThumbnailGridView::visualRegionForSelection(const QItemSelection &selection) const {
+QRegion AMScanThumbnailGridView::visualRegionForSelection(const QItemSelection &selection) const
+{
 	Q_UNUSED(selection)
 	return QRegion(viewport()->rect());
 }
 
-void AMScanThumbnailGridView::paintEvent(QPaintEvent *event) {
+void AMScanThumbnailGridView::paintEvent(QPaintEvent *event)
+{
 	QAbstractItemView::paintEvent(event);
 
 	QPainter painter(viewport());
@@ -225,29 +272,34 @@ void AMScanThumbnailGridView::paintEvent(QPaintEvent *event) {
 
 }
 
-void AMScanThumbnailGridView::resizeEvent(QResizeEvent *event) {
+void AMScanThumbnailGridView::resizeEvent(QResizeEvent *event)
+{
 	QAbstractItemView::resizeEvent(event);
 	geometryManager_->setWidth(viewport()->width());
 	updateScrollBars();
 }
 
-void AMScanThumbnailGridView::mousePressEvent(QMouseEvent *event) {
+void AMScanThumbnailGridView::mousePressEvent(QMouseEvent *event)
+{
 	inputManager_->mouseDownAt(geometryManager_->indexAt(event->pos(), horizontalOffset(), verticalOffset()),
 							   event->pos().x(), event->pos().y(), event->buttons());
 }
 
-void AMScanThumbnailGridView::mouseMoveEvent(QMouseEvent *event) {
+void AMScanThumbnailGridView::mouseMoveEvent(QMouseEvent *event)
+{
 	inputManager_->mouseMovedTo(geometryManager_->indexAt(event->pos(), horizontalOffset(), verticalOffset()),
 								event->pos().x(), event->pos().y(), event->buttons());
 }
 
 
-void AMScanThumbnailGridView::mouseReleaseEvent(QMouseEvent *event) {
+void AMScanThumbnailGridView::mouseReleaseEvent(QMouseEvent *event)
+{
 
 	inputManager_->mouseReleasedAt(event->pos().x(), event->pos().y(), event->buttons(), event->modifiers());
 }
 
-void AMScanThumbnailGridView::updateScrollBars() {
+void AMScanThumbnailGridView::updateScrollBars()
+{
 
 	if(!model()) {
 		verticalScrollBar()->setVisible(false);

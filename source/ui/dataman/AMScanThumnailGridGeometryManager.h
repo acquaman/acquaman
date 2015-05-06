@@ -3,9 +3,9 @@
 
 #include "ui/util/AMGridFlowGeometryManager.h"
 
-#define GRID_CELL_WIDTH		280
-#define GRID_CELL_HEIGHT	300
-#define THUMBNAIL_WIDTH		265
+#define GRID_CELL_WIDTH		260
+#define GRID_CELL_HEIGHT	320
+#define THUMBNAIL_WIDTH		240
 #define THUMBNAIL_HEIGHT	275
 
 /**

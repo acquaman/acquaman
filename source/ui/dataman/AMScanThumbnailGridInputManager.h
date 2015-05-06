@@ -13,7 +13,7 @@
 #define TRAVEL_TOLERANCE 50
 // The time between two clicks before they are considered separate, and not
 // part of the same double click.
-#define DOUBLE_CLICK_INTERVAL_MS 450
+#define DOUBLE_CLICK_INTERVAL_MS 250
 // The time that a mouse is over a given item index before it is considered to
 // be hovering.
 #define HOVER_INTERVAL_MS 500
@@ -97,8 +97,8 @@ signals:
 	/// Indicates that a context menu has been requested at the provided itemIndex
 	void contextMenuRequested(int itemIndex);
 
-	/// Indicates that a drag operation has begun on the provided item index
-	void dragBegun(int itemIndex);
+	/// Indicates that a drag operation has begun
+	void dragBegun();
 
 	/// Indicates that the current selection drag rectangle has been extended to
 	/// encompass the provided selectionRectangle

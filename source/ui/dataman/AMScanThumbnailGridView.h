@@ -35,9 +35,9 @@ protected slots:
 	void onItemSelected(int itemIndex, QItemSelectionModel::SelectionFlags);
 	void onSelectionExtended(int itemIndex);
 	void onItemDoubleClicked(int itemIndex);
-	void onDragBegun(int itemIndex);
+	void onDragBegun();
 	void onSelectionRectangleChanged(const QRect& selectionRectangle);
-	void onSelectionRectangleEnded(const QRect& selectionRectangle, QItemSelectionModel::SelectionFlags);
+	void onSelectionRectangleEnded(QItemSelectionModel::SelectionFlags);
 	void onHoverMove(int itemIndex, int deltaX);
 protected:
 	int horizontalOffset() const;

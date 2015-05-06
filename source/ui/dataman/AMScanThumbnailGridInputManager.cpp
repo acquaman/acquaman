@@ -4,9 +4,10 @@
 AMScanThumbnailGridInputManager::AMScanThumbnailGridInputManager(QObject *parent)
 	: QObject(parent)
 {
-	connect( &doubleClickTimer_, SIGNAL(timeout()), this, SLOT(onDoubleClickTimerExpired()) );
+	//connect( &doubleClickTimer_, SIGNAL(timeout()), this, SLOT(onDoubleClickTimerExpired()) );
 	resetInteraction();
 	hoverTimer_.setSingleShot(true);
+	doubleClickTimer_.setSingleShot(true);
 }
 
 void AMScanThumbnailGridInputManager::mouseDownAt(int itemIndex, int positionX, int positionY, Qt::MouseButtons mouseButtons)
@@ -67,7 +68,7 @@ void AMScanThumbnailGridInputManager::mouseMovedTo(int itemIndex, int positionX,
 				if(lastClickedItemIndex_ != -1) {
 					// Mouse was over an item at start of interaction (ie this is a drag)
 					dragInProgress_ = true;
-					emit dragBegun(itemIndex);
+					emit dragBegun();
 				} else {
 					// Mouse was not over an item (ie. a rectangle selection operation)
 					emit selectionRectangleChanged(QRect(startPositionX_,
@@ -85,9 +86,8 @@ void AMScanThumbnailGridInputManager::mouseMovedTo(int itemIndex, int positionX,
 
 	} else {
 		// No mouse button (of interest) is held
-		if(itemIndex != -1 && lastMouseOverItemIndex_ != itemIndex) {
+		if(lastMouseOverItemIndex_ != itemIndex) {
 			// We're now hovering over a different item index
-
 			lastMouseOverItemIndex_ = itemIndex;
 			hoverTimer_.start(HOVER_INTERVAL_MS);
 			// Reset the lastHoverUpdatePosition
@@ -143,6 +143,7 @@ void AMScanThumbnailGridInputManager::mouseReleasedAt(int positionX, int positio
 			if(travelDistanceX > TRAVEL_TOLERANCE ||
 					travelDistanceY > TRAVEL_TOLERANCE) {
 				// We've moved far enough that this must be a rectangle, not a point, selection
+
 				if(keys & Qt::ShiftModifier || keys & Qt::ControlModifier) {
 					// Shift or Control is held
 					emit selectionRectangleEnded(QItemSelectionModel::Select);
@@ -153,7 +154,17 @@ void AMScanThumbnailGridInputManager::mouseReleasedAt(int positionX, int positio
 				}
 			} else {
 				// Just a single point click
-				keys_ = keys;
+				if(keys & Qt::ControlModifier) {
+					// Control held - toggle the specified index without clearing
+					emit itemSelected(lastClickedItemIndex_, QItemSelectionModel::Toggle);
+				} else if(keys & Qt::ShiftModifier) {
+					// Shift held - extend the current selection to the last clicked index
+					emit selectionExtended(lastClickedItemIndex_);
+				} else {
+					// Nothing held - clear current selection and select the lastClickedItemIndex_
+					emit itemSelected(lastClickedItemIndex_, QItemSelectionModel::ClearAndSelect);
+				}
+				resetInteraction();
 				doubleClickTimer_.start(DOUBLE_CLICK_INTERVAL_MS);
 			}
 		}
@@ -167,7 +178,7 @@ void AMScanThumbnailGridInputManager::mouseReleasedAt(int positionX, int positio
 			int travelDistanceY = int(std::abs(double(positionY - startPositionY_)));
 			if(travelDistanceX > TRAVEL_TOLERANCE ||
 					travelDistanceY > TRAVEL_TOLERANCE) {
-				// We've moved far enough that this must be a rectangle selection
+				// We've moved far enough that this must be a rectanglecd plugin selection
 				// we need to cancel it
 			}
 		}
@@ -198,12 +209,8 @@ void AMScanThumbnailGridInputManager::resetInteraction()
 	lastUpdatePositionX_ = -1;
 	lastUpdatePositionY_ = -1;
 
-	lastClickedItemIndex_ = -1;
-	lastMouseOverItemIndex_ = -1;
-
-	doubleClickTimer_.stop();
+	//lastClickedItemIndex_ = -1;
 
 	dragInProgress_ = false;
-	keys_ = 0;
 }
 
