@@ -4,8 +4,15 @@
 #include <QSignalMapper>
 
 #include "beamline/AMCompositeControl.h"
+#include "actions3/AMAction3.h"
+
+// Values.
+
+#define CLSJJSLITSCONTROL_VALUE_MIN -30
+#define CLSJJSLITSCONTROL_VALUE_MAX 30
 
 // Error codes.
+
 #define CLSJJSLITSCONTROL_NOT_CONNECTED 23487300
 #define CLSJJSLITSCONTROL_ALREADY_MOVING 23487301
 #define CLSJJSLITSCONTROL_CANNOT_MOVE 23487302
@@ -47,9 +54,9 @@ public:
 	virtual bool canStop() const;
 
 	/// Returns the minimum value this control can take.
-	virtual double minimumValue() const { return -30; }
+	virtual double minimumValue() const { return CLSJJSLITSCONTROL_VALUE_MIN; }
 	/// Returns the maximum value this control can take.
-	virtual double maximumValue() const { return 30; }
+	virtual double maximumValue() const { return CLSJJSLITSCONTROL_VALUE_MAX; }
 
 	/// Returns the upper blade motor.
 	AMControl* upperBladeControl() const { return upperBladeControl_; }

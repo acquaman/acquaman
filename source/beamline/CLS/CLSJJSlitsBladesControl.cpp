@@ -1,6 +1,5 @@
 #include "CLSJJSlitsBladesControl.h"
 
-#include "actions3/AMAction3.h"
 #include "util/AMErrorMonitor.h"
 
 CLSJJSlitsBladesControl::CLSJJSlitsBladesControl(const QString &name, AMControl *upperBladeControl, AMControl *lowerBladeControl, QObject *parent, const QString &units, const QString &description, double tolerance) :
