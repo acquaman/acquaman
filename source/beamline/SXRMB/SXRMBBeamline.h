@@ -89,6 +89,8 @@ public:
 	/// Returns the Z Stage for the microrobe sample stage
 	AMPVwStatusControl* microprobeSampleStageZ() const;
 
+	/// Returns the height PV control for the ambiant endstation table.
+	AMPVwStatusControl *ambiantTableHeight() const;
 	/// Returns the X stage for the ambiant endstation.
 	AMPVwStatusControl *ambiantSampleStageX() const;
 	/// Returns the Z stage for the ambiant endstation.
@@ -271,6 +273,8 @@ protected:
 	/// Control set for Solid State sample stage
 	AMControlSet *solidStateSampleStageControlSet_;
 
+	/// Height PV control for the Ambiant endstation table
+	AMPVwStatusControl *ambiantTableHeight_;
 	/// X Stage for the Ambiant sample stage
 	AMPVwStatusControl *ambiantSampleStageX_;
 	/// Z Stage for the Solid State sample stage
