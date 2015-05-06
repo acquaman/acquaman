@@ -268,8 +268,6 @@ void BioXASMainBeamline::setupControlsAsDetectors()
 	energyFeedbackDetector_->setIsVisible(true);
 
 	dwellTimeDetector_ = new AMBasicControlDetectorEmulator("DwellTimeFeedback", "Dwell Time Feedback", scalerDwellTime_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
-	dwellTimeDetector_->setHiddenFromUsers(true);
-	dwellTimeDetector_->setIsVisible(false);
 
 	braggDetector_ = new AMBasicControlDetectorEmulator("MonoFeedback", "Mono Bragg Motor Feedback", mono_->braggMotor(), 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
 	braggDetector_->setHiddenFromUsers(false);
