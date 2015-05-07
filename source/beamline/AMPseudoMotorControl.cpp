@@ -14,6 +14,9 @@ AMPseudoMotorControl::AMPseudoMotorControl(const QString &name, const QString &u
 	minimumValue_ = 0;
 	maximumValue_ = 0;
 
+	startedMapper_ = new QSignalMapper(this);
+	connect( startedMapper_, SIGNAL(mapped(QObject*)), this, SLOT(onMoveStarted(QObject*)) );
+
 	cancelledMapper_ = new QSignalMapper(this);
 	connect( cancelledMapper_, SIGNAL(mapped(QObject*)), this, SLOT(onMoveCancelled(QObject*)) );
 
@@ -61,7 +64,8 @@ AMControl::FailureExplanation AMPseudoMotorControl::move(double setpoint)
 
 	// Create move action signal mappings.
 
-	connect( moveAction, SIGNAL(started()), this, SLOT(onMoveStarted()) );
+	startedMapper_->setMapping(moveAction, moveAction);
+	connect( moveAction, SIGNAL(started()), startedMapper_, SLOT(map()) );
 
 	cancelledMapper_->setMapping(moveAction, moveAction);
 	connect( moveAction, SIGNAL(cancelled()), cancelledMapper_, SLOT(map()) );
@@ -119,21 +123,21 @@ void AMPseudoMotorControl::setIsMoving(bool isMoving)
 	}
 }
 
-//void AMPseudoMotorControl::setMinimumValue(double newValue)
-//{
-//	if (minimumValue_ != newValue) {
-//		minimumValue_ = newValue;
-//		emit minimumValueChanged(minimumValue_);
-//	}
-//}
+void AMPseudoMotorControl::setMinimumValue(double newValue)
+{
+	if (minimumValue_ != newValue) {
+		minimumValue_ = newValue;
+		emit minimumValueChanged(minimumValue_);
+	}
+}
 
-//void AMPseudoMotorControl::setMaximumValue(double newValue)
-//{
-//	if (maximumValue_ != newValue) {
-//		maximumValue_ = newValue;
-//		emit maximumValueChanged(maximumValue_);
-//	}
-//}
+void AMPseudoMotorControl::setMaximumValue(double newValue)
+{
+	if (maximumValue_ != newValue) {
+		maximumValue_ = newValue;
+		emit maximumValueChanged(maximumValue_);
+	}
+}
 
 void AMPseudoMotorControl::addChildControl(AMControl *control)
 {
@@ -154,8 +158,9 @@ void AMPseudoMotorControl::removeChildControl(AMControl *control)
 	}
 }
 
-void AMPseudoMotorControl::onMoveStarted()
+void AMPseudoMotorControl::onMoveStarted(QObject *action)
 {
+	Q_UNUSED(action)
 	setMoveInProgress(true);
 }
 
@@ -184,6 +189,7 @@ void AMPseudoMotorControl::moveCleanup(QObject *action)
 
 		action->disconnect();
 
+		startedMapper_->removeMappings(action);
 		cancelledMapper_->removeMappings(action);
 		failedMapper_->removeMappings(action);
 		succeededMapper_->removeMappings(action);

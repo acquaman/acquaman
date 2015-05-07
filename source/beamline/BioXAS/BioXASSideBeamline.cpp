@@ -726,7 +726,7 @@ void BioXASSideBeamline::setupControlSets()
 void BioXASSideBeamline::setupMono()
 {
 	mono_ = new BioXASSideMonochromator(this);
-	connect( mono_, SIGNAL(connected(bool)), this, SLOT(onConnectionChanged()) );
+	connect( mono_, SIGNAL(connectedChanged(bool)), this, SLOT(onConnectionChanged()) );
 }
 
 void BioXASSideBeamline::setupComponents()

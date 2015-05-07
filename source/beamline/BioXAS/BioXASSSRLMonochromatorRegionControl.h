@@ -3,7 +3,7 @@
 
 #include <QSignalMapper>
 
-#include "beamline/AMCompositeControl.h"
+#include "beamline/AMPseudoMotorControl.h"
 #include "actions3/AMActionSupport.h"
 #include "actions3/actions/AMControlWaitAction.h"
 #include "actions3/actions/AMWaitAction.h"
@@ -52,7 +52,7 @@
 #define BioXAS_MONO_REGION_REGION_B_WAIT_FAILED 1407719
 #define BioXAS_MONO_REGION_KEY_DISABLED_WAIT_FAILED 1407720
 
-class BioXASSSRLMonochromatorRegionControl : public AMCompositeControl
+class BioXASSSRLMonochromatorRegionControl : public AMPseudoMotorControl
 {
 	Q_OBJECT
 
@@ -64,22 +64,6 @@ public:
 	explicit BioXASSSRLMonochromatorRegionControl(QObject *parent = 0);
 	/// Destructor.
 	virtual ~BioXASSSRLMonochromatorRegionControl();
-
-	/// Returns the current region state.
-	virtual double value() const { return value_; }
-	/// Returns the current region setpoint.
-	virtual double setpoint() const { return setpoint_; }
-	/// Returns Region::A, the smallest value this control can assume.
-	virtual double minimumValue() const;
-	/// Returns Region::None, the largest value this control can assume.
-	virtual double maximumValue() const;
-
-	/// Returns true if this control is connected, false otherwise.
-	virtual bool isConnected() const { return connected_; }
-	/// Returns true if the control is moving.
-	virtual bool isMoving() const { return isMoving_; }
-	/// Returns true if there is a crystal change procedure in progress, as a result of this control's action.
-	virtual bool moveInProgress() const { return moveInProgress_; }
 
 	/// Returns true if the region is always measurable (when the control is connected).
 	virtual bool shouldMeasure() const { return true; }
@@ -135,21 +119,6 @@ signals:
 	/// Notifier that the current step in a move has changed.
 	void moveStepChanged(const QString &newDescription, const QString &newInstruction, const QString &newNotes);
 
-	/// Notifier that the slits status has changed.
-	void slitsStatusChanged(double status);
-	/// Notifier that the paddle status has changed.
-	void paddleStatusChanged(double status);
-	/// Notifier that the key status has changed.
-	void keyStatusChanged(double status);
-	/// Notifier that the brake status has changed.
-	void brakeStatusChanged(double status);
-	/// Notifier that the bragg at crystal change position status has changed.
-	void braggAtCrystalChangePositionStatusChanged(double status);
-	/// Notifier that the region A status has changed.
-	void regionAStatusChanged(double status);
-	/// Notifier that the region B status has changed.
-	void regionBStatusChanged(double status);
-
 public slots:
 	/// Sets the new region setpoint and performs a crystal change, if necessary.
 	virtual FailureExplanation move(double setpoint);
@@ -184,17 +153,6 @@ public slots:
 	void setRegionBStatusControl(AMControl *regionStatus);
 
 protected slots:
-	/// Sets the connected state.
-	void setConnected(bool isConnected);
-	/// Sets the value.
-	void setValue(double newValue);
-	/// Sets the setpoint.
-	void setSetpoint(double newValue);
-	/// Sets the 'move in progress' state.
-	void setMoveInProgress(bool isMoving);
-	/// Sets the 'is moving' state.
-	void setIsMoving(bool isMoving);
-
 	/// Updates the connected state.
 	virtual void updateConnected();
 	/// Updates the current value.
@@ -203,17 +161,16 @@ protected slots:
 	virtual void updateIsMoving();
 
 	/// Handles emitting the appropriate signals when the current step in a move has changed.
-	void onActionStepChanged(int stepIndex);
-	/// Handles updating the region value and emitting the value changed signal.
-	void onRegionControlValueChanged();
+	void onMoveStepChanged(int stepIndex);
+
 	/// Called when the internal crystal change action has been started. Handles updating the moveInProgress_ member variable and emitting the moveInProgress() signal.
-	void onRegionChangeStarted();
+	virtual void onMoveStarted(QObject *action);
 	/// Called when the internal crystal change action has been cancelled. Handles emitting moveFailed(...) with the WasStoppedFailure code and deleting the action.
-	void onRegionChangeCancelled(QObject *action);
+	virtual void onMoveCancelled(QObject *action);
 	/// Called when the internal crystal change action has failed. Handles emitting moveFailed(...) with the OtherFailure code and deleting the action.
-	void onRegionChangeFailed(QObject *action);
+	virtual void onMoveFailed(QObject *action);
 	/// Called when the internal crystal change action has succeeded! Handles emitting moveSucceeded() and deleting the action.
-	void onRegionChangeSucceeded(QObject *action);
+	virtual void onMoveSucceeded(QObject *action);
 
 protected:
 	/// Returns a new action that performs a crystal change to the new region.
@@ -274,11 +231,6 @@ protected:
 	/// Returns a new action that waits for the mono region key to be turned CW to Disabled, 0 if not connected.
 	AMAction3* createWaitForKeyDisabledAction();
 
-	/// Returns true if the given value is a valid region state, false otherwise.
-	static bool validRegionState(int regionState);
-	/// Returns true if the given value is a valid region setpoint, false otherwise.
-	static bool validRegionSetpoint(int regionSetpoint);
-
 	/// Returns a string representation of the given region state.
 	static QString regionStateToString(int region);
 	/// Returns the region state corresponding to the given string.
@@ -290,61 +242,35 @@ protected:
 	/// Returns the notes associated with the given step index, an empty string if there is none.  The step index in the index of an action in the crystal change list action.
 	static QString stepNotes(int stepIndex);
 
-	/// Handles control setup: makes sure the given control has the proper parent and is added to the list of children.
-	void controlSetup(AMControl *control);
-	/// Handles control cleanup: making sure the given control is removed from the list of children, disconnected, and deleted.
-	void controlCleanup(AMControl *control);
-
-	/// Handles the region change cleanup: making sure moveInProgress_ is updated, we disconnect from crystal change action signals, and the action is queued for deletion.
-	void moveCleanup(QObject *action);
-
 protected:
-	/// The flag indicating whether this control is connected.
-	bool connected_;
-	/// The current value.
-	double value_;
-	/// The current setpoint.
-	double setpoint_;
-	/// The flag indicating whether the control is moving as a result of the move() slot.
-	bool moveInProgress_;
-	/// The flag indicating whether the control is moving.
-	bool isMoving_;
-
-	/// The upper slit motor.
+	/// The upper slit motor control.
 	AMControl *upperSlit_;
-	/// The lower slit motor.
+	/// The lower slit motor control.
 	AMControl *lowerSlit_;
 	/// The slits status control.
 	AMControl *slitsStatus_;
-	/// The paddle motor.
+	/// The paddle motor control.
 	AMControl *paddle_;
 	/// The paddle status control.
 	AMControl *paddleStatus_;
-	/// The key status.
+	/// The key status control.
 	AMControl *keyStatus_;
-	/// The bragg motor.
+	/// The bragg motor control.
 	AMControl *bragg_;
-	/// The bragg motor at crystal change position status.
+	/// The bragg motor at crystal change position status control.
 	AMControl *braggAtCrystalChangePositionStatus_;
-	/// The brake status.
+	/// The brake status control.
 	AMControl *brakeStatus_;
-	/// The crystal change motor.
+	/// The crystal change motor control.
 	AMControl *crystalChange_;
-	/// The crystal change clockwise limit status.
+	/// The crystal change clockwise limit status control.
 	AMControl *crystalChangeCWLimitStatus_;
-	/// The crystal change counter-clockwise limit status.
+	/// The crystal change counter-clockwise limit status control.
 	AMControl *crystalChangeCCWLimitStatus_;
-	/// The region A status.
+	/// The region A status control.
 	AMControl *regionAStatus_;
-	/// The region B status.
+	/// The region B status control.
 	AMControl *regionBStatus_;
-
-	/// A signal mapper that allows an AMAction to identify itself as the origin of the action cancelled signal.
-	QSignalMapper *actionCancelledMapper_;
-	/// A signal mapper that allows an AMAction to identify itself as the origin of the action failed signal.
-	QSignalMapper *actionFailedMapper_;
-	/// A signal mapper that allows an AMAction to identify itself as the origin of the action succeeded signal.
-	QSignalMapper *actionSucceededMapper_;
 };
 
 #endif // BIOXASSSRLMONOCHROMATORREGIONCONTROL_H

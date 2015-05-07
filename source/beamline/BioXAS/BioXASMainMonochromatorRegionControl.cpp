@@ -19,7 +19,7 @@ BioXASMainMonochromatorRegionControl::BioXASMainMonochromatorRegionControl(QObje
 	setRegionAStatusControl(new AMReadOnlyPVControl("RegionAStatus", "BL1607-5-I21:Mono:Region:A", this));
 	setRegionBStatusControl(new AMReadOnlyPVControl("RegionBStatus", "BL1607-5-I21:Mono:Region:B", this));
 
-	onRegionControlValueChanged();
+	updateValue();
 }
 
 BioXASMainMonochromatorRegionControl::~BioXASMainMonochromatorRegionControl()

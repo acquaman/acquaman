@@ -55,9 +55,9 @@ public:
 //	virtual bool canStop() const { return false; }
 
 	/// Returns true if the given value is a valid value for this control. False otherwise.
-	virtual bool validValue(double value) = 0;
+	virtual bool validValue(double value) const = 0;
 	/// Returns true if the given value is a valid setpoint for this control. False otherwise.
-	virtual bool validSetpoint(double value) = 0;
+	virtual bool validSetpoint(double value) const = 0;
 
 signals:
 	/// Notifier that the minimum value has changed.
@@ -80,6 +80,10 @@ protected slots:
 	void setMoveInProgress(bool isMoving);
 	/// Sets the 'is moving' state.
 	void setIsMoving(bool isMoving);
+	/// Sets the minimum value.
+	void setMinimumValue(double newValue);
+	/// Sets the maximum value.
+	void setMaximumValue(double newValue);
 
 	/// Updates the connected state.
 	virtual void updateConnected() = 0;
@@ -93,17 +97,21 @@ protected slots:
 	/// Removes a given control from the list of child controls.
 	virtual void removeChildControl(AMControl *control);
 
+	/// Handles emitting the appropriate signals when a move action has started.
+	virtual void onMoveStarted(QObject *action);
+	/// Handles emitting the appropriate signals and performing action cleanup when a move action is cancelled.
+	virtual void onMoveCancelled(QObject *action);
+	/// Handles emitting the appropriate signals and performing action cleanup when a move action fails.
+	virtual void onMoveFailed(QObject *action);
+	/// Handles emitting the appropriate signals and performing action cleanup when a move action succeeds.
+	virtual void onMoveSucceeded(QObject *action);
+
+protected:
 	/// Creates and returns a move action.
 	virtual AMAction3* createMoveAction(double setpoint) = 0;
 
-	/// Handles emitting the appropriate signals when a move action has started.
-	void onMoveStarted();
-	/// Handles emitting the appropriate signals and performing action cleanup when a move action is cancelled.
-	void onMoveCancelled(QObject *action);
-	/// Handles emitting the appropriate signals and performing action cleanup when a move action fails.
-	void onMoveFailed(QObject *action);
-	/// Handles emitting the appropriate signals and performing action cleanup when a move action succeeds.
-	void onMoveSucceeded(QObject *action);
+	/// Handles disconnecting from a move action and removing the signal mappings when the action is complete.
+	void moveCleanup(QObject *action);
 
 protected:
 	/// The flag indicating whether this control is connected.
@@ -121,16 +129,14 @@ protected:
 	/// The maximum value this control can take.
 	double maximumValue_;
 
+	/// The signal mapper for move started.
+	QSignalMapper *startedMapper_;
 	/// The signal mapper for move cancelled.
 	QSignalMapper *cancelledMapper_;
 	/// The signal mapper for move failed.
 	QSignalMapper *failedMapper_;
 	/// The signal mapper for move succeeded.
 	QSignalMapper *succeededMapper_;
-
-private:
-	/// Handles disconnecting from a move action and removing the signal mappings when the action is complete.
-	void moveCleanup(QObject *action);
 
 };
 
