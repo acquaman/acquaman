@@ -64,6 +64,10 @@ void AMLightweightScanInfoCollection::onDbItemAdded(const QString &tableName, in
 
 			emit scanUpdated(dirtyScanInfoIndex);
 		}
+	} else if(tableName == AMDbObjectSupport::s()->tableNameForClass("AMRun")) {
+		emit runAboutToBeAdded();
+		runMapCache_ = AMLightweightScanInfoFactory::runMap(database_);
+		emit runAdded();
 	}
 }
 

@@ -46,6 +46,10 @@ signals:
 	void scanThumbnailAboutToBeAdded();
 	/// Emitted whenever a thumbnail is finished being added to a scan
 	void scanThumbnailAdded();
+	/// Emitted whenever a run is about to be added to the map
+	void runAboutToBeAdded();
+	/// Emitted whenever a run is finished being added
+	void runAdded();
 protected slots:
 	/// Slot to handle the database signal indicating that a new item has been added to the database
 	void onDbItemAdded(const QString& tableName, int id);
@@ -60,7 +64,7 @@ protected:
 private:
 	/// The database from which the scan infos will be retrieved
 	AMDatabase* database_;
-	/// A cache of the mapping of scansIds to run names currently in the database
+	/// A cache of the mapping of runIds to run names currently in the database
 	QHash<int, QString> runMapCache_;
 	/// A list of the contained AMLightweightScanInfos
 	QList<AMLightweightScanInfo*> scanInfos_;

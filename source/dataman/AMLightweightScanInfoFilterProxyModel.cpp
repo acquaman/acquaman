@@ -50,6 +50,20 @@ int AMLightweightScanInfoFilterProxyModel::experimentId() const
 	return experimentId_;
 }
 
+
+void AMLightweightScanInfoFilterProxyModel::setSourceModel(QAbstractItemModel *sourceModel)
+{
+	QSortFilterProxyModel::setSourceModel(sourceModel);
+
+	if(sourceModel)	{
+		AMLightweightScanInfoModel* actualModel =
+				qobject_cast<AMLightweightScanInfoModel*>(sourceModel);
+
+		if(actualModel)
+			connect(actualModel, SIGNAL(runMapUpdated()), this, SIGNAL(runMapUpdated()));
+	}
+}
+
 bool AMLightweightScanInfoFilterProxyModel::filterAcceptsRow(int sourceRow, const QModelIndex& sourceParent) const
 {
 	if(sourceParent.isValid())
@@ -151,3 +165,4 @@ bool AMLightweightScanInfoFilterProxyModel::filterAcceptsScan(int sourceRow, con
 	}
 	return QSortFilterProxyModel::filterAcceptsRow(sourceRow, parent);
 }
+

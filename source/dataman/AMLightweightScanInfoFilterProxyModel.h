@@ -32,6 +32,8 @@ public:
 	/// Returns the experimentId which is currently filtering the model, if none is applied then -1
 	/// is returned
 	int experimentId() const;
+	/// Sets the source model which this proxy will sort and filter
+	void setSourceModel(QAbstractItemModel *sourceModel);
 protected:
 	/// Virtual function overriding QSortFilterProxyModel::filterAcceptsRow
 	/// returns true if the index at the given source row, with the provided source_parent
@@ -43,6 +45,9 @@ protected:
 	/// Helper function which determines whether a source_row meets the filter criteria when
 	/// we already know it refers to a scan
 	bool filterAcceptsScan(int sourceRow, const QModelIndex &parent) const;
+signals:
+	/// Signals that the underlying model has indicated the run map has been altered
+	void runMapUpdated();
 private:
 	int runId_;
 	int experimentId_;

@@ -76,6 +76,10 @@ public slots:
 	void onScanInfoAboutToBeRemoved(int oldIndex);
 	/// Handles the collection signalling that it has finished removing a scan
 	void onScanInfoRemoved();
+
+signals:
+	/// Signals that the run map within the underlying collection has been updated
+	void runMapUpdated();
 protected:
 	/// Helper function which returns the data for an index which is known to be a scan
 	QVariant getScanData(const QModelIndex& index, int role) const;

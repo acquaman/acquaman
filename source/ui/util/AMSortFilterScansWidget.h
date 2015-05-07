@@ -19,9 +19,12 @@ public slots:
 protected slots:
 protected:
 	QComboBox* runComboBox_;
+
 private slots:
+	void refreshRunComboBox();
 	void onRunSelected(int index);
 private:
+	AMLightweightScanInfoFilterProxyModel* model_;
 };
 
 #endif // AMSORTFILTERSCANSWIDGET_H

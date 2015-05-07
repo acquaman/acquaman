@@ -15,6 +15,7 @@ AMLightweightScanInfoModel::AMLightweightScanInfoModel(AMLightweightScanInfoColl
 	connect(scanInfo_, SIGNAL(scanThumbnailAdded()), this, SLOT(onScanThumbnailAdded()));
 	connect(scanInfo_, SIGNAL(scanThumbnailAboutToBeRemoved(int, int,int)), this, SLOT(onScanThumbnailAboutToBeRemoved(int, int, int)));
 	connect(scanInfo_, SIGNAL(scanThumbnailRemoved()), this, SLOT(onScanThumbnailRemoved()));
+	connect(scanInfo_, SIGNAL(runAdded()), this, SIGNAL(runMapUpdated()));
 }
 
 QVariant AMLightweightScanInfoModel::headerData(int section, Qt::Orientation orientation, int role) const
