@@ -31,11 +31,11 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "actions3/AMActionRunner3.h"
 
  AMActionRunnerAddActionBar3::~AMActionRunnerAddActionBar3(){}
-AMActionRunnerAddActionBar3::AMActionRunnerAddActionBar3(const QString& actionCategoryName, bool enableLoopAction, QWidget *parent) :
+AMActionRunnerAddActionBar3::AMActionRunnerAddActionBar3(const QString& actionCategoryName, bool enableRepeatScans, QWidget *parent) :
 	QWidget(parent)
 {
 	actionCategoryName_ = actionCategoryName;
-	loopActionsEnabled_ = enableLoopAction;
+	repeatScansEnabled_ = enableRepeatScans;
 
 	iterationsBox_ = new QSpinBox;
 	iterationsBox_->setRange(1, 1000000);
@@ -63,7 +63,7 @@ AMActionRunnerAddActionBar3::AMActionRunnerAddActionBar3(const QString& actionCa
 	optionsHL->addWidget(setupAnotherActionOption_);
 	optionsHL->addStretch();
 
-	if (loopActionsEnabled_) {
+	if (repeatScansEnabled_) {
 		optionsHL->addWidget(new QLabel("Scan iterations:"));
 		optionsHL->addWidget(iterationsBox_);
 	}
@@ -168,7 +168,7 @@ void AMActionRunnerAddActionBar3::addWidget(QWidget *widget)
 
 void AMActionRunnerAddActionBar3::addActionToQueue(ActionQueue::QueueOperation operation)
 {
-	AMAction3 * action = loopActionsEnabled_ ? createLoopAction() : createAction();
+	AMAction3 * action = repeatScansEnabled_ ? createMultipleScans() : createScan();
 	if (!action)
 		return;
 

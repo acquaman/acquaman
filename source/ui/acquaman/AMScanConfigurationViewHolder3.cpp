@@ -67,7 +67,7 @@ void AMScanConfigurationViewHolder3::setEnabled(bool enabled){
 		disabledWarning_->setText("This Configuration Is Disabled");
 }
 
-AMAction3 * AMScanConfigurationViewHolder3::createAction()
+AMAction3 * AMScanConfigurationViewHolder3::createScan()
 {
 	if(view_)
 		return new AMScanAction(new AMScanActionInfo(view_->configuration()->createCopy()));
@@ -75,14 +75,14 @@ AMAction3 * AMScanConfigurationViewHolder3::createAction()
 	return 0;
 }
 
-AMAction3* AMScanConfigurationViewHolder3::createLoopAction()
+AMAction3* AMScanConfigurationViewHolder3::createMultipleScans()
 {
 	if (view_){
 
 		const AMScanConfiguration *config = view_->configuration();
 		if (config) {
 			AMLoopAction3 *loop = new AMLoopAction3(new AMLoopActionInfo3(iterationsBox_->value(), config->name(), config->description()));
-			loop->addSubAction(createAction());
+			loop->addSubAction(createScan());
 			return loop;
 		}
 	}

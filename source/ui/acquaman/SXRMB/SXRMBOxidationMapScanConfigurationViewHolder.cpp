@@ -13,7 +13,7 @@ SXRMBOxidationMapScanConfigurationViewHolder::~SXRMBOxidationMapScanConfiguratio
 
 }
 
-AMAction3 * SXRMBOxidationMapScanConfigurationViewHolder::createAction()
+AMAction3 * SXRMBOxidationMapScanConfigurationViewHolder::createScan()
 {
 	if(view_){
 

@@ -52,9 +52,9 @@ public:
 protected:
 
 	/// This function is used to create the action that will be added to the queue. By default, it creates an AMScanControllerAction using a copy of the view's scan configuration. You can re-implement this to provide a specific kind of action (for ex: REIXSXESScanControllerAction, etc.) for use with the action registry system.
-	virtual AMAction3* createAction();
+	virtual AMAction3* createScan();
 	/// This function is used to create the loop action that will be added to the queue.
-	virtual AMAction3* createLoopAction();
+	virtual AMAction3* createMultipleScans();
 
 	/// This is the scan configuration widget we're wrapping
 	AMScanConfigurationView* view_;
