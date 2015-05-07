@@ -34,6 +34,9 @@ AMBasicControlDetectorEmulator::AMBasicControlDetectorEmulator(const QString &na
 
 	readMethod_ = readMethod;
 
+	setIsVisible(false);
+	setHiddenFromUsers(true);
+
 	allControls_ = new AMControlSet(this);
 	control_ = control;
 	statusControl_ = statusControl;
