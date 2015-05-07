@@ -39,6 +39,16 @@ class AMScanActionController : public AMScanController
 	Q_OBJECT
 
 public:
+
+	/// Enum that holds what the final state of the scan action controller is.  This is important for setting the final state after the cleanup actions have been executed.
+	enum ScanningActionsFinalState
+	{
+		NotFinished = 0,
+		Succeeded,
+		Cancelled,
+		Failed
+	};
+
 	/// Constructor.  Requires the scan configuration.
 	AMScanActionController(AMScanConfiguration *configuration, QObject *parent = 0);
 	/// Destructor.
@@ -121,7 +131,7 @@ protected:
 	/// The pointer that holds the scanning actions.
 	AMAction3 *scanningActions_;
 	/// Flag holding whether the scan was successful or not.
-	bool scanningActionsSucceeded_;
+	ScanningActionsFinalState scanningActionsFinalState_;
 	/// The intialization actions for the scan.
 	AMAction3 *initializationActions_;
 	/// The cleanup actions for the scan.

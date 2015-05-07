@@ -37,7 +37,7 @@ AMScanActionController::AMScanActionController(AMScanConfiguration *configuratio
 	scanningActions_ = 0;
 	initializationActions_ = 0;
 	cleanupActions_ = 0;
-	scanningActionsSucceeded_ = false;
+	scanningActionsFinalState_ = NotFinished;
 	scanControllerStateMachineFinished_ = false;
 
 	fileWriterThread_ = 0;
@@ -211,7 +211,7 @@ void AMScanActionController::onInitializationActionsListFailed()
 
 void AMScanActionController::onScanningActionsSucceeded()
 {
-	scanningActionsSucceeded_ = true;
+	scanningActionsFinalState_ = Succeeded;
 
 	disconnect(scanningActions_, SIGNAL(succeeded()), this, SLOT(onScanningActionsSucceeded()));
 	disconnect(scanningActions_, SIGNAL(failed()), this, SLOT(onScanningActionsFailed()));
@@ -298,7 +298,7 @@ void AMScanActionController::onCleanupActionsListSucceeded()
 	disconnect(cleanupActions_, SIGNAL(succeeded()), this, SLOT(onCleanupActionsListSucceeded()));
 	disconnect(cleanupActions_, SIGNAL(failed()), this, SLOT(onCleanupActionsListFailed()));
 
-	if(scanningActionsSucceeded_){
+	if(scanningActionsFinalState_){
 		scanControllerStateMachineFinished_ = true;
 		// Don't do anything else, if we're not ready for finished but we're succeeding then the file writing should finish soon and will check again
 		if(readyForFinished())
