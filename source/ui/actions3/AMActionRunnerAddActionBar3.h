@@ -68,7 +68,7 @@ class AMActionRunnerAddActionBar3 : public QWidget
 public:
 	/// Constructor.  If the main "Start ____" should say something other than "Start Action", you can specify that name here.  (ex: "Scan", "Move", etc.)
  	virtual ~AMActionRunnerAddActionBar3();
-	explicit AMActionRunnerAddActionBar3(const QString& actionCategoryName = "Action", QWidget *parent = 0);
+	explicit AMActionRunnerAddActionBar3(const QString& actionCategoryName = "Action", bool enableLoopAction =  false, QWidget *parent = 0);
 
 	/// Adds a widget to our layout, directly above the buttons.  We take ownership of that \c widget.
 	void addWidget(QWidget* widget);
@@ -93,6 +93,9 @@ protected:
 
 	/// create and add actions to the queue
 	void addActionToQueue(ActionQueue::QueueOperation operation);
+
+	/// enable loop actions
+	bool loopActionsEnabled_;
 
 	/// UI elements
 	QLabel *whenDoneLabel_;

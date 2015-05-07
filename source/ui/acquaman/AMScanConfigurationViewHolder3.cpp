@@ -29,8 +29,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/acquaman/AMScanConfigurationView.h"
 
  AMScanConfigurationViewHolder3::~AMScanConfigurationViewHolder3(){}
-AMScanConfigurationViewHolder3::AMScanConfigurationViewHolder3(AMScanConfigurationView* view, QWidget *parent) :
-	AMActionRunnerAddActionBar3("Scan", parent)
+AMScanConfigurationViewHolder3::AMScanConfigurationViewHolder3(AMScanConfigurationView* view, bool enableLoopAction, QWidget *parent) :
+	AMActionRunnerAddActionBar3("Scan", enableLoopAction, parent)
 {
 	view_ = view;
 

@@ -320,7 +320,7 @@ void VESPERSAppController::setupUserInterface()
 	exafsScanConfiguration_ = new VESPERSEXAFSScanConfiguration();
 	exafsConfigurationView_ = new VESPERSEXAFSScanConfigurationView(exafsScanConfiguration_);
 	exafsConfigurationView_->setupDefaultXANESScanRegions();
-	exafsConfigurationViewHolder3_ = new AMScanConfigurationViewHolder3(exafsConfigurationView_);
+	exafsConfigurationViewHolder3_ = new AMScanConfigurationViewHolder3(exafsConfigurationView_, true);
 
 	// Setup 2D maps for the beamline.  Builds the config, view, and view holder.
 	mapScanConfiguration_ = new VESPERS2DScanConfiguration();

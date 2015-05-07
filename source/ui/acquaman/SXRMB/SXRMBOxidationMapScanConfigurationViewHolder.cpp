@@ -4,7 +4,7 @@
 #include "actions3/actions/AMScanAction.h"
 
 SXRMBOxidationMapScanConfigurationViewHolder::SXRMBOxidationMapScanConfigurationViewHolder(SXRMB2DOxidationMapScanConfigurationView *view, QWidget *parent)
-	: AMScanConfigurationViewHolder3(view, parent)
+	: AMScanConfigurationViewHolder3(view, false, parent)
 {
 }
 

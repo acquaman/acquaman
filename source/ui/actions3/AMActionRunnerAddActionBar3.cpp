@@ -31,10 +31,11 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "actions3/AMActionRunner3.h"
 
  AMActionRunnerAddActionBar3::~AMActionRunnerAddActionBar3(){}
-AMActionRunnerAddActionBar3::AMActionRunnerAddActionBar3(const QString& actionCategoryName, QWidget *parent) :
+AMActionRunnerAddActionBar3::AMActionRunnerAddActionBar3(const QString& actionCategoryName, bool enableLoopAction, QWidget *parent) :
 	QWidget(parent)
 {
 	actionCategoryName_ = actionCategoryName;
+	loopActionsEnabled_ = enableLoopAction;
 
 	iterationsBox_ = new QSpinBox;
 	iterationsBox_->setRange(1, 1000000);
@@ -61,8 +62,11 @@ AMActionRunnerAddActionBar3::AMActionRunnerAddActionBar3(const QString& actionCa
 	optionsHL->addWidget(goToWorkflowOption_);
 	optionsHL->addWidget(setupAnotherActionOption_);
 	optionsHL->addStretch();
-	optionsHL->addWidget(new QLabel("Scan iterations:"));
-	optionsHL->addWidget(iterationsBox_);
+
+	if (loopActionsEnabled_) {
+		optionsHL->addWidget(new QLabel("Scan iterations:"));
+		optionsHL->addWidget(iterationsBox_);
+	}
 	optionsHL->addWidget(addToQueueButton_);
 	optionsHL->addWidget(startActionButton_);
 	optionsHL->setContentsMargins(10, 0, 10, 20);
@@ -164,7 +168,7 @@ void AMActionRunnerAddActionBar3::addWidget(QWidget *widget)
 
 void AMActionRunnerAddActionBar3::addActionToQueue(ActionQueue::QueueOperation operation)
 {
-	AMAction3 * action = createLoopAction();
+	AMAction3 * action = loopActionsEnabled_ ? createLoopAction() : createAction();
 	if (!action)
 		return;
 
