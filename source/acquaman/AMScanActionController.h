@@ -79,14 +79,20 @@ protected slots:
 
 	/// Handles the cleanup after the initialization actions succeed.  Can be reimplemented for more specific behaviour.
 	virtual void onInitializationActionsListSucceeded();
+	/// Handles the cleanup after the initialization actions are cancelled.  Can be reimplemented for more specific behaviour.
+	virtual void onInitializationActionsListCancelled();
 	/// Handles the cleanup after the initialization actions fail.  Can be reimplemented for more specific behaviour.
 	virtual void onInitializationActionsListFailed();
 	/// Handles the cleanup after the cleanup actions succeed.  Can be reimplemented for more specific behaviour.
 	virtual void onCleanupActionsListSucceeded();
+	/// Handles the cleanup after the cleanup actions are cancelled.  Can be reimplemented for more specific behaviour.
+	virtual void onCleanupActionsListCancelled();
 	/// Handles the cleanup after the cleanup actions fail.  Can be reimplemented for more specific behaviour.
 	virtual void onCleanupActionsListFailed();
 	/// Handles starting the cleanup actions list after the scan controller actions tree completed successfully.  Can be reimplemented for more specific behaviour.
 	virtual void onScanningActionsSucceeded();
+	/// Handles starting the cleanup actions list after the scan controller actions tree is cancelled.  Can be reimplemented for more specific behaviour.
+	virtual void onScanningActionsCancelled();
 	/// Handles starting the cleanup actions list after the scan controller actions tree failed.  Can be reimplemented for more specific behaviour.
 	virtual void onScanningActionsFailed();
 
@@ -128,6 +134,11 @@ protected:
 	bool readyForFinished() const;
 
 protected:
+	/// Helper method that sets up the initialization actions for running and starts them.
+	void setupAndRunInitializationActions();
+	/// Helper method that sets up the cleanup actions for running and starts them.
+	void setupAndRunCleanupActions();
+
 	/// The pointer that holds the scanning actions.
 	AMAction3 *scanningActions_;
 	/// Flag holding whether the scan was successful or not.
