@@ -435,12 +435,7 @@ void SXRMB2DMapScanConfigurationView::onBeamlineEndstationChanged(SXRMB::Endstat
 {
 	Q_UNUSED(fromEndstation)
 
-	if (toEndstation == SXRMB::AmbiantWithGasChamber || toEndstation == SXRMB::AmbiantWithoutGasChamber) {
-		powerOnTEYHVControlCheckBox_->setChecked(false);
-		powerOnTEYHVControlCheckBox_->setVisible(false);
-	} else {
-		powerOnTEYHVControlCheckBox_->setVisible(true);
-	}
+	updatePowerOnHVControlCheckBoxText();
 }
 
 void SXRMB2DMapScanConfigurationView::setXAxisStart(const AMNumber &value)
@@ -490,7 +485,7 @@ void SXRMB2DMapScanConfigurationView::onFluorescenceDetectorChanged(int detector
 
 void SXRMB2DMapScanConfigurationView::onPowerOnTEYHVControlEnabled(bool value)
 {
-	configuration_->setPowerOnTEYHVControlEnabled(value);
+	configuration_->setPowerOnHVControlEnabled(value);
 }
 
 void SXRMB2DMapScanConfigurationView::checkScanAxisValidity()
