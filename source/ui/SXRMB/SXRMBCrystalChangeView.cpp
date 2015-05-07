@@ -33,7 +33,7 @@ SXRMBCrystalChangeView::~SXRMBCrystalChangeView()
 
 void SXRMBCrystalChangeView::onCrystalSelectionChanged()
 {
-	bool isInBetween = (crystalChange_->crystalSelection() == 0 || crystalChange_->crystalSelection() == 3);
+	bool isInBetween = crystalChange_->isInBetween();
 	crystalYEditor_->setDisabled(isInBetween);
 	crystalThetaEditor_->setDisabled(isInBetween);
 	crystalChiEditor_->setDisabled(isInBetween);
