@@ -488,17 +488,33 @@ void SXRMBAppController::onRegionOfInterestRemoved(AMRegionOfInterest *region)
 
 void SXRMBAppController::onShowAmbiantSampleStageMotorsTriggered()
 {
-	QString motorGroupName = SXRMBBeamline::sxrmb()->ambiantWithoutGasChamberSampleStageMotorGroupObject()->name();
+	if (!ambiantSampleStageMotorGroupView_) {
+		QString motorGroupName = SXRMBBeamline::sxrmb()->ambiantWithoutGasChamberSampleStageMotorGroupObject()->name();
 
-	if (!ambiantSampleStageMotorGroupView) {
-		ambiantSampleStageMotorGroupView = new AMMotorGroupView(SXRMBBeamline::sxrmb()->motorGroup(), AMMotorGroupView::Exclusive);
-		ambiantSampleStageMotorGroupView->setMotorGroupView(motorGroupName);
-		ambiantSampleStageMotorGroupView->showAvailableMotorGroupChoices(false);
+		AMExtendedControlEditor * ambiantTableHeightControlEditor = new AMExtendedControlEditor(SXRMBBeamline::sxrmb()->ambiantTableHeight());
+		ambiantTableHeightControlEditor->setControlFormat('f', 2);
+		ambiantTableHeightControlEditor->hideBorder();
+
+		QToolButton * stopButton = new QToolButton;
+		stopButton->setIcon(QIcon(":/stop.png"));
+		connect(stopButton, SIGNAL(clicked()), SXRMBBeamline::sxrmb()->ambiantTableHeight(), SLOT(stop()));
+
+		QHBoxLayout *tableHeightLayout = new QHBoxLayout;
+		tableHeightLayout->addWidget(new QLabel("Table Height"));
+		tableHeightLayout->addWidget(ambiantTableHeightControlEditor);
+		tableHeightLayout->addWidget(stopButton);
+
+		ambiantSampleStageMotorGroupView_ = new AMMotorGroupView(SXRMBBeamline::sxrmb()->motorGroup(), AMMotorGroupView::Exclusive);
+		ambiantSampleStageMotorGroupView_->setMotorGroupView(motorGroupName);
+		ambiantSampleStageMotorGroupView_->showAvailableMotorGroupChoices(false);
+
+		QVBoxLayout* motorGroupViewLayout = qobject_cast<QVBoxLayout *> (ambiantSampleStageMotorGroupView_->layout());
+		motorGroupViewLayout->addLayout(tableHeightLayout);
 	}
 
-	ambiantSampleStageMotorGroupView->raise();
-	ambiantSampleStageMotorGroupView->activateWindow();
-	ambiantSampleStageMotorGroupView->showNormal();
+	ambiantSampleStageMotorGroupView_->raise();
+	ambiantSampleStageMotorGroupView_->activateWindow();
+	ambiantSampleStageMotorGroupView_->showNormal();
 }
 
 void SXRMBAppController::onSwitchBeamlineEndstationTriggered()
