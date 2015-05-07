@@ -29,7 +29,8 @@ class AMScanThumbnailGridView;
  * A flow chart of the interactions can be found at:
  *	https://creately.com/diagram/i7w2km9s1/pfyr3Eob1R0riPbWAUdEOcLEo%3D
  */
-class AMScanThumbnailGridInputManager : public QObject {
+class AMScanThumbnailGridInputManager : public QObject
+{
 	Q_OBJECT
 public:
 	/**

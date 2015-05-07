@@ -17,8 +17,7 @@ void AMScanThumbnailViewItemDelegate::paint(QPainter *painter, const QStyleOptio
 	if(option.rect.isEmpty())
 		return;
 
-	if(!index.parent().isValid())
-	{
+	if(!index.parent().isValid()) {
 		// Painting a scan
 
 		// Get formatted data string
@@ -32,50 +31,34 @@ void AMScanThumbnailViewItemDelegate::paint(QPainter *painter, const QStyleOptio
 		// Elide text if required
 		textToPaint = option.fontMetrics.elidedText(textToPaint, Qt::ElideRight, option.rect.width());
 
-		if(option.state & QStyle::State_Selected)
-		{
+		if(option.state & QStyle::State_Selected) {
 			painter->save();
 			painter->setPen(option.palette.color(QPalette::Normal, QPalette::HighlightedText));
 			painter->drawText(option.rect, textToPaint);
 			painter->restore();
-		}
-		else
-		{
+		} else {
 			painter->drawText(option.rect, textToPaint);
 		}
-
-	}
-	else
-	{
+	} else {
 		// Painting a thumbnail
-		if(index.column() == 1)
-		{
+		if(index.column() == 1) {
 			QPixmap pixmap = index.data(Qt::DecorationRole).value<QPixmap>();
 			painter->drawPixmap(option.rect, pixmap);
+		} else {
+			if(option.state & QStyle::State_Selected) {
+				painter->save();
+				painter->setPen(option.palette.color(QPalette::Normal, QPalette::HighlightedText));
+				painter->drawText(option.rect, index.data(Qt::DisplayRole).toString());
+				painter->restore();
+			} else {
+				QString textToPaint = index.data(Qt::DisplayRole).toString();
 
-		}
-		else
-		{
-
-				if(option.state & QStyle::State_Selected)
-				{
-					painter->save();
-					painter->setPen(option.palette.color(QPalette::Normal, QPalette::HighlightedText));
-					painter->drawText(option.rect, index.data(Qt::DisplayRole).toString());
-					painter->restore();
-				}
-				else
-				{
-					QString textToPaint = index.data(Qt::DisplayRole).toString();
-
-					// Elide text if required
-					textToPaint = option.fontMetrics.elidedText(textToPaint, Qt::ElideRight, option.rect.width());
-					painter->drawText(option.rect, textToPaint);
-				}
+				// Elide text if required
+				textToPaint = option.fontMetrics.elidedText(textToPaint, Qt::ElideRight, option.rect.width());
+				painter->drawText(option.rect, textToPaint);
+			}
 		}
 	}
-
-
 }
 
 //////////////////////////////////////
@@ -140,8 +123,7 @@ void AMScanThumbnailView::scrollTo(const QModelIndex &index, QAbstractItemView::
 
 	// If the passed index refers to a thumbnail (i.e. its parent is valid) then we need to
 	// scrollTo the index of the parent scan
-	if(index.parent().isValid())
-	{
+	if(index.parent().isValid()) {
 		scrollTo(index.parent(), hint);
 		return;
 	}
@@ -160,7 +142,6 @@ void AMScanThumbnailView::scrollTo(const QModelIndex &index, QAbstractItemView::
 
 	verticalScrollBar()->setValue(absGridPosY);
 	horizontalScrollBar()->setValue(absGridPosX);
-
 }
 
 QRect AMScanThumbnailView::visualRect(const QModelIndex &index) const
@@ -182,10 +163,8 @@ QRect AMScanThumbnailView::visualRect(const QModelIndex &index) const
 
 	// Determine which piece of data we're looking at, and get the rectangle for that:
 	// * If the parent of the original index is valid, this is a thumbnail
-	if(index.parent().isValid())
-	{
-		switch (index.column())
-		{
+	if(index.parent().isValid()) {
+		switch (index.column())	{
 		case 1:
 			return getImageRectangle(thumbnailRectangle);
 		case 2:
@@ -193,12 +172,9 @@ QRect AMScanThumbnailView::visualRect(const QModelIndex &index) const
 		default:
 			return QRect();
 		}
-	}
-	// * If the parent is not valid, we're looking at a scan
-	else
-	{
-		switch (index.column())
-		{
+	} else {
+		// * If the parent is not valid, we're looking at a scan
+		switch (index.column()) {
 		case 0:
 			return thumbnailRectangle;
 		case 1:
@@ -277,27 +253,22 @@ void AMScanThumbnailView::setSelection(const QRect &rect, QItemSelectionModel::S
 	if(!endIndex.isValid())
 		endIndex = model()->index(model()->rowCount()-1, 1, QModelIndex());
 
-	if(!startIndex.isValid() || !endIndex.isValid())
+	if(!startIndex.isValid() || !endIndex.isValid()) {
 		selectionModel()->select(QModelIndex(), command | QItemSelectionModel::Rows);
-	else
-	{
+	} else {
 		QItemSelection totalSelectedItems;
 
-		for(int iCurrentSelection = startIndex.row(); iCurrentSelection <= endIndex.row(); iCurrentSelection++)
-		{
+		for(int iCurrentSelection = startIndex.row(); iCurrentSelection <= endIndex.row(); iCurrentSelection++) {
 			QModelIndex currentSelectionModelIndex = model()->index(iCurrentSelection, 0, QModelIndex());
 			QRect currentItemRect = visualRect(currentSelectionModelIndex);
 
-			if(currentItemRect.intersects(rect))
-			{
+			if(currentItemRect.intersects(rect)) {
 				totalSelectedItems.select(currentSelectionModelIndex, currentSelectionModelIndex);
 			}
-
 		}
 
 		selectionModel()->select(totalSelectedItems, command | QItemSelectionModel::Rows);
 	}
-
 }
 
 void AMScanThumbnailView::setSelectionBetween(const QModelIndex &start, const QModelIndex &end, QItemSelectionModel::SelectionFlags command)
@@ -338,8 +309,7 @@ void AMScanThumbnailView::paintEvent(QPaintEvent *pe)
 
 	QStyleOptionViewItem option = viewOptions();
 
-	for(int iDataRow = 0; iDataRow < model()->rowCount(); iDataRow++)
-	{
+	for(int iDataRow = 0; iDataRow < model()->rowCount(); iDataRow++) {
 		QModelIndex scanNameIndex = model()->index(iDataRow, 1);
 		QModelIndex scanDateIndex = model()->index(iDataRow, 3);
 		QModelIndex scanTechniqueIndex = model()->index(iDataRow, 4);
@@ -348,16 +318,12 @@ void AMScanThumbnailView::paintEvent(QPaintEvent *pe)
 		QRect containerRectangle(dataRowRectangle.x() + 10, dataRowRectangle.y() + 10, dataRowRectangle.width()-20, dataRowRectangle.height()-20);
 		bool isSelected = selectionModel()->isSelected(selectionRowIndex);
 		option.state = isSelected ? QStyle::State_Selected : QStyle::State_Enabled ;
-		if(!containerRectangle.isEmpty())
-		{
+		if(!containerRectangle.isEmpty()) {
 			painter.save();
-			if(isSelected)
-			{
+			if(isSelected) {
 				painter.setBrush(palette().brush(QPalette::Normal, QPalette::Highlight));
 				painter.setPen(palette().color(QPalette::Normal, QPalette::HighlightedText));
-			}
-			else
-			{
+			} else {
 				painter.setBrush(QBrush(Qt::white));
 				painter.setPen(QPen(QBrush(QColor(150,160,168)), 2));
 			}
@@ -366,8 +332,7 @@ void AMScanThumbnailView::paintEvent(QPaintEvent *pe)
 		}
 
 
-		if(model()->rowCount(scanNameIndex) > 0)
-		{
+		if(model()->rowCount(scanNameIndex) > 0) {
 
 			int currentThumbnailIndex = rowCurrentDisplayedThumbnailMap_.value(scanNameIndex.row(), 0);
 
@@ -380,8 +345,6 @@ void AMScanThumbnailView::paintEvent(QPaintEvent *pe)
 			itemDelegate()->paint(&painter, option, titleIndex);
 		}
 
-
-
 		option.rect = visualRect(scanNameIndex);
 		itemDelegate()->paint(&painter, option, scanNameIndex);
 
@@ -390,7 +353,6 @@ void AMScanThumbnailView::paintEvent(QPaintEvent *pe)
 
 		option.rect = visualRect(scanTechniqueIndex);
 		itemDelegate()->paint(&painter, option, scanTechniqueIndex);
-
 	}
 }
 
@@ -407,8 +369,7 @@ void AMScanThumbnailView::resizeEvent(QResizeEvent *event)
 
 void AMScanThumbnailView::updateScrollBars()
 {
-	if(!model())
-	{
+	if(!model()) {
 		verticalScrollBar()->setVisible(false);
 		return;
 	}
@@ -421,6 +382,7 @@ void AMScanThumbnailView::updateScrollBars()
 
 	if(numberOfRows*gridDimensions().height() < verticalOffset())
 		verticalScrollBar()->setValue(0);
+
 	verticalScrollBar()->setMaximum(numberOfRows * gridDimensions().height());
 	verticalScrollBar()->setSingleStep(15);
 	verticalScrollBar()->setPageStep(gridDimensions().height());
@@ -429,24 +391,21 @@ void AMScanThumbnailView::updateScrollBars()
 
 void AMScanThumbnailView::mousePressEvent(QMouseEvent *event)
 {
-	if(event->button() == Qt::LeftButton)
-	{
+	if(event->button() == Qt::LeftButton) {
+
 		if(!selectionRubberBand_)
 			selectionRubberBand_ = new QRubberBand(QRubberBand::Rectangle, viewport());
 
 		rubberBandStart_  = event->pos();
 		selectionRubberBand_->setGeometry(QRect(rubberBandStart_, QSize()));
 		selectionRubberBand_->show();
-
 	}
 }
 
 void AMScanThumbnailView::mouseMoveEvent(QMouseEvent *event)
 {
-	if(event->buttons() & Qt::LeftButton)
-	{
-		if(selectionRubberBand_)
-		{
+	if(event->buttons() & Qt::LeftButton) {
+		if(selectionRubberBand_) {
 			QItemSelectionModel::SelectionFlags commandFlags = QItemSelectionModel::ClearAndSelect;
 			if(event->modifiers()&Qt::ControlModifier || event->modifiers()&Qt::ShiftModifier)
 				commandFlags = QItemSelectionModel::Select;
@@ -456,14 +415,11 @@ void AMScanThumbnailView::mouseMoveEvent(QMouseEvent *event)
 		}
 	}
 
-	if(indexAt(QPoint(event->x(), event->y())).row() != currentGridRowMouseOver_)
-	{
+	if(indexAt(QPoint(event->x(), event->y())).row() != currentGridRowMouseOver_) {
 		isMouseHovering_ = false;
 		currentGridRowMouseOver_ = indexAt(QPoint(event->x(), event->y())).row();
 		hoverTimer_.start(200);
-	}
-	else if(isMouseHovering_)
-	{
+	} else if(isMouseHovering_) {
 		QModelIndex currentHoveringIndex = indexAt(QPoint(event->x(), event->y()));
 		if(!currentHoveringIndex.isValid())
 			return;
@@ -479,8 +435,7 @@ void AMScanThumbnailView::mouseMoveEvent(QMouseEvent *event)
 		if (posInsideRect.x() > 0)
 			currentThumbnailIndexToShow = posInsideRect.x() / widthOfEachThumbnail;
 
-		if(currentThumbnailIndexToShow != rowCurrentDisplayedThumbnailMap_.value(currentHoveringIndex.row()))
-		{
+		if(currentThumbnailIndexToShow != rowCurrentDisplayedThumbnailMap_.value(currentHoveringIndex.row())) {
 			rowCurrentDisplayedThumbnailMap_.remove(currentHoveringIndex.row());
 			rowCurrentDisplayedThumbnailMap_.insert(currentHoveringIndex.row(), currentThumbnailIndexToShow);
 
@@ -489,15 +444,11 @@ void AMScanThumbnailView::mouseMoveEvent(QMouseEvent *event)
 			setDirtyRegion(regionForIndex);
 		}
 	}
-
 }
 
-void AMScanThumbnailView::mouseReleaseEvent(QMouseEvent *event)
-{
-	if(event->button() == Qt::LeftButton)
-	{
-		if(event->modifiers() & Qt::ShiftModifier)
-		{
+void AMScanThumbnailView::mouseReleaseEvent(QMouseEvent *event) {
+	if(event->button() == Qt::LeftButton) {
+		if(event->modifiers() & Qt::ShiftModifier) {
 			// Shift is held
 			QModelIndex indexUnderMouse = indexAt(event->pos());
 			if(!indexUnderMouse.isValid())
@@ -507,20 +458,15 @@ void AMScanThumbnailView::mouseReleaseEvent(QMouseEvent *event)
 			int lowestSelectedRowIndex = 0;
 			int rowCount = model()->rowCount();
 			bool lowestSelectedRowIndexFound = false;
-			while(lowestSelectedRowIndex < rowCount && !lowestSelectedRowIndexFound)
-			{
-				if(selectionModel()->isRowSelected(lowestSelectedRowIndex, QModelIndex()))
-				{
+			while(lowestSelectedRowIndex < rowCount && !lowestSelectedRowIndexFound) {
+				if(selectionModel()->isRowSelected(lowestSelectedRowIndex, QModelIndex())) {
 					lowestSelectedRowIndexFound = true;
-				}
-				else
-				{
+				} else {
 					++lowestSelectedRowIndex;
 				}
 			}
 
-			if(lowestSelectedRowIndexFound)
-			{
+			if(lowestSelectedRowIndexFound) {
 				QModelIndex lowestSelectedModelIndex =
 						model()->index(lowestSelectedRowIndex, 1, QModelIndex());
 
@@ -530,15 +476,12 @@ void AMScanThumbnailView::mouseReleaseEvent(QMouseEvent *event)
 										QItemSelectionModel::Select);
 			}
 
-			if(!selectionRubberBand_->isHidden())
-			{
+			if(!selectionRubberBand_->isHidden()) {
 				selectionRubberBand_->hide();
 				rubberBandStart_.setX(0);
 				rubberBandStart_.setY(0);
 			}
-		}
-		else
-		{
+		} else {
 			QItemSelectionModel::SelectionFlags commandFlags;
 			if(event->modifiers() & Qt::ControlModifier)
 				commandFlags = QItemSelectionModel::Toggle;
@@ -552,14 +495,11 @@ void AMScanThumbnailView::mouseReleaseEvent(QMouseEvent *event)
 			rubberBandStart_.setY(0);
 
 			QModelIndex indexUnderMouse = indexAt(event->pos());
-			if(doubleClickTimer_.isActive() && indexUnderMouse.row() == lastClickedRowIndex_)
-			{
+			if(doubleClickTimer_.isActive() && indexUnderMouse.row() == lastClickedRowIndex_) {
 				if(!indexUnderMouse.isValid())
 					return;
 				emit doubleClicked(indexUnderMouse);
-			}
-			else
-			{
+			} else {
 				lastClickedRowIndex_ = indexUnderMouse.row();
 				doubleClickTimer_.start(doubleClickDelay_);
 			}
@@ -621,8 +561,4 @@ QRect AMScanThumbnailView::getScanTechniqueRectangle(const QRect &thumbnailRecta
 void AMScanThumbnailView::onTimerTimout()
 {
 	isMouseHovering_ = true;
-
 }
-
-
-

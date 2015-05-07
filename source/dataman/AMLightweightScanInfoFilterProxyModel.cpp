@@ -25,8 +25,7 @@ int AMLightweightScanInfoFilterProxyModel::runId() const
 const QHash<int, QString> AMLightweightScanInfoFilterProxyModel::runMap()
 {
 	QAbstractItemModel* model = sourceModel();
-	if(model)
-	{
+	if(model) {
 		AMLightweightScanInfoModel* actualModel =
 				qobject_cast<AMLightweightScanInfoModel*>(model);
 
@@ -99,19 +98,15 @@ bool AMLightweightScanInfoFilterProxyModel::filterAcceptsScan(int sourceRow, con
 {
 	if(filterKeyColumn() == 8)
 	{
-		if(runId() > -1)
-		{
+		if(runId() > -1) {
 			QModelIndex sourceIndex = sourceModel()->index(sourceRow, 5, parent);
 			int sourceRunId = sourceModel()->data(sourceIndex, Qt::UserRole).toInt();
 
 			if(sourceRunId != runId())
 				return false;
-		}
-		else if(experimentId() > -1)
-		{
+		} else if(experimentId() > -1) {
 			QAbstractItemModel* model = sourceModel();
-			if(model)
-			{
+			if(model) {
 				QModelIndex sourceIndex = sourceModel()->index(sourceRow, 0, parent);
 				AMLightweightScanInfoModel* actualModel =
 						qobject_cast<AMLightweightScanInfoModel*>(model);
@@ -122,8 +117,7 @@ bool AMLightweightScanInfoFilterProxyModel::filterAcceptsScan(int sourceRow, con
 		}
 
 		QModelIndex sourceIndex = sourceModel()->index(sourceRow, 0, parent);
-		for (int iThumbnail = 0; iThumbnail < sourceModel()->rowCount(sourceIndex); iThumbnail++)
-		{
+		for (int iThumbnail = 0; iThumbnail < sourceModel()->rowCount(sourceIndex); iThumbnail++) {
 			QModelIndex titleIndex = sourceModel()->index(iThumbnail, 0, sourceIndex);
 			QModelIndex subtitleIndex = sourceModel()->index(iThumbnail, 2, sourceIndex);
 			QVariant titleValue = sourceModel()->data(titleIndex, Qt::DisplayRole);
@@ -138,22 +132,16 @@ bool AMLightweightScanInfoFilterProxyModel::filterAcceptsScan(int sourceRow, con
 				return true;
 		}
 		return false;
-	}
-	else
-	{
-		if(runId() > -1)
-		{
+	} else {
+		if(runId() > -1) {
 			QModelIndex sourceIndex = sourceModel()->index(sourceRow, 5, parent);
 			int sourceRunId = sourceModel()->data(sourceIndex, Qt::UserRole).toInt();
 
 			if(sourceRunId != runId())
 				return false;
-		}
-		else if(experimentId() > -1)
-		{
+		} else if(experimentId() > -1) {
 			QAbstractItemModel* model = sourceModel();
-			if(model)
-			{
+			if(model) {
 				QModelIndex sourceIndex = sourceModel()->index(sourceRow, 0, parent);
 				AMLightweightScanInfoModel* actualModel =
 						qobject_cast<AMLightweightScanInfoModel*>(model);

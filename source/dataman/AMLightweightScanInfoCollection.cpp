@@ -4,7 +4,8 @@
 #include "database/AMDatabase.h"
 #include "database/AMDbObjectSupport.h"
 
-AMLightweightScanInfoCollection::AMLightweightScanInfoCollection(AMDatabase *database) {
+AMLightweightScanInfoCollection::AMLightweightScanInfoCollection(AMDatabase *database)
+{
 	database_ = database;
 	connect(database_, SIGNAL(created(QString,int)), this, SLOT(onDbItemAdded(QString,int)));
 	connect(database_, SIGNAL(updated(QString,int)), this, SLOT(onDbItemUpdated(QString,int)));
@@ -14,7 +15,8 @@ AMLightweightScanInfoCollection::AMLightweightScanInfoCollection(AMDatabase *dat
 	runMapCache_ = AMLightweightScanInfoFactory::runMap(database_);
 }
 
-QUrl AMLightweightScanInfoCollection::getScanUrl(int id) const {
+QUrl AMLightweightScanInfoCollection::getScanUrl(int id) const
+{
 	QString urlString =
 			QString("amd://%1/%2/%3")
 				.arg(database_->connectionName())
@@ -25,23 +27,28 @@ QUrl AMLightweightScanInfoCollection::getScanUrl(int id) const {
 	return returnUrl;
 }
 
-AMLightweightScanInfo *AMLightweightScanInfoCollection::at(int index) const {
+AMLightweightScanInfo *AMLightweightScanInfoCollection::at(int index) const
+{
 	return scanInfos_.at(index);
 }
 
-int AMLightweightScanInfoCollection::count() const {
+int AMLightweightScanInfoCollection::count() const
+{
 	return scanInfos_.count();
 }
 
-int AMLightweightScanInfoCollection::indexOf(AMLightweightScanInfo *scan, int from) const {
+int AMLightweightScanInfoCollection::indexOf(AMLightweightScanInfo *scan, int from) const
+{
 	return scanInfos_.indexOf(scan, from);
 }
 
-const QHash<int, QString> AMLightweightScanInfoCollection::runMap() {	
+const QHash<int, QString> AMLightweightScanInfoCollection::runMap()
+{
 	return runMapCache_;
 }
 
-void AMLightweightScanInfoCollection::onDbItemAdded(const QString &tableName, int id) {
+void AMLightweightScanInfoCollection::onDbItemAdded(const QString &tableName, int id)
+{
 	if(tableName == AMDbObjectSupport::s()->tableNameForClass("AMScan")) {
 
 		emit scanAboutToBeAdded(scanInfos_.count() - 2);
@@ -71,7 +78,8 @@ void AMLightweightScanInfoCollection::onDbItemAdded(const QString &tableName, in
 	}
 }
 
-void AMLightweightScanInfoCollection::onDbItemUpdated(const QString &tableName, int id) {
+void AMLightweightScanInfoCollection::onDbItemUpdated(const QString &tableName, int id)
+{
 	if(tableName == AMDbObjectSupport::s()->tableNameForClass("AMScan")) {
 		int dirtyScanInfoIndex = indexOfScanWithId(id);
 		if(dirtyScanInfoIndex >= 0) {
@@ -92,7 +100,8 @@ void AMLightweightScanInfoCollection::onDbItemUpdated(const QString &tableName, 
 	}
 }
 
-void AMLightweightScanInfoCollection::onDbItemRemoved(const QString &tableName, int oldId) {
+void AMLightweightScanInfoCollection::onDbItemRemoved(const QString &tableName, int oldId)
+{
 	if(tableName == AMDbObjectSupport::s()->tableNameForClass("AMScan")) {
 		int scanInfoToBeRemovedIndex = indexOfScanWithId(oldId);
 		if(scanInfoToBeRemovedIndex >= 0) {
@@ -103,7 +112,8 @@ void AMLightweightScanInfoCollection::onDbItemRemoved(const QString &tableName, 
 	}
 }
 
-int AMLightweightScanInfoCollection::indexOfScanWithId(int id) {
+int AMLightweightScanInfoCollection::indexOfScanWithId(int id)
+{
 	for(int iScanInfo =0, scanInfoCount = scanInfos_.count();
 		iScanInfo < scanInfoCount;
 		++iScanInfo) {

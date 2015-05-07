@@ -29,8 +29,7 @@ QVariant AMLightweightScanInfoModel::headerData(int section, Qt::Orientation ori
 	if(section >= columnCount())
 		return QVariant();
 
-	switch (section)
-	{
+	switch (section) {
 		case 0:
 			return "Serial #";
 		case 1:
@@ -152,8 +151,7 @@ QVariant AMLightweightScanInfoModel::getScanData(const QModelIndex &index, int r
 
 	AMLightweightScanInfo* info = scanInfo_->at(index.row());
 
-	if(role == Qt::DisplayRole || role == Qt::ToolTipRole)
-	{
+	if(role == Qt::DisplayRole || role == Qt::ToolTipRole) {
 		switch (index.column())
 		{
 		case 0:
@@ -175,11 +173,8 @@ QVariant AMLightweightScanInfoModel::getScanData(const QModelIndex &index, int r
 		default:
 			return QVariant();
 		}
-	}
-	else if(role == Qt::DecorationRole)
-	{
-		if(index.column() == 0)
-		{
+	} else if(role == Qt::DecorationRole) {
+		if(index.column() == 0) {
 			AMDbThumbnail* thumbnailData = info->thumbnailAt(0);
 			if(!thumbnailData)
 				return QVariant();
@@ -191,10 +186,9 @@ QVariant AMLightweightScanInfoModel::getScanData(const QModelIndex &index, int r
 
 			return icon;
 		}
-	} else if(role == Qt::UserRole) /// We use user role for obtaining data we wish not to display
-	{
-		switch(index.column())
-		{
+	} else if(role == Qt::UserRole)	{
+		 /// We use user role for obtaining data we wish not to display
+		switch(index.column()) {
 		case 0:
 			return info->id();
 		case 1:
@@ -236,12 +230,11 @@ QVariant AMLightweightScanInfoModel::getThumbnailData(const QModelIndex &index, 
 		return QVariant();
 
 
-	switch(index.column())
-	{
+	switch(index.column()) {
 	case 0:
 		return thumbnail->subtitle;
 	case 1:
-		if(role == Qt::DecorationRole){
+		if(role == Qt::DecorationRole) {
 			QPixmap pixmap;
 			pixmap.loadFromData(thumbnail->thumbnail);
 			return pixmap;

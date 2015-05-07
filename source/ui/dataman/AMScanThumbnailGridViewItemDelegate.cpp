@@ -2,12 +2,14 @@
 #include "util/AMDateTimeUtils.h"
 
 AMScanThumbnailGridViewItemDelegate::AMScanThumbnailGridViewItemDelegate(QObject *parent) :
-	QItemDelegate(parent) {
+	QItemDelegate(parent)
+{
 }
 
 void AMScanThumbnailGridViewItemDelegate::paint(QPainter *painter,
 												const QStyleOptionViewItem &option,
-												const QModelIndex &index) const {
+												const QModelIndex &index) const
+{
 
 	if(option.rect.isEmpty() || !index.isValid())
 		return;
@@ -54,13 +56,15 @@ void AMScanThumbnailGridViewItemDelegate::paint(QPainter *painter,
 
 void AMScanThumbnailGridViewItemDelegate::paintThumbnail(QPainter *painter,
 															  const QStyleOptionViewItem &option,
-															  const QPixmap &pixmap) const {
+															  const QPixmap &pixmap) const
+{
 	painter->drawPixmap(option.rect, pixmap);
 }
 
 void AMScanThumbnailGridViewItemDelegate::paintText(QPainter *painter,
 													const QStyleOptionViewItem &option,
-													const QString &string) const {
+													const QString &string) const
+{
 
 	QString textToPaint = option.fontMetrics.elidedText(
 				string, Qt::ElideLeft, option.rect.width());
@@ -74,7 +78,8 @@ void AMScanThumbnailGridViewItemDelegate::paintText(QPainter *painter,
 	painter->drawText(option.rect, textToPaint);
 }
 
-void AMScanThumbnailGridViewItemDelegate::paintItemBackground(QPainter *painter, const QStyleOptionViewItem &option) const {
+void AMScanThumbnailGridViewItemDelegate::paintItemBackground(QPainter *painter, const QStyleOptionViewItem &option) const
+{
 
 	if(option.state & QStyle::State_Selected) {
 		painter->setBrush(option.palette.brush(QPalette::Normal, QPalette::Highlight));

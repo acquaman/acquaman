@@ -1,6 +1,6 @@
 #include "AMSortFilterScansWidget.h"
 #include "dataman/AMLightweightScanInfoFilterProxyModel.h"
-#include <QSet>
+
 AMSortFilterScansWidget::AMSortFilterScansWidget(AMLightweightScanInfoFilterProxyModel *model, QWidget *parent) :
 	AMSortFilterWidget(model, parent)
 {
@@ -15,8 +15,6 @@ AMSortFilterScansWidget::AMSortFilterScansWidget(AMLightweightScanInfoFilterProx
 	runComboBox_->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 	filterBuilder_->formLayout()->addRow("Run: ", runComboBox_);
 	refreshRunComboBox();
-
-
 }
 
 void AMSortFilterScansWidget::setRunId(int runId)
@@ -49,8 +47,7 @@ void AMSortFilterScansWidget::onRunSelected(int index)
 	AMLightweightScanInfoFilterProxyModel * scanModel =
 			qobject_cast<AMLightweightScanInfoFilterProxyModel*>(model());
 
-	if(scanModel)
-	{
+	if(scanModel) {
 		QVariant selectedRunIdVariant = runComboBox_->itemData(index);
 		scanModel->setRunId(selectedRunIdVariant.toInt());
 	}

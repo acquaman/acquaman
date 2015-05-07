@@ -16,7 +16,8 @@
  * Class which overrides the standard QItemDelegate. Handles drawing of the thumbnail data in the
  * way required by the AMScanThumbnailView
  */
-class AMScanThumbnailViewItemDelegate : public QItemDelegate {
+class AMScanThumbnailViewItemDelegate : public QItemDelegate
+{
 	Q_OBJECT
 public:
 	explicit AMScanThumbnailViewItemDelegate(QObject* parent = 0);
@@ -28,7 +29,8 @@ public:
 
 /// Class which inherits from QAbstractItemView in such a way as to represent a AMLightweightScanInfo[FilterProxy]Model
 /// in a standard Qt way.
-class AMScanThumbnailView : public QAbstractItemView {
+class AMScanThumbnailView : public QAbstractItemView
+{
 	Q_OBJECT
 public:
 	explicit AMScanThumbnailView(QWidget* parent = 0);

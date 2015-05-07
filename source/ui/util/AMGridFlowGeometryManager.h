@@ -12,8 +12,8 @@
  * as a helper class to answer geometry questions to assist in performing a
  * layout or performing manual painting.
  */
-class AMGridFlowGeometryManager {
-
+class AMGridFlowGeometryManager
+{
 public:
 
 	/**
@@ -31,6 +31,7 @@ public:
 							  int itemWidth, int itemHeight,
 							  Qt::Alignment cellContentAlignment = Qt::AlignCenter);
 
+	virtual ~AMGridFlowGeometryManager() {}
 	/**
 	 * The width of the whole space being managed
 	 */

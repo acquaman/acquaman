@@ -4,6 +4,7 @@
 #include "AMSortFilterWidget.h"
 #include <QComboBox>
 #include <QFormLayout>
+#include <QSet>
 
 class AMLightweightScanInfoFilterProxyModel;
 class AMSortFilterScansWidget : public AMSortFilterWidget

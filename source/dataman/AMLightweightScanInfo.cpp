@@ -4,19 +4,20 @@
 #include "util/AMErrorMonitor.h"
 
 AMLightweightScanInfo::AMLightweightScanInfo(int id,
-		const QString &name,
-		int number,
-		const QDateTime &dateTime,
-		const QString &scanType,
-		int runId,
-		const QString &runName,
-		const QString &notes,
-		const QString &sampleName,
-		int thumbnailFirstId,
-		int thumbnailCount,
-		AMDatabase *database,
-		QObject *parent)
-	: QObject(parent) {
+											 const QString &name,
+											 int number,
+											 const QDateTime &dateTime,
+											 const QString &scanType,
+											 int runId,
+											 const QString &runName,
+											 const QString &notes,
+											 const QString &sampleName,
+											 int thumbnailFirstId,
+											 int thumbnailCount,
+											 AMDatabase *database,
+											 QObject *parent)
+	: QObject(parent)
+{
 	id_ = id;
 	name_ = name;
 	number_ = number;
@@ -35,75 +36,93 @@ AMLightweightScanInfo::AMLightweightScanInfo(int id,
 	}
 }
 
-int AMLightweightScanInfo::id() const {
+int AMLightweightScanInfo::id() const
+{
 	return id_;
 }
 
-QString AMLightweightScanInfo::name() const {
+QString AMLightweightScanInfo::name() const
+{
 	return name_;
 }
 
-void AMLightweightScanInfo::setName(const QString &name) {
+void AMLightweightScanInfo::setName(const QString &name)
+{
 	name_ = name;
 }
 
-int AMLightweightScanInfo::number() const {
+int AMLightweightScanInfo::number() const
+{
 	return number_;
 }
 
-void AMLightweightScanInfo::setNumber(int number) {
+void AMLightweightScanInfo::setNumber(int number)
+{
 	number_ = number;
 }
 
-QDateTime AMLightweightScanInfo::dateTime() const {
+QDateTime AMLightweightScanInfo::dateTime() const
+{
 	return dateTime_;
 }
 
-void AMLightweightScanInfo::setDateTime(const QDateTime &dateTime) {
+void AMLightweightScanInfo::setDateTime(const QDateTime &dateTime)
+{
 	dateTime_ = dateTime;
 }
 
-QString AMLightweightScanInfo::scanType() const {
+QString AMLightweightScanInfo::scanType() const
+{
 	return scanType_;
 }
 
-void AMLightweightScanInfo::setScanType(const QString &scanType) {
+void AMLightweightScanInfo::setScanType(const QString &scanType)
+{
 	scanType_ = scanType;
 }
 
-int AMLightweightScanInfo::runId() const {
+int AMLightweightScanInfo::runId() const
+{
 	return runId_;
 }
 
-void AMLightweightScanInfo::setRunId(int runId) {
+void AMLightweightScanInfo::setRunId(int runId)
+{
 	runId_ = runId;
 }
 
-QString AMLightweightScanInfo::runName() const {
+QString AMLightweightScanInfo::runName() const
+{
 	return runName_;
 }
 
-void AMLightweightScanInfo::setRunName(const QString &runName) {
+void AMLightweightScanInfo::setRunName(const QString &runName)
+{
 	runName_ = runName;
 }
 
-QString AMLightweightScanInfo::notes() const {
+QString AMLightweightScanInfo::notes() const
+{
 	return notes_;
 }
 
-void AMLightweightScanInfo::setNotes(const QString &notes) {
+void AMLightweightScanInfo::setNotes(const QString &notes)
+{
 	notes_ = notes;
 }
 
-QString AMLightweightScanInfo::sampleName() const {
+QString AMLightweightScanInfo::sampleName() const
+{
 	return sampleName_;
 }
 
-void AMLightweightScanInfo::setSampleName(const QString &sampleName) {
+void AMLightweightScanInfo::setSampleName(const QString &sampleName)
+{
 	sampleName_ = sampleName;
 }
 
-AMDbThumbnail *AMLightweightScanInfo::thumbnailAt(int index) const {
+AMDbThumbnail *AMLightweightScanInfo::thumbnailAt(int index) const
+{
 	/// Scan doesn't have this many thumbnails, return 0
 	if(index >= thumbnailCount())
 		return 0;
@@ -136,11 +155,13 @@ AMDbThumbnail *AMLightweightScanInfo::thumbnailAt(int index) const {
 	return thumbnailsMap_.value(thumbnailIds_.at(index));
 }
 
-int AMLightweightScanInfo::thumbnailCount() const {
+int AMLightweightScanInfo::thumbnailCount() const
+{
 	return thumbnailIds_.count();
 }
 
-void AMLightweightScanInfo::refreshThumbnails(int thumbnailFirstId, int thumbnailCount) {
+void AMLightweightScanInfo::refreshThumbnails(int thumbnailFirstId, int thumbnailCount)
+{
 	clearThumbnails();
 	if(thumbnailCount == 0)
 		return;
@@ -150,7 +171,8 @@ void AMLightweightScanInfo::refreshThumbnails(int thumbnailFirstId, int thumbnai
 	}
 }
 
-int AMLightweightScanInfo::thumbnailFirstId() const {
+int AMLightweightScanInfo::thumbnailFirstId() const
+{
 	if(thumbnailIds_.isEmpty())
 		return -1;
 
@@ -162,11 +184,13 @@ void AMLightweightScanInfo::addExperimentId(int experimentId)
 	experimentIds_.append(experimentId);
 }
 
-void AMLightweightScanInfo::clearThumbnails() {
+void AMLightweightScanInfo::clearThumbnails()
+{
 	thumbnailIds_.clear();
 	thumbnailsMap_.clear();
 }
 
-const QList<int> AMLightweightScanInfo::experimentIds() {
+const QList<int> AMLightweightScanInfo::experimentIds()
+{
 	return experimentIds_;
 }

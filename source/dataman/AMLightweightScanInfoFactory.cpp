@@ -6,7 +6,8 @@
 #include "database/AMDatabase.h"
 #include "database/AMDbObjectSupport.h"
 
-QList<AMLightweightScanInfo *> AMLightweightScanInfoFactory::all(AMDatabase *database) {
+QList<AMLightweightScanInfo *> AMLightweightScanInfoFactory::all(AMDatabase *database)
+{
 
 	AMLightweightScanInfoFactory helperFactory(database);
 
@@ -19,7 +20,8 @@ QList<AMLightweightScanInfo *> AMLightweightScanInfoFactory::all(AMDatabase *dat
 
 }
 
-AMLightweightScanInfo *AMLightweightScanInfoFactory::single(int scanId, AMDatabase *database) {
+AMLightweightScanInfo *AMLightweightScanInfoFactory::single(int scanId, AMDatabase *database)
+{
 	AMLightweightScanInfo* returnScanInfo = 0;
 
 	QSqlQuery selectQuery = database->select(
@@ -127,14 +129,17 @@ int AMLightweightScanInfoFactory::scanIdForExperimentEntry(int id, AMDatabase *d
 	return returnScanId;
 }
 
-AMLightweightScanInfoFactory::AMLightweightScanInfoFactory() {
+AMLightweightScanInfoFactory::AMLightweightScanInfoFactory()
+{
 }
 
-AMLightweightScanInfoFactory::AMLightweightScanInfoFactory(AMDatabase *database) {
+AMLightweightScanInfoFactory::AMLightweightScanInfoFactory(AMDatabase *database)
+{
 	database_ = database;
 }
 
-QList<AMLightweightScanInfo*> AMLightweightScanInfoFactory::loadAll() {
+QList<AMLightweightScanInfo*> AMLightweightScanInfoFactory::loadAll()
+{
 	QList<AMLightweightScanInfo*> returnCollection;
 
 	QSqlQuery selectQuery = database_->select(AMDbObjectSupport::s()->tableNameForClass("AMScan"), "*");
@@ -184,7 +189,8 @@ QList<AMLightweightScanInfo*> AMLightweightScanInfoFactory::loadAll() {
 	return returnCollection;
 }
 
-void AMLightweightScanInfoFactory::populateExperimentIds() {
+void AMLightweightScanInfoFactory::populateExperimentIds()
+{
 	QSqlQuery selectQuery = database_->select("ObjectExperimentEntries", "objectId, ExperimentId");
 
 	if(selectQuery.exec()) {
@@ -258,7 +264,8 @@ void AMLightweightScanInfoFactory::populateSamples()
 	}
 }
 
-void AMLightweightScanInfoFactory::populateObjectTypes() {
+void AMLightweightScanInfoFactory::populateObjectTypes()
+{
 	QSqlQuery selectQuery = database_->select("AMDbObjectTypes_table", "AMDbObjectType, description");
 
 	if(selectQuery.exec()) {
@@ -274,7 +281,8 @@ void AMLightweightScanInfoFactory::populateObjectTypes() {
 	selectQuery.finish();
 }
 
-void AMLightweightScanInfoFactory::populateRuns() {
+void AMLightweightScanInfoFactory::populateRuns()
+{
 	QSqlQuery selectQuery = database_->select(AMDbObjectSupport::s()->tableNameForClass("AMRun"), "id, name");
 
 	if(selectQuery.exec()) {
@@ -292,7 +300,8 @@ void AMLightweightScanInfoFactory::populateRuns() {
 	selectQuery.finish();
 }
 
-QString AMLightweightScanInfoFactory::getSampleName(const QString &sampleNamePre2013, const QString &sampleTableEntry) const {
+QString AMLightweightScanInfoFactory::getSampleName(const QString &sampleNamePre2013, const QString &sampleTableEntry) const
+{
 	if(sampleTableEntry.length()==0)
 		return sampleNamePre2013;
 
@@ -317,7 +326,8 @@ QString AMLightweightScanInfoFactory::getSampleName(const QString &sampleNamePre
 	return sampleMap_.value(tableName).value(id);
 }
 
-QString AMLightweightScanInfoFactory::loadRunName(AMDatabase *database, int runId) {
+QString AMLightweightScanInfoFactory::loadRunName(AMDatabase *database, int runId)
+{
 	QString returnName;
 
 	if(runId > 0) {
@@ -337,7 +347,8 @@ QString AMLightweightScanInfoFactory::loadRunName(AMDatabase *database, int runI
 	return returnName;
 }
 
-QString AMLightweightScanInfoFactory::loadScanType(AMDatabase *database, const QString &className) {
+QString AMLightweightScanInfoFactory::loadScanType(AMDatabase *database, const QString &className)
+{
 	QString returnName;
 
 	QSqlQuery selectQuery = database->select(
@@ -359,7 +370,8 @@ QString AMLightweightScanInfoFactory::loadScanType(AMDatabase *database, const Q
 
 QString AMLightweightScanInfoFactory::loadSampleName(AMDatabase *database,
 													 const QString &sampleNamePre2013,
-													 const QString &sampleTableEntry) {
+													 const QString &sampleTableEntry)
+{
 	QString returnValue;
 
 	if(sampleNamePre2013 != "") {
@@ -395,7 +407,8 @@ QString AMLightweightScanInfoFactory::loadSampleName(AMDatabase *database,
 	return returnValue;
 }
 
-QList<int> AMLightweightScanInfoFactory::loadExperimentIds(AMDatabase *database, int scanId) {
+QList<int> AMLightweightScanInfoFactory::loadExperimentIds(AMDatabase *database, int scanId)
+{
 	QList<int> returnList;
 
 	QSqlQuery selectQuery = database->select("ObjectExperimentEntries",

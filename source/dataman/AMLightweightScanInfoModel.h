@@ -4,7 +4,6 @@
 #include <QAbstractItemModel>
 #include "AMLightweightScanInfoCollection.h"
 
-
 /**
  * Qt standard model for representing AMLightweightScanInfo in such a way as to be usable by QAbstractItemViews
  * and their descendents. The model represents a two stage heirarchy, with the top level being the scans, and

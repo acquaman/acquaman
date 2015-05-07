@@ -22,6 +22,8 @@ public:
 	 */
 	explicit AMScanThumbnailGridView(QWidget *parent = 0);
 
+	~AMScanThumbnailGridView();
+
 	QModelIndex indexAt(const QPoint& point) const;
 
 	QRect visualRect(const QModelIndex &index) const;

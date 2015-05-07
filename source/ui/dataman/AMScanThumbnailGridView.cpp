@@ -27,6 +27,12 @@ AMScanThumbnailGridView::AMScanThumbnailGridView(QWidget *parent) :
 	rubberBand_->setVisible(false);
 }
 
+AMScanThumbnailGridView::~AMScanThumbnailGridView()
+{
+	delete geometryManager_;
+	inputManager_->deleteLater();
+}
+
 QModelIndex AMScanThumbnailGridView::indexAt(const QPoint &point) const
 {
 	if(!model())
@@ -92,7 +98,26 @@ QRect AMScanThumbnailGridView::visualRect(const QModelIndex &index) const
 
 void AMScanThumbnailGridView::scrollTo(const QModelIndex &index, QAbstractItemView::ScrollHint hint)
 {
+	// Note: currently ignores the scroll hint. Places the corresponding scan as close to the top of
+	// the view as is possible
+	Q_UNUSED(hint);
 
+	if(!index.isValid())
+		return;
+
+	// If the passed index refers to a thumbnail (i.e. its parent is valid) then we need to
+	// scrollTo the index of the parent scan
+	if(index.parent().isValid()) {
+		scrollTo(index.parent(), hint);
+		return;
+	}
+
+	// Obtian the geometry of the index
+	int itemCellIndex = index.row();
+	QRect indexCellGeometry = geometryManager_->cellGeometryAt(itemCellIndex, horizontalOffset(), verticalOffset());
+
+	verticalScrollBar()->setValue(indexCellGeometry.y());
+	horizontalScrollBar()->setValue(indexCellGeometry.x());
 }
 
 void AMScanThumbnailGridView::onItemSelected(int itemIndex, QItemSelectionModel::SelectionFlags flags)
@@ -226,10 +251,9 @@ QModelIndex AMScanThumbnailGridView::moveCursor(QAbstractItemView::CursorAction 
 	Q_UNUSED(modifiers)
 	return QModelIndex();
 }
-#include <QDebug>
+
 void AMScanThumbnailGridView::setSelection(const QRect &rect, QItemSelectionModel::SelectionFlags command)
 {
-	qDebug() << QString("Selecting with rectangle x: %1 y: %2 w: %3 h:%4").arg(rect.x()).arg(rect.y()).arg(rect.width()).arg(rect.height());
 	QList<int> containedCellIndices = geometryManager_->indicesWithin(rect, horizontalOffset(), verticalOffset());
 
 	if(containedCellIndices.isEmpty())

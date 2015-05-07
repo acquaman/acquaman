@@ -1,7 +1,8 @@
 #include "AMUniformGridLayout.h"
 
 AMUniformGridLayout::AMUniformGridLayout(int cellWidth, int cellHeight, QWidget *parent) :
-	QLayout(parent) {
+	QLayout(parent)
+{
 	cellWidth_ = cellWidth;
 	cellHeight_ = cellHeight;
 	cellContentAlignment_ = Qt::AlignCenter;
@@ -11,14 +12,16 @@ AMUniformGridLayout::AMUniformGridLayout(int cellWidth, int cellHeight, QWidget 
 	marginBottom_ = 0;
 }
 
-AMUniformGridLayout::~AMUniformGridLayout() {
+AMUniformGridLayout::~AMUniformGridLayout()
+{
 	while(!children_.isEmpty()) {
 		QLayoutItem* childToDelete = children_.takeAt(0);
 		delete childToDelete;
 	}
 }
 
-void AMUniformGridLayout::addItem(QLayoutItem *item) {
+void AMUniformGridLayout::addItem(QLayoutItem *item)
+{
 	children_.append(item);
 }
 
@@ -27,11 +30,13 @@ void AMUniformGridLayout::addItemAt(QLayoutItem *item, int index)
 	children_.insert(index, item);
 }
 
-QSize AMUniformGridLayout::sizeHint() const {
+QSize AMUniformGridLayout::sizeHint() const
+{
 	return minimumSize();
 }
 
-QSize AMUniformGridLayout::minimumSize() const {
+QSize AMUniformGridLayout::minimumSize() const
+{
 	// If we're empty then we'll define the minimum size as being just our padding
 	if(children_.count() == 0) {
 		return QSize(marginLeft_ + marginRight_, marginTop_ + marginBottom_);
@@ -52,11 +57,13 @@ QSize AMUniformGridLayout::minimumSize() const {
 	return QSize(currentMinWidth, currentMinHeight);
 }
 
-int AMUniformGridLayout::count() const {
+int AMUniformGridLayout::count() const
+{
 	return children_.count();
 }
 
-int AMUniformGridLayout::layoutItemIndexAt(const QPoint &point) {
+int AMUniformGridLayout::layoutItemIndexAt(const QPoint &point)
+{
 	// Check some pre-requisites (point can't be null, point must be inside this
 	// layout, and the cell width and height can't be zero
 	if(point.isNull())
@@ -103,7 +110,8 @@ QList<int> AMUniformGridLayout::layoutItemIndicesWithin(const QRect &rect)
 	return returnList;
 }
 
-QLayoutItem *AMUniformGridLayout::itemAt(int index) const {
+QLayoutItem *AMUniformGridLayout::itemAt(int index) const
+{
 	if(index >= count()) {
 		return 0;
 	}
@@ -112,7 +120,8 @@ QLayoutItem *AMUniformGridLayout::itemAt(int index) const {
 
 }
 
-QLayoutItem *AMUniformGridLayout::takeAt(int index) {
+QLayoutItem *AMUniformGridLayout::takeAt(int index)
+{
 	if(index >= count()) {
 		return 0;
 	}
@@ -120,7 +129,8 @@ QLayoutItem *AMUniformGridLayout::takeAt(int index) {
 	return children_.takeAt(index);
 }
 
-void AMUniformGridLayout::setGeometry(const QRect &rectangle) {
+void AMUniformGridLayout::setGeometry(const QRect &rectangle)
+{
 	QLayout::setGeometry(rectangle);
 
 	for(int iCell = 0, cellCount = children_.count();
@@ -143,35 +153,43 @@ void AMUniformGridLayout::setCellContentAlignment(Qt::Alignment cellContentAlign
 	cellContentAlignment_ = cellContentAlignment;
 }
 
-int AMUniformGridLayout::marginLeft() const {
+int AMUniformGridLayout::marginLeft() const
+{
 	return marginLeft_;
 }
 
-void AMUniformGridLayout::setMarginLeft(int marginLeft) {
+void AMUniformGridLayout::setMarginLeft(int marginLeft)
+{
 	marginLeft_ = marginLeft;
 }
 
-int AMUniformGridLayout::marginRight() const {
+int AMUniformGridLayout::marginRight() const
+{
 	return marginRight_;
 }
 
-void AMUniformGridLayout::setMarginRight(int marginRight) {
+void AMUniformGridLayout::setMarginRight(int marginRight)
+{
 	marginRight_ = marginRight;
 }
 
-int AMUniformGridLayout::marginTop() const {
+int AMUniformGridLayout::marginTop() const
+{
 	return marginTop_;
 }
 
-void AMUniformGridLayout::setMarginTop(int marginTop) {
+void AMUniformGridLayout::setMarginTop(int marginTop)
+{
 	marginTop_ = marginTop;
 }
 
-int AMUniformGridLayout::marginBottom() const {
+int AMUniformGridLayout::marginBottom() const
+{
 	return marginBottom_;
 }
 
-void AMUniformGridLayout::setMarginBotton(int marginBottom) {
+void AMUniformGridLayout::setMarginBotton(int marginBottom)
+{
 	marginBottom_ = marginBottom;
 }
 
@@ -229,7 +247,8 @@ QRect AMUniformGridLayout::geometryWithinCellAt(int cellIndex)
 	return QRect(childXPosition, childYPosition, childWidth, childHeight);
 }
 
-int AMUniformGridLayout::cellsPerRow() const {
+int AMUniformGridLayout::cellsPerRow() const
+{
 	int totalWidth = geometry().width();
 	int widthForCells = totalWidth - marginLeft_ - marginRight_;
 
