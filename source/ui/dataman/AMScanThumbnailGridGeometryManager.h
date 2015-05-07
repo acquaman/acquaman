@@ -3,10 +3,10 @@
 
 #include "ui/util/AMGridFlowGeometryManager.h"
 
-#define GRID_CELL_WIDTH		260
-#define GRID_CELL_HEIGHT	320
-#define THUMBNAIL_WIDTH		240
-#define THUMBNAIL_HEIGHT	275
+#define GRID_CELL_WIDTH		265
+#define GRID_CELL_HEIGHT	290
+#define CONTENT_WIDTH		250
+#define CONTENT_HEIGHT		275
 
 /**
  * A Geometry manager class which is specifically designed for the AMScanThumbnailGridView.

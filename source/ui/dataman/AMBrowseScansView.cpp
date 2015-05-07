@@ -1,12 +1,12 @@
 #include "AMBrowseScansView.h"
 #include "ui/util/AMSortFilterScansWidget.h"
 #include "ui/dataman/AMScanTableView.h"
-#include "ui/dataman/AMScanThumbnailView.h"
+#include "ui/dataman/AMScanThumbnailGridView.h"
 #include "ui/dataman/AMScanTreeView.h"
 #include "dataman/AMLightweightScanInfoCollection.h"
 #include "dataman/AMLightweightScanInfoModel.h"
 #include "dataman/AMLightweightScanInfoFilterProxyModel.h"
-#include "ui/dataman/AMScanThumbnailGridView.h"
+
 AMBrowseScansView::AMBrowseScansView(AMDatabase *database, QWidget *parent) :
 	QWidget(parent)
 {
@@ -149,7 +149,7 @@ void AMBrowseScansView::addChildView(QAbstractItemView *childView, const QIcon &
 void AMBrowseScansView::initializeChildViews()
 {
 	// Scan Thumbnail View
-	AMScanThumbnailView* thumbnailView = new AMScanThumbnailView(this);
+	AMScanThumbnailGridView* thumbnailView = new AMScanThumbnailGridView(this);
 	thumbnailView->setContextMenuPolicy(Qt::CustomContextMenu);
 	QIcon thumbnailIcon;
 	thumbnailIcon.addFile(QString::fromUtf8(":/22x22/view-list-icons-symbolic.png"), QSize(), QIcon::Normal, QIcon::Off);
@@ -175,10 +175,6 @@ void AMBrowseScansView::initializeChildViews()
 	treeIcon.addFile(QString::fromUtf8(":/22x22/view-list-compact-symbolic_dark.png"), QSize(), QIcon::Normal, QIcon::On);
 
 	addChildView(treeView, treeIcon);
-
-	AMScanThumbnailGridView* thumbnailGridView = new AMScanThumbnailGridView(this);
-	thumbnailGridView->setContextMenuPolicy(Qt::CustomContextMenu);
-	addChildView(thumbnailGridView, thumbnailIcon);
 }
 
 QAbstractItemView *AMBrowseScansView::currentView()

@@ -46,7 +46,7 @@ QModelIndex AMScanThumbnailGridView::indexAt(const QPoint &point) const
 	if(integerIndexAt == -1)
 		return QModelIndex();
 
-	return model()->index(integerIndexAt, 0, QModelIndex());
+	return model()->index(integerIndexAt, 1, QModelIndex());
 }
 
 QRect AMScanThumbnailGridView::visualRect(const QModelIndex &index) const
@@ -198,6 +198,9 @@ void AMScanThumbnailGridView::onHoverMove(int itemIndex, int positionX, int posi
 {
 	// get number of thumbnails
 	QModelIndex modelIndexOfItem = model()->index(itemIndex, 0, QModelIndex());
+	if(!modelIndexOfItem.isValid())
+		return;
+
 	int thumbnailCount = model()->rowCount(modelIndexOfItem);
 
 	if(thumbnailCount == 0)
@@ -211,6 +214,9 @@ void AMScanThumbnailGridView::onHoverMove(int itemIndex, int positionX, int posi
 	// calculate at what thumbnail index the thumbnail should be at given the
 	// position inside the thumbnail and the number of thumbnails
 	int widthOfEachThumbnailSegment = thumbnailImageRectangle.width() / thumbnailCount;
+	if(widthOfEachThumbnailSegment == 0)
+		return;
+
 	int currentThumbnailIndexToShow = 0;
 
 	if (posInsideRect.x() > 0)
@@ -371,6 +377,7 @@ void AMScanThumbnailGridView::mouseReleaseEvent(QMouseEvent *event)
 void AMScanThumbnailGridView::dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight)
 {
 	updateScrollBars();
+	rowCurrentDisplayedThumbnailMap_.clear();
 	viewport()->update();
 	QAbstractItemView::dataChanged(topLeft, bottomRight);
 }
@@ -378,12 +385,14 @@ void AMScanThumbnailGridView::dataChanged(const QModelIndex &topLeft, const QMod
 void AMScanThumbnailGridView::rowsInserted(const QModelIndex &parent, int start, int end)
 {
 	viewport()->update();
+	rowCurrentDisplayedThumbnailMap_.clear();
 	QAbstractItemView::rowsInserted(parent, start, end);
 }
 
 void AMScanThumbnailGridView::rowsAboutToBeRemoved(const QModelIndex &parent, int start, int end)
 {
 	viewport()->update();
+	rowCurrentDisplayedThumbnailMap_.clear();
 	QAbstractItemView::rowsAboutToBeRemoved(parent, start, end);
 }
 
