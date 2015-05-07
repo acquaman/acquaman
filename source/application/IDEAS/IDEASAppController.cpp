@@ -22,14 +22,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "IDEASAppController.h"
 
 #include "beamline/CLS/CLSFacilityID.h"
+#include "beamline/CLS/CLSStorageRing.h"
 #include "beamline/IDEAS/IDEASBeamline.h"
-
-#include "ui/IDEAS/IDEASScanConfigurationViewHolder3.h"
-
-#include "ui/AMMainWindow.h"
-#include "ui/dataman/AMGenericScanEditor.h"
-#include "ui/IDEAS/IDEASPersistentView.h"
-#include "dataman/AMScan.h"
 
 #include "actions3/AMActionRunner3.h"
 #include "actions3/actions/AMScanAction.h"
@@ -37,23 +31,28 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "application/AMAppControllerSupport.h"
 
+#include "dataman/AMRun.h"
+#include "dataman/AMScan.h"
 #include "dataman/database/AMDbObjectSupport.h"
 #include "dataman/export/AMExportController.h"
 #include "dataman/export/AMExporterOptionGeneralAscii.h"
 #include "dataman/export/AMExporterGeneralAscii.h"
 #include "dataman/export/AMExporterAthena.h"
-#include "dataman/AMRun.h"
 
 #include "util/AMPeriodicTable.h"
-#include "beamline/CLS/CLSStorageRing.h"
 
-//#include "ui/CLS/CLSSynchronizedDwellTimeView.h"
-#include "ui/IDEAS/IDEASXASScanConfigurationView.h"
-#include "ui/IDEAS/IDEASScanConfigurationViewHolder3.h"
-#include "ui/IDEAS/IDEASXRFDetailedDetectorViewWithSave.h"
-#include "ui/IDEAS/IDEASSampleCameraPanel.h"
 #include "acquaman/IDEAS/IDEASXASScanConfiguration.h"
 #include "acquaman/IDEAS/IDEASXRFScanConfiguration.h"
+
+//#include "ui/CLS/CLSSynchronizedDwellTimeView.h"
+#include "ui/AMMainWindow.h"
+#include "ui/dataman/AMGenericScanEditor.h"
+#include "ui/acquaman/AMScanConfigurationViewHolder3.h"
+
+#include "ui/IDEAS/IDEASPersistentView.h"
+#include "ui/IDEAS/IDEASXASScanConfigurationView.h"
+#include "ui/IDEAS/IDEASXRFDetailedDetectorViewWithSave.h"
+#include "ui/IDEAS/IDEASSampleCameraPanel.h"
 
 IDEASAppController::IDEASAppController(QObject *parent)
 	: AMAppController(parent)
@@ -179,7 +178,7 @@ void IDEASAppController::setupUserInterface()
 	mw_->addRightWidget(persistentPanel);
 
 	xasScanConfigurationView_ = 0; //NULL
-	xasScanConfigurationHolder3_ = new IDEASScanConfigurationViewHolder3();
+	xasScanConfigurationHolder3_ = new AMScanConfigurationViewHolder3(true);
 	mw_->addPane(xasScanConfigurationHolder3_, "Scans", "IDEAS XAS Scan", ":/utilities-system-monitor.png");
 
 	sampleCameraPanel_ = new IDEASSampleCameraPanel();
