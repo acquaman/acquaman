@@ -224,7 +224,7 @@ protected:
 	 * item size.
 	 */
 	QRect contentGeometryFromCell(const QRect& cellGeometry) const;
-
+AMScanTreeView
 private:
 	int width_;
 	int cellWidth_;
