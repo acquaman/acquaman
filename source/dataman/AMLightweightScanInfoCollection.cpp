@@ -11,6 +11,7 @@ AMLightweightScanInfoCollection::AMLightweightScanInfoCollection(AMDatabase *dat
 	connect(database_, SIGNAL(removed(QString,int)), this, SLOT(onDbItemRemoved(QString,int)));
 
 	scanInfos_ = AMLightweightScanInfoFactory::all(database_);
+	runMapCache_ = AMLightweightScanInfoFactory::runMap(database_);
 }
 
 QUrl AMLightweightScanInfoCollection::getScanUrl(int id) const {
@@ -36,9 +37,8 @@ int AMLightweightScanInfoCollection::indexOf(AMLightweightScanInfo *scan, int fr
 	return scanInfos_.indexOf(scan, from);
 }
 
-const QHash<int, QString> AMLightweightScanInfoCollection::runMap() {
-	// Todo: Figure out where this should be stored
-	return QHash<int, QString>();
+const QHash<int, QString> AMLightweightScanInfoCollection::runMap() {	
+	return runMapCache_;
 }
 
 void AMLightweightScanInfoCollection::onDbItemAdded(const QString &tableName, int id) {

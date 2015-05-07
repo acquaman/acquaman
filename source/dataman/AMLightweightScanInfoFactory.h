@@ -35,6 +35,10 @@ public:
 	/// id from the passed database
 	static AMLightweightScanInfo* single(int scanId, AMDatabase* database);
 
+	/// Retrieves a mapping of scan ids to run names which are currently stored
+	/// in the database
+	static QHash<int, QString> runMap(AMDatabase* database);
+
 	///  Refreshes the passed in AMLightweightScanInfo with the information
 	/// currently in the database
 	static void updateSingle(AMLightweightScanInfo* info, AMDatabase* database);

@@ -72,6 +72,15 @@ AMLightweightScanInfo *AMLightweightScanInfoFactory::single(int scanId, AMDataba
 
 }
 
+QHash<int, QString> AMLightweightScanInfoFactory::runMap(AMDatabase *database)
+{
+	AMLightweightScanInfoFactory helperFactory(database);
+	helperFactory.populateRuns();
+
+	return helperFactory.runNameMap_;
+}
+
+
 void AMLightweightScanInfoFactory::updateSingle(AMLightweightScanInfo *info, AMDatabase *database)
 {
 	AMLightweightScanInfo* updatedScanInfo = AMLightweightScanInfoFactory::single(info->id(), database);

@@ -60,6 +60,8 @@ protected:
 private:
 	/// The database from which the scan infos will be retrieved
 	AMDatabase* database_;
+	/// A cache of the mapping of scansIds to run names currently in the database
+	QHash<int, QString> runMapCache_;
 	/// A list of the contained AMLightweightScanInfos
 	QList<AMLightweightScanInfo*> scanInfos_;
 };
