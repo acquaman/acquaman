@@ -178,7 +178,7 @@ void IDEASAppController::setupUserInterface()
 	mw_->addRightWidget(persistentPanel);
 
 	xasScanConfigurationView_ = 0; //NULL
-	xasScanConfigurationHolder3_ = new AMScanConfigurationViewHolder3(true);
+	xasScanConfigurationHolder3_ = new AMScanConfigurationViewHolder3(0, true);
 	mw_->addPane(xasScanConfigurationHolder3_, "Scans", "IDEAS XAS Scan", ":/utilities-system-monitor.png");
 
 	sampleCameraPanel_ = new IDEASSampleCameraPanel();

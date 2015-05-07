@@ -1562,7 +1562,7 @@ bool SGMAppController::setupSGMViews(){
 	mw_->insertHeading("Experiment Setup", 2);
 
 	xasScanConfiguration2013View_ = 0; //NULL
-	xasScanConfiguration2013Holder3_ = new AMScanConfigurationViewHolder3(true);
+	xasScanConfiguration2013Holder3_ = new AMScanConfigurationViewHolder3();
 	mw_->addPane(xasScanConfiguration2013Holder3_, "Experiment Setup", "SGM XAS Scan", ":/utilities-system-monitor.png");
 
 	fastScanConfiguration2013View_ = 0; //NULL
