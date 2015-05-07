@@ -306,6 +306,25 @@ void AMScanThumbnailGridView::mouseReleaseEvent(QMouseEvent *event)
 	inputManager_->mouseReleasedAt(event->pos().x(), event->pos().y(), event->buttons(), event->modifiers());
 }
 
+void AMScanThumbnailGridView::dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight)
+{
+	updateScrollBars();
+	viewport()->update();
+	QAbstractItemView::dataChanged(topLeft, bottomRight);
+}
+
+void AMScanThumbnailGridView::rowsInserted(const QModelIndex &parent, int start, int end)
+{
+	viewport()->update();
+	QAbstractItemView::rowsInserted(parent, start, end);
+}
+
+void AMScanThumbnailGridView::rowsAboutToBeRemoved(const QModelIndex &parent, int start, int end)
+{
+	viewport()->update();
+	QAbstractItemView::rowsAboutToBeRemoved(parent, start, end);
+}
+
 void AMScanThumbnailGridView::updateScrollBars()
 {
 
@@ -324,6 +343,9 @@ void AMScanThumbnailGridView::updateScrollBars()
 	verticalScrollBar()->setSingleStep(15);
 	verticalScrollBar()->setPageStep(geometryManager_->cellHeight());
 }
+
+
+
 
 
 
