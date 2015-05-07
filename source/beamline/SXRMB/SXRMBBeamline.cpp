@@ -673,8 +673,8 @@ void SXRMBBeamline::setupDetectors()
 	teyDetector_ = new CLSBasicScalerChannelDetector("TEYDetector", "TEY Detector", scaler_, 18, this);
 	scaler_->channelAt(18)->setDetector(teyDetector_);
 
-	transmissionDetector_ = new CLSBasicScalerChannelDetector("TransmissionDetector", "Transmission Detector", scaler_, 18, this);
-	scaler_->channelAt(18)->setDetector(i0Detector_);
+	transmissionDetector_ = new CLSBasicScalerChannelDetector("TransmissionDetector", "Transmission Detector", scaler_, 19, this);
+	scaler_->channelAt(19)->setDetector(i0Detector_);
 }
 
 void SXRMBBeamline::setupControlSets()
