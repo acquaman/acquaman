@@ -39,7 +39,7 @@ protected slots:
 	void onDragBegun();
 	void onSelectionRectangleChanged(const QRect& selectionRectangle);
 	void onSelectionRectangleEnded(const QRect& selectionRectangle, QItemSelectionModel::SelectionFlags);
-	void onHoverMove(int itemIndex, int deltaX);
+	void onHoverMove(int itemIndex, int positionX, int positionY);
 protected:
 	int horizontalOffset() const;
 
@@ -78,6 +78,8 @@ private:
 	AMScanThumbnailGridGeometryManager* geometryManager_;
 	AMScanThumbnailGridInputManager* inputManager_;
 	QRubberBand* rubberBand_;
+	/// A hash which maps the grid row's current displayed thumbnail index. If non is stored, then 0 is assumed
+	QHash<int, int> rowCurrentDisplayedThumbnailMap_;
 };
 
 

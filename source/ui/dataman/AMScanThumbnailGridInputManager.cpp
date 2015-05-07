@@ -121,7 +121,7 @@ void AMScanThumbnailGridInputManager::mouseMovedTo(int itemIndex, int positionX,
 				int travelDistanceX = int(std::abs(double(positionX - lastHoverUpdatePositionX_)));
 				if(travelDistanceX > HOVER_TRAVEL_UPDATE_DISTANCE) {
 					// We've moved far enough that we need to emit a hover travel update
-					emit hoverMove(itemIndex, positionX - lastHoverUpdatePositionX_);
+					emit hoverMove(itemIndex, positionX, positionY);
 					lastHoverUpdatePositionX_ = positionX;
 				}
 			}

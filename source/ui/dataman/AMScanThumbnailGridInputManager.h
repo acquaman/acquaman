@@ -109,7 +109,7 @@ signals:
 
 	/// Indicates that the mouse has moved over the provided index by the provided
 	/// delta horizontally while a hover interaction is taking place
-	void hoverMove(int itemIndex, int deltaX);
+	void hoverMove(int itemIndex, int positionX, int positionY);
 
 public slots:
 

@@ -15,7 +15,7 @@ AMScanThumbnailGridView::AMScanThumbnailGridView(QWidget *parent) :
 	connect(inputManager_, SIGNAL(dragBegun()), this, SLOT(onDragBegun()));
 	connect(inputManager_, SIGNAL(selectionRectangleChanged(QRect)), this, SLOT(onSelectionRectangleChanged(QRect)));
 	connect(inputManager_, SIGNAL(selectionRectangleEnded(QRect, QItemSelectionModel::SelectionFlags)), this, SLOT(onSelectionRectangleEnded(QRect, QItemSelectionModel::SelectionFlags)));
-	connect(inputManager_, SIGNAL(hoverMove(int,int)), this, SLOT(onHoverMove(int,int)));
+	connect(inputManager_, SIGNAL(hoverMove(int, int, int)), this, SLOT(onHoverMove(int, int, int)));
 
 	// Have to set mouse tracking in order to receive events when no mouse button is held
 	setMouseTracking(true);
@@ -165,13 +165,46 @@ void AMScanThumbnailGridView::onSelectionRectangleChanged(const QRect &selection
 
 void AMScanThumbnailGridView::onSelectionRectangleEnded(const QRect& selectionRectangle, QItemSelectionModel::SelectionFlags flags)
 {
-	this->setSelection(selectionRectangle, flags);
+	setSelection(selectionRectangle, flags);
 	rubberBand_->setVisible(false);
 }
 
-void AMScanThumbnailGridView::onHoverMove(int itemIndex, int deltaX)
+void AMScanThumbnailGridView::onHoverMove(int itemIndex, int positionX, int positionY)
 {
+	// get number of thumbnails
+	QModelIndex modelIndexOfItem = model()->index(itemIndex, 0, QModelIndex());
+	int thumbnailCount = model()->rowCount(modelIndexOfItem);
 
+	if(thumbnailCount == 0)
+		return;
+
+	// get position of x within the content rectangle for itemIndex
+	QModelIndex modelThumbnailImageIndex = model()->index(itemIndex, 1, modelIndexOfItem);
+	QRect thumbnailImageRectangle = visualRect(modelThumbnailImageIndex);
+	QPoint posInsideRect(positionX - thumbnailImageRectangle.x(), positionY - thumbnailImageRectangle.y());
+
+	// calculate at what thumbnail index the thumbnail should be at given the
+	// position inside the thumbnail and the number of thumbnails
+	int widthOfEachThumbnailSegment = thumbnailImageRectangle.width() / thumbnailCount;
+	int currentThumbnailIndexToShow = 0;
+
+	if (posInsideRect.x() > 0)
+		currentThumbnailIndexToShow = posInsideRect.x() / widthOfEachThumbnailSegment;
+
+	if(currentThumbnailIndexToShow+1 > thumbnailCount)
+		currentThumbnailIndexToShow = thumbnailCount - 1;
+	// check if the thumbnail map value for this index is already set to the
+	// correct thumbnail value
+	if(currentThumbnailIndexToShow != rowCurrentDisplayedThumbnailMap_.value(itemIndex)) {
+		// if it isn't set it to be the new calculated thumbnail index
+		rowCurrentDisplayedThumbnailMap_.remove(itemIndex);
+		rowCurrentDisplayedThumbnailMap_.insert(itemIndex, currentThumbnailIndexToShow);
+
+		// refresh the thumbnail rectangle
+		QRegion regionForIndex(viewport()->rect());
+
+		setDirtyRegion(regionForIndex);
+	}
 }
 
 int AMScanThumbnailGridView::horizontalOffset() const
@@ -250,9 +283,14 @@ void AMScanThumbnailGridView::paintEvent(QPaintEvent *event)
 
 		option.rect = visualRect(scanSerialIndex);
 		itemDelegate()->paint(&painter, option, scanSerialIndex);
+		int currentThumbnailIndex = 0;
+
+		if(model()->rowCount(scanSerialIndex) > 0) {
+			currentThumbnailIndex = rowCurrentDisplayedThumbnailMap_.value(scanSerialIndex.row(), 0);
+		}
 
 		// Paint the thumbnail
-		QModelIndex scanThumbnailIndex = model()->index(0, 1, scanSerialIndex);
+		QModelIndex scanThumbnailIndex = model()->index(currentThumbnailIndex, 1, scanSerialIndex);
 		option.rect = visualRect(scanThumbnailIndex);
 		itemDelegate()->paint(&painter, option, scanThumbnailIndex);
 
@@ -272,7 +310,7 @@ void AMScanThumbnailGridView::paintEvent(QPaintEvent *event)
 		itemDelegate()->paint(&painter, option, scanTypeIndex);
 
 		// paint the thumbnail title
-		QModelIndex thumbnailTitleIndex = model()->index(0, 2, scanSerialIndex);
+		QModelIndex thumbnailTitleIndex = model()->index(currentThumbnailIndex, 2, scanSerialIndex);
 		option.rect = visualRect(thumbnailTitleIndex);
 		itemDelegate()->paint(&painter, option, thumbnailTitleIndex);
 	}
