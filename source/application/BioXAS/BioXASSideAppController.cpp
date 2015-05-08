@@ -53,7 +53,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/acquaman/AMScanConfigurationViewHolder3.h"
 #include "ui/dataman/AMGenericScanEditor.h"
 
-#include "ui/CLS/CLSJJSlitView.h"
+#include "ui/CLS/CLSJJSlitsView.h"
 
 #include "ui/BioXAS/BioXASSidePersistentView.h"
 #include "ui/BioXAS/BioXASSideXASScanConfigurationView.h"
@@ -70,7 +70,7 @@ BioXASSideAppController::BioXASSideAppController(QObject *parent)
 {
 	scalerView_ = 0;
 	monoConfigView_ = 0;
-	jjSlitView_ = 0;
+	jjSlitsView_ = 0;
 	xiaFiltersView_ = 0;
 	carbonFilterFarmView_ = 0;
 	m2MirrorView_ = 0;
@@ -189,6 +189,8 @@ void BioXASSideAppController::setupExporterOptions()
 
 void BioXASSideAppController::setupUserInterface()
 {
+	mw_->setWindowTitle("Acquaman - BioXAS Side");
+
 	// Create UI elements:
 	//////////////////////
 
@@ -196,7 +198,7 @@ void BioXASSideAppController::setupUserInterface()
 	monoConfigView_ = new BioXASSSRLMonochromatorConfigurationView(BioXASSideBeamline::bioXAS()->mono());
 
 	// Create JJ slits view.
-	jjSlitView_ = new CLSJJSlitView(BioXASSideBeamline::bioXAS()->jjSlit());
+	jjSlitsView_ = new CLSJJSlitsView(BioXASSideBeamline::bioXAS()->jjSlits());
 
 	// Create XIA filters view.
 	xiaFiltersView_ = new BioXASXIAFiltersView(BioXASSideBeamline::bioXAS()->xiaFilters());
@@ -225,7 +227,7 @@ void BioXASSideAppController::setupUserInterface()
 	// Add views to 'General'.
 	mw_->insertHeading("General", 0);
 	mw_->addPane(createSqueezeGroupBoxWithView("", monoConfigView_), "General", "Monochromator", ":/system-software-update.png");
-	mw_->addPane(createSqueezeGroupBoxWithView("", jjSlitView_), "General", "JJ Slit", ":/system-software-update.png");
+	mw_->addPane(createSqueezeGroupBoxWithView("", jjSlitsView_), "General", "JJ Slits", ":/system-software-update.png");
 	mw_->addPane(createSqueezeGroupBoxWithView("", xiaFiltersView_), "General", "XIA Filters", ":/system-software-update.png");
 	mw_->addPane(createSqueezeGroupBoxWithView("", carbonFilterFarmView_), "General", "Carbon filter farm", ":/system-software-update.png");
 	mw_->addPane(createSqueezeGroupBoxWithView("", m2MirrorView_), "General", "M2 Mirror", ":/system-software-update.png");

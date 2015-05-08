@@ -34,7 +34,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/CLS/CLSKeithley428.h"
 #include "beamline/CLS/CLSBasicCompositeScalerChannelDetector.h"
 #include "beamline/CLS/CLSMAXvMotor.h"
-#include "beamline/CLS/CLSJJSlit.h"
+#include "beamline/CLS/CLSJJSlits.h"
+#include "beamline/CLS/CLSJJSlitGapControl.h"
+#include "beamline/CLS/CLSJJSlitCenterControl.h"
 
 #include "util/AMErrorMonitor.h"
 #include "util/AMBiHash.h"
@@ -85,7 +87,7 @@ public:
 	/// Returns the beamline monochromator.
 	BioXASSideMonochromator *mono() const { return mono_; }
 	/// Returns the beamline JJ Slit.
-	CLSJJSlit *jjSlit() const { return jjSlit_; }
+	CLSJJSlits *jjSlits() const { return jjSlits_; }
 	/// Returns the scaler.
 	virtual CLSSIS3820Scaler* scaler() const { return scaler_; }
 	/// Returns the carbon filter farm.
@@ -349,8 +351,8 @@ protected:
 
 	BioXASSideMonochromator *mono_;
 
-	/// The JJ slit
-	CLSJJSlit *jjSlit_;
+	/// The JJ slits
+	CLSJJSlits *jjSlits_;
 
 	// Scaler
 

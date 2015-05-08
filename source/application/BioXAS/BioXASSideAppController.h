@@ -27,7 +27,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 class QGroupBox;
 class QWidget;
 class BioXASSIS3820ScalerView;
-class CLSJJSlitView;
+class CLSJJSlitsView;
 class BioXASSidePersistentView;
 class BioXASSideXASScanConfiguration;
 class BioXASSideXASScanConfigurationView;
@@ -96,7 +96,7 @@ protected:
 	/// The mono configuration view.
 	BioXASSSRLMonochromatorConfigurationView *monoConfigView_;
 	/// The JJ slit view
-	CLSJJSlitView *jjSlitView_;
+	CLSJJSlitsView *jjSlitsView_;
 	/// The XIA filters view.
 	BioXASXIAFiltersView *xiaFiltersView_;
 	/// The carbon filter farm view.
