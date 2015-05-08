@@ -35,8 +35,7 @@ CLSMAXvMotor::CLSMAXvMotor(const QString &name, const QString &baseName, const Q
 	usingKill_ = false;
 	killPV_ = new AMProcessVariable(baseName+":kill", true, this);
 
-	stepSetpoint_ = new AMReadOnlyPVControl(name+"StepSetpoint", baseName+":step", this);
-	degreeSetpoint_ = new AMReadOnlyPVControl(name+"DegreeSetpoint", baseName+":deg", this);
+	stepSetpoint_ = new AMReadOnlyPVControl(name+"StepSetpoint", baseName+":step:sp", this);
 
 	EGUVelocity_ = new AMPVControl(name+"EGUVelocity", baseName+":vel"+pvUnitFieldName+"ps:sp", baseName+":velo"+pvUnitFieldName+"ps", QString(), this, 0.05);
 	EGUBaseVelocity_ = new AMPVControl(name+"EGUBaseVelocity", baseName+":vBase"+pvUnitFieldName+"ps:sp", baseName+":vBase"+pvUnitFieldName+"ps", QString(), this, 0.05);
@@ -76,6 +75,7 @@ CLSMAXvMotor::CLSMAXvMotor(const QString &name, const QString &baseName, const Q
 	servoPIDEnabled_ = new AMPVControl(name+"ServoPIDEnabled", baseName+":hold:sp", baseName+":hold", QString(), this, 0.1);
 
 	encoderTarget_ = new AMPVwStatusControl(name+"EncoderTarget", baseName+":enc:fbk", baseName+":encTarget", baseName+":status", QString(), this, 10, 2.0, new CLSMAXvControlStatusChecker(), 1);
+	encoderFeedback_ = new AMReadOnlyPVControl(name+"EncFeedback", baseName+":enc:fbk", this);
 	encoderMovementType_ = new AMPVControl(name+"EncoderMovementType", baseName+":encMoveType", baseName+":selEncMvType", QString(), this, 0.1);
 	preDeadBand_ = new AMPVControl(name+"PreDeadBand", baseName+":preDBand", baseName+":preDBand", QString(), this, 1);
 	postDeadBand_ = new AMPVControl(name+"PostDeadBand", baseName+":postDBand", baseName+":postDBand", QString(), this, 1);
@@ -752,6 +752,24 @@ AMAction3 *CLSMAXvMotor::createPowerAction(CLSMAXvMotor::PowerState newState)
 	}
 
 	return action;
+}
+
+AMAction3 *CLSMAXvMotor::createCCWLimitWaitAction(CLSMAXvMotor::Limit ccwLimitState)
+{
+	if(!isConnected())
+		return 0;
+
+	return AMActionSupport::buildControlWaitAction(ccwLimit_, ccwLimitState);
+
+}
+
+AMAction3 *CLSMAXvMotor::createCWLimitWaitAction(CLSMAXvMotor::Limit cwLimitState)
+{
+	if(!isConnected())
+		return 0;
+
+	return AMActionSupport::buildControlWaitAction(cwLimit_, cwLimitState);
+
 }
 
 void CLSMAXvMotor::setEGUVelocity(double velocity){

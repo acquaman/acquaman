@@ -50,74 +50,6 @@ QVector<double> AM1DTimedDataAB::timeValues() const
 	return times_;
 }
 
-bool AM1DTimedDataAB::areInputDataSourcesAcceptable(const QList<AMDataSource *> &dataSources) const
-{
-	// null input always acceptable.
-	if (dataSources.isEmpty())
-		return true;
-
-	// otherwise, we expect two input sources.
-	if (dataSources.count() != 2)
-		return false;
-
-	// both input sources must have rank 1.
-	foreach (AMDataSource* source, dataSources) {
-		if (source->rank() != 1)
-			return false;
-	}
-
-	return true;
-}
-
-void AM1DTimedDataAB::setInputDataSourcesImplementation(const QList<AMDataSource *> &dataSources)
-{
-	// disconnect from old sources, if they exist.
-	if (data_) {
-		disconnect( data_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onDataSourceValuesChanged(AMnDIndex,AMnDIndex)) );
-		disconnect( data_->signalSource(), SIGNAL(stateChanged(int)), this, SLOT(onInputSourceStateChanged()) );
-		data_ = 0;
-	}
-
-	if (timestamps_) {
-		disconnect( timestamps_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onTimeSourceValuesChanged(AMnDIndex,AMnDIndex)));
-		disconnect( timestamps_->signalSource(), SIGNAL(stateChanged(int)), this, SLOT(onInputSourceStateChanged()));
-		timestamps_ = 0;
-	}
-
-	if (dataSources.isEmpty()) {
-
-		data_ = 0;
-		timestamps_ = 0;
-		sources_.clear();
-
-		axes_[0] = AMAxisInfo("invalid", 0, "No input data");
-		setDescription("-- No input data --");
-	}
-
-	else {
-		data_ = dataSources.at(0);
-		timestamps_ = dataSources.at(1);
-		sources_ = dataSources;
-
-		axes_[0] = data_->axisInfoAt(0);
-		setDescription(QString("Timed updates for %1").arg(data_->name()));
-
-		connect(data_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onDataSourceValuesChanged(AMnDIndex,AMnDIndex)));
-		connect(data_->signalSource(), SIGNAL(stateChanged(int)), this, SLOT(onInputSourceStateChanged()));
-
-		connect(timestamps_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onTimeSourceValuesChanged(AMnDIndex,AMnDIndex)));
-		connect(timestamps_->signalSource(), SIGNAL(stateChanged(int)), this, SLOT(onInputSourceStateChanged()));
-	}
-
-	reviewState();
-
-	emitSizeChanged(0);
-	emitValuesChanged();
-	emitAxisInfoChanged(0);
-	emitInfoChanged();
-}
-
-
 AMNumber AM1DTimedDataAB::value(const AMnDIndex &indexes) const
 {
 	if (!isValid())
@@ -206,6 +138,73 @@ void AM1DTimedDataAB::onTimeSourceValuesChanged(const AMnDIndex &start, const AM
 void AM1DTimedDataAB::onInputSourceStateChanged()
 {
 	reviewState();
+}
+
+bool AM1DTimedDataAB::areInputDataSourcesAcceptable(const QList<AMDataSource *> &dataSources) const
+{
+	// null input always acceptable.
+	if (dataSources.isEmpty())
+		return true;
+
+	// otherwise, we expect two input sources.
+	if (dataSources.count() != 2)
+		return false;
+
+	// both input sources must have rank 1.
+	foreach (AMDataSource* source, dataSources) {
+		if (source->rank() != 1)
+			return false;
+	}
+
+	return true;
+}
+
+void AM1DTimedDataAB::setInputDataSourcesImplementation(const QList<AMDataSource *> &dataSources)
+{
+	// disconnect from old sources, if they exist.
+	if (data_) {
+		disconnect( data_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onDataSourceValuesChanged(AMnDIndex,AMnDIndex)) );
+		disconnect( data_->signalSource(), SIGNAL(stateChanged(int)), this, SLOT(onInputSourceStateChanged()) );
+		data_ = 0;
+	}
+
+	if (timestamps_) {
+		disconnect( timestamps_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onTimeSourceValuesChanged(AMnDIndex,AMnDIndex)));
+		disconnect( timestamps_->signalSource(), SIGNAL(stateChanged(int)), this, SLOT(onInputSourceStateChanged()));
+		timestamps_ = 0;
+	}
+
+	if (dataSources.isEmpty()) {
+
+		data_ = 0;
+		timestamps_ = 0;
+		sources_.clear();
+
+		axes_[0] = AMAxisInfo("invalid", 0, "No input data");
+		setDescription("-- No input data --");
+	}
+
+	else {
+		data_ = dataSources.at(0);
+		timestamps_ = dataSources.at(1);
+		sources_ = dataSources;
+
+		axes_[0] = data_->axisInfoAt(0);
+		setDescription(QString("Timed updates for %1").arg(data_->name()));
+
+		connect(data_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onDataSourceValuesChanged(AMnDIndex,AMnDIndex)));
+		connect(data_->signalSource(), SIGNAL(stateChanged(int)), this, SLOT(onInputSourceStateChanged()));
+
+		connect(timestamps_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onTimeSourceValuesChanged(AMnDIndex,AMnDIndex)));
+		connect(timestamps_->signalSource(), SIGNAL(stateChanged(int)), this, SLOT(onInputSourceStateChanged()));
+	}
+
+	reviewState();
+
+	emitSizeChanged(0);
+	emitValuesChanged();
+	emitAxisInfoChanged(0);
+	emitInfoChanged();
 }
 
 void AM1DTimedDataAB::reviewValuesChanged(const AMnDIndex &start, const AMnDIndex &end)

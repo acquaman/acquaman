@@ -22,6 +22,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "BioXASSidePersistentView.h"
 #include "ui/BioXAS/BioXASSIS3820ScalerChannelsView.h"
 #include "beamline/BioXAS/BioXASSideBeamline.h"
+#include "ui/beamline/AMControlEditor.h"
 
 BioXASSidePersistentView::BioXASSidePersistentView(QWidget *parent) :
     QWidget(parent)
@@ -35,12 +36,12 @@ BioXASSidePersistentView::BioXASSidePersistentView(QWidget *parent) :
 	// Region control editor.
 
 	regionControlEditor_ = new BioXASSSRLMonochromatorRegionControlEditor(BioXASSideBeamline::bioXAS()->mono()->regionControl());
-	regionControlEditor_->setTitle("Mono Region");
+	regionControlEditor_->setTitle("Mono Crystal Region");
 
 	// Bragg control editor.
 
 	braggControlEditor_ = new AMExtendedControlEditor(BioXASSideBeamline::bioXAS()->mono()->braggMotor());
-	braggControlEditor_->setTitle("Bragg motor position");
+	braggControlEditor_->setTitle("Mono Goniometer Angle");
 
 	// Scaler channel views.
 
@@ -63,7 +64,7 @@ BioXASSidePersistentView::BioXASSidePersistentView(QWidget *parent) :
 	layout->addStretch();
 
 	setLayout(layout);
-	setFixedWidth(355);
+	setFixedWidth(400);
 
 	// Initial settings.
 

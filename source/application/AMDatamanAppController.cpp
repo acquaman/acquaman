@@ -65,6 +65,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "acquaman/AMScanConfiguration.h"
 #include "acquaman/AMStepScanConfiguration.h"
 #include "acquaman/AMTimedRegionScanConfiguration.h"
+#include "acquaman/AMGenericStepScanConfiguration.h"
 
 // Necessary for registering database types:
 ////////////////////////////
@@ -109,6 +110,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "analysis/AM1DTimedDataAB.h"
 #include "analysis/AM1DKSpaceCalculatorAB.h"
 #include "analysis/AM3DNormalizationAB.h"
+#include "analysis/AM1DDarkCurrentCorrectionAB.h"
 
 #include "dataman/AMScanAxis.h"
 #include "dataman/AMScanAxisRegion.h"
@@ -721,6 +723,7 @@ bool AMDatamanAppController::startupRegisterDatabases()
 
 	success &= AMDbObjectSupport::s()->registerClass<AMStepScanConfiguration>();
 	success &= AMDbObjectSupport::s()->registerClass<AMTimedRegionScanConfiguration>();
+	success &= AMDbObjectSupport::s()->registerClass<AMGenericStepScanConfiguration>();
 
 	success &= AMDbObjectSupport::s()->registerClass<AMRun>();
 	success &= AMDbObjectSupport::s()->registerClass<AMExperiment>();
@@ -751,6 +754,7 @@ bool AMDatamanAppController::startupRegisterDatabases()
 	success &= AMDbObjectSupport::s()->registerClass<AM1DTimedDataAB>();
 	success &= AMDbObjectSupport::s()->registerClass<AM1DKSpaceCalculatorAB>();
 	success &= AMDbObjectSupport::s()->registerClass<AM3DNormalizationAB>();
+	success &= AMDbObjectSupport::s()->registerClass<AM1DDarkCurrentCorrectionAB>();
 
 	success &= AMDbObjectSupport::s()->registerClass<AMScanAxis>();
 	success &= AMDbObjectSupport::s()->registerClass<AMScanAxisRegion>();

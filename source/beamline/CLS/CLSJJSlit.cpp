@@ -74,8 +74,8 @@ CLSJJSlit::CLSJJSlit(const QString &name, const QString &description, const QStr
 	description_ = description;
 	limit_ = limit;
 
-	verticalBladesControl_ = new CLSJJSlitBladesControl(name+" Vertical Blades", description+" Vertical Blades", CLSJJSlitBladesControl::Vertical, verticalBladesPVBaseName, tolerance, moveStartTimeoutSeconds, this);
-	horizontalBladesControl_ = new CLSJJSlitBladesControl(name+" Horizontal Blades", description+" Horizontal Blades", CLSJJSlitBladesControl::Horizontal, horizontalBladesPVBaseName, tolerance, moveStartTimeoutSeconds, this);
+	verticalBladesControl_ = new CLSJJSlitBladesControl(name+" Vertical", description+" Vertical", CLSJJSlitBladesControl::Vertical, verticalBladesPVBaseName, tolerance, moveStartTimeoutSeconds, this);
+	horizontalBladesControl_ = new CLSJJSlitBladesControl(name+" Horizontal", description+" Horizontal", CLSJJSlitBladesControl::Horizontal, horizontalBladesPVBaseName, tolerance, moveStartTimeoutSeconds, this);
 
 	connect(verticalBladesControl_, SIGNAL(connected(bool)), this, SLOT(onBladesControlConnected(bool)));
 	connect(verticalBladesControl_, SIGNAL(gapValueChanged(double)), this, SIGNAL(verticalGapValueChanged(double)));

@@ -4,6 +4,7 @@
 #include "beamline/CLS/CLSBeamline.h"
 
 class BioXASMonochromator;
+class BioXASM2Mirror;
 
 class BioXASBeamline : public CLSBeamline
 {
@@ -28,6 +29,8 @@ public:
 	virtual CLSSIS3820Scaler* scaler() const { return 0; }
 	/// Returns the beamline's monochromator.
 	virtual BioXASMonochromator* mono() const { return 0; }
+	/// Returns the m2 mirror.
+	virtual BioXASM2Mirror* m2Mirror() const { return 0; }
 
 protected:
 	/// Protected constructor.

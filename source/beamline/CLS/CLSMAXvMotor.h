@@ -194,8 +194,6 @@ public:
 	AMReadOnlyPVControl *maxRetriesControl() const { return maxRetries_; }
 	/// Returns the step setpoint PV control.
 	AMReadOnlyPVControl *stepSetpointControl() const { return stepSetpoint_; }
-	/// Returns the degree setpoint PV control.
-	AMReadOnlyPVControl *degreeSetpointControl() const { return degreeSetpoint_; }
 	/// Returns the power state PV control.
 	AMPVControl *powerStateControl() const { return powerState_; }
 	/// Returns the clockwise limit status PV control.
@@ -208,6 +206,20 @@ public:
 	AMPVControl* EGUBaseVelocityControl() const { return EGUBaseVelocity_; }
 	/// Returns the EGU acceleration PV control.
 	AMPVControl* EGUAccelerationControl() const { return EGUAcceleration_; }
+	/// Returns the pre-deadband PV control.
+	AMPVControl* preDeadBandControl() const { return preDeadBand_; }
+	/// Returns the post-deadband PV control.
+	AMPVControl* postDeadBandControl() const { return postDeadBand_; }
+	/// Returns the encoder feedback PV control.
+	AMReadOnlyPVControl *encoderFeedbackControl() const { return encoderFeedback_; }
+	/// Returns the encoder movement type PV control.
+	AMPVControl* encoderMovementTypeControl() const { return encoderMovementType_; }
+	/// Returns the encoder/step soft ratio PV control.
+	AMPVControl* encoderStepSoftRatioControl() const { return encoderStepSoftRatio_; }
+	/// Returns the encoder calibration slope PV control.
+	AMPVControl* encoderCalibrationSlopeControl() const { return encoderCalibrationSlope_; }
+	/// Returns the step calibration slope PV control.
+	AMPVControl* stepCalibrationSlopeControl() const { return stepCalibrationSlope_; }
 
 	/// Returns a newly created action to move the motor. This is a convenience function that calls the EGU move action. Returns 0 if the control is not connected.
 	AMAction3* createMotorMoveAction(double position);
@@ -277,6 +289,13 @@ public:
 
 	/// Returns a newly created action to change the power state. Returns 0 if the control is not connected.
 	AMAction3 *createPowerAction(CLSMAXvMotor::PowerState newState);
+
+	/// Returns a newly created action to alert when CCW is at limit
+	AMAction3 *createCCWLimitWaitAction(CLSMAXvMotor::Limit ccwLimitState);
+
+	/// Returns a newly created action to alert when CW is at limit
+	AMAction3 *createCWLimitWaitAction(CLSMAXvMotor::Limit ccwLimitState);
+
 
 public slots:
 	/// Sets the (EGU) velocity setting for the velocity profile
@@ -454,8 +473,6 @@ protected:
 
 	/// Read-only control for the step setpoint.
 	AMReadOnlyPVControl *stepSetpoint_;
-	/// Read-only control for the degree setpoint.
-	AMReadOnlyPVControl *degreeSetpoint_;
 
 	/// Read-write control for the (EGU) velocity setting
 	AMPVControl *EGUVelocity_;
@@ -523,6 +540,8 @@ protected:
 
 	/// Read-write control for the encoder target
 	AMPVwStatusControl *encoderTarget_;
+	/// Read-only control for the encoder feedback.
+	AMReadOnlyPVControl *encoderFeedback_;
 	/// Read-write control for the encoder movement type
 	AMPVControl *encoderMovementType_;
 	/// Read-write control for pre-deadband value

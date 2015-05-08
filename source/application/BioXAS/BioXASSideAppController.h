@@ -26,7 +26,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 class QGroupBox;
 class QWidget;
-class CLSSIS3820ScalerView;
+class BioXASSIS3820ScalerView;
 class CLSJJSlitView;
 class BioXASSidePersistentView;
 class BioXASSideXASScanConfiguration;
@@ -37,6 +37,10 @@ class BioXASUserConfiguration;
 class AMRegionOfInterest;
 class BioXASXIAFiltersView;
 class BioXASCarbonFilterFarmView;
+class BioXASM2MirrorView;
+class BioXASDBHRMirrorView;
+class AMGenericStepScanConfiguration;
+class AMGenericStepScanConfigurationView;
 
 class BioXASSideAppController : public AMAppController
 {
@@ -55,8 +59,8 @@ public:
 	virtual void shutdown();
 
 protected slots:
+	/// Creates the scaler view and adds it to the 'Detectors' pane, if the scaler is connected and the view hasn't been created previously.
 	void onScalerConnected();
-	void onBeamlineConnected();
 
 	/// Handles setting up all the necessary settings based on the loaded user configuration.
 	void onUserConfigurationLoadedFromDb();
@@ -72,7 +76,7 @@ protected:
 	virtual void onCurrentScanActionFinishedImplementation(AMScanAction *action);
 
 	// Things to do on startup.
-	/// Registers all of the necessary classes that are VESPERS specific.
+	/// Registers all of the necessary classes that are specific to this beamline.
 	void registerClasses();
 	/// Sets up all of the exporter options for the various scan types.
 	void setupExporterOptions();
@@ -87,8 +91,8 @@ protected:
 	QGroupBox *createSqueezeGroupBoxWithView(QString title, QWidget *view);
 
 protected:
-	/// View for the BioXAS Side scaler.
-	CLSSIS3820ScalerView *scalerView_;
+	/// The scaler view.
+	BioXASSIS3820ScalerView *scalerView_;
 	/// The mono configuration view.
 	BioXASSSRLMonochromatorConfigurationView *monoConfigView_;
 	/// The JJ slit view
@@ -97,14 +101,26 @@ protected:
 	BioXASXIAFiltersView *xiaFiltersView_;
 	/// The carbon filter farm view.
 	BioXASCarbonFilterFarmView *carbonFilterFarmView_;
-
+	/// The m2 mirror view.
+	BioXASM2MirrorView *m2MirrorView_;
+	/// The dbhr mirror view.
+	BioXASDBHRMirrorView *dbhrView_;
+	/// The right-side persistent view.
 	BioXASSidePersistentView *persistentPanel_;
 
+	/// The XAS scan configuration.
 	BioXASSideXASScanConfiguration *configuration_;
-
+	/// The XAS scan configuration view.
 	BioXASSideXASScanConfigurationView *configurationView_;
-
+	/// The XAS scan configuration view holder.
 	AMScanConfigurationViewHolder3 *configurationViewHolder_;
+
+	/// The commissioning tool configuration.
+	AMGenericStepScanConfiguration *commissioningConfiguration_;
+	/// The commissioning tool configuration view.
+	AMGenericStepScanConfigurationView *commissioningConfigurationView_;
+	/// The commissioning tool configuration view holder.
+	AMScanConfigurationViewHolder3 *commissioningConfigurationViewHolder_;
 
 	/// Holds the user configuration used for automatically setting up some simple aspects of the user interface.
 	BioXASUserConfiguration *userConfiguration_;

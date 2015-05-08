@@ -133,7 +133,7 @@ CLSSIS3820ScalerChannelView::CLSSIS3820ScalerChannelView(CLSSIS3820ScalerChannel
 	}
 
 	scalerOutput_ = new QToolButton;
-	scalerOutput_->setFixedWidth(100);
+	scalerOutput_->setMaximumWidth(100);
 	scalerOutput_->setAutoRaise(true);
 
 

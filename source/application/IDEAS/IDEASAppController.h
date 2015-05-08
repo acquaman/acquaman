@@ -24,8 +24,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "application/AMAppController.h"
 
+class AMScanConfigurationViewHolder3;
 class IDEASXASScanConfigurationView;
-class IDEASScanConfigurationViewHolder3;
 class IDEASXRFDetailedDetectorViewWithSave;
 class IDEASSampleCameraPanel;
 
@@ -82,7 +82,7 @@ protected:
 	/// View for the IDEAS's XAS scan configurations
 	IDEASXASScanConfigurationView *xasScanConfigurationView_;
 	/// View holder for XAS
-	IDEASScanConfigurationViewHolder3 *xasScanConfigurationHolder3_;
+	AMScanConfigurationViewHolder3 *xasScanConfigurationHolder3_;
 	/// View for the IDEAS's XRF scan configurations
 	IDEASXRFDetailedDetectorViewWithSave *ideasKETEKDetailedDetectorViewWithSave_;
 	/// View for the IDEAS's XRF scan configurations

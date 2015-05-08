@@ -114,6 +114,8 @@ protected:
 	/// Pointer to the normal position used for the scan.
 	QDoubleSpinBox *normalPosition_;
 
+	/// The layout of the overall contents.
+	QGridLayout *contentsLayout_;
 	/// Pointer to the CCD help group box.
 	QGroupBox *ccdTextBox_;
 	/// Pointer to the label that holds the current map settings.
