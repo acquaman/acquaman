@@ -54,7 +54,7 @@ BioXASMainXASScanActionController::BioXASMainXASScanActionController(BioXASMainX
 
 	AMDetectorInfoSet detectorSet;
 	detectorSet.addDetectorInfo(BioXASMainBeamline::bioXAS()->exposedDetectorByName("I0Detector")->toInfo());
-	detectorSet.addDetectorInfo(BioXASMainBeamline::bioXAS()->exposedDetectorByName("ITDetector")->toInfo());
+	detectorSet.addDetectorInfo(BioXASMainBeamline::bioXAS()->exposedDetectorByName("I1Detector")->toInfo());
 	detectorSet.addDetectorInfo(BioXASMainBeamline::bioXAS()->exposedDetectorByName("I2Detector")->toInfo());
 	detectorSet.addDetectorInfo(BioXASMainBeamline::bioXAS()->exposedDetectorByName("EnergySetpoint")->toInfo());
 	detectorSet.addDetectorInfo(BioXASMainBeamline::bioXAS()->exposedDetectorByName("EnergyFeedback")->toInfo());
