@@ -1,6 +1,7 @@
 #ifndef BIOXASCARBONFILTERFARMCONTROL_H
 #define BIOXASCARBONFILTERFARMCONTROL_H
 
+#include "beamline/AMControl.h"
 #include "beamline/BioXAS/BioXASCarbonFilterFarmActuatorControl.h"
 
 // error codes.
@@ -22,7 +23,7 @@ public:
 	class Actuator { public: enum Position { Upstream = 0, Downstream }; };
 
 	/// Constructor.
-	explicit BioXASCarbonFilterFarmControl(QObject *parent = 0);
+	explicit BioXASCarbonFilterFarmControl(BioXASCarbonFilterFarmActuatorControl *upstreamActuatorControl, BioXASCarbonFilterFarmActuatorControl *downstreamActuatorControl, QObject *parent = 0);
 	/// Destructor.
 	virtual ~BioXASCarbonFilterFarmControl();
 
@@ -41,9 +42,9 @@ public:
 	virtual bool canStop() const;
 
 	/// Returns the upstream filter arm control.
-	BioXASCarbonFilterFarmActuatorControl* upstreamActuatorControl() const { return upstreamActuator_; }
+	AMControl* upstreamActuatorControl() const { return upstreamActuator_; }
 	/// Returns the downstream filter arm control.
-	BioXASCarbonFilterFarmActuatorControl* downstreamActuatorControl() const { return downstreamActuator_; }
+	AMControl* downstreamActuatorControl() const { return downstreamActuator_; }
 
 	/// Returns true if the given value corresponds to a valid filter, false otherwise. This will be different depending on the beamline.
 	virtual bool validValue(double value) const;
@@ -64,6 +65,12 @@ public:
 
 	/// Returns the filter corresponding to the given actuator and window. Returns Filter::Invalid if filter not found.
 	Filter::Thickness filterAtWindow(Actuator::Position actuator, BioXASCarbonFilterFarmActuatorControl::Window::Selection window);
+
+public slots:
+	/// Sets the upstream actuator control.
+	void setUpstreamActuatorControl(BioXASCarbonFilterFarmActuatorControl *newControl);
+	/// Sets the downstream actuator control.
+	void setDownstreamActuatorControl(BioXASCarbonFilterFarmActuatorControl *newControl);
 
 protected slots:
 	/// Sets a window to filter thickness mapping.

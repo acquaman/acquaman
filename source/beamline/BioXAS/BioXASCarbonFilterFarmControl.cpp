@@ -1,6 +1,6 @@
 #include "BioXASCarbonFilterFarmControl.h"
 
-BioXASCarbonFilterFarmControl::BioXASCarbonFilterFarmControl(QObject *parent) :
+BioXASCarbonFilterFarmControl::BioXASCarbonFilterFarmControl(BioXASCarbonFilterFarmActuatorControl *upstreamActuatorControl, BioXASCarbonFilterFarmActuatorControl *downstreamActuatorControl, QObject *parent) :
 	AMPseudoMotorControl("BioXAS Carbon Filter Farm", "mm", parent)
 {
 	// Initialize local variables.
@@ -27,7 +27,8 @@ BioXASCarbonFilterFarmControl::BioXASCarbonFilterFarmControl(QObject *parent) :
 
 	// Current settings.
 
-	updateStates();
+	setUpstreamActuatorControl(upstreamActuatorControl);
+	setDownstreamActuatorControl(downstreamActuatorControl);
 }
 
 BioXASCarbonFilterFarmControl::~BioXASCarbonFilterFarmControl()
@@ -271,6 +272,34 @@ BioXASCarbonFilterFarmControl::Filter::Thickness BioXASCarbonFilterFarmControl::
 	}
 
 	return filter;
+}
+
+void BioXASCarbonFilterFarmControl::setUpstreamActuatorControl(BioXASCarbonFilterFarmActuatorControl *newControl)
+{
+	if (upstreamActuator_ != newControl) {
+
+		if (upstreamActuator_)
+			removeChildControl(upstreamActuator_);
+
+		upstreamActuator_ = newControl;
+
+		if (upstreamActuator_)
+			addChildControl(upstreamActuator_);
+	}
+}
+
+void BioXASCarbonFilterFarmControl::setDownstreamActuatorControl(BioXASCarbonFilterFarmActuatorControl *newControl)
+{
+	if (downstreamActuator_ != newControl) {
+
+		if (downstreamActuator_)
+			removeChildControl(downstreamActuator_);
+
+		downstreamActuator_ = newControl;
+
+		if (downstreamActuator_)
+			addChildControl(downstreamActuator_);
+	}
 }
 
 void BioXASCarbonFilterFarmControl::setWindowFilter(Actuator::Position actuator, BioXASCarbonFilterFarmActuatorControl::Window::Selection window, Filter::Thickness filterThickness)
