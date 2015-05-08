@@ -1,5 +1,5 @@
-#ifndef CLSJJSLITVIEW_H
-#define CLSJJSLITVIEW_H
+#ifndef CLSJJSLITSVIEW_H
+#define CLSJJSLITSVIEW_H
 
 #include <QWidget>
 #include <QDoubleSpinBox>
@@ -10,7 +10,7 @@ class AMExtendedControlEditor;
 
 class CLSJJSlitsView : public QWidget
 {
-    Q_OBJECT
+	Q_OBJECT
 public:
 	/// Constructor
 	explicit CLSJJSlitsView(CLSJJSlits *jjSlit, QWidget *parent = 0);
@@ -41,4 +41,4 @@ protected:
 	AMExtendedControlEditor *horizontalCenterEditor_;
 };
 
-#endif // CLSJJSLITVIEW_H
+#endif // CLSJJSLITSVIEW_H

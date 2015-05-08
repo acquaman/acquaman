@@ -1,16 +1,16 @@
-#include "CLSJJSlitView.h"
+#include "CLSJJSlitsView.h"
 
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QDoubleSpinBox>
 #include <QLabel>
 
-#include "beamline/CLS/CLSJJSlit.h"
+#include "beamline/CLS/CLSJJSlits.h"
 #include "beamline/BioXAS/BioXASSideBeamline.h"
 #include "ui/beamline/AMExtendedControlEditor.h"
 
 CLSJJSlitsView::CLSJJSlitsView(CLSJJSlits *jjSlits, QWidget *parent) :
-    QWidget(parent)
+	QWidget(parent)
 {
 	// Initialize member variables.
 

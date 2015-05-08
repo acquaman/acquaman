@@ -1,5 +1,5 @@
-#ifndef CLSJJSLITSBLADESCONTROL_H
-#define CLSJJSLITSBLADESCONTROL_H
+#ifndef CLSJJSLITBLADESCONTROL_H
+#define CLSJJSLITBLADESCONTROL_H
 
 #include <QSignalMapper>
 
@@ -19,15 +19,15 @@
 #define CLSJJSLITSCONTROL_INVALID_ACTION 23487303
 #define CLSJJSLITSCONTROL_CANNOT_STOP 23487304
 
-class CLSJJSlitsBladesControl : public AMCompositeControl
+class CLSJJSlitBladesControl : public AMCompositeControl
 {
-    Q_OBJECT
+	Q_OBJECT
 
 public:
 	/// Constructor.
-	explicit CLSJJSlitsBladesControl(const QString &name, AMControl *firstMotorControl, AMControl *secondMotorControl, QObject *parent = 0, const QString &units = "", const QString &description = "", double tolerance = 0.005);
+	explicit CLSJJSlitBladesControl(const QString &name, AMControl *firstMotorControl, AMControl *secondMotorControl, QObject *parent = 0, const QString &units = "", const QString &description = "", double tolerance = 0.005);
 	/// Destructor.
-	virtual ~CLSJJSlitsBladesControl();
+	virtual ~CLSJJSlitBladesControl();
 
 	/// Returns the current value.
 	virtual double value() const { return value_; }
@@ -164,4 +164,4 @@ protected:
 
 };
 
-#endif // CLSJJSLITSBLADESCONTROL_H
+#endif // CLSJJSLITBLADESCONTROL_H

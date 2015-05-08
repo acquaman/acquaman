@@ -76,15 +76,15 @@ public:
 	/// Returns the I0 amplifier.
 	CLSKeithley428* i0Keithley() const { return i0Keithley_; }
 	/// Returns the IT amplifier.
-	CLSKeithley428* iTKeithley() const { return iTKeithley_; }
+	CLSKeithley428* i1Keithley() const { return i1Keithley_; }
 	/// Returns the I2 amplifier.
 	CLSKeithley428* i2Keithley() const { return i2Keithley_; }
 
-	/// Returns the I0 detector.
+	/// Returns the I0 scaler channel detector.
 	CLSBasicScalerChannelDetector* i0Detector() const { return i0Detector_; }
-	/// Returns the IT detector.
-	CLSBasicScalerChannelDetector* iTDetector() const { return iTDetector_; }
-	/// Returns the I2 detector.
+	/// Returns the I1 scaler channel detector.
+	CLSBasicScalerChannelDetector* i1Detector() const { return i1Detector_; }
+	/// Returns the I2 scaler channel detector.
 	CLSBasicScalerChannelDetector* i2Detector() const { return i2Detector_; }
 	/// Returns the energy setpoint detector.
 	AMBasicControlDetectorEmulator* energySetpointDetector() const { return energySetpointDetector_; }
@@ -182,7 +182,7 @@ protected:
 
 	// Detectors
 	CLSBasicScalerChannelDetector *i0Detector_;
-	CLSBasicScalerChannelDetector *iTDetector_;
+	CLSBasicScalerChannelDetector *i1Detector_;
 	CLSBasicScalerChannelDetector *i2Detector_;
 	AMBasicControlDetectorEmulator *energySetpointDetector_;
 	AMBasicControlDetectorEmulator *energyFeedbackDetector_;
@@ -197,8 +197,9 @@ protected:
 	AMReadOnlyPVControl *scalerDwellTime_;
 
 	// Amplifiers
+
 	CLSKeithley428 *i0Keithley_;
-	CLSKeithley428 *iTKeithley_;
+	CLSKeithley428 *i1Keithley_;
 	CLSKeithley428 *i2Keithley_;
 };
 

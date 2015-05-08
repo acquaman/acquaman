@@ -4,7 +4,7 @@
 #include "actions3/AMActionSupport.h"
 
 CLSJJSlitCenterControl::CLSJJSlitCenterControl(const QString &name, AMControl *upperBladeControl, AMControl *lowerBladeControl, QObject *parent) :
-	CLSJJSlitsBladesControl(name, upperBladeControl, lowerBladeControl, parent, "mm")
+	CLSJJSlitBladesControl(name, upperBladeControl, lowerBladeControl, parent, "mm")
 {
 	// Set inherited variables.
 

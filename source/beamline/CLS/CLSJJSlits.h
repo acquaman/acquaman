@@ -1,5 +1,5 @@
-#ifndef CLSJJSLIT_H
-#define CLSJJSLIT_H
+#ifndef CLSJJSLITS_H
+#define CLSJJSLITS_H
 
 #include <QObject>
 
@@ -77,4 +77,4 @@ protected:
 
 };
 
-#endif // CLSJJSLIT_H
+#endif // CLSJJSLITS_H

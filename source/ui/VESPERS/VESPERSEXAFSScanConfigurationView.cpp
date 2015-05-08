@@ -78,24 +78,14 @@ VESPERSEXAFSScanConfigurationView::VESPERSEXAFSScanConfigurationView(VESPERSEXAF
 	connect(configuration_, SIGNAL(nameChanged(QString)), scanName_, SLOT(setText(QString)));
 	onScanNameEdited();
 
-	QSpinBox *numberOfScans = new QSpinBox;
-	numberOfScans->setMinimum(1);
-	numberOfScans->setValue(configuration_->numberOfScans());
-	numberOfScans->setAlignment(Qt::AlignCenter);
-	connect(numberOfScans, SIGNAL(valueChanged(int)), configuration_, SLOT(setNumberOfScans(int)));
-	connect(configuration_, SIGNAL(numberOfScansChanged(int)), this, SLOT(onEstimatedTimeChanged()));
-
 	// The estimated scan time.
 	estimatedTime_ = new QLabel;
-	estimatedSetTime_ = new QLabel;
 	connect(configuration_, SIGNAL(totalTimeChanged(double)), this, SLOT(onEstimatedTimeChanged()));
 	onEstimatedTimeChanged();
 
 	QFormLayout *scanNameLayout = new QFormLayout;
 	scanNameLayout->addRow("Scan Name:", scanName_);
-	scanNameLayout->addRow("Number of Scans:", numberOfScans);
 	scanNameLayout->addRow(estimatedTime_);
-	scanNameLayout->addRow(estimatedSetTime_);
 
 	QGroupBox *scanNameGroupBox = new QGroupBox("Scan Name");
 	scanNameGroupBox->setLayout(scanNameLayout);
@@ -305,7 +295,6 @@ void VESPERSEXAFSScanConfigurationView::onItClicked(int index)
 void VESPERSEXAFSScanConfigurationView::onEstimatedTimeChanged()
 {
 	estimatedTime_->setText("Estimated time per scan:\t" + VESPERS::convertTimeToString(configuration_->totalTime()));
-	estimatedSetTime_->setText("Estimated time for set:\t" + VESPERS::convertTimeToString(configuration_->totalTime()*configuration_->numberOfScans()));
 }
 
 void VESPERSEXAFSScanConfigurationView::onEdgeChanged()

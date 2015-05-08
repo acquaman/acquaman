@@ -1,11 +1,11 @@
 #ifndef CLSJJSLITGAPCONTROL_H
 #define CLSJJSLITGAPCONTROL_H
 
-#include "beamline/CLS/CLSJJSlitsBladesControl.h"
+#include "beamline/CLS/CLSJJSlitBladesControl.h"
 
-class CLSJJSlitGapControl : public CLSJJSlitsBladesControl
+class CLSJJSlitGapControl : public CLSJJSlitBladesControl
 {
-    Q_OBJECT
+	Q_OBJECT
 
 public:
 	/// Constructor.
