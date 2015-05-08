@@ -22,10 +22,11 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef SXRMBBEAMLINE_H
 #define SXRMBBEAMLINE_H
 
-#include "beamline/CLS/CLSBeamline.h"
 #include "beamline/AMControlSet.h"
 #include "beamline/AMMotorGroup.h"
 #include "beamline/AM4DMotorGroup.h"
+#include "beamline/CLS/CLSBeamline.h"
+#include "beamline/CLS/CLSJJSlits.h"
 #include "beamline/CLS/CLSSynchronizedDwellTime.h"
 #include "beamline/CLS/CLSSIS3820Scaler.h"
 #include "beamline/CLS/CLSBiStateControl.h"
@@ -34,10 +35,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/CLS/CLSBasicCompositeScalerChannelDetector.h"
 #include "beamline/CLS/CLSMAXvMotor.h"
 #include "beamline/CLS/CLSCrossHairGeneratorControl.h"
-#include "beamline/SXRMB/SXRMBCrystalChangeModel.h"
 
 #include "application/SXRMB/SXRMB.h"
 #include "beamline/SXRMB/SXRMBBrukerDetector.h"
+#include "beamline/SXRMB/SXRMBCrystalChangeModel.h"
 #include "beamline/SXRMB/SXRMBFourElementVortexDetector.h"
 #include "beamline/SXRMB/SXRMBHVControl.h"
 
@@ -63,6 +64,9 @@ public:
 
 	/// Destructor.
 	virtual ~SXRMBBeamline();
+
+	/// Returns the slit for SXRMB
+	CLSJJSlits *jjSlits() const;
 
 	/// Returns the scaler for SXRMB
 	CLSSIS3820Scaler* scaler() const;
@@ -248,6 +252,9 @@ protected:
 
 	/// Endstation control for SXRMB
 	AMPVControl *endstationControl_;
+
+	/// The JJ slits
+	CLSJJSlits *jjSlits_;
 
 	/// Energy control for SXRMB
 	AMPVwStatusControl *energy_;

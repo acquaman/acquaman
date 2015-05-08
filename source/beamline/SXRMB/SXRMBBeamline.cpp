@@ -171,12 +171,18 @@ void SXRMBBeamline::switchEndstation(SXRMB::Endstation endstation)
 	}
 }
 
+CLSJJSlits* SXRMBBeamline::jjSlits() const
+{
+	return jjSlits_;
+}
+
 CLSSIS3820Scaler* SXRMBBeamline::scaler() const
 {
 	return scaler_;
 }
 
 AMPVwStatusControl* SXRMBBeamline::energy() const
+
 {
 	return energy_;
 }
@@ -394,7 +400,7 @@ bool SXRMBBeamline::isConnected() const
 	}
 
 	// return whether the expected PVs are connected or not
-	return endstationControl_->isConnected() && energy_->isConnected() && beamlineStatus_->isConnected()
+	return endstationControl_->isConnected() && energy_->isConnected() && beamlineStatus_->isConnected() && jjSlits_->isConnected()
 			&& sampleStageConnected;
 }
 
@@ -581,6 +587,8 @@ void SXRMBBeamline::setupComponents()
 	crossHairGenerator_ = new CLSCrossHairGeneratorControl("MUX1606-601", "VLG1606-601", this);
 	crystalSelection_ = new SXRMBCrystalChangeModel(this);
 	endstationControl_ = new AMPVControl("SXRMB Endstation", "BL1606-B1-1:AddOns:Endstation:fbk", "BL1606-B1-1:AddOns:Endstation");
+
+	jjSlits_ = new CLSJJSlits("JJSlits", "SMTR1606-4-B10-01", "SMTR1606-4-B10-02", "SMTR1606-4-B10-03", "SMTR1606-4-B10-04", this);
 
 	//energy_ = new AMPVwStatusControl("Energy", "BL1606-B1-1:Energy:fbk", "BL1606-B1-1:Energy", "BL1606-B1-1:Energy:status", QString(), this, 0.1, 2.0, new AMControlStatusCheckerCLSMAXv());
 	energy_ = new AMPVwStatusControl("Energy", "BL1606-B1-1:AddOns:Energy:fbk", "BL1606-B1-1:AddOns:Energy", "BL1606-B1-1:AddOns:Energy:status", "BL1606-B1-1:AddOns:Energy:stop", this, 0.05, 2.0, new CLSMAXvControlStatusChecker());
@@ -791,6 +799,7 @@ void SXRMBBeamline::setupConnections()
 	connect(CLSStorageRing::sr1(), SIGNAL(beamAvaliability(bool)), this, SLOT(onStorageRingBeamAvailabilityChanged(bool)));
 	connect(beamlineStatus_, SIGNAL(valueChanged(double)), this, SLOT(onBeamlineStatusPVValueChanged(double)));
 	connect(beamlineStatus_, SIGNAL(connected(bool)), this, SLOT(onBeamlineStatusPVConnected(bool)));
+	connect(jjSlits_, SIGNAL(connectedChanged(bool)), this, SLOT(onPVConnectedHelper()) );
 
 	connect(PSH1406B1002Shutter_, SIGNAL(stateChanged(int)), this, SLOT(onPhotonShutterStateChanged()));
 
