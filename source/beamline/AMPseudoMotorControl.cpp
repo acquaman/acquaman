@@ -83,6 +83,18 @@ AMControl::FailureExplanation AMPseudoMotorControl::move(double setpoint)
 	return AMControl::NoFailure;
 }
 
+bool AMPseudoMotorControl::stop()
+{
+	bool result = true;
+
+	foreach (AMControl *child, children_) {
+		if (child)
+			result = result && child->stop();
+	}
+
+	return result;
+}
+
 void AMPseudoMotorControl::setConnected(bool isConnected)
 {
 	if (connected_ != isConnected) {
@@ -137,6 +149,13 @@ void AMPseudoMotorControl::setMaximumValue(double newValue)
 		maximumValue_ = newValue;
 		emit maximumValueChanged(maximumValue_);
 	}
+}
+
+void AMPseudoMotorControl::updateStates()
+{
+	updateConnected();
+	updateValue();
+	updateIsMoving();
 }
 
 void AMPseudoMotorControl::addChildControl(AMControl *control)

@@ -5,13 +5,18 @@ BioXASSideCarbonFilterFarmControl::BioXASSideCarbonFilterFarmControl(QObject *pa
 {
 	// Initialize inherited variables.
 
-	upstreamActuator_ = new BioXASCarbonFilterFarmActuatorControl("SMTR1607-5-I00-01", this);
+	upstreamPosition_ = new AMPVControl("CarbonFilterFarmUpstreamPosition", "SMTR1607-5-I00-01:mm:fbk", "SMTR1607-5-I00-01:mm:sp", "SMTR1607-5-I00-01:stop", this);
+	upstreamStatus_ = new AMReadOnlyPVControl("CarbonFilterFarmUpstreamStatus", "SMTR1607-5-I00-01:inPosition", this);
+	downstreamPosition_ = new AMPVControl("CarbonFilterFarmDownstreamPosition", "SMTR1607-5-I00-02:mm:fbk", "SMTR1607-5-I00-02:mm:sp", "SMTR1607-5-I00-02:stop", this);
+	downstreamStatus_ = new AMPVControl("CarbonFilterFarmDownstreamStatus", "SMTR1607-5-I00-01:inPosition", this);
+
+	upstreamActuator_ = new BioXASCarbonFilterFarmActuatorControl(upstreamPosition, upstreamStatus, this);
 	upstreamActuator_->setWindowPosition(BioXASCarbonFilterFarmActuatorControl::Window::None, BIOXAS_FILTER_FARM_UPSTREAM_OUT);
 	upstreamActuator_->setWindowPosition(BioXASCarbonFilterFarmActuatorControl::Window::Bottom, BIOXAS_FILTER_FARM_UPSTREAM_BOTTOM);
 	upstreamActuator_->setWindowPosition(BioXASCarbonFilterFarmActuatorControl::Window::Top, BIOXAS_FILTER_FARM_UPSTREAM_TOP);
 	addChildControl(upstreamActuator_);
 
-	downstreamActuator_ = new BioXASCarbonFilterFarmActuatorControl("SMTR1607-5-I00-02", this);
+	downstreamActuator_ = new BioXASCarbonFilterFarmActuatorControl(downstreamPosition, downstreamStatus, this);
 	downstreamActuator_->setWindowPosition(BioXASCarbonFilterFarmActuatorControl::Window::None, BIOXAS_FILTER_FARM_DOWNSTREAM_OUT);
 	downstreamActuator_->setWindowPosition(BioXASCarbonFilterFarmActuatorControl::Window::Bottom, BIOXAS_FILTER_FARM_DOWNSTREAM_BOTTOM);
 	downstreamActuator_->setWindowPosition(BioXASCarbonFilterFarmActuatorControl::Window::Top, BIOXAS_FILTER_FARM_DOWNSTREAM_TOP);

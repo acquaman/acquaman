@@ -4,7 +4,7 @@
 #include <QSignalMapper>
 
 #include "beamline/AMPVControl.h"
-#include "beamline/AMCompositeControl.h"
+#include "beamline/AMPseudoMotorControl.h"
 #include "actions3/AMListAction3.h"
 #include "actions3/AMActionSupport.h"
 
@@ -19,7 +19,7 @@
 #define BIOXAS_FILTER_FARM_ACTUATOR_INVALID_SETPOINT 773983
 #define BIOXAS_FILTER_FARM_ACTUATOR_MOVE_FAILED 773984
 
-class BioXASCarbonFilterFarmActuatorControl : public AMCompositeControl
+class BioXASCarbonFilterFarmActuatorControl : public AMPseudoMotorControl
 {
     Q_OBJECT
 
@@ -30,7 +30,7 @@ public:
 	class Position { public: enum State { Invalid = 0, Valid }; };
 
 	/// Constructor.
-	explicit BioXASCarbonFilterFarmActuatorControl(QString name, QObject *parent = 0);
+	explicit BioXASCarbonFilterFarmActuatorControl(AMControl *positionControl, AMControl *statusControl, QObject *parent = 0);
 	/// Destructor.
 	virtual ~BioXASCarbonFilterFarmActuatorControl();
 
@@ -38,30 +38,34 @@ public:
 	virtual double value() const { return value_; }
 	/// Returns the desired active window setpoint.
 	virtual double setpoint() const { return setpoint_; }
-	/// Returns true if the arm is moving, as a result of this control's action.
-	virtual bool moveInProgress() const { return moveInProgress_; }
 	/// Returns the smallest value this control can take.
 	virtual double minimumValue() const { return Window::Invalid; }
 	/// Returns the largest value this control can take.
 	virtual double maximumValue() const { return Window::Top; }
+
 	/// Returns true if the active window is always measurable, if connected. False otherwise.
 	virtual bool shouldMeasure() const { return true; }
 	/// Returns true if a move to a new active window is always possible, if connected. False otherwise.
 	virtual bool shouldMove() const { return true; }
 	/// Returns true if this control can stop a move in progress, if connected. False otherwise.
 	virtual bool shouldStop() const { return true; }
+
+	/// Returns true if this control can measure its value right now. False otherwise.
+	virtual bool canMeasure() const;
+	/// Returns true if this control can move right now. False otherwise.
+	virtual bool canMove() const;
 	/// Returns true if this control can stop a move right now. False otherwise.
 	virtual bool canStop() const;
 
 	/// Returns the position control.
-	AMPVControl* positionControl() const { return position_; }
+	AMControl* positionControl() const { return position_; }
 	/// Returns the position status control.
-	AMReadOnlyPVControl* statusControl() const { return status_; }
+	AMControl* statusControl() const { return status_; }
 
 	/// Returns true if the given value corresponds to a valid window, false otherwise.
-	static bool validWindow(double value);
+	virtual bool validValue(double value) const;
 	/// Returns true if the given value corresponds to a valid window setpoint, false otherwise.
-	static bool validWindowSetpoint(double value);
+	virtual bool validSetpoint(double value) const;
 
 	/// Returns a string representation of the given window value.
 	static QString windowToString(Window::Selection value);
@@ -77,61 +81,33 @@ public:
 	double positionOfWindow(Window::Selection window) const;
 
 public slots:
-	/// Sets the new window setpoint and moves the actuator.
-	virtual FailureExplanation move(double setpoint);
-
 	/// Sets a window to position mapping.
 	void setWindowPosition(Window::Selection window, double position);
+	/// Sets the position control.
+	void setPositionControl(AMControl *newControl);
+	/// Sets the status control.
+	void setStatusControl(AMControl *newControl);
 
 protected slots:
-	/// Sets the active window.
-	void setWindow(double newWindow);
-	/// Sets the desired window setpoint.
-	void setWindowSetpoint(double newWindow);
-	/// Sets the move in progress.
-	void setMoveInProgress(bool isMoving);
-
-	/// Handles emitting the appropriate signals when the move action has started.
-	void onMoveStarted();
-	/// Handles emitting the appropriate signals and performing action cleanup when the move action is cancelled.
-	void onMoveCancelled(QObject *action);
-	/// Handles emitting the appropriate signals and performing action cleanup when the move action fails.
-	void onMoveFailed(QObject *action);
-	/// Handles emitting the appropriate signals and performing action cleanup when the move action succeeds.
-	void onMoveSucceeded(QObject *action);
-
-	/// Updates the active window, based in the current position and the available mappings.
-	void updateWindow();
+	/// Updates the connected state.
+	virtual void updateConnected();
+	/// Updates the current value.
+	virtual void updateValue();
+	/// Updates the 'is moving' state.
+	virtual void updateIsMoving();
 
 protected:
 	/// Returns a new action that moves the actuator to the desired window setpoint. Returns 0 if unable to move or if the setpoint is invalid.
-	AMAction3* createMoveAction(double setpoint);
+	virtual AMAction3* createMoveAction(double setpoint);
 
 protected:
-	/// The active window.
-	double value_;
-	/// The active window setpoint.
-	double setpoint_;
-	/// The current move state, true if this control has initiated a move.
-	bool moveInProgress_;
 	/// The mapping between window and position.
 	QMap<Window::Selection, double> positionMap_;
+
 	/// The position control.
-	AMPVControl *position_;
+	AMControl *position_;
 	/// The position status control.
-	AMReadOnlyPVControl *status_;
-
-	/// The signal mapper for move cancelled.
-	QSignalMapper *cancelledMapper_;
-	/// The signal mapper for move failed.
-	QSignalMapper *failedMapper_;
-	/// The signal mapper for move succeeded.
-	QSignalMapper *succeededMapper_;
-
-private:
-	/// Handles disconnecting from a move action and removing the signal mappings when the action is complete.
-	void moveCleanup(QObject *action);
-
+	AMControl *status_;
 };
 
 #endif // BIOXASCARBONFILTERFARMACTUATORCONTROL_H

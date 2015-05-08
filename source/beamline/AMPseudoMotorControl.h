@@ -68,6 +68,8 @@ signals:
 public slots:
 	/// Sets the setpoint and moves the control, if necessary.
 	virtual FailureExplanation move(double setpoint);
+	/// Stops the control, by stopping all children.
+	virtual bool stop();
 
 protected slots:
 	/// Sets the connected state.
@@ -85,6 +87,8 @@ protected slots:
 	/// Sets the maximum value.
 	void setMaximumValue(double newValue);
 
+	/// Updates states.
+	void updateStates();
 	/// Updates the connected state.
 	virtual void updateConnected() = 0;
 	/// Updates the current value.
