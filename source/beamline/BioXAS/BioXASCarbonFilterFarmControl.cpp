@@ -1,4 +1,5 @@
 #include "BioXASCarbonFilterFarmControl.h"
+#include "beamline/BioXAS/BioXASCarbonFilterFarmActuatorControl.h"
 
 BioXASCarbonFilterFarmControl::BioXASCarbonFilterFarmControl(BioXASCarbonFilterFarmActuatorControl *upstreamActuatorControl, BioXASCarbonFilterFarmActuatorControl *downstreamActuatorControl, QObject *parent) :
 	AMPseudoMotorControl("BioXAS Carbon Filter Farm", "mm", parent)

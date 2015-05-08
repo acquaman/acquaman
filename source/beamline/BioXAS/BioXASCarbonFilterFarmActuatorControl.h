@@ -24,11 +24,6 @@ class BioXASCarbonFilterFarmActuatorControl : public AMPseudoMotorControl
     Q_OBJECT
 
 public:
-	/// Enum defining the active window options. None, Bottom, and Top are all valid options; Invalid would represent some kind of error state.
-	class Window { public: enum Selection { Invalid = 0, None, Bottom, Top }; };
-	/// Enum defining the possible position states.
-	class Position { public: enum State { Invalid = 0, Valid }; };
-
 	/// Constructor.
 	explicit BioXASCarbonFilterFarmActuatorControl(AMControl *positionControl, AMControl *statusControl, QObject *parent = 0);
 	/// Destructor.
@@ -68,7 +63,7 @@ public:
 	virtual bool validSetpoint(double value) const;
 
 	/// Returns a string representation of the given window value.
-	static QString windowToString(Window::Selection value);
+	static QString windowToString(BioXASCarbonFilterFarm:: Window::Selection value);
 	/// Returns the filter corresponding to the given string respresentation. Returns Window::None if no filter found.
 	static Window::Selection stringToWindow(const QString &string);
 
@@ -76,13 +71,13 @@ public:
 	static Window::Selection window(double index);
 
 	/// Returns the window corresponding to the given position. Returns Window::None if no window found.
-	Window::Selection windowAtPosition(double position) const;
+	BioXASCarbonFilterFarm::Window::Selection windowAtPosition(double position) const;
 	/// Returns the position of the given window. Returns 0 if no position was found.
-	double positionOfWindow(Window::Selection window) const;
+	double positionOfWindow(BioXASCarbonFilterFarm::Window::Selection window) const;
 
 public slots:
 	/// Sets a window to position mapping.
-	void setWindowPosition(Window::Selection window, double position);
+	void setWindowPosition(BioXASCarbonFilterFarm::Window::Selection window, double position);
 	/// Sets the position control.
 	void setPositionControl(AMControl *newControl);
 	/// Sets the status control.
@@ -102,7 +97,7 @@ protected:
 
 protected:
 	/// The mapping between window and position.
-	QMap<Window::Selection, double> positionMap_;
+	QMap<BioXASCarbonFilterFarm::Window::Selection, double> positionMap_;
 
 	/// The position control.
 	AMControl *position_;

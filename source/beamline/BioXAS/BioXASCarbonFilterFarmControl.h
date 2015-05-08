@@ -2,7 +2,7 @@
 #define BIOXASCARBONFILTERFARMCONTROL_H
 
 #include "beamline/AMControl.h"
-#include "beamline/BioXAS/BioXASCarbonFilterFarmActuatorControl.h"
+#include "beamline/BioXAS/BioXASCarbonFilterFarm.h"
 
 // error codes.
 
@@ -11,16 +11,17 @@
 #define BIOXAS_FILTER_FARM_INVALID_SETPOINT 23048703
 #define BIOXAS_FILTER_FARM_MOVE_FAILED 23048704
 
+class BioXASCarbonFilterFarmActuatorControl;
 
 class BioXASCarbonFilterFarmControl : public AMPseudoMotorControl
 {
 	Q_OBJECT
 
 public:
-	/// Enum defining all possible filter thickness combinations.
-	class Filter { public: enum Thickness { Invalid = 0, None, Fifty, SeventyFive, FiveHundred, FiveHundredSeventyFive, SevenHundred, SevenHundredFifty }; };
-	/// Enum defining the different actuators.
-	class Actuator { public: enum Position { Upstream = 0, Downstream }; };
+//	/// Enum defining all possible filter thickness combinations.
+//	class Filter { public: enum Thickness { Invalid = 0, None, Fifty, SeventyFive, FiveHundred, FiveHundredSeventyFive, SevenHundred, SevenHundredFifty }; };
+//	/// Enum defining the different actuators.
+//	class Actuator { public: enum Position { Upstream = 0, Downstream }; };
 
 	/// Constructor.
 	explicit BioXASCarbonFilterFarmControl(BioXASCarbonFilterFarmActuatorControl *upstreamActuatorControl, BioXASCarbonFilterFarmActuatorControl *downstreamActuatorControl, QObject *parent = 0);
@@ -52,19 +53,19 @@ public:
 	virtual bool validSetpoint(double value) const;
 
 	/// Returns a string representation of the given filter thickness.
-	static QString filterToString(Filter::Thickness value);
+	static QString filterToString(BioXASCarbonFilterFarm::Filter::Thickness value);
 	/// Returns a filter corresponding to the given string representation. Returns Filter::Invalid if no filter match found.
-	static Filter::Thickness stringToFilter(const QString &string);
+	static BioXASCarbonFilterFarm::Filter::Thickness stringToFilter(const QString &string);
 	/// Returns a double representation of the given filter thickness.
-	static double filterToDouble(Filter::Thickness value);
+	static double filterToDouble(BioXASCarbonFilterFarm::Filter::Thickness value);
 	/// Returns the filter corresponding to the given double respresentation.
-	static Filter::Thickness doubleToFilter(double filterThickness);
+	static BioXASCarbonFilterFarm::Filter::Thickness doubleToFilter(double filterThickness);
 
 	/// Returns the filter corresponding to the given enum index.
-	static Filter::Thickness filter(double index);
+	static BioXASCarbonFilterFarm::Filter::Thickness filter(double index);
 
 	/// Returns the filter corresponding to the given actuator and window. Returns Filter::Invalid if filter not found.
-	Filter::Thickness filterAtWindow(Actuator::Position actuator, BioXASCarbonFilterFarmActuatorControl::Window::Selection window);
+	BioXASCarbonFilterFarm::Filter::Thickness filterAtWindow(BioXASCarbonFilterFarm::Actuator::Position actuator, BioXASCarbonFilterFarmActuatorControl::Window::Selection window);
 
 public slots:
 	/// Sets the upstream actuator control.
@@ -74,7 +75,7 @@ public slots:
 
 protected slots:
 	/// Sets a window to filter thickness mapping.
-	void setWindowFilter(Actuator::Position actuator, BioXASCarbonFilterFarmActuatorControl::Window::Selection window, Filter::Thickness filterThickness);
+	void setWindowFilter(BioXASCarbonFilterFarm::Actuator::Position actuator, BioXASCarbonFilterFarmActuatorControl::Window::Selection window, Filter::Thickness filterThickness);
 
 	/// Updates the connected state.
 	virtual void updateConnected();
@@ -88,9 +89,9 @@ protected:
 	virtual AMAction3* createMoveAction(double setpoint);
 
 	/// Returns the total filter thickness, according to the given active actuator windows.
-	Filter::Thickness calculateTotalFilterFromWindows(BioXASCarbonFilterFarmActuatorControl::Window::Selection upstreamWindow, BioXASCarbonFilterFarmActuatorControl::Window::Selection downstreamWindow);
+	BioXASCarbonFilterFarm::Filter::Thickness calculateTotalFilterFromWindows(BioXASCarbonFilterFarmActuatorControl::Window::Selection upstreamWindow, BioXASCarbonFilterFarmActuatorControl::Window::Selection downstreamWindow);
 	/// Returns the total filter thickness, according to the given active upstream and downstream filters.
-	static Filter::Thickness calculateTotalFilter(Filter::Thickness upstreamFilter, Filter::Thickness downstreamFilter);
+	static BioXASCarbonFilterFarm::Filter::Thickness calculateTotalFilter(Filter::Thickness upstreamFilter, Filter::Thickness downstreamFilter);
 
 protected:
 	/// The mapping between window and filter thickness, for the upstream actuator.

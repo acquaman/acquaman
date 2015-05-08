@@ -27,16 +27,6 @@ public:
 	/// Returns true if the given value corresponds to a valid filter setpoint, false otherwise.
 	virtual bool validFilterSetpoint(double value);
 
-protected:
-	/// The upstream position control.
-	AMControl *upstreamPosition_;
-	/// The upstream status control.
-	AMControl *upstreamStatus_;
-	/// The downstream position control.
-	AMControl *downstreamPosition_;
-	/// The downstream status control.
-	AMControl *downstreamStatus_;
-
 };
 
 #endif // BIOXASSIDECARBONFILTERFARMCONTROL_H

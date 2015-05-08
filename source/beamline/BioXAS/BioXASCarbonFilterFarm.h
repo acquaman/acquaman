@@ -12,6 +12,15 @@ class BioXASCarbonFilterFarm : public QObject
 	Q_OBJECT
 
 public:
+	/// Enum defining all possible filter thickness combinations.
+	class Filter { public: enum Thickness { Invalid = 0, None, Fifty, SeventyFive, FiveHundred, FiveHundredSeventyFive, SevenHundred, SevenHundredFifty }; };
+	/// Enum defining the different actuators.
+	class Actuator { public: enum Position { Upstream = 0, Downstream }; };
+	/// Enum defining the active window options. None, Bottom, and Top are all valid options; Invalid would represent some kind of error state.
+	class Window { public: enum Selection { Invalid = 0, None, Bottom, Top }; };
+	/// Enum defining the possible position states.
+	class Position { public: enum State { Invalid = 0, Valid }; };
+
 	/// Constructor.
 	explicit BioXASCarbonFilterFarm(const QString &name, const QString &upstreamPVBase, const QString &downstreamPVBase, QObject *parent = 0);
 	/// Destructor.
@@ -62,14 +71,14 @@ protected:
 	/// The upstream actuator control.
 	BioXASCarbonFilterFarmActuatorControl *upstreamActuator_;
 	/// The upstream position motor control.
-	CLSMAXvMotor *upstreamPosition_;
+	AMPVControl *upstreamPosition_;
 	/// The upstream status control.
 	AMReadOnlyPVControl *upstreamStatus_;
 
 	/// The downstream actuator control.
 	BioXASCarbonFilterFarmActuatorControl *downstreamActuator_;
 	/// The downstream position motor control.
-	CLSMAXvMotor *downstreamPosition_;
+	AMPVControl *downstreamPosition_;
 	/// The downstream status control.
 	AMReadOnlyPVControl *downstreamStatus_;
 };

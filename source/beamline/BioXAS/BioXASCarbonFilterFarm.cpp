@@ -21,15 +21,19 @@ BioXASCarbonFilterFarm::BioXASCarbonFilterFarm(const QString &name, const QStrin
 
 	// Create components.
 
-	upstreamPosition_ = new CLSMAXvMotor(name+"UpstreamPosition", upstreamPVBase, name+"UpstreamPosition", true, 0.005, 2.0, this);
+	upstreamPosition_ = new AMPVControl(name+"UpstreamPosition", upstreamPVBase+":mm:fbk", upstreamPVBase+":mm:sp", upstreamPVBase+":stop", this);
 	upstreamStatus_ = new AMReadOnlyPVControl(name+"UpstreamStatus", upstreamPVBase+":inPosition", this);
 	upstreamActuator_ = new BioXASCarbonFilterFarmActuatorControl(upstreamPosition_, upstreamStatus_, this);
 
-	downstreamPosition_ = new CLSMAXvMotor(name+"DownstreamPosition", downstreamPVBase, name+"DownstreamPosition", true, 0.005, 2.0, this);
+	downstreamPosition_ = new AMPVControl(name+"DownstreamPosition", downstreamPVBase+":mm:fbk", downstreamPVBase+":mm:sp", downstreamPVBase+":stop", this);
 	downstreamStatus_ = new AMReadOnlyPVControl(name+"DownstreamStatus", downstreamPVBase+":inPosition", this);
 	downstreamActuator_ = new BioXASCarbonFilterFarmActuatorControl(downstreamPosition_, downstreamStatus_, this);
 
 	filter_ = new BioXASCarbonFilterFarmControl(upstreamActuator_, downstreamActuator_, this);
+
+	// Make connections.
+
+	connect( filter_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 }
 
 BioXASCarbonFilterFarm::~BioXASCarbonFilterFarm()
