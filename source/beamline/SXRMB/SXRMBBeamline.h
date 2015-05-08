@@ -89,6 +89,8 @@ public:
 	/// Returns the Z Stage for the microrobe sample stage
 	AMPVwStatusControl* microprobeSampleStageZ() const;
 
+	/// Returns the height PV control for the ambiant endstation table.
+	AMPVwStatusControl *ambiantTableHeight() const;
 	/// Returns the X stage for the ambiant endstation.
 	AMPVwStatusControl *ambiantSampleStageX() const;
 	/// Returns the Z stage for the ambiant endstation.
@@ -158,6 +160,10 @@ public:
 	SXRMBHVControl *teyHVControl() const;
 	/// Returns the microProbe TEY HV control
 	SXRMBHVControl *microprobeTEYHVControl() const;
+	/// Returns the ambiant IC0 HV control
+	SXRMBHVControl *ambiantIC0HVControl() const;
+	/// Returns the ambiant IC1 HV control
+	SXRMBHVControl *ambiantIC1HVControl() const;
 
 	/// Returns the list of actions to turn the beam on
 	AMAction3* createBeamOnActions() const;
@@ -271,6 +277,8 @@ protected:
 	/// Control set for Solid State sample stage
 	AMControlSet *solidStateSampleStageControlSet_;
 
+	/// Height PV control for the Ambiant endstation table
+	AMPVwStatusControl *ambiantTableHeight_;
 	/// X Stage for the Ambiant sample stage
 	AMPVwStatusControl *ambiantSampleStageX_;
 	/// Z Stage for the Solid State sample stage
@@ -325,6 +333,10 @@ protected:
 	SXRMBHVControl *teyHVControl_;
 	/// The microProb TEY HV control
 	SXRMBHVControl *microprobeTEYHVControl_;
+	/// The ambiant IC0 HV control
+	SXRMBHVControl *ambiantIC0HVControl_;
+	/// The ambiant IC1 HV control
+	SXRMBHVControl *ambiantIC1HVControl_;
 
 	/// Beamline valves, the valves involved in the Beam on/off action
 	AMControlSet * beamlineControlShutterSet_;

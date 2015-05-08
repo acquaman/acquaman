@@ -20,21 +20,28 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMActionRunnerAddActionBar3.h"
 
-#include "actions3/AMActionRunner3.h"
-
+#include <QSpinBox>
 #include <QButtonGroup>
 #include <QPushButton>
 #include <QRadioButton>
 #include <QLabel>
 #include <QBoxLayout>
-
 #include <QStringBuilder>
 
+#include "actions3/AMActionRunner3.h"
+
  AMActionRunnerAddActionBar3::~AMActionRunnerAddActionBar3(){}
-AMActionRunnerAddActionBar3::AMActionRunnerAddActionBar3(const QString& actionCategoryName, QWidget *parent) :
+AMActionRunnerAddActionBar3::AMActionRunnerAddActionBar3(const QString& actionCategoryName, bool enableRepeatScans, QWidget *parent) :
 	QWidget(parent)
 {
 	actionCategoryName_ = actionCategoryName;
+	repeatScansEnabled_ = enableRepeatScans;
+
+	iterationsBox_ = new QSpinBox;
+	iterationsBox_->setRange(1, 1000000);
+	iterationsBox_->setPrefix("#: ");
+	iterationsBox_->setAlignment(Qt::AlignCenter);
+	iterationsBox_->setValue(1);
 
 	startActionButton_ = new QPushButton("Start " % actionCategoryName_);
 	addToQueueButton_ = new QPushButton("Add to Workflow");
@@ -55,6 +62,11 @@ AMActionRunnerAddActionBar3::AMActionRunnerAddActionBar3(const QString& actionCa
 	optionsHL->addWidget(goToWorkflowOption_);
 	optionsHL->addWidget(setupAnotherActionOption_);
 	optionsHL->addStretch();
+
+	if (repeatScansEnabled_) {
+		optionsHL->addWidget(new QLabel("Scan iterations:"));
+		optionsHL->addWidget(iterationsBox_);
+	}
 	optionsHL->addWidget(addToQueueButton_);
 	optionsHL->addWidget(startActionButton_);
 	optionsHL->setContentsMargins(10, 0, 10, 20);
@@ -104,45 +116,30 @@ void AMActionRunnerAddActionBar3::onStartActionRequested(){
 		}
 	}
 
-	AMAction3* action = createAction();
-	if(!action)
-		return;
+	ActionQueue::QueueOperation operation = ActionQueue::AddToEnd;
+	if (result == 0) { // no other actions in queue... Just run now.
+		operation = ActionQueue::RunAtOnce;
 
-	if(result == 0) {
-		// no other actions in queue... Just run now.
-		AMActionRunner3::workflow()->runActionImmediatelyInQueue(action);
+	} else if (result == runOnlyThisOne) { // there are other actions, but we only want to run this one.
+		operation = ActionQueue::RunOnlyThisOne;
+
+	} else if (result == addToBeginningAndStart) {
+		operation = ActionQueue::AddToBeginningAndStart;
+
+	} else if (result == addToEndAndStart) {
+		operation = ActionQueue::AddToEndAndStart;
+
+	} else if (result == addToEnd) {
+		operation = ActionQueue::AddToEnd;
 	}
 
-	else if(result == addToEnd) {
-		AMActionRunner3::workflow()->addActionToQueue(action);
-	}
-	else if(result == addToEndAndStart) {
-		AMActionRunner3::workflow()->addActionToQueue(action);
-		AMActionRunner3::workflow()->setQueuePaused(false);
-	}
-	else if(result == addToBeginningAndStart) {
-		AMActionRunner3::workflow()->insertActionInQueue(action, 0);
-		AMActionRunner3::workflow()->setQueuePaused(false);
-	}
-	else if(result == runOnlyThisOne) {
-		// there are other actions, but we only want to run this one.
-		AMActionRunner3::workflow()->runActionImmediatelyInQueue(action);
-	}
+	addActionToQueue(operation);
 }
 
 
 void AMActionRunnerAddActionBar3::onAddToQueueRequested() {
-
-	AMAction3* action = createAction();
-	if(!action)
-		return;
-
-	AMActionRunner3::workflow()->addActionToQueue(action);
-
-	if(goToWorkflowOption_->isChecked())
-		emit showWorkflowRequested();
+	addActionToQueue(ActionQueue::AddToEnd);
 }
-
 
 void AMActionRunnerAddActionBar3::reviewStartActionButtonState() {
 
@@ -167,4 +164,30 @@ void AMActionRunnerAddActionBar3::addWidget(QWidget *widget)
 		return;
 
 	layout_->insertWidget(0, widget);
+}
+
+void AMActionRunnerAddActionBar3::addActionToQueue(ActionQueue::QueueOperation operation)
+{
+	AMAction3 * action = repeatScansEnabled_ ? createMultipleScans() : createScan();
+	if (!action)
+		return;
+
+	AMActionRunner3* workflow = AMActionRunner3::workflow();
+
+	if (operation == ActionQueue::RunOnlyThisOne) {
+		workflow->runActionImmediatelyInQueue(action);
+
+	} else {
+		// add actions to queue
+		int insertIndex = ActionQueue::insertTaskToBeginning(operation) ? 0: -1;
+		workflow->insertActionInQueue(action, insertIndex);
+
+		// start the queue
+		if (ActionQueue::startQueue(operation)) {
+			workflow->setQueuePaused(false);
+		}
+	}
+
+	if(goToWorkflowOption_->isChecked())
+		emit showWorkflowRequested();
 }

@@ -378,10 +378,10 @@ void SXRMB2DOxidationMapScanConfigurationView::onBeamlineEndstationChanged(SXRMB
 	Q_UNUSED(fromEndstation)
 
 	if (toEndstation == SXRMB::AmbiantWithGasChamber || toEndstation == SXRMB::AmbiantWithoutGasChamber) {
-		powerOnTEYHVControlCheckBox_->setChecked(false);
-		powerOnTEYHVControlCheckBox_->setVisible(false);
+		powerOnHVControlCheckBox_->setChecked(false);
+		powerOnHVControlCheckBox_->setVisible(false);
 	} else{
-		powerOnTEYHVControlCheckBox_->setVisible(true);
+		powerOnHVControlCheckBox_->setVisible(true);
 	}
 }
 
@@ -432,7 +432,7 @@ void SXRMB2DOxidationMapScanConfigurationView::onFluorescenceDetectorChanged(int
 
 void SXRMB2DOxidationMapScanConfigurationView::onPowerOnTEYHVControlEnabled(bool value)
 {
-	configuration_->setPowerOnTEYHVControlEnabled(value);
+	configuration_->setPowerOnHVControlEnabled(value);
 }
 
 void SXRMB2DOxidationMapScanConfigurationView::checkScanAxisValidity()

@@ -241,7 +241,7 @@ void BioXASSideAppController::setupUserInterface()
 	configuration_ = new BioXASSideXASScanConfiguration();
 	configuration_->setEnergy(10000);
 	configurationView_ = new BioXASSideXASScanConfigurationView(configuration_);
-	configurationViewHolder_ = new AMScanConfigurationViewHolder3(configurationView_);
+	configurationViewHolder_ = new AMScanConfigurationViewHolder3(configurationView_, true);
 
 	mw_->addPane(configurationViewHolder_, "Scans", "XAS Scan", ":/utilities-system-monitor.png");
 
@@ -255,9 +255,6 @@ void BioXASSideAppController::setupUserInterface()
 
 	// Add right side panel.
 	mw_->addRightWidget(persistentPanel_);
-
-	// Scan configuration stuff.
-
 
 }
 

@@ -460,6 +460,16 @@ SXRMBHVControl *SXRMBBeamline::microprobeTEYHVControl() const
 	return microprobeTEYHVControl_;
 }
 
+SXRMBHVControl *SXRMBBeamline::ambiantIC0HVControl() const
+{
+	return ambiantIC0HVControl_;
+}
+
+SXRMBHVControl *SXRMBBeamline::ambiantIC1HVControl() const
+{
+	return ambiantIC1HVControl_;
+}
+
 AMAction3* SXRMBBeamline::createBeamOnActions() const
 {
 	if(!isConnected())
@@ -642,19 +652,22 @@ void SXRMBBeamline::setupSampleStage()
 	solidStateSampleStageControlSet_->addControl(solidStateSampleStageZ_);
 	solidStateSampleStageControlSet_->addControl(solidStateSampleStageR_);
 
-	// Ambiant Endstation sample state
+	// Ambiant Endstation sample stage
+	ambiantTableHeight_ = new AMPVwStatusControl("Ambiant Table Height", "TBL0000-E07-01:Y:mm:fbk", "TBL0000-E07-01:Y:mm", "TBL0000-E07-01:Y:mm:status", "BL1606-B1-1:AddOns:Ambiant:TableHeight:stop", this, 0.005, 2.0, new CLSMAXvControlStatusChecker());
 	ambiantSampleStageX_ = new AMPVwStatusControl("ambiantSampleStageX", "SMTR0000-E07-15:mm:sp", "SMTR0000-E07-15:mm", "SMTR0000-E07-15:status", "SMTR0000-E07-15:stop", this, 0.005, 2.0, new CLSMAXvControlStatusChecker());
 	ambiantSampleStageZ_ = new AMPVwStatusControl("ambiantSampleStageZ", "SMTR0000-E07-16:mm:sp", "SMTR0000-E07-16:mm", "SMTR0000-E07-16:status", "SMTR0000-E07-16:stop", this, 0.005, 2.0, new CLSMAXvControlStatusChecker());
 	ambiantSampleHolderZ_ = new AMPVwStatusControl("ambiantSampleHolderZ", "SMTR0000-E07-04:mm:sp", "SMTR0000-E07-04:mm", "SMTR0000-E07-04:status", "SMTR0000-E07-04:stop", this, 0.005, 2.0, new CLSMAXvControlStatusChecker());
 	ambiantSampleHolderR_ = new AMPVwStatusControl("ambiantSampleHolderR", "SMTR0000-E07-05:dgr:sp", "SMTR0000-E07-05:dgr", "SMTR0000-E07-05:status", "SMTR0000-E07-05:stop", this, 0.005, 2.0, new CLSMAXvControlStatusChecker());
 
 	ambiantWithGasChamberSampleStageControlSet_ = new AMControlSet(this);
+	ambiantWithGasChamberSampleStageControlSet_->addControl(ambiantTableHeight_);
 	ambiantWithGasChamberSampleStageControlSet_->addControl(ambiantSampleStageX_);
 	ambiantWithGasChamberSampleStageControlSet_->addControl(ambiantSampleStageZ_);
 	ambiantWithGasChamberSampleStageControlSet_->addControl(ambiantSampleHolderZ_);
 	ambiantWithGasChamberSampleStageControlSet_->addControl(ambiantSampleHolderR_);
 
 	ambiantWithoutGasChamberSampleStageControlSet_ = new AMControlSet(this);
+	ambiantWithoutGasChamberSampleStageControlSet_->addControl(ambiantTableHeight_);
 	ambiantWithoutGasChamberSampleStageControlSet_->addControl(ambiantSampleStageX_);
 	ambiantWithoutGasChamberSampleStageControlSet_->addControl(ambiantSampleStageZ_);
 }
@@ -673,8 +686,8 @@ void SXRMBBeamline::setupDetectors()
 	teyDetector_ = new CLSBasicScalerChannelDetector("TEYDetector", "TEY Detector", scaler_, 18, this);
 	scaler_->channelAt(18)->setDetector(teyDetector_);
 
-	transmissionDetector_ = new CLSBasicScalerChannelDetector("TransmissionDetector", "Transmission Detector", scaler_, 18, this);
-	scaler_->channelAt(18)->setDetector(i0Detector_);
+	transmissionDetector_ = new CLSBasicScalerChannelDetector("TransmissionDetector", "Transmission Detector", scaler_, 19, this);
+	scaler_->channelAt(19)->setDetector(i0Detector_);
 }
 
 void SXRMBBeamline::setupControlSets()
@@ -746,11 +759,15 @@ void SXRMBBeamline::setupHVControls()
 	i0HVControl_ = new SXRMBHVControl("I0", "PS1606506:100", ":vmon", ":v0set", ":pwonoff", ":status", ":imon");
 	teyHVControl_ = new SXRMBHVControl("TEY", "PS1606506:101", ":vmon", ":v0set", ":pwonoff", ":status", ":imon");
 	microprobeTEYHVControl_ = new SXRMBHVControl("CHANNEL02", "PS1606506:102", ":vmon", ":v0set", ":pwonoff", ":status", ":imon");
+	ambiantIC0HVControl_ = new SXRMBHVControl("IC0", "PS1606506:103", ":vmon", ":v0set", ":pwonoff", ":status", ":imon");
+	ambiantIC1HVControl_ = new SXRMBHVControl("IC1", "PS1606506:104", ":vmon", ":v0set", ":pwonoff", ":status", ":imon");
 
 	beamlineHVControlSet_ = new AMControlSet(this);
 	beamlineHVControlSet_->addControl(i0HVControl_);
 	beamlineHVControlSet_->addControl(teyHVControl_);
 	beamlineHVControlSet_->addControl(microprobeTEYHVControl_);
+	beamlineHVControlSet_->addControl(ambiantIC0HVControl_);
+	beamlineHVControlSet_->addControl(ambiantIC1HVControl_);
 
 	beamlinePersistentHVControlSet_ = new AMControlSet(this);
 	beamlinePersistentHVControlSet_->addControl(i0HVControl_);
@@ -885,6 +902,11 @@ void SXRMBBeamline::onSampleStagePVsConnected(bool) {
 
 void SXRMBBeamline::onBeamlineControlShuttersConnected(bool) {
 	onPVConnectedHelper();
+}
+
+AMPVwStatusControl *SXRMBBeamline::ambiantTableHeight() const
+{
+	return ambiantTableHeight_;
 }
 
 AMPVwStatusControl * SXRMBBeamline::ambiantSampleStageX() const

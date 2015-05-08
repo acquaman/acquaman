@@ -41,7 +41,6 @@ IDEASXASScanConfiguration::IDEASXASScanConfiguration(QObject *parent) :
 	edge_ = "";
 	energy_ = 0.0;
 	useFixedTime_ = false;
-	numberOfScans_ = 1;
 	totalTime_ = 0;
 	timeOffset_ = 0.4;
 	minEnergy_ = 0;
@@ -81,7 +80,6 @@ IDEASXASScanConfiguration::IDEASXASScanConfiguration(const IDEASXASScanConfigura
 	edge_ = original.edge();
 	energy_ = original.energy();
 	useFixedTime_ = original.useFixedTime();
-	numberOfScans_ = original.numberOfScans();
 	minEnergy_ = original.minEnergy();
 	maxEnergy_ = original.maxEnergy();
 	totalPoints_ = original.totalPoints();
@@ -234,16 +232,6 @@ void IDEASXASScanConfiguration::setUseFixedTime(bool fixed)
 		useFixedTime_ = fixed;
 		emit useFixedTimeChanged(useFixedTime_);
 		computeTotalTime();
-		setModified(true);
-	}
-}
-
-void IDEASXASScanConfiguration::setNumberOfScans(int num)
-{
-	if (numberOfScans_ != num){
-
-		numberOfScans_ = num;
-		emit numberOfScansChanged(numberOfScans_);
 		setModified(true);
 	}
 }
