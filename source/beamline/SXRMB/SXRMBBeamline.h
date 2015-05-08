@@ -26,7 +26,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/AMMotorGroup.h"
 #include "beamline/AM4DMotorGroup.h"
 #include "beamline/CLS/CLSBeamline.h"
-#include "beamline/CLS/CLSJJSlit.h"
+#include "beamline/CLS/CLSJJSlits.h"
 #include "beamline/CLS/CLSSynchronizedDwellTime.h"
 #include "beamline/CLS/CLSSIS3820Scaler.h"
 #include "beamline/CLS/CLSBiStateControl.h"
