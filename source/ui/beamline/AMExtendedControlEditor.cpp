@@ -110,6 +110,11 @@ AMExtendedControlEditor::AMExtendedControlEditor(AMControl* control, AMControl* 
 	setReadOnlyPreference(readOnly);
 }
 
+AMExtendedControlEditor::~AMExtendedControlEditor()
+{
+
+}
+
 double AMExtendedControlEditor::setpoint() const{
 	return dialog_->setpoint();
 }
@@ -473,10 +478,11 @@ double AMExtendedControlEditorStyledInputDialog::setpoint() const{
 }
 
 void AMExtendedControlEditorStyledInputDialog::setDoubleValue(double d) {
-	if(!isEnum_)
+	if(!isEnum_) {
 		spinBox_->setValue(d);
-	else
+	} else {
 		comboBox_->setCurrentIndex((int)d);
+	}
 }
 
 void AMExtendedControlEditorStyledInputDialog::setDoubleMaximum(double d) {

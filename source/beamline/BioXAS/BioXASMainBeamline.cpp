@@ -138,7 +138,7 @@ void BioXASMainBeamline::setupDetectors()
 {
 	i0Detector_ = new CLSBasicScalerChannelDetector("I0Detector", "I0 Detector", scaler_, 0, this);
 
-	iTDetector_ = new CLSBasicScalerChannelDetector("ITDetector", "IT Detector", scaler_, 1, this);
+	i1Detector_ = new CLSBasicScalerChannelDetector("I1Detector", "I1 Detector", scaler_, 1, this);
 
 	i2Detector_ = new CLSBasicScalerChannelDetector("I2Detector", "I2 Detector", scaler_, 15, this);
 }
@@ -174,14 +174,14 @@ void BioXASMainBeamline::setupComponents()
 	scaler_->channelAt(0)->setCurrentAmplifier(i0Keithley_);
 	scaler_->channelAt(0)->setDetector(i0Detector_);
 
-	iTKeithley_ = new CLSKeithley428("IT Channel", "AMP1607-702", this);
-	scaler_->channelAt(1)->setCustomChannelName("IT Channel");
-	scaler_->channelAt(1)->setCurrentAmplifier(iTKeithley_);
-	scaler_->channelAt(1)->setDetector(iTDetector_);
+	i1Keithley_ = new CLSKeithley428("I1 Channel", "AMP1607-702", this);
+	scaler_->channelAt(1)->setCustomChannelName("I1 Channel");
+	scaler_->channelAt(1)->setCurrentAmplifier(i1Keithley_);
+	scaler_->channelAt(1)->setDetector(i1Detector_);
 
 	i2Keithley_ = new CLSKeithley428("I2 Channel", "AMP1607-703", this);
 	scaler_->channelAt(15)->setCustomChannelName("I2 Channel");
-	scaler_->channelAt(15)->setCurrentAmplifier(iTKeithley_);
+	scaler_->channelAt(15)->setCurrentAmplifier(i2Keithley_);
 	scaler_->channelAt(15)->setDetector(i2Detector_);
 
 	// M2 Mirror.
@@ -214,7 +214,7 @@ void BioXASMainBeamline::setupExposedControls()
 void BioXASMainBeamline::setupExposedDetectors()
 {
 	addExposedDetector(i0Detector_);
-	addExposedDetector(iTDetector_);
+	addExposedDetector(i1Detector_);
 	addExposedDetector(i2Detector_);
 	addExposedDetector(energySetpointDetector_);
 	addExposedDetector(energyFeedbackDetector_);
@@ -268,8 +268,6 @@ void BioXASMainBeamline::setupControlsAsDetectors()
 	energyFeedbackDetector_->setIsVisible(true);
 
 	dwellTimeDetector_ = new AMBasicControlDetectorEmulator("DwellTimeFeedback", "Dwell Time Feedback", scalerDwellTime_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
-	dwellTimeDetector_->setHiddenFromUsers(true);
-	dwellTimeDetector_->setIsVisible(false);
 
 	braggDetector_ = new AMBasicControlDetectorEmulator("MonoFeedback", "Mono Bragg Motor Feedback", mono_->braggMotor(), 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
 	braggDetector_->setHiddenFromUsers(false);

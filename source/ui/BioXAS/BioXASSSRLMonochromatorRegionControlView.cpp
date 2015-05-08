@@ -84,6 +84,11 @@ void BioXASSSRLMonochromatorRegionControlView::setRegionControl(BioXASSSRLMonoch
 			connect( regionControl_->keyStatusControl(), SIGNAL(valueChanged(double)), this, SLOT(onKeyStatusChanged()) );
 			connect( regionControl_->brakeStatusControl(), SIGNAL(valueChanged(double)), this, SLOT(onBrakeStatusChanged()) );
 		}
+
+		onSlitsStatusChanged();
+		onPaddleStatusChanged();
+		onKeyStatusChanged();
+		onBrakeStatusChanged();
 	}
 }
 

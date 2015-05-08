@@ -252,12 +252,7 @@ void SXRMBEXAFSScanConfigurationView::onBeamlineEndstationChanged(SXRMB::Endstat
 
 	// recreate the component for the new endstation
 	createAndLayoutSampleStageSpinBox(sampleStageFL_);
-	if (toEndstation == SXRMB::AmbiantWithGasChamber || toEndstation == SXRMB::AmbiantWithoutGasChamber) {
-		powerOnTEYHVControlCheckBox_->setChecked(false);
-		powerOnTEYHVControlCheckBox_->setVisible(false);
-	} else {
-		powerOnTEYHVControlCheckBox_->setVisible(true);
-	}
+	updatePowerOnHVControlCheckBoxText();
 
 	onEndstationSampleStagePositionChanged(-1);
 }
@@ -269,7 +264,7 @@ void SXRMBEXAFSScanConfigurationView::onFluorescenceDetectorChanged(int detector
 
 void SXRMBEXAFSScanConfigurationView::onPowerOnTEYHVControlEnabled(bool value)
 {
-	configuration_->setPowerOnTEYHVControlEnabled(value);
+	configuration_->setPowerOnHVControlEnabled(value);
 }
 
 void SXRMBEXAFSScanConfigurationView::onScanNameEdited()

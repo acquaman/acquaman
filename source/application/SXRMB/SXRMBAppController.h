@@ -29,18 +29,20 @@ class QGroupBox;
 
 class AMScanConfigurationViewHolder3;
 class AMMotorGroupView;
+class AMRegionOfInterest;
+class AMListAction3;
+class AMGenericScanEditor;
+class AMScan;
+
+class CLSSIS3820ScalerView;
+
 class SXRMBPersistentView;
 class SXRMBEXAFSScanConfiguration;
 class SXRMBEXAFSScanConfigurationView;
 class SXRMB2DMapScanConfiguration;
 class SXRMB2DMapScanConfigurationView;
 class SXRMB2DOxidationMapScanConfigurationView;
-class CLSSIS3820ScalerView;
 class SXRMBUserConfiguration;
-class AMRegionOfInterest;
-class AMListAction3;
-class AMGenericScanEditor;
-class AMScan;
 class SXRMBOxidationMapScanConfigurationViewHolder;
 
 class SXRMBAppController  : public AMAppController
@@ -159,7 +161,7 @@ protected:
 	CLSSIS3820ScalerView *scalerView_;
 
 	/// The Motor group view for Ambiant Sample stage endstation
-	AMMotorGroupView *ambiantSampleStageMotorGroupView;
+	AMMotorGroupView *ambiantSampleStageMotorGroupView_;
 
 	/// Pointer to the list action that is used to move the sample stage.
 	AMListAction3 *moveImmediatelyAction_;

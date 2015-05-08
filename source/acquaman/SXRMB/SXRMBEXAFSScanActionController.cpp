@@ -102,7 +102,7 @@ AMAction3* SXRMBEXAFSScanActionController::createInitializationActions()
 		initializationActions->addSubAction(AMActionSupport::buildControlMoveAction(SXRMBBeamline::sxrmb()->solidStateSampleStageZ(), configuration_->z()));
 		initializationActions->addSubAction(AMActionSupport::buildControlMoveAction(SXRMBBeamline::sxrmb()->solidStateSampleStageR(), configuration_->rotation()));
 
-		if (configuration_->powerOnTEYHVControl())
+		if (configuration_->powerOnHVControl())
 			initializationActions->addSubAction(AMActionSupport::buildControlMoveAction(SXRMBBeamline::sxrmb()->teyHVControl()->powerOnOffControl(), 1));
 		break;
 
@@ -110,6 +110,10 @@ AMAction3* SXRMBEXAFSScanActionController::createInitializationActions()
 
 		initializationActions->addSubAction(AMActionSupport::buildControlMoveAction(SXRMBBeamline::sxrmb()->ambiantSampleHolderZ(), configuration_->z()));
 		initializationActions->addSubAction(AMActionSupport::buildControlMoveAction(SXRMBBeamline::sxrmb()->ambiantSampleHolderR(), configuration_->rotation()));
+		if (configuration_->powerOnHVControl()) {
+			initializationActions->addSubAction(AMActionSupport::buildControlMoveAction(SXRMBBeamline::sxrmb()->ambiantIC0HVControl()->powerOnOffControl(), 1));
+			initializationActions->addSubAction(AMActionSupport::buildControlMoveAction(SXRMBBeamline::sxrmb()->ambiantIC1HVControl()->powerOnOffControl(), 1));
+		}
 
 		break;
 
@@ -117,6 +121,10 @@ AMAction3* SXRMBEXAFSScanActionController::createInitializationActions()
 
 		initializationActions->addSubAction(AMActionSupport::buildControlMoveAction(SXRMBBeamline::sxrmb()->ambiantSampleStageX(), configuration_->x()));
 		initializationActions->addSubAction(AMActionSupport::buildControlMoveAction(SXRMBBeamline::sxrmb()->ambiantSampleStageZ(), configuration_->z()));
+		if (configuration_->powerOnHVControl()) {
+			initializationActions->addSubAction(AMActionSupport::buildControlMoveAction(SXRMBBeamline::sxrmb()->ambiantIC0HVControl()->powerOnOffControl(), 1));
+			initializationActions->addSubAction(AMActionSupport::buildControlMoveAction(SXRMBBeamline::sxrmb()->ambiantIC1HVControl()->powerOnOffControl(), 1));
+		}
 
 		break;
 
@@ -126,7 +134,7 @@ AMAction3* SXRMBEXAFSScanActionController::createInitializationActions()
 		initializationActions->addSubAction(AMActionSupport::buildControlMoveAction(SXRMBBeamline::sxrmb()->microprobeSampleStageX(), configuration_->x()));
 		initializationActions->addSubAction(AMActionSupport::buildControlMoveAction(SXRMBBeamline::sxrmb()->microprobeSampleStageZ(), configuration_->z()));
 
-		if (configuration_->powerOnTEYHVControl())
+		if (configuration_->powerOnHVControl())
 			initializationActions->addSubAction(AMActionSupport::buildControlMoveAction(SXRMBBeamline::sxrmb()->microprobeTEYHVControl()->powerOnOffControl(), 1));
 		break;
 

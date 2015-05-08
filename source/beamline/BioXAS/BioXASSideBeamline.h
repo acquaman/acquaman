@@ -34,7 +34,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/CLS/CLSKeithley428.h"
 #include "beamline/CLS/CLSBasicCompositeScalerChannelDetector.h"
 #include "beamline/CLS/CLSMAXvMotor.h"
-#include "beamline/CLS/CLSJJSlit.h"
+#include "beamline/CLS/CLSJJSlits.h"
+#include "beamline/CLS/CLSJJSlitGapControl.h"
+#include "beamline/CLS/CLSJJSlitCenterControl.h"
 
 #include "util/AMErrorMonitor.h"
 #include "util/AMBiHash.h"
@@ -85,7 +87,7 @@ public:
 	/// Returns the beamline monochromator.
 	BioXASSideMonochromator *mono() const { return mono_; }
 	/// Returns the beamline JJ Slit.
-	CLSJJSlit *jjSlit() const { return jjSlit_; }
+	CLSJJSlits *jjSlits() const { return jjSlits_; }
 	/// Returns the scaler.
 	virtual CLSSIS3820Scaler* scaler() const { return scaler_; }
 	/// Returns the carbon filter farm.
@@ -218,15 +220,15 @@ public:
 	/// Returns the I0 Keithley428 amplifier.
 	CLSKeithley428* i0Keithley() const { return i0Keithley_; }
 	/// Returns the IT Keithley428 amplifier.
-	CLSKeithley428* iTKeithley() const { return iTKeithley_; }
+	CLSKeithley428* i1Keithley() const { return i1Keithley_; }
 	/// Returns the I2 Keithley 428 amplifier.
 	CLSKeithley428* i2Keithley() const { return i2Keithley_; }
 
 	// Detectors
 	/// Returns the I0 scaler channel detector.
 	CLSBasicScalerChannelDetector* i0Detector() const { return i0Detector_; }
-	/// Returns the IT scaler channel detector.
-	CLSBasicScalerChannelDetector* iTDetector() const { return iTDetector_; }
+	/// Returns the I1 scaler channel detector.
+	CLSBasicScalerChannelDetector* i1Detector() const { return i1Detector_; }
 	/// Returns the I2 scaler channel detector.
 	CLSBasicScalerChannelDetector* i2Detector() const { return i2Detector_; }
 	/// Returns the energy setpoint detector.
@@ -328,7 +330,7 @@ protected:
 	// Detectors
 
 	CLSBasicScalerChannelDetector *i0Detector_;
-	CLSBasicScalerChannelDetector *iTDetector_;
+	CLSBasicScalerChannelDetector *i1Detector_;
 	CLSBasicScalerChannelDetector *i2Detector_;
 	AMBasicControlDetectorEmulator *energySetpointDetector_;
 	AMBasicControlDetectorEmulator *energyFeedbackDetector_;
@@ -349,8 +351,8 @@ protected:
 
 	BioXASSideMonochromator *mono_;
 
-	/// The JJ slit
-	CLSJJSlit *jjSlit_;
+	/// The JJ slits
+	CLSJJSlits *jjSlits_;
 
 	// Scaler
 
@@ -360,7 +362,7 @@ protected:
 	// Amplifiers
 
 	CLSKeithley428 *i0Keithley_;
-	CLSKeithley428 *iTKeithley_;
+	CLSKeithley428 *i1Keithley_;
 	CLSKeithley428 *i2Keithley_;
 
 	// Filters.

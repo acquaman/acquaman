@@ -9,6 +9,7 @@
 #include <QCheckBox>
 
 #include "application/SXRMB/SXRMB.h"
+#include "beamline/SXRMB/SXRMBBeamline.h"
 
 SXRMBScanConfigurationView::~SXRMBScanConfigurationView()
 {
@@ -45,16 +46,17 @@ QGroupBox *SXRMBScanConfigurationView::createAndLayoutDetectorSettings(SXRMBScan
 	brukerDetectorHLayout->addWidget(new QLabel("Choose Bruker"));
 	brukerDetectorHLayout->addWidget(fluorescenceDetectorComboBox_);
 
-	powerOnTEYHVControlCheckBox_ = new QCheckBox("Power on TEY HV Control automatically");
+	powerOnHVControlCheckBox_ = new QCheckBox("Power on TEY HV Control automatically");
+	updatePowerOnHVControlCheckBoxText();
 
 	QVBoxLayout *detectorBoxLayout = new QVBoxLayout;
 	detectorBoxLayout->addLayout(brukerDetectorHLayout);
-	detectorBoxLayout->addWidget(powerOnTEYHVControlCheckBox_);
+	detectorBoxLayout->addWidget(powerOnHVControlCheckBox_);
 
 	QGroupBox * detectorSettingGroupBox = new QGroupBox("Detector Setting");
 	detectorSettingGroupBox->setLayout(detectorBoxLayout);
 
-	connect(powerOnTEYHVControlCheckBox_, SIGNAL(clicked(bool)), this, SLOT(onPowerOnTEYHVControlEnabled(bool)));
+	connect(powerOnHVControlCheckBox_, SIGNAL(clicked(bool)), this, SLOT(onPowerOnTEYHVControlEnabled(bool)));
 	connect(fluorescenceDetectorComboBox_, SIGNAL(currentIndexChanged(int)), this, SLOT(onFluorescenceDetectorChanged(int)));
 	connect(configuration->dbObject(), SIGNAL(fluorescenceDetectorChanged(SXRMB::FluorescenceDetectors)), this, SLOT(updateFluorescenceDetectorComboBox(SXRMB::FluorescenceDetectors)));
 
@@ -62,5 +64,17 @@ QGroupBox *SXRMBScanConfigurationView::createAndLayoutDetectorSettings(SXRMBScan
 	updateFluorescenceDetectorComboBox(SXRMB::Bruker);
 
 	return detectorSettingGroupBox;
+}
+
+void SXRMBScanConfigurationView::updatePowerOnHVControlCheckBoxText()
+{
+	QString text = "Power on TEY HV Control automatically";
+
+	SXRMB::Endstation curEndstation = SXRMBBeamline::sxrmb()->currentEndstation();
+	if (curEndstation == SXRMB::AmbiantWithGasChamber || curEndstation == SXRMB::AmbiantWithoutGasChamber) {
+		text = "Power on IC0/IC1 HV Control automatically";
+	}
+
+	powerOnHVControlCheckBox_->setText(text);
 }
 

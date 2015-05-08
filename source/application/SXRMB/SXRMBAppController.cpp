@@ -54,8 +54,11 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/dataman/AMGenericScanEditor.h"
 #include "ui/acquaman/AMScanConfigurationViewHolder3.h"
 #include "ui/util/AMDialog.h"
+
+#include "ui/CLS/CLSJJSlitsView.h"
 #include "ui/CLS/CLSSIS3820ScalerView.h"
 #include "ui/CLS/CLSCrossHairGeneratorControlView.h"
+
 #include "ui/acquaman/SXRMB/SXRMBOxidationMapScanConfigurationViewHolder.h"
 #include "ui/SXRMB/SXRMBBrukerDetectorView.h"
 #include "ui/SXRMB/SXRMBFourElementVortexDetectorView.h"
@@ -157,7 +160,7 @@ void SXRMBAppController::onBeamlineConnected(bool connected)
 		exafsScanConfiguration_->scanAxisAt(0)->regionAt(0)->setRegionTime(1.0);
 
 		exafsScanConfigurationView_ = new SXRMBEXAFSScanConfigurationView(exafsScanConfiguration_);
-		exafsScanConfigurationViewHolder_ = new AMScanConfigurationViewHolder3(exafsScanConfigurationView_);
+		exafsScanConfigurationViewHolder_ = new AMScanConfigurationViewHolder3(exafsScanConfigurationView_, true);
 
 		mw_->addPane(exafsScanConfigurationViewHolder_, "Scans", "EXAFS Scan", ":/utilites-system-monitor.png");
 	}
@@ -348,20 +351,20 @@ void SXRMBAppController::setupUserInterface()
 	// Create panes in the main window:
 	////////////////////////////////////
 
-
+	// General heading
 	mw_->insertHeading("General", 0);
+
 	SXRMBHVControlView *hvControlView = new SXRMBHVControlView(SXRMBBeamline::sxrmb()->beamlineHVControlSet(), false);
-	QGroupBox *hvControlGroupBox = createTopFrameSqueezeContent(hvControlView, "HV Controls");
-	mw_->addPane(hvControlGroupBox, "General", "HV Controls", ":/system-search.png");
-
 	CLSCrossHairGeneratorControlView *crossHairView = new CLSCrossHairGeneratorControlView(SXRMBBeamline::sxrmb()->crossHairGenerator());
-	QGroupBox *crossHairGroupBox = createTopFrameSqueezeContent(crossHairView, "Video Cross hairs");
-	mw_->addPane(crossHairGroupBox, "General", "Cross Hairs", ":/system-search.png", true);
-
 	SXRMBCrystalChangeView *crystalChangeView = new SXRMBCrystalChangeView(SXRMBBeamline::sxrmb()->crystalSelection());
-	QGroupBox *crystalChangeGroupBox = createTopFrameSqueezeContent(crystalChangeView, "Crystal Selection");
-	mw_->addPane(crystalChangeGroupBox, "General", "Crystal Change", ":/system-search.png", true);
+	CLSJJSlitsView *jjSlitsView = new CLSJJSlitsView(SXRMBBeamline::sxrmb()->jjSlits());
 
+	mw_->addPane(createTopFrameSqueezeContent(hvControlView, "HV Controls"), "General", "HV Controls", ":/system-search.png");
+	mw_->addPane(createTopFrameSqueezeContent(crossHairView, "Video Cross hairs"), "General", "Cross Hairs", ":/system-search.png", true);
+	mw_->addPane(createTopFrameSqueezeContent(crystalChangeView, "Crystal Selection"), "General", "Crystal Change", ":/system-search.png", true);
+	mw_->addPane(createTopFrameSqueezeContent(jjSlitsView, "Crystal Selection"), "General", "Slit View", ":/system-search.png", true);
+
+	// Detectors heading
 	mw_->insertHeading("Detectors", 1);
 
 	SXRMBBrukerDetectorView *brukerView = new SXRMBBrukerDetectorView(SXRMBBeamline::sxrmb()->brukerDetector());
@@ -383,6 +386,7 @@ void SXRMBAppController::setupUserInterface()
 
 	mw_->addPane(fourElementVortexView, "Detectors", "4-el Vortex", ":/system-search.png");
 
+	// Scans heading
 	mw_->insertHeading("Scans", 2);
 }
 
@@ -488,17 +492,33 @@ void SXRMBAppController::onRegionOfInterestRemoved(AMRegionOfInterest *region)
 
 void SXRMBAppController::onShowAmbiantSampleStageMotorsTriggered()
 {
-	QString motorGroupName = SXRMBBeamline::sxrmb()->ambiantWithoutGasChamberSampleStageMotorGroupObject()->name();
+	if (!ambiantSampleStageMotorGroupView_) {
+		QString motorGroupName = SXRMBBeamline::sxrmb()->ambiantWithoutGasChamberSampleStageMotorGroupObject()->name();
 
-	if (!ambiantSampleStageMotorGroupView) {
-		ambiantSampleStageMotorGroupView = new AMMotorGroupView(SXRMBBeamline::sxrmb()->motorGroup(), AMMotorGroupView::Exclusive);
-		ambiantSampleStageMotorGroupView->setMotorGroupView(motorGroupName);
-		ambiantSampleStageMotorGroupView->showAvailableMotorGroupChoices(false);
+		AMExtendedControlEditor * ambiantTableHeightControlEditor = new AMExtendedControlEditor(SXRMBBeamline::sxrmb()->ambiantTableHeight());
+		ambiantTableHeightControlEditor->setControlFormat('f', 2);
+		ambiantTableHeightControlEditor->hideBorder();
+
+		QToolButton * stopButton = new QToolButton;
+		stopButton->setIcon(QIcon(":/stop.png"));
+		connect(stopButton, SIGNAL(clicked()), SXRMBBeamline::sxrmb()->ambiantTableHeight(), SLOT(stop()));
+
+		QHBoxLayout *tableHeightLayout = new QHBoxLayout;
+		tableHeightLayout->addWidget(new QLabel("Table Height"));
+		tableHeightLayout->addWidget(ambiantTableHeightControlEditor);
+		tableHeightLayout->addWidget(stopButton);
+
+		ambiantSampleStageMotorGroupView_ = new AMMotorGroupView(SXRMBBeamline::sxrmb()->motorGroup(), AMMotorGroupView::Exclusive);
+		ambiantSampleStageMotorGroupView_->setMotorGroupView(motorGroupName);
+		ambiantSampleStageMotorGroupView_->showAvailableMotorGroupChoices(false);
+
+		QVBoxLayout* motorGroupViewLayout = qobject_cast<QVBoxLayout *> (ambiantSampleStageMotorGroupView_->layout());
+		motorGroupViewLayout->addLayout(tableHeightLayout);
 	}
 
-	ambiantSampleStageMotorGroupView->raise();
-	ambiantSampleStageMotorGroupView->activateWindow();
-	ambiantSampleStageMotorGroupView->showNormal();
+	ambiantSampleStageMotorGroupView_->raise();
+	ambiantSampleStageMotorGroupView_->activateWindow();
+	ambiantSampleStageMotorGroupView_->showNormal();
 }
 
 void SXRMBAppController::onSwitchBeamlineEndstationTriggered()
