@@ -1,9 +1,9 @@
 #ifndef CLSJJSLITCENTERCONTROL_H
 #define CLSJJSLITCENTERCONTROL_H
 
-#include "beamline/CLS/CLSJJSlitsBladesControl.h"
+#include "beamline/CLS/CLSJJSlitBladesControl.h"
 
-class CLSJJSlitCenterControl : public CLSJJSlitsBladesControl
+class CLSJJSlitCenterControl : public CLSJJSlitBladesControl
 {
 	Q_OBJECT
 

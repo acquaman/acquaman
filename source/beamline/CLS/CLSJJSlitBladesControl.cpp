@@ -1,8 +1,8 @@
-#include "CLSJJSlitsBladesControl.h"
+#include "CLSJJSlitBladesControl.h"
 
 #include "util/AMErrorMonitor.h"
 
-CLSJJSlitsBladesControl::CLSJJSlitsBladesControl(const QString &name, AMControl *upperBladeControl, AMControl *lowerBladeControl, QObject *parent, const QString &units, const QString &description, double tolerance) :
+CLSJJSlitBladesControl::CLSJJSlitBladesControl(const QString &name, AMControl *upperBladeControl, AMControl *lowerBladeControl, QObject *parent, const QString &units, const QString &description, double tolerance) :
 	AMCompositeControl(name, units, parent, description)
 {
 	// Initialize member variables.
@@ -39,26 +39,26 @@ CLSJJSlitsBladesControl::CLSJJSlitsBladesControl(const QString &name, AMControl 
 	setLowerBladeControl(lowerBladeControl);
 }
 
-CLSJJSlitsBladesControl::~CLSJJSlitsBladesControl()
+CLSJJSlitBladesControl::~CLSJJSlitBladesControl()
 {
 
 }
 
-bool CLSJJSlitsBladesControl::canMove() const
+bool CLSJJSlitBladesControl::canMove() const
 {
 	bool result = (!isMoving() && isConnected() && upperBladeControl_->canMove() && lowerBladeControl_->canMove());
 
 	return result;
 }
 
-bool CLSJJSlitsBladesControl::canStop() const
+bool CLSJJSlitBladesControl::canStop() const
 {
 	bool result = (isConnected() && upperBladeControl_->canStop() && lowerBladeControl_->canStop());
 
 	return result;
 }
 
-AMControl::FailureExplanation CLSJJSlitsBladesControl::move(double setpoint)
+AMControl::FailureExplanation CLSJJSlitBladesControl::move(double setpoint)
 {
 	if (!isConnected()) {
 		AMErrorMon::error(this, CLSJJSLITSCONTROL_NOT_CONNECTED, "JJ slits not connected. Cannot complete move as requested.");
@@ -113,7 +113,7 @@ AMControl::FailureExplanation CLSJJSlitsBladesControl::move(double setpoint)
 	return AMControl::NoFailure;
 }
 
-bool CLSJJSlitsBladesControl::stop()
+bool CLSJJSlitBladesControl::stop()
 {
 	bool result = false;
 
@@ -132,7 +132,7 @@ bool CLSJJSlitsBladesControl::stop()
 	return result;
 }
 
-void CLSJJSlitsBladesControl::setUpperBladeControl(AMControl *newControl)
+void CLSJJSlitBladesControl::setUpperBladeControl(AMControl *newControl)
 {
 	if (upperBladeControl_ != newControl) {
 
@@ -158,7 +158,7 @@ void CLSJJSlitsBladesControl::setUpperBladeControl(AMControl *newControl)
 	}
 }
 
-void CLSJJSlitsBladesControl::setLowerBladeControl(AMControl *newControl)
+void CLSJJSlitBladesControl::setLowerBladeControl(AMControl *newControl)
 {
 	if (lowerBladeControl_ != newControl) {
 
@@ -184,7 +184,7 @@ void CLSJJSlitsBladesControl::setLowerBladeControl(AMControl *newControl)
 	}
 }
 
-void CLSJJSlitsBladesControl::setConnected(bool isConnected)
+void CLSJJSlitBladesControl::setConnected(bool isConnected)
 {
 	if (connected_ != isConnected) {
 		connected_ = isConnected;
@@ -192,7 +192,7 @@ void CLSJJSlitsBladesControl::setConnected(bool isConnected)
 	}
 }
 
-void CLSJJSlitsBladesControl::setValue(double newValue)
+void CLSJJSlitBladesControl::setValue(double newValue)
 {
 	if (value_ != newValue) {
 		value_ = newValue;
@@ -200,7 +200,7 @@ void CLSJJSlitsBladesControl::setValue(double newValue)
 	}
 }
 
-void CLSJJSlitsBladesControl::setSetpoint(double newValue)
+void CLSJJSlitBladesControl::setSetpoint(double newValue)
 {
 	if (setpoint_ != newValue) {
 		setpoint_ = newValue;
@@ -208,7 +208,7 @@ void CLSJJSlitsBladesControl::setSetpoint(double newValue)
 	}
 }
 
-void CLSJJSlitsBladesControl::setMoveInProgress(bool isMoving)
+void CLSJJSlitBladesControl::setMoveInProgress(bool isMoving)
 {
 	if (moveInProgress_ != isMoving) {
 		moveInProgress_ = isMoving;
@@ -216,7 +216,7 @@ void CLSJJSlitsBladesControl::setMoveInProgress(bool isMoving)
 	}
 }
 
-void CLSJJSlitsBladesControl::setGap(double newValue)
+void CLSJJSlitBladesControl::setGap(double newValue)
 {
 	if (gap_ != newValue) {
 		gap_ = newValue;
@@ -224,7 +224,7 @@ void CLSJJSlitsBladesControl::setGap(double newValue)
 	}
 }
 
-void CLSJJSlitsBladesControl::setCenterPosition(double newValue)
+void CLSJJSlitBladesControl::setCenterPosition(double newValue)
 {
 	if (centerPosition_ != newValue) {
 		centerPosition_ = newValue;
@@ -232,7 +232,7 @@ void CLSJJSlitsBladesControl::setCenterPosition(double newValue)
 	}
 }
 
-void CLSJJSlitsBladesControl::updateControlStates()
+void CLSJJSlitBladesControl::updateControlStates()
 {
 	updateConnected();
 	updateGap();
@@ -240,7 +240,7 @@ void CLSJJSlitsBladesControl::updateControlStates()
 	updateValue();
 }
 
-void CLSJJSlitsBladesControl::updateConnected()
+void CLSJJSlitBladesControl::updateConnected()
 {
 	bool upperControlOK = (upperBladeControl_ && upperBladeControl_->isConnected());
 	bool lowerControlOK = (lowerBladeControl_ && lowerBladeControl_->isConnected());
@@ -250,45 +250,45 @@ void CLSJJSlitsBladesControl::updateConnected()
 	setConnected(connected);
 }
 
-void CLSJJSlitsBladesControl::updateGap()
+void CLSJJSlitBladesControl::updateGap()
 {
 	if (isConnected()) {
 		setGap( calculateGap(upperBladeControl_->value(), lowerBladeControl_->value()) );
 	}
 }
 
-void CLSJJSlitsBladesControl::updateCenterPosition()
+void CLSJJSlitBladesControl::updateCenterPosition()
 {
 	if (isConnected()) {
 		setCenterPosition( calculateCenterPosition(upperBladeControl_->value(), lowerBladeControl_->value()) );
 	}
 }
 
-void CLSJJSlitsBladesControl::onMoveStarted()
+void CLSJJSlitBladesControl::onMoveStarted()
 {
 	setMoveInProgress(true);
 	emit moveStarted();
 }
 
-void CLSJJSlitsBladesControl::onMoveCancelled(QObject *action)
+void CLSJJSlitBladesControl::onMoveCancelled(QObject *action)
 {
 	moveCleanup(action);
 	emit moveFailed(AMControl::WasStoppedFailure);
 }
 
-void CLSJJSlitsBladesControl::onMoveFailed(QObject *action)
+void CLSJJSlitBladesControl::onMoveFailed(QObject *action)
 {
 	moveCleanup(action);
 	emit moveFailed(AMControl::OtherFailure);
 }
 
-void CLSJJSlitsBladesControl::onMoveSucceeded(QObject *action)
+void CLSJJSlitBladesControl::onMoveSucceeded(QObject *action)
 {
 	moveCleanup(action);
 	emit moveSucceeded();
 }
 
-void CLSJJSlitsBladesControl::moveCleanup(QObject *action)
+void CLSJJSlitBladesControl::moveCleanup(QObject *action)
 {
 	if (action) {
 		setMoveInProgress(false);
@@ -303,23 +303,23 @@ void CLSJJSlitsBladesControl::moveCleanup(QObject *action)
 	}
 }
 
-double CLSJJSlitsBladesControl::calculateLowerPosition(double gap, double center)
+double CLSJJSlitBladesControl::calculateLowerPosition(double gap, double center)
 {
 	return center + (gap / 2.0);
 }
 
-double CLSJJSlitsBladesControl::calculateUpperPosition(double gap, double center)
+double CLSJJSlitBladesControl::calculateUpperPosition(double gap, double center)
 {
 	return center - (gap / 2.0);
 }
 
-double CLSJJSlitsBladesControl::calculateGap(double upperBladePosition, double lowerBladePosition)
+double CLSJJSlitBladesControl::calculateGap(double upperBladePosition, double lowerBladePosition)
 {
 	// Upper blade opens with a negative setpoint; lower blade opens with positive.
 	return (lowerBladePosition - upperBladePosition);
 }
 
-double CLSJJSlitsBladesControl::calculateCenterPosition(double upperBladePosition, double lowerBladePosition)
+double CLSJJSlitBladesControl::calculateCenterPosition(double upperBladePosition, double lowerBladePosition)
 {
 	return ((upperBladePosition - lowerBladePosition) / 2.0 + lowerBladePosition);
 }
