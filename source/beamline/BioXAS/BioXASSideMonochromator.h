@@ -5,7 +5,6 @@
 
 #include "beamline/BioXAS/BioXASSSRLMonochromator.h"
 #include "beamline/BioXAS/BioXASSideMonochromatorEnergyControl.h"
-#include "beamline/BioXAS/BioXASSideMonochromatorRegionControl.h"
 
 class BioXASSideMonochromator : public BioXASSSRLMonochromator
 {
