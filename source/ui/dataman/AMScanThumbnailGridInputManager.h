@@ -6,7 +6,6 @@
 #include <QRect>
 #include <QItemSelectionModel>
 
-#include <cmath>
 
 // The distance which the mouse can travel before it is considered
 // a drag operation rather than just a slight drift in a point operation.

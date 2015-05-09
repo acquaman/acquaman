@@ -64,8 +64,8 @@ void AMScanThumbnailGridInputManager::mouseMovedTo(int itemIndex, int positionX,
 			// A drag hasn't already begun (we only do stuff when drags are not
 			// in progress)
 
-			int travelDistanceX = int(std::abs(double(positionX - startPositionX_)));
-			int travelDistanceY = int(std::abs(double(positionY - startPositionY_)));
+			int travelDistanceX = qAbs(positionX - startPositionX_);
+			int travelDistanceY = qAbs(positionY - startPositionY_);
 
 			if(travelDistanceX > TRAVEL_TOLERANCE ||
 					travelDistanceY > TRAVEL_TOLERANCE) {
@@ -117,7 +117,7 @@ void AMScanThumbnailGridInputManager::mouseMovedTo(int itemIndex, int positionX,
 					lastHoverUpdatePositionX_ = positionX;
 				}
 
-				int travelDistanceX = int(std::abs(double(positionX - lastHoverUpdatePositionX_)));
+				int travelDistanceX = qAbs(positionX - lastHoverUpdatePositionX_);
 				if(travelDistanceX > HOVER_TRAVEL_UPDATE_DISTANCE) {
 					// We've moved far enough that we need to emit a hover travel update
 					emit hoverMove(itemIndex, positionX, positionY);
@@ -149,8 +149,8 @@ void AMScanThumbnailGridInputManager::mouseReleasedAt(int positionX, int positio
 		} else {
 			// No Drag is happening
 
-			int travelDistanceX = int(std::abs(double(positionX - startPositionX_)));
-			int travelDistanceY = int(std::abs(double(positionY - startPositionY_)));
+			int travelDistanceX = qAbs(positionX - startPositionX_);
+			int travelDistanceY = qAbs(positionY - startPositionY_);
 			if(travelDistanceX > TRAVEL_TOLERANCE ||
 					travelDistanceY > TRAVEL_TOLERANCE) {
 				// We've moved far enough that this must be a rectangle, not a point, selection
@@ -194,8 +194,8 @@ void AMScanThumbnailGridInputManager::mouseReleasedAt(int positionX, int positio
 		if(dragInProgress_) {
 			// Drag is in progress need to cancel it
 		} else {
-			int travelDistanceX = int(std::abs(double(positionX - startPositionX_)));
-			int travelDistanceY = int(std::abs(double(positionY - startPositionY_)));
+			int travelDistanceX = qAbs(positionX - startPositionX_);
+			int travelDistanceY = qAbs(positionY - startPositionY_);
 			if(travelDistanceX > TRAVEL_TOLERANCE ||
 					travelDistanceY > TRAVEL_TOLERANCE) {
 				// We've moved far enough that this must be a rectangle selection

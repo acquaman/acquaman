@@ -26,7 +26,7 @@ public:
 	/// position from. Returns -1 if no item matched
 	int indexOf(AMLightweightScanInfo* scan, int from = 0) const;
 	/// A map of all the runs currently known. Maps run ids to run name
-	const QHash<int, QString> runMap();
+	const QHash<int, QString> runMap() const;
 signals:
 	/// Emitted just before a scan info is added to the collection
 	void scanAboutToBeAdded(int rowIndex);
@@ -60,7 +60,7 @@ protected slots:
 protected:
 	/// The index in the list of the Scan info with the provided id, or -1 if
 	/// none is matched.
-	int indexOfScanWithId(int id);
+	int indexOfScanWithId(int id) const;
 private:
 	/// The database from which the scan infos will be retrieved
 	AMDatabase* database_;

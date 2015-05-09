@@ -73,7 +73,7 @@ public:
 	/// Adds the provided experimentId to the Scan
 	void addExperimentId(int experimentId);
 	/// The id (if any) of the experiment this scan is associated with
-	const QList<int> experimentIds();
+	const QList<int> experimentIds() const;
 
 	/// Sets the descriptive name of the scan
 	void setName(const QString& name);

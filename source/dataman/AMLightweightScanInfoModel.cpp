@@ -103,7 +103,7 @@ QUrl AMLightweightScanInfoModel::rowToUrl(const QModelIndex &index) const
 	return scanInfo_->getScanUrl(index.data(Qt::DisplayRole).toInt());
 }
 
-const QHash<int, QString> AMLightweightScanInfoModel::runMap()
+const QHash<int, QString> AMLightweightScanInfoModel::runMap() const
 {
 	return scanInfo_->runMap();
 }
@@ -140,7 +140,7 @@ QMimeData *AMLightweightScanInfoModel::mimeData(const QModelIndexList &indexes) 
 	return data;
 }
 
-bool AMLightweightScanInfoModel::belongsToExperiment(const QModelIndex index, int experimentId)
+bool AMLightweightScanInfoModel::belongsToExperiment(const QModelIndex index, int experimentId) const
 {
 	AMLightweightScanInfo* info = scanInfo_->at(index.row());
 	return info->experimentIds().contains(experimentId);

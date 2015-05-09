@@ -190,7 +190,7 @@ void AMLightweightScanInfo::clearThumbnails()
 	thumbnailsMap_.clear();
 }
 
-const QList<int> AMLightweightScanInfo::experimentIds()
+const QList<int> AMLightweightScanInfo::experimentIds() const
 {
 	return experimentIds_;
 }

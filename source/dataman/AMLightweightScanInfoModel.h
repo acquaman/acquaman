@@ -41,7 +41,7 @@ public:
 	/// If the index refers to a thumbnail, then the URL of the parent scan is returned
 	QUrl rowToUrl(const QModelIndex& index) const;
 	/// Returns a map of all the known runs. Maps runIDs to runNames.
-	const QHash<int, QString> runMap();
+	const QHash<int, QString> runMap() const;
 	/// Returns the flags for the items. In cases where the index is valid and has no
 	/// valid parent (ie is for a scan, not a data source) then the flags are default
 	/// with DragEnabled, else they are just the default flags obtains from QAbstractItemModel::flags()
@@ -51,7 +51,7 @@ public:
 	QMimeData* mimeData(const QModelIndexList &indexes) const;
 	/// Whether or not the scan with the provided Index belongs to the experiment with the
 	/// provided id.
-	bool belongsToExperiment(const QModelIndex index, int experimentId);
+	bool belongsToExperiment(const QModelIndex index, int experimentId) const;
 public slots:
 
 	// Functions which respond to signals indicating changes in the underlying collection

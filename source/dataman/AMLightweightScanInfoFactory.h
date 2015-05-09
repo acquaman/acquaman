@@ -78,15 +78,15 @@ protected:
 	// Helper methods used for getting single scan accompanying info
 
 	/// Returns the run name from the provided runId
-	static QString loadRunName(AMDatabase* database, int runId);
+	static QString loadRunName(AMDatabase* database, int runId) const;
 	/// Returns the scan type for the provided class name
-	static QString loadScanType(AMDatabase* database, const QString& className);
+	static QString loadScanType(AMDatabase* database, const QString& className) const;
 	/// Returns the name of the sample from the provided Sample entry in the Scan table
 	static QString loadSampleName(AMDatabase* database,
 								  const QString& sampleNamePre2013,
-								  const QString& sampleTableEntry);
+								  const QString& sampleTableEntry) const;
 	/// Returns the list of experimentIds to which the scan with the provided id belongs
-	static QList<int> loadExperimentIds(AMDatabase* database, int scanId);
+	static QList<int> loadExperimentIds(AMDatabase* database, int scanId) const;
 
 	// Member Variables used to store persistant data during the bulk load
 

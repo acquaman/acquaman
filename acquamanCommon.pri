@@ -407,7 +407,6 @@ HEADERS += \
 	source/ui/dataman/AMScanDataView.h \
 	source/dataman/AMLightweightScanInfoFilterProxyModel.h \
 	source/ui/dataman/AMScanTableView.h \
-	source/ui/dataman/AMScanThumbnailView.h \
 	source/ui/dataman/AMScanTreeView.h \
 	source/util/AMRecursiveDirectoryCompare.h \
 	source/util/AMDirectorySynchronizer.h \
@@ -826,7 +825,6 @@ SOURCES += \
 	source/ui/dataman/AMScanDataView.cpp \
 	source/dataman/AMLightweightScanInfoFilterProxyModel.cpp \
 	source/ui/dataman/AMScanTableView.cpp \
-	source/ui/dataman/AMScanThumbnailView.cpp \
 	source/ui/dataman/AMScanTreeView.cpp \
 	source/util/AMRecursiveDirectoryCompare.cpp \
 	source/util/AMDirectorySynchronizer.cpp \

@@ -25,7 +25,7 @@ public:
 	/**
 	  * Cleans up resources owned by the AMScanThumbnailGridView
 	  */
-	~AMScanThumbnailGridView();
+	virtual ~AMScanThumbnailGridView();
 
 	/**
 	  * Returns the model index of the item at the provided point. If there is

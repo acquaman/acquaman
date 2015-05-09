@@ -42,7 +42,7 @@ int AMLightweightScanInfoCollection::indexOf(AMLightweightScanInfo *scan, int fr
 	return scanInfos_.indexOf(scan, from);
 }
 
-const QHash<int, QString> AMLightweightScanInfoCollection::runMap()
+const QHash<int, QString> AMLightweightScanInfoCollection::runMap() const
 {
 	return runMapCache_;
 }
@@ -112,7 +112,7 @@ void AMLightweightScanInfoCollection::onDbItemRemoved(const QString &tableName, 
 	}
 }
 
-int AMLightweightScanInfoCollection::indexOfScanWithId(int id)
+int AMLightweightScanInfoCollection::indexOfScanWithId(int id) const
 {
 	for(int iScanInfo =0, scanInfoCount = scanInfos_.count();
 		iScanInfo < scanInfoCount;
