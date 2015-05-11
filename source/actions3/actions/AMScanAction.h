@@ -92,6 +92,8 @@ protected slots:
 	void onControllerFailed();
 	/// Handles all the wrap up and clean up if the controller succeeds.
 	void onControllerSucceeded();
+	/// Handles setting the status text when the initialization actions are started.
+	void onControllerInitializing();
 	/// Handles setting the status text when cleaning actions are started.
 	void onControllerCleaningUp();
 	/// Handles the progress changed passed up from the controller.

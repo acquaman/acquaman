@@ -118,6 +118,8 @@ signals:
 	/// Scan failed (due to some reason out of the user's control). Synonym for stateChanged(anything, Failed).
 	void failed();
 
+	/// Notifier that the initization actions are starting.  This may not be emitted by all scan controller.
+	void initializingActionsStarted();
 	/// Notifier that the cleaning actions are being used.  This may not be emitted by all scan controllers.
 	void cleaningActionsStarted();
 

@@ -45,8 +45,12 @@ bool VESPERS2011XRFFileLoaderPlugin::load(AMScan *scan, const QString &userDataF
 
 	// Single element detector has 3 data sources, four element has 12.  Any other number is no good.
 	int elements;
-
-	if (scan->rawDataSourceCount() == 3)
+	// SXRMB bruker has one data source and differnt Axis setting
+	bool SXRMBBruker = false;
+	if (scan->rawDataSourceCount() == 1) {
+		elements = 1;
+		SXRMBBruker = true;
+	} else if (scan->rawDataSourceCount() == 3)
 		elements = 1;
 	else if (scan->rawDataSourceCount() == 12)
 		elements = 4;
@@ -75,8 +79,13 @@ bool VESPERS2011XRFFileLoaderPlugin::load(AMScan *scan, const QString &userDataF
 			if (elements == 32)
 				ai.size = 4096;
 
-			ai.increment = 10;
-			ai.start = AMNumber(0);
+			if (SXRMBBruker) {
+				ai.increment = 5.0;
+				ai.start = AMNumber(-450);
+			} else {
+				ai.increment = 10;
+				ai.start = AMNumber(0);
+			}
 			ai.isUniform = true;
 			axisInfo << ai;
 
