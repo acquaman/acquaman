@@ -149,9 +149,6 @@ void AMExtendedControlEditor::setControl(AMControl *newControl)
 			disconnect( control_, 0, this, 0 );
 			disconnect( dialog_, 0, control_, 0 );
 
-			// Clear the frame title.
-			setTitle("");
-
 			control_ = 0;
 		}
 
@@ -170,12 +167,6 @@ void AMExtendedControlEditor::setControl(AMControl *newControl)
 				connect(dialog_, SIGNAL(doubleValueSelected(double)), control_, SLOT(move(double)));
 			else
 				connect(dialog_, SIGNAL(doubleValueSelected(double)), this, SLOT(onNewSetpoint(double)));
-
-			// Update the frame title.
-			if(control_->description() != "")
-				setTitle(control_->description());
-			else
-				setTitle(control_->name());
 		}
 
 		onConnectedChanged();
