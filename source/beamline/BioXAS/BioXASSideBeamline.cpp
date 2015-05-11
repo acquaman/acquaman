@@ -153,8 +153,8 @@ QList<AMControl *> BioXASSideBeamline::getMotorsByType(BioXASBeamlineDef::BioXAS
 
 	switch (category) {
 	case BioXASBeamlineDef::FilterMotor: // BioXAS Filter motors
-		matchedMotors.append(carbonFilterFarm_->upstreamActuatorControl()->positionControl());
-		matchedMotors.append(carbonFilterFarm_->downstreamActuatorControl()->positionControl());
+		matchedMotors.append(carbonFilterFarm_->upstreamPositionControl());
+		matchedMotors.append(carbonFilterFarm_->downstreamPositionControl());
 		break;
 
 	case BioXASBeamlineDef::M1Motor:	// BioXAS M1 motors
@@ -781,8 +781,8 @@ void BioXASSideBeamline::setupComponents()
 
 	// End scaler and Keithley testing.
 
-	carbonFilterFarm_ = new BioXASSideCarbonFilterFarmControl(this);
-	connect( carbonFilterFarm_, SIGNAL(connected(bool)), this, SLOT(onConnectionChanged()) );
+	carbonFilterFarm_ = new BioXASSideCarbonFilterFarm(this);
+	connect( carbonFilterFarm_, SIGNAL(connectedChanged(bool)), this, SLOT(onConnectionChanged()) );
 
 	xiaFilters_ = new BioXASSideXIAFilters(this);
 	connect( xiaFilters_, SIGNAL(connectedChanged(bool)), this, SLOT(onConnectionChanged()) );
@@ -868,7 +868,7 @@ void BioXASSideBeamline::setupExposedControls()
 
 	// Carbon filter farm control.
 
-	addExposedControl(carbonFilterFarm_);
+	addExposedControl(carbonFilterFarm_->filterControl());
 
 	// Mirror controls.
 

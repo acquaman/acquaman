@@ -46,7 +46,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/BioXAS/BioXASSideMonochromator.h"
 #include "beamline/BioXAS/BioXASPseudoMotorControl.h"
 #include "beamline/BioXAS/BioXAS32ElementGeDetector.h"
-#include "beamline/BioXAS/BioXASSideCarbonFilterFarmControl.h"
+#include "beamline/BioXAS/BioXASSideCarbonFilterFarm.h"
 #include "beamline/BioXAS/BioXASSideXIAFilters.h"
 #include "beamline/BioXAS/BioXASSideM2Mirror.h"
 #include "beamline/BioXAS/BioXASSideDBHRMirror.h"
@@ -91,7 +91,7 @@ public:
 	/// Returns the scaler.
 	virtual CLSSIS3820Scaler* scaler() const { return scaler_; }
 	/// Returns the carbon filter farm.
-	BioXASSideCarbonFilterFarmControl* carbonFilterFarm() const { return carbonFilterFarm_; }
+	BioXASSideCarbonFilterFarm* carbonFilterFarm() const { return carbonFilterFarm_; }
 	/// Returns the XIA filters.
 	BioXASSideXIAFilters* xiaFilters() const { return xiaFilters_; }
 	/// Returns the DBHR mirrors.
@@ -367,7 +367,7 @@ protected:
 
 	// Filters.
 
-	BioXASSideCarbonFilterFarmControl *carbonFilterFarm_;
+	BioXASSideCarbonFilterFarm *carbonFilterFarm_;
 	BioXASSideXIAFilters *xiaFilters_;
 
 	// DBHR mirror.

@@ -1,7 +1,7 @@
 #include "BioXASCarbonFilterFarm.h"
 #include "util/AMErrorMonitor.h"
 
-BioXASCarbonFilterFarm::BioXASCarbonFilterFarm(const QString &name, const QString &upstreamPVBase, const QString &downstreamPVBase, QObject *parent) :
+BioXASCarbonFilterFarm::BioXASCarbonFilterFarm(const QString &name, QObject *parent) :
 	QObject(parent)
 {
 	// Initialize local variables.
@@ -18,22 +18,6 @@ BioXASCarbonFilterFarm::BioXASCarbonFilterFarm(const QString &name, const QStrin
 	downstreamActuator_ = 0;
 	downstreamPosition_ = 0;
 	downstreamStatus_ = 0;
-
-	// Create components.
-
-	upstreamPosition_ = new AMPVControl(name+"UpstreamPosition", upstreamPVBase+":mm:fbk", upstreamPVBase+":mm:sp", upstreamPVBase+":stop", this);
-	upstreamStatus_ = new AMReadOnlyPVControl(name+"UpstreamStatus", upstreamPVBase+":inPosition", this);
-	upstreamActuator_ = new BioXASCarbonFilterFarmActuatorControl(upstreamPosition_, upstreamStatus_, this);
-
-	downstreamPosition_ = new AMPVControl(name+"DownstreamPosition", downstreamPVBase+":mm:fbk", downstreamPVBase+":mm:sp", downstreamPVBase+":stop", this);
-	downstreamStatus_ = new AMReadOnlyPVControl(name+"DownstreamStatus", downstreamPVBase+":inPosition", this);
-	downstreamActuator_ = new BioXASCarbonFilterFarmActuatorControl(downstreamPosition_, downstreamStatus_, this);
-
-	filter_ = new BioXASCarbonFilterFarmControl(upstreamActuator_, downstreamActuator_, this);
-
-	// Make connections.
-
-	connect( filter_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 }
 
 BioXASCarbonFilterFarm::~BioXASCarbonFilterFarm()
@@ -51,7 +35,5 @@ void BioXASCarbonFilterFarm::setConnected(bool isConnected)
 
 void BioXASCarbonFilterFarm::updateConnected()
 {
-	bool filterOK = (filter_ && filter_->isConnected());
-
-	setConnected(filterOK);
+	setConnected( (filter_ && filter_->isConnected()) );
 }

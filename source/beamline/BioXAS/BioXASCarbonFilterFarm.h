@@ -22,7 +22,7 @@ public:
 	class Position { public: enum State { Invalid = 0, Valid }; };
 
 	/// Constructor.
-	explicit BioXASCarbonFilterFarm(const QString &name, const QString &upstreamPVBase, const QString &downstreamPVBase, QObject *parent = 0);
+	explicit BioXASCarbonFilterFarm(const QString &name, QObject *parent = 0);
 	/// Destructor.
 	virtual ~BioXASCarbonFilterFarm();
 
@@ -66,21 +66,21 @@ protected:
 	bool connected_;
 
 	/// The total filter control.
-	BioXASCarbonFilterFarmControl *filter_;
+	AMControl *filter_;
 
 	/// The upstream actuator control.
-	BioXASCarbonFilterFarmActuatorControl *upstreamActuator_;
+	AMControl *upstreamActuator_;
 	/// The upstream position motor control.
-	AMPVControl *upstreamPosition_;
+	AMControl *upstreamPosition_;
 	/// The upstream status control.
-	AMReadOnlyPVControl *upstreamStatus_;
+	AMControl *upstreamStatus_;
 
 	/// The downstream actuator control.
-	BioXASCarbonFilterFarmActuatorControl *downstreamActuator_;
+	AMControl *downstreamActuator_;
 	/// The downstream position motor control.
-	AMPVControl *downstreamPosition_;
+	AMControl *downstreamPosition_;
 	/// The downstream status control.
-	AMReadOnlyPVControl *downstreamStatus_;
+	AMControl *downstreamStatus_;
 };
 
 #endif // BIOXASCARBONFILTERFARM_H

@@ -1,21 +1,43 @@
 #include "BioXASSideCarbonFilterFarm.h"
 
 BioXASSideCarbonFilterFarm::BioXASSideCarbonFilterFarm(QObject *parent) :
-	BioXASCarbonFilterFarm("BioXASSideCarbonFilterFarm", "SMTR1607-5-I00-01", "SMTR1607-5-I00-02", parent)
+	BioXASCarbonFilterFarm("BioXASSideCarbonFilterFarm", parent)
 {
-	upstreamActuator_->setWindowPosition(BioXASCarbonFilterFarmActuatorControl::Window::None, BIOXASSIDECARBONFILTERFARM_UPSTREAM_OUT);
-	upstreamActuator_->setWindowPosition(BioXASCarbonFilterFarmActuatorControl::Window::Bottom, BIOXASSIDECARBONFILTERFARM_UPSTREAM_BOTTOM);
-	upstreamActuator_->setWindowPosition(BioXASCarbonFilterFarmActuatorControl::Window::Top, BIOXASSIDECARBONFILTERFARM_UPSTREAM_TOP);
+	// Create components.
 
-	downstreamActuator_->setWindowPosition(BioXASCarbonFilterFarmActuatorControl::Window::None, BIOXASSIDECARBONFILTERFARM_DOWNSTREAM_OUT);
-	downstreamActuator_->setWindowPosition(BioXASCarbonFilterFarmActuatorControl::Window::Bottom, BIOXASSIDECARBONFILTERFARM_DOWNSTREAM_BOTTOM);
-	downstreamActuator_->setWindowPosition(BioXASCarbonFilterFarmActuatorControl::Window::Top, BIOXASSIDECARBONFILTERFARM_DOWNSTREAM_TOP);
+	upstreamPosition_ = new AMPVControl(name_+"UpstreamPosition", "SMTR1607-5-I00-01:mm:fbk", "SMTR1607-5-I00-01:mm:sp", "SMTR1607-5-I00-01:stop", this);
+	upstreamStatus_ = new AMReadOnlyPVControl(name_+"UpstreamStatus", "SMTR1607-5-I00-01:inPosition", this);
+	upstreamActuator_ = new BioXASCarbonFilterFarmActuatorControl(upstreamPosition_, upstreamStatus_, this);
 
-	setWindowFilter(Actuator::Upstream, BioXASCarbonFilterFarmActuatorControl::Window::Bottom, Filter::Fifty);
-	setWindowFilter(Actuator::Upstream, BioXASCarbonFilterFarmActuatorControl::Window::Top, Filter::Fifty);
-	setWindowFilter(Actuator::Downstream, BioXASCarbonFilterFarmActuatorControl::Window::Bottom, Filter::None);
-	setWindowFilter(Actuator::Downstream, BioXASCarbonFilterFarmActuatorControl::Window::Top, Filter::SevenHundred);
+	downstreamPosition_ = new AMPVControl(name_+"DownstreamPosition", "SMTR1607-5-I00-02:mm:fbk", "SMTR1607-5-I00-02:mm:sp", "SMTR1607-5-I00-02:stop", this);
+	downstreamStatus_ = new AMReadOnlyPVControl(name_+"DownstreamStatus", "SMTR1607-5-I00-02:inPosition", this);
+	downstreamActuator_ = new BioXASCarbonFilterFarmActuatorControl(downstreamPosition_, downstreamStatus_, this);
 
-	setEnumStates(QStringList() << filterToString(Filter::Invalid) << filterToString(Filter::None) << filterToString(Filter::Fifty) << filterToString(Filter::SevenHundred) << filterToString(Filter::SevenHundredFifty));
-	setMoveEnumStates(QStringList() << filterToString(Filter::None) << filterToString(Filter::Fifty) << filterToString(Filter::SevenHundred) << filterToString(Filter::SevenHundredFifty));
+	filter_ = new BioXASSideCarbonFilterFarmControl(upstreamActuator_, downstreamActuator_, this);
+
+	// Make connections.
+
+	connect( filter_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+
+	// Current settings.
+
+	upstreamActuator_->setWindowPosition(Window::None, BIOXASSIDECARBONFILTERFARM_UPSTREAM_OUT);
+	upstreamActuator_->setWindowPosition(Window::Bottom, BIOXASSIDECARBONFILTERFARM_UPSTREAM_BOTTOM);
+	upstreamActuator_->setWindowPosition(Window::Top, BIOXASSIDECARBONFILTERFARM_UPSTREAM_TOP);
+
+	downstreamActuator_->setWindowPosition(Window::None, BIOXASSIDECARBONFILTERFARM_DOWNSTREAM_OUT);
+	downstreamActuator_->setWindowPosition(Window::Bottom, BIOXASSIDECARBONFILTERFARM_DOWNSTREAM_BOTTOM);
+	downstreamActuator_->setWindowPosition(Window::Top, BIOXASSIDECARBONFILTERFARM_DOWNSTREAM_TOP);
+
+	filter_->setWindowFilter(Actuator::Upstream, Window::Bottom, Filter::Fifty);
+	filter_->setWindowFilter(Actuator::Upstream, Window::Top, Filter::Fifty);
+	filter_->setWindowFilter(Actuator::Downstream, Window::Bottom, Filter::None);
+	filter_->setWindowFilter(Actuator::Downstream, Window::Top, Filter::SevenHundred);
+
+	updateConnected();
+}
+
+BioXASSideCarbonFilterFarm::~BioXASSideCarbonFilterFarm()
+{
+
 }

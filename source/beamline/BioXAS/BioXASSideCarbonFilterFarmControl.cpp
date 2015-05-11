@@ -1,25 +1,20 @@
 #include "BioXASSideCarbonFilterFarmControl.h"
+#include "beamline/BioXAS/BioXASSideCarbonFilterFarm.h"
 
-BioXASSideCarbonFilterFarmControl::BioXASSideCarbonFilterFarmControl(QObject *parent) :
-    BioXASCarbonFilterFarmControl(parent)
+BioXASSideCarbonFilterFarmControl::BioXASSideCarbonFilterFarmControl(BioXASCarbonFilterFarmActuatorControl *upstreamActuatorControl, BioXASCarbonFilterFarmActuatorControl *downstreamActuatorControl, QObject *parent) :
+	BioXASCarbonFilterFarmControl(upstreamActuatorControl, downstreamActuatorControl, parent)
 {
-	// Initialize inherited variables.
+	// Make connections.
+	// Emit enumChanged signals when connected, value changes, and setpoint changes. This is to make sure the control is viewed as an enum.
 
-	upstreamPosition_ = new AMPVControl("CarbonFilterFarmUpstreamPosition", "SMTR1607-5-I00-01:mm:fbk", "SMTR1607-5-I00-01:mm:sp", "SMTR1607-5-I00-01:stop", this);
-	upstreamStatus_ = new AMReadOnlyPVControl("CarbonFilterFarmUpstreamStatus", "SMTR1607-5-I00-01:inPosition", this);
-	downstreamPosition_ = new AMPVControl("CarbonFilterFarmDownstreamPosition", "SMTR1607-5-I00-02:mm:fbk", "SMTR1607-5-I00-02:mm:sp", "SMTR1607-5-I00-02:stop", this);
-	downstreamStatus_ = new AMPVControl("CarbonFilterFarmDownstreamStatus", "SMTR1607-5-I00-01:inPosition", this);
+	connect( this, SIGNAL(connected(bool)), this, SIGNAL(enumChanged()) );
+	connect( this, SIGNAL(valueChanged(double)), this, SIGNAL(enumChanged()) );
+	connect( this, SIGNAL(setpointChanged(double)), this, SIGNAL(enumChanged()) );
 
-	upstreamActuator_ = new BioXASCarbonFilterFarmActuatorControl(upstreamPosition, upstreamStatus, this);
+	// Set the appropriate enum and move enum states.
 
-	addChildControl(upstreamActuator_);
-
-	downstreamActuator_ = new BioXASCarbonFilterFarmActuatorControl(downstreamPosition, downstreamStatus, this);
-
-	addChildControl(downstreamActuator_);
-
-
-
+	setEnumStates(QStringList() << filterToString(BioXASCarbonFilterFarm::Filter::Invalid) << filterToString(BioXASCarbonFilterFarm::Filter::None) << filterToString(BioXASCarbonFilterFarm::Filter::Fifty) << filterToString(BioXASCarbonFilterFarm::Filter::SevenHundred) << filterToString(BioXASCarbonFilterFarm::Filter::SevenHundredFifty));
+	setMoveEnumStates(QStringList() << filterToString(BioXASCarbonFilterFarm::Filter::None) << filterToString(BioXASCarbonFilterFarm::Filter::Fifty) << filterToString(BioXASCarbonFilterFarm::Filter::SevenHundred) << filterToString(BioXASCarbonFilterFarm::Filter::SevenHundredFifty));
 }
 
 BioXASSideCarbonFilterFarmControl::~BioXASSideCarbonFilterFarmControl()
@@ -32,19 +27,19 @@ bool BioXASSideCarbonFilterFarmControl::validFilter(double value)
 	bool result = false;
 
 	switch ((int)value) {
-	case Filter::Invalid:
+	case BioXASCarbonFilterFarm::Filter::Invalid:
 		result = true;
 		break;
-	case Filter::None:
+	case BioXASCarbonFilterFarm::Filter::None:
 		result = true;
 		break;
-	case Filter::Fifty:
+	case BioXASCarbonFilterFarm::Filter::Fifty:
 		result = true;
 		break;
-	case Filter::SevenHundred:
+	case BioXASCarbonFilterFarm::Filter::SevenHundred:
 		result = true;
 		break;
-	case Filter::SevenHundredFifty:
+	case BioXASCarbonFilterFarm::Filter::SevenHundredFifty:
 		result = true;
 		break;
 	default:
@@ -59,16 +54,16 @@ bool BioXASSideCarbonFilterFarmControl::validFilterSetpoint(double value)
 	bool result = false;
 
 	switch ((int)value) {
-	case Filter::None:
+	case BioXASCarbonFilterFarm::Filter::None:
 		result = true;
 		break;
-	case Filter::Fifty:
+	case BioXASCarbonFilterFarm::Filter::Fifty:
 		result = true;
 		break;
-	case Filter::SevenHundred:
+	case BioXASCarbonFilterFarm::Filter::SevenHundred:
 		result = true;
 		break;
-	case Filter::SevenHundredFifty:
+	case BioXASCarbonFilterFarm::Filter::SevenHundredFifty:
 		result = true;
 		break;
 	default:

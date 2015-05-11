@@ -2,6 +2,7 @@
 #define BIOXASSIDECARBONFILTERFARM_H
 
 #include "beamline/BioXAS/BioXASCarbonFilterFarm.h"
+#include "beamline/BioXAS/BioXASSideCarbonFilterFarmControl.h"
 
 // Valid actuator positions.
 #define BIOXASSIDECARBONFILTERFARM_UPSTREAM_OUT 18.996
@@ -17,14 +18,9 @@ class BioXASSideCarbonFilterFarm : public BioXASCarbonFilterFarm
 
 public:
 	/// Constructor.
-    explicit BioXASSideCarbonFilterFarm(QObject *parent = 0);
+	explicit BioXASSideCarbonFilterFarm(QObject *parent = 0);
 	/// Destructor.
 	virtual ~BioXASSideCarbonFilterFarm();
-
-signals:
-
-public slots:
-
 };
 
 #endif // BIOXASSIDECARBONFILTERFARM_H
