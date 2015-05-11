@@ -58,18 +58,6 @@ bool BioXASSSRLMonochromatorRegionControl::canMeasure() const
 
 	if (isConnected()) {
 		result = (
-				upperSlit_->canMeasure() &&
-				lowerSlit_->canMeasure() &&
-				slitsStatus_->canMeasure() &&
-				paddle_->canMeasure() &&
-				paddleStatus_->canMeasure() &&
-				keyStatus_->canMeasure() &&
-				brakeStatus_->canMeasure() &&
-				bragg_->canMeasure() &&
-				braggAtCrystalChangePositionStatus_->canMeasure() &&
-				crystalChange_->canMeasure() &&
-				crystalChangeCWLimitStatus_->canMeasure() &&
-				crystalChangeCCWLimitStatus_->canMeasure() &&
 				regionAStatus_->canMeasure() &&
 				regionBStatus_->canMeasure()
 				);
@@ -84,6 +72,14 @@ bool BioXASSSRLMonochromatorRegionControl::canMove() const
 
 	if (isConnected() && !isMoving()) {
 		result = (
+			slitsStatus_->canMeasure() &&
+			paddleStatus_->canMeasure() &&
+			keyStatus_->canMeasure() &&
+			brakeStatus_->canMeasure() &&
+			braggAtCrystalChangePositionStatus_->canMeasure() &&
+			crystalChangeCWLimitStatus_->canMeasure() &&
+			crystalChangeCCWLimitStatus_->canMeasure() &&
+
 			upperSlit_->canMove() &&
 			lowerSlit_->canMove() &&
 			paddle_->canMove() &&
