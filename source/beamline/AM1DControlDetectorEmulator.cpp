@@ -11,6 +11,9 @@ AM1DControlDetectorEmulator::AM1DControlDetectorEmulator(const QString &name, co
 
 	readMethod_ = readMethod;
 
+	setIsVisible(false);
+	setHiddenFromUsers(true);
+
 	allControls_ = new AMControlSet(this);
 	control_ = qobject_cast<AMReadOnlyPVControl *>(control);
 	statusControl_ = qobject_cast<AMReadOnlyPVControl *>(statusControl);

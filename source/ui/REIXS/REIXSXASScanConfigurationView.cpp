@@ -169,4 +169,6 @@ void REIXSXASScanConfigurationView::onEstimatedTimeChanged()
 	timeString += QString::number(seconds) + "s";
 
 	topFrame_->setLeftSubText("Expected acquisition time: " % timeString);
+	ui->estimatedTimeLabel->setText(timeString);
+	ui->totalPointsLabel->setText(QString::number(config_->totalPoints()));
 }

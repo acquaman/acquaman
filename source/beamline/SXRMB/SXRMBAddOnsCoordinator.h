@@ -97,6 +97,9 @@ protected slots:
 	/// Used to set the addOns sample stage Z status to the old SXRMB sample stage X status value after faking a move
 	void restoreAddOnsMicroprobeSampleStageStatusZ();
 
+	/// Handles stop PV for Ambiant table height
+	void onAddOnsAmbiantTableHeightStopValueChanged();
+
 protected:
 
 
@@ -201,6 +204,15 @@ protected:
 	AMControl *addOnsMicroprobeSampleStageDRVHZ_;
 	/// New AddOns Microprobe Sample Stage Z DRVL
 	AMControl *addOnsMicroprobeSampleStageDRVLZ_;
+
+	/// Original Motor PV stop for Ambiant endstation table upstream inbound
+	AMControl *ambiantTableUpstreamInboundStopControl_;
+	/// Original Motor PV stop for Ambiant endstation table upstream outbound
+	AMControl *ambiantTableUpstreamOutboundStopControl_;
+	/// Original Motor PV stop for Ambiant endstation table downstream
+	AMControl *ambiantTableDownstreamStopControl_;
+	/// New AddOns stop PV for Ambiant endstation table
+	AMControl *addOnsAmbiantTableHeightStopControl_;
 
 	/// All the controls (for checking connectivity)
 	AMControlSet *allControls_;

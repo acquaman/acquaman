@@ -147,7 +147,7 @@ bool REIXSAppController::startupCreateUserInterface() {
 	REIXSXASScanConfiguration *xasScanConfiguration = new REIXSXASScanConfiguration();
 
 	REIXSXASScanConfigurationView* xasConfigView = new REIXSXASScanConfigurationView(xasScanConfiguration);
-	scanConfigurationHolder = new AMScanConfigurationViewHolder3(xasConfigView);
+	scanConfigurationHolder = new AMScanConfigurationViewHolder3(xasConfigView, true);
 	mw_->addPane(scanConfigurationHolder, "Experiment Setup", "Absorption Scan", ":/utilities-system-monitor.png");
 	connect(scanConfigurationHolder, SIGNAL(showWorkflowRequested()), this, SLOT(goToWorkflow()));
 

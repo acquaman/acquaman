@@ -84,6 +84,11 @@ SXRMBAddOnsCoordinator::SXRMBAddOnsCoordinator(QObject *parent) :
 	addOnsMicroprobeSampleStageDRVHZ_ = new AMSinglePVControl("AddOnsMicroprobleSampleStageDRVHZ", "BL1606-B1-1:AddOns:uProbe:SampleStage:Z:mm.DRVH", this, 0.0001);
 	addOnsMicroprobeSampleStageDRVLZ_ = new AMSinglePVControl("AddOnsMicroprobleSampleStageDRVLZ", "BL1606-B1-1:AddOns:uProbe:SampleStage:Z:mm.DRVL", this, 0.0001);
 
+	ambiantTableUpstreamInboundStopControl_ = new AMSinglePVControl("AmbiantTableUpstreamInboundStop", "SMTR0000-E07-01:stop", this, 0.5);
+	ambiantTableUpstreamOutboundStopControl_ = new AMSinglePVControl("AmbiantTableUpstreamOutboundStop", "SMTR0000-E07-02:stop", this, 0.5);
+	ambiantTableDownstreamStopControl_ = new AMSinglePVControl("AmbiantTableDownstreamInboundStop", "SMTR0000-E07-03:stop", this, 0.5);
+	addOnsAmbiantTableHeightStopControl_ = new AMSinglePVControl("AddOnsAmbiantTableHeightStop", "BL1606-B1-1:AddOns:Ambiant:TableHeight:stop", this, 0.5);
+
 	allControls_ = new AMControlSet(this);
 	allControls_->addControl(addOnsEndstation_);
 	allControls_->addControl(oldCrystalSelection_);
@@ -127,6 +132,10 @@ SXRMBAddOnsCoordinator::SXRMBAddOnsCoordinator(QObject *parent) :
 	allControls_->addControl(addOnsMicroprobeSampleStageDRVLY_);
 	allControls_->addControl(addOnsMicroprobeSampleStageDRVHZ_);
 	allControls_->addControl(addOnsMicroprobeSampleStageDRVLZ_);
+	allControls_->addControl(ambiantTableUpstreamInboundStopControl_);
+	allControls_->addControl(ambiantTableUpstreamOutboundStopControl_);
+	allControls_->addControl(ambiantTableDownstreamStopControl_);
+	allControls_->addControl(addOnsAmbiantTableHeightStopControl_);
 
 	connect(allControls_, SIGNAL(connected(bool)), this, SLOT(onAllControlsConnected(bool)));
 
@@ -158,6 +167,8 @@ SXRMBAddOnsCoordinator::SXRMBAddOnsCoordinator(QObject *parent) :
 	connect(addOnsMicroprobeSampleStageX_, SIGNAL(valueChanged(double)), this, SLOT(onAddOnsMicroprobeSampleStageXValueChanged(double)));
 	connect(addOnsMicroprobeSampleStageY_, SIGNAL(valueChanged(double)), this, SLOT(onAddOnsMicroprobeSampleStageYValueChanged(double)));
 	connect(addOnsMicroprobeSampleStageZ_, SIGNAL(valueChanged(double)), this, SLOT(onAddOnsMicroprobeSampleStageZValueChanged(double)));
+
+	connect(addOnsAmbiantTableHeightStopControl_, SIGNAL(valueChanged(double)), this, SLOT(onAddOnsAmbiantTableHeightStopValueChanged()));
 }
 
 SXRMBAddOnsCoordinator::~SXRMBAddOnsCoordinator(){}
@@ -540,3 +551,18 @@ void SXRMBAddOnsCoordinator::restoreAddOnsMicroprobeSampleStageStatusZ(){
 	if(!addOnsMicroprobeSampleStageStatusZ_->withinTolerance(sxrmbMicroprobeSampleStageStatusZ_->value()))
 		addOnsMicroprobeSampleStageStatusZ_->move(sxrmbMicroprobeSampleStageStatusZ_->value());
 }
+
+void SXRMBAddOnsCoordinator::onAddOnsAmbiantTableHeightStopValueChanged()
+{
+	if(!connectedOnce_)
+		return;
+
+	if(addOnsAmbiantTableHeightStopControl_->withinTolerance(1.0)){
+		ambiantTableUpstreamInboundStopControl_->move(1.0);
+		ambiantTableUpstreamOutboundStopControl_->move(1.0);
+		ambiantTableDownstreamStopControl_->move(1.0);
+
+		addOnsAmbiantTableHeightStopControl_->move(0);
+	}
+}
+

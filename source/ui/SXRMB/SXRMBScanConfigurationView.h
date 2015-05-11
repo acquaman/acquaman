@@ -33,10 +33,12 @@ protected:
 	QComboBox *createFluorescenceComboBox();
 	/// helper function to create and layout detector settins
 	QGroupBox *createAndLayoutDetectorSettings(SXRMBScanConfiguration * configuration);
+	/// helper function to update the poweron HV control checkbox text
+	void updatePowerOnHVControlCheckBoxText();
 
 protected:
 	/// Checkbox for enabling the TEY HV control automatically
-	QCheckBox *powerOnTEYHVControlCheckBox_;
+	QCheckBox *powerOnHVControlCheckBox_;
 	/// ComboBox for choosing Bruker detector
 	QComboBox *fluorescenceDetectorComboBox_;
 

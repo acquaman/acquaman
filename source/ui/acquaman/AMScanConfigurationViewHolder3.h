@@ -40,7 +40,7 @@ public:
 	/// Construct a holder for an AMScanConfigurationView \c view (or 0 if no view is ready yet).
 	/*! If provided, this widget takes ownership of the \c view */
  	virtual ~AMScanConfigurationViewHolder3();
-	AMScanConfigurationViewHolder3(AMScanConfigurationView* view = 0, QWidget *parent = 0);
+	AMScanConfigurationViewHolder3(AMScanConfigurationView* view = 0, bool enableLoopAction = false, QWidget *parent = 0);
 
 	/// Set the \c view contained within the holder.  If there is an existing view, the old view is deleted.
 	/*! You can pass in 0 to remove the existing view from the holder.*/
@@ -52,7 +52,9 @@ public:
 protected:
 
 	/// This function is used to create the action that will be added to the queue. By default, it creates an AMScanControllerAction using a copy of the view's scan configuration. You can re-implement this to provide a specific kind of action (for ex: REIXSXESScanControllerAction, etc.) for use with the action registry system.
-	virtual AMAction3* createAction();
+	virtual AMAction3* createScan();
+	/// This function is used to create the loop action that will be added to the queue.
+	virtual AMAction3* createMultipleScans();
 
 	/// This is the scan configuration widget we're wrapping
 	AMScanConfigurationView* view_;

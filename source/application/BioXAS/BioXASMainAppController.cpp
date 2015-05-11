@@ -254,7 +254,7 @@ void BioXASMainAppController::setupUserInterface()
 	configuration_->setEnergy(10000);
 
 	configurationView_ = new BioXASMainXASScanConfigurationView(configuration_);
-	configurationViewHolder_ = new AMScanConfigurationViewHolder3(configurationView_);
+	configurationViewHolder_ = new AMScanConfigurationViewHolder3(configurationView_, true);
 
 	mw_->addPane(configurationViewHolder_, "Scans", "XAS Scan", ":/utilities-system-monitor.png");
 

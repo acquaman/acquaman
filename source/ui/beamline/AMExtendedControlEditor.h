@@ -75,7 +75,10 @@ class AMExtendedControlEditor : public QGroupBox
 {
 Q_OBJECT
 public:
+	/// Constructor.
 	explicit AMExtendedControlEditor(AMControl* control, AMControl* statusTagControl = NULL, bool readOnly = false, bool configureOnly = false, QWidget *parent = 0);
+	/// Destructor.
+	virtual ~AMExtendedControlEditor();
 
 	double setpoint() const;
 	AMControl* control() const;

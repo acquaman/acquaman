@@ -213,7 +213,7 @@ AMControl::FailureExplanation AMPVControl::move(double setpoint) {
 void AMPVControl::onNewFeedbackValue(double) {
 
 	// If we're not in the middle of a move, don't really care about changing values.
-	if(!moveInProgress_ && !completionTimer_.isActive())
+	if(!moveInProgress_)
 		return;
 
 	// Did we make it?

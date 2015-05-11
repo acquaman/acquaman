@@ -230,8 +230,8 @@ void BioXASSideBeamline::onConnectionChanged()
 				// Mono.
 				mono_->isConnected() &&
 
-				// JJSlit
-				jjSlit_->isConnected() &&
+				// JJSlits
+				jjSlits_->isConnected() &&
 
 				// Scaler.
 				scaler_->isConnected() &&
@@ -618,7 +618,7 @@ void BioXASSideBeamline::setupMotorGroup()
 void BioXASSideBeamline::setupDetectors()
 {
 	i0Detector_ = new CLSBasicScalerChannelDetector("I0Detector", "I0 Detector", scaler_, 0, this);
-	iTDetector_ = new CLSBasicScalerChannelDetector("ITDetector", "IT Detector", scaler_, 1, this);
+	i1Detector_ = new CLSBasicScalerChannelDetector("I1Detector", "I1 Detector", scaler_, 1, this);
 	i2Detector_ = new CLSBasicScalerChannelDetector("I2Detector", "I2 Detector", scaler_, 15, this);
 	ge32ElementDetector_ = new BioXAS32ElementGeDetector("Ge32Element", "Ge 32 Element", this);
 }
@@ -769,14 +769,14 @@ void BioXASSideBeamline::setupComponents()
 	scaler_->channelAt(0)->setCurrentAmplifier(i0Keithley_);
 	scaler_->channelAt(0)->setDetector(i0Detector_);
 
-	iTKeithley_ = new CLSKeithley428("IT Channel", "AMP1607-702", this);
-	scaler_->channelAt(1)->setCustomChannelName("IT Channel");
-	scaler_->channelAt(1)->setCurrentAmplifier(iTKeithley_);
-	scaler_->channelAt(1)->setDetector(iTDetector_);
+	i1Keithley_ = new CLSKeithley428("I1 Channel", "AMP1607-702", this);
+	scaler_->channelAt(1)->setCustomChannelName("I1 Channel");
+	scaler_->channelAt(1)->setCurrentAmplifier(i1Keithley_);
+	scaler_->channelAt(1)->setDetector(i1Detector_);
 
 	i2Keithley_ = new CLSKeithley428("I2 Channel", "AMP1607-703", this);
 	scaler_->channelAt(15)->setCustomChannelName("I2 Channel");
-	scaler_->channelAt(15)->setCurrentAmplifier(iTKeithley_);
+	scaler_->channelAt(15)->setCurrentAmplifier(i2Keithley_);
 	scaler_->channelAt(15)->setDetector(i2Detector_);
 
 	// End scaler and Keithley testing.
@@ -787,8 +787,8 @@ void BioXASSideBeamline::setupComponents()
 	xiaFilters_ = new BioXASSideXIAFilters(this);
 	connect( xiaFilters_, SIGNAL(connectedChanged(bool)), this, SLOT(onConnectionChanged()) );
 
-	jjSlit_ = new CLSJJSlit("Side BL JJ Slit", "JJSlit of the side beamline", "PSL1607-6-I22-01", "PSL1607-6-I22-02", 0.01, 10);
-	connect(jjSlit_, SIGNAL(connected(bool)), this, SLOT(onConnectionChanged()));
+	jjSlits_ = new CLSJJSlits("JJSlits", "SMTR1607-6-I22-10", "SMTR1607-6-I22-09", "SMTR1607-6-I22-11", "SMTR1607-6-I22-12", this);
+	connect( jjSlits_, SIGNAL(connectedChanged(bool)), this, SLOT(onConnectionChanged()) );
 
 	m2Mirror_ = new BioXASSideM2Mirror(this);
 	connect( m2Mirror_, SIGNAL(connected(bool)), this, SLOT(onConnectionChanged()) );
@@ -798,7 +798,7 @@ void BioXASSideBeamline::setupComponents()
 }
 
 void BioXASSideBeamline::setupControlsAsDetectors()
-{
+{	
 	energySetpointDetector_ = new AMBasicControlDetectorEmulator("EnergySetpoint", "EnergySetpoint", new AMReadOnlyPVControl("EnergySetpoint", "BL1607-5-I22:Energy:EV", this), 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
 	energySetpointDetector_->setHiddenFromUsers(false);
 	energySetpointDetector_->setIsVisible(true);
@@ -861,10 +861,10 @@ void BioXASSideBeamline::setupExposedControls()
 
 	// JJ slit controls.
 
-	addExposedControl(jjSlit_->verticalBladesControl()->gapPVControl());
-	addExposedControl(jjSlit_->verticalBladesControl()->centerPVControl());
-	addExposedControl(jjSlit_->horizontalBladesControl()->gapPVControl());
-	addExposedControl(jjSlit_->horizontalBladesControl()->centerPVControl());
+	addExposedControl(jjSlits_->verticalCenterControl());
+	addExposedControl(jjSlits_->verticalGapControl());
+	addExposedControl(jjSlits_->horizontalCenterControl());
+	addExposedControl(jjSlits_->horizontalGapControl());
 
 	// Carbon filter farm control.
 
@@ -885,7 +885,7 @@ void BioXASSideBeamline::setupExposedDetectors()
 {
 	addExposedDetector(dwellTimeDetector_);
 	addExposedDetector(i0Detector_);
-	addExposedDetector(iTDetector_);
+	addExposedDetector(i1Detector_);
 	addExposedDetector(i2Detector_);
 	addExposedDetector(energySetpointDetector_);
 	addExposedDetector(energyFeedbackDetector_);
