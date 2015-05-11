@@ -767,7 +767,7 @@ void SXRMBBeamline::setupHVControls()
 {
 	i0HVControl_ = new SXRMBHVControl("I0", "PS1606506:100", ":vmon", ":v0set", ":pwonoff", ":status", ":imon");
 	teyHVControl_ = new SXRMBHVControl("TEY", "PS1606506:101", ":vmon", ":v0set", ":pwonoff", ":status", ":imon");
-	microprobeTEYHVControl_ = new SXRMBHVControl("Microbe TEY", "PS1606506:102", ":vmon", ":v0set", ":pwonoff", ":status", ":imon");
+	microprobeTEYHVControl_ = new SXRMBHVControl("Microprobe TEY", "PS1606506:102", ":vmon", ":v0set", ":pwonoff", ":status", ":imon");
 	ambiantIC0HVControl_ = new SXRMBHVControl("IC0", "PS1606506:103", ":vmon", ":v0set", ":pwonoff", ":status", ":imon");
 	ambiantIC1HVControl_ = new SXRMBHVControl("IC1", "PS1606506:104", ":vmon", ":v0set", ":pwonoff", ":status", ":imon");
 
