@@ -9,6 +9,7 @@ BioXASCarbonFilterFarmView::BioXASCarbonFilterFarmView(BioXASCarbonFilterFarm *f
 	filterFarm_ = 0;
 
 	filterEditor_ = new AMExtendedControlEditor(0);
+	filterEditor_->setTitle("Active filter thickness");
 
 	upstreamEditor_ = new AMExtendedControlEditor(0);
 	upstreamEditor_->setTitle("Actuator control");
