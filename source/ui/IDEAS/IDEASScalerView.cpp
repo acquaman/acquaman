@@ -40,7 +40,7 @@ IDEASScalerView::IDEASScalerView(QWidget *parent)
 		view->setAmplifierViewFormat('g');
 		view->setAmplifierViewPrecision(3);
 		singleViews_ << view;
-		view->setFixedHeight(55);
+		view->setFixedHeight(40);
 		connect(view, SIGNAL(amplifierViewModeChanged(AMCurrentAmplifierView::ViewMode)), this, SLOT(onSR570ViewChanged(AMCurrentAmplifierView::ViewMode)) );
 		connect(view, SIGNAL(outputViewModeChanged(CLSSIS3820ScalerChannelView::OutputViewMode)), this, SLOT(onOutputViewModeChanged(CLSSIS3820ScalerChannelView::OutputViewMode)));
 		layout->addWidget(view);

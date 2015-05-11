@@ -23,20 +23,26 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define SXRMBAPPCONTROLLER_H
 
 #include "application/AMAppController.h"
+#include "application/SXRMB/SXRMB.h"
+
+class QGroupBox;
 
 class AMScanConfigurationViewHolder3;
+class AMMotorGroupView;
+class AMRegionOfInterest;
+class AMListAction3;
+class AMGenericScanEditor;
+class AMScan;
+
+class CLSSIS3820ScalerView;
+
 class SXRMBPersistentView;
 class SXRMBEXAFSScanConfiguration;
 class SXRMBEXAFSScanConfigurationView;
 class SXRMB2DMapScanConfiguration;
 class SXRMB2DMapScanConfigurationView;
 class SXRMB2DOxidationMapScanConfigurationView;
-class CLSSIS3820ScalerView;
 class SXRMBUserConfiguration;
-class AMRegionOfInterest;
-class AMListAction3;
-class AMGenericScanEditor;
-class AMScan;
 class SXRMBOxidationMapScanConfigurationViewHolder;
 
 class SXRMBAppController  : public AMAppController
@@ -55,11 +61,16 @@ public:
 	/// destroy all of the windows, widgets, and data objects created by applicationStartup(). Only call this if startup() has ran successfully.  If reimplementing, must call the base-class shutdown() as the last thing it does.
 	virtual void shutdown();
 
+	/// Re-implemented from AMDatamanAppController to provide a menu action for Ambiant with gas chamber motor view.
+	virtual bool startupInstallActions();
+
 protected slots:
 	/// slot to handle Beamline connected signal
 	void onBeamlineConnected(bool);
 	/// slot to handle Beamline control shutters timeout
 	void onBeamControlShuttersTimeout();
+	/// slot to handle Beamline endstation switched
+	void onBeamlineEndstationSwitched(SXRMB::Endstation fromEndstation, SXRMB::Endstation toEndstation);
 	/// Helper slot that handles the workflow pausing/resuming when the beam dumps or is restored.
 	void onBeamAvailabilityChanged(bool beamAvailable);
 
@@ -84,6 +95,11 @@ protected slots:
 	/// Handles removing regions of interest from all the configurations that would care.
 	void onRegionOfInterestRemoved(AMRegionOfInterest *region);
 
+	/// Hanldes the action to show the sample stage motors for Ambiant with gas chamber endstation
+	void onShowAmbiantSampleStageMotorsTriggered();
+	/// Hanldes the action to switch beamline endstation
+	void onSwitchBeamlineEndstationTriggered();
+
 protected:
 	/// Implementation method that individual applications can flesh out if extra setup is required when a scan action is started.  This is not pure virtual because there is no requirement to do anything to scan actions.
 	virtual void onCurrentScanActionStartedImplementation(AMScanAction *action);
@@ -104,12 +120,17 @@ protected:
 	// Things to do on startup.
 	/// Registers all of the necessary classes that are VESPERS specific.
 	void registerClasses();
+	/// Check and set up the database for the first time run.
+	void setupOnFirstRun();
 	/// Sets up all of the exporter options for the various scan types.
 	void setupExporterOptions();
 	/// Sets up the user interface by specifying the extra pieces that will be added to the main window.
 	void setupUserInterface();
 	/// Sets up all of the connections.
 	void makeConnections();
+
+	/// create the squeeze layout for Topframe content
+	QGroupBox * createTopFrameSqueezeContent(QWidget *widget, QString topFrameTitle);
 
 protected:
 	/// Persistent sidebar for SXRMB
@@ -138,6 +159,9 @@ protected:
 
 	/// The view for SXRMB's scaler
 	CLSSIS3820ScalerView *scalerView_;
+
+	/// The Motor group view for Ambiant Sample stage endstation
+	AMMotorGroupView *ambiantSampleStageMotorGroupView_;
 
 	/// Pointer to the list action that is used to move the sample stage.
 	AMListAction3 *moveImmediatelyAction_;

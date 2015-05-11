@@ -44,50 +44,6 @@ bool AMRegionOfInterestAB::areInputDataSourcesAcceptable(const QList<AMDataSourc
 	return false;
 }
 
-void AMRegionOfInterestAB::setInputDataSourcesImplementation(const QList<AMDataSource*>& dataSources)
-{
-	// disconnect connections from old sources, if they exist.
-	if(spectrum_ != 0) {
-
-		disconnect(spectrum_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onInputSourceValuesChanged(AMnDIndex,AMnDIndex)));
-		disconnect(spectrum_->signalSource(), SIGNAL(sizeChanged(int)), this, SLOT(onInputSourceSizeChanged()));
-		disconnect(spectrum_->signalSource(), SIGNAL(stateChanged(int)), this, SLOT(onInputSourceStateChanged()));
-
-		spectrum_ = 0;
-	}
-
-	if(dataSources.isEmpty()) {
-
-		sources_.clear();
-		setDescription("-- No input data --");
-		axes_.clear();
-	}
-
-	// we know that this will only be called with valid input source
-	else {
-
-		spectrum_ = dataSources.first();
-		sources_ = dataSources;
-
-		setDescription(name());
-		axes_.clear();
-
-		for (int i = 0, size = spectrum_->rank()-1; i < size; i++)
-			axes_.append(spectrum_->axisInfoAt(i));
-
-		connect(spectrum_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onInputSourceValuesChanged(AMnDIndex,AMnDIndex)));
-		connect(spectrum_->signalSource(), SIGNAL(sizeChanged(int)), this, SLOT(onInputSourceSizeChanged()));
-		connect(spectrum_->signalSource(), SIGNAL(stateChanged(int)), this, SLOT(onInputSourceStateChanged()));
-	}
-
-	reviewState();
-
-	emitSizeChanged();
-	emitValuesChanged();
-	emitAxisInfoChanged();
-	emitInfoChanged();
-}
-
 AMNumber AMRegionOfInterestAB::value(const AMnDIndex &indexes) const
 {
 	if(indexes.rank() != rank())
@@ -228,6 +184,27 @@ bool AMRegionOfInterestAB::values(const AMnDIndex &indexStart, const AMnDIndex &
 
 			break;
 		}
+
+		case 3:{
+
+			for (int i = 0, iSize = end.i()-start.i()+1; i < iSize; i++){
+
+				for (int j = 0, jSize = end.j()-start.j()+1; j < jSize; j++){
+
+					for (int k = 0, kSize = end.k()-start.k()+1; k < kSize; k++){
+
+						double value = 0;
+
+						for (int l = 0, lSize = maximum - minimum + 1; l < lSize; l++)
+							value += data.at(i*jSize*kSize*axisLength+j*kSize*axisLength+k*axisLength+l);
+
+						outputValues[i*jSize*kSize+j*kSize+k] = (value < 0 ? -1 : value);
+					}
+				}
+			}
+
+			break;
+		}
 		}
 
 		return true;
@@ -315,6 +292,51 @@ void AMRegionOfInterestAB::onInputSourceStateChanged()
 	onInputSourceSizeChanged();
 	reviewState();
 }
+
+void AMRegionOfInterestAB::setInputDataSourcesImplementation(const QList<AMDataSource*>& dataSources)
+{
+	// disconnect connections from old sources, if they exist.
+	if(spectrum_ != 0) {
+
+		disconnect(spectrum_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onInputSourceValuesChanged(AMnDIndex,AMnDIndex)));
+		disconnect(spectrum_->signalSource(), SIGNAL(sizeChanged(int)), this, SLOT(onInputSourceSizeChanged()));
+		disconnect(spectrum_->signalSource(), SIGNAL(stateChanged(int)), this, SLOT(onInputSourceStateChanged()));
+
+		spectrum_ = 0;
+	}
+
+	if(dataSources.isEmpty()) {
+
+		sources_.clear();
+		setDescription("-- No input data --");
+		axes_.clear();
+	}
+
+	// we know that this will only be called with valid input source
+	else {
+
+		spectrum_ = dataSources.first();
+		sources_ = dataSources;
+
+		setDescription(name());
+		axes_.clear();
+
+		for (int i = 0, size = spectrum_->rank()-1; i < size; i++)
+			axes_.append(spectrum_->axisInfoAt(i));
+
+		connect(spectrum_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onInputSourceValuesChanged(AMnDIndex,AMnDIndex)));
+		connect(spectrum_->signalSource(), SIGNAL(sizeChanged(int)), this, SLOT(onInputSourceSizeChanged()));
+		connect(spectrum_->signalSource(), SIGNAL(stateChanged(int)), this, SLOT(onInputSourceStateChanged()));
+	}
+
+	reviewState();
+
+	emitSizeChanged();
+	emitValuesChanged();
+	emitAxisInfoChanged();
+	emitInfoChanged();
+}
+
 
 void AMRegionOfInterestAB::reviewState()
 {

@@ -9,6 +9,8 @@
 #include "acquaman/AMEXAFSScanActionControllerAssembler.h"
 #include "beamline/AMBasicControlDetectorEmulator.h"
 #include "analysis/AM1DNormalizationAB.h"
+#include "analysis/AM2DAdditionAB.h"
+#include "analysis/AM1DExpressionAB.h"
 
 SXRMBEXAFSScanActionController::SXRMBEXAFSScanActionController(SXRMBEXAFSScanConfiguration *configuration, QObject *parent) :
 	AMStepScanActionController(configuration, parent)
@@ -32,11 +34,43 @@ SXRMBEXAFSScanActionController::SXRMBEXAFSScanActionController(SXRMBEXAFSScanCon
 	configuration_->setAxisControlInfos(list);
 
 	AMDetectorInfoSet sxrmbDetectors;
-	sxrmbDetectors.addDetectorInfo(SXRMBBeamline::sxrmb()->i0Detector()->toInfo());
-	sxrmbDetectors.addDetectorInfo(SXRMBBeamline::sxrmb()->teyDetector()->toInfo());
 	sxrmbDetectors.addDetectorInfo(SXRMBBeamline::sxrmb()->energyFeedbackDetector()->toInfo());
-	if (configuration_->enableBrukerDetector())
-		sxrmbDetectors.addDetectorInfo(SXRMBBeamline::sxrmb()->brukerDetector()->toInfo());
+
+	switch (configuration_->endstation()){
+
+	case SXRMB::SolidState:
+
+		sxrmbDetectors.addDetectorInfo(SXRMBBeamline::sxrmb()->exposedDetectorByName("BeamlineI0Detector")->toInfo());
+		sxrmbDetectors.addDetectorInfo(SXRMBBeamline::sxrmb()->exposedDetectorByName("TEYDetector")->toInfo());
+
+		break;
+
+	case SXRMB::AmbiantWithGasChamber:
+	case SXRMB::AmbiantWithoutGasChamber:
+
+		sxrmbDetectors.addDetectorInfo(SXRMBBeamline::sxrmb()->exposedDetectorByName("BeamlineI0Detector")->toInfo());
+		sxrmbDetectors.addDetectorInfo(SXRMBBeamline::sxrmb()->exposedDetectorByName("I0Detector")->toInfo());
+		sxrmbDetectors.addDetectorInfo(SXRMBBeamline::sxrmb()->exposedDetectorByName("TransmissionDetector")->toInfo());
+
+		break;
+
+	case SXRMB::Microprobe:
+
+		sxrmbDetectors.addDetectorInfo(SXRMBBeamline::sxrmb()->exposedDetectorByName("I0Detector")->toInfo());
+		sxrmbDetectors.addDetectorInfo(SXRMBBeamline::sxrmb()->exposedDetectorByName("TEYDetector")->toInfo());
+
+		break;
+
+	default:
+		break;
+	}
+
+	if (configuration_->fluorescenceDetector().testFlag(SXRMB::Bruker))
+		sxrmbDetectors.addDetectorInfo(SXRMBBeamline::sxrmb()->exposedDetectorByName("Bruker")->toInfo());
+
+	if (configuration_->fluorescenceDetector().testFlag(SXRMB::FourElement))
+		sxrmbDetectors.addDetectorInfo(SXRMBBeamline::sxrmb()->exposedDetectorByName("FourElementVortex")->toInfo());
+
 	configuration_->setDetectorConfigurations(sxrmbDetectors);
 
 	secondsElapsed_ = 0;
@@ -59,12 +93,54 @@ AMAction3* SXRMBEXAFSScanActionController::createInitializationActions()
 {
 	AMListAction3 *initializationActions = new AMListAction3(new AMListActionInfo3("SXRMB EXAFS Initialization Actions", "SXRMB EXAFS Initialization Actions"), AMListAction3::Sequential);
 
+	switch (configuration_->endstation()){
 
-	initializationActions->addSubAction(AMActionSupport::buildControlMoveAction(SXRMBBeamline::sxrmb()->microprobeSampleStageY(), configuration_->normalPosition()));
+	case SXRMB::SolidState:
 
-	initializationActions->addSubAction(AMActionSupport::buildControlMoveAction(SXRMBBeamline::sxrmb()->microprobeSampleStageX(), configuration_->microprobeSampleStageX()));
+		initializationActions->addSubAction(AMActionSupport::buildControlMoveAction(SXRMBBeamline::sxrmb()->solidStateSampleStageY(), configuration_->y()));
+		initializationActions->addSubAction(AMActionSupport::buildControlMoveAction(SXRMBBeamline::sxrmb()->solidStateSampleStageX(), configuration_->x()));
+		initializationActions->addSubAction(AMActionSupport::buildControlMoveAction(SXRMBBeamline::sxrmb()->solidStateSampleStageZ(), configuration_->z()));
+		initializationActions->addSubAction(AMActionSupport::buildControlMoveAction(SXRMBBeamline::sxrmb()->solidStateSampleStageR(), configuration_->rotation()));
 
-	initializationActions->addSubAction(AMActionSupport::buildControlMoveAction(SXRMBBeamline::sxrmb()->microprobeSampleStageZ(), configuration_->microprobeSampleStageZ()));
+		if (configuration_->powerOnHVControl())
+			initializationActions->addSubAction(AMActionSupport::buildControlMoveAction(SXRMBBeamline::sxrmb()->teyHVControl()->powerOnOffControl(), 1));
+		break;
+
+	case SXRMB::AmbiantWithGasChamber:
+
+		initializationActions->addSubAction(AMActionSupport::buildControlMoveAction(SXRMBBeamline::sxrmb()->ambiantSampleHolderZ(), configuration_->z()));
+		initializationActions->addSubAction(AMActionSupport::buildControlMoveAction(SXRMBBeamline::sxrmb()->ambiantSampleHolderR(), configuration_->rotation()));
+		if (configuration_->powerOnHVControl()) {
+			initializationActions->addSubAction(AMActionSupport::buildControlMoveAction(SXRMBBeamline::sxrmb()->ambiantIC0HVControl()->powerOnOffControl(), 1));
+			initializationActions->addSubAction(AMActionSupport::buildControlMoveAction(SXRMBBeamline::sxrmb()->ambiantIC1HVControl()->powerOnOffControl(), 1));
+		}
+
+		break;
+
+	case SXRMB::AmbiantWithoutGasChamber:
+
+		initializationActions->addSubAction(AMActionSupport::buildControlMoveAction(SXRMBBeamline::sxrmb()->ambiantSampleStageX(), configuration_->x()));
+		initializationActions->addSubAction(AMActionSupport::buildControlMoveAction(SXRMBBeamline::sxrmb()->ambiantSampleStageZ(), configuration_->z()));
+		if (configuration_->powerOnHVControl()) {
+			initializationActions->addSubAction(AMActionSupport::buildControlMoveAction(SXRMBBeamline::sxrmb()->ambiantIC0HVControl()->powerOnOffControl(), 1));
+			initializationActions->addSubAction(AMActionSupport::buildControlMoveAction(SXRMBBeamline::sxrmb()->ambiantIC1HVControl()->powerOnOffControl(), 1));
+		}
+
+		break;
+
+	case SXRMB::Microprobe:
+
+		initializationActions->addSubAction(AMActionSupport::buildControlMoveAction(SXRMBBeamline::sxrmb()->microprobeSampleStageY(), configuration_->y()));
+		initializationActions->addSubAction(AMActionSupport::buildControlMoveAction(SXRMBBeamline::sxrmb()->microprobeSampleStageX(), configuration_->x()));
+		initializationActions->addSubAction(AMActionSupport::buildControlMoveAction(SXRMBBeamline::sxrmb()->microprobeSampleStageZ(), configuration_->z()));
+
+		if (configuration_->powerOnHVControl())
+			initializationActions->addSubAction(AMActionSupport::buildControlMoveAction(SXRMBBeamline::sxrmb()->microprobeTEYHVControl()->powerOnOffControl(), 1));
+		break;
+
+	default:
+		break;
+	}
 
 	CLSSIS3820Scaler *scaler = SXRMBBeamline::sxrmb()->scaler();
 	initializationActions->addSubAction(scaler->createStartAction3(false));
@@ -92,14 +168,34 @@ AMAction3* SXRMBEXAFSScanActionController::createCleanupActions()
 
 void SXRMBEXAFSScanActionController::buildScanControllerImplementation()
 {
-	if (configuration_->enableBrukerDetector()){
+	QList<AMDataSource *> i0Sources;
+	if (configuration_->endstation() == SXRMB::SolidState)
+		i0Sources = QList<AMDataSource *>() << scan_->dataSourceAt(scan_->indexOfDataSource("BeamlineI0Detector"));
+
+	else
+		i0Sources = QList<AMDataSource *>() << scan_->dataSourceAt(scan_->indexOfDataSource("I0Detector"));
+
+	if (configuration_->fluorescenceDetector().testFlag(SXRMB::Bruker)){
+
 		AMXRFDetector *detector = SXRMBBeamline::sxrmb()->brukerDetector();
 
 		detector->removeAllRegionsOfInterest();
 
-		QList<AMDataSource *> i0Sources = QList<AMDataSource *>() << scan_->dataSourceAt(scan_->indexOfDataSource("I0Detector"));
+		AMDataSource *spectraSource = 0;
 
-		AMDataSource *spectraSource = scan_->dataSourceAt(scan_->indexOfDataSource(detector->name()));
+		SXRMB::FluorescenceDetectors xrfDetector = configuration_->fluorescenceDetector();
+
+		if (xrfDetector.testFlag(SXRMB::Bruker) && xrfDetector.testFlag(SXRMB::FourElement)){
+
+			AM2DAdditionAB *sumSpectra = new AM2DAdditionAB("BrukerAndFourSpectra");
+			sumSpectra->setInputDataSources(QList<AMDataSource *>() << scan_->dataSourceAt(scan_->indexOfDataSource("Bruker")) << scan_->dataSourceAt(scan_->indexOfDataSource("FourElementVortex")));
+			scan_->addAnalyzedDataSource(sumSpectra, false, true);
+			spectraSource = sumSpectra;
+		}
+
+		else
+			spectraSource = scan_->dataSourceAt(scan_->indexOfDataSource(detector->name()));
+
 
 		QString edgeSymbol = configuration_->edge().split(" ").first();
 
@@ -118,6 +214,15 @@ void SXRMBEXAFSScanActionController::buildScanControllerImplementation()
 			normalizedRegion->setNormalizationName(i0Sources.first()->name());
 			scan_->addAnalyzedDataSource(normalizedRegion, newRegion->name().contains(edgeSymbol), !newRegion->name().contains(edgeSymbol));
 		}
+	}
+
+	if (configuration_->endstation() == SXRMB::AmbiantWithGasChamber || configuration_->endstation() == SXRMB::AmbiantWithoutGasChamber){
+
+		AM1DExpressionAB* transmission = new AM1DExpressionAB("transmission");
+		transmission->setDescription("Transmission");
+		transmission->setInputDataSources(QList<AMDataSource *>() << scan_->dataSourceAt(scan_->indexOfDataSource("TransmissionDetector")) << i0Sources);
+		transmission->setExpression(QString("ln(I0Detector/TransmissionDetector)"));
+		scan_->addAnalyzedDataSource(transmission, true, false);
 	}
 }
 

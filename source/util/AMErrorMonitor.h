@@ -29,6 +29,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QMutex>
 #include <QReadWriteLock>
 
+
 /// This class encapsulates an error message (who it's from, the level or "severity", an error code defined by the originator, and a description)
 /*! Error levels are defined as:
 
@@ -144,52 +145,52 @@ public:
 	}
 
 	/// Report an error. This function is thread-safe.
-	static void report(const AMErrorReport& e) {
-		mon()->reportF(e);
+	static void report(const AMErrorReport& e, bool showTimeoutMsgBox=false, QString msgBoxTitle="Information") {
+		mon()->reportF(e, showTimeoutMsgBox, msgBoxTitle);
 	}
 
 	/// Overloaded.  Reports an AMErrorReport using the information provided.  This function is thread-safe.
-	static void report(const QObject *src = 0, AMErrorReport::Level level = AMErrorReport::Alert, int code = 0, const QString &desc = "")
+	static void report(const QObject *src = 0, AMErrorReport::Level level = AMErrorReport::Alert, int code = 0, const QString &desc = "", bool showTimeoutMsgBox=false, QString msgBoxTitle="Information")
 	{
-		mon()->reportF(AMErrorReport(src, level, code, desc));
+		mon()->reportF(AMErrorReport(src, level, code, desc), showTimeoutMsgBox, msgBoxTitle);
 	}
 
 	/// Report an information level AMErrorReport.  Builds an AMErrorReport using the information provided.  This function is thread-safe.
-	static void information(const QObject *src = 0, int code = 0, const QString &desc = "")
+	static void information(const QObject *src = 0, int code = 0, const QString &desc = "", bool showTimeoutMsgBox=false, QString msgBoxTitle="Information")
 	{
-		mon()->reportF(AMErrorReport(src, AMErrorReport::Information, code, desc));
+		mon()->reportF(AMErrorReport(src, AMErrorReport::Information, code, desc), showTimeoutMsgBox, msgBoxTitle);
 	}
 
 	/// Report an alert level AMErrorReport.  Builds an AMErrorReport using the information provided. This function is thread-safe.
-	static void alert(const QObject *src = 0, int code = 0, const QString &desc = "")
+	static void alert(const QObject *src = 0, int code = 0, const QString &desc = "", bool showTimeoutMsgBox=false, QString msgBoxTitle="Alert")
 	{
-		mon()->reportF(AMErrorReport(src, AMErrorReport::Alert, code, desc));
+		mon()->reportF(AMErrorReport(src, AMErrorReport::Alert, code, desc), showTimeoutMsgBox, msgBoxTitle);
 	}
 
 	/// Report an alert level AMErrorReport and return either true or false (false by default). Builds an AMErrorReport using the information provided. This function is thread-safe.
-	static bool alertAndReturn(const QObject *src = 0, int code = 0, const QString &desc = "", bool returnValue = false)
+	static bool alertAndReturn(const QObject *src = 0, int code = 0, const QString &desc = "", bool returnValue = false, bool showTimeoutMsgBox=false, QString msgBoxTitle="Alert")
 	{
-		mon()->reportF(AMErrorReport(src, AMErrorReport::Alert, code, desc));
+		mon()->reportF(AMErrorReport(src, AMErrorReport::Alert, code, desc), showTimeoutMsgBox, msgBoxTitle);
 		return returnValue;
 	}
 
 	/// Report an error level AMErrorReport.  Builds an AMErrorReport using the information provided.  This function is thread-safe.
-	static void error(const QObject *src = 0, int code = 0, const QString &desc = "")
+	static void error(const QObject *src = 0, int code = 0, const QString &desc = "", bool showTimeoutMsgBox=false, QString msgBoxTitle="Error")
 	{
-		mon()->reportF(AMErrorReport(src, AMErrorReport::Serious, code, desc));
+		mon()->reportF(AMErrorReport(src, AMErrorReport::Serious, code, desc), showTimeoutMsgBox, msgBoxTitle);
 	}
 
 	/// Report an error level AMErrorReport and return either true or false (false by default). Builds an AMErrorReport using the information provided. This function is thread-safe.
-	static bool errorAndReturn(const QObject *src = 0, int code = 0, const QString &desc = "", bool returnValue = false)
+	static bool errorAndReturn(const QObject *src = 0, int code = 0, const QString &desc = "", bool returnValue = false, bool showTimeoutMsgBox=false, QString msgBoxTitle="Error")
 	{
-		mon()->reportF(AMErrorReport(src, AMErrorReport::Serious, code, desc));
+		mon()->reportF(AMErrorReport(src, AMErrorReport::Serious, code, desc), showTimeoutMsgBox, msgBoxTitle);
 		return returnValue;
 	}
 
 	/// Report a debug level AMErrorReport.  Builds an AMErrorREport using the information provided.  This function is thread-safe.
-	static void debug(const QObject *src = 0, int code = 0, const QString &desc = "")
+	static void debug(const QObject *src = 0, int code = 0, const QString &desc = "", bool showTimeoutMsgBox=false, QString msgBoxTitle="Debug")
 	{
-		mon()->reportF(AMErrorReport(src, AMErrorReport::Debug, code, desc));
+		mon()->reportF(AMErrorReport(src, AMErrorReport::Debug, code, desc), showTimeoutMsgBox, msgBoxTitle);
 	}
 
 	/// Enable or disable debug-level notifications:
@@ -225,7 +226,7 @@ public slots:
 
 protected:
 	/// Forward any out-of-thread requests to the main thread, via signals.
-	void reportF(AMErrorReport e);
+	void reportF(AMErrorReport e, bool showTimeoutMsgBox=false, QString msgBoxTitle="Alert");
 
 	/// Subscribe to all errors from object 'originator'
 	void subscribeToObjectI(const QObject* originator, QObject* notifyMe, const char* errorSlot);

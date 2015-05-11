@@ -1,8 +1,9 @@
 #include "SXRMB2DMapScanConfigurationView.h"
 
-#include "beamline/SXRMB/SXRMBBeamline.h"
-#include "ui/AMTopFrame.h"
 #include "application/SXRMB/SXRMB.h"
+#include "beamline/SXRMB/SXRMBBeamline.h"
+
+#include "ui/AMTopFrame.h"
 
 #include <QGridLayout>
 #include <QVBoxLayout>
@@ -15,8 +16,10 @@
 #include <QMenu>
 
 SXRMB2DMapScanConfigurationView::SXRMB2DMapScanConfigurationView(SXRMB2DMapScanConfiguration *configuration, QWidget *parent)
-	: AMScanConfigurationView(parent)
+	: SXRMBScanConfigurationView(parent)
 {
+	SXRMBBeamline *sxrmbBL = SXRMBBeamline::sxrmb();
+
 	configuration_ = configuration;
 	excitationEnergyIsHidden_ = false;
 
@@ -58,9 +61,9 @@ SXRMB2DMapScanConfigurationView::SXRMB2DMapScanConfigurationView(SXRMB2DMapScanC
 	connect(configuration_->scanAxisAt(1)->regionAt(0), SIGNAL(regionStepChanged(AMNumber)), this, SLOT(setYAxisStep(AMNumber)));
 
 	// 4th row: set the focus position
-	normalPosition_ = createPositionDoubleSpinBox("N: ", " mm", configuration_->normalPosition(), 3);
+	normalPosition_ = createPositionDoubleSpinBox("N: ", " mm", configuration_->y(), 3);
 	connect(normalPosition_, SIGNAL(editingFinished()), this, SLOT(onNormalPositionChanged()));
-	connect(configuration_->dbObject(), SIGNAL(normalPositionChanged(double)), normalPosition_, SLOT(setValue(double)));
+	connect(configuration_->dbObject(), SIGNAL(yChanged(double)), normalPosition_, SLOT(setValue(double)));
 
 	QPushButton *updateNormalPosition = new QPushButton("Set Normal");
 	connect(updateNormalPosition, SIGNAL(clicked()), this, SLOT(onSetNormalPosition()));
@@ -138,8 +141,7 @@ SXRMB2DMapScanConfigurationView::SXRMB2DMapScanConfigurationView(SXRMB2DMapScanC
 	autoExportButtonGroup_->button(configuration_->exportAsAscii() ? 0 : 1)->click();
 
 	// BL energy setting
-	SXRMBBeamline *sxrmbBL = SXRMBBeamline::sxrmb();
-	scanEnergySpinBox_ = createEnergySpinBox("eV", sxrmbBL->energy()->minimumValue(), sxrmbBL->energy()->maximumValue(), configuration_->excitationEnergy());
+	scanEnergySpinBox_ = createEnergySpinBox("eV", sxrmbBL->energy()->minimumValue(), sxrmbBL->energy()->maximumValue(), configuration_->energy());
 	scanEnergySettingWarningLabel_ = new QLabel("Settings do not match beamline.");
 	scanEnergySettingWarningLabel_->setStyleSheet("QLabel {color: red}");
 	setScanEnergyFromBeamlineButton_ = new QPushButton("Set From Beamline");
@@ -163,15 +165,7 @@ SXRMB2DMapScanConfigurationView::SXRMB2DMapScanConfigurationView(SXRMB2DMapScanC
 	beamlineSettingsGroupBox_->setLayout(beamlineSettingsGroupBoxVL);
 
 	// detector setting
-	enableBrukerDetector_ = new QCheckBox("Enable Bruker Detector");
-	enableBrukerDetector_->setChecked(configuration_->enableBrukerDetector());
-	connect(enableBrukerDetector_, SIGNAL(stateChanged(int)), this, SLOT(onEnableBrukerDetectorChanged(int)));
-
-	QVBoxLayout * detectorBoxLayout = new QVBoxLayout;
-	detectorBoxLayout->addWidget(enableBrukerDetector_);
-
-	QGroupBox * detectorSettingGroupBox = new QGroupBox("Detector Setting");
-	detectorSettingGroupBox->setLayout(detectorBoxLayout);
+	QGroupBox *detectorSettingGroupBox = createAndLayoutDetectorSettings(configuration_);
 
 	// Error label.
 	errorLabel_ = new QLabel;
@@ -206,6 +200,8 @@ SXRMB2DMapScanConfigurationView::SXRMB2DMapScanConfigurationView(SXRMB2DMapScanC
 	configViewLayout->addStretch();
 
 	setLayout(configViewLayout);
+
+	connect(sxrmbBL, SIGNAL(endstationChanged(SXRMB::Endstation, SXRMB::Endstation)), this, SLOT(onBeamlineEndstationChanged(SXRMB::Endstation, SXRMB::Endstation)));
 }
 
 QLineEdit *SXRMB2DMapScanConfigurationView::createScanNameView(const QString &name)
@@ -276,7 +272,7 @@ void SXRMB2DMapScanConfigurationView::onSetStartPosition()
 
 	configuration_->scanAxisAt(0)->regionAt(0)->setRegionStart(h);
 	configuration_->scanAxisAt(1)->regionAt(0)->setRegionStart(v);
-	configuration_->setNormalPosition(n);
+	configuration_->setY(n);
 	hStart_->setValue(h);
 	vStart_->setValue(v);
 	updateMapInfo();
@@ -299,7 +295,7 @@ void SXRMB2DMapScanConfigurationView::onSetEndPosition()
 void SXRMB2DMapScanConfigurationView::onSetNormalPosition()
 {
 	double n = SXRMBBeamline::sxrmb()->microprobeSampleStageY()->value();
-	configuration_->setNormalPosition(n);
+	configuration_->setY(n);
 	updateMapInfo();
 }
 
@@ -347,7 +343,7 @@ void SXRMB2DMapScanConfigurationView::onYStepChanged()
 
 void SXRMB2DMapScanConfigurationView::onNormalPositionChanged()
 {
-	configuration_->setNormalPosition(normalPosition_->value());
+	configuration_->setY(normalPosition_->value());
 	updateMapInfo();
 	checkScanAxisValidity();
 }
@@ -372,7 +368,7 @@ void SXRMB2DMapScanConfigurationView::onDwellTimeChanged()
 }
 
 void SXRMB2DMapScanConfigurationView::onScanEnergySpinBoxEditingFinished() {
-	configuration_->setExcitationEnergy(scanEnergySpinBox_->value());
+	configuration_->setEnergy(scanEnergySpinBox_->value());
 	if (SXRMBBeamline::sxrmb()->energy()->withinTolerance(scanEnergySpinBox_->value()))
 		scanEnergySettingWarningLabel_->hide();
 	else
@@ -435,6 +431,13 @@ QGroupBox *SXRMB2DMapScanConfigurationView::addExporterOptionsView(QStringList l
 	return autoExportGroupBox;
 }
 
+void SXRMB2DMapScanConfigurationView::onBeamlineEndstationChanged(SXRMB::Endstation fromEndstation, SXRMB::Endstation toEndstation)
+{
+	Q_UNUSED(fromEndstation)
+
+	updatePowerOnHVControlCheckBoxText();
+}
+
 void SXRMB2DMapScanConfigurationView::setXAxisStart(const AMNumber &value)
 {
 	hStart_->setValue(double(value));
@@ -475,6 +478,16 @@ void SXRMB2DMapScanConfigurationView::updateAutoExporter(int useAscii)
 	configuration_->setExportAsAscii(useAscii == 0);
 }
 
+void SXRMB2DMapScanConfigurationView::onFluorescenceDetectorChanged(int detector)
+{
+	configuration_->setFluorescenceDetector((SXRMB::FluorescenceDetectors)detector);
+}
+
+void SXRMB2DMapScanConfigurationView::onPowerOnTEYHVControlEnabled(bool value)
+{
+	configuration_->setPowerOnHVControlEnabled(value);
+}
+
 void SXRMB2DMapScanConfigurationView::checkScanAxisValidity()
 {
 	QString errorString = "";
@@ -503,10 +516,3 @@ void SXRMB2DMapScanConfigurationView::checkScanAxisValidity()
 	errorLabel_->setText(errorString);
 }
 
-void SXRMB2DMapScanConfigurationView::onEnableBrukerDetectorChanged(int state)
-{
-	if(state == Qt::Checked)
-		configuration_->setEnableBrukerDetector(true);
-	else
-		configuration_->setEnableBrukerDetector(false);
-}

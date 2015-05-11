@@ -205,7 +205,6 @@ void AMAppController::updateScanEditorModelItem()
 		if (!editor)
 			return;
 
-		AMScanEditorModelItem *item = (AMScanEditorModelItem *)(mw_->windowPaneModel()->itemFromIndex(mw_->windowPaneModel()->indexForPane(editor)));
 		QString stateString;
 
 		switch(action->state()){
@@ -231,7 +230,10 @@ void AMAppController::updateScanEditorModelItem()
 			break;
 		}
 
-		item->scanActionStateChanged(stateString, editor == mw_->currentPane());
+		AMScanEditorModelItem *item = (AMScanEditorModelItem *)(mw_->windowPaneModel()->itemFromIndex(mw_->windowPaneModel()->indexForPane(editor)));
+
+		if (item)
+			item->scanActionStateChanged(stateString, editor == mw_->currentPane());
 	}
 }
 

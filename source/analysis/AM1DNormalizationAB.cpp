@@ -55,68 +55,6 @@ bool AM1DNormalizationAB::areInputDataSourcesAcceptable(const QList<AMDataSource
 	return false;
 }
 
-void AM1DNormalizationAB::setInputDataSourcesImplementation(const QList<AMDataSource *> &dataSources)
-{
-	if (data_){
-
-		disconnect(data_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onInputSourceValuesChanged(AMnDIndex,AMnDIndex)));
-		disconnect(data_->signalSource(), SIGNAL(sizeChanged(int)), this, SLOT(onInputSourceSizeChanged()));
-		disconnect(data_->signalSource(), SIGNAL(stateChanged(int)), this, SLOT(onInputSourceStateChanged()));
-		data_ = 0;
-	}
-
-	if (normalizer_){
-
-		disconnect(normalizer_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onInputSourceValuesChanged(AMnDIndex,AMnDIndex)));
-		disconnect(normalizer_->signalSource(), SIGNAL(sizeChanged(int)), this, SLOT(onInputSourceSizeChanged()));
-		disconnect(normalizer_->signalSource(), SIGNAL(stateChanged(int)), this, SLOT(onInputSourceStateChanged()));
-		normalizer_ = 0;
-	}
-
-	if (dataSources.isEmpty()){
-
-		data_ = 0;
-		normalizer_ = 0;
-		sources_.clear();
-		canAnalyze_ = false;
-
-		axes_[0] = AMAxisInfo("invalid", 0, "No input data");
-		setDescription("Normalized 1D Data Source");
-	}
-
-	else if (dataSources.count() == 2){
-
-		data_ = dataSources.at(0);
-		normalizer_ = dataSources.at(1);
-		sources_ = dataSources;
-		canAnalyze_ = true;
-
-		axes_[0] = data_->axisInfoAt(0);
-
-		setDescription(QString("Normalized %1").arg(data_->name()));
-
-		connect(data_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onInputSourceValuesChanged(AMnDIndex,AMnDIndex)));
-		connect(data_->signalSource(), SIGNAL(sizeChanged(int)), this, SLOT(onInputSourceSizeChanged()));
-		connect(data_->signalSource(), SIGNAL(stateChanged(int)), this, SLOT(onInputSourceStateChanged()));
-		connect(normalizer_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onInputSourceValuesChanged(AMnDIndex,AMnDIndex)));
-		connect(normalizer_->signalSource(), SIGNAL(sizeChanged(int)), this, SLOT(onInputSourceSizeChanged()));
-		connect(normalizer_->signalSource(), SIGNAL(stateChanged(int)), this, SLOT(onInputSourceStateChanged()));
-	}
-
-	else {
-
-		sources_ = dataSources;
-		setInputSources();
-	}
-
-	reviewState();
-
-	emitSizeChanged(0);
-	emitValuesChanged();
-	emitAxisInfoChanged(0);
-	emitInfoChanged();
-}
-
 void AM1DNormalizationAB::setDataName(const QString &name)
 {
 	dataName_ = name;
@@ -313,6 +251,68 @@ void AM1DNormalizationAB::onInputSourceStateChanged() {
 	// just in case the size has changed while the input source was invalid, and now it's going valid.  Do we need this? probably not, if the input source is well behaved. But it's pretty inexpensive to do it twice... and we know we'll get the size right everytime it goes valid.
 	onInputSourceSizeChanged();
 	reviewState();
+}
+
+void AM1DNormalizationAB::setInputDataSourcesImplementation(const QList<AMDataSource *> &dataSources)
+{
+	if (data_){
+
+		disconnect(data_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onInputSourceValuesChanged(AMnDIndex,AMnDIndex)));
+		disconnect(data_->signalSource(), SIGNAL(sizeChanged(int)), this, SLOT(onInputSourceSizeChanged()));
+		disconnect(data_->signalSource(), SIGNAL(stateChanged(int)), this, SLOT(onInputSourceStateChanged()));
+		data_ = 0;
+	}
+
+	if (normalizer_){
+
+		disconnect(normalizer_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onInputSourceValuesChanged(AMnDIndex,AMnDIndex)));
+		disconnect(normalizer_->signalSource(), SIGNAL(sizeChanged(int)), this, SLOT(onInputSourceSizeChanged()));
+		disconnect(normalizer_->signalSource(), SIGNAL(stateChanged(int)), this, SLOT(onInputSourceStateChanged()));
+		normalizer_ = 0;
+	}
+
+	if (dataSources.isEmpty()){
+
+		data_ = 0;
+		normalizer_ = 0;
+		sources_.clear();
+		canAnalyze_ = false;
+
+		axes_[0] = AMAxisInfo("invalid", 0, "No input data");
+		setDescription("Normalized 1D Data Source");
+	}
+
+	else if (dataSources.count() == 2){
+
+		data_ = dataSources.at(0);
+		normalizer_ = dataSources.at(1);
+		sources_ = dataSources;
+		canAnalyze_ = true;
+
+		axes_[0] = data_->axisInfoAt(0);
+
+		setDescription(QString("Normalized %1").arg(data_->name()));
+
+		connect(data_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onInputSourceValuesChanged(AMnDIndex,AMnDIndex)));
+		connect(data_->signalSource(), SIGNAL(sizeChanged(int)), this, SLOT(onInputSourceSizeChanged()));
+		connect(data_->signalSource(), SIGNAL(stateChanged(int)), this, SLOT(onInputSourceStateChanged()));
+		connect(normalizer_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onInputSourceValuesChanged(AMnDIndex,AMnDIndex)));
+		connect(normalizer_->signalSource(), SIGNAL(sizeChanged(int)), this, SLOT(onInputSourceSizeChanged()));
+		connect(normalizer_->signalSource(), SIGNAL(stateChanged(int)), this, SLOT(onInputSourceStateChanged()));
+	}
+
+	else {
+
+		sources_ = dataSources;
+		setInputSources();
+	}
+
+	reviewState();
+
+	emitSizeChanged(0);
+	emitValuesChanged();
+	emitAxisInfoChanged(0);
+	emitInfoChanged();
 }
 
 void AM1DNormalizationAB::reviewState(){

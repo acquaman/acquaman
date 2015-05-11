@@ -65,9 +65,6 @@ public:
 	/// Returns the desired rank for input sources.
 	virtual int desiredInputRank() const { return 1; }
 
-	/// Set the data source inputs.
-	virtual void setInputDataSourcesImplementation(const QList<AMDataSource*>& dataSources);
-
 	/// Set the analyzed data source name.
 	void setDataName(const QString &name);
 	/// Returns the current analyzed data source name.  If none have been set then this returns an empty string.
@@ -122,6 +119,8 @@ protected slots:
 	void onInputSourceStateChanged();
 
 protected:
+	/// Set the data source inputs.
+	virtual void setInputDataSourcesImplementation(const QList<AMDataSource*>& dataSources);
 	/// Helper function to look at our overall situation and determine what the output state should be.
 	void reviewState();
 	/// Helper method that sets the data_ and normalizer_ pointer to the correct data source based on the current state of analyzedName_.

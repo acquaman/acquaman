@@ -1,5 +1,7 @@
-include ( acquamanCommon.pri )
+include ( clsCommon.pri )
+include ( bioxasCommon.pri )
 include ( bioxasSideCommon.pri )
+include ( bioxasMainCommon.pri )
 
 QT	   += core gui
 
@@ -9,7 +11,6 @@ TARGET = BioXASToolSuite
 TEMPLATE = app
 
 HEADERS  += \
-	source/beamline/BioXAS/BioXASMainBeamline.h \
 	source/beamline/BioXAS/BioXASImagingBeamline.h \
 	source/beamline/BioXAS/BioXASShutterToolController.h \
 	source/ui/BioXAS/BioXASToolSuite/ShutterToolMainWindow.h \
@@ -19,7 +20,6 @@ HEADERS  += \
 
 SOURCES += \
 	source/application/BioXAS/BioXASToolSuiteMain.cpp \
-	source/beamline/BioXAS/BioXASMainBeamline.cpp \
 	source/beamline/BioXAS/BioXASImagingBeamline.cpp \
 	source/beamline/BioXAS/BioXASShutterToolController.cpp \
 	source/ui/BioXAS/BioXASToolSuite/ShutterToolMainWindow.cpp \

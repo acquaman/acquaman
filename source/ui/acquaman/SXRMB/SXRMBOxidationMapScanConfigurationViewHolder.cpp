@@ -4,7 +4,7 @@
 #include "actions3/actions/AMScanAction.h"
 
 SXRMBOxidationMapScanConfigurationViewHolder::SXRMBOxidationMapScanConfigurationViewHolder(SXRMB2DOxidationMapScanConfigurationView *view, QWidget *parent)
-	: AMScanConfigurationViewHolder3(view, parent)
+	: AMScanConfigurationViewHolder3(view, false, parent)
 {
 }
 
@@ -13,7 +13,7 @@ SXRMBOxidationMapScanConfigurationViewHolder::~SXRMBOxidationMapScanConfiguratio
 
 }
 
-AMAction3 * SXRMBOxidationMapScanConfigurationViewHolder::createAction()
+AMAction3 * SXRMBOxidationMapScanConfigurationViewHolder::createScan()
 {
 	if(view_){
 
@@ -27,7 +27,7 @@ AMAction3 * SXRMBOxidationMapScanConfigurationViewHolder::createAction()
 			configuration = qobject_cast<SXRMB2DMapScanConfiguration *>(configurationView->configuration()->createCopy());
 			configuration->setName(QString("%1_%2eV").arg(configuration->name()).arg(energy, 0, 'f', 2));
 			configuration->setUserScanName(configuration->name());
-			configuration->setExcitationEnergy(energy);
+			configuration->setEnergy(energy);
 			scanList->addSubAction(new AMScanAction(new AMScanActionInfo(configuration->createCopy())));
 		}
 

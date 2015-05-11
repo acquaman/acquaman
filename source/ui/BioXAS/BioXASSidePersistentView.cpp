@@ -20,24 +20,77 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 
 #include "BioXASSidePersistentView.h"
-
+#include "ui/BioXAS/BioXASSIS3820ScalerChannelsView.h"
 #include "beamline/BioXAS/BioXASSideBeamline.h"
-#include "ui/beamline/AMExtendedControlEditor.h"
+#include "ui/beamline/AMControlEditor.h"
 
 BioXASSidePersistentView::BioXASSidePersistentView(QWidget *parent) :
     QWidget(parent)
 {
-    energyControlEditor_ = new AMExtendedControlEditor(BioXASSideBeamline::bioXAS()->mono()->energyControl());
-    energyControlEditor_->setControlFormat('f', 2);
+	// Energy control editor.
 
-    QVBoxLayout *layout = new QVBoxLayout();
-    layout->addWidget(energyControlEditor_);
-    layout->addStretch();
+	energyControlEditor_ = new AMExtendedControlEditor(BioXASSideBeamline::bioXAS()->mono()->energyControl());
+	energyControlEditor_->setTitle("Mono Energy");
+	energyControlEditor_->setControlFormat('f', 2);
 
-    setLayout(layout);
+	// Region control editor.
+
+	regionControlEditor_ = new BioXASSSRLMonochromatorRegionControlEditor(BioXASSideBeamline::bioXAS()->mono()->regionControl());
+	regionControlEditor_->setTitle("Mono Crystal Region");
+
+	// Bragg control editor.
+
+	braggControlEditor_ = new AMExtendedControlEditor(BioXASSideBeamline::bioXAS()->mono()->braggMotor());
+	braggControlEditor_->setTitle("Mono Goniometer Angle");
+
+	// Scaler channel views.
+
+	BioXASSIS3820ScalerChannelsView *channels = new BioXASSIS3820ScalerChannelsView(BioXASSideBeamline::bioXAS()->scaler());
+
+	QVBoxLayout *channelsLayout = new QVBoxLayout();
+	channelsLayout->addWidget(channels);
+
+	channelViews_ = new QGroupBox();
+	channelViews_->setTitle("Scaler channels");
+	channelViews_->setLayout(channelsLayout);
+
+	// Create and set main layout.
+
+	QVBoxLayout *layout = new QVBoxLayout();
+	layout->addWidget(energyControlEditor_);
+	layout->addWidget(regionControlEditor_);
+	layout->addWidget(braggControlEditor_);
+	layout->addWidget(channelViews_);
+	layout->addStretch();
+
+	setLayout(layout);
+	setFixedWidth(400);
+
+	// Initial settings.
+
+	channelViews_->hide();
+
+	// Make connections.
+
+	connect( BioXASSideBeamline::bioXAS()->scaler(), SIGNAL(connectedChanged(bool)), this, SLOT(onScalerConnectedChanged()) );
+
+	// Current settings.
+
+	onScalerConnectedChanged();
 }
 
 BioXASSidePersistentView::~BioXASSidePersistentView()
 {
 
+}
+
+void BioXASSidePersistentView::onScalerConnectedChanged()
+{
+	CLSSIS3820Scaler *scaler = BioXASSideBeamline::bioXAS()->scaler();
+
+	if (scaler && scaler->isConnected()) {
+		channelViews_->show();
+	} else {
+		channelViews_->hide();
+	}
 }
