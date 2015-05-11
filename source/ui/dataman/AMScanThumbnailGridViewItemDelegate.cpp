@@ -67,7 +67,7 @@ void AMScanThumbnailGridViewItemDelegate::paintText(QPainter *painter,
 {
 
 	QString textToPaint = option.fontMetrics.elidedText(
-				string, Qt::ElideLeft, option.rect.width());
+				string, Qt::ElideRight, option.rect.width());
 
 	if(option.state & QStyle::State_Selected) {
 		painter->setPen(option.palette.color(QPalette::Normal, QPalette::HighlightedText));
