@@ -326,7 +326,7 @@ QString AMLightweightScanInfoFactory::getSampleName(const QString &sampleNamePre
 	return sampleMap_.value(tableName).value(id);
 }
 
-QString AMLightweightScanInfoFactory::loadRunName(AMDatabase *database, int runId) const
+QString AMLightweightScanInfoFactory::loadRunName(AMDatabase *database, int runId)
 {
 	QString returnName;
 
@@ -347,7 +347,7 @@ QString AMLightweightScanInfoFactory::loadRunName(AMDatabase *database, int runI
 	return returnName;
 }
 
-QString AMLightweightScanInfoFactory::loadScanType(AMDatabase *database, const QString &className) const
+QString AMLightweightScanInfoFactory::loadScanType(AMDatabase *database, const QString &className)
 {
 	QString returnName;
 
@@ -370,7 +370,7 @@ QString AMLightweightScanInfoFactory::loadScanType(AMDatabase *database, const Q
 
 QString AMLightweightScanInfoFactory::loadSampleName(AMDatabase *database,
 													 const QString &sampleNamePre2013,
-													 const QString &sampleTableEntry) const
+													 const QString &sampleTableEntry)
 {
 	QString returnValue;
 
@@ -407,7 +407,7 @@ QString AMLightweightScanInfoFactory::loadSampleName(AMDatabase *database,
 	return returnValue;
 }
 
-QList<int> AMLightweightScanInfoFactory::loadExperimentIds(AMDatabase *database, int scanId) const
+QList<int> AMLightweightScanInfoFactory::loadExperimentIds(AMDatabase *database, int scanId)
 {
 	QList<int> returnList;
 

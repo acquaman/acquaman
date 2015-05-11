@@ -84,6 +84,11 @@ void AMLightweightScanInfoCollection::onDbItemUpdated(const QString &tableName, 
 		int dirtyScanInfoIndex = indexOfScanWithId(id);
 		if(dirtyScanInfoIndex >= 0) {
 			AMLightweightScanInfo* dirtyScanInfo = scanInfos_.at(dirtyScanInfoIndex);
+			// It is cleaner and simpler here to assume that if a scan is being
+			// saved then it might have had its thumbnails altered and just emit
+			// signals to indicate this. Signals indicating changes to the thumbnail
+			// table can not be reference back to the scan which the thumbnails
+			// relate to. Thus this is the simplest way of handling thumbnail updates.
 			if(dirtyScanInfo->thumbnailCount() > 0) {
 				emit scanThumbnailAboutToBeRemoved(dirtyScanInfoIndex, 0, dirtyScanInfo->thumbnailCount()-1);
 				emit scanThumbnailRemoved();

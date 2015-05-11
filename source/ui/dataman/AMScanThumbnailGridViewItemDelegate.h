@@ -17,6 +17,13 @@ public:
 	 */
 	explicit AMScanThumbnailGridViewItemDelegate(QObject *parent = 0);
 
+	/**
+	  * Virtual destructor for AMScanThumbnailGridViewItemDelegate
+	  * Ensures the desctructor hierarchy is maintained when subclasses are
+	  * created
+	  */
+	virtual ~AMScanThumbnailGridViewItemDelegate() {}
+
 	/// Paints the data associated with the provided index according to options stored in the given
 	/// StyleOptionViewItem
 	void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const;
