@@ -22,7 +22,7 @@ int AMLightweightScanInfoFilterProxyModel::runId() const
 	return runId_;
 }
 
-const QHash<int, QString> AMLightweightScanInfoFilterProxyModel::runMap()
+const QHash<int, QString> AMLightweightScanInfoFilterProxyModel::runMap() const
 {
 	QAbstractItemModel* model = sourceModel();
 	if(model) {
