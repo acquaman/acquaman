@@ -139,6 +139,8 @@ protected slots:
 	void setBraggMotorAcceleration(double newAcceleration);
 	/// Sets the bragg motor encoder movement type when a user selection has been made.
 	void setBraggMotorEncoderMovementType(int newType);
+	/// Sets the bragg motor settling time.
+	void setBraggSettlingTime(double seconds);
 
 protected:
 	/// The bragg motor being displayed.

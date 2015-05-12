@@ -404,3 +404,10 @@ void BioXASSSRLMonochromatorBraggConfigurationView::setBraggMotorEncoderMovement
 		}
 	}
 }
+
+void BioXASSSRLMonochromatorBraggConfigurationView::setBraggSettlingTime(double seconds)
+{
+	if (braggMotor_) {
+		braggMotor_->setSettlingTime(seconds);
+	}
+}

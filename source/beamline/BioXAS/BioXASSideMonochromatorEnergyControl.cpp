@@ -1,15 +1,15 @@
 #include "BioXASSideMonochromatorEnergyControl.h"
+#include "beamline/BioXAS/BioXASSideBeamline.h"
 
 BioXASSideMonochromatorEnergyControl::BioXASSideMonochromatorEnergyControl(QObject *parent) :
-	BioXASSSRLMonochromatorEnergyControl("EnergyEV", "BL1607-5-I22:Energy:EV:fbk", "BL1607-5-I22:Energy:EV", "BL1607-5-I22:Energy:status", "BL1607-5-I22:Energy:stop", parent, 0.5)
+	BioXASSSRLMonochromatorEnergyControl("SideEnergy", parent)
 {
-	// Initialize member variables.
+	// Initialize inherited variables.
 
-	hc_ = new AMReadOnlyPVControl(QString("hcConstant"), QString("BL1607-5-I22:Energy:EV:fbk:tr.A"), this);
-	crystal2D_ = new AMReadOnlyPVControl(QString("Crystal2DSpacing"), QString("BL1607-5-I22:Energy:EV:fbk:tr.B"), this);
-	braggAngle_ = new AMReadOnlyPVControl(QString("BraggAngle"), QString("BL1607-5-I22:Energy:EV:fbk:tr.K"), this);
-	angleOffset_ = new AMPVControl(QString("BraggAngleOffset"), QString("BL1607-5-I22:Energy:EV:fbk:tr.C"), QString("BL1607-5-I22:Energy:EV:fbk:tr.C"), QString(), this);
-
+	bragg_ = BioXASSideBeamline::bioXAS()->mono()->braggMotor();
+	braggSetPosition_ = new AMSinglePVControl("BraggSetPositionControl", "SMTR1607-5-I22-12:deg:setPosn", this);
+	region_ = BioXASSideBeamline::bioXAS()->mono()->regionControl();
+	m1Mirror_ = new AMSinglePVControl("M1MirrorOffset", "BL1607-5-I22:Energy:EV:fbk:tr.H", this);
 }
 
 BioXASSideMonochromatorEnergyControl::~BioXASSideMonochromatorEnergyControl()

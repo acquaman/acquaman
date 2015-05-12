@@ -12,6 +12,7 @@ public:
 	explicit BioXASSideMonochromatorEnergyControl(QObject* parent = 0);
 	/// Destructor.
 	virtual ~BioXASSideMonochromatorEnergyControl();
+
 };
 
 #endif // BIOXASSIDEMONOCHROMATORENERGYCONTROL_H
