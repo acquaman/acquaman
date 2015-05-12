@@ -44,10 +44,6 @@ public slots:
 	void setMono(BioXASSSRLMonochromator *newMono);
 
 protected slots:
-	/// Sets the mono settling time.
-	void setMonoSettlingTime(double newSeconds);
-	/// Updates the displayed settling time in response to a change in the mono energy control settling time value.
-	void onMonoSettlingTimeChanged();
 	/// Displays a dialog for the user to set the calibrated energy.
 	void onCalibrateEnergyButtonClicked();
 	/// Displays a dialog for the user to set the calibrated bragg position.
@@ -67,9 +63,6 @@ protected:
 	AMExtendedControlEditor *braggEditor_;
 	/// The calibrate bragg button.
 	QPushButton *calibrateBraggButton_;
-
-	/// The energy control settling time editor.
-	QDoubleSpinBox *settlingTime_;
 
 	/// The region status display.
 	BioXASSSRLMonochromatorRegionControlView *regionStatusWidget_;
@@ -91,6 +84,8 @@ protected:
 #define BRAGG_BASE_VELOCITY_MAX 1000
 #define BRAGG_ACCELERATION_MIN 0
 #define BRAGG_ACCELERATION_MAX 1000
+#define BRAGG_SETTLING_TIME_MIN 0
+#define BRAGG_SETTLING_TIME_MAX 1000
 
 class BioXASSSRLMonochromatorBraggConfigurationView : public QWidget
 {
@@ -128,8 +123,10 @@ protected slots:
 	void onBraggMotorVelocityBaseChanged();
 	/// Updates the view when the bragg motor acceleration changes.
 	void onBraggMotorAccelerationChanged();
-	/// Updates the view when the bragg encoder move type has changed.
+	/// Updates the view when the bragg motor encoder move type has changed.
 	void onBraggMotorEncoderMoveTypeChanged();
+	/// Updates the view when the bragg motor settling time changes.
+	void onBraggMotorSettlingTimeChanged();
 
 	/// Sets the bragg motor velocity when a user selection has been made.
 	void setBraggMotorVelocity(double newVelocity);
@@ -140,7 +137,7 @@ protected slots:
 	/// Sets the bragg motor encoder movement type when a user selection has been made.
 	void setBraggMotorEncoderMovementType(int newType);
 	/// Sets the bragg motor settling time.
-	void setBraggSettlingTime(double seconds);
+	void setBraggMotorSettlingTime(double seconds);
 
 protected:
 	/// The bragg motor being displayed.
@@ -154,6 +151,8 @@ protected:
 	QDoubleSpinBox *braggAcceleration_;
 	/// Display for the bragg motor encoder move type.
 	QComboBox *braggEncoderMoveType_;
+	/// Display for the bragg motor settling time.
+	QDoubleSpinBox *braggSettlingTime_;
 };
 
 #endif // BIOXASSSRLMONOCHROMATORCONFIGURATIONVIEW_H
