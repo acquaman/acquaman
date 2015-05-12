@@ -78,150 +78,31 @@ REIXSAppController::REIXSAppController(QObject *parent) :
 }
 
 bool REIXSAppController::startup()
-{
-	bool success = true;
+{	
+	if(AMAppController::startup()) {
 
-	success &= AMAppController::startup();
-	success &= AMActionRegistry3::s()->registerInfoAndAction<AMSamplePlatePre2013MoveActionInfo, AMSamplePlatePre2013MoveAction>("Move Sample Position", "Move to a different marked sample position", ":system-run.png");
-	success &= AMActionRegistry3::s()->registerInfoAndEditor<AMSamplePlatePre2013MoveActionInfo, AMSamplePlatePre2013MoveActionEditor>();
+		// Initialize the central beamline object
+		REIXSBeamline::bl();
+		// Initialize the storage ring.
+		CLSStorageRing::sr1();
 
-	return success;
-}
 
-// Re-implemented to create the REIXSBeamline object
-bool REIXSAppController::startupBeforeAnything() {
-	if(!AMAppController::startupBeforeAnything()) return false;
+		registerClasses();
 
-	if (!AMChooseDataFolderDialog::getDataFolder("/AcquamanLocalData/reixs", "/home/reixs", "users"))
+		// Checking for and making the first run in the database, if there isn't one already.
+		////////////////////////////////////////
+		AMRun existingRun;
+		if(!existingRun.loadFromDb(AMDatabase::database("user"), 1)) {
+			// no run yet... let's create one.
+			AMRun firstRun(CLSFacilityID::beamlineName(CLSFacilityID::REIXSBeamline), CLSFacilityID::REIXSBeamline); //5: REIXS Beamline
+			firstRun.storeToDb(AMDatabase::database("user"));
+		}
+
+		setupUserInterface();
+		makeConnections();
+	} else {
 		return false;
-
-	// Initialize the central beamline object
-	REIXSBeamline::bl();
-	// Initialize the storage ring.
-	CLSStorageRing::sr1();
-
-	connect(REIXSBeamline::bl()->spectrometer(), SIGNAL(connected(bool)), REIXSBeamline::bl()->spectrometer(), SLOT(updateGrating()));
-
-	return true;
-}
-
-// Re-implemented to register REIXS-specific database classes
-bool REIXSAppController::startupRegisterDatabases()
-{
-	if(!AMAppController::startupRegisterDatabases())
-		return false;
-
-	AMDbObjectSupport::s()->registerClass<REIXSXESScanConfiguration>();
-	AMDbObjectSupport::s()->registerClass<REIXSXASScanConfiguration>();
-	AMDbObjectSupport::s()->registerClass<REIXSXESMCPDetectorInfo>();
-	AMDbObjectSupport::s()->registerClass<REIXSXESCalibration>();
-	AMDbObjectSupport::s()->registerClass<REIXSXESImageAB>();
-	AMDbObjectSupport::s()->registerClass<REIXSXESImageInterpolationAB>();
-
-	return true;
-}
-
-// Re-implemented to add REIXS-specific user interfaces
-bool REIXSAppController::startupCreateUserInterface() {
-	if(!AMAppController::startupCreateUserInterface()) return false;
-
-	// Create panes in the main window:
-	////////////////////////////////////
-
-
-	mw_->insertHeading("Experiment Setup", 1);
-	//////////
-	AMScanConfigurationViewHolder3* scanConfigurationHolder;
-
-	xesScanConfigurationView_ = new REIXSXESScanConfigurationDetailedView(REIXSBeamline::bl()->mcpDetector());
-	scanConfigurationHolder = new AMScanConfigurationViewHolder3(xesScanConfigurationView_);
-	mw_->addPane(scanConfigurationHolder, "Experiment Setup", "Emission Scan", ":/utilities-system-monitor.png");
-	connect(scanConfigurationHolder, SIGNAL(showWorkflowRequested()), this, SLOT(goToWorkflow()));
-
-	REIXSRIXSScanConfigurationView* rixsConfigView = new REIXSRIXSScanConfigurationView();
-	scanConfigurationHolder = new AMScanConfigurationViewHolder3(rixsConfigView);
-	mw_->addPane(scanConfigurationHolder, "Experiment Setup", "RIXS Scan", ":/utilities-system-monitor.png");
-	connect(scanConfigurationHolder, SIGNAL(showWorkflowRequested()), this, SLOT(goToWorkflow()));
-
-
-	REIXSXASScanConfiguration *xasScanConfiguration = new REIXSXASScanConfiguration();
-
-	REIXSXASScanConfigurationView* xasConfigView = new REIXSXASScanConfigurationView(xasScanConfiguration);
-	scanConfigurationHolder = new AMScanConfigurationViewHolder3(xasConfigView, true);
-	mw_->addPane(scanConfigurationHolder, "Experiment Setup", "Absorption Scan", ":/utilities-system-monitor.png");
-	connect(scanConfigurationHolder, SIGNAL(showWorkflowRequested()), this, SLOT(goToWorkflow()));
-
-	REIXSXESSpectrometerControlPanel* spectrometerPanel = new REIXSXESSpectrometerControlPanel(REIXSBeamline::bl()->mcpDetector(), 0);
-	mw_->addPane(spectrometerPanel, "Experiment Setup", "Spectromter Setup", ":/22x22/gnome-display-properties.png");
-
-
-	REIXSSampleChamberButtonPanel* buttonPanel = new REIXSSampleChamberButtonPanel();
-	AMSampleManagementPre2013Widget* sampleManagementPane = new AMSampleManagementPre2013Widget(buttonPanel,
-																				  QUrl("http://v2e1610-401.clsi.ca/mjpg/1/video.mjpg"),
-																				  "Sample Camera: down beam path",
-																				  REIXSBeamline::bl()->samplePlate(),
-																				  new REIXSSampleManipulator(),
-																				  0);
-
-	mw_->addPane(sampleManagementPane, "Experiment Setup", "Sample Positions", ":/22x22/gnome-display-properties.png");
-
-	////////////////// Temporary testing/commissioning widgets ////////////////////
-	 /*
-	QWidget* spectrometerControlWidget = new QWidget();
-	QHBoxLayout* hl = new QHBoxLayout();
-	hl->addWidget(new REIXSXESHexapodControlEditor(REIXSBeamline::bl()->spectrometer()->hexapod()));
-
-	QGroupBox* gb = new QGroupBox("Motors");
-	QVBoxLayout* vl = new QVBoxLayout();
-	vl->addWidget(new QLabel("Spectrometer Rotation"));
-	vl->addWidget(new AMControlEditor(REIXSBeamline::bl()->spectrometer()->spectrometerRotationDrive()));
-
-	vl->addWidget(new QLabel("Detector Translation"));
-	vl->addWidget(new AMControlEditor(REIXSBeamline::bl()->spectrometer()->detectorTranslation()));
-
-	vl->addWidget(new QLabel("Detector Tilt"));
-	vl->addWidget(new AMControlEditor(REIXSBeamline::bl()->spectrometer()->detectorTiltDrive()));
-
-	gb->setLayout(vl);
-
-	hl->addWidget(gb);
-
-	hl->addWidget(new REIXSXESSpectrometerControlEditor(REIXSBeamline::bl()->spectrometer()));
-
-	hl->addStretch(1);
-
-	spectrometerControlWidget->setLayout(hl);
-	mw_->addPane(spectrometerControlWidget, "Experiment Setup", "Spectrometer controls", ":/utilities-system-monitor.png");
-	*/
-	////////////////// End of Temporary testing/commissioning widgets ////////////////////
-
-
-	// Add the sidebar, for real-time display of the beamline.
-	////////////////////////
-	REIXSSidebar* sidebar = new REIXSSidebar();
-	mw_->addRightWidget(sidebar);
-
-	return true;
-}
-
-
-
-
-bool REIXSAppController::startupAfterEverything() {
-	if(!AMAppController::startupAfterEverything()) return false;
-
-	// Checking for and making the first run in the database, if there isn't one already.
-	////////////////////////////////////////
-	AMRun existingRun;
-	if(!existingRun.loadFromDb(AMDatabase::database("user"), 1)) {
-		// no run yet... let's create one.
-		AMRun firstRun(CLSFacilityID::beamlineName(CLSFacilityID::REIXSBeamline), CLSFacilityID::REIXSBeamline); //5: REIXS Beamline
-		firstRun.storeToDb(AMDatabase::database("user"));
 	}
-
-	connect(this, SIGNAL(scanEditorCreated(AMGenericScanEditor*)), this, SLOT(onScanEditorCreated(AMGenericScanEditor*)));
-
-	return true;
 }
 
 void REIXSAppController::shutdown() {
@@ -271,13 +152,110 @@ void REIXSAppController::onScanAddedToEditor(AMGenericScanEditor *editor, AMScan
 
 		if (source->name().contains("xesSpectrum") && !source->hiddenFromUsers())
 			exclusiveName = source->name();
-
 	}
-
 
 	if (!exclusiveName.isNull())
 		editor->setExclusiveDataSourceByName(exclusiveName);
 
 	else if (editor->scanAt(0)->analyzedDataSourceCount())
 		editor->setExclusiveDataSourceByName(editor->scanAt(0)->analyzedDataSources()->at(editor->scanAt(0)->analyzedDataSourceCount()-1)->name());
+}
+
+void REIXSAppController::registerClasses()
+{
+	AMDbObjectSupport::s()->registerClass<REIXSXESScanConfiguration>();
+	AMDbObjectSupport::s()->registerClass<REIXSXASScanConfiguration>();
+	AMDbObjectSupport::s()->registerClass<REIXSXESMCPDetectorInfo>();
+	AMDbObjectSupport::s()->registerClass<REIXSXESCalibration>();
+	AMDbObjectSupport::s()->registerClass<REIXSXESImageAB>();
+	AMDbObjectSupport::s()->registerClass<REIXSXESImageInterpolationAB>();
+	AMActionRegistry3::s()->registerInfoAndAction<AMSamplePlatePre2013MoveActionInfo, AMSamplePlatePre2013MoveAction>("Move Sample Position", "Move to a different marked sample position", ":system-run.png");
+	AMActionRegistry3::s()->registerInfoAndEditor<AMSamplePlatePre2013MoveActionInfo, AMSamplePlatePre2013MoveActionEditor>();
+}
+
+void REIXSAppController::setupUserInterface()
+{
+	// Create panes in the main window:
+	////////////////////////////////////
+
+
+	mw_->insertHeading("Experiment Setup", 1);
+	//////////
+
+
+	xesScanConfigurationView_ = new REIXSXESScanConfigurationDetailedView(REIXSBeamline::bl()->mcpDetector());
+	xesScanConfigurationViewHolder_ = new AMScanConfigurationViewHolder3(xesScanConfigurationView_);
+	mw_->addPane(xesScanConfigurationViewHolder_, "Experiment Setup", "Emission Scan", ":/utilities-system-monitor.png");
+
+
+	REIXSRIXSScanConfigurationView* rixsConfigView = new REIXSRIXSScanConfigurationView();
+	rixsScanConfigurationViewHolder_ = new AMScanConfigurationViewHolder3(rixsConfigView);
+	mw_->addPane(rixsScanConfigurationViewHolder_, "Experiment Setup", "RIXS Scan", ":/utilities-system-monitor.png");
+
+
+	REIXSXASScanConfiguration *xasScanConfiguration = new REIXSXASScanConfiguration();
+
+	REIXSXASScanConfigurationView* xasConfigView = new REIXSXASScanConfigurationView(xasScanConfiguration);
+	xasScanConfigurationViewHolder_ = new AMScanConfigurationViewHolder3(xasConfigView, true);
+	mw_->addPane(xasScanConfigurationViewHolder_, "Experiment Setup", "Absorption Scan", ":/utilities-system-monitor.png");
+
+
+	spectrometerPanel_ = new REIXSXESSpectrometerControlPanel(REIXSBeamline::bl()->mcpDetector(), 0);
+	mw_->addPane(spectrometerPanel_, "Experiment Setup", "Spectromter Setup", ":/22x22/gnome-display-properties.png");
+
+
+	sampleChamberButtonPanel_ = new REIXSSampleChamberButtonPanel();
+	AMSampleManagementPre2013Widget* sampleManagementPane = new AMSampleManagementPre2013Widget(sampleChamberButtonPanel_,
+																				  QUrl("http://v2e1610-401.clsi.ca/mjpg/1/video.mjpg"),
+																				  "Sample Camera: down beam path",
+																				  REIXSBeamline::bl()->samplePlate(),
+																				  new REIXSSampleManipulator(),
+																				  0);
+
+	mw_->addPane(sampleManagementPane, "Experiment Setup", "Sample Positions", ":/22x22/gnome-display-properties.png");
+
+	////////////////// Temporary testing/commissioning widgets ////////////////////
+	 /*
+	QWidget* spectrometerControlWidget = new QWidget();
+	QHBoxLayout* hl = new QHBoxLayout();
+	hl->addWidget(new REIXSXESHexapodControlEditor(REIXSBeamline::bl()->spectrometer()->hexapod()));
+
+	QGroupBox* gb = new QGroupBox("Motors");
+	QVBoxLayout* vl = new QVBoxLayout();
+	vl->addWidget(new QLabel("Spectrometer Rotation"));
+	vl->addWidget(new AMControlEditor(REIXSBeamline::bl()->spectrometer()->spectrometerRotationDrive()));
+
+	vl->addWidget(new QLabel("Detector Translation"));
+	vl->addWidget(new AMControlEditor(REIXSBeamline::bl()->spectrometer()->detectorTranslation()));
+
+	vl->addWidget(new QLabel("Detector Tilt"));
+	vl->addWidget(new AMControlEditor(REIXSBeamline::bl()->spectrometer()->detectorTiltDrive()));
+
+	gb->setLayout(vl);
+
+	hl->addWidget(gb);
+
+	hl->addWidget(new REIXSXESSpectrometerControlEditor(REIXSBeamline::bl()->spectrometer()));
+
+	hl->addStretch(1);
+
+	spectrometerControlWidget->setLayout(hl);
+	mw_->addPane(spectrometerControlWidget, "Experiment Setup", "Spectrometer controls", ":/utilities-system-monitor.png");
+	*/
+	////////////////// End of Temporary testing/commissioning widgets ////////////////////
+
+
+	// Add the sidebar, for real-time display of the beamline.
+	////////////////////////
+	sidebar_ = new REIXSSidebar();
+	mw_->addRightWidget(sidebar_);
+}
+
+void REIXSAppController::makeConnections()
+{
+	connect(REIXSBeamline::bl()->spectrometer(), SIGNAL(connected(bool)), REIXSBeamline::bl()->spectrometer(), SLOT(updateGrating()));
+	connect(xesScanConfigurationViewHolder_, SIGNAL(showWorkflowRequested()), this, SLOT(goToWorkflow()));
+	connect(rixsScanConfigurationViewHolder_, SIGNAL(showWorkflowRequested()), this, SLOT(goToWorkflow()));
+	connect(xasScanConfigurationViewHolder_, SIGNAL(showWorkflowRequested()), this, SLOT(goToWorkflow()));
+	connect(this, SIGNAL(scanEditorCreated(AMGenericScanEditor*)), this, SLOT(onScanEditorCreated(AMGenericScanEditor*)));
 }
