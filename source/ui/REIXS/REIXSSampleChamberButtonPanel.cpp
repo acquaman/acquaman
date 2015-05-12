@@ -20,56 +20,31 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 
 #include "REIXSSampleChamberButtonPanel.h"
-#include "ui_REIXSSampleChamberButtonPanel.h"
 
-#include "ui/beamline/AMControlMoveButton.h"
+#include <QWidget>
+#include <QFrame>
+#include <QGridLayout>
+#include <QLabel>
+#include <QSpacerItem>
+#include <QToolButton>
+
 #include "beamline/REIXS/REIXSBeamline.h"
+#include "ui/beamline/AMControlMoveButton.h"
 
 REIXSSampleChamberButtonPanel::REIXSSampleChamberButtonPanel(QWidget *parent) :
-    QWidget(parent),
-    ui(new Ui::REIXSSampleChamberButtonPanel)
+	QWidget(parent)
 {
-    ui->setupUi(this);
+	setObjectName("REIXSSampleChamberButtonPanel");
 
-	REIXSSampleChamber* chamber = REIXSBeamline::bl()->sampleChamber();
-	ui->sampleXup->setControl(chamber->x());
-	ui->sampleXup->setStepSizes(QList<double>() << 0.2 << 1 << 5 << 10);
-	ui->sampleXup->setStepSizeIndex(1);
-	ui->sampleXup->setDirectionReversed(true);
-	ui->sampleXdown->setControl(chamber->x());
-	ui->sampleXdown->setStepSizes(QList<double>() << 0.2 << 1 << 5 << 10);
-	ui->sampleXdown->setStepSizeIndex(1);
+	resize(527, 197);
+	setupUi();
+	initializeUiComponents();
 
-	ui->sampleYup->setControl(chamber->y());
-	ui->sampleYup->setStepSizes(QList<double>() << 0.2 << 1 << 5 << 10);
-	ui->sampleYup->setStepSizeIndex(1);
-	ui->sampleYdown->setControl(chamber->y());
-	ui->sampleYdown->setStepSizes(QList<double>() << 0.2 << 1 << 5 << 10);
-	ui->sampleYdown->setStepSizeIndex(1);
-	ui->sampleYdown->setDirectionReversed(true);
-
-	ui->sampleZup->setControl(chamber->z());
-	ui->sampleZup->setStepSizes(QList<double>() << 0.2 << 1 << 5 << 10 << 50 << 100);
-	ui->sampleZup->setStepSizeIndex(2);
-	ui->sampleZup->setDirectionReversed(true);// yup, down is up. Go figure.
-	ui->sampleZdown->setControl(chamber->z());
-	ui->sampleZdown->setStepSizes(QList<double>() << 0.2 << 1 << 5 << 10 << 50 << 100);
-	ui->sampleZdown->setStepSizeIndex(2);
-
-	ui->sampleCW->setControl(chamber->r());
-	ui->sampleCW->setStepSizes(QList<double>() << 1 << 5 << 10 << 45 << 90);
-	ui->sampleCW->setStepSizeIndex(1);
-	ui->sampleCW->setDirectionReversed(true);
-	ui->sampleCCW->setControl(chamber->r());
-	ui->sampleCCW->setStepSizes(QList<double>() << 1 << 5 << 10 << 45 << 90);
-	ui->sampleCCW->setStepSizeIndex(1);
-
-	connect(ui->stopAll, SIGNAL(clicked()), this, SLOT(onStopButtonClicked()));
+	connect(stopAll_, SIGNAL(clicked()), this, SLOT(onStopButtonClicked()));
 }
 
 REIXSSampleChamberButtonPanel::~REIXSSampleChamberButtonPanel()
 {
-	delete ui;
 }
 
 void REIXSSampleChamberButtonPanel::onStopButtonClicked()
@@ -113,31 +88,201 @@ void REIXSSampleChamberButtonPanel::onJoystickButtonChanged(int buttonId, bool i
 
 	switch(buttonId) {
 	case 6:
-		ui->sampleXdown->press(isDown);
+		sampleXdown_->press(isDown);
 		break;
 	case 4:
-		ui->sampleXup->press(isDown);
+		sampleXup_->press(isDown);
 		break;
 	case 7:
-		ui->sampleYdown->press(isDown);
+		sampleYdown_->press(isDown);
 		break;
 	case 5:
-		ui->sampleYup->press(isDown);
+		sampleYup_->press(isDown);
 		break;
 
 
 	case 12:
-		ui->sampleZup->press(isDown);
+		sampleZup_->press(isDown);
 		break;
 	case 14:
-		ui->sampleZdown->press(isDown);
+		sampleZdown_->press(isDown);
 		break;
 
 	case 11:
-		ui->sampleCW->press(isDown);
+		sampleCW_->press(isDown);
 		break;
 	case 10:
-		ui->sampleCCW->press(isDown);
+		sampleCCW_->press(isDown);
 		break;
 	}
+}
+
+void REIXSSampleChamberButtonPanel::setupUi()
+{
+	QIcon iconCW;
+	iconCW.addFile(":/22x22/arrow-CW.png", QSize(), QIcon::Normal, QIcon::Off);
+	QIcon iconCCW;
+	iconCCW.addFile(":/22x22/arrow-CCW.png", QSize(), QIcon::Normal, QIcon::Off);
+	QIcon iconUp;
+	iconUp.addFile(":/22x22/go-up-dark.png", QSize(), QIcon::Normal, QIcon::Off);
+	QIcon iconPrevious;
+	iconPrevious.addFile(":/22x22/go-previous-dark.png", QSize(), QIcon::Normal, QIcon::Off);
+	QIcon iconNext;
+	iconNext.addFile(":/22x22/go-next-dark.png", QSize(), QIcon::Normal, QIcon::Off);
+	QIcon iconDown;
+	iconDown.addFile(":/22x22/go-down-dark.png", QSize(), QIcon::Normal, QIcon::Off);
+	QIcon iconStop;
+	iconStop.addFile(":/stop.png", QSize(), QIcon::Normal, QIcon::Off);
+
+	QSizePolicy customizedSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
+	customizedSizePolicy.setHorizontalStretch(0);
+	customizedSizePolicy.setVerticalStretch(0);
+	customizedSizePolicy.setHeightForWidth(sizePolicy().hasHeightForWidth());
+
+	setSizePolicy(customizedSizePolicy);
+
+	QGridLayout *gridLayout = new QGridLayout();
+	setLayout(gridLayout);
+
+	QLabel *sampleLabel1 = new QLabel("Front View (Y, Z, \316\270)");
+	customizedSizePolicy.setHeightForWidth(sampleLabel1->sizePolicy().hasHeightForWidth());
+	sampleLabel1->setSizePolicy(customizedSizePolicy);
+	gridLayout->addWidget(sampleLabel1, 0, 0, 1, 4);
+
+	QFrame *line = new QFrame();
+	line->setFrameShape(QFrame::VLine);
+	line->setFrameShadow(QFrame::Sunken);
+	gridLayout->addWidget(line, 0, 4, 5, 1);
+
+	QLabel *sampleLabel2 = new QLabel("Along Beam");
+	customizedSizePolicy.setHeightForWidth(sampleLabel2->sizePolicy().hasHeightForWidth());
+	sampleLabel2->setSizePolicy(customizedSizePolicy);
+	gridLayout->addWidget(sampleLabel2, 0, 5, 1, 2);
+
+	QFrame *line2 = new QFrame();
+	line2->setFrameShape(QFrame::VLine);
+	line2->setFrameShadow(QFrame::Sunken);
+	gridLayout->addWidget(line2, 0, 8, 5, 1);
+
+	QFrame *line2_2 = new QFrame();
+	line2_2->setFrameShape(QFrame::VLine);
+	line2_2->setFrameShadow(QFrame::Sunken);
+	gridLayout->addWidget(line2_2, 0, 11, 5, 1);
+
+	QLabel *loadLockLabel = new QLabel("Load Lock");
+	customizedSizePolicy.setHeightForWidth(loadLockLabel->sizePolicy().hasHeightForWidth());
+	loadLockLabel->setSizePolicy(customizedSizePolicy);
+	gridLayout->addWidget(loadLockLabel, 0, 12, 1, 3);
+
+	sampleCW_ = createAMControlMoveButton("CW", iconCW);
+	gridLayout->addWidget(sampleCW_, 3, 0, 1, 1);
+
+	sampleCCW_ = createAMControlMoveButton("CCW", iconCCW);
+	gridLayout->addWidget(sampleCCW_, 3, 3, 1, 1);
+
+	QSpacerItem *horizontalSpacer = new QSpacerItem(40, 10, QSizePolicy::Expanding, QSizePolicy::Minimum);
+	gridLayout->addItem(horizontalSpacer, 3, 10, 1, 1);
+
+	AMControlMoveButton *loadLockCW = createAMControlMoveButton("CW", iconCW);
+	gridLayout->addWidget(loadLockCW, 3, 12, 1, 1);
+
+	AMControlMoveButton *loadLockZup = createAMControlMoveButton("+Z", iconUp);
+	gridLayout->addWidget(loadLockZup, 3, 13, 1, 1);
+
+	AMControlMoveButton *loadLockCCW = createAMControlMoveButton("CW", iconCCW);
+	gridLayout->addWidget(loadLockCCW, 3, 14, 1, 1);
+
+	sampleYdown_ = createAMControlMoveButton("-Y", iconPrevious);
+	gridLayout->addWidget(sampleYdown_, 4, 0, 1, 1);
+
+	sampleYup_ = createAMControlMoveButton("+Y", iconNext);
+	gridLayout->addWidget(sampleYup_, 4, 3, 1, 1);
+
+	AMControlMoveButton *loadLockZdown = createAMControlMoveButton("-Z", iconDown);
+	gridLayout->addWidget(loadLockZdown, 4, 13, 1, 1);
+
+	stopAll_ = createQToolButton("Stop", iconStop);
+	gridLayout->addWidget(stopAll_, 5, 0, 1, 15);
+
+	sampleZup_ = createAMControlMoveButton("+Z", iconDown);
+	gridLayout->addWidget(sampleZup_, 4, 1, 1, 1);
+
+	sampleZdown_ = createAMControlMoveButton("-Z", iconUp);
+	gridLayout->addWidget(sampleZdown_, 3, 1, 1, 1);
+
+	sampleXup_ = createAMControlMoveButton("+X", iconNext);
+	gridLayout->addWidget(sampleXup_, 3, 6, 1, 1);
+
+	sampleXdown_ = createAMControlMoveButton("-X", iconPrevious);
+	gridLayout->addWidget(sampleXdown_, 4, 5, 1, 1);
+}
+
+void REIXSSampleChamberButtonPanel::initializeUiComponents()
+{
+	REIXSSampleChamber* chamber = REIXSBeamline::bl()->sampleChamber();
+	sampleXup_->setControl(chamber->x());
+	sampleXup_->setStepSizes(QList<double>() << 0.2 << 1 << 5 << 10);
+	sampleXup_->setStepSizeIndex(1);
+	sampleXup_->setDirectionReversed(true);
+	sampleXdown_->setControl(chamber->x());
+	sampleXdown_->setStepSizes(QList<double>() << 0.2 << 1 << 5 << 10);
+	sampleXdown_->setStepSizeIndex(1);
+
+	sampleYup_->setControl(chamber->y());
+	sampleYup_->setStepSizes(QList<double>() << 0.2 << 1 << 5 << 10);
+	sampleYup_->setStepSizeIndex(1);
+	sampleYdown_->setControl(chamber->y());
+	sampleYdown_->setStepSizes(QList<double>() << 0.2 << 1 << 5 << 10);
+	sampleYdown_->setStepSizeIndex(1);
+	sampleYdown_->setDirectionReversed(true);
+
+	sampleZup_->setControl(chamber->z());
+	sampleZup_->setStepSizes(QList<double>() << 0.2 << 1 << 5 << 10 << 50 << 100);
+	sampleZup_->setStepSizeIndex(2);
+	sampleZup_->setDirectionReversed(true);// yup, down is up. Go figure.
+	sampleZdown_->setControl(chamber->z());
+	sampleZdown_->setStepSizes(QList<double>() << 0.2 << 1 << 5 << 10 << 50 << 100);
+	sampleZdown_->setStepSizeIndex(2);
+
+	sampleCW_->setControl(chamber->r());
+	sampleCW_->setStepSizes(QList<double>() << 1 << 5 << 10 << 45 << 90);
+	sampleCW_->setStepSizeIndex(1);
+	sampleCW_->setDirectionReversed(true);
+	sampleCCW_->setControl(chamber->r());
+	sampleCCW_->setStepSizes(QList<double>() << 1 << 5 << 10 << 45 << 90);
+	sampleCCW_->setStepSizeIndex(1);
+}
+
+QToolButton *REIXSSampleChamberButtonPanel::createQToolButton(QString text, QIcon icon)
+{
+	QToolButton *toolButton= new QToolButton();
+	toolButton->setIconSize(QSize(32, 32));
+	toolButton->setToolButtonStyle(Qt::ToolButtonIconOnly);
+	toolButton->setText(text);
+	toolButton->setIcon(icon);
+
+	QSizePolicy sizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
+	sizePolicy.setHorizontalStretch(0);
+	sizePolicy.setVerticalStretch(0);
+	sizePolicy.setHeightForWidth(toolButton->sizePolicy().hasHeightForWidth());
+	toolButton->setSizePolicy(sizePolicy);
+
+	return toolButton;
+}
+
+AMControlMoveButton *REIXSSampleChamberButtonPanel::createAMControlMoveButton(QString text, QIcon icon)
+{
+	QFont font;
+	font.setPointSize(9);
+
+	AMControlMoveButton *controlMoveButton = new AMControlMoveButton();
+	controlMoveButton->setMinimumSize(QSize(52, 46));
+	controlMoveButton->setMaximumSize(QSize(52, 46));
+	controlMoveButton->setFont(font);
+	controlMoveButton->setIconSize(QSize(22, 22));
+	controlMoveButton->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
+	controlMoveButton->setText(text);
+	controlMoveButton->setIcon(icon);
+
+	return controlMoveButton;
 }
