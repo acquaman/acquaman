@@ -56,7 +56,13 @@ protected slots:
 	void onAcquisitionSucceeded();
 	void onKETEKPeakingTimeChanged();
 	void onDeadTimeCheckButtonClicked();
-
+	/**
+	  * Handles the scan action being completed in some fashion (either failed,
+	  * succeeded or cancelled). Sets the enabled status of the acquireButton to
+	  * true, disconnects signals from the scan action, schedules it for deletion
+	  * and then nulls our reference to it.
+	  */
+	void cleanupScanAction();
 protected:
 	/// Method that builds the Scan Save Button and associated things.
 	void buildScanSaveViews();

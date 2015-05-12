@@ -154,10 +154,12 @@ void IDEASXRFDetailedDetectorViewWithSave::onSaveScanButtonClicked()
 	config_->setDetectorInfo(detector_->toInfo());
 	config_->setIntegrationTime(detector_->elapsedTime());
 
-        scanAction_ = new AMScanAction(new AMScanActionInfo(config_->createCopy()));
-        scanAction_->start();
-	saveScanButton_->setEnabled(false);
-	saveScanButton_->setText("Scan Saved");
+	scanAction_ = new AMScanAction(new AMScanActionInfo(config_->createCopy()));
+	scanAction_->start();
+
+	connect(scanAction_, SIGNAL(cancelled()), this, SLOT(cleanupScanAction()));
+	connect(scanAction_, SIGNAL(failed()), this, SLOT(cleanupScanAction()));
+	connect(scanAction_, SIGNAL(succeeded()), this, SLOT(cleanupScanAction()));
 }
 
 void IDEASXRFDetailedDetectorViewWithSave::onNotesTextChanged()
@@ -193,14 +195,14 @@ void IDEASXRFDetailedDetectorViewWithSave::onPeakingTimeBoxChanged(const QString
 	    IDEASBeamline::ideas()->ketekPeakingTime()->move(4.00);
 	    IDEASBeamline::ideas()->ketekPreampGain()->move(1.2375);
 
-	  }
-
+	}
 }
 
 void IDEASXRFDetailedDetectorViewWithSave::onAcquisitionSucceeded()
 {
     saveScanButton_->setEnabled(true);
     saveScanButton_->setText("Save Scan");
+	acquireButton_->setEnabled(false);
     AMControlInfoList positions(IDEASBeamline::ideas()->exposedControls()->toInfoList());
     positions.remove(positions.indexOf("DwellTime"));
     positions.remove(positions.indexOf("DirectEnergy"));
@@ -252,4 +254,16 @@ void IDEASXRFDetailedDetectorViewWithSave::onDeadTimeCheckButtonClicked()
 	deadTimeCheckActions->addSubAction(detector_->createSetAcquisitionTimeAction(requestedTime));
 
 	deadTimeCheckActions->start();
+}
+
+void IDEASXRFDetailedDetectorViewWithSave::cleanupScanAction()
+{
+	acquireButton_->setEnabled(true);
+	saveScanButton_->setText("Scan Saved");
+	disconnect(scanAction_, SIGNAL(cancelled()), this, SLOT(cleanupScanAction()));
+	disconnect(scanAction_, SIGNAL(succeeded()), this, SLOT(cleanupScanAction()));
+	disconnect(scanAction_, SIGNAL(failed()), this, SLOT(cleanupScanAction()));
+
+	scanAction_->scheduleForDeletion();
+	scanAction_ = 0;
 }
