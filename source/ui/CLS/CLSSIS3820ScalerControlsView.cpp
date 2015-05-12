@@ -1,7 +1,7 @@
 #include "CLSSIS3820ScalerControlsView.h"
 
 CLSSIS3820ScalerControlsView::CLSSIS3820ScalerControlsView(CLSSIS3820Scaler *scaler, QWidget *parent) :
-    QWidget(parent)
+	QWidget(parent)
 {
 	// Initialize member variables.
 
@@ -211,7 +211,7 @@ void CLSSIS3820ScalerControlsView::onDwellTimeChanged()
 	if (scaler_) {
 		scaler_->blockSignals(true);
 		double seconds = scaler_->dwellTime();
-		time_->setValue((int)seconds * MILLISECONDS_PER_SECOND);
+		time_->setValue(int(seconds * MILLISECONDS_PER_SECOND));
 		scaler_->blockSignals(false);
 	}
 }

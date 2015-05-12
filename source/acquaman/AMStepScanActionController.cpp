@@ -256,6 +256,7 @@ bool AMStepScanActionController::event(QEvent *e)
 
 			if (isStopping() && stoppingAtEndOfLine_){
 
+				disconnect(AMActionRunner3::scanActionRunner()->currentAction(), SIGNAL(cancelled()), this, SLOT(onScanningActionsCancelled()));
 				connect(AMActionRunner3::scanActionRunner()->currentAction(), SIGNAL(cancelled()), this, SLOT(onScanningActionsSucceeded()));
 				AMActionRunner3::scanActionRunner()->cancelCurrentAction();
 				emit finishWritingToFile();
@@ -284,6 +285,7 @@ bool AMStepScanActionController::event(QEvent *e)
 
 			if (isStopping() && !stoppingAtEndOfLine_){
 
+				disconnect(AMActionRunner3::scanActionRunner()->currentAction(), SIGNAL(cancelled()), this, SLOT(onScanningActionsCancelled()));
 				connect(AMActionRunner3::scanActionRunner()->currentAction(), SIGNAL(cancelled()), this, SLOT(onScanningActionsSucceeded()));
 				AMActionRunner3::scanActionRunner()->cancelCurrentAction();
 				emit finishWritingToFile();
