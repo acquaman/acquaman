@@ -35,7 +35,6 @@ public:
 						int thumbnailFirstId,
 						int thumbnailCount,
 						AMDatabase* database,
-						int experimentId = -1,
 						QObject* parent = 0);
 
 
@@ -58,18 +57,23 @@ public:
 	QString notes() const;
 	/// A descriptive name of the sample upon which the scan was performed
 	QString sampleName() const;
-	/// Returns the thumbnail at the given index which is associated with this scan. Prompts lazy loading
-	/// if the thumbnail at this index has not yet been loaded from the database. If there is no thumbnail
-	/// with the provided index associated with this scan, 0 is returned.
+	/// Returns the thumbnail at the given index which is associated with this scan.
+	/// Prompts lazy loading if the thumbnail at this index has not yet been loaded
+	/// from the database. If there is no thumbnail with the provided index
+	/// associated with this scan, 0 is returned.
 	AMDbThumbnail* thumbnailAt(int index) const;
 	/// The number of thumbnails which are currently stored in the database against this scan
 	int thumbnailCount() const;
-	/// Adds the thumbnailId to this scan's list of thumbnails
-	void addThumbnailId(int thumbnailId);
-	/// Clears all the thumbnails for this scan
-	void clearThumbnails();
+	/// Refreshes the thumbnails for this Scan. To be called when an update to the
+	/// thumbnail table has caused all the thumbnails for this scan to be
+	/// relocated in the table.
+	void refreshThumbnails(int thumbnailFirstId, int thumbnailCount);
+	/// The id of the first thumbnail associated with this Scan
+	int thumbnailFirstId() const;
+	/// Adds the provided experimentId to the Scan
+	void addExperimentId(int experimentId);
 	/// The id (if any) of the experiment this scan is associated with
-	int experimentId() const;
+	const QList<int> experimentIds() const;
 
 	/// Sets the descriptive name of the scan
 	void setName(const QString& name);
@@ -87,11 +91,10 @@ public:
 	void setNotes(const QString& notes);
 	/// Sets the descriptive name of the sample upon which the scan was performed
 	void setSampleName(const QString& sampleName);
-	/// Sets the id of the experiment this scan is associated with
-	void setExperimentId(int id);
 
 protected:
-
+	/// Clears all the thumbnails for this scan
+	void clearThumbnails();
 
 private:
 	AMDatabase* database_;
@@ -102,7 +105,7 @@ private:
 	QString scanType_;
 	int runId_;
 	QString runName_;
-	int experimentId_;
+	QList<int> experimentIds_;
 	QString notes_;
 	QString sampleName_;
 	QList<int> thumbnailIds_;

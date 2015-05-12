@@ -38,6 +38,8 @@ class AMCurrentAmplifier;
 
 #include <QSignalMapper>
 
+#define CLSSIS3820SCALER_NOT_CONNECTED_OR_IS_SCANNING 456000
+
 /*!
   Builds an abstraction for the SIS 3820 scaler used throughout the CLS.  It takes in a base name of the PV's and builds all the PV's
   and makes the necessary connections.
@@ -153,7 +155,10 @@ protected slots:
 	void onModeSwitchSignal();
 	bool triggerScalerAcquisition(bool isContinuous);
 	void onReadingChanged(double value);
+	/// Handles the logic for the removing channels from the waiting list.
 	void onChannelReadingChanged(int channelIndex);
+	/// Handles checking to see if we are done the acquisition.
+	void triggerAcquisitionFinished();
 
 	void onDwellTimeSourceSetDwellTime(double dwellSeconds);
 
