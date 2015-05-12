@@ -3,6 +3,8 @@
 #include "actions3/AMListAction3.h"
 #include "actions3/AMActionSupport.h"
 
+#include <QDebug>
+
 CLSJJSlitGapControl::CLSJJSlitGapControl(const QString &name, AMControl *upperBladeControl, AMControl *lowerBladeControl, QObject *parent) :
 	CLSJJSlitBladesControl(name, upperBladeControl, lowerBladeControl, parent, "mm")
 {
@@ -23,6 +25,7 @@ CLSJJSlitGapControl::~CLSJJSlitGapControl()
 void CLSJJSlitGapControl::updateValue()
 {
 	if (isConnected()) {
+		qDebug() << "Updating gap control value.";
 		setValue( calculateGap(upperBladeControl_->value(), lowerBladeControl_->value()) );
 	}
 }
