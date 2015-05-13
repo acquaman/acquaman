@@ -58,6 +58,8 @@ public:
 signals:
 	/// Notifier that the bragg control has changed.
 	void braggControlChanged(AMControl *newControl);
+	/// Notifier that the bragg set position control has changed.
+	void braggSetPositionControlChanged(AMControl *newControl);
 	/// Notifier that the region control has changed.
 	void regionControlChanged(AMControl *newControl);
 	/// Notifier that the m1 mirror control has changed.
@@ -66,6 +68,8 @@ signals:
 public slots:
 	/// Sets the bragg control.
 	void setBraggControl(AMControl *newControl);
+	/// Sets the bragg set position control.
+	void setBraggSetPositionControl(AMControl *newControl);
 	/// Sets the region control.
 	void setRegionControl(AMControl *newControl);
 	/// Sets the m1 mirror control.

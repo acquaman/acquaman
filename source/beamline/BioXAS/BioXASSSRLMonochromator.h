@@ -148,6 +148,11 @@ protected:
 	/// The region B status control.
 	AMControl *regionBStatus_;
 
+	/// The bragg motor set position control.
+	AMControl *braggSetPosition_;
+	/// The m1 mirror offset control.
+	AMControl *m1MirrorOffset_;
+
 	/// Upper slit blade motor.
 	CLSMAXvMotor *upperSlitMotor_;
 	/// Lower slit blade motor.

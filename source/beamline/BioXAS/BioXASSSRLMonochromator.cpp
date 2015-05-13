@@ -25,6 +25,9 @@ BioXASSSRLMonochromator::BioXASSSRLMonochromator(QObject *parent) :
 	regionAStatus_ = 0;
 	regionBStatus_ = 0;
 
+	braggSetPosition_ = 0;
+	m1MirrorOffset_ = 0;
+
 	upperSlitMotor_ = 0;
 	lowerSlitMotor_ = 0;
 	paddleMotor_ = 0;

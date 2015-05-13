@@ -24,6 +24,9 @@ BioXASMainMonochromator::BioXASMainMonochromator(QObject *parent) :
 	regionAStatus_ = new AMReadOnlyPVControl("RegionAStatus", "BL1607-5-I21:Mono:Region:A", this);
 	regionBStatus_ = new AMReadOnlyPVControl("RegionBStatus", "BL1607-5-I21:Mono:Region:B", this);
 
+	braggSetPosition_ = new AMSinglePVControl("BraggSetPositionControl", "SMTR1607-5-I21-12:deg:setPosn", this);
+	m1MirrorOffset_ = new AMSinglePVControl("M1MirrorOffset", "BL1607-5-I21:Energy:EV:fbk:tr.H", this);
+
 	upperSlitMotor_ = new CLSMAXvMotor(QString("SMTR1607-5-I21-09 VERT UPPER BLADE"), QString("SMTR1607-5-I21-09"), QString("SMTR1607-5-I21-09 VERT UPPER BLADE"), true, 0.1, 2.0, this);
 	lowerSlitMotor_ = new CLSMAXvMotor(QString("SMTR1607-5-I21-10 VERT LOWER BLADE"), QString("SMTR1607-5-I21-10"), QString("SMTR1607-5-I21-10 VERT LOWER BLADE"), true, 0.1, 2.0, this);
 	paddleMotor_ = new CLSMAXvMotor(QString("SMTR1607-5-I21-11 PHOSPHOR PADDLE"), QString("SMTR1607-5-I21-11"), QString("SMTR1607-5-I21-11 PHOSPHOR PADDLE"), false, 0.1, 2.0, this);
@@ -35,10 +38,6 @@ BioXASMainMonochromator::BioXASMainMonochromator(QObject *parent) :
 	crystal1RollMotor_ = new CLSMAXvMotor(QString("SMTR1607-5-I21-24 XTAL 1 ROLL"), QString("SMTR1607-5-I21-24"), QString("SMTR1607-5-I21-24 XTAL 1 ROLL"),   true, 0.05, 2.0, this, QString(":V"));
 	crystal2PitchMotor_ = new CLSMAXvMotor(QString("SMTR1607-5-I21-25 XTAL 2 PITCH"), QString("SMTR1607-5-I21-25"), QString("SMTR1607-5-I21-25 XTAL 2 PITCH"), true, 0.05, 2.0, this, QString(":V"));
 	crystal2RollMotor_ = new CLSMAXvMotor(QString("SMTR1607-5-I21-26 XTAL 2 ROLL"), QString("SMTR1607-5-I21-26"), QString("SMTR1607-5-I21-26 XTAL 2 ROLL"), true, 0.05, 2.0, this, QString(":V"));
-
-	// Create energy control.
-
-	energy_ = new BioXASMainMonochromatorEnergyControl(this);
 
 	// Create region control.
 
@@ -57,6 +56,14 @@ BioXASMainMonochromator::BioXASMainMonochromator(QObject *parent) :
 	region_->setCrystalChangeCCWLimitStatusControl(crystalChangeCCWLimitStatus_);
 	region_->setRegionAStatusControl(regionAStatus_);
 	region_->setRegionBStatusControl(regionBStatus_);
+
+	// Create energy control.
+
+	energy_ = new BioXASSSRLMonochromatorEnergyControl("MainEnergy", this);
+	energy_->setBraggControl(bragg_);
+	energy_->setBraggSetPositionControl(braggSetPosition_);
+	energy_->setRegionControl(region_);
+	energy_->setM1MirrorControl(m1MirrorOffset_);
 
 	// Listen to connection states.
 

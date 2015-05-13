@@ -65,6 +65,24 @@ void BioXASSSRLMonochromatorEnergyControl::setBraggControl(AMControl *newControl
 
 		if (bragg_)
 			addChildControl(bragg_);
+
+		emit braggControlChanged(bragg_);
+	}
+}
+
+void BioXASSSRLMonochromatorEnergyControl::setBraggSetPositionControl(AMControl *newControl)
+{
+	if (braggSetPosition_ != newControl) {
+
+		if (braggSetPosition_)
+			removeChildControl(braggSetPosition_);
+
+		braggSetPosition_ = newControl;
+
+		if (braggSetPosition_)
+			addChildControl(braggSetPosition_);
+
+		emit braggSetPositionControlChanged(braggSetPosition_);
 	}
 }
 
@@ -79,6 +97,8 @@ void BioXASSSRLMonochromatorEnergyControl::setRegionControl(AMControl *newContro
 
 		if (region_)
 			addChildControl(region_);
+
+		emit regionControlChanged(region_);
 	}
 }
 
@@ -93,6 +113,8 @@ void BioXASSSRLMonochromatorEnergyControl::setM1MirrorControl(AMControl *newCont
 
 		if (m1Mirror_)
 			addChildControl(m1Mirror_);
+
+		emit m1MirrorControlChanged(m1Mirror_);
 	}
 }
 

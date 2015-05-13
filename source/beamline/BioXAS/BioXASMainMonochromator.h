@@ -4,7 +4,6 @@
 #include <QObject>
 
 #include "beamline/BioXAS/BioXASSSRLMonochromator.h"
-#include "beamline/BioXAS/BioXASMainMonochromatorEnergyControl.h"
 
 class BioXASMainMonochromator : public BioXASSSRLMonochromator
 {
