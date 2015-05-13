@@ -4,7 +4,7 @@
 #include "actions3/AMActionSupport.h"
 
 CLSJJSlitGapControl::CLSJJSlitGapControl(const QString &name, AMControl *upperBladeControl, AMControl *lowerBladeControl, QObject *parent) :
-	CLSJJSlitBladesControl(name, upperBladeControl, lowerBladeControl, parent, "mm")
+	CLSJJSlitBladesControl(name, upperBladeControl, lowerBladeControl, parent)
 {
 	// Set inherited variables.
 
@@ -12,7 +12,7 @@ CLSJJSlitGapControl::CLSJJSlitGapControl(const QString &name, AMControl *upperBl
 
 	// Current settings.
 
-	updateControlStates();
+	updateStates();
 }
 
 CLSJJSlitGapControl::~CLSJJSlitGapControl()
