@@ -332,7 +332,7 @@ void BioXASSSRLMonochromatorBraggConfigurationView::onBraggMotorEncoderMoveTypeC
 void BioXASSSRLMonochromatorBraggConfigurationView::onBraggMotorSettlingTimeChanged()
 {
 	if (braggMotor_ && braggMotor_->isConnected()) {
-		braggSettlingTime_->setCurrentValue(braggMotor_->settlingTime());
+		braggSettlingTime_->setValue(braggMotor_->settlingTime());
 	}
 }
 
