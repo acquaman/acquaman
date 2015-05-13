@@ -115,8 +115,6 @@ protected:
 	double hc_;
 	/// The crystal 2D constant.
 	double crystal2D_;
-	/// The m1 angle offset (deg).
-	double m1AngleOffset_;
 	/// The theta offset to the bragg angle (deg).
 	double thetaBraggOffset_;
 	/// The region offset (deg).

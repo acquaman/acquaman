@@ -19,7 +19,6 @@ BioXASSSRLMonochromatorEnergyControl::BioXASSSRLMonochromatorEnergyControl(const
 
 	hc_ = 12398.42;
 	crystal2D_ = 3.8403117;
-	m1AngleOffset_ = -0.4;
 	thetaBraggOffset_ = 180.0;
 	regionOffset_ = 180;
 
