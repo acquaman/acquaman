@@ -225,7 +225,6 @@ double BioXASSSRLMonochromatorEnergyControl::calculateEnergyFromBraggPosition(do
 {
 	double result = 0;
 	double braggAngle = 0;
-	double energy = 0;
 	bool validRegion = false;
 
 	// Find the bragg angle corresponding to the given bragg position and region.
@@ -246,7 +245,7 @@ double BioXASSSRLMonochromatorEnergyControl::calculateEnergyFromBraggPosition(do
 	// If the given region is valid, find the energy.
 
 	if (validRegion)
-		energy = calculateEnergyFromBraggAngle(hc, crystal2D, braggAngle);
+		result = calculateEnergyFromBraggAngle(hc, crystal2D, braggAngle);
 
 	return result;
 }
