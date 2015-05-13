@@ -40,20 +40,6 @@ public:
 	/// Returns true if the control is moving, as a result of this control's action.
 	virtual bool moveInProgress() const { return moveInProgress_; }
 
-//	/// Returns true if the control value is always measureable, provided it is connected. False otherwise.
-//	virtual bool shouldMeasure() { return false; }
-//	/// Returns true if a control move is always possible, provided it is connected. False otherwise.
-//	virtual bool shouldMove() const { return false; }
-//	/// Returns true if a control stop is always possible, provided it is connected. False otherwise.
-//	virtual bool shouldStop() const { return false; }
-
-//	/// Returns true if this control's value can be measured right now. False otherwise.
-//	virtual bool canMeasure() const { return false; }
-//	/// Returns true if this control can move right now. False otherwise.
-//	virtual bool canMove() const { return false; }
-//	/// Returns true if this control can stop right now. False otherwise.
-//	virtual bool canStop() const { return false; }
-
 	/// Returns true if the given value is a valid value for this control. False otherwise.
 	virtual bool validValue(double value) const = 0;
 	/// Returns true if the given value is a valid setpoint for this control. False otherwise.
