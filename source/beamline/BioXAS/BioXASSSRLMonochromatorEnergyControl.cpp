@@ -7,6 +7,16 @@
 BioXASSSRLMonochromatorEnergyControl::BioXASSSRLMonochromatorEnergyControl(const QString &name, QObject *parent) :
 	AMPseudoMotorControl(name, "eV", parent)
 {
+	// Initialize inherited variables.
+
+	value_ = 0;
+	setpoint_ = 0;
+	minimumValue_ = -1000000;
+	maximumValue_ = 1000000;
+
+	setAllowsMovesWhileMoving(false);
+	setContextKnownDescription("Energy");
+
 	// Initialize member variables.
 
 	hc_ = 12398.42;
