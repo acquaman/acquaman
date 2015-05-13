@@ -428,10 +428,10 @@ void BioXASSSRLMonochromatorRegionControl::updateIsMoving()
 {
 	if (isConnected()) {
 		setIsMoving(
-					upperSlit_->isMoving() &&
-					lowerSlit_->isMoving() &&
-					paddle_->isMoving() &&
-					bragg_->isMoving() &&
+					upperSlit_->isMoving() ||
+					lowerSlit_->isMoving() ||
+					paddle_->isMoving() ||
+					bragg_->isMoving() ||
 					crystalChange_->isMoving()
 					);
 	}
