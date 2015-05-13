@@ -3,9 +3,6 @@ include ( $$PATH_TO_AM/compositeCommon/AMGSL.pri )
 
 TARGET = REIXSAcquaman
 
-FORMS += \
-	source/ui/REIXS/REIXSSidebar.ui
-
 HEADERS +=	source/application/REIXS/REIXSAppController.h \
 	source/acquaman/REIXS/REIXSXESScanConfiguration.h \
 	source/acquaman/REIXS/REIXSXESScanController.h \

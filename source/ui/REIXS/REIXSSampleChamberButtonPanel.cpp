@@ -147,74 +147,68 @@ void REIXSSampleChamberButtonPanel::setupUi()
 	QLabel *sampleLabel1 = new QLabel("Front View (Y, Z, \316\270)");
 	customizedSizePolicy.setHeightForWidth(sampleLabel1->sizePolicy().hasHeightForWidth());
 	sampleLabel1->setSizePolicy(customizedSizePolicy);
-	gridLayout->addWidget(sampleLabel1, 0, 0, 1, 4);
 
 	QFrame *line = new QFrame();
 	line->setFrameShape(QFrame::VLine);
 	line->setFrameShadow(QFrame::Sunken);
-	gridLayout->addWidget(line, 0, 4, 5, 1);
 
 	QLabel *sampleLabel2 = new QLabel("Along Beam");
 	customizedSizePolicy.setHeightForWidth(sampleLabel2->sizePolicy().hasHeightForWidth());
 	sampleLabel2->setSizePolicy(customizedSizePolicy);
-	gridLayout->addWidget(sampleLabel2, 0, 5, 1, 2);
 
-	QFrame *line2 = new QFrame();
-	line2->setFrameShape(QFrame::VLine);
-	line2->setFrameShadow(QFrame::Sunken);
-	gridLayout->addWidget(line2, 0, 8, 5, 1);
+	line = new QFrame();
+	line->setFrameShape(QFrame::VLine);
+	line->setFrameShadow(QFrame::Sunken);
 
-	QFrame *line2_2 = new QFrame();
-	line2_2->setFrameShape(QFrame::VLine);
-	line2_2->setFrameShadow(QFrame::Sunken);
-	gridLayout->addWidget(line2_2, 0, 11, 5, 1);
+	line = new QFrame();
+	line->setFrameShape(QFrame::VLine);
+	line->setFrameShadow(QFrame::Sunken);
 
 	QLabel *loadLockLabel = new QLabel("Load Lock");
+
 	customizedSizePolicy.setHeightForWidth(loadLockLabel->sizePolicy().hasHeightForWidth());
 	loadLockLabel->setSizePolicy(customizedSizePolicy);
+
+	gridLayout->addWidget(sampleLabel1, 0, 0, 1, 4);
+	gridLayout->addWidget(line, 0, 4, 5, 1);
+	gridLayout->addWidget(sampleLabel2, 0, 5, 1, 2);
+	gridLayout->addWidget(line, 0, 8, 5, 1);
+	gridLayout->addWidget(line, 0, 11, 5, 1);
 	gridLayout->addWidget(loadLockLabel, 0, 12, 1, 3);
 
 	sampleCW_ = createAMControlMoveButton("CW", iconCW);
-	gridLayout->addWidget(sampleCW_, 3, 0, 1, 1);
-
 	sampleCCW_ = createAMControlMoveButton("CCW", iconCCW);
-	gridLayout->addWidget(sampleCCW_, 3, 3, 1, 1);
+	sampleXup_ = createAMControlMoveButton("+X", iconNext);
+	sampleXdown_ = createAMControlMoveButton("-X", iconPrevious);
+	sampleYup_ = createAMControlMoveButton("+Y", iconNext);
+	sampleYdown_ = createAMControlMoveButton("-Y", iconPrevious);
+	sampleZup_ = createAMControlMoveButton("+Z", iconDown);
+	sampleZdown_ = createAMControlMoveButton("-Z", iconUp);
 
 	QSpacerItem *horizontalSpacer = new QSpacerItem(40, 10, QSizePolicy::Expanding, QSizePolicy::Minimum);
-	gridLayout->addItem(horizontalSpacer, 3, 10, 1, 1);
-
 	AMControlMoveButton *loadLockCW = createAMControlMoveButton("CW", iconCW);
-	gridLayout->addWidget(loadLockCW, 3, 12, 1, 1);
-
 	AMControlMoveButton *loadLockZup = createAMControlMoveButton("+Z", iconUp);
-	gridLayout->addWidget(loadLockZup, 3, 13, 1, 1);
-
 	AMControlMoveButton *loadLockCCW = createAMControlMoveButton("CW", iconCCW);
+	AMControlMoveButton *loadLockZdown = createAMControlMoveButton("-Z", iconDown);
+
+	gridLayout->addWidget(sampleCW_, 3, 0, 1, 1);
+	gridLayout->addWidget(sampleZdown_, 3, 1, 1, 1);
+	gridLayout->addWidget(sampleCCW_, 3, 3, 1, 1);
+	gridLayout->addWidget(sampleXup_, 3, 6, 1, 1);
+	gridLayout->addItem(horizontalSpacer, 3, 10, 1, 1);
+	gridLayout->addWidget(loadLockCW, 3, 12, 1, 1);
+	gridLayout->addWidget(loadLockZup, 3, 13, 1, 1);
 	gridLayout->addWidget(loadLockCCW, 3, 14, 1, 1);
 
-	sampleYdown_ = createAMControlMoveButton("-Y", iconPrevious);
 	gridLayout->addWidget(sampleYdown_, 4, 0, 1, 1);
-
-	sampleYup_ = createAMControlMoveButton("+Y", iconNext);
+	gridLayout->addWidget(sampleZup_, 4, 1, 1, 1);
 	gridLayout->addWidget(sampleYup_, 4, 3, 1, 1);
-
-	AMControlMoveButton *loadLockZdown = createAMControlMoveButton("-Z", iconDown);
+	gridLayout->addWidget(sampleXdown_, 4, 5, 1, 1);
 	gridLayout->addWidget(loadLockZdown, 4, 13, 1, 1);
 
 	stopAll_ = createQToolButton("Stop", iconStop);
+
 	gridLayout->addWidget(stopAll_, 5, 0, 1, 15);
-
-	sampleZup_ = createAMControlMoveButton("+Z", iconDown);
-	gridLayout->addWidget(sampleZup_, 4, 1, 1, 1);
-
-	sampleZdown_ = createAMControlMoveButton("-Z", iconUp);
-	gridLayout->addWidget(sampleZdown_, 3, 1, 1, 1);
-
-	sampleXup_ = createAMControlMoveButton("+X", iconNext);
-	gridLayout->addWidget(sampleXup_, 3, 6, 1, 1);
-
-	sampleXdown_ = createAMControlMoveButton("-X", iconPrevious);
-	gridLayout->addWidget(sampleXdown_, 4, 5, 1, 1);
 }
 
 void REIXSSampleChamberButtonPanel::initializeUiComponents()
