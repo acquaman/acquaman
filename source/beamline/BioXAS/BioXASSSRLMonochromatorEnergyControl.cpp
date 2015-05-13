@@ -2,8 +2,6 @@
 #include "beamline/BioXAS/BioXASSSRLMonochromator.h"
 #include <math.h>
 
-#include <QDebug>
-
 BioXASSSRLMonochromatorEnergyControl::BioXASSSRLMonochromatorEnergyControl(const QString &name, QObject *parent) :
 	AMPseudoMotorControl(name, "eV", parent)
 {

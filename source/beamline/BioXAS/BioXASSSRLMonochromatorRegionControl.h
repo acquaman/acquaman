@@ -1,8 +1,6 @@
 #ifndef BIOXASSSRLMONOCHROMATORREGIONCONTROL_H
 #define BIOXASSSRLMONOCHROMATORREGIONCONTROL_H
 
-#include <QSignalMapper>
-
 #include "beamline/AMPseudoMotorControl.h"
 #include "actions3/AMActionSupport.h"
 #include "actions3/actions/AMControlWaitAction.h"
@@ -120,9 +118,6 @@ signals:
 	void moveStepChanged(const QString &newDescription, const QString &newInstruction, const QString &newNotes);
 
 public slots:
-	/// Sets the new region setpoint and performs a crystal change, if necessary.
-	virtual FailureExplanation move(double setpoint);
-
 	// Sets the upper slit motor control.
 	void setUpperSlitControl(AMControl *upperSlit);
 	/// Sets the lower slit motor control.

@@ -1,6 +1,5 @@
 #include "BioXASSSRLMonochromatorRegionControl.h"
 #include "BioXASSSRLMonochromator.h"
-#include <QDebug>
 
 BioXASSSRLMonochromatorRegionControl::BioXASSSRLMonochromatorRegionControl(QObject *parent) :
 	AMPseudoMotorControl("RegionControl", "", parent, "BioXAS SSRL Monochromator Region Control")
@@ -120,69 +119,6 @@ bool BioXASSSRLMonochromatorRegionControl::validSetpoint(double value) const
 		isValid = true;
 
 	return isValid;
-}
-
-AMControl::FailureExplanation BioXASSSRLMonochromatorRegionControl::move(double setpoint)
-{
-	if (!isConnected()) {
-		AMErrorMon::error(this, BioXAS_MONO_REGION_NOT_CONNECTED, "Region control is not connected. Cannot complete move.");
-		return AMControl::NotConnectedFailure;
-	}
-
-	if (isMoving()) {
-		AMErrorMon::error(this, BioXAS_MONO_REGION_ALREADY_MOVING, "Region control is already moving. Cannot start a new move until one one is complete.");
-		return AMControl::AlreadyMovingFailure;
-	}
-
-	if (!canMove()) {
-		AMErrorMon::error(this, BioXAS_MONO_REGION_CANNOT_MOVE, "Region control cannot move. Child controls may be set improperly or unable to move themselves.");
-		return AMControl::LimitFailure;
-	}
-
-	if (!validSetpoint(setpoint)) {
-		AMErrorMon::error(this, BioXAS_MONO_REGION_INVALID_SETPOINT, "Region control cannot move. The setpoint given is invalid.");
-		return AMControl::LimitFailure;
-	}
-
-	// Update the saved setpoint value.
-
-	setSetpoint(setpoint);
-
-	// Resolve the given setpoint to a region state, create the appropriate action.
-
-	AMAction3 *action = createMoveAction(setpoint_);
-
-	// If a valid action was NOT generated, there must be some problem with one of the child controls.
-
-	if (!action) {
-		AMErrorMon::error(this, BioXAS_MONO_REGION_INVALID_ACTION, "Region control cannot move. The problem is most likely that the destination is not a valid region.");
-		return AMControl::LimitFailure;
-	}
-
-	// Create signal mappings for this action.
-
-	startedMapper_->setMapping(action, action);
-	connect( action, SIGNAL(started()), startedMapper_, SLOT(map()) );
-
-	cancelledMapper_->setMapping(action, action);
-	connect( action, SIGNAL(cancelled()), cancelledMapper_, SLOT(map()) );
-
-	failedMapper_->setMapping(action, action);
-	connect( action, SIGNAL(failed()), failedMapper_, SLOT(map()) );
-
-	succeededMapper_->setMapping(action, action);
-	connect( action, SIGNAL(succeeded()), succeededMapper_, SLOT(map()) );
-
-	// Make additional action connections.
-
-	connect( action, SIGNAL(progressChanged(double, double)), this, SIGNAL(moveProgressChanged(double,double)) );
-	connect( action, SIGNAL(currentSubActionChanged(int)), this, SLOT(onMoveStepChanged(int)) );
-
-	// Run action.
-
-	action->start();
-
-	return AMControl::NoFailure;
 }
 
 void BioXASSSRLMonochromatorRegionControl::setUpperSlitControl(AMControl *upperSlit)
@@ -467,6 +403,11 @@ AMAction3* BioXASSSRLMonochromatorRegionControl::createMoveAction(double newRegi
 		action->addSubAction(createWaitForBrakeEnabledAction());
 		action->addSubAction(createMoveBraggToRegionAction(newRegion));
 		action->addSubAction(createWaitForKeyDisabledAction());	
+
+		// Make additional action connections.
+
+		connect( action, SIGNAL(progressChanged(double, double)), this, SIGNAL(moveProgressChanged(double,double)) );
+		connect( action, SIGNAL(currentSubActionChanged(int)), this, SLOT(onMoveStepChanged(int)) );
 	}
 
 	return action;
