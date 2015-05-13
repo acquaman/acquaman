@@ -2,6 +2,8 @@
 #include "beamline/BioXAS/BioXASSSRLMonochromator.h"
 #include <math.h>
 
+#include <QDebug>
+
 BioXASSSRLMonochromatorEnergyControl::BioXASSSRLMonochromatorEnergyControl(const QString &name, QObject *parent) :
 	AMPseudoMotorControl(name, "eV", parent)
 {
@@ -17,6 +19,12 @@ BioXASSSRLMonochromatorEnergyControl::BioXASSSRLMonochromatorEnergyControl(const
 	braggSetPosition_ = 0;
 	region_ = 0;
 	m1Mirror_ = 0;
+
+	// Current settings.
+
+	updateConnected();
+	updateValue();
+	updateIsMoving();
 }
 
 BioXASSSRLMonochromatorEnergyControl::~BioXASSSRLMonochromatorEnergyControl()
@@ -66,6 +74,8 @@ void BioXASSSRLMonochromatorEnergyControl::setBraggControl(AMControl *newControl
 		if (bragg_)
 			addChildControl(bragg_);
 
+		updateStates();
+
 		emit braggControlChanged(bragg_);
 	}
 }
@@ -81,6 +91,8 @@ void BioXASSSRLMonochromatorEnergyControl::setBraggSetPositionControl(AMControl 
 
 		if (braggSetPosition_)
 			addChildControl(braggSetPosition_);
+
+		updateStates();
 
 		emit braggSetPositionControlChanged(braggSetPosition_);
 	}
@@ -98,6 +110,8 @@ void BioXASSSRLMonochromatorEnergyControl::setRegionControl(AMControl *newContro
 		if (region_)
 			addChildControl(region_);
 
+		updateStates();
+
 		emit regionControlChanged(region_);
 	}
 }
@@ -113,6 +127,8 @@ void BioXASSSRLMonochromatorEnergyControl::setM1MirrorControl(AMControl *newCont
 
 		if (m1Mirror_)
 			addChildControl(m1Mirror_);
+
+		updateStates();
 
 		emit m1MirrorControlChanged(m1Mirror_);
 	}
@@ -207,7 +223,7 @@ double BioXASSSRLMonochromatorEnergyControl::calculateBraggAngleFromEnergy(doubl
 
 double BioXASSSRLMonochromatorEnergyControl::calculateEnergyFromBraggAngle(double hc, double crystal2D, double braggAngle)
 {
-	double energy = hc / ( crystal2D + sin(braggAngle * M_PI/180) );
+	double energy = hc / ( crystal2D * sin(braggAngle * M_PI/180) );
 	return energy;
 }
 

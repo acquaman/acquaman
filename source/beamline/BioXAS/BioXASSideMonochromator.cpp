@@ -25,7 +25,7 @@ BioXASSideMonochromator::BioXASSideMonochromator(QObject *parent) :
 	regionBStatus_ = new AMReadOnlyPVControl("RegionBStatus", "BL1607-5-I22:Mono:Region:B", this);
 
 	braggSetPosition_ = new AMSinglePVControl("BraggSetPositionControl", "SMTR1607-5-I22-12:deg:setPosn", this);
-	m1MirrorOffset_ = new AMSinglePVControl("M1MirrorOffset", "BL1607-5-I22:Energy:EV:fbk:tr.H", this);
+	m1MirrorOffset_ = new AMSinglePVControl("M1MirrorOffset", "BL1607-5-I22:Energy:EV:fbk:tr.G", this);
 
 	upperSlitMotor_ = new CLSMAXvMotor(QString("SMTR1607-5-I22-09 VERT UPPER BLADE"), QString("SMTR1607-5-I22-09"), QString("SMTR1607-5-I22-09 VERT UPPER BLADE"), true, 0.1, 2.0, this);
 	lowerSlitMotor_ = new CLSMAXvMotor(QString("SMTR1607-5-I22-10 VERT LOWER BLADE"), QString("SMTR1607-5-I22-10"), QString("SMTR1607-5-I22-10 VERT LOWER BLADE"), true, 0.1, 2.0, this);
