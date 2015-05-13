@@ -139,12 +139,16 @@ AMAction3* BioXASMainXASScanActionController::createInitializationActions()
 		// if we have a valid scaler on the beamline, perform a dark current measurement for the same length of time as the dwell time.
 		AMAction3 *darkCurrentSetup = scaler->createMeasureDarkCurrentAction((int)scaler->dwellTime());
 
+		// Turn beam on.
+		AMAction3 *beamOn = BioXASMainBeamline::bioXAS()->createTurnOnBeamActions();
+
 		initializationAction->addSubAction(stage1);
 		initializationAction->addSubAction(stage2);
 		initializationAction->addSubAction(scaler->createDwellTimeAction3(double(configuration_->scanAxisAt(0)->regionAt(0)->regionTime())));
 		initializationAction->addSubAction(stage3);
 		initializationAction->addSubAction(stage4);
 		initializationAction->addSubAction(darkCurrentSetup);
+		initializationAction->addSubAction(beamOn);
 
 		// Set the bragg motor power to PowerOn, must be on to move/scan.
 		initializationAction->addSubAction(BioXASMainBeamline::bioXAS()->mono()->braggMotor()->createPowerAction(CLSMAXvMotor::PowerOn));
