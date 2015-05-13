@@ -88,8 +88,16 @@ bool AMPseudoMotorControl::stop()
 	bool result = true;
 
 	foreach (AMControl *child, children_) {
-		if (child)
-			result = result && child->stop();
+		bool childStopped = false;
+
+		if (child && child->shouldStop()) {
+			if (child->canStop())
+				childStopped = child->stop();
+			else
+				childStopped = false;
+		}
+
+		result = result && childStopped;
 	}
 
 	return result;
