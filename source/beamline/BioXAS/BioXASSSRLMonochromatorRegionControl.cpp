@@ -95,10 +95,19 @@ bool BioXASSSRLMonochromatorRegionControl::validValue(double value) const
 {
 	bool isValid = false;
 
-	if (value == BioXASSSRLMonochromator::Region::A ||
-			value == BioXASSSRLMonochromator::Region::B ||
-			value == BioXASSSRLMonochromator::Region::None)
+	switch ((int)value) {
+	case BioXASSSRLMonochromator::Region::A:
 		isValid = true;
+		break;
+	case BioXASSSRLMonochromator::Region::B:
+		isValid = true;
+		break;
+	case BioXASSSRLMonochromator::Region::None:
+		isValid = true;
+		break;
+	default:
+		break;
+	}
 
 	return isValid;
 }
@@ -440,30 +449,6 @@ void BioXASSSRLMonochromatorRegionControl::updateIsMoving()
 void BioXASSSRLMonochromatorRegionControl::onMoveStepChanged(int stepIndex)
 {
 	emit moveStepChanged(stepDescription(stepIndex), stepInstruction(stepIndex), stepNotes(stepIndex));
-}
-
-void BioXASSSRLMonochromatorRegionControl::onMoveStarted(QObject *action)
-{
-	Q_UNUSED(action)
-	setMoveInProgress(true);
-}
-
-void BioXASSSRLMonochromatorRegionControl::onMoveCancelled(QObject *action)
-{
-	moveCleanup(action);
-	emit moveFailed(AMControl::WasStoppedFailure);
-}
-
-void BioXASSSRLMonochromatorRegionControl::onMoveFailed(QObject *action)
-{
-	moveCleanup(action);
-	emit moveFailed(AMControl::OtherFailure);
-}
-
-void BioXASSSRLMonochromatorRegionControl::onMoveSucceeded(QObject *action)
-{
-	moveCleanup(action);
-	emit moveSucceeded();
 }
 
 AMAction3* BioXASSSRLMonochromatorRegionControl::createMoveAction(double newRegion)

@@ -163,15 +163,6 @@ protected slots:
 	/// Handles emitting the appropriate signals when the current step in a move has changed.
 	void onMoveStepChanged(int stepIndex);
 
-	/// Called when the internal crystal change action has been started. Handles updating the moveInProgress_ member variable and emitting the moveInProgress() signal.
-	virtual void onMoveStarted(QObject *action);
-	/// Called when the internal crystal change action has been cancelled. Handles emitting moveFailed(...) with the WasStoppedFailure code and deleting the action.
-	virtual void onMoveCancelled(QObject *action);
-	/// Called when the internal crystal change action has failed. Handles emitting moveFailed(...) with the OtherFailure code and deleting the action.
-	virtual void onMoveFailed(QObject *action);
-	/// Called when the internal crystal change action has succeeded! Handles emitting moveSucceeded() and deleting the action.
-	virtual void onMoveSucceeded(QObject *action);
-
 protected:
 	/// Returns a new action that performs a crystal change to the new region.
 	AMAction3* createMoveAction(double newRegion);
