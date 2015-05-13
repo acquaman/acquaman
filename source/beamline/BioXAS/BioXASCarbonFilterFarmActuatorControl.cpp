@@ -54,7 +54,7 @@ bool BioXASCarbonFilterFarmActuatorControl::canMeasure() const
 	bool result = false;
 
 	if (isConnected())
-		result = position_->canStop();
+		result = position_->canMeasure();
 
 	return result;
 }
