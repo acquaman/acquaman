@@ -238,16 +238,8 @@ bool AMStepScanActionController::event(QEvent *e)
 				writeHeaderToFile();
 
 			for (int i = 0, size = scan_->rawData()->scanAxesCount(); i < size; i++)
-				if (message.uniqueID().contains(scan_->rawData()->scanAxisAt(i).name)){
-
-					AMScanAxisRegion *region = stepConfiguration_->scanAxisAt(i)->regionAt(0);
-
-					if (double(region->regionStep()) > 0)
-						currentAxisValueIndex_[i] = 0;
-
-					else
-						currentAxisValueIndex_[i] = int((double(region->regionEnd())-double(region->regionStart()))/double(region->regionStep()));
-				}
+				if (message.uniqueID().contains(scan_->rawData()->scanAxisAt(i).name))
+					currentAxisValueIndex_[i] = 0;
 
 			break;}
 
@@ -288,17 +280,8 @@ bool AMStepScanActionController::event(QEvent *e)
 			writeDataToFiles();
 
 			for (int i = 0, size = scan_->rawData()->scanAxesCount(); i < size; i++)
-				if (message.uniqueID().contains(scan_->rawData()->scanAxisAt(i).name)){
-
-					AMScanAxisRegion *region = stepConfiguration_->scanAxisAt(i)->regionAt(0);
-
-					if (double(region->regionStep()) > 0)
-						currentAxisValueIndex_[i] = currentAxisValueIndex_.at(i)+1;
-
-					else
-						currentAxisValueIndex_[i] = currentAxisValueIndex_.at(i)-1;
-				}
-
+				if (message.uniqueID().contains(scan_->rawData()->scanAxisAt(i).name))
+					currentAxisValueIndex_[i] = currentAxisValueIndex_.at(i)+1;
 
 			if (isStopping() && !stoppingAtEndOfLine_){
 
