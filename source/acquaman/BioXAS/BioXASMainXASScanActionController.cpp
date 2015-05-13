@@ -52,19 +52,19 @@ BioXASMainXASScanActionController::BioXASMainXASScanActionController(BioXASMainX
 
 	useFeedback_ = true;
 
-	AMDetectorInfoSet detectorSet;
-	detectorSet.addDetectorInfo(BioXASMainBeamline::bioXAS()->exposedDetectorByName("I0Detector")->toInfo());
-	detectorSet.addDetectorInfo(BioXASMainBeamline::bioXAS()->exposedDetectorByName("I1Detector")->toInfo());
-	detectorSet.addDetectorInfo(BioXASMainBeamline::bioXAS()->exposedDetectorByName("I2Detector")->toInfo());
-	detectorSet.addDetectorInfo(BioXASMainBeamline::bioXAS()->exposedDetectorByName("EnergySetpoint")->toInfo());
-	detectorSet.addDetectorInfo(BioXASMainBeamline::bioXAS()->exposedDetectorByName("EnergyFeedback")->toInfo());
-	detectorSet.addDetectorInfo(BioXASMainBeamline::bioXAS()->exposedDetectorByName("DwellTimeFeedback")->toInfo());
-	detectorSet.addDetectorInfo(BioXASMainBeamline::bioXAS()->exposedDetectorByName("MonoFeedback")->toInfo());
-	detectorSet.addDetectorInfo(BioXASMainBeamline::bioXAS()->exposedDetectorByName("MonoMoveRetries")->toInfo());
-	detectorSet.addDetectorInfo(BioXASMainBeamline::bioXAS()->exposedDetectorByName("MonoStepSetpoint")->toInfo());
-	detectorSet.addDetectorInfo(BioXASMainBeamline::bioXAS()->exposedDetectorByName("BraggAngle")->toInfo());
+	AMDetectorInfoSet bioXASDetectors;
+	bioXASDetectors.addDetectorInfo(BioXASMainBeamline::bioXAS()->i0Detector()->toInfo());
+	bioXASDetectors.addDetectorInfo(BioXASMainBeamline::bioXAS()->i1Detector()->toInfo());
+	bioXASDetectors.addDetectorInfo(BioXASMainBeamline::bioXAS()->i2Detector()->toInfo());
+	bioXASDetectors.addDetectorInfo(BioXASMainBeamline::bioXAS()->energySetpointDetector()->toInfo());
+	bioXASDetectors.addDetectorInfo(BioXASMainBeamline::bioXAS()->energyFeedbackDetector()->toInfo());
+	bioXASDetectors.addDetectorInfo(BioXASMainBeamline::bioXAS()->dwellTimeDetector()->toInfo());
+	bioXASDetectors.addDetectorInfo(BioXASMainBeamline::bioXAS()->braggDetector()->toInfo());
+	bioXASDetectors.addDetectorInfo(BioXASMainBeamline::bioXAS()->braggEncoderFeedbackDetector()->toInfo());
+	bioXASDetectors.addDetectorInfo(BioXASMainBeamline::bioXAS()->braggMoveRetriesDetector()->toInfo());
+	bioXASDetectors.addDetectorInfo(BioXASMainBeamline::bioXAS()->braggStepSetpointDetector()->toInfo());
 
-	configuration_->setDetectorConfigurations(detectorSet);
+	configuration_->setDetectorConfigurations(bioXASDetectors);
 
 	secondsElapsed_ = 0;
 	secondsTotal_ = configuration_->totalTime();
@@ -98,18 +98,7 @@ void BioXASMainXASScanActionController::onScanTimerUpdate()
 
 QString BioXASMainXASScanActionController::beamlineSettings()
 {
-	QString notes;
-
-	notes.append(QString("Bragg motor base velocity:\t%1\n").arg(BioXASMainBeamline::bioXAS()->mono()->braggMotor()->EGUBaseVelocity()));
-	notes.append(QString("Bragg motor acceleration:\t%1\n").arg(BioXASMainBeamline::bioXAS()->mono()->braggMotor()->EGUAcceleration()));
-	notes.append(QString("Bragg motor velocity:\t%1\n").arg(BioXASMainBeamline::bioXAS()->mono()->braggMotor()->EGUVelocity()));
-	notes.append(QString("Bragg motor max retries:\t%1\n").arg(BioXASMainBeamline::bioXAS()->mono()->braggMotor()->maxRetries()));
-	notes.append(QString("Bragg motor encoder move type:\t%1\n").arg(BioXASMainBeamline::bioXAS()->mono()->braggMotor()->encoderMovementType()));
-	notes.append(QString("Bragg motor encoder step soft ratio:\t%1\n").arg(BioXASMainBeamline::bioXAS()->mono()->braggMotor()->encoderStepSoftRatio()));
-	notes.append(QString("Bragg motor encoder slope:\t%1\n").arg(BioXASMainBeamline::bioXAS()->mono()->braggMotor()->encoderCalibrationSlope()));
-	notes.append(QString("Bragg motor step calibration slope:\t%1\n").arg(BioXASMainBeamline::bioXAS()->mono()->braggMotor()->stepCalibrationSlope()));
-
-	return notes;
+	return QString();
 }
 
 AMAction3* BioXASMainXASScanActionController::createInitializationActions()
