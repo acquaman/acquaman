@@ -213,7 +213,6 @@ bool AM1DDarkCurrentCorrectionAB::values(const AMnDIndex &indexStart, const AMnD
 		if (dwellTimes.at(i) == 0 || dwellTimes.at(i) < 0)
 			return false;
 
-//		outputValues[i] = data.at(i)/(dwellTimes.at(i) * timeUnitMultiplier_) - darkCurrent_;
 		outputValues[i] = data.at(i) - darkCurrent_ * dwellTimes.at(i) * timeUnitMultiplier_;
 	}
 
