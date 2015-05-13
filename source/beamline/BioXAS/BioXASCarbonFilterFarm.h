@@ -66,17 +66,17 @@ protected:
 	bool connected_;
 
 	/// The total filter control.
-	AMControl *filter_;
+	BioXASCarbonFilterFarmControl *filter_;
 
 	/// The upstream actuator control.
-	AMControl *upstreamActuator_;
+	BioXASCarbonFilterFarmActuatorControl *upstreamActuator_;
 	/// The upstream position motor control.
 	AMControl *upstreamPosition_;
 	/// The upstream status control.
 	AMControl *upstreamStatus_;
 
 	/// The downstream actuator control.
-	AMControl *downstreamActuator_;
+	BioXASCarbonFilterFarmActuatorControl *downstreamActuator_;
 	/// The downstream position motor control.
 	AMControl *downstreamPosition_;
 	/// The downstream status control.
