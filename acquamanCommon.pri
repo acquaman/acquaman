@@ -368,7 +368,6 @@ HEADERS += \
 	source/ui/dataman/AMScanDataView.h \
 	source/dataman/AMLightweightScanInfoFilterProxyModel.h \
 	source/ui/dataman/AMScanTableView.h \
-	source/ui/dataman/AMScanThumbnailView.h \
 	source/ui/dataman/AMScanTreeView.h \
 	source/util/AMRecursiveDirectoryCompare.h \
 	source/util/AMDirectorySynchronizer.h \
@@ -410,7 +409,13 @@ HEADERS += \
 	source/dataman/AMXRFScan.h \
 	source/ui/util/AMChooseDataFolderDialog.h \
 	source/acquaman/AMTimedScanActionControllerAssembler.h \
-    source/acquaman/AMGenericStepScanController.h \
+    source/dataman/AMLightweightScanInfoFactory.h \
+    source/ui/util/AMGridFlowGeometryManager.h \
+    source/ui/dataman/AMScanThumbnailGridViewItemDelegate.h \
+    source/ui/dataman/AMScanThumbnailGridView.h \
+    source/ui/dataman/AMScanThumbnailGridInputManager.h \
+	source/ui/dataman/AMScanThumbnailGridGeometryManager.h \
+	source/acquaman/AMGenericStepScanController.h \
     source/acquaman/AMGenericStepScanConfiguration.h \
 	source/ui/acquaman/AMGenericStepScanConfigurationView.h \
 	source/util/AMCSVParser.h \
@@ -744,7 +749,6 @@ SOURCES += \
 	source/ui/dataman/AMScanDataView.cpp \
 	source/dataman/AMLightweightScanInfoFilterProxyModel.cpp \
 	source/ui/dataman/AMScanTableView.cpp \
-	source/ui/dataman/AMScanThumbnailView.cpp \
 	source/ui/dataman/AMScanTreeView.cpp \
 	source/util/AMRecursiveDirectoryCompare.cpp \
 	source/util/AMDirectorySynchronizer.cpp \
@@ -787,7 +791,13 @@ SOURCES += \
 	source/dataman/AMXRFScan.cpp \
 	source/ui/util/AMChooseDataFolderDialog.cpp \
 	source/acquaman/AMTimedScanActionControllerAssembler.cpp \
-    source/acquaman/AMGenericStepScanController.cpp \
+	source/dataman/AMLightweightScanInfoFactory.cpp \
+    source/ui/util/AMGridFlowGeometryManager.cpp \
+    source/ui/dataman/AMScanThumbnailGridViewItemDelegate.cpp \
+    source/ui/dataman/AMScanThumbnailGridView.cpp \
+    source/ui/dataman/AMScanThumbnailGridInputManager.cpp \
+	source/ui/dataman/AMScanThumbnailGridGeometryManager.cpp \
+	source/acquaman/AMGenericStepScanController.cpp \
     source/acquaman/AMGenericStepScanConfiguration.cpp \
 	source/ui/acquaman/AMGenericStepScanConfigurationView.cpp \
 	source/util/AMCSVParser.cpp \
@@ -809,7 +819,3 @@ contains(DEFINES, AM_BUILD_REPORTER_ENABLED){
 
 	SOURCES *= source/util/AMRunTimeBuildInfo.cpp
 }
-
-
-
-

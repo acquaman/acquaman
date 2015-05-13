@@ -146,8 +146,8 @@ void CLSJJSlitBladesControl::setUpperBladeControl(AMControl *newControl)
 		if (upperBladeControl_) {
 			addChildControl(upperBladeControl_);
 
-			connect( upperBladeControl_, SIGNAL(valueChanged(double)), this, SLOT(updateControlStates()) );
-			connect( upperBladeControl_, SIGNAL(connected(bool)), this, SLOT(updateControlStates()) );
+			connect( upperBladeControl_, SIGNAL(valueChanged(double)), this, SLOT(updateValue()) );
+			connect( upperBladeControl_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 			connect( upperBladeControl_, SIGNAL(alarmChanged(int,int)), this, SIGNAL(alarmChanged(int,int)) );
 			connect( upperBladeControl_, SIGNAL(error(int)), this, SIGNAL(error(int)) );
 		}
@@ -172,8 +172,8 @@ void CLSJJSlitBladesControl::setLowerBladeControl(AMControl *newControl)
 		if (lowerBladeControl_) {
 			addChildControl(lowerBladeControl_);
 
-			connect( lowerBladeControl_, SIGNAL(valueChanged(double)), this, SLOT(updateControlStates()) );
-			connect( lowerBladeControl_, SIGNAL(connected(bool)), this, SLOT(updateControlStates()) );
+			connect( lowerBladeControl_, SIGNAL(valueChanged(double)), this, SLOT(updateValue()) );
+			connect( lowerBladeControl_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 			connect( lowerBladeControl_, SIGNAL(alarmChanged(int,int)), this, SIGNAL(alarmChanged(int,int)) );
 			connect( lowerBladeControl_, SIGNAL(error(int)), this, SIGNAL(error(int)) );
 		}
@@ -248,6 +248,8 @@ void CLSJJSlitBladesControl::updateConnected()
 	bool connected = (upperControlOK && lowerControlOK);
 
 	setConnected(connected);
+
+	updateValue();
 }
 
 void CLSJJSlitBladesControl::updateGap()
