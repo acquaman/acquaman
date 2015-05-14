@@ -150,16 +150,16 @@ void IDEASXRFDetailedDetectorViewWithSave::buildScanSaveViews()
 
 void IDEASXRFDetailedDetectorViewWithSave::onSaveScanButtonClicked()
 {
-
 	config_->setDetectorInfo(detector_->toInfo());
 	config_->setIntegrationTime(detector_->elapsedTime());
 
 	scanAction_ = new AMScanAction(new AMScanActionInfo(config_->createCopy()));
-	scanAction_->start();
 
 	connect(scanAction_, SIGNAL(cancelled()), this, SLOT(cleanupScanAction()));
 	connect(scanAction_, SIGNAL(failed()), this, SLOT(cleanupScanAction()));
 	connect(scanAction_, SIGNAL(succeeded()), this, SLOT(cleanupScanAction()));
+
+	scanAction_->start();
 }
 
 void IDEASXRFDetailedDetectorViewWithSave::onNotesTextChanged()
