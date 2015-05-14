@@ -19,6 +19,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 
 #include "REIXSXASScanConfigurationView.h"
+#include "application/REIXS/REIXS.h"
 #include "ui_REIXSXASScanConfigurationView.h"
 
 #include "ui/AMTopFrame2.h"
@@ -135,38 +136,12 @@ void REIXSXASScanConfigurationView::onRegionsChanged()
 
 void REIXSXASScanConfigurationView::onEstimatedTimeChanged()
 {
-	QString timeString = "";
-
 	config_->blockSignals(true);
 	double time = config_->totalTime(true);
 	config_->blockSignals(false);
 
-	int days = int(time/3600.0/24.0);
 
-	if (days > 0){
-
-		time -= days*3600.0*24;
-		timeString += QString::number(days) + "d:";
-	}
-
-	int hours = int(time/3600.0);
-
-	if (hours > 0){
-
-		time -= hours*3600;
-		timeString += QString::number(hours) + "h:";
-	}
-
-	int minutes = int(time/60.0);
-
-	if (minutes > 0){
-
-		time -= minutes*60;
-		timeString += QString::number(minutes) + "m:";
-	}
-
-	int seconds = ((int)time)%60;
-	timeString += QString::number(seconds) + "s";
+	QString timeString = REIXS::convertTimeToString(time);
 
 	topFrame_->setLeftSubText("Expected acquisition time: " % timeString);
 	ui->estimatedTimeLabel->setText(timeString);

@@ -9,7 +9,9 @@ FORMS += \
 	source/ui/REIXS/REIXSSidebar.ui \
 	source/ui/REIXS/REIXSXASScanConfigurationView.ui
 
-HEADERS +=	source/application/REIXS/REIXSAppController.h \
+HEADERS +=	\
+	source/application/REIXS/REIXS.h \
+	source/application/REIXS/REIXSAppController.h \
 	source/acquaman/REIXS/REIXSXESScanConfiguration.h \
 	source/acquaman/REIXS/REIXSXESScanController.h \
 	source/beamline/REIXS/REIXSBeamline.h \
@@ -30,19 +32,20 @@ HEADERS +=	source/application/REIXS/REIXSAppController.h \
 	source/analysis/REIXS/REIXSXESImageInterpolationABEditor.h \
 	source/acquaman/REIXS/REIXSXASScanConfiguration.h \
 	source/ui/REIXS/REIXSXASScanConfigurationView.h \
-    source/acquaman/REIXS/REIXSXASScanActionController.h \
-    source/beamline/REIXS/REIXSXESMCPDetector.h \
-    source/acquaman/REIXS/REIXSXESMCPDetectorPre2013.h \
-    source/dataman/datasource/REIXS/REIXSXESMCPDataSource.h \
-    source/acquaman/REIXS/REIXSXESScanActionController.h \
+	source/acquaman/REIXS/REIXSXASScanActionController.h \
+	source/beamline/REIXS/REIXSXESMCPDetector.h \
+	source/acquaman/REIXS/REIXSXESMCPDetectorPre2013.h \
+	source/dataman/datasource/REIXS/REIXSXESMCPDataSource.h \
+	source/acquaman/REIXS/REIXSXESScanActionController.h \
 	source/ui/REIXS/REIXSRIXSScanConfigurationView.h \
-    source/actions3/REIXS/REIXSBeamOnOffAction.h \
-    source/ui/REIXS/REIXSScalerView.h \
-    source/ui/REIXS/REIXSXESSpectrometerControlPanel.h \
-    source/acquaman/REIXS/REIXSScanActionControllerMCPFileWriter.h
+	source/actions3/REIXS/REIXSBeamOnOffAction.h \
+	source/ui/REIXS/REIXSScalerView.h \
+	source/ui/REIXS/REIXSXESSpectrometerControlPanel.h \
+	source/acquaman/REIXS/REIXSScanActionControllerMCPFileWriter.h
 
-SOURCES +=	source/application/REIXS/REIXSAppController.cpp \
+SOURCES += \
 	source/application/REIXS/REIXSMain.cpp \
+	source/application/REIXS/REIXSAppController.cpp \
 	source/acquaman/REIXS/REIXSXESScanConfiguration.cpp \
 	source/acquaman/REIXS/REIXSXESScanController.cpp \
 	source/beamline/REIXS/REIXSBeamline.cpp \
@@ -73,6 +76,7 @@ SOURCES +=	source/application/REIXS/REIXSAppController.cpp \
     source/ui/REIXS/REIXSScalerView.cpp \
     source/ui/REIXS/REIXSXESSpectrometerControlPanel.cpp \
     source/acquaman/REIXS/REIXSScanActionControllerMCPFileWriter.cpp
+
 
 
 
