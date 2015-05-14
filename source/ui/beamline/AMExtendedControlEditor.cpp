@@ -54,6 +54,7 @@ AMExtendedControlEditor::AMExtendedControlEditor(AMControl* control, AMControl* 
 	format_ = 'g';
 	precision_ = 3;
 	unitsSetManually_ = false;
+	titleSetManually_ = false;
 
 	statusTagControl_ = 0;
 
