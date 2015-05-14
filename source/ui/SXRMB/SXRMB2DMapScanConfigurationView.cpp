@@ -434,7 +434,8 @@ QGroupBox *SXRMB2DMapScanConfigurationView::addExporterOptionsView(QStringList l
 
 void SXRMB2DMapScanConfigurationView::onBeamlineEndstationChanged(SXRMB::Endstation fromEndstation, SXRMB::Endstation toEndstation)
 {
-	Q_UNUSED(fromEndstation, toEndstation)
+	Q_UNUSED(fromEndstation)
+	Q_UNUSED(toEndstation)
 
 	updatePowerOnHVControlCheckBoxText();
 }
