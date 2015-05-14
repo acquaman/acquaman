@@ -131,7 +131,7 @@ void AMPseudoMotorControl::setMoveInProgress(bool isMoving)
 {
 	if (moveInProgress_ != isMoving) {
 		moveInProgress_ = isMoving;
-		emit movingChanged(moveInProgress_);
+//		emit movingChanged(moveInProgress_);
 	}
 }
 
