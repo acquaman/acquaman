@@ -363,11 +363,19 @@ bool AMDatamanAppController::startupOnFirstTime()
 		firstTimeWizard->setField("useLocalStorage", QVariant(defaultUseLocalStorage_));
 
 		// We're pretty forceful here... The user needs to accept this dialog.
-		if(firstTimeWizard->exec() != QDialog::Accepted)
+		if(firstTimeWizard->exec() != QDialog::Accepted) {
+			firstTimeWizard->deleteLater();
 			return false;
+		}
 
-		if(firstTimeWizard->field("useLocalStorage").toBool()){
-			AMUserSettings::remoteDataFolder = firstTimeWizard->field("userDataFolder").toString();
+		bool userLocalStorage = firstTimeWizard->field("useLocalStorage").toBool();
+		QString userDataFolder = firstTimeWizard->field("userDataFolder").toString();
+		QString userName = firstTimeWizard->field("userName").toString();
+
+		firstTimeWizard->deleteLater();
+
+		if(userLocalStorage){
+			AMUserSettings::remoteDataFolder = userDataFolder;
 			if(!AMUserSettings::remoteDataFolder.endsWith('/'))
 				AMUserSettings::remoteDataFolder.append("/");
 
@@ -375,7 +383,7 @@ bool AMDatamanAppController::startupOnFirstTime()
 			AMUserSettings::userDataFolder = localUserDataFolder.section('/', 2, -1).prepend("/AcquamanLocalData/");
 		}
 		else{
-			AMUserSettings::userDataFolder = firstTimeWizard->field("userDataFolder").toString();
+			AMUserSettings::userDataFolder = userDataFolder;
 			if(!AMUserSettings::userDataFolder.endsWith('/'))
 				AMUserSettings::userDataFolder.append("/");
 		}
@@ -392,7 +400,7 @@ bool AMDatamanAppController::startupOnFirstTime()
 			}
 		}
 
-		if(firstTimeWizard->field("useLocalStorage").toBool()){
+		if(userLocalStorage){
 			// Attempt to create user's data folder, only if it doesn't exist:
 			QDir remoteDataDir(AMUserSettings::remoteDataFolder);
 			if(!remoteDataDir.exists()) {
@@ -405,7 +413,7 @@ bool AMDatamanAppController::startupOnFirstTime()
 		}
 
 		// Find out the user's name:
-		AMUser::user()->setName( firstTimeWizard->field("userName").toString() );
+		AMUser::user()->setName( userName );
 
 		if(!startupCreateDatabases())
 			return false;
@@ -414,7 +422,7 @@ bool AMDatamanAppController::startupOnFirstTime()
 		if(!startupDatabaseUpgrades())
 			return false;
 
-		if(firstTimeWizard->field("useLocalStorage").toBool()){
+		if(userLocalStorage){
 			QDir userDataFolder(AMUserSettings::userDataFolder);
 			QStringList dataFolderFilters;
 			dataFolderFilters << "*.db";
