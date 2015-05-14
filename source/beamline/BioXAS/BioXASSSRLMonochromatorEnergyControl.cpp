@@ -44,7 +44,7 @@ bool BioXASSSRLMonochromatorEnergyControl::canMeasure() const
 	bool result = false;
 
 	if (isConnected())
-		result = ( bragg_->canMeasure() && region_->canMeasure() );
+		result = ( bragg_->canMeasure() && braggSetPosition_->canMeasure() && region_->canMeasure() && m1Mirror_->canMeasure() );
 
 	return result;
 }
@@ -178,7 +178,7 @@ void BioXASSSRLMonochromatorEnergyControl::updateValue()
 void BioXASSSRLMonochromatorEnergyControl::updateIsMoving()
 {
 	if (isConnected()) {
-		setIsMoving( bragg_->isMoving() || region_->isMoving() );
+		setIsMoving( bragg_->isMoving() );
 	}
 }
 
@@ -224,7 +224,7 @@ double BioXASSSRLMonochromatorEnergyControl::calculateBraggPositionFromAngleRegi
 
 double BioXASSSRLMonochromatorEnergyControl::calculateBraggAngleFromEnergy(double hc, double crystal2D, double energy)
 {
-	double braggAngle = asin( hc/energy - crystal2D ) * 180/M_PI;
+	double braggAngle = asin( hc/(energy * crystal2D) ) * 180/M_PI;
 	return braggAngle;
 }
 
