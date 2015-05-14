@@ -1,8 +1,6 @@
 #include "BioXASSSRLMonochromatorRegionControlEditor.h"
 #include "beamline/BioXAS/BioXASSSRLMonochromatorRegionControl.h"
 
-#include <QDebug>
-
 BioXASSSRLMonochromatorRegionControlEditor::BioXASSSRLMonochromatorRegionControlEditor(BioXASSSRLMonochromatorRegionControl *regionControl, QWidget *parent) :
 	AMExtendedControlEditor(regionControl, 0, false, false, parent)
 {
@@ -29,8 +27,6 @@ void BioXASSSRLMonochromatorRegionControlEditor::setControl(AMControl *newContro
 
 void BioXASSSRLMonochromatorRegionControlEditor::onRegionControlMoveStarted()
 {
-	qDebug() << "\nRegion control move started.\n";
-
 	if (control_ && control_->isConnected()) {
 		BioXASSSRLMonochromatorRegionControlMovingView *movingView = new BioXASSSRLMonochromatorRegionControlMovingView(qobject_cast<BioXASSSRLMonochromatorRegionControl*>(control_), this);
 		movingView->setWindowModality(Qt::WindowModal);
