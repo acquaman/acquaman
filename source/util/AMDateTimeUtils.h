@@ -44,7 +44,6 @@ namespace AMDateTimeUtils
 
 	/// Formats a QStringList of items into a QString that is a gramatically correct list (using commas and the word "and")
 	QString gramaticallyCorrectList(const QStringList &listItems);
-
-};
+}
 
 #endif // AMDATETIMEUTILS_H

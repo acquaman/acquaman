@@ -21,8 +21,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "VESPERSEnergyScanConfigurationView.h"
 
 #include "ui/AMTopFrame.h"
-#include "beamline/VESPERS/VESPERSBeamline.h"
 #include "ui/dataman/AMStepScanAxisView.h"
+#include "beamline/VESPERS/VESPERSBeamline.h"
 
 #include <QGridLayout>
 #include <QVBoxLayout>
@@ -309,5 +309,5 @@ void VESPERSEnergyScanConfigurationView::setScanPosition()
 
 void VESPERSEnergyScanConfigurationView::onEstimatedTimeChanged()
 {
-	estimatedTime_->setText("Estimated time:\t" + VESPERS::convertTimeToString(configuration_->totalTime()));
+	estimatedTime_->setText("Estimated time:\t" + convertTimeToString(configuration_->totalTime()));
 }

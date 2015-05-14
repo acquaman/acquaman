@@ -368,7 +368,7 @@ void VESPERS3DScanConfigurationView::onCCDDetectorChanged(int id)
 
 void VESPERS3DScanConfigurationView::onEstimatedTimeChanged()
 {
-	estimatedTime_->setText("Estimated time per scan:\t" + VESPERS::convertTimeToString(configuration_->totalTime()));
+	estimatedTime_->setText("Estimated time per scan:\t" + convertTimeToString(configuration_->totalTime()));
 }
 
 void VESPERS3DScanConfigurationView::onSetStartPosition()

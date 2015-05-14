@@ -234,7 +234,7 @@ void SXRMB2DOxidationMapScanConfigurationView::onScanNameEdited()
 
 void SXRMB2DOxidationMapScanConfigurationView::onEstimatedTimeChanged()
 {
-	estimatedTime_->setText("Estimated time per scan:\t" + SXRMB::convertTimeToString(configuration_->totalTime()));
+	estimatedTime_->setText("Estimated time per scan:\t" + convertTimeToString(configuration_->totalTime()));
 }
 
 void SXRMB2DOxidationMapScanConfigurationView::onSetStartPosition()
