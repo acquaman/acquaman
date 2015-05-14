@@ -24,9 +24,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/CLS/CLSFacilityID.h"
 #include "beamline/BioXAS/BioXASImagingBeamline.h"
 
-#include "ui/AMMainWindow.h"
-#include "ui/dataman/AMGenericScanEditor.h"
-
 #include "actions3/AMActionRunner3.h"
 #include "actions3/actions/AMScanAction.h"
 #include "actions3/AMListAction3.h"
@@ -40,16 +37,23 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/export/AMExporterAthena.h"
 #include "dataman/AMRun.h"
 
+#include "ui/AMMainWindow.h"
+#include "ui/dataman/AMGenericScanEditor.h"
+#include "ui/util/AMChooseDataFolderDialog.h"
+
 #include "util/AMPeriodicTable.h"
 
 BioXASImagingAppController::BioXASImagingAppController(QObject *parent)
 	: AMAppController(parent)
 {
+	setDefaultUseLocalStorage(true);
 }
 
 bool BioXASImagingAppController::startup()
 {
-	getUserDataFolderFromDialog();
+	// Get a destination folder.
+	if ( !AMChooseDataFolderDialog::getDataFolder("/AcquamanLocalData/bioxas/AcquamanImagingData", "/home/bioxas/AcquamanImagingData", "users", QStringList()) )
+		return false;
 
 	// Start up the main program.
 	if(AMAppController::startup()) {
