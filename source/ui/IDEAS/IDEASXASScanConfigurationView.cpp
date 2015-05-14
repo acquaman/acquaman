@@ -31,6 +31,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/IDEAS/IDEASBeamline.h"
 #include "util/AMEnergyToKSpaceCalculator.h"
 #include "util/AMPeriodicTable.h"
+#include "util/AMDateTimeUtils.h"
 #include "ui/AMTopFrame.h"
 #include "ui/dataman/AMEXAFSScanAxisView.h"
 #include "ui/util/AMPeriodicTableDialog.h"
@@ -334,7 +335,7 @@ void IDEASXASScanConfigurationView::onEstimatedTimeChanged()
 	pointPerScan_->setText(QString("%1").arg(configuration_->totalPoints()));
 	scanEnergyRange_->setText(QString("%1 eV - %2 eV").arg(configuration_->minEnergy()).arg(configuration_->maxEnergy()));
 
-	QString timeString = convertTimeToString(time);
+	QString timeString = AMDateTimeUtils::convertTimeToString(time);
 	estimatedTime_->setText(timeString);
 }
 

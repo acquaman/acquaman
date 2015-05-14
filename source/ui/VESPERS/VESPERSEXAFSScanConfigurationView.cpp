@@ -23,6 +23,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/dataman/AMEXAFSScanAxisView.h"
 #include "ui/util/AMPeriodicTableDialog.h"
 #include "beamline/VESPERS/VESPERSBeamline.h"
+#include "util/AMDateTimeUtils.h"
 #include "util/AMPeriodicTable.h"
 #include "util/AMEnergyToKSpaceCalculator.h"
 
@@ -294,7 +295,7 @@ void VESPERSEXAFSScanConfigurationView::onItClicked(int index)
 
 void VESPERSEXAFSScanConfigurationView::onEstimatedTimeChanged()
 {
-	estimatedTime_->setText("Estimated time per scan:\t" + convertTimeToString(configuration_->totalTime()));
+	estimatedTime_->setText("Estimated time per scan:\t" + AMDateTimeUtils::convertTimeToString(configuration_->totalTime()));
 }
 
 void VESPERSEXAFSScanConfigurationView::onEdgeChanged()

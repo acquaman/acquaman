@@ -20,6 +20,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "VESPERSSpatialLineScanConfigurationView.h"
 
+#include "util/AMDateTimeUtils.h"
 #include "ui/AMTopFrame.h"
 #include "beamline/VESPERS/VESPERSBeamline.h"
 
@@ -465,7 +466,7 @@ void VESPERSSpatialLineScanConfigurationView::onCCDDetectorChanged(int id)
 
 void VESPERSSpatialLineScanConfigurationView::onEstimatedTimeChanged()
 {
-	estimatedTime_->setText("Estimated time per scan:\t" + convertTimeToString(configuration_->totalTime()));
+	estimatedTime_->setText("Estimated time per scan:\t" + AMDateTimeUtils::convertTimeToString(configuration_->totalTime()));
 }
 
 void VESPERSSpatialLineScanConfigurationView::onSetStartPosition()

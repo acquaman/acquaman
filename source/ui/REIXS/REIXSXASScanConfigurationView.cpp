@@ -25,6 +25,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/AMTopFrame2.h"
 #include "ui/dataman/AMStepScanAxisView.h"
 #include "ui/dataman/AMSamplePre2013Selector.h"
+#include "util/AMDateTimeUtils.h"
 #include <QStringBuilder>
 
 REIXSXASScanConfigurationView::REIXSXASScanConfigurationView(REIXSXASScanConfiguration* config, QWidget *parent) :
@@ -140,7 +141,7 @@ void REIXSXASScanConfigurationView::onEstimatedTimeChanged()
 	config_->blockSignals(false);
 
 
-	QString timeString = convertTimeToString(time);
+	QString timeString = AMDateTimeUtils::convertTimeToString(time);
 
 	topFrame_->setLeftSubText("Expected acquisition time: " % timeString);
 	ui->estimatedTimeLabel->setText(timeString);

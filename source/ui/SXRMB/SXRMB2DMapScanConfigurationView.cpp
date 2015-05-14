@@ -3,6 +3,7 @@
 #include "application/SXRMB/SXRMB.h"
 #include "beamline/SXRMB/SXRMBBeamline.h"
 
+#include "util/AMDateTimeUtils.h"
 #include "ui/AMTopFrame.h"
 
 #include <QGridLayout>
@@ -261,7 +262,7 @@ void SXRMB2DMapScanConfigurationView::onScanNameEdited()
 
 void SXRMB2DMapScanConfigurationView::onEstimatedTimeChanged()
 {
-	estimatedTime_->setText("Estimated time per scan:\t" + convertTimeToString(configuration_->totalTime()));
+	estimatedTime_->setText("Estimated time per scan:\t" + AMDateTimeUtils::convertTimeToString(configuration_->totalTime()));
 }
 
 void SXRMB2DMapScanConfigurationView::onSetStartPosition()

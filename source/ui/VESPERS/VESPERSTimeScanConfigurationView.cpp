@@ -32,6 +32,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QMenu>
 
 #include "beamline/VESPERS/VESPERSBeamline.h"
+#include "util/AMDateTimeUtils.h"
 #include "ui/AMTopFrame.h"
 
 VESPERSTimeScanConfigurationView::VESPERSTimeScanConfigurationView(VESPERSTimeScanConfiguration *config, QWidget *parent)
@@ -287,7 +288,7 @@ void VESPERSTimeScanConfigurationView::onCCDDetectorChanged(int id)
 
 void VESPERSTimeScanConfigurationView::onEstimatedTimeChanged()
 {
-	estimatedTime_->setText("Estimated time per scan:\t" + convertTimeToString(configuration_->totalTime()));
+	estimatedTime_->setText("Estimated time per scan:\t" + AMDateTimeUtils::convertTimeToString(configuration_->totalTime()));
 }
 
 void VESPERSTimeScanConfigurationView::onDwellTimeChanged()

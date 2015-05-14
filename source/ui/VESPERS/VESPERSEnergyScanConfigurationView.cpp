@@ -20,6 +20,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "VESPERSEnergyScanConfigurationView.h"
 
+#include "util/AMDateTimeUtils.h"
 #include "ui/AMTopFrame.h"
 #include "ui/dataman/AMStepScanAxisView.h"
 #include "beamline/VESPERS/VESPERSBeamline.h"
@@ -309,5 +310,5 @@ void VESPERSEnergyScanConfigurationView::setScanPosition()
 
 void VESPERSEnergyScanConfigurationView::onEstimatedTimeChanged()
 {
-	estimatedTime_->setText("Estimated time:\t" + convertTimeToString(configuration_->totalTime()));
+	estimatedTime_->setText("Estimated time:\t" + AMDateTimeUtils::convertTimeToString(configuration_->totalTime()));
 }
