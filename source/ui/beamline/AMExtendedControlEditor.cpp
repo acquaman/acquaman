@@ -145,16 +145,33 @@ void AMExtendedControlEditor::setControl(AMControl *newControl)
 	if (control_ != newControl) {
 
 		if (control_) {
+
 			// Disconnect from control.
+
 			disconnect( control_, 0, this, 0 );
 			disconnect( dialog_, 0, control_, 0 );
 
 			control_ = 0;
+
+			// Clear the frame title.
+
+			if (!titleSetManually_)
+				setTitleText("");
 		}
 
 		control_ = newControl;
 
 		if (control_) {
+
+			// Set the frame title.
+
+			if (!titleSetManually_) {
+				if (control_->description().isEmpty())
+					setTitleText(control_->name());
+				else
+					setTitleText(control_->description());
+			}
+
 			// Make connections.
 			connect(control_, SIGNAL(valueChanged(double)), this, SLOT(onValueChanged(double)));
 			connect(control_, SIGNAL(unitsChanged(QString)), this, SLOT(onUnitsChanged(QString)));
@@ -279,10 +296,28 @@ void AMExtendedControlEditor::setUnitsText(const QString &newUnits)
 	unitsLabel_->setText(newUnits);
 }
 
+void AMExtendedControlEditor::setTitleText(const QString &newTitle)
+{
+	QGroupBox::setTitle(newTitle);
+}
+
 void AMExtendedControlEditor::setUnitsManually(bool manual)
 {
 	if (unitsSetManually_ != manual) {
 		unitsSetManually_ = manual;
+	}
+}
+
+void AMExtendedControlEditor::setTitle(const QString &title)
+{
+	setTitleManually(true);
+	setTitleText(title);
+}
+
+void AMExtendedControlEditor::setTitleManually(bool manual)
+{
+	if (titleSetManually_ != manual) {
+		titleSetManually_ = manual;
 	}
 }
 
