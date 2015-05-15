@@ -19,8 +19,8 @@ SXRMBFourElementVortexDetector::SXRMBFourElementVortexDetector(const QString &na
 
 	for (int i = 0; i < 4; i++){
 
-		icrControls_.append(new AMReadOnlyPVControl(QString("Input Counts %1").arg(i+1), QString("dxp1606-B10-02:dxp%1:InputCountRate").arg(i+1), this, QString("The input counts for element %1 of the four element.").arg(i+1)));
-		ocrControls_.append(new AMReadOnlyPVControl(QString("Output Counts %1").arg(i+1), QString("dxp1606-B10-02:dxp%1:OutputCountRate").arg(i+1), this, QString("The output counts for element %1 of the four element.").arg(i+1)));
+		icrControls_.append(new AMReadOnlyPVControl(QString("Input Counts %1").arg(i+1), QString("dxp1606-B10-02:dxp%1.ICR").arg(i+1), this, QString("The input counts for element %1 of the four element.").arg(i+1)));
+		ocrControls_.append(new AMReadOnlyPVControl(QString("Output Counts %1").arg(i+1), QString("dxp1606-B10-02:dxp%1.OCR").arg(i+1), this, QString("The output counts for element %1 of the four element.").arg(i+1)));
 		spectraControls_.append(new AMReadOnlyPVControl(QString("Raw Spectrum %1").arg(i+1), QString("dxp1606-B10-02:mca%1").arg(i+1), this));
 	}
 
