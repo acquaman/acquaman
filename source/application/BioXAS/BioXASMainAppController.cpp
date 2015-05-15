@@ -86,7 +86,7 @@ BioXASMainAppController::BioXASMainAppController(QObject *parent)
 bool BioXASMainAppController::startup()
 {
 	// Get a destination folder.
-	if ( !AMChooseDataFolderDialog::getDataFolder("/AcquamanLocalData/bioxas/AcquamanMainData", "/home/bioxas/AcquamanMainData", "users", QStringList()) )
+	if ( !AMChooseDataFolderDialog::getDataFolder("/AcquamanLocalData/bioxas-m/AcquamanMainData", "/home/bioxas-m/AcquamanMainData", "users", QStringList()) )
 		return false;
 
 	// Start up the main program.
