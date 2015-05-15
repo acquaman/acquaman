@@ -116,6 +116,7 @@ int main(int argc, char *argv[])
 	excludePatterns.append("*.db.bk.*");
 	excludePatterns.append("*.BACKUPS");
 	excludePatterns.append("*.db-journal");
+	excludePatterns.append("*exportData*");
 
 	if(firstArgument == "-i"){
 		if(!errorTitle.isEmpty() || !errorMessage.isEmpty()){
