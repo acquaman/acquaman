@@ -30,6 +30,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/export/AMExporterOptionGeneralAscii.h"
 #include "analysis/AM1DNormalizationAB.h"
 #include "analysis/AM2DAdditionAB.h"
+#include "actions3/AMActionSupport.h"
 
 VESPERSSpatialLineScanActionController::~VESPERSSpatialLineScanActionController(){}
 
@@ -364,7 +365,42 @@ AMAction3* VESPERSSpatialLineScanActionController::createInitializationActions()
 
 AMAction3* VESPERSSpatialLineScanActionController::createCleanupActions()
 {
-	return buildCleanupAction();
+	AMSequentialListAction3 *cleanupActions = new AMSequentialListAction3(new AMSequentialListActionInfo3("Cleanup actions", "Cleanup actions"));
+	cleanupActions->addSubAction(buildCleanupAction());
+
+	VESPERS::Motors motor = configuration_->motor();
+
+	if (motor.testFlag(VESPERS::H) || motor.testFlag(VESPERS::V)){
+
+		cleanupActions->addSubAction(AMActionSupport::buildControlMoveAction(VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->horizontalControl(), VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->horizontalControl()->value()));
+		cleanupActions->addSubAction(AMActionSupport::buildControlMoveAction(VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->verticalControl(), VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->verticalControl()->value()));
+	}
+
+	else if (motor.testFlag(VESPERS::X) || motor.testFlag(VESPERS::Z)){
+
+		cleanupActions->addSubAction(AMActionSupport::buildControlMoveAction(VESPERSBeamline::vespers()->realSampleStageMotorGroupObject()->horizontalControl(), VESPERSBeamline::vespers()->realSampleStageMotorGroupObject()->horizontalControl()->value()));
+		cleanupActions->addSubAction(AMActionSupport::buildControlMoveAction(VESPERSBeamline::vespers()->realSampleStageMotorGroupObject()->verticalControl(), VESPERSBeamline::vespers()->realSampleStageMotorGroupObject()->verticalControl()->value()));
+	}
+
+	else if (motor.testFlag(VESPERS::AttoH) || motor.testFlag(VESPERS::AttoV)){
+
+		cleanupActions->addSubAction(AMActionSupport::buildControlMoveAction(VESPERSBeamline::vespers()->pseudoAttocubeStageMotorGroupObject()->horizontalControl(), VESPERSBeamline::vespers()->pseudoAttocubeStageMotorGroupObject()->horizontalControl()->value()));
+		cleanupActions->addSubAction(AMActionSupport::buildControlMoveAction(VESPERSBeamline::vespers()->pseudoAttocubeStageMotorGroupObject()->verticalControl(), VESPERSBeamline::vespers()->pseudoAttocubeStageMotorGroupObject()->verticalControl()->value()));
+	}
+
+	else if (motor.testFlag(VESPERS::AttoX) || motor.testFlag(VESPERS::AttoZ)){
+
+		cleanupActions->addSubAction(AMActionSupport::buildControlMoveAction(VESPERSBeamline::vespers()->realAttocubeStageMotorGroupObject()->horizontalControl(), VESPERSBeamline::vespers()->realAttocubeStageMotorGroupObject()->horizontalControl()->value()));
+		cleanupActions->addSubAction(AMActionSupport::buildControlMoveAction(VESPERSBeamline::vespers()->realAttocubeStageMotorGroupObject()->verticalControl(), VESPERSBeamline::vespers()->realAttocubeStageMotorGroupObject()->verticalControl()->value()));
+	}
+
+	else if (motor.testFlag(VESPERS::BigBeamX) || motor.testFlag(VESPERS::BigBeamZ)){
+
+		cleanupActions->addSubAction(AMActionSupport::buildControlMoveAction(VESPERSBeamline::vespers()->bigBeamMotorGroupObject()->horizontalControl(), VESPERSBeamline::vespers()->bigBeamMotorGroupObject()->horizontalControl()->value()));
+		cleanupActions->addSubAction(AMActionSupport::buildControlMoveAction(VESPERSBeamline::vespers()->bigBeamMotorGroupObject()->verticalControl(), VESPERSBeamline::vespers()->bigBeamMotorGroupObject()->verticalControl()->value()));
+	}
+
+	return cleanupActions;
 }
 
 void VESPERSSpatialLineScanActionController::onScanTimerUpdate()
