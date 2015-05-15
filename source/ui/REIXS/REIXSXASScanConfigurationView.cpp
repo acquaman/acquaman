@@ -252,6 +252,8 @@ void REIXSXASScanConfigurationView::initializeUiComponents()
 	namedAutomaticallyBox_->setChecked(config_->namedAutomatically());
 	nameEdit_->setEnabled(!config_->namedAutomatically());
 	sampleSelector_->setEnabled(!config_->namedAutomatically());
+
+	onEstimatedTimeChanged();
 }
 
 void REIXSXASScanConfigurationView::setupConnections()
