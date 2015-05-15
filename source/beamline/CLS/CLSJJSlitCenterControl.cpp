@@ -23,15 +23,8 @@ CLSJJSlitCenterControl::~CLSJJSlitCenterControl()
 void CLSJJSlitCenterControl::updateValue()
 {
 	if (isConnected()) {
-		setValue( calculateCenterPosition(upperBladeControl_->value(), lowerBladeControl_->value()) );
-
-//		if (gap_ < 0) {
-//			setMinimumValue(CLSJJSLITBLADESCONTROL_VALUE_MIN - abs(gap_/2.0));
-//			setMaximumValue( -minimumValue() );
-//		} else {
-//			setMaximumValue(CLSJJSLITBLADESCONTROL_VALUE_MAX - abs(gap_/2.0));
-//			setMinimumValue( -maximumValue() );
-//		}
+		double newCenter = calculateCenterPosition(upperBladeControl_->value(), lowerBladeControl_->value());
+		setValue(newCenter);
 	}
 }
 

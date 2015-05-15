@@ -66,6 +66,26 @@ bool CLSJJSlitBladesControl::canStop() const
 	return result;
 }
 
+bool CLSJJSlitBladesControl::validValue(double value) const
+{
+	bool result = false;
+
+	if (value >= minimumValue() && value <= maximumValue())
+		result = true;
+
+	return result;
+}
+
+bool CLSJJSlitBladesControl::validSetpoint(double value) const
+{
+	bool result = false;
+
+	if (value >= minimumValue() && value <= maximumValue())
+		result = true;
+
+	return result;
+}
+
 void CLSJJSlitBladesControl::setUpperBladeControl(AMControl *newControl)
 {
 	if (upperBladeControl_ != newControl) {
@@ -106,6 +126,15 @@ void CLSJJSlitBladesControl::setGap(double newValue)
 {
 	if (gap_ != newValue) {
 		gap_ = newValue;
+
+		if (gap_ < 0) {
+			setMinimumValue(CLSJJSLITBLADESCONTROL_VALUE_MIN - fabs(gap_/2.0));
+			setMaximumValue( -minimumValue() );
+		} else {
+			setMaximumValue(CLSJJSLITBLADESCONTROL_VALUE_MAX - fabs(gap_/2.0));
+			setMinimumValue( -maximumValue() );
+		}
+
 		emit gapChanged(gap_);
 	}
 }
@@ -114,6 +143,15 @@ void CLSJJSlitBladesControl::setCenterPosition(double newValue)
 {
 	if (centerPosition_ != newValue) {
 		centerPosition_ = newValue;
+
+		if (centerPosition_ < 0) {
+			setMinimumValue( (CLSJJSLITBLADESCONTROL_VALUE_MIN - centerPosition_) * 2.0 );
+			setMaximumValue( -minimumValue() );
+		} else {
+			setMaximumValue( (CLSJJSLITBLADESCONTROL_VALUE_MAX - centerPosition_) * 2.0 );
+			setMinimumValue( -maximumValue() );
+		}
+
 		emit centerPositionChanged(centerPosition_);
 	}
 }

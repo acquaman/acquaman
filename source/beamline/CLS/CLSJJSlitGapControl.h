@@ -16,10 +16,6 @@ public:
 protected slots:
 	/// Handles updating the saved gap value, according to the current motor control values.
 	virtual void updateValue();
-	/// Handles updating the control's minimum value.
-	virtual void updateMinimumValue();
-	/// Handles updating the control's maximum value.
-	virtual void updateMaximumValue();
 
 protected:
 	/// Creates and returns a move action. Returns 0 if not connected.

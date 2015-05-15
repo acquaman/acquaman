@@ -46,9 +46,9 @@ public:
 	AMControl* lowerBladeControl() const { return lowerBladeControl_; }
 
 	/// Returns true if the given value is a valid value for this control. False otherwise.
-	virtual bool validValue(double value) const { Q_UNUSED(value) return true; }
+	virtual bool validValue(double value) const;
 	/// Returns true if the given value is a valid setpoint for this control. False otherwise.
-	virtual bool validSetpoint(double value) const { Q_UNUSED(value) return true; }
+	virtual bool validSetpoint(double value) const;
 
 signals:
 	/// Notifier that the gap has changed.
@@ -80,10 +80,6 @@ protected slots:
 	virtual void updateValue() { return; }
 	/// Handles updating the control's 'is moving' state.
 	virtual void updateIsMoving();
-	/// Handles updating the control's minimum value.
-	virtual void updateMinimumValue() = 0;
-	/// Handles updating the control's maximum value.
-	virtual void updateMaximumValue() = 0;
 
 	/// Handles updating the saved gap value, according to the current motor control values.
 	void updateGap();
