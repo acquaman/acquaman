@@ -55,6 +55,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "ui/CLS/CLSJJSlitsView.h"
 
+#include "ui/util/AMChooseDataFolderDialog.h"
+
 #include "ui/BioXAS/BioXASSidePersistentView.h"
 #include "ui/BioXAS/BioXASSideXASScanConfigurationView.h"
 #include "ui/BioXAS/BioXAS32ElementGeDetectorView.h"
@@ -82,12 +84,15 @@ BioXASSideAppController::BioXASSideAppController(QObject *parent)
 	configurationView_ = 0;
 	configurationViewHolder_ = 0;
 
+	setDefaultUseLocalStorage(true);
 	userConfiguration_ = new BioXASUserConfiguration(this);
 }
 
 bool BioXASSideAppController::startup()
 {
-	getUserDataFolderFromDialog();
+	// Get a destination folder.
+	if ( !AMChooseDataFolderDialog::getDataFolder("/AcquamanLocalData/bioxas/AcquamanSideData", "/home/bioxas/AcquamanSideData", "users", QStringList()) )
+		return false;
 
 	// Start up the main program.
 	if(AMAppController::startup()) {
