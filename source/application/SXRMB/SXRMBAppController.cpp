@@ -517,7 +517,6 @@ void SXRMBAppController::onShowAmbiantSampleStageMotorsTriggered()
 	}
 
 	ambiantSampleStageMotorGroupView_->raise();
-	ambiantSampleStageMotorGroupView_->activateWindow();
 	ambiantSampleStageMotorGroupView_->showNormal();
 }
 

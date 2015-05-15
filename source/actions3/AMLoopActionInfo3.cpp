@@ -22,7 +22,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
  AMLoopActionInfo3::~AMLoopActionInfo3(){}
 AMLoopActionInfo3::AMLoopActionInfo3(int iterations, const QString &shortDescription, const QString &longDescription, const QString &iconFileName, QObject *parent)
-	: AMListActionInfo3(shortDescription, longDescription, iconFileName, parent)
+	: AMListActionInfo3(QString("%1 (repeat %2 times)").arg(shortDescription).arg(iterations), longDescription, iconFileName, parent)
 {
 	loopCount_ = iterations;
 }
