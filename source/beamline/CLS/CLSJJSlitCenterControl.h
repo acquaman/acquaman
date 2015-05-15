@@ -16,6 +16,10 @@ public:
 protected slots:
 	/// Handles updating the saved center position value, according to the current motor control values.
 	virtual void updateValue();
+	/// Handles updating the control's reported minimum value.
+	virtual void updateMinimumValue();
+	/// Handles updating the control's reported maximum value.
+	virtual void updateMaximumValue();
 
 protected:
 	/// Creates and returns a move action. Returns 0 if not connected.

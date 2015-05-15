@@ -9,6 +9,7 @@
 // Error codes.
 
 #define AMPSEUDOMOTORCONTROL_NOT_CONNECTED 9823700
+#define AMPSEUDOMOTORCONTROL_CANNOT_MOVE 9823705
 #define AMPSEUDOMOTORCONTROL_ALREADY_MOVING 9823701
 #define AMPSEUDOMOTORCONTROL_INVALID_SETPOINT 9823702
 #define AMPSEUDOMOTORCONTROL_INVALID_MOVE_ACTION 9823703
@@ -74,7 +75,7 @@ protected slots:
 	void setMaximumValue(double newValue);
 
 	/// Updates states.
-	void updateStates();
+	virtual void updateStates();
 	/// Updates the connected state.
 	virtual void updateConnected() = 0;
 	/// Updates the current value.

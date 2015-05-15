@@ -1,6 +1,7 @@
 #include "CLSJJSlitBladesControl.h"
 
 #include "util/AMErrorMonitor.h"
+#include <QDebug>
 
 CLSJJSlitBladesControl::CLSJJSlitBladesControl(const QString &name, AMControl *upperBladeControl, AMControl *lowerBladeControl, QObject *parent) :
 	AMPseudoMotorControl(name, "mm", parent)
@@ -12,14 +13,17 @@ CLSJJSlitBladesControl::CLSJJSlitBladesControl(const QString &name, AMControl *u
 	minimumValue_ = CLSJJSLITBLADESCONTROL_VALUE_MIN;
 	maximumValue_ = CLSJJSLITBLADESCONTROL_VALUE_MAX;
 
+	setAllowsMovesWhileMoving(false);
+	setTolerance(0.005);
+	setDisplayPrecision(2);
+
+	// Initialize local variables.
+
 	gap_ = 0.0;
 	centerPosition_ = 0.0;
 
 	upperBladeControl_ = 0;
 	lowerBladeControl_ = 0;
-
-	setAllowsMovesWhileMoving(false);
-	setDisplayPrecision(2);
 
 	// Current settings.
 
@@ -66,10 +70,8 @@ void CLSJJSlitBladesControl::setUpperBladeControl(AMControl *newControl)
 {
 	if (upperBladeControl_ != newControl) {
 
-		if (upperBladeControl_) {
-			disconnect( upperBladeControl_, 0, this, 0 );
-			children_.removeOne(upperBladeControl_);
-		}
+		if (upperBladeControl_)
+			removeChildControl(upperBladeControl_);
 
 		upperBladeControl_ = newControl;
 
@@ -86,10 +88,8 @@ void CLSJJSlitBladesControl::setLowerBladeControl(AMControl *newControl)
 {
 	if (lowerBladeControl_ != newControl) {
 
-		if (lowerBladeControl_) {
-			disconnect( lowerBladeControl_, 0, this, 0 );
-			children_.removeOne(lowerBladeControl_);
-		}
+		if (lowerBladeControl_)
+			removeChildControl(lowerBladeControl_);
 
 		lowerBladeControl_ = newControl;
 
@@ -118,6 +118,15 @@ void CLSJJSlitBladesControl::setCenterPosition(double newValue)
 	}
 }
 
+void CLSJJSlitBladesControl::updateStates()
+{
+	updateConnected();
+	updateGap();
+	updateCenterPosition();
+	updateValue();
+	updateIsMoving();
+}
+
 void CLSJJSlitBladesControl::updateConnected()
 {
 	bool upperControlOK = (upperBladeControl_ && upperBladeControl_->isConnected());
@@ -131,6 +140,7 @@ void CLSJJSlitBladesControl::updateConnected()
 void CLSJJSlitBladesControl::updateIsMoving()
 {
 	if (isConnected()) {
+		qDebug() << name() << "updating isMoving state.";
 		setIsMoving( upperBladeControl_->isMoving() || lowerBladeControl_->isMoving() );
 	}
 }

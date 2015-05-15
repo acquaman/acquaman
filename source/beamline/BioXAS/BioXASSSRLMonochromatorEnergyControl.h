@@ -85,6 +85,8 @@ protected slots:
 	virtual void updateValue();
 	/// Updates the 'is moving' state.
 	virtual void updateIsMoving();
+	/// Updates the tolerance.
+	virtual void updateTolerance();
 
 protected:
 	/// Creates and returns a move action.

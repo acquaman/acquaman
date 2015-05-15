@@ -13,6 +13,7 @@ BioXASSSRLMonochromatorEnergyControl::BioXASSSRLMonochromatorEnergyControl(const
 	maximumValue_ = 1000000;
 
 	setAllowsMovesWhileMoving(false);
+	setTolerance(0.1);
 	setContextKnownDescription("Energy");
 
 	// Initialize member variables.
@@ -156,6 +157,14 @@ void BioXASSSRLMonochromatorEnergyControl::setEnergy(double newEnergy)
 	}
 }
 
+void BioXASSSRLMonochromatorEnergyControl::updateStates()
+{
+	updateConnected();
+	updateValue();
+	updateIsMoving();
+	updateTolerance();
+}
+
 void BioXASSSRLMonochromatorEnergyControl::updateConnected()
 {
 	bool isConnected = (
@@ -179,6 +188,14 @@ void BioXASSSRLMonochromatorEnergyControl::updateIsMoving()
 {
 	if (isConnected()) {
 		setIsMoving( bragg_->isMoving() );
+	}
+}
+
+void BioXASSSRLMonochromatorEnergyControl::updateTolerance()
+{
+	if (isConnected()) {
+		double newTolerance = calculateEnergyFromBraggPosition(hc_, crystal2D_, bragg_->value(), region_->value(), m1Mirror_->value(), thetaBraggOffset_, regionOffset_);
+		setTolerance( newTolerance );
 	}
 }
 

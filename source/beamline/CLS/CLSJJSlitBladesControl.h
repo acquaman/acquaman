@@ -8,8 +8,8 @@
 
 // Values.
 
-#define CLSJJSLITBLADESCONTROL_VALUE_MIN -30
-#define CLSJJSLITBLADESCONTROL_VALUE_MAX 30
+#define CLSJJSLITBLADESCONTROL_VALUE_MIN -11
+#define CLSJJSLITBLADESCONTROL_VALUE_MAX 11
 
 class CLSJJSlitBladesControl : public AMPseudoMotorControl
 {
@@ -72,12 +72,18 @@ protected slots:
 	/// Sets the center position value.
 	void setCenterPosition(double newValue);
 
+	/// Handles updating the control's states.
+	virtual void updateStates();
 	/// Handles updating the control's connected state.
 	virtual void updateConnected();
 	/// Handles updating the control's value. Subclasses should reimplement this.
 	virtual void updateValue() { return; }
 	/// Handles updating the control's 'is moving' state.
 	virtual void updateIsMoving();
+	/// Handles updating the control's minimum value.
+	virtual void updateMinimumValue() = 0;
+	/// Handles updating the control's maximum value.
+	virtual void updateMaximumValue() = 0;
 
 	/// Handles updating the saved gap value, according to the current motor control values.
 	void updateGap();

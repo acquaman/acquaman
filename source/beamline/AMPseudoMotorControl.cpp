@@ -1,6 +1,8 @@
 #include "AMPseudoMotorControl.h"
 #include "util/AMErrorMonitor.h"
 
+#include <QDebug>
+
 AMPseudoMotorControl::AMPseudoMotorControl(const QString &name, const QString &units, QObject *parent, const QString &description) :
 	AMControl(name, units, parent, description)
 {
@@ -39,7 +41,12 @@ AMControl::FailureExplanation AMPseudoMotorControl::move(double setpoint)
 		return AMControl::NotConnectedFailure;
 	}
 
-	if (isMoving()) {
+	if (!canMove()) {
+		AMErrorMon::alert(this, AMPSEUDOMOTORCONTROL_CANNOT_MOVE, QString("Failed to move %1: control cannot move.").arg(name()));
+		return AMControl::OtherFailure;
+	}
+
+	if (isMoving() && !allowsMovesWhileMoving()) {
 		AMErrorMon::alert(this, AMPSEUDOMOTORCONTROL_ALREADY_MOVING, QString("Failed to move %1: control is already moving.").arg(name()));
 		return AMControl::AlreadyMovingFailure;
 	}
@@ -53,9 +60,17 @@ AMControl::FailureExplanation AMPseudoMotorControl::move(double setpoint)
 
 	setSetpoint(setpoint);
 
-	// Create new move action.
+	// If the setpoint is within the tolerance deadband, no move is required. Move succeeded.
 
-	AMAction3 *moveAction = createMoveAction(setpoint);
+	if (withinTolerance(setpoint_)) {
+		onMoveStarted(0);
+		onMoveSucceeded(0);
+		return AMControl::NoFailure;
+	}
+
+	// Otherwise, create new move action.
+
+	AMAction3 *moveAction = createMoveAction(setpoint_);
 
 	if (!moveAction) {
 		AMErrorMon::alert(this, AMPSEUDOMOTORCONTROL_INVALID_MOVE_ACTION, QString("Failed to move %1: invalid move action generated.").arg(name()));
@@ -131,7 +146,12 @@ void AMPseudoMotorControl::setMoveInProgress(bool isMoving)
 {
 	if (moveInProgress_ != isMoving) {
 		moveInProgress_ = isMoving;
-//		emit movingChanged(moveInProgress_);
+
+		if (moveInProgress_)
+			qDebug() << name() << "move now in progress";
+		else
+			qDebug() << name() << "move now NOT in progress";
+		emit movingChanged(moveInProgress_);
 	}
 }
 
@@ -139,6 +159,12 @@ void AMPseudoMotorControl::setIsMoving(bool isMoving)
 {
 	if (isMoving_ != isMoving) {
 		isMoving_ = isMoving;
+
+		if (isMoving_)
+			qDebug() << name() << "is now moving.";
+		else
+			qDebug() << name() << "is now NOT moving.";
+
 		emit movingChanged(isMoving_);
 	}
 }
@@ -171,7 +197,8 @@ void AMPseudoMotorControl::addChildControl(AMControl *control)
 	if (control) {
 		children_ << control;
 
-		connect( control, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+//		connect( control, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+		connect( control, SIGNAL(connected(bool)), this, SLOT(updateStates()) );
 		connect( control, SIGNAL(valueChanged(double)), this, SLOT(updateValue()) );
 		connect( control, SIGNAL(movingChanged(bool)), this, SLOT(updateIsMoving()) );
 	}
@@ -188,32 +215,37 @@ void AMPseudoMotorControl::removeChildControl(AMControl *control)
 void AMPseudoMotorControl::onMoveStarted(QObject *action)
 {
 	Q_UNUSED(action)
+	qDebug() << name() << "move action started.";
 	setMoveInProgress(true);
 }
 
 void AMPseudoMotorControl::onMoveCancelled(QObject *action)
 {
 	moveCleanup(action);
+	qDebug() << name() << "move action cancelled.";
 	emit moveFailed(AMControl::WasStoppedFailure);
 }
 
 void AMPseudoMotorControl::onMoveFailed(QObject *action)
 {
 	moveCleanup(action);
+	qDebug() << name() << "move action failed.";
 	emit moveFailed(AMControl::OtherFailure);
 }
 
 void AMPseudoMotorControl::onMoveSucceeded(QObject *action)
 {
 	moveCleanup(action);
+	qDebug() << name() << "move action succeeded.";
 	emit moveSucceeded();
 }
 
 void AMPseudoMotorControl::moveCleanup(QObject *action)
 {
-	if (action) {
-		setMoveInProgress(false);
+	setMoveInProgress(false);
+	updateIsMoving();
 
+	if (action) {
 		action->disconnect();
 
 		startedMapper_->removeMappings(action);
