@@ -45,11 +45,11 @@ AMAction3 *VESPERSScanController::buildBaseInitializationAction(double firstRegi
 	AMSequentialListAction3 *initializationAction = new AMSequentialListAction3(new AMSequentialListActionInfo3("VESPERS Scan Initialization Actions", "VESPERS Scan Initialization Actions"));
 	CLSSIS3820Scaler *scaler = VESPERSBeamline::vespers()->scaler();
 
-	AMListAction3 *stage1 = new AMListAction3(new AMListActionInfo3("VESPERS Initialization Stage 1", "VESPERS Initialization Stage 1"), AMListAction3::Parallel);
+	AMListAction3 *stage1 = new AMListAction3(new AMListActionInfo3("VESPERS Initialization Stage 1", "VESPERS Initialization Stage 1"), AMListAction3::Sequential);
 	stage1->addSubAction(scaler->createContinuousEnableAction3(false));
 //	stage1->addSubAction(scaler->createDwellTimeAction3(firstRegionTime));
 
-	AMListAction3 *stage2 = new AMListAction3(new AMListActionInfo3("VESPERS Initialization Stage 2", "VESPERS Initialization Stage 2"), AMListAction3::Parallel);
+	AMListAction3 *stage2 = new AMListAction3(new AMListActionInfo3("VESPERS Initialization Stage 2", "VESPERS Initialization Stage 2"), AMListAction3::Sequential);
 
 	stage2->addSubAction(scaler->createStartAction3(false));
 	stage2->addSubAction(scaler->createScansPerBufferAction3(1));
@@ -129,7 +129,7 @@ AMAction3 *VESPERSScanController::buildCleanupAction()
 	CLSSIS3820Scaler *scaler = VESPERSBeamline::vespers()->scaler();
 
 	AMListAction3 *cleanup = new AMListAction3(new AMListActionInfo3("VESPERS Cleanup", "VESPERS Cleanup"), AMListAction3::Sequential);
-	cleanup->addSubAction(scaler->createDwellTimeAction3(1.0));
+//	cleanup->addSubAction(scaler->createDwellTimeAction3(1.0));
 	cleanup->addSubAction(scaler->createContinuousEnableAction3(true));
 
 	return cleanup;
