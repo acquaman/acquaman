@@ -79,6 +79,8 @@ public slots:
 	void setEnergy(double newEnergy);
 
 protected slots:
+	/// Updates the control's states.
+	virtual void updateStates();
 	/// Updates the connected state.
 	virtual void updateConnected();
 	/// Updates the current value.

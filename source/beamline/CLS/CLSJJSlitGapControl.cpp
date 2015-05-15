@@ -25,13 +25,13 @@ void CLSJJSlitGapControl::updateValue()
 	if (isConnected()) {
 		setValue( calculateGap(upperBladeControl_->value(), lowerBladeControl_->value()) );
 
-		if (centerPosition_ < 0) {
-			setMinimumValue( (CLSJJSLITBLADESCONTROL_VALUE_MIN - centerPosition_) * 2 );
-			setMaximumValue( -minimumValue() );
-		} else {
-			setMaximumValue( (CLSJJSLITBLADESCONROL_VALUE_MAX - centerPosition_) * 2 );
-			setMinimumValue( -maximumValue() );
-		}
+//		if (centerPosition_ < 0) {
+//			setMinimumValue( (CLSJJSLITBLADESCONTROL_VALUE_MIN - centerPosition_) * 2.0 );
+//			setMaximumValue( -minimumValue() );
+//		} else {
+//			setMaximumValue( (CLSJJSLITBLADESCONROL_VALUE_MAX - centerPosition_) * 2.0 );
+//			setMinimumValue( -maximumValue() );
+//		}
 	}
 }
 
