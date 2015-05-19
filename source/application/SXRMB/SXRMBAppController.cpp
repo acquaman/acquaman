@@ -229,8 +229,10 @@ void SXRMBAppController::onBeamlineConnected(bool connected)
 		}
 	}
 
-	if (connected)
+	if (connected) {
 		onBeamlineEndstationSwitched(sxrmbBL->currentEndstation(), sxrmbBL->currentEndstation());
+		onScalerConnected(sxrmbBL->scaler()->isConnected());
+	}
 }
 
 void SXRMBAppController::onBeamControlShuttersTimeout()
@@ -401,11 +403,7 @@ void SXRMBAppController::makeConnections()
 	connect(sxrmbBL, SIGNAL(endstationChanged(SXRMB::Endstation, SXRMB::Endstation)), this, SLOT(onBeamlineEndstationSwitched(SXRMB::Endstation, SXRMB::Endstation)));
 	connect(sxrmbBL->scaler(), SIGNAL(connectedChanged(bool)), this, SLOT(onScalerConnected(bool)));
 
-	if(sxrmbBL->isConnected()){
-		onBeamlineConnected(true);
-		if(sxrmbBL->scaler()->isConnected())
-			onScalerConnected(true);
-	}
+	onBeamlineConnected(sxrmbBL->isConnected());
 }
 
 QGroupBox* SXRMBAppController::createTopFrameSqueezeContent(QWidget *widget, QString topFrameTitle)
