@@ -31,8 +31,8 @@ class QDateTime;
 #include "util/AMErrorMonitor.h"
 
 /*!
-  * An abstract class which uses state machine mechanics to perform and monitor
-  * the running of a scan.
+  * An abstract class which uses state machine mechanics to monitor the running
+  * of a scan.
   *
   * Subclasses which implement the scan controller interface must provide implementations
   * for all the pure virtual functions:
@@ -56,7 +56,7 @@ public:
 	/*!
 	  * Base constructor for a scan controller. Sets the configuration associated
 	  * with the controller to the provided configuration but takes no action to
-	  * set the scan.
+	  * initialize the scan. The created scan controller will be in the Constructed state.
 	  */
 	explicit AMScanController(AMScanConfiguration *configuration, QObject *parent = 0);
 
