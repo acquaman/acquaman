@@ -101,9 +101,10 @@ signals:
 
 protected:
 	/*!
-	  * Performs the implementation details of actually building the action tree.
+	  * Performs the implementation specific details of generating the action tree.
 	  *
 	  * In the base class this is a pure virtual funciton.
+	  * \returns True if the action tree can be generated, false otherwise.
 	  */
 	virtual bool generateActionTreeImplmentation() = 0;
 
