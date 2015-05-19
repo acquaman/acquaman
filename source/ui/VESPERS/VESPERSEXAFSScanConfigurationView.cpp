@@ -185,10 +185,10 @@ VESPERSEXAFSScanConfigurationView::VESPERSEXAFSScanConfigurationView(VESPERSEXAF
 	contentsLayout->addLayout(energyLayout, 0, 0, 1, 3);
 	contentsLayout->addWidget(regionsViewGroupBox, 1, 0, 2, 3);
 	contentsLayout->addWidget(scanNameGroupBox, 3, 0, 1, 2);
-	contentsLayout->addWidget(goToPositionGroupBox, 3, 2, 1, 1);
-	contentsLayout->addWidget(timeOffsetBox, 5, 1, 1, 1);
-	contentsLayout->addWidget(detectorGroupBox, 1, 3, 2, 1);
-	contentsLayout->addWidget(autoExportGroupBox, 3, 3, 1, 2);
+	contentsLayout->addWidget(goToPositionGroupBox, 4, 0, 1, 1);
+	contentsLayout->addWidget(timeOffsetBox, 5, 0, 1, 1);
+	contentsLayout->addWidget(detectorGroupBox, 3, 2, 1, 1);
+	contentsLayout->addWidget(autoExportGroupBox, 4, 1, 1, 2);
 
 	QHBoxLayout *squeezeContents = new QHBoxLayout;
 	squeezeContents->addStretch();
