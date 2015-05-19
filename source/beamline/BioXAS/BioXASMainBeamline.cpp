@@ -109,11 +109,11 @@ AMAction3* BioXASMainBeamline::createTurnOffBeamActions()
 {
 	AMListAction3 *action = 0;
 
-	if (photonShutter_->isConnected() && safetyShutter_->isConnected()) {
-		action = new AMListAction3(new AMListActionInfo3("BeamOffActions", "BeamOffActions"), AMListAction3::Sequential);
-		action->addSubAction(AMActionSupport::buildControlMoveAction(photonShutter_, 0));
-		action->addSubAction(AMActionSupport::buildControlMoveAction(safetyShutter_, 0));
-	}
+//	if (photonShutter_->isConnected() && safetyShutter_->isConnected()) {
+//		action = new AMListAction3(new AMListActionInfo3("BeamOffActions", "BeamOffActions"), AMListAction3::Sequential);
+//		action->addSubAction(AMActionSupport::buildControlMoveAction(photonShutter_, 0));
+//		action->addSubAction(AMActionSupport::buildControlMoveAction(safetyShutter_, 0));
+//	}
 
 	return action;
 }
@@ -122,11 +122,11 @@ AMAction3* BioXASMainBeamline::createTurnOnBeamActions()
 {
 	AMListAction3 *action = 0;
 
-	if (photonShutter_->isConnected() && safetyShutter_->isConnected()) {
-		action = new AMListAction3(new AMListActionInfo3("BeamOnActions", "BeamOnActions"), AMListAction3::Sequential);
-		action->addSubAction(AMActionSupport::buildControlMoveAction(safetyShutter_, 1));
-		action->addSubAction(AMActionSupport::buildControlMoveAction(photonShutter_, 1));
-	}
+//	if (photonShutter_->isConnected() && safetyShutter_->isConnected()) {
+//		action = new AMListAction3(new AMListActionInfo3("BeamOnActions", "BeamOnActions"), AMListAction3::Sequential);
+//		action->addSubAction(AMActionSupport::buildControlMoveAction(safetyShutter_, 1));
+//		action->addSubAction(AMActionSupport::buildControlMoveAction(photonShutter_, 1));
+//	}
 
 	return action;
 }
@@ -135,8 +135,8 @@ void BioXASMainBeamline::onConnectedChanged()
 {
 	bool newState = (
 				// Shutters
-				photonShutter_->isConnected() &&
-				safetyShutter_->isConnected() &&
+//				photonShutter_->isConnected() &&
+//				safetyShutter_->isConnected() &&
 
 				// M2 mirror
 				m2Mirror_->isConnected() &&
@@ -188,8 +188,8 @@ void BioXASMainBeamline::setupComponents()
 {
 	// Shutters
 
-	photonShutter_ = new CLSBiStateControl("PhotonShutter", "Main BL photon shutter", "IPSH1407-I00-02:state", "IPSH1407-I00-02:opr:open", "IPSH1407-I00-02:opr:close", new AMControlStatusCheckerDefault(2), this);
-	safetyShutter_ = new CLSBiStateControl("SafetyShutter", "Main BL Safety Shutter", "SSH1407-I00-01:state", "SSH1407-I00-01:opr:open", "SSH1407-I00-01:opr:close", new AMControlStatusCheckerDefault(2), this);
+//	photonShutter_ = new CLSBiStateControl("PhotonShutter", "Main BL photon shutter", "IPSH1407-I00-02:state", "IPSH1407-I00-02:opr:open", "IPSH1407-I00-02:opr:close", new AMControlStatusCheckerDefault(2), this);
+//	safetyShutter_ = new CLSBiStateControl("SafetyShutter", "Main BL Safety Shutter", "SSH1407-I00-01:state", "SSH1407-I00-01:opr:open", "SSH1407-I00-01:opr:close", new AMControlStatusCheckerDefault(2), this);
 
 	// Scaler
 

@@ -111,6 +111,7 @@ QString BioXASMainXASScanActionController::beamlineSettings()
 	notes.append(QString("Bragg motor step calibration slope:\t%1\n").arg(BioXASMainBeamline::bioXAS()->mono()->braggMotor()->stepCalibrationSlope()));
 
 	notes.append(QString("SR1 Current:\t%1 mA\n").arg(CLSStorageRing::sr1()->ringCurrent()));
+
 	return notes;
 }
 
