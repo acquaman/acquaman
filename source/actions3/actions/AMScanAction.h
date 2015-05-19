@@ -196,9 +196,8 @@ protected slots:
 	void onControllerStateChanged();
 
 	/*!
-	  * Prepares the scan action for deletion. If no logging is currently being
-	  * performed then the deletion will be scheduled upon the completion of the
-	  * logging steps.
+	  * Prepares the scan action for deletion. The scan action will be added to
+	  * the deletion queue when the logging for this scan has been completed.
 	  * // I'm going off the body here. The name seems to suggest some other logic///
 	  */
 	void checkReadyForDeletion();
