@@ -227,7 +227,6 @@ void REIXSAppController::shutdown() {
 
 	// Make sure we release/clean-up the beamline interface
 	AMBeamline::releaseBl();
-	AMStorageRing::releaseStorageRing();
 	AMAppController::shutdown();
 }
 
