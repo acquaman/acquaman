@@ -105,9 +105,39 @@ QList<AMControl *> BioXASMainBeamline::getMotorsByType(BioXASBeamlineDef::BioXAS
 	return matchedMotors;
 }
 
+AMAction3* BioXASMainBeamline::createTurnOffBeamActions()
+{
+	AMListAction3 *action = 0;
+
+	if (photonShutter_->isConnected() && safetyShutter_->isConnected()) {
+		action = new AMListAction3(new AMListActionInfo3("BeamOffActions", "BeamOffActions"), AMListAction3::Sequential);
+		action->addSubAction(AMActionSupport::buildControlMoveAction(photonShutter_, 0));
+		action->addSubAction(AMActionSupport::buildControlMoveAction(safetyShutter_, 0));
+	}
+
+	return action;
+}
+
+AMAction3* BioXASMainBeamline::createTurnOnBeamActions()
+{
+	AMListAction3 *action = 0;
+
+	if (photonShutter_->isConnected() && safetyShutter_->isConnected()) {
+		action = new AMListAction3(new AMListActionInfo3("BeamOnActions", "BeamOnActions"), AMListAction3::Sequential);
+		action->addSubAction(AMActionSupport::buildControlMoveAction(safetyShutter_, 1));
+		action->addSubAction(AMActionSupport::buildControlMoveAction(photonShutter_, 1));
+	}
+
+	return action;
+}
+
 void BioXASMainBeamline::onConnectedChanged()
 {
 	bool newState = (
+				// Shutters
+				photonShutter_->isConnected() &&
+				safetyShutter_->isConnected() &&
+
 				// M2 mirror
 				m2Mirror_->isConnected() &&
 
@@ -156,6 +186,11 @@ void BioXASMainBeamline::setupMono()
 
 void BioXASMainBeamline::setupComponents()
 {
+	// Shutters
+
+	photonShutter_ = new CLSBiStateControl("PhotonShutter", "Main BL photon shutter", "IPSH1407-I00-02:state", "IPSH1407-I00-02:opr:open", "IPSH1407-I00-02:opr:close", new AMControlStatusCheckerDefault(2), this);
+	safetyShutter_ = new CLSBiStateControl("SafetyShutter", "Main BL Safety Shutter", "SSH1407-I00-01:state", "SSH1407-I00-01:opr:open", "SSH1407-I00-01:opr:close", new AMControlStatusCheckerDefault(2), this);
+
 	// Scaler
 
 	scaler_ = new CLSSIS3820Scaler("BL1607-5-I21:mcs", this);
@@ -170,19 +205,19 @@ void BioXASMainBeamline::setupComponents()
 	// Amplifiers
 
 	i0Keithley_ = new CLSKeithley428("I0 Channel", "AMP1607-701", this);
-	scaler_->channelAt(0)->setCustomChannelName("I0 Channel");
-	scaler_->channelAt(0)->setCurrentAmplifier(i0Keithley_);
-	scaler_->channelAt(0)->setDetector(i0Detector_);
+	scaler_->channelAt(16)->setCustomChannelName("I0 Channel");
+	scaler_->channelAt(16)->setCurrentAmplifier(i0Keithley_);
+	scaler_->channelAt(16)->setDetector(i0Detector_);
 
 	i1Keithley_ = new CLSKeithley428("I1 Channel", "AMP1607-702", this);
-	scaler_->channelAt(1)->setCustomChannelName("I1 Channel");
-	scaler_->channelAt(1)->setCurrentAmplifier(i1Keithley_);
-	scaler_->channelAt(1)->setDetector(i1Detector_);
+	scaler_->channelAt(17)->setCustomChannelName("I1 Channel");
+	scaler_->channelAt(17)->setCurrentAmplifier(i1Keithley_);
+	scaler_->channelAt(17)->setDetector(i1Detector_);
 
 	i2Keithley_ = new CLSKeithley428("I2 Channel", "AMP1607-703", this);
-	scaler_->channelAt(15)->setCustomChannelName("I2 Channel");
-	scaler_->channelAt(15)->setCurrentAmplifier(i2Keithley_);
-	scaler_->channelAt(15)->setDetector(i2Detector_);
+	scaler_->channelAt(18)->setCustomChannelName("I2 Channel");
+	scaler_->channelAt(18)->setCurrentAmplifier(i2Keithley_);
+	scaler_->channelAt(18)->setDetector(i2Detector_);
 
 	// M2 Mirror.
 

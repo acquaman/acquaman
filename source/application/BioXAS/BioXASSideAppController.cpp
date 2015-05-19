@@ -91,7 +91,7 @@ BioXASSideAppController::BioXASSideAppController(QObject *parent)
 bool BioXASSideAppController::startup()
 {
 	// Get a destination folder.
-	if ( !AMChooseDataFolderDialog::getDataFolder("/AcquamanLocalData/bioxas/AcquamanSideData", "/home/bioxas/AcquamanSideData", "users", QStringList()) )
+	if ( !AMChooseDataFolderDialog::getDataFolder("/AcquamanLocalData/bioxas-s/AcquamanSideData", "/home/bioxas-s/AcquamanSideData", "users", QStringList()) )
 		return false;
 
 	// Start up the main program.

@@ -32,6 +32,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "analysis/AM1DExpressionAB.h"
 #include "analysis/AM1DDerivativeAB.h"
 #include "dataman/export/AMExporterOptionGeneralAscii.h"
+#include "beamline/CLS/CLSStorageRing.h"
 
 BioXASMainXASScanActionController::BioXASMainXASScanActionController(BioXASMainXASScanConfiguration *configuration, QObject *parent) :
 	AMStepScanActionController(configuration, parent)
@@ -109,6 +110,7 @@ QString BioXASMainXASScanActionController::beamlineSettings()
 	notes.append(QString("Bragg motor encoder slope:\t%1\n").arg(BioXASMainBeamline::bioXAS()->mono()->braggMotor()->encoderCalibrationSlope()));
 	notes.append(QString("Bragg motor step calibration slope:\t%1\n").arg(BioXASMainBeamline::bioXAS()->mono()->braggMotor()->stepCalibrationSlope()));
 
+	notes.append(QString("SR1 Current:\t%1 mA\n").arg(CLSStorageRing::sr1()->ringCurrent()));
 	return notes;
 }
 
@@ -139,12 +141,16 @@ AMAction3* BioXASMainXASScanActionController::createInitializationActions()
 		// if we have a valid scaler on the beamline, perform a dark current measurement for the same length of time as the dwell time.
 		AMAction3 *darkCurrentSetup = scaler->createMeasureDarkCurrentAction((int)scaler->dwellTime());
 
+		// Turn beam on.
+		AMAction3 *beamOn = BioXASMainBeamline::bioXAS()->createTurnOnBeamActions();
+
 		initializationAction->addSubAction(stage1);
 		initializationAction->addSubAction(stage2);
 		initializationAction->addSubAction(scaler->createDwellTimeAction3(double(configuration_->scanAxisAt(0)->regionAt(0)->regionTime())));
 		initializationAction->addSubAction(stage3);
 		initializationAction->addSubAction(stage4);
 		initializationAction->addSubAction(darkCurrentSetup);
+		initializationAction->addSubAction(beamOn);
 
 		// Set the bragg motor power to PowerOn, must be on to move/scan.
 		initializationAction->addSubAction(BioXASMainBeamline::bioXAS()->mono()->braggMotor()->createPowerAction(CLSMAXvMotor::PowerOn));
