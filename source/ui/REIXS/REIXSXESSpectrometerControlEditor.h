@@ -30,10 +30,6 @@ class QComboBox;
 class QDoubleSpinBox;
 class QPushButton;
 
-//namespace Ui {
-//	class REIXSXESSpectrometerControlEditor;
-//}
-
 class REIXSXESSpectrometerControlEditor : public QGroupBox
 {
 	Q_OBJECT
@@ -92,9 +88,6 @@ protected:
 	QLabel *maskFeedbackLabel_;
 	QLabel *gratingFeedbackLabel_;
 	QLabel *energyFeedbackLabel_;
-
-private:
-//	Ui::REIXSXESSpectrometerControlEditor *ui_;
 };
 
 #endif // REIXSXESSPECTROMETERCONTROLEDITOR_H
