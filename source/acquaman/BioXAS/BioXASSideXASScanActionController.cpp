@@ -98,7 +98,11 @@ void BioXASSideXASScanActionController::onScanTimerUpdate()
 
 QString BioXASSideXASScanActionController::beamlineSettings()
 {
-	return QString();
+	QString notes;
+
+	notes.append(QString("SR1 Current:\t%1 mA\n").arg(CLSStorageRing::sr1()->ringCurrent()));
+
+	return notes;
 }
 
 AMAction3* BioXASSideXASScanActionController::createInitializationActions()
