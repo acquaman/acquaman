@@ -3,6 +3,7 @@
 #include "application/SXRMB/SXRMB.h"
 #include "beamline/SXRMB/SXRMBBeamline.h"
 
+#include "util/AMDateTimeUtils.h"
 #include "ui/AMTopFrame.h"
 
 #include <QGridLayout>
@@ -261,7 +262,7 @@ void SXRMB2DMapScanConfigurationView::onScanNameEdited()
 
 void SXRMB2DMapScanConfigurationView::onEstimatedTimeChanged()
 {
-	estimatedTime_->setText("Estimated time per scan:\t" + SXRMB::convertTimeToString(configuration_->totalTime()));
+	estimatedTime_->setText("Estimated time per scan:\t" + AMDateTimeUtils::convertTimeToString(configuration_->totalTime()));
 }
 
 void SXRMB2DMapScanConfigurationView::onSetStartPosition()
@@ -434,6 +435,7 @@ QGroupBox *SXRMB2DMapScanConfigurationView::addExporterOptionsView(QStringList l
 void SXRMB2DMapScanConfigurationView::onBeamlineEndstationChanged(SXRMB::Endstation fromEndstation, SXRMB::Endstation toEndstation)
 {
 	Q_UNUSED(fromEndstation)
+	Q_UNUSED(toEndstation)
 
 	updatePowerOnHVControlCheckBoxText();
 }
