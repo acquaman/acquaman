@@ -26,10 +26,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QVBoxLayout>
 #include <QLabel>
 #include <QCheckBox>
-
-namespace Ui {
-    class REIXSSidebar;
-}
+#include <QPushButton>
 
 class REIXSActionBasedControlEditor;
 
@@ -43,12 +40,18 @@ public:
     virtual ~REIXSSidebar();
 
 private:
-    Ui::REIXSSidebar *ui;
-	QGroupBox *detectorsGroupBox;
-	QVBoxLayout *detectorPanelLayout;
-	QCheckBox *scalerContinuousButton;
-	QLabel *XESValue;
-	QLabel *TFYValue;
+	QGroupBox *beamlineGroupBox_;
+
+	QLabel *ringCurrentValue_;
+	QPushButton *beamOnButton_;
+	QPushButton *beamOffButton_;
+	QLabel *beamlineStatusLED_;
+	QPushButton *MonoStopButton_;
+
+	QGroupBox *detectorsGroupBox_;
+	QCheckBox *enableScalerContinuousCheckBox_;
+	QLabel *XESValue_;
+	QLabel *TFYValue_;
 
 	// Additional UI controls
 	REIXSActionBasedControlEditor* beamlineEnergyEditor_, *userEnergyOffestEditor_, *monoSlitEditor_, *gratingSelector_, *mirrorSelector_, *epuPolarizationEditor_, *epuPolarizationAngleEditor_;
@@ -79,6 +82,14 @@ protected slots:
 
 private slots:
 	void on_MonoStopButton_clicked();
+
+private:
+	void setupUi();
+	void setupConnections();
+
+	void *layoutBeamlineContent();
+	void *layoutDetectorContent();
+	QPushButton *createPushButton(QString text);
 };
 
 #endif // REIXSSIDEBAR_H
