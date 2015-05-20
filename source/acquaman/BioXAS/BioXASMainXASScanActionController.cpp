@@ -198,12 +198,18 @@ void BioXASMainXASScanActionController::buildScanControllerImplementation()
 	// Create analyzed data source for the absorbance.
 
 	AMDataSource *i0DetectorSource = 0;
+	AMDataSource *i1DetectorSource = 0;
 	AMDataSource *i2DetectorSource = 0;
 	AM1DExpressionAB *absorbanceSource = 0;
 
 	int i0DetectorIndex = scan_->indexOfDataSource(BioXASMainBeamline::bioXAS()->i0Detector()->name());
 	if (i0DetectorIndex != -1) {
 		i0DetectorSource = scan_->dataSourceAt(i0DetectorIndex);
+	}
+
+	int i1DetectorIndex = scan_->indexOfDataSource(BioXASMainBeamline::bioXAS()->i1Detector()->name());
+	if (i1DetectorIndex != -1) {
+		i1DetectorSource = scan_->dataSourceAt(i1DetectorIndex);
 	}
 
 	int i2DetectorIndex = scan_->indexOfDataSource(BioXASMainBeamline::bioXAS()->i2Detector()->name());
@@ -213,8 +219,8 @@ void BioXASMainXASScanActionController::buildScanControllerImplementation()
 
 	if (i0DetectorSource && i2DetectorSource) {
 		absorbanceSource = new AM1DExpressionAB("Absorbance");
-		absorbanceSource->setInputDataSources(QList<AMDataSource*>() << i0DetectorSource << i2DetectorSource);
-		absorbanceSource->setExpression("log(I0Detector/I2Detector)");
+		absorbanceSource->setInputDataSources(QList<AMDataSource*>() << i0DetectorSource << i1DetectorSource << i2DetectorSource);
+		absorbanceSource->setExpression("log(I0Detector/I1Detector)");
 
 		scan_->addAnalyzedDataSource(absorbanceSource, true, false);
 	}
