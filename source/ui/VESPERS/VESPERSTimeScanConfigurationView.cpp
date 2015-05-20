@@ -21,9 +21,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "VESPERSTimeScanConfigurationView.h"
 
-#include "ui/AMTopFrame.h"
-#include "beamline/VESPERS/VESPERSBeamline.h"
-
 #include <QGridLayout>
 #include <QVBoxLayout>
 #include <QFormLayout>
@@ -33,6 +30,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QPushButton>
 #include <QSpinBox>
 #include <QMenu>
+
+#include "beamline/VESPERS/VESPERSBeamline.h"
+#include "util/AMDateTimeUtils.h"
+#include "ui/AMTopFrame.h"
 
 VESPERSTimeScanConfigurationView::VESPERSTimeScanConfigurationView(VESPERSTimeScanConfiguration *config, QWidget *parent)
 	: VESPERSScanConfigurationView(parent)
@@ -287,7 +288,7 @@ void VESPERSTimeScanConfigurationView::onCCDDetectorChanged(int id)
 
 void VESPERSTimeScanConfigurationView::onEstimatedTimeChanged()
 {
-	estimatedTime_->setText("Estimated time per scan:\t" + VESPERS::convertTimeToString(configuration_->totalTime()));
+	estimatedTime_->setText("Estimated time per scan:\t" + AMDateTimeUtils::convertTimeToString(configuration_->totalTime()));
 }
 
 void VESPERSTimeScanConfigurationView::onDwellTimeChanged()

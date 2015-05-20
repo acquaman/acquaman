@@ -65,7 +65,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "acquaman/AMAgnosticDataAPI.h"
 
 #include "beamline/AMProcessVariablePrivate.h"
-#include "actions3/actions/AMDirectorySynchronizationAction.h"
 AMAppController::AMAppController(QObject *parent)
 	: AMDatamanAppControllerForActions3(parent)
 {
