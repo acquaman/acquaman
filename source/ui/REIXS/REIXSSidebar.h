@@ -33,11 +33,11 @@ class REIXSActionBasedControlEditor;
 /// This widget displays the real-time "at a glance" REIXS beamline controls / feedback monitors on the side of the application's main window.
 class REIXSSidebar : public QWidget
 {
-    Q_OBJECT
+	Q_OBJECT
 
 public:
-    explicit REIXSSidebar(QWidget *parent = 0);
-    virtual ~REIXSSidebar();
+	explicit REIXSSidebar(QWidget *parent = 0);
+	virtual ~REIXSSidebar();
 
 private:
 	QGroupBox *beamlineGroupBox_;
@@ -87,8 +87,8 @@ private:
 	void setupUi();
 	void setupConnections();
 
-	void *layoutBeamlineContent();
-	void *layoutDetectorContent();
+	void layoutBeamlineContent();
+	void layoutDetectorContent();
 	QPushButton *createPushButton(QString text);
 };
 
