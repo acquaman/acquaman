@@ -107,6 +107,10 @@ void REIXSXASScanActionController::onInitializationActionSucceeded(){
 
 	AMControlInfoList positions;
 
+	positions.append(REIXSBeamline::bl()->photonSource()->ringCurrent()->toInfo());
+	positions.append(REIXSBeamline::bl()->photonSource()->epuPolarization()->toInfo());
+	positions.append(REIXSBeamline::bl()->photonSource()->epuPolarizationAngle()->toInfo());
+
 	positions.append(REIXSBeamline::bl()->photonSource()->energy()->toInfo());
 	positions.append(REIXSBeamline::bl()->photonSource()->userEnergyOffset()->toInfo());
 	positions.append(REIXSBeamline::bl()->photonSource()->monoSlit()->toInfo());
@@ -126,7 +130,9 @@ void REIXSXASScanActionController::onInitializationActionSucceeded(){
 		positions.append(polarizationAngle);
 	}
 	positions.append(REIXSBeamline::bl()->photonSource()->monoGratingSelector()->toInfo());
+	positions.append(REIXSBeamline::bl()->photonSource()->monoGratingTranslation()->toInfo());
 	positions.append(REIXSBeamline::bl()->photonSource()->monoMirrorSelector()->toInfo());
+	positions.append(REIXSBeamline::bl()->photonSource()->monoMirrorTranslation()->toInfo());
 	positions.append(REIXSBeamline::bl()->spectrometer()->spectrometerRotationDrive()->toInfo());
 	positions.append(REIXSBeamline::bl()->spectrometer()->detectorTranslation()->toInfo());
 	positions.append(REIXSBeamline::bl()->spectrometer()->detectorTiltDrive()->toInfo());
