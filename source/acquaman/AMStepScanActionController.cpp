@@ -297,8 +297,20 @@ bool AMStepScanActionController::event(QEvent *e)
 
 			if(scan_->rawData()->scanAxesCount() == 1 && currentAxisValueIndex_.i() >= scan_->rawData()->scanSize(0)){
 
-				scan_->rawData()->beginInsertRows(currentAxisValueIndex_.i()-scan_->rawData()->scanSize(0)+1, -1);
-				scan_->rawData()->setAxisValue(0, currentAxisValueIndex_.i(), currentAxisValues_.at(0));
+				bool positiveStep = (double(stepConfiguration_->scanAxisAt(0)->regionAt(0)->regionStep()) > 0);
+
+				if (positiveStep){
+
+					scan_->rawData()->beginInsertRows(currentAxisValueIndex_.i()-scan_->rawData()->scanSize(0)+1, -1);
+					scan_->rawData()->setAxisValue(0, currentAxisValueIndex_.i(), currentAxisValues_.at(0));
+				}
+
+				else {
+
+					scan_->rawData()->beginInsertRows(1, 0);
+					scan_->rawData()->setAxisValue(0, 0, currentAxisValues_.at(0));
+
+				}
 			}
 
 			QVariantList detectorDataValues = message.value("DetectorData").toList();
@@ -307,7 +319,19 @@ bool AMStepScanActionController::event(QEvent *e)
 			for(int x = 0; x < detectorDataValues.count(); x++)
 				localDetectorData[x] = detectorDataValues.at(x).toDouble();
 
-			scan_->rawData()->setValue(currentAxisValueIndex_, scan_->rawData()->idOfMeasurement(message.uniqueID()), localDetectorData.constData());
+			if (scan_->rawData()->scanAxesCount() == 1){
+
+				bool positiveStep = (double(stepConfiguration_->scanAxisAt(0)->regionAt(0)->regionStep()) > 0);
+
+				if (positiveStep)
+					scan_->rawData()->setValue(currentAxisValueIndex_, scan_->rawData()->idOfMeasurement(message.uniqueID()), localDetectorData.constData());
+
+				else
+					scan_->rawData()->setValue(0, scan_->rawData()->idOfMeasurement(message.uniqueID()), localDetectorData.constData());
+			}
+
+			else
+				scan_->rawData()->setValue(currentAxisValueIndex_, scan_->rawData()->idOfMeasurement(message.uniqueID()), localDetectorData.constData());
 
 			// This should be safe and fine regardless of if the CDF data store is being used or not.
 			flushCDFDataStoreToDisk();
