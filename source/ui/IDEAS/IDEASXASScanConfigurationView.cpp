@@ -29,11 +29,12 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "acquaman/AMScanController.h"
 #include "beamline/IDEAS/IDEASBeamline.h"
+#include "util/AMEnergyToKSpaceCalculator.h"
+#include "util/AMPeriodicTable.h"
+#include "util/AMDateTimeUtils.h"
 #include "ui/AMTopFrame.h"
 #include "ui/dataman/AMEXAFSScanAxisView.h"
-#include "util/AMEnergyToKSpaceCalculator.h"
 #include "ui/util/AMPeriodicTableDialog.h"
-#include "util/AMPeriodicTable.h"
 
 
 IDEASXASScanConfigurationView::IDEASXASScanConfigurationView(IDEASXASScanConfiguration *configuration, QWidget *parent) :
@@ -319,8 +320,6 @@ void IDEASXASScanConfigurationView::onEdgeChanged()
 
 void IDEASXASScanConfigurationView::onEstimatedTimeChanged()
 {
-	QString timeString = "";
-
 	configuration_->blockSignals(true);
 	double time = configuration_->totalTime(true);
 	configuration_->blockSignals(false);
@@ -336,33 +335,7 @@ void IDEASXASScanConfigurationView::onEstimatedTimeChanged()
 	pointPerScan_->setText(QString("%1").arg(configuration_->totalPoints()));
 	scanEnergyRange_->setText(QString("%1 eV - %2 eV").arg(configuration_->minEnergy()).arg(configuration_->maxEnergy()));
 
-	int days = int(time/3600.0/24.0);
-
-	if (days > 0){
-
-		time -= days*3600.0*24;
-		timeString += QString::number(days) + "d:";
-	}
-
-	int hours = int(time/3600.0);
-
-	if (hours > 0){
-
-		time -= hours*3600;
-		timeString += QString::number(hours) + "h:";
-	}
-
-	int minutes = int(time/60.0);
-
-	if (minutes > 0){
-
-		time -= minutes*60;
-		timeString += QString::number(minutes) + "m:";
-	}
-
-	int seconds = ((int)time)%60;
-	timeString += QString::number(seconds) + "s";
-
+	QString timeString = AMDateTimeUtils::convertTimeToString(time);
 	estimatedTime_->setText(timeString);
 }
 
