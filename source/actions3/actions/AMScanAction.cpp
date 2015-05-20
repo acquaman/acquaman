@@ -49,7 +49,7 @@ AMScanAction::AMScanAction(const AMScanAction &other)
 {
 	controller_ = 0;
 	hasValidScanController_ = false;
-	scanInfo_ = other.scanInfo_;
+	scanInfo_ = other.scanInfo_->createCopy();
 }
 
 AMScanAction::~AMScanAction()

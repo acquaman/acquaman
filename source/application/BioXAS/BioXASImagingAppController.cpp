@@ -52,7 +52,7 @@ BioXASImagingAppController::BioXASImagingAppController(QObject *parent)
 bool BioXASImagingAppController::startup()
 {
 	// Get a destination folder.
-	if ( !AMChooseDataFolderDialog::getDataFolder("/AcquamanLocalData/bioxas/AcquamanImagingData", "/home/bioxas/AcquamanImagingData", "users", QStringList()) )
+	if ( !AMChooseDataFolderDialog::getDataFolder("/AcquamanLocalData/bioxas-i/AcquamanImagingData", "/home/bioxas-i/AcquamanImagingData", "users", QStringList()) )
 		return false;
 
 	// Start up the main program.

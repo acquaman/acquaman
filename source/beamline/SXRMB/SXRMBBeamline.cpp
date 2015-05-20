@@ -589,7 +589,7 @@ void SXRMBBeamline::setupComponents()
 	crystalSelection_ = new SXRMBCrystalChangeModel(this);
 	endstationControl_ = new AMPVControl("SXRMB Endstation", "BL1606-B1-1:AddOns:Endstation:fbk", "BL1606-B1-1:AddOns:Endstation");
 
-	jjSlits_ = new CLSJJSlits("JJSlits", "SMTR1606-4-B10-01", "SMTR1606-4-B10-02", "SMTR1606-4-B10-03", "SMTR1606-4-B10-04", this);
+	jjSlits_ = new CLSJJSlits("JJSlits", "SMTR1606-4-B10-02", "SMTR1606-4-B10-01", "SMTR1606-4-B10-04", "SMTR1606-4-B10-03", this);
 
 	//energy_ = new AMPVwStatusControl("Energy", "BL1606-B1-1:Energy:fbk", "BL1606-B1-1:Energy", "BL1606-B1-1:Energy:status", QString(), this, 0.1, 2.0, new AMControlStatusCheckerCLSMAXv());
 	energy_ = new AMPVwStatusControl("Energy", "BL1606-B1-1:AddOns:Energy:fbk", "BL1606-B1-1:AddOns:Energy", "BL1606-B1-1:AddOns:Energy:status", "BL1606-B1-1:AddOns:Energy:stop", this, 0.05, 2.0, new CLSMAXvControlStatusChecker());

@@ -617,9 +617,9 @@ void BioXASSideBeamline::setupMotorGroup()
 
 void BioXASSideBeamline::setupDetectors()
 {
-	i0Detector_ = new CLSBasicScalerChannelDetector("I0Detector", "I0 Detector", scaler_, 0, this);
-	i1Detector_ = new CLSBasicScalerChannelDetector("I1Detector", "I1 Detector", scaler_, 1, this);
-	i2Detector_ = new CLSBasicScalerChannelDetector("I2Detector", "I2 Detector", scaler_, 15, this);
+	i0Detector_ = new CLSBasicScalerChannelDetector("I0Detector", "I0 Detector", scaler_, 16, this);
+	i1Detector_ = new CLSBasicScalerChannelDetector("I1Detector", "I1 Detector", scaler_, 17, this);
+	i2Detector_ = new CLSBasicScalerChannelDetector("I2Detector", "I2 Detector", scaler_, 18, this);
 	ge32ElementDetector_ = new BioXAS32ElementGeDetector("Ge32Element", "Ge 32 Element", this);
 }
 
@@ -731,55 +731,27 @@ void BioXASSideBeamline::setupMono()
 
 void BioXASSideBeamline::setupComponents()
 {
-	// Original Side scaler and Keithley objects.
-
-//	scaler_ = new CLSSIS3820Scaler("BL07ID-Side:mcs", this);
-//	connect( scaler_, SIGNAL(connectedChanged(bool)), this, SLOT(onConnectionChanged()) );
-
-//	scalerDwellTime_ = new AMReadOnlyPVControl("ScalerDwellTime", "BL07ID-Side:mcs:delay", this, "Scaler Dwell Time");
-
-//	setupDetectors();
-
-//	i0Keithley_ = new CLSKeithley428("I0 Channel", "AMP1607-601", this);
-//	scaler_->channelAt(0)->setCustomChannelName("I0 Channel");
-//	scaler_->channelAt(0)->setCurrentAmplifier(i0Keithley_);
-//	scaler_->channelAt(0)->setDetector(i0Detector_);
-
-//	iTKeithley_ = new CLSKeithley428("IT Channel", "AMP1607-602", this);
-//	scaler_->channelAt(1)->setCustomChannelName("IT Channel");
-//	scaler_->channelAt(1)->setCurrentAmplifier(iTKeithley_);
-//	scaler_->channelAt(1)->setDetector(iTDetector_);
-
-//	i2Keithley_ = new CLSKeithley428("I2 Channel", "AMP1607-603", this);
-//	scaler_->channelAt(15)->setCustomChannelName("I2 Channel");
-//	scaler_->channelAt(15)->setCurrentAmplifier(i2Keithley_);
-//	scaler_->channelAt(15)->setDetector(i2Detector_);
-
-	// New scaler and Keithley objects, used for testing. They use Main beamline pvs.
-
-	scaler_ = new CLSSIS3820Scaler("BL1607-5-I21:mcs", this);
+	scaler_ = new CLSSIS3820Scaler("BL1607-5-I22:mcs", this);
 	connect( scaler_, SIGNAL(connectedChanged(bool)), this, SLOT(onConnectionChanged()) );
 
-	scalerDwellTime_ = new AMReadOnlyPVControl("ScalerDwellTime", "BL1607-5-I21:mcs:delay", this, "Scaler dwell time");
+	scalerDwellTime_ = new AMReadOnlyPVControl("ScalerDwellTime", "BL1607-5-I22:mcs:delay", this, "Scaler dwell time");
 
 	setupDetectors();
 
-	i0Keithley_ = new CLSKeithley428("I0 Channel", "AMP1607-701", this);
-	scaler_->channelAt(0)->setCustomChannelName("I0 Channel");
-	scaler_->channelAt(0)->setCurrentAmplifier(i0Keithley_);
-	scaler_->channelAt(0)->setDetector(i0Detector_);
+	i0Keithley_ = new CLSKeithley428("I0 Channel", "AMP1607-601", this);
+	scaler_->channelAt(16)->setCustomChannelName("I0 Channel");
+	scaler_->channelAt(16)->setCurrentAmplifier(i0Keithley_);
+	scaler_->channelAt(16)->setDetector(i0Detector_);
 
-	i1Keithley_ = new CLSKeithley428("I1 Channel", "AMP1607-702", this);
-	scaler_->channelAt(1)->setCustomChannelName("I1 Channel");
-	scaler_->channelAt(1)->setCurrentAmplifier(i1Keithley_);
-	scaler_->channelAt(1)->setDetector(i1Detector_);
+	i1Keithley_ = new CLSKeithley428("I1 Channel", "AMP1607-602", this);
+	scaler_->channelAt(17)->setCustomChannelName("I1 Channel");
+	scaler_->channelAt(17)->setCurrentAmplifier(i1Keithley_);
+	scaler_->channelAt(17)->setDetector(i1Detector_);
 
-	i2Keithley_ = new CLSKeithley428("I2 Channel", "AMP1607-703", this);
-	scaler_->channelAt(15)->setCustomChannelName("I2 Channel");
-	scaler_->channelAt(15)->setCurrentAmplifier(i2Keithley_);
-	scaler_->channelAt(15)->setDetector(i2Detector_);
-
-	// End scaler and Keithley testing.
+	i2Keithley_ = new CLSKeithley428("I2 Channel", "AMP1607-603", this);
+	scaler_->channelAt(18)->setCustomChannelName("I2 Channel");
+	scaler_->channelAt(18)->setCurrentAmplifier(i2Keithley_);
+	scaler_->channelAt(18)->setDetector(i2Detector_);
 
 	carbonFilterFarm_ = new BioXASSideCarbonFilterFarm(this);
 	connect( carbonFilterFarm_, SIGNAL(connectedChanged(bool)), this, SLOT(onConnectionChanged()) );
