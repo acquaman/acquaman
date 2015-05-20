@@ -215,6 +215,10 @@ VESPERS2DScanConfigurationView::VESPERS2DScanConfigurationView(VESPERS2DScanConf
 	QGroupBox *detectorGroupBox = new QGroupBox("Detectors");
 	detectorGroupBox->setLayout(detectorLayout);
 
+	QGroupBox *afterScanBox = createAfterScanOptionsBox(true, false);
+	connect(closeFastShutterCheckBox_, SIGNAL(toggled(bool)), this, SLOT(setCloseFastShutter(bool)));
+	connect(goToPositionCheckBox_, SIGNAL(toggled(bool)), this, SLOT(setReturnToOriginalPosition(bool)));
+
 	// Setting up the layout.
 	QGridLayout *contentsLayout = new QGridLayout;
 	contentsLayout->addWidget(positionsBox, 0, 0, 2, 3);
@@ -224,6 +228,7 @@ VESPERS2DScanConfigurationView::VESPERS2DScanConfigurationView(VESPERS2DScanConf
 	contentsLayout->addWidget(timeOffsetBox, 5, 0, 1, 3);
 	contentsLayout->addWidget(detectorGroupBox, 0, 3, 2, 1);
 	contentsLayout->addWidget(autoExportGroupBox, 2, 3, 2, 1);
+	contentsLayout->addWidget(afterScanBox, 4, 3, 1, 1);
 
 	QHBoxLayout *squeezeContents = new QHBoxLayout;
 	squeezeContents->addStretch();
