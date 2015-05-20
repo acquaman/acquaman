@@ -109,7 +109,7 @@ void BioXASMainBeamline::onConnectedChanged()
 {
 	bool newState = (
 				// General BioXAS components.
-				BioXASBeamline::connected() &&
+				BioXASBeamline::isConnected() &&
 
 				// M2 mirror
 				m2Mirror_->isConnected() &&
