@@ -22,6 +22,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "VESPERSEndstation.h"
 #include "beamline/CLS/CLSMAXvMotor.h"
 #include "application/VESPERS/VESPERS.h"
+#include "actions3/AMListAction3.h"
+#include "actions3/AMActionSupport.h"
+#include "actions3/actions/AMWaitAction.h"
 
 #include <QMessageBox>
 #include <QDir>
@@ -210,93 +213,106 @@ void VESPERSEndstation::onFiltersChanged()
 
 void VESPERSEndstation::setFilterThickness(int index)
 {
+	AMSequentialListAction3 *changeFilterList = new AMSequentialListAction3(new AMSequentialListActionInfo3());
+	AMParallelListAction3 *resetFilters = new AMParallelListAction3(new AMParallelListActionInfo3());
+	AMParallelListAction3 *newThickness = new AMParallelListAction3(new AMParallelListActionInfo3());
 	QList<AMControl *> filters(filterMap_.values());
 
 	// Put all the filters back to an original state.  The -2 is to exclude the upper and lower shutters.
 	for (int i = 0; i < filters.size(); i++)
 		if ((int)filters.at(i)->value() == 1)
-			toggleControl(filters.at(i));
+			resetFilters->addSubAction(AMActionSupport::buildControlMoveAction(filters.at(i), 1));
 
 	switch(index){
 	case 0: // Filters are already taken out with previous loop.
 		break;
 	case 1: // 50 um
-		toggleControl(filterMap_.value("50A"));
+		newThickness->addSubAction(AMActionSupport::buildControlMoveAction(filterMap_.value("50A"), 1));
 		break;
 	case 2: // 100 um
-		toggleControl(filterMap_.value("100A"));
+		newThickness->addSubAction(AMActionSupport::buildControlMoveAction(filterMap_.value("100A"), 1));
 		break;
 	case 3: // 150 um
-		toggleControl(filterMap_.value("50A"));
-		toggleControl(filterMap_.value("100A"));
+		newThickness->addSubAction(AMActionSupport::buildControlMoveAction(filterMap_.value("50A"), 1));
+		newThickness->addSubAction(AMActionSupport::buildControlMoveAction(filterMap_.value("100A"), 1));
 		break;
 	case 4: // 200 um
-		toggleControl(filterMap_.value("100A"));
-		toggleControl(filterMap_.value("100B"));
+		newThickness->addSubAction(AMActionSupport::buildControlMoveAction(filterMap_.value("100A"), 1));
+		newThickness->addSubAction(AMActionSupport::buildControlMoveAction(filterMap_.value("100B"), 1));
 		break;
 	case 5: // 250 um
-		toggleControl(filterMap_.value("250A"));
+		newThickness->addSubAction(AMActionSupport::buildControlMoveAction(filterMap_.value("250A"), 1));
 		break;
 	case 6: // 300 um
-		toggleControl(filterMap_.value("250A"));
-		toggleControl(filterMap_.value("50A"));
+		newThickness->addSubAction(AMActionSupport::buildControlMoveAction(filterMap_.value("250A"), 1));
+		newThickness->addSubAction(AMActionSupport::buildControlMoveAction(filterMap_.value("50A"), 1));
 		break;
 	case 7: // 350 um
-		toggleControl(filterMap_.value("250A"));
-		toggleControl(filterMap_.value("100A"));
+		newThickness->addSubAction(AMActionSupport::buildControlMoveAction(filterMap_.value("250A"), 1));
+		newThickness->addSubAction(AMActionSupport::buildControlMoveAction(filterMap_.value("100A"), 1));
 		break;
 	case 8: // 400 um
-		toggleControl(filterMap_.value("250A"));
-		toggleControl(filterMap_.value("100A"));
-		toggleControl(filterMap_.value("50A"));
+		newThickness->addSubAction(AMActionSupport::buildControlMoveAction(filterMap_.value("250A"), 1));
+		newThickness->addSubAction(AMActionSupport::buildControlMoveAction(filterMap_.value("100A"), 1));
+		newThickness->addSubAction(AMActionSupport::buildControlMoveAction(filterMap_.value("50A"), 1));
 		break;
 	case 9: // 450 um
-		toggleControl(filterMap_.value("250A"));
-		toggleControl(filterMap_.value("100A"));
-		toggleControl(filterMap_.value("100B"));
+		newThickness->addSubAction(AMActionSupport::buildControlMoveAction(filterMap_.value("250A"), 1));
+		newThickness->addSubAction(AMActionSupport::buildControlMoveAction(filterMap_.value("100A"), 1));
+		newThickness->addSubAction(AMActionSupport::buildControlMoveAction(filterMap_.value("100B"), 1));
 		break;
 	case 10: // 500 um
-		toggleControl(filterMap_.value("250A"));
-		toggleControl(filterMap_.value("250B"));
+		newThickness->addSubAction(AMActionSupport::buildControlMoveAction(filterMap_.value("250A"), 1));
+		newThickness->addSubAction(AMActionSupport::buildControlMoveAction(filterMap_.value("250B"), 1));
 		break;
 	case 11: // 550 um
-		toggleControl(filterMap_.value("250A"));
-		toggleControl(filterMap_.value("250B"));
-		toggleControl(filterMap_.value("50A"));
+		newThickness->addSubAction(AMActionSupport::buildControlMoveAction(filterMap_.value("250A"), 1));
+		newThickness->addSubAction(AMActionSupport::buildControlMoveAction(filterMap_.value("250B"), 1));
+		newThickness->addSubAction(AMActionSupport::buildControlMoveAction(filterMap_.value("50A"), 1));
 		break;
 	case 12: // 600 um
-		toggleControl(filterMap_.value("250A"));
-		toggleControl(filterMap_.value("250B"));
-		toggleControl(filterMap_.value("100A"));
+		newThickness->addSubAction(AMActionSupport::buildControlMoveAction(filterMap_.value("250A"), 1));
+		newThickness->addSubAction(AMActionSupport::buildControlMoveAction(filterMap_.value("250B"), 1));
+		newThickness->addSubAction(AMActionSupport::buildControlMoveAction(filterMap_.value("100A"), 1));
 		break;
 	case 13: // 650 um
-		toggleControl(filterMap_.value("250A"));
-		toggleControl(filterMap_.value("250B"));
-		toggleControl(filterMap_.value("100A"));
-		toggleControl(filterMap_.value("50A"));
+		newThickness->addSubAction(AMActionSupport::buildControlMoveAction(filterMap_.value("250A"), 1));
+		newThickness->addSubAction(AMActionSupport::buildControlMoveAction(filterMap_.value("250B"), 1));
+		newThickness->addSubAction(AMActionSupport::buildControlMoveAction(filterMap_.value("100A"), 1));
+		newThickness->addSubAction(AMActionSupport::buildControlMoveAction(filterMap_.value("50A"), 1));
 		break;
 	case 14: // 700 um
-		toggleControl(filterMap_.value("250A"));
-		toggleControl(filterMap_.value("250B"));
-		toggleControl(filterMap_.value("100A"));
-		toggleControl(filterMap_.value("100B"));
+		newThickness->addSubAction(AMActionSupport::buildControlMoveAction(filterMap_.value("250A"), 1));
+		newThickness->addSubAction(AMActionSupport::buildControlMoveAction(filterMap_.value("250B"), 1));
+		newThickness->addSubAction(AMActionSupport::buildControlMoveAction(filterMap_.value("100A"), 1));
+		newThickness->addSubAction(AMActionSupport::buildControlMoveAction(filterMap_.value("100B"), 1));
 		break;
 	case 15: // 750 um
-		toggleControl(filterMap_.value("250A"));
-		toggleControl(filterMap_.value("250B"));
-		toggleControl(filterMap_.value("100A"));
-		toggleControl(filterMap_.value("100B"));
-		toggleControl(filterMap_.value("50A"));
+		newThickness->addSubAction(AMActionSupport::buildControlMoveAction(filterMap_.value("250A"), 1));
+		newThickness->addSubAction(AMActionSupport::buildControlMoveAction(filterMap_.value("250B"), 1));
+		newThickness->addSubAction(AMActionSupport::buildControlMoveAction(filterMap_.value("100A"), 1));
+		newThickness->addSubAction(AMActionSupport::buildControlMoveAction(filterMap_.value("100B"), 1));
+		newThickness->addSubAction(AMActionSupport::buildControlMoveAction(filterMap_.value("50A"), 1));
 		break;
 	case 16: // 800 um
-		toggleControl(filterMap_.value("250A"));
-		toggleControl(filterMap_.value("250B"));
-		toggleControl(filterMap_.value("100A"));
-		toggleControl(filterMap_.value("100B"));
-		toggleControl(filterMap_.value("50A"));
-		toggleControl(filterMap_.value("50B"));
+		newThickness->addSubAction(AMActionSupport::buildControlMoveAction(filterMap_.value("250A"), 1));
+		newThickness->addSubAction(AMActionSupport::buildControlMoveAction(filterMap_.value("250B"), 1));
+		newThickness->addSubAction(AMActionSupport::buildControlMoveAction(filterMap_.value("100A"), 1));
+		newThickness->addSubAction(AMActionSupport::buildControlMoveAction(filterMap_.value("100B"), 1));
+		newThickness->addSubAction(AMActionSupport::buildControlMoveAction(filterMap_.value("50A"), 1));
+		newThickness->addSubAction(AMActionSupport::buildControlMoveAction(filterMap_.value("50B"), 1));
 		break;
 	}
+
+	changeFilterList->addSubAction(resetFilters);
+	changeFilterList->addSubAction(new AMWaitAction(new AMWaitActionInfo(0.55)));
+	changeFilterList->addSubAction(newThickness);
+
+	connect(changeFilterList, SIGNAL(cancelled()), changeFilterList, SLOT(scheduleForDeletion()));
+	connect(changeFilterList, SIGNAL(failed()), changeFilterList, SLOT(scheduleForDeletion()));
+	connect(changeFilterList, SIGNAL(succeeded()), changeFilterList, SLOT(scheduleForDeletion()));
+
+	changeFilterList->start();
 }
 
 void VESPERSEndstation::setShutterState(bool state)
@@ -307,9 +323,9 @@ void VESPERSEndstation::setShutterState(bool state)
 
 	// 0 = OUT.  For this to work properly, the upper shutter is to remain fixed at the out position and the lower shutter changes.  Therefore if upper is IN, put it out.
 	if ((int)filterShutterUpper_->value() == 1)
-		toggleControl(filterShutterUpper_);
+		filterShutterUpper_->move(1);
 
-	toggleControl(filterShutterLower_);
+	filterShutterLower_->move(1);
 }
 
 void VESPERSEndstation::setHeliumBufferFlag(bool attached)
