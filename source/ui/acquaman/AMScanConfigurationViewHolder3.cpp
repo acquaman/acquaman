@@ -22,7 +22,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QSpinBox>
 #include <QLabel>
-
+#include <QHBoxLayout>
+#include <QVBoxLayout>
+#include <QGroupBox>
 #include "acquaman/AMScanConfiguration.h"
 #include "actions3/AMLoopAction3.h"
 #include "actions3/actions/AMScanAction.h"
@@ -49,25 +51,41 @@ AMScanConfigurationViewHolder3::AMScanConfigurationViewHolder3(AMScanConfigurati
 
 }
 
-AMScanConfigurationViewHolder3::AMScanConfigurationViewHolder3(const QString &frameName, bool squeezeWidget, AMScanConfigurationView* view,  QWidget *parent) :
-	AMActionRunnerAddActionBar3("Scan", parent)
+AMScanConfigurationViewHolder3::AMScanConfigurationViewHolder3(const QString &frameName, bool enableLoopAction, bool squeezeWidget, AMScanConfigurationView* view,  QWidget *parent) :
+	AMActionRunnerAddActionBar3("Scan", enableLoopAction, parent)
 {
 	view_ = view;
 
-	AMTopFrame *frame = new AMTopFrame(frameName);
-
 	if(view_){
-
-		addWidget(frame);
 
 		if(squeezeWidget){
 
-			layout_->addStretch();
-			addWidget(view_);
-	  }
+			topFrame_ = new AMTopFrame(frameName);
+			topFrame_->setIcon(QIcon(":/utilities-system-monitor.png"));
+
+			QHBoxLayout *HLayout = new QHBoxLayout;
+			HLayout->addStretch();
+			HLayout->addWidget(view_);
+			HLayout->addStretch();
+
+			QVBoxLayout *VLayout = new QVBoxLayout;
+			VLayout->addWidget(topFrame_);
+			VLayout->addStretch();
+			VLayout->addLayout(HLayout);
+			VLayout->addStretch();
+
+			QGroupBox *groupBox = new QGroupBox();
+			groupBox->setFlat(true);
+			groupBox->setLayout(VLayout);
+
+			addWidget(groupBox);
+
+		}
+
 	  else
 		addWidget(view_);
 	}
+
 	disabledWarning_ = new QLabel("");
 	QFont warningsFont;
 	warningsFont.setPointSize(32);
@@ -75,11 +93,7 @@ AMScanConfigurationViewHolder3::AMScanConfigurationViewHolder3(const QString &fr
 	disabledWarning_->setStyleSheet( "QLabel{ color: red }" );
 	addWidget(disabledWarning_);
 
-
 }
-
-
-
 
 
 void AMScanConfigurationViewHolder3::setView(AMScanConfigurationView *view) {
