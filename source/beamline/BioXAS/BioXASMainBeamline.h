@@ -66,10 +66,10 @@ public:
 	/// Returns true if all beamline components are connected, false otherwise.
 	virtual bool isConnected() const { return connected_; }
 
-//	/// Returns the beamline's photon shutter.
-//	AMControl* photonShutter() const { return photonShutter_; }
-//	/// Returns the beamline's safety shutters.
-//	AMControl* safetyShutter() const  { return safetyShutter_; }
+	/// Returns the beamline's photon shutter.
+	AMControl* photonShutter() const { return photonShutter_; }
+	/// Returns the beamline's safety shutters.
+	AMControl* safetyShutter() const  { return safetyShutter_; }
 
 	/// Returns the beamline m2 mirror.
 	virtual BioXASM2Mirror *m2Mirror() const { return m2Mirror_; }
@@ -109,11 +109,6 @@ public:
 	/// Return the set of BioXAS Motors by given motor category.
 	QList<AMControl *> getMotorsByType(BioXASBeamlineDef::BioXASMotorType category);
 
-	/// Returns a newly created action that turns off beam.
-	virtual AMAction3* createTurnOffBeamActions();
-	/// Returns a newly created action that turns on beam.
-	virtual AMAction3* createTurnOnBeamActions();
-
 protected slots:
 	/// Updates the beamline's reported connection state.
 	void onConnectedChanged();
@@ -130,7 +125,7 @@ protected:
 	/// Sets up mono settings.
 	void setupMono();
 	/// Sets up various beamline components.
-	void setupComponents();
+	virtual void setupComponents();
 	/// Sets up the exposed actions.
 	void setupExposedControls();
 	/// Sets up the exposed detectors.
@@ -211,12 +206,6 @@ protected:
 	CLSKeithley428 *i0Keithley_;
 	CLSKeithley428 *i1Keithley_;
 	CLSKeithley428 *i2Keithley_;
-
-//	// Shutters.
-//	/// The safety shutter.
-//	CLSBiStateControl *safetyShutter_;
-//	/// The photon shutter.
-//	CLSBiStateControl *photonShutter_;
 };
 
 #endif // BIOXASMAINBEAMLINE_H
