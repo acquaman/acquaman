@@ -16,11 +16,22 @@ public:
 	/// Destructor.
 	virtual ~BioXASM1Mirror();
 
-signals:
+	/// Returns the vertical upstream inbound motor control.
+	CLSMAXvMotor* verticalUpstreamInboundControl() const { return verticalUpstreamInb_; }
+	/// Returns the vertical upstream outbound motor control.
+	CLSMAXvMotor* verticalUpstreamOutboundControl() const { return verticalUpstreamOutb_; }
+	/// Returns the vertical downstream motor control.
+	CLSMAXvMotor* verticalDownstreamControl() const { return verticalDownstream_; }
+	/// Returns the stripe selection control.
+	CLSMAXvMotor* stripeSelectControl() const { return stripeSelect_; }
+	/// Returns the yaw control.
+	CLSMAXvMotor* yawControl() const { return yaw_; }
+	/// Returns the bender upstream control.
+	CLSMAXvMotor* benderUpstreamControl() const { return benderUpstream_; }
+	/// Returns the bender downstream control.
+	CLSMAXvMotor* benderDownstreamControl() const { return benderDownstream_; }
 
-public slots:
-
-protected:
+protected slots:
 	/// Updates the connected state.
 	virtual void updateConnected();
 

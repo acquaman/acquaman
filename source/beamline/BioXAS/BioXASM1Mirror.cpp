@@ -19,5 +19,15 @@ BioXASM1Mirror::~BioXASM1Mirror()
 
 void BioXASM1Mirror::updateConnected()
 {
-	setConnected(false);
+	bool isConnected = (
+				verticalUpstreamInb_ && verticalUpstreamInb_->isConnected() &&
+				verticalUpstreamOutb_ && verticalUpstreamOutb_->isConnected() &&
+				verticalDownstream_ && verticalDownstream_->isConnected() &&
+				stripeSelect_ && stripeSelect_->isConnected() &&
+				yaw_ && yaw_->isConnected() &&
+				benderUpstream_ && benderUpstream_->isConnected() &&
+				benderDownstream_ && benderDownstream_->isConnected()
+				);
+
+	setConnected(isConnected);
 }

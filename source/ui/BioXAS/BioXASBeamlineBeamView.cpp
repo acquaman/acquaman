@@ -32,7 +32,7 @@ BioXASBeamlineBeamView::BioXASBeamlineBeamView(QWidget *parent) :
 
 	// Make connections.
 
-	connect( BioXASBeamline::bioXAS(), SIGNAL(beamStatusChanged()), this, SLOT(updateBeamStatus()) );
+//	connect( BioXASBeamline::bioXAS(), SIGNAL(beamStatusChanged()), this, SLOT(updateBeamStatus()) );
 
 	// Current settings.
 
