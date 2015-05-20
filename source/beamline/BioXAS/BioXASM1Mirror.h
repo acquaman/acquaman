@@ -30,6 +30,8 @@ public:
 	CLSMAXvMotor* benderUpstreamControl() const { return benderUpstream_; }
 	/// Returns the bender downstream control.
 	CLSMAXvMotor* benderDownstreamControl() const { return benderDownstream_; }
+	/// Returns the upper slit blade control.
+	CLSMAXvMotor* upperSlitBladeControl() const { return upperSlitBlade_; }
 
 protected slots:
 	/// Updates the connected state.
@@ -50,6 +52,8 @@ protected:
 	CLSMAXvMotor *benderUpstream_;
 	/// The bender downstream motor control.
 	CLSMAXvMotor *benderDownstream_;
+	/// The upper slit blade motor control.
+	CLSMAXvMotor *upperSlitBlade_;
 
 };
 

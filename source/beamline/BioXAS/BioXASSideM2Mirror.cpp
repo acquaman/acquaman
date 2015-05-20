@@ -24,20 +24,20 @@ BioXASSideM2Mirror::BioXASSideM2Mirror(QObject *parent) :
 
 	// Make connections.
 
-	connect( screen_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()) );
-	connect( verticalUpstreamInb_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()) );
-	connect( verticalUpstreamOutb_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()) );
-	connect( verticalDownstream_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()) );
-	connect( stripeSelect_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()) );
-	connect( yaw_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()) );
-	connect( benderUpstream_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()) );
-	connect( benderDownstream_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()) );
+	connect( screen_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+	connect( verticalUpstreamInb_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+	connect( verticalUpstreamOutb_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+	connect( verticalDownstream_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+	connect( stripeSelect_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+	connect( yaw_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+	connect( benderUpstream_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+	connect( benderDownstream_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
-	connect( pseudoRoll_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()) );
-	connect( pseudoPitch_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()) );
-	connect( pseudoYaw_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()) );
-	connect( pseudoHeight_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()) );
-	connect( pseudoLateral_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()) );
+	connect( pseudoRoll_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+	connect( pseudoPitch_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+	connect( pseudoYaw_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+	connect( pseudoHeight_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+	connect( pseudoLateral_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 }
 
 BioXASSideM2Mirror::~BioXASSideM2Mirror()

@@ -10,6 +10,7 @@ BioXASM1Mirror::BioXASM1Mirror(QObject *parent) :
 	yaw_ = 0;
 	benderUpstream_ = 0;
 	benderDownstream_ = 0;
+	upperSlitBlade_ = 0;
 }
 
 BioXASM1Mirror::~BioXASM1Mirror()
@@ -26,7 +27,8 @@ void BioXASM1Mirror::updateConnected()
 				stripeSelect_ && stripeSelect_->isConnected() &&
 				yaw_ && yaw_->isConnected() &&
 				benderUpstream_ && benderUpstream_->isConnected() &&
-				benderDownstream_ && benderDownstream_->isConnected()
+				benderDownstream_ && benderDownstream_->isConnected() &&
+				upperSlitBlade_ && upperSlitBlade_->isConnected()
 				);
 
 	setConnected(isConnected);

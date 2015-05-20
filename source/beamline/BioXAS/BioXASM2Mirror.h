@@ -3,12 +3,13 @@
 
 #include <QObject>
 
+#include "beamline/BioXAS/BioXASBeamlineComponent.h"
 #include "beamline/AMPVControl.h"
 
 class CLSMAXvMotor;
 class BioXASPseudoMotorControl;
 
-class BioXASM2Mirror : public QObject
+class BioXASM2Mirror : public BioXASBeamlineComponent
 {
     Q_OBJECT
 
@@ -20,9 +21,6 @@ public:
 	explicit BioXASM2Mirror(QObject *parent = 0);
 	/// Destructor.
 	virtual ~BioXASM2Mirror();
-
-	/// Returns true if the mirror is connected, false otherwise.
-	bool isConnected() const { return isConnected_; }
 
 	/// Returns the fluorescence screen control.
 	AMPVControl* screenControl() const { return screen_; }
@@ -52,25 +50,15 @@ public:
 	/// The lateral pseudo motor control.
 	BioXASPseudoMotorControl* pseudoLateralControl() const { return pseudoLateral_; }
 
-signals:
-	/// Notifier that the mirror's connected state has changed.
-	void connected(bool isConnected);
-
 public slots:
 	/// Sets the screen control position.
 	void setScreenPosition(Screen::Position newPosition);
 
 protected slots:
-	/// Sets the current connected state.
-	void setConnected(bool isConnected);
-
-	/// Handles updating the current connected state.
-	void onConnectedChanged();
+	/// Updates the connected state.
+	virtual void updateConnected();
 
 protected:
-	/// The current connected state.
-	bool isConnected_;
-
 	/// The mirror fluorescence screen control.
 	AMSinglePVControl *screen_;
 

@@ -241,7 +241,7 @@ void BioXASSideBeamline::onConnectionChanged()
 				xiaFilters_->isConnected() &&
 
 				// Mirrors.
-				m2Mirror_->isConnected() &&
+				m2Mirror_->connected() &&
 				dbhrMirror_->isConnected() &&
 
 				// Control sets.
