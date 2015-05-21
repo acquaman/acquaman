@@ -309,7 +309,14 @@ void VESPERSEndstation::setFilterThickness(int index)
 //	changeFilterList->start();
 
 	switch(index){
-	case 0: // Filters are already taken out with previous loop.
+	case 0:
+		filterMap_.value("50A")->move(0);
+		filterMap_.value("50B")->move(0);
+		filterMap_.value("100A")->move(0);
+		filterMap_.value("100B")->move(0);
+		filterMap_.value("250A")->move(0);
+		filterMap_.value("250B")->move(0);
+
 		break;
 	case 1: // 50 um
 		filterMap_.value("50A")->move(1);
@@ -480,9 +487,9 @@ void VESPERSEndstation::setShutterState(bool state)
 
 	// 0 = OUT.  For this to work properly, the upper shutter is to remain fixed at the out position and the lower shutter changes.  Therefore if upper is IN, put it out.
 	if ((int)filterShutterUpper_->value() == 1)
-		filterShutterUpper_->move(1);
+		filterShutterUpper_->move(0);
 
-	filterShutterLower_->move(1);
+	filterShutterLower_->move(state ? 1.0 : 0.0);
 }
 
 void VESPERSEndstation::setHeliumBufferFlag(bool attached)

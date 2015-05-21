@@ -26,8 +26,6 @@ AMControl::FailureExplanation VESPERSToggleControl::move(double setpoint)
 		emit moveSucceeded();
 	}
 	else{
-		writePV_->setValue(1.0);
-
 		// We're now moving! Let's hope this control makes it... (No way to actually check.)
 		emit movingChanged(moveInProgress_ = true);
 		// emit the signal that we started:
@@ -39,6 +37,9 @@ AMControl::FailureExplanation VESPERSToggleControl::move(double setpoint)
 			emit movingChanged(moveInProgress_ = false);
 			emit moveSucceeded();
 		}
+
+		else
+			writePV_->setValue(1.0);
 	}
 
 	return AMControl::NoFailure;
