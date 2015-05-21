@@ -4,6 +4,7 @@
 #include "beamline/BioXAS/BioXASBeamlineComponent.h"
 #include "beamline/BioXAS/BioXASMirrorMotor.h"
 #include "beamline/BioXAS/BioXASMirrorPitchControl.h"
+#include "beamline/BioXAS/BioXASMirrorRollControl.h"
 
 class BioXASMirror : public BioXASBeamlineComponent
 {
@@ -32,6 +33,8 @@ public:
 
 	/// Returns the pitch control.
 	AMControl* pitchControl() const { return pitch_; }
+	/// Returns the roll control.
+	AMControl* rollControl() const { return roll_; }
 
 protected slots:
 	/// Updates the connected state.
@@ -55,6 +58,8 @@ protected:
 
 	/// The pitch pseudomotor control.
 	BioXASMirrorPitchControl *pitch_;
+	/// The roll pseudomotor control.
+	BioXASMirrorRollControl *roll_;
 };
 
 #endif // BIOXASMIRROR_H

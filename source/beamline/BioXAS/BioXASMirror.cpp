@@ -14,6 +14,7 @@ BioXASMirror::BioXASMirror(QObject *parent) :
 	benderDownstream_ = 0;
 
 	pitch_ = 0;
+	roll_ = 0;
 }
 
 BioXASMirror::~BioXASMirror()
@@ -32,7 +33,8 @@ void BioXASMirror::updateConnected()
 				benderUpstream_ && benderUpstream_->isConnected() &&
 				benderDownstream_ && benderDownstream_->isConnected() &&
 
-				pitch_ && pitch_->isConnected()
+				pitch_ && pitch_->isConnected() &&
+				roll_ && roll_->isConnected()
 				);
 
 	setConnected(isConnected);
