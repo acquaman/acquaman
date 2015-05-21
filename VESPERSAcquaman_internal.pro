@@ -76,7 +76,8 @@ HEADERS +=	source/application/VESPERS/VESPERSAppController.h \
     source/acquaman/VESPERS/VESPERSTimedLineScanActionController.h \
     source/acquaman/VESPERS/VESPERSTimedLineScanActionControllerAssembler.h \
     source/beamline/VESPERS/VESPERSXIAFilterActuator.h \
-    source/beamline/VESPERS/VESPERSXIAFilterControl.h
+    source/beamline/VESPERS/VESPERSXIAFilterControl.h \
+    source/beamline/VESPERS/VESPERSToggleControl.h
 
 SOURCES +=	source/application/VESPERS/VESPERSAppController.cpp \
 	source/application/VESPERS/VESPERSMain.cpp \
@@ -150,10 +151,13 @@ SOURCES +=	source/application/VESPERS/VESPERSAppController.cpp \
     source/acquaman/VESPERS/VESPERSTimedLineScanActionController.cpp \
     source/acquaman/VESPERS/VESPERSTimedLineScanActionControllerAssembler.cpp \
     source/beamline/VESPERS/VESPERSXIAFilterActuator.cpp \
-    source/beamline/VESPERS/VESPERSXIAFilterControl.cpp
+    source/beamline/VESPERS/VESPERSXIAFilterControl.cpp \
+    source/beamline/VESPERS/VESPERSToggleControl.cpp
 
 RESOURCES += \
 	source/icons/VESPERS/vespersIcons.qrc
+
+
 
 
 

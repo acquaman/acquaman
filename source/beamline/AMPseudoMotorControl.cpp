@@ -215,28 +215,24 @@ void AMPseudoMotorControl::removeChildControl(AMControl *control)
 void AMPseudoMotorControl::onMoveStarted(QObject *action)
 {
 	Q_UNUSED(action)
-	qDebug() << name() << "move action started.";
 	setMoveInProgress(true);
 }
 
 void AMPseudoMotorControl::onMoveCancelled(QObject *action)
 {
 	moveCleanup(action);
-	qDebug() << name() << "move action cancelled.";
 	emit moveFailed(AMControl::WasStoppedFailure);
 }
 
 void AMPseudoMotorControl::onMoveFailed(QObject *action)
 {
 	moveCleanup(action);
-	qDebug() << name() << "move action failed.";
 	emit moveFailed(AMControl::OtherFailure);
 }
 
 void AMPseudoMotorControl::onMoveSucceeded(QObject *action)
 {
 	moveCleanup(action);
-	qDebug() << name() << "move action succeeded.";
 	emit moveSucceeded();
 }
 

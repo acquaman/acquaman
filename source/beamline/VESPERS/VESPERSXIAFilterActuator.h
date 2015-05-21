@@ -11,7 +11,7 @@ class VESPERSXIAFilterActuator : public AMPseudoMotorControl
 
 public:
 	/// State enum.
-	enum State { Invalid = 0, Out, In };
+	enum State { Out = 0, In, Invalid };
 
 	/// Constructor.  Builds an XIA filter actuator from valid toggle and state controls.
 	VESPERSXIAFilterActuator(const QString &name, AMControl *toggleControl, AMControl *stateControl, QObject *parent = 0);
@@ -32,6 +32,16 @@ public:
 	/// Returns true if this control can stop right now. False otherwise.
 	virtual bool canStop() const;
 
+	/// Returns the toggle control.
+	AMControl *toggleControl() const { return toggle_; }
+	/// Returns the state control.
+	AMControl *stateControl() const { return state_; }
+
+	/// Returns true if the given value corresponds to a valid filter state.
+	virtual bool validValue(double value) const;
+	/// Returns true if the given value corresponds to a valid filter setpoint.
+	virtual bool validSetpoint(double value) const;
+
 public slots:
 	/// Sets the toggle control.
 	void setToggleControl(AMControl *newControl);
@@ -47,6 +57,9 @@ protected slots:
 	virtual void updateIsMoving();
 
 protected:
+	/// Returns a new action that will move the actuator to the desired state.
+	virtual AMAction3 *createMoveAction(double setpoint);
+
 	/// This control handles toggling the actuator.
 	AMControl *toggle_;
 	/// This control handles reading the actuator state.

@@ -1,5 +1,7 @@
 #include "VESPERSXIAFilterActuator.h"
 
+#include "actions3/AMActionSupport.h"
+
 VESPERSXIAFilterActuator::VESPERSXIAFilterActuator(const QString &name, AMControl *toggleControl, AMControl *stateControl, QObject *parent)
 	: AMPseudoMotorControl(name, "", parent)
 {
@@ -82,7 +84,7 @@ void VESPERSXIAFilterActuator::updateConnected()
 void VESPERSXIAFilterActuator::updateValue()
 {
 	if (isConnected())
-		setValue(0);
+		setValue(state_->value());
 
 	else
 		setValue(Invalid);
@@ -91,5 +93,57 @@ void VESPERSXIAFilterActuator::updateValue()
 void VESPERSXIAFilterActuator::updateIsMoving()
 {
 	if (isConnected())
-		setIsMoving(true);
+		setIsMoving(moveInProgress() && (state_->value() != setpoint_));
+}
+
+bool VESPERSXIAFilterActuator::validValue(double value) const
+{
+	bool result = true;
+
+	switch (int(value)){
+
+	case In:
+		result = true;
+		break;
+
+	case Out:
+		result = true;
+		break;
+
+	default:
+		break;
+	}
+
+	return result;
+}
+
+bool VESPERSXIAFilterActuator::validSetpoint(double value) const
+{
+	bool result = false;
+
+	switch (int(value)){
+
+	case In:
+		result = true;
+		break;
+
+	case Out:
+		result = true;
+		break;
+
+	default:
+		break;
+	}
+
+	return result;
+}
+
+AMAction3 * VESPERSXIAFilterActuator::createMoveAction(double setpoint)
+{
+	AMAction3 *action = 0;
+
+	if (isConnected() && validSetpoint(setpoint))
+		action = AMActionSupport::buildControlMoveAction(toggle_, 1.0);
+
+	return action;
 }
