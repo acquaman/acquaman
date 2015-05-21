@@ -1,7 +1,6 @@
 #include "BioXASMirrorPitchControl.h"
-#include "actions3/AMActionSupport.h"
 #include "actions3/AMListAction3.h"
-#include <math.h>
+#include "actions3/AMActionSupport.h"
 
 BioXASMirrorPitchControl::BioXASMirrorPitchControl(const QString &name, const QString &units, QObject *parent, const QString &description) :
 	BioXASMirrorPseudoMotorControl(name, units, parent, description)
@@ -59,7 +58,7 @@ AMAction3* BioXASMirrorPitchControl::createMoveAction(double setpoint)
 
 double BioXASMirrorPitchControl::calculateUpstreamInboardZ(double pitch, double upstreamInboardX, double upstreamInboardY, double upstreamOutboardX, double upstreamOutboardY, double upstreamOutboardZ, double downstreamX, double downstreamY, double downstreamZ)
 {
-	double numerator = (downstreamX - upstreamInboardX) * (downstreamY - upstreamOutboardY) + (upstreamOutboardX - downstreamX) * (downstreamY - upstreamInboardY) * tan(pitch) + (downstreamZ - upstreamOutboardZ) * (downstreamY - upstreamInboardY);
+	double numerator = (downstreamX - upstreamInboardX) * (downstreamY - upstreamOutboardY) + (upstreamOutboardX - downstreamX) * (downstreamY - upstreamInboardY) * tan(pitch * M_PI/180) + (downstreamZ - upstreamOutboardZ) * (downstreamY - upstreamInboardY);
 	double denom = downstreamY - upstreamOutboardY;
 	double result = downstreamZ - numerator / denom;
 
@@ -68,7 +67,7 @@ double BioXASMirrorPitchControl::calculateUpstreamInboardZ(double pitch, double 
 
 double BioXASMirrorPitchControl::calculateUpstreamOutboardZ(double pitch, double upstreamInboardX, double upstreamInboardY, double upstreamInboardZ, double upstreamOutboardX, double upstreamOutboardY, double downstreamX, double downstreamY, double downstreamZ)
 {
-	double numerator = (downstreamZ - upstreamInboardZ) * (downstreamY - upstreamOutboardY) - ((downstreamX - upstreamInboardX) * (downstreamY - upstreamOutboardY) + (upstreamOutboardX - downstreamX) * (downstreamY - upstreamInboardY)) * tan(pitch);
+	double numerator = (downstreamZ - upstreamInboardZ) * (downstreamY - upstreamOutboardY) - ((downstreamX - upstreamInboardX) * (downstreamY - upstreamOutboardY) + (upstreamOutboardX - downstreamX) * (downstreamY - upstreamInboardY)) * tan(pitch * M_PI/180);
 	double denom = downstreamY - upstreamInboardY;
 	double result = downstreamZ - numerator/denom;
 
@@ -77,7 +76,7 @@ double BioXASMirrorPitchControl::calculateUpstreamOutboardZ(double pitch, double
 
 double BioXASMirrorPitchControl::calculateDownstreamZ(double pitch, double upstreamInboardX, double upstreamInboardY, double upstreamInboardZ, double upstreamOutboardX, double upstreamOutboardY, double upstreamOutboardZ, double downstreamX, double downstreamY)
 {
-	double numerator = ((upstreamInboardZ * downstreamY) - (upstreamInboardZ * upstreamOutboardY) - (upstreamOutboardZ * downstreamY) + (upstreamOutboardZ * upstreamInboardY) + ((downstreamX - upstreamInboardX) * (downstreamY - upstreamOutboardY) + (upstreamOutboardX - downstreamX) * (downstreamY - upstreamInboardY)) * tan(pitch));
+	double numerator = ((upstreamInboardZ * downstreamY) - (upstreamInboardZ * upstreamOutboardY) - (upstreamOutboardZ * downstreamY) + (upstreamOutboardZ * upstreamInboardY) + ((downstreamX - upstreamInboardX) * (downstreamY - upstreamOutboardY) + (upstreamOutboardX - downstreamX) * (downstreamY - upstreamInboardY)) * tan(pitch * M_PI/180));
 	double denom = upstreamInboardY - upstreamOutboardY;
 	double result = numerator / denom;
 

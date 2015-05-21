@@ -1,4 +1,7 @@
 #include "BioXASMirrorPseudoMotorControl.h"
+#include "actions3/AMActionSupport.h"
+#include "actions3/AMListAction3.h"
+#include <math.h>
 
 BioXASMirrorPseudoMotorControl::BioXASMirrorPseudoMotorControl(const QString &name, const QString &units, QObject *parent, const QString &description) :
 	AMPseudoMotorControl(name, units, parent, description)
