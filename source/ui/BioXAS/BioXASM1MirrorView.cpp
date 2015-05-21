@@ -12,6 +12,7 @@ BioXASM1MirrorView::BioXASM1MirrorView(BioXASM1Mirror *mirror, QWidget *parent) 
 	mirrorEditor_ = new BioXASMirrorView(0);
 
 	upperSlitEditor_ = new AMExtendedControlEditor(0);
+	upperSlitEditor_->setTitle("Upper slit blade");
 
 	// Create and set layouts.
 

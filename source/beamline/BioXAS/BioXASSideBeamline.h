@@ -48,6 +48,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/BioXAS/BioXAS32ElementGeDetector.h"
 #include "beamline/BioXAS/BioXASSideCarbonFilterFarm.h"
 #include "beamline/BioXAS/BioXASSideXIAFilters.h"
+#include "beamline/BioXAS/BioXASSideM1Mirror.h"
 #include "beamline/BioXAS/BioXASSideM2Mirror.h"
 #include "beamline/BioXAS/BioXASSideDBHRMirror.h"
 
@@ -82,10 +83,12 @@ public:
 	/// Returns the most recent connection state of the beamline.
 	virtual bool isConnected() const { return isConnected_; }
 
-	/// Returns the m2 mirrors.
-	BioXASSideM2Mirror* m2Mirror() const { return m2Mirror_; }
-	/// Returns the beamline monochromator.
-	BioXASSideMonochromator *mono() const { return mono_; }
+	/// Returns the m1 mirror.
+	virtual BioXASSideM1Mirror* m1Mirror() const { return m1Mirror_; }
+	/// Returns the m2 mirror.
+	virtual BioXASSideM2Mirror* m2Mirror() const { return m2Mirror_; }
+	/// Returns the monochromator.
+	virtual BioXASSideMonochromator* mono() const { return mono_; }
 	/// Returns the beamline JJ Slit.
 	CLSJJSlits *jjSlits() const { return jjSlits_; }
 	/// Returns the scaler.
@@ -306,7 +309,7 @@ protected:
 	/// Sets up mono settings.
 	void setupMono();
 	/// Sets up various beamline components.
-	void setupComponents();
+	virtual void setupComponents();
 	/// Sets up the exposed actions.
 	void setupExposedControls();
 	/// Sets up the exposed detectors.
@@ -337,8 +340,9 @@ protected:
 	AMBasicControlDetectorEmulator *braggEncoderFeedbackDetector_;
 	BioXAS32ElementGeDetector *ge32ElementDetector_;
 
-	// M2 mirror
-
+	// The M1 mirror.
+	BioXASSideM1Mirror *m1Mirror_;
+	// The M2 mirror
 	BioXASSideM2Mirror *m2Mirror_;
 
 	// Monochromator

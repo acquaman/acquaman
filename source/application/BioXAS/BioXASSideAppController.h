@@ -37,6 +37,7 @@ class BioXASUserConfiguration;
 class AMRegionOfInterest;
 class BioXASXIAFiltersView;
 class BioXASCarbonFilterFarmView;
+class BioXASM1MirrorView;
 class BioXASM2MirrorView;
 class BioXASDBHRMirrorView;
 class AMGenericStepScanConfiguration;
@@ -101,6 +102,8 @@ protected:
 	BioXASXIAFiltersView *xiaFiltersView_;
 	/// The carbon filter farm view.
 	BioXASCarbonFilterFarmView *carbonFilterFarmView_;
+	/// The m1 mirror view.
+	BioXASM1MirrorView *m1MirrorView_;
 	/// The m2 mirror view.
 	BioXASM2MirrorView *m2MirrorView_;
 	/// The dbhr mirror view.

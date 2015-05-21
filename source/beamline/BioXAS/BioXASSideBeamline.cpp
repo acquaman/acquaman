@@ -241,6 +241,7 @@ void BioXASSideBeamline::onConnectionChanged()
 				xiaFilters_->isConnected() &&
 
 				// Mirrors.
+				m1Mirror_->connected() &&
 				m2Mirror_->connected() &&
 				dbhrMirror_->isConnected() &&
 
@@ -762,8 +763,11 @@ void BioXASSideBeamline::setupComponents()
 	jjSlits_ = new CLSJJSlits("JJSlits", "SMTR1607-6-I22-10", "SMTR1607-6-I22-09", "SMTR1607-6-I22-11", "SMTR1607-6-I22-12", this);
 	connect( jjSlits_, SIGNAL(connectedChanged(bool)), this, SLOT(onConnectionChanged()) );
 
+	m1Mirror_ = new BioXASSideM1Mirror(this);
+	connect( m1Mirror_, SIGNAL(connectedChanged(bool)), this, SLOT(onConnectionChanged()) );
+
 	m2Mirror_ = new BioXASSideM2Mirror(this);
-	connect( m2Mirror_, SIGNAL(connected(bool)), this, SLOT(onConnectionChanged()) );
+	connect( m2Mirror_, SIGNAL(connectedChanged(bool)), this, SLOT(onConnectionChanged()) );
 
 	dbhrMirror_ = new BioXASSideDBHRMirror(this);
 	connect( dbhrMirror_, SIGNAL(connectedChanged(bool)), this, SLOT(onConnectionChanged()) );

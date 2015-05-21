@@ -63,6 +63,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/BioXAS/BioXASSSRLMonochromatorConfigurationView.h"
 #include "ui/BioXAS/BioXASXIAFiltersView.h"
 #include "ui/BioXAS/BioXASCarbonFilterFarmView.h"
+#include "ui/BioXAS/BioXASM1MirrorView.h"
 #include "ui/BioXAS/BioXASM2MirrorView.h"
 #include "ui/BioXAS/BioXASDBHRMirrorView.h"
 #include "ui/BioXAS/BioXASSIS3820ScalerView.h"
@@ -211,6 +212,9 @@ void BioXASSideAppController::setupUserInterface()
 	// Create carbon filter farm view.
 	carbonFilterFarmView_ = new BioXASCarbonFilterFarmView(BioXASSideBeamline::bioXAS()->carbonFilterFarm());
 
+	// Create m1 mirror view.
+	m1MirrorView_ = new BioXASM1MirrorView(BioXASSideBeamline::bioXAS()->m1Mirror());
+
 	// Create m2 mirror view.
 	m2MirrorView_ = new BioXASM2MirrorView(BioXASSideBeamline::bioXAS()->m2Mirror());
 
@@ -231,6 +235,7 @@ void BioXASSideAppController::setupUserInterface()
 
 	// Add views to 'General'.
 	mw_->insertHeading("General", 0);
+	mw_->addPane(createSqueezeGroupBoxWithView("", m1MirrorView_), "General", "M1 Mirror", ":/system-software-update.png");
 	mw_->addPane(createSqueezeGroupBoxWithView("", monoConfigView_), "General", "Monochromator", ":/system-software-update.png");
 	mw_->addPane(createSqueezeGroupBoxWithView("", jjSlitsView_), "General", "JJ Slits", ":/system-software-update.png");
 	mw_->addPane(createSqueezeGroupBoxWithView("", xiaFiltersView_), "General", "XIA Filters", ":/system-software-update.png");

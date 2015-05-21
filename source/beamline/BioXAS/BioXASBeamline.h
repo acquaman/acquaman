@@ -5,6 +5,7 @@
 #include "beamline/CLS/CLSBiStateControl.h"
 
 class BioXASMonochromator;
+class BioXASM1Mirror;
 class BioXASM2Mirror;
 
 class BioXASBeamline : public CLSBeamline
@@ -42,6 +43,8 @@ public:
 	AMControl* safetyShutter() const { return safetyShutter_; }
 	/// Returns the beamline's monochromator.
 	virtual BioXASMonochromator* mono() const { return 0; }
+	/// Returns the m1 mirror.
+	virtual BioXASM1Mirror* m1Mirror() const { return 0; }
 	/// Returns the m2 mirror.
 	virtual BioXASM2Mirror* m2Mirror() const { return 0; }
 	/// Returns the beamline's scaler.

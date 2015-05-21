@@ -13,6 +13,7 @@ BioXASM2MirrorView::BioXASM2MirrorView(BioXASM2Mirror *mirror, QWidget *parent) 
 	mirrorEditor_ = new BioXASMirrorView(0);
 
 	screenEditor_ = new AMExtendedControlEditor(0);
+	screenEditor_->setNoUnitsBox(true);
 	screenEditor_->setTitle("Fluorescent screen");
 
 	// Create and set layouts.

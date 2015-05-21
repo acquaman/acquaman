@@ -10,12 +10,18 @@ BioXASMirrorView::BioXASMirrorView(BioXASMirror *mirror, QWidget *parent) :
 	// Create UI elements.
 
 	upstreamInboardEditor_ = new AMExtendedControlEditor(0);
+	upstreamInboardEditor_->setTitle("Upstream inboard -- vertical");
+
 	upstreamOutboardEditor_ = new AMExtendedControlEditor(0);
+	upstreamOutboardEditor_->setTitle("Upstream outboard -- vertical");
+
 	downstreamEditor_ = new AMExtendedControlEditor(0);
+	downstreamEditor_->setTitle("Downstream -- vertical");
 
 	// Create and set layouts.
 
 	QVBoxLayout *layout = new QVBoxLayout();
+	layout->setMargin(0);
 	layout->addWidget(upstreamInboardEditor_);
 	layout->addWidget(upstreamOutboardEditor_);
 	layout->addWidget(downstreamEditor_);
