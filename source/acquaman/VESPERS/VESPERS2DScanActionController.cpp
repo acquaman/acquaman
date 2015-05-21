@@ -270,6 +270,8 @@ AMAction3* VESPERS2DScanActionController::createInitializationActions()
 										 configuration_->ccdFileName(),
 										 scan_->largestNumberInScansWhere(AMDatabase::database("user"), QString(" name = '%1'").arg(scan_->name()))+1));
 
+	initializationActions->addSubAction(AMActionSupport::buildControlMoveAction(VESPERSBeamline::vespers()->endstation()->shutterControl(), 1.0));
+
 	if (configuration_->normalPosition() != 888888.88){
 
 		VESPERS::Motors motor = configuration_->motor();
@@ -310,6 +312,9 @@ AMAction3* VESPERS2DScanActionController::createCleanupActions()
 
 	AMSequentialListAction3 *cleanupActions = new AMSequentialListAction3(new AMSequentialListActionInfo3("Cleanup actions", "Cleanup actions"));
 	cleanupActions->addSubAction(buildCleanupAction());
+
+	if (configuration_->closeFastShutter())
+		cleanupActions->addSubAction(AMActionSupport::buildControlMoveAction(VESPERSBeamline::vespers()->endstation()->shutterControl(), 0.0));
 
 	if (configuration_->returnToOriginalPosition()){
 
