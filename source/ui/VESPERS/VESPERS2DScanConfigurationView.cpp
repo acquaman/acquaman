@@ -217,7 +217,7 @@ VESPERS2DScanConfigurationView::VESPERS2DScanConfigurationView(VESPERS2DScanConf
 	QGroupBox *detectorGroupBox = new QGroupBox("Detectors");
 	detectorGroupBox->setLayout(detectorLayout);
 
-	QGroupBox *afterScanBox = createAfterScanOptionsBox(true, false);
+	QGroupBox *afterScanBox = createAfterScanOptionsBox(configuration_->closeFastShutter(), configuration_->returnToOriginalPosition());
 	connect(closeFastShutterCheckBox_, SIGNAL(toggled(bool)), this, SLOT(setCloseFastShutter(bool)));
 	connect(goToPositionCheckBox_, SIGNAL(toggled(bool)), this, SLOT(setReturnToOriginalPosition(bool)));
 

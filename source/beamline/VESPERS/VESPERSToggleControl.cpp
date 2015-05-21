@@ -5,6 +5,7 @@
 VESPERSToggleControl::VESPERSToggleControl(const QString &name, const QString &readPVName, const QString &writePVName, QObject *parent, double tolerance, double completionTimeoutSeconds, const QString &description)
 	: AMPVControl(name, readPVName, writePVName, QString(), parent, tolerance, completionTimeoutSeconds, 1, description)
 {
+	disconnect(writePV_, SIGNAL(valueChanged(double)), this, SLOT(onSetpointChanged(double)));
 }
 
 VESPERSToggleControl::~VESPERSToggleControl()
