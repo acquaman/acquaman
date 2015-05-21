@@ -14,6 +14,11 @@ BioXASSideM1Mirror::BioXASSideM1Mirror(QObject *parent) :
 	benderDownstream_ = new CLSMAXvMotor(QString("SMTR1607-5-I22-07 BENDER (DOWNSTREAM)"), QString("SMTR1607-5-I22-07"), QString("SMTR1607-5-I22-07 BENDER (DOWNSTREAM)"), true, 0.05, 2.0, this, QString(":lbs"));
 	upperSlitBlade_ = new CLSMAXvMotor(QString("SMTR1607-5-I22-08 UPPER SLIT"), QString("SMTR1607-5-I22-08"), QString("SMTR1607-5-I22-08 UPPER SLIT"), true, 0.05, 2.0, this, QString(":mm"));
 
+	pitch_ = new BioXASMirrorPitchControl("M1PitchControl", "deg", this);
+	pitch_->setUpstreamInboardControl(upstreamInboard_);
+	pitch_->setUpstreamOutboardControl(upstreamOutboard_);
+	pitch_->setDownstreamControl(downstream_);
+
 	// Make connections.
 
 	connect( upstreamInboard_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
@@ -24,6 +29,8 @@ BioXASSideM1Mirror::BioXASSideM1Mirror(QObject *parent) :
 	connect( benderUpstream_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 	connect( benderDownstream_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 	connect( upperSlitBlade_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+
+	connect( pitch_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 }
 
 BioXASSideM1Mirror::~BioXASSideM1Mirror()

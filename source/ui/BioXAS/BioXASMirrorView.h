@@ -38,6 +38,8 @@ protected:
 	AMExtendedControlEditor *upstreamOutboardEditor_;
 	/// The downstream control editor.
 	AMExtendedControlEditor *downstreamEditor_;
+	/// The pitch control editor.
+	AMExtendedControlEditor *pitchEditor_;
 };
 
 #endif // BIOXASMIRRORVIEW_H

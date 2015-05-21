@@ -12,6 +12,8 @@ BioXASMirror::BioXASMirror(QObject *parent) :
 	yaw_ = 0;
 	benderUpstream_ = 0;
 	benderDownstream_ = 0;
+
+	pitch_ = 0;
 }
 
 BioXASMirror::~BioXASMirror()
@@ -28,7 +30,9 @@ void BioXASMirror::updateConnected()
 				stripeSelect_ && stripeSelect_->isConnected() &&
 				yaw_ && yaw_->isConnected() &&
 				benderUpstream_ && benderUpstream_->isConnected() &&
-				benderDownstream_ && benderDownstream_->isConnected()
+				benderDownstream_ && benderDownstream_->isConnected() &&
+
+				pitch_ && pitch_->isConnected()
 				);
 
 	setConnected(isConnected);

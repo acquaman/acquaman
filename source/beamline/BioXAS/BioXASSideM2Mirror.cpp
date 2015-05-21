@@ -16,6 +16,11 @@ BioXASSideM2Mirror::BioXASSideM2Mirror(QObject *parent) :
 	benderDownstream_ = new CLSMAXvMotor(QString("SMTR1607-5-I22-21 BENDER (DOWNSTREAM)"), QString("SMTR1607-5-I22-21"), QString("SMTR1607-5-I22-21 BENDER (DOWNSTREAM)"), true, 0.05, 2.0, this, QString(":lbs"));
 	screen_ = new AMSinglePVControl("M2FluorescenceScreen", "VSC1607-5-I22-02:InBeam", this);
 
+	pitch_ = new BioXASMirrorPitchControl("M2PitchControl", "deg", this);
+	pitch_->setUpstreamInboardControl(upstreamInboard_);
+	pitch_->setUpstreamOutboardControl(upstreamOutboard_);
+	pitch_->setDownstreamControl(downstream_);
+
 	// Make connections.
 
 	connect( upstreamInboard_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
@@ -26,6 +31,8 @@ BioXASSideM2Mirror::BioXASSideM2Mirror(QObject *parent) :
 	connect( benderUpstream_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 	connect( benderDownstream_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 	connect( screen_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+
+	connect( pitch_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 }
 
 BioXASSideM2Mirror::~BioXASSideM2Mirror()

@@ -18,6 +18,9 @@ BioXASMirrorView::BioXASMirrorView(BioXASMirror *mirror, QWidget *parent) :
 	downstreamEditor_ = new AMExtendedControlEditor(0);
 	downstreamEditor_->setTitle("Downstream -- vertical");
 
+	pitchEditor_ = new AMExtendedControlEditor(0);
+	pitchEditor_->setTitle("Pitch");
+
 	// Create and set layouts.
 
 	QVBoxLayout *layout = new QVBoxLayout();
@@ -25,6 +28,7 @@ BioXASMirrorView::BioXASMirrorView(BioXASMirror *mirror, QWidget *parent) :
 	layout->addWidget(upstreamInboardEditor_);
 	layout->addWidget(upstreamOutboardEditor_);
 	layout->addWidget(downstreamEditor_);
+	layout->addWidget(pitchEditor_);
 
 	setLayout(layout);
 
@@ -46,6 +50,7 @@ void BioXASMirrorView::setMirror(BioXASMirror *newMirror)
 			upstreamInboardEditor_->setControl(0);
 			upstreamOutboardEditor_->setControl(0);
 			downstreamEditor_->setControl(0);
+			pitchEditor_->setControl(0);
 		}
 
 		mirror_ = newMirror;
@@ -54,6 +59,7 @@ void BioXASMirrorView::setMirror(BioXASMirror *newMirror)
 			upstreamInboardEditor_->setControl(mirror_->upstreamInboardControl());
 			upstreamOutboardEditor_->setControl(mirror_->upstreamOutboardControl());
 			downstreamEditor_->setControl(mirror_->downstreamControl());
+			pitchEditor_->setControl(mirror_->pitchControl());
 		}
 
 		emit mirrorChanged(mirror_);
