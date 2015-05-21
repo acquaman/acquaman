@@ -131,7 +131,7 @@ protected slots:
 	virtual void onScanningActionsGenerated(AMAction3 *actionTree);
 
 	/*!
-	  * Handles the cleanup after the inisialization actions have succeeded.
+	  * Handles the cleanup after the initialization actions have succeeded.
 	  */
 	virtual void onInitializationActionsListSucceeded();
 
@@ -223,7 +223,7 @@ protected:
 	virtual bool initializeImplementation();
 
 	/*!
-	  * Starts the scan aciton controller actions.
+	  * Starts the scan action controller actions.
 	  */
 	virtual bool startImplementation();
 
