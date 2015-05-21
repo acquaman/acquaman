@@ -21,7 +21,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "REIXSActionBasedControlEditor.h"
 #include "util/AMErrorMonitor.h"
 #include "beamline/AMControl.h"
-#include "actions3/AMAction3.h"
 #include "actions3/actions/AMControlMoveAction3.h"
 
 #include <QApplication>
@@ -30,31 +29,34 @@ REIXSActionBasedControlEditor::REIXSActionBasedControlEditor(AMControl* control,
 	AMControlEditor(control, 0, parent)
 {
 	okToRunInBackground_ = okToRunInBackground;
+	controlMoveAction_ = 0;
 }
 
 REIXSActionBasedControlEditor::~REIXSActionBasedControlEditor(){}
 
+void REIXSActionBasedControlEditor::onControlMoveActionFinished()
+{
+	if (controlMoveAction_) {
+		disconnect(controlMoveAction_, SIGNAL(succeeded()));
+		disconnect(controlMoveAction_, SIGNAL(failed()));
+		disconnect(controlMoveAction_, SIGNAL(cancelled()));
+
+		controlMoveAction_->deleteLater();
+		controlMoveAction_ = 0;
+	}
+}
+
 void REIXSActionBasedControlEditor::onNewSetpointChosen(double value)
 {
-	if(!control_)
+	if(!control_ || controlMoveAction_)
 		return;
 
 	AMControlInfo setpoint = control_->toInfo();
 	setpoint.setValue(value);
 
-	if(okToRunInBackground_) {
-		AMAction3* action = new AMControlMoveAction3(new AMControlMoveActionInfo3(setpoint), control_);
-		connect(action, SIGNAL(succeeded()), action, SLOT(deleteLater()));
-		connect(action, SIGNAL(failed()), action, SLOT(deleteLater()));
-		connect(action, SIGNAL(cancelled()), action, SLOT(deleteLater()));
-		action->start();
-	}
-	else {
-
-		AMAction3* action = new AMControlMoveAction3(new AMControlMoveActionInfo3(setpoint), control_);
-		connect(action, SIGNAL(succeeded()), action, SLOT(deleteLater()));
-		connect(action, SIGNAL(failed()), action, SLOT(deleteLater()));
-		connect(action, SIGNAL(cancelled()), action, SLOT(deleteLater()));
-		action->start();
-	}
+	controlMoveAction_ = new AMControlMoveAction3(new AMControlMoveActionInfo3(setpoint), control_);
+	connect(controlMoveAction_, SIGNAL(succeeded()), this, SLOT(onControlMoveActionFinished()));
+	connect(controlMoveAction_, SIGNAL(failed()), this, SLOT(onControlMoveActionFinished()));
+	connect(controlMoveAction_, SIGNAL(cancelled()), this, SLOT(onControlMoveActionFinished()));
+	controlMoveAction_->start();
 }

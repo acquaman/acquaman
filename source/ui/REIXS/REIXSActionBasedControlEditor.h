@@ -21,6 +21,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef REIXSACTIONBASEDCONTROLEDITOR_H
 #define REIXSACTIONBASEDCONTROLEDITOR_H
 
+#include "actions3/AMAction3.h"
 #include "ui/beamline/AMControlEditor.h"
 
 /// Re-implements AMControlEditor to do its moves inside AMActionRunner with a REIXSControlMoveAction.
@@ -32,6 +33,9 @@ public:
  	virtual ~REIXSActionBasedControlEditor();
 	REIXSActionBasedControlEditor(AMControl* control, bool okToRunInBackground = false, QWidget *parent = 0);
 
+public slots:
+	/// the slot to release resouces when the contol move is done (succeeded, cancelled or failed)
+	void onControlMoveActionFinished();
 
 protected slots:
 	/// Re-implemented from AMControlEditor
@@ -40,6 +44,7 @@ protected slots:
 protected:
 	bool okToRunInBackground_;
 
+	AMAction3* controlMoveAction_;
 };
 
 #endif // REIXSACTIONBASEDCONTROLEDITOR_H
