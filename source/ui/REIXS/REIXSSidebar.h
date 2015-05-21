@@ -87,8 +87,8 @@ private:
 	void setupUi();
 	void setupConnections();
 
-	void *layoutBeamlineContent();
-	void *layoutDetectorContent();
+	void layoutBeamlineContent();
+	void layoutDetectorContent();
 	QPushButton *createPushButton(QString text);
 };
 

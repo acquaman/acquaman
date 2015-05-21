@@ -10,7 +10,6 @@ the Free Software Foundation, either version 3 of the License, or
 
 Acquaman is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
-
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
@@ -108,7 +107,6 @@ void REIXSSidebar::onScalerContinuousModeChanged(double on)
 void REIXSSidebar::on_MonoStopButton_clicked()
 {
 	REIXSBeamline::bl()->photonSource()->energy()->stop();
-	beamlineEnergyEditor_->onControlMoveActionFinished();
 	AMActionRunner3::scanActionRunner()->cancelCurrentAction();
 	AMActionRunner3::workflow()->cancelCurrentAction();
 }
@@ -149,7 +147,7 @@ void REIXSSidebar::setupConnections()
 	connect(REIXSBeamline::bl()->photonSource()->ringCurrent(), SIGNAL(valueChanged(double)), this, SLOT(onRingCurrentChanged(double)));
 }
 
-void *REIXSSidebar::layoutBeamlineContent()
+void REIXSSidebar::layoutBeamlineContent()
 {
 
 	QFont font;
@@ -215,7 +213,7 @@ void *REIXSSidebar::layoutBeamlineContent()
 	beamlineGroupBox_->setLayout(beamlineFormLayout);
 }
 
-void *REIXSSidebar::layoutDetectorContent()
+void REIXSSidebar::layoutDetectorContent()
 {
 	XESValue_ = new QLabel("XES:\t\t0 counts");
 	XESValue_->setFixedHeight(55);
