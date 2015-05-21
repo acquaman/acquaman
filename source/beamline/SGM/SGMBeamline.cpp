@@ -305,11 +305,16 @@ SGMBeamline::SGMBeamline() : CLSBeamline("SGMBeamline") {
 	FastDetectorGroup_->addDetector(newFilteredPD5Detector_);
 
 	criticalDetectorSet_ = new AMDetectorSet();
+	// Removed for #1403
+	// Amptek detectors not currently connected, so remove them from the critical
+	// detector set.
+	/*
 	criticalDetectorSet_->addDetector(newAmptekSDD1_);
 	criticalDetectorSet_->addDetector(newAmptekSDD2_);
 	criticalDetectorSet_->addDetector(newAmptekSDD3_);
 	criticalDetectorSet_->addDetector(newAmptekSDD4_);
 	criticalDetectorSet_->addDetector(newAmptekSDD5_);
+	*/
 	criticalDetectorSet_->addDetector(newTEYDetector_);
 	criticalDetectorSet_->addDetector(newTFYDetector_);
 	criticalDetectorSet_->addDetector(newI0Detector_);

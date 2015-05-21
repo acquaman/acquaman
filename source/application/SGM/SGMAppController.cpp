@@ -389,25 +389,26 @@ void SGMAppController::onSGMBeamlineConnected(){
 
 		xasDetectorSelector_ = new AMDetectorSelector(SGMBeamline::sgm()->XASDetectorGroup());
 		QStringList preferentialOrdering;
+		// #1403 Changed the amptek detectors to be turned off in an xas scan by detault.
 		if(SGMBeamline::sgm()->newAmptekSDD1()){
 			preferentialOrdering << SGMBeamline::sgm()->newAmptekSDD1()->name();
-			xasDetectorSelector_->setDetectorDefault(SGMBeamline::sgm()->newAmptekSDD1(), true);
+			xasDetectorSelector_->setDetectorDefault(SGMBeamline::sgm()->newAmptekSDD1(), false);
 		}
 		if(SGMBeamline::sgm()->newAmptekSDD2()){
 			preferentialOrdering << SGMBeamline::sgm()->newAmptekSDD2()->name();
-			xasDetectorSelector_->setDetectorDefault(SGMBeamline::sgm()->newAmptekSDD2(), true);
+			xasDetectorSelector_->setDetectorDefault(SGMBeamline::sgm()->newAmptekSDD2(), false);
 		}
 		if(SGMBeamline::sgm()->newAmptekSDD3()){
 			preferentialOrdering << SGMBeamline::sgm()->newAmptekSDD3()->name();
-			xasDetectorSelector_->setDetectorDefault(SGMBeamline::sgm()->newAmptekSDD3(), true);
+			xasDetectorSelector_->setDetectorDefault(SGMBeamline::sgm()->newAmptekSDD3(), false);
 		}
 		if(SGMBeamline::sgm()->newAmptekSDD4()){
 			preferentialOrdering << SGMBeamline::sgm()->newAmptekSDD4()->name();
-			xasDetectorSelector_->setDetectorDefault(SGMBeamline::sgm()->newAmptekSDD4(), true);
+			xasDetectorSelector_->setDetectorDefault(SGMBeamline::sgm()->newAmptekSDD4(), false);
 		}
 		if(SGMBeamline::sgm()->newAmptekSDD5()){
 			preferentialOrdering << SGMBeamline::sgm()->newAmptekSDD5()->name();
-			xasDetectorSelector_->setDetectorDefault(SGMBeamline::sgm()->newAmptekSDD5(), true);
+			xasDetectorSelector_->setDetectorDefault(SGMBeamline::sgm()->newAmptekSDD5(), false);
 		}
 		if(SGMBeamline::sgm()->newI0Detector()){
 			preferentialOrdering << SGMBeamline::sgm()->newI0Detector()->name();
