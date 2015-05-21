@@ -8,12 +8,20 @@ BioXASM2MirrorView::BioXASM2MirrorView(BioXASM2Mirror *mirror, QWidget *parent) 
 
 	mirror_ = 0;
 
-	screenEditor_ = 0;
+	// Create UI elements.
 
-	// Create and set layout.
+	mirrorEditor_ = new BioXASMirrorView(0);
 
-	layout_ = new QVBoxLayout();
-	setLayout(layout_);
+	screenEditor_ = new AMExtendedControlEditor(0);
+	screenEditor_->setTitle("Fluorescent screen");
+
+	// Create and set layouts.
+
+	QVBoxLayout *layout = new QVBoxLayout();
+	layout->addWidget(mirrorEditor_);
+	layout->addWidget(screenEditor_);
+
+	setLayout(layout);
 
 	// Current settings.
 
@@ -30,27 +38,15 @@ void BioXASM2MirrorView::setMirror(BioXASM2Mirror *newMirror)
 	if (mirror_ != newMirror) {
 
 		if (mirror_) {
-
-			// Clear UI elements.
-
-			layout_->removeWidget(screenEditor_);
-
-			screenEditor_->deleteLater();
-
-			screenEditor_ = 0;
+			mirrorEditor_->setMirror(mirror_);
+			screenEditor_->setControl(0);
 		}
 
 		mirror_ = newMirror;
 
 		if (mirror_) {
-
-			// Create UI elements.
-
-			screenEditor_ = new AMExtendedControlEditor(mirror_->screenControl());
-			screenEditor_->setNoUnitsBox(true);
-			screenEditor_->setTitle("Fluorescence Screen");
-
-			layout_->addWidget(screenEditor_);
+			mirrorEditor_->setMirror(mirror_);
+			screenEditor_->setControl(mirror_->screenControl());
 		}
 	}
 }

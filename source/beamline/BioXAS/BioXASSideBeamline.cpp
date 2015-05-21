@@ -186,9 +186,9 @@ QList<AMControl *> BioXASSideBeamline::getMotorsByType(BioXASBeamlineDef::BioXAS
 		break;
 
 	case BioXASBeamlineDef::M2Motor:	// BioXAS M2 motors
-		matchedMotors.append(m2Mirror_->verticalUpstreamInboundControl());
-		matchedMotors.append(m2Mirror_->verticalUpstreamOutboundControl());
-		matchedMotors.append(m2Mirror_->verticalDownstreamControl());
+		matchedMotors.append(m2Mirror_->upstreamInboardControl());
+		matchedMotors.append(m2Mirror_->upstreamOutboardControl());
+		matchedMotors.append(m2Mirror_->downstreamControl());
 		matchedMotors.append(m2Mirror_->stripeSelectControl());
 		matchedMotors.append(m2Mirror_->yawControl());
 		matchedMotors.append(m2Mirror_->benderUpstreamControl());
@@ -203,13 +203,13 @@ QList<AMControl *> BioXASSideBeamline::getMotorsByType(BioXASBeamlineDef::BioXAS
 		matchedMotors.append(m1PseudoLateral_);
 		break;
 
-	case BioXASBeamlineDef::PseudoM2Motor: // BioXAS Pseudo M2 motor
-		matchedMotors.append(m2Mirror_->pseudoRollControl());
-		matchedMotors.append(m2Mirror_->pseudoPitchControl());
-		matchedMotors.append(m2Mirror_->pseudoYawControl());
-		matchedMotors.append(m2Mirror_->pseudoHeightControl());
-		matchedMotors.append(m2Mirror_->pseudoLateralControl());
-		break;
+//	case BioXASBeamlineDef::PseudoM2Motor: // BioXAS Pseudo M2 motor
+//		matchedMotors.append(m2Mirror_->pseudoRollControl());
+//		matchedMotors.append(m2Mirror_->pseudoPitchControl());
+//		matchedMotors.append(m2Mirror_->pseudoYawControl());
+//		matchedMotors.append(m2Mirror_->pseudoHeightControl());
+//		matchedMotors.append(m2Mirror_->pseudoLateralControl());
+//		break;
 
 	case BioXASBeamlineDef::PseudoMonoMotor: // BioXAS Pseudo Mono motor
 		matchedMotors.append(monoPseudoEnergy_);
