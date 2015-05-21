@@ -44,7 +44,9 @@ HEADERS += \
     source/beamline/BioXAS/BioXASMirror.h \
     source/ui/BioXAS/BioXASMirrorView.h \
 	source/ui/BioXAS/BioXASM1MirrorView.h \
-	source/beamline/BioXAS/BioXASMirrorPitchControl.h
+	source/beamline/BioXAS/BioXASMirrorPitchControl.h \
+    source/beamline/BioXAS/BioXASMirrorRollControl.h \
+    source/beamline/BioXAS/BioXASMirrorPseudoMotorControl.h
 
 SOURCES += \
 	source/beamline/BioXAS/BioXASPseudoMotorControl.cpp \
@@ -84,7 +86,13 @@ SOURCES += \
     source/beamline/BioXAS/BioXASMirror.cpp \
     source/ui/BioXAS/BioXASMirrorView.cpp \
 	source/ui/BioXAS/BioXASM1MirrorView.cpp \
-	source/beamline/BioXAS/BioXASMirrorPitchControl.cpp
+	source/beamline/BioXAS/BioXASMirrorPitchControl.cpp \
+    source/beamline/BioXAS/BioXASMirrorRollControl.cpp \
+    source/beamline/BioXAS/BioXASMirrorPseudoMotorControl.cpp
+
+
+
+
 
 
 
