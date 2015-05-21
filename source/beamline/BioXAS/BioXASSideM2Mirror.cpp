@@ -21,6 +21,11 @@ BioXASSideM2Mirror::BioXASSideM2Mirror(QObject *parent) :
 	pitch_->setUpstreamOutboardControl(upstreamOutboard_);
 	pitch_->setDownstreamControl(downstream_);
 
+	roll_ = new BioXASMirrorRollControl("M2RollControl", "deg", this);
+	roll_->setUpstreamInboardControl(upstreamInboard_);
+	roll_->setUpstreamOutboardControl(upstreamOutboard_);
+	roll_->setDownstreamControl(downstream_);
+
 	// Make connections.
 
 	connect( upstreamInboard_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
@@ -33,6 +38,7 @@ BioXASSideM2Mirror::BioXASSideM2Mirror(QObject *parent) :
 	connect( screen_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
 	connect( pitch_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+	connect( roll_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 }
 
 BioXASSideM2Mirror::~BioXASSideM2Mirror()
