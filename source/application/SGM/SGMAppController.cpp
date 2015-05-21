@@ -186,8 +186,13 @@ bool SGMAppController::startup() {
 	qDebug() << "Description:" << AMBuildReporter::buildReporter()->buildInfo()->describeName();
 	qDebug() << "Date:" << AMBuildReporter::buildReporter()->buildInfo()->commitDate();
 
+	// Removed in #1403. During the transitional phase of the sgm upgrade acquaman
+	// will be running in the 1403 branch. This supresses the startup warning that
+	// we're not in the deploy branch.
+	/*
 	if(AMBuildReporter::buildReporter()->buildInfo()->branchName() != "SGM_Release")
 		QMessageBox::warning(0, "Deployment Warning", QString("Acquaman has detected that this application has been deployed from the wrong branch (%1).\nPlease contact David Chevrier immediately for assistance.").arg(AMBuildReporter::buildReporter()->buildInfo()->branchName()), QMessageBox::Ok, QMessageBox::NoButton);
+	*/
 
 	SGMSettings::s()->load();
 
