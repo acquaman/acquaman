@@ -19,12 +19,12 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 
 #include "REIXSActionBasedControlEditor.h"
-#include "util/AMErrorMonitor.h"
+
 #include "beamline/AMControl.h"
 #include "actions3/AMAction3.h"
-#include "actions3/actions/AMControlMoveAction3.h"
+#include "actions3/AMActionSupport.h"
+#include "util/AMErrorMonitor.h"
 
-#include <QApplication>
 
 REIXSActionBasedControlEditor::REIXSActionBasedControlEditor(AMControl* control, bool okToRunInBackground, QWidget *parent) :
 	AMControlEditor(control, 0, parent)
@@ -39,10 +39,7 @@ void REIXSActionBasedControlEditor::onNewSetpointChosen(double value)
 	if(!control_)
 		return;
 
-	AMControlInfo setpoint = control_->toInfo();
-	setpoint.setValue(value);
-
-	AMAction3* action = new AMControlMoveAction3(new AMControlMoveActionInfo3(setpoint), control_);
+	AMAction3* action = AMActionSupport::buildControlMoveAction(control_, value);
 	connect(action, SIGNAL(succeeded()), action, SLOT(deleteLater()));
 	connect(action, SIGNAL(failed()), action, SLOT(deleteLater()));
 	connect(action, SIGNAL(cancelled()), action, SLOT(deleteLater()));
