@@ -566,8 +566,9 @@ AMAction3* SGMBeamline::createBeamOnActions3(){
 
 	beamOnActionsList->addSubAction(AMActionSupport::buildControlMoveAction(beamOn_, 1));
 	beamOnActionsList->addSubAction(AMActionSupport::buildControlMoveAction(fastShutterVoltage_, 0));
-	beamOnActionsList->addSubAction(AMActionSupport::buildControlMoveAction(frontBypassValve_, 1));
-	beamOnActionsList->addSubAction(AMActionSupport::buildControlMoveAction(backBypassValve_, 1));
+	//Removed for 1403
+	//beamOnActionsList->addSubAction(AMActionSupport::buildControlMoveAction(frontBypassValve_, 1));
+	//beamOnActionsList->addSubAction(AMActionSupport::buildControlMoveAction(backBypassValve_, 1));
 
 	AMControlInfo vvr1611_3_I10_01Info = vvr1611_3_I10_01Shutter_->toInfo();
 	vvr1611_3_I10_01Info.setValue(1);
@@ -619,6 +620,8 @@ AMAction3* SGMBeamline::createBeamOnActions3(){
 	AMControlWaitAction *waitForvvr1611_4_I10_05Shutter = new AMControlWaitAction(new AMControlWaitActionInfo(vvr1611_4_I10_05Info, 10, AMControlWaitActionInfo::MatchEqual),vvr1611_4_I10_05Shutter_);
 	beamOnActionsList->addSubAction(waitForvvr1611_4_I10_05Shutter);
 
+	/*
+	  Removed during upgrade see issue 1403
 	AMControlInfo vvr1611_4_I10_06Info = vvr1611_4_I10_06Shutter_->toInfo();
 	vvr1611_4_I10_06Info.setValue(1);
 	AMControlWaitAction *waitForvvr1611_4_I10_06Shutter = new AMControlWaitAction(new AMControlWaitActionInfo(vvr1611_4_I10_06Info, 10, AMControlWaitActionInfo::MatchEqual),vvr1611_4_I10_06Shutter_);
@@ -633,6 +636,7 @@ AMAction3* SGMBeamline::createBeamOnActions3(){
 	vvr1611_4_I10_08Info.setValue(1);
 	AMControlWaitAction *waitForvvr1611_4_I10_08Shutter = new AMControlWaitAction(new AMControlWaitActionInfo(vvr1611_4_I10_08Info, 10, AMControlWaitActionInfo::MatchEqual),vvr1611_4_I10_08Shutter_);
 	beamOnActionsList->addSubAction(waitForvvr1611_4_I10_08Shutter);
+	*/
 
 	AMControlInfo psh1411_I00_01Info = psh1411_I00_01Shutter_->toInfo();
 	psh1411_I00_01Info.setValue(1);
