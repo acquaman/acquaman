@@ -79,6 +79,9 @@ public:
 	/// Returns the safe position for the CCD when the buffer is attached.
 	double ccdSafePositionwHeliumBuffer() const { return upperCcdSoftLimitwHeliumBuffer_; }
 
+	/// Returns the shutter control.
+	AMControl *shutterControl() const { return filterShutterLower_; }
+
 signals:
 	/// Notifier that the endstation shutter has changed.  Returns the state.
 	void shutterChanged(bool);
