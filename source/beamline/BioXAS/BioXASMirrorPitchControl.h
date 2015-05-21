@@ -1,18 +1,18 @@
-#ifndef BIOXASSIDEM1PITCHCONTROL_H
-#define BIOXASSIDEM1PITCHCONTROL_H
+#ifndef BIOXASMIRRORPITCHCONTROL_H
+#define BIOXASMIRRORPITCHCONTROL_H
 
 #include "beamline/AMPseudoMotorControl.h"
 #include "beamline/BioXAS/BioXASMirrorMotor.h"
 
-class BioXASSideM1PitchControl : public AMPseudoMotorControl
+class BioXASMirrorPitchControl : public AMPseudoMotorControl
 {
     Q_OBJECT
 
 public:
 	/// Constructor.
-	explicit BioXASSideM1PitchControl(const QString &name, const QString &units = QString("deg"), QObject *parent = 0, const QString &description = QString());
+	explicit BioXASMirrorPitchControl(const QString &name, const QString &units = QString("deg"), QObject *parent = 0, const QString &description = QString());
 	/// Destructor.
-	virtual ~BioXASSideM1PitchControl();
+	virtual ~BioXASMirrorPitchControl();
 
 	/// Returns true if the control value is always measureable, provided it is connected. False otherwise.
 	virtual bool shouldMeasure() const { return true; }
@@ -86,4 +86,4 @@ protected:
 	BioXASMirrorMotor *downstream_;
 };
 
-#endif // BIOXASSIDEM1PITCHCONTROL_H
+#endif // BIOXASMIRRORPITCHCONTROL_H

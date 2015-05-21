@@ -48,6 +48,9 @@ protected:
 	CLSMAXvMotor *benderUpstream_;
 	/// The bender downstream motor control.
 	CLSMAXvMotor *benderDownstream_;
+
+	/// The pitch pseudomotor control.
+
 };
 
 #endif // BIOXASMIRROR_H

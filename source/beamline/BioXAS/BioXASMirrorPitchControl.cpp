@@ -1,9 +1,9 @@
-#include "BioXASSideM1PitchControl.h"
+#include "BioXASMirrorPitchControl.h"
 #include "actions3/AMActionSupport.h"
 #include "actions3/AMListAction3.h"
 #include <math.h>
 
-BioXASSideM1PitchControl::BioXASSideM1PitchControl(const QString &name, const QString &units, QObject *parent, const QString &description) :
+BioXASMirrorPitchControl::BioXASMirrorPitchControl(const QString &name, const QString &units, QObject *parent, const QString &description) :
 	AMPseudoMotorControl(name, units, parent, description)
 {
 	// Initialize inherited variables.
@@ -30,12 +30,12 @@ BioXASSideM1PitchControl::BioXASSideM1PitchControl(const QString &name, const QS
 	updateIsMoving();
 }
 
-BioXASSideM1PitchControl::~BioXASSideM1PitchControl()
+BioXASMirrorPitchControl::~BioXASMirrorPitchControl()
 {
 
 }
 
-bool BioXASSideM1PitchControl::canMeasure() const
+bool BioXASMirrorPitchControl::canMeasure() const
 {
 	bool result = false;
 
@@ -46,7 +46,7 @@ bool BioXASSideM1PitchControl::canMeasure() const
 	return result;
 }
 
-bool BioXASSideM1PitchControl::canMove() const
+bool BioXASMirrorPitchControl::canMove() const
 {
 	bool result = false;
 
@@ -56,7 +56,7 @@ bool BioXASSideM1PitchControl::canMove() const
 	return result;
 }
 
-bool BioXASSideM1PitchControl::canStop() const
+bool BioXASMirrorPitchControl::canStop() const
 {
 	bool result = false;
 
@@ -66,7 +66,7 @@ bool BioXASSideM1PitchControl::canStop() const
 	return result;
 }
 
-bool BioXASSideM1PitchControl::validValue(double value) const
+bool BioXASMirrorPitchControl::validValue(double value) const
 {
 	bool result = false;
 
@@ -77,12 +77,12 @@ bool BioXASSideM1PitchControl::validValue(double value) const
 	return true;
 }
 
-bool BioXASSideM1PitchControl::validSetpoint(double value) const
+bool BioXASMirrorPitchControl::validSetpoint(double value) const
 {
 	return validValue(value);
 }
 
-void BioXASSideM1PitchControl::setUpstreamInboardControl(BioXASMirrorMotor *newControl)
+void BioXASMirrorPitchControl::setUpstreamInboardControl(BioXASMirrorMotor *newControl)
 {
 	if (upstreamInboard_ != newControl) {
 
@@ -98,7 +98,7 @@ void BioXASSideM1PitchControl::setUpstreamInboardControl(BioXASMirrorMotor *newC
 	}
 }
 
-void BioXASSideM1PitchControl::setUpstreamOutboardControl(BioXASMirrorMotor *newControl)
+void BioXASMirrorPitchControl::setUpstreamOutboardControl(BioXASMirrorMotor *newControl)
 {
 	if (upstreamOutboard_ != newControl) {
 
@@ -114,7 +114,7 @@ void BioXASSideM1PitchControl::setUpstreamOutboardControl(BioXASMirrorMotor *new
 	}
 }
 
-void BioXASSideM1PitchControl::setDownstreamControl(BioXASMirrorMotor *newControl)
+void BioXASMirrorPitchControl::setDownstreamControl(BioXASMirrorMotor *newControl)
 {
 	if (downstream_ != newControl) {
 
@@ -130,7 +130,7 @@ void BioXASSideM1PitchControl::setDownstreamControl(BioXASMirrorMotor *newContro
 	}
 }
 
-void BioXASSideM1PitchControl::updateConnected()
+void BioXASMirrorPitchControl::updateConnected()
 {
 	bool isConnected = (
 				upstreamInboard_ && upstreamInboard_->isConnected() &&
@@ -141,14 +141,14 @@ void BioXASSideM1PitchControl::updateConnected()
 	setConnected(isConnected);
 }
 
-void BioXASSideM1PitchControl::updateValue()
+void BioXASMirrorPitchControl::updateValue()
 {
 	if (isConnected()) {
 		setValue( calculatePitch(upstreamInboard_->xPosition(), upstreamInboard_->yPosition(), upstreamInboard_->zPosition(), upstreamOutboard_->xPosition(), upstreamOutboard_->yPosition(), upstreamOutboard_->zPosition(), downstream_->xPosition(), downstream_->yPosition(), downstream_->zPosition()) );
 	}
 }
 
-void BioXASSideM1PitchControl::updateIsMoving()
+void BioXASMirrorPitchControl::updateIsMoving()
 {
 	if (isConnected()) {
 		bool isMoving = (
@@ -161,7 +161,7 @@ void BioXASSideM1PitchControl::updateIsMoving()
 	}
 }
 
-AMAction3* BioXASSideM1PitchControl::createMoveAction(double setpoint)
+AMAction3* BioXASMirrorPitchControl::createMoveAction(double setpoint)
 {
 	AMAction3 *result = 0;
 
@@ -189,7 +189,7 @@ AMAction3* BioXASSideM1PitchControl::createMoveAction(double setpoint)
 	return result;
 }
 
-double BioXASSideM1PitchControl::calculateUpstreamInboardZ(double pitch, double upstreamInboardX, double upstreamInboardY, double upstreamOutboardX, double upstreamOutboardY, double upstreamOutboardZ, double downstreamX, double downstreamY, double downstreamZ)
+double BioXASMirrorPitchControl::calculateUpstreamInboardZ(double pitch, double upstreamInboardX, double upstreamInboardY, double upstreamOutboardX, double upstreamOutboardY, double upstreamOutboardZ, double downstreamX, double downstreamY, double downstreamZ)
 {
 	double numerator = (downstreamX - upstreamInboardX) * (downstreamY - upstreamOutboardY) + (upstreamOutboardX - downstreamX) * (downstreamY - upstreamInboardY) * tan(pitch) + (downstreamZ - upstreamOutboardZ) * (downstreamY - upstreamInboardY);
 	double denom = downstreamY - upstreamOutboardY;
@@ -198,7 +198,7 @@ double BioXASSideM1PitchControl::calculateUpstreamInboardZ(double pitch, double 
 	return result;
 }
 
-double BioXASSideM1PitchControl::calculateUpstreamOutboardZ(double pitch, double upstreamInboardX, double upstreamInboardY, double upstreamInboardZ, double upstreamOutboardX, double upstreamOutboardY, double downstreamX, double downstreamY, double downstreamZ)
+double BioXASMirrorPitchControl::calculateUpstreamOutboardZ(double pitch, double upstreamInboardX, double upstreamInboardY, double upstreamInboardZ, double upstreamOutboardX, double upstreamOutboardY, double downstreamX, double downstreamY, double downstreamZ)
 {
 	double numerator = (downstreamZ - upstreamInboardZ) * (downstreamY - upstreamOutboardY) - ((downstreamX - upstreamInboardX) * (downstreamY - upstreamOutboardY) + (upstreamOutboardX - downstreamX) * (downstreamY - upstreamInboardY)) * tan(pitch);
 	double denom = downstreamY - upstreamInboardY;
@@ -207,7 +207,7 @@ double BioXASSideM1PitchControl::calculateUpstreamOutboardZ(double pitch, double
 	return result;
 }
 
-double BioXASSideM1PitchControl::calculateDownstreamZ(double pitch, double upstreamInboardX, double upstreamInboardY, double upstreamInboardZ, double upstreamOutboardX, double upstreamOutboardY, double upstreamOutboardZ, double downstreamX, double downstreamY)
+double BioXASMirrorPitchControl::calculateDownstreamZ(double pitch, double upstreamInboardX, double upstreamInboardY, double upstreamInboardZ, double upstreamOutboardX, double upstreamOutboardY, double upstreamOutboardZ, double downstreamX, double downstreamY)
 {
 	double numerator = ((upstreamInboardZ * downstreamY) - (upstreamInboardZ * upstreamOutboardY) - (upstreamOutboardZ * downstreamY) + (upstreamOutboardZ * upstreamInboardY) + ((downstreamX - upstreamInboardX) * (downstreamY - upstreamOutboardY) + (upstreamOutboardX - downstreamX) * (downstreamY - upstreamInboardY)) * tan(pitch));
 	double denom = upstreamInboardY - upstreamOutboardY;
@@ -216,7 +216,7 @@ double BioXASSideM1PitchControl::calculateDownstreamZ(double pitch, double upstr
 	return result;
 }
 
-double BioXASSideM1PitchControl::calculatePitch(double upstreamInboardX, double upstreamInboardY, double upstreamInboardZ, double upstreamOutboardX, double upstreamOutboardY, double upstreamOutboardZ, double downstreamX, double downstreamY, double downstreamZ)
+double BioXASMirrorPitchControl::calculatePitch(double upstreamInboardX, double upstreamInboardY, double upstreamInboardZ, double upstreamOutboardX, double upstreamOutboardY, double upstreamOutboardZ, double downstreamX, double downstreamY, double downstreamZ)
 {
 	double numerator = ((downstreamZ - upstreamInboardZ)*(downstreamY - upstreamOutboardY) - (downstreamZ - upstreamOutboardZ)*(downstreamY - upstreamInboardY));
 	double denom = ((downstreamX - upstreamInboardX)*(downstreamY - upstreamOutboardY) + (upstreamOutboardX - downstreamX)*(downstreamY - upstreamInboardY));
