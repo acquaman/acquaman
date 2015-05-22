@@ -60,6 +60,7 @@ BioXASMainMonochromator::BioXASMainMonochromator(QObject *parent) :
 	// Create energy control.
 
 	energy_ = new BioXASSSRLMonochromatorEnergyControl("MainEnergy", this);
+	energy_->setTolerance(0.05);
 	energy_->setBraggControl(bragg_);
 	energy_->setBraggSetPositionControl(braggSetPosition_);
 	energy_->setRegionControl(region_);

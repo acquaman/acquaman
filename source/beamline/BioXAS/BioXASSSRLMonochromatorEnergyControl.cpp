@@ -13,7 +13,6 @@ BioXASSSRLMonochromatorEnergyControl::BioXASSSRLMonochromatorEnergyControl(const
 	maximumValue_ = 1000000;
 
 	setAllowsMovesWhileMoving(false);
-	setTolerance(0.1);
 	setContextKnownDescription("Energy");
 
 	// Initialize member variables.
