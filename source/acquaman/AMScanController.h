@@ -317,7 +317,9 @@ public slots:
 	/*!
 	  * Stops the scan. The same action as cancel() but with the implication that
 	  * the scan should still be considered complete.
-	  * \param command ( = "" ) ~ An optional reason for stopping the scan.
+	  * \param command ( = "" ) ~ An optional command which provides a general
+	  * mechanism which sub-classes can use to determine how a stop should be performed
+	  * or why.
 	  */
 	void stop(const QString &command = QString(""));
 
@@ -444,7 +446,9 @@ protected:
 
 	/*!
 	  * Performs the actions required to stop a scan.
-	  * \param command ( = "" ) ~ An optional reason for stopping the scan.
+	  * \param command ( = "" ) ~ An optional command which provides a general
+	  * mechanism which sub-classes can use to determine how a stop should be performed
+	  * or why.
 	  */
 	virtual void stopImplementation(const QString &command = QString("")) = 0;
 
