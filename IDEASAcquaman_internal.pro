@@ -14,7 +14,7 @@ HEADERS +=	source/application/IDEAS/IDEASAppController.h \
 	source/beamline/IDEAS/IDEASKETEKDetector.h \
 	source/acquaman/IDEAS/IDEASXRFScanConfiguration.h \
 	source/acquaman/IDEAS/IDEASXRFScanController.h \
-	source/ui/IDEAS/IDEASXRFDetailedDetectorViewWithSave.h \
+	source/ui/IDEAS/IDEASXRFDetailedDetectorView.h \
     source/ui/IDEAS/IDEASScalerView.h \
 	source/ui/IDEAS/IDEASSampleCameraPanel.h \
     source/beamline/IDEAS/IDEAS13ElementGeDetector.h \
@@ -31,7 +31,7 @@ SOURCES +=	source/application/IDEAS/IDEASAppController.cpp \
 	source/beamline/IDEAS/IDEASKETEKDetector.cpp \
 	source/acquaman/IDEAS/IDEASXRFScanConfiguration.cpp \
 	source/acquaman/IDEAS/IDEASXRFScanController.cpp \
-	source/ui/IDEAS/IDEASXRFDetailedDetectorViewWithSave.cpp \
+	source/ui/IDEAS/IDEASXRFDetailedDetectorView.cpp \
     source/ui/IDEAS/IDEASScalerView.cpp \
 	source/ui/IDEAS/IDEASSampleCameraPanel.cpp \
     source/beamline/IDEAS/IDEAS13ElementGeDetector.cpp \

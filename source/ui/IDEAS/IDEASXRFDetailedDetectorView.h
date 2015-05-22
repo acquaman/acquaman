@@ -19,8 +19,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#ifndef IDEASXRFDETAILEDDETECTORVIEWWITHSAVE_H
-#define IDEASXRFDETAILEDDETECTORVIEWWITHSAVE_H
+#ifndef IDEASXRFDETAILEDDETECTORVIEW_H
+#define IDEASXRFDETAILEDDETECTORVIEW_H
 
 #include "ui/beamline/AMXRFDetailedDetectorView.h"
 
@@ -34,15 +34,15 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QtGui/QComboBox>
 
 
-class IDEASXRFDetailedDetectorViewWithSave : public AMXRFDetailedDetectorView
+class IDEASXRFDetailedDetectorView : public AMXRFDetailedDetectorView
 {
 	Q_OBJECT
 
 public:
 	/// Constructor.
-	IDEASXRFDetailedDetectorViewWithSave(AMXRFDetector *detector, QWidget *parent = 0);
+	IDEASXRFDetailedDetectorView(AMXRFDetector *detector, QWidget *parent = 0);
 	/// Destructor.
-	virtual ~IDEASXRFDetailedDetectorViewWithSave();
+	virtual ~IDEASXRFDetailedDetectorView();
 
 	/// Re-implementing but still going to use the base class buildDetectorView since this view is merely adding to it.
 	virtual void buildDetectorView();
@@ -93,4 +93,4 @@ protected:
 
 };
 
-#endif // IDEASXRFDETAILEDDETECTORVIEWWITHSAVE_H
+#endif // IDEASXRFDETAILEDDETECTORVIEW_H

@@ -51,7 +51,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "ui/IDEAS/IDEASPersistentView.h"
 #include "ui/IDEAS/IDEASXASScanConfigurationView.h"
-#include "ui/IDEAS/IDEASXRFDetailedDetectorViewWithSave.h"
+#include "ui/IDEAS/IDEASXRFDetailedDetectorView.h"
 #include "ui/IDEAS/IDEASSampleCameraPanel.h"
 
 IDEASAppController::IDEASAppController(QObject *parent)
@@ -156,7 +156,7 @@ void IDEASAppController::setupUserInterface()
 
 	mw_->insertHeading("XRF Detectors", 1);
 
-	ideasKETEKDetailedDetectorViewWithSave_ = new IDEASXRFDetailedDetectorViewWithSave(IDEASBeamline::ideas()->ketek());
+	ideasKETEKDetailedDetectorViewWithSave_ = new IDEASXRFDetailedDetectorView(IDEASBeamline::ideas()->ketek());
 	ideasKETEKDetailedDetectorViewWithSave_->buildDetectorView();
 	ideasKETEKDetailedDetectorViewWithSave_->setEnergyRange(1000, 20480);
 	ideasKETEKDetailedDetectorViewWithSave_->addEmissionLineNameFilter(QRegExp("1"));
@@ -164,7 +164,7 @@ void IDEASAppController::setupUserInterface()
 	ideasKETEKDetailedDetectorViewWithSave_->addCombinationPileUpPeakNameFilter(QRegExp("(Ka1|La1|Ma1)"));
 	mw_->addPane(ideasKETEKDetailedDetectorViewWithSave_, "XRF Detectors", "KETEK", ":/system-search.png");
 
-	ideas13ElementGeDetailedDetectorViewWithSave_ = new IDEASXRFDetailedDetectorViewWithSave(IDEASBeamline::ideas()->ge13Element());
+	ideas13ElementGeDetailedDetectorViewWithSave_ = new IDEASXRFDetailedDetectorView(IDEASBeamline::ideas()->ge13Element());
 	ideas13ElementGeDetailedDetectorViewWithSave_->buildDetectorView();
 	ideas13ElementGeDetailedDetectorViewWithSave_->setEnergyRange(1000, 20480);
 	ideas13ElementGeDetailedDetectorViewWithSave_->addEmissionLineNameFilter(QRegExp("1"));

@@ -19,14 +19,14 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#include "IDEASXRFDetailedDetectorViewWithSave.h"
+#include "IDEASXRFDetailedDetectorView.h"
 
 #include "beamline/IDEAS/IDEASBeamline.h"
 #include "ui/CLS/CLSSIS3820ScalerView.h"
 #include "beamline/CLS/CLSSIS3820Scaler.h"
 #include "beamline/CLS/CLSSR570.h"
 
-IDEASXRFDetailedDetectorViewWithSave::IDEASXRFDetailedDetectorViewWithSave(AMXRFDetector *detector, QWidget *parent)
+IDEASXRFDetailedDetectorView::IDEASXRFDetailedDetectorView(AMXRFDetector *detector, QWidget *parent)
 	: AMXRFDetailedDetectorView(detector, parent)
 {
 	config_ = new IDEASXRFScanConfiguration;
@@ -42,9 +42,9 @@ IDEASXRFDetailedDetectorViewWithSave::IDEASXRFDetailedDetectorViewWithSave(AMXRF
         scanAction_ = 0; //NULL
 }
 
-IDEASXRFDetailedDetectorViewWithSave::~IDEASXRFDetailedDetectorViewWithSave(){}
+IDEASXRFDetailedDetectorView::~IDEASXRFDetailedDetectorView(){}
 
-void IDEASXRFDetailedDetectorViewWithSave::buildDetectorView()
+void IDEASXRFDetailedDetectorView::buildDetectorView()
 {
 	// This is going to extend the base view, so we will simply call it's build method too.
 	AMXRFDetailedDetectorView::buildDetectorView();
@@ -53,7 +53,7 @@ void IDEASXRFDetailedDetectorViewWithSave::buildDetectorView()
 
 }
 
-void IDEASXRFDetailedDetectorViewWithSave::buildScanSaveViews()
+void IDEASXRFDetailedDetectorView::buildScanSaveViews()
 {
 
 	scanInfoGridLayout = new QGridLayout();
@@ -148,7 +148,7 @@ void IDEASXRFDetailedDetectorViewWithSave::buildScanSaveViews()
 
 }
 
-void IDEASXRFDetailedDetectorViewWithSave::onSaveScanButtonClicked()
+void IDEASXRFDetailedDetectorView::onSaveScanButtonClicked()
 {
 	config_->setDetectorInfo(detector_->toInfo());
 	config_->setIntegrationTime(detector_->elapsedTime());
@@ -162,22 +162,22 @@ void IDEASXRFDetailedDetectorViewWithSave::onSaveScanButtonClicked()
 	scanAction_->start();
 }
 
-void IDEASXRFDetailedDetectorViewWithSave::onNotesTextChanged()
+void IDEASXRFDetailedDetectorView::onNotesTextChanged()
 {
 	config_->setScanNotes(notesEdit->toPlainText());
 }
 
-void IDEASXRFDetailedDetectorViewWithSave::onScanNameChanged(QString name)
+void IDEASXRFDetailedDetectorView::onScanNameChanged(QString name)
 {
 	config_->setUserScanName(name);
 }
 
-void IDEASXRFDetailedDetectorViewWithSave::onScanNumberChanged(int number)
+void IDEASXRFDetailedDetectorView::onScanNumberChanged(int number)
 {
 	config_->setScanNumber(number);
 }
 
-void IDEASXRFDetailedDetectorViewWithSave::onPeakingTimeBoxChanged(const QString &arg1)
+void IDEASXRFDetailedDetectorView::onPeakingTimeBoxChanged(const QString &arg1)
 {
 
 	if (arg1 == "High Rate / Low Res")
@@ -198,7 +198,7 @@ void IDEASXRFDetailedDetectorViewWithSave::onPeakingTimeBoxChanged(const QString
 	}
 }
 
-void IDEASXRFDetailedDetectorViewWithSave::onAcquisitionSucceeded()
+void IDEASXRFDetailedDetectorView::onAcquisitionSucceeded()
 {
     saveScanButton_->setEnabled(true);
     saveScanButton_->setText("Save Scan");
@@ -222,7 +222,7 @@ void IDEASXRFDetailedDetectorViewWithSave::onAcquisitionSucceeded()
     config_->setPositions(positions);
 }
 
-void IDEASXRFDetailedDetectorViewWithSave::onKETEKPeakingTimeChanged()
+void IDEASXRFDetailedDetectorView::onKETEKPeakingTimeChanged()
 {
 
     // HACK ugly hard coded magic numbers...   Works for now.
@@ -241,7 +241,7 @@ void IDEASXRFDetailedDetectorViewWithSave::onKETEKPeakingTimeChanged()
 
 }
 
-void IDEASXRFDetailedDetectorViewWithSave::onDeadTimeCheckButtonClicked()
+void IDEASXRFDetailedDetectorView::onDeadTimeCheckButtonClicked()
 {
 	if(detector_->isAcquiring())
 		return;
@@ -256,7 +256,7 @@ void IDEASXRFDetailedDetectorViewWithSave::onDeadTimeCheckButtonClicked()
 	deadTimeCheckActions->start();
 }
 
-void IDEASXRFDetailedDetectorViewWithSave::cleanupScanAction()
+void IDEASXRFDetailedDetectorView::cleanupScanAction()
 {
 	acquireButton_->setEnabled(true);
 	saveScanButton_->setText("Scan Saved");
