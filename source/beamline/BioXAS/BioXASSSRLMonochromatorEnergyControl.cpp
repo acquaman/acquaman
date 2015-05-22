@@ -156,14 +156,6 @@ void BioXASSSRLMonochromatorEnergyControl::setEnergy(double newEnergy)
 	}
 }
 
-void BioXASSSRLMonochromatorEnergyControl::updateStates()
-{
-	updateConnected();
-	updateValue();
-	updateIsMoving();
-	updateTolerance();
-}
-
 void BioXASSSRLMonochromatorEnergyControl::updateConnected()
 {
 	bool isConnected = (
@@ -190,14 +182,6 @@ void BioXASSSRLMonochromatorEnergyControl::updateIsMoving()
 	}
 }
 
-void BioXASSSRLMonochromatorEnergyControl::updateTolerance()
-{
-	if (isConnected()) {
-		double newTolerance = calculateEnergyFromBraggPosition(hc_, crystal2D_, bragg_->value(), region_->value(), m1Mirror_->value(), thetaBraggOffset_, regionOffset_);
-		setTolerance( newTolerance );
-	}
-}
-
 AMAction3* BioXASSSRLMonochromatorEnergyControl::createMoveAction(double setpoint)
 {
 	AMAction3 *result = 0;
@@ -207,7 +191,7 @@ AMAction3* BioXASSSRLMonochromatorEnergyControl::createMoveAction(double setpoin
 		// Calculate the bragg motor position corresponding to the given energy setpoint.
 		double newPosition = calculateBraggPositionFromEnergy(hc_, crystal2D_, setpoint, region_->value(), m1Mirror_->value(), thetaBraggOffset_, regionOffset_);
 
-		// Create move action for the bragg motor.
+		// Create move action.
 		result = AMActionSupport::buildControlMoveAction(bragg_, newPosition);
 	}
 

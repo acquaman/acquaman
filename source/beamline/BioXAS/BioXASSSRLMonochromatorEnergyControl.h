@@ -79,16 +79,12 @@ public slots:
 	void setEnergy(double newEnergy);
 
 protected slots:
-	/// Updates the control's states.
-	virtual void updateStates();
 	/// Updates the connected state.
 	virtual void updateConnected();
 	/// Updates the current value.
 	virtual void updateValue();
 	/// Updates the 'is moving' state.
 	virtual void updateIsMoving();
-	/// Updates the tolerance.
-	virtual void updateTolerance();
 
 protected:
 	/// Creates and returns a move action.

@@ -81,12 +81,14 @@ AMControl::FailureExplanation AMPseudoMotorControl::move(double setpoint)
 
 	AMAction3 *moveAction = createMoveAction(setpoint_);
 
-//	if (!moveAction) {
+	if (!moveAction) {
+		AMErrorMon::information(this, AMPSEUDOMOTORCONTROL_INVALID_MOVE_ACTION, QString("Did not move %1: setpoint within tolerance deadband.").arg(name()));
+		onMoveStarted(0);
+		onMoveSucceeded(0);
 //		AMErrorMon::alert(this, AMPSEUDOMOTORCONTROL_INVALID_MOVE_ACTION, QString("Failed to move %1: invalid move action generated.").arg(name()));
 //		return AMControl::LimitFailure;
-//	}
 
-	if (moveAction) {
+	} else {
 
 		// Create move action signal mappings.
 
