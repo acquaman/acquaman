@@ -212,5 +212,5 @@ void AMActionRunnerAddActionBar3::addActionToQueue(ActionQueue::QueueOperation o
 
 void AMActionRunnerAddActionBar3::updateOverallScanTimeLabel(double seconds)
 {
-	overallScanTime_->setText(QString("<b>Estimated overall time:</b> %1s").arg(AMDateTimeUtils::convertTimeToString(seconds)));
+	overallScanTime_->setText(QString("<b>Estimated overall time:</b> %1").arg(AMDateTimeUtils::convertTimeToString(seconds)));
 }
