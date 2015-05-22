@@ -46,6 +46,11 @@ public:
 	/// Returns true if the given value is a valid setpoint for this control. False otherwise.
 	virtual bool validSetpoint(double value) const = 0;
 
+	/// Adds a given control to the list of child controls.
+	virtual void addChildControl(AMControl *control);
+	/// Removes a given control from the list of child controls.
+	virtual void removeChildControl(AMControl *control);
+
 signals:
 	/// Notifier that the minimum value has changed.
 	void minimumValueChanged(double newValue);
@@ -82,11 +87,6 @@ protected slots:
 	virtual void updateValue() = 0;
 	/// Updates the 'is moving' state.
 	virtual void updateIsMoving() = 0;
-
-	/// Adds a given control to the list of child controls.
-	virtual void addChildControl(AMControl *control);
-	/// Removes a given control from the list of child controls.
-	virtual void removeChildControl(AMControl *control);
 
 	/// Handles emitting the appropriate signals when a move action has started.
 	virtual void onMoveStarted(QObject *action);
