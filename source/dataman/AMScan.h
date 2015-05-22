@@ -66,14 +66,6 @@ class AMScanController;
   *		- The configuration of the scan
   *		- A list of the control values storing the initial conditions on the beamline
   *		  when the scan took place.
-  *
-  *	NOTE: Memory Management of an AMScan is handled through a retain/release mechnaism.
-  * Objects interested in a given scan should call its retain() function, and then
-  * clear up this reference when they are done by calling its release() function.
-  * Once all interested classes have released their reference to a scan it will
-  * automatically perform its cleanup operations.
-  *	NOTE2: This means delete or deleteLater() should never be invoked on an AMScan
-  * manually.
   */
 class AMScan : public AMDbObject {
 
@@ -152,9 +144,6 @@ public:
 
 	/*!
 	  * Cleans up all the resources for this scan.
-	  * NOTE: Due to the retain/release mechanism of AMScan this (nor deleteLater())
-	  * should ever be manually invoked on an AMScan. Instead classes which are
-	  * done with a scan should call release() (after having initially called retain())
 	  */
 	virtual ~AMScan();
 

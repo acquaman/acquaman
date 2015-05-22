@@ -59,10 +59,9 @@ public:
 	Q_INVOKABLE AMScanAction(AMScanActionInfo *info, QObject *parent = 0);
 
 	/*!
-	  * Creates a shallow copy of the provided other scan action, but with no
-	  * valid scan controller set.
-	  * //// Is this intended ^ or am I mistaken about the shallow part. The info
-	  * is stored as a reference so we'll just copy the reference, no? ////
+	  * Creates an instance of a scan action which is not yet known to the database,
+	  * with details and scan action info cloned from those of the provided scan
+	  * action. The new scan action will be in the Constructed state.
 	  */
 	AMScanAction(const AMScanAction &other);
 
@@ -73,9 +72,10 @@ public:
 	virtual ~AMScanAction();
 
 	/*!
-	  * Creates a new copy of the scan action with the state set to Constructed.
-	  * //// This was the original comment for this. Is this true. I'm not sure
-	  *      how this state is being set. ////
+	  * Returns a reference to a newly created scan action which is not yet known
+	  * to the database with details and scan action info cloned from this scan
+	  * action. The new scan action will be in the Constructed state and is returned
+	  * as a reference to a base AMAction3.
 	  */
 	virtual AMAction3 *createCopy() const { return new AMScanAction(*this); }
 
@@ -190,26 +190,18 @@ protected slots:
 	/*!
 	  * Handles the controller signaling that it has made a state transition.
 	  * Updates the status text to reflect the new state.
-	  *
-	  * /// Is this still the case. There's nothing in the body of this method ///
 	  */
 	void onControllerStateChanged();
 
 	/*!
 	  * Prepares the scan action for deletion. The scan action will be added to
 	  * the deletion queue when the logging for this scan has been completed.
-	  * // I'm going off the body here. The name seems to suggest some other logic///
 	  */
 	void checkReadyForDeletion();
 
 //	void onReadyForDeletionChanged(bool isReady);
 
 protected:
-
-	/// A lot of these comments (which come down from AMAction3 and are the same
-	/// across most AMAction sub-classes) all mention that you should call notifyX()
-	/// for most of these implemetation, but none of these notify functions exist.
-	/// Is this a remenant from an earlier time?
 
 	/*!
 	  * The default starting implementation for a scan action. Attempts to build

@@ -61,9 +61,7 @@ public:
 	explicit AMScanController(AMScanConfiguration *configuration, QObject *parent = 0);
 
 	/*!
-	  * Base destructor for a scan controller. If the scan has been set for this
-	  * controller then releases the reference to it (see memory management note
-	  * for scans in AMScan).
+	  * Base destructor for a scan controller.
 	  */
 	virtual ~AMScanController();
 

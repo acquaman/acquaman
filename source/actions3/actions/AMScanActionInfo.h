@@ -123,8 +123,6 @@ public:
 	/*!
 	  * The load warning from the scan action info. Actually returns the load
 	  * warning for the contained scan configuration.
-	  * // Is this a null pointer reference waiting to happen? (ie if the current
-	  *    scan id is -1 the call to configuration() will return 0. //
 	  */
 	virtual QString dbLoadWarnings() const;
 
