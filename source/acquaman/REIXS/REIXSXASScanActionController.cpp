@@ -150,7 +150,12 @@ void REIXSXASScanActionController::onInitializationActionSucceeded(){
 	positions.append(REIXSBeamline::bl()->spectrometer()->tmSOE()->toInfo());
 	positions.append(REIXSBeamline::bl()->spectrometer()->tmMCPPreamp()->toInfo());
 	positions.append(REIXSBeamline::bl()->sampleChamber()->tmSample()->toInfo());
-
+	// add the current sensitivity settings for all the sr570s in the sensitivity set.
+	for (int iSr570 = 0, sr570Count = REIXSBeamline::bl()->sr570SensitivitySet()->count();
+		 iSr570 < sr570Count;
+		 ++iSr570) {
+		positions.append(REIXSBeamline::bl()->sr570SensitivitySet()->at(iSr570));
+	}
 	scan_->setScanInitialConditions(positions);
 }
 

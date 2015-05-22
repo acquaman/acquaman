@@ -455,7 +455,8 @@ public:
 	AMControlSet* allControlsSet() { return 0; }
 	/// All temperature monitors set
 	AMControlSet* tmset() { return tmSet_; }
-
+	/// All SR570 sensitivity monitors set
+	AMControlSet* sr570SensitivitySet() { return sr570SensitivitySet_; }
 	virtual CLSSIS3820Scaler *scaler() const { return scaler_; }
 
 	/// Build a list of actions that opens/closes necessary shutters.
@@ -494,6 +495,8 @@ protected:
 	AMControlSet* spectrometerPositionSet_;
 	/// All tempertature monitors
 	AMControlSet* tmSet_;
+	/// SR570 sensitivity monitors
+	AMControlSet* sr570SensitivitySet_;
 
 	/// This is the active sample plate object, ie:the one that is currently loaded. When a user uses the UI to switch sample plates, we simple re-load this one from the database to become a different sample plate.
 	AMSamplePlatePre2013* samplePlate_;

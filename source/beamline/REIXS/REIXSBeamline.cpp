@@ -82,13 +82,20 @@ REIXSBeamline::REIXSBeamline() :
 
 	scaler_->channelAt(4)->setCustomChannelName("TFY");
 
+	sr570SensitivitySet_ = new AMControlSet(this);
+	AMReadOnlyPVControl* teySr570Sensitivity = new AMReadOnlyPVControl("TEY-SR570 Sensitivity", "AMP1610-4-03:sens_put", this);
+	sr570SensitivitySet_->addControl(teySr570Sensitivity);
 	scaler_->channelAt(18)->setCustomChannelName("TEY");
 	CLSSR570 *tempSR570 = new CLSSR570("TEY", "AMP1610-4-03", this);
 	scaler_->channelAt(18)->setCurrentAmplifier(tempSR570);
 	scaler_->channelAt(18)->setVoltagRange(AMRange(0.25, 4.75));
 
+
+	AMReadOnlyPVControl* i0Sr570Sensitivity = new AMReadOnlyPVControl("I0-SR570 Sensitivity", "AMP1610-4-02:sens_put", this);
+	sr570SensitivitySet_->addControl(i0Sr570Sensitivity);
 	scaler_->channelAt(16)->setCustomChannelName("I0");
 	tempSR570 = new CLSSR570("I0", "AMP1610-4-02", this);
+
 	scaler_->channelAt(16)->setCurrentAmplifier(tempSR570);
 	scaler_->channelAt(16)->setVoltagRange(AMRange(0.25, 4.75));
 
