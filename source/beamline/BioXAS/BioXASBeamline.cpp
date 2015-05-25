@@ -11,8 +11,10 @@ BioXASBeamline::~BioXASBeamline()
 bool BioXASBeamline::isConnected() const
 {
 	bool shuttersOK = (
-				photonShutter_ && photonShutter_->isConnected() &&
-				safetyShutter_ && safetyShutter_->isConnected()
+				photonShutterUpstream_ && photonShutterUpstream_->isConnected() &&
+				photonShutterDownstream_ && photonShutterDownstream_->isConnected() &&
+				safetyShutterUpstream_ && safetyShutterUpstream_->isConnected() &&
+				safetyShutterDownstream_ && safetyShutterDownstream_->isConnected()
 				);
 
 	return shuttersOK;
@@ -22,11 +24,9 @@ bool BioXASBeamline::beamOff() const
 {
 	bool result = false;
 
-	if (isConnected()) {
-		bool photonShutterClosed = (photonShutter_->value() == Shutters::Closed);
-		bool safetyShutterClosed = (safetyShutter_->value() == Shutters::Closed);
-
-		result = (photonShutterClosed && safetyShutterClosed);
+	if (safetyShutterDownstream_ && safetyShutterDownstream_->isConnected()) {
+		// The beam is considered off if the endstation safety shutter is closed (ignore other photon and safety shutters).
+		result = (safetyShutterDownstream_->value() == Shutters::Closed);
 	}
 
 	return result;
@@ -36,11 +36,26 @@ bool BioXASBeamline::beamOn() const
 {
 	bool result = false;
 
-	if (isConnected()) {
-		bool photonShutterOpen = (photonShutter_->value() == Shutters::Open);
-		bool safetyShutterOpen = (safetyShutter_->value() == Shutters::Open);
+	if (safetyShutterDownstream_ && safetyShutterDownstream_->isConnected()) {
+		// The beam is considered on if the endstation safety shutter is open (ignore other photon and safety shutters).
+		result = (safetyShutterDownstream_->value() == Shutters::Open);
+	}
 
-		result = (photonShutterOpen && safetyShutterOpen);
+	return result;
+}
+
+bool BioXASBeamline::beamAvailable() const
+{
+	bool result = false;
+
+	if (connected()) {
+		// The beam is considered available if all shutters are open.
+		result = (
+					photonShutterUpstream_->value() == Shutters::Open &&
+					photonShutterDownstream_->value() == Shutters::Open &&
+					safetyShutterUpstream_->value() == Shutters::Open &&
+					safetyShutterDownstream_->value() == Shutters::Open
+					);
 	}
 
 	return result;
@@ -50,15 +65,13 @@ AMAction3* BioXASBeamline::createTurnOffBeamActions()
 {
 	AMAction3 *action = 0;
 
-	if (photonShutter() && photonShutter()->isConnected() && safetyShutter() && safetyShutter()->isConnected()) {
+	if (safetyShutterDownstream_ && safetyShutterDownstream_->isConnected()) {
 
 		// For bi-state controls, the move setpoint for 'close' is 0 and the desired state is 4.
 
 		AMListAction3 *beamOff = new AMListAction3(new AMListActionInfo3("Turn off beam", "Turn off beam"), AMListAction3::Sequential);
-		beamOff->addSubAction(AMActionSupport::buildControlMoveAction(photonShutter(), 0));
-		beamOff->addSubAction(AMActionSupport::buildControlWaitAction(photonShutter(), 4, 5));
-		beamOff->addSubAction(AMActionSupport::buildControlMoveAction(safetyShutter(), 0));
-		beamOff->addSubAction(AMActionSupport::buildControlWaitAction(safetyShutter(), 4, 5));
+		beamOff->addSubAction(AMActionSupport::buildControlMoveAction(safetyShutterDownstream_, 0));
+		beamOff->addSubAction(AMActionSupport::buildControlWaitAction(safetyShutterDownstream_, 4, 5));
 
 		action = beamOff;
 	}
@@ -70,15 +83,13 @@ AMAction3* BioXASBeamline::createTurnOnBeamActions()
 {
 	AMAction3 *action = 0;
 
-	if (photonShutter() && photonShutter()->isConnected() && safetyShutter() && safetyShutter()->isConnected()) {
+	if (safetyShutterDownstream_ && safetyShutterDownstream_->isConnected()) {
 
 		// For bi-state controls, the move setpoint for 'open' is 1 and the desired state is 1.
 
 		AMListAction3 *beamOn = new AMListAction3(new AMListActionInfo3("Turn off beam", "Turn off beam"), AMListAction3::Sequential);
-		beamOn->addSubAction(AMActionSupport::buildControlMoveAction(photonShutter(), 1));
-		beamOn->addSubAction(AMActionSupport::buildControlWaitAction(photonShutter(), 1, 5));
-		beamOn->addSubAction(AMActionSupport::buildControlMoveAction(safetyShutter(), 1));
-		beamOn->addSubAction(AMActionSupport::buildControlWaitAction(safetyShutter(), 1, 5));
+		beamOn->addSubAction(AMActionSupport::buildControlMoveAction(safetyShutterDownstream_, 1));
+		beamOn->addSubAction(AMActionSupport::buildControlWaitAction(safetyShutterDownstream_, 1, 5));
 
 		action = beamOn;
 	}
@@ -86,11 +97,32 @@ AMAction3* BioXASBeamline::createTurnOnBeamActions()
 	return action;
 }
 
+void BioXASBeamline::setConnected(bool isConnected)
+{
+	if (connected_ != isConnected) {
+		connected_ = isConnected;
+		emit connectedChanged(connected_);
+	}
+}
+
+void BioXASBeamline::updateConnected()
+{
+	setConnected( isConnected() );
+}
+
 void BioXASBeamline::setupComponents()
 {
-	// Shutters
-	photonShutter_ = new CLSBiStateControl("PhotonShutter", "BioXAS photon shutter", "IPSH1407-I00-02:state", "IPSH1407-I00-02:opr:open", "IPSH1407-I00-02:opr:close", new AMControlStatusCheckerDefault(2), this);
-	safetyShutter_ = new CLSBiStateControl("SafetyShutter", "BioXAS safety Shutter", "SSH1407-I00-01:state", "SSH1407-I00-01:opr:open", "SSH1407-I00-01:opr:close", new AMControlStatusCheckerDefault(2), this);
+	// The upstream photon shutter.
+	photonShutterUpstream_ = new CLSBiStateControl("PhotonShutter", "BioXAS photon shutter", "IPSH1407-I00-01:state", "IPSH1407-I00-01:opr:open", "IPSH1407-I00-01:opr:close", new AMControlStatusCheckerDefault(2), this);
+	connect( photonShutterUpstream_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+
+	// The downstream photon shutter.
+	photonShutterDownstream_ = new CLSBiStateControl("PhotonShutter", "BioXAS photon shutter", "IPSH1407-I00-02:state", "IPSH1407-I00-02:opr:open", "IPSH1407-I00-02:opr:close", new AMControlStatusCheckerDefault(2), this);
+	connect( photonShutterDownstream_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+
+	// The upstream safety shutter.
+	safetyShutterUpstream_ = new CLSBiStateControl("SafetyShutter", "BioXAS safety Shutter", "SSH1407-I00-01:state", "SSH1407-I00-01:opr:open", "SSH1407-I00-01:opr:close", new AMControlStatusCheckerDefault(2), this);
+	connect( safetyShutterUpstream_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 }
 
 BioXASBeamline::BioXASBeamline(const QString &controlName) :
@@ -98,9 +130,14 @@ BioXASBeamline::BioXASBeamline(const QString &controlName) :
 {
 	// Initialize member variables.
 
-	photonShutter_ = 0;
-	safetyShutter_ = 0;
-	endstationSafetyShutter_;
+	connected_ = false;
+
+	photonShutterUpstream_ = 0;
+	photonShutterDownstream_ = 0;
+	safetyShutterUpstream_ = 0;
+	safetyShutterDownstream_ = 0;
+
+	m2Mirror_ = 0;
 
 	// Setup procedures.
 

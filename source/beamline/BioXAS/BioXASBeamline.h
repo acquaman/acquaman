@@ -14,6 +14,8 @@ class BioXASBeamline : public CLSBeamline
 public:
 	/// Enum indicating different shutter open states.
 	class Shutters { public: enum State { Open = 1, Between = 2, Closed = 4 }; };
+	/// Enum indicating different beam on/off states.
+	class Beam { public: enum State { Off = 0, On = 1, Available = 2 }; };
 
 	/// Singleton accessor.
 	static BioXASBeamline *bioXAS()
@@ -31,36 +33,48 @@ public:
 
 	/// Returns the current connected state.
 	virtual bool isConnected() const;
-	/// Returns the current 'beam off' state.
-	virtual bool beamOff() const;
-	/// Returns the current 'beam on' state.
-	virtual bool beamOn() const;
+	/// Returns the (cached) current connected state.
+	virtual bool connected() const { return connected_; }
 
-	/// Returns the beamline's photon shutter.
-	AMControl* photonShutter() { return photonShutter_; }
-	/// Returns the beamline's safety shutter.
-	AMControl* safetyShutter() const { return safetyShutter_; }
-	/// Returns the beamline endstation safety shutter.
-	AMControl* endstationSafetyShutter() const { return endstationSafetyShutter_; }
-	/// Returns the beamline's monochromator.
+	/// Returns the current 'beam off' state, true if the downstream safety shutter is closed. False otherwise.
+	virtual bool beamOff() const;
+	/// Returns the current 'beam on' state, true if the downstream safety shutter is open. False otherwise.
+	virtual bool beamOn() const;
+	/// Returns the current 'beam available' state, true if all shutters are open. False otherwise.
+	virtual bool beamAvailable() const;
+
+	/// Returns the upstream photon shutter.
+	AMControl* photonShutterUpstream() const { return photonShutterUpstream_; }
+	/// Returns the downstream photon shutter.
+	AMControl* photonShutterDownstream() const { return photonShutterDownstream_; }
+	/// Returns the front end (upstream) safety shutter.
+	AMControl* safetyShutterUpstream() const { return safetyShutterUpstream_; }
+	/// Returns the endstation (downstream) safety shutter.
+	AMControl* safetyShutterDownstream() const { return safetyShutterDownstream_; }
+	/// Returns the monochromator.
 	virtual BioXASMonochromator* mono() const { return 0; }
 	/// Returns the m2 mirror.
-	virtual BioXASM2Mirror* m2Mirror() const { return 0; }
-	/// Returns the beamline's scaler.
+	virtual BioXASM2Mirror* m2Mirror() const { return m2Mirror_; }
+	/// Returns the scaler.
 	virtual CLSSIS3820Scaler* scaler() const { return 0; }
 
-	/// Returns a newly created action that turns off beam by closing the shutters.
+	/// Returns a newly created action that turns off beam by closing the endstation (downstream) safety shutter. Returns 0 if not connected.
 	virtual AMAction3* createTurnOffBeamActions();
-	/// Returns a newly created action that turns on beam by opening the shutters.
+	/// Returns a newly created action that turns on beam by opening the endstation (upstream) safety shutter. Returns 0 if not connected.
 	virtual AMAction3* createTurnOnBeamActions();
 
 signals:
 	/// Notifier that the current connected state has changed.
-	void connected(bool isConnected);
+	void connectedChanged(bool isConnected);
 	/// Notifier that the current 'beam off' state has changed.
 	void beamStatusChanged();
 
 protected:
+	/// Sets the cached connected state.
+	void setConnected(bool isConnected);
+	/// Updates the cached connected state.
+	void updateConnected();
+
 	/// Sets up various beamline components.
 	virtual void setupComponents();
 
@@ -68,14 +82,21 @@ protected:
 	BioXASBeamline(const QString &controlName);
 
 protected:
+	/// The current connected state.
+	bool connected_;
 
 	// Shutters.
-	/// The photon shutter.
-	CLSBiStateControl *photonShutter_;
-	/// The safety shutter.
-	CLSBiStateControl *safetyShutter_;
-	/// The endstation safety shutter.
-	CLSBiStateControl *endstationSafetyShutter_;
+	/// The upstream photon shutter.
+	CLSBiStateControl *photonShutterUpstream_;
+	/// The downstream photon shutter.
+	CLSBiStateControl *photonShutterDownstream_;
+	/// The front end (upstream) safety shutter.
+	CLSBiStateControl *safetyShutterUpstream_;
+	/// The endstation (downstream) safety shutter.
+	CLSBiStateControl *safetyShutterDownstream_;
+
+	// The M2 mirror.
+	BioXASM2Mirror *m2Mirror_;
 
 };
 
