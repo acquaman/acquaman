@@ -79,6 +79,10 @@ REIXSAppController::REIXSAppController(QObject *parent) :
 
 bool REIXSAppController::startup()
 {	
+
+	if (!AMChooseDataFolderDialog::getDataFolder("/AcquamanLocalData/reixs", "/home/reixs", "users"))
+		return false;
+
 	if(AMAppController::startup()) {
 
 		// Initialize the central beamline object
