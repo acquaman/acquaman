@@ -8,6 +8,8 @@ BioXASSSRLMonochromatorConfigurationView::BioXASSSRLMonochromatorConfigurationVi
 
 	mono_ = 0;
 
+	// Create UI elements.
+
 	regionEditor_ = new BioXASSSRLMonochromatorRegionControlEditor(0);
 	regionEditor_->setTitle("Region");
 
@@ -19,6 +21,7 @@ BioXASSSRLMonochromatorConfigurationView::BioXASSSRLMonochromatorConfigurationVi
 
 	braggEditor_ = new AMExtendedControlEditor(0);
 	braggEditor_->setTitle("Goniometer angle");
+	braggEditor_->setControlFormat('f', 2);
 
 	calibrateBraggButton_ = new QPushButton("Calibrate");
 
@@ -49,6 +52,17 @@ BioXASSSRLMonochromatorConfigurationView::BioXASSSRLMonochromatorConfigurationVi
 	braggLayout->addWidget(braggEditor_);
 	braggLayout->addWidget(calibrateBraggButton_);
 
+	QVBoxLayout *controlsViewLayout = new QVBoxLayout();
+	controlsViewLayout->addWidget(regionEditor_);
+	controlsViewLayout->addLayout(energyLayout);
+	controlsViewLayout->addLayout(braggLayout);
+	controlsViewLayout->addWidget(upperSlitEditor_);
+	controlsViewLayout->addWidget(lowerSlitEditor_);
+	controlsViewLayout->addWidget(paddleEditor_);
+
+	QGroupBox *controlsView = new QGroupBox("Controls");
+	controlsView->setLayout(controlsViewLayout);
+
 	QVBoxLayout *regionStatusViewLayout = new QVBoxLayout();
 	regionStatusViewLayout->setMargin(0);
 	regionStatusViewLayout->addWidget(regionStatusWidget_);
@@ -60,16 +74,11 @@ BioXASSSRLMonochromatorConfigurationView::BioXASSSRLMonochromatorConfigurationVi
 	braggConfigViewLayout->setMargin(0);
 	braggConfigViewLayout->addWidget(braggConfigWidget_);
 
-	QGroupBox *braggConfigView = new QGroupBox("Bragg configuration");
+	QGroupBox *braggConfigView = new QGroupBox("Goniometer configuration");
 	braggConfigView->setLayout(braggConfigViewLayout);
 
 	QVBoxLayout *leftLayout = new QVBoxLayout();
-	leftLayout->addWidget(regionEditor_);
-	leftLayout->addLayout(energyLayout);
-	leftLayout->addLayout(braggLayout);
-	leftLayout->addWidget(upperSlitEditor_);
-	leftLayout->addWidget(lowerSlitEditor_);
-	leftLayout->addWidget(paddleEditor_);
+	leftLayout->addWidget(controlsView);
 
 	QVBoxLayout *rightLayout = new QVBoxLayout();
 	rightLayout->addWidget(regionStatusView);
