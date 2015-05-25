@@ -235,28 +235,27 @@ void BioXASSSRLMonochromatorRegionControlView::onBrakeStatusChanged()
 	}
 }
 
-#include <QDebug>
 void BioXASSSRLMonochromatorRegionControlView::onBraggAtCrystalChangePositionStatusChanged()
 {
 	if (regionControl_ && regionControl_->braggAtCrystalChangePositionStatusControl() && regionControl_->braggAtCrystalChangePositionStatusControl()->isConnected()) {
-		if (regionControl_->braggAtCrystalChangePositionStatusControl()->value() == BioXASSSRLMonochromator::Bragg::InPosition) {
-			brakeStatusGreen_->setPixmap(QPixmap(":/22x22/greenLEDOn.png"));
-			brakeStatusRed_->setPixmap(QPixmap(":/22x22/redLEDOff.png"));
+		int status = int(regionControl_->braggAtCrystalChangePositionStatusControl()->value());
 
-		} else if (regionControl_->braggAtCrystalChangePositionStatusControl()->value() == BioXASSSRLMonochromator::Bragg::NotInPosition){
-			brakeStatusGreen_->setPixmap(QPixmap(":/22x22/greenLEDOff.png"));
-			brakeStatusRed_->setPixmap(QPixmap(":/22x22/redLEDOn.png"));
+		if (status == BioXASSSRLMonochromator::Bragg::NotInPosition) {
+			braggInPositionGreen_->setPixmap(QPixmap(":/22x22/greenLEDOff.png"));
+			braggInPositionRed_->setPixmap(QPixmap(":/22x22/redLEDOn.png"));
+
+		} else if (status == BioXASSSRLMonochromator::Bragg::InPosition){
+			braggInPositionGreen_->setPixmap(QPixmap(":/22x22/greenLEDOn.png"));
+			braggInPositionRed_->setPixmap(QPixmap(":/22x22/redLEDOff.png"));
 
 		} else {
-			qDebug() << "Bragg status in ambiguous state.";
-			brakeStatusGreen_->setPixmap(QPixmap(":/22x22/greenLEDOff.png"));
-			brakeStatusRed_->setPixmap(QPixmap(":/22x22/redLEDOff.png"));
+			braggInPositionGreen_->setPixmap(QPixmap(":/22x22/greenLEDOff.png"));
+			braggInPositionRed_->setPixmap(QPixmap(":/22x22/redLEDOff.png"));
 		}
 
 	} else {
-		qDebug() << "Bragg status not connected.";
-		brakeStatusGreen_->setPixmap(QPixmap(":/22x22/greenLEDOff.png"));
-		brakeStatusRed_->setPixmap(QPixmap(":/22x22/redLEDOff.png"));
+		braggInPositionGreen_->setPixmap(QPixmap(":/22x22/greenLEDOff.png"));
+		braggInPositionRed_->setPixmap(QPixmap(":/22x22/redLEDOff.png"));
 	}
 }
 
