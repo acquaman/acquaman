@@ -89,7 +89,6 @@ AMAction3* BioXASBeamline::createTurnOnBeamActions()
 void BioXASBeamline::setupComponents()
 {
 	// Shutters
-
 	photonShutter_ = new CLSBiStateControl("PhotonShutter", "BioXAS photon shutter", "IPSH1407-I00-02:state", "IPSH1407-I00-02:opr:open", "IPSH1407-I00-02:opr:close", new AMControlStatusCheckerDefault(2), this);
 	safetyShutter_ = new CLSBiStateControl("SafetyShutter", "BioXAS safety Shutter", "SSH1407-I00-01:state", "SSH1407-I00-01:opr:open", "SSH1407-I00-01:opr:close", new AMControlStatusCheckerDefault(2), this);
 }
@@ -101,6 +100,7 @@ BioXASBeamline::BioXASBeamline(const QString &controlName) :
 
 	photonShutter_ = 0;
 	safetyShutter_ = 0;
+	endstationSafetyShutter_;
 
 	// Setup procedures.
 

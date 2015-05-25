@@ -40,6 +40,8 @@ public:
 	AMControl* photonShutter() { return photonShutter_; }
 	/// Returns the beamline's safety shutter.
 	AMControl* safetyShutter() const { return safetyShutter_; }
+	/// Returns the beamline endstation safety shutter.
+	AMControl* endstationSafetyShutter() const { return endstationSafetyShutter_; }
 	/// Returns the beamline's monochromator.
 	virtual BioXASMonochromator* mono() const { return 0; }
 	/// Returns the m2 mirror.
@@ -72,6 +74,8 @@ protected:
 	CLSBiStateControl *photonShutter_;
 	/// The safety shutter.
 	CLSBiStateControl *safetyShutter_;
+	/// The endstation safety shutter.
+	CLSBiStateControl *endstationSafetyShutter_;
 
 };
 
