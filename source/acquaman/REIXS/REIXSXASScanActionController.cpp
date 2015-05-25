@@ -72,7 +72,7 @@ REIXSXASScanActionController::REIXSXASScanActionController(REIXSXASScanConfigura
 	else {
 		scan_->setName(configuration_->userScanName());
 		if(scan_->name().isEmpty())
-			scan_->setName(QString("%1 %2").arg(configuration_->autoScanName()).arg(rangeString));
+			scan_->setName(QString("Unnamed %1 %2").arg(configuration_->autoScanName()).arg(rangeString));
 		scan_->setSampleId(configuration_->sampleId());
 	}
 
