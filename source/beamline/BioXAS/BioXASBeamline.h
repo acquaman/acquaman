@@ -69,12 +69,13 @@ signals:
 	/// Notifier that the current 'beam off' state has changed.
 	void beamStatusChanged();
 
-protected:
+protected slots:
 	/// Sets the cached connected state.
 	void setConnected(bool isConnected);
 	/// Updates the cached connected state.
 	void updateConnected();
 
+protected:
 	/// Sets up various beamline components.
 	virtual void setupComponents();
 
