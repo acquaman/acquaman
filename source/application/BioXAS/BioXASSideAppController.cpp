@@ -257,6 +257,9 @@ void BioXASSideAppController::setupUserInterface()
 
 	mw_->addPane(configurationViewHolder_, "Scans", "XAS Scan", ":/utilities-system-monitor.png");
 
+	connect(configuration_, SIGNAL(totalTimeChanged(double)), configurationViewHolder_, SLOT(updateOverallScanTime(double)));
+	configurationViewHolder_->updateOverallScanTime(configuration_->totalTime());
+
 	commissioningConfiguration_ = new AMGenericStepScanConfiguration;
 	commissioningConfiguration_->setAutoExportEnabled(false);
 	commissioningConfiguration_->addDetector(BioXASSideBeamline::bioXAS()->exposedDetectorByName("I0Detector")->toInfo());
