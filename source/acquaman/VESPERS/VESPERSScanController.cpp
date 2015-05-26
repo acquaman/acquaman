@@ -56,7 +56,7 @@ AMAction3 *VESPERSScanController::buildBaseInitializationAction(double firstRegi
 
 	AMListAction3 *stage3 = new AMListAction3(new AMListActionInfo3("VESPERS Initialization Stage 3", "VESPERS Initialization Stage 3"), AMListAction3::Sequential);
 	stage3->addSubAction(scaler->createStartAction3(true));
-	stage3->addSubAction(scaler->createWaitForDwellFinishedAction(firstRegionTime + 5.0));
+	stage3->addSubAction(scaler->createWaitForDwellFinishedAction(scaler->dwellTime() + 5.0));
 
 	initializationAction->addSubAction(stage1);
 	initializationAction->addSubAction(stage2);
@@ -124,6 +124,7 @@ AMAction3 *VESPERSScanController::buildCleanupAction()
 
 	AMListAction3 *cleanup = new AMListAction3(new AMListActionInfo3("VESPERS Cleanup", "VESPERS Cleanup"), AMListAction3::Sequential);
 	cleanup->addSubAction(scaler->createContinuousEnableAction3(true));
+	cleanup->addSubAction(scaler->createDwellTimeAction3(1.0));
 
 	return cleanup;
 }
