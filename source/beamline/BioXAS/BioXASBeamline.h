@@ -76,6 +76,8 @@ protected slots:
 	void updateConnected();
 
 protected:
+	/// Sets up the storage ring.
+	virtual void setupStorageRing();
 	/// Sets up various beamline components.
 	virtual void setupComponents();
 

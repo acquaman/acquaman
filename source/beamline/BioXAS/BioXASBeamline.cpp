@@ -2,6 +2,7 @@
 #include "beamline/BioXAS/BioXASMonochromator.h"
 #include "beamline/BioXAS/BioXASM2Mirror.h"
 #include "actions3/AMActionSupport.h"
+#include "beamline/CLS/CLSStorageRing.h"
 
 BioXASBeamline::~BioXASBeamline()
 {
@@ -110,6 +111,11 @@ void BioXASBeamline::updateConnected()
 	setConnected( isConnected() );
 }
 
+void BioXASBeamline::setupStorageRing()
+{
+	CLSStorageRing::sr1();
+}
+
 void BioXASBeamline::setupComponents()
 {
 	// The upstream photon shutter.
@@ -141,5 +147,6 @@ BioXASBeamline::BioXASBeamline(const QString &controlName) :
 
 	// Setup procedures.
 
+	setupStorageRing();
 	setupComponents();
 }
