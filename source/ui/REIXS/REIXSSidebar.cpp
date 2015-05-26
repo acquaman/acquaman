@@ -147,7 +147,7 @@ void REIXSSidebar::setupConnections()
 	connect(REIXSBeamline::bl()->photonSource()->ringCurrent(), SIGNAL(valueChanged(double)), this, SLOT(onRingCurrentChanged(double)));
 }
 
-void *REIXSSidebar::layoutBeamlineContent()
+void REIXSSidebar::layoutBeamlineContent()
 {
 
 	QFont font;
@@ -213,7 +213,7 @@ void *REIXSSidebar::layoutBeamlineContent()
 	beamlineGroupBox_->setLayout(beamlineFormLayout);
 }
 
-void *REIXSSidebar::layoutDetectorContent()
+void REIXSSidebar::layoutDetectorContent()
 {
 	XESValue_ = new QLabel("XES:\t\t0 counts");
 	XESValue_->setFixedHeight(55);

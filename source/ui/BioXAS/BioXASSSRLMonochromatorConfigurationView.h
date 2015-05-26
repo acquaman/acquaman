@@ -63,6 +63,12 @@ protected:
 	AMExtendedControlEditor *braggEditor_;
 	/// The calibrate bragg button.
 	QPushButton *calibrateBraggButton_;
+	/// The upper slit blade editor.
+	AMExtendedControlEditor *upperSlitEditor_;
+	/// The lower slit blade editor.
+	AMExtendedControlEditor *lowerSlitEditor_;
+	/// The paddle editor.
+	AMExtendedControlEditor *paddleEditor_;
 
 	/// The region status display.
 	BioXASSSRLMonochromatorRegionControlView *regionStatusWidget_;

@@ -27,6 +27,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QPushButton>
 #include <QInputDialog>
 
+#include "ui/BioXAS/BioXASBeamlineBeamView.h"
 #include "ui/BioXAS/BioXASSSRLMonochromatorRegionControlEditor.h"
 #include "ui/BioXAS/BioXASSSRLMonochromatorRegionControlView.h"
 #include "ui/BioXAS/BioXASSSRLMonochromatorConfigurationView.h"
@@ -38,11 +39,8 @@ class BioXASSidePersistentView : public QWidget
 public:
     /// Constructor.
     explicit BioXASSidePersistentView(QWidget *parent = 0);
+	/// Destructor.
     virtual ~BioXASSidePersistentView();
-
-signals:
-
-public slots:
 
 protected slots:
 	/// Handles updating the view when the scaler connection state changes.

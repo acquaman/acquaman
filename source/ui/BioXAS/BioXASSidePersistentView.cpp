@@ -42,6 +42,7 @@ BioXASSidePersistentView::BioXASSidePersistentView(QWidget *parent) :
 
 	braggControlEditor_ = new AMExtendedControlEditor(BioXASSideBeamline::bioXAS()->mono()->braggMotor());
 	braggControlEditor_->setTitle("Mono Goniometer Angle");
+	braggControlEditor_->setControlFormat('f', 2);
 
 	// Scaler channel views.
 

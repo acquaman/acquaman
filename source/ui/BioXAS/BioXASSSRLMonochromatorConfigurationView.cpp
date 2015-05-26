@@ -8,6 +8,8 @@ BioXASSSRLMonochromatorConfigurationView::BioXASSSRLMonochromatorConfigurationVi
 
 	mono_ = 0;
 
+	// Create UI elements.
+
 	regionEditor_ = new BioXASSSRLMonochromatorRegionControlEditor(0);
 	regionEditor_->setTitle("Region");
 
@@ -19,8 +21,20 @@ BioXASSSRLMonochromatorConfigurationView::BioXASSSRLMonochromatorConfigurationVi
 
 	braggEditor_ = new AMExtendedControlEditor(0);
 	braggEditor_->setTitle("Goniometer angle");
+	braggEditor_->setControlFormat('f', 2);
 
 	calibrateBraggButton_ = new QPushButton("Calibrate");
+
+	upperSlitEditor_ = new AMExtendedControlEditor(0);
+	upperSlitEditor_->setTitle("Upper slit blade");
+	upperSlitEditor_->setControlFormat('f', 3);
+
+	lowerSlitEditor_ = new AMExtendedControlEditor(0);
+	lowerSlitEditor_->setTitle("Lower slit blade");
+	lowerSlitEditor_->setControlFormat('f', 3);
+
+	paddleEditor_ = new AMExtendedControlEditor(0);
+	paddleEditor_->setTitle("Paddle");
 
 	regionStatusWidget_ = new BioXASSSRLMonochromatorRegionControlView(0);
 
@@ -38,6 +52,17 @@ BioXASSSRLMonochromatorConfigurationView::BioXASSSRLMonochromatorConfigurationVi
 	braggLayout->addWidget(braggEditor_);
 	braggLayout->addWidget(calibrateBraggButton_);
 
+	QVBoxLayout *controlsViewLayout = new QVBoxLayout();
+	controlsViewLayout->addWidget(regionEditor_);
+	controlsViewLayout->addLayout(energyLayout);
+	controlsViewLayout->addLayout(braggLayout);
+	controlsViewLayout->addWidget(upperSlitEditor_);
+	controlsViewLayout->addWidget(lowerSlitEditor_);
+	controlsViewLayout->addWidget(paddleEditor_);
+
+	QGroupBox *controlsView = new QGroupBox("Controls");
+	controlsView->setLayout(controlsViewLayout);
+
 	QVBoxLayout *regionStatusViewLayout = new QVBoxLayout();
 	regionStatusViewLayout->setMargin(0);
 	regionStatusViewLayout->addWidget(regionStatusWidget_);
@@ -49,16 +74,19 @@ BioXASSSRLMonochromatorConfigurationView::BioXASSSRLMonochromatorConfigurationVi
 	braggConfigViewLayout->setMargin(0);
 	braggConfigViewLayout->addWidget(braggConfigWidget_);
 
-	QGroupBox *braggConfigView = new QGroupBox("Bragg configuration");
+	QGroupBox *braggConfigView = new QGroupBox("Goniometer configuration");
 	braggConfigView->setLayout(braggConfigViewLayout);
 
-	QVBoxLayout *layout = new QVBoxLayout();
-	layout->addWidget(regionEditor_);
-	layout->addLayout(energyLayout);
-	layout->addLayout(braggLayout);
-	layout->addWidget(regionStatusView);
-	layout->addWidget(braggConfigView);
-	layout->addStretch();
+	QVBoxLayout *leftLayout = new QVBoxLayout();
+	leftLayout->addWidget(controlsView);
+
+	QVBoxLayout *rightLayout = new QVBoxLayout();
+	rightLayout->addWidget(regionStatusView);
+	rightLayout->addWidget(braggConfigView);
+
+	QHBoxLayout *layout = new QHBoxLayout();
+	layout->addLayout(leftLayout);
+	layout->addLayout(rightLayout);
 
 	setLayout(layout);
 
@@ -88,6 +116,9 @@ void BioXASSSRLMonochromatorConfigurationView::setMono(BioXASSSRLMonochromator *
 			regionEditor_->setControl(0);
 			energyEditor_->setControl(0);
 			braggEditor_->setControl(0);
+			upperSlitEditor_->setControl(0);
+			lowerSlitEditor_->setControl(0);
+			paddleEditor_->setControl(0);
 
 			regionStatusWidget_->setRegionControl(0);
 			braggConfigWidget_->setBraggMotor(0);
@@ -102,6 +133,9 @@ void BioXASSSRLMonochromatorConfigurationView::setMono(BioXASSSRLMonochromator *
 			regionEditor_->setControl(mono_->regionControl());
 			energyEditor_->setControl(mono_->energyControl());
 			braggEditor_->setControl(mono_->braggMotor());
+			upperSlitEditor_->setControl(mono_->upperSlitControl());
+			lowerSlitEditor_->setControl(mono_->lowerSlitControl());
+			paddleEditor_->setControl(mono_->paddleControl());
 
 			regionStatusWidget_->setRegionControl(mono_->regionControl());
 			braggConfigWidget_->setBraggMotor(mono_->braggMotor());

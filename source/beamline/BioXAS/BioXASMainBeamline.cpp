@@ -28,6 +28,25 @@ BioXASMainBeamline::~BioXASMainBeamline()
 
 }
 
+bool BioXASMainBeamline::isConnected() const
+{
+	bool newState = (
+				// General BioXAS components.
+				BioXASBeamline::isConnected() &&
+
+				// Monochromator
+				mono_->isConnected() &&
+
+				// M2 mirror
+				m2Mirror_->isConnected() &&
+
+				// Scaler
+				scaler_->isConnected()
+				);
+
+	return newState;
+}
+
 QList<AMControl *> BioXASMainBeamline::getMotorsByType(BioXASBeamlineDef::BioXASMotorType category)
 {
 	QList<AMControl *> matchedMotors;
@@ -105,28 +124,6 @@ QList<AMControl *> BioXASMainBeamline::getMotorsByType(BioXASBeamlineDef::BioXAS
 	return matchedMotors;
 }
 
-void BioXASMainBeamline::onConnectedChanged()
-{
-	bool newState = (
-				// General BioXAS components.
-				BioXASBeamline::isConnected() &&
-
-				// M2 mirror
-				m2Mirror_->isConnected() &&
-
-				// Monochromator
-				mono_->isConnected() &&
-
-				// Scaler
-				scaler_->isConnected()
-				);
-
-	if (connected_ != newState) {
-		connected_ = newState;
-		emit connected(connected_);
-	}
-}
-
 void BioXASMainBeamline::setupDiagnostics()
 {
 
@@ -154,19 +151,19 @@ void BioXASMainBeamline::setupSampleStage()
 void BioXASMainBeamline::setupMono()
 {
 	mono_ = new BioXASMainMonochromator(this);
-	connect( mono_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()) );
+	connect( mono_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 }
 
 void BioXASMainBeamline::setupComponents()
 {
-	// Setup general BioXAS components.
-
-	BioXASBeamline::setupComponents();
+	// The Main endstation safety shutter.
+	safetyShutterDownstream_ = new  CLSBiStateControl("MainShutter", "MainShutter", "SSH1607-5-I21-01:state", "SSH1607-5-I21-01:opr:open", "SSH1607-5-I21-01:opr:close", new AMControlStatusCheckerDefault(2), this);
+	connect( safetyShutterDownstream_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
 	// Scaler
 
 	scaler_ = new CLSSIS3820Scaler("BL1607-5-I21:mcs", this);
-	connect( scaler_, SIGNAL(connectedChanged(bool)), this, SLOT(onConnectedChanged()) );
+	connect( scaler_, SIGNAL(connectedChanged(bool)), this, SLOT(updateConnected()) );
 
 	scalerDwellTime_ = new AMReadOnlyPVControl("ScalerDwellTime", "BL1607-5-I21:mcs:delay", this, "Scaler dwell time");
 
@@ -194,7 +191,7 @@ void BioXASMainBeamline::setupComponents()
 	// M2 Mirror.
 
 	m2Mirror_ = new BioXASMainM2Mirror(this);
-	connect( m2Mirror_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()) );
+	connect( m2Mirror_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 }
 
 void BioXASMainBeamline::setupExposedControls()
@@ -296,8 +293,6 @@ void BioXASMainBeamline::setupControlsAsDetectors()
 BioXASMainBeamline::BioXASMainBeamline()
 	: BioXASBeamline("BioXAS Beamline - Main Endstation")
 {
-	connected_ = false;
-
 	setupComponents();
 	setupDiagnostics();
 	setupSampleStage();

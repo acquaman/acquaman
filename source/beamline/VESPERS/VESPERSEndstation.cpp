@@ -22,6 +22,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "VESPERSEndstation.h"
 #include "beamline/CLS/CLSMAXvMotor.h"
 #include "application/VESPERS/VESPERS.h"
+#include "actions3/AMListAction3.h"
+#include "actions3/AMActionSupport.h"
+#include "actions3/actions/AMWaitAction.h"
+#include "beamline/VESPERS/VESPERSToggleControl.h"
 
 #include <QMessageBox>
 #include <QDir>
@@ -48,17 +52,17 @@ VESPERSEndstation::VESPERSEndstation(QObject *parent)
 	micLightPV_ = new AMProcessVariable("07B2_PLC_Mic_Light_Inten", true, this);
 
 	// Laser on/off control.
-	laserPower_ = new AMPVControl("Laser Power Control", "07B2_PLC_LaserDistON", "07B2_PLC_LaserDistON_Tog", QString(), this);
+	laserPower_ = new VESPERSToggleControl("Laser Power Control", "07B2_PLC_LaserDistON", "07B2_PLC_LaserDistON_Tog", this, 0.1);
 
 	// The beam attenuation filters.
-	filter250umA_ = new AMPVControl("Filter 250um A", "07B2_PLC_PFIL_01_F1_Ctrl", "07B2_PLC_PFIL_01_F1_Toggle", QString(), this);
-	filter250umB_ = new AMPVControl("Filter 250um B", "07B2_PLC_PFIL_01_F2_Ctrl", "07B2_PLC_PFIL_01_F2_Toggle", QString(), this);
-	filter100umA_ = new AMPVControl("Filter 100um A", "07B2_PLC_PFIL_02_F3_Ctrl", "07B2_PLC_PFIL_02_F3_Toggle", QString(), this);
-	filter100umB_ = new AMPVControl("Filter 100um B", "07B2_PLC_PFIL_02_F4_Ctrl", "07B2_PLC_PFIL_02_F4_Toggle", QString(), this);
-	filter50umA_ = new AMPVControl("Filter 50um A", "07B2_PLC_PFIL_02_F1_Ctrl", "07B2_PLC_PFIL_02_F1_Toggle", QString(), this);
-	filter50umB_ = new AMPVControl("Filter 50um B", "07B2_PLC_PFIL_02_F2_Ctrl", "07B2_PLC_PFIL_02_F2_Toggle", QString(), this);
-	filterShutterUpper_ = new AMPVControl("Filter Shutter Upper", "07B2_PLC_PFIL_01_F3_Ctrl", "07B2_PLC_PFIL_01_F3_Toggle", QString(), this);
-	filterShutterLower_ = new AMPVControl("Filter Shutter Lower", "07B2_PLC_PFIL_01_F4_Ctrl", "07B2_PLC_PFIL_01_F4_Toggle", QString(), this);
+	filter250umA_ = new VESPERSToggleControl("Filter 250um A", "07B2_PLC_PFIL_01_F1_Ctrl", "07B2_PLC_PFIL_01_F1_Toggle", this, 0.1);
+	filter250umB_ = new VESPERSToggleControl("Filter 250um B", "07B2_PLC_PFIL_01_F2_Ctrl", "07B2_PLC_PFIL_01_F2_Toggle", this, 0.1);
+	filter100umA_ = new VESPERSToggleControl("Filter 100um A", "07B2_PLC_PFIL_02_F3_Ctrl", "07B2_PLC_PFIL_02_F3_Toggle", this, 0.1);
+	filter100umB_ = new VESPERSToggleControl("Filter 100um B", "07B2_PLC_PFIL_02_F4_Ctrl", "07B2_PLC_PFIL_02_F4_Toggle", this, 0.1);
+	filter50umA_ = new VESPERSToggleControl("Filter 50um A", "07B2_PLC_PFIL_02_F1_Ctrl", "07B2_PLC_PFIL_02_F1_Toggle", this, 0.1);
+	filter50umB_ = new VESPERSToggleControl("Filter 50um B", "07B2_PLC_PFIL_02_F2_Ctrl", "07B2_PLC_PFIL_02_F2_Toggle", this, 0.1);
+	filterShutterUpper_ = new VESPERSToggleControl("Filter Shutter Upper", "07B2_PLC_PFIL_01_F3_Ctrl", "07B2_PLC_PFIL_01_F3_Toggle", this, 0.1);
+	filterShutterLower_ = new VESPERSToggleControl("Filter Shutter Lower", "07B2_PLC_PFIL_01_F4_Ctrl", "07B2_PLC_PFIL_01_F4_Toggle", this, 0.1);
 	filterThickness_ = -1;
 
 	// Setup filters.
@@ -210,91 +214,173 @@ void VESPERSEndstation::onFiltersChanged()
 
 void VESPERSEndstation::setFilterThickness(int index)
 {
-	QList<AMControl *> filters(filterMap_.values());
-
-	// Put all the filters back to an original state.  The -2 is to exclude the upper and lower shutters.
-	for (int i = 0; i < filters.size(); i++)
-		if ((int)filters.at(i)->value() == 1)
-			toggleControl(filters.at(i));
-
 	switch(index){
-	case 0: // Filters are already taken out with previous loop.
+	case 0:
+		filterMap_.value("50A")->move(0);
+		filterMap_.value("50B")->move(0);
+		filterMap_.value("100A")->move(0);
+		filterMap_.value("100B")->move(0);
+		filterMap_.value("250A")->move(0);
+		filterMap_.value("250B")->move(0);
+
 		break;
 	case 1: // 50 um
-		toggleControl(filterMap_.value("50A"));
+		filterMap_.value("50A")->move(1);
+
+		filterMap_.value("50B")->move(0);
+		filterMap_.value("100A")->move(0);
+		filterMap_.value("100B")->move(0);
+		filterMap_.value("250A")->move(0);
+		filterMap_.value("250B")->move(0);
+
 		break;
 	case 2: // 100 um
-		toggleControl(filterMap_.value("100A"));
+		filterMap_.value("100A")->move(1);
+
+		filterMap_.value("50A")->move(0);
+		filterMap_.value("50B")->move(0);
+		filterMap_.value("100B")->move(0);
+		filterMap_.value("250A")->move(0);
+		filterMap_.value("250B")->move(0);
+
 		break;
 	case 3: // 150 um
-		toggleControl(filterMap_.value("50A"));
-		toggleControl(filterMap_.value("100A"));
+		filterMap_.value("50A")->move(1);
+		filterMap_.value("100A")->move(1);
+
+		filterMap_.value("50B")->move(0);
+		filterMap_.value("100B")->move(0);
+		filterMap_.value("250A")->move(0);
+		filterMap_.value("250B")->move(0);
+
 		break;
 	case 4: // 200 um
-		toggleControl(filterMap_.value("100A"));
-		toggleControl(filterMap_.value("100B"));
+		filterMap_.value("100A")->move(1);
+		filterMap_.value("100B")->move(1);
+
+		filterMap_.value("50A")->move(0);
+		filterMap_.value("50B")->move(0);
+		filterMap_.value("250A")->move(0);
+		filterMap_.value("250B")->move(0);
+
 		break;
 	case 5: // 250 um
-		toggleControl(filterMap_.value("250A"));
+		filterMap_.value("250A")->move(1);
+
+		filterMap_.value("50A")->move(0);
+		filterMap_.value("50B")->move(0);
+		filterMap_.value("100A")->move(0);
+		filterMap_.value("100B")->move(0);
+		filterMap_.value("250B")->move(0);
+
 		break;
 	case 6: // 300 um
-		toggleControl(filterMap_.value("250A"));
-		toggleControl(filterMap_.value("50A"));
+		filterMap_.value("250A")->move(1);
+		filterMap_.value("50A")->move(1);
+
+		filterMap_.value("50B")->move(0);
+		filterMap_.value("100A")->move(0);
+		filterMap_.value("100B")->move(0);
+		filterMap_.value("250B")->move(0);
+
 		break;
 	case 7: // 350 um
-		toggleControl(filterMap_.value("250A"));
-		toggleControl(filterMap_.value("100A"));
+		filterMap_.value("250A")->move(1);
+		filterMap_.value("100A")->move(1);
+
+		filterMap_.value("50A")->move(0);
+		filterMap_.value("50B")->move(0);
+		filterMap_.value("100B")->move(0);
+		filterMap_.value("250B")->move(0);
+
 		break;
 	case 8: // 400 um
-		toggleControl(filterMap_.value("250A"));
-		toggleControl(filterMap_.value("100A"));
-		toggleControl(filterMap_.value("50A"));
+		filterMap_.value("250A")->move(1);
+		filterMap_.value("100A")->move(1);
+		filterMap_.value("50A")->move(1);
+
+		filterMap_.value("50B")->move(0);
+		filterMap_.value("100B")->move(0);
+		filterMap_.value("250B")->move(0);
+
 		break;
 	case 9: // 450 um
-		toggleControl(filterMap_.value("250A"));
-		toggleControl(filterMap_.value("100A"));
-		toggleControl(filterMap_.value("100B"));
+		filterMap_.value("250A")->move(1);
+		filterMap_.value("100A")->move(1);
+		filterMap_.value("100B")->move(1);
+
+		filterMap_.value("50A")->move(0);
+		filterMap_.value("50B")->move(0);
+		filterMap_.value("250B")->move(0);
+
 		break;
 	case 10: // 500 um
-		toggleControl(filterMap_.value("250A"));
-		toggleControl(filterMap_.value("250B"));
+		filterMap_.value("250A")->move(1);
+		filterMap_.value("250B")->move(1);
+
+		filterMap_.value("50A")->move(0);
+		filterMap_.value("50B")->move(0);
+		filterMap_.value("100A")->move(0);
+		filterMap_.value("100B")->move(0);
+
 		break;
 	case 11: // 550 um
-		toggleControl(filterMap_.value("250A"));
-		toggleControl(filterMap_.value("250B"));
-		toggleControl(filterMap_.value("50A"));
+		filterMap_.value("250A")->move(1);
+		filterMap_.value("250B")->move(1);
+		filterMap_.value("50A")->move(1);
+
+		filterMap_.value("50B")->move(0);
+		filterMap_.value("100A")->move(0);
+		filterMap_.value("100B")->move(0);
+
 		break;
 	case 12: // 600 um
-		toggleControl(filterMap_.value("250A"));
-		toggleControl(filterMap_.value("250B"));
-		toggleControl(filterMap_.value("100A"));
+		filterMap_.value("250A")->move(1);
+		filterMap_.value("250B")->move(1);
+		filterMap_.value("100A")->move(1);
+
+		filterMap_.value("50A")->move(0);
+		filterMap_.value("50B")->move(0);
+		filterMap_.value("100B")->move(0);
+
 		break;
 	case 13: // 650 um
-		toggleControl(filterMap_.value("250A"));
-		toggleControl(filterMap_.value("250B"));
-		toggleControl(filterMap_.value("100A"));
-		toggleControl(filterMap_.value("50A"));
+		filterMap_.value("250A")->move(1);
+		filterMap_.value("250B")->move(1);
+		filterMap_.value("100A")->move(1);
+		filterMap_.value("50A")->move(1);
+
+		filterMap_.value("50B")->move(0);
+		filterMap_.value("100B")->move(0);
+
 		break;
 	case 14: // 700 um
-		toggleControl(filterMap_.value("250A"));
-		toggleControl(filterMap_.value("250B"));
-		toggleControl(filterMap_.value("100A"));
-		toggleControl(filterMap_.value("100B"));
+		filterMap_.value("250A")->move(1);
+		filterMap_.value("250B")->move(1);
+		filterMap_.value("100A")->move(1);
+		filterMap_.value("100B")->move(1);
+
+		filterMap_.value("50A")->move(0);
+		filterMap_.value("50B")->move(0);
+
 		break;
 	case 15: // 750 um
-		toggleControl(filterMap_.value("250A"));
-		toggleControl(filterMap_.value("250B"));
-		toggleControl(filterMap_.value("100A"));
-		toggleControl(filterMap_.value("100B"));
-		toggleControl(filterMap_.value("50A"));
+		filterMap_.value("250A")->move(1);
+		filterMap_.value("250B")->move(1);
+		filterMap_.value("100A")->move(1);
+		filterMap_.value("100B")->move(1);
+		filterMap_.value("50A")->move(1);
+
+		filterMap_.value("50B")->move(0);
+
 		break;
 	case 16: // 800 um
-		toggleControl(filterMap_.value("250A"));
-		toggleControl(filterMap_.value("250B"));
-		toggleControl(filterMap_.value("100A"));
-		toggleControl(filterMap_.value("100B"));
-		toggleControl(filterMap_.value("50A"));
-		toggleControl(filterMap_.value("50B"));
+		filterMap_.value("250A")->move(1);
+		filterMap_.value("250B")->move(1);
+		filterMap_.value("100A")->move(1);
+		filterMap_.value("100B")->move(1);
+		filterMap_.value("50A")->move(1);
+		filterMap_.value("50B")->move(1);
 		break;
 	}
 }
@@ -307,9 +393,9 @@ void VESPERSEndstation::setShutterState(bool state)
 
 	// 0 = OUT.  For this to work properly, the upper shutter is to remain fixed at the out position and the lower shutter changes.  Therefore if upper is IN, put it out.
 	if ((int)filterShutterUpper_->value() == 1)
-		toggleControl(filterShutterUpper_);
+		filterShutterUpper_->move(0);
 
-	toggleControl(filterShutterLower_);
+	filterShutterLower_->move(state ? 1.0 : 0.0);
 }
 
 void VESPERSEndstation::setHeliumBufferFlag(bool attached)
