@@ -264,6 +264,9 @@ void BioXASMainAppController::setupUserInterface()
 
 	mw_->addPane(configurationViewHolder_, "Scans", "XAS Scan", ":/utilities-system-monitor.png");
 
+	connect(configuration_, SIGNAL(totalTimeChanged(double)), configurationViewHolder_, SLOT(updateOverallScanTime(double)));
+	configurationViewHolder_->updateOverallScanTime(configuration_->totalTime());
+
 	commissioningConfiguration_ = new AMGenericStepScanConfiguration;
 	commissioningConfigurationView_ = new AMGenericStepScanConfigurationView(commissioningConfiguration_);
 	commissioningConfigurationViewHolder_ = new AMScanConfigurationViewHolder3(commissioningConfigurationView_);

@@ -149,6 +149,8 @@ bool REIXSAppController::startupCreateUserInterface() {
 	scanConfigurationHolder = new AMScanConfigurationViewHolder3(xasConfigView, true);
 	mw_->addPane(scanConfigurationHolder, "Experiment Setup", "Absorption Scan", ":/utilities-system-monitor.png");
 	connect(scanConfigurationHolder, SIGNAL(showWorkflowRequested()), this, SLOT(goToWorkflow()));
+	connect(xasScanConfiguration, SIGNAL(totalTimeChanged(double)), scanConfigurationHolder, SLOT(updateOverallScanTime(double)));
+	scanConfigurationHolder->updateOverallScanTime(xasScanConfiguration->totalTime());
 
 	REIXSXESSpectrometerControlPanel* spectrometerPanel = new REIXSXESSpectrometerControlPanel(REIXSBeamline::bl()->mcpDetector(), 0);
 	mw_->addPane(spectrometerPanel, "Experiment Setup", "Spectromter Setup", ":/22x22/gnome-display-properties.png");

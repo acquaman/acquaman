@@ -77,7 +77,13 @@ signals:
 	/// Emitted to request the main application controller show the workflow pane.
 	void showWorkflowRequested();
 
+public slots:
+	/// slot to update the content of the overall scan time label when the scan configuration is changed
+	void updateOverallScanTime(double seconds);
+
 protected slots:
+	/// slot tp update the content of the overall scan time label when the iteration is changed
+	void onScanIterationsValueChange();
 	/// Called when the "Start Scan" button is clicked
 	void onStartActionRequested();
 	/// Called when the "Add to Queue" button is clicked.
@@ -94,11 +100,18 @@ protected:
 	/// create and add actions to the queue
 	void addActionToQueue(ActionQueue::QueueOperation operation);
 
+	/// update the text of the overall scan time
+	void updateOverallScanTimeLabel(double seconds);
+
 	/// enable loop actions
 	bool repeatScansEnabled_;
 
+	/// remember the last known estimated scan time for a single scan
+	double estimatedTimeOfSingleScan_;
+
 	/// UI elements
 	QLabel *whenDoneLabel_;
+	QLabel *overallScanTime_;
 	QSpinBox *iterationsBox_;
 	QPushButton* startActionButton_, *addToQueueButton_;
 	QRadioButton* goToWorkflowOption_, *setupAnotherActionOption_;
