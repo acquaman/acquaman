@@ -52,7 +52,7 @@ VESPERSEndstation::VESPERSEndstation(QObject *parent)
 	micLightPV_ = new AMProcessVariable("07B2_PLC_Mic_Light_Inten", true, this);
 
 	// Laser on/off control.
-	laserPower_ = new AMPVControl("Laser Power Control", "07B2_PLC_LaserDistON", "07B2_PLC_LaserDistON_Tog", QString(), this);
+	laserPower_ = new VESPERSToggleControl("Laser Power Control", "07B2_PLC_LaserDistON", "07B2_PLC_LaserDistON_Tog", this, 0.1);
 
 	// The beam attenuation filters.
 	filter250umA_ = new VESPERSToggleControl("Filter 250um A", "07B2_PLC_PFIL_01_F1_Ctrl", "07B2_PLC_PFIL_01_F1_Toggle", this, 0.1);
