@@ -1,7 +1,7 @@
 #include "BioXASSideMonochromator.h"
 
 BioXASSideMonochromator::BioXASSideMonochromator(QObject *parent) :
-	BioXASSSRLMonochromator(parent)
+	BioXASSSRLMonochromator("SideMono", parent)
 {
 	// Initialize variables.
 

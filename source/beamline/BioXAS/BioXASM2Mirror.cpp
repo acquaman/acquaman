@@ -1,7 +1,7 @@
 #include "BioXASM2Mirror.h"
 
-BioXASM2Mirror::BioXASM2Mirror(QObject *parent) :
-	BioXASMirror(parent)
+BioXASM2Mirror::BioXASM2Mirror(const QString &name, QObject *parent) :
+	BioXASMirror(name, parent)
 {
 	// Initialize member variables.
 
@@ -13,21 +13,14 @@ BioXASM2Mirror::~BioXASM2Mirror()
 
 }
 
-void BioXASM2Mirror::setScreenPosition(Screen::Position newPosition)
-{
-	if (screen_ && screen_->isConnected() && newPosition != Screen::Invalid) {
-		screen_->move(newPosition);
-	}
-}
-
-void BioXASM2Mirror::updateConnected()
+bool BioXASM2Mirror::isConnected() const
 {
 	bool isConnected = (
-				BioXASMirror::connected() &&
+				BioXASMirror::isConnected() &&
 				screen_ && screen_->isConnected()
 				);
 
-	setConnected(isConnected);
+	return isConnected;
 }
 
 

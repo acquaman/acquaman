@@ -1,7 +1,7 @@
 #include "BioXASSideM1Mirror.h"
 
 BioXASSideM1Mirror::BioXASSideM1Mirror(QObject *parent) :
-    BioXASM1Mirror(parent)
+	BioXASM1Mirror("SideM1Mirror", parent)
 {
 	// Initialize inherited variables.
 
@@ -14,15 +14,20 @@ BioXASSideM1Mirror::BioXASSideM1Mirror(QObject *parent) :
 	benderDownstream_ = new CLSMAXvMotor(QString("SMTR1607-5-I22-07 BENDER (DOWNSTREAM)"), QString("SMTR1607-5-I22-07"), QString("SMTR1607-5-I22-07 BENDER (DOWNSTREAM)"), true, 0.05, 2.0, this, QString(":lbs"));
 	upperSlitBlade_ = new CLSMAXvMotor(QString("SMTR1607-5-I22-08 UPPER SLIT"), QString("SMTR1607-5-I22-08"), QString("SMTR1607-5-I22-08 UPPER SLIT"), true, 0.05, 2.0, this, QString(":mm"));
 
-	pitch_ = new BioXASMirrorPitchControl("M1PitchControl", "deg", this);
+	pitch_ = new BioXASMirrorPitchControl(name_+"PitchControl", "deg", this);
 	pitch_->setUpstreamInboardControl(upstreamInboard_);
 	pitch_->setUpstreamOutboardControl(upstreamOutboard_);
 	pitch_->setDownstreamControl(downstream_);
 
-	roll_ = new BioXASMirrorRollControl("M1RollControl", "deg", this);
+	roll_ = new BioXASMirrorRollControl(name_+"RollControl", "deg", this);
 	roll_->setUpstreamInboardControl(upstreamInboard_);
 	roll_->setUpstreamOutboardControl(upstreamOutboard_);
 	roll_->setDownstreamControl(downstream_);
+
+	height_ = new BioXASMirrorHeightControl(name_+"HeightControl", "mm", this);
+	height_->setUpstreamInboardControl(upstreamInboard_);
+	height_->setUpstreamOutboardControl(upstreamOutboard_);
+	height_->setDownstreamControl(downstream_);
 
 	// Make connections.
 
@@ -37,6 +42,7 @@ BioXASSideM1Mirror::BioXASSideM1Mirror(QObject *parent) :
 
 	connect( pitch_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 	connect( roll_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+	connect( height_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 }
 
 BioXASSideM1Mirror::~BioXASSideM1Mirror()

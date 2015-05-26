@@ -31,12 +31,12 @@ public:
 	class CrystalChange { public: enum Limit { NotAtLimit = 0, AtLimit }; };
 
 	/// Constructor.
-	explicit BioXASSSRLMonochromator(QObject *parent = 0);
+	explicit BioXASSSRLMonochromator(const QString &name, QObject *parent = 0);
 	/// Destructor.
 	virtual ~BioXASSSRLMonochromator();
 
 	/// Returns true if the mono is connected, false otherwise.
-	virtual bool isConnected() const { return connected_; }
+	virtual bool isConnected() const;
 
 	/// Returns the energy control.
 	virtual BioXASSSRLMonochromatorEnergyControl* energyControl() const { return energy_; }
@@ -95,25 +95,11 @@ public:
 	/// Returns the crystal 2 roll motor.
 	CLSMAXvMotor* crystal2RollMotor() const { return crystal2RollMotor_; }
 
-signals:
-	/// Notifier that the connected state has changed.
-	void connectedChanged(bool isConnected);
-
 public slots:
 	/// Sets the calibrated bragg position.
 	void calibrateBraggPosition(double newPosition);
 
-protected slots:
-	/// Sets the connected state.
-	void setConnected(bool isConnected);
-
-	/// Updates the mono's connected state.
-	void updateConnected();
-
 protected:
-	/// The mono's connected state.
-	bool connected_;
-
 	/// The energy control.
 	BioXASSSRLMonochromatorEnergyControl *energy_;
 	/// The region control.

@@ -1,13 +1,12 @@
 #ifndef BIOXASCARBONFILTERFARM_H
 #define BIOXASCARBONFILTERFARM_H
 
-#include <QObject>
-
+#include "beamline/BioXAS/BioXASBeamlineComponent.h"
 #include "beamline/AMControl.h"
 #include "beamline/CLS/CLSMAXvMotor.h"
 #include "beamline/BioXAS/BioXASCarbonFilterFarmControl.h"
 
-class BioXASCarbonFilterFarm : public QObject
+class BioXASCarbonFilterFarm : public BioXASBeamlineComponent
 {
 	Q_OBJECT
 
@@ -26,10 +25,8 @@ public:
 	/// Destructor.
 	virtual ~BioXASCarbonFilterFarm();
 
-	/// Returns the name.
-	QString name() const { return name_; }
 	/// Returns true if the filter farm is connected, false otherwise.
-	bool isConnected() const { return connected_; }
+	bool isConnected() const;
 
 	/// Returns the total filter control.
 	AMControl* filterControl() const { return filter_; }
@@ -47,17 +44,6 @@ public:
 	AMControl* downstreamPositionControl() const { return downstreamPosition_; }
 	/// Returns the downstream status control.
 	AMControl* downstreamStatusControl() const { return downstreamStatus_; }
-
-signals:
-	/// Notifier that the connected state has changed.
-	void connectedChanged(bool isConnected);
-
-protected slots:
-	/// Sets the connected state.
-	void setConnected(bool isConnected);
-
-	/// Updates the connected state.
-	void updateConnected();
 
 protected:
 	/// The name.

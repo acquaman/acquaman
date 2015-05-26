@@ -11,16 +11,15 @@ class BioXASM1Mirror : public BioXASMirror
 
 public:
 	/// Constructor.
-    explicit BioXASM1Mirror(QObject *parent = 0);
+	explicit BioXASM1Mirror(const QString &name, QObject *parent = 0);
 	/// Destructor.
 	virtual ~BioXASM1Mirror();
 
+	/// Returns the current connected state. True if this control is connected, false otherwise.
+	virtual bool isConnected() const;
+
 	/// Returns the upper slit blade control.
 	AMControl* upperSlitBladeControl() const { return upperSlitBlade_; }
-
-protected slots:
-	/// Updates the connected state.
-	virtual void updateConnected();
 
 protected:
 	/// The upper slit blade motor control.

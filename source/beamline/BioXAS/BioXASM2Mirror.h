@@ -14,20 +14,15 @@ public:
 	class Screen { public: enum Position { In = 0, Out, Invalid }; };
 
 	/// Constructor.
-	explicit BioXASM2Mirror(QObject *parent = 0);
+	explicit BioXASM2Mirror(const QString &name, QObject *parent = 0);
 	/// Destructor.
 	virtual ~BioXASM2Mirror();
 
+	/// Returns the current connected state. True if this control is connected, false otherwise.
+	virtual bool isConnected() const;
+
 	/// Returns the fluorescence screen control.
 	AMControl* screenControl() const { return screen_; }
-
-public slots:
-	/// Sets the screen control position.
-	void setScreenPosition(Screen::Position newPosition);
-
-protected slots:
-	/// Updates the connected state.
-	virtual void updateConnected();
 
 protected:
 	/// The mirror fluorescence screen control.

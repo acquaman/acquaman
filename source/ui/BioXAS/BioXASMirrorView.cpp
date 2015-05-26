@@ -24,6 +24,9 @@ BioXASMirrorView::BioXASMirrorView(BioXASMirror *mirror, QWidget *parent) :
 	rollEditor_ = new AMExtendedControlEditor(0);
 	rollEditor_->setTitle("Roll");
 
+	heightEditor_ = new AMExtendedControlEditor(0);
+	heightEditor_->setTitle("Height");
+
 	// Create and set layouts.
 
 	QVBoxLayout *layout = new QVBoxLayout();
@@ -33,6 +36,7 @@ BioXASMirrorView::BioXASMirrorView(BioXASMirror *mirror, QWidget *parent) :
 	layout->addWidget(downstreamEditor_);
 	layout->addWidget(pitchEditor_);
 	layout->addWidget(rollEditor_);
+	layout->addWidget(heightEditor_);
 
 	setLayout(layout);
 
@@ -56,6 +60,7 @@ void BioXASMirrorView::setMirror(BioXASMirror *newMirror)
 			downstreamEditor_->setControl(0);
 			pitchEditor_->setControl(0);
 			rollEditor_->setControl(0);
+			heightEditor_->setControl(0);
 		}
 
 		mirror_ = newMirror;
@@ -66,6 +71,7 @@ void BioXASMirrorView::setMirror(BioXASMirror *newMirror)
 			downstreamEditor_->setControl(mirror_->downstreamControl());
 			pitchEditor_->setControl(mirror_->pitchControl());
 			rollEditor_->setControl(mirror_->rollControl());
+			heightEditor_->setControl(mirror_->heightControl());
 		}
 
 		emit mirrorChanged(mirror_);

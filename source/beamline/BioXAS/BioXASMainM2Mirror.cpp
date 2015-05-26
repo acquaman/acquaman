@@ -3,7 +3,7 @@
 #include "beamline/BioXAS/BioXASPseudoMotorControl.h"
 
 BioXASMainM2Mirror::BioXASMainM2Mirror(QObject *parent) :
-    BioXASM2Mirror(parent)
+	BioXASM2Mirror("MainM2Mirror", parent)
 {
 	// Initialize member variables.
 

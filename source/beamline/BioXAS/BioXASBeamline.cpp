@@ -144,6 +144,7 @@ BioXASBeamline::BioXASBeamline(const QString &controlName) :
 	safetyShutterUpstream_ = 0;
 	safetyShutterDownstream_ = 0;
 
+	m1Mirror_ = 0;
 	m2Mirror_ = 0;
 
 	// Setup procedures.

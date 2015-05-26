@@ -56,38 +56,29 @@ AMAction3* BioXASMirrorHeightControl::createMoveAction(double setpoint)
 	return result;
 }
 
-double BioXASMirrorHeightControl::calculateUpstreamInboardZ(double pitch, double upstreamInboardX, double upstreamInboardY, double upstreamOutboardX, double upstreamOutboardY, double upstreamOutboardZ, double downstreamX, double downstreamY, double downstreamZ)
+double BioXASMirrorHeightControl::calculateUpstreamInboardZ(double height, double upstreamInboardX, double upstreamInboardY, double upstreamOutboardX, double upstreamOutboardY, double upstreamOutboardZ, double downstreamX, double downstreamY, double downstreamZ)
 {
-	double numerator = (downstreamX - upstreamInboardX) * (downstreamY - upstreamOutboardY) + (upstreamOutboardX - downstreamX) * (downstreamY - upstreamInboardY) * tan(pitch * M_PI/180) + (downstreamZ - upstreamOutboardZ) * (downstreamY - upstreamInboardY);
-	double denom = downstreamY - upstreamOutboardY;
-	double result = downstreamZ - numerator / denom;
-
-	return result;
+	return 0;
 }
 
-double BioXASMirrorHeightControl::calculateUpstreamOutboardZ(double pitch, double upstreamInboardX, double upstreamInboardY, double upstreamInboardZ, double upstreamOutboardX, double upstreamOutboardY, double downstreamX, double downstreamY, double downstreamZ)
+double BioXASMirrorHeightControl::calculateUpstreamOutboardZ(double height, double upstreamInboardX, double upstreamInboardY, double upstreamInboardZ, double upstreamOutboardX, double upstreamOutboardY, double downstreamX, double downstreamY, double downstreamZ)
 {
-	double numerator = (downstreamZ - upstreamInboardZ) * (downstreamY - upstreamOutboardY) - ((downstreamX - upstreamInboardX) * (downstreamY - upstreamOutboardY) + (upstreamOutboardX - downstreamX) * (downstreamY - upstreamInboardY)) * tan(pitch * M_PI/180);
-	double denom = downstreamY - upstreamInboardY;
-	double result = downstreamZ - numerator/denom;
-
-	return result;
+	return 0;
 }
 
-double BioXASMirrorHeightControl::calculateDownstreamZ(double pitch, double upstreamInboardX, double upstreamInboardY, double upstreamInboardZ, double upstreamOutboardX, double upstreamOutboardY, double upstreamOutboardZ, double downstreamX, double downstreamY)
+double BioXASMirrorHeightControl::calculateDownstreamZ(double height, double upstreamInboardX, double upstreamInboardY, double upstreamInboardZ, double upstreamOutboardX, double upstreamOutboardY, double upstreamOutboardZ, double downstreamX, double downstreamY)
 {
-	double numerator = ((upstreamInboardZ * downstreamY) - (upstreamInboardZ * upstreamOutboardY) - (upstreamOutboardZ * downstreamY) + (upstreamOutboardZ * upstreamInboardY) + ((downstreamX - upstreamInboardX) * (downstreamY - upstreamOutboardY) + (upstreamOutboardX - downstreamX) * (downstreamY - upstreamInboardY)) * tan(pitch * M_PI/180));
-	double denom = upstreamInboardY - upstreamOutboardY;
-	double result = numerator / denom;
-
-	return result;
+	return 0;
 }
 
 double BioXASMirrorHeightControl::calculateHeight(double upstreamInboardX, double upstreamInboardY, double upstreamInboardZ, double upstreamOutboardX, double upstreamOutboardY, double upstreamOutboardZ, double downstreamX, double downstreamY, double downstreamZ)
 {
-	double numerator = ((downstreamZ - upstreamInboardZ)*(downstreamY - upstreamOutboardY) - (downstreamZ - upstreamOutboardZ)*(downstreamY - upstreamInboardY));
-	double denom = ((downstreamX - upstreamInboardX)*(downstreamY - upstreamOutboardY) + (upstreamOutboardX - downstreamX)*(downstreamY - upstreamInboardY));
-	double pitch = atan( numerator / denom ) * 180/M_PI;
+	double term1 = ((downstreamZ * upstreamOutboardY) - (upstreamOutboardZ * downstreamY)) / (upstreamOutboardY - downstreamY);
+	double term2Num = ((upstreamInboardZ - downstreamZ) * (upstreamOutboardY - downstreamY)) - ((downstreamZ - upstreamOutboardZ) * (downstreamY - upstreamInboardY));
+	double term2Denom = ((upstreamInboardX - downstreamX) * (upstreamOutboardY - downstreamY)) + ((upstreamOutboardX - downstreamX) * (downstreamY - upstreamInboardY));
+	double term3 = (downstreamX * (downstreamY - upstreamOutboardY) + downstreamY * (upstreamOutboardX - downstreamX)) / (upstreamOutboardY - downstreamY);
 
-	return pitch;
+	double height = term1 + (term2Num/term2Denom) * term3;
+
+	return height;
 }

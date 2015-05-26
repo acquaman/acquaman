@@ -55,7 +55,7 @@ public:
 	/// Returns the monochromator.
 	virtual BioXASMonochromator* mono() const { return 0; }
 	/// Returns the m1 mirror.
-	virtual BioXASM1Mirror* m1Mirror() const { return 0; }
+	virtual BioXASM1Mirror* m1Mirror() const { return m1Mirror_; }
 	/// Returns the m2 mirror.
 	virtual BioXASM2Mirror* m2Mirror() const { return m2Mirror_; }
 	/// Returns the scaler.
@@ -101,7 +101,9 @@ protected:
 	/// The endstation (downstream) safety shutter.
 	CLSBiStateControl *safetyShutterDownstream_;
 
-	// The M2 mirror.
+	/// The M1 mirror.
+	BioXASM1Mirror *m1Mirror_;
+	/// The M2 mirror.
 	BioXASM2Mirror *m2Mirror_;
 
 };

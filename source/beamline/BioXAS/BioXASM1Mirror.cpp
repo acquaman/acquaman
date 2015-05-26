@@ -1,7 +1,7 @@
 #include "BioXASM1Mirror.h"
 
-BioXASM1Mirror::BioXASM1Mirror(QObject *parent) :
-	BioXASMirror(parent)
+BioXASM1Mirror::BioXASM1Mirror(const QString &name, QObject *parent) :
+	BioXASMirror(name, parent)
 {
 	// Initialize member variables.
 
@@ -13,12 +13,12 @@ BioXASM1Mirror::~BioXASM1Mirror()
 
 }
 
-void BioXASM1Mirror::updateConnected()
+bool BioXASM1Mirror::isConnected() const
 {
 	bool isConnected = (
-				BioXASMirror::connected() &&
+				BioXASMirror::isConnected() &&
 				upperSlitBlade_ && upperSlitBlade_->isConnected()
 				);
 
-	setConnected(isConnected);
+	return isConnected;
 }

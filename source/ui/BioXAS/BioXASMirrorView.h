@@ -42,6 +42,8 @@ protected:
 	AMExtendedControlEditor *pitchEditor_;
 	/// The roll control editor.
 	AMExtendedControlEditor *rollEditor_;
+	/// The height control editor.
+	AMExtendedControlEditor *heightEditor_;
 };
 
 #endif // BIOXASMIRRORVIEW_H

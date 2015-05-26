@@ -5,6 +5,7 @@
 #include "beamline/BioXAS/BioXASMirrorMotor.h"
 #include "beamline/BioXAS/BioXASMirrorPitchControl.h"
 #include "beamline/BioXAS/BioXASMirrorRollControl.h"
+#include "beamline/BioXAS/BioXASMirrorHeightControl.h"
 
 class BioXASMirror : public BioXASBeamlineComponent
 {
@@ -12,9 +13,12 @@ class BioXASMirror : public BioXASBeamlineComponent
 
 public:
 	/// Constructor.
-    explicit BioXASMirror(QObject *parent = 0);
+	explicit BioXASMirror(const QString &name, QObject *parent = 0);
 	/// Destructor.
 	virtual ~BioXASMirror();
+
+	/// Returns the current connected state. True if this control is connected, false otherwise.
+	virtual bool isConnected() const;
 
 	/// Returns the upstream inboard motor control.
 	AMControl* upstreamInboardControl() const { return upstreamInboard_; }
@@ -35,10 +39,8 @@ public:
 	AMControl* pitchControl() const { return pitch_; }
 	/// Returns the roll control.
 	AMControl* rollControl() const { return roll_; }
-
-protected slots:
-	/// Updates the connected state.
-	virtual void updateConnected();
+	/// Returns the height control.
+	AMControl* heightControl() const { return height_; }
 
 protected:
 	/// The upstream inboard motor control.
@@ -60,6 +62,8 @@ protected:
 	BioXASMirrorPitchControl *pitch_;
 	/// The roll pseudomotor control.
 	BioXASMirrorRollControl *roll_;
+	/// The height pseudomotor control.
+	BioXASMirrorHeightControl *height_;
 };
 
 #endif // BIOXASMIRROR_H

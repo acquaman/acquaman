@@ -9,7 +9,7 @@ class BioXASMirrorHeightControl : public BioXASMirrorPseudoMotorControl
 
 public:
 	/// Constructor.
-    explicit BioXASMirrorHeightControl(QObject *parent = 0);
+	explicit BioXASMirrorHeightControl(const QString &name, const QString &units, QObject *parent = 0, const QString &description = QString());
 	/// Destructor.
 	virtual ~BioXASMirrorHeightControl();
 
@@ -22,11 +22,11 @@ protected:
 	virtual AMAction3* createMoveAction(double setpoint);
 
 	/// Calculates and returns the upstream inboard z position (mm) for the given mirror height (mm) and motor positions.
-	static double calculateUpstreamInboardZ(double pitch, double upstreamInboardX, double upstreamInboardY, double upstreamOutboardX, double upstreamOutboardY, double upstreamOutboardZ, double downstreamX, double downstreamY, double downstreamZ);
+	static double calculateUpstreamInboardZ(double height, double upstreamInboardX, double upstreamInboardY, double upstreamOutboardX, double upstreamOutboardY, double upstreamOutboardZ, double downstreamX, double downstreamY, double downstreamZ);
 	/// Calculates and returns the upstream outboard z position (mm) for the given mirror height (mm) and motor positions.
-	static double calculateUpstreamOutboardZ(double pitch, double upstreamInboardX, double upstreamInboardY, double upstreamInboardZ, double upstreamOutboardX, double upstreamOutboardY, double downstreamX, double downstreamY, double downstreamZ);
+	static double calculateUpstreamOutboardZ(double height, double upstreamInboardX, double upstreamInboardY, double upstreamInboardZ, double upstreamOutboardX, double upstreamOutboardY, double downstreamX, double downstreamY, double downstreamZ);
 	/// Calculates and returns the downstream z position (in mm) for the given mirror height (mm) and motor positions.
-	static double calculateDownstreamZ(double pitch, double upstreamInboardX, double upstreamInboardY, double upstreamInboardZ, double upstreamOutboardX, double upstreamOutboardY, double upstreamOutboardZ, double downstreamX, double downstreamY);
+	static double calculateDownstreamZ(double height, double upstreamInboardX, double upstreamInboardY, double upstreamInboardZ, double upstreamOutboardX, double upstreamOutboardY, double upstreamOutboardZ, double downstreamX, double downstreamY);
 	/// Calculates and returns the mirror height from the given motor positions.
 	static double calculateHeight(double upstreamInboardX, double upstreamInboardY, double upstreamInboardZ, double upstreamOutboardX, double upstreamOutboardY, double upstreamOutboardZ, double downstreamX, double downstreamY, double downstreamZ);
 };
