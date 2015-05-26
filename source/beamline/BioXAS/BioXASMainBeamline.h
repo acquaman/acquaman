@@ -63,13 +63,8 @@ public:
 	/// Destructor.
 	virtual ~BioXASMainBeamline();
 
-	/// Returns true if all beamline components are connected, false otherwise.
-	virtual bool isConnected() const { return connected_; }
-
-	/// Returns the beamline's photon shutter.
-	AMControl* photonShutter() const { return photonShutter_; }
-	/// Returns the beamline's safety shutters.
-	AMControl* safetyShutter() const  { return safetyShutter_; }
+	/// Returns the current connected state.
+	virtual bool isConnected() const;
 
 	/// Returns the beamline m2 mirror.
 	virtual BioXASM2Mirror *m2Mirror() const { return m2Mirror_; }
@@ -99,24 +94,15 @@ public:
 	AMBasicControlDetectorEmulator* dwellTimeDetector() const { return dwellTimeDetector_; }
 	/// Returns the bragg motor detector.
 	AMBasicControlDetectorEmulator* braggDetector() const { return braggDetector_; }
+	/// Returns the bragg motor encoder feedback detector.
+	AMBasicControlDetectorEmulator* braggEncoderFeedbackDetector() const { return braggEncoderFeedbackDetector_; }
 	/// Returns the bragg move retries detector.
 	AMBasicControlDetectorEmulator* braggMoveRetriesDetector() const { return braggMoveRetriesDetector_; }
 	/// Returns the bragg step setpoint detector.
 	AMBasicControlDetectorEmulator* braggStepSetpointDetector() const { return braggStepSetpointDetector_; }
-	/// Returns the physical bragg angle detector.
-	AMBasicControlDetectorEmulator* braggAngleDetector() const { return braggAngleDetector_; }
 
 	/// Return the set of BioXAS Motors by given motor category.
 	QList<AMControl *> getMotorsByType(BioXASBeamlineDef::BioXASMotorType category);
-
-	/// Returns a newly created action that turns off beam.
-	virtual AMAction3* createTurnOffBeamActions();
-	/// Returns a newly created action that turns on beam.
-	virtual AMAction3* createTurnOnBeamActions();
-
-protected slots:
-	/// Updates the beamline's reported connection state.
-	void onConnectedChanged();
 
 protected:
 	/// Sets up the readings such as pressure, flow switches, temperature, etc.
@@ -130,7 +116,7 @@ protected:
 	/// Sets up mono settings.
 	void setupMono();
 	/// Sets up various beamline components.
-	void setupComponents();
+	virtual void setupComponents();
 	/// Sets up the exposed actions.
 	void setupExposedControls();
 	/// Sets up the exposed detectors.
@@ -143,6 +129,7 @@ protected:
 	/// Constructor. This is a singleton class, access it through BioXASMainBeamline::bioXAS().
 	BioXASMainBeamline();
 
+protected:
 	/// BioXAS main beamline motors
 	/// BioXAS filter motors
 	CLSMAXvMotor *carbonFilterFarm1_;
@@ -166,10 +153,6 @@ protected:
 
 	BioXASMainMonochromator *mono_;
 
-	// M2 mirror
-
-	BioXASMainM2Mirror *m2Mirror_;
-
 	/// BioXAS Pseudo motors
 	BioXASPseudoMotorControl *m1PseudoRoll_;
 	BioXASPseudoMotorControl *m1PseudoPitch_;
@@ -186,10 +169,6 @@ protected:
 	BioXASPseudoMotorControl *monoPseudoEnergy_;
 	AMPVwStatusControl *monoBraggAngle_;
 
-protected:
-	// Connected
-	bool connected_;
-
 	// Detectors
 	CLSBasicScalerChannelDetector *i0Detector_;
 	CLSBasicScalerChannelDetector *i1Detector_;
@@ -200,6 +179,7 @@ protected:
 	AMBasicControlDetectorEmulator *braggDetector_;
 	AMBasicControlDetectorEmulator *braggMoveRetriesDetector_;
 	AMBasicControlDetectorEmulator *braggStepSetpointDetector_;
+	AMBasicControlDetectorEmulator *braggEncoderFeedbackDetector_;
 	AMBasicControlDetectorEmulator *braggAngleDetector_;
 
 	// Scaler
@@ -211,12 +191,6 @@ protected:
 	CLSKeithley428 *i0Keithley_;
 	CLSKeithley428 *i1Keithley_;
 	CLSKeithley428 *i2Keithley_;
-
-	// Shutters.
-	/// The safety shutter.
-	CLSBiStateControl *safetyShutter_;
-	/// The photon shutter.
-	CLSBiStateControl *photonShutter_;
 };
 
 #endif // BIOXASMAINBEAMLINE_H

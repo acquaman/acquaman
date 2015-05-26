@@ -23,6 +23,7 @@
 #include "ui/dataman/AMEXAFSScanAxisView.h"
 #include "ui/util/AMPeriodicTableDialog.h"
 
+#include "util/AMDateTimeUtils.h"
 #include "util/AMEnergyToKSpaceCalculator.h"
 #include "util/AMPeriodicTable.h"
 #include "util/AMElement.h"
@@ -275,7 +276,7 @@ void SXRMBEXAFSScanConfigurationView::onScanNameEdited()
 
 void SXRMBEXAFSScanConfigurationView::onEstimatedTimeChanged()
 {
-	estimatedTime_->setText("Estimated time per scan:\t" + SXRMB::convertTimeToString(configuration_->totalTime()));
+	estimatedTime_->setText("Estimated time per scan:\t" + AMDateTimeUtils::convertTimeToString(configuration_->totalTime()));
 }
 
 void SXRMBEXAFSScanConfigurationView::setEnergy()

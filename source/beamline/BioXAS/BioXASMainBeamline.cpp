@@ -28,6 +28,25 @@ BioXASMainBeamline::~BioXASMainBeamline()
 
 }
 
+bool BioXASMainBeamline::isConnected() const
+{
+	bool newState = (
+				// General BioXAS components.
+				BioXASBeamline::isConnected() &&
+
+				// Monochromator
+				mono_->isConnected() &&
+
+				// M2 mirror
+				m2Mirror_->isConnected() &&
+
+				// Scaler
+				scaler_->isConnected()
+				);
+
+	return newState;
+}
+
 QList<AMControl *> BioXASMainBeamline::getMotorsByType(BioXASBeamlineDef::BioXASMotorType category)
 {
 	QList<AMControl *> matchedMotors;
@@ -105,55 +124,6 @@ QList<AMControl *> BioXASMainBeamline::getMotorsByType(BioXASBeamlineDef::BioXAS
 	return matchedMotors;
 }
 
-AMAction3* BioXASMainBeamline::createTurnOffBeamActions()
-{
-	AMListAction3 *action = 0;
-
-	if (photonShutter_->isConnected() && safetyShutter_->isConnected()) {
-		action = new AMListAction3(new AMListActionInfo3("BeamOffActions", "BeamOffActions"), AMListAction3::Sequential);
-		action->addSubAction(AMActionSupport::buildControlMoveAction(photonShutter_, 0));
-		action->addSubAction(AMActionSupport::buildControlMoveAction(safetyShutter_, 0));
-	}
-
-	return action;
-}
-
-AMAction3* BioXASMainBeamline::createTurnOnBeamActions()
-{
-	AMListAction3 *action = 0;
-
-	if (photonShutter_->isConnected() && safetyShutter_->isConnected()) {
-		action = new AMListAction3(new AMListActionInfo3("BeamOnActions", "BeamOnActions"), AMListAction3::Sequential);
-		action->addSubAction(AMActionSupport::buildControlMoveAction(safetyShutter_, 1));
-		action->addSubAction(AMActionSupport::buildControlMoveAction(photonShutter_, 1));
-	}
-
-	return action;
-}
-
-void BioXASMainBeamline::onConnectedChanged()
-{
-	bool newState = (
-				// Shutters
-				photonShutter_->isConnected() &&
-				safetyShutter_->isConnected() &&
-
-				// M2 mirror
-				m2Mirror_->isConnected() &&
-
-				// Monochromator
-				mono_->isConnected() &&
-
-				// Scaler
-				scaler_->isConnected()
-				);
-
-	if (connected_ != newState) {
-		connected_ = newState;
-		emit connected(connected_);
-	}
-}
-
 void BioXASMainBeamline::setupDiagnostics()
 {
 
@@ -166,11 +136,11 @@ void BioXASMainBeamline::setupControlSets()
 
 void BioXASMainBeamline::setupDetectors()
 {
-	i0Detector_ = new CLSBasicScalerChannelDetector("I0Detector", "I0 Detector", scaler_, 0, this);
+	i0Detector_ = new CLSBasicScalerChannelDetector("I0Detector", "I0 Detector", scaler_, 16, this);
 
-	i1Detector_ = new CLSBasicScalerChannelDetector("I1Detector", "I1 Detector", scaler_, 1, this);
+	i1Detector_ = new CLSBasicScalerChannelDetector("I1Detector", "I1 Detector", scaler_, 17, this);
 
-	i2Detector_ = new CLSBasicScalerChannelDetector("I2Detector", "I2 Detector", scaler_, 15, this);
+	i2Detector_ = new CLSBasicScalerChannelDetector("I2Detector", "I2 Detector", scaler_, 18, this);
 }
 
 void BioXASMainBeamline::setupSampleStage()
@@ -181,20 +151,19 @@ void BioXASMainBeamline::setupSampleStage()
 void BioXASMainBeamline::setupMono()
 {
 	mono_ = new BioXASMainMonochromator(this);
-	connect( mono_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()) );
+	connect( mono_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 }
 
 void BioXASMainBeamline::setupComponents()
 {
-	// Shutters
-
-	photonShutter_ = new CLSBiStateControl("PhotonShutter", "Main BL photon shutter", "IPSH1407-I00-02:state", "IPSH1407-I00-02:opr:open", "IPSH1407-I00-02:opr:close", new AMControlStatusCheckerDefault(2), this);
-	safetyShutter_ = new CLSBiStateControl("SafetyShutter", "Main BL Safety Shutter", "SSH1407-I00-01:state", "SSH1407-I00-01:opr:open", "SSH1407-I00-01:opr:close", new AMControlStatusCheckerDefault(2), this);
+	// The Main endstation safety shutter.
+	safetyShutterDownstream_ = new  CLSBiStateControl("MainShutter", "MainShutter", "SSH1607-5-I21-01:state", "SSH1607-5-I21-01:opr:open", "SSH1607-5-I21-01:opr:close", new AMControlStatusCheckerDefault(2), this);
+	connect( safetyShutterDownstream_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
 	// Scaler
 
 	scaler_ = new CLSSIS3820Scaler("BL1607-5-I21:mcs", this);
-	connect( scaler_, SIGNAL(connectedChanged(bool)), this, SLOT(onConnectedChanged()) );
+	connect( scaler_, SIGNAL(connectedChanged(bool)), this, SLOT(updateConnected()) );
 
 	scalerDwellTime_ = new AMReadOnlyPVControl("ScalerDwellTime", "BL1607-5-I21:mcs:delay", this, "Scaler dwell time");
 
@@ -222,7 +191,7 @@ void BioXASMainBeamline::setupComponents()
 	// M2 Mirror.
 
 	m2Mirror_ = new BioXASMainM2Mirror(this);
-	connect( m2Mirror_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()) );
+	connect( m2Mirror_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 }
 
 void BioXASMainBeamline::setupExposedControls()
@@ -248,16 +217,16 @@ void BioXASMainBeamline::setupExposedControls()
 
 void BioXASMainBeamline::setupExposedDetectors()
 {
+	addExposedDetector(dwellTimeDetector_);
 	addExposedDetector(i0Detector_);
 	addExposedDetector(i1Detector_);
 	addExposedDetector(i2Detector_);
 	addExposedDetector(energySetpointDetector_);
 	addExposedDetector(energyFeedbackDetector_);
-	addExposedDetector(dwellTimeDetector_);
 	addExposedDetector(braggDetector_);
+	addExposedDetector(braggEncoderFeedbackDetector_);
 	addExposedDetector(braggMoveRetriesDetector_);
 	addExposedDetector(braggStepSetpointDetector_);
-	addExposedDetector(braggAngleDetector_);
 }
 
 void BioXASMainBeamline::setupMotorGroup()
@@ -304,28 +273,26 @@ void BioXASMainBeamline::setupControlsAsDetectors()
 
 	dwellTimeDetector_ = new AMBasicControlDetectorEmulator("DwellTimeFeedback", "Dwell Time Feedback", scalerDwellTime_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
 
-	braggDetector_ = new AMBasicControlDetectorEmulator("MonoFeedback", "Mono Bragg Motor Feedback", mono_->braggMotor(), 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	braggDetector_ = new AMBasicControlDetectorEmulator("GoniometerMotorFeedback", "Goniometer Motor Feedback", mono_->braggMotor(), 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
 	braggDetector_->setHiddenFromUsers(false);
 	braggDetector_->setIsVisible(true);
 
-	braggMoveRetriesDetector_ = new AMBasicControlDetectorEmulator("MonoMoveRetries", "Number of mono bragg move retries", mono_->braggMotor()->retries(), 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	braggEncoderFeedbackDetector_ = new AMBasicControlDetectorEmulator("GoniometerMotorEncoderFeedback", "Goniometer Motor Encoder Feedback", mono_->braggMotor()->encoderFeedbackControl(), 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	braggEncoderFeedbackDetector_->setHiddenFromUsers(false);
+	braggEncoderFeedbackDetector_->setIsVisible(true);
+
+	braggMoveRetriesDetector_ = new AMBasicControlDetectorEmulator("GoniometerMotorMoveRetries", "Number of goniometer motor move retries", mono_->braggMotor()->retries(), 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
 	braggMoveRetriesDetector_->setHiddenFromUsers(false);
 	braggMoveRetriesDetector_->setIsVisible(true);
 
-	braggStepSetpointDetector_ = new AMBasicControlDetectorEmulator("MonoStepSetpoint", "Mono bragg motor step setpoint", mono_->braggMotor()->stepSetpointControl(), 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	braggStepSetpointDetector_ = new AMBasicControlDetectorEmulator("GoniometerMotorStepSetpoint", "Goniometer motor step setpoint", mono_->braggMotor()->stepSetpointControl(), 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
 	braggStepSetpointDetector_->setHiddenFromUsers(false);
 	braggStepSetpointDetector_->setIsVisible(true);
-
-	braggAngleDetector_ = new AMBasicControlDetectorEmulator("BraggAngle", "Physical bragg angle", mono_->energyControl()->braggAngleControl(), 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
-	braggAngleDetector_->setHiddenFromUsers(false);
-	braggAngleDetector_->setIsVisible(true);
 }
 
 BioXASMainBeamline::BioXASMainBeamline()
 	: BioXASBeamline("BioXAS Beamline - Main Endstation")
 {
-	connected_ = false;
-
 	setupComponents();
 	setupDiagnostics();
 	setupSampleStage();

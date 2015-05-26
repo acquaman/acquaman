@@ -37,6 +37,12 @@ protected slots:
 	void onKeyStatusChanged();
 	/// Handles updating the brake status view when the mono's brake status changes.
 	void onBrakeStatusChanged();
+	/// Handles updating the 'bragg at crystal change position' status when the mono indicates a change.
+	void onBraggAtCrystalChangePositionStatusChanged();
+	/// Handles updating the region A status view when the mono's region A status changes.
+	void onRegionAStatusChanged();
+	/// Handles updating the region B status view when the mono's region B status changes.
+	void onRegionBStatusChanged();
 
 protected:
 	/// The region control being viewed.
@@ -46,18 +52,36 @@ protected:
 	QLabel *slitsStatusGreen_;
 	/// Label displaying the slits status red LED.
 	QLabel *slitsStatusRed_;
+
 	/// Label displaying the paddle status green LED.
 	QLabel *paddleStatusGreen_;
 	/// Label displaying the paddle status red LED.
 	QLabel *paddleStatusRed_;
+
 	/// Label displaying the key status green LED.
 	QLabel *keyStatusGreen_;
 	/// Label displaying the key status red LED.
 	QLabel *keyStatusRed_;
+
 	/// Label displaying the brake status green LED.
 	QLabel *brakeStatusGreen_;
 	/// Label displaying the brake status red LED.
 	QLabel *brakeStatusRed_;
+
+	/// Label displaying the 'bragg at crystal change position' status green LED.
+	QLabel *braggInPositionGreen_;
+	/// Label displaying the 'bragg at crystal change position' status red LED.
+	QLabel *braggInPositionRed_;
+
+	/// Label displaying the region A status green LED.
+	QLabel *regionAStatusGreen_;
+	/// Label displaying the region A status red LED.
+	QLabel *regionAStatusRed_;
+
+	/// Label displaying the region B status green LED.
+	QLabel *regionBStatusGreen_;
+	/// Label displaying the region B status red LED.
+	QLabel *regionBStatusRed_;
 };
 
 #endif // BIOXASSSRLMONOCHROMATORREGIONCONTROLVIEW_H

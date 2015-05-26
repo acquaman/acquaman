@@ -91,6 +91,10 @@ protected slots:
 	void updateStep(double val) { step_->setValue(val*1000); }
 	/// Helper slot that sets whether we export spectra in rows or columns.
 	void updateExportSpectraInRows(bool exportInColumns) { configuration_->setExportSpectraInRows(!exportInColumns); }
+	/// Helper slot that sets the close fast shutter after scan option.
+	void setCloseFastShutter(bool close) { configuration_->setCloseFastShutter(close); }
+	/// Helper slot that sets the return to original position after scan option.
+	void setReturnToOriginalPosition(bool returnToOriginalPosition) { configuration_->setReturnToOriginalPosition(returnToOriginalPosition); }
 
 protected:
 	/// Helper method that updates the x and y step spin boxes if the map is not possible to change.

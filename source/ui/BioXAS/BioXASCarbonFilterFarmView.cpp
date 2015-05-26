@@ -1,14 +1,15 @@
 #include "BioXASCarbonFilterFarmView.h"
 #include "ui/beamline/AMExtendedControlEditor.h"
 
-BioXASCarbonFilterFarmView::BioXASCarbonFilterFarmView(BioXASCarbonFilterFarmControl *filterFarm, QWidget *parent) :
+BioXASCarbonFilterFarmView::BioXASCarbonFilterFarmView(BioXASCarbonFilterFarm *filterFarm, QWidget *parent) :
     QWidget(parent)
 {
 	// Initialize member variables.
 
 	filterFarm_ = 0;
 
-	editor_ = new AMExtendedControlEditor(0);
+	filterEditor_ = new AMExtendedControlEditor(0);
+	filterEditor_->setTitle("Active filter thickness");
 
 	upstreamEditor_ = new AMExtendedControlEditor(0);
 	upstreamEditor_->setTitle("Actuator control");
@@ -47,7 +48,7 @@ BioXASCarbonFilterFarmView::BioXASCarbonFilterFarmView(BioXASCarbonFilterFarmCon
 	downstreamTesting->setLayout(downstreamTestingLayout);
 
 	QVBoxLayout *layout = new QVBoxLayout();
-	layout->addWidget(editor_);
+	layout->addWidget(filterEditor_);
 	layout->addWidget(upstreamTesting);
 	layout->addWidget(downstreamTesting);
 
@@ -63,7 +64,7 @@ BioXASCarbonFilterFarmView::~BioXASCarbonFilterFarmView()
 
 }
 
-void BioXASCarbonFilterFarmView::setFilterFarm(BioXASCarbonFilterFarmControl *newFilterFarm)
+void BioXASCarbonFilterFarmView::setFilterFarm(BioXASCarbonFilterFarm *newFilterFarm)
 {
 	if (filterFarm_ != newFilterFarm) {
 
@@ -71,7 +72,7 @@ void BioXASCarbonFilterFarmView::setFilterFarm(BioXASCarbonFilterFarmControl *ne
 
 			// Clear UI elements.
 
-			editor_->setControl(0);
+			filterEditor_->setControl(0);
 
 			upstreamEditor_->setControl(0);
 			upstreamPositionEditor_->setControl(0);
@@ -88,15 +89,15 @@ void BioXASCarbonFilterFarmView::setFilterFarm(BioXASCarbonFilterFarmControl *ne
 
 			// Update UI elements.
 
-			editor_->setControl(filterFarm_);
+			filterEditor_->setControl(filterFarm_->filterControl());
 
 			upstreamEditor_->setControl(filterFarm_->upstreamActuatorControl());
-			upstreamPositionEditor_->setControl(filterFarm_->upstreamActuatorControl()->positionControl());
-			upstreamPositionStatusEditor_->setControl(filterFarm_->upstreamActuatorControl()->statusControl());
+			upstreamPositionEditor_->setControl(filterFarm_->upstreamPositionControl());
+			upstreamPositionStatusEditor_->setControl(filterFarm_->upstreamStatusControl());
 
 			downstreamEditor_->setControl(filterFarm_->downstreamActuatorControl());
-			downstreamPositionEditor_->setControl(filterFarm_->downstreamActuatorControl()->positionControl());
-			downstreamPositionStatusEditor_->setControl(filterFarm_->downstreamActuatorControl()->statusControl());
+			downstreamPositionEditor_->setControl(filterFarm_->downstreamPositionControl());
+			downstreamPositionStatusEditor_->setControl(filterFarm_->downstreamStatusControl());
 		}
 
 		emit filterFarmChanged(filterFarm_);
