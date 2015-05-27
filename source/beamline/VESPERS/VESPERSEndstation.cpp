@@ -453,3 +453,9 @@ bool VESPERSEndstation::ccdInSafePosition() const
 	else
 		return ccdControl_->value() > softLimits_.value(ccdControl_).maximum() || controlWithinTolerance(ccdControl_, ccdControl_->value(), softLimits_.value(ccdControl_).maximum());
 }
+
+void VESPERSEndstation::toggleLaserPower()
+{
+	laserPower_->move(laserPowered() ? 0 : 1);
+	emit laserPoweredChanged();
+}

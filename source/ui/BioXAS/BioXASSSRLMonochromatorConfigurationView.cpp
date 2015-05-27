@@ -71,6 +71,10 @@ BioXASSSRLMonochromatorConfigurationView::BioXASSSRLMonochromatorConfigurationVi
 	controlsViewLayout->addWidget(upperSlitEditor_);
 	controlsViewLayout->addWidget(lowerSlitEditor_);
 	controlsViewLayout->addWidget(paddleEditor_);
+	controlsViewLayout->addWidget(crystal1PitchEditor_);
+	controlsViewLayout->addWidget(crystal1RollEditor_);
+	controlsViewLayout->addWidget(crystal2PitchEditor_);
+	controlsViewLayout->addWidget(crystal2RollEditor_);
 
 	QGroupBox *controlsView = new QGroupBox("Controls");
 	controlsView->setLayout(controlsViewLayout);
