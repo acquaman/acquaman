@@ -70,15 +70,17 @@ AMScanConfigurationViewHolder3::AMScanConfigurationViewHolder3(const QString &fr
 
 			QVBoxLayout *VLayout = new QVBoxLayout;
 			VLayout->addWidget(topFrame_);
+
 			VLayout->addStretch();
 			VLayout->addLayout(HLayout);
 			VLayout->addStretch();
 
-			QGroupBox *groupBox = new QGroupBox();
-			groupBox->setFlat(true);
-			groupBox->setLayout(VLayout);
+			QWidget *wid = new QWidget;
+			wid->setContentsMargins(0, -40, 0, 0);
+			wid->setLayout(VLayout);
 
-			addWidget(groupBox);
+			addWidget(wid);
+
 
 		}
 
@@ -94,6 +96,9 @@ AMScanConfigurationViewHolder3::AMScanConfigurationViewHolder3(const QString &fr
 	addWidget(disabledWarning_);
 
 }
+
+
+
 
 
 void AMScanConfigurationViewHolder3::setView(AMScanConfigurationView *view) {

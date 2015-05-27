@@ -164,6 +164,7 @@ void AMActionRunnerAddActionBar3::addWidget(QWidget *widget)
 		return;
 
 	layout_->insertWidget(0, widget);
+
 }
 
 void AMActionRunnerAddActionBar3::addActionToQueue(ActionQueue::QueueOperation operation)
