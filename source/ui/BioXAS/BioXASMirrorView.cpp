@@ -24,8 +24,14 @@ BioXASMirrorView::BioXASMirrorView(BioXASMirror *mirror, QWidget *parent) :
 	rollEditor_ = new AMExtendedControlEditor(0);
 	rollEditor_->setTitle("Roll");
 
+	yawEditor_ = new AMExtendedControlEditor(0);
+	yawEditor_->setTitle("Yaw");
+
 	heightEditor_ = new AMExtendedControlEditor(0);
 	heightEditor_->setTitle("Height");
+
+	lateralEditor_ = new AMExtendedControlEditor(0);
+	lateralEditor_->setTitle("Lateral");
 
 	// Create and set layouts.
 
@@ -36,7 +42,9 @@ BioXASMirrorView::BioXASMirrorView(BioXASMirror *mirror, QWidget *parent) :
 	layout->addWidget(downstreamEditor_);
 	layout->addWidget(pitchEditor_);
 	layout->addWidget(rollEditor_);
+	layout->addWidget(yawEditor_);
 	layout->addWidget(heightEditor_);
+	layout->addWidget(lateralEditor_);
 
 	setLayout(layout);
 
@@ -60,7 +68,9 @@ void BioXASMirrorView::setMirror(BioXASMirror *newMirror)
 			downstreamEditor_->setControl(0);
 			pitchEditor_->setControl(0);
 			rollEditor_->setControl(0);
+			yawEditor_->setControl(0);
 			heightEditor_->setControl(0);
+			lateralEditor_->setControl(0);
 		}
 
 		mirror_ = newMirror;
@@ -71,7 +81,9 @@ void BioXASMirrorView::setMirror(BioXASMirror *newMirror)
 			downstreamEditor_->setControl(mirror_->downstreamControl());
 			pitchEditor_->setControl(mirror_->pitchControl());
 			rollEditor_->setControl(mirror_->rollControl());
+			yawEditor_->setControl(mirror_->yawControl());
 			heightEditor_->setControl(mirror_->heightControl());
+			lateralEditor_->setControl(mirror_->lateralControl());
 		}
 
 		emit mirrorChanged(mirror_);

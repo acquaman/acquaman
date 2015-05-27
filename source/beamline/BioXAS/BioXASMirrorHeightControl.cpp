@@ -11,9 +11,7 @@ BioXASMirrorHeightControl::BioXASMirrorHeightControl(const QString &name, const 
 
 	// Current settings.
 
-	updateConnected();
-	updateValue();
-	updateIsMoving();
+	updateStates();
 }
 
 BioXASMirrorHeightControl::~BioXASMirrorHeightControl()

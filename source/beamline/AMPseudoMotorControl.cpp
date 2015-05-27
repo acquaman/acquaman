@@ -192,7 +192,7 @@ void AMPseudoMotorControl::updateStates()
 {
 	updateConnected();
 	updateValue();
-	updateIsMoving();
+	updateMoving();
 }
 
 void AMPseudoMotorControl::onMoveStarted(QObject *action)
@@ -222,7 +222,7 @@ void AMPseudoMotorControl::onMoveSucceeded(QObject *action)
 void AMPseudoMotorControl::moveCleanup(QObject *action)
 {
 	setMoveInProgress(false);
-	updateIsMoving();
+	updateMoving();
 
 	if (action) {
 		action->disconnect();

@@ -11,9 +11,7 @@ BioXASMirrorRollControl::BioXASMirrorRollControl(const QString &name, const QStr
 
 	// Current settings.
 
-	updateConnected();
-	updateValue();
-	updateIsMoving();
+	updateStates();
 }
 
 BioXASMirrorRollControl::~BioXASMirrorRollControl()

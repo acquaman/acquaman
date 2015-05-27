@@ -11,9 +11,7 @@ BioXASMirrorPitchControl::BioXASMirrorPitchControl(const QString &name, const QS
 
 	// Current settings.
 
-	updateConnected();
-	updateValue();
-	updateIsMoving();
+	updateStates();
 }
 
 BioXASMirrorPitchControl::~BioXASMirrorPitchControl()

@@ -162,7 +162,7 @@ void CLSJJSlitBladesControl::updateStates()
 	updateGap();
 	updateCenterPosition();
 	updateValue();
-	updateIsMoving();
+	updateMoving();
 }
 
 void CLSJJSlitBladesControl::updateConnected()
@@ -175,10 +175,9 @@ void CLSJJSlitBladesControl::updateConnected()
 	setConnected(connected);
 }
 
-void CLSJJSlitBladesControl::updateIsMoving()
+void CLSJJSlitBladesControl::updateMoving()
 {
 	if (isConnected()) {
-		qDebug() << name() << "updating isMoving state.";
 		setIsMoving( upperBladeControl_->isMoving() || lowerBladeControl_->isMoving() );
 	}
 }

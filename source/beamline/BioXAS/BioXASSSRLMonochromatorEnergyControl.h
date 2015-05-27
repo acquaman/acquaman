@@ -84,7 +84,7 @@ protected slots:
 	/// Updates the current value.
 	virtual void updateValue();
 	/// Updates the 'is moving' state.
-	virtual void updateIsMoving();
+	virtual void updateMoving();
 
 protected:
 	/// Creates and returns a move action.

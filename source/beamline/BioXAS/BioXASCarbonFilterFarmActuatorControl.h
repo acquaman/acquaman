@@ -88,7 +88,7 @@ protected slots:
 	/// Updates the current value.
 	virtual void updateValue();
 	/// Updates the 'is moving' state.
-	virtual void updateIsMoving();
+	virtual void updateMoving();
 
 protected:
 	/// Returns a new action that moves the actuator to the desired window setpoint. Returns 0 if unable to move or if the setpoint is invalid.

@@ -29,6 +29,12 @@ BioXASSideM1Mirror::BioXASSideM1Mirror(QObject *parent) :
 	height_->setUpstreamOutboardControl(upstreamOutboard_);
 	height_->setDownstreamControl(downstream_);
 
+	lateral_ = new BioXASMirrorLateralControl(name_+"LateralControl", "mm", this);
+	lateral_->setStripeSelectionControl(stripeSelect_);
+	lateral_->setYawControl(yaw_);
+	lateral_->setUpstreamLength(-543.725);
+	lateral_->setDownstreamLength(543.725);
+
 	// Make connections.
 
 	connect( upstreamInboard_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
@@ -43,6 +49,7 @@ BioXASSideM1Mirror::BioXASSideM1Mirror(QObject *parent) :
 	connect( pitch_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 	connect( roll_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 	connect( height_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+	connect( lateral_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 }
 
 BioXASSideM1Mirror::~BioXASSideM1Mirror()

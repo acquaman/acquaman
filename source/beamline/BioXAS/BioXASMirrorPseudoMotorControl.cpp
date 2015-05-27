@@ -134,7 +134,7 @@ void BioXASMirrorPseudoMotorControl::updateConnected()
 	setConnected(isConnected);
 }
 
-void BioXASMirrorPseudoMotorControl::updateIsMoving()
+void BioXASMirrorPseudoMotorControl::updateMoving()
 {
 	if (isConnected()) {
 		bool isMoving = (

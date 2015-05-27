@@ -6,6 +6,7 @@
 #include "beamline/BioXAS/BioXASMirrorPitchControl.h"
 #include "beamline/BioXAS/BioXASMirrorRollControl.h"
 #include "beamline/BioXAS/BioXASMirrorHeightControl.h"
+#include "beamline/BioXAS/BioXASMirrorLateralControl.h"
 
 class BioXASMirror : public BioXASBeamlineComponent
 {
@@ -41,6 +42,8 @@ public:
 	AMControl* rollControl() const { return roll_; }
 	/// Returns the height control.
 	AMControl* heightControl() const { return height_; }
+	/// Returns the lateral control.
+	AMControl* lateralControl() const { return lateral_; }
 
 protected:
 	/// The upstream inboard motor control.
@@ -64,6 +67,8 @@ protected:
 	BioXASMirrorRollControl *roll_;
 	/// The height pseudomotor control.
 	BioXASMirrorHeightControl *height_;
+	/// The lateral pseudomotor control.
+	BioXASMirrorLateralControl *lateral_;
 };
 
 #endif // BIOXASMIRROR_H

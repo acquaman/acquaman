@@ -14,17 +14,28 @@ BioXASSideM2Mirror::BioXASSideM2Mirror(QObject *parent) :
 	yaw_ = new CLSMAXvMotor(QString("SMTR1607-5-I22-19 YAW"), QString("SMTR1607-5-I22-19"), QString("SMTR1607-5-I22-19 YAW"), true, 0.05, 2.0, this, QString(":mm"));
 	benderUpstream_ = new CLSMAXvMotor(QString("SMTR1607-5-I22-20 BENDER (UPSTREAM)"), QString("SMTR1607-5-I22-20"), QString("SMTR1607-5-I22-20 BENDER (UPSTREAM)"), true, 0.05, 2.0, this, QString(":lbs"));
 	benderDownstream_ = new CLSMAXvMotor(QString("SMTR1607-5-I22-21 BENDER (DOWNSTREAM)"), QString("SMTR1607-5-I22-21"), QString("SMTR1607-5-I22-21 BENDER (DOWNSTREAM)"), true, 0.05, 2.0, this, QString(":lbs"));
-	screen_ = new AMSinglePVControl("M2FluorescenceScreen", "VSC1607-5-I22-02:InBeam", this);
+	screen_ = new AMSinglePVControl(name_+"FluorescentScreen", "VSC1607-5-I22-02:InBeam", this);
 
-	pitch_ = new BioXASMirrorPitchControl("M2PitchControl", "deg", this);
+	pitch_ = new BioXASMirrorPitchControl(name_+"PitchControl", "deg", this);
 	pitch_->setUpstreamInboardControl(upstreamInboard_);
 	pitch_->setUpstreamOutboardControl(upstreamOutboard_);
 	pitch_->setDownstreamControl(downstream_);
 
-	roll_ = new BioXASMirrorRollControl("M2RollControl", "deg", this);
+	roll_ = new BioXASMirrorRollControl(name_+"RollControl", "deg", this);
 	roll_->setUpstreamInboardControl(upstreamInboard_);
 	roll_->setUpstreamOutboardControl(upstreamOutboard_);
 	roll_->setDownstreamControl(downstream_);
+
+	height_ = new BioXASMirrorHeightControl(name_+"HeightControl", "mm", this);
+	height_->setUpstreamInboardControl(upstreamInboard_);
+	height_->setUpstreamOutboardControl(upstreamOutboard_);
+	height_->setDownstreamControl(downstream_);
+
+	lateral_ = new BioXASMirrorLateralControl(name_+"LateralControl", "mm", this);
+	lateral_->setStripeSelectionControl(stripeSelect_);
+	lateral_->setYawControl(yaw_);
+	lateral_->setUpstreamLength(-543.725);
+	lateral_->setDownstreamLength(543.725);
 
 	// Make connections.
 
@@ -39,6 +50,8 @@ BioXASSideM2Mirror::BioXASSideM2Mirror(QObject *parent) :
 
 	connect( pitch_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 	connect( roll_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+	connect( height_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+	connect( lateral_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 }
 
 BioXASSideM2Mirror::~BioXASSideM2Mirror()

@@ -86,7 +86,7 @@ protected slots:
 	/// Updates the current value.
 	virtual void updateValue() = 0;
 	/// Updates the 'is moving' state.
-	virtual void updateIsMoving() = 0;
+	virtual void updateMoving() = 0;
 
 	/// Handles emitting the appropriate signals when a move action has started.
 	virtual void onMoveStarted(QObject *action);

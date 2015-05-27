@@ -29,9 +29,7 @@ BioXASSSRLMonochromatorEnergyControl::BioXASSSRLMonochromatorEnergyControl(const
 
 	// Current settings.
 
-	updateConnected();
-	updateValue();
-	updateIsMoving();
+	updateStates();
 }
 
 BioXASSSRLMonochromatorEnergyControl::~BioXASSSRLMonochromatorEnergyControl()
@@ -175,7 +173,7 @@ void BioXASSSRLMonochromatorEnergyControl::updateValue()
 	}
 }
 
-void BioXASSSRLMonochromatorEnergyControl::updateIsMoving()
+void BioXASSSRLMonochromatorEnergyControl::updateMoving()
 {
 	if (isConnected()) {
 		setIsMoving( bragg_->isMoving() );
