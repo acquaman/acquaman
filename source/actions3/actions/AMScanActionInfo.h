@@ -122,7 +122,8 @@ public:
 
 	/*!
 	  * The load warning from the scan action info. Actually returns the load
-	  * warning for the contained scan configuration.
+	  * warning for the contained scan configuration. If the scan configuration
+	  * could not be initialized at all then a generic error message is returned.
 	  */
 	virtual QString dbLoadWarnings() const;
 
