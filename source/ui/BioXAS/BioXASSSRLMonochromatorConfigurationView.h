@@ -69,6 +69,14 @@ protected:
 	AMExtendedControlEditor *lowerSlitEditor_;
 	/// The paddle editor.
 	AMExtendedControlEditor *paddleEditor_;
+	/// The crystal 1 pitch editor.
+	AMExtendedControlEditor *crystal1PitchEditor_;
+	/// The crystal 1 roll editor.
+	AMExtendedControlEditor *crystal1RollEditor_;
+	/// The crystal 2 pitch editor.
+	AMExtendedControlEditor *crystal2PitchEditor_;
+	/// The crystal 2 roll editor.
+	AMExtendedControlEditor *crystal2RollEditor_;
 
 	/// The region status display.
 	BioXASSSRLMonochromatorRegionControlView *regionStatusWidget_;
