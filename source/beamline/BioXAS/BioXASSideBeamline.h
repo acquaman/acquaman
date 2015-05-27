@@ -298,6 +298,9 @@ protected:
 	/// Sets up all of the detectors that need to be added to scans that aren't a part of typical detectors.  This may just be temporary, not sure.
 	void setupControlsAsDetectors();
 
+	// Temporarily makes the mirror controls available, until the branch that this work is being done in is merged. Then it should be safe to remove this!
+	void setupMirrorControls();
+
 	/// Constructor. This is a singleton class, access it through BioXASSideBeamline::bioXAS().
 	BioXASSideBeamline();
 
