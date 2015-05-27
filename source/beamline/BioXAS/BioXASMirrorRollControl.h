@@ -3,13 +3,13 @@
 
 #include "beamline/BioXAS/BioXASMirrorPseudoMotorControl.h"
 
-class BioXASMirrorRollControl : public BioXASMirrorPseudoMotorControl
+class BioXASMirrorRollControl : public BioXASMirrorMotorControl
 {
     Q_OBJECT
 
 public:
 	/// Constructor.
-	explicit BioXASMirrorRollControl(const QString &name, const QString &units = QString("deg"), QObject *parent = 0, const QString &description = QString());
+	explicit BioXASMirrorRollControl(const QString &name, const QString &units, double upstreamLength, double downstreamLength, QObject *parent = 0, const QString &description = QString());
 	/// Destructor.
 	virtual ~BioXASMirrorRollControl();
 
@@ -18,8 +18,8 @@ protected slots:
 	virtual void updateValue();
 
 protected:
-	/// Creates and returns a move action.
-	virtual AMAction3* createMoveAction(double setpoint);
+	/// Creates and returns a move action iteration.
+	virtual AMAction3* createMoveActionIteration(double setpoint);
 
 	/// Calculates and returns the upstream inboard z position (mm) for the given roll (deg) and motor positions.
 	static double calculateUpstreamInboardZ(double roll, double upstreamInboardX, double upstreamInboardY, double upstreamOutboardX, double upstreamOutboardY, double upstreamOutboardZ, double downstreamX, double downstreamY, double downstreamZ);

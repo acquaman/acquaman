@@ -1,15 +1,15 @@
 #ifndef BIOXASMIRRORLATERALCONTROL_H
 #define BIOXASMIRRORLATERALCONTROL_H
 
-#include "beamline/AMPseudoMotorControl.h"
+#include "beamline/BioXAS/BioXASMirrorControl.h"
 
-class BioXASMirrorLateralControl : public AMPseudoMotorControl
+class BioXASMirrorLateralControl : public BioXASMirrorControl
 {
     Q_OBJECT
 
 public:
 	/// Constructor.
-	explicit BioXASMirrorLateralControl(const QString &name, const QString &units, QObject *parent = 0, const QString &description = QString());
+	explicit BioXASMirrorLateralControl(const QString &name, const QString &units, double upstreamLength, double downstreamLength, QObject *parent = 0, const QString &description = QString());
 	/// Destructor.
 	virtual ~BioXASMirrorLateralControl();
 
@@ -27,11 +27,6 @@ public:
 	/// Returns true if this control can stop right now. False otherwise.
 	virtual bool canStop() const;
 
-	/// Returns the upstream mirror length.
-	double upstreamLength() const { return upstreamLength_; }
-	/// Returns the downstream mirror length.
-	double downstreamLength() const { return downstreamLength_; }
-
 	/// Returns the stripe selection motor control.
 	AMControl* stripeSelectionControl() const { return stripeSelect_; }
 	/// Returns the yaw motor control.
@@ -43,20 +38,12 @@ public:
 	virtual bool validSetpoint(double value) const { Q_UNUSED(value) return true; }
 
 signals:
-	/// Notifier that the upstream mirror length has changed.
-	void upstreamLengthChanged(double newValue);
-	/// Notifier that the downstream mirror length has changed.
-	void downstreamLengthChanged(double newValue);
 	/// Notifier that the stripe selection motor control has changed.
 	void stripeSelectionControlChanged(AMControl *newControl);
 	/// Notifier that the yaw motor control has changed.
 	void yawControlChanged(AMControl *newControl);
 
 public slots:
-	/// Sets the upstream mirror length.
-	void setUpstreamLength(double newLength);
-	/// Sets the downstream mirror length.
-	void setDownstreamLength(double newLength);
 	/// Sets the stripe selection motor control.
 	void setStripeSelectionControl(AMControl *newControl);
 	/// Sets the yaw motor control.
@@ -71,8 +58,8 @@ protected slots:
 	virtual void updateMoving();
 
 protected:
-	/// Creates and returns a move action.
-	virtual AMAction3* createMoveAction(double setpoint);
+	/// Creates and returns a move action iteration.
+	virtual AMAction3* createMoveActionIteration(double setpoint);
 
 	/// Calculates and returns the lateral motor position for the given lateral displacement, mirror lengths, and yaw motor position.
 	double calculateLateralPosition(double lateralDisplacement, double upstreamLength, double downstreamLength, double yawPosition);
@@ -82,10 +69,6 @@ protected:
 	double calculateLateralDisplacement(double upstreamLength, double downstreamLength, double lateralPosition, double yawPosition);
 
 protected:
-	/// The upstream mirror length.
-	double upstreamLength_;
-	/// The downstream mirror length.
-	double downstreamLength_;
 	/// The stripe selection (lateral) motor control.
 	AMControl *stripeSelect_;
 	/// The yaw motor control.

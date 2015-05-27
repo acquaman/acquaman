@@ -1,18 +1,18 @@
 #ifndef BIOXASMIRRORPSEUDOMOTORCONTROL_H
 #define BIOXASMIRRORPSEUDOMOTORCONTROL_H
 
-#include "beamline/AMPseudoMotorControl.h"
+#include "beamline/BioXAS/BioXASMirrorControl.h"
 #include "beamline/BioXAS/BioXASMirrorMotor.h"
 
-class BioXASMirrorPseudoMotorControl : public AMPseudoMotorControl
+class BioXASMirrorMotorControl : public BioXASMirrorControl
 {
     Q_OBJECT
 
 public:
 	/// Constructor.
-	explicit BioXASMirrorPseudoMotorControl(const QString &name, const QString &units = QString("deg"), QObject *parent = 0, const QString &description = QString());
+	explicit BioXASMirrorMotorControl(const QString &name, const QString &units, double upstreamLength, double downstreamLength, QObject *parent = 0, const QString &description = QString());
 	/// Destructor.
-	virtual ~BioXASMirrorPseudoMotorControl();
+	virtual ~BioXASMirrorMotorControl();
 
 	/// Returns true if the control value is always measureable, provided it is connected. False otherwise.
 	virtual bool shouldMeasure() const { return true; }
@@ -65,8 +65,8 @@ protected slots:
 	virtual void updateMoving();
 
 protected:
-	/// Creates and returns a move action.
-	virtual AMAction3* createMoveAction(double setpoint) = 0;
+	/// Creates and returns a move action iteration.
+	virtual AMAction3* createMoveActionIteration(double setpoint) = 0;
 
 protected:
 	/// The vertical upstream inboard motor control.

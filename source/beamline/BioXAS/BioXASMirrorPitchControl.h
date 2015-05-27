@@ -3,13 +3,13 @@
 
 #include "beamline/BioXAS/BioXASMirrorPseudoMotorControl.h"
 
-class BioXASMirrorPitchControl : public BioXASMirrorPseudoMotorControl
+class BioXASMirrorPitchControl : public BioXASMirrorMotorControl
 {
     Q_OBJECT
 
 public:
 	/// Constructor.
-	explicit BioXASMirrorPitchControl(const QString &name, const QString &units = QString("deg"), QObject *parent = 0, const QString &description = QString());
+	explicit BioXASMirrorPitchControl(const QString &name, const QString &units, double upstreamLength, double downstreamLength, QObject *parent = 0, const QString &description = QString());
 	/// Destructor.
 	virtual ~BioXASMirrorPitchControl();
 
@@ -18,8 +18,8 @@ protected slots:
 	virtual void updateValue();
 
 protected:
-	/// Creates and returns a move action.
-	virtual AMAction3* createMoveAction(double setpoint);
+	/// Creates and returns a move action iteration.
+	virtual AMAction3* createMoveActionIteration(double setpoint);
 
 	/// Calculates and returns the upstream inboard z position (mm) for the given pitch (deg) and motor positions.
 	static double calculateUpstreamInboardZ(double pitch, double upstreamInboardX, double upstreamInboardY, double upstreamOutboardX, double upstreamOutboardY, double upstreamOutboardZ, double downstreamX, double downstreamY, double downstreamZ);

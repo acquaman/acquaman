@@ -5,6 +5,9 @@ BioXASSideM1Mirror::BioXASSideM1Mirror(QObject *parent) :
 {
 	// Initialize inherited variables.
 
+	upstreamLength_ = -543.725;
+	downstreamLength_ = 543.725;
+
 	upstreamInboard_ = new BioXASMirrorMotor(QString("SMTR1607-5-I22-01 VERT INB (UPSTREAM)"), QString("SMTR1607-5-I22-01"), QString("SMTR1607-5-I22-01 VERT INB (UPSTREAM)"), true, -619.125, 190.438, 0.05, 2.0, this, QString(":mm"));
 	upstreamOutboard_ = new BioXASMirrorMotor(QString("SMTR1607-5-I22-02 VERT OUTB (UPSTREAM)"), QString("SMTR1607-5-I22-02"), QString("SMTR1607-5-I22-02 VERT OUTB (UPSTREAM)"), true, -619.125, -12.763, 0.05, 2.0, this, QString(":mm"));
 	downstream_ = new BioXASMirrorMotor(QString("SMTR1607-5-I22-03 VERT (DOWNSTREAM)"), QString("SMTR1607-5-I22-03"), QString("SMTR1607-5-I22-03 VERT (DOWNSTREAM)"), true, 619.125, 0, 0.05, 2.0, this, QString(":mm"));
@@ -32,8 +35,8 @@ BioXASSideM1Mirror::BioXASSideM1Mirror(QObject *parent) :
 	lateral_ = new BioXASMirrorLateralControl(name_+"LateralControl", "mm", this);
 	lateral_->setStripeSelectionControl(stripeSelect_);
 	lateral_->setYawControl(yaw_);
-	lateral_->setUpstreamLength(-543.725);
-	lateral_->setDownstreamLength(543.725);
+	lateral_->setUpstreamLength(upstreamLength_);
+	lateral_->setDownstreamLength(downstreamLength_);
 
 	// Make connections.
 

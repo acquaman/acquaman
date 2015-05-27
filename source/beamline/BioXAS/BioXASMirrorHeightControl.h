@@ -3,13 +3,13 @@
 
 #include "beamline/BioXAS/BioXASMirrorPseudoMotorControl.h"
 
-class BioXASMirrorHeightControl : public BioXASMirrorPseudoMotorControl
+class BioXASMirrorHeightControl : public BioXASMirrorMotorControl
 {
     Q_OBJECT
 
 public:
 	/// Constructor.
-	explicit BioXASMirrorHeightControl(const QString &name, const QString &units, QObject *parent = 0, const QString &description = QString());
+	explicit BioXASMirrorHeightControl(const QString &name, const QString &units, double upstreamLength, double downstreamLength, QObject *parent = 0, const QString &description = QString());
 	/// Destructor.
 	virtual ~BioXASMirrorHeightControl();
 
@@ -18,8 +18,8 @@ protected slots:
 	virtual void updateValue();
 
 protected:
-	/// Creates and returns a move action.
-	virtual AMAction3* createMoveAction(double setpoint);
+	/// Creates and returns a move action iteration.
+	virtual AMAction3* createMoveActionIteration(double setpoint);
 
 	/// Calculates and returns the upstream inboard z position (mm) for the given mirror height (mm) and motor positions.
 	static double calculateUpstreamInboardZ(double height, double upstreamInboardX, double upstreamInboardY, double upstreamOutboardX, double upstreamOutboardY, double upstreamOutboardZ, double downstreamX, double downstreamY, double downstreamZ);

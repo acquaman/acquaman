@@ -3,19 +3,9 @@
 #include "actions3/AMListAction3.h"
 #include <math.h>
 
-BioXASMirrorPseudoMotorControl::BioXASMirrorPseudoMotorControl(const QString &name, const QString &units, QObject *parent, const QString &description) :
-	AMPseudoMotorControl(name, units, parent, description)
+BioXASMirrorMotorControl::BioXASMirrorMotorControl(const QString &name, const QString &units, double upstreamLength, double downstreamLength, QObject *parent, const QString &description) :
+	BioXASMirrorControl(name, units, upstreamLength, downstreamLength, parent, description)
 {
-	// Initialize inherited variables.
-
-	value_ = 0;
-	setpoint_ = 0;
-	minimumValue_ = -1000000;
-	maximumValue_ = 1000000;
-
-	setAllowsMovesWhileMoving(false);
-	setTolerance(0.05);
-
 	// Initialize member variables.
 
 	upstreamInboard_ = 0;
@@ -23,12 +13,12 @@ BioXASMirrorPseudoMotorControl::BioXASMirrorPseudoMotorControl(const QString &na
 	downstream_ = 0;
 }
 
-BioXASMirrorPseudoMotorControl::~BioXASMirrorPseudoMotorControl()
+BioXASMirrorMotorControl::~BioXASMirrorMotorControl()
 {
 
 }
 
-bool BioXASMirrorPseudoMotorControl::canMeasure() const
+bool BioXASMirrorMotorControl::canMeasure() const
 {
 	bool result = false;
 
@@ -39,7 +29,7 @@ bool BioXASMirrorPseudoMotorControl::canMeasure() const
 	return result;
 }
 
-bool BioXASMirrorPseudoMotorControl::canMove() const
+bool BioXASMirrorMotorControl::canMove() const
 {
 	bool result = false;
 
@@ -49,7 +39,7 @@ bool BioXASMirrorPseudoMotorControl::canMove() const
 	return result;
 }
 
-bool BioXASMirrorPseudoMotorControl::canStop() const
+bool BioXASMirrorMotorControl::canStop() const
 {
 	bool result = false;
 
@@ -59,7 +49,7 @@ bool BioXASMirrorPseudoMotorControl::canStop() const
 	return result;
 }
 
-bool BioXASMirrorPseudoMotorControl::validValue(double value) const
+bool BioXASMirrorMotorControl::validValue(double value) const
 {
 	bool result = false;
 
@@ -70,12 +60,12 @@ bool BioXASMirrorPseudoMotorControl::validValue(double value) const
 	return true;
 }
 
-bool BioXASMirrorPseudoMotorControl::validSetpoint(double value) const
+bool BioXASMirrorMotorControl::validSetpoint(double value) const
 {
 	return validValue(value);
 }
 
-void BioXASMirrorPseudoMotorControl::setUpstreamInboardControl(BioXASMirrorMotor *newControl)
+void BioXASMirrorMotorControl::setUpstreamInboardControl(BioXASMirrorMotor *newControl)
 {
 	if (upstreamInboard_ != newControl) {
 
@@ -91,7 +81,7 @@ void BioXASMirrorPseudoMotorControl::setUpstreamInboardControl(BioXASMirrorMotor
 	}
 }
 
-void BioXASMirrorPseudoMotorControl::setUpstreamOutboardControl(BioXASMirrorMotor *newControl)
+void BioXASMirrorMotorControl::setUpstreamOutboardControl(BioXASMirrorMotor *newControl)
 {
 	if (upstreamOutboard_ != newControl) {
 
@@ -107,7 +97,7 @@ void BioXASMirrorPseudoMotorControl::setUpstreamOutboardControl(BioXASMirrorMoto
 	}
 }
 
-void BioXASMirrorPseudoMotorControl::setDownstreamControl(BioXASMirrorMotor *newControl)
+void BioXASMirrorMotorControl::setDownstreamControl(BioXASMirrorMotor *newControl)
 {
 	if (downstream_ != newControl) {
 
@@ -123,7 +113,7 @@ void BioXASMirrorPseudoMotorControl::setDownstreamControl(BioXASMirrorMotor *new
 	}
 }
 
-void BioXASMirrorPseudoMotorControl::updateConnected()
+void BioXASMirrorMotorControl::updateConnected()
 {
 	bool isConnected = (
 				upstreamInboard_ && upstreamInboard_->isConnected() &&
@@ -134,7 +124,7 @@ void BioXASMirrorPseudoMotorControl::updateConnected()
 	setConnected(isConnected);
 }
 
-void BioXASMirrorPseudoMotorControl::updateMoving()
+void BioXASMirrorMotorControl::updateMoving()
 {
 	if (isConnected()) {
 		bool isMoving = (

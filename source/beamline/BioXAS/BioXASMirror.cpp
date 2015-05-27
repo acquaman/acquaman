@@ -17,6 +17,9 @@ BioXASMirror::BioXASMirror(const QString &name, QObject *parent) :
 	roll_ = 0;
 	height_ = 0;
 	lateral_ = 0;
+
+	upstreamLength_ = 0;
+	downstreamLength_ = 0;
 }
 
 BioXASMirror::~BioXASMirror()

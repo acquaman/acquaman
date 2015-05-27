@@ -2,23 +2,15 @@
 #include "actions3/AMListAction3.h"
 #include "actions3/AMActionSupport.h"
 
-BioXASMirrorLateralControl::BioXASMirrorLateralControl(const QString &name, const QString &units, QObject *parent, const QString &description) :
-	AMPseudoMotorControl(name, units, parent, description)
+BioXASMirrorLateralControl::BioXASMirrorLateralControl(const QString &name, const QString &units, double upstreamLength, double downstreamLength, QObject *parent, const QString &description) :
+	BioXASMirrorControl(name, units, upstreamLength, downstreamLength, parent, description)
 {
 	// Initialize inherited variables.
 
-	value_ = 0;
-	setpoint_ = 0;
-	minimumValue_ = -1000000;
-	maximumValue_ = 1000000;
-
-	setAllowsMovesWhileMoving(false);
-	setTolerance(0.05);
+	setContextKnownDescription("Lateral");
 
 	// Initialize member variables.
 
-	upstreamLength_ = -1;
-	downstreamLength_ = -1;
 	stripeSelect_ = 0;
 	yaw_ = 0;
 }
@@ -33,7 +25,7 @@ bool BioXASMirrorLateralControl::canMeasure() const
 	bool result = false;
 
 	if (isConnected()) {
-		result = ( (upstreamLength_ != -1) && (downstreamLength_ != -1) && stripeSelect_->canMeasure() && yaw_->canMeasure() );
+		result = ( stripeSelect_->canMeasure() && yaw_->canMeasure() );
 	}
 
 	return result;
@@ -59,22 +51,6 @@ bool BioXASMirrorLateralControl::canStop() const
 	}
 
 	return result;
-}
-
-void BioXASMirrorLateralControl::setUpstreamLength(double newLength)
-{
-	if (upstreamLength_ != newLength) {
-		upstreamLength_ = newLength;
-		emit upstreamLengthChanged(upstreamLength_);
-	}
-}
-
-void BioXASMirrorLateralControl::setDownstreamLength(double newLength)
-{
-	if (downstreamLength_ != newLength) {
-		downstreamLength_ = newLength;
-		emit downstreamLengthChanged(downstreamLength_);
-	}
 }
 
 void BioXASMirrorLateralControl::setStripeSelectionControl(AMControl *newControl)
@@ -116,43 +92,38 @@ void BioXASMirrorLateralControl::updateConnected()
 				yaw_ && yaw_->isConnected()
 				);
 
-	setConnected(isConnected);
+	setConnected(isConnected && validLengths());
 }
 
 void BioXASMirrorLateralControl::updateValue()
 {
-	if (isConnected() && upstreamLength_ != -1 && downstreamLength_ != -1) {
+	if (isConnected()) {
 		setValue( calculateLateralDisplacement(upstreamLength_, downstreamLength_, stripeSelect_->value(), yaw_->value()) );
 	}
 }
 
 void BioXASMirrorLateralControl::updateMoving()
 {
-	if (isConnected() && upstreamLength_ != -1 && downstreamLength_ != -1) {
+	if (isConnected()) {
 		setIsMoving( stripeSelect_->isMoving() || yaw_->isMoving() );
 	}
 }
 
-AMAction3* BioXASMirrorLateralControl::createMoveAction(double setpoint)
+AMAction3* BioXASMirrorLateralControl::createMoveActionIteration(double setpoint)
 {
 	AMAction3 *result = 0;
 
-	if (isConnected() && upstreamLength_ != -1 && downstreamLength_ != -1) {
-		AMListAction3 *moveAction = new AMListAction3(new AMListActionInfo3("Move laterally", "Move laterally"), AMListAction3::Sequential);
+	if (isConnected()) {
 
-		for (int i = 0; i < 5; i++) {
-			AMListAction3 *move = new AMListAction3(new AMListActionInfo3(QString("Move laterally attempt %1").arg(i), QString("Move laterally attempt %1").arg(i)), AMListAction3::Sequential);
+		AMListAction3 *move = new AMListAction3(new AMListActionInfo3(name()+" move", name()+" move"), AMListAction3::Sequential);
 
-			double lateralDestination = calculateLateralPosition(setpoint, upstreamLength_, downstreamLength_, yaw_->value());
-			move->addSubAction(AMActionSupport::buildControlMoveAction(stripeSelect_, lateralDestination));
+		double lateralDestination = calculateLateralPosition(setpoint, upstreamLength_, downstreamLength_, yaw_->value());
+		move->addSubAction(AMActionSupport::buildControlMoveAction(stripeSelect_, lateralDestination));
 
-			double yawDestination = calculateYawPosition(setpoint, upstreamLength_, downstreamLength_, stripeSelect_->value());
-			move->addSubAction(AMActionSupport::buildControlMoveAction(yaw_, yawDestination));
+		double yawDestination = calculateYawPosition(setpoint, upstreamLength_, downstreamLength_, stripeSelect_->value());
+		move->addSubAction(AMActionSupport::buildControlMoveAction(yaw_, yawDestination));
 
-			moveAction->addSubAction(move);
-		}
-
-		result = moveAction;
+		result = move;
 	}
 
 	return result;

@@ -3,6 +3,7 @@
 
 #include "beamline/BioXAS/BioXASBeamlineComponent.h"
 #include "beamline/BioXAS/BioXASMirrorMotor.h"
+#include "beamline/BioXAS/BioXASMirrorControl.h"
 #include "beamline/BioXAS/BioXASMirrorPitchControl.h"
 #include "beamline/BioXAS/BioXASMirrorRollControl.h"
 #include "beamline/BioXAS/BioXASMirrorHeightControl.h"
@@ -45,6 +46,11 @@ public:
 	/// Returns the lateral control.
 	AMControl* lateralControl() const { return lateral_; }
 
+	/// Returns the upstream mirror length.
+	double upstreamLength() const { return upstreamLength_; }
+	/// Returns the downstream mirror length.
+	double downstreamLength() const { return downstreamLength_; }
+
 protected:
 	/// The upstream inboard motor control.
 	BioXASMirrorMotor *upstreamInboard_;
@@ -69,6 +75,11 @@ protected:
 	BioXASMirrorHeightControl *height_;
 	/// The lateral pseudomotor control.
 	BioXASMirrorLateralControl *lateral_;
+
+	/// Returns the upstream mirror length.
+	double upstreamLength_;
+	/// Returns the downstream mirror length.
+	double downstreamLength_;
 };
 
 #endif // BIOXASMIRROR_H
