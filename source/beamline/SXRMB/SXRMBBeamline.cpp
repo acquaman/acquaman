@@ -69,6 +69,7 @@ void SXRMBBeamline::switchEndstation(SXRMB::Endstation endstation)
 			removeExposedControl(solidStateSampleStageY_);
 			removeExposedControl(solidStateSampleStageZ_);
 			removeExposedControl(solidStateSampleStageR_);
+			removeExposedControl(jjSlits_->horizontalGapControl());
 
 			removeExposedDetector(beamlineI0Detector_);
 			removeExposedDetector(teyDetector_);
@@ -79,6 +80,7 @@ void SXRMBBeamline::switchEndstation(SXRMB::Endstation endstation)
 
 			removeExposedControl(ambiantSampleHolderZ_);
 			removeExposedControl(ambiantSampleHolderR_);
+			removeExposedControl(jjSlits_->horizontalGapControl());
 
 			removeExposedDetector(beamlineI0Detector_);
 			removeExposedDetector(i0Detector_);
@@ -90,6 +92,7 @@ void SXRMBBeamline::switchEndstation(SXRMB::Endstation endstation)
 
 			removeExposedControl(ambiantSampleStageX_);
 			removeExposedControl(ambiantSampleStageZ_);
+			removeExposedControl(jjSlits_->horizontalGapControl());
 
 			removeExposedDetector(beamlineI0Detector_);
 			removeExposedDetector(i0Detector_);
@@ -120,6 +123,7 @@ void SXRMBBeamline::switchEndstation(SXRMB::Endstation endstation)
 			addExposedControl(solidStateSampleStageY_);
 			addExposedControl(solidStateSampleStageZ_);
 			addExposedControl(solidStateSampleStageR_);
+			addExposedControl(jjSlits_->horizontalGapControl());
 
 			addExposedDetector(beamlineI0Detector_);
 			addExposedDetector(teyDetector_);
@@ -131,6 +135,7 @@ void SXRMBBeamline::switchEndstation(SXRMB::Endstation endstation)
 			addExposedControl(ambiantSampleStageX_);
 			addExposedControl(ambiantSampleHolderZ_);
 			addExposedControl(ambiantSampleHolderR_);
+			addExposedControl(jjSlits_->horizontalGapControl());
 
 			addExposedDetector(beamlineI0Detector_);
 			addExposedDetector(i0Detector_);
@@ -142,6 +147,7 @@ void SXRMBBeamline::switchEndstation(SXRMB::Endstation endstation)
 
 			addExposedControl(ambiantSampleStageX_);
 			addExposedControl(ambiantSampleStageZ_);
+			addExposedControl(jjSlits_->horizontalGapControl());
 
 			addExposedDetector(beamlineI0Detector_);
 			addExposedDetector(i0Detector_);
