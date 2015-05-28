@@ -53,6 +53,8 @@ void CLSJJSlitCenterControl::updateMaximumValue()
 	}
 }
 
+#include <QDebug>
+
 AMAction3* CLSJJSlitCenterControl::createMoveAction(double centerPosition)
 {
 	AMListAction3 *moveAction = 0;
@@ -65,19 +67,10 @@ AMAction3* CLSJJSlitCenterControl::createMoveAction(double centerPosition)
 		double upperPosition = calculateUpperPosition(gap_, centerPosition);
 
 		AMListAction3 *move = new AMListAction3(new AMListActionInfo3("JJSlitsCenterControlMove", "JJSlitsCenterControlMove"), AMListAction3::Parallel);
-
 		move->addSubAction(AMActionSupport::buildControlMoveAction(upperBladeControl_, upperPosition));
 		move->addSubAction(AMActionSupport::buildControlMoveAction(lowerBladeControl_, lowerPosition));
 
-		AMListAction3 *confirm = new AMListAction3(new AMListActionInfo3("JJSlitsCenterControlConfirm", "JJSlitsCenterControlConfirm"), AMListAction3::Parallel);
-
-		confirm->addSubAction(AMActionSupport::buildControlWaitAction(upperBladeControl_, upperPosition));
-		confirm->addSubAction(AMActionSupport::buildControlWaitAction(lowerBladeControl_, lowerPosition));
-
-		moveAction = new AMListAction3(new AMListActionInfo3("JJSlitsCenterControlMoveAndConfirm", "JJSlitsCenterControlMoveAndConfirm"), AMListAction3::Sequential);
-
-		moveAction->addSubAction(move);
-		moveAction->addSubAction(confirm);
+		moveAction = move;
 	}
 
 	return moveAction;
