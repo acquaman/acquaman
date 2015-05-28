@@ -45,7 +45,7 @@ void BioXASM1MirrorView::setMirror(BioXASM1Mirror *newMirror)
 
 		if (mirror_) {
 			mirrorEditor_->setMirror(mirror_);
-			upperSlitEditor_->setControl(mirror_->upperSlitBladeControl());
+			upperSlitEditor_->setControl(mirror_->upperSlitBladeMotorControl());
 		}
 
 		emit mirrorChanged(mirror_);

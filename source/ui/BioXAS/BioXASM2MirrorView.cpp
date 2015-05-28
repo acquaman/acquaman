@@ -47,7 +47,7 @@ void BioXASM2MirrorView::setMirror(BioXASM2Mirror *newMirror)
 
 		if (mirror_) {
 			mirrorEditor_->setMirror(mirror_);
-			screenEditor_->setControl(mirror_->screenControl());
+			screenEditor_->setControl(mirror_->screenMotorControl());
 		}
 	}
 }

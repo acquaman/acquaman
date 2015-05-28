@@ -5,7 +5,7 @@ BioXASM1Mirror::BioXASM1Mirror(const QString &name, QObject *parent) :
 {
 	// Initialize member variables.
 
-	upperSlitBlade_ = 0;
+	upperSlitBladeMotor_ = 0;
 }
 
 BioXASM1Mirror::~BioXASM1Mirror()
@@ -17,7 +17,7 @@ bool BioXASM1Mirror::isConnected() const
 {
 	bool isConnected = (
 				BioXASMirror::isConnected() &&
-				upperSlitBlade_ && upperSlitBlade_->isConnected()
+				upperSlitBladeMotor_ && upperSlitBladeMotor_->isConnected()
 				);
 
 	return isConnected;

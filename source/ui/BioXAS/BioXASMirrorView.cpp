@@ -76,9 +76,10 @@ void BioXASMirrorView::setMirror(BioXASMirror *newMirror)
 		mirror_ = newMirror;
 
 		if (mirror_) {
-			upstreamInboardEditor_->setControl(mirror_->upstreamInboardControl());
-			upstreamOutboardEditor_->setControl(mirror_->upstreamOutboardControl());
-			downstreamEditor_->setControl(mirror_->downstreamControl());
+			upstreamInboardEditor_->setControl(mirror_->upstreamInboardMotorControl());
+			upstreamOutboardEditor_->setControl(mirror_->upstreamOutboardMotorControl());
+			downstreamEditor_->setControl(mirror_->downstreamMotorControl());
+
 			pitchEditor_->setControl(mirror_->pitchControl());
 			rollEditor_->setControl(mirror_->rollControl());
 			yawEditor_->setControl(mirror_->yawControl());

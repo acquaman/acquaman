@@ -19,11 +19,11 @@ public:
 	virtual bool isConnected() const;
 
 	/// Returns the upper slit blade control.
-	AMControl* upperSlitBladeControl() const { return upperSlitBlade_; }
+	AMControl* upperSlitBladeMotorControl() const { return upperSlitBladeMotor_; }
 
 protected:
 	/// The upper slit blade motor control.
-	CLSMAXvMotor *upperSlitBlade_;
+	CLSMAXvMotor *upperSlitBladeMotor_;
 };
 
 #endif // BIOXASM1MIRROR_H

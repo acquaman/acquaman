@@ -8,6 +8,7 @@
 #include "beamline/BioXAS/BioXASMirrorRollControl.h"
 #include "beamline/BioXAS/BioXASMirrorHeightControl.h"
 #include "beamline/BioXAS/BioXASMirrorLateralControl.h"
+#include "beamline/BioXAS/BioXASMirrorYawControl.h"
 
 class BioXASMirror : public BioXASBeamlineComponent
 {
@@ -23,19 +24,19 @@ public:
 	virtual bool isConnected() const;
 
 	/// Returns the upstream inboard motor control.
-	AMControl* upstreamInboardControl() const { return upstreamInboard_; }
+	AMControl* upstreamInboardMotorControl() const { return upstreamInboardMotor_; }
 	/// Returns the upstream outboard motor control.
-	AMControl* upstreamOutboardControl() const { return upstreamOutboard_; }
+	AMControl* upstreamOutboardMotorControl() const { return upstreamOutboardMotor_; }
 	/// Returns the downstream motor control.
-	AMControl* downstreamControl() const { return downstream_; }
-	/// Returns the stripe selection control.
-	AMControl* stripeSelectControl() const { return stripeSelect_; }
-	/// Returns the yaw control.
-	AMControl* yawControl() const { return yaw_; }
-	/// Returns the bender upstream control.
-	AMControl* benderUpstreamControl() const { return benderUpstream_; }
-	/// Returns the bender downstream control.
-	AMControl* benderDownstreamControl() const { return benderDownstream_; }
+	AMControl* downstreamMotorControl() const { return downstreamMotor_; }
+	/// Returns the stripe selection motor control.
+	AMControl* stripeSelectMotorControl() const { return stripeSelectMotor_; }
+	/// Returns the yaw motor control.
+	AMControl* yawMotorControl() const { return yawMotor_; }
+	/// Returns the bender upstream motor control.
+	AMControl* benderUpstreamMotorControl() const { return benderUpstreamMotor_; }
+	/// Returns the bender downstream motor control.
+	AMControl* benderDownstreamMotorControl() const { return benderDownstreamMotor_; }
 
 	/// Returns the pitch control.
 	AMControl* pitchControl() const { return pitch_; }
@@ -45,6 +46,8 @@ public:
 	AMControl* heightControl() const { return height_; }
 	/// Returns the lateral control.
 	AMControl* lateralControl() const { return lateral_; }
+	/// Returns the yaw control.
+	AMControl* yawControl() const { return yaw_; }
 
 	/// Returns the upstream mirror length.
 	double upstreamLength() const { return upstreamLength_; }
@@ -53,19 +56,19 @@ public:
 
 protected:
 	/// The upstream inboard motor control.
-	BioXASMirrorMotor *upstreamInboard_;
+	BioXASMirrorMotor *upstreamInboardMotor_;
 	/// The upstream outboard motor control.
-	BioXASMirrorMotor *upstreamOutboard_;
+	BioXASMirrorMotor *upstreamOutboardMotor_;
 	/// The downstream motor control.
-	BioXASMirrorMotor *downstream_;
+	BioXASMirrorMotor *downstreamMotor_;
 	/// The stripe selection motor control.
-	CLSMAXvMotor *stripeSelect_;
+	CLSMAXvMotor *stripeSelectMotor_;
 	/// The yaw motor control.
-	CLSMAXvMotor *yaw_;
+	CLSMAXvMotor *yawMotor_;
 	/// The bender upstream motor control.
-	CLSMAXvMotor *benderUpstream_;
+	CLSMAXvMotor *benderUpstreamMotor_;
 	/// The bender downstream motor control.
-	CLSMAXvMotor *benderDownstream_;
+	CLSMAXvMotor *benderDownstreamMotor_;
 
 	/// The pitch pseudomotor control.
 	BioXASMirrorPitchControl *pitch_;
@@ -75,6 +78,8 @@ protected:
 	BioXASMirrorHeightControl *height_;
 	/// The lateral pseudomotor control.
 	BioXASMirrorLateralControl *lateral_;
+	/// The yaw pseudomotor control.
+	BioXASMirrorYawControl *yaw_;
 
 	/// Returns the upstream mirror length.
 	double upstreamLength_;

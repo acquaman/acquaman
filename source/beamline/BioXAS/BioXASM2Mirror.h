@@ -22,11 +22,11 @@ public:
 	virtual bool isConnected() const;
 
 	/// Returns the fluorescence screen control.
-	AMControl* screenControl() const { return screen_; }
+	AMControl* screenMotorControl() const { return screenMotor_; }
 
 protected:
 	/// The mirror fluorescence screen control.
-	AMSinglePVControl *screen_;
+	AMSinglePVControl *screenMotor_;
 
 };
 

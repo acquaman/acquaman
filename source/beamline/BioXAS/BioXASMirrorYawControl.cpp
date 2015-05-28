@@ -1,4 +1,5 @@
 #include "BioXASMirrorYawControl.h"
+#include "actions3/AMActionSupport.h"
 
 BioXASMirrorYawControl::BioXASMirrorYawControl(const QString &name, const QString &units, double upstreamLength, double downstreamLength, QObject *parent, const QString &description) :
 	BioXASMirrorControl(name, units, upstreamLength, downstreamLength, parent, description)
@@ -50,6 +51,16 @@ bool BioXASMirrorYawControl::canStop() const
 	return result;
 }
 
+bool BioXASMirrorYawControl::validValue(double value) const
+{
+	return true;
+}
+
+bool BioXASMirrorYawControl::validSetpoint(double value) const
+{
+	return true;
+}
+
 void BioXASMirrorYawControl::setYawControl(AMControl *newControl)
 {
 	if (yaw_ != newControl) {
@@ -87,15 +98,26 @@ void BioXASMirrorYawControl::updateMoving()
 
 AMAction3* BioXASMirrorYawControl::createMoveActionIteration(double setpoint)
 {
-	return 0;
+	AMAction3 *result = 0;
+
+	if (isConnected()) {
+		double yawDestination = calculateYawPosition(setpoint, upstreamLength_, downstreamLength_);
+		AMAction3 *move = AMActionSupport::buildControlMoveAction(yaw_, yawDestination);
+
+		result = move;
+	}
+
+	return result;
 }
 
 double BioXASMirrorYawControl::calculateYawPosition(double yaw, double upstreamLength, double downstreamLength)
 {
-	return 0;
+	double result = (downstreamLength - upstreamLength) * tan(yaw * M_PI/180);
+	return result;
 }
 
 double BioXASMirrorYawControl::calculateYaw(double upstreamLength, double downstreamLength, double yawPosition)
 {
-	return 0;
+	double result = atan(yawPosition / (downstreamLength - upstreamLength)) * 180/M_PI;
+	return result;
 }

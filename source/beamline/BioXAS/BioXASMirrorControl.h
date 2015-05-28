@@ -35,10 +35,10 @@ public slots:
 
 protected:
 	/// Creates and returns a move action.
-	virtual AMAction3* createMoveAction();
+	virtual AMAction3* createMoveAction(double setpoint);
 
 	/// Creates and returns a move action iteration.
-	virtual AMAction3* createMoveActionIteration() = 0;
+	virtual AMAction3* createMoveActionIteration(double setpoint) = 0;
 
 protected:
 	/// The upstream mirror length.

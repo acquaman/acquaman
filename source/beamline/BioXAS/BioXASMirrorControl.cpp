@@ -52,7 +52,7 @@ void BioXASMirrorControl::setDownstreamLength(double newValue)
 	}
 }
 
-AMAction3* BioXASMirrorControl::createMoveAction()
+AMAction3* BioXASMirrorControl::createMoveAction(double setpoint)
 {
 	AMAction3 *result = 0;
 
@@ -60,7 +60,7 @@ AMAction3* BioXASMirrorControl::createMoveAction()
 		AMListAction3 *moveAction = new AMListAction3(new AMListActionInfo3("Mirror control move", "Mirror control move"), AMListAction3::Sequential);
 
 		for (int i = 0; i < 5; i++) {
-			AMAction3 *move = createMoveActionIteration();
+			AMAction3 *move = createMoveActionIteration(setpoint);
 			moveAction->addSubAction(move);
 		}
 

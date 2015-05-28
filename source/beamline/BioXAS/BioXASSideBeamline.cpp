@@ -217,13 +217,13 @@ QList<AMControl *> BioXASSideBeamline::getMotorsByType(BioXASBeamlineDef::BioXAS
 		break;
 
 	case BioXASBeamlineDef::M2Motor:	// BioXAS M2 motors
-		matchedMotors.append(m2Mirror_->upstreamInboardControl());
-		matchedMotors.append(m2Mirror_->upstreamOutboardControl());
-		matchedMotors.append(m2Mirror_->downstreamControl());
-		matchedMotors.append(m2Mirror_->stripeSelectControl());
-		matchedMotors.append(m2Mirror_->yawControl());
-		matchedMotors.append(m2Mirror_->benderUpstreamControl());
-		matchedMotors.append(m2Mirror_->benderDownstreamControl());
+		matchedMotors.append(m2Mirror_->upstreamInboardMotorControl());
+		matchedMotors.append(m2Mirror_->upstreamOutboardMotorControl());
+		matchedMotors.append(m2Mirror_->downstreamMotorControl());
+		matchedMotors.append(m2Mirror_->stripeSelectMotorControl());
+		matchedMotors.append(m2Mirror_->yawMotorControl());
+		matchedMotors.append(m2Mirror_->benderUpstreamMotorControl());
+		matchedMotors.append(m2Mirror_->benderDownstreamMotorControl());
 		break;
 
 	case BioXASBeamlineDef::PseudoM1Motor: // BioXAS Pseudo M1 motor
@@ -820,19 +820,20 @@ void BioXASSideBeamline::setupExposedControls()
 
 	// M2 mirror controls.
 
-	addExposedControl(m2Mirror_->verticalUpstreamInboundControl());
-	addExposedControl(m2Mirror_->verticalUpstreamOutboundControl());
-	addExposedControl(m2Mirror_->verticalDownstreamControl());
-	addExposedControl(m2Mirror_->stripeSelectControl());
+	addExposedControl(m2Mirror_->upstreamInboardMotorControl());
+	addExposedControl(m2Mirror_->upstreamOutboardMotorControl());
+	addExposedControl(m2Mirror_->downstreamMotorControl());
+	addExposedControl(m2Mirror_->stripeSelectMotorControl());
+	addExposedControl(m2Mirror_->yawMotorControl());
+	addExposedControl(m2Mirror_->benderUpstreamMotorControl());
+	addExposedControl(m2Mirror_->benderDownstreamMotorControl());
+	addExposedControl(m2Mirror_->screenMotorControl());
+
+	addExposedControl(m2Mirror_->rollControl());
+	addExposedControl(m2Mirror_->pitchControl());
+	addExposedControl(m2Mirror_->heightControl());
 	addExposedControl(m2Mirror_->yawControl());
-	addExposedControl(m2Mirror_->benderUpstreamControl());
-	addExposedControl(m2Mirror_->benderDownstreamControl());
-	addExposedControl(m2Mirror_->pseudoRollControl());
-	addExposedControl(m2Mirror_->pseudoPitchControl());
-	addExposedControl(m2Mirror_->pseudoHeightControl());
-	addExposedControl(m2Mirror_->pseudoYawControl());
-	addExposedControl(m2Mirror_->pseudoLateralControl());
-	addExposedControl(m2Mirror_->screenControl());
+	addExposedControl(m2Mirror_->lateralControl());
 
 	// Mono controls.
 
