@@ -39,7 +39,8 @@ HEADERS += \
 	source/beamline/BioXAS/BioXASCarbonFilterFarmControl.h \
     source/ui/BioXAS/BioXASBeamlineBeamView.h \
     source/beamline/BioXAS/BioXASFourElementVortexDetector.h \
-    source/ui/BioXAS/BioXASFourElementVortexDetectorView.h
+    source/ui/BioXAS/BioXASFourElementVortexDetectorView.h \
+    source/ui/BioXAS/BioXASXRFDetectorView.h
 
 SOURCES += \
 	source/beamline/BioXAS/BioXASPseudoMotorControl.cpp \
@@ -74,7 +75,10 @@ SOURCES += \
 	source/beamline/BioXAS/BioXASCarbonFilterFarmControl.cpp \
     source/ui/BioXAS/BioXASBeamlineBeamView.cpp \
     source/beamline/BioXAS/BioXASFourElementVortexDetector.cpp \
-    source/ui/BioXAS/BioXASFourElementVortexDetectorView.cpp
+    source/ui/BioXAS/BioXASFourElementVortexDetectorView.cpp \
+    source/ui/BioXAS/BioXASXRFDetectorView.cpp
+
+
 
 
 
