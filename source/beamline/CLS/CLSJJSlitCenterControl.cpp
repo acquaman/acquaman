@@ -10,6 +10,11 @@ CLSJJSlitCenterControl::CLSJJSlitCenterControl(const QString &name, AMControl *u
 
 	setContextKnownDescription("CenterControl");
 
+	// Make connections.
+
+	connect( this, SIGNAL(gapChanged(double)), this, SLOT(updateMinimumValue()) );
+	connect( this, SIGNAL(gapChanged(double)), this, SLOT(updateMaximumValue()) );
+
 	// Current settings.
 
 	updateStates();
@@ -25,6 +30,26 @@ void CLSJJSlitCenterControl::updateValue()
 	if (isConnected()) {
 		double newCenter = calculateCenterPosition(upperBladeControl_->value(), lowerBladeControl_->value());
 		setValue(newCenter);
+	}
+}
+
+#include <QDebug>
+
+void CLSJJSlitCenterControl::updateMinimumValue()
+{
+	if (isConnected()) {
+		qDebug() << "\nUpdating" << name() << "minimum value...";
+		setMinimumValue( calculateMinimumValue(CLSJJSLITBLADESCONTROL_VALUE_MIN, gap_) );
+		qDebug() << "\t" << name() << ":" << minimumValue() << "\n";
+	}
+}
+
+void CLSJJSlitCenterControl::updateMaximumValue()
+{
+	if (isConnected()) {
+		qDebug() << "\nUpdating" << name() << "maximum value...";
+		setMaximumValue( calculateMaximumValue(CLSJJSLITBLADESCONTROL_VALUE_MAX, gap_) );
+		qDebug() << "\t" << name() << ":" << maximumValue() << "\n";
 	}
 }
 
@@ -57,3 +82,17 @@ AMAction3* CLSJJSlitCenterControl::createMoveAction(double centerPosition)
 
 	return moveAction;
 }
+
+double CLSJJSlitCenterControl::calculateMinimumValue(double minimumPosition, double gap)
+{
+	double result = minimumPosition + fabs(gap/2.0);
+	return result;
+}
+
+double CLSJJSlitCenterControl::calculateMaximumValue(double maximumPosition, double gap)
+{
+	double result = maximumPosition - fabs(gap/2.0);
+	return result;
+}
+
+

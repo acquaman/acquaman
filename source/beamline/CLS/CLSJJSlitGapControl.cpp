@@ -10,6 +10,11 @@ CLSJJSlitGapControl::CLSJJSlitGapControl(const QString &name, AMControl *upperBl
 
 	setContextKnownDescription("GapControl");
 
+	// Make connections.
+
+	connect( this, SIGNAL(centerPositionChanged(double)), this, SLOT(updateMinimumValue()) );
+	connect( this, SIGNAL(centerPositionChanged(double)), this, SLOT(updateMaximumValue()) );
+
 	// Current settings.
 
 	updateStates();
@@ -23,8 +28,21 @@ CLSJJSlitGapControl::~CLSJJSlitGapControl()
 void CLSJJSlitGapControl::updateValue()
 {
 	if (isConnected()) {
-		double newGap = calculateGap(upperBladeControl_->value(), lowerBladeControl_->value());
-		setValue(newGap);
+		setValue( calculateGap(upperBladeControl_->value(), lowerBladeControl_->value()) );
+	}
+}
+
+void CLSJJSlitGapControl::updateMinimumValue()
+{
+	if (isConnected()) {
+		setMinimumValue( calculateMinimumValue(CLSJJSLITBLADESCONTROL_VALUE_MIN, centerPosition_) );
+	}
+}
+
+void CLSJJSlitGapControl::updateMaximumValue()
+{
+	if (isConnected()) {
+		setMaximumValue( calculateMaximumValue(CLSJJSLITBLADESCONTROL_VALUE_MAX, centerPosition_) );
 	}
 }
 
@@ -56,4 +74,30 @@ AMAction3* CLSJJSlitGapControl::createMoveAction(double gap)
 	}
 
 	return moveAction;
+}
+
+double CLSJJSlitGapControl::calculateMinimumValue(double minimumPosition, double centerPosition)
+{
+	double result = 0;
+
+	if (centerPosition <= 0 ) {
+		result = (minimumPosition - centerPosition) * 2;
+	} else {
+		result = (minimumPosition + centerPosition) * 2;
+	}
+
+	return result;
+}
+
+double CLSJJSlitGapControl::calculateMaximumValue(double maximumPosition, double centerPosition)
+{
+	double result = 0;
+
+	if (centerPosition <= 0) {
+		result = (maximumPosition + centerPosition) * 2;
+	} else {
+		result = (maximumPosition - centerPosition) * 2;
+	}
+
+	return result;
 }
