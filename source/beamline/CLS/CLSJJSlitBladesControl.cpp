@@ -178,7 +178,6 @@ void CLSJJSlitBladesControl::updateConnected()
 void CLSJJSlitBladesControl::updateIsMoving()
 {
 	if (isConnected()) {
-		qDebug() << name() << "updating isMoving state.";
 		setIsMoving( upperBladeControl_->isMoving() || lowerBladeControl_->isMoving() );
 	}
 }
