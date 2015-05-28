@@ -62,7 +62,7 @@ void BioXASXRFScanController::onProgressUpdate()
 }
 
 void BioXASXRFScanController::onStatusChanged()
-{
+{qDebug() << detector_->name() << detector_->acquisitionState() << detector_->acquisitionStateDescription(detector_->acquisitionState());
 	if (!detector_->isAcquiring())
 		onDetectorAcquisitionFinished();
 }

@@ -86,7 +86,10 @@ void AMXspress3XRFDetector::updateAcquisitionState()
 	else if (isInitialized() && (acquisitionStatusControl_->withinTolerance(1) && acquireControl_->withinTolerance(0))){
 
 //		setInitialized();
-		setReadyForAcquisition();
+		if (isAcquiring())
+			setAcquisitionSucceeded();
+		else
+			setReadyForAcquisition();
 	}
 
 	else if (isAcquisitionSucceeded() && (acquisitionStatusControl_->withinTolerance(1) && acquireControl_->withinTolerance(0)))

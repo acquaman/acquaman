@@ -34,9 +34,6 @@ AMXRFDetector::AMXRFDetector(const QString &name, const QString &description, QO
 	acquisitionStatusControl_ = 0; //NULL
 	acquireControl_ = 0; //NULL
 
-	triggerSourceTriggered_ = false;
-	triggerCounter_ = 0;
-
 	doDeadTimeCorrection_ = false;
 	units_ = "Counts";
 
@@ -255,12 +252,6 @@ bool AMXRFDetector::acquireImplementation(AMDetectorDefinitions::ReadMode readMo
 	if (!isConnected() || readMode != AMDetectorDefinitions::SingleRead)
 		return false;
 
-	triggerSourceTriggered_ = true;
-	triggerCounter_ = enabledElements_.size();
-
-	if (!icrSources_.isEmpty() && !ocrSources_.isEmpty())
-		triggerCounter_ *= 3;
-
 	AMControl::FailureExplanation failureExplanation = acquireControl_->move(1);
 	return failureExplanation == AMControl::NoFailure;
 }
@@ -312,29 +303,14 @@ void AMXRFDetector::onStatusControlChanged()
 
 	else if (acquisitionStatusControl_->withinTolerance(0)){
 
-		if (!triggerSourceTriggered_ && isAcquiring())
+		if (isAcquiring())
 			setAcquisitionSucceeded();
-
-		else if (triggerSourceTriggered_ && isAcquiring())
-			connect(primarySpectrumDataSource_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onSpectrumSourceUpdated()));
 
 		if (!isConnected() && !isNotReadyForAcquisition())
 			setNotReadyForAcquisition();
 
 		else if (isConnected() && !isReadyForAcquisition())
 			setReadyForAcquisition();
-	}
-}
-
-void AMXRFDetector::onSpectrumSourceUpdated()
-{
-	triggerCounter_--;
-
-	if (triggerCounter_ == 0){
-
-		triggerSourceTriggered_ = false;
-		disconnect(primarySpectrumDataSource_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onSpectrumSourceUpdated()));
-		onStatusControlChanged();
 	}
 }
 
