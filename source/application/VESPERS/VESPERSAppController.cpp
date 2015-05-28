@@ -271,6 +271,10 @@ void VESPERSAppController::setupExporterOptions()
 	vespersDefault = VESPERS::buildStandardExporterOption("VESPERSTimeLineScanDefault", true, false, false, true);
 	if(vespersDefault->id() > 0)
 		AMAppControllerSupport::registerClass<VESPERSTimedLineScanConfiguration, VESPERSExporter2DAscii, AMExporterOptionGeneralAscii>(vespersDefault->id());
+
+	AMExporterOptionSMAK *vespersSMAKDefault = VESPERS::buildSMAKExporterOption("VESPERS2DSMAKDefault", true, false, false, true);
+	if(vespersSMAKDefault->id() > 0)
+		AMAppControllerSupport::registerClass<VESPERS2DScanConfiguration, VESPERSExporterSMAK, AMExporterOptionSMAK>(vespersSMAKDefault->id());
 }
 
 void VESPERSAppController::setupUserInterface()

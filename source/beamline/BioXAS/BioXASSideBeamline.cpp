@@ -802,8 +802,36 @@ void BioXASSideBeamline::setupControlsAsDetectors()
 
 void BioXASSideBeamline::setupExposedControls()
 {
+	// M1 mirror controls
+
+	addExposedControl(m1VertUpStreamINB_);
+	addExposedControl(m1VertUpStreamOUTB_);
+	addExposedControl(m1VertDownStream_);
+	addExposedControl(m1StripeSelect_);
+	addExposedControl(m1Yaw_);
+	addExposedControl(m1BenderUpstream_);
+	addExposedControl(m1BenderDownStream_);
+	addExposedControl(m1UpperSlitBlade_);
+	addExposedControl(m1PseudoRoll_);
+	addExposedControl(m1PseudoPitch_);
+	addExposedControl(m1PseudoHeight_);
+	addExposedControl(m1PseudoYaw_);
+	addExposedControl(m1PseudoLateral_);
+
 	// M2 mirror controls.
 
+	addExposedControl(m2Mirror_->verticalUpstreamInboundControl());
+	addExposedControl(m2Mirror_->verticalUpstreamOutboundControl());
+	addExposedControl(m2Mirror_->verticalDownstreamControl());
+	addExposedControl(m2Mirror_->stripeSelectControl());
+	addExposedControl(m2Mirror_->yawControl());
+	addExposedControl(m2Mirror_->benderUpstreamControl());
+	addExposedControl(m2Mirror_->benderDownstreamControl());
+	addExposedControl(m2Mirror_->pseudoRollControl());
+	addExposedControl(m2Mirror_->pseudoPitchControl());
+	addExposedControl(m2Mirror_->pseudoHeightControl());
+	addExposedControl(m2Mirror_->pseudoYawControl());
+	addExposedControl(m2Mirror_->pseudoLateralControl());
 	addExposedControl(m2Mirror_->screenControl());
 
 	// Mono controls.
@@ -822,6 +850,10 @@ void BioXASSideBeamline::setupExposedControls()
 	addExposedControl(mono_->braggMotor()->encoderCalibrationSlopeControl());
 	addExposedControl(mono_->braggMotor()->stepCalibrationSlopeControl());
 	addExposedControl(mono_->braggMotor()->retries());
+	addExposedControl(mono_->crystal1PitchMotor());
+	addExposedControl(mono_->crystal1RollMotor());
+	addExposedControl(mono_->crystal2PitchMotor());
+	addExposedControl(mono_->crystal2RollMotor());
 
 	// JJ slit controls.
 
@@ -834,7 +866,7 @@ void BioXASSideBeamline::setupExposedControls()
 
 	addExposedControl(carbonFilterFarm_->filterControl());
 
-	// Mirror controls.
+	// DBHR controls.
 
 	addExposedControl(dbhrMirror_->pitchControl());
 	addExposedControl(dbhrMirror_->m1VerticalControl());
