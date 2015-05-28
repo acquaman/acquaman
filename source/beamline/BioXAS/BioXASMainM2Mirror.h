@@ -13,6 +13,10 @@ public:
 	/// Destructor.
 	virtual ~BioXASMainM2Mirror();
 
+protected slots:
+	/// For testing.
+	void onPitchValueChanged();
+
 };
 
 #endif // BIOXASMAINM2MIRROR_H

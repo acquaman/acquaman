@@ -39,7 +39,7 @@ void AMPseudoMotorControl::addChildControl(AMControl *control)
 
 		connect( control, SIGNAL(connected(bool)), this, SLOT(updateStates()) );
 		connect( control, SIGNAL(valueChanged(double)), this, SLOT(updateValue()) );
-		connect( control, SIGNAL(movingChanged(bool)), this, SLOT(updateIsMoving()) );
+		connect( control, SIGNAL(movingChanged(bool)), this, SLOT(updateMoving()) );
 	}
 }
 
