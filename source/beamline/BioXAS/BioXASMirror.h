@@ -9,6 +9,7 @@
 #include "beamline/BioXAS/BioXASMirrorHeightControl.h"
 #include "beamline/BioXAS/BioXASMirrorLateralControl.h"
 #include "beamline/BioXAS/BioXASMirrorYawControl.h"
+#include "beamline/BioXAS/BioXASMirrorBendControl.h"
 
 class BioXASMirror : public BioXASBeamlineComponent
 {
@@ -48,6 +49,8 @@ public:
 	AMControl* lateralControl() const { return lateral_; }
 	/// Returns the yaw control.
 	AMControl* yawControl() const { return yaw_; }
+	/// Returns the bend radius control.
+	AMControl* bendControl() const { return bend_; }
 
 	/// Returns the upstream mirror length.
 	double upstreamLength() const { return upstreamLength_; }
@@ -80,6 +83,8 @@ protected:
 	BioXASMirrorLateralControl *lateral_;
 	/// The yaw pseudomotor control.
 	BioXASMirrorYawControl *yaw_;
+	/// The bend radius pseudomotor control.
+	BioXASMirrorBendControl *bend_;
 
 	/// Returns the upstream mirror length.
 	double upstreamLength_;

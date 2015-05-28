@@ -18,6 +18,7 @@ BioXASMirror::BioXASMirror(const QString &name, QObject *parent) :
 	height_ = 0;
 	lateral_ = 0;
 	yaw_ = 0;
+	bend_ = 0;
 
 	upstreamLength_ = 0;
 	downstreamLength_ = 0;
@@ -43,7 +44,8 @@ bool BioXASMirror::isConnected() const
 				roll_ && roll_->isConnected() &&
 				height_ && height_->isConnected() &&
 				lateral_ && lateral_->isConnected() &&
-				yaw_ && yaw_->isConnected()
+				yaw_ && yaw_->isConnected() &&
+				bend_ && bend_->isConnected()
 				);
 
 	return isConnected;

@@ -50,7 +50,8 @@ HEADERS += \
     source/beamline/BioXAS/BioXASMirrorHeightControl.h \
     source/beamline/BioXAS/BioXASMirrorLateralControl.h \
     source/beamline/BioXAS/BioXASMirrorYawControl.h \
-    source/beamline/BioXAS/BioXASMirrorControl.h
+    source/beamline/BioXAS/BioXASMirrorControl.h \
+    source/beamline/BioXAS/BioXASMirrorBendControl.h
 
 SOURCES += \
 	source/beamline/BioXAS/BioXASPseudoMotorControl.cpp \
@@ -96,7 +97,10 @@ SOURCES += \
     source/beamline/BioXAS/BioXASMirrorHeightControl.cpp \
     source/beamline/BioXAS/BioXASMirrorLateralControl.cpp \
     source/beamline/BioXAS/BioXASMirrorYawControl.cpp \
-    source/beamline/BioXAS/BioXASMirrorControl.cpp
+    source/beamline/BioXAS/BioXASMirrorControl.cpp \
+    source/beamline/BioXAS/BioXASMirrorBendControl.cpp
+
+
 
 
 

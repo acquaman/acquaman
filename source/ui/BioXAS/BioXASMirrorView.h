@@ -32,12 +32,6 @@ protected:
 	/// The mirror being viewed.
 	BioXASMirror *mirror_;
 
-	/// The upstream inboard control editor.
-	AMExtendedControlEditor *upstreamInboardEditor_;
-	/// The upstream outboard control editor.
-	AMExtendedControlEditor *upstreamOutboardEditor_;
-	/// The downstream control editor.
-	AMExtendedControlEditor *downstreamEditor_;
 	/// The pitch control editor.
 	AMExtendedControlEditor *pitchEditor_;
 	/// The roll control editor.
@@ -48,6 +42,8 @@ protected:
 	AMExtendedControlEditor *heightEditor_;
 	/// The lateral control editor.
 	AMExtendedControlEditor *lateralEditor_;
+	/// The bend control editor.
+	AMExtendedControlEditor *bendEditor_;
 };
 
 #endif // BIOXASMIRRORVIEW_H

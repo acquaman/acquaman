@@ -1,6 +1,5 @@
 #include "BioXASSideM2Mirror.h"
-#include "beamline/CLS/CLSMAXvMotor.h"
-#include "beamline/BioXAS/BioXASPseudoMotorControl.h"
+#include "beamline/BioXAS/BioXASSideM2MirrorBendControl.h"
 
 BioXASSideM2Mirror::BioXASSideM2Mirror(QObject *parent) :
 	BioXASM2Mirror("SideM2Mirror", parent)
@@ -41,6 +40,10 @@ BioXASSideM2Mirror::BioXASSideM2Mirror(QObject *parent) :
 	yaw_ = new BioXASMirrorYawControl(name_+"YawControl", "deg", upstreamLength_, downstreamLength_, this);
 	yaw_->setYawControl(yawMotor_);
 
+	bend_ = new BioXASSideM2MirrorBendControl(name_+"BendControl", "m", upstreamLength_, downstreamLength_, this);
+	bend_->setUpstreamBenderControl(benderUpstreamMotor_);
+	bend_->setDownstreamBenderControl(benderDownstreamMotor_);
+
 	// Make connections.
 
 	connect( upstreamInboardMotor_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
@@ -57,6 +60,7 @@ BioXASSideM2Mirror::BioXASSideM2Mirror(QObject *parent) :
 	connect( height_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 	connect( lateral_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 	connect( yaw_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+	connect( bend_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 }
 
 BioXASSideM2Mirror::~BioXASSideM2Mirror()

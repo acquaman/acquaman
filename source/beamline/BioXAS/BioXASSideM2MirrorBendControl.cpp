@@ -1,0 +1,29 @@
+#include "BioXASSideM2MirrorBendControl.h"
+
+BioXASSideM2MirrorBendControl::BioXASSideM2MirrorBendControl(const QString &name, const QString &units, double upstreamLength, double downstreamLength, QObject *parent, const QString &description) :
+	BioXASMirrorBendControl(name, units, upstreamLength, downstreamLength, parent, description)
+{
+
+}
+
+BioXASSideM2MirrorBendControl::~BioXASSideM2MirrorBendControl()
+{
+
+}
+
+double BioXASSideM2MirrorBendControl::calculateUpstreamBenderValue(double bendRadius)
+{
+	double result = 14.9095 + 19090.8/bendRadius - 2.40315 * log(bendRadius);
+	return result;
+}
+
+double BioXASSideM2MirrorBendControl::calculateDownstreamBenderValue(double bendRadius)
+{
+	double result = 21.5529 + 17259.2/bendRadius - 3.11236 * log(bendRadius);
+	return result;
+}
+
+double BioXASSideM2MirrorBendControl::calculateBendRadius(double upstreamBenderValue, double downstreamBenderValue)
+{
+	return 0;
+}
