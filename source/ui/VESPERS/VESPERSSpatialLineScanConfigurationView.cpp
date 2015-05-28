@@ -20,6 +20,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "VESPERSSpatialLineScanConfigurationView.h"
 
+#include "util/AMDateTimeUtils.h"
 #include "ui/AMTopFrame.h"
 #include "beamline/VESPERS/VESPERSBeamline.h"
 
@@ -250,19 +251,24 @@ VESPERSSpatialLineScanConfigurationView::VESPERSSpatialLineScanConfigurationView
 	QGroupBox *detectorGroupBox = new QGroupBox("Detectors");
 	detectorGroupBox->setLayout(detectorLayout);
 
+	QGroupBox *afterScanBox = createAfterScanOptionsBox(configuration_->closeFastShutter(), configuration_->returnToOriginalPosition());
+	connect(closeFastShutterCheckBox_, SIGNAL(toggled(bool)), this, SLOT(setCloseFastShutter(bool)));
+	connect(goToPositionCheckBox_, SIGNAL(toggled(bool)), this, SLOT(setReturnToOriginalPosition(bool)));
+
 	// Setting up the layout.
-	QGridLayout *contentsLayout = new QGridLayout;
-	contentsLayout->addWidget(positionsBox, 0, 0, 2, 3);
-	contentsLayout->addWidget(timeGroupBox, 2, 0, 1, 3);
-	contentsLayout->addWidget(scanNameGroupBox, 3, 0, 1, 3);
-	contentsLayout->addWidget(ccdTextBox_, 4, 0, 1, 3);
-	contentsLayout->addWidget(timeOffsetBox, 5, 0, 1, 3);
-	contentsLayout->addWidget(detectorGroupBox, 0, 3, 2, 1);
-	contentsLayout->addWidget(autoExportGroupBox, 2, 3, 1, 1);
+	contentsLayout_ = new QGridLayout;
+	contentsLayout_->addWidget(positionsBox, 0, 0, 2, 3);
+	contentsLayout_->addWidget(timeGroupBox, 2, 0, 1, 3);
+	contentsLayout_->addWidget(scanNameGroupBox, 3, 0, 1, 3);
+	contentsLayout_->addWidget(ccdTextBox_, 4, 0, 1, 3);
+	contentsLayout_->addWidget(timeOffsetBox, 5, 0, 1, 3);
+	contentsLayout_->addWidget(detectorGroupBox, 0, 3, 2, 1);
+	contentsLayout_->addWidget(autoExportGroupBox, 2, 3, 1, 1);
+	contentsLayout_->addWidget(afterScanBox, 3, 3, 1, 1);
 
 	QHBoxLayout *squeezeContents = new QHBoxLayout;
 	squeezeContents->addStretch();
-	squeezeContents->addLayout(contentsLayout);
+	squeezeContents->addLayout(contentsLayout_);
 	squeezeContents->addStretch();
 
 	QVBoxLayout *configViewLayout = new QVBoxLayout;
@@ -465,7 +471,7 @@ void VESPERSSpatialLineScanConfigurationView::onCCDDetectorChanged(int id)
 
 void VESPERSSpatialLineScanConfigurationView::onEstimatedTimeChanged()
 {
-	estimatedTime_->setText("Estimated time per scan:\t" + VESPERS::convertTimeToString(configuration_->totalTime()));
+	estimatedTime_->setText("Estimated time per scan:\t" + AMDateTimeUtils::convertTimeToString(configuration_->totalTime()));
 }
 
 void VESPERSSpatialLineScanConfigurationView::onSetStartPosition()

@@ -79,6 +79,8 @@ public:
 	int verticalIndex() const;
 	/// Returns the index of the normal control (or -1 if no normal orientation control exists).
 	int normalIndex() const;
+	/// Returns the index of the other control (or -1 if no other orientation control exists).
+	int otherIndex() const;
 
 	/// Returns the prefix of the horizontal control, if it exists.  Returns an empty string otherwise.
 	QString horizontalPrefix() const;
@@ -107,6 +109,9 @@ public:
 	AMMotorGroupObject::MotionType verticalMotionType() const;
 	/// Returns the normal motion type, if it exists.  Returns None otherwise.
 	AMMotorGroupObject::MotionType normalMotionType() const;
+
+	/// check whether there is motor in this motor group moving
+	bool isMotorMoving() const;
 
 	// Old actions.  Will update with new ones as soon as I can.
 	/// Returns a newly created move action for the horizontal postion.  Returns 0 if not connected.

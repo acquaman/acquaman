@@ -28,50 +28,79 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "acquaman/AMGenericScanActionControllerAssembler.h"
 #include "acquaman/AMEXAFSScanActionControllerAssembler.h"
 #include "beamline/AMBasicControlDetectorEmulator.h"
+#include "analysis/AM1DExpressionAB.h"
+#include "analysis/AM1DDerivativeAB.h"
+#include "analysis/AM1DDarkCurrentCorrectionAB.h"
+#include "beamline/CLS/CLSStorageRing.h"
 
 BioXASSideXASScanActionController::BioXASSideXASScanActionController(BioXASSideXASScanConfiguration *configuration, QObject *parent) :
-    AMStepScanActionController(configuration, parent)
+	AMStepScanActionController(configuration, parent)
 {
-    configuration_ = configuration;
+	configuration_ = configuration;
 
-    scan_ = new AMXASScan();
-    scan_->setName(configuration_->name());
-    scan_->setFileFormat("amCDFv1");
-    scan_->setScanConfiguration(configuration);
-    scan_->setIndexType("fileSystem");
-    scan_->rawData()->addScanAxis(AMAxisInfo("eV", 0, "Incident Energy", "eV"));
-    scan_->setNotes(beamlineSettings());
+	scan_ = new AMXASScan();
+	scan_->setName(configuration_->name());
+	scan_->setFileFormat("amCDFv1");
+	scan_->setScanConfiguration(configuration);
+	scan_->setIndexType("fileSystem");
+	scan_->rawData()->addScanAxis(AMAxisInfo("eV", 0, "Incident Energy", "eV"));
+	scan_->setNotes(beamlineSettings());
 
-    AMControlInfoList list;
-    list.append(BioXASSideBeamline::bioXAS()->mono()->energyControl()->toInfo());
-    configuration_->setAxisControlInfos(list);
+	AMControlInfoList list;
+	list.append(BioXASSideBeamline::bioXAS()->mono()->energyControl()->toInfo());
+	configuration_->setAxisControlInfos(list);
 
-    AMDetectorInfoSet bioXASDetectors;
-    bioXASDetectors.addDetectorInfo(BioXASSideBeamline::bioXAS()->i0Detector()->toInfo());
-    bioXASDetectors.addDetectorInfo(BioXASSideBeamline::bioXAS()->iTDetector()->toInfo());
-    bioXASDetectors.addDetectorInfo(BioXASSideBeamline::bioXAS()->i2Detector()->toInfo());
-    bioXASDetectors.addDetectorInfo(BioXASSideBeamline::bioXAS()->energyFeedbackDetector()->toInfo());
-    bioXASDetectors.addDetectorInfo(BioXASSideBeamline::bioXAS()->dwellTimeDetector()->toInfo());
-    bioXASDetectors.addDetectorInfo(BioXASSideBeamline::bioXAS()->braggMoveRetriesDetector()->toInfo());
-    bioXASDetectors.addDetectorInfo(BioXASSideBeamline::bioXAS()->braggMoveRetriesMaxDetector()->toInfo());
-    bioXASDetectors.addDetectorInfo(BioXASSideBeamline::bioXAS()->braggStepSetpointDetector()->toInfo());
-    bioXASDetectors.addDetectorInfo(BioXASSideBeamline::bioXAS()->braggDegreeSetpointDetector()->toInfo());
-    bioXASDetectors.addDetectorInfo(BioXASSideBeamline::bioXAS()->braggAngleDetector()->toInfo());
+	useFeedback_ = true;
 
-    configuration_->setDetectorConfigurations(bioXASDetectors);
+	AMDetectorInfoSet bioXASDetectors;
+	bioXASDetectors.addDetectorInfo(BioXASSideBeamline::bioXAS()->i0Detector()->toInfo());
+	bioXASDetectors.addDetectorInfo(BioXASSideBeamline::bioXAS()->i1Detector()->toInfo());
+	bioXASDetectors.addDetectorInfo(BioXASSideBeamline::bioXAS()->i2Detector()->toInfo());
+	bioXASDetectors.addDetectorInfo(BioXASSideBeamline::bioXAS()->energySetpointDetector()->toInfo());
+	bioXASDetectors.addDetectorInfo(BioXASSideBeamline::bioXAS()->energyFeedbackDetector()->toInfo());
+	bioXASDetectors.addDetectorInfo(BioXASSideBeamline::bioXAS()->dwellTimeDetector()->toInfo());
+	bioXASDetectors.addDetectorInfo(BioXASSideBeamline::bioXAS()->braggDetector()->toInfo());
+	bioXASDetectors.addDetectorInfo(BioXASSideBeamline::bioXAS()->braggEncoderFeedbackDetector()->toInfo());
+	bioXASDetectors.addDetectorInfo(BioXASSideBeamline::bioXAS()->braggMoveRetriesDetector()->toInfo());
+	bioXASDetectors.addDetectorInfo(BioXASSideBeamline::bioXAS()->braggStepSetpointDetector()->toInfo());
+
+	configuration_->setDetectorConfigurations(bioXASDetectors);
+
+	secondsElapsed_ = 0;
+	secondsTotal_ = configuration_->totalTime();
+	elapsedTime_.setInterval(1000);
+	connect(this, SIGNAL(started()), &elapsedTime_, SLOT(start()));
+	connect(this, SIGNAL(cancelled()), &elapsedTime_, SLOT(stop()));
+	connect(this, SIGNAL(paused()), &elapsedTime_, SLOT(stop()));
+	connect(this, SIGNAL(resumed()), &elapsedTime_, SLOT(start()));
+	connect(this, SIGNAL(failed()), &elapsedTime_, SLOT(stop()));
+	connect(this, SIGNAL(finished()), &elapsedTime_, SLOT(stop()));
+	connect(&elapsedTime_, SIGNAL(timeout()), this, SLOT(onScanTimerUpdate()));
 }
 
 BioXASSideXASScanActionController::~BioXASSideXASScanActionController()
 {
+
+}
+
+void BioXASSideXASScanActionController::onScanTimerUpdate()
+{
+	if (elapsedTime_.isActive()){
+
+		if (secondsElapsed_ >= secondsTotal_)
+			secondsElapsed_ = secondsTotal_;
+		else
+			secondsElapsed_ += 1.0;
+
+		emit progress(secondsElapsed_, secondsTotal_);
+	}
 }
 
 QString BioXASSideXASScanActionController::beamlineSettings()
 {
 	QString notes;
 
-	notes.append(QString("Bragg motor base velocity:\t%1").arg(BioXASSideBeamline::bioXAS()->mono()->braggMotor()->EGUBaseVelocity()));
-	notes.append(QString("Bragg motor acceleration:\t%1").arg(BioXASSideBeamline::bioXAS()->mono()->braggMotor()->EGUAcceleration()));
-	notes.append(QString("Bragg motor velocity:\t%1").arg(BioXASSideBeamline::bioXAS()->mono()->braggMotor()->EGUVelocity()));
+	notes.append(QString("SR1 Current:\t%1 mA\n").arg(CLSStorageRing::sr1()->ringCurrent()));
 
 	return notes;
 }
@@ -128,11 +157,151 @@ AMAction3* BioXASSideXASScanActionController::createCleanupActions()
 
 void BioXASSideXASScanActionController::buildScanControllerImplementation()
 {
+	// Identify data sources for the scaler channels.
 
+	AMDataSource *i0DetectorSource = 0;
+	AMDataSource *i1DetectorSource = 0;
+	AMDataSource *i2DetectorSource = 0;
+
+	int i0DetectorIndex = scan_->indexOfDataSource(BioXASSideBeamline::bioXAS()->i0Detector()->name());
+	if (i0DetectorIndex != -1) {
+		i0DetectorSource = scan_->dataSourceAt(i0DetectorIndex);
+	}
+
+	int i1DetectorIndex = scan_->indexOfDataSource(BioXASSideBeamline::bioXAS()->i1Detector()->name());
+	if (i1DetectorIndex != -1) {
+		i1DetectorSource = scan_->dataSourceAt(i1DetectorIndex);
+	}
+
+	int i2DetectorIndex = scan_->indexOfDataSource(BioXASSideBeamline::bioXAS()->i2Detector()->name());
+	if (i2DetectorIndex != -1) {
+		i2DetectorSource = scan_->dataSourceAt(i2DetectorIndex);
+	}
+
+	// Create analyzed data sources for the monochromator testing measurements.
+
+	AMDataSource *energySetpointSource = 0;
+	AMDataSource *energyFeedbackSource = 0;
+	AM1DExpressionAB *deltaEnergySource = 0;
+
+	int energySetpointDetectorIndex = scan_->indexOfDataSource(BioXASSideBeamline::bioXAS()->energySetpointDetector()->name());
+	if (energySetpointDetectorIndex) {
+		energySetpointSource = scan_->dataSourceAt(energySetpointDetectorIndex);
+	}
+
+	int energyFeedbackDetectorIndex = scan_->indexOfDataSource(BioXASSideBeamline::bioXAS()->energyFeedbackDetector()->name());
+	if (energyFeedbackDetectorIndex != -1) {
+		energyFeedbackSource = scan_->dataSourceAt(energyFeedbackDetectorIndex);
+	}
+
+	if (energySetpointSource && energyFeedbackSource) {
+		deltaEnergySource = new AM1DExpressionAB("EnergySetpointFeedback");
+		deltaEnergySource->setInputDataSources(QList<AMDataSource *>() << energySetpointSource << energyFeedbackSource);
+		deltaEnergySource->setExpression("EnergySetpoint-EnergyFeedback");
+
+		scan_->addAnalyzedDataSource(deltaEnergySource, true, false);
+	}
+
+	// Create analyzed data source for the absorbance.
+
+	AM1DExpressionAB *absorbanceSource = 0;
+
+	if (i0DetectorSource && i1DetectorSource && i2DetectorSource) {
+		absorbanceSource = new AM1DExpressionAB("Absorbance");
+		absorbanceSource->setInputDataSources(QList<AMDataSource*>() << i0DetectorSource << i1DetectorSource << i2DetectorSource);
+		absorbanceSource->setExpression(QString("ln(%1/%2)").arg(i0DetectorSource->name(), i1DetectorSource->name()));
+
+		scan_->addAnalyzedDataSource(absorbanceSource, true, false);
+	}
+
+	// Create analyzed data source for the derivative of the absorbance.
+
+	AM1DDerivativeAB *derivAbsorbanceSource = 0;
+
+	if (absorbanceSource) {
+		derivAbsorbanceSource = new AM1DDerivativeAB("DerivAbsorbance");
+		derivAbsorbanceSource->setInputDataSources(QList<AMDataSource*>() << absorbanceSource);
+
+		scan_->addAnalyzedDataSource(derivAbsorbanceSource, true, false);
+	}
+
+	// Create analyzed data sources for the dark current corrected scaler channel detectors.
+
+	AMDataSource *dwellTimeSource = 0;
+	AM1DDarkCurrentCorrectionAB *i0CorrectedDetectorSource = 0;
+	AM1DDarkCurrentCorrectionAB *i1CorrectedDetectorSource = 0;
+	AM1DDarkCurrentCorrectionAB *i2CorrectedDetectorSource = 0;
+
+	int dwellTimeIndex = scan_->indexOfDataSource(BioXASSideBeamline::bioXAS()->dwellTimeDetector()->name());
+	if (dwellTimeIndex != -1) {
+		dwellTimeSource = scan_->dataSourceAt(dwellTimeIndex);
+	}
+
+	if (dwellTimeSource && i0DetectorSource) {
+		i0CorrectedDetectorSource = new AM1DDarkCurrentCorrectionAB(QString("%1_DarkCorrect").arg(i0DetectorSource->name()));
+		i0CorrectedDetectorSource->setDescription(QString("%1 Dark Current Corrected").arg(i0DetectorSource->name()));
+		i0CorrectedDetectorSource->setDataName(i0DetectorSource->name());
+		i0CorrectedDetectorSource->setDwellTimeName(dwellTimeSource->name());
+		i0CorrectedDetectorSource->setInputDataSources(QList<AMDataSource*>() << i0DetectorSource << dwellTimeSource);
+		i0CorrectedDetectorSource->setTimeUnitMultiplier(0.001);
+
+		connect( BioXASSideBeamline::bioXAS()->i0Detector(), SIGNAL(darkCurrentValueChanged(double)), i0CorrectedDetectorSource, SLOT(setDarkCurrent(double)) );
+
+		scan_->addAnalyzedDataSource(i0CorrectedDetectorSource, true, false);
+	}
+
+	if (dwellTimeSource && i1DetectorSource) {
+		i1CorrectedDetectorSource = new AM1DDarkCurrentCorrectionAB(QString("%1_DarkCorrect").arg(i1DetectorSource->name()));
+		i1CorrectedDetectorSource->setDescription(QString("%1 Dark Current Corrected").arg(i1DetectorSource->name()));
+		i1CorrectedDetectorSource->setDataName(i1DetectorSource->name());
+		i1CorrectedDetectorSource->setDwellTimeName(dwellTimeSource->name());
+		i1CorrectedDetectorSource->setInputDataSources(QList<AMDataSource*>() << i1DetectorSource << dwellTimeSource);
+		i1CorrectedDetectorSource->setTimeUnitMultiplier(0.001);
+
+		connect( BioXASSideBeamline::bioXAS()->i1Detector(), SIGNAL(darkCurrentValueChanged(double)), i1CorrectedDetectorSource, SLOT(setDarkCurrent(double)) );
+
+		scan_->addAnalyzedDataSource(i1CorrectedDetectorSource, true, false);
+	}
+
+	if (dwellTimeSource && i2DetectorSource) {
+		i2CorrectedDetectorSource = new AM1DDarkCurrentCorrectionAB(QString("%1_DarkCorrect").arg(i2DetectorSource->name()));
+		i2CorrectedDetectorSource->setDescription(QString("%1 Dark Current Corrected").arg(i2DetectorSource->name()));
+		i2CorrectedDetectorSource->setDataName(i2DetectorSource->name());
+		i2CorrectedDetectorSource->setDwellTimeName(dwellTimeSource->name());
+		i2CorrectedDetectorSource->setInputDataSources(QList<AMDataSource*>() << i2DetectorSource << dwellTimeSource);
+		i2CorrectedDetectorSource->setTimeUnitMultiplier(0.001);
+
+		connect( BioXASSideBeamline::bioXAS()->i2Detector(), SIGNAL(darkCurrentValueChanged(double)), i2CorrectedDetectorSource, SLOT(setDarkCurrent(double)) );
+
+		scan_->addAnalyzedDataSource(i2CorrectedDetectorSource, true, false);
+	}
+
+	// Create analyzed data source for the absorbance, dark current corrected values.
+
+	AM1DExpressionAB *absorbanceCorrectedSource = 0;
+
+	if (i0CorrectedDetectorSource && i1CorrectedDetectorSource && i2CorrectedDetectorSource) {
+		absorbanceCorrectedSource = new AM1DExpressionAB("Absorbance_DarkCorrect");
+		absorbanceCorrectedSource->setInputDataSources(QList<AMDataSource*>() << i0CorrectedDetectorSource << i1CorrectedDetectorSource << i2CorrectedDetectorSource);
+		absorbanceCorrectedSource->setExpression(QString("ln(%1/%2)").arg(i0CorrectedDetectorSource->name(), i1CorrectedDetectorSource->name()));
+
+		scan_->addAnalyzedDataSource(absorbanceCorrectedSource, true, false);
+	}
+
+	// Create analyzed data source for the derivative of the absorbance, dark current corrected values.
+
+	AM1DDerivativeAB *derivAbsorbanceCorrectedSource = 0;
+
+	if (absorbanceCorrectedSource) {
+		derivAbsorbanceCorrectedSource = new AM1DDerivativeAB("DerivAbsorbance_DarkCorrect");
+		derivAbsorbanceCorrectedSource->setInputDataSources(QList<AMDataSource*>() << absorbanceCorrectedSource);
+
+		scan_->addAnalyzedDataSource(derivAbsorbanceCorrectedSource, true, false);
+	}
 }
 
 void BioXASSideXASScanActionController::createScanAssembler()
 {
-    scanAssembler_ = new AMEXAFSScanActionControllerAssembler(this);
+	scanAssembler_ = new AMEXAFSScanActionControllerAssembler(this);
 }
 

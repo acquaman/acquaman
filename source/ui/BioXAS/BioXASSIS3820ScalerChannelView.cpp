@@ -74,6 +74,10 @@ BioXASSIS3820ScalerChannelView::BioXASSIS3820ScalerChannelView(CLSSIS3820ScalerC
 	if (darkCurrentDisplay_)
 		darkCurrentDisplay_->hide();
 
+	scalerOutput_->setFixedWidth(100);
+
+	channelName_->setAlignment(Qt::AlignCenter);
+
 	// Make connections.
 
 	if (channel_ && channel_->detector()) {
@@ -130,7 +134,7 @@ void BioXASSIS3820ScalerChannelView::setDarkCurrentVisible(bool isVisible)
 void BioXASSIS3820ScalerChannelView::setDarkCurrentValue(double newValue)
 {
 	if (darkCurrentDisplay_) {
-		darkCurrentDisplay_->setText(QString("%1 counts").arg(newValue));
+		darkCurrentDisplay_->setText(QString("%1 counts/sec").arg(newValue));
 	}
 }
 

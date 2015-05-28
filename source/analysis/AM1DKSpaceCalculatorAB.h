@@ -61,9 +61,6 @@ public:
 	/// Returns the desired rank for input sources.
 	virtual int desiredInputRank() const { return 1; }
 
-	/// Set the data source inputs.
-	virtual void setInputDataSourcesImplementation(const QList<AMDataSource*>& dataSources);
-
 	/// Sets the edge energy.
 	void setEdgeEnergy(double energy);
 	/// Returns the current edge edge energy.
@@ -95,6 +92,8 @@ protected slots:
 	void onInputSourceStateChanged();
 
 protected:
+	/// Set the data source inputs.
+	virtual void setInputDataSourcesImplementation(const QList<AMDataSource*>& dataSources);
 	/// Helper function to look at our overall situation and determine what the output state should be.
 	void reviewState();
 

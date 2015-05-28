@@ -76,7 +76,7 @@ SXRMBXRFScanController::SXRMBXRFScanController(SXRMBXRFScanConfiguration *scanCo
 		for (int i = 0; i < elements; i++){
 
 			AMDeadTimeAB *temp = new AMDeadTimeAB(QString("Corrected %1").arg(i+1));
-			temp->setInputDataSourcesImplementation(QList<AMDataSource *>() << (AMDataSource *)scan_->rawDataSources()->at(i) << (AMDataSource *)scan_->rawDataSources()->at(i+elements) << (AMDataSource *)scan_->rawDataSources()->at(i+2*elements));
+			temp->setInputDataSources(QList<AMDataSource *>() << (AMDataSource *)scan_->rawDataSources()->at(i) << (AMDataSource *)scan_->rawDataSources()->at(i+elements) << (AMDataSource *)scan_->rawDataSources()->at(i+2*elements));
 			scan_->addAnalyzedDataSource(temp, true, false);
 		}
 	}
@@ -87,7 +87,7 @@ SXRMBXRFScanController::SXRMBXRFScanController(SXRMBXRFScanConfiguration *scanCo
 		QList<AMDataSource *> list;
 		for (int i = 0; i < scan_->analyzedDataSourceCount(); i++)
 			list << (AMDataSource *)scan_->analyzedDataSources()->at(i);
-		corr->setInputDataSourcesImplementation(list);
+		corr->setInputDataSources(list);
 		scan_->addAnalyzedDataSource(corr, true, false);
 	}
 }
@@ -105,8 +105,9 @@ void SXRMBXRFScanController::onStatusChanged()
 
 bool SXRMBXRFScanController::startImplementation()
 {
-	if (!detector_->isConnected() || !detector_->isInitialized()) {
-		QString errorMessage = QString("The bruker detector %1 is not connected or initialized.").arg(detector_->name());
+	if (!detector_->isConnected()) {
+
+		QString errorMessage = QString("The bruker detector %1 is not connected.").arg(detector_->name());
 		AMErrorMon::alert(this, ERR_SXRMB_XRF_DETECTOR_NOT_CONNECTED, errorMessage, true);
 		return false;
 	}

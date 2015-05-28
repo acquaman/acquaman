@@ -84,6 +84,17 @@ int AMMotorGroupObject::normalIndex() const
 	return index;
 }
 
+int AMMotorGroupObject::otherIndex() const
+{
+	int index = -1;
+
+	for (int i = 0, size = orientations_.size(); i < size; i++)
+		if (orientations_.at(i) == Other)
+			index = i;
+
+	return index;
+}
+
 QString AMMotorGroupObject::horizontalPrefix() const
 {
 	int index = horizontalIndex();
@@ -202,6 +213,16 @@ AMMotorGroupObject::MotionType AMMotorGroupObject::normalMotionType() const
 		return None;
 
 	return motionTypes_.at(index);
+}
+
+bool AMMotorGroupObject::isMotorMoving() const
+{
+	bool isMoving = false;
+
+	foreach (AMControl *control, controls())
+		isMoving |= control->isMoving();
+
+	return isMoving;
 }
 
 AMAction3 *AMMotorGroupObject::createHorizontalMoveAction(double position)

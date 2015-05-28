@@ -40,6 +40,10 @@ signals:
 
 public slots:
 
+protected slots:
+	/// Helper slot that handles the progress update.
+	void onScanTimerUpdate();
+
 protected:
 	/// Provides a string of beamline settings for the scan notes.
 	QString beamlineSettings();
@@ -55,7 +59,15 @@ protected:
 
 
 protected:
+	/// The BioXAS-specific scan configuration.
 	BioXASSideXASScanConfiguration *configuration_;
+
+	/// Timer used for determining the elapsed time for a scan.
+	QTimer elapsedTime_;
+	/// Number of seconds since the timer started.
+	double secondsElapsed_;
+	/// Number of seconds total for the scan to complete (estimate).
+	double secondsTotal_;
 
 };
 

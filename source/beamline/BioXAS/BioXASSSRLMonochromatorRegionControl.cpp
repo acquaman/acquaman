@@ -1,15 +1,10 @@
 #include "BioXASSSRLMonochromatorRegionControl.h"
 #include "BioXASSSRLMonochromator.h"
-#include <QDebug>
 
 BioXASSSRLMonochromatorRegionControl::BioXASSSRLMonochromatorRegionControl(QObject *parent) :
-	AMCompositeControl("RegionControl", "", parent, "BioXAS SSRL Monochromator Region Control")
+	AMPseudoMotorControl("RegionControl", "", parent, "BioXAS SSRL Monochromator Region Control")
 {
 	// Initialize local variables.
-
-	value_ = BioXASSSRLMonochromator::Region::None;
-	setpoint_ = BioXASSSRLMonochromator::Region::None;
-	moveInProgress_ = false;
 
 	upperSlit_ = 0;
 	lowerSlit_ = 0;
@@ -26,11 +21,12 @@ BioXASSSRLMonochromatorRegionControl::BioXASSSRLMonochromatorRegionControl(QObje
 	regionAStatus_ = 0;
 	regionBStatus_ = 0;
 
-	actionCancelledMapper_ = new QSignalMapper(this);
-	actionFailedMapper_ = new QSignalMapper(this);
-	actionSucceededMapper_ = new QSignalMapper(this);
-
 	// Initialize inherited variables.
+
+	value_ = BioXASSSRLMonochromator::Region::None;
+	setpoint_ = BioXASSSRLMonochromator::Region::None;
+	minimumValue_ = BioXASSSRLMonochromator::Region::A;
+	maximumValue_ = BioXASSSRLMonochromator::Region::None;
 
 	setEnumStates(QStringList() << "A" << "B" << "None");
 	setMoveEnumStates(QStringList() << "A" << "B");
@@ -42,6 +38,12 @@ BioXASSSRLMonochromatorRegionControl::BioXASSSRLMonochromatorRegionControl(QObje
 	connect( this, SIGNAL(connected(bool)), this, SIGNAL(enumChanged()) );
 	connect( this, SIGNAL(valueChanged(double)), this, SIGNAL(enumChanged()) );
 	connect( this, SIGNAL(setpointChanged(double)), this, SIGNAL(enumChanged()) );
+
+	// Current settings.
+
+	updateConnected();
+	updateValue();
+	updateIsMoving();
 }
 
 BioXASSSRLMonochromatorRegionControl::~BioXASSSRLMonochromatorRegionControl()
@@ -49,44 +51,33 @@ BioXASSSRLMonochromatorRegionControl::~BioXASSSRLMonochromatorRegionControl()
 
 }
 
-double BioXASSSRLMonochromatorRegionControl::minimumValue() const
+bool BioXASSSRLMonochromatorRegionControl::canMeasure() const
 {
-	return BioXASSSRLMonochromator::Region::None;
-}
+	bool result = false;
 
-double BioXASSSRLMonochromatorRegionControl::maximumValue() const
-{
-	return BioXASSSRLMonochromator::Region::B;
+	if (isConnected()) {
+		result = (
+				regionAStatus_->canMeasure() &&
+				regionBStatus_->canMeasure()
+				);
+	}
+
+	return result;
 }
 
 bool BioXASSSRLMonochromatorRegionControl::canMove() const
 {
-	bool exists = false;
-	bool connected = false;
-	bool canMove = false;
+	bool result = false;
 
-	exists = (
-		upperSlit_ &&
-		lowerSlit_ &&
-		slitsStatus_ &&
-		paddle_ &&
-		paddleStatus_ &&
-		keyStatus_ &&
-		brakeStatus_ &&
-		bragg_ &&
-		braggAtCrystalChangePositionStatus_ &&
-		crystalChange_ &&
-		crystalChangeCWLimitStatus_ &&
-		crystalChangeCCWLimitStatus_ &&
-		regionAStatus_ &&
-		regionBStatus_
-	);
-
-	if (exists) {
-		connected = isConnected();
-
-		canMove = (
-			!moveInProgress_ &&
+	if (isConnected() && !isMoving()) {
+		result = (
+			slitsStatus_->canMeasure() &&
+			paddleStatus_->canMeasure() &&
+			keyStatus_->canMeasure() &&
+			brakeStatus_->canMeasure() &&
+			braggAtCrystalChangePositionStatus_->canMeasure() &&
+			crystalChangeCWLimitStatus_->canMeasure() &&
+			crystalChangeCCWLimitStatus_->canMeasure() &&
 
 			upperSlit_->canMove() &&
 			lowerSlit_->canMove() &&
@@ -96,303 +87,311 @@ bool BioXASSSRLMonochromatorRegionControl::canMove() const
 		);
 	}
 
-	return (exists && connected && canMove);
+	return result;
 }
 
-AMControl::FailureExplanation BioXASSSRLMonochromatorRegionControl::move(double setpoint)
+bool BioXASSSRLMonochromatorRegionControl::validValue(double value) const
 {
-	if (!isConnected()) {
-		AMErrorMon::error(this, BioXAS_MONO_REGION_NOT_CONNECTED, "Region control is not connected. Cannot complete move.");
-		return AMControl::NotConnectedFailure;
+	bool isValid = false;
+
+	switch ((int)value) {
+	case BioXASSSRLMonochromator::Region::A:
+		isValid = true;
+		break;
+	case BioXASSSRLMonochromator::Region::B:
+		isValid = true;
+		break;
+	case BioXASSSRLMonochromator::Region::None:
+		isValid = true;
+		break;
+	default:
+		break;
 	}
 
-	if (isMoving()) {
-		AMErrorMon::error(this, BioXAS_MONO_REGION_ALREADY_MOVING, "Region control is already moving. Cannot start a new move until one one is complete.");
-		return AMControl::AlreadyMovingFailure;
-	}
+	return isValid;
+}
 
-	if (!canMove()) {
-		AMErrorMon::error(this, BioXAS_MONO_REGION_CANNOT_MOVE, "Region control cannot move. Child controls may be set improperly or unable to move themselves.");
-		return AMControl::LimitFailure;
-	}
+bool BioXASSSRLMonochromatorRegionControl::validSetpoint(double value) const
+{
+	bool isValid = false;
 
-	// Now we can assume that the region control is ready for a crystal change.
-	// Update the saved setpoint value.
+	if (value == BioXASSSRLMonochromator::Region::A || value == BioXASSSRLMonochromator::Region::B)
+		isValid = true;
 
-	setSetpoint((int)setpoint);
-
-	if (!validRegionSetpoint(setpoint_)) {
-		AMErrorMon::error(this, BioXAS_MONO_REGION_INVALID_SETPOINT, "Region control cannot move. The setpoint given is invalid.");
-		return AMControl::LimitFailure;
-	}
-
-	// Resolve the given setpoint to a region state, create the appropriate action.
-
-	AMListAction3 *action = createChangeRegionAction(setpoint_);
-
-	// If a valid action was NOT generated, there must be some problem with one of the child controls.
-
-	if (!action) {
-		AMErrorMon::error(this, BioXAS_MONO_REGION_INVALID_ACTION, "Region control cannot move. The problem is most likely that the destination is not a valid region.");
-		return AMControl::LimitFailure;
-	}
-
-	// Create signal mappings for this action.
-
-	actionCancelledMapper_->setMapping(action, action);
-	connect( action, SIGNAL(cancelled()), actionCancelledMapper_, SLOT(map()) );
-
-	actionFailedMapper_->setMapping(action, action);
-	connect( action, SIGNAL(failed()), actionFailedMapper_, SLOT(map()) );
-
-	actionSucceededMapper_->setMapping(action, action);
-	connect( action, SIGNAL(succeeded()), actionSucceededMapper_, SLOT(map()) );
-
-	// Connect signal mappers to slots that handle different action states.
-
-	connect( actionCancelledMapper_, SIGNAL(mapped(QObject*)), this, SLOT(onRegionChangeCancelled(QObject*)) );
-	connect( actionFailedMapper_, SIGNAL(mapped(QObject*)), this, SLOT(onRegionChangeFailed(QObject*)) );
-	connect( actionSucceededMapper_, SIGNAL(mapped(QObject*)), this, SLOT(onRegionChangeSucceeded(QObject*)) );
-
-	// Make remaining action connections.
-
-	connect( action, SIGNAL(progressChanged(double, double)), this, SIGNAL(moveProgressChanged(double,double)) );
-	connect( action, SIGNAL(currentSubActionChanged(int)), this, SLOT(onActionStepChanged(int)) );
-	connect( action, SIGNAL(started()), this, SLOT(onRegionChangeStarted()) );
-
-	// Run action.
-
-	action->start();
-
-	return AMControl::NoFailure;
+	return isValid;
 }
 
 void BioXASSSRLMonochromatorRegionControl::setUpperSlitControl(AMControl *upperSlit)
 {
 	if (upperSlit_ != upperSlit) {
-		upperSlit_ = upperSlit;
-		addChildControl(upperSlit_);
 
-		connect( upperSlit_, SIGNAL(movingChanged(bool)), this, SIGNAL(movingChanged(bool)) );
+		if (upperSlit_)
+			removeChildControl(upperSlit_);
+
+		upperSlit_ = upperSlit;
+
+		if (upperSlit_)
+			addChildControl(upperSlit_);
 	}
 }
 
 void BioXASSSRLMonochromatorRegionControl::setLowerSlitControl(AMControl *lowerSlit)
 {
-	if (!lowerSlit_ && lowerSlit_ != lowerSlit) {
-		lowerSlit_ = lowerSlit;
-		addChildControl(lowerSlit_);
+	if (lowerSlit_ != lowerSlit) {
 
-		connect( lowerSlit_, SIGNAL(movingChanged(bool)), this, SIGNAL(movingChanged(bool)) );
+		if (lowerSlit_)
+			removeChildControl(lowerSlit_);
+
+		lowerSlit_ = lowerSlit;
+
+		if (lowerSlit_)
+			addChildControl(lowerSlit_);
 	}
 }
 
 void BioXASSSRLMonochromatorRegionControl::setSlitsStatusControl(AMControl *slitsStatus)
 {
-	if (!slitsStatus_ && slitsStatus_ != slitsStatus) {
-		slitsStatus_ = slitsStatus;
-		addChildControl(slitsStatus_);
+	if (slitsStatus_ != slitsStatus) {
 
-		connect( slitsStatus_, SIGNAL(valueChanged(double)), this, SIGNAL(slitsStatusChanged(double)) );
-		connect( slitsStatus_, SIGNAL(movingChanged(bool)), this, SIGNAL(movingChanged(bool)) );
+		if (slitsStatus_)
+			removeChildControl(slitsStatus_);
+
+		slitsStatus_ = slitsStatus;
+
+		if (slitsStatus_)
+			addChildControl(slitsStatus_);
 	}
 }
 
 void BioXASSSRLMonochromatorRegionControl::setPaddleControl(AMControl *paddle)
 {
-	if (!paddle_ && paddle_ != paddle) {
-		paddle_ = paddle;
-		addChildControl(paddle_);
+	if (paddle_ != paddle) {
 
-		connect( paddle_, SIGNAL(movingChanged(bool)), this, SIGNAL(movingChanged(bool)) );
+		if (paddle_)
+			removeChildControl(paddle_);
+
+		paddle_ = paddle;
+
+		if (paddle_)
+			addChildControl(paddle_);
 	}
 }
 
 void BioXASSSRLMonochromatorRegionControl::setPaddleStatusControl(AMControl *paddleStatus)
 {
-	if (!paddleStatus_ && paddleStatus_ != paddleStatus) {
-		paddleStatus_ = paddleStatus;
-		addChildControl(paddleStatus_);
+	if (paddleStatus_ != paddleStatus) {
 
-		connect( paddleStatus_, SIGNAL(valueChanged(double)), this, SIGNAL(paddleStatusChanged(double)) );
-		connect( paddleStatus_, SIGNAL(movingChanged(bool)), this, SIGNAL(movingChanged(bool)) );
+		if (paddleStatus_)
+			removeChildControl(paddleStatus_);
+
+		paddleStatus_ = paddleStatus;
+
+		if (paddleStatus_)
+			addChildControl(paddleStatus_);
 	}
 }
 
 void BioXASSSRLMonochromatorRegionControl::setKeyStatusControl(AMControl *keyStatus)
 {
-	if (!keyStatus_ && keyStatus_ != keyStatus) {
-		keyStatus_ = keyStatus;
-		addChildControl(keyStatus_);
+	if (keyStatus_ != keyStatus) {
 
-		connect( keyStatus_, SIGNAL(valueChanged(double)), this, SIGNAL(keyStatusChanged(double)) );
-		connect( keyStatus_, SIGNAL(movingChanged(bool)), this, SIGNAL(movingChanged(bool)) );
+		if (keyStatus_)
+			removeChildControl(keyStatus_);
+
+		keyStatus_ = keyStatus;
+
+		if (keyStatus_)
+			addChildControl(keyStatus_);
 	}
 }
 
 void BioXASSSRLMonochromatorRegionControl::setBrakeStatusControl(AMControl *brakeStatus)
 {
-	if (!brakeStatus_ && brakeStatus_ != brakeStatus) {
-		brakeStatus_ = brakeStatus;
-		addChildControl(brakeStatus_);
+	if (brakeStatus_ != brakeStatus) {
 
-		connect( brakeStatus_, SIGNAL(valueChanged(double)), this, SIGNAL(brakeStatusChanged(double)) );
-		connect( brakeStatus_, SIGNAL(movingChanged(bool)), this, SIGNAL(movingChanged(bool)) );
+		if (brakeStatus_)
+			removeChildControl(brakeStatus_);
+
+		brakeStatus_ = brakeStatus;
+
+		if (brakeStatus_)
+			addChildControl(brakeStatus_);
 	}
 }
 
 void BioXASSSRLMonochromatorRegionControl::setBraggControl(AMControl *bragg)
 {
-	if (!bragg_ && bragg_ != bragg) {
-		bragg_ = bragg;
-		addChildControl(bragg_);
+	if (bragg_ != bragg) {
 
-		connect( bragg_, SIGNAL(movingChanged(bool)), this, SIGNAL(movingChanged(bool)) );
+		if (bragg_)
+			removeChildControl(bragg_);
+
+		bragg_ = bragg;
+
+		if (bragg_)
+			addChildControl(bragg_);
 	}
 }
 
 void BioXASSSRLMonochromatorRegionControl::setBraggAtCrystalChangePositionStatusControl(AMControl *inPosition)
 {
-	if (!braggAtCrystalChangePositionStatus_ && braggAtCrystalChangePositionStatus_ != inPosition) {
-		braggAtCrystalChangePositionStatus_ = inPosition;
-		addChildControl(braggAtCrystalChangePositionStatus_);
+	if (braggAtCrystalChangePositionStatus_ != inPosition) {
 
-		connect( braggAtCrystalChangePositionStatus_, SIGNAL(valueChanged(double)), this, SIGNAL(braggAtCrystalChangePositionStatusChanged(double)) );
-		connect( braggAtCrystalChangePositionStatus_, SIGNAL(movingChanged(bool)), this, SIGNAL(movingChanged(bool)) );
+		if (braggAtCrystalChangePositionStatus_)
+			removeChildControl(braggAtCrystalChangePositionStatus_);
+
+		braggAtCrystalChangePositionStatus_ = inPosition;
+
+		if (braggAtCrystalChangePositionStatus_)
+			addChildControl(braggAtCrystalChangePositionStatus_);
 	}
 }
 
 void BioXASSSRLMonochromatorRegionControl::setCrystalChangeControl(AMControl *crystalChange)
 {
-	if (!crystalChange_ && crystalChange_ != crystalChange) {
-		crystalChange_ = crystalChange;
-		addChildControl(crystalChange_);
+	if (crystalChange_ != crystalChange) {
 
-		connect( crystalChange_, SIGNAL(movingChanged(bool)), this, SIGNAL(movingChanged(bool)) );
+		if (crystalChange_)
+			removeChildControl(crystalChange_);
+
+		crystalChange_ = crystalChange;
+
+		if (crystalChange_)
+			addChildControl(crystalChange_);
 	}
 }
 
 void BioXASSSRLMonochromatorRegionControl::setCrystalChangeCWLimitStatusControl(AMControl *limitStatus)
 {
-	if (!crystalChangeCWLimitStatus_ && crystalChangeCWLimitStatus_ != limitStatus) {
-		crystalChangeCWLimitStatus_ = limitStatus;
-		addChildControl(crystalChangeCWLimitStatus_);
+	if (crystalChangeCWLimitStatus_ != limitStatus) {
 
-		connect( crystalChangeCWLimitStatus_, SIGNAL(movingChanged(bool)), this, SIGNAL(movingChanged(bool)) );
+		if (crystalChangeCWLimitStatus_)
+			removeChildControl(crystalChangeCCWLimitStatus_);
+
+		crystalChangeCWLimitStatus_ = limitStatus;
+
+		if (crystalChangeCWLimitStatus_)
+			addChildControl(crystalChangeCWLimitStatus_);
 	}
 }
 
 void BioXASSSRLMonochromatorRegionControl::setCrystalChangeCCWLimitStatusControl(AMControl *limitStatus)
 {
-	if (!crystalChangeCCWLimitStatus_ && crystalChangeCCWLimitStatus_ != limitStatus) {
+	if (crystalChangeCCWLimitStatus_ != limitStatus) {
+
+		if (crystalChangeCCWLimitStatus_)
+			removeChildControl(crystalChangeCCWLimitStatus_);
+
 		crystalChangeCCWLimitStatus_ = limitStatus;
-		addChildControl(crystalChangeCWLimitStatus_);
 
-		connect( crystalChangeCCWLimitStatus_, SIGNAL(movingChanged(bool)), this, SIGNAL(movingChanged(bool)) );
+		if (crystalChangeCCWLimitStatus_)
+			addChildControl(crystalChangeCCWLimitStatus_);
 	}
-
 }
 
 void BioXASSSRLMonochromatorRegionControl::setRegionAStatusControl(AMControl *regionStatus)
 {
-	if (!regionAStatus_ && regionAStatus_ != regionStatus) {
-		regionAStatus_ = regionStatus;
-		addChildControl(regionAStatus_);
+	if (regionAStatus_ != regionStatus) {
 
-		connect( regionAStatus_, SIGNAL(valueChanged(double)), this, SLOT(onRegionControlValueChanged()) );
-		connect( regionAStatus_, SIGNAL(movingChanged(bool)), this, SIGNAL(movingChanged(bool)) );
+		if (regionAStatus_)
+			removeChildControl(regionAStatus_);
+
+		regionAStatus_ = regionStatus;
+
+		if (regionAStatus_)
+			addChildControl(regionAStatus_);
 	}
 }
 
 void BioXASSSRLMonochromatorRegionControl::setRegionBStatusControl(AMControl *regionStatus)
 {
-	if (!regionBStatus_ && regionBStatus_ != regionStatus) {
+	if (regionBStatus_ != regionStatus) {
+
+		if (regionBStatus_)
+			addChildControl(regionBStatus_);
+
 		regionBStatus_ = regionStatus;
-		addChildControl(regionBStatus_);
 
-		connect( regionBStatus_, SIGNAL(valueChanged(double)), this, SLOT(onRegionControlValueChanged()) );
-		connect( regionBStatus_, SIGNAL(movingChanged(bool)), this, SIGNAL(movingChanged(bool)) );
+		if (regionBStatus_)
+			removeChildControl(regionBStatus_);
 	}
 }
 
-void BioXASSSRLMonochromatorRegionControl::setValue(int newValue)
+void BioXASSSRLMonochromatorRegionControl::updateConnected()
 {
-	if (value_ != newValue) {
-		value_ = newValue;
-		emit valueChanged(value_);
-	}
+	bool upperSlitOK = (upperSlit_ && upperSlit_->isConnected());
+	bool lowerSlitOK = (lowerSlit_ && lowerSlit_->isConnected());
+	bool slitsStatusOK = (slitsStatus_ && slitsStatus_->isConnected());
+	bool paddleOK = (paddle_ && paddle_->isConnected());
+	bool paddleStatusOK = (paddleStatus_ && paddleStatus_->isConnected());
+	bool keyStatusOK = (keyStatus_ && keyStatus_->isConnected());
+	bool brakeStatusOK = (brakeStatus_ && brakeStatus_->isConnected());
+	bool braggOK = (bragg_ && bragg_->isConnected());
+	bool braggAtCrystalChangePositionStatusOK = (braggAtCrystalChangePositionStatus_ && braggAtCrystalChangePositionStatus_->isConnected());
+	bool crystalChangeOK = (crystalChange_ && crystalChange_->isConnected());
+	bool crystalChangeCWLimitStatusOK = (crystalChangeCWLimitStatus_ && crystalChangeCWLimitStatus_->isConnected());
+	bool crystalChangeCCWLimitStatusOK = (crystalChangeCCWLimitStatus_ && crystalChangeCCWLimitStatus_->isConnected());
+	bool regionAStatusOK = (regionAStatus_ && regionAStatus_->isConnected());
+	bool regionBStatusOK = (regionBStatus_ && regionBStatus_->isConnected());
+
+	setConnected(
+				upperSlitOK &&
+				lowerSlitOK &&
+				slitsStatusOK &&
+				paddleOK &&
+				paddleStatusOK &&
+				keyStatusOK &&
+				brakeStatusOK &&
+				braggOK &&
+				braggAtCrystalChangePositionStatusOK &&
+				crystalChangeOK &&
+				crystalChangeCWLimitStatusOK &&
+				crystalChangeCCWLimitStatusOK &&
+				regionAStatusOK &&
+				regionBStatusOK
+				);
 }
 
-void BioXASSSRLMonochromatorRegionControl::setSetpoint(int newSetpoint)
+void BioXASSSRLMonochromatorRegionControl::updateValue()
 {
-	if (setpoint_ != newSetpoint) {
-		setpoint_ = newSetpoint;
-		emit setpointChanged(setpoint_);
-	}
-}
-
-void BioXASSSRLMonochromatorRegionControl::setMoveInProgress(bool isMoving)
-{
-	if (moveInProgress_ != isMoving) {
-		moveInProgress_ = isMoving;
-		emit movingChanged(moveInProgress_);
-
-		if (moveInProgress_)
-			emit moveStarted();
-	}
-}
-
-void BioXASSSRLMonochromatorRegionControl::onActionStepChanged(int stepIndex)
-{
-	emit moveStepChanged(stepDescription(stepIndex), stepInstruction(stepIndex), stepNotes(stepIndex));
-}
-
-void BioXASSSRLMonochromatorRegionControl::onRegionControlValueChanged()
-{
-	BioXASSSRLMonochromator::Region::State newRegion = BioXASSSRLMonochromator::Region::None;
-
-	if (regionAStatus_ && regionAStatus_->isConnected() && regionBStatus_ && regionBStatus_->isConnected()) {
-
+	if (isConnected()) {
 		int regionAVal = (int)regionAStatus_->value();
 		int regionBVal = (int)regionBStatus_->value();
+
+		BioXASSSRLMonochromator::Region::State newRegion = BioXASSSRLMonochromator::Region::None;
 
 		if (regionAVal == BioXASSSRLMonochromator::Region::NotIn && regionBVal == BioXASSSRLMonochromator::Region::In)
 			newRegion = BioXASSSRLMonochromator::Region::B;
 		else if (regionAVal == BioXASSSRLMonochromator::Region::In && regionBVal == BioXASSSRLMonochromator::Region::NotIn)
 			newRegion = BioXASSSRLMonochromator::Region::A;
+
+		setValue(newRegion);
 	}
-
-	setValue(newRegion);
 }
 
-void BioXASSSRLMonochromatorRegionControl::onRegionChangeStarted()
+void BioXASSSRLMonochromatorRegionControl::updateIsMoving()
 {
-	setMoveInProgress(true);
+	if (isConnected()) {
+		setIsMoving(
+					upperSlit_->isMoving() ||
+					lowerSlit_->isMoving() ||
+					paddle_->isMoving() ||
+					bragg_->isMoving() ||
+					crystalChange_->isMoving()
+					);
+	}
 }
 
-void BioXASSSRLMonochromatorRegionControl::onRegionChangeCancelled(QObject *action)
+void BioXASSSRLMonochromatorRegionControl::onMoveStepChanged(int stepIndex)
 {
-	moveCleanup(action);
-	emit moveFailed(AMControl::WasStoppedFailure);
+	emit moveStepChanged(stepDescription(stepIndex), stepInstruction(stepIndex), stepNotes(stepIndex));
 }
 
-void BioXASSSRLMonochromatorRegionControl::onRegionChangeFailed(QObject *action)
-{
-	moveCleanup(action);
-	emit moveFailed(AMControl::OtherFailure);
-}
-
-void BioXASSSRLMonochromatorRegionControl::onRegionChangeSucceeded(QObject *action)
-{
-	moveCleanup(action);
-	emit moveSucceeded();
-}
-
-AMListAction3* BioXASSSRLMonochromatorRegionControl::createChangeRegionAction(int newRegion)
+AMAction3* BioXASSSRLMonochromatorRegionControl::createMoveAction(double newRegion)
 {
 	AMListAction3 *action = 0;
 
-	if (value_ != newRegion && validRegionState(newRegion)) {
+	if (value_ != newRegion && validValue(newRegion)) {
 
 		action = new AMListAction3(new AMListActionInfo3("CrystalChange", "BioXAS SSRL Mono Crystal Change Action"), AMListAction3::Sequential);
 		action->addSubAction(createCloseSlitsAction());
@@ -404,6 +403,11 @@ AMListAction3* BioXASSSRLMonochromatorRegionControl::createChangeRegionAction(in
 		action->addSubAction(createWaitForBrakeEnabledAction());
 		action->addSubAction(createMoveBraggToRegionAction(newRegion));
 		action->addSubAction(createWaitForKeyDisabledAction());	
+
+		// Make additional action connections.
+
+		connect( action, SIGNAL(progressChanged(double, double)), this, SIGNAL(moveProgressChanged(double,double)) );
+		connect( action, SIGNAL(currentSubActionChanged(int)), this, SLOT(onMoveStepChanged(int)) );
 	}
 
 	return action;
@@ -443,7 +447,7 @@ AMAction3* BioXASSSRLMonochromatorRegionControl::createWaitForSlitsClosedAction(
 	AMAction3 *action = 0;
 
 	if (control && control->isConnected()) {
-		AMControlInfo setpoint = slitsStatusControl()->toInfo();
+		AMControlInfo setpoint = control->toInfo();
 		setpoint.setValue(BioXASSSRLMonochromator::Slits::Closed);
 
 		action = new AMControlWaitAction(new AMControlWaitActionInfo(setpoint, TIMEOUT_SLITS_CLOSED, AMControlWaitActionInfo::MatchEqual), control);
@@ -679,7 +683,7 @@ AMAction3* BioXASSSRLMonochromatorRegionControl::createMoveCrystalChangeToRegion
 
 AMAction3* BioXASSSRLMonochromatorRegionControl::createWaitForBrakeEnabledAction()
 {
-	AMControl *control = brakeStatusControl();
+	AMControl *control = brakeStatus_;
 	AMAction3 *action = 0;
 
 	if (control && control->isConnected()) {
@@ -697,7 +701,7 @@ AMAction3* BioXASSSRLMonochromatorRegionControl::createWaitForBrakeEnabledAction
 
 AMAction3* BioXASSSRLMonochromatorRegionControl::createWaitForRegionChangedToAAction()
 {
-	AMControl *control = regionAStatusControl();
+	AMControl *control = regionAStatus_;
 	AMAction3 *action = 0;
 
 	if (control && control->isConnected()) {
@@ -715,7 +719,7 @@ AMAction3* BioXASSSRLMonochromatorRegionControl::createWaitForRegionChangedToAAc
 
 AMAction3* BioXASSSRLMonochromatorRegionControl::createWaitForRegionChangedToBAction()
 {
-	AMControl *control = regionBStatusControl();
+	AMControl *control = regionBStatus_;
 	AMAction3 *action = 0;
 
 	if (control && control->isConnected()) {
@@ -763,7 +767,7 @@ AMAction3* BioXASSSRLMonochromatorRegionControl::createMoveBraggToRegionAction(i
 
 AMAction3* BioXASSSRLMonochromatorRegionControl::createWaitForKeyDisabledAction()
 {
-	AMControl *control = keyStatusControl();
+	AMControl *control = keyStatus_;
 	AMAction3 *action = 0;
 
 	if (control && control->isConnected()) {
@@ -777,28 +781,6 @@ AMAction3* BioXASSSRLMonochromatorRegionControl::createWaitForKeyDisabledAction(
 		AMErrorMon::error(this, BioXAS_MONO_REGION_KEY_DISABLED_WAIT_FAILED, "Failed to create action to wait for the mono key to be turned to 'Disabled.'");
 
 	return action;
-}
-
-bool BioXASSSRLMonochromatorRegionControl::validRegionState(int regionState)
-{
-	bool isValid = false;
-
-	if (regionState == BioXASSSRLMonochromator::Region::A ||
-			regionState == BioXASSSRLMonochromator::Region::B ||
-			regionState == BioXASSSRLMonochromator::Region::None)
-		isValid = true;
-
-	return isValid;
-}
-
-bool BioXASSSRLMonochromatorRegionControl::validRegionSetpoint(int regionSetpoint)
-{
-	bool isValid = false;
-
-	if (regionSetpoint == BioXASSSRLMonochromator::Region::A || regionSetpoint == BioXASSSRLMonochromator::Region::B)
-		isValid = true;
-
-	return isValid;
 }
 
 QString BioXASSSRLMonochromatorRegionControl::regionStateToString(int region)
@@ -909,22 +891,4 @@ QString BioXASSSRLMonochromatorRegionControl::stepNotes(int stepIndex)
 	}
 
 	return result;
-}
-
-void BioXASSSRLMonochromatorRegionControl::moveCleanup(QObject *action)
-{
-	if (action) {
-		setMoveInProgress(false);
-
-		disconnect( action, 0, actionCancelledMapper_, 0 );
-		disconnect( action, 0, actionFailedMapper_, 0 );
-		disconnect( action, 0, actionSucceededMapper_, 0 );
-		disconnect( action, 0, this, 0 );
-
-		actionCancelledMapper_->removeMappings(action);
-		actionFailedMapper_->removeMappings(action);
-		actionSucceededMapper_->removeMappings(action);
-
-		action->deleteLater();
-	}
 }

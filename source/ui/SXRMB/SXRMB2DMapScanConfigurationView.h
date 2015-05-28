@@ -2,19 +2,20 @@
 #define SXRMB2DMAPSCANCONFIGURATIONVIEW_H
 
 #include <QWidget>
-#include <QCheckBox>
+#include <QComboBox>
 #include <QPushButton>
 #include <QDoubleSpinBox>
 #include <QLabel>
 #include <QLineEdit>
 #include <QGroupBox>
 #include <QButtonGroup>
+#include <QCheckBox>
 
 #include "acquaman/SXRMB/SXRMB2DMapScanConfiguration.h"
-#include "ui/acquaman/AMScanConfigurationView.h"
+#include "ui/SXRMB/SXRMBScanConfigurationView.h"
 
 
-class SXRMB2DMapScanConfigurationView : public AMScanConfigurationView
+class SXRMB2DMapScanConfigurationView : public SXRMBScanConfigurationView
 {
 	Q_OBJECT
 
@@ -38,6 +39,9 @@ public slots:
 	void setExcitationEnergyIsHidden(bool excitationEnergyIsHidden);
 
 protected slots:
+	/// SLot that handles beamline endstation switched signal
+	void onBeamlineEndstationChanged(SXRMB::Endstation fromEndstation, SXRMB::Endstation toEndstation);
+
 	/// Sets the x-axis start position.
 	void setXAxisStart(const AMNumber &value);
 	/// Sets the y-axis start position.
@@ -90,12 +94,13 @@ protected slots:
 	void onEstimatedTimeChanged();
 	/// Helper slot that sets whether we use SMAK or Ascii for the auto exporter.
 	void updateAutoExporter(int useAscii);
+	/// Handles changes to detector selection
+	void onFluorescenceDetectorChanged(int detector);
+	/// Handles changes to power on TEY HV control flag
+	void onPowerOnTEYHVControlEnabled(bool);
 
 	/// Helper method that checks to see if the map dimensions are acceptable.  Makes visual changes if not valid.
 	void checkScanAxisValidity();
-
-	/// Handles changes to enable bruker detector
-	void onEnableBrukerDetectorChanged(int state);
 
 protected:
 	/// Add the export options view.  Returns a pointer to the widget.
@@ -115,8 +120,6 @@ protected:
 	QDoubleSpinBox *dwellTime_;
 	/// Line edit for changing the name of the scan.
 	QLineEdit *scanName_;
-	/// Checkbox for enabling/disabling Bruker detector
-	QCheckBox *enableBrukerDetector_;
 	/// Pointer to the horizontal start point.
 	QDoubleSpinBox *hStart_;
 	/// Pointer to the horizontal end point.

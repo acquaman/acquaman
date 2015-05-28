@@ -17,7 +17,7 @@ public:
 
 protected:
 	/// Re-implemented to make a list of of 2D maps with specific energies.
-	virtual AMAction3 *createAction();
+	virtual AMAction3 *createScan();
 };
 
 #endif // SXRMBOXIDATIONMAPSCANCONFIGURATIONVIEWHOLDER_H

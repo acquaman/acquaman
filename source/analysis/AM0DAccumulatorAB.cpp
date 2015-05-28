@@ -67,39 +67,6 @@ bool AM0DAccumulatorAB::areInputDataSourcesAcceptable(const QList<AMDataSource *
 	return true;
 }
 
-void AM0DAccumulatorAB::setInputDataSourcesImplementation(const QList<AMDataSource *> &dataSources)
-{
-	// disconnect connections from old sources, if they exist.
-	if (!sources_.isEmpty()) {
-		disconnect( sources_.at(0)->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onInputSourceValuesChanged(AMnDIndex,AMnDIndex)) );
-		disconnect( sources_.at(0)->signalSource(), SIGNAL(stateChanged(int)), this, SLOT(onInputSourcesStateChanged()) );
-	}
-
-	// set to invalid if new dataSources is empty.
-	if (dataSources.isEmpty()) {
-		sources_.clear();
-		axes_[0] = AMAxisInfo("invalid", 0, "No input data");
-		setDescription("-- No input data --");
-
-	// if data source is valid, set sources_, axis info, description, and connections.
-	} else {
-
-		sources_ = dataSources;
-		axes_[0] = sources_.at(0)->axisInfoAt(0);
-		setDescription(QString("Value updates for %1").arg(sources_.at(0)->name()));
-
-		connect( sources_.at(0)->signalSource(), SIGNAL(valuesChanged(AMnDIndex, AMnDIndex)), this, SLOT(onInputSourceValuesChanged(AMnDIndex, AMnDIndex)) );
-		connect( sources_.at(0)->signalSource(), SIGNAL(stateChanged(int)), this, SLOT(onInputSourceStateChanged()) );
-	}
-
-	reviewState();
-
-	emitSizeChanged(0);
-	emitValuesChanged();
-	emitAxisInfoChanged(0);
-	emitInfoChanged();
-}
-
 AMNumber AM0DAccumulatorAB::value(const AMnDIndex &indexes) const
 {
 	if (indexes.rank() != 1)
@@ -215,6 +182,39 @@ void AM0DAccumulatorAB::onInputSourceValuesChanged(const AMnDIndex &start, const
 void AM0DAccumulatorAB::onInputSourceStateChanged()
 {
 	reviewState();
+}
+
+void AM0DAccumulatorAB::setInputDataSourcesImplementation(const QList<AMDataSource *> &dataSources)
+{
+	// disconnect connections from old sources, if they exist.
+	if (!sources_.isEmpty()) {
+		disconnect( sources_.at(0)->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onInputSourceValuesChanged(AMnDIndex,AMnDIndex)) );
+		disconnect( sources_.at(0)->signalSource(), SIGNAL(stateChanged(int)), this, SLOT(onInputSourcesStateChanged()) );
+	}
+
+	// set to invalid if new dataSources is empty.
+	if (dataSources.isEmpty()) {
+		sources_.clear();
+		axes_[0] = AMAxisInfo("invalid", 0, "No input data");
+		setDescription("-- No input data --");
+
+	// if data source is valid, set sources_, axis info, description, and connections.
+	} else {
+
+		sources_ = dataSources;
+		axes_[0] = sources_.at(0)->axisInfoAt(0);
+		setDescription(QString("Value updates for %1").arg(sources_.at(0)->name()));
+
+		connect( sources_.at(0)->signalSource(), SIGNAL(valuesChanged(AMnDIndex, AMnDIndex)), this, SLOT(onInputSourceValuesChanged(AMnDIndex, AMnDIndex)) );
+		connect( sources_.at(0)->signalSource(), SIGNAL(stateChanged(int)), this, SLOT(onInputSourceStateChanged()) );
+	}
+
+	reviewState();
+
+	emitSizeChanged(0);
+	emitValuesChanged();
+	emitAxisInfoChanged(0);
+	emitInfoChanged();
 }
 
 void AM0DAccumulatorAB::reviewState()

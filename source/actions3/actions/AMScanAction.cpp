@@ -49,7 +49,9 @@ AMScanAction::AMScanAction(const AMScanAction &other)
 {
 	controller_ = 0;
 	hasValidScanController_ = false;
-	scanInfo_ = other.scanInfo_;
+
+	AMScanActionInfo* infoCopy = qobject_cast<AMScanActionInfo*>(other.scanInfo_->createCopy());
+	scanInfo_ = infoCopy;
 }
 
 AMScanAction::~AMScanAction()
@@ -137,6 +139,7 @@ void AMScanAction::startImplementation()
 	connect(controller_, SIGNAL(cancelled()), this, SLOT(onControllerCancelled()));
 	connect(controller_, SIGNAL(failed()), this, SLOT(onControllerFailed()));
 	connect(controller_, SIGNAL(finished()), this, SLOT(onControllerSucceeded()));
+	connect(controller_, SIGNAL(initializingActionsStarted()), this, SLOT(onControllerInitializing()));
 	connect(controller_, SIGNAL(cleaningActionsStarted()), this, SLOT(onControllerCleaningUp()));
 	connect(controller_, SIGNAL(progress(double,double)), this, SLOT(onControllerProgressChanged(double,double)));
 	connect(controller_, SIGNAL(stateChanged(int,int)), this, SLOT(onControllerStateChanged()));
@@ -282,6 +285,11 @@ void AMScanAction::onControllerSucceeded()
 		AMErrorMon::alert(this, AMSCANACTION_CONTROLLER_NOT_VALID_FOR_AUTOEXPORT, "Could not export, somehow the scan controller is not available.");
 
 	setSucceeded();
+}
+
+void AMScanAction::onControllerInitializing()
+{
+	setStatusText("Initializing");
 }
 
 void AMScanAction::onControllerCleaningUp()

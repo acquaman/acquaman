@@ -20,43 +20,40 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 
 #include "BioXASSidePersistentView.h"
-#include "ui/CLS/CLSSIS3820ScalerView.h"
+#include "ui/BioXAS/BioXASSIS3820ScalerChannelsView.h"
 #include "beamline/BioXAS/BioXASSideBeamline.h"
+#include "ui/beamline/AMControlEditor.h"
 
 BioXASSidePersistentView::BioXASSidePersistentView(QWidget *parent) :
     QWidget(parent)
 {
-	// Create UI elements.
+	// Energy control editor.
 
 	energyControlEditor_ = new AMExtendedControlEditor(BioXASSideBeamline::bioXAS()->mono()->energyControl());
-	energyControlEditor_->setTitle("Energy");
+	energyControlEditor_->setTitle("Mono Energy");
 	energyControlEditor_->setControlFormat('f', 2);
 
+	// Region control editor.
+
 	regionControlEditor_ = new BioXASSSRLMonochromatorRegionControlEditor(BioXASSideBeamline::bioXAS()->mono()->regionControl());
-	regionControlEditor_->setTitle("Region");
+	regionControlEditor_->setTitle("Mono Crystal Region");
+
+	// Bragg control editor.
 
 	braggControlEditor_ = new AMExtendedControlEditor(BioXASSideBeamline::bioXAS()->mono()->braggMotor());
-	braggControlEditor_->setTitle("Bragg motor position");
+	braggControlEditor_->setTitle("Mono Goniometer Angle");
+	braggControlEditor_->setControlFormat('f', 2);
 
-	// Create scaler channel views.
+	// Scaler channel views.
 
-	CLSSIS3820Scaler *scaler = BioXASSideBeamline::bioXAS()->scaler();
-	QVBoxLayout *channelLayout = new QVBoxLayout();
+	BioXASSIS3820ScalerChannelsView *channels = new BioXASSIS3820ScalerChannelsView(BioXASSideBeamline::bioXAS()->scaler());
 
-	if (scaler) {
-		CLSSIS3820ScalerChannelView *i0View = new CLSSIS3820ScalerChannelView(scaler->channelAt(0));
-		channelLayout->addWidget(i0View);
-
-		CLSSIS3820ScalerChannelView *iTView = new CLSSIS3820ScalerChannelView(scaler->channelAt(1));
-		channelLayout->addWidget(iTView);
-
-		CLSSIS3820ScalerChannelView *i2View = new CLSSIS3820ScalerChannelView(scaler->channelAt(15));
-		channelLayout->addWidget(i2View);
-	}
+	QVBoxLayout *channelsLayout = new QVBoxLayout();
+	channelsLayout->addWidget(channels);
 
 	channelViews_ = new QGroupBox();
 	channelViews_->setTitle("Scaler channels");
-	channelViews_->setLayout(channelLayout);
+	channelViews_->setLayout(channelsLayout);
 
 	// Create and set main layout.
 
@@ -68,7 +65,7 @@ BioXASSidePersistentView::BioXASSidePersistentView(QWidget *parent) :
 	layout->addStretch();
 
 	setLayout(layout);
-	setFixedWidth(350);
+	setFixedWidth(400);
 
 	// Initial settings.
 
@@ -76,7 +73,7 @@ BioXASSidePersistentView::BioXASSidePersistentView(QWidget *parent) :
 
 	// Make connections.
 
-	connect( scaler, SIGNAL(connectedChanged(bool)), this, SLOT(onScalerConnectedChanged()) );
+	connect( BioXASSideBeamline::bioXAS()->scaler(), SIGNAL(connectedChanged(bool)), this, SLOT(onScalerConnectedChanged()) );
 
 	// Current settings.
 

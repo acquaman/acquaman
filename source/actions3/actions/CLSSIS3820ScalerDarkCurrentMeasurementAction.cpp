@@ -16,7 +16,7 @@ CLSSIS3820ScalerDarkCurrentMeasurementAction::CLSSIS3820ScalerDarkCurrentMeasure
 		double oldDwell = scaler->dwellTime();
 
 		// first turn off beam.
-		addSubAction(AMBeamline::bl()->createTurnOffBeamActions());
+//		addSubAction(AMBeamline::bl()->createTurnOffBeamActions());
 
 		// set the scaler's dwell time to new time.
 		addSubAction(scaler->createDwellTimeAction3(secondsDwell));

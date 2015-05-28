@@ -31,12 +31,9 @@ AMScanTreeViewDelegate::AMScanTreeViewDelegate(QObject *parent)
 
 QSize AMScanTreeViewDelegate::sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
-	if(!index.parent().isValid())
-	{
+	if(!index.parent().isValid()) {
 		return QSize(option.rect.width(), option.fontMetrics.height());
-	}
-	else
-	{
+	} else {
 		return QSize(option.rect.width(), 200);
 	}
 }
@@ -46,15 +43,18 @@ void AMScanTreeViewDelegate::paint(QPainter *painter, const QStyleOptionViewItem
 
 	QVariant indexDisplayData = index.data(Qt::DisplayRole);
 
-	if(indexDisplayData.type() == QVariant::String)
-	{
+	if(indexDisplayData.type() == QVariant::String) {
 		QString indexDisplayStringData = indexDisplayData.toString();
 
-		if(option.fontMetrics.width(indexDisplayStringData) > option.rect.width())
-			painter->drawText(option.rect, option.fontMetrics.elidedText(indexDisplayStringData.trimmed(), Qt::ElideRight, option.rect.width()));
-		else
+		if(option.fontMetrics.width(indexDisplayStringData) > option.rect.width()) {
+			drawDisplay(painter, option, option.rect,
+						option.fontMetrics.elidedText(
+							indexDisplayStringData.trimmed(), Qt::ElideRight, option.rect.width()));
+
+		} else {
 			QItemDelegate::paint(painter, option, index);
-	}
-	else
+		}
+	} else {
 		QItemDelegate::paint(painter, option, index);
+	}
 }

@@ -20,10 +20,11 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "VESPERSEXAFSScanConfigurationView.h"
 #include "ui/AMTopFrame.h"
-#include "ui/util/AMPeriodicTableDialog.h"
-#include "util/AMPeriodicTable.h"
-#include "beamline/VESPERS/VESPERSBeamline.h"
 #include "ui/dataman/AMEXAFSScanAxisView.h"
+#include "ui/util/AMPeriodicTableDialog.h"
+#include "beamline/VESPERS/VESPERSBeamline.h"
+#include "util/AMDateTimeUtils.h"
+#include "util/AMPeriodicTable.h"
 #include "util/AMEnergyToKSpaceCalculator.h"
 
 #include <QGridLayout>
@@ -78,24 +79,14 @@ VESPERSEXAFSScanConfigurationView::VESPERSEXAFSScanConfigurationView(VESPERSEXAF
 	connect(configuration_, SIGNAL(nameChanged(QString)), scanName_, SLOT(setText(QString)));
 	onScanNameEdited();
 
-	QSpinBox *numberOfScans = new QSpinBox;
-	numberOfScans->setMinimum(1);
-	numberOfScans->setValue(configuration_->numberOfScans());
-	numberOfScans->setAlignment(Qt::AlignCenter);
-	connect(numberOfScans, SIGNAL(valueChanged(int)), configuration_, SLOT(setNumberOfScans(int)));
-	connect(configuration_, SIGNAL(numberOfScansChanged(int)), this, SLOT(onEstimatedTimeChanged()));
-
 	// The estimated scan time.
 	estimatedTime_ = new QLabel;
-	estimatedSetTime_ = new QLabel;
 	connect(configuration_, SIGNAL(totalTimeChanged(double)), this, SLOT(onEstimatedTimeChanged()));
 	onEstimatedTimeChanged();
 
 	QFormLayout *scanNameLayout = new QFormLayout;
 	scanNameLayout->addRow("Scan Name:", scanName_);
-	scanNameLayout->addRow("Number of Scans:", numberOfScans);
 	scanNameLayout->addRow(estimatedTime_);
-	scanNameLayout->addRow(estimatedSetTime_);
 
 	QGroupBox *scanNameGroupBox = new QGroupBox("Scan Name");
 	scanNameGroupBox->setLayout(scanNameLayout);
@@ -195,10 +186,10 @@ VESPERSEXAFSScanConfigurationView::VESPERSEXAFSScanConfigurationView(VESPERSEXAF
 	contentsLayout->addLayout(energyLayout, 0, 0, 1, 3);
 	contentsLayout->addWidget(regionsViewGroupBox, 1, 0, 2, 3);
 	contentsLayout->addWidget(scanNameGroupBox, 3, 0, 1, 2);
-	contentsLayout->addWidget(goToPositionGroupBox, 3, 2, 1, 1);
-	contentsLayout->addWidget(timeOffsetBox, 5, 1, 1, 1);
-	contentsLayout->addWidget(detectorGroupBox, 1, 3, 2, 1);
-	contentsLayout->addWidget(autoExportGroupBox, 3, 3, 1, 2);
+	contentsLayout->addWidget(goToPositionGroupBox, 4, 0, 1, 1);
+	contentsLayout->addWidget(timeOffsetBox, 5, 0, 1, 1);
+	contentsLayout->addWidget(detectorGroupBox, 3, 2, 1, 1);
+	contentsLayout->addWidget(autoExportGroupBox, 4, 1, 1, 2);
 
 	QHBoxLayout *squeezeContents = new QHBoxLayout;
 	squeezeContents->addStretch();
@@ -304,8 +295,7 @@ void VESPERSEXAFSScanConfigurationView::onItClicked(int index)
 
 void VESPERSEXAFSScanConfigurationView::onEstimatedTimeChanged()
 {
-	estimatedTime_->setText("Estimated time per scan:\t" + VESPERS::convertTimeToString(configuration_->totalTime()));
-	estimatedSetTime_->setText("Estimated time for set:\t" + VESPERS::convertTimeToString(configuration_->totalTime()*configuration_->numberOfScans()));
+	estimatedTime_->setText("Estimated time per scan:\t" + AMDateTimeUtils::convertTimeToString(configuration_->totalTime()));
 }
 
 void VESPERSEXAFSScanConfigurationView::onEdgeChanged()

@@ -19,6 +19,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 
 #include "VESPERS2DScanConfigurationView.h"
+
+#include "util/AMDateTimeUtils.h"
 #include "ui/AMTopFrame.h"
 #include "beamline/VESPERS/VESPERSBeamline.h"
 
@@ -215,6 +217,10 @@ VESPERS2DScanConfigurationView::VESPERS2DScanConfigurationView(VESPERS2DScanConf
 	QGroupBox *detectorGroupBox = new QGroupBox("Detectors");
 	detectorGroupBox->setLayout(detectorLayout);
 
+	QGroupBox *afterScanBox = createAfterScanOptionsBox(configuration_->closeFastShutter(), configuration_->returnToOriginalPosition());
+	connect(closeFastShutterCheckBox_, SIGNAL(toggled(bool)), this, SLOT(setCloseFastShutter(bool)));
+	connect(goToPositionCheckBox_, SIGNAL(toggled(bool)), this, SLOT(setReturnToOriginalPosition(bool)));
+
 	// Setting up the layout.
 	QGridLayout *contentsLayout = new QGridLayout;
 	contentsLayout->addWidget(positionsBox, 0, 0, 2, 3);
@@ -224,6 +230,7 @@ VESPERS2DScanConfigurationView::VESPERS2DScanConfigurationView(VESPERS2DScanConf
 	contentsLayout->addWidget(timeOffsetBox, 5, 0, 1, 3);
 	contentsLayout->addWidget(detectorGroupBox, 0, 3, 2, 1);
 	contentsLayout->addWidget(autoExportGroupBox, 2, 3, 2, 1);
+	contentsLayout->addWidget(afterScanBox, 4, 3, 1, 1);
 
 	QHBoxLayout *squeezeContents = new QHBoxLayout;
 	squeezeContents->addStretch();
@@ -308,7 +315,7 @@ void VESPERS2DScanConfigurationView::checkCCDFileNames(const QString &name) cons
 
 void VESPERS2DScanConfigurationView::onFluorescenceChoiceChanged(int id)
 {
-	configuration_->setFluorescenceDetector(id);
+	configuration_->setFluorescenceDetector((VESPERS::FluorescenceDetectors)id);
 }
 
 void VESPERS2DScanConfigurationView::onMotorChanged(int id)
@@ -345,7 +352,7 @@ void VESPERS2DScanConfigurationView::onCCDDetectorChanged(int id)
 
 void VESPERS2DScanConfigurationView::onEstimatedTimeChanged()
 {
-	estimatedTime_->setText("Estimated time per scan:\t" + VESPERS::convertTimeToString(configuration_->totalTime()));
+	estimatedTime_->setText("Estimated time per scan:\t" + AMDateTimeUtils::convertTimeToString(configuration_->totalTime()));
 }
 
 void VESPERS2DScanConfigurationView::onSetStartPosition()

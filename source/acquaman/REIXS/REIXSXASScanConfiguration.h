@@ -90,7 +90,7 @@ public:
 	}
 	/// The auto-generated scan name. Used when no name is provided.
 	virtual QString autoScanName() const {
-			return QString("Unnamed XAS Scan");
+			return QString("XAS Scan");
 	}
 
 

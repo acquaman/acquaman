@@ -24,9 +24,11 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QWidget>
 
-namespace Ui {
-    class REIXSSampleChamberButtonPanel;
-}
+class QString;
+class QIcon;
+class QToolButton;
+
+class AMControlMoveButton;
 
 class REIXSSampleChamberButtonPanel : public QWidget
 {
@@ -42,11 +44,24 @@ public slots:
 protected slots:
 	void onStopButtonClicked();
 
-private slots:
+protected:
+	void setupUi();
+	void initializeUiComponents();
 
+	QToolButton *createQToolButton(QString text, QIcon icon);
+	AMControlMoveButton *createAMControlMoveButton(QString text, QIcon icon);
 
 private:
-    Ui::REIXSSampleChamberButtonPanel *ui;
+	AMControlMoveButton *sampleXup_;
+	AMControlMoveButton *sampleXdown_;
+	AMControlMoveButton *sampleYdown_;
+	AMControlMoveButton *sampleYup_;
+	AMControlMoveButton *sampleZup_;
+	AMControlMoveButton *sampleZdown_;
+	AMControlMoveButton *sampleCW_;
+	AMControlMoveButton *sampleCCW_;
+
+	QToolButton *stopAll_;
 };
 
 #endif // REIXSSAMPLECHAMBERBUTTONPANEL_H

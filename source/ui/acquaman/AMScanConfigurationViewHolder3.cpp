@@ -20,21 +20,17 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMScanConfigurationViewHolder3.h"
 
-#include <QRadioButton>
-#include <QPushButton>
+#include <QSpinBox>
 #include <QLabel>
-#include <QLineEdit>
-#include <QCheckBox>
-#include <QVBoxLayout>
-#include <QButtonGroup>
 
 #include "acquaman/AMScanConfiguration.h"
-#include "ui/acquaman/AMScanConfigurationView.h"
+#include "actions3/AMLoopAction3.h"
 #include "actions3/actions/AMScanAction.h"
+#include "ui/acquaman/AMScanConfigurationView.h"
 
  AMScanConfigurationViewHolder3::~AMScanConfigurationViewHolder3(){}
-AMScanConfigurationViewHolder3::AMScanConfigurationViewHolder3(AMScanConfigurationView* view, QWidget *parent) :
-	AMActionRunnerAddActionBar3("Scan", parent)
+AMScanConfigurationViewHolder3::AMScanConfigurationViewHolder3(AMScanConfigurationView* view, bool enableLoopAction, QWidget *parent) :
+	AMActionRunnerAddActionBar3("Scan", enableLoopAction, parent)
 {
 	view_ = view;
 
@@ -71,10 +67,30 @@ void AMScanConfigurationViewHolder3::setEnabled(bool enabled){
 		disabledWarning_->setText("This Configuration Is Disabled");
 }
 
-AMAction3 * AMScanConfigurationViewHolder3::createAction()
+AMAction3 * AMScanConfigurationViewHolder3::createScan()
 {
 	if(view_)
 		return new AMScanAction(new AMScanActionInfo(view_->configuration()->createCopy()));
+
+	return 0;
+}
+
+AMAction3* AMScanConfigurationViewHolder3::createMultipleScans()
+{
+	if (view_){
+
+		const AMScanConfiguration *config = view_->configuration();
+		if (config) {
+			int iteration = iterationsBox_->value();
+			if (iteration > 1) {
+				AMLoopAction3 *loopAction = new AMLoopAction3(new AMLoopActionInfo3(iterationsBox_->value(), config->name(), config->description()));
+				loopAction->addSubAction(createScan());
+				return loopAction;
+			} else {
+				return createScan();
+			}
+		}
+	}
 
 	return 0;
 }
