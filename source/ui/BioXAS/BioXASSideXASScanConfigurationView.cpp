@@ -86,7 +86,7 @@ BioXASSideXASScanConfigurationView::BioXASSideXASScanConfigurationView(BioXASSid
 		energy_->setValue(configuration_->energy());
 	}
 
-	connect(configuration_, SIGNAL(edgeChanged(QString)), this, SLOT(onEdgeChanged()));
+	connect(configuration_->dbObject(), SIGNAL(edgeChanged(QString)), this, SLOT(onEdgeChanged()));
 
 	QFormLayout *energySetpointLayout = new QFormLayout;
 	energySetpointLayout->addRow("Energy:", energy_);

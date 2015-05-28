@@ -50,6 +50,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/BioXAS/BioXASSideXIAFilters.h"
 #include "beamline/BioXAS/BioXASSideM2Mirror.h"
 #include "beamline/BioXAS/BioXASSideDBHRMirror.h"
+#include "beamline/BioXAS/BioXASFourElementVortexDetector.h"
 
 #define BIOXASSIDEBEAMLINE_PRESSURE_TOO_HIGH 54600
 #define BIOXASSIDEBEAMLINE_VALVES_CLOSED 54601
@@ -235,6 +236,8 @@ public:
 	AMBasicControlDetectorEmulator* braggStepSetpointDetector() const { return braggStepSetpointDetector_; }
 	/// Returns the 32 element Ge detector.
 	BioXAS32ElementGeDetector *ge32ElementDetector() const { return ge32ElementDetector_; }
+	/// Returns the four element Vortex detector.
+	BioXASFourElementVortexDetector *fourElementVortexDetector() const { return fourElementVortexDetector_; }
 
 signals:
 	/// Notifier that the pressure status has changed. Argument is false if any of the pressures fall below its setpoint, true otherwise.
@@ -315,6 +318,7 @@ protected:
 	AMBasicControlDetectorEmulator *braggStepSetpointDetector_;
 	AMBasicControlDetectorEmulator *braggEncoderFeedbackDetector_;
 	BioXAS32ElementGeDetector *ge32ElementDetector_;
+	BioXASFourElementVortexDetector *fourElementVortexDetector_;
 
 	/// The JJ slits
 	CLSJJSlits *jjSlits_;
