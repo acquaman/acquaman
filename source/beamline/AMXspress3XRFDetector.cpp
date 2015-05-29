@@ -7,6 +7,8 @@ AMXspress3XRFDetector::AMXspress3XRFDetector(const QString &name, const QString 
 	: AMXRFDetector(name, description, parent)
 {
 	autoInitialize_ = false;
+	dataReady_ = false;
+	dataReadyCounter_ = -1;
 
 	units_ = "Counts";
 
@@ -83,29 +85,15 @@ void AMXspress3XRFDetector::updateAcquisitionState()
 		setNotReadyForAcquisition();
 	}
 
-	else if (isInitialized() && (acquisitionStatusControl_->withinTolerance(1) && acquireControl_->withinTolerance(0))){
+	else if (!isAcquiring() && acquisitionStatusControl_->withinTolerance(1) && acquireControl_->withinTolerance(1)){
 
-//		setInitialized();
-		if (isAcquiring())
-			setAcquisitionSucceeded();
-		else
-			setReadyForAcquisition();
-	}
-
-	else if (isAcquisitionSucceeded() && (acquisitionStatusControl_->withinTolerance(1) && acquireControl_->withinTolerance(0)))
-		setReadyForAcquisition();
-
-	else if (acquisitionStatusControl_->withinTolerance(1) && acquireControl_->withinTolerance(1))
+		dataReady_ = false;
+		dataReadyCounter_ = elements();
 		setAcquiring();
-
-	else if (acquisitionStatusControl_->withinTolerance(2) && acquireControl_->withinTolerance(0))
-		setAcquisitionSucceeded();
-
-	else if (acquisitionStatusControl_->withinTolerance(0) && acquireControl_->withinTolerance(0)){
-
-		setAcquisitionSucceeded();
-		setInitializationRequired();
 	}
+
+	else if (isInitialized() && isNotReadyForAcquisition() && (acquisitionStatusControl_->withinTolerance(1) && acquireControl_->withinTolerance(0)))
+		setReadyForAcquisition();
 
 	else if (acquisitionStatusControl_->withinTolerance(0) || acquisitionStatusControl_->withinTolerance(5) || acquisitionStatusControl_->withinTolerance(10))
 		setNotReadyForAcquisition();
@@ -187,7 +175,6 @@ void AMXspress3XRFDetector::makeConnections()
 	allControlsCreated();
 
 	connect(thresholdControls_.at(0), SIGNAL(valueChanged(double)), this, SIGNAL(thresholdChanged()));
-//	connect(this, SIGNAL(initializationRequired()), this, SLOT(initialize()));
 
 	disconnect(acquisitionStatusControl_, SIGNAL(valueChanged(double)), this, SLOT(onStatusControlChanged()));
 	connect(acquireControl_, SIGNAL(valueChanged(double)), this, SLOT(updateAcquisitionState()));
@@ -207,4 +194,26 @@ void AMXspress3XRFDetector::makeConnections()
 		((AM1DProcessVariableDataSource *)source)->setScale(10);
 
 	connect(allControls_, SIGNAL(connected(bool)), this, SLOT(updateAcquisitionState()));
+
+	foreach (AMControl *control, spectraControls_)
+		connect(control, SIGNAL(valueChanged(double)), this, SLOT(onDataChanged()));
+}
+
+void AMXspress3XRFDetector::onDataChanged()
+{
+	if (!dataReady_ && isAcquiring()){
+
+		dataReadyCounter_--;
+
+		if (dataReadyCounter_ == 0){
+
+			dataReady_ = true;
+			setAcquisitionSucceeded();
+
+			if (acquisitionStatusControl_->withinTolerance(0) && acquireControl_->withinTolerance(0))
+				setInitializationRequired();
+
+			setReadyForAcquisition();
+		}
+	}
 }

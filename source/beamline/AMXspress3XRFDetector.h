@@ -92,6 +92,8 @@ protected slots:
 	void onElapsedTimerTimeout();
 	/// Handles getting the status message, which is an array of ascii characters and not a string.
 	void onStatusMessageChanged();
+	/// Handles setting the acquisition succeeded state by waiting on all the spectra.
+	void onDataChanged();
 
 	/// This function is called from the Cancelling (acquisition) state for detectors that support cancelling acquisitions. Once the detector has successfully cancelled the acquisition you must call setAcquisitionCancelled()
 	virtual bool cancelAcquisitionImplementation();
@@ -129,6 +131,11 @@ protected:
 
 	/// Flag for whether the system should auto initialize after finishing an acquisition.
 	bool autoInitialize_;
+
+	/// Data read flag that helps determine when the detector is finished its acquisition.
+	bool dataReady_;
+	/// Counter to know how many of the spectra sources have updated their values since acquisition started.
+	int dataReadyCounter_;
 };
 
 #endif // AMXSPRESS3XRFDETECTOR_H
