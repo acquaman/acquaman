@@ -10,11 +10,6 @@ CLSJJSlitCenterControl::CLSJJSlitCenterControl(const QString &name, AMControl *u
 
 	setContextKnownDescription("CenterControl");
 
-	// Make connections.
-
-	connect( this, SIGNAL(gapChanged(double)), this, SLOT(updateMinimumValue()) );
-	connect( this, SIGNAL(gapChanged(double)), this, SLOT(updateMaximumValue()) );
-
 	// Current settings.
 
 	updateStates();
@@ -33,27 +28,19 @@ void CLSJJSlitCenterControl::updateValue()
 	}
 }
 
-#include <QDebug>
-
 void CLSJJSlitCenterControl::updateMinimumValue()
 {
 	if (isConnected()) {
-		qDebug() << "\nUpdating" << name() << "minimum value...";
-		setMinimumValue( calculateMinimumValue(CLSJJSLITBLADESCONTROL_VALUE_MIN, gap_) );
-		qDebug() << "\t" << name() << ":" << minimumValue() << "\n";
+		setMinimumValue( calculateMinimumValue(CLSJJSLITBLADESCONTROL_VALUE_MIN, calculateGap( upperBladeControl_->value(), lowerBladeControl_->value() )) );
 	}
 }
 
 void CLSJJSlitCenterControl::updateMaximumValue()
 {
 	if (isConnected()) {
-		qDebug() << "\nUpdating" << name() << "maximum value...";
-		setMaximumValue( calculateMaximumValue(CLSJJSLITBLADESCONTROL_VALUE_MAX, gap_) );
-		qDebug() << "\t" << name() << ":" << maximumValue() << "\n";
+		setMaximumValue( calculateMaximumValue(CLSJJSLITBLADESCONTROL_VALUE_MAX, calculateGap( upperBladeControl_->value(), lowerBladeControl_->value() )) );
 	}
 }
-
-#include <QDebug>
 
 AMAction3* CLSJJSlitCenterControl::createMoveAction(double centerPosition)
 {
@@ -66,11 +53,9 @@ AMAction3* CLSJJSlitCenterControl::createMoveAction(double centerPosition)
 		double lowerPosition = calculateLowerPosition(gap_, centerPosition);
 		double upperPosition = calculateUpperPosition(gap_, centerPosition);
 
-		AMListAction3 *move = new AMListAction3(new AMListActionInfo3("JJSlitsCenterControlMove", "JJSlitsCenterControlMove"), AMListAction3::Parallel);
-		move->addSubAction(AMActionSupport::buildControlMoveAction(upperBladeControl_, upperPosition));
-		move->addSubAction(AMActionSupport::buildControlMoveAction(lowerBladeControl_, lowerPosition));
-
-		moveAction = move;
+		moveAction = new AMListAction3(new AMListActionInfo3(QString(name()+" move to %1").arg(centerPosition), QString(name()+" move to %1").arg(centerPosition)), AMListAction3::Parallel);
+		moveAction->addSubAction(AMActionSupport::buildControlMoveAction(upperBladeControl_, upperPosition));
+		moveAction->addSubAction(AMActionSupport::buildControlMoveAction(lowerBladeControl_, lowerPosition));
 	}
 
 	return moveAction;

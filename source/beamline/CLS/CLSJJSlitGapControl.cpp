@@ -35,14 +35,14 @@ void CLSJJSlitGapControl::updateValue()
 void CLSJJSlitGapControl::updateMinimumValue()
 {
 	if (isConnected()) {
-		setMinimumValue( calculateMinimumValue(CLSJJSLITBLADESCONTROL_VALUE_MIN, centerPosition_) );
+		setMinimumValue( calculateMinimumValue(CLSJJSLITBLADESCONTROL_VALUE_MIN, calculateCenterPosition( upperBladeControl_->value(), lowerBladeControl_->value() )) );
 	}
 }
 
 void CLSJJSlitGapControl::updateMaximumValue()
 {
 	if (isConnected()) {
-		setMaximumValue( calculateMaximumValue(CLSJJSLITBLADESCONTROL_VALUE_MAX, centerPosition_) );
+		setMaximumValue( calculateMaximumValue(CLSJJSLITBLADESCONTROL_VALUE_MAX, calculateCenterPosition( upperBladeControl_->value(), lowerBladeControl_->value() )) );
 	}
 }
 
@@ -57,20 +57,10 @@ AMAction3* CLSJJSlitGapControl::createMoveAction(double gap)
 		double lowerPosition = calculateLowerPosition(gap, centerPosition_);
 		double upperPosition = calculateUpperPosition(gap, centerPosition_);
 
-		AMListAction3 *move = new AMListAction3(new AMListActionInfo3("JJSlitsCenterControlMove", "JJSlitsCenterControlMove"), AMListAction3::Parallel);
+		moveAction = new AMListAction3(new AMListActionInfo3(QString(name()+" move to %1").arg(gap), QString(name()+" move to %1").arg(gap)), AMListAction3::Parallel);
 
-		move->addSubAction(AMActionSupport::buildControlMoveAction(upperBladeControl_, upperPosition));
-		move->addSubAction(AMActionSupport::buildControlMoveAction(lowerBladeControl_, lowerPosition));
-
-		AMListAction3 *confirm = new AMListAction3(new AMListActionInfo3("JJSlitsCenterControlConfirm", "JJSlitsCenterControlConfirm"), AMListAction3::Parallel);
-
-		confirm->addSubAction(AMActionSupport::buildControlWaitAction(upperBladeControl_, upperPosition));
-		confirm->addSubAction(AMActionSupport::buildControlWaitAction(lowerBladeControl_, lowerPosition));
-
-		moveAction = new AMListAction3(new AMListActionInfo3("JJSlitsCenterControlMoveAndConfirm", "JJSlitsCenterControlMoveAndConfirm"), AMListAction3::Sequential);
-
-		moveAction->addSubAction(move);
-		moveAction->addSubAction(confirm);
+		moveAction->addSubAction(AMActionSupport::buildControlMoveAction(upperBladeControl_, upperPosition));
+		moveAction->addSubAction(AMActionSupport::buildControlMoveAction(lowerBladeControl_, lowerPosition));
 	}
 
 	return moveAction;

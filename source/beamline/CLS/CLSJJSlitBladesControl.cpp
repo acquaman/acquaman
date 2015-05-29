@@ -25,6 +25,11 @@ CLSJJSlitBladesControl::CLSJJSlitBladesControl(const QString &name, AMControl *u
 	upperBladeControl_ = 0;
 	lowerBladeControl_ = 0;
 
+	// Make connections.
+
+	connect( this, SIGNAL(valueChanged(double)), this, SLOT(updateMinimumValue()) );
+	connect( this, SIGNAL(valueChanged(double)), this, SLOT(updateMaximumValue()) );
+
 	// Current settings.
 
 	setUpperBladeControl(upperBladeControl);
