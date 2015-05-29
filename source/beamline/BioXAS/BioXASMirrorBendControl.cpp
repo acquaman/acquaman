@@ -55,12 +55,17 @@ bool BioXASMirrorBendControl::canStop() const
 
 bool BioXASMirrorBendControl::validValue(double value) const
 {
-	return true;
+	bool isValid = false;
+
+	if (value >= minimumValue() && value <= maximumValue())
+		isValid = true;
+
+	return isValid;
 }
 
 bool BioXASMirrorBendControl::validSetpoint(double value) const
 {
-	return true;
+	return validValue(value);
 }
 
 void BioXASMirrorBendControl::setUpstreamBenderControl(AMControl *newControl)

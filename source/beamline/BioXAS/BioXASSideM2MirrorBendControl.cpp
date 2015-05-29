@@ -3,7 +3,8 @@
 BioXASSideM2MirrorBendControl::BioXASSideM2MirrorBendControl(const QString &name, const QString &units, double upstreamLength, double downstreamLength, QObject *parent, const QString &description) :
 	BioXASMirrorBendControl(name, units, upstreamLength, downstreamLength, parent, description)
 {
-
+	setMinimumValue(BIOXASSIDEM2MIRRORBENDCONTROL_MIN_VALUE);
+	setMaximumValue(BIOXASSIDEM2MIRRORBENDCONTROL_MAX_VALUE);
 }
 
 BioXASSideM2MirrorBendControl::~BioXASSideM2MirrorBendControl()
