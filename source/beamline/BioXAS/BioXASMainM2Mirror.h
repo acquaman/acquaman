@@ -12,11 +12,6 @@ public:
 	explicit BioXASMainM2Mirror(QObject *parent = 0);
 	/// Destructor.
 	virtual ~BioXASMainM2Mirror();
-
-protected slots:
-	/// For testing.
-	void onPitchValueChanged();
-
 };
 
 #endif // BIOXASMAINM2MIRROR_H

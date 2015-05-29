@@ -59,17 +59,9 @@ BioXASMainM2Mirror::BioXASMainM2Mirror(QObject *parent) :
 	connect( height_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 	connect( lateral_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 	connect( yaw_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
-
-	// for testing.
-	connect( pitch_, SIGNAL(valueChanged(double)), this, SLOT(onPitchValueChanged()) );
 }
 
 BioXASMainM2Mirror::~BioXASMainM2Mirror()
 {
 
-}
-
-void BioXASMainM2Mirror::onPitchValueChanged()
-{
-	qDebug() << "\nPitch:" << pitch_->value();
 }
