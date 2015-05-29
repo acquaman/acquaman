@@ -1,5 +1,5 @@
-#ifndef BIOXASMIRRORPSEUDOMOTORCONTROL_H
-#define BIOXASMIRRORPSEUDOMOTORCONTROL_H
+#ifndef BIOXASMIRRORMOTORCONTROL_H
+#define BIOXASMIRRORMOTORCONTROL_H
 
 #include "beamline/BioXAS/BioXASMirrorControl.h"
 #include "beamline/BioXAS/BioXASMirrorMotor.h"
@@ -65,8 +65,22 @@ protected slots:
 	virtual void updateMoving();
 
 protected:
-	/// Creates and returns a move action iteration.
-	virtual AMAction3* createMoveActionIteration(double setpoint) = 0;
+	/// Creates and returns a move action.
+	virtual AMAction3* createMoveAction(double setpoint) = 0;
+
+	/// Calculates and returns the mirror pitch from the given motor positions.
+	static double calculatePitch(double upstreamInboardX, double upstreamInboardY, double upstreamInboardZ, double upstreamOutboardX, double upstreamOutboardY, double upstreamOutboardZ, double downstreamX, double downstreamY, double downstreamZ);
+	/// Calculates and returns the mirror roll from the given motor positions.
+	static double calculateRoll(double upstreamInboardX, double upstreamInboardY, double upstreamInboardZ, double upstreamOutboardX, double upstreamOutboardY, double upstreamOutboardZ, double downstreamX, double downstreamY, double downstreamZ);
+	/// Calculates and returns the mirror height from the given motor positions.
+	static double calculateHeight(double upstreamInboardX, double upstreamInboardY, double upstreamInboardZ, double upstreamOutboardX, double upstreamOutboardY, double upstreamOutboardZ, double downstreamX, double downstreamY, double downstreamZ);
+
+	/// Calculates and returns the upstream inboard motor position from the given pitch, roll, and height.
+	static double calculateUpstreamInboardZ(double upstreamInboardX, double upstreamInboardY, double pitch, double roll, double height);
+	/// Calculates and returns the upstream outboard motor position from the given pitch, roll, and height.
+	static double calculateUpstreamOutboardZ(double upstreamOutboardX, double upstreamOutboardY, double pitch, double roll, double height);
+	/// Calculates and returns the downstream motor position from the given pitch, roll, and height.
+	static double calculateDownstreamZ(double downstreamX, double downstreamY, double pitch, double roll, double height);
 
 protected:
 	/// The vertical upstream inboard motor control.
@@ -77,4 +91,4 @@ protected:
 	BioXASMirrorMotor *downstream_;
 };
 
-#endif // BIOXASMIRRORPSEUDOMOTORCONTROL_H
+#endif // BIOXASMIRRORMOTORCONTROL_H

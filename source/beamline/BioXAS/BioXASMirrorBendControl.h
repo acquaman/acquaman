@@ -58,8 +58,8 @@ protected slots:
 	virtual void updateMoving();
 
 protected:
-	/// Creates and returns a move action iteration.
-	virtual AMAction3* createMoveActionIteration(double setpoint);
+	/// Creates and returns a move action.
+	virtual AMAction3* createMoveAction(double setpoint);
 
 	/// Calculates and returns the upstream bender value, for the given bend radius.
 	virtual double calculateUpstreamBenderValue(double bendRadius) = 0;

@@ -58,8 +58,8 @@ protected slots:
 	virtual void updateMoving();
 
 protected:
-	/// Creates and returns a move action iteration.
-	virtual AMAction3* createMoveActionIteration(double setpoint);
+	/// Creates and returns a move action.
+	virtual AMAction3* createMoveAction(double setpoint);
 
 	/// Calculates and returns the lateral motor position for the given lateral displacement, mirror lengths, and yaw motor position.
 	double calculateLateralPosition(double lateralDisplacement, double upstreamLength, double downstreamLength, double yawPosition);

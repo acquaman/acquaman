@@ -46,12 +46,12 @@ HEADERS += \
 	source/ui/BioXAS/BioXASM1MirrorView.h \
 	source/beamline/BioXAS/BioXASMirrorPitchControl.h \
     source/beamline/BioXAS/BioXASMirrorRollControl.h \
-    source/beamline/BioXAS/BioXASMirrorPseudoMotorControl.h \
     source/beamline/BioXAS/BioXASMirrorHeightControl.h \
     source/beamline/BioXAS/BioXASMirrorLateralControl.h \
     source/beamline/BioXAS/BioXASMirrorYawControl.h \
     source/beamline/BioXAS/BioXASMirrorControl.h \
-    source/beamline/BioXAS/BioXASMirrorBendControl.h
+    source/beamline/BioXAS/BioXASMirrorBendControl.h \
+    source/beamline/BioXAS/BioXASMirrorMotorControl.h
 
 SOURCES += \
 	source/beamline/BioXAS/BioXASPseudoMotorControl.cpp \
@@ -93,12 +93,16 @@ SOURCES += \
 	source/ui/BioXAS/BioXASM1MirrorView.cpp \
 	source/beamline/BioXAS/BioXASMirrorPitchControl.cpp \
     source/beamline/BioXAS/BioXASMirrorRollControl.cpp \
-    source/beamline/BioXAS/BioXASMirrorPseudoMotorControl.cpp \
     source/beamline/BioXAS/BioXASMirrorHeightControl.cpp \
     source/beamline/BioXAS/BioXASMirrorLateralControl.cpp \
     source/beamline/BioXAS/BioXASMirrorYawControl.cpp \
     source/beamline/BioXAS/BioXASMirrorControl.cpp \
-    source/beamline/BioXAS/BioXASMirrorBendControl.cpp
+    source/beamline/BioXAS/BioXASMirrorBendControl.cpp \
+    source/beamline/BioXAS/BioXASMirrorMotorControl.cpp
+
+
+
+
 
 
 

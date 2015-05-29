@@ -51,21 +51,3 @@ void BioXASMirrorControl::setDownstreamLength(double newValue)
 		emit downstreamLengthChanged(downstreamLength_);
 	}
 }
-
-AMAction3* BioXASMirrorControl::createMoveAction(double setpoint)
-{
-	AMAction3 *result = 0;
-
-	if (isConnected()) {
-		AMListAction3 *moveAction = new AMListAction3(new AMListActionInfo3("Mirror control move", "Mirror control move"), AMListAction3::Sequential);
-
-		for (int i = 0; i < 5; i++) {
-			AMAction3 *move = createMoveActionIteration(setpoint);
-			moveAction->addSubAction(move);
-		}
-
-		result = moveAction;
-	}
-
-	return result;
-}

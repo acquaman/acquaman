@@ -51,6 +51,16 @@ BioXASMainPersistentView::BioXASMainPersistentView(QWidget *parent) :
 	channelsView_->setTitle("Scaler channels");
 	channelsView_->setLayout(channelsLayout);
 
+	// Testing m2 mirror controls.
+
+	AMExtendedControlEditor *upstreamInboardEditor = new AMExtendedControlEditor(BioXASMainBeamline::bioXAS()->m2Mirror()->upstreamInboardMotorControl());
+
+	AMExtendedControlEditor *upstreamOutboardEditor = new AMExtendedControlEditor(BioXASMainBeamline::bioXAS()->m2Mirror()->upstreamOutboardMotorControl());
+
+	AMExtendedControlEditor *downstreamEditor = new AMExtendedControlEditor(BioXASMainBeamline::bioXAS()->m2Mirror()->downstreamMotorControl());
+
+	AMExtendedControlEditor *yawEditor = new AMExtendedControlEditor(BioXASMainBeamline::bioXAS()->m2Mirror()->yawMotorControl());
+
 	// Create and set main layout.
 
 	QVBoxLayout *layout = new QVBoxLayout();
@@ -58,6 +68,10 @@ BioXASMainPersistentView::BioXASMainPersistentView(QWidget *parent) :
 	layout->addWidget(regionControlEditor_);
 	layout->addWidget(braggControlEditor_);
 	layout->addWidget(channelsView_);
+	layout->addWidget(upstreamInboardEditor);
+	layout->addWidget(upstreamOutboardEditor);
+	layout->addWidget(downstreamEditor);
+	layout->addWidget(yawEditor);
 	layout->addStretch();
 
 	setLayout(layout);

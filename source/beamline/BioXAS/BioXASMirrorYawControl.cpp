@@ -53,11 +53,13 @@ bool BioXASMirrorYawControl::canStop() const
 
 bool BioXASMirrorYawControl::validValue(double value) const
 {
+	Q_UNUSED(value)
 	return true;
 }
 
 bool BioXASMirrorYawControl::validSetpoint(double value) const
 {
+	Q_UNUSED(value)
 	return true;
 }
 
@@ -96,7 +98,7 @@ void BioXASMirrorYawControl::updateMoving()
 	}
 }
 
-AMAction3* BioXASMirrorYawControl::createMoveActionIteration(double setpoint)
+AMAction3* BioXASMirrorYawControl::createMoveAction(double setpoint)
 {
 	AMAction3 *result = 0;
 

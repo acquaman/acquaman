@@ -2,6 +2,8 @@
 #include "actions3/AMListAction3.h"
 #include "actions3/AMActionSupport.h"
 
+#include <QDebug>
+
 BioXASMirrorPitchControl::BioXASMirrorPitchControl(const QString &name, const QString &units, double upstreamLength, double downstreamLength, QObject *parent, const QString &description) :
 	BioXASMirrorMotorControl(name, units, upstreamLength, downstreamLength, parent, description)
 {
@@ -26,61 +28,27 @@ void BioXASMirrorPitchControl::updateValue()
 	}
 }
 
-AMAction3* BioXASMirrorPitchControl::createMoveActionIteration(double setpoint)
+AMAction3* BioXASMirrorPitchControl::createMoveAction(double setpoint)
 {
 	AMAction3 *result = 0;
 
 	if (isConnected()) {
-
 		AMListAction3 *move = new AMListAction3(new AMListActionInfo3(name()+" move", name()+" move"), AMListAction3::Sequential);
 
-		double upstreamInboardDestination = calculateUpstreamInboardZ(setpoint, upstreamInboard_->xPosition(), upstreamInboard_->yPosition(), upstreamOutboard_->xPosition(), upstreamOutboard_->yPosition(), upstreamOutboard_->zPosition(), downstream_->xPosition(), downstream_->yPosition(), downstream_->zPosition());
+		double roll = calculateRoll(upstreamInboard_->xPosition(), upstreamInboard_->yPosition(), upstreamInboard_->zPosition(), upstreamOutboard_->xPosition(), upstreamOutboard_->yPosition(), upstreamOutboard_->zPosition(), downstream_->xPosition(), downstream_->yPosition(), downstream_->zPosition());
+		double height = calculateHeight(upstreamInboard_->xPosition(), upstreamInboard_->yPosition(), upstreamInboard_->zPosition(), upstreamOutboard_->xPosition(), upstreamOutboard_->yPosition(), upstreamOutboard_->zPosition(), downstream_->xPosition(), downstream_->yPosition(), downstream_->zPosition());
+
+		double upstreamInboardDestination = calculateUpstreamInboardZ(upstreamInboard_->xPosition(), upstreamInboard_->yPosition(), setpoint, roll, height);
 		move->addSubAction(AMActionSupport::buildControlMoveAction(upstreamInboard_, upstreamInboardDestination));
 
-		double upstreamOutboardDestination = calculateUpstreamOutboardZ(setpoint, upstreamInboard_->xPosition(), upstreamInboard_->yPosition(), upstreamInboard_->zPosition(), upstreamOutboard_->xPosition(), upstreamOutboard_->yPosition(), downstream_->xPosition(), downstream_->yPosition(), downstream_->zPosition());
+		double upstreamOutboardDestination = calculateUpstreamOutboardZ(upstreamOutboard_->xPosition(), upstreamOutboard_->yPosition(), setpoint, roll, height);
 		move->addSubAction(AMActionSupport::buildControlMoveAction(upstreamOutboard_, upstreamOutboardDestination));
 
-		double downstreamDestination = calculateDownstreamZ(setpoint, upstreamInboard_->xPosition(), upstreamInboard_->yPosition(), upstreamInboard_->zPosition(), upstreamOutboard_->xPosition(), upstreamOutboard_->yPosition(), upstreamOutboard_->zPosition(), downstream_->xPosition(), downstream_->yPosition());
+		double downstreamDestination = calculateDownstreamZ(downstream_->xPosition(), downstream_->yPosition(), setpoint, roll, height);
 		move->addSubAction(AMActionSupport::buildControlMoveAction(downstream_, downstreamDestination));
 
 		result = move;
 	}
 
 	return result;
-}
-
-double BioXASMirrorPitchControl::calculateUpstreamInboardZ(double pitch, double upstreamInboardX, double upstreamInboardY, double upstreamOutboardX, double upstreamOutboardY, double upstreamOutboardZ, double downstreamX, double downstreamY, double downstreamZ)
-{
-	double numerator = (downstreamX - upstreamInboardX) * (downstreamY - upstreamOutboardY) + (upstreamOutboardX - downstreamX) * (downstreamY - upstreamInboardY) * tan(pitch * M_PI/180) + (downstreamZ - upstreamOutboardZ) * (downstreamY - upstreamInboardY);
-	double denom = downstreamY - upstreamOutboardY;
-	double result = downstreamZ - numerator / denom;
-
-	return result;
-}
-
-double BioXASMirrorPitchControl::calculateUpstreamOutboardZ(double pitch, double upstreamInboardX, double upstreamInboardY, double upstreamInboardZ, double upstreamOutboardX, double upstreamOutboardY, double downstreamX, double downstreamY, double downstreamZ)
-{
-	double numerator = (downstreamZ - upstreamInboardZ) * (downstreamY - upstreamOutboardY) - ((downstreamX - upstreamInboardX) * (downstreamY - upstreamOutboardY) + (upstreamOutboardX - downstreamX) * (downstreamY - upstreamInboardY)) * tan(pitch * M_PI/180);
-	double denom = downstreamY - upstreamInboardY;
-	double result = downstreamZ - numerator/denom;
-
-	return result;
-}
-
-double BioXASMirrorPitchControl::calculateDownstreamZ(double pitch, double upstreamInboardX, double upstreamInboardY, double upstreamInboardZ, double upstreamOutboardX, double upstreamOutboardY, double upstreamOutboardZ, double downstreamX, double downstreamY)
-{
-	double numerator = ((upstreamInboardZ * downstreamY) - (upstreamInboardZ * upstreamOutboardY) - (upstreamOutboardZ * downstreamY) + (upstreamOutboardZ * upstreamInboardY) + ((downstreamX - upstreamInboardX) * (downstreamY - upstreamOutboardY) + (upstreamOutboardX - downstreamX) * (downstreamY - upstreamInboardY)) * tan(pitch * M_PI/180));
-	double denom = upstreamInboardY - upstreamOutboardY;
-	double result = numerator / denom;
-
-	return result;
-}
-
-double BioXASMirrorPitchControl::calculatePitch(double upstreamInboardX, double upstreamInboardY, double upstreamInboardZ, double upstreamOutboardX, double upstreamOutboardY, double upstreamOutboardZ, double downstreamX, double downstreamY, double downstreamZ)
-{
-	double numerator = ((downstreamZ - upstreamInboardZ)*(downstreamY - upstreamOutboardY) - (downstreamZ - upstreamOutboardZ)*(downstreamY - upstreamInboardY));
-	double denom = ((downstreamX - upstreamInboardX)*(downstreamY - upstreamOutboardY) + (upstreamOutboardX - downstreamX)*(downstreamY - upstreamInboardY));
-	double pitch = atan( numerator / denom ) * 180/M_PI;
-
-	return pitch;
 }

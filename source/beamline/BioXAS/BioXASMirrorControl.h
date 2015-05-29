@@ -13,6 +13,11 @@ public:
 	/// Destructor.
 	virtual ~BioXASMirrorControl();
 
+	/// Returns true if the given value is a valid value for this control. False otherwise.
+	virtual bool validValue(double value) const = 0;
+	/// Returns true if the given value is a valid setpoint for this control. False otherwise.
+	virtual bool validSetpoint(double value) const = 0;
+
 	/// Returns the upstream mirror length.
 	double upstreamLength() const { return upstreamLength_; }
 	/// Returns the downstream mirror length.
@@ -33,12 +38,17 @@ public slots:
 	/// Sets the downstream mirror length.
 	void setDownstreamLength(double newValue);
 
+protected slots:
+	/// Updates the connected state.
+	virtual void updateConnected() = 0;
+	/// Updates the current value.
+	virtual void updateValue() = 0;
+	/// Updates the moving state.
+	virtual void updateMoving() = 0;
+
 protected:
 	/// Creates and returns a move action.
-	virtual AMAction3* createMoveAction(double setpoint);
-
-	/// Creates and returns a move action iteration.
-	virtual AMAction3* createMoveActionIteration(double setpoint) = 0;
+	virtual AMAction3* createMoveAction(double setpoint) = 0;
 
 protected:
 	/// The upstream mirror length.

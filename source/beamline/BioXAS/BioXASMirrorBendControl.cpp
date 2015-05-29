@@ -124,7 +124,7 @@ void BioXASMirrorBendControl::updateMoving()
 	}
 }
 
-AMAction3* BioXASMirrorBendControl::createMoveActionIteration(double setpoint)
+AMAction3* BioXASMirrorBendControl::createMoveAction(double setpoint)
 {
 	AMAction3 *result = 0;
 

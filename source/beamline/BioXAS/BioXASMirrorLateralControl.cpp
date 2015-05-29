@@ -109,7 +109,7 @@ void BioXASMirrorLateralControl::updateMoving()
 	}
 }
 
-AMAction3* BioXASMirrorLateralControl::createMoveActionIteration(double setpoint)
+AMAction3* BioXASMirrorLateralControl::createMoveAction(double setpoint)
 {
 	AMAction3 *result = 0;
 
