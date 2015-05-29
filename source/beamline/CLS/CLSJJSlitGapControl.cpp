@@ -10,11 +10,6 @@ CLSJJSlitGapControl::CLSJJSlitGapControl(const QString &name, AMControl *upperBl
 
 	setContextKnownDescription("GapControl");
 
-	// Make connections.
-
-	connect( this, SIGNAL(centerPositionChanged(double)), this, SLOT(updateMinimumValue()) );
-	connect( this, SIGNAL(centerPositionChanged(double)), this, SLOT(updateMaximumValue()) );
-
 	// Current settings.
 
 	updateStates();
