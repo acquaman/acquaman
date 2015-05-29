@@ -28,7 +28,7 @@ BioXASSIS3820ScalerChannelsView::BioXASSIS3820ScalerChannelsView(CLSSIS3820Scale
 		}
 	}
 
-	// Create and set layout.
+	// Create and set layouts.
 
 	QVBoxLayout *layout = new QVBoxLayout();
 	layout->setMargin(0);

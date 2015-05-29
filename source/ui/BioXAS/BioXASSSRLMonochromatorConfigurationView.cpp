@@ -95,10 +95,12 @@ BioXASSSRLMonochromatorConfigurationView::BioXASSSRLMonochromatorConfigurationVi
 
 	QVBoxLayout *leftLayout = new QVBoxLayout();
 	leftLayout->addWidget(controlsView);
+	leftLayout->addStretch();
 
 	QVBoxLayout *rightLayout = new QVBoxLayout();
 	rightLayout->addWidget(regionStatusView);
 	rightLayout->addWidget(braggConfigView);
+	rightLayout->addStretch();
 
 	QHBoxLayout *layout = new QHBoxLayout();
 	layout->addLayout(leftLayout);

@@ -22,7 +22,7 @@ BioXASSIS3820ScalerView::BioXASSIS3820ScalerView(CLSSIS3820Scaler *scaler, bool 
 	QCheckBox *darkCurrentVisible = new QCheckBox("Dark current");
 
 	optionsBox_ = new QGroupBox();
-	optionsBox_->setTitle("Options");
+	optionsBox_->setTitle("View Options");
 
 	BioXASSIS3820ScalerChannelsView *channelsView = new BioXASSIS3820ScalerChannelsView(scaler_, false, false, false);
 
