@@ -2,8 +2,8 @@
 #include "actions3/AMListAction3.h"
 #include "actions3/AMActionSupport.h"
 
-BioXASMirrorBendControl::BioXASMirrorBendControl(const QString &name, const QString &units, double upstreamLength, double downstreamLength, QObject *parent, const QString &description) :
-	BioXASMirrorControl(name, units, upstreamLength, downstreamLength, parent, description)
+BioXASMirrorBendControl::BioXASMirrorBendControl(const QString &name, const QString &units, QObject *parent, const QString &description) :
+	BioXASMirrorControl(name, units, parent, description)
 {
 	// Initialize inherited variables.
 

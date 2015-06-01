@@ -2,17 +2,16 @@
 #include "actions3/AMListAction3.h"
 #include "actions3/AMActionSupport.h"
 
-BioXASMirrorLateralControl::BioXASMirrorLateralControl(const QString &name, const QString &units, double upstreamLength, double downstreamLength, QObject *parent, const QString &description) :
-	BioXASMirrorControl(name, units, upstreamLength, downstreamLength, parent, description)
+BioXASMirrorLateralControl::BioXASMirrorLateralControl(const QString &name, const QString &units, QObject *parent, const QString &description) :
+	BioXASMirrorControl(name, units, parent, description)
 {
 	// Initialize inherited variables.
 
 	setContextKnownDescription("Lateral");
 
-	// Initialize member variables.
+	// Current settings.
 
-	stripeSelect_ = 0;
-	yaw_ = 0;
+	updateStates();
 }
 
 BioXASMirrorLateralControl::~BioXASMirrorLateralControl()
@@ -53,38 +52,6 @@ bool BioXASMirrorLateralControl::canStop() const
 	return result;
 }
 
-void BioXASMirrorLateralControl::setStripeSelectionControl(AMControl *newControl)
-{
-	if (stripeSelect_ != newControl) {
-
-		if (stripeSelect_)
-			removeChildControl(stripeSelect_);
-
-		stripeSelect_ = newControl;
-
-		if (stripeSelect_)
-			addChildControl(stripeSelect_);
-
-		emit stripeSelectionControlChanged(stripeSelect_);
-	}
-}
-
-void BioXASMirrorLateralControl::setYawControl(AMControl *newControl)
-{
-	if (yaw_ != newControl) {
-
-		if (yaw_)
-			removeChildControl(yaw_);
-
-		yaw_ = newControl;
-
-		if (yaw_)
-			addChildControl(yaw_);
-
-		emit yawControlChanged(yaw_);
-	}
-}
-
 void BioXASMirrorLateralControl::updateConnected()
 {
 	bool isConnected = (
@@ -98,7 +65,7 @@ void BioXASMirrorLateralControl::updateConnected()
 void BioXASMirrorLateralControl::updateValue()
 {
 	if (isConnected()) {
-		setValue( calculateLateralDisplacement(upstreamLength_, downstreamLength_, stripeSelect_->value(), yaw_->value()) );
+		setValue( calculateLateral(upstreamLength_, downstreamLength_, stripeSelect_->value(), yaw_->value()) );
 	}
 }
 
@@ -129,29 +96,11 @@ AMAction3* BioXASMirrorLateralControl::createMoveAction(double setpoint)
 	return result;
 }
 
-double BioXASMirrorLateralControl::calculateLateralPosition(double lateralDisplacement, double upstreamLength, double downstreamLength, double yawPosition)
+double BioXASMirrorLateralControl::calculateYawPosition(double lateral, double upstreamLength, double downstreamLength, double lateralPosition)
 {
 	Q_UNUSED(downstreamLength)
 
-	double result = lateralDisplacement + (upstreamLength * tan(yawPosition) * 180/M_PI);
-	return result;
-}
-
-double BioXASMirrorLateralControl::calculateYawPosition(double lateralDisplacement, double upstreamLength, double downstreamLength, double lateralPosition)
-{
-	Q_UNUSED(downstreamLength)
-
-	double lateralDifference = lateralPosition - lateralDisplacement;
-	double result = atan(lateralDifference / upstreamLength) * 180/M_PI;
-	return result;
-}
-
-double BioXASMirrorLateralControl::calculateLateralDisplacement(double upstreamLength, double downstreamLength, double lateralPosition, double yawPosition)
-{
-	Q_UNUSED(downstreamLength)
-
-	double yawDisplacement = (-upstreamLength) * tan(yawPosition * M_PI/180);
-	double result = lateralPosition + yawDisplacement;
-
+	double yawControlValue = atan((lateralPosition - lateral) / upstreamLength) * 180/M_PI;
+	double result = BioXASMirrorControl::calculateYawPosition(yawControlValue, upstreamLength, downstreamLength);
 	return result;
 }

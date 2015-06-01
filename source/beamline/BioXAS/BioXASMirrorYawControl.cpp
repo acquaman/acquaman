@@ -1,16 +1,16 @@
 #include "BioXASMirrorYawControl.h"
 #include "actions3/AMActionSupport.h"
 
-BioXASMirrorYawControl::BioXASMirrorYawControl(const QString &name, const QString &units, double upstreamLength, double downstreamLength, QObject *parent, const QString &description) :
-	BioXASMirrorControl(name, units, upstreamLength, downstreamLength, parent, description)
+BioXASMirrorYawControl::BioXASMirrorYawControl(const QString &name, const QString &units, QObject *parent, const QString &description) :
+	BioXASMirrorControl(name, units, parent, description)
 {
 	// Initialize inherited variables.
 
 	setContextKnownDescription("Yaw");
 
-	// Initialize member variables.
+	// Current settings.
 
-	yaw_ = 0;
+	updateStates();
 }
 
 BioXASMirrorYawControl::~BioXASMirrorYawControl()
@@ -51,32 +51,6 @@ bool BioXASMirrorYawControl::canStop() const
 	return result;
 }
 
-bool BioXASMirrorYawControl::validValue(double value) const
-{
-	Q_UNUSED(value)
-	return true;
-}
-
-bool BioXASMirrorYawControl::validSetpoint(double value) const
-{
-	Q_UNUSED(value)
-	return true;
-}
-
-void BioXASMirrorYawControl::setYawControl(AMControl *newControl)
-{
-	if (yaw_ != newControl) {
-
-		if (yaw_)
-			removeChildControl(yaw_);
-
-		yaw_ = newControl;
-
-		if (yaw_)
-			addChildControl(yaw_);
-	}
-}
-
 void BioXASMirrorYawControl::updateConnected()
 {
 	bool isConnected = ( yaw_ && yaw_->isConnected() );
@@ -112,14 +86,4 @@ AMAction3* BioXASMirrorYawControl::createMoveAction(double setpoint)
 	return result;
 }
 
-double BioXASMirrorYawControl::calculateYawPosition(double yaw, double upstreamLength, double downstreamLength)
-{
-	double result = (downstreamLength - upstreamLength) * tan(yaw * M_PI/180);
-	return result;
-}
 
-double BioXASMirrorYawControl::calculateYaw(double upstreamLength, double downstreamLength, double yawPosition)
-{
-	double result = atan(yawPosition / (downstreamLength - upstreamLength)) * 180/M_PI;
-	return result;
-}

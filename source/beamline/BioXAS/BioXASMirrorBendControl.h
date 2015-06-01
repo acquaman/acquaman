@@ -9,7 +9,7 @@ class BioXASMirrorBendControl : public BioXASMirrorControl
 
 public:
 	/// Constructor.
-	explicit BioXASMirrorBendControl(const QString &name, const QString &units, double upstreamLength, double downstreamLength, QObject *parent = 0, const QString &description = QString());
+	explicit BioXASMirrorBendControl(const QString &name, const QString &units, QObject *parent = 0, const QString &description = QString());
 	/// Destructor.
 	virtual ~BioXASMirrorBendControl();
 
