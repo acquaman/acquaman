@@ -23,6 +23,8 @@ BioXASMirrorControl::BioXASMirrorControl(const QString &name, const QString &uni
 	downstream_ = 0;
 	stripeSelect_ = 0;
 	yaw_ = 0;
+	upstreamBender_ = 0;
+	downstreamBender_ = 0;
 }
 
 BioXASMirrorControl::~BioXASMirrorControl()
@@ -141,6 +143,42 @@ void BioXASMirrorControl::setYawMotor(AMControl *newControl)
 			addChildControl(yaw_);
 
 		emit yawMotorChanged(yaw_);
+
+		updateStates();
+	}
+}
+
+void BioXASMirrorControl::setUpstreamBenderMotor(AMControl *newControl)
+{
+	if (upstreamBender_ != newControl) {
+
+		if (upstreamBender_)
+			removeChildControl(upstreamBender_);
+
+		upstreamBender_ = newControl;
+
+		if (upstreamBender_)
+			addChildControl(upstreamBender_);
+
+		emit upstreamBenderMotorChanged(upstreamBender_);
+
+		updateStates();
+	}
+}
+
+void BioXASMirrorControl::setDownstreamBenderMotor(AMControl *newControl)
+{
+	if (downstreamBender_ != newControl) {
+
+		if (downstreamBender_)
+			removeChildControl(downstreamBender_);
+
+		downstreamBender_ = newControl;
+
+		if (downstreamBender_)
+			addChildControl(downstreamBender_);
+
+		emit downstreamBenderMotorChanged(downstreamBender_);
 
 		updateStates();
 	}

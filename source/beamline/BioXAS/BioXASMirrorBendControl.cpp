@@ -5,14 +5,7 @@
 BioXASMirrorBendControl::BioXASMirrorBendControl(const QString &name, const QString &units, QObject *parent, const QString &description) :
 	BioXASMirrorControl(name, units, parent, description)
 {
-	// Initialize inherited variables.
 
-	setContextKnownDescription("Bend");
-
-	// Initialize member variables.
-
-	upstreamBender_ = 0;
-	downstreamBender_ = 0;
 }
 
 BioXASMirrorBendControl::~BioXASMirrorBendControl()
@@ -51,53 +44,6 @@ bool BioXASMirrorBendControl::canStop() const
 	}
 
 	return result;
-}
-
-bool BioXASMirrorBendControl::validValue(double value) const
-{
-	bool isValid = false;
-
-	if (value >= minimumValue() && value <= maximumValue())
-		isValid = true;
-
-	return isValid;
-}
-
-bool BioXASMirrorBendControl::validSetpoint(double value) const
-{
-	return validValue(value);
-}
-
-void BioXASMirrorBendControl::setUpstreamBenderControl(AMControl *newControl)
-{
-	if (upstreamBender_ != newControl) {
-
-		if (upstreamBender_)
-			removeChildControl(upstreamBender_);
-
-		upstreamBender_ = newControl;
-
-		if (upstreamBender_)
-			addChildControl(upstreamBender_);
-
-		emit upstreamBenderChanged(upstreamBender_);
-	}
-}
-
-void BioXASMirrorBendControl::setDownstreamBenderControl(AMControl *newControl)
-{
-	if (downstreamBender_ != newControl) {
-
-		if (downstreamBender_)
-			removeChildControl(downstreamBender_);
-
-		downstreamBender_ = newControl;
-
-		if (downstreamBender_)
-			addChildControl(downstreamBender_);
-
-		emit downstreamBenderChanged(downstreamBender_);
-	}
 }
 
 void BioXASMirrorBendControl::updateConnected()

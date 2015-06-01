@@ -32,6 +32,21 @@ AMPseudoMotorControl::~AMPseudoMotorControl()
 
 }
 
+bool AMPseudoMotorControl::validValue(double value) const
+{
+	bool isValid = false;
+
+	if (value >= minimumValue() && value <= maximumValue())
+		isValid = true;
+
+	return isValid;
+}
+
+bool AMPseudoMotorControl::validSetpoint(double value) const
+{
+	return validValue(value);
+}
+
 void AMPseudoMotorControl::addChildControl(AMControl *control)
 {
 	if (control) {

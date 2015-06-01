@@ -42,9 +42,9 @@ public:
 	virtual bool moveInProgress() const { return moveInProgress_; }
 
 	/// Returns true if the given value is a valid value for this control. False otherwise.
-	virtual bool validValue(double value) const = 0;
+	virtual bool validValue(double value) const;
 	/// Returns true if the given value is a valid setpoint for this control. False otherwise.
-	virtual bool validSetpoint(double value) const = 0;
+	virtual bool validSetpoint(double value) const;
 
 	/// Adds a given control to the list of child controls.
 	virtual void addChildControl(AMControl *control);

@@ -49,6 +49,10 @@ public:
 	AMControl* stripeSelectionMotor() const { return stripeSelect_; }
 	/// Returns the yaw motor control.
 	AMControl* yawMotor() const { return yaw_; }
+	/// Returns the upstream bender motor control.
+	AMControl* upstreamBenderMotor() const { return upstreamBender_; }
+	/// Returns the downstream bender motor control.
+	AMControl* downstreamBenderMotor() const { return downstreamBender_; }
 
 signals:
 	/// Notifier that the upstream mirror length has changed.
@@ -65,6 +69,10 @@ signals:
 	void stripeSelectionMotorChanged(AMControl *newControl);
 	/// Notifier that the yaw motor control has changed.
 	void yawMotorChanged(AMControl *newControl);
+	/// Notifier that the upstream bender motor control has changed.
+	void upstreamBenderMotorChanged(AMControl *newControl);
+	/// Notifier that the downstream bender motor control has changed.
+	void downstreamBenderMotorChanged(AMControl *newControl);
 
 public slots:
 	/// Sets the upstream mirror length.
@@ -81,6 +89,10 @@ public slots:
 	void setStripeSelectionMotor(AMControl *newControl);
 	/// Sets the yaw motor control.
 	void setYawMotor(AMControl *newControl);
+	/// Sets the upstream bender control.
+	void setUpstreamBenderMotor(AMControl *newControl);
+	/// Sets the downstream bender control.
+	void setDownstreamBenderMotor(AMControl *newControl);
 
 protected slots:
 	/// Updates the connected state.
@@ -104,6 +116,7 @@ protected:
 	virtual double calculateLateral(double upstreamLength, double downstreamLength, double lateralPosition, double yawPosition);
 	/// Calculates and returns the yaw for the given yaw motor position and mirror lengths.
 	virtual double calculateYaw(double upstreamLength, double downstreamLength, double yawPosition);
+
 
 	/// Calculates and returns the upstream inboard motor position from the given pitch, roll, and height.
 	virtual double calculateUpstreamInboardPosition(double upstreamInboardX, double upstreamInboardY, double pitch, double roll, double height);
@@ -131,6 +144,10 @@ protected:
 	AMControl *stripeSelect_;
 	/// The yaw motor control.
 	AMControl *yaw_;
+	/// The upstream bender control.
+	AMControl *upstreamBender_;
+	/// The downstream bender control.
+	AMControl *downstreamBender_;
 };
 
 #endif // BIOXASMIRRORCONTROL_H
