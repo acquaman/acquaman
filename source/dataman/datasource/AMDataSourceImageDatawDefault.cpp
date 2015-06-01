@@ -39,6 +39,7 @@ void AMDataSourceImageDatawDefault::setDefaultValue(double value)
 
 void AMDataSourceImageDatawDefault::updateCachedValues() const
 {
+	dirtyRectBottomLeft_ = AMnDIndex(0,0);
 	QVector<double> newData = QVector<double>(dirtyRectBottomLeft_.totalPointsTo(dirtyRectTopRight_));
 
 	if (source_->values(dirtyRectBottomLeft_, dirtyRectTopRight_, newData.data())){

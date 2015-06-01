@@ -198,7 +198,7 @@ bool AM2DNormalizationAB::values(const AMnDIndex &indexStart, const AMnDIndex &i
 		if (normalizer.at(i) == 0)
 			outputValues[i] = 0;
 
-		else if (normalizer.at(i) < 0)
+		else if (normalizer.at(i) < 0 || data.at(i) == -1)
 			outputValues[i] = -1;
 
 		else
