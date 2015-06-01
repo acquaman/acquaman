@@ -24,9 +24,9 @@ BioXASSSRLMonochromator::BioXASSSRLMonochromator(const QString &name, QObject *p
 	crystalChangeCCWLimitStatus_ = 0;
 	regionAStatus_ = 0;
 	regionBStatus_ = 0;
+	m1Pitch_ = 0;
 
 	braggSetPosition_ = 0;
-	m1MirrorOffset_ = 0;
 
 	upperSlitMotor_ = 0;
 	lowerSlitMotor_ = 0;
@@ -81,6 +81,15 @@ bool BioXASSSRLMonochromator::isConnected() const
 	);
 
 	return connected;
+}
+
+void BioXASSSRLMonochromator::setM1MirrorPitchControl(AMControl *newControl)
+{
+	if (m1Pitch_ != newControl) {
+		m1Pitch_ = newControl;
+		energy_->setM1MirrorPitchControl(m1Pitch_);
+		emit m1MirrorPitchControlChanged(m1Pitch_);
+	}
 }
 
 void BioXASSSRLMonochromator::calibrateBraggPosition(double newBraggPosition)

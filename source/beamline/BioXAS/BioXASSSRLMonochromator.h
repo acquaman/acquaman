@@ -71,6 +71,8 @@ public:
 	AMControl* regionAStatusControl() const { return regionAStatus_; }
 	/// Returns the region B status control.
 	AMControl* regionBStatusControl() const { return regionBStatus_; }
+	/// Returns the m1 mirror pitch control.
+	AMControl* m1MirrorPitchControl() const { return m1Pitch_; }
 
 	/// Returns the upper slit blade motor.
 	CLSMAXvMotor* upperSlitBladeMotor() const { return upperSlitMotor_; }
@@ -95,7 +97,14 @@ public:
 	/// Returns the crystal 2 roll motor.
 	CLSMAXvMotor* crystal2RollMotor() const { return crystal2RollMotor_; }
 
+signals:
+	/// Notifier that the m1 mirror pitch control has changed.
+	void m1MirrorPitchControlChanged(AMControl *newControl);
+
 public slots:
+	/// Sets the m1 mirror pitch control.
+	void setM1MirrorPitchControl(AMControl* newControl);
+
 	/// Sets the calibrated bragg position.
 	void calibrateBraggPosition(double newPosition);
 
@@ -136,8 +145,8 @@ protected:
 
 	/// The bragg motor set position control.
 	AMControl *braggSetPosition_;
-	/// The m1 mirror offset control.
-	AMControl *m1MirrorOffset_;
+	/// The m1 mirror pitch control.
+	AMControl *m1Pitch_;
 
 	/// Upper slit blade motor.
 	CLSMAXvMotor *upperSlitMotor_;

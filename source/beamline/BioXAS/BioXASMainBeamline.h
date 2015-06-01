@@ -40,6 +40,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/BioXAS/BioXASMainMonochromator.h"
 #include "beamline/BioXAS/BioXAS32ElementGeDetector.h"
 #include "beamline/BioXAS/BioXASMainM2Mirror.h"
+#include "beamline/BioXAS/BioXASMainM1Mirror.h"
 
 #include "util/AMErrorMonitor.h"
 #include "util/AMBiHash.h"
@@ -113,8 +114,6 @@ protected:
 	void setupDetectors();
 	/// Sets up the sample stage motors.
 	void setupSampleStage();
-	/// Sets up mono settings.
-	void setupMono();
 	/// Sets up various beamline components.
 	virtual void setupComponents();
 	/// Sets up the exposed actions.
@@ -135,39 +134,10 @@ protected:
 	CLSMAXvMotor *carbonFilterFarm1_;
 	CLSMAXvMotor *carbonFilterFarm2_;
 
-	/// BioXAS M1 motors
-	CLSMAXvMotor *m1VertUpStreamINB_;
-	CLSMAXvMotor *m1VertUpStreamOUTB_;
-	CLSMAXvMotor *m1VertDownStream_;
-	CLSMAXvMotor *m1StripeSelect_;
-	CLSMAXvMotor *m1Yaw_;
-	CLSMAXvMotor *m1BenderUpstream_;
-	CLSMAXvMotor *m1BenderDownStream_;
-	CLSMAXvMotor *m1UpperSlitBlade_;
-
-	/// BioXAS Variable Mask motors
-	CLSMAXvMotor *variableMaskVertUpperBlade_;
-	CLSMAXvMotor *variableMaskVertLowerBlade_;
-
 	// Monochromator
-
 	BioXASMainMonochromator *mono_;
-
-	/// BioXAS Pseudo motors
-	BioXASPseudoMotorControl *m1PseudoRoll_;
-	BioXASPseudoMotorControl *m1PseudoPitch_;
-	BioXASPseudoMotorControl *m1PseudoHeight_;
-	BioXASPseudoMotorControl *m1PseudoYaw_;
-	BioXASPseudoMotorControl *m1PseudoLateral_;
-
-	BioXASPseudoMotorControl *m2PseudoRoll_;
-	BioXASPseudoMotorControl *m2PseudoPitch_;
-	BioXASPseudoMotorControl *m2PseudoHeight_;
-	BioXASPseudoMotorControl *m2PseudoYaw_;
-	BioXASPseudoMotorControl *m2PseudoLateral_;
-
-	BioXASPseudoMotorControl *monoPseudoEnergy_;
-	AMPVwStatusControl *monoBraggAngle_;
+//	BioXASPseudoMotorControl *monoPseudoEnergy_;
+//	AMPVwStatusControl *monoBraggAngle_;
 
 	// Detectors
 	CLSBasicScalerChannelDetector *i0Detector_;
@@ -187,7 +157,6 @@ protected:
 	AMReadOnlyPVControl *scalerDwellTime_;
 
 	// Amplifiers
-
 	CLSKeithley428 *i0Keithley_;
 	CLSKeithley428 *i1Keithley_;
 	CLSKeithley428 *i2Keithley_;

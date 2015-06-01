@@ -47,8 +47,8 @@ public:
 	AMControl* braggSetPositionControl() const { return braggSetPosition_; }
 	/// Returns the region control.
 	AMControl* regionControl() const { return region_; }
-	/// Returns the m1 mirror control.
-	AMControl* m1MirrorControl() const { return m1Mirror_; }
+	/// Returns the m1 mirror pitch control.
+	AMControl* m1MirrorPitchControl() const { return m1MirrorPitch_; }
 
 	/// Returns true if the given value is a valid value for this control. False otherwise.
 	virtual bool validValue(double value) const { Q_UNUSED(value) return true; }
@@ -73,7 +73,7 @@ public slots:
 	/// Sets the region control.
 	void setRegionControl(AMControl *newControl);
 	/// Sets the m1 mirror control.
-	void setM1MirrorControl(AMControl *newControl);
+	void setM1MirrorPitchControl(AMControl *newControl);
 
 	/// Calibrates the control such that the newEnergy is the current energy.
 	void setEnergy(double newEnergy);
@@ -91,14 +91,14 @@ protected:
 	virtual AMAction3* createMoveAction(double setpoint);
 
 	/// Returns the bragg angle calculation result for region A, from the bragg motor position.
-	static double calculateBraggAngleFromPositionRegionA(double braggPosition, double m1AngleOffset, double thetaBraggOffset, double regionOffset);
+	static double calculateBraggAngleFromPositionRegionA(double braggPosition, double m1Pitch, double thetaBraggOffset, double regionOffset);
 	/// Returns the bragg angle calculation result for region B, from the bragg motor position.
-	static double calculateBraggAngleFromPositionRegionB(double braggPosition, double m1AngleOffset, double thetaBraggOffset);
+	static double calculateBraggAngleFromPositionRegionB(double braggPosition, double m1Pitch, double thetaBraggOffset);
 
 	/// Returns the bragg position calculation result for region A, from the bragg angle.
-	static double calculateBraggPositionFromAngleRegionA(double braggAngle, double m1AngleOffset, double thetaBraggOffset, double regionOffset);
+	static double calculateBraggPositionFromAngleRegionA(double braggAngle, double m1Pitch, double thetaBraggOffset, double regionOffset);
 	/// Returns the bragg position calculation result for region B, from the bragg angle.
-	static double calculateBraggPositionFromAngleRegionB(double braggAngle, double m1AngleOffset, double thetaBraggOffset);
+	static double calculateBraggPositionFromAngleRegionB(double braggAngle, double m1Pitch, double thetaBraggOffset);
 
 	/// Returns the bragg angle calculation result, from the energy.
 	static double calculateBraggAngleFromEnergy(double hc, double crystal2D, double energy);
@@ -106,9 +106,9 @@ protected:
 	static double calculateEnergyFromBraggAngle(double hc, double crystal2D, double braggAngle);
 
 	/// Returns the bragg position result for the given values.
-	static double calculateBraggPositionFromEnergy(double hc, double crystal2D, double energy, double region, double m1AngleOffset, double thetaBraggOffset, double regionOffset);
+	static double calculateBraggPositionFromEnergy(double hc, double crystal2D, double energy, double region, double m1Pitch, double thetaBraggOffset, double regionOffset);
 	/// Returns the energy calculation result for the given values. Returns 0 if not in a valid region (can happen during normal operation).
-	static double calculateEnergyFromBraggPosition(double hc, double crystal2D, double braggPosition, double region, double m1AngleOffset, double thetaBraggOffset, double regionOffset);
+	static double calculateEnergyFromBraggPosition(double hc, double crystal2D, double braggPosition, double region, double m1Pitch, double thetaBraggOffset, double regionOffset);
 
 protected:
 	/// The hc constant.
@@ -126,8 +126,8 @@ protected:
 	AMControl *braggSetPosition_;
 	/// The region control.
 	AMControl *region_;
-	/// The m1 mirror control.
-	AMControl *m1Mirror_;
+	/// The m1 mirror pitch control.
+	AMControl *m1MirrorPitch_;
 };
 
 #endif // BIOXASSSRLMONOCHROMATORENERGYCONTROL_H

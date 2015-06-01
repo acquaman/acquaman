@@ -752,18 +752,20 @@ void BioXASSideBeamline::setupComponents()
 	xiaFilters_ = new BioXASSideXIAFilters(this);
 	connect( xiaFilters_, SIGNAL(connectedChanged(bool)), this, SLOT(updateConnected()) );
 
+	// The m1 mirror. Must be instantiated before the mono.
+	m1Mirror_ = new BioXASSideM1Mirror(this);
+	connect( m1Mirror_, SIGNAL(connectedChanged(bool)), this, SLOT(onConnectionChanged()) );
+
 	// The mono.
 	mono_ = new BioXASSideMonochromator(this);
+	mono_->setM1MirrorPitchControl(m1Mirror_->pitchControl());
 	connect( mono_, SIGNAL(connectedChanged(bool)), this, SLOT(updateConnected()) );
 
 	// The JJ slits.
 	jjSlits_ = new CLSJJSlits("JJSlits", "SMTR1607-6-I22-10", "SMTR1607-6-I22-09", "SMTR1607-6-I22-11", "SMTR1607-6-I22-12", this);
 	connect( jjSlits_, SIGNAL(connectedChanged(bool)), this, SLOT(updateConnected()) );
 
-	// The m1 and m2 mirrors.
-	m1Mirror_ = new BioXASSideM1Mirror(this);
-	connect( m1Mirror_, SIGNAL(connectedChanged(bool)), this, SLOT(onConnectionChanged()) );
-
+	// The m2 mirror.
 	m2Mirror_ = new BioXASSideM2Mirror(this);
 	connect( m2Mirror_, SIGNAL(connectedChanged(bool)), this, SLOT(onConnectionChanged()) );
 
