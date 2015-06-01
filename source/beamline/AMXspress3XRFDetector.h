@@ -56,6 +56,14 @@ public:
 
 	/// Returns the threshold (only returns the first element one).
 	int threshold() const { return int(thresholdControls_.at(0)->value()); }
+
+	/// Returns an action that will initialize this detector.
+	AMAction3 *createInitializationAction();
+	/// Returns an action that sets the frames per acquisition.
+	AMAction3 *createFramesPerAcquisitionAction(int number);
+	/// Returns an action that disarms the detector.
+	AMAction3 *createDisarmAction();
+
 signals:
 	/// Notifier that the status message has changed.
 	void statusMessageChanged(const QString &);

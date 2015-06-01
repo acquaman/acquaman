@@ -36,23 +36,7 @@ AMXspress3XRFDetector::~AMXspress3XRFDetector()
 
 bool AMXspress3XRFDetector::initializeImplementation()
 {
-	setInitializing();
-
-	AMListAction3 *initializeAction = new AMListAction3(new AMListActionInfo3("Arm detector", "Arm detector"));
-	initializeAction->addSubAction(AMActionSupport::buildControlMoveAction(eraseControl_, 1.0));
-	initializeAction->addSubAction(AMActionSupport::buildControlMoveAction(updateControl_, 1.0));
-	initializeAction->addSubAction(AMActionSupport::buildControlMoveAction(eraseControl_, 0.0));
-	initializeAction->addSubAction(AMActionSupport::buildControlMoveAction(updateControl_, 0.0));
-	initializeAction->addSubAction(AMActionSupport::buildControlMoveAction(initializationControl_, 1.0));
-
-	connect(initializeAction, SIGNAL(failed()), initializeAction, SLOT(scheduleForDeletion()));
-	connect(initializeAction, SIGNAL(cancelled()), initializeAction, SLOT(scheduleForDeletion()));
-	connect(initializeAction, SIGNAL(succeeded()), initializeAction, SLOT(scheduleForDeletion()));
-
-	connect(initializeAction, SIGNAL(failed()), this, SLOT(setInitializationRequired()));
-	connect(initializeAction, SIGNAL(cancelled()), this, SLOT(setInitializationRequired()));
-	connect(initializeAction, SIGNAL(succeeded()), this, SLOT(setInitialized()));
-
+	AMAction3 *initializeAction = createInitializationAction();
 	initializeAction->start();
 
 	return true;
@@ -94,9 +78,6 @@ void AMXspress3XRFDetector::updateAcquisitionState()
 
 	else if (isInitialized() && isNotReadyForAcquisition() && (acquisitionStatusControl_->withinTolerance(1) && acquireControl_->withinTolerance(0)))
 		setReadyForAcquisition();
-
-	else if (acquisitionStatusControl_->withinTolerance(0) || acquisitionStatusControl_->withinTolerance(5) || acquisitionStatusControl_->withinTolerance(10))
-		setNotReadyForAcquisition();
 
 	else if (isNotReadyForAcquisition() && requiresInitialization() && autoInitialize_)
 		initialize();
@@ -165,8 +146,6 @@ void AMXspress3XRFDetector::setThreshold(int newThreshold)
 
 void AMXspress3XRFDetector::disarm()
 {
-	setInitializationRequired();
-	setNotReadyForAcquisition();
 	initializationControl_->move(0);
 }
 
@@ -210,10 +189,50 @@ void AMXspress3XRFDetector::onDataChanged()
 			dataReady_ = true;
 			setAcquisitionSucceeded();
 
-			if (acquisitionStatusControl_->withinTolerance(0) && acquireControl_->withinTolerance(0))
-				setInitializationRequired();
+			if (acquisitionStatusControl_->withinTolerance(0) && acquireControl_->withinTolerance(0)){
 
-			setReadyForAcquisition();
+				setInitializationRequired();
+				setNotReadyForAcquisition();
+			}
+
+			else
+				setReadyForAcquisition();
 		}
 	}
+}
+
+AMAction3 * AMXspress3XRFDetector::createInitializationAction()
+{
+	AMListAction3 *initializeAction = new AMListAction3(new AMListActionInfo3("Arm detector", "Arm detector"));
+	initializeAction->addSubAction(AMActionSupport::buildControlMoveAction(eraseControl_, 1.0));
+	initializeAction->addSubAction(AMActionSupport::buildControlMoveAction(updateControl_, 1.0));
+	initializeAction->addSubAction(AMActionSupport::buildControlMoveAction(eraseControl_, 0.0));
+	initializeAction->addSubAction(AMActionSupport::buildControlMoveAction(updateControl_, 0.0));
+	initializeAction->addSubAction(AMActionSupport::buildControlMoveAction(initializationControl_, 1.0));
+
+	connect(initializeAction, SIGNAL(failed()), initializeAction, SLOT(scheduleForDeletion()));
+	connect(initializeAction, SIGNAL(cancelled()), initializeAction, SLOT(scheduleForDeletion()));
+	connect(initializeAction, SIGNAL(succeeded()), initializeAction, SLOT(scheduleForDeletion()));
+
+	connect(initializeAction, SIGNAL(failed()), this, SLOT(setInitializationRequired()));
+	connect(initializeAction, SIGNAL(cancelled()), this, SLOT(setInitializationRequired()));
+	connect(initializeAction, SIGNAL(succeeded()), this, SLOT(setInitialized()));
+
+	return initializeAction;
+}
+
+AMAction3 * AMXspress3XRFDetector::createFramesPerAcquisitionAction(int number)
+{
+	if (!framesPerAcquisitionControl_->isConnected())
+		return 0;
+
+	return AMActionSupport::buildControlMoveAction(framesPerAcquisitionControl_, number);
+}
+
+AMAction3 * AMXspress3XRFDetector::createDisarmAction()
+{
+	if (!initializationControl_->isConnected())
+		return 0;
+
+	return AMActionSupport::buildControlMoveAction(initializationControl_, 0);
 }
