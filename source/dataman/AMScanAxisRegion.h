@@ -56,6 +56,9 @@ public:
 	/// Returns the time for the region as an AMNumber (which may be in the state AMNumber::Null)
 	AMNumber regionTime() const;
 
+	/// Returns the number of points in a region.
+	int numberOfPoints() const;
+
 signals:
 	/// Notifier that the start value has changed.
 	void regionStartChanged(const AMNumber &);
