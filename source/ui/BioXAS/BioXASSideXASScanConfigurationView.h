@@ -89,6 +89,8 @@ protected:
 	QLabel *pointPerScan_;
 	/// Label holding the energy space scan range.
 	QLabel *scanEnergyRange_;
+	/// Check box for using the XRF detector.
+	QCheckBox *usingXRFDetectorCheckBox_;
 };
 
 #endif // BIOXASXASSCANCONFIGURATIONVIEW_H

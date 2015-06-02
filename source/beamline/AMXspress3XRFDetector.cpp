@@ -37,6 +37,11 @@ AMXspress3XRFDetector::~AMXspress3XRFDetector()
 bool AMXspress3XRFDetector::initializeImplementation()
 {
 	AMAction3 *initializeAction = createInitializationAction();
+
+	connect(initializeAction, SIGNAL(failed()), initializeAction, SLOT(scheduleForDeletion()));
+	connect(initializeAction, SIGNAL(cancelled()), initializeAction, SLOT(scheduleForDeletion()));
+	connect(initializeAction, SIGNAL(succeeded()), initializeAction, SLOT(scheduleForDeletion()));
+
 	initializeAction->start();
 
 	return true;
@@ -209,10 +214,6 @@ AMAction3 * AMXspress3XRFDetector::createInitializationAction()
 	initializeAction->addSubAction(AMActionSupport::buildControlMoveAction(eraseControl_, 0.0));
 	initializeAction->addSubAction(AMActionSupport::buildControlMoveAction(updateControl_, 0.0));
 	initializeAction->addSubAction(AMActionSupport::buildControlMoveAction(initializationControl_, 1.0));
-
-	connect(initializeAction, SIGNAL(failed()), initializeAction, SLOT(scheduleForDeletion()));
-	connect(initializeAction, SIGNAL(cancelled()), initializeAction, SLOT(scheduleForDeletion()));
-	connect(initializeAction, SIGNAL(succeeded()), initializeAction, SLOT(scheduleForDeletion()));
 
 	connect(initializeAction, SIGNAL(failed()), this, SLOT(setInitializationRequired()));
 	connect(initializeAction, SIGNAL(cancelled()), this, SLOT(setInitializationRequired()));

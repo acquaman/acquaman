@@ -305,7 +305,7 @@ void BioXASSideAppController::onCurrentScanActionFinishedImplementation(AMScanAc
 
 void BioXASSideAppController::onUserConfigurationLoadedFromDb()
 {
-	AMXRFDetector *detector = BioXASSideBeamline::bioXAS()->ge32ElementDetector();
+	AMXRFDetector *detector = BioXASSideBeamline::bioXAS()->fourElementVortexDetector();
 
 	foreach (AMRegionOfInterest *region, userConfiguration_->regionsOfInterest()){
 
