@@ -45,6 +45,11 @@ BioXASSideXASScanConfigurationView::BioXASSideXASScanConfigurationView(BioXASSid
 
 	regionsView_ = new AMEXAFSScanAxisView("BioXAS-Side Region Configuration", configuration_);
 
+	usingXRFDetectorCheckBox_ = new QCheckBox("Use Four Element");
+	usingXRFDetectorCheckBox_->setChecked(configuration_->usingXRFDetector());
+	connect(configuration_->dbObject(), SIGNAL(usingXRFDetectorChanged(bool)), usingXRFDetectorCheckBox_, SLOT(setChecked(bool)));
+	connect(usingXRFDetectorCheckBox_, SIGNAL(toggled(bool)), configuration_->dbObject(), SLOT(setUsingXRFDetector(bool)));
+
 	autoRegionButton_ = new QPushButton("Auto Set XANES Regions");
 	connect(autoRegionButton_, SIGNAL(clicked()), this, SLOT(setupDefaultXANESScanRegions()));
 
@@ -96,10 +101,17 @@ BioXASSideXASScanConfigurationView::BioXASSideXASScanConfigurationView(BioXASSid
 	energyLayout->addWidget(elementChoice_);
 	energyLayout->addWidget(lineChoice_);
 
+	QVBoxLayout *energyAndRegionLayout = new QVBoxLayout;
+	energyAndRegionLayout->addLayout(energyLayout);
+	energyAndRegionLayout->addWidget(regionsView_);
+
+	QHBoxLayout *regionsLayout = new QHBoxLayout;
+	regionsLayout->addLayout(energyAndRegionLayout);
+	regionsLayout->addWidget(usingXRFDetectorCheckBox_, 0, Qt::AlignBottom);
+
 	QVBoxLayout *mainVL = new QVBoxLayout();
 	mainVL->addWidget(topFrame_);
-	mainVL->addLayout(energyLayout);
-	mainVL->addWidget(regionsView_);
+	mainVL->addLayout(regionsLayout);
 
 //	QLabel *settingsLabel = new QLabel("Scan Settings:");
 //	settingsLabel->setFont(QFont("Lucida Grande", 12, QFont::Bold));

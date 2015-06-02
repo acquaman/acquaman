@@ -32,6 +32,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "analysis/AM1DDerivativeAB.h"
 #include "analysis/AM1DDarkCurrentCorrectionAB.h"
 #include "beamline/CLS/CLSStorageRing.h"
+#include "analysis/AM1DNormalizationAB.h"
 
 BioXASSideXASScanActionController::BioXASSideXASScanActionController(BioXASSideXASScanConfiguration *configuration, QObject *parent) :
 	AMStepScanActionController(configuration, parent)
@@ -63,6 +64,9 @@ BioXASSideXASScanActionController::BioXASSideXASScanActionController(BioXASSideX
 	bioXASDetectors.addDetectorInfo(BioXASSideBeamline::bioXAS()->braggEncoderFeedbackDetector()->toInfo());
 	bioXASDetectors.addDetectorInfo(BioXASSideBeamline::bioXAS()->braggMoveRetriesDetector()->toInfo());
 	bioXASDetectors.addDetectorInfo(BioXASSideBeamline::bioXAS()->braggStepSetpointDetector()->toInfo());
+
+	if (configuration_->usingXRFDetector())
+		bioXASDetectors.addDetectorInfo(BioXASSideBeamline::bioXAS()->fourElementVortexDetector()->toInfo());
 
 	configuration_->setDetectorConfigurations(bioXASDetectors);
 
@@ -109,7 +113,7 @@ AMAction3* BioXASSideXASScanActionController::createInitializationActions()
 {
 	AMSequentialListAction3 *initializationAction = new AMSequentialListAction3(new AMSequentialListActionInfo3("BioXAS Side Scan Initialization Actions", "BioXAS Side Scan Initialization Actions"));
 	CLSSIS3820Scaler *scaler = BioXASSideBeamline::bioXAS()->scaler();
-	double regionTime = double(configuration_->scanAxisAt(0)->regionAt(0)->regionTime());
+	double regionTime = scaler->dwellTime();
 
 	AMListAction3 *stage1 = new AMListAction3(new AMListActionInfo3("BioXAS Side Initialization Stage 1", "BioXAS Side Initialization Stage 1"), AMListAction3::Parallel);
 	stage1->addSubAction(scaler->createContinuousEnableAction3(false));
@@ -125,18 +129,23 @@ AMAction3* BioXASSideXASScanActionController::createInitializationActions()
 	stage3->addSubAction(scaler->createStartAction3(true));
 	stage3->addSubAction(scaler->createWaitForDwellFinishedAction(regionTime + 5.0));
 
-	AMListAction3 *stage4 = new AMListAction3(new AMListActionInfo3("BioXAS Side Initialization Stage 4", "BioXAS Side Initialization Stage 4"), AMListAction3::Parallel);
-	stage4->addSubAction(scaler->createStartAction3(true));
-	stage4->addSubAction(scaler->createWaitForDwellFinishedAction(regionTime + 5.0));
-
 	initializationAction->addSubAction(stage1);
 	initializationAction->addSubAction(stage2);
 	initializationAction->addSubAction(scaler->createDwellTimeAction3(double(configuration_->scanAxisAt(0)->regionAt(0)->regionTime())));
 	initializationAction->addSubAction(stage3);
-	initializationAction->addSubAction(stage4);
 
 	// Set the bragg motor power to PowerOn.
 	initializationAction->addSubAction(BioXASSideBeamline::bioXAS()->mono()->braggMotor()->createPowerAction(CLSMAXvMotor::PowerOn));
+
+	if (configuration_->usingXRFDetector()){
+
+		AMXspress3XRFDetector *detector = BioXASSideBeamline::bioXAS()->fourElementVortexDetector();
+		AMSequentialListAction3 *xspress3Setup = new AMSequentialListAction3(new AMSequentialListActionInfo3("Xspress3 setup", "Xspress3 Setup"));
+		xspress3Setup->addSubAction(detector->createDisarmAction());
+		xspress3Setup->addSubAction(detector->createFramesPerAcquisitionAction(int(configuration_->scanAxisAt(0)->numberOfPoints()*1.1)));	// Adding 10% just because.
+		xspress3Setup->addSubAction(detector->createInitializationAction());
+		initializationAction->addSubAction(xspress3Setup);
+	}
 
 	return initializationAction;
 }
@@ -297,6 +306,30 @@ void BioXASSideXASScanActionController::buildScanControllerImplementation()
 		derivAbsorbanceCorrectedSource->setInputDataSources(QList<AMDataSource*>() << absorbanceCorrectedSource);
 
 		scan_->addAnalyzedDataSource(derivAbsorbanceCorrectedSource, true, false);
+	}
+
+	if (configuration_->usingXRFDetector()){
+
+		AMXRFDetector *detector = BioXASSideBeamline::bioXAS()->fourElementVortexDetector();
+		detector->removeAllRegionsOfInterest();
+		AMDataSource *spectraSource = scan_->dataSourceAt(scan_->indexOfDataSource(detector->name()));
+		QString edgeSymbol = configuration_->edge().split(" ").first();
+
+		foreach (AMRegionOfInterest *region, configuration_->regionsOfInterest()){
+
+			AMRegionOfInterestAB *regionAB = (AMRegionOfInterestAB *)region->valueSource();
+			AMRegionOfInterestAB *newRegion = new AMRegionOfInterestAB(regionAB->name().remove(' '));
+			newRegion->setBinningRange(regionAB->binningRange());
+			newRegion->setInputDataSources(QList<AMDataSource *>() << spectraSource);
+			scan_->addAnalyzedDataSource(newRegion, false, true);
+			detector->addRegionOfInterest(region);
+
+			AM1DNormalizationAB *normalizedRegion = new AM1DNormalizationAB(QString("norm_%1").arg(newRegion->name()));
+			normalizedRegion->setInputDataSources(QList<AMDataSource *>() << newRegion << i0CorrectedDetectorSource);
+			normalizedRegion->setDataName(newRegion->name());
+			normalizedRegion->setNormalizationName(i0CorrectedDetectorSource->name());
+			scan_->addAnalyzedDataSource(normalizedRegion, newRegion->name().contains(edgeSymbol), !newRegion->name().contains(edgeSymbol));
+		}
 	}
 }
 

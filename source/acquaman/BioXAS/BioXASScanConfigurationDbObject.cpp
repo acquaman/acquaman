@@ -5,6 +5,7 @@ BioXASScanConfigurationDbObject::BioXASScanConfigurationDbObject(QObject *parent
 {
 	energy_ = 0.0;
 	edge_ = "";
+	usingXRFDetector_ = true;
 }
 
 BioXASScanConfigurationDbObject::BioXASScanConfigurationDbObject(const BioXASScanConfigurationDbObject &original)
@@ -12,6 +13,7 @@ BioXASScanConfigurationDbObject::BioXASScanConfigurationDbObject(const BioXASSca
 {
 	energy_ = original.energy();
 	edge_ = original.edge();
+	usingXRFDetector_ = original.usingXRFDetector();
 
 	foreach (AMRegionOfInterest *region, original.regionsOfInterest())
 		addRegionOfInterest(region->createCopy());
@@ -38,6 +40,16 @@ void BioXASScanConfigurationDbObject::setEdge(const QString &newEdge)
 
 		edge_ = newEdge;
 		emit edgeChanged(edge_);
+		setModified(true);
+	}
+}
+
+void BioXASScanConfigurationDbObject::setUsingXRFDetector(bool hasXRF)
+{
+	if (usingXRFDetector_ != hasXRF){
+
+		usingXRFDetector_ = hasXRF;
+		emit usingXRFDetectorChanged(usingXRFDetector_);
 		setModified(true);
 	}
 }
