@@ -120,7 +120,7 @@ QString BioXASSideXASScanConfiguration::headerText() const
 	header.append(regionsOfInterestHeaderString(regionsOfInterest()) % "\n");
 	header.append("\n");
 	header.append("Regions Scanned\n");
-	header.append(scanAxisAt(0)->toString());
+	header.append(scanAxisAt(0)->toString("eV"));
 
 	return header;
 }
