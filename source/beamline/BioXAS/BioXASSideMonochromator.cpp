@@ -62,7 +62,7 @@ BioXASSideMonochromator::BioXASSideMonochromator(QObject *parent) :
 	energy_->setBraggControl(bragg_);
 	energy_->setBraggSetPositionControl(braggSetPosition_);
 	energy_->setRegionControl(region_);
-	energy_->setM1MirrorPitchControl(m1MirrorOffset_);
+	energy_->setM1MirrorPitchControl(m1Pitch_);
 
 	// Listen to connection states.
 

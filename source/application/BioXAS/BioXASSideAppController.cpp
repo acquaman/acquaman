@@ -21,56 +21,27 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "BioXASSideAppController.h"
 
-#include <QGroupBox>
-#include <QWidget>
-
-#include "actions3/AMActionRunner3.h"
-#include "actions3/actions/AMScanAction.h"
-#include "actions3/AMListAction3.h"
-
-#include "application/AMAppControllerSupport.h"
-
 #include "dataman/AMRun.h"
 #include "dataman/AMScanAxisEXAFSRegion.h"
-#include "dataman/database/AMDbObjectSupport.h"
 #include "dataman/export/AMExportController.h"
 #include "dataman/export/AMExporterOptionGeneralAscii.h"
 #include "dataman/export/AMExporterGeneralAscii.h"
 #include "dataman/export/AMExporterAthena.h"
-#include "dataman/BioXAS/BioXASUserConfiguration.h"
 
 #include "util/AMPeriodicTable.h"
 
-#include "beamline/CLS/CLSFacilityID.h"
 #include "beamline/CLS/CLSSIS3820Scaler.h"
 
 #include "acquaman/BioXAS/BioXASSideXASScanConfiguration.h"
-#include "acquaman/BioXAS/BioXASXRFScanConfiguration.h"
 #include "beamline/BioXAS/BioXASSideBeamline.h"
-
-#include "ui/AMMainWindow.h"
-#include "ui/acquaman/AMGenericStepScanConfigurationView.h"
-#include "ui/acquaman/AMScanConfigurationViewHolder3.h"
-#include "ui/dataman/AMGenericScanEditor.h"
-
-#include "ui/CLS/CLSJJSlitsView.h"
 
 #include "ui/util/AMChooseDataFolderDialog.h"
 
 #include "ui/BioXAS/BioXASSidePersistentView.h"
 #include "ui/BioXAS/BioXASSideXASScanConfigurationView.h"
-#include "ui/BioXAS/BioXAS32ElementGeDetectorView.h"
-#include "ui/BioXAS/BioXASSSRLMonochromatorConfigurationView.h"
-#include "ui/BioXAS/BioXASXIAFiltersView.h"
-#include "ui/BioXAS/BioXASCarbonFilterFarmView.h"
-#include "ui/BioXAS/BioXASM1MirrorView.h"
-#include "ui/BioXAS/BioXASM2MirrorView.h"
-#include "ui/BioXAS/BioXASDBHRMirrorView.h"
-#include "ui/BioXAS/BioXASSIS3820ScalerView.h"
-#include "ui/BioXAS/BioXASFourElementVortexDetectorView.h"
 
 BioXASSideAppController::BioXASSideAppController(QObject *parent)
-	: AMAppController(parent)
+	: BioXASAppController(parent)
 {
 	scalerView_ = 0;
 	monoConfigView_ = 0;
@@ -150,16 +121,13 @@ void BioXASSideAppController::onScalerConnected()
 
 	if (scaler && scaler->isConnected() && !scalerView_) {
 		scalerView_ = new BioXASSIS3820ScalerView(scaler, true);
-		mw_->addPane(createSqueezeGroupBoxWithView("", scalerView_), "Detectors", "Scaler", ":/system-search.png", true);
+		mw_->addPane(createSqueezeGroupBoxWithView(scalerView_, "Scaler", ":/system-search.png"), "Detectors", "Scaler", ":/system-search.png", true);
 	}
 }
 
 void BioXASSideAppController::registerClasses()
 {
 	AMDbObjectSupport::s()->registerClass<BioXASSideXASScanConfiguration>();
-	AMDbObjectSupport::s()->registerClass<BioXASScanConfigurationDbObject>();
-	AMDbObjectSupport::s()->registerClass<BioXASUserConfiguration>();
-	AMDbObjectSupport::s()->registerClass<BioXASXRFScanConfiguration>();
 }
 
 void BioXASSideAppController::setupExporterOptions()
@@ -242,13 +210,13 @@ void BioXASSideAppController::setupUserInterface()
 
 	// Add views to 'General'.
 	mw_->insertHeading("General", 0);
-	mw_->addPane(createSqueezeGroupBoxWithView("", m1MirrorView_), "General", "M1 Mirror", ":/system-software-update.png");
-	mw_->addPane(createSqueezeGroupBoxWithView("", monoConfigView_), "General", "Monochromator", ":/system-software-update.png");
-	mw_->addPane(createSqueezeGroupBoxWithView("", jjSlitsView_), "General", "JJ Slits", ":/system-software-update.png");
-	mw_->addPane(createSqueezeGroupBoxWithView("", xiaFiltersView_), "General", "XIA Filters", ":/system-software-update.png");
-	mw_->addPane(createSqueezeGroupBoxWithView("", carbonFilterFarmView_), "General", "Carbon filter farm", ":/system-software-update.png");
-	mw_->addPane(createSqueezeGroupBoxWithView("", m2MirrorView_), "General", "M2 Mirror", ":/system-software-update.png");
-	mw_->addPane(createSqueezeGroupBoxWithView("", dbhrView_), "General", "DBHR Mirrors", ":/system-software-update.png");
+	mw_->addPane(createSqueezeGroupBoxWithView(m1MirrorView_, "M1 Mirror", ":/system-software-update.png"), "General", "M1 Mirror", ":/system-software-update.png");
+	mw_->addPane(createSqueezeGroupBoxWithView(monoConfigView_, "Monochromator", ":/system-software-update.png"), "General", "Monochromator", ":/system-software-update.png");
+	mw_->addPane(createSqueezeGroupBoxWithView(jjSlitsView_, "JJ Slits", ":/system-software-update.png"), "General", "JJ Slits", ":/system-software-update.png");
+	mw_->addPane(createSqueezeGroupBoxWithView(xiaFiltersView_, "XIA Filters", ":/system-software-update.png"), "General", "XIA Filters", ":/system-software-update.png");
+	mw_->addPane(createSqueezeGroupBoxWithView(carbonFilterFarmView_, "Carbon Filter Farm", ":/system-software-update.png"), "General", "Carbon filter farm", ":/system-software-update.png");
+	mw_->addPane(createSqueezeGroupBoxWithView(m2MirrorView_, "M2 Mirror", ":/system-software-update.png"), "General", "M2 Mirror", ":/system-software-update.png");
+	mw_->addPane(createSqueezeGroupBoxWithView(dbhrView_, "DBHR Mirrors", ":/system-software-update.png"), "General", "DBHR Mirrors", ":/system-software-update.png");
 
 	// Add views to 'Detectors'.
 	mw_->insertHeading("Detectors", 1);
@@ -338,20 +306,4 @@ void BioXASSideAppController::onRegionOfInterestRemoved(AMRegionOfInterest *regi
 	configuration_->removeRegionOfInterest(region);
 }
 
-QGroupBox *BioXASSideAppController::createSqueezeGroupBoxWithView(QString title, QWidget *view)
-{
-	QHBoxLayout *horizontalLayout = new QHBoxLayout;
-	horizontalLayout->addStretch();
-	horizontalLayout->addWidget(view);
-	horizontalLayout->addStretch();
 
-	QVBoxLayout *verticalLayout = new QVBoxLayout;
-	verticalLayout->addStretch();
-	verticalLayout->addLayout(horizontalLayout);
-	verticalLayout->addStretch();
-
-	QGroupBox *groupBox = new QGroupBox(title);
-	groupBox->setFlat(true);
-	groupBox->setLayout(verticalLayout);
-	return groupBox;
-}

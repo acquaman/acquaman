@@ -18,31 +18,35 @@ BioXASSideM2Mirror::BioXASSideM2Mirror(QObject *parent) :
 	benderDownstreamMotor_ = new CLSMAXvMotor(QString("SMTR1607-5-I22-21 BENDER (DOWNSTREAM)"), QString("SMTR1607-5-I22-21"), QString("SMTR1607-5-I22-21 BENDER (DOWNSTREAM)"), true, 0.05, 2.0, this, QString(":lbs"));
 	screenMotor_ = new AMSinglePVControl(name_+"FluorescentScreen", "VSC1607-5-I22-02:InBeam", this);
 
-	pitch_ = new BioXASMirrorPitchControl(name_+"PitchControl", "deg", upstreamLength_, downstreamLength_, this);
-	pitch_->setUpstreamInboardControl(upstreamInboardMotor_);
-	pitch_->setUpstreamOutboardControl(upstreamOutboardMotor_);
-	pitch_->setDownstreamControl(downstreamMotor_);
+	pitch_ = new BioXASMirrorPitchControl(name_+"PitchControl", "deg", this);
+	pitch_->setUpstreamInboardMotor(upstreamInboardMotor_);
+	pitch_->setUpstreamOutboardMotor(upstreamOutboardMotor_);
+	pitch_->setDownstreamMotor(downstreamMotor_);
 
-	roll_ = new BioXASMirrorRollControl(name_+"RollControl", "deg", upstreamLength_, downstreamLength_, this);
-	roll_->setUpstreamInboardControl(upstreamInboardMotor_);
-	roll_->setUpstreamOutboardControl(upstreamOutboardMotor_);
-	roll_->setDownstreamControl(downstreamMotor_);
+	roll_ = new BioXASMirrorRollControl(name_+"RollControl", "deg", this);
+	roll_->setUpstreamInboardMotor(upstreamInboardMotor_);
+	roll_->setUpstreamOutboardMotor(upstreamOutboardMotor_);
+	roll_->setDownstreamMotor(downstreamMotor_);
 
-	height_ = new BioXASMirrorHeightControl(name_+"HeightControl", "mm", upstreamLength_, downstreamLength_, this);
-	height_->setUpstreamInboardControl(upstreamInboardMotor_);
-	height_->setUpstreamOutboardControl(upstreamOutboardMotor_);
-	height_->setDownstreamControl(downstreamMotor_);
+	height_ = new BioXASMirrorHeightControl(name_+"HeightControl", "mm", this);
+	height_->setUpstreamInboardMotor(upstreamInboardMotor_);
+	height_->setUpstreamOutboardMotor(upstreamOutboardMotor_);
+	height_->setDownstreamMotor(downstreamMotor_);
 
-	lateral_ = new BioXASMirrorLateralControl(name_+"LateralControl", "mm", upstreamLength_, downstreamLength_, this);
-	lateral_->setStripeSelectionControl(stripeSelectMotor_);
-	lateral_->setYawControl(yawMotor_);
+	lateral_ = new BioXASMirrorLateralControl(name_+"LateralControl", "mm", this);
+	lateral_->setStripeSelectionMotor(stripeSelectMotor_);
+	lateral_->setYawMotor(yawMotor_);
+	lateral_->setUpstreamLength(upstreamLength_);
+	lateral_->setDownstreamLength(downstreamLength_);
 
-	yaw_ = new BioXASMirrorYawControl(name_+"YawControl", "deg", upstreamLength_, downstreamLength_, this);
-	yaw_->setYawControl(yawMotor_);
+	yaw_ = new BioXASMirrorYawControl(name_+"YawControl", "deg", this);
+	yaw_->setYawMotor(yawMotor_);
+	yaw_->setUpstreamLength(upstreamLength_);
+	yaw_->setDownstreamLength(downstreamLength_);
 
-	bend_ = new BioXASSideM2MirrorBendControl(name_+"BendControl", "m", upstreamLength_, downstreamLength_, this);
-	bend_->setUpstreamBenderControl(benderUpstreamMotor_);
-	bend_->setDownstreamBenderControl(benderDownstreamMotor_);
+	bend_ = new BioXASSideM2MirrorBendControl(name_+"BendControl", "m", this);
+	bend_->setUpstreamBenderMotor(benderUpstreamMotor_);
+	bend_->setDownstreamBenderMotor(benderDownstreamMotor_);
 
 	// Make connections.
 
