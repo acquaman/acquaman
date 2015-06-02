@@ -109,7 +109,7 @@ AMAction3* BioXASSideXASScanActionController::createInitializationActions()
 {
 	AMSequentialListAction3 *initializationAction = new AMSequentialListAction3(new AMSequentialListActionInfo3("BioXAS Side Scan Initialization Actions", "BioXAS Side Scan Initialization Actions"));
 	CLSSIS3820Scaler *scaler = BioXASSideBeamline::bioXAS()->scaler();
-	double regionTime = double(configuration_->scanAxisAt(0)->regionAt(0)->regionTime());
+	double regionTime = scaler->dwellTime();
 
 	AMListAction3 *stage1 = new AMListAction3(new AMListActionInfo3("BioXAS Side Initialization Stage 1", "BioXAS Side Initialization Stage 1"), AMListAction3::Parallel);
 	stage1->addSubAction(scaler->createContinuousEnableAction3(false));
@@ -125,18 +125,23 @@ AMAction3* BioXASSideXASScanActionController::createInitializationActions()
 	stage3->addSubAction(scaler->createStartAction3(true));
 	stage3->addSubAction(scaler->createWaitForDwellFinishedAction(regionTime + 5.0));
 
-	AMListAction3 *stage4 = new AMListAction3(new AMListActionInfo3("BioXAS Side Initialization Stage 4", "BioXAS Side Initialization Stage 4"), AMListAction3::Parallel);
-	stage4->addSubAction(scaler->createStartAction3(true));
-	stage4->addSubAction(scaler->createWaitForDwellFinishedAction(regionTime + 5.0));
-
 	initializationAction->addSubAction(stage1);
 	initializationAction->addSubAction(stage2);
 	initializationAction->addSubAction(scaler->createDwellTimeAction3(double(configuration_->scanAxisAt(0)->regionAt(0)->regionTime())));
 	initializationAction->addSubAction(stage3);
-	initializationAction->addSubAction(stage4);
 
 	// Set the bragg motor power to PowerOn.
 	initializationAction->addSubAction(BioXASSideBeamline::bioXAS()->mono()->braggMotor()->createPowerAction(CLSMAXvMotor::PowerOn));
+
+	if (configuration_->usingXRFDetector()){
+
+		AMXspress3XRFDetector *detector = BioXASSideBeamline::bioXAS()->fourElementVortexDetector();
+		AMSequentialListAction3 *xspress3Setup = new AMSequentialListAction3(new AMSequentialListActionInfo3("Xspress3 setup", "Xspress3 Setup"));
+		xspress3Setup->addSubAction(detector->createDisarmAction());
+		xspress3Setup->addSubAction(detector->createFramesPerAcquisitionAction(int(configuration_->scanAxisAt(0)->numberOfPoints()*1.1)));	// Adding 10% just because.
+		xspress3Setup->addSubAction(detector->createInitializationAction());
+		initializationAction->addSubAction(xspress3Setup);
+	}
 
 	return initializationAction;
 }
