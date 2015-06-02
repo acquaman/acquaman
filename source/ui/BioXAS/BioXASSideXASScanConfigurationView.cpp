@@ -40,9 +40,6 @@ BioXASSideXASScanConfigurationView::BioXASSideXASScanConfigurationView(BioXASSid
 {
 	configuration_ = configuration;
 
-	//topFrame_ = new AMTopFrame("Configure an XAS Scan");
-	//topFrame_->setIcon(QIcon(":/utilities-system-monitor.png"));
-
 	regionsView_ = new AMEXAFSScanAxisView("BioXAS-Side Region Configuration", configuration_);
 
 	autoRegionButton_ = new QPushButton("Auto Set XANES Regions");
@@ -97,7 +94,6 @@ BioXASSideXASScanConfigurationView::BioXASSideXASScanConfigurationView(BioXASSid
 	energyLayout->addWidget(lineChoice_);
 
 	QVBoxLayout *mainVL = new QVBoxLayout();
-	//mainVL->addWidget(topFrame_);
 	mainVL->addLayout(energyLayout);
 	mainVL->addWidget(regionsView_);
 
