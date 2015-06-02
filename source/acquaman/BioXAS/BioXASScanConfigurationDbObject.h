@@ -14,6 +14,8 @@ class BioXASScanConfigurationDbObject : public AMDbObject
 	Q_PROPERTY(bool usingXRFDetector READ usingXRFDetector WRITE setUsingXRFDetector)
 	Q_PROPERTY(AMDbObjectList regionsOfInterest READ dbReadRegionsOfInterest WRITE dbLoadRegionsOfInterest)
 
+	Q_CLASSINFO("usingXRFDetector", "upgradeDefault=false")
+
 	Q_CLASSINFO("AMDbObject_Attributes", "description=BioXAS Scan Configuration Database Object")
 
 public:
