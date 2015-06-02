@@ -7,8 +7,8 @@ BioXASSideM2MirrorBendControl::BioXASSideM2MirrorBendControl(const QString &name
 
 	setContextKnownDescription("Bend");
 
-	setMinimumValue(BIOXASSIDEM2MIRRORBENDCONTROL_MIN_VALUE);
-	setMaximumValue(BIOXASSIDEM2MIRRORBENDCONTROL_MAX_VALUE);
+	setMinimumValue( calculateBendRadius(20, 20) );
+	setMaximumValue( calculateBendRadius(0, 0) );
 
 	// Current settings.
 

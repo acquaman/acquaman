@@ -3,9 +3,6 @@
 
 #include "beamline/BioXAS/BioXASMirrorBendControl.h"
 
-#define BIOXASSIDEM1MIRRORBENDCONTROL_MIN_VALUE 7500
-#define BIOXASSIDEM1MIRRORBENDCONTROL_MAX_VALUE 50000
-
 class BioXASSideM1MirrorBendControl : public BioXASMirrorBendControl
 {
     Q_OBJECT

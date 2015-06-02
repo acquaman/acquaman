@@ -28,10 +28,10 @@ public:
 	/// Returns true if this control can stop right now. False otherwise.
 	virtual bool canStop() const = 0;
 
-	/// Returns true if the given value is a valid value for this control. False otherwise.
-	virtual bool validValue(double value) const { Q_UNUSED(value) return true; }
-	/// Returns true if the given value is a valid setpoint for this control. False otherwise.
-	virtual bool validSetpoint(double value) const { Q_UNUSED(value) return true; }
+//	/// Returns true if the given value is a valid value for this control. False otherwise.
+//	virtual bool validValue(double value) const { Q_UNUSED(value) return true; }
+//	/// Returns true if the given value is a valid setpoint for this control. False otherwise.
+//	virtual bool validSetpoint(double value) const { Q_UNUSED(value) return true; }
 	/// Returns true if the current mirror lengths are valid, false otherwise.
 	bool validLengths() const;
 
