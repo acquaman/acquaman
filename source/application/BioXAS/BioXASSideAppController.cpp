@@ -202,6 +202,7 @@ void BioXASSideAppController::setupUserInterface()
 	// Create the four element detector view.
 	BioXASFourElementVortexDetectorView *fourElementDetectorView = new BioXASFourElementVortexDetectorView(BioXASSideBeamline::bioXAS()->fourElementVortexDetector());
 	fourElementDetectorView->buildDetectorView();
+	fourElementDetectorView->setEnergyRange(3000, 28000);
 	fourElementDetectorView->addEmissionLineNameFilter(QRegExp("1"));
 	fourElementDetectorView->addPileUpPeakNameFilter(QRegExp("(K.1|L.1|Ma1)"));
 
@@ -278,7 +279,7 @@ void BioXASSideAppController::onCurrentScanActionFinishedImplementation(AMScanAc
 
 void BioXASSideAppController::onUserConfigurationLoadedFromDb()
 {
-	AMXRFDetector *detector = BioXASSideBeamline::bioXAS()->ge32ElementDetector();
+	AMXRFDetector *detector = BioXASSideBeamline::bioXAS()->fourElementVortexDetector();
 
 	foreach (AMRegionOfInterest *region, userConfiguration_->regionsOfInterest()){
 
