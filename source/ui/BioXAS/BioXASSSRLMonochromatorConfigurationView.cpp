@@ -36,6 +36,18 @@ BioXASSSRLMonochromatorConfigurationView::BioXASSSRLMonochromatorConfigurationVi
 	paddleEditor_ = new AMExtendedControlEditor(0);
 	paddleEditor_->setTitle("Paddle");
 
+	crystal1PitchEditor_ = new AMExtendedControlEditor(0);
+	crystal1PitchEditor_->setTitle("Crystal 1 Pitch");
+
+	crystal1RollEditor_ = new AMExtendedControlEditor(0);
+	crystal1RollEditor_->setTitle("Crystal 1 Roll");
+
+	crystal2PitchEditor_ = new AMExtendedControlEditor(0);
+	crystal2PitchEditor_->setTitle("Crystal 2 Pitch");
+
+	crystal2RollEditor_ = new AMExtendedControlEditor(0);
+	crystal2RollEditor_->setTitle("Crystal 2 Roll");
+
 	regionStatusWidget_ = new BioXASSSRLMonochromatorRegionControlView(0);
 
 	braggConfigWidget_ = new BioXASSSRLMonochromatorBraggConfigurationView(0);
@@ -59,6 +71,10 @@ BioXASSSRLMonochromatorConfigurationView::BioXASSSRLMonochromatorConfigurationVi
 	controlsViewLayout->addWidget(upperSlitEditor_);
 	controlsViewLayout->addWidget(lowerSlitEditor_);
 	controlsViewLayout->addWidget(paddleEditor_);
+	controlsViewLayout->addWidget(crystal1PitchEditor_);
+	controlsViewLayout->addWidget(crystal1RollEditor_);
+	controlsViewLayout->addWidget(crystal2PitchEditor_);
+	controlsViewLayout->addWidget(crystal2RollEditor_);
 
 	QGroupBox *controlsView = new QGroupBox("Controls");
 	controlsView->setLayout(controlsViewLayout);
@@ -79,10 +95,12 @@ BioXASSSRLMonochromatorConfigurationView::BioXASSSRLMonochromatorConfigurationVi
 
 	QVBoxLayout *leftLayout = new QVBoxLayout();
 	leftLayout->addWidget(controlsView);
+	leftLayout->addStretch();
 
 	QVBoxLayout *rightLayout = new QVBoxLayout();
 	rightLayout->addWidget(regionStatusView);
 	rightLayout->addWidget(braggConfigView);
+	rightLayout->addStretch();
 
 	QHBoxLayout *layout = new QHBoxLayout();
 	layout->addLayout(leftLayout);
@@ -119,6 +137,10 @@ void BioXASSSRLMonochromatorConfigurationView::setMono(BioXASSSRLMonochromator *
 			upperSlitEditor_->setControl(0);
 			lowerSlitEditor_->setControl(0);
 			paddleEditor_->setControl(0);
+			crystal1PitchEditor_->setControl(0);
+			crystal1RollEditor_->setControl(0);
+			crystal2PitchEditor_->setControl(0);
+			crystal2RollEditor_->setControl(0);
 
 			regionStatusWidget_->setRegionControl(0);
 			braggConfigWidget_->setBraggMotor(0);
@@ -136,6 +158,10 @@ void BioXASSSRLMonochromatorConfigurationView::setMono(BioXASSSRLMonochromator *
 			upperSlitEditor_->setControl(mono_->upperSlitControl());
 			lowerSlitEditor_->setControl(mono_->lowerSlitControl());
 			paddleEditor_->setControl(mono_->paddleControl());
+			crystal1PitchEditor_->setControl(mono_->crystal1PitchMotor());
+			crystal1RollEditor_->setControl(mono_->crystal1RollMotor());
+			crystal2PitchEditor_->setControl(mono_->crystal2PitchMotor());
+			crystal2RollEditor_->setControl(mono_->crystal2RollMotor());
 
 			regionStatusWidget_->setRegionControl(mono_->regionControl());
 			braggConfigWidget_->setBraggMotor(mono_->braggMotor());

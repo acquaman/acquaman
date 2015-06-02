@@ -420,7 +420,9 @@ HEADERS += \
 	source/util/AMCSVParser.h \
 	source/actions3/AMTimeoutLoopActionInfo.h \
 	source/actions3/AMTimeoutLoopAction.h \
-    source/beamline/AMPseudoMotorControl.h
+    source/beamline/AMPseudoMotorControl.h \
+    source/beamline/AMXspress3XRFDetector.h \
+    source/ui/beamline/AMXspress3XRFDetectorView.h
 
 FORMS += \
 
@@ -802,7 +804,9 @@ SOURCES += \
 	source/util/AMCSVParser.cpp \
 	source/actions3/AMTimeoutLoopActionInfo.cpp \
 	source/actions3/AMTimeoutLoopAction.cpp \
-    source/beamline/AMPseudoMotorControl.cpp
+    source/beamline/AMPseudoMotorControl.cpp \
+    source/beamline/AMXspress3XRFDetector.cpp \
+    source/ui/beamline/AMXspress3XRFDetectorView.cpp
 
 RESOURCES *= source/icons/icons.qrc \
 		source/configurationFiles/configurationFiles.qrc \
@@ -819,5 +823,9 @@ contains(DEFINES, AM_BUILD_REPORTER_ENABLED){
 
 	SOURCES *= source/util/AMRunTimeBuildInfo.cpp
 }
+
+
+
+
 
 

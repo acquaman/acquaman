@@ -50,6 +50,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/BioXAS/BioXASSideXIAFilters.h"
 #include "beamline/BioXAS/BioXASSideM2Mirror.h"
 #include "beamline/BioXAS/BioXASSideDBHRMirror.h"
+#include "beamline/BioXAS/BioXASFourElementVortexDetector.h"
 
 #define BIOXASSIDEBEAMLINE_PRESSURE_TOO_HIGH 54600
 #define BIOXASSIDEBEAMLINE_VALVES_CLOSED 54601
@@ -235,6 +236,8 @@ public:
 	AMBasicControlDetectorEmulator* braggStepSetpointDetector() const { return braggStepSetpointDetector_; }
 	/// Returns the 32 element Ge detector.
 	BioXAS32ElementGeDetector *ge32ElementDetector() const { return ge32ElementDetector_; }
+	/// Returns the four element Vortex detector.
+	BioXASFourElementVortexDetector *fourElementVortexDetector() const { return fourElementVortexDetector_; }
 
 signals:
 	/// Notifier that the pressure status has changed. Argument is false if any of the pressures fall below its setpoint, true otherwise.
@@ -298,6 +301,9 @@ protected:
 	/// Sets up all of the detectors that need to be added to scans that aren't a part of typical detectors.  This may just be temporary, not sure.
 	void setupControlsAsDetectors();
 
+	// Temporarily makes the mirror controls available, until the branch that this work is being done in is merged. Then it should be safe to remove this!
+	void setupMirrorControls();
+
 	/// Constructor. This is a singleton class, access it through BioXASSideBeamline::bioXAS().
 	BioXASSideBeamline();
 
@@ -315,6 +321,7 @@ protected:
 	AMBasicControlDetectorEmulator *braggStepSetpointDetector_;
 	AMBasicControlDetectorEmulator *braggEncoderFeedbackDetector_;
 	BioXAS32ElementGeDetector *ge32ElementDetector_;
+	BioXASFourElementVortexDetector *fourElementVortexDetector_;
 
 	/// The JJ slits
 	CLSJJSlits *jjSlits_;

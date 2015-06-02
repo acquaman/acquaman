@@ -607,7 +607,8 @@ void BioXASSideBeamline::setupDetectors()
 	i0Detector_ = new CLSBasicScalerChannelDetector("I0Detector", "I0 Detector", scaler_, 16, this);
 	i1Detector_ = new CLSBasicScalerChannelDetector("I1Detector", "I1 Detector", scaler_, 17, this);
 	i2Detector_ = new CLSBasicScalerChannelDetector("I2Detector", "I2 Detector", scaler_, 18, this);
-	ge32ElementDetector_ = new BioXAS32ElementGeDetector("Ge32Element", "Ge 32 Element", this);
+//	ge32ElementDetector_ = new BioXAS32ElementGeDetector("Ge32Element", "Ge 32 Element", this);
+	fourElementVortexDetector_ = new BioXASFourElementVortexDetector("FourElementVortex", "Four Element Vortex Detector", this);
 }
 
 void BioXASSideBeamline::setupControlSets()
@@ -769,7 +770,7 @@ void BioXASSideBeamline::setupComponents()
 }
 
 void BioXASSideBeamline::setupControlsAsDetectors()
-{	
+{
 	energySetpointDetector_ = new AMBasicControlDetectorEmulator("EnergySetpoint", "EnergySetpoint", new AMReadOnlyPVControl("EnergySetpoint", "BL1607-5-I22:Energy:EV", this), 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
 	energySetpointDetector_->setHiddenFromUsers(false);
 	energySetpointDetector_->setIsVisible(true);
@@ -799,8 +800,36 @@ void BioXASSideBeamline::setupControlsAsDetectors()
 
 void BioXASSideBeamline::setupExposedControls()
 {
+	// M1 mirror controls
+
+	addExposedControl(m1VertUpStreamINB_);
+	addExposedControl(m1VertUpStreamOUTB_);
+	addExposedControl(m1VertDownStream_);
+	addExposedControl(m1StripeSelect_);
+	addExposedControl(m1Yaw_);
+	addExposedControl(m1BenderUpstream_);
+	addExposedControl(m1BenderDownStream_);
+	addExposedControl(m1UpperSlitBlade_);
+	addExposedControl(m1PseudoRoll_);
+	addExposedControl(m1PseudoPitch_);
+	addExposedControl(m1PseudoHeight_);
+	addExposedControl(m1PseudoYaw_);
+	addExposedControl(m1PseudoLateral_);
+
 	// M2 mirror controls.
 
+	addExposedControl(m2Mirror_->verticalUpstreamInboundControl());
+	addExposedControl(m2Mirror_->verticalUpstreamOutboundControl());
+	addExposedControl(m2Mirror_->verticalDownstreamControl());
+	addExposedControl(m2Mirror_->stripeSelectControl());
+	addExposedControl(m2Mirror_->yawControl());
+	addExposedControl(m2Mirror_->benderUpstreamControl());
+	addExposedControl(m2Mirror_->benderDownstreamControl());
+	addExposedControl(m2Mirror_->pseudoRollControl());
+	addExposedControl(m2Mirror_->pseudoPitchControl());
+	addExposedControl(m2Mirror_->pseudoHeightControl());
+	addExposedControl(m2Mirror_->pseudoYawControl());
+	addExposedControl(m2Mirror_->pseudoLateralControl());
 	addExposedControl(m2Mirror_->screenControl());
 
 	// Mono controls.
@@ -819,6 +848,10 @@ void BioXASSideBeamline::setupExposedControls()
 	addExposedControl(mono_->braggMotor()->encoderCalibrationSlopeControl());
 	addExposedControl(mono_->braggMotor()->stepCalibrationSlopeControl());
 	addExposedControl(mono_->braggMotor()->retries());
+	addExposedControl(mono_->crystal1PitchMotor());
+	addExposedControl(mono_->crystal1RollMotor());
+	addExposedControl(mono_->crystal2PitchMotor());
+	addExposedControl(mono_->crystal2RollMotor());
 
 	// JJ slit controls.
 
@@ -831,7 +864,7 @@ void BioXASSideBeamline::setupExposedControls()
 
 	addExposedControl(carbonFilterFarm_->filterControl());
 
-	// Mirror controls.
+	// DBHR controls.
 
 	addExposedControl(dbhrMirror_->pitchControl());
 	addExposedControl(dbhrMirror_->m1VerticalControl());
@@ -854,5 +887,6 @@ void BioXASSideBeamline::setupExposedDetectors()
 	addExposedDetector(braggEncoderFeedbackDetector_);
 	addExposedDetector(braggMoveRetriesDetector_);
 	addExposedDetector(braggStepSetpointDetector_);
-	addExposedDetector(ge32ElementDetector_);
+//	addExposedDetector(ge32ElementDetector_);
+	addExposedDetector(fourElementVortexDetector_);
 }
