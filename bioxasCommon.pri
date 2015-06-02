@@ -55,7 +55,8 @@ HEADERS += \
     source/ui/BioXAS/BioXASFourElementVortexDetectorView.h \
     source/ui/BioXAS/BioXASXRFDetectorView.h \
     source/application/BioXAS/BioXASAppController.h \
-    source/ui/BioXAS/BioXASPersistentView.h
+    source/ui/BioXAS/BioXASPersistentView.h \
+    source/ui/BioXAS/BioXASMirrorBendView.h
 
 SOURCES += \
 	source/beamline/BioXAS/BioXASPseudoMotorControl.cpp \
@@ -106,7 +107,10 @@ SOURCES += \
     source/ui/BioXAS/BioXASFourElementVortexDetectorView.cpp \
     source/ui/BioXAS/BioXASXRFDetectorView.cpp \
     source/application/BioXAS/BioXASAppController.cpp \
-    source/ui/BioXAS/BioXASPersistentView.cpp
+    source/ui/BioXAS/BioXASPersistentView.cpp \
+    source/ui/BioXAS/BioXASMirrorBendView.cpp
+
+
 
 
 

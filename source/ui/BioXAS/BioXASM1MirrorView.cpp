@@ -14,11 +14,21 @@ BioXASM1MirrorView::BioXASM1MirrorView(BioXASM1Mirror *mirror, QWidget *parent) 
 	upperSlitEditor_ = new AMExtendedControlEditor(0);
 	upperSlitEditor_->setTitle("Upper slit blade");
 
+	bendView_ = new BioXASMirrorBendView(0);
+
 	// Create and set layouts.
 
-	QVBoxLayout *layout = new QVBoxLayout();
-	layout->addWidget(mirrorEditor_);
-	layout->addWidget(upperSlitEditor_);
+	QVBoxLayout *controlsLayout = new QVBoxLayout();
+	controlsLayout->addWidget(mirrorEditor_);
+	controlsLayout->addWidget(upperSlitEditor_);
+
+	QVBoxLayout *bendLayout = new QVBoxLayout();
+	bendLayout->addWidget(bendView_);
+	bendLayout->addStretch();
+
+	QHBoxLayout *layout = new QHBoxLayout();
+	layout->addLayout(controlsLayout);
+	layout->addLayout(bendLayout);
 
 	setLayout(layout);
 
@@ -39,6 +49,7 @@ void BioXASM1MirrorView::setMirror(BioXASM1Mirror *newMirror)
 		if (mirror_) {
 			mirrorEditor_->setMirror(0);
 			upperSlitEditor_->setControl(0);
+			bendView_->setMirror(0);
 		}
 
 		mirror_ = newMirror;
@@ -46,6 +57,7 @@ void BioXASM1MirrorView::setMirror(BioXASM1Mirror *newMirror)
 		if (mirror_) {
 			mirrorEditor_->setMirror(mirror_);
 			upperSlitEditor_->setControl(mirror_->upperSlitBladeMotorControl());
+			bendView_->setMirror(mirror_);
 		}
 
 		emit mirrorChanged(mirror_);

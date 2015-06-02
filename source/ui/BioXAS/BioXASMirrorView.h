@@ -42,8 +42,6 @@ protected:
 	AMExtendedControlEditor *heightEditor_;
 	/// The lateral control editor.
 	AMExtendedControlEditor *lateralEditor_;
-	/// The bend control editor.
-	AMExtendedControlEditor *bendEditor_;
 };
 
 #endif // BIOXASMIRRORVIEW_H

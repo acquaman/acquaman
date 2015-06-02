@@ -3,6 +3,7 @@
 
 #include "ui/BioXAS/BioXASMirrorView.h"
 #include "beamline/BioXAS/BioXASM2Mirror.h"
+#include "ui/BioXAS/BioXASMirrorBendView.h"
 
 class BioXASM2MirrorView : public QWidget
 {
@@ -33,7 +34,8 @@ protected:
 	BioXASMirrorView *mirrorEditor_;
 	/// The editor for the screen control.
 	AMExtendedControlEditor *screenEditor_;
-
+	/// The mirror bend view.
+	BioXASMirrorBendView *bendView_;
 };
 
 #endif // BIOXASM2MIRRORVIEW_H

@@ -16,11 +16,21 @@ BioXASM2MirrorView::BioXASM2MirrorView(BioXASM2Mirror *mirror, QWidget *parent) 
 	screenEditor_->setNoUnitsBox(true);
 	screenEditor_->setTitle("Fluorescent screen");
 
+	bendView_ = new BioXASMirrorBendView(0);
+
 	// Create and set layouts.
 
-	QVBoxLayout *layout = new QVBoxLayout();
-	layout->addWidget(mirrorEditor_);
-	layout->addWidget(screenEditor_);
+	QVBoxLayout *controlsLayout = new QVBoxLayout();
+	controlsLayout->addWidget(mirrorEditor_);
+	controlsLayout->addWidget(screenEditor_);
+
+	QVBoxLayout *bendLayout = new QVBoxLayout();
+	bendLayout->addWidget(bendView_);
+	bendLayout->addStretch();
+
+	QHBoxLayout *layout = new QHBoxLayout();
+	layout->addLayout(controlsLayout);
+	layout->addLayout(bendLayout);
 
 	setLayout(layout);
 
@@ -41,6 +51,7 @@ void BioXASM2MirrorView::setMirror(BioXASM2Mirror *newMirror)
 		if (mirror_) {
 			mirrorEditor_->setMirror(mirror_);
 			screenEditor_->setControl(0);
+			bendView_->setMirror(0);
 		}
 
 		mirror_ = newMirror;
@@ -48,6 +59,9 @@ void BioXASM2MirrorView::setMirror(BioXASM2Mirror *newMirror)
 		if (mirror_) {
 			mirrorEditor_->setMirror(mirror_);
 			screenEditor_->setControl(mirror_->screenMotorControl());
+			bendView_->setMirror(mirror_);
 		}
+
+		emit mirrorChanged(mirror_);
 	}
 }

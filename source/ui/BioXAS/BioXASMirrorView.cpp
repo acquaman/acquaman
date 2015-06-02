@@ -29,10 +29,6 @@ BioXASMirrorView::BioXASMirrorView(BioXASMirror *mirror, QWidget *parent) :
 	lateralEditor_->setControlFormat('f', 3);
 	lateralEditor_->setTitle("Lateral");
 
-	bendEditor_ = new AMExtendedControlEditor(0);
-	bendEditor_->setControlFormat('f', 3);
-	bendEditor_->setTitle("Bend radius");
-
 	// Create and set layouts.
 
 	QVBoxLayout *layout = new QVBoxLayout();
@@ -42,7 +38,6 @@ BioXASMirrorView::BioXASMirrorView(BioXASMirror *mirror, QWidget *parent) :
 	layout->addWidget(yawEditor_);
 	layout->addWidget(heightEditor_);
 	layout->addWidget(lateralEditor_);
-	layout->addWidget(bendEditor_);
 
 	setLayout(layout);
 
@@ -66,7 +61,6 @@ void BioXASMirrorView::setMirror(BioXASMirror *newMirror)
 			yawEditor_->setControl(0);
 			heightEditor_->setControl(0);
 			lateralEditor_->setControl(0);
-			bendEditor_->setControl(0);
 		}
 
 		mirror_ = newMirror;
@@ -77,7 +71,6 @@ void BioXASMirrorView::setMirror(BioXASMirror *newMirror)
 			yawEditor_->setControl(mirror_->yawControl());
 			heightEditor_->setControl(mirror_->heightControl());
 			lateralEditor_->setControl(mirror_->lateralControl());
-			bendEditor_->setControl(mirror_->bendControl());
 		}
 
 		emit mirrorChanged(mirror_);

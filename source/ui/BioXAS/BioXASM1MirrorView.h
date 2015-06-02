@@ -5,6 +5,7 @@
 
 #include "ui/BioXAS/BioXASMirrorView.h"
 #include "beamline/BioXAS/BioXASM1Mirror.h"
+#include "ui/BioXAS/BioXASMirrorBendView.h"
 
 class BioXASM1MirrorView : public QWidget
 {
@@ -35,6 +36,8 @@ protected:
 	BioXASMirrorView *mirrorEditor_;
 	/// The upper slit blade editor.
 	AMExtendedControlEditor *upperSlitEditor_;
+	/// The mirror bend view.
+	BioXASMirrorBendView *bendView_;
 
 };
 
