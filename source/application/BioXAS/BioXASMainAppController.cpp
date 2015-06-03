@@ -140,23 +140,7 @@ void BioXASMainAppController::onScalerConnected()
 	if (scaler && scaler->isConnected() && !scalerView_) {
 
 		scalerView_ = new BioXASSIS3820ScalerView(scaler, true);
-
-		QHBoxLayout *horizontalLayout = new QHBoxLayout();
-		horizontalLayout->addStretch();
-		horizontalLayout->addWidget(scalerView_);
-		horizontalLayout->addStretch();
-
-		QVBoxLayout *verticalLayout = new QVBoxLayout();
-		verticalLayout->addWidget(new AMTopFrame("Scaler", QIcon(":/utilities-system-monitor.png")));
-		verticalLayout->addStretch();
-		verticalLayout->addLayout(horizontalLayout);
-		verticalLayout->addStretch();
-
-		QGroupBox *scalerBox = new QGroupBox();
-		scalerBox->setFlat(true);
-		scalerBox->setLayout(verticalLayout);
-
-		mw_->addPane(scalerBox, "Detectors", "Scaler", ":/utilities-system-monitor.png", true);
+		mw_->addPane(AMMainWindow::buildMainWindowPane("Scaler",":/utilities-system-monitor.png", scalerView_), "Detectors", "Scaler", ":/utilities-system-monitor.png", true);
 	}
 }
 
@@ -207,24 +191,8 @@ void BioXASMainAppController::setupUserInterface()
 	////////////////////////////////////
 
 	monoConfigView_ = new BioXASSSRLMonochromatorConfigurationView(BioXASMainBeamline::bioXAS()->mono());
+	mw_->addPane(AMMainWindow::buildMainWindowPane("Monochromator", ":/utilities-system-monitor.png", monoConfigView_), "General", "Monochromator", ":/utilities-system-monitor.png");
 
-	QHBoxLayout *hLayout = new QHBoxLayout();
-	hLayout->addStretch();
-	hLayout->addWidget(monoConfigView_);
-	hLayout->addStretch();
-
-	QVBoxLayout *vLayout = new QVBoxLayout();
-	vLayout->addWidget(new AMTopFrame("Monochromator", QIcon(":/utilities-system-monitor.png")));
-	vLayout->addStretch();
-	vLayout->addLayout(hLayout);
-	vLayout->addStretch();
-
-	QGroupBox *monoBox = new QGroupBox();
-	monoBox->setFlat(true);
-	monoBox->setLayout(vLayout);
-
-	mw_->insertHeading("General", 0);
-	mw_->addPane(monoBox, "General", "Monochromator", ":/utilities-system-monitor.png");
 
 	BioXASM2MirrorView *m2MirrorView = new BioXASM2MirrorView(BioXASMainBeamline::bioXAS()->m2Mirror());
 
@@ -260,7 +228,7 @@ void BioXASMainAppController::setupUserInterface()
 	configuration_->setEnergy(10000);
 
 	configurationView_ = new BioXASMainXASScanConfigurationView(configuration_);
-	configurationViewHolder_ = new AMScanConfigurationViewHolder3(configurationView_, true);
+	configurationViewHolder_ = new AMScanConfigurationViewHolder3("Configure an XAS Scan", true, true, configurationView_);
 
 	mw_->addPane(configurationViewHolder_, "Scans", "XAS Scan", ":/utilities-system-monitor.png");
 
@@ -269,7 +237,8 @@ void BioXASMainAppController::setupUserInterface()
 
 	commissioningConfiguration_ = new AMGenericStepScanConfiguration;
 	commissioningConfigurationView_ = new AMGenericStepScanConfigurationView(commissioningConfiguration_);
-	commissioningConfigurationViewHolder_ = new AMScanConfigurationViewHolder3(commissioningConfigurationView_);
+	commissioningConfigurationViewHolder_ = new AMScanConfigurationViewHolder3("BioXAS Commissioning Tool",true, true, commissioningConfigurationView_);
+
 
 	mw_->addPane(commissioningConfigurationViewHolder_, "Scans", "Commissioning Tool", ":/utilities-system-monitor.png");
 }
