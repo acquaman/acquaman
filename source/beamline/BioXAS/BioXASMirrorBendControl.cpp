@@ -5,7 +5,7 @@
 BioXASMirrorBendControl::BioXASMirrorBendControl(const QString &name, const QString &units, QObject *parent, const QString &description) :
 	BioXASMirrorControl(name, units, parent, description)
 {
-
+	setContextKnownDescription("Bend");
 }
 
 BioXASMirrorBendControl::~BioXASMirrorBendControl()

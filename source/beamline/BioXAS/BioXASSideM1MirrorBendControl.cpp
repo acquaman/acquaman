@@ -5,8 +5,6 @@ BioXASSideM1MirrorBendControl::BioXASSideM1MirrorBendControl(const QString &name
 {
 	// Initialize inherited variables.
 
-	setContextKnownDescription("Bend");
-
 	setMinimumValue( calculateBendRadius(12, 12) );
 	setMaximumValue( calculateBendRadius(0, 0) );
 
