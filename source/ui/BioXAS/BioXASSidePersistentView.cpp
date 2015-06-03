@@ -57,14 +57,6 @@ BioXASSidePersistentView::BioXASSidePersistentView(QWidget *parent) :
 	channelViews_->setTitle("Scaler channels");
 	channelViews_->setLayout(channelsLayout);
 
-	standardsComboBox_ = new QComboBox;
-
-	foreach (CLSStandardsWheelElement *element, BioXASSideBeamline::bioXAS()->standardsWheel()->wheelElements())
-		standardsComboBox_->addItem(element->name());
-
-	connect(standardsComboBox_, SIGNAL(currentIndexChanged(int)), this, SLOT(onStandardsWheelIndexChanged(int)));
-	connect(BioXASSideBeamline::bioXAS()->standardsWheel(), SIGNAL(nameChanged(int,QString)), this, SLOT(onStandardsWheelNameChanged(int,QString)));
-
 	// Create and set main layout.
 
 	QVBoxLayout *layout = new QVBoxLayout();
@@ -72,7 +64,6 @@ BioXASSidePersistentView::BioXASSidePersistentView(QWidget *parent) :
 	layout->addWidget(regionControlEditor_);
 	layout->addWidget(braggControlEditor_);
 	layout->addWidget(channelViews_);
-	layout->addWidget(standardsComboBox_);
 	layout->addStretch();
 
 	setLayout(layout);
@@ -94,16 +85,6 @@ BioXASSidePersistentView::BioXASSidePersistentView(QWidget *parent) :
 BioXASSidePersistentView::~BioXASSidePersistentView()
 {
 
-}
-
-void BioXASSidePersistentView::onStandardsWheelIndexChanged(int index)
-{
-	BioXASSideBeamline::bioXAS()->standardsWheel()->moveToIndex(index);
-}
-
-void BioXASSidePersistentView::onStandardsWheelNameChanged(int index, const QString &newName)
-{
-	standardsComboBox_->setItemText(index, newName);
 }
 
 void BioXASSidePersistentView::onScalerConnectedChanged()

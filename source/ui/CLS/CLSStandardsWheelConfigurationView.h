@@ -6,6 +6,7 @@
 #include "beamline/CLS/CLSStandardsWheel.h"
 
 #include <QLineEdit>
+#include <QComboBox>
 
 /// This class encapsulates a single standards wheel piece.
 class CLSStandardsWheelConfigurationViewElement : public QWidget
@@ -51,10 +52,17 @@ signals:
 public slots:
 
 protected slots:
+	/// Test slot for the standards wheel.
+	void onStandardsWheelIndexChanged(int index);
+	/// Handles updating the standards wheel names.
+	void onStandardsWheelNameChanged(int index, const QString &newName);
 
 protected:
 	/// The wheel to be visualized.
 	CLSStandardsWheel *standardsWheel_;
+
+	/// Combo box for the standards wheel.
+	QComboBox *standardsComboBox_;
 };
 
 #endif // CLSSTANDARDSWHEELCONFIGURATIONVIEW_H

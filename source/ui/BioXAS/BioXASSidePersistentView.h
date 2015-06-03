@@ -43,10 +43,6 @@ public:
 	virtual ~BioXASSidePersistentView();
 
 protected slots:
-	/// Test slot for the standards wheel.
-	void onStandardsWheelIndexChanged(int index);
-	/// Handles updating the standards wheel names.
-	void onStandardsWheelNameChanged(int index, const QString &newName);
 	/// Handles updating the view when the scaler connection state changes.
 	void onScalerConnectedChanged();
 
@@ -57,8 +53,6 @@ protected:
 	BioXASSSRLMonochromatorRegionControlEditor *regionControlEditor_;
 	/// Editor for the mono's bragg motor angle.
 	AMExtendedControlEditor *braggControlEditor_;
-	/// Combo box for the standards wheel.
-	QComboBox *standardsComboBox_;
 	/// Scaler channel views for i0, iT, and i2 channels.
 	QGroupBox *channelViews_;
 };

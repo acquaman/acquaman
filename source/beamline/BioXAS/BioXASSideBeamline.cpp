@@ -724,11 +724,18 @@ void BioXASSideBeamline::setupComponents()
 	scalerDwellTime_ = new AMReadOnlyPVControl("ScalerDwellTime", "BL1607-5-I22:mcs:delay", this, "Scaler dwell time");
 
 	standardsWheel_ = new CLSStandardsWheel("StandardsWheel", "SMTR1607-6-I22-19", this);
-	standardsWheel_->setName(0, "Cu");
-	standardsWheel_->setName(1, "Fe");
-	standardsWheel_->setName(2, "Ni");
-	standardsWheel_->setName(3, "As");
-	standardsWheel_->setName(4, "Zn");
+	standardsWheel_->setName(0, "Cr");
+	standardsWheel_->setName(1, "Mn");
+	standardsWheel_->setName(2, "Fe");
+	standardsWheel_->setName(3, "Co");
+	standardsWheel_->setName(4, "Ni");
+	standardsWheel_->setName(5, "Cu");
+	standardsWheel_->setName(6, "Zn");
+	standardsWheel_->setName(7, "As");
+	standardsWheel_->setName(8, "Se");
+	standardsWheel_->setName(9, "Hg");
+	standardsWheel_->setName(10, "Mo");
+	standardsWheel_->setName(11, "None");
 
 	// Create the detectors (the scaler channel detectors need to be instantiated before they can be used below).
 	setupDetectors();

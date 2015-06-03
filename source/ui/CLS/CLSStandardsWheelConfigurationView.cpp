@@ -42,14 +42,30 @@ CLSStandardsWheelConfigurationView::CLSStandardsWheelConfigurationView(CLSStanda
 {
 	standardsWheel_ = standardsWheel;
 
-	QVBoxLayout *wheelLayout = new QVBoxLayout;
+	QFormLayout *wheelLayout = new QFormLayout;
 
-	for (int i = 0, size = standardsWheel_->wheelElements().size(); i < size; i++){
+	standardsComboBox_ = new QComboBox;
+	standardsComboBox_->setEditable(true);
+	standardsComboBox_->lineEdit()->setAlignment(Qt::AlignCenter);
+
+	foreach (CLSStandardsWheelElement *element, standardsWheel_->wheelElements())
+		standardsComboBox_->addItem(element->name());
+
+	connect(standardsComboBox_, SIGNAL(currentIndexChanged(int)), this, SLOT(onStandardsWheelIndexChanged(int)));
+	connect(standardsWheel_, SIGNAL(nameChanged(int,QString)), this, SLOT(onStandardsWheelNameChanged(int,QString)));
+
+	wheelLayout->addRow("Position", standardsComboBox_);
+
+	for (int i = 0, size = standardsWheel_->wheelElements().size()/2; i < size; i++){
 
 		QHBoxLayout *elementLayout = new QHBoxLayout;
 		elementLayout->addWidget(new QLabel(QString("%1 :").arg(i+1)));
 		elementLayout->addWidget(new CLSStandardsWheelConfigurationViewElement(standardsWheel_->wheelElementAt(i)));
-		wheelLayout->addLayout(elementLayout);
+
+		elementLayout->addWidget(new QLabel(QString("%1 :").arg(i+size+1)));
+		elementLayout->addWidget(new CLSStandardsWheelConfigurationViewElement(standardsWheel_->wheelElementAt(i+size)));
+
+		wheelLayout->addRow(elementLayout);
 	}
 
 	setLayout(wheelLayout);
@@ -58,4 +74,14 @@ CLSStandardsWheelConfigurationView::CLSStandardsWheelConfigurationView(CLSStanda
 CLSStandardsWheelConfigurationView::~CLSStandardsWheelConfigurationView()
 {
 
+}
+
+void CLSStandardsWheelConfigurationView::onStandardsWheelIndexChanged(int index)
+{
+	standardsWheel_->moveToIndex(index);
+}
+
+void CLSStandardsWheelConfigurationView::onStandardsWheelNameChanged(int index, const QString &newName)
+{
+	standardsComboBox_->setItemData(index, newName);
 }
