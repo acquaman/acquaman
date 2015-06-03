@@ -28,10 +28,6 @@ public:
 	/// Returns true if this control can stop right now. False otherwise.
 	virtual bool canStop() const = 0;
 
-//	/// Returns true if the given value is a valid value for this control. False otherwise.
-//	virtual bool validValue(double value) const { Q_UNUSED(value) return true; }
-//	/// Returns true if the given value is a valid setpoint for this control. False otherwise.
-//	virtual bool validSetpoint(double value) const { Q_UNUSED(value) return true; }
 	/// Returns true if the current mirror lengths are valid, false otherwise.
 	bool validLengths() const;
 
@@ -116,7 +112,6 @@ protected:
 	virtual double calculateLateral(double upstreamLength, double downstreamLength, double lateralPosition, double yawPosition);
 	/// Calculates and returns the yaw for the given yaw motor position and mirror lengths.
 	virtual double calculateYaw(double upstreamLength, double downstreamLength, double yawPosition);
-
 
 	/// Calculates and returns the upstream inboard motor position from the given pitch, roll, and height.
 	virtual double calculateUpstreamInboardPosition(double upstreamInboardX, double upstreamInboardY, double pitch, double roll, double height);
