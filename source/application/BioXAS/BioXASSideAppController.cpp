@@ -230,7 +230,7 @@ void BioXASSideAppController::setupUserInterface()
 	configuration_ = new BioXASSideXASScanConfiguration();
 	configuration_->setEnergy(10000);
 	configurationView_ = new BioXASSideXASScanConfigurationView(configuration_);
-	configurationViewHolder_ = new AMScanConfigurationViewHolder3(configurationView_, true);
+	configurationViewHolder_ = new AMScanConfigurationViewHolder3("Configure an XAS Scan", true, true, configurationView_);
 
 	mw_->addPane(configurationViewHolder_, "Scans", "XAS Scan", ":/utilities-system-monitor.png");
 
@@ -241,7 +241,7 @@ void BioXASSideAppController::setupUserInterface()
 	commissioningConfiguration_->setAutoExportEnabled(false);
 	commissioningConfiguration_->addDetector(BioXASSideBeamline::bioXAS()->exposedDetectorByName("I0Detector")->toInfo());
 	commissioningConfigurationView_ = new AMGenericStepScanConfigurationView(commissioningConfiguration_);
-	commissioningConfigurationViewHolder_ = new AMScanConfigurationViewHolder3(commissioningConfigurationView_);
+	commissioningConfigurationViewHolder_ = new AMScanConfigurationViewHolder3("BioXAS Commissioning Tool",true, true, commissioningConfigurationView_);
 
 	mw_->addPane(commissioningConfigurationViewHolder_, "Scans", "Commissioning Tool", ":/utilities-system-monitor.png");
 

@@ -97,8 +97,12 @@ void BioXASMainAppController::onScalerConnected()
 
 	if (scaler && scaler->isConnected() && !scalerView_) {
 		scalerView_ = new BioXASSIS3820ScalerView(scaler, true);
+<<<<<<< HEAD
 		QGroupBox *scalerBox = createSqueezeGroupBoxWithView(scalerView_, "Scaler", ":/system-software-update.png");
 		mw_->addPane(scalerBox, "Detectors", "Scaler", ":/system-software-update.png", true);
+=======
+		mw_->addPane(AMMainWindow::buildMainWindowPane("Scaler",":/utilities-system-monitor.png", scalerView_), "Detectors", "Scaler", ":/utilities-system-monitor.png", true);
+>>>>>>> 469de0d1328869363817335f1e4d0ac5b6599bf4
 	}
 }
 
@@ -151,33 +155,25 @@ void BioXASMainAppController::setupUserInterface()
 	////////////////////////////////////
 
 	m1MirrorView_ = new BioXASM1MirrorView(BioXASMainBeamline::bioXAS()->m1Mirror());
-	QGroupBox *m1Box = createSqueezeGroupBoxWithView(m1MirrorView_, "M1 Mirror", ":/system-software-update.png");
-
-	mw_->addPane(m1Box, "General", "M1 Mirror", ":/system-software-update.png");
+	mw_->addPane(AMMainWindow::buildMainWindowPane("M1 Mirror", ":/system-software-update.png", m1MirrorView_), "General", "M1 Mirror", ":/system-software-update.png");
 
 	monoConfigView_ = new BioXASSSRLMonochromatorConfigurationView(BioXASMainBeamline::bioXAS()->mono());
-	QGroupBox *monoBox = createSqueezeGroupBoxWithView(monoConfigView_, "Monochromator", ":/system-software-update.png");
-
-	mw_->addPane(monoBox, "General", "Monochromator", ":/system-software-update.png");
+	mw_->addPane(AMMainWindow::buildMainWindowPane("Monochromator", ":/system-software-update.png", monoConfigView_), "General", "Monochromator", ":/system-software-update.png");
 
 	m2MirrorView_ = new BioXASM2MirrorView(BioXASMainBeamline::bioXAS()->m2Mirror());
-	QGroupBox *m2Box = createSqueezeGroupBoxWithView(m2MirrorView_, "M2 Mirror", ":/system-software-update.png");
-
-	mw_->addPane(m2Box, "General", "M2 Mirror", ":/system-software-update.png");
+	mw_->addPane(AMMainWindow::buildMainWindowPane("M2 Mirror", ":/system-software-update.png", m2MirrorView_), "General", "M2 Mirror", ":/system-software-update.png");
 
 	configuration_ = new BioXASMainXASScanConfiguration();
 	configuration_->setEnergy(10000);
 	configurationView_ = new BioXASMainXASScanConfigurationView(configuration_);
-	configurationViewHolder_ = new AMScanConfigurationViewHolder3(configurationView_, true);
+	configurationViewHolder_ = new AMScanConfigurationViewHolder3("Configure an XAS Scan", true, true, configurationView_);
 	connect(configuration_, SIGNAL(totalTimeChanged(double)), configurationViewHolder_, SLOT(updateOverallScanTime(double)));
 	configurationViewHolder_->updateOverallScanTime(configuration_->totalTime());
-
 	mw_->addPane(configurationViewHolder_, "Scans", "XAS Scan", ":/utilities-system-monitor.png");
 
 	commissioningConfiguration_ = new AMGenericStepScanConfiguration;
 	commissioningConfigurationView_ = new AMGenericStepScanConfigurationView(commissioningConfiguration_);
-	commissioningConfigurationViewHolder_ = new AMScanConfigurationViewHolder3(commissioningConfigurationView_);
-
+	commissioningConfigurationViewHolder_ = new AMScanConfigurationViewHolder3("BioXAS Commissioning Tool",true, true, commissioningConfigurationView_);
 	mw_->addPane(commissioningConfigurationViewHolder_, "Scans", "Commissioning Tool", ":/utilities-system-monitor.png");
 
 	// Create persistent view panel:

@@ -40,9 +40,6 @@ BioXASSideXASScanConfigurationView::BioXASSideXASScanConfigurationView(BioXASSid
 {
 	configuration_ = configuration;
 
-	topFrame_ = new AMTopFrame("Configure an XAS Scan");
-	topFrame_->setIcon(QIcon(":/utilities-system-monitor.png"));
-
 	regionsView_ = new AMEXAFSScanAxisView("BioXAS-Side Region Configuration", configuration_);
 
 	usingXRFDetectorCheckBox_ = new QCheckBox("Use Four Element");
@@ -109,10 +106,6 @@ BioXASSideXASScanConfigurationView::BioXASSideXASScanConfigurationView(BioXASSid
 	regionsLayout->addLayout(energyAndRegionLayout);
 	regionsLayout->addWidget(usingXRFDetectorCheckBox_, 0, Qt::AlignBottom);
 
-	QVBoxLayout *mainVL = new QVBoxLayout();
-	mainVL->addWidget(topFrame_);
-	mainVL->addLayout(regionsLayout);
-
 //	QLabel *settingsLabel = new QLabel("Scan Settings:");
 //	settingsLabel->setFont(QFont("Lucida Grande", 12, QFont::Bold));
 
@@ -121,13 +114,9 @@ BioXASSideXASScanConfigurationView::BioXASSideXASScanConfigurationView(BioXASSid
 	regionsHL->addWidget(autoRegionButton_);
 	regionsHL->addWidget(pseudoXAFSButton_);
 
-	QVBoxLayout *settingsVL = new QVBoxLayout();
-	settingsVL->addLayout(regionsHL);
-//	settingsVL->addWidget(settingsLabel);
-
-	mainVL->addStretch();
-	mainVL->addLayout(settingsVL);
-	mainVL->addStretch();
+	QVBoxLayout *mainVL = new QVBoxLayout();
+	mainVL->addLayout(regionsLayout);
+	mainVL->addLayout(regionsHL);
 
 	mainVL->setContentsMargins(20,0,0,20);
 	mainVL->setSpacing(1);
