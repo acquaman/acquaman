@@ -237,37 +237,21 @@ void BioXASSideAppController::setupUserInterface()
 	fourElementDetectorView->addEmissionLineNameFilter(QRegExp("1"));
 	fourElementDetectorView->addPileUpPeakNameFilter(QRegExp("(K.1|L.1|Ma1)"));
 
+	CLSStandardsWheelConfigurationView *wheelView = new CLSStandardsWheelConfigurationView(BioXASSideBeamline::bioXAS()->standardsWheel());
+
 	// Create right side panel.
 	persistentPanel_ = new BioXASSidePersistentView();
 
 
 	// Add views to 'General'.
 	mw_->insertHeading("General", 0);
-	mw_->addPane(createSqueezeGroupBoxWithView("", monoConfigView_), "General", "Monochromator", ":/system-software-update.png");
-	mw_->addPane(createSqueezeGroupBoxWithView("", jjSlitsView_), "General", "JJ Slits", ":/system-software-update.png");
-	mw_->addPane(createSqueezeGroupBoxWithView("", xiaFiltersView_), "General", "XIA Filters", ":/system-software-update.png");
-	mw_->addPane(createSqueezeGroupBoxWithView("", carbonFilterFarmView_), "General", "Carbon filter farm", ":/system-software-update.png");
-	mw_->addPane(createSqueezeGroupBoxWithView("", m2MirrorView_), "General", "M2 Mirror", ":/system-software-update.png");
-	mw_->addPane(createSqueezeGroupBoxWithView("", dbhrView_), "General", "DBHR Mirrors", ":/system-software-update.png");
-
-	CLSStandardsWheelConfigurationView *wheelView = new CLSStandardsWheelConfigurationView(BioXASSideBeamline::bioXAS()->standardsWheel());
-
-	QHBoxLayout *horizontalWheelLayout = new QHBoxLayout();
-	horizontalWheelLayout->addStretch();
-	horizontalWheelLayout->addWidget(wheelView);
-	horizontalWheelLayout->addStretch();
-
-	QVBoxLayout *verticalWheelLayout = new QVBoxLayout();
-	verticalWheelLayout->addWidget(new AMTopFrame("Standards Wheel", QIcon(":/utilities-system-monitor.png")));
-	verticalWheelLayout->addStretch();
-	verticalWheelLayout->addLayout(horizontalWheelLayout);
-	verticalWheelLayout->addStretch();
-
-	QGroupBox *standardsWheelBox = new QGroupBox();
-	standardsWheelBox->setFlat(true);
-	standardsWheelBox->setLayout(verticalWheelLayout);
-
-	mw_->addPane(standardsWheelBox, "General", "Standards Wheel", ":/utilities-system-monitor.png");
+	mw_->addPane(createSqueezeGroupBoxWithView("Monochromator", monoConfigView_), "General", "Monochromator", ":/system-software-update.png");
+	mw_->addPane(createSqueezeGroupBoxWithView("JJ Slits", jjSlitsView_), "General", "JJ Slits", ":/system-software-update.png");
+	mw_->addPane(createSqueezeGroupBoxWithView("XIA Filters", xiaFiltersView_), "General", "XIA Filters", ":/system-software-update.png");
+	mw_->addPane(createSqueezeGroupBoxWithView("Carbon Filter Farm", carbonFilterFarmView_), "General", "Carbon filter farm", ":/system-software-update.png");
+	mw_->addPane(createSqueezeGroupBoxWithView("M2 Mirror", m2MirrorView_), "General", "M2 Mirror", ":/system-software-update.png");
+	mw_->addPane(createSqueezeGroupBoxWithView("DBHR Mirrors", dbhrView_), "General", "DBHR Mirrors", ":/system-software-update.png");
+	mw_->addPane(createSqueezeGroupBoxWithView("Standards Wheel", wheelView), "General", "Standards Wheel", ":/system-software-update.png");
 
 	// Add views to 'Detectors'.
 	mw_->insertHeading("Detectors", 1);

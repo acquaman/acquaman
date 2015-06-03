@@ -57,6 +57,8 @@ BioXASSidePersistentView::BioXASSidePersistentView(QWidget *parent) :
 	channelViews_->setTitle("Scaler channels");
 	channelViews_->setLayout(channelsLayout);
 
+	standardsComboBox_ = new QComboBox;
+
 	foreach (CLSStandardsWheelElement *element, BioXASSideBeamline::bioXAS()->standardsWheel()->wheelElements())
 		standardsComboBox_->addItem(element->name());
 
