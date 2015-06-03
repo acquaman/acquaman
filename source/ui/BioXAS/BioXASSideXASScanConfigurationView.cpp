@@ -40,9 +40,6 @@ BioXASSideXASScanConfigurationView::BioXASSideXASScanConfigurationView(BioXASSid
 {
 	configuration_ = configuration;
 
-	//topFrame_ = new AMTopFrame("Configure an XAS Scan");
-	//topFrame_->setIcon(QIcon(":/utilities-system-monitor.png"));
-
 	regionsView_ = new AMEXAFSScanAxisView("BioXAS-Side Region Configuration", configuration_);
 
 	usingXRFDetectorCheckBox_ = new QCheckBox("Use Four Element");
@@ -108,7 +105,6 @@ BioXASSideXASScanConfigurationView::BioXASSideXASScanConfigurationView(BioXASSid
 	QHBoxLayout *regionsLayout = new QHBoxLayout;
 	regionsLayout->addLayout(energyAndRegionLayout);
 	regionsLayout->addWidget(usingXRFDetectorCheckBox_, 0, Qt::AlignBottom);
-
 
 //	QLabel *settingsLabel = new QLabel("Scan Settings:");
 //	settingsLabel->setFont(QFont("Lucida Grande", 12, QFont::Bold));

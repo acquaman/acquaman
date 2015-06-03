@@ -8,7 +8,6 @@
 #include <QButtonGroup>
 
 #include "util/AMDateTimeUtils.h"
-#include "ui/AMTopFrame.h"
 #include "beamline/AMBeamline.h"
 
 AMGenericStepScanConfigurationView::AMGenericStepScanConfigurationView(AMGenericStepScanConfiguration *configuration, QWidget *parent)
@@ -16,7 +15,6 @@ AMGenericStepScanConfigurationView::AMGenericStepScanConfigurationView(AMGeneric
 {
 	configuration_ = configuration;
 
-	AMTopFrame *frame = new AMTopFrame("BioXAS Commissioning Tool");
 
 	scanName_ = new QLineEdit;
 	scanName_->setText(configuration_->name());
@@ -139,7 +137,6 @@ AMGenericStepScanConfigurationView::AMGenericStepScanConfigurationView(AMGeneric
 	moreLayout->addStretch();
 
 	QVBoxLayout *configViewLayout = new QVBoxLayout;
-	configViewLayout->addWidget(frame);
 	configViewLayout->addStretch();
 	configViewLayout->addLayout(moreLayout);
 	configViewLayout->addStretch();

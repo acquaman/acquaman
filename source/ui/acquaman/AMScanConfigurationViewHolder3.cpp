@@ -41,12 +41,6 @@ AMScanConfigurationViewHolder3::AMScanConfigurationViewHolder3(AMScanConfigurati
 	if(view_)
 		addWidget(view_);
 
-	disabledWarning_ = new QLabel("");
-	QFont warningsFont;
-	warningsFont.setPointSize(32);
-	disabledWarning_->setFont(warningsFont);
-	disabledWarning_->setStyleSheet( "QLabel{ color: red }" );
-	addWidget(disabledWarning_);
 
 
 }
@@ -68,32 +62,17 @@ AMScanConfigurationViewHolder3::AMScanConfigurationViewHolder3(const QString &fr
 			HLayout->addWidget(view_);
 			HLayout->addStretch();
 
-			QVBoxLayout *VLayout = new QVBoxLayout;
-			VLayout->addWidget(topFrame_);
-
-			VLayout->addStretch();
-			VLayout->addLayout(HLayout);
-			VLayout->addStretch();
-
-			QWidget *wid = new QWidget;
-			wid->setContentsMargins(0, -40, 0, 0);
-			wid->setLayout(VLayout);
-
-			addWidget(wid);
-
+			layout_->insertStretch(0);
+			layout_->insertLayout(0, HLayout);
+			layout_->insertStretch(0);
+			layout_->insertWidget(0, topFrame_);
 
 		}
 
-	  else
-		addWidget(view_);
+		else
+			addWidget(view_);
 	}
 
-	disabledWarning_ = new QLabel("");
-	QFont warningsFont;
-	warningsFont.setPointSize(32);
-	disabledWarning_->setFont(warningsFont);
-	disabledWarning_->setStyleSheet( "QLabel{ color: red }" );
-	addWidget(disabledWarning_);
 
 }
 
