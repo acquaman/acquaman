@@ -27,6 +27,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QPushButton>
 #include <QInputDialog>
 
+#include "ui/BioXAS/BioXASBeamlineBeamView.h"
 #include "ui/BioXAS/BioXASSSRLMonochromatorRegionControlEditor.h"
 #include "ui/BioXAS/BioXASSSRLMonochromatorRegionControlView.h"
 #include "ui/BioXAS/BioXASSSRLMonochromatorConfigurationView.h"
@@ -38,17 +39,16 @@ class BioXASSidePersistentView : public QWidget
 public:
 	/// Constructor.
 	explicit BioXASSidePersistentView(QWidget *parent = 0);
+	/// Destructor.
 	virtual ~BioXASSidePersistentView();
-
-signals:
-
-public slots:
 
 protected slots:
 	/// Test slot for the standards wheel.
 	void onStandardsWheelIndexChanged(int index);
 	/// Handles updating the standards wheel names.
 	void onStandardsWheelNameChanged(int index, const QString &newName);
+	/// Handles updating the view when the scaler connection state changes.
+	void onScalerConnectedChanged();
 
 protected:
 	/// Editor for the mono's energy.
@@ -59,6 +59,8 @@ protected:
 	AMExtendedControlEditor *braggControlEditor_;
 	/// Combo box for the standards wheel.
 	QComboBox *standardsComboBox_;
+	/// Scaler channel views for i0, iT, and i2 channels.
+	QGroupBox *channelViews_;
 };
 
 #endif // BIOXASSIDEPERSISTENTVIEW_H

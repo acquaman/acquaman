@@ -20,27 +20,42 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 
 #include "BioXASSidePersistentView.h"
-
+#include "ui/BioXAS/BioXASSIS3820ScalerChannelsView.h"
 #include "beamline/BioXAS/BioXASSideBeamline.h"
+#include "ui/beamline/AMControlEditor.h"
 
 #include <QComboBox>
 
 BioXASSidePersistentView::BioXASSidePersistentView(QWidget *parent) :
 	QWidget(parent)
 {
-	// Create UI elements.
+	// Energy control editor.
 
 	energyControlEditor_ = new AMExtendedControlEditor(BioXASSideBeamline::bioXAS()->mono()->energyControl());
-	energyControlEditor_->setTitle("Energy");
+	energyControlEditor_->setTitle("Mono Energy");
 	energyControlEditor_->setControlFormat('f', 2);
 
+	// Region control editor.
+
 	regionControlEditor_ = new BioXASSSRLMonochromatorRegionControlEditor(BioXASSideBeamline::bioXAS()->mono()->regionControl());
-	regionControlEditor_->setTitle("Region");
+	regionControlEditor_->setTitle("Mono Crystal Region");
+
+	// Bragg control editor.
 
 	braggControlEditor_ = new AMExtendedControlEditor(BioXASSideBeamline::bioXAS()->mono()->braggMotor());
-	braggControlEditor_->setTitle("Bragg motor position");
+	braggControlEditor_->setTitle("Mono Goniometer Angle");
+	braggControlEditor_->setControlFormat('f', 2);
 
-	standardsComboBox_ = new QComboBox;
+	// Scaler channel views.
+
+	BioXASSIS3820ScalerChannelsView *channels = new BioXASSIS3820ScalerChannelsView(BioXASSideBeamline::bioXAS()->scaler());
+
+	QVBoxLayout *channelsLayout = new QVBoxLayout();
+	channelsLayout->addWidget(channels);
+
+	channelViews_ = new QGroupBox();
+	channelViews_->setTitle("Scaler channels");
+	channelViews_->setLayout(channelsLayout);
 
 	foreach (CLSStandardsWheelElement *element, BioXASSideBeamline::bioXAS()->standardsWheel()->wheelElements())
 		standardsComboBox_->addItem(element->name());
@@ -48,17 +63,30 @@ BioXASSidePersistentView::BioXASSidePersistentView(QWidget *parent) :
 	connect(standardsComboBox_, SIGNAL(currentIndexChanged(int)), this, SLOT(onStandardsWheelIndexChanged(int)));
 	connect(BioXASSideBeamline::bioXAS()->standardsWheel(), SIGNAL(nameChanged(int,QString)), this, SLOT(onStandardsWheelNameChanged(int,QString)));
 
-	// Create and set layouts.
+	// Create and set main layout.
 
 	QVBoxLayout *layout = new QVBoxLayout();
 	layout->addWidget(energyControlEditor_);
 	layout->addWidget(regionControlEditor_);
 	layout->addWidget(braggControlEditor_);
+	layout->addWidget(channelViews_);
 	layout->addWidget(standardsComboBox_);
 	layout->addStretch();
 
 	setLayout(layout);
-	setFixedWidth(300);
+	setFixedWidth(400);
+
+	// Initial settings.
+
+	channelViews_->hide();
+
+	// Make connections.
+
+	connect( BioXASSideBeamline::bioXAS()->scaler(), SIGNAL(connectedChanged(bool)), this, SLOT(onScalerConnectedChanged()) );
+
+	// Current settings.
+
+	onScalerConnectedChanged();
 }
 
 BioXASSidePersistentView::~BioXASSidePersistentView()
@@ -74,4 +102,15 @@ void BioXASSidePersistentView::onStandardsWheelIndexChanged(int index)
 void BioXASSidePersistentView::onStandardsWheelNameChanged(int index, const QString &newName)
 {
 	standardsComboBox_->setItemText(index, newName);
+}
+
+void BioXASSidePersistentView::onScalerConnectedChanged()
+{
+	CLSSIS3820Scaler *scaler = BioXASSideBeamline::bioXAS()->scaler();
+
+	if (scaler && scaler->isConnected()) {
+		channelViews_->show();
+	} else {
+		channelViews_->hide();
+	}
 }

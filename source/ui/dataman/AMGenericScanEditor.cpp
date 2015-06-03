@@ -445,7 +445,7 @@ void AMGenericScanEditor::updateEditor(AMScan *scan) {
 		scanDuration_->setText(scan->currentlyScanning() ? ("Acquiring " % AMDateTimeUtils::prettyDuration(currentScan_->dateTime(), QDateTime::currentDateTime(), true))
 															: AMDateTimeUtils::prettyDuration(scan->dateTime(), scan->endDateTime()));
 		scanTime_->setText( scan->dateTime().time().toString("h:mmap") );
-		scanEnd_->setText(scan->currentlyScanning() ? ("Approx " % (scan->dateTime().addSecs(scan->scanConfiguration()->expectedDuration())).time().toString("h:mmap"))
+		scanEnd_->setText(scan->currentlyScanning() ? ("Approx " % (scan->dateTime().addSecs((int)scan->scanConfiguration()->expectedDuration())).time().toString("h:mmap"))
 								  : scan->endDateTime().time().toString("h:mmap"));
 		notesEdit_->setPlainText( scan->notes() );
 

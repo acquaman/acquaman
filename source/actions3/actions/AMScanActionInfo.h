@@ -31,6 +31,14 @@ class AMScan;
 #define AMSCANACTIONINFO_SCAN_HAS_NO_CONFIGURATION 104002
 #define AMSCANACTIONINFO_CREATE_CONFIGURATION_COPY_FAILED 104003
 
+/*!
+  * A class representing the persistant data to be stored relating to a scan action.
+  * Allows for the decoupling of the information which describes a scan action from
+  * the actual actions required to perform it.
+  * Stores a reference to the scan's configuration and id as well as the standard
+  * information contained within AMActionInfo3 (Short description, long description,
+  * icon file name, expected duration and whether the scan action is copyable.
+  */
 class AMScanActionInfo : public AMActionInfo3
 {
 	Q_OBJECT
@@ -40,49 +48,104 @@ class AMScanActionInfo : public AMActionInfo3
 	Q_CLASSINFO("AMDbObject_Attributes", "description=Scan Action")
 
 public:
+	/*!
+	  * Default constructor for a scan action info. Creates a scan action info with
+	  * no scan config and a scan id of -1.
+	  */
 	Q_INVOKABLE AMScanActionInfo(QObject *parent = 0);
-	/// Constructor.  Takes an AMScanConfiguration \param config and builds a scan action around it.  This will create a scan controller which can be controlled from within the workflow.
+
+	/*!
+	  * Creates an instace of a scan action info with the provided configuration
+	  * a short description pulled from the scan configuration's userScanName and
+	  * a long description pulled from the scan configuration's description. The
+	  * scan id will be set to -1.
+	  */
 	Q_INVOKABLE AMScanActionInfo(AMScanConfiguration *configuration, const QString& iconFileName = ":/spectrum.png", QObject *parent = 0);
-	/// Copy constructor.  Makes a copy of \param other's scan configuration but does not copy the scan ID
+
+	/*!
+	  * Copy constructor. Creates a copy of the configuration contained within
+	  * other and sets the scan id of the created copy to -1.
+	  */
 	AMScanActionInfo(const AMScanActionInfo &other);
-	/// Destructor.
+
+	/*!
+	  * Default destructor for the AMScanActionInfo. Performs no action.
+	  */
 	virtual ~AMScanActionInfo();
 
-	/// Creates a copy of this action info.
+	/*!
+	  * Creates a new scan action info from this scan action info and returns a
+	  * reference to it. The copied scan action info is considered to be new with
+	  * regard to the database (ie. saving the copied scan action info will insert
+	  * a new record).
+	  */
 	virtual AMActionInfo3 *createCopy() const;
 
 	// Re-implemented public functions
 	/////////////////////////////////
 
-	/// This should describe the type of the action
+	/*!
+	  * A description of the type of the action.
+	  */
 	virtual QString typeDescription() const { return "Scan Action"; }
 
 	// New public functions
 	//////////////////////////
 
-	/// Returns true if it has a valid config()
+	/*!
+	  * Whether or not the scan action has a valid config.
+	  */
 	bool isValid() const { return config_ != 0; }
-	/// Access the scan configuration.  Returns a constant reference.
+
+	/*!
+	  * Read-only access to the scan action's scan config.
+	  */
 	const AMScanConfiguration* configuration() const;
-	/// Access the scan configuration.  Returns a modifiable reference.  If the info does not have a valid pointer then it will attempt to retrieve one from the database.
+
+	/*!
+	  * The scan action's scan config. If no config is currently stored in the
+	  * scan action info, then an attempt to load it from the database is made.
+	  */
 	AMScanConfiguration* configuration();
 
-	/// Returns the id of the scan that this action is associated with.
+	/*!
+	  * The id of the scan which the scan action info is associated with.
+	  */
 	int scanID() const { return scanID_; }
-	/// Sets the id of the scan this action is associated with.
+
+	/*!
+	  * Sets the id of the scan which the scan action info is associated with.
+	  * \param id ~ The new id of the scan which the scan action info will be
+	  * associated with.
+	  */
 	void setScanID(int id) { scanID_ = id; }
 
-	/// Overrides the warnings string to check warnings from the scan configuration
+	/*!
+	  * The load warning from the scan action info. Actually returns the load
+	  * warning for the contained scan configuration. If the scan configuration
+	  * could not be initialized at all then a generic error message is returned.
+	  */
 	virtual QString dbLoadWarnings() const;
 
 protected:
-	/// Helper to save to db
+	/*!
+	  * A reference to the contained scan config, as a base db object. Used in
+	  * saving to the db.
+	  */
 	AMDbObject* dbGetConfig() const;
-	/// Helper to load from db
+
+	/*!
+	  * Populates the scan config from the provided base db object. Used in loading
+	  * from the db.
+	  */
 	void dbLoadConfig(AMDbObject *newConfig);
 
 protected slots:
-	/// Responds to changes to the config, updates that scan action info
+	/*!
+	  * Handles a notification that the contained scan config has been altered.
+	  * Updates the relevant information in the scan action info to reflect the
+	  * config.
+	  */
 	void onConfigChanged();
 
 protected:

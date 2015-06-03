@@ -43,7 +43,12 @@ BioXASSideXASScanConfigurationView::BioXASSideXASScanConfigurationView(BioXASSid
 	topFrame_ = new AMTopFrame("Configure an XAS Scan");
 	topFrame_->setIcon(QIcon(":/utilities-system-monitor.png"));
 
-	regionsView_ = new AMEXAFSScanAxisView("IDEAS Region Configuration", configuration_);
+	regionsView_ = new AMEXAFSScanAxisView("BioXAS-Side Region Configuration", configuration_);
+
+	usingXRFDetectorCheckBox_ = new QCheckBox("Use Four Element");
+	usingXRFDetectorCheckBox_->setChecked(configuration_->usingXRFDetector());
+	connect(configuration_->dbObject(), SIGNAL(usingXRFDetectorChanged(bool)), usingXRFDetectorCheckBox_, SLOT(setChecked(bool)));
+	connect(usingXRFDetectorCheckBox_, SIGNAL(toggled(bool)), configuration_->dbObject(), SLOT(setUsingXRFDetector(bool)));
 
 	autoRegionButton_ = new QPushButton("Auto Set XANES Regions");
 	connect(autoRegionButton_, SIGNAL(clicked()), this, SLOT(setupDefaultXANESScanRegions()));
@@ -83,10 +88,10 @@ BioXASSideXASScanConfigurationView::BioXASSideXASScanConfigurationView(BioXASSid
 		fillLinesComboBox(AMPeriodicTable::table()->elementBySymbol(elementChoice_->text()));
 		lineChoice_->setCurrentIndex(lineChoice_->findText(configuration_->edge(), Qt::MatchStartsWith | Qt::MatchCaseSensitive));
 		lineChoice_->blockSignals(false);
-		energy_->setValue(configuration_->edgeEnergy());
+		energy_->setValue(configuration_->energy());
 	}
 
-	connect(configuration_, SIGNAL(edgeChanged(QString)), this, SLOT(onEdgeChanged()));
+	connect(configuration_->dbObject(), SIGNAL(edgeChanged(QString)), this, SLOT(onEdgeChanged()));
 
 	QFormLayout *energySetpointLayout = new QFormLayout;
 	energySetpointLayout->addRow("Energy:", energy_);
@@ -96,10 +101,17 @@ BioXASSideXASScanConfigurationView::BioXASSideXASScanConfigurationView(BioXASSid
 	energyLayout->addWidget(elementChoice_);
 	energyLayout->addWidget(lineChoice_);
 
+	QVBoxLayout *energyAndRegionLayout = new QVBoxLayout;
+	energyAndRegionLayout->addLayout(energyLayout);
+	energyAndRegionLayout->addWidget(regionsView_);
+
+	QHBoxLayout *regionsLayout = new QHBoxLayout;
+	regionsLayout->addLayout(energyAndRegionLayout);
+	regionsLayout->addWidget(usingXRFDetectorCheckBox_, 0, Qt::AlignBottom);
+
 	QVBoxLayout *mainVL = new QVBoxLayout();
 	mainVL->addWidget(topFrame_);
-	mainVL->addLayout(energyLayout);
-	mainVL->addWidget(regionsView_);
+	mainVL->addLayout(regionsLayout);
 
 //	QLabel *settingsLabel = new QLabel("Scan Settings:");
 //	settingsLabel->setFont(QFont("Lucida Grande", 12, QFont::Bold));
@@ -141,10 +153,10 @@ void BioXASSideXASScanConfigurationView::setupDefaultXANESScanRegions()
 	}
 
 	AMScanAxisEXAFSRegion *region = new AMScanAxisEXAFSRegion;
-	region->setEdgeEnergy(configuration_->edgeEnergy());
-	region->setRegionStart(configuration_->edgeEnergy() - 30);
+	region->setEdgeEnergy(configuration_->energy());
+	region->setRegionStart(configuration_->energy() - 30);
 	region->setRegionStep(0.5);
-	region->setRegionEnd(configuration_->edgeEnergy() + 40);
+	region->setRegionEnd(configuration_->energy() + 40);
 	region->setRegionTime(1.0);
 	regionsView_->insertEXAFSRegion(0, region);
 }
@@ -158,25 +170,25 @@ void BioXASSideXASScanConfigurationView::setupDefaultEXAFSScanRegions()
 	}
 
 	AMScanAxisEXAFSRegion *region = new AMScanAxisEXAFSRegion;
-	region->setEdgeEnergy(configuration_->edgeEnergy());
-	region->setRegionStart(configuration_->edgeEnergy() - 200);
+	region->setEdgeEnergy(configuration_->energy());
+	region->setRegionStart(configuration_->energy() - 200);
 	region->setRegionStep(10);
-	region->setRegionEnd(configuration_->edgeEnergy() - 30);
+	region->setRegionEnd(configuration_->energy() - 30);
 	region->setRegionTime(1.0);
 	regionsView_->insertEXAFSRegion(0, region);
 
 	region = new AMScanAxisEXAFSRegion;
-	region->setEdgeEnergy(configuration_->edgeEnergy());
-	region->setRegionStart(configuration_->edgeEnergy() - 30);
+	region->setEdgeEnergy(configuration_->energy());
+	region->setRegionStart(configuration_->energy() - 30);
 	region->setRegionStep(0.5);
-	region->setRegionEnd(configuration_->edgeEnergy() + 40);
+	region->setRegionEnd(configuration_->energy() + 40);
 	region->setRegionTime(1.0);
 	regionsView_->insertEXAFSRegion(1, region);
 
 	region = new AMScanAxisEXAFSRegion;
-	region->setEdgeEnergy(configuration_->edgeEnergy());
+	region->setEdgeEnergy(configuration_->energy());
 	region->setInKSpace(true);
-	region->setRegionStart(AMEnergyToKSpaceCalculator::k(region->edgeEnergy(), configuration_->edgeEnergy() + 40));
+	region->setRegionStart(AMEnergyToKSpaceCalculator::k(region->edgeEnergy(), double(region->edgeEnergy()) + 40));
 	region->setRegionStep(0.05);
 	region->setRegionEnd(10);
 	region->setRegionTime(1.0);
@@ -192,7 +204,7 @@ void BioXASSideXASScanConfigurationView::onScanNameEdited()
 
 void BioXASSideXASScanConfigurationView::setEnergy()
 {
-	configuration_->setEdgeEnergy(energy_->value());
+	configuration_->setEnergy(energy_->value());
 	regionsView_->setEdgeEnergy(energy_->value());
 }
 
@@ -249,6 +261,6 @@ void BioXASSideXASScanConfigurationView::onEdgeChanged()
 	lineChoice_->blockSignals(false);
 	lineChoice_->setCurrentIndex(lineChoice_->findText(configuration_->edge(), Qt::MatchStartsWith | Qt::MatchCaseSensitive));
 
-	if (energy_->value() != configuration_->edgeEnergy())
-		energy_->setValue(configuration_->edgeEnergy());
+	if (energy_->value() != configuration_->energy())
+		energy_->setValue(configuration_->energy());
 }

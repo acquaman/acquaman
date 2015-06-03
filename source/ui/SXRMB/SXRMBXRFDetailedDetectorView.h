@@ -14,12 +14,9 @@ class SXRMBXRFDetailedDetectorView : public AMXRFDetailedDetectorView
 
 public:
 	/// Constructor.  Builds a more detailed view for SXRMBBrukerDetector.
-	SXRMBXRFDetailedDetectorView(SXRMBBrukerDetector *detector, QWidget *parent = 0);
+	SXRMBXRFDetailedDetectorView(AMXRFDetector *detector, QWidget *parent = 0);
 	/// Destructor.
 	virtual ~SXRMBXRFDetailedDetectorView();
-
-	/// enable the deadtimeLabel
-	void enableDeadTimeDisplay();
 
 	/// Re-implementing to add the save button.
 	virtual void buildDetectorView();
@@ -27,8 +24,6 @@ public:
 protected slots:
 	/// Starts the acquisition.  Calls acquire() but subclasses can reimplement if there is a more sofisticated start routine.
 	virtual void startAcquisition();
-	/// Handles updating the dead time label.
-	virtual void onDeadTimeChanged();
 
 	/// Handles bringing up and exporting the given XRF scans.
 	void onSaveButtonClicked();

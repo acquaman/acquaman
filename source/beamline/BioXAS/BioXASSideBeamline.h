@@ -22,9 +22,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef BIOXASSIDEBEAMLINE_H
 #define BIOXASSIDEBEAMLINE_H
 
-#include "beamline/CLS/CLSBeamline.h"
 #include "beamline/AMControlSet.h"
 #include "beamline/AMMotorGroup.h"
+#include "beamline/AMPVControl.h"
+
 #include "beamline/CLS/CLSSynchronizedDwellTime.h"
 #include "beamline/CLS/CLSSIS3820Scaler.h"
 #include "beamline/CLS/CLSBiStateControl.h"
@@ -33,15 +34,23 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/CLS/CLSKeithley428.h"
 #include "beamline/CLS/CLSBasicCompositeScalerChannelDetector.h"
 #include "beamline/CLS/CLSMAXvMotor.h"
-#include "beamline/AMPVControl.h"
+#include "beamline/CLS/CLSJJSlits.h"
+#include "beamline/CLS/CLSJJSlitGapControl.h"
+#include "beamline/CLS/CLSJJSlitCenterControl.h"
 
 #include "util/AMErrorMonitor.h"
 #include "util/AMBiHash.h"
 
+#include "beamline/BioXAS/BioXASBeamline.h"
 #include "beamline/BioXAS/BioXASBeamlineDef.h"
 #include "beamline/BioXAS/BioXASSideMonochromator.h"
 #include "beamline/BioXAS/BioXASPseudoMotorControl.h"
 #include "beamline/BioXAS/BioXAS32ElementGeDetector.h"
+#include "beamline/BioXAS/BioXASSideCarbonFilterFarm.h"
+#include "beamline/BioXAS/BioXASSideXIAFilters.h"
+#include "beamline/BioXAS/BioXASSideM2Mirror.h"
+#include "beamline/BioXAS/BioXASSideDBHRMirror.h"
+#include "beamline/BioXAS/BioXASFourElementVortexDetector.h"
 
 #include "beamline/CLS/CLSStandardsWheel.h"
 
@@ -52,10 +61,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define BIOXASSIDEBEAMLINE_WATER_FLOW_TOO_LOW 54604
 #define BIOXASSIDEBEAMLINE_ION_PUMP_TRIP 54605
 
-class CLSMAXvMotor;
 class AMBasicControlDetectorEmulator;
 
-class BioXASSideBeamline : public CLSBeamline
+class BioXASSideBeamline : public BioXASBeamline
 {
 	Q_OBJECT
 
@@ -74,38 +82,34 @@ public:
 	/// Destructor.
 	virtual ~BioXASSideBeamline();
 
-	/// Returns the most recent connection state of the beamline.
-	virtual bool isConnected() const { return isConnected_; }
+	/// Returns the current connected state.
+	virtual bool isConnected() const;
 
-	/// Returns the beamline monochromator.
-	BioXASSideMonochromator *mono() const { return mono_; }
+	/// Returns the beamline JJ Slit.
+	CLSJJSlits *jjSlits() const { return jjSlits_; }
+	/// Returns the mono.
+	virtual BioXASSSRLMonochromator* mono() const { return mono_; }
 	/// Returns the scaler.
-	CLSSIS3820Scaler* scaler() const { return scaler_; }
+	virtual CLSSIS3820Scaler* scaler() const { return scaler_; }
+	/// Returns the carbon filter farm.
+	BioXASSideCarbonFilterFarm* carbonFilterFarm() const { return carbonFilterFarm_; }
+	/// Returns the XIA filters.
+	BioXASSideXIAFilters* xiaFilters() const { return xiaFilters_; }
+	/// Returns the DBHR mirrors.
+	BioXASSideDBHRMirror* dbhrMirror() const { return dbhrMirror_; }
 	/// Returns the standards wheel.
 	CLSStandardsWheel *standardsWheel() const { return standardsWheel_; }
 
-	// Photon and safety shutters.
-
-	/// Returns the first photon shutter.
-	AMControl *photonShutter1() const { return psh1_; }
-	/// Returns the second photon shutter.
-	AMControl *photonShutter2() const { return psh2_; }
-	/// Returns the first safety shutter.
-	AMControl *safetyShutter1() const { return ssh1_; }
-	/// Returns the second safety shutter.
-	AMControl *safetyShutter2() const { return sshSide1_; }
-
-	bool openPhotonShutter1();
-	bool closePhotonShutter1();
-	bool openPhotonShutter2();
-	bool closePhotonShutter2();
-	bool openSafetyShutter1();
-	bool closeSafetyShutter1();
-	bool openSafetyShutter2();
-	bool closeSafetyShutter2();
+//	bool openPhotonShutter1();
+//	bool closePhotonShutter1();
+//	bool openPhotonShutter2();
+//	bool closePhotonShutter2();
+//	bool openSafetyShutter1();
+//	bool closeSafetyShutter1();
+//	bool openSafetyShutter2();
+//	bool closeSafetyShutter2();
 
 	// Pressure monitors.
-
 	AMControl *ccg1() const { return ccg1_; }
 	AMControl *ccg2() const { return ccg2_; }
 	AMControl *ccg3() const { return ccg3_; }
@@ -201,37 +205,45 @@ public:
 	/// return the set of BioXAS Motors by given motor category
 	QList<AMControl *> getMotorsByType(BioXASBeamlineDef::BioXASMotorType category) const;
 
-	// Current amplifiers
+	// Motor controls.
+	/// Returns the lateral detector stage motor.
+	CLSMAXvMotor* detectorStageLateral() const { return detectorStageLateral_; }
 
+	// Current amplifiers
+	/// Returns the I0 Keithley428 amplifier.
 	CLSKeithley428* i0Keithley() const { return i0Keithley_; }
-	CLSKeithley428* iTKeithley() const { return iTKeithley_; }
+	/// Returns the IT Keithley428 amplifier.
+	CLSKeithley428* i1Keithley() const { return i1Keithley_; }
+	/// Returns the I2 Keithley 428 amplifier.
 	CLSKeithley428* i2Keithley() const { return i2Keithley_; }
 
 	// Detectors
-
+	/// Returns the I0 scaler channel detector.
 	CLSBasicScalerChannelDetector* i0Detector() const { return i0Detector_; }
-	CLSBasicScalerChannelDetector* iTDetector() const { return iTDetector_; }
+	/// Returns the I1 scaler channel detector.
+	CLSBasicScalerChannelDetector* i1Detector() const { return i1Detector_; }
+	/// Returns the I2 scaler channel detector.
 	CLSBasicScalerChannelDetector* i2Detector() const { return i2Detector_; }
+	/// Returns the energy setpoint detector.
+	AMBasicControlDetectorEmulator* energySetpointDetector() const { return energySetpointDetector_; }
 	/// Returns the energy feedback detector.
 	AMBasicControlDetectorEmulator* energyFeedbackDetector() const { return energyFeedbackDetector_; }
 	/// Returns the scaler dwell time detector.
-	AMBasicControlDetectorEmulator* dwellTimeDetector() { return dwellTimeDetector_; }
+	AMBasicControlDetectorEmulator* dwellTimeDetector() const { return dwellTimeDetector_; }
+	/// Returns the bragg motor detector.
+	AMBasicControlDetectorEmulator* braggDetector() const { return braggDetector_; }
+	/// Returns the bragg motor encoder feedback detector.
+	AMBasicControlDetectorEmulator* braggEncoderFeedbackDetector() const { return braggEncoderFeedbackDetector_; }
 	/// Returns the bragg move retries detector.
 	AMBasicControlDetectorEmulator* braggMoveRetriesDetector() const { return braggMoveRetriesDetector_; }
-	/// Returns the bragg move max retries detector.
-	AMBasicControlDetectorEmulator* braggMoveRetriesMaxDetector() const { return braggMoveRetriesMaxDetector_; }
 	/// Returns the bragg step setpoint detector.
 	AMBasicControlDetectorEmulator* braggStepSetpointDetector() const { return braggStepSetpointDetector_; }
-	/// Returns the bragg degree setpoint detector.
-	AMBasicControlDetectorEmulator* braggDegreeSetpointDetector() const { return braggDegreeSetpointDetector_; }
-	/// Returns the physical bragg angle detector.
-	AMBasicControlDetectorEmulator* braggAngleDetector() const { return braggAngleDetector_; }
 	/// Returns the 32 element Ge detector.
 	BioXAS32ElementGeDetector *ge32ElementDetector() const { return ge32ElementDetector_; }
+	/// Returns the four element Vortex detector.
+	BioXASFourElementVortexDetector *fourElementVortexDetector() const { return fourElementVortexDetector_; }
 
 signals:
-	/// Notifier that the beamline's global connection state has changed.
-	void connected(bool);
 	/// Notifier that the pressure status has changed. Argument is false if any of the pressures fall below its setpoint, true otherwise.
 	void pressureStatusChanged(bool);
 	/// Notifier that the valve status has changed. Argument is false if any of the valves are closed, true otherwise.
@@ -246,8 +258,6 @@ signals:
 	void temperatureStatusChanged(bool);
 
 protected slots:
-	/// Updates the beamline's reported connection state.
-	void onConnectionChanged();
 	/// Sets up pressure control connections once the whole pressure set is connected.
 	void onPressureSetConnected(bool connected);
 	/// Handles pressure errors.
@@ -282,8 +292,8 @@ protected:
 	void setupDetectors();
 	/// Sets up the sample stage motors.
 	void setupSampleStage();
-	/// Sets up mono settings.
-	void setupMono();
+	/// Sets up the detector stage motors.
+	void setupDetectorStage();
 	/// Sets up various beamline components.
 	void setupComponents();
 	/// Sets up the exposed actions.
@@ -295,30 +305,33 @@ protected:
 	/// Sets up all of the detectors that need to be added to scans that aren't a part of typical detectors.  This may just be temporary, not sure.
 	void setupControlsAsDetectors();
 
+	// Temporarily makes the mirror controls available, until the branch that this work is being done in is merged. Then it should be safe to remove this!
+	void setupMirrorControls();
+
 	/// Constructor. This is a singleton class, access it through BioXASSideBeamline::bioXAS().
 	BioXASSideBeamline();
 
 protected:
-	/// The beamline connection state.
-	bool isConnected_;
-
 	// Detectors
 
 	CLSBasicScalerChannelDetector *i0Detector_;
-	CLSBasicScalerChannelDetector *iTDetector_;
+	CLSBasicScalerChannelDetector *i1Detector_;
 	CLSBasicScalerChannelDetector *i2Detector_;
+	AMBasicControlDetectorEmulator *energySetpointDetector_;
 	AMBasicControlDetectorEmulator *energyFeedbackDetector_;
 	AMBasicControlDetectorEmulator *dwellTimeDetector_;
+	AMBasicControlDetectorEmulator *braggDetector_;
 	AMBasicControlDetectorEmulator *braggMoveRetriesDetector_;
-	AMBasicControlDetectorEmulator *braggMoveRetriesMaxDetector_;
 	AMBasicControlDetectorEmulator *braggStepSetpointDetector_;
-	AMBasicControlDetectorEmulator *braggDegreeSetpointDetector_;
-	AMBasicControlDetectorEmulator *braggAngleDetector_;
+	AMBasicControlDetectorEmulator *braggEncoderFeedbackDetector_;
 	BioXAS32ElementGeDetector *ge32ElementDetector_;
+	BioXASFourElementVortexDetector *fourElementVortexDetector_;
 
-	// Monochromator
+	/// The JJ slits
+	CLSJJSlits *jjSlits_;
 
-	BioXASSideMonochromator *mono_;
+	// The mono.
+	BioXASSSRLMonochromator *mono_;
 
 	// Scaler
 
@@ -328,20 +341,21 @@ protected:
 	// Amplifiers
 
 	CLSKeithley428 *i0Keithley_;
-	CLSKeithley428 *iTKeithley_;
+	CLSKeithley428 *i1Keithley_;
 	CLSKeithley428 *i2Keithley_;
+
+	// Filters.
+
+	BioXASSideCarbonFilterFarm *carbonFilterFarm_;
+	BioXASSideXIAFilters *xiaFilters_;
+
+	// DBHR mirror.
+
+	BioXASSideDBHRMirror *dbhrMirror_;
 
 	// Misc controls
 
 	AMControl *energySetpointControl_;
-
-	// Shutter controls
-
-	CLSBiStateControl *psh1_;
-	CLSBiStateControl *psh2_;
-	CLSBiStateControl *ssh1_;
-
-	CLSBiStateControl *sshSide1_;
 
 	// Extras
 
@@ -441,11 +455,6 @@ protected:
 
 	AMControlSet *temperatureSet_;
 
-	// Filter motors
-
-	CLSMAXvMotor *carbonFilterFarm1_;
-	CLSMAXvMotor *carbonFilterFarm2_;
-
 	// M1 motors
 
 	CLSMAXvMotor *m1VertUpStreamINB_;
@@ -457,36 +466,18 @@ protected:
 	CLSMAXvMotor *m1BenderDownStream_;
 	CLSMAXvMotor *m1UpperSlitBlade_;
 
-	// Variable Mask motors
-
-	CLSMAXvMotor *variableMaskVertUpperBlade_;
-	CLSMAXvMotor *variableMaskVertLowerBlade_;
-
-	// M2 motors
-
-	CLSMAXvMotor *m2VertUpstreamINB_;
-	CLSMAXvMotor *m2VertUpstreamOUTB_;
-	CLSMAXvMotor *m2VertDownstream_;
-	CLSMAXvMotor *m2StripeSelect_;
-	CLSMAXvMotor *m2Yaw_;
-	CLSMAXvMotor *m2BenderUpstream_;
-	CLSMAXvMotor *m2BenderDownStream_;
-
-	/// BioXAS Pseudo motors
 	BioXASPseudoMotorControl *m1PseudoRoll_;
 	BioXASPseudoMotorControl *m1PseudoPitch_;
 	BioXASPseudoMotorControl *m1PseudoHeight_;
 	BioXASPseudoMotorControl *m1PseudoYaw_;
 	BioXASPseudoMotorControl *m1PseudoLateral_;
 
-	BioXASPseudoMotorControl *m2PseudoRoll_;
-	BioXASPseudoMotorControl *m2PseudoPitch_;
-	BioXASPseudoMotorControl *m2PseudoHeight_;
-	BioXASPseudoMotorControl *m2PseudoYaw_;
-	BioXASPseudoMotorControl *m2PseudoLateral_;
-
 	BioXASPseudoMotorControl *monoPseudoEnergy_;
 	AMPVwStatusControl *monoBraggAngle_;
+
+	/// Detector motors.
+
+	CLSMAXvMotor *detectorStageLateral_;
 };
 
 #endif // BIOXASSIDEBEAMLINE_H

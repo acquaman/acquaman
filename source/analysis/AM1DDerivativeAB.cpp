@@ -58,6 +58,14 @@ bool AM1DDerivativeAB::areInputDataSourcesAcceptable(const QList<AMDataSource*>&
 	return false;
 }
 
+void AM1DDerivativeAB::setAnalyzedName(const QString &name)
+{
+	analyzedName_ = name;
+	setModified(true);
+	canAnalyze_ = canAnalyze(name);
+	setInputSource();
+}
+
 void AM1DDerivativeAB::setInputDataSourcesImplementation(const QList<AMDataSource*>& dataSources)
 {
 	// disconnect connections from old source, if it exists.
@@ -107,14 +115,6 @@ void AM1DDerivativeAB::setInputDataSourcesImplementation(const QList<AMDataSourc
 	emitValuesChanged();
 	emitAxisInfoChanged(0);
 	emitInfoChanged();
-}
-
-void AM1DDerivativeAB::setAnalyzedName(const QString &name)
-{
-	analyzedName_ = name;
-	setModified(true);
-	canAnalyze_ = canAnalyze(name);
-	setInputSource();
 }
 
 void AM1DDerivativeAB::setInputSource()
@@ -182,6 +182,9 @@ AMNumber AM1DDerivativeAB::value(const AMnDIndex& indexes) const
 	if (!canAnalyze())
 		return AMNumber(AMNumber::InvalidError);
 
+	if (axes_.at(0).size == 1)
+		return AMNumber(AMNumber::DimensionError);
+
 #ifdef AM_ENABLE_BOUNDS_CHECKING
 		if((unsigned)indexes.i() >= (unsigned)axes_.at(0).size)
 			return AMNumber(AMNumber::OutOfBoundsError);
@@ -246,6 +249,9 @@ bool AM1DDerivativeAB::values(const AMnDIndex &indexStart, const AMnDIndex &inde
 	// Bools for knowing whether the indices we were given are at either extreme of the array.
 	bool veryStart = (offset == 0);
 	bool veryEnd = (totalSize == int(axes_.at(0).size));
+
+	if (totalSize == 1)
+		return false;
 
 	// Although substantially more code, I have split up each possibility so that it covers everything properly.  Perhaps later I'll find a code optimization.
 

@@ -45,61 +45,6 @@ bool AM3DAdditionAB::areInputDataSourcesAcceptable(const QList<AMDataSource*>& d
 	return true;
 }
 
-// Set the data source inputs.
-void AM3DAdditionAB::setInputDataSourcesImplementation(const QList<AMDataSource*>& dataSources)
-{
-	// disconnect connections from old sources, if they exist.
-	if(!sources_.isEmpty()) {
-
-		for (int i = 0; i < sources_.size(); i++){
-
-			disconnect(sources_.at(i)->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onInputSourceValuesChanged(AMnDIndex,AMnDIndex)));
-			disconnect(sources_.at(i)->signalSource(), SIGNAL(sizeChanged(int)), this, SLOT(onInputSourceSizeChanged()));
-			disconnect(sources_.at(i)->signalSource(), SIGNAL(stateChanged(int)), this, SLOT(onInputSourceStateChanged()));
-		}
-	}
-
-	if(dataSources.isEmpty()) {
-
-		sources_.clear();
-		axes_[0] = AMAxisInfo("invalid", 0, "No input data");
-		axes_[1] = AMAxisInfo("invalid", 0, "No input data");
-		axes_[2] = AMAxisInfo("invalid", 0, "No input data");
-
-		setDescription("-- No input data --");
-	}
-
-	// we know that this will only be called with valid input source
-	else {
-
-		sources_ = dataSources;
-
-		axes_[0] = sources_.at(0)->axisInfoAt(0);
-		axes_[1] = sources_.at(0)->axisInfoAt(1);
-		axes_[2] = sources_.at(0)->axisInfoAt(2);
-
-		setDescription(QString("Sum of spectra from %1 maps").arg(sources_.size()));
-
-		for (int i = 0; i < sources_.size(); i++){
-
-			connect(sources_.at(i)->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onInputSourceValuesChanged(AMnDIndex,AMnDIndex)));
-			connect(sources_.at(i)->signalSource(), SIGNAL(sizeChanged(int)), this, SLOT(onInputSourceSizeChanged()));
-			connect(sources_.at(i)->signalSource(), SIGNAL(stateChanged(int)), this, SLOT(onInputSourceStateChanged()));
-		}
-	}
-
-	reviewState();
-
-	emitSizeChanged(0);
-	emitSizeChanged(1);
-	emitSizeChanged(2);
-	emitValuesChanged();
-	emitAxisInfoChanged(0);
-	emitAxisInfoChanged(1);
-	emitAxisInfoChanged(2);
-	emitInfoChanged();
-}
-
 AMNumber AM3DAdditionAB::value(const AMnDIndex &indexes) const
 {
 	if(indexes.rank() != 3)
@@ -222,6 +167,61 @@ void AM3DAdditionAB::onInputSourceStateChanged()
 	// just in case the size has changed while the input source was invalid, and now it's going valid. Do we need this? probably not, if the input source is well behaved. But it's pretty inexpensive to do it twice... and we know we'll get the size right everytime it goes valid.
 	onInputSourceSizeChanged();
 	reviewState();
+}
+
+// Set the data source inputs.
+void AM3DAdditionAB::setInputDataSourcesImplementation(const QList<AMDataSource*>& dataSources)
+{
+	// disconnect connections from old sources, if they exist.
+	if(!sources_.isEmpty()) {
+
+		for (int i = 0; i < sources_.size(); i++){
+
+			disconnect(sources_.at(i)->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onInputSourceValuesChanged(AMnDIndex,AMnDIndex)));
+			disconnect(sources_.at(i)->signalSource(), SIGNAL(sizeChanged(int)), this, SLOT(onInputSourceSizeChanged()));
+			disconnect(sources_.at(i)->signalSource(), SIGNAL(stateChanged(int)), this, SLOT(onInputSourceStateChanged()));
+		}
+	}
+
+	if(dataSources.isEmpty()) {
+
+		sources_.clear();
+		axes_[0] = AMAxisInfo("invalid", 0, "No input data");
+		axes_[1] = AMAxisInfo("invalid", 0, "No input data");
+		axes_[2] = AMAxisInfo("invalid", 0, "No input data");
+
+		setDescription("-- No input data --");
+	}
+
+	// we know that this will only be called with valid input source
+	else {
+
+		sources_ = dataSources;
+
+		axes_[0] = sources_.at(0)->axisInfoAt(0);
+		axes_[1] = sources_.at(0)->axisInfoAt(1);
+		axes_[2] = sources_.at(0)->axisInfoAt(2);
+
+		setDescription(QString("Sum of spectra from %1 maps").arg(sources_.size()));
+
+		for (int i = 0; i < sources_.size(); i++){
+
+			connect(sources_.at(i)->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onInputSourceValuesChanged(AMnDIndex,AMnDIndex)));
+			connect(sources_.at(i)->signalSource(), SIGNAL(sizeChanged(int)), this, SLOT(onInputSourceSizeChanged()));
+			connect(sources_.at(i)->signalSource(), SIGNAL(stateChanged(int)), this, SLOT(onInputSourceStateChanged()));
+		}
+	}
+
+	reviewState();
+
+	emitSizeChanged(0);
+	emitSizeChanged(1);
+	emitSizeChanged(2);
+	emitValuesChanged();
+	emitAxisInfoChanged(0);
+	emitAxisInfoChanged(1);
+	emitAxisInfoChanged(2);
+	emitInfoChanged();
 }
 
 void AM3DAdditionAB::reviewState()

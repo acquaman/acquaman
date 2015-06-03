@@ -63,7 +63,7 @@ public:
 	virtual ~REIXSXESScanConfiguration();
 
 	/// The auto-generated scan name. Can be re-implemented to customize for each scan type.
-	virtual QString autoScanName() const { return "XES"; }
+	virtual QString autoScanName() const { return "XES Scan"; }
 
 	/// A human-readable description of this scan configuration. Used by scan action to set the title for the action view.
 	virtual QString description() const;

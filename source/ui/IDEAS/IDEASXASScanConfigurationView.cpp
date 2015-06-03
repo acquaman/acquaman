@@ -29,11 +29,12 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "acquaman/AMScanController.h"
 #include "beamline/IDEAS/IDEASBeamline.h"
+#include "util/AMEnergyToKSpaceCalculator.h"
+#include "util/AMPeriodicTable.h"
+#include "util/AMDateTimeUtils.h"
 #include "ui/AMTopFrame.h"
 #include "ui/dataman/AMEXAFSScanAxisView.h"
-#include "util/AMEnergyToKSpaceCalculator.h"
 #include "ui/util/AMPeriodicTableDialog.h"
-#include "util/AMPeriodicTable.h"
 
 
 IDEASXASScanConfigurationView::IDEASXASScanConfigurationView(IDEASXASScanConfiguration *configuration, QWidget *parent) :
@@ -107,7 +108,6 @@ IDEASXASScanConfigurationView::IDEASXASScanConfigurationView(IDEASXASScanConfigu
 	}
 
 	estimatedTime_ = new QLabel;
-	estimatedSetTime_ = new QLabel;
 	pointPerScan_ = new QLabel;
 	scanEnergyRange_ = new QLabel;
 	ROIsLabel_ = new QLabel;
@@ -134,17 +134,8 @@ IDEASXASScanConfigurationView::IDEASXASScanConfigurationView(IDEASXASScanConfigu
 	QFormLayout *detectorLayout = new QFormLayout;
 	detectorLayout->addRow("XRF:", fluorescenceDetectorComboBox_);
 
-	QSpinBox *numberOfScans = new QSpinBox;
-	numberOfScans->setMinimum(1);
-	numberOfScans->setValue(configuration_->numberOfScans());
-	numberOfScans->setAlignment(Qt::AlignCenter);
-	connect(numberOfScans, SIGNAL(valueChanged(int)), configuration_, SLOT(setNumberOfScans(int)));
-	connect(configuration_, SIGNAL(numberOfScansChanged(int)), this, SLOT(onEstimatedTimeChanged()));
-
 	QFormLayout *numberOfScansLayout = new QFormLayout;
-	numberOfScansLayout->addRow("Number of Scans:", numberOfScans);
 	numberOfScansLayout->addRow("Estimated time per scan:", estimatedTime_);
-	numberOfScansLayout->addRow("Estimated time for set:", estimatedSetTime_);
 	numberOfScansLayout->addRow("Energy point pers scan:", pointPerScan_);
 	numberOfScansLayout->addRow("Scan energy range:", scanEnergyRange_);
 	numberOfScansLayout->addRow("Selected XRF Detector Regions:", new QLabel(""));
@@ -329,8 +320,6 @@ void IDEASXASScanConfigurationView::onEdgeChanged()
 
 void IDEASXASScanConfigurationView::onEstimatedTimeChanged()
 {
-	QString timeString = "";
-
 	configuration_->blockSignals(true);
 	double time = configuration_->totalTime(true);
 	configuration_->blockSignals(false);
@@ -338,7 +327,6 @@ void IDEASXASScanConfigurationView::onEstimatedTimeChanged()
 	if (time < 0)
 	{
 		estimatedTime_->setText("WARNING!     SCAN CONFIGURATION IS INVALID     START OR QUEUE SCAN AT YOUR OWN RISK!     WARNING!");
-		estimatedSetTime_->setText("WARNING!     SCAN CONFIGURATION IS INVALID     START OR QUEUE SCAN AT YOUR OWN RISK!     WARNING!");
 		pointPerScan_->setText("WARNING!     SCAN CONFIGURATION IS INVALID     START OR QUEUE SCAN AT YOUR OWN RISK!     WARNING!");
 		scanEnergyRange_->setText("WARNING!     SCAN CONFIGURATION IS INVALID     START OR QUEUE SCAN AT YOUR OWN RISK!     WARNING!");
 		return;
@@ -347,70 +335,8 @@ void IDEASXASScanConfigurationView::onEstimatedTimeChanged()
 	pointPerScan_->setText(QString("%1").arg(configuration_->totalPoints()));
 	scanEnergyRange_->setText(QString("%1 eV - %2 eV").arg(configuration_->minEnergy()).arg(configuration_->maxEnergy()));
 
-	int days = int(time/3600.0/24.0);
-
-	if (days > 0){
-
-		time -= days*3600.0*24;
-		timeString += QString::number(days) + "d:";
-	}
-
-	int hours = int(time/3600.0);
-
-	if (hours > 0){
-
-		time -= hours*3600;
-		timeString += QString::number(hours) + "h:";
-	}
-
-	int minutes = int(time/60.0);
-
-	if (minutes > 0){
-
-		time -= minutes*60;
-		timeString += QString::number(minutes) + "m:";
-	}
-
-	int seconds = ((int)time)%60;
-	timeString += QString::number(seconds) + "s";
-
+	QString timeString = AMDateTimeUtils::convertTimeToString(time);
 	estimatedTime_->setText(timeString);
-
-
-
-
-	time = configuration_->totalTime()*configuration_->numberOfScans();
-	timeString = "";
-
-	days = int(time/3600.0/24.0);
-
-	if (days > 0){
-
-		time -= days*3600.0*24;
-		timeString += QString::number(days) + "d:";
-	}
-
-	hours = int(time/3600.0);
-
-	if (hours > 0){
-
-		time -= hours*3600;
-		timeString += QString::number(hours) + "h:";
-	}
-
-	minutes = int(time/60.0);
-
-	if (minutes > 0){
-
-		time -= minutes*60;
-		timeString += QString::number(minutes) + "m:";
-	}
-
-	seconds = ((int)time)%60;
-	timeString += QString::number(seconds) + "s";
-
-	estimatedSetTime_->setText(timeString);
-
 }
 
 void IDEASXASScanConfigurationView::onROIChange()

@@ -68,6 +68,9 @@ protected:
 	/// Implementation method that individual applications can flesh out if extra cleanup is required when a scan action finishes.  This is not pure virtual because there is no requirement to do anything to scan actions.
 	virtual void onCurrentScanActionFinishedImplementation(AMScanAction *action);
 
+	/// Sets up all of the exporter options for the various scan types.
+	void setupExporterOptions();
+
 	REIXSXESScanConfigurationDetailedView* xesScanConfigurationView_;
 
 };

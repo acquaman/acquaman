@@ -24,6 +24,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/AMCurrentAmplifier.h"
 #include "actions3/AMActionSupport.h"
 #include "actions3/actions/AMControlWaitAction.h"
+#include "util/AMErrorMonitor.h"
 
 #include <QStringBuilder>
 
@@ -199,13 +200,15 @@ AMAction3* CLSSIS3820Scaler::createContinuousEnableAction3(bool enableContinuous
 	return action;
 }
 
-AMAction3* CLSSIS3820Scaler::createDwellTimeAction3(double dwellTime) {
+AMAction3* CLSSIS3820Scaler::createDwellTimeAction3(double dwellTime)
+{
 	if(!isConnected())
 		return 0; //NULL
 
-	AMAction3 *action = AMActionSupport::buildControlMoveAction(dwellTime_, dwellTime*1000);
-	if(!action)
-		return 0; //NULL
+	AMAction3 *action = 0;
+
+	if (!dwellTime_->withinTolerance(dwellTime * 1000))
+		action = AMActionSupport::buildControlMoveAction(dwellTime_, dwellTime*1000);
 
 	return action;
 }
@@ -251,7 +254,6 @@ AMAction3* CLSSIS3820Scaler::createWaitForDwellFinishedAction(double timeoutTime
 
 AMAction3* CLSSIS3820Scaler::createMeasureDarkCurrentAction(int secondsDwell)
 {
-	qDebug() << "Scaler creating dark current measurement for " << secondsDwell << "seconds.";
 	return new CLSSIS3820ScalerDarkCurrentMeasurementAction(new CLSSIS3820ScalerDarkCurrentMeasurementActionInfo(secondsDwell));
 }
 
@@ -283,7 +285,6 @@ void CLSSIS3820Scaler::setDwellTime(double dwellTime){
 
 	if(!isConnected())
 		return;
-
 	if(!dwellTime_->withinTolerance(dwellTime*1000))
 		dwellTime_->move(dwellTime*1000);
 }
@@ -324,12 +325,7 @@ void CLSSIS3820Scaler::onScanningToggleChanged(){
 	if(!isConnected())
 		return;
 
-	if(startToggle_->withinTolerance(1))
-		emit scanningChanged(true);
-
-	else{
-		emit scanningChanged(false);
-	}
+	emit scanningChanged(startToggle_->withinTolerance(1));
 }
 
 void CLSSIS3820Scaler::onContinuousToggleChanged(){
@@ -337,11 +333,7 @@ void CLSSIS3820Scaler::onContinuousToggleChanged(){
 	if(!isConnected())
 		return;
 
-	if(continuousToggle_->withinTolerance(1))
-		emit continuousChanged(true);
-
-	else
-		emit continuousChanged(false);
+	emit continuousChanged(continuousToggle_->withinTolerance(1));
 }
 
 void CLSSIS3820Scaler::onDwellTimeChanged(double time)
@@ -448,6 +440,7 @@ bool CLSSIS3820Scaler::triggerScalerAcquisition(bool isContinuous)
 	}
 
 	connect(triggerChannelMapper_, SIGNAL(mapped(int)), this, SLOT(onChannelReadingChanged(int)));
+	connect(startToggle_, SIGNAL(valueChanged(double)), this, SLOT(triggerAcquisitionFinished()));
 
 	setScanning(true);
 	return true;
@@ -473,17 +466,25 @@ void CLSSIS3820Scaler::onChannelReadingChanged(int channelIndex)
 		triggerChannelMapper_->removeMappings(channelAt(channelIndex));
 	}
 
-	if(triggerSourceTriggered_ && waitingChannels_.count() == 0){
+	triggerAcquisitionFinished();
+}
+
+void CLSSIS3820Scaler::triggerAcquisitionFinished()
+{
+	if(triggerSourceTriggered_ && waitingChannels_.count() == 0 && !isScanning()){
 
 		triggerSourceTriggered_ = false;
 		disconnect(triggerChannelMapper_, SIGNAL(mapped(int)), this, SLOT(onChannelReadingChanged(int)));
+		disconnect(startToggle_, SIGNAL(valueChanged(double)), this, SLOT(triggerAcquisitionFinished()));
 		triggerSource_->setSucceeded();
 	}
 }
 
 void CLSSIS3820Scaler::onDwellTimeSourceSetDwellTime(double dwellSeconds){
+
 	if(!isConnected() || isScanning()){
-		// NEM March 24th, 2014
+
+		AMErrorMon::alert(this, CLSSIS3820SCALER_NOT_CONNECTED_OR_IS_SCANNING, QString("Scaler is either not connected (%1) or is scanning (%2) with a requested dwell time %3.\n").arg(!isConnected()).arg(isScanning()).arg(dwellSeconds));
 		return;
 	}
 

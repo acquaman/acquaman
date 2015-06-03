@@ -23,39 +23,57 @@ namespace SXRMB {
 	#define ERR_SXRMB_XRF_DETECTOR_NOT_CONNECTED 290201 //XRF detector not initialized
 	#define ERR_SXRMB_XRF_DETECTOR_SCAN_NOT_EXIST 290201 //XRF detector failed to create scan for exporting
 
-	/// Helper method that takes a time in seconds and returns a string of d:h:m:s.
-	inline QString convertTimeToString(double time)
+	/// Enum for the different endstations.
+	/*!
+	  - Solid State is the in-vacuum XAS endstation.
+	  - Ambiant is the ambiant XAS endstation.
+	  - Microprobe is for the microprobe mapping and XAS endstation.
+	  */
+	enum Endstation
 	{
-		QString timeString;
+		InvalidEndstation = 0,
+		SolidState,
+		AmbiantWithGasChamber,
+		AmbiantWithoutGasChamber,
+		Microprobe
+	};
 
-		int days = int(time/3600.0/24.0);
+	/// Enum for making the decision on what fluorescence detector the user wants to use.
+	enum FluorescenceDetector
+	{
+		NoXRF = 0,
+		Bruker = 1,
+		FourElement = 2
+	};
+	Q_DECLARE_FLAGS(FluorescenceDetectors, FluorescenceDetector)
 
-		if (days > 0){
+	/// Helper to convert SXRMB Endstation ID to endstation Name
+	inline QString sxrmbEndstationName(Endstation id) {
+		QString name;
 
-			time -= days*3600.0*24;
-			timeString += QString::number(days) + "d:";
+		switch (id)
+		{
+		case SolidState:
+			name = "Solid State";
+			break;
+
+		case AmbiantWithGasChamber:
+			name = "Ambiant with Gas Chamber";
+			break;
+
+		case AmbiantWithoutGasChamber:
+			name = "Ambiant without Gas Chamber";
+			break;
+
+		case Microprobe:
+			name = "Microprobe";
+			break;
+
+		default:
+			name = "Invalid Endstation ID";
 		}
 
-		int hours = int(time/3600.0);
-
-		if (hours > 0){
-
-			time -= hours*3600;
-			timeString += QString::number(hours) + "h:";
-		}
-
-		int minutes = int(time/60.0);
-
-		if (minutes > 0){
-
-			time -= minutes*60;
-			timeString += QString::number(minutes) + "m:";
-		}
-
-		int seconds = ((int)time)%60;
-		timeString += QString::number(seconds) + "s";
-
-		return timeString;
+		return name;
 	}
 
 	/// Builds the standard exporter option used for all exported scans.
@@ -141,5 +159,7 @@ namespace SXRMB {
 		return pathParts.at(index);
 	}
 }
+
+Q_DECLARE_OPERATORS_FOR_FLAGS(SXRMB::FluorescenceDetectors)
 
 #endif // SXRMB_H

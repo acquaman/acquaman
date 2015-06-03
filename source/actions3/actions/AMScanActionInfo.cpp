@@ -101,7 +101,11 @@ AMScanConfiguration *AMScanActionInfo::configuration()
 }
 
 QString AMScanActionInfo::dbLoadWarnings() const{
-	return configuration()->dbLoadWarnings();
+	if(configuration()) {
+		return configuration()->dbLoadWarnings();
+	} else {
+		return QString("An unknown error occured loading the scan configuration");
+	}
 }
 
 AMDbObject* AMScanActionInfo::dbGetConfig() const{
