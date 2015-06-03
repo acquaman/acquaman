@@ -94,9 +94,9 @@ AMScanConfigurationView* SGMXASScanConfiguration::createView(){
 }
 
 QString SGMXASScanConfiguration::detailedDescription() const{
-	double exitSlit;
-	double grating;
-	double harmonic;
+	double exitSlit = 0;
+	double grating = 0;
+	double harmonic = 0;
 	for(int x = 0; x < fluxResolutionGroup_.count(); x++){
 		if(fluxResolutionGroup_.at(x).name() == SGMBeamline::sgm()->exitSlitGap()->name())
 			exitSlit = fluxResolutionGroup_.at(x).value();

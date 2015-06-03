@@ -1,35 +1,22 @@
 #include "BioXASCarbonFilterFarmActuatorControl.h"
+#include "beamline/BioXAS/BioXASCarbonFilterFarm.h"
 #include "util/AMErrorMonitor.h"
 
-BioXASCarbonFilterFarmActuatorControl::BioXASCarbonFilterFarmActuatorControl(QString name, QObject *parent) :
-	AMCompositeControl("BioXASCarbonFilterFarmActuatorControl", QString(), parent, "BioXAS Carbon Filter Farm Actuator Control")
+BioXASCarbonFilterFarmActuatorControl::BioXASCarbonFilterFarmActuatorControl(AMControl *positionControl, AMControl *statusControl, QObject *parent) :
+	AMPseudoMotorControl("BioXASCarbonFilterFarmActuatorControl", QString(), parent, "BioXAS Carbon Filter Farm Actuator Control")
 {
 	// Initialize local variables.
 
-	value_ = Window::Invalid;
-	setpoint_ = Window::Invalid;
-	moveInProgress_ = false;
-
-	position_ = new AMPVControl("Carbon Filter Farm Actuator Position Control", name+":mm:fbk", name+":mm", name+":stop", this, 0.001);
-	connect( position_, SIGNAL(valueChanged(double)), this, SLOT(updateWindow()) );
-	addChildControl(position_);
-
-	status_ = new AMReadOnlyPVControl("Carbon Filter Farm Actuator Status Control", name+":inPosition", this);
-	addChildControl(status_);
-
-	cancelledMapper_ = new QSignalMapper(this);
-	connect( cancelledMapper_, SIGNAL(mapped(QObject*)), this, SLOT(onMoveCancelled(QObject*)) );
-
-	failedMapper_ = new QSignalMapper(this);
-	connect( failedMapper_, SIGNAL(mapped(QObject*)), this, SLOT(onMoveFailed(QObject*)) );
-
-	succeededMapper_ = new QSignalMapper(this);
-	connect( succeededMapper_, SIGNAL(mapped(QObject*)), this, SLOT(onMoveSucceeded(QObject*)) );
+	position_ = 0;
+	status_ = 0;
 
 	// Initialize inherited variables.
 
-	setEnumStates(QStringList() << windowToString(Window::Invalid) << windowToString(Window::None) << windowToString(Window::Bottom) << windowToString(Window::Top));
-	setMoveEnumStates(QStringList() << windowToString(Window::None) << windowToString(Window::Bottom) << windowToString(Window::Top));
+	value_ = BioXASCarbonFilterFarm::Window::Invalid;
+	setpoint_ = BioXASCarbonFilterFarm::Window::Invalid;
+
+	setEnumStates(QStringList() << windowToString(BioXASCarbonFilterFarm::Window::Invalid) << windowToString(BioXASCarbonFilterFarm::Window::None) << windowToString(BioXASCarbonFilterFarm::Window::Bottom) << windowToString(BioXASCarbonFilterFarm::Window::Top));
+	setMoveEnumStates(QStringList() << windowToString(BioXASCarbonFilterFarm::Window::None) << windowToString(BioXASCarbonFilterFarm::Window::Bottom) << windowToString(BioXASCarbonFilterFarm::Window::Top));
 	setAllowsMovesWhileMoving(false);
 	setContextKnownDescription("Filter Farm Actuator Control");
 
@@ -41,7 +28,10 @@ BioXASCarbonFilterFarmActuatorControl::BioXASCarbonFilterFarmActuatorControl(QSt
 
 	// Current settings.
 
-	updateWindow();
+	setPositionControl(positionControl);
+	setStatusControl(statusControl);
+
+	updateValue();
 }
 
 BioXASCarbonFilterFarmActuatorControl::~BioXASCarbonFilterFarmActuatorControl()
@@ -49,23 +39,58 @@ BioXASCarbonFilterFarmActuatorControl::~BioXASCarbonFilterFarmActuatorControl()
 
 }
 
+double BioXASCarbonFilterFarmActuatorControl::minimumValue() const
+{
+	return BioXASCarbonFilterFarm::Window::Invalid;
+}
+
+double BioXASCarbonFilterFarmActuatorControl::maximumValue() const
+{
+	return BioXASCarbonFilterFarm::Window::Top;
+}
+
+bool BioXASCarbonFilterFarmActuatorControl::canMeasure() const
+{
+	bool result = false;
+
+	if (isConnected())
+		result = position_->canMeasure();
+
+	return result;
+}
+
+bool BioXASCarbonFilterFarmActuatorControl::canMove() const
+{
+	bool result = false;
+
+	if (isConnected())
+		result = position_->canMove();
+
+	return result;
+}
+
 bool BioXASCarbonFilterFarmActuatorControl::canStop() const
 {
-	return isConnected() && position_->canStop();
+	bool result = false;
+
+	if (isConnected())
+		result = position_->canStop();
+
+	return result;
 }
 
-bool BioXASCarbonFilterFarmActuatorControl::validWindow(double value)
+bool BioXASCarbonFilterFarmActuatorControl::validValue(double value) const
 {
 	bool result = false;
 
 	switch ((int)value) {
-	case Window::None:
+	case BioXASCarbonFilterFarm::Window::None:
 		result = true;
 		break;
-	case Window::Bottom:
+	case BioXASCarbonFilterFarm::Window::Bottom:
 		result = true;
 		break;
-	case Window::Top:
+	case BioXASCarbonFilterFarm::Window::Top:
 		result = true;
 		break;
 	default:
@@ -75,18 +100,18 @@ bool BioXASCarbonFilterFarmActuatorControl::validWindow(double value)
 	return result;
 }
 
-bool BioXASCarbonFilterFarmActuatorControl::validWindowSetpoint(double value)
+bool BioXASCarbonFilterFarmActuatorControl::validSetpoint(double value) const
 {
 	bool result = false;
 
 	switch ((int)value) {
-	case Window::None:
+	case BioXASCarbonFilterFarm::Window::None:
 		result = true;
 		break;
-	case Window::Bottom:
+	case BioXASCarbonFilterFarm::Window::Bottom:
 		result = true;
 		break;
-	case Window::Top:
+	case BioXASCarbonFilterFarm::Window::Top:
 		result = true;
 		break;
 	default:
@@ -96,18 +121,18 @@ bool BioXASCarbonFilterFarmActuatorControl::validWindowSetpoint(double value)
 	return result;
 }
 
-QString BioXASCarbonFilterFarmActuatorControl::windowToString(Window::Selection value)
+QString BioXASCarbonFilterFarmActuatorControl::windowToString(double value)
 {
 	QString result = QString();
 
-	switch (value) {
-	case Window::None:
+	switch ((int)value) {
+	case BioXASCarbonFilterFarm::Window::None:
 		result = "None";
 		break;
-	case Window::Bottom:
+	case BioXASCarbonFilterFarm::Window::Bottom:
 		result = "Bottom";
 		break;
-	case Window::Top:
+	case BioXASCarbonFilterFarm::Window::Top:
 		result = "Top";
 		break;
 	default:
@@ -118,203 +143,110 @@ QString BioXASCarbonFilterFarmActuatorControl::windowToString(Window::Selection 
 	return result;
 }
 
-BioXASCarbonFilterFarmActuatorControl::Window::Selection BioXASCarbonFilterFarmActuatorControl::stringToWindow(const QString &string)
+double BioXASCarbonFilterFarmActuatorControl::stringToWindow(const QString &string)
 {
-	Window::Selection result = Window::Invalid;
+	double result = BioXASCarbonFilterFarm::Window::Invalid;
 
 	if (string == "None")
-		result = Window::None;
+		result = BioXASCarbonFilterFarm::Window::None;
 	else if (string == "Bottom")
-		result = Window::Bottom;
+		result = BioXASCarbonFilterFarm::Window::Bottom;
 	else if (string == "Top")
-		result = Window::Top;
+		result = BioXASCarbonFilterFarm::Window::Top;
 
 	return result;
 }
 
-BioXASCarbonFilterFarmActuatorControl::Window::Selection BioXASCarbonFilterFarmActuatorControl::window(double index)
+double BioXASCarbonFilterFarmActuatorControl::windowAtPosition(double position) const
 {
-	Window::Selection result = Window::Invalid;
-
-	switch ((int)index) {
-	case Window::None:
-		result = Window::None;
-		break;
-	case Window::Bottom:
-		result = Window::Bottom;
-		break;
-	case Window::Top:
-		result = Window::Top;
-		break;
-	default:
-		break;
-	}
-
-	return result;
+	return positionMap_.key(position, BioXASCarbonFilterFarm::Window::Invalid);
 }
 
-BioXASCarbonFilterFarmActuatorControl::Window::Selection BioXASCarbonFilterFarmActuatorControl::windowAtPosition(double position) const
-{
-	return positionMap_.key(position, Window::Invalid);
-}
-
-double BioXASCarbonFilterFarmActuatorControl::positionOfWindow(Window::Selection window) const
+double BioXASCarbonFilterFarmActuatorControl::positionOfWindow(double window) const
 {
 	return positionMap_.value(window, 0);
 }
 
-AMControl::FailureExplanation BioXASCarbonFilterFarmActuatorControl::move(double setpoint)
-{
-	// Check that the control is ready to move and the setpoint is valid.
-
-	if (!isConnected()) {
-		AMErrorMon::alert(this, BIOXAS_FILTER_FARM_ACTUATOR_NOT_CONNECTED, "Failed to move carbon filter farm actuator: the arm is not connected.");
-		return AMControl::NotConnectedFailure;
-	}
-
-	if (isMoving()) {
-		AMErrorMon::alert(this, BIOXAS_FILTER_FARM_ACTUATOR_ALREADY_MOVING, "Failed to move carbon filter farm actuator: the arm is already moving.");
-		return AMControl::AlreadyMovingFailure;
-	}
-
-	if (!validWindowSetpoint(setpoint)) {
-		AMErrorMon::alert(this, BIOXAS_FILTER_FARM_ACTUATOR_INVALID_SETPOINT, "Failed to move carbon filter farm actuator: invalid setpoint specified.");
-		return AMControl::LimitFailure;
-	}
-
-	// Update the setpoint.
-
-	setWindowSetpoint(setpoint);
-
-	// Create an action that moves the actuator to the desired window, and checks that the final position is okay.
-
-	AMAction3 *moveAction = createMoveAction(setpoint_);
-
-	if (!moveAction) {
-		AMErrorMon::alert(this, BIOXAS_FILTER_FARM_ACTUATOR_MOVE_FAILED, "Failed to move the carbon filter farm actuator.");
-		return AMControl::LimitFailure;
-	}
-
-	// Create move action signal mappings.
-
-	connect( moveAction, SIGNAL(started()), this, SLOT(onMoveStarted()) );
-
-	cancelledMapper_->setMapping(moveAction, moveAction);
-	connect( moveAction, SIGNAL(cancelled()), cancelledMapper_, SLOT(map()) );
-
-	failedMapper_->setMapping(moveAction, moveAction);
-	connect( moveAction, SIGNAL(failed()), failedMapper_, SLOT(map()) );
-
-	succeededMapper_->setMapping(moveAction, moveAction);
-	connect( moveAction, SIGNAL(succeeded()), succeededMapper_, SLOT(map()) );
-
-	// Run action.
-
-	moveAction->start();
-
-	return AMControl::NoFailure;
-}
-
-void BioXASCarbonFilterFarmActuatorControl::setWindowPosition(Window::Selection window, double position)
+void BioXASCarbonFilterFarmActuatorControl::setWindowPosition(double window, double position)
 {
 	positionMap_.insert(window, position);
 }
 
-void BioXASCarbonFilterFarmActuatorControl::setWindow(double newWindow)
+void BioXASCarbonFilterFarmActuatorControl::setPositionControl(AMControl *newControl)
 {
-	if (value_ != newWindow) {
-		value_ = newWindow;
-		emit valueChanged(value_);
+	if (position_ != newControl) {
+
+		if (position_) {
+			removeChildControl(position_);
+		}
+
+		position_ = newControl;
+
+		if (position_) {
+			addChildControl(position_);
+		}
 	}
 }
 
-void BioXASCarbonFilterFarmActuatorControl::setWindowSetpoint(double newWindow)
+void BioXASCarbonFilterFarmActuatorControl::setStatusControl(AMControl *newControl)
 {
-	if (setpoint_ != newWindow) {
-		setpoint_ = newWindow;
-		emit setpointChanged(setpoint_);
+	if (status_ != newControl) {
+
+		if (status_) {
+			removeChildControl(status_);
+		}
+
+		status_ = newControl;
+
+		if (status_) {
+			addChildControl(status_);
+		}
 	}
 }
 
-void BioXASCarbonFilterFarmActuatorControl::setMoveInProgress(bool isMoving)
+void BioXASCarbonFilterFarmActuatorControl::updateConnected()
 {
-	if (moveInProgress_ != isMoving) {
-		moveInProgress_ = isMoving;
-		emit movingChanged(moveInProgress_);
+	bool isConnected = (
+				position_ && position_->isConnected() &&
+				status_ && status_->isConnected()
+				);
 
-		if (moveInProgress_)
-			emit moveStarted();
-	}
+	setConnected(isConnected);
 }
 
-void BioXASCarbonFilterFarmActuatorControl::onMoveStarted()
-{
-	setMoveInProgress(true);
-}
-
-void BioXASCarbonFilterFarmActuatorControl::onMoveCancelled(QObject *action)
-{
-	moveCleanup(action);
-	emit moveFailed(AMControl::WasStoppedFailure);
-}
-
-void BioXASCarbonFilterFarmActuatorControl::onMoveFailed(QObject *action)
-{
-	moveCleanup(action);
-	emit moveFailed(AMControl::OtherFailure);
-}
-
-void BioXASCarbonFilterFarmActuatorControl::onMoveSucceeded(QObject *action)
-{
-	moveCleanup(action);
-	emit moveSucceeded();
-}
-
-void BioXASCarbonFilterFarmActuatorControl::updateWindow()
+void BioXASCarbonFilterFarmActuatorControl::updateValue()
 {
 	if (isConnected()) {
-		setWindow( windowAtPosition(position_->value()) );
+		setValue( windowAtPosition(position_->value()) );
 
 	} else {
-		setWindow(Window::Invalid);
+		setValue(BioXASCarbonFilterFarm::Window::Invalid);
 	}
 }
 
-AMAction3* BioXASCarbonFilterFarmActuatorControl::createMoveAction(double setpoint)
+void BioXASCarbonFilterFarmActuatorControl::updateIsMoving()
+{
+	if (isConnected()) {
+		setIsMoving(position_->isMoving());
+	}
+}
+
+AMAction3* BioXASCarbonFilterFarmActuatorControl::createMoveAction(double windowSetpoint)
 {
 	AMListAction3 *action = 0;
 
-	bool setpointOkay = validWindowSetpoint(setpoint);
+	if (isConnected() && validSetpoint(windowSetpoint)) {
 
-	if (isConnected() && setpointOkay) {
-		Window::Selection windowSetpoint = window(setpoint);
-		bool mappingOkay = positionMap_.contains(windowSetpoint);
-
-		if (mappingOkay) {
+		if (positionMap_.contains(windowSetpoint)) {
 			action = new AMListAction3(new AMListActionInfo3("Move BioXAS Carbon Filter Farm Actuator", "Move BioXAS Carbon Filter Farm Actuator"), AMListAction3::Sequential);
 
 			AMAction3 *move = AMActionSupport::buildControlMoveAction(position_, positionOfWindow(windowSetpoint));
 			action->addSubAction(move);
 
-			AMAction3 *check = AMActionSupport::buildControlWaitAction(status_, Position::Valid, TIMEOUT_MOVE);
+			AMAction3 *check = AMActionSupport::buildControlWaitAction(status_, BioXASCarbonFilterFarm::Position::Valid, TIMEOUT_MOVE);
 			action->addSubAction(check);
 		}
 	}
 
 	return action;
-}
-
-void BioXASCarbonFilterFarmActuatorControl::moveCleanup(QObject *action)
-{
-	if (action) {
-		setMoveInProgress(false);
-
-		action->disconnect();
-
-		cancelledMapper_->removeMappings(action);
-		failedMapper_->removeMappings(action);
-		succeededMapper_->removeMappings(action);
-
-		action->deleteLater();
-	}
 }

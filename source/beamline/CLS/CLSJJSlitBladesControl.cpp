@@ -1,16 +1,23 @@
 #include "CLSJJSlitBladesControl.h"
 
 #include "util/AMErrorMonitor.h"
+#include <QDebug>
 
-CLSJJSlitBladesControl::CLSJJSlitBladesControl(const QString &name, AMControl *upperBladeControl, AMControl *lowerBladeControl, QObject *parent, const QString &units, const QString &description, double tolerance) :
-	AMCompositeControl(name, units, parent, description)
+CLSJJSlitBladesControl::CLSJJSlitBladesControl(const QString &name, AMControl *upperBladeControl, AMControl *lowerBladeControl, QObject *parent) :
+	AMPseudoMotorControl(name, "mm", parent)
 {
-	// Initialize member variables.
+	// Initialize inherited variables.
 
-	connected_ = false;
 	value_ = 0.0;
 	setpoint_ = 0.0;
-	moveInProgress_ = false;
+	minimumValue_ = CLSJJSLITBLADESCONTROL_VALUE_MIN;
+	maximumValue_ = CLSJJSLITBLADESCONTROL_VALUE_MAX;
+
+	setAllowsMovesWhileMoving(false);
+	setTolerance(0.005);
+	setDisplayPrecision(2);
+
+	// Initialize local variables.
 
 	gap_ = 0.0;
 	centerPosition_ = 0.0;
@@ -18,20 +25,10 @@ CLSJJSlitBladesControl::CLSJJSlitBladesControl(const QString &name, AMControl *u
 	upperBladeControl_ = 0;
 	lowerBladeControl_ = 0;
 
-	moveCancelled_ = new QSignalMapper(this);
-	connect( moveCancelled_, SIGNAL(mapped(QObject*)), this, SLOT(onMoveCancelled(QObject*)) );
+	// Make connections.
 
-	moveFailed_ = new QSignalMapper(this);
-	connect( moveFailed_, SIGNAL(mapped(QObject*)), this, SLOT(onMoveFailed(QObject*)) );
-
-	moveSucceeded_ = new QSignalMapper(this);
-	connect( moveSucceeded_, SIGNAL(mapped(QObject*)), this, SLOT(onMoveSucceeded(QObject*)) );
-
-	// Initialize inherited variables.
-
-	setAllowsMovesWhileMoving(false);
-	setDisplayPrecision(2);
-	setTolerance(tolerance);
+	connect( this, SIGNAL(valueChanged(double)), this, SLOT(updateMinimumValue()) );
+	connect( this, SIGNAL(valueChanged(double)), this, SLOT(updateMaximumValue()) );
 
 	// Current settings.
 
@@ -44,90 +41,52 @@ CLSJJSlitBladesControl::~CLSJJSlitBladesControl()
 
 }
 
+bool CLSJJSlitBladesControl::canMeasure() const
+{
+	bool result = false;
+
+	if (isConnected())
+		result = (upperBladeControl_->canMeasure() && lowerBladeControl_->canMeasure());
+
+	return result;
+}
+
 bool CLSJJSlitBladesControl::canMove() const
 {
-	bool result = (!isMoving() && isConnected() && upperBladeControl_->canMove() && lowerBladeControl_->canMove());
+	bool result = false;
+
+	if (isConnected())
+		result = (upperBladeControl_->canMove() && lowerBladeControl_->canMove());
 
 	return result;
 }
 
 bool CLSJJSlitBladesControl::canStop() const
 {
-	bool result = (isConnected() && upperBladeControl_->canStop() && lowerBladeControl_->canStop());
+	bool result = false;
+
+	if (isConnected())
+		result = (upperBladeControl_->canStop() && lowerBladeControl_->canStop());
 
 	return result;
 }
 
-AMControl::FailureExplanation CLSJJSlitBladesControl::move(double setpoint)
-{
-	if (!isConnected()) {
-		AMErrorMon::error(this, CLSJJSLITSCONTROL_NOT_CONNECTED, "JJ slits not connected. Cannot complete move as requested.");
-		return AMControl::NotConnectedFailure;
-	}
-
-	if (isMoving()) {
-		AMErrorMon::error(this, CLSJJSLITSCONTROL_ALREADY_MOVING, "JJ slits already moving. Cannot start a new move until old one is complete.");
-		return AMControl::AlreadyMovingFailure;
-	}
-
-	if (!canMove()) {
-		AMErrorMon::error(this, CLSJJSLITSCONTROL_CANNOT_MOVE, "JJ slits cannot move. Child controls may be set improperly or unable to move themselves.");
-		return AMControl::LimitFailure;
-	}
-
-	// Identify the current gap and center position.
-
-	updateGap();
-	updateCenterPosition();
-
-	// Update the saved setpoint value.
-
-	setSetpoint(setpoint);
-
-	// Create move action.
-
-	AMAction3 *moveAction = createMoveAction(setpoint);
-
-	if (!moveAction) {
-		AMErrorMon::error(this, CLSJJSLITSCONTROL_INVALID_ACTION, "JJ slits cannot move. An invalid move action was generated.");
-		return AMControl::LimitFailure;
-	}
-
-	// Create signal mappings for this action.
-
-	connect( moveAction, SIGNAL(started()), this, SLOT(onMoveStarted()) );
-
-	moveCancelled_->setMapping(moveAction, moveAction);
-	connect( moveAction, SIGNAL(cancelled()), moveCancelled_, SLOT(map()) );
-
-	moveFailed_->setMapping(moveAction, moveAction);
-	connect( moveAction, SIGNAL(failed()), moveFailed_, SLOT(map()) );
-
-	moveSucceeded_->setMapping(moveAction, moveAction);
-	connect( moveAction, SIGNAL(succeeded()), moveSucceeded_, SLOT(map()) );
-
-	// Run action.
-
-	moveAction->start();
-
-	return AMControl::NoFailure;
-}
-
-bool CLSJJSlitBladesControl::stop()
+bool CLSJJSlitBladesControl::validValue(double value) const
 {
 	bool result = false;
 
-	if (!canStop()) {
-		AMErrorMon::error(this, CLSJJSLITSCONTROL_CANNOT_STOP, "JJ slits cannot stop.");
-		result = false;
+	if (value >= minimumValue() && value <= maximumValue())
+		result = true;
 
-	} else {
+	return result;
+}
 
-		bool upperStop = upperBladeControl_->stop();
-		bool lowerStop = lowerBladeControl_->stop();
+bool CLSJJSlitBladesControl::validSetpoint(double value) const
+{
+	bool result = false;
 
-		result = (upperStop && lowerStop);
-	}
+	if (value >= minimumValue() && value <= maximumValue())
+		result = true;
 
 	return result;
 }
@@ -136,23 +95,15 @@ void CLSJJSlitBladesControl::setUpperBladeControl(AMControl *newControl)
 {
 	if (upperBladeControl_ != newControl) {
 
-		if (upperBladeControl_) {
-			disconnect( upperBladeControl_, 0, this, 0 );
-			children_.removeOne(upperBladeControl_);
-		}
+		if (upperBladeControl_)
+			removeChildControl(upperBladeControl_);
 
 		upperBladeControl_ = newControl;
 
-		if (upperBladeControl_) {
+		if (upperBladeControl_)
 			addChildControl(upperBladeControl_);
 
-			connect( upperBladeControl_, SIGNAL(valueChanged(double)), this, SLOT(updateValue()) );
-			connect( upperBladeControl_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
-			connect( upperBladeControl_, SIGNAL(alarmChanged(int,int)), this, SIGNAL(alarmChanged(int,int)) );
-			connect( upperBladeControl_, SIGNAL(error(int)), this, SIGNAL(error(int)) );
-		}
-
-		updateControlStates();
+		updateStates();
 
 		emit upperBladeControlChanged(upperBladeControl_);
 	}
@@ -162,57 +113,17 @@ void CLSJJSlitBladesControl::setLowerBladeControl(AMControl *newControl)
 {
 	if (lowerBladeControl_ != newControl) {
 
-		if (lowerBladeControl_) {
-			disconnect( lowerBladeControl_, 0, this, 0 );
-			children_.removeOne(lowerBladeControl_);
-		}
+		if (lowerBladeControl_)
+			removeChildControl(lowerBladeControl_);
 
 		lowerBladeControl_ = newControl;
 
-		if (lowerBladeControl_) {
+		if (lowerBladeControl_)
 			addChildControl(lowerBladeControl_);
 
-			connect( lowerBladeControl_, SIGNAL(valueChanged(double)), this, SLOT(updateValue()) );
-			connect( lowerBladeControl_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
-			connect( lowerBladeControl_, SIGNAL(alarmChanged(int,int)), this, SIGNAL(alarmChanged(int,int)) );
-			connect( lowerBladeControl_, SIGNAL(error(int)), this, SIGNAL(error(int)) );
-		}
-
-		updateControlStates();
+		updateStates();
 
 		emit lowerBladeControlChanged(lowerBladeControl_);
-	}
-}
-
-void CLSJJSlitBladesControl::setConnected(bool isConnected)
-{
-	if (connected_ != isConnected) {
-		connected_ = isConnected;
-		emit connected(connected_);
-	}
-}
-
-void CLSJJSlitBladesControl::setValue(double newValue)
-{
-	if (value_ != newValue) {
-		value_ = newValue;
-		emit valueChanged(value_);
-	}
-}
-
-void CLSJJSlitBladesControl::setSetpoint(double newValue)
-{
-	if (setpoint_ != newValue) {
-		setpoint_ = newValue;
-		emit setpointChanged(setpoint_);
-	}
-}
-
-void CLSJJSlitBladesControl::setMoveInProgress(bool isMoving)
-{
-	if (moveInProgress_ != isMoving) {
-		moveInProgress_ = isMoving;
-		emit movingChanged(moveInProgress_);
 	}
 }
 
@@ -232,12 +143,15 @@ void CLSJJSlitBladesControl::setCenterPosition(double newValue)
 	}
 }
 
-void CLSJJSlitBladesControl::updateControlStates()
+void CLSJJSlitBladesControl::updateStates()
 {
 	updateConnected();
 	updateGap();
 	updateCenterPosition();
 	updateValue();
+	updateIsMoving();
+	updateMinimumValue();
+	updateMaximumValue();
 }
 
 void CLSJJSlitBladesControl::updateConnected()
@@ -248,8 +162,13 @@ void CLSJJSlitBladesControl::updateConnected()
 	bool connected = (upperControlOK && lowerControlOK);
 
 	setConnected(connected);
+}
 
-	updateValue();
+void CLSJJSlitBladesControl::updateIsMoving()
+{
+	if (isConnected()) {
+		setIsMoving( upperBladeControl_->isMoving() || lowerBladeControl_->isMoving() );
+	}
 }
 
 void CLSJJSlitBladesControl::updateGap()
@@ -263,45 +182,6 @@ void CLSJJSlitBladesControl::updateCenterPosition()
 {
 	if (isConnected()) {
 		setCenterPosition( calculateCenterPosition(upperBladeControl_->value(), lowerBladeControl_->value()) );
-	}
-}
-
-void CLSJJSlitBladesControl::onMoveStarted()
-{
-	setMoveInProgress(true);
-	emit moveStarted();
-}
-
-void CLSJJSlitBladesControl::onMoveCancelled(QObject *action)
-{
-	moveCleanup(action);
-	emit moveFailed(AMControl::WasStoppedFailure);
-}
-
-void CLSJJSlitBladesControl::onMoveFailed(QObject *action)
-{
-	moveCleanup(action);
-	emit moveFailed(AMControl::OtherFailure);
-}
-
-void CLSJJSlitBladesControl::onMoveSucceeded(QObject *action)
-{
-	moveCleanup(action);
-	emit moveSucceeded();
-}
-
-void CLSJJSlitBladesControl::moveCleanup(QObject *action)
-{
-	if (action) {
-		setMoveInProgress(false);
-
-		action->disconnect();
-
-		moveCancelled_->removeMappings(action);
-		moveFailed_->removeMappings(action);
-		moveSucceeded_->removeMappings(action);
-
-		action->deleteLater();
 	}
 }
 
@@ -325,6 +205,3 @@ double CLSJJSlitBladesControl::calculateCenterPosition(double upperBladePosition
 {
 	return ((upperBladePosition - lowerBladePosition) / 2.0 + lowerBladePosition);
 }
-
-
-

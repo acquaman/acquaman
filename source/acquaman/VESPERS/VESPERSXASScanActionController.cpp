@@ -203,6 +203,23 @@ AMAction3* VESPERSXASScanActionController::createInitializationActions()
 	AMListAction3 *initializationAction = qobject_cast<AMListAction3 *>(buildBaseInitializationAction(double(configuration_->scanAxisAt(0)->regionAt(0)->regionTime())));
 	initializationAction->addSubAction(AMActionSupport::buildChangeToleranceAction(VESPERSBeamline::vespers()->energy(), configuration_->energy()*0.005));
 
+	if (configuration_->goToPosition()){
+
+		VESPERS::Motors motor = configuration_->motor();
+
+		if (motor.testFlag(VESPERS::H) && motor.testFlag(VESPERS::V)){
+
+			initializationAction->addSubAction(AMActionSupport::buildControlMoveAction(VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->horizontalControl(), configuration_->x()));
+			initializationAction->addSubAction(AMActionSupport::buildControlMoveAction(VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->verticalControl(), configuration_->y()));
+		}
+
+		else if (motor.testFlag(VESPERS::X) && motor.testFlag(VESPERS::Z)){
+
+			initializationAction->addSubAction(AMActionSupport::buildControlMoveAction(VESPERSBeamline::vespers()->realSampleStageMotorGroupObject()->horizontalControl(), configuration_->x()));
+			initializationAction->addSubAction(AMActionSupport::buildControlMoveAction(VESPERSBeamline::vespers()->realSampleStageMotorGroupObject()->verticalControl(), configuration_->y()));
+		}
+	}
+
 	return initializationAction;
 }
 

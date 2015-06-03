@@ -14,27 +14,27 @@ class BioXASCarbonFilterFarmView : public QWidget
 
 public:
 	/// Constructor.
-	explicit BioXASCarbonFilterFarmView(BioXASCarbonFilterFarmControl *filterFarm, QWidget *parent = 0);
+	explicit BioXASCarbonFilterFarmView(BioXASCarbonFilterFarm *filterFarm, QWidget *parent = 0);
 	/// Destructor.
 	virtual ~BioXASCarbonFilterFarmView();
 
 	/// Returns the carbon filter farm being viewed.
-	BioXASCarbonFilterFarmControl* filterFarm() const { return filterFarm_; }
+	BioXASCarbonFilterFarm* filterFarm() const { return filterFarm_; }
 
 signals:
 	/// Notifier that the filter farm being viewed has changed.
-	void filterFarmChanged(BioXASCarbonFilterFarmControl *newFilterFarm);
+	void filterFarmChanged(BioXASCarbonFilterFarm *newFilterFarm);
 
 public slots:
 	/// Sets the carbon filter farm being viewed.
-	void setFilterFarm(BioXASCarbonFilterFarmControl *newFilterFarm);
+	void setFilterFarm(BioXASCarbonFilterFarm *newFilterFarm);
 
 protected:
 	/// The filter farm being viewed.
-	BioXASCarbonFilterFarmControl *filterFarm_;
+	BioXASCarbonFilterFarm *filterFarm_;
 
 	/// The filter farm total thickness control editor.
-	AMExtendedControlEditor *editor_;
+	AMExtendedControlEditor *filterEditor_;
 
 	// For testing
 	/// The upstream actuator control editor.

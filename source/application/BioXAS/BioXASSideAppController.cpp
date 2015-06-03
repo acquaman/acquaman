@@ -55,6 +55,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "ui/CLS/CLSJJSlitsView.h"
 
+#include "ui/util/AMChooseDataFolderDialog.h"
+
 #include "ui/BioXAS/BioXASSidePersistentView.h"
 #include "ui/BioXAS/BioXASSideXASScanConfigurationView.h"
 #include "ui/BioXAS/BioXAS32ElementGeDetectorView.h"
@@ -64,6 +66,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/BioXAS/BioXASM2MirrorView.h"
 #include "ui/BioXAS/BioXASDBHRMirrorView.h"
 #include "ui/BioXAS/BioXASSIS3820ScalerView.h"
+#include "ui/BioXAS/BioXASFourElementVortexDetectorView.h"
 
 BioXASSideAppController::BioXASSideAppController(QObject *parent)
 	: AMAppController(parent)
@@ -82,12 +85,15 @@ BioXASSideAppController::BioXASSideAppController(QObject *parent)
 	configurationView_ = 0;
 	configurationViewHolder_ = 0;
 
+	setDefaultUseLocalStorage(true);
 	userConfiguration_ = new BioXASUserConfiguration(this);
 }
 
 bool BioXASSideAppController::startup()
 {
-	getUserDataFolderFromDialog();
+	// Get a destination folder.
+	if ( !AMChooseDataFolderDialog::getDataFolder("/AcquamanLocalData/bioxas-s/AcquamanSideData", "/home/bioxas-s/AcquamanSideData", "users", QStringList()) )
+		return false;
 
 	// Start up the main program.
 	if(AMAppController::startup()) {
@@ -216,10 +222,17 @@ void BioXASSideAppController::setupUserInterface()
 	onScalerConnected();
 
 	// Create the 32 element Ge detector view.
-	BioXAS32ElementGeDetectorView *geDetectorView = new BioXAS32ElementGeDetectorView(BioXASSideBeamline::bioXAS()->ge32ElementDetector());
-	geDetectorView->buildDetectorView();
-	geDetectorView->addEmissionLineNameFilter(QRegExp("1"));
-	geDetectorView->addPileUpPeakNameFilter(QRegExp("(K.1|L.1|Ma1)"));
+//	BioXAS32ElementGeDetectorView *geDetectorView = new BioXAS32ElementGeDetectorView(BioXASSideBeamline::bioXAS()->ge32ElementDetector());
+//	geDetectorView->buildDetectorView();
+//	geDetectorView->addEmissionLineNameFilter(QRegExp("1"));
+//	geDetectorView->addPileUpPeakNameFilter(QRegExp("(K.1|L.1|Ma1)"));
+
+	// Create the four element detector view.
+	BioXASFourElementVortexDetectorView *fourElementDetectorView = new BioXASFourElementVortexDetectorView(BioXASSideBeamline::bioXAS()->fourElementVortexDetector());
+	fourElementDetectorView->buildDetectorView();
+	fourElementDetectorView->setEnergyRange(3000, 28000);
+	fourElementDetectorView->addEmissionLineNameFilter(QRegExp("1"));
+	fourElementDetectorView->addPileUpPeakNameFilter(QRegExp("(K.1|L.1|Ma1)"));
 
 	// Create right side panel.
 	persistentPanel_ = new BioXASSidePersistentView();
@@ -235,7 +248,8 @@ void BioXASSideAppController::setupUserInterface()
 
 	// Add views to 'Detectors'.
 	mw_->insertHeading("Detectors", 1);
-	mw_->addPane(geDetectorView, "Detectors", "Ge 32-el", ":/system-search.png");
+//	mw_->addPane(geDetectorView, "Detectors", "Ge 32-el", ":/system-search.png");
+	mw_->addPane(fourElementDetectorView, "Detectors", "4-element", ":/system-search.png");
 
 	// Add views to 'Scans'.
 	mw_->insertHeading("Scans", 2);
@@ -249,6 +263,9 @@ void BioXASSideAppController::setupUserInterface()
 	configurationViewHolder_ = new AMScanConfigurationViewHolder3("Configure an XAS Scan", true, true, configurationView_);
 
 	mw_->addPane(configurationViewHolder_, "Scans", "XAS Scan", ":/utilities-system-monitor.png");
+
+	connect(configuration_, SIGNAL(totalTimeChanged(double)), configurationViewHolder_, SLOT(updateOverallScanTime(double)));
+	configurationViewHolder_->updateOverallScanTime(configuration_->totalTime());
 
 	commissioningConfiguration_ = new AMGenericStepScanConfiguration;
 	commissioningConfiguration_->setAutoExportEnabled(false);
@@ -292,7 +309,7 @@ void BioXASSideAppController::onCurrentScanActionFinishedImplementation(AMScanAc
 
 void BioXASSideAppController::onUserConfigurationLoadedFromDb()
 {
-	AMXRFDetector *detector = BioXASSideBeamline::bioXAS()->ge32ElementDetector();
+	AMXRFDetector *detector = BioXASSideBeamline::bioXAS()->fourElementVortexDetector();
 
 	foreach (AMRegionOfInterest *region, userConfiguration_->regionsOfInterest()){
 
@@ -302,8 +319,10 @@ void BioXASSideAppController::onUserConfigurationLoadedFromDb()
 	}
 
 	// This is connected here because we want to listen to the detectors for updates, but don't want to double add regions on startup.
-	connect(BioXASSideBeamline::bioXAS()->ge32ElementDetector(), SIGNAL(addedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestAdded(AMRegionOfInterest*)));
-	connect(BioXASSideBeamline::bioXAS()->ge32ElementDetector(), SIGNAL(removedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestRemoved(AMRegionOfInterest*)));
+//	connect(BioXASSideBeamline::bioXAS()->ge32ElementDetector(), SIGNAL(addedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestAdded(AMRegionOfInterest*)));
+//	connect(BioXASSideBeamline::bioXAS()->ge32ElementDetector(), SIGNAL(removedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestRemoved(AMRegionOfInterest*)));
+	connect(BioXASSideBeamline::bioXAS()->fourElementVortexDetector(), SIGNAL(addedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestAdded(AMRegionOfInterest*)));
+	connect(BioXASSideBeamline::bioXAS()->fourElementVortexDetector(), SIGNAL(removedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestRemoved(AMRegionOfInterest*)));
 }
 
 void BioXASSideAppController::onRegionOfInterestAdded(AMRegionOfInterest *region)

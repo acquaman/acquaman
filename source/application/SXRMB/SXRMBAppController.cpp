@@ -162,6 +162,9 @@ void SXRMBAppController::onBeamlineConnected(bool connected)
 		exafsScanConfigurationView_ = new SXRMBEXAFSScanConfigurationView(exafsScanConfiguration_);
 		exafsScanConfigurationViewHolder_ = new AMScanConfigurationViewHolder3(exafsScanConfigurationView_, true);
 		mw_->addPane(exafsScanConfigurationViewHolder_, "Scans", "EXAFS Scan", ":/utilites-system-monitor.png");
+
+		connect(exafsScanConfiguration_, SIGNAL(totalTimeChanged(double)), exafsScanConfigurationViewHolder_, SLOT(updateOverallScanTime(double)));
+		exafsScanConfigurationViewHolder_->updateOverallScanTime(exafsScanConfiguration_->totalTime());
 	}
 
 	if (connected && !microProbe2DScanConfigurationView_) {
@@ -228,8 +231,10 @@ void SXRMBAppController::onBeamlineConnected(bool connected)
 		}
 	}
 
-	if (connected)
+	if (connected) {
 		onBeamlineEndstationSwitched(sxrmbBL->currentEndstation(), sxrmbBL->currentEndstation());
+		onScalerConnected(sxrmbBL->scaler()->isConnected());
+	}
 }
 
 void SXRMBAppController::onBeamControlShuttersTimeout()
@@ -399,11 +404,7 @@ void SXRMBAppController::makeConnections()
 	connect(sxrmbBL, SIGNAL(endstationChanged(SXRMB::Endstation, SXRMB::Endstation)), this, SLOT(onBeamlineEndstationSwitched(SXRMB::Endstation, SXRMB::Endstation)));
 	connect(sxrmbBL->scaler(), SIGNAL(connectedChanged(bool)), this, SLOT(onScalerConnected(bool)));
 
-	if(sxrmbBL->isConnected()){
-		onBeamlineConnected(true);
-		if(sxrmbBL->scaler()->isConnected())
-			onScalerConnected(true);
-	}
+	onBeamlineConnected(sxrmbBL->isConnected());
 }
 
 QGroupBox* SXRMBAppController::createTopFrameSqueezeContent(QWidget *widget, QString topFrameTitle)

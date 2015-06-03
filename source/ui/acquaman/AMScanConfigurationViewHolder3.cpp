@@ -135,9 +135,14 @@ AMAction3* AMScanConfigurationViewHolder3::createMultipleScans()
 
 		const AMScanConfiguration *config = view_->configuration();
 		if (config) {
-			AMLoopAction3 *loop = new AMLoopAction3(new AMLoopActionInfo3(iterationsBox_->value(), config->name(), config->description()));
-			loop->addSubAction(createScan());
-			return loop;
+			int iteration = iterationsBox_->value();
+			if (iteration > 1) {
+				AMLoopAction3 *loopAction = new AMLoopAction3(new AMLoopActionInfo3(iterationsBox_->value(), config->name(), config->description()));
+				loopAction->addSubAction(createScan());
+				return loopAction;
+			} else {
+				return createScan();
+			}
 		}
 	}
 

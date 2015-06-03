@@ -874,8 +874,8 @@ AMControl::FailureExplanation REIXSBrokenMonoControl::move(double setpoint)
 bool REIXSBrokenMonoControl::stop()
 {
 	if(moveAction_) {
-		moveAction_->cancel();
 		stopInProgress_ = true;
+		moveAction_->cancel();
 	}
 	bool success = control_->stop();
 	QTimer *repeat = new QTimer(this);
@@ -933,6 +933,8 @@ void REIXSBrokenMonoControl::onMoveActionSucceeded()
 	else {
 		emit moveFailed(AMControl::ToleranceFailure);
 	}
+
+	stopInProgress_ = false;
 }
 
 void REIXSBrokenMonoControl::onMonoAngleError(double error)

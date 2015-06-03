@@ -57,6 +57,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "ui/CLS/CLSSIS3820ScalerView.h"
 
+#include "ui/util/AMChooseDataFolderDialog.h"
+
 #include "ui/BioXAS/BioXASMainXASScanConfigurationView.h"
 #include "ui/BioXAS/BioXASMainPersistentView.h"
 #include "ui/BioXAS/BioXASSSRLMonochromatorConfigurationView.h"
@@ -77,11 +79,15 @@ BioXASMainAppController::BioXASMainAppController(QObject *parent)
 	configuration_ = 0;
 	configurationView_ = 0;
 	configurationViewHolder_ = 0;
+
+	setDefaultUseLocalStorage(true);
 }
 
 bool BioXASMainAppController::startup()
 {
-	getUserDataFolderFromDialog();
+	// Get a destination folder.
+	if ( !AMChooseDataFolderDialog::getDataFolder("/AcquamanLocalData/bioxas-m/AcquamanMainData", "/home/bioxas-m/AcquamanMainData", "users", QStringList()) )
+		return false;
 
 	// Start up the main program.
 	if(AMAppController::startup()) {
@@ -225,6 +231,9 @@ void BioXASMainAppController::setupUserInterface()
 	configurationViewHolder_ = new AMScanConfigurationViewHolder3(configurationView_, true);
 
 	mw_->addPane(configurationViewHolder_, "Scans", "XAS Scan", ":/utilities-system-monitor.png");
+
+	connect(configuration_, SIGNAL(totalTimeChanged(double)), configurationViewHolder_, SLOT(updateOverallScanTime(double)));
+	configurationViewHolder_->updateOverallScanTime(configuration_->totalTime());
 
 	commissioningConfiguration_ = new AMGenericStepScanConfiguration;
 	commissioningConfigurationView_ = new AMGenericStepScanConfigurationView(commissioningConfiguration_);

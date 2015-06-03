@@ -102,7 +102,7 @@ void SXRMBHVControlChannelView::layoutHVControl(SXRMBHVControl *hvControl, bool 
 		voltageSpinBox_ = new QDoubleSpinBox();
 		voltageSpinBox_->setSuffix(" V");
 		voltageSpinBox_->setSingleStep(5);
-		voltageSpinBox_->setRange(0, 200);
+		voltageSpinBox_->setRange(0, 300);
 		voltageSpinBox_->setDecimals(2);
 		voltageSpinBox_->setAlignment(Qt::AlignCenter);
 		voltageSpinBox_->setFixedWidth(90);

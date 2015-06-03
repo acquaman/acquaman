@@ -373,7 +373,6 @@ HEADERS += \
 	source/util/AMDirectorySynchronizer.h \
 	source/ui/util/AMDialog.h \
 	source/ui/util/AMDirectorySynchronizerDialog.h \
-	source/actions3/actions/AMDirectorySynchronizationAction.h \
 	source/ui/beamline/AMCurrentAmplifierCompositeView.h \
 	source/ui/beamline/AMCurrentAmplifierSingleView.h \
 	source/ui/beamline/AMCurrentAmplifierView.h \
@@ -420,7 +419,10 @@ HEADERS += \
 	source/ui/acquaman/AMGenericStepScanConfigurationView.h \
 	source/util/AMCSVParser.h \
 	source/actions3/AMTimeoutLoopActionInfo.h \
-	source/actions3/AMTimeoutLoopAction.h
+	source/actions3/AMTimeoutLoopAction.h \
+    source/beamline/AMPseudoMotorControl.h \
+    source/beamline/AMXspress3XRFDetector.h \
+    source/ui/beamline/AMXspress3XRFDetectorView.h
 
 FORMS += \
 
@@ -754,7 +756,6 @@ SOURCES += \
 	source/util/AMDirectorySynchronizer.cpp \
 	source/ui/util/AMDialog.cpp \
 	source/ui/util/AMDirectorySynchronizerDialog.cpp \
-	source/actions3/actions/AMDirectorySynchronizationAction.cpp \
 	source/ui/beamline/AMCurrentAmplifierCompositeView.cpp \
 	source/ui/beamline/AMCurrentAmplifierSingleView.cpp \
 	source/ui/beamline/AMCurrentAmplifierView.cpp \
@@ -802,7 +803,10 @@ SOURCES += \
 	source/ui/acquaman/AMGenericStepScanConfigurationView.cpp \
 	source/util/AMCSVParser.cpp \
 	source/actions3/AMTimeoutLoopActionInfo.cpp \
-	source/actions3/AMTimeoutLoopAction.cpp
+	source/actions3/AMTimeoutLoopAction.cpp \
+    source/beamline/AMPseudoMotorControl.cpp \
+    source/beamline/AMXspress3XRFDetector.cpp \
+    source/ui/beamline/AMXspress3XRFDetectorView.cpp
 
 RESOURCES *= source/icons/icons.qrc \
 		source/configurationFiles/configurationFiles.qrc \
@@ -819,3 +823,9 @@ contains(DEFINES, AM_BUILD_REPORTER_ENABLED){
 
 	SOURCES *= source/util/AMRunTimeBuildInfo.cpp
 }
+
+
+
+
+
+
