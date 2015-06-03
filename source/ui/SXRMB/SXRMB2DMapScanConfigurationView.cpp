@@ -185,18 +185,7 @@ SXRMB2DMapScanConfigurationView::SXRMB2DMapScanConfigurationView(SXRMB2DMapScanC
 	contentsLayout->addWidget(detectorSettingGroupBox, 3, 4, 1, 2);
 	contentsLayout->addWidget(errorLabel_, 4, 0, 2, 4);
 
-	/// the squeeze layout of the window
-	QHBoxLayout *squeezeContents = new QHBoxLayout;
-	squeezeContents->addStretch();
-	squeezeContents->addLayout(contentsLayout);
-	squeezeContents->addStretch();
-
-	QVBoxLayout *configViewLayout = new QVBoxLayout;
-	configViewLayout->addStretch();
-	configViewLayout->addLayout(squeezeContents);
-	configViewLayout->addStretch();
-
-	setLayout(configViewLayout);
+	setLayout(contentsLayout);
 
 	connect(sxrmbBL, SIGNAL(endstationChanged(SXRMB::Endstation, SXRMB::Endstation)), this, SLOT(onBeamlineEndstationChanged(SXRMB::Endstation, SXRMB::Endstation)));
 }

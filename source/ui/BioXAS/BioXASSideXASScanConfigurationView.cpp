@@ -109,10 +109,7 @@ BioXASSideXASScanConfigurationView::BioXASSideXASScanConfigurationView(BioXASSid
 	settingsVL->addLayout(regionsHL);
 //	settingsVL->addWidget(settingsLabel);
 
-	mainVL->addStretch();
 	mainVL->addLayout(settingsVL);
-	mainVL->addStretch();
-
 	mainVL->setContentsMargins(20,0,0,20);
 	mainVL->setSpacing(1);
 	setLayout(mainVL);

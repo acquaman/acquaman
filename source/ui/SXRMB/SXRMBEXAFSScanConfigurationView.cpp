@@ -129,23 +129,10 @@ SXRMBEXAFSScanConfigurationView::SXRMBEXAFSScanConfigurationView(SXRMBEXAFSScanC
 	contentLayout->addWidget(beamlineSettingsGroupBox, 0, 4, 1, 1);
 	contentLayout->addWidget(detectorSettingGroupBox, 1, 4, 1, 1);
 
-	// setup the squeeze contents
-	QHBoxLayout *squeezeContents = new QHBoxLayout;
-	squeezeContents->setSpacing(10);
-	squeezeContents->addStretch();
-	squeezeContents->addLayout(contentLayout);
-	squeezeContents->addStretch();
+	contentLayout->setContentsMargins(20,0,0,20);
+	contentLayout->setSpacing(1);
 
-	// Main content layout
-	QVBoxLayout *mainVL = new QVBoxLayout();
-	mainVL->addStretch();
-	mainVL->addLayout(squeezeContents);
-	mainVL->addStretch();
-
-	mainVL->setContentsMargins(20,0,0,20);
-	mainVL->setSpacing(1);
-
-	setLayout(mainVL);
+	setLayout(contentLayout);
 
 	connect(configuration_->dbObject(), SIGNAL(xChanged(double)), this, SLOT(onScanConfigurationSampleStageXChanged(double)));
 	connect(configuration_->dbObject(), SIGNAL(zChanged(double)), this, SLOT(onScanConfigurationSampleStageZChanged(double)));
