@@ -19,7 +19,6 @@
 #include "acquaman/SXRMB/SXRMBEXAFSScanConfiguration.h"
 #include "beamline/SXRMB/SXRMBBeamline.h"
 
-#include "ui/AMTopFrame.h"
 #include "ui/dataman/AMEXAFSScanAxisView.h"
 #include "ui/util/AMPeriodicTableDialog.h"
 
@@ -34,9 +33,6 @@ SXRMBEXAFSScanConfigurationView::SXRMBEXAFSScanConfigurationView(SXRMBEXAFSScanC
 	SXRMBBeamline *sxrmbBL = SXRMBBeamline::sxrmb();
 
 	configuration_ = configuration;
-
-	//topFrame_ = new AMTopFrame("Configure an XAS Scan");
-	topFrame_->setIcon(QIcon(":/utilities-system-monitor.png"));
 
 	regionsView_ = new AMEXAFSScanAxisView("SXRMB Region Configuration", configuration_);
 
@@ -142,7 +138,6 @@ SXRMBEXAFSScanConfigurationView::SXRMBEXAFSScanConfigurationView(SXRMBEXAFSScanC
 
 	// Main content layout
 	QVBoxLayout *mainVL = new QVBoxLayout();
-	mainVL->addWidget(topFrame_);
 	mainVL->addStretch();
 	mainVL->addLayout(squeezeContents);
 	mainVL->addStretch();

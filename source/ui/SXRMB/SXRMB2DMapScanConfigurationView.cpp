@@ -3,7 +3,6 @@
 #include "application/SXRMB/SXRMB.h"
 #include "beamline/SXRMB/SXRMBBeamline.h"
 
-#include "ui/AMTopFrame.h"
 
 #include <QGridLayout>
 #include <QVBoxLayout>
@@ -23,7 +22,6 @@ SXRMB2DMapScanConfigurationView::SXRMB2DMapScanConfigurationView(SXRMB2DMapScanC
 	configuration_ = configuration;
 	excitationEnergyIsHidden_ = false;
 
-	AMTopFrame *frame = new AMTopFrame("SXRMB 2D Map Configuration");
 
 	// 1st row: set the start position
 	hStart_ = createPositionDoubleSpinBox("H: ", " mm", configuration_->scanAxisAt(0)->regionAt(0)->regionStart(), 3);
@@ -194,7 +192,6 @@ SXRMB2DMapScanConfigurationView::SXRMB2DMapScanConfigurationView(SXRMB2DMapScanC
 	squeezeContents->addStretch();
 
 	QVBoxLayout *configViewLayout = new QVBoxLayout;
-	configViewLayout->addWidget(frame);
 	configViewLayout->addStretch();
 	configViewLayout->addLayout(squeezeContents);
 	configViewLayout->addStretch();
