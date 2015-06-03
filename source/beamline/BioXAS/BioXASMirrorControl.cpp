@@ -263,17 +263,25 @@ double BioXASMirrorControl::calculateDownstreamPosition(double downstreamX, doub
 	return result;
 }
 
-double BioXASMirrorControl::calculateLateralPosition(double lateral, double upstreamLength, double downstreamLength, double yawPosition)
+double BioXASMirrorControl::calculateLateralPosition(double lateral, double upstreamLength, double downstreamLength, double yaw)
 {
 	Q_UNUSED(downstreamLength)
 
-	double yawControlValue = calculateYaw(upstreamLength, downstreamLength, yawPosition);
-	double result = lateral + (upstreamLength * tan(yawControlValue * M_PI/180));
+	double result = lateral + (upstreamLength * tan(yaw * M_PI/180));
 	return result;
 }
 
 double BioXASMirrorControl::calculateYawPosition(double yaw, double upstreamLength, double downstreamLength)
 {
 	double result = (downstreamLength - upstreamLength) * tan(yaw * M_PI/180);
+	return result;
+}
+
+double BioXASMirrorControl::calculateYawPositionFromLateral(double lateral, double upstreamLength, double downstreamLength, double lateralPosition)
+{
+	Q_UNUSED(downstreamLength)
+
+	double yawControlValue = atan((lateralPosition - lateral) / upstreamLength) * 180/M_PI;
+	double result = BioXASMirrorControl::calculateYawPosition(yawControlValue, upstreamLength, downstreamLength);
 	return result;
 }

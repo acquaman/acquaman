@@ -103,26 +103,28 @@ protected:
 	virtual AMAction3* createMoveAction(double setpoint) = 0;
 
 	/// Calculates and returns the mirror pitch from the given motor positions.
-	virtual double calculatePitch(double upstreamInboardX, double upstreamInboardY, double upstreamInboardZ, double upstreamOutboardX, double upstreamOutboardY, double upstreamOutboardZ, double downstreamX, double downstreamY, double downstreamZ);
+	static double calculatePitch(double upstreamInboardX, double upstreamInboardY, double upstreamInboardZ, double upstreamOutboardX, double upstreamOutboardY, double upstreamOutboardZ, double downstreamX, double downstreamY, double downstreamZ);
 	/// Calculates and returns the mirror roll from the given motor positions.
-	virtual double calculateRoll(double upstreamInboardX, double upstreamInboardY, double upstreamInboardZ, double upstreamOutboardX, double upstreamOutboardY, double upstreamOutboardZ, double downstreamX, double downstreamY, double downstreamZ);
+	static double calculateRoll(double upstreamInboardX, double upstreamInboardY, double upstreamInboardZ, double upstreamOutboardX, double upstreamOutboardY, double upstreamOutboardZ, double downstreamX, double downstreamY, double downstreamZ);
 	/// Calculates and returns the mirror height from the given motor positions.
-	virtual double calculateHeight(double upstreamInboardX, double upstreamInboardY, double upstreamInboardZ, double upstreamOutboardX, double upstreamOutboardY, double upstreamOutboardZ, double downstreamX, double downstreamY, double downstreamZ);
+	static double calculateHeight(double upstreamInboardX, double upstreamInboardY, double upstreamInboardZ, double upstreamOutboardX, double upstreamOutboardY, double upstreamOutboardZ, double downstreamX, double downstreamY, double downstreamZ);
 	/// Calculates and returns the lateral displacement according to the given mirror lengths, lateral motor position and yaw motor position.
-	virtual double calculateLateral(double upstreamLength, double downstreamLength, double lateralPosition, double yawPosition);
+	static double calculateLateral(double upstreamLength, double downstreamLength, double lateralPosition, double yawPosition);
 	/// Calculates and returns the yaw for the given yaw motor position and mirror lengths.
-	virtual double calculateYaw(double upstreamLength, double downstreamLength, double yawPosition);
+	static double calculateYaw(double upstreamLength, double downstreamLength, double yawPosition);
 
 	/// Calculates and returns the upstream inboard motor position from the given pitch, roll, and height.
-	virtual double calculateUpstreamInboardPosition(double upstreamInboardX, double upstreamInboardY, double pitch, double roll, double height);
+	static double calculateUpstreamInboardPosition(double upstreamInboardX, double upstreamInboardY, double pitch, double roll, double height);
 	/// Calculates and returns the upstream outboard motor position from the given pitch, roll, and height.
-	virtual double calculateUpstreamOutboardPosition(double upstreamOutboardX, double upstreamOutboardY, double pitch, double roll, double height);
+	static double calculateUpstreamOutboardPosition(double upstreamOutboardX, double upstreamOutboardY, double pitch, double roll, double height);
 	/// Calculates and returns the downstream motor position from the given pitch, roll, and height.
-	virtual double calculateDownstreamPosition(double downstreamX, double downstreamY, double pitch, double roll, double height);
-	/// Calculates and returns the lateral motor position for the given lateral displacement, mirror lengths, and yaw motor position.
-	virtual double calculateLateralPosition(double lateral, double upstreamLength, double downstreamLength, double yawPosition);
+	static double calculateDownstreamPosition(double downstreamX, double downstreamY, double pitch, double roll, double height);
+	/// Calculates and returns the lateral motor position for the given lateral displacement, mirror lengths, and yaw control value.
+	static double calculateLateralPosition(double lateral, double upstreamLength, double downstreamLength, double yaw);
 	/// Calculates and returns the yaw motor position for the given yaw control value and mirror lengths.
-	virtual double calculateYawPosition(double yaw, double upstreamLength, double downstreamLength);
+	static double calculateYawPosition(double yaw, double upstreamLength, double downstreamLength);
+	/// Calculates and returns the yaw motor position for the given lateral control value, lateral motor position, and mirror lengths.
+	static double calculateYawPositionFromLateral(double lateral, double upstreamLength, double downstreamLength, double lateralPosition);
 
 protected:
 	/// The upstream mirror length.

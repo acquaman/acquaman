@@ -46,6 +46,7 @@ BioXASMainM2Mirror::BioXASMainM2Mirror(QObject *parent) :
 	yaw_->setUpstreamLength(upstreamLength_);
 	yaw_->setDownstreamLength(downstreamLength_);
 	yaw_->setYawMotor(yawMotor_);
+	yaw_->setStripeSelectionMotor(stripeSelectMotor_);
 
 	// Make connections.
 

@@ -31,10 +31,6 @@ protected slots:
 protected:
 	/// Creates and returns a move action.
 	virtual AMAction3* createMoveAction(double setpoint);
-
-	/// Calculates and returns the yaw motor position for the given lateral control value, mirror lengths, and lateral motor position.
-	virtual double calculateYawPosition(double lateralDisplacement, double upstreamLength, double downstreamLength, double lateralPosition);
-
 };
 
 #endif // BIOXASMIRRORLATERALCONTROL_H

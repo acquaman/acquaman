@@ -1,5 +1,6 @@
 #include "BioXASMirrorYawControl.h"
 #include "actions3/AMActionSupport.h"
+#include "actions3/AMListAction3.h"
 
 BioXASMirrorYawControl::BioXASMirrorYawControl(const QString &name, const QString &units, QObject *parent, const QString &description) :
 	BioXASMirrorControl(name, units, parent, description)
@@ -53,7 +54,10 @@ bool BioXASMirrorYawControl::canStop() const
 
 void BioXASMirrorYawControl::updateConnected()
 {
-	bool isConnected = ( yaw_ && yaw_->isConnected() );
+	bool isConnected = (
+				yaw_ && yaw_->isConnected() &&
+				stripeSelect_ && stripeSelect_->isConnected()
+				);
 
 	setConnected( isConnected && validLengths() );
 }
@@ -77,8 +81,18 @@ AMAction3* BioXASMirrorYawControl::createMoveAction(double setpoint)
 	AMAction3 *result = 0;
 
 	if (isConnected()) {
+
+		AMListAction3 *move = new AMListAction3(new AMListActionInfo3(name()+" move", name()+" move"), AMListAction3::Sequential);
+
+		double lateral = calculateLateral(upstreamLength_, downstreamLength_, stripeSelect_->value(), yaw_->value());
+
 		double yawDestination = calculateYawPosition(setpoint, upstreamLength_, downstreamLength_);
-		AMAction3 *move = AMActionSupport::buildControlMoveAction(yaw_, yawDestination);
+		move->addSubAction(AMActionSupport::buildControlMoveAction(yaw_, yawDestination));
+
+		// The lateral control depends on the yaw and so will appear to move as a consequence of yaw motion. We want to try and correct for this with the following action.
+
+		double lateralDestination = calculateLateralPosition(lateral, upstreamLength_, downstreamLength_, setpoint);
+		move->addSubAction(AMActionSupport::buildControlMoveAction(stripeSelect_, lateralDestination));
 
 		result = move;
 	}

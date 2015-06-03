@@ -84,23 +84,16 @@ AMAction3* BioXASMirrorLateralControl::createMoveAction(double setpoint)
 
 		AMListAction3 *move = new AMListAction3(new AMListActionInfo3(name()+" move", name()+" move"), AMListAction3::Sequential);
 
-		double lateralDestination = calculateLateralPosition(setpoint, upstreamLength_, downstreamLength_, yaw_->value());
+		double yaw = calculateYaw(upstreamLength_, downstreamLength_, yaw_->value());
+
+		double lateralDestination = calculateLateralPosition(setpoint, upstreamLength_, downstreamLength_, yaw);
 		move->addSubAction(AMActionSupport::buildControlMoveAction(stripeSelect_, lateralDestination));
 
-		double yawDestination = calculateYawPosition(setpoint, upstreamLength_, downstreamLength_, stripeSelect_->value());
+		double yawDestination = calculateYawPositionFromLateral(setpoint, upstreamLength_, downstreamLength_, lateralDestination);
 		move->addSubAction(AMActionSupport::buildControlMoveAction(yaw_, yawDestination));
 
 		result = move;
 	}
 
-	return result;
-}
-
-double BioXASMirrorLateralControl::calculateYawPosition(double lateral, double upstreamLength, double downstreamLength, double lateralPosition)
-{
-	Q_UNUSED(downstreamLength)
-
-	double yawControlValue = atan((lateralPosition - lateral) / upstreamLength) * 180/M_PI;
-	double result = BioXASMirrorControl::calculateYawPosition(yawControlValue, upstreamLength, downstreamLength);
 	return result;
 }
