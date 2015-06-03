@@ -66,8 +66,6 @@ void AMPseudoMotorControl::removeChildControl(AMControl *control)
 	}
 }
 
-#include <QDebug>
-
 AMControl::FailureExplanation AMPseudoMotorControl::move(double setpoint)
 {
 	if (!isConnected()) {
