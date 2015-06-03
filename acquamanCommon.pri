@@ -408,8 +408,6 @@ HEADERS += \
 	source/dataman/AMXRFScan.h \
 	source/ui/util/AMChooseDataFolderDialog.h \
 	source/acquaman/AMTimedScanActionControllerAssembler.h \
-	source/beamline/CLS/CLSStandardsWheel.h \
-	source/ui/CLS/CLSStandardsWheelConfigurationView.h \
 	source/dataman/AMLightweightScanInfoFactory.h \
 	source/ui/util/AMGridFlowGeometryManager.h \
 	source/ui/dataman/AMScanThumbnailGridViewItemDelegate.h \
@@ -794,8 +792,6 @@ SOURCES += \
 	source/dataman/AMXRFScan.cpp \
 	source/ui/util/AMChooseDataFolderDialog.cpp \
 	source/acquaman/AMTimedScanActionControllerAssembler.cpp \
-	source/beamline/CLS/CLSStandardsWheel.cpp \
-	source/ui/CLS/CLSStandardsWheelConfigurationView.cpp \
 	source/dataman/AMLightweightScanInfoFactory.cpp \
 	source/ui/util/AMGridFlowGeometryManager.cpp \
 	source/ui/dataman/AMScanThumbnailGridViewItemDelegate.cpp \
