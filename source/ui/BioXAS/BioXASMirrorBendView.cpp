@@ -10,13 +10,15 @@ BioXASMirrorBendView::BioXASMirrorBendView(BioXASMirror *mirror, QWidget *parent
 	// Create UI elements.
 
 	bendEditor_ = new AMExtendedControlEditor(0);
-	bendEditor_->setControlFormat('f', 3);
+	bendEditor_->setControlFormat('f', 2);
 	bendEditor_->setTitle("Bend radius");
 
 	upstreamEditor_ = new AMExtendedControlEditor(0);
+	upstreamEditor_->setControlFormat('f', 2);
 	upstreamEditor_->setTitle("Upstream bender");
 
 	downstreamEditor_ = new AMExtendedControlEditor(0);
+	downstreamEditor_->setControlFormat('f', 2);
 	downstreamEditor_->setTitle("Downstream bender");
 
 	// Create and set layouts.
