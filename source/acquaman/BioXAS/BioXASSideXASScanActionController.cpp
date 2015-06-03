@@ -147,6 +147,11 @@ AMAction3* BioXASSideXASScanActionController::createInitializationActions()
 		initializationAction->addSubAction(xspress3Setup);
 	}
 
+	AMAction3 *standardsWheelAction = BioXASSideBeamline::bioXAS()->standardsWheel()->createMoveToNameAction(configuration_->edge().split(" ").first());
+
+	if (standardsWheelAction)
+		initializationAction->addSubAction(standardsWheelAction);
+
 	return initializationAction;
 }
 

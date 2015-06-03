@@ -55,11 +55,16 @@ public:
 
 	/// Returns the name of the element at \param index.
 	const QString &name(int index) const { return wheelElements_.at(index)->name(); }
+	/// Returns the index for a given name.
+	int indexFromName(const QString &name) const;
 
 	/// Returns the list of elements.
 	QList<CLSStandardsWheelElement *> wheelElements() const { return wheelElements_; }
 	/// Returns the element at the given index.
 	CLSStandardsWheelElement *wheelElementAt(int index) const { return wheelElements_.at(index); }
+
+	/// Returns an action that moves the wheel to a certain name.
+	AMAction3 *createMoveToNameAction(const QString &name);
 
 signals:
 	/// Notifier that the name changed for the given element.

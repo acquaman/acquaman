@@ -1,5 +1,7 @@
 #include "CLSStandardsWheel.h"
 
+#include "actions3/AMActionSupport.h"
+
 // CLSStandardsWheelElement
 ///////////////////////////////////////////////
 
@@ -73,4 +75,28 @@ void CLSStandardsWheel::setName(int index, const QString &newName)
 void CLSStandardsWheel::onMappedElementChanged(int id)
 {
 	emit nameChanged(id, wheelElements_.at(id)->name());
+}
+
+AMAction3 * CLSStandardsWheel::createMoveToNameAction(const QString &name)
+{
+	int index = indexFromName(name);
+
+	if (!wheel_->isConnected() || index == -1)
+		return 0;
+
+	AMAction3 *action = AMActionSupport::buildControlMoveAction(wheel_, wheelElements_.at(index)->position());
+
+	return action;
+}
+
+int CLSStandardsWheel::indexFromName(const QString &name) const
+{
+	int index = -1;
+
+	for (int i = 0, size = wheelElements_.size(); i < size && i != -1; i++)
+		if (wheelElements_.at(i)->name() == name)
+			index = i;
+
+	return index;
+
 }
