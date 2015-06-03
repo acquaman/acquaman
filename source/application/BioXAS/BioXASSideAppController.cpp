@@ -245,13 +245,13 @@ void BioXASSideAppController::setupUserInterface()
 
 	// Add views to 'General'.
 	mw_->insertHeading("General", 0);
-	mw_->addPane(createSqueezeGroupBoxWithView("Monochromator", monoConfigView_), "General", "Monochromator", ":/system-software-update.png");
-	mw_->addPane(createSqueezeGroupBoxWithView("JJ Slits", jjSlitsView_), "General", "JJ Slits", ":/system-software-update.png");
-	mw_->addPane(createSqueezeGroupBoxWithView("XIA Filters", xiaFiltersView_), "General", "XIA Filters", ":/system-software-update.png");
-	mw_->addPane(createSqueezeGroupBoxWithView("Carbon Filter Farm", carbonFilterFarmView_), "General", "Carbon filter farm", ":/system-software-update.png");
-	mw_->addPane(createSqueezeGroupBoxWithView("M2 Mirror", m2MirrorView_), "General", "M2 Mirror", ":/system-software-update.png");
-	mw_->addPane(createSqueezeGroupBoxWithView("DBHR Mirrors", dbhrView_), "General", "DBHR Mirrors", ":/system-software-update.png");
-	mw_->addPane(createSqueezeGroupBoxWithView("Standards Wheel", wheelView), "General", "Standards Wheel", ":/system-software-update.png");
+	mw_->addPane(AMMainWindow::buildMainWindowPane("Monochromator", ":/system-software-update.png", monoConfigView_), "General", "Monochromator", ":/system-software-update.png");
+	mw_->addPane(AMMainWindow::buildMainWindowPane("JJ Slits", ":/system-software-update.png", jjSlitsView_), "General", "JJ Slits", ":/system-software-update.png");
+	mw_->addPane(AMMainWindow::buildMainWindowPane("XIA Filters", ":/system-software-update.png", xiaFiltersView_), "General", "XIA Filters", ":/system-software-update.png");
+	mw_->addPane(AMMainWindow::buildMainWindowPane("Carbon Filter Farm", ":/system-software-update.png", carbonFilterFarmView_), "General", "Carbon filter farm", ":/system-software-update.png");
+	mw_->addPane(AMMainWindow::buildMainWindowPane("M2 Mirror", ":/system-software-update.png", m2MirrorView_), "General", "M2 Mirror", ":/system-software-update.png");
+	mw_->addPane(AMMainWindow::buildMainWindowPane("DBHR Mirrors", ":/system-software-update.png", dbhrView_), "General", "DBHR Mirrors", ":/system-software-update.png");
+	mw_->addPane(AMMainWindow::buildMainWindowPane("Standards Wheel", ":/system-software-update.png", wheelView), "General", "Standards Wheel", ":/system-software-update.png");
 
 	// Add views to 'Detectors'.
 	mw_->insertHeading("Detectors", 1);
