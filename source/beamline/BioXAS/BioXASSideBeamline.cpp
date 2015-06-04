@@ -807,19 +807,21 @@ void BioXASSideBeamline::setupExposedControls()
 {
 	// M1 mirror controls
 
-	addExposedControl(m1VertUpStreamINB_);
-	addExposedControl(m1VertUpStreamOUTB_);
-	addExposedControl(m1VertDownStream_);
-	addExposedControl(m1StripeSelect_);
-	addExposedControl(m1Yaw_);
-	addExposedControl(m1BenderUpstream_);
-	addExposedControl(m1BenderDownStream_);
-	addExposedControl(m1UpperSlitBlade_);
-	addExposedControl(m1PseudoRoll_);
-	addExposedControl(m1PseudoPitch_);
-	addExposedControl(m1PseudoHeight_);
-	addExposedControl(m1PseudoYaw_);
-	addExposedControl(m1PseudoLateral_);
+	addExposedControl(m1Mirror_->upstreamInboardMotorControl());
+	addExposedControl(m1Mirror_->upstreamOutboardMotorControl());
+	addExposedControl(m1Mirror_->downstreamMotorControl());
+	addExposedControl(m1Mirror_->stripeSelectMotorControl());
+	addExposedControl(m1Mirror_->yawControl());
+	addExposedControl(m1Mirror_->benderUpstreamMotorControl());
+	addExposedControl(m1Mirror_->benderDownstreamMotorControl());
+	addExposedControl(m1Mirror_->upperSlitBladeMotorControl());
+
+	addExposedControl(m1Mirror_->rollControl());
+	addExposedControl(m1Mirror_->pitchControl());
+	addExposedControl(m1Mirror_->heightControl());
+	addExposedControl(m1Mirror_->yawControl());
+	addExposedControl(m1Mirror_->lateralControl());
+	addExposedControl(m1Mirror_->bendControl());
 
 	// M2 mirror controls.
 
@@ -837,6 +839,7 @@ void BioXASSideBeamline::setupExposedControls()
 	addExposedControl(m2Mirror_->heightControl());
 	addExposedControl(m2Mirror_->yawControl());
 	addExposedControl(m2Mirror_->lateralControl());
+	addExposedControl(m2Mirror_->bendControl());
 
 	// Mono controls.
 
