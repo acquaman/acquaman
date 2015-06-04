@@ -76,6 +76,13 @@ bool AMSMAKExporter::prepareDataSources()
 			for (int i = 0; i < xRange && xIndex_ == -1; i++)
 				if (int(fillerData.at(i)) == -1)
 					xIndex_ = i;
+
+			if (xIndex_ != xRange){
+
+				// This makes it so that we don't export the last row if it is incomplete.
+				yRange_--;
+				xIndex_ = -1;
+			}
 		}
 	}
 
