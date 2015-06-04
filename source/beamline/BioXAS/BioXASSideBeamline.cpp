@@ -189,14 +189,14 @@ QList<AMControl *> BioXASSideBeamline::getMotorsByType(BioXASBeamlineDef::BioXAS
 		break;
 
 	case BioXASBeamlineDef::M1Motor:	// BioXAS M1 motors
-		matchedMotors.append(m1VertUpStreamINB_);
-		matchedMotors.append(m1VertUpStreamOUTB_);
-		matchedMotors.append(m1VertDownStream_);
-		matchedMotors.append(m1StripeSelect_);
-		matchedMotors.append(m1Yaw_);
-		matchedMotors.append(m1BenderUpstream_);
-		matchedMotors.append(m1BenderDownStream_);
-		matchedMotors.append(m1UpperSlitBlade_);
+		matchedMotors.append(m1Mirror_->upstreamInboardMotorControl());
+		matchedMotors.append(m1Mirror_->upstreamOutboardMotorControl());
+		matchedMotors.append(m1Mirror_->downstreamMotorControl());
+		matchedMotors.append(m1Mirror_->stripeSelectMotorControl());
+		matchedMotors.append(m1Mirror_->yawMotorControl());
+		matchedMotors.append(m1Mirror_->benderUpstreamMotorControl());
+		matchedMotors.append(m1Mirror_->benderDownstreamMotorControl());
+		matchedMotors.append(m1Mirror_->upperSlitBladeMotorControl());
 		break;
 
 	case BioXASBeamlineDef::MaskMotor:	// BioXAS Variable Mask motors
@@ -227,25 +227,25 @@ QList<AMControl *> BioXASSideBeamline::getMotorsByType(BioXASBeamlineDef::BioXAS
 		break;
 
 	case BioXASBeamlineDef::PseudoM1Motor: // BioXAS Pseudo M1 motor
-		matchedMotors.append(m1PseudoRoll_);
-		matchedMotors.append(m1PseudoPitch_);
-		matchedMotors.append(m1PseudoHeight_);
-		matchedMotors.append(m1PseudoYaw_);
-		matchedMotors.append(m1PseudoLateral_);
+		matchedMotors.append(m1Mirror_->rollControl());
+		matchedMotors.append(m1Mirror_->pitchControl());
+		matchedMotors.append(m1Mirror_->heightControl());
+		matchedMotors.append(m1Mirror_->yawControl());
+		matchedMotors.append(m1Mirror_->lateralControl());
 		break;
 
-//	case BioXASBeamlineDef::PseudoM2Motor: // BioXAS Pseudo M2 motor
-//		matchedMotors.append(m2Mirror_->pseudoRollControl());
-//		matchedMotors.append(m2Mirror_->pseudoPitchControl());
-//		matchedMotors.append(m2Mirror_->pseudoYawControl());
-//		matchedMotors.append(m2Mirror_->pseudoHeightControl());
-//		matchedMotors.append(m2Mirror_->pseudoLateralControl());
+	case BioXASBeamlineDef::PseudoM2Motor: // BioXAS Pseudo M2 motor
+		matchedMotors.append(m2Mirror_->rollControl());
+		matchedMotors.append(m2Mirror_->pitchControl());
+		matchedMotors.append(m2Mirror_->yawControl());
+		matchedMotors.append(m2Mirror_->heightControl());
+		matchedMotors.append(m2Mirror_->lateralControl());
+		break;
+
+//	case BioXASBeamlineDef::PseudoMonoMotor: // BioXAS Pseudo Mono motor
+//		matchedMotors.append(monoPseudoEnergy_);
+//		matchedMotors.append(monoBraggAngle_);
 //		break;
-
-	case BioXASBeamlineDef::PseudoMonoMotor: // BioXAS Pseudo Mono motor
-		matchedMotors.append(monoPseudoEnergy_);
-		matchedMotors.append(monoBraggAngle_);
-		break;
 
 	default:
 		qDebug() << "ERROR: invalid BioXAS Motor category: " << category;
@@ -580,26 +580,7 @@ void BioXASSideBeamline::setupDetectorStage()
 
 void BioXASSideBeamline::setupMotorGroup()
 {
-	// M1 motors
-	m1VertUpStreamINB_ = new CLSMAXvMotor(QString("SMTR1607-5-I22-01 VERT INB (UPSTREAM)"), QString("SMTR1607-5-I22-01"), QString("SMTR1607-5-I22-01 VERT INB (UPSTREAM)"), true, 0.05, 2.0, this, QString(":mm"));
-	m1VertUpStreamOUTB_ = new CLSMAXvMotor(QString("SMTR1607-5-I22-02 VERT OUTB (UPSTREAM)"), QString("SMTR1607-5-I22-02"), QString("SMTR1607-5-I22-02 VERT OUTB (UPSTREAM)"), true, 0.05, 2.0, this, QString(":mm"));
-	m1VertDownStream_ = new CLSMAXvMotor(QString("SMTR1607-5-I22-03 VERT (DOWNSTREAM)"), QString("SMTR1607-5-I22-03"), QString("SMTR1607-5-I22-03 VERT (DOWNSTREAM)"), true, 0.05, 2.0, this, QString(":mm"));
-	m1StripeSelect_ = new CLSMAXvMotor(QString("SMTR1607-5-I22-04 STRIPE SELECT"), QString("SMTR1607-5-I22-04"), QString("SMTR1607-5-I22-04 STRIPE SELECT"), true, 0.05, 2.0, this, QString(":mm"));
-	m1Yaw_ = new CLSMAXvMotor(QString("SMTR1607-5-I22-05 YAW"), QString("SMTR1607-5-I22-05"), QString("SMTR1607-5-I22-05 YAW"), true, 0.05, 2.0, this, QString(":mm"));
-	m1BenderUpstream_ = new CLSMAXvMotor(QString("SMTR1607-5-I22-06 BENDER (UPSTREAM)"), QString("SMTR1607-5-I22-06"), QString("SMTR1607-5-I22-06 BENDER (UPSTREAM)"), true, 0.05, 2.0, this, QString(":lbs"));
-	m1BenderDownStream_ = new CLSMAXvMotor(QString("SMTR1607-5-I22-07 BENDER (DOWNSTREAM)"), QString("SMTR1607-5-I22-07"), QString("SMTR1607-5-I22-07 BENDER (DOWNSTREAM)"), true, 0.05, 2.0, this, QString(":lbs"));
-	m1UpperSlitBlade_ = new CLSMAXvMotor(QString("SMTR1607-5-I22-08 UPPER SLIT BLADE"), QString("SMTR1607-5-I22-08"), QString("SMTR1607-5-I22-08 UPPER SLIT BLADE"), true, 0.05, 2.0, this, QString(":mm"));
 
-	// BioXAS M1 Pseudo motors					   name,				   pvBaseName,				readPVname,	writePVname, movingPVname,	enabledPVname, stopPVname, tolerance, moveStartTimeoutSeconds, statusChecker, stopValue, description, parent = 0
-	m1PseudoRoll_ = new BioXASPseudoMotorControl("BL1607-5-I22 Side M1 Roll", "BL1607-5-I22:M1:Roll", ":deg:fbk", ":deg", ":status", ":enabled", ":stop");
-	m1PseudoPitch_ = new BioXASPseudoMotorControl("BL1607-5-I22 Side M1 Pitch", "BL1607-5-I22:M1:Pitch", ":deg:fbk", ":deg", ":status", ":enabled", ":stop");
-	m1PseudoHeight_ = new BioXASPseudoMotorControl("BL1607-5-I22 Side M1 Height", "BL1607-5-I22:M1:Height", ":mm:fbk", ":mm", ":status", ":enabled", ":stop");
-	m1PseudoYaw_ = new BioXASPseudoMotorControl("BL1607-5-I22 Side M1 Yaw", "BL1607-5-I22:M1:Yaw", ":deg:fbk", ":deg", ":status", ":enabled", ":stop");
-	m1PseudoLateral_ = new BioXASPseudoMotorControl("BL1607-5-I22 Side M1 Lateral", "BL1607-5-I22:M1:Lateral", ":mm:fbk", ":mm", ":status", ":enabled", ":stop");
-
-	// BioXAS Mono Pseudo motors					   name,				   pvBaseName,				readPVname,	writePVname, movingPVname,	enabledPVname, stopPVname, tolerance, moveStartTimeoutSeconds, statusChecker, stopValue, description, parent = 0
-	monoPseudoEnergy_ = new BioXASPseudoMotorControl("BL1607-5-I22 Side Mono Energy", "BL1607-5-I22:Energy", ":EV:fbk", ":EV", ":status", ":enabled", ":stop");
-	monoBraggAngle_ = new AMPVwStatusControl("BL1607-5-I22 Side Mono Bragg Angle", "BL1607-5-I22:Energy:EV:fbk:tr.K", "BL1607-5-I22:Energy:EV:sp:tr.E", "BL1607-5-I22:Energy:status", "BL1607-5-I22:Energy:stop", this, 0.05);
 }
 
 void BioXASSideBeamline::setupDetectors()

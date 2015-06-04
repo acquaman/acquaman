@@ -435,26 +435,6 @@ protected:
 
 	AMControlSet *temperatureSet_;
 
-	// M1 motors
-
-	CLSMAXvMotor *m1VertUpStreamINB_;
-	CLSMAXvMotor *m1VertUpStreamOUTB_;
-	CLSMAXvMotor *m1VertDownStream_;
-	CLSMAXvMotor *m1StripeSelect_;
-	CLSMAXvMotor *m1Yaw_;
-	CLSMAXvMotor *m1BenderUpstream_;
-	CLSMAXvMotor *m1BenderDownStream_;
-	CLSMAXvMotor *m1UpperSlitBlade_;
-
-	BioXASPseudoMotorControl *m1PseudoRoll_;
-	BioXASPseudoMotorControl *m1PseudoPitch_;
-	BioXASPseudoMotorControl *m1PseudoHeight_;
-	BioXASPseudoMotorControl *m1PseudoYaw_;
-	BioXASPseudoMotorControl *m1PseudoLateral_;
-
-	BioXASPseudoMotorControl *monoPseudoEnergy_;
-	AMPVwStatusControl *monoBraggAngle_;
-
 	/// Detector motors.
 
 	CLSMAXvMotor *detectorStageLateral_;
