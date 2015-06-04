@@ -7,6 +7,7 @@ BioXASSideM1MirrorBendControl::BioXASSideM1MirrorBendControl(const QString &name
 
 	setMinimumValue( calculateBendRadius(12, 12) );
 	setMaximumValue( calculateBendRadius(0.0001, 0.0001) );
+	setTolerance(100);
 
 	// Current settings.
 
