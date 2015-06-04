@@ -32,6 +32,21 @@ AMPseudoMotorControl::~AMPseudoMotorControl()
 
 }
 
+bool AMPseudoMotorControl::validValue(double value) const
+{
+	bool isValid = false;
+
+	if (value >= minimumValue() && value <= maximumValue())
+		isValid = true;
+
+	return isValid;
+}
+
+bool AMPseudoMotorControl::validSetpoint(double value) const
+{
+	return validValue(value);
+}
+
 void AMPseudoMotorControl::addChildControl(AMControl *control)
 {
 	if (control) {
@@ -39,7 +54,7 @@ void AMPseudoMotorControl::addChildControl(AMControl *control)
 
 		connect( control, SIGNAL(connected(bool)), this, SLOT(updateStates()) );
 		connect( control, SIGNAL(valueChanged(double)), this, SLOT(updateValue()) );
-		connect( control, SIGNAL(movingChanged(bool)), this, SLOT(updateIsMoving()) );
+		connect( control, SIGNAL(movingChanged(bool)), this, SLOT(updateMoving()) );
 	}
 }
 
@@ -50,8 +65,6 @@ void AMPseudoMotorControl::removeChildControl(AMControl *control)
 		children_.removeOne(control);
 	}
 }
-
-#include <QDebug>
 
 AMControl::FailureExplanation AMPseudoMotorControl::move(double setpoint)
 {
@@ -192,7 +205,7 @@ void AMPseudoMotorControl::updateStates()
 {
 	updateConnected();
 	updateValue();
-	updateIsMoving();
+	updateMoving();
 }
 
 void AMPseudoMotorControl::onMoveStarted(QObject *action)
@@ -222,7 +235,7 @@ void AMPseudoMotorControl::onMoveSucceeded(QObject *action)
 void AMPseudoMotorControl::moveCleanup(QObject *action)
 {
 	setMoveInProgress(false);
-	updateIsMoving();
+	updateMoving();
 
 	if (action) {
 		action->disconnect();

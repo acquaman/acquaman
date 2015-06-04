@@ -25,6 +25,8 @@ BioXASCarbonFilterFarmControl::BioXASCarbonFilterFarmControl(BioXASCarbonFilterF
 
 	setUpstreamActuatorControl(upstreamActuatorControl);
 	setDownstreamActuatorControl(downstreamActuatorControl);
+
+	updateStates();
 }
 
 BioXASCarbonFilterFarmControl::~BioXASCarbonFilterFarmControl()
@@ -327,7 +329,7 @@ void BioXASCarbonFilterFarmControl::updateValue()
 	setValue(newFilter);
 }
 
-void BioXASCarbonFilterFarmControl::updateIsMoving()
+void BioXASCarbonFilterFarmControl::updateMoving()
 {
 	if (isConnected()) {
 		setIsMoving( upstreamActuator_->isMoving() || downstreamActuator_->isMoving() );

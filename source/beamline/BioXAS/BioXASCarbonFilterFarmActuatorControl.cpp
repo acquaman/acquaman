@@ -31,7 +31,7 @@ BioXASCarbonFilterFarmActuatorControl::BioXASCarbonFilterFarmActuatorControl(AMC
 	setPositionControl(positionControl);
 	setStatusControl(statusControl);
 
-	updateValue();
+	updateStates();
 }
 
 BioXASCarbonFilterFarmActuatorControl::~BioXASCarbonFilterFarmActuatorControl()
@@ -224,7 +224,7 @@ void BioXASCarbonFilterFarmActuatorControl::updateValue()
 	}
 }
 
-void BioXASCarbonFilterFarmActuatorControl::updateIsMoving()
+void BioXASCarbonFilterFarmActuatorControl::updateMoving()
 {
 	if (isConnected()) {
 		setIsMoving(position_->isMoving());

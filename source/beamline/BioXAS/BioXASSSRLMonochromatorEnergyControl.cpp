@@ -25,13 +25,11 @@ BioXASSSRLMonochromatorEnergyControl::BioXASSSRLMonochromatorEnergyControl(const
 	bragg_ = 0;
 	braggSetPosition_ = 0;
 	region_ = 0;
-	m1Mirror_ = 0;
+	m1MirrorPitch_ = 0;
 
 	// Current settings.
 
-	updateConnected();
-	updateValue();
-	updateIsMoving();
+	updateStates();
 }
 
 BioXASSSRLMonochromatorEnergyControl::~BioXASSSRLMonochromatorEnergyControl()
@@ -44,7 +42,7 @@ bool BioXASSSRLMonochromatorEnergyControl::canMeasure() const
 	bool result = false;
 
 	if (isConnected())
-		result = ( bragg_->canMeasure() && braggSetPosition_->canMeasure() && region_->canMeasure() && m1Mirror_->canMeasure() );
+		result = ( bragg_->canMeasure() && braggSetPosition_->canMeasure() && region_->canMeasure() && m1MirrorPitch_->canMeasure() );
 
 	return result;
 }
@@ -123,21 +121,21 @@ void BioXASSSRLMonochromatorEnergyControl::setRegionControl(AMControl *newContro
 	}
 }
 
-void BioXASSSRLMonochromatorEnergyControl::setM1MirrorControl(AMControl *newControl)
+void BioXASSSRLMonochromatorEnergyControl::setM1MirrorPitchControl(AMControl *newControl)
 {
-	if (m1Mirror_ != newControl) {
+	if (m1MirrorPitch_ != newControl) {
 
-		if (m1Mirror_)
-			removeChildControl(m1Mirror_);
+		if (m1MirrorPitch_)
+			removeChildControl(m1MirrorPitch_);
 
-		m1Mirror_ = newControl;
+		m1MirrorPitch_ = newControl;
 
-		if (m1Mirror_)
-			addChildControl(m1Mirror_);
+		if (m1MirrorPitch_)
+			addChildControl(m1MirrorPitch_);
 
 		updateStates();
 
-		emit m1MirrorControlChanged(m1Mirror_);
+		emit m1MirrorControlChanged(m1MirrorPitch_);
 	}
 }
 
@@ -146,7 +144,7 @@ void BioXASSSRLMonochromatorEnergyControl::setEnergy(double newEnergy)
 	if (isConnected()) {
 
 		// Convert the desired energy into a bragg position.
-		double newPosition = calculateBraggPositionFromEnergy(hc_, crystal2D_, newEnergy, region_->value(), m1Mirror_->value(), thetaBraggOffset_, regionOffset_);
+		double newPosition = calculateBraggPositionFromEnergy(hc_, crystal2D_, newEnergy, region_->value(), m1MirrorPitch_->value(), thetaBraggOffset_, regionOffset_);
 
 		// Set the new position as the current bragg position.
 		braggSetPosition_->move(newPosition);
@@ -162,7 +160,7 @@ void BioXASSSRLMonochromatorEnergyControl::updateConnected()
 				bragg_ && bragg_->isConnected() &&
 				braggSetPosition_ && braggSetPosition_->isConnected() &&
 				region_ && region_->isConnected() &&
-				m1Mirror_ && m1Mirror_->isConnected()
+				m1MirrorPitch_ && m1MirrorPitch_->isConnected()
 				);
 
 	setConnected(isConnected);
@@ -171,11 +169,11 @@ void BioXASSSRLMonochromatorEnergyControl::updateConnected()
 void BioXASSSRLMonochromatorEnergyControl::updateValue()
 {
 	if (isConnected()) {
-		setValue( calculateEnergyFromBraggPosition(hc_, crystal2D_, bragg_->value(), region_->value(), m1Mirror_->value(), thetaBraggOffset_, regionOffset_));
+		setValue( calculateEnergyFromBraggPosition(hc_, crystal2D_, bragg_->value(), region_->value(), m1MirrorPitch_->value(), thetaBraggOffset_, regionOffset_));
 	}
 }
 
-void BioXASSSRLMonochromatorEnergyControl::updateIsMoving()
+void BioXASSSRLMonochromatorEnergyControl::updateMoving()
 {
 	if (isConnected()) {
 		setIsMoving( bragg_->isMoving() );
@@ -189,7 +187,7 @@ AMAction3* BioXASSSRLMonochromatorEnergyControl::createMoveAction(double setpoin
 	if (isConnected()) {
 
 		// Calculate the bragg motor position corresponding to the given energy setpoint.
-		double newPosition = calculateBraggPositionFromEnergy(hc_, crystal2D_, setpoint, region_->value(), m1Mirror_->value(), thetaBraggOffset_, regionOffset_);
+		double newPosition = calculateBraggPositionFromEnergy(hc_, crystal2D_, setpoint, region_->value(), m1MirrorPitch_->value(), thetaBraggOffset_, regionOffset_);
 
 		// Create move action.
 		result = AMActionSupport::buildControlMoveAction(bragg_, newPosition);
@@ -198,27 +196,27 @@ AMAction3* BioXASSSRLMonochromatorEnergyControl::createMoveAction(double setpoin
 	return result;
 }
 
-double BioXASSSRLMonochromatorEnergyControl::calculateBraggAngleFromPositionRegionA(double braggPosition, double m1AngleOffset, double thetaBraggOffset, double regionOffset)
+double BioXASSSRLMonochromatorEnergyControl::calculateBraggAngleFromPositionRegionA(double braggPosition, double m1Pitch, double thetaBraggOffset, double regionOffset)
 {
-	double braggAngle = calculateBraggAngleFromPositionRegionB(braggPosition, m1AngleOffset, thetaBraggOffset) - regionOffset;
+	double braggAngle = calculateBraggAngleFromPositionRegionB(braggPosition, m1Pitch, thetaBraggOffset) - regionOffset;
 	return braggAngle;
 }
 
-double BioXASSSRLMonochromatorEnergyControl::calculateBraggAngleFromPositionRegionB(double braggPosition, double m1AngleOffset, double thetaBraggOffset)
+double BioXASSSRLMonochromatorEnergyControl::calculateBraggAngleFromPositionRegionB(double braggPosition, double m1Pitch, double thetaBraggOffset)
 {
-	double braggAngle = thetaBraggOffset - braggPosition + m1AngleOffset;
+	double braggAngle = thetaBraggOffset - braggPosition + m1Pitch;
 	return braggAngle;
 }
 
-double BioXASSSRLMonochromatorEnergyControl::calculateBraggPositionFromAngleRegionA(double braggAngle, double m1AngleOffset, double thetaBraggOffset, double regionOffset)
+double BioXASSSRLMonochromatorEnergyControl::calculateBraggPositionFromAngleRegionA(double braggAngle, double m1Pitch, double thetaBraggOffset, double regionOffset)
 {
-	double braggPosition = calculateBraggPositionFromAngleRegionB(braggAngle, m1AngleOffset, thetaBraggOffset) - regionOffset;
+	double braggPosition = calculateBraggPositionFromAngleRegionB(braggAngle, m1Pitch, thetaBraggOffset) - regionOffset;
 	return braggPosition;
 }
 
-double BioXASSSRLMonochromatorEnergyControl::calculateBraggPositionFromAngleRegionB(double braggAngle, double m1AngleOffset, double thetaBraggOffset)
+double BioXASSSRLMonochromatorEnergyControl::calculateBraggPositionFromAngleRegionB(double braggAngle, double m1Pitch, double thetaBraggOffset)
 {
-	double braggPosition = thetaBraggOffset + m1AngleOffset - braggAngle;
+	double braggPosition = thetaBraggOffset + m1Pitch - braggAngle;
 	return braggPosition;
 }
 
@@ -234,7 +232,7 @@ double BioXASSSRLMonochromatorEnergyControl::calculateEnergyFromBraggAngle(doubl
 	return energy;
 }
 
-double BioXASSSRLMonochromatorEnergyControl::calculateBraggPositionFromEnergy(double hc, double crystal2D, double energy, double region, double m1AngleOffset, double thetaBraggOffset, double regionOffset)
+double BioXASSSRLMonochromatorEnergyControl::calculateBraggPositionFromEnergy(double hc, double crystal2D, double energy, double region, double m1Pitch, double thetaBraggOffset, double regionOffset)
 {
 	double result = 0;
 	double braggPosition = 0;
@@ -249,11 +247,11 @@ double BioXASSSRLMonochromatorEnergyControl::calculateBraggPositionFromEnergy(do
 
 	switch ((int)region) {
 	case BioXASSSRLMonochromator::Region::A:
-		braggPosition = calculateBraggPositionFromAngleRegionA(braggAngle, m1AngleOffset, thetaBraggOffset, regionOffset);
+		braggPosition = calculateBraggPositionFromAngleRegionA(braggAngle, m1Pitch, thetaBraggOffset, regionOffset);
 		validRegion = true;
 		break;
 	case BioXASSSRLMonochromator::Region::B:
-		braggPosition = calculateBraggPositionFromAngleRegionB(braggAngle, m1AngleOffset, thetaBraggOffset);
+		braggPosition = calculateBraggPositionFromAngleRegionB(braggAngle, m1Pitch, thetaBraggOffset);
 		validRegion = true;
 		break;
 	default:
@@ -266,7 +264,7 @@ double BioXASSSRLMonochromatorEnergyControl::calculateBraggPositionFromEnergy(do
 	return result;
 }
 
-double BioXASSSRLMonochromatorEnergyControl::calculateEnergyFromBraggPosition(double hc, double crystal2D, double braggPosition, double region, double m1AngleOffset, double thetaBraggOffset, double regionOffset)
+double BioXASSSRLMonochromatorEnergyControl::calculateEnergyFromBraggPosition(double hc, double crystal2D, double braggPosition, double region, double m1Pitch, double thetaBraggOffset, double regionOffset)
 {
 	double result = 0;
 	double braggAngle = 0;
@@ -276,11 +274,11 @@ double BioXASSSRLMonochromatorEnergyControl::calculateEnergyFromBraggPosition(do
 
 	switch ((int)region) {
 	case BioXASSSRLMonochromator::Region::A:
-		braggAngle = calculateBraggAngleFromPositionRegionA(braggPosition, m1AngleOffset, thetaBraggOffset, regionOffset);
+		braggAngle = calculateBraggAngleFromPositionRegionA(braggPosition, m1Pitch, thetaBraggOffset, regionOffset);
 		validRegion = true;
 		break;
 	case BioXASSSRLMonochromator::Region::B:
-		braggAngle = calculateBraggAngleFromPositionRegionB(braggPosition, m1AngleOffset, thetaBraggOffset);
+		braggAngle = calculateBraggAngleFromPositionRegionB(braggPosition, m1Pitch, thetaBraggOffset);
 		validRegion = true;
 		break;
 	default:

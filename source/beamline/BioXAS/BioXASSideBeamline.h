@@ -48,6 +48,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/BioXAS/BioXAS32ElementGeDetector.h"
 #include "beamline/BioXAS/BioXASSideCarbonFilterFarm.h"
 #include "beamline/BioXAS/BioXASSideXIAFilters.h"
+#include "beamline/BioXAS/BioXASSideM1Mirror.h"
 #include "beamline/BioXAS/BioXASSideM2Mirror.h"
 #include "beamline/BioXAS/BioXASSideDBHRMirror.h"
 #include "beamline/BioXAS/BioXASFourElementVortexDetector.h"
@@ -95,15 +96,6 @@ public:
 	BioXASSideXIAFilters* xiaFilters() const { return xiaFilters_; }
 	/// Returns the DBHR mirrors.
 	BioXASSideDBHRMirror* dbhrMirror() const { return dbhrMirror_; }
-
-//	bool openPhotonShutter1();
-//	bool closePhotonShutter1();
-//	bool openPhotonShutter2();
-//	bool closePhotonShutter2();
-//	bool openSafetyShutter1();
-//	bool closeSafetyShutter1();
-//	bool openSafetyShutter2();
-//	bool closeSafetyShutter2();
 
 	// Pressure monitors.
 	AMControl *ccg1() const { return ccg1_; }
@@ -291,7 +283,7 @@ protected:
 	/// Sets up the detector stage motors.
 	void setupDetectorStage();
 	/// Sets up various beamline components.
-	void setupComponents();
+	virtual void setupComponents();
 	/// Sets up the exposed actions.
 	void setupExposedControls();
 	/// Sets up the exposed detectors.
@@ -301,15 +293,11 @@ protected:
 	/// Sets up all of the detectors that need to be added to scans that aren't a part of typical detectors.  This may just be temporary, not sure.
 	void setupControlsAsDetectors();
 
-	// Temporarily makes the mirror controls available, until the branch that this work is being done in is merged. Then it should be safe to remove this!
-	void setupMirrorControls();
-
 	/// Constructor. This is a singleton class, access it through BioXASSideBeamline::bioXAS().
 	BioXASSideBeamline();
 
 protected:
 	// Detectors
-
 	CLSBasicScalerChannelDetector *i0Detector_;
 	CLSBasicScalerChannelDetector *i1Detector_;
 	CLSBasicScalerChannelDetector *i2Detector_;

@@ -2,7 +2,7 @@
 #include "util/AMErrorMonitor.h"
 
 BioXASCarbonFilterFarm::BioXASCarbonFilterFarm(const QString &name, QObject *parent) :
-	QObject(parent)
+	BioXASBeamlineComponent(name, parent)
 {
 	// Initialize local variables.
 
@@ -25,15 +25,11 @@ BioXASCarbonFilterFarm::~BioXASCarbonFilterFarm()
 
 }
 
-void BioXASCarbonFilterFarm::setConnected(bool isConnected)
+bool BioXASCarbonFilterFarm::isConnected() const
 {
-	if (connected_ != isConnected) {
-		connected_ = isConnected;
-		emit connectedChanged(connected_);
-	}
-}
+	bool connected = (
+				filter_ && filter_->isConnected()
+				);
 
-void BioXASCarbonFilterFarm::updateConnected()
-{
-	setConnected( (filter_ && filter_->isConnected()) );
+	return connected;
 }
