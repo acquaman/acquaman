@@ -147,10 +147,13 @@ AMAction3* BioXASSideXASScanActionController::createInitializationActions()
 		initializationAction->addSubAction(xspress3Setup);
 	}
 
-	AMAction3 *standardsWheelAction = BioXASSideBeamline::bioXAS()->standardsWheel()->createMoveToNameAction(configuration_->edge().split(" ").first());
+	CLSStandardsWheel *standardsWheel = BioXASSideBeamline::bioXAS()->standardsWheel();
 
-	if (standardsWheelAction)
-		initializationAction->addSubAction(standardsWheelAction);
+	if (standardsWheel->indexFromName(configuration_->edge().split(" ").first()) != -1)
+		initializationAction->addSubAction(standardsWheel->createMoveToNameAction(configuration_->edge().split(" ").first()));
+
+	else
+		initializationAction->addSubAction(standardsWheel->createMoveToNameAction("None"));
 
 	return initializationAction;
 }
