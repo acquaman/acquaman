@@ -97,12 +97,7 @@ void BioXASMainAppController::onScalerConnected()
 
 	if (scaler && scaler->isConnected() && !scalerView_) {
 		scalerView_ = new BioXASSIS3820ScalerView(scaler, true);
-<<<<<<< HEAD
-		QGroupBox *scalerBox = createSqueezeGroupBoxWithView(scalerView_, "Scaler", ":/system-software-update.png");
-		mw_->addPane(scalerBox, "Detectors", "Scaler", ":/system-software-update.png", true);
-=======
 		mw_->addPane(AMMainWindow::buildMainWindowPane("Scaler",":/utilities-system-monitor.png", scalerView_), "Detectors", "Scaler", ":/utilities-system-monitor.png", true);
->>>>>>> 469de0d1328869363817335f1e4d0ac5b6599bf4
 	}
 }
 
