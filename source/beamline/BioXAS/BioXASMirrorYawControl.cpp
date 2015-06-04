@@ -24,7 +24,10 @@ bool BioXASMirrorYawControl::canMeasure() const
 	bool result = false;
 
 	if (isConnected()) {
-		result = yaw_->canMeasure();
+		result = (
+					yaw_->canMeasure() &&
+					stripeSelect_->canMeasure()
+					);
 	}
 
 	return result;
@@ -35,7 +38,10 @@ bool BioXASMirrorYawControl::canMove() const
 	bool result = false;
 
 	if (isConnected()) {
-		result = yaw_->canMove();
+		result = (
+					yaw_->canMove() &&
+					stripeSelect_->canMove()
+					);
 	}
 
 	return result;
@@ -46,7 +52,10 @@ bool BioXASMirrorYawControl::canStop() const
 	bool result = false;
 
 	if (isConnected()) {
-		result = yaw_->canStop();
+		result = (
+					yaw_->canStop() &&
+					stripeSelect_->canStop()
+					);
 	}
 
 	return result;
@@ -72,7 +81,7 @@ void BioXASMirrorYawControl::updateValue()
 void BioXASMirrorYawControl::updateMoving()
 {
 	if (isConnected()) {
-		setIsMoving(yaw_->isMoving());
+		setIsMoving(yaw_->isMoving() || stripeSelect_->isMoving());
 	}
 }
 

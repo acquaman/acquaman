@@ -66,8 +66,6 @@ signals:
 public slots:
 
 protected:
-	/// Creates and returns a QGroupBox widget containing the given view that's stretched horizontally and vertically, with the given title.
-	QGroupBox *createSqueezeGroupBoxWithView(QWidget *view, const QString &title, const QString &iconName);
 };
 
 #endif // BIOXASAPPCONTROLLER_H
