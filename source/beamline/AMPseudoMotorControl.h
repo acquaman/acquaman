@@ -42,9 +42,9 @@ public:
 	virtual bool moveInProgress() const { return moveInProgress_; }
 
 	/// Returns true if the given value is a valid value for this control. False otherwise.
-	virtual bool validValue(double value) const = 0;
+	virtual bool validValue(double value) const;
 	/// Returns true if the given value is a valid setpoint for this control. False otherwise.
-	virtual bool validSetpoint(double value) const = 0;
+	virtual bool validSetpoint(double value) const;
 
 	/// Adds a given control to the list of child controls.
 	virtual void addChildControl(AMControl *control);
@@ -85,8 +85,8 @@ protected slots:
 	virtual void updateConnected() = 0;
 	/// Updates the current value.
 	virtual void updateValue() = 0;
-	/// Updates the 'is moving' state.
-	virtual void updateIsMoving() = 0;
+	/// Updates the moving state.
+	virtual void updateMoving() = 0;
 	/// Updates the minimum value.
 	virtual void updateMinimumValue() { return; }
 	/// Updates the maximum value.

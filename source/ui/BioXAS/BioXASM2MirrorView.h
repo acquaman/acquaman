@@ -1,12 +1,9 @@
 #ifndef BIOXASM2MIRRORVIEW_H
 #define BIOXASM2MIRRORVIEW_H
 
-#include <QWidget>
-#include <QLayout>
-
+#include "ui/BioXAS/BioXASMirrorView.h"
 #include "beamline/BioXAS/BioXASM2Mirror.h"
-
-class AMExtendedControlEditor;
+#include "ui/BioXAS/BioXASMirrorBendView.h"
 
 class BioXASM2MirrorView : public QWidget
 {
@@ -33,11 +30,12 @@ protected:
 	/// The mirror being viewed.
 	BioXASM2Mirror *mirror_;
 
-	/// The main layout.
-	QVBoxLayout *layout_;
+	/// The basic mirror editor.
+	BioXASMirrorView *mirrorEditor_;
 	/// The editor for the screen control.
 	AMExtendedControlEditor *screenEditor_;
-
+	/// The mirror bend view.
+	BioXASMirrorBendView *bendView_;
 };
 
 #endif // BIOXASM2MIRRORVIEW_H

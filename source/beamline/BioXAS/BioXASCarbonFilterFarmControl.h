@@ -73,7 +73,7 @@ protected slots:
 	/// Updates the current value.
 	virtual void updateValue();
 	/// Updates the 'is moving' state.
-	virtual void updateIsMoving();
+	virtual void updateMoving();
 
 protected:
 	/// Returns a new action that moves the actuators to the desired filter thickness setpoint.

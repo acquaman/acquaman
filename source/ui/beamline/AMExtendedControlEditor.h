@@ -183,8 +183,6 @@ protected:
 	QLabel* statusLabel_;
 	AMExtendedControlEditorStyledInputDialog* dialog_;
 
-	int moveCounter_;
-
 	/// Flag that indicates whether or not the units should be updated when the control indicates they have changed.
 	bool unitsSetManually_;
 	/// Flag that indicates whether or not the editor title should be updated when a new control is set.

@@ -41,9 +41,7 @@ BioXASSSRLMonochromatorRegionControl::BioXASSSRLMonochromatorRegionControl(QObje
 
 	// Current settings.
 
-	updateConnected();
-	updateValue();
-	updateIsMoving();
+	updateStates();
 }
 
 BioXASSSRLMonochromatorRegionControl::~BioXASSSRLMonochromatorRegionControl()
@@ -369,7 +367,7 @@ void BioXASSSRLMonochromatorRegionControl::updateValue()
 	}
 }
 
-void BioXASSSRLMonochromatorRegionControl::updateIsMoving()
+void BioXASSSRLMonochromatorRegionControl::updateMoving()
 {
 	if (isConnected()) {
 		setIsMoving(

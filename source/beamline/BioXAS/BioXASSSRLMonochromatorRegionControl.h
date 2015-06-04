@@ -153,7 +153,7 @@ protected slots:
 	/// Updates the current value.
 	virtual void updateValue();
 	/// Updates the 'is moving' state.
-	virtual void updateIsMoving();
+	virtual void updateMoving();
 
 	/// Handles emitting the appropriate signals when the current step in a move has changed.
 	void onMoveStepChanged(int stepIndex);
