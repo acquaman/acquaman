@@ -116,7 +116,6 @@ QList<AMControl *> BioXASMainBeamline::getMotorsByType(BioXASBeamlineDef::BioXAS
 
 	case BioXASBeamlineDef::PseudoMonoMotor: // BioXAS Pseudo Mono motor
 		matchedMotors.append(mono_->energyControl());
-//		matchedMotors.append(mono_->bragg);
 		break;
 
 	default:
@@ -266,10 +265,6 @@ void BioXASMainBeamline::setupMotorGroup()
 	// BioXAS filter motors
 	carbonFilterFarm1_ = new CLSMAXvMotor(QString("SMTR1607-5-I00-03 Filter 1"), QString("SMTR1607-5-I00-03"), QString("SMTR1607-5-I00-03 Filter 1"), true, 0.05, 2.0, this, QString(":mm"));
 	carbonFilterFarm2_ = new CLSMAXvMotor(QString("SMTR1607-5-I00-04 Filter 2"), QString("SMTR1607-5-I00-04"), QString("SMTR1607-5-I00-04 Filter 2"), true, 0.05, 2.0, this, QString(":mm"));
-
-//	// BioXAS Mono Pseudo motors					   name,				   pvBaseName,				readPVname,	writePVname, movingPVname,	enabledPVname, stopPVname, tolerance, moveStartTimeoutSeconds, statusChecker, stopValue, description, parent = 0
-//	monoPseudoEnergy_ = new BioXASPseudoMotorControl("BL1607-5-I21 Main Mono Energy", "BL1607-5-I21:Energy", ":EV:fbk", ":EV", ":status", ":enabled", ":stop");
-//	monoBraggAngle_ = new AMPVwStatusControl("BL1607-5-I21 Main Mono Bragg Angle", "BL1607-5-I21:Energy:EV:fbk:tr.K", "BL1607-5-I21:Energy:EV:sp:tr.E", "BL1607-5-I21:Energy:status", "BL1607-5-I21:Energy:stop", this, 0.05);
 }
 
 void BioXASMainBeamline::setupControlsAsDetectors()
