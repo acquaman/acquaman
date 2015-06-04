@@ -170,7 +170,7 @@ void BioXASMainAppController::setupUserInterface()
 
 	commissioningConfiguration_ = new AMGenericStepScanConfiguration;
 	commissioningConfigurationView_ = new AMGenericStepScanConfigurationView(commissioningConfiguration_);
-	commissioningConfigurationViewHolder_ = new AMScanConfigurationViewHolder3("BioXAS Commissioning Tool",true, true, commissioningConfigurationView_);
+	commissioningConfigurationViewHolder_ = new AMScanConfigurationViewHolder3("Commissioning Tool",true, true, commissioningConfigurationView_);
 	mw_->addPane(commissioningConfigurationViewHolder_, "Scans", "Commissioning Tool", ":/utilities-system-monitor.png");
 
 	// Create persistent view panel:
