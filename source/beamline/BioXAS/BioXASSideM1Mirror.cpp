@@ -41,6 +41,7 @@ BioXASSideM1Mirror::BioXASSideM1Mirror(QObject *parent) :
 
 	yaw_ = new BioXASMirrorYawControl(name_+"YawControl", "deg", this);
 	yaw_->setYawMotor(yawMotor_);
+	yaw_->setStripeSelectionMotor(stripeSelectMotor_);
 	yaw_->setUpstreamLength(upstreamLength_);
 	yaw_->setDownstreamLength(downstreamLength_);
 

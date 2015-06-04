@@ -144,6 +144,8 @@ void BioXASMainAppController::setupExporterOptions()
 
 void BioXASMainAppController::setupUserInterface()
 {
+	mw_->setWindowTitle("Acquaman - BioXAS Main");
+
 	// Create panes in the main window:
 	////////////////////////////////////
 
@@ -181,7 +183,6 @@ void BioXASMainAppController::setupUserInterface()
 
 	persistentPanel_ = new BioXASMainPersistentView();
 	persistentPanel_->setFixedWidth(400);
-
 	mw_->addRightWidget(persistentPanel_);
 }
 
