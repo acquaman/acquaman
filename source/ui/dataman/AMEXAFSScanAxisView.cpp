@@ -48,6 +48,7 @@ AMEXAFSScanAxisElementView::AMEXAFSScanAxisElementView(AMScanAxisEXAFSRegion *re
 
 	delta_ = new QDoubleSpinBox;
 	delta_->setRange(-100000, 100000);
+	delta_->setSingleStep(0.5);
 	delta_->setSuffix(region_->inKSpace() ? "k" : " eV");
 	delta_->setDecimals(2);
 	delta_->setValue(double(region_->regionStep()));
