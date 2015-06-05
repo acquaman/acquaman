@@ -42,7 +42,7 @@ void CLSStandardsWheelElement::setPosition(double newPosition)
 CLSStandardsWheel::CLSStandardsWheel(const QString &name, const QString &basePVName, QObject *parent)
 	: QObject(parent)
 {
-	wheel_ = new CLSMAXvMotor(name, basePVName, name, true, 0.1, 2.0, this, ":deg");
+	wheel_ = new CLSMAXvMotor(name, basePVName, name, false, 5.0, 2.0, this, ":deg");
 	elementMapper_ = new QSignalMapper;
 
 	for (int i = 0; i < 12; i++){
@@ -54,6 +54,7 @@ CLSStandardsWheel::CLSStandardsWheel(const QString &name, const QString &basePVN
 	}
 
 	connect(elementMapper_, SIGNAL(mapped(int)), this, SLOT(onMappedElementChanged(int)));
+	connect(wheel_, SIGNAL(valueChanged(double)), this, SLOT(onNewWheelPosition()));
 }
 
 CLSStandardsWheel::~CLSStandardsWheel()
@@ -93,10 +94,29 @@ int CLSStandardsWheel::indexFromName(const QString &name) const
 {
 	int index = -1;
 
-	for (int i = 0, size = wheelElements_.size(); i < size && i != -1; i++)
+	for (int i = 0, size = wheelElements_.size(); i < size && index == -1; i++)
 		if (wheelElements_.at(i)->name() == name)
 			index = i;
 
 	return index;
+}
 
+int CLSStandardsWheel::currentPosition() const
+{
+	return currentPosition_;
+}
+
+void CLSStandardsWheel::onNewWheelPosition()
+{
+	int index = -1;
+
+	for (int i =  0, size = wheelElements_.size(); i < size && index == -1; i++)
+		if (wheel_->withinTolerance(wheelElements_.at(i)->position()))
+			index = i;
+
+	if (index != currentPosition_){
+
+		currentPosition_ = index;
+		emit positionChanged(currentPosition_);
+	}
 }

@@ -53,6 +53,7 @@ CLSStandardsWheelConfigurationView::CLSStandardsWheelConfigurationView(CLSStanda
 
 	connect(standardsComboBox_, SIGNAL(currentIndexChanged(int)), this, SLOT(onStandardsWheelIndexChanged(int)));
 	connect(standardsWheel_, SIGNAL(nameChanged(int,QString)), this, SLOT(onStandardsWheelNameChanged(int,QString)));
+	connect(standardsWheel_, SIGNAL(positionChanged(int)), this, SLOT(onStandardsWheelPositionChanged(int)));
 
 	wheelLayout->addRow("Position", standardsComboBox_);
 
@@ -84,4 +85,11 @@ void CLSStandardsWheelConfigurationView::onStandardsWheelIndexChanged(int index)
 void CLSStandardsWheelConfigurationView::onStandardsWheelNameChanged(int index, const QString &newName)
 {
 	standardsComboBox_->setItemData(index, newName);
+}
+
+void CLSStandardsWheelConfigurationView::onStandardsWheelPositionChanged(int index)
+{
+	standardsComboBox_->blockSignals(true);
+	standardsComboBox_->setCurrentIndex(index);
+	standardsComboBox_->blockSignals(false);
 }

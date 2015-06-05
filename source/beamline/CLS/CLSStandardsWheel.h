@@ -58,6 +58,9 @@ public:
 	/// Returns the index for a given name.
 	int indexFromName(const QString &name) const;
 
+	/// Returns the current position index.
+	int currentPosition() const;
+
 	/// Returns the list of elements.
 	QList<CLSStandardsWheelElement *> wheelElements() const { return wheelElements_; }
 	/// Returns the element at the given index.
@@ -69,6 +72,8 @@ public:
 signals:
 	/// Notifier that the name changed for the given element.
 	void nameChanged(int, const QString &);
+	/// Notifier that the position has changed.
+	void positionChanged(int);
 
 public slots:
 	/// Sets the name of a given element.
@@ -80,6 +85,8 @@ public slots:
 protected slots:
 	/// Handles emitting signals based on the mapping.
 	void onMappedElementChanged(int id);
+	/// Handles emitting the position changed signal.
+	void onNewWheelPosition();
 
 protected:
 	/// The control that moves the motor.
@@ -90,6 +97,8 @@ protected:
 
 	/// Signal mapper to make sure that the pieces of the information buried in the elements gets properly passed to other objects.
 	QSignalMapper *elementMapper_;
+	/// The current position of the wheel.
+	int currentPosition_;
 };
 
 #endif // CLSSTANDARDSWHEEL_H

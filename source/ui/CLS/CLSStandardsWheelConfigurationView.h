@@ -56,6 +56,8 @@ protected slots:
 	void onStandardsWheelIndexChanged(int index);
 	/// Handles updating the standards wheel names.
 	void onStandardsWheelNameChanged(int index, const QString &newName);
+	/// Handles updating the combo box with the new position of the standards wheel.
+	void onStandardsWheelPositionChanged(int index);
 
 protected:
 	/// The wheel to be visualized.
