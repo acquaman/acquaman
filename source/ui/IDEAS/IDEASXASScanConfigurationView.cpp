@@ -207,11 +207,28 @@ void IDEASXASScanConfigurationView::setupDefaultXANESScanRegions()
 
 	AMScanAxisEXAFSRegion *region = new AMScanAxisEXAFSRegion;
 	region->setEdgeEnergy(configuration_->energy());
-	region->setRegionStart(configuration_->energy() - 30);
-	region->setRegionStep(0.5);
-	region->setRegionEnd(configuration_->energy() + 40);
+	region->setRegionStart(configuration_->energy() - 50);
+	region->setRegionStep(1.0);
+	region->setRegionEnd(configuration_->energy() - 20);
 	region->setRegionTime(1.0);
 	regionsView_->insertEXAFSRegion(0, region);
+
+	region = new AMScanAxisEXAFSRegion;
+	region->setEdgeEnergy(configuration_->energy());
+	region->setRegionStart(configuration_->energy() - 20);
+	region->setRegionStep(0.5);
+	region->setRegionEnd(configuration_->energy() + 20);
+	region->setRegionTime(1.0);
+	regionsView_->insertEXAFSRegion(1, region);
+
+	region = new AMScanAxisEXAFSRegion;
+	region->setEdgeEnergy(configuration_->energy());
+	region->setRegionStart(configuration_->energy() + 20);
+	region->setRegionStep(2.0);
+	region->setRegionEnd(configuration_->energy() + 100);
+	region->setRegionTime(1.0);
+	regionsView_->insertEXAFSRegion(2, region);
+
 }
 
 void IDEASXASScanConfigurationView::setupDefaultEXAFSScanRegions()
