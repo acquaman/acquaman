@@ -61,6 +61,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/BioXAS/BioXASSideXASScanConfigurationView.h"
 #include "ui/BioXAS/BioXAS32ElementGeDetectorView.h"
 #include "ui/BioXAS/BioXASSSRLMonochromatorConfigurationView.h"
+
+#include "ui/CLS/CLSStandardsWheelConfigurationView.h"
+
 #include "ui/BioXAS/BioXASXIAFiltersView.h"
 #include "ui/BioXAS/BioXASCarbonFilterFarmView.h"
 #include "ui/BioXAS/BioXASM2MirrorView.h"
@@ -228,6 +231,9 @@ void BioXASSideAppController::setupUserInterface()
 	dbhrView_ = new BioXASDBHRMirrorView(BioXASSideBeamline::bioXAS()->dbhrMirror());
 	mw_->addPane(AMMainWindow::buildMainWindowPane("DBHR Mirrors", ":/system-software-update.png", dbhrView_), "General", "DBHR Mirrors", ":/system-software-update.png");
 
+	CLSStandardsWheelConfigurationView *wheelView = new CLSStandardsWheelConfigurationView(BioXASSideBeamline::bioXAS()->standardsWheel());
+	mw_->addPane(AMMainWindow::buildMainWindowPane("Standards Wheel", ":/system-software-update.png", wheelView), "General", "Standards Wheel", ":/system-software-update.png");
+
 	// Create scaler view, if scaler is present and connected.
 	onScalerConnected();
 
@@ -265,7 +271,6 @@ void BioXASSideAppController::setupUserInterface()
 	persistentPanel_ = new BioXASSidePersistentView();
 	persistentPanel_->setFixedWidth(400);
 	mw_->addRightWidget(persistentPanel_);
-
 }
 
 void BioXASSideAppController::makeConnections()

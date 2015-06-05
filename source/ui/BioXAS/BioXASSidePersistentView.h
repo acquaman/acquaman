@@ -28,13 +28,13 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 class BioXASSidePersistentView : public QWidget
 {
-    Q_OBJECT
+	Q_OBJECT
 
 public:
-    /// Constructor.
-    explicit BioXASSidePersistentView(QWidget *parent = 0);
+	/// Constructor.
+	explicit BioXASSidePersistentView(QWidget *parent = 0);
 	/// Destructor.
-    virtual ~BioXASSidePersistentView();
+	virtual ~BioXASSidePersistentView();
 
 protected:
 	/// General BioXAS persistent view.

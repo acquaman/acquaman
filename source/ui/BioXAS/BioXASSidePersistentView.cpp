@@ -24,8 +24,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/BioXAS/BioXASSideBeamline.h"
 #include "ui/beamline/AMControlEditor.h"
 
+#include <QComboBox>
+
 BioXASSidePersistentView::BioXASSidePersistentView(QWidget *parent) :
-    QWidget(parent)
+	QWidget(parent)
 {
 	// Create UI elements.
 

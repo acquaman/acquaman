@@ -53,6 +53,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/BioXAS/BioXASSideDBHRMirror.h"
 #include "beamline/BioXAS/BioXASFourElementVortexDetector.h"
 
+#include "beamline/CLS/CLSStandardsWheel.h"
+
 #define BIOXASSIDEBEAMLINE_PRESSURE_TOO_HIGH 54600
 #define BIOXASSIDEBEAMLINE_VALVES_CLOSED 54601
 #define BIOXASSIDEBEAMLINE_TEMPERATURE_TOO_HIGH 54602
@@ -96,6 +98,8 @@ public:
 	BioXASSideXIAFilters* xiaFilters() const { return xiaFilters_; }
 	/// Returns the DBHR mirrors.
 	BioXASSideDBHRMirror* dbhrMirror() const { return dbhrMirror_; }
+	/// Returns the standards wheel.
+	CLSStandardsWheel *standardsWheel() const { return standardsWheel_; }
 
 	// Pressure monitors.
 	AMControl *ccg1() const { return ccg1_; }
@@ -340,6 +344,10 @@ protected:
 	// Misc controls
 
 	AMControl *energySetpointControl_;
+
+	// Extras
+
+	CLSStandardsWheel *standardsWheel_;
 
 	// Pressure controls
 
