@@ -749,7 +749,7 @@ void BioXASSideBeamline::setupComponents()
 
 	// The m1 mirror. Must be instantiated before the mono.
 	m1Mirror_ = new BioXASSideM1Mirror(this);
-	connect( m1Mirror_, SIGNAL(connectedChanged(bool)), this, SLOT(onConnectionChanged()) );
+	connect( m1Mirror_, SIGNAL(connectedChanged(bool)), this, SLOT(updateConnected()) );
 
 	// The mono.
 	mono_ = new BioXASSideMonochromator(this);
@@ -762,7 +762,7 @@ void BioXASSideBeamline::setupComponents()
 
 	// The m2 mirror.
 	m2Mirror_ = new BioXASSideM2Mirror(this);
-	connect( m2Mirror_, SIGNAL(connectedChanged(bool)), this, SLOT(onConnectionChanged()) );
+	connect( m2Mirror_, SIGNAL(connectedChanged(bool)), this, SLOT(updateConnected()) );
 
 	// The DBHR mirrors.
 	dbhrMirror_ = new BioXASSideDBHRMirror(this);
