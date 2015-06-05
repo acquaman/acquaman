@@ -26,6 +26,10 @@ BioXASSSRLMonochromatorEnergyControl::BioXASSSRLMonochromatorEnergyControl(const
 	braggSetPosition_ = 0;
 	region_ = 0;
 	m1MirrorPitch_ = 0;
+
+	// Current settings.
+
+	updateStates();
 }
 
 BioXASSSRLMonochromatorEnergyControl::~BioXASSSRLMonochromatorEnergyControl()
