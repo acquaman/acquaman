@@ -59,7 +59,7 @@ IDEASXASScanConfigurationView::IDEASXASScanConfigurationView(IDEASXASScanConfigu
 	connect(scanName_, SIGNAL(editingFinished()), this, SLOT(onScanNameEdited()));
 	connect(configuration_, SIGNAL(nameChanged(QString)), scanName_, SLOT(setText(QString)));
 
-	isXRFScanCheckBox_ = new QCheckBox("XRF");
+	isXRFScanCheckBox_ = new QCheckBox("XRF:");
 	isXRFScanCheckBox_->setChecked(configuration->isXRFScan());
 	connect(isXRFScanCheckBox_, SIGNAL(clicked(bool)), configuration_, SLOT(setIsXRFScan(bool)));
 
@@ -131,8 +131,8 @@ IDEASXASScanConfigurationView::IDEASXASScanConfigurationView(IDEASXASScanConfigu
 
 	fluorescenceDetectorComboBox_->setCurrentIndex((int)configuration_->fluorescenceDetector());
 
-	QFormLayout *detectorLayout = new QFormLayout;
-	detectorLayout->addRow("XRF:", fluorescenceDetectorComboBox_);
+//	QFormLayout *detectorLayout = new QFormLayout;
+//	detectorLayout->addRow("XRF:", fluorescenceDetectorComboBox_);
 
 	QFormLayout *numberOfScansLayout = new QFormLayout;
 	numberOfScansLayout->addRow("Estimated time per scan:", estimatedTime_);
@@ -159,11 +159,16 @@ IDEASXASScanConfigurationView::IDEASXASScanConfigurationView(IDEASXASScanConfigu
 	QLabel *settingsLabel = new QLabel("Scan Settings:");
 	settingsLabel->setFont(QFont("Lucida Grande", 12, QFont::Bold));
 
+	QHBoxLayout *XRFDetector = new QHBoxLayout();
+	XRFDetector->addWidget(isXRFScanCheckBox_);
+	XRFDetector->addSpacing(10);
+	XRFDetector->addWidget(fluorescenceDetectorComboBox_);
+
 	QFormLayout *configFL = new QFormLayout();
 	configFL->setAlignment(Qt::AlignLeft);
 	configFL->setFieldGrowthPolicy(QFormLayout::FieldsStayAtSizeHint);
 	configFL->addRow("Scan Name: ", scanName_);
-	configFL->addRow("Include: ",isXRFScanCheckBox_);
+	configFL->addRow("Include: ",XRFDetector);
 	configFL->addRow("", isTransScanCheckBox_);
 	configFL->addRow("", useRefCheckBox_);
 
@@ -176,7 +181,7 @@ IDEASXASScanConfigurationView::IDEASXASScanConfigurationView(IDEASXASScanConfigu
 	settingsVL->addLayout(regionsHL);
 	settingsVL->addWidget(settingsLabel);
 	settingsVL->addLayout(configFL);
-	settingsVL->addLayout(detectorLayout);
+//	settingsVL->addLayout(detectorLayout);
 
 	mainVL->addStretch();
 	mainVL->addLayout(settingsVL);
