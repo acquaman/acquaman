@@ -28,7 +28,7 @@ BioXASMainPersistentView::BioXASMainPersistentView(QWidget *parent) :
 {
 	// Create UI elements.
 
-	generalView_ = new BioXASPersistentView(BioXASMainBeamline::bioXAS()->mono()->energyControl(), BioXASMainBeamline::bioXAS()->mono()->regionControl(), BioXASMainBeamline::bioXAS()->mono()->braggControl(), BioXASMainBeamline::bioXAS()->scaler());
+	generalView_ = new BioXASPersistentView(BioXASMainBeamline::bioXAS()->mono(), BioXASMainBeamline::bioXAS()->scaler());
 
 	// Create and set layouts.
 

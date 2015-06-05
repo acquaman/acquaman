@@ -6,7 +6,8 @@
 #include "actions3/AMActionSupport.h"
 #include "beamline/AMControl.h"
 #include "beamline/CLS/CLSMAXvMotor.h"
-#include "beamline/BioXAS/BioXASSSRLMonochromatorEnergyControl.h"
+#include "beamline/BioXAS/BioXASSSRLMonochromatorEncoderEnergyControl.h"
+#include "beamline/BioXAS/BioXASSSRLMonochromatorStepEnergyControl.h"
 #include "beamline/BioXAS/BioXASSSRLMonochromatorRegionControl.h"
 #include "beamline/BioXAS/BioXASMonochromator.h"
 
@@ -38,8 +39,12 @@ public:
 	/// Returns true if the mono is connected, false otherwise.
 	virtual bool isConnected() const;
 
-	/// Returns the energy control.
-	virtual BioXASSSRLMonochromatorEnergyControl* energyControl() const { return energy_; }
+	/// Returns the energy control (the encoder-based, by default).
+	virtual BioXASSSRLMonochromatorEnergyControl* energyControl() const { return encoderEnergy_; }
+	/// Returns the bragg encoder-based energy control.
+	BioXASSSRLMonochromatorEncoderEnergyControl* encoderEnergyControl() const { return encoderEnergy_; }
+	/// Returns the bragg step-based energy control.
+	BioXASSSRLMonochromatorStepEnergyControl *stepEnergyControl() const { return stepEnergy_; }
 	/// Returns the region control.
 	virtual BioXASSSRLMonochromatorRegionControl* regionControl() const { return region_; }
 
@@ -109,8 +114,10 @@ public slots:
 	void calibrateBraggPosition(double newPosition);
 
 protected:
-	/// The energy control.
-	BioXASSSRLMonochromatorEnergyControl *energy_;
+	/// The bragg encoder-based energy control.
+	BioXASSSRLMonochromatorEncoderEnergyControl *encoderEnergy_;
+	/// The bragg step-based energy control.
+	BioXASSSRLMonochromatorStepEnergyControl *stepEnergy_;
 	/// The region control.
 	BioXASSSRLMonochromatorRegionControl *region_;
 

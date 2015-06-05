@@ -4,6 +4,7 @@
 #include <QObject>
 
 #include "beamline/AMPVControl.h"
+#include "beamline/CLS/CLSMAXvMotor.h"
 #include "actions3/AMActionSupport.h"
 
 #include "beamline/AMPseudoMotorControl.h"
@@ -67,7 +68,7 @@ signals:
 
 public slots:
 	/// Sets the bragg control.
-	void setBraggControl(AMControl *newControl);
+	void setBraggControl(CLSMAXvMotor *newControl);
 	/// Sets the bragg set position control.
 	void setBraggSetPositionControl(AMControl *newControl);
 	/// Sets the region control.
@@ -82,7 +83,7 @@ protected slots:
 	/// Updates the connected state.
 	virtual void updateConnected();
 	/// Updates the current value.
-	virtual void updateValue();
+	virtual void updateValue() = 0;
 	/// Updates the 'is moving' state.
 	virtual void updateMoving();
 
@@ -121,7 +122,7 @@ protected:
 	double regionOffset_;
 
 	/// The goniometer bragg motor control.
-	AMControl *bragg_;
+	CLSMAXvMotor *bragg_;
 	/// The goniometer bragg motor, set position control.
 	AMControl *braggSetPosition_;
 	/// The region control.

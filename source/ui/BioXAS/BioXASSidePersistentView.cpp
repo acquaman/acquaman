@@ -29,7 +29,7 @@ BioXASSidePersistentView::BioXASSidePersistentView(QWidget *parent) :
 {
 	// Create UI elements.
 
-	generalView_ = new BioXASPersistentView(BioXASSideBeamline::bioXAS()->mono()->energyControl(), BioXASSideBeamline::bioXAS()->mono()->regionControl(), BioXASSideBeamline::bioXAS()->mono()->braggControl(), BioXASSideBeamline::bioXAS()->scaler());
+	generalView_ = new BioXASPersistentView(BioXASSideBeamline::bioXAS()->mono(), BioXASSideBeamline::bioXAS()->scaler());
 
 	// Create and set main layout.
 
@@ -38,7 +38,6 @@ BioXASSidePersistentView::BioXASSidePersistentView(QWidget *parent) :
 	layout->addStretch();
 
 	setLayout(layout);
-//	setFixedWidth(400);
 
 	// Make connections.
 

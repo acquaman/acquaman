@@ -87,10 +87,14 @@ public:
 	CLSBasicScalerChannelDetector* i1Detector() const { return i1Detector_; }
 	/// Returns the I2 scaler channel detector.
 	CLSBasicScalerChannelDetector* i2Detector() const { return i2Detector_; }
-	/// Returns the energy setpoint detector.
-	AMBasicControlDetectorEmulator* energySetpointDetector() const { return energySetpointDetector_; }
-	/// Returns the energy feedback detector.
-	AMBasicControlDetectorEmulator* energyFeedbackDetector() const { return energyFeedbackDetector_; }
+	/// Returns the bragg encoder-based energy setpoint detector.
+	AMBasicControlDetectorEmulator* encoderEnergySetpointDetector() const { return encoderEnergySetpointDetector_; }
+	/// Returns the bragg encoder-based energy feedback detector.
+	AMBasicControlDetectorEmulator* encoderEnergyFeedbackDetector() const { return encoderEnergyFeedbackDetector_; }
+	/// Returns the bragg step-based energy setpoint detector.
+	AMBasicControlDetectorEmulator* stepEnergySetpointDetector() const { return stepEnergySetpointDetector_; }
+	/// Returns the bragg step-based energy feedback detector.
+	AMBasicControlDetectorEmulator* stepEnergyFeedbackDetector() const { return stepEnergyFeedbackDetector_; }
 	/// Returns the scaler dwell time detector.
 	AMBasicControlDetectorEmulator* dwellTimeDetector() const { return dwellTimeDetector_; }
 	/// Returns the bragg motor detector.
@@ -136,15 +140,15 @@ protected:
 
 	// Monochromator
 	BioXASMainMonochromator *mono_;
-//	BioXASPseudoMotorControl *monoPseudoEnergy_;
-//	AMPVwStatusControl *monoBraggAngle_;
 
 	// Detectors
 	CLSBasicScalerChannelDetector *i0Detector_;
 	CLSBasicScalerChannelDetector *i1Detector_;
 	CLSBasicScalerChannelDetector *i2Detector_;
-	AMBasicControlDetectorEmulator *energySetpointDetector_;
-	AMBasicControlDetectorEmulator *energyFeedbackDetector_;
+	AMBasicControlDetectorEmulator *encoderEnergySetpointDetector_;
+	AMBasicControlDetectorEmulator *encoderEnergyFeedbackDetector_;
+	AMBasicControlDetectorEmulator *stepEnergySetpointDetector_;
+	AMBasicControlDetectorEmulator *stepEnergyFeedbackDetector_;
 	AMBasicControlDetectorEmulator *dwellTimeDetector_;
 	AMBasicControlDetectorEmulator *braggDetector_;
 	AMBasicControlDetectorEmulator *braggMoveRetriesDetector_;

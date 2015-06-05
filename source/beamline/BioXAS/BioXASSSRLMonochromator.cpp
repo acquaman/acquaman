@@ -7,7 +7,8 @@ BioXASSSRLMonochromator::BioXASSSRLMonochromator(const QString &name, QObject *p
 
 	connected_ = false;
 
-	energy_ = 0;
+	encoderEnergy_ = 0;
+	stepEnergy_ = 0;
 	region_ = 0;
 
 	upperSlit_ = 0;
@@ -49,7 +50,8 @@ BioXASSSRLMonochromator::~BioXASSSRLMonochromator()
 bool BioXASSSRLMonochromator::isConnected() const
 {
 	bool connected = (
-		energy_ && energy_->isConnected() &&
+		encoderEnergy_ && encoderEnergy_->isConnected() &&
+		stepEnergy_ && stepEnergy_->isConnected() &&
 		region_ && region_->isConnected() &&
 
 		upperSlit_ && upperSlit_->isConnected() &&
@@ -87,7 +89,8 @@ void BioXASSSRLMonochromator::setM1MirrorPitchControl(AMControl *newControl)
 {
 	if (m1Pitch_ != newControl) {
 		m1Pitch_ = newControl;
-		energy_->setM1MirrorPitchControl(m1Pitch_);
+		encoderEnergy_->setM1MirrorPitchControl(m1Pitch_);
+		stepEnergy_->setM1MirrorPitchControl(m1Pitch_);
 		emit m1MirrorPitchControlChanged(m1Pitch_);
 	}
 }

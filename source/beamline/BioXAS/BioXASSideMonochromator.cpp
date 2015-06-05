@@ -58,11 +58,17 @@ BioXASSideMonochromator::BioXASSideMonochromator(QObject *parent) :
 
 	// Create energy control.
 
-	energy_ = new BioXASSSRLMonochromatorEnergyControl("SideEnergy", this);
-	energy_->setBraggControl(bragg_);
-	energy_->setBraggSetPositionControl(braggSetPosition_);
-	energy_->setRegionControl(region_);
-	energy_->setM1MirrorPitchControl(m1Pitch_);
+	encoderEnergy_ = new BioXASSSRLMonochromatorEncoderEnergyControl("SideEncoderEnergy", this);
+	encoderEnergy_->setBraggControl(braggMotor_);
+	encoderEnergy_->setBraggSetPositionControl(braggSetPosition_);
+	encoderEnergy_->setRegionControl(region_);
+	encoderEnergy_->setM1MirrorPitchControl(m1Pitch_);
+
+	stepEnergy_ = new BioXASSSRLMonochromatorStepEnergyControl("SideStepEnergy", this);
+	stepEnergy_->setBraggControl(braggMotor_);
+	stepEnergy_->setBraggSetPositionControl(braggSetPosition_);
+	stepEnergy_->setRegionControl(region_);
+	stepEnergy_->setM1MirrorPitchControl(m1Pitch_);
 
 	// Listen to connection states.
 
@@ -94,7 +100,8 @@ BioXASSideMonochromator::BioXASSideMonochromator(QObject *parent) :
 	connect( crystal2RollMotor_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
 	connect( region_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
-	connect( energy_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+	connect( encoderEnergy_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+	connect( stepEnergy_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
 	// Current settings.
 

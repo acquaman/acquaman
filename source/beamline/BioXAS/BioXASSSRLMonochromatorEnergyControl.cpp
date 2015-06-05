@@ -67,7 +67,7 @@ bool BioXASSSRLMonochromatorEnergyControl::canStop() const
 	return false;
 }
 
-void BioXASSSRLMonochromatorEnergyControl::setBraggControl(AMControl *newControl)
+void BioXASSSRLMonochromatorEnergyControl::setBraggControl(CLSMAXvMotor *newControl)
 {
 	if (bragg_ != newControl) {
 
@@ -164,13 +164,6 @@ void BioXASSSRLMonochromatorEnergyControl::updateConnected()
 				);
 
 	setConnected(isConnected);
-}
-
-void BioXASSSRLMonochromatorEnergyControl::updateValue()
-{
-	if (isConnected()) {
-		setValue( calculateEnergyFromBraggPosition(hc_, crystal2D_, bragg_->value(), region_->value(), m1MirrorPitch_->value(), thetaBraggOffset_, regionOffset_));
-	}
 }
 
 void BioXASSSRLMonochromatorEnergyControl::updateMoving()
