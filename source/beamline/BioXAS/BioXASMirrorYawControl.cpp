@@ -8,6 +8,7 @@ BioXASMirrorYawControl::BioXASMirrorYawControl(const QString &name, const QStrin
 	// Initialize inherited variables.
 
 	setContextKnownDescription("Yaw");
+	setTolerance(0.0001);
 
 	// Current settings.
 
