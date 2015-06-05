@@ -6,8 +6,7 @@
 #include "actions3/AMActionSupport.h"
 #include "beamline/AMControl.h"
 #include "beamline/CLS/CLSMAXvMotor.h"
-#include "beamline/BioXAS/BioXASSSRLMonochromatorEncoderEnergyControl.h"
-#include "beamline/BioXAS/BioXASSSRLMonochromatorStepEnergyControl.h"
+#include "beamline/BioXAS/BioXASSSRLMonochromatorEnergyControl.h"
 #include "beamline/BioXAS/BioXASSSRLMonochromatorRegionControl.h"
 #include "beamline/BioXAS/BioXASMonochromator.h"
 
@@ -42,9 +41,9 @@ public:
 	/// Returns the energy control (the encoder-based, by default).
 	virtual BioXASSSRLMonochromatorEnergyControl* energyControl() const { return encoderEnergy_; }
 	/// Returns the bragg encoder-based energy control.
-	BioXASSSRLMonochromatorEncoderEnergyControl* encoderEnergyControl() const { return encoderEnergy_; }
+	BioXASSSRLMonochromatorEnergyControl* encoderEnergyControl() const { return encoderEnergy_; }
 	/// Returns the bragg step-based energy control.
-	BioXASSSRLMonochromatorStepEnergyControl *stepEnergyControl() const { return stepEnergy_; }
+	BioXASSSRLMonochromatorEnergyControl *stepEnergyControl() const { return stepEnergy_; }
 	/// Returns the region control.
 	virtual BioXASSSRLMonochromatorRegionControl* regionControl() const { return region_; }
 
@@ -64,6 +63,8 @@ public:
 	AMControl* brakeStatusControl() const { return brakeStatus_; }
 	/// Returns the bragg control.
 	AMControl* braggControl() const { return bragg_; }
+	/// Returns the step-based bragg position control.
+	AMControl* stepBraggControl() const { return stepBragg_; }
 	/// Returns the bragg motor at crystal change position status control.
 	AMControl* braggAtCrystalChangePositionStatusControl() const { return braggAtCrystalChangePositionStatus_; }
 	/// Returns the crystal change control.
@@ -115,9 +116,9 @@ public slots:
 
 protected:
 	/// The bragg encoder-based energy control.
-	BioXASSSRLMonochromatorEncoderEnergyControl *encoderEnergy_;
+	BioXASSSRLMonochromatorEnergyControl *encoderEnergy_;
 	/// The bragg step-based energy control.
-	BioXASSSRLMonochromatorStepEnergyControl *stepEnergy_;
+	BioXASSSRLMonochromatorEnergyControl *stepEnergy_;
 	/// The region control.
 	BioXASSSRLMonochromatorRegionControl *region_;
 
@@ -135,6 +136,8 @@ protected:
 	AMControl *keyStatus_;
 	/// The bragg motor control.
 	AMControl *bragg_;
+	/// The step-based bragg motor position.
+	AMControl *stepBragg_;
 	/// The bragg motor at crystal change position status control.
 	AMControl *braggAtCrystalChangePositionStatus_;
 	/// The brake status control.

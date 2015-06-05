@@ -91,8 +91,6 @@ public:
 	AMBasicControlDetectorEmulator* encoderEnergySetpointDetector() const { return encoderEnergySetpointDetector_; }
 	/// Returns the bragg encoder-based energy feedback detector.
 	AMBasicControlDetectorEmulator* encoderEnergyFeedbackDetector() const { return encoderEnergyFeedbackDetector_; }
-	/// Returns the bragg step-based energy setpoint detector.
-	AMBasicControlDetectorEmulator* stepEnergySetpointDetector() const { return stepEnergySetpointDetector_; }
 	/// Returns the bragg step-based energy feedback detector.
 	AMBasicControlDetectorEmulator* stepEnergyFeedbackDetector() const { return stepEnergyFeedbackDetector_; }
 	/// Returns the scaler dwell time detector.

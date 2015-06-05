@@ -207,6 +207,7 @@ void BioXASMainBeamline::setupExposedControls()
 	addExposedControl(m1Mirror_->benderUpstreamMotorControl());
 	addExposedControl(m1Mirror_->benderDownstreamMotorControl());
 	addExposedControl(m1Mirror_->upperSlitBladeMotorControl());
+
 	addExposedControl(m1Mirror_->rollControl());
 	addExposedControl(m1Mirror_->pitchControl());
 	addExposedControl(m1Mirror_->heightControl());
@@ -255,7 +256,6 @@ void BioXASMainBeamline::setupExposedDetectors()
 	addExposedDetector(i2Detector_);
 	addExposedDetector(encoderEnergySetpointDetector_);
 	addExposedDetector(encoderEnergyFeedbackDetector_);
-	addExposedDetector(stepEnergySetpointDetector_);
 	addExposedDetector(stepEnergyFeedbackDetector_);
 	addExposedDetector(braggDetector_);
 	addExposedDetector(braggEncoderFeedbackDetector_);
@@ -273,16 +273,13 @@ void BioXASMainBeamline::setupMotorGroup()
 void BioXASMainBeamline::setupControlsAsDetectors()
 {
 	encoderEnergySetpointDetector_ = new AMBasicControlDetectorEmulator("EncoderEnergySetpoint", "EncoderEnergySetpoint", mono_->encoderEnergyControl(), 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	encoderEnergySetpointDetector_->setControlProperty(AMBasicControlDetectorEmulator::Control::Setpoint);
 	encoderEnergySetpointDetector_->setHiddenFromUsers(false);
 	encoderEnergySetpointDetector_->setIsVisible(true);
 
 	encoderEnergyFeedbackDetector_ = new AMBasicControlDetectorEmulator("EncoderEnergyFeedback", "EncoderEnergyFeedback", mono_->encoderEnergyControl(), 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
 	encoderEnergyFeedbackDetector_->setHiddenFromUsers(false);
 	encoderEnergyFeedbackDetector_->setIsVisible(true);
-
-	stepEnergySetpointDetector_ = new AMBasicControlDetectorEmulator("StepEnergySetpoint", "StepEnergySetpoint", mono_->stepEnergyControl(), 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
-	stepEnergySetpointDetector_->setHiddenFromUsers(false);
-	stepEnergySetpointDetector_->setIsVisible(true);
 
 	stepEnergyFeedbackDetector_ = new AMBasicControlDetectorEmulator("StepEnergyFeedback", "StepEnergyFeedback", mono_->stepEnergyControl(), 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
 	stepEnergyFeedbackDetector_->setHiddenFromUsers(false);

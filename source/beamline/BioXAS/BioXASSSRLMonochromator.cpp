@@ -5,8 +5,6 @@ BioXASSSRLMonochromator::BioXASSSRLMonochromator(const QString &name, QObject *p
 {
 	// Initialize local variables.
 
-	connected_ = false;
-
 	encoderEnergy_ = 0;
 	stepEnergy_ = 0;
 	region_ = 0;
@@ -19,6 +17,7 @@ BioXASSSRLMonochromator::BioXASSSRLMonochromator(const QString &name, QObject *p
 	keyStatus_ = 0;
 	brakeStatus_ = 0;
 	bragg_ = 0;
+	stepBragg_ = 0;
 	braggAtCrystalChangePositionStatus_ = 0;
 	crystalChange_ = 0;
 	crystalChangeCWLimitStatus_ = 0;
@@ -62,6 +61,7 @@ bool BioXASSSRLMonochromator::isConnected() const
 		keyStatus_ && keyStatus_->isConnected() &&
 		brakeStatus_ && brakeStatus_->isConnected() &&
 		bragg_ && bragg_->isConnected() &&
+		stepBragg_ && stepBragg_->isConnected() &&
 		braggAtCrystalChangePositionStatus_ && braggAtCrystalChangePositionStatus_->isConnected() &&
 		crystalChange_ && crystalChange_->isConnected() &&
 		crystalChangeCWLimitStatus_ && crystalChangeCWLimitStatus_->isConnected() &&

@@ -59,7 +59,6 @@ BioXASSideXASScanActionController::BioXASSideXASScanActionController(BioXASSideX
 	bioXASDetectors.addDetectorInfo(BioXASSideBeamline::bioXAS()->i2Detector()->toInfo());
 	bioXASDetectors.addDetectorInfo(BioXASSideBeamline::bioXAS()->encoderEnergySetpointDetector()->toInfo());
 	bioXASDetectors.addDetectorInfo(BioXASSideBeamline::bioXAS()->encoderEnergyFeedbackDetector()->toInfo());
-	bioXASDetectors.addDetectorInfo(BioXASSideBeamline::bioXAS()->stepEnergySetpointDetector()->toInfo());
 	bioXASDetectors.addDetectorInfo(BioXASSideBeamline::bioXAS()->stepEnergyFeedbackDetector()->toInfo());
 	bioXASDetectors.addDetectorInfo(BioXASSideBeamline::bioXAS()->dwellTimeDetector()->toInfo());
 	bioXASDetectors.addDetectorInfo(BioXASSideBeamline::bioXAS()->braggDetector()->toInfo());

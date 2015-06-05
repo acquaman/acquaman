@@ -780,11 +780,6 @@ void BioXASSideBeamline::setupControlsAsDetectors()
 	encoderEnergyFeedbackDetector_->setHiddenFromUsers(false);
 	encoderEnergyFeedbackDetector_->setIsVisible(true);
 
-	stepEnergySetpointDetector_ = new AMBasicControlDetectorEmulator("StepEnergySetpoint", "StepEnergySetpoint", mono_->stepEnergyControl(), 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
-	stepEnergySetpointDetector_->setControlProperty(AMBasicControlDetectorEmulator::Control::Setpoint);
-	stepEnergySetpointDetector_->setHiddenFromUsers(false);
-	stepEnergySetpointDetector_->setIsVisible(true);
-
 	stepEnergyFeedbackDetector_ = new AMBasicControlDetectorEmulator("StepEnergyFeedback", "StepEnergyFeedback", mono_->stepEnergyControl(), 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
 	stepEnergyFeedbackDetector_->setHiddenFromUsers(false);
 	stepEnergyFeedbackDetector_->setIsVisible(true);
@@ -898,7 +893,6 @@ void BioXASSideBeamline::setupExposedDetectors()
 	addExposedDetector(i2Detector_);
 	addExposedDetector(encoderEnergySetpointDetector_);
 	addExposedDetector(encoderEnergyFeedbackDetector_);
-	addExposedDetector(stepEnergySetpointDetector_);
 	addExposedDetector(stepEnergyFeedbackDetector_);
 	addExposedDetector(braggDetector_);
 	addExposedDetector(braggEncoderFeedbackDetector_);

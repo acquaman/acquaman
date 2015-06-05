@@ -68,7 +68,7 @@ signals:
 
 public slots:
 	/// Sets the bragg control.
-	void setBraggControl(CLSMAXvMotor *newControl);
+	void setBraggControl(AMControl *newControl);
 	/// Sets the bragg set position control.
 	void setBraggSetPositionControl(AMControl *newControl);
 	/// Sets the region control.
@@ -83,7 +83,7 @@ protected slots:
 	/// Updates the connected state.
 	virtual void updateConnected();
 	/// Updates the current value.
-	virtual void updateValue() = 0;
+	virtual void updateValue();
 	/// Updates the 'is moving' state.
 	virtual void updateMoving();
 
@@ -122,7 +122,7 @@ protected:
 	double regionOffset_;
 
 	/// The goniometer bragg motor control.
-	CLSMAXvMotor *bragg_;
+	AMControl *bragg_;
 	/// The goniometer bragg motor, set position control.
 	AMControl *braggSetPosition_;
 	/// The region control.

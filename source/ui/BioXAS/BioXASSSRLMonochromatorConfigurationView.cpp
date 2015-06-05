@@ -20,7 +20,7 @@ BioXASSSRLMonochromatorConfigurationView::BioXASSSRLMonochromatorConfigurationVi
 	calibrateEnergyButton_ = new QPushButton("Calibrate");
 
 	braggEditor_ = new AMExtendedControlEditor(0);
-	braggEditor_->setTitle("Goniometer angle");
+	braggEditor_->setTitle("Goniometer angle (encoder)");
 	braggEditor_->setControlFormat('f', 2);
 
 	calibrateBraggButton_ = new QPushButton("Calibrate");
