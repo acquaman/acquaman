@@ -3,7 +3,9 @@
 BioXASSSRLMonochromatorStepEnergyControl::BioXASSSRLMonochromatorStepEnergyControl(const QString &name, QObject *parent) :
 	BioXASSSRLMonochromatorEnergyControl(name, parent)
 {
+	// Current settings.
 
+	updateStates();
 }
 
 BioXASSSRLMonochromatorStepEnergyControl::~BioXASSSRLMonochromatorStepEnergyControl()

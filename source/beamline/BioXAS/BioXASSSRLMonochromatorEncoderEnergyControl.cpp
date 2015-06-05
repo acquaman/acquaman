@@ -3,7 +3,9 @@
 BioXASSSRLMonochromatorEncoderEnergyControl::BioXASSSRLMonochromatorEncoderEnergyControl(const QString &name, QObject *parent) :
 	BioXASSSRLMonochromatorEnergyControl(name, parent)
 {
+	// Current settings.
 
+	updateStates();
 }
 
 BioXASSSRLMonochromatorEncoderEnergyControl::~BioXASSSRLMonochromatorEncoderEnergyControl()
