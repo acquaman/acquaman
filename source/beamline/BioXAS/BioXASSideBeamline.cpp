@@ -758,6 +758,7 @@ void BioXASSideBeamline::setupComponents()
 void BioXASSideBeamline::setupControlsAsDetectors()
 {
 	energySetpointDetector_ = new AMBasicControlDetectorEmulator("EnergySetpoint", "EnergySetpoint", new AMReadOnlyPVControl("EnergySetpoint", "BL1607-5-I22:Energy:EV", this), 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	energySetpointDetector_->setControlProperty(AMBasicControlDetectorEmulator::Control::Setpoint);
 	energySetpointDetector_->setHiddenFromUsers(false);
 	energySetpointDetector_->setIsVisible(true);
 
