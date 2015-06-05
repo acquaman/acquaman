@@ -131,9 +131,6 @@ IDEASXASScanConfigurationView::IDEASXASScanConfigurationView(IDEASXASScanConfigu
 
 	fluorescenceDetectorComboBox_->setCurrentIndex((int)configuration_->fluorescenceDetector());
 
-//	QFormLayout *detectorLayout = new QFormLayout;
-//	detectorLayout->addRow("XRF:", fluorescenceDetectorComboBox_);
-
 	QFormLayout *numberOfScansLayout = new QFormLayout;
 	numberOfScansLayout->addRow("Estimated time per scan:", estimatedTime_);
 	numberOfScansLayout->addRow("Energy point pers scan:", pointPerScan_);
@@ -154,7 +151,6 @@ IDEASXASScanConfigurationView::IDEASXASScanConfigurationView(IDEASXASScanConfigu
 	mainVL->addLayout(energyLayout);
 	mainVL->addWidget(regionsView_);
 	mainVL->addLayout(numberOfScansLayout);
-
 
 	QLabel *settingsLabel = new QLabel("Scan Settings:");
 	settingsLabel->setFont(QFont("Lucida Grande", 12, QFont::Bold));
@@ -181,7 +177,7 @@ IDEASXASScanConfigurationView::IDEASXASScanConfigurationView(IDEASXASScanConfigu
 	settingsVL->addLayout(regionsHL);
 	settingsVL->addWidget(settingsLabel);
 	settingsVL->addLayout(configFL);
-//	settingsVL->addLayout(detectorLayout);
+
 
 	mainVL->addStretch();
 	mainVL->addLayout(settingsVL);
