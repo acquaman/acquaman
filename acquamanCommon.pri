@@ -420,7 +420,9 @@ HEADERS += \
 	source/util/AMCSVParser.h \
 	source/actions3/AMTimeoutLoopActionInfo.h \
 	source/actions3/AMTimeoutLoopAction.h \
-    source/beamline/AMPseudoMotorControl.h
+    source/beamline/AMPseudoMotorControl.h \
+    $$PWD/source/actions3/actions/AMRestActionInfo.h \
+    $$PWD/source/actions3/actions/AMRestAction.h
 
 FORMS += \
 
@@ -802,7 +804,9 @@ SOURCES += \
 	source/util/AMCSVParser.cpp \
 	source/actions3/AMTimeoutLoopActionInfo.cpp \
 	source/actions3/AMTimeoutLoopAction.cpp \
-    source/beamline/AMPseudoMotorControl.cpp
+    source/beamline/AMPseudoMotorControl.cpp \
+    $$PWD/source/actions3/actions/AMRestActionInfo.cpp \
+    $$PWD/source/actions3/actions/AMRestAction.cpp
 
 RESOURCES *= source/icons/icons.qrc \
 		source/configurationFiles/configurationFiles.qrc \

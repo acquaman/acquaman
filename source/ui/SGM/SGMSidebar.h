@@ -31,7 +31,13 @@ class QRadioButton;
 class QCheckBox;
 class QToolButton;
 
+class QNetworkAccessManager;
 class AMControlButton;
+class AMRestAction;
+class AMGitHubIssue;
+class AMGitHubIssueFamily;
+
+#include <QNetworkReply>
 
 #include "ui/beamline/AMExtendedControlEditor.h"
 #include "beamline/SGM/SGMBeamline.h"
@@ -66,6 +72,10 @@ protected slots:
 	void onRestoreBeamlineActionFinished();
 
 	void onScanningResetButtonClicked();
+	void onRestActionsSucceeded();
+	void onGetAllClosedActionsFullResponseReady(QVariant fullResponse, QList<QNetworkReply::RawHeaderPair> headerPairs);
+	void onGetOneIssueCommentsReturned(QVariant fullResponse, QList<QNetworkReply::RawHeaderPair> headerPairs);
+	void onGetAllOpenMilestonesReturned(QVariant fullResponse, QList<QNetworkReply::RawHeaderPair> headerPairs);
 
 	void onStripToolTimerTimeout();
 	void onI0CheckBoxToggled(bool toggled);
@@ -138,6 +148,16 @@ protected:
 
 	QLabel *controlsConnectedLabel_;
 	QLabel *detectorsConnectedLabel_;
+
+	QNetworkAccessManager *manager_;
+	QString headerData_;
+	AMRestAction *authenicationAction_;
+	AMRestAction *getAllClosedIssuesAction_;
+	int currentClosedIssuesPage_;
+	bool lastPage_;
+	QMap<int, AMGitHubIssue*> allIssues_;
+	QMap<int, AMGitHubIssueFamily*> allIssueFamilies_;
+	QStringList commentURLs_;
 };
 
 #endif // SGMSIDEBAR_H

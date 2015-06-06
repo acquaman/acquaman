@@ -37,5 +37,6 @@ SUBDIRS += \
 	StripToolProject.pro \
 	StripTool2.pro \
 	CLSPGTDwellTimeCoordinator.pro \
-	CLSSR570Coordinator.pro
+	CLSSR570Coordinator.pro \
+	AMGithubProjectManager.pro
 
