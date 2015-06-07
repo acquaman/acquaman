@@ -330,6 +330,8 @@ void AMGithubProjectManagerMainView::onGetOneIssueCommentsReturned(QVariant full
 		QList<double> actualComplexity5Times;
 		QList<double> actualComplexity8Times;
 
+		AMGitHubComplexityManager *complexityManager = new AMGitHubComplexityManager();
+
 //		QMap<int, AMGitHubIssueFamily*>::const_iterator r = allIssueFamilies_.constBegin();
 		QMap<int, AMGitHubIssueFamily*>::const_iterator r = fullySpecifiedIssueFamilies_.constBegin();
 //		while(r != allIssueFamilies_.constEnd()){
@@ -381,6 +383,10 @@ void AMGithubProjectManagerMainView::onGetOneIssueCommentsReturned(QVariant full
 				case AMGitHubIssue::InvalidComplexity:
 					break;
 				}
+
+				complexityManager->incrementComplexityMapping(r.value()->complexityMapping());
+				complexityManager->addTimeEstimateForEstimatedComplexity(r.value()->normalizedTimeEstiamte(), r.value()->estimatedComplexity());
+				complexityManager->addTimeEstimateForActualComplexity(r.value()->normalizedTimeEstiamte(), r.value()->actualComplexity());
 			}
 			else
 				qDebug() << "Issue " << r.value()->originatingIssueNumber() << " cannot normalize " << r.value()->timeEstimate();
@@ -467,11 +473,24 @@ void AMGithubProjectManagerMainView::onGetOneIssueCommentsReturned(QVariant full
 		qDebug() << "Average Estimated Complexity 8 time estimate: " << averageEstimatedComplexity8Time;
 		qDebug() << "Average Estimated Complexity K time estimate: " << averageEstimatedComplexityKTime;
 
+		qDebug() << "ALTERNATE Average Estimated Complexity 1 time estimate: " << complexityManager->averageTimeForEstimatedComplexity(AMGitHubIssue::Complexity1);
+		qDebug() << "ALTERNATE Average Estimated Complexity 2 time estimate: " << complexityManager->averageTimeForEstimatedComplexity(AMGitHubIssue::Complexity2);
+		qDebug() << "ALTERNATE Average Estimated Complexity 3 time estimate: " << complexityManager->averageTimeForEstimatedComplexity(AMGitHubIssue::Complexity3);
+		qDebug() << "ALTERNATE Average Estimated Complexity 5 time estimate: " << complexityManager->averageTimeForEstimatedComplexity(AMGitHubIssue::Complexity5);
+		qDebug() << "ALTERNATE Average Estimated Complexity 8 time estimate: " << complexityManager->averageTimeForEstimatedComplexity(AMGitHubIssue::Complexity8);
+		qDebug() << "ALTERNATE Average Estimated Complexity K time estimate: " << complexityManager->averageTimeForEstimatedComplexity(AMGitHubIssue::ComplexityK);
+
 		qDebug() << "Average Actual Complexity 1 time estimate: " << averageActualComplexity1Time;
 		qDebug() << "Average Actual Complexity 2 time estimate: " << averageActualComplexity2Time;
 		qDebug() << "Average Actual Complexity 3 time estimate: " << averageActualComplexity3Time;
 		qDebug() << "Average Actual Complexity 5 time estimate: " << averageActualComplexity5Time;
 		qDebug() << "Average Actual Complexity 8 time estimate: " << averageActualComplexity8Time;
+
+		qDebug() << "ALTERNATE Average Actual Complexity 1 time estimate: " << complexityManager->averageTimeForActualComplexity(AMGitHubIssue::Complexity1);
+		qDebug() << "ALTERNATE Average Actual Complexity 2 time estimate: " << complexityManager->averageTimeForActualComplexity(AMGitHubIssue::Complexity2);
+		qDebug() << "ALTERNATE Average Actual Complexity 3 time estimate: " << complexityManager->averageTimeForActualComplexity(AMGitHubIssue::Complexity3);
+		qDebug() << "ALTERNATE Average Actual Complexity 5 time estimate: " << complexityManager->averageTimeForActualComplexity(AMGitHubIssue::Complexity5);
+		qDebug() << "ALTERNATE Average Actual Complexity 8 time estimate: " << complexityManager->averageTimeForActualComplexity(AMGitHubIssue::Complexity8);
 
 
 		int totalEstimatedComplexity1Issues = complexityMappingMatrix.at(1) + complexityMappingMatrix.at(2) + complexityMappingMatrix.at(3) + complexityMappingMatrix.at(4) + complexityMappingMatrix.at(5);
@@ -508,6 +527,12 @@ void AMGithubProjectManagerMainView::onGetOneIssueCommentsReturned(QVariant full
 		qDebug() << "Probable Estimated Complexity 5 time estimate: " << probableEstimatedComplexity5Time;
 		qDebug() << "Probable Estimated Complexity 8 time estimate: " << probableEstimatedComplexity8Time;
 //		qDebug() << "Probable Estimated Complexity K time estimate: " << probableEstimatedComplexityKTime;
+
+		qDebug() << "ALTERNATE Probable Estimated Complexity 1 time estimate: " << complexityManager->probableTimeForEstimatedComplexity(AMGitHubIssue::Complexity1);
+		qDebug() << "ALTERNATE Probable Estimated Complexity 2 time estimate: " << complexityManager->probableTimeForEstimatedComplexity(AMGitHubIssue::Complexity2);
+		qDebug() << "ALTERNATE Probable Estimated Complexity 3 time estimate: " << complexityManager->probableTimeForEstimatedComplexity(AMGitHubIssue::Complexity3);
+		qDebug() << "ALTERNATE Probable Estimated Complexity 5 time estimate: " << complexityManager->probableTimeForEstimatedComplexity(AMGitHubIssue::Complexity5);
+		qDebug() << "ALTERNATE Probable Estimated Complexity 8 time estimate: " << complexityManager->probableTimeForEstimatedComplexity(AMGitHubIssue::Complexity8);
 
 		QMap<int, AMGitHubMilestone*>::const_iterator c = allMilestones_.constBegin();
 		while(c != allMilestones_.constEnd()){
