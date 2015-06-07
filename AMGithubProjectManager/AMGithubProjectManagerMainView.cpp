@@ -4,6 +4,7 @@
 #include <QLineEdit>
 #include <QBoxLayout>
 #include <QDebug>
+#include <QScrollArea>
 
 #include "actions3/AMListAction3.h"
 #include "actions3/actions/AMRestAction.h"
@@ -32,44 +33,24 @@ AMGithubProjectManagerMainView::~AMGithubProjectManagerMainView()
 }
 
 void AMGithubProjectManagerMainView::onInitiateButtonClicked(){
-//	SGMBeamline::sgm()->beamlineScanning()->move(0);
-
-	qDebug() << "Clicked here";
-
-//	AMListAction3 *masterList = new AMSequentialListAction3(new AMSequentialListActionInfo3("Rest Reqeusts", "Rest Requests"));
-
 	QString userInfo = userNameLineEdit_->text()+":"+passwordLineEdit_->text();
 	QByteArray userData = userInfo.toLocal8Bit().toBase64();
-//	QString headerData = "Basic " + userData;
 	headerData_ = "Basic " + userData;
-	//request.setRawHeader("Authorization", headerData.toLocal8Bit());
 
 	manager_ = new QNetworkAccessManager(this);
 
-//	AMRestActionInfo *restActionInfo = new AMRestActionInfo("https://api.github.com/user", AMRestActionInfo::GetRequest);
-//	restActionInfo->setRawHeader("Authorization", headerData_.toLocal8Bit());
-//	authenicationAction_ = new AMRestAction(restActionInfo, manager_);
-//	masterList->addSubAction(authenicationAction_);
-////	restAction->start();
-
 	currentClosedIssuesPage_ = 1;
 	lastPage_ = false;
-//	QString issuesString = QString("https://api.github.com/repos/acquaman/acquaman/issues?filter=all&state=closed&page=%1&per_page=30").arg(currentClosedIssuesPage_);
 	QString issuesString = QString("https://api.github.com/repos/acquaman/acquaman/issues?filter=all&state=all&page=%1&per_page=30").arg(currentClosedIssuesPage_);
 	AMRestActionInfo *getAllClosedIssuesActionInfo = new AMRestActionInfo(issuesString, AMRestActionInfo::GetRequest);
 	getAllClosedIssuesActionInfo->setRawHeader("Authorization", headerData_.toLocal8Bit());
 	getAllClosedIssuesAction_ = new AMRestAction(getAllClosedIssuesActionInfo, manager_);
-//	masterList->addSubAction(getAllClosedIssuesAction_);
 
-//	connect(masterList, SIGNAL(succeeded()), this, SLOT(onRestActionsSucceeded()));
 	connect(getAllClosedIssuesAction_, SIGNAL(fullResponseReady(QVariant, QList<QNetworkReply::RawHeaderPair>)), this, SLOT(onGetAllClosedActionsFullResponseReady(QVariant, QList<QNetworkReply::RawHeaderPair>)));
-//	masterList->start();
 	getAllClosedIssuesAction_->start();
 }
 
 void AMGithubProjectManagerMainView::onGetAllClosedActionsFullResponseReady(QVariant fullResponse, QList<QNetworkReply::RawHeaderPair> headerPairs){
-	qDebug() << "REST response ready";
-
 	QVariant allClosedIssuesResponse = fullResponse;
 
 	int lastPageNumber = -1;
@@ -77,7 +58,6 @@ void AMGithubProjectManagerMainView::onGetAllClosedActionsFullResponseReady(QVar
 	for(int x = 0; x < headerPairs.count(); x++){
 		if(headerPairs.at(x).first == "Link"){
 			QString linkHeader = headerPairs.at(x).second;
-			qDebug() << "Full link header: " << linkHeader;
 			QStringList linkHeaderItems = linkHeader.split(',');
 			for(int y = 0; y < linkHeaderItems.count(); y++){
 				if(linkHeaderItems.at(y).contains("; rel=\"last\""))
@@ -85,23 +65,10 @@ void AMGithubProjectManagerMainView::onGetAllClosedActionsFullResponseReady(QVar
 				if(linkHeaderItems.at(y).contains("; rel=\"next\""))
 					nextPageNumber = AMRestAction::pageNumberFromURLString(linkHeaderItems.at(y));
 			}
-
-			//lastPageNumber_ = lastPageNumber;
-//			qDebug() << "Last page " << lastPageNumber;
-//			qDebug() << "Next page " << nextPageNumber;
 		}
 	}
 
-	if(allClosedIssuesResponse.canConvert(QVariant::Map)){
-		QVariantMap jsonMap = allClosedIssuesResponse.toMap();
-		QMap<QString, QVariant>::const_iterator i = jsonMap.constBegin();
-		while (i != jsonMap.constEnd()) {
-			qDebug() << i.key() << i.value();
-			i++;
-		}
-//		jsonSensiblePrint(githubFullReply.toMap());
-	}
-	else if(allClosedIssuesResponse.canConvert(QVariant::List)){
+	if(allClosedIssuesResponse.canConvert(QVariant::List)){
 		QVariantMap jsonMap;
 		QVariantList githubListReply = allClosedIssuesResponse.toList();
 		if(githubListReply.at(0).canConvert(QVariant::Map)){
@@ -143,13 +110,11 @@ void AMGithubProjectManagerMainView::onGetAllClosedActionsFullResponseReady(QVar
 
 		qDebug() << "More more issues to fetch, going to page " << currentClosedIssuesPage_;
 
-//		QString issuesString = QString("https://api.github.com/repos/acquaman/acquaman/issues?filter=all&state=closed&page=%1&per_page=30").arg(currentClosedIssuesPage_);
 		QString issuesString = QString("https://api.github.com/repos/acquaman/acquaman/issues?filter=all&state=all&page=%1&per_page=30").arg(currentClosedIssuesPage_);
 		AMRestActionInfo *getOneClosedIssuesPageActionInfo = new AMRestActionInfo(issuesString, AMRestActionInfo::GetRequest);
 		getOneClosedIssuesPageActionInfo->setRawHeader("Authorization", headerData_.toLocal8Bit());
 		AMRestAction *getOneClosedIssuesPageAction = new AMRestAction(getOneClosedIssuesPageActionInfo, manager_);
 
-	//	connect(masterList, SIGNAL(succeeded()), this, SLOT(onRestActionsSucceeded()));
 		connect(getOneClosedIssuesPageAction, SIGNAL(fullResponseReady(QVariant, QList<QNetworkReply::RawHeaderPair>)), this, SLOT(onGetAllClosedActionsFullResponseReady(QVariant, QList<QNetworkReply::RawHeaderPair>)));
 		getOneClosedIssuesPageAction->start();
 	}
@@ -179,8 +144,6 @@ void AMGithubProjectManagerMainView::onGetAllClosedActionsFullResponseReady(QVar
 	}
 }
 
-#include <QScrollArea>
-
 void AMGithubProjectManagerMainView::onGetOneIssueCommentsReturned(QVariant fullResponse, QList<QNetworkReply::RawHeaderPair> headerPairs)
 {
 	int lastPageNumber = -1;
@@ -189,7 +152,6 @@ void AMGithubProjectManagerMainView::onGetOneIssueCommentsReturned(QVariant full
 	for(int x = 0; x < headerPairs.count(); x++){
 		if(headerPairs.at(x).first == "Link"){
 			QString linkHeader = headerPairs.at(x).second;
-			qDebug() << "Full link header: " << linkHeader;
 			QStringList linkHeaderItems = linkHeader.split(',');
 			for(int y = 0; y < linkHeaderItems.count(); y++){
 				if(linkHeaderItems.at(y).contains("; rel=\"last\"")){
@@ -201,18 +163,13 @@ void AMGithubProjectManagerMainView::onGetOneIssueCommentsReturned(QVariant full
 					qDebug() << nextPageURL;
 				}
 			}
-
-			//lastPageNumber_ = lastPageNumber;
-			qDebug() << "Last page " << lastPageNumber << " Next page " << nextPageNumber;
 		}
 	}
 
 	QVariantList githubListReply = fullResponse.toList();
 	int issueNumber = githubListReply.at(0).toMap().value("issue_url").toString().section("/", -1, -1).toInt();
 	qDebug() << "Checking Issue " << issueNumber << "(" << commentURLs_.count() << " comments remaining to fetch)";
-//	qDebug() << issueNumber;
 	for(int x = 0, size = githubListReply.count(); x < size; x++){
-//		qDebug() << githubListReply.at(x).toMap().value("body").toString();
 		if(githubListReply.at(x).toMap().value("body").toString().contains("Time Estimate:")){
 			QStringList splitCommentBody = githubListReply.at(x).toMap().value("body").toString().split("\n");
 			for(int y = 0, ySize = splitCommentBody.count(); y < ySize; y++){
@@ -223,12 +180,8 @@ void AMGithubProjectManagerMainView::onGetOneIssueCommentsReturned(QVariant full
 					if(timeEstimateString.endsWith("."))
 						timeEstimateString.remove(timeEstimateString.count()-1, 1);
 
-					//qDebug() << "Parsed time estimate for " << issueNumber << timeEstimateString.remove("Time Estimate:");
-					qDebug() << "Parsed time estimate for " << issueNumber << timeEstimateString;
-
 					if(allIssues_.contains(issueNumber))
 						allIssues_.value(issueNumber)->setTimeEstimateString(timeEstimateString);
-//						allIssues_.value(issueNumber)->setTimeEstimateString(timeEstimateString.remove("Time Estimate:"));
 				}
 			}
 		}
@@ -278,14 +231,19 @@ void AMGithubProjectManagerMainView::onGetOneIssueCommentsReturned(QVariant full
 		}
 
 		QList<int> totallyUnspecifiedIssues;
+		QList<int> fullySpecifiedIssues;
 		QMap<int, AMGitHubIssueFamily*>::const_iterator k = allIssueFamilies_.constBegin();
 		while(k != allIssueFamilies_.constEnd()){
 			if(k.value()->totallyIncomplete())
 				totallyUnspecifiedIssues.append(k.value()->originatingIssueNumber());
+			if(k.value()->completeInfo())
+				fullySpecifiedIssues.append(k.value()->originatingIssueNumber());
 			k++;
 		}
 		for(int x = 0, size = totallyUnspecifiedIssues.size(); x < size; x++)
 			allIssueFamilies_.remove(totallyUnspecifiedIssues.at(x));
+		for(int x = 0, size = fullySpecifiedIssues.size(); x < size; x++)
+			fullySpecifiedIssueFamilies_.insert(fullySpecifiedIssues.at(x), allIssueFamilies_.value(fullySpecifiedIssues.at(x)));
 
 
 		QWidget *familiesMasterWidget = new QWidget();
@@ -305,7 +263,6 @@ void AMGithubProjectManagerMainView::onGetOneIssueCommentsReturned(QVariant full
 				printIt = false;
 			if(m.value()->onlyMissingTimeEstimate())
 				printIt = false;
-//			if(!m.value()->completeInfo() || !m.value()->totallyIncomplete())
 			if(printIt)
 				qDebug() << m.value()->multiLineDebugInfo();
 			AMGitHubIssueFamilyView *oneFamilyView = new AMGitHubIssueFamilyView(m.value());
@@ -372,8 +329,11 @@ void AMGithubProjectManagerMainView::onGetOneIssueCommentsReturned(QVariant full
 		QList<double> actualComplexity3Times;
 		QList<double> actualComplexity5Times;
 		QList<double> actualComplexity8Times;
-		QMap<int, AMGitHubIssueFamily*>::const_iterator r = allIssueFamilies_.constBegin();
-		while(r != allIssueFamilies_.constEnd()){
+
+//		QMap<int, AMGitHubIssueFamily*>::const_iterator r = allIssueFamilies_.constBegin();
+		QMap<int, AMGitHubIssueFamily*>::const_iterator r = fullySpecifiedIssueFamilies_.constBegin();
+//		while(r != allIssueFamilies_.constEnd()){
+		while(r != fullySpecifiedIssueFamilies_.constEnd()){
 			complexityMappingMatrix[r.value()->complexityMapping()] = complexityMappingMatrix.at(r.value()->complexityMapping())+1;
 
 			if(r.value()->normalizedTimeEstiamte() > 0){
@@ -435,8 +395,6 @@ void AMGithubProjectManagerMainView::onGetOneIssueCommentsReturned(QVariant full
 			debugString.append(QString("%1\t").arg(percentValue, 0, 'f', 2));
 			debugStringQuantized.append(QString("%1\t").arg(complexityMappingMatrix.at(x)));
 			if(x%5 == 0){
-				//qDebug() << debugString;
-				//debugString.clear();
 				debugString.append("\n");
 				debugStringQuantized.append("\n");
 			}
@@ -551,134 +509,133 @@ void AMGithubProjectManagerMainView::onGetOneIssueCommentsReturned(QVariant full
 		qDebug() << "Probable Estimated Complexity 8 time estimate: " << probableEstimatedComplexity8Time;
 //		qDebug() << "Probable Estimated Complexity K time estimate: " << probableEstimatedComplexityKTime;
 
-//		QString milestonesString = QString("https://api.github.com/repos/acquaman/acquaman/milestones");
-//		AMRestActionInfo *getAllOpenMilestonesActionInfo = new AMRestActionInfo(milestonesString, AMRestActionInfo::GetRequest);
-//		getAllOpenMilestonesActionInfo->setRawHeader("Authorization", headerData_.toLocal8Bit());
-//		AMRestAction *getAllOpenMilestonesAction = new AMRestAction(getAllOpenMilestonesActionInfo, manager_);
-//		connect(getAllOpenMilestonesAction, SIGNAL(fullResponseReady(QVariant,QList<QNetworkReply::RawHeaderPair>)), this, SLOT(onGetAllOpenMilestonesReturned(QVariant,QList<QNetworkReply::RawHeaderPair>)));
-//		getAllOpenMilestonesAction->start();
-
 		QMap<int, AMGitHubMilestone*>::const_iterator c = allMilestones_.constBegin();
 		while(c != allMilestones_.constEnd()){
 			qDebug() << "Milestone " << c.key() << " named " << c.value()->title() << " is " << c.value()->stateAsString();
 			QString associatedIssuesString;
-			for(int x = 0, size = c.value()->associatedIssues().count(); x < size; x++)
-				associatedIssuesString.append(QString("%1 ").arg(c.value()->associatedIssues().at(x)->issueNumber()));
+			for(int x = 0, size = c.value()->associatedIssues().count(); x < size; x++){
+				associatedIssuesString.append(QString("%1 [%2] ").arg(c.value()->associatedIssues().at(x)->issueNumber()).arg(AMGitHubIssue::stringFromState(c.value()->associatedIssues().at(x)->issueState())));
+				if(!c.value()->associatedIssues().at(x)->isPullRequest() && allIssueFamilies_.contains(c.value()->associatedIssues().at(x)->issueNumber()))
+					c.value()->appendAssociatedFamily(allIssueFamilies_.value(c.value()->associatedIssues().at(x)->issueNumber()));
+			}
 			if(!associatedIssuesString.isEmpty())
 				qDebug() << associatedIssuesString;
 			c++;
 		}
-	}
-}
 
-void AMGithubProjectManagerMainView::onGetAllOpenMilestonesReturned(QVariant fullResponse, QList<QNetworkReply::RawHeaderPair> headerPairs){
-	qDebug() << "Milestones: \n\n\n";
-	QVariantList fullResponseList = fullResponse.toList();
-	for(int x = 0, size = fullResponseList.count(); x < size; x++){
-		QVariantMap oneResponseMap = fullResponseList.at(x).toMap();
+		AMGitHubMilestone *bioxasSideMilestone = allMilestones_.value(10);
+		QList<double> normalizedEstimatedList;
+		double normalizedEstimated = 0;
+		QList<double> normalizedCompletedList;
+		double normalizedCompleted = 0;
+		QList<double> normalizedValueList;
+		double normalizedValue = 0;
 
-		QMap<QString, QVariant>::const_iterator r = oneResponseMap.constBegin();
-		while(r != oneResponseMap.constEnd()){
-			qDebug() << r.key() << r.value() << "\n";
-			r++;
+		QList<double> normalizedOpenList;
+		double normalizedOpen;
+		QList<double> normalizedClosedList;
+		double normalizedClosed;
+
+		for(int x = 0, size = bioxasSideMilestone->associatedFamilies().count(); x < size; x++){
+			if(bioxasSideMilestone->associatedFamilies().at(x)->estimatedComplexity() != AMGitHubIssue::InvalidComplexity){
+				AMGitHubIssue::ComplexityValue oneEstimatedComplexity = bioxasSideMilestone->associatedFamilies().at(x)->estimatedComplexity();
+				switch (oneEstimatedComplexity) {
+				case AMGitHubIssue::Complexity1:
+					normalizedEstimatedList.append(probableEstimatedComplexity1Time);
+					if(bioxasSideMilestone->associatedFamilies().at(x)->originatingIssue()->issueState() == AMGitHubIssue::OpenState)
+						normalizedOpenList.append(probableEstimatedComplexity1Time);
+					break;
+				case AMGitHubIssue::Complexity2:
+					normalizedEstimatedList.append(probableEstimatedComplexity2Time);
+					if(bioxasSideMilestone->associatedFamilies().at(x)->originatingIssue()->issueState() == AMGitHubIssue::OpenState)
+						normalizedOpenList.append(probableEstimatedComplexity2Time);
+					break;
+				case AMGitHubIssue::Complexity3:
+					normalizedEstimatedList.append(probableEstimatedComplexity3Time);
+					if(bioxasSideMilestone->associatedFamilies().at(x)->originatingIssue()->issueState() == AMGitHubIssue::OpenState)
+						normalizedOpenList.append(probableEstimatedComplexity3Time);
+					break;
+				case AMGitHubIssue::Complexity5:
+					normalizedEstimatedList.append(probableEstimatedComplexity5Time);
+					if(bioxasSideMilestone->associatedFamilies().at(x)->originatingIssue()->issueState() == AMGitHubIssue::OpenState)
+						normalizedOpenList.append(probableEstimatedComplexity5Time);
+					break;
+				case AMGitHubIssue::Complexity8:
+					normalizedEstimatedList.append(probableEstimatedComplexity8Time);
+					if(bioxasSideMilestone->associatedFamilies().at(x)->originatingIssue()->issueState() == AMGitHubIssue::OpenState)
+						normalizedOpenList.append(probableEstimatedComplexity8Time);
+					break;
+				case AMGitHubIssue::ComplexityK:
+					break;
+				default:
+					break;
+				}
+			}
+			if(bioxasSideMilestone->associatedFamilies().at(x)->estimatedComplexity() != AMGitHubIssue::InvalidComplexity){
+				AMGitHubIssue::ComplexityValue oneActualComplexity = bioxasSideMilestone->associatedFamilies().at(x)->actualComplexity();
+				switch (oneActualComplexity) {
+				case AMGitHubIssue::Complexity1:
+					normalizedCompletedList.append(probableEstimatedComplexity1Time);
+					if(bioxasSideMilestone->associatedFamilies().at(x)->originatingIssue()->issueState() == AMGitHubIssue::ClosedState)
+						normalizedClosedList.append(probableEstimatedComplexity1Time);
+					break;
+				case AMGitHubIssue::Complexity2:
+					normalizedCompletedList.append(probableEstimatedComplexity2Time);
+					if(bioxasSideMilestone->associatedFamilies().at(x)->originatingIssue()->issueState() == AMGitHubIssue::ClosedState)
+						normalizedClosedList.append(probableEstimatedComplexity2Time);
+					break;
+				case AMGitHubIssue::Complexity3:
+					normalizedCompletedList.append(probableEstimatedComplexity3Time);
+					if(bioxasSideMilestone->associatedFamilies().at(x)->originatingIssue()->issueState() == AMGitHubIssue::ClosedState)
+						normalizedClosedList.append(probableEstimatedComplexity3Time);
+					break;
+				case AMGitHubIssue::Complexity5:
+					normalizedCompletedList.append(probableEstimatedComplexity5Time);
+					if(bioxasSideMilestone->associatedFamilies().at(x)->originatingIssue()->issueState() == AMGitHubIssue::ClosedState)
+						normalizedClosedList.append(probableEstimatedComplexity5Time);
+					break;
+				case AMGitHubIssue::Complexity8:
+					normalizedCompletedList.append(probableEstimatedComplexity8Time);
+					if(bioxasSideMilestone->associatedFamilies().at(x)->originatingIssue()->issueState() == AMGitHubIssue::ClosedState)
+						normalizedClosedList.append(probableEstimatedComplexity8Time);
+					break;
+				case AMGitHubIssue::ComplexityK:
+					break;
+				default:
+					break;
+				}
+			}
+			if(bioxasSideMilestone->associatedFamilies().at(x)->normalizedTimeEstiamte() > 0){
+				normalizedValueList.append(bioxasSideMilestone->associatedFamilies().at(x)->normalizedTimeEstiamte());
+			}
 		}
+
+		for(int x = 0, size = normalizedEstimatedList.count(); x < size; x++)
+			normalizedEstimated += normalizedEstimatedList.at(x);
+		for(int x = 0, size = normalizedCompletedList.count(); x < size; x++)
+			normalizedCompleted += normalizedCompletedList.at(x);
+		for(int x = 0, size = normalizedValueList.count(); x < size; x++)
+			normalizedValue += normalizedValueList.at(x);
+		for(int x = 0, size = normalizedOpenList.count(); x < size; x++)
+			normalizedOpen += normalizedOpenList.at(x);
+		for(int x = 0, size = normalizedClosedList.count(); x < size; x++)
+			normalizedClosed += normalizedClosedList.at(x);
+
+		qDebug() << "\n\n\n\n";
+
+		qDebug() << "Normalized Estimated List: " << normalizedEstimatedList;
+		qDebug() << "Normalized Completed List: " << normalizedCompletedList;
+		qDebug() << "Normalized Value List: " << normalizedValueList;
+
+		qDebug() << "Normalized Estimated Total: " << normalizedEstimated;
+		qDebug() << "Normalized Completed Total: " << normalizedCompleted;
+		qDebug() << "Normalized Value Total: " << normalizedValue;
+
+		qDebug() << "\n\n";
+		qDebug() << "Normalized Open List: " << normalizedOpenList;
+		qDebug() << "Normalized Closed List: " << normalizedClosedList;
+
+		qDebug() << "Normalized Open Total: " << normalizedOpen;
+		qDebug() << "Normalized Closed Total: " << normalizedClosed;
 	}
 }
-
-
-//				QMap<QString, QVariant>::const_iterator i = jsonMap.constBegin();
-//				int number;
-//				QString complexity;
-//				QString title;
-//				QVariant pullRequest;
-//				int comments;
-//				QString commentsURL;
-//				QString assignee;
-//				bool projectTrackingDisabled = false;
-//				bool inlineIssue = false;
-//				AMGitHubMilestone *associatedMilestone = 0;
-//				AMGitHubIssue::IssueState issueState = AMGitHubIssue::InvalidState;
-
-//				while (i != jsonMap.constEnd()) {
-////					qDebug() << i.key() << i.value();
-////					qDebug() << i.key();
-//					if(i.key() == "number"){
-////						qDebug() << "Number is " << i.value();
-//						number = i.value().toInt();
-//					}
-//					else if(i.key() == "labels"){
-//						QVariantList labelsList = i.value().toList();
-//						for(int x = 0, size = labelsList.count(); x < size; x++){
-//							QVariantMap labelMap = labelsList.at(x).toMap();
-//							if(labelMap.contains("name") && labelMap.value("name").toString().contains("Complexity"))
-//								complexity = labelMap.value("name").toString();
-//							if(labelMap.contains("name") && labelMap.value("name").toString().contains("Project Tracking Disabled"))
-//								projectTrackingDisabled = true;
-//							if(labelMap.contains("name") && labelMap.value("name").toString().contains("Project Tracking Inline Issue"))
-//								inlineIssue = true;
-//						}
-//					}
-//					else if(i.key() == "title")
-//						title = i.value().toString();
-//					else if(i.key() == "pull_request")
-//						pullRequest = i.value();
-//					else if(i.key() == "comments")
-//						comments = i.value().toInt();
-//					else if(i.key() == "comments_url" )
-//						commentsURL = i.value().toString();
-//					else if(i.key() == "assignee")
-//						assignee = i.value().toMap().value("login").toString();
-//					else if(i.key() == "milestone" && !i.value().toMap().value("title").toString().isEmpty()){
-//						int milestoneNumber = -1;
-//						if(i.value().toMap().value("number").canConvert<int>())
-//							milestoneNumber = i.value().toMap().value("number").toInt();
-//						if(milestoneNumber > 0 && !allMilestones_.contains(milestoneNumber)){
-//							AMGitHubMilestone *oneMilestone = new AMGitHubMilestone(i.value().toMap());
-//							allMilestones_.insert(oneMilestone->number(), oneMilestone);
-
-//							associatedMilestone = oneMilestone;
-//						}
-//						else if(milestoneNumber > 0 && allMilestones_.contains(milestoneNumber))
-//							associatedMilestone = allMilestones_.value(milestoneNumber);
-////						qDebug() << "Found a milestone for " << number;
-////						qDebug() << i.value().toMap().value("title");
-////						qDebug() << i.value();
-//					}
-//					else if(i.key() == "state"){
-//						qDebug() << "State is " << i.value();
-//						if(i.value().canConvert<QString>()){
-//							QString stateAsString = i.value().toString();
-//							if(stateAsString == "open")
-//								issueState = AMGitHubIssue::OpenState;
-//							else if(stateAsString == "closed")
-//								issueState = AMGitHubIssue::ClosedState;
-//							else
-//								issueState = AMGitHubIssue::InvalidState;
-//						}else
-//							issueState = AMGitHubIssue::InvalidState;
-//					}
-//					i++;
-//				}
-//				QString debugString;
-//				QString originatingIssue;
-//				if(pullRequest.isNull())
-//					debugString = QString("[%1] %2: %3").arg(number).arg(title).arg(complexity);
-//				else{
-//					int startPoint = title.indexOf("Issue") + 5;
-//					int endPoint = title.indexOf(":");
-//					originatingIssue = title.mid(startPoint, endPoint-startPoint);
-//					debugString = QString("[%1 --> %2] %3: %4").arg(number).arg(originatingIssue).arg(title).arg(complexity);
-////					qDebug() << pullRequest;
-//				}
-//				if(!commentsURL.isEmpty())
-//					debugString.append(QString(" [@%1]").arg(commentsURL));
-////				qDebug() << debugString;
-
-//				bool isPullRequest = false;
-//				if(!pullRequest.isNull())
-//					isPullRequest = true;
-//				int originatingIssueNumber = -1;
-//				if(!originatingIssue.isEmpty())
-//					originatingIssueNumber = originatingIssue.toInt();
-
-//				AMGitHubIssue *oneIssue = new AMGitHubIssue(number, AMGitHubIssue::complexityFromString(complexity), title, isPullRequest, 0, originatingIssueNumber, comments, commentsURL, QString(), assignee, projectTrackingDisabled, inlineIssue, issueState, this);

@@ -2,6 +2,7 @@
 #define AMGITHUBPROJECTMANAGERMAINVIEW_H
 
 #include <QWidget>
+#include <QNetworkReply>
 
 class QPushButton;
 class QLineEdit;
@@ -12,7 +13,6 @@ class AMGitHubIssue;
 class AMGitHubIssueFamily;
 class AMGitHubMilestone;
 
-#include <QNetworkReply>
 
 class AMGithubProjectManagerMainView : public QWidget
 {
@@ -26,7 +26,6 @@ protected slots:
 	void onInitiateButtonClicked();
 	void onGetAllClosedActionsFullResponseReady(QVariant fullResponse, QList<QNetworkReply::RawHeaderPair> headerPairs);
 	void onGetOneIssueCommentsReturned(QVariant fullResponse, QList<QNetworkReply::RawHeaderPair> headerPairs);
-	void onGetAllOpenMilestonesReturned(QVariant fullResponse, QList<QNetworkReply::RawHeaderPair> headerPairs);
 
 protected:
 	QPushButton *initiateButton_;
@@ -41,6 +40,7 @@ protected:
 	bool lastPage_;
 	QMap<int, AMGitHubIssue*> allIssues_;
 	QMap<int, AMGitHubIssueFamily*> allIssueFamilies_;
+	QMap<int, AMGitHubIssueFamily*> fullySpecifiedIssueFamilies_;
 	QStringList commentURLs_;
 	QMap<int, AMGitHubMilestone*> allMilestones_;
 };

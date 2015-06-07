@@ -298,6 +298,17 @@ QString AMGitHubIssue::stringFromComplexity(AMGitHubIssue::ComplexityValue compl
 	}
 }
 
+QString AMGitHubIssue::stringFromState(AMGitHubIssue::IssueState issueState){
+	switch(issueState){
+	case AMGitHubIssue::OpenState:
+		return "Open";
+	case AMGitHubIssue::ClosedState:
+		return "Closed";
+	case AMGitHubIssue::InvalidState:
+		return "Invalid State";
+	}
+}
+
 QString AMGitHubIssue::oneLineDebugInfo() const
 {
 	QString retVal;
@@ -713,4 +724,9 @@ QString AMGitHubMilestone::stateAsString() const{
 void AMGitHubMilestone::appendAssociatedIssue(AMGitHubIssue *associatedIssue){
 	if(!associatedIssues_.contains(associatedIssue))
 		associatedIssues_.append(associatedIssue);
+}
+
+void AMGitHubMilestone::appendAssociatedFamily(AMGitHubIssueFamily *associatedFamily){
+	if(!associatedFamilies_.contains(associatedFamily))
+		associatedFamilies_.append(associatedFamily);
 }

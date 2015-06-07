@@ -112,6 +112,8 @@ public:
 	static AMGitHubIssue::ComplexityValue complexityFromString(const QString &complexityString);
 	static QString stringFromComplexity(AMGitHubIssue::ComplexityValue complexityValue);
 
+	static QString stringFromState(AMGitHubIssue::IssueState issueState);
+
 	QString oneLineDebugInfo() const;
 	QString multiLineDebugInfo() const;
 
@@ -218,9 +220,11 @@ public:
 	QString stateAsString() const;
 
 	QList<AMGitHubIssue*> associatedIssues() const { return associatedIssues_; }
+	QList<AMGitHubIssueFamily*> associatedFamilies() const { return associatedFamilies_; }
 
 public slots:
 	void appendAssociatedIssue(AMGitHubIssue *associatedIssue);
+	void appendAssociatedFamily(AMGitHubIssueFamily *associatedFamily);
 
 protected:
 	int number_;
@@ -228,6 +232,7 @@ protected:
 	AMGitHubMilestone::MilestoneState state_;
 
 	QList<AMGitHubIssue*> associatedIssues_;
+	QList<AMGitHubIssueFamily*> associatedFamilies_;
 };
 
 #endif // AMRESTACTION_H
