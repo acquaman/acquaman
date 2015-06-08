@@ -200,6 +200,16 @@ public:
 	// Motor controls.
 	/// Returns the lateral detector stage motor.
 	CLSMAXvMotor* detectorStageLateral() const { return detectorStageLateral_; }
+	/// Returns the cryostat x motor.
+	CLSMAXvMotor* cryostatX() const { return cryostatX_; }
+	/// Returns the cryostat y motor.
+	CLSMAXvMotor* cryostatY() const { return cryostatY_; }
+	/// Returns the cryostat z motor.
+	CLSMAXvMotor* cryostatZ() const { return cryostatZ_; }
+
+	// Motor groups
+	/// Returns the motor group.
+	AMMotorGroup* motorGroup() const { return motorGroup_; }
 
 	// Current amplifiers
 	/// Returns the I0 Keithley428 amplifier.
@@ -282,6 +292,8 @@ protected:
 	void setupControlSets();
 	/// Sets up all the detectors.
 	void setupDetectors();
+	/// Sets up the cryostat stage motors.
+	void setupCryostatStage();
 	/// Sets up the sample stage motors.
 	void setupSampleStage();
 	/// Sets up the detector stage motors.
@@ -442,6 +454,13 @@ protected:
 	AMControl *tm5_;
 
 	AMControlSet *temperatureSet_;
+
+	/// Cryostat motors.
+
+	AMMotorGroup *motorGroup_;
+	CLSMAXvMotor *cryostatX_;
+	CLSMAXvMotor *cryostatY_;
+	CLSMAXvMotor *cryostatZ_;
 
 	/// Detector motors.
 
