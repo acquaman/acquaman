@@ -56,7 +56,10 @@ HEADERS += \
     source/ui/BioXAS/BioXASXRFDetectorView.h \
     source/application/BioXAS/BioXASAppController.h \
     source/ui/BioXAS/BioXASPersistentView.h \
-    source/ui/BioXAS/BioXASMirrorBendView.h
+    source/ui/BioXAS/BioXASMirrorBendView.h \
+    source/acquaman/BioXAS/BioXASJJSlitsScanConfiguration.h \
+    source/acquaman/BioXAS/BioXASJJSlitsScanController.h \
+    source/ui/BioXAS/BioXASJJSlitsScanConfigurationView.h
 
 SOURCES += \
 	source/beamline/BioXAS/BioXASPseudoMotorControl.cpp \
@@ -108,7 +111,20 @@ SOURCES += \
     source/ui/BioXAS/BioXASXRFDetectorView.cpp \
     source/application/BioXAS/BioXASAppController.cpp \
     source/ui/BioXAS/BioXASPersistentView.cpp \
-    source/ui/BioXAS/BioXASMirrorBendView.cpp
+    source/ui/BioXAS/BioXASMirrorBendView.cpp \
+    source/acquaman/BioXAS/BioXASJJSlitsScanConfiguration.cpp \
+    source/acquaman/BioXAS/BioXASJJSlitsScanController.cpp \
+    source/ui/BioXAS/BioXASJJSlitsScanConfigurationView.cpp
+
+
+
+
+
+
+
+
+
+
 
 
 
