@@ -3,10 +3,6 @@
 BioXASSideMonochromator::BioXASSideMonochromator(QObject *parent) :
 	BioXASSSRLMonochromator("SideMono", parent)
 {
-	// Initialize variables.
-
-	connected_ = false;
-
 	// Create components.
 
 	upperSlit_ = new AMPVwStatusControl("UpperSlitBlade", "SMTR1607-5-I22-09:mm:fbk", "SMTR1607-5-I22-09:mm", "SMTR1607-5-I22-09:status", "SMTR1607-5-I22-09:stop", this);
@@ -17,6 +13,7 @@ BioXASSideMonochromator::BioXASSideMonochromator(QObject *parent) :
 	keyStatus_ = new AMReadOnlyPVControl("KeyStatus", "BL1607-5-I22:Mono:KeyStatus", this);
 	brakeStatus_ = new AMReadOnlyPVControl("BrakeStatus", "BL1607-5-I22:Mono:BrakeOff", this);
 	bragg_ = new AMPVwStatusControl("Bragg", "SMTR1607-5-I22-12:deg:fbk", "SMTR1607-5-I22-12:deg", "SMTR1607-5-I22-12:status", "SMTR1607-5-I22-12:stop", this, 0.05);
+	stepBragg_ = new AMPVwStatusControl("StepBragg", "SMTR1607-5-I22-12:deg:sp", "SMTR1607-5-I22-12:deg", "SMTR1607-5-I22-12:status", "SMTR1607-5-I22-12:stop", this, 0.05);
 	braggAtCrystalChangePositionStatus_ = new AMReadOnlyPVControl("AtCrystalChangePosition", "BL1607-5-I22:Mono:XtalChangePos", this);
 	crystalChange_ = new AMPVwStatusControl("CrystalChange", "SMTR1607-5-I22-22:mm:fbk", "SMTR1607-5-I22-22:mm", "SMTR1607-5-I22-22:status", "SMTR1607-5-I22-22:stop", this);
 	crystalChangeCWLimitStatus_ = new AMReadOnlyPVControl("CrystalChangeCWStatus", "SMTR1607-5-I22-22:cw", this);
@@ -58,11 +55,17 @@ BioXASSideMonochromator::BioXASSideMonochromator(QObject *parent) :
 
 	// Create energy control.
 
-	energy_ = new BioXASSSRLMonochromatorEnergyControl("SideEnergy", this);
-	energy_->setBraggControl(bragg_);
-	energy_->setBraggSetPositionControl(braggSetPosition_);
-	energy_->setRegionControl(region_);
-	energy_->setM1MirrorPitchControl(m1Pitch_);
+	encoderEnergy_ = new BioXASSSRLMonochromatorEnergyControl("SideEncoderEnergy", this);
+	encoderEnergy_->setBraggControl(bragg_);
+	encoderEnergy_->setBraggSetPositionControl(braggSetPosition_);
+	encoderEnergy_->setRegionControl(region_);
+	encoderEnergy_->setM1MirrorPitchControl(m1Pitch_);
+
+	stepEnergy_ = new BioXASSSRLMonochromatorEnergyControl("SideStepEnergy", this);
+	stepEnergy_->setBraggControl(stepBragg_);
+	stepEnergy_->setBraggSetPositionControl(braggSetPosition_);
+	stepEnergy_->setRegionControl(region_);
+	stepEnergy_->setM1MirrorPitchControl(m1Pitch_);
 
 	// Listen to connection states.
 
@@ -74,6 +77,7 @@ BioXASSideMonochromator::BioXASSideMonochromator(QObject *parent) :
 	connect( keyStatus_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 	connect( brakeStatus_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 	connect( bragg_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+	connect( stepBragg_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 	connect( braggAtCrystalChangePositionStatus_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 	connect( crystalChange_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 	connect( crystalChangeCWLimitStatus_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
@@ -94,7 +98,8 @@ BioXASSideMonochromator::BioXASSideMonochromator(QObject *parent) :
 	connect( crystal2RollMotor_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
 	connect( region_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
-	connect( energy_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+	connect( encoderEnergy_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+	connect( stepEnergy_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
 	// Current settings.
 

@@ -57,8 +57,9 @@ BioXASMainXASScanActionController::BioXASMainXASScanActionController(BioXASMainX
 	bioXASDetectors.addDetectorInfo(BioXASMainBeamline::bioXAS()->i0Detector()->toInfo());
 	bioXASDetectors.addDetectorInfo(BioXASMainBeamline::bioXAS()->i1Detector()->toInfo());
 	bioXASDetectors.addDetectorInfo(BioXASMainBeamline::bioXAS()->i2Detector()->toInfo());
-	bioXASDetectors.addDetectorInfo(BioXASMainBeamline::bioXAS()->energySetpointDetector()->toInfo());
-	bioXASDetectors.addDetectorInfo(BioXASMainBeamline::bioXAS()->energyFeedbackDetector()->toInfo());
+	bioXASDetectors.addDetectorInfo(BioXASMainBeamline::bioXAS()->encoderEnergySetpointDetector()->toInfo());
+	bioXASDetectors.addDetectorInfo(BioXASMainBeamline::bioXAS()->encoderEnergyFeedbackDetector()->toInfo());
+	bioXASDetectors.addDetectorInfo(BioXASMainBeamline::bioXAS()->stepEnergyFeedbackDetector()->toInfo());
 	bioXASDetectors.addDetectorInfo(BioXASMainBeamline::bioXAS()->dwellTimeDetector()->toInfo());
 	bioXASDetectors.addDetectorInfo(BioXASMainBeamline::bioXAS()->braggDetector()->toInfo());
 	bioXASDetectors.addDetectorInfo(BioXASMainBeamline::bioXAS()->braggEncoderFeedbackDetector()->toInfo());
@@ -189,12 +190,12 @@ void BioXASMainXASScanActionController::buildScanControllerImplementation()
 	AMDataSource *energyFeedbackSource = 0;
 	AM1DExpressionAB *deltaEnergySource = 0;
 
-	int energySetpointDetectorIndex = scan_->indexOfDataSource(BioXASMainBeamline::bioXAS()->energySetpointDetector()->name());
+	int energySetpointDetectorIndex = scan_->indexOfDataSource(BioXASMainBeamline::bioXAS()->encoderEnergySetpointDetector()->name());
 	if (energySetpointDetectorIndex) {
 		energySetpointSource = scan_->dataSourceAt(energySetpointDetectorIndex);
 	}
 
-	int energyFeedbackDetectorIndex = scan_->indexOfDataSource(BioXASMainBeamline::bioXAS()->energyFeedbackDetector()->name());
+	int energyFeedbackDetectorIndex = scan_->indexOfDataSource(BioXASMainBeamline::bioXAS()->encoderEnergyFeedbackDetector()->name());
 	if (energyFeedbackDetectorIndex != -1) {
 		energyFeedbackSource = scan_->dataSourceAt(energyFeedbackDetectorIndex);
 	}

@@ -5,9 +5,8 @@ BioXASSSRLMonochromator::BioXASSSRLMonochromator(const QString &name, QObject *p
 {
 	// Initialize local variables.
 
-	connected_ = false;
-
-	energy_ = 0;
+	encoderEnergy_ = 0;
+	stepEnergy_ = 0;
 	region_ = 0;
 
 	upperSlit_ = 0;
@@ -18,6 +17,7 @@ BioXASSSRLMonochromator::BioXASSSRLMonochromator(const QString &name, QObject *p
 	keyStatus_ = 0;
 	brakeStatus_ = 0;
 	bragg_ = 0;
+	stepBragg_ = 0;
 	braggAtCrystalChangePositionStatus_ = 0;
 	crystalChange_ = 0;
 	crystalChangeCWLimitStatus_ = 0;
@@ -49,7 +49,8 @@ BioXASSSRLMonochromator::~BioXASSSRLMonochromator()
 bool BioXASSSRLMonochromator::isConnected() const
 {
 	bool connected = (
-		energy_ && energy_->isConnected() &&
+		encoderEnergy_ && encoderEnergy_->isConnected() &&
+		stepEnergy_ && stepEnergy_->isConnected() &&
 		region_ && region_->isConnected() &&
 
 		upperSlit_ && upperSlit_->isConnected() &&
@@ -60,6 +61,7 @@ bool BioXASSSRLMonochromator::isConnected() const
 		keyStatus_ && keyStatus_->isConnected() &&
 		brakeStatus_ && brakeStatus_->isConnected() &&
 		bragg_ && bragg_->isConnected() &&
+		stepBragg_ && stepBragg_->isConnected() &&
 		braggAtCrystalChangePositionStatus_ && braggAtCrystalChangePositionStatus_->isConnected() &&
 		crystalChange_ && crystalChange_->isConnected() &&
 		crystalChangeCWLimitStatus_ && crystalChangeCWLimitStatus_->isConnected() &&
@@ -87,7 +89,8 @@ void BioXASSSRLMonochromator::setM1MirrorPitchControl(AMControl *newControl)
 {
 	if (m1Pitch_ != newControl) {
 		m1Pitch_ = newControl;
-		energy_->setM1MirrorPitchControl(m1Pitch_);
+		encoderEnergy_->setM1MirrorPitchControl(m1Pitch_);
+		stepEnergy_->setM1MirrorPitchControl(m1Pitch_);
 		emit m1MirrorPitchControlChanged(m1Pitch_);
 	}
 }

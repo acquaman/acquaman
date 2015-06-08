@@ -38,8 +38,12 @@ public:
 	/// Returns true if the mono is connected, false otherwise.
 	virtual bool isConnected() const;
 
-	/// Returns the energy control.
-	virtual BioXASSSRLMonochromatorEnergyControl* energyControl() const { return energy_; }
+	/// Returns the energy control (the encoder-based, by default).
+	virtual BioXASSSRLMonochromatorEnergyControl* energyControl() const { return encoderEnergy_; }
+	/// Returns the bragg encoder-based energy control.
+	BioXASSSRLMonochromatorEnergyControl* encoderEnergyControl() const { return encoderEnergy_; }
+	/// Returns the bragg step-based energy control.
+	BioXASSSRLMonochromatorEnergyControl *stepEnergyControl() const { return stepEnergy_; }
 	/// Returns the region control.
 	virtual BioXASSSRLMonochromatorRegionControl* regionControl() const { return region_; }
 
@@ -59,6 +63,8 @@ public:
 	AMControl* brakeStatusControl() const { return brakeStatus_; }
 	/// Returns the bragg control.
 	AMControl* braggControl() const { return bragg_; }
+	/// Returns the step-based bragg position control.
+	AMControl* stepBraggControl() const { return stepBragg_; }
 	/// Returns the bragg motor at crystal change position status control.
 	AMControl* braggAtCrystalChangePositionStatusControl() const { return braggAtCrystalChangePositionStatus_; }
 	/// Returns the crystal change control.
@@ -109,8 +115,10 @@ public slots:
 	void calibrateBraggPosition(double newPosition);
 
 protected:
-	/// The energy control.
-	BioXASSSRLMonochromatorEnergyControl *energy_;
+	/// The bragg encoder-based energy control.
+	BioXASSSRLMonochromatorEnergyControl *encoderEnergy_;
+	/// The bragg step-based energy control.
+	BioXASSSRLMonochromatorEnergyControl *stepEnergy_;
 	/// The region control.
 	BioXASSSRLMonochromatorRegionControl *region_;
 
@@ -128,6 +136,8 @@ protected:
 	AMControl *keyStatus_;
 	/// The bragg motor control.
 	AMControl *bragg_;
+	/// The step-based bragg motor position.
+	AMControl *stepBragg_;
 	/// The bragg motor at crystal change position status control.
 	AMControl *braggAtCrystalChangePositionStatus_;
 	/// The brake status control.

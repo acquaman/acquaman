@@ -57,7 +57,7 @@ BioXASSideXASScanActionController::BioXASSideXASScanActionController(BioXASSideX
 		AMAppControllerSupport::registerClass<BioXASSideXASScanConfiguration, AMExporterXDIFormat, AMExporterOptionXDIFormat>(bioXASDefaultXAS->id());
 
 	AMControlInfoList list;
-	list.append(BioXASSideBeamline::bioXAS()->mono()->energyControl()->toInfo());
+	list.append(BioXASSideBeamline::bioXAS()->mono()->encoderEnergyControl()->toInfo());
 	configuration_->setAxisControlInfos(list);
 
 	useFeedback_ = true;
@@ -66,8 +66,9 @@ BioXASSideXASScanActionController::BioXASSideXASScanActionController(BioXASSideX
 	bioXASDetectors.addDetectorInfo(BioXASSideBeamline::bioXAS()->i0Detector()->toInfo());
 	bioXASDetectors.addDetectorInfo(BioXASSideBeamline::bioXAS()->i1Detector()->toInfo());
 	bioXASDetectors.addDetectorInfo(BioXASSideBeamline::bioXAS()->i2Detector()->toInfo());
-	bioXASDetectors.addDetectorInfo(BioXASSideBeamline::bioXAS()->energySetpointDetector()->toInfo());
-	bioXASDetectors.addDetectorInfo(BioXASSideBeamline::bioXAS()->energyFeedbackDetector()->toInfo());
+	bioXASDetectors.addDetectorInfo(BioXASSideBeamline::bioXAS()->encoderEnergySetpointDetector()->toInfo());
+	bioXASDetectors.addDetectorInfo(BioXASSideBeamline::bioXAS()->encoderEnergyFeedbackDetector()->toInfo());
+	bioXASDetectors.addDetectorInfo(BioXASSideBeamline::bioXAS()->stepEnergyFeedbackDetector()->toInfo());
 	bioXASDetectors.addDetectorInfo(BioXASSideBeamline::bioXAS()->dwellTimeDetector()->toInfo());
 	bioXASDetectors.addDetectorInfo(BioXASSideBeamline::bioXAS()->braggDetector()->toInfo());
 	bioXASDetectors.addDetectorInfo(BioXASSideBeamline::bioXAS()->braggEncoderFeedbackDetector()->toInfo());
@@ -210,12 +211,12 @@ void BioXASSideXASScanActionController::buildScanControllerImplementation()
 	AMDataSource *energyFeedbackSource = 0;
 	AM1DExpressionAB *deltaEnergySource = 0;
 
-	int energySetpointDetectorIndex = scan_->indexOfDataSource(BioXASSideBeamline::bioXAS()->energySetpointDetector()->name());
+	int energySetpointDetectorIndex = scan_->indexOfDataSource(BioXASSideBeamline::bioXAS()->encoderEnergySetpointDetector()->name());
 	if (energySetpointDetectorIndex) {
 		energySetpointSource = scan_->dataSourceAt(energySetpointDetectorIndex);
 	}
 
-	int energyFeedbackDetectorIndex = scan_->indexOfDataSource(BioXASSideBeamline::bioXAS()->energyFeedbackDetector()->name());
+	int energyFeedbackDetectorIndex = scan_->indexOfDataSource(BioXASSideBeamline::bioXAS()->encoderEnergyFeedbackDetector()->name());
 	if (energyFeedbackDetectorIndex != -1) {
 		energyFeedbackSource = scan_->dataSourceAt(energyFeedbackDetectorIndex);
 	}
