@@ -9,12 +9,20 @@ AMCurrentAmplifierCompositeView::AMCurrentAmplifierCompositeView(AMCurrentAmplif
 		connect( amplifier1_, SIGNAL(minimumValue(bool)), minus_, SLOT(setDisabled(bool)) );
 		connect( amplifier1_, SIGNAL(maximumValue(bool)), plus_, SLOT(setDisabled(bool)) );
 		connect( amplifier1_, SIGNAL(valueChanged()), this, SLOT(onAmplifierValueChanged()) );
+		connect( amplifier1_, SIGNAL(isConnected(bool)), this, SLOT(refreshView()));
 	}
 
 	setContextMenuPolicy(Qt::CustomContextMenu);
 	connect( this, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(onCustomContextMenuRequested(QPoint)) );
 
 	amplifier2_ = amp2;
+
+	if (amplifier2_) {
+		connect( amplifier2_, SIGNAL(minimumValue(bool)), minus_, SLOT(setDisabled(bool)) );
+		connect( amplifier2_, SIGNAL(maximumValue(bool)), plus_, SLOT(setDisabled(bool)) );
+		connect( amplifier2_, SIGNAL(valueChanged()), this, SLOT(onAmplifierValueChanged()) );
+		connect( amplifier2_, SIGNAL(isConnected(bool)), this, SLOT(refreshView()));
+	}
 
 	refreshView();
 }

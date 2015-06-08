@@ -111,6 +111,8 @@ protected:
 	 * Registers all of the necessary classes that are REIXS specific.
 	 */
 	void registerClasses();
+	/// Sets up all of the exporter options for the various scan types.
+	void setupExporterOptions();
 
 	/**
 	 * Sets up the user interface by specifying the extra pieces that will be added

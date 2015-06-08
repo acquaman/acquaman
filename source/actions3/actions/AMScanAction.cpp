@@ -49,7 +49,9 @@ AMScanAction::AMScanAction(const AMScanAction &other)
 {
 	controller_ = 0;
 	hasValidScanController_ = false;
-	scanInfo_ = other.scanInfo_;
+
+	AMScanActionInfo* infoCopy = qobject_cast<AMScanActionInfo*>(other.scanInfo_->createCopy());
+	scanInfo_ = infoCopy;
 }
 
 AMScanAction::~AMScanAction()

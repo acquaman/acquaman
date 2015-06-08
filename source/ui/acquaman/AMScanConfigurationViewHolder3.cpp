@@ -22,11 +22,15 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QSpinBox>
 #include <QLabel>
-
+#include <QHBoxLayout>
+#include <QVBoxLayout>
+#include <QGroupBox>
 #include "acquaman/AMScanConfiguration.h"
 #include "actions3/AMLoopAction3.h"
 #include "actions3/actions/AMScanAction.h"
 #include "ui/acquaman/AMScanConfigurationView.h"
+
+#include "ui/AMTopFrame.h"
 
  AMScanConfigurationViewHolder3::~AMScanConfigurationViewHolder3(){}
 AMScanConfigurationViewHolder3::AMScanConfigurationViewHolder3(AMScanConfigurationView* view, bool enableLoopAction, QWidget *parent) :
@@ -37,15 +41,43 @@ AMScanConfigurationViewHolder3::AMScanConfigurationViewHolder3(AMScanConfigurati
 	if(view_)
 		addWidget(view_);
 
-	disabledWarning_ = new QLabel("");
-	QFont warningsFont;
-	warningsFont.setPointSize(32);
-	disabledWarning_->setFont(warningsFont);
-	disabledWarning_->setStyleSheet( "QLabel{ color: red }" );
-	addWidget(disabledWarning_);
 
 
 }
+
+AMScanConfigurationViewHolder3::AMScanConfigurationViewHolder3(const QString &frameName, bool enableLoopAction, bool squeezeWidget, AMScanConfigurationView* view,  const QString &iconName, QWidget *parent) :
+	AMActionRunnerAddActionBar3("Scan", enableLoopAction, parent)
+{
+	view_ = view;
+
+	if(view_){
+
+		if(squeezeWidget){
+
+			topFrame_ = new AMTopFrame(frameName, QIcon(iconName));
+
+			QHBoxLayout *HLayout = new QHBoxLayout;
+			HLayout->addStretch();
+			HLayout->addWidget(view_);
+			HLayout->addStretch();
+
+			layout_->insertStretch(0);
+			layout_->insertLayout(0, HLayout);
+			layout_->insertStretch(0);
+			layout_->insertWidget(0, topFrame_);
+
+		}
+
+		else
+			addWidget(view_);
+	}
+
+
+}
+
+
+
+
 
 void AMScanConfigurationViewHolder3::setView(AMScanConfigurationView *view) {
 	// delete old view, if it exists
@@ -81,9 +113,14 @@ AMAction3* AMScanConfigurationViewHolder3::createMultipleScans()
 
 		const AMScanConfiguration *config = view_->configuration();
 		if (config) {
-			AMLoopAction3 *loop = new AMLoopAction3(new AMLoopActionInfo3(iterationsBox_->value(), config->name(), config->description()));
-			loop->addSubAction(createScan());
-			return loop;
+			int iteration = iterationsBox_->value();
+			if (iteration > 1) {
+				AMLoopAction3 *loopAction = new AMLoopAction3(new AMLoopActionInfo3(iterationsBox_->value(), config->name(), config->description()));
+				loopAction->addSubAction(createScan());
+				return loopAction;
+			} else {
+				return createScan();
+			}
 		}
 	}
 

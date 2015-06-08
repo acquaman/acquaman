@@ -21,55 +21,51 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "REIXSAppController.h"
 
+#include <QMessageBox>
+
+#include "actions3/AMActionRunner3.h"
+#include "actions3/AMActionRegistry3.h"
+#include "actions3/actions/AMSamplePlatePre2013MoveAction.h"
+#include "actions3/editors/AMSamplePlatePre2013MoveActionEditor.h"
+#include "application/AMAppControllerSupport.h"
 #include "beamline/CLS/CLSFacilityID.h"
 #include "beamline/CLS/CLSStorageRing.h"
 
+#include "dataman/AMRun.h"
+#include "dataman/AMScan.h"
+#include "dataman/database/AMDbObjectSupport.h"
+#include "dataman/export/AMExporterAthena.h"
+#include "dataman/export/AMExporterOptionGeneralAscii.h"
+
+#include "util/AMErrorMonitor.h"
+
+#include "ui/AMMainWindow.h"
+#include "ui/AMBeamlineCameraWidgetWithSourceTabs.h"
+#include "ui/acquaman/AMScanConfigurationView.h"
+#include "ui/acquaman/AMScanConfigurationViewHolder3.h"
+#include "ui/dataman/AMGenericScanEditor.h"
+#include "ui/dataman/AMSampleManagementPre2013Widget.h"	/// \todo This doesn't belong in dataman
+#include "ui/util/AMChooseDataFolderDialog.h"
+
+#include "acquaman/REIXS/REIXSXESScanConfiguration.h"
+#include "acquaman/REIXS/REIXSXASScanConfiguration.h"
+#include "analysis/REIXS/REIXSXESImageAB.h"
+#include "analysis/REIXS/REIXSXESImageInterpolationAB.h"
+#include "application/REIXS/REIXS.h"
+#include "dataman/REIXS/REIXSXESCalibration.h"
+#include "dataman/REIXS/REIXSXESMCPDetectorInfo.h"
 #include "beamline/REIXS/REIXSBeamline.h"
 #include "beamline/REIXS/REIXSSampleManipulator.h"
 
-#include "ui/util/AMChooseDataFolderDialog.h"
-#include "ui/dataman/AMGenericScanEditor.h"
-#include "dataman/AMScan.h"
-#include "ui/acquaman/AMScanConfigurationView.h"
+#include "ui/REIXS/REIXSSidebar.h"
 #include "ui/REIXS/REIXSXESScanConfigurationDetailedView.h"
 #include "ui/REIXS/REIXSXASScanConfigurationView.h"
 #include "ui/REIXS/REIXSRIXSScanConfigurationView.h"
-#include "acquaman/REIXS/REIXSXASScanConfiguration.h"
 #include "ui/REIXS/REIXSXESSpectrometerControlPanel.h"
-#include "ui/acquaman/AMScanConfigurationViewHolder3.h"
-#include "ui/AMMainWindow.h"
-
-#include "actions3/AMActionRunner3.h"
-
-#include "util/AMErrorMonitor.h"
-#include "dataman/database/AMDbObjectSupport.h"
-
-// For database registration:
-#include "dataman/REIXS/REIXSXESCalibration.h"
-#include "dataman/REIXS/REIXSXESMCPDetectorInfo.h"
-#include "acquaman/REIXS/REIXSXESScanConfiguration.h"
-#include "acquaman/REIXS/REIXSXASScanConfiguration.h"
-
 #include "ui/REIXS/REIXSXESHexapodControlEditor.h"
 #include "ui/REIXS/REIXSXESSpectrometerControlEditor.h"
 #include "ui/REIXS/REIXSSampleChamberButtonPanel.h"
 
-#include "ui/dataman/AMSampleManagementPre2013Widget.h"	/// \todo This doesn't belong in dataman
-#include "ui/AMBeamlineCameraWidgetWithSourceTabs.h"
-#include "dataman/AMRun.h"
-
-#include "analysis/REIXS/REIXSXESImageAB.h"
-#include "analysis/REIXS/REIXSXESImageInterpolationAB.h"
-
-#include "actions3/actions/AMSamplePlatePre2013MoveAction.h"
-#include "actions3/editors/AMSamplePlatePre2013MoveActionEditor.h"
-
-#include "ui/REIXS/REIXSSidebar.h"
-
-
-#include <QMessageBox>
-
-#include "actions3/AMActionRegistry3.h"
 
 REIXSAppController::REIXSAppController(QObject *parent) :
 	AMAppController(parent)
@@ -78,7 +74,7 @@ REIXSAppController::REIXSAppController(QObject *parent) :
 }
 
 bool REIXSAppController::startup()
-{	
+{
 
 	if (!AMChooseDataFolderDialog::getDataFolder("/AcquamanLocalData/reixs", "/home/reixs", "users"))
 		return false;
@@ -104,9 +100,14 @@ bool REIXSAppController::startup()
 
 		setupUserInterface();
 		makeConnections();
-	} else {
-		return false;
+		setupExporterOptions();
+
+		return true;
 	}
+
+	else
+		return false;
+
 }
 
 void REIXSAppController::shutdown() {
@@ -203,6 +204,8 @@ void REIXSAppController::setupUserInterface()
 	xasScanConfigurationViewHolder_ = new AMScanConfigurationViewHolder3(xasConfigView, true);
 	mw_->addPane(xasScanConfigurationViewHolder_, "Experiment Setup", "Absorption Scan", ":/utilities-system-monitor.png");
 
+	connect(xasScanConfiguration, SIGNAL(totalTimeChanged(double)), xasScanConfigurationViewHolder_, SLOT(updateOverallScanTime(double)));
+	xasScanConfigurationViewHolder_->updateOverallScanTime(xasScanConfiguration->totalTime());
 
 	spectrometerPanel_ = new REIXSXESSpectrometerControlPanel(REIXSBeamline::bl()->mcpDetector(), 0);
 	mw_->addPane(spectrometerPanel_, "Experiment Setup", "Spectromter Setup", ":/22x22/gnome-display-properties.png");
@@ -253,6 +256,13 @@ void REIXSAppController::setupUserInterface()
 	////////////////////////
 	sidebar_ = new REIXSSidebar();
 	mw_->addRightWidget(sidebar_);
+}
+
+void REIXSAppController::setupExporterOptions()
+{
+	AMExporterOptionGeneralAscii *exportOptions = REIXS::buildStandardExporterOption("REIXSXASDefault", true, true, true, true);
+	if(exportOptions->id() > 0)
+		AMAppControllerSupport::registerClass<REIXSXASScanConfiguration, AMExporterAthena, AMExporterOptionGeneralAscii>(exportOptions->id());
 }
 
 void REIXSAppController::makeConnections()

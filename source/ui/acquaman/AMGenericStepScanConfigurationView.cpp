@@ -7,7 +7,7 @@
 #include <QCheckBox>
 #include <QButtonGroup>
 
-#include "ui/AMTopFrame.h"
+#include "util/AMDateTimeUtils.h"
 #include "beamline/AMBeamline.h"
 
 AMGenericStepScanConfigurationView::AMGenericStepScanConfigurationView(AMGenericStepScanConfiguration *configuration, QWidget *parent)
@@ -15,7 +15,6 @@ AMGenericStepScanConfigurationView::AMGenericStepScanConfigurationView(AMGeneric
 {
 	configuration_ = configuration;
 
-	AMTopFrame *frame = new AMTopFrame("BioXAS Commissioning Tool");
 
 	scanName_ = new QLineEdit;
 	scanName_->setText(configuration_->name());
@@ -64,6 +63,14 @@ AMGenericStepScanConfigurationView::AMGenericStepScanConfigurationView(AMGeneric
 
 		axisControlChoice1_->addItem(exposedControls->at(i)->name());
 		axisControlChoice2_->addItem(exposedControls->at(i)->name());
+	}
+
+	if (configuration_->axisControlInfos().count() > 0){
+
+		axisControlChoice1_->setCurrentIndex(axisControlChoice1_->findText(configuration_->axisControlInfos().at(0).name()));
+
+		if (configuration_->axisControlInfos().count() == 2)
+			axisControlChoice2_->setCurrentIndex(axisControlChoice2_->findText(configuration_->axisControlInfos().at(1).name()));
 	}
 
 	connect(axisControlChoice1_, SIGNAL(currentIndexChanged(int)), this, SLOT(onAxisControlChoice1Changed()));
@@ -138,7 +145,6 @@ AMGenericStepScanConfigurationView::AMGenericStepScanConfigurationView(AMGeneric
 	moreLayout->addStretch();
 
 	QVBoxLayout *configViewLayout = new QVBoxLayout;
-	configViewLayout->addWidget(frame);
 	configViewLayout->addStretch();
 	configViewLayout->addLayout(moreLayout);
 	configViewLayout->addStretch();
@@ -155,41 +161,7 @@ void AMGenericStepScanConfigurationView::onScanNameEdited()
 
 void AMGenericStepScanConfigurationView::onEstimatedTimeChanged()
 {
-	estimatedTime_->setText("Estimated time per scan:\t" + convertTimeToString(configuration_->totalTime()));
-}
-
-QString AMGenericStepScanConfigurationView::convertTimeToString(double time)
-{
-	QString timeString;
-
-	int days = int(time/3600.0/24.0);
-
-	if (days > 0){
-
-		time -= days*3600.0*24;
-		timeString += QString::number(days) + "d:";
-	}
-
-	int hours = int(time/3600.0);
-
-	if (hours > 0){
-
-		time -= hours*3600;
-		timeString += QString::number(hours) + "h:";
-	}
-
-	int minutes = int(time/60.0);
-
-	if (minutes > 0){
-
-		time -= minutes*60;
-		timeString += QString::number(minutes) + "m:";
-	}
-
-	int seconds = ((int)time)%60;
-	timeString += QString::number(seconds) + "s";
-
-	return timeString;
+	estimatedTime_->setText("Estimated time per scan:\t" + AMDateTimeUtils::convertTimeToString(configuration_->totalTime()));
 }
 
 QDoubleSpinBox * AMGenericStepScanConfigurationView::createPositionDoubleSpinBox(const QString &prefix, const QString &suffix, double value, int decimals)

@@ -25,6 +25,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 class AMScanConfiguration;
 class AMScanConfigurationView;
+class AMTopFrame;
 
 /// This widget holds a scan configuration widget, and provides user controls to start the configured scan within the workflow.  It can be constructed to surround any AMScanConfigurationView. Below the widget, it adds buttons to start the configured scan or add it to the workflow queue (using AMActionRunner).
 /*! This class is an updated version of the old scan configuration view holder that uses the workflow system in actions3/AMActionRunner.
@@ -41,6 +42,9 @@ public:
 	/*! If provided, this widget takes ownership of the \c view */
  	virtual ~AMScanConfigurationViewHolder3();
 	AMScanConfigurationViewHolder3(AMScanConfigurationView* view = 0, bool enableLoopAction = false, QWidget *parent = 0);
+
+	/// Construct a holder for AMScanConfigurationView. The configuration view holder adds a frame, and squeezes view in
+	AMScanConfigurationViewHolder3(const QString &frameName, bool enableLoopAction, bool squeezeWidget, AMScanConfigurationView *view = 0,  const QString &iconName = ":/utilities-system-monitor.png", QWidget *parent = 0);
 
 	/// Set the \c view contained within the holder.  If there is an existing view, the old view is deleted.
 	/*! You can pass in 0 to remove the existing view from the holder.*/
@@ -61,6 +65,8 @@ protected:
 
 	/// Warning label for disabled state
 	QLabel *disabledWarning_;
+
+	AMTopFrame *topFrame_;
 };
 
 #endif // AMSCANCONFIGURATIONVIEWHOLDER3_H

@@ -42,6 +42,8 @@ VESPERSSpatialLineScanConfiguration::VESPERSSpatialLineScanConfiguration(QObject
 	setExportSpectraSources(true);
 	setExportSpectraInRows(true);
 	setOtherPosition(-123456789.0);
+	setCloseFastShutter(true);
+	setReturnToOriginalPosition(false);
 
 	AMScanAxisRegion *region = new AMScanAxisRegion;
 	AMScanAxis *axis = new AMScanAxis(AMScanAxis::StepAxis, region);
@@ -62,6 +64,8 @@ VESPERSSpatialLineScanConfiguration::VESPERSSpatialLineScanConfiguration(const V
 	dbObject_->setParent(this);
 	setOtherPosition(original.otherPosition());
 	setExportSpectraSources(original.exportSpectraSources());
+	setCloseFastShutter(original.closeFastShutter());
+	setReturnToOriginalPosition(original.returnToOriginalPosition());
 	computeTotalTime();
 
 	connect(this, SIGNAL(startChanged(double)), this, SLOT(computeTotalTime()));

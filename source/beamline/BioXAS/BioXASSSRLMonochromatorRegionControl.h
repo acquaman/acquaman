@@ -1,9 +1,7 @@
 #ifndef BIOXASSSRLMONOCHROMATORREGIONCONTROL_H
 #define BIOXASSSRLMONOCHROMATORREGIONCONTROL_H
 
-#include <QSignalMapper>
-
-#include "beamline/AMCompositeControl.h"
+#include "beamline/AMPseudoMotorControl.h"
 #include "actions3/AMActionSupport.h"
 #include "actions3/actions/AMControlWaitAction.h"
 #include "actions3/actions/AMWaitAction.h"
@@ -52,7 +50,7 @@
 #define BioXAS_MONO_REGION_REGION_B_WAIT_FAILED 1407719
 #define BioXAS_MONO_REGION_KEY_DISABLED_WAIT_FAILED 1407720
 
-class BioXASSSRLMonochromatorRegionControl : public AMCompositeControl
+class BioXASSSRLMonochromatorRegionControl : public AMPseudoMotorControl
 {
 	Q_OBJECT
 
@@ -65,26 +63,24 @@ public:
 	/// Destructor.
 	virtual ~BioXASSSRLMonochromatorRegionControl();
 
-	/// Returns the current region state.
-	virtual double value() const { return value_; }
-	/// Returns the current region setpoint.
-	virtual double setpoint() const { return setpoint_; }
-	/// Returns true if there is a crystal change procedure in progress, as a result of this control's action.
-	virtual bool moveInProgress() const { return moveInProgress_; }
-	/// Returns Region::A, the smallest value this control can assume.
-	virtual double minimumValue() const;
-	/// Returns Region::None, the largest value this control can assume.
-	virtual double maximumValue() const;
 	/// Returns true if the region is always measurable (when the control is connected).
 	virtual bool shouldMeasure() const { return true; }
 	/// Returns true if a move to a new region is always possible, provided control is connected.
 	virtual bool shouldMove() const { return true; }
 	/// Returns true if this control can stop a crystal change in progress, provided it is connected.
 	virtual bool shouldStop() const { return false; }
+
+	/// Returns true if this control can take a measurement right now.
+	virtual bool canMeasure() const;
 	/// Returns true if this control can move right now.
 	virtual bool canMove() const;
 	/// Returns true if this control can stop a change to a new region right now.
 	virtual bool canStop() const { return false; }
+
+	/// Returns true if the given value is a valid value for this control, false otherwise.
+	virtual bool validValue(double value) const;
+	/// Returns true if the given value is a valid setpoint for this control, false otherwise.
+	virtual bool validSetpoint(double value) const;
 
 	/// Returns the upper slit control.
 	AMControl* upperSlitControl() const { return upperSlit_; }
@@ -121,27 +117,7 @@ signals:
 	/// Notifier that the current step in a move has changed.
 	void moveStepChanged(const QString &newDescription, const QString &newInstruction, const QString &newNotes);
 
-	/// Notifier that the slits status has changed.
-	void slitsStatusChanged(double status);
-	/// Notifier that the paddle status has changed.
-	void paddleStatusChanged(double status);
-	/// Notifier that the key status has changed.
-	void keyStatusChanged(double status);
-	/// Notifier that the brake status has changed.
-	void brakeStatusChanged(double status);
-	/// Notifier that the bragg at crystal change position status has changed.
-	void braggAtCrystalChangePositionStatusChanged(double status);
-	/// Notifier that the region A status has changed.
-	void regionAStatusChanged(double status);
-	/// Notifier that the region B status has changed.
-	void regionBStatusChanged(double status);
-
 public slots:
-	/// Sets the new region setpoint and performs a crystal change, if necessary.
-	virtual FailureExplanation move(double setpoint);
-	/// Stops a crystal change in progress.
-	virtual bool stop() { return false; }
-
 	// Sets the upper slit motor control.
 	void setUpperSlitControl(AMControl *upperSlit);
 	/// Sets the lower slit motor control.
@@ -172,29 +148,19 @@ public slots:
 	void setRegionBStatusControl(AMControl *regionStatus);
 
 protected slots:
-	/// Updates the current value_ and emits the valueChanged() signal.
-	void setValue(int newValue);
-	/// Updates the current setpoint_ and emits the setpointChanged() signal.
-	void setSetpoint(int newSetpoint);
-	/// Updates the current moveInProgress_ value and emits the moveChanged() signal. The moveStarted() signal is also emitted if the change is to true.
-	void setMoveInProgress(bool isMoving);
+	/// Updates the connected state.
+	virtual void updateConnected();
+	/// Updates the current value.
+	virtual void updateValue();
+	/// Updates the 'is moving' state.
+	virtual void updateMoving();
 
 	/// Handles emitting the appropriate signals when the current step in a move has changed.
-	void onActionStepChanged(int stepIndex);
-	/// Handles updating the region value and emitting the value changed signal.
-	void onRegionControlValueChanged();
-	/// Called when the internal crystal change action has been started. Handles updating the moveInProgress_ member variable and emitting the moveInProgress() signal.
-	void onRegionChangeStarted();
-	/// Called when the internal crystal change action has been cancelled. Handles emitting moveFailed(...) with the WasStoppedFailure code and deleting the action.
-	void onRegionChangeCancelled(QObject *action);
-	/// Called when the internal crystal change action has failed. Handles emitting moveFailed(...) with the OtherFailure code and deleting the action.
-	void onRegionChangeFailed(QObject *action);
-	/// Called when the internal crystal change action has succeeded! Handles emitting moveSucceeded() and deleting the action.
-	void onRegionChangeSucceeded(QObject *action);
+	void onMoveStepChanged(int stepIndex);
 
 protected:
-	/// Returns a new action that performs a crystal change to change the region.
-	AMListAction3* createChangeRegionAction(int newRegion);
+	/// Returns a new action that performs a crystal change to the new region.
+	AMAction3* createMoveAction(double newRegion);
 
 	/// Returns a new action that closes the upper slit, 0 if not connected.
 	AMAction3* createCloseUpperSlitAction();
@@ -251,11 +217,6 @@ protected:
 	/// Returns a new action that waits for the mono region key to be turned CW to Disabled, 0 if not connected.
 	AMAction3* createWaitForKeyDisabledAction();
 
-	/// Returns true if the given value is a valid region state, false otherwise.
-	static bool validRegionState(int regionState);
-	/// Returns true if the given value is a valid region setpoint, false otherwise.
-	static bool validRegionSetpoint(int regionSetpoint);
-
 	/// Returns a string representation of the given region state.
 	static QString regionStateToString(int region);
 	/// Returns the region state corresponding to the given string.
@@ -267,57 +228,35 @@ protected:
 	/// Returns the notes associated with the given step index, an empty string if there is none.  The step index in the index of an action in the crystal change list action.
 	static QString stepNotes(int stepIndex);
 
-	/// Handles control setup: makes sure the given control has the proper parent and is added to the list of children.
-	void controlSetup(AMControl *control);
-	/// Handles control cleanup: making sure the given control is removed from the list of children, disconnected, and deleted.
-	void controlCleanup(AMControl *control);
-
-	/// Handles the region change cleanup: making sure moveInProgress_ is updated, we disconnect from crystal change action signals, and the action is queued for deletion.
-	void moveCleanup(QObject *action);
-
 protected:
-	/// The current region state.
-	int value_;
-	/// The current region setpoint.
-	int setpoint_;
-	/// The current move state, true if this control has initiated a move.
-	bool moveInProgress_;
-
-	/// The upper slit motor.
+	/// The upper slit motor control.
 	AMControl *upperSlit_;
-	/// The lower slit motor.
+	/// The lower slit motor control.
 	AMControl *lowerSlit_;
 	/// The slits status control.
 	AMControl *slitsStatus_;
-	/// The paddle motor.
+	/// The paddle motor control.
 	AMControl *paddle_;
 	/// The paddle status control.
 	AMControl *paddleStatus_;
-	/// The key status.
+	/// The key status control.
 	AMControl *keyStatus_;
-	/// The bragg motor.
+	/// The bragg motor control.
 	AMControl *bragg_;
-	/// The bragg motor at crystal change position status.
+	/// The bragg motor at crystal change position status control.
 	AMControl *braggAtCrystalChangePositionStatus_;
-	/// The brake status.
+	/// The brake status control.
 	AMControl *brakeStatus_;
-	/// The crystal change motor.
+	/// The crystal change motor control.
 	AMControl *crystalChange_;
-	/// The crystal change clockwise limit status.
+	/// The crystal change clockwise limit status control.
 	AMControl *crystalChangeCWLimitStatus_;
-	/// The crystal change counter-clockwise limit status.
+	/// The crystal change counter-clockwise limit status control.
 	AMControl *crystalChangeCCWLimitStatus_;
-	/// The region A status.
+	/// The region A status control.
 	AMControl *regionAStatus_;
-	/// The region B status.
+	/// The region B status control.
 	AMControl *regionBStatus_;
-
-	/// A signal mapper that allows an AMAction to identify itself as the origin of the action cancelled signal.
-	QSignalMapper *actionCancelledMapper_;
-	/// A signal mapper that allows an AMAction to identify itself as the origin of the action failed signal.
-	QSignalMapper *actionFailedMapper_;
-	/// A signal mapper that allows an AMAction to identify itself as the origin of the action succeeded signal.
-	QSignalMapper *actionSucceededMapper_;
 };
 
 #endif // BIOXASSSRLMONOCHROMATORREGIONCONTROL_H

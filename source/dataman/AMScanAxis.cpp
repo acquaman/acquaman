@@ -314,3 +314,33 @@ void AMScanAxis::dbLoadRegions(const AMDbObjectList &newAxisRegions)
 			regions_.append(region);
 	}
 }
+
+int AMScanAxis::numberOfPoints() const
+{
+	int points = 0;
+
+	foreach (AMScanAxisRegion *region, regions_.toList())
+		points += region->numberOfPoints();
+
+	return points;
+}
+
+double AMScanAxis::timePerAxis() const
+{
+	double time = 0;
+
+	foreach (AMScanAxisRegion *region, regions_.toList())
+		time += region->timePerRegion();
+
+	return time;
+}
+
+QString AMScanAxis::toString(const QString &units) const
+{
+	QString string = "";
+
+	foreach (AMScanAxisRegion *region, regions_.toList())
+		string.append(region->toString(units));
+
+	return string;
+}
