@@ -213,6 +213,7 @@ void BioXASMainBeamline::setupExposedControls()
 	addExposedControl(m1Mirror_->heightControl());
 	addExposedControl(m1Mirror_->yawControl());
 	addExposedControl(m1Mirror_->lateralControl());
+	addExposedControl(m1Mirror_->bendControl());
 
 	// M2 mirror controls.
 
@@ -230,6 +231,7 @@ void BioXASMainBeamline::setupExposedControls()
 	addExposedControl(m2Mirror_->heightControl());
 	addExposedControl(m2Mirror_->yawControl());
 	addExposedControl(m2Mirror_->lateralControl());
+	addExposedControl(m2Mirror_->bendControl());
 
 	// Mono controls.
 	addExposedControl(mono_->encoderEnergyControl());
