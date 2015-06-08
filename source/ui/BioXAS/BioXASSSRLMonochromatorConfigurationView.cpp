@@ -14,13 +14,13 @@ BioXASSSRLMonochromatorConfigurationView::BioXASSSRLMonochromatorConfigurationVi
 	regionEditor_->setTitle("Region");
 
 	energyEditor_ = new AMExtendedControlEditor(0);
-	energyEditor_->setTitle("Energy");
+	energyEditor_->setTitle("Energy (encoder)");
 	energyEditor_->setControlFormat('f', 2);
 
 	calibrateEnergyButton_ = new QPushButton("Calibrate");
 
 	braggEditor_ = new AMExtendedControlEditor(0);
-	braggEditor_->setTitle("Goniometer angle");
+	braggEditor_->setTitle("Goniometer angle (encoder)");
 	braggEditor_->setControlFormat('f', 2);
 
 	calibrateBraggButton_ = new QPushButton("Calibrate");
@@ -175,10 +175,10 @@ void BioXASSSRLMonochromatorConfigurationView::onCalibrateEnergyButtonClicked()
 {
 	if (mono_) {
 		bool inputOK = false;
-		double newEnergy = QInputDialog::getDouble(this, "Energy Calibration", "Enter calibrated energy:", mono_->energyControl()->value(), ENERGY_MIN, ENERGY_MAX, 1, &inputOK);
+		double newEnergy = QInputDialog::getDouble(this, "Energy Calibration", "Enter calibrated energy:", mono_->encoderEnergyControl()->value(), ENERGY_MIN, ENERGY_MAX, 1, &inputOK);
 
 		if (inputOK) {
-			mono_->energyControl()->setEnergy(newEnergy);
+			mono_->encoderEnergyControl()->setEnergy(newEnergy);
 		}
 	}
 }
@@ -213,23 +213,18 @@ BioXASSSRLMonochromatorBraggConfigurationView::BioXASSSRLMonochromatorBraggConfi
 	// Create UI elements.
 
 	QLabel *braggVelocityPrompt = new QLabel("Velocity:");
-
 	braggVelocity_ = new QDoubleSpinBox();
 
 	QLabel *braggVelocityBasePrompt = new QLabel("Velocity base:");
-
 	braggVelocityBase_ = new QDoubleSpinBox();
 
 	QLabel *braggAccelerationPrompt = new QLabel("Acceleration:");
-
 	braggAcceleration_ = new QDoubleSpinBox();
 
 	QLabel *braggEncoderMoveTypePrompt = new QLabel("Encoder move type:");
-
 	braggEncoderMoveType_ = new QComboBox();
 
 	QLabel *braggSettlingTimePrompt = new QLabel("Settling time:");
-
 	braggSettlingTime_ = new QDoubleSpinBox();
 
 	// Create and set layouts.
@@ -304,6 +299,10 @@ void BioXASSSRLMonochromatorBraggConfigurationView::clearUI()
 	braggEncoderMoveType_->disconnect();
 	braggEncoderMoveType_->clear();
 	braggEncoderMoveType_->setEnabled(false);
+
+	braggSettlingTime_->disconnect();
+	braggSettlingTime_->clear();
+	braggSettlingTime_->setEnabled(false);
 }
 
 void BioXASSSRLMonochromatorBraggConfigurationView::initializeUI()

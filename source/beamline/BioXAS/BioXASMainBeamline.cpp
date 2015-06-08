@@ -207,6 +207,7 @@ void BioXASMainBeamline::setupExposedControls()
 	addExposedControl(m1Mirror_->benderUpstreamMotorControl());
 	addExposedControl(m1Mirror_->benderDownstreamMotorControl());
 	addExposedControl(m1Mirror_->upperSlitBladeMotorControl());
+
 	addExposedControl(m1Mirror_->rollControl());
 	addExposedControl(m1Mirror_->pitchControl());
 	addExposedControl(m1Mirror_->heightControl());
@@ -231,7 +232,8 @@ void BioXASMainBeamline::setupExposedControls()
 	addExposedControl(m2Mirror_->lateralControl());
 
 	// Mono controls.
-	addExposedControl(mono_->energyControl());
+	addExposedControl(mono_->encoderEnergyControl());
+	addExposedControl(mono_->stepEnergyControl());
 	addExposedControl(mono_->regionControl());
 	addExposedControl(mono_->braggMotor());
 	addExposedControl(mono_->braggMotor()->EGUVelocityControl());
@@ -252,8 +254,9 @@ void BioXASMainBeamline::setupExposedDetectors()
 	addExposedDetector(i0Detector_);
 	addExposedDetector(i1Detector_);
 	addExposedDetector(i2Detector_);
-	addExposedDetector(energySetpointDetector_);
-	addExposedDetector(energyFeedbackDetector_);
+	addExposedDetector(encoderEnergySetpointDetector_);
+	addExposedDetector(encoderEnergyFeedbackDetector_);
+	addExposedDetector(stepEnergyFeedbackDetector_);
 	addExposedDetector(braggDetector_);
 	addExposedDetector(braggEncoderFeedbackDetector_);
 	addExposedDetector(braggMoveRetriesDetector_);
@@ -269,13 +272,18 @@ void BioXASMainBeamline::setupMotorGroup()
 
 void BioXASMainBeamline::setupControlsAsDetectors()
 {
-	energySetpointDetector_ = new AMBasicControlDetectorEmulator("EnergySetpoint", "EnergySetpoint", new AMReadOnlyPVControl("EnergySetpoint", "BL1607-5-I21:Energy:EV", this), 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
-	energySetpointDetector_->setHiddenFromUsers(false);
-	energySetpointDetector_->setIsVisible(true);
+	encoderEnergySetpointDetector_ = new AMBasicControlDetectorEmulator("EncoderEnergySetpoint", "EncoderEnergySetpoint", mono_->encoderEnergyControl(), 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	encoderEnergySetpointDetector_->setControlProperty(AMBasicControlDetectorEmulator::Control::Setpoint);
+	encoderEnergySetpointDetector_->setHiddenFromUsers(false);
+	encoderEnergySetpointDetector_->setIsVisible(true);
 
-	energyFeedbackDetector_ = new AMBasicControlDetectorEmulator("EnergyFeedback", "EnergyFeedback", new AMReadOnlyPVControl("EnergyFeedback", "BL1607-5-I21:Energy:EV:fbk", this), 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
-	energyFeedbackDetector_->setHiddenFromUsers(false);
-	energyFeedbackDetector_->setIsVisible(true);
+	encoderEnergyFeedbackDetector_ = new AMBasicControlDetectorEmulator("EncoderEnergyFeedback", "EncoderEnergyFeedback", mono_->encoderEnergyControl(), 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	encoderEnergyFeedbackDetector_->setHiddenFromUsers(false);
+	encoderEnergyFeedbackDetector_->setIsVisible(true);
+
+	stepEnergyFeedbackDetector_ = new AMBasicControlDetectorEmulator("StepEnergyFeedback", "StepEnergyFeedback", mono_->stepEnergyControl(), 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	stepEnergyFeedbackDetector_->setHiddenFromUsers(false);
+	stepEnergyFeedbackDetector_->setIsVisible(true);
 
 	dwellTimeDetector_ = new AMBasicControlDetectorEmulator("DwellTimeFeedback", "Dwell Time Feedback", scalerDwellTime_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
 

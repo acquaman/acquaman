@@ -169,7 +169,7 @@ void BioXASSSRLMonochromatorEnergyControl::updateConnected()
 void BioXASSSRLMonochromatorEnergyControl::updateValue()
 {
 	if (isConnected()) {
-		setValue( calculateEnergyFromBraggPosition(hc_, crystal2D_, bragg_->value(), region_->value(), m1MirrorPitch_->value(), thetaBraggOffset_, regionOffset_));
+		setValue( calculateEnergyFromBraggPosition(hc_, crystal2D_, bragg_->value(), region_->value(), m1MirrorPitch_->value(), thetaBraggOffset_, regionOffset_) );
 	}
 }
 

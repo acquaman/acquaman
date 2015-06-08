@@ -4,6 +4,7 @@
 #include <QObject>
 
 #include "beamline/AMPVControl.h"
+#include "beamline/CLS/CLSMAXvMotor.h"
 #include "actions3/AMActionSupport.h"
 
 #include "beamline/AMPseudoMotorControl.h"
