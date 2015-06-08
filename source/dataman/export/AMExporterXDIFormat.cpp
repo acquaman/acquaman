@@ -39,7 +39,7 @@ QString AMExporterXDIFormat::exportScan(const AMScan *scan, const QString &desti
 	option_ = qobject_cast<const AMExporterOptionXDIFormat *>(option);
 
 	if(!option_) {
-		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -2, "Invalid options specified for the General Ascii Exporter. Please report this bug to the Acquaman developers."));
+		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -2, "Invalid options specified for the XDI Format Ascii Exporter. Please report this bug to the Acquaman developers."));
 		return QString();
 	}
 
@@ -84,6 +84,8 @@ void AMExporterXDIFormat::writeHeader()
 	headerText.append("#/////////////////////////////////\n");
 
 	QString presetHeader = option_->headerText();
+	presetHeader = parseKeywordString(presetHeader);
+	headerText.append("# ");
 	headerText.append(presetHeader.replace("\n", "\n# "));
 
 	headerText.append("#----------------------------------\n");
@@ -94,11 +96,92 @@ void AMExporterXDIFormat::writeHeader()
 
 void AMExporterXDIFormat::writeMainTable()
 {
+	QTextStream ts(file_);
+
+	// 1. Column header.
+	int maxTableRows = 0;
+	if(option_->columnHeaderIncluded()) {
+
+		ts << "# ";
+
+		QString columnText("");
+
+		for(int c=0; c<mainTableDataSources_.count(); c++) {
+			setCurrentDataSource(mainTableDataSources_.at(c));
+			AMDataSource* ds = currentScan_->dataSourceAt(currentDataSourceIndex_);
+
+			if(ds->size(0) > maxTableRows)
+				maxTableRows = ds->size(0); // convenient... lets figure this out while we're looping through anyway
+
+			columnText = parseKeywordString(option_->columnHeader());
+			columnText.replace(" ", "");
+			columnText = columnText.left(columnText.indexOf("("));
+
+			// 1D data sources:
+			if(ds->rank() == 1) {
+
+				if(mainTableIncludeX_.at(c))
+					ts << (columnText + ".X")  << option_->columnDelimiter();
+				ts << columnText << option_->columnDelimiter();
+			}
+			else {	// 2D
+				if(mainTableIncludeX_.at(c))
+					ts << (columnText + ".X") << option_->columnDelimiter();
+				// need a loop over the second axis columns
+				for(int cc=0; cc<ds->size(1); cc++) {
+					setCurrentColumnIndex(cc);
+					ts << columnText << "[" << ds->axisValue(1, cc).toString() << ds->axisInfoAt(1).units << "]" << option_->columnDelimiter();
+				}
+			}
+		}
+		ts << option_->newlineDelimiter() << option_->columnHeaderDelimiter() << option_->newlineDelimiter();
+	}
+
+
+	// 2. rows
+	for(int r=0; r<maxTableRows; r++) {
+
+		// over rows within columns
+		for(int c=0; c<mainTableDataSources_.count(); c++) {
+			setCurrentDataSource(mainTableDataSources_.at(c));
+			AMDataSource* ds = currentScan_->dataSourceAt(currentDataSourceIndex_);
+
+			bool doPrint = (ds->size(0) > r);
+
+			// print x column?
+			if(mainTableIncludeX_.at(c)) {
+				if(doPrint)
+					ts << ds->axisValue(0,r).toString();
+				ts << option_->columnDelimiter();
+			}
+
+			// 1D data sources:
+			if(ds->rank() == 1) {
+				if(doPrint)
+					ts << ds->value(r).toString();
+				ts << option_->columnDelimiter();
+			}
+			else if(ds->rank() == 2) {
+				// need a loop over the second axis columns
+				for(int cc=0; cc<ds->size(1); cc++) {
+					if(doPrint)
+						ts << ds->value(AMnDIndex(r,cc)).toString();
+					ts << option_->columnDelimiter();
+				}
+			}
+		}
+		ts << option_->newlineDelimiter();
+	}
 }
 
 void AMExporterXDIFormat::writeSeparateSections()
 {
 	// Castrated function.
+}
+
+AMExporterOption * AMExporterXDIFormat::createDefaultOption() const
+{
+	return new AMExporterOptionXDIFormat();
 }
 
 

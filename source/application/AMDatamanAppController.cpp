@@ -33,8 +33,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/export/AMExportController.h"
 #include "dataman/export/AMExporterGeneralAscii.h"
 #include "dataman/export/AMExporterAthena.h"
+#include "dataman/export/AMExporterXDIFormat.h"
 #include "dataman/export/AMSMAKExporter.h"
 #include "dataman/export/AMExporter2DAscii.h"
+#include "dataman/export/AMExporterOptionXDIFormat.h"
 
 #include "ui/AMMainWindow.h"
 #include "ui/AMDatamanAppBottomPanel.h"
@@ -783,6 +785,7 @@ bool AMDatamanAppController::startupRegisterDatabases()
 
 	success &= AMDbObjectSupport::s()->registerClass<AMExporterOptionGeneralAscii>();
 	success &= AMDbObjectSupport::s()->registerClass<AMExporterOptionSMAK>();
+	success &= AMDbObjectSupport::s()->registerClass<AMExporterOptionXDIFormat>();
 
 	success &= AMDbObjectSupport::s()->registerClass<AMUser>();
 
@@ -847,6 +850,7 @@ bool AMDatamanAppController::startupRegisterExporters()
 	// Install exporters
 	AMExportController::registerExporter<AMExporterGeneralAscii>();
 	AMExportController::registerExporter<AMExporterAthena>();
+	AMExportController::registerExporter<AMExporterXDIFormat>();
 	AMExportController::registerExporter<AMSMAKExporter>();
 	AMExportController::registerExporter<AMExporter2DAscii>();
 

@@ -26,6 +26,10 @@ public:
 
 	/// Exports the scan.
 	virtual QString exportScan(const AMScan *scan, const QString &destinationFolderPath, const AMExporterOption *option, int autoIndex = 0);
+	/// The exporter option class name.
+	virtual QString exporterOptionClassName() const { return "AMExporterOptionXDIFormat"; }
+	/// Creates the default XDI exporter option.
+	virtual AMExporterOption *createDefaultOption() const;
 
 protected:
 	/// Method that writes the header piece of the exported file.
