@@ -609,9 +609,9 @@ void BioXASSideBeamline::setupDetectors()
 
 void BioXASSideBeamline::setupCryostatStage()
 {
-	cryostatX_ = new CLSMAXvMotor("SideCryostatX", "SMTR1607-6-I22-14", "SideCryostatX", true, 0.05, 2.0, this, ":mm");
-	cryostatY_ = new CLSMAXvMotor("SideCryostatY", "SMTR1607-6-I22-13", "SideCryostatY", true, 0.05, 2.0, this, ":mm");
-	cryostatZ_ = new CLSMAXvMotor("SideCryostatZ", "SMTR1607-6-I22-15", "SideCryostatZ", true, 0.05, 2.0, this, ":mm");
+	cryostatX_ = new CLSMAXvMotor("SideCryostatX", "SMTR1607-6-I22-14", "SideCryostatX", true, 0.01, 2.0, this, ":mm");
+	cryostatY_ = new CLSMAXvMotor("SideCryostatY", "SMTR1607-6-I22-13", "SideCryostatY", true, 0.01, 2.0, this, ":mm");
+	cryostatZ_ = new CLSMAXvMotor("SideCryostatZ", "SMTR1607-6-I22-15", "SideCryostatZ", true, 0.01, 2.0, this, ":mm");
 }
 
 void BioXASSideBeamline::setupControlSets()
