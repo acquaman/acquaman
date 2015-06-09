@@ -30,13 +30,9 @@ void AMGCS2Command::run()
 	} else if(validateArguments()) {
 		wasSuccessful_ = runImplementation();
 
-		if(!wasSuccessful_) {
-			lastError_ = controllerErrorMessage();
-		}
-
 	} else {
-		wasSuccessful_ = false;
 		lastError_ = QString("Could not run command: Validation of arguments failed with message - '%1'.").arg(lastError_);
+		wasSuccessful_ = false;
 	}
 }
 

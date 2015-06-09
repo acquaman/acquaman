@@ -18,7 +18,8 @@ QString AMPIC887ConsoleCommandParser::commandList()
 
 	commandList.append("\nDriver GCS2 Commands:\n");
 	commandList.append("MOV <axis1> <position1> <axis2> <position2> ... : Moves the provided axes to the provided positions. At least one axes/position combination must be provided.\n");
-
+	commandList.append("POS? <axis1> <axis2> ... : Queries the current position of the provided axes. If none are provided all axes positions are displayed.\n");
+	commandList.append("STP : Performs an emergency stop of all axes.\n");
 	return commandList;
 }
 

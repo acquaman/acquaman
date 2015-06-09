@@ -23,10 +23,9 @@ bool AMGCS2MoveCommand::validateArguments()
 	return true;
 }
 
-#include <QDebug>
 bool AMGCS2MoveCommand::runImplementation()
 {
-	AMCArrayHandler<char> axisStringHandler(axisPositions_.count());
+	QString axesString;
 	AMCArrayHandler<double> positionsArrayHandler(axisPositions_.count());
 
 	QList<AMGCS2::Axis> axes = axisPositions_.keys();
@@ -35,17 +34,25 @@ bool AMGCS2MoveCommand::runImplementation()
 		iAxis < axisCount;
 		++iAxis) {
 
-		axisStringHandler.cArray()[iAxis] = AMGCS2Support::axisToCharacter(axes.at(iAxis)).toAscii();
+		axesString.append(QString(" %1")
+						  .arg(AMGCS2Support::axisToCharacter(axes.at(iAxis)).toAscii()));
 		positionsArrayHandler.cArray()[iAxis] = axisPositions_.value(axes.at(iAxis));
 	}
 
-	qDebug() << "Worked!";
-	return true;
-	/* Removed while testing.
-	bool success = PI_MOV(controllerId_,
-						  axisStringHandler.cArray(),
-						  positionsArrayHandler.cArray());
+	axesString = axesString.trimmed();
 
-	return success;
-	*/
+	int movePossible = 0;
+	bool success = PI_qVMO(controllerId_, axesString.toStdString().c_str(), positionsArrayHandler.cArray(), &movePossible);
+
+	if(!success) {
+		lastError_ = "Could not determine whether specified move was safe";
+		return false;
+	}
+
+	if(movePossible == 0) {
+		lastError_ = "Not safe to run specified move";
+		return false;
+	}
+
+	return PI_MOV(controllerId_, axisStringHandler.cArray(),  positionsArrayHandler.cArray());
 }

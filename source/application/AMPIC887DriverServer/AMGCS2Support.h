@@ -20,6 +20,7 @@ public:
 	  * is to be returned.
 	  */
 	static AMGCS2::Axis characterToAxis(const QChar& character);
+
 protected:
 	/*!
 	  * Static class, so we protect the constructor to prevent initialization.

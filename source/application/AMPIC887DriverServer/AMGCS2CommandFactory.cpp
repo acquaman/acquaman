@@ -6,11 +6,16 @@
 #include "AMGCS2Support.h"
 #include "AMGCS2MoveCommand.h"
 #include "AMGCS2CurrentPositionCommand.h"
-
+#include "AMGCS2StopCommand.h"
+#include "AMGCS2HaltSmoothlyCommand.h"
 AMGCS2Command * AMGCS2CommandFactory::buildCommand(const QString &commandString)
 {
 	if(commandString.startsWith("POS?")) {
 		return buildCurrentPositionCommand(commandArguments(commandString));
+	} else if (commandString.startsWith("STP")){
+		return new AMGCS2StopCommand();
+	} else if (commandString.startsWith("HLT")) {
+		return buildHaltSmoothlyCommand(commandArguments(commandString));
 	} else if(commandString.startsWith("MOV")) {
 		return buildMoveCommand(commandArguments(commandString));
 	}
@@ -86,6 +91,31 @@ AMGCS2Command * AMGCS2CommandFactory::buildCurrentPositionCommand(const QStringL
 	}
 
 	return new AMGCS2CurrentPositionCommand(axes);
+}
+
+AMGCS2Command * AMGCS2CommandFactory::buildHaltSmoothlyCommand(const QStringList &argumentList)
+{
+	if(argumentList.isEmpty()) {
+		return new AMGCS2HaltSmoothlyCommand();
+	}
+
+	QList<AMGCS2::Axis> axes;
+
+	foreach(QString argument, argumentList) {
+
+		if(argument.length() != 1) {
+			return 0;
+		}
+
+		AMGCS2::Axis axis = AMGCS2Support::characterToAxis(argument.at(0));
+		if(axis == AMGCS2::UnknownAxis) {
+			return 0;
+		}
+
+		axes.append(axis);
+	}
+
+	return new AMGCS2HaltSmoothlyCommand(axes);
 }
 
 

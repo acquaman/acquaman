@@ -48,6 +48,14 @@ protected:
 	  * be parsed, 0 otherwise.
 	  */
 	static AMGCS2Command* buildCurrentPositionCommand(const QStringList& argumentList);
+
+	/*!
+	  * Static helper method for parsing halt smoothly command string.
+	  * \param argumentList ~ A list of the arguments provided to the command.
+	  * \returns An initialized AMGCS2HaltSmoothlyCommand if the arguments could
+	  * be parsed, 0 otherwise.
+	  */
+	static AMGCS2Command* buildHaltSmoothlyCommand(const QStringList& argumentList);
 };
 
 #endif // AMGCS2COMMANDFACTORY_H

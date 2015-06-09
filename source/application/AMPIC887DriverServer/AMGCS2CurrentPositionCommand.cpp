@@ -65,7 +65,6 @@ bool AMGCS2CurrentPositionCommand::runImplementation()
 		}
 
 		axesArgumentString = axesArgumentString.trimmed();
-		axesArgumentString.append(char(10));
 
 		successful = PI_qPOS(controllerId_,
 							 axesArgumentString.toStdString().c_str(),
