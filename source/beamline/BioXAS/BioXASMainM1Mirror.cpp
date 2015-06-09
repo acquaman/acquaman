@@ -1,4 +1,5 @@
 #include "BioXASMainM1Mirror.h"
+#include "beamline/BioXAS/BioXASMainM1MirrorBendControl.h"
 
 BioXASMainM1Mirror::BioXASMainM1Mirror(QObject *parent) :
 	BioXASM1Mirror("MainM1Mirror", parent)
@@ -44,6 +45,10 @@ BioXASMainM1Mirror::BioXASMainM1Mirror(QObject *parent) :
 	yaw_->setUpstreamLength(upstreamLength_);
 	yaw_->setDownstreamLength(downstreamLength_);
 
+	bend_ = new BioXASMainM1MirrorBendControl(name_+"BendControl", "m", this);
+	bend_->setUpstreamBenderMotor(benderUpstreamMotor_);
+	bend_->setDownstreamBenderMotor(benderDownstreamMotor_);
+
 	// Make connections.
 
 	connect( upstreamInboardMotor_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
@@ -60,6 +65,7 @@ BioXASMainM1Mirror::BioXASMainM1Mirror(QObject *parent) :
 	connect( height_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 	connect( lateral_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 	connect( yaw_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+	connect( bend_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 }
 
 BioXASMainM1Mirror::~BioXASMainM1Mirror()
