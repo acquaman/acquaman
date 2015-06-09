@@ -16,7 +16,8 @@ SOURCES *= \
 	source/application/AMPIC887DriverServer/AMConsoleInputHandler.cpp \	
 	source/application/AMPIC887DriverServer/AMAbstractConsoleCommandParser.cpp \
     source/application/AMPIC887DriverServer/AMGCS2StopCommand.cpp \
-    source/application/AMPIC887DriverServer/AMGCS2HaltSmoothlyCommand.cpp
+    source/application/AMPIC887DriverServer/AMGCS2HaltSmoothlyCommand.cpp \
+    source/application/AMPIC887DriverServer/AMGCS2MovingStatusCommand.cpp
 
 HEADERS *= \
 	source/application/AMPIC887DriverServer/AMPIC887ControllerCollection.h \	
@@ -33,7 +34,8 @@ HEADERS *= \
 	source/application/AMPIC887DriverServer/AMAbstractConsoleCommandParser.h \
 	source/util/AMCArrayHandler.h \
     source/application/AMPIC887DriverServer/AMGCS2StopCommand.h \
-    source/application/AMPIC887DriverServer/AMGCS2HaltSmoothlyCommand.h
+    source/application/AMPIC887DriverServer/AMGCS2HaltSmoothlyCommand.h \
+    source/application/AMPIC887DriverServer/AMGCS2MovingStatusCommand.h
 
 # PI Controller Driver Dependencies
 
@@ -46,6 +48,8 @@ INCLUDEPATH *= $$PIC887_INCLUDE_DIR
 LIBS *= $$PIC887_LIB
 
 CONFIG -= mobility
+
+
 
 
 

@@ -54,5 +54,5 @@ bool AMGCS2MoveCommand::runImplementation()
 		return false;
 	}
 
-	return PI_MOV(controllerId_, axisStringHandler.cArray(),  positionsArrayHandler.cArray());
+	return PI_MOV(controllerId_, axesString.toStdString().c_str(),  positionsArrayHandler.cArray());
 }
