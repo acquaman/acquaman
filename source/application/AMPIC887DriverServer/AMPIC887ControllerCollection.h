@@ -43,6 +43,16 @@ public:
 	void setActiveController(AMPIC887Controller* activeController);
 
 	/*!
+	  * Sets the active controller to be the controller within the collection
+	  * with the provided controllerName. If no controller is found with a matching
+	  * controller name the active controller remains as it was prior to the call.
+	  * If more than one controller exists in the collection with the same name,
+	  * the first located matching controller will be made the active controller.
+	  * \param controllerName ~ The name of the controller to make the active controller.
+	  */
+	void setActiveController(const QString& controllerName);
+
+	/*!
 	  * The current active controller. The active controller will receive the
 	  * commands issued manually into the console.
 	  */

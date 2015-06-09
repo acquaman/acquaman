@@ -39,6 +39,22 @@ signals:
 	  */
 	void help();
 
+	/*!
+	  * Signals that the staus command has been issued.
+	  */
+	void status();
+
+	/*!
+	  * Signals that the command to switch to a different active controller has
+	  * been issued.
+	  * \param controllerName ~ The name of the controller to make the active
+	  * controller.
+	  */
+	void changeActiveController(const QString& controllerName);
+
+	/*!
+	  * Signals that a command from the GCS2 command set has been issued.
+	  */
 	void GCS2CommandIssued(AMGCS2Command* command);
 protected:
 	/*!

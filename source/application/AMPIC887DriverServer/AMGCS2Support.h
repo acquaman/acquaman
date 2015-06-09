@@ -21,6 +21,9 @@ public:
 	  */
 	static AMGCS2::Axis characterToAxis(const QChar& character);
 protected:
+	/*!
+	  * Static class, so we protect the constructor to prevent initialization.
+	  */
 	AMGCS2Support(){}
 };
 

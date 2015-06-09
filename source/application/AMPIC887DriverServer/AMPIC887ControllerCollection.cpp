@@ -39,6 +39,25 @@ void AMPIC887ControllerCollection::setActiveController(AMPIC887Controller *activ
 	}
 }
 
+void AMPIC887ControllerCollection::setActiveController(const QString& controllerName)
+{
+	if(activeController_ && activeController_->name() == controllerName) {
+		return;
+	}
+
+	bool foundController = false;
+	for(int iController = 0, controllerCount = controllers_->count();
+		iController < controllerCount && !foundController;
+		++iController) {
+
+		AMPIC887Controller* currentController = controllers_->at(iController);
+		if(currentController->name() == controllerName) {
+			activeController_ = currentController;
+			foundController = true;
+		}
+	}
+}
+
 AMPIC887Controller * AMPIC887ControllerCollection::activeController() const
 {
 	return activeController_;
