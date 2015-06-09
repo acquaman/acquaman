@@ -56,7 +56,8 @@ HEADERS += \
     source/ui/BioXAS/BioXASXRFDetectorView.h \
     source/application/BioXAS/BioXASAppController.h \
     source/ui/BioXAS/BioXASPersistentView.h \
-    source/ui/BioXAS/BioXASMirrorBendView.h
+    source/ui/BioXAS/BioXASMirrorBendView.h \
+    source/beamline/BioXAS/BioXASMainM2MirrorBendControl.h
 
 SOURCES += \
 	source/beamline/BioXAS/BioXASPseudoMotorControl.cpp \
@@ -108,7 +109,10 @@ SOURCES += \
     source/ui/BioXAS/BioXASXRFDetectorView.cpp \
     source/application/BioXAS/BioXASAppController.cpp \
     source/ui/BioXAS/BioXASPersistentView.cpp \
-    source/ui/BioXAS/BioXASMirrorBendView.cpp
+    source/ui/BioXAS/BioXASMirrorBendView.cpp \
+    source/beamline/BioXAS/BioXASMainM2MirrorBendControl.cpp
+
+
 
 
 
