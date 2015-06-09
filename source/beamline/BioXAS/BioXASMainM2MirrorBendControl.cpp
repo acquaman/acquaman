@@ -21,8 +21,8 @@ BioXASMainM2MirrorBendControl::~BioXASMainM2MirrorBendControl()
 
 double BioXASMainM2MirrorBendControl::calculateBendRadius(double upstreamBenderValue, double downstreamBenderValue)
 {
-	double radius1 = 3638.76 - (179.413 / (upstreamBenderValue)) - 910.066 * log(upstreamBenderValue);
-	double radius2 = 4007.53 - (245.964 / (downstreamBenderValue)) - 1039 * log(downstreamBenderValue);
+	double radius1 = 3638.76 - (179.413 / upstreamBenderValue) - 910.066 * log(upstreamBenderValue);
+	double radius2 = 4007.53 - (245.964 / downstreamBenderValue) - 1039 * log(downstreamBenderValue);
 
 	double radius = (radius1 + radius2) / 2.0;
 
