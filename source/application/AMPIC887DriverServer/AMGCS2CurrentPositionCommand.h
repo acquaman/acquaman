@@ -31,6 +31,12 @@ public:
 	  * not successful when last run, then an empty map is returned.
 	  */
 	QHash<AMGCS2::Axis, double> axisPositions();
+
+	/*!
+	  * A stringified form on the returned axis positions if the command
+	  * has been successfully run, or the empty string otherwise.
+	  */
+	virtual QString outputString() const;
 protected:
 
 	/*!

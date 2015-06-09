@@ -46,6 +46,12 @@ public:
 	  * Sets the id of the controller upon which this command will be run.
 	  */
 	void setControllerId(int id);
+
+	/*!
+	  * The output message which contains the output for the command in a stringified
+	  * form. Override this function if you wish a command to display some output.
+	  */
+	virtual QString outputString() const;
 protected:
 
 	/*!

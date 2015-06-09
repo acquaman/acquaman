@@ -13,6 +13,24 @@ QHash<AMGCS2::Axis, double> AMGCS2CurrentPositionCommand::axisPositions()
 	return axisPositions_;
 }
 
+QString AMGCS2CurrentPositionCommand::outputString() const
+{
+	if(!wasSuccessful_) {
+		return QString();
+	}
+
+	QString returnString;
+
+	foreach (AMGCS2::Axis axis, axisPositions_.keys()) {
+		returnString.append(QString("%1 : %2")
+							.arg(AMGCS2Support::axisToCharacter(axis))
+							.arg(axisPositions_.value(axis)));
+		returnString.append("\n");
+	}
+
+	return returnString.trimmed();
+}
+
 bool AMGCS2CurrentPositionCommand::runImplementation()
 {
 	AMCArrayHandler<double> positionValuesHandler(AXIS_COUNT);
@@ -80,3 +98,5 @@ bool AMGCS2CurrentPositionCommand::validateArguments()
 
 	return true;
 }
+
+

@@ -23,6 +23,7 @@ bool AMGCS2MoveCommand::validateArguments()
 	return true;
 }
 
+#include <QDebug>
 bool AMGCS2MoveCommand::runImplementation()
 {
 	AMCArrayHandler<char> axisStringHandler(axisPositions_.count());
@@ -38,9 +39,13 @@ bool AMGCS2MoveCommand::runImplementation()
 		positionsArrayHandler.cArray()[iAxis] = axisPositions_.value(axes.at(iAxis));
 	}
 
+	qDebug() << "Worked!";
+	return true;
+	/* Removed while testing.
 	bool success = PI_MOV(controllerId_,
 						  axisStringHandler.cArray(),
 						  positionsArrayHandler.cArray());
 
 	return success;
+	*/
 }

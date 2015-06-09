@@ -83,6 +83,14 @@ void AMPIC887ConsoleApplication::onGCS2CommandIssued(AMGCS2Command* command)
 	}
 
 	controllerCollection_.activeController()->runCommand(command);
+
+	if(!command->wasSuccessful()) {
+		consoleInputHandler_->writeLineToStandardError(
+					QString("Error - Command was not run, with message: %1.")
+					.arg(command->lastError()));
+	} else if(!command->outputString().isEmpty()) {
+		consoleInputHandler_->writeLineToStandardOutput(command->outputString());
+	}
 }
 
 bool AMPIC887ConsoleApplication::startup()

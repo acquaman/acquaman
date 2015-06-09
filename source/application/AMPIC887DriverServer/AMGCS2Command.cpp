@@ -59,3 +59,9 @@ void AMGCS2Command::setControllerId(int id)
 {
 	controllerId_ = id;
 }
+
+
+QString AMGCS2Command::outputString() const
+{
+	return QString();
+}

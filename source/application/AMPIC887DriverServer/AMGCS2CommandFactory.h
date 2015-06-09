@@ -20,10 +20,34 @@ public:
 	  */
 	static AMGCS2Command* buildCommand(const QString& commandString);
 protected:
+
 	/*!
 	  * Static class, so we protect the contstructor to prevent initialization.
 	  */
 	AMGCS2CommandFactory() {}
+
+	/*!
+	  * Helper method for obtaining a list of passed argument from a command string.
+	  * \param commandString ~ The string from which the arguments are to be
+	  * retrieved.
+	  */
+	static QStringList commandArguments(const QString& commandString);
+
+	/*!
+	  * Static helper method for parsing move command strings.
+	  * \param argumentList ~ A list of the arguments provided to the command.
+	  * \returns An initialized AMGCS2MoveCommand if the arguments could be parsed,
+	  * 0 otherwise.
+	  */
+	static AMGCS2Command* buildMoveCommand(const QStringList& argumentList);
+
+	/*!
+	  * Static helper method for parsing position query command strings.
+	  * \param argumentList ~ A list of the arguments provided to the command.
+	  * \returns An initialized AMGCS2CurrentPositionCommand if the arguments could
+	  * be parsed, 0 otherwise.
+	  */
+	static AMGCS2Command* buildCurrentPositionCommand(const QStringList& argumentList);
 };
 
 #endif // AMGCS2COMMANDFACTORY_H
