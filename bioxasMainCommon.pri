@@ -15,7 +15,8 @@ HEADERS += \
     source/acquaman/BioXAS/BioXASMainXASScanActionController.h \
     source/ui/BioXAS/BioXASMainPersistentView.h \
     source/beamline/BioXAS/BioXASMainM2Mirror.h \
-    source/beamline/BioXAS/BioXASMainM1Mirror.h
+    source/beamline/BioXAS/BioXASMainM1Mirror.h \
+    source/beamline/BioXAS/BioXASMainM1MirrorBendControl.h
 
 SOURCES += \
     source/application/BioXAS/BioXASMainAppController.cpp \
@@ -26,7 +27,10 @@ SOURCES += \
     source/acquaman/BioXAS/BioXASMainXASScanActionController.cpp \
     source/ui/BioXAS/BioXASMainPersistentView.cpp \
     source/beamline/BioXAS/BioXASMainM2Mirror.cpp \
-    source/beamline/BioXAS/BioXASMainM1Mirror.cpp
+    source/beamline/BioXAS/BioXASMainM1Mirror.cpp \
+    source/beamline/BioXAS/BioXASMainM1MirrorBendControl.cpp
+
+
 
 
 
