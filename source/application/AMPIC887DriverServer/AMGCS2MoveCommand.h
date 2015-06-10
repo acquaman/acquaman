@@ -32,9 +32,7 @@ protected:
 	virtual bool validateArguments();
 
 	/*!
-	  * Defines the steps to take when the move command is run. Passes the move
-	  * command along to the PIC887 drivers, checks if the error state is changed,
-	  * then reports successful if it finds the error state is valid.
+	  * Defines the steps to take when the move command is run.
 	  */
 	virtual bool runImplementation();
 

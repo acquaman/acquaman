@@ -8,10 +8,14 @@
 #include "AMGCS2CurrentPositionCommand.h"
 #include "AMGCS2StopCommand.h"
 #include "AMGCS2HaltSmoothlyCommand.h"
+#include "AMGCS2MovingStatusCommand.h"
+
 AMGCS2Command * AMGCS2CommandFactory::buildCommand(const QString &commandString)
 {
 	if(commandString.startsWith("POS?")) {
 		return buildCurrentPositionCommand(commandArguments(commandString));
+	} else if(commandString.startsWith("MST?")) {
+		return new AMGCS2MovingStatusCommand();
 	} else if (commandString.startsWith("STP")){
 		return new AMGCS2StopCommand();
 	} else if (commandString.startsWith("HLT")) {

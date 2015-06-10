@@ -8,8 +8,9 @@ AMGCS2HaltSmoothlyCommand::AMGCS2HaltSmoothlyCommand(const QList<AMGCS2::Axis>& 
 
 bool AMGCS2HaltSmoothlyCommand::runImplementation()
 {
+	bool success = false;
 	if(axesToHalt_.isEmpty()) {
-		return PI_HLT(controllerId_, 0);
+		success = PI_HLT(controllerId_, 0);
 	} else {
 
 		QString axesArguments;
@@ -19,7 +20,12 @@ bool AMGCS2HaltSmoothlyCommand::runImplementation()
 			axesArguments.append(" ");
 		}
 
-		return true;
-		return PI_HLT(controllerId_, axesArguments.trimmed().toStdString().c_str());
+		success = PI_HLT(controllerId_, axesArguments.trimmed().toStdString().c_str());
 	}
+
+	if(!success) {
+		lastError_ = controllerErrorMessage();
+	}
+
+	return success;
 }

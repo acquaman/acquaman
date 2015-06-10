@@ -24,5 +24,19 @@ namespace AMGCS2 {
 		VAxis = 4,
 		WAxis = 5
 	};
+
+	/*!
+	  * Enumerates all the axes movement statuses of the hexapod controlled by
+	  * a C887.11 controller.
+	  */
+	enum AxisMovementStatus {
+		UnknownAxisMovementStatus = 1,
+		XAxisIsMoving = 2,
+		YAxisIsMoving = 4,
+		ZAxisIsMoving = 8,
+		UAxisIsMoving = 16,
+		VAxisIsMoving = 32,
+		WAxisIsMoving = 64
+	};
 }
 #endif // AMGCS2_H

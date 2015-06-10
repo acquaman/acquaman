@@ -80,6 +80,10 @@ bool AMGCS2CurrentPositionCommand::runImplementation()
 		}
 	}
 
+	if(!successful) {
+		lastError_ = controllerErrorMessage();
+	}
+
 	return successful;
 }
 
