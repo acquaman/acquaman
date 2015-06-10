@@ -38,5 +38,14 @@ namespace AMGCS2 {
 		VAxisIsMoving = 32,
 		WAxisIsMoving = 64
 	};
+
+	/*!
+	  * Enumerates the different command levels of the C887.11 controller.
+	  */
+	enum ControllerCommandLevel {
+		UnknownCommandLevel = -1,
+		NormalCommandLevel = 0,
+		AdvancedCommandLevel = 1
+	};
 }
 #endif // AMGCS2_H

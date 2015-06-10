@@ -12,6 +12,7 @@
 #include "AMGCS2CompositeCommand.h"
 #include "AMGCS2ControllerReadyStatusCommand.h"
 #include "AMGCS2DeviceIdentificationCommand.h"
+#include "AMGCS2CommandLevelQueryCommand.h"
 
 AMGCS2Command * AMGCS2CommandFactory::buildCommand(const QString &commandString)
 {
@@ -29,6 +30,8 @@ AMGCS2Command * AMGCS2CommandFactory::buildCommand(const QString &commandString)
 		return new AMGCS2ControllerReadyStatusCommand();
 	} else if(commandString.startsWith("IDN?")) {
 		return new AMGCS2DeviceIdentificationCommand();
+	} else if(commandString.startsWith("CCL?")) {
+		return new AMGCS2CommandLevelQueryCommand();
 	}
 
 	return 0;
