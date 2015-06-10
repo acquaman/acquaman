@@ -10,6 +10,7 @@
 #include "AMGCS2HaltSmoothlyCommand.h"
 #include "AMGCS2MovingStatusCommand.h"
 #include "AMGCS2CompositeCommand.h"
+#include "AMGCS2ControllerReadyStatusCommand.h"
 
 AMGCS2Command * AMGCS2CommandFactory::buildCommand(const QString &commandString)
 {
@@ -23,6 +24,8 @@ AMGCS2Command * AMGCS2CommandFactory::buildCommand(const QString &commandString)
 		return buildHaltSmoothlyCommand(commandArguments(commandString));
 	} else if(commandString.startsWith("MOV")) {
 		return buildMoveCommand(commandArguments(commandString));
+	} else if(commandString.startsWith("RDY?")) {
+		return new AMGCS2ControllerReadyStatusCommand();
 	}
 
 	return 0;
