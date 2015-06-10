@@ -11,6 +11,7 @@
 #include "AMGCS2MovingStatusCommand.h"
 #include "AMGCS2CompositeCommand.h"
 #include "AMGCS2ControllerReadyStatusCommand.h"
+#include "AMGCS2DeviceIdentificationCommand.h"
 
 AMGCS2Command * AMGCS2CommandFactory::buildCommand(const QString &commandString)
 {
@@ -26,6 +27,8 @@ AMGCS2Command * AMGCS2CommandFactory::buildCommand(const QString &commandString)
 		return buildMoveCommand(commandArguments(commandString));
 	} else if(commandString.startsWith("RDY?")) {
 		return new AMGCS2ControllerReadyStatusCommand();
+	} else if(commandString.startsWith("IDN?")) {
+		return new AMGCS2DeviceIdentificationCommand();
 	}
 
 	return 0;
