@@ -97,6 +97,7 @@ bool IDEASAppController::startup()
 		// Github setup for adding VESPERS specific comment.
 		additionalIssueTypesAndAssignees_.append("I think it's a IDEAS specific issue", "epengr");
 
+
 		return true;
 	}
 	else
@@ -179,6 +180,7 @@ void IDEASAppController::setupUserInterface()
 
 	xasScanConfigurationView_ = 0; //NULL
 	xasScanConfigurationHolder3_ = new AMScanConfigurationViewHolder3(0, true);
+
 	mw_->addPane(xasScanConfigurationHolder3_, "Scans", "IDEAS XAS Scan", ":/utilities-system-monitor.png");
 
 	sampleCameraPanel_ = new IDEASSampleCameraPanel();
@@ -206,6 +208,9 @@ void IDEASAppController::onEnergyConnected(bool connected){
 
 		connect(xasScanConfiguration, SIGNAL(totalTimeChanged(double)), xasScanConfigurationHolder3_, SLOT(updateOverallScanTime(double)));
 		xasScanConfigurationHolder3_->updateOverallScanTime(xasScanConfiguration->totalTime());
+
+		connect(ideasKETEKDetailedDetectorViewWithSave_, SIGNAL(peakingChanged(const QString&)), xasScanConfigurationView_, SLOT(onDetectorSettingsChange(const QString&)));
+		connect(ideas13ElementGeDetailedDetectorViewWithSave_, SIGNAL(peakingChanged(const QString&)), xasScanConfigurationView_, SLOT(onDetectorSettingsChange(const QString&)));
 	}
 }
 

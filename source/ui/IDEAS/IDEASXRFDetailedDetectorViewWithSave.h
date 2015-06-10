@@ -47,6 +47,9 @@ public:
 	/// Re-implementing but still going to use the base class buildDetectorView since this view is merely adding to it.
 	virtual void buildDetectorView();
 
+signals:
+	void peakingChanged(const QString &arg1);
+
 protected slots:
 	void onSaveScanButtonClicked();
 	void onNotesTextChanged();

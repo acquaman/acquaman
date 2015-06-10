@@ -111,6 +111,8 @@ IDEASXASScanConfigurationView::IDEASXASScanConfigurationView(IDEASXASScanConfigu
 	pointPerScan_ = new QLabel;
 	scanEnergyRange_ = new QLabel;
 	ROIsLabel_ = new QLabel;
+	detectorSettings_ = new QLabel;
+
 	connect(configuration_, SIGNAL(totalTimeChanged(double)), this, SLOT(onEstimatedTimeChanged()));
 	connect(configuration_, SIGNAL(scanAxisAdded(AMScanAxis*)), this, SLOT(onEstimatedTimeChanged()));
 	connect(configuration_, SIGNAL(scanAxisRemoved(AMScanAxis*)), this, SLOT(onEstimatedTimeChanged()));
@@ -137,6 +139,7 @@ IDEASXASScanConfigurationView::IDEASXASScanConfigurationView(IDEASXASScanConfigu
 	numberOfScansLayout->addRow("Scan energy range:", scanEnergyRange_);
 	numberOfScansLayout->addRow("Selected XRF Detector Regions:", new QLabel(""));
 	numberOfScansLayout->addRow("", ROIsLabel_);
+	numberOfScansLayout->addRow("Detector Settings: ", detectorSettings_);
 
 	QFormLayout *energySetpointLayout = new QFormLayout;
 	energySetpointLayout->addRow("Energy:", energy_);
@@ -177,7 +180,6 @@ IDEASXASScanConfigurationView::IDEASXASScanConfigurationView(IDEASXASScanConfigu
 	settingsVL->addLayout(regionsHL);
 	settingsVL->addWidget(settingsLabel);
 	settingsVL->addLayout(configFL);
-
 
 	mainVL->addStretch();
 	mainVL->addLayout(settingsVL);
@@ -415,4 +417,9 @@ void IDEASXASScanConfigurationView::updateFluorescenceDetectorComboBox(int detec
 void IDEASXASScanConfigurationView::onFluorescenceChoiceChanged(int id)
 {
 	configuration_->setFluorescenceDetector(id);
+}
+
+void IDEASXASScanConfigurationView::onDetectorSettingsChange(const QString &args)
+{
+	detectorSettings_->setText(args);
 }

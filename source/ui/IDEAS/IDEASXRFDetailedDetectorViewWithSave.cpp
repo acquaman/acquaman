@@ -145,7 +145,6 @@ void IDEASXRFDetailedDetectorViewWithSave::buildScanSaveViews()
 	connect(detector_, SIGNAL(acquisitionSucceeded()),this, SLOT(onAcquisitionSucceeded()));
 	connect(cancelButton_, SIGNAL(clicked()),this, SLOT(onAcquisitionSucceeded()));
 
-
 }
 
 void IDEASXRFDetailedDetectorViewWithSave::onSaveScanButtonClicked()
@@ -177,7 +176,7 @@ void IDEASXRFDetailedDetectorViewWithSave::onScanNumberChanged(int number)
 
 void IDEASXRFDetailedDetectorViewWithSave::onPeakingTimeBoxChanged(const QString &arg1)
 {
-
+	emit peakingChanged(arg1);
 	if (arg1 == "High Rate / Low Res")
 	{
 	    IDEASBeamline::ideas()->ketekPeakingTime()->move(0.300);
@@ -192,8 +191,7 @@ void IDEASXRFDetailedDetectorViewWithSave::onPeakingTimeBoxChanged(const QString
 	{
 	    IDEASBeamline::ideas()->ketekPeakingTime()->move(4.00);
 	    IDEASBeamline::ideas()->ketekPreampGain()->move(1.2375);
-
-	  }
+	}
 
 }
 
