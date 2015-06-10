@@ -33,6 +33,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "analysis/AM1DDarkCurrentCorrectionAB.h"
 #include "beamline/CLS/CLSStorageRing.h"
 #include "analysis/AM1DNormalizationAB.h"
+#include "dataman/export/AMExporterXDIFormat.h"
+#include "dataman/export/AMExporterOptionXDIFormat.h"
+#include "application/BioXAS/BioXAS.h"
+#include "application/AMAppControllerSupport.h"
 
 BioXASSideXASScanActionController::BioXASSideXASScanActionController(BioXASSideXASScanConfiguration *configuration, QObject *parent) :
 	AMStepScanActionController(configuration, parent)
@@ -46,6 +50,11 @@ BioXASSideXASScanActionController::BioXASSideXASScanActionController(BioXASSideX
 	scan_->setIndexType("fileSystem");
 	scan_->rawData()->addScanAxis(AMAxisInfo("eV", 0, "Incident Energy", "eV"));
 	scan_->setNotes(beamlineSettings());
+
+	AMExporterOptionXDIFormat *bioXASDefaultXAS = BioXAS::buildStandardXDIFormatExporterOption("BioXAS XAS (XDI Format)", configuration_->edge().split(" ").first(), configuration_->edge().split(" ").last(), true);
+
+	if (bioXASDefaultXAS->id() > 0)
+		AMAppControllerSupport::registerClass<BioXASSideXASScanConfiguration, AMExporterXDIFormat, AMExporterOptionXDIFormat>(bioXASDefaultXAS->id());
 
 	AMControlInfoList list;
 	list.append(BioXASSideBeamline::bioXAS()->mono()->encoderEnergyControl()->toInfo());

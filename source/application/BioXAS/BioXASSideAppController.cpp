@@ -29,6 +29,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "actions3/AMListAction3.h"
 
 #include "application/AMAppControllerSupport.h"
+#include "application/BioXAS/BioXAS.h"
 
 #include "dataman/AMRun.h"
 #include "dataman/AMScanAxisEXAFSRegion.h"
@@ -37,6 +38,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/export/AMExporterOptionGeneralAscii.h"
 #include "dataman/export/AMExporterGeneralAscii.h"
 #include "dataman/export/AMExporterAthena.h"
+#include "dataman/export/AMExporterXDIFormat.h"
+#include "dataman/export/AMExporterOptionXDIFormat.h"
 #include "dataman/BioXAS/BioXASUserConfiguration.h"
 
 #include "util/AMPeriodicTable.h"
@@ -167,34 +170,10 @@ void BioXASSideAppController::registerClasses()
 
 void BioXASSideAppController::setupExporterOptions()
 {
-	QList<int> matchIDs = AMDatabase::database("user")->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<AMExporterOptionGeneralAscii>(), "name", "BioXAS Default XAS");
+	AMExporterOptionXDIFormat *bioXASDefaultXAS = BioXAS::buildStandardXDIFormatExporterOption("BioXAS XAS (XDI Format)", "", "", true);
 
-	AMExporterOptionGeneralAscii *bioXASDefaultXAS = new AMExporterOptionGeneralAscii();
-
-	if (matchIDs.count() != 0)
-		bioXASDefaultXAS->loadFromDb(AMDatabase::database("user"), matchIDs.at(0));
-
-	bioXASDefaultXAS->setName("BioXAS Default XAS");
-	bioXASDefaultXAS->setFileName("$name_$fsIndex.dat");
-	bioXASDefaultXAS->setHeaderText("Scan: $name #$number\nDate: $dateTime\nSample: $sample\nFacility: $facilityDescription\n\n$scanConfiguration[header]\n\n$notes\n\n");
-	bioXASDefaultXAS->setHeaderIncluded(true);
-	bioXASDefaultXAS->setColumnHeader("$dataSetName $dataSetInfoDescription");
-	bioXASDefaultXAS->setColumnHeaderIncluded(true);
-	bioXASDefaultXAS->setColumnHeaderDelimiter("");
-	bioXASDefaultXAS->setSectionHeader("");
-	bioXASDefaultXAS->setSectionHeaderIncluded(true);
-	bioXASDefaultXAS->setIncludeAllDataSources(true);
-	bioXASDefaultXAS->setFirstColumnOnly(true);
-	bioXASDefaultXAS->setIncludeHigherDimensionSources(true);
-	bioXASDefaultXAS->setSeparateHigherDimensionalSources(true);
-	bioXASDefaultXAS->setSeparateSectionFileName("$name_$dataSetName_$fsIndex.dat");
-	bioXASDefaultXAS->setHigherDimensionsInRows(true);
-	bioXASDefaultXAS->storeToDb(AMDatabase::database("user"));
-
-	if (bioXASDefaultXAS->id() > 0) {
-		AMAppControllerSupport::registerClass<BioXASSideXASScanConfiguration, AMExporterGeneralAscii, AMExporterOptionGeneralAscii>(bioXASDefaultXAS->id());
-	}
-
+	if (bioXASDefaultXAS->id() > 0)
+		AMAppControllerSupport::registerClass<BioXASSideXASScanConfiguration, AMExporterXDIFormat, AMExporterOptionXDIFormat>(bioXASDefaultXAS->id());
 }
 
 void BioXASSideAppController::setupUserInterface()

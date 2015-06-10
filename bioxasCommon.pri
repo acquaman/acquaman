@@ -28,36 +28,37 @@ HEADERS += \
 	source/beamline/BioXAS/BioXASCarbonFilterFarm.h \
 	source/beamline/BioXAS/BioXASCarbonFilterFarmActuatorControl.h \
 	source/beamline/BioXAS/BioXASXIAFilters.h \
-    source/ui/BioXAS/BioXASXIAFiltersView.h \
+	source/ui/BioXAS/BioXASXIAFiltersView.h \
 	source/ui/BioXAS/BioXASCarbonFilterFarmView.h \
-    source/beamline/BioXAS/BioXASBeamline.h \
-    source/beamline/BioXAS/BioXASMonochromator.h \
-    source/beamline/BioXAS/BioXASM2Mirror.h \
+	source/beamline/BioXAS/BioXASBeamline.h \
+	source/beamline/BioXAS/BioXASMonochromator.h \
+	source/beamline/BioXAS/BioXASM2Mirror.h \
 	source/ui/BioXAS/BioXASM2MirrorView.h \
-    source/beamline/BioXAS/BioXASDBHRMirror.h \
-    source/ui/BioXAS/BioXASDBHRMirrorView.h \
-    source/beamline/BioXAS/BioXASM1Mirror.h \
+	source/beamline/BioXAS/BioXASDBHRMirror.h \
+	source/ui/BioXAS/BioXASDBHRMirrorView.h \
+	source/beamline/BioXAS/BioXASM1Mirror.h \
 	source/beamline/BioXAS/BioXASBeamlineComponent.h \
 	source/beamline/BioXAS/BioXASCarbonFilterFarmControl.h \
-    source/ui/BioXAS/BioXASBeamlineBeamView.h \
-    source/beamline/BioXAS/BioXASMirrorMotor.h \
-    source/beamline/BioXAS/BioXASMirror.h \
-    source/ui/BioXAS/BioXASMirrorView.h \
+	source/ui/BioXAS/BioXASBeamlineBeamView.h \
+	source/beamline/BioXAS/BioXASMirrorMotor.h \
+	source/beamline/BioXAS/BioXASMirror.h \
+	source/ui/BioXAS/BioXASMirrorView.h \
 	source/ui/BioXAS/BioXASM1MirrorView.h \
 	source/beamline/BioXAS/BioXASMirrorPitchControl.h \
-    source/beamline/BioXAS/BioXASMirrorRollControl.h \
-    source/beamline/BioXAS/BioXASMirrorHeightControl.h \
-    source/beamline/BioXAS/BioXASMirrorLateralControl.h \
-    source/beamline/BioXAS/BioXASMirrorYawControl.h \
-    source/beamline/BioXAS/BioXASMirrorControl.h \
+	source/beamline/BioXAS/BioXASMirrorRollControl.h \
+	source/beamline/BioXAS/BioXASMirrorHeightControl.h \
+	source/beamline/BioXAS/BioXASMirrorLateralControl.h \
+	source/beamline/BioXAS/BioXASMirrorYawControl.h \
+	source/beamline/BioXAS/BioXASMirrorControl.h \
 	source/beamline/BioXAS/BioXASMirrorBendControl.h \
-    source/beamline/BioXAS/BioXASFourElementVortexDetector.h \
-    source/ui/BioXAS/BioXASFourElementVortexDetectorView.h \
-    source/ui/BioXAS/BioXASXRFDetectorView.h \
-    source/application/BioXAS/BioXASAppController.h \
-    source/ui/BioXAS/BioXASPersistentView.h \
-    source/ui/BioXAS/BioXASMirrorBendView.h \
-    source/beamline/BioXAS/BioXASMainM2MirrorBendControl.h
+	source/beamline/BioXAS/BioXASFourElementVortexDetector.h \
+	source/ui/BioXAS/BioXASFourElementVortexDetectorView.h \
+	source/ui/BioXAS/BioXASXRFDetectorView.h \
+	source/application/BioXAS/BioXASAppController.h \
+	source/ui/BioXAS/BioXASPersistentView.h \
+	source/ui/BioXAS/BioXASMirrorBendView.h \
+	source/application/BioXAS/BioXAS.h \
+	source/beamline/BioXAS/BioXASMainM2MirrorBendControl.h
 
 SOURCES += \
 	source/beamline/BioXAS/BioXASPseudoMotorControl.cpp \
@@ -81,49 +82,33 @@ SOURCES += \
 	source/beamline/BioXAS/BioXASCarbonFilterFarm.cpp \
 	source/beamline/BioXAS/BioXASCarbonFilterFarmActuatorControl.cpp \
 	source/beamline/BioXAS/BioXASXIAFilters.cpp \
-    source/ui/BioXAS/BioXASXIAFiltersView.cpp \
+	source/ui/BioXAS/BioXASXIAFiltersView.cpp \
 	source/ui/BioXAS/BioXASCarbonFilterFarmView.cpp \
-    source/beamline/BioXAS/BioXASBeamline.cpp \
+	source/beamline/BioXAS/BioXASBeamline.cpp \
 	source/beamline/BioXAS/BioXASMonochromator.cpp \
-    source/beamline/BioXAS/BioXASM2Mirror.cpp \
+	source/beamline/BioXAS/BioXASM2Mirror.cpp \
 	source/ui/BioXAS/BioXASM2MirrorView.cpp \
-    source/beamline/BioXAS/BioXASDBHRMirror.cpp \
-    source/ui/BioXAS/BioXASDBHRMirrorView.cpp \
-    source/beamline/BioXAS/BioXASM1Mirror.cpp \
+	source/beamline/BioXAS/BioXASDBHRMirror.cpp \
+	source/ui/BioXAS/BioXASDBHRMirrorView.cpp \
+	source/beamline/BioXAS/BioXASM1Mirror.cpp \
 	source/beamline/BioXAS/BioXASBeamlineComponent.cpp \
 	source/beamline/BioXAS/BioXASCarbonFilterFarmControl.cpp \
 	source/ui/BioXAS/BioXASBeamlineBeamView.cpp \
-    source/beamline/BioXAS/BioXASMirrorMotor.cpp \
-    source/beamline/BioXAS/BioXASMirror.cpp \
-    source/ui/BioXAS/BioXASMirrorView.cpp \
+	source/beamline/BioXAS/BioXASMirrorMotor.cpp \
+	source/beamline/BioXAS/BioXASMirror.cpp \
+	source/ui/BioXAS/BioXASMirrorView.cpp \
 	source/ui/BioXAS/BioXASM1MirrorView.cpp \
 	source/beamline/BioXAS/BioXASMirrorPitchControl.cpp \
-    source/beamline/BioXAS/BioXASMirrorRollControl.cpp \
-    source/beamline/BioXAS/BioXASMirrorHeightControl.cpp \
-    source/beamline/BioXAS/BioXASMirrorLateralControl.cpp \
-    source/beamline/BioXAS/BioXASMirrorYawControl.cpp \
-    source/beamline/BioXAS/BioXASMirrorControl.cpp \
+	source/beamline/BioXAS/BioXASMirrorRollControl.cpp \
+	source/beamline/BioXAS/BioXASMirrorHeightControl.cpp \
+	source/beamline/BioXAS/BioXASMirrorLateralControl.cpp \
+	source/beamline/BioXAS/BioXASMirrorYawControl.cpp \
+	source/beamline/BioXAS/BioXASMirrorControl.cpp \
 	source/beamline/BioXAS/BioXASMirrorBendControl.cpp \
-    source/beamline/BioXAS/BioXASFourElementVortexDetector.cpp \
-    source/ui/BioXAS/BioXASFourElementVortexDetectorView.cpp \
-    source/ui/BioXAS/BioXASXRFDetectorView.cpp \
-    source/application/BioXAS/BioXASAppController.cpp \
-    source/ui/BioXAS/BioXASPersistentView.cpp \
-    source/ui/BioXAS/BioXASMirrorBendView.cpp \
-    source/beamline/BioXAS/BioXASMainM2MirrorBendControl.cpp
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+	source/beamline/BioXAS/BioXASFourElementVortexDetector.cpp \
+	source/ui/BioXAS/BioXASFourElementVortexDetectorView.cpp \
+	source/ui/BioXAS/BioXASXRFDetectorView.cpp \
+	source/application/BioXAS/BioXASAppController.cpp \
+	source/ui/BioXAS/BioXASPersistentView.cpp \
+	source/ui/BioXAS/BioXASMirrorBendView.cpp \
+	source/beamline/BioXAS/BioXASMainM2MirrorBendControl.cpp
