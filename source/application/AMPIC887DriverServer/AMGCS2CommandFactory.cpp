@@ -9,6 +9,7 @@
 #include "AMGCS2StopCommand.h"
 #include "AMGCS2HaltSmoothlyCommand.h"
 #include "AMGCS2MovingStatusCommand.h"
+#include "AMGCS2CompositeCommand.h"
 
 AMGCS2Command * AMGCS2CommandFactory::buildCommand(const QString &commandString)
 {

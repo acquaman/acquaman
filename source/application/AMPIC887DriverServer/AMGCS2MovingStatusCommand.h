@@ -20,6 +20,11 @@ public:
 	AMGCS2MovingStatusCommand();
 
 	/*!
+	  *  Virtual moving status command destructor.
+	  */
+	virtual ~AMGCS2MovingStatusCommand() {}
+
+	/*!
 	  * A set of flags which describe the movement statuses of the axes of the
 	  * controller. If the axis movement statuses cannot be returned (if the command
 	  * failed or has not yet been run) then the flag UnknownAxisMovementStatus

@@ -91,6 +91,8 @@ void AMPIC887ConsoleApplication::onGCS2CommandIssued(AMGCS2Command* command)
 	} else if(!command->outputString().isEmpty()) {
 		consoleInputHandler_->writeLineToStandardOutput(command->outputString());
 	}
+
+	delete command;
 }
 
 bool AMPIC887ConsoleApplication::startup()

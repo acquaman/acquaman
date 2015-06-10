@@ -18,7 +18,12 @@ public:
 	  * \param axes ~ An optional list of the axes to be halted. If none is provided
 	  * then all the axes of the controller will be issued the halt command
 	  */
-	AMGCS2HaltSmoothlyCommand(const QList<AMGCS2::Axis>& axes = QList<AMGCS2::Axis>());
+	explicit AMGCS2HaltSmoothlyCommand(const QList<AMGCS2::Axis>& axes = QList<AMGCS2::Axis>());
+
+	/*!
+	  * Virtual destructor for a halt smoothly command.
+	  */
+	virtual ~AMGCS2HaltSmoothlyCommand() {}
 
 protected:
 	/*!

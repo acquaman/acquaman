@@ -15,6 +15,11 @@ public:
 	  */
     AMGCS2StopCommand();
 
+	/*!
+	  * Virtual destructor for a stop command.
+	  */
+	virtual ~AMGCS2StopCommand() {}
+
 protected:
 	/*!
 	  * Defines the steps taken to issue a stop all command to the controller.
