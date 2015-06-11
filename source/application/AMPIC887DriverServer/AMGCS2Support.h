@@ -36,6 +36,33 @@ public:
 	  */
 	static AMGCS2::ControllerCommandLevel intCodeToCommandLevel(int commandLevelCode);
 
+	/*!
+	  * Converts a data record option enumerator to a human readable string equivalent.
+	  * \param dataRecordOption ~ The data record option to stringify.
+	  */
+	static QString dataRecordOptionToString(AMGCS2::DataRecordOption dataRecordOption);
+
+	/*!
+	  * Converts from the integer data record option code to the enumerated equivalent.
+	  * Helps in ensuring that data record option codes that are outside of the valid
+	  * values are returned as UnknownRecordOption.
+	  * \param dataRecordCode ~ The data record code to be converted to its enumerated
+	  * equivalent.
+	  */
+	static AMGCS2::DataRecordOption intCodeToDataRecordOption(int dataRecordCode);
+
+	/*!
+	  * Converts from the data record source code to the enumerated equivalent.
+	  * \param dataSourceCode ~ The character code to be converted to the enumerated
+	  * equivalent.
+	  */
+	static AMGCS2::DataRecordSource charCodeToDataRecordSource(const QChar& dataSourceCode);
+
+	/*!
+	  * Converts from the data record source to a string equivalent.
+	  * \param recordSource
+	  */
+	static QString dataRecordSourceToString(AMGCS2::DataRecordSource recordSource);
 protected:
 	/*!
 	  * Static class, so we protect the constructor to prevent initialization.

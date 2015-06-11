@@ -15,6 +15,7 @@
 #include "AMGCS2CommandLevelQueryCommand.h"
 #include "AMGCS2SetCommandLevelCommand.h"
 #include "AMGCS2SetSyntaxVersionCommand.h"
+#include "AMGCS2DataRecorderConfigurationQueryCommand.h"
 
 AMGCS2Command * AMGCS2CommandFactory::buildCommand(const QString &commandString)
 {
@@ -38,6 +39,8 @@ AMGCS2Command * AMGCS2CommandFactory::buildCommand(const QString &commandString)
 		return buildSetCommandLevelCommand(commandArguments(commandString));
 	} else if (commandString.startsWith("CSV")) {
 		return new AMGCS2SetSyntaxVersionCommand();
+	} else if(commandString.startsWith("DRC?")) {
+		return new AMGCS2DataRecorderConfigurationQueryCommand();
 	}
 
 	return 0;

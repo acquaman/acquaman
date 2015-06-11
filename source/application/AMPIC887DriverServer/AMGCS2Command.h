@@ -3,6 +3,7 @@
 
 #define BUFFER_SIZE 1000
 #define AXIS_COUNT 6
+#define RECORD_TABLE_COUNT 16
 
 #include <QString>
 /*!

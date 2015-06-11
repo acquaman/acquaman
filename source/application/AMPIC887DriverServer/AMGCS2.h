@@ -18,11 +18,11 @@ namespace AMGCS2 {
 	enum Axis {
 		UnknownAxis = -1,
 		XAxis = 0,
-		YAxis = 1,
-		ZAxis = 2,
-		UAxis = 3,
-		VAxis = 4,
-		WAxis = 5
+		YAxis,
+		ZAxis,
+		UAxis,
+		VAxis,
+		WAxis
 	};
 
 	/*!
@@ -46,6 +46,40 @@ namespace AMGCS2 {
 		UnknownCommandLevel = -1,
 		NormalCommandLevel = 0,
 		AdvancedCommandLevel = 1
+	};
+
+	/*!
+	  * Enumerates the different data record sources of a C887.11 controller.
+	  */
+	enum DataRecordSource {
+		UnknownDataRecordSource = -1,
+		RecordXAxis = 0,
+		RecordYAxis = 1,
+		RecordZAxis = 2,
+		RecordUAxis = 3,
+		RecordVAxis = 4,
+		RecordWAxis = 5,
+		RecordSystemWide = 6,
+		NoRecordSource = 7
+	};
+
+	/*!
+	  * Enumerates all the different data recording options for an axis on a C887.11
+	  * controller.
+	  */
+	enum DataRecordOption {
+		UnknownRecordOption = -1,
+		NothingIsRecorded = 0,
+		CommandedPositionOfAxis = 1,
+		RealPositionOfAxis = 2,
+		PositionErrorOfAxis = 3,
+		MeasurementTime = 8,
+		CommandedVelocityOfAxis = 70,
+		CommandedAccelerationOfAxis = 71,
+		RealVelocityOfAxis = 72,
+		MotorOutputOfAxis = 73,
+		CurrentIntegratedPositionErrorOfAxis = 76,
+		StatusRegisterOfAxis = 80
 	};
 }
 #endif // AMGCS2_H
