@@ -189,30 +189,10 @@ bool AM2DNormalizationAB::values(const AMnDIndex &indexStart, const AMnDIndex &i
 	QTime time;
 	time.start();
 
+	if (dataUpdateRequired_)
+		computeCachedValues();
+
 	int totalSize = indexStart.totalPointsTo(indexEnd);
-
-	if (dataUpdateRequired_){
-
-		QVector<double> data = QVector<double>(totalSize);
-		QVector<double> normalizer = QVector<double>(totalSize);
-
-		data_->values(indexStart, indexEnd, data.data());
-		normalizer_->values(indexStart, indexEnd, normalizer.data());
-
-		for (int i = 0; i < totalSize; i++){
-
-			if (normalizer.at(i) == 0)
-				cachedOutput_[i] = 0;
-
-			else if (normalizer.at(i) < 0 || data.at(i) == -1)
-				cachedOutput_[i] = -1;
-
-			else
-				cachedOutput_[i] = data.at(i)/normalizer.at(i);
-		}
-
-		dataUpdateRequired_ = false;
-	}
 
 	if (totalSize == size().product())
 		memcpy(outputValues, cachedOutput_.constData(), totalSize*sizeof(double));
@@ -232,6 +212,30 @@ bool AM2DNormalizationAB::values(const AMnDIndex &indexStart, const AMnDIndex &i
 	qDebug() << "Time to compute values of" << name() << "is:" << time.elapsed() << "ms";
 
 	return true;
+}
+
+void AM2DNormalizationAB::computeCachedValues()
+{
+	int totalSize = lowerDirtyIndex_.totalPointsTo(upperDirtyIndex_);
+	QVector<double> data = QVector<double>(totalSize);
+	QVector<double> normalizer = QVector<double>(totalSize);
+
+	data_->values(indexStart, indexEnd, data.data());
+	normalizer_->values(indexStart, indexEnd, normalizer.data());
+
+	for (int i = 0; i < totalSize; i++){
+
+		if (normalizer.at(i) == 0)
+			cachedOutput_[i] = 0;
+
+		else if (normalizer.at(i) < 0 || data.at(i) == -1)
+			cachedOutput_[i] = -1;
+
+		else
+			cachedOutput_[i] = data.at(i)/normalizer.at(i);
+	}
+
+	dataUpdateRequired_ = false;
 }
 
 AMNumber AM2DNormalizationAB::axisValue(int axisNumber, int index) const
