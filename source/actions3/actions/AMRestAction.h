@@ -6,6 +6,7 @@
 
 #include <QNetworkReply>
 #include <QNetworkAccessManager>
+#include <QDateTime>
 
 #define AMRESTACTION_CANNOT_START_WITH_EMPTY_URL 355001
 #define AMRESTACTION_CANNOT_START_WITHOUT_NETWORKACCESSMANAGER 355002
@@ -91,7 +92,7 @@ public:
 	enum IssueState { ClosedState, OpenState, InvalidState };
 	enum ComplexityValue { Complexity1, Complexity2, Complexity3, Complexity5, Complexity8, ComplexityK, InvalidComplexity };
 
-	AMGitHubIssue(int issueNumber = -1, AMGitHubIssue::ComplexityValue complexityValue = AMGitHubIssue::InvalidComplexity, const QString &title = "Invalid Title", bool isPullRequest = false, AMGitHubIssue *originatingIssue = 0, int originatingIssueNumber = -1, int commentCount = 0, const QString &commentsURL = "InvalidURL", const QString &timeEstimateString = "Invalid Time Estimate", const QString &assignee = "Invalid Assignee", bool projectTrackingDisabled = false, bool inlineIssue = false, AMGitHubIssue::IssueState issueState = AMGitHubIssue::InvalidState, QObject *parent = 0);
+//	AMGitHubIssue(int issueNumber = -1, AMGitHubIssue::ComplexityValue complexityValue = AMGitHubIssue::InvalidComplexity, const QString &title = "Invalid Title", bool isPullRequest = false, AMGitHubIssue *originatingIssue = 0, int originatingIssueNumber = -1, int commentCount = 0, const QString &commentsURL = "InvalidURL", const QString &timeEstimateString = "Invalid Time Estimate", const QString &assignee = "Invalid Assignee", bool projectTrackingDisabled = false, bool inlineIssue = false, AMGitHubIssue::IssueState issueState = AMGitHubIssue::InvalidState, QObject *parent = 0);
 	AMGitHubIssue(QVariantMap jsonMap, QObject *parent = 0);
 	virtual ~AMGitHubIssue();
 
@@ -108,6 +109,11 @@ public:
 	bool projectTrackingDisabled() const { return projectTrackingDisabled_; }
 	bool inlineIssue() const { return inlineIssue_; }
 	AMGitHubIssue::IssueState issueState() const { return issueState_; }
+	bool isOpen() const { return issueState_ == AMGitHubIssue::OpenState; }
+	bool isClosed() const { return issueState_ == AMGitHubIssue::ClosedState; }
+
+	QDateTime createdDate() const { return createdDate_; }
+	QDateTime closedDate() const { return closedDate_; }
 
 	static AMGitHubIssue::ComplexityValue complexityFromString(const QString &complexityString);
 	static QString stringFromComplexity(AMGitHubIssue::ComplexityValue complexityValue);
@@ -145,6 +151,8 @@ protected:
 	bool projectTrackingDisabled_;
 	bool inlineIssue_;
 	AMGitHubIssue::IssueState issueState_;
+	QDateTime createdDate_;
+	QDateTime closedDate_;
 };
 
 class AMGitHubIssueFamily : public QObject
@@ -244,6 +252,10 @@ public:
 	double averageTimeForEstimatedComplexity(AMGitHubIssue::ComplexityValue estimatedComplexityValue);
 	double averageTimeForActualComplexity(AMGitHubIssue::ComplexityValue actualComplexityValue);
 	double probableTimeForEstimatedComplexity(AMGitHubIssue::ComplexityValue estimatedComplexityValue);
+
+	double outstandingWorkAtDate(AMGitHubIssueFamily *issueFamily, const QDateTime &date);
+	double completedWorkAtDate(AMGitHubIssueFamily *issueFamily, const QDateTime &date);
+	double withdrawnWorkAtDate(AMGitHubIssueFamily *issueFamily, const QDateTime &date);
 
 public slots:
 	void incrementComplexityMapping(AMGitHubIssueFamily::ComplexityMapping complexityMapping);

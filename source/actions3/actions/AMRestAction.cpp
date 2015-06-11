@@ -178,23 +178,23 @@ void AMRestAction::onNetworkRequestError(QNetworkReply::NetworkError networkErro
 	setFailed(fundamentalFailureMessage);
 }
 
-AMGitHubIssue::AMGitHubIssue(int issueNumber, AMGitHubIssue::ComplexityValue complexityValue, const QString &title, bool isPullRequest, AMGitHubIssue *originatingIssue, int originatingIssueNumber, int commentCount, const QString &commentsURL, const QString &timeEstimateString, const QString &assignee, bool projectTrackingDisabled, bool inlineIssue, AMGitHubIssue::IssueState issueState, QObject *parent) :
-	QObject(parent)
-{
-	issueNumber_ = issueNumber;
-	complexityValue_ = complexityValue;
-	title_ = title;
-	isPullRequest_ = isPullRequest;
-	originatingIssue_ = originatingIssue;
-	originatingIssueNumber_ = originatingIssueNumber;
-	commentCount_ = commentCount;
-	commentsURL_ = commentsURL;
-	timeEstimateString_ = timeEstimateString;
-	assignee_ = assignee;
-	projectTrackingDisabled_ = projectTrackingDisabled;
-	inlineIssue_ = inlineIssue;
-	issueState_ = issueState;
-}
+//AMGitHubIssue::AMGitHubIssue(int issueNumber, AMGitHubIssue::ComplexityValue complexityValue, const QString &title, bool isPullRequest, AMGitHubIssue *originatingIssue, int originatingIssueNumber, int commentCount, const QString &commentsURL, const QString &timeEstimateString, const QString &assignee, bool projectTrackingDisabled, bool inlineIssue, AMGitHubIssue::IssueState issueState, QObject *parent) :
+//	QObject(parent)
+//{
+//	issueNumber_ = issueNumber;
+//	complexityValue_ = complexityValue;
+//	title_ = title;
+//	isPullRequest_ = isPullRequest;
+//	originatingIssue_ = originatingIssue;
+//	originatingIssueNumber_ = originatingIssueNumber;
+//	commentCount_ = commentCount;
+//	commentsURL_ = commentsURL;
+//	timeEstimateString_ = timeEstimateString;
+//	assignee_ = assignee;
+//	projectTrackingDisabled_ = projectTrackingDisabled;
+//	inlineIssue_ = inlineIssue;
+//	issueState_ = issueState;
+//}
 
 AMGitHubIssue::AMGitHubIssue(QVariantMap jsonMap, QObject *parent) :
 	QObject(parent)
@@ -243,6 +243,7 @@ AMGitHubIssue::AMGitHubIssue(QVariantMap jsonMap, QObject *parent) :
 				inlineIssue_ = true;
 		}
 	}
+
 	if(jsonMap.contains("pull_request") && !jsonMap.value("pull_request").isNull())
 		isPullRequest_ = true;
 
@@ -252,6 +253,23 @@ AMGitHubIssue::AMGitHubIssue(QVariantMap jsonMap, QObject *parent) :
 			issueState_ = AMGitHubIssue::OpenState;
 		else if(stateAsString == "closed")
 			issueState_ = AMGitHubIssue::ClosedState;
+	}
+
+	if(jsonMap.contains("created_at") && jsonMap.value("created_at").canConvert<QString>()){
+		QString createdDateString = jsonMap.value("created_at").toString();
+		createdDate_ = QDateTime::fromString(createdDateString, "yyyy-MM-ddThh:mm:ssZ");
+		if(!createdDate_.isValid()){
+			qDebug() << "Not a valid created at date";
+			createdDate_ = QDateTime();
+		}
+	}
+	if(jsonMap.contains("closed_at") && jsonMap.value("closed_at").canConvert<QString>()){
+		QString closedDateString = jsonMap.value("closed_at").toString();
+		closedDate_ = QDateTime::fromString(closedDateString, "yyyy-MM-ddThh:mm:ssZ");
+		if(!closedDate_.isValid()){
+			qDebug() << "Not a valid closed at date";
+			closedDate_ = QDateTime();
+		}
 	}
 }
 
@@ -671,6 +689,11 @@ AMGitHubIssueFamilyView::AMGitHubIssueFamilyView(AMGitHubIssueFamily *issueFamil
 		else
 			fl->addRow("Time Estimate:", new QLabel("MISSING"));
 
+		if(issueFamily_->originatingIssue() && issueFamily_->originatingIssue()->issueState() == AMGitHubIssue::ClosedState)
+			fl->addRow("State:", new QLabel("Closed"));
+		else
+			fl->addRow("State:", new QLabel("Open"));
+
 		setLayout(fl);
 	}
 }
@@ -792,11 +815,11 @@ double AMGitHubComplexityManager::averageTimeForActualComplexity(AMGitHubIssue::
 		localActualComplexityTime = actualComplexity8Times_;
 		break;
 	case AMGitHubIssue::ComplexityK:
-		return -1;
+		return 0;
 //		localActualComplexityTime = actualComplexityKTimes_;
 //		break;
 	case AMGitHubIssue::InvalidComplexity:
-		return -1;
+		return 0;
 	}
 
 	if(localActualComplexityTime.count() == 0)
@@ -834,7 +857,7 @@ double AMGitHubComplexityManager::probableTimeForEstimatedComplexity(AMGitHubIss
 //		indexStartValue = 26;
 //		break;
 	case AMGitHubIssue::InvalidComplexity:
-		return -1;
+		return 0;
 	}
 
 	for(int x = indexStartValue, size = indexStartValue+5; x < size; x++)
@@ -848,6 +871,51 @@ double AMGitHubComplexityManager::probableTimeForEstimatedComplexity(AMGitHubIss
 			+ averageTimeForActualComplexity(AMGitHubIssue::Complexity8)*complexityMappingMatrix_.at(indexStartValue+4)/localTotalEstimatedComplexityIssues;
 
 	return retVal;
+}
+
+double AMGitHubComplexityManager::outstandingWorkAtDate(AMGitHubIssueFamily *issueFamily, const QDateTime &date){
+	if(!issueFamily || !issueFamily->originatingIssue() || !issueFamily->originatingIssue()->createdDate().isValid())
+		return 0;
+
+	AMGitHubIssue *originatingIssue = issueFamily->originatingIssue();
+	if(date < originatingIssue->createdDate())
+		return 0;
+
+	if(originatingIssue->closedDate().isValid() && (date >= originatingIssue->closedDate()) )
+		return 0;
+
+	return probableTimeForEstimatedComplexity(issueFamily->estimatedComplexity());
+}
+
+double AMGitHubComplexityManager::completedWorkAtDate(AMGitHubIssueFamily *issueFamily, const QDateTime &date){
+	if(!issueFamily || !issueFamily->originatingIssue() || !issueFamily->originatingIssue()->createdDate().isValid())
+		return 0;
+
+	AMGitHubIssue *originatingIssue = issueFamily->originatingIssue();
+	if(date < originatingIssue->createdDate())
+		return 0;
+
+	if(originatingIssue->closedDate().isValid() && (date >= originatingIssue->closedDate()) && (issueFamily->actualComplexity() != AMGitHubIssue::InvalidComplexity) )
+		return averageTimeForActualComplexity(issueFamily->actualComplexity());
+
+//	if(originatingIssue->closedDate().isValid() && (date >= originatingIssue->closedDate()) )
+//		return probableTimeForEstimatedComplexity(issueFamily->estimatedComplexity());
+
+	return 0;
+}
+
+double AMGitHubComplexityManager::withdrawnWorkAtDate(AMGitHubIssueFamily *issueFamily, const QDateTime &date){
+	if(!issueFamily || !issueFamily->originatingIssue() || !issueFamily->originatingIssue()->createdDate().isValid())
+		return 0;
+
+	AMGitHubIssue *originatingIssue = issueFamily->originatingIssue();
+	if(date < originatingIssue->createdDate())
+		return 0;
+
+	if(originatingIssue->closedDate().isValid() && (date >= originatingIssue->closedDate()) && !issueFamily->pullRequestIssue() && !originatingIssue->inlineIssue() )
+		return probableTimeForEstimatedComplexity(issueFamily->estimatedComplexity());
+
+	return 0;
 }
 
 void AMGitHubComplexityManager::incrementComplexityMapping(AMGitHubIssueFamily::ComplexityMapping complexityMapping){

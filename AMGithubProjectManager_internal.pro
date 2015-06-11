@@ -14,6 +14,7 @@ TEMPLATE = app
 include ( $$PATH_TO_AM/compositeCommon/AMCommon.pri )
 include ( $$PATH_TO_AM/compositeCommon/AMAction.pri )
 include ( $$PATH_TO_AM/compositeCommon/QJSON.pri )
+include ( $$PATH_TO_AM/compositeCommon/AMMPlot.pri )
 
 SOURCES += \
 	AMGithubProjectManager/main.cpp \
