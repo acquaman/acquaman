@@ -120,6 +120,9 @@ protected:
 	QString normalizationName_;
 	/// Flag holding whether or not the data source can be analyzed.
 	bool canAnalyze_;
+
+	mutable bool dataUpdateRequired_;
+	mutable QVector<double> cachedOutput_;
 };
 
 #endif // AM2DNORMALIZATIONAB_H

@@ -30,6 +30,7 @@ AM2DNormalizationAB::AM2DNormalizationAB(const QString &outputName, QObject *par
 	canAnalyze_ = false;
 	dataName_ = "";
 	normalizationName_ = "";
+	dataUpdateRequired_ = false;
 	axes_ << AMAxisInfo("invalid", 0, "No input data") << AMAxisInfo("invalid", 0, "No input data");
 	setState(AMDataSource::InvalidFlag);
 }
@@ -170,7 +171,7 @@ AMNumber AM2DNormalizationAB::value(const AMnDIndex &indexes) const
 
 	return double(data_->value(indexes))/double(normalizer_->value(indexes));
 }
-
+#include <QDebug>
 bool AM2DNormalizationAB::values(const AMnDIndex &indexStart, const AMnDIndex &indexEnd, double *outputValues) const
 {
 	if (indexStart.rank() != 2 || indexEnd.rank() != 2)
@@ -185,25 +186,50 @@ bool AM2DNormalizationAB::values(const AMnDIndex &indexStart, const AMnDIndex &i
 		return false;
 #endif
 
+	QTime time;
+	time.start();
+
 	int totalSize = indexStart.totalPointsTo(indexEnd);
 
-	QVector<double> data = QVector<double>(totalSize);
-	QVector<double> normalizer = QVector<double>(totalSize);
+	if (dataUpdateRequired_){
 
-	data_->values(indexStart, indexEnd, data.data());
-	normalizer_->values(indexStart, indexEnd, normalizer.data());
+		QVector<double> data = QVector<double>(totalSize);
+		QVector<double> normalizer = QVector<double>(totalSize);
 
-	for (int i = 0; i < totalSize; i++){
+		data_->values(indexStart, indexEnd, data.data());
+		normalizer_->values(indexStart, indexEnd, normalizer.data());
 
-		if (normalizer.at(i) == 0)
-			outputValues[i] = 0;
+		for (int i = 0; i < totalSize; i++){
 
-		else if (normalizer.at(i) < 0 || data.at(i) == -1)
-			outputValues[i] = -1;
+			if (normalizer.at(i) == 0)
+				cachedOutput_[i] = 0;
 
-		else
-			outputValues[i] = data.at(i)/normalizer.at(i);
+			else if (normalizer.at(i) < 0 || data.at(i) == -1)
+				cachedOutput_[i] = -1;
+
+			else
+				cachedOutput_[i] = data.at(i)/normalizer.at(i);
+		}
+
+		dataUpdateRequired_ = false;
 	}
+
+	if (totalSize == size().product())
+		memcpy(outputValues, cachedOutput_.constData(), totalSize*sizeof(double));
+
+	else {
+
+		int rowLength = indexEnd.i()-indexStart.i()+1;
+		int xOffset = indexStart.i();
+		int yOffset = indexStart.j();
+		int xSize = size(0);
+		const double *cachedOutputDoublePointer = cachedOutput_.constData();
+
+		for (int j = 0, jSize = indexEnd.j()-indexStart.j()+1; j < jSize; j++)
+			memcpy(outputValues+rowLength*j, cachedOutputDoublePointer+(xOffset+xSize*(j+yOffset)), rowLength*sizeof(double));
+	}
+
+	qDebug() << "Time to compute values of" << name() << "is:" << time.elapsed() << "ms";
 
 	return true;
 }
@@ -238,6 +264,9 @@ bool AM2DNormalizationAB::axisValues(int axisNumber, int startIndex, int endInde
 
 void AM2DNormalizationAB::onInputSourceValuesChanged(const AMnDIndex& start, const AMnDIndex& end)
 {
+	if (!dataUpdateRequired_)
+		dataUpdateRequired_ = true;
+
 	emitValuesChanged(start, end);
 }
 
@@ -254,6 +283,9 @@ void AM2DNormalizationAB::onInputSourceSizeChanged()
 		axes_[1].size = data_->size(1);
 		emitSizeChanged(1);
 	}
+
+	dataUpdateRequired_ = true;
+	cachedOutput_ = QVector<double>(size().product());
 }
 
 void AM2DNormalizationAB::onInputSourceStateChanged() {
