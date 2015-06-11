@@ -31,6 +31,7 @@ class AMScanConfigurationViewHolder3;
 class AMRegionOfInterest;
 class AMGenericStepScanConfiguration;
 class AMGenericStepScanConfigurationView;
+class BioXASSSRLMonochromatorEnergyControlCalibrationView;
 
 class BioXASSideAppController : public BioXASAppController
 {
@@ -40,7 +41,7 @@ public:
 	/// This constructor should be empty.  Call BioXASSideAppController::start() to create the object.
 	explicit BioXASSideAppController(QObject *parent = 0);
 	/// Destructor.
-	virtual ~BioXASSideAppController() {}
+	virtual ~BioXASSideAppController();
 
 	/// create and setup all of the application windows, widgets, communication connections, and data objects that are needed on program startup. Returns true on success.  If reimplementing, must call the base-class startup() as the first thing it does.
 	virtual bool startup();
@@ -110,6 +111,16 @@ protected:
 	AMGenericStepScanConfigurationView *commissioningConfigurationView_;
 	/// The commissioning tool configuration view holder.
 	AMScanConfigurationViewHolder3 *commissioningConfigurationViewHolder_;
+
+	/// The mono energy calibration configuration.
+	BioXASSideXASScanConfiguration *monoCalibrationConfiguration_;
+	/// The mono energy calibration configuration view.
+	BioXASSideXASScanConfigurationView *monoCalibrationConfigurationView_;
+	/// The mono energy calibration configuration view holder.
+	AMScanConfigurationViewHolder3 *monoCalibrationConfigurationViewHolder_;
+
+	/// The mono energy calibration view.
+	BioXASSSRLMonochromatorEnergyControlCalibrationView *monoEnergyCalibrationView_;
 
 	/// Holds the user configuration used for automatically setting up some simple aspects of the user interface.
 	BioXASUserConfiguration *userConfiguration_;

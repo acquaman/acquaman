@@ -21,9 +21,11 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "BioXASMainAppController.h"
 
+#include "acquaman/AMScanActionController.h"
 #include "acquaman/BioXAS/BioXASMainXASScanConfiguration.h"
 
 #include "beamline/BioXAS/BioXASMainBeamline.h"
+#include "beamline/BioXAS/BioXASSSRLMonochromatorEnergyControlCalibrationController.h"
 
 #include "dataman/export/AMExportController.h"
 #include "dataman/export/AMExporterOptionGeneralAscii.h"
@@ -32,6 +34,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "ui/BioXAS/BioXASMainXASScanConfigurationView.h"
 #include "ui/BioXAS/BioXASMainPersistentView.h"
+#include "ui/BioXAS/BioXASSSRLMonochromatorEnergyControlCalibrationView.h"
+
 
 BioXASMainAppController::BioXASMainAppController(QObject *parent)
 	: BioXASAppController(parent)
@@ -42,9 +46,21 @@ BioXASMainAppController::BioXASMainAppController(QObject *parent)
 	monoConfigView_ = 0;
 	m2MirrorView_ = 0;
 	scalerView_ = 0;
+
 	configuration_ = 0;
 	configurationView_ = 0;
 	configurationViewHolder_ = 0;
+
+	commissioningConfiguration_ = 0;
+	commissioningConfigurationView_ = 0;
+	commissioningConfigurationViewHolder_ = 0;
+
+	monoCalibrationConfiguration_ = 0;
+	monoCalibrationConfigurationView_ = 0;
+	monoCalibrationConfigurationViewHolder_ = 0;
+
+	monoEnergyCalibrationController_ = 0;
+	monoEnergyCalibrationView_ = 0;
 
 	setDefaultUseLocalStorage(true);
 }
@@ -147,6 +163,7 @@ void BioXASMainAppController::setupUserInterface()
 	mw_->insertHeading("General", 0);
 	mw_->insertHeading("Detectors", 1);
 	mw_->insertHeading("Scans", 2);
+	mw_->insertHeading("Calibration", 3);
 
 	// Add widgets to main window panes:
 	////////////////////////////////////
@@ -173,6 +190,13 @@ void BioXASMainAppController::setupUserInterface()
 	commissioningConfigurationViewHolder_ = new AMScanConfigurationViewHolder3("Commissioning Tool",true, true, commissioningConfigurationView_);
 	mw_->addPane(commissioningConfigurationViewHolder_, "Scans", "Commissioning Tool", ":/utilities-system-monitor.png");
 
+	monoCalibrationConfiguration_ = new BioXASMainXASScanConfiguration();
+//	monoCalibrationConfiguration_->setEnergy(10000);
+	monoCalibrationConfiguration_->setAutoExportEnabled(false);
+	monoCalibrationConfigurationView_ = new BioXASMainXASScanConfigurationView(monoCalibrationConfiguration_);
+	monoCalibrationConfigurationViewHolder_ = new AMScanConfigurationViewHolder3("Calibrate Energy", false, true, monoCalibrationConfigurationView_, ":/system-search.png");
+	mw_->addPane(monoCalibrationConfigurationViewHolder_, "Calibration", "Calibrate Energy", ":/system-search.png");
+
 	// Create persistent view panel:
 	////////////////////////////////////
 
@@ -191,9 +215,29 @@ void BioXASMainAppController::applyCurrentSettings()
 	onScalerConnected();
 }
 
+#include <QDebug>
+
 void BioXASMainAppController::onCurrentScanActionStartedImplementation(AMScanAction *action)
 {
-	Q_UNUSED(action)
+	qDebug() << "\n";
+
+	if (action) {
+		// If the scan was a mono energy calibration scan, we want to open the calibration dialog when scan is finished.
+//		AMScanActionInfo *actionInfo = qobject_cast<AMScanActionInfo*>(action->info());
+//		BioXASMainXASScanConfiguration *configuration = qobject_cast<BioXASMainXASScanConfiguration*>(actionInfo->configuration());
+
+		qDebug() << "\tCreating calibration view.";
+
+		BioXASSSRLMonochromatorEnergyControlCalibrationController *monoEnergyCalibrationController = new BioXASSSRLMonochromatorEnergyControlCalibrationController(BioXASMainBeamline::bioXAS()->mono()->energyControl(), action->controller()->scan(), QStringList() << "I0Detector" << "DerivAbsorbance");
+		BioXASSSRLMonochromatorEnergyControlCalibrationView *monoEnergyCalibrationView_ = new BioXASSSRLMonochromatorEnergyControlCalibrationView(monoEnergyCalibrationController);
+		monoEnergyCalibrationView_->show();
+		monoEnergyCalibrationView_->raise();
+
+		QPoint mainWindowCenter = mw_->mapToGlobal(mw_->rect().center());
+		monoEnergyCalibrationView_->move(mainWindowCenter.x() + mw_->width()/2, mainWindowCenter.y() + mw_->height()/2);
+	}
+
+	qDebug() << "\n";
 }
 
 void BioXASMainAppController::onCurrentScanActionFinishedImplementation(AMScanAction *action)

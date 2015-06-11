@@ -2,8 +2,7 @@
 #define BIOXASMONOCHROMATOR_H
 
 #include "beamline/BioXAS/BioXASBeamlineComponent.h"
-#include "beamline/AMControl.h"
-#include "actions3/AMAction3.h"
+#include "beamline/BioXAS/BioXASMonochromatorEnergyControl.h"
 
 class BioXASMonochromator : public BioXASBeamlineComponent
 {
@@ -16,7 +15,7 @@ public:
 	virtual ~BioXASMonochromator();
 
 	/// Returns the energy control.
-	virtual AMControl* energyControl() const = 0;
+	virtual BioXASMonochromatorEnergyControl* energyControl() const = 0;
 };
 
 #endif // BIOXASMONOCHROMATOR_H

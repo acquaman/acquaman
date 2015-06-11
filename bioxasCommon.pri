@@ -58,7 +58,10 @@ HEADERS += \
 	source/ui/BioXAS/BioXASPersistentView.h \
 	source/ui/BioXAS/BioXASMirrorBendView.h \
 	source/application/BioXAS/BioXAS.h \
-	source/beamline/BioXAS/BioXASMainM2MirrorBendControl.h
+	source/beamline/BioXAS/BioXASMainM2MirrorBendControl.h \
+    source/beamline/BioXAS/BioXASMonochromatorEnergyControl.h \
+    source/ui/BioXAS/BioXASSSRLMonochromatorEnergyControlCalibrationView.h \
+    source/beamline/BioXAS/BioXASSSRLMonochromatorEnergyControlCalibrationController.h
 
 SOURCES += \
 	source/beamline/BioXAS/BioXASPseudoMotorControl.cpp \
@@ -111,4 +114,51 @@ SOURCES += \
 	source/application/BioXAS/BioXASAppController.cpp \
 	source/ui/BioXAS/BioXASPersistentView.cpp \
 	source/ui/BioXAS/BioXASMirrorBendView.cpp \
-	source/beamline/BioXAS/BioXASMainM2MirrorBendControl.cpp
+	source/beamline/BioXAS/BioXASMainM2MirrorBendControl.cpp \
+    source/beamline/BioXAS/BioXASMonochromatorEnergyControl.cpp \
+    source/ui/BioXAS/BioXASSSRLMonochromatorEnergyControlCalibrationView.cpp \
+    source/beamline/BioXAS/BioXASSSRLMonochromatorEnergyControlCalibrationController.cpp
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

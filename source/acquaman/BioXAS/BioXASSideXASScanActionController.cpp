@@ -224,7 +224,7 @@ void BioXASSideXASScanActionController::buildScanControllerImplementation()
 	if (energySetpointSource && energyFeedbackSource) {
 		deltaEnergySource = new AM1DExpressionAB("EnergySetpointFeedback");
 		deltaEnergySource->setInputDataSources(QList<AMDataSource *>() << energySetpointSource << energyFeedbackSource);
-		deltaEnergySource->setExpression("EnergySetpoint-EnergyFeedback");
+		deltaEnergySource->setExpression("EncoderEnergySetpoint-EncoderEnergyFeedback");
 
 		scan_->addAnalyzedDataSource(deltaEnergySource, true, false);
 	}

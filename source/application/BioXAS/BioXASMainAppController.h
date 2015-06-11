@@ -27,6 +27,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 class BioXASMainXASScanConfiguration;
 class BioXASMainXASScanConfigurationView;
 class BioXASMainPersistentView;
+class BioXASSSRLMonochromatorEnergyControlCalibrationController;
+class BioXASSSRLMonochromatorEnergyControlCalibrationView;
 
 class BioXASMainAppController  : public BioXASAppController
 {
@@ -72,20 +74,38 @@ protected:
 	BioXASM2MirrorView *m2MirrorView_;
 	/// Scaler view.
 	BioXASSIS3820ScalerView *scalerView_;
+
 	/// XAS scan configuration.
 	BioXASMainXASScanConfiguration *configuration_;
+	/// XAS scan configuration view.
+	BioXASMainXASScanConfigurationView *configurationView_;
+	/// XAS scan configuration view holder.
+	AMScanConfigurationViewHolder3 *configurationViewHolder_;
+
 	/// The commissioning tool configuration.
 	AMGenericStepScanConfiguration *commissioningConfiguration_;
 	/// The commissioning tool configuration view.
 	AMGenericStepScanConfigurationView *commissioningConfigurationView_;
 	/// The commissioning tool configuration view holder.
 	AMScanConfigurationViewHolder3 *commissioningConfigurationViewHolder_;
-	/// XAS scan configuration view.
-	BioXASMainXASScanConfigurationView *configurationView_;
-	/// XAS scan configuration view holder.
-	AMScanConfigurationViewHolder3 *configurationViewHolder_;
+
+	/// The mono energy calibration configuration.
+	BioXASMainXASScanConfiguration *monoCalibrationConfiguration_;
+	/// The mono energy calibration configuration view.
+	BioXASMainXASScanConfigurationView *monoCalibrationConfigurationView_;
+	/// The mono energy calibration configuration view holder.
+	AMScanConfigurationViewHolder3 *monoCalibrationConfigurationViewHolder_;
+
 	/// The side panel view.
 	BioXASMainPersistentView *persistentPanel_;
+
+	/// The mono energy calibration controller.
+	BioXASSSRLMonochromatorEnergyControlCalibrationController *monoEnergyCalibrationController_;
+	/// The mono energy calibration view.
+	BioXASSSRLMonochromatorEnergyControlCalibrationView *monoEnergyCalibrationView_;
+
+	/// Holds the user configuration used for automatically setting up some simple aspects of the user interface.
+	BioXASUserConfiguration *userConfiguration_;
 };
 
 #endif // BIOXASMAINAPPCONTROLLER_H

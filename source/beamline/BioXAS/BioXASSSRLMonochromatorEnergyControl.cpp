@@ -3,7 +3,7 @@
 #include <math.h>
 
 BioXASSSRLMonochromatorEnergyControl::BioXASSSRLMonochromatorEnergyControl(const QString &name, QObject *parent) :
-	AMPseudoMotorControl(name, "eV", parent)
+	BioXASMonochromatorEnergyControl(name, parent)
 {
 	// Initialize inherited variables.
 
@@ -65,6 +65,32 @@ bool BioXASSSRLMonochromatorEnergyControl::canStop() const
 		result = ( bragg_->canStop() );
 
 	return false;
+}
+
+AMAction3* BioXASSSRLMonochromatorEnergyControl::createSetEnergyAction(double newEnergy)
+{
+	AMAction3 *result = 0;
+
+	if (bragg_ && bragg_->isConnected()) {
+		result = createSetEnergyAction(bragg_->value(), newEnergy);
+	}
+
+	return result;
+}
+
+AMAction3* BioXASSSRLMonochromatorEnergyControl::createSetEnergyAction(double braggPosition, double newEnergy)
+{
+	AMAction3 *result = 0;
+
+	if (bragg_ && braggSetPosition_) {
+		AMListAction3 *setEnergy = new AMListAction3(new AMListActionInfo3("Set Monochromator Energy", "Set Monochromator Energy"), AMListAction3::Sequential);
+		setEnergy->addSubAction(AMActionSupport::buildControlMoveAction(bragg_, braggPosition));
+		setEnergy->addSubAction(AMActionSupport::buildControlMoveAction(braggSetPosition_, calculateBraggPositionFromEnergy(hc_, crystal2D_, newEnergy, region_->value(), m1MirrorPitch_->value(), thetaBraggOffset_, regionOffset_)));
+
+		result = setEnergy;
+	}
+
+	return result;
 }
 
 void BioXASSSRLMonochromatorEnergyControl::setBraggControl(AMControl *newControl)
@@ -141,12 +167,19 @@ void BioXASSSRLMonochromatorEnergyControl::setM1MirrorPitchControl(AMControl *ne
 
 void BioXASSSRLMonochromatorEnergyControl::setEnergy(double newEnergy)
 {
+	if (isConnected())
+		setEnergy(bragg_->value(), newEnergy);
+}
+
+void BioXASSSRLMonochromatorEnergyControl::setEnergy(double braggPosition, double newEnergy)
+{
 	if (isConnected()) {
 
 		// Convert the desired energy into a bragg position.
 		double newPosition = calculateBraggPositionFromEnergy(hc_, crystal2D_, newEnergy, region_->value(), m1MirrorPitch_->value(), thetaBraggOffset_, regionOffset_);
 
-		// Set the new position as the current bragg position.
+		// Move the bragg motor to the given position, set the bragg position as the desired 'energy' position.
+		bragg_->move(braggPosition);
 		braggSetPosition_->move(newPosition);
 
 		// Update the control value.
@@ -204,7 +237,7 @@ double BioXASSSRLMonochromatorEnergyControl::calculateBraggAngleFromPositionRegi
 
 double BioXASSSRLMonochromatorEnergyControl::calculateBraggAngleFromPositionRegionB(double braggPosition, double m1Pitch, double thetaBraggOffset)
 {
-	double braggAngle = thetaBraggOffset - braggPosition + m1Pitch;
+	double braggAngle = thetaBraggOffset - braggPosition + (2 * m1Pitch);
 	return braggAngle;
 }
 
@@ -216,7 +249,7 @@ double BioXASSSRLMonochromatorEnergyControl::calculateBraggPositionFromAngleRegi
 
 double BioXASSSRLMonochromatorEnergyControl::calculateBraggPositionFromAngleRegionB(double braggAngle, double m1Pitch, double thetaBraggOffset)
 {
-	double braggPosition = thetaBraggOffset + m1Pitch - braggAngle;
+	double braggPosition = thetaBraggOffset + (2 * m1Pitch) - braggAngle;
 	return braggPosition;
 }
 

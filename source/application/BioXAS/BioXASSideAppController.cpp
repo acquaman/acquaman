@@ -28,8 +28,16 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "actions3/actions/AMScanAction.h"
 #include "actions3/AMListAction3.h"
 
+#include "acquaman/AMScanActionController.h"
+#include "acquaman/BioXAS/BioXASSideXASScanConfiguration.h"
+#include "acquaman/BioXAS/BioXASXRFScanConfiguration.h"
+
 #include "application/AMAppControllerSupport.h"
 #include "application/BioXAS/BioXAS.h"
+
+#include "beamline/BioXAS/BioXASSideBeamline.h"
+#include "beamline/CLS/CLSFacilityID.h"
+#include "beamline/CLS/CLSSIS3820Scaler.h"
 
 #include "dataman/AMRun.h"
 #include "dataman/AMScanAxisEXAFSRegion.h"
@@ -42,38 +50,32 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/export/AMExporterOptionXDIFormat.h"
 #include "dataman/BioXAS/BioXASUserConfiguration.h"
 
-#include "util/AMPeriodicTable.h"
-
-#include "beamline/CLS/CLSFacilityID.h"
-#include "beamline/CLS/CLSSIS3820Scaler.h"
-
-#include "acquaman/BioXAS/BioXASSideXASScanConfiguration.h"
-#include "acquaman/BioXAS/BioXASXRFScanConfiguration.h"
-#include "beamline/BioXAS/BioXASSideBeamline.h"
-
 #include "ui/AMMainWindow.h"
-#include "ui/acquaman/AMGenericStepScanConfigurationView.h"
-#include "ui/acquaman/AMScanConfigurationViewHolder3.h"
-#include "ui/dataman/AMGenericScanEditor.h"
 #include "ui/AMMotorGroupView.h"
 
-#include "ui/CLS/CLSJJSlitsView.h"
+#include "ui/acquaman/AMGenericStepScanConfigurationView.h"
+#include "ui/acquaman/AMScanConfigurationViewHolder3.h"
 
-#include "ui/util/AMChooseDataFolderDialog.h"
+#include "ui/dataman/AMGenericScanEditor.h"
+
+#include "ui/CLS/CLSJJSlitsView.h"
+#include "ui/CLS/CLSStandardsWheelConfigurationView.h"
 
 #include "ui/BioXAS/BioXASSidePersistentView.h"
 #include "ui/BioXAS/BioXASSideXASScanConfigurationView.h"
 #include "ui/BioXAS/BioXAS32ElementGeDetectorView.h"
 #include "ui/BioXAS/BioXASSSRLMonochromatorConfigurationView.h"
-
-#include "ui/CLS/CLSStandardsWheelConfigurationView.h"
-
+#include "ui/BioXAS/BioXASSSRLMonochromatorEnergyControlCalibrationView.h"
 #include "ui/BioXAS/BioXASXIAFiltersView.h"
 #include "ui/BioXAS/BioXASCarbonFilterFarmView.h"
 #include "ui/BioXAS/BioXASM2MirrorView.h"
 #include "ui/BioXAS/BioXASDBHRMirrorView.h"
 #include "ui/BioXAS/BioXASSIS3820ScalerView.h"
 #include "ui/BioXAS/BioXASFourElementVortexDetectorView.h"
+
+#include "ui/util/AMChooseDataFolderDialog.h"
+
+#include "util/AMPeriodicTable.h"
 
 BioXASSideAppController::BioXASSideAppController(QObject *parent)
 	: BioXASAppController(parent)
@@ -92,8 +94,22 @@ BioXASSideAppController::BioXASSideAppController(QObject *parent)
 	configurationView_ = 0;
 	configurationViewHolder_ = 0;
 
+	commissioningConfiguration_ = 0;
+	commissioningConfigurationView_ = 0;
+	commissioningConfigurationViewHolder_ = 0;
+
+	monoCalibrationConfiguration_ = 0;
+	monoCalibrationConfigurationView_ = 0;
+	monoCalibrationConfigurationViewHolder_ = 0;
+
 	setDefaultUseLocalStorage(true);
 	userConfiguration_ = new BioXASUserConfiguration(this);
+}
+
+BioXASSideAppController::~BioXASSideAppController()
+{
+	if (monoEnergyCalibrationView_)
+		monoEnergyCalibrationView_->deleteLater();
 }
 
 bool BioXASSideAppController::startup()
@@ -186,6 +202,7 @@ void BioXASSideAppController::setupUserInterface()
 	mw_->insertHeading("General", 0);
 	mw_->insertHeading("Detectors", 1);
 	mw_->insertHeading("Scans", 2);
+	mw_->insertHeading("Calibration", 3);
 
 	// Add widgets to main window panes:
 	////////////////////////////////////
@@ -248,6 +265,13 @@ void BioXASSideAppController::setupUserInterface()
 	commissioningConfigurationViewHolder_ = new AMScanConfigurationViewHolder3("Commissioning Tool", false, true, commissioningConfigurationView_);
 	mw_->addPane(commissioningConfigurationViewHolder_, "Scans", "Commissioning Tool", ":/utilities-system-monitor.png");
 
+	monoCalibrationConfiguration_ = new BioXASSideXASScanConfiguration();
+//	monoCalibrationConfiguration_->setEnergy(10000);
+	monoCalibrationConfiguration_->setAutoExportEnabled(false);
+	monoCalibrationConfigurationView_ = new BioXASSideXASScanConfigurationView(monoCalibrationConfiguration_);
+	monoCalibrationConfigurationViewHolder_ = new AMScanConfigurationViewHolder3("Calibrate Energy", false, true, monoCalibrationConfigurationView_, ":/system-search.png");
+	mw_->addPane(monoCalibrationConfigurationViewHolder_, "Calibration", "Calibrate Energy", ":/system-search.png");
+
 	// Create persistent view panel:
 	////////////////////////////////////
 
@@ -269,15 +293,18 @@ void BioXASSideAppController::applyCurrentSettings()
 	onScalerConnected();
 }
 
+#include <QDebug>
+
 void BioXASSideAppController::onCurrentScanActionStartedImplementation(AMScanAction *action)
 {
 	Q_UNUSED(action)
 
+	// Save current configuration to the database.
 	userConfiguration_->storeToDb(AMDatabase::database("user"));
 }
 
 void BioXASSideAppController::onCurrentScanActionFinishedImplementation(AMScanAction *action)
-{
+{	
 	Q_UNUSED(action)
 
 	userConfiguration_->storeToDb(AMDatabase::database("user"));
