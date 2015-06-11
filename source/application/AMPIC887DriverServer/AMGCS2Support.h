@@ -2,6 +2,7 @@
 #define AMGCS2SUPPORT_H
 
 #include <QChar>
+#include <QString>
 #include "AMGCS2.h"
 class AMGCS2Support
 {
@@ -20,6 +21,20 @@ public:
 	  * is to be returned.
 	  */
 	static AMGCS2::Axis characterToAxis(const QChar& character);
+
+	/*!
+	  * Converts from the controller command level enumerator to its string equivalent.
+	  * \param commandLevel ~ The command level to stringify.
+	  */
+	static QString commandLevelToString(AMGCS2::ControllerCommandLevel commandLevel);
+
+	/*!
+	  * Converts from the integer command level code to the enumerated equivalent.
+	  * Helps in ensuring that command levels other than 0 or 1 return UnknownCommandLevel.
+	  * \param ~ The command level code to interpret. 0 = Normal, 1 = Advanced
+	  * all other values = UnknownCommandLevel.
+	  */
+	static AMGCS2::ControllerCommandLevel intCodeToCommandLevel(int commandLevelCode);
 
 protected:
 	/*!

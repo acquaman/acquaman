@@ -13,6 +13,7 @@
 #include "AMGCS2ControllerReadyStatusCommand.h"
 #include "AMGCS2DeviceIdentificationCommand.h"
 #include "AMGCS2CommandLevelQueryCommand.h"
+#include "AMGCS2SetCommandLevelCommand.h"
 
 AMGCS2Command * AMGCS2CommandFactory::buildCommand(const QString &commandString)
 {
@@ -32,6 +33,8 @@ AMGCS2Command * AMGCS2CommandFactory::buildCommand(const QString &commandString)
 		return new AMGCS2DeviceIdentificationCommand();
 	} else if(commandString.startsWith("CCL?")) {
 		return new AMGCS2CommandLevelQueryCommand();
+	} else if(commandString.startsWith("CCL")) {
+		return buildSetCommandLevelCommand(commandArguments(commandString));
 	}
 
 	return 0;
@@ -130,6 +133,29 @@ AMGCS2Command * AMGCS2CommandFactory::buildHaltSmoothlyCommand(const QStringList
 	}
 
 	return new AMGCS2HaltSmoothlyCommand(axes);
+}
+
+AMGCS2Command * AMGCS2CommandFactory::buildSetCommandLevelCommand(const QStringList &argumentList)
+{
+	if(argumentList.isEmpty()) {
+		return 0;
+	}
+
+	bool parseIntSuccessful = false;
+	int commandLevelCode = argumentList.at(0).toInt(&parseIntSuccessful);
+
+	if(!parseIntSuccessful) {
+		return 0;
+	}
+
+	QString password;
+	if(argumentList.count() > 1) {
+		password = argumentList.at(1);
+	}
+
+
+	return new AMGCS2SetCommandLevelCommand(AMGCS2Support::intCodeToCommandLevel(
+												commandLevelCode), password);
 }
 
 

@@ -21,7 +21,8 @@ SOURCES *= \
     source/application/AMPIC887DriverServer/AMGCS2CompositeCommand.cpp \
     source/application/AMPIC887DriverServer/AMGCS2ControllerReadyStatusCommand.cpp \
     source/application/AMPIC887DriverServer/AMGCS2DeviceIdentificationCommand.cpp \
-    source/application/AMPIC887DriverServer/AMGCS2CommandLevelQueryCommand.cpp
+    source/application/AMPIC887DriverServer/AMGCS2CommandLevelQueryCommand.cpp \
+    source/application/AMPIC887DriverServer/AMGCS2SetCommandLevelCommand.cpp
 
 HEADERS *= \
 	source/application/AMPIC887DriverServer/AMPIC887ControllerCollection.h \	
@@ -43,7 +44,8 @@ HEADERS *= \
     source/application/AMPIC887DriverServer/AMGCS2CompositeCommand.h \
     source/application/AMPIC887DriverServer/AMGCS2ControllerReadyStatusCommand.h \
     source/application/AMPIC887DriverServer/AMGCS2DeviceIdentificationCommand.h \
-    source/application/AMPIC887DriverServer/AMGCS2CommandLevelQueryCommand.h
+    source/application/AMPIC887DriverServer/AMGCS2CommandLevelQueryCommand.h \
+    source/application/AMPIC887DriverServer/AMGCS2SetCommandLevelCommand.h
 
 # PI Controller Driver Dependencies
 
@@ -56,6 +58,8 @@ INCLUDEPATH *= $$PIC887_INCLUDE_DIR
 LIBS *= $$PIC887_LIB
 
 CONFIG -= mobility
+
+
 
 
 

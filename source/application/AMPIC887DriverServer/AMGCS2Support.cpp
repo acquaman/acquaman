@@ -38,3 +38,27 @@ AMGCS2::Axis AMGCS2Support::characterToAxis(const QChar &character)
 
 	return AMGCS2::UnknownAxis;
 }
+
+QString AMGCS2Support::commandLevelToString(AMGCS2::ControllerCommandLevel commandLevel)
+{
+	switch(commandLevel) {
+	case AMGCS2::NormalCommandLevel:
+		return "Normal command level";
+	case AMGCS2::AdvancedCommandLevel:
+		return "Advanced command level";
+	default:
+		return "Unknown command level";
+	}
+}
+
+AMGCS2::ControllerCommandLevel AMGCS2Support::intCodeToCommandLevel(int commandLevelCode)
+{
+	switch(commandLevelCode) {
+	case 0:
+		return AMGCS2::NormalCommandLevel;
+	case 1:
+		return AMGCS2::AdvancedCommandLevel;
+	default:
+		return AMGCS2::UnknownCommandLevel;
+	}
+}

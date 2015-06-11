@@ -56,6 +56,14 @@ protected:
 	  * be parsed, 0 otherwise.
 	  */
 	static AMGCS2Command* buildHaltSmoothlyCommand(const QStringList& argumentList);
+
+	/*!
+	  * Static helper method for parsing the set command level command string.
+	  * \param argumentList ~ a list of the arguments provided to the command.
+	  * \returns An initialized AMGCS2SetCommandLevelCommand if the arguments could
+	  * be parsed, 0 otherwise.
+	  */
+	static AMGCS2Command* buildSetCommandLevelCommand(const QStringList& argumentList);
 };
 
 #endif // AMGCS2COMMANDFACTORY_H
