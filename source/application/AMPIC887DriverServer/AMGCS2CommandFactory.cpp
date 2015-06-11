@@ -14,6 +14,7 @@
 #include "AMGCS2DeviceIdentificationCommand.h"
 #include "AMGCS2CommandLevelQueryCommand.h"
 #include "AMGCS2SetCommandLevelCommand.h"
+#include "AMGCS2SetSyntaxVersionCommand.h"
 
 AMGCS2Command * AMGCS2CommandFactory::buildCommand(const QString &commandString)
 {
@@ -35,6 +36,8 @@ AMGCS2Command * AMGCS2CommandFactory::buildCommand(const QString &commandString)
 		return new AMGCS2CommandLevelQueryCommand();
 	} else if(commandString.startsWith("CCL")) {
 		return buildSetCommandLevelCommand(commandArguments(commandString));
+	} else if (commandString.startsWith("CSV")) {
+		return new AMGCS2SetSyntaxVersionCommand();
 	}
 
 	return 0;
