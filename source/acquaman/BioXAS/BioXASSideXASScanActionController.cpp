@@ -212,7 +212,7 @@ void BioXASSideXASScanActionController::buildScanControllerImplementation()
 	AM1DExpressionAB *deltaEnergySource = 0;
 
 	int energySetpointDetectorIndex = scan_->indexOfDataSource(BioXASSideBeamline::bioXAS()->encoderEnergySetpointDetector()->name());
-	if (energySetpointDetectorIndex) {
+	if (energySetpointDetectorIndex != -1) {
 		energySetpointSource = scan_->dataSourceAt(energySetpointDetectorIndex);
 	}
 
@@ -222,9 +222,9 @@ void BioXASSideXASScanActionController::buildScanControllerImplementation()
 	}
 
 	if (energySetpointSource && energyFeedbackSource) {
-		deltaEnergySource = new AM1DExpressionAB("EnergySetpointFeedback");
+		deltaEnergySource = new AM1DExpressionAB("EncoderEnergySetpointFeedback");
 		deltaEnergySource->setInputDataSources(QList<AMDataSource *>() << energySetpointSource << energyFeedbackSource);
-		deltaEnergySource->setExpression("EnergySetpoint-EnergyFeedback");
+		deltaEnergySource->setExpression(QString("%1-%2").arg(energySetpointSource->name()).arg(energyFeedbackSource->name()));
 
 		scan_->addAnalyzedDataSource(deltaEnergySource, true, false);
 	}
