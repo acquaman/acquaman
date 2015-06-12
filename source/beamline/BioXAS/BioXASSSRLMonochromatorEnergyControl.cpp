@@ -204,7 +204,7 @@ double BioXASSSRLMonochromatorEnergyControl::calculateBraggAngleFromPositionRegi
 
 double BioXASSSRLMonochromatorEnergyControl::calculateBraggAngleFromPositionRegionB(double braggPosition, double m1Pitch, double thetaBraggOffset)
 {
-	double braggAngle = thetaBraggOffset - braggPosition + m1Pitch;
+	double braggAngle = thetaBraggOffset - braggPosition + (2*m1Pitch);
 	return braggAngle;
 }
 
@@ -216,7 +216,7 @@ double BioXASSSRLMonochromatorEnergyControl::calculateBraggPositionFromAngleRegi
 
 double BioXASSSRLMonochromatorEnergyControl::calculateBraggPositionFromAngleRegionB(double braggAngle, double m1Pitch, double thetaBraggOffset)
 {
-	double braggPosition = thetaBraggOffset + m1Pitch - braggAngle;
+	double braggPosition = thetaBraggOffset + (2*m1Pitch) - braggAngle;
 	return braggPosition;
 }
 
