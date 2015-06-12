@@ -9,6 +9,9 @@
 #include "dataman/AMScan.h"
 #include "dataman/AMScanSetModel.h"
 
+class MPlot;
+class MPlotCursorTool;
+
 class BioXASSSRLMonochromatorEnergyControlCalibrationController : public QObject
 {
     Q_OBJECT
@@ -25,8 +28,6 @@ public:
 	AMScan* scan() const { return scan_; }
 	/// Returns the names of the scan sources of interest.
 	QStringList sourceNames() const { return sourceNames_; }
-	/// Returns the scan set model.
-	AMScanSetModel* scanModel() const { return scanModel_; }
 	/// Returns the plot.
 	MPlot* plot() const { return plot_; }
 	/// Returns the calibration bragg position.
@@ -77,8 +78,10 @@ protected:
 	/// The list of data source names to include in the plot.
 	QStringList sourceNames_;
 
-	/// The scan model.
-	AMScanSetModel *scanModel_;
+	/// The plot.
+	MPlot *plot_;
+	/// The plot cursor.
+	MPlotCursorTool *cursor_;
 
 	/// The calibration bragg position.
 	double braggPosition_;

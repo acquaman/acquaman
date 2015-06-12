@@ -6,8 +6,6 @@
 #include <QPushButton>
 #include <QDoubleSpinBox>
 
-#include "MPlot/MPlotWidget.h"
-
 #include "ui/dataman/AMScanView.h"
 
 #include "beamline/BioXAS/BioXASSSRLMonochromatorEnergyControlCalibrationController.h"
@@ -47,8 +45,6 @@ protected:
 	/// The scan view.
 	AMScanView *scanView_;
 
-	/// The plot widget, holding the plot.
-	MPlotWidget *plotWidget_;
 	/// The energy display.
 	QDoubleSpinBox *energy_;
 	/// The 'apply changes' button.

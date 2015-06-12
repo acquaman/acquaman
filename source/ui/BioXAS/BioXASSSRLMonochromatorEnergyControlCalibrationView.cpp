@@ -5,8 +5,6 @@ BioXASSSRLMonochromatorEnergyControlCalibrationView::BioXASSSRLMonochromatorEner
 {
 	// Create UI elements.
 
-//	plotWidget_ = new MPlotWidget();
-
 	scanView_ = new AMScanView();
 
 	energy_ = new QDoubleSpinBox();
@@ -33,23 +31,22 @@ BioXASSSRLMonochromatorEnergyControlCalibrationView::BioXASSSRLMonochromatorEner
 	buttonLayout->addWidget(cancelButton_);
 
 	QVBoxLayout *layout = new QVBoxLayout();
-//	layout->addWidget(plotWidget_);
 	layout->addWidget(scanView_);
 	layout->addLayout(energyLayout);
 	layout->addLayout(buttonLayout);
 
 	setLayout(layout);
 
-	// Current settings.
-
-	setWindowTitle("Energy calibration");
-	setCalibrationController(controller);
-
 	// Make connections.
 
 	connect( energy_, SIGNAL(valueChanged(double)), this, SLOT(onEnergyChanged()) );
 	connect( applyButton_, SIGNAL(clicked()), this, SLOT(onApplyButtonClicked()) );
 	connect( cancelButton_, SIGNAL(clicked()), this, SLOT(onCancelButtonClicked()) );
+
+	// Current settings.
+
+	setWindowTitle("Energy calibration");
+	setCalibrationController(controller);
 }
 
 BioXASSSRLMonochromatorEnergyControlCalibrationView::~BioXASSSRLMonochromatorEnergyControlCalibrationView()
@@ -62,8 +59,8 @@ void BioXASSSRLMonochromatorEnergyControlCalibrationView::setCalibrationControll
 	if (controller_ != newController) {
 
 		if (controller_) {
-//			plotWidget_->setPlot(0);
-			scanView_->
+			scanView_->model()->removeScan(controller_->scan());
+
 			energy_->setEnabled(false);
 			applyButton_->setEnabled(false);
 		}
@@ -73,7 +70,8 @@ void BioXASSSRLMonochromatorEnergyControlCalibrationView::setCalibrationControll
 		if (controller_) {
 			controller_->setParent(this);
 
-			plotWidget_->setPlot(controller_->plot());
+//			scanView_->model()->addScan(controller_->scan());
+
 			energy_->setEnabled(true);
 			energy_->setValue(controller_->energy());
 			applyButton_->setEnabled(true);
