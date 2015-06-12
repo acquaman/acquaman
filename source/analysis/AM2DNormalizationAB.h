@@ -110,7 +110,7 @@ protected:
 	void setInputSources();
 
 	/// Computes the new cached values.
-	void computeCachedValues();
+	void computeCachedValues() const;
 
 	/// Pointer to the data source that will be analyzed.
 	AMDataSource *data_;

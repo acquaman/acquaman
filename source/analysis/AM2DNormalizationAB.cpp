@@ -214,14 +214,14 @@ bool AM2DNormalizationAB::values(const AMnDIndex &indexStart, const AMnDIndex &i
 	return true;
 }
 
-void AM2DNormalizationAB::computeCachedValues()
+void AM2DNormalizationAB::computeCachedValues() const
 {
 	int totalSize = lowerDirtyIndex_.totalPointsTo(upperDirtyIndex_);
 	QVector<double> data = QVector<double>(totalSize);
 	QVector<double> normalizer = QVector<double>(totalSize);
 
-	data_->values(indexStart, indexEnd, data.data());
-	normalizer_->values(indexStart, indexEnd, normalizer.data());
+	data_->values(lowerDirtyIndex_, upperDirtyIndex_, data.data());
+	normalizer_->values(lowerDirtyIndex_, upperDirtyIndex_, normalizer.data());
 
 	for (int i = 0; i < totalSize; i++){
 
@@ -271,6 +271,12 @@ void AM2DNormalizationAB::onInputSourceValuesChanged(const AMnDIndex& start, con
 	if (!dataUpdateRequired_)
 		dataUpdateRequired_ = true;
 
+	qDebug() << start.toString() << lowerDirtyIndex_.toString() << lowerDirtyIndex_.globalMinimum(start).toString();
+	qDebug() << end.toString() << upperDirtyIndex_.toString() << upperDirtyIndex_.globalMaximum(end).toString();
+
+	lowerDirtyIndex_ = lowerDirtyIndex_.globalMinimum(start);
+	upperDirtyIndex_ = upperDirtyIndex_.globalMaximum(end);
+
 	emitValuesChanged(start, end);
 }
 
@@ -289,6 +295,8 @@ void AM2DNormalizationAB::onInputSourceSizeChanged()
 	}
 
 	dataUpdateRequired_ = true;
+	lowerDirtyIndex_ = AMnDIndex(0, 0);
+	upperDirtyIndex_ = size()-1;
 	cachedOutput_ = QVector<double>(size().product());
 }
 

@@ -134,6 +134,28 @@ public:
 		}
 	}
 
+	/// Returns the AMnDIndex with the lowest values from each dimension between this index and the given one.  Assumes \param otherIndex has the same rank as we do.
+	inline AMnDIndex globalMinimum(const AMnDIndex &otherIndex)
+	{
+		AMnDIndex retVal = *this;
+
+		for (int i = 0; i < rank_; i++)
+			retVal[i] = (at(i) < otherIndex.at(i)) ? at(i) : otherIndex.at(i);
+
+		return retVal;
+	}
+
+	/// Returns the AMnDIndex with the highest values from each dimension between this index and the given one.  Assumes \param otherIndex has the same rank as we do.
+	inline AMnDIndex globalMaximum(const AMnDIndex &otherIndex)
+	{
+		AMnDIndex retVal = *this;
+
+		for (int i = 0; i < rank_; i++)
+			retVal[i] = (at(i) > otherIndex.at(i)) ? at(i) : otherIndex.at(i);
+
+		return retVal;
+	}
+
 	// Modification functions
 	////////////////////////////////
 
