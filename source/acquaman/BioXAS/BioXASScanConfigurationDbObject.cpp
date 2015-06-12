@@ -5,7 +5,7 @@ BioXASScanConfigurationDbObject::BioXASScanConfigurationDbObject(QObject *parent
 {
 	energy_ = 0.0;
 	edge_ = "";
-	usingXRFDetector_ = true;
+	usingXRFDetector_ = false;
 }
 
 BioXASScanConfigurationDbObject::BioXASScanConfigurationDbObject(const BioXASScanConfigurationDbObject &original)
