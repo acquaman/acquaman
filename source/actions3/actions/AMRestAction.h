@@ -253,9 +253,12 @@ public:
 	double averageTimeForActualComplexity(AMGitHubIssue::ComplexityValue actualComplexityValue);
 	double probableTimeForEstimatedComplexity(AMGitHubIssue::ComplexityValue estimatedComplexityValue);
 
-	double outstandingWorkAtDate(AMGitHubIssueFamily *issueFamily, const QDateTime &date);
-	double completedWorkAtDate(AMGitHubIssueFamily *issueFamily, const QDateTime &date);
-	double withdrawnWorkAtDate(AMGitHubIssueFamily *issueFamily, const QDateTime &date);
+	double outstandingEstimateAtDate(AMGitHubIssueFamily *issueFamily, const QDateTime &date);
+	double completedEstimateAtDate(AMGitHubIssueFamily *issueFamily, const QDateTime &date);
+	double withdrawnEstimateAtDate(AMGitHubIssueFamily *issueFamily, const QDateTime &date);
+
+	double complexityMappedCompletedWorkAtDate(AMGitHubIssueFamily *issueFamily, const QDateTime &date);
+	double reportedCompletedWorkAtDate(AMGitHubIssueFamily *issueFamily, const QDateTime &date);
 
 public slots:
 	void incrementComplexityMapping(AMGitHubIssueFamily::ComplexityMapping complexityMapping);

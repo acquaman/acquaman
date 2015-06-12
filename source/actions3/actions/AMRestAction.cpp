@@ -873,7 +873,7 @@ double AMGitHubComplexityManager::probableTimeForEstimatedComplexity(AMGitHubIss
 	return retVal;
 }
 
-double AMGitHubComplexityManager::outstandingWorkAtDate(AMGitHubIssueFamily *issueFamily, const QDateTime &date){
+double AMGitHubComplexityManager::outstandingEstimateAtDate(AMGitHubIssueFamily *issueFamily, const QDateTime &date){
 	if(!issueFamily || !issueFamily->originatingIssue() || !issueFamily->originatingIssue()->createdDate().isValid())
 		return 0;
 
@@ -887,7 +887,38 @@ double AMGitHubComplexityManager::outstandingWorkAtDate(AMGitHubIssueFamily *iss
 	return probableTimeForEstimatedComplexity(issueFamily->estimatedComplexity());
 }
 
-double AMGitHubComplexityManager::completedWorkAtDate(AMGitHubIssueFamily *issueFamily, const QDateTime &date){
+double AMGitHubComplexityManager::completedEstimateAtDate(AMGitHubIssueFamily *issueFamily, const QDateTime &date){
+	if(!issueFamily || !issueFamily->originatingIssue() || !issueFamily->originatingIssue()->createdDate().isValid())
+		return 0;
+
+	AMGitHubIssue *originatingIssue = issueFamily->originatingIssue();
+	if(date < originatingIssue->createdDate())
+		return 0;
+
+//	if(originatingIssue->closedDate().isValid() && (date >= originatingIssue->closedDate()) && (issueFamily->actualComplexity() != AMGitHubIssue::InvalidComplexity) )
+//		return averageTimeForActualComplexity(issueFamily->actualComplexity());
+
+	if(originatingIssue->closedDate().isValid() && (date >= originatingIssue->closedDate()) )
+		return probableTimeForEstimatedComplexity(issueFamily->estimatedComplexity());
+
+	return 0;
+}
+
+double AMGitHubComplexityManager::withdrawnEstimateAtDate(AMGitHubIssueFamily *issueFamily, const QDateTime &date){
+	if(!issueFamily || !issueFamily->originatingIssue() || !issueFamily->originatingIssue()->createdDate().isValid())
+		return 0;
+
+	AMGitHubIssue *originatingIssue = issueFamily->originatingIssue();
+	if(date < originatingIssue->createdDate())
+		return 0;
+
+	if(originatingIssue->closedDate().isValid() && (date >= originatingIssue->closedDate()) && !issueFamily->pullRequestIssue() && !originatingIssue->inlineIssue() )
+		return probableTimeForEstimatedComplexity(issueFamily->estimatedComplexity());
+
+	return 0;
+}
+
+double AMGitHubComplexityManager::complexityMappedCompletedWorkAtDate(AMGitHubIssueFamily *issueFamily, const QDateTime &date){
 	if(!issueFamily || !issueFamily->originatingIssue() || !issueFamily->originatingIssue()->createdDate().isValid())
 		return 0;
 
@@ -898,13 +929,10 @@ double AMGitHubComplexityManager::completedWorkAtDate(AMGitHubIssueFamily *issue
 	if(originatingIssue->closedDate().isValid() && (date >= originatingIssue->closedDate()) && (issueFamily->actualComplexity() != AMGitHubIssue::InvalidComplexity) )
 		return averageTimeForActualComplexity(issueFamily->actualComplexity());
 
-//	if(originatingIssue->closedDate().isValid() && (date >= originatingIssue->closedDate()) )
-//		return probableTimeForEstimatedComplexity(issueFamily->estimatedComplexity());
-
 	return 0;
 }
 
-double AMGitHubComplexityManager::withdrawnWorkAtDate(AMGitHubIssueFamily *issueFamily, const QDateTime &date){
+double AMGitHubComplexityManager::reportedCompletedWorkAtDate(AMGitHubIssueFamily *issueFamily, const QDateTime &date){
 	if(!issueFamily || !issueFamily->originatingIssue() || !issueFamily->originatingIssue()->createdDate().isValid())
 		return 0;
 
@@ -912,8 +940,11 @@ double AMGitHubComplexityManager::withdrawnWorkAtDate(AMGitHubIssueFamily *issue
 	if(date < originatingIssue->createdDate())
 		return 0;
 
-	if(originatingIssue->closedDate().isValid() && (date >= originatingIssue->closedDate()) && !issueFamily->pullRequestIssue() && !originatingIssue->inlineIssue() )
-		return probableTimeForEstimatedComplexity(issueFamily->estimatedComplexity());
+	if(originatingIssue->closedDate().isValid() && (date >= originatingIssue->closedDate()) && (issueFamily->actualComplexity() != AMGitHubIssue::InvalidComplexity) ){
+		if(issueFamily->normalizedTimeEstiamte() < 0)
+			return 0;
+		return issueFamily->normalizedTimeEstiamte();
+	}
 
 	return 0;
 }

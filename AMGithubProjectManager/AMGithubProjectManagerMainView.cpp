@@ -109,11 +109,11 @@ void AMGithubProjectManagerMainView::onGetAllClosedActionsFullResponseReady(QVar
 
 	if(!lastPage_){
 		currentClosedIssuesPage_ = nextPageNumber;
-//		if(nextPageNumber == lastPageNumber)
-//			lastPage_ = true;
-
-		if(nextPageNumber == 20)
+		if(nextPageNumber == lastPageNumber)
 			lastPage_ = true;
+
+//		if(nextPageNumber == 20)
+//			lastPage_ = true;
 
 		qDebug() << "More more issues to fetch, going to page " << currentClosedIssuesPage_;
 
@@ -413,6 +413,8 @@ void AMGithubProjectManagerMainView::onGetOneIssueCommentsReturned(QVariant full
 		QWidget *bioXASSideWidget = new QWidget();
 		QVBoxLayout *bioXASSideVL = new QVBoxLayout();
 
+		QList<AMGitHubIssueFamily*> workingIssueFamilies = bioxasSideMilestone->associatedFamilies();
+
 //		qDebug() << "This milestone has " << bioxasSideMilestone->associatedFamilies().count() << " associated issue families";
 		for(int x = 0, size = bioxasSideMilestone->associatedFamilies().count(); x < size; x++){
 			AMGitHubIssueFamilyView *oneFamilyView = new AMGitHubIssueFamilyView(bioxasSideMilestone->associatedFamilies().at(x));
@@ -481,63 +483,130 @@ void AMGithubProjectManagerMainView::onGetOneIssueCommentsReturned(QVariant full
 		qDebug() << "Normalized Closed Total: " << normalizedClosed;
 
 
-		QList<QList<double> > allOutstandingWorkLists;
-		QList<double> allOutstandingWorkTotals;
-		QList<QList<double> > allCompletedWorkLists;
-		QList<double> allCompletedWorkTotals;
-		QList<QList<double> > allWithdrawnWorkLists;
-		QList<double> allWithdrawnWorkTotals;
+		QList<QList<double> > allOutstandingEstimatesLists;
+		QList<double> allOutstandingEstimatesTotals;
+		QList<QList<double> > allCompletedEstimatesLists;
+		QList<double> allCompletedEstimatesTotals;
+		QList<QList<double> > allWithdrawnEstimatesLists;
+		QList<double> allWithdrawnEstimatesTotals;
+
+		QList<QList<double> > allComplexityMappedCompetedWorkLists;
+		QList<double> allComplexityMappedCompetedWorkTotals;
+		QList<QList<double> > allReportedCompetedWorkLists;
+		QList<double> allReportedCompetedWorkTotals;
 
 		QList<QDateTime> dateList;
 		QDateTime oneDateTime = QDateTime::currentDateTime();
 		dateList.append(oneDateTime);
-		allOutstandingWorkLists.append(QList<double>());
-		allCompletedWorkLists.append(QList<double>());
-		allWithdrawnWorkLists.append(QList<double>());
-		allOutstandingWorkTotals.append(0);
-		allCompletedWorkTotals.append(0);
-		allWithdrawnWorkTotals.append(0);
+		allOutstandingEstimatesLists.append(QList<double>());
+		allCompletedEstimatesLists.append(QList<double>());
+		allWithdrawnEstimatesLists.append(QList<double>());
+		allOutstandingEstimatesTotals.append(0);
+		allCompletedEstimatesTotals.append(0);
+		allWithdrawnEstimatesTotals.append(0);
+
+		allComplexityMappedCompetedWorkLists.append(QList<double>());
+		allReportedCompetedWorkLists.append(QList<double>());
+		allComplexityMappedCompetedWorkTotals.append(0);
+		allReportedCompetedWorkTotals.append(0);
+
 		for(int x = 0, size = 10; x < size; x++){
 			oneDateTime = oneDateTime.addDays(-7);
 			dateList.append(oneDateTime);
-			allOutstandingWorkLists.append(QList<double>());
-			allCompletedWorkLists.append(QList<double>());
-			allWithdrawnWorkLists.append(QList<double>());
-			allOutstandingWorkTotals.append(0);
-			allCompletedWorkTotals.append(0);
-			allWithdrawnWorkTotals.append(0);
+			allOutstandingEstimatesLists.append(QList<double>());
+			allCompletedEstimatesLists.append(QList<double>());
+			allWithdrawnEstimatesLists.append(QList<double>());
+			allOutstandingEstimatesTotals.append(0);
+			allCompletedEstimatesTotals.append(0);
+			allWithdrawnEstimatesTotals.append(0);
+
+			allComplexityMappedCompetedWorkLists.append(QList<double>());
+			allReportedCompetedWorkLists.append(QList<double>());
+			allComplexityMappedCompetedWorkTotals.append(0);
+			allReportedCompetedWorkTotals.append(0);
 		}
 
 
 		for(int x = 0, xSize = bioxasSideMilestone->associatedFamilies().count(); x < xSize; x++){
 			for(int y = 0, ySize = dateList.count(); y < ySize; y++){
-				allOutstandingWorkLists[y].append(complexityManager->outstandingWorkAtDate(bioxasSideMilestone->associatedFamilies().at(x), dateList.at(y)));
-				allCompletedWorkLists[y].append(complexityManager->completedWorkAtDate(bioxasSideMilestone->associatedFamilies().at(x), dateList.at(y)));
-				allWithdrawnWorkLists[y].append(complexityManager->withdrawnWorkAtDate(bioxasSideMilestone->associatedFamilies().at(x), dateList.at(y)));
+				allOutstandingEstimatesLists[y].append(complexityManager->outstandingEstimateAtDate(bioxasSideMilestone->associatedFamilies().at(x), dateList.at(y)));
+				allCompletedEstimatesLists[y].append(complexityManager->completedEstimateAtDate(bioxasSideMilestone->associatedFamilies().at(x), dateList.at(y)));
+				allWithdrawnEstimatesLists[y].append(complexityManager->withdrawnEstimateAtDate(bioxasSideMilestone->associatedFamilies().at(x), dateList.at(y)));
+
+				allComplexityMappedCompetedWorkLists[y].append(complexityManager->complexityMappedCompletedWorkAtDate(bioxasSideMilestone->associatedFamilies().at(x), dateList.at(y)));
+				allReportedCompetedWorkLists[y].append(complexityManager->reportedCompletedWorkAtDate(bioxasSideMilestone->associatedFamilies().at(x), dateList.at(y)));
 			}
 		}
 
 		for(int x = 0, xSize = dateList.count(); x < xSize; x++){
-			for(int y = 0, ySize = allOutstandingWorkLists.at(x).count(); y < ySize; y++)
-				allOutstandingWorkTotals[x] = allOutstandingWorkTotals.at(x)+allOutstandingWorkLists.at(x).at(y);
-			for(int y = 0, ySize = allCompletedWorkLists.at(x).count(); y < ySize; y++)
-				allCompletedWorkTotals[x] = allCompletedWorkTotals.at(x)+allCompletedWorkLists.at(x).at(y);
-			for(int y = 0, ySize = allWithdrawnWorkLists.at(x).count(); y < ySize; y++)
-				allWithdrawnWorkTotals[x] = allWithdrawnWorkTotals.at(x)+allWithdrawnWorkLists.at(x).at(y);
+			for(int y = 0, ySize = allOutstandingEstimatesLists.at(x).count(); y < ySize; y++)
+				allOutstandingEstimatesTotals[x] = allOutstandingEstimatesTotals.at(x)+allOutstandingEstimatesLists.at(x).at(y);
+			for(int y = 0, ySize = allCompletedEstimatesLists.at(x).count(); y < ySize; y++)
+				allCompletedEstimatesTotals[x] = allCompletedEstimatesTotals.at(x)+allCompletedEstimatesLists.at(x).at(y);
+			for(int y = 0, ySize = allWithdrawnEstimatesLists.at(x).count(); y < ySize; y++)
+				allWithdrawnEstimatesTotals[x] = allWithdrawnEstimatesTotals.at(x)+allWithdrawnEstimatesLists.at(x).at(y);
+
+			for(int y = 0, ySize = allComplexityMappedCompetedWorkLists.at(x).count(); y < ySize; y++)
+				allComplexityMappedCompetedWorkTotals[x] = allComplexityMappedCompetedWorkTotals.at(x)+allComplexityMappedCompetedWorkLists.at(x).at(y);
+			for(int y = 0, ySize = allReportedCompetedWorkLists.at(x).count(); y < ySize; y++)
+				allReportedCompetedWorkTotals[x] = allReportedCompetedWorkTotals.at(x)+allReportedCompetedWorkLists.at(x).at(y);
 		}
+
+		QList<double> weeklyEstimatedVelocity;
+		QList<double> weeklyComplexityMappedVelocity;
+		QList<double> weeklyReportedVelocity;
+
+		weeklyEstimatedVelocity.append(0);
+		weeklyComplexityMappedVelocity.append(0);
+		weeklyReportedVelocity.append(0);
+		for(int x = 1, size = dateList.count(); x < size; x++){
+			weeklyEstimatedVelocity.append(allCompletedEstimatesTotals.at(x-1)-allCompletedEstimatesTotals.at(x));
+			weeklyComplexityMappedVelocity.append(allComplexityMappedCompetedWorkTotals.at(x-1)-allComplexityMappedCompetedWorkTotals.at(x));
+			weeklyReportedVelocity.append(allReportedCompetedWorkTotals.at(x-1)-allReportedCompetedWorkTotals.at(x));
+		}
+
+		double averageEstimatedVelocityTotal = 0;
+		double averageComplexityMappedVelocityTotal = 0;
+		double averageReportedVelocityTotal = 0;
+
+		for(int x = 0, size = dateList.count(); x < size; x++){
+			averageEstimatedVelocityTotal += weeklyEstimatedVelocity.at(x);
+			averageComplexityMappedVelocityTotal += weeklyComplexityMappedVelocity.at(x);
+			averageReportedVelocityTotal += weeklyReportedVelocity.at(x);
+		}
+
+		double averageCalendarEstimatedVelocity  = averageEstimatedVelocityTotal/(dateList.count()-1);
+		double averageCalendarComplexityMappedVelocity = averageComplexityMappedVelocityTotal/(dateList.count()-1);
+		double averageCalendarReportedVelocity = averageReportedVelocityTotal/(dateList.count()-1);
+		double availablePersonWeeks = 16;
+		double averageAvailabilityEstimatedVelocity = averageEstimatedVelocityTotal/availablePersonWeeks;
+		double averageAvailabilityComplexityMappedVelocity = averageComplexityMappedVelocityTotal/availablePersonWeeks;
+		double averageAvailabilityReportedVelocity = averageReportedVelocityTotal/availablePersonWeeks;
 
 		for(int x = 0, xSize = dateList.count(); x < xSize; x++){
 			qDebug() << "At date: " << dateList.at(x);
-			qDebug() << "Outstanding List: " << allOutstandingWorkLists.at(x);
-			qDebug() << "Completed List: " << allCompletedWorkLists.at(x);
-			qDebug() << "Withdrawn List: " << allWithdrawnWorkLists.at(x);
-			qDebug() << "Outstanding Total: " << allOutstandingWorkTotals.at(x);
-			qDebug() << "Completed Total: " << allCompletedWorkTotals.at(x);
-			qDebug() << "Withdrawn Total: " << allWithdrawnWorkTotals.at(x);
+			qDebug() << "Outstanding Estimate List: " << allOutstandingEstimatesLists.at(x);
+			qDebug() << "Completed Estimate List: " << allCompletedEstimatesLists.at(x);
+			qDebug() << "Withdrawn Estimate List: " << allWithdrawnEstimatesLists.at(x);
+			qDebug() << "Outstanding Estimate Total: " << allOutstandingEstimatesTotals.at(x);
+			qDebug() << "Completed Estimate Total: " << allCompletedEstimatesTotals.at(x);
+			qDebug() << "Withdrawn Estimate Total: " << allWithdrawnEstimatesTotals.at(x);
+
+			qDebug() << "Complexity Mapped Completed Work List: " << allComplexityMappedCompetedWorkLists.at(x);
+			qDebug() << "Reported Completed Work List: " << allReportedCompetedWorkLists.at(x);
+			qDebug() << "Complexity Mapped Completed Work Total: " << allComplexityMappedCompetedWorkTotals.at(x);
+			qDebug() << "Reported Completed Work Total: " << allReportedCompetedWorkTotals.at(x);
 
 			qDebug() << "\n\n";
 		}
 
+		qDebug() << "Weekly Estimated Velocities: " << weeklyEstimatedVelocity;
+		qDebug() << "Weekly Complexity Mapped Velocities: " << weeklyComplexityMappedVelocity;
+		qDebug() << "Weekly Reported Velocities: " << weeklyReportedVelocity;
+
+		qDebug() << "Average Estimated Velocity: " << averageCalendarEstimatedVelocity << "or" << averageAvailabilityEstimatedVelocity;
+		qDebug() << "Average Complexity Mapped Velocity: " << averageCalendarComplexityMappedVelocity << "or" << averageAvailabilityComplexityMappedVelocity;
+		qDebug() << "Average Reported Velocity: " << averageCalendarReportedVelocity << "or" << averageAvailabilityReportedVelocity;
 
 
 		// Create the plot window.
@@ -579,19 +648,40 @@ void AMGithubProjectManagerMainView::onGetOneIssueCommentsReturned(QVariant full
 		// Set the autoscale constraints.
 		plot->axisScaleLeft()->setDataRangeConstraint(MPlotAxisRange(MPLOT_NEG_INFINITY, MPLOT_POS_INFINITY));
 
-		MPlotRectangle *oneOutstandingRectangle;
-		MPlotRectangle *oneCompletedRectangle;
-		MPlotRectangle *oneWithdrawnRectangle;
-		for(int x = 0, size = dateList.count(); x < size; x++){
-			qreal xpos = (dateList.count()-x)*2;
-			qDebug() << "Place index " << x << "at" << xpos << "with outstanding" << allOutstandingWorkTotals.at(x) << "and completed" << allCompletedWorkTotals.at(x) << "and withdrawn" << allWithdrawnWorkTotals.at(x);
-			oneOutstandingRectangle = new MPlotRectangle(QRectF(xpos, 0, 1, allOutstandingWorkTotals.at(x)), Qt::NoPen, QBrush(Qt::red));
-			oneCompletedRectangle = new MPlotRectangle(QRectF(xpos, allOutstandingWorkTotals.at(x), 1, allCompletedWorkTotals.at(x)), Qt::NoPen, QBrush(Qt::blue));
-			oneWithdrawnRectangle = new MPlotRectangle(QRectF(xpos, -allWithdrawnWorkTotals.at(x), 1, allWithdrawnWorkTotals.at(x)), Qt::NoPen, QBrush(Qt::black));
+		MPlotRectangle *oneOutstandingEstimateRectangle;
+		MPlotRectangle *oneCompletedEstimateRectangle;
+		MPlotRectangle *oneWithdrawnEstimateRectangle;
 
-			plot->addItem(oneOutstandingRectangle);
-			plot->addItem(oneCompletedRectangle);
-			plot->addItem(oneWithdrawnRectangle);
+		MPlotRectangle *oneEstimatedCompletedWorkRectangle;
+		MPlotRectangle *oneComplexityMappedCompletedWorkRectangle;
+		MPlotRectangle *oneReportedCompletedWorkRectangle;
+
+		for(int x = 0, size = dateList.count(); x < size; x++){
+			qreal xpos = (dateList.count()-x)*4;
+			qDebug() << "Place index " << x << "at" << xpos << "with outstanding" << allOutstandingEstimatesTotals.at(x) << "and completed" << allCompletedEstimatesTotals.at(x) << "and withdrawn" << allWithdrawnEstimatesTotals.at(x)
+				 << "and complexity mapped completed" << allComplexityMappedCompetedWorkTotals.at(x) << "and reported completed" << allReportedCompetedWorkTotals.at(x);
+
+			oneOutstandingEstimateRectangle = new MPlotRectangle(QRectF(xpos, 0, 1, allOutstandingEstimatesTotals.at(x)), Qt::NoPen, QBrush(Qt::red));
+			oneOutstandingEstimateRectangle->setLegendVisibility(false);
+			oneCompletedEstimateRectangle = new MPlotRectangle(QRectF(xpos, allOutstandingEstimatesTotals.at(x), 1, allCompletedEstimatesTotals.at(x)), Qt::NoPen, QBrush(Qt::blue));
+			oneCompletedEstimateRectangle->setLegendVisibility(false);
+			oneWithdrawnEstimateRectangle = new MPlotRectangle(QRectF(xpos, -allWithdrawnEstimatesTotals.at(x), 1, allWithdrawnEstimatesTotals.at(x)), Qt::NoPen, QBrush(Qt::black));
+			oneWithdrawnEstimateRectangle->setLegendVisibility(false);
+
+			plot->addItem(oneOutstandingEstimateRectangle);
+			plot->addItem(oneCompletedEstimateRectangle);
+			plot->addItem(oneWithdrawnEstimateRectangle);
+
+			oneEstimatedCompletedWorkRectangle = new MPlotRectangle(QRectF(xpos+1.33, 0, 0.33, allCompletedEstimatesTotals.at(x)), Qt::NoPen, QBrush(Qt::blue));
+			oneEstimatedCompletedWorkRectangle->setLegendVisibility(false);
+			oneComplexityMappedCompletedWorkRectangle = new MPlotRectangle(QRectF(xpos+1.66, 0, 0.33, allComplexityMappedCompetedWorkTotals.at(x)), Qt::NoPen, QBrush(Qt::green));
+			oneComplexityMappedCompletedWorkRectangle->setLegendVisibility(false);
+			oneReportedCompletedWorkRectangle = new MPlotRectangle(QRectF(xpos+1.99, 0, 0.33, allReportedCompetedWorkTotals.at(x)), Qt::NoPen, QBrush(Qt::darkGreen));
+			oneReportedCompletedWorkRectangle->setLegendVisibility(false);
+
+			plot->addItem(oneEstimatedCompletedWorkRectangle);
+			plot->addItem(oneComplexityMappedCompletedWorkRectangle);
+			plot->addItem(oneReportedCompletedWorkRectangle);
 		}
 
 		plotView->show();
