@@ -161,15 +161,10 @@ AMNumber AM2DNormalizationAB::value(const AMnDIndex &indexes) const
 		return AMNumber(AMNumber::OutOfBoundsError);
 #endif
 
-	// Can't divide by zero.
-	if (double(normalizer_->value(indexes)) == 0)
-		return 0;
+	if (dataUpdateRequired_)
+		computeCachedValues();
 
-	// The normalizer must be positive.
-	if (double(normalizer_->value(indexes)) < 0)
-		return -1;
-
-	return double(data_->value(indexes))/double(normalizer_->value(indexes));
+	return cachedOutput_.at(indexes.i()+size(0)*indexes.j());
 }
 #include <QDebug>
 bool AM2DNormalizationAB::values(const AMnDIndex &indexStart, const AMnDIndex &indexEnd, double *outputValues) const
