@@ -269,6 +269,7 @@ void BioXASSideXASScanActionController::buildScanControllerImplementation()
 		i0CorrectedDetectorSource->setDescription(QString("%1 Dark Current Corrected").arg(i0DetectorSource->name()));
 		i0CorrectedDetectorSource->setDataName(i0DetectorSource->name());
 		i0CorrectedDetectorSource->setDwellTimeName(dwellTimeSource->name());
+		i0CorrectedDetectorSource->setDarkCurrent(BioXASSideBeamline::bioXAS()->exposedDetectorByName(i0DetectorSource->name())->darkCurrentValue());
 		i0CorrectedDetectorSource->setInputDataSources(QList<AMDataSource*>() << i0DetectorSource << dwellTimeSource);
 		i0CorrectedDetectorSource->setTimeUnitMultiplier(0.001);
 
@@ -282,6 +283,7 @@ void BioXASSideXASScanActionController::buildScanControllerImplementation()
 		i1CorrectedDetectorSource->setDescription(QString("%1 Dark Current Corrected").arg(i1DetectorSource->name()));
 		i1CorrectedDetectorSource->setDataName(i1DetectorSource->name());
 		i1CorrectedDetectorSource->setDwellTimeName(dwellTimeSource->name());
+		i1CorrectedDetectorSource->setDarkCurrent(BioXASSideBeamline::bioXAS()->exposedDetectorByName(i1DetectorSource->name())->darkCurrentValue());
 		i1CorrectedDetectorSource->setInputDataSources(QList<AMDataSource*>() << i1DetectorSource << dwellTimeSource);
 		i1CorrectedDetectorSource->setTimeUnitMultiplier(0.001);
 
@@ -295,6 +297,7 @@ void BioXASSideXASScanActionController::buildScanControllerImplementation()
 		i2CorrectedDetectorSource->setDescription(QString("%1 Dark Current Corrected").arg(i2DetectorSource->name()));
 		i2CorrectedDetectorSource->setDataName(i2DetectorSource->name());
 		i2CorrectedDetectorSource->setDwellTimeName(dwellTimeSource->name());
+		i2CorrectedDetectorSource->setDarkCurrent(BioXASSideBeamline::bioXAS()->exposedDetectorByName(i2DetectorSource->name())->darkCurrentValue());
 		i2CorrectedDetectorSource->setInputDataSources(QList<AMDataSource*>() << i2DetectorSource << dwellTimeSource);
 		i2CorrectedDetectorSource->setTimeUnitMultiplier(0.001);
 
