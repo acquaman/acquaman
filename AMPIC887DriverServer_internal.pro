@@ -17,16 +17,16 @@ SOURCES *= \
 	source/application/AMPIC887DriverServer/AMAbstractConsoleCommandParser.cpp \
     source/application/AMPIC887DriverServer/AMGCS2StopCommand.cpp \
     source/application/AMPIC887DriverServer/AMGCS2HaltSmoothlyCommand.cpp \
-    source/application/AMPIC887DriverServer/AMGCS2MovingStatusCommand.cpp \
     source/application/AMPIC887DriverServer/AMGCS2CompositeCommand.cpp \
     source/application/AMPIC887DriverServer/AMGCS2ControllerReadyStatusCommand.cpp \
     source/application/AMPIC887DriverServer/AMGCS2DeviceIdentificationCommand.cpp \
-    source/application/AMPIC887DriverServer/AMGCS2CommandLevelQueryCommand.cpp \
     source/application/AMPIC887DriverServer/AMGCS2SetCommandLevelCommand.cpp \
     source/application/AMPIC887DriverServer/AMGCS2SetSyntaxVersionCommand.cpp \
     source/application/AMPIC887DriverServer/AMPIC887DataRecorderConfiguration.cpp \
     source/application/AMPIC887DriverServer/AMGCS2DataRecorderConfigurationQueryCommand.cpp \
-    source/application/AMPIC887DriverServer/AMGCS2SetDataRecorderConfigurationCommand.cpp
+    source/application/AMPIC887DriverServer/AMGCS2SetDataRecorderConfigurationCommand.cpp \
+    source/application/AMPIC887DriverServer/AMGCS2GetCommandLevelCommand.cpp \
+    source/application/AMPIC887DriverServer/AMGCS2GetMovingStatusCommand.cpp
 
 HEADERS *= \
 	source/application/AMPIC887DriverServer/AMPIC887ControllerCollection.h \	
@@ -44,16 +44,16 @@ HEADERS *= \
 	source/util/AMCArrayHandler.h \
     source/application/AMPIC887DriverServer/AMGCS2StopCommand.h \
     source/application/AMPIC887DriverServer/AMGCS2HaltSmoothlyCommand.h \
-    source/application/AMPIC887DriverServer/AMGCS2MovingStatusCommand.h \
     source/application/AMPIC887DriverServer/AMGCS2CompositeCommand.h \
     source/application/AMPIC887DriverServer/AMGCS2ControllerReadyStatusCommand.h \
     source/application/AMPIC887DriverServer/AMGCS2DeviceIdentificationCommand.h \
-    source/application/AMPIC887DriverServer/AMGCS2CommandLevelQueryCommand.h \
     source/application/AMPIC887DriverServer/AMGCS2SetCommandLevelCommand.h \
     source/application/AMPIC887DriverServer/AMGCS2SetSyntaxVersionCommand.h \
     source/application/AMPIC887DriverServer/AMPIC887DataRecorderConfiguration.h \
     source/application/AMPIC887DriverServer/AMGCS2DataRecorderConfigurationQueryCommand.h \
-    source/application/AMPIC887DriverServer/AMGCS2SetDataRecorderConfigurationCommand.h
+    source/application/AMPIC887DriverServer/AMGCS2SetDataRecorderConfigurationCommand.h \
+    source/application/AMPIC887DriverServer/AMGCS2GetCommandLevelCommand.h \
+    source/application/AMPIC887DriverServer/AMGCS2GetMovingStatusCommand.h
 
 # PI Controller Driver Dependencies
 
@@ -66,6 +66,14 @@ INCLUDEPATH *= $$PIC887_INCLUDE_DIR
 LIBS *= $$PIC887_LIB
 
 CONFIG -= mobility
+
+
+
+
+
+
+
+
 
 
 

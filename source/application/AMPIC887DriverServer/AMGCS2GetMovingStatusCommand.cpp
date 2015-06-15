@@ -1,18 +1,18 @@
-#include "AMGCS2MovingStatusCommand.h"
+#include "AMGCS2GetMovingStatusCommand.h"
 #include "util/AMCArrayHandler.h"
 #include "AMGCS2Support.h"
 #include "PI_GCS2_DLL.h"
-AMGCS2MovingStatusCommand::AMGCS2MovingStatusCommand()
+AMGCS2GetMovingStatusCommand::AMGCS2GetMovingStatusCommand()
 {
 	movementStatuses_ =QFlags<AMGCS2::AxisMovementStatus>(AMGCS2::UnknownAxisMovementStatus);
 }
 
-QFlags<AMGCS2::AxisMovementStatus> AMGCS2MovingStatusCommand::movementStatuses()
+QFlags<AMGCS2::AxisMovementStatus> AMGCS2GetMovingStatusCommand::movementStatuses()
 {
 	return movementStatuses_;
 }
 
-bool AMGCS2MovingStatusCommand::runImplementation()
+bool AMGCS2GetMovingStatusCommand::runImplementation()
 {
 	movementStatuses_ = QFlags<AMGCS2::AxisMovementStatus>();
 
@@ -72,7 +72,7 @@ bool AMGCS2MovingStatusCommand::runImplementation()
 	return success;
 }
 
-QString AMGCS2MovingStatusCommand::outputString() const
+QString AMGCS2GetMovingStatusCommand::outputString() const
 {
 	if(movementStatuses_.testFlag(AMGCS2::UnknownAxisMovementStatus)) {
 		return "Axis movement status not known.";

@@ -1,5 +1,5 @@
-#ifndef AMGCS2MOVINGSTATUSCOMMAND_H
-#define AMGCS2MOVINGSTATUSCOMMAND_H
+#ifndef AMGCS2GETMOVINGSTATUSCOMMAND_H
+#define AMGCS2GETMOVINGSTATUSCOMMAND_H
 
 #include <QList>
 #include <QFlags>
@@ -10,19 +10,19 @@
   * A command which represents a query to a PI C887.11 controller about the movement
   * statuses of its axes.
   */
-class AMGCS2MovingStatusCommand : public AMGCS2Command
+class AMGCS2GetMovingStatusCommand : public AMGCS2Command
 {
 public:
 	/*!
 	  * Creates an instance of a moving status command to query the status of the
 	  * controller axes.
 	  */
-	AMGCS2MovingStatusCommand();
+	AMGCS2GetMovingStatusCommand();
 
 	/*!
 	  *  Virtual moving status command destructor.
 	  */
-	virtual ~AMGCS2MovingStatusCommand() {}
+	virtual ~AMGCS2GetMovingStatusCommand() {}
 
 	/*!
 	  * A set of flags which describe the movement statuses of the axes of the
@@ -47,4 +47,4 @@ protected:
 	QFlags<AMGCS2::AxisMovementStatus> movementStatuses_;
 };
 
-#endif // AMGCS2MOVINGSTATUSCOMMAND_H
+#endif // AMGCS2GETMOVINGSTATUSCOMMAND_H

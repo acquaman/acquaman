@@ -1,23 +1,23 @@
-#ifndef AMGCS2COMMANDLEVELQUERYCOMMAND_H
-#define AMGCS2COMMANDLEVELQUERYCOMMAND_H
+#ifndef AMGCS2GETCOMMANDLEVELCOMMAND_H
+#define AMGCS2GETCOMMANDLEVELCOMMAND_H
 #include "AMGCS2Command.h"
 #include "AMGCS2.h"
 /*
   * A command representing a query to a controller for its current command level.
   */
-class AMGCS2CommandLevelQueryCommand : public AMGCS2Command
+class AMGCS2GetCommandLevelCommand : public AMGCS2Command
 {
 public:
 	/*!
 	  * Creates an instance of a command level query command, ready to be run on
 	  * a controller.
 	  */
-    AMGCS2CommandLevelQueryCommand();
+	AMGCS2GetCommandLevelCommand();
 
 	/*!
 	  * Virtual destructor for a command level query command
 	  */
-	virtual ~AMGCS2CommandLevelQueryCommand() {}
+	virtual ~AMGCS2GetCommandLevelCommand() {}
 
 	/*!
 	  * A stringified form of the controller's command level, if this command was
@@ -41,4 +41,4 @@ protected:
 	AMGCS2::ControllerCommandLevel commandLevel_;
 };
 
-#endif // AMGCS2COMMANDLEVELQUERYCOMMAND_H
+#endif // AMGCS2GETCOMMANDLEVELCOMMAND_H

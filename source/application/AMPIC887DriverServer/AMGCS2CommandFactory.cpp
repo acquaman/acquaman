@@ -8,11 +8,11 @@
 #include "AMGCS2CurrentPositionCommand.h"
 #include "AMGCS2StopCommand.h"
 #include "AMGCS2HaltSmoothlyCommand.h"
-#include "AMGCS2MovingStatusCommand.h"
+#include "AMGCS2GetMovingStatusCommand.h"
 #include "AMGCS2CompositeCommand.h"
 #include "AMGCS2ControllerReadyStatusCommand.h"
 #include "AMGCS2DeviceIdentificationCommand.h"
-#include "AMGCS2CommandLevelQueryCommand.h"
+#include "AMGCS2GetCommandLevelCommand.h"
 #include "AMGCS2SetCommandLevelCommand.h"
 #include "AMGCS2SetSyntaxVersionCommand.h"
 #include "AMGCS2DataRecorderConfigurationQueryCommand.h"
@@ -24,7 +24,7 @@ AMGCS2Command * AMGCS2CommandFactory::buildCommand(const QString &commandString)
 	if(commandString.startsWith("POS?")) {
 		return buildCurrentPositionCommand(commandArguments(commandString));
 	} else if(commandString.startsWith("MST?")) {
-		return new AMGCS2MovingStatusCommand();
+		return new AMGCS2GetMovingStatusCommand();
 	} else if (commandString.startsWith("STP")){
 		return new AMGCS2StopCommand();
 	} else if (commandString.startsWith("HLT")) {
@@ -36,7 +36,7 @@ AMGCS2Command * AMGCS2CommandFactory::buildCommand(const QString &commandString)
 	} else if(commandString.startsWith("IDN?")) {
 		return new AMGCS2DeviceIdentificationCommand();
 	} else if(commandString.startsWith("CCL?")) {
-		return new AMGCS2CommandLevelQueryCommand();
+		return new AMGCS2GetCommandLevelCommand();
 	} else if(commandString.startsWith("CCL")) {
 		return buildSetCommandLevelCommand(commandArguments(commandString));
 	} else if (commandString.startsWith("CSV")) {
