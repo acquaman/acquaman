@@ -5,7 +5,6 @@
 #include "AMConsoleInputHandler.h"
 #include "AMPIC887ConsoleCommandParser.h"
 #include "AMGCS2Support.h"
-#include "AMGCS2CurrentPositionCommand.h"
 
 AMPIC887ConsoleApplication::AMPIC887ConsoleApplication(int argc, char *argv[]) :
 	QCoreApplication(argc, argv)

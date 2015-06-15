@@ -20,6 +20,8 @@
 #include "AMGCS2SetDataRecorderConfigurationCommand.h"
 #include "AMGCS2GetNumberOfRecordedPointsCommand.h"
 #include "AMGCS2GetRecordedDataValuesCommand.h"
+#include "AMGCS2SetDataRecorderConfigurationCommand.h"
+#include "AMGCS2SetRecordTriggerSourceCommand.h"
 
 AMGCS2Command * AMGCS2CommandFactory::buildCommand(const QString &commandString)
 {
@@ -67,34 +69,28 @@ AMGCS2Command * AMGCS2CommandFactory::buildMoveCommand(const QStringList &argume
 {
 	QHash<AMGCS2::Axis, double> axisPositions;
 
-	// Axis positions are provided in arguments in pairs of Axis double. As such
-	// we interate through the arguments two at a time, which is why this looks odd.
-	for(int iAxisPositionPair = 0, argumentCount = argumentList.count();
-		iAxisPositionPair < argumentCount;) {
+	// Axis positions are provided in paris, and are not valid unless both are
+	// there. As such we iterate through two at a time.
+	for(int iAxis = 0, iPosition = 1, argumentCount = argumentList.count();
+		iAxis < argumentCount && iPosition < argumentCount;
+		iAxis += 2, iPosition += 2) {
 
-		QString axisString = argumentList.at(iAxisPositionPair);
+		QString axisString = argumentList.at(iAxis);
+		QString positionString = argumentList.at(iPosition);
 
-		++iAxisPositionPair;
-
-		if(iAxisPositionPair >= argumentCount) {
-			// We must have an axis that doesn't have a position, this is an error.
+		if(axisString.length() != 1) {
 			return 0;
 		}
 
-		QString positionString = argumentList.at(iAxisPositionPair);
-
 		AMGCS2::Axis axis = AMGCS2Support::characterToAxis(axisString.at(0));
+		bool parseSuccess = false;
+		double position = positionString.toDouble(&parseSuccess);
 
-		bool canParse = false;
-		double position = positionString.toDouble(&canParse);
-
-		if(!canParse || axis == AMGCS2::UnknownAxis) {
+		if(!parseSuccess) {
 			return 0;
 		}
 
 		axisPositions.insert(axis, position);
-
-		++iAxisPositionPair;
 	}
 
 	return new AMGCS2MoveCommand(axisPositions);
@@ -186,42 +182,28 @@ AMGCS2Command * AMGCS2CommandFactory::buildSetDataRecorderConfigurationCommand(c
 	/*
 	  The arguments to set data recorder configuration come in sets of 3, so we
 	  iterate through the collection three at a time.
-	  */
-	for (int iConfigurationSet = 0, argCount = argumentList.count();
-		 iConfigurationSet < argCount;
-		 ) {
+	  */	
+	for(int iTableId = 0, iSource = 1, iOption = 2, argCount = argumentList.count();
+		iTableId < argCount && iSource < argCount && iOption < argCount;
+		iTableId += 3, iSource += 3, iOption += 3) {
 
-		// Arg1: Record Table Id
 		bool parseSuccess = false;
 		int recordTableId = -1;
 
-		recordTableId = argumentList.at(iConfigurationSet).toInt(&parseSuccess);
+		recordTableId = argumentList.at(iTableId).toInt(&parseSuccess);
 		if(!parseSuccess) {
 			return 0;
 		}
 
-		++iConfigurationSet;
-		// Arg2: RecordSource
-
-		if(iConfigurationSet >= argCount) {
-			return 0;
-		}
-
-		QString sourceString = argumentList.at(iConfigurationSet);
+		QString sourceString = argumentList.at(iSource);
 		if(sourceString.length() != 1) {
 			return 0;
 		}
+
 		AMGCS2::DataRecordSource recordSource =
 				AMGCS2Support::charCodeToDataRecordSource(sourceString.at(0));
 
-		++iConfigurationSet;
-		// Arg3: Record Option
-
-		if(iConfigurationSet >= argCount) {
-			return 0;
-		}
-
-		int recordOptionCode = argumentList.at(iConfigurationSet).toInt(&parseSuccess);
+		int recordOptionCode = argumentList.at(iOption).toInt(&parseSuccess);
 		if(!parseSuccess) {
 			return 0;
 		}
@@ -229,14 +211,11 @@ AMGCS2Command * AMGCS2CommandFactory::buildSetDataRecorderConfigurationCommand(c
 		AMGCS2::DataRecordOption recordOption =
 				AMGCS2Support::intCodeToDataRecordOption(recordOptionCode);
 
-		// Add the produced record config to the list.
 		recordConfigurationList.append(
 					new AMPIC887DataRecorderConfiguration(
 						recordTableId,
 						recordSource,
 						recordOption));
-
-		++iConfigurationSet;
 	}
 
 	return new AMGCS2SetDataRecorderConfigurationCommand(recordConfigurationList);
@@ -290,6 +269,40 @@ AMGCS2Command * AMGCS2CommandFactory::buildGetRecordedDataValuesCommand(const QS
 	}
 
 	return new AMGCS2GetRecordedDataValuesCommand(recordTableId, numberOfPoints, offsetPoint);
+}
+
+AMGCS2Command * AMGCS2CommandFactory::buildSetDataRecordTriggerSourceCommand(const QStringList &argumentList)
+{
+	if(argumentList.isEmpty()) {
+		return 0;
+	}
+
+	QHash<int, AMGCS2::DataRecordTrigger> tableTriggerMap;
+
+	for(int iTableId = 0, iTrigger = 1, argCount = argumentList.count();
+		iTableId < argCount && iTrigger < argCount;
+		iTableId += 2, iTrigger += 2) {
+
+		bool parseSuccess = false;
+		int recordTableId = argumentList.at(iTableId).toInt(&parseSuccess);
+
+		if(!parseSuccess) {
+			return 0;
+		}
+
+		int triggerCode = argumentList.at(iTrigger).toInt(&parseSuccess);
+
+		if(!parseSuccess) {
+			return 0;
+		}
+
+		AMGCS2::DataRecordTrigger triggerValue =
+				AMGCS2Support::intCodeTodataRecordTrigger(triggerCode);
+
+		tableTriggerMap.insert(recordTableId, triggerValue);
+	}
+
+	return new AMGCS2SetRecordTriggerSourceCommand(tableTriggerMap);
 }
 
 

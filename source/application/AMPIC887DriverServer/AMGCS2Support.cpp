@@ -224,3 +224,57 @@ QChar AMGCS2Support::dataRecordSourceToCharCode(AMGCS2::DataRecordSource recordS
 		return 'E';
 	}
 }
+
+QString AMGCS2Support::dataRecordTriggerToString(AMGCS2::DataRecordTrigger recordTrigger)
+{
+	switch(recordTrigger) {
+	case AMGCS2::UnknownRecordTrigger:
+		return "Unknown record trigger";
+	case AMGCS2::NoRecordTrigger:
+		return "No record trigger";
+	case AMGCS2::OnNextPositionChange:
+		return "Next position change (permanent)";
+	case AMGCS2::OnNextCommand_OnceOnly:
+		return "On next command (once only)";
+	case AMGCS2::TriggerImmediately_OnceOnly:
+		return "Immediate (once only)";
+	case AMGCS2::OnNextPositionChange_OnceOnly:
+		return "Next position change (once only)";
+	}
+}
+
+int AMGCS2Support::dataRecordTriggerToInt(AMGCS2::DataRecordTrigger recordTrigger)
+{
+	switch(recordTrigger) {
+	case AMGCS2::UnknownRecordTrigger:
+		return -1;
+	case AMGCS2::NoRecordTrigger:
+		return 0;
+	case AMGCS2::OnNextPositionChange:
+		return 1;
+	case AMGCS2::OnNextCommand_OnceOnly:
+		return 2;
+	case AMGCS2::TriggerImmediately_OnceOnly:
+		return 4;
+	case AMGCS2::OnNextPositionChange_OnceOnly:
+		return 6;
+	}
+}
+
+AMGCS2::DataRecordTrigger AMGCS2Support::intCodeTodataRecordTrigger(int recordTriggerCode)
+{
+	switch(recordTriggerCode) {
+	case 0:
+		return AMGCS2::NoRecordTrigger;
+	case 1:
+		return AMGCS2::OnNextPositionChange;
+	case 2:
+		return AMGCS2::OnNextCommand_OnceOnly;
+	case 4:
+		return AMGCS2::TriggerImmediately_OnceOnly;
+	case 6:
+		return AMGCS2::OnNextPositionChange_OnceOnly;
+	default:
+		return AMGCS2::UnknownRecordTrigger;
+	}
+}

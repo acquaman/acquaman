@@ -81,5 +81,18 @@ namespace AMGCS2 {
 		CurrentIntegratedPositionErrorOfAxis = 76,
 		StatusRegisterOfAxis = 80
 	};
+
+	/*!
+	  * Enumerates all the different data recording triggers for a record table
+	  * on a C887.11 controller.
+	  */
+	enum DataRecordTrigger {
+		UnknownRecordTrigger = -1,
+		NoRecordTrigger = 0,
+		OnNextPositionChange = 1,
+		OnNextCommand_OnceOnly = 2,
+		TriggerImmediately_OnceOnly = 4,
+		OnNextPositionChange_OnceOnly = 6
+	};
 }
 #endif // AMGCS2_H

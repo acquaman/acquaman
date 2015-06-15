@@ -79,6 +79,27 @@ public:
 	  */
 	static QChar dataRecordSourceToCharCode(AMGCS2::DataRecordSource recordSource);
 
+	/*!
+	  * Converts from the data record trigger enumerator to a human readable string.
+	  * \param recordTrigger ~ The record trigger value to stringify.
+	  */
+	static QString dataRecordTriggerToString(AMGCS2::DataRecordTrigger recordTrigger);
+
+	/*!
+	  * Converts from the data record trigger enumerator to its GCS2 integer code
+	  * equivalent.
+	  * \param recordTrigger ~ The record trigger value whose GCS2 integer code
+	  * is to be returned.
+	  */
+	static int dataRecordTriggerToInt(AMGCS2::DataRecordTrigger recordTrigger);
+
+	/*!
+	  * Converts the provided GCS2 integer record trigger code to its enumerated
+	  * equivalent. If the provided code is not found in the GCS2 code list for
+	  * record trigger, UnknownRecordTrigger will be returned.
+	  * \param recordTriggerCode ~ The GCS2 code for the record trigger to convert.
+	  */
+	static AMGCS2::DataRecordTrigger intCodeTodataRecordTrigger(int recordTriggerCode);
 protected:
 	/*!
 	  * Static class, so we protect the constructor to prevent initialization.
