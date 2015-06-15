@@ -1,12 +1,12 @@
-#include "AMGCS2DeviceIdentificationCommand.h"
+#include "AMGCS2GetDeviceIdentificationCommand.h"
 
 #include "PI_GCS2_DLL.h"
 #include "util/AMCArrayHandler.h"
-AMGCS2DeviceIdentificationCommand::AMGCS2DeviceIdentificationCommand()
+AMGCS2GetDeviceIdentificationCommand::AMGCS2GetDeviceIdentificationCommand()
 {
 }
 
-QString AMGCS2DeviceIdentificationCommand::outputString() const
+QString AMGCS2GetDeviceIdentificationCommand::outputString() const
 {
 	if(wasSuccessful())	{
 		return deviceIdenfiticationString_;
@@ -15,8 +15,11 @@ QString AMGCS2DeviceIdentificationCommand::outputString() const
 	}
 }
 
-bool AMGCS2DeviceIdentificationCommand::runImplementation()
+bool AMGCS2GetDeviceIdentificationCommand::runImplementation()
 {
+	// Clear any previous results
+	deviceIdenfiticationString_ = "";
+
 	AMCArrayHandler<char> responseString(BUFFER_SIZE);
 
 	bool success = PI_qIDN(controllerId_, responseString.cArray(), BUFFER_SIZE);

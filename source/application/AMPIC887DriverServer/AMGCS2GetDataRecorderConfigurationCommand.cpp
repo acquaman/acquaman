@@ -1,12 +1,12 @@
-#include "AMGCS2DataRecorderConfigurationQueryCommand.h"
+#include "AMGCS2GetDataRecorderConfigurationCommand.h"
 #include "util/AMCArrayHandler.h"
 #include "PI_GCS2_DLL.h"
 #include "AMGCS2Support.h"
-AMGCS2DataRecorderConfigurationQueryCommand::AMGCS2DataRecorderConfigurationQueryCommand()
+AMGCS2GetDataRecorderConfigurationCommand::AMGCS2GetDataRecorderConfigurationCommand()
 {
 }
 
-QString AMGCS2DataRecorderConfigurationQueryCommand::outputString() const
+QString AMGCS2GetDataRecorderConfigurationCommand::outputString() const
 {
 	if(!wasSuccessful_) {
 		return QString();
@@ -23,13 +23,17 @@ QString AMGCS2DataRecorderConfigurationQueryCommand::outputString() const
 	return returnOutput.trimmed();
 }
 
-QList<AMPIC887DataRecorderConfiguration *> AMGCS2DataRecorderConfigurationQueryCommand::dataRecorderConfigurations() const
+QList<AMPIC887DataRecorderConfiguration *> AMGCS2GetDataRecorderConfigurationCommand::dataRecorderConfigurations() const
 {
 	return dataRecorderConfigurations_;
 }
 
-bool AMGCS2DataRecorderConfigurationQueryCommand::runImplementation()
+bool AMGCS2GetDataRecorderConfigurationCommand::runImplementation()
 {
+	// Clear previous results
+	dataRecorderConfigurations_.clear();
+
+
 	AMCArrayHandler<int> recordTableIds(RECORD_TABLE_COUNT);
 
 	for (int iRecordTable = 0;

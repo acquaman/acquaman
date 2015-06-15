@@ -5,19 +5,20 @@
 #include "AMGCS2.h"
 #include "AMGCS2Support.h"
 #include "AMGCS2MoveCommand.h"
-#include "AMGCS2CurrentPositionCommand.h"
+#include "AMGCS2GetCurrentPositionCommand.h"
 #include "AMGCS2StopCommand.h"
 #include "AMGCS2HaltSmoothlyCommand.h"
 #include "AMGCS2GetMovingStatusCommand.h"
 #include "AMGCS2CompositeCommand.h"
-#include "AMGCS2ControllerReadyStatusCommand.h"
-#include "AMGCS2DeviceIdentificationCommand.h"
+#include "AMGCS2GetControllerReadyStatusCommand.h"
+#include "AMGCS2GetDeviceIdentificationCommand.h"
 #include "AMGCS2GetCommandLevelCommand.h"
 #include "AMGCS2SetCommandLevelCommand.h"
 #include "AMGCS2SetSyntaxVersionCommand.h"
-#include "AMGCS2DataRecorderConfigurationQueryCommand.h"
+#include "AMGCS2GetDataRecorderConfigurationCommand.h"
 #include "AMPIC887DataRecorderConfiguration.h"
 #include "AMGCS2SetDataRecorderConfigurationCommand.h"
+#include "AMGCS2GetNumberOfRecordedPointsCommand.h"
 
 AMGCS2Command * AMGCS2CommandFactory::buildCommand(const QString &commandString)
 {
@@ -32,9 +33,9 @@ AMGCS2Command * AMGCS2CommandFactory::buildCommand(const QString &commandString)
 	} else if(commandString.startsWith("MOV")) {
 		return buildMoveCommand(commandArguments(commandString));
 	} else if(commandString.startsWith("RDY?")) {
-		return new AMGCS2ControllerReadyStatusCommand();
+		return new AMGCS2GetControllerReadyStatusCommand();
 	} else if(commandString.startsWith("IDN?")) {
-		return new AMGCS2DeviceIdentificationCommand();
+		return new AMGCS2GetDeviceIdentificationCommand();
 	} else if(commandString.startsWith("CCL?")) {
 		return new AMGCS2GetCommandLevelCommand();
 	} else if(commandString.startsWith("CCL")) {
@@ -44,7 +45,9 @@ AMGCS2Command * AMGCS2CommandFactory::buildCommand(const QString &commandString)
 	} else if(commandString.startsWith("DRC")) {
 		return buildSetDataRecorderConfigurationCommand(commandArguments(commandString));
 	} else if(commandString.startsWith("DRC?")) {
-		return new AMGCS2DataRecorderConfigurationQueryCommand();
+		return new AMGCS2GetDataRecorderConfigurationCommand();
+	} else if(commandString.startsWith("DRL?")) {
+		return buildGetNumberOfRecordedPointsCommand(commandArguments(commandString));
 	}
 
 	return 0;
@@ -98,7 +101,7 @@ AMGCS2Command * AMGCS2CommandFactory::buildMoveCommand(const QStringList &argume
 AMGCS2Command * AMGCS2CommandFactory::buildCurrentPositionCommand(const QStringList &argumentList)
 {
 	if(argumentList.isEmpty()) {
-		return new AMGCS2CurrentPositionCommand();
+		return new AMGCS2GetCurrentPositionCommand();
 	}
 
 	QList<AMGCS2::Axis> axes;
@@ -117,7 +120,7 @@ AMGCS2Command * AMGCS2CommandFactory::buildCurrentPositionCommand(const QStringL
 		axes.append(axis);
 	}
 
-	return new AMGCS2CurrentPositionCommand(axes);
+	return new AMGCS2GetCurrentPositionCommand(axes);
 }
 
 AMGCS2Command * AMGCS2CommandFactory::buildHaltSmoothlyCommand(const QStringList &argumentList)
@@ -234,6 +237,28 @@ AMGCS2Command * AMGCS2CommandFactory::buildSetDataRecorderConfigurationCommand(c
 	}
 
 	return new AMGCS2SetDataRecorderConfigurationCommand(recordConfigurationList);
+}
+
+AMGCS2Command * AMGCS2CommandFactory::buildGetNumberOfRecordedPointsCommand(const QStringList &argumentList)
+{
+	if(argumentList.isEmpty()) {
+		return 0;
+	}
+
+	QList<int> recordTableIds;
+
+	foreach(QString argument, argumentList) {
+		bool parseSuccess = false;
+		int recordTableId = argument.toInt(&parseSuccess);
+
+		if(!parseSuccess) {
+			return 0;
+		}
+
+		recordTableIds.append(recordTableId);
+	}
+
+	return new AMGCS2GetNumberOfRecordedPointsCommand(recordTableIds);
 }
 
 

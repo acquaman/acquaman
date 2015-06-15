@@ -14,6 +14,7 @@ QFlags<AMGCS2::AxisMovementStatus> AMGCS2GetMovingStatusCommand::movementStatuse
 
 bool AMGCS2GetMovingStatusCommand::runImplementation()
 {
+	// Clear any previous results.
 	movementStatuses_ = QFlags<AMGCS2::AxisMovementStatus>();
 
 	QString axesString;

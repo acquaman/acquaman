@@ -1,5 +1,5 @@
-#ifndef AMGCS2CURRENTPOSITIONCOMMAND_H
-#define AMGCS2CURRENTPOSITIONCOMMAND_H
+#ifndef AMGCS2GETCURRENTPOSITIONCOMMAND_H
+#define AMGCS2GETCURRENTPOSITIONCOMMAND_H
 
 #include "AMGCS2Command.h"
 #include <QHash>
@@ -10,7 +10,7 @@
   * A class which represents a query to a PI C887.11 controller to request the
   * current actual positions of the controlled hexapod.
   */
-class AMGCS2CurrentPositionCommand : public AMGCS2Command
+class AMGCS2GetCurrentPositionCommand : public AMGCS2Command
 {
 public:
 	/*!
@@ -18,12 +18,12 @@ public:
 	  * \param axesToQuery ~ An optional list of the axes whose positions are to
 	  * be queried. If none if provided the positions of all axes will be queried.
 	  */
-	AMGCS2CurrentPositionCommand(const QList<AMGCS2::Axis>& axesToQuery = QList<AMGCS2::Axis>());
+	AMGCS2GetCurrentPositionCommand(const QList<AMGCS2::Axis>& axesToQuery = QList<AMGCS2::Axis>());
 
 	/*!
 	  * Virtual destructor for a position query command.
 	  */
-	virtual ~AMGCS2CurrentPositionCommand() {}
+	virtual ~AMGCS2GetCurrentPositionCommand() {}
 
 	/*!
 	  * A mapping of axis to their current positions as reported by the controller
@@ -57,4 +57,4 @@ protected:
 	QList<AMGCS2::Axis> axesToQuery_;
 };
 
-#endif // AMGCS2CURRENTPOSITIONCOMMAND_H
+#endif // AMGCS2GETCURRENTPOSITIONCOMMAND_H

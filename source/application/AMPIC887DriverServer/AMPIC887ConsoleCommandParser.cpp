@@ -22,6 +22,7 @@ QString AMPIC887ConsoleCommandParser::commandList()
 	commandList.append("CSV : Sets the controller's syntax version to GCS v2.0.\n");
 	commandList.append("DRC? : Queries the controller's data record configuration.\n");
 	commandList.append("DRC <record table id1> <source1> <option1> <record table id2> <source2> <option2> ... : Sets the record configuration for the provided record table.\n");
+	commandList.append("DRL? <record table id1> <record table id2> ... : Queries the number of recorded data points acquired since the last recording was triggered for each of the provided record tables.\n");
 	commandList.append("IDN? : Queries the controller's device identification.\n");
 	commandList.append("MOV <axis1> <position1> <axis2> <position2> ... : Moves the provided axes to the provided positions. At least one axes/position combination must be provided.\n");
 	commandList.append("MST? : Queries the movement statuses of the controller axes.\n");

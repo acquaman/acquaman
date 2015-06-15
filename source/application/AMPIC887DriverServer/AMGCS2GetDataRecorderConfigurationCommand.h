@@ -1,17 +1,17 @@
-#ifndef AMGCS2DATARECORDERCONFIGURATIONQUERYCOMMAND_H
-#define AMGCS2DATARECORDERCONFIGURATIONQUERYCOMMAND_H
+#ifndef AMGCS2GETDATARECORDERCONFIGURATIONCOMMAND_H
+#define AMGCS2GETDATARECORDERCONFIGURATIONCOMMAND_H
 
 #include <QList>
 #include <QStringList>
 
 #include "AMGCS2Command.h"
 #include "AMPIC887DataRecorderConfiguration.h"
-class AMGCS2DataRecorderConfigurationQueryCommand : public AMGCS2Command
+class AMGCS2GetDataRecorderConfigurationCommand : public AMGCS2Command
 {
 public:
-    AMGCS2DataRecorderConfigurationQueryCommand();
+	AMGCS2GetDataRecorderConfigurationCommand();
 
-	virtual ~AMGCS2DataRecorderConfigurationQueryCommand() {}
+	virtual ~AMGCS2GetDataRecorderConfigurationCommand() {}
 
 	virtual QString outputString() const;
 
@@ -23,4 +23,4 @@ protected:
 	QList<AMPIC887DataRecorderConfiguration*> dataRecorderConfigurations_;
 };
 
-#endif // AMGCS2DATARECORDERCONFIGURATIONQUERYCOMMAND_H
+#endif // AMGCS2GETDATARECORDERCONFIGURATIONCOMMAND_H

@@ -69,10 +69,19 @@ protected:
 	  * Static helper method for parsing the set data recorder confiuration command
 	  * string arguments.
 	  * \param argumentList ~ A list of the arguments provided to the command.
-	  * \returns An initialized set AMGCS2SetDataRecorderConfigurationCommand if
+	  * \returns An initialized AMGCS2SetDataRecorderConfigurationCommand if
 	  * the arguments could be parsed, 0 otherwise.
 	  */
 	static AMGCS2Command* buildSetDataRecorderConfigurationCommand(const QStringList& argumentList);
+
+	/*!
+	  * Static helper method for parsing the get number of recorded data points
+	  * command string arguments.
+	  * \param argumentList ~ A list of the arguments provided to the command.
+	  * \returns An initialized AMGCS2GetNumberOfRecordedPointsCommand if the
+	  * arguments could be parsed, 0 otherwise.
+	  */
+	static AMGCS2Command* buildGetNumberOfRecordedPointsCommand(const QStringList& argumentList);
 };
 
 #endif // AMGCS2COMMANDFACTORY_H

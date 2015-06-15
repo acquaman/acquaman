@@ -1,19 +1,19 @@
-#include "AMGCS2CurrentPositionCommand.h"
+#include "AMGCS2GetCurrentPositionCommand.h"
 
 #include "util/AMCArrayHandler.h"
 #include "PI_GCS2_DLL.h"
 #include "AMGCS2Support.h"
-AMGCS2CurrentPositionCommand::AMGCS2CurrentPositionCommand(const QList<AMGCS2::Axis>& axesToQuery)
+AMGCS2GetCurrentPositionCommand::AMGCS2GetCurrentPositionCommand(const QList<AMGCS2::Axis>& axesToQuery)
 {
 	axesToQuery_ = axesToQuery;
 }
 
-QHash<AMGCS2::Axis, double> AMGCS2CurrentPositionCommand::axisPositions()
+QHash<AMGCS2::Axis, double> AMGCS2GetCurrentPositionCommand::axisPositions()
 {
 	return axisPositions_;
 }
 
-QString AMGCS2CurrentPositionCommand::outputString() const
+QString AMGCS2GetCurrentPositionCommand::outputString() const
 {
 	if(!wasSuccessful_) {
 		return QString();
@@ -31,8 +31,11 @@ QString AMGCS2CurrentPositionCommand::outputString() const
 	return returnString.trimmed();
 }
 
-bool AMGCS2CurrentPositionCommand::runImplementation()
+bool AMGCS2GetCurrentPositionCommand::runImplementation()
 {
+	// Clear previous results
+	axisPositions_.clear();
+
 	AMCArrayHandler<double> positionValuesHandler(AXIS_COUNT);
 	bool successful = false;
 
@@ -87,7 +90,7 @@ bool AMGCS2CurrentPositionCommand::runImplementation()
 	return successful;
 }
 
-bool AMGCS2CurrentPositionCommand::validateArguments()
+bool AMGCS2GetCurrentPositionCommand::validateArguments()
 {
 	for(int iAxis = 0, axisCount = axesToQuery_.count();
 		iAxis < axisCount;

@@ -18,6 +18,9 @@ AMGCS2::ControllerCommandLevel AMGCS2GetCommandLevelCommand::commandLevel()
 
 bool AMGCS2GetCommandLevelCommand::runImplementation()
 {
+	// Clear any previous results.
+	commandLevel_ = AMGCS2::UnknownCommandLevel;
+
 	int returnedCommandLevel = -1;
 
 	bool success = PI_qCCL(controllerId_, &returnedCommandLevel);
