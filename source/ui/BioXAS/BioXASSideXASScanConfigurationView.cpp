@@ -47,6 +47,10 @@ BioXASSideXASScanConfigurationView::BioXASSideXASScanConfigurationView(BioXASSid
 	connect(configuration_->dbObject(), SIGNAL(usingXRFDetectorChanged(bool)), usingXRFDetectorCheckBox_, SLOT(setChecked(bool)));
 	connect(usingXRFDetectorCheckBox_, SIGNAL(toggled(bool)), configuration_->dbObject(), SLOT(setUsingXRFDetector(bool)));
 
+	usingEncoderEnergyCheckBox_ = new QCheckBox("Use encoder-based energy");
+	usingEncoderEnergyCheckBox_->setChecked(configuration_->usingEncoderEnergy());
+	connect( usingEncoderEnergyCheckBox_, SIGNAL(toggled(bool)), this, SLOT(onUsingEncoderEnergyCheckBoxToggled()) );
+
 	autoRegionButton_ = new QPushButton("Auto Set XANES Regions");
 	connect(autoRegionButton_, SIGNAL(clicked()), this, SLOT(setupDefaultXANESScanRegions()));
 
@@ -102,21 +106,34 @@ BioXASSideXASScanConfigurationView::BioXASSideXASScanConfigurationView(BioXASSid
 	energyAndRegionLayout->addLayout(energyLayout);
 	energyAndRegionLayout->addWidget(regionsView_);
 
-	QHBoxLayout *regionsLayout = new QHBoxLayout;
-	regionsLayout->addLayout(energyAndRegionLayout);
-	regionsLayout->addWidget(usingXRFDetectorCheckBox_, 0, Qt::AlignBottom);
+//	QHBoxLayout *regionsLayout = new QHBoxLayout;
+//	regionsLayout->addLayout(energyAndRegionLayout);
+//	regionsLayout->addWidget(usingXRFDetectorCheckBox_, 0, Qt::AlignBottom);
+//	regionsLayout->addWidget(usingEncoderEnergyCheckBox_, 0
 
 //	QLabel *settingsLabel = new QLabel("Scan Settings:");
 //	settingsLabel->setFont(QFont("Lucida Grande", 12, QFont::Bold));
 
-	QHBoxLayout *regionsHL = new QHBoxLayout();
-	regionsHL->addStretch();
-	regionsHL->addWidget(autoRegionButton_);
-	regionsHL->addWidget(pseudoXAFSButton_);
+//	QHBoxLayout *regionsHL = new QHBoxLayout();
+//	regionsHL->addStretch();
+//	regionsHL->addWidget(autoRegionButton_);
+//	regionsHL->addWidget(pseudoXAFSButton_);
+
+	QVBoxLayout *optionsLayout = new QVBoxLayout();
+	optionsLayout->addWidget(usingXRFDetectorCheckBox_);
+	optionsLayout->addWidget(usingEncoderEnergyCheckBox_);
+
+	QVBoxLayout *regionButtonsLayout = new QVBoxLayout();
+	regionButtonsLayout->addWidget(autoRegionButton_);
+	regionButtonsLayout->addWidget(pseudoXAFSButton_);
+
+	QHBoxLayout *miscLayout = new QHBoxLayout();
+	miscLayout->addLayout(regionButtonsLayout);
+	miscLayout->addLayout(optionsLayout);
 
 	QVBoxLayout *mainVL = new QVBoxLayout();
-	mainVL->addLayout(regionsLayout);
-	mainVL->addLayout(regionsHL);
+	mainVL->addLayout(energyAndRegionLayout);
+	mainVL->addLayout(miscLayout);
 
 	mainVL->setContentsMargins(20,0,0,20);
 	mainVL->setSpacing(1);
@@ -252,4 +269,9 @@ void BioXASSideXASScanConfigurationView::onEdgeChanged()
 
 	if (energy_->value() != configuration_->energy())
 		energy_->setValue(configuration_->energy());
+}
+
+void BioXASSideXASScanConfigurationView::onUsingEncoderEnergyCheckBoxToggled()
+{
+	configuration_->setUsingEncoderEnergy(usingEncoderEnergyCheckBox_->isChecked());
 }

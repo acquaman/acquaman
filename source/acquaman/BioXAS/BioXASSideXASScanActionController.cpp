@@ -56,6 +56,12 @@ BioXASSideXASScanActionController::BioXASSideXASScanActionController(BioXASSideX
 	if (bioXASDefaultXAS->id() > 0)
 		AMAppControllerSupport::registerClass<BioXASSideXASScanConfiguration, AMExporterXDIFormat, AMExporterOptionXDIFormat>(bioXASDefaultXAS->id());
 
+	AMControlInfo controlInfo;
+	if (configuration_->usingEncoderEnergy())
+		controlInfo = BioXASSideBeamline::bioXAS()->mono()->encoderEnergyControl()->toInfo();
+	else
+		controlInfo = BioXASSideBeamline::bioXAS()->mono()->stepEnergyControl()->toInfo();
+
 	AMControlInfoList list;
 	list.append(BioXASSideBeamline::bioXAS()->mono()->encoderEnergyControl()->toInfo());
 	configuration_->setAxisControlInfos(list);
@@ -115,6 +121,7 @@ QString BioXASSideXASScanActionController::beamlineSettings()
 	QString notes;
 
 	notes.append(QString("SR1 Current:\t%1 mA\n").arg(CLSStorageRing::sr1()->ringCurrent()));
+	notes.append(QString("Energy used: %1").arg(configuration_->axisControlInfos().at(0).name()));
 
 	return notes;
 }

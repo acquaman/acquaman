@@ -69,6 +69,9 @@ protected slots:
 	/// Handles setting the proper information if the edge is changed.
 	void onEdgeChanged();
 
+	/// Handles setting the configuration flag for whether the encoder-based energy control is used.
+	void onUsingEncoderEnergyCheckBoxToggled();
+
 protected:
 	BioXASSideXASScanConfiguration *configuration_;
 
@@ -91,6 +94,8 @@ protected:
 	QLabel *scanEnergyRange_;
 	/// Check box for using the XRF detector.
 	QCheckBox *usingXRFDetectorCheckBox_;
+	/// Check box for using the encoder-based energy control (or step-based).
+	QCheckBox *usingEncoderEnergyCheckBox_;
 };
 
 #endif // BIOXASXASSCANCONFIGURATIONVIEW_H
