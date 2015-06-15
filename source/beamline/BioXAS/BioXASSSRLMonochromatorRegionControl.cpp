@@ -53,7 +53,7 @@ bool BioXASSSRLMonochromatorRegionControl::canMeasure() const
 {
 	bool result = false;
 
-	if (isConnected()) {
+	if (regionAStatus_ && regionBStatus_) {
 		result = (
 				regionAStatus_->canMeasure() &&
 				regionBStatus_->canMeasure()
