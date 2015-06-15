@@ -212,6 +212,7 @@ void AMPseudoMotorControl::onMoveStarted(QObject *action)
 {
 	Q_UNUSED(action)
 	setMoveInProgress(true);
+	emit moveStarted();
 }
 
 void AMPseudoMotorControl::onMoveCancelled(QObject *action)
