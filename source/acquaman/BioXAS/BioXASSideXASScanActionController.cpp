@@ -63,7 +63,7 @@ BioXASSideXASScanActionController::BioXASSideXASScanActionController(BioXASSideX
 		controlInfo = BioXASSideBeamline::bioXAS()->mono()->stepEnergyControl()->toInfo();
 
 	AMControlInfoList list;
-	list.append(BioXASSideBeamline::bioXAS()->mono()->encoderEnergyControl()->toInfo());
+	list.append(controlInfo);
 	configuration_->setAxisControlInfos(list);
 
 	useFeedback_ = true;
