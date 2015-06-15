@@ -22,10 +22,11 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef SXRMBBEAMLINE_H
 #define SXRMBBEAMLINE_H
 
-#include "beamline/CLS/CLSBeamline.h"
 #include "beamline/AMControlSet.h"
 #include "beamline/AMMotorGroup.h"
 #include "beamline/AM4DMotorGroup.h"
+#include "beamline/CLS/CLSBeamline.h"
+#include "beamline/CLS/CLSJJSlits.h"
 #include "beamline/CLS/CLSSynchronizedDwellTime.h"
 #include "beamline/CLS/CLSSIS3820Scaler.h"
 #include "beamline/CLS/CLSBiStateControl.h"
@@ -34,10 +35,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/CLS/CLSBasicCompositeScalerChannelDetector.h"
 #include "beamline/CLS/CLSMAXvMotor.h"
 #include "beamline/CLS/CLSCrossHairGeneratorControl.h"
-#include "beamline/SXRMB/SXRMBCrystalChangeModel.h"
 
 #include "application/SXRMB/SXRMB.h"
 #include "beamline/SXRMB/SXRMBBrukerDetector.h"
+#include "beamline/SXRMB/SXRMBCrystalChangeModel.h"
 #include "beamline/SXRMB/SXRMBFourElementVortexDetector.h"
 #include "beamline/SXRMB/SXRMBHVControl.h"
 
@@ -64,6 +65,9 @@ public:
 	/// Destructor.
 	virtual ~SXRMBBeamline();
 
+	/// Returns the slit for SXRMB
+	CLSJJSlits *jjSlits() const;
+
 	/// Returns the scaler for SXRMB
 	CLSSIS3820Scaler* scaler() const;
 
@@ -89,6 +93,8 @@ public:
 	/// Returns the Z Stage for the microrobe sample stage
 	AMPVwStatusControl* microprobeSampleStageZ() const;
 
+	/// Returns the height PV control for the ambiant endstation table.
+	AMPVwStatusControl *ambiantTableHeight() const;
 	/// Returns the X stage for the ambiant endstation.
 	AMPVwStatusControl *ambiantSampleStageX() const;
 	/// Returns the Z stage for the ambiant endstation.
@@ -158,6 +164,10 @@ public:
 	SXRMBHVControl *teyHVControl() const;
 	/// Returns the microProbe TEY HV control
 	SXRMBHVControl *microprobeTEYHVControl() const;
+	/// Returns the ambiant IC0 HV control
+	SXRMBHVControl *ambiantIC0HVControl() const;
+	/// Returns the ambiant IC1 HV control
+	SXRMBHVControl *ambiantIC1HVControl() const;
 
 	/// Returns the list of actions to turn the beam on
 	AMAction3* createBeamOnActions() const;
@@ -243,6 +253,9 @@ protected:
 	/// Endstation control for SXRMB
 	AMPVControl *endstationControl_;
 
+	/// The JJ slits
+	CLSJJSlits *jjSlits_;
+
 	/// Energy control for SXRMB
 	AMPVwStatusControl *energy_;
 
@@ -271,6 +284,8 @@ protected:
 	/// Control set for Solid State sample stage
 	AMControlSet *solidStateSampleStageControlSet_;
 
+	/// Height PV control for the Ambiant endstation table
+	AMPVwStatusControl *ambiantTableHeight_;
 	/// X Stage for the Ambiant sample stage
 	AMPVwStatusControl *ambiantSampleStageX_;
 	/// Z Stage for the Solid State sample stage
@@ -325,6 +340,10 @@ protected:
 	SXRMBHVControl *teyHVControl_;
 	/// The microProb TEY HV control
 	SXRMBHVControl *microprobeTEYHVControl_;
+	/// The ambiant IC0 HV control
+	SXRMBHVControl *ambiantIC0HVControl_;
+	/// The ambiant IC1 HV control
+	SXRMBHVControl *ambiantIC1HVControl_;
 
 	/// Beamline valves, the valves involved in the Beam on/off action
 	AMControlSet * beamlineControlShutterSet_;

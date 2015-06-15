@@ -19,10 +19,10 @@
 #include "acquaman/SXRMB/SXRMBEXAFSScanConfiguration.h"
 #include "beamline/SXRMB/SXRMBBeamline.h"
 
-#include "ui/AMTopFrame.h"
 #include "ui/dataman/AMEXAFSScanAxisView.h"
 #include "ui/util/AMPeriodicTableDialog.h"
 
+#include "util/AMDateTimeUtils.h"
 #include "util/AMEnergyToKSpaceCalculator.h"
 #include "util/AMPeriodicTable.h"
 #include "util/AMElement.h"
@@ -34,9 +34,6 @@ SXRMBEXAFSScanConfigurationView::SXRMBEXAFSScanConfigurationView(SXRMBEXAFSScanC
 	SXRMBBeamline *sxrmbBL = SXRMBBeamline::sxrmb();
 
 	configuration_ = configuration;
-
-	topFrame_ = new AMTopFrame("Configure an XAS Scan");
-	topFrame_->setIcon(QIcon(":/utilities-system-monitor.png"));
 
 	regionsView_ = new AMEXAFSScanAxisView("SXRMB Region Configuration", configuration_);
 
@@ -133,24 +130,10 @@ SXRMBEXAFSScanConfigurationView::SXRMBEXAFSScanConfigurationView(SXRMBEXAFSScanC
 	contentLayout->addWidget(beamlineSettingsGroupBox, 0, 4, 1, 1);
 	contentLayout->addWidget(detectorSettingGroupBox, 1, 4, 1, 1);
 
-	// setup the squeeze contents
-	QHBoxLayout *squeezeContents = new QHBoxLayout;
-	squeezeContents->setSpacing(10);
-	squeezeContents->addStretch();
-	squeezeContents->addLayout(contentLayout);
-	squeezeContents->addStretch();
+	contentLayout->setContentsMargins(20,0,0,20);
+	contentLayout->setSpacing(1);
 
-	// Main content layout
-	QVBoxLayout *mainVL = new QVBoxLayout();
-	mainVL->addWidget(topFrame_);
-	mainVL->addStretch();
-	mainVL->addLayout(squeezeContents);
-	mainVL->addStretch();
-
-	mainVL->setContentsMargins(20,0,0,20);
-	mainVL->setSpacing(1);
-
-	setLayout(mainVL);
+	setLayout(contentLayout);
 
 	connect(configuration_->dbObject(), SIGNAL(xChanged(double)), this, SLOT(onScanConfigurationSampleStageXChanged(double)));
 	connect(configuration_->dbObject(), SIGNAL(zChanged(double)), this, SLOT(onScanConfigurationSampleStageZChanged(double)));
@@ -252,12 +235,7 @@ void SXRMBEXAFSScanConfigurationView::onBeamlineEndstationChanged(SXRMB::Endstat
 
 	// recreate the component for the new endstation
 	createAndLayoutSampleStageSpinBox(sampleStageFL_);
-	if (toEndstation == SXRMB::AmbiantWithGasChamber || toEndstation == SXRMB::AmbiantWithoutGasChamber) {
-		powerOnTEYHVControlCheckBox_->setChecked(false);
-		powerOnTEYHVControlCheckBox_->setVisible(false);
-	} else {
-		powerOnTEYHVControlCheckBox_->setVisible(true);
-	}
+	updatePowerOnHVControlCheckBoxText();
 
 	onEndstationSampleStagePositionChanged(-1);
 }
@@ -269,7 +247,7 @@ void SXRMBEXAFSScanConfigurationView::onFluorescenceDetectorChanged(int detector
 
 void SXRMBEXAFSScanConfigurationView::onPowerOnTEYHVControlEnabled(bool value)
 {
-	configuration_->setPowerOnTEYHVControlEnabled(value);
+	configuration_->setPowerOnHVControlEnabled(value);
 }
 
 void SXRMBEXAFSScanConfigurationView::onScanNameEdited()
@@ -280,7 +258,7 @@ void SXRMBEXAFSScanConfigurationView::onScanNameEdited()
 
 void SXRMBEXAFSScanConfigurationView::onEstimatedTimeChanged()
 {
-	estimatedTime_->setText("Estimated time per scan:\t" + SXRMB::convertTimeToString(configuration_->totalTime()));
+	estimatedTime_->setText("Estimated time per scan:\t" + AMDateTimeUtils::convertTimeToString(configuration_->totalTime()));
 }
 
 void SXRMBEXAFSScanConfigurationView::setEnergy()

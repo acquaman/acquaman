@@ -35,8 +35,8 @@ public:
 	SXRMB::Endstation endstation() const { return dbObject_->endstation(); }
 	/// Returns the fluorescence detectors.
 	SXRMB::FluorescenceDetectors fluorescenceDetector() const { return dbObject_->fluorescenceDetector(); }
-	/// Returns the flag to power on TEY HV control
-	bool powerOnTEYHVControl() const;
+	/// Returns the flag to power on HV control
+	bool powerOnHVControl() const;
 	/// Returns the x position.
 	double x() const { return dbObject_->x(); }
 	/// Returns the y position.
@@ -82,8 +82,8 @@ public:
 	/// Sets the time offset used for estimating the scan time.
 	void setTimeOffset(double offset) { timeOffset_ = offset; computeTotalTimeImplementation(); }
 
-	/// Sets power on TEY HV Control flag
-	void setPowerOnTEYHVControlEnabled(bool value) { powerOnTEYHVControl_ = value; }
+	/// Sets power on HV Control flag
+	void setPowerOnHVControlEnabled(bool value) { powerOnHVControl_ = value; }
 
 protected:
 	/// Computes the total time any time the regions list changes.  It is expected that subclasses will have a signal totalTimeChanged(double) that is emitted by this method.
@@ -110,7 +110,7 @@ protected:
 	double timeOffset_;
 
 	/// the flag to auto turn the TEY HV control on
-	bool powerOnTEYHVControl_;
+	bool powerOnHVControl_;
 };
 
 #endif // SXRMBSCANCONFIGURATION_H

@@ -76,6 +76,10 @@ public:
 	double totalTime(bool recompute) { if (recompute) computeTotalTimeImplementation(); return totalTime_; }
 	/// Returns the time offset.
 	double timeOffset() const { return timeOffset_; }
+	/// Returns the close fast shutter flag.
+	bool closeFastShutter() const { return closeFastShutter_; }
+	/// Returns whether the motor should go back to where it started after a scan.
+	bool returnToOriginalPosition() const { return returnToOriginalPosition_; }
 
 	// Setters
 	////////////////////////////////////////
@@ -111,6 +115,10 @@ public:
 
 	/// Sets the time offset used for estimating the scan time.
 	void setTimeOffset(double offset) { timeOffset_ = offset; computeTotalTimeImplementation(); }
+	/// Sets the flag for whether the fast shutter should be put in after a scan.
+	void setCloseFastShutter(bool close) { closeFastShutter_ = close; }
+	/// Sets the flag for whether the sample should return to its original position.
+	void setReturnToOriginalPosition(bool returnToOriginalPosition) { returnToOriginalPosition_ = returnToOriginalPosition; }
 
 protected:
 	/// Computes the total time any time the regions list changes.  It is expected that subclasses will have a signal totalTimeChanged(double) that is emitted by this method.
@@ -141,6 +149,10 @@ protected:
 	/// The database object we're encapsulating.
 	VESPERSScanConfigurationDbObject *dbObject_;
 
+	/// Holds whether the fast shutter needs to be put in at the end of a scan.
+	bool closeFastShutter_;
+	/// Holds whether a scan should move to the position before the scan after the scan finishes.
+	bool returnToOriginalPosition_;
 	/// Holds the total time in seconds that the scan is estimated to take.
 	double totalTime_;
 	/// Holds the offset per point of extra time when doing a scan.

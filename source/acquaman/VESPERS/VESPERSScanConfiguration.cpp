@@ -26,6 +26,8 @@ VESPERSScanConfiguration::VESPERSScanConfiguration()
 	dbObject_ = new VESPERSScanConfigurationDbObject;
 	timeOffset_ = 0.4;
 	totalTime_ = 0;
+	closeFastShutter_ = false;
+	returnToOriginalPosition_ = false;
 }
 
 VESPERSScanConfiguration::VESPERSScanConfiguration(const VESPERSScanConfiguration &original)
@@ -33,6 +35,8 @@ VESPERSScanConfiguration::VESPERSScanConfiguration(const VESPERSScanConfiguratio
 	dbObject_ = new VESPERSScanConfigurationDbObject(*original.dbObject());
 	timeOffset_ = original.timeOffset();
 	totalTime_ = original.totalTime();
+	closeFastShutter_ = original.closeFastShutter();
+	returnToOriginalPosition_ = original.returnToOriginalPosition();
 }
 
 VESPERSScanConfiguration::~VESPERSScanConfiguration()

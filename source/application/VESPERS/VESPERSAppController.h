@@ -25,6 +25,12 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "application/AMAppController.h"
 #include "application/VESPERS/VESPERS.h"
 
+class AMScanConfigurationViewHolder3;
+class AMScanAction;
+class AMGenericScanEditor;
+class AMListAction3;
+class AMRegionOfInterest;
+
 class VESPERSEndstationView;
 class VESPERSDeviceStatusView;
 class VESPERSCCDDetectorView;
@@ -32,21 +38,15 @@ class VESPERSPilatusCCDDetectorView;
 class VESPERSPersistentView;
 class VESPERSEXAFSScanConfiguration;
 class VESPERSEXAFSScanConfigurationView;
-class AMScanConfigurationViewHolder3;
-class VESPERSScanConfigurationViewHolder3;
 class VESPERS2DScanConfiguration;
 class VESPERS2DScanConfigurationView;
-class AMScanAction;
 class VESPERSSpatialLineScanConfiguration;
 class VESPERSSpatialLineScanConfigurationView;
 class VESPERSEnergyScanConfiguration;
 class VESPERSEnergyScanConfigurationView;
 class VESPERS3DScanConfiguration;
 class VESPERS3DScanConfigurationView;
-class AMGenericScanEditor;
-class AMListAction3;
 class VESPERSUserConfiguration;
-class AMRegionOfInterest;
 class VESPERSTimeScanConfiguration;
 class VESPERSTimeScanConfigurationView;
 class VESPERSTimedLineScanConfiguration;
@@ -167,7 +167,7 @@ protected:
 	/// Pointer to the XAS scan configuration view.
 	VESPERSEXAFSScanConfigurationView *exafsConfigurationView_;
 	/// The (new) holder for the XAS scan configuration.
-	VESPERSScanConfigurationViewHolder3 *exafsConfigurationViewHolder3_;
+	AMScanConfigurationViewHolder3 *exafsConfigurationViewHolder3_;
 
 	/// Pointer to the 2D scan configuration.
 	VESPERS2DScanConfiguration *mapScanConfiguration_;

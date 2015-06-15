@@ -52,10 +52,8 @@ class VESPERSEXAFSScanConfiguration : public AMStepScanConfiguration, public VES
 	Q_PROPERTY(double yPosition READ y WRITE setY)
 	Q_PROPERTY(QString header READ headerText WRITE setHeaderText)
 	Q_PROPERTY(bool useFixedTime READ useFixedTime WRITE setUseFixedTime)
-	Q_PROPERTY(int numberOfScans READ numberOfScans WRITE setNumberOfScans)
 
 	Q_CLASSINFO("useFixedTime", "upgradeDefault=false")
-	Q_CLASSINFO("numberOfScans", "upgradeDefault=1")
 
 	Q_CLASSINFO("AMDbObject_Attributes", "description=VESPERS EXAFS Scan Configuration")
 
@@ -104,8 +102,6 @@ public:
 
 	/// Returns whether the scan should use fixed or variable integration time.  The default is to use the variable integration time.
 	bool useFixedTime() const { return useFixedTime_; }
-	/// Returns the number of times this scan will be run.
-	int numberOfScans() const { return numberOfScans_; }
 
 	/// Get a nice looking string that contains all the standard information in an XAS scan.   Used when exporting.
 	QString headerText() const;
@@ -125,8 +121,6 @@ signals:
 	void useFixedTimeChanged(bool);
 	/// Notifier that the total time estimate has changed.
 	void totalTimeChanged(double);
-	/// Notifier that the number of scans has changed.
-	void numberOfScansChanged(int);
 
 public slots:
 	/// Sets the current edge for the scan.
@@ -147,8 +141,6 @@ public slots:
 
 	/// Sets whether the scan should use fixed or variable integration time for EXAFS.
 	void setUseFixedTime(bool fixed);
-	/// Sets the number of times this scan should be repeated.
-	void setNumberOfScans(int num);
 
 	/// Sets whether we export the scan with the spectra included or not.
 	void setExportSpectraSources(bool exportSpectra);
@@ -177,8 +169,6 @@ protected:
 	bool goToPosition_;
 	/// The position that the scan should go to when goToPosition_ is true.  \note Implementation detail: this currently assumes we are using the pseudomotor sample stage.
 	QPointF position_;
-	/// Holds the number of times this scan should be repeated.
-	int numberOfScans_;
 	/// Flag holding whether we are exporting the spectra data sources or not.
 	bool exportSpectraSources_;
 	/// Flag holding whether we are exporting the spectra in rows or columns.

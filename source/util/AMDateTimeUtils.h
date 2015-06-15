@@ -45,6 +45,8 @@ namespace AMDateTimeUtils
 	/// Formats a QStringList of items into a QString that is a gramatically correct list (using commas and the word "and")
 	QString gramaticallyCorrectList(const QStringList &listItems);
 
-};
+	/// Method that takes a time in seconds and returns a string of d:h:m:s.
+	QString convertTimeToString(double time);
+}
 
 #endif // AMDATETIMEUTILS_H

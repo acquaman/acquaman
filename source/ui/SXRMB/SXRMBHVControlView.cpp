@@ -102,7 +102,7 @@ void SXRMBHVControlChannelView::layoutHVControl(SXRMBHVControl *hvControl, bool 
 		voltageSpinBox_ = new QDoubleSpinBox();
 		voltageSpinBox_->setSuffix(" V");
 		voltageSpinBox_->setSingleStep(5);
-		voltageSpinBox_->setRange(0, 200);
+		voltageSpinBox_->setRange(0, 300);
 		voltageSpinBox_->setDecimals(2);
 		voltageSpinBox_->setAlignment(Qt::AlignCenter);
 		voltageSpinBox_->setFixedWidth(90);
@@ -113,7 +113,7 @@ void SXRMBHVControlChannelView::layoutHVControl(SXRMBHVControl *hvControl, bool 
 	measuredCurrentLabel_->setAlignment(Qt::AlignVCenter | Qt::AlignRight);
 
 	powerOnOffButton_ = new QPushButton("Turn Off");
-	powerOnOffButton_->setMaximumWidth(40);
+	powerOnOffButton_->setMaximumWidth(60);
 
 	statusLabel_ = new QLabel;
 	statusLabel_->setPixmap(QIcon(":/OFF.png").pixmap(22));

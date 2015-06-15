@@ -75,7 +75,10 @@ class AMExtendedControlEditor : public QGroupBox
 {
 Q_OBJECT
 public:
+	/// Constructor.
 	explicit AMExtendedControlEditor(AMControl* control, AMControl* statusTagControl = NULL, bool readOnly = false, bool configureOnly = false, QWidget *parent = 0);
+	/// Destructor.
+	virtual ~AMExtendedControlEditor();
 
 	double setpoint() const;
 	AMControl* control() const;
@@ -112,6 +115,11 @@ public slots:
 	void setUnits(const QString &newUnits);
 	/// Sets the manual override flag for the units text.
 	void setUnitsManually(bool manual);
+	/// Sets the editor title text.
+	void setTitle(const QString &title);
+	/// Sets the manual override flag for the editor title text.
+	void setTitleManually(bool manual);
+
 	void setNoUnitsBox(bool noUnitsBox);
 	void overrideTitle(const QString& title);
 
@@ -129,13 +137,19 @@ protected slots:
 
 	/// Sets the units label text.
 	void setUnitsText(const QString &newUnits);
+	/// Sets the editor title text.
+	void setTitleText(const QString &newTitle);
 	/// Sets the editor's read-only status.
 	void setReadOnly(bool readOnly);
 
 	/// Updates the read-only status of the editor, according to the current control.
 	void updateReadOnlyStatus();
 
+	/// Updates the editor when the control connected state changes.
+	void onConnectedChanged();
+	/// Updates the editor when the control value changes.
 	void onValueChanged(double newVal);
+	/// Updates the editor when the control units change.
 	void onUnitsChanged(const QString& units);
 	void onMotion(bool moving);
 
@@ -169,10 +183,10 @@ protected:
 	QLabel* statusLabel_;
 	AMExtendedControlEditorStyledInputDialog* dialog_;
 
-	int moveCounter_;
-
 	/// Flag that indicates whether or not the units should be updated when the control indicates they have changed.
 	bool unitsSetManually_;
+	/// Flag that indicates whether or not the editor title should be updated when a new control is set.
+	bool titleSetManually_;
 };
 
 #endif // AMEXTENDEDCONTROLEDITOR_H

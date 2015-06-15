@@ -42,6 +42,8 @@ VESPERS2DScanConfiguration::VESPERS2DScanConfiguration(QObject *parent)
 	setExportAsAscii(true);
 	setExportSpectraSources(true);
 	setExportSpectraInRows(true);
+	setCloseFastShutter(true);
+	setReturnToOriginalPosition(false);
 
 	AMScanAxisRegion *region = new AMScanAxisRegion;
 	AMScanAxis *axis = new AMScanAxis(AMScanAxis::StepAxis, region);
@@ -69,6 +71,8 @@ VESPERS2DScanConfiguration::VESPERS2DScanConfiguration(const VESPERS2DScanConfig
 	setExportAsAscii(original.exportAsAscii());
 	setExportSpectraSources(original.exportSpectraSources());
 	setExportSpectraInRows(original.exportSpectraInRows());
+	setCloseFastShutter(original.closeFastShutter());
+	setReturnToOriginalPosition(original.returnToOriginalPosition());
 	computeTotalTime();
 	connect(scanAxisAt(0)->regionAt(0), SIGNAL(regionStartChanged(AMNumber)), this, SLOT(computeTotalTime()));
 	connect(scanAxisAt(0)->regionAt(0), SIGNAL(regionStepChanged(AMNumber)), this, SLOT(computeTotalTime()));

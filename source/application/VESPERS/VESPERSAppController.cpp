@@ -22,12 +22,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "VESPERSAppController.h"
 
 #include "beamline/CLS/CLSFacilityID.h"
+#include "beamline/CLS/CLSStorageRing.h"
 #include "beamline/VESPERS/VESPERSBeamline.h"
-#include "ui/VESPERS/VESPERSEndstationView.h"
-#include "ui/AMMainWindow.h"
-#include "ui/acquaman/AMScanConfigurationViewHolder3.h"
-#include "ui/acquaman/VESPERS/VESPERSScanConfigurationViewHolder3.h"
-#include "ui/util/AMChooseDataFolderDialog.h"
 
 #include "dataman/AMLineScan.h"
 
@@ -36,11 +32,18 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "actions3/actions/AMScanAction.h"
 #include "actions3/actions/AMWaitAction.h"
 #include "acquaman/AMScanActionController.h"
-#include "beamline/CLS/CLSStorageRing.h"
+#include "acquaman/VESPERS/VESPERSScanConfiguration.h"
 
+#include "util/AMPeriodicTable.h"
+
+#include "ui/AMMainWindow.h"
+#include "ui/acquaman/AMScanConfigurationViewHolder3.h"
+#include "ui/dataman/AMGenericScanEditor.h"
+#include "ui/util/AMChooseDataFolderDialog.h"
+
+#include "ui/VESPERS/VESPERSEndstationView.h"
 #include "ui/VESPERS/VESPERSXRFScanConfigurationView.h"
 #include "ui/VESPERS/VESPERSPersistentView.h"
-#include "util/AMPeriodicTable.h"
 #include "ui/VESPERS/VESPERSDeviceStatusView.h"
 #include "ui/VESPERS/VESPERSEXAFSScanConfigurationView.h"
 #include "ui/VESPERS/VESPERSCCDDetectorView.h"
@@ -48,14 +51,12 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/VESPERS/VESPERS2DScanConfigurationView.h"
 #include "ui/VESPERS/VESPERSSpatialLineScanConfigurationView.h"
 #include "ui/VESPERS/VESPERSEnergyScanConfigurationView.h"
-#include "acquaman/VESPERS/VESPERSScanConfiguration.h"
 #include "ui/VESPERS/VESPERS3DScanConfigurationView.h"
 
-#include "dataman/AMScanEditorModelItem.h"
-#include "ui/dataman/AMGenericScanEditor.h"
-
-#include "dataman/database/AMDbObjectSupport.h"
 #include "application/AMAppControllerSupport.h"
+
+#include "dataman/AMScanEditorModelItem.h"
+#include "dataman/database/AMDbObjectSupport.h"
 #include "dataman/VESPERS/VESPERSDbUpgrade1Pt1.h"
 #include "dataman/VESPERS/VESPERSDbUpgrade1Pt2.h"
 #include "dataman/VESPERS/VESPERSDbUpgrade1Pt3.h"
@@ -270,6 +271,10 @@ void VESPERSAppController::setupExporterOptions()
 	vespersDefault = VESPERS::buildStandardExporterOption("VESPERSTimeLineScanDefault", true, false, false, true);
 	if(vespersDefault->id() > 0)
 		AMAppControllerSupport::registerClass<VESPERSTimedLineScanConfiguration, VESPERSExporter2DAscii, AMExporterOptionGeneralAscii>(vespersDefault->id());
+
+	AMExporterOptionSMAK *vespersSMAKDefault = VESPERS::buildSMAKExporterOption("VESPERS2DSMAKDefault", true, false, false, true);
+	if(vespersSMAKDefault->id() > 0)
+		AMAppControllerSupport::registerClass<VESPERS2DScanConfiguration, VESPERSExporterSMAK, AMExporterOptionSMAK>(vespersSMAKDefault->id());
 }
 
 void VESPERSAppController::setupUserInterface()
@@ -319,7 +324,10 @@ void VESPERSAppController::setupUserInterface()
 	exafsScanConfiguration_ = new VESPERSEXAFSScanConfiguration();
 	exafsConfigurationView_ = new VESPERSEXAFSScanConfigurationView(exafsScanConfiguration_);
 	exafsConfigurationView_->setupDefaultXANESScanRegions();
-	exafsConfigurationViewHolder3_ = new VESPERSScanConfigurationViewHolder3(exafsConfigurationView_);
+	exafsConfigurationViewHolder3_ = new AMScanConfigurationViewHolder3(exafsConfigurationView_, true);
+
+	connect(exafsScanConfiguration_, SIGNAL(totalTimeChanged(double)), exafsConfigurationViewHolder3_, SLOT(updateOverallScanTime(double)));
+	exafsConfigurationViewHolder3_->updateOverallScanTime(exafsScanConfiguration_->totalTime());
 
 	// Setup 2D maps for the beamline.  Builds the config, view, and view holder.
 	mapScanConfiguration_ = new VESPERS2DScanConfiguration();

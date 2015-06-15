@@ -131,7 +131,7 @@ AMAction3* SXRMB2DScanActionController::createInitializationActions()
 	initializationActions->addSubAction(scaler->createTotalScansAction3(1));
 
 	// Bruker actions
-	if (configuration_->powerOnTEYHVControl())
+	if (configuration_->powerOnHVControl())
 		initializationActions->addSubAction(AMActionSupport::buildControlMoveAction(SXRMBBeamline::sxrmb()->microprobeTEYHVControl()->powerOnOffControl(), 1));
 
 	return initializationActions;
