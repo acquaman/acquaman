@@ -19,6 +19,7 @@
 #include "AMPIC887DataRecorderConfiguration.h"
 #include "AMGCS2SetDataRecorderConfigurationCommand.h"
 #include "AMGCS2GetNumberOfRecordedPointsCommand.h"
+#include "AMGCS2GetRecordedDataValuesCommand.h"
 
 AMGCS2Command * AMGCS2CommandFactory::buildCommand(const QString &commandString)
 {
@@ -48,6 +49,8 @@ AMGCS2Command * AMGCS2CommandFactory::buildCommand(const QString &commandString)
 		return new AMGCS2GetDataRecorderConfigurationCommand();
 	} else if(commandString.startsWith("DRL?")) {
 		return buildGetNumberOfRecordedPointsCommand(commandArguments(commandString));
+	} else if(commandString.startsWith("DRR?")) {
+		return buildGetRecordedDataValuesCommand(commandArguments(commandString));
 	}
 
 	return 0;
@@ -259,6 +262,34 @@ AMGCS2Command * AMGCS2CommandFactory::buildGetNumberOfRecordedPointsCommand(cons
 	}
 
 	return new AMGCS2GetNumberOfRecordedPointsCommand(recordTableIds);
+}
+
+AMGCS2Command * AMGCS2CommandFactory::buildGetRecordedDataValuesCommand(const QStringList &argumentList)
+{
+	if(argumentList.count() < 3) {
+		return 0;
+	}
+
+	bool parseSuccess = false;
+	int offsetPoint = argumentList.at(0).toInt(&parseSuccess);
+
+	if(!parseSuccess) {
+		return 0;
+	}
+
+	int numberOfPoints = argumentList.at(1).toInt(&parseSuccess);
+
+	if(!parseSuccess) {
+		return 0;
+	}
+
+	int recordTableId = argumentList.at(2).toInt(&parseSuccess);
+
+	if(!parseSuccess) {
+		return 0;
+	}
+
+	return new AMGCS2GetRecordedDataValuesCommand(recordTableId, numberOfPoints, offsetPoint);
 }
 
 

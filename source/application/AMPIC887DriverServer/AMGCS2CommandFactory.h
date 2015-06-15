@@ -82,6 +82,15 @@ protected:
 	  * arguments could be parsed, 0 otherwise.
 	  */
 	static AMGCS2Command* buildGetNumberOfRecordedPointsCommand(const QStringList& argumentList);
+
+	/*!
+	  * Static helper method for parsing the get recorded data values command
+	  * string arguments.
+	  * \param argumentList ~ A list of the arguments provided to the command.
+	  * \returns An initialized AMGCS2GetRecordedDataValuesCommand if the arguments
+	  * could be parsed, 0 otherwise.
+	  */
+	static AMGCS2Command* buildGetRecordedDataValuesCommand(const QStringList& argumentList);
 };
 
 #endif // AMGCS2COMMANDFACTORY_H
