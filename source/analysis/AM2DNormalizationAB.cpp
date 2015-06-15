@@ -239,18 +239,6 @@ void AM2DNormalizationAB::computeCachedValues() const
 		}
 	}
 
-	for (int i = 0; i < totalSize; i++){
-
-		if (normalizer.at(i) == 0)
-			cachedOutput_[i] = 0;
-
-		else if (normalizer.at(i) < 0 || data.at(i) == -1)
-			cachedOutput_[i] = -1;
-
-		else
-			cachedOutput_[i] = data.at(i)/normalizer.at(i);
-	}
-
 	dataUpdateRequired_ = false;
 	lowerDirtyIndex_ = AMnDIndex();
 	upperDirtyIndex_ = AMnDIndex();
