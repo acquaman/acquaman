@@ -194,13 +194,13 @@ bool AM2DNormalizationAB::values(const AMnDIndex &indexStart, const AMnDIndex &i
 
 	else {
 
-		int rowLength = indexEnd.i()-indexStart.i()+1;
+		int rowLength = indexStart.distanceTo(0, indexEnd);
 		int xOffset = indexStart.i();
 		int yOffset = indexStart.j();
 		int xSize = size(0);
 		const double *cachedOutputDoublePointer = cachedOutput_.constData();
 
-		for (int j = 0, jSize = indexEnd.j()-indexStart.j()+1; j < jSize; j++)
+		for (int j = 0, jSize = indexStart.distanceTo(1, indexEnd); j < jSize; j++)
 			memcpy(outputValues+rowLength*j, cachedOutputDoublePointer+(xOffset+xSize*(j+yOffset)), rowLength*sizeof(double));
 	}
 
@@ -218,6 +218,27 @@ void AM2DNormalizationAB::computeCachedValues() const
 	data_->values(lowerDirtyIndex_, upperDirtyIndex_, data.data());
 	normalizer_->values(lowerDirtyIndex_, upperDirtyIndex_, normalizer.data());
 
+	int xOffset = lowerDirtyIndex_.i();
+	int yOffset = lowerDirtyIndex_.j();
+	int xSize = size(0);
+
+	for (int j = 0, jSize = lowerDirtyIndex_.distanceTo(1, upperDirtyIndex_); j < jSize; j++){
+
+		for (int i = 0, iSize = lowerDirtyIndex_.distanceTo(0, upperDirtyIndex_); i < iSize; i++){
+
+			int index = i+xOffset + (j+yOffset)*xSize;
+
+			if (normalizer.at(index) == 0)
+				cachedOutput_[index] = 0;
+
+			else if (normalizer.at(index) < 0 || data.at(index) == -1)
+				cachedOutput_[index] = -1;
+
+			else
+				cachedOutput_[index] = data.at(index)/normalizer.at(index);
+		}
+	}
+
 	for (int i = 0; i < totalSize; i++){
 
 		if (normalizer.at(i) == 0)
@@ -231,6 +252,8 @@ void AM2DNormalizationAB::computeCachedValues() const
 	}
 
 	dataUpdateRequired_ = false;
+	lowerDirtyIndex_ = AMnDIndex();
+	upperDirtyIndex_ = AMnDIndex();
 }
 
 AMNumber AM2DNormalizationAB::axisValue(int axisNumber, int index) const

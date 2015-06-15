@@ -97,10 +97,22 @@ protected:
 	/// Helper function to look at our overall situation and determine what the output state should be.
 	void reviewState();
 
+	/// Computes the new cached values.
+	void computeCachedValues() const;
+
 	/// Holds the 1D spectrum data source.
 	AMDataSource *spectrum_;
 	/// Holds the range that should be binned down.
 	AMRange binningRange_;
+
+	/// Flag for knowing when to recompute the cached data.
+	mutable bool dataUpdateRequired_;
+	/// Vector that holds the latest computed values for this analysis block.
+	mutable QVector<double> cachedOutput_;
+	/// The lower index of the dirtied data region.
+	AMnDIndex lowerDirtyIndex_;
+	/// The upper index of the dirtied data region.
+	AMnDIndex upperDirtyIndex_;
 };
 
 #endif // AMREGIONOFINTERESTAB_H
