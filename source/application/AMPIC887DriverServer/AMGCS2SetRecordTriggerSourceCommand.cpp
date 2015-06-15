@@ -23,7 +23,13 @@ bool AMGCS2SetRecordTriggerSourceCommand::validateArguments()
 		iTableTrigger < triggerCount;
 		++iTableTrigger) {
 
-		if(tableTriggers_.value(tableTriggerIds.at(iTableTrigger)) == AMGCS2::UnknownRecordTrigger) {
+		int recordTableId = tableTriggerIds.at(iTableTrigger);
+
+		if(recordTableId < 1 || recordTableId > 16) {
+			lastError_ = QString("Record table id of %1 is out of valid range (1 to 16)").arg(recordTableId);
+		}
+
+		if(tableTriggers_.value(recordTableId) == AMGCS2::UnknownRecordTrigger) {
 			lastError_ = "Provided record trigger is not valid";
 			return false;
 		}
