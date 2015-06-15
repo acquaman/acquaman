@@ -129,6 +129,7 @@ BioXASSideXASScanConfigurationView::BioXASSideXASScanConfigurationView(BioXASSid
 
 	QHBoxLayout *miscLayout = new QHBoxLayout();
 	miscLayout->addLayout(regionButtonsLayout);
+	miscLayout->addStretch();
 	miscLayout->addLayout(optionsLayout);
 
 	QVBoxLayout *mainVL = new QVBoxLayout();

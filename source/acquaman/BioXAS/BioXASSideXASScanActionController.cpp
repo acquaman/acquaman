@@ -121,7 +121,16 @@ QString BioXASSideXASScanActionController::beamlineSettings()
 	QString notes;
 
 	notes.append(QString("SR1 Current:\t%1 mA\n").arg(CLSStorageRing::sr1()->ringCurrent()));
-	notes.append(QString("Energy used: %1").arg(configuration_->axisControlInfos().at(0).name()));
+
+	// Note which energy control is being used.
+
+	QString controlType;
+	if (configuration_->usingEncoderEnergy())
+		controlType = QString("encoder-based");
+	else
+		controlType = QString("step-based");
+
+	notes.append(QString("Energy option:\t%1\n").arg(controlType));
 
 	return notes;
 }
