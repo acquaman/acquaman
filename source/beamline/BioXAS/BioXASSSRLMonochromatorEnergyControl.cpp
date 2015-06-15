@@ -39,10 +39,11 @@ BioXASSSRLMonochromatorEnergyControl::~BioXASSSRLMonochromatorEnergyControl()
 
 bool BioXASSSRLMonochromatorEnergyControl::canMeasure() const
 {
-	bool result = false;
-
-	if (isConnected())
-		result = ( bragg_->canMeasure() && braggSetPosition_->canMeasure() && region_->canMeasure() && m1MirrorPitch_->canMeasure() );
+	bool result = (
+				bragg_ && bragg_->canMeasure() &&
+				region_ && region_->canMeasure() &&
+				m1MirrorPitch_ && m1MirrorPitch_->canMeasure()
+				);
 
 	return result;
 }
