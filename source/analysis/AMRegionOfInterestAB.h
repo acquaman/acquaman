@@ -110,9 +110,9 @@ protected:
 	/// Vector that holds the latest computed values for this analysis block.
 	mutable QVector<double> cachedOutput_;
 	/// The lower index of the dirtied data region.
-	AMnDIndex lowerDirtyIndex_;
+	mutable AMnDIndex lowerDirtyIndex_;
 	/// The upper index of the dirtied data region.
-	AMnDIndex upperDirtyIndex_;
+	mutable AMnDIndex upperDirtyIndex_;
 };
 
 #endif // AMREGIONOFINTERESTAB_H
