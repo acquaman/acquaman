@@ -16,6 +16,8 @@
 #include "AMGCS2SetCommandLevelCommand.h"
 #include "AMGCS2SetSyntaxVersionCommand.h"
 #include "AMGCS2DataRecorderConfigurationQueryCommand.h"
+#include "AMPIC887DataRecorderConfiguration.h"
+#include "AMGCS2SetDataRecorderConfigurationCommand.h"
 
 AMGCS2Command * AMGCS2CommandFactory::buildCommand(const QString &commandString)
 {
@@ -39,6 +41,8 @@ AMGCS2Command * AMGCS2CommandFactory::buildCommand(const QString &commandString)
 		return buildSetCommandLevelCommand(commandArguments(commandString));
 	} else if (commandString.startsWith("CSV")) {
 		return new AMGCS2SetSyntaxVersionCommand();
+	} else if(commandString.startsWith("DRC")) {
+		return buildSetDataRecorderConfigurationCommand(commandArguments(commandString));
 	} else if(commandString.startsWith("DRC?")) {
 		return new AMGCS2DataRecorderConfigurationQueryCommand();
 	}
@@ -162,6 +166,74 @@ AMGCS2Command * AMGCS2CommandFactory::buildSetCommandLevelCommand(const QStringL
 
 	return new AMGCS2SetCommandLevelCommand(AMGCS2Support::intCodeToCommandLevel(
 												commandLevelCode), password);
+}
+
+AMGCS2Command * AMGCS2CommandFactory::buildSetDataRecorderConfigurationCommand(const QStringList &argumentList)
+{
+
+	if(argumentList.count() < 3) {
+		return 0;
+	}
+
+	QList<AMPIC887DataRecorderConfiguration*> recordConfigurationList;
+
+	/*
+	  The arguments to set data recorder configuration come in sets of 3, so we
+	  iterate through the collection three at a time.
+	  */
+	for (int iConfigurationSet = 0, argCount = argumentList.count();
+		 iConfigurationSet < argCount;
+		 ) {
+
+		// Arg1: Record Table Id
+		bool parseSuccess = false;
+		int recordTableId = -1;
+
+		recordTableId = argumentList.at(iConfigurationSet).toInt(&parseSuccess);
+		if(!parseSuccess) {
+			return 0;
+		}
+
+		++iConfigurationSet;
+		// Arg2: RecordSource
+
+		if(iConfigurationSet >= argCount) {
+			return 0;
+		}
+
+		QString sourceString = argumentList.at(iConfigurationSet);
+		if(sourceString.length() != 1) {
+			return 0;
+		}
+		AMGCS2::DataRecordSource recordSource =
+				AMGCS2Support::charCodeToDataRecordSource(sourceString.at(0));
+
+		++iConfigurationSet;
+		// Arg3: Record Option
+
+		if(iConfigurationSet >= argCount) {
+			return 0;
+		}
+
+		int recordOptionCode = argumentList.at(iConfigurationSet).toInt(&parseSuccess);
+		if(!parseSuccess) {
+			return 0;
+		}
+
+		AMGCS2::DataRecordOption recordOption =
+				AMGCS2Support::intCodeToDataRecordOption(recordOptionCode);
+
+		// Add the produced record config to the list.
+		recordConfigurationList.append(
+					new AMPIC887DataRecorderConfiguration(
+						recordTableId,
+						recordSource,
+						recordOption));
+
+		++iConfigurationSet;
+	}
+
+	return new AMGCS2SetDataRecorderConfigurationCommand(recordConfigurationList);
 }
 
 

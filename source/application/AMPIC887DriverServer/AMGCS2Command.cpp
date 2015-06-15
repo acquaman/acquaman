@@ -25,13 +25,13 @@ QString AMGCS2Command::lastError() const
 void AMGCS2Command::run()
 {
 	if(controllerId_ < 0) {
-		lastError_ = QString("Could not run command: Connection not yet established with controller.");
+		lastError_ = QString("Could not run command: Connection not yet established with controller");
 		wasSuccessful_ = false;
 	} else if(validateArguments()) {
 		wasSuccessful_ = runImplementation();
 
 	} else {
-		lastError_ = QString("Could not run command: Validation of arguments failed with message - '%1'.").arg(lastError_);
+		lastError_ = QString("Could not run command: Validation of arguments failed with message - '%1'").arg(lastError_);
 		wasSuccessful_ = false;
 	}
 }

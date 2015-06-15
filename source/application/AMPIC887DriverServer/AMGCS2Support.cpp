@@ -123,6 +123,37 @@ AMGCS2::DataRecordOption AMGCS2Support::intCodeToDataRecordOption(int dataRecord
 	}
 }
 
+
+int AMGCS2Support::dataRecordOptionToInt(AMGCS2::DataRecordOption dataRecordOption)
+{
+	switch(dataRecordOption) {
+	case AMGCS2::NothingIsRecorded:
+		return 0;
+	case AMGCS2::CommandedPositionOfAxis:
+		return 1;
+	case AMGCS2::RealPositionOfAxis:
+		return 2;
+	case AMGCS2::PositionErrorOfAxis:
+		return 3;
+	case AMGCS2::MeasurementTime:
+		return 8;
+	case AMGCS2::CommandedVelocityOfAxis:
+		return 70;
+	case AMGCS2::CommandedAccelerationOfAxis:
+		return 71;
+	case AMGCS2::RealVelocityOfAxis:
+		return 72;
+	case AMGCS2::MotorOutputOfAxis:
+		return 73;
+	case AMGCS2::CurrentIntegratedPositionErrorOfAxis:
+		return 76;
+	case AMGCS2::StatusRegisterOfAxis:
+		return 80;
+	default:
+		return -1;
+	}
+}
+
 AMGCS2::DataRecordSource AMGCS2Support::charCodeToDataRecordSource(const QChar &dataSourceCode)
 {
 	if(dataSourceCode == 'X') {
@@ -167,5 +198,29 @@ QString AMGCS2Support::dataRecordSourceToString(AMGCS2::DataRecordSource recordS
 		return "None";
 	default:
 		return "Unknown";
+	}
+}
+
+QChar AMGCS2Support::dataRecordSourceToCharCode(AMGCS2::DataRecordSource recordSource)
+{
+	switch(recordSource) {
+	case AMGCS2::RecordXAxis:
+		return 'X';
+	case AMGCS2::RecordYAxis:
+		return 'Y';
+	case AMGCS2::RecordZAxis:
+		return 'Z';
+	case AMGCS2::RecordUAxis:
+		return 'U';
+	case AMGCS2::RecordVAxis:
+		return 'V';
+	case AMGCS2::RecordWAxis:
+		return 'W';
+	case AMGCS2::RecordSystemWide:
+		return '1';
+	case AMGCS2::NoRecordSource:
+		return '0';
+	default:
+		return 'E';
 	}
 }

@@ -64,6 +64,15 @@ protected:
 	  * be parsed, 0 otherwise.
 	  */
 	static AMGCS2Command* buildSetCommandLevelCommand(const QStringList& argumentList);
+
+	/*!
+	  * Static helper method for parsing the set data recorder confiuration command
+	  * string arguments.
+	  * \param argumentList ~ A list of the arguments provided to the command.
+	  * \returns An initialized set AMGCS2SetDataRecorderConfigurationCommand if
+	  * the arguments could be parsed, 0 otherwise.
+	  */
+	static AMGCS2Command* buildSetDataRecorderConfigurationCommand(const QStringList& argumentList);
 };
 
 #endif // AMGCS2COMMANDFACTORY_H

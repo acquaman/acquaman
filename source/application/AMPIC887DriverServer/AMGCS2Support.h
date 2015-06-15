@@ -52,6 +52,14 @@ public:
 	static AMGCS2::DataRecordOption intCodeToDataRecordOption(int dataRecordCode);
 
 	/*!
+	  * Converts from the data record option enumerator to its GCS2 integer code
+	  * equivalent.
+	  * \param dataRecordOption ~ The record option whose GCS2 code is to be
+	  * returned.
+	  */
+	static int dataRecordOptionToInt(AMGCS2::DataRecordOption dataRecordOption);
+
+	/*!
 	  * Converts from the data record source code to the enumerated equivalent.
 	  * \param dataSourceCode ~ The character code to be converted to the enumerated
 	  * equivalent.
@@ -60,9 +68,17 @@ public:
 
 	/*!
 	  * Converts from the data record source to a string equivalent.
-	  * \param recordSource
+	  * \param recordSource ~ The record source enum to stringify.
 	  */
 	static QString dataRecordSourceToString(AMGCS2::DataRecordSource recordSource);
+
+	/*!
+	  * Converts from the data record source to its GCS2 code equivalent.
+	  * \param recordSource ~ The record source whose character code is to be
+	  * returned.
+	  */
+	static QChar dataRecordSourceToCharCode(AMGCS2::DataRecordSource recordSource);
+
 protected:
 	/*!
 	  * Static class, so we protect the constructor to prevent initialization.
