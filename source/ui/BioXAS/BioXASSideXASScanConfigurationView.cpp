@@ -106,26 +106,15 @@ BioXASSideXASScanConfigurationView::BioXASSideXASScanConfigurationView(BioXASSid
 	energyAndRegionLayout->addLayout(energyLayout);
 	energyAndRegionLayout->addWidget(regionsView_);
 
-//	QHBoxLayout *regionsLayout = new QHBoxLayout;
-//	regionsLayout->addLayout(energyAndRegionLayout);
-//	regionsLayout->addWidget(usingXRFDetectorCheckBox_, 0, Qt::AlignBottom);
-//	regionsLayout->addWidget(usingEncoderEnergyCheckBox_, 0
-
-//	QLabel *settingsLabel = new QLabel("Scan Settings:");
-//	settingsLabel->setFont(QFont("Lucida Grande", 12, QFont::Bold));
-
-//	QHBoxLayout *regionsHL = new QHBoxLayout();
-//	regionsHL->addStretch();
-//	regionsHL->addWidget(autoRegionButton_);
-//	regionsHL->addWidget(pseudoXAFSButton_);
-
 	QVBoxLayout *optionsLayout = new QVBoxLayout();
 	optionsLayout->addWidget(usingXRFDetectorCheckBox_);
 	optionsLayout->addWidget(usingEncoderEnergyCheckBox_);
+	optionsLayout->addStretch();
 
 	QVBoxLayout *regionButtonsLayout = new QVBoxLayout();
 	regionButtonsLayout->addWidget(autoRegionButton_);
 	regionButtonsLayout->addWidget(pseudoXAFSButton_);
+	regionButtonsLayout->addStretch();
 
 	QHBoxLayout *miscLayout = new QHBoxLayout();
 	miscLayout->addLayout(regionButtonsLayout);
