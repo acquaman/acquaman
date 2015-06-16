@@ -166,7 +166,7 @@ AMNumber AM2DNormalizationAB::value(const AMnDIndex &indexes) const
 
 	return cachedOutput_.at(indexes.i()+size(0)*indexes.j());
 }
-#include <QDebug>
+
 bool AM2DNormalizationAB::values(const AMnDIndex &indexStart, const AMnDIndex &indexEnd, double *outputValues) const
 {
 	if (indexStart.rank() != 2 || indexEnd.rank() != 2)
@@ -180,9 +180,6 @@ bool AM2DNormalizationAB::values(const AMnDIndex &indexStart, const AMnDIndex &i
 			|| (unsigned)indexEnd.j() >= (unsigned)axes_.at(1).size || (unsigned)indexStart.j() > (unsigned)indexEnd.j())
 		return false;
 #endif
-
-	QTime time;
-	time.start();
 
 	if (dataUpdateRequired_)
 		computeCachedValues();
@@ -203,8 +200,6 @@ bool AM2DNormalizationAB::values(const AMnDIndex &indexStart, const AMnDIndex &i
 		for (int j = 0, jSize = indexStart.distanceTo(1, indexEnd); j < jSize; j++)
 			memcpy(outputValues+rowLength*j, cachedOutputDoublePointer+(xOffset+xSize*(j+yOffset)), rowLength*sizeof(double));
 	}
-
-	qDebug() << "Time to compute values of" << name() << "is:" << time.elapsed() << "ms";
 
 	return true;
 }
