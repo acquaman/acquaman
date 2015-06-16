@@ -424,7 +424,8 @@ HEADERS += \
 	source/beamline/AMXspress3XRFDetector.h \
 	source/ui/beamline/AMXspress3XRFDetectorView.h \
     source/dataman/export/AMExporterXDIFormat.h \
-    source/dataman/export/AMExporterOptionXDIFormat.h
+    source/dataman/export/AMExporterOptionXDIFormat.h \
+    source/ui/dataman/AMScanViewToolBar.h
 
 FORMS += \
 
@@ -810,7 +811,8 @@ SOURCES += \
 	source/beamline/AMXspress3XRFDetector.cpp \
 	source/ui/beamline/AMXspress3XRFDetectorView.cpp \
     source/dataman/export/AMExporterXDIFormat.cpp \
-    source/dataman/export/AMExporterOptionXDIFormat.cpp
+    source/dataman/export/AMExporterOptionXDIFormat.cpp \
+    source/ui/dataman/AMScanViewToolBar.cpp
 
 RESOURCES *= source/icons/icons.qrc \
 		source/configurationFiles/configurationFiles.qrc \
@@ -827,6 +829,8 @@ contains(DEFINES, AM_BUILD_REPORTER_ENABLED){
 
 	SOURCES *= source/util/AMRunTimeBuildInfo.cpp
 }
+
+
 
 
 
