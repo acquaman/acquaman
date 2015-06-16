@@ -225,15 +225,16 @@ void AM2DNormalizationAB::computeCachedValues() const
 		for (int i = 0, iSize = lowerDirtyIndex_.distanceTo(0, upperDirtyIndex_); i < iSize; i++){
 
 			int index = i+xOffset + (j+yOffset)*xSize;
+			int dataIndex = i + j*iSize;
 
-			if (normalizer.at(index) == 0)
+			if (normalizer.at(dataIndex) == 0)
 				cachedOutput_[index] = 0;
 
-			else if (normalizer.at(index) < 0 || data.at(index) == -1)
+			else if (normalizer.at(dataIndex) < 0 || data.at(dataIndex) == -1)
 				cachedOutput_[index] = -1;
 
 			else
-				cachedOutput_[index] = data.at(index)/normalizer.at(index);
+				cachedOutput_[index] = data.at(dataIndex)/normalizer.at(dataIndex);
 		}
 	}
 

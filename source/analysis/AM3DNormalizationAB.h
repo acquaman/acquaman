@@ -110,6 +110,9 @@ protected:
 	/// Helper method that sets the data_ and normalizer_ pointer to the correct data source based on the current state of analyzedName_.
 	void setInputSources();
 
+	/// Computes the new cached values.
+	void computeCachedValues() const;
+
 	/// Pointer to the data source that will be analyzed.
 	AMDataSource *data_;
 	/// Pointer to the data source that is the normalizer.
@@ -121,6 +124,15 @@ protected:
 	QString normalizationName_;
 	/// Flag holding whether or not the data source can be analyzed.
 	bool canAnalyze_;
+
+	/// Flag for knowing when to recompute the cached data.
+	mutable bool dataUpdateRequired_;
+	/// Vector that holds the latest computed values for this analysis block.
+	mutable QVector<double> cachedOutput_;
+	/// The lower index of the dirtied data region.
+	mutable AMnDIndex lowerDirtyIndex_;
+	/// The upper index of the dirtied data region.
+	mutable AMnDIndex upperDirtyIndex_;
 };
 
 #endif // AM3DNORMALIZATIONAB_H
