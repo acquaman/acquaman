@@ -53,7 +53,7 @@ AMNumber AMRegionOfInterestAB::value(const AMnDIndex &indexes) const
 		return AMNumber(AMNumber::InvalidError);
 
 #ifdef AM_ENABLE_BOUNDS_CHECKING
-	for (int i = 0, size = axes_.size(); i < size; i++)
+	for (int i = 0, axisSize = axes_.size(); i < axisSize; i++)
 		if (indexes.at(i) >= axes_.at(i).size)
 			return AMNumber(AMNumber::OutOfBoundsError);
 #endif
@@ -61,41 +61,35 @@ AMNumber AMRegionOfInterestAB::value(const AMnDIndex &indexes) const
 	if (!binningRange_.isValid())
 		return AMNumber(AMNumber::InvalidError);
 
-	// Need to turn the range into index positions.
-	AMAxisInfo axisInfoOfInterest = spectrum_->axisInfoAt(spectrum_->rank()-1);
+	if (dataUpdateRequired_)
+		computeCachedValues();
 
-	int minimum = int((binningRange_.minimum() - double(axisInfoOfInterest.start))/double(axisInfoOfInterest.increment));
-	int maximum = int((binningRange_.maximum() - double(axisInfoOfInterest.start))/double(axisInfoOfInterest.increment));
+	AMNumber returnValue;
 
-	AMnDIndex start = AMnDIndex(indexes.rank()+1, AMnDIndex::DoNotInit);
-	AMnDIndex end = AMnDIndex(indexes.rank()+1, AMnDIndex::DoNotInit);
+	switch(rank()){
 
-	for (int i = 0, size = indexes.rank(); i < size; i++){
+	case 0:
 
-		start[i] = indexes.at(i);
-		end[i] = indexes.at(i);
+		returnValue = cachedOutput_.at(0);
+		break;
+
+	case 1:
+
+		returnValue = cachedOutput_.at(indexes.i());
+		break;
+
+	case 2:
+
+		returnValue = cachedOutput_.at(indexes.i()*size(1)+indexes.j());
+		break;
+
+	case 3:
+
+		returnValue = cachedOutput_.at(indexes.i()*size(1)*size(2)+indexes.j()*size(2)+indexes.k());
+		break;
 	}
 
-	start[indexes.rank()] = minimum;
-	end[indexes.rank()] = maximum;
-
-	QVector<double> data = QVector<double>(maximum - minimum + 1);
-
-	if (spectrum_->values(start, end, data.data())){
-
-		// If negative, then there isn't real data yet.
-		if (data.at(0) < 0)
-			return -1.0;
-
-		double value = 0;
-
-		for (int i = 0, size = data.size(); i < size; i++)
-			value += data.at(i);
-
-		return value;
-	}
-
-	return AMNumber(AMNumber::InvalidError);
+	return returnValue;
 }
 
 bool AMRegionOfInterestAB::values(const AMnDIndex &indexStart, const AMnDIndex &indexEnd, double *outputValues) const
@@ -121,10 +115,20 @@ bool AMRegionOfInterestAB::values(const AMnDIndex &indexStart, const AMnDIndex &
 	switch(rank()){
 
 	case 0:
+
+		*outputValues = cachedOutput_.at(0);
+
 		break;
 
-	case 1:
+	case 1:{
+
+		int totalSize = indexStart.totalPointsTo(indexEnd);
+		int xOffset = indexStart.i();
+
+		memcpy(outputValues, cachedOutput_.constData()+xOffset, totalSize*sizeof(double));
+
 		break;
+	}
 
 	case 2:{
 
@@ -135,21 +139,38 @@ bool AMRegionOfInterestAB::values(const AMnDIndex &indexStart, const AMnDIndex &
 
 		else {
 
-			int rowLength = indexStart.distanceTo(0, indexEnd);
+			int yLength = indexStart.distanceTo(1, indexEnd);
 			int xOffset = indexStart.i();
 			int yOffset = indexStart.j();
-			int xSize = size(0);
+			int ySize = size(1);
 			const double *cachedOutputDoublePointer = cachedOutput_.constData();
 
-			for (int j = 0, jSize = indexStart.distanceTo(1, indexEnd); j < jSize; j++)
-				memcpy(outputValues+rowLength*j, cachedOutputDoublePointer+(xOffset+xSize*(j+yOffset)), rowLength*sizeof(double));
+			for (int i = 0, iSize = indexStart.distanceTo(0, indexEnd); i < iSize; i++)
+				memcpy(outputValues+yLength*i, cachedOutputDoublePointer+((i+xOffset)*ySize+yOffset), yLength*sizeof(double));
 		}
 
 		break;
 	}
 
-	case 3:
+	case 3:{
+
+		int yLength = indexStart.distanceTo(1, indexEnd);
+		int zLength = indexStart.distanceTo(2, indexEnd);
+		int xOffset = indexStart.i();
+		int yOffset = indexStart.j();
+		int zOffset = indexStart.k();
+		int ySize = size(1);
+		int zSize = size(2);
+		const double *cachedOutputDoublePointer = cachedOutput_.constData();
+
+		for (int i = 0, iSize = indexStart.distanceTo(0, indexEnd); i < iSize; i++){
+
+			for (int j = 0, jSize = indexStart.distanceTo(0, indexEnd); j < jSize; j++)
+				memcpy(outputValues+(i*yLength*zLength+j*zLength), cachedOutputDoublePointer+((i+xOffset)*ySize*zSize+(j+yOffset)*zSize+zOffset), zLength*sizeof(double));
+		}
+
 		break;
+	}
 	}
 
 	return true;
