@@ -143,7 +143,7 @@ void AM2DAdditionAB::computeCachedValues() const
 	int totalSize = lowerDirtyIndex_.totalPointsTo(upperDirtyIndex_);
 
 	QVector<double> data = QVector<double>(totalSize);
-	sources_.at(0)->values(lowerDirtyIndex_, lowerDirtyIndex_, data.data());
+	sources_.at(0)->values(lowerDirtyIndex_, upperDirtyIndex_, data.data());
 
 	int xOffset = lowerDirtyIndex_.i();
 	int yOffset = lowerDirtyIndex_.j();
@@ -158,12 +158,12 @@ void AM2DAdditionAB::computeCachedValues() const
 	// Iterate through the rest of the sources.
 	for (int index = 1, count = sources_.size(); index < count; index++){
 
-		sources_.at(index)->values(lowerDirtyIndex_, lowerDirtyIndex_, data.data());
+		sources_.at(index)->values(lowerDirtyIndex_, upperDirtyIndex_, data.data());
 
 		for (int i = 0, iSize = lowerDirtyIndex_.distanceTo(0, upperDirtyIndex_); i < iSize; i++){
 
 			for (int j = 0, jSize = lowerDirtyIndex_.distanceTo(1, upperDirtyIndex_); j < jSize; j++)
-				cachedOutput_[(i+xOffset)*ySize+(j+yOffset)] = data.at(i*jSize+j);
+				cachedOutput_[(i+xOffset)*ySize+(j+yOffset)] += data.at(i*jSize+j);
 		}
 	}
 
