@@ -43,16 +43,12 @@ protected slots:
 	void onAllControlsConnected(bool connected);
 
 	/// ===== Handles changes coming from the MaxVMotor controls ====
-	/// Handles Vertical Upstream/Downstream control value changed
-	void onVerticalControlValueChanged();
 	/// Handles Vertical Upstream/Downstream feedback control value changed
 	void onVerticalFeedbackControlValueChanged();
 	/// Handles Vertical Upstream/Downstream status control value changed
 	void onVerticalStatusControlValueChanged();
 
 
-	/// Handles Horizontal Upstream/Downstrea control value changed
-	void onHorizontalControlValueChanged();
 	/// Handles Horizontal Upstream/Downstrea feedback control value changed
 	void onHorizontalFeedbackControlValueChanged();
 	/// Handles Horizontal Upstream/Downstrea status control value changed

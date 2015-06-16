@@ -105,19 +105,15 @@ BioXASSideTableCoordinator::BioXASSideTableCoordinator(QObject *parent) :
 
 	connect(allControls_, SIGNAL(connected(bool)), this, SLOT(onAllControlsConnected(bool)));
 
-	connect(verticalUpstreamControl_, SIGNAL(valueChanged(double)), this, SLOT(onVerticalControlValueChanged()));
 	connect(verticalUpstreamFeedbackControl_, SIGNAL(valueChanged(double)), this, SLOT(onVerticalFeedbackControlValueChanged()));
 	connect(verticalUpstreamStatusControl_, SIGNAL(valueChanged(double)), this, SLOT(onVerticalStatusControlValueChanged()));
 
-	connect(verticalDownstreamControl_, SIGNAL(valueChanged(double)), this, SLOT(onVerticalControlValueChanged()));
 	connect(verticalDownstreamFeedbackControl_, SIGNAL(valueChanged(double)), this, SLOT(onVerticalFeedbackControlValueChanged()));
 	connect(verticalDownstreamStatusControl_, SIGNAL(valueChanged(double)), this, SLOT(onVerticalStatusControlValueChanged()));
 
-	connect(horizontalUpstreamControl_, SIGNAL(valueChanged(double)), this, SLOT(onHorizontalControlValueChanged()));
 	connect(horizontalUpstreamFeedbackControl_, SIGNAL(valueChanged(double)), this, SLOT(onHorizontalFeedbackControlValueChanged()));
 	connect(horizontalUpstreamStatusControl_, SIGNAL(valueChanged(double)), this, SLOT(onHorizontalStatusControlValueChanged()));
 
-	connect(horizontalDownstreamControl_, SIGNAL(valueChanged(double)), this, SLOT(onHorizontalControlValueChanged()));
 	connect(horizontalDownstreamFeedbackControl_, SIGNAL(valueChanged(double)), this, SLOT(onHorizontalFeedbackControlValueChanged()));
 	connect(horizontalDownstreamStatusControl_, SIGNAL(valueChanged(double)), this, SLOT(onHorizontalStatusControlValueChanged()));
 
@@ -137,9 +133,6 @@ void BioXASSideTableCoordinator::onAllControlsConnected(bool connected){
 	if( connected ){
 		connectedOnce_ = true;
 
-		qDebug() << "Checking start up value from the OLD vertical upstream as " << verticalUpstreamControl_->value();
-		qDebug() << "Checking start up value from the OLD vertical DownStream as " << verticalDownstreamControl_->value();
-		onVerticalControlValueChanged();
 		qDebug() << "Checking start up value from the OLD vertical upstream feedback as " << verticalUpstreamFeedbackControl_->value();
 		qDebug() << "Checking start up value from the OLD vertical DownStream feedback as " << verticalDownstreamFeedbackControl_->value();
 		onVerticalFeedbackControlValueChanged();
@@ -147,9 +140,6 @@ void BioXASSideTableCoordinator::onAllControlsConnected(bool connected){
 		qDebug() << "Checking start up value from the OLD vertical DownStream status as " << verticalDownstreamStatusControl_->value();
 		onVerticalStatusControlValueChanged();
 
-		qDebug() << "Checking start up value from the OLD Horizontal upstream as " << horizontalUpstreamControl_->value();
-		qDebug() << "Checking start up value from the OLD Horizontal DownStream as " << horizontalDownstreamControl_->value();
-		onHorizontalControlValueChanged();
 		qDebug() << "Checking start up value from the OLD Horizontal upstream feedback as " << horizontalUpstreamFeedbackControl_->value();
 		qDebug() << "Checking start up value from the OLD Horizontal DownStream feedback as " << horizontalDownstreamFeedbackControl_->value();
 		onHorizontalFeedbackControlValueChanged();
@@ -157,24 +147,15 @@ void BioXASSideTableCoordinator::onAllControlsConnected(bool connected){
 		qDebug() << "Checking start up value from the OLD Horizontal DownStream status as " << horizontalDownstreamStatusControl_->value();
 		onHorizontalStatusControlValueChanged();
 
+		softIOCHeightControl_->move(softIOCHeightFeedbackControl_->value());
+		softIOCPitchControl_->move(softIOCPitchFeedbackControl_->value());
+		softIOCLateralControl_->move(softIOCLateralFeedbackControl_->value());
+		softIOCYawControl_->move(softIOCYawFeedbackControl_->value());
+
 		initialized_ = true;
 	} else {
 		initialized_ = false;
 	}
-}
-
-void BioXASSideTableCoordinator::onVerticalControlValueChanged()
-{
-	if ( !connectedOnce_ )
-		return;
-
-	if (softIOCHeightStatusControl_->isMoving() || softIOCPitchStatusControl_->isMoving())
-		return;
-
-	double upstreamHeight = verticalUpstreamControl_->value();
-	double downstreamHeight = verticalDownstreamControl_->value();
-
-	manipulateVerticalPVChange(upstreamHeight, downstreamHeight, softIOCHeightControl_, softIOCPitchControl_);
 }
 
 void BioXASSideTableCoordinator::onVerticalFeedbackControlValueChanged()
@@ -211,20 +192,6 @@ void BioXASSideTableCoordinator::onVerticalStatusControlValueChanged()
 	}
 }
 
-void BioXASSideTableCoordinator::onHorizontalControlValueChanged()
-{
-	if ( !connectedOnce_ )
-		return;
-
-	if (softIOCLateralStatusControl_->isMoving() || softIOCYawStatusControl_->isMoving())
-		return;
-
-	double horizontalUpstreamValue = horizontalUpstreamControl_->value();
-	double horizontalDownstreamValue = horizontalDownstreamControl_->value();
-
-	manipulateHorizontalPVChange(horizontalUpstreamValue, horizontalDownstreamValue, softIOCLateralControl_, softIOCYawControl_);
-}
-
 void BioXASSideTableCoordinator::onHorizontalFeedbackControlValueChanged()
 {
 	if ( !connectedOnce_ )
@@ -251,6 +218,9 @@ void BioXASSideTableCoordinator::onHorizontalStatusControlValueChanged()
 		status = horizontalUpstreamControlStatus > horizontalDownstreamControlStatus ? horizontalUpstreamControlStatus : horizontalDownstreamControlStatus;
 	}
 
+	if (!softIOCLateralStatusControl_->withinTolerance(status)) {
+		softIOCLateralStatusControl_->move(status);
+	}
 	if (!softIOCYawStatusControl_->withinTolerance(status)) {
 		softIOCYawStatusControl_->move(status);
 	}
@@ -263,17 +233,10 @@ void BioXASSideTableCoordinator::onHeightControlValueChanged(double value)
 	if(!initialized_)
 		return;
 
-	double upstreamHeight = verticalUpstreamControl_->value();
-	double downstreamHeight = verticalDownstreamControl_->value();
-
-	// check the height of the physical PVs, if it matches with the softIOC height. No need to set back
-	double tableHeight = calculateTableHeight(upstreamHeight, downstreamHeight);
-	if (softIOCHeightControl_->withinTolerance(tableHeight))
-		return;
+	double upstreamHeight = verticalUpstreamFeedbackControl_->value();
+	double downstreamHeight = verticalDownstreamFeedbackControl_->value();
 
 	// try to populate the height changes to the physical PVs
-	softIOCHeightStatusControl_->move(1);
-
 	double delta = value - softIOCHeightFeedbackControl_->value();
 	double targetUpstreamHeight = upstreamHeight + delta;
 	double targetDownstreamHeight = downstreamHeight + delta;
@@ -281,6 +244,7 @@ void BioXASSideTableCoordinator::onHeightControlValueChanged(double value)
 	if (!verticalUpstreamControl_->withinTolerance(targetUpstreamHeight)) {
 		verticalUpstreamControl_->move(targetUpstreamHeight);
 	}
+
 	if (!verticalDownstreamControl_->withinTolerance(targetDownstreamHeight)) {
 		verticalDownstreamControl_->move(targetDownstreamHeight);
 	}
@@ -291,7 +255,7 @@ void BioXASSideTableCoordinator::onHeightStopControlValueChanged()
 	if(!initialized_)
 		return;
 
-	if (softIOCHeightStopControl_->isMoving()) {
+	if (softIOCHeightStatusControl_->isMoving()) {
 		verticalUpstreamControl_->stop();
 		verticalDownstreamControl_->stop();
 
@@ -305,18 +269,10 @@ void BioXASSideTableCoordinator::onPitchControlValueChanged(double angle)
 	if(!initialized_)
 		return;
 
-	// check the pitch of the physical PVs, if it matches with the softIOC pitch. No need to set back
-	double tablePitch =  calculateTablePitch(verticalUpstreamControl_->value(), verticalDownstreamControl_->value());
-	if (softIOCPitchControl_->withinTolerance(tablePitch))
-		return;
-
-	// try to populate the pitch changes to the physical PVs
-	softIOCPitchStatusControl_->move(1);
-
 	// downstream control will move in the direction of the angle and upstream will move against the direction of the angle
 	double delta = tableVerticalMotorPosition_ * tan(degreeToRadian(angle));
-	double targetUpstreamHeight = softIOCHeightControl_->value() - delta ;
-	double targetDownstreamHeight = softIOCHeightControl_->value() + delta;
+	double targetUpstreamHeight = softIOCHeightFeedbackControl_->value() - delta ;
+	double targetDownstreamHeight = softIOCHeightFeedbackControl_->value() + delta;
 
 	if (!verticalUpstreamControl_->withinTolerance(targetUpstreamHeight)) {
 		verticalUpstreamControl_->move(targetUpstreamHeight);
@@ -331,7 +287,7 @@ void BioXASSideTableCoordinator::onPitchStopControlValueChanged()
 	if(!initialized_)
 		return;
 
-	if (softIOCPitchStopControl_->isMoving()) {
+	if (softIOCPitchStatusControl_->isMoving()) {
 		verticalUpstreamControl_->stop();
 		verticalDownstreamControl_->stop();
 
@@ -344,19 +300,12 @@ void BioXASSideTableCoordinator::onLateralControlValueChanged(double value)
 	if(!initialized_)
 		return;
 
-	double upstreamLateral = horizontalUpstreamControl_->value();
-	double downstreamLateral = horizontalDownstreamControl_->value();
-
-	// check the table lateral of the physical PVs, if it matches with the softIOC lateral . No need to set back
-	double tableLateral = calculateTableLateral(upstreamLateral, downstreamLateral);
-	if (softIOCLateralControl_->withinTolerance(tableLateral))
-		return;
+	double upstreamLateral = horizontalUpstreamFeedbackControl_->value();
+	double downstreamLateral = horizontalDownstreamFeedbackControl_->value();
 
 	// try to populate the lateral changes to the physical PVs
-	softIOCLateralStatusControl_->move(1);
-
 	double delta = value - softIOCLateralFeedbackControl_->value();
-	double horizontalUpstreamPosition = upstreamLateral - delta;
+	double horizontalUpstreamPosition = upstreamLateral + delta;
 	double horizontalDownstreamPosition = downstreamLateral + delta;
 
 	if (!horizontalUpstreamControl_->withinTolerance(horizontalUpstreamPosition)) {
@@ -372,7 +321,7 @@ void BioXASSideTableCoordinator::onLateralStopControlValueChanged()
 	if(!initialized_)
 		return;
 
-	if (softIOCLateralStopControl_->isMoving()) {
+	if (softIOCLateralStatusControl_->isMoving()) {
 		horizontalUpstreamControl_->stop();
 		horizontalDownstreamControl_->stop();
 
@@ -385,24 +334,16 @@ void BioXASSideTableCoordinator::onYawControlValueChanged(double angle)
 	if(!initialized_)
 		return;
 
-	double upstreamLateral = horizontalUpstreamControl_->value();
-	double downstreamLateral = horizontalDownstreamControl_->value();
-
-	// check the table yaw of the physical PVs, if it matches with the softIOC lateral . No need to set back
-	double tableYaw = calculateTableYaw(upstreamLateral, downstreamLateral);
-	if (softIOCYawControl_->withinTolerance(tableYaw))
-		return;
-
 	// try to populate the yaw changes to the physical PVs
-	softIOCYawStatusControl_->move(1);
-
 	double setpoint = tableHorizontalMotorPosition_ * tan(degreeToRadian(angle));
+	double targetUpstreamLateral = softIOCLateralFeedbackControl_->value() - setpoint ;
+	double targetDownstreamLateral = softIOCLateralFeedbackControl_->value() + setpoint;
 
-	if (!horizontalUpstreamControl_->withinTolerance(-setpoint)) {
-		horizontalUpstreamControl_->move(-setpoint);
+	if (!horizontalUpstreamControl_->withinTolerance(targetUpstreamLateral)) {
+		horizontalUpstreamControl_->move(targetUpstreamLateral);
 	}
-	if (!horizontalDownstreamControl_->withinTolerance(setpoint)) {
-		horizontalDownstreamControl_->move(setpoint);
+	if (!horizontalDownstreamControl_->withinTolerance(targetDownstreamLateral)) {
+		horizontalDownstreamControl_->move(targetDownstreamLateral);
 	}
 }
 
@@ -411,7 +352,7 @@ void BioXASSideTableCoordinator::onYawStopControlValueChanged()
 	if(!initialized_)
 		return;
 
-	if (softIOCYawStopControl_->isMoving()) {
+	if (softIOCYawStatusControl_->isMoving()) {
 		horizontalUpstreamControl_->stop();
 		horizontalDownstreamControl_->stop();
 
@@ -448,9 +389,13 @@ void BioXASSideTableCoordinator::manipulateVerticalPVChange(double upstreamHeigh
 	double height = calculateTableHeight(upstreamHeight, downstreamHeight);
 	double pitch =  calculateTablePitch(upstreamHeight, downstreamHeight);
 
+	height = static_cast<double>(static_cast<int>(height*1000+0.5))/1000.0;
+	pitch = static_cast<double>(static_cast<int>(pitch*1000+0.5))/1000.0;
+
 	if (!heightPV->withinTolerance(height)) {
 		heightPV->move(height);
 	}
+
 	if (!pitchPV->withinTolerance(pitch)) {
 		pitchPV->move(pitch);
 	}
@@ -460,6 +405,9 @@ void BioXASSideTableCoordinator::manipulateHorizontalPVChange(double upstreamOff
 {
 	double lateral = calculateTableLateral(upstreamOffset, downstreamOffset);
 	double yaw = calculateTableYaw(upstreamOffset, downstreamOffset);
+
+	lateral = static_cast<double>(static_cast<int>(lateral*1000+0.5))/1000.0;
+	yaw = static_cast<double>(static_cast<int>(yaw*1000+0.5))/1000.0;
 
 	if ( !lateralPV->withinTolerance(lateral) ) {
 		lateralPV->move(lateral);
