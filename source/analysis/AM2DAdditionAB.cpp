@@ -24,6 +24,11 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 AM2DAdditionAB::AM2DAdditionAB(const QString &outputName, QObject *parent)
 	: AMStandardAnalysisBlock(outputName, parent)
 {
+	dataUpdateRequired_ = false;
+	lowerDirtyIndex_ = AMnDIndex();
+	upperDirtyIndex_ = AMnDIndex();
+	cachedOutput_ = QVector<double>();
+
 	axes_ << AMAxisInfo("invalid", 0, "No input data") << AMAxisInfo("invalid", 0, "No input data");
 	setState(AMDataSource::InvalidFlag);
 }
@@ -59,12 +64,10 @@ AMNumber AM2DAdditionAB::value(const AMnDIndex &indexes) const
 			return AMNumber(AMNumber::OutOfBoundsError);
 #endif
 
-	double val = 0;
+	if (dataUpdateRequired_)
+		computeCachedValues();
 
-	for (int i = 0; i < sources_.size(); i++)
-		val += (double)sources_.at(i)->value(indexes);
-
-	return val;
+	return cachedOutput_.at(indexes.i()*size(1)+indexes.j());
 }
 
 bool AM2DAdditionAB::values(const AMnDIndex &indexStart, const AMnDIndex &indexEnd, double *outputValues) const
@@ -84,22 +87,24 @@ bool AM2DAdditionAB::values(const AMnDIndex &indexStart, const AMnDIndex &indexE
 		return false;
 #endif
 
+	if (dataUpdateRequired_)
+		computeCachedValues();
+
 	int totalSize = indexStart.totalPointsTo(indexEnd);
 
-	QVector<double> data = QVector<double>(totalSize);
-	sources_.at(0)->values(indexStart, indexEnd, data.data());
+	if (totalSize == size().product())
+		memcpy(outputValues, cachedOutput_.constData(), totalSize*sizeof(double));
 
-	// Do the first data source separately to initialize the values.
-	for (int i = 0; i < totalSize; i++)
-		outputValues[i] = data.at(i);
+	else {
 
-	// Iterate through the rest of the sources.
-	for (int i = 1, count = sources_.size(); i < count; i++){
+		int yLength = indexStart.distanceTo(1, indexEnd);
+		int xOffset = indexStart.i();
+		int yOffset = indexStart.j();
+		int ySize = size(1);
+		const double *cachedOutputDoublePointer = cachedOutput_.constData();
 
-		sources_.at(i)->values(indexStart, indexEnd, data.data());
-
-		for (int j = 0; j < totalSize; j++)
-			outputValues[j] += data.at(j);
+		for (int i = 0, iSize = indexStart.distanceTo(0, indexEnd); i < iSize; i++)
+			memcpy(outputValues+yLength*i, cachedOutputDoublePointer+((i+xOffset)*ySize+yOffset), yLength*sizeof(double));
 	}
 
 	return true;
@@ -133,9 +138,49 @@ bool AM2DAdditionAB::axisValues(int axisNumber, int startIndex, int endIndex, AM
 	return sources_.first()->axisValues(axisNumber, startIndex, endIndex, outputValues);
 }
 
+void AM2DAdditionAB::computeCachedValues() const
+{
+	int totalSize = lowerDirtyIndex_.totalPointsTo(upperDirtyIndex_);
+
+	QVector<double> data = QVector<double>(totalSize);
+	sources_.at(0)->values(lowerDirtyIndex_, lowerDirtyIndex_, data.data());
+
+	int xOffset = lowerDirtyIndex_.i();
+	int yOffset = lowerDirtyIndex_.j();
+	int ySize = size(1);
+
+	for (int i = 0, iSize = lowerDirtyIndex_.distanceTo(0, upperDirtyIndex_); i < iSize; i++){
+
+		for (int j = 0, jSize = lowerDirtyIndex_.distanceTo(1, upperDirtyIndex_); j < jSize; j++)
+			cachedOutput_[(i+xOffset)*ySize+(j+yOffset)] = data.at(i*jSize+j);
+	}
+
+	// Iterate through the rest of the sources.
+	for (int index = 1, count = sources_.size(); index < count; index++){
+
+		sources_.at(index)->values(lowerDirtyIndex_, lowerDirtyIndex_, data.data());
+
+		for (int i = 0, iSize = lowerDirtyIndex_.distanceTo(0, upperDirtyIndex_); i < iSize; i++){
+
+			for (int j = 0, jSize = lowerDirtyIndex_.distanceTo(1, upperDirtyIndex_); j < jSize; j++)
+				cachedOutput_[(i+xOffset)*ySize+(j+yOffset)] = data.at(i*jSize+j);
+		}
+	}
+
+	dataUpdateRequired_ = false;
+	lowerDirtyIndex_ = AMnDIndex();
+	upperDirtyIndex_ = AMnDIndex();
+}
+
 // Connected to be called when the values of the input data source change
 void AM2DAdditionAB::onInputSourceValuesChanged(const AMnDIndex& start, const AMnDIndex& end)
 {
+	if (!dataUpdateRequired_)
+		dataUpdateRequired_ = true;
+
+	lowerDirtyIndex_ = lowerDirtyIndex_.globalMinimum(start);
+	upperDirtyIndex_ = upperDirtyIndex_.globalMaximum(end);
+
 	emitValuesChanged(start, end);
 }
 
@@ -153,6 +198,10 @@ void AM2DAdditionAB::onInputSourceSizeChanged()
 		axes_[1].size = sources_.at(0)->size(1);
 		emitSizeChanged(1);
 	}
+
+	dataUpdateRequired_ = true;
+	lowerDirtyIndex_ = AMnDIndex(axes_.size(), AMnDIndex::DoInit, 0);
+	upperDirtyIndex_ = size()-1;
 }
 
 // Connected to be called when the state() flags of any input source change
