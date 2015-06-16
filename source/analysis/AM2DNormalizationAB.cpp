@@ -31,6 +31,9 @@ AM2DNormalizationAB::AM2DNormalizationAB(const QString &outputName, QObject *par
 	dataName_ = "";
 	normalizationName_ = "";
 	dataUpdateRequired_ = false;
+	lowerDirtyIndex_ = AMnDIndex();
+	upperDirtyIndex_ = AMnDIndex();
+	cachedOutput_ = QVector<double>();
 	axes_ << AMAxisInfo("invalid", 0, "No input data") << AMAxisInfo("invalid", 0, "No input data");
 	setState(AMDataSource::InvalidFlag);
 }
@@ -272,9 +275,6 @@ void AM2DNormalizationAB::onInputSourceValuesChanged(const AMnDIndex& start, con
 	if (!dataUpdateRequired_)
 		dataUpdateRequired_ = true;
 
-	qDebug() << start.toString() << lowerDirtyIndex_.toString() << lowerDirtyIndex_.globalMinimum(start).toString();
-	qDebug() << end.toString() << upperDirtyIndex_.toString() << upperDirtyIndex_.globalMaximum(end).toString();
-
 	lowerDirtyIndex_ = lowerDirtyIndex_.globalMinimum(start);
 	upperDirtyIndex_ = upperDirtyIndex_.globalMaximum(end);
 
@@ -296,7 +296,7 @@ void AM2DNormalizationAB::onInputSourceSizeChanged()
 	}
 
 	dataUpdateRequired_ = true;
-	lowerDirtyIndex_ = AMnDIndex(0, 0);
+	lowerDirtyIndex_ = AMnDIndex(axes_.size(), AMnDIndex::DoInit, 0);
 	upperDirtyIndex_ = size()-1;
 	cachedOutput_ = QVector<double>(size().product());
 }

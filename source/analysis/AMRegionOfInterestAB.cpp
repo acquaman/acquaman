@@ -27,6 +27,11 @@ AMRegionOfInterestAB::AMRegionOfInterestAB(const QString &outputName, QObject *p
 	spectrum_ = 0;
 	binningRange_ = AMRange();
 
+	dataUpdateRequired_ = false;
+	lowerDirtyIndex_ = AMnDIndex();
+	upperDirtyIndex_ = AMnDIndex();
+	cachedOutput_ = QVector<double>();
+
 	setState(AMDataSource::InvalidFlag);
 }
 

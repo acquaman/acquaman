@@ -29,6 +29,12 @@ AM1DNormalizationAB::AM1DNormalizationAB(const QString &outputName, QObject *par
 	canAnalyze_ = false;
 	dataName_ = "";
 	normalizationName_ = "";
+
+	dataUpdateRequired_ = false;
+	lowerDirtyIndex_ = AMnDIndex();
+	upperDirtyIndex_ = AMnDIndex();
+	cachedOutput_ = QVector<double>();
+
 	axes_ << AMAxisInfo("invalid", 0, "No input data");
 	setState(AMDataSource::InvalidFlag);
 }
@@ -154,15 +160,10 @@ AMNumber AM1DNormalizationAB::value(const AMnDIndex &indexes) const
 			return AMNumber(AMNumber::OutOfBoundsError);
 #endif
 
-	// Can't divide by zero.
-	if (double(normalizer_->value(indexes)) == 0)
-		return 0;
+	if (dataUpdateRequired_)
+		computeCachedValues();
 
-	// The normalizer must be positive.
-	if (double(normalizer_->value(indexes)) < 0)
-		return -1;
-
-	return double(data_->value(indexes))/double(normalizer_->value(indexes));
+	return cachedOutput_.at(indexes.i());
 }
 
 bool AM1DNormalizationAB::values(const AMnDIndex &indexStart, const AMnDIndex &indexEnd, double *outputValues) const
@@ -181,27 +182,41 @@ bool AM1DNormalizationAB::values(const AMnDIndex &indexStart, const AMnDIndex &i
 		return false;
 #endif
 
+	if (dataUpdateRequired_)
+		computeCachedValues();
+
 	int totalSize = indexStart.totalPointsTo(indexEnd);
+	memcpy(outputValues, cachedOutput_.constData()+indexStart.i(), totalSize*sizeof(double));
+
+	return true;
+}
+
+void AM1DNormalizationAB::computeCachedValues() const
+{
+	int totalSize = lowerDirtyIndex_.totalPointsTo(upperDirtyIndex_);
+	int xOffset = lowerDirtyIndex_.i();
 
 	QVector<double> data = QVector<double>(totalSize);
 	QVector<double> normalizer = QVector<double>(totalSize);
 
-	data_->values(indexStart, indexEnd, data.data());
-	normalizer_->values(indexStart, indexEnd, normalizer.data());
+	data_->values(lowerDirtyIndex_, upperDirtyIndex_, data.data());
+	normalizer_->values(lowerDirtyIndex_, upperDirtyIndex_, normalizer.data());
 
 	for (int i = 0; i < totalSize; i++){
 
 		if (normalizer.at(i) == 0)
-			outputValues[i] = 0;
+			cachedOutput_[i+xOffset] = 0;
 
 		else if (normalizer.at(i) < 0)
-			outputValues[i] = -1;
+			cachedOutput_[i+xOffset] = -1;
 
 		else
-			outputValues[i] = data.at(i)/normalizer.at(i);
+			cachedOutput_[i+xOffset] = data.at(i)/normalizer.at(i);
 	}
 
-	return true;
+	dataUpdateRequired_ = false;
+	lowerDirtyIndex_ = AMnDIndex();
+	upperDirtyIndex_ = AMnDIndex();
 }
 
 AMNumber AM1DNormalizationAB::axisValue(int axisNumber, int index) const
@@ -234,6 +249,12 @@ bool AM1DNormalizationAB::axisValues(int axisNumber, int startIndex, int endInde
 
 void AM1DNormalizationAB::onInputSourceValuesChanged(const AMnDIndex& start, const AMnDIndex& end)
 {
+	if (!dataUpdateRequired_)
+		dataUpdateRequired_ = true;
+
+	lowerDirtyIndex_ = lowerDirtyIndex_.globalMinimum(start);
+	upperDirtyIndex_ = upperDirtyIndex_.globalMaximum(end);
+
 	emitValuesChanged(start, end);
 }
 
@@ -244,6 +265,11 @@ void AM1DNormalizationAB::onInputSourceSizeChanged()
 		axes_[0].size = data_->size(0);
 		emitSizeChanged(0);
 	}
+
+	dataUpdateRequired_ = true;
+	lowerDirtyIndex_ = AMnDIndex(axes_.size(), AMnDIndex::DoInit, 0);
+	upperDirtyIndex_ = size()-1;
+	cachedOutput_ = QVector<double>(size().product());
 }
 
 void AM1DNormalizationAB::onInputSourceStateChanged() {
