@@ -244,6 +244,7 @@ AMScanView::~AMScanView() {
 }
 
 void AMScanView::setupUI() {
+
 	QVBoxLayout* vl = new QVBoxLayout();
 	vl->setMargin(6);
 	vl->setSpacing(0);
@@ -301,10 +302,15 @@ void AMScanView::setSpectrumViewVisibility(bool visible)
 
 void AMScanView::onDataPositionChanged(const QPointF &point)
 {
+	qDebug() << "\n";
+	qDebug() << "Data position changed in AMScanView.";
+
 	AMnDIndex index = getIndex(point);
 
 	if (modeBar_->showSpectra_)
 		spectrumView_->onDataPositionChanged(index);
+
+	qDebug() << "\n";
 }
 
 void AMScanView::setPlotRange(double low, double high)
@@ -553,10 +559,57 @@ AMScanViewInternal::AMScanViewInternal(AMScanView* masterView)
 	waterfallEnabled_ = false;
 	waterfallOffset_  = 0;
 
+	activeTool_ = 0;
+	dragZoomerTool_ = 0;
+	wheelZoomerTool_ = 0;
+	dataPositionTool_ = 0;
 }
 
 
 AMScanSetModel* AMScanViewInternal::model() const { return masterView_->model(); }
+
+void AMScanViewInternal::addTool(MPlotAbstractTool *newTool)
+{
+	if (!tools_.contains(newTool))
+		tools_ << newTool;
+}
+
+void AMScanViewInternal::setActiveTool(MPlotAbstractTool *newActiveTool)
+{
+	if (activeTool_ != newActiveTool) {
+		activeTool_ = newActiveTool;
+	}
+}
+
+void AMScanViewInternal::enableDragZoomerTool(MPlotGW *plot)
+{
+	if (dragZoomerTool_ && plot) {
+		plot->plot()->removeTool(activeTool_);
+		plot->plot()->addTool(dragZoomerTool_);
+
+		setActiveTool(dragZoomerTool_);
+	}
+}
+
+void AMScanViewInternal::enableWheelZoomerTool(MPlotGW *plot)
+{
+	if (wheelZoomerTool_ && plot) {
+		plot->plot()->removeTool(activeTool_);
+		plot->plot()->addTool(wheelZoomerTool_);
+
+		setActiveTool(wheelZoomerTool_);
+	}
+}
+
+void AMScanViewInternal::enableDataPositionTool(MPlotGW *plot)
+{
+	if (dataPositionTool_ && plot) {
+		plot->plot()->removeTool(activeTool_);
+		plot->plot()->addTool(dataPositionTool_);
+
+		setActiveTool(dataPositionTool_);
+	}
+}
 
 MPlotGW * AMScanViewInternal::createDefaultPlot()
 {
@@ -575,11 +628,13 @@ MPlotGW * AMScanViewInternal::createDefaultPlot()
 
 	rv->plot()->setMarginRight(rv->plot()->marginLeft());
 
-	// DragZoomerTools need to be added first ("on the bottom") so they don't steal everyone else's mouse events
-	rv->plot()->addTool(new MPlotDragZoomerTool);
+	enableDragZoomerTool(rv);
 
-	// this tool adds mouse-wheel based zooming
-	rv->plot()->addTool(new MPlotWheelZoomerTool);
+//	// DragZoomerTools need to be added first ("on the bottom") so they don't steal everyone else's mouse events
+//	rv->plot()->addTool(new MPlotDragZoomerTool);
+
+//	// this tool adds mouse-wheel based zooming
+//	rv->plot()->addTool(new MPlotWheelZoomerTool);
 
 	return rv;
 }
@@ -669,8 +724,13 @@ void AMScanViewInternal::reviewPlotAxesConfiguration(MPlotGW *plotGW)
 
 AMScanViewExclusiveView::AMScanViewExclusiveView(AMScanView* masterView) : AMScanViewInternal(masterView) {
 
+	dragZoomerTool_ = new MPlotDragZoomerTool();
+	wheelZoomerTool_ = new MPlotWheelZoomerTool();
+	dataPositionTool_ = new MPlotDataPositionTool();
+
 	// create our main plot:
 	plot_ = createDefaultPlot();
+
 
 	MPlotDataPositionTool *positionTool = new MPlotDataPositionTool(false);
 	plot_->plot()->addTool(positionTool);

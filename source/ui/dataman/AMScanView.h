@@ -79,6 +79,9 @@ signals:
 };
 
 class AMScanView;
+class MPlotDragZoomerTool;
+class MPlotWheelZoomerTool;
+class MPlotDataPositionTool;
 
 /// This class is the interface for different view options inside an AMScanView.  They must be able to handle changes from the AMScanSet model (scans or data sources added or removed).
 class AMScanViewInternal : public QGraphicsWidget {
@@ -98,6 +101,19 @@ public slots:
 	virtual void setWaterfallOffset(double offset) { waterfallOffset_ = offset; }
 	/// Must re-implement in subclasses: enable or disable the waterfall effect
 	virtual void enableWaterfallOffset(bool waterfallOn = true) { waterfallEnabled_ = waterfallOn; }
+
+	/// Adds a tool to the list of available tools.
+	void addTool(MPlotAbstractTool *newTool);
+	/// Sets the active tool.
+	void setActiveTool(MPlotAbstractTool *newActiveTool);
+
+	/// Sets the drag zoomer as the active plot tool.
+	void enableDragZoomerTool(MPlotGW *plot);
+	/// Sets the wheel zoomer as the active plot tool.
+	void enableWheelZoomerTool(MPlotGW *plot);
+	/// Sets the data position tool as the active plot tool.
+	void enableDataPositionTool(MPlotGW *plot);
+
 
 protected:
 	/// Helper function to create an appropriate MPlotItem and connect it to the \c dataSource, depending on the dimensionality of \c dataSource.  Returns 0 if we can't handle this dataSource and no item was created (ex: unsupported dimensionality, we only handle 1D or 2D data for now.)
@@ -120,9 +136,18 @@ protected:
 
 	AMScanSetModel* model() const;
 
+	/// Returns the tools available for this view.
+	QList<MPlotAbstractTool*> tools() const { return tools_; }
+
 	double waterfallOffset_, normMin_, normMax_;
 	bool logScaleEnabled_;
 	bool normalizationEnabled_, waterfallEnabled_;
+
+	MPlotAbstractTool *activeTool_;
+	MPlotDragZoomerTool *dragZoomerTool_;
+	MPlotWheelZoomerTool *wheelZoomerTool_;
+	MPlotDataPositionTool *dataPositionTool_;
+	QList<MPlotAbstractTool*> tools_;
 
 	MPlotGW* createDefaultPlot();
 
@@ -144,6 +169,7 @@ signals:
 #define AM_SCAN_VIEW_HIDE_SCANBARS_AFTER_N_SCANS 7
 
 class QGroupBox;
+class QComboBox;
 
 /// A GUI class that provides a several different ways to view a set of scans.  It is based on the contents of an AMScanSetModel, and a variety of different AMScanViewInternal views can be shown within it.
 class AMScanView : public QWidget
@@ -270,6 +296,8 @@ public slots:
 	void setPlotCursorCoordinates(double xCoordinate);
 	/// Sets the color of the plot cursor.
 	void setPlotCursorColor(const QColor &color);
+
+	///
 
 	/// Re-implementing enabling the log scale.
 	virtual void enableLogScale(bool logScaleOn);
