@@ -42,6 +42,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "MPlot/MPlotPoint.h"
 #include "dataman/AMScanSetModel.h"
 
+#include "ui/dataman/AMScanViewToolBar.h"
 #include "ui/dataman/AMCramBarHorizontal.h"
 #include "ui/dataman/AMScanViewUtilities.h"
 
@@ -277,6 +278,8 @@ protected:
 	void makeConnections();
 };
 
+class AMScanViewToolBar;
+
 /// This class implements an internal view for AMScanView, which shows only a single data source at a time.
 class AMScanViewExclusiveView : public AMScanViewInternal {
 	Q_OBJECT
@@ -343,6 +346,9 @@ protected:
 
 	/// The plot item that holds the cursor that can be displayed on the screen.
 	MPlotPoint *plotCursor_;
+
+	/// The plot tool options bar.
+	AMScanViewToolBar *toolbar_;
 };
 
 /// This class implements an internal view for AMScanView, which shows all of the enabled data sources.

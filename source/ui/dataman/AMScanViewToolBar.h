@@ -5,9 +5,14 @@
 #include <QComboBox>
 #include <QLabel>
 #include <QGroupBox>
+#include <QSignalMapper>
+#include <QToolBar>
+#include <QAction>
 #include <QLayout>
 
 class MPlot;
+class MPlotAbstractTool;
+class AMScanViewToolBarDataPositionView;
 
 class AMScanViewToolBar : public QWidget
 {
@@ -15,22 +20,36 @@ class AMScanViewToolBar : public QWidget
 
 public:
 	/// Constructor.
-	explicit AMScanViewToolBar(MPlot *plot, QWidget *parent = 0);
+	explicit AMScanViewToolBar(MPlot *plot, QList<MPlotAbstractTool*> toolOptions, bool exclusiveSelection = true, QWidget *parent = 0);
 	/// Destructor.
 	virtual ~AMScanViewToolBar();
 
 	/// Returns the plot being edited.
 	MPlot* plot() const { return plot_; }
+	/// Returns the list of available tool options.
+	QList<MPlotAbstractTool*> tools() const { return tools_; }
+	/// Returns whether multiple tools can be selected at once.
+	bool exclusiveSelectionStatus() const { return exclusiveSelection_; }
 
 signals:
 	/// Notifier that the plot being edited has changed.
 	void plotChanged(MPlot *newPlot);
+	/// Notifier that the list of tool options has changed.
+	void toolsChanged(QList<MPlotAbstractTool*> newTools);
+	/// Notifier that the exclusive selection status has changed.
+	void exclusiveSelectionStatusChanged(bool isExclusive);
 
 public slots:
 	/// Sets the plot to be edited.
 	void setPlot(MPlot *newPlot);
-	/// Sets the list of available tool names.
-	void setToolNames(const QStringList &names);
+	/// Sets the list of available tool options.
+	void setTools(QList<MPlotAbstractTool*> newTools);
+	/// Sets the exclusive selection status.
+	void setExclusiveSelectionStatus(bool isExclusive);
+
+protected slots:
+	/// Handles applying the given action.
+	void onToolSelected(QAction *action);
 
 protected:
 	/// Handles updating the plot with the selected tool.
@@ -39,9 +58,15 @@ protected:
 protected:
 	/// The plot being edited.
 	MPlot *plot_;
+	/// The list of available tool options.
+	QList<MPlotAbstractTool*> tools_;
+	/// Bool indicating whether multiple tools can be selected at once.
+	bool exclusiveSelection_;
 
-	/// The combo box displaying the currently active tool, and containing all available tool options.
-	QComboBox *toolBox_;
+	/// Toolbar displaying the available plot tool options.
+	QToolBar *toolBar_;
+	/// Displays information for the data position plot tool.
+	AMScanViewToolBarDataPositionView *dataPositionView_;
 };
 
 

@@ -249,6 +249,8 @@ void AMScanView::setupUI() {
 	vl->setMargin(6);
 	vl->setSpacing(0);
 
+	plotTools_ = new AMScanViewToolBar();
+
 	gview_ = new AMGraphicsViewAndWidget();
 	gview_->setMinimumSize(400,300);
 	gview_->graphicsWidget()->setGeometry(0,0,640*4, 480);
