@@ -202,6 +202,7 @@ void AM2DAdditionAB::onInputSourceSizeChanged()
 	dataUpdateRequired_ = true;
 	lowerDirtyIndex_ = AMnDIndex(axes_.size(), AMnDIndex::DoInit, 0);
 	upperDirtyIndex_ = size()-1;
+	cachedOutput_ = QVector<double>(size().product());
 }
 
 // Connected to be called when the state() flags of any input source change
