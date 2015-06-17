@@ -32,6 +32,11 @@ AM1DDerivativeAB::AM1DDerivativeAB(const QString &outputName, QObject *parent)
 	analyzedName_ = "";
 	canAnalyze_ = false;
 
+	dataUpdateRequired_ = false;
+	lowerDirtyIndex_ = AMnDIndex();
+	upperDirtyIndex_ = AMnDIndex();
+	cachedOutput_ = QVector<double>();
+
 	axes_ << AMAxisInfo("invalid", 0, "No input data");
 	setState(AMDataSource::InvalidFlag);
 }
@@ -157,6 +162,11 @@ void AM1DDerivativeAB::setInputSource()
 	emitValuesChanged();
 	emitAxisInfoChanged(0);
 	emitInfoChanged();
+
+	dataUpdateRequired_ = true;
+	lowerDirtyIndex_ = AMnDIndex(axes_.size(), AMnDIndex::DoInit, 0);
+	upperDirtyIndex_ = size()-1;
+	cachedOutput_ = QVector<double>(size().product());
 }
 
 bool AM1DDerivativeAB::canAnalyze(const QString &name) const
@@ -190,41 +200,10 @@ AMNumber AM1DDerivativeAB::value(const AMnDIndex& indexes) const
 			return AMNumber(AMNumber::OutOfBoundsError);
 #endif
 
-	int index = indexes.i();
+	if (dataUpdateRequired_)
+		computeCachedValues();
 
-	// Forward difference.
-	if(index == 0){
-
-		if ((double)inputSource_->axisValue(0, 1) == (double)inputSource_->axisValue(0, 0))
-			return 0;
-
-		return ((double)inputSource_->value(1)-
-				(double)inputSource_->value(0))/
-				((double)inputSource_->axisValue(0, 1)-
-				 (double)inputSource_->axisValue(0, 0));
-	}
-	// Backward difference.
-	else if(index+1 == axes_.at(0).size){
-
-		if ((double)inputSource_->axisValue(0, index) == (double)inputSource_->axisValue(0, index-1))
-				return 0;
-
-		return ((double)inputSource_->value(index)-
-				(double)inputSource_->value(index-1))/
-				((double)inputSource_->axisValue(0, index)-
-				 (double)inputSource_->axisValue(0, index-1));
-	}
-	// Central difference.
-	else {
-
-		if ((double)inputSource_->axisValue(0, index+1) == (double)inputSource_->axisValue(0, index-1))
-				return 0;
-
-		return ((double)inputSource_->value(index+1)-
-				(double)inputSource_->value(index-1))/
-				(2*((double)inputSource_->axisValue(0, index+1)-
-				 (double)inputSource_->axisValue(0, index-1)));
-	}
+	return cachedOutput_.at(indexes.i());
 }
 
 bool AM1DDerivativeAB::values(const AMnDIndex &indexStart, const AMnDIndex &indexEnd, double *outputValues) const
@@ -243,15 +222,26 @@ bool AM1DDerivativeAB::values(const AMnDIndex &indexStart, const AMnDIndex &inde
 		return false;
 #endif
 
-	// Because the indexStart and indexEnd might not correspond to 0 and size-1, we might need to grab more values from inputSource (from one side or the other).
+	if (dataUpdateRequired_)
+		computeCachedValues();
+
 	int totalSize = indexStart.totalPointsTo(indexEnd);
-	int offset = indexStart.i();
+	memcpy(outputValues, cachedOutput_.constData()+indexStart.i(), totalSize*sizeof(double));
+
+	return true;
+}
+
+void AM1DDerivativeAB::computeCachedValues() const
+{
+	// Because the indexStart and indexEnd might not correspond to 0 and size-1, we might need to grab more values from inputSource (from one side or the other).
+	int totalSize = lowerDirtyIndex_.totalPointsTo(upperDirtyIndex_);
+	int offset = lowerDirtyIndex_.i();
 	// Bools for knowing whether the indices we were given are at either extreme of the array.
 	bool veryStart = (offset == 0);
 	bool veryEnd = (totalSize == int(axes_.at(0).size));
 
 	if (totalSize == 1)
-		return false;
+		return;
 
 	// Although substantially more code, I have split up each possibility so that it covers everything properly.  Perhaps later I'll find a code optimization.
 
@@ -262,7 +252,7 @@ bool AM1DDerivativeAB::values(const AMnDIndex &indexStart, const AMnDIndex &inde
 		QVector<double> axis = QVector<double>(totalSize);
 		AMAxisInfo axisInfo = inputSource_->axisInfoAt(0);
 
-		inputSource_->values(indexStart, indexEnd, data.data());
+		inputSource_->values(lowerDirtyIndex_, upperDirtyIndex_, data.data());
 
 		// This is much faster because we can compute all the axis values ourselves rather than ask for them one at a time.
 		if (axisInfo.isUniform){
@@ -274,11 +264,11 @@ bool AM1DDerivativeAB::values(const AMnDIndex &indexStart, const AMnDIndex &inde
 				axis[i] = axisStart + i*axisStep;
 
 			// Because we computed the axis values we are guarenteed that the values won't be bad.
-			outputValues[0] = (data.at(1)-data.at(0))/(axis.at(1)-axis.at(0));
-			outputValues[totalSize-1] = (data.at(totalSize-1)-data.at(totalSize-2))/(axis.at(totalSize-1)-axis.at(totalSize-2));
+			cachedOutput_[0] = (data.at(1)-data.at(0))/(axis.at(1)-axis.at(0));
+			cachedOutput_[totalSize-1] = (data.at(totalSize-1)-data.at(totalSize-2))/(axis.at(totalSize-1)-axis.at(totalSize-2));
 
 			for (int i = 1, count = totalSize-1; i < count; i++)
-				outputValues[i] = (data.at(i+1)-data.at(i-1))/(2*(axis.at(i+1)-axis.at(i-1)));
+				cachedOutput_[i] = (data.at(i+1)-data.at(i-1))/(2*(axis.at(i+1)-axis.at(i-1)));
 		}
 
 		else {
@@ -301,15 +291,15 @@ bool AM1DDerivativeAB::values(const AMnDIndex &indexStart, const AMnDIndex &inde
 				badIndices.append(totalSize-1);
 
 			// Compute all the values
-			outputValues[0] = (data.at(1)-data.at(0))/(axis.at(1)-axis.at(0));
-			outputValues[totalSize-1] = (data.at(totalSize-1)-data.at(totalSize-2))/(axis.at(totalSize-1)-axis.at(totalSize-2));
+			cachedOutput_[0] = (data.at(1)-data.at(0))/(axis.at(1)-axis.at(0));
+			cachedOutput_[totalSize-1] = (data.at(totalSize-1)-data.at(totalSize-2))/(axis.at(totalSize-1)-axis.at(totalSize-2));
 
 			for (int i = 1, count = totalSize-1; i < count; i++)
-				outputValues[i] = (data.at(i+1)-data.at(i-1))/(2*(axis.at(i+1)-axis.at(i-1)));
+				cachedOutput_[i] = (data.at(i+1)-data.at(i-1))/(2*(axis.at(i+1)-axis.at(i-1)));
 
 			// Fix all the values where division by zero would have occured.  Unfortunately, the default value is currently 0, which is generally important when taking the derivative.
 			for (int i = 0, count = badIndices.size(); i < count; i++)
-				outputValues[badIndices.at(i)] = 0;
+				cachedOutput_[badIndices.at(i)] = 0;
 		}
 	}
 
@@ -321,7 +311,7 @@ bool AM1DDerivativeAB::values(const AMnDIndex &indexStart, const AMnDIndex &inde
 		QVector<double> axis = QVector<double>(dataSize);
 		AMAxisInfo axisInfo = inputSource_->axisInfoAt(0);
 
-		inputSource_->values(indexStart, AMnDIndex(indexEnd.i()+1), data.data());
+		inputSource_->values(lowerDirtyIndex_, upperDirtyIndex_+1, data.data());
 
 		// This is much faster because we can compute all the axis values ourselves rather than ask for them one at a time.
 		if (axisInfo.isUniform){
@@ -333,11 +323,11 @@ bool AM1DDerivativeAB::values(const AMnDIndex &indexStart, const AMnDIndex &inde
 				axis[i] = axisStart + i*axisStep;
 
 			// Because we computed the axis values we are guarenteed that the values won't be bad.
-			outputValues[0] = (data.at(1)-data.at(0))/(axis.at(1)-axis.at(0));
+			cachedOutput_[0] = (data.at(1)-data.at(0))/(axis.at(1)-axis.at(0));
 
 			// This is safe because data and axis have an extra point more at the end.
 			for (int i = 1; i < totalSize; i++)
-				outputValues[i] = (data.at(i+1)-data.at(i-1))/(2*(axis.at(i+1)-axis.at(i-1)));
+				cachedOutput_[i] = (data.at(i+1)-data.at(i-1))/(2*(axis.at(i+1)-axis.at(i-1)));
 		}
 
 		else {
@@ -357,14 +347,14 @@ bool AM1DDerivativeAB::values(const AMnDIndex &indexStart, const AMnDIndex &inde
 					badIndices.append(i);
 
 			// Compute all the values
-			outputValues[0] = (data.at(1)-data.at(0))/(axis.at(1)-axis.at(0));
+			cachedOutput_[0] = (data.at(1)-data.at(0))/(axis.at(1)-axis.at(0));
 
 			for (int i = 1; i < totalSize; i++)
-				outputValues[i] = (data.at(i+1)-data.at(i-1))/(2*(axis.at(i+1)-axis.at(i-1)));
+				cachedOutput_[i] = (data.at(i+1)-data.at(i-1))/(2*(axis.at(i+1)-axis.at(i-1)));
 
 			// Fix all the values where division by zero would have occured.  Unfortunately, the default value is currently 0, which is generally important when taking the derivative.
 			for (int i = 0, count = badIndices.size(); i < count; i++)
-				outputValues[badIndices.at(i)] = 0;
+				cachedOutput_[badIndices.at(i)] = 0;
 		}
 	}
 
@@ -376,7 +366,7 @@ bool AM1DDerivativeAB::values(const AMnDIndex &indexStart, const AMnDIndex &inde
 		QVector<double> axis = QVector<double>(dataSize);
 		AMAxisInfo axisInfo = inputSource_->axisInfoAt(0);
 
-		inputSource_->values(AMnDIndex(indexStart.i()-1), indexEnd, data.data());
+		inputSource_->values(lowerDirtyIndex_-1, upperDirtyIndex_, data.data());
 
 		// This is much faster because we can compute all the axis values ourselves rather than ask for them one at a time.
 		if (axisInfo.isUniform){
@@ -390,9 +380,9 @@ bool AM1DDerivativeAB::values(const AMnDIndex &indexStart, const AMnDIndex &inde
 			// Because we computed the axis values we are guarenteed that the values won't be bad.
 			// This looks a little weird because data has one extra point at the beginning.
 			for (int i = 0, count = totalSize-1; i < count; i++)
-				outputValues[i] = (data.at(i+2)-data.at(i))/(2*(axis.at(i+2)-axis.at(i)));
+				cachedOutput_[i+offset] = (data.at(i+2)-data.at(i))/(2*(axis.at(i+2)-axis.at(i)));
 
-			outputValues[totalSize-1] = (data.at(totalSize-1)-data.at(totalSize-2))/(axis.at(totalSize-1)-axis.at(totalSize-2));
+			cachedOutput_[totalSize-1] = (data.at(totalSize-1)-data.at(totalSize-2))/(axis.at(totalSize-1)-axis.at(totalSize-2));
 		}
 
 		else {
@@ -413,13 +403,13 @@ bool AM1DDerivativeAB::values(const AMnDIndex &indexStart, const AMnDIndex &inde
 
 			// Compute all the values
 			for (int i = 0, count = totalSize-1; i < count; i++)
-				outputValues[i] = (data.at(i+2)-data.at(i))/(2*(axis.at(i+2)-axis.at(i)));
+				cachedOutput_[i+offset] = (data.at(i+2)-data.at(i))/(2*(axis.at(i+2)-axis.at(i)));
 
-			outputValues[totalSize-1] = (data.at(totalSize)-data.at(totalSize-1))/(axis.at(totalSize)-axis.at(totalSize-1));
+			cachedOutput_[totalSize-1] = (data.at(totalSize)-data.at(totalSize-1))/(axis.at(totalSize)-axis.at(totalSize-1));
 
 			// Fix all the values where division by zero would have occured.  Unfortunately, the default value is currently 0, which is generally important when taking the derivative.
 			for (int i = 0, count = badIndices.size(); i < count; i++)
-				outputValues[badIndices.at(i)] = 0;
+				cachedOutput_[badIndices.at(i)+offset] = 0;
 		}
 	}
 
@@ -431,7 +421,7 @@ bool AM1DDerivativeAB::values(const AMnDIndex &indexStart, const AMnDIndex &inde
 		QVector<double> axis = QVector<double>(totalSize);
 		AMAxisInfo axisInfo = inputSource_->axisInfoAt(0);
 
-		inputSource_->values(AMnDIndex(indexStart.i()-1), AMnDIndex(indexEnd.i()+1), data.data());
+		inputSource_->values(lowerDirtyIndex_-1, upperDirtyIndex_+1, data.data());
 
 		// This is much faster because we can compute all the axis values ourselves rather than ask for them one at a time.
 		if (axisInfo.isUniform){
@@ -445,7 +435,7 @@ bool AM1DDerivativeAB::values(const AMnDIndex &indexStart, const AMnDIndex &inde
 			// Because we computed the axis values we are guarenteed that the values won't be bad.
 			// This is okay because we have an extra point on both ends and the arrays don't line up.
 			for (int i = 0; i < totalSize; i++)
-				outputValues[i] = (data.at(i+2)-data.at(i))/(2*(axis.at(i+2)-axis.at(i)));
+				cachedOutput_[i+offset] = (data.at(i+2)-data.at(i))/(2*(axis.at(i+2)-axis.at(i)));
 		}
 
 		else {
@@ -464,15 +454,13 @@ bool AM1DDerivativeAB::values(const AMnDIndex &indexStart, const AMnDIndex &inde
 			// Compute all the values
 			// This is okay because we have an extra point on both ends and the arrays don't line up.
 			for (int i = 0; i < totalSize; i++)
-				outputValues[i] = (data.at(i+2)-data.at(i))/(2*(axis.at(i+2)-axis.at(i)));
+				cachedOutput_[i+offset] = (data.at(i+2)-data.at(i))/(2*(axis.at(i+2)-axis.at(i)));
 
 			// Fix all the values where division by zero would have occured.  Unfortunately, the default value is currently 0, which is generally important when taking the derivative.
 			for (int i = 0, count = badIndices.size(); i < count; i++)
-				outputValues[badIndices.at(i)] = 0;
+				cachedOutput_[badIndices.at(i)+offset] = 0;
 		}
 	}
-
-	return true;
 }
 
 AMNumber AM1DDerivativeAB::axisValue(int axisNumber, int index) const
@@ -503,6 +491,12 @@ bool AM1DDerivativeAB::axisValues(int axisNumber, int startIndex, int endIndex, 
 
 void AM1DDerivativeAB::onInputSourceValuesChanged(const AMnDIndex& start, const AMnDIndex& end)
 {
+	if (!dataUpdateRequired_)
+		dataUpdateRequired_ = true;
+
+	lowerDirtyIndex_ = lowerDirtyIndex_.globalMinimum(start);
+	upperDirtyIndex_ = upperDirtyIndex_.globalMaximum(end);
+
 	emitValuesChanged(start, end);
 }
 
@@ -510,6 +504,11 @@ void AM1DDerivativeAB::onInputSourceSizeChanged()
 {
 	axes_[0].size = inputSource_->size(0);
 	emitSizeChanged(0);
+
+	dataUpdateRequired_ = true;
+	lowerDirtyIndex_ = AMnDIndex(axes_.size(), AMnDIndex::DoInit, 0);
+	upperDirtyIndex_ = size()-1;
+	cachedOutput_ = QVector<double>(size().product());
 }
 
 void AM1DDerivativeAB::onInputSourceStateChanged()

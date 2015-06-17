@@ -102,6 +102,9 @@ protected:
 	/// Helper method that sets the inputSource_ pointer to the correct one based on the current state of analyzedName_.
 	void setInputSource();
 
+	/// Computes the new cached values.
+	void computeCachedValues() const;
+
 	/// Pointer to the data source that will be analyzed.
 	AMDataSource* inputSource_;	// our single input source, or 0 if we don't have one.
 
@@ -112,6 +115,15 @@ protected:
 
 	/// Helper function to look at our overall situation and determine what the output state should be.
 	void reviewState();
+
+	/// Flag for knowing when to recompute the cached data.
+	mutable bool dataUpdateRequired_;
+	/// Vector that holds the latest computed values for this analysis block.
+	mutable QVector<double> cachedOutput_;
+	/// The lower index of the dirtied data region.
+	mutable AMnDIndex lowerDirtyIndex_;
+	/// The upper index of the dirtied data region.
+	mutable AMnDIndex upperDirtyIndex_;
 };
 
 #endif // AM1DDERIVATIVEAB_H
