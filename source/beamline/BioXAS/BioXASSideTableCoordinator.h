@@ -110,6 +110,7 @@ protected:
 	AMControl *verticalUpstreamFeedbackControl_;
 	/// BioXAS Side table Vertical Upstream status PV control
 	AMControl *verticalUpstreamStatusControl_;
+	AMControl *verticalUpstreamStopControl_;
 
 	/// BioXAS Side table Vertical Downstream PV control
 	AMControl *verticalDownstreamControl_;
@@ -117,6 +118,7 @@ protected:
 	AMControl *verticalDownstreamFeedbackControl_;
 	/// BioXAS Side table Vertical Downstream status PV control
 	AMControl *verticalDownstreamStatusControl_;
+	AMControl *verticalDownstreamStopControl_;
 
 	/// BioXAS Side table Horizontal Upstream PV control
 	AMControl *horizontalUpstreamControl_;
@@ -124,6 +126,7 @@ protected:
 	AMControl *horizontalUpstreamFeedbackControl_;
 	/// BioXAS Side table Horizontal Upstream status PV control
 	AMControl *horizontalUpstreamStatusControl_;
+	AMControl *horizontalUpstreamStopControl_;
 
 	/// BioXAS Side table horizonal Downstream PV control
 	AMControl *horizontalDownstreamControl_;
@@ -131,6 +134,7 @@ protected:
 	AMControl *horizontalDownstreamFeedbackControl_;
 	/// BioXAS Side table Horizontal Downstream status PV control
 	AMControl *horizontalDownstreamStatusControl_;
+	AMControl *horizontalDownstreamStopControl_;
 
 	/// ============ SoftIOC PVs ==================
 	/// BioXAS Side table softIOC height PV control

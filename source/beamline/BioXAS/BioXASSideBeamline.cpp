@@ -914,6 +914,12 @@ void BioXASSideBeamline::setupExposedControls()
 	addExposedControl(cryostatX_);
 	addExposedControl(cryostatY_);
 	addExposedControl(cryostatZ_);
+
+	// Endstation table
+	addExposedControl(endstationTable_->heightPVController());
+	addExposedControl(endstationTable_->pitchPVController());
+	addExposedControl(endstationTable_->lateralPVController());
+	addExposedControl(endstationTable_->yawPVController());
 }
 
 void BioXASSideBeamline::setupExposedDetectors()
