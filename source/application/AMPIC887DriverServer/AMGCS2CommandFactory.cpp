@@ -26,6 +26,7 @@
 #include "AMGCS2ReferenceMoveCommand.h"
 #include "AMGCS2GetReferenceResultCommand.h"
 #include "AMGCS2GetRecorderOptionsCommand.h"
+#include "AMGCS2GetAvailableParametersCommand.h"
 
 AMGCS2Command * AMGCS2CommandFactory::buildCommand(const QString &commandString)
 {
@@ -65,6 +66,8 @@ AMGCS2Command * AMGCS2CommandFactory::buildCommand(const QString &commandString)
 		return buildReferenceMoveCommand(commandArguments(commandString));
 	} else if(commandString.startsWith("HDR?")) {
 		return new AMGCS2GetRecorderOptionsCommand();
+	} else if(commandString.startsWith("HPA?")) {
+		return new AMGCS2GetAvailableParametersCommand();
 	}
 
 	return 0;
