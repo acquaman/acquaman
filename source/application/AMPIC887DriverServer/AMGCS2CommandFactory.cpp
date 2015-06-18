@@ -25,6 +25,7 @@
 #include "AMGCS2GetRecordTriggerSourceCommand.h"
 #include "AMGCS2ReferenceMoveCommand.h"
 #include "AMGCS2GetReferenceResultCommand.h"
+#include "AMGCS2GetRecorderOptionsCommand.h"
 
 AMGCS2Command * AMGCS2CommandFactory::buildCommand(const QString &commandString)
 {
@@ -62,6 +63,8 @@ AMGCS2Command * AMGCS2CommandFactory::buildCommand(const QString &commandString)
 		return buildGetReferenceResultsCommand(commandArguments(commandString));
 	} else if(commandString.startsWith("FRF")) {
 		return buildReferenceMoveCommand(commandArguments(commandString));
+	} else if(commandString.startsWith("HDR?")) {
+		return new AMGCS2GetRecorderOptionsCommand();
 	}
 
 	return 0;
