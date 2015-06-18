@@ -27,8 +27,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QLabel>
 #include <QBoxLayout>
 #include <QStringBuilder>
+#include <QMessageBox>
 
 #include "actions3/AMActionRunner3.h"
+#include "util/AMDateTimeUtils.h"
 
  AMActionRunnerAddActionBar3::~AMActionRunnerAddActionBar3(){}
 AMActionRunnerAddActionBar3::AMActionRunnerAddActionBar3(const QString& actionCategoryName, bool enableRepeatScans, QWidget *parent) :
@@ -36,6 +38,9 @@ AMActionRunnerAddActionBar3::AMActionRunnerAddActionBar3(const QString& actionCa
 {
 	actionCategoryName_ = actionCategoryName;
 	repeatScansEnabled_ = enableRepeatScans;
+	estimatedTimeOfSingleScan_ = 0;
+
+	overallScanTime_ = new QLabel("Estimated scan time: 0s");
 
 	iterationsBox_ = new QSpinBox;
 	iterationsBox_->setRange(1, 1000000);
@@ -64,7 +69,8 @@ AMActionRunnerAddActionBar3::AMActionRunnerAddActionBar3(const QString& actionCa
 	optionsHL->addStretch();
 
 	if (repeatScansEnabled_) {
-		optionsHL->addWidget(new QLabel("Scan iterations:"));
+		optionsHL->addWidget(overallScanTime_);
+		optionsHL->addWidget(new QLabel("<b>Iterations:</b>"));
 		optionsHL->addWidget(iterationsBox_);
 	}
 	optionsHL->addWidget(addToQueueButton_);
@@ -78,14 +84,26 @@ AMActionRunnerAddActionBar3::AMActionRunnerAddActionBar3(const QString& actionCa
 
 	connect(startActionButton_, SIGNAL(clicked()), this, SLOT(onStartActionRequested()));
 	connect(addToQueueButton_, SIGNAL(clicked()), this, SLOT(onAddToQueueRequested()));
+	connect(iterationsBox_, SIGNAL(valueChanged(int)), this, SLOT(onScanIterationsValueChange()));
 
 	connect(AMActionRunner3::workflow(), SIGNAL(currentActionChanged(AMAction3*)), this, SLOT(reviewStartActionButtonState()));
 
 	reviewStartActionButtonState();
 }
 
+void AMActionRunnerAddActionBar3::onScanIterationsValueChange()
+{
+	double totalTime = estimatedTimeOfSingleScan_ * iterationsBox_->value();
+	updateOverallScanTimeLabel(totalTime);
+}
 
-#include <QMessageBox>
+void AMActionRunnerAddActionBar3::updateOverallScanTime(double seconds)
+{
+	estimatedTimeOfSingleScan_ = seconds;
+	double totalTime = estimatedTimeOfSingleScan_ * iterationsBox_->value();
+	updateOverallScanTimeLabel(totalTime);
+}
+
 void AMActionRunnerAddActionBar3::onStartActionRequested(){
 
 	if(AMActionRunner3::workflow()->actionRunning())
@@ -164,6 +182,7 @@ void AMActionRunnerAddActionBar3::addWidget(QWidget *widget)
 		return;
 
 	layout_->insertWidget(0, widget);
+
 }
 
 void AMActionRunnerAddActionBar3::addActionToQueue(ActionQueue::QueueOperation operation)
@@ -190,4 +209,9 @@ void AMActionRunnerAddActionBar3::addActionToQueue(ActionQueue::QueueOperation o
 
 	if(goToWorkflowOption_->isChecked())
 		emit showWorkflowRequested();
+}
+
+void AMActionRunnerAddActionBar3::updateOverallScanTimeLabel(double seconds)
+{
+	overallScanTime_->setText(QString("<b>Estimated overall time:</b> %1").arg(AMDateTimeUtils::convertTimeToString(seconds)));
 }

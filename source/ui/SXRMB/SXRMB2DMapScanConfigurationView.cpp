@@ -3,7 +3,7 @@
 #include "application/SXRMB/SXRMB.h"
 #include "beamline/SXRMB/SXRMBBeamline.h"
 
-#include "ui/AMTopFrame.h"
+#include "util/AMDateTimeUtils.h"
 
 #include <QGridLayout>
 #include <QVBoxLayout>
@@ -23,7 +23,6 @@ SXRMB2DMapScanConfigurationView::SXRMB2DMapScanConfigurationView(SXRMB2DMapScanC
 	configuration_ = configuration;
 	excitationEnergyIsHidden_ = false;
 
-	AMTopFrame *frame = new AMTopFrame("SXRMB 2D Map Configuration");
 
 	// 1st row: set the start position
 	hStart_ = createPositionDoubleSpinBox("H: ", " mm", configuration_->scanAxisAt(0)->regionAt(0)->regionStart(), 3);
@@ -187,19 +186,7 @@ SXRMB2DMapScanConfigurationView::SXRMB2DMapScanConfigurationView(SXRMB2DMapScanC
 	contentsLayout->addWidget(detectorSettingGroupBox, 3, 4, 1, 2);
 	contentsLayout->addWidget(errorLabel_, 4, 0, 2, 4);
 
-	/// the squeeze layout of the window
-	QHBoxLayout *squeezeContents = new QHBoxLayout;
-	squeezeContents->addStretch();
-	squeezeContents->addLayout(contentsLayout);
-	squeezeContents->addStretch();
-
-	QVBoxLayout *configViewLayout = new QVBoxLayout;
-	configViewLayout->addWidget(frame);
-	configViewLayout->addStretch();
-	configViewLayout->addLayout(squeezeContents);
-	configViewLayout->addStretch();
-
-	setLayout(configViewLayout);
+	setLayout(contentsLayout);
 
 	connect(sxrmbBL, SIGNAL(endstationChanged(SXRMB::Endstation, SXRMB::Endstation)), this, SLOT(onBeamlineEndstationChanged(SXRMB::Endstation, SXRMB::Endstation)));
 }
@@ -261,7 +248,7 @@ void SXRMB2DMapScanConfigurationView::onScanNameEdited()
 
 void SXRMB2DMapScanConfigurationView::onEstimatedTimeChanged()
 {
-	estimatedTime_->setText("Estimated time per scan:\t" + SXRMB::convertTimeToString(configuration_->totalTime()));
+	estimatedTime_->setText("Estimated time per scan:\t" + AMDateTimeUtils::convertTimeToString(configuration_->totalTime()));
 }
 
 void SXRMB2DMapScanConfigurationView::onSetStartPosition()
@@ -434,6 +421,7 @@ QGroupBox *SXRMB2DMapScanConfigurationView::addExporterOptionsView(QStringList l
 void SXRMB2DMapScanConfigurationView::onBeamlineEndstationChanged(SXRMB::Endstation fromEndstation, SXRMB::Endstation toEndstation)
 {
 	Q_UNUSED(fromEndstation)
+	Q_UNUSED(toEndstation)
 
 	updatePowerOnHVControlCheckBoxText();
 }

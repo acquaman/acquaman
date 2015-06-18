@@ -119,7 +119,6 @@ void SXRMBAppController::shutdown()
 {
 	// Make sure we release/clean-up the beamline interface
 	AMBeamline::releaseBl();
-	AMStorageRing::releaseStorageRing();
 	AMAppController::shutdown();
 }
 
@@ -160,9 +159,12 @@ void SXRMBAppController::onBeamlineConnected(bool connected)
 		exafsScanConfiguration_->scanAxisAt(0)->regionAt(0)->setRegionTime(1.0);
 
 		exafsScanConfigurationView_ = new SXRMBEXAFSScanConfigurationView(exafsScanConfiguration_);
-		exafsScanConfigurationViewHolder_ = new AMScanConfigurationViewHolder3(exafsScanConfigurationView_, true);
+		exafsScanConfigurationViewHolder_ = new AMScanConfigurationViewHolder3("Configure an EXAFS Scan", true, true, exafsScanConfigurationView_);
 
 		mw_->addPane(exafsScanConfigurationViewHolder_, "Scans", "EXAFS Scan", ":/utilites-system-monitor.png");
+
+		connect(exafsScanConfiguration_, SIGNAL(totalTimeChanged(double)), exafsScanConfigurationViewHolder_, SLOT(updateOverallScanTime(double)));
+		exafsScanConfigurationViewHolder_->updateOverallScanTime(exafsScanConfiguration_->totalTime());
 	}
 
 	if (connected && !microProbe2DScanConfigurationView_) {
@@ -182,7 +184,8 @@ void SXRMBAppController::onBeamlineConnected(bool connected)
 		microProbe2DScanConfiguration_->scanAxisAt(1)->regionAt(0)->setRegionTime(1.0);
 
 		microProbe2DScanConfigurationView_ = new SXRMB2DMapScanConfigurationView(microProbe2DScanConfiguration_);
-		microProbe2DScanConfigurationViewHolder_ = new AMScanConfigurationViewHolder3(microProbe2DScanConfigurationView_);
+		microProbe2DScanConfigurationViewHolder_ = new AMScanConfigurationViewHolder3("SXRMB 2D Map Configuration", true, true, microProbe2DScanConfigurationView_);
+
 	}
 
 	if (connected && !microProbe2DOxidationScanConfigurationView_) {
@@ -205,6 +208,7 @@ void SXRMBAppController::onBeamlineConnected(bool connected)
 
 		microProbe2DOxidationScanConfigurationView_ = new SXRMB2DOxidationMapScanConfigurationView(microProbe2DOxidationScanConfiguration_);
 		microProbe2DOxidationScanConfigurationViewHolder_ = new SXRMBOxidationMapScanConfigurationViewHolder(microProbe2DOxidationScanConfigurationView_);
+
 	}
 
 	if (connected && !sxrmbPersistentView_){
@@ -229,8 +233,10 @@ void SXRMBAppController::onBeamlineConnected(bool connected)
 		}
 	}
 
-	if (connected)
+	if (connected) {
 		onBeamlineEndstationSwitched(sxrmbBL->currentEndstation(), sxrmbBL->currentEndstation());
+		onScalerConnected(sxrmbBL->scaler()->isConnected());
+	}
 }
 
 void SXRMBAppController::onBeamControlShuttersTimeout()
@@ -288,8 +294,7 @@ void SXRMBAppController::onScalerConnected(bool isConnected){
 			scalerView_->setAmplifierViewPrecision(3);
 		}
 
-		QGroupBox *scalerGroupBox = createTopFrameSqueezeContent(scalerView_, "Scaler");
-		mw_->addPane(scalerGroupBox, "Detectors", "Scaler", ":/system-search.png", true);
+		mw_->addPane(AMMainWindow::buildMainWindowPane("Scaler", ":/system-search.png", scalerView_), "Detectors", "Scaler", ":/system-search.png", true);
 	}
 	else if(scalerView_)
 		mw_->removePane(scalerView_);
@@ -401,11 +406,7 @@ void SXRMBAppController::makeConnections()
 	connect(sxrmbBL, SIGNAL(endstationChanged(SXRMB::Endstation, SXRMB::Endstation)), this, SLOT(onBeamlineEndstationSwitched(SXRMB::Endstation, SXRMB::Endstation)));
 	connect(sxrmbBL->scaler(), SIGNAL(connectedChanged(bool)), this, SLOT(onScalerConnected(bool)));
 
-	if(sxrmbBL->isConnected()){
-		onBeamlineConnected(true);
-		if(sxrmbBL->scaler()->isConnected())
-			onScalerConnected(true);
-	}
+	onBeamlineConnected(sxrmbBL->isConnected());
 }
 
 QGroupBox* SXRMBAppController::createTopFrameSqueezeContent(QWidget *widget, QString topFrameTitle)
@@ -517,7 +518,6 @@ void SXRMBAppController::onShowAmbiantSampleStageMotorsTriggered()
 	}
 
 	ambiantSampleStageMotorGroupView_->raise();
-	ambiantSampleStageMotorGroupView_->activateWindow();
 	ambiantSampleStageMotorGroupView_->showNormal();
 }
 

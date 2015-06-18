@@ -8,6 +8,7 @@ AMCurrentAmplifierSingleView::AMCurrentAmplifierSingleView(AMCurrentAmplifier *a
 	connect( amplifier_, SIGNAL(valueChanged()), this, SLOT(onAmplifierValueChanged()) );
 	connect( amplifier_, SIGNAL(minimumValue(bool)), minus_, SLOT(setDisabled(bool)) );
 	connect( amplifier_, SIGNAL(maximumValue(bool)), plus_, SLOT(setDisabled(bool)) );
+	connect( amplifier_, SIGNAL(isConnected(bool)), this, SLOT(refreshView()));
 
 	setContextMenuPolicy(Qt::CustomContextMenu);
 	connect( this, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(onCustomContextMenuRequested(QPoint)) );

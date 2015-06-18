@@ -63,14 +63,11 @@ AMScanActionEditor::~AMScanActionEditor()
 
 void AMScanActionEditor::onScanConfigurationViewRequested()
 {
-	if (configView_)
-		configView_->raise();
-
-	else {
-
+	if (configView_ == 0)
 		configView_ = info_->configuration()->createView();
-		configView_->show();
-	}
+
+	configView_->show();
+	configView_->raise();
 }
 
 void AMScanActionEditor::onScanInfoChanged()

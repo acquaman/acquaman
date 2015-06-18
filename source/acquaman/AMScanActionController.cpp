@@ -153,10 +153,7 @@ void AMScanActionController::resumeImplementation()
 
 void AMScanActionController::cancelImplementation()
 {
-	if (AMActionRunner3::scanActionRunner()->cancelCurrentAction())
-		setCancelled();
-
-	else
+	if (!AMActionRunner3::scanActionRunner()->cancelCurrentAction())
 		AMErrorMon::alert(this, AMSCANACTIONCONTROLLER_CANNOT_CANCEL, "Was unable to cancel the current action.");
 }
 

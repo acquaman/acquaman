@@ -1,9 +1,44 @@
 #include "BioXASSSRLMonochromator.h"
 
-BioXASSSRLMonochromator::BioXASSSRLMonochromator(QObject *parent) :
-	BioXASMonochromator(parent)
+BioXASSSRLMonochromator::BioXASSSRLMonochromator(const QString &name, QObject *parent) :
+	BioXASMonochromator(name, parent)
 {
+	// Initialize local variables.
 
+	encoderEnergy_ = 0;
+	stepEnergy_ = 0;
+	region_ = 0;
+
+	upperSlit_ = 0;
+	lowerSlit_ = 0;
+	slitsStatus_ = 0;
+	paddle_ = 0;
+	paddleStatus_ = 0;
+	keyStatus_ = 0;
+	brakeStatus_ = 0;
+	bragg_ = 0;
+	stepBragg_ = 0;
+	braggAtCrystalChangePositionStatus_ = 0;
+	crystalChange_ = 0;
+	crystalChangeCWLimitStatus_ = 0;
+	crystalChangeCCWLimitStatus_ = 0;
+	regionAStatus_ = 0;
+	regionBStatus_ = 0;
+	m1Pitch_ = 0;
+
+	braggSetPosition_ = 0;
+
+	upperSlitMotor_ = 0;
+	lowerSlitMotor_ = 0;
+	paddleMotor_ = 0;
+	braggMotor_ = 0;
+	verticalMotor_ = 0;
+	lateralMotor_ = 0;
+	crystalChangeMotor_ = 0;
+	crystal1PitchMotor_ = 0;
+	crystal1RollMotor_ = 0;
+	crystal2PitchMotor_ = 0;
+	crystal2RollMotor_ = 0;
 }
 
 BioXASSSRLMonochromator::~BioXASSSRLMonochromator()
@@ -11,52 +46,58 @@ BioXASSSRLMonochromator::~BioXASSSRLMonochromator()
 
 }
 
-AMAction3* BioXASSSRLMonochromator::createSetEnergyAction(double newEnergy)
+bool BioXASSSRLMonochromator::isConnected() const
 {
-	AMAction3 *action = 0;
+	bool connected = (
+		encoderEnergy_ && encoderEnergy_->isConnected() &&
+		stepEnergy_ && stepEnergy_->isConnected() &&
+		region_ && region_->isConnected() &&
 
-	if (energyControl()->isConnected())
-		action = AMActionSupport::buildControlMoveAction(energyControl(), newEnergy);
+		upperSlit_ && upperSlit_->isConnected() &&
+		lowerSlit_ && lowerSlit_->isConnected() &&
+		slitsStatus_ && slitsStatus_->isConnected() &&
+		paddle_ && paddle_->isConnected() &&
+		paddleStatus_ && paddleStatus_->isConnected() &&
+		keyStatus_ && keyStatus_->isConnected() &&
+		brakeStatus_ && brakeStatus_->isConnected() &&
+		bragg_ && bragg_->isConnected() &&
+		stepBragg_ && stepBragg_->isConnected() &&
+		braggAtCrystalChangePositionStatus_ && braggAtCrystalChangePositionStatus_->isConnected() &&
+		crystalChange_ && crystalChange_->isConnected() &&
+		crystalChangeCWLimitStatus_ && crystalChangeCWLimitStatus_->isConnected() &&
+		crystalChangeCCWLimitStatus_ && crystalChangeCCWLimitStatus_->isConnected() &&
+		regionAStatus_ && regionAStatus_->isConnected() &&
+		regionBStatus_ && regionBStatus_->isConnected() &&
 
-	return action;
+		upperSlitMotor_ && upperSlitMotor_->isConnected() &&
+		lowerSlitMotor_ && lowerSlitMotor_->isConnected() &&
+		paddleMotor_ && paddleMotor_->isConnected() &&
+		braggMotor_ && braggMotor_->isConnected() &&
+		verticalMotor_ && verticalMotor_->isConnected() &&
+		lateralMotor_ && lateralMotor_->isConnected() &&
+		crystalChangeMotor_ && crystalChangeMotor_->isConnected() &&
+		crystal1PitchMotor_ && crystal1PitchMotor_->isConnected() &&
+		crystal1RollMotor_ && crystal1RollMotor_->isConnected() &&
+		crystal2PitchMotor_ && crystal2PitchMotor_->isConnected() &&
+		crystal2RollMotor_ && crystal2RollMotor_->isConnected()
+	);
+
+	return connected;
 }
 
-AMAction3* BioXASSSRLMonochromator::createSetRegionAction(double newRegion)
+void BioXASSSRLMonochromator::setM1MirrorPitchControl(AMControl *newControl)
 {
-	AMAction3 *action = 0;
-
-	if (regionControl()->isConnected())
-		action = AMActionSupport::buildControlMoveAction(regionControl(), newRegion);
-
-	return action;
-}
-
-AMAction3* BioXASSSRLMonochromator::createCalibrateBraggPositionAction(double newPosition)
-{
-	AMAction3 *action = 0;
-
-	if (braggMotor()->isConnected()) {
-		action = braggMotor()->createEGUSetPositionAction(newPosition);
+	if (m1Pitch_ != newControl) {
+		m1Pitch_ = newControl;
+		encoderEnergy_->setM1MirrorPitchControl(m1Pitch_);
+		stepEnergy_->setM1MirrorPitchControl(m1Pitch_);
+		emit m1MirrorPitchControlChanged(m1Pitch_);
 	}
-
-	return action;
-}
-
-void BioXASSSRLMonochromator::setEnergy(double newEnergy)
-{
-	if (energyControl()->isConnected())
-		energyControl()->move(newEnergy);
-}
-
-void BioXASSSRLMonochromator::setRegion(double newRegion)
-{
-	if (regionControl()->isConnected())
-		regionControl()->move(newRegion);
 }
 
 void BioXASSSRLMonochromator::calibrateBraggPosition(double newBraggPosition)
 {
-	if (braggMotor()->isConnected()) {
-		braggMotor()->setEGUSetPosition(newBraggPosition);
+	if (braggMotor_ && braggMotor_->isConnected()) {
+		braggMotor_->setEGUSetPosition(newBraggPosition);
 	}
 }

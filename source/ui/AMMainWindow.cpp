@@ -25,6 +25,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "util/AMFontSizes.h"
 #include "ui/util/AMDirectorySynchronizerDialog.h"
 #include "util/AMSettings.h"
+
 // Default constructor
 AMMainWindow::AMMainWindow(QWidget *parent) : QWidget(parent) {
 
@@ -325,4 +326,32 @@ QModelIndex AMMainWindow::getPreviousSelection(const QModelIndex &current)
 QWidget * AMMainWindow::currentPane() const
 {
 	return stackWidget_->currentWidget();
+}
+
+QWidget *AMMainWindow::buildMainWindowPane(const QString &name, const QString &iconPath, QWidget *appWidget)
+{
+	QHBoxLayout *horizontalLayout = new QHBoxLayout();
+	horizontalLayout->addStretch();
+	horizontalLayout->addWidget(appWidget);
+	horizontalLayout->addStretch();
+
+	QVBoxLayout *verticalLayout = new QVBoxLayout();
+	verticalLayout->addWidget(new AMTopFrame(name, QIcon(iconPath)));
+	verticalLayout->addStretch();
+	verticalLayout->addLayout(horizontalLayout);
+	verticalLayout->addStretch();
+
+	QGroupBox *groupBox = new QGroupBox();
+	groupBox->setFlat(true);
+	groupBox->setLayout(verticalLayout);
+
+	return groupBox;
+
+}
+
+QWidget *AMMainWindow::buildMainWindowConfigurationPane(const QString &widgetName, AMScanConfigurationView *configView, bool enableLoopAction, bool squeezeWidget)
+{
+	AMScanConfigurationViewHolder3 *configViewHolder = new AMScanConfigurationViewHolder3(widgetName, enableLoopAction, squeezeWidget, configView);
+
+	return configViewHolder;
 }

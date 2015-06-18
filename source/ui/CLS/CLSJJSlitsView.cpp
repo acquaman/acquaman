@@ -18,18 +18,22 @@ CLSJJSlitsView::CLSJJSlitsView(CLSJJSlits *jjSlits, QWidget *parent) :
 	// Create UI elements.
 
 	verticalGapEditor_ = new AMExtendedControlEditor(0);
+	verticalGapEditor_->setTitle("");
 	verticalGapEditor_->setControlFormat('f', 3);
 	verticalGapEditor_->hideBorder();
 
 	verticalCenterEditor_ = new AMExtendedControlEditor(0);
+	verticalCenterEditor_->setTitle("");
 	verticalCenterEditor_->setControlFormat('f', 3);
 	verticalCenterEditor_->hideBorder();
 
 	horizontalGapEditor_ = new AMExtendedControlEditor(0);
+	horizontalGapEditor_->setTitle("");
 	horizontalGapEditor_->setControlFormat('f', 3);
 	horizontalGapEditor_->hideBorder();
 
 	horizontalCenterEditor_ = new AMExtendedControlEditor(0);
+	horizontalCenterEditor_->setTitle("");
 	horizontalCenterEditor_->setControlFormat('f', 3);
 	horizontalCenterEditor_->hideBorder();
 
@@ -74,16 +78,9 @@ void CLSJJSlitsView::setJJSlits(CLSJJSlits *newSlits)
 
 		if (jjSlits_) {
 			verticalGapEditor_->setControl(jjSlits_->verticalGapControl());
-			verticalGapEditor_->setTitle("");
-
 			verticalCenterEditor_->setControl(jjSlits_->verticalCenterControl());
-			verticalCenterEditor_->setTitle("");
-
 			horizontalGapEditor_->setControl(jjSlits_->horizontalGapControl());
-			horizontalGapEditor_->setTitle("");
-
 			horizontalCenterEditor_->setControl(jjSlits_->horizontalCenterControl());
-			horizontalCenterEditor_->setTitle("");
 		}
 
 		emit jjSlitsChanged(jjSlits_);

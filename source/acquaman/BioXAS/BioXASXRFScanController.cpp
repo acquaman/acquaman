@@ -4,7 +4,7 @@
 #include "dataman/datasource/AMRawDataSource.h"
 #include "analysis/AM1DSummingAB.h"
 #include "beamline/AMBeamline.h"
-#include "beamline/BioXAS/BioXAS32ElementGeDetector.h"
+#include "beamline/AMXspress3XRFDetector.h"
 
 #include <QDir>
 
@@ -23,13 +23,13 @@ BioXASXRFScanController::BioXASXRFScanController(BioXASXRFScanConfiguration *con
 
 	int elements = detector_->elements();
 
-	BioXAS32ElementGeDetector *geDetector = qobject_cast<BioXAS32ElementGeDetector *>(detector_);
+	AMXspress3XRFDetector *detector = qobject_cast<AMXspress3XRFDetector *>(detector_);
 
 	QString notes;
 
 	notes.append(QString("%1\n").arg(detector_->description()));
-	notes.append(QString("Acquisition time: %1 seconds\n").arg(geDetector->acquisitionTime()));
-	notes.append(QString("Frame %1 of %2\n").arg(geDetector->currentFrame()+1).arg(geDetector->framesPerAcquisition()));
+	notes.append(QString("Acquisition time: %1 seconds\n").arg(detector->acquisitionTime()));
+	notes.append(QString("Frame %1 of %2\n").arg(detector->currentFrame()+1).arg(detector->framesPerAcquisition()));
 	notes.append(QString("This should list the enable/disabled channels"));
 	notes.append("\n");
 
@@ -63,7 +63,9 @@ void BioXASXRFScanController::onProgressUpdate()
 
 void BioXASXRFScanController::onStatusChanged()
 {
-	if (!detector_->isAcquiring())
+	AMDetector::AcqusitionState state = detector_->acquisitionState();
+
+	if (state == AMDetector::Succeeded || state == AMDetector::Cancelled || state == AMDetector::Failed)
 		onDetectorAcquisitionFinished();
 }
 

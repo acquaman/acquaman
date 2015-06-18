@@ -33,8 +33,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/export/AMExportController.h"
 #include "dataman/export/AMExporterGeneralAscii.h"
 #include "dataman/export/AMExporterAthena.h"
+#include "dataman/export/AMExporterXDIFormat.h"
 #include "dataman/export/AMSMAKExporter.h"
 #include "dataman/export/AMExporter2DAscii.h"
+#include "dataman/export/AMExporterOptionXDIFormat.h"
 
 #include "ui/AMMainWindow.h"
 #include "ui/AMDatamanAppBottomPanel.h"
@@ -307,11 +309,11 @@ bool AMDatamanAppController::startupIsFirstTime()
 	// check for missing user settings:
 	QSettings s(QSettings::IniFormat, QSettings::UserScope, "Acquaman", "Acquaman");
 	if(!s.contains("userDataFolder") && s.contains("remoteDataFolder")) {
-		QMessageBox::warning(0, "Local Storage Problem?", "Acquaman has detected a problem with your local storage.\n\nIt appears that synchronization was done at some point, but has since had information removed from the configuration.\nPlease stop and contact your beamline's Acquaman Developer for assistance.", QMessageBox::Ok);
+		QMessageBox::warning(0, "Local Storage Problem?", "Acquaman has detected a problem with your local storage.\n\nIt appears that synchronization was done at some point, but the local storage information has since been removed from the configuration.\nPlease stop and contact your beamline's Acquaman Developer for assistance.", QMessageBox::Ok);
 		firstTimeError_ = true;
 	}
 	else if(!s.contains("remoteDataFolder") && s.contains("userDataFolder") && s.value("userDataFolder").toString().startsWith("/AcquamanLocalData")){
-		QMessageBox::warning(0, "Local Storage Problem?", "Acquaman has detected a problem with your local storage.\n\nIt appears that synchronization was done at some point, but the configuration file has since been manually edited incorrectly.\nPlease stop and contact your beamline's Acquaman Developer for assistance.", QMessageBox::Ok);
+		QMessageBox::warning(0, "Local Storage Problem?", "Acquaman has detected a problem with your local storage.\n\nIt appears that synchronization was done at some point, but the remote storage information has since been manually edited incorrectly.\nPlease stop and contact your beamline's Acquaman Developer for assistance.", QMessageBox::Ok);
 		firstTimeError_ = true;
 	}
 	else if(!s.contains("userDataFolder")) {
@@ -358,16 +360,24 @@ bool AMDatamanAppController::startupOnFirstTime()
 			return false;
 	}
 	else{
-		AMFirstTimeWizard ftw;
+		AMFirstTimeWizard *firstTimeWizard = new AMFirstTimeWizard(AMUserSettings::userBasedDataStorage);
 
-		ftw.setField("useLocalStorage", QVariant(defaultUseLocalStorage_));
+		firstTimeWizard->setField("useLocalStorage", QVariant(defaultUseLocalStorage_));
 
 		// We're pretty forceful here... The user needs to accept this dialog.
-		if(ftw.exec() != QDialog::Accepted)
+		if(firstTimeWizard->exec() != QDialog::Accepted) {
+			firstTimeWizard->deleteLater();
 			return false;
+		}
 
-		if(ftw.field("useLocalStorage").toBool()){
-			AMUserSettings::remoteDataFolder = ftw.field("userDataFolder").toString();
+		bool userLocalStorage = firstTimeWizard->field("useLocalStorage").toBool();
+		QString userDataFolder = firstTimeWizard->field("userDataFolder").toString();
+		QString userName = firstTimeWizard->field("userName").toString();
+
+		firstTimeWizard->deleteLater();
+
+		if(userLocalStorage){
+			AMUserSettings::remoteDataFolder = userDataFolder;
 			if(!AMUserSettings::remoteDataFolder.endsWith('/'))
 				AMUserSettings::remoteDataFolder.append("/");
 
@@ -375,7 +385,7 @@ bool AMDatamanAppController::startupOnFirstTime()
 			AMUserSettings::userDataFolder = localUserDataFolder.section('/', 2, -1).prepend("/AcquamanLocalData/");
 		}
 		else{
-			AMUserSettings::userDataFolder = ftw.field("userDataFolder").toString();
+			AMUserSettings::userDataFolder = userDataFolder;
 			if(!AMUserSettings::userDataFolder.endsWith('/'))
 				AMUserSettings::userDataFolder.append("/");
 		}
@@ -392,7 +402,7 @@ bool AMDatamanAppController::startupOnFirstTime()
 			}
 		}
 
-		if(ftw.field("useLocalStorage").toBool()){
+		if(userLocalStorage){
 			// Attempt to create user's data folder, only if it doesn't exist:
 			QDir remoteDataDir(AMUserSettings::remoteDataFolder);
 			if(!remoteDataDir.exists()) {
@@ -405,7 +415,7 @@ bool AMDatamanAppController::startupOnFirstTime()
 		}
 
 		// Find out the user's name:
-		AMUser::user()->setName( ftw.field("userName").toString() );
+		AMUser::user()->setName( userName );
 
 		if(!startupCreateDatabases())
 			return false;
@@ -414,7 +424,7 @@ bool AMDatamanAppController::startupOnFirstTime()
 		if(!startupDatabaseUpgrades())
 			return false;
 
-		if(ftw.field("useLocalStorage").toBool()){
+		if(userLocalStorage){
 			QDir userDataFolder(AMUserSettings::userDataFolder);
 			QStringList dataFolderFilters;
 			dataFolderFilters << "*.db";
@@ -518,6 +528,7 @@ bool AMDatamanAppController::startupBackupDataDirectory()
 		excludePatterns.append("*.db.bk.*");
 		excludePatterns.append("*.BACKUPS");
 		excludePatterns.append("*.db-journal");
+		excludePatterns.append("*exportData*");
 		for(int x = 0, size = excludePatterns.size(); x < size; x++)
 			synchronizer->appendExcludePattern(excludePatterns.at(x));
 
@@ -533,7 +544,9 @@ bool AMDatamanAppController::startupCheckExportDirectory()
 		exportDir.setCurrent(AMUserSettings::remoteDataFolder);
 	else
 		exportDir.setCurrent(AMUserSettings::userDataFolder);
-	exportDir.cdUp();
+
+	if (exportDir.absolutePath().contains("/userData"))
+		exportDir.cdUp();
 
 	if(!exportDir.entryList(QDir::AllDirs).contains("exportData")){
 		if(!exportDir.mkdir("exportData"))
@@ -772,6 +785,7 @@ bool AMDatamanAppController::startupRegisterDatabases()
 
 	success &= AMDbObjectSupport::s()->registerClass<AMExporterOptionGeneralAscii>();
 	success &= AMDbObjectSupport::s()->registerClass<AMExporterOptionSMAK>();
+	success &= AMDbObjectSupport::s()->registerClass<AMExporterOptionXDIFormat>();
 
 	success &= AMDbObjectSupport::s()->registerClass<AMUser>();
 
@@ -836,6 +850,7 @@ bool AMDatamanAppController::startupRegisterExporters()
 	// Install exporters
 	AMExportController::registerExporter<AMExporterGeneralAscii>();
 	AMExportController::registerExporter<AMExporterAthena>();
+	AMExportController::registerExporter<AMExporterXDIFormat>();
 	AMExportController::registerExporter<AMSMAKExporter>();
 	AMExportController::registerExporter<AMExporter2DAscii>();
 
