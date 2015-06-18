@@ -4,6 +4,7 @@
 #include <QString>
 
 #include "AMGCS2Command.h"
+#include "AMGCS2.h"
 /*!
   * Factory class which constructs AMGCS2Commands from the provided input command
   * string.
@@ -34,28 +35,20 @@ protected:
 	static QStringList commandArguments(const QString& commandString);
 
 	/*!
+	  * Helper method for converting a command arguments in string format into a
+	  * list of Axes.
+	  * \param axisArguments ~ The QString argument to be converted to a list of
+	  * axes.
+	  */
+	static QList<AMGCS2::Axis> axesFromCommandString(const QString& axisArguments);
+
+	/*!
 	  * Static helper method for parsing move command strings.
 	  * \param argumentList ~ A list of the arguments provided to the command.
 	  * \returns An initialized AMGCS2MoveCommand if the arguments could be parsed,
 	  * 0 otherwise.
 	  */
 	static AMGCS2Command* buildMoveCommand(const QStringList& argumentList);
-
-	/*!
-	  * Static helper method for parsing position query command strings.
-	  * \param argumentList ~ A list of the arguments provided to the command.
-	  * \returns An initialized AMGCS2CurrentPositionCommand if the arguments could
-	  * be parsed, 0 otherwise.
-	  */
-	static AMGCS2Command* buildCurrentPositionCommand(const QStringList& argumentList);
-
-	/*!
-	  * Static helper method for parsing halt smoothly command string.
-	  * \param argumentList ~ A list of the arguments provided to the command.
-	  * \returns An initialized AMGCS2HaltSmoothlyCommand if the arguments could
-	  * be parsed, 0 otherwise.
-	  */
-	static AMGCS2Command* buildHaltSmoothlyCommand(const QStringList& argumentList);
 
 	/*!
 	  * Static helper method for parsing the set command level command string.
@@ -109,30 +102,6 @@ protected:
 	  * can be parsed, 0 otherwise.
 	  */
 	static AMGCS2Command* buildGetRecordTriggerSourceCommand(const QStringList& argumentList);
-
-	/*!
-	  * Static helper method for parsing the reference move command arguments.
-	  * \param argumentList ~ A list of the arguments provided to the command.
-	  * \returns An initialized AMGCS2ReferenceMoveCommand if the arguments can
-	  * be parsed, 0 otherwise.
-	  */
-	static AMGCS2Command* buildReferenceMoveCommand(const QStringList& argumentList);
-
-	/*!
-	  * Static helper method for parsing the get reference results command arguments.
-	  * \param argumentList ~ A list of the arguments provided to the command.
-	  * \returns An initialized AMGCS2GetReferenceResultCommand if the arguments
-	  * can be parsed, 0 otherwise.
-	  */
-	static AMGCS2Command* buildGetReferenceResultsCommand(const QStringList& argumentList);
-
-	/*!
-	  * Static helper method for parsing the get limit switch status command arguments.
-	  * \param argumentList ~ A list of the arguments provided to the command.
-	  * \returns An initialized AMGCS2GetLimitSwitchStatusCommand of the arguments
-	  * can be parsed, 0 otherwise.
-	  */
-	static AMGCS2Command* buildGetLimitSwitchStatusCommand(const QStringList& argumentList);
 };
 
 #endif // AMGCS2COMMANDFACTORY_H

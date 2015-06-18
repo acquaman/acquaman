@@ -2,7 +2,6 @@
 #include <QHash>
 #include <QStringList>
 
-#include "AMGCS2.h"
 #include "AMGCS2Support.h"
 #include "AMGCS2MoveCommand.h"
 #include "AMGCS2GetCurrentPositionCommand.h"
@@ -28,17 +27,20 @@
 #include "AMGCS2GetRecorderOptionsCommand.h"
 #include "AMGCS2GetAvailableParametersCommand.h"
 #include "AMGCS2GetLimitSwitchStatusCommand.h"
+#include "AMGCS2GetTargetPositionCommand.h"
 
 AMGCS2Command * AMGCS2CommandFactory::buildCommand(const QString &commandString)
 {
 	if(commandString.startsWith("POS?")) {
-		return buildCurrentPositionCommand(commandArguments(commandString));
+		return new AMGCS2GetCurrentPositionCommand(axesFromCommandString(commandString));
 	} else if(commandString.startsWith("MST?")) {
 		return new AMGCS2GetMovingStatusCommand();
 	} else if (commandString.startsWith("STP")){
 		return new AMGCS2StopCommand();
 	} else if (commandString.startsWith("HLT")) {
-		return buildHaltSmoothlyCommand(commandArguments(commandString));
+		return new AMGCS2HaltSmoothlyCommand(axesFromCommandString(commandString));
+	} else if(commandString.startsWith("MOV?")) {
+		return new AMGCS2GetTargetPositionCommand(axesFromCommandString(commandString));
 	} else if(commandString.startsWith("MOV")) {
 		return buildMoveCommand(commandArguments(commandString));
 	} else if(commandString.startsWith("RDY?")) {
@@ -62,15 +64,15 @@ AMGCS2Command * AMGCS2CommandFactory::buildCommand(const QString &commandString)
 	} else if(commandString.startsWith("DRT?")) {
 		return buildGetRecordTriggerSourceCommand(commandArguments(commandString));
 	} else if (commandString.startsWith("FRF?")){
-		return buildGetReferenceResultsCommand(commandArguments(commandString));
+		return new AMGCS2GetReferenceResultCommand(axesFromCommandString(commandString));
 	} else if(commandString.startsWith("FRF")) {
-		return buildReferenceMoveCommand(commandArguments(commandString));
+		return new AMGCS2ReferenceMoveCommand(axesFromCommandString(commandString));
 	} else if(commandString.startsWith("HDR?")) {
 		return new AMGCS2GetRecorderOptionsCommand();
 	} else if(commandString.startsWith("HPA?")) {
 		return new AMGCS2GetAvailableParametersCommand();
 	} else if(commandString.startsWith("LIM?")) {
-		return buildGetLimitSwitchStatusCommand(commandArguments(commandString));
+		return new AMGCS2GetLimitSwitchStatusCommand(axesFromCommandString(commandString));
 	}
 
 	return 0;
@@ -81,6 +83,28 @@ QStringList AMGCS2CommandFactory::commandArguments(const QString& commandString)
 	QStringList argumentsList = commandString.split(" ");
 	argumentsList.removeAt(0);
 	return argumentsList;
+}
+
+QList<AMGCS2::Axis> AMGCS2CommandFactory::axesFromCommandString(const QString &axisArguments)
+{
+	QStringList axisArgumentList = commandArguments(axisArguments);
+
+	QList<AMGCS2::Axis> axes;
+
+	for(int iAxis = 0, argCount = axisArgumentList.count();
+		iAxis < argCount;
+		++iAxis) {
+
+		QString axisString = axisArgumentList.at(iAxis);
+
+		if(axisString.length() != 1) {
+			axes.append(AMGCS2::UnknownAxis);
+		} else {
+			axes.append(AMGCS2Support::characterToAxis(axisString.at(0)));
+		}
+	}
+
+	return axes;
 }
 
 AMGCS2Command * AMGCS2CommandFactory::buildMoveCommand(const QStringList &argumentList)
@@ -112,57 +136,6 @@ AMGCS2Command * AMGCS2CommandFactory::buildMoveCommand(const QStringList &argume
 	}
 
 	return new AMGCS2MoveCommand(axisPositions);
-}
-
-
-AMGCS2Command * AMGCS2CommandFactory::buildCurrentPositionCommand(const QStringList &argumentList)
-{
-	if(argumentList.isEmpty()) {
-		return new AMGCS2GetCurrentPositionCommand();
-	}
-
-	QList<AMGCS2::Axis> axes;
-
-	foreach (QString argument, argumentList) {
-
-		if(argument.length() != 1) {
-			return 0;
-		}
-
-		AMGCS2::Axis axis = AMGCS2Support::characterToAxis(argument.at(0));
-		if(axis == AMGCS2::UnknownAxis) {
-			return 0;
-		}
-
-		axes.append(axis);
-	}
-
-	return new AMGCS2GetCurrentPositionCommand(axes);
-}
-
-AMGCS2Command * AMGCS2CommandFactory::buildHaltSmoothlyCommand(const QStringList &argumentList)
-{
-	if(argumentList.isEmpty()) {
-		return new AMGCS2HaltSmoothlyCommand();
-	}
-
-	QList<AMGCS2::Axis> axes;
-
-	foreach(QString argument, argumentList) {
-
-		if(argument.length() != 1) {
-			return 0;
-		}
-
-		AMGCS2::Axis axis = AMGCS2Support::characterToAxis(argument.at(0));
-		if(axis == AMGCS2::UnknownAxis) {
-			return 0;
-		}
-
-		axes.append(axis);
-	}
-
-	return new AMGCS2HaltSmoothlyCommand(axes);
 }
 
 AMGCS2Command * AMGCS2CommandFactory::buildSetCommandLevelCommand(const QStringList &argumentList)
@@ -348,76 +321,6 @@ AMGCS2Command * AMGCS2CommandFactory::buildGetRecordTriggerSourceCommand(const Q
 	return new AMGCS2GetRecordTriggerSourceCommand(recordTableIds);
 }
 
-AMGCS2Command * AMGCS2CommandFactory::buildReferenceMoveCommand(const QStringList &argumentList)
-{
-	if(argumentList.isEmpty()) {
-		return new AMGCS2ReferenceMoveCommand();
-	}
 
-	QList<AMGCS2::Axis> axes;
-
-	for(int iAxis = 0, argCount = argumentList.count();
-		iAxis < argCount;
-		++iAxis) {
-
-		QString axisString = argumentList.at(iAxis);
-
-		if(axisString.length() != 1) {
-			return 0;
-		}
-
-		axes.append(AMGCS2Support::characterToAxis(axisString.at(0)));
-	}
-
-	return new AMGCS2ReferenceMoveCommand(axes);
-}
-
-AMGCS2Command * AMGCS2CommandFactory::buildGetReferenceResultsCommand(const QStringList &argumentList)
-{
-	if(argumentList.isEmpty()) {
-		return new AMGCS2GetReferenceResultCommand();
-	}
-
-	QList<AMGCS2::Axis> axes;
-
-	for(int iAxis = 0, argCount = argumentList.count();
-		iAxis < argCount;
-		++iAxis) {
-
-		QString axisString = argumentList.at(iAxis);
-
-		if(axisString.length() != 1) {
-			return 0;
-		}
-
-		axes.append(AMGCS2Support::characterToAxis(axisString.at(0)));
-	}
-
-	return new AMGCS2GetReferenceResultCommand(axes);
-}
-
-AMGCS2Command * AMGCS2CommandFactory::buildGetLimitSwitchStatusCommand(const QStringList &argumentList)
-{
-	if(argumentList.isEmpty()) {
-		return new AMGCS2GetLimitSwitchStatusCommand();
-	}
-
-	QList<AMGCS2::Axis> axes;
-
-	for(int iAxis = 0, argCount = argumentList.count();
-		iAxis < argCount;
-		++iAxis) {
-
-		QString axisString = argumentList.at(iAxis);
-
-		if(axisString.length() != 1) {
-			return 0;
-		}
-
-		axes.append(AMGCS2Support::characterToAxis(axisString.at(0)));
-	}
-
-	return new AMGCS2GetLimitSwitchStatusCommand(axes);
-}
 
 
