@@ -99,7 +99,16 @@ protected:
 	  * \returns An initialized AMGCS2SetRecordTriggerSourceCommand if the arguments
 	  * can be parsed, 0 otherwise.
 	  */
-	static AMGCS2Command* buildSetDataRecordTriggerSourceCommand(const QStringList& argumentList);
+	static AMGCS2Command* buildSetRecordTriggerSourceCommand(const QStringList& argumentList);
+
+	/*!
+	  * Static helper method for parsing the get data record trigger source command
+	  * string arguments.
+	  * \param argumentList ~ A list of the arguments provided to the command.
+	  * \returns An initialized AMGCS2GetRecordTriggerSourceCommand if the arguments
+	  * can be parsed, 0 otherwise.
+	  */
+	static AMGCS2Command* buildGetRecordTriggerSourceCommand(const QStringList& argumentList);
 };
 
 #endif // AMGCS2COMMANDFACTORY_H

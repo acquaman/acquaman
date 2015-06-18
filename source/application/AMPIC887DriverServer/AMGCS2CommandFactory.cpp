@@ -22,7 +22,7 @@
 #include "AMGCS2GetRecordedDataValuesCommand.h"
 #include "AMGCS2SetDataRecorderConfigurationCommand.h"
 #include "AMGCS2SetRecordTriggerSourceCommand.h"
-
+#include "AMGCS2GetRecordTriggerSourceCommand.h"
 AMGCS2Command * AMGCS2CommandFactory::buildCommand(const QString &commandString)
 {
 	if(commandString.startsWith("POS?")) {
@@ -53,6 +53,8 @@ AMGCS2Command * AMGCS2CommandFactory::buildCommand(const QString &commandString)
 		return buildGetNumberOfRecordedPointsCommand(commandArguments(commandString));
 	} else if(commandString.startsWith("DRR?")) {
 		return buildGetRecordedDataValuesCommand(commandArguments(commandString));
+	} else if(commandString.startsWith("DRT?")) {
+		return buildGetRecordTriggerSourceCommand(commandArguments(commandString));
 	}
 
 	return 0;
@@ -271,7 +273,7 @@ AMGCS2Command * AMGCS2CommandFactory::buildGetRecordedDataValuesCommand(const QS
 	return new AMGCS2GetRecordedDataValuesCommand(recordTableId, numberOfPoints, offsetPoint);
 }
 
-AMGCS2Command * AMGCS2CommandFactory::buildSetDataRecordTriggerSourceCommand(const QStringList &argumentList)
+AMGCS2Command * AMGCS2CommandFactory::buildSetRecordTriggerSourceCommand(const QStringList &argumentList)
 {
 	if(argumentList.isEmpty()) {
 		return 0;
@@ -303,6 +305,31 @@ AMGCS2Command * AMGCS2CommandFactory::buildSetDataRecordTriggerSourceCommand(con
 	}
 
 	return new AMGCS2SetRecordTriggerSourceCommand(tableTriggerMap);
+}
+
+AMGCS2Command * AMGCS2CommandFactory::buildGetRecordTriggerSourceCommand(const QStringList &argumentList)
+{
+	if(argumentList.isEmpty()) {
+		return 0;
+	}
+
+	QList<int> recordTableIds;
+
+	for(int iTableId = 0, argCount = argumentList.count();
+		iTableId < argCount;
+		++iTableId) {
+
+		bool parseSuccess = false;
+		int tableId = argumentList.at(iTableId).toInt(&parseSuccess);
+
+		if(!parseSuccess) {
+			return 0;
+		}
+
+		recordTableIds.append(tableId);
+	}
+
+	return new AMGCS2GetRecordTriggerSourceCommand(recordTableIds);
 }
 
 
