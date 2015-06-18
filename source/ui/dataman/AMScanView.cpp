@@ -249,7 +249,9 @@ void AMScanView::setupUI() {
 	vl->setMargin(6);
 	vl->setSpacing(0);
 
-	plotTools_ = new AMScanViewToolBar();
+	toolbar_ = new AMScanViewToolBar(0);
+
+	vl->addWidget(toolbar_);
 
 	gview_ = new AMGraphicsViewAndWidget();
 	gview_->setMinimumSize(400,300);
@@ -345,6 +347,7 @@ void AMScanView::changeViewMode(int newMode) {
 
 	mode_ = (ViewMode)newMode;
 	scanBars_->setExclusiveModeOn( (mode_ == Tabs) );
+	toolbar_->setToolOptions(views_.at(mode_)->toolOptions());
 	views_.at(mode_)->show();
 	resizeViews();
 
@@ -353,6 +356,8 @@ void AMScanView::changeViewMode(int newMode) {
 }
 
 void AMScanView::makeConnections() {
+	// connect to changes in the tools.
+	connect( toolbar_, SIGNAL(selectedToolsChanged(QList<MPlotAbstractTool*>)), this, SLOT(setPlotTools(QList<MPlotAbstractTool*>)) );
 
 	// connect mode bar to changeViewMode:
 	connect(modeBar_->modeButtons_, SIGNAL(buttonClicked(int)), this, SLOT(changeViewMode(int)));
@@ -541,7 +546,7 @@ void AMScanView::setPlotCursorColor(const QColor &color)
 
 #include <QSizePolicy>
 
- AMScanViewInternal::~AMScanViewInternal(){}
+ AMScanViewInternal::~AMScanViewInternal(){ delete toolOptions_;}
 AMScanViewInternal::AMScanViewInternal(AMScanView* masterView)
 	: QGraphicsWidget(),
 	  masterView_(masterView) {
@@ -561,57 +566,11 @@ AMScanViewInternal::AMScanViewInternal(AMScanView* masterView)
 	waterfallEnabled_ = false;
 	waterfallOffset_  = 0;
 
-	activeTool_ = 0;
-	dragZoomerTool_ = 0;
-	wheelZoomerTool_ = 0;
-	dataPositionTool_ = 0;
+	toolOptions_ = new AMScanViewToolBarOptions(QList<MPlotAbstractTool*>());
 }
 
 
 AMScanSetModel* AMScanViewInternal::model() const { return masterView_->model(); }
-
-void AMScanViewInternal::addTool(MPlotAbstractTool *newTool)
-{
-	if (!tools_.contains(newTool))
-		tools_ << newTool;
-}
-
-void AMScanViewInternal::setActiveTool(MPlotAbstractTool *newActiveTool)
-{
-	if (activeTool_ != newActiveTool) {
-		activeTool_ = newActiveTool;
-	}
-}
-
-void AMScanViewInternal::enableDragZoomerTool(MPlotGW *plot)
-{
-	if (dragZoomerTool_ && plot) {
-		plot->plot()->removeTool(activeTool_);
-		plot->plot()->addTool(dragZoomerTool_);
-
-		setActiveTool(dragZoomerTool_);
-	}
-}
-
-void AMScanViewInternal::enableWheelZoomerTool(MPlotGW *plot)
-{
-	if (wheelZoomerTool_ && plot) {
-		plot->plot()->removeTool(activeTool_);
-		plot->plot()->addTool(wheelZoomerTool_);
-
-		setActiveTool(wheelZoomerTool_);
-	}
-}
-
-void AMScanViewInternal::enableDataPositionTool(MPlotGW *plot)
-{
-	if (dataPositionTool_ && plot) {
-		plot->plot()->removeTool(activeTool_);
-		plot->plot()->addTool(dataPositionTool_);
-
-		setActiveTool(dataPositionTool_);
-	}
-}
 
 MPlotGW * AMScanViewInternal::createDefaultPlot()
 {
@@ -630,8 +589,6 @@ MPlotGW * AMScanViewInternal::createDefaultPlot()
 
 	rv->plot()->setMarginRight(rv->plot()->marginLeft());
 
-	enableDragZoomerTool(rv);
-
 //	// DragZoomerTools need to be added first ("on the bottom") so they don't steal everyone else's mouse events
 //	rv->plot()->addTool(new MPlotDragZoomerTool);
 
@@ -639,6 +596,49 @@ MPlotGW * AMScanViewInternal::createDefaultPlot()
 //	rv->plot()->addTool(new MPlotWheelZoomerTool);
 
 	return rv;
+}
+
+void AMScanViewInternal::addDragZoomerToolToPlot(MPlot *plot, MPlotDragZoomerTool *tool)
+{
+	if (plot && tool)
+		plot->addTool(tool);
+}
+
+void AMScanViewInternal::removeDragZoomerToolFromPlot(MPlot *plot, MPlotDragZoomerTool *tool)
+{
+	if (plot && tool) {
+		plot->removeTool(tool);
+	}
+}
+
+void AMScanViewInternal::addWheelZoomerToolToPlot(MPlot *plot, MPlotWheelZoomerTool *tool)
+{
+	if (plot && tool) {
+		plot->addTool(tool);
+	}
+}
+
+void AMScanViewInternal::removeWheelZoomerToolFromPlot(MPlot *plot, MPlotWheelZoomerTool *tool)
+{
+	if (plot && tool) {
+		plot->removeTool(tool);
+	}
+}
+
+void AMScanViewInternal::addDataPositionToolToPlot(MPlot *plot, MPlotDataPositionTool *tool)
+{
+	if (plot && tool) {
+		plot->addTool(tool);
+		connect( plot->signalSource(), SIGNAL(dataPositionChanged(QPointF)), this, SIGNAL(dataPositionChanged(QPointF)) );
+	}
+}
+
+void AMScanViewInternal::removeDataPositionToolFromPlot(MPlot *plot, MPlotDataPositionTool *tool)
+{
+	if (plot && tool) {
+		disconnect( plot->signalSource(), SIGNAL(dataPositionChanged(QPointF)), this, SIGNAL(dataPositionChanged(QPointF)) );
+		plot->removeTool(tool);
+	}
 }
 
 // Helper function to create an appropriate MPlotItem and connect it to the data, depending on the dimensionality of \c dataSource.  Returns 0 if we can't handle this dataSource and no item was created (ex: unsupported dimensionality, we only handle 1D or 2D data for now.)
@@ -724,21 +724,23 @@ void AMScanViewInternal::reviewPlotAxesConfiguration(MPlotGW *plotGW)
 // AMScanViewExclusiveView
 /////////////////////////////
 
-AMScanViewExclusiveView::AMScanViewExclusiveView(AMScanView* masterView) : AMScanViewInternal(masterView) {
+AMScanViewExclusiveView::AMScanViewExclusiveView(AMScanView* masterView) : AMScanViewInternal(masterView)
+{
+	// Create our main plot:
+
+	plot_ = createDefaultPlot();
+
+	// Create instances of the tools we want available and add them to the tool options.
 
 	dragZoomerTool_ = new MPlotDragZoomerTool();
 	wheelZoomerTool_ = new MPlotWheelZoomerTool();
-	dataPositionTool_ = new MPlotDataPositionTool();
+	dataPositionTool_ = new MPlotDataPositionTool(false);
 
-	// create our main plot:
-	plot_ = createDefaultPlot();
+	connect( toolOptions_, SIGNAL(selectedToolsChanged(QList<MPlotAbstractTool*>)), this, SLOT(onToolSelectionChanged(QList<MPlotAbstractTool*>)) );
 
-
-	MPlotDataPositionTool *positionTool = new MPlotDataPositionTool(false);
-	plot_->plot()->addTool(positionTool);
-	positionTool->setDataPositionIndicator(plot_->plot()->axisScaleBottom(), plot_->plot()->axisScaleLeft());
-
-	connect(plot_->plot()->signalSource(), SIGNAL(dataPositionChanged(QPointF)), this, SIGNAL(dataPositionChanged(QPointF)));
+	toolOptions_->setExclusiveSelectionEnabled(true);
+	toolOptions_->setTools(QList<MPlotAbstractTool*>() << dragZoomerTool_ << dataPositionTool_ << wheelZoomerTool_);
+	toolOptions_->setSelectedTools(QList<MPlotAbstractTool*>() << dragZoomerTool_);
 
 	plotCursor_ = new MPlotPoint;
 	plotCursor_->setMarker(MPlotMarkerShape::VerticalBeam, 1e6, QPen(Qt::black), QBrush(Qt::black));
@@ -870,6 +872,12 @@ void AMScanViewExclusiveView::onModelDataChanged(const QModelIndex& topLeft, con
 			AMDataSource* dataSource = model()->dataSourceAt(si, di);
 			// if this data source is the one we're currently displaying...
 			if(dataSource == plotItemDataSources_.at(si)) {
+
+				if (dataSource->name() == model()->exclusiveDataSourceName()) {
+					toolOptions_->setXUnits(dataSource->axisInfoAt(0).units());
+					toolOptions_->setYUnits(dataSource->axisInfoAt(1).units());
+				}
+
 				switch(dataSource->rank()) {
 				case 1: {
 					MPlotAbstractSeries* series = static_cast<MPlotAbstractSeries*>(plotItems_.at(si));
@@ -906,6 +914,28 @@ void AMScanViewExclusiveView::onExclusiveDataSourceChanged(const QString& exclus
 
 	reviewPlotAxesConfiguration(plot_);
 	refreshTitle();
+}
+
+void AMScanViewExclusiveView::onToolSelectionChanged(QList<MPlotAbstractTool *> newSelection)
+{
+	// Clear the plot of existing tools.
+
+	removeDragZoomerToolFromPlot(plot_->plot(), dragZoomerTool_);
+	removeWheelZoomerToolFromPlot(plot_->plot(), wheelZoomerTool_);
+	removeDataPositionToolFromPlot(plot_->plot(), dataPositionTool_);
+
+	// Add each tool in the selection to the plot.
+
+	foreach (MPlotAbstractTool *tool, newSelection) {
+		QString name = tool->name();
+
+		if (name == dragZoomerTool_->name())
+			addDragZoomerToolToPlot(plot_->plot(), dragZoomerTool_);
+		else if (name == wheelZoomerTool_->name())
+			addWheelZoomerToolToPlot(plot_->plot(), wheelZoomerTool_);
+		else if (name == dataPositionTool_->name())
+			addDataPositionToolToPlot(plot_->plot(), dataPositionTool_);
+	}
 }
 
 void AMScanViewExclusiveView::refreshTitle() {
@@ -1085,12 +1115,23 @@ void AMScanViewExclusiveView::setDataRangeConstraint(int id)
 // AMScanViewMultiView
 /////////////////////////////
 
-AMScanViewMultiView::AMScanViewMultiView(AMScanView* masterView) : AMScanViewInternal(masterView) {
-
+AMScanViewMultiView::AMScanViewMultiView(AMScanView* masterView) : AMScanViewInternal(masterView)
+{
 	// create our main plot:
 	plot_ = createDefaultPlot();
 
 	connect(plot_->plot()->signalSource(), SIGNAL(dataPositionChanged(QPointF)), this, SIGNAL(dataPositionChanged(QPointF)));
+
+	// Create instances of the tools we want available and add them to the tool options.
+
+	dragZoomerTool_ = new MPlotDragZoomerTool();
+	wheelZoomerTool_ = new MPlotWheelZoomerTool();
+
+	connect( toolOptions_, SIGNAL(selectedToolsChanged(QList<MPlotAbstractTool*>)), this, SLOT(onToolSelectionChanged(QList<MPlotAbstractTool*>)) );
+
+	toolOptions_->setExclusiveSelectionEnabled(false);
+	toolOptions_->setTools(QList<MPlotAbstractTool*>() << dragZoomerTool_ << wheelZoomerTool_);
+	toolOptions_->setSelectedTools(QList<MPlotAbstractTool*>() << dragZoomerTool_ << wheelZoomerTool_);
 
 	plotCursor_ = new MPlotPoint;
 	plotCursor_->setMarker(MPlotMarkerShape::VerticalBeam, 1e6, QPen(Qt::black), QBrush(Qt::black));
@@ -1400,7 +1441,8 @@ void AMScanViewMultiView::setDataRangeConstraint(int id)
 // AMScanViewMultiScansView
 ///////////////////////////////////////////////////
 
-AMScanViewMultiScansView::AMScanViewMultiScansView(AMScanView* masterView) : AMScanViewInternal(masterView) {
+AMScanViewMultiScansView::AMScanViewMultiScansView(AMScanView* masterView) : AMScanViewInternal(masterView)
+{
 
 	layout_ = new QGraphicsGridLayout();
 	layout_->setContentsMargins(0,0,0,0);
@@ -1776,6 +1818,17 @@ AMScanViewMultiSourcesView::AMScanViewMultiSourcesView(AMScanView* masterView) :
 
 	// add all of the scans/data sources we have already
 	reviewDataSources();
+
+	// Create instances of the tools we want available and add them to the tool options.
+
+	dragZoomerTool_ = new MPlotDragZoomerTool();
+	wheelZoomerTool_ = new MPlotWheelZoomerTool();
+
+	connect( toolOptions_, SIGNAL(selectedToolsChanged(QList<MPlotAbstractTool*>)), this, SLOT(onToolSelectionChanged(QList<MPlotAbstractTool*>)) );
+
+	toolOptions_->setExclusiveSelectionEnabled(false);
+	toolOptions_->setTools(QList<MPlotAbstractTool*>() << dragZoomerTool_ << wheelZoomerTool_);
+	toolOptions_->setSelectedTools(QList<MPlotAbstractTool*>() << dragZoomerTool_ << wheelZoomerTool_);
 
 	reLayout();
 }
