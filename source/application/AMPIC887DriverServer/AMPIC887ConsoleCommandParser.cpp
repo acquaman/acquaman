@@ -27,6 +27,7 @@ QString AMPIC887ConsoleCommandParser::commandList()
 	commandList.append("DRT <record table id1> <trigger source1> <record table id2> <trigger source2> ... : Sets the data record triggers for the provided data record tables.\n");
 	commandList.append("DRT? <record table id1> <record table id2> ... : Queries the current recording trigger sources for the provided data record tables.\n");
 	commandList.append("FRF <axis1> <axis2> : Instructs the controller to perform a reference move on the provided axes. If none are provided reference moves will be performed on all axes.\n");
+	commandList.append("FRF? <axis1> <axis2> : Queries whether the provided axes have been referenced. If no axes are provided the reference status of all axes will be queries.\n");
 	commandList.append("IDN? : Queries the controller's device identification.\n");
 	commandList.append("MOV <axis1> <position1> <axis2> <position2> ... : Moves the provided axes to the provided positions. At least one axes/position combination must be provided.\n");
 	commandList.append("MST? : Queries the movement statuses of the controller axes.\n");
