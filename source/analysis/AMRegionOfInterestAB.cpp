@@ -413,6 +413,11 @@ void AMRegionOfInterestAB::setInputDataSourcesImplementation(const QList<AMDataS
 		sources_.clear();
 		setDescription("-- No input data --");
 		axes_.clear();
+
+		dataUpdateRequired_ = false;
+		lowerDirtyIndex_ = AMnDIndex();
+		upperDirtyIndex_ = AMnDIndex();
+		cachedOutput_ = QVector<double>();
 	}
 
 	// we know that this will only be called with valid input source
@@ -424,12 +429,17 @@ void AMRegionOfInterestAB::setInputDataSourcesImplementation(const QList<AMDataS
 		setDescription(name());
 		axes_.clear();
 
-		for (int i = 0, size = spectrum_->rank()-1; i < size; i++)
+		for (int i = 0, spectrumRank = spectrum_->rank()-1; i < spectrumRank; i++)
 			axes_.append(spectrum_->axisInfoAt(i));
 
 		connect(spectrum_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onInputSourceValuesChanged(AMnDIndex,AMnDIndex)));
 		connect(spectrum_->signalSource(), SIGNAL(sizeChanged(int)), this, SLOT(onInputSourceSizeChanged()));
 		connect(spectrum_->signalSource(), SIGNAL(stateChanged(int)), this, SLOT(onInputSourceStateChanged()));
+
+		dataUpdateRequired_ = true;
+		lowerDirtyIndex_ = AMnDIndex(axes_.size(), AMnDIndex::DoInit, 0);
+		upperDirtyIndex_ = size()-1;
+		cachedOutput_ = QVector<double>(size().product());
 	}
 
 	reviewState();

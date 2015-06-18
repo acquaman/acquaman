@@ -206,6 +206,11 @@ void AM1DSummingAB::setInputDataSourcesImplementation(const QList<AMDataSource*>
 		sources_.clear();
 		axes_[0] = AMAxisInfo("invalid", 0, "No input data");
 		setDescription("-- No input data --");
+
+		dataUpdateRequired_ = false;
+		lowerDirtyIndex_ = AMnDIndex();
+		upperDirtyIndex_ = AMnDIndex();
+		cachedOutput_ = QVector<double>();
 	}
 
 	// we know that this will only be called with valid input source
@@ -223,6 +228,11 @@ void AM1DSummingAB::setInputDataSourcesImplementation(const QList<AMDataSource*>
 			connect(sources_.at(i)->signalSource(), SIGNAL(sizeChanged(int)), this, SLOT(onInputSourceSizeChanged()));
 			connect(sources_.at(i)->signalSource(), SIGNAL(stateChanged(int)), this, SLOT(onInputSourceStateChanged()));
 		}
+
+		dataUpdateRequired_ = true;
+		lowerDirtyIndex_ = AMnDIndex(axes_.size(), AMnDIndex::DoInit, 0);
+		upperDirtyIndex_ = size()-1;
+		cachedOutput_ = QVector<double>(size().product());
 	}
 
 	reviewState();

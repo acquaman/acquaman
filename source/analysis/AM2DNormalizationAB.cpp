@@ -135,6 +135,11 @@ void AM2DNormalizationAB::setInputSources()
 	emitAxisInfoChanged(0);
 	emitAxisInfoChanged(1);
 	emitInfoChanged();
+
+	dataUpdateRequired_ = true;
+	lowerDirtyIndex_ = AMnDIndex(axes_.size(), AMnDIndex::DoInit, 0);
+	upperDirtyIndex_ = size()-1;
+	cachedOutput_ = QVector<double>(size().product());
 }
 
 bool AM2DNormalizationAB::canAnalyze(const QString &dataName, const QString &normalizationName) const
@@ -337,6 +342,11 @@ void AM2DNormalizationAB::setInputDataSourcesImplementation(const QList<AMDataSo
 		axes_[0] = AMAxisInfo("invalid", 0, "No input data");
 		axes_[1] = AMAxisInfo("invalid", 0, "No input data");
 		setDescription("Normalized 2D Data Source");
+
+		dataUpdateRequired_ = false;
+		lowerDirtyIndex_ = AMnDIndex();
+		upperDirtyIndex_ = AMnDIndex();
+		cachedOutput_ = QVector<double>();
 	}
 
 	else if (dataSources.count() == 2){
@@ -357,6 +367,11 @@ void AM2DNormalizationAB::setInputDataSourcesImplementation(const QList<AMDataSo
 		connect(normalizer_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onInputSourceValuesChanged(AMnDIndex,AMnDIndex)));
 		connect(normalizer_->signalSource(), SIGNAL(sizeChanged(int)), this, SLOT(onInputSourceSizeChanged()));
 		connect(normalizer_->signalSource(), SIGNAL(stateChanged(int)), this, SLOT(onInputSourceStateChanged()));
+
+		dataUpdateRequired_ = true;
+		lowerDirtyIndex_ = AMnDIndex(axes_.size(), AMnDIndex::DoInit, 0);
+		upperDirtyIndex_ = size()-1;
+		cachedOutput_ = QVector<double>(size().product());
 	}
 
 	else {

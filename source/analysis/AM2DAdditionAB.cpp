@@ -234,6 +234,11 @@ void AM2DAdditionAB::setInputDataSourcesImplementation(const QList<AMDataSource*
 		axes_[1] = AMAxisInfo("invalid", 0, "No input data");
 
 		setDescription("-- No input data --");
+
+		dataUpdateRequired_ = false;
+		lowerDirtyIndex_ = AMnDIndex();
+		upperDirtyIndex_ = AMnDIndex();
+		cachedOutput_ = QVector<double>();
 	}
 
 	// we know that this will only be called with valid input source
