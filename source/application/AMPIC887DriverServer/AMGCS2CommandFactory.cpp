@@ -23,6 +23,8 @@
 #include "AMGCS2SetDataRecorderConfigurationCommand.h"
 #include "AMGCS2SetRecordTriggerSourceCommand.h"
 #include "AMGCS2GetRecordTriggerSourceCommand.h"
+#include "AMGCS2ReferenceMoveCommand.h"
+
 AMGCS2Command * AMGCS2CommandFactory::buildCommand(const QString &commandString)
 {
 	if(commandString.startsWith("POS?")) {
@@ -55,6 +57,8 @@ AMGCS2Command * AMGCS2CommandFactory::buildCommand(const QString &commandString)
 		return buildGetRecordedDataValuesCommand(commandArguments(commandString));
 	} else if(commandString.startsWith("DRT?")) {
 		return buildGetRecordTriggerSourceCommand(commandArguments(commandString));
+	} else if(commandString.startsWith("FRF")) {
+		return buildReferenceMoveCommand(commandArguments(commandString));
 	}
 
 	return 0;
@@ -330,6 +334,30 @@ AMGCS2Command * AMGCS2CommandFactory::buildGetRecordTriggerSourceCommand(const Q
 	}
 
 	return new AMGCS2GetRecordTriggerSourceCommand(recordTableIds);
+}
+
+AMGCS2Command * AMGCS2CommandFactory::buildReferenceMoveCommand(const QStringList &argumentList)
+{
+	if(argumentList.isEmpty()) {
+		return new AMGCS2ReferenceMoveCommand();
+	}
+
+	QList<AMGCS2::Axis> axes;
+
+	for(int iAxis = 0, argCount = argumentList.count();
+		iAxis < argCount;
+		++iAxis) {
+
+		QString axisString = argumentList.at(iAxis);
+
+		if(axisString.length() != 1) {
+			return 0;
+		}
+
+		axes.append(AMGCS2Support::characterToAxis(axisString.at(0)));
+	}
+
+	return new AMGCS2ReferenceMoveCommand(axes);
 }
 
 
