@@ -27,6 +27,7 @@
 #include "AMGCS2GetReferenceResultCommand.h"
 #include "AMGCS2GetRecorderOptionsCommand.h"
 #include "AMGCS2GetAvailableParametersCommand.h"
+#include "AMGCS2GetLimitSwitchStatusCommand.h"
 
 AMGCS2Command * AMGCS2CommandFactory::buildCommand(const QString &commandString)
 {
@@ -68,6 +69,8 @@ AMGCS2Command * AMGCS2CommandFactory::buildCommand(const QString &commandString)
 		return new AMGCS2GetRecorderOptionsCommand();
 	} else if(commandString.startsWith("HPA?")) {
 		return new AMGCS2GetAvailableParametersCommand();
+	} else if(commandString.startsWith("LIM?")) {
+		return buildGetLimitSwitchStatusCommand(commandArguments(commandString));
 	}
 
 	return 0;
@@ -391,6 +394,30 @@ AMGCS2Command * AMGCS2CommandFactory::buildGetReferenceResultsCommand(const QStr
 	}
 
 	return new AMGCS2GetReferenceResultCommand(axes);
+}
+
+AMGCS2Command * AMGCS2CommandFactory::buildGetLimitSwitchStatusCommand(const QStringList &argumentList)
+{
+	if(argumentList.isEmpty()) {
+		return new AMGCS2GetLimitSwitchStatusCommand();
+	}
+
+	QList<AMGCS2::Axis> axes;
+
+	for(int iAxis = 0, argCount = argumentList.count();
+		iAxis < argCount;
+		++iAxis) {
+
+		QString axisString = argumentList.at(iAxis);
+
+		if(axisString.length() != 1) {
+			return 0;
+		}
+
+		axes.append(AMGCS2Support::characterToAxis(axisString.at(0)));
+	}
+
+	return new AMGCS2GetLimitSwitchStatusCommand(axes);
 }
 
 
