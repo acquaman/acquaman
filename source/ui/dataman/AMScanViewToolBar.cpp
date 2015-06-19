@@ -4,10 +4,12 @@
 #include "MPlot/MPlotTools.h"
 #include "dataman/AMScanSetModel.h"
 
+#include <QDebug>
+
 AMScanViewToolBar::AMScanViewToolBar(AMScanViewToolBarOptions *toolOptions, QWidget *parent) :
-	QWidget(parent)
+	QGroupBox(parent)
 {
-	// Set member variables.
+	// Initialize member variables.
 
 	toolOptions_ = 0;
 
@@ -15,24 +17,26 @@ AMScanViewToolBar::AMScanViewToolBar(AMScanViewToolBarOptions *toolOptions, QWid
 
 	toolBar_ = new QToolBar("Plot");
 
-	dataPositionView_ = new AMScanViewToolBarDataPositionView();
-
 	// Create and set layouts.
+
+	toolViewsLayout_ = new QHBoxLayout();
 
 	QHBoxLayout *layout = new QHBoxLayout();
 	layout->addWidget(toolBar_);
-	layout->addWidget(dataPositionView_);
+	layout->addLayout(toolViewsLayout_);
 	layout->addStretch();
 
 	setLayout(layout);
 
 	// Make connections.
 
-	connect( toolBar_, SIGNAL(actionTriggered(QAction*)), this, SLOT(onToolSelected(QAction*)) );
+	connect( toolBar_, SIGNAL(actionTriggered(QAction*)), this, SLOT(onToolBarToolSelected(QAction*)) );
 
 	// Current settings.
 
 	setToolOptions(toolOptions);
+
+	qDebug() << "\n";
 }
 
 AMScanViewToolBar::~AMScanViewToolBar()
@@ -44,68 +48,218 @@ void AMScanViewToolBar::setToolOptions(AMScanViewToolBarOptions *newOptions)
 {
 	if (toolOptions_ != newOptions) {
 
-		if (toolOptions_) {
-			toolBar_->clear();
+		qDebug() << "Setting tool bar tool options...";
+
+		if (toolOptions_)
 			toolOptions_->disconnect();
-		}
 
 		toolOptions_ = newOptions;
 
 		if (toolOptions_) {
-
-			// Create actions for each available tool and add to tool bar.
-
-			foreach (MPlotAbstractTool *tool, toolOptions_->tools()) {
-				QAction *toolAction = new QAction(QIcon(":/22x22/view-list-details-symbolic.png"), tool->name(), this);
-				toolAction->setCheckable(true);
-				toolAction->setStatusTip(tool->description());
-
-				toolBar_->addAction(toolAction);
-			}
-
-			connect( toolOptions_, SIGNAL(xUnitsChanged(QString)), this, SLOT(updateXUnits()) );
-			connect( toolOptions_, SIGNAL(yUnitsChanged(QString)), this, SLOT(updateYUnits()) );
-			connect( toolOptions_, SIGNAL(valueUnitsChanged(QString)), this, SLOT(updateValueUnits()) );
+			connect( toolOptions_, SIGNAL(toolsChanged(QList<MPlotAbstractTool*>)), this, SLOT(onToolOptionsToolsChanged()) );
+			connect( toolOptions_, SIGNAL(selectedToolsChanged(QList<MPlotAbstractTool*>)), this, SLOT(onToolOptionsSelectedToolsChanged()) );
 		}
 
-//		emit toolOptionsChanged(toolOptions_);
+		onToolOptionsToolsChanged();
+		onToolOptionsSelectedToolsChanged();
+
+		qDebug() << "Tool bar tool options set successfully.";
+
+		emit toolOptionsChanged(toolOptions_);
 	}
 }
 
-void AMScanViewToolBar::onToolSelected(QAction *action)
+void AMScanViewToolBar::updateToolActionsChecked()
+{
+	if (toolOptions_) {
+
+		toolBar_->blockSignals(true);
+
+		qDebug() << "Updating tool actions checked.";
+
+		foreach (QAction *toolAction, toolBar_->actions()) {
+			if (toolAction && toolOptions_->isSelectedTool(toolAction->text()))
+				toolAction->setChecked(true);
+			else
+				toolAction->setChecked(false);
+		}
+
+		toolBar_->blockSignals(false);
+	}
+}
+
+void AMScanViewToolBar::updateToolViewsVisibility()
+{
+	if (toolOptions_) {
+
+		qDebug() << "Updating tool view visibility.";
+
+		for (int i = 0; i < toolOptions_->tools().count(); i++) {
+			MPlotAbstractTool *tool = toolOptions_->tools().at(i);
+			QWidget *toolView = toolViews_.at(i);
+
+			if (toolView) {
+				if (toolOptions_->isSelectedTool(tool)) {
+					qDebug() << "Showing tool view.";
+					toolView->show();
+				} else {
+					qDebug() << "Hiding tool view.";
+					toolView->hide();
+				}
+			}
+		}
+	}
+}
+
+void AMScanViewToolBar::onToolBarToolSelected(QAction *action)
 {
 	if (toolOptions_ && action) {
 
+		qDebug() << "Toolbar tool selected.";
+
 		// Identify the tool associated with the given action.
 
-		MPlotAbstractTool *selectedTool = 0;
-		int toolIndex = 0;
-		int toolCount = toolOptions_->tools().count();
+		MPlotAbstractTool *tool = actionToTool(action);
 
-		while (!selectedTool && toolIndex < toolCount) {
-			MPlotAbstractTool *tool = toolOptions_->tools().at(toolIndex);
-			if (tool->name() == action->text())
-				selectedTool = tool;
-		}
+		// If the action is checked, we are applying this tool, removing it otherwise.
 
-		// If the action is checked, we are applying this tool to the plot. Removing it otherwise.
-
-		if (selectedTool) {
+		if (tool) {
 			if (action->isChecked()) {
-				toolOptions_->addSelectedTool(selectedTool);
+				toolOptions_->addSelectedTool(tool);
 
 			} else {
-				toolOptions_->removeSelectedTool(selectedTool);
+				toolOptions_->removeSelectedTool(tool);
 			}
 		}
 	}
 }
 
-void AMScanViewToolBar::updateXUnits()
+void AMScanViewToolBar::onToolOptionsToolsChanged()
 {
-	if (toolOptions_) {
-		dataPositionView_->setXUn
+	// Clear the view.
+
+	toolBar_->clear();
+
+	foreach (QWidget *toolView, toolViews_) {
+		toolViewsLayout_->removeWidget(toolView);
+		toolViews_.removeOne(toolView);
+		toolView->deleteLater();
 	}
+
+	// If we have valid tool options, build the view up with the available tools.
+
+	if (toolOptions_) {
+
+		qDebug() << "Setting up toolbar view for new tools...";
+
+		foreach (MPlotAbstractTool *tool, toolOptions_->tools()) {
+
+			// Create actions for each available tool and add to tool bar.
+
+			QAction *toolAction = createToolAction(tool);
+			toolBar_->addAction(toolAction);
+
+			// Create tool view for each tool and add to list of tool views.
+
+			QWidget *toolView = createToolView(tool);
+			toolViews_ << toolView;
+		}
+
+		// Add list of generated tool views to the layout and update their visibility to correspond to tool select state.
+
+		foreach (QWidget *toolView, toolViews_)
+			toolViewsLayout_->addWidget(toolView);
+
+		updateToolActionsChecked();
+		updateToolViewsVisibility();
+
+		qDebug() << "Toolbar view setup with new tools.";
+	}
+}
+
+void AMScanViewToolBar::onToolOptionsSelectedToolsChanged()
+{
+	// Update the check state of each action and visibility of tool views by comparing against the selected tools.
+
+	updateToolActionsChecked();
+	updateToolViewsVisibility();
+}
+
+QAction* AMScanViewToolBar::createToolAction(MPlotAbstractTool *tool)
+{
+	QAction *toolAction = 0;
+
+	if (tool) {
+
+		qDebug() << "Creating tool action.";
+
+		toolAction = new QAction(QIcon(":/22x22/view-list-details-symbolic.png"), tool->name(), this);
+		toolAction->setCheckable(true);
+		toolAction->setStatusTip(tool->description());
+	}
+
+	return toolAction;
+}
+
+QWidget* AMScanViewToolBar::createToolView(MPlotAbstractTool *tool)
+{
+	QWidget *view = 0;
+
+	if (tool) {
+
+		qDebug() << "Creating tool view.";
+
+		MPlotDataPositionTool *positionTool = qobject_cast<MPlotDataPositionTool*>(tool);
+
+		if (positionTool) {
+			view = new AMScanViewToolBarDataPositionView(toolOptions_, false, this);
+			qDebug() << "\tCreating data position tool view.";
+
+		} else {
+			view = new QWidget(this);
+			qDebug() << "\tCreating other tool view.";
+		}
+	}
+
+	return view;
+}
+
+QAction* AMScanViewToolBar::toolToAction(MPlotAbstractTool *tool)
+{
+	QAction *result = 0;
+
+	if (toolOptions_ && tool) {
+
+		foreach (QAction *action, toolBar_->actions()) {
+			if (action->text() == tool->name()) {
+				result = action;
+				break;
+			}
+		}
+	}
+
+	return result;
+}
+
+MPlotAbstractTool* AMScanViewToolBar::actionToTool(QAction *toolAction)
+{
+	MPlotAbstractTool *result = 0;
+
+	if (toolOptions_ && toolAction) {
+		int toolIndex = 0;
+		int toolCount = toolOptions_->tools().count();
+
+		while (!result && toolIndex < toolCount) {
+			MPlotAbstractTool *tool = toolOptions_->tools().at(toolIndex);
+
+			if (tool->name() == toolAction->text())
+				result = tool;
+
+			toolIndex++;
+		}
+	}
+
+	return result;
 }
 
 
@@ -121,8 +275,10 @@ AMScanViewToolBarOptions::AMScanViewToolBarOptions(QList<MPlotAbstractTool *> to
 	// Initialize member variables.
 
 	exclusiveSelection_ = false;
+	dataPosition_ = QPointF();
 	xUnits_ = "";
 	yUnits_ = "";
+	value_ = 0;
 	valueUnits_ = "";
 
 	// Current settings.
@@ -136,18 +292,39 @@ AMScanViewToolBarOptions::~AMScanViewToolBarOptions()
 
 }
 
+bool AMScanViewToolBarOptions::isSelectedTool(MPlotAbstractTool *tool)
+{
+	return selectedTools_.contains(tool);
+}
+
+bool AMScanViewToolBarOptions::isSelectedTool(const QString &toolName)
+{
+	int toolIndex = 0;
+	int toolCount = selectedTools_.count();
+	bool toolFound = false;
+
+	while (!toolFound && toolIndex < toolCount) {
+		MPlotAbstractTool *tool = selectedTools_.at(toolIndex);
+
+		if (tool->name() == toolName)
+			toolFound = true;
+
+		toolIndex++;
+	}
+
+	return toolFound;
+}
+
 void AMScanViewToolBarOptions::setTools(QList<MPlotAbstractTool *> newTools)
 {
 	if (tools_ != newTools) {
 
-		// Clear any lists of previously selected tools.
+		// Clear any previously selected tools.
 
 		if (!tools_.isEmpty())
 			selectedTools_.clear();
 
 		tools_ = newTools;
-
-		dragZoomerToolCheck();
 
 		emit toolsChanged(tools_);
 	}
@@ -157,7 +334,6 @@ void AMScanViewToolBarOptions::addTool(MPlotAbstractTool *newTool)
 {
 	if (!tools_.contains(newTool)) {
 		tools_.append(newTool);
-		dragZoomerToolCheck();
 		emit toolsChanged(tools_);
 	}
 }
@@ -190,6 +366,8 @@ void AMScanViewToolBarOptions::setSelectedTools(QList<MPlotAbstractTool *> newTo
 				selectedTools_.append(tool);
 		}
 
+		dragZoomerToolCheck(selectedTools_);
+
 		emit selectedToolsChanged(selectedTools_);
 	}
 }
@@ -205,6 +383,8 @@ void AMScanViewToolBarOptions::addSelectedTool(MPlotAbstractTool *newTool)
 			addTool(newTool);
 
 		selectedTools_.append(newTool);
+
+		dragZoomerToolCheck(selectedTools_);
 
 		emit selectedToolsChanged(selectedTools_);
 	}
@@ -222,10 +402,23 @@ void AMScanViewToolBarOptions::setExclusiveSelectionEnabled(bool isEnabled)
 {
 	if (exclusiveSelection_ != isEnabled) {
 		exclusiveSelection_ = isEnabled;
+
+		if (exclusiveSelection_ && selectedTools_.count() > 1)
+			setSelectedTools(QList<MPlotAbstractTool*>() << selectedTools_.first());
+
 		emit exclusiveSelectionEnabledChanged(exclusiveSelection_);
 	}
 }
 
+void AMScanViewToolBarOptions::setDataPosition(const QPointF &newPosition)
+{
+	if (dataPosition_ != newPosition) {
+		qDebug() << "Tool bar options position update.";
+
+		dataPosition_ = newPosition;
+		emit dataPositionChanged(dataPosition_);
+	}
+}
 
 void AMScanViewToolBarOptions::setXUnits(const QString &newUnits)
 {
@@ -243,6 +436,14 @@ void AMScanViewToolBarOptions::setYUnits(const QString &newUnits)
 	}
 }
 
+void AMScanViewToolBarOptions::setValue(double newValue)
+{
+	if (value_ != newValue) {
+		value_ = newValue;
+		emit valueChanged(value_);
+	}
+}
+
 void AMScanViewToolBarOptions::setValueUnits(const QString &newUnits)
 {
 	if (valueUnits_ != newUnits) {
@@ -251,20 +452,20 @@ void AMScanViewToolBarOptions::setValueUnits(const QString &newUnits)
 	}
 }
 
-void AMScanViewToolBarOptions::dragZoomerToolCheck()
+void AMScanViewToolBarOptions::dragZoomerToolCheck(QList<MPlotAbstractTool*> toolList)
 {
 	// Make sure that any drag zoomer tools in the list appear first.
 	// They should always be added to a plot first.
 
-	int toolCount = tools_.size();
+	int toolCount = toolList.size();
 	int dragZoomerCount = 0;
 
 	for (int toolIndex = 0; toolIndex < toolCount; toolIndex++) {
-		MPlotDragZoomerTool *dragZoomer = qobject_cast<MPlotDragZoomerTool*>(tools_.at(toolIndex));
+		MPlotDragZoomerTool *dragZoomer = qobject_cast<MPlotDragZoomerTool*>(toolList.at(toolIndex));
 
 		if (dragZoomer) {
 			if (toolIndex > dragZoomerCount)
-				tools_.swap(dragZoomerCount, toolIndex);
+				toolList.swap(dragZoomerCount, toolIndex);
 			dragZoomerCount++;
 		}
 	}
@@ -279,12 +480,12 @@ void AMScanViewToolBarOptions::dragZoomerToolCheck()
 
 
 
-AMScanViewToolBarDataPositionView::AMScanViewToolBarDataPositionView(MPlotDataPositionTool *tool, bool enableValue, QWidget *parent) :
+AMScanViewToolBarDataPositionView::AMScanViewToolBarDataPositionView(AMScanViewToolBarOptions *toolOptions, bool enableValue, QWidget *parent) :
 	QWidget(parent)
 {
 	// Initialize member variables.
 
-	tool_ = 0;
+	toolOptions_ = 0;
 	valueEnabled_ = false;
 
 	// Create UI elements.
@@ -323,7 +524,7 @@ AMScanViewToolBarDataPositionView::AMScanViewToolBarDataPositionView(MPlotDataPo
 
 	// Current settings.
 
-	setTool(tool);
+	setToolOptions(toolOptions);
 	setValueEnabled(enableValue);
 }
 
@@ -332,21 +533,24 @@ AMScanViewToolBarDataPositionView::~AMScanViewToolBarDataPositionView()
 
 }
 
-void AMScanViewToolBarDataPositionView::setTool(MPlotDataPositionTool *newTool)
+void AMScanViewToolBarDataPositionView::setToolOptions(AMScanViewToolBarOptions *newOptions)
 {
-	if (tool_ != newTool) {
+	if (toolOptions_ != newOptions) {
 
-		if (tool_) {
-			tool_->disconnect();
+		if (toolOptions_)
+			toolOptions_->disconnect();
+
+		toolOptions_ = newOptions;
+
+		if (toolOptions_) {
+			connect( toolOptions_, SIGNAL(dataPositionChanged(QPointF)), this, SLOT(updatePositionDisplay()) );
+			connect( toolOptions_, SIGNAL(xUnitsChanged(QString)), this, SLOT(updatePositionDisplay()) );
+			connect( toolOptions_, SIGNAL(yUnitsChanged(QString)), this, SLOT(updatePositionDisplay()) );
+			connect( toolOptions_, SIGNAL(valueChanged(double)), this, SLOT(updateValueDisplay()) );
+			connect( toolOptions_, SIGNAL(valueUnitsChanged(QString)), this, SLOT(updateValueDisplay()) );
 		}
 
-		tool_ = newTool;
-
-		if (tool_) {
-			connect( tool_->plot()->signalSource(), SIGNAL(dataPositionChanged(QPointF)), this, SLOT(setDataPosition(QPointF)) );
-		}
-
-		emit toolChanged(tool_);
+		emit toolOptionsChanged(toolOptions_);
 	}
 }
 
@@ -359,14 +563,18 @@ void AMScanViewToolBarDataPositionView::setValueEnabled(bool isEnabled)
 	}
 }
 
-void AMScanViewToolBarDataPositionView::setDataPosition(const QPointF &newPoint)
+void AMScanViewToolBarDataPositionView::updatePositionDisplay()
 {
-	position_->setText(dataPositionToString(newPoint));
+	if (toolOptions_) {
+		position_->setText(dataPositionToString(toolOptions_->dataPosition(), toolOptions_->xUnits(), toolOptions_->yUnits()));
+	}
 }
 
-void AMScanViewToolBarDataPositionView::setValue(double newValue)
+void AMScanViewToolBarDataPositionView::updateValueDisplay()
 {
-	value_->setText(valueToString(newValue));
+	if (toolOptions_) {
+		value_->setText(valueToString(toolOptions_->value(), toolOptions_->valueUnits()));
+	}
 }
 
 QString AMScanViewToolBarDataPositionView::dataPositionToString(const QPointF &newPoint, const QString &xUnits, const QString &yUnits) const

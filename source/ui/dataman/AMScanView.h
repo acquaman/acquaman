@@ -148,18 +148,10 @@ protected slots:
 	/// Handles adding and removing tools, as reported by the tool options.
 	virtual void onToolSelectionChanged(QList<MPlotAbstractTool*> newSelection) = 0;
 
-	/// Adds the drag zoom tool to the given plot.
-	virtual void addDragZoomerToolToPlot(MPlot *plot, MPlotDragZoomerTool *tool);
-	/// Removes the drag zoom tool from the given plot.
-	virtual void removeDragZoomerToolFromPlot(MPlot *plot, MPlotDragZoomerTool *tool);
-	/// Adds the wheel zoom tool to the given plot.
-	virtual void addWheelZoomerToolToPlot(MPlot *plot, MPlotWheelZoomerTool *tool);
-	/// Removes the wheel zoom tool from the given plot.
-	virtual void removeWheelZoomerToolFromPlot(MPlot *plot, MPlotWheelZoomerTool *tool);
-	/// Adds the data position tool to the given plot.
-	virtual void addDataPositionToolToPlot(MPlot *plot, MPlotDataPositionTool *tool);
-	/// Removes the data position tool from the given plot.
-	virtual void removeDataPositionToolFromPlot(MPlot *plot, MPlotDataPositionTool *tool);
+	/// Adds the given tool to the given plot.
+	virtual void addToolToPlot(MPlot *plot, MPlotAbstractTool *tool);
+	/// Removes the given tool from the given plot.
+	virtual void removeToolFromPlot(MPlot *plot, MPlotAbstractTool *tool);
 
 signals:
 	/// Notifier that the data position marker has changed.
@@ -321,6 +313,14 @@ protected slots:
 
 	/// Handles adding and removing tools, as reported by the tool options.
 	void onToolSelectionChanged(QList<MPlotAbstractTool *> newSelection);
+
+	/// Handles updating the plot tool options data position when the plot data position updates.
+	void onDataPositionChanged(const QPointF &newPosition);
+
+	/// Adds the given tool to the given plot.
+	virtual void addToolToPlot(MPlot *plot, MPlotAbstractTool *tool);
+	/// Removes the given tool from the given plot.
+	virtual void removeToolFromPlot(MPlot *plot, MPlotAbstractTool *tool);
 
 protected:
 	/// Helper function to handle adding a scan (at row scanIndex in the model)

@@ -36,6 +36,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QStringBuilder>
 #include <QPrintDialog>
 
+#include <QDebug>
+
 AMScanViewSourceSelector::AMScanViewSourceSelector(AMScanSetModel* model, QWidget* parent)
 	: QWidget(parent) {
 	model_ = 0;
@@ -248,6 +250,7 @@ void AMScanView::setupUI() {
 	QVBoxLayout* vl = new QVBoxLayout();
 	vl->setMargin(6);
 	vl->setSpacing(0);
+	vl->addStretch();
 
 	toolbar_ = new AMScanViewToolBar(0);
 
@@ -356,9 +359,6 @@ void AMScanView::changeViewMode(int newMode) {
 }
 
 void AMScanView::makeConnections() {
-	// connect to changes in the tools.
-	connect( toolbar_, SIGNAL(selectedToolsChanged(QList<MPlotAbstractTool*>)), this, SLOT(setPlotTools(QList<MPlotAbstractTool*>)) );
-
 	// connect mode bar to changeViewMode:
 	connect(modeBar_->modeButtons_, SIGNAL(buttonClicked(int)), this, SLOT(changeViewMode(int)));
 
@@ -598,45 +598,16 @@ MPlotGW * AMScanViewInternal::createDefaultPlot()
 	return rv;
 }
 
-void AMScanViewInternal::addDragZoomerToolToPlot(MPlot *plot, MPlotDragZoomerTool *tool)
+void AMScanViewInternal::addToolToPlot(MPlot *plot, MPlotAbstractTool *tool)
 {
-	if (plot && tool)
-		plot->addTool(tool);
-}
-
-void AMScanViewInternal::removeDragZoomerToolFromPlot(MPlot *plot, MPlotDragZoomerTool *tool)
-{
-	if (plot && tool) {
-		plot->removeTool(tool);
-	}
-}
-
-void AMScanViewInternal::addWheelZoomerToolToPlot(MPlot *plot, MPlotWheelZoomerTool *tool)
-{
-	if (plot && tool) {
+	if (plot && tool && !plot->tools().contains(tool)) {
 		plot->addTool(tool);
 	}
 }
 
-void AMScanViewInternal::removeWheelZoomerToolFromPlot(MPlot *plot, MPlotWheelZoomerTool *tool)
+void AMScanViewInternal::removeToolFromPlot(MPlot *plot, MPlotAbstractTool *tool)
 {
-	if (plot && tool) {
-		plot->removeTool(tool);
-	}
-}
-
-void AMScanViewInternal::addDataPositionToolToPlot(MPlot *plot, MPlotDataPositionTool *tool)
-{
-	if (plot && tool) {
-		plot->addTool(tool);
-		connect( plot->signalSource(), SIGNAL(dataPositionChanged(QPointF)), this, SIGNAL(dataPositionChanged(QPointF)) );
-	}
-}
-
-void AMScanViewInternal::removeDataPositionToolFromPlot(MPlot *plot, MPlotDataPositionTool *tool)
-{
-	if (plot && tool) {
-		disconnect( plot->signalSource(), SIGNAL(dataPositionChanged(QPointF)), this, SIGNAL(dataPositionChanged(QPointF)) );
+	if (plot && tool && plot->tools().contains(tool)) {
 		plot->removeTool(tool);
 	}
 }
@@ -729,6 +700,7 @@ AMScanViewExclusiveView::AMScanViewExclusiveView(AMScanView* masterView) : AMSca
 	// Create our main plot:
 
 	plot_ = createDefaultPlot();
+	connect( plot_->plot()->signalSource(), SIGNAL(dataPositionChanged(QPointF)), this, SLOT(onDataPositionChanged(QPointF)) );
 
 	// Create instances of the tools we want available and add them to the tool options.
 
@@ -742,9 +714,13 @@ AMScanViewExclusiveView::AMScanViewExclusiveView(AMScanView* masterView) : AMSca
 	toolOptions_->setTools(QList<MPlotAbstractTool*>() << dragZoomerTool_ << dataPositionTool_ << wheelZoomerTool_);
 	toolOptions_->setSelectedTools(QList<MPlotAbstractTool*>() << dragZoomerTool_);
 
+	// Add plot cursor.
+
 	plotCursor_ = new MPlotPoint;
 	plotCursor_->setMarker(MPlotMarkerShape::VerticalBeam, 1e6, QPen(Qt::black), QBrush(Qt::black));
 	connect(plot_->plot()->signalSource(), SIGNAL(dataPositionChanged(QPointF)), this, SLOT(setPlotCursorCoordinates(QPointF)));
+
+	// Set layout.
 
 	QGraphicsLinearLayout* gl = new QGraphicsLinearLayout();
 	gl->setContentsMargins(0,0,0,0);
@@ -752,7 +728,6 @@ AMScanViewExclusiveView::AMScanViewExclusiveView(AMScanView* masterView) : AMSca
 	gl->addItem(plot_);
 	gl->setSizePolicy(sizePolicy());
 	setLayout(gl);
-
 
 	// the list of plotItems_ needs one element for each scan.
 	for(int scanIndex=0; scanIndex < model()->scanCount(); scanIndex++) {
@@ -770,6 +745,9 @@ AMScanViewExclusiveView::~AMScanViewExclusiveView() {
 
 	delete plotCursor_;
 	plot_->deleteLater();
+	delete dragZoomerTool_;
+	delete wheelZoomerTool_;
+	delete dataPositionTool_;
 }
 
 void AMScanViewExclusiveView::setPlotCursorVisibility(bool visible)
@@ -874,8 +852,8 @@ void AMScanViewExclusiveView::onModelDataChanged(const QModelIndex& topLeft, con
 			if(dataSource == plotItemDataSources_.at(si)) {
 
 				if (dataSource->name() == model()->exclusiveDataSourceName()) {
-					toolOptions_->setXUnits(dataSource->axisInfoAt(0).units());
-					toolOptions_->setYUnits(dataSource->axisInfoAt(1).units());
+//					toolOptions_->setXUnits(dataSource->axisInfoAt(0).units());
+//					toolOptions_->setYUnits(dataSource->axisInfoAt(1).units());
 				}
 
 				switch(dataSource->rank()) {
@@ -910,31 +888,57 @@ void AMScanViewExclusiveView::onExclusiveDataSourceChanged(const QString& exclus
 
 	for(int i=0; i<model()->scanCount(); i++) {
 		reviewScan(i);
+
 	}
 
 	reviewPlotAxesConfiguration(plot_);
 	refreshTitle();
 }
 
-void AMScanViewExclusiveView::onToolSelectionChanged(QList<MPlotAbstractTool *> newSelection)
+void AMScanViewExclusiveView::onToolSelectionChanged(QList<MPlotAbstractTool*> newSelection)
 {
-	// Clear the plot of existing tools.
+	// Clear the plot of previously added tools.
 
-	removeDragZoomerToolFromPlot(plot_->plot(), dragZoomerTool_);
-	removeWheelZoomerToolFromPlot(plot_->plot(), wheelZoomerTool_);
-	removeDataPositionToolFromPlot(plot_->plot(), dataPositionTool_);
+	removeToolFromPlot(plot_->plot(), dragZoomerTool_);
+	removeToolFromPlot(plot_->plot(), wheelZoomerTool_);
+	removeToolFromPlot(plot_->plot(), dataPositionTool_);
 
-	// Add each tool in the selection to the plot.
+	// Add tools to the plot, according to selection.
 
 	foreach (MPlotAbstractTool *tool, newSelection) {
-		QString name = tool->name();
+		addToolToPlot(plot_->plot(), tool);
+	}
+}
 
-		if (name == dragZoomerTool_->name())
-			addDragZoomerToolToPlot(plot_->plot(), dragZoomerTool_);
-		else if (name == wheelZoomerTool_->name())
-			addWheelZoomerToolToPlot(plot_->plot(), wheelZoomerTool_);
-		else if (name == dataPositionTool_->name())
-			addDataPositionToolToPlot(plot_->plot(), dataPositionTool_);
+void AMScanViewExclusiveView::onDataPositionChanged(const QPointF &newPosition)
+{
+	qDebug() << "AMScanViewExclusiveView: data position update.";
+
+	if (toolOptions_)
+		toolOptions_->setDataPosition(newPosition);
+
+	emit dataPositionChanged(newPosition);
+}
+
+void AMScanViewExclusiveView::addToolToPlot(MPlot *plot, MPlotAbstractTool *tool)
+{
+	AMScanViewInternal::addToolToPlot(plot, tool);
+
+	MPlotDataPositionTool *positionTool = qobject_cast<MPlotDataPositionTool*>(tool);
+
+	if (plot && positionTool) {
+		positionTool->setDataPositionIndicator(plot->axisScaleBottom(), plot->axisScaleLeft());
+	}
+}
+
+void AMScanViewExclusiveView::removeToolFromPlot(MPlot *plot, MPlotAbstractTool *tool)
+{
+	AMScanViewInternal::removeToolFromPlot(plot, tool);
+
+	MPlotDataPositionTool *positionTool = qobject_cast<MPlotDataPositionTool*>(tool);
+
+	if (plot && positionTool) {
+		positionTool->setDataPositionIndicator(0, 0);
 	}
 }
 
