@@ -248,10 +248,11 @@ QList<AMControl *> BioXASSideBeamline::getMotorsByType(BioXASBeamlineDef::BioXAS
 		matchedMotors.append(m2Mirror_->lateralControl());
 		break;
 
-//	case BioXASBeamlineDef::PseudoMonoMotor: // BioXAS Pseudo Mono motor
-//		matchedMotors.append(monoPseudoEnergy_);
-//		matchedMotors.append(monoBraggAngle_);
-//		break;
+	case BioXASBeamlineDef::PseudoMonoMotor: // BioXAS Pseudo Mono motor
+		matchedMotors.append(mono_->encoderEnergyControl());
+		matchedMotors.append(mono_->stepEnergyControl());
+		matchedMotors.append(mono_->regionControl());
+		break;
 
 	default:
 		qDebug() << "ERROR: invalid BioXAS Motor category: " << category;

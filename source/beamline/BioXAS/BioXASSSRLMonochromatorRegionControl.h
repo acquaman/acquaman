@@ -60,7 +60,7 @@ public:
 	enum Step { CloseSlits = 0, RemovePaddle, WaitForKeyEnabled, MoveBraggIntoPosition, WaitForBrakeDisabled, MoveCrystalChangeIntoPosition, WaitForBrakeEnabled, MoveBraggIntoRegion, WaitForKeyDisabled, None };
 
 	/// Constructor.
-	explicit BioXASSSRLMonochromatorRegionControl(QObject *parent = 0);
+	explicit BioXASSSRLMonochromatorRegionControl(const QString &name, QObject *parent = 0);
 	/// Destructor.
 	virtual ~BioXASSSRLMonochromatorRegionControl();
 

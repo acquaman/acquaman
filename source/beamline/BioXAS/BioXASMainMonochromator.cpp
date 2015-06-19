@@ -37,7 +37,7 @@ BioXASMainMonochromator::BioXASMainMonochromator(QObject *parent) :
 
 	// Create region control.
 
-	region_ = new BioXASSSRLMonochromatorRegionControl(this);
+	region_ = new BioXASSSRLMonochromatorRegionControl(name_+"RegionControl", this);
 	region_->setUpperSlitControl(upperSlit_);
 	region_->setLowerSlitControl(lowerSlit_);
 	region_->setSlitsStatusControl(slitsStatus_);
@@ -55,13 +55,13 @@ BioXASMainMonochromator::BioXASMainMonochromator(QObject *parent) :
 
 	// Create energy control.
 
-	encoderEnergy_ = new BioXASSSRLMonochromatorEnergyControl("MainEncoderEnergy", this);
+	encoderEnergy_ = new BioXASSSRLMonochromatorEnergyControl(name_+"EncoderEnergyControl", this);
 	encoderEnergy_->setBraggControl(bragg_);
 	encoderEnergy_->setBraggSetPositionControl(braggSetPosition_);
 	encoderEnergy_->setRegionControl(region_);
 	encoderEnergy_->setM1MirrorPitchControl(m1Pitch_);
 
-	stepEnergy_ = new BioXASSSRLMonochromatorEnergyControl("MainStepEnergy", this);
+	stepEnergy_ = new BioXASSSRLMonochromatorEnergyControl(name_+"StepEnergyControl", this);
 	stepEnergy_->setBraggControl(stepBragg_);
 	stepEnergy_->setBraggSetPositionControl(braggSetPosition_);
 	stepEnergy_->setRegionControl(region_);

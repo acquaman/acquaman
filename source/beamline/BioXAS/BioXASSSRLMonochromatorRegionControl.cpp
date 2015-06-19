@@ -1,8 +1,8 @@
 #include "BioXASSSRLMonochromatorRegionControl.h"
 #include "BioXASSSRLMonochromator.h"
 
-BioXASSSRLMonochromatorRegionControl::BioXASSSRLMonochromatorRegionControl(QObject *parent) :
-	AMPseudoMotorControl("RegionControl", "", parent, "BioXAS SSRL Monochromator Region Control")
+BioXASSSRLMonochromatorRegionControl::BioXASSSRLMonochromatorRegionControl(const QString &name, QObject *parent) :
+	AMPseudoMotorControl(name, "", parent)
 {
 	// Initialize local variables.
 
