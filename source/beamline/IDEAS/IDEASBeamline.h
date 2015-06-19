@@ -46,6 +46,13 @@ class IDEASBeamline : public CLSBeamline
 	Q_OBJECT
 
 public:
+	/// Handles the XRF detector choice.  Available choices are None, KETEK, and 13-element Ge.
+	enum FluorescenceDetector {
+
+		NoneXRFDetector = 0,
+		Ketek = 1,
+		Ge13Element = 2
+	};
 
 	/// Returns the instance of the beamline that has been created.
 	static IDEASBeamline* ideas()
@@ -111,6 +118,9 @@ public:
 
 
 	AMControl *vacuumSampleStage() const { return vacuumSampleStage_ ; }
+
+	/// Returns the XRF detector
+	AMXRFDetector *XRFDetector(IDEASBeamline::FluorescenceDetector detector);
 
 	/// Returns the KETEK detector pointer.
 	IDEASKETEKDetector *ketek() const { return ketek_; }

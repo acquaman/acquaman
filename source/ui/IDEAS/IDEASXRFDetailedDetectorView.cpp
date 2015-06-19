@@ -34,10 +34,10 @@ IDEASXRFDetailedDetectorView::IDEASXRFDetailedDetectorView(AMXRFDetector *detect
 	setMaximumHeight(885);
 
 	if (detector_->name() == "KETEK")
-		config_->setFluorescenceDetector(IDEASXRFScanConfiguration::Ketek);
+		config_->setFluorescenceDetector(IDEASBeamline::Ketek);
 
 	else if (detector_->name() == "13-el Ge")
-		config_->setFluorescenceDetector(IDEASXRFScanConfiguration::Ge13Element);
+		config_->setFluorescenceDetector(IDEASBeamline::Ge13Element);
 
         scanAction_ = 0; //NULL
 }

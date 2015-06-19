@@ -36,26 +36,19 @@ IDEASXRFScanController::IDEASXRFScanController(IDEASXRFScanConfiguration *scanCo
 {
 	configuration_ = scanConfig;
 
-	if (configuration_->fluorescenceDetector() == IDEASXRFScanConfiguration::Ketek)
-		detector_ = IDEASBeamline::ideas()->ketek();
-
-	else if (configuration_->fluorescenceDetector() == IDEASXRFScanConfiguration::Ge13Element)
-		detector_ = IDEASBeamline::ideas()->ge13Element();
-
-
-	configuration_->setDetectorInfo(detector_->toInfo());
-
+	detector_ = IDEASBeamline::ideas()->XRFDetector(configuration_->fluorescenceDetector());
 
 	scan_ = new AMScan;
 	scan_->setScanConfiguration(configuration_);
-	scan_->setName(QString("XRF Scan"));
 
 	scan_->setFilePath(AMUserSettings::defaultRelativePathForScan(QDateTime::currentDateTime()) + ".dat");
 	scan_->setFileFormat("vespers2011XRF");
 	scan_->setRunId(AMUser::user()->currentRunId());
 
-	if(configuration_->userScanName() == "") scan_->setName(QString("XRF Scan"));
-	else scan_->setName(configuration_->userScanName());
+	if(configuration_->userScanName() == "")
+		scan_->setName(QString("XRF Scan - %1").arg(detector_->name()));
+	else
+		scan_->setName(configuration_->userScanName());
 
 
 	scan_->setNumber(configuration_->scanNumber());
@@ -73,45 +66,37 @@ IDEASXRFScanController::IDEASXRFScanController(IDEASXRFScanConfiguration *scanCo
 	AMDeadTimeAB *temp = new AMDeadTimeAB(QString("Corrected"));
 	temp->setInputDataSources(QList<AMDataSource *>() << (AMDataSource *)scan_->rawDataSources()->at(0) << (AMDataSource *)scan_->rawDataSources()->at(1) << (AMDataSource *)scan_->rawDataSources()->at(2));
 	scan_->addAnalyzedDataSource(temp, true, false);
-
-
-
-
-
 }
 
 IDEASXRFScanController::~IDEASXRFScanController(){}
 
 bool IDEASXRFScanController::startImplementation()
 {
-		setStarted();
-		QVector<double> data = QVector<double>(2048);
-		detector_->data(data.data());
-		scan_->rawData()->setValue(AMnDIndex(), 0, data.constData());
-		scan_->rawData()->setValue(AMnDIndex(), 1, AMnDIndex(), detector_->inputCountSourceAt(0)->value(AMnDIndex()));
-		scan_->rawData()->setValue(AMnDIndex(), 2, AMnDIndex(), detector_->outputCountSourceAt(0)->value(AMnDIndex()));
+	setStarted();
+	QVector<double> data = QVector<double>(2048);
+	detector_->data(data.data());
+	scan()->rawData()->setValue(AMnDIndex(), 0, data.constData());
+	scan()->rawData()->setValue(AMnDIndex(), 1, AMnDIndex(), detector_->inputCountSourceAt(0)->value(AMnDIndex()));
+	scan()->rawData()->setValue(AMnDIndex(), 2, AMnDIndex(), detector_->outputCountSourceAt(0)->value(AMnDIndex()));
 
-		scan_->setScanInitialConditions(configuration_->positions());
+	scan()->setScanInitialConditions(configuration_->positions());
 
-		scan()->setScanController(0);
+	scan()->setScanController(0);
 
-		saveData();
-		if(scan()->database())
-				scan()->storeToDb(scan()->database());
-		else
-				scan()->storeToDb(AMDatabase::database("user"));
+	saveData();
+	if(scan()->database())
+		scan()->storeToDb(scan()->database());
+	else
+		scan()->storeToDb(AMDatabase::database("user"));
 
-		setFinished();
+	setFinished();
 
-		return true;
+	return true;
 }
 
 void IDEASXRFScanController::onDetectorAcquisitionFinished()
 {
-
-
-
-	    setFinished();
+	setFinished();
 }
 
 void IDEASXRFScanController::saveData()
