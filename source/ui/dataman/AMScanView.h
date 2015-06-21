@@ -389,7 +389,7 @@ protected slots:
 	virtual void onModelDataChanged(const QModelIndex& topLeft, const QModelIndex& bottomRight);
 
 	/// Handles adding and removing tools, as reported by the tool options.
-	void onToolSelectionChanged(QList<MPlotAbstractTool *> newSelection) { Q_UNUSED(newSelection) return; }
+	void onToolSelectionChanged(QList<MPlotAbstractTool *> newSelection);
 
 protected:
 	/// helper function: adds the scan at \c scanIndex
@@ -439,7 +439,7 @@ protected slots:
 	virtual void onModelDataChanged(const QModelIndex& topLeft, const QModelIndex& bottomRight);
 
 	/// Handles adding and removing tools, as reported by the tool options.
-	void onToolSelectionChanged(QList<MPlotAbstractTool *> newSelection) { Q_UNUSED(newSelection) return; }
+	void onToolSelectionChanged(QList<MPlotAbstractTool *> newSelection);
 
 protected:
 	/// Sets the preset data constraints for the given axis scale. \note This method currently only changes the dataRangeConstraint for MPlot::Left.  As other axis scales need calibration, they will be added as well.
@@ -500,7 +500,7 @@ protected slots:
 	virtual void onModelDataChanged(const QModelIndex& topLeft, const QModelIndex& bottomRight);
 
 	/// Handles adding and removing tools, as reported by the tool options.
-	void onToolSelectionChanged(QList<MPlotAbstractTool *> newSelection) { Q_UNUSED(newSelection) return; }
+	void onToolSelectionChanged(QList<MPlotAbstractTool *> newSelection);
 
 protected:
 	/// Sets the preset data constraints for the given axis scale. \note This method currently only changes the dataRangeConstraint for MPlot::Left.  As other axis scales need calibration, they will be added as well.

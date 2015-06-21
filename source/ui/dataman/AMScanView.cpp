@@ -1377,6 +1377,19 @@ void AMScanViewMultiView::onModelDataChanged(const QModelIndex& topLeft, const Q
 	refreshTitles();
 }
 
+void AMScanViewMultiView::onToolSelectionChanged(QList<MPlotAbstractTool *> newSelection)
+{
+	// Clear the plot of previously added tools.
+
+	removeToolFromPlot(plot_->plot(), dragZoomerTool_);
+	removeToolFromPlot(plot_->plot(), wheelZoomerTool_);
+
+	// Add tools to the plot, according to selection.
+
+	foreach (MPlotAbstractTool *tool, newSelection) {
+		addToolToPlot(plot_->plot(), tool);
+	}
+}
 
 void AMScanViewMultiView::refreshTitles() {
 
@@ -1713,6 +1726,24 @@ void AMScanViewMultiScansView::onModelDataChanged(const QModelIndex& topLeft, co
 	}
 }
 
+void AMScanViewMultiScansView::onToolSelectionChanged(QList<MPlotAbstractTool *> newSelection)
+{
+	// Clear all plots of previously added tools.
+
+	foreach (MPlotGW *plot, plots_) {
+		removeToolFromPlot(plot->plot(), dragZoomerTool_);
+		removeToolFromPlot(plot->plot(), wheelZoomerTool_);
+	}
+
+	// Add tools to the plots, according to selection.
+
+	foreach (MPlotGW *plot, plots_) {
+		foreach (MPlotAbstractTool *tool, newSelection) {
+			addToolToPlot(plot->plot(), tool);
+		}
+	}
+}
+
 // re-do the layout
 void AMScanViewMultiScansView::reLayout() {
 
@@ -1966,8 +1997,23 @@ void AMScanViewMultiSourcesView::onModelDataChanged(const QModelIndex& topLeft, 
 	}
 }
 
+void AMScanViewMultiSourcesView::onToolSelectionChanged(QList<MPlotAbstractTool*> newSelection)
+{
+	// Clear all plots of previously added tools.
 
+	foreach (MPlotGW *plot, dataSource2Plot_.values()) {
+		removeToolFromPlot(plot->plot(), dragZoomerTool_);
+		removeToolFromPlot(plot->plot(), wheelZoomerTool_);
+	}
 
+	// Add tools to the plots, according to selection.
+
+	foreach (MPlotGW *plot, dataSource2Plot_.values()) {
+		foreach (MPlotAbstractTool *tool, newSelection) {
+			addToolToPlot(plot->plot(), tool);
+		}
+	}
+}
 
 // re-do the layout
 void AMScanViewMultiSourcesView::reLayout() {
