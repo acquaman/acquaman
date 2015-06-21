@@ -87,10 +87,13 @@ public:
 	AMControl *mono2d() const { return mono2d_; }
 	AMControl *monoAngleOffset() const { return monoAngleOffset_; }
 
-	AMControl *ketekPeakingTime() const { return ketekPeakingTime_; }
-	AMControl *ketekTriggerLevel() const { return ketekTriggerLevel_; }
-	AMControl *ketekBaselineThreshold() const { return ketekBaselineThreshold_; }
-	AMControl *ketekPreampGain() const { return ketekPreampGain_; }
+
+	//AMControl *ketekPeakingTime() const { return ketekPeakingTime_; }
+	//AMControl *ketekTriggerLevel() const { return ketekTriggerLevel_; }
+	//AMControl *ketekBaselineThreshold() const { return ketekBaselineThreshold_; }
+	//AMControl *ketekPreampGain() const { return ketekPreampGain_; }
+
+
 
 	/// Returns JJ Slits
 	AMControl *jjSlitHGap() const { return jjSlitHGap_ ; }
@@ -115,7 +118,7 @@ public:
 	/// Returns the KETEK detector pointer.
 	IDEASKETEKDetector *ketek() const { return ketek_; }
 	/// Returns the real time for the KETEK.
-	AMDetector *ketekDwellTime() const {return ketekRealTime_; }
+	//AMDetector *ketekDwellTime() const {return ketekRealTime_; }
 
 	/// Returns the 13-element Ge detector pointer.
 	IDEAS13ElementGeDetector *ge13Element() const { return ge13Element_; }
@@ -204,10 +207,11 @@ protected:
 
 	AMReadOnlyPVControl *ketekRealTimeControl_;
 	AMReadOnlyPVControl *ge13ElementRealTimeControl_;
-	AMControl *ketekPeakingTime_;
-	AMControl *ketekTriggerLevel_;
-	AMControl *ketekBaselineThreshold_;
-	AMControl *ketekPreampGain_;
+
+	//AMControl *ketekPeakingTime_;
+	//AMControl *ketekTriggerLevel_;
+	//AMControl *ketekBaselineThreshold_;
+	//AMControl *ketekPreampGain_;
 
 	AMDetector *ketekRealTime_;
 	AMDetector *ge13ElementRealTime_;

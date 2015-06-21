@@ -422,7 +422,8 @@ HEADERS += \
 	source/actions3/AMTimeoutLoopAction.h \
     source/beamline/AMPseudoMotorControl.h \
     source/beamline/AMXspress3XRFDetector.h \
-    source/ui/beamline/AMXspress3XRFDetectorView.h
+    source/ui/beamline/AMXspress3XRFDetectorView.h \
+    source/beamline/IDEAS/KetekDetailedDetectorView.h
 
 FORMS += \
 
@@ -806,7 +807,8 @@ SOURCES += \
 	source/actions3/AMTimeoutLoopAction.cpp \
     source/beamline/AMPseudoMotorControl.cpp \
     source/beamline/AMXspress3XRFDetector.cpp \
-    source/ui/beamline/AMXspress3XRFDetectorView.cpp
+    source/ui/beamline/AMXspress3XRFDetectorView.cpp \
+    source/beamline/IDEAS/KetekDetailedDetectorView.cpp
 
 RESOURCES *= source/icons/icons.qrc \
 		source/configurationFiles/configurationFiles.qrc \

@@ -25,6 +25,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/CLS/CLSStorageRing.h"
 #include "beamline/IDEAS/IDEASBeamline.h"
 
+
 #include "actions3/AMActionRunner3.h"
 #include "actions3/actions/AMScanAction.h"
 #include "actions3/AMListAction3.h"
@@ -52,6 +53,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/IDEAS/IDEASPersistentView.h"
 #include "ui/IDEAS/IDEASXASScanConfigurationView.h"
 #include "ui/IDEAS/IDEASXRFDetailedDetectorViewWithSave.h"
+#include "beamline/IDEAS/KetekDetailedDetectorView.h"
 #include "ui/IDEAS/IDEASSampleCameraPanel.h"
 
 IDEASAppController::IDEASAppController(QObject *parent)
@@ -158,6 +160,7 @@ void IDEASAppController::setupUserInterface()
 	mw_->insertHeading("XRF Detectors", 1);
 
 	ideasKETEKDetailedDetectorViewWithSave_ = new IDEASXRFDetailedDetectorViewWithSave(IDEASBeamline::ideas()->ketek());
+//	KetekDetailedDetectorView *ideasKETEKDetailedDetectorViewWithSave_ = new KetekDetailedDetectorView(IDEASBeamline::ideas()->ketek());
 	ideasKETEKDetailedDetectorViewWithSave_->buildDetectorView();
 	ideasKETEKDetailedDetectorViewWithSave_->setEnergyRange(1000, 20480);
 	ideasKETEKDetailedDetectorViewWithSave_->addEmissionLineNameFilter(QRegExp("1"));
@@ -209,8 +212,8 @@ void IDEASAppController::onEnergyConnected(bool connected){
 		connect(xasScanConfiguration, SIGNAL(totalTimeChanged(double)), xasScanConfigurationHolder3_, SLOT(updateOverallScanTime(double)));
 		xasScanConfigurationHolder3_->updateOverallScanTime(xasScanConfiguration->totalTime());
 
-		connect(ideasKETEKDetailedDetectorViewWithSave_, SIGNAL(peakingChanged(const QString&)), xasScanConfigurationView_, SLOT(onDetectorSettingsChange(const QString&)));
-		connect(ideas13ElementGeDetailedDetectorViewWithSave_, SIGNAL(peakingChanged(const QString&)), xasScanConfigurationView_, SLOT(onDetectorSettingsChange(const QString&)));
+	//	connect(ideasKETEKDetailedDetectorViewWithSave_, SIGNAL(peakingChanged(const QString&)), xasScanConfigurationView_, SLOT(onDetectorSettingsChange(const QString&)));
+	//	connect(ideas13ElementGeDetailedDetectorViewWithSave_, SIGNAL(peakingChanged(const QString&)), xasScanConfigurationView_, SLOT(onDetectorSettingsChange(const QString&)));
 	}
 }
 

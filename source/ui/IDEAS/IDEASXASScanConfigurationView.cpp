@@ -127,6 +127,7 @@ IDEASXASScanConfigurationView::IDEASXASScanConfigurationView(IDEASXASScanConfigu
 	connect(IDEASBeamline::ideas()->ge13Element(),SIGNAL(removedRegionOfInterest(AMRegionOfInterest*)),this,SLOT(onROIChange()));
 	connect(fluorescenceDetectorComboBox_, SIGNAL(currentIndexChanged(int)), this, SLOT(onROIChange()));
 
+	connect(IDEASBeamline::ideas()->ketek(), SIGNAL(peakingTimeChanged(double)), this, SLOT(onPeakingTimeChanged(double)));
 
 	connect(isXRFScanCheckBox_, SIGNAL(clicked()),this,SLOT(onROIChange()));
 	onROIChange();
@@ -419,7 +420,16 @@ void IDEASXASScanConfigurationView::onFluorescenceChoiceChanged(int id)
 	configuration_->setFluorescenceDetector(id);
 }
 
-void IDEASXASScanConfigurationView::onDetectorSettingsChange(const QString &args)
+void IDEASXASScanConfigurationView::onPeakingTimeChanged(double value)
 {
-	detectorSettings_->setText(args);
+
+	if (value == 0.3)
+	    detectorSettings_->setText("High Rate / Low Resolution");
+	else if (value == 2.0)
+	    detectorSettings_->setText("High Resolution / Low Rate");
+	else if (value == 4.0)
+	    detectorSettings_->setText("Ultra Resolution / Slow Rate");
+	else
+	    detectorSettings_->setText("High Rate / Low Resolution");
+
 }

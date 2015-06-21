@@ -88,15 +88,6 @@ void IDEASBeamline::setupDetectors()
 {
 	ketek_ = new IDEASKETEKDetector("KETEK", "Single Element XRF Detector", this);
 	ge13Element_ = new IDEAS13ElementGeDetector("13-el Ge", "The thirteen element Germanium Detector", this);
-
-	ketekPeakingTime_ = new AMPVControl("XRF1E Peaking Time","dxp1608-1002:dxp1:PeakingTime_RBV","dxp1608-1002:dxp1:PeakingTime", QString(), this, AMCONTROL_TOLERANCE_DONT_CARE);
-	ketekTriggerLevel_ = new AMPVControl("XRF1E Trigger Level","dxp1608-1002:dxp1:TriggerThreshold_RBV","dxp1608-1002:dxp1:TriggerThreshold", QString(), this, AMCONTROL_TOLERANCE_DONT_CARE);
-	ketekBaselineThreshold_ = new AMPVControl("XRF1E Baseline Threshold","dxp1608-1002:dxp1:BaselineThreshold_RBV","dxp1608-1002:dxp1:BaselineThreshold", QString(), this, AMCONTROL_TOLERANCE_DONT_CARE);
-	ketekPreampGain_ = new AMPVControl("XRF1E Preamp Gain","dxp1608-1002:dxp1:PreampGain_RBV","dxp1608-1002:dxp1:PreampGain", QString(), this, AMCONTROL_TOLERANCE_DONT_CARE);
-
-	ketekRealTimeControl_ = new AMReadOnlyPVControl("XRF1E Real Time", "dxp1608-1002:mca1.ERTM", this);
-
-	ketekRealTime_ = new AMBasicControlDetectorEmulator("dwellTime", "Dwell Time", ketekRealTimeControl_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
 	ge13ElementRealTimeControl_ = new AMReadOnlyPVControl("13-el Ge Real Time", "dxp1608-B21-13:ElapsedReal", this);
 	ge13ElementRealTime_ = new AMBasicControlDetectorEmulator("13E_dwellTime", "13-element Ge dwell time", ge13ElementRealTimeControl_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
 
@@ -178,12 +169,12 @@ void IDEASBeamline::setupExposedControls()
 	addExposedControl(monoCrystal_);
 	addExposedControl(monoAngleOffset_);
 
-	addExposedControl(ketekRealTimeControl_);
+//	addExposedControl(ketekRealTimeControl_);
 	addExposedControl(ge13ElementRealTimeControl_);
-	addExposedControl(ketekPeakingTime_);
-	addExposedControl(ketekTriggerLevel_);
-	addExposedControl(ketekBaselineThreshold_);
-	addExposedControl(ketekPreampGain_);
+//	addExposedControl(ketekPeakingTime_);
+//	addExposedControl(ketekTriggerLevel_);
+//	addExposedControl(ketekBaselineThreshold_);
+//	addExposedControl(ketekPreampGain_);
 
 
 
@@ -196,7 +187,7 @@ void IDEASBeamline::setupExposedDetectors()
 	addExposedDetector(ReferenceIonChamberScaler_);
 	addExposedDetector(ketek_);
 	addExposedDetector(ge13Element_);
-	addExposedDetector(ketekRealTime_);
+//	addExposedDetector(ketekRealTime_);
 	addExposedDetector(ge13ElementRealTime_);
 }
 

@@ -80,7 +80,7 @@ protected slots:
 	/// Handles changes to the fluorescence detector choice.
 	void onFluorescenceChoiceChanged(int id);
 	/// Handles changes in peaking time from detector
-	void onDetectorSettingsChange(const QString &args);
+	void onPeakingTimeChanged(double value);
 
 protected:
 	/// Creates a combo box for the fluorescenceDetector enum.  Returns a pointer to the widget.

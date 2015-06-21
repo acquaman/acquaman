@@ -33,6 +33,9 @@ public:
     /// Constructor.  Requires the name and description of the detector.  It builds all the necessary controls.
     IDEASKETEKDetector(const QString &name, const QString &description, QObject *parent = 0);
 
+    /// Destructor
+    virtual ~IDEASKETEKDetector();
+
     /// The KETEK doesn't explicitly require powering on
     virtual bool requiresPower() const { return false; }
 
@@ -67,6 +70,21 @@ public:
     /// The KETEK detectors support elapsed time.
     virtual bool supportsElapsedTime() const { return true; }
 
+    double peakingTime() const { return peakingTimeControl_->value(); }
+    double preampGain() const  { return preampGainControl_->value(); }
+
+    //AMControl *peakingTimeControl() const { return peakingTimeControl_; }
+
+
+    AMControl *triggerLevel() const { return ketekTriggerLevel_; }
+    AMControl *baselineThreshold() const { return ketekBaselineThreshold_; }
+    /// Returns the real time for the KETEK.
+    AMDetector *dwellTime() const {return ketekRealTime_; }
+
+
+signals:
+    void peakingTimeChanged(double);
+
 public slots:
 
         /// The read mode cannot be changed for Vortex detectors
@@ -74,6 +92,25 @@ public slots:
 
         /// Vortex detectors do not support clearing
         virtual bool clear() { return false; }
+
+    void setPeakingTime(double time);
+    void setPreampGain(double value);
+
+  protected:
+
+    AMReadOnlyPVControl *realTimeControl_;
+
+    //AMControl *peakingTimeControl_;
+    AMPVControl *peakingTimeControl_;
+
+    AMControl *ketekTriggerLevel_;
+    AMControl *ketekBaselineThreshold_;
+    AMControl *preampGainControl_;
+
+    AMDetector *ketekRealTime_;
+
+
+
 };
 
 #endif // IDEASKETEKDETECTOR_H

@@ -18,8 +18,8 @@ HEADERS +=	source/application/IDEAS/IDEASAppController.h \
     source/ui/IDEAS/IDEASScalerView.h \
 	source/ui/IDEAS/IDEASSampleCameraPanel.h \
     source/beamline/IDEAS/IDEAS13ElementGeDetector.h \
-    source/StripTool2/IDEAS/IDEASScalerStripTool.h
-
+    source/StripTool2/IDEAS/IDEASScalerStripTool.h \
+    source/beamline/IDEAS/KetekDetailedDetectorView.h
 SOURCES +=	source/application/IDEAS/IDEASAppController.cpp \
 	source/application/IDEAS/IDEASMain.cpp \
 	source/beamline/IDEAS/IDEASBeamline.cpp \
@@ -35,7 +35,8 @@ SOURCES +=	source/application/IDEAS/IDEASAppController.cpp \
     source/ui/IDEAS/IDEASScalerView.cpp \
 	source/ui/IDEAS/IDEASSampleCameraPanel.cpp \
     source/beamline/IDEAS/IDEAS13ElementGeDetector.cpp \
-    source/StripTool2/IDEAS/IDEASScalerStripTool.cpp
+    source/StripTool2/IDEAS/IDEASScalerStripTool.cpp \
+    source/beamline/IDEAS/KetekDetailedDetectorView.cpp
 
 #Striptool:
 SOURCES +=\

@@ -72,7 +72,7 @@ IDEASXASScanActionController::IDEASXASScanActionController(IDEASXASScanConfigura
 	if (configuration_->fluorescenceDetector() == IDEASXASScanConfiguration::Ketek){
 
 		ideasDetectors.addDetectorInfo(IDEASBeamline::ideas()->exposedDetectorByName("KETEK")->toInfo());
-		ideasDetectors.addDetectorInfo(IDEASBeamline::ideas()->ketekDwellTime()->toInfo());
+//		ideasDetectors.addDetectorInfo(IDEASBeamline::ideas()->ketekDwellTime()->toInfo());
 	}
 
 	else if (configuration_->fluorescenceDetector() == IDEASXASScanConfiguration::Ge13Element){
