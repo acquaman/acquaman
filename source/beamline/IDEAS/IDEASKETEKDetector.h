@@ -73,9 +73,6 @@ public:
     double peakingTime() const { return peakingTimeControl_->value(); }
     double preampGain() const  { return preampGainControl_->value(); }
 
-    //AMControl *peakingTimeControl() const { return peakingTimeControl_; }
-
-
     AMControl *triggerLevel() const { return ketekTriggerLevel_; }
     AMControl *baselineThreshold() const { return ketekBaselineThreshold_; }
     /// Returns the real time for the KETEK.
@@ -94,13 +91,13 @@ public slots:
         virtual bool clear() { return false; }
 
     void setPeakingTime(double time);
+
     void setPreampGain(double value);
 
   protected:
 
     AMReadOnlyPVControl *realTimeControl_;
 
-    //AMControl *peakingTimeControl_;
     AMPVControl *peakingTimeControl_;
 
     AMControl *ketekTriggerLevel_;

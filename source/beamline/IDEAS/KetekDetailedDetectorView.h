@@ -3,6 +3,7 @@
 
 #include "ui/IDEAS/IDEASXRFDetailedDetectorViewWithSave.h"
 #include "beamline/IDEAS/IDEASKETEKDetector.h"
+
 class KetekDetailedDetectorView : public IDEASXRFDetailedDetectorViewWithSave
 {
 	Q_OBJECT

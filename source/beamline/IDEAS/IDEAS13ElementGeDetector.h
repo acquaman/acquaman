@@ -47,7 +47,12 @@ public:
 	/// The vortex detectors support elapsed time.
 	virtual bool supportsElapsedTime() const { return true; }
 
+	double peakingTime() const { return peakingTimeControl_->value(); }
+	double preampGain() const  { return preampGainControl_->value(); }
+
+
 signals:
+	void peakingTimeChanged(double);
 
 public slots:
 
@@ -56,6 +61,21 @@ public slots:
 
 	/// Vortex detectors do not support clearing
 	virtual bool clear() { return false; }
+
+	void setPeakingTime(double time);
+
+	void setPreampGain(double value);
+
+protected:
+	AMReadOnlyPVControl *ge13ElementRealTimeControl_;
+	AMDetector *ge13ElementRealTime_;
+
+	AMPVControl *peakingTimeControl_;
+
+	AMControl *triggerLevel_;
+	AMControl *baselineThreshhold_;
+	AMControl *preampGainControl_;
+
 };
 
 #endif // IDEAS13ELEMENTGEDETECTOR_H
