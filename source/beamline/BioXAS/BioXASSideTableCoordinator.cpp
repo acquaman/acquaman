@@ -357,9 +357,6 @@ void BioXASSideTableCoordinator::manipulateVerticalPVChange(double upstreamHeigh
 	double height = calculateTableHeight(upstreamHeight, downstreamHeight);
 	double pitch =  calculateTablePitch(upstreamHeight, downstreamHeight);
 
-	height = qRound(height*1000)/1000.0;
-	pitch = qRound(pitch*1000)/1000.0;
-
 	if (!heightPV->withinTolerance(height)) {
 		heightPV->move(height);
 	}
@@ -373,9 +370,6 @@ void BioXASSideTableCoordinator::manipulateHorizontalPVChange(double upstreamOff
 {
 	double lateral = calculateTableLateral(upstreamOffset, downstreamOffset);
 	double yaw = calculateTableYaw(upstreamOffset, downstreamOffset);
-
-	lateral = qRound(lateral*1000)/1000.0;
-	yaw = qRound(yaw*1000)/1000.0;
 
 	if ( !lateralPV->withinTolerance(lateral) ) {
 		lateralPV->move(lateral);
