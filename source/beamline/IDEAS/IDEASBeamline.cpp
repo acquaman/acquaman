@@ -88,11 +88,6 @@ void IDEASBeamline::setupDetectors()
 {
 	ketek_ = new IDEASKETEKDetector("KETEK", "Single Element XRF Detector", this);
 	ge13Element_ = new IDEAS13ElementGeDetector("13-el Ge", "The thirteen element Germanium Detector", this);
-	/*
-	 ge13ElementRealTimeControl_ = new AMReadOnlyPVControl("13-el Ge Real Time", "dxp1608-B21-13:ElapsedReal", this);
-	ge13ElementRealTime_ = new AMBasicControlDetectorEmulator("13E_dwellTime", "13-element Ge dwell time", ge13ElementRealTimeControl_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
-	*/
-
 	I0IonChamberScaler_ = new CLSBasicScalerChannelDetector("I_0","I_0 Ion Chamber", scaler_, 0, this);
 	SampleIonChamberScaler_ = new CLSBasicScalerChannelDetector("Sample","Sample Ion Chamber", scaler_, 1, this);
 	ReferenceIonChamberScaler_  = new CLSBasicScalerChannelDetector("Reference","Reference Ion Chamber", scaler_, 2, this);
@@ -171,15 +166,6 @@ void IDEASBeamline::setupExposedControls()
 	addExposedControl(monoCrystal_);
 	addExposedControl(monoAngleOffset_);
 
-//	addExposedControl(ketekRealTimeControl_);
-//	addExposedControl(ge13ElementRealTimeControl_);
-//	addExposedControl(ketekPeakingTime_);
-//	addExposedControl(ketekTriggerLevel_);
-//	addExposedControl(ketekBaselineThreshold_);
-//	addExposedControl(ketekPreampGain_);
-
-
-
 }
 
 void IDEASBeamline::setupExposedDetectors()
@@ -189,8 +175,6 @@ void IDEASBeamline::setupExposedDetectors()
 	addExposedDetector(ReferenceIonChamberScaler_);
 	addExposedDetector(ketek_);
 	addExposedDetector(ge13Element_);
-//	addExposedDetector(ketekRealTime_);
-//	addExposedDetector(ge13ElementRealTime_);
 }
 
 
