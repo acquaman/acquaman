@@ -110,6 +110,15 @@ protected:
 	  * parsed, 0 otherwise.
 	  */
 	static AMGCS2Command* buildMoveRelativeCommand(const QStringList& argumentList);
+
+	/*!
+	  * Static helper method for parsing the set lower soft limits command string
+	  * arguments.
+	  * \param argumentList ~ A list of the arguments provided to the command.
+	  * \returns An initialized AMGCS2SetLowSoftLimitsCommand if the arguments can
+	  * be parsed, 0 otherwise.
+	  */
+	static AMGCS2Command* buildSetLowSoftLimitsCommand(const QStringList& argumentList);
 };
 
 #endif // AMGCS2COMMANDFACTORY_H

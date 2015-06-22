@@ -29,6 +29,8 @@
 #include "AMGCS2GetLimitSwitchStatusCommand.h"
 #include "AMGCS2GetTargetPositionCommand.h"
 #include "AMGCS2MoveRelativeCommand.h"
+#include "AMGCS2GetLowSoftLimitsCommand.h"
+#include "AMGCS2SetLowSoftLimitsCommand.h"
 
 AMGCS2Command * AMGCS2CommandFactory::buildCommand(const QString &commandString)
 {
@@ -76,6 +78,10 @@ AMGCS2Command * AMGCS2CommandFactory::buildCommand(const QString &commandString)
 		return new AMGCS2GetLimitSwitchStatusCommand(axesFromCommandString(commandString));
 	} else if(commandString.startsWith("MVR")) {
 		return buildMoveRelativeCommand(commandArguments(commandString));
+	} else if(commandString.startsWith("NLM?")) {
+		return new AMGCS2GetLowSoftLimitsCommand(axesFromCommandString(commandString));
+	} else if(commandString.startsWith("NLM")) {
+		return buildSetLowSoftLimitsCommand(commandArguments(commandString));
 	}
 
 	return 0;
@@ -120,7 +126,7 @@ AMGCS2Command * AMGCS2CommandFactory::buildMoveCommand(const QStringList &argume
 		return 0;
 	}
 
-	// Axis positions are provided in paris, and are not valid unless both are
+	// Axis positions are provided in pairs, and are not valid unless both are
 	// there. As such we iterate through two at a time.
 	for(int iAxis = 0, iPosition = 1;
 		iAxis < argumentCount && iPosition < argumentCount;
@@ -342,7 +348,7 @@ AMGCS2Command * AMGCS2CommandFactory::buildMoveRelativeCommand(const QStringList
 		return 0;
 	}
 
-	// Axis positions are provided in paris, and are not valid unless both are
+	// Axis positions are provided in pairs, and are not valid unless both are
 	// there. As such we iterate through two at a time.
 	for(int iAxis = 0, iPosition = 1;
 		iAxis < argumentCount && iPosition < argumentCount;
@@ -367,6 +373,43 @@ AMGCS2Command * AMGCS2CommandFactory::buildMoveRelativeCommand(const QStringList
 	}
 
 	return new AMGCS2MoveRelativeCommand(axisPositions);
+}
+
+AMGCS2Command * AMGCS2CommandFactory::buildSetLowSoftLimitsCommand(const QStringList &argumentList)
+{
+	QHash<AMGCS2::Axis, double> axisPositions;
+	int argumentCount = argumentList.count();
+
+	// Ensure argument list isn't empty and has arguments in groups of two.
+	if((argumentCount == 0) || (argumentCount % 2) != 0) {
+		return 0;
+	}
+
+	// Axis limits are provided in pairs, and are not valid unless both are
+	// there. As such we iterate through two at a time.
+	for(int iAxis = 0, iPosition = 1;
+		iAxis < argumentCount && iPosition < argumentCount;
+		iAxis += 2, iPosition += 2) {
+
+		QString axisString = argumentList.at(iAxis);
+		QString positionString = argumentList.at(iPosition);
+
+		if(axisString.length() != 1) {
+			return 0;
+		}
+
+		AMGCS2::Axis axis = AMGCS2Support::characterToAxis(axisString.at(0));
+		bool parseSuccess = false;
+		double position = positionString.toDouble(&parseSuccess);
+
+		if(!parseSuccess) {
+			return 0;
+		}
+
+		axisPositions.insert(axis, position);
+	}
+
+	return new AMGCS2SetLowSoftLimitsCommand(axisPositions);
 }
 
 
