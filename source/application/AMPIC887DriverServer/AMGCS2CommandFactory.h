@@ -119,6 +119,15 @@ protected:
 	  * be parsed, 0 otherwise.
 	  */
 	static AMGCS2Command* buildSetLowSoftLimitsCommand(const QStringList& argumentList);
+
+	/*!
+	  * Static helper method for parsing the set  soft high limits command string
+	  * arguments.
+	  * \param argumentList ~ A list of the arguments provided to the command.
+	  * \returns An initialized AMGCS2SetHighSoftLimitsCommand if the arguments can
+	  * be parsed, 0 otherwise.
+	  */
+	static AMGCS2Command* buildSetHighSoftLimitsCommand(const QStringList& argumentList);
 };
 
 #endif // AMGCS2COMMANDFACTORY_H
