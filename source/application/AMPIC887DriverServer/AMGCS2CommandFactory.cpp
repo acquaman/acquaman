@@ -31,6 +31,7 @@
 #include "AMGCS2MoveRelativeCommand.h"
 #include "AMGCS2GetLowSoftLimitsCommand.h"
 #include "AMGCS2SetLowSoftLimitsCommand.h"
+#include "AMGCS2GetOnTargetStateCommand.h"
 
 AMGCS2Command * AMGCS2CommandFactory::buildCommand(const QString &commandString)
 {
@@ -82,6 +83,8 @@ AMGCS2Command * AMGCS2CommandFactory::buildCommand(const QString &commandString)
 		return new AMGCS2GetLowSoftLimitsCommand(axesFromCommandString(commandString));
 	} else if(commandString.startsWith("NLM")) {
 		return buildSetLowSoftLimitsCommand(commandArguments(commandString));
+	} else if(commandString.startsWith("ONT?")) {
+		return new AMGCS2GetOnTargetStateCommand(axesFromCommandString(commandString));
 	}
 
 	return 0;
