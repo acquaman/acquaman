@@ -94,7 +94,7 @@ public:
 	explicit AMScanViewInternal(AMScanView* masterView);
 
 	/// Returns this view's plot tool options.
-	AMScanViewToolBarOptions* toolOptions() const { return toolOptions_; }
+	AMScanViewPlotToolOptions* toolOptions() const { return toolOptions_; }
 
 public slots:
 	/// Must re-implement in subclasses: turn on log scale on the y-axis.
@@ -131,7 +131,7 @@ protected:
 	bool logScaleEnabled_;
 	bool normalizationEnabled_, waterfallEnabled_;
 
-	AMScanViewToolBarOptions *toolOptions_;
+	AMScanViewPlotToolOptions *toolOptions_;
 
 	MPlotGW* createDefaultPlot();
 

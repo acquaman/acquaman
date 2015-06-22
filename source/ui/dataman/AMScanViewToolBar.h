@@ -8,11 +8,13 @@
 #include <QToolBar>
 #include <QAction>
 #include <QLayout>
+#include <QToolButton>
+#include <QButtonGroup>
 
 class MPlot;
 class MPlotAbstractTool;
 class MPlotDataPositionTool;
-class AMScanViewToolBarOptions;
+class AMScanViewPlotToolOptions;
 class AMScanViewToolBarDataPositionView;
 
 class AMScanViewToolBar : public QGroupBox
@@ -21,49 +23,54 @@ class AMScanViewToolBar : public QGroupBox
 
 public:
 	/// Constructor.
-	explicit AMScanViewToolBar(AMScanViewToolBarOptions *toolOptions, QWidget *parent = 0);
+	explicit AMScanViewToolBar(AMScanViewPlotToolOptions *toolOptions, QWidget *parent = 0);
 	/// Destructor.
 	virtual ~AMScanViewToolBar();
 
 signals:
 	/// Notifier that the tool options have changed.
-	void toolOptionsChanged(AMScanViewToolBarOptions *newOptions);
+	void toolOptionsChanged(AMScanViewPlotToolOptions *newOptions);
 
 public slots:
 	/// Sets the tool options.
-	void setToolOptions(AMScanViewToolBarOptions *newOptions);
+	void setToolOptions(AMScanViewPlotToolOptions *newOptions);
 
 protected slots:
-	/// Updates the tool actions check state, based on the tool options selected tools.
-	void updateToolActionsChecked();
+	/// Updates the tool buttons' check state, based on the tool options' selected tools.
+	void updateToolButtonsChecked();
 	/// Updates the tool views visibility, based on the tool options selected tools.
 	void updateToolViewsVisibility();
 
-	/// Handles updates to the tool options as a result of the tool bar selected tools changing.
-	void onToolBarToolSelected(QAction *action);
+	/// Handles updates to the tool options as a result of a tool button click.
+	void onToolButtonClicked(int buttonIndex);
 	/// Handles updates to the view as a result of the tool options tools changing.
 	void onToolOptionsToolsChanged();
 	/// Handles updates to the view as a result of the tool options selected tools changing.
 	void onToolOptionsSelectedToolsChanged();
 
 protected:
-	/// Returns a QAction suitable to represent the given tool.
-	QAction* createToolAction(MPlotAbstractTool *tool);
+	/// Returns a QToolButton suitable to represent the given tool.
+	QToolButton* createToolButton(MPlotAbstractTool *tool);
 	/// Returns a QWidget tool view suitable to view the given tool.
 	QWidget* createToolView(MPlotAbstractTool *tool);
 
-	/// Returns the tool action from the toolbar that corresponds to the given tool, zero if none found.
-	QAction* toolToAction(MPlotAbstractTool *tool);
-	/// Returns the tool that corresponds to the tiven tool action, zero if none found.
-	MPlotAbstractTool* actionToTool(QAction *toolAction);
+	/// Returns the tool button that corresponds to the given tool, zero if none found.
+	QAbstractButton* toolToButton(MPlotAbstractTool *tool);
+	/// Returns the tool that corresponds to the given button, zero if none found.
+	MPlotAbstractTool* buttonToTool(QAbstractButton *button);
+	/// Returns the icon that corresponds to the given tool, null icon if none found.
+	QIcon toolToIcon(MPlotAbstractTool *tool);
 
 protected:
 	/// The tool bar options being displayed.
-	AMScanViewToolBarOptions *toolOptions_;
+	AMScanViewPlotToolOptions *toolOptions_;
 
-	/// Toolbar displaying the available plot tool options.
-	QToolBar *toolBar_;
-	/// The view layout for the tool-specific views.
+	/// Tool button grouping.
+	QButtonGroup *toolButtons_;
+
+	/// The view layout for the tool buttons.
+	QHBoxLayout *toolButtonsLayout_;
+	/// The view layout for the tool views.
 	QHBoxLayout *toolViewsLayout_;
 	/// List of the tool-specific views, corresponding to the tool options tools.
 	QList<QWidget*> toolViews_;
@@ -73,16 +80,15 @@ protected:
 
 
 
-class AMScanSetModel;
-class AMScanViewToolBarOptions : public QObject
+class AMScanViewPlotToolOptions: public QObject
 {
 	Q_OBJECT
 
 public:
 	/// Constructor.
-	explicit AMScanViewToolBarOptions(QList<MPlotAbstractTool*> tools, bool exclusiveSelection = false, QObject *parent = 0);
+	explicit AMScanViewPlotToolOptions(QList<MPlotAbstractTool*> tools, bool exclusiveSelection = false, QObject *parent = 0);
 	/// Destructor.
-	virtual ~AMScanViewToolBarOptions();
+	virtual ~AMScanViewPlotToolOptions();
 	/// Returns the list of tool options.
 	QList<MPlotAbstractTool*> tools() const { return tools_; }
 	/// Returns the list of selected/active tool options.
@@ -100,6 +106,11 @@ public:
 	/// Returns the value units.
 	QString valueUnits() const { return valueUnits_; }
 
+	/// Returns the list of values to display.
+	QList<double> values() const { return values_; }
+	/// Returns the list of units to display.
+	QStringList units() const { return units_; }
+
 	/// Returns true if the given tool is selected, false otherwise.
 	bool isSelectedTool(MPlotAbstractTool *tool);
 	/// Returns true if the given tool name corresponds to a selected tool, false otherwise.
@@ -112,16 +123,10 @@ signals:
 	void selectedToolsChanged(QList<MPlotAbstractTool*> newTools);
 	/// Notifier that the flag indicating whether or not exclusive tool selection is enabled has changed.
 	void exclusiveSelectionEnabledChanged(bool isEnabled);
-	/// Notifier that the latest data position has changed.
-	void dataPositionChanged(const QPointF &newPosition);
-	/// Notifier that the x-axis units have been changed.
-	void xUnitsChanged(const QString &newUnits);
-	/// Notifier that the y-axis units have been changed.
-	void yUnitsChanged(const QString &newUnits);
-	/// Notifier that the latest selected value has changed.
-	void valueChanged(double newValue);
-	/// Notifier that the value units have been changed.
-	void valueUnitsChanged(const QString &newUnits);
+	/// Notifier that the values to be displayed have changed.
+	void valuesChanged(QList<double> newValues);
+	/// Notifier that the units to be displayed have changed.
+	void unitsChanged(const QStringList &units);
 
 public slots:
 	/// Sets the list of tool options.
@@ -138,16 +143,12 @@ public slots:
 	void removeSelectedTool(MPlotAbstractTool *tool);
 	/// Sets the flag indicating whether or not exclusive tool selection is enabled.
 	void setExclusiveSelectionEnabled(bool isEnabled);
-	/// Sets the latest selected data position.
-	void setDataPosition(const QPointF &newPosition);
-	/// Sets the x-axis units.
-	void setXUnits(const QString &newUnits);
-	/// Sets the y-axis units.
-	void setYUnits(const QString &newUnits);
-	/// Sets the latest selected value.
-	void setValue(double newValue);
-	/// Sets the value units.
-	void setValueUnits(const QString &newUnits);
+	/// Sets the values to be displayed.
+	void setValues(const QPointF &newPosition);
+	/// Sets the values to be displayed.
+	void setValues(QList<double> newValues);
+	/// Sets the units to be displayed.
+	void setUnits(const QStringList &newUnits);
 
 protected:
 	/// Iterates through the given tools list and swaps the order of tools s.t. instances of drag zoomer are always at the front of the list--they should always be added first to a plot.
@@ -170,6 +171,11 @@ protected:
 	double value_;
 	/// The value units to display.
 	QString valueUnits_;
+
+	/// The list of values to be displayed for a scan view mouse click.
+	QList<double> values_;
+	/// The list of units to be displayed for a scan view mouse click.
+	QStringList units_;
 };
 
 
@@ -180,47 +186,31 @@ class AMScanViewToolBarDataPositionView : public QWidget
 
 public:
 	/// Constructor.
-	explicit AMScanViewToolBarDataPositionView(AMScanViewToolBarOptions *toolOptions, bool enableValue = false, QWidget *parent = 0);
+	explicit AMScanViewToolBarDataPositionView(AMScanViewPlotToolOptions *toolOptions, QWidget *parent = 0);
 	/// Destructor.
 	virtual ~AMScanViewToolBarDataPositionView();
 	/// Returns the tool options being viewed.
-	AMScanViewToolBarOptions* toolOptions() const { return toolOptions_; }
-	/// Returns whether the value display is enabled.
-	bool valueEnabled() const { return valueEnabled_; }
+	AMScanViewPlotToolOptions* toolOptions() const { return toolOptions_; }
 
 signals:
 	/// Notifier that the tool options being viewed has changed.
-	void toolOptionsChanged(AMScanViewToolBarOptions *newOptions);
-	/// Notifier that the value display has been en/disabled.
-	void valueEnabledChanged(bool isEnabled);
+	void toolOptionsChanged(AMScanViewPlotToolOptions *newOptions);
 
 public slots:
 	/// Sets the tool options being viewed.
-	void setToolOptions(AMScanViewToolBarOptions *newOptions);
-	/// Sets whether the value is displayed.
-	void setValueEnabled(bool isEnabled);
+	void setToolOptions(AMScanViewPlotToolOptions *newOptions);
 
-	/// Updates the position display.
-	void updatePositionDisplay();
-	/// Updates the value display.
-	void updateValueDisplay();
+	/// Updates the display.
+	void updateDisplay();
 
 protected:
-	/// Returns a string representation of the given data position.
-	QString dataPositionToString(const QPointF &newPoint, const QString &xUnits, const QString &yUnits) const;
-	/// Returns a string representation of the given value.
-	QString valueToString(double value, const QString &units) const;
+	/// Returns a string representation of the given values and units.
+	QString valuesToString(QList<double> values, const QStringList &units);
 
 protected:
 	/// The tool options being viewed.
-	AMScanViewToolBarOptions *toolOptions_;
-	/// Bool indicating whether the value should be displayed.
-	bool valueEnabled_;
+	AMScanViewPlotToolOptions *toolOptions_;
 
-	/// The label containing the current position.
-	QLabel *position_;
-	/// The box containing all position UI elements.
-	QGroupBox *positionDisplay_;
 	/// The label containing the current value.
 	QLabel *value_;
 	/// The box containing all value UI elements.
