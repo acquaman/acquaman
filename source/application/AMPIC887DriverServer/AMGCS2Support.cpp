@@ -278,3 +278,26 @@ AMGCS2::DataRecordTrigger AMGCS2Support::intCodeToDataRecordTrigger(int recordTr
 		return AMGCS2::UnknownRecordTrigger;
 	}
 }
+
+AMGCS2::PositionUnits AMGCS2Support::stringToPositionUnits(const QString &units)
+{
+	if(units == "mm") {
+		return AMGCS2::Millimetres;
+	} else if (units == "deg") {
+		return AMGCS2::Degrees;
+	} else {
+		return AMGCS2::UnknownPositionUnit;
+	}
+}
+
+QString AMGCS2Support::positionUnitsToString(AMGCS2::PositionUnits units)
+{
+	switch(units) {
+	case AMGCS2::Millimetres:
+		return "mm";
+	case AMGCS2::Degrees:
+		return "deg";
+	default:
+		return "Unknown Units";
+	}
+}

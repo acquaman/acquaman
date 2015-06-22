@@ -42,6 +42,7 @@ QString AMPIC887ConsoleCommandParser::commandList()
 	commandList.append("PML <axis1> <highlimit1> <axis2> <highlimit2> ... : Sets the soft high limit for the provided axes to the provided values.\n");
 	commandList.append("PLM? <axis1> <axis2> ... : Queries the current soft high limit for the provided axes. If none are provided the soft high limits of all axes will be queried.\n");
 	commandList.append("POS? <axis1> <axis2> ... : Queries the current position of the provided axes. If none are provided all axes positions are displayed.\n");
+	commandList.append("PUN? <axis1> <axis2> ... : Queries the position units of the provided axes. If none are provided all axes position units are queried.\n");
 	commandList.append("RDY? : Queries the ready status of the controller.\n");
 	commandList.append("STP : Performs an emergency stop of all axes.\n");
 

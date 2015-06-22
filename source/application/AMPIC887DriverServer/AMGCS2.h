@@ -94,5 +94,14 @@ namespace AMGCS2 {
 		TriggerImmediately_OnceOnly = 4,
 		OnNextPositionChange_OnceOnly = 6
 	};
+
+	/*!
+	  * Enumerates all the different valid position units of the C887.11 controller.
+	  */
+	enum PositionUnits {
+		UnknownPositionUnit = -1,
+		Millimetres,
+		Degrees
+	};
 }
 #endif // AMGCS2_H

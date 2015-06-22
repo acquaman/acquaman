@@ -42,7 +42,8 @@ SOURCES *= \
     source/application/AMPIC887DriverServer/AMGCS2GetLowSoftLimitsCommand.cpp \
     source/application/AMPIC887DriverServer/AMGCS2GetOnTargetStateCommand.cpp \
     source/application/AMPIC887DriverServer/AMGCS2GetHighSoftLimitsCommand.cpp \
-    source/application/AMPIC887DriverServer/AMGCS2SetHighSoftLimitsCommand.cpp
+    source/application/AMPIC887DriverServer/AMGCS2SetHighSoftLimitsCommand.cpp \
+    source/application/AMPIC887DriverServer/AMGCS2GetPositionUnitsCommand.cpp
 
 HEADERS *= \
 	source/application/AMPIC887DriverServer/AMPIC887ControllerCollection.h \	
@@ -85,7 +86,8 @@ HEADERS *= \
     source/application/AMPIC887DriverServer/AMGCS2GetLowSoftLimitsCommand.h \
     source/application/AMPIC887DriverServer/AMGCS2GetOnTargetStateCommand.h \
     source/application/AMPIC887DriverServer/AMGCS2GetHighSoftLimitsCommand.h \
-    source/application/AMPIC887DriverServer/AMGCS2SetHighSoftLimitsCommand.h
+    source/application/AMPIC887DriverServer/AMGCS2SetHighSoftLimitsCommand.h \
+    source/application/AMPIC887DriverServer/AMGCS2GetPositionUnitsCommand.h
 
 # PI Controller Driver Dependencies
 
@@ -98,6 +100,8 @@ INCLUDEPATH *= $$PIC887_INCLUDE_DIR
 LIBS *= $$PIC887_LIB
 
 CONFIG -= mobility
+
+
 
 
 

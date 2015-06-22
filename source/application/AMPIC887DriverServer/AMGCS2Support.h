@@ -100,6 +100,21 @@ public:
 	  * \param recordTriggerCode ~ The GCS2 code for the record trigger to convert.
 	  */
 	static AMGCS2::DataRecordTrigger intCodeToDataRecordTrigger(int recordTriggerCode);
+
+	/*!
+	  * Converts the provided position units string into its enumerated equivalent.
+	  * If the provided string does not represent a known position unit,
+	  * UnknownPositionUnit will be returned.
+	  * \param units ~ A string representation of the units to be converted.
+	  */
+	static AMGCS2::PositionUnits stringToPositionUnits(const QString& units);
+
+	/*!
+	  * Converts the provided position units enumerator to its string equivalent.
+	  * \param units ~ The enumerated values whose string equivalent is to be
+	  * returned.
+	  */
+	static QString positionUnitsToString(AMGCS2::PositionUnits units);
 protected:
 	/*!
 	  * Static class, so we protect the constructor to prevent initialization.

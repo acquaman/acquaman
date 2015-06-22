@@ -34,6 +34,7 @@
 #include "AMGCS2GetOnTargetStateCommand.h"
 #include "AMGCS2GetHighSoftLimitsCommand.h"
 #include "AMGCS2SetHighSoftLimitsCommand.h"
+#include "AMGCS2GetPositionUnitsCommand.h"
 
 AMGCS2Command * AMGCS2CommandFactory::buildCommand(const QString &commandString)
 {
@@ -91,6 +92,8 @@ AMGCS2Command * AMGCS2CommandFactory::buildCommand(const QString &commandString)
 		return new AMGCS2GetHighSoftLimitsCommand(axesFromCommandString(commandString));
 	} else if(commandString.startsWith("PLM")) {
 		return buildSetHighSoftLimitsCommand(commandArguments(commandString));
+	} else if(commandString.startsWith("PUN?")) {
+		return new AMGCS2GetPositionUnitsCommand(axesFromCommandString(commandString));
 	}
 
 	return 0;
