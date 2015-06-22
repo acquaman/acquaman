@@ -30,7 +30,7 @@ public:
 	  * \returns The queries soft low limits values if the command was run successfully,
 	  * an empty hash otherwise.
 	  */
-	QHash<AMGCS2::Axis, double> axesSoftLowLimits() const;
+	QHash<AMGCS2::Axis, double> axesLowSoftLimits() const;
 
 	/*!
 	  * Outputs a human readable string of the queried soft lower limit values.
@@ -54,7 +54,7 @@ protected:
 	virtual bool runImplementation();
 
 	QList<AMGCS2::Axis> axesToQuery_;
-	QHash<AMGCS2::Axis, double> axesSoftLowLimits_;
+	QHash<AMGCS2::Axis, double> axesLowSoftLimits_;
 };
 
 #endif // AMGCS2GETLOWSOFTLIMITSCOMMAND_H

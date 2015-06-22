@@ -39,6 +39,7 @@ QString AMPIC887ConsoleCommandParser::commandList()
 	commandList.append("NLM <axis1> <lowlimit1> <axis2> <lowlimit2> ... : Sets the soft lower limit for the provided axes to the provided values.\n");
 	commandList.append("NLM? <axis1> <axis2> ... : Queries the current soft lower limits of the provided axes. If none are provided the soft lower limits of all axes will be queried.\n");
 	commandList.append("ONT? <axis1> <axis2> ... : Queries whether the provided axes reached their target positions. If no axes are provided the on target state of all axes will be queried.\n");
+	commandList.append("PLM? <axis1> <axis2> ... : Queries the current soft high limit for the provided axes. If none are provided the soft high limits of all axes will be queried.\n");
 	commandList.append("POS? <axis1> <axis2> ... : Queries the current position of the provided axes. If none are provided all axes positions are displayed.\n");
 	commandList.append("RDY? : Queries the ready status of the controller.\n");
 	commandList.append("STP : Performs an emergency stop of all axes.\n");
