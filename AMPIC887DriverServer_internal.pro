@@ -36,7 +36,8 @@ SOURCES *= \
     source/application/AMPIC887DriverServer/AMGCS2GetRecorderOptionsCommand.cpp \
     source/application/AMPIC887DriverServer/AMGCS2GetAvailableParametersCommand.cpp \
     source/application/AMPIC887DriverServer/AMGCS2GetLimitSwitchStatusCommand.cpp \
-    source/application/AMPIC887DriverServer/AMGCS2GetTargetPositionCommand.cpp
+    source/application/AMPIC887DriverServer/AMGCS2GetTargetPositionCommand.cpp \
+    source/application/AMPIC887DriverServer/AMGCS2MoveRelativeCommand.cpp
 
 HEADERS *= \
 	source/application/AMPIC887DriverServer/AMPIC887ControllerCollection.h \	
@@ -73,7 +74,8 @@ HEADERS *= \
     source/application/AMPIC887DriverServer/AMGCS2GetRecorderOptionsCommand.h \
     source/application/AMPIC887DriverServer/AMGCS2GetAvailableParametersCommand.h \
     source/application/AMPIC887DriverServer/AMGCS2GetLimitSwitchStatusCommand.h \
-    source/application/AMPIC887DriverServer/AMGCS2GetTargetPositionCommand.h
+    source/application/AMPIC887DriverServer/AMGCS2GetTargetPositionCommand.h \
+    source/application/AMPIC887DriverServer/AMGCS2MoveRelativeCommand.h
 
 # PI Controller Driver Dependencies
 
@@ -86,6 +88,8 @@ INCLUDEPATH *= $$PIC887_INCLUDE_DIR
 LIBS *= $$PIC887_LIB
 
 CONFIG -= mobility
+
+
 
 
 

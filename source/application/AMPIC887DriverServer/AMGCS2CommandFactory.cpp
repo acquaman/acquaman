@@ -28,6 +28,7 @@
 #include "AMGCS2GetAvailableParametersCommand.h"
 #include "AMGCS2GetLimitSwitchStatusCommand.h"
 #include "AMGCS2GetTargetPositionCommand.h"
+#include "AMGCS2MoveRelativeCommand.h"
 
 AMGCS2Command * AMGCS2CommandFactory::buildCommand(const QString &commandString)
 {
@@ -73,6 +74,8 @@ AMGCS2Command * AMGCS2CommandFactory::buildCommand(const QString &commandString)
 		return new AMGCS2GetAvailableParametersCommand();
 	} else if(commandString.startsWith("LIM?")) {
 		return new AMGCS2GetLimitSwitchStatusCommand(axesFromCommandString(commandString));
+	} else if(commandString.startsWith("MVR")) {
+		return buildMoveRelativeCommand(commandArguments(commandString));
 	}
 
 	return 0;
@@ -110,10 +113,16 @@ QList<AMGCS2::Axis> AMGCS2CommandFactory::axesFromCommandString(const QString &a
 AMGCS2Command * AMGCS2CommandFactory::buildMoveCommand(const QStringList &argumentList)
 {
 	QHash<AMGCS2::Axis, double> axisPositions;
+	int argumentCount = argumentList.count();
+
+	// Ensure argument list isn't empty and has arguments in groups of two.
+	if((argumentCount == 0) || (argumentCount % 2) != 0) {
+		return 0;
+	}
 
 	// Axis positions are provided in paris, and are not valid unless both are
 	// there. As such we iterate through two at a time.
-	for(int iAxis = 0, iPosition = 1, argumentCount = argumentList.count();
+	for(int iAxis = 0, iPosition = 1;
 		iAxis < argumentCount && iPosition < argumentCount;
 		iAxis += 2, iPosition += 2) {
 
@@ -164,11 +173,13 @@ AMGCS2Command * AMGCS2CommandFactory::buildSetCommandLevelCommand(const QStringL
 AMGCS2Command * AMGCS2CommandFactory::buildSetDataRecorderConfigurationCommand(const QStringList &argumentList)
 {
 
-	if(argumentList.count() < 3) {
+	QList<AMPIC887DataRecorderConfiguration*> recordConfigurationList;
+	int argumentCount = argumentList.count();
+
+	// Ensure arguments are provided and come in sets of 3
+	if((argumentCount == 0) || (argumentCount % 3 != 0)) {
 		return 0;
 	}
-
-	QList<AMPIC887DataRecorderConfiguration*> recordConfigurationList;
 
 	/*
 	  The arguments to set data recorder configuration come in sets of 3, so we
@@ -288,7 +299,7 @@ AMGCS2Command * AMGCS2CommandFactory::buildSetRecordTriggerSourceCommand(const Q
 		}
 
 		AMGCS2::DataRecordTrigger triggerValue =
-				AMGCS2Support::intCodeTodataRecordTrigger(triggerCode);
+				AMGCS2Support::intCodeToDataRecordTrigger(triggerCode);
 
 		tableTriggerMap.insert(recordTableId, triggerValue);
 	}
@@ -319,6 +330,43 @@ AMGCS2Command * AMGCS2CommandFactory::buildGetRecordTriggerSourceCommand(const Q
 	}
 
 	return new AMGCS2GetRecordTriggerSourceCommand(recordTableIds);
+}
+
+AMGCS2Command * AMGCS2CommandFactory::buildMoveRelativeCommand(const QStringList &argumentList)
+{
+	QHash<AMGCS2::Axis, double> axisPositions;
+	int argumentCount = argumentList.count();
+
+	// Ensure argument list isn't empty and has arguments in groups of two.
+	if((argumentCount == 0) || (argumentCount % 2) != 0) {
+		return 0;
+	}
+
+	// Axis positions are provided in paris, and are not valid unless both are
+	// there. As such we iterate through two at a time.
+	for(int iAxis = 0, iPosition = 1;
+		iAxis < argumentCount && iPosition < argumentCount;
+		iAxis += 2, iPosition += 2) {
+
+		QString axisString = argumentList.at(iAxis);
+		QString positionString = argumentList.at(iPosition);
+
+		if(axisString.length() != 1) {
+			return 0;
+		}
+
+		AMGCS2::Axis axis = AMGCS2Support::characterToAxis(axisString.at(0));
+		bool parseSuccess = false;
+		double position = positionString.toDouble(&parseSuccess);
+
+		if(!parseSuccess) {
+			return 0;
+		}
+
+		axisPositions.insert(axis, position);
+	}
+
+	return new AMGCS2MoveRelativeCommand(axisPositions);
 }
 
 

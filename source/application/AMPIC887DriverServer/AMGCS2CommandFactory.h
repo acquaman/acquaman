@@ -102,6 +102,14 @@ protected:
 	  * can be parsed, 0 otherwise.
 	  */
 	static AMGCS2Command* buildGetRecordTriggerSourceCommand(const QStringList& argumentList);
+
+	/*!
+	  * Static helper method for parsing the move relative command string arguments.
+	  * \param argumentList ~ A list of the arguments provided to the command.
+	  * \returns An initialized AMGCS2MoveRelativeCommand if the arguments can be
+	  * parsed, 0 otherwise.
+	  */
+	static AMGCS2Command* buildMoveRelativeCommand(const QStringList& argumentList);
 };
 
 #endif // AMGCS2COMMANDFACTORY_H

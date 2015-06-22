@@ -34,6 +34,7 @@ QString AMPIC887ConsoleCommandParser::commandList()
 	commandList.append("LIM? <axis1> <axis2> ... : Queries whether limit switches are active for the provided axes. If none are provided all axes will be queried.\n");
 	commandList.append("MOV <axis1> <position1> <axis2> <position2> ... : Moves the provided axes to the provided positions. At least one axes/position combination must be provided.\n");
 	commandList.append("MOV? <axis1> <axis2> ... : Queries the current position which the provided axes are moving towards. If none are provided all axes will be queried.\n");
+	commandList.append("MVR <axis1> <position1> <axis2> <position2> ... : Moves the provided axes to the provided relative positions. At least one axes/position combination must be provided.\n");
 	commandList.append("MST? : Queries the movement statuses of the controller axes.\n");
 	commandList.append("POS? <axis1> <axis2> ... : Queries the current position of the provided axes. If none are provided all axes positions are displayed.\n");
 	commandList.append("RDY? : Queries the ready status of the controller.\n");

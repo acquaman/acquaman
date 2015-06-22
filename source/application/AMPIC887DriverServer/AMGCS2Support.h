@@ -99,7 +99,7 @@ public:
 	  * record trigger, UnknownRecordTrigger will be returned.
 	  * \param recordTriggerCode ~ The GCS2 code for the record trigger to convert.
 	  */
-	static AMGCS2::DataRecordTrigger intCodeTodataRecordTrigger(int recordTriggerCode);
+	static AMGCS2::DataRecordTrigger intCodeToDataRecordTrigger(int recordTriggerCode);
 protected:
 	/*!
 	  * Static class, so we protect the constructor to prevent initialization.

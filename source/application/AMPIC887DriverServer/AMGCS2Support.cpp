@@ -228,8 +228,6 @@ QChar AMGCS2Support::dataRecordSourceToCharCode(AMGCS2::DataRecordSource recordS
 QString AMGCS2Support::dataRecordTriggerToString(AMGCS2::DataRecordTrigger recordTrigger)
 {
 	switch(recordTrigger) {
-	case AMGCS2::UnknownRecordTrigger:
-		return "Unknown record trigger";
 	case AMGCS2::NoRecordTrigger:
 		return "No record trigger";
 	case AMGCS2::OnNextPositionChange:
@@ -240,14 +238,14 @@ QString AMGCS2Support::dataRecordTriggerToString(AMGCS2::DataRecordTrigger recor
 		return "Immediate (once only)";
 	case AMGCS2::OnNextPositionChange_OnceOnly:
 		return "Next position change (once only)";
+	default:
+		return "Unknown record trigger";
 	}
 }
 
 int AMGCS2Support::dataRecordTriggerToInt(AMGCS2::DataRecordTrigger recordTrigger)
 {
 	switch(recordTrigger) {
-	case AMGCS2::UnknownRecordTrigger:
-		return -1;
 	case AMGCS2::NoRecordTrigger:
 		return 0;
 	case AMGCS2::OnNextPositionChange:
@@ -258,10 +256,12 @@ int AMGCS2Support::dataRecordTriggerToInt(AMGCS2::DataRecordTrigger recordTrigge
 		return 4;
 	case AMGCS2::OnNextPositionChange_OnceOnly:
 		return 6;
+	default:
+		return -1;
 	}
 }
 
-AMGCS2::DataRecordTrigger AMGCS2Support::intCodeTodataRecordTrigger(int recordTriggerCode)
+AMGCS2::DataRecordTrigger AMGCS2Support::intCodeToDataRecordTrigger(int recordTriggerCode)
 {
 	switch(recordTriggerCode) {
 	case 0:

@@ -94,7 +94,7 @@ bool AMGCS2GetRecordTriggerSourceCommand::runImplementation()
 			int currentRecordTableId = recordTableIds.cArray()[iRecordTable];
 			int currentTriggerCode = triggerSourceCodes.cArray()[iRecordTable];
 			AMGCS2::DataRecordTrigger currentTrigger =
-					AMGCS2Support::intCodeTodataRecordTrigger(currentTriggerCode);
+					AMGCS2Support::intCodeToDataRecordTrigger(currentTriggerCode);
 
 			tableRecordTriggers_.insert(currentRecordTableId, currentTrigger);
 		}
