@@ -582,6 +582,9 @@ void BioXASSideBeamline::setupSampleStage()
 
 void BioXASSideBeamline::setupDetectorStage()
 {
+	// Side Endstation table
+	endstationTable_ = new BioXASEndstationTable("SideBL endstation table", "BL1607-6-I22", false, this);
+
 	detectorStageLateral_ = new CLSMAXvMotor("SMTR1607-6-I22-16 Side Detector Lateral", "SMTR1607-6-I22-16", "SMTR1607-6-I22-16 Side Detector Lateral", true, 0.05, 2.0, this, ":mm");
 }
 
@@ -914,6 +917,12 @@ void BioXASSideBeamline::setupExposedControls()
 	addExposedControl(cryostatX_);
 	addExposedControl(cryostatY_);
 	addExposedControl(cryostatZ_);
+
+	// Endstation table
+	addExposedControl(endstationTable_->heightPVController());
+	addExposedControl(endstationTable_->pitchPVController());
+	addExposedControl(endstationTable_->lateralPVController());
+	addExposedControl(endstationTable_->yawPVController());
 }
 
 void BioXASSideBeamline::setupExposedDetectors()
