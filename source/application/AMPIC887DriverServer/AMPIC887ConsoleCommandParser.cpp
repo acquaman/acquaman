@@ -44,6 +44,8 @@ QString AMPIC887ConsoleCommandParser::commandList()
 	commandList.append("POS? <axis1> <axis2> ... : Queries the current position of the provided axes. If none are provided all axes positions are displayed.\n");
 	commandList.append("PUN? <axis1> <axis2> ... : Queries the position units of the provided axes. If none are provided all axes position units are queried.\n");
 	commandList.append("RDY? : Queries the ready status of the controller.\n");
+	commandList.append("SCT <value> : Sets the cycle time for running a defined motion profile.\n");
+	commandList.append("SCT? : Queries the cycle time for running a defined motion profile.\n");
 	commandList.append("STP : Performs an emergency stop of all axes.\n");
 
 	return commandList;

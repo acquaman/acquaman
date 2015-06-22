@@ -35,6 +35,8 @@
 #include "AMGCS2GetHighSoftLimitsCommand.h"
 #include "AMGCS2SetHighSoftLimitsCommand.h"
 #include "AMGCS2GetPositionUnitsCommand.h"
+#include "AMGCS2SetCycleTimeCommand.h"
+#include "AMGCS2GetCycleTimeCommand.h"
 
 AMGCS2Command * AMGCS2CommandFactory::buildCommand(const QString &commandString)
 {
@@ -94,6 +96,10 @@ AMGCS2Command * AMGCS2CommandFactory::buildCommand(const QString &commandString)
 		return buildSetHighSoftLimitsCommand(commandArguments(commandString));
 	} else if(commandString.startsWith("PUN?")) {
 		return new AMGCS2GetPositionUnitsCommand(axesFromCommandString(commandString));
+	} else if(commandString.startsWith("SCT?")) {
+		return new AMGCS2GetCycleTimeCommand();
+	} else if(commandString.startsWith("SCT")) {
+		return buildSetCycleTimeCommand(commandArguments(commandString));
 	}
 
 	return 0;
@@ -459,6 +465,22 @@ AMGCS2Command * AMGCS2CommandFactory::buildSetHighSoftLimitsCommand(const QStrin
 	}
 
 	return new AMGCS2SetHighSoftLimitsCommand(axisPositions);
+}
+
+AMGCS2Command * AMGCS2CommandFactory::buildSetCycleTimeCommand(const QStringList &argumentList)
+{
+	if(argumentList.length() != 1) {
+		return 0;
+	}
+
+	bool parseSuccess = false;
+	double cycleTimeValue = argumentList.at(0).toDouble(&parseSuccess);
+
+	if(!parseSuccess) {
+		return 0;
+	}
+
+	return new AMGCS2SetCycleTimeCommand(cycleTimeValue);
 }
 
 
