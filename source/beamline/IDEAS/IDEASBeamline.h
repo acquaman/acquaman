@@ -123,7 +123,7 @@ public:
 	/// Returns the 13-element Ge detector pointer.
 	IDEAS13ElementGeDetector *ge13Element() const { return ge13Element_; }
 	/// Returns the real time for the Ge detector.
-	AMDetector *ge13ElementDwellTime() const { return ge13ElementRealTime_; }
+	//AMDetector *ge13ElementDwellTime() const { return ge13ElementRealTime_; }
 
 	CLSBasicScalerChannelDetector *I_0() const {return I0IonChamberScaler_;}
 	CLSBasicScalerChannelDetector *Sample() const {return SampleIonChamberScaler_;}
@@ -205,16 +205,16 @@ protected:
 	/// Control for the mode of the IDEAS Ammeter Group
 	AMPVControl *ammeterGroupMode_;
 
-	AMReadOnlyPVControl *ketekRealTimeControl_;
-	AMReadOnlyPVControl *ge13ElementRealTimeControl_;
+	//AMReadOnlyPVControl *ketekRealTimeControl_;
+	//AMReadOnlyPVControl *ge13ElementRealTimeControl_;
 
 	//AMControl *ketekPeakingTime_;
 	//AMControl *ketekTriggerLevel_;
 	//AMControl *ketekBaselineThreshold_;
 	//AMControl *ketekPreampGain_;
 
-	AMDetector *ketekRealTime_;
-	AMDetector *ge13ElementRealTime_;
+	//AMDetector *ketekRealTime_;
+	//AMDetector *ge13ElementRealTime_;
 
 	CLSBasicScalerChannelDetector *I0IonChamberScaler_;
 	CLSBasicScalerChannelDetector *SampleIonChamberScaler_;

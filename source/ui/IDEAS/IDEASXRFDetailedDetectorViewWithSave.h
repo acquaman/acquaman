@@ -50,16 +50,14 @@ public:
 	virtual void buildDetectorView();
 
 signals:
-	//void peakingChanged(const QString &arg1);
+
 
 protected slots:
 	void onSaveScanButtonClicked();
 	void onNotesTextChanged();
 	void onScanNameChanged(QString name);
 	void onScanNumberChanged(int number);
-	//void onPeakingTimeBoxChanged(const QString &arg1);
 	void onAcquisitionSucceeded();
-	//void onKETEKPeakingTimeChanged();
 	void onDeadTimeCheckButtonClicked();
 
 
@@ -82,7 +80,7 @@ protected:
 	QLineEdit *scanName;
 	QLabel *scanNumberLabel;
 	QSpinBox *scanNumber;
-	//QComboBox *peakingTimeBox;
+
 
 	/// The scan configuration.  Contains some configuration details about the scan such as integration time, minimum energy, maximum energy.
 	IDEASXRFScanConfiguration *config_;
@@ -90,9 +88,6 @@ protected:
         /// The scan action created when a scan is saved
         AMAction3* scanAction_;
 
-
-	/// Pointer to the Ketek XRF Dector for setting peaking time and gain
-	//IDEASKETEKDetector *ketekDetector_;
 
 };
 

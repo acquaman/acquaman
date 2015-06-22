@@ -124,3 +124,4 @@ void IDEASKETEKDetector::setPreampGain(double value)
 		preampGainControl_->move(value);
 
 }
+

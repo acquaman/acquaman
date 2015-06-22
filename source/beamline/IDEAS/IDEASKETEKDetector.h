@@ -94,9 +94,11 @@ public slots:
 
     void setPreampGain(double value);
 
+
   protected:
 
     AMReadOnlyPVControl *realTimeControl_;
+    AMDetector *ketekRealTime_;
 
     AMPVControl *peakingTimeControl_;
 
@@ -104,7 +106,7 @@ public slots:
     AMControl *ketekBaselineThreshold_;
     AMControl *preampGainControl_;
 
-    AMDetector *ketekRealTime_;
+
 
 
 

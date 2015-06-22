@@ -50,6 +50,9 @@ public:
 	double peakingTime() const { return peakingTimeControl_->value(); }
 	double preampGain() const  { return preampGainControl_->value(); }
 
+	/// Returns the real time for the KETEK.
+	AMDetector *dwellTime() const {return ge13ElementRealTime_; }
+
 
 signals:
 	void peakingTimeChanged(double);

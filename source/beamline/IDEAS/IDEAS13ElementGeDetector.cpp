@@ -24,8 +24,11 @@ IDEAS13ElementGeDetector::IDEAS13ElementGeDetector(const QString &name, const QS
 	ge13ElementRealTime_ = new AMBasicControlDetectorEmulator("13E_dwellTime", "13-element Ge dwell time", ge13ElementRealTimeControl_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
 
 
-	/// Missing PV valyes for peaking, baseline threshold, preamp gain control
-
+	// Missing PV values for peaking, baseline threshold, preamp gain control. Waiting to hear back.
+	peakingTimeControl_;
+	triggerLevel_;
+	baselineThreshhold_;
+	preampGainControl_;
 
 	// Currently only using 12 due to lack of electronics.
 	for (int i = 0; i < 12; i++){
@@ -39,6 +42,9 @@ IDEAS13ElementGeDetector::IDEAS13ElementGeDetector(const QString &name, const QS
 
 	foreach (AMDataSource *source, rawSpectraSources_)
 		((AM1DProcessVariableDataSource *)source)->setScale(10);
+
+	connect(peakingTimeControl_, SIGNAL(valueChanged(double)), this, SIGNAL(peakingTimeChanged(double)));
+
 }
 
 QString IDEAS13ElementGeDetector::synchronizedDwellKey() const

@@ -23,8 +23,10 @@ void g13ElementDetailedDetectorView::buildDetectorView()
 	peakingTimeBox_->addItem("High Res / Low Rate");
 	peakingTimeBox_->addItem("Ultra Res / Slow Rate");
 
+
 	connect(peakingTimeBox_, SIGNAL(currentIndexChanged(QString)), this, SLOT(onPeakingTimeBoxChanged(QString)));
 	connect(g13ElementDetector_, SIGNAL(peakingTimeChanged(double)), this, SLOT(onPeakingTimeChanged()));
+	connect(g13ElementDetector_, SIGNAL(connected(bool)), this, SLOT(onPeakingTimeChanged()));
 
 	rightLayout_->addWidget(peakingTimeBox_);
 

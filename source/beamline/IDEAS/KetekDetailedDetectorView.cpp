@@ -23,8 +23,10 @@ void KetekDetailedDetectorView::buildDetectorView()
 	peakingTimeBox_->addItem("High Res / Low Rate");
 	peakingTimeBox_->addItem("Ultra Res / Slow Rate");
 
-	connect(peakingTimeBox_, SIGNAL(currentIndexChanged(QString)), this, SLOT(onPeakingTimeBoxChanged(QString)));
+	connect(ketekDetector_, SIGNAL(connected(bool)), this, SLOT(onPeakingTimeBoxChanged()));
 	connect(ketekDetector_, SIGNAL(peakingTimeChanged(double)), this, SLOT(onPeakingTimeChanged()));
+
+	connect(peakingTimeBox_, SIGNAL(currentIndexChanged(QString)), this, SLOT(onPeakingTimeBoxChanged(QString)));
 
 	rightLayout_->addWidget(peakingTimeBox_);
 
