@@ -42,6 +42,8 @@
 #include "GCS2Commands/AMGCS2SetSoftLimitsStatusCommand.h"
 #include "GCS2Commands/AMGCS2GetServoModeCommand.h"
 #include "GCS2Commands/AMGCS2SetServoModeCommand.h"
+#include "GCS2Commands/AMGCS2GetStepSizeCommand.h"
+
 AMGCS2Command * AMGCS2CommandFactory::buildCommand(const QString &commandString)
 {
 	if(commandString.startsWith("POS?")) {
@@ -119,6 +121,8 @@ AMGCS2Command * AMGCS2CommandFactory::buildCommand(const QString &commandString)
 		return new AMGCS2GetServoModeCommand(axesFromCommandString(commandString));
 	} else if(commandString.startsWith("SVO")) {
 		return buildSetServoModeCommand(commandArguments(commandString));
+	} else if(commandString.startsWith("SST?")) {
+		return new AMGCS2GetStepSizeCommand(axesFromCommandString(commandString));
 	}
 
 	return 0;
