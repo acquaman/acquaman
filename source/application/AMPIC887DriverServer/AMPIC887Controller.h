@@ -4,7 +4,7 @@
 #define CONTROLLER_PORT 50000 // PI C887.11 controller are hardwired to use port 50000
 
 #include <QString>
-#include "AMGCS2Command.h"
+#include "GCS2Commands/AMGCS2Command.h"
 
 
 /*!

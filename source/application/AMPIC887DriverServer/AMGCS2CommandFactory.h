@@ -3,7 +3,7 @@
 
 #include <QString>
 
-#include "AMGCS2Command.h"
+#include "GCS2Commands/AMGCS2Command.h"
 #include "AMGCS2.h"
 #include <QHash>
 /*!

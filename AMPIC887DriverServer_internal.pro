@@ -9,49 +9,49 @@ SOURCES *= \
 	source/application/AMPIC887DriverServer/AMPIC887ConsoleCommandParser.cpp \
 	source/application/AMPIC887DriverServer/AMPIC887ConsoleApplication.cpp \
 	source/application/AMPIC887DriverServer/AMGCS2Support.cpp \
-	source/application/AMPIC887DriverServer/AMGCS2MoveCommand.cpp \
+	source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2MoveCommand.cpp \
 	source/application/AMPIC887DriverServer/AMGCS2CommandFactory.cpp \
-	source/application/AMPIC887DriverServer/AMGCS2Command.cpp \
+	source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2Command.cpp \
 	source/application/AMPIC887DriverServer/AMConsoleInputHandler.cpp \	
 	source/application/AMPIC887DriverServer/AMAbstractConsoleCommandParser.cpp \
-    source/application/AMPIC887DriverServer/AMGCS2StopCommand.cpp \
-    source/application/AMPIC887DriverServer/AMGCS2HaltSmoothlyCommand.cpp \
-    source/application/AMPIC887DriverServer/AMGCS2CompositeCommand.cpp \
-    source/application/AMPIC887DriverServer/AMGCS2SetCommandLevelCommand.cpp \
-    source/application/AMPIC887DriverServer/AMGCS2SetSyntaxVersionCommand.cpp \
+    source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2StopCommand.cpp \
+    source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2HaltSmoothlyCommand.cpp \
+    source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2CompositeCommand.cpp \
+    source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2SetCommandLevelCommand.cpp \
+    source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2SetSyntaxVersionCommand.cpp \
     source/application/AMPIC887DriverServer/AMPIC887DataRecorderConfiguration.cpp \
-    source/application/AMPIC887DriverServer/AMGCS2SetDataRecorderConfigurationCommand.cpp \
-    source/application/AMPIC887DriverServer/AMGCS2GetCommandLevelCommand.cpp \
-    source/application/AMPIC887DriverServer/AMGCS2GetMovingStatusCommand.cpp \
-    source/application/AMPIC887DriverServer/AMGCS2GetNumberOfRecordedPointsCommand.cpp \
-    source/application/AMPIC887DriverServer/AMGCS2GetDeviceIdentificationCommand.cpp \
-    source/application/AMPIC887DriverServer/AMGCS2GetDataRecorderConfigurationCommand.cpp \
-    source/application/AMPIC887DriverServer/AMGCS2GetCurrentPositionCommand.cpp \
-    source/application/AMPIC887DriverServer/AMGCS2GetControllerReadyStatusCommand.cpp \
-    source/application/AMPIC887DriverServer/AMGCS2GetRecordedDataValuesCommand.cpp \
-    source/application/AMPIC887DriverServer/AMGCS2SetRecordTriggerSourceCommand.cpp \
-    source/application/AMPIC887DriverServer/AMGCS2GetRecordTriggerSourceCommand.cpp \
-    source/application/AMPIC887DriverServer/AMGCS2ReferenceMoveCommand.cpp \
-    source/application/AMPIC887DriverServer/AMGCS2GetReferenceResultCommand.cpp \
-    source/application/AMPIC887DriverServer/AMGCS2GetRecorderOptionsCommand.cpp \
-    source/application/AMPIC887DriverServer/AMGCS2GetAvailableParametersCommand.cpp \
-    source/application/AMPIC887DriverServer/AMGCS2GetLimitSwitchStatusCommand.cpp \
-    source/application/AMPIC887DriverServer/AMGCS2GetTargetPositionCommand.cpp \
-    source/application/AMPIC887DriverServer/AMGCS2MoveRelativeCommand.cpp \
-    source/application/AMPIC887DriverServer/AMGCS2SetLowSoftLimitsCommand.cpp \
-    source/application/AMPIC887DriverServer/AMGCS2GetLowSoftLimitsCommand.cpp \
-    source/application/AMPIC887DriverServer/AMGCS2GetOnTargetStateCommand.cpp \
-    source/application/AMPIC887DriverServer/AMGCS2GetHighSoftLimitsCommand.cpp \
-    source/application/AMPIC887DriverServer/AMGCS2SetHighSoftLimitsCommand.cpp \
-    source/application/AMPIC887DriverServer/AMGCS2GetPositionUnitsCommand.cpp \
-    source/application/AMPIC887DriverServer/AMGCS2SetCycleTimeCommand.cpp \
-    source/application/AMPIC887DriverServer/AMGCS2GetCycleTimeCommand.cpp \
-    source/application/AMPIC887DriverServer/AMGCS2GetPivotPointCommand.cpp \
-    source/application/AMPIC887DriverServer/AMGCS2SetPivotPointCommand.cpp \
-    source/application/AMPIC887DriverServer/AMGCS2SetSoftLimitsStatusCommand.cpp \
-    source/application/AMPIC887DriverServer/AMGCS2GetSoftLimitsStatusCommand.cpp \
-    source/application/AMPIC887DriverServer/AMGCS2GetServoModeCommand.cpp \
-    source/application/AMPIC887DriverServer/AMGCS2SetServoModeCommand.cpp
+    source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2SetDataRecorderConfigurationCommand.cpp \
+    source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2GetCommandLevelCommand.cpp \
+    source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2GetMovingStatusCommand.cpp \
+    source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2GetNumberOfRecordedPointsCommand.cpp \
+    source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2GetDeviceIdentificationCommand.cpp \
+    source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2GetDataRecorderConfigurationCommand.cpp \
+    source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2GetCurrentPositionCommand.cpp \
+    source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2GetControllerReadyStatusCommand.cpp \
+    source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2GetRecordedDataValuesCommand.cpp \
+    source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2SetRecordTriggerSourceCommand.cpp \
+    source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2GetRecordTriggerSourceCommand.cpp \
+    source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2ReferenceMoveCommand.cpp \
+    source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2GetReferenceResultCommand.cpp \
+    source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2GetRecorderOptionsCommand.cpp \
+    source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2GetAvailableParametersCommand.cpp \
+    source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2GetLimitSwitchStatusCommand.cpp \
+    source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2GetTargetPositionCommand.cpp \
+    source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2MoveRelativeCommand.cpp \
+    source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2SetLowSoftLimitsCommand.cpp \
+    source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2GetLowSoftLimitsCommand.cpp \
+    source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2GetOnTargetStateCommand.cpp \
+    source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2GetHighSoftLimitsCommand.cpp \
+    source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2SetHighSoftLimitsCommand.cpp \
+    source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2GetPositionUnitsCommand.cpp \
+    source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2SetCycleTimeCommand.cpp \
+    source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2GetCycleTimeCommand.cpp \
+    source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2GetPivotPointCommand.cpp \
+    source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2SetPivotPointCommand.cpp \
+    source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2SetSoftLimitsStatusCommand.cpp \
+    source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2GetSoftLimitsStatusCommand.cpp \
+    source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2GetServoModeCommand.cpp \
+    source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2SetServoModeCommand.cpp
 
 HEADERS *= \
 	source/application/AMPIC887DriverServer/AMPIC887ControllerCollection.h \	
@@ -59,51 +59,51 @@ HEADERS *= \
 	source/application/AMPIC887DriverServer/AMPIC887ConsoleCommandParser.h \
 	source/application/AMPIC887DriverServer/AMPIC887ConsoleApplication.h \
 	source/application/AMPIC887DriverServer/AMGCS2Support.h \
-	source/application/AMPIC887DriverServer/AMGCS2MoveCommand.h \
+	source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2MoveCommand.h \
 	source/application/AMPIC887DriverServer/AMGCS2CommandFactory.h \
-	source/application/AMPIC887DriverServer/AMGCS2Command.h \
+	source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2Command.h \
 	source/application/AMPIC887DriverServer/AMGCS2.h \
 	source/application/AMPIC887DriverServer/AMConsoleInputHandler.h \
 	source/application/AMPIC887DriverServer/AMAbstractConsoleCommandParser.h \
 	source/util/AMCArrayHandler.h \
-    source/application/AMPIC887DriverServer/AMGCS2StopCommand.h \
-    source/application/AMPIC887DriverServer/AMGCS2HaltSmoothlyCommand.h \
-    source/application/AMPIC887DriverServer/AMGCS2CompositeCommand.h \
-    source/application/AMPIC887DriverServer/AMGCS2SetCommandLevelCommand.h \
-    source/application/AMPIC887DriverServer/AMGCS2SetSyntaxVersionCommand.h \
+    source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2StopCommand.h \
+    source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2HaltSmoothlyCommand.h \
+    source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2CompositeCommand.h \
+    source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2SetCommandLevelCommand.h \
+    source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2SetSyntaxVersionCommand.h \
     source/application/AMPIC887DriverServer/AMPIC887DataRecorderConfiguration.h \
-    source/application/AMPIC887DriverServer/AMGCS2SetDataRecorderConfigurationCommand.h \
-    source/application/AMPIC887DriverServer/AMGCS2GetCommandLevelCommand.h \
-    source/application/AMPIC887DriverServer/AMGCS2GetMovingStatusCommand.h \
-    source/application/AMPIC887DriverServer/AMGCS2GetNumberOfRecordedPointsCommand.h \
-    source/application/AMPIC887DriverServer/AMGCS2GetDeviceIdentificationCommand.h \
-    source/application/AMPIC887DriverServer/AMGCS2GetDataRecorderConfigurationCommand.h \
-    source/application/AMPIC887DriverServer/AMGCS2GetCurrentPositionCommand.h \
-    source/application/AMPIC887DriverServer/AMGCS2GetControllerReadyStatusCommand.h \
-    source/application/AMPIC887DriverServer/AMGCS2GetRecordedDataValuesCommand.h \
-    source/application/AMPIC887DriverServer/AMGCS2SetRecordTriggerSourceCommand.h \
-    source/application/AMPIC887DriverServer/AMGCS2GetRecordTriggerSourceCommand.h \
-    source/application/AMPIC887DriverServer/AMGCS2ReferenceMoveCommand.h \
-    source/application/AMPIC887DriverServer/AMGCS2GetReferenceResultCommand.h \
-    source/application/AMPIC887DriverServer/AMGCS2GetRecorderOptionsCommand.h \
-    source/application/AMPIC887DriverServer/AMGCS2GetAvailableParametersCommand.h \
-    source/application/AMPIC887DriverServer/AMGCS2GetLimitSwitchStatusCommand.h \
-    source/application/AMPIC887DriverServer/AMGCS2GetTargetPositionCommand.h \
-    source/application/AMPIC887DriverServer/AMGCS2MoveRelativeCommand.h \
-    source/application/AMPIC887DriverServer/AMGCS2SetLowSoftLimitsCommand.h \
-    source/application/AMPIC887DriverServer/AMGCS2GetLowSoftLimitsCommand.h \
-    source/application/AMPIC887DriverServer/AMGCS2GetOnTargetStateCommand.h \
-    source/application/AMPIC887DriverServer/AMGCS2GetHighSoftLimitsCommand.h \
-    source/application/AMPIC887DriverServer/AMGCS2SetHighSoftLimitsCommand.h \
-    source/application/AMPIC887DriverServer/AMGCS2GetPositionUnitsCommand.h \
-    source/application/AMPIC887DriverServer/AMGCS2SetCycleTimeCommand.h \
-    source/application/AMPIC887DriverServer/AMGCS2GetCycleTimeCommand.h \
-    source/application/AMPIC887DriverServer/AMGCS2GetPivotPointCommand.h \
-    source/application/AMPIC887DriverServer/AMGCS2SetPivotPointCommand.h \
-    source/application/AMPIC887DriverServer/AMGCS2SetSoftLimitsStatusCommand.h \
-    source/application/AMPIC887DriverServer/AMGCS2GetSoftLimitsStatusCommand.h \
-    source/application/AMPIC887DriverServer/AMGCS2GetServoModeCommand.h \
-    source/application/AMPIC887DriverServer/AMGCS2SetServoModeCommand.h
+    source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2SetDataRecorderConfigurationCommand.h \
+    source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2GetCommandLevelCommand.h \
+    source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2GetMovingStatusCommand.h \
+    source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2GetNumberOfRecordedPointsCommand.h \
+    source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2GetDeviceIdentificationCommand.h \
+    source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2GetDataRecorderConfigurationCommand.h \
+    source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2GetCurrentPositionCommand.h \
+    source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2GetControllerReadyStatusCommand.h \
+    source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2GetRecordedDataValuesCommand.h \
+    source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2SetRecordTriggerSourceCommand.h \
+    source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2GetRecordTriggerSourceCommand.h \
+    source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2ReferenceMoveCommand.h \
+    source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2GetReferenceResultCommand.h \
+    source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2GetRecorderOptionsCommand.h \
+    source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2GetAvailableParametersCommand.h \
+    source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2GetLimitSwitchStatusCommand.h \
+    source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2GetTargetPositionCommand.h \
+    source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2MoveRelativeCommand.h \
+    source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2SetLowSoftLimitsCommand.h \
+    source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2GetLowSoftLimitsCommand.h \
+    source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2GetOnTargetStateCommand.h \
+    source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2GetHighSoftLimitsCommand.h \
+    source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2SetHighSoftLimitsCommand.h \
+    source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2GetPositionUnitsCommand.h \
+    source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2SetCycleTimeCommand.h \
+    source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2GetCycleTimeCommand.h \
+    source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2GetPivotPointCommand.h \
+    source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2SetPivotPointCommand.h \
+    source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2SetSoftLimitsStatusCommand.h \
+    source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2GetSoftLimitsStatusCommand.h \
+    source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2GetServoModeCommand.h \
+    source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2SetServoModeCommand.h
 
 # PI Controller Driver Dependencies
 

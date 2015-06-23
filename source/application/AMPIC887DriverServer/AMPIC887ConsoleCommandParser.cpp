@@ -1,7 +1,7 @@
 #include "AMPIC887ConsoleCommandParser.h"
 
 #include "AMGCS2CommandFactory.h"
-#include "AMGCS2Command.h"
+#include "GCS2Commands/AMGCS2Command.h"
 AMPIC887ConsoleCommandParser::AMPIC887ConsoleCommandParser(QObject *parent) :
 	AMAbstractConsoleCommandParser(parent)
 {
