@@ -1,18 +1,16 @@
 # #####################################################################
-# QMake project file for BioXAS common files  	October 2014. david.k.chevrier@gmail.com
+# QMake project file for BioXAS common files      October 2014. david.k.chevrier@gmail.com
 # ####################################################################
 
 # Source Files (BioXAS Common)
 #######################
 
 HEADERS += \
-	source/beamline/BioXAS/BioXASBeamlineDef.h \
-	source/beamline/BioXAS/BioXASPseudoMotorControl.h \
-	source/ui/BioXAS/BioXASCLSMAXvMotorControlEditor.h \
-	source/beamline/BioXAS/BioXAS32ElementGeDetector.h \
-	source/ui/BioXAS/BioXAS32ElementGeDetectorView.h \
 	source/acquaman/BioXAS/BioXASXRFScanConfiguration.h \
 	source/acquaman/BioXAS/BioXASXRFScanController.h \
+	source/beamline/BioXAS/BioXASBeamlineDef.h \
+	source/beamline/BioXAS/BioXASPseudoMotorControl.h \
+	source/beamline/BioXAS/BioXAS32ElementGeDetector.h \
 	source/beamline/BioXAS/BioXASSSRLMonochromator.h \
 	source/beamline/BioXAS/BioXASSSRLMonochromatorRegionControl.h \
 	source/ui/BioXAS/BioXASSSRLMonochromatorRegionControlEditor.h \
@@ -36,6 +34,7 @@ HEADERS += \
 	source/ui/BioXAS/BioXASM2MirrorView.h \
 	source/beamline/BioXAS/BioXASDBHRMirror.h \
 	source/ui/BioXAS/BioXASDBHRMirrorView.h \
+	source/beamline/BioXAS/BioXASEndstationTable.h \
 	source/beamline/BioXAS/BioXASM1Mirror.h \
 	source/beamline/BioXAS/BioXASBeamlineComponent.h \
 	source/beamline/BioXAS/BioXASCarbonFilterFarmControl.h \
@@ -61,12 +60,10 @@ HEADERS += \
 	source/beamline/BioXAS/BioXASMainM2MirrorBendControl.h
 
 SOURCES += \
-	source/beamline/BioXAS/BioXASPseudoMotorControl.cpp \
-	source/ui/BioXAS/BioXASCLSMAXvMotorControlEditor.cpp \
-	source/beamline/BioXAS/BioXAS32ElementGeDetector.cpp \
-	source/ui/BioXAS/BioXAS32ElementGeDetectorView.cpp \
 	source/acquaman/BioXAS/BioXASXRFScanConfiguration.cpp \
 	source/acquaman/BioXAS/BioXASXRFScanController.cpp \
+	source/beamline/BioXAS/BioXASPseudoMotorControl.cpp \
+	source/beamline/BioXAS/BioXAS32ElementGeDetector.cpp \
 	source/beamline/BioXAS/BioXASSSRLMonochromator.cpp \
 	source/beamline/BioXAS/BioXASSSRLMonochromatorRegionControl.cpp \
 	source/ui/BioXAS/BioXASSSRLMonochromatorRegionControlEditor.cpp \
@@ -90,6 +87,7 @@ SOURCES += \
 	source/ui/BioXAS/BioXASM2MirrorView.cpp \
 	source/beamline/BioXAS/BioXASDBHRMirror.cpp \
 	source/ui/BioXAS/BioXASDBHRMirrorView.cpp \
+	source/beamline/BioXAS/BioXASEndstationTable.cpp \
 	source/beamline/BioXAS/BioXASM1Mirror.cpp \
 	source/beamline/BioXAS/BioXASBeamlineComponent.cpp \
 	source/beamline/BioXAS/BioXASCarbonFilterFarmControl.cpp \
