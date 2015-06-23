@@ -21,28 +21,30 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "IDEASXRFDetailedDetectorView.h"
 
-#include "beamline/IDEAS/IDEASBeamline.h"
-#include "ui/CLS/CLSSIS3820ScalerView.h"
+#include <QDir>
+
+#include "dataman/AMScan.h"
+#include "dataman/export/AMExportController.h"
+#include "dataman/export/AMExporter.h"
+#include "dataman/export/AMExporterOption.h"
+
+#include "ui/util/AMDialog.h"
+
 #include "beamline/CLS/CLSSIS3820Scaler.h"
 #include "beamline/CLS/CLSSR570.h"
+#include "ui/CLS/CLSSIS3820ScalerView.h"
+
+#include "beamline/IDEAS/IDEASBeamline.h"
 
 IDEASXRFDetailedDetectorView::IDEASXRFDetailedDetectorView(AMXRFDetector *detector, QWidget *parent)
 	: AMXRFDetailedDetectorView(detector, parent)
 {
-	config_ = new IDEASXRFScanConfiguration;
-
 	setMaximumHeight(885);
-
-	if (detector_->name() == "KETEK")
-		config_->setFluorescenceDetector(IDEASBeamline::Ketek);
-
-	else if (detector_->name() == "13-el Ge")
-		config_->setFluorescenceDetector(IDEASBeamline::Ge13Element);
-
-        scanAction_ = 0; //NULL
 }
 
-IDEASXRFDetailedDetectorView::~IDEASXRFDetailedDetectorView(){}
+IDEASXRFDetailedDetectorView::~IDEASXRFDetailedDetectorView()
+{
+}
 
 void IDEASXRFDetailedDetectorView::buildDetectorView()
 {
@@ -55,12 +57,6 @@ void IDEASXRFDetailedDetectorView::buildDetectorView()
 
 void IDEASXRFDetailedDetectorView::buildScanSaveViews()
 {
-
-	scanInfoGridLayout = new QGridLayout();
-	scanInfoGridLayout->setObjectName(QString::fromUtf8("scanInfoGridLayout"));
-	scanInfoGridLayout->setVerticalSpacing(4);
-	scanInfoGridLayout->setContentsMargins(12, -1, -1, -1);
-
 	deadTimeCheckButton = new QPushButton("Check Dead Time");
 
 	peakingTimeBox = new QComboBox();
@@ -73,52 +69,6 @@ void IDEASXRFDetailedDetectorView::buildScanSaveViews()
 	connect(IDEASBeamline::ideas()->ketekPeakingTime(), SIGNAL(connected(bool)), this, SLOT(onKETEKPeakingTimeChanged()));
 	connect(IDEASBeamline::ideas()->ketekPeakingTime(), SIGNAL(valueChanged(double)), this, SLOT(onKETEKPeakingTimeChanged()));
 
-	notesEdit = new QPlainTextEdit(this);
-	notesEdit->setObjectName(QString::fromUtf8("notesEdit"));
-	QSizePolicy sizePolicy2(QSizePolicy::MinimumExpanding, QSizePolicy::Expanding);
-	sizePolicy2.setHorizontalStretch(4);
-	sizePolicy2.setVerticalStretch(0);
-	sizePolicy2.setHeightForWidth(notesEdit->sizePolicy().hasHeightForWidth());
-	notesEdit->setSizePolicy(sizePolicy2);
-	notesEdit->setStyleSheet(QString::fromUtf8( "#notesEdit {\n"
-												"background-image: url(:/notepadBackground.png);\n"
-												"font: bold 15px \"Marker Felt\";\n"
-												"}"));
-	notesEdit->setBackgroundVisible(false);
-
-	scanNameLabel = new QLabel("Name");
-	scanNameLabel->setObjectName(QString::fromUtf8("scanNameLabel"));
-	scanNameLabel->setStyleSheet(QString::fromUtf8("color: rgb(121, 121, 121);\n"
-"font-weight: bold;\n"
-"font-family: \"Lucida Grande\";"));
-
-	scanInfoGridLayout->addWidget(scanNameLabel, 0, 0, 1, 1);
-
-	scanName = new QLineEdit();
-	scanName->setObjectName(QString::fromUtf8("scanName"));
-	scanName->setFrame(false);
-	scanName->setText("XRF Scan");
-
-	scanInfoGridLayout->addWidget(scanName, 0, 1, 1, 1);
-
-	scanNumberLabel = new QLabel("Number");
-	scanNumberLabel->setObjectName(QString::fromUtf8("scanNumberLabel"));
-	scanNumberLabel->setStyleSheet(QString::fromUtf8("color: rgb(121, 121, 121);\n"
-"font-weight: bold;\n"
-"font-family: \"Lucida Grande\";"));
-
-	scanInfoGridLayout->addWidget(scanNumberLabel, 1, 0, 1, 1);
-
-
-	scanNumber = new QSpinBox();
-	scanNumber->setObjectName(QString::fromUtf8("scanNumber"));
-	scanNumber->setMaximumSize(QSize(16777215, 18));
-	scanNumber->setFrame(false);
-	scanNumber->setButtonSymbols(QAbstractSpinBox::NoButtons);
-	scanNumber->setMaximum(9999);
-	scanNumber->setValue(1);
-
-	scanInfoGridLayout->addWidget(scanNumber, 1, 1, 1, 1);
 
 	rightLayout_->addWidget(deadTimeCheckButton);
 
@@ -126,55 +76,105 @@ void IDEASXRFDetailedDetectorView::buildScanSaveViews()
 
 	rightLayout_->addStretch();
 
-	rightLayout_->addLayout(scanInfoGridLayout);
-	rightLayout_->addWidget(notesEdit);
-
 	saveScanButton_ = new QPushButton("Save Scan");
-	saveScanButton_->setEnabled(false);
 
 	rightLayout_->addWidget(saveScanButton_);
 
 
 	connect(saveScanButton_, SIGNAL(clicked()), this, SLOT(onSaveScanButtonClicked()));
-	connect(notesEdit, SIGNAL(textChanged()), this, SLOT(onNotesTextChanged()));
-	connect(scanName, SIGNAL(textChanged(QString)), this, SLOT(onScanNameChanged(QString)));
-	connect(scanNumber, SIGNAL(valueChanged(int)), this, SLOT(onScanNumberChanged(int)));
 	connect(peakingTimeBox, SIGNAL(currentIndexChanged(QString)), this, SLOT(onPeakingTimeBoxChanged(QString)));
 	connect(deadTimeCheckButton, SIGNAL(clicked()), this, SLOT(onDeadTimeCheckButtonClicked()));
-	connect(acquireButton_, SIGNAL(clicked(bool)),saveScanButton_, SLOT(setEnabled(bool)));
-	connect(detector_, SIGNAL(acquisitionSucceeded()),this, SLOT(onAcquisitionSucceeded()));
-	connect(cancelButton_, SIGNAL(clicked()),this, SLOT(onAcquisitionSucceeded()));
-
 
 }
 
 void IDEASXRFDetailedDetectorView::onSaveScanButtonClicked()
 {
-	config_->setDetectorInfo(detector_->toInfo());
-	config_->setIntegrationTime(detector_->elapsedTime());
+	if(!chooseScanDialog_) {
+		chooseScanDialog_ = new AMChooseScanDialog(AMDatabase::database("user"), "Choose XRF Spectrum...", "Choose the XRF Spectrum you want to export.", true, this);
+		chooseScanDialog_->setAttribute(Qt::WA_DeleteOnClose, false);
+		connect(chooseScanDialog_, SIGNAL(accepted()), this, SLOT(exportScan()));
+	}
 
-	scanAction_ = new AMScanAction(new AMScanActionInfo(config_->createCopy()));
-
-	connect(scanAction_, SIGNAL(cancelled()), this, SLOT(cleanupScanAction()));
-	connect(scanAction_, SIGNAL(failed()), this, SLOT(cleanupScanAction()));
-	connect(scanAction_, SIGNAL(succeeded()), this, SLOT(cleanupScanAction()));
-
-	scanAction_->start();
+	chooseScanDialog_->setFilterKeyColumn(4);
+	chooseScanDialog_->setFilterRegExp("XRay Fluorescence Scan");
+	chooseScanDialog_->show();
 }
 
-void IDEASXRFDetailedDetectorView::onNotesTextChanged()
+void IDEASXRFDetailedDetectorView::exportScan()
 {
-	config_->setScanNotes(notesEdit->toPlainText());
+	QList<AMScan *> scans;
+
+	foreach (QUrl scanUrl, chooseScanDialog_->getSelectedScans()){
+		AMScan *scan = AMScan::createFromDatabaseUrl(scanUrl, false);
+		if (!scan) {
+			QString errorMessage = QString("Failed to open AMScan for %1").arg(scanUrl.toString());
+			AMErrorMon::alert(this, ERR_IDEAS_XRF_DETECTOR_SCAN_NOT_EXIST, errorMessage);
+			return;
+		}
+
+		QString scanName = AMLineEditDialog::retrieveAnswer("Choose a scan name...",
+															"Please choose the name you wish to name the scan.",
+															scan->name());
+
+		if (!scanName.isEmpty()){
+
+			scan->setName(scanName);
+			scan->storeToDb(AMDatabase::database("user"));
+			scans << scan;
+		}
+	}
+
+	// exporting is cancelled
+	if (scans.size() == 0)
+		return;
+
+	exportController_ = new AMExportController(scans);
+	connect(exportController_, SIGNAL(stateChanged(int)), this, SLOT(onExportControllerStateChanged(int)));
+
+	QDir exportDir;
+
+	if(!AMUserSettings::remoteDataFolder.isEmpty())
+		exportDir.setCurrent(AMUserSettings::remoteDataFolder);
+	else
+		exportDir.setCurrent(AMUserSettings::userDataFolder);
+
+	exportDir.cdUp();
+
+	if(!exportDir.entryList(QDir::AllDirs).contains("exportData")){
+
+		if(!exportDir.mkdir("exportData"))
+			return;
+	}
+
+	exportDir.cd("exportData");
+	exportController_->setDestinationFolderPath(exportDir.absolutePath());
+	exportController_->chooseExporter("AMExporterGeneralAscii");
+	exportController_->setOption(IDEAS::buildStandardExporterOption("IDEASDefault", true, false, false, true));
+	exportController_->option()->setFileName("$name_$number.dat");
+	exportController_->start(true);
 }
 
-void IDEASXRFDetailedDetectorView::onScanNameChanged(QString name)
+void IDEASXRFDetailedDetectorView::onExportControllerStateChanged(int state)
 {
-	config_->setUserScanName(name);
+	if (state == AMExportController::Finished)
+		exportController_->deleteLater();
 }
 
-void IDEASXRFDetailedDetectorView::onScanNumberChanged(int number)
+void IDEASXRFDetailedDetectorView::startAcquisition()
 {
-	config_->setScanNumber(number);
+	IDEASXRFScanConfiguration *configuration = new IDEASXRFScanConfiguration;
+	configuration->setFluorescenceDetector(detector_->type());
+
+	AMDetectorInfoSet detectorSet;
+	detectorSet.addDetectorInfo(detector_->toInfo());
+	configuration->setDetectorConfigurations(detectorSet);
+	AMScanAction *scanAction = new AMScanAction(new AMScanActionInfo(configuration));
+
+	connect(scanAction, SIGNAL(cancelled()), scanAction, SLOT(scheduleForDeletion()));
+	connect(scanAction, SIGNAL(failed()), scanAction, SLOT(scheduleForDeletion()));
+	connect(scanAction, SIGNAL(succeeded()), scanAction, SLOT(scheduleForDeletion()));
+
+	scanAction->start();
 }
 
 void IDEASXRFDetailedDetectorView::onPeakingTimeBoxChanged(const QString &arg1)
@@ -196,30 +196,6 @@ void IDEASXRFDetailedDetectorView::onPeakingTimeBoxChanged(const QString &arg1)
 	    IDEASBeamline::ideas()->ketekPreampGain()->move(1.2375);
 
 	}
-}
-
-void IDEASXRFDetailedDetectorView::onAcquisitionSucceeded()
-{
-    saveScanButton_->setEnabled(true);
-    saveScanButton_->setText("Save Scan");
-	acquireButton_->setEnabled(false);
-    AMControlInfoList positions(IDEASBeamline::ideas()->exposedControls()->toInfoList());
-    positions.remove(positions.indexOf("DwellTime"));
-    positions.remove(positions.indexOf("DirectEnergy"));
-
-    CLSSR570* I0SR570 = qobject_cast<CLSSR570*>(IDEASBeamline::ideas()->scaler()->channelAt(0)->currentAmplifier());
-    AMControlInfo I0Scaler("I0Scaler", IDEASBeamline::ideas()->scaler()->channelAt(0)->voltage(), 0, 0, QString("%1 %2").arg(I0SR570->value()).arg(I0SR570->units()) , 0.1, "I_0 Scaler Value");
-    positions.insert(2, I0Scaler);
-
-    CLSSR570* SampleSR570 = qobject_cast<CLSSR570*>(IDEASBeamline::ideas()->scaler()->channelAt(1)->currentAmplifier());
-    AMControlInfo SampleScaler("SampleScaler", IDEASBeamline::ideas()->scaler()->channelAt(1)->voltage(), 0, 0, QString("%1 %2").arg(SampleSR570->value()).arg(SampleSR570->units()) , 0.1, "Sample Scaler Value");
-    positions.insert(3, SampleScaler);
-
-    CLSSR570* ReferenceSR570 = qobject_cast<CLSSR570*>(IDEASBeamline::ideas()->scaler()->channelAt(2)->currentAmplifier());
-    AMControlInfo ReferenceScaler("ReferenceScaler", IDEASBeamline::ideas()->scaler()->channelAt(2)->voltage(), 0, 0, QString("%1 %2").arg(ReferenceSR570->value()).arg(ReferenceSR570->units()) , 0.1, "Reference Scaler Value");
-    positions.insert(4, ReferenceScaler);
-
-    config_->setPositions(positions);
 }
 
 void IDEASXRFDetailedDetectorView::onKETEKPeakingTimeChanged()
@@ -254,16 +230,4 @@ void IDEASXRFDetailedDetectorView::onDeadTimeCheckButtonClicked()
 	deadTimeCheckActions->addSubAction(detector_->createSetAcquisitionTimeAction(requestedTime));
 
 	deadTimeCheckActions->start();
-}
-
-void IDEASXRFDetailedDetectorView::cleanupScanAction()
-{
-	acquireButton_->setEnabled(true);
-	saveScanButton_->setText("Scan Saved");
-	disconnect(scanAction_, SIGNAL(cancelled()), this, SLOT(cleanupScanAction()));
-	disconnect(scanAction_, SIGNAL(succeeded()), this, SLOT(cleanupScanAction()));
-	disconnect(scanAction_, SIGNAL(failed()), this, SLOT(cleanupScanAction()));
-
-	scanAction_->scheduleForDeletion();
-	scanAction_ = 0;
 }

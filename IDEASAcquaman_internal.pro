@@ -5,6 +5,7 @@ TARGET = IDEASAcquaman
 FORMS +=
 
 HEADERS +=	source/application/IDEAS/IDEASAppController.h \
+	source/application/IDEAS/IDEAS.h \
 	source/beamline/IDEAS/IDEASBeamline.h \
 	source/ui/IDEAS/IDEASPersistentView.h \
 	source/beamline/IDEAS/IDEASMonochromatorControl.h \
@@ -70,19 +71,3 @@ HEADERS  += \
 	source/StripTool2/STColorButton.h \
 	source/StripTool2/STPlotSelectorTool.h \
 	source/StripTool2/ST0DTimestampAB.h
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

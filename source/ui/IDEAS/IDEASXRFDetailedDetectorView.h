@@ -24,15 +24,17 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "ui/beamline/AMXRFDetailedDetectorView.h"
 
-#include "acquaman/IDEAS/IDEASXRFScanConfiguration.h"
-#include "actions3/actions/AMScanAction.h"
-
 #include <QPushButton>
 #include <QSignalMapper>
 #include <QPlainTextEdit>
 #include <QLineEdit>
 #include <QtGui/QComboBox>
 
+#include "acquaman/IDEAS/IDEASXRFScanConfiguration.h"
+#include "actions3/actions/AMScanAction.h"
+#include "ui/dataman/AMChooseScanDialog.h"
+
+class AMExportController;
 
 class IDEASXRFDetailedDetectorView : public AMXRFDetailedDetectorView
 {
@@ -48,49 +50,34 @@ public:
 	virtual void buildDetectorView();
 
 protected slots:
+	/// Starts the acquisition.  Calls acquire() but subclasses can reimplement if there is a more sofisticated start routine.
+	virtual void startAcquisition();
+	/// Handles bringing up and exporting the given XRF scans.
 	void onSaveScanButtonClicked();
-	void onNotesTextChanged();
-	void onScanNameChanged(QString name);
-	void onScanNumberChanged(int number);
+	/// Handles grabbing the scan and exporting it.
+	void exportScan();
+	/// Handles deleting the export controller.
+	void onExportControllerStateChanged(int state);
+
 	void onPeakingTimeBoxChanged(const QString &arg1);
-	void onAcquisitionSucceeded();
 	void onKETEKPeakingTimeChanged();
 	void onDeadTimeCheckButtonClicked();
-	/**
-	  * Handles the scan action being completed in some fashion (either failed,
-	  * succeeded or cancelled). Sets the enabled status of the acquireButton to
-	  * true, disconnects signals from the scan action, schedules it for deletion
-	  * and then nulls our reference to it.
-	  */
-	void cleanupScanAction();
+
 protected:
 	/// Method that builds the Scan Save Button and associated things.
 	void buildScanSaveViews();
 
 	/// The button for saving the scan.
 	QPushButton *saveScanButton_;
+	/// Choose scan dialog.
+	AMChooseScanDialog *chooseScanDialog_;
+	/// The export controller.
+	AMExportController *exportController_;
 
 	/// button to trigger a 0.1s XRF acquitisition to check to too-high count rates.
 	QPushButton *deadTimeCheckButton;
 
-
-	/// A  scan configuration notes editor
-	QPlainTextEdit *notesEdit;
-
-	QGridLayout *scanInfoGridLayout;
-	QLabel *scanNameLabel;
-	QLineEdit *scanName;
-	QLabel *scanNumberLabel;
-	QSpinBox *scanNumber;
 	QComboBox *peakingTimeBox;
-
-	/// The scan configuration.  Contains some configuration details about the scan such as integration time, minimum energy, maximum energy.
-	IDEASXRFScanConfiguration *config_;
-
-        /// The scan action created when a scan is saved
-        AMAction3* scanAction_;
-
-
 };
 
 #endif // IDEASXRFDETAILEDDETECTORVIEW_H

@@ -22,6 +22,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "IDEASXRFScanConfiguration.h"
 
 #include "acquaman/IDEAS/IDEASXRFScanController.h"
+#include "beamline/IDEAS/IDEASBeamline.h"
 
 IDEASXRFScanConfiguration::IDEASXRFScanConfiguration(AMDetectorInfo detectorInfo, QObject *parent) :
 	AMScanConfiguration(parent)
@@ -32,7 +33,7 @@ IDEASXRFScanConfiguration::IDEASXRFScanConfiguration(AMDetectorInfo detectorInfo
 	scanNumber_ = 0;
 	scanNotes_ = "";
 	positions_.clear();
-	fluorescenceDetector_ = IDEASBeamline::NoneXRFDetector;
+	fluorescenceDetector_ = IDEAS::NoneXRFDetector;
 }
 
 IDEASXRFScanConfiguration::IDEASXRFScanConfiguration(QObject *parent)
@@ -78,7 +79,7 @@ QString IDEASXRFScanConfiguration::detailedDescription() const
 		return QString();
 }
 
-void IDEASXRFScanConfiguration::setFluorescenceDetector(IDEASBeamline::FluorescenceDetector detector)
+void IDEASXRFScanConfiguration::setFluorescenceDetector(IDEAS::FluorescenceDetector detector)
 {
 	if (fluorescenceDetector_ != detector){
 

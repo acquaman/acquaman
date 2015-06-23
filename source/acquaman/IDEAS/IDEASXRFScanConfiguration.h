@@ -24,9 +24,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "acquaman/AMScanConfiguration.h"
 #include "dataman/info/AMControlInfoList.h"
-#include "beamline/IDEAS/IDEASBeamline.h"
-
-#include <QDebug>
+#include "application/IDEAS/IDEAS.h"
 
 class IDEASXRFScanConfiguration : public AMScanConfiguration
 {
@@ -83,11 +81,11 @@ public:
 	AMControlInfoList positions() const { return positions_; }
 
 	/// Returns the current fluorescence detector choice.
-	IDEASBeamline::FluorescenceDetector fluorescenceDetector() const { return fluorescenceDetector_; }
+	IDEAS::FluorescenceDetector fluorescenceDetector() const { return fluorescenceDetector_; }
 
 signals:
 	/// Notifier that the fluorescence choice has changed.
-	void fluorescenceDetectorChanged(IDEASBeamline::FluorescenceDetector);
+	void fluorescenceDetectorChanged(IDEAS::FluorescenceDetector);
 	/// Same signal.  Just passing as an int.
 	void fluorescenceDetectorChanged(int);
 
@@ -112,9 +110,9 @@ public slots:
 	void setPositions(AMControlInfoList positions) { positions_ = positions; }
 
 	/// Sets the choice for the fluorescence detector.
-	void setFluorescenceDetector(IDEASBeamline::FluorescenceDetector detector);
+	void setFluorescenceDetector(IDEAS::FluorescenceDetector detector);
 	/// Overloaded.  Used for database loading.
-	void setFluorescenceDetector(int detector) { setFluorescenceDetector((IDEASBeamline::FluorescenceDetector)detector); }
+	void setFluorescenceDetector(int detector) { setFluorescenceDetector((IDEAS::FluorescenceDetector)detector); }
 
 
 protected:
@@ -143,7 +141,7 @@ protected:
 	/// Beamline conditions at the time a scan is started
 	AMControlInfoList positions_;
 	/// Fluorescence detector choice.
-	IDEASBeamline::FluorescenceDetector fluorescenceDetector_;
+	IDEAS::FluorescenceDetector fluorescenceDetector_;
 };
 
 //Q_DECLARE_OPERATORS_FOR_FLAGS(IDEASXASScanConfiguration::FluorescenceDetectors)
