@@ -41,7 +41,7 @@
 #include "AMGCS2GetSoftLimitsStatusCommand.h"
 #include "AMGCS2SetSoftLimitsStatusCommand.h"
 #include "AMGCS2GetServoModeCommand.h"
-
+#include "AMGCS2SetServoModeCommand.h"
 AMGCS2Command * AMGCS2CommandFactory::buildCommand(const QString &commandString)
 {
 	if(commandString.startsWith("POS?")) {
@@ -117,6 +117,8 @@ AMGCS2Command * AMGCS2CommandFactory::buildCommand(const QString &commandString)
 		return 0;
 	} else if(commandString.startsWith("SVO?")) {
 		return new AMGCS2GetServoModeCommand(axesFromCommandString(commandString));
+	} else if(commandString.startsWith("SVO")) {
+		return buildSetServoModeCommand(commandArguments(commandString));
 	}
 
 	return 0;
@@ -433,6 +435,25 @@ AMGCS2Command * AMGCS2CommandFactory::buildSetSoftLimitStatusesCommand(const QSt
 	}
 
 	return new AMGCS2SetSoftLimitsStatusCommand(axisValueMap);
+}
+
+AMGCS2Command * AMGCS2CommandFactory::buildSetServoModeCommand(const QStringList &argumentList)
+{
+	if(argumentList.count() != 1) {
+		return 0;
+	}
+
+	bool activateServoMode;
+
+	if(argumentList.at(0) == "false") {
+		activateServoMode = false;
+	} else if(argumentList.at(0) == "true") {
+		activateServoMode = true;
+	} else {
+		return 0;
+	}
+
+	return new AMGCS2SetServoModeCommand(activateServoMode);
 }
 
 

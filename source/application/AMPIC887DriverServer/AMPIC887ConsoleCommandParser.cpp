@@ -52,6 +52,7 @@ QString AMPIC887ConsoleCommandParser::commandList()
 	commandList.append("SSL? <axis1> <axis2> ... : Queries the active status of the soft limits on the provided axes. If no axes are provided the soft limit statuses of all axes are provided.\n");
 	commandList.append("STP : Performs an emergency stop of all axes.\n");
 	commandList.append("SVO? <axis1> <axis2> ... : Queries the servo mode status of the provided axes. If none are provided the servo mode status of all axes is queried.\n");
+	commandList.append("SVO <true/false> : Activates/deactivates servo mode across all axes of the controller (true = activate, false = desactivate).\n");
 
 	return commandList;
 }
