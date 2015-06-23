@@ -31,6 +31,26 @@ QString AMGCS2GetCurrentPositionCommand::outputString() const
 	return returnString.trimmed();
 }
 
+bool AMGCS2GetCurrentPositionCommand::validateArguments()
+{
+	if(axesToQuery_.count() > AXIS_COUNT) {
+		lastError_ = "Too many axes specified";
+		return false;
+	}
+
+	for(int iAxis = 0, axisCount = axesToQuery_.count();
+		iAxis < axisCount;
+		++iAxis) {
+
+		if(axesToQuery_.at(iAxis) == AMGCS2::UnknownAxis) {
+			lastError_ = "Unknown axis specified";
+			return false;
+		}
+	}
+
+	return true;
+}
+
 bool AMGCS2GetCurrentPositionCommand::runImplementation()
 {
 	// Clear previous results
@@ -88,21 +108,6 @@ bool AMGCS2GetCurrentPositionCommand::runImplementation()
 	}
 
 	return successful;
-}
-
-bool AMGCS2GetCurrentPositionCommand::validateArguments()
-{
-	for(int iAxis = 0, axisCount = axesToQuery_.count();
-		iAxis < axisCount;
-		++iAxis) {
-
-		if(axesToQuery_.at(iAxis) == AMGCS2::UnknownAxis) {
-			lastError_ = "Unknown axis specified";
-			return false;
-		}
-	}
-
-	return true;
 }
 
 

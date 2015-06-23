@@ -43,6 +43,7 @@ protected:
 	/*!
 	  * Ensures that the arguments passed to the command are valid:
 	  *  - Ensures that all axes in initialization list are not UnknownAxis.
+	  *  - Ensures no duplicates axes are specified.
 	  */
 	virtual bool validateArguments();
 

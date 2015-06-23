@@ -23,6 +23,11 @@ bool AMGCS2SetLowSoftLimitsCommand::validateArguments()
 		}
 	}
 
+	if(axisLowLimits_.count() > AXIS_COUNT) {
+		lastError_ = "Duplicate axes provided";
+		return false;
+	}
+
 	return true;
 }
 

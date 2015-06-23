@@ -25,6 +25,11 @@ bool AMGCS2ReferenceMoveCommand::validateArguments()
 		}
 	}
 
+	if(axesToReference_.count() > AXIS_COUNT) {
+		lastError_ = "Duplicate axes provided.";
+		return false;
+	}
+
 	return true;
 }
 

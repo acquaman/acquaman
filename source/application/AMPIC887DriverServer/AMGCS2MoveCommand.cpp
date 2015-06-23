@@ -20,6 +20,11 @@ bool AMGCS2MoveCommand::validateArguments()
 		return false;
 	}
 
+	if(axisPositions_.count() > AXIS_COUNT) {
+		lastError_ = "Duplicate axes provided";
+		return false;
+	}
+
 	return true;
 }
 

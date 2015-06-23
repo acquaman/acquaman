@@ -26,8 +26,10 @@ public:
 
 protected:
 	/*!
-	  * Validates the input arguments to the command. Ensures that the map of
-	  * axis positions provided to the command is not empty.
+	  * Validates the input arguments to the command.
+	  *  - Ensures that the map of axis positions provided to the command is not
+	  *    empty.
+	  *  - Ensures no duplicates axes are specified.
 	  */
 	virtual bool validateArguments();
 

@@ -42,6 +42,8 @@ protected:
 	/*!
 	  * Validates the commands input arguments. Specifically ensures that:
 	  *  - All axes specified in axesToQuery are known axes.
+	  *  - The number of axes provided is not greater than the total possible axes
+	  *    number.
 	  */
 	virtual bool validateArguments();
 

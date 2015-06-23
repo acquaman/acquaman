@@ -36,6 +36,11 @@ QString AMGCS2GetLowSoftLimitsCommand::outputString() const
 
 bool AMGCS2GetLowSoftLimitsCommand::validateArguments()
 {
+	if(axesToQuery_.count() > AXIS_COUNT) {
+		lastError_ = "Too many axes specified";
+		return false;
+	}
+
 	foreach(AMGCS2::Axis currentAxis, axesToQuery_) {
 		if(currentAxis == AMGCS2::UnknownAxis) {
 			lastError_ = "Cannot get soft low limits - Unknown axis provided";

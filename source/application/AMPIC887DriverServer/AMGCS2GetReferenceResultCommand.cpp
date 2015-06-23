@@ -43,6 +43,11 @@ QHash<AMGCS2::Axis, bool> AMGCS2GetReferenceResultCommand::axesReferenceResults(
 
 bool AMGCS2GetReferenceResultCommand::validateArguments()
 {
+	if(axes_.count() > AXIS_COUNT) {
+		lastError_ = "Too many axes specified";
+		return false;
+	}
+
 	foreach (AMGCS2::Axis currentAxis, axes_) {
 		if(currentAxis == AMGCS2::UnknownAxis) {
 			lastError_ = "Could not obtain reference status of unknown axis";

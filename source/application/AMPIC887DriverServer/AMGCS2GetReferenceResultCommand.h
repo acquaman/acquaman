@@ -45,6 +45,8 @@ protected:
 	  * Ensures that the arugments passed to the command are valid:
 	  *  - Ensures that all the axes the command was initialized with are not the
 	  *    UnknownAxis.
+	  *  - The number of axes provided is not greater than the total possible axes
+	  *    number.
 	  */
 	virtual bool validateArguments();
 

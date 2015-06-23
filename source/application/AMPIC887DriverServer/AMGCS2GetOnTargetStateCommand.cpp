@@ -41,6 +41,11 @@ QHash<AMGCS2::Axis, bool> AMGCS2GetOnTargetStateCommand::onTargetStates() const
 
 bool AMGCS2GetOnTargetStateCommand::validateArguments()
 {
+	if(axesToQuery_.count() > AXIS_COUNT) {
+		lastError_ = "Too many axes specified";
+		return false;
+	}
+
 	foreach(AMGCS2::Axis currentAxis, onTargetStates_.keys()) {
 
 		if(currentAxis == AMGCS2::UnknownAxis) {

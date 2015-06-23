@@ -39,6 +39,11 @@ QHash<AMGCS2::Axis, bool> AMGCS2GetLimitSwitchStatusCommand::limitSwitchStatuses
 
 bool AMGCS2GetLimitSwitchStatusCommand::validateArguments()
 {
+	if(axesToQuery_.count() > AXIS_COUNT) {
+		lastError_ = "Too many axes specified";
+		return false;
+	}
+
 	foreach(AMGCS2::Axis currentAxis, axesToQuery_) {
 		if(currentAxis == AMGCS2::UnknownAxis) {
 			lastError_ = "Cannot get limit switch status of unknown axis";

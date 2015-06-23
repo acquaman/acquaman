@@ -33,6 +33,7 @@ protected:
 	  *  - Ensures that the provided axis/position mapping is not empty
 	  *  - Ensures than none of the axes in the axis/position mapping are the
 	  *    UnknownAxis
+	  *  - Ensures no duplicates axes are specified.
 	  */
 	virtual bool validateArguments();
 

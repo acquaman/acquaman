@@ -46,6 +46,7 @@ QString AMPIC887ConsoleCommandParser::commandList()
 	commandList.append("RDY? : Queries the ready status of the controller.\n");
 	commandList.append("SCT <value> : Sets the cycle time for running a defined motion profile.\n");
 	commandList.append("SCT? : Queries the cycle time for running a defined motion profile.\n");
+	commandList.append("SPI? <axis1> <axis2> ... : Queries the current pivot point of rotation. Only X,Y and Z axes can be queried. If no axes are provided all valid axes are queried.\n");
 	commandList.append("STP : Performs an emergency stop of all axes.\n");
 
 	return commandList;

@@ -37,6 +37,7 @@
 #include "AMGCS2GetPositionUnitsCommand.h"
 #include "AMGCS2SetCycleTimeCommand.h"
 #include "AMGCS2GetCycleTimeCommand.h"
+#include "AMGCS2GetPivotPointCommand.h"
 
 AMGCS2Command * AMGCS2CommandFactory::buildCommand(const QString &commandString)
 {
@@ -100,6 +101,8 @@ AMGCS2Command * AMGCS2CommandFactory::buildCommand(const QString &commandString)
 		return new AMGCS2GetCycleTimeCommand();
 	} else if(commandString.startsWith("SCT")) {
 		return buildSetCycleTimeCommand(commandArguments(commandString));
+	} else if(commandString.startsWith("SPI?")) {
+		return new AMGCS2GetPivotPointCommand(axesFromCommandString(commandString));
 	}
 
 	return 0;
@@ -107,7 +110,7 @@ AMGCS2Command * AMGCS2CommandFactory::buildCommand(const QString &commandString)
 
 QStringList AMGCS2CommandFactory::commandArguments(const QString& commandString)
 {
-	QStringList argumentsList = commandString.split(" ");
+	QStringList argumentsList = commandString.trimmed().split(" ");
 	argumentsList.removeAt(0);
 	return argumentsList;
 }

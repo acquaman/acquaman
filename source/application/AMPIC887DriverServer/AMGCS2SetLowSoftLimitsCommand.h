@@ -30,6 +30,7 @@ protected:
 	  * with:
 	  *  - Ensures that none of the axes in the axisLowLimits map are the
 	  *    UnknownAxis.
+	  *  - Ensures no duplicates axes are specified.
 	  */
 	virtual bool validateArguments();
 
