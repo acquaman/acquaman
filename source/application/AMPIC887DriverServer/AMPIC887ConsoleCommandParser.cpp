@@ -48,6 +48,8 @@ QString AMPIC887ConsoleCommandParser::commandList()
 	commandList.append("SCT? : Queries the cycle time for running a defined motion profile.\n");
 	commandList.append("SPI <axis1> <position1> <axis2> <position2> ... : Sets the pivot point of rotation to the values provided. Only X, Y and Z axes can be specified.\n");
 	commandList.append("SPI? <axis1> <axis2> ... : Queries the current pivot point of rotation. Only X,Y and Z axes can be queried. If no axes are provided all valid axes are queried.\n");
+	commandList.append("SSL? <axis1> <true/false> <axis2> <true/false> ... : Sets the active status of the soft limits to the provided values (true = active, false = inactive).\n");
+	commandList.append("SSL? <axis1> <axis2> ... : Queries the active status of the soft limits on the provided axes. If no axes are provided the soft limit statuses of all axes are provided.\n");
 	commandList.append("STP : Performs an emergency stop of all axes.\n");
 
 	return commandList;

@@ -112,6 +112,15 @@ protected:
 	  * parsed, 0 otherwise.
 	  */
 	static AMGCS2Command* buildSetCycleTimeCommand(const QStringList& argumentList);
+
+	/*!
+	  * Static helper method for parsing the set soft limit statuses command string
+	  * arguments.
+	  * \param argumentList ~ A list of the arguments provided to the command.
+	  * \returns An initialized AMGCS2SetSoftLimitStatusesCommand if the arguments
+	  * can be parsed, 0 otherwise.
+	  */
+	static AMGCS2Command* buildSetSoftLimitStatusesCommand(const QStringList& argumentList);
 };
 
 #endif // AMGCS2COMMANDFACTORY_H

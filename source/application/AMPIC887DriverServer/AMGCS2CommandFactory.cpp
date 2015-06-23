@@ -38,6 +38,8 @@
 #include "AMGCS2GetCycleTimeCommand.h"
 #include "AMGCS2GetPivotPointCommand.h"
 #include "AMGCS2SetPivotPointCommand.h"
+#include "AMGCS2GetSoftLimitsStatusCommand.h"
+#include "AMGCS2SetSoftLimitsStatusCommand.h"
 
 AMGCS2Command * AMGCS2CommandFactory::buildCommand(const QString &commandString)
 {
@@ -105,6 +107,13 @@ AMGCS2Command * AMGCS2CommandFactory::buildCommand(const QString &commandString)
 		return new AMGCS2GetPivotPointCommand(axesFromCommandString(commandString));
 	} else if(commandString.startsWith("SPI")) {
 		return new AMGCS2SetPivotPointCommand(axesDoublePairFromCommandString(commandString));
+	} else if(commandString.startsWith("SSL?")) {
+		return new AMGCS2GetSoftLimitsStatusCommand(axesFromCommandString(commandString));
+	} else if(commandString.startsWith("SSL")) {
+		// The set soft limit command in the library doesn't work. Leaving this
+		// here for now in case further investigation turns up something.
+		//return buildSetSoftLimitStatusesCommand(commandArguments(commandString));
+		return 0;
 	}
 
 	return 0;
@@ -380,6 +389,47 @@ AMGCS2Command * AMGCS2CommandFactory::buildSetCycleTimeCommand(const QStringList
 	}
 
 	return new AMGCS2SetCycleTimeCommand(cycleTimeValue);
+}
+
+AMGCS2Command * AMGCS2CommandFactory::buildSetSoftLimitStatusesCommand(const QStringList &argumentList)
+{
+	QHash<AMGCS2::Axis, bool> axisValueMap;
+	int argumentCount = argumentList.count();
+
+	// Ensure argument list isn't empty and has arguments in groups of two.
+	if((argumentCount == 0) || (argumentCount % 2) != 0) {
+		return 0;
+	}
+
+	// Axis values are provided in pairs, and are not valid unless both are
+	// there. As such we iterate through two at a time.
+	for(int iAxis = 0, iValue = 1;
+		iAxis < argumentCount && iValue < argumentCount;
+		iAxis += 2, iValue += 2) {
+
+		QString axisString = argumentList.at(iAxis);
+		QString valueString = argumentList.at(iValue);
+
+		if(axisString.length() != 1) {
+			return 0;
+		}
+
+		AMGCS2::Axis axis = AMGCS2Support::characterToAxis(axisString.at(0));
+
+		bool activateSoftLimit;
+
+		if(valueString == "false") {
+			activateSoftLimit = false;
+		} else if(valueString == "true") {
+			activateSoftLimit = true;
+		} else {
+			return 0;
+		}
+
+		axisValueMap.insert(axis, activateSoftLimit);
+	}
+
+	return new AMGCS2SetSoftLimitsStatusCommand(axisValueMap);
 }
 
 
