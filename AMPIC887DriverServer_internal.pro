@@ -49,7 +49,8 @@ SOURCES *= \
     source/application/AMPIC887DriverServer/AMGCS2GetPivotPointCommand.cpp \
     source/application/AMPIC887DriverServer/AMGCS2SetPivotPointCommand.cpp \
     source/application/AMPIC887DriverServer/AMGCS2SetSoftLimitsStatusCommand.cpp \
-    source/application/AMPIC887DriverServer/AMGCS2GetSoftLimitsStatusCommand.cpp
+    source/application/AMPIC887DriverServer/AMGCS2GetSoftLimitsStatusCommand.cpp \
+    source/application/AMPIC887DriverServer/AMGCS2GetServoModeCommand.cpp
 
 HEADERS *= \
 	source/application/AMPIC887DriverServer/AMPIC887ControllerCollection.h \	
@@ -99,7 +100,8 @@ HEADERS *= \
     source/application/AMPIC887DriverServer/AMGCS2GetPivotPointCommand.h \
     source/application/AMPIC887DriverServer/AMGCS2SetPivotPointCommand.h \
     source/application/AMPIC887DriverServer/AMGCS2SetSoftLimitsStatusCommand.h \
-    source/application/AMPIC887DriverServer/AMGCS2GetSoftLimitsStatusCommand.h
+    source/application/AMPIC887DriverServer/AMGCS2GetSoftLimitsStatusCommand.h \
+    source/application/AMPIC887DriverServer/AMGCS2GetServoModeCommand.h
 
 # PI Controller Driver Dependencies
 
@@ -112,6 +114,8 @@ INCLUDEPATH *= $$PIC887_INCLUDE_DIR
 LIBS *= $$PIC887_LIB
 
 CONFIG -= mobility
+
+
 
 
 

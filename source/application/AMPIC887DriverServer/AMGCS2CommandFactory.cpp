@@ -40,6 +40,7 @@
 #include "AMGCS2SetPivotPointCommand.h"
 #include "AMGCS2GetSoftLimitsStatusCommand.h"
 #include "AMGCS2SetSoftLimitsStatusCommand.h"
+#include "AMGCS2GetServoModeCommand.h"
 
 AMGCS2Command * AMGCS2CommandFactory::buildCommand(const QString &commandString)
 {
@@ -114,6 +115,8 @@ AMGCS2Command * AMGCS2CommandFactory::buildCommand(const QString &commandString)
 		// here for now in case further investigation turns up something.
 		//return buildSetSoftLimitStatusesCommand(commandArguments(commandString));
 		return 0;
+	} else if(commandString.startsWith("SVO?")) {
+		return new AMGCS2GetServoModeCommand(axesFromCommandString(commandString));
 	}
 
 	return 0;
