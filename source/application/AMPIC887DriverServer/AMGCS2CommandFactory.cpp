@@ -1,5 +1,4 @@
 #include "AMGCS2CommandFactory.h"
-#include <QHash>
 #include <QStringList>
 
 #include "AMGCS2Support.h"
@@ -38,6 +37,7 @@
 #include "AMGCS2SetCycleTimeCommand.h"
 #include "AMGCS2GetCycleTimeCommand.h"
 #include "AMGCS2GetPivotPointCommand.h"
+#include "AMGCS2SetPivotPointCommand.h"
 
 AMGCS2Command * AMGCS2CommandFactory::buildCommand(const QString &commandString)
 {
@@ -52,7 +52,7 @@ AMGCS2Command * AMGCS2CommandFactory::buildCommand(const QString &commandString)
 	} else if(commandString.startsWith("MOV?")) {
 		return new AMGCS2GetTargetPositionCommand(axesFromCommandString(commandString));
 	} else if(commandString.startsWith("MOV")) {
-		return buildMoveCommand(commandArguments(commandString));
+		return new AMGCS2MoveCommand(axesDoublePairFromCommandString(commandString));
 	} else if(commandString.startsWith("RDY?")) {
 		return new AMGCS2GetControllerReadyStatusCommand();
 	} else if(commandString.startsWith("IDN?")) {
@@ -84,17 +84,17 @@ AMGCS2Command * AMGCS2CommandFactory::buildCommand(const QString &commandString)
 	} else if(commandString.startsWith("LIM?")) {
 		return new AMGCS2GetLimitSwitchStatusCommand(axesFromCommandString(commandString));
 	} else if(commandString.startsWith("MVR")) {
-		return buildMoveRelativeCommand(commandArguments(commandString));
+		return new AMGCS2MoveRelativeCommand(axesDoublePairFromCommandString(commandString));
 	} else if(commandString.startsWith("NLM?")) {
 		return new AMGCS2GetLowSoftLimitsCommand(axesFromCommandString(commandString));
 	} else if(commandString.startsWith("NLM")) {
-		return buildSetLowSoftLimitsCommand(commandArguments(commandString));
+		return new AMGCS2SetLowSoftLimitsCommand(axesDoublePairFromCommandString(commandString));
 	} else if(commandString.startsWith("ONT?")) {
 		return new AMGCS2GetOnTargetStateCommand(axesFromCommandString(commandString));
 	} else if(commandString.startsWith("PLM?")) {
 		return new AMGCS2GetHighSoftLimitsCommand(axesFromCommandString(commandString));
 	} else if(commandString.startsWith("PLM")) {
-		return buildSetHighSoftLimitsCommand(commandArguments(commandString));
+		return new AMGCS2SetHighSoftLimitsCommand(axesDoublePairFromCommandString(commandString));
 	} else if(commandString.startsWith("PUN?")) {
 		return new AMGCS2GetPositionUnitsCommand(axesFromCommandString(commandString));
 	} else if(commandString.startsWith("SCT?")) {
@@ -103,6 +103,8 @@ AMGCS2Command * AMGCS2CommandFactory::buildCommand(const QString &commandString)
 		return buildSetCycleTimeCommand(commandArguments(commandString));
 	} else if(commandString.startsWith("SPI?")) {
 		return new AMGCS2GetPivotPointCommand(axesFromCommandString(commandString));
+	} else if(commandString.startsWith("SPI")) {
+		return new AMGCS2SetPivotPointCommand(axesDoublePairFromCommandString(commandString));
 	}
 
 	return 0;
@@ -137,41 +139,46 @@ QList<AMGCS2::Axis> AMGCS2CommandFactory::axesFromCommandString(const QString &a
 	return axes;
 }
 
-AMGCS2Command * AMGCS2CommandFactory::buildMoveCommand(const QStringList &argumentList)
+QHash<AMGCS2::Axis, double> AMGCS2CommandFactory::axesDoublePairFromCommandString(const QString &arguments)
 {
-	QHash<AMGCS2::Axis, double> axisPositions;
+	QStringList argumentList = commandArguments(arguments);
+
+	QHash<AMGCS2::Axis, double> axisValueMap;
 	int argumentCount = argumentList.count();
 
 	// Ensure argument list isn't empty and has arguments in groups of two.
 	if((argumentCount == 0) || (argumentCount % 2) != 0) {
-		return 0;
+		return axisValueMap;
 	}
 
-	// Axis positions are provided in pairs, and are not valid unless both are
+	// Axis values are provided in pairs, and are not valid unless both are
 	// there. As such we iterate through two at a time.
-	for(int iAxis = 0, iPosition = 1;
-		iAxis < argumentCount && iPosition < argumentCount;
-		iAxis += 2, iPosition += 2) {
+	for(int iAxis = 0, iValue = 1;
+		iAxis < argumentCount && iValue < argumentCount;
+		iAxis += 2, iValue += 2) {
 
 		QString axisString = argumentList.at(iAxis);
-		QString positionString = argumentList.at(iPosition);
+		QString valueString = argumentList.at(iValue);
 
 		if(axisString.length() != 1) {
-			return 0;
+			axisValueMap.clear();
+			return axisValueMap;
 		}
 
 		AMGCS2::Axis axis = AMGCS2Support::characterToAxis(axisString.at(0));
 		bool parseSuccess = false;
-		double position = positionString.toDouble(&parseSuccess);
+		double parsedValue = valueString.toDouble(&parseSuccess);
 
 		if(!parseSuccess) {
-			return 0;
+			// If parse fails we have to return an empty map
+			axisValueMap.clear();
+			return axisValueMap;
 		}
 
-		axisPositions.insert(axis, position);
+		axisValueMap.insert(axis, parsedValue);
 	}
 
-	return new AMGCS2MoveCommand(axisPositions);
+	return axisValueMap;
 }
 
 AMGCS2Command * AMGCS2CommandFactory::buildSetCommandLevelCommand(const QStringList &argumentList)
@@ -359,117 +366,6 @@ AMGCS2Command * AMGCS2CommandFactory::buildGetRecordTriggerSourceCommand(const Q
 	return new AMGCS2GetRecordTriggerSourceCommand(recordTableIds);
 }
 
-AMGCS2Command * AMGCS2CommandFactory::buildMoveRelativeCommand(const QStringList &argumentList)
-{
-	QHash<AMGCS2::Axis, double> axisPositions;
-	int argumentCount = argumentList.count();
-
-	// Ensure argument list isn't empty and has arguments in groups of two.
-	if((argumentCount == 0) || (argumentCount % 2) != 0) {
-		return 0;
-	}
-
-	// Axis positions are provided in pairs, and are not valid unless both are
-	// there. As such we iterate through two at a time.
-	for(int iAxis = 0, iPosition = 1;
-		iAxis < argumentCount && iPosition < argumentCount;
-		iAxis += 2, iPosition += 2) {
-
-		QString axisString = argumentList.at(iAxis);
-		QString positionString = argumentList.at(iPosition);
-
-		if(axisString.length() != 1) {
-			return 0;
-		}
-
-		AMGCS2::Axis axis = AMGCS2Support::characterToAxis(axisString.at(0));
-		bool parseSuccess = false;
-		double position = positionString.toDouble(&parseSuccess);
-
-		if(!parseSuccess) {
-			return 0;
-		}
-
-		axisPositions.insert(axis, position);
-	}
-
-	return new AMGCS2MoveRelativeCommand(axisPositions);
-}
-
-AMGCS2Command * AMGCS2CommandFactory::buildSetLowSoftLimitsCommand(const QStringList &argumentList)
-{
-	QHash<AMGCS2::Axis, double> axisPositions;
-	int argumentCount = argumentList.count();
-
-	// Ensure argument list isn't empty and has arguments in groups of two.
-	if((argumentCount == 0) || (argumentCount % 2) != 0) {
-		return 0;
-	}
-
-	// Axis limits are provided in pairs, and are not valid unless both are
-	// there. As such we iterate through two at a time.
-	for(int iAxis = 0, iPosition = 1;
-		iAxis < argumentCount && iPosition < argumentCount;
-		iAxis += 2, iPosition += 2) {
-
-		QString axisString = argumentList.at(iAxis);
-		QString positionString = argumentList.at(iPosition);
-
-		if(axisString.length() != 1) {
-			return 0;
-		}
-
-		AMGCS2::Axis axis = AMGCS2Support::characterToAxis(axisString.at(0));
-		bool parseSuccess = false;
-		double position = positionString.toDouble(&parseSuccess);
-
-		if(!parseSuccess) {
-			return 0;
-		}
-
-		axisPositions.insert(axis, position);
-	}
-
-	return new AMGCS2SetLowSoftLimitsCommand(axisPositions);
-}
-
-AMGCS2Command * AMGCS2CommandFactory::buildSetHighSoftLimitsCommand(const QStringList &argumentList)
-{
-	QHash<AMGCS2::Axis, double> axisPositions;
-	int argumentCount = argumentList.count();
-
-	// Ensure argument list isn't empty and has arguments in groups of two.
-	if((argumentCount == 0) || (argumentCount % 2) != 0) {
-		return 0;
-	}
-
-	// Axis limits are provided in pairs, and are not valid unless both are
-	// there. As such we iterate through two at a time.
-	for(int iAxis = 0, iPosition = 1;
-		iAxis < argumentCount && iPosition < argumentCount;
-		iAxis += 2, iPosition += 2) {
-
-		QString axisString = argumentList.at(iAxis);
-		QString positionString = argumentList.at(iPosition);
-
-		if(axisString.length() != 1) {
-			return 0;
-		}
-
-		AMGCS2::Axis axis = AMGCS2Support::characterToAxis(axisString.at(0));
-		bool parseSuccess = false;
-		double position = positionString.toDouble(&parseSuccess);
-
-		if(!parseSuccess) {
-			return 0;
-		}
-
-		axisPositions.insert(axis, position);
-	}
-
-	return new AMGCS2SetHighSoftLimitsCommand(axisPositions);
-}
-
 AMGCS2Command * AMGCS2CommandFactory::buildSetCycleTimeCommand(const QStringList &argumentList)
 {
 	if(argumentList.length() != 1) {
@@ -485,6 +381,7 @@ AMGCS2Command * AMGCS2CommandFactory::buildSetCycleTimeCommand(const QStringList
 
 	return new AMGCS2SetCycleTimeCommand(cycleTimeValue);
 }
+
 
 
 

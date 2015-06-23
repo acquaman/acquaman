@@ -46,7 +46,8 @@ SOURCES *= \
     source/application/AMPIC887DriverServer/AMGCS2GetPositionUnitsCommand.cpp \
     source/application/AMPIC887DriverServer/AMGCS2SetCycleTimeCommand.cpp \
     source/application/AMPIC887DriverServer/AMGCS2GetCycleTimeCommand.cpp \
-    source/application/AMPIC887DriverServer/AMGCS2GetPivotPointCommand.cpp
+    source/application/AMPIC887DriverServer/AMGCS2GetPivotPointCommand.cpp \
+    source/application/AMPIC887DriverServer/AMGCS2SetPivotPointCommand.cpp
 
 HEADERS *= \
 	source/application/AMPIC887DriverServer/AMPIC887ControllerCollection.h \	
@@ -93,7 +94,8 @@ HEADERS *= \
     source/application/AMPIC887DriverServer/AMGCS2GetPositionUnitsCommand.h \
     source/application/AMPIC887DriverServer/AMGCS2SetCycleTimeCommand.h \
     source/application/AMPIC887DriverServer/AMGCS2GetCycleTimeCommand.h \
-    source/application/AMPIC887DriverServer/AMGCS2GetPivotPointCommand.h
+    source/application/AMPIC887DriverServer/AMGCS2GetPivotPointCommand.h \
+    source/application/AMPIC887DriverServer/AMGCS2SetPivotPointCommand.h
 
 # PI Controller Driver Dependencies
 
@@ -106,6 +108,8 @@ INCLUDEPATH *= $$PIC887_INCLUDE_DIR
 LIBS *= $$PIC887_LIB
 
 CONFIG -= mobility
+
+
 
 
 

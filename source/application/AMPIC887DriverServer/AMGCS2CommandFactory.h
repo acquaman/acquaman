@@ -5,6 +5,7 @@
 
 #include "AMGCS2Command.h"
 #include "AMGCS2.h"
+#include <QHash>
 /*!
   * Factory class which constructs AMGCS2Commands from the provided input command
   * string.
@@ -43,12 +44,13 @@ protected:
 	static QList<AMGCS2::Axis> axesFromCommandString(const QString& axisArguments);
 
 	/*!
-	  * Static helper method for parsing move command strings.
-	  * \param argumentList ~ A list of the arguments provided to the command.
-	  * \returns An initialized AMGCS2MoveCommand if the arguments could be parsed,
-	  * 0 otherwise.
+	  * Helper method for converting a command arguments into a mapping of axis
+	  * to double value. Assumes that the arguments are provided as:
+	  *    axis1 value1 axis2 value2 ... axisN valueN
+	  * \param arguments ~ The QString argument to be converted to a mapping of
+	  * axis to value.
 	  */
-	static AMGCS2Command* buildMoveCommand(const QStringList& argumentList);
+	static QHash<AMGCS2::Axis, double> axesDoublePairFromCommandString(const QString& arguments);
 
 	/*!
 	  * Static helper method for parsing the set command level command string.
@@ -102,32 +104,6 @@ protected:
 	  * can be parsed, 0 otherwise.
 	  */
 	static AMGCS2Command* buildGetRecordTriggerSourceCommand(const QStringList& argumentList);
-
-	/*!
-	  * Static helper method for parsing the move relative command string arguments.
-	  * \param argumentList ~ A list of the arguments provided to the command.
-	  * \returns An initialized AMGCS2MoveRelativeCommand if the arguments can be
-	  * parsed, 0 otherwise.
-	  */
-	static AMGCS2Command* buildMoveRelativeCommand(const QStringList& argumentList);
-
-	/*!
-	  * Static helper method for parsing the set lower soft limits command string
-	  * arguments.
-	  * \param argumentList ~ A list of the arguments provided to the command.
-	  * \returns An initialized AMGCS2SetLowSoftLimitsCommand if the arguments can
-	  * be parsed, 0 otherwise.
-	  */
-	static AMGCS2Command* buildSetLowSoftLimitsCommand(const QStringList& argumentList);
-
-	/*!
-	  * Static helper method for parsing the set  soft high limits command string
-	  * arguments.
-	  * \param argumentList ~ A list of the arguments provided to the command.
-	  * \returns An initialized AMGCS2SetHighSoftLimitsCommand if the arguments can
-	  * be parsed, 0 otherwise.
-	  */
-	static AMGCS2Command* buildSetHighSoftLimitsCommand(const QStringList& argumentList);
 
 	/*!
 	  * Static helper method for parsing the set cycle time command string arguments.
