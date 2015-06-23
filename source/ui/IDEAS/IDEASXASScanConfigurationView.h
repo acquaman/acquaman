@@ -99,7 +99,8 @@ protected:
 
 	QLineEdit *scanName_;
 
-	QLabel *detectorSettings_;
+	/// Label for peaking value sent from the detector
+	QLabel *peakingSetting_;
 
 
 	/// Double spin box for changing the energy.

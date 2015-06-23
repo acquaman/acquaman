@@ -111,7 +111,7 @@ IDEASXASScanConfigurationView::IDEASXASScanConfigurationView(IDEASXASScanConfigu
 	pointPerScan_ = new QLabel;
 	scanEnergyRange_ = new QLabel;
 	ROIsLabel_ = new QLabel;
-	detectorSettings_ = new QLabel;
+	peakingSetting_ = new QLabel;
 
 	connect(configuration_, SIGNAL(totalTimeChanged(double)), this, SLOT(onEstimatedTimeChanged()));
 	connect(configuration_, SIGNAL(scanAxisAdded(AMScanAxis*)), this, SLOT(onEstimatedTimeChanged()));
@@ -141,7 +141,7 @@ IDEASXASScanConfigurationView::IDEASXASScanConfigurationView(IDEASXASScanConfigu
 	numberOfScansLayout->addRow("Scan energy range:", scanEnergyRange_);
 	numberOfScansLayout->addRow("Selected XRF Detector Regions:", new QLabel(""));
 	numberOfScansLayout->addRow("", ROIsLabel_);
-	numberOfScansLayout->addRow("Detector Settings: ", detectorSettings_);
+	numberOfScansLayout->addRow("Peaking Settings: ", peakingSetting_);
 
 	QFormLayout *energySetpointLayout = new QFormLayout;
 	energySetpointLayout->addRow("Energy:", energy_);
@@ -425,12 +425,12 @@ void IDEASXASScanConfigurationView::onPeakingTimeChanged(double value)
 {
 
 	if (value == 0.3)
-	    detectorSettings_->setText("High Rate / Low Resolution");
+	    peakingSetting_->setText("High Rate / Low Resolution");
 	else if (value == 2.0)
-	    detectorSettings_->setText("High Resolution / Low Rate");
+	    peakingSetting_->setText("High Resolution / Low Rate");
 	else if (value == 4.0)
-	    detectorSettings_->setText("Ultra Resolution / Slow Rate");
+	    peakingSetting_->setText("Ultra Resolution / Slow Rate");
 	else
-	    detectorSettings_->setText("High Rate / Low Resolution");
+	    peakingSetting_->setText("High Rate / Low Resolution");
 
 }

@@ -53,8 +53,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/IDEAS/IDEASPersistentView.h"
 #include "ui/IDEAS/IDEASXASScanConfigurationView.h"
 #include "ui/IDEAS/IDEASXRFDetailedDetectorViewWithSave.h"
-#include "beamline/IDEAS/KetekDetailedDetectorView.h"
-#include "beamline/IDEAS/g13ElementDetailedDetectorView.h"
+#include "beamline/IDEAS/IDEASKETEKDetailedDetectorView.h"
+#include "beamline/IDEAS/IDEAS13ElementGeDetailedDetectorView.h"
 #include "ui/IDEAS/IDEASSampleCameraPanel.h"
 
 IDEASAppController::IDEASAppController(QObject *parent)
@@ -160,7 +160,7 @@ void IDEASAppController::setupUserInterface()
 
 	mw_->insertHeading("XRF Detectors", 1);
 
-	KetekDetailedDetectorView *ideasKETEKDetailedDetectorViewWithSave_ = new KetekDetailedDetectorView(IDEASBeamline::ideas()->ketek());
+	IDEASKETEKDetailedDetectorView *ideasKETEKDetailedDetectorViewWithSave_ = new IDEASKETEKDetailedDetectorView(IDEASBeamline::ideas()->ketek());
 	ideasKETEKDetailedDetectorViewWithSave_->buildDetectorView();
 	ideasKETEKDetailedDetectorViewWithSave_->setEnergyRange(1000, 20480);
 	ideasKETEKDetailedDetectorViewWithSave_->addEmissionLineNameFilter(QRegExp("1"));
@@ -168,7 +168,7 @@ void IDEASAppController::setupUserInterface()
 	ideasKETEKDetailedDetectorViewWithSave_->addCombinationPileUpPeakNameFilter(QRegExp("(Ka1|La1|Ma1)"));
 	mw_->addPane(ideasKETEKDetailedDetectorViewWithSave_, "XRF Detectors", "KETEK", ":/system-search.png");
 
-	g13ElementDetailedDetectorView *ideas13ElementGeDetailedDetectorViewWithSave_ = new g13ElementDetailedDetectorView(IDEASBeamline::ideas()->ge13Element());
+	IDEAS13ElementGeDetailedDetectorView *ideas13ElementGeDetailedDetectorViewWithSave_ = new IDEAS13ElementGeDetailedDetectorView(IDEASBeamline::ideas()->ge13Element());
 	ideas13ElementGeDetailedDetectorViewWithSave_->buildDetectorView();
 	ideas13ElementGeDetailedDetectorViewWithSave_->setEnergyRange(1000, 20480);
 	ideas13ElementGeDetailedDetectorViewWithSave_->addEmissionLineNameFilter(QRegExp("1"));

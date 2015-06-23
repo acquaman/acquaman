@@ -88,13 +88,6 @@ public:
 	AMControl *monoAngleOffset() const { return monoAngleOffset_; }
 
 
-	//AMControl *ketekPeakingTime() const { return ketekPeakingTime_; }
-	//AMControl *ketekTriggerLevel() const { return ketekTriggerLevel_; }
-	//AMControl *ketekBaselineThreshold() const { return ketekBaselineThreshold_; }
-	//AMControl *ketekPreampGain() const { return ketekPreampGain_; }
-
-
-
 	/// Returns JJ Slits
 	AMControl *jjSlitHGap() const { return jjSlitHGap_ ; }
 	AMControl *jjSlitHCenter() const { return jjSlitHCenter_; }
@@ -204,17 +197,6 @@ protected:
 
 	/// Control for the mode of the IDEAS Ammeter Group
 	AMPVControl *ammeterGroupMode_;
-
-	//AMReadOnlyPVControl *ketekRealTimeControl_;
-	//AMReadOnlyPVControl *ge13ElementRealTimeControl_;
-
-	//AMControl *ketekPeakingTime_;
-	//AMControl *ketekTriggerLevel_;
-	//AMControl *ketekBaselineThreshold_;
-	//AMControl *ketekPreampGain_;
-
-	//AMDetector *ketekRealTime_;
-	//AMDetector *ge13ElementRealTime_;
 
 	CLSBasicScalerChannelDetector *I0IonChamberScaler_;
 	CLSBasicScalerChannelDetector *SampleIonChamberScaler_;

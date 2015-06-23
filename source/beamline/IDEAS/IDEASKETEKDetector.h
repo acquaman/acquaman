@@ -70,7 +70,9 @@ public:
     /// The KETEK detectors support elapsed time.
     virtual bool supportsElapsedTime() const { return true; }
 
+    /// Returns AMPVControl for peaking time
     double peakingTime() const { return peakingTimeControl_->value(); }
+    /// Returns AMPVControl for preamp gain
     double preampGain() const  { return preampGainControl_->value(); }
 
     AMControl *triggerLevel() const { return ketekTriggerLevel_; }
@@ -90,8 +92,9 @@ public slots:
         /// Vortex detectors do not support clearing
         virtual bool clear() { return false; }
 
+    /// Sets the peaking time on the detector through peakingTimeControl
     void setPeakingTime(double time);
-
+    /// Sets the peaking time on the detector through preampGainControl
     void setPreampGain(double value);
 
 
