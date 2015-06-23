@@ -413,34 +413,45 @@ void AMGithubProjectManagerMainView::onGetOneIssueCommentsReturned(QVariant full
 		QWidget *bioXASSideWidget = new QWidget();
 		QVBoxLayout *bioXASSideVL = new QVBoxLayout();
 
-		QList<AMGitHubIssueFamily*> workingIssueFamilies = bioxasSideMilestone->associatedFamilies();
+//		QList<AMGitHubIssueFamily*> workingIssueFamilies = bioxasSideMilestone->associatedFamilies();
+		QList<AMGitHubIssueFamily*> workingIssueFamilies;
+		QMap<int, AMGitHubIssueFamily*>::const_iterator rr = allIssueFamilies_.constBegin();
+		while(rr != allIssueFamilies_.constEnd()){
+			qDebug() << "Adding " << rr.value()->originatingIssueNumber() << "as" << workingIssueFamilies.count();
+			workingIssueFamilies.append(rr.value());
+			rr++;
+		}
 
-//		qDebug() << "This milestone has " << bioxasSideMilestone->associatedFamilies().count() << " associated issue families";
-		for(int x = 0, size = bioxasSideMilestone->associatedFamilies().count(); x < size; x++){
-			AMGitHubIssueFamilyView *oneFamilyView = new AMGitHubIssueFamilyView(bioxasSideMilestone->associatedFamilies().at(x));
-			bioXASSideVL->addWidget(oneFamilyView);
+//		for(int x = 0, size = bioxasSideMilestone->associatedFamilies().count(); x < size; x++){
+		for(int x = 0, size = workingIssueFamilies.count(); x < size; x++){
+//			AMGitHubIssueFamilyView *oneFamilyView = new AMGitHubIssueFamilyView(bioxasSideMilestone->associatedFamilies().at(x));
+//			AMGitHubIssueFamilyView *oneFamilyView = new AMGitHubIssueFamilyView(workingIssueFamilies.at(x));
+//			bioXASSideVL->addWidget(oneFamilyView);
 
-			qDebug() << "Issue " << bioxasSideMilestone->associatedFamilies().at(x)->originatingIssueNumber() << " created at " << bioxasSideMilestone->associatedFamilies().at(x)->originatingIssue()->createdDate() << " and closed at " << bioxasSideMilestone->associatedFamilies().at(x)->originatingIssue()->closedDate();
+//			qDebug() << "Issue " << bioxasSideMilestone->associatedFamilies().at(x)->originatingIssueNumber() << " created at " << bioxasSideMilestone->associatedFamilies().at(x)->originatingIssue()->createdDate() << " and closed at " << bioxasSideMilestone->associatedFamilies().at(x)->originatingIssue()->closedDate();
 
 //			qDebug() << "Family " << x << " orginates from " << bioxasSideMilestone->associatedFamilies().at(x)->originatingIssueNumber();
-			if(bioxasSideMilestone->associatedFamilies().at(x)->estimatedComplexity() != AMGitHubIssue::InvalidComplexity){
-				normalizedEstimatedList.append(complexityManager->probableTimeForEstimatedComplexity(bioxasSideMilestone->associatedFamilies().at(x)->estimatedComplexity()));
-				if(bioxasSideMilestone->associatedFamilies().at(x)->originatingIssue()->issueState() == AMGitHubIssue::OpenState)
-					normalizedOpenList.append(complexityManager->probableTimeForEstimatedComplexity(bioxasSideMilestone->associatedFamilies().at(x)->estimatedComplexity()));
+
+
+			qDebug() << "About to look into " << x << workingIssueFamilies.at(x)->originatingIssueNumber();
+			if(workingIssueFamilies.at(x)->estimatedComplexity() != AMGitHubIssue::InvalidComplexity){
+				normalizedEstimatedList.append(complexityManager->probableTimeForEstimatedComplexity(workingIssueFamilies.at(x)->estimatedComplexity()));
+				if(workingIssueFamilies.at(x)->originatingIssue()->issueState() == AMGitHubIssue::OpenState)
+					normalizedOpenList.append(complexityManager->probableTimeForEstimatedComplexity(workingIssueFamilies.at(x)->estimatedComplexity()));
 			}
-			if(bioxasSideMilestone->associatedFamilies().at(x)->actualComplexity() != AMGitHubIssue::InvalidComplexity){
-				normalizedCompletedList.append(complexityManager->probableTimeForEstimatedComplexity(bioxasSideMilestone->associatedFamilies().at(x)->actualComplexity()));
-				if(bioxasSideMilestone->associatedFamilies().at(x)->originatingIssue()->issueState() == AMGitHubIssue::ClosedState)
-					normalizedClosedList.append(complexityManager->probableTimeForEstimatedComplexity(bioxasSideMilestone->associatedFamilies().at(x)->actualComplexity()));
+			if(workingIssueFamilies.at(x)->actualComplexity() != AMGitHubIssue::InvalidComplexity){
+				normalizedCompletedList.append(complexityManager->probableTimeForEstimatedComplexity(workingIssueFamilies.at(x)->actualComplexity()));
+				if(workingIssueFamilies.at(x)->originatingIssue()->issueState() == AMGitHubIssue::ClosedState)
+					normalizedClosedList.append(complexityManager->probableTimeForEstimatedComplexity(workingIssueFamilies.at(x)->actualComplexity()));
 			}
-			if(bioxasSideMilestone->associatedFamilies().at(x)->normalizedTimeEstiamte() > 0){
-				normalizedValueList.append(bioxasSideMilestone->associatedFamilies().at(x)->normalizedTimeEstiamte());
+			if(workingIssueFamilies.at(x)->normalizedTimeEstiamte() > 0){
+				normalizedValueList.append(workingIssueFamilies.at(x)->normalizedTimeEstiamte());
 			}
 
-			if(bioxasSideMilestone->associatedFamilies().at(x)->originatingIssue()->isClosed())
-				normalizedCurrentList.append(complexityManager->probableTimeForEstimatedComplexity(bioxasSideMilestone->associatedFamilies().at(x)->actualComplexity()));
-			else if(bioxasSideMilestone->associatedFamilies().at(x)->originatingIssue()->isOpen())
-				normalizedCurrentList.append(complexityManager->probableTimeForEstimatedComplexity(bioxasSideMilestone->associatedFamilies().at(x)->estimatedComplexity()));
+			if(workingIssueFamilies.at(x)->originatingIssue()->isClosed())
+				normalizedCurrentList.append(complexityManager->probableTimeForEstimatedComplexity(workingIssueFamilies.at(x)->actualComplexity()));
+			else if(workingIssueFamilies.at(x)->originatingIssue()->isOpen())
+				normalizedCurrentList.append(complexityManager->probableTimeForEstimatedComplexity(workingIssueFamilies.at(x)->estimatedComplexity()));
 		}
 
 		bioXASSideWidget->setLayout(bioXASSideVL);
@@ -465,10 +476,10 @@ void AMGithubProjectManagerMainView::onGetOneIssueCommentsReturned(QVariant full
 
 		qDebug() << "\n\n\n\n";
 
-		qDebug() << "Normalized Estimated List: " << normalizedEstimatedList;
-		qDebug() << "Normalized Current List: " << normalizedCurrentList;
-		qDebug() << "Normalized Completed List: " << normalizedCompletedList;
-		qDebug() << "Normalized Value List: " << normalizedValueList;
+//		qDebug() << "Normalized Estimated List: " << normalizedEstimatedList;
+//		qDebug() << "Normalized Current List: " << normalizedCurrentList;
+//		qDebug() << "Normalized Completed List: " << normalizedCompletedList;
+//		qDebug() << "Normalized Value List: " << normalizedValueList;
 
 		qDebug() << "Normalized Estimated Total: " << normalizedEstimated;
 		qDebug() << "Normalized Current Total: " << normalizedCurrent;
@@ -476,8 +487,8 @@ void AMGithubProjectManagerMainView::onGetOneIssueCommentsReturned(QVariant full
 		qDebug() << "Normalized Value Total: " << normalizedValue;
 
 		qDebug() << "\n\n";
-		qDebug() << "Normalized Open List: " << normalizedOpenList;
-		qDebug() << "Normalized Closed List: " << normalizedClosedList;
+//		qDebug() << "Normalized Open List: " << normalizedOpenList;
+//		qDebug() << "Normalized Closed List: " << normalizedClosedList;
 
 		qDebug() << "Normalized Open Total: " << normalizedOpen;
 		qDebug() << "Normalized Closed Total: " << normalizedClosed;
@@ -510,7 +521,8 @@ void AMGithubProjectManagerMainView::onGetOneIssueCommentsReturned(QVariant full
 		allComplexityMappedCompetedWorkTotals.append(0);
 		allReportedCompetedWorkTotals.append(0);
 
-		for(int x = 0, size = 10; x < size; x++){
+//		for(int x = 0, size = 10; x < size; x++){
+		for(int x = 0, size = 12; x < size; x++){
 			oneDateTime = oneDateTime.addDays(-7);
 			dateList.append(oneDateTime);
 			allOutstandingEstimatesLists.append(QList<double>());
@@ -527,14 +539,15 @@ void AMGithubProjectManagerMainView::onGetOneIssueCommentsReturned(QVariant full
 		}
 
 
-		for(int x = 0, xSize = bioxasSideMilestone->associatedFamilies().count(); x < xSize; x++){
+//		for(int x = 0, xSize = bioxasSideMilestone->associatedFamilies().count(); x < xSize; x++){
+		for(int x = 0, xSize = workingIssueFamilies.count(); x < xSize; x++){
 			for(int y = 0, ySize = dateList.count(); y < ySize; y++){
-				allOutstandingEstimatesLists[y].append(complexityManager->outstandingEstimateAtDate(bioxasSideMilestone->associatedFamilies().at(x), dateList.at(y)));
-				allCompletedEstimatesLists[y].append(complexityManager->completedEstimateAtDate(bioxasSideMilestone->associatedFamilies().at(x), dateList.at(y)));
-				allWithdrawnEstimatesLists[y].append(complexityManager->withdrawnEstimateAtDate(bioxasSideMilestone->associatedFamilies().at(x), dateList.at(y)));
+				allOutstandingEstimatesLists[y].append(complexityManager->outstandingEstimateAtDate(workingIssueFamilies.at(x), dateList.at(y)));
+				allCompletedEstimatesLists[y].append(complexityManager->completedEstimateAtDate(workingIssueFamilies.at(x), dateList.at(y)));
+				allWithdrawnEstimatesLists[y].append(complexityManager->withdrawnEstimateAtDate(workingIssueFamilies.at(x), dateList.at(y)));
 
-				allComplexityMappedCompetedWorkLists[y].append(complexityManager->complexityMappedCompletedWorkAtDate(bioxasSideMilestone->associatedFamilies().at(x), dateList.at(y)));
-				allReportedCompetedWorkLists[y].append(complexityManager->reportedCompletedWorkAtDate(bioxasSideMilestone->associatedFamilies().at(x), dateList.at(y)));
+				allComplexityMappedCompetedWorkLists[y].append(complexityManager->complexityMappedCompletedWorkAtDate(workingIssueFamilies.at(x), dateList.at(y)));
+				allReportedCompetedWorkLists[y].append(complexityManager->reportedCompletedWorkAtDate(workingIssueFamilies.at(x), dateList.at(y)));
 			}
 		}
 
@@ -578,32 +591,34 @@ void AMGithubProjectManagerMainView::onGetOneIssueCommentsReturned(QVariant full
 		double averageCalendarEstimatedVelocity  = averageEstimatedVelocityTotal/(dateList.count()-1);
 		double averageCalendarComplexityMappedVelocity = averageComplexityMappedVelocityTotal/(dateList.count()-1);
 		double averageCalendarReportedVelocity = averageReportedVelocityTotal/(dateList.count()-1);
-		double availablePersonWeeks = 16;
+		double availablePersonWeeks = 48-(3+2+2+4); //10 weeks, 4 full time people, Sheldon away for 3 weeks vacation, Sheldon half time for one month, Darren gone for 2 weeks, Iain didn't start until May
+//		double availablePersonWeeks = 16;
 		double averageAvailabilityEstimatedVelocity = averageEstimatedVelocityTotal/availablePersonWeeks;
 		double averageAvailabilityComplexityMappedVelocity = averageComplexityMappedVelocityTotal/availablePersonWeeks;
 		double averageAvailabilityReportedVelocity = averageReportedVelocityTotal/availablePersonWeeks;
 
-		for(int x = 0, xSize = dateList.count(); x < xSize; x++){
-			qDebug() << "At date: " << dateList.at(x);
-			qDebug() << "Outstanding Estimate List: " << allOutstandingEstimatesLists.at(x);
-			qDebug() << "Completed Estimate List: " << allCompletedEstimatesLists.at(x);
-			qDebug() << "Withdrawn Estimate List: " << allWithdrawnEstimatesLists.at(x);
-			qDebug() << "Outstanding Estimate Total: " << allOutstandingEstimatesTotals.at(x);
-			qDebug() << "Completed Estimate Total: " << allCompletedEstimatesTotals.at(x);
-			qDebug() << "Withdrawn Estimate Total: " << allWithdrawnEstimatesTotals.at(x);
+//		for(int x = 0, xSize = dateList.count(); x < xSize; x++){
+//			qDebug() << "At date: " << dateList.at(x);
+//			qDebug() << "Outstanding Estimate List: " << allOutstandingEstimatesLists.at(x);
+//			qDebug() << "Completed Estimate List: " << allCompletedEstimatesLists.at(x);
+//			qDebug() << "Withdrawn Estimate List: " << allWithdrawnEstimatesLists.at(x);
+//			qDebug() << "Outstanding Estimate Total: " << allOutstandingEstimatesTotals.at(x);
+//			qDebug() << "Completed Estimate Total: " << allCompletedEstimatesTotals.at(x);
+//			qDebug() << "Withdrawn Estimate Total: " << allWithdrawnEstimatesTotals.at(x);
 
-			qDebug() << "Complexity Mapped Completed Work List: " << allComplexityMappedCompetedWorkLists.at(x);
-			qDebug() << "Reported Completed Work List: " << allReportedCompetedWorkLists.at(x);
-			qDebug() << "Complexity Mapped Completed Work Total: " << allComplexityMappedCompetedWorkTotals.at(x);
-			qDebug() << "Reported Completed Work Total: " << allReportedCompetedWorkTotals.at(x);
+//			qDebug() << "Complexity Mapped Completed Work List: " << allComplexityMappedCompetedWorkLists.at(x);
+//			qDebug() << "Reported Completed Work List: " << allReportedCompetedWorkLists.at(x);
+//			qDebug() << "Complexity Mapped Completed Work Total: " << allComplexityMappedCompetedWorkTotals.at(x);
+//			qDebug() << "Reported Completed Work Total: " << allReportedCompetedWorkTotals.at(x);
 
-			qDebug() << "\n\n";
-		}
+//			qDebug() << "\n\n";
+//		}
 
-		qDebug() << "Weekly Estimated Velocities: " << weeklyEstimatedVelocity;
-		qDebug() << "Weekly Complexity Mapped Velocities: " << weeklyComplexityMappedVelocity;
-		qDebug() << "Weekly Reported Velocities: " << weeklyReportedVelocity;
+//		qDebug() << "Weekly Estimated Velocities: " << weeklyEstimatedVelocity;
+//		qDebug() << "Weekly Complexity Mapped Velocities: " << weeklyComplexityMappedVelocity;
+//		qDebug() << "Weekly Reported Velocities: " << weeklyReportedVelocity;
 
+		qDebug() << "\n\n";
 		qDebug() << "Average Estimated Velocity: " << averageCalendarEstimatedVelocity << "or" << averageAvailabilityEstimatedVelocity;
 		qDebug() << "Average Complexity Mapped Velocity: " << averageCalendarComplexityMappedVelocity << "or" << averageAvailabilityComplexityMappedVelocity;
 		qDebug() << "Average Reported Velocity: " << averageCalendarReportedVelocity << "or" << averageAvailabilityReportedVelocity;
@@ -656,9 +671,11 @@ void AMGithubProjectManagerMainView::onGetOneIssueCommentsReturned(QVariant full
 		MPlotRectangle *oneComplexityMappedCompletedWorkRectangle;
 		MPlotRectangle *oneReportedCompletedWorkRectangle;
 
+		qDebug() << "\n\n";
 		for(int x = 0, size = dateList.count(); x < size; x++){
 			qreal xpos = (dateList.count()-x)*4;
-			qDebug() << "Place index " << x << "at" << xpos << "with outstanding" << allOutstandingEstimatesTotals.at(x) << "and completed" << allCompletedEstimatesTotals.at(x) << "and withdrawn" << allWithdrawnEstimatesTotals.at(x)
+//			qDebug() << "Place index " << x << "at" << xpos << "with outstanding" << allOutstandingEstimatesTotals.at(x) << "and completed" << allCompletedEstimatesTotals.at(x) << "and withdrawn" << allWithdrawnEstimatesTotals.at(x)
+			qDebug() << "Date " << dateList.at(x) << "with outstanding" << allOutstandingEstimatesTotals.at(x) << "and completed" << allCompletedEstimatesTotals.at(x) << "and withdrawn" << allWithdrawnEstimatesTotals.at(x)
 				 << "and complexity mapped completed" << allComplexityMappedCompetedWorkTotals.at(x) << "and reported completed" << allReportedCompetedWorkTotals.at(x);
 
 			oneOutstandingEstimateRectangle = new MPlotRectangle(QRectF(xpos, 0, 1, allOutstandingEstimatesTotals.at(x)), Qt::NoPen, QBrush(Qt::red));
