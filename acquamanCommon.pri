@@ -3,7 +3,7 @@
 # ####################################################################
 
 # Video Support: Remove this line if you do not have the multimedia module from QtMobility
-CONFIG *= mobility
+#CONFIG *= mobility
 
 include ( $$PATH_TO_AM/compositeCommon/AMCommon.pri )
 

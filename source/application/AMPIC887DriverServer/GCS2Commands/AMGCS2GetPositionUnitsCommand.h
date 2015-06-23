@@ -1,0 +1,61 @@
+#ifndef AMGCS2GETPOSITIONUNITSCOMMAND_H
+#define AMGCS2GETPOSITIONUNITSCOMMAND_H
+
+#include "AMGCS2Command.h"
+#include "../AMGCS2.h"
+#include <QList>
+#include <QHash>
+/*!
+  * A command representing a query for a PI C887.11 controller to report the
+  * position units of the provided axes.
+  */
+class AMGCS2GetPositionUnitsCommand : public AMGCS2Command
+{
+public:
+	/*!
+	  * Creates an instance of a get position units command which will query the
+	  * position units of the provided axes.
+	  * \param axes ~ An optional list of the axes whose position units are to be
+	  * queried. If none is provided the position units of all axes will be queried.
+	  */
+	AMGCS2GetPositionUnitsCommand(const QList<AMGCS2::Axis>& axes = QList<AMGCS2::Axis>());
+
+	/*!
+	  * Virtual destructor for a get position units command.
+	  */
+	virtual ~AMGCS2GetPositionUnitsCommand() {}
+
+	/*!
+	  * A mapping of axes which the command was initialized with to its position
+	  * units.
+	  * \returns A mapping of axis to position units if the command was run successfully,
+	  * an empty hash otherwise.
+	  */
+	QHash<AMGCS2::Axis, AMGCS2::PositionUnits> axesUnits() const;
+
+	/*!
+	  * The mapping of axes to position units in a human readable format.
+	  * \returns Stringified for of axis to position units if the command was run
+	  * successfully, the empty string otherwise.
+	  */
+	virtual QString outputString() const;
+
+protected:
+	/*!
+	  * Ensures the arguments the command was initialized with are valid:
+	  *  - Ensures that none of the axes in the initialized list are the UnknownAxis.
+	  *  - The number of axes provided is not greater than the total possible axes
+	  *    number.
+	  */
+	virtual bool validateArguments();
+
+	/*!
+	  * Defines the steps taken to query the position units from the controller.
+	  */
+	virtual bool runImplementation();
+
+	QList<AMGCS2::Axis> axesToQuery_;
+	QHash<AMGCS2::Axis, AMGCS2::PositionUnits> axesUnits_;
+};
+
+#endif // AMGCS2GETPOSITIONUNITSCOMMAND_H
