@@ -52,7 +52,7 @@ public:
 	/// Returns AMPVControl for preamp gain
 	double preampGain() const  { return preampGainControl_->value(); }
 
-	/// Returns the real time for the KETEK.
+	/// Returns the real time for the detectpr.
 	AMDetector *dwellTime() const {return ge13ElementRealTime_; }
 
 

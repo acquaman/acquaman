@@ -82,10 +82,14 @@ public:
 	AMControl *I0Current() const { return I0Current_; }
 	AMControl *sampleTemp() const { return sampleTemp_; }
 
-
 	AMControl *monoBraggAngle() const { return monoBraggAngle_; }
 	AMControl *mono2d() const { return mono2d_; }
 	AMControl *monoAngleOffset() const { return monoAngleOffset_; }
+
+	AMControl *ketekPeakingTime() const { return ketekPeakingTime_; }
+	AMControl *ketekTriggerLevel() const { return ketekTriggerLevel_; }
+	AMControl *ketekBaselineThreshold() const { return ketekBaselineThreshold_; }
+	AMControl *ketekPreampGain() const { return ketekPreampGain_; }
 
 
 	/// Returns JJ Slits
@@ -111,12 +115,12 @@ public:
 	/// Returns the KETEK detector pointer.
 	IDEASKETEKDetector *ketek() const { return ketek_; }
 	/// Returns the real time for the KETEK.
-	//AMDetector *ketekDwellTime() const {return ketekRealTime_; }
+	AMDetector *ketekDwellTime() const {return ketekRealTime_; }
 
 	/// Returns the 13-element Ge detector pointer.
 	IDEAS13ElementGeDetector *ge13Element() const { return ge13Element_; }
 	/// Returns the real time for the Ge detector.
-	//AMDetector *ge13ElementDwellTime() const { return ge13ElementRealTime_; }
+	AMDetector *ge13ElementDwellTime() const { return ge13ElementRealTime_; }
 
 	CLSBasicScalerChannelDetector *I_0() const {return I0IonChamberScaler_;}
 	CLSBasicScalerChannelDetector *Sample() const {return SampleIonChamberScaler_;}
@@ -206,7 +210,19 @@ protected:
 	CLSSIS3820Scaler *scaler_;
 
 	IDEASKETEKDetector *ketek_;
+	AMControl *ketekPeakingTime_;
+	AMControl *ketekTriggerLevel_;
+	AMControl *ketekBaselineThreshold_;
+	AMControl *ketekPreampGain_;
+
+	AMDetector *ketekRealTime_;
+	AMReadOnlyPVControl *ketekRealTimeControl_;
+
 	IDEAS13ElementGeDetector *ge13Element_;
+
+	AMDetector *ge13ElementRealTime_;
+	AMReadOnlyPVControl *ge13ElementRealTimeControl_;
+
 
 	AMControl *monoCrystal_, *monoLowEV_, *monoHighEV_, *ringCurrent_, *I0Current_, *sampleTemp_, *monoBraggAngle_, *mono2d_, *monoAngleOffset_;
 

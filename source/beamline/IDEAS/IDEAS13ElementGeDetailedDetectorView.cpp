@@ -52,7 +52,7 @@ void IDEAS13ElementGeDetailedDetectorView::onPeakingTimeBoxChanged(const QString
 
 }
 
-void IDEASGe13ElementDetailedDetectorView::onPeakingTimeChanged()
+void IDEAS13ElementGeDetailedDetectorView::onPeakingTimeChanged()
 {
 
 	// HACK ugly hard coded magic numbers...   Works for now.  -D.Muir
