@@ -58,6 +58,7 @@ QString AMPIC887ConsoleCommandParser::commandList()
 	commandList.append("TMN? <axis1> <axis2> ... : Queries the minimum commandable position of the provided axes. If none are provided the min commandable position of all axes is queried.\n");
 	commandList.append("TMX? <axis1> <axis2> ... : Queries the maximum commandable position of the provided axes. If none are provided the max commandable position of all axes is queried.\n");
 	commandList.append("VLS? : Queries the system velocity.\n");
+	commandList.append("VLS <value> : Sets the system velocity to the provided value.\n");
 	return commandList;
 }
 

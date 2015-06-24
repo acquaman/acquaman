@@ -129,6 +129,15 @@ protected:
 	  * parsed, 0 otherwise.
 	  */
 	static AMGCS2Command* buildSetServoModeCommand(const QStringList& argumentList);
+
+	/*!
+	  * Static helper method for parsing the set system velocity command string
+	  * arguments.
+	  * \param argumentList ~ A list of the arguments provided to the command.
+	  * \returns An initialized AMGCS2SetSystemVelocityCommand if the arguments
+	  * could be parsed, 0 otherwise.
+	  */
+	static AMGCS2Command* buildSetSystemVelocityCommand(const QStringList& argumentList);
 };
 
 #endif // AMGCS2COMMANDFACTORY_H

@@ -56,7 +56,8 @@ SOURCES *= \
     source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2SetStepSizeCommand.cpp \
     source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2GetMinCommandablePositionCommand.cpp \
     source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2GetMaxCommandablePositionCommand.cpp \
-    source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2GetSystemVelocityCommand.cpp
+    source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2GetSystemVelocityCommand.cpp \
+    source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2SetSystemVelocityCommand.cpp
 
 HEADERS *= \
 	source/application/AMPIC887DriverServer/AMPIC887ControllerCollection.h \	
@@ -113,7 +114,8 @@ HEADERS *= \
     source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2SetStepSizeCommand.h \
     source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2GetMinCommandablePositionCommand.h \
     source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2GetMaxCommandablePositionCommand.h \
-    source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2GetSystemVelocityCommand.h
+    source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2GetSystemVelocityCommand.h \
+    source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2SetSystemVelocityCommand.h
 
 # PI Controller Driver Dependencies
 
@@ -126,6 +128,8 @@ INCLUDEPATH *= $$PIC887_INCLUDE_DIR
 LIBS *= $$PIC887_LIB
 
 CONFIG -= mobility
+
+
 
 
 

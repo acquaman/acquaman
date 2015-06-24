@@ -47,6 +47,7 @@
 #include "GCS2Commands/AMGCS2GetMinCommandablePositionCommand.h"
 #include "GCS2Commands/AMGCS2GetMaxCommandablePositionCommand.h"
 #include "GCS2Commands/AMGCS2GetSystemVelocityCommand.h"
+#include "GCS2Commands/AMGCS2SetSystemVelocityCommand.h"
 
 AMGCS2Command * AMGCS2CommandFactory::buildCommand(const QString &commandString)
 {
@@ -135,6 +136,8 @@ AMGCS2Command * AMGCS2CommandFactory::buildCommand(const QString &commandString)
 		return new AMGCS2GetMaxCommandablePositionCommand(axesFromCommandString(commandString));
 	} else if(commandString.startsWith("VLS?")) {
 		return new AMGCS2GetSystemVelocityCommand();
+	} else if(commandString.startsWith("VLS")) {
+		return buildSetSystemVelocityCommand(commandArguments(commandString));
 	}
 
 	return 0;
@@ -470,6 +473,22 @@ AMGCS2Command * AMGCS2CommandFactory::buildSetServoModeCommand(const QStringList
 	}
 
 	return new AMGCS2SetServoModeCommand(activateServoMode);
+}
+
+AMGCS2Command * AMGCS2CommandFactory::buildSetSystemVelocityCommand(const QStringList &argumentList)
+{
+	if(argumentList.count() != 1) {
+		return 0;
+	}
+
+	bool parseSuccess = false;
+	double systemVelocityValue = argumentList.at(0).toDouble(&parseSuccess);
+
+	if(!parseSuccess) {
+		return 0;
+	}
+
+	return new AMGCS2SetSystemVelocityCommand(systemVelocityValue);
 }
 
 
