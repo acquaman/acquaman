@@ -46,6 +46,7 @@
 #include "GCS2Commands/AMGCS2SetStepSizeCommand.h"
 #include "GCS2Commands/AMGCS2GetMinCommandablePositionCommand.h"
 #include "GCS2Commands/AMGCS2GetMaxCommandablePositionCommand.h"
+#include "GCS2Commands/AMGCS2GetSystemVelocityCommand.h"
 
 AMGCS2Command * AMGCS2CommandFactory::buildCommand(const QString &commandString)
 {
@@ -132,6 +133,8 @@ AMGCS2Command * AMGCS2CommandFactory::buildCommand(const QString &commandString)
 		return new AMGCS2GetMinCommandablePositionCommand(axesFromCommandString(commandString));
 	} else if(commandString.startsWith("TMX?")) {
 		return new AMGCS2GetMaxCommandablePositionCommand(axesFromCommandString(commandString));
+	} else if(commandString.startsWith("VLS?")) {
+		return new AMGCS2GetSystemVelocityCommand();
 	}
 
 	return 0;
