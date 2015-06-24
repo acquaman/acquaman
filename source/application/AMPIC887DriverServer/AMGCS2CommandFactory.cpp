@@ -43,6 +43,7 @@
 #include "GCS2Commands/AMGCS2GetServoModeCommand.h"
 #include "GCS2Commands/AMGCS2SetServoModeCommand.h"
 #include "GCS2Commands/AMGCS2GetStepSizeCommand.h"
+#include "GCS2Commands/AMGCS2SetStepSizeCommand.h"
 
 AMGCS2Command * AMGCS2CommandFactory::buildCommand(const QString &commandString)
 {
@@ -123,6 +124,8 @@ AMGCS2Command * AMGCS2CommandFactory::buildCommand(const QString &commandString)
 		return buildSetServoModeCommand(commandArguments(commandString));
 	} else if(commandString.startsWith("SST?")) {
 		return new AMGCS2GetStepSizeCommand(axesFromCommandString(commandString));
+	} else if(commandString.startsWith("SST")) {
+		return new AMGCS2SetStepSizeCommand(axesDoublePairFromCommandString(commandString));
 	}
 
 	return 0;

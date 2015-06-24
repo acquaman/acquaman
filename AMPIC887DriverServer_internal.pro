@@ -52,7 +52,8 @@ SOURCES *= \
     source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2GetSoftLimitsStatusCommand.cpp \
     source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2GetServoModeCommand.cpp \
     source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2SetServoModeCommand.cpp \
-    source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2GetStepSizeCommand.cpp
+    source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2GetStepSizeCommand.cpp \
+    source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2SetStepSizeCommand.cpp
 
 HEADERS *= \
 	source/application/AMPIC887DriverServer/AMPIC887ControllerCollection.h \	
@@ -105,7 +106,8 @@ HEADERS *= \
     source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2GetSoftLimitsStatusCommand.h \
     source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2GetServoModeCommand.h \
     source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2SetServoModeCommand.h \
-    source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2GetStepSizeCommand.h
+    source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2GetStepSizeCommand.h \
+    source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2SetStepSizeCommand.h
 
 # PI Controller Driver Dependencies
 
@@ -118,6 +120,8 @@ INCLUDEPATH *= $$PIC887_INCLUDE_DIR
 LIBS *= $$PIC887_LIB
 
 CONFIG -= mobility
+
+
 
 
 
