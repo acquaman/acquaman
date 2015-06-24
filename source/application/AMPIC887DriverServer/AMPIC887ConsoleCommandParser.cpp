@@ -55,6 +55,7 @@ QString AMPIC887ConsoleCommandParser::commandList()
 	commandList.append("STP : Performs an emergency stop of all axes.\n");
 	commandList.append("SVO? <axis1> <axis2> ... : Queries the servo mode status of the provided axes. If none are provided the servo mode status of all axes is queried.\n");
 	commandList.append("SVO <true/false> : Activates/deactivates servo mode across all axes of the controller (true = activate, false = desactivate).\n");
+	commandList.append("TMN? <axis1> <axis2> ... : Queries the minimum commandable position of the provided axes. If none are provided the min commandable position of all axes is queried.\n");
 
 	return commandList;
 }

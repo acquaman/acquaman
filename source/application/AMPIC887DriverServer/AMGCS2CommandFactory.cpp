@@ -44,7 +44,7 @@
 #include "GCS2Commands/AMGCS2SetServoModeCommand.h"
 #include "GCS2Commands/AMGCS2GetStepSizeCommand.h"
 #include "GCS2Commands/AMGCS2SetStepSizeCommand.h"
-
+#include "GCS2Commands/AMGCS2GetMinCommandablePositionCommand.h"
 AMGCS2Command * AMGCS2CommandFactory::buildCommand(const QString &commandString)
 {
 	if(commandString.startsWith("POS?")) {
@@ -126,6 +126,8 @@ AMGCS2Command * AMGCS2CommandFactory::buildCommand(const QString &commandString)
 		return new AMGCS2GetStepSizeCommand(axesFromCommandString(commandString));
 	} else if(commandString.startsWith("SST")) {
 		return new AMGCS2SetStepSizeCommand(axesDoublePairFromCommandString(commandString));
+	} else if(commandString.startsWith("TMN?")) {
+		return new AMGCS2GetMinCommandablePositionCommand(axesFromCommandString(commandString));
 	}
 
 	return 0;
