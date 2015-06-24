@@ -48,6 +48,7 @@
 #include "GCS2Commands/AMGCS2GetMaxCommandablePositionCommand.h"
 #include "GCS2Commands/AMGCS2GetSystemVelocityCommand.h"
 #include "GCS2Commands/AMGCS2SetSystemVelocityCommand.h"
+#include "GCS2Commands/AMGCS2VirtualMoveCommand.h"
 
 AMGCS2Command * AMGCS2CommandFactory::buildCommand(const QString &commandString)
 {
@@ -138,6 +139,8 @@ AMGCS2Command * AMGCS2CommandFactory::buildCommand(const QString &commandString)
 		return new AMGCS2GetSystemVelocityCommand();
 	} else if(commandString.startsWith("VLS")) {
 		return buildSetSystemVelocityCommand(commandArguments(commandString));
+	} else if(commandString.startsWith("VMO?")) {
+		return new AMGCS2VirtualMoveCommand(axesDoublePairFromCommandString(commandString));
 	}
 
 	return 0;
