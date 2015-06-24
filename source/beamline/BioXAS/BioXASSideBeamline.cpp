@@ -752,18 +752,21 @@ void BioXASSideBeamline::setupComponents()
 	scaler_->channelAt(16)->setCustomChannelName("I0 Channel");
 	scaler_->channelAt(16)->setCurrentAmplifier(i0Keithley_);
 	scaler_->channelAt(16)->setDetector(i0Detector_);
+	scaler_->channelAt(16)->setVoltagRange(0.1, 4.5);
 
 	// The I1 channel amplifier.
 	i1Keithley_ = new CLSKeithley428("I1 Channel", "AMP1607-602", this);
 	scaler_->channelAt(17)->setCustomChannelName("I1 Channel");
 	scaler_->channelAt(17)->setCurrentAmplifier(i1Keithley_);
 	scaler_->channelAt(17)->setDetector(i1Detector_);
+	scaler_->channelAt(17)->setVoltagRange(0.1, 4.5);
 
 	// The I2 channel amplifier.
 	i2Keithley_ = new CLSKeithley428("I2 Channel", "AMP1607-603", this);
 	scaler_->channelAt(18)->setCustomChannelName("I2 Channel");
 	scaler_->channelAt(18)->setCurrentAmplifier(i2Keithley_);
 	scaler_->channelAt(18)->setDetector(i2Detector_);
+	scaler_->channelAt(18)->setVoltagRange(0.1, 4.5);
 
 	// The carbon filter farm.
 	carbonFilterFarm_ = new BioXASSideCarbonFilterFarm(this);
