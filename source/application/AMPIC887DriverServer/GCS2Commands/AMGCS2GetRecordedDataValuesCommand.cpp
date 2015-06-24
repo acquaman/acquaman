@@ -16,14 +16,14 @@ QString AMGCS2GetRecordedDataValuesCommand::outputString() const
 		return "";
 	}
 
-	QString returnString("Record Table: %1\n");
+	QString returnString = QString("Record Table: %1\n").arg(recordTableId_);
 	returnString.append(QString("Table index\t\tValue\n"));
 
 	for(int iResultValue = 0, resultCount = dataValues_.count();
 		iResultValue < resultCount;
 		++iResultValue) {
 
-		returnString.append(QString("%1\t\t%2\n")
+		returnString.append(QString("%1\t\t\t%2\n")
 							.arg(iResultValue + offsetPoint_)
 							.arg(dataValues_.at(iResultValue)));
 

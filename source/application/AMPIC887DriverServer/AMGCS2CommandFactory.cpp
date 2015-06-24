@@ -74,10 +74,10 @@ AMGCS2Command * AMGCS2CommandFactory::buildCommand(const QString &commandString)
 		return buildSetCommandLevelCommand(commandArguments(commandString));
 	} else if (commandString.startsWith("CSV")) {
 		return new AMGCS2SetSyntaxVersionCommand();
-	} else if(commandString.startsWith("DRC")) {
-		return buildSetDataRecorderConfigurationCommand(commandArguments(commandString));
 	} else if(commandString.startsWith("DRC?")) {
 		return new AMGCS2GetDataRecorderConfigurationCommand();
+	} else if(commandString.startsWith("DRC")) {
+		return buildSetDataRecorderConfigurationCommand(commandArguments(commandString));
 	} else if(commandString.startsWith("DRL?")) {
 		return buildGetNumberOfRecordedPointsCommand(commandArguments(commandString));
 	} else if(commandString.startsWith("DRR?")) {
