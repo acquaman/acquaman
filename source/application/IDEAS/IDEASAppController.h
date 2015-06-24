@@ -84,9 +84,9 @@ protected:
 	/// View holder for XAS
 	AMScanConfigurationViewHolder3 *xasScanConfigurationHolder3_;
 	/// View for the IDEAS's XRF scan configurations
-	IDEASXRFDetailedDetectorView *ideasKETEKDetailedDetectorViewWithSave_;
+	IDEASXRFDetailedDetectorView *ideasKETEKDetailedDetectorView_;
 	/// View for the IDEAS's XRF scan configurations
-	IDEASXRFDetailedDetectorView *ideas13ElementGeDetailedDetectorViewWithSave_;
+	IDEASXRFDetailedDetectorView *ideas13ElementGeDetailedDetectorView_;
 	/// View for viewing the sample cameras and aligning samples
 	IDEASSampleCameraPanel *sampleCameraPanel_;
 };

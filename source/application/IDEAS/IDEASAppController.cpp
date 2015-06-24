@@ -156,21 +156,21 @@ void IDEASAppController::setupUserInterface()
 
 	mw_->insertHeading("XRF Detectors", 1);
 
-	ideasKETEKDetailedDetectorViewWithSave_ = new IDEASXRFDetailedDetectorView(IDEASBeamline::ideas()->ketek());
-	ideasKETEKDetailedDetectorViewWithSave_->buildDetectorView();
-	ideasKETEKDetailedDetectorViewWithSave_->setEnergyRange(1000, 20480);
-	ideasKETEKDetailedDetectorViewWithSave_->addEmissionLineNameFilter(QRegExp("1"));
-	ideasKETEKDetailedDetectorViewWithSave_->addPileUpPeakNameFilter(QRegExp("(K.1|L.1|Ma1)"));
-	ideasKETEKDetailedDetectorViewWithSave_->addCombinationPileUpPeakNameFilter(QRegExp("(Ka1|La1|Ma1)"));
-	mw_->addPane(ideasKETEKDetailedDetectorViewWithSave_, "XRF Detectors", "KETEK", ":/system-search.png");
+	ideasKETEKDetailedDetectorView_ = new IDEASXRFDetailedDetectorView(IDEASBeamline::ideas()->ketek());
+	ideasKETEKDetailedDetectorView_->buildDetectorView();
+	ideasKETEKDetailedDetectorView_->setEnergyRange(1000, 20480);
+	ideasKETEKDetailedDetectorView_->addEmissionLineNameFilter(QRegExp("1"));
+	ideasKETEKDetailedDetectorView_->addPileUpPeakNameFilter(QRegExp("(K.1|L.1|Ma1)"));
+	ideasKETEKDetailedDetectorView_->addCombinationPileUpPeakNameFilter(QRegExp("(Ka1|La1|Ma1)"));
+	mw_->addPane(ideasKETEKDetailedDetectorView_, "XRF Detectors", "KETEK", ":/system-search.png");
 
-	ideas13ElementGeDetailedDetectorViewWithSave_ = new IDEASXRFDetailedDetectorView(IDEASBeamline::ideas()->ge13Element());
-	ideas13ElementGeDetailedDetectorViewWithSave_->buildDetectorView();
-	ideas13ElementGeDetailedDetectorViewWithSave_->setEnergyRange(1000, 20480);
-	ideas13ElementGeDetailedDetectorViewWithSave_->addEmissionLineNameFilter(QRegExp("1"));
-	ideas13ElementGeDetailedDetectorViewWithSave_->addPileUpPeakNameFilter(QRegExp("(K.1|L.1|Ma1)"));
-	ideas13ElementGeDetailedDetectorViewWithSave_->addCombinationPileUpPeakNameFilter(QRegExp("(Ka1|La1|Ma1)"));
-	mw_->addPane(ideas13ElementGeDetailedDetectorViewWithSave_, "XRF Detectors", "13-el Ge", ":/system-search.png");
+	ideas13ElementGeDetailedDetectorView_ = new IDEASXRFDetailedDetectorView(IDEASBeamline::ideas()->ge13Element());
+	ideas13ElementGeDetailedDetectorView_->buildDetectorView();
+	ideas13ElementGeDetailedDetectorView_->setEnergyRange(1000, 20480);
+	ideas13ElementGeDetailedDetectorView_->addEmissionLineNameFilter(QRegExp("1"));
+	ideas13ElementGeDetailedDetectorView_->addPileUpPeakNameFilter(QRegExp("(K.1|L.1|Ma1)"));
+	ideas13ElementGeDetailedDetectorView_->addCombinationPileUpPeakNameFilter(QRegExp("(Ka1|La1|Ma1)"));
+	mw_->addPane(ideas13ElementGeDetailedDetectorView_, "XRF Detectors", "13-el Ge", ":/system-search.png");
 
 	mw_->insertHeading("Scans", 2);
 
