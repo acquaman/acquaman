@@ -13,7 +13,7 @@ QString AMGCS2GetDataRecorderConfigurationCommand::outputString() const
 	}
 
 	QString returnOutput;
-	returnOutput.append(QString("Table\t\tSource\t\tOption\n"));
+	returnOutput.append(QString("Table\t\tSource\t\tOption (code)\n"));
 
 	foreach(AMPIC887DataRecorderConfiguration* configuration, dataRecorderConfigurations_) {
 		returnOutput.append(configuration->toString());

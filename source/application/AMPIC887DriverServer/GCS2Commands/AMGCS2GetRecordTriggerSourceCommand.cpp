@@ -24,9 +24,10 @@ QString AMGCS2GetRecordTriggerSourceCommand::outputString() const
 		AMGCS2::DataRecordTrigger currentRecordTrigger =
 				tableRecordTriggers().value(currentRecordTable);
 
-		returnString.append(QString("%1\t\t\t%2\n")
+		returnString.append(QString("%1\t\t\t%2 (%3)\n")
 							.arg(currentRecordTable)
-							.arg(AMGCS2Support::dataRecordTriggerToString(currentRecordTrigger)));
+							.arg(AMGCS2Support::dataRecordTriggerToString(currentRecordTrigger))
+							.arg(AMGCS2Support::dataRecordTriggerToInt(currentRecordTrigger)));
 	}
 
 	return returnString.trimmed();

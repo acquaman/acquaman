@@ -43,8 +43,9 @@ AMGCS2::DataRecordOption AMPIC887DataRecorderConfiguration::recordOption() const
 
 QString AMPIC887DataRecorderConfiguration::toString() const
 {
-	return QString("%1\t\t%2\t\t%3")
+	return QString("%1\t\t%2\t\t%3 (%4)")
 			.arg(recordTableId_)
 			.arg(AMGCS2Support::dataRecordSourceToString(recordSource_))
-			.arg(AMGCS2Support::dataRecordOptionToString(recordOption_));
+			.arg(AMGCS2Support::dataRecordOptionToString(recordOption_))
+			.arg(AMGCS2Support::dataRecordOptionToInt(recordOption_));
 }
