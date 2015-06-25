@@ -26,9 +26,10 @@ QString AMPIC887ConsoleCommandParser::commandList()
 	commandList.append("DRR? <offset point> <number of data points> <record table id> : Queries the specified number of data points from the provided record table, starting at the offset point.\n");
 	commandList.append("DRT <record table id1> <trigger source1> <record table id2> <trigger source2> ... : Sets the data record triggers for the provided data record tables.\n");
 	commandList.append("DRT? <record table id1> <record table id2> ... : Queries the current recording trigger sources for the provided data record tables.\n");
-	commandList.append("FRF <axis1> <axis2> : Instructs the controller to perform a reference move on the provided axes. If none are provided reference moves will be performed on all axes.\n");
-	commandList.append("FRF? <axis1> <axis2> : Queries whether the provided axes have been referenced. If no axes are provided the reference status of all axes will be queries.\n");
+	commandList.append("FRF <axis1> <axis2> ... : Instructs the controller to perform a reference move on the provided axes. If none are provided reference moves will be performed on all axes.\n");
+	commandList.append("FRF? <axis1> <axis2> ... : Queries whether the provided axes have been referenced. If no axes are provided the reference status of all axes will be queries.\n");
 	commandList.append("HDR? : Queries the controller's recording options.\n");
+	commandList.append("HLT <axis1> <axis2> ... : Halts the motions of the provided axes smoothly. If no axes are provided all axes are halted.\n");
 	commandList.append("HPA? : Queries the controller's available parameters.\n");
 	commandList.append("IDN? : Queries the controller's device identification.\n");
 	commandList.append("LIM? <axis1> <axis2> ... : Queries whether limit switches are active for the provided axes. If none are provided all axes will be queried.\n");
