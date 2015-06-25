@@ -54,48 +54,58 @@ bool AMGCS2GetTargetPositionCommand::runImplementation()
 	//Clear previous results:
 	axisTargetPositions_.clear();
 
-	AMCArrayHandler<double> targetResults(axesToQuery_.length());
-	QString axesString;
+	AMCArrayHandler<double> targetResults(AXIS_COUNT);
+	bool success = false;
 
+	if(axesToQuery_.isEmpty()) {
+		success = PI_qMOV(controllerId_, 0, targetResults.cArray());
 
+		if(success) {
 
-	foreach(AMGCS2::Axis currentAxis, axesToQuery_) {
-		axesString.append(QString(" %1")
-						  .arg(AMGCS2Support::axisToCharacter(currentAxis)));
+			axisTargetPositions_.insert(AMGCS2::XAxis, targetResults.cArray()[0]);
+			axisTargetPositions_.insert(AMGCS2::YAxis, targetResults.cArray()[0]);
+			axisTargetPositions_.insert(AMGCS2::ZAxis, targetResults.cArray()[0]);
+			axisTargetPositions_.insert(AMGCS2::UAxis, targetResults.cArray()[0]);
+			axisTargetPositions_.insert(AMGCS2::VAxis, targetResults.cArray()[0]);
+			axisTargetPositions_.insert(AMGCS2::WAxis, targetResults.cArray()[0]);
+		}
+
+	} else {
+
+		QString axesString;
+
+		for(int iAxis = 0, axisCount = axesToQuery_.count();
+			iAxis < axisCount;
+			++iAxis) {
+
+			AMGCS2::Axis currentAxis = axesToQuery_.at(iAxis);
+
+			axesString.append(QString(" %1")
+							  .arg(AMGCS2Support::axisToCharacter(currentAxis)));
+		}
+
+		success = PI_qMOV(controllerId_,
+						  axesString.toStdString().c_str(),
+						  targetResults.cArray());
+
+		if(success) {
+
+			for(int iAxis = 0, axisCount = axesToQuery_.count();
+				iAxis < axisCount;
+				++iAxis) {
+
+				AMGCS2::Axis currentAxis = axesToQuery_.at(iAxis);
+
+				axisTargetPositions_.insert(currentAxis,
+											targetResults.cArray()[iAxis]);
+			}
+		}
 	}
-
-	axesString = axesString.trimmed();
-
-
-	bool success = PI_qMOV(controllerId_,
-						   axesString.toStdString().c_str(),
-						   targetResults.cArray());
-
 
 	if(!success) {
 		lastError_ = controllerErrorMessage();
-	} else {
-
-		QList<AMGCS2::Axis> axisResults = axesToQuery_;
-
-		if(axesToQuery_.count() == 0) {
-			axisResults << AMGCS2::XAxis
-						<< AMGCS2::YAxis
-						<< AMGCS2::ZAxis
-						<< AMGCS2::UAxis
-						<< AMGCS2::VAxis
-						<< AMGCS2::WAxis;
-		}
-
-
-		for(int iAxis = 0;
-			iAxis < axisResults.count();
-			++iAxis) {
-
-			axisTargetPositions_.insert(axisResults.at(iAxis),
-										targetResults.cArray()[iAxis]);
-		}
 	}
 
 	return success;
+
 }
