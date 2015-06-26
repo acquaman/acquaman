@@ -64,6 +64,7 @@ protected:
 
 	int controllerId_;
 	int mSecsDelay_;
+	int timerId_;
 
 };
 

@@ -8,11 +8,12 @@ AMPIC887ErrorMessageClearer::AMPIC887ErrorMessageClearer(int controllerId) :
 
 void AMPIC887ErrorMessageClearer::start(int mSecsDelay)
 {
-	startTimer(mSecsDelay);
+	timerId_ = startTimer(mSecsDelay);
 }
 
 void AMPIC887ErrorMessageClearer::timerEvent(QTimerEvent *)
 {
+	killTimer(timerId_);
 	PI_GetError(controllerId_);
 	deleteLater();
 }
