@@ -18,17 +18,10 @@ IDEAS13ElementGeDetector::IDEAS13ElementGeDetector(const QString &name, const QS
 	acquireTimeControl_ = new AMSinglePVControl("Integration Time", "dxp1608-B21-13:PresetReal", this, 0.001);
 	elapsedTimeControl_ = new AMReadOnlyPVControl("Elapsed Time", "dxp1608-B21-13:ElapsedReal", this);
 
-
 	// Detector functionality
 	ge13ElementRealTimeControl_ = new AMReadOnlyPVControl("13-el Ge Real Time", "dxp1608-B21-13:ElapsedReal", this);
 	ge13ElementRealTime_ = new AMBasicControlDetectorEmulator("13E_dwellTime", "13-element Ge dwell time", ge13ElementRealTimeControl_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
 
-
-	// Missing PV values for peaking, baseline threshold, preamp gain control. Waiting to hear back.
-	peakingTimeControl_;
-	triggerLevel_;
-	baselineThreshhold_;
-	preampGainControl_;
 
 	// Currently only using 12 due to lack of electronics.
 	for (int i = 0; i < 12; i++){
@@ -43,7 +36,7 @@ IDEAS13ElementGeDetector::IDEAS13ElementGeDetector(const QString &name, const QS
 	foreach (AMDataSource *source, rawSpectraSources_)
 		((AM1DProcessVariableDataSource *)source)->setScale(10);
 
-	connect(peakingTimeControl_, SIGNAL(valueChanged(double)), this, SIGNAL(peakingTimeChanged(double)));
+
 
 }
 
@@ -87,17 +80,3 @@ bool IDEAS13ElementGeDetector::setReadMode(AMDetectorDefinitions::ReadMode readM
 
 	return false;
 }
-void IDEAS13ElementGeDetector::setPeakingTime(double time)
-{
-	if(peakingTimeControl_->value() != time)
-		peakingTimeControl_->move(time);
-}
-
-void IDEAS13ElementGeDetector::setPreampGain(double value)
-{
-	if(preampGainControl_->value() != value)
-		preampGainControl_->move(value);
-
-}
-
-

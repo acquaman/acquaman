@@ -47,17 +47,11 @@ public:
 	/// The vortex detectors support elapsed time.
 	virtual bool supportsElapsedTime() const { return true; }
 
-	/// Returns AMPVControl for peaking time
-	double peakingTime() const { return peakingTimeControl_->value(); }
-	/// Returns AMPVControl for preamp gain
-	double preampGain() const  { return preampGainControl_->value(); }
-
-	/// Returns the real time for the detectpr.
+	/// Returns the real time for the detector.
 	AMDetector *dwellTime() const {return ge13ElementRealTime_; }
 
-
 signals:
-	void peakingTimeChanged(double);
+
 
 public slots:
 
@@ -66,20 +60,12 @@ public slots:
 
 	/// Vortex detectors do not support clearing
 	virtual bool clear() { return false; }
-	/// Sets the peaking time on the detector through peakingTimeControl
-	void setPeakingTime(double time);
-	/// Sets the peaking time on the detector through preampGainControl
-	void setPreampGain(double value);
+
 
 protected:
 	AMReadOnlyPVControl *ge13ElementRealTimeControl_;
 	AMDetector *ge13ElementRealTime_;
 
-	AMPVControl *peakingTimeControl_;
-
-	AMControl *triggerLevel_;
-	AMControl *baselineThreshhold_;
-	AMControl *preampGainControl_;
 
 };
 

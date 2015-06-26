@@ -18,17 +18,12 @@ public:
 	virtual void buildDetectorView();
 
 public slots:
-	/// Handles setting the combo box based on peaking value in detector
-	void onPeakingTimeChanged();
-	/// Handles change in combo box peaking selection, sent to detector
-	void onPeakingTimeBoxChanged(const QString &arg1);
+
 
 protected:
 	/// Pointer to actual ketek detector for setting peaking time
 	IDEAS13ElementGeDetector *ge13ElementDetector_;
 
-	/// Spin box for peaking time.
-	QComboBox *peakingTimeBox_;
 
 };
 
