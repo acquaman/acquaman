@@ -119,10 +119,7 @@ AMGCS2Command * AMGCS2CommandFactory::buildCommand(const QString &commandString)
 	} else if(commandString.startsWith("SSL?")) {
 		return new AMGCS2GetSoftLimitsStatusCommand(axesFromCommandString(commandString));
 	} else if(commandString.startsWith("SSL")) {
-		// The set soft limit command in the library doesn't work. Leaving this
-		// here for now in case further investigation turns up something.
-		//return buildSetSoftLimitStatusesCommand(commandArguments(commandString));
-		return 0;
+		return buildSetSoftLimitStatusesCommand(commandArguments(commandString));
 	} else if(commandString.startsWith("SVO?")) {
 		return new AMGCS2GetServoModeCommand(axesFromCommandString(commandString));
 	} else if(commandString.startsWith("SVO")) {

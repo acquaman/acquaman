@@ -69,7 +69,7 @@ bool AMGCS2GetSoftLimitsStatusCommand::runImplementation()
 
 		QString axesString = ("X Y Z U V W");
 
-		success = PI_SSL(controllerId_,
+		success = PI_qSSL(controllerId_,
 						 axesString.toStdString().c_str(),
 						 softLimitStatusHandler.cArray());
 
@@ -93,7 +93,7 @@ bool AMGCS2GetSoftLimitsStatusCommand::runImplementation()
 							  .arg(AMGCS2Support::axisToCharacter(currentAxis)));
 		}
 
-		success = PI_SSL(controllerId_,
+		success = PI_qSSL(controllerId_,
 						 axesString.toStdString().c_str(),
 						 softLimitStatusHandler.cArray());
 
