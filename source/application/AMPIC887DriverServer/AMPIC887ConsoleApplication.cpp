@@ -30,7 +30,7 @@ AMPIC887ConsoleApplication::AMPIC887ConsoleApplication(int argc, char *argv[]) :
 		connect(commandParser_, SIGNAL(quit()), this, SLOT(onQuitCommandIssued()));
 		connect(commandParser_, SIGNAL(status()), this, SLOT(onStatusCommandIssued()));
 		connect(commandParser_, SIGNAL(changeActiveController(QString)), this, SLOT(onActiveControllerChangeIssued(QString)));
-		connect(commandParser_, SIGNAL(GCS2CommandIssued(AMGCS2Command*)), this, SLOT(onGCS2CommandIssued(AMGCS2Command*)));
+		connect(commandParser_, SIGNAL(otherCommandIssued(QString)), this, SLOT(onOtherCommandIssued(QString)));
 
 	} else {
 
@@ -75,23 +75,21 @@ void AMPIC887ConsoleApplication::onActiveControllerChangeIssued(const QString &c
 	}
 }
 
-void AMPIC887ConsoleApplication::onGCS2CommandIssued(AMGCS2Command* command)
+void AMPIC887ConsoleApplication::onOtherCommandIssued(const QString& commandString)
 {
-	if(!controllerCollection_.activeController()) {
+	AMPIC887Controller* activeController = controllerCollection_.activeController();
+	if(!activeController) {
 		return;
 	}
 
-	controllerCollection_.activeController()->runCommand(command);
+	bool success =
+			activeController->interpretAndRunCommand(commandString);
 
-	if(!command->wasSuccessful()) {
-		consoleInputHandler_->writeLineToStandardError(
-					QString("Error - Command was not run, with message: %1.")
-					.arg(command->lastError()));
-	} else if(!command->outputString().isEmpty()) {
-		consoleInputHandler_->writeLineToStandardOutput(command->outputString());
+	if(!success) {
+		consoleInputHandler_->writeLineToStandardError(activeController->lastError());
+	} else if (activeController->lastOutputString() != "") {
+		consoleInputHandler_->writeLineToStandardOutput(activeController->lastOutputString());
 	}
-
-	delete command;
 }
 
 bool AMPIC887ConsoleApplication::startup()

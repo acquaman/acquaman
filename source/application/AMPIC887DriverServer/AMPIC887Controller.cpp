@@ -1,4 +1,5 @@
 #include "AMPIC887Controller.h"
+#include "AMGCS2CommandFactory.h"
 #include "PI_GCS2_DLL.h"
 
 AMPIC887Controller::AMPIC887Controller(const QString& name, const QString& hostname)
@@ -8,11 +9,29 @@ AMPIC887Controller::AMPIC887Controller(const QString& name, const QString& hostn
 	connect();
 }
 
-void AMPIC887Controller::runCommand(AMGCS2Command* command)
+
+bool AMPIC887Controller::interpretAndRunCommand(const QString &commandText)
 {
+	AMGCS2Command* command = AMGCS2CommandFactory::buildCommand(commandText);
+
 	if(command) {
+
 		command->setControllerId(id_);
 		command->run();
+
+		if(!command->wasSuccessful()) {
+			lastError_ = command->lastError();
+			delete command;
+			return false;
+		}
+
+		lastOutputString_ = command->outputString();
+		delete command;
+		return true;
+
+	} else {
+		lastError_ = "Command could not be parsed";
+		return false;
 	}
 }
 
@@ -65,6 +84,16 @@ QString AMPIC887Controller::status() const
 			.arg(name_)
 			.arg(hostname_)
 			.arg(connectionStatus);
+}
+
+QString AMPIC887Controller::lastError() const
+{
+	return lastError_;
+}
+
+QString AMPIC887Controller::lastOutputString() const
+{
+	return lastOutputString_;
 }
 
 

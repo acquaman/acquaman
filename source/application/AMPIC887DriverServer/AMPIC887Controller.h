@@ -28,12 +28,13 @@ public:
 	AMPIC887Controller(const QString& name, const QString& hostname);
 
 	/*!
-	  * Runs the provided command on the controller. The command itself can be
-	  * checked for the successful state of the command, and any associated error
-	  * messages.
-	  * \param command ~ The command to be run on the controller.
+	  * Attempts to interpret the provided command text as a GCS2 command, and
+	  * if it can, run it.
+	  * \param commandText ~ The text input to the console which is to be interpreted
+	  * as a GCS2 command
+	  * \returns True if the command could be interpreted and run, false otherwise.
 	  */
-	void runCommand(AMGCS2Command* command);
+	bool interpretAndRunCommand(const QString& commandText);
 
 	/*!
 	  * Connects/reconnects to the controller represented by this class.
@@ -72,10 +73,23 @@ public:
 	  * id and hostname).
 	  */
 	QString status() const;
+
+	/*!
+	  * The last error message encountered by the controller
+	  */
+	QString lastError() const;
+
+	/*!
+	  * The last string output returned from the controller when a command was
+	  * called.
+	  */
+	QString lastOutputString() const;
 protected:
 
+	QString lastError_;
 	QString name_;
 	QString hostname_;
+	QString lastOutputString_;
 	int id_;
 };
 

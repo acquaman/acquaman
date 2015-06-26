@@ -57,13 +57,14 @@ protected slots:
 	void onActiveControllerChangeIssued(const QString& controllerName);
 
 	/*!
-	  * Handles signals indicating that a GCS2 command has been issued. Runs the
-	  * command on the current active controller, if one is found. If the command
-	  * is not successful in running then its error message is output to standard
-	  * error.
-	  * \param command ~ The command to be run on the current active controller.
+	  * Handles signals indicating that a command which does not form part of the
+	  * usual command parsers list (ie. help, quit, activate etc). In our case
+	  * this needs to be passed along to the active controller to see if it is
+	  * a GCS2 command
+	  * \param commandString ~ The text input to the console which is to be
+	  * interpreted by a controller.
 	  */
-	void onGCS2CommandIssued(AMGCS2Command* command);
+	void onOtherCommandIssued(const QString& commandString);
 
 protected:
 	/*!

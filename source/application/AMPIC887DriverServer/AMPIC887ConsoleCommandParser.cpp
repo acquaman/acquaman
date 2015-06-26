@@ -1,6 +1,4 @@
 #include "AMPIC887ConsoleCommandParser.h"
-
-#include "AMGCS2CommandFactory.h"
 #include "GCS2Commands/AMGCS2Command.h"
 AMPIC887ConsoleCommandParser::AMPIC887ConsoleCommandParser(QObject *parent) :
 	AMAbstractConsoleCommandParser(parent)
@@ -83,13 +81,7 @@ void AMPIC887ConsoleCommandParser::interpretCommandImplementation(const QString 
 		}
 	} else {
 
-		AMGCS2Command* gcs2Command = AMGCS2CommandFactory::buildCommand(command);
-
-		if(gcs2Command) {
-			emit GCS2CommandIssued(gcs2Command);
-		} else {
-			emit unknownCommand(QString("Command not recognized. Type 'help' for a list of commands."));
-		}
+		emit otherCommandIssued(command);
 	}
 
 	if(command != "quit") {
