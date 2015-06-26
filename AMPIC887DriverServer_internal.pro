@@ -58,7 +58,8 @@ SOURCES *= \
     source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2GetMaxCommandablePositionCommand.cpp \
     source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2GetSystemVelocityCommand.cpp \
     source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2SetSystemVelocityCommand.cpp \
-    source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2VirtualMoveCommand.cpp
+    source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2VirtualMoveCommand.cpp \
+    source/application/AMPIC887DriverServer/AMPIC887ErrorMessageClearer.cpp
 
 HEADERS *= \
 	source/application/AMPIC887DriverServer/AMPIC887ControllerCollection.h \	
@@ -117,7 +118,8 @@ HEADERS *= \
     source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2GetMaxCommandablePositionCommand.h \
     source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2GetSystemVelocityCommand.h \
     source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2SetSystemVelocityCommand.h \
-    source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2VirtualMoveCommand.h
+    source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2VirtualMoveCommand.h \
+    source/application/AMPIC887DriverServer/AMPIC887ErrorMessageClearer.h
 
 # PI Controller Driver Dependencies
 
@@ -130,6 +132,8 @@ INCLUDEPATH *= $$PIC887_INCLUDE_DIR
 LIBS *= $$PIC887_LIB
 
 CONFIG -= mobility
+
+
 
 
 
