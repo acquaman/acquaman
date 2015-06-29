@@ -101,11 +101,7 @@ bool AMPIC887ConsoleApplication::startupControllers()
 {
 	controllerCollection_.append(new AMPIC887Controller("MC1611-401", "10.52.48.26"));
 
-	if(controllerCollection_.activeController()) {
-		return true;
-	} else {
-		return false;
-	}
+	return (controllerCollection_.activeController() != 0);
 }
 
 
