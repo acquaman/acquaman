@@ -8,7 +8,6 @@ SOURCES *= \
 	source/application/AMPIC887DriverServer/AMPIC887Controller.cpp \
 	source/application/AMPIC887DriverServer/AMPIC887ConsoleCommandParser.cpp \
 	source/application/AMPIC887DriverServer/AMPIC887ConsoleApplication.cpp \
-	source/application/AMPIC887DriverServer/AMGCS2Support.cpp \
 	source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2MoveCommand.cpp \
 	source/application/AMPIC887DriverServer/AMGCS2CommandFactory.cpp \
 	source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2Command.cpp \
@@ -132,6 +131,7 @@ INCLUDEPATH *= $$PIC887_INCLUDE_DIR
 LIBS *= $$PIC887_LIB
 
 CONFIG -= mobility
+
 
 
 
