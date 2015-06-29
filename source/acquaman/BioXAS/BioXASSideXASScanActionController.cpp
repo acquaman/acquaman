@@ -33,6 +33,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "analysis/AM1DDarkCurrentCorrectionAB.h"
 #include "beamline/CLS/CLSStorageRing.h"
 #include "analysis/AM1DNormalizationAB.h"
+#include "dataman/export/AMExporterXDIFormat.h"
+#include "dataman/export/AMExporterOptionXDIFormat.h"
+#include "application/BioXAS/BioXAS.h"
+#include "application/AMAppControllerSupport.h"
 
 BioXASSideXASScanActionController::BioXASSideXASScanActionController(BioXASSideXASScanConfiguration *configuration, QObject *parent) :
 	AMStepScanActionController(configuration, parent)
@@ -47,8 +51,19 @@ BioXASSideXASScanActionController::BioXASSideXASScanActionController(BioXASSideX
 	scan_->rawData()->addScanAxis(AMAxisInfo("eV", 0, "Incident Energy", "eV"));
 	scan_->setNotes(beamlineSettings());
 
+	AMExporterOptionXDIFormat *bioXASDefaultXAS = BioXAS::buildStandardXDIFormatExporterOption("BioXAS XAS (XDI Format)", configuration_->edge().split(" ").first(), configuration_->edge().split(" ").last(), true);
+
+	if (bioXASDefaultXAS->id() > 0)
+		AMAppControllerSupport::registerClass<BioXASSideXASScanConfiguration, AMExporterXDIFormat, AMExporterOptionXDIFormat>(bioXASDefaultXAS->id());
+
+	AMControlInfo controlInfo;
+	if (configuration_->usingEncoderEnergy())
+		controlInfo = BioXASSideBeamline::bioXAS()->mono()->encoderEnergyControl()->toInfo();
+	else
+		controlInfo = BioXASSideBeamline::bioXAS()->mono()->stepEnergyControl()->toInfo();
+
 	AMControlInfoList list;
-	list.append(BioXASSideBeamline::bioXAS()->mono()->encoderEnergyControl()->toInfo());
+	list.append(controlInfo);
 	configuration_->setAxisControlInfos(list);
 
 	useFeedback_ = true;
@@ -106,6 +121,16 @@ QString BioXASSideXASScanActionController::beamlineSettings()
 	QString notes;
 
 	notes.append(QString("SR1 Current:\t%1 mA\n").arg(CLSStorageRing::sr1()->ringCurrent()));
+
+	// Note which energy control is being used.
+
+	QString controlType;
+	if (configuration_->usingEncoderEnergy())
+		controlType = QString("encoder-based");
+	else
+		controlType = QString("step-based");
+
+	notes.append(QString("Energy option:\t%1\n").arg(controlType));
 
 	return notes;
 }
@@ -203,7 +228,7 @@ void BioXASSideXASScanActionController::buildScanControllerImplementation()
 	AM1DExpressionAB *deltaEnergySource = 0;
 
 	int energySetpointDetectorIndex = scan_->indexOfDataSource(BioXASSideBeamline::bioXAS()->encoderEnergySetpointDetector()->name());
-	if (energySetpointDetectorIndex) {
+	if (energySetpointDetectorIndex != -1) {
 		energySetpointSource = scan_->dataSourceAt(energySetpointDetectorIndex);
 	}
 
@@ -213,9 +238,9 @@ void BioXASSideXASScanActionController::buildScanControllerImplementation()
 	}
 
 	if (energySetpointSource && energyFeedbackSource) {
-		deltaEnergySource = new AM1DExpressionAB("EnergySetpointFeedback");
+		deltaEnergySource = new AM1DExpressionAB("EncoderEnergySetpointFeedback");
 		deltaEnergySource->setInputDataSources(QList<AMDataSource *>() << energySetpointSource << energyFeedbackSource);
-		deltaEnergySource->setExpression("EnergySetpoint-EnergyFeedback");
+		deltaEnergySource->setExpression(QString("%1-%2").arg(energySetpointSource->name()).arg(energyFeedbackSource->name()));
 
 		scan_->addAnalyzedDataSource(deltaEnergySource, true, false);
 	}
@@ -260,6 +285,7 @@ void BioXASSideXASScanActionController::buildScanControllerImplementation()
 		i0CorrectedDetectorSource->setDescription(QString("%1 Dark Current Corrected").arg(i0DetectorSource->name()));
 		i0CorrectedDetectorSource->setDataName(i0DetectorSource->name());
 		i0CorrectedDetectorSource->setDwellTimeName(dwellTimeSource->name());
+		i0CorrectedDetectorSource->setDarkCurrent(BioXASSideBeamline::bioXAS()->exposedDetectorByName(i0DetectorSource->name())->darkCurrentValue());
 		i0CorrectedDetectorSource->setInputDataSources(QList<AMDataSource*>() << i0DetectorSource << dwellTimeSource);
 		i0CorrectedDetectorSource->setTimeUnitMultiplier(0.001);
 
@@ -273,6 +299,7 @@ void BioXASSideXASScanActionController::buildScanControllerImplementation()
 		i1CorrectedDetectorSource->setDescription(QString("%1 Dark Current Corrected").arg(i1DetectorSource->name()));
 		i1CorrectedDetectorSource->setDataName(i1DetectorSource->name());
 		i1CorrectedDetectorSource->setDwellTimeName(dwellTimeSource->name());
+		i1CorrectedDetectorSource->setDarkCurrent(BioXASSideBeamline::bioXAS()->exposedDetectorByName(i1DetectorSource->name())->darkCurrentValue());
 		i1CorrectedDetectorSource->setInputDataSources(QList<AMDataSource*>() << i1DetectorSource << dwellTimeSource);
 		i1CorrectedDetectorSource->setTimeUnitMultiplier(0.001);
 
@@ -286,6 +313,7 @@ void BioXASSideXASScanActionController::buildScanControllerImplementation()
 		i2CorrectedDetectorSource->setDescription(QString("%1 Dark Current Corrected").arg(i2DetectorSource->name()));
 		i2CorrectedDetectorSource->setDataName(i2DetectorSource->name());
 		i2CorrectedDetectorSource->setDwellTimeName(dwellTimeSource->name());
+		i2CorrectedDetectorSource->setDarkCurrent(BioXASSideBeamline::bioXAS()->exposedDetectorByName(i2DetectorSource->name())->darkCurrentValue());
 		i2CorrectedDetectorSource->setInputDataSources(QList<AMDataSource*>() << i2DetectorSource << dwellTimeSource);
 		i2CorrectedDetectorSource->setTimeUnitMultiplier(0.001);
 

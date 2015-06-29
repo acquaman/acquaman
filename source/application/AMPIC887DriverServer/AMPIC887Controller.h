@@ -17,8 +17,9 @@ class AMPIC887Controller
 public:
 	/*!
 	  * Creates a new instance of an C887.11 controller, with the provided hostname
-	  * and id. The controller will not be connected until the connect() call has
-	  * been made.
+	  * and id. The controller will attempt to make a conneciton immediately
+	  * (connection status can be checked with connectionEstablished()).
+	  *
 	  * \param name ~ A human readable name which this controller should be known
 	  * by.
 	  * \param hostname ~ Currently the PI_C887 library will only connect to a controller

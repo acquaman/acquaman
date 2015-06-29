@@ -29,6 +29,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "actions3/AMListAction3.h"
 
 #include "application/AMAppControllerSupport.h"
+#include "application/BioXAS/BioXAS.h"
 
 #include "dataman/AMRun.h"
 #include "dataman/AMScanAxisEXAFSRegion.h"
@@ -37,6 +38,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/export/AMExporterOptionGeneralAscii.h"
 #include "dataman/export/AMExporterGeneralAscii.h"
 #include "dataman/export/AMExporterAthena.h"
+#include "dataman/export/AMExporterXDIFormat.h"
+#include "dataman/export/AMExporterOptionXDIFormat.h"
 #include "dataman/BioXAS/BioXASUserConfiguration.h"
 
 #include "util/AMPeriodicTable.h"
@@ -44,19 +47,21 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/CLS/CLSFacilityID.h"
 #include "beamline/CLS/CLSSIS3820Scaler.h"
 
+#include "beamline/BioXAS/BioXASSideBeamline.h"
 #include "acquaman/BioXAS/BioXASSideXASScanConfiguration.h"
 #include "acquaman/BioXAS/BioXASXRFScanConfiguration.h"
-#include "beamline/BioXAS/BioXASSideBeamline.h"
 
 #include "ui/AMMainWindow.h"
 #include "ui/acquaman/AMGenericStepScanConfigurationView.h"
 #include "ui/acquaman/AMScanConfigurationViewHolder3.h"
 #include "ui/dataman/AMGenericScanEditor.h"
+#include "ui/AMMotorGroupView.h"
 
 #include "ui/CLS/CLSJJSlitsView.h"
 
 #include "ui/util/AMChooseDataFolderDialog.h"
 
+#include "ui/BioXAS/BioXASEndstationTableView.h"
 #include "ui/BioXAS/BioXASSidePersistentView.h"
 #include "ui/BioXAS/BioXASSideXASScanConfigurationView.h"
 #include "ui/BioXAS/BioXAS32ElementGeDetectorView.h"
@@ -166,34 +171,10 @@ void BioXASSideAppController::registerClasses()
 
 void BioXASSideAppController::setupExporterOptions()
 {
-	QList<int> matchIDs = AMDatabase::database("user")->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<AMExporterOptionGeneralAscii>(), "name", "BioXAS Default XAS");
+	AMExporterOptionXDIFormat *bioXASDefaultXAS = BioXAS::buildStandardXDIFormatExporterOption("BioXAS XAS (XDI Format)", "", "", true);
 
-	AMExporterOptionGeneralAscii *bioXASDefaultXAS = new AMExporterOptionGeneralAscii();
-
-	if (matchIDs.count() != 0)
-		bioXASDefaultXAS->loadFromDb(AMDatabase::database("user"), matchIDs.at(0));
-
-	bioXASDefaultXAS->setName("BioXAS Default XAS");
-	bioXASDefaultXAS->setFileName("$name_$fsIndex.dat");
-	bioXASDefaultXAS->setHeaderText("Scan: $name #$number\nDate: $dateTime\nSample: $sample\nFacility: $facilityDescription\n\n$scanConfiguration[header]\n\n$notes\n\n");
-	bioXASDefaultXAS->setHeaderIncluded(true);
-	bioXASDefaultXAS->setColumnHeader("$dataSetName $dataSetInfoDescription");
-	bioXASDefaultXAS->setColumnHeaderIncluded(true);
-	bioXASDefaultXAS->setColumnHeaderDelimiter("");
-	bioXASDefaultXAS->setSectionHeader("");
-	bioXASDefaultXAS->setSectionHeaderIncluded(true);
-	bioXASDefaultXAS->setIncludeAllDataSources(true);
-	bioXASDefaultXAS->setFirstColumnOnly(true);
-	bioXASDefaultXAS->setIncludeHigherDimensionSources(true);
-	bioXASDefaultXAS->setSeparateHigherDimensionalSources(true);
-	bioXASDefaultXAS->setSeparateSectionFileName("$name_$dataSetName_$fsIndex.dat");
-	bioXASDefaultXAS->setHigherDimensionsInRows(true);
-	bioXASDefaultXAS->storeToDb(AMDatabase::database("user"));
-
-	if (bioXASDefaultXAS->id() > 0) {
-		AMAppControllerSupport::registerClass<BioXASSideXASScanConfiguration, AMExporterGeneralAscii, AMExporterOptionGeneralAscii>(bioXASDefaultXAS->id());
-	}
-
+	if (bioXASDefaultXAS->id() > 0)
+		AMAppControllerSupport::registerClass<BioXASSideXASScanConfiguration, AMExporterXDIFormat, AMExporterOptionXDIFormat>(bioXASDefaultXAS->id());
 }
 
 void BioXASSideAppController::setupUserInterface()
@@ -209,6 +190,9 @@ void BioXASSideAppController::setupUserInterface()
 
 	// Add widgets to main window panes:
 	////////////////////////////////////
+
+	endstationTableView_ = new BioXASEndstationTableView(BioXASSideBeamline::bioXAS()->endstationTable());
+	mw_->addPane(AMMainWindow::buildMainWindowPane("Endstation Table", ":/system-software-update.png", endstationTableView_), "General", "Endstation Table", ":/system-software-update.png");
 
 	carbonFilterFarmView_ = new BioXASCarbonFilterFarmView(BioXASSideBeamline::bioXAS()->carbonFilterFarm());
 	mw_->addPane(AMMainWindow::buildMainWindowPane("Carbon Filter Farm", ":/system-software-update.png", carbonFilterFarmView_), "General", "Carbon filter farm", ":/system-software-update.png");
@@ -233,6 +217,9 @@ void BioXASSideAppController::setupUserInterface()
 
 	CLSStandardsWheelConfigurationView *wheelView = new CLSStandardsWheelConfigurationView(BioXASSideBeamline::bioXAS()->standardsWheel());
 	mw_->addPane(AMMainWindow::buildMainWindowPane("Standards Wheel", ":/system-software-update.png", wheelView), "General", "Standards Wheel", ":/system-software-update.png");
+
+	AMMotorGroupView *cryostatStageView = new AMMotorGroupView(BioXASSideBeamline::bioXAS()->motorGroup());
+	mw_->addPane(AMMainWindow::buildMainWindowPane("Cryostat Stage", ":/system-software-update.png", cryostatStageView), "General", "Cryostat Stage", ":/system-software-update.png");
 
 	// Create scaler view, if scaler is present and connected.
 	onScalerConnected();

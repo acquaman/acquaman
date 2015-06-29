@@ -33,7 +33,7 @@ public:
 	/*!
 	  * Base virtual destructor for a console application.
 	  */
-	virtual ~AMConsoleInputHandler() {}
+	virtual ~AMConsoleInputHandler();
 
 	/*!
 	  * Writes the provided output to standard output as a single line, then flushes
@@ -90,14 +90,14 @@ protected slots:
 	void onCommandUnknown(const QString& errorMessage);
 protected:
 	/// A text stream for writing to standard output.
-	QTextStream standardOutputStream_;
+	QTextStream* standardOutputStream_;
 	/// A text stream for writing to standard error.
-	QTextStream standardErrorStream_;
+	QTextStream* standardErrorStream_;
 	/// A text stream for reading from standard input.
-	QTextStream inputStream_;
+	QTextStream* inputStream_;
 	/// A socket notifier which emits signals when there is input to be read from
 	/// the standard input.
-	QSocketNotifier inputStreamNotifier_;
+	QSocketNotifier* inputStreamNotifier_;
 	/// The abstract command set which will be passed an input.
 	AMAbstractConsoleCommandParser* commandParser_;
 	/// The prompt to display to the console to indicate that it is ready for input

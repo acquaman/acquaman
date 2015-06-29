@@ -12,11 +12,6 @@ public:
     explicit BioXASMainM1Mirror(QObject *parent = 0);
 	/// Destructor.
 	virtual ~BioXASMainM1Mirror();
-
-signals:
-
-public slots:
-
 };
 
 #endif // BIOXASMAINM1MIRROR_H

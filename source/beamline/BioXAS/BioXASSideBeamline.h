@@ -37,6 +37,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/CLS/CLSJJSlits.h"
 #include "beamline/CLS/CLSJJSlitGapControl.h"
 #include "beamline/CLS/CLSJJSlitCenterControl.h"
+#include "beamline/CLS/CLSStandardsWheel.h"
 
 #include "util/AMErrorMonitor.h"
 #include "util/AMBiHash.h"
@@ -51,9 +52,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/BioXAS/BioXASSideM1Mirror.h"
 #include "beamline/BioXAS/BioXASSideM2Mirror.h"
 #include "beamline/BioXAS/BioXASSideDBHRMirror.h"
+#include "beamline/BioXAS/BioXASEndstationTable.h"
 #include "beamline/BioXAS/BioXASFourElementVortexDetector.h"
-
-#include "beamline/CLS/CLSStandardsWheel.h"
 
 #define BIOXASSIDEBEAMLINE_PRESSURE_TOO_HIGH 54600
 #define BIOXASSIDEBEAMLINE_VALVES_CLOSED 54601
@@ -200,6 +200,16 @@ public:
 	// Motor controls.
 	/// Returns the lateral detector stage motor.
 	CLSMAXvMotor* detectorStageLateral() const { return detectorStageLateral_; }
+	/// Returns the cryostat x motor.
+	CLSMAXvMotor* cryostatX() const { return cryostatX_; }
+	/// Returns the cryostat y motor.
+	CLSMAXvMotor* cryostatY() const { return cryostatY_; }
+	/// Returns the cryostat z motor.
+	CLSMAXvMotor* cryostatZ() const { return cryostatZ_; }
+
+	// Motor groups
+	/// Returns the motor group.
+	AMMotorGroup* motorGroup() const { return motorGroup_; }
 
 	// Current amplifiers
 	/// Returns the I0 Keithley428 amplifier.
@@ -236,6 +246,9 @@ public:
 	BioXAS32ElementGeDetector *ge32ElementDetector() const { return ge32ElementDetector_; }
 	/// Returns the four element Vortex detector.
 	BioXASFourElementVortexDetector *fourElementVortexDetector() const { return fourElementVortexDetector_; }
+
+	// Endstation table
+	BioXASEndstationTable *endstationTable() const { return endstationTable_; }
 
 signals:
 	/// Notifier that the pressure status has changed. Argument is false if any of the pressures fall below its setpoint, true otherwise.
@@ -284,6 +297,8 @@ protected:
 	void setupControlSets();
 	/// Sets up all the detectors.
 	void setupDetectors();
+	/// Sets up the cryostat stage motors.
+	void setupCryostatStage();
 	/// Sets up the sample stage motors.
 	void setupSampleStage();
 	/// Sets up the detector stage motors.
@@ -446,6 +461,16 @@ protected:
 	AMControl *tm5_;
 
 	AMControlSet *temperatureSet_;
+
+	// endstation table
+	BioXASEndstationTable *endstationTable_;
+
+	/// Cryostat motors.
+
+	AMMotorGroup *motorGroup_;
+	CLSMAXvMotor *cryostatX_;
+	CLSMAXvMotor *cryostatY_;
+	CLSMAXvMotor *cryostatZ_;
 
 	/// Detector motors.
 

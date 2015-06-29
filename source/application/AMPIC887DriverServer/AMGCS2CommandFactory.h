@@ -21,6 +21,11 @@ public:
 	  * string, if the commandString can be parsed, or 0 otherwise.
 	  */
 	static AMGCS2Command* buildCommand(const QString& commandString);
+
+	/*!
+	  * Virtuak destructor for a GCS2 command factory.
+	  */
+	virtual ~AMGCS2CommandFactory() {}
 protected:
 
 	/*!

@@ -3,6 +3,8 @@
 BioXASScanConfiguration::BioXASScanConfiguration()
 {
 	dbObject_ = new BioXASScanConfigurationDbObject;
+
+	usingEncoderEnergy_ = true;
 	timeOffset_ = 0.0;
 	totalTime_ = 0.0;
 }
@@ -10,6 +12,8 @@ BioXASScanConfiguration::BioXASScanConfiguration()
 BioXASScanConfiguration::BioXASScanConfiguration(const BioXASScanConfiguration &original)
 {
 	dbObject_ = new BioXASScanConfigurationDbObject(*original.dbObject());
+
+	usingEncoderEnergy_ = original.usingEncoderEnergy();
 	timeOffset_ = original.timeOffset();
 	totalTime_ = original.totalTime();
 }
@@ -17,6 +21,13 @@ BioXASScanConfiguration::BioXASScanConfiguration(const BioXASScanConfiguration &
 BioXASScanConfiguration::~BioXASScanConfiguration()
 {
 
+}
+
+void BioXASScanConfiguration::setUsingEncoderEnergy(bool usingEncoder)
+{
+	if (usingEncoderEnergy_ != usingEncoder) {
+		usingEncoderEnergy_ = usingEncoder;
+	}
 }
 
 void BioXASScanConfiguration::dbWriteScanConfigurationDbObject(AMDbObject *object)

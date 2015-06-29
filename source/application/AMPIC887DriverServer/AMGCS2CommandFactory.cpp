@@ -145,9 +145,7 @@ AMGCS2Command * AMGCS2CommandFactory::buildCommand(const QString &commandString)
 
 QStringList AMGCS2CommandFactory::commandArguments(const QString& commandString)
 {
-	QStringList argumentsList = commandString.trimmed().split(" ");
-	argumentsList.removeAt(0);
-	return argumentsList;
+	return commandString.trimmed().split(" ").mid(1, -1);
 }
 
 QList<AMGCS2::Axis> AMGCS2CommandFactory::axesFromCommandString(const QString &axisArguments)

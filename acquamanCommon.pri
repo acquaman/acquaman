@@ -3,7 +3,7 @@
 # ####################################################################
 
 # Video Support: Remove this line if you do not have the multimedia module from QtMobility
-#CONFIG *= mobility
+CONFIG *= mobility
 
 include ( $$PATH_TO_AM/compositeCommon/AMCommon.pri )
 
@@ -422,7 +422,9 @@ HEADERS += \
 	source/actions3/AMTimeoutLoopAction.h \
 	source/beamline/AMPseudoMotorControl.h \
 	source/beamline/AMXspress3XRFDetector.h \
-	source/ui/beamline/AMXspress3XRFDetectorView.h
+	source/ui/beamline/AMXspress3XRFDetectorView.h \
+    source/dataman/export/AMExporterXDIFormat.h \
+    source/dataman/export/AMExporterOptionXDIFormat.h
 
 FORMS += \
 
@@ -806,7 +808,9 @@ SOURCES += \
 	source/actions3/AMTimeoutLoopAction.cpp \
 	source/beamline/AMPseudoMotorControl.cpp \
 	source/beamline/AMXspress3XRFDetector.cpp \
-	source/ui/beamline/AMXspress3XRFDetectorView.cpp
+	source/ui/beamline/AMXspress3XRFDetectorView.cpp \
+    source/dataman/export/AMExporterXDIFormat.cpp \
+    source/dataman/export/AMExporterOptionXDIFormat.cpp
 
 RESOURCES *= source/icons/icons.qrc \
 		source/configurationFiles/configurationFiles.qrc \
@@ -823,3 +827,7 @@ contains(DEFINES, AM_BUILD_REPORTER_ENABLED){
 
 	SOURCES *= source/util/AMRunTimeBuildInfo.cpp
 }
+
+
+
+

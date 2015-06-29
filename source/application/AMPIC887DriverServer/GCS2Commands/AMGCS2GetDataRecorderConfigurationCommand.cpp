@@ -6,6 +6,18 @@ AMGCS2GetDataRecorderConfigurationCommand::AMGCS2GetDataRecorderConfigurationCom
 {
 }
 
+AMGCS2GetDataRecorderConfigurationCommand::~AMGCS2GetDataRecorderConfigurationCommand()
+{
+	for(int iRecorderConfig = 0, recorderConfigCount = dataRecorderConfigurations_.count();
+		iRecorderConfig < recorderConfigCount;
+		++iRecorderConfig) {
+
+		delete dataRecorderConfigurations_.at(iRecorderConfig);
+	}
+
+	dataRecorderConfigurations_.clear();
+}
+
 QString AMGCS2GetDataRecorderConfigurationCommand::outputString() const
 {
 	if(!wasSuccessful_) {
@@ -31,6 +43,13 @@ QList<AMPIC887DataRecorderConfiguration *> AMGCS2GetDataRecorderConfigurationCom
 bool AMGCS2GetDataRecorderConfigurationCommand::runImplementation()
 {
 	// Clear previous results
+	for(int iRecorderConfig = 0, recorderConfigCount = dataRecorderConfigurations_.count();
+		iRecorderConfig < recorderConfigCount;
+		++iRecorderConfig) {
+
+		delete dataRecorderConfigurations_.at(iRecorderConfig);
+	}
+
 	dataRecorderConfigurations_.clear();
 
 

@@ -115,7 +115,9 @@ QList<AMControl *> BioXASMainBeamline::getMotorsByType(BioXASBeamlineDef::BioXAS
 		break;
 
 	case BioXASBeamlineDef::PseudoMonoMotor: // BioXAS Pseudo Mono motor
-		matchedMotors.append(mono_->energyControl());
+		matchedMotors.append(mono_->encoderEnergyControl());
+		matchedMotors.append(mono_->stepEnergyControl());
+		matchedMotors.append(mono_->regionControl());
 		break;
 
 	default:
@@ -213,6 +215,7 @@ void BioXASMainBeamline::setupExposedControls()
 	addExposedControl(m1Mirror_->heightControl());
 	addExposedControl(m1Mirror_->yawControl());
 	addExposedControl(m1Mirror_->lateralControl());
+	addExposedControl(m1Mirror_->bendControl());
 
 	// M2 mirror controls.
 
@@ -230,6 +233,7 @@ void BioXASMainBeamline::setupExposedControls()
 	addExposedControl(m2Mirror_->heightControl());
 	addExposedControl(m2Mirror_->yawControl());
 	addExposedControl(m2Mirror_->lateralControl());
+	addExposedControl(m2Mirror_->bendControl());
 
 	// Mono controls.
 	addExposedControl(mono_->encoderEnergyControl());
@@ -246,6 +250,12 @@ void BioXASMainBeamline::setupExposedControls()
 	addExposedControl(mono_->braggMotor()->encoderCalibrationSlopeControl());
 	addExposedControl(mono_->braggMotor()->stepCalibrationSlopeControl());
 	addExposedControl(mono_->braggMotor()->retries());
+	addExposedControl(mono_->verticalMotor());
+	addExposedControl(mono_->lateralMotor());
+	addExposedControl(mono_->crystal1PitchMotor());
+	addExposedControl(mono_->crystal1RollMotor());
+	addExposedControl(mono_->crystal2PitchMotor());
+	addExposedControl(mono_->crystal2RollMotor());
 }
 
 void BioXASMainBeamline::setupExposedDetectors()
