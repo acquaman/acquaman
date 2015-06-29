@@ -23,6 +23,13 @@ bool AMPIC887Controller::interpretAndRunCommand(const QString &commandText)
 		lastError_ = "Command could not be parsed";
 		return false;
 	}
+
+	AMGCS2AsyncCommand* asyncCommand = qobject_case<AMGCS2AsyncCommand*>(command);
+	if(!asyncCommand) {
+		delete command;
+	} else {
+		asyncCommand->deleteLater();
+	}
 }
 
 bool AMPIC887Controller::runCommand(AMGCS2Command *command)
@@ -43,13 +50,6 @@ bool AMPIC887Controller::runCommand(AMGCS2Command *command)
 		} else {
 			lastOutputString_ = command->outputString();
 		}
-	}
-
-	AMGCS2AsyncCommand* asyncCommand = qobject_case<AMGCS2AsyncCommand*>(command);
-	if(!asyncCommand) {
-		delete command;
-	} else {
-		asyncCommand->deleteLater();
 	}
 
 	return success;

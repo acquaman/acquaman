@@ -4,6 +4,7 @@
 #define TIMER_CHECK_INTERVAL_MS 50
 
 #include <QObject>
+#include <QTime>
 #include "AMGCS2Command.h"
 /*!
   * Addition to the GCS2Command which allows for an observer to be tied to the
@@ -64,6 +65,7 @@ protected:
 	  */
 	virtual RunningState isFinishedImplementation() = 0;
 
+	QTime startTime_;
 	int timerId_;
 	double timeoutMs_;
 };

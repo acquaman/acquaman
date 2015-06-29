@@ -1,10 +1,44 @@
 #ifndef AMGCS2ASYNCREFERENCEMOVECOMMAND_H
 #define AMGCS2ASYNCREFERENCEMOVECOMMAND_H
 #include "AMGCS2AsyncCommand.h"
+
+#include <QList>
+#include "../AMGCS2.h"
+
+/*!
+  * An asynchronous command which performs a reference move on the provided axes,
+  * then periodically checks if the reference move has finished. Completed signal
+  * is emitted in the case that the command completes successfully. Failed signal
+  * is emitted if the command fails or the timer times out.
+  */
 class AMGCS2AsyncReferenceMoveCommand : public AMGCS2AsyncCommand
 {
 public:
-    AMGCS2AsyncReferenceMoveCommand();
+	/*!
+	  * Creates an instance of a reference move command on the provided list of
+	  * axes.
+	  * \param axes ~ An optional list of the axes on whom a reference move will
+	  * be performed. If none is provided a reference move will be performed on
+	  * all axes.
+	  */
+	AMGCS2AsyncReferenceMoveCommand(const QList<AMGCS2::Axis>& axes = QList<AMGCS2::Axis>());
+
+protected:
+	/*!
+	  * Defines the steps taken to start the reference move command on a controller.
+	  */
+	virtual bool runImplementation();
+
+	/*!
+	  * Defines the steps taken to check whether the reference move has been completed.
+	  * \returns NotFinished if the reference move is still under way.
+	  *		     Completed if the reference move has been performed successfully
+	  *			 on the provided axes.
+	  *			 Failed if the reference move has been halted for some reason.
+	  */
+	virtual AMGCS2AsyncCommand::RunningState isFinishedImplementation();
+
+	QLisT<AMGCS2::Axis> axesToReference_;
 };
 
 #endif // AMGCS2ASYNCREFERENCEMOVECOMMAND_H
