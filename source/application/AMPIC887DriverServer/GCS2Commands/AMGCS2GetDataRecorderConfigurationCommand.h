@@ -22,7 +22,7 @@ public:
 	/*!
 	  * Virtual destructor for a get data recorder configuration command
 	  */
-	virtual ~AMGCS2GetDataRecorderConfigurationCommand() {}
+	virtual ~AMGCS2GetDataRecorderConfigurationCommand();
 
 	/*!
 	  * The reported data recorder configuration in a human readable format.
