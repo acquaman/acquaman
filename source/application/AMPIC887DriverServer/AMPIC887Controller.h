@@ -37,6 +37,13 @@ public:
 	bool interpretAndRunCommand(const QString& commandText);
 
 	/*!
+	  * Runs the provided command.
+	  * \param command ~ The command to run.
+	  * \returns True if the command could be run, false otherwise.
+	  */
+	bool runCommand(AMGCS2Command* command);
+
+	/*!
 	  * Connects/reconnects to the controller represented by this class.
 	  * \returns True if a connection could be established with the controller,
 	  * false otherwise

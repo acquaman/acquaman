@@ -1,6 +1,7 @@
 #include "AMPIC887Controller.h"
 #include "AMGCS2CommandFactory.h"
 #include "PI_GCS2_DLL.h"
+#include "GCS2Commands/AMGCS2AsyncCommand.h"
 
 AMPIC887Controller::AMPIC887Controller(const QString& name, const QString& hostname)
 {
@@ -16,23 +17,42 @@ bool AMPIC887Controller::interpretAndRunCommand(const QString &commandText)
 
 	if(command) {
 
-		command->setControllerId(id_);
-		command->run();
-
-		if(!command->wasSuccessful()) {
-			lastError_ = command->lastError();
-			delete command;
-			return false;
-		}
-
-		lastOutputString_ = command->outputString();
-		delete command;
-		return true;
+		return runCommand(command);
 
 	} else {
 		lastError_ = "Command could not be parsed";
 		return false;
 	}
+}
+
+bool AMPIC887Controller::runCommand(AMGCS2Command *command)
+{
+	bool success = false;
+
+	if(!command) {
+		lastError_ = "Cannot run null command.";
+		success = false;
+	} else {
+
+		runCommand(command);
+
+		success = command->wasSuccessful();
+
+		if(!success) {
+			lastError_ = command->lastError();
+		} else {
+			lastOutputString_ = command->outputString();
+		}
+	}
+
+	AMGCS2AsyncCommand* asyncCommand = qobject_case<AMGCS2AsyncCommand*>(command);
+	if(!asyncCommand) {
+		delete command;
+	} else {
+		asyncCommand->deleteLater();
+	}
+
+	return success;
 }
 
 bool AMPIC887Controller::connect()
@@ -95,5 +115,6 @@ QString AMPIC887Controller::lastOutputString() const
 {
 	return lastOutputString_;
 }
+
 
 

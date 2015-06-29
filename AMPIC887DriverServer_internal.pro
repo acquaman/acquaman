@@ -59,7 +59,9 @@ SOURCES *= \
     source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2GetSystemVelocityCommand.cpp \
     source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2SetSystemVelocityCommand.cpp \
     source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2VirtualMoveCommand.cpp \
-    source/application/AMPIC887DriverServer/AMPIC887ErrorMessageClearer.cpp
+    source/application/AMPIC887DriverServer/AMPIC887ErrorMessageClearer.cpp \
+    source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2AsyncCommand.cpp \
+    source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2AsyncReferenceMoveCommand.cpp
 
 HEADERS *= \
 	source/application/AMPIC887DriverServer/AMPIC887ControllerCollection.h \	
@@ -119,7 +121,9 @@ HEADERS *= \
     source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2GetSystemVelocityCommand.h \
     source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2SetSystemVelocityCommand.h \
     source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2VirtualMoveCommand.h \
-    source/application/AMPIC887DriverServer/AMPIC887ErrorMessageClearer.h
+    source/application/AMPIC887DriverServer/AMPIC887ErrorMessageClearer.h \
+    source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2AsyncCommand.h \
+    source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2AsyncReferenceMoveCommand.h
 
 # PI Controller Driver Dependencies
 
@@ -132,6 +136,26 @@ INCLUDEPATH *= $$PIC887_INCLUDE_DIR
 LIBS *= $$PIC887_LIB
 
 CONFIG -= mobility
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

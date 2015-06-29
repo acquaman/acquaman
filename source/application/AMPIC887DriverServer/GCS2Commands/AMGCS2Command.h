@@ -39,9 +39,10 @@ public:
 	QString lastError() const;
 
 	/*!
-	  * Runs the command.
+	  * Runs the command. Note, for defining a single command this should not be
+	  * overridden. Instead override the runImplementation() command.
 	  */
-	void run();
+	virtual void run();
 
 	/*!
 	  * Sets the id of the controller upon which this command will be run.
