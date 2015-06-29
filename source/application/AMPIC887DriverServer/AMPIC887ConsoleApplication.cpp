@@ -34,15 +34,10 @@ AMPIC887ConsoleApplication::AMPIC887ConsoleApplication(int argc, char *argv[]) :
 
 	} else {
 
-		// Startup failed. Print an error message, then startup a timer to close
-		// the application after a few seconds.
+		// Startup failed. Print an error message, then quit the application.
 		consoleInputHandler_->writeLineToStandardError("Could not startup the hexapod driver application.");
 
-		QTimer* exitTimer = new QTimer(this);
-		exitTimer->setInterval(500);
-
-		connect(exitTimer, SIGNAL(timeout()), this, SLOT(quit()));
-		exitTimer->start();
+		quit();
 	}
 }
 
