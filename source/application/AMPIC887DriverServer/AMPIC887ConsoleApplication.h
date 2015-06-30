@@ -66,6 +66,20 @@ protected slots:
 	  */
 	void onOtherCommandIssued(const QString& commandString);
 
+	/*!
+	  * Handles signals indicating that one of the controllers in the application
+	  * has some text it wishes to output to the console terminal.
+	  * \param outputString ~ The text that the controller wishes to output.
+	  */
+	void onControllerOutputReceived(const QString& outputString);
+
+	/*!
+	  * Handles signals indicating that one of the controller in the application
+	  * has encountered an error.
+	  * \param errorMessage ~ An message describing the error.
+	  */
+	void onControllerErrorEncountered(const QString& errorMessage);
+
 protected:
 	/*!
 	  * Runs the initialization procedure for the application.

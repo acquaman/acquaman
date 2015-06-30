@@ -3,6 +3,7 @@
 
 #define CONTROLLER_PORT 50000 // PI C887.11 controller are hardwired to use port 50000
 
+#include <QObject>
 #include <QString>
 #include "GCS2Commands/AMGCS2Command.h"
 
@@ -12,8 +13,9 @@
   * to instances of this class will, in turn, pass them along to the controller
   * they represent.
   */
-class AMPIC887Controller
+class AMPIC887Controller : public QObject
 {
+	Q_OBJECT
 public:
 	/*!
 	  * Creates a new instance of an C887.11 controller, with the provided hostname
@@ -29,32 +31,35 @@ public:
 	AMPIC887Controller(const QString& name, const QString& hostname);
 
 	/*!
+	  * Virtual destructor for a pi c887 controller.
+	  */
+	virtual ~AMPIC887Controller(){}
+
+	/*!
 	  * Attempts to interpret the provided command text as a GCS2 command, and
 	  * if it can, run it.
 	  * \param commandText ~ The text input to the console which is to be interpreted
 	  * as a GCS2 command
-	  * \returns True if the command could be interpreted and run, false otherwise.
 	  */
-	bool interpretAndRunCommand(const QString& commandText);
+	void interpretAndRunCommand(const QString& commandText);
 
 	/*!
 	  * Runs the provided command.
 	  * \param command ~ The command to run.
-	  * \returns True if the command could be run, false otherwise.
 	  */
-	bool runCommand(AMGCS2Command* command);
+	void runCommand(AMGCS2Command* command);
 
 	/*!
 	  * Connects/reconnects to the controller represented by this class.
 	  * \returns True if a connection could be established with the controller,
 	  * false otherwise
 	  */
-	bool connect();
+	bool connectToController();
 
 	/*!
 	  * Disconnects from the controller represented by this class.
 	  */
-	void disconnect();
+	void disconnectFromController();
 
 	/*!
 	  * Whether a connection has yet been established with this controller.
@@ -82,22 +87,25 @@ public:
 	  */
 	QString status() const;
 
+signals:
 	/*!
-	  * The last error message encountered by the controller
+	  * Signal indicating that the controller has some output text which. For commands
+	  * this signal is only emitted for those input manually into the console terminal.
+	  * \param outputText ~ The text which the controller is outputting.
 	  */
-	QString lastError() const;
+	void output(const QString& outputText);
 
 	/*!
-	  * The last string output returned from the controller when a command was
-	  * called.
+	  * Signal indicating that the controller has encountered an error of some
+	  * description. For commands this signal is only emitted for those input manually
+	  * into the console terminal.
+	  * \param errorMessage ~ The error message associated with the error.
 	  */
-	QString lastOutputString() const;
+	void errorEncountered(const QString& errorMessage);
 protected:
 
-	QString lastError_;
 	QString name_;
 	QString hostname_;
-	QString lastOutputString_;
 	int id_;
 };
 

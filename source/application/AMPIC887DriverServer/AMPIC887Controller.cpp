@@ -4,64 +4,50 @@
 #include "GCS2Commands/AMGCS2AsyncCommand.h"
 
 AMPIC887Controller::AMPIC887Controller(const QString& name, const QString& hostname)
+	:QObject(0)
 {
 	hostname_ = hostname;
 	name_ = name;
-	connect();
+	connectToController();
 }
 
-
-bool AMPIC887Controller::interpretAndRunCommand(const QString &commandText)
+void AMPIC887Controller::interpretAndRunCommand(const QString &commandText)
 {
 	AMGCS2Command* command = AMGCS2CommandFactory::buildCommand(commandText);
 
 	if(command) {
 
-		return runCommand(command);
-
-	} else {
-		lastError_ = "Command could not be parsed";
-		return false;
-	}
-
-	AMGCS2AsyncCommand* asyncCommand = qobject_case<AMGCS2AsyncCommand*>(command);
-	if(!asyncCommand) {
-		delete command;
-	} else {
-		asyncCommand->deleteLater();
-	}
-}
-
-bool AMPIC887Controller::runCommand(AMGCS2Command *command)
-{
-	bool success = false;
-
-	if(!command) {
-		lastError_ = "Cannot run null command.";
-		success = false;
-	} else {
-
 		runCommand(command);
+		if(command->wasSuccessful()) {
 
-		success = command->wasSuccessful();
+			QString outputString = command->outputString();
 
-		if(!success) {
-			lastError_ = command->lastError();
+			if(!outputString.isEmpty()) {
+				emit output(outputString);
+			}
 		} else {
-			lastOutputString_ = command->outputString();
-		}
-	}
 
-	return success;
+			emit errorEncountered(command->lastError());
+		}
+
+	} else {
+		emit errorEncountered("Command could not be parsed");
+	}
 }
 
-bool AMPIC887Controller::connect()
+void AMPIC887Controller::runCommand(AMGCS2Command *command)
+{
+	command->setControllerId(id_);
+	command->run();
+}
+
+bool AMPIC887Controller::connectToController()
 {
 	id_ = PI_ConnectTCPIP(hostname_.toStdString().c_str(), CONTROLLER_PORT);
 	return connectionEstablished();
 }
 
-void AMPIC887Controller::disconnect()
+void AMPIC887Controller::disconnectFromController()
 {
 	if(id_ < 0) {
 		return;
@@ -104,16 +90,6 @@ QString AMPIC887Controller::status() const
 			.arg(name_)
 			.arg(hostname_)
 			.arg(connectionStatus);
-}
-
-QString AMPIC887Controller::lastError() const
-{
-	return lastError_;
-}
-
-QString AMPIC887Controller::lastOutputString() const
-{
-	return lastOutputString_;
 }
 
 

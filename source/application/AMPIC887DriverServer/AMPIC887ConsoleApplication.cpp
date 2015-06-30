@@ -77,14 +77,17 @@ void AMPIC887ConsoleApplication::onOtherCommandIssued(const QString& commandStri
 		return;
 	}
 
-	bool success =
-			activeController->interpretAndRunCommand(commandString);
+	activeController->interpretAndRunCommand(commandString);
+}
 
-	if(!success) {
-		consoleInputHandler_->writeLineToStandardError(activeController->lastError());
-	} else if (activeController->lastOutputString() != "") {
-		consoleInputHandler_->writeLineToStandardOutput(activeController->lastOutputString());
-	}
+void AMPIC887ConsoleApplication::onControllerOutputReceived(const QString &outputString)
+{
+	consoleInputHandler_->writeLineToStandardOutput(outputString);
+}
+
+void AMPIC887ConsoleApplication::onControllerErrorEncountered(const QString &errorMessage)
+{
+	consoleInputHandler_->writeLineToStandardError(errorMessage);
 }
 
 bool AMPIC887ConsoleApplication::startup()
@@ -97,10 +100,16 @@ bool AMPIC887ConsoleApplication::startup()
 
 bool AMPIC887ConsoleApplication::startupControllers()
 {
-	controllerCollection_.append(new AMPIC887Controller("MC1611-401", "10.52.48.26"));
+	AMPIC887Controller* mc1611_401 = new AMPIC887Controller("MC1611-401", "10.52.48.26");
+	connect(mc1611_401, SIGNAL(output(QString)), this, SLOT(onControllerOutputReceived(QString)));
+	connect(mc1611_401, SIGNAL(errorEncountered(QString)), this, SLOT(onControllerErrorEncountered(QString)));
+
+	controllerCollection_.append(mc1611_401);
 
 	return (controllerCollection_.activeController() != 0);
 }
+
+
 
 
 

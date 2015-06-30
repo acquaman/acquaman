@@ -23,6 +23,11 @@ public:
 	  */
 	explicit AMGCS2AsyncCommand(double timeoutMs = 20);
 
+	/*!
+	  * Overrides the synchronous GCS2Command implementation of run. Begins the
+	  * mechanism for checking if the command has done.
+	  */
+	virtual void run();
 signals:
 	/*!
 	  * Signal indicating that this command has successfully finished
@@ -34,11 +39,7 @@ signals:
 	  */
 	void failed();
 
-	/*!
-	  * Overrides the synchronous GCS2Command implementation of run. Begins the
-	  * mechanism for checking if the command has done.
-	  */
-	virtual void run();
+
 public slots:
 
 protected:

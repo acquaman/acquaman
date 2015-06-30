@@ -51,15 +51,15 @@ AMGCS2AsyncCommand::RunningState AMGCS2AsyncReferenceMoveCommand::isFinishedImpl
 	// Now we need to ensure that if it hasn't completed yet, the axes are at least
 	// still moving.
 
-	AMGCS2GetMovingStatusCommand movingStatusCommand();
-	movingStatusCommand().setControllerId(controllerId_);
-	movingStatusCommand().run();
+	AMGCS2GetMovingStatusCommand movingStatusCommand;
+	movingStatusCommand.setControllerId(controllerId_);
+	movingStatusCommand.run();
 
-	if(!movingStatusCommand().wasSuccessful()) {
+	if(!movingStatusCommand.wasSuccessful()) {
 		return Failed;
 	}
 
-	QFlags<AMGCS2::AxisMovementStatus> movementStatuses;
+	QFlags<AMGCS2::AxisMovementStatus> movementStatuses = movingStatusCommand.movementStatuses();
 
 	bool allStillMoving = true;
 	foreach(AMGCS2::Axis currentAxis, axesToReference_) {

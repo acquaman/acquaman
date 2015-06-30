@@ -38,7 +38,7 @@ protected:
 	  */
 	virtual AMGCS2AsyncCommand::RunningState isFinishedImplementation();
 
-	QLisT<AMGCS2::Axis> axesToReference_;
+	QList<AMGCS2::Axis> axesToReference_;
 };
 
 #endif // AMGCS2ASYNCREFERENCEMOVECOMMAND_H
