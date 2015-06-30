@@ -425,7 +425,12 @@ HEADERS += \
 	source/ui/beamline/AMXspress3XRFDetectorView.h \
     source/dataman/export/AMExporterXDIFormat.h \
     source/dataman/export/AMExporterOptionXDIFormat.h \
-    source/ui/dataman/AMScanViewToolBar.h
+    source/ui/dataman/AMScanViewPlotToolsView.h \
+    source/ui/dataman/AMScanViewPlotToolsButtonView.h \
+    source/ui/dataman/AMScanViewPlotToolView.h \
+    source/ui/dataman/AMScanViewPlotSelectedToolsView.h \
+    source/dataman/AMDataPositionTool.h \
+    source/dataman/AMScanViewPlotTools.h
 
 FORMS += \
 
@@ -812,7 +817,12 @@ SOURCES += \
 	source/ui/beamline/AMXspress3XRFDetectorView.cpp \
     source/dataman/export/AMExporterXDIFormat.cpp \
     source/dataman/export/AMExporterOptionXDIFormat.cpp \
-    source/ui/dataman/AMScanViewToolBar.cpp
+    source/ui/dataman/AMScanViewPlotToolsView.cpp \
+    source/ui/dataman/AMScanViewPlotToolsButtonView.cpp \
+    source/ui/dataman/AMScanViewPlotToolView.cpp \
+    source/ui/dataman/AMScanViewPlotSelectedToolsView.cpp \
+    source/dataman/AMDataPositionTool.cpp \
+    source/dataman/AMScanViewPlotTools.cpp
 
 RESOURCES *= source/icons/icons.qrc \
 		source/configurationFiles/configurationFiles.qrc \
@@ -829,6 +839,28 @@ contains(DEFINES, AM_BUILD_REPORTER_ENABLED){
 
 	SOURCES *= source/util/AMRunTimeBuildInfo.cpp
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

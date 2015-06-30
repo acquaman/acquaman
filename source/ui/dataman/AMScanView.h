@@ -41,8 +41,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "MPlot/MPlot.h"
 #include "MPlot/MPlotPoint.h"
 #include "dataman/AMScanSetModel.h"
+#include "dataman/AMDataPositionTool.h"
 
-#include "ui/dataman/AMScanViewToolBar.h"
+#include "ui/dataman/AMScanViewPlotToolsView.h"
 #include "ui/dataman/AMCramBarHorizontal.h"
 #include "ui/dataman/AMScanViewUtilities.h"
 
@@ -85,7 +86,7 @@ class MPlotWheelZoomerTool;
 class MPlotDataPositionTool;
 
 /// This class is the interface for different view options inside an AMScanView.  They must be able to handle changes from the AMScanSet model (scans or data sources added or removed).
-class AMScanViewInternal : public QGraphicsWidget {
+class  AMScanViewInternal : public QGraphicsWidget {
 	Q_OBJECT
 public:
 
@@ -93,8 +94,8 @@ public:
 
 	explicit AMScanViewInternal(AMScanView* masterView);
 
-	/// Returns this view's plot tool options.
-	AMScanViewPlotToolOptions* toolOptions() const { return toolOptions_; }
+	/// Returns the tools available for this scan view.
+	AMScanViewPlotTools* tools() const { return tools_; }
 
 public slots:
 	/// Must re-implement in subclasses: turn on log scale on the y-axis.
@@ -105,6 +106,12 @@ public slots:
 	virtual void setWaterfallOffset(double offset) { waterfallOffset_ = offset; }
 	/// Must re-implement in subclasses: enable or disable the waterfall effect
 	virtual void enableWaterfallOffset(bool waterfallOn = true) { waterfallEnabled_ = waterfallOn; }
+
+	/// Handles updating the plot with the tools provided in the tool options.
+	virtual void updatePlotTools();
+
+	/// Handles adding and removing tools.
+	virtual void applyPlotTools(QList<MPlotAbstractTool*> newSelection) { Q_UNUSED(newSelection) return; }
 
 protected:
 	/// Helper function to create an appropriate MPlotItem and connect it to the \c dataSource, depending on the dimensionality of \c dataSource.  Returns 0 if we can't handle this dataSource and no item was created (ex: unsupported dimensionality, we only handle 1D or 2D data for now.)
@@ -125,13 +132,14 @@ protected:
 
 	AMScanView* masterView_;
 
+	/// The tools available for this scan view.
+	AMScanViewPlotTools *tools_;
+
 	AMScanSetModel* model() const;
 
 	double waterfallOffset_, normMin_, normMax_;
 	bool logScaleEnabled_;
 	bool normalizationEnabled_, waterfallEnabled_;
-
-	AMScanViewPlotToolOptions *toolOptions_;
 
 	MPlotGW* createDefaultPlot();
 
@@ -145,24 +153,34 @@ protected slots:
 	/// when data changes:
 	virtual void onModelDataChanged(const QModelIndex& topLeft, const QModelIndex& bottomRight) = 0;
 
-	/// Handles adding and removing tools, as reported by the tool options.
-	virtual void onToolSelectionChanged(QList<MPlotAbstractTool*> newSelection) = 0;
-
 	/// Adds the given tool to the given plot.
 	virtual void addToolToPlot(MPlot *plot, MPlotAbstractTool *tool);
 	/// Removes the given tool from the given plot.
 	virtual void removeToolFromPlot(MPlot *plot, MPlotAbstractTool *tool);
+	/// Removes all tools from the given plot.
+	virtual void removeToolsFromPlot(MPlot *plot);
+
+//	/// Handles adding and removing a cursor from the plot.
+//	virtual void setPlotCursorVisibility(MPlot *plot, MPlotPoint *cursor, bool isVisible);
+//	/// Handles setting a plot cursor's coordinates.
+//	virtual void setPlotCursorCoordinates(MPlotPoint *cursor, const QPointF &coordinates);
+//	/// Handles setting a plot cursor's color.
+//	virtual void setPlotCursorColor(MPlotPoint *cursor, const QColor &newColor);
+
+	/// Sets the plot tools.
+	void setPlotTools(AMScanViewPlotTools *newTools);
 
 signals:
 	/// Notifier that the data position marker has changed.
 	void dataPositionChanged(const QPointF &);
+	/// Notifier that the plot tools available have changed.
+	void plotToolsChanged(AMScanViewPlotTools *newTools);
 };
 
 #define AM_SCAN_VIEW_HIDE_SCANBARS_AFTER_N_SCANS 7
 
 class QGroupBox;
 class QComboBox;
-class AMScanViewToolBar;
 
 /// A GUI class that provides a several different ways to view a set of scans.  It is based on the contents of an AMScanSetModel, and a variety of different AMScanViewInternal views can be shown within it.
 class AMScanView : public QWidget
@@ -195,17 +213,11 @@ signals:
 	void dataPositionChanged(const QPointF &);
 
 public slots:
-	/// Sets the visibility of the plot item cursor.
-	void setPlotCursorVisibility(bool visible);
-	/// Sets the coordinates for the plot item cursor.
-	void setPlotCursorCoordinates(const QPointF &coordinates);
-	/// Overloaded.  Sets the x-axis coordinate only.
-	void setPlotCursorCoordinates(double xCoordinate);
-	/// Sets the color of the plot cursor.
-	void setPlotCursorColor(const QColor &color);
-
 	/// change the view mode (newMode is a ViewMode enum: 0 for one data source at a time, 1 for all data sources overplotted, 2 for one plot per scan, 3 for one plot per data source.
 	void changeViewMode(int newMode);
+
+	/// Updates the scan view plot tools bar visibility. The bar is hidden if no tools have been provided.
+	void updateToolsViewVisibility();
 
 	/// add a scan to the view:
 	void addScan(AMScan* scan);
@@ -225,6 +237,8 @@ public slots:
 protected slots:
 	void resizeViews();
 
+	/// Notifies the individual scan views that the plot tools have changed, and they should review what tools have been applied to their plots.
+	void onToolsChanged();
 	/// Used to hide the scan bars if more than AM_SCAN_VIEW_HIDE_SCANBARS_AFTER_N_SCANS (7?) scans have been added to the model, otherwise the scan bars start to take up the whole vertical screen.
 	void onRowInserted(const QModelIndex& parent, int start, int end);
 	/// Helper slot that helps setup the single spectrum view after a scan has been added.
@@ -253,8 +267,9 @@ protected:
 	ViewMode mode_;
 
 	// ui components:
-	/// The plot tool options bar.
-	AMScanViewToolBar *toolbar_;
+
+	// The tools view.
+	AMScanViewPlotToolsView *toolsView_;
 
 	AMGraphicsViewAndWidget* gview_;
 	QGraphicsLinearLayout* glayout_;
@@ -282,21 +297,20 @@ public:
 	virtual ~AMScanViewExclusiveView();
 
 public slots:
-
-	/// Sets the visibility of the plot item cursor.
-	void setPlotCursorVisibility(bool visible);
-	/// Sets the coordinates for the plot item cursor.
-	void setPlotCursorCoordinates(const QPointF &coordinates);
-	/// Overloaded.  Sets the x-axis coordinate only.
-	void setPlotCursorCoordinates(double xCoordinate);
-	/// Sets the color of the plot cursor.
-	void setPlotCursorColor(const QColor &color);
-
 	/// Re-implementing enabling the log scale.
 	virtual void enableLogScale(bool logScaleOn);
 	virtual void enableNormalization(bool normalizationOn, double min = 0, double max = 1);
 	virtual void setWaterfallOffset(double offset);
 	virtual void enableWaterfallOffset(bool waterfallOn);
+
+	/// Handles adding and removing tools from this view's plot(s).
+	virtual void applyPlotTools(QList<MPlotAbstractTool *> newSelection);
+//	/// Handles showing or hiding the cursor for this view's plot(s).
+//	virtual void applyPlotCursorVisibility(bool isVisible);
+//	/// Handles setting the cursor coordinates for this view's plot(s).
+//	virtual void applyPlotCursorCoordinates(const QPointF &coordinates);
+//	/// Handles setting the cursor color for this view's plot(s).
+//	virtual void applyPlotCursorColor(const QColor &newColor);
 
 protected slots:
 	/// after a scan or data source is added in the model
@@ -310,9 +324,6 @@ protected slots:
 
 	/// when the model's "exclusive data source" changes. This is the one data source that we display for all of our scans (as long as they have it).
 	void onExclusiveDataSourceChanged(const QString& exclusiveDataSource);
-
-	/// Handles adding and removing tools, as reported by the tool options.
-	void onToolSelectionChanged(QList<MPlotAbstractTool *> newSelection);
 
 	/// Handles updating the plot tool options data position when the plot data position updates.
 	void onDataPositionChanged(const QPointF &newPosition);
@@ -342,8 +353,11 @@ protected:
 	/*! A null pointer in plotItemDataSources_ means that the scan at that index doesn't have a data source matching the exclusive data source. */
 	QList<AMDataSource*> plotItemDataSources_;
 
+	/// The drag zoomer tool to be available to the plot.
 	MPlotDragZoomerTool *dragZoomerTool_;
+	/// The wheel zoomer tool to be available to the plot.
 	MPlotWheelZoomerTool *wheelZoomerTool_;
+	/// The data position tool to be available to the plot.
 	MPlotDataPositionTool *dataPositionTool_;
 
 	/// Our plot.
@@ -362,21 +376,20 @@ public:
 	virtual ~AMScanViewMultiView();
 
 public slots:
-	/// Sets the visibility of the plot item cursor.
-	void setPlotCursorVisibility(bool visible);
-	/// Sets the coordinates for the plot item cursor.
-	void setPlotCursorCoordinates(const QPointF &coordinates);
-	/// Overloaded.  Sets the x-axis coordinate only.
-	void setPlotCursorCoordinates(double xCoordinate);
-	/// Sets the color of the plot cursor.
-	void setPlotCursorColor(const QColor &color);
-
 	/// Re-implementing enabling the log scale.
 	virtual void enableLogScale(bool logScaleOn);
 	virtual void enableNormalization(bool normalizationOn, double min = 0, double max = 1);
 	virtual void setWaterfallOffset(double offset);
 	virtual void enableWaterfallOffset(bool waterfallOn);
 
+	/// Handles adding and removing tools from this view's plot(s).
+	virtual void applyPlotTools(QList<MPlotAbstractTool *> newSelection);
+//	/// Handles showing or hiding the cursor for this view's plot(s).
+//	virtual void applyPlotCursorVisibility(bool isVisible);
+//	/// Handles setting the cursor coordinates for this view's plot(s).
+//	virtual void applyPlotCursorCoordinates(const QPointF &coordinates);
+//	/// Handles setting the cursor color for this view's plot(s).
+//	virtual void applyPlotCursorColor(const QColor &newColor);
 
 protected slots:
 	/// after a scan or data source is added in the model
@@ -388,8 +401,8 @@ protected slots:
 	/// when data changes: (Things we care about: color, linePen, and visible)
 	virtual void onModelDataChanged(const QModelIndex& topLeft, const QModelIndex& bottomRight);
 
-	/// Handles adding and removing tools, as reported by the tool options.
-	void onToolSelectionChanged(QList<MPlotAbstractTool *> newSelection);
+	/// Handles updating the plot tool options data position when the plot data position updates.
+	void onDataPositionChanged(const QPointF &newPosition);
 
 protected:
 	/// helper function: adds the scan at \c scanIndex
@@ -406,7 +419,9 @@ protected:
 	/// Our plot.
 	MPlotGW* plot_;
 
+	/// The drag zoomer tool to be available to the plot.
 	MPlotDragZoomerTool *dragZoomerTool_;
+	/// The wheel zoomer tool to be available to the plot.
 	MPlotWheelZoomerTool *wheelZoomerTool_;
 
 	/// The plot item that holds the cursor that can be displayed on the screen.
@@ -428,6 +443,9 @@ public slots:
 	virtual void setWaterfallOffset(double offset);
 	virtual void enableWaterfallOffset(bool waterfallOn);
 
+	/// Handles adding and removing tools for this view's plot(s).
+	virtual void applyPlotTools(QList<MPlotAbstractTool *> newSelection);
+
 protected slots:
 	/// after a scan or data source is added in the model
 	virtual void onRowInserted(const QModelIndex& parent, int start, int end);
@@ -437,9 +455,6 @@ protected slots:
 	virtual void onRowRemoved(const QModelIndex& parent, int start, int end);
 	/// when data changes: (Things we care about: color, linePen, and visible)
 	virtual void onModelDataChanged(const QModelIndex& topLeft, const QModelIndex& bottomRight);
-
-	/// Handles adding and removing tools, as reported by the tool options.
-	void onToolSelectionChanged(QList<MPlotAbstractTool *> newSelection);
 
 protected:
 	/// Sets the preset data constraints for the given axis scale. \note This method currently only changes the dataRangeConstraint for MPlot::Left.  As other axis scales need calibration, they will be added as well.
@@ -465,8 +480,9 @@ protected:
 	QList<MPlotGW*> plots_;
 	/// A grid-layout within which to put our plots:
 	QGraphicsGridLayout* layout_;
-
+	/// The drag zoomer tool to be available to the plot.
 	MPlotDragZoomerTool *dragZoomerTool_;
+	/// The wheel zoomer tool to be available to the plot.
 	MPlotWheelZoomerTool *wheelZoomerTool_;
 
 	/// true if the first plot in plots_ exists already, but isn't used:
@@ -499,9 +515,6 @@ protected slots:
 	/// when data changes: (Things we care about: color, linePen, and visible)
 	virtual void onModelDataChanged(const QModelIndex& topLeft, const QModelIndex& bottomRight);
 
-	/// Handles adding and removing tools, as reported by the tool options.
-	void onToolSelectionChanged(QList<MPlotAbstractTool *> newSelection);
-
 protected:
 	/// Sets the preset data constraints for the given axis scale. \note This method currently only changes the dataRangeConstraint for MPlot::Left.  As other axis scales need calibration, they will be added as well.
 	void setDataRangeConstraint(int id);
@@ -525,9 +538,6 @@ protected:
 	bool firstPlotEmpty_;
 	/// When dataSource2Plot_ is empty, we keep a single plot here, to make sure that there's always at least one shown.
 	MPlotGW* firstPlot_;
-
-	MPlotDragZoomerTool *dragZoomerTool_;
-	MPlotWheelZoomerTool *wheelZoomerTool_;
 };
 
 
