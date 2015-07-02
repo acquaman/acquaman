@@ -9,7 +9,7 @@ AMGCS2GetPivotPointCommand::AMGCS2GetPivotPointCommand(const QList<AMGCS2::Axis>
 
 QString AMGCS2GetPivotPointCommand::outputString() const
 {
-	if(!wasSuccessful_) {
+	if(runningState_ != Succeeded) {
 		return "";
 	}
 

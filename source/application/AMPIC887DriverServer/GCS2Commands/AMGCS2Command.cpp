@@ -5,17 +5,18 @@
 AMGCS2Command::AMGCS2Command()
 {
 	controllerId_ = -1;
-	wasSuccessful_ = false;
+	runningState_ = NotStarted;
+	commandType_ = Synchronous;
 }
 
-bool AMGCS2Command::wasSuccessful() const
+AMGCS2Command::RunningState AMGCS2Command::runningState() const
 {
-	return wasSuccessful_;
+	return runningState_;
 }
 
 QString AMGCS2Command::lastError() const
 {
-	if(!wasSuccessful_) {
+	if(runningState_ == Failed) {
 		return lastError_;
 	} else {
 		return "No Error";
@@ -26,13 +27,15 @@ void AMGCS2Command::run()
 {
 	if(controllerId_ < 0) {
 		lastError_ = QString("Could not run command: Connection not yet established with controller");
-		wasSuccessful_ = false;
+		runningState_ = Failed;
 	} else if(validateArguments()) {
-		wasSuccessful_ = runImplementation();
+		if(runImplementation()) {
+			runningState_ = Succeeded;
+		}
 
 	} else {
 		lastError_ = QString("Could not run command: Validation of arguments failed with message - '%1'").arg(lastError_);
-		wasSuccessful_ = false;
+		runningState_ = Failed;
 	}
 }
 
@@ -56,8 +59,13 @@ void AMGCS2Command::setControllerId(int id)
 	controllerId_ = id;
 }
 
+AMGCS2Command::CommandType AMGCS2Command::commandType() const
+{
+	return commandType_;
+}
 
 QString AMGCS2Command::outputString() const
 {
 	return QString();
 }
+

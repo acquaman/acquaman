@@ -9,7 +9,7 @@ AMGCS2ReferenceMoveCommand::AMGCS2ReferenceMoveCommand(const QList<AMGCS2::Axis>
 
 QString AMGCS2ReferenceMoveCommand::outputString() const
 {
-	if(wasSuccessful_) {
+	if(runningState_ != Succeeded) {
 		return "Reference move begun";
 	} else {
 		return "";

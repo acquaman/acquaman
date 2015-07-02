@@ -10,10 +10,10 @@ AMGCS2SetCommandLevelCommand::AMGCS2SetCommandLevelCommand(AMGCS2::ControllerCom
 
 QString AMGCS2SetCommandLevelCommand::outputString() const
 {
-	if(wasSuccessful_) {
-		return AMGCS2Support::commandLevelToString(newCommandLevel_);
-	} else {
+	if(runningState_ != Succeeded) {
 		return "Command level not altered.";
+	} else {
+		return AMGCS2Support::commandLevelToString(newCommandLevel_);
 	}
 }
 

@@ -10,10 +10,35 @@
   * Abstract class which represents a command which can be run on an AMPIC887Controller,
   * reporting whether the command was successful and its last encountered error
   * if one has occurred.
+  *
+  * NOTE: Synchronous commands should inherit directly from AMGCS2Command, and will
+  * have the type Synchronous. Asynchronous commands should inherit from AMGCS2AsynCommand
+  * and will have the type Asynchronous.
   */
 class AMGCS2Command
 {
 public:
+
+	/*!
+	  * Enumerates all the different running states of a command. For syncrhonous
+	  * command only the NotStarted, Succeeded or Failed running states should be
+	  * used.
+	  */
+	enum RunningState {
+		NotStarted,
+		Running,
+		Succeeded,
+		Failed
+	};
+
+	/*!
+	  * Enumerates between the synchronous and asynchronous command types.
+	  */
+	enum CommandType {
+		Synchronous,
+		Asynchronous
+	};
+
 	/*!
 	  * Base constructor for an AMGCS2Command. Sets the wasSuccessful() state to
 	  * false.
@@ -33,6 +58,11 @@ public:
 	bool wasSuccessful() const;
 
 	/*!
+	  * The current running state of the command.
+	  */
+	RunningState runningState() const;
+
+	/*!
 	  * The last encountered error message for the AMGCS2Command. If the command
 	  * was last run successfully then an empty message will be returned.
 	  */
@@ -48,6 +78,11 @@ public:
 	  * Sets the id of the controller upon which this command will be run.
 	  */
 	void setControllerId(int id);
+
+	/*!
+	  * Whether the command is synchronous or asynchronous.
+	  */
+	CommandType commandType() const;
 
 	/*!
 	  * The output message which contains the output for the command in a stringified
@@ -82,10 +117,10 @@ protected:
 	  */
 	QString controllerErrorMessage();
 
-	bool wasSuccessful_;
 	QString lastError_;
-	int controllerId_;
-
+	int controllerId_;	
+	RunningState runningState_;
+	CommandType commandType_;
 };
 
 #endif // AMGCS2COMMAND_H

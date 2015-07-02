@@ -1,7 +1,7 @@
 #ifndef AMGCS2ASYNCCOMMAND_H
 #define AMGCS2ASYNCCOMMAND_H
 
-#define TIMER_CHECK_INTERVAL_MS 50
+#define TIMER_CHECK_INTERVAL_MS 100
 
 #include <QObject>
 #include <QTime>
@@ -16,20 +16,13 @@ class AMGCS2AsyncCommand : public QObject, public AMGCS2Command
     Q_OBJECT
 public:
 
-	enum RunningState {
-		NotStarted,
-		Running,
-		Succeeded,
-		Failed
-	};
-
 	/*!
 	  * Creates an instance of an asynchronous command which will emit the completed
 	  * or failed signals when the command comes to a stop. The timer will automatically
 	  * emit the failed signal and cease its checking mechanism when timeoutMs milliseconds
 	  * have elapsed.
 	  */
-	explicit AMGCS2AsyncCommand(double timeoutMs = 20);
+	explicit AMGCS2AsyncCommand(qint64 timeoutMs = 120000);
 
 	/*!
 	  * Overrides the synchronous GCS2Command implementation of run. Begins the
@@ -73,8 +66,7 @@ protected:
 
 	QTime startTime_;
 	int timerId_;
-	double timeoutMs_;
-	RunningState runningState_;
+	qint64 timeoutMs_;
 };
 
 #endif // AMGCS2ASYNCCOMMAND_H

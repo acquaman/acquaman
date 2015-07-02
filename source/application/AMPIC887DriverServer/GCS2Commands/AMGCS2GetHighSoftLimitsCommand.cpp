@@ -14,7 +14,7 @@ QHash<AMGCS2::Axis, double> AMGCS2GetHighSoftLimitsCommand::axesHighSoftLimits()
 
 QString AMGCS2GetHighSoftLimitsCommand::outputString() const
 {
-	if(!wasSuccessful_) {
+	if(runningState_ != Succeeded) {
 		return "";
 	}
 

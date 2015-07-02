@@ -7,6 +7,11 @@
 AMGCS2AsyncReferenceMoveCommand::AMGCS2AsyncReferenceMoveCommand(const QList<AMGCS2::Axis>& axes)
 {
 	axesToReference_ = axes;
+
+	if(axesToReference_.isEmpty()) {
+		axesToReference_ << AMGCS2::XAxis << AMGCS2::YAxis << AMGCS2::ZAxis
+							<< AMGCS2::UAxis << AMGCS2::VAxis << AMGCS2::WAxis;
+	}
 }
 
 QString AMGCS2AsyncReferenceMoveCommand::outputString() const
@@ -26,7 +31,8 @@ bool AMGCS2AsyncReferenceMoveCommand::runImplementation()
 	referenceMoveCommand.setControllerId(controllerId_);
 	referenceMoveCommand.run();
 
-	bool success = referenceMoveCommand.wasSuccessful();
+	bool success = (referenceMoveCommand.runningState() == Succeeded);
+
 	if(!success) {
 		lastError_ = referenceMoveCommand.lastError();
 	}
@@ -40,8 +46,9 @@ void AMGCS2AsyncReferenceMoveCommand::isFinishedImplementation()
 	referenceResultsCommand.setControllerId(controllerId_);
 	referenceResultsCommand.run();
 
-	if(!referenceResultsCommand.wasSuccessful()) {
-		lastError_ = "Could not obtain reference status";
+	if(referenceResultsCommand.runningState() != Succeeded) {
+		lastError_ = QString("Could not obtain reference status with message: %1")
+				.arg(referenceResultsCommand.lastError());
 		runningState_ = Failed;
 		return;
 	}
@@ -67,8 +74,10 @@ void AMGCS2AsyncReferenceMoveCommand::isFinishedImplementation()
 	movingStatusCommand.setControllerId(controllerId_);
 	movingStatusCommand.run();
 
-	if(!movingStatusCommand.wasSuccessful()) {
-		lastError_ = "Could not obtain movement status";
+	if(movingStatusCommand.runningState() != Succeeded) {
+		lastError_ = QString("Could not obtain movement status with message: %1")
+				.arg(movingStatusCommand.lastError());
+
 		runningState_ = Failed;;
 		return;
 	}

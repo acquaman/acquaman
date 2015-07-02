@@ -7,7 +7,7 @@ AMGCS2GetCycleTimeCommand::AMGCS2GetCycleTimeCommand()
 
 QString AMGCS2GetCycleTimeCommand::outputString() const
 {
-	if(!wasSuccessful_) {
+	if(runningState_ != Succeeded) {
 		return "";
 	}
 

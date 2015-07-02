@@ -20,7 +20,7 @@ AMGCS2GetDataRecorderConfigurationCommand::~AMGCS2GetDataRecorderConfigurationCo
 
 QString AMGCS2GetDataRecorderConfigurationCommand::outputString() const
 {
-	if(!wasSuccessful_) {
+	if(runningState_ != Succeeded) {
 		return QString();
 	}
 

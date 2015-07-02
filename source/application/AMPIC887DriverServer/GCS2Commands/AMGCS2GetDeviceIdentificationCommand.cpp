@@ -8,10 +8,10 @@ AMGCS2GetDeviceIdentificationCommand::AMGCS2GetDeviceIdentificationCommand()
 
 QString AMGCS2GetDeviceIdentificationCommand::outputString() const
 {
-	if(wasSuccessful_)	{
-		return deviceIdenfiticationString_;
-	} else {
+	if(runningState_ != Succeeded)	{
 		return "";
+	} else {
+		return deviceIdenfiticationString_;
 	}
 }
 

@@ -9,7 +9,7 @@ AMGCS2GetRecordTriggerSourceCommand::AMGCS2GetRecordTriggerSourceCommand(const Q
 
 QString AMGCS2GetRecordTriggerSourceCommand::outputString() const
 {
-	if(!wasSuccessful_) {
+	if(runningState_ != Succeeded) {
 		return "";
 	}
 

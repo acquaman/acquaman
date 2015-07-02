@@ -73,7 +73,8 @@ SOURCES *= \
     source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2VirtualMoveCommand.cpp \
     source/application/AMPIC887DriverServer/AMPIC887ErrorMessageClearer.cpp \
     source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2AsyncCommand.cpp \
-    source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2AsyncReferenceMoveCommand.cpp
+    source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2AsyncReferenceMoveCommand.cpp \
+    source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2AsyncMoveCommand.cpp
 
 HEADERS *= \
 	source/application/AMPIC887DriverServer/AMPIC887ControllerCollection.h \	
@@ -135,7 +136,10 @@ HEADERS *= \
     source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2VirtualMoveCommand.h \
     source/application/AMPIC887DriverServer/AMPIC887ErrorMessageClearer.h \
     source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2AsyncCommand.h \
-    source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2AsyncReferenceMoveCommand.h
+    source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2AsyncReferenceMoveCommand.h \
+    source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2AsyncMoveCommand.h
+
+
 
 
 

@@ -30,6 +30,7 @@ bool AMGCS2MoveCommand::validateArguments()
 
 bool AMGCS2MoveCommand::runImplementation()
 {
+
 	QString axesString;
 	AMCArrayHandler<double> positionsArrayHandler(axisPositions_.count());
 

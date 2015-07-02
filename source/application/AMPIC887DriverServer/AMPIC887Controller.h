@@ -50,12 +50,6 @@ public:
 	void runCommand(AMGCS2Command* command);
 
 	/*!
-	  * Runs the provided command asynchronously
-	  * \param command ~ The asynchronous command to run.
-	  */
-	void runAsynchronousCommand(AMGCS2AsyncCommand* command);
-
-	/*!
 	  * Connects/reconnects to the controller represented by this class.
 	  * \returns True if a connection could be established with the controller,
 	  * false otherwise
@@ -109,7 +103,16 @@ signals:
 	  */
 	void errorEncountered(const QString& errorMessage);
 protected slots:
+	/*!
+	  * Handles an asynchronous command indicating that it has failed.
+	  * \param command ~ The command which failed.
+	  */
 	void onAsyncCommandFailed(AMGCS2AsyncCommand* command);
+
+	/*!
+	  * Handles an asynchronous command indicating that it has succeeded.
+	  * \param command ~ The command which succeeded.
+	  */
 	void onAsyncCommandSucceeded(AMGCS2AsyncCommand* command);
 protected:
 

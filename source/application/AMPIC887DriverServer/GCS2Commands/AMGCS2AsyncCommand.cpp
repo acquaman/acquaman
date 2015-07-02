@@ -1,10 +1,10 @@
 #include "AMGCS2AsyncCommand.h"
 #include <QTimerEvent>
-AMGCS2AsyncCommand::AMGCS2AsyncCommand(double timeoutMs) :
+AMGCS2AsyncCommand::AMGCS2AsyncCommand(qint64 timeoutMs) :
 	QObject(0), AMGCS2Command()
 {
 	timeoutMs_ = timeoutMs;
-	runningState_ = NotStarted;
+	commandType_ = Asynchronous;
 }
 
 void AMGCS2AsyncCommand::run()
@@ -33,6 +33,7 @@ void AMGCS2AsyncCommand::run()
 void AMGCS2AsyncCommand::timerEvent(QTimerEvent *)
 {
 	if(startTime_.msecsTo(QTime::currentTime()) >= timeoutMs_) {
+		runningState_ = Failed;
 		lastError_ = "Async command timer timed out";
 		killTimer(timerId_);
 		emit failed(this);
@@ -41,6 +42,7 @@ void AMGCS2AsyncCommand::timerEvent(QTimerEvent *)
 		switch (runningState_) {
 		case NotStarted:
 			// This should never happen
+			runningState_ = Failed;
 			lastError_ = "Attempt to check running state of not started command";
 			emit failed(this);
 			killTimer(timerId_);
@@ -50,7 +52,6 @@ void AMGCS2AsyncCommand::timerEvent(QTimerEvent *)
 			break;
 		case Succeeded:
 			emit succeeded(this);
-			wasSuccessful_ = true;
 			killTimer(timerId_);
 			break;
 		case Failed:

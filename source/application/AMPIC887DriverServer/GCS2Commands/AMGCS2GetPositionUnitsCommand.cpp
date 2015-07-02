@@ -15,7 +15,7 @@ QHash<AMGCS2::Axis, AMGCS2::PositionUnits> AMGCS2GetPositionUnitsCommand::axesUn
 
 QString AMGCS2GetPositionUnitsCommand::outputString() const
 {
-	if(!wasSuccessful_) {
+	if(runningState_ != Succeeded) {
 		return "";
 	}
 

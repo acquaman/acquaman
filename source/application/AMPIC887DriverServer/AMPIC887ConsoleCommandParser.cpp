@@ -22,7 +22,7 @@ QString AMPIC887ConsoleCommandParser::commandList()
 	commandList.append("DRC <record table id1> <source1> <option1> <record table id2> <source2> <option2> ... : Sets the record configuration for the provided record table.\n");
 	commandList.append("DRL? <record table id1> <record table id2> ... : Queries the number of recorded data points acquired since the last recording was triggered for each of the provided record tables.\n");
 	commandList.append("DRR? <offset point> <number of data points> <record table id> : Queries the specified number of data points from the provided record table, starting at the offset point.\n");
-	commandList.append("DRT <record table id1> <trigger source1> <record table id2> <trigger source2> ... : Sets the data record triggers for the provided data record tables.\n");
+	commandList.append("DRT <trigger source> : Sets the data record trigger source for all data record tables.\n");
 	commandList.append("DRT? <record table id1> <record table id2> ... : Queries the current recording trigger sources for the provided data record tables.\n");
 	commandList.append("FRF <axis1> <axis2> ... : Instructs the controller to perform a reference move on the provided axes. If none are provided reference moves will be performed on all axes.\n");
 	commandList.append("FRF? <axis1> <axis2> ... : Queries whether the provided axes have been referenced. If no axes are provided the reference status of all axes will be queries.\n");

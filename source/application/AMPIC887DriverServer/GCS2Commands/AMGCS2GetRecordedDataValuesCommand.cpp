@@ -12,7 +12,7 @@ AMGCS2GetRecordedDataValuesCommand::AMGCS2GetRecordedDataValuesCommand(int recor
 
 QString AMGCS2GetRecordedDataValuesCommand::outputString() const
 {
-	if(!wasSuccessful_) {
+	if(runningState_ != Succeeded) {
 		return "";
 	}
 

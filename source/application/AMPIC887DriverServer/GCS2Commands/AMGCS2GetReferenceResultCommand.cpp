@@ -10,7 +10,7 @@ AMGCS2GetReferenceResultCommand::AMGCS2GetReferenceResultCommand(const QList<AMG
 
 QString AMGCS2GetReferenceResultCommand::outputString() const
 {
-	if(!wasSuccessful_) {
+	if(runningState_ != Succeeded) {
 		return "";
 	}
 

@@ -11,7 +11,7 @@ AMGCS2GetOnTargetStateCommand::AMGCS2GetOnTargetStateCommand(const QList<AMGCS2:
 
 QString AMGCS2GetOnTargetStateCommand::outputString() const
 {
-	if(!wasSuccessful_) {
+	if(runningState_ != Succeeded) {
 		return "";
 	}
 

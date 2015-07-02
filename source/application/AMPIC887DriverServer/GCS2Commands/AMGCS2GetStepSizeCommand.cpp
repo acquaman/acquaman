@@ -10,7 +10,7 @@ AMGCS2GetStepSizeCommand::AMGCS2GetStepSizeCommand(const QList<AMGCS2::Axis>& ax
 
 QString AMGCS2GetStepSizeCommand::outputString() const
 {
-	if(!wasSuccessful_) {
+	if(runningState_ != Succeeded) {
 		return "";
 	}
 

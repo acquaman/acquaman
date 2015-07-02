@@ -7,10 +7,10 @@ AMGCS2SetSyntaxVersionCommand::AMGCS2SetSyntaxVersionCommand()
 
 QString AMGCS2SetSyntaxVersionCommand::outputString() const
 {
-	if(wasSuccessful_) {
-		return "Syntax version changed to GCS v2.0";
+	if(runningState_ != Succeeded) {
+		return "Syntax version not altered";
 	} else {
-		return "Sntax version not altered.";
+		return "Snytax version set to GCS v2.0.";
 	}
 }
 

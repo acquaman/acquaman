@@ -9,7 +9,7 @@ AMGCS2GetSoftLimitsStatusCommand::AMGCS2GetSoftLimitsStatusCommand(const QList<A
 
 QString AMGCS2GetSoftLimitsStatusCommand::outputString() const
 {
-	if(!wasSuccessful_) {
+	if(runningState_ != Succeeded) {
 		return "";
 	}
 

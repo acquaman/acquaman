@@ -7,7 +7,7 @@ AMGCS2GetSystemVelocityCommand::AMGCS2GetSystemVelocityCommand()
 
 QString AMGCS2GetSystemVelocityCommand::outputString() const
 {
-	if(!wasSuccessful_) {
+	if(runningState_ != Succeeded) {
 		return "";
 	}
 

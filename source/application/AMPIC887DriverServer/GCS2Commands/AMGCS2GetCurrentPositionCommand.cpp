@@ -15,7 +15,7 @@ QHash<AMGCS2::Axis, double> AMGCS2GetCurrentPositionCommand::axisPositions()
 
 QString AMGCS2GetCurrentPositionCommand::outputString() const
 {
-	if(!wasSuccessful_) {
+	if(runningState_ != Succeeded) {
 		return QString();
 	}
 

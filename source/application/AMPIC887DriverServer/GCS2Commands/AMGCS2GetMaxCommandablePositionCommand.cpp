@@ -9,7 +9,7 @@ AMGCS2GetMaxCommandablePositionCommand::AMGCS2GetMaxCommandablePositionCommand(c
 
 QString AMGCS2GetMaxCommandablePositionCommand::outputString() const
 {
-	if(!wasSuccessful_) {
+	if(runningState_ != Succeeded) {
 		return "";
 	}
 

@@ -18,7 +18,7 @@ void AMGCS2CompositeCommand::addCommand(AMGCS2Command *command)
 
 QString AMGCS2CompositeCommand::outputString() const
 {
-	if(!wasSuccessful_) {
+	if(runningState_ != Succeeded) {
 		return "";
 	} else {
 		return commandOutputs_;
@@ -46,7 +46,7 @@ bool AMGCS2CompositeCommand::runImplementation()
 		currentSubCommand->setControllerId(controllerId_);
 		currentSubCommand->run();
 
-		if(!currentSubCommand->wasSuccessful()) {
+		if(currentSubCommand->runningState() == Failed) {
 			lastError_ = QString("Command number %1 failed with message %2")
 					.arg(iCommand + 1)
 					.arg(currentSubCommand->lastError());

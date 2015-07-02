@@ -13,7 +13,7 @@ QHash<int, int> AMGCS2GetNumberOfRecordedPointsCommand::numberOfDataPointsRecord
 
 QString AMGCS2GetNumberOfRecordedPointsCommand::outputString() const
 {
-	if(!wasSuccessful_) {
+	if(runningState_ != Succeeded) {
 		return "";
 	}
 

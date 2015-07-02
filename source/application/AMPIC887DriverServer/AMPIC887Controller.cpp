@@ -15,10 +15,25 @@ void AMPIC887Controller::interpretAndRunCommand(const QString &commandText)
 {
 	AMGCS2Command* command = AMGCS2CommandFactory::buildCommand(commandText);
 
-	if(command) {
+	if(!command) {
+		emit errorEncountered("Command could not be parsed");
+		return;
+	}
+
+	if(command->commandType() == AMGCS2Command::Asynchronous) {
+
+		AMGCS2AsyncCommand* asyncCommand = dynamic_cast<AMGCS2AsyncCommand*>(command);
+
+		if(asyncCommand) {
+			connect(asyncCommand, SIGNAL(succeeded(AMGCS2AsyncCommand*)), this, SLOT(onAsyncCommandSucceeded(AMGCS2AsyncCommand*)));
+			connect(asyncCommand, SIGNAL(failed(AMGCS2AsyncCommand*)), this, SLOT(onAsyncCommandFailed(AMGCS2AsyncCommand*)));
+			runCommand(asyncCommand);
+		}
+	} else {
 
 		runCommand(command);
-		if(command->wasSuccessful()) {
+
+		if(command->runningState() == AMGCS2Command::Succeeded) {
 
 			QString outputString = command->outputString();
 
@@ -26,12 +41,10 @@ void AMPIC887Controller::interpretAndRunCommand(const QString &commandText)
 				emit output(outputString);
 			}
 		} else {
-
 			emit errorEncountered(command->lastError());
 		}
 
-	} else {
-		emit errorEncountered("Command could not be parsed");
+		delete command;
 	}
 }
 
@@ -43,18 +56,15 @@ void AMPIC887Controller::runCommand(AMGCS2Command *command)
 	}
 }
 
-void AMPIC887Controller::runAsynchronousCommand(AMGCS2AsyncCommand *command)
-{
-	if(command) {
-		connect(command, SIGNAL(completed(AMGCS2AsyncCommand*)), this, SLOT(onAsyncCommandSucceeded(AMGCS2AsyncCommand*)));
-		connect(command, SIGNAL(failed(AMGCS2AsyncCommand*)), this, SLOT(onAsyncCommandFailed(AMGCS2AsyncCommand*)));
-	}
-}
-
 bool AMPIC887Controller::connectToController()
 {
 	id_ = PI_ConnectTCPIP(hostname_.toStdString().c_str(), CONTROLLER_PORT);
-	return connectionEstablished();
+	bool success = connectionEstablished();
+	if(success) {
+		PI_SetErrorCheck(id_, 0);
+	}
+
+	return success;
 }
 
 void AMPIC887Controller::disconnectFromController()

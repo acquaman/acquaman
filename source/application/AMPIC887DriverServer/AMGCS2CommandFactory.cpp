@@ -2,7 +2,7 @@
 #include <QStringList>
 
 #include "AMGCS2Support.h"
-#include "GCS2Commands/AMGCS2MoveCommand.h"
+#include "GCS2Commands/AMGCS2AsyncMoveCommand.h"
 #include "GCS2Commands/AMGCS2GetCurrentPositionCommand.h"
 #include "GCS2Commands/AMGCS2StopCommand.h"
 #include "GCS2Commands/AMGCS2HaltSmoothlyCommand.h"
@@ -63,7 +63,7 @@ AMGCS2Command * AMGCS2CommandFactory::buildCommand(const QString &commandString)
 	} else if(commandString.startsWith("MOV?")) {
 		return new AMGCS2GetTargetPositionCommand(axesFromCommandString(commandString));
 	} else if(commandString.startsWith("MOV")) {
-		return new AMGCS2MoveCommand(axesDoublePairFromCommandString(commandString));
+		return new AMGCS2AsyncMoveCommand(axesDoublePairFromCommandString(commandString));
 	} else if(commandString.startsWith("RDY?")) {
 		return new AMGCS2GetControllerReadyStatusCommand();
 	} else if(commandString.startsWith("IDN?")) {
@@ -84,6 +84,8 @@ AMGCS2Command * AMGCS2CommandFactory::buildCommand(const QString &commandString)
 		return buildGetRecordedDataValuesCommand(commandArguments(commandString));
 	} else if(commandString.startsWith("DRT?")) {
 		return buildGetRecordTriggerSourceCommand(commandArguments(commandString));
+	} else if(commandString.startsWith("DRT")) {
+		return buildSetRecordTriggerSourceCommand(commandArguments(commandString));
 	} else if (commandString.startsWith("FRF?")){
 		return new AMGCS2GetReferenceResultCommand(axesFromCommandString(commandString));
 	} else if(commandString.startsWith("FRF")) {
@@ -340,36 +342,21 @@ AMGCS2Command * AMGCS2CommandFactory::buildGetRecordedDataValuesCommand(const QS
 
 AMGCS2Command * AMGCS2CommandFactory::buildSetRecordTriggerSourceCommand(const QStringList &argumentList)
 {
-	if(argumentList.isEmpty()) {
+	if(argumentList.count() != 1) {
 		return 0;
 	}
 
-	QHash<int, AMGCS2::DataRecordTrigger> tableTriggerMap;
+	bool parseSuccess = false;
+	int triggerCode = argumentList.at(0).toInt(&parseSuccess);
 
-	for(int iTableId = 0, iTrigger = 1, argCount = argumentList.count();
-		iTableId < argCount && iTrigger < argCount;
-		iTableId += 2, iTrigger += 2) {
-
-		bool parseSuccess = false;
-		int recordTableId = argumentList.at(iTableId).toInt(&parseSuccess);
-
-		if(!parseSuccess) {
-			return 0;
-		}
-
-		int triggerCode = argumentList.at(iTrigger).toInt(&parseSuccess);
-
-		if(!parseSuccess) {
-			return 0;
-		}
-
-		AMGCS2::DataRecordTrigger triggerValue =
-				AMGCS2Support::intCodeToDataRecordTrigger(triggerCode);
-
-		tableTriggerMap.insert(recordTableId, triggerValue);
+	if(!parseSuccess) {
+		return 0;
 	}
 
-	return new AMGCS2SetRecordTriggerSourceCommand(tableTriggerMap);
+	AMGCS2::DataRecordTrigger recordTrigger =
+			AMGCS2Support::intCodeToDataRecordTrigger(triggerCode);
+
+	return new AMGCS2SetRecordTriggerSourceCommand(recordTrigger);
 }
 
 AMGCS2Command * AMGCS2CommandFactory::buildGetRecordTriggerSourceCommand(const QStringList &argumentList)

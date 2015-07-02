@@ -25,6 +25,11 @@ public:
 	AMGCS2AsyncReferenceMoveCommand(const QList<AMGCS2::Axis>& axes = QList<AMGCS2::Axis>());
 
 	/*!
+	  * Virtual destructor for an asynchronous reference move command.
+	  */
+	virtual ~AMGCS2AsyncReferenceMoveCommand() {}
+
+	/*!
 	  * Text which can be read when the reference move has been completed.
 	  * \returns A message indicating the success of the reference move if
 	  */

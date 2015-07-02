@@ -10,7 +10,9 @@ AMGCS2GetLimitSwitchStatusCommand::AMGCS2GetLimitSwitchStatusCommand(const QList
 
 QString AMGCS2GetLimitSwitchStatusCommand::outputString() const
 {
-	if(wasSuccessful_) {
+	if(runningState_ != Succeeded) {
+		return "";
+	} else {
 		QString returnString("Axis\t\tLimit Switch Active\n");
 		foreach(AMGCS2::Axis currentAxis, limitSwitchStatuses_.keys()) {
 
@@ -27,8 +29,6 @@ QString AMGCS2GetLimitSwitchStatusCommand::outputString() const
 		}
 
 		return returnString;
-	} else {
-		return "";
 	}
 }
 

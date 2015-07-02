@@ -10,7 +10,7 @@ AMGCS2VirtualMoveCommand::AMGCS2VirtualMoveCommand(const QHash<AMGCS2::Axis, dou
 
 QString AMGCS2VirtualMoveCommand::outputString() const
 {
-	if(!wasSuccessful_) {
+	if(runningState_ != Succeeded) {
 		return "";
 	}
 

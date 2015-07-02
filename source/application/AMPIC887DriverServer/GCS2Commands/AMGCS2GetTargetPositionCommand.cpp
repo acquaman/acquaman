@@ -9,7 +9,7 @@ AMGCS2GetTargetPositionCommand::AMGCS2GetTargetPositionCommand(const QList<AMGCS
 
 QString AMGCS2GetTargetPositionCommand::outputString() const
 {
-	if(!wasSuccessful_) {
+	if(runningState_ != Succeeded) {
 		return "";
 	}
 

@@ -10,7 +10,7 @@ AMGCS2GetMinCommandablePositionCommand::AMGCS2GetMinCommandablePositionCommand(c
 
 QString AMGCS2GetMinCommandablePositionCommand::outputString() const
 {
-	if(!wasSuccessful_) {
+	if(runningState_ != Succeeded) {
 		return "";
 	}
 
