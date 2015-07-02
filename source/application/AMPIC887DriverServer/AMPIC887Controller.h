@@ -6,7 +6,7 @@
 #include <QObject>
 #include <QString>
 #include "GCS2Commands/AMGCS2Command.h"
-
+#include "GCS2Commands/AMGCS2AsyncCommand.h"
 
 /*!
   * A class representing a single PI C887.11 Controller. Commands and queries issued
@@ -48,6 +48,12 @@ public:
 	  * \param command ~ The command to run.
 	  */
 	void runCommand(AMGCS2Command* command);
+
+	/*!
+	  * Runs the provided command asynchronously
+	  * \param command ~ The asynchronous command to run.
+	  */
+	void runAsynchronousCommand(AMGCS2AsyncCommand* command);
 
 	/*!
 	  * Connects/reconnects to the controller represented by this class.
@@ -102,6 +108,9 @@ signals:
 	  * \param errorMessage ~ The error message associated with the error.
 	  */
 	void errorEncountered(const QString& errorMessage);
+protected slots:
+	void onAsyncCommandFailed(AMGCS2AsyncCommand* command);
+	void onAsyncCommandSucceeded(AMGCS2AsyncCommand* command);
 protected:
 
 	QString name_;

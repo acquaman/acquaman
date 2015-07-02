@@ -37,8 +37,18 @@ void AMPIC887Controller::interpretAndRunCommand(const QString &commandText)
 
 void AMPIC887Controller::runCommand(AMGCS2Command *command)
 {
-	command->setControllerId(id_);
-	command->run();
+	if(command) {
+		command->setControllerId(id_);
+		command->run();
+	}
+}
+
+void AMPIC887Controller::runAsynchronousCommand(AMGCS2AsyncCommand *command)
+{
+	if(command) {
+		connect(command, SIGNAL(completed(AMGCS2AsyncCommand*)), this, SLOT(onAsyncCommandSucceeded(AMGCS2AsyncCommand*)));
+		connect(command, SIGNAL(failed(AMGCS2AsyncCommand*)), this, SLOT(onAsyncCommandFailed(AMGCS2AsyncCommand*)));
+	}
 }
 
 bool AMPIC887Controller::connectToController()
@@ -91,6 +101,23 @@ QString AMPIC887Controller::status() const
 			.arg(hostname_)
 			.arg(connectionStatus);
 }
+
+void AMPIC887Controller::onAsyncCommandFailed(AMGCS2AsyncCommand *command)
+{
+	emit errorEncountered(command->lastError());
+	command->deleteLater();
+}
+
+void AMPIC887Controller::onAsyncCommandSucceeded(AMGCS2AsyncCommand *command)
+{
+	QString outputText = command->outputString();
+
+	if(!outputText.isEmpty()) {
+		emit output(outputText);
+	}
+	command->deleteLater();
+}
+
 
 
 

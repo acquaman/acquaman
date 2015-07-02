@@ -9,6 +9,15 @@ AMGCS2AsyncReferenceMoveCommand::AMGCS2AsyncReferenceMoveCommand(const QList<AMG
 	axesToReference_ = axes;
 }
 
+QString AMGCS2AsyncReferenceMoveCommand::outputString() const
+{
+	if(runningState_ == Succeeded) {
+		return "Reference move complete";
+	} else {
+		return "";
+	}
+}
+
 bool AMGCS2AsyncReferenceMoveCommand::runImplementation()
 {
 	// Better to implement this in terms of a synchronous reference move command
@@ -25,14 +34,16 @@ bool AMGCS2AsyncReferenceMoveCommand::runImplementation()
 	return success;
 }
 
-AMGCS2AsyncCommand::RunningState AMGCS2AsyncReferenceMoveCommand::isFinishedImplementation()
+void AMGCS2AsyncReferenceMoveCommand::isFinishedImplementation()
 {
 	AMGCS2GetReferenceResultCommand referenceResultsCommand(axesToReference_);
 	referenceResultsCommand.setControllerId(controllerId_);
 	referenceResultsCommand.run();
 
 	if(!referenceResultsCommand.wasSuccessful()) {
-		return Failed;
+		lastError_ = "Could not obtain reference status";
+		runningState_ = Failed;
+		return;
 	}
 
 	QHash<AMGCS2::Axis, bool> axisReferenceResults =
@@ -45,7 +56,8 @@ AMGCS2AsyncCommand::RunningState AMGCS2AsyncReferenceMoveCommand::isFinishedImpl
 
 	// If all are referenced we can trust that the reference completed successfully.
 	if(allReferenced) {
-		return Completed;
+		runningState_ = Succeeded;
+		return;
 	}
 
 	// Now we need to ensure that if it hasn't completed yet, the axes are at least
@@ -56,7 +68,9 @@ AMGCS2AsyncCommand::RunningState AMGCS2AsyncReferenceMoveCommand::isFinishedImpl
 	movingStatusCommand.run();
 
 	if(!movingStatusCommand.wasSuccessful()) {
-		return Failed;
+		lastError_ = "Could not obtain movement status";
+		runningState_ = Failed;;
+		return;
 	}
 
 	QFlags<AMGCS2::AxisMovementStatus> movementStatuses = movingStatusCommand.movementStatuses();
@@ -81,13 +95,18 @@ AMGCS2AsyncCommand::RunningState AMGCS2AsyncReferenceMoveCommand::isFinishedImpl
 			break;
 		case AMGCS2::WAxis:
 			allStillMoving &= movementStatuses.testFlag(AMGCS2::WAxisIsMoving);
+			break;
+		default:
+			break;
 		}
 	}
 
 	if(allStillMoving) {
-		return NotFinished;
+		return;
 	} else {
 		lastError_ = "Reference move motions have stopped with reference not complete";
-		return Failed;
+		runningState_ = Failed;
+		return;
 	}
 }
+

@@ -15,6 +15,14 @@ class AMGCS2AsyncCommand : public QObject, public AMGCS2Command
 {
     Q_OBJECT
 public:
+
+	enum RunningState {
+		NotStarted,
+		Running,
+		Succeeded,
+		Failed
+	};
+
 	/*!
 	  * Creates an instance of an asynchronous command which will emit the completed
 	  * or failed signals when the command comes to a stop. The timer will automatically
@@ -30,25 +38,23 @@ public:
 	virtual void run();
 signals:
 	/*!
+	  * Signal indicating that this command has been successfully started.
+	  */
+	void started(AMGCS2AsyncCommand* command);
+
+	/*!
 	  * Signal indicating that this command has successfully finished
 	  */
-	void completed();
+	void succeeded(AMGCS2AsyncCommand* command);
 
 	/*!
 	  * Signal indicating that this command has finished in a failed state.
 	  */
-	void failed();
-
+	void failed(AMGCS2AsyncCommand* command);
 
 public slots:
 
 protected:
-
-	enum RunningState {
-		NotFinished,
-		Completed,
-		Failed
-	};
 
 	/*!
 	  * Runs the implementation specific isFinishedImplemetation function ,emits
@@ -58,17 +64,17 @@ protected:
 	void timerEvent(QTimerEvent *);
 
 	/*!
-	  * Class specific implementation which indicates when the particular asynchronous
-	  * command has done, and what state it finished in.
-	  * \returns NotFinsied if the command is still on-going, Completed if the
-	  * command has finished successfully, Failed if the command has finished but
-	  * not successfully.
+	  * Class specific implementation which checks for the current status of a
+	  * running command. Sets the current RunningState of the command if a change
+	  * has been detected, and sets the last error message if an error has been
+	  * detected.
 	  */
-	virtual RunningState isFinishedImplementation() = 0;
+	virtual void isFinishedImplementation() = 0;
 
 	QTime startTime_;
 	int timerId_;
 	double timeoutMs_;
+	RunningState runningState_;
 };
 
 #endif // AMGCS2ASYNCCOMMAND_H

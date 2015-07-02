@@ -21,7 +21,7 @@
 #include "GCS2Commands/AMGCS2SetDataRecorderConfigurationCommand.h"
 #include "GCS2Commands/AMGCS2SetRecordTriggerSourceCommand.h"
 #include "GCS2Commands/AMGCS2GetRecordTriggerSourceCommand.h"
-#include "GCS2Commands/AMGCS2ReferenceMoveCommand.h"
+#include "GCS2Commands/AMGCS2AsyncReferenceMoveCommand.h"
 #include "GCS2Commands/AMGCS2GetReferenceResultCommand.h"
 #include "GCS2Commands/AMGCS2GetRecorderOptionsCommand.h"
 #include "GCS2Commands/AMGCS2GetAvailableParametersCommand.h"
@@ -87,7 +87,7 @@ AMGCS2Command * AMGCS2CommandFactory::buildCommand(const QString &commandString)
 	} else if (commandString.startsWith("FRF?")){
 		return new AMGCS2GetReferenceResultCommand(axesFromCommandString(commandString));
 	} else if(commandString.startsWith("FRF")) {
-		return new AMGCS2ReferenceMoveCommand(axesFromCommandString(commandString));
+		return new AMGCS2AsyncReferenceMoveCommand(axesFromCommandString(commandString));
 	} else if(commandString.startsWith("HDR?")) {
 		return new AMGCS2GetRecorderOptionsCommand();
 	} else if(commandString.startsWith("HPA?")) {

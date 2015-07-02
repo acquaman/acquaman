@@ -13,6 +13,7 @@
   */
 class AMGCS2AsyncReferenceMoveCommand : public AMGCS2AsyncCommand
 {
+	Q_OBJECT
 public:
 	/*!
 	  * Creates an instance of a reference move command on the provided list of
@@ -23,6 +24,12 @@ public:
 	  */
 	AMGCS2AsyncReferenceMoveCommand(const QList<AMGCS2::Axis>& axes = QList<AMGCS2::Axis>());
 
+	/*!
+	  * Text which can be read when the reference move has been completed.
+	  * \returns A message indicating the success of the reference move if
+	  */
+	virtual QString outputString() const;
+
 protected:
 	/*!
 	  * Defines the steps taken to start the reference move command on a controller.
@@ -30,13 +37,11 @@ protected:
 	virtual bool runImplementation();
 
 	/*!
-	  * Defines the steps taken to check whether the reference move has been completed.
-	  * \returns NotFinished if the reference move is still under way.
-	  *		     Completed if the reference move has been performed successfully
-	  *			 on the provided axes.
-	  *			 Failed if the reference move has been halted for some reason.
+	  * Defines the steps taken to check whether the current state of the reference
+	  * move. If a change of state is detected, sets the current running state of
+	  * the command and, if failed, and relevant error messages.
 	  */
-	virtual AMGCS2AsyncCommand::RunningState isFinishedImplementation();
+	virtual void isFinishedImplementation();
 
 	QList<AMGCS2::Axis> axesToReference_;
 };
