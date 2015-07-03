@@ -332,7 +332,7 @@ void REIXSXESSpectrometerControlEditor::setupUi()
 	formLayout->setWidget(6, QFormLayout::LabelRole, labelTiltOffset);
 	formLayout->setWidget(6, QFormLayout::FieldRole, tiltOffsetBox_);
 
-	QLabel* energyRangeLabel_ = new QLabel("361 eV - 438 eV (78eV)");
+	energyRangeLabel_ = new QLabel("361 eV - 438 eV (78eV)");
 	formLayout->setWidget(7, QFormLayout::FieldRole, energyRangeLabel_);
 
 	stopButton_ = new QPushButton(QIcon(":/Close.png"), "Stop!");
