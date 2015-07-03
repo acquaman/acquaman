@@ -2,6 +2,7 @@
 #include "../AMGCS2Support.h"
 #include "PI_GCS2_DLL.h"
 #include "util/AMCArrayHandler.h"
+#include "../AMPIC887Controller.h"
 AMGCS2GetRecordTriggerSourceCommand::AMGCS2GetRecordTriggerSourceCommand(const QList<int> recordTableIds)
 {
 	recordTablesToQuery_ = recordTableIds;
@@ -76,7 +77,7 @@ bool AMGCS2GetRecordTriggerSourceCommand::runImplementation()
 		recordTableIds.cArray()[iRecordTable] = recordTablesToQuery_.at(iRecordTable);
 	}
 
-	bool success = PI_qDRT(controllerId_,
+	bool success = PI_qDRT(controller_->id(),
 						   recordTableIds.cArray(),
 						   triggerSourceCodes.cArray(),
 						   dummyValueResults.cArray(),

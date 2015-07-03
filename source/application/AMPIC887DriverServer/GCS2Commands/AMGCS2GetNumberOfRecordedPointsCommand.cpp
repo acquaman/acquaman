@@ -1,6 +1,7 @@
 #include "AMGCS2GetNumberOfRecordedPointsCommand.h"
 #include "util/AMCArrayHandler.h"
 #include "PI_GCS2_DLL.h"
+#include "../AMPIC887Controller.h"
 AMGCS2GetNumberOfRecordedPointsCommand::AMGCS2GetNumberOfRecordedPointsCommand(const QList<int>& recordTables)
 {
 	recordTablesToQuery_ = recordTables;
@@ -63,7 +64,7 @@ bool AMGCS2GetNumberOfRecordedPointsCommand::runImplementation()
 		recordTableIdsArray.cArray()[iRecordTableId] = recordTablesToQuery_.at(iRecordTableId);
 	}
 
-	bool success = PI_qDRL(controllerId_,
+	bool success = PI_qDRL(controller_->id(),
 						   recordTableIdsArray.cArray(),
 						   numberOfDataPointsRecordedArray.cArray(),
 						   recordTablesToQuery_.count());

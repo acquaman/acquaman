@@ -2,6 +2,7 @@
 #include "util/AMCArrayHandler.h"
 #include "../AMGCS2Support.h"
 #include "PI_GCS2_DLL.h"
+#include "../AMPIC887Controller.h"
 AMGCS2VirtualMoveCommand::AMGCS2VirtualMoveCommand(const QHash<AMGCS2::Axis, double> axisPositions)
 {
 	axisPositions_ = axisPositions;
@@ -64,7 +65,7 @@ bool AMGCS2VirtualMoveCommand::runImplementation()
 
 	int moveSafeValue = 0;
 
-	bool success = PI_qVMO(controllerId_,
+	bool success = PI_qVMO(controller_->id(),
 						   axesString.toStdString().c_str(),
 						   positionValues.cArray(),
 						   &moveSafeValue);

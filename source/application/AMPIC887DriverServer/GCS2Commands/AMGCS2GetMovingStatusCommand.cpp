@@ -2,6 +2,7 @@
 #include "util/AMCArrayHandler.h"
 #include "../AMGCS2Support.h"
 #include "PI_GCS2_DLL.h"
+#include "../AMPIC887Controller.h"
 AMGCS2GetMovingStatusCommand::AMGCS2GetMovingStatusCommand()
 {
 	movementStatuses_ =QFlags<AMGCS2::AxisMovementStatus>(AMGCS2::UnknownAxisMovementStatus);
@@ -29,7 +30,7 @@ bool AMGCS2GetMovingStatusCommand::runImplementation()
 		axesString.append(QString(" %1").arg(AMGCS2Support::axisToCharacter(axis)));
 	}
 
-	bool success = PI_IsMoving(controllerId_, axesString.toStdString().c_str(), valuesHandler.cArray());
+	bool success = PI_IsMoving(controller_->id(), axesString.toStdString().c_str(), valuesHandler.cArray());
 
 
 	if(success) {

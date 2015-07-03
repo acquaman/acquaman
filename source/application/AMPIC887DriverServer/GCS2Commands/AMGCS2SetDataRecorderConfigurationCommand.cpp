@@ -2,6 +2,7 @@
 #include "util/AMCArrayHandler.h"
 #include "../AMGCS2Support.h"
 #include "PI_GCS2_DLL.h"
+#include "../AMPIC887Controller.h"
 AMGCS2SetDataRecorderConfigurationCommand::AMGCS2SetDataRecorderConfigurationCommand(
 		const QList<AMPIC887DataRecorderConfiguration*>& configurations)
 {
@@ -51,7 +52,7 @@ bool AMGCS2SetDataRecorderConfigurationCommand::runImplementation()
 		recordOptionsArray.cArray()[iRecordConfig] = AMGCS2Support::dataRecordOptionToInt(currentConfig->recordOption());
 	}
 
-	bool success = PI_DRC(controllerId_,
+	bool success = PI_DRC(controller_->id(),
 						  recordTableIds.cArray(),
 						  recordSourcesString.toStdString().c_str(),
 						  recordOptionsArray.cArray());

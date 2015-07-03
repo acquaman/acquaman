@@ -22,6 +22,12 @@ public:
 	  */
 	virtual bool validateArguments();
 
+	/*!
+	  * Returns "Movement Succeeded" if the movement has fully completed, otherwise
+	  * returns the empty string.
+	  */
+	virtual QString outputString() const;
+
 protected:
 
 	/*!

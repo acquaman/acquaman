@@ -1,6 +1,7 @@
 #include "AMGCS2GetRecordedDataValuesCommand.h"
 #include "PI_GCS2_DLL.h"
 #include "util/AMCArrayHandler.h"
+#include "../AMPIC887Controller.h"
 AMGCS2GetRecordedDataValuesCommand::AMGCS2GetRecordedDataValuesCommand(int recordTableId,
 																	   int numberOfValues,
 																	   int offsetPoint)
@@ -60,7 +61,7 @@ bool AMGCS2GetRecordedDataValuesCommand::runImplementation()
 
 	AMCArrayHandler<double> resultsArray(numberOfValues_);
 
-	bool success = PI_qDRR_SYNC(controllerId_,
+	bool success = PI_qDRR_SYNC(controller_->id(),
 								recordTableId_,
 								offsetPoint_,
 								numberOfValues_,

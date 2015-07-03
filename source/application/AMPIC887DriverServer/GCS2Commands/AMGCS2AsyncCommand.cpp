@@ -1,5 +1,6 @@
 #include "AMGCS2AsyncCommand.h"
 #include <QTimerEvent>
+#include "../AMPIC887Controller.h"
 AMGCS2AsyncCommand::AMGCS2AsyncCommand(qint64 timeoutMs) :
 	QObject(0), AMGCS2Command()
 {
@@ -12,7 +13,7 @@ void AMGCS2AsyncCommand::run()
 	startTime_ = QTime::currentTime();
 	timerId_ = startTimer(TIMER_CHECK_INTERVAL_MS);
 
-	if(controllerId_ < 0) {
+	if(controller_->id() < 0) {
 		lastError_ = QString("Could not run command: Connection not yet established with controller");
 		runningState_ = Failed;
 		emit failed(this);
@@ -22,6 +23,9 @@ void AMGCS2AsyncCommand::run()
 			emit started(this);
 		}
 
+	} else if(controller_->isBusy()) {
+		lastError_ = QString("Could not run command: Controller is busy");
+		runningState_ = Failed;
 	} else {
 		lastError_ = QString("Could not run command: Validation of arguments failed with message - '%1'").arg(lastError_);
 		runningState_ = Failed;
@@ -32,6 +36,11 @@ void AMGCS2AsyncCommand::run()
 
 void AMGCS2AsyncCommand::timerEvent(QTimerEvent *)
 {
+	// Can't perform checks when controller is busy.
+	if(controller_->isBusy()) {
+		return;
+	}
+
 	if(startTime_.msecsTo(QTime::currentTime()) >= timeoutMs_) {
 		runningState_ = Failed;
 		lastError_ = "Async command timer timed out";

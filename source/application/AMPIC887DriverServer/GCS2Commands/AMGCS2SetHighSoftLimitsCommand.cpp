@@ -2,6 +2,7 @@
 #include "../AMGCS2Support.h"
 #include "util/AMCArrayHandler.h"
 #include "PI_GCS2_DLL.h"
+#include "../AMPIC887Controller.h"
 
 AMGCS2SetHighSoftLimitsCommand::AMGCS2SetHighSoftLimitsCommand(const QHash<AMGCS2::Axis, double>& axisHighLimits)
 {
@@ -49,7 +50,7 @@ bool AMGCS2SetHighSoftLimitsCommand::runImplementation()
 		highLimitValues.cArray()[iAxis] = axisHighLimits_.value(currentAxis);
 	}
 
-	bool success = PI_PLM(controllerId_,
+	bool success = PI_PLM(controller_->id(),
 						  axesString.toStdString().c_str(),
 						  highLimitValues.cArray());
 

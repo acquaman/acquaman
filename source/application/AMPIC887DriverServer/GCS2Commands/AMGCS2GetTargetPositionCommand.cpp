@@ -2,6 +2,7 @@
 #include "../AMGCS2Support.h"
 #include "util/AMCArrayHandler.h"
 #include "PI_GCS2_DLL.h"
+#include "../AMPIC887Controller.h"
 AMGCS2GetTargetPositionCommand::AMGCS2GetTargetPositionCommand(const QList<AMGCS2::Axis>& axes)
 {
 	axesToQuery_ = axes;
@@ -58,7 +59,7 @@ bool AMGCS2GetTargetPositionCommand::runImplementation()
 	bool success = false;
 
 	if(axesToQuery_.isEmpty()) {
-		success = PI_qMOV(controllerId_, 0, targetResults.cArray());
+		success = PI_qMOV(controller_->id(), 0, targetResults.cArray());
 
 		if(success) {
 
@@ -84,7 +85,7 @@ bool AMGCS2GetTargetPositionCommand::runImplementation()
 							  .arg(AMGCS2Support::axisToCharacter(currentAxis)));
 		}
 
-		success = PI_qMOV(controllerId_,
+		success = PI_qMOV(controller_->id(),
 						  axesString.toStdString().c_str(),
 						  targetResults.cArray());
 

@@ -3,6 +3,7 @@
 #include "../AMGCS2Support.h"
 #include "util/AMCArrayHandler.h"
 #include "PI_GCS2_DLL.h"
+#include "../AMPIC887Controller.h"
 AMGCS2GetStepSizeCommand::AMGCS2GetStepSizeCommand(const QList<AMGCS2::Axis>& axes)
 {
 	axesToQuery_ = axes;
@@ -57,7 +58,7 @@ bool AMGCS2GetStepSizeCommand::runImplementation()
 
 	if(axesToQuery_.isEmpty()) {
 
-		success = PI_qSST(controllerId_, 0, stepSizeValues.cArray());
+		success = PI_qSST(controller_->id(), 0, stepSizeValues.cArray());
 
 		if(success) {
 			axisStepSizes_.insert(AMGCS2::XAxis, stepSizeValues.cArray()[0]);
@@ -81,7 +82,7 @@ bool AMGCS2GetStepSizeCommand::runImplementation()
 							  .arg(AMGCS2Support::axisToCharacter(currentAxis)));
 		}
 
-		success = PI_qSST(controllerId_,
+		success = PI_qSST(controller_->id(),
 						  axesString.toStdString().c_str(),
 						  stepSizeValues.cArray());
 

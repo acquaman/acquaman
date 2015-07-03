@@ -2,6 +2,7 @@
 #include "../AMGCS2Support.h"
 #include "util/AMCArrayHandler.h"
 #include "PI_GCS2_DLL.h"
+#include "../AMPIC887Controller.h"
 AMGCS2GetMaxCommandablePositionCommand::AMGCS2GetMaxCommandablePositionCommand(const QList<AMGCS2::Axis> axes )
 {
 	axesToQuery_ = axes;
@@ -57,7 +58,7 @@ bool AMGCS2GetMaxCommandablePositionCommand::runImplementation()
 
 	if(axesToQuery_.count() == 0) {
 
-		success = PI_qTMX(controllerId_, 0, maxPositionHandler.cArray());
+		success = PI_qTMX(controller_->id(), 0, maxPositionHandler.cArray());
 
 		if(success) {
 
@@ -80,7 +81,7 @@ bool AMGCS2GetMaxCommandablePositionCommand::runImplementation()
 			axesString.append(QString(" %1")
 							  .arg(AMGCS2Support::axisToCharacter(currentAxis)));
 
-			success = PI_qTMX(controllerId_,
+			success = PI_qTMX(controller_->id(),
 								   axesString.toStdString().c_str(),
 								   maxPositionHandler.cArray());
 

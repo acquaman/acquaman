@@ -2,6 +2,7 @@
 #include "../AMGCS2Support.h"
 #include "util/AMCArrayHandler.h"
 #include "PI_GCS2_DLL.h"
+#include "../AMPIC887Controller.h"
 AMGCS2GetPivotPointCommand::AMGCS2GetPivotPointCommand(const QList<AMGCS2::Axis> axes)
 {
 	axesToQuery_ = axes;
@@ -61,7 +62,7 @@ bool AMGCS2GetPivotPointCommand::runImplementation()
 
 	if(axesToQuery_.isEmpty()) {
 
-		success = PI_qSPI(controllerId_, 0, pivotPointValuesHandler.cArray());
+		success = PI_qSPI(controller_->id(), 0, pivotPointValuesHandler.cArray());
 
 		if(success) {
 			axisPivotPoints_.insert(AMGCS2::XAxis, pivotPointValuesHandler.cArray()[0]);
@@ -78,7 +79,7 @@ bool AMGCS2GetPivotPointCommand::runImplementation()
 							  .arg(AMGCS2Support::axisToCharacter(currentAxis)));
 		}
 
-		success = PI_qSPI(controllerId_,
+		success = PI_qSPI(controller_->id(),
 						  axesString.toStdString().c_str(),
 						  pivotPointValuesHandler.cArray());
 

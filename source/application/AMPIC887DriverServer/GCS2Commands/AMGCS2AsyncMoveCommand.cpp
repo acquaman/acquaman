@@ -23,9 +23,18 @@ bool AMGCS2AsyncMoveCommand::validateArguments()
 	return true;
 }
 
+QString AMGCS2AsyncMoveCommand::outputString() const
+{
+	if(runningState_ == Succeeded) {
+		return "Move succeeded";
+	} else {
+		return "";
+	}
+}
+
 bool AMGCS2AsyncMoveCommand::runImplementation()
 {
-	command_->setControllerId(controllerId_);
+	command_->setController(controller_);
 	command_->run();
 
 	if(command_->runningState() != Succeeded) {
@@ -41,7 +50,7 @@ void AMGCS2AsyncMoveCommand::isFinishedImplementation()
 {
 	AMGCS2GetMovingStatusCommand movingStatusCommand;
 
-	movingStatusCommand.setControllerId(controllerId_);
+	movingStatusCommand.setController(controller_);
 	movingStatusCommand.run();
 
 	if(movingStatusCommand.runningState() != Succeeded) {
@@ -87,7 +96,7 @@ void AMGCS2AsyncMoveCommand::isFinishedImplementation()
 	// We've stopped. Did we get where we wanted?
 
 	AMGCS2GetCurrentPositionCommand currentPositionCommand(axesToMove_.keys());
-	currentPositionCommand.setControllerId(controllerId_);
+	currentPositionCommand.setController(controller_);
 	currentPositionCommand.run();
 
 	if(currentPositionCommand.runningState() != Succeeded) {
@@ -98,12 +107,21 @@ void AMGCS2AsyncMoveCommand::isFinishedImplementation()
 
 	QHash<AMGCS2::Axis, double> finalPositions = currentPositionCommand.axisPositions();
 	foreach (AMGCS2::Axis currentAxis, axesToMove_.keys()) {
-		double currentDesination = axesToMove_.value(currentAxis);
+		double destination = axesToMove_.value(currentAxis);
 		double finalPosition = finalPositions.value(currentAxis);
-		qDebug() << "Destination = " << currentDesination << " Final = " << finalPosition;
-		if(!qFuzzyIsNull(currentDesination - finalPosition)) {
-			lastError_ = QString("Axis %1 did not reach its destination")
-					.arg(AMGCS2Support::axisToCharacter(currentAxis));
+
+		double epsilon = 0.0001;
+
+		qDebug() << "Destination: " << destination << " Final position: " << finalPosition << " Difference: " << qAbs(destination - finalPosition) << " Check epsilon: " << epsilon;
+
+		qDebug() << "Is " << qAbs(destination - finalPosition) << " > " << epsilon;
+		qDebug() << ((qAbs(destination - finalPosition)) > epsilon);
+		if(qAbs(destination - finalPosition) > epsilon) {
+			lastError_ = QString("Axis %1 did not reach its destination of %2 (stopped at %3)")
+					.arg(AMGCS2Support::axisToCharacter(currentAxis))
+					.arg(destination)
+					.arg(finalPosition);
+
 			runningState_ = Failed;
 			return;
 		}
@@ -111,3 +129,5 @@ void AMGCS2AsyncMoveCommand::isFinishedImplementation()
 
 	runningState_ = Succeeded;
 }
+
+

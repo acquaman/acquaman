@@ -2,6 +2,7 @@
 #include "../AMGCS2Support.h"
 #include "util/AMCArrayHandler.h"
 #include "PI_GCS2_DLL.h"
+#include "../AMPIC887Controller.h"
 AMGCS2GetSoftLimitsStatusCommand::AMGCS2GetSoftLimitsStatusCommand(const QList<AMGCS2::Axis>& axes )
 {
 	axesToQuery_ = axes;
@@ -69,7 +70,7 @@ bool AMGCS2GetSoftLimitsStatusCommand::runImplementation()
 
 		QString axesString = ("X Y Z U V W");
 
-		success = PI_qSSL(controllerId_,
+		success = PI_qSSL(controller_->id(),
 						 axesString.toStdString().c_str(),
 						 softLimitStatusHandler.cArray());
 
@@ -93,7 +94,7 @@ bool AMGCS2GetSoftLimitsStatusCommand::runImplementation()
 							  .arg(AMGCS2Support::axisToCharacter(currentAxis)));
 		}
 
-		success = PI_qSSL(controllerId_,
+		success = PI_qSSL(controller_->id(),
 						 axesString.toStdString().c_str(),
 						 softLimitStatusHandler.cArray());
 

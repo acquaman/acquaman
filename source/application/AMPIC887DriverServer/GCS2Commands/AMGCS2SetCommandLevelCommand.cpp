@@ -1,6 +1,7 @@
 #include "AMGCS2SetCommandLevelCommand.h"
 #include "../AMGCS2Support.h"
 #include "PI_GCS2_DLL.h"
+#include "../AMPIC887Controller.h"
 AMGCS2SetCommandLevelCommand::AMGCS2SetCommandLevelCommand(AMGCS2::ControllerCommandLevel commandLevel,
 														   const QString& password)
 {
@@ -34,7 +35,7 @@ bool AMGCS2SetCommandLevelCommand::validateArguments()
 
 bool AMGCS2SetCommandLevelCommand::runImplementation()
 {
-	bool success = PI_CCL(controllerId_, int(newCommandLevel_), password_.toStdString().c_str());
+	bool success = PI_CCL(controller_->id(), int(newCommandLevel_), password_.toStdString().c_str());
 
 	if(!success) {
 		lastError_ = controllerErrorMessage();

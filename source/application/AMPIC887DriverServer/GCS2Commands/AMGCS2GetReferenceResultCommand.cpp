@@ -2,6 +2,7 @@
 #include "../AMGCS2Support.h"
 #include "util/AMCArrayHandler.h"
 #include "PI_GCS2_DLL.h"
+#include "../AMPIC887Controller.h"
 
 AMGCS2GetReferenceResultCommand::AMGCS2GetReferenceResultCommand(const QList<AMGCS2::Axis> & axes)
 {
@@ -76,7 +77,7 @@ bool AMGCS2GetReferenceResultCommand::runImplementation()
 	axesString = axesString.trimmed();
 
 
-	bool success = PI_qFRF(controllerId_,
+	bool success = PI_qFRF(controller_->id(),
 						   axesString.toStdString().c_str(),
 						   referenceResults.cArray());
 

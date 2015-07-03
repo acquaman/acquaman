@@ -2,6 +2,7 @@
 #include "../AMGCS2Support.h"
 #include "util/AMCArrayHandler.h"
 #include "PI_GCS2_DLL.h"
+#include "../AMPIC887Controller.h"
 
 AMGCS2SetSoftLimitsStatusCommand::AMGCS2SetSoftLimitsStatusCommand(const QHash<AMGCS2::Axis, bool>& softLimitStatuses)
 {
@@ -57,7 +58,7 @@ bool AMGCS2SetSoftLimitsStatusCommand::runImplementation()
 
 	axesString = axesString.trimmed();
 
-	bool success = PI_SSL(controllerId_,
+	bool success = PI_SSL(controller_->id(),
 						  axesString.toStdString().c_str(),
 						  softLimitStatusHandler.cArray());
 

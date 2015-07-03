@@ -3,6 +3,7 @@
 #include "util/AMCArrayHandler.h"
 #include "PI_GCS2_DLL.h"
 #include "../AMGCS2Support.h"
+#include "../AMPIC887Controller.h"
 AMGCS2GetCurrentPositionCommand::AMGCS2GetCurrentPositionCommand(const QList<AMGCS2::Axis>& axesToQuery)
 {
 	axesToQuery_ = axesToQuery;
@@ -60,7 +61,7 @@ bool AMGCS2GetCurrentPositionCommand::runImplementation()
 	bool successful = false;
 
 	if(axesToQuery_.isEmpty()) {
-		successful = PI_qPOS(controllerId_, 0, positionValuesHandler.cArray());
+		successful = PI_qPOS(controller_->id(), 0, positionValuesHandler.cArray());
 
 		if(successful) {
 
@@ -89,7 +90,7 @@ bool AMGCS2GetCurrentPositionCommand::runImplementation()
 
 		axesArgumentString = axesArgumentString.trimmed();
 
-		successful = PI_qPOS(controllerId_,
+		successful = PI_qPOS(controller_->id(),
 							 axesArgumentString.toStdString().c_str(),
 							 positionValuesHandler.cArray());
 

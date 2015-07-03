@@ -3,6 +3,7 @@
 #include "../AMGCS2Support.h"
 #include "util/AMCArrayHandler.h"
 #include "PI_GCS2_DLL.h"
+#include "../AMPIC887Controller.h"
 AMGCS2GetLimitSwitchStatusCommand::AMGCS2GetLimitSwitchStatusCommand(const QList<AMGCS2::Axis>& axes)
 {
 	axesToQuery_ = axes;
@@ -72,7 +73,7 @@ bool AMGCS2GetLimitSwitchStatusCommand::runImplementation()
 	axesString = axesString.trimmed();
 
 
-	bool success = PI_qLIM(controllerId_,
+	bool success = PI_qLIM(controller_->id(),
 						   axesString.toStdString().c_str(),
 						   statusResults.cArray());
 

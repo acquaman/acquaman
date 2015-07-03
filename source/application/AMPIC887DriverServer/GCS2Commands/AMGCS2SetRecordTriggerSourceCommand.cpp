@@ -2,7 +2,7 @@
 #include "util/AMCArrayHandler.h"
 #include "../AMGCS2Support.h"
 #include "PI_GCS2_DLL.h"
-
+#include "../AMPIC887Controller.h"
 AMGCS2SetRecordTriggerSourceCommand::AMGCS2SetRecordTriggerSourceCommand(
 		AMGCS2::DataRecordTrigger tableTrigger)
 {
@@ -35,7 +35,7 @@ bool AMGCS2SetRecordTriggerSourceCommand::runImplementation()
 	recordTableIds.cArray()[0] = 1;
 	triggerSources.cArray()[0] = AMGCS2Support::dataRecordTriggerToInt(tableTrigger_);
 
-	bool success = PI_DRT(controllerId_,
+	bool success = PI_DRT(controller_->id(),
 						  recordTableIds.cArray(),
 						  triggerSources.cArray(),
 						  dummyValue.toStdString().c_str(),

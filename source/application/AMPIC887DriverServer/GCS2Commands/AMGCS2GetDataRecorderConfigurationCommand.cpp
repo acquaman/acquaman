@@ -2,6 +2,7 @@
 #include "util/AMCArrayHandler.h"
 #include "PI_GCS2_DLL.h"
 #include "../AMGCS2Support.h"
+#include "../AMPIC887Controller.h"
 AMGCS2GetDataRecorderConfigurationCommand::AMGCS2GetDataRecorderConfigurationCommand()
 {
 }
@@ -65,7 +66,7 @@ bool AMGCS2GetDataRecorderConfigurationCommand::runImplementation()
 	AMCArrayHandler<char> recordSourceIds(BUFFER_SIZE);
 	AMCArrayHandler<int> recordOptionIds(RECORD_TABLE_COUNT);
 
-	bool success = PI_qDRC(controllerId_,
+	bool success = PI_qDRC(controller_->id(),
 						   recordTableIds.cArray(),
 						   recordSourceIds.cArray(),
 						   recordOptionIds.cArray(),

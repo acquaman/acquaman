@@ -2,6 +2,7 @@
 #include "../AMGCS2Support.h"
 #include "util/AMCArrayHandler.h"
 #include "PI_GCS2_DLL.h"
+#include "../AMPIC887Controller.h"
 #include <QStringList>
 AMGCS2GetPositionUnitsCommand::AMGCS2GetPositionUnitsCommand(const QList<AMGCS2::Axis>& axes)
 {
@@ -54,7 +55,7 @@ bool AMGCS2GetPositionUnitsCommand::runImplementation()
 	bool success = false;
 	if(axesToQuery_.isEmpty()) {
 
-		success = PI_qPUN(controllerId_, 0, unitsBufferHandler.cArray(), BUFFER_SIZE);
+		success = PI_qPUN(controller_->id(), 0, unitsBufferHandler.cArray(), BUFFER_SIZE);
 
 		if(success) {
 			QString unitsString = unitsBufferHandler.cArray();
@@ -91,7 +92,7 @@ bool AMGCS2GetPositionUnitsCommand::runImplementation()
 							  .arg(AMGCS2Support::axisToCharacter(currentAxis)));
 		}
 
-		success = PI_qPUN(controllerId_,
+		success = PI_qPUN(controller_->id(),
 						  axesString.toStdString().c_str(),
 						  unitsBufferHandler.cArray(),
 						  BUFFER_SIZE);

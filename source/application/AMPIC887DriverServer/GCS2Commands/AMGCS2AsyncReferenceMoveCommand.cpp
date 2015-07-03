@@ -28,7 +28,7 @@ bool AMGCS2AsyncReferenceMoveCommand::runImplementation()
 	// Better to implement this in terms of a synchronous reference move command
 	// so we only have to change the reference move logic in one place.
 	AMGCS2ReferenceMoveCommand referenceMoveCommand(axesToReference_);
-	referenceMoveCommand.setControllerId(controllerId_);
+	referenceMoveCommand.setController(controller_);
 	referenceMoveCommand.run();
 
 	bool success = (referenceMoveCommand.runningState() == Succeeded);
@@ -43,7 +43,7 @@ bool AMGCS2AsyncReferenceMoveCommand::runImplementation()
 void AMGCS2AsyncReferenceMoveCommand::isFinishedImplementation()
 {
 	AMGCS2GetReferenceResultCommand referenceResultsCommand(axesToReference_);
-	referenceResultsCommand.setControllerId(controllerId_);
+	referenceResultsCommand.setController(controller_);
 	referenceResultsCommand.run();
 
 	if(referenceResultsCommand.runningState() != Succeeded) {
@@ -71,7 +71,7 @@ void AMGCS2AsyncReferenceMoveCommand::isFinishedImplementation()
 	// still moving.
 
 	AMGCS2GetMovingStatusCommand movingStatusCommand;
-	movingStatusCommand.setControllerId(controllerId_);
+	movingStatusCommand.setController(controller_);
 	movingStatusCommand.run();
 
 	if(movingStatusCommand.runningState() != Succeeded) {

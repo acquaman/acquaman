@@ -2,6 +2,7 @@
 #include "../AMGCS2Support.h"
 #include "util/AMCArrayHandler.h"
 #include "PI_GCS2_DLL.h"
+#include "../AMPIC887Controller.h"
 AMGCS2MoveRelativeCommand::AMGCS2MoveRelativeCommand(const QHash<AMGCS2::Axis, double>& relativeAxisPositions)
 {
 	relativeAxisPositions_ = relativeAxisPositions;
@@ -47,7 +48,7 @@ bool AMGCS2MoveRelativeCommand::runImplementation()
 		positionValues.cArray()[iAxis] = relativeAxisPositions_.value(currentAxis);
 	}
 
-	bool success = PI_MVR(controllerId_,
+	bool success = PI_MVR(controller_->id(),
 						  axesString.toStdString().c_str(),
 						  positionValues.cArray());
 

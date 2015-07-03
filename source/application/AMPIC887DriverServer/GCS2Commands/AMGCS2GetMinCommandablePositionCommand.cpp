@@ -2,6 +2,7 @@
 #include "../AMGCS2Support.h"
 #include "util/AMCArrayHandler.h"
 #include "PI_GCS2_DLL.h"
+#include "../AMPIC887Controller.h"
 
 AMGCS2GetMinCommandablePositionCommand::AMGCS2GetMinCommandablePositionCommand(const QList<AMGCS2::Axis> axes)
 {
@@ -58,7 +59,7 @@ bool AMGCS2GetMinCommandablePositionCommand::runImplementation()
 
 	if(axesToQuery_.count() == 0) {
 
-		success = PI_qTMN(controllerId_, 0, minPositionHandler.cArray());
+		success = PI_qTMN(controller_->id(), 0, minPositionHandler.cArray());
 
 		if(success) {
 
@@ -81,7 +82,7 @@ bool AMGCS2GetMinCommandablePositionCommand::runImplementation()
 			axesString.append(QString(" %1")
 							  .arg(AMGCS2Support::axisToCharacter(currentAxis)));
 
-			success = PI_qTMN(controllerId_,
+			success = PI_qTMN(controller_->id(),
 								   axesString.toStdString().c_str(),
 								   minPositionHandler.cArray());
 

@@ -3,6 +3,7 @@
 #include "../AMGCS2Support.h"
 #include "util/AMCArrayHandler.h"
 #include "PI_GCS2_DLL.h"
+#include "../AMPIC887Controller.h"
 
 AMGCS2GetOnTargetStateCommand::AMGCS2GetOnTargetStateCommand(const QList<AMGCS2::Axis>& axes )
 {
@@ -66,7 +67,7 @@ bool AMGCS2GetOnTargetStateCommand::runImplementation()
 	bool successful = false;
 
 	if(axesToQuery_.isEmpty()) {
-		successful = PI_qONT(controllerId_, 0, onTargetValuesHandler.cArray());
+		successful = PI_qONT(controller_->id(), 0, onTargetValuesHandler.cArray());
 
 		if(successful) {
 
@@ -95,7 +96,7 @@ bool AMGCS2GetOnTargetStateCommand::runImplementation()
 
 		axesArgumentString = axesArgumentString.trimmed();
 
-		successful = PI_qONT(controllerId_,
+		successful = PI_qONT(controller_->id(),
 							 axesArgumentString.toStdString().c_str(),
 							 onTargetValuesHandler.cArray());
 

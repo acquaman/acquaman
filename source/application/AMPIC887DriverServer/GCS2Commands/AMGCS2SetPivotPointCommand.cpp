@@ -2,6 +2,7 @@
 #include "../AMGCS2Support.h"
 #include "util/AMCArrayHandler.h"
 #include "PI_GCS2_DLL.h"
+#include "../AMPIC887Controller.h"
 AMGCS2SetPivotPointCommand::AMGCS2SetPivotPointCommand(const QHash<AMGCS2::Axis, double>& pivotPoint)
 {
 	pivotPoint_ = pivotPoint;
@@ -52,7 +53,7 @@ bool AMGCS2SetPivotPointCommand::runImplementation()
 				= pivotPoint_.value(currentAxis);
 	}
 
-	bool success = PI_SPI(controllerId_,
+	bool success = PI_SPI(controller_->id(),
 						  axesString.toStdString().c_str(),
 						  pivotPointValuesHandler.cArray());
 

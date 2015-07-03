@@ -15,6 +15,7 @@
   * have the type Synchronous. Asynchronous commands should inherit from AMGCS2AsynCommand
   * and will have the type Asynchronous.
   */
+class AMPIC887Controller;
 class AMGCS2Command
 {
 public:
@@ -75,9 +76,9 @@ public:
 	virtual void run();
 
 	/*!
-	  * Sets the id of the controller upon which this command will be run.
+	  * Sets the controller upon which this command will be run.
 	  */
-	void setControllerId(int id);
+	void setController(AMPIC887Controller* controller);
 
 	/*!
 	  * Whether the command is synchronous or asynchronous.
@@ -118,7 +119,7 @@ protected:
 	QString controllerErrorMessage();
 
 	QString lastError_;
-	int controllerId_;	
+	AMPIC887Controller* controller_;
 	RunningState runningState_;
 	CommandType commandType_;
 };

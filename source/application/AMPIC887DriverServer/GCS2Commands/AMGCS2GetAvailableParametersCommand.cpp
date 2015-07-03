@@ -1,6 +1,7 @@
 #include "AMGCS2GetAvailableParametersCommand.h"
 #include "util/AMCArrayHandler.h"
 #include "PI_GCS2_DLL.h"
+#include "../AMPIC887Controller.h"
 AMGCS2GetAvailableParametersCommand::AMGCS2GetAvailableParametersCommand()
 {
 }
@@ -19,7 +20,7 @@ bool AMGCS2GetAvailableParametersCommand::runImplementation()
 {
 	AMCArrayHandler<char> availableParameterResults(BUFFER_SIZE);
 
-	bool success = PI_qHPA(controllerId_,
+	bool success = PI_qHPA(controller_->id(),
 						   availableParameterResults.cArray(),
 						   BUFFER_SIZE);
 

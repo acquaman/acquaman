@@ -1,7 +1,7 @@
 #include "AMGCS2MoveCommand.h"
 #include "util/AMCArrayHandler.h"
 #include "../AMGCS2Support.h"
-
+#include "../AMPIC887Controller.h"
 #include "PI_GCS2_DLL.h"
 AMGCS2MoveCommand::AMGCS2MoveCommand(const QHash<AMGCS2::Axis, double> &axisPositions)
 {
@@ -48,7 +48,7 @@ bool AMGCS2MoveCommand::runImplementation()
 	axesString = axesString.trimmed();
 
 	int movePossible = 0;
-	bool success = PI_qVMO(controllerId_, axesString.toStdString().c_str(), positionsArrayHandler.cArray(), &movePossible);
+	bool success = PI_qVMO(controller_->id(), axesString.toStdString().c_str(), positionsArrayHandler.cArray(), &movePossible);
 
 	if(!success) {
 		lastError_ = "Could not determine whether specified move was safe";
@@ -60,7 +60,7 @@ bool AMGCS2MoveCommand::runImplementation()
 		return false;
 	}
 
-	success = PI_MOV(controllerId_, axesString.toStdString().c_str(),  positionsArrayHandler.cArray());
+	success = PI_MOV(controller_->id(), axesString.toStdString().c_str(),  positionsArrayHandler.cArray());
 
 	if(!success) {
 		lastError_ = controllerErrorMessage();

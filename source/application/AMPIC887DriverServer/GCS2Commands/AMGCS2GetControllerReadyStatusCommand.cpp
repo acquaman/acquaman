@@ -1,6 +1,7 @@
 #include "AMGCS2GetControllerReadyStatusCommand.h"
 
 #include "PI_GCS2_DLL.h"
+#include "../AMPIC887Controller.h"
 AMGCS2GetControllerReadyStatusCommand::AMGCS2GetControllerReadyStatusCommand()
 {
 	isReady_ = false;
@@ -26,7 +27,7 @@ bool AMGCS2GetControllerReadyStatusCommand::runImplementation()
 	isReady_ = false;
 
 	int readyStatusReturn;
-	bool success = PI_IsControllerReady(controllerId_, &readyStatusReturn);
+	bool success = PI_IsControllerReady(controller_->id(), &readyStatusReturn);
 
 	if(!success) {
 		lastError_ = controllerErrorMessage();

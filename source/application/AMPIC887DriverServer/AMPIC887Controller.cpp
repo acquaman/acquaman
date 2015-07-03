@@ -9,6 +9,7 @@ AMPIC887Controller::AMPIC887Controller(const QString& name, const QString& hostn
 	hostname_ = hostname;
 	name_ = name;
 	connectToController();
+	isBusy_ = false;
 }
 
 void AMPIC887Controller::interpretAndRunCommand(const QString &commandText)
@@ -51,7 +52,7 @@ void AMPIC887Controller::interpretAndRunCommand(const QString &commandText)
 void AMPIC887Controller::runCommand(AMGCS2Command *command)
 {
 	if(command) {
-		command->setControllerId(id_);
+		command->setController(this);
 		command->run();
 	}
 }
@@ -112,6 +113,18 @@ QString AMPIC887Controller::status() const
 			.arg(connectionStatus);
 }
 
+bool AMPIC887Controller::isBusy() const
+{
+	return isBusy_;
+}
+
+void AMPIC887Controller::clearErrorMessage()
+{
+	isBusy_ = true;
+
+	errorClearingTimer_.singleShot(30, this, SLOT(onErrorClearingTimerTimedOut()));
+}
+
 void AMPIC887Controller::onAsyncCommandFailed(AMGCS2AsyncCommand *command)
 {
 	emit errorEncountered(command->lastError());
@@ -127,6 +140,15 @@ void AMPIC887Controller::onAsyncCommandSucceeded(AMGCS2AsyncCommand *command)
 	}
 	command->deleteLater();
 }
+
+void AMPIC887Controller::onErrorClearingTimerTimedOut()
+{
+	int dummyValue;
+	PI_qERR(id_, &dummyValue);
+	isBusy_ = false;
+}
+
+
 
 
 

@@ -1,7 +1,7 @@
 #include "AMGCS2StopCommand.h"
 #include "util/AMCArrayHandler.h"
 #include "PI_GCS2_DLL.h"
-#include "../AMPIC887ErrorMessageClearer.h"
+#include "../AMPIC887Controller.h"
 AMGCS2StopCommand::AMGCS2StopCommand()
 {
 	statusString_ = "Controller stop not issued";
@@ -17,7 +17,7 @@ bool AMGCS2StopCommand::runImplementation()
 	// Reset status string
 	statusString_ = "Controller stop not issued";
 
-	bool success = PI_GcsCommandset(controllerId_, "STP");
+	bool success = PI_GcsCommandset(controller_->id(), "STP");
 
 
 	if(success) {
@@ -31,10 +31,8 @@ bool AMGCS2StopCommand::runImplementation()
 		  the error message for some period of time after we're done.*/
 
 		statusString_ = "Controller stopped.";
-		AMPIC887ErrorMessageClearer* errorMessageClearer =
-				new AMPIC887ErrorMessageClearer(controllerId_);
+		controller_->clearErrorMessage();
 
-		errorMessageClearer->start(30);
 	} else {
 		lastError_ = controllerErrorMessage();
 	}

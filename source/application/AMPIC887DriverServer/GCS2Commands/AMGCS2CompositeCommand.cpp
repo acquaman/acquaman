@@ -43,7 +43,7 @@ bool AMGCS2CompositeCommand::runImplementation()
 
 		AMGCS2Command* currentSubCommand = commandList_.at(iCommand);
 
-		currentSubCommand->setControllerId(controllerId_);
+		currentSubCommand->setController(controller_);
 		currentSubCommand->run();
 
 		if(currentSubCommand->runningState() == Failed) {

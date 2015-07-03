@@ -5,6 +5,7 @@
 
 #include <QObject>
 #include <QString>
+#include <QTimer>
 #include "GCS2Commands/AMGCS2Command.h"
 #include "GCS2Commands/AMGCS2AsyncCommand.h"
 
@@ -87,6 +88,19 @@ public:
 	  */
 	QString status() const;
 
+	/*!
+	  * Whether the controller is currently not in a state to receive commands.
+	  */
+	bool isBusy() const;
+
+	/*!
+	  * Instructs the controller to clear its error message. This cannot be done
+	  * instantly, and so the controller will wait asynchronously for a small amount
+	  * of time before clearing the error. Check whether the controller is busy
+	  * clearning an error message with isBusy().
+	  */
+	void clearErrorMessage();
+
 signals:
 	/*!
 	  * Signal indicating that the controller has some output text which. For commands
@@ -114,10 +128,18 @@ protected slots:
 	  * \param command ~ The command which succeeded.
 	  */
 	void onAsyncCommandSucceeded(AMGCS2AsyncCommand* command);
+
+	/*!
+	  * Handles the error clearning timer indicating that its delay time for the
+	  * error message to be cleared is complete.
+	  */
+	void onErrorClearingTimerTimedOut();
 protected:
 
 	QString name_;
 	QString hostname_;
+	QTimer errorClearingTimer_;
+	bool isBusy_;
 	int id_;
 };
 

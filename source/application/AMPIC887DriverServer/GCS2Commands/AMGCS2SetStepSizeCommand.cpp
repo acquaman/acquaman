@@ -2,6 +2,7 @@
 #include "../AMGCS2Support.h"
 #include "util/AMCArrayHandler.h"
 #include "PI_GCS2_DLL.h"
+#include "../AMPIC887Controller.h"
 AMGCS2SetStepSizeCommand::AMGCS2SetStepSizeCommand(const QHash<AMGCS2::Axis, double>& axisStepSizes)
 {
 	axisStepSizes_ = axisStepSizes;
@@ -46,7 +47,7 @@ bool AMGCS2SetStepSizeCommand::runImplementation()
 		stepSizeValueHandler.cArray()[iAxis] = axisStepSizes_.value(currentAxis);
 	}
 
-	bool success = PI_SST(controllerId_,
+	bool success = PI_SST(controller_->id(),
 						  axesString.toStdString().c_str(),
 						  stepSizeValueHandler.cArray());
 

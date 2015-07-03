@@ -2,6 +2,7 @@
 #include "../AMGCS2Support.h"
 #include "util/AMCArrayHandler.h"
 #include "PI_GCS2_DLL.h"
+#include "../AMPIC887Controller.h"
 AMGCS2GetServoModeCommand::AMGCS2GetServoModeCommand(const QList<AMGCS2::Axis>& axes)
 {
 	axesToQuery_ = axes;
@@ -63,7 +64,7 @@ bool AMGCS2GetServoModeCommand::runImplementation()
 	bool success = false;
 
 	if(axesToQuery_.count() == 0) {
-		success = PI_qSVO(controllerId_, 0, activeStatusHandler.cArray());
+		success = PI_qSVO(controller_->id(), 0, activeStatusHandler.cArray());
 
 		if(success) {
 			servoModeStatuses_.insert(AMGCS2::XAxis, activeStatusHandler.cArray()[0] != 0);
@@ -84,7 +85,7 @@ bool AMGCS2GetServoModeCommand::runImplementation()
 							  .arg(AMGCS2Support::axisToCharacter(currentAxis)));
 		}
 
-		success = PI_SVO(controllerId_,
+		success = PI_SVO(controller_->id(),
 						 axesString.toStdString().c_str(),
 						 activeStatusHandler.cArray());
 
