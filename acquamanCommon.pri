@@ -429,7 +429,6 @@ HEADERS += \
     source/ui/dataman/AMScanViewPlotToolsButtonView.h \
     source/ui/dataman/AMScanViewPlotToolView.h \
     source/ui/dataman/AMScanViewPlotSelectedToolsView.h \
-    source/dataman/AMDataPositionTool.h \
     source/dataman/AMScanViewPlotTools.h
 
 FORMS += \
@@ -821,7 +820,6 @@ SOURCES += \
     source/ui/dataman/AMScanViewPlotToolsButtonView.cpp \
     source/ui/dataman/AMScanViewPlotToolView.cpp \
     source/ui/dataman/AMScanViewPlotSelectedToolsView.cpp \
-    source/dataman/AMDataPositionTool.cpp \
     source/dataman/AMScanViewPlotTools.cpp
 
 RESOURCES *= source/icons/icons.qrc \
@@ -839,6 +837,8 @@ contains(DEFINES, AM_BUILD_REPORTER_ENABLED){
 
 	SOURCES *= source/util/AMRunTimeBuildInfo.cpp
 }
+
+
 
 
 

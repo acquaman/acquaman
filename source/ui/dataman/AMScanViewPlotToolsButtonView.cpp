@@ -17,6 +17,12 @@ AMScanViewPlotToolsButtonView::AMScanViewPlotToolsButtonView(AMScanViewPlotTools
 	layout_->setMargin(0);
 	layout_->setSpacing(0);
 
+	setLayout(layout_);
+
+	// Make connections.
+
+	connect( buttons_, SIGNAL(buttonClicked(int)), this, SLOT(onToolButtonClicked(int)) );
+
 	// Current settings.
 
 	setTools(tools);
@@ -41,6 +47,10 @@ void AMScanViewPlotToolsButtonView::setTools(AMScanViewPlotTools *newTools)
 			connect( tools_, SIGNAL(toolsChanged(QList<MPlotAbstractTool*>)), this, SLOT(refresh()) );
 			connect( tools_, SIGNAL(selectedToolsChanged(QList<MPlotAbstractTool*>)), this, SLOT(update()) );
 		}
+
+		refresh();
+
+		emit toolsChanged(tools_);
 	}
 }
 
@@ -110,6 +120,32 @@ void AMScanViewPlotToolsButtonView::refresh()
 	update();
 }
 
+void AMScanViewPlotToolsButtonView::onToolButtonClicked(int buttonIndex)
+{
+	if (tools_) {
+
+		// Identify the button that was clicked.
+
+		int buttonCount = buttons_->buttons().count();
+
+		if (buttonIndex >= 0 && buttonIndex < buttonCount) {
+
+			QAbstractButton *button = buttons_->button(buttonIndex);
+
+			// Identify the tool associated with the clicked button, select it.
+
+			MPlotAbstractTool *tool = buttonToTool(button);
+
+			if (tool) {
+				if (tools_->isSelectedTool(tool))
+					tools_->removeSelectedTool(tool);
+				else
+					tools_->addSelectedTool(tool);
+			}
+		}
+	}
+}
+
 QToolButton* AMScanViewPlotToolsButtonView::createToolButton(MPlotAbstractTool *tool)
 {
 	QToolButton *toolButton = 0;
@@ -125,6 +161,30 @@ QToolButton* AMScanViewPlotToolsButtonView::createToolButton(MPlotAbstractTool *
 	}
 
 	return toolButton;
+}
+
+MPlotAbstractTool* AMScanViewPlotToolsButtonView::buttonToTool(QAbstractButton *button)
+{
+	MPlotAbstractTool *result = 0;
+
+	if (tools_) {
+		int buttonIndex = buttons_->id(button);
+		result = tools_->tools().at(buttonIndex);
+	}
+
+	return result;
+}
+
+QAbstractButton* AMScanViewPlotToolsButtonView::toolToButton(MPlotAbstractTool *tool)
+{
+	QAbstractButton *result = 0;
+
+	if (tools_) {
+		int toolIndex = tools_->tools().indexOf(tool);
+		result = buttons_->button(toolIndex);
+	}
+
+	return result;
 }
 
 QIcon AMScanViewPlotToolsButtonView::toolToIcon(MPlotAbstractTool *tool)

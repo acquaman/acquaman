@@ -2,6 +2,7 @@
 #define AMSCANVIEWPLOTOPTIONS_H
 
 #include <QObject>
+#include <QDebug>
 
 #include "MPlot/MPlotAbstractTool.h"
 
@@ -11,7 +12,7 @@ class AMScanViewPlotTools : public QObject
 
 public:
 	/// Constructor.
-	explicit AMScanViewPlotTools(QList<MPlotAbstractTool*> tools, bool exclusiveSelection = false, QObject *parent = 0);
+	explicit AMScanViewPlotTools(const QList<MPlotAbstractTool*> &tools, bool exclusiveSelection = false, QObject *parent = 0);
 	/// Destructor.
 	virtual ~AMScanViewPlotTools();
 
@@ -29,15 +30,15 @@ public:
 
 signals:
 	/// Notifier that the list of tools has changed.
-	void toolsChanged(QList<MPlotAbstractTool*> newTools);
+	void toolsChanged(const QList<MPlotAbstractTool*> &newTools);
 	/// Notifier that the list of selected/active tool options have changed, in the order in which they should be applied to a plot.
-	void selectedToolsChanged(QList<MPlotAbstractTool*> newTools);
+	void selectedToolsChanged(const QList<MPlotAbstractTool*> &newTools);
 	/// Notifier that the flag indicating whether or not exclusive tool selection is enabled has changed.
 	void exclusiveSelectionEnabledChanged(bool isEnabled);
 
 public slots:
 	/// Sets the list of tool options.
-	void setTools(QList<MPlotAbstractTool*> newTools);
+	void setTools(const QList<MPlotAbstractTool*> &newTools);
 	/// Adds the given tool to the tool list.
 	void addTool(MPlotAbstractTool *newTool);
 	/// Removes the given tool from the tool list.
@@ -46,7 +47,7 @@ public slots:
 	void clearTools();
 
 	/// Sets the list of selected/active tool options, applying rules as needed.
-	void setSelectedTools(QList<MPlotAbstractTool*> newTools);
+	void setSelectedTools(QList<MPlotAbstractTool*> &newTools);
 	/// Adds the given tool to the list of selected tools.
 	void addSelectedTool(MPlotAbstractTool *newTool);
 	/// Removes the given tool from the list of selected tools.
@@ -58,6 +59,8 @@ public slots:
 	void setExclusiveSelectionEnabled(bool isEnabled);
 
 protected slots:
+	/// Sets the tools list.
+	void setToolsList(const QList<MPlotAbstractTool*> &newTools);
 	/// Sets the selected tools list.
 	void setSelectedToolsList(const QList<MPlotAbstractTool*> &newSelection);
 

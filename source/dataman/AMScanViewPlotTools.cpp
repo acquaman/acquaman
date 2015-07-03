@@ -1,7 +1,7 @@
 #include "AMScanViewPlotTools.h"
 #include "MPlot/MPlotTools.h"
 
-AMScanViewPlotTools::AMScanViewPlotTools(QList<MPlotAbstractTool *> tools, bool exclusiveSelection, QObject *parent) :
+AMScanViewPlotTools::AMScanViewPlotTools(const QList<MPlotAbstractTool *> &tools, bool exclusiveSelection, QObject *parent) :
 	QObject(parent)
 {
 	// Initialize member variables.
@@ -44,12 +44,13 @@ bool AMScanViewPlotTools::isSelectedTool(const QString &toolName)
 	return toolFound;
 }
 
-void AMScanViewPlotTools::setTools(QList<MPlotAbstractTool *> newTools)
+void AMScanViewPlotTools::setTools(const QList<MPlotAbstractTool *> &newTools)
 {
-	if (tools_ != newTools) {
-		tools_ = newTools;
-		emit toolsChanged(tools_);
-	}
+	// Clear selected tools.
+	clearSelectedTools();
+
+	// Set new tools
+	setToolsList(newTools);
 }
 
 void AMScanViewPlotTools::addTool(MPlotAbstractTool *newTool)
@@ -105,7 +106,7 @@ void AMScanViewPlotTools::clearTools()
 	setTools(QList<MPlotAbstractTool*>());
 }
 
-void AMScanViewPlotTools::setSelectedTools(QList<MPlotAbstractTool *> newTools)
+void AMScanViewPlotTools::setSelectedTools(QList<MPlotAbstractTool *> &newTools)
 {
 	if (selectedTools_ != newTools) {
 
@@ -135,7 +136,11 @@ void AMScanViewPlotTools::setSelectedTools(QList<MPlotAbstractTool *> newTools)
 
 void AMScanViewPlotTools::addSelectedTool(MPlotAbstractTool *newTool)
 {
+	qDebug() << "Attempting to add tool to selected tools...";
+
 	if (newTool && tools_.contains(newTool) && !selectedTools_.contains(newTool)) {
+		qDebug() << "Adding tool to selected tools.";
+
 		QList<MPlotAbstractTool*> newSelection = selectedTools_;
 		newSelection << newTool;
 		setSelectedTools(newSelection);
@@ -153,7 +158,8 @@ void AMScanViewPlotTools::removeSelectedTool(MPlotAbstractTool *tool)
 
 void AMScanViewPlotTools::clearSelectedTools()
 {
-	setSelectedTools(QList<MPlotAbstractTool*>());
+	QList<MPlotAbstractTool*> emptySelection;
+	setSelectedTools(emptySelection);
 }
 
 void AMScanViewPlotTools::setExclusiveSelectionEnabled(bool isEnabled)
@@ -167,6 +173,14 @@ void AMScanViewPlotTools::setExclusiveSelectionEnabled(bool isEnabled)
 		}
 
 		emit exclusiveSelectionEnabledChanged(exclusiveSelection_);
+	}
+}
+
+void AMScanViewPlotTools::setToolsList(const QList<MPlotAbstractTool *> &newTools)
+{
+	if (tools_ != newTools) {
+		tools_ = newTools;
+		emit toolsChanged(tools_);
 	}
 }
 

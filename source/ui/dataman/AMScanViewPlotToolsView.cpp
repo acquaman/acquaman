@@ -1,4 +1,5 @@
 #include "AMScanViewPlotToolsView.h"
+#include <QLabel>
 
 AMScanViewPlotToolsView::AMScanViewPlotToolsView(AMScanViewPlotTools *tools, QWidget *parent) :
 	QWidget(parent)
@@ -17,6 +18,7 @@ AMScanViewPlotToolsView::AMScanViewPlotToolsView(AMScanViewPlotTools *tools, QWi
 	QHBoxLayout *layout = new QHBoxLayout();
 	layout->addWidget(buttonView_);
 	layout->addWidget(selectedToolsView_);
+	layout->addStretch();
 
 	setLayout(layout);
 

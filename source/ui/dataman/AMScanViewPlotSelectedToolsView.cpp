@@ -58,18 +58,25 @@ void AMScanViewPlotSelectedToolsView::clear()
 
 void AMScanViewPlotSelectedToolsView::update()
 {
-	int toolCount = tools_->tools().count();
+	if (tools_) {
 
-	for (int toolIndex = 0; toolIndex < toolCount; toolIndex++) {
-		MPlotAbstractTool *tool = tools_->tools().at(toolIndex);
+		// Iterate through all tool views and show the views for selected tools.
+		// Hide the views of unselected tools.
 
-		if (toolIndex < toolViews_.count()) {
-			QWidget *toolView = toolViews_.at(toolIndex);
+		int viewCount = toolViews_.count();
 
-			if (tools_->isSelectedTool(tool))
-				toolView->show();
-			else
-				toolView->hide();
+		for (int viewIndex = 0; viewIndex < viewCount; viewIndex++) {
+			if (viewIndex < tools_->tools().count()) {
+				MPlotAbstractTool *tool = tools_->tools().at(viewIndex);
+				QWidget *toolView = toolViews_.at(viewIndex);
+
+				if (tool && toolView) {
+					if (tools_->isSelectedTool(tool))
+						toolView->show();
+					else
+						toolView->hide();
+				}
+			}
 		}
 	}
 }
@@ -109,15 +116,15 @@ QWidget* AMScanViewPlotSelectedToolsView::createToolView(MPlotAbstractTool *tool
 	QWidget *view = 0;
 
 	if (tool) {
+		MPlotDataPositionCursorTool *positionCursorTool = qobject_cast<MPlotDataPositionCursorTool*>(tool);
+		MPlotDataPositionTool *positionTool = qobject_cast<MPlotDataPositionTool*>(tool);
 
-		AMDataPositionTool *positionTool = qobject_cast<AMDataPositionTool*>(tool);
-
-		if (positionTool) {
+		if (positionCursorTool)
+			view = new AMDataPositionCursorToolView(positionCursorTool, this);
+		else if (positionTool)
 			view = new AMDataPositionToolView(positionTool, this);
-
-		} else {
+		else
 			view = new QWidget(this);
-		}
 	}
 
 	return view;

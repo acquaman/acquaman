@@ -307,15 +307,10 @@ void AMScanView::setSpectrumViewVisibility(bool visible)
 
 void AMScanView::onDataPositionChanged(const QPointF &point)
 {
-	qDebug() << "\n";
-	qDebug() << "Data position changed in AMScanView.";
-
 	AMnDIndex index = getIndex(point);
 
 	if (modeBar_->showSpectra_)
 		spectrumView_->onDataPositionChanged(index);
-
-	qDebug() << "\n";
 }
 
 void AMScanView::setPlotRange(double low, double high)
@@ -352,16 +347,12 @@ void AMScanView::changeViewMode(int newMode) {
 	for (int i = 0, count = views_.size(); i< count; i++)
 		views_.at(i)->hide();
 
-	disconnect( views_.at(mode_)->tools(), SIGNAL(toolsChanged(QList<MPlotAbstractTool*>)), this, SLOT(updateToolsViewVisibility()) );
-
 	// Identify and show the desired view.
 
 	mode_ = (ViewMode)newMode;
 	scanBars_->setExclusiveModeOn( (mode_ == Tabs) );
 
 	toolsView_->setTools(views_.at(mode_)->tools());
-
-	updateToolsViewVisibility();
 
 	views_.at(mode_)->show();
 	resizeViews();
@@ -370,19 +361,7 @@ void AMScanView::changeViewMode(int newMode) {
 	modeBar_->modeButtons_->button(mode_)->setChecked(true);
 }
 
-void AMScanView::updateToolsViewVisibility()
-{
-	AMScanViewPlotTools *tools = views_.at(mode_)->tools();
-
-	if (tools && !tools->tools().isEmpty())
-		toolsView_->show();
-	else
-		toolsView_->hide();
-}
-
 void AMScanView::makeConnections() {
-	connect( toolsView_, SIGNAL(toolsChanged(AMScanViewPlotTools*)), this, SLOT(onToolsChanged()) );
-
 	// connect mode bar to changeViewMode:
 	connect(modeBar_->modeButtons_, SIGNAL(buttonClicked(int)), this, SLOT(changeViewMode(int)));
 
@@ -456,30 +435,30 @@ void AMScanView::onScanAdded(AMScan *scan)
 
 	spectrumView_->setDataSources(sources);
 
-	QString xUnits = "";
+//	QString xUnits = "";
 
-	if (scan && scan->rawData() && scan->rawData()->scanAxesCount() >= 1) {
-		xUnits = scan->rawData()->scanAxisAt(0).units;
-	}
+//	if (scan && scan->rawData() && scan->rawData()->scanAxesCount() >= 1) {
+//		xUnits = scan->rawData()->scanAxisAt(0).units;
+//	}
 
-	qDebug() << "Updating views with new scan data...";
+//	qDebug() << "Updating views with new scan data...";
 
-	foreach (AMScanViewInternal *scanView, views_) {
-		if (scanView && scanView->tools()) {
-			qDebug() << "Updating plot tools...";
-			foreach (MPlotAbstractTool *tool, scanView->tools()->tools()) {
-				AMDataPositionTool *positionTool = qobject_cast<AMDataPositionTool*>(tool);
-				if (positionTool) {
-					qDebug() << "Updating position tool...";
-					positionTool->setUnits(QStringList() << xUnits);
-				}
-			}
-		} else {
-			qDebug() << "No tools to update.";
-		}
-	}
+//	foreach (AMScanViewInternal *scanView, views_) {
+//		if (scanView && scanView->tools()) {
+//			qDebug() << "Updating plot tools...";
+//			foreach (MPlotAbstractTool *tool, scanView->tools()->tools()) {
+//				MPlotDataPositionTool *positionTool = qobject_cast<MPlotDataPositionTool*>(tool);
+//				if (positionTool) {
+//					qDebug() << "Updating position tool...";
+//					positionTool->setUnits(QStringList() << xUnits);
+//				}
+//			}
+//		} else {
+//			qDebug() << "No tools to update.";
+//		}
+//	}
 
-	qDebug() << "Updating views complete.";
+//	qDebug() << "Updating views complete.";
 }
 
 AMnDIndex AMScanView::getIndex(const QPointF &point) const
@@ -574,39 +553,6 @@ void AMScanView::mousePressEvent(QMouseEvent *e)
 	QWidget::mousePressEvent(e);
 }
 
-//void AMScanView::setPlotCursorVisibility(bool visible)
-//{
-//	((AMScanViewExclusiveView *)(views_.at(0)))->applyPlotCursorVisibility(visible);
-//	((AMScanViewMultiView *)(views_.at(1)))->applyPlotCursorVisibility(visible);
-//}
-
-//void AMScanView::setPlotCursorCoordinates(const QPointF &coordinates)
-//{
-//	((AMScanViewExclusiveView *)(views_.at(0)))->applyPlotCursorCoordinates(coordinates);
-//	((AMScanViewMultiView *)(views_.at(1)))->applyPlotCursorCoordinates(coordinates);
-//}
-
-//void AMScanView::setPlotCursorCoordinates(double xCoordinate)
-//{
-//	AMScanViewExclusiveView *exclusiveView = ((AMScanViewExclusiveView*)(views_.at(0)));
-//	if (exclusiveView && exclusiveView->toolOptions() && exclusiveView->toolOptions()->values().count() >= 2) {
-//		double yCoordinate = exclusiveView->toolOptions()->values().at(1);
-//		exclusiveView->applyPlotCursorCoordinates(QPointF(xCoordinate, yCoordinate));
-//	}
-
-//	AMScanViewMultiView *multiView = ((AMScanViewMultiView *)(views_.at(1)));
-//	if (multiView && multiView->tools() && multiView->toolOptions()->values().count() >= 2) {
-//		double yCoordinate = multiView->toolOptions()->values().at(1);
-//		multiView->applyPlotCursorCoordinates(QPointF(xCoordinate, yCoordinate));
-//	}
-//}
-
-//void AMScanView::setPlotCursorColor(const QColor &color)
-//{
-//	((AMScanViewExclusiveView *)(views_.at(0)))->applyPlotCursorColor(color);
-//	((AMScanViewMultiView *)(views_.at(1)))->applyPlotCursorColor(color);
-//}
-
 #include <QSizePolicy>
 
  AMScanViewInternal::~AMScanViewInternal(){ delete tools_;}
@@ -634,46 +580,38 @@ AMScanViewInternal::AMScanViewInternal(AMScanView* masterView)
 
 void AMScanViewInternal::setPlotTools(AMScanViewPlotTools *newTools)
 {
+	qDebug() << "Attempting to set new plot tools for this view...";
+
 	if (tools_ != newTools) {
 
+		qDebug() << "Setting plot tools for this view...";
+
 		if (tools_) {
+			qDebug() << "\tRemoving plot tools for this view.";
 			disconnect( tools_, 0, this, 0 );
 		}
 
 		tools_ = newTools;
 
 		if (tools_) {
+			qDebug() << "\tAdding plot tools for this view.";
+
 			connect( tools_, SIGNAL(selectedToolsChanged(QList<MPlotAbstractTool*>)), this, SLOT(updatePlotTools()) );
 		}
 
 		updatePlotTools();
+
+		emit plotToolsChanged(tools_);
 	}
 }
 
 void AMScanViewInternal::updatePlotTools()
 {
+	qDebug() << "\n\tUpdating view plot(s) with the selected tools.";
+
 	if (tools_)
 		applyPlotTools(tools_->selectedTools());
 }
-
-//void AMScanViewInternal::updatePlotCursorVisibility()
-//{
-//	if (tools_)
-//		applyPlotCursorVisibility(tools_->cursorVisibility());
-//}
-
-//void AMScanViewInternal::updatePlotCursorCoordinates()
-//{
-//	if (tools_ && tools_->values().count() >= 2)
-//		applyPlotCursorCoordinates(QPointF(tools_->values().at(0), tools_->values().at(1)));
-//}
-
-//void AMScanViewInternal::updatePlotCursorColor()
-//{
-//	if (tools_)
-//		applyPlotCursorColor(tools_->cursorColor());
-//}
-
 
 AMScanSetModel* AMScanViewInternal::model() const { return masterView_->model(); }
 
@@ -711,33 +649,11 @@ void AMScanViewInternal::removeToolFromPlot(MPlot *plot, MPlotAbstractTool *tool
 
 void AMScanViewInternal::removeToolsFromPlot(MPlot *plot)
 {
+	qDebug() << "Removing tools from plot.";
+
 	if (plot)
 		plot->removeTools();
 }
-
-//void AMScanViewInternal::setPlotCursorVisibility(MPlot *plot, MPlotPoint *cursor, bool isVisible)
-//{
-//	if (plot && cursor) {
-//		if (isVisible)
-//			plot->addItem(cursor);
-//		else
-//			plot->removeItem(cursor);
-//	}
-//}
-
-//void AMScanViewInternal::setPlotCursorCoordinates(MPlotPoint *cursor, const QPointF &coordinates)
-//{
-//	if (cursor)
-//		cursor->setValue(coordinates);
-//}
-
-//void AMScanViewInternal::setPlotCursorColor(MPlotPoint *cursor, const QColor &newColor)
-//{
-//	if (cursor && cursor->marker()) {
-//		cursor->marker()->setPen(QPen(newColor));
-//		cursor->marker()->setBrush(QBrush(newColor));
-//	}
-//}
 
 // Helper function to create an appropriate MPlotItem and connect it to the data, depending on the dimensionality of \c dataSource.  Returns 0 if we can't handle this dataSource and no item was created (ex: unsupported dimensionality, we only handle 1D or 2D data for now.)
 MPlotItem* AMScanViewInternal::createPlotItemForDataSource(const AMDataSource* dataSource, const AMDataSourcePlotSettings& plotSettings) {
@@ -824,6 +740,8 @@ void AMScanViewInternal::reviewPlotAxesConfiguration(MPlotGW *plotGW)
 
 AMScanViewExclusiveView::AMScanViewExclusiveView(AMScanView* masterView) : AMScanViewInternal(masterView)
 {
+	qDebug() << "\nCreating Exclusive View...";
+
 	// Create our main plot:
 
 	plot_ = createDefaultPlot();
@@ -832,19 +750,18 @@ AMScanViewExclusiveView::AMScanViewExclusiveView(AMScanView* masterView) : AMSca
 
 	dragZoomerTool_ = new MPlotDragZoomerTool();
 	wheelZoomerTool_ = new MPlotWheelZoomerTool();
-	dataPositionTool_ = new AMDataPositionTool();
+	dataPositionTool_ = new MPlotDataPositionCursorTool(false);
 
 	AMScanViewPlotTools *tools = new AMScanViewPlotTools(QList<MPlotAbstractTool*>());
 	tools->setExclusiveSelectionEnabled(true);
 	tools->setTools(QList<MPlotAbstractTool*>() << dataPositionTool_ << dragZoomerTool_ << wheelZoomerTool_);
 	tools->setSelectedTools(QList<MPlotAbstractTool*>() << dragZoomerTool_);
 
+	qDebug() << "\tSetting Exclusive view plot tools...";
+
 	setPlotTools(tools);
 
-	// Create plot cursor.
-
-	plotCursor_ = new MPlotPoint;
-	plotCursor_->setMarker(MPlotMarkerShape::VerticalBeam, 1e6, QPen(Qt::black), QBrush(Qt::black));
+	qDebug() << "\tExclusive view plot tools set.";
 
 	// Set layout.
 
@@ -864,16 +781,15 @@ AMScanViewExclusiveView::AMScanViewExclusiveView(AMScanView* masterView) : AMSca
 	// Make connections.
 
 	connect(model(), SIGNAL(exclusiveDataSourceChanged(QString)), this, SLOT(onExclusiveDataSourceChanged(QString)));
-	connect( plot_->plot()->signalSource(), SIGNAL(dataPositionChanged(QPointF)), this, SLOT(onDataPositionChanged(QPointF)) );
+	connect( plot_->plot()->signalSource(), SIGNAL(dataPositionChanged(QPointF)), this, SIGNAL(dataPositionChanged(QPointF)) );
 
 	reviewPlotAxesConfiguration(plot_);
 	refreshTitle();
+
+	qDebug() << "Exclusive view created.";
 }
 
 AMScanViewExclusiveView::~AMScanViewExclusiveView() {
-	// PlotSeries's will be deleted as children items of the plot.
-
-	delete plotCursor_;
 	plot_->deleteLater();
 	delete dragZoomerTool_;
 	delete wheelZoomerTool_;
@@ -995,7 +911,7 @@ void AMScanViewExclusiveView::onExclusiveDataSourceChanged(const QString& exclus
 	refreshTitle();
 }
 
-void AMScanViewExclusiveView::applyPlotTools(QList<MPlotAbstractTool*> newSelection)
+void AMScanViewExclusiveView::applyPlotTools(const QList<MPlotAbstractTool*> &newSelection)
 {
 	qDebug() << "AMScanExclusiveView has detected a tool selection change.";
 
@@ -1013,28 +929,6 @@ void AMScanViewExclusiveView::applyPlotTools(QList<MPlotAbstractTool*> newSelect
 	}
 
 	qDebug() << "\nTools applied to plot:" << selection;
-}
-
-//void AMScanViewExclusiveView::applyPlotCursorVisibility(bool isVisible)
-//{
-//	setPlotCursorVisibility(plot_->plot(), plotCursor_, isVisible);
-//}
-
-//void AMScanViewExclusiveView::applyPlotCursorCoordinates(const QPointF &coordinates)
-//{
-//	setPlotCursorCoordinates(plotCursor_, coordinates);
-//}
-
-//void AMScanViewExclusiveView::applyPlotCursorColor(const QColor &newColor)
-//{
-//	qDebug() << "\nAMScanViewExclusiveView: plot cursor update.";
-
-//	setPlotCursorColor(plotCursor_, newColor);
-//}
-
-void AMScanViewExclusiveView::onDataPositionChanged(const QPointF &newPosition)
-{
-	emit dataPositionChanged(newPosition);
 }
 
 void AMScanViewExclusiveView::addToolToPlot(MPlot *plot, MPlotAbstractTool *tool)
@@ -1252,10 +1146,14 @@ AMScanViewMultiView::AMScanViewMultiView(AMScanView* masterView) : AMScanViewInt
 	tools->setTools(QList<MPlotAbstractTool*>() << dragZoomerTool_ << wheelZoomerTool_);
 	tools->setSelectedTools(QList<MPlotAbstractTool*>() << dragZoomerTool_ << wheelZoomerTool_);
 
+	qDebug() << "\tSetting MultiView plot tools...";
+
 	setPlotTools(tools);
 
-	plotCursor_ = new MPlotPoint;
-	plotCursor_->setMarker(MPlotMarkerShape::VerticalBeam, 1e6, QPen(Qt::black), QBrush(Qt::black));
+	connect( tools_, SIGNAL(selectedToolsChanged(QList<MPlotAbstractTool*>)), this, SLOT(applyPlotTools(QList<MPlotAbstractTool*>)) );
+
+	qDebug() << "\tMultiView plot tools set.";
+
 
 	QGraphicsLinearLayout* gl = new QGraphicsLinearLayout();
 	gl->setContentsMargins(0,0,0,0);
@@ -1271,7 +1169,6 @@ AMScanViewMultiView::AMScanViewMultiView(AMScanView* masterView) : AMScanViewInt
 
 	// Make connections.
 
-	connect(plot_->plot()->signalSource(), SIGNAL(dataPositionChanged(QPointF)), this, SLOT(onDataPositionChanged(QPointF)));
 	connect(plot_->plot()->signalSource(), SIGNAL(dataPositionChanged(QPointF)), this, SIGNAL(dataPositionChanged(QPointF)));
 
 	reviewPlotAxesConfiguration(plot_);
@@ -1309,15 +1206,7 @@ void AMScanViewMultiView::addScan(int si) {
 
 AMScanViewMultiView::~AMScanViewMultiView() {
 
-	/* Not necessary; deleting the plot should delete its children.
- for(int si=0; si<plotSeries_.count(); si++)
-  for(int ci=0; ci<model()->scanAt(si)->dataSourceCount(); ci++)
-   if(plotSeries_[si][ci]) {
- plot_->plot()->removeItem(plotSeries_[si][ci]);
- delete plotSeries_[si][ci];
-   }*/
-
-	delete plotCursor_;
+//	delete plotCursor_;
 	plot_->deleteLater();
 }
 
@@ -1473,15 +1362,7 @@ void AMScanViewMultiView::onModelDataChanged(const QModelIndex& topLeft, const Q
 	refreshTitles();
 }
 
-void AMScanViewMultiView::onDataPositionChanged(const QPointF &newPosition)
-{
-//	if (tools_) {
-//		tools_->setValues(QList<double>() << newPosition.x() << newPosition.y());
-//		tools_->setCursorCoordinates(QList<double>() << newPosition.x() << newPosition.y());
-//	}
-}
-
-void AMScanViewMultiView::applyPlotTools(QList<MPlotAbstractTool *> newSelection)
+void AMScanViewMultiView::applyPlotTools(const QList<MPlotAbstractTool *> &newSelection)
 {
 	qDebug() << "\nAMScanViewMultiView has detected a tool selection change.";
 
@@ -1500,21 +1381,6 @@ void AMScanViewMultiView::applyPlotTools(QList<MPlotAbstractTool *> newSelection
 
 	qDebug() << "\nTools applied to plot:" << selection;
 }
-
-//void AMScanViewMultiView::applyPlotCursorVisibility(bool isVisible)
-//{
-//	setPlotCursorVisibility(plot_->plot(), plotCursor_, isVisible);
-//}
-
-//void AMScanViewMultiView::applyPlotCursorCoordinates(const QPointF &coordinates)
-//{
-//	setPlotCursorCoordinates(plotCursor_, coordinates);
-//}
-
-//void AMScanViewMultiView::applyPlotCursorColor(const QColor &newColor)
-//{
-//	setPlotCursorColor(plotCursor_, newColor);
-//}
 
 void AMScanViewMultiView::refreshTitles() {
 
@@ -1863,13 +1729,19 @@ void AMScanViewMultiScansView::onModelDataChanged(const QModelIndex& topLeft, co
 	}
 }
 
-void AMScanViewMultiScansView::applyPlotTools(QList<MPlotAbstractTool *> newSelection)
+void AMScanViewMultiScansView::applyPlotTools(const QList<MPlotAbstractTool *> &newSelection)
 {
+	qDebug() << "\nApplying new plot tools to AMScanViewMultiScansView...";
+
+	qDebug() << "Clearing old tools...";
+
 	// Clear all plots of previously added tools.
 
 	foreach (MPlotGW *plot, plots_) {
 		removeToolsFromPlot(plot->plot());
 	}
+
+	qDebug() << "Adding new tools...";
 
 	// Add tools to the plots, according to selection.
 
@@ -1878,6 +1750,8 @@ void AMScanViewMultiScansView::applyPlotTools(QList<MPlotAbstractTool *> newSele
 			addToolToPlot(plot->plot(), tool);
 		}
 	}
+
+	qDebug() << "New plot tools applied.\n";
 }
 
 // re-do the layout
@@ -2510,14 +2384,14 @@ QString AMScanViewInternal::rightAxisName(AMScan *scan, AMDataSource *dataSource
 		return QString();
 }
 
-void AMScanView::onToolsChanged()
-{
-	// Notify each view that they should review the tools applied.
+//void AMScanView::onToolsChanged()
+//{
+//	// Notify each view that they should review the tools applied.
 
-	foreach (AMScanViewInternal *view, views_) {
-		view->updatePlotTools();
-	}
-}
+//	foreach (AMScanViewInternal *view, views_) {
+//		view->updatePlotTools();
+//	}
+//}
 
 void AMScanView::onRowInserted(const QModelIndex &parent, int start, int end)
 {

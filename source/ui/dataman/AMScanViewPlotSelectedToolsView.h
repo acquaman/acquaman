@@ -27,11 +27,11 @@ public slots:
 	void setTools(AMScanViewPlotTools *newTools);
 
 	/// Clears the view.
-	void clear();
+	virtual void clear();
 	/// Updates the view to match the present tool information.
-	void update();
+	virtual void update();
 	/// Clears and then updates the view.
-	void refresh();
+	virtual void refresh();
 
 protected:
 	/// Creates a tool view suitable to represent the given tool.

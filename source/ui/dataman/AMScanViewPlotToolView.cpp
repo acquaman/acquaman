@@ -1,26 +1,9 @@
 #include "AMScanViewPlotToolView.h"
 
-AMScanViewPlotToolView::AMScanViewPlotToolView(QWidget *parent) :
+#include <QDebug>
+
+AMDataPositionToolView::AMDataPositionToolView(MPlotDataPositionTool *tool, QWidget *parent) :
 	QWidget(parent)
-{
-
-}
-
-AMScanViewPlotToolView::~AMScanViewPlotToolView()
-{
-
-}
-
-
-
-
-
-
-
-
-
-AMDataPositionToolView::AMDataPositionToolView(AMDataPositionTool *tool, QWidget *parent, bool valueVisible, bool cursorVisible) :
-	AMScanViewPlotToolView(parent)
 {
 	// Initialize member variables.
 
@@ -28,50 +11,21 @@ AMDataPositionToolView::AMDataPositionToolView(AMDataPositionTool *tool, QWidget
 
 	// Create UI elements.
 
-	valuePrompt_ = new QLabel("Value:");
+	QLabel *valuePrompt = new QLabel("Value:");
 	value_ = new QLabel();
-
-	valueBox_ = new QGroupBox();
-	valueBox_->setFlat(true);
-
-	cursorColor_ = new AMColorPickerButton(QColor(Qt::black));
-	cursorVisibility_ = new QCheckBox("Show cursor");
-
-	cursorBox_ = new QGroupBox();
-	cursorBox_->setFlat(true);
 
 	// Create and set layouts.
 
-	QHBoxLayout *valueBoxLayout = new QHBoxLayout();
-	valueBoxLayout->setMargin(0);
-	valueBoxLayout->addWidget(valuePrompt_);
-	valueBoxLayout->addWidget(value_);
-
-	valueBox_->setLayout(valueBoxLayout);
-
-	QHBoxLayout *cursorBoxLayout = new QHBoxLayout();
-	cursorBoxLayout->setMargin(0);
-	cursorBoxLayout->addWidget(cursorColor_);
-	cursorBoxLayout->addWidget(cursorVisibility_);
-
-	cursorBox_->setLayout(cursorBoxLayout);
-
 	QHBoxLayout *layout = new QHBoxLayout();
-	layout->addWidget(valueBox_);
-	layout->addWidget(cursorBox_);
+	layout->setMargin(0);
+	layout->addWidget(valuePrompt);
+	layout->addWidget(value_);
 
 	setLayout(layout);
-
-	// Make connections.
-
-	connect( cursorColor_, SIGNAL(colorChanged(QColor)), this, SLOT(onCursorColorChanged()) );
-	connect( cursorVisibility_, SIGNAL(clicked()), this, SLOT(onCursorVisibilityClicked()) );
 
 	// Current settings.
 
 	setTool(tool);
-	setValueWidgetVisibility(valueVisible);
-	setCursorWidgetVisibility(cursorVisible);
 }
 
 AMDataPositionToolView::~AMDataPositionToolView()
@@ -79,7 +33,7 @@ AMDataPositionToolView::~AMDataPositionToolView()
 
 }
 
-void AMDataPositionToolView::setTool(AMDataPositionTool *newTool)
+void AMDataPositionToolView::setTool(MPlotDataPositionTool *newTool)
 {
 	if (tool_ != newTool) {
 
@@ -90,125 +44,43 @@ void AMDataPositionToolView::setTool(AMDataPositionTool *newTool)
 		tool_ = newTool;
 
 		if (tool_) {
-			connect( tool_, SIGNAL(positionChanged(QPointF)), this, SLOT(updateValues()) );
-			connect( tool_, SIGNAL(cursorVisibilityChanged(bool)), this, SLOT(updateCursorVisibility()) );
-			connect( tool_, SIGNAL(cursorColorChanged(QColor)), this, SLOT(updateCursorColor()) );
+			connect( tool_, SIGNAL(positionChanged(QPointF)), this, SLOT(onToolPositionChanged()) );
 		}
-
-		refresh();
 
 		emit toolChanged(tool_);
 	}
+
+	refresh();
 }
 
 void AMDataPositionToolView::clear()
 {
 	value_->clear();
-	cursorVisibility_->setChecked(false);
-	cursorColor_->setColor(QColor());
-
-
 }
 
 void AMDataPositionToolView::update()
 {
-	updateValues();
-	updateCursorVisibility();
-	updateCursorColor();
-	updateValueWidgetVisibility();
-	updateCursorWidgetVisibility();
+	onToolPositionChanged();
 }
 
 void AMDataPositionToolView::refresh()
 {
-	// Clear the view.
-
 	clear();
-
-	// Update with the most recent settings.
-
 	update();
 }
 
-void AMDataPositionToolView::setValueWidgetVisibility(bool isVisible)
+void AMDataPositionToolView::onToolPositionChanged()
 {
-	if (valueWidgetShown_ != isVisible) {
-		valueWidgetShown_ = isVisible;
-		emit valueWidgetVisibilityChanged(valueWidgetShown_);
+	qDebug() << "\nAttempting to update the data position view...";
 
-		updateValueWidgetVisibility();
+	if (tool_) {
+		qDebug() << "Updating the data position view...";
+		value_->setText( positionToString(tool_->currentPosition(), QStringList()) );
+		qDebug() << "View update complete.\n";
 	}
 }
 
-void AMDataPositionToolView::setCursorWidgetVisibility(bool isVisible)
-{
-	if (cursorBox_->isVisible() != isVisible) {
-		cursorWidgetShown_ = isVisible;
-		emit cursorWidgetVisibilityChanged(cursorWidgetShown_);
-
-		updateCursorWidgetVisibility();
-	}
-}
-
-void AMDataPositionToolView::updateValues()
-{
-	if (tool_)
-		value_->setText( valuesToString(tool_->currentPosition(), tool_->units()) );
-	else
-		value_->clear();
-}
-
-void AMDataPositionToolView::updateCursorVisibility()
-{
-	if (tool_)
-		cursorVisibility_->setChecked(tool_->cursorVisibility());
-	else
-		cursorVisibility_->setChecked(false);
-}
-
-void AMDataPositionToolView::updateCursorColor()
-{
-	if (tool_)
-		cursorColor_->setColor(tool_->cursorColor());
-	else
-		cursorColor_->setColor(QColor());
-}
-
-void AMDataPositionToolView::updateValueWidgetVisibility()
-{
-	if (tool_ && valueWidgetShown_)
-		valueBox_->show();
-	else
-		valueBox_->hide();
-}
-
-void AMDataPositionToolView::updateCursorWidgetVisibility()
-{
-	if (tool_ && cursorWidgetShown_)
-		cursorBox_->show();
-	else
-		cursorBox_->hide();
-}
-
-void AMDataPositionToolView::onCursorColorChanged()
-{
-	AMDataPositionTool *tool = qobject_cast<AMDataPositionTool*>(tool_);
-
-	if (tool) {
-		tool->setCursorColor(cursorColor_->color());
-	}
-}
-
-void AMDataPositionToolView::onCursorVisibilityClicked()
-{
-	AMDataPositionTool *tool = qobject_cast<AMDataPositionTool*>(tool_);
-
-	if (tool) {
-		tool->setCursorVisibility(cursorVisibility_->isChecked());
-	}
-}
-
-QString AMDataPositionToolView::valuesToString(const QPointF &values, const QStringList &units)
+QString AMDataPositionToolView::positionToString(const QPointF &values, const QStringList &units)
 {
 	QString text;
 
@@ -223,4 +95,185 @@ QString AMDataPositionToolView::valuesToString(const QPointF &values, const QStr
 	text = "(" + x + ", " + y + ")";
 
 	return text;
+}
+
+
+
+
+
+
+
+
+
+AMDataPositionCursorToolView::AMDataPositionCursorToolView(MPlotDataPositionCursorTool *tool, QWidget *parent) :
+	QWidget(parent)
+{
+	// Initialize member variables.
+
+	tool_ = 0;
+
+	// Create UI elements.
+
+	positionView_ = new AMDataPositionToolView(0);
+
+	visibilityCheckBox_ = new QCheckBox("Show cursor");
+
+	positionSpinBox_ = new QDoubleSpinBox();
+	positionSpinBox_->setMinimum(-1000000);
+	positionSpinBox_->setMaximum(1000000);
+	positionSpinBox_->setValue(0);
+
+	colorButton_ = new AMColorPickerButton(QColor());
+
+	// Create and set layouts.
+
+	QHBoxLayout *layout = new QHBoxLayout();
+	layout->setMargin(0);
+	layout->addWidget(positionView_);
+	layout->addSpacing(5);
+	layout->addWidget(visibilityCheckBox_);
+	layout->addWidget(positionSpinBox_);
+	layout->addWidget(colorButton_);
+
+	setLayout(layout);
+
+	// Make connections.
+
+	connect( visibilityCheckBox_, SIGNAL(clicked()), this, SLOT(onVisibilityChanged()) );
+	connect( positionSpinBox_, SIGNAL(valueChanged(double)), this, SLOT(onPositionChanged()) );
+	connect( colorButton_, SIGNAL(colorChanged(QColor)), this, SLOT(onColorChanged()) );
+
+	// Current settings.
+
+	setTool(tool);
+}
+
+AMDataPositionCursorToolView::~AMDataPositionCursorToolView()
+{
+
+}
+
+void AMDataPositionCursorToolView::setTool(MPlotDataPositionCursorTool *newTool)
+{
+	if (tool_ != newTool) {
+
+		if (tool_) {
+			disconnect( tool_, 0, this, 0 );
+		}
+
+		tool_ = newTool;
+
+		positionView_->setTool(tool_);
+
+		if (tool_) {
+			connect( tool_, SIGNAL(cursorVisibilityChanged(bool)), this, SLOT(onToolVisibilityChanged()) );
+			connect( tool_, SIGNAL(cursorPositionChanged(QPointF)), this, SLOT(onToolPositionChanged()) );
+			connect( tool_, SIGNAL(cursorColorChanged(QColor)), this, SLOT(onToolColorChanged()) );
+		}
+
+		emit toolChanged(tool_);
+	}
+
+	refresh();
+}
+
+void AMDataPositionCursorToolView::clear()
+{
+	visibilityCheckBox_->setChecked(false);
+	visibilityCheckBox_->setEnabled(false);
+
+	positionSpinBox_->setValue(0);
+	positionSpinBox_->setEnabled(false);
+
+	colorButton_->setColor(QColor());
+	colorButton_->setEnabled(false);
+
+	positionView_->clear();
+}
+
+void AMDataPositionCursorToolView::update()
+{
+	if (tool_) {
+		visibilityCheckBox_->setEnabled(true);
+		onToolVisibilityChanged();
+
+		positionSpinBox_->setEnabled(true);
+		onToolPositionChanged();
+
+		colorButton_->setEnabled(true);
+		onToolColorChanged();
+
+		positionView_->update();
+	}
+}
+
+void AMDataPositionCursorToolView::refresh()
+{
+	clear();
+	update();
+}
+
+void AMDataPositionCursorToolView::onVisibilityChanged()
+{
+	if (tool_) {
+		tool_->setCursorVisibility(visibilityCheckBox_->isChecked());
+	}
+}
+
+void AMDataPositionCursorToolView::onPositionChanged()
+{
+	if (tool_) {
+		qDebug() << "\nSpin box position changed.";
+
+		QPointF oldPosition = tool_->cursorPosition();
+		QPointF newPosition = QPointF(positionSpinBox_->value(), oldPosition.y());
+
+		qDebug() << "\tOld position:" << oldPosition.x() << "," << oldPosition.y();
+		qDebug() << "\tNew position:" << newPosition.x() << "," << newPosition.y();
+
+		qDebug() << "About to set the tool position to match spinbox position...";
+
+		tool_->setCursorPosition(newPosition);
+	}
+}
+
+void AMDataPositionCursorToolView::onColorChanged()
+{
+	if (tool_) {
+		tool_->setCursorColor(colorButton_->color());
+	}
+}
+
+void AMDataPositionCursorToolView::onToolVisibilityChanged()
+{
+	if (tool_) {
+		visibilityCheckBox_->setChecked(tool_->cursorVisible());
+
+		if (tool_->cursorVisible()) {
+			positionSpinBox_->show();
+			colorButton_->show();
+		} else {
+			positionSpinBox_->hide();
+			colorButton_->hide();
+		}
+	}
+}
+
+void AMDataPositionCursorToolView::onToolColorChanged()
+{
+	if (tool_) {
+		colorButton_->setColor(tool_->cursorColor());
+	}
+}
+
+void AMDataPositionCursorToolView::onToolPositionChanged()
+{
+	if (tool_) {
+		QPointF cursorPosition = tool_->cursorPosition();
+
+		if (positionSpinBox_->value() != cursorPosition.x()) {
+			qDebug() << "\nCursor tool position changed. Updating spinbox:" << cursorPosition.x();
+			positionSpinBox_->setValue(cursorPosition.x());
+		}
+	}
 }

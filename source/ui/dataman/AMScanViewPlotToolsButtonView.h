@@ -4,7 +4,6 @@
 #include <QWidget>
 #include <QButtonGroup>
 #include <QLayout>
-#include <QAbstractButton>
 #include <QToolButton>
 
 #include "dataman/AMScanViewPlotTools.h"
@@ -31,15 +30,25 @@ public slots:
 	void setTools(AMScanViewPlotTools *newTools);
 
 	/// Clears the view.
-	void clear();
+	virtual void clear();
 	/// Updates the view to match the present tool information.
-	void update();
+	virtual void update();
 	/// Clears and then updates the view.
-	void refresh();
+	virtual void refresh();
+
+protected slots:
+	/// Applies changes to the tools, in response to a tool button click.
+	void onToolButtonClicked(int buttonIndex);
 
 protected:
 	/// Creates a tool button suitable to represent the given tool.
 	QToolButton* createToolButton(MPlotAbstractTool *tool);
+
+	/// Returns the tool associated with the given button.
+	MPlotAbstractTool *buttonToTool(QAbstractButton *button);
+	/// Returns the button associated with the given tool.
+	QAbstractButton *toolToButton(MPlotAbstractTool *tool);
+
 	/// Returns an icon representation of the given tool.
 	QIcon toolToIcon(MPlotAbstractTool *tool);
 
