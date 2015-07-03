@@ -367,7 +367,7 @@ void REIXSXESSpectrometerControlEditor::setupConnections()
 	connect(spectrometer_, SIGNAL(moveFailed(int)), this, SLOT(onSpectrometerMoveFailed(int)));
 	connect(spectrometer_->gratingMask(), SIGNAL(valueChanged(double)), this, SLOT(updateMaskPosition()));
 	connect(spectrometer_->gratingMask(), SIGNAL(connected(bool)), this, SLOT(updateMaskPosition()));
-
+	connect(maskComboBox_, SIGNAL(currentIndexChanged(QString)), this, SLOT(on_maskComboBox_currentIndexChanged(QString)));
 	connect(energyBox_, SIGNAL(valueChanged(double)), this, SLOT(updateCurrentEnergyStatus()));
 	connect(gratingSelectorBox_, SIGNAL(currentIndexChanged(int)), this, SLOT(onGratingComboBoxActivated(int)));
 
