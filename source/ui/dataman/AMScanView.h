@@ -309,11 +309,6 @@ protected slots:
 	/// when the model's "exclusive data source" changes. This is the one data source that we display for all of our scans (as long as they have it).
 	void onExclusiveDataSourceChanged(const QString& exclusiveDataSource);
 
-	/// Adds the given tool to the given plot.
-	virtual void addToolToPlot(MPlot *plot, MPlotAbstractTool *tool);
-	/// Removes the given tool from the given plot.
-	virtual void removeToolFromPlot(MPlot *plot, MPlotAbstractTool *tool);
-
 protected:
 	/// Helper function to handle adding a scan (at row scanIndex in the model)
 	void addScan(int scanIndex);
@@ -343,9 +338,6 @@ protected:
 
 	/// Our plot.
 	MPlotGW* plot_;
-
-//	/// The plot item that holds the cursor that can be displayed on the screen.
-//	MPlotPoint *plotCursor_;
 };
 
 /// This class implements an internal view for AMScanView, which shows all of the enabled data sources.
@@ -395,9 +387,6 @@ protected:
 	MPlotDragZoomerTool *dragZoomerTool_;
 	/// The wheel zoomer tool to be available to the plot.
 	MPlotWheelZoomerTool *wheelZoomerTool_;
-
-//	/// The plot item that holds the cursor that can be displayed on the screen.
-//	MPlotPoint *plotCursor_;
 };
 
 /// This class implements an internal view for AMScanView, which shows every scan in its own plot.

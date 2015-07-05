@@ -338,8 +338,6 @@ void AMScanView::changeViewMode(int newMode) {
 	if(newMode < 0 || newMode >= views_.count())
 		return;
 
-	qDebug() << "\nChanging view mode.";
-
 	// Hide all views.
 
 	toolsView_->setTools(0);
@@ -414,8 +412,6 @@ void AMScanView::addScan(AMScan *newScan) {
 
 void AMScanView::onScanAdded(AMScan *scan)
 {
-	qDebug() << "\nAdding scan...";
-
 	QList<AMDataSource *> sources;
 
 	int scanRank = scan->scanRank();
@@ -580,22 +576,15 @@ AMScanViewInternal::AMScanViewInternal(AMScanView* masterView)
 
 void AMScanViewInternal::setPlotTools(AMScanViewPlotTools *newTools)
 {
-	qDebug() << "Attempting to set new plot tools for this view...";
-
 	if (tools_ != newTools) {
 
-		qDebug() << "Setting plot tools for this view...";
-
 		if (tools_) {
-			qDebug() << "\tRemoving plot tools for this view.";
 			disconnect( tools_, 0, this, 0 );
 		}
 
 		tools_ = newTools;
 
 		if (tools_) {
-			qDebug() << "\tAdding plot tools for this view.";
-
 			connect( tools_, SIGNAL(selectedToolsChanged(QList<MPlotAbstractTool*>)), this, SLOT(updatePlotTools()) );
 		}
 
@@ -607,8 +596,6 @@ void AMScanViewInternal::setPlotTools(AMScanViewPlotTools *newTools)
 
 void AMScanViewInternal::updatePlotTools()
 {
-	qDebug() << "\n\tUpdating view plot(s) with the selected tools.";
-
 	if (tools_)
 		applyPlotTools(tools_->selectedTools());
 }
@@ -637,20 +624,32 @@ MPlotGW * AMScanViewInternal::createDefaultPlot()
 
 void AMScanViewInternal::addToolToPlot(MPlot *plot, MPlotAbstractTool *tool)
 {
-	if (plot && tool)
+	if (plot && tool) {
 		plot->addTool(tool);
+
+		MPlotDataPositionTool *positionTool = qobject_cast<MPlotDataPositionTool*>(tool);
+
+		if (positionTool) {
+			positionTool->setDataPositionIndicator(plot->axisScaleBottom(), plot->axisScaleLeft());
+		}
+	}
 }
 
 void AMScanViewInternal::removeToolFromPlot(MPlot *plot, MPlotAbstractTool *tool)
 {
-	if (plot && tool && plot->tools().contains(tool))
+	if (plot && tool && plot->tools().contains(tool)) {
 		plot->removeTool(tool);
+
+		MPlotDataPositionTool *positionTool = qobject_cast<MPlotDataPositionTool*>(tool);
+
+		if (positionTool) {
+			positionTool->setDataPositionIndicator(0, 0);
+		}
+	}
 }
 
 void AMScanViewInternal::removeToolsFromPlot(MPlot *plot)
 {
-	qDebug() << "Removing tools from plot.";
-
 	if (plot)
 		plot->removeTools();
 }
@@ -740,8 +739,6 @@ void AMScanViewInternal::reviewPlotAxesConfiguration(MPlotGW *plotGW)
 
 AMScanViewExclusiveView::AMScanViewExclusiveView(AMScanView* masterView) : AMScanViewInternal(masterView)
 {
-	qDebug() << "\nCreating Exclusive View...";
-
 	// Create our main plot:
 
 	plot_ = createDefaultPlot();
@@ -757,11 +754,7 @@ AMScanViewExclusiveView::AMScanViewExclusiveView(AMScanView* masterView) : AMSca
 	tools->setTools(QList<MPlotAbstractTool*>() << dataPositionTool_ << dragZoomerTool_ << wheelZoomerTool_);
 	tools->setSelectedTools(QList<MPlotAbstractTool*>() << dragZoomerTool_);
 
-	qDebug() << "\tSetting Exclusive view plot tools...";
-
 	setPlotTools(tools);
-
-	qDebug() << "\tExclusive view plot tools set.";
 
 	// Set layout.
 
@@ -785,8 +778,6 @@ AMScanViewExclusiveView::AMScanViewExclusiveView(AMScanView* masterView) : AMSca
 
 	reviewPlotAxesConfiguration(plot_);
 	refreshTitle();
-
-	qDebug() << "Exclusive view created.";
 }
 
 AMScanViewExclusiveView::~AMScanViewExclusiveView() {
@@ -913,8 +904,6 @@ void AMScanViewExclusiveView::onExclusiveDataSourceChanged(const QString& exclus
 
 void AMScanViewExclusiveView::applyPlotTools(const QList<MPlotAbstractTool*> &newSelection)
 {
-	qDebug() << "AMScanExclusiveView has detected a tool selection change.";
-
 	// Clear the plot of previously added tools.
 
 	removeToolsFromPlot(plot_->plot());
@@ -926,30 +915,6 @@ void AMScanViewExclusiveView::applyPlotTools(const QList<MPlotAbstractTool*> &ne
 	foreach (MPlotAbstractTool *tool, newSelection) {
 		selection += QString(" %1").arg(tool->name());
 		addToolToPlot(plot_->plot(), tool);
-	}
-
-	qDebug() << "\nTools applied to plot:" << selection;
-}
-
-void AMScanViewExclusiveView::addToolToPlot(MPlot *plot, MPlotAbstractTool *tool)
-{
-	AMScanViewInternal::addToolToPlot(plot, tool);
-
-	MPlotDataPositionTool *positionTool = qobject_cast<MPlotDataPositionTool*>(tool);
-
-	if (plot && positionTool) {
-		positionTool->setDataPositionIndicator(plot->axisScaleBottom(), plot->axisScaleLeft());
-	}
-}
-
-void AMScanViewExclusiveView::removeToolFromPlot(MPlot *plot, MPlotAbstractTool *tool)
-{
-	AMScanViewInternal::removeToolFromPlot(plot, tool);
-
-	MPlotDataPositionTool *positionTool = qobject_cast<MPlotDataPositionTool*>(tool);
-
-	if (plot && positionTool) {
-		positionTool->setDataPositionIndicator(0, 0);
 	}
 }
 
@@ -1146,14 +1111,9 @@ AMScanViewMultiView::AMScanViewMultiView(AMScanView* masterView) : AMScanViewInt
 	tools->setTools(QList<MPlotAbstractTool*>() << dragZoomerTool_ << wheelZoomerTool_);
 	tools->setSelectedTools(QList<MPlotAbstractTool*>() << dragZoomerTool_ << wheelZoomerTool_);
 
-	qDebug() << "\tSetting MultiView plot tools...";
-
 	setPlotTools(tools);
 
 	connect( tools_, SIGNAL(selectedToolsChanged(QList<MPlotAbstractTool*>)), this, SLOT(applyPlotTools(QList<MPlotAbstractTool*>)) );
-
-	qDebug() << "\tMultiView plot tools set.";
-
 
 	QGraphicsLinearLayout* gl = new QGraphicsLinearLayout();
 	gl->setContentsMargins(0,0,0,0);
@@ -1364,8 +1324,6 @@ void AMScanViewMultiView::onModelDataChanged(const QModelIndex& topLeft, const Q
 
 void AMScanViewMultiView::applyPlotTools(const QList<MPlotAbstractTool *> &newSelection)
 {
-	qDebug() << "\nAMScanViewMultiView has detected a tool selection change.";
-
 	// Clear the plot of previously added tools.
 
 	removeToolsFromPlot(plot_->plot());
@@ -1378,8 +1336,6 @@ void AMScanViewMultiView::applyPlotTools(const QList<MPlotAbstractTool *> &newSe
 		selection += QString(" %1").arg(tool->name());
 		addToolToPlot(plot_->plot(), tool);
 	}
-
-	qDebug() << "\nTools applied to plot:" << selection;
 }
 
 void AMScanViewMultiView::refreshTitles() {
@@ -1731,17 +1687,11 @@ void AMScanViewMultiScansView::onModelDataChanged(const QModelIndex& topLeft, co
 
 void AMScanViewMultiScansView::applyPlotTools(const QList<MPlotAbstractTool *> &newSelection)
 {
-	qDebug() << "\nApplying new plot tools to AMScanViewMultiScansView...";
-
-	qDebug() << "Clearing old tools...";
-
 	// Clear all plots of previously added tools.
 
 	foreach (MPlotGW *plot, plots_) {
 		removeToolsFromPlot(plot->plot());
 	}
-
-	qDebug() << "Adding new tools...";
 
 	// Add tools to the plots, according to selection.
 
@@ -1750,8 +1700,6 @@ void AMScanViewMultiScansView::applyPlotTools(const QList<MPlotAbstractTool *> &
 			addToolToPlot(plot->plot(), tool);
 		}
 	}
-
-	qDebug() << "New plot tools applied.\n";
 }
 
 // re-do the layout

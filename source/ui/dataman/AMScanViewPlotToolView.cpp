@@ -166,8 +166,8 @@ void AMDataPositionCursorToolView::setTool(MPlotDataPositionCursorTool *newTool)
 		positionView_->setTool(tool_);
 
 		if (tool_) {
+			connect( tool_, SIGNAL(positionChanged(QPointF)), this, SLOT(onToolPositionChanged()) );
 			connect( tool_, SIGNAL(cursorVisibilityChanged(bool)), this, SLOT(onToolVisibilityChanged()) );
-			connect( tool_, SIGNAL(cursorPositionChanged(QPointF)), this, SLOT(onToolPositionChanged()) );
 			connect( tool_, SIGNAL(cursorColorChanged(QColor)), this, SLOT(onToolColorChanged()) );
 		}
 
@@ -180,13 +180,8 @@ void AMDataPositionCursorToolView::setTool(MPlotDataPositionCursorTool *newTool)
 void AMDataPositionCursorToolView::clear()
 {
 	visibilityCheckBox_->setChecked(false);
-	visibilityCheckBox_->setEnabled(false);
-
 	positionSpinBox_->setValue(0);
-	positionSpinBox_->setEnabled(false);
-
 	colorButton_->setColor(QColor());
-	colorButton_->setEnabled(false);
 
 	positionView_->clear();
 }
@@ -194,13 +189,8 @@ void AMDataPositionCursorToolView::clear()
 void AMDataPositionCursorToolView::update()
 {
 	if (tool_) {
-		visibilityCheckBox_->setEnabled(true);
 		onToolVisibilityChanged();
-
-		positionSpinBox_->setEnabled(true);
 		onToolPositionChanged();
-
-		colorButton_->setEnabled(true);
 		onToolColorChanged();
 
 		positionView_->update();
@@ -225,15 +215,12 @@ void AMDataPositionCursorToolView::onPositionChanged()
 	if (tool_) {
 		qDebug() << "\nSpin box position changed.";
 
-		QPointF oldPosition = tool_->cursorPosition();
+		QPointF oldPosition = tool_->currentPosition();
 		QPointF newPosition = QPointF(positionSpinBox_->value(), oldPosition.y());
-
-		qDebug() << "\tOld position:" << oldPosition.x() << "," << oldPosition.y();
-		qDebug() << "\tNew position:" << newPosition.x() << "," << newPosition.y();
 
 		qDebug() << "About to set the tool position to match spinbox position...";
 
-		tool_->setCursorPosition(newPosition);
+		tool_->setDataPosition(newPosition);
 	}
 }
 
@@ -269,7 +256,7 @@ void AMDataPositionCursorToolView::onToolColorChanged()
 void AMDataPositionCursorToolView::onToolPositionChanged()
 {
 	if (tool_) {
-		QPointF cursorPosition = tool_->cursorPosition();
+		QPointF cursorPosition = tool_->currentPosition();
 
 		if (positionSpinBox_->value() != cursorPosition.x()) {
 			qDebug() << "\nCursor tool position changed. Updating spinbox:" << cursorPosition.x();
