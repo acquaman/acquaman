@@ -786,9 +786,9 @@ AMScanViewExclusiveView::AMScanViewExclusiveView(AMScanView* masterView) : AMSca
 AMScanViewExclusiveView::~AMScanViewExclusiveView() {
 	plot_->deleteLater();
 
-	delete dragZoomerTool_;
-	delete wheelZoomerTool_;
-	delete dataPositionTool_;
+	dragZoomerTool_->deleteLater();
+	wheelZoomerTool_->deleteLater();
+	dataPositionTool_->deleteLater();
 }
 
 void AMScanViewExclusiveView::onRowInserted(const QModelIndex& parent, int start, int end) {
@@ -1169,8 +1169,8 @@ AMScanViewMultiView::~AMScanViewMultiView()
 {
 	plot_->deleteLater();
 
-	delete dragZoomerTool_;
-	delete wheelZoomerTool_;
+	dragZoomerTool_->deleteLater();
+	wheelZoomerTool_->deleteLater();
 }
 
 
@@ -1515,8 +1515,8 @@ AMScanViewMultiScansView::~AMScanViewMultiScansView()
 	for(int pi=0; pi<plots_.count(); pi++)
 		plots_.at(pi)->deleteLater();
 
-	delete dragZoomerTool_;
-	delete wheelZoomerTool_;
+	dragZoomerTool_->deleteLater();
+	wheelZoomerTool_->deleteLater();
 }
 
 
