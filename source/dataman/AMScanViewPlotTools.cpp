@@ -136,11 +136,7 @@ void AMScanViewPlotTools::setSelectedTools(QList<MPlotAbstractTool *> &newTools)
 
 void AMScanViewPlotTools::addSelectedTool(MPlotAbstractTool *newTool)
 {
-	qDebug() << "Attempting to add tool to selected tools...";
-
 	if (newTool && tools_.contains(newTool) && !selectedTools_.contains(newTool)) {
-		qDebug() << "Adding tool to selected tools.";
-
 		QList<MPlotAbstractTool*> newSelection = selectedTools_;
 		newSelection << newTool;
 		setSelectedTools(newSelection);

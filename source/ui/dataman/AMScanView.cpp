@@ -36,8 +36,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QStringBuilder>
 #include <QPrintDialog>
 
-#include <QDebug>
-
 AMScanViewSourceSelector::AMScanViewSourceSelector(AMScanSetModel* model, QWidget* parent)
 	: QWidget(parent) {
 	model_ = 0;

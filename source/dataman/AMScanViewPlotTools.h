@@ -2,7 +2,6 @@
 #define AMSCANVIEWPLOTOPTIONS_H
 
 #include <QObject>
-#include <QDebug>
 
 #include "MPlot/MPlotAbstractTool.h"
 

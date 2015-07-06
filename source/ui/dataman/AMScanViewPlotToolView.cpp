@@ -1,7 +1,5 @@
 #include "AMScanViewPlotToolView.h"
 
-#include <QDebug>
-
 AMDataPositionToolView::AMDataPositionToolView(MPlotDataPositionTool *tool, QWidget *parent) :
 	QWidget(parent)
 {
@@ -71,12 +69,9 @@ void AMDataPositionToolView::refresh()
 
 void AMDataPositionToolView::onToolPositionChanged()
 {
-	qDebug() << "\nAttempting to update the data position view...";
-
 	if (tool_) {
-		qDebug() << "Updating the data position view...";
-		value_->setText( positionToString(tool_->currentPosition(), QStringList()) );
-		qDebug() << "View update complete.\n";
+		QPointF newPosition = tool_->currentPosition();
+		value_->setText( positionToString(newPosition, QStringList()) );
 	}
 }
 
@@ -213,12 +208,8 @@ void AMDataPositionCursorToolView::onVisibilityChanged()
 void AMDataPositionCursorToolView::onPositionChanged()
 {
 	if (tool_) {
-		qDebug() << "\nSpin box position changed.";
-
-		QPointF oldPosition = tool_->currentPosition();
+		QPointF oldPosition = tool_->cursorPosition();
 		QPointF newPosition = QPointF(positionSpinBox_->value(), oldPosition.y());
-
-		qDebug() << "About to set the tool position to match spinbox position...";
 
 		tool_->setDataPosition(newPosition);
 	}
@@ -234,9 +225,11 @@ void AMDataPositionCursorToolView::onColorChanged()
 void AMDataPositionCursorToolView::onToolVisibilityChanged()
 {
 	if (tool_) {
-		visibilityCheckBox_->setChecked(tool_->cursorVisible());
+		bool cursorVisible = tool_->cursorVisible();
 
-		if (tool_->cursorVisible()) {
+		visibilityCheckBox_->setChecked(cursorVisible);
+
+		if (cursorVisible) {
 			positionSpinBox_->show();
 			colorButton_->show();
 		} else {
@@ -256,10 +249,9 @@ void AMDataPositionCursorToolView::onToolColorChanged()
 void AMDataPositionCursorToolView::onToolPositionChanged()
 {
 	if (tool_) {
-		QPointF cursorPosition = tool_->currentPosition();
+		QPointF cursorPosition = tool_->cursorPosition();
 
 		if (positionSpinBox_->value() != cursorPosition.x()) {
-			qDebug() << "\nCursor tool position changed. Updating spinbox:" << cursorPosition.x();
 			positionSpinBox_->setValue(cursorPosition.x());
 		}
 	}
