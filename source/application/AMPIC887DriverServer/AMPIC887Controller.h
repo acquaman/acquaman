@@ -9,6 +9,7 @@
 #include "GCS2Commands/AMGCS2Command.h"
 #include "GCS2Commands/AMGCS2AsyncCommand.h"
 
+#include "AMPIC887ControllerState.h"
 /*!
   * A class representing a single PI C887.11 Controller. Commands and queries issued
   * to instances of this class will, in turn, pass them along to the controller
@@ -32,9 +33,10 @@ public:
 	AMPIC887Controller(const QString& name, const QString& hostname);
 
 	/*!
-	  * Virtual destructor for a pi c887 controller.
+	  * Virtual destructor for a pi c887 controller. Frees the resources owned by
+	  * this controller.
 	  */
-	virtual ~AMPIC887Controller(){}
+	virtual ~AMPIC887Controller();
 
 	/*!
 	  * Attempts to interpret the provided command text as a GCS2 command, and
@@ -136,6 +138,13 @@ protected slots:
 	void onErrorClearingTimerTimedOut();
 protected:
 
+	/*!
+	  * Initializes the controller state data by running a command to obtain the
+	  * data from the controller.
+	  */
+	void initializeControllerStateData();
+
+	AMPIC887ControllerState* controllerState_;
 	QString name_;
 	QString hostname_;
 	QTimer errorClearingTimer_;

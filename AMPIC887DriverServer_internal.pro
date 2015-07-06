@@ -74,7 +74,11 @@ SOURCES *= \
     source/application/AMPIC887DriverServer/AMPIC887ErrorMessageClearer.cpp \
     source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2AsyncCommand.cpp \
     source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2AsyncReferenceMoveCommand.cpp \
-    source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2AsyncMoveCommand.cpp
+    source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2AsyncMoveCommand.cpp \
+    source/application/AMPIC887DriverServer/AMPIC887ControllerState.cpp \
+    source/application/AMPIC887DriverServer/AMPIC887AxisState.cpp \
+    source/application/AMPIC887DriverServer/AMPIC887HexapodState.cpp \
+    source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2InitializeControllerStateCommand.cpp
 
 HEADERS *= \
 	source/application/AMPIC887DriverServer/AMPIC887ControllerCollection.h \	
@@ -137,7 +141,31 @@ HEADERS *= \
     source/application/AMPIC887DriverServer/AMPIC887ErrorMessageClearer.h \
     source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2AsyncCommand.h \
     source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2AsyncReferenceMoveCommand.h \
-    source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2AsyncMoveCommand.h
+    source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2AsyncMoveCommand.h \
+    source/application/AMPIC887DriverServer/AMPIC887ControllerState.h \
+    source/application/AMPIC887DriverServer/AMPIC887AxisState.h \
+    source/application/AMPIC887DriverServer/AMPIC887HexapodState.h \
+    source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2InitializeControllerStateCommand.h
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

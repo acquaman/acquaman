@@ -2,6 +2,7 @@
 #include "AMGCS2CommandFactory.h"
 #include "PI_GCS2_DLL.h"
 #include "GCS2Commands/AMGCS2AsyncCommand.h"
+#include "GCS2Commands/AMGCS2InitializeControllerStateCommand.h"
 
 AMPIC887Controller::AMPIC887Controller(const QString& name, const QString& hostname)
 	:QObject(0)
@@ -10,6 +11,18 @@ AMPIC887Controller::AMPIC887Controller(const QString& name, const QString& hostn
 	name_ = name;
 	connectToController();
 	isBusy_ = false;
+
+	controllerState_ = new AMPIC887ControllerState();
+	if(connectionEstablished()) {
+		initializeControllerStateData();
+	}
+}
+
+AMPIC887Controller::~AMPIC887Controller()
+{
+	if(controllerState_ != 0) {
+		delete controllerState_;
+	}
 }
 
 void AMPIC887Controller::interpretAndRunCommand(const QString &commandText)
@@ -146,6 +159,14 @@ void AMPIC887Controller::onErrorClearingTimerTimedOut()
 	int dummyValue;
 	PI_qERR(id_, &dummyValue);
 	isBusy_ = false;
+}
+
+void AMPIC887Controller::initializeControllerStateData()
+{
+	AMGCS2InitializeControllerStateCommand initializeCommand =
+			AMGCS2InitializeControllerStateCommand(controllerState_);
+
+	runCommand(&initializeCommand);
 }
 
 
