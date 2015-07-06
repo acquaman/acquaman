@@ -37,6 +37,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/CLS/CLSJJSlits.h"
 #include "beamline/CLS/CLSJJSlitGapControl.h"
 #include "beamline/CLS/CLSJJSlitCenterControl.h"
+#include "beamline/CLS/CLSStandardsWheel.h"
 
 #include "util/AMErrorMonitor.h"
 #include "util/AMBiHash.h"
@@ -51,9 +52,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/BioXAS/BioXASSideM1Mirror.h"
 #include "beamline/BioXAS/BioXASSideM2Mirror.h"
 #include "beamline/BioXAS/BioXASSideDBHRMirror.h"
+#include "beamline/BioXAS/BioXASEndstationTable.h"
 #include "beamline/BioXAS/BioXASFourElementVortexDetector.h"
-
-#include "beamline/CLS/CLSStandardsWheel.h"
 
 #define BIOXASSIDEBEAMLINE_PRESSURE_TOO_HIGH 54600
 #define BIOXASSIDEBEAMLINE_VALVES_CLOSED 54601
@@ -246,6 +246,9 @@ public:
 	BioXAS32ElementGeDetector *ge32ElementDetector() const { return ge32ElementDetector_; }
 	/// Returns the four element Vortex detector.
 	BioXASFourElementVortexDetector *fourElementVortexDetector() const { return fourElementVortexDetector_; }
+
+	// Endstation table
+	BioXASEndstationTable *endstationTable() const { return endstationTable_; }
 
 signals:
 	/// Notifier that the pressure status has changed. Argument is false if any of the pressures fall below its setpoint, true otherwise.
@@ -458,6 +461,9 @@ protected:
 	AMControl *tm5_;
 
 	AMControlSet *temperatureSet_;
+
+	// endstation table
+	BioXASEndstationTable *endstationTable_;
 
 	/// Cryostat motors.
 

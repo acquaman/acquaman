@@ -50,6 +50,18 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/export/AMExporterOptionXDIFormat.h"
 #include "dataman/BioXAS/BioXASUserConfiguration.h"
 
+<<<<<<< HEAD
+=======
+#include "util/AMPeriodicTable.h"
+
+#include "beamline/CLS/CLSFacilityID.h"
+#include "beamline/CLS/CLSSIS3820Scaler.h"
+
+#include "beamline/BioXAS/BioXASSideBeamline.h"
+#include "acquaman/BioXAS/BioXASSideXASScanConfiguration.h"
+#include "acquaman/BioXAS/BioXASXRFScanConfiguration.h"
+
+>>>>>>> master
 #include "ui/AMMainWindow.h"
 #include "ui/AMMotorGroupView.h"
 
@@ -61,6 +73,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/CLS/CLSJJSlitsView.h"
 #include "ui/CLS/CLSStandardsWheelConfigurationView.h"
 
+#include "ui/BioXAS/BioXASEndstationTableView.h"
 #include "ui/BioXAS/BioXASSidePersistentView.h"
 #include "ui/BioXAS/BioXASSideXASScanConfigurationView.h"
 #include "ui/BioXAS/BioXAS32ElementGeDetectorView.h"
@@ -206,6 +219,9 @@ void BioXASSideAppController::setupUserInterface()
 
 	// Add widgets to main window panes:
 	////////////////////////////////////
+
+	endstationTableView_ = new BioXASEndstationTableView(BioXASSideBeamline::bioXAS()->endstationTable());
+	mw_->addPane(AMMainWindow::buildMainWindowPane("Endstation Table", ":/system-software-update.png", endstationTableView_), "General", "Endstation Table", ":/system-software-update.png");
 
 	carbonFilterFarmView_ = new BioXASCarbonFilterFarmView(BioXASSideBeamline::bioXAS()->carbonFilterFarm());
 	mw_->addPane(AMMainWindow::buildMainWindowPane("Carbon Filter Farm", ":/system-software-update.png", carbonFilterFarmView_), "General", "Carbon filter farm", ":/system-software-update.png");

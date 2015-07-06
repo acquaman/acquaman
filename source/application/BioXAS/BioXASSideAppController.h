@@ -24,6 +24,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "application/BioXAS/BioXASAppController.h"
 
+class BioXASEndstationTableView;
 class BioXASSidePersistentView;
 class BioXASSideXASScanConfiguration;
 class BioXASSideXASScanConfigurationView;
@@ -83,6 +84,8 @@ protected:
 	BioXASSIS3820ScalerView *scalerView_;
 	/// The mono configuration view.
 	BioXASSSRLMonochromatorConfigurationView *monoConfigView_;
+	/// The endstation table view
+	BioXASEndstationTableView *endstationTableView_;
 	/// The JJ slit view
 	CLSJJSlitsView *jjSlitsView_;
 	/// The XIA filters view.

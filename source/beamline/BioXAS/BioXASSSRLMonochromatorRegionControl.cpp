@@ -1,8 +1,8 @@
 #include "BioXASSSRLMonochromatorRegionControl.h"
 #include "BioXASSSRLMonochromator.h"
 
-BioXASSSRLMonochromatorRegionControl::BioXASSSRLMonochromatorRegionControl(QObject *parent) :
-	AMPseudoMotorControl("RegionControl", "", parent, "BioXAS SSRL Monochromator Region Control")
+BioXASSSRLMonochromatorRegionControl::BioXASSSRLMonochromatorRegionControl(const QString &name, QObject *parent) :
+	AMPseudoMotorControl(name, "", parent)
 {
 	// Initialize local variables.
 
@@ -53,7 +53,7 @@ bool BioXASSSRLMonochromatorRegionControl::canMeasure() const
 {
 	bool result = false;
 
-	if (isConnected()) {
+	if (regionAStatus_ && regionBStatus_) {
 		result = (
 				regionAStatus_->canMeasure() &&
 				regionBStatus_->canMeasure()
@@ -529,6 +529,20 @@ AMAction3* BioXASSSRLMonochromatorRegionControl::createWaitForKeyEnabledAction()
 	return action;
 }
 
+AMAction3* BioXASSSRLMonochromatorRegionControl::createSetBraggToleranceAction(double newTolerance)
+{
+	AMControl *control = bragg_;
+	AMAction3 *action = 0;
+
+	if (control && control->isConnected())
+		action = AMActionSupport::buildChangeToleranceAction(bragg_, newTolerance);
+
+	if (!action)
+		AMErrorMon::error(this, BioXAS_MONO_REGION_CHANGE_BRAGG_TOLERANCE_FAILED, "Failed to set the bragg motor tolerance.");
+
+	return action;
+}
+
 AMAction3* BioXASSSRLMonochromatorRegionControl::createMoveBraggAction(double destination)
 {
 	AMControl *control = bragg_;
@@ -581,11 +595,22 @@ AMAction3* BioXASSSRLMonochromatorRegionControl::createWaitForBrakeDisabledActio
 
 AMAction3* BioXASSSRLMonochromatorRegionControl::createMoveBraggToCrystalChangePositionAction()
 {
-	AMListAction3 *moveAndConfirm = new AMListAction3(new AMListActionInfo3("MoveBraggToCCPositionAndConfirm", "Move bragg motor to the crystal change position and confirm it's in position"), AMListAction3::Sequential);
-	moveAndConfirm->addSubAction(createMoveBraggAction(SETPOINT_BRAGG_MOTOR_CRYSTAL_CHANGE_POSITION));
-	moveAndConfirm->addSubAction(createWaitForBraggAtCrystalChangePositionAction());
+	AMControl *control = bragg_;
+	AMAction3 *action = 0;
 
-	return moveAndConfirm;
+	if (control && control->isConnected()) {
+		double oldTolerance = bragg_->tolerance();
+
+		AMListAction3 *moveAndConfirm = new AMListAction3(new AMListActionInfo3("MoveBraggToCCPositionAndConfirm", "Move bragg motor to the crystal change position and confirm it's in position"), AMListAction3::Sequential);
+		moveAndConfirm->addSubAction(createSetBraggToleranceAction(1));
+		moveAndConfirm->addSubAction(createMoveBraggAction(SETPOINT_BRAGG_MOTOR_CRYSTAL_CHANGE_POSITION));
+		moveAndConfirm->addSubAction(createWaitForBraggAtCrystalChangePositionAction());
+		moveAndConfirm->addSubAction(createSetBraggToleranceAction(oldTolerance));
+
+		action = moveAndConfirm;
+	}
+
+	return action;
 }
 
 AMAction3* BioXASSSRLMonochromatorRegionControl::createMoveCrystalChangeAction(double destination)
