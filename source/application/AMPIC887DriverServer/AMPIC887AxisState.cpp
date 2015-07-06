@@ -1,10 +1,11 @@
 #include "AMPIC887AxisState.h"
+#include "AMGCS2Support.h"
 
 AMPIC887AxisState::AMPIC887AxisState(AMGCS2::Axis axisDesignation)
 {
 	isInitialized_ = false;
 
-	axisDesignation_ = axisDesignation_;
+	axisDesignation_ = axisDesignation;
 	isReferenced_ = false;
 	currentPosition_ = 0;
 	targetPosition_ = 0;
@@ -144,4 +145,39 @@ double AMPIC887AxisState::pivotPoint() const
 void AMPIC887AxisState::setPivotPoint(double pivotPoint)
 {
 	pivotPoint_ = pivotPoint;
+}
+
+QString AMPIC887AxisState::statusString() const
+{
+	if(!isInitialized_) {
+		return QString("Data not yet initialized for axis %1\n")
+				.arg(AMGCS2Support::axisToCharacter(axisDesignation_));
+	}
+
+	QString dataString = QString("Data for axis %1:\n")
+			.arg(AMGCS2Support::axisToCharacter(axisDesignation_));
+
+	QString unitsString = AMGCS2Support::positionUnitsToString(positionUnits_);
+	dataString.append(QString("Is Referenced: %1\nCurrent Position: %2 %3\nTarget Position: %4 %3\nLow Soft Limit: %5 %3\nHigh Soft Limit: %6 %3\nSoft Limits Active: %7\nStep Size: %8 %3\nMax Position: %9 %3\nMin Position: %10 %3\n")
+					  .arg(isReferenced_)
+					  .arg(currentPosition_)
+					  .arg(unitsString)
+					  .arg(targetPosition_)
+					  .arg(lowSoftLimit_)
+					  .arg(highSoftLimit_)
+					  .arg(areSoftLimitsActive_)
+					  .arg(stepSize_)
+					  .arg(maxCommandablePosition_)
+					  .arg(minCommandablePosition_));
+
+	if(axisDesignation_ == AMGCS2::XAxis ||
+			axisDesignation_ == AMGCS2::YAxis ||
+			axisDesignation_ == AMGCS2::ZAxis) {
+
+		dataString.append(QString("Pivot Point: %1 %2\n")
+				.arg(pivotPoint_)
+				.arg(unitsString));
+	}
+
+	return dataString;
 }

@@ -120,7 +120,7 @@ QString AMPIC887Controller::status() const
 		connectionStatus = QString("Connected with id %1").arg(id_);
 	}
 
-	return QString("%1\t\t\t%2\t\t\t%3")
+	return QString("%1\t\t\t%2\t\t\t%3\n")
 			.arg(name_)
 			.arg(hostname_)
 			.arg(connectionStatus);

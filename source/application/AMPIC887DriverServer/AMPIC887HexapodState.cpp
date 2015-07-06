@@ -100,3 +100,16 @@ void AMPIC887HexapodState::initialize(bool isInServoMode, double velocity)
 
 	isInitialized_ = true;
 }
+
+QString AMPIC887HexapodState::statusString() const
+{
+	QString dataString = QString("Hexapod:\n\n%1\n\n%2\n\n%3\n\n%4\n\n%5\n\n%6")
+			.arg(xAxisState_->statusString())
+			.arg(yAxisState_->statusString())
+			.arg(zAxisState_->statusString())
+			.arg(uAxisState_->statusString())
+			.arg(vAxisState_->statusString())
+			.arg(wAxisState_->statusString());
+
+	return dataString;
+}

@@ -3,6 +3,7 @@
 
 #include "AMPIC887AxisState.h"
 #include "AMGCS2.h"
+#include <QString>
 /*!
   * A class which holds the state of the hexapod being controlled by a PI C887.11
   * controller.
@@ -96,6 +97,11 @@ public:
 	  * be initialized with data.
 	  */
 	void initialize(bool isInServoMode, double velocity);
+
+	/*!
+	  * A status string displaying the current data stored in this hexapod state.
+	  */
+	QString statusString() const;
 protected:
 	bool isInitialized_;
 	bool isInServoMode_;

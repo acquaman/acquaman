@@ -2,6 +2,7 @@
 #define AMPIC887AXISSTATE_H
 
 #include "AMGCS2.h"
+#include <QString>
 /*!
   * A class which holds the state of an individual axis of the hexapod being controlled
   * by a PI C887.11 controller.
@@ -168,6 +169,12 @@ public:
 	  * \param pivotPoint ~ The new pivot point value to store.
 	  */
 	void setPivotPoint(double pivotPoint);
+
+	/*!
+	  * A status string describing the current state of the data stored in this
+	  * axis state.
+	  */
+	QString statusString() const;
 protected:
 	bool isInitialized_;
 

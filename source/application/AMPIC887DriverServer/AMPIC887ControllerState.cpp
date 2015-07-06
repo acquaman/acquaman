@@ -19,3 +19,8 @@ bool AMPIC887ControllerState::isAllInitialized() const
 {
 	return hexapodState_->isAllInitialized();
 }
+
+QString AMPIC887ControllerState::statusString() const
+{
+	return hexapodState_->statusString();
+}

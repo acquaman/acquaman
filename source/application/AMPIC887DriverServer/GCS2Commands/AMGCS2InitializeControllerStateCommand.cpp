@@ -45,12 +45,7 @@ bool AMGCS2InitializeControllerStateCommand::validateArguments()
 	QFlags<AMGCS2::AxisMovementStatus> axisMovementStatuses =
 			movingStatusCommand.movementStatuses();
 
-	if(axisMovementStatuses.testFlag(AMGCS2::XAxisIsMoving |
-									 AMGCS2::YAxisIsMoving |
-									 AMGCS2::ZAxisIsMoving |
-									 AMGCS2::UAxisIsMoving |
-									 AMGCS2::VAxisIsMoving |
-									 AMGCS2::WAxisIsMoving)) {
+	if(axisMovementStatuses) {
 
 		lastError_ = "Cannot load data for a controller while its hexapod is in motion";
 		return false;
@@ -70,7 +65,7 @@ bool AMGCS2InitializeControllerStateCommand::runImplementation()
 	systemVelocityCommand.setController(controller_);
 	systemVelocityCommand.run();
 
-	if(systemVelocityCommand.runningState() != Success) {
+	if(systemVelocityCommand.runningState() != Succeeded) {
 		lastError_ = "Could not obtain the system velocity of the controller";
 		return false;
 	}
@@ -82,7 +77,7 @@ bool AMGCS2InitializeControllerStateCommand::runImplementation()
 	servoModeCommand.setController(controller_);
 	servoModeCommand.run();
 
-	if(servoModeCommand.runningState() != Success) {
+	if(servoModeCommand.runningState() != Succeeded) {
 		lastError_ = "Could not obtain the servo mode of the controller";
 		return false;
 	}
@@ -227,8 +222,6 @@ bool AMGCS2InitializeControllerStateCommand::runImplementation()
 
 	// Initialize controller state
 	///////////////////////////////
-
-	controllerState_ = new AMPIC887ControllerState();
 
 	// Initialize Hexapod
 	/////////////////////
