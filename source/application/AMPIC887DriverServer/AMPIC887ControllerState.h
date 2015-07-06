@@ -2,6 +2,7 @@
 #define AMPIC887CONTROLLERSTATE_H
 
 #include "AMPIC887HexapodState.h"
+#include "AMPIC887DataRecorderState.h"
 #include <QString>
 /*!
   * A class which holds the current state of a PI C887.11 Controller. This class
@@ -32,6 +33,11 @@ public:
 	AMPIC887HexapodState* hexapodState() const;
 
 	/*!
+	  * The current state of the controller's data recorder.
+	  */
+	AMPIC887DataRecorderState* dataRecorderState() const;
+
+	/*!
 	  * Whether all the data stored within this controller state is initialized.
 	  * \return True if the contained hexapod is initialized, false otherwise.
 	  */
@@ -45,6 +51,7 @@ public:
 protected:
 
 	AMPIC887HexapodState* hexapodState_;
+	AMPIC887DataRecorderState* dataRecorderState_;
 };
 
 #endif // AMPIC887CONTROLLERSTATE_H

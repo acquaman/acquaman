@@ -13,6 +13,8 @@
 #include "AMGCS2GetMinCommandablePositionCommand.h"
 #include "AMGCS2GetMaxCommandablePositionCommand.h"
 #include "AMGCS2GetPivotPointCommand.h"
+#include "AMGCS2GetRecordTriggerSourceCommand.h"
+#include "AMGCS2GetDataRecorderConfigurationCommand.h"
 
 AMGCS2InitializeControllerStateCommand::AMGCS2InitializeControllerStateCommand(AMPIC887ControllerState* controllerState)
 {
@@ -220,16 +222,56 @@ bool AMGCS2InitializeControllerStateCommand::runImplementation()
 	QHash<AMGCS2::Axis, double> pivotPoints =
 			pivotPointCommand.axisPivotPoints();
 
-	// Initialize controller state
-	///////////////////////////////
+	// Data Recorder Statuses
+	//////////////////////////
+	QList<int> tableIdsList;
+	for(int iTableId = 1; iTableId <= 16; ++iTableId) {
+		tableIdsList.append(iTableId);
+	}
 
-	// Initialize Hexapod
-	/////////////////////
+	// Record Trigger
+	// Note command syntax is set up for this to run on each table, but changing
+	// value on one table changes them all. As such this is stored once at the
+	// general recorder state leve, not once per table.
+
+	AMGCS2GetRecordTriggerSourceCommand triggerSourceCommand(tableIdsList);
+	triggerSourceCommand.setController(controller_);
+	triggerSourceCommand.run();
+
+	if(triggerSourceCommand.runningState() != Succeeded) {
+		lastError_ = "Could not obtain recorder trigger source";
+		return false;
+	}
+
+	QHash<int, AMGCS2::DataRecordTrigger> recordTriggers =
+			triggerSourceCommand.tableRecordTriggers();
+
+	// Data Recorder Table Statuses
+	////////////////////////////////
+
+	// Record configurations (option)
+	AMGCS2GetDataRecorderConfigurationCommand recordConfigurationsCommand;
+	recordConfigurationsCommand.setController(controller_);
+	recordConfigurationsCommand.run();
+
+	if(recordConfigurationsCommand.runningState() != Succeeded) {
+		lastError_ = "Could not obtain table recorder configurations";
+		return false;
+	}
+
+	QList<AMPIC887DataRecorderConfiguration*> recordConfigurations =
+			recordConfigurationsCommand.dataRecorderConfigurations();
+
+	// Initialize controller state data
+	////////////////////////////////////
+
+	// Initialize Hexapod data
+	///////////////////////////
 
 	controllerState_->hexapodState()->initialize(servoMode, systemVelocity);
 
-	// Initialize Hexapod Axes
-	//////////////////////////
+	// Initialize Hexapod Axes data
+	////////////////////////////////
 
 	controllerState_->hexapodState()->xAxisState()->initialize(
 				referencedResults.value(AMGCS2::XAxis),
@@ -299,6 +341,22 @@ bool AMGCS2InitializeControllerStateCommand::runImplementation()
 				stepSizes.value(AMGCS2::WAxis),
 				maxPositions.value(AMGCS2::WAxis),
 				minPositions.value(AMGCS2::WAxis));
+
+	// Initialize data recorder data
+	/////////////////////////////////
+
+	// Can use the value for 1 table, as this applies to all tables.
+	controllerState_->dataRecorderState()->initialize(recordTriggers.value(1));
+
+	// Initialize data for recorder tables
+	///////////////////////////////////////
+	for(int iRecordTable = 1; iRecordTable <= 16; ++iRecordTable) {
+		AMPIC887DataRecorderConfiguration* currentConfig =
+				recordConfigurations.at(iRecordTable -1);
+
+		controllerState_->dataRecorderState()->stateAt(iRecordTable)
+				->initialize(currentConfig->recordSource(), currentConfig->recordOption());
+	}
 
 	if(!controllerState_->isAllInitialized()) {
 		lastError_ = "Unknown error initializing the controller state";

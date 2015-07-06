@@ -154,30 +154,41 @@ QString AMPIC887AxisState::statusString() const
 				.arg(AMGCS2Support::axisToCharacter(axisDesignation_));
 	}
 
-	QString dataString = QString("Data for axis %1:\n")
-			.arg(AMGCS2Support::axisToCharacter(axisDesignation_));
+	QString referencedString;
+	if(isReferenced_) {
+		referencedString = "Yes";
+	} else {
+		referencedString = "No";
+	}
 
-	QString unitsString = AMGCS2Support::positionUnitsToString(positionUnits_);
-	dataString.append(QString("Is Referenced: %1\nCurrent Position: %2 %3\nTarget Position: %4 %3\nLow Soft Limit: %5 %3\nHigh Soft Limit: %6 %3\nSoft Limits Active: %7\nStep Size: %8 %3\nMax Position: %9 %3\nMin Position: %10 %3\n")
-					  .arg(isReferenced_)
-					  .arg(currentPosition_)
-					  .arg(unitsString)
-					  .arg(targetPosition_)
-					  .arg(lowSoftLimit_)
-					  .arg(highSoftLimit_)
-					  .arg(areSoftLimitsActive_)
-					  .arg(stepSize_)
-					  .arg(maxCommandablePosition_)
-					  .arg(minCommandablePosition_));
+	QString softLimitsStateString;
+	if(areSoftLimitsActive_) {
+		softLimitsStateString = "Yes";
+	} else {
+		softLimitsStateString = "No";
+	}
+
+	QString stateString = QString("Axis: %1\nReferenced: %2\nCurrent Position: %3 %4\nTarget Position: %5 %4\nLow Soft Limit: %6 %4\nHigh Soft Limit: %7 %4\nSoft Limits Active: %8\nStep Size: %9 %4\nMin Position: %10 %4\nMax Position: %11 %4")
+			.arg(AMGCS2Support::axisToCharacter(axisDesignation_))
+			.arg(referencedString)
+			.arg(currentPosition_)
+			.arg(AMGCS2Support::positionUnitsToString(positionUnits_))
+			.arg(targetPosition_)
+			.arg(lowSoftLimit_)
+			.arg(highSoftLimit_)
+			.arg(softLimitsStateString)
+			.arg(stepSize_)
+			.arg(minCommandablePosition_)
+			.arg(maxCommandablePosition_);
 
 	if(axisDesignation_ == AMGCS2::XAxis ||
 			axisDesignation_ == AMGCS2::YAxis ||
 			axisDesignation_ == AMGCS2::ZAxis) {
-
-		dataString.append(QString("Pivot Point: %1 %2\n")
+		stateString.append(QString("\nPivot Point: %1 %2")
 				.arg(pivotPoint_)
-				.arg(unitsString));
+				.arg(AMGCS2Support::positionUnitsToString(positionUnits_)));
 	}
 
-	return dataString;
+	return stateString;
+
 }

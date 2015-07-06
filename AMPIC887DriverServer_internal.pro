@@ -78,7 +78,9 @@ SOURCES *= \
     source/application/AMPIC887DriverServer/AMPIC887ControllerState.cpp \
     source/application/AMPIC887DriverServer/AMPIC887AxisState.cpp \
     source/application/AMPIC887DriverServer/AMPIC887HexapodState.cpp \
-    source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2InitializeControllerStateCommand.cpp
+    source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2InitializeControllerStateCommand.cpp \
+    source/application/AMPIC887DriverServer/AMPIC887DataRecorderState.cpp \
+    source/application/AMPIC887DriverServer/AMPIC887DataRecorderTableState.cpp
 
 HEADERS *= \
 	source/application/AMPIC887DriverServer/AMPIC887ControllerCollection.h \	
@@ -145,7 +147,21 @@ HEADERS *= \
     source/application/AMPIC887DriverServer/AMPIC887ControllerState.h \
     source/application/AMPIC887DriverServer/AMPIC887AxisState.h \
     source/application/AMPIC887DriverServer/AMPIC887HexapodState.h \
-    source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2InitializeControllerStateCommand.h
+    source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2InitializeControllerStateCommand.h \
+    source/application/AMPIC887DriverServer/AMPIC887DataRecorderState.h \
+    source/application/AMPIC887DriverServer/AMPIC887DataRecorderTableState.h
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
