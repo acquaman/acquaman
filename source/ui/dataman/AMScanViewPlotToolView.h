@@ -13,19 +13,25 @@ class AMDataPositionToolView : public QWidget
 
 public:
 	/// Constructor.
-	explicit AMDataPositionToolView(MPlotDataPositionTool *tool, QWidget *parent = 0);
+	explicit AMDataPositionToolView(MPlotDataPositionTool *tool, QWidget *parent = 0, bool view2D = false);
 	/// Destructor.
 	virtual ~AMDataPositionToolView();
 	/// Returns the tool being viewed.
 	MPlotDataPositionTool* tool() const { return tool_; }
+	/// Returns flag for whether the displayed position is being formatted for 2D viewing.
+	bool view2D() const { return view2D_; }
 
 signals:
 	/// Notifier that the tool being viewed has changed.
 	void toolChanged(MPlotDataPositionTool *newTool);
+	/// Notifier that the flag for whether the displayed position is being formatted for 2D viewing has changed.
+	void view2DChanged(bool use2D);
 
 public slots:
 	/// Sets the tool.
 	void setTool(MPlotDataPositionTool *newTool);
+	/// Sets the flag for whether the displayed position should be formatted for 2D viewing.
+	void setView2D(bool use2D);
 
 	/// Clears the display.
 	virtual void clear();
@@ -34,17 +40,17 @@ public slots:
 	/// Clears and then updates the display.
 	virtual void refresh();
 
-protected slots:
-	/// Handles updating the view to match the tool's current position.
-	void onToolPositionChanged();
-
 protected:
-	/// Returns a string representation of the given position.
-	QString positionToString(const QPointF &values, const QStringList &units);
+	/// Returns a string representation of the given 1D position.
+	static QString positionToString(double value, const QString &units);
+	/// Returns a string representation of the given 2D position.
+	static QString positionToString(const QPointF &values, const QStringList &units);
 
 protected:
 	/// The tool being viewed.
 	MPlotDataPositionTool *tool_;
+	/// Flag containing whether the displayed position should be formatted for multidimensions.
+	bool view2D_;
 
 	/// The label containing the value prompt.
 	QLabel *valuePrompt_;
@@ -89,32 +95,40 @@ public slots:
 	virtual void refresh();
 
 protected slots:
+	/// Handles updating the tool when the cursor position spinbox reports a new position.
+	void onPositionChanged();
 	/// Handles updating the tool when the cursor color button reports a new color available.
 	void onColorChanged();
 	/// Handles updating the tool when the cursor checkbox is clicked.
 	void onVisibilityChanged();
-	/// Handles updating the tool when the cursor position spinbox reports a new position.
-	void onPositionChanged();
 
-	/// Handles updating the view when the tool indicates the visibility has changed.
-	void onToolVisibilityChanged();
-	/// Handles updating the view when the tool indicates the color has changed.
-	void onToolColorChanged();
-	/// Handles updating the view when the tool indicates the position has changed.
-	void onToolPositionChanged();
+	/// Handles updating the view to match the tool's value and units.
+	void updatePositionLabel();
+	/// Handles updating the view to match the tool's value and units.
+	void updatePositionSpinBox();
+	/// Handles updating the view to match the tool's color.
+	void updateColorButton();
+	/// Handles updating the view to match the tool's visibility.
+	void updateVisibility();
+
+protected:
+	/// Returns a string representation of the given 1D position.
+	static QString positionToString(double value, const QString &units);
+	/// Returns a string representation of the given 2D position.
+	static QString positionToString(const QPointF &values, const QStringList &units);
 
 protected:
 	/// The tool being viewed.
 	MPlotDataPositionCursorTool *tool_;
 
-	/// The position view.
-	AMDataPositionToolView *positionView_;
-	/// The checkbox that displays cursor visibility.
-	QCheckBox *visibilityCheckBox_;
+	/// The position label.
+	QLabel *positionLabel_;
 	/// The double spinbox that displays the cursor position.
 	QDoubleSpinBox *positionSpinBox_;
 	/// The button that displays and selects the cursor color.
 	AMColorPickerButton *colorButton_;
+	/// The checkbox that displays cursor visibility.
+	QCheckBox *visibilityCheckBox_;
 };
 
 #endif // AMSCANVIEWPLOTTOOLVIEW_H

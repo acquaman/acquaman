@@ -429,30 +429,25 @@ void AMScanView::onScanAdded(AMScan *scan)
 
 	spectrumView_->setDataSources(sources);
 
-//	QString xUnits = "";
+	QString xUnits = "";
 
-//	if (scan && scan->rawData() && scan->rawData()->scanAxesCount() >= 1) {
-//		xUnits = scan->rawData()->scanAxisAt(0).units;
-//	}
+	if (scan && scan->rawData() && scan->rawData()->scanAxesCount() >= 1) {
+		xUnits = scan->rawData()->scanAxisAt(0).units;
+	}
 
-//	qDebug() << "Updating views with new scan data...";
+	foreach (AMScanViewInternal *scanView, views_) {
+		if (scanView && scanView->tools()) {
+			foreach (MPlotAbstractTool *tool, scanView->tools()->tools()) {
 
-//	foreach (AMScanViewInternal *scanView, views_) {
-//		if (scanView && scanView->tools()) {
-//			qDebug() << "Updating plot tools...";
-//			foreach (MPlotAbstractTool *tool, scanView->tools()->tools()) {
-//				MPlotDataPositionTool *positionTool = qobject_cast<MPlotDataPositionTool*>(tool);
-//				if (positionTool) {
-//					qDebug() << "Updating position tool...";
-//					positionTool->setUnits(QStringList() << xUnits);
-//				}
-//			}
-//		} else {
-//			qDebug() << "No tools to update.";
-//		}
-//	}
+				// If one of the view's tools is a position tool, update the units.
 
-//	qDebug() << "Updating views complete.";
+				MPlotDataPositionTool *positionTool = qobject_cast<MPlotDataPositionTool*>(tool);
+				if (positionTool) {
+					positionTool->setUnits(QStringList() << xUnits);
+				}
+			}
+		}
+	}
 }
 
 AMnDIndex AMScanView::getIndex(const QPointF &point) const

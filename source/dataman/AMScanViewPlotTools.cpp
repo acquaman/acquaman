@@ -216,12 +216,6 @@ QList<MPlotAbstractTool*> AMScanViewPlotTools::applyExclusiveToolRule(QList<MPlo
 	if (toolList.count() > 1)
 		toolList = QList<MPlotAbstractTool*>() << toolList.last();
 
-	QString afterRule;
-
-	foreach (MPlotAbstractTool *tool, toolList) {
-		afterRule += QString(" %1").arg(tool->name());
-	}
-
 	return toolList;
 }
 
