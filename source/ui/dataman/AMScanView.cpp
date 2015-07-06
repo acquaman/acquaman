@@ -625,8 +625,10 @@ void AMScanViewInternal::addToolToPlot(MPlot *plot, MPlotAbstractTool *tool)
 	if (plot && tool) {
 		plot->addTool(tool);
 
-		MPlotDataPositionTool *positionTool = qobject_cast<MPlotDataPositionTool*>(tool);
+		// Most tools just need to be added.
+		// If the tool is a data position tool, however, it's axis scales must also be set.
 
+		MPlotDataPositionTool *positionTool = qobject_cast<MPlotDataPositionTool*>(tool);
 		if (positionTool) {
 			positionTool->setDataPositionIndicator(plot->axisScaleBottom(), plot->axisScaleLeft());
 		}
@@ -637,6 +639,9 @@ void AMScanViewInternal::removeToolFromPlot(MPlot *plot, MPlotAbstractTool *tool
 {
 	if (plot && tool && plot->tools().contains(tool)) {
 		plot->removeTool(tool);
+
+		// Most tools can just be removed.
+		// If the tool is a data position tool, however, it's axis scales must also be set to 0.
 
 		MPlotDataPositionTool *positionTool = qobject_cast<MPlotDataPositionTool*>(tool);
 
@@ -780,6 +785,7 @@ AMScanViewExclusiveView::AMScanViewExclusiveView(AMScanView* masterView) : AMSca
 
 AMScanViewExclusiveView::~AMScanViewExclusiveView() {
 	plot_->deleteLater();
+
 	delete dragZoomerTool_;
 	delete wheelZoomerTool_;
 	delete dataPositionTool_;
@@ -908,10 +914,7 @@ void AMScanViewExclusiveView::applyPlotTools(const QList<MPlotAbstractTool*> &ne
 
 	// Add tools to the plot, according to selection.
 
-	QString selection;
-
 	foreach (MPlotAbstractTool *tool, newSelection) {
-		selection += QString(" %1").arg(tool->name());
 		addToolToPlot(plot_->plot(), tool);
 	}
 }
@@ -1162,10 +1165,12 @@ void AMScanViewMultiView::addScan(int si) {
 	plotItems_.insert(si, scanList);
 }
 
-AMScanViewMultiView::~AMScanViewMultiView() {
-
-//	delete plotCursor_;
+AMScanViewMultiView::~AMScanViewMultiView()
+{
 	plot_->deleteLater();
+
+	delete dragZoomerTool_;
+	delete wheelZoomerTool_;
 }
 
 
@@ -1505,9 +1510,13 @@ void AMScanViewMultiScansView::addScan(int si) {
 	// note: haven't yet added this new plot to the layout_.  That's up to reLayout()
 }
 
-AMScanViewMultiScansView::~AMScanViewMultiScansView() {
+AMScanViewMultiScansView::~AMScanViewMultiScansView()
+{
 	for(int pi=0; pi<plots_.count(); pi++)
 		plots_.at(pi)->deleteLater();
+
+	delete dragZoomerTool_;
+	delete wheelZoomerTool_;
 }
 
 

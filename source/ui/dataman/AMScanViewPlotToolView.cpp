@@ -211,7 +211,7 @@ void AMDataPositionCursorToolView::onPositionChanged()
 		QPointF oldPosition = tool_->cursorPosition();
 		QPointF newPosition = QPointF(positionSpinBox_->value(), oldPosition.y());
 
-		tool_->setDataPosition(newPosition);
+		tool_->setCursorPosition(newPosition);
 	}
 }
 
