@@ -82,6 +82,7 @@ signals:
 };
 
 class AMScanView;
+class MPlotPlotSelectorTool;
 class MPlotDragZoomerTool;
 class MPlotWheelZoomerTool;
 class MPlotDataPositionTool;
@@ -113,7 +114,7 @@ public slots:
 	void updatePlotTools();
 
 	/// Handles adding and removing tools.
-	virtual void applyPlotTools(const QList<MPlotAbstractTool*> &newSelection) { Q_UNUSED(newSelection) qDebug() << "AMScanViewInternal::applyPlotTools()."; return; }
+	virtual void applyPlotTools(const QList<MPlotAbstractTool*> &newSelection) { Q_UNUSED(newSelection) return; }
 
 protected:
 	/// Helper function to create an appropriate MPlotItem and connect it to the \c dataSource, depending on the dimensionality of \c dataSource.  Returns 0 if we can't handle this dataSource and no item was created (ex: unsupported dimensionality, we only handle 1D or 2D data for now.)
@@ -344,11 +345,13 @@ protected:
 	/*! A null pointer in plotItemDataSources_ means that the scan at that index doesn't have a data source matching the exclusive data source. */
 	QList<AMDataSource*> plotItemDataSources_;
 
-	/// The drag zoomer tool to be available to the plot.
+	/// The plot selector tool.
+	MPlotPlotSelectorTool *selectorTool_;
+	/// The drag zoomer tool.
 	MPlotDragZoomerTool *dragZoomerTool_;
-	/// The wheel zoomer tool to be available to the plot.
+	/// The wheel zoomer tool.
 	MPlotWheelZoomerTool *wheelZoomerTool_;
-	/// The data position tool to be available to the plot.
+	/// The data position tool.
 	MPlotDataPositionCursorTool *dataPositionTool_;
 
 	/// Our plot.
@@ -398,9 +401,11 @@ protected:
 	/// Our plot.
 	MPlotGW* plot_;
 
-	/// The drag zoomer tool to be available to the plot.
+	/// The selector tool.
+	MPlotPlotSelectorTool *selectorTool_;
+	/// The drag zoomer tool.
 	MPlotDragZoomerTool *dragZoomerTool_;
-	/// The wheel zoomer tool to be available to the plot.
+	/// The wheel zoomer tool.
 	MPlotWheelZoomerTool *wheelZoomerTool_;
 };
 

@@ -793,13 +793,14 @@ AMScanViewExclusiveView::AMScanViewExclusiveView(AMScanView* masterView) : AMSca
 
 	// Create instances of the tools we want available and add them to the tool options.
 
+	selectorTool_ = new MPlotPlotSelectorTool();
 	dragZoomerTool_ = new MPlotDragZoomerTool();
 	wheelZoomerTool_ = new MPlotWheelZoomerTool();
 	dataPositionTool_ = new MPlotDataPositionCursorTool(false);
 
 	AMScanViewPlotTools *tools = new AMScanViewPlotTools(QList<MPlotAbstractTool*>());
 	tools->setExclusiveSelectionEnabled(true);
-	tools->setTools(QList<MPlotAbstractTool*>() << dataPositionTool_ << dragZoomerTool_ << wheelZoomerTool_);
+	tools->setTools(QList<MPlotAbstractTool*>() << selectorTool_ << dataPositionTool_ << dragZoomerTool_ << wheelZoomerTool_);
 	tools->setSelectedTools(QList<MPlotAbstractTool*>() << dragZoomerTool_);
 
 	setPlotTools(tools);
@@ -831,6 +832,7 @@ AMScanViewExclusiveView::AMScanViewExclusiveView(AMScanView* masterView) : AMSca
 AMScanViewExclusiveView::~AMScanViewExclusiveView() {
 	plot_->deleteLater();
 
+	selectorTool_->deleteLater();
 	dragZoomerTool_->deleteLater();
 	wheelZoomerTool_->deleteLater();
 	dataPositionTool_->deleteLater();
@@ -1159,13 +1161,14 @@ AMScanViewMultiView::AMScanViewMultiView(AMScanView* masterView) : AMScanViewInt
 
 	// Create instances of the tools we want available and add them to the tool options.
 
+	selectorTool_ = new MPlotPlotSelectorTool();
 	dragZoomerTool_ = new MPlotDragZoomerTool();
 	wheelZoomerTool_ = new MPlotWheelZoomerTool();
 
 	AMScanViewPlotTools *tools = new AMScanViewPlotTools(QList<MPlotAbstractTool*>());
 	tools->setExclusiveSelectionEnabled(false);
-	tools->setTools(QList<MPlotAbstractTool*>() << dragZoomerTool_ << wheelZoomerTool_);
-	tools->setSelectedTools(QList<MPlotAbstractTool*>() << dragZoomerTool_ << wheelZoomerTool_);
+	tools->setTools(QList<MPlotAbstractTool*>() << selectorTool_ << dragZoomerTool_ << wheelZoomerTool_);
+	tools->setSelectedTools(QList<MPlotAbstractTool*>() << selectorTool_ << dragZoomerTool_ << wheelZoomerTool_);
 
 	setPlotTools(tools);
 

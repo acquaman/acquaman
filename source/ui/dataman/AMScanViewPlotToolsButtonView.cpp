@@ -192,9 +192,15 @@ QIcon AMScanViewPlotToolsButtonView::toolToIcon(MPlotAbstractTool *tool)
 	QIcon icon;
 
 	if (tool) {
+
+		MPlotPlotSelectorTool *selectorTool = qobject_cast<MPlotPlotSelectorTool*>(tool);
+		if (selectorTool) {
+			icon = QIcon(":/pointer-black.png");
+		}
+
 		MPlotDataPositionTool *positionTool = qobject_cast<MPlotDataPositionTool*>(tool);
 		if (positionTool) {
-			icon = QIcon(":/pointer-black.png");
+			icon = QIcon(":/finger-point-click.png");
 		}
 
 		MPlotDragZoomerTool *dragZoomerTool = qobject_cast<MPlotDragZoomerTool*>(tool);
