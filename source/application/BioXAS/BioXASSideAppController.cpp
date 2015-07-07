@@ -50,18 +50,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/export/AMExporterOptionXDIFormat.h"
 #include "dataman/BioXAS/BioXASUserConfiguration.h"
 
-<<<<<<< HEAD
-=======
-#include "util/AMPeriodicTable.h"
-
-#include "beamline/CLS/CLSFacilityID.h"
-#include "beamline/CLS/CLSSIS3820Scaler.h"
-
-#include "beamline/BioXAS/BioXASSideBeamline.h"
-#include "acquaman/BioXAS/BioXASSideXASScanConfiguration.h"
-#include "acquaman/BioXAS/BioXASXRFScanConfiguration.h"
-
->>>>>>> master
 #include "ui/AMMainWindow.h"
 #include "ui/AMMotorGroupView.h"
 
