@@ -321,6 +321,51 @@ void AMScanView::setSingleSpectrumDataSource(const QString &name)
 	spectrumView_->setDataSourceByName(name);
 }
 
+void AMScanView::setPlotCursorCoordinates(const QPointF &newCoordinates)
+{
+	foreach (AMScanViewInternal *view, views_) {
+		if (view) {
+			foreach (MPlotAbstractTool *tool, view->tools()->tools()) {
+				MPlotDataPositionCursorTool *cursorTool = qobject_cast<MPlotDataPositionCursorTool*>(tool);
+				if (cursorTool)
+					cursorTool->setCursorPosition(newCoordinates);
+			}
+		}
+	}
+}
+
+void AMScanView::setPlotCursorCoordinates(AMNumber newCoordinate)
+{
+	if (newCoordinate.isValid())
+		setPlotCursorCoordinates(double(newCoordinate));
+}
+
+void AMScanView::setPlotCursorCoordinates(double newCoordinate)
+{
+	foreach (AMScanViewInternal *view, views_) {
+		if (view) {
+			foreach (MPlotAbstractTool *tool, view->tools()->tools()) {
+				MPlotDataPositionCursorTool *cursorTool = qobject_cast<MPlotDataPositionCursorTool*>(tool);
+				if (cursorTool)
+					cursorTool->setCursorPosition(newCoordinate);
+			}
+		}
+	}
+}
+
+void AMScanView::setPlotCursorVisibility(bool isVisible)
+{
+	foreach (AMScanViewInternal *view, views_) {
+		if (view) {
+			foreach (MPlotAbstractTool *tool, view->tools()->tools()) {
+				MPlotDataPositionCursorTool *cursorTool = qobject_cast<MPlotDataPositionCursorTool*>(tool);
+				if (cursorTool)
+					cursorTool->setCursorVisibility(isVisible);
+			}
+		}
+	}
+}
+
 void AMScanView::setAxisInfoForSpectrumView(const AMAxisInfo &info, bool propogateToPlotRange)
 {
 	spectrumView_->setAxisInfo(info, propogateToPlotRange);
@@ -911,6 +956,16 @@ void AMScanViewExclusiveView::applyPlotTools(const QList<MPlotAbstractTool*> &ne
 
 	foreach (MPlotAbstractTool *tool, newSelection) {
 		addToolToPlot(plot_->plot(), tool);
+	}
+}
+
+void AMScanViewExclusiveView::setPlotCursorVisibility(bool isVisible)
+{
+	if (isVisible && !tools_->isSelectedTool(dataPositionTool_)) {
+		tools_->addSelectedTool(dataPositionTool_);
+
+	} else if (!isVisible && tools_->isSelectedTool(dataPositionTool_)) {
+		tools_->removeSelectedTool(dataPositionTool_);
 	}
 }
 

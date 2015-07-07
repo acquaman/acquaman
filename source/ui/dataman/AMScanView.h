@@ -201,6 +201,15 @@ public:
 	/// Sets the single spectrum view data source using the name given by \param name.
 	void setSingleSpectrumDataSource(const QString &name);
 
+	/// Sets the cursor coordinates, for all views that have cursor tools.
+	void setPlotCursorCoordinates(const QPointF &newCoordinates);
+	/// Sets the cursor coordinates, for all views that have cursor tools.
+	void setPlotCursorCoordinates(AMNumber newCoordinate);
+	/// Sets the cursor coordinates, for all views that have cursor tools.
+	void setPlotCursorCoordinates(double newCoordinate);
+	/// Sets the cursor visibility, for all views that have cursor tools.
+	void setPlotCursorVisibility(bool isVisible);
+
 signals:
 	/// Notifier that the data position tool has changed locations.  Passes the location of the mouse.
 	void dataPositionChanged(const QPoint &);
@@ -295,6 +304,9 @@ public slots:
 
 	/// Handles adding and removing tools from this view's plot(s).
 	virtual void applyPlotTools(const QList<MPlotAbstractTool *> &newSelection);
+
+	/// Sets the plot cursor visibility.
+	void setPlotCursorVisibility(bool isVisible);
 
 protected slots:
 	/// after a scan or data source is added in the model

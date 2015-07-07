@@ -246,12 +246,8 @@ void AMDataPositionCursorToolView::refresh()
 
 void AMDataPositionCursorToolView::onPositionChanged()
 {
-	if (tool_) {
-		QPointF oldPosition = tool_->cursorPosition();
-		QPointF newPosition = QPointF(positionSpinBox_->value(), oldPosition.y());
-
-		tool_->setCursorPosition(newPosition);
-	}
+	if (tool_)
+		tool_->setCursorPosition(positionSpinBox_->value());
 }
 
 void AMDataPositionCursorToolView::onColorChanged()

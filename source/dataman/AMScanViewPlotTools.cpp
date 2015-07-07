@@ -112,7 +112,7 @@ void AMScanViewPlotTools::setSelectedTools(QList<MPlotAbstractTool *> &newTools)
 
 		QList<MPlotAbstractTool*> newSelection;
 
-		// If we have an exclusive selection set, only interested in the first item in newTools.
+		// If we have an exclusive selection set, only interested in the most recent selection.
 
 		if (exclusiveSelection_)
 			newTools = applyExclusiveToolRule(newTools);
