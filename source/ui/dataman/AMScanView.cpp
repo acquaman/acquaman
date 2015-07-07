@@ -799,9 +799,7 @@ AMScanViewExclusiveView::AMScanViewExclusiveView(AMScanView* masterView) : AMSca
 	dataPositionTool_ = new MPlotDataPositionCursorTool(false);
 
 	AMScanViewPlotTools *tools = new AMScanViewPlotTools(QList<MPlotAbstractTool*>());
-	tools->setExclusiveSelectionEnabled(true);
 	tools->setTools(QList<MPlotAbstractTool*>() << selectorTool_ << dataPositionTool_ << dragZoomerTool_ << wheelZoomerTool_);
-	tools->setSelectedTools(QList<MPlotAbstractTool*>() << dragZoomerTool_);
 
 	setPlotTools(tools);
 
@@ -1166,9 +1164,7 @@ AMScanViewMultiView::AMScanViewMultiView(AMScanView* masterView) : AMScanViewInt
 	wheelZoomerTool_ = new MPlotWheelZoomerTool();
 
 	AMScanViewPlotTools *tools = new AMScanViewPlotTools(QList<MPlotAbstractTool*>());
-	tools->setExclusiveSelectionEnabled(false);
 	tools->setTools(QList<MPlotAbstractTool*>() << selectorTool_ << dragZoomerTool_ << wheelZoomerTool_);
-	tools->setSelectedTools(QList<MPlotAbstractTool*>() << selectorTool_ << dragZoomerTool_ << wheelZoomerTool_);
 
 	setPlotTools(tools);
 
@@ -1489,9 +1485,7 @@ AMScanViewMultiScansView::AMScanViewMultiScansView(AMScanView* masterView) : AMS
 	wheelZoomerTool_ = new MPlotWheelZoomerTool();
 
 	AMScanViewPlotTools *tools = new AMScanViewPlotTools(QList<MPlotAbstractTool*>());
-	tools->setExclusiveSelectionEnabled(false);
 	tools->setTools(QList<MPlotAbstractTool*>() << dragZoomerTool_ << wheelZoomerTool_);
-	tools->setSelectedTools(QList<MPlotAbstractTool*>() << dragZoomerTool_ << wheelZoomerTool_);
 
 	setPlotTools(tools);
 

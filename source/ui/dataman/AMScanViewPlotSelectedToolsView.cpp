@@ -123,8 +123,6 @@ QWidget* AMScanViewPlotSelectedToolsView::createToolView(MPlotAbstractTool *tool
 			view = new AMDataPositionCursorToolView(positionCursorTool, this);
 		else if (positionTool)
 			view = new AMDataPositionToolView(positionTool, this);
-		else
-			view = new QWidget(this);
 	}
 
 	return view;

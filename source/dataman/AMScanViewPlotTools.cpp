@@ -219,6 +219,57 @@ QList<MPlotAbstractTool*> AMScanViewPlotTools::applyExclusiveToolRule(QList<MPlo
 	return toolList;
 }
 
+QList<MPlotAbstractTool*> AMScanViewPlotTools::applyPlotSelectorRule(QList<MPlotAbstractTool *> &toolList)
+{
+	// Find instance(s) of the plot selector tool.
+	// If at least one is found, return new list containing just the last instance.
+
+	int toolCount = toolList.count();
+	int selectorIndex = -1;
+
+	for (int toolIndex = 0; toolIndex < toolCount; toolIndex++) {
+		MPlotPlotSelectorTool *selectorTool = qobject_cast<MPlotPlotSelectorTool*>(toolList.at(toolIndex));
+		if (selectorTool) {
+			selectorIndex = toolIndex;
+		}
+	}
+
+	if (selectorIndex > -1) {
+		toolList = QList<MPlotAbstractTool*>() << toolList.at(selectorIndex);
+	}
+
+	return toolList;
+}
+
+QList<MPlotAbstractTool*> AMScanViewPlotTools::applyDragZoomerDataPositionRule(QList<MPlotAbstractTool *> &toolList)
+{
+	// Find latest instance of either the drag zoomer or data position tools.
+	// If more than one is found, remove all instances but the last.
+
+	QList<MPlotAbstractTool*> toRemove;
+	int toolCount = toolList.count();
+	int lastToolIndex = -1;
+
+	for (int toolIndex = 0; toolIndex < toolCount; toolIndex++) {
+		MPlotDragZoomerTool *dragZoomerTool = qobject_cast<MPlotDragZoomerTool*>(toolList.at(toolIndex));
+		MPlotDataPositionTool *dataPositionTool = qobject_cast<MPlotDataPositionTool*>(toolList.at(toolIndex));
+
+		if (dragZoomerTool || dataPositionTool) {
+			if (lastToolIndex >= 0) {
+				toRemove << toolList.at(lastToolIndex);
+			}
+
+			lastToolIndex = toolIndex;
+		}
+	}
+
+	foreach (MPlotAbstractTool *tool, toRemove) {
+		toolList.removeOne(tool);
+	}
+
+	return toolList;
+}
+
 
 
 

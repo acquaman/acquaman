@@ -66,8 +66,12 @@ protected slots:
 protected:
 	/// Iterates through the given tools list and swaps the order of tools s.t. instances of drag zoomer are always at the front of the list--they should always be added first to a plot.
 	QList<MPlotAbstractTool*> applyDragZoomerRule(QList<MPlotAbstractTool*> &toolList);
-	/// Applies the exclusive tool setting to the given list--returning a new list containing just the first item from the given list.
+	/// Applies the exclusive tool setting to the given list--returning a new list containing just the last item from the given list.
 	QList<MPlotAbstractTool*> applyExclusiveToolRule(QList<MPlotAbstractTool*> &toolList);
+	/// Iterates through the given tools list to find instances of MPlotPlotSelectorTool. If at least one is found, returns new list containing just the latest MPlotPlotSelectorTool instance. Otherwise, returns given list.
+	QList<MPlotAbstractTool*> applyPlotSelectorRule(QList<MPlotAbstractTool*> &toolList);
+	/// Iterates through the given tools list to find instances of MPlotDragZoomerTool and MPlotDataPositionTool. The two are exclusive--returns list where only the latest addition between the two is contained. Otherwise, returns original list.
+	QList<MPlotAbstractTool*> applyDragZoomerDataPositionRule(QList<MPlotAbstractTool*> &toolList);
 
 protected:
 	/// The list of tools.
