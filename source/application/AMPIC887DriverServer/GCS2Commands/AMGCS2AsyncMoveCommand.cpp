@@ -1,6 +1,7 @@
 #include "AMGCS2AsyncMoveCommand.h"
 #include "AMGCS2GetMovingStatusCommand.h"
 #include "AMGCS2GetCurrentPositionCommand.h"
+#include "AMGCS2GetTargetPositionCommand.h"
 #include "../AMGCS2Support.h"
 AMGCS2AsyncMoveCommand::AMGCS2AsyncMoveCommand(const QHash<AMGCS2::Axis, double>& axisPositions)
 {
@@ -48,6 +49,8 @@ bool AMGCS2AsyncMoveCommand::runImplementation()
 #include <QDebug>
 void AMGCS2AsyncMoveCommand::isFinishedImplementation()
 {
+	QList<AMGCS2::Axis> axesMoved = axesToMove_.keys();
+
 	AMGCS2GetMovingStatusCommand movingStatusCommand;
 
 	movingStatusCommand.setController(controller_);
@@ -63,7 +66,7 @@ void AMGCS2AsyncMoveCommand::isFinishedImplementation()
 			movingStatusCommand.movementStatuses();
 
 	bool allStillMoving = true;
-	foreach(AMGCS2::Axis currentAxis, axesToMove_.keys()) {
+	foreach(AMGCS2::Axis currentAxis, axesMoved) {
 		switch(currentAxis) {
 		case AMGCS2::XAxis:
 			allStillMoving &= movementStatuses.testFlag(AMGCS2::XAxisIsMoving);
@@ -93,9 +96,12 @@ void AMGCS2AsyncMoveCommand::isFinishedImplementation()
 		return;
 	}
 
-	// We've stopped. Did we get where we wanted?
+	// We've stopped. We need to check whether we're at out position, also because
+	// the motion status of the axes fluctuates between moving and not moving during
+	// the fine grain segment of the motion, we must also check if the target position
+	// has been altered.
 
-	AMGCS2GetCurrentPositionCommand currentPositionCommand(axesToMove_.keys());
+	AMGCS2GetCurrentPositionCommand currentPositionCommand(axesMoved);
 	currentPositionCommand.setController(controller_);
 	currentPositionCommand.run();
 
@@ -105,10 +111,25 @@ void AMGCS2AsyncMoveCommand::isFinishedImplementation()
 		return;
 	}
 
+	AMGCS2GetTargetPositionCommand targetPositionCommand(axesMoved);
+	targetPositionCommand.setController(controller_);
+	targetPositionCommand.run();
+
+	if(targetPositionCommand.runningState() != Succeeded) {
+		lastError_ = "Could not obtain target position of axes";
+		runningState_ = Failed;
+		return;
+	}
+
+	QHash<AMGCS2::Axis, double> currentTargetPositions =
+			targetPositionCommand.axisTargetPositions();
+
 	QHash<AMGCS2::Axis, double> finalPositions = currentPositionCommand.axisPositions();
-	foreach (AMGCS2::Axis currentAxis, axesToMove_.keys()) {
+
+	foreach (AMGCS2::Axis currentAxis, axesMoved) {
 		double destination = axesToMove_.value(currentAxis);
 		double finalPosition = finalPositions.value(currentAxis);
+		double currentTargetPosition = currentTargetPositions.value(currentAxis);
 
 		double epsilon = 0.0001;
 
@@ -117,12 +138,17 @@ void AMGCS2AsyncMoveCommand::isFinishedImplementation()
 		qDebug() << "Is " << qAbs(destination - finalPosition) << " > " << epsilon;
 		qDebug() << ((qAbs(destination - finalPosition)) > epsilon);
 		if(qAbs(destination - finalPosition) > epsilon) {
-			lastError_ = QString("Axis %1 did not reach its destination of %2 (stopped at %3)")
-					.arg(AMGCS2Support::axisToCharacter(currentAxis))
-					.arg(destination)
-					.arg(finalPosition);
-
-			runningState_ = Failed;
+			// We've stopped and aren't yet at out final position, this might
+			// be because our target position has been altered with another move
+			// or a stop (in which case we failed) or because we're just doing
+			// our fine grain motions.
+			if(qAbs(destination - currentTargetPosition) > epsilon) {
+				// Our target position has been altered.
+				lastError_ = "Did not reach original target position";
+				runningState_ = Failed;
+				return;
+			}
+			// We're still doing the fine grain segment of the move.
 			return;
 		}
 	}
