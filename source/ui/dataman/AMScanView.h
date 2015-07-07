@@ -247,6 +247,9 @@ protected slots:
 	/// Slots that handles the visibility of the spectrum view based on the information from the scan bar.
 	void setSpectrumViewVisibility(bool visible);
 
+	/// Handles updating the units of any data position tools in the sub-views.
+	void setUnitsFromScan(AMScan *scan);
+
 protected:
 	/// Reimplements the show event to hide the multi view.
 	virtual void showEvent(QShowEvent *e);
