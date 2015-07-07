@@ -206,5 +206,6 @@
         <file>search-black.png</file>
         <file>microscope.png</file>
         <file>Cursor-Select.png</file>
+        <file>finger-point-click.png</file>
     </qresource>
 </RCC>
