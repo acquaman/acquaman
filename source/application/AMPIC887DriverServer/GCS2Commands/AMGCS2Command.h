@@ -53,12 +53,6 @@ public:
 	virtual ~AMGCS2Command() {}
 
 	/*!
-	  * Whether the AMGCS2Command was run successfully. If the command has not yet
-	  * been run then a value of false is returned.
-	  */
-	bool wasSuccessful() const;
-
-	/*!
 	  * The current running state of the command.
 	  */
 	RunningState runningState() const;

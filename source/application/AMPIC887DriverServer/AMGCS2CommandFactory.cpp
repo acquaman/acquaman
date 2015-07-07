@@ -27,7 +27,7 @@
 #include "GCS2Commands/AMGCS2GetAvailableParametersCommand.h"
 #include "GCS2Commands/AMGCS2GetLimitSwitchStatusCommand.h"
 #include "GCS2Commands/AMGCS2GetTargetPositionCommand.h"
-#include "GCS2Commands/AMGCS2MoveRelativeCommand.h"
+#include "GCS2Commands/AMGCS2AsyncMoveRelativeCommand.h"
 #include "GCS2Commands/AMGCS2GetLowSoftLimitsCommand.h"
 #include "GCS2Commands/AMGCS2SetLowSoftLimitsCommand.h"
 #include "GCS2Commands/AMGCS2GetOnTargetStateCommand.h"
@@ -97,7 +97,7 @@ AMGCS2Command * AMGCS2CommandFactory::buildCommand(const QString &commandString)
 	} else if(commandString.startsWith("LIM?")) {
 		return new AMGCS2GetLimitSwitchStatusCommand(axesFromCommandString(commandString));
 	} else if(commandString.startsWith("MVR")) {
-		return new AMGCS2MoveRelativeCommand(axesDoublePairFromCommandString(commandString));
+		return new AMGCS2AsyncMoveRelativeCommand(axesDoublePairFromCommandString(commandString));
 	} else if(commandString.startsWith("NLM?")) {
 		return new AMGCS2GetLowSoftLimitsCommand(axesFromCommandString(commandString));
 	} else if(commandString.startsWith("NLM")) {

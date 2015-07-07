@@ -1,35 +1,37 @@
-#include "AMGCS2AsyncMoveCommand.h"
+#include "AMGCS2AsyncMoveRelativeCommand.h"
+#include "AMGCS2GetTargetPositionCommand.h"
 #include "AMGCS2GetMovingStatusCommand.h"
 #include "AMGCS2GetCurrentPositionCommand.h"
-#include "AMGCS2GetTargetPositionCommand.h"
 #include "../AMGCS2Support.h"
-AMGCS2AsyncMoveCommand::AMGCS2AsyncMoveCommand(const QHash<AMGCS2::Axis, double>& axisPositions)
+AMGCS2AsyncMoveRelativeCommand::AMGCS2AsyncMoveRelativeCommand(const QHash<AMGCS2::Axis, double>& relativeAxisPositions)
 {
-	command_ = new AMGCS2MoveCommand(axisPositions);
-	axesToMove_ = axisPositions;
+	relativeAxisPositions_ = relativeAxisPositions;
+	moveRelativeCommand_ = new AMGCS2MoveRelativeCommand(relativeAxisPositions);
 }
 
-AMGCS2AsyncMoveCommand::~AMGCS2AsyncMoveCommand() {
-	delete command_;
+AMGCS2AsyncMoveRelativeCommand::~AMGCS2AsyncMoveRelativeCommand()
+{
+	delete moveRelativeCommand_;
 }
 
-QString AMGCS2AsyncMoveCommand::outputString() const
+QString AMGCS2AsyncMoveRelativeCommand::outputString() const
 {
-	if(runningState_ == Succeeded) {
-		return "Move succeeded";
-	} else {
+	if(runningState_ != Succeeded) {
 		return "";
 	}
+
+	return "Move Succeeded";
 }
 
-bool AMGCS2AsyncMoveCommand::validateArguments()
+bool AMGCS2AsyncMoveRelativeCommand::validateArguments()
 {
-	if(axesToMove_.isEmpty()) {
-		lastError_ = "Cannot perform move. No axis positions provided";
+	if(relativeAxisPositions_.isEmpty()) {
+		lastError_ = "No axis positions provided";
 		return false;
 	}
 
-	foreach(AMGCS2::Axis currentAxis, axesToMove_.keys()) {
+	foreach(AMGCS2::Axis currentAxis, relativeAxisPositions_.keys()) {
+
 		if(currentAxis == AMGCS2::UnknownAxis) {
 			lastError_ = "Cannot move unknown axis";
 			return false;
@@ -39,22 +41,43 @@ bool AMGCS2AsyncMoveCommand::validateArguments()
 	return true;
 }
 
-bool AMGCS2AsyncMoveCommand::runImplementation()
+bool AMGCS2AsyncMoveRelativeCommand::runImplementation()
 {
-	command_->setController(controller_);
-	command_->run();
+	// Need to store the original target positions, so we know where we're
+	// heading later.
+	QList<AMGCS2::Axis> axesMoved = relativeAxisPositions_.keys();
+	AMGCS2GetTargetPositionCommand targetPositionCommand(axesMoved);
+	targetPositionCommand.setController(controller_);
+	targetPositionCommand.run();
 
-	if(command_->runningState() != Succeeded) {
-		lastError_ = command_->lastError();
+	QHash<AMGCS2::Axis, double> currentTargetPositions =
+			targetPositionCommand.axisTargetPositions();
+
+	foreach(AMGCS2::Axis currentAxis, axesMoved) {
+		double currentTargetPosition = currentTargetPositions.value(currentAxis);
+		double relativeAddition = relativeAxisPositions_.value(currentAxis);
+		originalTargetPositions_.insert(currentAxis, (currentTargetPosition + relativeAddition));
+	}
+
+	if(targetPositionCommand.runningState() != Succeeded) {
+		lastError_ = targetPositionCommand.lastError();
+		return false;
+	}
+
+	moveRelativeCommand_->setController(controller_);
+	moveRelativeCommand_->run();
+
+	if(moveRelativeCommand_->runningState() != Succeeded) {
+		lastError_ = moveRelativeCommand_->lastError();
 		return false;
 	}
 
 	return true;
 }
 
-void AMGCS2AsyncMoveCommand::isFinishedImplementation()
+void AMGCS2AsyncMoveRelativeCommand::isFinishedImplementation()
 {
-	QList<AMGCS2::Axis> axesMoved = axesToMove_.keys();
+	QList<AMGCS2::Axis> axesMoved = relativeAxisPositions_.keys();
 
 	// Are we still moving?
 
@@ -134,7 +157,7 @@ void AMGCS2AsyncMoveCommand::isFinishedImplementation()
 	QHash<AMGCS2::Axis, double> finalPositions = currentPositionCommand.axisPositions();
 
 	foreach (AMGCS2::Axis currentAxis, axesMoved) {
-		double destination = axesToMove_.value(currentAxis);
+		double destination = originalTargetPositions_.value(currentAxis);
 		double finalPosition = finalPositions.value(currentAxis);
 		double currentTargetPosition = currentTargetPositions.value(currentAxis);
 
@@ -147,7 +170,7 @@ void AMGCS2AsyncMoveCommand::isFinishedImplementation()
 			// our fine grain motions.
 			if(qAbs(destination - currentTargetPosition) > epsilon) {
 				// Our target position has been altered.
-				lastError_ = "Move failed to reach target";
+				lastError_ = "Relative move failed to reach target";
 				runningState_ = Failed;
 				return;
 			}
@@ -158,5 +181,3 @@ void AMGCS2AsyncMoveCommand::isFinishedImplementation()
 
 	runningState_ = Succeeded;
 }
-
-
