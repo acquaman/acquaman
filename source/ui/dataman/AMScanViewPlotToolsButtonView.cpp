@@ -156,6 +156,7 @@ QToolButton* AMScanViewPlotToolsButtonView::createToolButton(MPlotAbstractTool *
 		toolButton->setIconSize(QSize(16, 16));
 		toolButton->setText(tool->name());
 		toolButton->setStatusTip(tool->description());
+		toolButton->setToolTip(tool->name());
 		toolButton->setCheckable(true);
 		toolButton->setAutoRaise(false);
 	}
