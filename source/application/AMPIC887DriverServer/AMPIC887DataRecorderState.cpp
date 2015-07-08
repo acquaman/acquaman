@@ -43,6 +43,7 @@ bool AMPIC887DataRecorderState::isAllInitialized() const
 void AMPIC887DataRecorderState::initialize(AMGCS2::DataRecordTrigger recordTrigger)
 {
 	recordTrigger_ = recordTrigger;
+	isInitialized_ = true;
 }
 
 AMGCS2::DataRecordTrigger AMPIC887DataRecorderState::recordTrigger() const

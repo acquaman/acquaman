@@ -1,5 +1,6 @@
 #include "AMPIC887ConsoleCommandParser.h"
 #include "GCS2Commands/AMGCS2Command.h"
+#include "AMGCS2Support.h"
 AMPIC887ConsoleCommandParser::AMPIC887ConsoleCommandParser(QObject *parent) :
 	AMAbstractConsoleCommandParser(parent)
 {
@@ -79,6 +80,14 @@ void AMPIC887ConsoleCommandParser::interpretCommandImplementation(const QString 
 		} else {
 			emit changeActiveController(commandParts.at(1));
 		}
+	} else if(command.startsWith("MOV")){
+		emit moveCommandIssued(axesDoublePairFromCommandString(command));
+	} else if(command.startsWith("MST?")) {
+		emit motionStatusCommandIssued();
+	} else if(command.startsWith("MVR")) {
+		emit moveRelativeCommandIssued(axesDoublePairFromCommandString(command));
+	} else if(command.startsWith("FRF")) {
+		emit referenceMoveCommandIssued(axesFromCommandString(command));
 	} else {
 
 		emit otherCommandIssued(command);
@@ -87,4 +96,73 @@ void AMPIC887ConsoleCommandParser::interpretCommandImplementation(const QString 
 	if(command != "quit") {
 		emit parseComplete();
 	}
+}
+
+QStringList AMPIC887ConsoleCommandParser::commandArguments(const QString &commandString)
+{
+	return commandString.trimmed().split(" ").mid(1, -1);
+}
+
+QList<AMGCS2::Axis> AMPIC887ConsoleCommandParser::axesFromCommandString(const QString &axisArguments)
+{
+	QStringList axisArgumentList = commandArguments(axisArguments);
+
+	QList<AMGCS2::Axis> axes;
+
+	for(int iAxis = 0, argCount = axisArgumentList.count();
+		iAxis < argCount;
+		++iAxis) {
+
+		QString axisString = axisArgumentList.at(iAxis);
+
+		if(axisString.length() != 1) {
+			axes.append(AMGCS2::UnknownAxis);
+		} else {
+			axes.append(AMGCS2Support::characterToAxis(axisString.at(0)));
+		}
+	}
+
+	return axes;
+}
+
+QHash<AMGCS2::Axis, double> AMPIC887ConsoleCommandParser::axesDoublePairFromCommandString(const QString &arguments)
+{
+	QStringList argumentList = commandArguments(arguments);
+
+	QHash<AMGCS2::Axis, double> axisValueMap;
+	int argumentCount = argumentList.count();
+
+	// Ensure argument list isn't empty and has arguments in groups of two.
+	if((argumentCount == 0) || (argumentCount % 2) != 0) {
+		return axisValueMap;
+	}
+
+	// Axis values are provided in pairs, and are not valid unless both are
+	// there. As such we iterate through two at a time.
+	for(int iAxis = 0, iValue = 1;
+		iAxis < argumentCount && iValue < argumentCount;
+		iAxis += 2, iValue += 2) {
+
+		QString axisString = argumentList.at(iAxis);
+		QString valueString = argumentList.at(iValue);
+
+		if(axisString.length() != 1) {
+			axisValueMap.clear();
+			return axisValueMap;
+		}
+
+		AMGCS2::Axis axis = AMGCS2Support::characterToAxis(axisString.at(0));
+		bool parseSuccess = false;
+		double parsedValue = valueString.toDouble(&parseSuccess);
+
+		if(!parseSuccess) {
+			// If parse fails we have to return an empty map
+			axisValueMap.clear();
+			return axisValueMap;
+		}
+
+		axisValueMap.insert(axis, parsedValue);
+	}
+
+	return axisValueMap;
 }

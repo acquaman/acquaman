@@ -124,17 +124,6 @@ public:
 	  */
 	bool areAllAxesReferenced() const;
 
-	/*!
-	  * The current movement status of the hexapod.
-	  */
-	QFlags<AMGCS2::AxisMovementStatus> movementStatuses() const;
-
-	/*!
-	  * Sets the current movment status stored iwhin this state.
-	  * \param movementStatuses ~ The new movement statuses to store within this
-	  * state.
-	  */
-	void setMovementStatuses(const QFlags<AMGCS2::AxisMovementStatus>& movementStatuses);
 protected:
 	bool isInitialized_;
 	bool isInServoMode_;
@@ -147,8 +136,6 @@ protected:
 	AMPIC887AxisState* uAxisState_;
 	AMPIC887AxisState* vAxisState_;
 	AMPIC887AxisState* wAxisState_;
-
-	QFlags<AMGCS2::AxisMovementStatus> movementStatuses_;
 };
 
 #endif // AMPIC887HEXAPODSTATE_H

@@ -3,10 +3,10 @@
 #include "AMGCS2GetCurrentPositionCommand.h"
 #include "AMGCS2GetTargetPositionCommand.h"
 #include "../AMGCS2Support.h"
-AMGCS2AsyncMoveCommand::AMGCS2AsyncMoveCommand(const QHash<AMGCS2::Axis, double>& axisPositions)
+AMGCS2AsyncMoveCommand::AMGCS2AsyncMoveCommand(const QHash<AMGCS2::Axis, double>& targetPositions)
 {
-	command_ = new AMGCS2MoveCommand(axisPositions);
-	axesToMove_ = axisPositions;
+	command_ = new AMGCS2MoveCommand(targetPositions);
+	targetPositions_ = targetPositions;
 }
 
 AMGCS2AsyncMoveCommand::~AMGCS2AsyncMoveCommand() {
@@ -22,14 +22,19 @@ QString AMGCS2AsyncMoveCommand::outputString() const
 	}
 }
 
+QHash<AMGCS2::Axis, double> AMGCS2AsyncMoveCommand::targetPositions() const
+{
+	return targetPositions_;
+}
+
 bool AMGCS2AsyncMoveCommand::validateArguments()
 {
-	if(axesToMove_.isEmpty()) {
+	if(targetPositions_.isEmpty()) {
 		lastError_ = "Cannot perform move. No axis positions provided";
 		return false;
 	}
 
-	foreach(AMGCS2::Axis currentAxis, axesToMove_.keys()) {
+	foreach(AMGCS2::Axis currentAxis, targetPositions_.keys()) {
 		if(currentAxis == AMGCS2::UnknownAxis) {
 			lastError_ = "Cannot move unknown axis";
 			return false;
@@ -54,7 +59,7 @@ bool AMGCS2AsyncMoveCommand::runImplementation()
 
 void AMGCS2AsyncMoveCommand::isFinishedImplementation()
 {
-	QList<AMGCS2::Axis> axesMoved = axesToMove_.keys();
+	QList<AMGCS2::Axis> axesMoved = targetPositions_.keys();
 
 	// Are we still moving?
 
@@ -134,7 +139,7 @@ void AMGCS2AsyncMoveCommand::isFinishedImplementation()
 	QHash<AMGCS2::Axis, double> finalPositions = currentPositionCommand.axisPositions();
 
 	foreach (AMGCS2::Axis currentAxis, axesMoved) {
-		double destination = axesToMove_.value(currentAxis);
+		double destination = targetPositions_.value(currentAxis);
 		double finalPosition = finalPositions.value(currentAxis);
 		double currentTargetPosition = currentTargetPositions.value(currentAxis);
 
@@ -158,5 +163,6 @@ void AMGCS2AsyncMoveCommand::isFinishedImplementation()
 
 	runningState_ = Succeeded;
 }
+
 
 

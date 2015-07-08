@@ -31,7 +31,10 @@ AMPIC887ConsoleApplication::AMPIC887ConsoleApplication(int argc, char *argv[]) :
 		connect(commandParser_, SIGNAL(status()), this, SLOT(onStatusCommandIssued()));
 		connect(commandParser_, SIGNAL(changeActiveController(QString)), this, SLOT(onActiveControllerChangeIssued(QString)));
 		connect(commandParser_, SIGNAL(otherCommandIssued(QString)), this, SLOT(onOtherCommandIssued(QString)));
-
+		connect(commandParser_, SIGNAL(moveCommandIssued(QHash<AMGCS2::Axis,double>)), controllerCollection_.activeController(), SLOT(move(QHash<AMGCS2::Axis,double>)));
+		connect(commandParser_, SIGNAL(moveRelativeCommandIssued(QHash<AMGCS2::Axis,double>)), controllerCollection_.activeController(), SLOT(moveRelative(QHash<AMGCS2::Axis,double>)));
+		connect(commandParser_, SIGNAL(motionStatusCommandIssued()), this, SLOT(onMotionStatusCommandIssued()));
+		connect(commandParser_, SIGNAL(referenceMoveCommandIssued(QList<AMGCS2::Axis>)), controllerCollection_.activeController(), SLOT(referenceMove(QList<AMGCS2::Axis>)));
 	} else {
 
 		// Startup failed. Print an error message, then quit the application.
@@ -88,6 +91,69 @@ void AMPIC887ConsoleApplication::onControllerOutputReceived(const QString &outpu
 void AMPIC887ConsoleApplication::onControllerErrorEncountered(const QString &errorMessage)
 {
 	consoleInputHandler_->writeLineToStandardError(errorMessage);
+}
+
+void AMPIC887ConsoleApplication::onMotionStatusCommandIssued()
+{
+	QFlags<AMGCS2::AxisMovementStatus> movementStatuses =
+			controllerCollection_.activeController()->movementStatus();
+
+	if(movementStatuses.testFlag(AMGCS2::UnknownAxisMovementStatus)) {
+		consoleInputHandler_->writeLineToStandardOutput("Axis movement status not known.");
+	}
+
+	QString movementStatusesText;
+	bool anyMovement = false;
+
+	if(movementStatuses.testFlag(AMGCS2::XAxisIsMoving)) {
+		anyMovement = true;
+		movementStatusesText.append("X is moving\n");
+	} else {
+		movementStatusesText.append("X is not moving\n");
+	}
+
+	if(movementStatuses.testFlag(AMGCS2::YAxisIsMoving)) {
+		anyMovement = true;
+		movementStatusesText.append("Y is moving\n");
+	} else {
+		movementStatusesText.append("Y is not moving\n");
+	}
+
+	if(movementStatuses.testFlag(AMGCS2::ZAxisIsMoving)) {
+		anyMovement = true;
+		movementStatusesText.append("Z is moving\n");
+	} else {
+		movementStatusesText.append("Z is not moving\n");
+	}
+
+	if(movementStatuses.testFlag(AMGCS2::UAxisIsMoving)) {
+		anyMovement = true;
+		movementStatusesText.append("U is moving\n");
+	} else {
+		movementStatusesText.append("U is not moving\n");
+	}
+
+	if(movementStatuses.testFlag(AMGCS2::VAxisIsMoving)) {
+		anyMovement = true;
+		movementStatusesText.append("V is moving\n");
+	} else {
+		movementStatusesText.append("V is not moving\n");
+	}
+
+	if(movementStatuses.testFlag(AMGCS2::WAxisIsMoving)) {
+		anyMovement = true;
+		movementStatusesText.append("W is moving\n");
+	} else {
+		movementStatusesText.append("W is not moving\n");
+	}
+
+	if(anyMovement)	{
+		consoleInputHandler_->writeLineToStandardOutput(movementStatusesText);
+	} else {
+		consoleInputHandler_->writeLineToStandardOutput("No axes movement");
+	}
+
+
 }
 
 bool AMPIC887ConsoleApplication::startup()

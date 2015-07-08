@@ -23,6 +23,11 @@ QString AMGCS2AsyncMoveRelativeCommand::outputString() const
 	return "Move Succeeded";
 }
 
+QHash<AMGCS2::Axis, double> AMGCS2AsyncMoveRelativeCommand::relativeTargetPositions() const
+{
+	return relativeAxisPositions_;
+}
+
 bool AMGCS2AsyncMoveRelativeCommand::validateArguments()
 {
 	if(relativeAxisPositions_.isEmpty()) {
@@ -181,3 +186,4 @@ void AMGCS2AsyncMoveRelativeCommand::isFinishedImplementation()
 
 	runningState_ = Succeeded;
 }
+

@@ -19,10 +19,10 @@ public:
 	/*!
 	  * Creates an instance of an asynchronous move command which will move the
 	  * provided axes to the provided positions.
-	  * \param axisPositions ~ A mapping of axes to the positions which the
+	  * \param targetPositions ~ A mapping of axes to the positions which the
 	  * command will move them towards.
 	  */
-	explicit AMGCS2AsyncMoveCommand(const QHash<AMGCS2::Axis, double>& axisPositions);
+	explicit AMGCS2AsyncMoveCommand(const QHash<AMGCS2::Axis, double>& targetPositions);
 
 	/*!
 	  * Fress the resources owned by the asynchronous move command.
@@ -35,6 +35,11 @@ public:
 	  */
 	virtual QString outputString() const;
 
+	/*!
+	  * The target positions which the command was initially instructed to move
+	  * the axes to.
+	  */
+	QHash<AMGCS2::Axis, double> targetPositions() const;
 protected:
 
 	/*!
@@ -58,7 +63,7 @@ protected:
 	virtual void isFinishedImplementation();
 
 	AMGCS2MoveCommand* command_;
-	QHash<AMGCS2::Axis, double> axesToMove_;
+	QHash<AMGCS2::Axis, double> targetPositions_;
 };
 
 #endif // AMGCS2ASYNCMOVECOMMAND_H

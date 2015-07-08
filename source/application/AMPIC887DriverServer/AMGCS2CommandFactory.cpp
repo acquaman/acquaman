@@ -54,15 +54,15 @@ AMGCS2Command * AMGCS2CommandFactory::buildCommand(const QString &commandString)
 {
 	if(commandString.startsWith("POS?")) {
 		return new AMGCS2GetCurrentPositionCommand(axesFromCommandString(commandString));
-	} else if(commandString.startsWith("MST?")) {
+	} else if(commandString.startsWith("OMST?")) {
 		return new AMGCS2GetMovingStatusCommand();
 	} else if (commandString.startsWith("STP")){
 		return new AMGCS2StopCommand();
 	} else if (commandString.startsWith("HLT")) {
 		return new AMGCS2HaltSmoothlyCommand(axesFromCommandString(commandString));
-	} else if(commandString.startsWith("MOV?")) {
+	} else if(commandString.startsWith("OMOV?")) {
 		return new AMGCS2GetTargetPositionCommand(axesFromCommandString(commandString));
-	} else if(commandString.startsWith("MOV")) {
+	} else if(commandString.startsWith("OMOV")) {
 		return new AMGCS2AsyncMoveCommand(axesDoublePairFromCommandString(commandString));
 	} else if(commandString.startsWith("RDY?")) {
 		return new AMGCS2GetControllerReadyStatusCommand();
@@ -86,9 +86,9 @@ AMGCS2Command * AMGCS2CommandFactory::buildCommand(const QString &commandString)
 		return buildGetRecordTriggerSourceCommand(commandArguments(commandString));
 	} else if(commandString.startsWith("DRT")) {
 		return buildSetRecordTriggerSourceCommand(commandArguments(commandString));
-	} else if (commandString.startsWith("FRF?")){
+	} else if (commandString.startsWith("OFRF?")){
 		return new AMGCS2GetReferenceResultCommand(axesFromCommandString(commandString));
-	} else if(commandString.startsWith("FRF")) {
+	} else if(commandString.startsWith("OFRF")) {
 		return new AMGCS2AsyncReferenceMoveCommand(axesFromCommandString(commandString));
 	} else if(commandString.startsWith("HDR?")) {
 		return new AMGCS2GetRecorderOptionsCommand();
@@ -96,7 +96,7 @@ AMGCS2Command * AMGCS2CommandFactory::buildCommand(const QString &commandString)
 		return new AMGCS2GetAvailableParametersCommand();
 	} else if(commandString.startsWith("LIM?")) {
 		return new AMGCS2GetLimitSwitchStatusCommand(axesFromCommandString(commandString));
-	} else if(commandString.startsWith("MVR")) {
+	} else if(commandString.startsWith("OMVR")) {
 		return new AMGCS2AsyncMoveRelativeCommand(axesDoublePairFromCommandString(commandString));
 	} else if(commandString.startsWith("NLM?")) {
 		return new AMGCS2GetLowSoftLimitsCommand(axesFromCommandString(commandString));

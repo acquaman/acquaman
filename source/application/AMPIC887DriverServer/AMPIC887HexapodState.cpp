@@ -146,13 +146,3 @@ bool AMPIC887HexapodState::areAllAxesReferenced() const
 			wAxisState_->isReferenced();
 }
 
-QFlags<AMGCS2::AxisMovementStatus> AMPIC887HexapodState::movementStatuses() const
-{
-	return movementStatuses_;
-}
-
-void AMPIC887HexapodState::setMovementStatuses(const QFlags<AMGCS2::AxisMovementStatus> &movementStatuses)
-{
-	movementStatuses_ = movementStatuses;
-}
-

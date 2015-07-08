@@ -13,19 +13,25 @@ void AMGCS2AsyncCommand::run()
 	startTime_ = QTime::currentTime();
 	timerId_ = startTimer(TIMER_CHECK_INTERVAL_MS);
 
+	// We make a switch to the running state here, even if the command fails to
+	// eventually be run on the controller (eg. if the valiation of arguments fails)
+	// This ensures that no async command can fail or succeed without being started.
+	runningState_ = Running;
+	emit started(this);
+
 	if(controller_->id() < 0) {
 		lastError_ = QString("Could not run command: Connection not yet established with controller");
 		runningState_ = Failed;
 		emit failed(this);
-	} else if(validateArguments()) {
-		if(runImplementation()) {
-			runningState_ = Running;
-			emit started(this);
-		}
-
 	} else if(controller_->isBusy()) {
 		lastError_ = QString("Could not run command: Controller is busy");
 		runningState_ = Failed;
+		emit failed(this);
+	} else if(validateArguments()) {
+		if(!runImplementation()) {
+			runningState_ = Failed;
+			emit failed(this);
+		}
 	} else {
 		lastError_ = QString("Could not run command: Validation of arguments failed with message - '%1'").arg(lastError_);
 		runningState_ = Failed;

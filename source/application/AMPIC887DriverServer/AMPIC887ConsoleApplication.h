@@ -80,6 +80,11 @@ protected slots:
 	  */
 	void onControllerErrorEncountered(const QString& errorMessage);
 
+	/*!
+	  * Handles signals indicating that a motion status command has been issued.
+	  */
+	void onMotionStatusCommandIssued();
+
 protected:
 	/*!
 	  * Runs the initialization procedure for the application.

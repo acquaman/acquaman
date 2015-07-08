@@ -34,6 +34,10 @@ public:
 	  */
 	virtual QString outputString() const;
 
+	/*!
+	  * The relative target positions which were issued to the command on contruction.
+	  */
+	QHash<AMGCS2::Axis, double> relativeTargetPositions() const;
 protected:
 	/*!
 	  * Ensures that the arguments with which the command was constructed are valid:
