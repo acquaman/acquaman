@@ -219,25 +219,25 @@ void BioXASMainAppController::applyCurrentSettings()
 
 void BioXASMainAppController::onCurrentScanActionStartedImplementation(AMScanAction *action)
 {
-	qDebug() << "\n";
+//	qDebug() << "\n";
 
-	if (action) {
-		// If the scan was a mono energy calibration scan, we want to open the calibration dialog when scan is finished.
-//		AMScanActionInfo *actionInfo = qobject_cast<AMScanActionInfo*>(action->info());
-//		BioXASMainXASScanConfiguration *configuration = qobject_cast<BioXASMainXASScanConfiguration*>(actionInfo->configuration());
+//	if (action) {
+//		// If the scan was a mono energy calibration scan, we want to open the calibration dialog when scan is finished.
+////		AMScanActionInfo *actionInfo = qobject_cast<AMScanActionInfo*>(action->info());
+////		BioXASMainXASScanConfiguration *configuration = qobject_cast<BioXASMainXASScanConfiguration*>(actionInfo->configuration());
 
-		qDebug() << "\tCreating calibration view.";
+//		qDebug() << "\tCreating calibration view.";
 
-		BioXASSSRLMonochromatorEnergyControlCalibrationController *monoEnergyCalibrationController = new BioXASSSRLMonochromatorEnergyControlCalibrationController(BioXASMainBeamline::bioXAS()->mono()->energyControl(), action->controller()->scan(), QStringList() << "I0Detector" << "DerivAbsorbance");
-		BioXASSSRLMonochromatorEnergyControlCalibrationView *monoEnergyCalibrationView_ = new BioXASSSRLMonochromatorEnergyControlCalibrationView(monoEnergyCalibrationController);
-		monoEnergyCalibrationView_->show();
-		monoEnergyCalibrationView_->raise();
+//		BioXASSSRLMonochromatorEnergyControlCalibrationController *monoEnergyCalibrationController = new BioXASSSRLMonochromatorEnergyControlCalibrationController(BioXASMainBeamline::bioXAS()->mono()->energyControl(), action->controller()->scan(), QStringList() << "I0Detector" << "DerivAbsorbance");
+//		BioXASSSRLMonochromatorEnergyControlCalibrationView *monoEnergyCalibrationView_ = new BioXASSSRLMonochromatorEnergyControlCalibrationView(monoEnergyCalibrationController);
+//		monoEnergyCalibrationView_->show();
+//		monoEnergyCalibrationView_->raise();
 
-		QPoint mainWindowCenter = mw_->mapToGlobal(mw_->rect().center());
-		monoEnergyCalibrationView_->move(mainWindowCenter.x() + mw_->width()/2, mainWindowCenter.y() + mw_->height()/2);
-	}
+//		QPoint mainWindowCenter = mw_->mapToGlobal(mw_->rect().center());
+//		monoEnergyCalibrationView_->move(mainWindowCenter.x() + mw_->width()/2, mainWindowCenter.y() + mw_->height()/2);
+//	}
 
-	qDebug() << "\n";
+//	qDebug() << "\n";
 }
 
 void BioXASMainAppController::onCurrentScanActionFinishedImplementation(AMScanAction *action)

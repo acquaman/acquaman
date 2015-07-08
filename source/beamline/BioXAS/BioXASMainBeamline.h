@@ -67,10 +67,18 @@ public:
 	/// Returns the current connected state.
 	virtual bool isConnected() const;
 
-	/// Returns the beamline m2 mirror.
-	virtual BioXASM2Mirror *m2Mirror() const { return m2Mirror_; }
+	/// Returns the endstation safety shutter.
+	virtual CLSBiStateControl* safetyShutterES() const { return safetyShutterES_; }
+
+	/// Returns the M1 mirror.
+	virtual BioXASM1Mirror* m1Mirror() const { return m1Mirror_; }
+
 	/// Returns the beamline monochromator.
 	virtual BioXASMainMonochromator *mono() const { return mono_; }
+
+	/// Returns the beamline m2 mirror.
+	virtual BioXASM2Mirror *m2Mirror() const { return m2Mirror_; }
+
 	/// Returns the scaler.
 	virtual CLSSIS3820Scaler* scaler() const { return scaler_; }
 
@@ -82,11 +90,11 @@ public:
 	CLSKeithley428* i2Keithley() const { return i2Keithley_; }
 
 	/// Returns the I0 scaler channel detector.
-	CLSBasicScalerChannelDetector* i0Detector() const { return i0Detector_; }
+	virtual CLSBasicScalerChannelDetector* i0Detector() const { return i0Detector_; }
 	/// Returns the I1 scaler channel detector.
-	CLSBasicScalerChannelDetector* i1Detector() const { return i1Detector_; }
+	virtual CLSBasicScalerChannelDetector* i1Detector() const { return i1Detector_; }
 	/// Returns the I2 scaler channel detector.
-	CLSBasicScalerChannelDetector* i2Detector() const { return i2Detector_; }
+	virtual CLSBasicScalerChannelDetector* i2Detector() const { return i2Detector_; }
 	/// Returns the bragg encoder-based energy setpoint detector.
 	AMBasicControlDetectorEmulator* encoderEnergySetpointDetector() const { return encoderEnergySetpointDetector_; }
 	/// Returns the bragg encoder-based energy feedback detector.
@@ -94,7 +102,7 @@ public:
 	/// Returns the bragg step-based energy feedback detector.
 	AMBasicControlDetectorEmulator* stepEnergyFeedbackDetector() const { return stepEnergyFeedbackDetector_; }
 	/// Returns the scaler dwell time detector.
-	AMBasicControlDetectorEmulator* dwellTimeDetector() const { return dwellTimeDetector_; }
+	virtual AMBasicControlDetectorEmulator* scalerDwellTimeDetector() const { return dwellTimeDetector_; }
 	/// Returns the bragg motor detector.
 	AMBasicControlDetectorEmulator* braggDetector() const { return braggDetector_; }
 	/// Returns the bragg motor encoder feedback detector.
@@ -131,13 +139,21 @@ protected:
 	BioXASMainBeamline();
 
 protected:
-	/// BioXAS main beamline motors
-	/// BioXAS filter motors
+	/// The endstation safety shutter.
+	CLSBiStateControl *safetyShutterES_;
+
+	/// The M1 mirror.
+	BioXASMainM1Mirror *m1Mirror_;
+
+	/// Carbon filter farm motors
 	CLSMAXvMotor *carbonFilterFarm1_;
 	CLSMAXvMotor *carbonFilterFarm2_;
 
 	// Monochromator
 	BioXASMainMonochromator *mono_;
+
+	/// The M2 mirror.
+	BioXASMainM2Mirror *m2Mirror_;
 
 	// Detectors
 	CLSBasicScalerChannelDetector *i0Detector_;

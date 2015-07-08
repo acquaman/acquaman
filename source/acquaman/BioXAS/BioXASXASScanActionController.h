@@ -3,7 +3,7 @@
 
 #include "acquaman/AMStepScanActionController.h"
 
-#define BIOXASXASSCANACTIONCONTROLLER_DETECTOR_NOT_FOUND 6638201
+#define BIOXASXASSCANACTIONCONTROLLER_VORTEX_DETECTOR_NOT_FOUND 6638201
 #define BIOXASXASSCANACTIONCONTROLLER_SCALER_NOT_FOUND 6638202
 
 class BioXASXASScanConfiguration;
@@ -24,7 +24,7 @@ protected slots:
 
 protected:
 	/// Provides details for the beamline current settings.
-	QString beamlineSettings();
+	virtual QString beamlineSettings();
 
 	/// Reimplemented to provide actions that will setup the beamine for optimized operation of the XAS scan.
 	virtual AMAction3* createInitializationActions();

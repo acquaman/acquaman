@@ -155,8 +155,8 @@ void BioXASMainBeamline::setupSampleStage()
 void BioXASMainBeamline::setupComponents()
 {
 	// The Main endstation safety shutter.
-	safetyShutterDownstream_ = new  CLSBiStateControl("MainShutter", "MainShutter", "SSH1607-5-I21-01:state", "SSH1607-5-I21-01:opr:open", "SSH1607-5-I21-01:opr:close", new AMControlStatusCheckerDefault(2), this);
-	connect( safetyShutterDownstream_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+	safetyShutterES_ = new  CLSBiStateControl("MainShutter", "MainShutter", "SSH1607-5-I21-01:state", "SSH1607-5-I21-01:opr:open", "SSH1607-5-I21-01:opr:close", new AMControlStatusCheckerDefault(2), this);
+	connect( safetyShutterES_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
 	// M1 Mirror.
 	m1Mirror_ = new BioXASMainM1Mirror(this);

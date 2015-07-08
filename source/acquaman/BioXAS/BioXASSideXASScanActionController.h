@@ -21,32 +21,21 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef BIOXASXASSCANACTIONCONTROLLER_H
 #define BIOXASXASSCANACTIONCONTROLLER_H
 
-#include "acquaman/AMStepScanActionController.h"
+#include "acquaman/BioXAS/BioXASXASScanActionController.h"
 
 class BioXASSideXASScanConfiguration;
 
-class BioXASSideXASScanActionController : public AMStepScanActionController
+class BioXASSideXASScanActionController : public BioXASXASScanActionController
 {
 	Q_OBJECT
 
 public:
-	/// Constructor takes a BioXASXAS scan configuration
+	/// Constructor.
 	explicit BioXASSideXASScanActionController(BioXASSideXASScanConfiguration *configuration, QObject *parent = 0);
-
 	/// Destructor
 	virtual ~BioXASSideXASScanActionController();
 
-signals:
-
-public slots:
-
-protected slots:
-	/// Helper slot that handles the progress update.
-	void onScanTimerUpdate();
-
 protected:
-	/// Provides a string of beamline settings for the scan notes.
-	QString beamlineSettings();
 	/// Reimplemented to provide actions that will setupd the beamine for optimzed operation of the XAS scan.
 	AMAction3* createInitializationActions();
 	/// Reimplemented to put the beamline in a good state after a scan has been completed.
@@ -54,21 +43,10 @@ protected:
 
 	/// Sets the scan axis and adds anything extra.
 	virtual void buildScanControllerImplementation();
-	/// Reimplemented for EXAFS capabilities.  Creates the scan assembler that builds all the actions used to run the scan.
-	virtual void createScanAssembler();
-
 
 protected:
-	/// The BioXAS-specific scan configuration.
+	/// The Side-specific BioXAS XAS scan configuration.
 	BioXASSideXASScanConfiguration *configuration_;
-
-	/// Timer used for determining the elapsed time for a scan.
-	QTimer elapsedTime_;
-	/// Number of seconds since the timer started.
-	double secondsElapsed_;
-	/// Number of seconds total for the scan to complete (estimate).
-	double secondsTotal_;
-
 };
 
 #endif // BIOXASSIDEXASSCANACTIONCONTROLLER_H

@@ -21,9 +21,6 @@ protected:
 	/// Reimplemented to put the beamline in a good state after a scan has been completed.
 	virtual AMAction3* createCleanupActions();
 
-	/// Sets the scan axis and adds anything extra.
-	virtual void buildScanControllerImplementation();
-
 protected:
 	/// The BioXAS-specific scan configuration.
     BioXASMainXASScanConfiguration *configuration_;
