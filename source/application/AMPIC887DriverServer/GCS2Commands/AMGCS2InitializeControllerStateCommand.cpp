@@ -2,6 +2,7 @@
 
 #include "AMGCS2GetMovingStatusCommand.h"
 #include "AMGCS2GetSystemVelocityCommand.h"
+#include "AMGCS2GetCycleTimeCommand.h"
 #include "AMGCS2GetServoModeCommand.h"
 #include "AMGCS2GetCurrentPositionCommand.h"
 #include "AMGCS2GetReferenceResultCommand.h"
@@ -15,6 +16,7 @@
 #include "AMGCS2GetPivotPointCommand.h"
 #include "AMGCS2GetRecordTriggerSourceCommand.h"
 #include "AMGCS2GetDataRecorderConfigurationCommand.h"
+
 
 AMGCS2InitializeControllerStateCommand::AMGCS2InitializeControllerStateCommand(AMPIC887ControllerState* controllerState)
 {
@@ -87,6 +89,18 @@ bool AMGCS2InitializeControllerStateCommand::runImplementation()
 	// Servo mode applies consistently across all axes, so we only need the value
 	// for X.
 	bool servoMode = servoModeCommand.servoModeStatuses().value(AMGCS2::XAxis);
+
+	// Cycle Time
+	AMGCS2GetCycleTimeCommand cycleTimeCommand;
+	cycleTimeCommand.setController(controller_);
+	cycleTimeCommand.run();
+
+	if(cycleTimeCommand.runningState() != Succeeded) {
+		lastError_ = "Could not obtain cycle time of the controller";
+		return false;
+	}
+
+	double cycleTime = cycleTimeCommand.cycleTime();
 
 	// Axis Level Statuses
 	//////////////////////
@@ -268,7 +282,7 @@ bool AMGCS2InitializeControllerStateCommand::runImplementation()
 	// Initialize Hexapod data
 	///////////////////////////
 
-	controllerState_->hexapodState()->initialize(servoMode, systemVelocity);
+	controllerState_->hexapodState()->initialize(servoMode, cycleTime, systemVelocity);
 
 	// Initialize Hexapod Axes data
 	////////////////////////////////

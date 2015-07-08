@@ -82,6 +82,16 @@ void AMPIC887HexapodState::setIsInServoMode(bool isInServoMode)
 	isInServoMode_ = isInServoMode;
 }
 
+double AMPIC887HexapodState::cycleTime() const
+{
+	return cycleTime_;
+}
+
+void AMPIC887HexapodState::setCycleTime(double cycleTime)
+{
+	cycleTime_ = cycleTime;
+}
+
 bool AMPIC887HexapodState::isAllInitialized() const
 {
 	return isInitialized_ &&
@@ -93,9 +103,10 @@ bool AMPIC887HexapodState::isAllInitialized() const
 			wAxisState_->isInitialized();
 }
 
-void AMPIC887HexapodState::initialize(bool isInServoMode, double velocity)
+void AMPIC887HexapodState::initialize(bool isInServoMode, double cycleTime, double velocity)
 {
 	isInServoMode_ = isInServoMode;
+	cycleTime_ = cycleTime;
 	velocity_ = velocity;
 
 	isInitialized_ = true;
@@ -124,3 +135,24 @@ QString AMPIC887HexapodState::statusString() const
 
 	return stateString;
 }
+
+bool AMPIC887HexapodState::areAllAxesReferenced() const
+{
+	return xAxisState_->isReferenced() &&
+			yAxisState_->isReferenced() &&
+			zAxisState_->isReferenced() &&
+			uAxisState_->isReferenced() &&
+			vAxisState_->isReferenced() &&
+			wAxisState_->isReferenced();
+}
+
+QFlags<AMGCS2::AxisMovementStatus> AMPIC887HexapodState::movementStatuses() const
+{
+	return movementStatuses_;
+}
+
+void AMPIC887HexapodState::setMovementStatuses(const QFlags<AMGCS2::AxisMovementStatus> &movementStatuses)
+{
+	movementStatuses_ = movementStatuses;
+}
+

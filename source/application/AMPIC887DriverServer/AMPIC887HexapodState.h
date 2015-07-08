@@ -4,6 +4,7 @@
 #include "AMPIC887AxisState.h"
 #include "AMGCS2.h"
 #include <QString>
+#include <QFlags>
 /*!
   * A class which holds the state of the hexapod being controlled by a PI C887.11
   * controller.
@@ -73,6 +74,17 @@ public:
 	void setIsInServoMode(bool isInServoMode);
 
 	/*!
+	  * The cycle time value stored within this hexapod state.
+	  */
+	double cycleTime() const;
+
+	/*!
+	  * Sets the cycle time value to store.
+	  * \param cycleTime ~ The cycle time value to store.
+	  */
+	void setCycleTime(double cycleTime);
+
+	/*!
 	  * The value of motion velocity stored within this hexapod state.
 	  */
 	double velocity() const;
@@ -95,16 +107,38 @@ public:
 	  * NOTE: This does not initialize the data for the contained axis states. In
 	  * order for isAllInitialized() to return true, all the axis states must also
 	  * be initialized with data.
+	  * \param isInServoMode ~ Whether the axes of the hexapod are in servo mode.
+	  * \param cycleTime ~ The cycle time for the hexapod.
+	  * \param velocity ~ The current axis velocity.
 	  */
-	void initialize(bool isInServoMode, double velocity);
+	void initialize(bool isInServoMode, double cycleTime, double velocity);
 
 	/*!
 	  * A status string displaying the current data stored in this hexapod state.
 	  */
 	QString statusString() const;
+
+	/*!
+	  * Whether the referenced state of all the axes within this state show their
+	  * isReferenced state as true.
+	  */
+	bool areAllAxesReferenced() const;
+
+	/*!
+	  * The current movement status of the hexapod.
+	  */
+	QFlags<AMGCS2::AxisMovementStatus> movementStatuses() const;
+
+	/*!
+	  * Sets the current movment status stored iwhin this state.
+	  * \param movementStatuses ~ The new movement statuses to store within this
+	  * state.
+	  */
+	void setMovementStatuses(const QFlags<AMGCS2::AxisMovementStatus>& movementStatuses);
 protected:
 	bool isInitialized_;
 	bool isInServoMode_;
+	double cycleTime_;
 	double velocity_;
 
 	AMPIC887AxisState* xAxisState_;
@@ -113,6 +147,8 @@ protected:
 	AMPIC887AxisState* uAxisState_;
 	AMPIC887AxisState* vAxisState_;
 	AMPIC887AxisState* wAxisState_;
+
+	QFlags<AMGCS2::AxisMovementStatus> movementStatuses_;
 };
 
 #endif // AMPIC887HEXAPODSTATE_H
