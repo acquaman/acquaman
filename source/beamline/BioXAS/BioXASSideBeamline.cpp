@@ -85,102 +85,44 @@ bool BioXASSideBeamline::isConnected() const
 	return isConnected;
 }
 
-//bool BioXASSideBeamline::openPhotonShutter1()
-//{
-//	if (ssh1_->isOpen() || (ssh1_->isClosed() && psh2_->isClosed())) {
-//		psh1_->open();
-//		return true;
-//	}
-
-//	return false;
-//}
-
-//bool BioXASSideBeamline::closePhotonShutter1()
-//{
-//	if (psh1_->isOpen()) {
-//		psh1_->close();
-//		return true;
-//	}
-
-//	return false;
-//}
-
-//bool BioXASSideBeamline::openPhotonShutter2()
-//{
-//	if (ssh1_->isOpen() || (ssh1_->isClosed() && psh1_->isClosed())) {
-//		psh2_->open();
-//		return true;
-//	}
-
-//	return false;
-//}
-
-//bool BioXASSideBeamline::closePhotonShutter2()
-//{
-//	if (psh2_->isOpen()) {
-//		psh2_->close();
-//		return true;
-//	}
-
-//	return false;
-//}
-
-//bool BioXASSideBeamline::openSafetyShutter1()
-//{
-//	if (ssh1_->isClosed()) {
-//		ssh1_->open();
-//		return true;
-//	}
-
-//	return false;
-//}
-
-//bool BioXASSideBeamline::closeSafetyShutter1()
-//{
-//	if ((psh1_->isOpen() && psh2_->isClosed()) || (psh1_->isClosed() && psh2_->isOpen())) {
-//		ssh1_->close();
-//		return true;
-//	}
-
-//	return false;
-//}
-
-//bool BioXASSideBeamline::openSafetyShutter2()
-//{
-//	if (sshSide1_->isClosed()) {
-//		sshSide1_->open();
-//		return true;
-//	}
-
-//	return false;
-//}
-
-//bool BioXASSideBeamline::closeSafetyShutter2()
-//{
-//	if (sshSide1_->isOpen()) {
-//		sshSide1_->close();
-//		return true;
-//	}
-
-//	return false;
-//}
-
-bool BioXASSideBeamline::allValvesOpen() const
+bool BioXASSideBeamline::beamOff() const
 {
-	if (vvr1_->isOpen() && vvr2_->isOpen() && vvr3_->isOpen() && vvr4_->isOpen() && vvr5_->isOpen()
-			&& vvrSide1_->isOpen() && vvrSide1_->isOpen() && vvrSide2_->isOpen() && vvrSide3_->isOpen() && vvrSide4_->isOpen() && vvrSide5_->isOpen() && vvrSide6_->isOpen())
-		return true;
+	bool result = false;
 
-	return false;
+	if (safetyShutterES_ && safetyShutterES_->isConnected())
+		result = safetyShutterES_->isClosed();
+
+	return result;
 }
 
-bool BioXASSideBeamline::allValvesClosed() const
+bool BioXASSideBeamline::beamOn() const
 {
-	if (vvr1_->isClosed() && vvr2_->isClosed() && vvr3_->isClosed() && vvr4_->isClosed() && vvr5_->isClosed()
-			&& vvrSide1_->isClosed() && vvrSide1_->isClosed() && vvrSide2_->isClosed() && vvrSide3_->isClosed() && vvrSide4_->isClosed() && vvrSide5_->isClosed() && vvrSide6_->isClosed())
-		return true;
+	bool result = false;
 
-	return false;
+	if (safetyShutterES_ && safetyShutterES_->isConnected())
+		result = safetyShutterES_->isOpen();
+
+	return result;
+}
+
+AMAction3* BioXASSideBeamline::createTurnOffBeamActions()
+{
+	AMAction3 *result = 0;
+
+	if (safetyShutterES_ && safetyShutterES_->isConnected())
+		result = AMActionSupport::buildControlMoveAction(safetyShutterES_, CLSBiStateControl::Closed);
+
+	return result;
+}
+
+AMAction3* BioXASSideBeamline::createTurnOnBeamActions()
+{
+	AMAction3 *result = 0;
+
+	if (safetyShutterES_ && safetyShutterES_->isConnected())
+		result = AMActionSupport::buildControlMoveAction(safetyShutterES_, CLSBiStateControl::Open);
+
+	return result;
 }
 
 QList<AMControl *> BioXASSideBeamline::getMotorsByType(BioXASBeamlineDef::BioXASMotorType category) const

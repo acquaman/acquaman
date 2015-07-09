@@ -50,17 +50,10 @@ public:
 	/// Returns the (cached) current connected state.
 	virtual bool connected() const { return connected_; }
 
-	/// Returns the current 'beam off' state, true if the downstream safety shutter is closed. False otherwise.
+	/// Returns the current 'beam off' state, true if all front end photon and safety shutters are closed. False otherwise.
 	virtual bool beamOff() const;
-	/// Returns the current 'beam on' state, true if the downstream safety shutter is open. False otherwise.
+	/// Returns the current 'beam on' state, true if the front end photon and safety shutters are open. False otherwise.
 	virtual bool beamOn() const;
-	/// Returns the current 'beam available' state, true if all shutters are open. False otherwise.
-	virtual bool beamAvailable() const;
-
-	/// Returns a newly created action that turns off beam by closing the endstation (downstream) safety shutter. Returns 0 if not connected.
-	virtual AMAction3* createTurnOffBeamActions();
-	/// Returns a newly created action that turns on beam by opening the endstation (upstream) safety shutter. Returns 0 if not connected.
-	virtual AMAction3* createTurnOnBeamActions();
 
 	/// Returns the front end upstream photon shutter.
 	AMControl* photonShutterFEUpstream() const { return photonShutterFEUpstream_; }

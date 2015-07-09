@@ -35,6 +35,9 @@ bool BioXASBeamline::beamOff() const
 {
 	bool result = false;
 
+	if (isConnected())
+		result = (photonShutterFEUpstream_->isClosed() && photonShutterFEDownstream_->isClosed() && safetyShutterFE_->isClosed());
+
 	return result;
 }
 
@@ -42,50 +45,10 @@ bool BioXASBeamline::beamOn() const
 {
 	bool result = false;
 
-	return result;
-}
-
-bool BioXASBeamline::beamAvailable() const
-{
-	bool result = false;
+	if (isConnected())
+		result = (photonShutterFEUpstream_->isOpen() && photonShutterFEDownstream_->isOpen() && safetyShutterFE_->isOpen());
 
 	return result;
-}
-
-AMAction3* BioXASBeamline::createTurnOffBeamActions()
-{
-	AMAction3 *action = 0;
-
-//	if (safetyShutterES_ && safetyShutterES_->isConnected()) {
-
-//		// For bi-state controls, the move setpoint for 'close' is 0 and the desired state is 4.
-
-//		AMListAction3 *beamOff = new AMListAction3(new AMListActionInfo3("Turn off beam", "Turn off beam"), AMListAction3::Sequential);
-//		beamOff->addSubAction(AMActionSupport::buildControlMoveAction(safetyShutterES_, 0));
-//		beamOff->addSubAction(AMActionSupport::buildControlWaitAction(safetyShutterES_, 4, 5));
-
-//		action = beamOff;
-//	}
-
-	return action;
-}
-
-AMAction3* BioXASBeamline::createTurnOnBeamActions()
-{
-	AMAction3 *action = 0;
-
-//	if (safetyShutterES_ && safetyShutterES_->isConnected()) {
-
-//		// For bi-state controls, the move setpoint for 'open' is 1 and the desired state is 1.
-
-//		AMListAction3 *beamOn = new AMListAction3(new AMListActionInfo3("Turn off beam", "Turn off beam"), AMListAction3::Sequential);
-//		beamOn->addSubAction(AMActionSupport::buildControlMoveAction(safetyShutterES_, 1));
-//		beamOn->addSubAction(AMActionSupport::buildControlWaitAction(safetyShutterES_, 1, 5));
-
-//		action = beamOn;
-//	}
-
-	return action;
 }
 
 void BioXASBeamline::setConnected(bool isConnected)

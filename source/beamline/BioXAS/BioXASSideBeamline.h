@@ -72,6 +72,16 @@ public:
 	/// Returns the current connected state.
 	virtual bool isConnected() const;
 
+	/// Returns the current 'beam off' state, true if the endstation safety shutter is closed. False otherwise.
+	virtual bool beamOff() const;
+	/// Returns the current 'beam on' state, true if the endstation safety shutter is open. False otherwise.
+	virtual bool beamOn() const;
+
+	/// Returns a newly created action that turns off beam by closing the endstation (downstream) safety shutter. Returns 0 if not connected.
+	virtual AMAction3* createTurnOffBeamActions();
+	/// Returns a newly created action that turns on beam by opening the endstation (upstream) safety shutter. Returns 0 if not connected.
+	virtual AMAction3* createTurnOnBeamActions();
+
 	/// Returns the m1 mirror.
 	virtual BioXASM1Mirror* m1Mirror() const { return m1Mirror_; }
 	/// Returns the carbon filter farm.
@@ -109,9 +119,6 @@ public:
 	AMControl *vvrSide4() const { return vvrSide4_; }
 	AMControl *vvrSide5() const { return vvrSide5_; }
 	AMControl *vvrSide6() const { return vvrSide6_; }
-
-	bool allValvesOpen() const;
-	bool allValvesClosed() const;
 
 	// Ion pumps.
 
