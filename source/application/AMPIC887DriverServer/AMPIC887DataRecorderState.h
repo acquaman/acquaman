@@ -36,8 +36,11 @@ public:
 	  * NOTE: Data for the individual data tables will require initialization before
 	  * isAllInitialized() will return true.
 	  * \param recordTrigger ~ The trigger to initialize the state with.
+	  * \param recordOptionsString ~ A string containing the record options to
+	  * initialize the state with.
 	  */
-	void initialize(AMGCS2::DataRecordTrigger recordTrigger);
+	void initialize(AMGCS2::DataRecordTrigger recordTrigger,
+					const QString& recordOptionsString);
 
 	/*!
 	  * The current trigger setting for the recorder stored within this state.
@@ -60,6 +63,11 @@ public:
 	AMPIC887DataRecorderTableState* stateAt(int tableId);
 
 	/*!
+	  * The record options string stored within this state.
+	  */
+	QString recordOptionsString() const;
+
+	/*!
 	  * A string describing the status of the data recorder and all its contained
 	  * tables.
 	  */
@@ -67,7 +75,9 @@ public:
 protected:
 
 	bool isInitialized_;
+
 	AMGCS2::DataRecordTrigger recordTrigger_;
+	QString recordOptionsString_;
 	QList<AMPIC887DataRecorderTableState*> tableStates_;
 };
 

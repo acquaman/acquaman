@@ -92,6 +92,16 @@ void AMPIC887HexapodState::setCycleTime(double cycleTime)
 	cycleTime_ = cycleTime;
 }
 
+double AMPIC887HexapodState::velocity() const
+{
+	return velocity_;
+}
+
+void AMPIC887HexapodState::setVelocity(double velocity)
+{
+	velocity_ = velocity;
+}
+
 bool AMPIC887HexapodState::isAllInitialized() const
 {
 	return isInitialized_ &&
@@ -145,4 +155,3 @@ bool AMPIC887HexapodState::areAllAxesReferenced() const
 			vAxisState_->isReferenced() &&
 			wAxisState_->isReferenced();
 }
-

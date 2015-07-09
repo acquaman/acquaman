@@ -88,6 +88,8 @@ void AMPIC887ConsoleCommandParser::interpretCommandImplementation(const QString 
 		emit moveRelativeCommandIssued(axesDoublePairFromCommandString(command));
 	} else if(command.startsWith("FRF")) {
 		emit referenceMoveCommandIssued(axesFromCommandString(command));
+	} else if(command.startsWith("HPA?")) {
+		emit availableParametersCommandIssued();
 	} else {
 
 		emit otherCommandIssued(command);

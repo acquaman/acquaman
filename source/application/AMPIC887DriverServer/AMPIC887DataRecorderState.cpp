@@ -40,9 +40,11 @@ bool AMPIC887DataRecorderState::isAllInitialized() const
 			tableStates_.at(15)->isInitialized();
 }
 
-void AMPIC887DataRecorderState::initialize(AMGCS2::DataRecordTrigger recordTrigger)
+void AMPIC887DataRecorderState::initialize(AMGCS2::DataRecordTrigger recordTrigger,
+										   const QString& recordOptionsString)
 {
 	recordTrigger_ = recordTrigger;
+	recordOptionsString_ = recordOptionsString;
 	isInitialized_ = true;
 }
 
@@ -61,6 +63,11 @@ AMPIC887DataRecorderTableState * AMPIC887DataRecorderState::stateAt(int index)
 	return tableStates_.at(index - 1);
 }
 
+QString AMPIC887DataRecorderState::recordOptionsString() const
+{
+	return recordOptionsString_;
+}
+
 QString AMPIC887DataRecorderState::statusString() const
 {
 	QString stateString = QString("Data Recorder:\nRecord Trigger: %1\n\nTables:\n")
@@ -73,3 +80,5 @@ QString AMPIC887DataRecorderState::statusString() const
 
 	return stateString;
 }
+
+

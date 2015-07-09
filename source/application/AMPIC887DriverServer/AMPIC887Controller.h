@@ -65,6 +65,12 @@ public:
 	bool connectionEstablished() const;
 
 	/*!
+	  * Whether the data has been initialized for this controller. That is, a
+	  * connection has been made and the starting state of the controller loaded.
+	  */
+	bool isInitialized() const;
+
+	/*!
 	  * The name by which the controller is known.
 	  */
 	QString name() const;
@@ -102,9 +108,184 @@ public:
 	  * The current movement status of the controller's hexapod.
 	  */
 	QFlags<AMGCS2::AxisMovementStatus> movementStatus() const;
+
+	/*!
+	  * Whether any axis of the hexapod is currently in motion.
+	  */
+	bool isMoving() const;
+
+	/*!
+	  * A string containing all the parameters which can be used to alter the
+	  * controller's behaviour.
+	  */
+	QString availableParametersString() const;
+
+	/*!
+	  * The current command level of the controller.
+	  * \returns The command level which the controller is in if the controller
+	  * has been initialized, UnknownCommandLevel otherwise.
+	  */
+	AMGCS2::ControllerCommandLevel commandLevel() const;
+
+	/*!
+	  * The current position of the provided axis.
+	  * \returns The current position of axis if the controller has been initialized,
+	  * 0 otherwise.
+	  */
+	double currentPosition(AMGCS2::Axis axis);
+
+	/*!
+	  * The cycle time of the controller.
+	  * \returns The controller's cycle time if the controller has been initialized,
+	  * 0 otherwise.
+	  */
+	double cycleTime() const;
+
+	/*!
+	  * The record option of the data table with the provided id.
+	  * \returns The data table's record option if the controller has been initialized
+	  * and the tableId is valid, UnknownRecordOption otherwise.
+	  */
+	AMGCS2::DataRecordOption recordOption(int tableId) const;
+
+	/*!
+	  * The record source of the data table with the provided id.
+	  * \returns The data table's record source if the controller has been initialized
+	  * abd the tableId is valid, UnknownRecordSource otherwise.
+	  */
+	AMGCS2::DataRecordSource recordSource(int tableId) const;
+
+	/*!
+	  * The serial number and make information of the controller.
+	  */
+	QString identificationString() const;
+
+	/*!
+	  * The low soft limit of the provided axis.
+	  * \returns The low soft limit of the provided axis if the controller has been
+	  * initialized and the axis is not the UnknownAxis, 0 otherwise.
+	  */
+	double lowSoftLimit(AMGCS2::Axis axis) const;
+
+	/*!
+	  * The high soft limit of the provided axis.
+	  * \returns The high soft limit of the provided axis if the controller has
+	  * been initialized and the axis is not the UnknownAxis, 0 otherwise.
+	  */
+	double highSoftLimit(AMGCS2::Axis axis) const;
+
+	/*!
+	  * Whether the soft limits are active for the provided axis.
+	  * \returns The soft limit status of the provided axis if the controller has
+	  * been initialized and the axis is not the UnknownAxis, false otherwise.
+	  */
+	bool softLimitStatus(AMGCS2::Axis axis) const;
+
+	/*!
+	  * The minimum commandable position of the provided axis
+	  * \returns The minimum commandable position of the provided axis if the controller
+	  * has been initialized and the axis is not the UnknownAxis, 0 otherwise.
+	  */
+	double minCommandablePosition(AMGCS2::Axis axis) const;
+
+	/*!
+	  * Whether the provided axis is currently on target (i.e. it's current position
+	  * is equal to its target position).
+	  * \returns The on target state of the provided axis if the controller has
+	  * been initialized and the axis is not the UnknownAxis, false otherwise.
+	  */
+	bool onTargetState(AMGCS2::Axis axis);
+
+	/*!
+	  * The pivot point of the provided axis.
+	  * \returns The pivot point of the provided axis if the controller has been
+	  * initialized and the axis is X, Y or Z; 0 otherwise.
+	  */
+	double pivotPoint(AMGCS2::Axis axis) const;
+
+	/*!
+	  * The position units of the provided axis.
+	  * \returns The position units of the provided axis if the controller has been
+	  * initialized and the axis is not the UnknownAxis, UnknownPositionUnits otherwise.
+	  */
+	AMGCS2::PositionUnits positionUnits(AMGCS2::Axis axis) const;
+
+	/*!
+	  * The data recorded in the data table with the provided tableId during the
+	  * last recording instance.
+	  * \param tableId ~ The table from which to return the data.
+	  * \returns The data stored in the data table with the provided id, if the
+	  * controller has been initialized and the provided tableId is valid, an
+	  * empty list otherwise.
+	  */
+	QList<int> recordedData(int tableId) const;
+
+	/*!
+	  * A string containing all the recorder options which the controller can have
+	  * \returns The controller record options in text format if the controller
+	  * has been initialized, the empty string otherwise.
+	  */
+	QString recorderOptionsString() const;
+
+	/*!
+	  * The current trigger event which beings a recording in the controller's
+	  * data tables.
+	  * \returns The controller's data record trigger if the controller has been
+	  * initialized, UnknownRecordTrigger otherwise.
+	  */
+	AMGCS2::DataRecordTrigger recordTrigger() const;
+
+	/*!
+	  * Whether the provided axis has has a successful reference move performed.
+	  * \param axis ~ The axis whose referenced status is to be returned.
+	  * \returns The referenced status of the provided axis if the controller has
+	  * been initialized and the axis is not the UnknownAxis, false otherwise.
+	  */
+	bool isAxisReferenced(AMGCS2::Axis axis) const;
+
+	/*!
+	  * Whether a reference move has been performed across all axes.
+	  * \returns True if all axes of the controller have been referenced and the
+	  * controller has been initialized, false otherwise.
+	  */
+	bool areAxesReferenced() const;
+
+	/*!
+	  * Whether the controller's motions are performed in servo (closed loop) mode
+	  * \returns True if the controller is in servo mode and the controller has
+	  * been initialized, false otherwise.
+	  */
+	bool isInServoMode() const;
+
+	/*!
+	  * The step size of the provided axis.
+	  * \param axis ~ The axis whose step size is to be returned.
+	  * \returns The step size of the provided axis if the controller has been
+	  * initialized and the axis is not the UnknownAxis, 0 otherwise.
+	  */
+	double stepSize(AMGCS2::Axis axis);
+
+	/*!
+	  * The current velocity of motions across all axes of the controller's hexapod.
+	  * \returns The system velocity of the controller if the controller has been
+	  * initialized, 0 otherwise.
+	  */
+	double systemVelocity() const;
+
 public slots:
 	// Command Functions
 	/////////////////////
+
+	/*!
+	  * Instructs the controller to make an immediate stop.
+	  */
+	void stop();
+
+	/*!
+	  * Instructs the controller to bring the motions of the axes to a stop
+	  * in a smooth motion.
+	  */
+	void haltSmoothly();
 
 	/*!
 	  * Moves the controller hexapod axes to the provided positions.
@@ -237,6 +418,7 @@ protected:
 	bool isBusy_;
 	int id_;
 
+	mutable bool currentPositionRefreshRequired_;
 	//State data
 	////////////
 	int xMotions_;

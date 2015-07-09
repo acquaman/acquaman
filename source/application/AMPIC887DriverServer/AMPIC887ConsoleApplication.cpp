@@ -35,6 +35,7 @@ AMPIC887ConsoleApplication::AMPIC887ConsoleApplication(int argc, char *argv[]) :
 		connect(commandParser_, SIGNAL(moveRelativeCommandIssued(QHash<AMGCS2::Axis,double>)), controllerCollection_.activeController(), SLOT(moveRelative(QHash<AMGCS2::Axis,double>)));
 		connect(commandParser_, SIGNAL(motionStatusCommandIssued()), this, SLOT(onMotionStatusCommandIssued()));
 		connect(commandParser_, SIGNAL(referenceMoveCommandIssued(QList<AMGCS2::Axis>)), controllerCollection_.activeController(), SLOT(referenceMove(QList<AMGCS2::Axis>)));
+		connect(commandParser_, SIGNAL(availableParametersCommandIssued()), this, SLOT(onAvailableParametersCommandIssued()));
 	} else {
 
 		// Startup failed. Print an error message, then quit the application.
@@ -156,6 +157,13 @@ void AMPIC887ConsoleApplication::onMotionStatusCommandIssued()
 
 }
 
+void AMPIC887ConsoleApplication::onAvailableParametersCommandIssued()
+{
+	if(controllerCollection_.activeController() && controllerCollection_.activeController()->isInitialized()) {
+		consoleInputHandler_->writeLineToStandardOutput(controllerCollection_.activeController()->availableParametersString());
+	}
+}
+
 bool AMPIC887ConsoleApplication::startup()
 {
 	bool successfulLoad = true;
@@ -174,6 +182,7 @@ bool AMPIC887ConsoleApplication::startupControllers()
 
 	return (controllerCollection_.activeController() != 0);
 }
+
 
 
 

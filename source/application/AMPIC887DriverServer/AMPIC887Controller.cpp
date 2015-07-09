@@ -3,10 +3,12 @@
 #include "PI_GCS2_DLL.h"
 #include "GCS2Commands/AMGCS2AsyncCommand.h"
 #include "GCS2Commands/AMGCS2InitializeControllerStateCommand.h"
-#include "GCS2Commands/AMGCS2AsyncMoveCommand.h"
+
 #include "GCS2Commands/AMGCS2SetCycleTimeCommand.h"
 #include "GCS2Commands/AMGCS2SetRecordTriggerSourceCommand.h"
 #include "GCS2Commands/AMGCS2SetDataRecorderConfigurationCommand.h"
+
+#include "GCS2Commands/AMGCS2GetCurrentPositionCommand.h"
 #include "GCS2Commands/AMGCS2AsyncMoveCommand.h"
 #include "GCS2Commands/AMGCS2AsyncMoveRelativeCommand.h"
 #include "GCS2Commands/AMGCS2AsyncReferenceMoveCommand.h"
@@ -19,6 +21,7 @@ AMPIC887Controller::AMPIC887Controller(const QString& name, const QString& hostn
 	name_ = name;
 	connectToController();
 	isBusy_ = false;
+	currentPositionRefreshRequired_ = false;
 	controllerState_ = new AMPIC887ControllerState();
 	xMotions_ = 0;
 	yMotions_ = 0;
@@ -101,6 +104,12 @@ bool AMPIC887Controller::connectionEstablished() const
 	return id_ >= 0;
 }
 
+bool AMPIC887Controller::isInitialized() const
+{
+	return connectionEstablished() &&
+			controllerState_->isAllInitialized();
+}
+
 QString AMPIC887Controller::name() const
 {
 	return name_;
@@ -175,9 +184,346 @@ QFlags<AMGCS2::AxisMovementStatus> AMPIC887Controller::movementStatus() const
 	return movements;
 }
 
+bool AMPIC887Controller::isMoving() const
+{
+	return xMotions_ > 0 ||
+			yMotions_ > 0 ||
+			zMotions_ > 0 ||
+			uMotions_ > 0 ||
+			vMotions_ > 0 ||
+			wMotions_ > 0;
+}
+
+QString AMPIC887Controller::availableParametersString() const
+{
+	if(!isInitialized()) {
+		emit errorEncountered("Cannot obtain available parameters for an uninitialized controller");
+		return QString();
+	}
+
+	return controllerState_->availableParameters();
+}
+
+AMGCS2::ControllerCommandLevel AMPIC887Controller::commandLevel() const
+{
+	if(!isInitialized()) {
+		emit errorEncountered("Cannot obtain command level for an uninitialized controller");
+		return AMGCS2::UnknownCommandLevel;
+	}
+
+	return controllerState_->currentCommandLevel();
+}
+
+double AMPIC887Controller::currentPosition(AMGCS2::Axis axis)
+{
+	if(!isInitialized()) {
+		emit errorEncountered("Cannot obtain current position of an uninitialized controller");
+		return 0;
+	}
+
+	if(axis == AMGCS2::UnknownAxis) {
+		emit errorEncountered("Cannot obtain current position of an unknown axis");
+		return 0;
+	}
+
+	if(currentPositionRefreshRequired_) {
+		AMGCS2GetCurrentPositionCommand currentPositionCommand;
+		runCommand(&currentPositionCommand);
+
+		if(currentPositionCommand.runningState() != AMGCS2Command::Succeeded) {
+			emit errorEncountered("Cannot obtain current position from controller");
+			return 0;
+		}
+
+		QHash<AMGCS2::Axis, double> currentPositions =
+				currentPositionCommand.axisPositions();
+
+		QList<AMGCS2::Axis> allAxes = currentPositions.keys();
+
+		foreach(AMGCS2::Axis currentAxis, allAxes) {
+			controllerState_->hexapodState()->axisState(currentAxis)
+					->setCurrentPosition(currentPositions.value(currentAxis));
+		}
+
+		if(!isMoving()) {
+			currentPositionRefreshRequired_ = false;
+		}
+	}
+
+	return controllerState_->hexapodState()->axisState(axis)->currentPosition();
+}
+
+double AMPIC887Controller::cycleTime() const
+{
+	if(!isInitialized()) {
+		emit errorEncountered("Cannot obtain cycle time of uninitialized controller");
+		return 0;
+	}
+
+	return controllerState_->hexapodState()->cycleTime();
+}
+
+AMGCS2::DataRecordOption AMPIC887Controller::recordOption(int tableId) const
+{
+	if(!isInitialized()) {
+		emit errorEncountered("Cannot obtain record option from uninitialized controller");
+		return AMGCS2::UnknownRecordOption;
+	}
+
+	if(tableId < 1 || tableId > RECORD_TABLE_COUNT) {
+		emit errorEncountered(QString("Cannot obtain record option from invalid record table (%1)")
+							  .arg(tableId));
+		return AMGCS2::UnknownRecordOption;
+	}
+
+	return controllerState_->dataRecorderState()->stateAt(tableId)->recordOption();
+}
+
+AMGCS2::DataRecordSource AMPIC887Controller::recordSource(int tableId) const
+{
+	if(!isInitialized()) {
+		emit errorEncountered("Cannot obtain record source from uninitialized controller");
+		return AMGCS2::UnknownDataRecordSource;
+	}
+
+	if(tableId < 1 || tableId > RECORD_TABLE_COUNT) {
+		emit errorEncountered(QString("Cannot obtain record source from invalid record table (%1)")
+							  .arg(tableId));
+		return AMGCS2::UnknownDataRecordSource;
+	}
+
+	return controllerState_->dataRecorderState()->stateAt(tableId)->recordSource();
+}
+
+QString AMPIC887Controller::identificationString() const
+{
+	if(!isInitialized()) {
+		emit errorEncountered("Cannot obtain device identification from uninitialized controller");
+		return QString();
+	}
+
+	return controllerState_->identificationString();
+}
+
+double AMPIC887Controller::lowSoftLimit(AMGCS2::Axis axis) const
+{
+	if(!isInitialized()) {
+		emit errorEncountered("Cannot obtain low soft limit from uninitialized controller");
+		return 0;
+	}
+
+	if(axis == AMGCS2::UnknownAxis) {
+		emit errorEncountered("Cannot obtain low soft limit of unknown axis");
+		return 0;
+	}
+
+	return controllerState_->hexapodState()->axisState(axis)->lowSoftLimit();
+}
+
+double AMPIC887Controller::highSoftLimit(AMGCS2::Axis axis) const
+{
+	if(!isInitialized()) {
+		emit errorEncountered("Cannot obtain high soft limit from uninitialized controller");
+		return 0;
+	}
+
+	if(axis == AMGCS2::UnknownAxis) {
+		emit errorEncountered("Cannot obtain high soft limit of unknown axis");
+		return 0;
+	}
+
+	return controllerState_->hexapodState()->axisState(axis)->highSoftLimit();
+}
+
+bool AMPIC887Controller::softLimitStatus(AMGCS2::Axis axis) const
+{
+	if(!isInitialized()) {
+		emit errorEncountered("Cannot obtain soft limit status from uninitialized controller");
+		return false;
+	}
+
+	if(axis == AMGCS2::UnknownAxis) {
+		emit errorEncountered("Cannot obtain soft limit status of unknown axis");
+		return false;
+	}
+
+	return controllerState_->hexapodState()->axisState(axis)->areSoftLimitsActive();
+}
+
+double AMPIC887Controller::minCommandablePosition(AMGCS2::Axis axis) const
+{
+	if(!isInitialized()) {
+		emit errorEncountered("Cannot obtain min commandable position from uninitialized controller");
+		return 0;
+	}
+
+	if(axis == AMGCS2::UnknownAxis) {
+		emit errorEncountered("Cannot obtain min commandable position of unknown axis");
+		return 0;
+	}
+
+	return controllerState_->hexapodState()->axisState(axis)->minCommandablePosition();
+}
+
+bool AMPIC887Controller::onTargetState(AMGCS2::Axis axis)
+{
+	if(!isInitialized()) {
+		emit errorEncountered("Cannot obtain on target state from uninitialized controller");
+		return 0;
+	}
+
+	if(axis == AMGCS2::UnknownAxis) {
+		emit errorEncountered("Cannot obtain on target state of unknown axis");
+		return 0;
+	}
+
+	double currentAxisPosition = currentPosition(axis);
+	double targetPosition = controllerState_->hexapodState()->axisState(axis)->targetPosition();
+
+	double epsilon = 0.0001;
+	return qAbs(currentAxisPosition - targetPosition) < epsilon;
+}
+
+double AMPIC887Controller::pivotPoint(AMGCS2::Axis axis) const
+{
+	if(!isInitialized()) {
+		emit errorEncountered("Cannot obtain pivot point from uninitialized controller");
+		return 0;
+	}
+
+	if(axis == AMGCS2::UnknownAxis) {
+		emit errorEncountered("Cannot obtain pivot point of unknown axis");
+		return 0;
+	}
+
+	if(axis == AMGCS2::UAxis ||
+			axis == AMGCS2::VAxis ||
+			axis == AMGCS2::WAxis) {
+
+		emit errorEncountered("Cannot obtain pivot point of rotational axis");
+		return 0;
+	}
+
+	return controllerState_->hexapodState()->axisState(axis)->pivotPoint();
+}
+
+AMGCS2::PositionUnits AMPIC887Controller::positionUnits(AMGCS2::Axis axis) const
+{
+	if(!isInitialized()) {
+		emit errorEncountered("Cannot obtain position units from uninitialized controller");
+		return AMGCS2::UnknownPositionUnit;
+	}
+
+	if(axis == AMGCS2::UnknownAxis) {
+		emit errorEncountered("Cannot obtain position units of unknown axis");
+		return AMGCS2::UnknownPositionUnit;
+	}
+
+	return controllerState_->hexapodState()->axisState(axis)->positionUnits();
+}
+
+QList<int> AMPIC887Controller::recordedData(int tableId) const
+{
+	// Todo: need to get size of last recording for this table, load it in
+	// another thread, and return this data somehow. This might require us to
+	// premtively load the data into the record table by paying attention to
+	// the record trigger and filling it up when it's done each time.
+	return QList<int>();
+}
+
+QString AMPIC887Controller::recorderOptionsString() const
+{
+	if(!isInitialized()) {
+		emit errorEncountered("Cannot obtain recorder options from uninitialized controller");
+		return QString();
+	}
+
+	return controllerState_->dataRecorderState()->recordOptionsString();
+
+}
+
+AMGCS2::DataRecordTrigger AMPIC887Controller::recordTrigger() const
+{
+	if(!isInitialized()) {
+		emit errorEncountered("Cannot obtain record trigger from uninitialized controller");
+		return AMGCS2::UnknownRecordTrigger;
+	}
+
+	return controllerState_->dataRecorderState()->recordTrigger();
+}
+
+bool AMPIC887Controller::isAxisReferenced(AMGCS2::Axis axis) const
+{
+	if(!isInitialized()) {
+		emit errorEncountered("Cannot obtain referenced state from uninitialized controller");
+		return false;
+	}
+
+	if(axis == AMGCS2::UnknownAxis) {
+		emit errorEncountered("Cannot obtain referenced state of unknown axis");
+		return false;
+	}
+
+	return controllerState_->hexapodState()->axisState(axis)->isReferenced();
+}
+
+bool AMPIC887Controller::areAxesReferenced() const
+{
+	if(!isInitialized()) {
+		emit errorEncountered("Cannot obtain referenced state from uninitialized controller");
+		return false;
+	}
+
+	return controllerState_->hexapodState()->areAllAxesReferenced();
+}
+
+bool AMPIC887Controller::isInServoMode() const
+{
+	if(!isInitialized()) {
+		emit errorEncountered("Cannot obtain servo mode from uninitialized controller");
+		return false;
+	}
+
+	return controllerState_->hexapodState()->isInServoMode();
+}
+
+double AMPIC887Controller::stepSize(AMGCS2::Axis axis)
+{
+	if(!isInitialized()) {
+		emit errorEncountered("Cannot obtain step size from uninitialized controller");
+		return 0;
+	}
+
+	if(axis == AMGCS2::UnknownAxis) {
+		emit errorEncountered("Cannot obtain step size of unknown axis");
+		return 0;
+	}
+
+	return controllerState_->hexapodState()->axisState(axis)->stepSize();
+}
+
+double AMPIC887Controller::systemVelocity() const
+{
+	if(!isInitialized()) {
+		emit errorEncountered("Cannot obtain system velocity from uninitialized controller");
+		return 0;
+	}
+
+	return controllerState_->hexapodState()->velocity();
+}
+
+void AMPIC887Controller::stop()
+{
+
+}
+
+void AMPIC887Controller::haltSmoothly()
+{
+}
+
 void AMPIC887Controller::move(const QHash<AMGCS2::Axis, double> &axisPositions)
 {
-	if(!controllerState_->isAllInitialized()) {
+	if(!isInitialized()) {
 		emit errorEncountered("Cannot move an uninitialized controller");
 		return;
 	}
@@ -205,7 +551,7 @@ void AMPIC887Controller::move(const QHash<AMGCS2::Axis, double> &axisPositions)
 
 void AMPIC887Controller::moveRelative(const QHash<AMGCS2::Axis, double> &relativePositions)
 {
-	if(!controllerState_->isAllInitialized()) {
+	if(!isInitialized()) {
 		emit errorEncountered("Cannot move an uninitialized controller");
 		return;
 	}
@@ -234,7 +580,7 @@ void AMPIC887Controller::moveRelative(const QHash<AMGCS2::Axis, double> &relativ
 
 void AMPIC887Controller::referenceMove(const QList<AMGCS2::Axis> &axes)
 {
-	if(!controllerState_->isAllInitialized()) {
+	if(!isInitialized()) {
 		emit errorEncountered("Cannot perform reference move on uninitialized controller");
 		return;
 	}
@@ -270,6 +616,7 @@ void AMPIC887Controller::onAsyncCommandSucceeded(AMGCS2AsyncCommand *command)
 
 void AMPIC887Controller::onAsyncMoveStarted(AMGCS2AsyncCommand *command)
 {
+	currentPositionRefreshRequired_ = true;
 	AMGCS2AsyncMoveCommand* moveCommand = qobject_cast<AMGCS2AsyncMoveCommand*>(command);
 
 	if(moveCommand) {
@@ -380,6 +727,7 @@ void AMPIC887Controller::onAsyncMoveFailed(AMGCS2AsyncCommand *command)
 
 void AMPIC887Controller::onAsyncMoveRelativeStarted(AMGCS2AsyncCommand *command)
 {
+	currentPositionRefreshRequired_ = true;
 	AMGCS2AsyncMoveRelativeCommand* moveRelativeCommand = qobject_cast<AMGCS2AsyncMoveRelativeCommand*>(command);
 
 	if(moveRelativeCommand) {
@@ -489,13 +837,14 @@ void AMPIC887Controller::onAsyncMoveRelativeFailed(AMGCS2AsyncCommand *command)
 	command->deleteLater();
 }
 
-// observing the bahviour of the controller shows that the status of the
+// observing the bahviour of the controller shows that the statuses of the
 // axes when a reference move is under way are all or nothing (i.e. if
 // a reference move is started on X, the referenced status of all axes
 // is set to unreferenced, and the movement status of all axes is set to
 // moving).
 void AMPIC887Controller::onAsyncReferenceMoveStarted(AMGCS2AsyncCommand *)
 {
+	currentPositionRefreshRequired_ = true;
 	++xMotions_;
 	++yMotions_;
 	++zMotions_;
@@ -572,12 +921,3 @@ void AMPIC887Controller::runCommand(AMGCS2Command *command)
 		command->run();
 	}
 }
-
-
-
-
-
-
-
-
-

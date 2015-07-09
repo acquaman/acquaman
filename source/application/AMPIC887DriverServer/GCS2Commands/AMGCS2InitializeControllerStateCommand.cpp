@@ -16,6 +16,10 @@
 #include "AMGCS2GetPivotPointCommand.h"
 #include "AMGCS2GetRecordTriggerSourceCommand.h"
 #include "AMGCS2GetDataRecorderConfigurationCommand.h"
+#include "AMGCS2GetCommandLevelCommand.h"
+#include "AMGCS2GetAvailableParametersCommand.h"
+#include "AMGCS2GetRecorderOptionsCommand.h"
+#include "AMGCS2GetDeviceIdentificationCommand.h"
 
 
 AMGCS2InitializeControllerStateCommand::AMGCS2InitializeControllerStateCommand(AMPIC887ControllerState* controllerState)
@@ -60,6 +64,48 @@ bool AMGCS2InitializeControllerStateCommand::validateArguments()
 
 bool AMGCS2InitializeControllerStateCommand::runImplementation()
 {
+
+	// Controller Statuses
+	//////////////////////
+
+	// Command Level
+	AMGCS2GetCommandLevelCommand commandLevelCommand;
+	commandLevelCommand.setController(controller_);
+	commandLevelCommand.run();
+
+	if(commandLevelCommand.runningState() != Succeeded) {
+		lastError_ = "Could not obtain controller's command level";
+		return false;
+	}
+
+	AMGCS2::ControllerCommandLevel commandLevel =
+			commandLevelCommand.commandLevel();
+
+	// Available Parameters String
+	AMGCS2GetAvailableParametersCommand availableParametersCommand;
+	availableParametersCommand.setController(controller_);
+	availableParametersCommand.run();
+
+	if(availableParametersCommand.runningState() != Succeeded) {
+		lastError_ = "Could not obtain controller's available parameters";
+		return false;
+	}
+
+	QString availableParameters =
+			availableParametersCommand.outputString();
+
+	// Device identification
+	AMGCS2GetDeviceIdentificationCommand deviceIdentificationCommand;
+	deviceIdentificationCommand.setController(controller_);
+	deviceIdentificationCommand.run();
+
+	if(deviceIdentificationCommand.runningState() != Succeeded) {
+		lastError_ = "Could not obtain controller's device identification";
+		return false;
+	}
+
+	QString deviceIdentification =
+			deviceIdentificationCommand.outputString();
 
 	// Hexapod Level Statuses
 	////////////////////////////
@@ -246,7 +292,7 @@ bool AMGCS2InitializeControllerStateCommand::runImplementation()
 	// Record Trigger
 	// Note command syntax is set up for this to run on each table, but changing
 	// value on one table changes them all. As such this is stored once at the
-	// general recorder state leve, not once per table.
+	// general recorder state level, not once per table.
 
 	AMGCS2GetRecordTriggerSourceCommand triggerSourceCommand(tableIdsList);
 	triggerSourceCommand.setController(controller_);
@@ -259,6 +305,18 @@ bool AMGCS2InitializeControllerStateCommand::runImplementation()
 
 	QHash<int, AMGCS2::DataRecordTrigger> recordTriggers =
 			triggerSourceCommand.tableRecordTriggers();
+
+	AMGCS2GetRecorderOptionsCommand recorderOptionsCommand;
+	recorderOptionsCommand.setController(controller_);
+	recorderOptionsCommand.run();
+
+	if(recorderOptionsCommand.runningState() != Succeeded) {
+		lastError_ = "Could not obtain record options";
+		return false;
+	}
+
+	QString recorderOptions =
+			recorderOptionsCommand.outputString();
 
 	// Data Recorder Table Statuses
 	////////////////////////////////
@@ -278,6 +336,8 @@ bool AMGCS2InitializeControllerStateCommand::runImplementation()
 
 	// Initialize controller state data
 	////////////////////////////////////
+
+	controllerState_->initialize(commandLevel, availableParameters, deviceIdentification);
 
 	// Initialize Hexapod data
 	///////////////////////////
@@ -360,7 +420,8 @@ bool AMGCS2InitializeControllerStateCommand::runImplementation()
 	/////////////////////////////////
 
 	// Can use the value for 1 table, as this applies to all tables.
-	controllerState_->dataRecorderState()->initialize(recordTriggers.value(1));
+	controllerState_->dataRecorderState()->initialize(recordTriggers.value(1),
+													  recorderOptions);
 
 	// Initialize data for recorder tables
 	///////////////////////////////////////

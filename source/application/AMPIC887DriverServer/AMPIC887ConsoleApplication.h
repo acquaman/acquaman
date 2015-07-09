@@ -85,6 +85,12 @@ protected slots:
 	  */
 	void onMotionStatusCommandIssued();
 
+	/*!
+	  * Handles signals indicating that a get available parameters command has
+	  * been issued.
+	  */
+	void onAvailableParametersCommandIssued();
+
 protected:
 	/*!
 	  * Runs the initialization procedure for the application.

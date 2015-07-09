@@ -31,6 +31,11 @@ public:
 	QString commandList();
 signals:
 	/*!
+	  * Signal indicating that a get available parameters command has been issued.
+	  */
+	void availableParametersCommandIssued();
+
+	/*!
 	  * Signal indicating that a move command has been issued
 	  */
 	void moveCommandIssued(const QHash<AMGCS2::Axis, double>& targetPositions);
