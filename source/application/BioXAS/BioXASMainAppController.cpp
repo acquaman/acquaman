@@ -21,21 +21,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "BioXASMainAppController.h"
 
-#include "acquaman/AMScanActionController.h"
 #include "acquaman/BioXAS/BioXASMainXASScanConfiguration.h"
-
 #include "beamline/BioXAS/BioXASMainBeamline.h"
-#include "beamline/BioXAS/BioXASSSRLMonochromatorEnergyControlCalibrationController.h"
-
-#include "dataman/export/AMExportController.h"
-#include "dataman/export/AMExporterOptionGeneralAscii.h"
-#include "dataman/export/AMExporterGeneralAscii.h"
-#include "dataman/export/AMExporterAthena.h"
-
-#include "ui/BioXAS/BioXASMainXASScanConfigurationView.h"
 #include "ui/BioXAS/BioXASMainPersistentView.h"
-#include "ui/BioXAS/BioXASSSRLMonochromatorEnergyControlCalibrationView.h"
-
 
 BioXASMainAppController::BioXASMainAppController(QObject *parent)
 	: BioXASAppController(parent)
@@ -58,53 +46,25 @@ BioXASMainAppController::BioXASMainAppController(QObject *parent)
 	monoCalibrationConfiguration_ = 0;
 	monoCalibrationConfigurationView_ = 0;
 	monoCalibrationConfigurationViewHolder_ = 0;
-
-	monoEnergyCalibrationController_ = 0;
-	monoEnergyCalibrationView_ = 0;
-
-	setDefaultUseLocalStorage(true);
 }
 
-bool BioXASMainAppController::startup()
+BioXASMainAppController::~BioXASMainAppController()
 {
-	// Get a destination folder.
-	if ( !AMChooseDataFolderDialog::getDataFolder("/AcquamanLocalData/bioxas-m/AcquamanMainData", "/home/bioxas-m/AcquamanMainData", "users", QStringList()) )
-		return false;
 
-	// Start up the main program.
-	if(AMAppController::startup()) {
+}
 
-		// Initialize central beamline object
-		BioXASMainBeamline::bioXAS();
-		// Initialize the periodic table object.
-		AMPeriodicTable::table();
+void BioXASMainAppController::onRegionOfInterestAdded(AMRegionOfInterest *region)
+{
+	BioXASAppController::onRegionOfInterestAdded(region);
 
-		registerClasses();
+	configuration_->addRegionOfInterest(region);
+}
 
-		// Ensuring we automatically switch scan editors for new scans.
-		setAutomaticBringScanEditorToFront(true);
+void BioXASMainAppController::onRegionOfInterestRemoved(AMRegionOfInterest *region)
+{
+	BioXASAppController::onRegionOfInterestRemoved(region);
 
-		// Some first time things.
-		AMRun existingRun;
-
-		// We'll use loading a run from the db as a sign of whether this is the first time an application has been run because startupIsFirstTime will return false after the user data folder is created.
-		if (!existingRun.loadFromDb(AMDatabase::database("user"), 1)){
-
-			AMRun firstRun(CLSFacilityID::beamlineName(CLSFacilityID::BioXASMainBeamline), CLSFacilityID::BioXASMainBeamline); //7: BioXAS main Beamline
-			firstRun.storeToDb(AMDatabase::database("user"));
-		}
-
-		setupExporterOptions();
-		setupUserInterface();
-		makeConnections();
-		applyCurrentSettings();
-
-		return true;
-
-	} else {
-
-		return false;
-	}
+	configuration_->removeRegionOfInterest(region);
 }
 
 void BioXASMainAppController::onScalerConnected()
@@ -125,32 +85,15 @@ void BioXASMainAppController::registerClasses()
 
 void BioXASMainAppController::setupExporterOptions()
 {
-	QList<int> matchIDs = AMDatabase::database("user")->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<AMExporterOptionGeneralAscii>(), "name", "BioXAS Default XAS");
-
-	AMExporterOptionGeneralAscii *bioXASDefaultXAS = new AMExporterOptionGeneralAscii();
-
-	if (matchIDs.count() != 0)
-			bioXASDefaultXAS->loadFromDb(AMDatabase::database("user"), matchIDs.at(0));
-
-	bioXASDefaultXAS->setName("BioXAS Default XAS");
-	bioXASDefaultXAS->setFileName("$name_$fsIndex.dat");
-	bioXASDefaultXAS->setHeaderText("Scan: $name #$number\nDate: $dateTime\nSample: $sample\nFacility: $facilityDescription\n\n$scanConfiguration[header]\n\n$notes\n\n");
-	bioXASDefaultXAS->setHeaderIncluded(true);
-	bioXASDefaultXAS->setColumnHeader("$dataSetName $dataSetInfoDescription");
-	bioXASDefaultXAS->setColumnHeaderIncluded(true);
-	bioXASDefaultXAS->setColumnHeaderDelimiter("");
-	bioXASDefaultXAS->setSectionHeader("");
-	bioXASDefaultXAS->setSectionHeaderIncluded(true);
-	bioXASDefaultXAS->setIncludeAllDataSources(true);
-	bioXASDefaultXAS->setFirstColumnOnly(true);
-	bioXASDefaultXAS->setIncludeHigherDimensionSources(true);
-	bioXASDefaultXAS->setSeparateHigherDimensionalSources(true);
-	bioXASDefaultXAS->setSeparateSectionFileName("$name_$dataSetName_$fsIndex.dat");
-	bioXASDefaultXAS->setHigherDimensionsInRows(true);
-	bioXASDefaultXAS->storeToDb(AMDatabase::database("user"));
+	AMExporterOptionXDIFormat *bioXASDefaultXAS = BioXAS::buildStandardXDIFormatExporterOption("BioXAS XAS (XDI Format)", "", "", true);
 
 	if(bioXASDefaultXAS->id() > 0)
-		AMAppControllerSupport::registerClass<BioXASMainXASScanConfiguration, AMExporterGeneralAscii, AMExporterOptionGeneralAscii>(bioXASDefaultXAS->id());
+		AMAppControllerSupport::registerClass<BioXASMainXASScanConfiguration, AMExporterXDIFormat, AMExporterOptionXDIFormat>(bioXASDefaultXAS->id());
+}
+
+void BioXASMainAppController::initializeBeamline()
+{
+	BioXASMainBeamline::bioXAS();
 }
 
 void BioXASMainAppController::setupUserInterface()
@@ -179,7 +122,7 @@ void BioXASMainAppController::setupUserInterface()
 
 	configuration_ = new BioXASMainXASScanConfiguration();
 	configuration_->setEnergy(10000);
-	configurationView_ = new BioXASMainXASScanConfigurationView(configuration_);
+	configurationView_ = new BioXASXASScanConfigurationView(configuration_);
 	configurationViewHolder_ = new AMScanConfigurationViewHolder3("Configure an XAS Scan", true, true, configurationView_);
 	connect(configuration_, SIGNAL(totalTimeChanged(double)), configurationViewHolder_, SLOT(updateOverallScanTime(double)));
 	configurationViewHolder_->updateOverallScanTime(configuration_->totalTime());
@@ -190,12 +133,11 @@ void BioXASMainAppController::setupUserInterface()
 	commissioningConfigurationViewHolder_ = new AMScanConfigurationViewHolder3("Commissioning Tool",true, true, commissioningConfigurationView_);
 	mw_->addPane(commissioningConfigurationViewHolder_, "Scans", "Commissioning Tool", ":/utilities-system-monitor.png");
 
-	monoCalibrationConfiguration_ = new BioXASMainXASScanConfiguration();
+//	monoCalibrationConfiguration_ = new BioXASSSRLMonochromatorEnergyCalibrationScanConfiguration();
 //	monoCalibrationConfiguration_->setEnergy(10000);
-	monoCalibrationConfiguration_->setAutoExportEnabled(false);
-	monoCalibrationConfigurationView_ = new BioXASMainXASScanConfigurationView(monoCalibrationConfiguration_);
-	monoCalibrationConfigurationViewHolder_ = new AMScanConfigurationViewHolder3("Calibrate Energy", false, true, monoCalibrationConfigurationView_, ":/system-search.png");
-	mw_->addPane(monoCalibrationConfigurationViewHolder_, "Calibration", "Calibrate Energy", ":/system-search.png");
+//	monoCalibrationConfigurationView_ = new BioXASXASScanConfigurationView(monoCalibrationConfiguration_);
+//	monoCalibrationConfigurationViewHolder_ = new AMScanConfigurationViewHolder3("Calibrate Energy", true, true, monoCalibrationConfigurationView_, ":/utilities-system-monitor.png");
+//	mw_->addPane(monoCalibrationConfigurationViewHolder_, "Calibration", "Calibrate Energy", ":/system-search.png");
 
 	// Create persistent view panel:
 	////////////////////////////////////
@@ -219,28 +161,19 @@ void BioXASMainAppController::applyCurrentSettings()
 
 void BioXASMainAppController::onCurrentScanActionStartedImplementation(AMScanAction *action)
 {
-//	qDebug() << "\n";
+	BioXASAppController::onCurrentScanActionStartedImplementation(action);
 
-//	if (action) {
-//		// If the scan was a mono energy calibration scan, we want to open the calibration dialog when scan is finished.
-////		AMScanActionInfo *actionInfo = qobject_cast<AMScanActionInfo*>(action->info());
-////		BioXASMainXASScanConfiguration *configuration = qobject_cast<BioXASMainXASScanConfiguration*>(actionInfo->configuration());
+	qDebug() << "\nScan started.";
 
-//		qDebug() << "\tCreating calibration view.";
+	if (action) {
+		AMScanActionInfo *info = qobject_cast<AMScanActionInfo*>(action->info());
 
-//		BioXASSSRLMonochromatorEnergyControlCalibrationController *monoEnergyCalibrationController = new BioXASSSRLMonochromatorEnergyControlCalibrationController(BioXASMainBeamline::bioXAS()->mono()->energyControl(), action->controller()->scan(), QStringList() << "I0Detector" << "DerivAbsorbance");
-//		BioXASSSRLMonochromatorEnergyControlCalibrationView *monoEnergyCalibrationView_ = new BioXASSSRLMonochromatorEnergyControlCalibrationView(monoEnergyCalibrationController);
-//		monoEnergyCalibrationView_->show();
-//		monoEnergyCalibrationView_->raise();
+		if (info) {
+			BioXASSSRLMonochromatorEnergyCalibrationScanConfiguration *config = qobject_cast<BioXASSSRLMonochromatorEnergyCalibrationScanConfiguration*>(info->configuration());
 
-//		QPoint mainWindowCenter = mw_->mapToGlobal(mw_->rect().center());
-//		monoEnergyCalibrationView_->move(mainWindowCenter.x() + mw_->width()/2, mainWindowCenter.y() + mw_->height()/2);
-//	}
-
-//	qDebug() << "\n";
-}
-
-void BioXASMainAppController::onCurrentScanActionFinishedImplementation(AMScanAction *action)
-{
-	Q_UNUSED(action)
+			if (config) {
+				qDebug() << "It is a mono calibration scan.";
+			}
+		}
+	}
 }

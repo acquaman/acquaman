@@ -16,12 +16,6 @@ public:
     virtual ~BioXASMainXASScanActionController();
 
 protected:
-	/// Reimplemented to provide actions that will setup the beamine for optimized operation of the XAS scan.
-	virtual AMAction3* createInitializationActions();
-	/// Reimplemented to put the beamline in a good state after a scan has been completed.
-	virtual AMAction3* createCleanupActions();
-
-protected:
 	/// The BioXAS-specific scan configuration.
     BioXASMainXASScanConfiguration *configuration_;
 };

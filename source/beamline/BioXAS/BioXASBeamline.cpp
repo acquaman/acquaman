@@ -313,11 +313,6 @@ void BioXASBeamline::onTemperatureError()
 	}
 }
 
-void BioXASBeamline::setupStorageRing()
-{
-	CLSStorageRing::sr1();
-}
-
 void BioXASBeamline::setupComponents()
 {
 	// The front end upstream photon shutter.
@@ -496,7 +491,6 @@ BioXASBeamline::BioXASBeamline(const QString &controlName) :
 
 	// Setup procedures.
 
-	setupStorageRing();
 	setupComponents();
 	setupDiagnostics();
 }

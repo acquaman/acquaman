@@ -19,15 +19,21 @@ public:
 	/// Destructor.
 	virtual ~BioXASXASScanConfiguration();
 
+	/// Returns a description of the scan technique.
+	virtual QString technique() const { return "XAS"; }
 	/// Returns a description of this scan configuration.
-	virtual QString detailedDescription() const { return "XAS Scan"; }
+	virtual QString description() const { return "XAS Scan"; }
+	/// Returns a detailed description of this scan configuration.
+	virtual QString detailedDescription() const { return "BioXAS XAS Scan"; }
 	/// Returns the standard information for an XAS scan.  Used when exporting.
 	virtual QString headerText() const;
 
 	/// Returns a pointer to a newly-created copy of this scan configuration.  (It takes the role of a copy constructor, but is virtual so that our high-level classes can copy a scan configuration without knowing exactly what kind it is.)
-	virtual AMScanConfiguration* createCopy() const;
+	virtual AMScanConfiguration* createCopy() const = 0;
 	/// Returns a pointer to a newly-created AMScanController that is appropriate for executing this kind of scan configuration.  The controller should be initialized to use this scan configuration object as its scan configuration.  Ownership of the new controller becomes the responsibility of the caller.
-	virtual AMScanController* createController();
+	virtual AMScanController* createController() = 0;
+	/// Returns a pointer to a newly-created AMScanConfigurationView that is appropriate for viewing and editing this kind of scan configuration. Ownership of the new controller becomes the responsibility of the caller.
+	virtual AMScanConfigurationView* createView();
 
 signals:
 	/// Notifier that the total time estimate has changed.

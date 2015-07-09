@@ -14,18 +14,16 @@ public:
 	Q_INVOKABLE BioXASMainXASScanConfiguration(QObject *parent = 0);
 	/// Copy Constructor.
 	BioXASMainXASScanConfiguration(const BioXASMainXASScanConfiguration &original);
-	///Destructor.
+	/// Destructor.
 	virtual ~BioXASMainXASScanConfiguration();
+
+	/// A human-readable synopsis of this scan configuration.
+	virtual QString detailedDescription() const { return "BioXAS Main XAS Scan"; }
 
 	/// Returns a pointer to a newly-created copy of this scan configuration.  (It takes the role of a copy constructor, but is virtual so that our high-level classes can copy a scan configuration without knowing exactly what kind it is.)
 	virtual AMScanConfiguration* createCopy() const;
 	/// Returns a pointer to a newly-created AMScanController that is appropriate for executing this kind of scan configuration.  The controller should be initialized to use this scan configuration object as its scan configuration.  Ownership of the new controller becomes the responsibility of the caller.
 	virtual AMScanController* createController();
-	/// Returns a pointer to a newly-created AMScanConfigurationView that is appropriate for viewing and editing this kind of scan configuration. Ownership of the new controller becomes the responsibility of the caller.
-	virtual AMScanConfigurationView* createView();
-
-	/// A human-readable synopsis of this scan configuration.
-	virtual QString detailedDescription() const { return "BioXAS Main XAS Scan"; }
 };
 
 #endif // BIOXASMAINXASSCANCONFIGURATION_H

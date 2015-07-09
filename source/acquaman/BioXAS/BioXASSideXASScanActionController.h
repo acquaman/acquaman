@@ -18,8 +18,8 @@ You should have received a copy of the GNU General Public License
 along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef BIOXASXASSCANACTIONCONTROLLER_H
-#define BIOXASXASSCANACTIONCONTROLLER_H
+#ifndef BIOXASSIDEXASSCANACTIONCONTROLLER_H
+#define BIOXASSIDEXASSCANACTIONCONTROLLER_H
 
 #include "acquaman/BioXAS/BioXASXASScanActionController.h"
 
@@ -36,10 +36,8 @@ public:
 	virtual ~BioXASSideXASScanActionController();
 
 protected:
-	/// Reimplemented to provide actions that will setupd the beamine for optimzed operation of the XAS scan.
+	/// Returns actions that will initialize the Side beamline for an XAS scan.
 	AMAction3* createInitializationActions();
-	/// Reimplemented to put the beamline in a good state after a scan has been completed.
-	AMAction3* createCleanupActions();
 
 	/// Sets the scan axis and adds anything extra.
 	virtual void buildScanControllerImplementation();

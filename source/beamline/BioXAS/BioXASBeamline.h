@@ -29,7 +29,7 @@ public:
 	/// Enum indicating different shutter states.
 	class Shutters { public: enum State { Open = 1, Between = 2, Closed = 4 }; };
 	/// Enum indicating different beam on/off states.
-	class Beam { public: enum State { Off = 0, On = 1, Available = 2 }; };
+	class Beam { public: enum State { Off = 0, On = 1 }; };
 
 	/// Singleton accessor.
 	static BioXASBeamline *bioXAS()
@@ -221,8 +221,6 @@ protected slots:
 	void onTemperatureError();
 
 protected:
-	/// Sets up the storage ring.
-	virtual void setupStorageRing();
 	/// Sets up controls for front end beamline components.
 	virtual void setupComponents();
 	/// Sets up controls for front end diagnostics.

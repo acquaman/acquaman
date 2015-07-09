@@ -21,62 +21,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "BioXASSideAppController.h"
 
-#include <QGroupBox>
-#include <QWidget>
-
-#include "actions3/AMActionRunner3.h"
-#include "actions3/actions/AMScanAction.h"
-#include "actions3/AMListAction3.h"
-
-#include "acquaman/AMScanActionController.h"
 #include "acquaman/BioXAS/BioXASSideXASScanConfiguration.h"
-#include "acquaman/BioXAS/BioXASXRFScanConfiguration.h"
-
-#include "application/AMAppControllerSupport.h"
-#include "application/BioXAS/BioXAS.h"
-
 #include "beamline/BioXAS/BioXASSideBeamline.h"
-#include "beamline/CLS/CLSFacilityID.h"
-#include "beamline/CLS/CLSSIS3820Scaler.h"
-
-#include "dataman/AMRun.h"
-#include "dataman/AMScanAxisEXAFSRegion.h"
-#include "dataman/database/AMDbObjectSupport.h"
-#include "dataman/export/AMExportController.h"
-#include "dataman/export/AMExporterOptionGeneralAscii.h"
-#include "dataman/export/AMExporterGeneralAscii.h"
-#include "dataman/export/AMExporterAthena.h"
-#include "dataman/export/AMExporterXDIFormat.h"
-#include "dataman/export/AMExporterOptionXDIFormat.h"
-#include "dataman/BioXAS/BioXASUserConfiguration.h"
-
-#include "ui/AMMainWindow.h"
-#include "ui/AMMotorGroupView.h"
-
-#include "ui/acquaman/AMGenericStepScanConfigurationView.h"
-#include "ui/acquaman/AMScanConfigurationViewHolder3.h"
-
-#include "ui/dataman/AMGenericScanEditor.h"
-
-#include "ui/CLS/CLSJJSlitsView.h"
-#include "ui/CLS/CLSStandardsWheelConfigurationView.h"
-
-#include "ui/BioXAS/BioXASEndstationTableView.h"
 #include "ui/BioXAS/BioXASSidePersistentView.h"
-#include "ui/BioXAS/BioXASSideXASScanConfigurationView.h"
-#include "ui/BioXAS/BioXAS32ElementGeDetectorView.h"
-#include "ui/BioXAS/BioXASSSRLMonochromatorConfigurationView.h"
-#include "ui/BioXAS/BioXASSSRLMonochromatorEnergyControlCalibrationView.h"
-#include "ui/BioXAS/BioXASXIAFiltersView.h"
-#include "ui/BioXAS/BioXASCarbonFilterFarmView.h"
-#include "ui/BioXAS/BioXASM2MirrorView.h"
-#include "ui/BioXAS/BioXASDBHRMirrorView.h"
-#include "ui/BioXAS/BioXASSIS3820ScalerView.h"
-#include "ui/BioXAS/BioXASFourElementVortexDetectorView.h"
-
-#include "ui/util/AMChooseDataFolderDialog.h"
-
-#include "util/AMPeriodicTable.h"
 
 BioXASSideAppController::BioXASSideAppController(QObject *parent)
 	: BioXASAppController(parent)
@@ -102,15 +49,11 @@ BioXASSideAppController::BioXASSideAppController(QObject *parent)
 	monoCalibrationConfiguration_ = 0;
 	monoCalibrationConfigurationView_ = 0;
 	monoCalibrationConfigurationViewHolder_ = 0;
-
-	setDefaultUseLocalStorage(true);
-	userConfiguration_ = new BioXASUserConfiguration(this);
 }
 
 BioXASSideAppController::~BioXASSideAppController()
 {
-	if (monoEnergyCalibrationView_)
-		monoEnergyCalibrationView_->deleteLater();
+
 }
 
 bool BioXASSideAppController::startup()
@@ -167,6 +110,20 @@ void BioXASSideAppController::shutdown()
 	AMAppController::shutdown();
 }
 
+void BioXASSideAppController::onRegionOfInterestAdded(AMRegionOfInterest *region)
+{
+	BioXASAppController::onRegionOfInterestAdded(region);
+
+	configuration_->addRegionOfInterest(region);
+}
+
+void BioXASSideAppController::onRegionOfInterestRemoved(AMRegionOfInterest *region)
+{
+	BioXASAppController::onRegionOfInterestRemoved(region);
+
+	configuration_->removeRegionOfInterest(region);
+}
+
 void BioXASSideAppController::onScalerConnected()
 {
 	CLSSIS3820Scaler *scaler = BioXASSideBeamline::bioXAS()->scaler();
@@ -180,9 +137,6 @@ void BioXASSideAppController::onScalerConnected()
 void BioXASSideAppController::registerClasses()
 {
 	AMDbObjectSupport::s()->registerClass<BioXASSideXASScanConfiguration>();
-	AMDbObjectSupport::s()->registerClass<BioXASScanConfigurationDbObject>();
-	AMDbObjectSupport::s()->registerClass<BioXASUserConfiguration>();
-	AMDbObjectSupport::s()->registerClass<BioXASXRFScanConfiguration>();
 }
 
 void BioXASSideAppController::setupExporterOptions()
@@ -191,6 +145,11 @@ void BioXASSideAppController::setupExporterOptions()
 
 	if (bioXASDefaultXAS->id() > 0)
 		AMAppControllerSupport::registerClass<BioXASSideXASScanConfiguration, AMExporterXDIFormat, AMExporterOptionXDIFormat>(bioXASDefaultXAS->id());
+}
+
+void BioXASSideAppController::initializeBeamline()
+{
+	BioXASSideBeamline::bioXAS();
 }
 
 void BioXASSideAppController::setupUserInterface()
@@ -256,7 +215,7 @@ void BioXASSideAppController::setupUserInterface()
 
 	configuration_ = new BioXASSideXASScanConfiguration();
 	configuration_->setEnergy(10000);
-	configurationView_ = new BioXASSideXASScanConfigurationView(configuration_);
+	configurationView_ = new BioXASXASScanConfigurationView(configuration_);
 	configurationViewHolder_ = new AMScanConfigurationViewHolder3("Configure an XAS Scan", true, true, configurationView_);
 	connect(configuration_, SIGNAL(totalTimeChanged(double)), configurationViewHolder_, SLOT(updateOverallScanTime(double)));
 	configurationViewHolder_->updateOverallScanTime(configuration_->totalTime());
@@ -269,10 +228,9 @@ void BioXASSideAppController::setupUserInterface()
 	commissioningConfigurationViewHolder_ = new AMScanConfigurationViewHolder3("Commissioning Tool", false, true, commissioningConfigurationView_);
 	mw_->addPane(commissioningConfigurationViewHolder_, "Scans", "Commissioning Tool", ":/utilities-system-monitor.png");
 
-	monoCalibrationConfiguration_ = new BioXASSideXASScanConfiguration();
-//	monoCalibrationConfiguration_->setEnergy(10000);
-	monoCalibrationConfiguration_->setAutoExportEnabled(false);
-	monoCalibrationConfigurationView_ = new BioXASSideXASScanConfigurationView(monoCalibrationConfiguration_);
+	monoCalibrationConfiguration_ = new BioXASSSRLMonochromatorEnergyCalibrationScanConfiguration();
+	monoCalibrationConfiguration_->setEnergy(10000);
+	monoCalibrationConfigurationView_ = new BioXASXASScanConfigurationView(monoCalibrationConfiguration_);
 	monoCalibrationConfigurationViewHolder_ = new AMScanConfigurationViewHolder3("Calibrate Energy", false, true, monoCalibrationConfigurationView_, ":/system-search.png");
 	mw_->addPane(monoCalibrationConfigurationViewHolder_, "Calibration", "Calibrate Energy", ":/system-search.png");
 
@@ -287,59 +245,9 @@ void BioXASSideAppController::setupUserInterface()
 void BioXASSideAppController::makeConnections()
 {
 	connect( BioXASSideBeamline::bioXAS()->scaler(), SIGNAL(connectedChanged(bool)), this, SLOT(onScalerConnected()) );
-
-	// It is sufficient to only connect the user configuration to the single element because the single element and four element are synchronized together.
-	connect(userConfiguration_, SIGNAL(loadedFromDb()), this, SLOT(onUserConfigurationLoadedFromDb()));
 }
 
 void BioXASSideAppController::applyCurrentSettings()
 {
 	onScalerConnected();
-}
-
-#include <QDebug>
-
-void BioXASSideAppController::onCurrentScanActionStartedImplementation(AMScanAction *action)
-{
-	Q_UNUSED(action)
-
-	// Save current configuration to the database.
-	userConfiguration_->storeToDb(AMDatabase::database("user"));
-}
-
-void BioXASSideAppController::onCurrentScanActionFinishedImplementation(AMScanAction *action)
-{	
-	Q_UNUSED(action)
-
-	userConfiguration_->storeToDb(AMDatabase::database("user"));
-}
-
-void BioXASSideAppController::onUserConfigurationLoadedFromDb()
-{
-	AMXRFDetector *detector = BioXASSideBeamline::bioXAS()->fourElementVortexDetector();
-
-	foreach (AMRegionOfInterest *region, userConfiguration_->regionsOfInterest()){
-
-		AMRegionOfInterest *newRegion = region->createCopy();
-		detector->addRegionOfInterest(newRegion);
-		configuration_->addRegionOfInterest(region);
-	}
-
-	// This is connected here because we want to listen to the detectors for updates, but don't want to double add regions on startup.
-//	connect(BioXASSideBeamline::bioXAS()->ge32ElementDetector(), SIGNAL(addedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestAdded(AMRegionOfInterest*)));
-//	connect(BioXASSideBeamline::bioXAS()->ge32ElementDetector(), SIGNAL(removedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestRemoved(AMRegionOfInterest*)));
-	connect(BioXASSideBeamline::bioXAS()->fourElementVortexDetector(), SIGNAL(addedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestAdded(AMRegionOfInterest*)));
-	connect(BioXASSideBeamline::bioXAS()->fourElementVortexDetector(), SIGNAL(removedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestRemoved(AMRegionOfInterest*)));
-}
-
-void BioXASSideAppController::onRegionOfInterestAdded(AMRegionOfInterest *region)
-{
-	userConfiguration_->addRegionOfInterest(region);
-	configuration_->addRegionOfInterest(region);
-}
-
-void BioXASSideAppController::onRegionOfInterestRemoved(AMRegionOfInterest *region)
-{
-	userConfiguration_->removeRegionOfInterest(region);
-	configuration_->removeRegionOfInterest(region);
 }

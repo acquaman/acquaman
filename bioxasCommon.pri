@@ -62,7 +62,10 @@ HEADERS += \
     source/ui/BioXAS/BioXASSSRLMonochromatorEnergyControlCalibrationView.h \
     source/beamline/BioXAS/BioXASSSRLMonochromatorEnergyControlCalibrationController.h \
     source/acquaman/BioXAS/BioXASXASScanActionController.h \
-    source/acquaman/BioXAS/BioXASXASScanConfiguration.h
+    source/acquaman/BioXAS/BioXASXASScanConfiguration.h \
+	source/ui/BioXAS/BioXASXASScanConfigurationView.h \
+    source/acquaman/BioXAS/BioXASSSRLMonochromatorEnergyCalibrationScanConfiguration.h \
+    source/acquaman/BioXAS/BioXASSSRLMonochromatorEnergyCalibrationScanActionController.h
 
 SOURCES += \
 	source/acquaman/BioXAS/BioXASXRFScanConfiguration.cpp \
@@ -119,52 +122,9 @@ SOURCES += \
     source/ui/BioXAS/BioXASSSRLMonochromatorEnergyControlCalibrationView.cpp \
     source/beamline/BioXAS/BioXASSSRLMonochromatorEnergyControlCalibrationController.cpp \
     source/acquaman/BioXAS/BioXASXASScanActionController.cpp \
-    source/acquaman/BioXAS/BioXASXASScanConfiguration.cpp
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    source/acquaman/BioXAS/BioXASXASScanConfiguration.cpp \
+	source/ui/BioXAS/BioXASXASScanConfigurationView.cpp \
+    source/acquaman/BioXAS/BioXASSSRLMonochromatorEnergyCalibrationScanConfiguration.cpp \
+    source/acquaman/BioXAS/BioXASSSRLMonochromatorEnergyCalibrationScanActionController.cpp
 
 

@@ -10,9 +10,6 @@
 #include "analysis/AM1DDarkCurrentCorrectionAB.h"
 #include "analysis/AM1DNormalizationAB.h"
 
-#include "application/AMAppControllerSupport.h"
-#include "application/BioXAS/BioXAS.h"
-
 #include "beamline/AMDetector.h"
 #include "beamline/BioXAS/BioXASBeamline.h"
 #include "beamline/BioXAS/BioXASFourElementVortexDetector.h"
@@ -21,8 +18,6 @@
 #include "beamline/CLS/CLSStorageRing.h"
 
 #include "dataman/AMXASScan.h"
-#include "dataman/export/AMExporterXDIFormat.h"
-#include "dataman/export/AMExporterOptionXDIFormat.h"
 
 #include "util/AMErrorMonitor.h"
 
@@ -31,9 +26,7 @@ BioXASXASScanActionController::BioXASXASScanActionController(BioXASXASScanConfig
 {
 	configuration_ = configuration;
 
-	AMExporterOptionXDIFormat *bioXASDefaultXAS = BioXAS::buildStandardXDIFormatExporterOption("BioXAS XAS (XDI Format)", configuration_->edge().split(" ").first(), configuration_->edge().split(" ").last(), true);
-	if (bioXASDefaultXAS->id() > 0)
-		AMAppControllerSupport::registerClass<BioXASXASScanConfiguration, AMExporterXDIFormat, AMExporterOptionXDIFormat>(bioXASDefaultXAS->id());
+	// Create scan object.
 
 	scan_ = new AMXASScan();
 	scan_->setName(configuration_->name());
@@ -42,6 +35,52 @@ BioXASXASScanActionController::BioXASXASScanActionController(BioXASXASScanConfig
 	scan_->setIndexType("fileSystem");
 	scan_->rawData()->addScanAxis(AMAxisInfo("eV", 0, "Incident Energy", "eV"));
 	scan_->setNotes(beamlineSettings());
+
+	// Set axis control infos.
+
+	AMControlInfoList list;
+
+	BioXASMonochromator *mono = BioXASBeamline::bioXAS()->mono();
+	if (mono) {
+		AMControl *energyControl = BioXASBeamline::bioXAS()->mono()->energyControl();
+
+		if (energyControl)
+			list.append(energyControl->toInfo());
+	}
+
+	setConfigurationAxisControlInfos(list);
+
+	// Set detectors.
+
+	AMDetectorInfoSet bioXASDetectors;
+
+	AMDetector *i0Detector = BioXASBeamline::bioXAS()->i0Detector();
+	if (i0Detector)
+		bioXASDetectors.addDetectorInfo(i0Detector->toInfo());
+
+	AMDetector *i1Detector = BioXASBeamline::bioXAS()->i1Detector();
+	if (i1Detector)
+		bioXASDetectors.addDetectorInfo(i1Detector->toInfo());
+
+	AMDetector *i2Detector = BioXASBeamline::bioXAS()->i2Detector();
+	if (i2Detector)
+		bioXASDetectors.addDetectorInfo(i2Detector->toInfo());
+
+	AMDetector *vortexDetector = BioXASBeamline::bioXAS()->fourElementVortexDetector();
+	if (vortexDetector)
+		bioXASDetectors.addDetectorInfo(vortexDetector->toInfo());
+
+	AMDetector *ge32Detector = BioXASBeamline::bioXAS()->ge32ElementDetector();
+	if (ge32Detector)
+		bioXASDetectors.addDetectorInfo(ge32Detector->toInfo());
+
+	AMDetector *scalerDwellTimeDetector = BioXASBeamline::bioXAS()->scalerDwellTimeDetector();
+	if (scalerDwellTimeDetector)
+		bioXASDetectors.addDetectorInfo(scalerDwellTimeDetector->toInfo());
+
+	setConfigurationDetectorConfigurations(bioXASDetectors);
+
+	// Set up the scan timer.
 
 	useFeedback_ = true;
 
@@ -64,9 +103,25 @@ BioXASXASScanActionController::~BioXASXASScanActionController()
 
 }
 
+void BioXASXASScanActionController::setConfigurationAxisControlInfos(const AMControlInfoList &infos)
+{
+	if (configuration_) {
+		configuration_->setAxisControlInfos(infos);
+	}
+}
+
+void BioXASXASScanActionController::setConfigurationDetectorConfigurations(const AMDetectorInfoSet &infos)
+{
+	if (configuration_) {
+		configuration_->setDetectorConfigurations(infos);
+	}
+}
+
 QString BioXASXASScanActionController::beamlineSettings()
 {
 	QString notes;
+
+	// Note the storage ring current.
 
 	notes.append(QString("SR1 Current:\t%1 mA\n").arg(QString::number(CLSStorageRing::sr1()->ringCurrent(), 'f', 1)));
 
@@ -87,19 +142,19 @@ AMAction3* BioXASXASScanActionController::createInitializationActions()
 {
 	AMSequentialListAction3 *result = 0;
 
-	bool scalerOK = false;
 	AMSequentialListAction3 *scalerInitialization = 0;
 
+	// The vortex is okay if the scan is using this detector and one is found. Also okay if we aren't using it. We have a problem otherwise.
 	bool vortexOK = false;
 	AMSequentialListAction3 *vortexDetectorInitialization = 0;
+
+	AMSequentialListAction3 *monoInitialization = 0;
 
 	// Initialize the scaler.
 
 	CLSSIS3820Scaler *scaler = CLSBeamline::clsBeamline()->scaler();
 
 	if (scaler) {
-		scalerOK = true;
-
 		double regionTime = double(configuration_->scanAxisAt(0)->regionAt(0)->regionTime());
 
 		scalerInitialization = new AMSequentialListAction3(new AMSequentialListActionInfo3("BioXAS Scaler Initialization Actions", "BioXAS Scaler Initialization Actions"));
@@ -128,16 +183,13 @@ AMAction3* BioXASXASScanActionController::createInitializationActions()
 		scalerInitializationStep->addSubAction(scaler->createStartAction3(true));
 		scalerInitializationStep->addSubAction(scaler->createWaitForDwellFinishedAction(regionTime + 5.0));
 		scalerInitialization->addSubAction(scalerInitializationStep);
-
-	} else {
-		AMErrorMon::alert(this, BIOXASXASSCANACTIONCONTROLLER_SCALER_NOT_FOUND, "Failed to complete scan initialization--valid scaler not found.");
 	}
 
 	// Initialize four element XRF detector, if using.
 
 	BioXASFourElementVortexDetector *detector = BioXASBeamline::bioXAS()->fourElementVortexDetector();
 
-	if (configuration_->usingXRFDetector() && detector){
+	if (configuration_->usingXRFDetector() && detector) {
 		vortexOK = true;
 
 		vortexDetectorInitialization = new AMSequentialListAction3(new AMSequentialListActionInfo3("BioXAS Xpress3 Initialization", "BioXAS Xpress3 Initialization"));
@@ -152,17 +204,37 @@ AMAction3* BioXASXASScanActionController::createInitializationActions()
 		AMErrorMon::alert(this, BIOXASXASSCANACTIONCONTROLLER_VORTEX_DETECTOR_NOT_FOUND, "Failed to complete scan initialization--scan to use Vortex detector, but detector not found.");
 	}
 
+	// Initialize the mono.
+
+	BioXASMonochromator *mono = BioXASBeamline::bioXAS()->mono();
+
+	if (mono) {
+
+		// Set the bragg motor power to PowerOn, must be on to move/scan.
+		CLSMAXvMotor *braggMotor = qobject_cast<CLSMAXvMotor*>(mono->braggMotor());
+
+		if (braggMotor) {
+			monoInitialization = new AMSequentialListAction3(new AMSequentialListActionInfo3("BioXAS Monochromator Initialization", "BioXAS Monochromator Initialization"));
+			monoInitialization->addSubAction(braggMotor->createPowerAction(CLSMAXvMotor::PowerOn));
+		}
+	}
+
 	// Create complete initialization action.
 
-	if (scalerOK && vortexOK) {
+	if (vortexOK) {
 		result = new AMSequentialListAction3(new AMSequentialListActionInfo3("BioXAS XAS Scan Initialization Actions", "BioXAS Main Scan Initialization Actions"));
 
 		// Add scaler initialization.
-		result->addSubAction(scalerInitialization);
+		if (scalerInitialization)
+			result->addSubAction(scalerInitialization);
 
 		// Add vortex initialization.
 		if (vortexDetectorInitialization)
 			result->addSubAction(vortexDetectorInitialization);
+
+		// Add mono initialization.
+		if (monoInitialization)
+			result->addSubAction(monoInitialization);
 	}
 
 	return result;
@@ -170,13 +242,46 @@ AMAction3* BioXASXASScanActionController::createInitializationActions()
 
 AMAction3* BioXASXASScanActionController::createCleanupActions()
 {
+	AMSequentialListAction3 *result = 0;
+	AMSequentialListAction3 *scalerCleanup = 0;
+	AMSequentialListAction3 *monoCleanup = 0;
+
+	// Create scaler cleanup actions.
+
 	CLSSIS3820Scaler *scaler = CLSBeamline::clsBeamline()->scaler();
 
-	AMListAction3 *cleanup = new AMListAction3(new AMListActionInfo3("BioXAS XAS Scan Cleanup", "BioXAS XAS Scan Cleanup"), AMListAction3::Sequential);
-	cleanup->addSubAction(scaler->createDwellTimeAction3(1.0));
-	cleanup->addSubAction(scaler->createContinuousEnableAction3(true));
+	if (scaler) {
+		scalerCleanup = new AMSequentialListAction3(new AMSequentialListActionInfo3("BioXAS Scaler Cleanup", "BioXAS Scaler Cleanup"));
+		scalerCleanup->addSubAction(scaler->createDwellTimeAction3(1.0));
+		scalerCleanup->addSubAction(scaler->createContinuousEnableAction3(true));
+	}
 
-	return cleanup;
+	// Create mono cleanup actions.
+
+	BioXASMonochromator *mono = BioXASBeamline::bioXAS()->mono();
+
+	if (mono) {
+
+		// Set the bragg motor power to PowerAutoHardware. The motor can get too warm when left on for too long, that's why we turn it off when not in use.
+		CLSMAXvMotor *braggMotor = qobject_cast<CLSMAXvMotor*>(mono->braggMotor());
+
+		if (braggMotor) {
+			monoCleanup = new AMSequentialListAction3(new AMSequentialListActionInfo3("BioXAS Monochromator Cleanup", "BioXAS Monochromator Cleanup"));
+			monoCleanup->addSubAction(braggMotor->createPowerAction(CLSMAXvMotor::PowerAutoHardware));
+		}
+	}
+
+	// Create complete cleanup action.
+
+	result = new AMSequentialListAction3(new AMSequentialListActionInfo3("BioXAS XAS Scan Cleanup Actions", "BioXAS XAS Scan Cleanup Actions"));
+
+	if (scalerCleanup)
+		result->addSubAction(scalerCleanup);
+
+	if (monoCleanup)
+		result->addSubAction(monoCleanup);
+
+	return result;
 }
 
 void BioXASXASScanActionController::createScanAssembler()
@@ -298,7 +403,6 @@ void BioXASXASScanActionController::buildScanControllerImplementation()
 			scan_->addAnalyzedDataSource(i2CorrectedDetectorSource, true, false);
 		}
 	}
-
 
 	// Create analyzed data source for the absorbance, dark current corrected values.
 

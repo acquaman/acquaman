@@ -27,7 +27,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 class BioXASEndstationTableView;
 class BioXASSidePersistentView;
 class BioXASSideXASScanConfiguration;
-class BioXASSideXASScanConfigurationView;
+class BioXASXASScanConfigurationView;
 class AMScanConfigurationViewHolder3;
 class AMRegionOfInterest;
 class AMGenericStepScanConfiguration;
@@ -51,33 +51,27 @@ public:
 	virtual void shutdown();
 
 protected slots:
+	/// Handles adding regions of interest to all the configurations that would care.
+	virtual void onRegionOfInterestAdded(AMRegionOfInterest *region);
+	/// Handles removing regions of interest from all the configurations that would care.
+	virtual void onRegionOfInterestRemoved(AMRegionOfInterest *region);
+
 	/// Creates the scaler view and adds it to the 'Detectors' pane, if the scaler is connected and the view hasn't been created previously.
 	void onScalerConnected();
 
-	/// Handles setting up all the necessary settings based on the loaded user configuration.
-	void onUserConfigurationLoadedFromDb();
-	/// Handles adding regions of interest to all the configurations that would care.
-	void onRegionOfInterestAdded(AMRegionOfInterest *region);
-	/// Handles removing regions of interest from all the configurations that would care.
-	void onRegionOfInterestRemoved(AMRegionOfInterest *region);
-
-protected:
-	/// Implementation method that individual applications can flesh out if extra setup is required when a scan action is started.  This is not pure virtual because there is no requirement to do anything to scan actions.
-	virtual void onCurrentScanActionStartedImplementation(AMScanAction *action);
-	/// Implementation method that individual applications can flesh out if extra cleanup is required when a scan action finishes.  This is not pure virtual because there is no requirement to do anything to scan actions.
-	virtual void onCurrentScanActionFinishedImplementation(AMScanAction *action);
-
 	// Things to do on startup.
 	/// Registers all of the necessary classes that are specific to this beamline.
-	void registerClasses();
+	virtual void registerClasses();
 	/// Sets up all of the exporter options for the various scan types.
-	void setupExporterOptions();
+	virtual void setupExporterOptions();
+	/// Initializes the beamline object.
+	virtual void initializeBeamline();
 	/// Sets up the user interface by specifying the extra pieces that will be added to the main window.
-	void setupUserInterface();
+	virtual void setupUserInterface();
 	/// Sets up all of the connections.
-	void makeConnections();
+	virtual void makeConnections();
 	/// Applies the current settings.
-	void applyCurrentSettings();
+	virtual void applyCurrentSettings();
 
 protected:
 	/// The scaler view.
@@ -104,7 +98,7 @@ protected:
 	/// The XAS scan configuration.
 	BioXASSideXASScanConfiguration *configuration_;
 	/// The XAS scan configuration view.
-	BioXASSideXASScanConfigurationView *configurationView_;
+	BioXASXASScanConfigurationView *configurationView_;
 	/// The XAS scan configuration view holder.
 	AMScanConfigurationViewHolder3 *configurationViewHolder_;
 
@@ -116,9 +110,9 @@ protected:
 	AMScanConfigurationViewHolder3 *commissioningConfigurationViewHolder_;
 
 	/// The mono energy calibration configuration.
-	BioXASSideXASScanConfiguration *monoCalibrationConfiguration_;
+	BioXASSSRLMonochromatorEnergyCalibrationScanConfiguration *monoCalibrationConfiguration_;
 	/// The mono energy calibration configuration view.
-	BioXASSideXASScanConfigurationView *monoCalibrationConfigurationView_;
+	BioXASXASScanConfigurationView *monoCalibrationConfigurationView_;
 	/// The mono energy calibration configuration view holder.
 	AMScanConfigurationViewHolder3 *monoCalibrationConfigurationViewHolder_;
 

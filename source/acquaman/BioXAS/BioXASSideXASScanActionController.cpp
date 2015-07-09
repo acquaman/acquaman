@@ -32,6 +32,15 @@ BioXASSideXASScanActionController::BioXASSideXASScanActionController(BioXASSideX
 {
 	configuration_ = configuration;
 
+	// Set exporter option.
+
+	AMExporterOptionXDIFormat *bioXASDefaultXAS = BioXAS::buildStandardXDIFormatExporterOption("BioXAS XAS (XDI Format)", configuration_->edge().split(" ").first(), configuration_->edge().split(" ").last(), true);
+	if (bioXASDefaultXAS->id() > 0)
+		AMAppControllerSupport::registerClass<BioXASSideXASScanConfiguration, AMExporterXDIFormat, AMExporterOptionXDIFormat>(bioXASDefaultXAS->id());
+
+
+	// Set axis control infos.
+
 	AMControlInfo controlInfo;
 	if (configuration_->usingEncoderEnergy())
 		controlInfo = BioXASSideBeamline::bioXAS()->mono()->encoderEnergyControl()->toInfo();
@@ -40,7 +49,10 @@ BioXASSideXASScanActionController::BioXASSideXASScanActionController(BioXASSideX
 
 	AMControlInfoList list;
 	list.append(controlInfo);
-	configuration_->setAxisControlInfos(list);
+
+	setConfigurationAxisControlInfos(list);
+
+	// Set detectors.
 
 	AMDetectorInfoSet bioXASDetectors;
 	bioXASDetectors.addDetectorInfo(BioXASSideBeamline::bioXAS()->i0Detector()->toInfo());
@@ -58,7 +70,7 @@ BioXASSideXASScanActionController::BioXASSideXASScanActionController(BioXASSideX
 	if (configuration_->usingXRFDetector())
 		bioXASDetectors.addDetectorInfo(BioXASSideBeamline::bioXAS()->fourElementVortexDetector()->toInfo());
 
-	configuration_->setDetectorConfigurations(bioXASDetectors);
+	setConfigurationDetectorConfigurations(bioXASDetectors);
 }
 
 BioXASSideXASScanActionController::~BioXASSideXASScanActionController()
@@ -72,11 +84,8 @@ AMAction3* BioXASSideXASScanActionController::createInitializationActions()
 	AMAction3 *generalInitialization = BioXASXASScanActionController::createInitializationActions();
 
 	if (generalInitialization) {
-		AMSequentialListAction3 *sideInitialization = new AMSequentialListAction3(new AMSequentialListActionInfo3("BioXAS Side Scan Initialization Actions", "BioXAS Side Scan Initialization Actions"));
+		AMSequentialListAction3 *sideInitialization = new AMSequentialListAction3(new AMSequentialListActionInfo3("BioXAS Side XAS Scan Initialization", "BioXAS Side XAS Scan Initialization"));
 		sideInitialization->addSubAction(generalInitialization);
-
-		// Set the bragg motor power to PowerOn, must be on to move/scan.
-		sideInitialization->addSubAction(BioXASSideBeamline::bioXAS()->mono()->braggMotor()->createPowerAction(CLSMAXvMotor::PowerOn));
 
 		// Initialize the standards wheel.
 
@@ -89,30 +98,6 @@ AMAction3* BioXASSideXASScanActionController::createInitializationActions()
 			sideInitialization->addSubAction(standardsWheel->createMoveToNameAction("None"));
 
 		result = sideInitialization;
-	}
-
-	return result;
-}
-
-AMAction3* BioXASSideXASScanActionController::createCleanupActions()
-{
-	AMAction3 *result = 0;
-	AMAction3 *generalCleanup = BioXASXASScanActionController::createCleanupActions();
-
-	if (generalCleanup) {
-		AMSequentialListAction3 *sideCleanup = new AMSequentialListAction3(new AMSequentialListActionInfo3("BioXAS Side XAS Scan Cleanup Actions", "BioXAS Side XAS Scan Cleanup Actions"));
-		sideCleanup->addSubAction(generalCleanup);
-
-		// Set scaler dwell time to 1s.
-
-		CLSSIS3820Scaler *scaler = BioXASSideBeamline::bioXAS()->scaler();
-		sideCleanup->addSubAction(scaler->createDwellTimeAction3(1.0));
-		sideCleanup->addSubAction(scaler->createContinuousEnableAction3(true));
-
-		// Set the bragg motor power to PowerAutoHardware. The motor can get too warm when left on for too long, that's why we turn it off when not in use.
-		sideCleanup->addSubAction(BioXASSideBeamline::bioXAS()->mono()->braggMotor()->createPowerAction(CLSMAXvMotor::PowerAutoHardware));
-
-		result = sideCleanup;
 	}
 
 	return result;

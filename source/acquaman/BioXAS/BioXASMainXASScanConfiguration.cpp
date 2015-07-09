@@ -1,7 +1,7 @@
 #include "BioXASMainXASScanConfiguration.h"
 
 #include "acquaman/BioXAS/BioXASMainXASScanActionController.h"
-#include "ui/BioXAS/BioXASMainXASScanConfigurationView.h"
+#include "ui/BioXAS/BioXASXASScanConfigurationView.h"
 
 
 BioXASMainXASScanConfiguration::BioXASMainXASScanConfiguration(QObject *parent)
@@ -34,9 +34,4 @@ AMScanController* BioXASMainXASScanConfiguration::createController()
 	controller->buildScanController();
 
 	return controller;
-}
-
-AMScanConfigurationView* BioXASMainXASScanConfiguration::createView()
-{
-	return new BioXASMainXASScanConfigurationView(this);
 }

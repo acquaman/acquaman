@@ -1,4 +1,4 @@
-#include "BioXASMainXASScanConfigurationView.h"
+#include "BioXASXASScanConfigurationView.h"
 
 #include <QBoxLayout>
 #include <QFormLayout>
@@ -7,21 +7,20 @@
 #include <QStringBuilder>
 
 #include "acquaman/AMScanController.h"
-#include "beamline/IDEAS/IDEASBeamline.h"
 #include "ui/AMTopFrame.h"
 #include "ui/dataman/AMEXAFSScanAxisView.h"
-#include "util/AMEnergyToKSpaceCalculator.h"
 #include "ui/util/AMPeriodicTableDialog.h"
+#include "util/AMEnergyToKSpaceCalculator.h"
 #include "util/AMPeriodicTable.h"
 
 
-BioXASMainXASScanConfigurationView::BioXASMainXASScanConfigurationView(BioXASMainXASScanConfiguration *configuration, QWidget *parent) :
+BioXASXASScanConfigurationView::BioXASXASScanConfigurationView(BioXASXASScanConfiguration *configuration, const QString &title, const QString &iconName, QWidget *parent) :
 	AMScanConfigurationView(parent)
 {
 	configuration_ = configuration;
 
-	topFrame_ = new AMTopFrame("Configure an XAS Scan");
-	topFrame_->setIcon(QIcon(":/utilities-system-monitor.png"));
+	topFrame_ = new AMTopFrame(title);
+	topFrame_->setIcon(QIcon(iconName));
 
 	regionsView_ = new AMEXAFSScanAxisView("BioXAS Region Configuration", configuration_);
 
@@ -102,18 +101,27 @@ BioXASMainXASScanConfigurationView::BioXASMainXASScanConfigurationView(BioXASMai
 	setLayout(mainVL);
 }
 
-BioXASMainXASScanConfigurationView::~BioXASMainXASScanConfigurationView()
+BioXASXASScanConfigurationView::~BioXASXASScanConfigurationView()
 {
 
 }
 
-const AMScanConfiguration* BioXASMainXASScanConfigurationView::configuration() const
+const AMScanConfiguration* BioXASXASScanConfigurationView::configuration() const
 {
 	return configuration_;
 }
 
+void BioXASXASScanConfigurationView::setTitle(const QString &newTitle)
+{
+	topFrame_->setTitle(newTitle);
+}
 
-void BioXASMainXASScanConfigurationView::setupDefaultXANESScanRegions()
+void BioXASXASScanConfigurationView::setIconName(const QString &newIcon)
+{
+	topFrame_->setIcon(QIcon(newIcon));
+}
+
+void BioXASXASScanConfigurationView::setupDefaultXANESScanRegions()
 {
 	while (configuration_->scanAxisAt(0)->regionCount())
 	{
@@ -129,7 +137,7 @@ void BioXASMainXASScanConfigurationView::setupDefaultXANESScanRegions()
 	regionsView_->insertEXAFSRegion(0, region);
 }
 
-void BioXASMainXASScanConfigurationView::setupDefaultEXAFSScanRegions()
+void BioXASXASScanConfigurationView::setupDefaultEXAFSScanRegions()
 {
 
 	while (configuration_->scanAxisAt(0)->regionCount())
@@ -164,19 +172,19 @@ void BioXASMainXASScanConfigurationView::setupDefaultEXAFSScanRegions()
 	regionsView_->insertEXAFSRegion(2, region);
 }
 
-void BioXASMainXASScanConfigurationView::onScanNameEdited()
+void BioXASXASScanConfigurationView::onScanNameEdited()
 {
 	configuration_->setName(scanName_->text());
 	configuration_->setUserScanName(scanName_->text());
 }
 
-void BioXASMainXASScanConfigurationView::setEnergy()
+void BioXASXASScanConfigurationView::setEnergy()
 {
 	configuration_->setEnergy(energy_->value());
 	regionsView_->setEdgeEnergy(energy_->value());
 }
 
-void BioXASMainXASScanConfigurationView::onElementChoiceClicked()
+void BioXASXASScanConfigurationView::onElementChoiceClicked()
 {
 	AMElement *el = AMPeriodicTableDialog::getElement(this);
 
@@ -188,7 +196,7 @@ void BioXASMainXASScanConfigurationView::onElementChoiceClicked()
 	}
 }
 
-void BioXASMainXASScanConfigurationView::fillLinesComboBox(AMElement *el)
+void BioXASXASScanConfigurationView::fillLinesComboBox(AMElement *el)
 {
 	if (!el)
 		return;
@@ -207,7 +215,7 @@ void BioXASMainXASScanConfigurationView::fillLinesComboBox(AMElement *el)
 	lineChoice_->setCurrentIndex(-1);
 }
 
-void BioXASMainXASScanConfigurationView::onLinesComboBoxIndexChanged(int index)
+void BioXASXASScanConfigurationView::onLinesComboBoxIndexChanged(int index)
 {
 	if (lineChoice_->count() == 0 || index == -1)
 		return;
@@ -217,7 +225,7 @@ void BioXASMainXASScanConfigurationView::onLinesComboBoxIndexChanged(int index)
 	configuration_->setEdge(lineChoice_->itemText(index).split(":").first());
 }
 
-void BioXASMainXASScanConfigurationView::onEdgeChanged()
+void BioXASXASScanConfigurationView::onEdgeChanged()
 {
 	QString currentChoice = lineChoice_->itemText(lineChoice_->currentIndex()).split(":").first();
 	if (configuration_->edge() == currentChoice)

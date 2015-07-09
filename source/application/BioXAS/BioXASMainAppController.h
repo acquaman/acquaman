@@ -25,10 +25,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "application/BioXAS/BioXASAppController.h"
 
 class BioXASMainXASScanConfiguration;
-class BioXASMainXASScanConfigurationView;
+class BioXASXASScanConfigurationView;
+class BioXASSSRLMonochromatorEnergyCalibrationScanConfiguration;
 class BioXASMainPersistentView;
-class BioXASSSRLMonochromatorEnergyControlCalibrationController;
-class BioXASSSRLMonochromatorEnergyControlCalibrationView;
 
 class BioXASMainAppController  : public BioXASAppController
 {
@@ -38,32 +37,34 @@ public:
 	/// This constructor should be empty.  Call BioXASMainAppController::start() to create the object.
 	explicit BioXASMainAppController(QObject *parent = 0);
 	/// Destructor.
-	virtual ~BioXASMainAppController() {}
-
-	/// create and setup all of the application windows, widgets, communication connections, and data objects that are needed on program startup. Returns true on success.  If reimplementing, must call the base-class startup() as the first thing it does.
-	virtual bool startup();
+	virtual ~BioXASMainAppController();
 
 protected slots:
+	/// Handles adding regions of interest to all the configurations that would care.
+	virtual void onRegionOfInterestAdded(AMRegionOfInterest *region);
+	/// Handles removing regions of interest from all the configurations that would care.
+	virtual void onRegionOfInterestRemoved(AMRegionOfInterest *region);
+
     /// Handles adding scaler view pane to the main window when the scaler is connected.
     void onScalerConnected();
 
 protected:
 	/// Implementation method that individual applications can flesh out if extra setup is required when a scan action is started.  This is not pure virtual because there is no requirement to do anything to scan actions.
 	virtual void onCurrentScanActionStartedImplementation(AMScanAction *action);
-	/// Implementation method that individual applications can flesh out if extra cleanup is required when a scan action finishes.  This is not pure virtual because there is no requirement to do anything to scan actions.
-	virtual void onCurrentScanActionFinishedImplementation(AMScanAction *action);
 
 	// Things to do on startup.
 	/// Registers all of the necessary classes that are BioXAS specific.
 	virtual void registerClasses();
 	/// Sets up all of the exporter options for the various scan types.
-	void setupExporterOptions();
+	virtual void setupExporterOptions();
+	/// Initializes the beamline object.
+	virtual void initializeBeamline();
 	/// Sets up the user interface by specifying the extra pieces that will be added to the main window.
-	void setupUserInterface();
+	virtual void setupUserInterface();
 	/// Sets up all of the connections.
-	void makeConnections();
+	virtual void makeConnections();
 	/// Applies current settings.
-	void applyCurrentSettings();
+	virtual void applyCurrentSettings();
 
 protected:
 	/// M1 mirror view.
@@ -78,7 +79,7 @@ protected:
 	/// XAS scan configuration.
 	BioXASMainXASScanConfiguration *configuration_;
 	/// XAS scan configuration view.
-	BioXASMainXASScanConfigurationView *configurationView_;
+	BioXASXASScanConfigurationView *configurationView_;
 	/// XAS scan configuration view holder.
 	AMScanConfigurationViewHolder3 *configurationViewHolder_;
 
@@ -90,22 +91,14 @@ protected:
 	AMScanConfigurationViewHolder3 *commissioningConfigurationViewHolder_;
 
 	/// The mono energy calibration configuration.
-	BioXASMainXASScanConfiguration *monoCalibrationConfiguration_;
+	BioXASSSRLMonochromatorEnergyCalibrationScanConfiguration *monoCalibrationConfiguration_;
 	/// The mono energy calibration configuration view.
-	BioXASMainXASScanConfigurationView *monoCalibrationConfigurationView_;
+	BioXASXASScanConfigurationView *monoCalibrationConfigurationView_;
 	/// The mono energy calibration configuration view holder.
 	AMScanConfigurationViewHolder3 *monoCalibrationConfigurationViewHolder_;
 
 	/// The side panel view.
 	BioXASMainPersistentView *persistentPanel_;
-
-	/// The mono energy calibration controller.
-	BioXASSSRLMonochromatorEnergyControlCalibrationController *monoEnergyCalibrationController_;
-	/// The mono energy calibration view.
-	BioXASSSRLMonochromatorEnergyControlCalibrationView *monoEnergyCalibrationView_;
-
-	/// Holds the user configuration used for automatically setting up some simple aspects of the user interface.
-	BioXASUserConfiguration *userConfiguration_;
 };
 
 #endif // BIOXASMAINAPPCONTROLLER_H

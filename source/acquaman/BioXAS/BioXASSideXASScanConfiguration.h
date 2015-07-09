@@ -19,20 +19,16 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#ifndef BIOXASXASSCANCONFIGURATION_H
-#define BIOXASXASSCANCONFIGURATION_H
+#ifndef BIOXASSIDEXASSCANCONFIGURATION_H
+#define BIOXASSIDEXASSCANCONFIGURATION_H
 
 #include <QObject>
 
-#include "acquaman/AMStepScanConfiguration.h"
-#include "acquaman/BioXAS/BioXASScanConfiguration.h"
+#include "acquaman/BioXAS/BioXASXASScanConfiguration.h"
 
-class BioXASSideXASScanConfiguration : public AMStepScanConfiguration, public BioXASScanConfiguration
+class BioXASSideXASScanConfiguration : public BioXASXASScanConfiguration
 {
 	Q_OBJECT
-
-	Q_PROPERTY(AMDbObject* configurationDbObject READ dbReadScanConfigurationDbObject WRITE dbWriteScanConfigurationDbObject)
-	Q_PROPERTY(QString header READ headerText WRITE setHeaderText)
 
 	Q_CLASSINFO("AMDbObject_Attributes", "description=BioXAS Side XAS Scan Configuration")
 
@@ -52,34 +48,6 @@ public:
 
 	/// Returns a pointer to a newly-created AMScanConfigurationView that is appropriate for viewing and editing this kind of scan configuration. Ownership of the new controller becomes the responsibility of the caller.
 	virtual AMScanConfigurationView* createView();
-
-	/// Returns the technique string.
-	QString technique() const;
-	/// A human-readable description of this scan configuration. Can be re-implemented to provide more details. Used by scan action to set the title for the action view.
-	virtual QString description() const;
-	/// A human-readable synopsis of this scan configuration. Can be re-implemented to proved more details. Used by scan action to set the main text in the action view.
-	virtual QString detailedDescription() const;
-
-	/// Get a nice looking string that contains all the standard information in an XAS scan.  Used when exporting.
-	virtual QString headerText() const;
-
-signals:
-	/// Notifier that the total time estimate has changed.
-	void totalTimeChanged(double);
-
-public slots:
-
-protected slots:
-	/// Computes the total time any time the regions list changes.
-	void computeTotalTime() { computeTotalTimeImplementation(); }
-	/// Helper slot that connects the new region ot the computeTotalTime slot.
-	void onRegionAdded(AMScanAxisRegion *region);
-	/// Helper slot that disconnects the region from the computeTotalTime slot.
-	void onRegionRemoved(AMScanAxisRegion *region);
-
-protected:
-	/// Method that does all the calculations for calculating the estimated scan time.
-	virtual void computeTotalTimeImplementation();
 };
 
-#endif // BIOXASXASSCANCONFIGURATION_H
+#endif // BIOXASSIDEXASSCANCONFIGURATION_H

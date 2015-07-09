@@ -1,0 +1,12 @@
+#include "BioXASSSRLMonochromatorEnergyCalibrationScanActionController.h"
+
+BioXASSSRLMonochromatorEnergyCalibrationScanActionController::BioXASSSRLMonochromatorEnergyCalibrationScanActionController(BioXASSSRLMonochromatorEnergyCalibrationScanConfiguration *configuration, QObject *parent) :
+	BioXASXASScanActionController(configuration, parent)
+{
+	configuration_ = configuration;
+}
+
+BioXASSSRLMonochromatorEnergyCalibrationScanActionController::~BioXASSSRLMonochromatorEnergyCalibrationScanActionController()
+{
+
+}

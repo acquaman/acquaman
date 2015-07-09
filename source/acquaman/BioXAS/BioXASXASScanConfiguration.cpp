@@ -2,6 +2,7 @@
 
 #include "acquaman/BioXAS/BioXASXASScanActionController.h"
 #include "dataman/AMScanAxisEXAFSRegion.h"
+#include "ui/BioXAS/BioXASXASScanConfigurationView.h"
 #include "util/AMEnergyToKSpaceCalculator.h"
 
 #include <QStringBuilder>
@@ -94,19 +95,9 @@ QString BioXASXASScanConfiguration::headerText() const
 	return header;
 }
 
-AMScanConfiguration* BioXASXASScanConfiguration::createCopy() const
+AMScanConfigurationView* BioXASXASScanConfiguration::createView()
 {
-	AMScanConfiguration *configuration = new BioXASXASScanConfiguration(*this);
-	configuration->dissociateFromDb(true);
-	return configuration;
-}
-
-AMScanController* BioXASXASScanConfiguration::createController()
-{
-	AMScanActionController *controller = new BioXASXASScanActionController(this);
-	controller->buildScanController();
-
-	return controller;
+	return new BioXASXASScanConfigurationView(this);
 }
 
 void BioXASXASScanConfiguration::onRegionAdded(AMScanAxisRegion *region)
@@ -158,4 +149,5 @@ void BioXASXASScanConfiguration::computeTotalTimeImplementation()
 	totalTime_ = time;
 	setExpectedDuration(totalTime_);
 	emit totalTimeChanged(totalTime_);
+	emit configurationChanged();
 }

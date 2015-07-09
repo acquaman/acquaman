@@ -48,13 +48,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "util/AMErrorMonitor.h"
 #include "util/AMBiHash.h"
 
-#define BIOXASSIDEBEAMLINE_PRESSURE_TOO_HIGH 54600
-#define BIOXASSIDEBEAMLINE_VALVES_CLOSED 54601
-#define BIOXASSIDEBEAMLINE_TEMPERATURE_TOO_HIGH 54602
-#define BIOXASSIDEBEAMLINE_WATER_FLOW_SWITCH_TRIP 54603
-#define BIOXASSIDEBEAMLINE_WATER_FLOW_TOO_LOW 54604
-#define BIOXASSIDEBEAMLINE_ION_PUMP_TRIP 54605
-
 class AMBasicControlDetectorEmulator;
 
 class BioXASSideBeamline : public BioXASBeamline

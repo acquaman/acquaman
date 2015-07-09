@@ -23,80 +23,38 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "acquaman/BioXAS/BioXASMainXASScanConfiguration.h"
 
-#include "analysis/AM1DExpressionAB.h"
-#include "analysis/AM1DDerivativeAB.h"
-#include "analysis/AM1DDarkCurrentCorrectionAB.h"
-
-#include "beamline/AMBasicControlDetectorEmulator.h"
 #include "beamline/BioXAS/BioXASMainBeamline.h"
-
-#include "dataman/export/AMExporterOptionGeneralAscii.h"
 
 BioXASMainXASScanActionController::BioXASMainXASScanActionController(BioXASMainXASScanConfiguration *configuration, QObject *parent) :
 	BioXASXASScanActionController(configuration, parent)
 {
 	configuration_ = configuration;
 
-	AMControlInfoList list;
-	list.append(BioXASMainBeamline::bioXAS()->mono()->energyControl()->toInfo());
+	// Set exporter option.
 
-	configuration_->setAxisControlInfos(list);
+	AMExporterOptionXDIFormat *bioXASDefaultXAS = BioXAS::buildStandardXDIFormatExporterOption("BioXAS XAS (XDI Format)", configuration_->edge().split(" ").first(), configuration_->edge().split(" ").last(), true);
+	if (bioXASDefaultXAS->id() > 0)
+		AMAppControllerSupport::registerClass<BioXASMainXASScanConfiguration, AMExporterXDIFormat, AMExporterOptionXDIFormat>(bioXASDefaultXAS->id());
+
+	// Set detectors.
 
 	AMDetectorInfoSet bioXASDetectors;
 	bioXASDetectors.addDetectorInfo(BioXASMainBeamline::bioXAS()->i0Detector()->toInfo());
 	bioXASDetectors.addDetectorInfo(BioXASMainBeamline::bioXAS()->i1Detector()->toInfo());
 	bioXASDetectors.addDetectorInfo(BioXASMainBeamline::bioXAS()->i2Detector()->toInfo());
+	bioXASDetectors.addDetectorInfo(BioXASMainBeamline::bioXAS()->scalerDwellTimeDetector()->toInfo());
 	bioXASDetectors.addDetectorInfo(BioXASMainBeamline::bioXAS()->encoderEnergySetpointDetector()->toInfo());
 	bioXASDetectors.addDetectorInfo(BioXASMainBeamline::bioXAS()->encoderEnergyFeedbackDetector()->toInfo());
 	bioXASDetectors.addDetectorInfo(BioXASMainBeamline::bioXAS()->stepEnergyFeedbackDetector()->toInfo());
-	bioXASDetectors.addDetectorInfo(BioXASMainBeamline::bioXAS()->scalerDwellTimeDetector()->toInfo());
 	bioXASDetectors.addDetectorInfo(BioXASMainBeamline::bioXAS()->braggDetector()->toInfo());
 	bioXASDetectors.addDetectorInfo(BioXASMainBeamline::bioXAS()->braggEncoderFeedbackDetector()->toInfo());
 	bioXASDetectors.addDetectorInfo(BioXASMainBeamline::bioXAS()->braggMoveRetriesDetector()->toInfo());
 	bioXASDetectors.addDetectorInfo(BioXASMainBeamline::bioXAS()->braggStepSetpointDetector()->toInfo());
 
-	configuration_->setDetectorConfigurations(bioXASDetectors);
+	setConfigurationDetectorConfigurations(bioXASDetectors);
 }
 
 BioXASMainXASScanActionController::~BioXASMainXASScanActionController()
 {
 
-}
-
-AMAction3* BioXASMainXASScanActionController::createInitializationActions()
-{
-	AMAction3 *result = 0;
-	AMAction3 *generalInitialization = BioXASXASScanActionController::createInitializationActions();
-
-	if (generalInitialization) {
-		AMListAction3 *mainInitialization = new AMListAction3(new AMListActionInfo3("BioXAS Main XAS Scan Initialization Actions", "BioXAS Main XAS Scan Initialization Actions"));
-
-		mainInitialization->addSubAction(generalInitialization);
-
-		// Set the bragg motor power to PowerOn, must be on to move/scan.
-		mainInitialization->addSubAction(BioXASMainBeamline::bioXAS()->mono()->braggMotor()->createPowerAction(CLSMAXvMotor::PowerOn));
-
-		result = mainInitialization;
-	}
-
-	return result;
-}
-
-AMAction3* BioXASMainXASScanActionController::createCleanupActions()
-{
-	AMAction3 *result = 0;
-	AMAction3 *generalCleanup = BioXASXASScanActionController::createCleanupActions();
-
-	if (generalCleanup) {
-		AMListAction3 *mainCleanup = new AMListAction3(new AMListActionInfo3("BioXAS Main XAS Scan Cleanup Actions", "BioXAS Main XAS Scan Cleanup Actions"));
-
-		mainCleanup->addSubAction(generalCleanup);
-
-		// Set the bragg motor power to PowerAutoHardware. The motor can get too warm when left on for too long, that's why we turn it off when not in use.
-		mainCleanup->addSubAction(BioXASMainBeamline::bioXAS()->mono()->braggMotor()->createPowerAction(CLSMAXvMotor::PowerAutoHardware));
-
-		result = mainCleanup;
-	}
-
-	return result;
 }

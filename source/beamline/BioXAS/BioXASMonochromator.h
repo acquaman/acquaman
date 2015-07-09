@@ -16,6 +16,9 @@ public:
 
 	/// Returns the energy control.
 	virtual BioXASMonochromatorEnergyControl* energyControl() const = 0;
+
+	/// Returns the bragg motor.
+	virtual AMControl* braggMotor() const = 0;
 };
 
 #endif // BIOXASMONOCHROMATOR_H

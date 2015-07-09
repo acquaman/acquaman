@@ -51,9 +51,6 @@ bool BioXASSideBeamline::isConnected() const
 				// Front end components.
 				BioXASBeamline::isConnected() &&
 
-				// Endstation shutters.
-				safetyShutterES_->isConnected() &&
-
 				// M1 mirror.
 				m1Mirror_->isConnected() &&
 
@@ -62,6 +59,9 @@ bool BioXASSideBeamline::isConnected() const
 
 				// M2 mirror.
 				m2Mirror_->isConnected() &&
+
+				// Endstation shutters.
+				safetyShutterES_->isConnected() &&
 
 				// JJ Slits
 				jjSlits_->isConnected() &&
@@ -79,15 +79,7 @@ bool BioXASSideBeamline::isConnected() const
 				// Motors.
 				cryostatX_->isConnected() &&
 				cryostatY_->isConnected() &&
-				cryostatZ_->isConnected() &&
-
-				// Control sets.
-				pressureSet_->isConnected() &&
-				//valveSet_->isConnected() &&
-				ionPumpSet_->isConnected() &&
-				flowTransducerSet_->isConnected() &&
-				flowSwitchSet_->isConnected() &&
-				temperatureSet_->isConnected()
+				cryostatZ_->isConnected()
 				);
 
 	return isConnected;
