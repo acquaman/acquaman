@@ -102,7 +102,7 @@ AMGCS2Command * AMGCS2CommandFactory::buildCommand(const QString &commandString)
 		return new AMGCS2GetLowSoftLimitsCommand(axesFromCommandString(commandString));
 	} else if(commandString.startsWith("NLM")) {
 		return new AMGCS2SetLowSoftLimitsCommand(axesDoublePairFromCommandString(commandString));
-	} else if(commandString.startsWith("ONT?")) {
+	} else if(commandString.startsWith("OONT?")) {
 		return new AMGCS2GetOnTargetStateCommand(axesFromCommandString(commandString));
 	} else if(commandString.startsWith("OPLM?")) {
 		return new AMGCS2GetHighSoftLimitsCommand(axesFromCommandString(commandString));

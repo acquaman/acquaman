@@ -253,6 +253,21 @@ double AMPIC887Controller::currentPosition(AMGCS2::Axis axis)
 	return controllerState_->hexapodState()->axisState(axis)->currentPosition();
 }
 
+double AMPIC887Controller::targetPosition(AMGCS2::Axis axis)
+{
+	if(!isInitialized()) {
+		emit errorEncountered("Cannot obtain target position of uninitialized axis");
+		return 0;
+	}
+
+	if(axis == AMGCS2::UnknownAxis) {
+		emit errorEncountered("Cannot obtain target position of unknown axis");
+		return 0;
+	}
+
+	return controllerState_->hexapodState()->axisState(axis)->targetPosition();
+}
+
 double AMPIC887Controller::cycleTime() const
 {
 	if(!isInitialized()) {
@@ -365,6 +380,22 @@ double AMPIC887Controller::minCommandablePosition(AMGCS2::Axis axis) const
 	return controllerState_->hexapodState()->axisState(axis)->minCommandablePosition();
 }
 
+
+double AMPIC887Controller::maxCommandablePosition(AMGCS2::Axis axis) const
+{
+	if(!isInitialized()) {
+		emit errorEncountered("Cannot obtain min commandable position from uninitialized controller");
+		return 0;
+	}
+
+	if(axis == AMGCS2::UnknownAxis) {
+		emit errorEncountered("Cannot obtain min commandable position of unknown axis");
+		return 0;
+	}
+
+	return controllerState_->hexapodState()->axisState(axis)->maxCommandablePosition();
+}
+
 bool AMPIC887Controller::onTargetState(AMGCS2::Axis axis)
 {
 	if(!isInitialized()) {
@@ -378,10 +409,10 @@ bool AMPIC887Controller::onTargetState(AMGCS2::Axis axis)
 	}
 
 	double currentAxisPosition = currentPosition(axis);
-	double targetPosition = controllerState_->hexapodState()->axisState(axis)->targetPosition();
+	double currentTargetPosition = targetPosition(axis);
 
 	double epsilon = 0.0001;
-	return qAbs(currentAxisPosition - targetPosition) < epsilon;
+	return qAbs(currentAxisPosition - currentTargetPosition) < epsilon;
 }
 
 double AMPIC887Controller::pivotPoint(AMGCS2::Axis axis) const

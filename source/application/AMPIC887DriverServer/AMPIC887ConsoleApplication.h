@@ -81,15 +81,135 @@ protected slots:
 	void onControllerErrorEncountered(const QString& errorMessage);
 
 	/*!
+	  * Handles signals indicating that a move command has been issued.
+	  */
+	void onMoveCommandIssued(const QHash<AMGCS2::Axis, double>& axisPositions);
+
+	/*!
+	  * Handles signals indicating that a move relative command has been issued.
+	  */
+	void onMoveRelativeCommandIssued(const QHash<AMGCS2::Axis, double>& relativePositions);
+
+	/*!
 	  * Handles signals indicating that a motion status command has been issued.
 	  */
 	void onMotionStatusCommandIssued();
+
+	/*!
+	  * Handles signals indicating that a reference moce command has been issued.
+	  */
+	void onReferenceMoveCommandIssued(const QList<AMGCS2::Axis>& axes);
 
 	/*!
 	  * Handles signals indicating that a get available parameters command has
 	  * been issued.
 	  */
 	void onAvailableParametersCommandIssued();
+
+	/*!
+	  * Handles signals indicating that a get command level command has been
+	  * issued.
+	  */
+	void onCommandLevelCommandIssued();
+
+	/*!
+	  * Handles signals indicating that a get current position command has been
+	  * issued.
+	  */
+	void onCurrentPositionCommandIssued(const QList<AMGCS2::Axis>& axes);
+
+	/*!
+	  * Handles signals indicating that a get cycle time command has been issued.
+	  */
+	void onCycleTimeCommandIssued();
+
+	/*!
+	  * Handles signals indicating that a get device identification command has
+	  * been issued.
+	  */
+	void onDeviceIdentificationCommandIssued();
+
+	/*!
+	  * Handles signals indicating that a get low soft limit command has been issued.
+	  */
+	void onLowSoftLimitCommandIssued(const QList<AMGCS2::Axis>& axes);
+
+	/*!
+	  * Handles signals indicating that a get high soft limit command has been issued.
+	  */
+	void onHighSoftLimitCommandIssued(const QList<AMGCS2::Axis>& axes);
+
+	/*!
+	  * Handles signals indicating that a get soft limit statuses command has been
+	  * issued.
+	  */
+	void onSoftLimitStatusesCommandIssued(const QList<AMGCS2::Axis>& axes);
+
+	/*!
+	  * Handles signals indicating that a get min position command has been issued.
+	  */
+	void onMinPositionCommandIssued(const QList<AMGCS2::Axis>& axes);
+
+	/*!
+	  * Handles signals indicating that a get max position command has been issued.
+	  */
+	void onMaxPositionCommandIssued(const QList<AMGCS2::Axis>& axes);
+
+	/*!
+	  * Handles signals indicating that a get on target state command has been
+	  * issued.
+	  */
+	void onOnTargetCommandIssued(const QList<AMGCS2::Axis>& axes);
+
+	/*!
+	  * Handles signals indicating that a get pivot point command has been issued.
+	  */
+	void onPivotPointCommandIssued(const QList<AMGCS2::Axis>& axes);
+
+	/*!
+	  * Handles signals indicating that a get target position command has been
+	  * issued.
+	  */
+	void onTargetPositionCommandIssued(const QList<AMGCS2::Axis>& axes);
+
+	/*!
+	  * Handles signals indicating that a get position units command has been
+	  * issued.
+	  */
+	void onPositionUnitsCommandIssued(const QList<AMGCS2::Axis>& axes);
+
+	/*!
+	  * Handles signals indicating that a get available recorder options command
+	  * has been issued.
+	  */
+	void onAvailableRecorderOptionsCommandIssued();
+
+	/*!
+	  * Handles signals indicating that a get record trigger command has been issued.
+	  */
+	void onRecordTriggerCommandIssued();
+
+	/*!
+	  * Handles signals indicating that a get referenced state command has been
+	  * issued.
+	  */
+	void onReferencedStateCommandIssued(const QList<AMGCS2::Axis>& axes);
+
+	/*!
+	  * Handles signals indicating that a get servo mode state command has been
+	  * issued.
+	  */
+	void onServoModeStateCommandIssued();
+
+	/*!
+	  * Handles signals indicating that a get step size command has been issued.
+	  */
+	void onStepSizeCommandIssued(const QList<AMGCS2::Axis>& axes);
+
+	/*!
+	  * Handles signals indicating that a get system velocity command has been issued.
+	  */
+	void onSystemVelocityCommandIssued();
 
 protected:
 	/*!
@@ -103,6 +223,11 @@ protected:
 	  * \returns True if at least one controller could be connected to, false otherwise.
 	  */
 	bool startupControllers();
+
+	/*!
+	  * Connects signals from the command parser to this class' slots.
+	  */
+	void makeConnections();
 
 	AMConsoleInputHandler* consoleInputHandler_;
 	AMPIC887ConsoleCommandParser* commandParser_;

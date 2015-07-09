@@ -80,16 +80,62 @@ void AMPIC887ConsoleCommandParser::interpretCommandImplementation(const QString 
 		} else {
 			emit changeActiveController(commandParts.at(1));
 		}
-	} else if(command.startsWith("MOV")){
-		emit moveCommandIssued(axesDoublePairFromCommandString(command));
-	} else if(command.startsWith("MST?")) {
-		emit motionStatusCommandIssued();
-	} else if(command.startsWith("MVR")) {
-		emit moveRelativeCommandIssued(axesDoublePairFromCommandString(command));
-	} else if(command.startsWith("FRF")) {
-		emit referenceMoveCommandIssued(axesFromCommandString(command));
 	} else if(command.startsWith("HPA?")) {
 		emit availableParametersCommandIssued();
+	} else if(command.startsWith("MST?")) {
+		emit motionStatusCommandIssued();
+	} else if (command.startsWith("CCL?")) {
+		emit commandLevelCommandIssued();
+	} else if (command.startsWith("POS?")) {
+		emit currentPositionCommandIssued(axesFromCommandString(command));
+	} else if (command.startsWith("SCT?")) {
+		emit cycleTimeCommandIssued();
+	} else if (command.startsWith("IDN?")) {
+		emit deviceIdentificationCommandIssued();
+	} else if (command.startsWith("NLM?")) {
+		emit lowSoftLimitCommandIssued(axesFromCommandString(command));
+	} else if (command.startsWith("PLM?")) {
+		emit highSoftLimitCommandIssued(axesFromCommandString(command));
+	} else if (command.startsWith("LIM?")) {
+		emit softLimitStatusCommandIssued(axesFromCommandString(command));
+	} else if (command.startsWith("TMN?")) {
+		emit minPositionCommandIssued(axesFromCommandString(command));
+	} else if (command.startsWith("TMX?")) {
+		emit maxPositionCommandIssued(axesFromCommandString(command));
+	} else if (command.startsWith("ONT?")) {
+		emit onTargetCommandIssued(axesFromCommandString(command));
+	} else if (command.startsWith("SPI?")) {
+		emit pivotPointCommandIssued(axesFromCommandString(command));
+	} else if (command.startsWith("MOV?")) {
+		emit targetPositionCommandIssued(axesFromCommandString(command));
+	} else if (command.startsWith("PUN?")) {
+		emit positionUnitsCommandIssued(axesFromCommandString(command));
+	} else if (command.startsWith("HDR?")) {
+		emit availableRecorderOptionsCommandIssued();
+	} else if (command.startsWith("DRT?")) {
+		emit recordTriggerCommandIssued();
+	} else if (command.startsWith("FRF?")) {
+		emit referencedStateCommandIssued(axesFromCommandString(command));
+	} else if (command.startsWith("SVO?")) {
+		emit servoModeCommandIssued();
+	} else if (command.startsWith("SST?")) {
+		emit stepSizeCommandIssued(axesFromCommandString(command));
+	} else if (command.startsWith("VLS?")) {
+		emit systemVelocityCommandIssued();
+	} else if(command.startsWith("MOV")){
+		bool parseSuccess = false;
+		QHash<AMGCS2::Axis, double> parsedArguments = axesDoublePairFromCommandString(command, &parseSuccess);
+		if(parseSuccess) {
+			emit moveCommandIssued(parsedArguments);
+		}
+	} else if(command.startsWith("FRF")) {
+		emit referenceMoveCommandIssued(axesFromCommandString(command));
+	} else if(command.startsWith("MVR")) {
+		bool parseSuccess = false;
+		QHash<AMGCS2::Axis, double> parsedArguments = axesDoublePairFromCommandString(command, &parseSuccess);
+		if(parseSuccess) {
+			emit moveRelativeCommandIssued(parsedArguments);
+		}
 	} else {
 
 		emit otherCommandIssued(command);
@@ -127,7 +173,7 @@ QList<AMGCS2::Axis> AMPIC887ConsoleCommandParser::axesFromCommandString(const QS
 	return axes;
 }
 
-QHash<AMGCS2::Axis, double> AMPIC887ConsoleCommandParser::axesDoublePairFromCommandString(const QString &arguments)
+QHash<AMGCS2::Axis, double> AMPIC887ConsoleCommandParser::axesDoublePairFromCommandString(const QString &arguments, bool* parseSuccess)
 {
 	QStringList argumentList = commandArguments(arguments);
 
@@ -154,11 +200,15 @@ QHash<AMGCS2::Axis, double> AMPIC887ConsoleCommandParser::axesDoublePairFromComm
 		}
 
 		AMGCS2::Axis axis = AMGCS2Support::characterToAxis(axisString.at(0));
-		bool parseSuccess = false;
-		double parsedValue = valueString.toDouble(&parseSuccess);
 
-		if(!parseSuccess) {
+		bool localParseSuccess = false;
+		double parsedValue = valueString.toDouble(&localParseSuccess);
+
+		if(!localParseSuccess) {
 			// If parse fails we have to return an empty map
+			if(parseSuccess) {
+				(*parseSuccess) = false;
+			}
 			axisValueMap.clear();
 			return axisValueMap;
 		}
@@ -166,5 +216,8 @@ QHash<AMGCS2::Axis, double> AMPIC887ConsoleCommandParser::axesDoublePairFromComm
 		axisValueMap.insert(axis, parsedValue);
 	}
 
+	if(parseSuccess) {
+		(*parseSuccess) = true;
+	}
 	return axisValueMap;
 }

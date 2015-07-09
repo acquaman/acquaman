@@ -36,6 +36,112 @@ signals:
 	void availableParametersCommandIssued();
 
 	/*!
+	  * Signal indicating that a get command level command has been issued.
+	  */
+	void commandLevelCommandIssued();
+
+	/*!
+	  * Signal indicating that a get current position command has been issued.
+	  */
+	void currentPositionCommandIssued(const QList<AMGCS2::Axis>& axes);
+
+	/*!
+	  * Signal indicating that a get cycle time command has been issued.
+	  */
+	void cycleTimeCommandIssued();
+
+	/*!
+	  * Signal indicating that a get record option command has been issued.
+	  */
+	void recordOptionCommandIssued(const QList<int>& tableIds);
+
+	/*!
+	  * Signal indicating that a get record source command has been issued.
+	  */
+	void recordSourceCommandIssued(const QList<int>& tableIds);
+
+	/*!
+	  * Signal indicating that a get device identification command has been issued.
+	  */
+	void deviceIdentificationCommandIssued();
+
+	/*!
+	  * Signal indicating that a get low soft limit command has been issued.
+	  */
+	void lowSoftLimitCommandIssued(const QList<AMGCS2::Axis>& axes);
+
+	/*!
+	  * Signal indicating that a get high soft limit command has been issued.
+	  */
+	void highSoftLimitCommandIssued(const QList<AMGCS2::Axis>& axes);
+
+	/*!
+	  * Signal indicating that a get soft limit statuses command has been issued.
+	  */
+	void softLimitStatusCommandIssued(const QList<AMGCS2::Axis>& axes);
+
+	/*!
+	  * Signal indicating that a get min position command has been issued.
+	  */
+	void minPositionCommandIssued(const QList<AMGCS2::Axis>& axes);
+
+	/*!
+	  * Signal indicating that a get max position command has been issued.
+	  */
+	void maxPositionCommandIssued(const QList<AMGCS2::Axis>& axes);
+
+	/*!
+	  * Signal indicating that a get on target states command has been issued.
+	  */
+	void onTargetCommandIssued(const QList<AMGCS2::Axis>& axes);
+
+	/*!
+	  * Signal indicating that a get pivot point command has been issued.
+	  */
+	void pivotPointCommandIssued(const QList<AMGCS2::Axis>& axes);
+
+	/*!
+	  * Signal indicating that a get target position command has been issued.
+	  */
+	void targetPositionCommandIssued(const QList<AMGCS2::Axis>& axes);
+
+	/*!
+	  * Signal indicating that a get position units command has been issued.
+	  */
+	void positionUnitsCommandIssued(const QList<AMGCS2::Axis>& axes);
+
+	/*!
+	  * Signal indicating that a get available recorder options command has been
+	  * issued.
+	  */
+	void availableRecorderOptionsCommandIssued();
+
+	/*!
+	  * Signal indicating that a get record trigger command has been issued.
+	  */
+	void recordTriggerCommandIssued();
+
+	/*!
+	  * Signal indicating that a get referenced state command has been issued.
+	  */
+	void referencedStateCommandIssued(const QList<AMGCS2::Axis>& axes);
+
+	/*!
+	  * Signal indicating that a get servo mode status command has been issued.
+	  */
+	void servoModeCommandIssued();
+
+	/*!
+	  * Signal indicating that a get step size command has been issued.
+	  */
+	void stepSizeCommandIssued(const QList<AMGCS2::Axis>& axes);
+
+	/*!
+	  * Signal indicating that a get system velocity command has been issued.
+	  */
+	void systemVelocityCommandIssued();
+
+	/*!
 	  * Signal indicating that a move command has been issued
 	  */
 	void moveCommandIssued(const QHash<AMGCS2::Axis, double>& targetPositions);
@@ -112,8 +218,11 @@ protected:
 	  *    axis1 value1 axis2 value2 ... axisN valueN
 	  * \param arguments ~ The QString argument to be converted to a mapping of
 	  * axis to value.
+	  * \param parseSuccess ~ Output parameter which indicates the success of the
+	  * parse. The parse will only fail if it cannot convert a passed character
+	  * to a double value where it is required.
 	  */
-	QHash<AMGCS2::Axis, double> axesDoublePairFromCommandString(const QString& arguments);
+	QHash<AMGCS2::Axis, double> axesDoublePairFromCommandString(const QString& arguments, bool* parseSuccess);
 };
 
 #endif // AMPIC887CONSOLECOMMANDSET_H

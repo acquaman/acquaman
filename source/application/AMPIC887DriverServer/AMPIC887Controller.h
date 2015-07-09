@@ -135,6 +135,13 @@ public:
 	double currentPosition(AMGCS2::Axis axis);
 
 	/*!
+	  * The target position of the provided axis.
+	  * \returns The target position of the axis if the controller has been initialized,
+	  * 0 otherwise.
+	  */
+	double targetPosition(AMGCS2::Axis axis);
+
+	/*!
 	  * The cycle time of the controller.
 	  * \returns The controller's cycle time if the controller has been initialized,
 	  * 0 otherwise.
@@ -187,6 +194,13 @@ public:
 	  * has been initialized and the axis is not the UnknownAxis, 0 otherwise.
 	  */
 	double minCommandablePosition(AMGCS2::Axis axis) const;
+
+	/*!
+	  * The maximum commandable position of the provided axis
+	  * \returns The maximum commandable position of the provided axis if the controller
+	  * has been initialized and the axis is not the UnknownAxis, 0 otherwise.
+	  */
+	double maxCommandablePosition(AMGCS2::Axis axis) const;
 
 	/*!
 	  * Whether the provided axis is currently on target (i.e. it's current position
