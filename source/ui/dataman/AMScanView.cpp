@@ -799,6 +799,7 @@ AMScanViewExclusiveView::AMScanViewExclusiveView(AMScanView* masterView) : AMSca
 	dataPositionTool_ = new MPlotDataPositionCursorTool(false);
 
 	AMScanViewPlotTools *tools = new AMScanViewPlotTools(QList<MPlotAbstractTool*>());
+	tools->setExclusiveSelectionEnabled(true);
 	tools->setTools(QList<MPlotAbstractTool*>() << selectorTool_ << dataPositionTool_ << dragZoomerTool_ << wheelZoomerTool_);
 
 	setPlotTools(tools);
