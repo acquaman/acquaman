@@ -24,6 +24,9 @@ CLSSIS3820ScalerModeControl::CLSSIS3820ScalerModeControl(const QString &name, co
 	numberOfScansPerBufferControl_ = 0;
 	startScanControl_ = 0;
 
+	singleShotScanCountValue_ = 1;
+	singleShotNumberOfScansPerBufferValue_ = 1;
+
 	// Make connections.
 
 	connect( this, SIGNAL(connected(bool)), this, SIGNAL(enumChanged()) );
@@ -32,6 +35,7 @@ CLSSIS3820ScalerModeControl::CLSSIS3820ScalerModeControl(const QString &name, co
 
 	// Current settings.
 
+	setValue(Continuous);
 	updateStates();
 }
 
@@ -136,6 +140,11 @@ void CLSSIS3820ScalerModeControl::updateConnected()
 				);
 
 	setConnected(isConnected);
+}
+
+void CLSSIS3820ScalerModeControl::updateValue()
+{
+	setValue(value_);
 }
 
 void CLSSIS3820ScalerModeControl::updateMoving()

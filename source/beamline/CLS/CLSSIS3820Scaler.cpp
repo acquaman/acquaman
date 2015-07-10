@@ -22,6 +22,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/AMPVControl.h"
 #include "beamline/AMDetectorTriggerSource.h"
 #include "beamline/AMCurrentAmplifier.h"
+#include "beamline/CLS/CLSSIS3820ScalerModeControl.h"
 #include "actions3/AMActionSupport.h"
 #include "actions3/actions/AMControlWaitAction.h"
 #include "util/AMErrorMonitor.h"
@@ -61,10 +62,15 @@ CLSSIS3820Scaler::CLSSIS3820Scaler(const QString &baseName, QObject *parent) :
 	}
 
 	startToggle_ = new AMPVControl("Start/Scanning", baseName+":startScan", baseName+":startScan", QString(), this, 0.1);
-	continuousToggle_ = new AMPVControl("Continuous", baseName+":continuous", baseName+":continuous", QString(), this, 0.1);
+//	continuousToggle_ = new AMPVControl("Continuous", baseName+":continuous", baseName+":continuous", QString(), this, 0.1);
 	dwellTime_ = new AMPVControl("DwellTime", baseName+":delay", baseName+":delay", QString(), this, 0.001);
 	scanPerBuffer_ = new AMPVControl("ScanPerBuffer", baseName+":nscan", baseName+":nscan", QString(), this, 0.5);
 	totalScans_ = new AMPVControl("TotalScans", baseName+":scanCount", baseName+":scanCount", QString(), this, 0.5);
+
+	continuousToggle_ = new CLSSIS3820ScalerModeControl("Mode", QString(), this, "SIS3820 Scaler Mode Control");
+	continuousToggle_->setScanCountControl(totalScans_);
+	continuousToggle_->setNumberOfScansPerBufferControl(scanPerBuffer_);
+	continuousToggle_->setStartScanControl(startToggle_);
 
 	reading_ = new AMReadOnlyPVControl("Reading", baseName+":scan", this);
 
@@ -328,7 +334,16 @@ void CLSSIS3820Scaler::onScanningToggleChanged(){
 	emit scanningChanged(startToggle_->withinTolerance(1));
 }
 
-void CLSSIS3820Scaler::onContinuousToggleChanged(){
+void CLSSIS3820Scaler::onContinuousToggleChanged()
+{
+	qDebug() << "\nScaler mode changed.";
+
+	if (continuousToggle_->value() == CLSSIS3820ScalerModeControl::Continuous)
+		qDebug() << "New mode: Continuous.";
+	else if (continuousToggle_->value() == CLSSIS3820ScalerModeControl::SingleShot)
+		qDebug() << "New mode: Single Shot.";
+	else
+		qDebug() << "New mode: Unknown.";
 
 	if(!isConnected())
 		return;

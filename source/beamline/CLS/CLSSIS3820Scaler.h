@@ -24,6 +24,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/AMControlSet.h"
 
 class CLSSIS3820ScalerChannel;
+class CLSSIS3820ScalerModeControl;
 class AMAction3;
 class AMControl;
 class AMReadOnlyPVControl;
@@ -172,7 +173,7 @@ protected:
 	/// Control that handles changing the scanning status.
 	AMControl *startToggle_;
 	/// Control that handles setting the mode of the scaler.
-	AMControl *continuousToggle_;
+	CLSSIS3820ScalerModeControl *continuousToggle_;
 	/// Controls the dwell time of the scaler.
 	AMControl *dwellTime_;
 	/// Controls the number of scans per buffer.

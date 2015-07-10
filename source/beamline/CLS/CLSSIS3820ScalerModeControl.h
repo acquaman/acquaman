@@ -61,7 +61,7 @@ protected slots:
 	/// Handles updating the control's connected state.
 	virtual void updateConnected();
 	/// Handles updating the control's value.
-	virtual void updateValue() { return; }
+	virtual void updateValue();
 	/// Handles updating the control's 'is moving' state.
 	virtual void updateMoving();
 
@@ -87,7 +87,9 @@ protected:
 	/// The start scan control.
 	AMControl *startScanControl_;
 
+	/// The value the scan count control should be set to when entering Single Shot mode.
 	double singleShotScanCountValue_;
+	/// The value the number of scans control should be set to when entering Single Shot mode.
 	double singleShotNumberOfScansPerBufferValue_;
 };
 
