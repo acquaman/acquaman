@@ -14,6 +14,7 @@ BioXASSSRLMonochromatorEnergyControl::BioXASSSRLMonochromatorEnergyControl(const
 
 	setAllowsMovesWhileMoving(false);
 	setContextKnownDescription("Energy");
+	setTolerance(0.005);
 
 	// Initialize member variables.
 
