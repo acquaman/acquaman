@@ -164,6 +164,11 @@ void BioXASSSRLMonochromatorEnergyControl::updateConnected()
 				m1MirrorPitch_ && m1MirrorPitch_->isConnected()
 				);
 
+	if (isConnected)
+		qDebug() << "\nEnergy control is connected.\n";
+	else
+		qDebug() << "\nEnergy control is NOT connected.\n";
+
 	setConnected(isConnected);
 }
 
