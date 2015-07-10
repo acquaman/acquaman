@@ -48,7 +48,8 @@ HEADERS *=\
 	source/ui/CLS/CLSJJSlitsView.h \
 	source/beamline/CLS/CLSJJSlitBladesControl.h \
 	source/beamline/CLS/CLSStandardsWheel.h \
-	source/ui/CLS/CLSStandardsWheelConfigurationView.h
+	source/ui/CLS/CLSStandardsWheelConfigurationView.h \
+    source/beamline/CLS/CLSSIS3820ScalerModeControl.h
 
 SOURCES *= \
 	source/actions3/actions/CLSSIS3820ScalerDarkCurrentMeasurementAction.cpp \
@@ -93,4 +94,7 @@ SOURCES *= \
 	source/ui/CLS/CLSJJSlitsView.cpp \
 	source/beamline/CLS/CLSJJSlitBladesControl.cpp \
 	source/beamline/CLS/CLSStandardsWheel.cpp \
-	source/ui/CLS/CLSStandardsWheelConfigurationView.cpp
+	source/ui/CLS/CLSStandardsWheelConfigurationView.cpp \
+    source/beamline/CLS/CLSSIS3820ScalerModeControl.cpp
+
+
