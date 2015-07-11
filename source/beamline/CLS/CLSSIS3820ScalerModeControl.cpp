@@ -234,13 +234,15 @@ AMAction3* CLSSIS3820ScalerModeControl::createMoveAction(double setpoint)
 
 	AMAction3 *result = 0;
 
-	if (int(setpoint) == Continuous) {
+	int setpointInt = int(setpoint);
+
+	if (setpointInt == Continuous) {
 		setSingleShotScanCountValue(scanCountControl_->value());
 		setSingleShotNumberOfScansPerBufferValue(numberOfScansPerBufferControl_->value());
 
 		result = createMoveToContinuousModeAction();
 
-	} else {
+	} else if (setpointInt == SingleShot) {
 		result = createMoveToSingleShotModeAction();
 	}
 
