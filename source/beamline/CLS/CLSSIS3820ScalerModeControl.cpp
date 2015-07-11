@@ -2,6 +2,8 @@
 #include "actions3/AMActionSupport.h"
 #include "actions3/AMListAction3.h"
 
+#include <QDebug>
+
 CLSSIS3820ScalerModeControl::CLSSIS3820ScalerModeControl(const QString &name, const QString &units, QObject *parent, const QString &description) :
 	AMPseudoMotorControl(name, units, parent, description)
 {
@@ -35,7 +37,6 @@ CLSSIS3820ScalerModeControl::CLSSIS3820ScalerModeControl(const QString &name, co
 
 	// Current settings.
 
-	setValue(Continuous);
 	updateStates();
 }
 
@@ -79,6 +80,47 @@ bool CLSSIS3820ScalerModeControl::validSetpoint(double value) const
 
 	if (valueInt == Continuous || valueInt == SingleShot)
 		result = true;
+
+	return result;
+}
+
+QString CLSSIS3820ScalerModeControl::toString() const
+{
+	QString basicInfo = AMPseudoMotorControl::toString();
+
+	// Note this control's current value.
+
+	QString controlValue = "Value: " + toString(value());
+
+	// Note this control's tolerance.
+
+	QString controlTolerance = "Tolerance: " + QString::number(tolerance());
+
+	// Create and return complete info string.
+
+	QString result = basicInfo + "\n" + controlValue + "\n" + controlTolerance;
+
+	return result;
+}
+
+QString CLSSIS3820ScalerModeControl::toString(double value) const
+{
+	QString result = "";
+
+	switch (int(value)) {
+	case SingleShot:
+		result = "Single Shot";
+		break;
+	case Continuous:
+		result = "Continuous";
+		break;
+	case None:
+		result = "None";
+		break;
+	default:
+		result = "Unknown";
+		break;
+	}
 
 	return result;
 }
@@ -133,6 +175,8 @@ void CLSSIS3820ScalerModeControl::setStartScanControl(AMControl *newControl)
 
 void CLSSIS3820ScalerModeControl::updateConnected()
 {
+	bool wasConnected = connected_;
+
 	bool isConnected = (
 				scanCountControl_ && scanCountControl_->isConnected() &&
 				numberOfScansPerBufferControl_ && numberOfScansPerBufferControl_->isConnected() &&
@@ -140,11 +184,16 @@ void CLSSIS3820ScalerModeControl::updateConnected()
 				);
 
 	setConnected(isConnected);
+
+	// If we weren't connected before but we are now, set mode to Continuous.
+
+	if (!wasConnected && isConnected)
+		move(Continuous);
 }
 
 void CLSSIS3820ScalerModeControl::updateValue()
 {
-	setValue(value_);
+	emit valueChanged(value_);
 }
 
 void CLSSIS3820ScalerModeControl::updateMoving()
@@ -158,6 +207,12 @@ void CLSSIS3820ScalerModeControl::updateMoving()
 
 		setIsMoving(isMoving);
 	}
+}
+
+void CLSSIS3820ScalerModeControl::onMoveSucceeded(QObject *action)
+{
+	AMPseudoMotorControl::onMoveSucceeded(action);
+	setValue(setpoint_);
 }
 
 void CLSSIS3820ScalerModeControl::setSingleShotScanCountValue(double newValue)
