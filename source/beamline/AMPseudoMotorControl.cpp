@@ -66,6 +66,61 @@ void AMPseudoMotorControl::removeChildControl(AMControl *control)
 	}
 }
 
+QString AMPseudoMotorControl::toString() const
+{
+	// Note this control's name.
+
+	QString controlName = "Name: " + objectName();
+
+	// Note this control's description.
+
+	QString controlDescription = "Description: " + description();
+
+	// Note this control's general connected state.
+
+	QString controlConnected = "Connected: ";
+	if (isConnected())
+		controlConnected += "Yes";
+	else
+		controlConnected += "No";
+
+	// Note the connected state of each of the child controls.
+
+	controlConnected += "\n";
+
+	int childCount = childControlCount();
+
+	for (int childIndex = 0; childIndex < childCount; childIndex++) {
+		AMControl *child = childControlAt(childIndex);
+
+		if (child) {
+			controlConnected += "\t" + child->objectName() + " connected: ";
+
+			if (child->isConnected())
+				controlConnected += "Yes";
+			else
+				controlConnected += "No";
+		}
+
+		if (childIndex < childCount - 1)
+			controlConnected += "\n";
+	}
+
+	// Note this control's moving state.
+
+	QString controlMoving = "Moving: ";
+	if (isMoving())
+		controlMoving += "Yes";
+	else
+		controlMoving += "No";
+
+	// Create and return complete info string.
+
+	QString result = controlName + "\n" + controlDescription + "\n" + controlConnected + "\n" + controlMoving;
+
+	return result;
+}
+
 AMControl::FailureExplanation AMPseudoMotorControl::move(double setpoint)
 {
 	if (!isConnected()) {
