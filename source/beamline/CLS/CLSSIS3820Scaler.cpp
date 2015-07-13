@@ -335,15 +335,6 @@ void CLSSIS3820Scaler::onScanningToggleChanged(){
 
 void CLSSIS3820Scaler::onContinuousToggleChanged()
 {
-	qDebug() << "\nScaler mode changed.";
-
-	if (continuousToggle_->value() == CLSSIS3820ScalerModeControl::Continuous)
-		qDebug() << "New mode: Continuous.";
-	else if (continuousToggle_->value() == CLSSIS3820ScalerModeControl::SingleShot)
-		qDebug() << "New mode: Single Shot.";
-	else
-		qDebug() << "New mode: Unknown.";
-
 	if(!isConnected())
 		return;
 
