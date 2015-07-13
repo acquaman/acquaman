@@ -101,7 +101,9 @@ void AMScanViewPlotSelectedToolsView::refresh()
 			if (tool) {
 				QWidget *toolView = createToolView(tool);
 				toolViews_ << toolView;
-				layout_->addWidget(toolView);
+
+				if (toolView)
+					layout_->addWidget(toolView);
 			}
 		}
 	}

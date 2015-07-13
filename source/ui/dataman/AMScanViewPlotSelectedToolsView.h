@@ -34,7 +34,7 @@ public slots:
 	virtual void refresh();
 
 protected:
-	/// Creates a tool view suitable to represent the given tool.
+	/// Creates a tool view suitable to represent the given tool. Returns 0 if no view for the given tool is available.
 	QWidget* createToolView(MPlotAbstractTool *tool);
 
 protected:
