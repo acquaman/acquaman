@@ -282,7 +282,7 @@ void AMPseudoMotorControl::onMoveFailed(QObject *action)
 	emit moveFailed(AMControl::OtherFailure);
 }
 
-void AMPseudoMotorControl:: onMoveSucceeded(QObject *action)
+void AMPseudoMotorControl::onMoveSucceeded(QObject *action)
 {
 	moveCleanup(action);
 	emit moveSucceeded();
