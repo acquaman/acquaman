@@ -235,14 +235,13 @@ double AMPIC887Controller::currentPosition(AMGCS2::Axis axis)
 			return 0;
 		}
 
-		QHash<AMGCS2::Axis, double> currentPositions =
+		AMPIC887AxisMap<double> currentPositions =
 				currentPositionCommand.axisPositions();
 
-		QList<AMGCS2::Axis> allAxes = currentPositions.keys();
+		AMPIC887AxisCollection allAxes = currentPositions.axes();
 
 		foreach(AMGCS2::Axis currentAxis, allAxes) {
-			controllerState_->hexapodState()->axisState(currentAxis)
-					->setCurrentPosition(currentPositions.value(currentAxis));
+			controllerState_->hexapodState()->setCurrentPosition(currentAxis, currentPositions.value(currentAxis));
 		}
 
 		if(!isMoving()) {
@@ -250,7 +249,7 @@ double AMPIC887Controller::currentPosition(AMGCS2::Axis axis)
 		}
 	}
 
-	return controllerState_->hexapodState()->axisState(axis)->currentPosition();
+	return controllerState_->hexapodState()->currentPosition(axis);
 }
 
 double AMPIC887Controller::targetPosition(AMGCS2::Axis axis)
@@ -265,7 +264,12 @@ double AMPIC887Controller::targetPosition(AMGCS2::Axis axis)
 		return 0;
 	}
 
-	return controllerState_->hexapodState()->axisState(axis)->targetPosition();
+	return controllerState_->hexapodState()->targetPosition(axis);
+}
+
+AMPIC887AxisMap<double> AMPIC887Controller::axisPositions()
+{
+	return controllerState_->hexapodState()->targetPositions();
 }
 
 double AMPIC887Controller::cycleTime() const
@@ -332,7 +336,7 @@ double AMPIC887Controller::lowSoftLimit(AMGCS2::Axis axis) const
 		return 0;
 	}
 
-	return controllerState_->hexapodState()->axisState(axis)->lowSoftLimit();
+	return controllerState_->hexapodState()->lowSoftLimit(axis);
 }
 
 double AMPIC887Controller::highSoftLimit(AMGCS2::Axis axis) const
@@ -347,7 +351,7 @@ double AMPIC887Controller::highSoftLimit(AMGCS2::Axis axis) const
 		return 0;
 	}
 
-	return controllerState_->hexapodState()->axisState(axis)->highSoftLimit();
+	return controllerState_->hexapodState()->highSoftLimit(axis);
 }
 
 bool AMPIC887Controller::softLimitStatus(AMGCS2::Axis axis) const
@@ -362,7 +366,7 @@ bool AMPIC887Controller::softLimitStatus(AMGCS2::Axis axis) const
 		return false;
 	}
 
-	return controllerState_->hexapodState()->axisState(axis)->areSoftLimitsActive();
+	return controllerState_->hexapodState()->softLimitState(axis);
 }
 
 double AMPIC887Controller::minCommandablePosition(AMGCS2::Axis axis) const
@@ -377,7 +381,7 @@ double AMPIC887Controller::minCommandablePosition(AMGCS2::Axis axis) const
 		return 0;
 	}
 
-	return controllerState_->hexapodState()->axisState(axis)->minCommandablePosition();
+	return controllerState_->hexapodState()->minCommandablePosition(axis);
 }
 
 
@@ -393,7 +397,7 @@ double AMPIC887Controller::maxCommandablePosition(AMGCS2::Axis axis) const
 		return 0;
 	}
 
-	return controllerState_->hexapodState()->axisState(axis)->maxCommandablePosition();
+	return controllerState_->hexapodState()->maxCommandablePosition(axis);
 }
 
 bool AMPIC887Controller::onTargetState(AMGCS2::Axis axis)
@@ -435,7 +439,7 @@ double AMPIC887Controller::pivotPoint(AMGCS2::Axis axis) const
 		return 0;
 	}
 
-	return controllerState_->hexapodState()->axisState(axis)->pivotPoint();
+	return controllerState_->hexapodState()->pivotPoint(axis);
 }
 
 AMGCS2::PositionUnits AMPIC887Controller::positionUnits(AMGCS2::Axis axis) const
@@ -450,7 +454,7 @@ AMGCS2::PositionUnits AMPIC887Controller::positionUnits(AMGCS2::Axis axis) const
 		return AMGCS2::UnknownPositionUnit;
 	}
 
-	return controllerState_->hexapodState()->axisState(axis)->positionUnits();
+	return controllerState_->hexapodState()->positionUnits(axis);
 }
 
 QList<int> AMPIC887Controller::recordedData(int tableId) const
@@ -495,7 +499,7 @@ bool AMPIC887Controller::isAxisReferenced(AMGCS2::Axis axis) const
 		return false;
 	}
 
-	return controllerState_->hexapodState()->axisState(axis)->isReferenced();
+	return controllerState_->hexapodState()->referencedState(axis);
 }
 
 bool AMPIC887Controller::areAxesReferenced() const
@@ -530,7 +534,7 @@ double AMPIC887Controller::stepSize(AMGCS2::Axis axis)
 		return 0;
 	}
 
-	return controllerState_->hexapodState()->axisState(axis)->stepSize();
+	return controllerState_->hexapodState()->stepSize(axis);
 }
 
 double AMPIC887Controller::systemVelocity() const
@@ -561,7 +565,7 @@ void AMPIC887Controller::move(const QHash<AMGCS2::Axis, double> &axisPositions)
 
 	QList<AMGCS2::Axis> axesToMove = axisPositions.keys();
 	foreach(AMGCS2::Axis currentAxis, axesToMove) {
-		if(!controllerState_->hexapodState()->axisState(currentAxis)->isReferenced()) {
+		if(!controllerState_->hexapodState()->referencedState(currentAxis)) {
 			emit errorEncountered(QString("Cannot move axis %1: Axis not referenced")
 								  .arg(AMGCS2Support::axisToCharacter(currentAxis)));
 			return;
@@ -589,7 +593,7 @@ void AMPIC887Controller::moveRelative(const QHash<AMGCS2::Axis, double> &relativ
 
 	QList<AMGCS2::Axis> axesToMove = relativePositions.keys();
 	foreach(AMGCS2::Axis currentAxis, axesToMove) {
-		if(!controllerState_->hexapodState()->axisState(currentAxis)->isReferenced()) {
+		if(!controllerState_->hexapodState()->referencedState(currentAxis)) {
 			emit errorEncountered(QString("Cannot move axis %1: Axis not referenced")
 								  .arg(AMGCS2Support::axisToCharacter(currentAxis)));
 			return;
@@ -655,8 +659,8 @@ void AMPIC887Controller::onAsyncMoveStarted(AMGCS2AsyncCommand *command)
 		QList<AMGCS2::Axis> axesMoving = moveCommand->targetPositions().keys();
 		foreach(AMGCS2::Axis currentAxis, axesMoving) {
 
-			controllerState_->hexapodState()->axisState(currentAxis)->
-					setTargetPosition(moveCommand->targetPositions().value(currentAxis));
+			controllerState_->hexapodState()->setTargetPosition(currentAxis, moveCommand->targetPositions().value(currentAxis));
+
 
 			switch (currentAxis) {
 			case AMGCS2::XAxis:
@@ -765,10 +769,9 @@ void AMPIC887Controller::onAsyncMoveRelativeStarted(AMGCS2AsyncCommand *command)
 		QList<AMGCS2::Axis> axesMoving = moveRelativeCommand->relativeTargetPositions().keys();
 		foreach(AMGCS2::Axis currentAxis, axesMoving) {
 
-			double currentTarget = controllerState_->hexapodState()->axisState(currentAxis)->targetPosition();
+			double currentTarget = controllerState_->hexapodState()->targetPosition(currentAxis);
 			double relativeTarget = moveRelativeCommand->relativeTargetPositions().value(currentAxis);
-			controllerState_->hexapodState()->axisState(currentAxis)->
-					setTargetPosition(currentTarget + relativeTarget);
+			controllerState_->hexapodState()->setTargetPosition(currentAxis, currentTarget + relativeTarget);
 
 			switch (currentAxis) {
 			case AMGCS2::XAxis:
@@ -883,19 +886,19 @@ void AMPIC887Controller::onAsyncReferenceMoveStarted(AMGCS2AsyncCommand *)
 	++vMotions_;
 	++wMotions_;
 
-	controllerState_->hexapodState()->xAxisState()->setIsReferenced(false);
-	controllerState_->hexapodState()->yAxisState()->setIsReferenced(false);
-	controllerState_->hexapodState()->zAxisState()->setIsReferenced(false);
-	controllerState_->hexapodState()->uAxisState()->setIsReferenced(false);
-	controllerState_->hexapodState()->vAxisState()->setIsReferenced(false);
-	controllerState_->hexapodState()->wAxisState()->setIsReferenced(false);
+	controllerState_->hexapodState()->setReferencedState(AMGCS2::XAxis, false);
+	controllerState_->hexapodState()->setReferencedState(AMGCS2::YAxis, false);
+	controllerState_->hexapodState()->setReferencedState(AMGCS2::ZAxis, false);
+	controllerState_->hexapodState()->setReferencedState(AMGCS2::UAxis, false);
+	controllerState_->hexapodState()->setReferencedState(AMGCS2::VAxis, false);
+	controllerState_->hexapodState()->setReferencedState(AMGCS2::WAxis, false);
 
-	controllerState_->hexapodState()->xAxisState()->setTargetPosition(0);
-	controllerState_->hexapodState()->yAxisState()->setTargetPosition(0);
-	controllerState_->hexapodState()->zAxisState()->setTargetPosition(0);
-	controllerState_->hexapodState()->uAxisState()->setTargetPosition(0);
-	controllerState_->hexapodState()->vAxisState()->setTargetPosition(0);
-	controllerState_->hexapodState()->wAxisState()->setTargetPosition(0);
+	controllerState_->hexapodState()->setTargetPosition(AMGCS2::XAxis, 0);
+	controllerState_->hexapodState()->setTargetPosition(AMGCS2::YAxis, 0);
+	controllerState_->hexapodState()->setTargetPosition(AMGCS2::ZAxis, 0);
+	controllerState_->hexapodState()->setTargetPosition(AMGCS2::UAxis, 0);
+	controllerState_->hexapodState()->setTargetPosition(AMGCS2::VAxis, 0);
+	controllerState_->hexapodState()->setTargetPosition(AMGCS2::WAxis, 0);
 }
 
 void AMPIC887Controller::onAsyncReferenceMoveSucceeded(AMGCS2AsyncCommand *command)
@@ -907,12 +910,12 @@ void AMPIC887Controller::onAsyncReferenceMoveSucceeded(AMGCS2AsyncCommand *comma
 	--vMotions_;
 	--wMotions_;
 
-	controllerState_->hexapodState()->xAxisState()->setIsReferenced(true);
-	controllerState_->hexapodState()->yAxisState()->setIsReferenced(true);
-	controllerState_->hexapodState()->zAxisState()->setIsReferenced(true);
-	controllerState_->hexapodState()->uAxisState()->setIsReferenced(true);
-	controllerState_->hexapodState()->vAxisState()->setIsReferenced(true);
-	controllerState_->hexapodState()->wAxisState()->setIsReferenced(true);
+	controllerState_->hexapodState()->setReferencedState(AMGCS2::XAxis, true);
+	controllerState_->hexapodState()->setReferencedState(AMGCS2::YAxis, true);
+	controllerState_->hexapodState()->setReferencedState(AMGCS2::ZAxis, true);
+	controllerState_->hexapodState()->setReferencedState(AMGCS2::UAxis, true);
+	controllerState_->hexapodState()->setReferencedState(AMGCS2::VAxis, true);
+	controllerState_->hexapodState()->setReferencedState(AMGCS2::WAxis, true);
 
 	command->deleteLater();
 }
@@ -952,3 +955,6 @@ void AMPIC887Controller::runCommand(AMGCS2Command *command)
 		command->run();
 	}
 }
+
+
+

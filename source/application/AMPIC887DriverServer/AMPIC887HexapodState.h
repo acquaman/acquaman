@@ -5,6 +5,7 @@
 #include "AMGCS2.h"
 #include <QString>
 #include <QFlags>
+#include "AMPIC887AxisMap.h"
 /*!
   * A class which holds the state of the hexapod being controlled by a PI C887.11
   * controller.
@@ -22,45 +23,6 @@ public:
 	  * Frees the resources contained within this hexapod state.
 	  */
 	~AMPIC887HexapodState();
-
-	/*!
-	  * The state of the contained axis with the provided designation.
-	  * \param axisDesignation ~ The designation of the axis whose state will
-	  * be returned.
-	  * \returns The state of the axis with the provided designation, or 0 if
-	  * the UnknownAxis is provided.
-	  */
-	AMPIC887AxisState* axisState(AMGCS2::Axis axisDesignation);
-
-	/*!
-	  * The state of the x axis.
-	  */
-	AMPIC887AxisState* xAxisState() const;
-
-	/*!
-	  * The state of the y axis.
-	  */
-	AMPIC887AxisState* yAxisState() const;
-
-	/*!
-	  * The state of the z axis.
-	  */
-	AMPIC887AxisState* zAxisState() const;
-
-	/*!
-	  * The state of the u axis.
-	  */
-	AMPIC887AxisState* uAxisState() const;
-
-	/*!
-	  * The state of the v axis.
-	  */
-	AMPIC887AxisState* vAxisState() const;
-
-	/*!
-	  * The state of the w axis.
-	  */
-	AMPIC887AxisState* wAxisState() const;
 
 	/*!
 	  * The servo mode state stored within this hexapod state.
@@ -96,11 +58,9 @@ public:
 	void setVelocity(double velocity);
 
 	/*!
-	  * Whether all the data for this hexapod state has been initialized. To fully
-	  * initialize the data it is necessary to call initialize() and to initialize
-	  * all of the contained axis states.
+	  * Whether all the data for this hexapod state has been initialized.
 	  */
-	bool isAllInitialized() const;
+	bool isInitialized() const;
 
 	/*!
 	  * Initializes the data for this hexapod state.
@@ -111,7 +71,17 @@ public:
 	  * \param cycleTime ~ The cycle time for the hexapod.
 	  * \param velocity ~ The current axis velocity.
 	  */
-	void initialize(bool isInServoMode, double cycleTime, double velocity);
+	void initialize(bool isInServoMode, double cycleTime, double velocity,
+					AMPIC887AxisMap<bool> referencedStates,
+					AMPIC887AxisMap<double> currentPositions,
+					AMPIC887AxisMap<double> lowSoftLimits,
+					AMPIC887AxisMap<double> highSoftLimits,
+					AMPIC887AxisMap<bool> softLimitStates,
+					AMPIC887AxisMap<AMGCS2::PositionUnits> positionUnits,
+					AMPIC887AxisMap<double> stepSizes,
+					AMPIC887AxisMap<double> minCommandablePositions,
+					AMPIC887AxisMap<double> maxCommandablePositions,
+					AMPIC887AxisMap<double> pivotPoints);
 
 	/*!
 	  * A status string displaying the current data stored in this hexapod state.
@@ -124,18 +94,82 @@ public:
 	  */
 	bool areAllAxesReferenced() const;
 
+	bool referencedState(AMGCS2::Axis axis) const;
+
+	const AMPIC887AxisMap<bool> referencedStates() const;
+
+	void setReferencedState(AMGCS2::Axis axis, bool referencedState);
+
+	double currentPosition(AMGCS2::Axis axis) const;
+
+	const AMPIC887AxisMap<double> currentPositions() const;
+
+	void setCurrentPosition(AMGCS2::Axis axis, double currentPosition);
+
+	double targetPosition(AMGCS2::Axis axis) const;
+
+	const AMPIC887AxisMap<double> targetPositions() const;
+
+	void setTargetPosition(AMGCS2::Axis axis, double targetPosition);
+
+	double lowSoftLimit(AMGCS2::Axis axis) const;
+
+	const AMPIC887AxisMap<double> lowSoftLimits() const;
+
+	void setLowSoftLimit(AMGCS2::Axis axis, double lowSoftLimit);
+
+	double highSoftLimit(AMGCS2::Axis axis) const;
+
+	const AMPIC887AxisMap<double> highSoftLimits() const;
+
+	void setHighSoftLimit(AMGCS2::Axis axis, double highSoftLimit);
+
+	bool softLimitState(AMGCS2::Axis axis) const;
+
+	const AMPIC887AxisMap<bool> softLimitStates() const;
+
+	void setSoftLimitState(AMGCS2::Axis axis, double softLimitState);
+
+	AMGCS2::PositionUnits positionUnits(AMGCS2::Axis axis) const;
+
+	const AMPIC887AxisMap<AMGCS2::PositionUnits> positionUnits();
+
+	double stepSize(AMGCS2::Axis axis) const;
+
+	const AMPIC887AxisMap<double> stepSizes() const;
+
+	void setStepSize(AMGCS2::Axis axis, double stepSize);
+
+	double minCommandablePosition(AMGCS2::Axis axis) const;
+
+	const AMPIC887AxisMap<double> minCommandablePositions() const;
+
+	double maxCommandablePosition(AMGCS2::Axis axis) const;
+
+	const AMPIC887AxisMap<double> maxCommandablePositions() const;
+
+	double pivotPoint(AMGCS2::Axis axis) const;
+
+	const AMPIC887AxisMap<double> pivotPoints() const;
+
+	void setPivotPoint(AMGCS2::Axis axis, double pivotPoint);
 protected:
 	bool isInitialized_;
 	bool isInServoMode_;
 	double cycleTime_;
 	double velocity_;
 
-	AMPIC887AxisState* xAxisState_;
-	AMPIC887AxisState* yAxisState_;
-	AMPIC887AxisState* zAxisState_;
-	AMPIC887AxisState* uAxisState_;
-	AMPIC887AxisState* vAxisState_;
-	AMPIC887AxisState* wAxisState_;
+	AMPIC887AxisMap<bool> referencedStates_;
+	AMPIC887AxisMap<double> currentPositions_;
+	AMPIC887AxisMap<double> targetPositions_;
+	AMPIC887AxisMap<double> lowSoftLimits_;
+	AMPIC887AxisMap<double> highSoftLimits_;
+	AMPIC887AxisMap<bool> softLimitStates_;
+	AMPIC887AxisMap<AMGCS2::PositionUnits> positionUnits_;
+	AMPIC887AxisMap<double> stepSizes_;
+	AMPIC887AxisMap<double> minCommandablePositions_;
+	AMPIC887AxisMap<double> maxCommandablePositions_;
+	AMPIC887AxisMap<double> pivotPoints_;
 };
 
 #endif // AMPIC887HEXAPODSTATE_H

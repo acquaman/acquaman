@@ -87,7 +87,11 @@ void AMPIC887ConsoleCommandParser::interpretCommandImplementation(const QString 
 	} else if (command.startsWith("CCL?")) {
 		emit commandLevelCommandIssued();
 	} else if (command.startsWith("POS?")) {
-		emit currentPositionCommandIssued(axesFromCommandString(command));
+		bool parseSuccess;
+		AMPIC887AxisCollection parsedCollection = AMPIC887AxisCollection::fromString(command.mid(4), &parseSuccess);
+		if(parseSuccess) {
+			emit currentPositionCommandIssued(parsedCollection);
+		}
 	} else if (command.startsWith("SCT?")) {
 		emit cycleTimeCommandIssued();
 	} else if (command.startsWith("IDN?")) {

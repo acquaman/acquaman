@@ -3,8 +3,8 @@
 
 #include "AMGCS2Command.h"
 #include "../AMGCS2.h"
-#include <QList>
-#include <QHash>
+#include "../AMPIC887AxisCollection.h"
+#include "../AMPIC887AxisMap.h"
 /*!
   * A command representing a query for a PI C887.11 controller to report the
   * position units of the provided axes.
@@ -15,10 +15,11 @@ public:
 	/*!
 	  * Creates an instance of a get position units command which will query the
 	  * position units of the provided axes.
-	  * \param axes ~ An optional list of the axes whose position units are to be
+	  * \param axesToQuery ~ An optional list of the axes whose position units are to be
 	  * queried. If none is provided the position units of all axes will be queried.
 	  */
-	AMGCS2GetPositionUnitsCommand(const QList<AMGCS2::Axis>& axes = QList<AMGCS2::Axis>());
+	AMGCS2GetPositionUnitsCommand(
+			const AMPIC887AxisCollection& axesToQuery = AMPIC887AxisCollection());
 
 	/*!
 	  * Virtual destructor for a get position units command.
@@ -31,7 +32,7 @@ public:
 	  * \returns A mapping of axis to position units if the command was run successfully,
 	  * an empty hash otherwise.
 	  */
-	QHash<AMGCS2::Axis, AMGCS2::PositionUnits> axesUnits() const;
+	AMPIC887AxisMap<AMGCS2::PositionUnits> axesUnits() const;
 
 	/*!
 	  * The mapping of axes to position units in a human readable format.
@@ -54,8 +55,8 @@ protected:
 	  */
 	virtual bool runImplementation();
 
-	QList<AMGCS2::Axis> axesToQuery_;
-	QHash<AMGCS2::Axis, AMGCS2::PositionUnits> axesUnits_;
+	AMPIC887AxisCollection axesToQuery_;
+	AMPIC887AxisMap<AMGCS2::PositionUnits> axesUnits_;
 };
 
 #endif // AMGCS2GETPOSITIONUNITSCOMMAND_H

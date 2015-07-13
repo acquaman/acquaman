@@ -5,6 +5,7 @@
 
 #include "AMPIC887Controller.h"
 #include "AMPIC887ControllerCollection.h"
+#include "AMPIC887AxisCollection.h"
 
 class AMConsoleInputHandler;
 class AMPIC887ConsoleCommandParser;
@@ -116,7 +117,7 @@ protected slots:
 	  * Handles signals indicating that a get current position command has been
 	  * issued.
 	  */
-	void onCurrentPositionCommandIssued(const QList<AMGCS2::Axis>& axes);
+	void onCurrentPositionCommandIssued(const AMPIC887AxisCollection& axes);
 
 	/*!
 	  * Handles signals indicating that a get cycle time command has been issued.

@@ -2,6 +2,7 @@
 #define AMGCS2ASYNCMOVERELATIVECOMMAND_H
 
 #include <QHash>
+#include "../AMPIC887AxisMap.h"
 #include "AMGCS2AsyncCommand.h"
 #include "../AMGCS2.h"
 #include "AMGCS2MoveRelativeCommand.h"

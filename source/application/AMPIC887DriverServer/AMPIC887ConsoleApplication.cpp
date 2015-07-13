@@ -199,7 +199,7 @@ void AMPIC887ConsoleApplication::onCommandLevelCommandIssued()
 			AMGCS2Support::commandLevelToString(controllerCollection_.activeController()->commandLevel()));
 }
 
-void AMPIC887ConsoleApplication::onCurrentPositionCommandIssued(const QList<AMGCS2::Axis> &axes)
+void AMPIC887ConsoleApplication::onCurrentPositionCommandIssued(const AMPIC887AxisCollection &axes)
 {
 	if(!controllerCollection_.activeController() && !controllerCollection_.activeController()->isInitialized()) {
 		return;
@@ -769,7 +769,7 @@ void AMPIC887ConsoleApplication::makeConnections()
 	connect(commandParser_, SIGNAL(referenceMoveCommandIssued(QList<AMGCS2::Axis>)), this, SLOT(onReferenceMoveCommandIssued(QList<AMGCS2::Axis>)));
 	connect(commandParser_, SIGNAL(availableParametersCommandIssued()), this, SLOT(onAvailableParametersCommandIssued()));
 	connect(commandParser_, SIGNAL(commandLevelCommandIssued()), this, SLOT(onCommandLevelCommandIssued()));
-	connect(commandParser_, SIGNAL(currentPositionCommandIssued(QList<AMGCS2::Axis>)), this, SLOT(onCurrentPositionCommandIssued(QList<AMGCS2::Axis>)));
+	connect(commandParser_, SIGNAL(currentPositionCommandIssued(AMPIC887AxisCollection)), this, SLOT(onCurrentPositionCommandIssued(AMPIC887AxisCollection)));
 	connect(commandParser_, SIGNAL(cycleTimeCommandIssued()), this, SLOT(onCycleTimeCommandIssued()));
 
 	connect(commandParser_, SIGNAL(deviceIdentificationCommandIssued()), this, SLOT(onDeviceIdentificationCommandIssued()));

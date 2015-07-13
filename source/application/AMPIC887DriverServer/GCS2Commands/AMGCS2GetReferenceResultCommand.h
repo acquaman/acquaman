@@ -3,8 +3,8 @@
 
 #include "AMGCS2Command.h"
 #include "../AMGCS2.h"
-#include <QList>
-#include <QHash>
+#include "../AMPIC887AxisCollection.h"
+#include "../AMPIC887AxisMap.h"
 
 /*!
   * A command representing a query to obtain the reference status of the provided
@@ -21,7 +21,8 @@ public:
 	  * be returned. If none is provided the command will request the reference
 	  * status of all axes.
 	  */
-	AMGCS2GetReferenceResultCommand(const QList<AMGCS2::Axis> & axes = QList<AMGCS2::Axis>());
+	AMGCS2GetReferenceResultCommand(
+			const AMPIC887AxisCollection axesToQuery = AMPIC887AxisCollection());
 
 	/*!
 	  * Virtual destructor for a get reference results command
@@ -39,7 +40,7 @@ public:
 	  * current reference status if the command was run successfully, otherwise
 	  * an empty map.
 	  */
-	QHash<AMGCS2::Axis, bool> axesReferenceResults() const;
+	AMPIC887AxisMap<bool> axesReferenceResults() const;
 protected:
 	/*!
 	  * Ensures that the arugments passed to the command are valid:
@@ -56,8 +57,8 @@ protected:
 	  */
 	virtual bool runImplementation();
 
-	QList<AMGCS2::Axis> axes_;
-	QHash<AMGCS2::Axis, bool> axisReferenceResults_;
+	AMPIC887AxisCollection axesToQuery_;
+	AMPIC887AxisMap<bool> axisReferenceResults_;
 };
 
 #endif // AMGCS2GETREFERENCERESULTCOMMAND_H

@@ -5,6 +5,7 @@
 
 #include "AMAbstractConsoleCommandParser.h"
 #include "AMGCS2.h"
+#include "AMPIC887AxisCollection.h"
 #include <QHash>
 /*!
   * A class which represents the commands which a user can input to the Hexapod
@@ -43,7 +44,7 @@ signals:
 	/*!
 	  * Signal indicating that a get current position command has been issued.
 	  */
-	void currentPositionCommandIssued(const QList<AMGCS2::Axis>& axes);
+	void currentPositionCommandIssued(const AMPIC887AxisCollection& axes);
 
 	/*!
 	  * Signal indicating that a get cycle time command has been issued.

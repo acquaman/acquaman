@@ -4,14 +4,9 @@
 #include "AMGCS2GetMovingStatusCommand.h"
 #include "AMGCS2GetReferenceResultCommand.h"
 
-AMGCS2AsyncReferenceMoveCommand::AMGCS2AsyncReferenceMoveCommand(const QList<AMGCS2::Axis>& axes)
+AMGCS2AsyncReferenceMoveCommand::AMGCS2AsyncReferenceMoveCommand(const AMPIC887AxisCollection& axesToReference)
 {
-	axesToReference_ = axes;
-
-	if(axesToReference_.isEmpty()) {
-		axesToReference_ << AMGCS2::XAxis << AMGCS2::YAxis << AMGCS2::ZAxis
-							<< AMGCS2::UAxis << AMGCS2::VAxis << AMGCS2::WAxis;
-	}
+	axesToReference_ = axesToReference;
 }
 
 QString AMGCS2AsyncReferenceMoveCommand::outputString() const
@@ -53,7 +48,7 @@ void AMGCS2AsyncReferenceMoveCommand::isFinishedImplementation()
 		return;
 	}
 
-	QHash<AMGCS2::Axis, bool> axisReferenceResults =
+	AMPIC887AxisMap<bool> axisReferenceResults =
 			referenceResultsCommand.axesReferenceResults();
 
 	bool allReferenced = true;

@@ -55,7 +55,7 @@ bool AMGCS2AsyncMoveRelativeCommand::runImplementation()
 	targetPositionCommand.setController(controller_);
 	targetPositionCommand.run();
 
-	QHash<AMGCS2::Axis, double> currentTargetPositions =
+	AMPIC887AxisMap<double> currentTargetPositions =
 			targetPositionCommand.axisTargetPositions();
 
 	foreach(AMGCS2::Axis currentAxis, axesMoved) {
@@ -156,10 +156,10 @@ void AMGCS2AsyncMoveRelativeCommand::isFinishedImplementation()
 		return;
 	}
 
-	QHash<AMGCS2::Axis, double> currentTargetPositions =
+	AMPIC887AxisMap<double> currentTargetPositions =
 			targetPositionCommand.axisTargetPositions();
 
-	QHash<AMGCS2::Axis, double> finalPositions = currentPositionCommand.axisPositions();
+	AMPIC887AxisMap<double> finalPositions = currentPositionCommand.axisPositions();
 
 	foreach (AMGCS2::Axis currentAxis, axesMoved) {
 		double destination = originalTargetPositions_.value(currentAxis);

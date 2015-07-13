@@ -4,6 +4,7 @@
 
 #include <QHash>
 #include "../AMGCS2.h"
+#include "../AMPIC887AxisMap.h"
 #include "AMGCS2MoveCommand.h"
 
 /*!

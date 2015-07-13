@@ -4,6 +4,8 @@
 
 #include <QList>
 #include "../AMGCS2.h"
+#include "../AMPIC887AxisCollection.h"
+#include "../AMPIC887AxisMap.h"
 
 /*!
   * An asynchronous command which performs a reference move on the provided axes,
@@ -18,11 +20,11 @@ public:
 	/*!
 	  * Creates an instance of a reference move command on the provided list of
 	  * axes.
-	  * \param axes ~ An optional list of the axes on whom a reference move will
+	  * \param axesToReference ~ An optional list of the axes on whom a reference move will
 	  * be performed. If none is provided a reference move will be performed on
 	  * all axes.
 	  */
-	AMGCS2AsyncReferenceMoveCommand(const QList<AMGCS2::Axis>& axes = QList<AMGCS2::Axis>());
+	AMGCS2AsyncReferenceMoveCommand(const AMPIC887AxisCollection& axesToReference = AMPIC887AxisCollection());
 
 	/*!
 	  * Virtual destructor for an asynchronous reference move command.
@@ -48,7 +50,7 @@ protected:
 	  */
 	virtual void isFinishedImplementation();
 
-	QList<AMGCS2::Axis> axesToReference_;
+	AMPIC887AxisCollection axesToReference_;
 };
 
 #endif // AMGCS2ASYNCREFERENCEMOVECOMMAND_H

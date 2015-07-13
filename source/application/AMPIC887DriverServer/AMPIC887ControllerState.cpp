@@ -36,7 +36,7 @@ void AMPIC887ControllerState::initialize(AMGCS2::ControllerCommandLevel commandL
 
 bool AMPIC887ControllerState::isAllInitialized() const
 {
-	return hexapodState_->isAllInitialized() &&
+	return hexapodState_->isInitialized() &&
 			dataRecorderState_->isAllInitialized();
 }
 

@@ -4,9 +4,9 @@
 #include "PI_GCS2_DLL.h"
 #include "../AMPIC887Controller.h"
 
-AMGCS2GetReferenceResultCommand::AMGCS2GetReferenceResultCommand(const QList<AMGCS2::Axis> & axes)
+AMGCS2GetReferenceResultCommand::AMGCS2GetReferenceResultCommand(const AMPIC887AxisCollection axesToQuery)
 {
-	axes_ = axes;
+	axesToQuery_ = axesToQuery;
 }
 
 QString AMGCS2GetReferenceResultCommand::outputString() const
@@ -37,23 +37,28 @@ QString AMGCS2GetReferenceResultCommand::outputString() const
 	return returnOutput.trimmed();
 }
 
-QHash<AMGCS2::Axis, bool> AMGCS2GetReferenceResultCommand::axesReferenceResults() const
+AMPIC887AxisMap<bool> AMGCS2GetReferenceResultCommand::axesReferenceResults() const
 {
 	return axisReferenceResults_;
 }
 
 bool AMGCS2GetReferenceResultCommand::validateArguments()
 {
-	if(axes_.count() > AXIS_COUNT) {
-		lastError_ = "Too many axes specified";
+	if(axesToQuery_.isEmpty()) {
+		lastError_ = "No axes to query";
 		return false;
 	}
 
-	foreach (AMGCS2::Axis currentAxis, axes_) {
-		if(currentAxis == AMGCS2::UnknownAxis) {
-			lastError_ = "Could not obtain reference status of unknown axis";
-			return false;
-		}
+	AMPIC887AxisCollection::ValidState validState = axesToQuery_.validate();
+
+	if(validState == AMPIC887AxisCollection::ContainsUnknownAxis) {
+		lastError_ = "Unknown axis";
+		return false;
+	}
+
+	if(validState == AMPIC887AxisCollection::ContainsDuplicateAxes) {
+		lastError_ = "Duplicate axes";
+		return false;
 	}
 
 	return true;
@@ -61,50 +66,30 @@ bool AMGCS2GetReferenceResultCommand::validateArguments()
 
 bool AMGCS2GetReferenceResultCommand::runImplementation()
 {
-	//Clear previous results:
+	// Clear previous results
 	axisReferenceResults_.clear();
 
-	AMCArrayHandler<int> referenceResults(axes_.length());
-	QString axesString;
+	AMCArrayHandler<int> referencedResultValuesHandler(axesToQuery_.count());
+	bool success = false;
 
 
+	QString axesArgumentsString = axesToQuery_.toString();
 
-	foreach(AMGCS2::Axis currentAxis, axes_) {
-		axesString.append(QString(" %1")
-						  .arg(AMGCS2Support::axisToCharacter(currentAxis)));
-	}
+	success = PI_qFRF(controller_->id(),
+					  axesArgumentsString.toStdString().c_str(),
+					  referencedResultValuesHandler.cArray());
 
-	axesString = axesString.trimmed();
+	if(success) {
 
-
-	bool success = PI_qFRF(controller_->id(),
-						   axesString.toStdString().c_str(),
-						   referenceResults.cArray());
-
-
-	if(!success) {
-		lastError_ = controllerErrorMessage();
-	} else {
-
-		QList<AMGCS2::Axis> axisResults = axes_;
-
-		if(axes_.count() == 0) {
-			axisResults << AMGCS2::XAxis
-						<< AMGCS2::YAxis
-						<< AMGCS2::ZAxis
-						<< AMGCS2::UAxis
-						<< AMGCS2::VAxis
-						<< AMGCS2::WAxis;
-		}
-
-
-		for(int iAxis = 0;
-			iAxis < axisResults.count();
+		for(int iAxis = 0, axesCount = axesToQuery_.count();
+			iAxis < axesCount;
 			++iAxis) {
 
-			axisReferenceResults_.insert(axisResults.at(iAxis),
-										 (referenceResults.cArray()[iAxis] == 1) );
+			axisReferenceResults_.insert(axesToQuery_.at(iAxis),
+								  referencedResultValuesHandler.cArray()[iAxis] == 1);
 		}
+	} else {
+		lastError_ = controllerErrorMessage();
 	}
 
 	return success;

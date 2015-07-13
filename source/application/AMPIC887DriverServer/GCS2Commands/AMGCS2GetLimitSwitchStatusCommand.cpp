@@ -4,9 +4,9 @@
 #include "util/AMCArrayHandler.h"
 #include "PI_GCS2_DLL.h"
 #include "../AMPIC887Controller.h"
-AMGCS2GetLimitSwitchStatusCommand::AMGCS2GetLimitSwitchStatusCommand(const QList<AMGCS2::Axis>& axes)
+AMGCS2GetLimitSwitchStatusCommand::AMGCS2GetLimitSwitchStatusCommand(const AMPIC887AxisCollection& axesToQuery)
 {
-	axesToQuery_ = axes;
+	axesToQuery_ = axesToQuery;
 }
 
 QString AMGCS2GetLimitSwitchStatusCommand::outputString() const
@@ -33,23 +33,28 @@ QString AMGCS2GetLimitSwitchStatusCommand::outputString() const
 	}
 }
 
-QHash<AMGCS2::Axis, bool> AMGCS2GetLimitSwitchStatusCommand::limitSwitchStatuses() const
+AMPIC887AxisMap<bool> AMGCS2GetLimitSwitchStatusCommand::limitSwitchStatuses() const
 {
 	return limitSwitchStatuses_;
 }
 
 bool AMGCS2GetLimitSwitchStatusCommand::validateArguments()
 {
-	if(axesToQuery_.count() > AXIS_COUNT) {
-		lastError_ = "Too many axes specified";
+	if(axesToQuery_.isEmpty()) {
+		lastError_ = "No axes to query";
 		return false;
 	}
 
-	foreach(AMGCS2::Axis currentAxis, axesToQuery_) {
-		if(currentAxis == AMGCS2::UnknownAxis) {
-			lastError_ = "Cannot get limit switch status of unknown axis";
-			return false;
-		}
+	AMPIC887AxisCollection::ValidState validState = axesToQuery_.validate();
+
+	if(validState == AMPIC887AxisCollection::ContainsUnknownAxis) {
+		lastError_ = "Unknown axis";
+		return false;
+	}
+
+	if(validState == AMPIC887AxisCollection::ContainsDuplicateAxes) {
+		lastError_ = "Duplicate axes";
+		return false;
 	}
 
 	return true;
@@ -57,50 +62,30 @@ bool AMGCS2GetLimitSwitchStatusCommand::validateArguments()
 
 bool AMGCS2GetLimitSwitchStatusCommand::runImplementation()
 {
-	//Clear previous results:
+	// Clear previous results
 	limitSwitchStatuses_.clear();
 
-	AMCArrayHandler<int> statusResults(axesToQuery_.length());
-	QString axesString;
+	AMCArrayHandler<int> SoftLimitStatusesHandler(axesToQuery_.count());
+	bool success = false;
 
 
+	QString axesArgumentsString = axesToQuery_.toString();
 
-	foreach(AMGCS2::Axis currentAxis, axesToQuery_) {
-		axesString.append(QString(" %1")
-						  .arg(AMGCS2Support::axisToCharacter(currentAxis)));
-	}
+	success = PI_qLIM(controller_->id(),
+					  axesArgumentsString.toStdString().c_str(),
+					  SoftLimitStatusesHandler.cArray());
 
-	axesString = axesString.trimmed();
+	if(success) {
 
-
-	bool success = PI_qLIM(controller_->id(),
-						   axesString.toStdString().c_str(),
-						   statusResults.cArray());
-
-
-	if(!success) {
-		lastError_ = controllerErrorMessage();
-	} else {
-
-		QList<AMGCS2::Axis> axisResults = axesToQuery_;
-
-		if(axesToQuery_.count() == 0) {
-			axisResults << AMGCS2::XAxis
-						<< AMGCS2::YAxis
-						<< AMGCS2::ZAxis
-						<< AMGCS2::UAxis
-						<< AMGCS2::VAxis
-						<< AMGCS2::WAxis;
-		}
-
-
-		for(int iAxis = 0;
-			iAxis < axisResults.count();
+		for(int iAxis = 0, axesCount = axesToQuery_.count();
+			iAxis < axesCount;
 			++iAxis) {
 
-			limitSwitchStatuses_.insert(axisResults.at(iAxis),
-										 (statusResults.cArray()[iAxis] == 1) );
+			limitSwitchStatuses_.insert(axesToQuery_.at(iAxis),
+								  SoftLimitStatusesHandler.cArray()[iAxis] == 1);
 		}
+	} else {
+		lastError_ = controllerErrorMessage();
 	}
 
 	return success;

@@ -4,9 +4,9 @@
 #include "util/AMCArrayHandler.h"
 #include "PI_GCS2_DLL.h"
 #include "../AMPIC887Controller.h"
-AMGCS2GetStepSizeCommand::AMGCS2GetStepSizeCommand(const QList<AMGCS2::Axis>& axes)
+AMGCS2GetStepSizeCommand::AMGCS2GetStepSizeCommand(const AMPIC887AxisCollection& axesToQuery)
 {
-	axesToQuery_ = axes;
+	axesToQuery_ = axesToQuery;
 }
 
 QString AMGCS2GetStepSizeCommand::outputString() const
@@ -27,24 +27,27 @@ QString AMGCS2GetStepSizeCommand::outputString() const
 	return returnString.trimmed();
 }
 
-QHash<AMGCS2::Axis, double> AMGCS2GetStepSizeCommand::axisStepSizes() const
+AMPIC887AxisMap<double> AMGCS2GetStepSizeCommand::axisStepSizes() const
 {
 	return axisStepSizes_;
 }
 
 bool AMGCS2GetStepSizeCommand::validateArguments()
 {
-	foreach(AMGCS2::Axis currentAxis, axesToQuery_) {
-
-		if(currentAxis == AMGCS2::UnknownAxis) {
-			lastError_ = "Unknown axis";
-			return false;
-		}
+	if(axesToQuery_.isEmpty()) {
+		lastError_ = "No axes to query";
+		return false;
 	}
 
-	if(axesToQuery_.count() > AXIS_COUNT) {
+	AMPIC887AxisCollection::ValidState validState = axesToQuery_.validate();
 
-		lastError_ = "Too many axes provided";
+	if(validState == AMPIC887AxisCollection::ContainsUnknownAxis) {
+		lastError_ = "Unknown axis";
+		return false;
+	}
+
+	if(validState == AMPIC887AxisCollection::ContainsDuplicateAxes) {
+		lastError_ = "Duplicate axes";
 		return false;
 	}
 
@@ -53,53 +56,29 @@ bool AMGCS2GetStepSizeCommand::validateArguments()
 
 bool AMGCS2GetStepSizeCommand::runImplementation()
 {
-	AMCArrayHandler<double> stepSizeValues(AXIS_COUNT);
+	// Clear previous results
+	axisStepSizes_.clear();
+
+	AMCArrayHandler<double> stepSizeValuesHandler(axesToQuery_.count());
 	bool success = false;
 
-	if(axesToQuery_.isEmpty()) {
 
-		success = PI_qSST(controller_->id(), 0, stepSizeValues.cArray());
+	QString axesArgumentsString = axesToQuery_.toString();
 
-		if(success) {
-			axisStepSizes_.insert(AMGCS2::XAxis, stepSizeValues.cArray()[0]);
-			axisStepSizes_.insert(AMGCS2::YAxis, stepSizeValues.cArray()[1]);
-			axisStepSizes_.insert(AMGCS2::ZAxis, stepSizeValues.cArray()[2]);
-			axisStepSizes_.insert(AMGCS2::UAxis, stepSizeValues.cArray()[3]);
-			axisStepSizes_.insert(AMGCS2::VAxis, stepSizeValues.cArray()[4]);
-			axisStepSizes_.insert(AMGCS2::WAxis, stepSizeValues.cArray()[5]);
-		}
+	success = PI_qSST(controller_->id(),
+					  axesArgumentsString.toStdString().c_str(),
+					  stepSizeValuesHandler.cArray());
 
-	} else {
+	if(success) {
 
-		QString axesString;
-
-		for(int iAxis = 0, axisCount = axesToQuery_.count();
-			iAxis < axisCount;
+		for(int iAxis = 0, axesCount = axesToQuery_.count();
+			iAxis < axesCount;
 			++iAxis) {
 
-			AMGCS2::Axis currentAxis = axesToQuery_.at(iAxis);
-			axesString.append(QString(" %1")
-							  .arg(AMGCS2Support::axisToCharacter(currentAxis)));
+			axisStepSizes_.insert(axesToQuery_.at(iAxis),
+								  stepSizeValuesHandler.cArray()[iAxis]);
 		}
-
-		success = PI_qSST(controller_->id(),
-						  axesString.toStdString().c_str(),
-						  stepSizeValues.cArray());
-
-		if(success) {
-
-			for(int iAxis = 0, axisCount = axesToQuery_.count();
-				iAxis < axisCount;
-				++iAxis) {
-
-				AMGCS2::Axis currentAxis = axesToQuery_.at(iAxis);
-				axisStepSizes_.insert(currentAxis,
-									  stepSizeValues.cArray()[iAxis]);
-			}
-		}
-	}
-
-	if(!success) {
+	} else {
 		lastError_ = controllerErrorMessage();
 	}
 

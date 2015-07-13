@@ -2,8 +2,8 @@
 #define AMGCS2GETPIVOTPOINTCOMMAND_H
 #include "AMGCS2Command.h"
 #include "../AMGCS2.h"
-#include <QList>
-#include <QHash>
+#include "../AMPIC887AxisCollection.h"
+#include "../AMPIC887AxisMap.h"
 
 /*!
   * A command representing a query for the rotational axes pivot points of a PI
@@ -20,7 +20,8 @@ public:
 	  * platforms motions). If none are provided then the pivot point positions
 	  * in the X, Y and Z axes will be returned.
 	  */
-	AMGCS2GetPivotPointCommand(const QList<AMGCS2::Axis> axes = QList<AMGCS2::Axis>());
+	AMGCS2GetPivotPointCommand(
+			const AMPIC887AxisCollection& axesToQuery = AMPIC887AxisCollection(AMPIC887AxisCollection::LinearAxes));
 
 	/*!
 	  * Virtual destructor for a get pivot point command
@@ -39,7 +40,7 @@ public:
 	  * \returns Mapping of axis to pivot point position if the command has been
 	  * run successfully, an empty hash otherwise.
 	  */
-	QHash<AMGCS2::Axis, double> axisPivotPoints() const;
+	AMPIC887AxisMap<double> axisPivotPoints() const;
 
 protected:
 	/*!
@@ -56,9 +57,9 @@ protected:
 	  */
 	virtual bool runImplementation();
 
-	QList<AMGCS2::Axis> axesToQuery_;
+	AMPIC887AxisCollection axesToQuery_;
 
-	QHash<AMGCS2::Axis, double> axisPivotPoints_;
+	AMPIC887AxisMap<double> axisPivotPoints_;
 };
 
 #endif // AMGCS2GETPIVOTPOINTCOMMAND_H

@@ -2,8 +2,8 @@
 #define AMGCS2GETCURRENTPOSITIONCOMMAND_H
 
 #include "AMGCS2Command.h"
-#include <QHash>
-#include <QList>
+#include "../AMPIC887AxisCollection.h"
+#include "../AMPIC887AxisMap.h"
 #include "../AMGCS2.h"
 
 /*!
@@ -18,7 +18,8 @@ public:
 	  * \param axesToQuery ~ An optional list of the axes whose positions are to
 	  * be queried. If none if provided the positions of all axes will be queried.
 	  */
-	AMGCS2GetCurrentPositionCommand(const QList<AMGCS2::Axis>& axesToQuery = QList<AMGCS2::Axis>());
+	AMGCS2GetCurrentPositionCommand(
+			const AMPIC887AxisCollection& axesToQuery = AMPIC887AxisCollection());
 
 	/*!
 	  * Virtual destructor for a position query command.
@@ -30,7 +31,7 @@ public:
 	  * the last time the command was run. If the command has not been run, or was
 	  * not successful when last run, then an empty map is returned.
 	  */
-	QHash<AMGCS2::Axis, double> axisPositions();
+	AMPIC887AxisMap<double> axisPositions();
 
 	/*!
 	  * A stringified form on the returned axis positions if the command
@@ -53,10 +54,10 @@ protected:
 	virtual bool runImplementation();
 
 	/// The map of axes to positions returned by the controller when run was called.
-	QHash<AMGCS2::Axis, double> axisPositions_;
+	AMPIC887AxisMap<double> axisPositions_;
 
 	/// A list of the axes whose positions are to be queried.
-	QList<AMGCS2::Axis> axesToQuery_;
+	AMPIC887AxisCollection axesToQuery_;
 };
 
 #endif // AMGCS2GETCURRENTPOSITIONCOMMAND_H

@@ -151,19 +151,6 @@ bool AMGCS2InitializeControllerStateCommand::runImplementation()
 	// Axis Level Statuses
 	//////////////////////
 
-	// Current position & target position (same as we're not moving)
-	AMGCS2GetCurrentPositionCommand currentPositionCommand;
-	currentPositionCommand.setController(controller_);
-	currentPositionCommand.run();
-
-	if(currentPositionCommand.runningState() != Succeeded) {
-		lastError_ = "Could not obtain position of controller's hexapod";
-		return false;
-	}
-
-	QHash<AMGCS2::Axis, double> currentPositions =
-			currentPositionCommand.axisPositions();
-
 	// The referenced state of the axes
 	AMGCS2GetReferenceResultCommand referencedResultsCommand;
 	referencedResultsCommand.setController(controller_);
@@ -174,8 +161,15 @@ bool AMGCS2InitializeControllerStateCommand::runImplementation()
 		return false;
 	}
 
-	QHash<AMGCS2::Axis, bool> referencedResults =
-			referencedResultsCommand.axesReferenceResults();
+	// Current position & target position (same as we're not moving)
+	AMGCS2GetCurrentPositionCommand currentPositionCommand;
+	currentPositionCommand.setController(controller_);
+	currentPositionCommand.run();
+
+	if(currentPositionCommand.runningState() != Succeeded) {
+		lastError_ = "Could not obtain position of controller's hexapod";
+		return false;
+	}
 
 	// The low soft limit values of the axes
 	AMGCS2GetLowSoftLimitsCommand lowSoftLimitsCommand;
@@ -187,9 +181,6 @@ bool AMGCS2InitializeControllerStateCommand::runImplementation()
 		return false;
 	}
 
-	QHash<AMGCS2::Axis, double> lowSoftLimts =
-			lowSoftLimitsCommand.axesLowSoftLimits();
-
 	// The high soft limit values of the axes
 	AMGCS2GetHighSoftLimitsCommand highSoftLimitsCommand;
 	highSoftLimitsCommand.setController(controller_);
@@ -199,9 +190,6 @@ bool AMGCS2InitializeControllerStateCommand::runImplementation()
 		lastError_ = "Could not obtain the high soft limit values of the controller's hexapod";
 		return false;
 	}
-
-	QHash<AMGCS2::Axis, double> highSoftLimts =
-			highSoftLimitsCommand.axesHighSoftLimits();
 
 	// Whether the soft limits are active for the axes
 	AMGCS2GetLimitSwitchStatusCommand softLimitStatusCommand;
@@ -213,9 +201,6 @@ bool AMGCS2InitializeControllerStateCommand::runImplementation()
 		return false;
 	}
 
-	QHash<AMGCS2::Axis, bool> softLimitStatuses =
-			softLimitStatusCommand.limitSwitchStatuses();
-
 	// The position units of the axes
 	AMGCS2GetPositionUnitsCommand positionUnitsCommand;
 	positionUnitsCommand.setController(controller_);
@@ -225,9 +210,6 @@ bool AMGCS2InitializeControllerStateCommand::runImplementation()
 		lastError_ = "Could not obtain the position units of the controller's hexapod";
 		return false;
 	}
-
-	QHash<AMGCS2::Axis, AMGCS2::PositionUnits> positionUnits =
-			positionUnitsCommand.axesUnits();
 
 	// The step size values of the axes
 	AMGCS2GetStepSizeCommand stepSizeCommand;
@@ -239,9 +221,6 @@ bool AMGCS2InitializeControllerStateCommand::runImplementation()
 		return false;
 	}
 
-	QHash<AMGCS2::Axis, double> stepSizes =
-			stepSizeCommand.axisStepSizes();
-
 	// The min commandable positions of the axes
 	AMGCS2GetMinCommandablePositionCommand minCommandablePositionCommand;
 	minCommandablePositionCommand.setController(controller_);
@@ -251,10 +230,6 @@ bool AMGCS2InitializeControllerStateCommand::runImplementation()
 		lastError_ = "Could not obtain the min commandable positions of the controller's hexapod";
 		return false;
 	}
-
-	QHash<AMGCS2::Axis, double> minPositions =
-			minCommandablePositionCommand.minCommandablePositions();
-
 
 	// The max commandable position of the axes
 	AMGCS2GetMaxCommandablePositionCommand maxCommandablePositionCommand;
@@ -266,9 +241,6 @@ bool AMGCS2InitializeControllerStateCommand::runImplementation()
 		return false;
 	}
 
-	QHash<AMGCS2::Axis, double> maxPositions =
-			maxCommandablePositionCommand.maxCommandablePositions();
-
 	// The pivot points of the linear axes (X, Y, Z)
 	AMGCS2GetPivotPointCommand pivotPointCommand;
 	pivotPointCommand.setController(controller_);
@@ -279,8 +251,6 @@ bool AMGCS2InitializeControllerStateCommand::runImplementation()
 		return false;
 	}
 
-	QHash<AMGCS2::Axis, double> pivotPoints =
-			pivotPointCommand.axisPivotPoints();
 
 	// Data Recorder Statuses
 	//////////////////////////
@@ -342,79 +312,19 @@ bool AMGCS2InitializeControllerStateCommand::runImplementation()
 	// Initialize Hexapod data
 	///////////////////////////
 
-	controllerState_->hexapodState()->initialize(servoMode, cycleTime, systemVelocity);
-
-	// Initialize Hexapod Axes data
-	////////////////////////////////
-
-	controllerState_->hexapodState()->xAxisState()->initialize(
-				referencedResults.value(AMGCS2::XAxis),
-				currentPositions.value(AMGCS2::XAxis),
-				lowSoftLimts.value(AMGCS2::XAxis),
-				highSoftLimts.value(AMGCS2::XAxis),
-				softLimitStatuses.value(AMGCS2::XAxis),
-				positionUnits.value(AMGCS2::XAxis),
-				stepSizes.value(AMGCS2::XAxis),
-				maxPositions.value(AMGCS2::XAxis),
-				minPositions.value(AMGCS2::XAxis),
-				pivotPoints.value(AMGCS2::XAxis));
-
-	controllerState_->hexapodState()->yAxisState()->initialize(
-				referencedResults.value(AMGCS2::YAxis),
-				currentPositions.value(AMGCS2::YAxis),
-				lowSoftLimts.value(AMGCS2::YAxis),
-				highSoftLimts.value(AMGCS2::YAxis),
-				softLimitStatuses.value(AMGCS2::YAxis),
-				positionUnits.value(AMGCS2::YAxis),
-				stepSizes.value(AMGCS2::YAxis),
-				maxPositions.value(AMGCS2::YAxis),
-				minPositions.value(AMGCS2::YAxis),
-				pivotPoints.value(AMGCS2::YAxis));
-
-	controllerState_->hexapodState()->zAxisState()->initialize(
-				referencedResults.value(AMGCS2::ZAxis),
-				currentPositions.value(AMGCS2::ZAxis),
-				lowSoftLimts.value(AMGCS2::ZAxis),
-				highSoftLimts.value(AMGCS2::ZAxis),
-				softLimitStatuses.value(AMGCS2::ZAxis),
-				positionUnits.value(AMGCS2::ZAxis),
-				stepSizes.value(AMGCS2::ZAxis),
-				maxPositions.value(AMGCS2::ZAxis),
-				minPositions.value(AMGCS2::ZAxis),
-				pivotPoints.value(AMGCS2::ZAxis));
-
-	controllerState_->hexapodState()->uAxisState()->initialize(
-				referencedResults.value(AMGCS2::UAxis),
-				currentPositions.value(AMGCS2::UAxis),
-				lowSoftLimts.value(AMGCS2::UAxis),
-				highSoftLimts.value(AMGCS2::UAxis),
-				softLimitStatuses.value(AMGCS2::UAxis),
-				positionUnits.value(AMGCS2::UAxis),
-				stepSizes.value(AMGCS2::UAxis),
-				maxPositions.value(AMGCS2::UAxis),
-				minPositions.value(AMGCS2::UAxis));
-
-	controllerState_->hexapodState()->vAxisState()->initialize(
-				referencedResults.value(AMGCS2::VAxis),
-				currentPositions.value(AMGCS2::VAxis),
-				lowSoftLimts.value(AMGCS2::VAxis),
-				highSoftLimts.value(AMGCS2::VAxis),
-				softLimitStatuses.value(AMGCS2::VAxis),
-				positionUnits.value(AMGCS2::VAxis),
-				stepSizes.value(AMGCS2::VAxis),
-				maxPositions.value(AMGCS2::VAxis),
-				minPositions.value(AMGCS2::VAxis));
-
-	controllerState_->hexapodState()->wAxisState()->initialize(
-				referencedResults.value(AMGCS2::WAxis),
-				currentPositions.value(AMGCS2::WAxis),
-				lowSoftLimts.value(AMGCS2::WAxis),
-				highSoftLimts.value(AMGCS2::WAxis),
-				softLimitStatuses.value(AMGCS2::WAxis),
-				positionUnits.value(AMGCS2::WAxis),
-				stepSizes.value(AMGCS2::WAxis),
-				maxPositions.value(AMGCS2::WAxis),
-				minPositions.value(AMGCS2::WAxis));
+	controllerState_->hexapodState()->initialize(servoMode,
+												 cycleTime,
+												 systemVelocity,
+												 referencedResultsCommand.axesReferenceResults(),
+												 currentPositionCommand.axisPositions(),
+												 lowSoftLimitsCommand.axesLowSoftLimits(),
+												 highSoftLimitsCommand.axesHighSoftLimits(),
+												 softLimitStatusCommand.limitSwitchStatuses(),
+												 positionUnitsCommand.axesUnits(),
+												 stepSizeCommand.axisStepSizes(),
+												 minCommandablePositionCommand.minCommandablePositions(),
+												 maxCommandablePositionCommand.maxCommandablePositions(),
+												 pivotPointCommand.axisPivotPoints());
 
 	// Initialize data recorder data
 	/////////////////////////////////

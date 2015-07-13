@@ -150,11 +150,11 @@ QStringList AMGCS2CommandFactory::commandArguments(const QString& commandString)
 	return commandString.trimmed().split(" ").mid(1, -1);
 }
 
-QList<AMGCS2::Axis> AMGCS2CommandFactory::axesFromCommandString(const QString &axisArguments)
+AMPIC887AxisCollection AMGCS2CommandFactory::axesFromCommandString(const QString &axisArguments)
 {
 	QStringList axisArgumentList = commandArguments(axisArguments);
 
-	QList<AMGCS2::Axis> axes;
+	AMPIC887AxisCollection axes;
 
 	for(int iAxis = 0, argCount = axisArgumentList.count();
 		iAxis < argCount;

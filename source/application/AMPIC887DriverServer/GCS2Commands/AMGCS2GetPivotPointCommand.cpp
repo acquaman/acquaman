@@ -3,9 +3,9 @@
 #include "util/AMCArrayHandler.h"
 #include "PI_GCS2_DLL.h"
 #include "../AMPIC887Controller.h"
-AMGCS2GetPivotPointCommand::AMGCS2GetPivotPointCommand(const QList<AMGCS2::Axis> axes)
+AMGCS2GetPivotPointCommand::AMGCS2GetPivotPointCommand(const AMPIC887AxisCollection& axesToQuery)
 {
-	axesToQuery_ = axes;
+	axesToQuery_ = axesToQuery;
 }
 
 QString AMGCS2GetPivotPointCommand::outputString() const
@@ -28,28 +28,28 @@ QString AMGCS2GetPivotPointCommand::outputString() const
 	return outputString.trimmed();
 }
 
-QHash<AMGCS2::Axis, double> AMGCS2GetPivotPointCommand::axisPivotPoints() const
+AMPIC887AxisMap<double> AMGCS2GetPivotPointCommand::axisPivotPoints() const
 {
 	return axisPivotPoints_;
 }
 
 bool AMGCS2GetPivotPointCommand::validateArguments()
 {
-	if(axesToQuery_.count() > 3) {
-		lastError_ = "Too many axes specified";
+	if(axesToQuery_.isEmpty()) {
+		lastError_ = "No axes to query";
 		return false;
 	}
 
-	foreach(AMGCS2::Axis currentAxis, axesToQuery_) {
+	AMPIC887AxisCollection::ValidState validState = axesToQuery_.validate();
 
-		if(currentAxis == AMGCS2::UnknownAxis ||
-				currentAxis == AMGCS2::UAxis ||
-				currentAxis == AMGCS2::VAxis ||
-				currentAxis == AMGCS2::WAxis) {
+	if(validState == AMPIC887AxisCollection::ContainsUnknownAxis) {
+		lastError_ = "Unknown axis";
+		return false;
+	}
 
-			lastError_ = "Cannot obtain pivot point - Only X, Y and Z axes valid";
-			return false;
-		}
+	if(validState == AMPIC887AxisCollection::ContainsDuplicateAxes) {
+		lastError_ = "Duplicate axes";
+		return false;
 	}
 
 	return true;
@@ -57,50 +57,31 @@ bool AMGCS2GetPivotPointCommand::validateArguments()
 
 bool AMGCS2GetPivotPointCommand::runImplementation()
 {
-	AMCArrayHandler<double> pivotPointValuesHandler(AXIS_COUNT);
+	// Clear previous results
+	axisPivotPoints_.clear();
+
+	AMCArrayHandler<double> pivotPointValuesHandler(axesToQuery_.count());
 	bool success = false;
 
-	if(axesToQuery_.isEmpty()) {
 
-		success = PI_qSPI(controller_->id(), 0, pivotPointValuesHandler.cArray());
+	QString axesArgumentsString = axesToQuery_.toString();
 
-		if(success) {
-			axisPivotPoints_.insert(AMGCS2::XAxis, pivotPointValuesHandler.cArray()[0]);
-			axisPivotPoints_.insert(AMGCS2::YAxis, pivotPointValuesHandler.cArray()[1]);
-			axisPivotPoints_.insert(AMGCS2::ZAxis, pivotPointValuesHandler.cArray()[2]);
+	success = PI_qSPI(controller_->id(),
+					  axesArgumentsString.toStdString().c_str(),
+					  pivotPointValuesHandler.cArray());
+
+	if(success) {
+
+		for(int iAxis = 0, axesCount = axesToQuery_.count();
+			iAxis < axesCount;
+			++iAxis) {
+
+			axisPivotPoints_.insert(axesToQuery_.at(iAxis),
+								  pivotPointValuesHandler.cArray()[iAxis]);
 		}
-
 	} else {
-
-		QString axesString;
-
-		foreach(AMGCS2::Axis currentAxis, axesToQuery_) {
-			axesString.append(QString(" %1")
-							  .arg(AMGCS2Support::axisToCharacter(currentAxis)));
-		}
-
-		success = PI_qSPI(controller_->id(),
-						  axesString.toStdString().c_str(),
-						  pivotPointValuesHandler.cArray());
-
-		if(success) {
-
-			for(int iAxis = 0, axisCount = axesToQuery_.count();
-				iAxis < axisCount;
-				++iAxis) {
-
-				AMGCS2::Axis currentAxis = axesToQuery_.at(iAxis);
-				axisPivotPoints_.insert(currentAxis,
-										pivotPointValuesHandler.cArray()[iAxis]);
-			}
-		}
-	}
-
-	if(!success) {
 		lastError_ = controllerErrorMessage();
 	}
 
 	return success;
-
-
 }

@@ -9,6 +9,8 @@
 #include <QHash>
 #include "GCS2Commands/AMGCS2Command.h"
 #include "GCS2Commands/AMGCS2AsyncCommand.h"
+#include "AMPIC887AxisCollection.h"
+#include "AMPIC887AxisMap.h"
 
 #include "AMPIC887ControllerState.h"
 /*!
@@ -140,6 +142,8 @@ public:
 	  * 0 otherwise.
 	  */
 	double targetPosition(AMGCS2::Axis axis);
+
+	AMPIC887AxisMap<double> targetPositions();
 
 	/*!
 	  * The cycle time of the controller.
