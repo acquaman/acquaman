@@ -186,7 +186,7 @@ void CLSSIS3820ScalerModeControl::updateConnected()
 
 void CLSSIS3820ScalerModeControl::updateValue()
 {
-	emit valueChanged(value_);
+	// We do nothing here, value updates only happen onMoveSucceeded().
 }
 
 void CLSSIS3820ScalerModeControl::updateMoving()
