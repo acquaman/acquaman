@@ -69,47 +69,47 @@ signals:
 	/*!
 	  * Signal indicating that a get low soft limit command has been issued.
 	  */
-	void lowSoftLimitCommandIssued(const QList<AMGCS2::Axis>& axes);
+	void lowSoftLimitCommandIssued(const AMPIC887AxisCollection& axes);
 
 	/*!
 	  * Signal indicating that a get high soft limit command has been issued.
 	  */
-	void highSoftLimitCommandIssued(const QList<AMGCS2::Axis>& axes);
+	void highSoftLimitCommandIssued(const AMPIC887AxisCollection& axes);
 
 	/*!
 	  * Signal indicating that a get soft limit statuses command has been issued.
 	  */
-	void softLimitStatusCommandIssued(const QList<AMGCS2::Axis>& axes);
+	void softLimitStatusCommandIssued(const AMPIC887AxisCollection& axes);
 
 	/*!
 	  * Signal indicating that a get min position command has been issued.
 	  */
-	void minPositionCommandIssued(const QList<AMGCS2::Axis>& axes);
+	void minPositionCommandIssued(const AMPIC887AxisCollection& axes);
 
 	/*!
 	  * Signal indicating that a get max position command has been issued.
 	  */
-	void maxPositionCommandIssued(const QList<AMGCS2::Axis>& axes);
+	void maxPositionCommandIssued(const AMPIC887AxisCollection& axes);
 
 	/*!
 	  * Signal indicating that a get on target states command has been issued.
 	  */
-	void onTargetCommandIssued(const QList<AMGCS2::Axis>& axes);
+	void onTargetCommandIssued(const AMPIC887AxisCollection& axes);
 
 	/*!
 	  * Signal indicating that a get pivot point command has been issued.
 	  */
-	void pivotPointCommandIssued(const QList<AMGCS2::Axis>& axes);
+	void pivotPointCommandIssued(const AMPIC887AxisCollection& axes);
 
 	/*!
 	  * Signal indicating that a get target position command has been issued.
 	  */
-	void targetPositionCommandIssued(const QList<AMGCS2::Axis>& axes);
+	void targetPositionCommandIssued(const AMPIC887AxisCollection& axes);
 
 	/*!
 	  * Signal indicating that a get position units command has been issued.
 	  */
-	void positionUnitsCommandIssued(const QList<AMGCS2::Axis>& axes);
+	void positionUnitsCommandIssued(const AMPIC887AxisCollection& axes);
 
 	/*!
 	  * Signal indicating that a get available recorder options command has been
@@ -125,7 +125,7 @@ signals:
 	/*!
 	  * Signal indicating that a get referenced state command has been issued.
 	  */
-	void referencedStateCommandIssued(const QList<AMGCS2::Axis>& axes);
+	void referencedStateCommandIssued(const AMPIC887AxisCollection& axes);
 
 	/*!
 	  * Signal indicating that a get servo mode status command has been issued.
@@ -135,7 +135,7 @@ signals:
 	/*!
 	  * Signal indicating that a get step size command has been issued.
 	  */
-	void stepSizeCommandIssued(const QList<AMGCS2::Axis>& axes);
+	void stepSizeCommandIssued(const AMPIC887AxisCollection& axes);
 
 	/*!
 	  * Signal indicating that a get system velocity command has been issued.
@@ -155,7 +155,7 @@ signals:
 	/*!
 	  * Signal indicating that a reference move command has been issued.
 	  */
-	void referenceMoveCommandIssued(const QList<AMGCS2::Axis>& axes);
+	void referenceMoveCommandIssued(const AMPIC887AxisCollection& axes);
 
 	/*!
 	  * Signal indicating that a motion status command has been issued.
@@ -207,11 +207,15 @@ protected:
 
 	/*!
 	  * Helper method for converting a command arguments in string format into a
-	  * list of Axes.
-	  * \param axisArguments ~ The QString argument to be converted to a list of
-	  * axes.
+	  * collection of Axes.
+	  * \param axisArguments ~ The QString argument to be converted to a collection
+	  * of axes.
+	  * \param stateIfEmpty ~ An optional parameter which governs how the collection
+	  * should be initialized if the command arguments are empty.
 	  */
-	QList<AMGCS2::Axis> axesFromCommandString(const QString& axisArguments);
+	AMPIC887AxisCollection axesFromCommandString(
+			const QString &axisArguments,
+			AMPIC887AxisCollection::InitializationState stateIfEmpty = AMPIC887AxisCollection::AllAxes);
 
 	/*!
 	  * Helper method for converting a command arguments into a mapping of axis

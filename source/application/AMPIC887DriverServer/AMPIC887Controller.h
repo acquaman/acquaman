@@ -137,13 +137,25 @@ public:
 	double currentPosition(AMGCS2::Axis axis);
 
 	/*!
+	  * The current positions of the provided axes.
+	  * \param axes ~ The collection of axes whose current position is to be
+	  * returned.
+	  */
+	AMPIC887AxisMap<double> currentPositions(const AMPIC887AxisCollection& axes);
+
+	/*!
 	  * The target position of the provided axis.
 	  * \returns The target position of the axis if the controller has been initialized,
 	  * 0 otherwise.
 	  */
 	double targetPosition(AMGCS2::Axis axis);
 
-	AMPIC887AxisMap<double> targetPositions();
+	/*!
+	  * The target positions of the provided axes.
+	  * \param axes ~ A collection of the axes whose target positions are to be
+	  * returned.
+	  */
+	AMPIC887AxisMap<double> targetPositions(const AMPIC887AxisCollection& axes);
 
 	/*!
 	  * The cycle time of the controller.
@@ -179,11 +191,25 @@ public:
 	double lowSoftLimit(AMGCS2::Axis axis) const;
 
 	/*!
+	  * The current low soft limits of the provided axes.
+	  * \param axes ~ The colleciton of axes whose low soft limits is to be
+	  * returned.
+	  */
+	AMPIC887AxisMap<double> lowSoftLimits(const AMPIC887AxisCollection& axes) const;
+
+	/*!
 	  * The high soft limit of the provided axis.
 	  * \returns The high soft limit of the provided axis if the controller has
 	  * been initialized and the axis is not the UnknownAxis, 0 otherwise.
 	  */
 	double highSoftLimit(AMGCS2::Axis axis) const;
+
+	/*!
+	  * The current high soft limits of the provided axes.
+	  * \param axes ~ The colleciton of axes whose high soft limits is to be
+	  * returned.
+	  */
+	AMPIC887AxisMap<double> highSoftLimits(const AMPIC887AxisCollection& axes) const;
 
 	/*!
 	  * Whether the soft limits are active for the provided axis.
@@ -193,6 +219,13 @@ public:
 	bool softLimitStatus(AMGCS2::Axis axis) const;
 
 	/*!
+	  * The current soft limit statuses for the provided axes.
+	  * \param axes ~ The collection of axes whose soft limit statuses is to be
+	  * returned.
+	  */
+	AMPIC887AxisMap<bool> softLimitStatuses(const AMPIC887AxisCollection& axes) const;
+
+	/*!
 	  * The minimum commandable position of the provided axis
 	  * \returns The minimum commandable position of the provided axis if the controller
 	  * has been initialized and the axis is not the UnknownAxis, 0 otherwise.
@@ -200,11 +233,25 @@ public:
 	double minCommandablePosition(AMGCS2::Axis axis) const;
 
 	/*!
+	  * The minimum commnandable positions of the provided axes.
+	  * \param axes ~ The collection of axes whose min commandable positions are
+	  * to be returned.
+	  */
+	AMPIC887AxisMap<double> minCommandablePositions(const AMPIC887AxisCollection& axes) const;
+
+	/*!
 	  * The maximum commandable position of the provided axis
 	  * \returns The maximum commandable position of the provided axis if the controller
 	  * has been initialized and the axis is not the UnknownAxis, 0 otherwise.
 	  */
 	double maxCommandablePosition(AMGCS2::Axis axis) const;
+
+	/*!
+	  * The maximum commandable position of the provided axes.
+	  * \param axes ~ The collection of axes whose max commandable positions are
+	  * to be returned.
+	  */
+	AMPIC887AxisMap<double> maxCommandablePositions(const AMPIC887AxisCollection& axes) const;
 
 	/*!
 	  * Whether the provided axis is currently on target (i.e. it's current position
@@ -215,6 +262,13 @@ public:
 	bool onTargetState(AMGCS2::Axis axis);
 
 	/*!
+	  * The on target states of the provied axes.
+	  * \param axes ~ The collection of axes whose on target states are to be
+	  * returned.
+	  */
+	AMPIC887AxisMap<bool> onTargetStates(const AMPIC887AxisCollection& axes);
+
+	/*!
 	  * The pivot point of the provided axis.
 	  * \returns The pivot point of the provided axis if the controller has been
 	  * initialized and the axis is X, Y or Z; 0 otherwise.
@@ -222,11 +276,23 @@ public:
 	double pivotPoint(AMGCS2::Axis axis) const;
 
 	/*!
+	  * The pivot points of the provided axes.
+	  * \param The collection of axes whose pivot points are to be returned.
+	  */
+	AMPIC887AxisMap<double> pivotPoints(const AMPIC887AxisCollection& axes) const;
+
+	/*!
 	  * The position units of the provided axis.
 	  * \returns The position units of the provided axis if the controller has been
 	  * initialized and the axis is not the UnknownAxis, UnknownPositionUnits otherwise.
 	  */
 	AMGCS2::PositionUnits positionUnits(AMGCS2::Axis axis) const;
+
+	/*!
+	  * The position units of the provided axes.
+	  * \param axes ~ The axes whose position units are to be returned.
+	  */
+	AMPIC887AxisMap<AMGCS2::PositionUnits> positionUnits(const AMPIC887AxisCollection& axes) const;
 
 	/*!
 	  * The data recorded in the data table with the provided tableId during the
@@ -262,6 +328,12 @@ public:
 	bool isAxisReferenced(AMGCS2::Axis axis) const;
 
 	/*!
+	  * The referenced states of the provided axes.
+	  * \param axes ~ The axes whose referenced states are to be returned.
+	  */
+	AMPIC887AxisMap<bool> axisReferencedStates(const AMPIC887AxisCollection& axes) const;
+
+	/*!
 	  * Whether a reference move has been performed across all axes.
 	  * \returns True if all axes of the controller have been referenced and the
 	  * controller has been initialized, false otherwise.
@@ -282,6 +354,12 @@ public:
 	  * initialized and the axis is not the UnknownAxis, 0 otherwise.
 	  */
 	double stepSize(AMGCS2::Axis axis);
+
+	/*!
+	  * The step sizes of the provided axes.
+	  * \param axes ~ The collection of axes whose steps sizes are to be returned.
+	  */
+	AMPIC887AxisMap<double> stepSizes(const AMPIC887AxisCollection& axes) const;
 
 	/*!
 	  * The current velocity of motions across all axes of the controller's hexapod.
@@ -428,6 +506,11 @@ protected:
 	  * \param command ~ The command to run.
 	  */
 	void runCommand(AMGCS2Command* command);
+
+	/*!
+	  * Refreshes the current position data within the controller state cache.
+	  */
+	void refreshCurrentPositions();
 
 	AMPIC887ControllerState* controllerState_;
 	QString name_;

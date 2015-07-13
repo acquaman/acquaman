@@ -50,6 +50,7 @@ public:
 	  */
 	QString toString(const QString& = "Data")
 	{
+		// Implemented for known types in partial specializations below.
 		return QString();
 	}
 
@@ -60,9 +61,30 @@ public:
 	{
 		return this->contains(AMGCS2::UnknownAxis);
 	}
+
+	/*!
+	  * A map of the provided axes to their values stored within this map. If
+	  * a key contained within the provided collection is not contained within
+	  * this map it will not be included in the returned map.
+	  * \param keys ~ A collection of axes whose values within this map will
+	  * be returned.
+	  */
+	AMPIC887AxisMap<T> values(const AMPIC887AxisCollection& keys) const
+	{
+		AMPIC887AxisMap<T> returnValues;
+		foreach(AMGCS2::Axis currentAxis, keys) {
+			if(this->contains(currentAxis)) {
+				returnValues.insert(currentAxis, this->value(currentAxis));
+			}
+		}
+
+		return returnValues;
+	}
 };
 
-// A bunch of partial specializations on the type T, for the toString method
+// Partial Specialization on type T to provide functionality of toString() method
+////////////////////////////////////////////////////////////////////////////////
+
 template <>
 class AMPIC887AxisMap<bool> : public QMap<AMGCS2::Axis, bool>
 {
@@ -129,6 +151,25 @@ public:
 	{
 		return this->contains(AMGCS2::UnknownAxis);
 	}
+
+	/*!
+	  * A map of the provided axes to their values stored within this map. If
+	  * a key contained within the provided collection is not contained within
+	  * this map it will not be included in the returned map.
+	  * \param keys ~ A collection of axes whose values within this map will
+	  * be returned.
+	  */
+	AMPIC887AxisMap<bool> values(const AMPIC887AxisCollection& keys) const
+	{
+		AMPIC887AxisMap<bool> returnValues;
+		foreach(AMGCS2::Axis currentAxis, keys) {
+			if(this->contains(currentAxis)) {
+				returnValues.insert(currentAxis, this->value(currentAxis));
+			}
+		}
+
+		return returnValues;
+	}
 };
 
 template <>
@@ -189,6 +230,25 @@ public:
 	bool containsUnknownAxis() const
 	{
 		return this->contains(AMGCS2::UnknownAxis);
+	}
+
+	/*!
+	  * A map of the provided axes to their values stored within this map. If
+	  * a key contained within the provided collection is not contained within
+	  * this map it will not be included in the returned map.
+	  * \param keys ~ A collection of axes whose values within this map will
+	  * be returned.
+	  */
+	AMPIC887AxisMap<double> values(const AMPIC887AxisCollection& keys) const
+	{
+		AMPIC887AxisMap<double> returnValues;
+		foreach(AMGCS2::Axis currentAxis, keys) {
+			if(this->contains(currentAxis)) {
+				returnValues.insert(currentAxis, this->value(currentAxis));
+			}
+		}
+
+		return returnValues;
 	}
 };
 
@@ -251,6 +311,25 @@ public:
 	bool containsUnknownAxis() const
 	{
 		return this->contains(AMGCS2::UnknownAxis);
+	}
+
+	/*!
+	  * A map of the provided axes to their values stored within this map. If
+	  * a key contained within the provided collection is not contained within
+	  * this map it will not be included in the returned map.
+	  * \param keys ~ A collection of axes whose values within this map will
+	  * be returned.
+	  */
+	AMPIC887AxisMap<AMGCS2::PositionUnits> values(const AMPIC887AxisCollection& keys) const
+	{
+		AMPIC887AxisMap<AMGCS2::PositionUnits> returnValues;
+		foreach(AMGCS2::Axis currentAxis, keys) {
+			if(this->contains(currentAxis)) {
+				returnValues.insert(currentAxis, this->value(currentAxis));
+			}
+		}
+
+		return returnValues;
 	}
 };
 

@@ -171,7 +171,7 @@ void AMPIC887ConsoleApplication::onMotionStatusCommandIssued()
 
 }
 
-void AMPIC887ConsoleApplication::onReferenceMoveCommandIssued(const QList<AMGCS2::Axis> &axes)
+void AMPIC887ConsoleApplication::onReferenceMoveCommandIssued(const AMPIC887AxisCollection& axes)
 {
 	if(!controllerCollection_.activeController() && !controllerCollection_.activeController()->isInitialized()) {
 		return;
@@ -205,34 +205,8 @@ void AMPIC887ConsoleApplication::onCurrentPositionCommandIssued(const AMPIC887Ax
 		return;
 	}
 
-	consoleInputHandler_->writeLineToStandardOutput("Axis\t\tCurrent Position");
-	if(axes.isEmpty()) {
-		QList<AMGCS2::Axis> allAxes;
-		allAxes << AMGCS2::XAxis
-				<< AMGCS2::YAxis
-				<< AMGCS2::ZAxis
-				<< AMGCS2::UAxis
-				<< AMGCS2::VAxis
-				<< AMGCS2::WAxis;
-
-		foreach(AMGCS2::Axis currentAxis, allAxes) {
-			consoleInputHandler_->writeLineToStandardOutput(
-						QString("%1\t\t%2 %3")
-						.arg(AMGCS2Support::axisToCharacter(currentAxis))
-						.arg(controllerCollection_.activeController()->currentPosition(currentAxis))
-						.arg(AMGCS2Support::positionUnitsToString(controllerCollection_.activeController()->positionUnits(currentAxis))));
-		}
-
-	} else {
-
-		foreach(AMGCS2::Axis currentAxis, axes) {
-			consoleInputHandler_->writeLineToStandardOutput(
-						QString("%1\t\t%2 %3")
-						.arg(AMGCS2Support::axisToCharacter(currentAxis))
-						.arg(controllerCollection_.activeController()->currentPosition(currentAxis))
-						.arg(AMGCS2Support::positionUnitsToString(controllerCollection_.activeController()->positionUnits(currentAxis))));
-		}
-	}
+	consoleInputHandler_->writeLineToStandardOutput(
+				controllerCollection_.activeController()->currentPositions(axes).toString("Current Position"));
 }
 
 void AMPIC887ConsoleApplication::onCycleTimeCommandIssued()
@@ -256,352 +230,95 @@ void AMPIC887ConsoleApplication::onDeviceIdentificationCommandIssued()
 				controllerCollection_.activeController()->identificationString());
 }
 
-void AMPIC887ConsoleApplication::onLowSoftLimitCommandIssued(const QList<AMGCS2::Axis> &axes)
+void AMPIC887ConsoleApplication::onLowSoftLimitCommandIssued(const AMPIC887AxisCollection &axes)
 {
 	if(!controllerCollection_.activeController() && !controllerCollection_.activeController()->isInitialized()) {
 		return;
 	}
 
-	if(!controllerCollection_.activeController() && !controllerCollection_.activeController()->isInitialized()) {
-		return;
-	}
-
-	consoleInputHandler_->writeLineToStandardOutput("Axis\t\tLow Soft Limit");
-	if(axes.isEmpty()) {
-		QList<AMGCS2::Axis> allAxes;
-		allAxes << AMGCS2::XAxis
-				<< AMGCS2::YAxis
-				<< AMGCS2::ZAxis
-				<< AMGCS2::UAxis
-				<< AMGCS2::VAxis
-				<< AMGCS2::WAxis;
-
-		foreach(AMGCS2::Axis currentAxis, allAxes) {
-			consoleInputHandler_->writeLineToStandardOutput(
-						QString("%1\t\t%2 %3")
-						.arg(AMGCS2Support::axisToCharacter(currentAxis))
-						.arg(controllerCollection_.activeController()->lowSoftLimit(currentAxis))
-						.arg(AMGCS2Support::positionUnitsToString(controllerCollection_.activeController()->positionUnits(currentAxis))));
-		}
-
-	} else {
-
-		foreach(AMGCS2::Axis currentAxis, axes) {
-			consoleInputHandler_->writeLineToStandardOutput(
-						QString("%1\t\t%2 %3")
-						.arg(AMGCS2Support::axisToCharacter(currentAxis))
-						.arg(controllerCollection_.activeController()->lowSoftLimit(currentAxis))
-						.arg(AMGCS2Support::positionUnitsToString(controllerCollection_.activeController()->positionUnits(currentAxis))));
-		}
-	}
+	consoleInputHandler_->writeLineToStandardOutput(
+				controllerCollection_.activeController()->lowSoftLimits(axes).toString("Low Soft Limits"));
 }
 
-void AMPIC887ConsoleApplication::onHighSoftLimitCommandIssued(const QList<AMGCS2::Axis> &axes)
+void AMPIC887ConsoleApplication::onHighSoftLimitCommandIssued(const AMPIC887AxisCollection &axes)
 {
 	if(!controllerCollection_.activeController() && !controllerCollection_.activeController()->isInitialized()) {
 		return;
 	}
 
-	consoleInputHandler_->writeLineToStandardOutput("Axis\t\tHigh Soft Limit");
-	if(axes.isEmpty()) {
-		QList<AMGCS2::Axis> allAxes;
-		allAxes << AMGCS2::XAxis
-				<< AMGCS2::YAxis
-				<< AMGCS2::ZAxis
-				<< AMGCS2::UAxis
-				<< AMGCS2::VAxis
-				<< AMGCS2::WAxis;
-
-		foreach(AMGCS2::Axis currentAxis, allAxes) {
-			consoleInputHandler_->writeLineToStandardOutput(
-						QString("%1\t\t%2 %3")
-						.arg(AMGCS2Support::axisToCharacter(currentAxis))
-						.arg(controllerCollection_.activeController()->highSoftLimit(currentAxis))
-						.arg(AMGCS2Support::positionUnitsToString(controllerCollection_.activeController()->positionUnits(currentAxis))));
-		}
-
-	} else {
-
-		foreach(AMGCS2::Axis currentAxis, axes) {
-			consoleInputHandler_->writeLineToStandardOutput(
-						QString("%1\t\t%2 %3")
-						.arg(AMGCS2Support::axisToCharacter(currentAxis))
-						.arg(controllerCollection_.activeController()->highSoftLimit(currentAxis))
-						.arg(AMGCS2Support::positionUnitsToString(controllerCollection_.activeController()->positionUnits(currentAxis))));
-		}
-	}
+	consoleInputHandler_->writeLineToStandardOutput(
+				controllerCollection_.activeController()->highSoftLimits(axes).toString("High Soft Limits"));
 }
 
-void AMPIC887ConsoleApplication::onSoftLimitStatusesCommandIssued(const QList<AMGCS2::Axis> &axes)
+void AMPIC887ConsoleApplication::onSoftLimitStatusesCommandIssued(const AMPIC887AxisCollection &axes)
 {
 	if(!controllerCollection_.activeController() && !controllerCollection_.activeController()->isInitialized()) {
 		return;
 	}
 
-	consoleInputHandler_->writeLineToStandardOutput("Axis\t\tSoft Limits Active");
-	if(axes.isEmpty()) {
-		QList<AMGCS2::Axis> allAxes;
-		allAxes << AMGCS2::XAxis
-				<< AMGCS2::YAxis
-				<< AMGCS2::ZAxis
-				<< AMGCS2::UAxis
-				<< AMGCS2::VAxis
-				<< AMGCS2::WAxis;
-
-		foreach(AMGCS2::Axis currentAxis, allAxes) {
-			QString isActiveString;
-			if(controllerCollection_.activeController()->softLimitStatus(currentAxis)) {
-				isActiveString = "Yes";
-			} else {
-				isActiveString = "No";
-			}
-
-			consoleInputHandler_->writeLineToStandardOutput(
-						QString("%1\t\t%2")
-						.arg(AMGCS2Support::axisToCharacter(currentAxis))
-						.arg(isActiveString));
-		}
-
-	} else {
-
-		foreach(AMGCS2::Axis currentAxis, axes) {
-			QString isActiveString;
-			if(controllerCollection_.activeController()->softLimitStatus(currentAxis)) {
-				isActiveString = "Yes";
-			} else {
-				isActiveString = "No";
-			}
-
-			consoleInputHandler_->writeLineToStandardOutput(
-						QString("%1\t\t%2")
-						.arg(AMGCS2Support::axisToCharacter(currentAxis))
-						.arg(isActiveString));
-		}
-	}
+	consoleInputHandler_->writeLineToStandardOutput(
+				controllerCollection_.activeController()->softLimitStatuses(axes).toString("Soft Limit Active"));
 }
 
-void AMPIC887ConsoleApplication::onMinPositionCommandIssued(const QList<AMGCS2::Axis> &axes)
+void AMPIC887ConsoleApplication::onMinPositionCommandIssued(const AMPIC887AxisCollection &axes)
 {
 	if(!controllerCollection_.activeController() && !controllerCollection_.activeController()->isInitialized()) {
 		return;
 	}
 
-	consoleInputHandler_->writeLineToStandardOutput("Axis\t\tMin Position");
-	if(axes.isEmpty()) {
-		QList<AMGCS2::Axis> allAxes;
-		allAxes << AMGCS2::XAxis
-				<< AMGCS2::YAxis
-				<< AMGCS2::ZAxis
-				<< AMGCS2::UAxis
-				<< AMGCS2::VAxis
-				<< AMGCS2::WAxis;
-
-		foreach(AMGCS2::Axis currentAxis, allAxes) {
-			consoleInputHandler_->writeLineToStandardOutput(
-						QString("%1\t\t%2 %3")
-						.arg(AMGCS2Support::axisToCharacter(currentAxis))
-						.arg(controllerCollection_.activeController()->minCommandablePosition(currentAxis))
-						.arg(AMGCS2Support::positionUnitsToString(controllerCollection_.activeController()->positionUnits(currentAxis))));
-		}
-
-	} else {
-
-		foreach(AMGCS2::Axis currentAxis, axes) {
-			consoleInputHandler_->writeLineToStandardOutput(
-						QString("%1\t\t%2 %3")
-						.arg(AMGCS2Support::axisToCharacter(currentAxis))
-						.arg(controllerCollection_.activeController()->minCommandablePosition(currentAxis))
-						.arg(AMGCS2Support::positionUnitsToString(controllerCollection_.activeController()->positionUnits(currentAxis))));
-		}
-	}
+	consoleInputHandler_->writeLineToStandardOutput(
+				controllerCollection_.activeController()->minCommandablePositions(axes).toString("Min Position"));
 }
 
-void AMPIC887ConsoleApplication::onMaxPositionCommandIssued(const QList<AMGCS2::Axis> &axes)
+void AMPIC887ConsoleApplication::onMaxPositionCommandIssued(const AMPIC887AxisCollection &axes)
 {
 	if(!controllerCollection_.activeController() && !controllerCollection_.activeController()->isInitialized()) {
 		return;
 	}
 
-	consoleInputHandler_->writeLineToStandardOutput("Axis\t\tMax Position");
-	if(axes.isEmpty()) {
-		QList<AMGCS2::Axis> allAxes;
-		allAxes << AMGCS2::XAxis
-				<< AMGCS2::YAxis
-				<< AMGCS2::ZAxis
-				<< AMGCS2::UAxis
-				<< AMGCS2::VAxis
-				<< AMGCS2::WAxis;
-
-		foreach(AMGCS2::Axis currentAxis, allAxes) {
-			consoleInputHandler_->writeLineToStandardOutput(
-						QString("%1\t\t%2 %3")
-						.arg(AMGCS2Support::axisToCharacter(currentAxis))
-						.arg(controllerCollection_.activeController()->maxCommandablePosition(currentAxis))
-						.arg(AMGCS2Support::positionUnitsToString(controllerCollection_.activeController()->positionUnits(currentAxis))));
-		}
-
-	} else {
-
-		foreach(AMGCS2::Axis currentAxis, axes) {
-			consoleInputHandler_->writeLineToStandardOutput(
-						QString("%1\t\t%2 %3")
-						.arg(AMGCS2Support::axisToCharacter(currentAxis))
-						.arg(controllerCollection_.activeController()->maxCommandablePosition(currentAxis))
-						.arg(AMGCS2Support::positionUnitsToString(controllerCollection_.activeController()->positionUnits(currentAxis))));
-		}
-	}
+	consoleInputHandler_->writeLineToStandardOutput(
+				controllerCollection_.activeController()->maxCommandablePositions(axes).toString("Max Position"));
 }
 
-void AMPIC887ConsoleApplication::onOnTargetCommandIssued(const QList<AMGCS2::Axis> &axes)
+void AMPIC887ConsoleApplication::onOnTargetCommandIssued(const AMPIC887AxisCollection &axes)
 {
 	if(!controllerCollection_.activeController() && !controllerCollection_.activeController()->isInitialized()) {
 		return;
 	}
 
-	consoleInputHandler_->writeLineToStandardOutput("Axis\t\tOn Target");
-	if(axes.isEmpty()) {
-		QList<AMGCS2::Axis> allAxes;
-		allAxes << AMGCS2::XAxis
-				<< AMGCS2::YAxis
-				<< AMGCS2::ZAxis
-				<< AMGCS2::UAxis
-				<< AMGCS2::VAxis
-				<< AMGCS2::WAxis;
-
-		foreach(AMGCS2::Axis currentAxis, allAxes) {
-			QString onTargetString;
-			if(controllerCollection_.activeController()->onTargetState(currentAxis)) {
-				onTargetString = "Yes";
-			} else {
-				onTargetString = "No";
-			}
-
-			consoleInputHandler_->writeLineToStandardOutput(
-						QString("%1\t\t%2")
-						.arg(AMGCS2Support::axisToCharacter(currentAxis))
-						.arg(onTargetString));
-		}
-
-	} else {
-
-		foreach(AMGCS2::Axis currentAxis, axes) {
-			QString onTargetString;
-			if(controllerCollection_.activeController()->onTargetState(currentAxis)) {
-				onTargetString = "Yes";
-			} else {
-				onTargetString = "No";
-			}
-
-			consoleInputHandler_->writeLineToStandardOutput(
-						QString("%1\t\t%2")
-						.arg(AMGCS2Support::axisToCharacter(currentAxis))
-						.arg(onTargetString));
-		}
-	}
+	consoleInputHandler_->writeLineToStandardOutput(
+				controllerCollection_.activeController()->onTargetStates(axes).toString("On Target"));
 }
 
-void AMPIC887ConsoleApplication::onPivotPointCommandIssued(const QList<AMGCS2::Axis> &axes)
+void AMPIC887ConsoleApplication::onPivotPointCommandIssued(const AMPIC887AxisCollection &axes)
 {
 	if(!controllerCollection_.activeController() && !controllerCollection_.activeController()->isInitialized()) {
 		return;
 	}
 
-	consoleInputHandler_->writeLineToStandardOutput("Axis\t\tPivot Point");
-	if(axes.isEmpty()) {
-		QList<AMGCS2::Axis> allLinearAxes;
-		allLinearAxes << AMGCS2::XAxis
-				<< AMGCS2::YAxis
-				<< AMGCS2::ZAxis;
-
-		foreach(AMGCS2::Axis currentAxis, allLinearAxes) {
-			consoleInputHandler_->writeLineToStandardOutput(
-						QString("%1\t\t%2 %3")
-						.arg(AMGCS2Support::axisToCharacter(currentAxis))
-						.arg(controllerCollection_.activeController()->pivotPoint(currentAxis))
-						.arg(AMGCS2Support::positionUnitsToString(controllerCollection_.activeController()->positionUnits(currentAxis))));
-		}
-
-	} else {
-
-		foreach(AMGCS2::Axis currentAxis, axes) {
-			consoleInputHandler_->writeLineToStandardOutput(
-						QString("%1\t\t%2 %3")
-						.arg(AMGCS2Support::axisToCharacter(currentAxis))
-						.arg(controllerCollection_.activeController()->pivotPoint(currentAxis))
-						.arg(AMGCS2Support::positionUnitsToString(controllerCollection_.activeController()->positionUnits(currentAxis))));
-		}
-	}
+	consoleInputHandler_->writeLineToStandardOutput(
+				controllerCollection_.activeController()->pivotPoints(axes).toString("Pivot Points"));
 }
 
-void AMPIC887ConsoleApplication::onTargetPositionCommandIssued(const QList<AMGCS2::Axis> &axes)
+void AMPIC887ConsoleApplication::onTargetPositionCommandIssued(const AMPIC887AxisCollection &axes)
 {
 
 	if(!controllerCollection_.activeController() && !controllerCollection_.activeController()->isInitialized()) {
 		return;
 	}
 
-	consoleInputHandler_->writeLineToStandardOutput("Axis\t\tTarget Position");
-	if(axes.isEmpty()) {
-		QList<AMGCS2::Axis> allAxes;
-		allAxes << AMGCS2::XAxis
-				<< AMGCS2::YAxis
-				<< AMGCS2::ZAxis
-				<< AMGCS2::UAxis
-				<< AMGCS2::VAxis
-				<< AMGCS2::WAxis;
-
-		foreach(AMGCS2::Axis currentAxis, allAxes) {
-			consoleInputHandler_->writeLineToStandardOutput(
-						QString("%1\t\t%2 %3")
-						.arg(AMGCS2Support::axisToCharacter(currentAxis))
-						.arg(controllerCollection_.activeController()->targetPosition(currentAxis))
-						.arg(AMGCS2Support::positionUnitsToString(controllerCollection_.activeController()->positionUnits(currentAxis))));
-		}
-
-	} else {
-
-		foreach(AMGCS2::Axis currentAxis, axes) {
-			consoleInputHandler_->writeLineToStandardOutput(
-						QString("%1\t\t%2 %3")
-						.arg(AMGCS2Support::axisToCharacter(currentAxis))
-						.arg(controllerCollection_.activeController()->targetPosition(currentAxis))
-						.arg(AMGCS2Support::positionUnitsToString(controllerCollection_.activeController()->positionUnits(currentAxis))));
-		}
-	}
+	consoleInputHandler_->writeLineToStandardOutput(
+				controllerCollection_.activeController()->targetPositions(axes).toString("Target Position"));
 }
 
-void AMPIC887ConsoleApplication::onPositionUnitsCommandIssued(const QList<AMGCS2::Axis> &axes)
+void AMPIC887ConsoleApplication::onPositionUnitsCommandIssued(const AMPIC887AxisCollection &axes)
 {
 	if(!controllerCollection_.activeController() && !controllerCollection_.activeController()->isInitialized()) {
 		return;
 	}
 
-	consoleInputHandler_->writeLineToStandardOutput("Axis\t\tPosition Units");
-	if(axes.isEmpty()) {
-		QList<AMGCS2::Axis> allAxes;
-		allAxes << AMGCS2::XAxis
-				<< AMGCS2::YAxis
-				<< AMGCS2::ZAxis
-				<< AMGCS2::UAxis
-				<< AMGCS2::VAxis
-				<< AMGCS2::WAxis;
-
-		foreach(AMGCS2::Axis currentAxis, allAxes) {
-			consoleInputHandler_->writeLineToStandardOutput(
-						QString("%1\t\t%2")
-						.arg(AMGCS2Support::axisToCharacter(currentAxis))
-						.arg(AMGCS2Support::positionUnitsToString(controllerCollection_.activeController()->positionUnits(currentAxis))));
-		}
-
-	} else {
-
-		foreach(AMGCS2::Axis currentAxis, axes) {
-			consoleInputHandler_->writeLineToStandardOutput(
-						QString("%1\t\t%2")
-						.arg(AMGCS2Support::axisToCharacter(currentAxis))
-						.arg(AMGCS2Support::positionUnitsToString(controllerCollection_.activeController()->positionUnits(currentAxis))));
-		}
-	}
+	consoleInputHandler_->writeLineToStandardOutput(
+				controllerCollection_.activeController()->positionUnits(axes).toString("Position Units"));
 }
 
 void AMPIC887ConsoleApplication::onAvailableRecorderOptionsCommandIssued()
@@ -624,52 +341,14 @@ void AMPIC887ConsoleApplication::onRecordTriggerCommandIssued()
 				AMGCS2Support::dataRecordTriggerToString(controllerCollection_.activeController()->recordTrigger())));
 }
 
-void AMPIC887ConsoleApplication::onReferencedStateCommandIssued(const QList<AMGCS2::Axis> &axes)
+void AMPIC887ConsoleApplication::onReferencedStateCommandIssued(const AMPIC887AxisCollection &axes)
 {
 	if(!controllerCollection_.activeController() && !controllerCollection_.activeController()->isInitialized()) {
 		return;
 	}
 
-	consoleInputHandler_->writeLineToStandardOutput("Axis\t\tReferenced");
-	if(axes.isEmpty()) {
-		QList<AMGCS2::Axis> allAxes;
-		allAxes << AMGCS2::XAxis
-				<< AMGCS2::YAxis
-				<< AMGCS2::ZAxis
-				<< AMGCS2::UAxis
-				<< AMGCS2::VAxis
-				<< AMGCS2::WAxis;
-
-		foreach(AMGCS2::Axis currentAxis, allAxes) {
-			QString referencedStateString;
-			if(controllerCollection_.activeController()->isAxisReferenced(currentAxis)) {
-				referencedStateString = "Yes";
-			} else {
-				referencedStateString = "No";
-			}
-
-			consoleInputHandler_->writeLineToStandardOutput(
-						QString("%1\t\t%2")
-						.arg(AMGCS2Support::axisToCharacter(currentAxis))
-						.arg(referencedStateString));
-		}
-
-	} else {
-
-		foreach(AMGCS2::Axis currentAxis, axes) {
-			QString referencedStateString;
-			if(controllerCollection_.activeController()->isAxisReferenced(currentAxis)) {
-				referencedStateString = "Yes";
-			} else {
-				referencedStateString = "No";
-			}
-
-			consoleInputHandler_->writeLineToStandardOutput(
-						QString("%1\t\t%2")
-						.arg(AMGCS2Support::axisToCharacter(currentAxis))
-						.arg(referencedStateString));
-		}
-	}
+	consoleInputHandler_->writeLineToStandardOutput(
+				controllerCollection_.activeController()->axisReferencedStates(axes).toString("Is Referenced"));
 }
 
 void AMPIC887ConsoleApplication::onServoModeStateCommandIssued()
@@ -689,40 +368,14 @@ void AMPIC887ConsoleApplication::onServoModeStateCommandIssued()
 	consoleInputHandler_->writeLineToStandardOutput(servoStateString);
 }
 
-void AMPIC887ConsoleApplication::onStepSizeCommandIssued(const QList<AMGCS2::Axis> &axes)
+void AMPIC887ConsoleApplication::onStepSizeCommandIssued(const AMPIC887AxisCollection &axes)
 {
 	if(!controllerCollection_.activeController() && !controllerCollection_.activeController()->isInitialized()) {
 		return;
 	}
 
-	consoleInputHandler_->writeLineToStandardOutput("Axis\t\tStep Size");
-	if(axes.isEmpty()) {
-		QList<AMGCS2::Axis> allAxes;
-		allAxes << AMGCS2::XAxis
-				<< AMGCS2::YAxis
-				<< AMGCS2::ZAxis
-				<< AMGCS2::UAxis
-				<< AMGCS2::VAxis
-				<< AMGCS2::WAxis;
-
-		foreach(AMGCS2::Axis currentAxis, allAxes) {
-			consoleInputHandler_->writeLineToStandardOutput(
-						QString("%1\t\t%2 %3")
-						.arg(AMGCS2Support::axisToCharacter(currentAxis))
-						.arg(controllerCollection_.activeController()->stepSize(currentAxis))
-						.arg(AMGCS2Support::positionUnitsToString(controllerCollection_.activeController()->positionUnits(currentAxis))));
-		}
-
-	} else {
-
-		foreach(AMGCS2::Axis currentAxis, axes) {
-			consoleInputHandler_->writeLineToStandardOutput(
-						QString("%1\t\t%2 %3")
-						.arg(AMGCS2Support::axisToCharacter(currentAxis))
-						.arg(controllerCollection_.activeController()->stepSize(currentAxis))
-						.arg(AMGCS2Support::positionUnitsToString(controllerCollection_.activeController()->positionUnits(currentAxis))));
-		}
-	}
+	consoleInputHandler_->writeLineToStandardOutput(
+				controllerCollection_.activeController()->stepSizes(axes).toString("Step Sizes"));
 }
 
 void AMPIC887ConsoleApplication::onSystemVelocityCommandIssued()
@@ -766,27 +419,27 @@ void AMPIC887ConsoleApplication::makeConnections()
 	connect(commandParser_, SIGNAL(moveCommandIssued(QHash<AMGCS2::Axis,double>)), this, SLOT(onMoveCommandIssued(QHash<AMGCS2::Axis,double>)));
 	connect(commandParser_, SIGNAL(moveRelativeCommandIssued(QHash<AMGCS2::Axis,double>)), this, SLOT(onMoveRelativeCommandIssued(QHash<AMGCS2::Axis,double>)));
 	connect(commandParser_, SIGNAL(motionStatusCommandIssued()), this, SLOT(onMotionStatusCommandIssued()));
-	connect(commandParser_, SIGNAL(referenceMoveCommandIssued(QList<AMGCS2::Axis>)), this, SLOT(onReferenceMoveCommandIssued(QList<AMGCS2::Axis>)));
+	connect(commandParser_, SIGNAL(referenceMoveCommandIssued(AMPIC887AxisCollection)), this, SLOT(onReferenceMoveCommandIssued(AMPIC887AxisCollection)));
 	connect(commandParser_, SIGNAL(availableParametersCommandIssued()), this, SLOT(onAvailableParametersCommandIssued()));
 	connect(commandParser_, SIGNAL(commandLevelCommandIssued()), this, SLOT(onCommandLevelCommandIssued()));
 	connect(commandParser_, SIGNAL(currentPositionCommandIssued(AMPIC887AxisCollection)), this, SLOT(onCurrentPositionCommandIssued(AMPIC887AxisCollection)));
 	connect(commandParser_, SIGNAL(cycleTimeCommandIssued()), this, SLOT(onCycleTimeCommandIssued()));
 
 	connect(commandParser_, SIGNAL(deviceIdentificationCommandIssued()), this, SLOT(onDeviceIdentificationCommandIssued()));
-	connect(commandParser_, SIGNAL(lowSoftLimitCommandIssued(QList<AMGCS2::Axis>)), this, SLOT(onLowSoftLimitCommandIssued(QList<AMGCS2::Axis>)));
-	connect(commandParser_, SIGNAL(highSoftLimitCommandIssued(QList<AMGCS2::Axis>)), this, SLOT(onHighSoftLimitCommandIssued(QList<AMGCS2::Axis>)));
-	connect(commandParser_, SIGNAL(softLimitStatusCommandIssued(QList<AMGCS2::Axis>)), this, SLOT(onSoftLimitStatusesCommandIssued(QList<AMGCS2::Axis>)));
-	connect(commandParser_, SIGNAL(minPositionCommandIssued(QList<AMGCS2::Axis>)), this, SLOT(onMinPositionCommandIssued(QList<AMGCS2::Axis>)));
-	connect(commandParser_, SIGNAL(maxPositionCommandIssued(QList<AMGCS2::Axis>)), this, SLOT(onMaxPositionCommandIssued(QList<AMGCS2::Axis>)));
-	connect(commandParser_, SIGNAL(onTargetCommandIssued(QList<AMGCS2::Axis>)), this, SLOT(onOnTargetCommandIssued(QList<AMGCS2::Axis>)));
-	connect(commandParser_, SIGNAL(pivotPointCommandIssued(QList<AMGCS2::Axis>)), this, SLOT(onPivotPointCommandIssued(QList<AMGCS2::Axis>)));
-	connect(commandParser_, SIGNAL(targetPositionCommandIssued(QList<AMGCS2::Axis>)), this, SLOT(onTargetPositionCommandIssued(QList<AMGCS2::Axis>)));
-	connect(commandParser_, SIGNAL(positionUnitsCommandIssued(QList<AMGCS2::Axis>)), this, SLOT(onPositionUnitsCommandIssued(QList<AMGCS2::Axis>)));
+	connect(commandParser_, SIGNAL(lowSoftLimitCommandIssued(AMPIC887AxisCollection)), this, SLOT(onLowSoftLimitCommandIssued(AMPIC887AxisCollection)));
+	connect(commandParser_, SIGNAL(highSoftLimitCommandIssued(AMPIC887AxisCollection)), this, SLOT(onHighSoftLimitCommandIssued(AMPIC887AxisCollection)));
+	connect(commandParser_, SIGNAL(softLimitStatusCommandIssued(AMPIC887AxisCollection)), this, SLOT(onSoftLimitStatusesCommandIssued(AMPIC887AxisCollection)));
+	connect(commandParser_, SIGNAL(minPositionCommandIssued(AMPIC887AxisCollection)), this, SLOT(onMinPositionCommandIssued(AMPIC887AxisCollection)));
+	connect(commandParser_, SIGNAL(maxPositionCommandIssued(AMPIC887AxisCollection)), this, SLOT(onMaxPositionCommandIssued(AMPIC887AxisCollection)));
+	connect(commandParser_, SIGNAL(onTargetCommandIssued(AMPIC887AxisCollection)), this, SLOT(onOnTargetCommandIssued(AMPIC887AxisCollection)));
+	connect(commandParser_, SIGNAL(pivotPointCommandIssued(AMPIC887AxisCollection)), this, SLOT(onPivotPointCommandIssued(AMPIC887AxisCollection)));
+	connect(commandParser_, SIGNAL(targetPositionCommandIssued(AMPIC887AxisCollection)), this, SLOT(onTargetPositionCommandIssued(AMPIC887AxisCollection)));
+	connect(commandParser_, SIGNAL(positionUnitsCommandIssued(AMPIC887AxisCollection)), this, SLOT(onPositionUnitsCommandIssued(AMPIC887AxisCollection)));
 	connect(commandParser_, SIGNAL(availableRecorderOptionsCommandIssued()), this, SLOT(onAvailableRecorderOptionsCommandIssued()));
 	connect(commandParser_, SIGNAL(recordTriggerCommandIssued()), this, SLOT(onRecordTriggerCommandIssued()));
-	connect(commandParser_, SIGNAL(referencedStateCommandIssued(QList<AMGCS2::Axis>)), this, SLOT(onReferencedStateCommandIssued(QList<AMGCS2::Axis>)));
+	connect(commandParser_, SIGNAL(referencedStateCommandIssued(AMPIC887AxisCollection)), this, SLOT(onReferencedStateCommandIssued(AMPIC887AxisCollection)));
 	connect(commandParser_, SIGNAL(servoModeCommandIssued()), this, SLOT(onServoModeStateCommandIssued()));
-	connect(commandParser_, SIGNAL(stepSizeCommandIssued(QList<AMGCS2::Axis>)), this, SLOT(onStepSizeCommandIssued(QList<AMGCS2::Axis>)));
+	connect(commandParser_, SIGNAL(stepSizeCommandIssued(AMPIC887AxisCollection)), this, SLOT(onStepSizeCommandIssued(AMPIC887AxisCollection)));
 	connect(commandParser_, SIGNAL(systemVelocityCommandIssued()), this, SLOT(onSystemVelocityCommandIssued()));
 }
 

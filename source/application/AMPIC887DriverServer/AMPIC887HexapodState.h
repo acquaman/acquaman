@@ -94,9 +94,17 @@ public:
 	  */
 	bool areAllAxesReferenced() const;
 
+	/*!
+	  * The referenced state stored for the provided axis.
+	  * \param axis ~ The axis whose stored reference state is to be returned.
+	  */
 	bool referencedState(AMGCS2::Axis axis) const;
 
+	/*!
+	  * The reference state stored for all axes.
+	  */
 	const AMPIC887AxisMap<bool> referencedStates() const;
+
 
 	void setReferencedState(AMGCS2::Axis axis, bool referencedState);
 

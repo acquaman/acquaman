@@ -99,7 +99,7 @@ protected slots:
 	/*!
 	  * Handles signals indicating that a reference moce command has been issued.
 	  */
-	void onReferenceMoveCommandIssued(const QList<AMGCS2::Axis>& axes);
+	void onReferenceMoveCommandIssued(const AMPIC887AxisCollection& axes);
 
 	/*!
 	  * Handles signals indicating that a get available parameters command has
@@ -133,51 +133,51 @@ protected slots:
 	/*!
 	  * Handles signals indicating that a get low soft limit command has been issued.
 	  */
-	void onLowSoftLimitCommandIssued(const QList<AMGCS2::Axis>& axes);
+	void onLowSoftLimitCommandIssued(const AMPIC887AxisCollection& axes);
 
 	/*!
 	  * Handles signals indicating that a get high soft limit command has been issued.
 	  */
-	void onHighSoftLimitCommandIssued(const QList<AMGCS2::Axis>& axes);
+	void onHighSoftLimitCommandIssued(const AMPIC887AxisCollection& axes);
 
 	/*!
 	  * Handles signals indicating that a get soft limit statuses command has been
 	  * issued.
 	  */
-	void onSoftLimitStatusesCommandIssued(const QList<AMGCS2::Axis>& axes);
+	void onSoftLimitStatusesCommandIssued(const AMPIC887AxisCollection& axes);
 
 	/*!
 	  * Handles signals indicating that a get min position command has been issued.
 	  */
-	void onMinPositionCommandIssued(const QList<AMGCS2::Axis>& axes);
+	void onMinPositionCommandIssued(const AMPIC887AxisCollection& axes);
 
 	/*!
 	  * Handles signals indicating that a get max position command has been issued.
 	  */
-	void onMaxPositionCommandIssued(const QList<AMGCS2::Axis>& axes);
+	void onMaxPositionCommandIssued(const AMPIC887AxisCollection& axes);
 
 	/*!
 	  * Handles signals indicating that a get on target state command has been
 	  * issued.
 	  */
-	void onOnTargetCommandIssued(const QList<AMGCS2::Axis>& axes);
+	void onOnTargetCommandIssued(const AMPIC887AxisCollection& axes);
 
 	/*!
 	  * Handles signals indicating that a get pivot point command has been issued.
 	  */
-	void onPivotPointCommandIssued(const QList<AMGCS2::Axis>& axes);
+	void onPivotPointCommandIssued(const AMPIC887AxisCollection& axes);
 
 	/*!
 	  * Handles signals indicating that a get target position command has been
 	  * issued.
 	  */
-	void onTargetPositionCommandIssued(const QList<AMGCS2::Axis>& axes);
+	void onTargetPositionCommandIssued(const AMPIC887AxisCollection& axes);
 
 	/*!
 	  * Handles signals indicating that a get position units command has been
 	  * issued.
 	  */
-	void onPositionUnitsCommandIssued(const QList<AMGCS2::Axis>& axes);
+	void onPositionUnitsCommandIssued(const AMPIC887AxisCollection& axes);
 
 	/*!
 	  * Handles signals indicating that a get available recorder options command
@@ -194,7 +194,7 @@ protected slots:
 	  * Handles signals indicating that a get referenced state command has been
 	  * issued.
 	  */
-	void onReferencedStateCommandIssued(const QList<AMGCS2::Axis>& axes);
+	void onReferencedStateCommandIssued(const AMPIC887AxisCollection& axes);
 
 	/*!
 	  * Handles signals indicating that a get servo mode state command has been
@@ -205,7 +205,7 @@ protected slots:
 	/*!
 	  * Handles signals indicating that a get step size command has been issued.
 	  */
-	void onStepSizeCommandIssued(const QList<AMGCS2::Axis>& axes);
+	void onStepSizeCommandIssued(const AMPIC887AxisCollection& axes);
 
 	/*!
 	  * Handles signals indicating that a get system velocity command has been issued.

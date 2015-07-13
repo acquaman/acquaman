@@ -87,11 +87,7 @@ void AMPIC887ConsoleCommandParser::interpretCommandImplementation(const QString 
 	} else if (command.startsWith("CCL?")) {
 		emit commandLevelCommandIssued();
 	} else if (command.startsWith("POS?")) {
-		bool parseSuccess;
-		AMPIC887AxisCollection parsedCollection = AMPIC887AxisCollection::fromString(command.mid(4), &parseSuccess);
-		if(parseSuccess) {
-			emit currentPositionCommandIssued(parsedCollection);
-		}
+		emit currentPositionCommandIssued(axesFromCommandString(command));
 	} else if (command.startsWith("SCT?")) {
 		emit cycleTimeCommandIssued();
 	} else if (command.startsWith("IDN?")) {
@@ -109,7 +105,7 @@ void AMPIC887ConsoleCommandParser::interpretCommandImplementation(const QString 
 	} else if (command.startsWith("ONT?")) {
 		emit onTargetCommandIssued(axesFromCommandString(command));
 	} else if (command.startsWith("SPI?")) {
-		emit pivotPointCommandIssued(axesFromCommandString(command));
+		emit pivotPointCommandIssued(axesFromCommandString(command, AMPIC887AxisCollection::LinearAxes));
 	} else if (command.startsWith("MOV?")) {
 		emit targetPositionCommandIssued(axesFromCommandString(command));
 	} else if (command.startsWith("PUN?")) {
@@ -155,11 +151,17 @@ QStringList AMPIC887ConsoleCommandParser::commandArguments(const QString &comman
 	return commandString.trimmed().split(" ").mid(1, -1);
 }
 
-QList<AMGCS2::Axis> AMPIC887ConsoleCommandParser::axesFromCommandString(const QString &axisArguments)
+AMPIC887AxisCollection AMPIC887ConsoleCommandParser::axesFromCommandString(const QString &axisArguments,
+											  AMPIC887AxisCollection::InitializationState stateIfEmpty)
 {
+
 	QStringList axisArgumentList = commandArguments(axisArguments);
 
-	QList<AMGCS2::Axis> axes;
+	if(axisArgumentList.isEmpty()) {
+		return AMPIC887AxisCollection(stateIfEmpty);
+	}
+
+	AMPIC887AxisCollection axes;
 
 	for(int iAxis = 0, argCount = axisArgumentList.count();
 		iAxis < argCount;
