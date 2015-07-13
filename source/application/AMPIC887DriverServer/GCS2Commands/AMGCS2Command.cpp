@@ -27,21 +27,21 @@ QString AMGCS2Command::lastError() const
 void AMGCS2Command::run()
 {
 	if(!controller_) {
-		lastError_ = QString("Could not run command: No controller");
+		lastError_ = "Could not run command: No controller";
 		runningState_ = Failed;
-	}
-	else if(controller_->id() < 0) {
-		lastError_ = QString("Could not run command: Connection not yet established with controller");
+	} else if(controller_->id() < 0) {
+		lastError_ = "Could not run command: Conneciton not yet established with controller";
+		runningState_ = Failed;
+	} else if(controller_->isBusy()) {
+		lastError_ = "Could not run command: Controller is busy";
 		runningState_ = Failed;
 	} else if(validateArguments()) {
 		if(runImplementation()) {
 			runningState_ = Succeeded;
 		}
-
-	} else if(controller_->isBusy()) {
-		lastError_ = QString("Could not run command: Controller is busy");
 	} else {
-		lastError_ = QString("Could not run command: Validation of arguments failed with message - '%1'").arg(lastError_);
+		lastError_ = QString("Could not run command: Validation of arguments failed (%1))")
+				.arg(lastError_);
 		runningState_ = Failed;
 	}
 }

@@ -164,7 +164,7 @@ void AMPIC887HexapodState::setTargetPosition(AMGCS2::Axis axis, double targetPos
 		return;
 	}
 
-	currentPositions_.insert(axis, targetPosition);
+	targetPositions_.insert(axis, targetPosition);
 }
 
 double AMPIC887HexapodState::lowSoftLimit(AMGCS2::Axis axis) const
@@ -182,6 +182,8 @@ void AMPIC887HexapodState::setLowSoftLimit(AMGCS2::Axis axis, double lowSoftLimi
 	if(axis == AMGCS2::UnknownAxis) {
 		return;
 	}
+
+	lowSoftLimits_.insert(axis, lowSoftLimit);
 }
 
 double AMPIC887HexapodState::highSoftLimit(AMGCS2::Axis axis) const

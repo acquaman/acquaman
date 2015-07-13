@@ -32,6 +32,16 @@ public:
 	QString commandList();
 signals:
 	/*!
+	  * Signal indicating that a stop command has been issued.
+	  */
+	void stopCommandIssued();
+
+	/*!
+	  * Signal indicating that a halt motions smoothly command has been issued.
+	  */
+	void haltCommandIssued(const AMPIC887AxisCollection& axes);
+
+	/*!
 	  * Signal indicating that a get available parameters command has been issued.
 	  */
 	void availableParametersCommandIssued();

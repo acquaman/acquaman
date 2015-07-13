@@ -12,6 +12,10 @@
 #include "GCS2Commands/AMGCS2AsyncMoveCommand.h"
 #include "GCS2Commands/AMGCS2AsyncMoveRelativeCommand.h"
 #include "GCS2Commands/AMGCS2AsyncReferenceMoveCommand.h"
+
+#include "GCS2Commands/AMGCS2StopCommand.h"
+#include "GCS2Commands/AMGCS2HaltSmoothlyCommand.h"
+
 #include "AMGCS2Support.h"
 
 AMPIC887Controller::AMPIC887Controller(const QString& name, const QString& hostname)
@@ -397,11 +401,25 @@ double AMPIC887Controller::systemVelocity() const
 
 void AMPIC887Controller::stop()
 {
+	AMGCS2StopCommand stopCommand;
+	runCommand(&stopCommand);
 
+	if(stopCommand.runningState() != AMGCS2Command::Succeeded) {
+
+		emit errorEncountered(QString("Failed to stop controller with message: %1")
+							  .arg(stopCommand.lastError()));
+	}
 }
 
-void AMPIC887Controller::haltSmoothly()
+void AMPIC887Controller::haltSmoothly(const AMPIC887AxisCollection& axes)
 {
+	AMGCS2HaltSmoothlyCommand haltCommand(axes);
+	runCommand(&haltCommand);
+
+	if(haltCommand.runningState() != AMGCS2Command::Succeeded) {
+		emit errorEncountered(QString("Failed to halt controller with message: %1")
+							  .arg(haltCommand.lastError()));
+	}
 }
 
 void AMPIC887Controller::move(const QHash<AMGCS2::Axis, double> &axisPositions)
@@ -771,6 +789,7 @@ void AMPIC887Controller::onErrorClearingTimerTimedOut()
 	int dummyValue;
 	PI_qERR(id_, &dummyValue);
 	isBusy_ = false;
+	updateStateOnStop();
 }
 
 void AMPIC887Controller::initializeControllerStateData()
@@ -811,6 +830,20 @@ void AMPIC887Controller::refreshCurrentPositions()
 	if(!isMoving()) {
 		currentPositionRefreshRequired_ = false;
 	}
+}
+
+void AMPIC887Controller::updateStateOnStop()
+{
+	refreshCurrentPositions();
+
+	// Set target position = current position
+	AMPIC887AxisCollection allAxes;
+	foreach(AMGCS2::Axis currentAxis, allAxes) {
+		double currentPosition = controllerState_->hexapodState()->currentPosition(currentAxis);
+
+		controllerState_->hexapodState()->setTargetPosition(currentAxis, currentPosition);
+	}
+
 }
 
 

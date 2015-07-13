@@ -212,6 +212,16 @@ protected slots:
 	  */
 	void onSystemVelocityCommandIssued();
 
+	/*!
+	  * Handles signals indicating that a stop command has been issued.
+	  */
+	void onStopCommandIssued();
+
+	/*!
+	  * Handles signals indicating that a halt command has been issued.
+	  */
+	void onHaltCommandIssued(const AMPIC887AxisCollection& axes);
+
 protected:
 	/*!
 	  * Runs the initialization procedure for the application.

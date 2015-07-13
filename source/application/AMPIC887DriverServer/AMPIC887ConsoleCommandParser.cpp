@@ -80,6 +80,10 @@ void AMPIC887ConsoleCommandParser::interpretCommandImplementation(const QString 
 		} else {
 			emit changeActiveController(commandParts.at(1));
 		}
+	} else if (command.startsWith("STP")) {
+		emit stopCommandIssued();
+	} else if(command.startsWith("HLT")) {
+		emit haltCommandIssued(axesFromCommandString(command));
 	} else if(command.startsWith("HPA?")) {
 		emit availableParametersCommandIssued();
 	} else if(command.startsWith("MST?")) {
@@ -159,9 +163,10 @@ AMPIC887AxisCollection AMPIC887ConsoleCommandParser::axesFromCommandString(const
 
 	if(axisArgumentList.isEmpty()) {
 		return AMPIC887AxisCollection(stateIfEmpty);
+
 	}
 
-	AMPIC887AxisCollection axes;
+	AMPIC887AxisCollection axes(AMPIC887AxisCollection::EmptyCollection);
 
 	for(int iAxis = 0, argCount = axisArgumentList.count();
 		iAxis < argCount;

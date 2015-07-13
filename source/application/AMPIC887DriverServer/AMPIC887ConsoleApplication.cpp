@@ -390,6 +390,24 @@ void AMPIC887ConsoleApplication::onSystemVelocityCommandIssued()
 
 }
 
+void AMPIC887ConsoleApplication::onStopCommandIssued()
+{
+	if(!controllerCollection_.activeController() && !controllerCollection_.activeController()->isInitialized()) {
+		return;
+	}
+
+	controllerCollection_.activeController()->stop();
+}
+
+void AMPIC887ConsoleApplication::onHaltCommandIssued(const AMPIC887AxisCollection &axes)
+{
+	if(!controllerCollection_.activeController() && !controllerCollection_.activeController()->isInitialized()) {
+		return;
+	}
+
+	controllerCollection_.activeController()->haltSmoothly(axes);
+}
+
 bool AMPIC887ConsoleApplication::startup()
 {
 	bool successfulLoad = true;
@@ -441,7 +459,11 @@ void AMPIC887ConsoleApplication::makeConnections()
 	connect(commandParser_, SIGNAL(servoModeCommandIssued()), this, SLOT(onServoModeStateCommandIssued()));
 	connect(commandParser_, SIGNAL(stepSizeCommandIssued(AMPIC887AxisCollection)), this, SLOT(onStepSizeCommandIssued(AMPIC887AxisCollection)));
 	connect(commandParser_, SIGNAL(systemVelocityCommandIssued()), this, SLOT(onSystemVelocityCommandIssued()));
+
+	connect(commandParser_, SIGNAL(stopCommandIssued()), this, SLOT(onStopCommandIssued()));
+	connect(commandParser_, SIGNAL(haltCommandIssued(AMPIC887AxisCollection)), this, SLOT(onHaltCommandIssued(AMPIC887AxisCollection)));
 }
+
 
 
 

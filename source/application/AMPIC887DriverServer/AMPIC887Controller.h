@@ -378,10 +378,11 @@ public slots:
 	void stop();
 
 	/*!
-	  * Instructs the controller to bring the motions of the axes to a stop
-	  * in a smooth motion.
+	  * Instructs the controller to bring the motions of the provided axes to
+	  * a halt smoothly.
+	  * \param axes ~ The axes whose motions are to be halted.
 	  */
-	void haltSmoothly();
+	void haltSmoothly(const AMPIC887AxisCollection& axes);
 
 	/*!
 	  * Moves the controller hexapod axes to the provided positions.
@@ -511,6 +512,16 @@ protected:
 	  * Refreshes the current position data within the controller state cache.
 	  */
 	void refreshCurrentPositions();
+
+	/*!
+	  * Updates the state of the controller in the case that a stop has taken
+	  * place.
+	  * Refreshes the current position.
+	  * Sets the target position to the current position.
+	  * (NOTE: Updating the motion counts for the axes is handled by the fact that
+	  * any async commands which are currently running will fail when a stop occurs).
+	  */
+	void updateStateOnStop();
 
 	AMPIC887ControllerState* controllerState_;
 	QString name_;

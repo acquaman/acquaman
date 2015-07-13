@@ -48,7 +48,7 @@ public:
 	  * Outputs the map values as a human readable string, if it can parse the
 	  * type into a string, otherwise returns the empty string.
 	  */
-	QString toString(const QString& = "Data")
+	QString toString(const QString& = "Data") const
 	{
 		// Implemented for known types in partial specializations below.
 		return QString();
@@ -123,7 +123,7 @@ public:
 	  * Outputs the map values as a human readable string, if it can parse the
 	  * type into a string, otherwise returns the empty string.
 	  */
-	QString toString(const QString& header = "Data")
+	QString toString(const QString& header = "Data") const
 	{
 		QString returnString = QString("Axis\t\t%1\n").arg(header);
 
@@ -210,7 +210,7 @@ public:
 	  * Outputs the map values as a human readable string, if it can parse the
 	  * type into a string, otherwise returns the empty string.
 	  */
-	QString toString(const QString& header = "Data")
+	QString toString(const QString& header = "Data") const
 	{
 		QString returnString = QString("Axis\t\t%1\n").arg(header);
 
@@ -290,7 +290,7 @@ public:
 	  * Outputs the map values as a human readable string, if it can parse the
 	  * type into a string, otherwise returns the empty string.
 	  */
-	QString toString(const QString& header = "Data")
+	QString toString(const QString& header = "Data") const
 	{
 		QString returnString = QString("Axis\t\t%1\n").arg(header);
 

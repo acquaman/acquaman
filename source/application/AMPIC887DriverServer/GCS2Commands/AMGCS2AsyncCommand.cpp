@@ -19,7 +19,11 @@ void AMGCS2AsyncCommand::run()
 	runningState_ = Running;
 	emit started(this);
 
-	if(controller_->id() < 0) {
+	if(!controller_) {
+		lastError_ = "Could not run command: No controller";
+		runningState_ = Failed;
+		emit failed(this);
+	} else if(controller_->id() < 0) {
 		lastError_ = QString("Could not run command: Connection not yet established with controller");
 		runningState_ = Failed;
 		emit failed(this);
