@@ -51,6 +51,8 @@
 #define BioXAS_MONO_REGION_REGION_B_WAIT_FAILED 1407719
 #define BioXAS_MONO_REGION_KEY_DISABLED_WAIT_FAILED 1407720
 
+#include <QDebug>
+
 class BioXASSSRLMonochromatorRegionControl : public AMPseudoMotorControl
 {
 	Q_OBJECT
@@ -64,7 +66,7 @@ public:
 	/// Destructor.
 	virtual ~BioXASSSRLMonochromatorRegionControl();
 
-	/// Returns true if the region is always measurable (when the control is connected).
+	/// Returns true if the region is always measurable, provided the control is connected.
 	virtual bool shouldMeasure() const { return true; }
 	/// Returns true if a move to a new region is always possible, provided control is connected.
 	virtual bool shouldMove() const { return true; }

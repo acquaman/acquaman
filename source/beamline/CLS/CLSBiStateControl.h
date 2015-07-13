@@ -34,7 +34,7 @@ class CLSBiStateControl : public AMControl
 
 public:
 	/// Enum describing the value states.
-	enum State { Open = 1, Closed = 4}
+	enum State { Open = 1, Closed = 4};
 	/// Constructor.  Builds the bi-state control based on the following parameters.
 	/*!
    \param name is the name of the control.

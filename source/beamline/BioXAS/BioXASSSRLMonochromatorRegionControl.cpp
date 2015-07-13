@@ -332,7 +332,7 @@ void BioXASSSRLMonochromatorRegionControl::updateConnected()
 	bool regionAStatusOK = (regionAStatus_ && regionAStatus_->isConnected());
 	bool regionBStatusOK = (regionBStatus_ && regionBStatus_->isConnected());
 
-	setConnected(
+	bool isConnected = (
 				upperSlitOK &&
 				lowerSlitOK &&
 				slitsStatusOK &&
@@ -348,6 +348,20 @@ void BioXASSSRLMonochromatorRegionControl::updateConnected()
 				regionAStatusOK &&
 				regionBStatusOK
 				);
+
+	if (isConnected)
+		qDebug() << "\nRegion control is connected.\n";
+	else {
+		qDebug() << "\nRegion control is NOT connected.";
+
+		if (!regionAStatusOK)
+			qDebug() << "\nRegion A status NOT connected.";
+
+		if (!regionBStatusOK)
+			qDebug() << "\nRegion B status NOT connected.";
+	}
+
+	setConnected(isConnected);
 }
 
 void BioXASSSRLMonochromatorRegionControl::updateValue()
