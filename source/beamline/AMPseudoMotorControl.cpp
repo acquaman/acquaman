@@ -123,6 +123,8 @@ QString AMPseudoMotorControl::toString() const
 
 AMControl::FailureExplanation AMPseudoMotorControl::move(double setpoint)
 {
+	// Check that this control is connected and able to move before proceeding.
+
 	if (!isConnected()) {
 		AMErrorMon::alert(this, AMPSEUDOMOTORCONTROL_NOT_CONNECTED, QString("Failed to move %1: control is not connected.").arg(name()));
 		return AMControl::NotConnectedFailure;
@@ -143,39 +145,52 @@ AMControl::FailureExplanation AMPseudoMotorControl::move(double setpoint)
 		return AMControl::LimitFailure;
 	}
 
+	// If the new setpoint is within tolerance, no need to proceed with move.
+	// Instead report a successful move to setpoint.
+
+	if (withinTolerance(setpoint)) {
+		onMoveStarted(0);
+		onMoveSucceeded(0);
+		return AMControl::NoFailure;
+	}
+
+	// Otherwise, an actual move is needed.
 	// Update the setpoint.
 
 	setSetpoint(setpoint);
 
-	// Otherwise, create new move action.
+	// Create new move action.
 
 	AMAction3 *moveAction = createMoveAction(setpoint_);
 
+	// Check that a valid move action was generated.
+	// If an invalid move action was created, abort the move.
+
 	if (!moveAction) {
-		AMErrorMon::information(this, AMPSEUDOMOTORCONTROL_INVALID_MOVE_ACTION, QString("Did not move %1: invalid move action generated.").arg(name()));
+		AMErrorMon::alert(this, AMPSEUDOMOTORCONTROL_INVALID_MOVE_ACTION, QString("Did not move %1: invalid move action generated.").arg(name()));
 		onMoveStarted(0);
-		onMoveSucceeded(0);
-
-	} else {
-
-		// Create move action signal mappings.
-
-		startedMapper_->setMapping(moveAction, moveAction);
-		connect( moveAction, SIGNAL(started()), startedMapper_, SLOT(map()) );
-
-		cancelledMapper_->setMapping(moveAction, moveAction);
-		connect( moveAction, SIGNAL(cancelled()), cancelledMapper_, SLOT(map()) );
-
-		failedMapper_->setMapping(moveAction, moveAction);
-		connect( moveAction, SIGNAL(failed()), failedMapper_, SLOT(map()) );
-
-		succeededMapper_->setMapping(moveAction, moveAction);
-		connect( moveAction, SIGNAL(succeeded()), succeededMapper_, SLOT(map()) );
-
-		// Run action.
-
-		moveAction->start();
+		onMoveFailed(0);
+		return AMControl::LimitFailure;
 	}
+
+	// Otherwise, proceed with initializing and running the move action.
+	// Create move action signal mappings.
+
+	startedMapper_->setMapping(moveAction, moveAction);
+	connect( moveAction, SIGNAL(started()), startedMapper_, SLOT(map()) );
+
+	cancelledMapper_->setMapping(moveAction, moveAction);
+	connect( moveAction, SIGNAL(cancelled()), cancelledMapper_, SLOT(map()) );
+
+	failedMapper_->setMapping(moveAction, moveAction);
+	connect( moveAction, SIGNAL(failed()), failedMapper_, SLOT(map()) );
+
+	succeededMapper_->setMapping(moveAction, moveAction);
+	connect( moveAction, SIGNAL(succeeded()), succeededMapper_, SLOT(map()) );
+
+	// Run action.
+
+	moveAction->start();
 
 	return AMControl::NoFailure;
 }
