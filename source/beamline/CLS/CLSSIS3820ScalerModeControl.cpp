@@ -211,8 +211,8 @@ void CLSSIS3820ScalerModeControl::updateMoving()
 
 void CLSSIS3820ScalerModeControl::onMoveSucceeded(QObject *action)
 {
-	AMPseudoMotorControl::onMoveSucceeded(action);
 	setValue(setpoint_);
+	AMPseudoMotorControl::onMoveSucceeded(action);
 }
 
 void CLSSIS3820ScalerModeControl::setSingleShotScanCountValue(double newValue)
