@@ -11,7 +11,7 @@ CLSSIS3820ScalerModeControl::CLSSIS3820ScalerModeControl(const QString &name, co
 
 	value_ = None;
 	setpoint_ = None;
-	minimumValue_ = Continuous;
+	minimumValue_ = SingleShot;
 	maximumValue_ = None;
 
 	setEnumStates(QStringList() << "Continuous" << "SingleShot" << "None");
@@ -175,8 +175,6 @@ void CLSSIS3820ScalerModeControl::setStartScanControl(AMControl *newControl)
 
 void CLSSIS3820ScalerModeControl::updateConnected()
 {
-	bool wasConnected = connected_;
-
 	bool isConnected = (
 				scanCountControl_ && scanCountControl_->isConnected() &&
 				numberOfScansPerBufferControl_ && numberOfScansPerBufferControl_->isConnected() &&
@@ -184,11 +182,6 @@ void CLSSIS3820ScalerModeControl::updateConnected()
 				);
 
 	setConnected(isConnected);
-
-	// If we weren't connected before but we are now, set mode to Continuous.
-
-	if (!wasConnected && isConnected)
-		move(Continuous);
 }
 
 void CLSSIS3820ScalerModeControl::updateValue()
