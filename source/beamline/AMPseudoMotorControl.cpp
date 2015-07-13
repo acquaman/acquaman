@@ -215,6 +215,22 @@ bool AMPseudoMotorControl::stop()
 	return result;
 }
 
+void AMPseudoMotorControl::setEnumStates(const QStringList &enumStateNames)
+{
+	AMControl::setEnumStates(enumStateNames);
+
+	if (!enumStateNames.isEmpty()) {
+		connect( this, SIGNAL(valueChanged(double)), this, SIGNAL(enumChanged()) );
+		connect( this, SIGNAL(connected(bool)), this, SIGNAL(enumChanged()) );
+		connect( this, SIGNAL(setpointChanged(double)), this, SIGNAL(enumChanged()) );
+
+	} else {
+		disconnect( this, SIGNAL(valueChanged(double)), this, SIGNAL(enumChanged()) );
+		disconnect( this, SIGNAL(connected(bool)), this, SIGNAL(enumChanged()) );
+		disconnect( this, SIGNAL(setpointChanged(double)), this, SIGNAL(enumChanged()) );
+	}
+}
+
 void AMPseudoMotorControl::setConnected(bool isConnected)
 {
 	if (connected_ != isConnected) {

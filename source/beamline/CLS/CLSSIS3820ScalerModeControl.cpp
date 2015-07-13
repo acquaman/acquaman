@@ -2,8 +2,6 @@
 #include "actions3/AMActionSupport.h"
 #include "actions3/AMListAction3.h"
 
-#include <QDebug>
-
 CLSSIS3820ScalerModeControl::CLSSIS3820ScalerModeControl(const QString &name, const QString &units, QObject *parent, const QString &description) :
 	AMPseudoMotorControl(name, units, parent, description)
 {
@@ -28,12 +26,6 @@ CLSSIS3820ScalerModeControl::CLSSIS3820ScalerModeControl(const QString &name, co
 
 	singleShotScanCountValue_ = 1;
 	singleShotNumberOfScansPerBufferValue_ = 1;
-
-	// Make connections.
-
-	connect( this, SIGNAL(connected(bool)), this, SIGNAL(enumChanged()) );
-	connect( this, SIGNAL(valueChanged(double)), this, SIGNAL(enumChanged()) );
-	connect( this, SIGNAL(setpointChanged(double)), this, SIGNAL(enumChanged()) );
 
 	// Current settings.
 
