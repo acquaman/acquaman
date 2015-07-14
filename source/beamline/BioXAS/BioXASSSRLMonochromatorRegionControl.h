@@ -114,6 +114,8 @@ public:
 	/// Returns the region B status control.
 	AMControl* regionBStatusControl() const { return regionBStatus_; }
 
+//	virtual void addChildControl(AMControl *control);
+
 signals:
 	/// Notifier that there has been progress in completing a crystal change.
 	void moveProgressChanged(double numerator, double denominator);
