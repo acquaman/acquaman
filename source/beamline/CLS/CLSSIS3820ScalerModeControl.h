@@ -9,7 +9,9 @@ class CLSSIS3820ScalerModeControl : public AMPseudoMotorControl
 
 public:
 	/// Enum describing the possible mode states.
-	enum State { SingleShot = 0, Continuous = 1, None = 2 };
+	class Mode { public: enum State { SingleShot = 0, Continuous = 1, None = 2 }; };
+	/// Enum describing the possible scan states.
+	class Scan { public: enum State { NotScanning = 0, Scanning = 1 }; };
 	/// Constructor.
 	explicit CLSSIS3820ScalerModeControl(const QString &name, const QString &units, QObject *parent = 0, const QString &description = "");
 	/// Destructor.
@@ -46,6 +48,11 @@ public:
 	/// Returns a string representation of the given mode.
 	QString toString(double value) const;
 
+	/// Returns true if the current mode is Continuous, false otherwise. Checks the current values of child controls to determine result.
+	bool isContinuous() const;
+	/// Returns true if the current mode is SingleShot, false otherwise. Checks the current values of child controls to determine result.
+	bool isSingleShot() const;
+
 signals:
 	/// Notifier that the scan count control has changed.
 	void scanCountControlChanged(AMControl *newControl);
@@ -69,9 +76,6 @@ protected slots:
 	virtual void updateValue();
 	/// Handles updating the control's 'is moving' state.
 	virtual void updateMoving();
-
-	/// Handles emitting the appropriate signals and performing action cleanup when a move action succeeds.
-	virtual void onMoveSucceeded(QObject *action);
 
 	/// Sets the single shot scan count value.
 	void setSingleShotScanCountValue(double newValue);

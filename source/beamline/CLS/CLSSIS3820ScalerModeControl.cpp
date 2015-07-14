@@ -7,10 +7,10 @@ CLSSIS3820ScalerModeControl::CLSSIS3820ScalerModeControl(const QString &name, co
 {
 	// Initialize inherited variables.
 
-	value_ = None;
-	setpoint_ = None;
-	minimumValue_ = SingleShot;
-	maximumValue_ = None;
+	value_ = Mode::None;
+	setpoint_ = Mode::None;
+	minimumValue_ = Mode::SingleShot;
+	maximumValue_ = Mode::None;
 
 	setEnumStates(QStringList() << "Continuous" << "SingleShot" << "None");
 	setMoveEnumStates(QStringList() << "Continuous" << "SingleShot");
@@ -58,7 +58,7 @@ bool CLSSIS3820ScalerModeControl::validValue(double value) const
 
 	int valueInt = int(value);
 
-	if (valueInt == Continuous || valueInt == SingleShot || valueInt == None)
+	if (valueInt == Mode::Continuous || valueInt == Mode::SingleShot || valueInt == Mode::None)
 		result = true;
 
 	return result;
@@ -70,7 +70,7 @@ bool CLSSIS3820ScalerModeControl::validSetpoint(double value) const
 
 	int valueInt = int(value);
 
-	if (valueInt == Continuous || valueInt == SingleShot)
+	if (valueInt == Mode::Continuous || valueInt == Mode::SingleShot)
 		result = true;
 
 	return result;
@@ -100,18 +100,43 @@ QString CLSSIS3820ScalerModeControl::toString(double value) const
 	QString result = "";
 
 	switch (int(value)) {
-	case SingleShot:
+	case Mode::SingleShot:
 		result = "Single Shot";
 		break;
-	case Continuous:
+	case Mode::Continuous:
 		result = "Continuous";
 		break;
-	case None:
+	case Mode::None:
 		result = "None";
 		break;
 	default:
 		result = "Unknown";
 		break;
+	}
+
+	return result;
+}
+
+bool CLSSIS3820ScalerModeControl::isContinuous() const
+{
+	bool result = false;
+
+	if (isConnected()) {
+		if (startScanControl_->value() == Scan::Scanning && scanCountControl_->value() == 0) {
+			result = true;
+		}
+	}
+
+	return result;
+}
+
+bool CLSSIS3820ScalerModeControl::isSingleShot() const
+{
+	bool result = false;
+
+	if (isConnected()) {
+		if (scanCountControl_->value() > 0)
+			result = true;
 	}
 
 	return result;
@@ -177,8 +202,13 @@ void CLSSIS3820ScalerModeControl::updateConnected()
 }
 
 void CLSSIS3820ScalerModeControl::updateValue()
-{
-	// We do nothing here, value updates only happen onMoveSucceeded().
+{	
+	if (isContinuous())
+		setValue(Mode::Continuous);
+	else if (isSingleShot())
+		setValue(Mode::SingleShot);
+	else
+		setValue(Mode::None);
 }
 
 void CLSSIS3820ScalerModeControl::updateMoving()
@@ -192,12 +222,6 @@ void CLSSIS3820ScalerModeControl::updateMoving()
 
 		setIsMoving(isMoving);
 	}
-}
-
-void CLSSIS3820ScalerModeControl::onMoveSucceeded(QObject *action)
-{
-	setValue(setpoint_);
-	AMPseudoMotorControl::onMoveSucceeded(action);
 }
 
 void CLSSIS3820ScalerModeControl::setSingleShotScanCountValue(double newValue)
@@ -221,13 +245,13 @@ AMAction3* CLSSIS3820ScalerModeControl::createMoveAction(double setpoint)
 
 	int setpointInt = int(setpoint);
 
-	if (setpointInt == Continuous) {
+	if (setpointInt == Mode::Continuous) {
 		setSingleShotScanCountValue(scanCountControl_->value());
 		setSingleShotNumberOfScansPerBufferValue(numberOfScansPerBufferControl_->value());
 
 		result = createMoveToContinuousModeAction();
 
-	} else if (setpointInt == SingleShot) {
+	} else if (setpointInt == Mode::SingleShot) {
 		result = createMoveToSingleShotModeAction();
 	}
 
@@ -239,7 +263,7 @@ AMAction3* CLSSIS3820ScalerModeControl::createMoveToContinuousModeAction()
 	AMListAction3 *result = new AMListAction3(new AMListActionInfo3("ModeChange", "SIS3820 Scaler Mode Change"), AMListAction3::Sequential);
 	result->addSubAction(AMActionSupport::buildControlMoveAction(scanCountControl_, 0));
 	result->addSubAction(AMActionSupport::buildControlMoveAction(numberOfScansPerBufferControl_, 1));
-	result->addSubAction(AMActionSupport::buildControlMoveAction(startScanControl_, 1));
+	result->addSubAction(AMActionSupport::buildControlMoveAction(startScanControl_, Scan::Scanning));
 
 	return result;
 }
@@ -249,7 +273,7 @@ AMAction3* CLSSIS3820ScalerModeControl::createMoveToSingleShotModeAction()
 	AMListAction3 *result = new AMListAction3(new AMListActionInfo3("ModeChange", "SIS3820 Scaler Mode Change"), AMListAction3::Sequential);
 	result->addSubAction(AMActionSupport::buildControlMoveAction(scanCountControl_, singleShotScanCountValue_));
 	result->addSubAction(AMActionSupport::buildControlMoveAction(numberOfScansPerBufferControl_, singleShotNumberOfScansPerBufferValue_));
-	result->addSubAction(AMActionSupport::buildControlMoveAction(startScanControl_, 0));
+	result->addSubAction(AMActionSupport::buildControlMoveAction(startScanControl_, Scan::NotScanning));
 
 	return result;
 }
