@@ -32,11 +32,6 @@ public:
 	  */
 	AMPIC887AxisCollection(InitializationState initializationState = AllAxes);
 
-	///////
-	// TEMP
-	///////
-	AMPIC887AxisCollection(const QList<AMGCS2::Axis>& other);
-
 	/*!
 	  * The valid state of the axis collection.
 	  * \returns ValidState indicating the validity of the collection.

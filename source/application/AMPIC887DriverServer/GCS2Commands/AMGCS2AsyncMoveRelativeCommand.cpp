@@ -3,7 +3,7 @@
 #include "AMGCS2GetMovingStatusCommand.h"
 #include "AMGCS2GetCurrentPositionCommand.h"
 #include "../AMGCS2Support.h"
-AMGCS2AsyncMoveRelativeCommand::AMGCS2AsyncMoveRelativeCommand(const QHash<AMGCS2::Axis, double>& relativeAxisPositions)
+AMGCS2AsyncMoveRelativeCommand::AMGCS2AsyncMoveRelativeCommand(const AMPIC887AxisMap<double>& relativeAxisPositions)
 {
 	relativeAxisPositions_ = relativeAxisPositions;
 	moveRelativeCommand_ = new AMGCS2MoveRelativeCommand(relativeAxisPositions);
@@ -23,7 +23,7 @@ QString AMGCS2AsyncMoveRelativeCommand::outputString() const
 	return "Move Succeeded";
 }
 
-QHash<AMGCS2::Axis, double> AMGCS2AsyncMoveRelativeCommand::relativeTargetPositions() const
+AMPIC887AxisMap<double> AMGCS2AsyncMoveRelativeCommand::relativeTargetPositions() const
 {
 	return relativeAxisPositions_;
 }
@@ -31,16 +31,13 @@ QHash<AMGCS2::Axis, double> AMGCS2AsyncMoveRelativeCommand::relativeTargetPositi
 bool AMGCS2AsyncMoveRelativeCommand::validateArguments()
 {
 	if(relativeAxisPositions_.isEmpty()) {
-		lastError_ = "No axis positions provided";
+		lastError_ = "No relative positions provided";
 		return false;
 	}
 
-	foreach(AMGCS2::Axis currentAxis, relativeAxisPositions_.keys()) {
-
-		if(currentAxis == AMGCS2::UnknownAxis) {
-			lastError_ = "Cannot move unknown axis";
-			return false;
-		}
+	if(relativeAxisPositions_.containsUnknownAxis()) {
+		lastError_ = "Unknown axis provided";
+		return false;
 	}
 
 	return true;
@@ -50,7 +47,7 @@ bool AMGCS2AsyncMoveRelativeCommand::runImplementation()
 {
 	// Need to store the original target positions, so we know where we're
 	// heading later.
-	QList<AMGCS2::Axis> axesMoved = relativeAxisPositions_.keys();
+	AMPIC887AxisCollection axesMoved = relativeAxisPositions_.axes();
 	AMGCS2GetTargetPositionCommand targetPositionCommand(axesMoved);
 	targetPositionCommand.setController(controller_);
 	targetPositionCommand.run();
@@ -82,7 +79,7 @@ bool AMGCS2AsyncMoveRelativeCommand::runImplementation()
 
 void AMGCS2AsyncMoveRelativeCommand::isFinishedImplementation()
 {
-	QList<AMGCS2::Axis> axesMoved = relativeAxisPositions_.keys();
+	AMPIC887AxisCollection axesMoved = relativeAxisPositions_.axes();
 
 	// Are we still moving?
 

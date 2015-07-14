@@ -1,9 +1,8 @@
 #ifndef AMGCS2MOVECOMMAND_H
 #define AMGCS2MOVECOMMAND_H
 #include "AMGCS2Command.h"
-
-#include <QHash>
 #include "../AMGCS2.h"
+#include "../AMPIC887AxisMap.h"
 
 /*!
   * A class which represents a move command in the PIC887.11 GCS2 syntac. Equivalent
@@ -14,10 +13,10 @@ class AMGCS2MoveCommand : public AMGCS2Command
 public:
 	/*!
 	  * Creates a new instance of an AMGCS2MoveCommand.
-	  * \param axisPositions ~ A mapping of the axes to be moved to the positions
+	  * \param targetPositions ~ A mapping of the axes to be moved to the positions
 	  * to which they will be moved.
 	  */
-	AMGCS2MoveCommand(const QHash<AMGCS2::Axis, double>& axisPositions);
+	AMGCS2MoveCommand(const AMPIC887AxisMap<double>& targetPositions);
 
 	/*!
 	  * Virtual destructor for an AMGCS2MoveCommand
@@ -39,7 +38,7 @@ protected:
 	virtual bool runImplementation();
 
 	/// A mapping of the axes to the positions they will be moved to.
-	QHash<AMGCS2::Axis, double> axisPositions_;
+	AMPIC887AxisMap<double> targetPositions_;
 };
 
 #endif // AMGCS2MOVECOMMAND_H

@@ -15,26 +15,7 @@ QString AMGCS2GetReferenceResultCommand::outputString() const
 		return "";
 	}
 
-	QString returnOutput("Axis\t\tIs Referenced\n");
-
-	QList<AMGCS2::Axis> axisKeys = axisReferenceResults_.keys();
-
-	foreach(AMGCS2::Axis currentAxis, axisKeys) {
-
-
-		QString result;
-		if(axisReferenceResults_.value(currentAxis)) {
-			result = "Yes";
-		} else {
-			result = "No";
-		}
-
-		returnOutput.append(QString("%1\t\t%2\n")
-							.arg(AMGCS2Support::axisToCharacter(currentAxis))
-							.arg(result));
-	}
-
-	return returnOutput.trimmed();
+	return axisReferenceResults_.toString("Is Referenced");
 }
 
 AMPIC887AxisMap<bool> AMGCS2GetReferenceResultCommand::axesReferenceResults() const

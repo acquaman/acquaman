@@ -1,7 +1,7 @@
 #ifndef AMGCS2SETSOFTLIMITSSTATUSCOMMAND_H
 #define AMGCS2SETSOFTLIMITSSTATUSCOMMAND_H
 #include "AMGCS2Command.h"
-#include <QHash>
+#include "../AMPIC887AxisMap.h"
 #include "../AMGCS2.h"
 /*!
   * A command representing an instruction to a PI C887.11 controller to activate/
@@ -17,7 +17,7 @@ public:
 	  * \param softLimitStatuses ~ A mapping of axes to the active status of its
 	  * soft limit.
 	  */
-	AMGCS2SetSoftLimitsStatusCommand(const QHash<AMGCS2::Axis, bool>& softLimitStatuses);
+	AMGCS2SetSoftLimitsStatusCommand(const AMPIC887AxisMap<bool>& softLimitStatuses);
 
 	/*!
 	  * Virtual destructor for a set soft limit status command
@@ -40,7 +40,7 @@ protected:
 	  */
 	virtual bool runImplementation();
 
-	QHash<AMGCS2::Axis, bool> softLimitStatuses_;
+	AMPIC887AxisMap<bool> softLimitStatuses_;
 };
 
 #endif // AMGCS2SETSOFTLIMITSSTATUSCOMMAND_H

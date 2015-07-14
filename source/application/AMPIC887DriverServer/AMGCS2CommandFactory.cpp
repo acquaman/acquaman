@@ -56,27 +56,27 @@ AMGCS2Command * AMGCS2CommandFactory::buildCommand(const QString &commandString)
 		return new AMGCS2GetCurrentPositionCommand(axesFromCommandString(commandString));
 	} else if(commandString.startsWith("OMST?")) {
 		return new AMGCS2GetMovingStatusCommand();
-	} else if (commandString.startsWith("STP")){
+	} else if (commandString.startsWith("OSTP")){
 		return new AMGCS2StopCommand();
-	} else if (commandString.startsWith("HLT")) {
+	} else if (commandString.startsWith("OHLT")) {
 		return new AMGCS2HaltSmoothlyCommand(axesFromCommandString(commandString));
 	} else if(commandString.startsWith("OMOV?")) {
 		return new AMGCS2GetTargetPositionCommand(axesFromCommandString(commandString));
 	} else if(commandString.startsWith("OMOV")) {
 		return new AMGCS2AsyncMoveCommand(axesDoublePairFromCommandString(commandString));
-	} else if(commandString.startsWith("RDY?")) {
+	} else if(commandString.startsWith("ORDY?")) {
 		return new AMGCS2GetControllerReadyStatusCommand();
 	} else if(commandString.startsWith("OIDN?")) {
 		return new AMGCS2GetDeviceIdentificationCommand();
 	} else if(commandString.startsWith("OCCL?")) {
 		return new AMGCS2GetCommandLevelCommand();
-	} else if(commandString.startsWith("CCL")) {
+	} else if(commandString.startsWith("OCCL")) {
 		return buildSetCommandLevelCommand(commandArguments(commandString));
-	} else if (commandString.startsWith("CSV")) {
+	} else if (commandString.startsWith("OCSV")) {
 		return new AMGCS2SetSyntaxVersionCommand();
 	} else if(commandString.startsWith("ODRC?")) {
 		return new AMGCS2GetDataRecorderConfigurationCommand();
-	} else if(commandString.startsWith("DRC")) {
+	} else if(commandString.startsWith("ODRC")) {
 		return buildSetDataRecorderConfigurationCommand(commandArguments(commandString));
 	} else if(commandString.startsWith("ODRL?")) {
 		return buildGetNumberOfRecordedPointsCommand(commandArguments(commandString));
@@ -84,7 +84,7 @@ AMGCS2Command * AMGCS2CommandFactory::buildCommand(const QString &commandString)
 		return buildGetRecordedDataValuesCommand(commandArguments(commandString));
 	} else if(commandString.startsWith("ODRT?")) {
 		return buildGetRecordTriggerSourceCommand(commandArguments(commandString));
-	} else if(commandString.startsWith("DRT")) {
+	} else if(commandString.startsWith("ODRT")) {
 		return buildSetRecordTriggerSourceCommand(commandArguments(commandString));
 	} else if (commandString.startsWith("OFRF?")){
 		return new AMGCS2GetReferenceResultCommand(axesFromCommandString(commandString));
@@ -100,35 +100,35 @@ AMGCS2Command * AMGCS2CommandFactory::buildCommand(const QString &commandString)
 		return new AMGCS2AsyncMoveRelativeCommand(axesDoublePairFromCommandString(commandString));
 	} else if(commandString.startsWith("ONLM?")) {
 		return new AMGCS2GetLowSoftLimitsCommand(axesFromCommandString(commandString));
-	} else if(commandString.startsWith("NLM")) {
+	} else if(commandString.startsWith("ONLM")) {
 		return new AMGCS2SetLowSoftLimitsCommand(axesDoublePairFromCommandString(commandString));
 	} else if(commandString.startsWith("OONT?")) {
 		return new AMGCS2GetOnTargetStateCommand(axesFromCommandString(commandString));
 	} else if(commandString.startsWith("OPLM?")) {
 		return new AMGCS2GetHighSoftLimitsCommand(axesFromCommandString(commandString));
-	} else if(commandString.startsWith("PLM")) {
+	} else if(commandString.startsWith("OPLM")) {
 		return new AMGCS2SetHighSoftLimitsCommand(axesDoublePairFromCommandString(commandString));
 	} else if(commandString.startsWith("OPUN?")) {
 		return new AMGCS2GetPositionUnitsCommand(axesFromCommandString(commandString));
 	} else if(commandString.startsWith("OSCT?")) {
 		return new AMGCS2GetCycleTimeCommand();
-	} else if(commandString.startsWith("SCT")) {
+	} else if(commandString.startsWith("OSCT")) {
 		return buildSetCycleTimeCommand(commandArguments(commandString));
 	} else if(commandString.startsWith("OSPI?")) {
 		return new AMGCS2GetPivotPointCommand(axesFromCommandString(commandString));
-	} else if(commandString.startsWith("SPI")) {
+	} else if(commandString.startsWith("OSPI")) {
 		return new AMGCS2SetPivotPointCommand(axesDoublePairFromCommandString(commandString));
 	} else if(commandString.startsWith("OSSL?")) {
 		return new AMGCS2GetSoftLimitsStatusCommand(axesFromCommandString(commandString));
-	} else if(commandString.startsWith("SSL")) {
+	} else if(commandString.startsWith("OSSL")) {
 		return buildSetSoftLimitStatusesCommand(commandArguments(commandString));
 	} else if(commandString.startsWith("OSVO?")) {
-		return new AMGCS2GetServoModeCommand(axesFromCommandString(commandString));
-	} else if(commandString.startsWith("SVO")) {
+		return new AMGCS2GetServoModeCommand();
+	} else if(commandString.startsWith("OSVO")) {
 		return buildSetServoModeCommand(commandArguments(commandString));
 	} else if(commandString.startsWith("OSST?")) {
 		return new AMGCS2GetStepSizeCommand(axesFromCommandString(commandString));
-	} else if(commandString.startsWith("SST")) {
+	} else if(commandString.startsWith("OSST")) {
 		return new AMGCS2SetStepSizeCommand(axesDoublePairFromCommandString(commandString));
 	} else if(commandString.startsWith("OTMN?")) {
 		return new AMGCS2GetMinCommandablePositionCommand(axesFromCommandString(commandString));
@@ -136,9 +136,9 @@ AMGCS2Command * AMGCS2CommandFactory::buildCommand(const QString &commandString)
 		return new AMGCS2GetMaxCommandablePositionCommand(axesFromCommandString(commandString));
 	} else if(commandString.startsWith("OVLS?")) {
 		return new AMGCS2GetSystemVelocityCommand();
-	} else if(commandString.startsWith("VLS")) {
+	} else if(commandString.startsWith("OVLS")) {
 		return buildSetSystemVelocityCommand(commandArguments(commandString));
-	} else if(commandString.startsWith("VMO?")) {
+	} else if(commandString.startsWith("OVMO?")) {
 		return new AMGCS2VirtualMoveCommand(axesDoublePairFromCommandString(commandString));
 	}
 
@@ -172,11 +172,11 @@ AMPIC887AxisCollection AMGCS2CommandFactory::axesFromCommandString(const QString
 	return axes;
 }
 
-QHash<AMGCS2::Axis, double> AMGCS2CommandFactory::axesDoublePairFromCommandString(const QString &arguments)
+AMPIC887AxisMap<double> AMGCS2CommandFactory::axesDoublePairFromCommandString(const QString &arguments)
 {
 	QStringList argumentList = commandArguments(arguments);
 
-	QHash<AMGCS2::Axis, double> axisValueMap;
+	AMPIC887AxisMap<double> axisValueMap;
 	int argumentCount = argumentList.count();
 
 	// Ensure argument list isn't empty and has arguments in groups of two.
@@ -402,7 +402,7 @@ AMGCS2Command * AMGCS2CommandFactory::buildSetCycleTimeCommand(const QStringList
 
 AMGCS2Command * AMGCS2CommandFactory::buildSetSoftLimitStatusesCommand(const QStringList &argumentList)
 {
-	QHash<AMGCS2::Axis, bool> axisValueMap;
+	AMPIC887AxisMap<bool> axisValueMap;
 	int argumentCount = argumentList.count();
 
 	// Ensure argument list isn't empty and has arguments in groups of two.

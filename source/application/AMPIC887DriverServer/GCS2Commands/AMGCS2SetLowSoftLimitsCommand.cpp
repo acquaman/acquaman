@@ -3,8 +3,8 @@
 #include "util/AMCArrayHandler.h"
 #include "PI_GCS2_DLL.h"
 #include "../AMPIC887Controller.h"
-
-AMGCS2SetLowSoftLimitsCommand::AMGCS2SetLowSoftLimitsCommand(const QHash<AMGCS2::Axis, double>& axisLowLimits)
+#include "../AMPIC887AxisCollection.h"
+AMGCS2SetLowSoftLimitsCommand::AMGCS2SetLowSoftLimitsCommand(const AMPIC887AxisMap<double>& axisLowLimits)
 {
 	axisLowLimits_ = axisLowLimits;
 }
@@ -12,20 +12,12 @@ AMGCS2SetLowSoftLimitsCommand::AMGCS2SetLowSoftLimitsCommand(const QHash<AMGCS2:
 bool AMGCS2SetLowSoftLimitsCommand::validateArguments()
 {
 	if(axisLowLimits_.isEmpty()) {
-		lastError_ = "Cannot set soft limits - No axis limits provided";
+		lastError_ = "No low soft limits to set";
 		return false;
 	}
 
-	foreach(AMGCS2::Axis currentAxis, axisLowLimits_.keys()) {
-
-		if(currentAxis == AMGCS2::UnknownAxis) {
-			lastError_ = "Cannot set soft limits - Unknown axis provided";
-			return false;
-		}
-	}
-
-	if(axisLowLimits_.count() > AXIS_COUNT) {
-		lastError_ = "Duplicate axes provided";
+	if(axisLowLimits_.containsUnknownAxis()) {
+		lastError_ = "Contains unknown axis";
 		return false;
 	}
 
@@ -34,19 +26,17 @@ bool AMGCS2SetLowSoftLimitsCommand::validateArguments()
 
 bool AMGCS2SetLowSoftLimitsCommand::runImplementation()
 {
-	QList<AMGCS2::Axis> axes = axisLowLimits_.keys();
+	AMPIC887AxisCollection axes = axisLowLimits_.axes();
 	int axesCount = axes.count();
+
 	AMCArrayHandler<double> lowLimitValues(axesCount);
-	QString axesString;
+	QString axesString = axes.toString();
 
 	for(int iAxis = 0;
 		iAxis < axesCount;
 		++iAxis) {
 
 		AMGCS2::Axis currentAxis = axes.at(iAxis);
-		axesString.append(QString(" %1")
-						  .arg(AMGCS2Support::axisToCharacter(currentAxis)));
-
 		lowLimitValues.cArray()[iAxis] = axisLowLimits_.value(currentAxis);
 	}
 

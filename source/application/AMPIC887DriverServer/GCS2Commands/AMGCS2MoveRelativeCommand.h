@@ -2,7 +2,7 @@
 #define AMGCS2MOVERELATIVECOMMAND_H
 #include "AMGCS2Command.h"
 #include "../AMGCS2.h"
-#include <QHash>
+#include "../AMPIC887AxisMap.h"
 /*!
   * A command representing an instruction to a PI C887.11 controller to move the
   * provided axes to their corresponsing relative positions.
@@ -20,7 +20,7 @@ public:
 	  * \param relativeAxisPositons ~ A mapping of axes to the values which are
 	  * to be added to their last commanded target positions.
 	  */
-	AMGCS2MoveRelativeCommand(const QHash<AMGCS2::Axis, double>& relativeAxisPositions);
+	AMGCS2MoveRelativeCommand(const AMPIC887AxisMap<double>& relativeAxisPositions);
 
 	/*!
 	  * Virtual destructor for a move relative command.
@@ -44,7 +44,7 @@ protected:
 	  */
 	virtual bool runImplementation();
 
-	QHash<AMGCS2::Axis, double> relativeAxisPositions_;
+	AMPIC887AxisMap<double> relativeAxisPositions_;
 };
 
 #endif // AMGCS2MOVERELATIVECOMMAND_H

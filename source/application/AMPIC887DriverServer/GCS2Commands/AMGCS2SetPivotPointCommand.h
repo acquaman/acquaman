@@ -3,7 +3,7 @@
 
 #include "AMGCS2Command.h"
 #include "../AMGCS2.h"
-#include <QHash>
+#include "../AMPIC887AxisMap.h"
 
 /*!
   * A command representing an instruction to a PI C887.11 controller to update
@@ -15,10 +15,10 @@ public:
 	/*!
 	  * Creates an instance of a set pivot point command which will set the
 	  * pivot point of a controller based on the provided map of axes to coordinate.
-	  * \param pivotPoint ~ A mapping of axes to its corresponding pivot point
+	  * \param pivotPoints ~ A mapping of axes to its corresponding pivot point
 	  * position. Only X, Y and Z axes are valid.
 	  */
-	AMGCS2SetPivotPointCommand(const QHash<AMGCS2::Axis, double>& pivotPoint);
+	AMGCS2SetPivotPointCommand(const AMPIC887AxisMap<double>& pivotPoints);
 
 	/*!
 	  * Virtual destructor for a set pivot point command
@@ -42,7 +42,7 @@ protected:
 	  */
 	virtual bool runImplementation();
 
-	QHash<AMGCS2::Axis, double> pivotPoint_;
+	AMPIC887AxisMap<double> pivotPoints_;
 };
 
 #endif // AMGCS2SETPIVOTPOINTCOMMAND_H

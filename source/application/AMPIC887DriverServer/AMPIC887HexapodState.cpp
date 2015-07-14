@@ -2,7 +2,7 @@
 
 AMPIC887HexapodState::AMPIC887HexapodState()
 {
-	isInServoMode_ = false;
+	servoMode_ = false;
 	isInitialized_ = false;
 }
 
@@ -13,12 +13,12 @@ AMPIC887HexapodState::~AMPIC887HexapodState()
 
 bool AMPIC887HexapodState::isInServoMode() const
 {
-	return isInServoMode_;
+	return servoMode_;
 }
 
-void AMPIC887HexapodState::setIsInServoMode(bool isInServoMode)
+void AMPIC887HexapodState::setServoMode(bool servoMode)
 {
-	isInServoMode_ = isInServoMode;
+	servoMode_ = servoMode;
 }
 
 double AMPIC887HexapodState::cycleTime() const
@@ -46,7 +46,7 @@ bool AMPIC887HexapodState::isInitialized() const
 	return isInitialized_;
 }
 
-void AMPIC887HexapodState::initialize(bool isInServoMode, double cycleTime, double velocity,
+void AMPIC887HexapodState::initialize(bool servoMode, double cycleTime, double velocity,
 									  AMPIC887AxisMap<bool> referencedStates,
 									  AMPIC887AxisMap<double> currentPositions,
 									  AMPIC887AxisMap<double> lowSoftLimits,
@@ -58,7 +58,7 @@ void AMPIC887HexapodState::initialize(bool isInServoMode, double cycleTime, doub
 									  AMPIC887AxisMap<double> maxCommandablePositions,
 									  AMPIC887AxisMap<double> pivotPoints)
 {
-	isInServoMode_ = isInServoMode;
+	servoMode_ = servoMode;
 	cycleTime_ = cycleTime;
 	velocity_ = velocity;
 	referencedStates_ = referencedStates;
@@ -84,7 +84,7 @@ void AMPIC887HexapodState::initialize(bool isInServoMode, double cycleTime, doub
 QString AMPIC887HexapodState::statusString() const
 {
 	QString servoModeString;
-	if(isInServoMode_) {
+	if(servoMode_) {
 		servoModeString = "Yes";
 	} else {
 		servoModeString = "No";
@@ -129,6 +129,15 @@ void AMPIC887HexapodState::setReferencedState(AMGCS2::Axis axis, bool referenced
 	referencedStates_.insert(axis, referencedState);
 }
 
+void AMPIC887HexapodState::setReferencedStates(const AMPIC887AxisMap<bool> &referencedStates)
+{
+	AMPIC887AxisCollection axes = referencedStates.axes();
+	foreach(AMGCS2::Axis currentAxis, axes) {
+
+		referencedStates_.insert(currentAxis, referencedStates.value(currentAxis));
+	}
+}
+
 double AMPIC887HexapodState::currentPosition(AMGCS2::Axis axis) const
 {
 	return currentPositions_.value(axis, 0);
@@ -146,6 +155,15 @@ void AMPIC887HexapodState::setCurrentPosition(AMGCS2::Axis axis, double currentP
 	}
 
 	currentPositions_.insert(axis, currentPosition);
+}
+
+void AMPIC887HexapodState::setCurrentPositions(const AMPIC887AxisMap<double> &currentPositions)
+{
+	AMPIC887AxisCollection axes = currentPositions.axes();
+	foreach(AMGCS2::Axis currentAxis, axes) {
+
+		currentPositions_.insert(currentAxis, currentPositions.value(currentAxis));
+	}
 }
 
 double AMPIC887HexapodState::targetPosition(AMGCS2::Axis axis) const
@@ -167,6 +185,15 @@ void AMPIC887HexapodState::setTargetPosition(AMGCS2::Axis axis, double targetPos
 	targetPositions_.insert(axis, targetPosition);
 }
 
+void AMPIC887HexapodState::setTargetPositions(const AMPIC887AxisMap<double> targetPositions)
+{
+	AMPIC887AxisCollection axes = targetPositions.axes();
+	foreach(AMGCS2::Axis currentAxis, axes) {
+
+		targetPositions_.insert(currentAxis, targetPositions.value(currentAxis));
+	}
+}
+
 double AMPIC887HexapodState::lowSoftLimit(AMGCS2::Axis axis) const
 {
 	return lowSoftLimits_.value(axis, 0);
@@ -184,6 +211,15 @@ void AMPIC887HexapodState::setLowSoftLimit(AMGCS2::Axis axis, double lowSoftLimi
 	}
 
 	lowSoftLimits_.insert(axis, lowSoftLimit);
+}
+
+void AMPIC887HexapodState::setLowSoftLimits(const AMPIC887AxisMap<double> &lowSoftLimits)
+{
+	AMPIC887AxisCollection axes = lowSoftLimits.axes();
+	foreach(AMGCS2::Axis currentAxis, axes) {
+
+		lowSoftLimits_.insert(currentAxis, lowSoftLimits.value(currentAxis));
+	}
 }
 
 double AMPIC887HexapodState::highSoftLimit(AMGCS2::Axis axis) const
@@ -205,6 +241,15 @@ void AMPIC887HexapodState::setHighSoftLimit(AMGCS2::Axis axis, double highSoftLi
 	highSoftLimits_.insert(axis, highSoftLimit);
 }
 
+void AMPIC887HexapodState::setHighSoftLimits(const AMPIC887AxisMap<double> &highSoftLimits)
+{
+	AMPIC887AxisCollection axes = highSoftLimits.axes();
+	foreach(AMGCS2::Axis currentAxis, axes) {
+
+		highSoftLimits_.insert(currentAxis, highSoftLimits.value(currentAxis));
+	}
+}
+
 bool AMPIC887HexapodState::softLimitState(AMGCS2::Axis axis) const
 {
 	return softLimitStates_.value(axis, false);
@@ -215,13 +260,22 @@ const AMPIC887AxisMap<bool> AMPIC887HexapodState::softLimitStates() const
 	return softLimitStates_;
 }
 
-void AMPIC887HexapodState::setSoftLimitState(AMGCS2::Axis axis, double softLimitState)
+void AMPIC887HexapodState::setSoftLimitState(AMGCS2::Axis axis, bool softLimitState)
 {
 	if(axis == AMGCS2::UnknownAxis) {
 		return;
 	}
 
 	softLimitStates_.insert(axis, softLimitState);
+}
+
+void AMPIC887HexapodState::setSoftLimitStates(const AMPIC887AxisMap<bool> &softLimitStates)
+{
+	AMPIC887AxisCollection axes = softLimitStates.axes();
+	foreach(AMGCS2::Axis currentAxis, axes) {
+
+		softLimitStates_.insert(currentAxis, softLimitStates.value(currentAxis));
+	}
 }
 
 AMGCS2::PositionUnits AMPIC887HexapodState::positionUnits(AMGCS2::Axis axis) const
@@ -251,6 +305,15 @@ void AMPIC887HexapodState::setStepSize(AMGCS2::Axis axis, double stepSize)
 	}
 
 	stepSizes_.insert(axis, stepSize);
+}
+
+void AMPIC887HexapodState::setStepSizes(const AMPIC887AxisMap<double> &stepSizes)
+{
+	AMPIC887AxisCollection axes = stepSizes.axes();
+	foreach(AMGCS2::Axis currentAxis, axes) {
+
+		stepSizes_.insert(currentAxis, stepSizes.value(currentAxis));
+	}
 }
 
 double AMPIC887HexapodState::minCommandablePosition(AMGCS2::Axis axis) const
@@ -294,3 +357,24 @@ void AMPIC887HexapodState::setPivotPoint(AMGCS2::Axis axis, double pivotPoint)
 
 	pivotPoints_.insert(axis, pivotPoint);
 }
+
+void AMPIC887HexapodState::setPivotPoints(const AMPIC887AxisMap<double> &pivotPoints)
+{
+	AMPIC887AxisCollection axes = pivotPoints.axes();
+	foreach(AMGCS2::Axis currentAxis, axes) {
+
+		pivotPoints_.insert(currentAxis, pivotPoints.value(currentAxis));
+	}
+}
+
+
+
+
+
+
+
+
+
+
+
+

@@ -66,12 +66,19 @@ QString AMPIC887ConsoleCommandParser::commandList()
 void AMPIC887ConsoleCommandParser::interpretCommandImplementation(const QString &command)
 {
 	if(command == "quit") {
+
 		emit quit();
+
 	} else if (command == "help") {
+
 		emit help();
+
 	} else if( command == "status") {
+
 		emit status();
+
 	} else if(command.startsWith("activate")) {
+
 		QStringList commandParts = command.split(" ");
 		if(commandParts.count() == 1) {
 			emit unknownCommand(QString("Cannot active a controller with no name specified."));
@@ -80,66 +87,191 @@ void AMPIC887ConsoleCommandParser::interpretCommandImplementation(const QString 
 		} else {
 			emit changeActiveController(commandParts.at(1));
 		}
+
 	} else if (command.startsWith("STP")) {
+
 		emit stopCommandIssued();
+
 	} else if(command.startsWith("HLT")) {
+
 		emit haltCommandIssued(axesFromCommandString(command));
+
 	} else if(command.startsWith("HPA?")) {
+
 		emit availableParametersCommandIssued();
+
 	} else if(command.startsWith("MST?")) {
+
 		emit motionStatusCommandIssued();
+
 	} else if (command.startsWith("CCL?")) {
+
 		emit commandLevelCommandIssued();
+
 	} else if (command.startsWith("POS?")) {
+
 		emit currentPositionCommandIssued(axesFromCommandString(command));
+
 	} else if (command.startsWith("SCT?")) {
+
 		emit cycleTimeCommandIssued();
+
 	} else if (command.startsWith("IDN?")) {
+
 		emit deviceIdentificationCommandIssued();
+
 	} else if (command.startsWith("NLM?")) {
+
 		emit lowSoftLimitCommandIssued(axesFromCommandString(command));
+
 	} else if (command.startsWith("PLM?")) {
+
 		emit highSoftLimitCommandIssued(axesFromCommandString(command));
+
 	} else if (command.startsWith("LIM?")) {
+
 		emit softLimitStatusCommandIssued(axesFromCommandString(command));
+
 	} else if (command.startsWith("TMN?")) {
+
 		emit minPositionCommandIssued(axesFromCommandString(command));
+
 	} else if (command.startsWith("TMX?")) {
+
 		emit maxPositionCommandIssued(axesFromCommandString(command));
+
 	} else if (command.startsWith("ONT?")) {
+
 		emit onTargetCommandIssued(axesFromCommandString(command));
+
 	} else if (command.startsWith("SPI?")) {
+
 		emit pivotPointCommandIssued(axesFromCommandString(command, AMPIC887AxisCollection::LinearAxes));
+
 	} else if (command.startsWith("MOV?")) {
+
 		emit targetPositionCommandIssued(axesFromCommandString(command));
+
 	} else if (command.startsWith("PUN?")) {
+
 		emit positionUnitsCommandIssued(axesFromCommandString(command));
+
 	} else if (command.startsWith("HDR?")) {
+
 		emit availableRecorderOptionsCommandIssued();
+
 	} else if (command.startsWith("DRT?")) {
+
 		emit recordTriggerCommandIssued();
+
 	} else if (command.startsWith("FRF?")) {
+
 		emit referencedStateCommandIssued(axesFromCommandString(command));
+
 	} else if (command.startsWith("SVO?")) {
+
 		emit servoModeCommandIssued();
+
+	} else if(command.startsWith("SSL?")) {
+
+		emit softLimitStatusCommandIssued(axesFromCommandString(command));
+
 	} else if (command.startsWith("SST?")) {
+
 		emit stepSizeCommandIssued(axesFromCommandString(command));
+
 	} else if (command.startsWith("VLS?")) {
+
 		emit systemVelocityCommandIssued();
+
 	} else if(command.startsWith("MOV")){
+
 		bool parseSuccess = false;
-		QHash<AMGCS2::Axis, double> parsedArguments = axesDoublePairFromCommandString(command, &parseSuccess);
+		AMPIC887AxisMap<double> parsedArguments = axisMapFromCommandString(command, &parseSuccess);
 		if(parseSuccess) {
 			emit moveCommandIssued(parsedArguments);
 		}
+
 	} else if(command.startsWith("FRF")) {
+
 		emit referenceMoveCommandIssued(axesFromCommandString(command));
+
 	} else if(command.startsWith("MVR")) {
+
 		bool parseSuccess = false;
-		QHash<AMGCS2::Axis, double> parsedArguments = axesDoublePairFromCommandString(command, &parseSuccess);
+		AMPIC887AxisMap<double> parsedArguments = axisMapFromCommandString(command, &parseSuccess);
 		if(parseSuccess) {
 			emit moveRelativeCommandIssued(parsedArguments);
 		}
+
+	} else if(command.startsWith("CCL")) {
+
+		handleSetCommandLevelInput(command);
+
+	} else if (command.startsWith("SCT")) {
+
+		bool parseSuccess = false;
+		double parsedArgument = doubleValueFromCommandString(command, &parseSuccess);
+		if(parseSuccess) {
+			emit setCycleTimeCommandIssued(parsedArgument);
+		}
+
+	} else if (command.startsWith("PLM")) {
+
+		bool parseSuccess = false;
+		AMPIC887AxisMap<double> parsedArguments = axisMapFromCommandString(command, &parseSuccess);
+		if(parseSuccess) {
+			emit setHighSoftLimitsCommandIssued(parsedArguments);
+		}
+
+	} else if (command.startsWith("NLM")) {
+
+		bool parseSuccess = false;
+		AMPIC887AxisMap<double> parsedArguments = axisMapFromCommandString(command, &parseSuccess);
+		if(parseSuccess) {
+			emit setLowSoftLimitsCommandIssued(parsedArguments);
+		}
+
+	} else if (command.startsWith("SPI")) {
+
+		bool parseSuccess = false;
+		AMPIC887AxisMap<double> parsedArguments = axisMapFromCommandString(command, &parseSuccess);
+		if(parseSuccess) {
+			emit setPivotPointsCommandIssued(parsedArguments);
+		}
+
+	} else if (command.startsWith("DRT")) {
+
+		handleSetRecordTriggerInput(command);
+
+	} else if (command.startsWith("SVO")) {
+
+		bool parseSuccess = false;
+		bool value = boolValueFromCommandString(command, &parseSuccess);
+		if(parseSuccess) {
+			emit setServoModeCommandIssued(value);
+		}
+
+	} else if (command.startsWith("SSL")) {
+
+		handleSetSoftLimitStatusInput(command);
+
+	} else if (command.startsWith("SST")) {
+
+		bool parseSuccess = false;
+		AMPIC887AxisMap<double> parsedArguments = axisMapFromCommandString(command, &parseSuccess);
+		if(parseSuccess) {
+			emit setStepSizesCommandIssued(parsedArguments);
+		}
+
+	} else if (command.startsWith("VLS")) {
+
+		bool parseSuccess = false;
+		double parsedArgument = doubleValueFromCommandString(command, &parseSuccess);
+		if(parseSuccess) {
+			emit setSystemVelocityCommandIssued(parsedArgument);
+		}
+
 	} else {
 
 		emit otherCommandIssued(command);
@@ -184,15 +316,19 @@ AMPIC887AxisCollection AMPIC887ConsoleCommandParser::axesFromCommandString(const
 	return axes;
 }
 
-QHash<AMGCS2::Axis, double> AMPIC887ConsoleCommandParser::axesDoublePairFromCommandString(const QString &arguments, bool* parseSuccess)
+AMPIC887AxisMap<double> AMPIC887ConsoleCommandParser::axisMapFromCommandString(
+		const QString &commandString, bool* parseSuccess)
 {
-	QStringList argumentList = commandArguments(arguments);
+	QStringList argumentList = commandArguments(commandString);
 
-	QHash<AMGCS2::Axis, double> axisValueMap;
+	AMPIC887AxisMap<double> axisValueMap;
 	int argumentCount = argumentList.count();
 
 	// Ensure argument list isn't empty and has arguments in groups of two.
 	if((argumentCount == 0) || (argumentCount % 2) != 0) {
+		if(parseSuccess) {
+			(*parseSuccess) = false;
+		}
 		return axisValueMap;
 	}
 
@@ -205,12 +341,12 @@ QHash<AMGCS2::Axis, double> AMPIC887ConsoleCommandParser::axesDoublePairFromComm
 		QString axisString = argumentList.at(iAxis);
 		QString valueString = argumentList.at(iValue);
 
-		if(axisString.length() != 1) {
-			axisValueMap.clear();
-			return axisValueMap;
+		AMGCS2::Axis axis;
+		if(axisString.length() == 1) {
+			axis = AMGCS2Support::characterToAxis(axisString.at(0));
+		} else {
+			axis = AMGCS2::UnknownAxis;
 		}
-
-		AMGCS2::Axis axis = AMGCS2Support::characterToAxis(axisString.at(0));
 
 		bool localParseSuccess = false;
 		double parsedValue = valueString.toDouble(&localParseSuccess);
@@ -231,4 +367,147 @@ QHash<AMGCS2::Axis, double> AMPIC887ConsoleCommandParser::axesDoublePairFromComm
 		(*parseSuccess) = true;
 	}
 	return axisValueMap;
+}
+
+double AMPIC887ConsoleCommandParser::doubleValueFromCommandString(
+		const QString &commandString, bool *parseSuccess)
+{
+	QStringList arguments = commandArguments(commandString);
+
+	if(arguments.isEmpty()) {
+		if(parseSuccess) {
+			(*parseSuccess) = false;
+		}
+		return 0;
+	}
+
+	QString stringValue = arguments.at(0);
+	double doubleValue = stringValue.toDouble(parseSuccess);
+
+	return doubleValue;
+}
+
+bool AMPIC887ConsoleCommandParser::boolValueFromCommandString(const QString &commandString, bool *parseSuccess)
+{
+	QStringList arguments = commandArguments(commandString);
+
+	if(arguments.isEmpty()) {
+		if(parseSuccess) {
+			(*parseSuccess) = false;
+		}
+		return false;
+	}
+
+	QString stringValue = arguments.at(0);
+	if(stringValue == "0" ||
+			stringValue.toLower() == "false") {
+
+		if(parseSuccess) {
+			(*parseSuccess) = true;
+			return false;
+		}
+
+	} else if(stringValue == "1" ||
+			  stringValue.toLower() == "true") {
+
+		if(parseSuccess) {
+			(*parseSuccess) = true;
+			return true;
+		}
+	}
+
+
+	if(parseSuccess) {
+		(*parseSuccess) = false;
+	}
+
+	return false;
+}
+
+void AMPIC887ConsoleCommandParser::handleSetCommandLevelInput(const QString &commandString)
+{
+	QStringList argsList = commandArguments(commandString);
+
+	QString commandLevelString;
+	if(argsList.count() >= 1) {
+		commandLevelString = argsList.at(0);
+	}
+
+	bool parseSuccess = false;
+	int commandLevelCode = commandLevelString.toInt(&parseSuccess);
+	if(!parseSuccess) {
+		commandLevelCode = -1;
+	}
+
+	QString passwordString;
+	if(argsList.count() >= 2) {
+			passwordString = argsList.at(1);
+	}
+
+	emit setCommandLevelCommandIssued(AMGCS2Support::intCodeToCommandLevel(commandLevelCode),
+									  passwordString);
+}
+
+void AMPIC887ConsoleCommandParser::handleSetRecordTriggerInput(const QString &commandString)
+{
+	QStringList argsList = commandArguments(commandString);
+
+	QString recordTriggerString;
+	if(argsList.count() >= 1) {
+		recordTriggerString = argsList.at(0);
+	}
+
+	bool parseSuccess = false;
+	int recordTriggerCode = recordTriggerString.toInt(&parseSuccess);
+	if(!parseSuccess) {
+		recordTriggerCode = -1;
+	}
+
+	emit setRecordTriggerCommandIssued(AMGCS2Support::intCodeToDataRecordTrigger(recordTriggerCode));
+}
+
+void AMPIC887ConsoleCommandParser::handleSetSoftLimitStatusInput(const QString &commandString)
+{
+	QStringList argumentList = commandArguments(commandString);
+
+	AMPIC887AxisMap<bool> axisValueMap;
+	int argumentCount = argumentList.count();
+
+	// Ensure argument list isn't empty and has arguments in groups of two.
+	if((argumentCount == 0) || (argumentCount % 2) != 0) {
+		return;
+	}
+
+	// Axis values are provided in pairs, and are not valid unless both are
+	// there. As such we iterate through two at a time.
+	for(int iAxis = 0, iValue = 1;
+		iAxis < argumentCount && iValue < argumentCount;
+		iAxis += 2, iValue += 2) {
+
+		QString axisString = argumentList.at(iAxis);
+		QString valueString = argumentList.at(iValue);
+
+		AMGCS2::Axis axis;
+		if(axisString.length() == 1) {
+			axis = AMGCS2Support::characterToAxis(axisString.at(0));
+		} else {
+			axis = AMGCS2::UnknownAxis;
+		}
+
+		bool parsedValue;
+		if(valueString == "0" ||
+				valueString.toLower() == "false") {
+			parsedValue = false;
+		} else if (valueString == "1" ||
+				   valueString.toLower() == "true") {
+			parsedValue = true;
+		} else {
+
+			return;
+		}
+
+		axisValueMap.insert(axis, parsedValue);
+	}
+
+	emit setSoftLimitStatesCommandIssued(axisValueMap);
 }

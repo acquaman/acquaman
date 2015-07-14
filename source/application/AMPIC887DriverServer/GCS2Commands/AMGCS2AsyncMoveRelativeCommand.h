@@ -1,7 +1,6 @@
 #ifndef AMGCS2ASYNCMOVERELATIVECOMMAND_H
 #define AMGCS2ASYNCMOVERELATIVECOMMAND_H
 
-#include <QHash>
 #include "../AMPIC887AxisMap.h"
 #include "AMGCS2AsyncCommand.h"
 #include "../AMGCS2.h"
@@ -22,7 +21,7 @@ public:
 	  * instruct the controller to move the provided axes by the provided relative
 	  * amounts.
 	  */
-	explicit AMGCS2AsyncMoveRelativeCommand(const QHash<AMGCS2::Axis, double>& relativeAxisPositions);
+	explicit AMGCS2AsyncMoveRelativeCommand(const AMPIC887AxisMap<double>& relativeAxisPositions);
 
 	/*!
 	  * Frees the resources owned by the asynchronous move relative command.
@@ -38,7 +37,7 @@ public:
 	/*!
 	  * The relative target positions which were issued to the command on contruction.
 	  */
-	QHash<AMGCS2::Axis, double> relativeTargetPositions() const;
+	AMPIC887AxisMap<double> relativeTargetPositions() const;
 protected:
 	/*!
 	  * Ensures that the arguments with which the command was constructed are valid:
@@ -59,8 +58,8 @@ protected:
 	virtual void isFinishedImplementation();
 
 	AMGCS2MoveRelativeCommand* moveRelativeCommand_;
-	QHash<AMGCS2::Axis, double> relativeAxisPositions_;
-	QHash<AMGCS2::Axis, double> originalTargetPositions_;
+	AMPIC887AxisMap<double> relativeAxisPositions_;
+	AMPIC887AxisMap<double> originalTargetPositions_;
 };
 
 #endif // AMGCS2ASYNCMOVERELATIVECOMMAND_H

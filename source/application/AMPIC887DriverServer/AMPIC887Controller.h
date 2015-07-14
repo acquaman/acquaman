@@ -42,6 +42,11 @@ public:
 	virtual ~AMPIC887Controller();
 
 	/*!
+	  * The last error encountered by the controller.
+	  */
+	QString lastError() const;
+
+	/*!
 	  * Attempts to interpret the provided command text as a GCS2 command, and
 	  * if it can, run it.
 	  * \param commandText ~ The text input to the console which is to be interpreted
@@ -130,6 +135,15 @@ public:
 	AMGCS2::ControllerCommandLevel commandLevel() const;
 
 	/*!
+	  * Sets the controller's current command level.
+	  * \param commandLevel ~ The command level to set the controller to.
+	  * \param password ~ An optional password, which need only be provided if
+	  * setting the command level to advanced.
+	  */
+	bool setCommandLevel(AMGCS2::ControllerCommandLevel commandLevel,
+						 const QString& password = QString());
+
+	/*!
 	  * The current position of the provided axis.
 	  * \returns The current position of axis if the controller has been initialized,
 	  * 0 otherwise.
@@ -165,6 +179,12 @@ public:
 	double cycleTime() const;
 
 	/*!
+	  * Sets the cycle time for the controller.
+	  * \param cycleTime ~ The new cycle time for the controller.
+	  */
+	bool setCycleTime(double cycleTime);
+
+	/*!
 	  * The record option of the data table with the provided id.
 	  * \returns The data table's record option if the controller has been initialized
 	  * and the tableId is valid, UnknownRecordOption otherwise.
@@ -191,11 +211,25 @@ public:
 	double lowSoftLimit(AMGCS2::Axis axis) const;
 
 	/*!
+	  * Sets the low soft limit of the provided axis to the provided value.
+	  * \param axis ~ The axis to set the low soft limit of.
+	  * \param lowSoftLimit ~ The low soft limit to set the axis to.
+	  */
+	bool setLowSoftLimit(AMGCS2::Axis axis, double lowSoftLimit);
+
+	/*!
 	  * The current low soft limits of the provided axes.
 	  * \param axes ~ The colleciton of axes whose low soft limits is to be
 	  * returned.
 	  */
 	AMPIC887AxisMap<double> lowSoftLimits(const AMPIC887AxisCollection& axes) const;
+
+	/*!
+	  * Sets the low soft limits of the axes contained within the provided map
+	  * to their mapped values.
+	  * \param lowSoftLimits ~ The map of axis values which will be altered.
+	  */
+	bool setLowSoftLimits(const AMPIC887AxisMap<double>& lowSoftLimits);
 
 	/*!
 	  * The high soft limit of the provided axis.
@@ -205,11 +239,25 @@ public:
 	double highSoftLimit(AMGCS2::Axis axis) const;
 
 	/*!
+	  * Sets the high soft limit of the provided axis to the provided value.
+	  * \param axis ~ The axis whose low soft limit will be set.
+	  * \param highSoftLimit ~ The value which the axis' high soft limit will be
+	  * set to.
+	  */
+	bool setHighSoftLimit(AMGCS2::Axis axis, double highSoftLimit);
+
+	/*!
 	  * The current high soft limits of the provided axes.
 	  * \param axes ~ The colleciton of axes whose high soft limits is to be
 	  * returned.
 	  */
 	AMPIC887AxisMap<double> highSoftLimits(const AMPIC887AxisCollection& axes) const;
+
+	/*!
+	  * Sets the high soft limits based on the values in the provided map.
+	  * \param highSoftLimits ~ The map of axes values which will be altered.
+	  */
+	bool setHighSoftLimits(const AMPIC887AxisMap<double>& highSoftLimits);
 
 	/*!
 	  * Whether the soft limits are active for the provided axis.
@@ -219,11 +267,25 @@ public:
 	bool softLimitStatus(AMGCS2::Axis axis) const;
 
 	/*!
+	  * Sets the active state of the soft limit of the provided axis.
+	  * \param axis ~ The axis whose soft limit state will be altered.
+	  * \param softLimitState ~ The state to set the axis' soft limit to.
+	  */
+	bool setSoftLimitStatus(AMGCS2::Axis axis, bool softLimitState);
+
+	/*!
 	  * The current soft limit statuses for the provided axes.
 	  * \param axes ~ The collection of axes whose soft limit statuses is to be
 	  * returned.
 	  */
 	AMPIC887AxisMap<bool> softLimitStatuses(const AMPIC887AxisCollection& axes) const;
+
+	/*!
+	  * Sets the soft limit states of the axes based on the provided map of values.
+	  * \param softLimitStates ~ A map of active values for the soft limit states
+	  * to set.
+	  */
+	bool setSoftLimitStatuses(const AMPIC887AxisMap<bool>& softLimitStates);
 
 	/*!
 	  * The minimum commandable position of the provided axis
@@ -276,10 +338,24 @@ public:
 	double pivotPoint(AMGCS2::Axis axis) const;
 
 	/*!
+	  * Sets the value of the provided axis' pivot point.
+	  * \param axis ~ The axis whose pivot point value will be set.
+	  * \param pivotPoint ~ The value to which the axis' pivot point will be set.
+	  */
+	bool setPivotPoint(AMGCS2::Axis axis, double pivotPoint);
+
+	/*!
 	  * The pivot points of the provided axes.
 	  * \param The collection of axes whose pivot points are to be returned.
 	  */
 	AMPIC887AxisMap<double> pivotPoints(const AMPIC887AxisCollection& axes) const;
+
+	/*!
+	  * Sets the pivot points of the axes based on the provided map.
+	  * \param pivotPoints ~ A map of values for the axes whose pivot points will
+	  * be altered.
+	  */
+	bool setPivotPoints(const AMPIC887AxisMap<double>& pivotPoints);
 
 	/*!
 	  * The position units of the provided axis.
@@ -320,6 +396,12 @@ public:
 	AMGCS2::DataRecordTrigger recordTrigger() const;
 
 	/*!
+	  * Sets the trigger which will begin a record on the controller.
+	  * \param recordTrigger ~ The new record trigger for the controller.
+	  */
+	bool setRecordTrigger(AMGCS2::DataRecordTrigger recordTrigger);
+
+	/*!
 	  * Whether the provided axis has has a successful reference move performed.
 	  * \param axis ~ The axis whose referenced status is to be returned.
 	  * \returns The referenced status of the provided axis if the controller has
@@ -348,6 +430,13 @@ public:
 	bool isInServoMode() const;
 
 	/*!
+	  * Sets the servo mode state for the controller.
+	  * \param servoMode ~ The servo mode for the controller. True indicates the
+	  * controller will be placed in servo mode (closed loop).
+	  */
+	bool setServoMode(bool servoMode);
+
+	/*!
 	  * The step size of the provided axis.
 	  * \param axis ~ The axis whose step size is to be returned.
 	  * \returns The step size of the provided axis if the controller has been
@@ -356,10 +445,25 @@ public:
 	double stepSize(AMGCS2::Axis axis);
 
 	/*!
+	  * Sets the step size of the provided axis to the provided value.
+	  * \param axis ~ The axis whose step size will be set.
+	  * \param stepSize ~ The value to which the axis' step size will be set.
+	  */
+	bool setStepSize(AMGCS2::Axis axis, double stepSize);
+
+	/*!
 	  * The step sizes of the provided axes.
 	  * \param axes ~ The collection of axes whose steps sizes are to be returned.
 	  */
 	AMPIC887AxisMap<double> stepSizes(const AMPIC887AxisCollection& axes) const;
+
+	/*!
+	  * Sets the values of the axes' step sizes based on the provided mapped
+	  * values.
+	  * \param stepSizes ~ A map containing the values to which the axis' step
+	  * sizes will be set.
+	  */
+	bool setStepSizes(const AMPIC887AxisMap<double>& stepSizes);
 
 	/*!
 	  * The current velocity of motions across all axes of the controller's hexapod.
@@ -368,27 +472,33 @@ public:
 	  */
 	double systemVelocity() const;
 
-public slots:
-	// Command Functions
-	/////////////////////
+	/*!
+	  * Sets the system velocity of the controller's motions.
+	  * \param systemVelocity ~ The controller's new system velocity.
+	  */
+	bool setSystemVelocity(double systemVelocity);
 
 	/*!
 	  * Instructs the controller to make an immediate stop.
 	  */
-	void stop();
+	bool stop();
 
 	/*!
 	  * Instructs the controller to bring the motions of the provided axes to
 	  * a halt smoothly.
 	  * \param axes ~ The axes whose motions are to be halted.
 	  */
-	void haltSmoothly(const AMPIC887AxisCollection& axes);
+	bool haltSmoothly(const AMPIC887AxisCollection& axes);
+
+public slots:
+
+
 
 	/*!
 	  * Moves the controller hexapod axes to the provided positions.
 	  * \param axisPositions ~ A mapping of axis to its new target position.
 	  */
-	void move(const QHash<AMGCS2::Axis, double>& axisPositions);
+	void move(const AMPIC887AxisMap<double>& axisPositions);
 
 	/*!
 	  * Performs a relative move on the controller hexapod axes, setting their
@@ -397,14 +507,14 @@ public slots:
 	  * \param relativePositions ~ A mapping of axis to the values to add to
 	  * the current target positions to provide the new target positions.
 	  */
-	void moveRelative(const QHash<AMGCS2::Axis, double>& relativePositions);
+	void moveRelative(const AMPIC887AxisMap<double>& relativePositions);
 
 	/*!
 	  * Performs a reference move upon the provided list of axes.
 	  * \param axes ~ An optional list of the axes to reference. If none is provided
 	  * a reference move will be performed on all axes.
 	  */
-	void referenceMove(const QList<AMGCS2::Axis>& axes = QList<AMGCS2::Axis>());
+	void referenceMove(const AMPIC887AxisCollection& axes = AMPIC887AxisCollection());
 signals:
 	/*!
 	  * Signal indicating that the controller has some output text which. For commands
@@ -523,12 +633,19 @@ protected:
 	  */
 	void updateStateOnStop();
 
+	/*!
+	  * Convenience method for setting the last error message and emitting the
+	  * errorEncountered signal at the same time.
+	  */
+	void setError(const QString& errorMessage);
+
 	AMPIC887ControllerState* controllerState_;
 	QString name_;
 	QString hostname_;
 	QTimer errorClearingTimer_;
 	bool isBusy_;
 	int id_;
+	QString lastError_;
 
 	mutable bool currentPositionRefreshRequired_;
 	//State data

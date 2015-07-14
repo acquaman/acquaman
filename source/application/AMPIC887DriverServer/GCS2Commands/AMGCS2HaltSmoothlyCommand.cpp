@@ -2,7 +2,7 @@
 #include "PI_GCS2_DLL.h"
 #include "../AMGCS2Support.h"
 #include "../AMPIC887Controller.h"
-AMGCS2HaltSmoothlyCommand::AMGCS2HaltSmoothlyCommand(const QList<AMGCS2::Axis>& axes)
+AMGCS2HaltSmoothlyCommand::AMGCS2HaltSmoothlyCommand(const AMPIC887AxisCollection& axes)
 {
 	axesToHalt_ = axes;
 }
@@ -14,14 +14,10 @@ bool AMGCS2HaltSmoothlyCommand::runImplementation()
 		success = PI_HLT(controller_->id(), 0);
 	} else {
 
-		QString axesArguments;
+		QString axisString = axesToHalt_.toString();
 
-		foreach (AMGCS2::Axis axis, axesToHalt_) {
-			axesArguments.append(AMGCS2Support::axisToCharacter(axis));
-			axesArguments.append(" ");
-		}
-
-		success = PI_HLT(controller_->id(), axesArguments.trimmed().toStdString().c_str());
+		success = PI_HLT(controller_->id(),
+						 axisString.toStdString().c_str());
 	}
 
 	if(success) {

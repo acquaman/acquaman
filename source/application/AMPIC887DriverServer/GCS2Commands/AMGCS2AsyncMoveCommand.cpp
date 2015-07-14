@@ -3,7 +3,7 @@
 #include "AMGCS2GetCurrentPositionCommand.h"
 #include "AMGCS2GetTargetPositionCommand.h"
 #include "../AMGCS2Support.h"
-AMGCS2AsyncMoveCommand::AMGCS2AsyncMoveCommand(const QHash<AMGCS2::Axis, double>& targetPositions)
+AMGCS2AsyncMoveCommand::AMGCS2AsyncMoveCommand(const AMPIC887AxisMap<double>& targetPositions)
 {
 	command_ = new AMGCS2MoveCommand(targetPositions);
 	targetPositions_ = targetPositions;
@@ -22,7 +22,7 @@ QString AMGCS2AsyncMoveCommand::outputString() const
 	}
 }
 
-QHash<AMGCS2::Axis, double> AMGCS2AsyncMoveCommand::targetPositions() const
+AMPIC887AxisMap<double> AMGCS2AsyncMoveCommand::targetPositions() const
 {
 	return targetPositions_;
 }
@@ -30,15 +30,13 @@ QHash<AMGCS2::Axis, double> AMGCS2AsyncMoveCommand::targetPositions() const
 bool AMGCS2AsyncMoveCommand::validateArguments()
 {
 	if(targetPositions_.isEmpty()) {
-		lastError_ = "Cannot perform move. No axis positions provided";
+		lastError_ = "No axis positions provided";
 		return false;
 	}
 
-	foreach(AMGCS2::Axis currentAxis, targetPositions_.keys()) {
-		if(currentAxis == AMGCS2::UnknownAxis) {
-			lastError_ = "Cannot move unknown axis";
-			return false;
-		}
+	if(targetPositions_.containsUnknownAxis()) {
+		lastError_ = "Contains unknown axis";
+		return false;
 	}
 
 	return true;
@@ -59,7 +57,7 @@ bool AMGCS2AsyncMoveCommand::runImplementation()
 
 void AMGCS2AsyncMoveCommand::isFinishedImplementation()
 {
-	QList<AMGCS2::Axis> axesMoved = targetPositions_.keys();
+	AMPIC887AxisCollection axesMoved = targetPositions_.axes();
 
 	// Are we still moving?
 

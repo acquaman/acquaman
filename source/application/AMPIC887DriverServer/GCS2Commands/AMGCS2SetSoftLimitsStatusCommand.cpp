@@ -4,7 +4,7 @@
 #include "PI_GCS2_DLL.h"
 #include "../AMPIC887Controller.h"
 
-AMGCS2SetSoftLimitsStatusCommand::AMGCS2SetSoftLimitsStatusCommand(const QHash<AMGCS2::Axis, bool>& softLimitStatuses)
+AMGCS2SetSoftLimitsStatusCommand::AMGCS2SetSoftLimitsStatusCommand(const AMPIC887AxisMap<bool>& softLimitStatuses)
 {
 	softLimitStatuses_ = softLimitStatuses;
 }
@@ -12,21 +12,12 @@ AMGCS2SetSoftLimitsStatusCommand::AMGCS2SetSoftLimitsStatusCommand(const QHash<A
 bool AMGCS2SetSoftLimitsStatusCommand::validateArguments()
 {
 	if(softLimitStatuses_.isEmpty()) {
-		lastError_ = "No axes / soft limit statuses provided";
+		lastError_ = "No soft limit states to set";
 		return false;
 	}
 
-	foreach(AMGCS2::Axis currentAxis, softLimitStatuses_.keys()) {
-
-		if(currentAxis == AMGCS2::UnknownAxis) {
-
-			lastError_ = "Unknown axis provided";
-			return false;
-		}
-	}
-
-	if(softLimitStatuses_.count() > AXIS_COUNT) {
-		lastError_ = "Duplicate axes provided";
+	if(softLimitStatuses_.containsUnknownAxis()) {
+		lastError_ = "Contains unknown axis";
 		return false;
 	}
 
@@ -35,17 +26,19 @@ bool AMGCS2SetSoftLimitsStatusCommand::validateArguments()
 
 bool AMGCS2SetSoftLimitsStatusCommand::runImplementation()
 {
-	AMCArrayHandler<int> softLimitStatusHandler(softLimitStatuses_.count());
-	QString axesString;
-	QList<AMGCS2::Axis> axesToSet = softLimitStatuses_.keys();
+	AMPIC887AxisCollection axes = softLimitStatuses_.axes();
+	int axisCount = axes.count();
 
-	for(int iAxis = 0, axisCount = axesToSet.count();
+
+	AMCArrayHandler<int> softLimitStatusHandler(axes.count());
+	QString axesString = axes.toString();
+
+
+	for(int iAxis = 0;
 		iAxis < axisCount;
 		++iAxis) {
 
-		AMGCS2::Axis currentAxis = axesToSet.at(iAxis);
-		axesString.append(QString(" %1")
-						  .arg(AMGCS2Support::axisToCharacter(currentAxis)));
+		AMGCS2::Axis currentAxis = axes.at(iAxis);
 
 		bool activateLimit = softLimitStatuses_.value(currentAxis);
 
@@ -55,8 +48,6 @@ bool AMGCS2SetSoftLimitsStatusCommand::runImplementation()
 			softLimitStatusHandler.cArray()[iAxis] = 0;
 		}
 	}
-
-	axesString = axesString.trimmed();
 
 	bool success = PI_SSL(controller_->id(),
 						  axesString.toStdString().c_str(),

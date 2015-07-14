@@ -8,7 +8,7 @@
 #include "AMGCS2GetReferenceResultCommand.h"
 #include "AMGCS2GetLowSoftLimitsCommand.h"
 #include "AMGCS2GetHighSoftLimitsCommand.h"
-#include "AMGCS2GetLimitSwitchStatusCommand.h"
+#include "AMGCS2GetSoftLimitsStatusCommand.h"
 #include "AMGCS2GetPositionUnitsCommand.h"
 #include "AMGCS2GetStepSizeCommand.h"
 #include "AMGCS2GetMinCommandablePositionCommand.h"
@@ -61,6 +61,7 @@ bool AMGCS2InitializeControllerStateCommand::validateArguments()
 
 	return true;
 }
+
 
 bool AMGCS2InitializeControllerStateCommand::runImplementation()
 {
@@ -132,9 +133,7 @@ bool AMGCS2InitializeControllerStateCommand::runImplementation()
 		return false;
 	}
 
-	// Servo mode applies consistently across all axes, so we only need the value
-	// for X.
-	bool servoMode = servoModeCommand.servoModeStatuses().value(AMGCS2::XAxis);
+	bool servoMode = servoModeCommand.servoModeState();
 
 	// Cycle Time
 	AMGCS2GetCycleTimeCommand cycleTimeCommand;
@@ -192,7 +191,7 @@ bool AMGCS2InitializeControllerStateCommand::runImplementation()
 	}
 
 	// Whether the soft limits are active for the axes
-	AMGCS2GetLimitSwitchStatusCommand softLimitStatusCommand;
+	AMGCS2GetSoftLimitsStatusCommand softLimitStatusCommand;
 	softLimitStatusCommand.setController(controller_);
 	softLimitStatusCommand.run();
 
@@ -311,7 +310,6 @@ bool AMGCS2InitializeControllerStateCommand::runImplementation()
 
 	// Initialize Hexapod data
 	///////////////////////////
-
 	controllerState_->hexapodState()->initialize(servoMode,
 												 cycleTime,
 												 systemVelocity,
@@ -319,7 +317,7 @@ bool AMGCS2InitializeControllerStateCommand::runImplementation()
 												 currentPositionCommand.axisPositions(),
 												 lowSoftLimitsCommand.axesLowSoftLimits(),
 												 highSoftLimitsCommand.axesHighSoftLimits(),
-												 softLimitStatusCommand.limitSwitchStatuses(),
+												 softLimitStatusCommand.softLimitStatuses(),
 												 positionUnitsCommand.axesUnits(),
 												 stepSizeCommand.axisStepSizes(),
 												 minCommandablePositionCommand.minCommandablePositions(),

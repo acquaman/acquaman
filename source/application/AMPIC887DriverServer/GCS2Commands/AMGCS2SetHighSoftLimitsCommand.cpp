@@ -4,7 +4,7 @@
 #include "PI_GCS2_DLL.h"
 #include "../AMPIC887Controller.h"
 
-AMGCS2SetHighSoftLimitsCommand::AMGCS2SetHighSoftLimitsCommand(const QHash<AMGCS2::Axis, double>& axisHighLimits)
+AMGCS2SetHighSoftLimitsCommand::AMGCS2SetHighSoftLimitsCommand(const AMPIC887AxisMap<double>& axisHighLimits)
 {
 	axisHighLimits_ = axisHighLimits;
 }
@@ -12,20 +12,12 @@ AMGCS2SetHighSoftLimitsCommand::AMGCS2SetHighSoftLimitsCommand(const QHash<AMGCS
 bool AMGCS2SetHighSoftLimitsCommand::validateArguments()
 {
 	if(axisHighLimits_.isEmpty()) {
-		lastError_ = "Cannot set soft limits - No axis limits provided";
+		lastError_ = "No high soft limits to set";
 		return false;
 	}
 
-	foreach(AMGCS2::Axis currentAxis, axisHighLimits_.keys()) {
-
-		if(currentAxis == AMGCS2::UnknownAxis) {
-			lastError_ = "Cannot set soft limits - Unknown axis provided";
-			return false;
-		}
-	}
-
-	if(axisHighLimits_.count() > AXIS_COUNT) {
-		lastError_ = "Duplicate axes provided";
+	if(axisHighLimits_.containsUnknownAxis()) {
+		lastError_ = "Contains unknown axis";
 		return false;
 	}
 
@@ -34,25 +26,23 @@ bool AMGCS2SetHighSoftLimitsCommand::validateArguments()
 
 bool AMGCS2SetHighSoftLimitsCommand::runImplementation()
 {
-	QList<AMGCS2::Axis> axes = axisHighLimits_.keys();
+	AMPIC887AxisCollection axes = axisHighLimits_.axes();
 	int axesCount = axes.count();
-	AMCArrayHandler<double> highLimitValues(axesCount);
-	QString axesString;
+	AMCArrayHandler<double> highLimitValuesHandler(axesCount);
+
+	QString axesString = axes.toString();
 
 	for(int iAxis = 0;
 		iAxis < axesCount;
 		++iAxis) {
 
 		AMGCS2::Axis currentAxis = axes.at(iAxis);
-		axesString.append(QString(" %1")
-						  .arg(AMGCS2Support::axisToCharacter(currentAxis)));
-
-		highLimitValues.cArray()[iAxis] = axisHighLimits_.value(currentAxis);
+		highLimitValuesHandler.cArray()[iAxis] = axisHighLimits_.value(currentAxis);
 	}
 
 	bool success = PI_PLM(controller_->id(),
 						  axesString.toStdString().c_str(),
-						  highLimitValues.cArray());
+						  highLimitValuesHandler.cArray());
 
 	if(!success) {
 		lastError_ = controllerErrorMessage();

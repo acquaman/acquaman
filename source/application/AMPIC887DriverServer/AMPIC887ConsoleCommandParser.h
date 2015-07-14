@@ -6,6 +6,7 @@
 #include "AMAbstractConsoleCommandParser.h"
 #include "AMGCS2.h"
 #include "AMPIC887AxisCollection.h"
+#include "AMPIC887AxisMap.h"
 #include <QHash>
 /*!
   * A class which represents the commands which a user can input to the Hexapod
@@ -31,6 +32,57 @@ public:
 	  */
 	QString commandList();
 signals:
+	/*!
+	  * Signal indicating that a set command level command has been issued.
+	  */
+	void setCommandLevelCommandIssued(AMGCS2::ControllerCommandLevel commandLevel,
+										const QString& password);
+
+	/*!
+	  * Signal indicating that a set cycle time command has been issued.
+	  */
+	void setCycleTimeCommandIssued(double cycleTime);
+
+	/*!
+	  * Signal indicating that a set hight soft limits command has been issued.
+	  */
+	void setHighSoftLimitsCommandIssued(const AMPIC887AxisMap<double>& highSoftLimits);
+
+	/*!
+	  * Signal indicating that a set low soft limits command has been issued.
+	  */
+	void setLowSoftLimitsCommandIssued(const AMPIC887AxisMap<double>& lowSoftLimits);
+
+	/*!
+	  * Signal indicating that a set pivot points command has been issued.
+	  */
+	void setPivotPointsCommandIssued(const AMPIC887AxisMap<double>& pivotPoints);
+
+	/*!
+	  * Signal indicating that a set record trigger command has been issued.
+	  */
+	void setRecordTriggerCommandIssued(AMGCS2::DataRecordTrigger recordTrigger);
+
+	/*!
+	  * Signal indicating that a set servo mode command has been issued.
+	  */
+	void setServoModeCommandIssued(bool servoMode);
+
+	/*!
+	  * Signal indicating that a set soft limit states command has been issued.
+	  */
+	void setSoftLimitStatesCommandIssued(const AMPIC887AxisMap<bool>& softLimitStates);
+
+	/*!
+	  * Signal indicating that a set step sizes command has been issued.
+	  */
+	void setStepSizesCommandIssued(const AMPIC887AxisMap<double>& stepSizes);
+
+	/*!
+	  * Signal indicating thata a set system velocity command has been issued.
+	  */
+	void setSystemVelocityCommandIssued(double systemVelocity);
+
 	/*!
 	  * Signal indicating that a stop command has been issued.
 	  */
@@ -155,12 +207,12 @@ signals:
 	/*!
 	  * Signal indicating that a move command has been issued
 	  */
-	void moveCommandIssued(const QHash<AMGCS2::Axis, double>& targetPositions);
+	void moveCommandIssued(const AMPIC887AxisMap<double>& targetPositions);
 
 	/*!
 	  * Signal indicating that a move relative command has been issued.
 	  */
-	void moveRelativeCommandIssued(const QHash<AMGCS2::Axis, double>& relativeTargetPositions);
+	void moveRelativeCommandIssued(const AMPIC887AxisMap<double>& relativeTargetPositions);
 
 	/*!
 	  * Signal indicating that a reference move command has been issued.
@@ -231,13 +283,56 @@ protected:
 	  * Helper method for converting a command arguments into a mapping of axis
 	  * to double value. Assumes that the arguments are provided as:
 	  *    axis1 value1 axis2 value2 ... axisN valueN
-	  * \param arguments ~ The QString argument to be converted to a mapping of
-	  * axis to value.
+	  * \param commandString ~ The command string issued.
 	  * \param parseSuccess ~ Output parameter which indicates the success of the
 	  * parse. The parse will only fail if it cannot convert a passed character
 	  * to a double value where it is required.
 	  */
-	QHash<AMGCS2::Axis, double> axesDoublePairFromCommandString(const QString& arguments, bool* parseSuccess);
+	AMPIC887AxisMap<double> axisMapFromCommandString(const QString& commandString, bool* parseSuccess);
+
+	/*!
+	  * Helper method for converting a command string into a double value.
+	  * \param commandString ~ The full command issued to the parser, whose
+	  * arguments are to be parsed into a double value.
+	  * \param parseSuccess ~ An optional out parameter which will be set to true
+	  * if the parse succeeded, or false if it failed. If none is provided no
+	  * parse success state will be set.
+	  */
+	double doubleValueFromCommandString(const QString& commandString, bool* parseSuccess = 0);
+
+	/*!
+	  * Helper method for converting a command string into a boolean value.
+	  * \param commandString ~ The full command issued to the parser, whose
+	  * arguments are to be parsed into a boolean value.
+	  * \param parseSuccess ~ An optional out parameter which will be set to true
+	  * if the parse succeeded, or false if it failed. If none is provided no
+	  * parse success state will be set.
+	  */
+	bool boolValueFromCommandString(const QString& commandString, bool* parseSuccess = 0);
+
+	/*!
+	  * Helper method for parsing the command string passed along with the
+	  * set command level command (CCL)
+	  * \param commandString ~ The command string which was entered, and must be
+	  * parsed.
+	  */
+	void handleSetCommandLevelInput(const QString& commandString);
+
+	/*!
+	  * Helper method for parsing the command string passed along with the set
+	  * record trigger command (DRT)
+	  * \param commandString ~ The command string which was entered, and must be
+	  * parsed.
+	  */
+	void handleSetRecordTriggerInput(const QString& commandString);
+
+	/*!
+	  * Helper methpod for parsing the command string passed along with the set
+	  * soft limit status command (SSL)
+	  * \param commandString ~ The command string which was entered, and must be
+	  * parsed.
+	  */
+	void handleSetSoftLimitStatusInput(const QString& commandString);
 };
 
 #endif // AMPIC887CONSOLECOMMANDSET_H

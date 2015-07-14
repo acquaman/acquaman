@@ -7,6 +7,7 @@
 #include "AMGCS2.h"
 #include <QHash>
 #include "AMPIC887AxisCollection.h"
+#include "AMPIC887AxisMap.h"
 /*!
   * Factory class which constructs AMGCS2Commands from the provided input command
   * string.
@@ -56,7 +57,7 @@ protected:
 	  * \param arguments ~ The QString argument to be converted to a mapping of
 	  * axis to value.
 	  */
-	static QHash<AMGCS2::Axis, double> axesDoublePairFromCommandString(const QString& arguments);
+	static AMPIC887AxisMap<double> axesDoublePairFromCommandString(const QString& arguments);
 
 	/*!
 	  * Static helper method for parsing the set command level command string.

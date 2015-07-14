@@ -19,20 +19,7 @@ QString AMGCS2GetHighSoftLimitsCommand::outputString() const
 		return "";
 	}
 
-	QString outputString("Axis\t\tHigh Limit\n");
-	QList<AMGCS2::Axis> axesResults = axesHighSoftLimits_.keys();
-
-	for(int iAxis = 0, axisCount = axesResults.count();
-		iAxis < axisCount;
-		++iAxis) {
-
-		AMGCS2::Axis currentAxis = axesResults.at(iAxis);
-		outputString.append(QString("%1\t\t%2\n")
-							.arg(AMGCS2Support::axisToCharacter(currentAxis))
-							.arg(axesHighSoftLimits_.value(currentAxis)));
-	}
-
-	return outputString.trimmed();
+	return axesHighSoftLimits_.toString("High Soft Limits");
 }
 
 bool AMGCS2GetHighSoftLimitsCommand::validateArguments()

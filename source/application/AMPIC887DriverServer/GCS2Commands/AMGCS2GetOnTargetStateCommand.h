@@ -3,8 +3,8 @@
 
 #include "AMGCS2Command.h"
 #include "../AMGCS2.h"
-#include <QList>
-#include <QHash>
+#include "../AMPIC887AxisCollection.h"
+#include "../AMPIC887AxisMap.h"
 /*!
   * Command representing a query to a PI C887.11 controller to report whether the
   * provided axes have reached their targets.
@@ -15,10 +15,10 @@ public:
 	/*!
 	  * Creates an instance of a get on target state command which will report whether
 	  * the provided axes have reached their target positions.
-	  * \param axes ~ An optional list of axes whose on target state is to be reported,
+	  * \param axesToQuery ~ An optional list of axes whose on target state is to be reported,
 	  * if none is provided the on target state of all axes will be returned.
 	  */
-	AMGCS2GetOnTargetStateCommand(const QList<AMGCS2::Axis>& axes = QList<AMGCS2::Axis>());
+	AMGCS2GetOnTargetStateCommand(const AMPIC887AxisCollection& axesToQuery = AMPIC887AxisCollection());
 
 	/*!
 	  * Virtual destructor for a get on target state command
@@ -40,7 +40,7 @@ public:
 	  * \returns A mapping axes to on target state if the command was run successfully,
 	  * an empty map otherwise.
 	  */
-	QHash<AMGCS2::Axis, bool> onTargetStates() const;
+	AMPIC887AxisMap<bool> onTargetStates() const;
 
 protected:
 	/*!
@@ -58,8 +58,8 @@ protected:
 	  */
 	virtual bool runImplementation();
 
-	QHash<AMGCS2::Axis, bool> onTargetStates_;
-	QList<AMGCS2::Axis> axesToQuery_;
+	AMPIC887AxisMap<bool> onTargetStates_;
+	AMPIC887AxisCollection axesToQuery_;
 };
 
 #endif // AMGCS2GETONTARGETSTATECOMMAND_H

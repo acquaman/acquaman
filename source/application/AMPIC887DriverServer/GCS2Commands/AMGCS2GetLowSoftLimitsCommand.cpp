@@ -19,20 +19,7 @@ QString AMGCS2GetLowSoftLimitsCommand::outputString() const
 		return "";
 	}
 
-	QString outputString("Axis\t\tLow Limit\n");
-	QList<AMGCS2::Axis> axesResults = axesLowSoftLimits_.keys();
-
-	for(int iAxis = 0, axisCount = axesResults.count();
-		iAxis < axisCount;
-		++iAxis) {
-
-		AMGCS2::Axis currentAxis = axesResults.at(iAxis);
-		outputString.append(QString("%1\t\t%2\n")
-							.arg(AMGCS2Support::axisToCharacter(currentAxis))
-							.arg(axesLowSoftLimits_.value(currentAxis)));
-	}
-
-	return outputString.trimmed();
+	return axesLowSoftLimits_.toString("Low Soft Limits");
 }
 
 bool AMGCS2GetLowSoftLimitsCommand::validateArguments()

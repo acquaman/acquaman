@@ -2,7 +2,6 @@
 #define AMGCS2ASYNCMOVECOMMAND_H
 #include "AMGCS2AsyncCommand.h"
 
-#include <QHash>
 #include "../AMGCS2.h"
 #include "../AMPIC887AxisMap.h"
 #include "AMGCS2MoveCommand.h"
@@ -23,7 +22,7 @@ public:
 	  * \param targetPositions ~ A mapping of axes to the positions which the
 	  * command will move them towards.
 	  */
-	explicit AMGCS2AsyncMoveCommand(const QHash<AMGCS2::Axis, double>& targetPositions);
+	explicit AMGCS2AsyncMoveCommand(const AMPIC887AxisMap<double>& targetPositions);
 
 	/*!
 	  * Fress the resources owned by the asynchronous move command.
@@ -40,7 +39,7 @@ public:
 	  * The target positions which the command was initially instructed to move
 	  * the axes to.
 	  */
-	QHash<AMGCS2::Axis, double> targetPositions() const;
+	AMPIC887AxisMap<double> targetPositions() const;
 protected:
 
 	/*!
@@ -64,7 +63,7 @@ protected:
 	virtual void isFinishedImplementation();
 
 	AMGCS2MoveCommand* command_;
-	QHash<AMGCS2::Axis, double> targetPositions_;
+	AMPIC887AxisMap<double> targetPositions_;
 };
 
 #endif // AMGCS2ASYNCMOVECOMMAND_H

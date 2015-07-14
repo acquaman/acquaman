@@ -3,9 +3,9 @@
 #include "util/AMCArrayHandler.h"
 #include "PI_GCS2_DLL.h"
 #include "../AMPIC887Controller.h"
-AMGCS2GetServoModeCommand::AMGCS2GetServoModeCommand(const QList<AMGCS2::Axis>& axes)
+AMGCS2GetServoModeCommand::AMGCS2GetServoModeCommand()
 {
-	axesToQuery_ = axes;
+
 }
 
 QString AMGCS2GetServoModeCommand::outputString() const
@@ -14,96 +14,53 @@ QString AMGCS2GetServoModeCommand::outputString() const
 		return "";
 	}
 
-	QString outputString("Axis\t\tServo Mode\n");
-
-	foreach(AMGCS2::Axis currentAxis, servoModeStatuses_.keys()) {
-		QString statusString;
-		if(servoModeStatuses_.value(currentAxis)) {
-			statusString = "Active";
-		} else {
-			statusString = "Inactive";
-		}
-
-		outputString.append(QString("%1\t\t%2\n")
-							.arg(AMGCS2Support::axisToCharacter(currentAxis))
-							.arg(statusString));
+	if(servoModeState_) {
+		return "Controller in Servo Mode";
+	} else {
+		return "Controller not in Servo Mode";
 	}
-
-	return outputString.trimmed();
 }
 
-QHash<AMGCS2::Axis, bool> AMGCS2GetServoModeCommand::servoModeStatuses() const
+bool AMGCS2GetServoModeCommand::servoModeState() const
 {
-	return servoModeStatuses_;
-}
-
-bool AMGCS2GetServoModeCommand::validateArguments()
-{
-	foreach(AMGCS2::Axis currentAxis, axesToQuery_) {
-
-		if(currentAxis == AMGCS2::UnknownAxis) {
-			lastError_ = "Unknown axis";
-			return false;
-		}
-	}
-
-	if(axesToQuery_.count() > AXIS_COUNT) {
-		lastError_ = "Too many axes";
-		return false;
-	}
-
-	return true;
+	return servoModeState_;
 }
 
 bool AMGCS2GetServoModeCommand::runImplementation()
 {
-	// Clear previous values
-	servoModeStatuses_.clear();
+	/*
+	Syntax for the servo mode suggests it can be set per axis, however for
+	out controller setting it for one axis sets it for them all. As such this
+	command only queries the servo mode of one axis, and uses that value. It
+	also performs a validation check which ensures all these values are the
+	same, just in case this driver is attempted to be used on another controller.
+	*/
 
-	AMCArrayHandler<int> activeStatusHandler(AXIS_COUNT);
-	bool success = false;
+	AMPIC887AxisCollection axesToQuery
+			= AMPIC887AxisCollection(AMPIC887AxisCollection::AllAxes);
+	int axisCount = axesToQuery.count();
 
-	if(axesToQuery_.count() == 0) {
-		success = PI_qSVO(controller_->id(), 0, activeStatusHandler.cArray());
+	QString axisString = axesToQuery.toString();
+	AMCArrayHandler<int> servoModeStateHandler(axisCount);
 
-		if(success) {
-			servoModeStatuses_.insert(AMGCS2::XAxis, activeStatusHandler.cArray()[0] != 0);
-			servoModeStatuses_.insert(AMGCS2::YAxis, activeStatusHandler.cArray()[1] != 0);
-			servoModeStatuses_.insert(AMGCS2::ZAxis, activeStatusHandler.cArray()[2] != 0);
-			servoModeStatuses_.insert(AMGCS2::UAxis, activeStatusHandler.cArray()[3] != 0);
-			servoModeStatuses_.insert(AMGCS2::VAxis, activeStatusHandler.cArray()[4] != 0);
-			servoModeStatuses_.insert(AMGCS2::WAxis, activeStatusHandler.cArray()[5] != 0);
-		}
-
-	} else {
-
-		QString axesString;
-
-		foreach(AMGCS2::Axis currentAxis, axesToQuery_) {
-
-			axesString.append(QString(" %1")
-							  .arg(AMGCS2Support::axisToCharacter(currentAxis)));
-		}
-
-		success = PI_SVO(controller_->id(),
-						 axesString.toStdString().c_str(),
-						 activeStatusHandler.cArray());
-
-		if(success) {
-
-			for(int iAxis = 0, axisCount = axesToQuery_.count();
-				iAxis < axisCount;
-				++iAxis) {
-
-				servoModeStatuses_.insert(
-							axesToQuery_.at(iAxis),
-							activeStatusHandler.cArray()[iAxis] != 0);
-			}
-		}
-	}
+	bool success = PI_qSVO(controller_->id(),
+						   axisString.toStdString().c_str(),
+						   servoModeStateHandler.cArray());
 
 	if(!success) {
 		lastError_ = controllerErrorMessage();
+	} else {
+
+		bool firstValue = (servoModeStateHandler.cArray()[0] == 1);
+		for(int iAxis = 0; iAxis < axisCount; ++iAxis) {
+
+			bool currentValue = (servoModeStateHandler.cArray()[iAxis] == 1);
+			if(currentValue != firstValue) {
+				lastError_ = "Servo mode for all axes does not match";
+				return false;
+			}
+		}
+		servoModeState_ = firstValue;
 	}
 
 	return success;

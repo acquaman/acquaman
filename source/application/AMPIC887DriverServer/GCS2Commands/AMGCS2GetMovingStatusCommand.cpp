@@ -18,19 +18,17 @@ bool AMGCS2GetMovingStatusCommand::runImplementation()
 	// Clear any previous results.
 	movementStatuses_ = QFlags<AMGCS2::AxisMovementStatus>();
 
-	QString axesString;
-
-	QList<AMGCS2::Axis> axesToQuery;
-	axesToQuery << AMGCS2::XAxis << AMGCS2::YAxis << AMGCS2::ZAxis << AMGCS2::UAxis
-				   << AMGCS2::VAxis << AMGCS2::WAxis;
-
-	AMCArrayHandler<int> valuesHandler(axesToQuery.count());
-
-	foreach (AMGCS2::Axis axis, axesToQuery) {
-		axesString.append(QString(" %1").arg(AMGCS2Support::axisToCharacter(axis)));
+	AMPIC887AxisCollection axesToQuery = AMPIC887AxisCollection(AMPIC887AxisCollection::AllAxes);
+	if(axesToQuery.count() == 0) {
+		return false;
 	}
 
-	bool success = PI_IsMoving(controller_->id(), axesString.toStdString().c_str(), valuesHandler.cArray());
+	QString axesString = axesToQuery.toString();
+	AMCArrayHandler<int> valuesHandler(axesToQuery.count());
+
+	bool success = PI_IsMoving(controller_->id(),
+							   axesString.toStdString().c_str(),
+							   valuesHandler.cArray());
 
 
 	if(success) {

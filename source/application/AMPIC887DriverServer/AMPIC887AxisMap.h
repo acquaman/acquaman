@@ -7,6 +7,7 @@
 #include "AMGCS2.h"
 #include "AMPIC887AxisCollection.h"
 #include "AMGCS2Support.h"
+#include "util/AMCArrayHandler.h"
 /*!
   * A class which maps Axes of a PI C887.11 controller to a type T.
   */
@@ -18,16 +19,6 @@ public:
 	  * Creates an instance of an axis map, which is empty.
 	  */
 	AMPIC887AxisMap() {}
-
-	/////////
-	// TEMP
-	/////////
-	AMPIC887AxisMap(const QHash<AMGCS2::Axis, T>& other)
-	{
-		foreach(AMGCS2::Axis currentAxis, other.keys()) {
-			this->value(currentAxis, other.value(currentAxis));
-		}
-	}
 
 	/*!
 	  * Returns a collection of the axes which this map contains.
@@ -80,6 +71,7 @@ public:
 
 		return returnValues;
 	}
+
 };
 
 // Partial Specialization on type T to provide functionality of toString() method
@@ -93,16 +85,6 @@ public:
 	  * Creates an instance of an axis map, which is empty.
 	  */
 	AMPIC887AxisMap() {}
-
-	/////////
-	// TEMP
-	/////////
-	AMPIC887AxisMap(const QHash<AMGCS2::Axis, bool>& other)
-	{
-		foreach(AMGCS2::Axis currentAxis, other.keys()) {
-			this->value(currentAxis, other.value(currentAxis));
-		}
-	}
 
 	/*!
 	  * Returns a collection of the axes which this map contains.
@@ -181,16 +163,6 @@ public:
 	  */
 	AMPIC887AxisMap() {}
 
-	/////////
-	// TEMP
-	/////////
-	AMPIC887AxisMap(const QHash<AMGCS2::Axis, double>& other)
-	{
-		foreach(AMGCS2::Axis currentAxis, other.keys()) {
-			this->value(currentAxis, other.value(currentAxis));
-		}
-	}
-
 	/*!
 	  * Returns a collection of the axes which this map contains.
 	  */
@@ -260,16 +232,6 @@ public:
 	  * Creates an instance of an axis map, which is empty.
 	  */
 	AMPIC887AxisMap() {}
-
-	/////////
-	// TEMP
-	/////////
-	AMPIC887AxisMap(const QHash<AMGCS2::Axis, AMGCS2::PositionUnits>& other)
-	{
-		foreach(AMGCS2::Axis currentAxis, other.keys()) {
-			this->value(currentAxis, other.value(currentAxis));
-		}
-	}
 
 	/*!
 	  * Returns a collection of the axes which this map contains.

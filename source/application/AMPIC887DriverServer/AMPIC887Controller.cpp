@@ -4,9 +4,17 @@
 #include "GCS2Commands/AMGCS2AsyncCommand.h"
 #include "GCS2Commands/AMGCS2InitializeControllerStateCommand.h"
 
+#include "GCS2Commands/AMGCS2SetCommandLevelCommand.h"
 #include "GCS2Commands/AMGCS2SetCycleTimeCommand.h"
 #include "GCS2Commands/AMGCS2SetRecordTriggerSourceCommand.h"
 #include "GCS2Commands/AMGCS2SetDataRecorderConfigurationCommand.h"
+#include "GCS2Commands/AMGCS2SetLowSoftLimitsCommand.h"
+#include "GCS2Commands/AMGCS2SetHighSoftLimitsCommand.h"
+#include "GCS2Commands/AMGCS2SetPivotPointCommand.h"
+#include "GCS2Commands/AMGCS2SetSoftLimitsStatusCommand.h"
+#include "GCS2Commands/AMGCS2SetStepSizeCommand.h"
+#include "GCS2Commands/AMGCS2SetSystemVelocityCommand.h"
+#include "GCS2Commands/AMGCS2SetServoModeCommand.h"
 
 #include "GCS2Commands/AMGCS2GetCurrentPositionCommand.h"
 #include "GCS2Commands/AMGCS2AsyncMoveCommand.h"
@@ -35,6 +43,8 @@ AMPIC887Controller::AMPIC887Controller(const QString& name, const QString& hostn
 	wMotions_ = 0;
 	if(connectionEstablished()) {
 		initializeControllerStateData();
+	} else {
+		lastError_ = "No connection obtained with the controller";
 	}
 }
 
@@ -43,6 +53,11 @@ AMPIC887Controller::~AMPIC887Controller()
 	if(controllerState_ != 0) {
 		delete controllerState_;
 	}
+}
+
+QString AMPIC887Controller::lastError() const
+{
+	return lastError_;
 }
 
 void AMPIC887Controller::interpretAndRunCommand(const QString &commandText)
@@ -86,9 +101,6 @@ bool AMPIC887Controller::connectToController()
 {
 	id_ = PI_ConnectTCPIP(hostname_.toStdString().c_str(), CONTROLLER_PORT);
 	bool success = connectionEstablished();
-	if(success) {
-		PI_SetErrorCheck(id_, 0);
-	}
 
 	return success;
 }
@@ -208,6 +220,24 @@ AMGCS2::ControllerCommandLevel AMPIC887Controller::commandLevel() const
 	return controllerState_->currentCommandLevel();
 }
 
+bool AMPIC887Controller::setCommandLevel(AMGCS2::ControllerCommandLevel commandLevel, const QString &password)
+{
+	if(controllerState_->currentCommandLevel() == commandLevel) {
+		return true;
+	}
+
+	AMGCS2SetCommandLevelCommand setCommandLevelCommand(commandLevel, password);
+	runCommand(&setCommandLevelCommand);
+
+	if(setCommandLevelCommand.runningState() != AMGCS2Command::Succeeded) {
+		setError(setCommandLevelCommand.lastError());
+		return false;
+	}
+
+	controllerState_->setCurrentCommandLevel(commandLevel);
+	return true;
+}
+
 double AMPIC887Controller::currentPosition(AMGCS2::Axis axis)
 {
 	if(currentPositionRefreshRequired_) {
@@ -241,6 +271,24 @@ double AMPIC887Controller::cycleTime() const
 	return controllerState_->hexapodState()->cycleTime();
 }
 
+bool AMPIC887Controller::setCycleTime(double cycleTime)
+{
+	if(controllerState_->hexapodState()->cycleTime() == cycleTime) {
+		return true;
+	}
+
+	AMGCS2SetCycleTimeCommand setCycleTimeCommand(cycleTime);
+	runCommand(&setCycleTimeCommand);
+
+	if(setCycleTimeCommand.runningState() != AMGCS2Command::Succeeded) {
+		setError(setCycleTimeCommand.lastError());
+		return false;
+	}
+
+	controllerState_->hexapodState()->setCycleTime(cycleTime);
+	return true;
+}
+
 AMGCS2::DataRecordOption AMPIC887Controller::recordOption(int tableId) const
 {
 	return controllerState_->dataRecorderState()->stateAt(tableId)->recordOption();
@@ -261,9 +309,34 @@ double AMPIC887Controller::lowSoftLimit(AMGCS2::Axis axis) const
 	return controllerState_->hexapodState()->lowSoftLimit(axis);
 }
 
+bool AMPIC887Controller::setLowSoftLimit(AMGCS2::Axis axis, double lowSoftLimit)
+{
+	AMPIC887AxisMap<double> singleValue;
+	singleValue.insert(axis, lowSoftLimit);
+	return setLowSoftLimits(singleValue);
+}
+
 AMPIC887AxisMap<double> AMPIC887Controller::lowSoftLimits(const AMPIC887AxisCollection &axes) const
 {
 	return controllerState_->hexapodState()->lowSoftLimits().values(axes);
+}
+
+bool AMPIC887Controller::setLowSoftLimits(const AMPIC887AxisMap<double>& lowSoftLimits)
+{
+	if(controllerState_->hexapodState()->lowSoftLimits() == lowSoftLimits) {
+		return true;
+	}
+
+	AMGCS2SetLowSoftLimitsCommand setLowSoftLimitsCommand(lowSoftLimits);
+	runCommand(&setLowSoftLimitsCommand);
+
+	if(setLowSoftLimitsCommand.runningState() != AMGCS2Command::Succeeded) {
+		setError(setLowSoftLimitsCommand.lastError());
+		return false;
+	}
+
+	controllerState_->hexapodState()->setLowSoftLimits(lowSoftLimits);
+	return true;
 }
 
 double AMPIC887Controller::highSoftLimit(AMGCS2::Axis axis) const
@@ -271,9 +344,34 @@ double AMPIC887Controller::highSoftLimit(AMGCS2::Axis axis) const
 	return controllerState_->hexapodState()->highSoftLimit(axis);
 }
 
+bool AMPIC887Controller::setHighSoftLimit(AMGCS2::Axis axis, double highSoftLimit)
+{
+	AMPIC887AxisMap<double> singleValue;
+	singleValue.insert(axis, highSoftLimit);
+	return setHighSoftLimits(singleValue);
+}
+
 AMPIC887AxisMap<double> AMPIC887Controller::highSoftLimits(const AMPIC887AxisCollection &axes) const
 {
 	return controllerState_->hexapodState()->highSoftLimits().values(axes);
+}
+
+bool AMPIC887Controller::setHighSoftLimits(const AMPIC887AxisMap<double> &highSoftLimits)
+{
+	if(controllerState_->hexapodState()->highSoftLimits() == highSoftLimits) {
+		return true;
+	}
+
+	AMGCS2SetHighSoftLimitsCommand setHighSoftLimitCommand(highSoftLimits);
+	runCommand(&setHighSoftLimitCommand);
+
+	if(setHighSoftLimitCommand.runningState() != AMGCS2Command::Succeeded) {
+		setError(setHighSoftLimitCommand.lastError());
+		return false;
+	}
+
+	controllerState_->hexapodState()->setHighSoftLimits(highSoftLimits);
+	return true;
 }
 
 bool AMPIC887Controller::softLimitStatus(AMGCS2::Axis axis) const
@@ -281,9 +379,34 @@ bool AMPIC887Controller::softLimitStatus(AMGCS2::Axis axis) const
 	return controllerState_->hexapodState()->softLimitState(axis);
 }
 
+bool AMPIC887Controller::setSoftLimitStatus(AMGCS2::Axis axis, bool softLimitState)
+{
+	AMPIC887AxisMap<bool> singleValue;
+	singleValue.insert(axis, softLimitState);
+	return setSoftLimitStatuses(singleValue);
+}
+
 AMPIC887AxisMap<bool> AMPIC887Controller::softLimitStatuses(const AMPIC887AxisCollection &axes) const
 {
 	return controllerState_->hexapodState()->softLimitStates().values(axes);
+}
+
+bool AMPIC887Controller::setSoftLimitStatuses(const AMPIC887AxisMap<bool> &softLimitStates)
+{
+	if(controllerState_->hexapodState()->softLimitStates() == softLimitStates) {
+		return true;
+	}
+
+	AMGCS2SetSoftLimitsStatusCommand setSoftLimitStatesCommand(softLimitStates);
+	runCommand(&setSoftLimitStatesCommand);
+
+	if(setSoftLimitStatesCommand.runningState() != AMGCS2Command::Succeeded) {
+		setError(setSoftLimitStatesCommand.lastError());
+		return false;
+	}
+
+	controllerState_->hexapodState()->setSoftLimitStates(softLimitStates);
+	return true;
 }
 
 double AMPIC887Controller::minCommandablePosition(AMGCS2::Axis axis) const
@@ -330,9 +453,34 @@ double AMPIC887Controller::pivotPoint(AMGCS2::Axis axis) const
 	return controllerState_->hexapodState()->pivotPoint(axis);
 }
 
+bool AMPIC887Controller::setPivotPoint(AMGCS2::Axis axis, double pivotPoint)
+{
+	AMPIC887AxisMap<double> singleValue;
+	singleValue.insert(axis, pivotPoint);
+	return setPivotPoints(singleValue);
+}
+
 AMPIC887AxisMap<double> AMPIC887Controller::pivotPoints(const AMPIC887AxisCollection &axes) const
 {
 	return controllerState_->hexapodState()->pivotPoints().values(axes);
+}
+
+bool AMPIC887Controller::setPivotPoints(const AMPIC887AxisMap<double> &pivotPoints)
+{
+	if(controllerState_->hexapodState()->pivotPoints() == pivotPoints) {
+		return true;
+	}
+
+	AMGCS2SetPivotPointCommand setPivotPointCommand(pivotPoints);
+	runCommand(&setPivotPointCommand);
+
+	if(setPivotPointCommand.runningState() != AMGCS2Command::Succeeded) {
+		setError(setPivotPointCommand.lastError());
+		return false;
+	}
+
+	controllerState_->hexapodState()->setPivotPoints(pivotPoints);
+	return true;
 }
 
 AMGCS2::PositionUnits AMPIC887Controller::positionUnits(AMGCS2::Axis axis) const
@@ -364,6 +512,25 @@ AMGCS2::DataRecordTrigger AMPIC887Controller::recordTrigger() const
 	return controllerState_->dataRecorderState()->recordTrigger();
 }
 
+bool AMPIC887Controller::setRecordTrigger(AMGCS2::DataRecordTrigger recordTrigger)
+{
+	if(controllerState_->dataRecorderState()->recordTrigger() == recordTrigger) {
+		return true;
+	}
+
+	AMGCS2SetRecordTriggerSourceCommand setRecordTriggerCommand(recordTrigger);
+	runCommand(&setRecordTriggerCommand);
+
+	if(setRecordTriggerCommand.runningState() != AMGCS2Command::Succeeded) {
+		setError(setRecordTriggerCommand.lastError());
+		return false;
+	}
+
+	controllerState_->dataRecorderState()->setRecordTrigger(recordTrigger);
+
+	return true;
+}
+
 bool AMPIC887Controller::isAxisReferenced(AMGCS2::Axis axis) const
 {
 	return controllerState_->hexapodState()->referencedState(axis);
@@ -384,9 +551,34 @@ bool AMPIC887Controller::isInServoMode() const
 	return controllerState_->hexapodState()->isInServoMode();
 }
 
+bool AMPIC887Controller::setServoMode(bool servoMode)
+{
+	if(controllerState_->hexapodState()->isInServoMode() == servoMode) {
+		return true;
+	}
+
+	AMGCS2SetServoModeCommand setServoModeCommand(servoMode);
+	runCommand(&setServoModeCommand);
+
+	if(setServoModeCommand.runningState() != AMGCS2Command::Succeeded) {
+		setError(setServoModeCommand.lastError());
+		return false;
+	}
+
+	controllerState_->hexapodState()->setServoMode(servoMode);
+	return true;
+}
+
 double AMPIC887Controller::stepSize(AMGCS2::Axis axis)
 {
 	return controllerState_->hexapodState()->stepSize(axis);
+}
+
+bool AMPIC887Controller::setStepSize(AMGCS2::Axis axis, double stepSize)
+{
+	AMPIC887AxisMap<double> singleValue;
+	singleValue.insert(axis, stepSize);
+	return setStepSizes(singleValue);
 }
 
 AMPIC887AxisMap<double> AMPIC887Controller::stepSizes(const AMPIC887AxisCollection &axes) const
@@ -394,12 +586,48 @@ AMPIC887AxisMap<double> AMPIC887Controller::stepSizes(const AMPIC887AxisCollecti
 	return controllerState_->hexapodState()->stepSizes().values(axes);
 }
 
+bool AMPIC887Controller::setStepSizes(const AMPIC887AxisMap<double> &stepSizes)
+{
+	if(controllerState_->hexapodState()->stepSizes() == stepSizes) {
+		return true;
+	}
+
+	AMGCS2SetStepSizeCommand setStepSizeCommand(stepSizes);
+	runCommand(&setStepSizeCommand);
+
+	if(setStepSizeCommand.runningState() != AMGCS2Command::Succeeded) {
+		setError(setStepSizeCommand.lastError());
+		return false;
+	}
+
+	controllerState_->hexapodState()->setStepSizes(stepSizes);
+	return true;
+}
+
 double AMPIC887Controller::systemVelocity() const
 {
 	return controllerState_->hexapodState()->velocity();
 }
 
-void AMPIC887Controller::stop()
+bool AMPIC887Controller::setSystemVelocity(double systemVelocity)
+{
+	if(controllerState_->hexapodState()->velocity() == systemVelocity) {
+		return true;
+	}
+
+	AMGCS2SetSystemVelocityCommand setSystemVelocityCommand(systemVelocity);
+	runCommand(&setSystemVelocityCommand);
+
+	if(setSystemVelocityCommand.runningState() != AMGCS2Command::Succeeded) {
+		setError(setSystemVelocityCommand.lastError());
+		return false;
+	}
+
+	controllerState_->hexapodState()->setVelocity(systemVelocity);
+	return true;
+}
+
+bool AMPIC887Controller::stop()
 {
 	AMGCS2StopCommand stopCommand;
 	runCommand(&stopCommand);
@@ -408,27 +636,32 @@ void AMPIC887Controller::stop()
 
 		emit errorEncountered(QString("Failed to stop controller with message: %1")
 							  .arg(stopCommand.lastError()));
+		return false;
 	}
+
+	return true;
 }
 
-void AMPIC887Controller::haltSmoothly(const AMPIC887AxisCollection& axes)
+bool AMPIC887Controller::haltSmoothly(const AMPIC887AxisCollection& axes)
 {
 	AMGCS2HaltSmoothlyCommand haltCommand(axes);
 	runCommand(&haltCommand);
 
 	if(haltCommand.runningState() != AMGCS2Command::Succeeded) {
-		emit errorEncountered(QString("Failed to halt controller with message: %1")
-							  .arg(haltCommand.lastError()));
+		setError(haltCommand.lastError());
+		return false;
 	}
+
+	return true;
 }
 
-void AMPIC887Controller::move(const QHash<AMGCS2::Axis, double> &axisPositions)
+void AMPIC887Controller::move(const AMPIC887AxisMap<double>& axisPositions)
 {
-	QList<AMGCS2::Axis> axesToMove = axisPositions.keys();
+	AMPIC887AxisCollection axesToMove = axisPositions.axes();
 	foreach(AMGCS2::Axis currentAxis, axesToMove) {
 		if(!controllerState_->hexapodState()->referencedState(currentAxis)) {
-			emit errorEncountered(QString("Cannot move axis %1: Axis not referenced")
-								  .arg(AMGCS2Support::axisToCharacter(currentAxis)));
+			setError(QString("Cannot move axis %1: Axis not referenced")
+					 .arg(AMGCS2Support::axisToCharacter(currentAxis)));
 			return;
 		}
 	}
@@ -445,13 +678,13 @@ void AMPIC887Controller::move(const QHash<AMGCS2::Axis, double> &axisPositions)
 	runCommand(asyncMoveCommand);
 }
 
-void AMPIC887Controller::moveRelative(const QHash<AMGCS2::Axis, double> &relativePositions)
+void AMPIC887Controller::moveRelative(const AMPIC887AxisMap<double>& relativePositions)
 {
-	QList<AMGCS2::Axis> axesToMove = relativePositions.keys();
+	AMPIC887AxisCollection axesToMove = relativePositions.axes();
 	foreach(AMGCS2::Axis currentAxis, axesToMove) {
 		if(!controllerState_->hexapodState()->referencedState(currentAxis)) {
-			emit errorEncountered(QString("Cannot move axis %1: Axis not referenced")
-								  .arg(AMGCS2Support::axisToCharacter(currentAxis)));
+			setError(QString("Cannot move axis %1: Axis not referenced")
+					 .arg(AMGCS2Support::axisToCharacter(currentAxis)));
 			return;
 		}
 	}
@@ -469,7 +702,7 @@ void AMPIC887Controller::moveRelative(const QHash<AMGCS2::Axis, double> &relativ
 	runCommand(asyncMoveRelativeCommand);
 }
 
-void AMPIC887Controller::referenceMove(const QList<AMGCS2::Axis> &axes)
+void AMPIC887Controller::referenceMove(const AMPIC887AxisCollection& axes)
 {
 	AMGCS2AsyncReferenceMoveCommand* asyncReferenceMoveCommand =
 			new AMGCS2AsyncReferenceMoveCommand(axes);
@@ -507,7 +740,7 @@ void AMPIC887Controller::onAsyncMoveStarted(AMGCS2AsyncCommand *command)
 
 	if(moveCommand) {
 
-		QList<AMGCS2::Axis> axesMoving = moveCommand->targetPositions().keys();
+		AMPIC887AxisCollection axesMoving = moveCommand->targetPositions().axes();
 		foreach(AMGCS2::Axis currentAxis, axesMoving) {
 
 			controllerState_->hexapodState()->setTargetPosition(currentAxis, moveCommand->targetPositions().value(currentAxis));
@@ -545,7 +778,7 @@ void AMPIC887Controller::onAsyncMoveSucceeded(AMGCS2AsyncCommand *command)
 
 	if(moveCommand) {
 
-		QList<AMGCS2::Axis> axesMoving = moveCommand->targetPositions().keys();
+		AMPIC887AxisCollection axesMoving = moveCommand->targetPositions().axes();
 		foreach(AMGCS2::Axis currentAxis, axesMoving) {
 			switch (currentAxis) {
 			case AMGCS2::XAxis:
@@ -581,7 +814,7 @@ void AMPIC887Controller::onAsyncMoveFailed(AMGCS2AsyncCommand *command)
 
 	if(moveCommand) {
 
-		QList<AMGCS2::Axis> axesMoving = moveCommand->targetPositions().keys();
+		AMPIC887AxisCollection axesMoving = moveCommand->targetPositions().axes();
 		foreach(AMGCS2::Axis currentAxis, axesMoving) {
 			switch (currentAxis) {
 			case AMGCS2::XAxis:
@@ -617,7 +850,7 @@ void AMPIC887Controller::onAsyncMoveRelativeStarted(AMGCS2AsyncCommand *command)
 	AMGCS2AsyncMoveRelativeCommand* moveRelativeCommand = qobject_cast<AMGCS2AsyncMoveRelativeCommand*>(command);
 
 	if(moveRelativeCommand) {
-		QList<AMGCS2::Axis> axesMoving = moveRelativeCommand->relativeTargetPositions().keys();
+		AMPIC887AxisCollection axesMoving = moveRelativeCommand->relativeTargetPositions().axes();
 		foreach(AMGCS2::Axis currentAxis, axesMoving) {
 
 			double currentTarget = controllerState_->hexapodState()->targetPosition(currentAxis);
@@ -656,7 +889,7 @@ void AMPIC887Controller::onAsyncMoveRelativeSucceeded(AMGCS2AsyncCommand *comman
 
 	if(moveRelativeCommand) {
 
-		QList<AMGCS2::Axis> axesMoving = moveRelativeCommand->relativeTargetPositions().keys();
+		AMPIC887AxisCollection axesMoving = moveRelativeCommand->relativeTargetPositions().axes();
 		foreach(AMGCS2::Axis currentAxis, axesMoving) {
 			switch (currentAxis) {
 			case AMGCS2::XAxis:
@@ -692,7 +925,7 @@ void AMPIC887Controller::onAsyncMoveRelativeFailed(AMGCS2AsyncCommand *command)
 
 	if(moveRelativeCommand) {
 
-		QList<AMGCS2::Axis> axesMoving = moveRelativeCommand->relativeTargetPositions().keys();
+		AMPIC887AxisCollection axesMoving = moveRelativeCommand->relativeTargetPositions().axes();
 		foreach(AMGCS2::Axis currentAxis, axesMoving) {
 			switch (currentAxis) {
 			case AMGCS2::XAxis:
@@ -843,8 +1076,10 @@ void AMPIC887Controller::updateStateOnStop()
 
 		controllerState_->hexapodState()->setTargetPosition(currentAxis, currentPosition);
 	}
-
 }
 
-
-
+void AMPIC887Controller::setError(const QString &errorMessage)
+{
+	lastError_ = errorMessage;
+	emit errorEncountered(errorMessage);
+}

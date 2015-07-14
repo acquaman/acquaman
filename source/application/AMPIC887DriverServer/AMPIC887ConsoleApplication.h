@@ -82,14 +82,69 @@ protected slots:
 	void onControllerErrorEncountered(const QString& errorMessage);
 
 	/*!
+	  * Handles signals indicating that a set command level command has been issued.
+	  */
+	void onSetCommandLevelCommandIssued(AMGCS2::ControllerCommandLevel commandLevel,
+										const QString& password);
+
+	/*!
+	  * Handles signals indicating that a set cycle time command has been issued.
+	  */
+	void onSetCycleTimeCommandIssued(double cycleTime);
+
+	/*!
+	  * Handles signals indicating that a set high soft limits command has been
+	  * issued.
+	  */
+	void onSetHighSoftLimitsCommandIssued(const AMPIC887AxisMap<double>& highSoftLimits);
+
+	/*!
+	  * Handles signals indicating that a set low soft limits command has been
+	  * issued.
+	  */
+	void onSetLowSoftLimitsCommandIssued(const AMPIC887AxisMap<double>& lowSoftLimits);
+
+	/*!
+	  * Handles signals indicating that a set pivot point command has been issued.
+	  */
+	void onSetPivotPointCommandIssued(const AMPIC887AxisMap<double>& pivotPoints);
+
+	/*!
+	  * Handles signals indicating that a set record trigger command has been issued.
+	  */
+	void onSetRecorderTriggerCommandIssued(AMGCS2::DataRecordTrigger recorderTrigger);
+
+	/*!
+	  * Handles signals indicating that a set servo mode command has been issued.
+	  */
+	void onSetServoModeCommandIssued(bool servoMode);
+
+	/*!
+	  * Handles signals indicating that a set soft limit states command has been
+	  * issued.
+	  */
+	void onSetSoftLimitStatesCommandIssued(const AMPIC887AxisMap<bool>& softLimitStates);
+
+	/*!
+	  * Handles signals indicating that a set step size command has been issued.
+	  */
+	void onSetStepSizeCommandIssued(const AMPIC887AxisMap<double>& stepSizes);
+
+	/*!
+	  * Handles signals indicating that a set system velocity command has been
+	  * issued.
+	  */
+	void onSetSystemVelocityCommandIssued(double systemVelocity);
+
+	/*!
 	  * Handles signals indicating that a move command has been issued.
 	  */
-	void onMoveCommandIssued(const QHash<AMGCS2::Axis, double>& axisPositions);
+	void onMoveCommandIssued(const AMPIC887AxisMap<double>& axisPositions);
 
 	/*!
 	  * Handles signals indicating that a move relative command has been issued.
 	  */
-	void onMoveRelativeCommandIssued(const QHash<AMGCS2::Axis, double>& relativePositions);
+	void onMoveRelativeCommandIssued(const AMPIC887AxisMap<double>& relativePositions);
 
 	/*!
 	  * Handles signals indicating that a motion status command has been issued.

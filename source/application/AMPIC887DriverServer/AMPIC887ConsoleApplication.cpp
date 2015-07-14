@@ -86,7 +86,127 @@ void AMPIC887ConsoleApplication::onControllerErrorEncountered(const QString &err
 	consoleInputHandler_->writeLineToStandardError(errorMessage);
 }
 
-void AMPIC887ConsoleApplication::onMoveCommandIssued(const QHash<AMGCS2::Axis, double> &axisPositions)
+void AMPIC887ConsoleApplication::onSetCommandLevelCommandIssued(AMGCS2::ControllerCommandLevel commandLevel,
+																const QString &password)
+{
+	AMPIC887Controller* activeController = controllerCollection_.activeController();
+	if(!activeController) {
+		return;
+	}
+
+	if(!activeController->setCommandLevel(commandLevel, password)) {
+		consoleInputHandler_->writeLineToStandardError(activeController->lastError());
+	}
+}
+
+void AMPIC887ConsoleApplication::onSetCycleTimeCommandIssued(double cycleTime)
+{
+	AMPIC887Controller* activeController = controllerCollection_.activeController();
+	if(!activeController) {
+		return;
+	}
+
+	if(!activeController->setCycleTime(cycleTime)) {
+		consoleInputHandler_->writeLineToStandardError(activeController->lastError());
+	}
+}
+
+void AMPIC887ConsoleApplication::onSetHighSoftLimitsCommandIssued(const AMPIC887AxisMap<double> &highSoftLimits)
+{	AMPIC887Controller* activeController = controllerCollection_.activeController();
+	if(!activeController) {
+		return;
+	}
+
+	if(!activeController->setHighSoftLimits(highSoftLimits)) {
+		consoleInputHandler_->writeLineToStandardError(activeController->lastError());
+	}
+}
+
+void AMPIC887ConsoleApplication::onSetLowSoftLimitsCommandIssued(const AMPIC887AxisMap<double> &lowSoftLimits)
+{
+	AMPIC887Controller* activeController = controllerCollection_.activeController();
+	if(!activeController) {
+		return;
+	}
+
+	if(!activeController->setLowSoftLimits(lowSoftLimits)) {
+		consoleInputHandler_->writeLineToStandardError(activeController->lastError());
+	}
+}
+
+void AMPIC887ConsoleApplication::onSetPivotPointCommandIssued(const AMPIC887AxisMap<double> &pivotPoints)
+{
+	AMPIC887Controller* activeController = controllerCollection_.activeController();
+	if(!activeController) {
+		return;
+	}
+
+	if(!activeController->setPivotPoints(pivotPoints)) {
+		consoleInputHandler_->writeLineToStandardError(activeController->lastError());
+	}
+}
+
+void AMPIC887ConsoleApplication::onSetRecorderTriggerCommandIssued(AMGCS2::DataRecordTrigger recorderTrigger)
+{
+	AMPIC887Controller* activeController = controllerCollection_.activeController();
+	if(!activeController) {
+		return;
+	}
+
+	if(!activeController->setRecordTrigger(recorderTrigger)) {
+		consoleInputHandler_->writeLineToStandardError(activeController->lastError());
+	}
+}
+
+void AMPIC887ConsoleApplication::onSetServoModeCommandIssued(bool servoMode)
+{
+	AMPIC887Controller* activeController = controllerCollection_.activeController();
+	if(!activeController) {
+		return;
+	}
+
+	if(!activeController->setServoMode(servoMode)) {
+		consoleInputHandler_->writeLineToStandardError(activeController->lastError());
+	}
+}
+
+void AMPIC887ConsoleApplication::onSetSoftLimitStatesCommandIssued(const AMPIC887AxisMap<bool> &softLimitStates)
+{
+	AMPIC887Controller* activeController = controllerCollection_.activeController();
+	if(!activeController) {
+		return;
+	}
+
+	if(!activeController->setSoftLimitStatuses(softLimitStates)) {
+		consoleInputHandler_->writeLineToStandardError(activeController->lastError());
+	}
+}
+
+void AMPIC887ConsoleApplication::onSetStepSizeCommandIssued(const AMPIC887AxisMap<double> &stepSizes)
+{
+	AMPIC887Controller* activeController = controllerCollection_.activeController();
+	if(!activeController) {
+		return;
+	}
+
+	if(!activeController->setStepSizes(stepSizes)) {
+		consoleInputHandler_->writeLineToStandardError(activeController->lastError());
+	}
+}
+
+void AMPIC887ConsoleApplication::onSetSystemVelocityCommandIssued(double systemVelocity)
+{
+	AMPIC887Controller* activeController = controllerCollection_.activeController();
+	if(!activeController) {
+		return;
+	}
+
+	if(!activeController->setSystemVelocity(systemVelocity)) {
+		consoleInputHandler_->writeLineToStandardError(activeController->lastError());
+	}
+}
+
+void AMPIC887ConsoleApplication::onMoveCommandIssued(const AMPIC887AxisMap<double> &axisPositions)
 {
 	if(!controllerCollection_.activeController() && !controllerCollection_.activeController()->isInitialized()) {
 		return;
@@ -95,7 +215,7 @@ void AMPIC887ConsoleApplication::onMoveCommandIssued(const QHash<AMGCS2::Axis, d
 	controllerCollection_.activeController()->move(axisPositions);
 }
 
-void AMPIC887ConsoleApplication::onMoveRelativeCommandIssued(const QHash<AMGCS2::Axis, double> &relativePositions)
+void AMPIC887ConsoleApplication::onMoveRelativeCommandIssued(const AMPIC887AxisMap<double> &relativePositions)
 {
 	if(!controllerCollection_.activeController() && !controllerCollection_.activeController()->isInitialized()) {
 		return;
@@ -434,8 +554,8 @@ void AMPIC887ConsoleApplication::makeConnections()
 	connect(commandParser_, SIGNAL(status()), this, SLOT(onStatusCommandIssued()));
 	connect(commandParser_, SIGNAL(changeActiveController(QString)), this, SLOT(onActiveControllerChangeIssued(QString)));
 	connect(commandParser_, SIGNAL(otherCommandIssued(QString)), this, SLOT(onOtherCommandIssued(QString)));
-	connect(commandParser_, SIGNAL(moveCommandIssued(QHash<AMGCS2::Axis,double>)), this, SLOT(onMoveCommandIssued(QHash<AMGCS2::Axis,double>)));
-	connect(commandParser_, SIGNAL(moveRelativeCommandIssued(QHash<AMGCS2::Axis,double>)), this, SLOT(onMoveRelativeCommandIssued(QHash<AMGCS2::Axis,double>)));
+	connect(commandParser_, SIGNAL(moveCommandIssued(AMPIC887AxisMap<double>)), this, SLOT(onMoveCommandIssued(AMPIC887AxisMap<double>)));
+	connect(commandParser_, SIGNAL(moveRelativeCommandIssued(AMPIC887AxisMap<double>)), this, SLOT(onMoveRelativeCommandIssued(AMPIC887AxisMap<double>)));
 	connect(commandParser_, SIGNAL(motionStatusCommandIssued()), this, SLOT(onMotionStatusCommandIssued()));
 	connect(commandParser_, SIGNAL(referenceMoveCommandIssued(AMPIC887AxisCollection)), this, SLOT(onReferenceMoveCommandIssued(AMPIC887AxisCollection)));
 	connect(commandParser_, SIGNAL(availableParametersCommandIssued()), this, SLOT(onAvailableParametersCommandIssued()));
@@ -462,6 +582,28 @@ void AMPIC887ConsoleApplication::makeConnections()
 
 	connect(commandParser_, SIGNAL(stopCommandIssued()), this, SLOT(onStopCommandIssued()));
 	connect(commandParser_, SIGNAL(haltCommandIssued(AMPIC887AxisCollection)), this, SLOT(onHaltCommandIssued(AMPIC887AxisCollection)));
+
+	connect(commandParser_, SIGNAL(setCommandLevelCommandIssued(AMGCS2::ControllerCommandLevel,QString)),
+			this, SLOT(onSetCommandLevelCommandIssued(AMGCS2::ControllerCommandLevel,QString)));
+	connect(commandParser_, SIGNAL(setCycleTimeCommandIssued(double)),
+			this, SLOT(onSetCycleTimeCommandIssued(double)));
+	connect(commandParser_, SIGNAL(setHighSoftLimitsCommandIssued(AMPIC887AxisMap<double>)),
+			this, SLOT(onSetHighSoftLimitsCommandIssued(AMPIC887AxisMap<double>)));
+	connect(commandParser_, SIGNAL(setLowSoftLimitsCommandIssued(AMPIC887AxisMap<double>)),
+			this, SLOT(onSetLowSoftLimitsCommandIssued(AMPIC887AxisMap<double>)));
+	connect(commandParser_, SIGNAL(setPivotPointsCommandIssued(AMPIC887AxisMap<double>)),
+			this, SLOT(onSetPivotPointCommandIssued(AMPIC887AxisMap<double>)));
+	connect(commandParser_, SIGNAL(setRecordTriggerCommandIssued(AMGCS2::DataRecordTrigger)),
+			this, SLOT(onSetRecorderTriggerCommandIssued(AMGCS2::DataRecordTrigger)));
+	connect(commandParser_, SIGNAL(setServoModeCommandIssued(bool)),
+			this, SLOT(onSetServoModeCommandIssued(bool)));
+	connect(commandParser_, SIGNAL(setSoftLimitStatesCommandIssued(AMPIC887AxisMap<bool>)),
+			this, SLOT(onSetSoftLimitStatesCommandIssued(AMPIC887AxisMap<bool>)));
+	connect(commandParser_, SIGNAL(setStepSizesCommandIssued(AMPIC887AxisMap<double>)),
+			this, SLOT(onSetStepSizeCommandIssued(AMPIC887AxisMap<double>)));
+	connect(commandParser_, SIGNAL(setSystemVelocityCommandIssued(double)),
+			this, SLOT(onSetSystemVelocityCommandIssued(double)));
+
 }
 
 
