@@ -39,20 +39,19 @@ public:
 	/// Destructor.
 	virtual ~BioXASMainAppController();
 
+	/// Create and setup all of the application windows, widgets, communication connections, and data objects that are needed on program startup. Returns true on success, false otherwise.
+	virtual bool startup();
+
 protected slots:
 	/// Handles adding regions of interest to all the configurations that would care.
 	virtual void onRegionOfInterestAdded(AMRegionOfInterest *region);
 	/// Handles removing regions of interest from all the configurations that would care.
 	virtual void onRegionOfInterestRemoved(AMRegionOfInterest *region);
 
-    /// Handles adding scaler view pane to the main window when the scaler is connected.
-    void onScalerConnected();
-
-protected:
 	/// Implementation method that individual applications can flesh out if extra setup is required when a scan action is started.  This is not pure virtual because there is no requirement to do anything to scan actions.
 	virtual void onCurrentScanActionStartedImplementation(AMScanAction *action);
 
-	// Things to do on startup.
+protected:
 	/// Registers all of the necessary classes that are BioXAS specific.
 	virtual void registerClasses();
 	/// Sets up all of the exporter options for the various scan types.
@@ -61,21 +60,10 @@ protected:
 	virtual void initializeBeamline();
 	/// Sets up the user interface by specifying the extra pieces that will be added to the main window.
 	virtual void setupUserInterface();
-	/// Sets up all of the connections.
-	virtual void makeConnections();
-	/// Applies current settings.
-	virtual void applyCurrentSettings();
+	/// Sets up local and remote data paths.
+	virtual bool setupDataFolder();
 
 protected:
-	/// M1 mirror view.
-	BioXASM1MirrorView *m1MirrorView_;
-	/// Mono configuration view.
-	BioXASSSRLMonochromatorConfigurationView *monoConfigView_;
-	/// M2 mirror view.
-	BioXASM2MirrorView *m2MirrorView_;
-	/// Scaler view.
-	BioXASSIS3820ScalerView *scalerView_;
-
 	/// XAS scan configuration.
 	BioXASMainXASScanConfiguration *configuration_;
 	/// XAS scan configuration view.
@@ -96,9 +84,6 @@ protected:
 	BioXASXASScanConfigurationView *monoCalibrationConfigurationView_;
 	/// The mono energy calibration configuration view holder.
 	AMScanConfigurationViewHolder3 *monoCalibrationConfigurationViewHolder_;
-
-	/// The side panel view.
-	BioXASMainPersistentView *persistentPanel_;
 };
 
 #endif // BIOXASMAINAPPCONTROLLER_H

@@ -28,16 +28,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 BioXASSideAppController::BioXASSideAppController(QObject *parent)
 	: BioXASAppController(parent)
 {
-	scalerView_ = 0;
-	monoConfigView_ = 0;
-	jjSlitsView_ = 0;
-	xiaFiltersView_ = 0;
-	carbonFilterFarmView_ = 0;
-	m2MirrorView_ = 0;
-	dbhrView_ = 0;
-
-	persistentPanel_ = 0;
-
 	configuration_ = 0;
 	configurationView_ = 0;
 	configurationViewHolder_ = 0;
@@ -58,84 +48,62 @@ BioXASSideAppController::~BioXASSideAppController()
 
 bool BioXASSideAppController::startup()
 {
-	// Get a destination folder.
-	if ( !AMChooseDataFolderDialog::getDataFolder("/AcquamanLocalData/bioxas-s/AcquamanSideData", "/home/bioxas-s/AcquamanSideData", "users", QStringList()) )
-		return false;
+	bool result = false;
 
-	// Start up the main program.
-	if(AMAppController::startup()) {
-
-
-		// Initialize central beamline object
-		BioXASSideBeamline::bioXAS();
-		// Initialize the periodic table object.
-		AMPeriodicTable::table();
-
-		registerClasses();
-
-		// Ensuring we automatically switch scan editors for new scans.
-		setAutomaticBringScanEditorToFront(true);
+	if (BioXASAppController::startup()) {
 
 		// Some first time things.
 		AMRun existingRun;
 
 		// We'll use loading a run from the db as a sign of whether this is the first time an application has been run because startupIsFirstTime will return false after the user data folder is created.
-		if (!existingRun.loadFromDb(AMDatabase::database("user"), 1)){
+		if (!existingRun.loadFromDb(AMDatabase::database("user"), 1)) {
 
 			AMRun firstRun(CLSFacilityID::beamlineName(CLSFacilityID::BioXASSideBeamline), CLSFacilityID::BioXASSideBeamline); //6: BioXAS Side Beamline
 			firstRun.storeToDb(AMDatabase::database("user"));
 		}
 
-		setupExporterOptions();
-		setupUserInterface();
-		makeConnections();
-		applyCurrentSettings();
-
-		if (!userConfiguration_->loadFromDb(AMDatabase::database("user"), 1)){
-
-			userConfiguration_->storeToDb(AMDatabase::database("user"));
-			onUserConfigurationLoadedFromDb();
-		}
-
-		return true;
+		result = true;
 	}
-	else
-		return false;
-}
 
-void BioXASSideAppController::shutdown()
-{
-	// Make sure we release/clean-up the beamline interface
-	AMBeamline::releaseBl();
-	AMAppController::shutdown();
+	return result;
 }
 
 void BioXASSideAppController::onRegionOfInterestAdded(AMRegionOfInterest *region)
 {
 	BioXASAppController::onRegionOfInterestAdded(region);
-
 	configuration_->addRegionOfInterest(region);
 }
 
 void BioXASSideAppController::onRegionOfInterestRemoved(AMRegionOfInterest *region)
 {
 	BioXASAppController::onRegionOfInterestRemoved(region);
-
 	configuration_->removeRegionOfInterest(region);
 }
 
-void BioXASSideAppController::onScalerConnected()
-{
-	CLSSIS3820Scaler *scaler = BioXASSideBeamline::bioXAS()->scaler();
+#include <QDebug>
 
-	if (scaler && scaler->isConnected() && !scalerView_) {
-		scalerView_ = new BioXASSIS3820ScalerView(scaler, true);
-		mw_->addPane(AMMainWindow::buildMainWindowPane("Scaler", ":/system-search.png", scalerView_), "Detectors", "Scaler", ":/system-search.png", true);
+void BioXASSideAppController::onCurrentScanActionStartedImplementation(AMScanAction *action)
+{
+	BioXASAppController::onCurrentScanActionStartedImplementation(action);
+
+	qDebug() << "\nScan started.";
+
+	if (action) {
+		AMScanActionInfo *info = qobject_cast<AMScanActionInfo*>(action->info());
+
+		if (info) {
+			BioXASSSRLMonochromatorEnergyCalibrationScanConfiguration *config = qobject_cast<BioXASSSRLMonochromatorEnergyCalibrationScanConfiguration*>(info->configuration());
+
+			if (config) {
+				qDebug() << "It is a mono calibration scan.";
+			}
+		}
 	}
 }
 
 void BioXASSideAppController::registerClasses()
 {
+	BioXASAppController::registerClasses();
 	AMDbObjectSupport::s()->registerClass<BioXASSideXASScanConfiguration>();
 }
 
@@ -154,64 +122,9 @@ void BioXASSideAppController::initializeBeamline()
 
 void BioXASSideAppController::setupUserInterface()
 {
+	BioXASAppController::setupUserInterface();
+
 	mw_->setWindowTitle("Acquaman - BioXAS Side");
-
-	// Create panes in the main window:
-	////////////////////////////////////
-
-	mw_->insertHeading("General", 0);
-	mw_->insertHeading("Detectors", 1);
-	mw_->insertHeading("Scans", 2);
-	mw_->insertHeading("Calibration", 3);
-
-	// Add widgets to main window panes:
-	////////////////////////////////////
-
-	endstationTableView_ = new BioXASEndstationTableView(BioXASSideBeamline::bioXAS()->endstationTable());
-	mw_->addPane(AMMainWindow::buildMainWindowPane("Endstation Table", ":/system-software-update.png", endstationTableView_), "General", "Endstation Table", ":/system-software-update.png");
-
-	carbonFilterFarmView_ = new BioXASCarbonFilterFarmView(BioXASSideBeamline::bioXAS()->carbonFilterFarm());
-	mw_->addPane(AMMainWindow::buildMainWindowPane("Carbon Filter Farm", ":/system-software-update.png", carbonFilterFarmView_), "General", "Carbon filter farm", ":/system-software-update.png");
-
-	m1MirrorView_ = new BioXASM1MirrorView(BioXASSideBeamline::bioXAS()->m1Mirror());
-	mw_->addPane(AMMainWindow::buildMainWindowPane("M1 Mirror", ":/system-software-update.png", m1MirrorView_), "General", "M1 Mirror", ":/system-software-update.png");
-
-	monoConfigView_ = new BioXASSSRLMonochromatorConfigurationView(BioXASSideBeamline::bioXAS()->mono());
-	mw_->addPane(AMMainWindow::buildMainWindowPane("Monochromator", ":/system-software-update.png", monoConfigView_), "General", "Monochromator", ":/system-software-update.png");
-
-	jjSlitsView_ = new CLSJJSlitsView(BioXASSideBeamline::bioXAS()->jjSlits());
-	mw_->addPane(AMMainWindow::buildMainWindowPane("JJ Slits", ":/system-software-update.png", jjSlitsView_), "General", "JJ Slits", ":/system-software-update.png");
-
-	xiaFiltersView_ = new BioXASXIAFiltersView(BioXASSideBeamline::bioXAS()->xiaFilters());
-	mw_->addPane(AMMainWindow::buildMainWindowPane("XIA Filters", ":/system-software-update.png", xiaFiltersView_), "General", "XIA Filters", ":/system-software-update.png");
-
-	m2MirrorView_ = new BioXASM2MirrorView(BioXASSideBeamline::bioXAS()->m2Mirror());
-	mw_->addPane(AMMainWindow::buildMainWindowPane("M2 Mirror", ":/system-software-update.png", m2MirrorView_), "General", "M2 Mirror", ":/system-software-update.png");
-
-	dbhrView_ = new BioXASDBHRMirrorView(BioXASSideBeamline::bioXAS()->dbhrMirror());
-	mw_->addPane(AMMainWindow::buildMainWindowPane("DBHR Mirrors", ":/system-software-update.png", dbhrView_), "General", "DBHR Mirrors", ":/system-software-update.png");
-
-	CLSStandardsWheelConfigurationView *wheelView = new CLSStandardsWheelConfigurationView(BioXASSideBeamline::bioXAS()->standardsWheel());
-	mw_->addPane(AMMainWindow::buildMainWindowPane("Standards Wheel", ":/system-software-update.png", wheelView), "General", "Standards Wheel", ":/system-software-update.png");
-
-	AMMotorGroupView *cryostatStageView = new AMMotorGroupView(BioXASSideBeamline::bioXAS()->motorGroup());
-	mw_->addPane(AMMainWindow::buildMainWindowPane("Cryostat Stage", ":/system-software-update.png", cryostatStageView), "General", "Cryostat Stage", ":/system-software-update.png");
-
-	// Create scaler view, if scaler is present and connected.
-	onScalerConnected();
-
-//	BioXAS32ElementGeDetectorView *geDetectorView = new BioXAS32ElementGeDetectorView(BioXASSideBeamline::bioXAS()->ge32ElementDetector());
-//	geDetectorView->buildDetectorView();
-//	geDetectorView->addEmissionLineNameFilter(QRegExp("1"));
-//	geDetectorView->addPileUpPeakNameFilter(QRegExp("(K.1|L.1|Ma1)"));
-//	mw_->addPane(geDetectorView, "Detectors", "Ge 32-el", ":/system-search.png");
-
-	BioXASFourElementVortexDetectorView *fourElementDetectorView = new BioXASFourElementVortexDetectorView(BioXASSideBeamline::bioXAS()->fourElementVortexDetector());
-	fourElementDetectorView->buildDetectorView();
-	fourElementDetectorView->setEnergyRange(3000, 28000);
-	fourElementDetectorView->addEmissionLineNameFilter(QRegExp("1"));
-	fourElementDetectorView->addPileUpPeakNameFilter(QRegExp("(K.1|L.1|Ma1)"));
-	mw_->addPane(fourElementDetectorView, "Detectors", "4-element", ":/system-search.png");
 
 	configuration_ = new BioXASSideXASScanConfiguration();
 	configuration_->setEnergy(10000);
@@ -231,23 +144,18 @@ void BioXASSideAppController::setupUserInterface()
 	monoCalibrationConfiguration_ = new BioXASSSRLMonochromatorEnergyCalibrationScanConfiguration();
 	monoCalibrationConfiguration_->setEnergy(10000);
 	monoCalibrationConfigurationView_ = new BioXASXASScanConfigurationView(monoCalibrationConfiguration_);
-	monoCalibrationConfigurationViewHolder_ = new AMScanConfigurationViewHolder3("Calibrate Energy", false, true, monoCalibrationConfigurationView_, ":/system-search.png");
-	mw_->addPane(monoCalibrationConfigurationViewHolder_, "Calibration", "Calibrate Energy", ":/system-search.png");
+	monoCalibrationConfigurationViewHolder_ = new AMScanConfigurationViewHolder3("Energy Calibration", false, true, monoCalibrationConfigurationView_);
+	mw_->addPane(monoCalibrationConfigurationViewHolder_, "Scans", "Energy Calibration", ":/utilities-system-monitor.png");
 
 	// Create persistent view panel:
 	////////////////////////////////////
 
-	persistentPanel_ = new BioXASSidePersistentView();
-	persistentPanel_->setFixedWidth(400);
-	mw_->addRightWidget(persistentPanel_);
+	BioXASSidePersistentView *persistentPanel = new BioXASSidePersistentView();
+	persistentPanel->setFixedWidth(400);
+	mw_->addRightWidget(persistentPanel);
 }
 
-void BioXASSideAppController::makeConnections()
+bool BioXASSideAppController::setupDataFolder()
 {
-	connect( BioXASSideBeamline::bioXAS()->scaler(), SIGNAL(connectedChanged(bool)), this, SLOT(onScalerConnected()) );
-}
-
-void BioXASSideAppController::applyCurrentSettings()
-{
-	onScalerConnected();
+	return AMChooseDataFolderDialog::getDataFolder("/AcquamanLocalData/bioxas-s/AcquamanSideData", "/home/bioxas-s/AcquamanSideData", "users", QStringList());
 }

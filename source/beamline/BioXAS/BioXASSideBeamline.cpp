@@ -30,11 +30,9 @@ BioXASSideBeamline::BioXASSideBeamline()
 {
 	setupComponents();
 	setupDiagnostics();
-	setupSampleStage();
 	setupDetectorStage();
 	setupCryostatStage();
 	setupControlSets();
-	setupMotorGroup();
 	setupControlsAsDetectors();
 	setupExposedControls();
 	setupExposedDetectors();
@@ -265,11 +263,6 @@ void BioXASSideBeamline::setupDiagnostics()
 
 }
 
-void BioXASSideBeamline::setupSampleStage()
-{
-
-}
-
 void BioXASSideBeamline::setupDetectorStage()
 {
 	// Side Endstation table
@@ -278,26 +271,13 @@ void BioXASSideBeamline::setupDetectorStage()
 	detectorStageLateral_ = new CLSMAXvMotor("SMTR1607-6-I22-16 Side Detector Lateral", "SMTR1607-6-I22-16", "SMTR1607-6-I22-16 Side Detector Lateral", true, 0.05, 2.0, this, ":mm");
 }
 
-void BioXASSideBeamline::setupMotorGroup()
-{
-	motorGroup_ = new AMMotorGroup(this);
-
-	AMMotorGroupObject *cryostatStageGroupObject = new AMMotorGroupObject("Cryostat Stage - X, Y, Z",
-																		  QStringList() << "X" << "Z" << "Y",
-																		  QStringList() << "mm" << "mm" << "mm",
-																		  QList<AMControl*>() << cryostatX_ << cryostatZ_ << cryostatY_,
-																		  QList<AMMotorGroupObject::Orientation>() << AMMotorGroupObject::Horizontal << AMMotorGroupObject::Vertical << AMMotorGroupObject::Normal,
-																		  QList<AMMotorGroupObject::MotionType>() << AMMotorGroupObject::Translational << AMMotorGroupObject::Translational << AMMotorGroupObject::Translational,
-																		  this);
-	motorGroup_->addMotorGroupObject(cryostatStageGroupObject->name(), cryostatStageGroupObject);
-}
-
 void BioXASSideBeamline::setupDetectors()
 {
 	i0Detector_ = new CLSBasicScalerChannelDetector("I0Detector", "I0 Detector", scaler_, 16, this);
 	i1Detector_ = new CLSBasicScalerChannelDetector("I1Detector", "I1 Detector", scaler_, 17, this);
 	i2Detector_ = new CLSBasicScalerChannelDetector("I2Detector", "I2 Detector", scaler_, 18, this);
 //	ge32ElementDetector_ = new BioXAS32ElementGeDetector("Ge32Element", "Ge 32 Element", this);
+	ge32ElementDetector_ = 0;
 	fourElementVortexDetector_ = new BioXASFourElementVortexDetector("FourElementVortex", "Four Element Vortex Detector", this);
 }
 
@@ -306,6 +286,17 @@ void BioXASSideBeamline::setupCryostatStage()
 	cryostatX_ = new CLSMAXvMotor("SideCryostatX", "SMTR1607-6-I22-14", "SideCryostatX", true, 0.01, 2.0, this, ":mm");
 	cryostatY_ = new CLSMAXvMotor("SideCryostatY", "SMTR1607-6-I22-13", "SideCryostatY", true, 0.01, 2.0, this, ":mm");
 	cryostatZ_ = new CLSMAXvMotor("SideCryostatZ", "SMTR1607-6-I22-15", "SideCryostatZ", true, 0.01, 2.0, this, ":mm");
+
+	AMMotorGroupObject *cryostatStageGroupObject = new AMMotorGroupObject("Cryostat Stage - X, Y, Z",
+																		  QStringList() << "X" << "Z" << "Y",
+																		  QStringList() << "mm" << "mm" << "mm",
+																		  QList<AMControl*>() << cryostatX_ << cryostatZ_ << cryostatY_,
+																		  QList<AMMotorGroupObject::Orientation>() << AMMotorGroupObject::Horizontal << AMMotorGroupObject::Vertical << AMMotorGroupObject::Normal,
+																		  QList<AMMotorGroupObject::MotionType>() << AMMotorGroupObject::Translational << AMMotorGroupObject::Translational << AMMotorGroupObject::Translational,
+																		  this);
+
+	cryostatStageMotors_ = new AMMotorGroup(this);
+	cryostatStageMotors_->addMotorGroupObject(cryostatStageGroupObject->name(), cryostatStageGroupObject);
 }
 
 void BioXASSideBeamline::setupControlSets()

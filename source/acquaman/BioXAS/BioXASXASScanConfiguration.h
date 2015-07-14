@@ -13,7 +13,7 @@ class BioXASXASScanConfiguration : public AMStepScanConfiguration, public BioXAS
 
 public:
 	/// Constructor.
-	Q_INVOKABLE BioXASXASScanConfiguration(QObject *parent = 0);
+	explicit BioXASXASScanConfiguration(QObject *parent = 0);
 	/// Copy constructor.
 	BioXASXASScanConfiguration(const BioXASXASScanConfiguration &original);
 	/// Destructor.

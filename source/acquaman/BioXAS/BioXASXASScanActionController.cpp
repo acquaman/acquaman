@@ -66,13 +66,13 @@ BioXASXASScanActionController::BioXASXASScanActionController(BioXASXASScanConfig
 	if (i2Detector)
 		bioXASDetectors.addDetectorInfo(i2Detector->toInfo());
 
-	AMDetector *vortexDetector = BioXASBeamline::bioXAS()->fourElementVortexDetector();
-	if (vortexDetector)
-		bioXASDetectors.addDetectorInfo(vortexDetector->toInfo());
+//	AMDetector *vortexDetector = BioXASBeamline::bioXAS()->fourElementVortexDetector();
+//	if (vortexDetector)
+//		bioXASDetectors.addDetectorInfo(vortexDetector->toInfo());
 
-	AMDetector *ge32Detector = BioXASBeamline::bioXAS()->ge32ElementDetector();
-	if (ge32Detector)
-		bioXASDetectors.addDetectorInfo(ge32Detector->toInfo());
+//	AMDetector *ge32Detector = BioXASBeamline::bioXAS()->ge32ElementDetector();
+//	if (ge32Detector)
+//		bioXASDetectors.addDetectorInfo(ge32Detector->toInfo());
 
 	AMDetector *scalerDwellTimeDetector = BioXASBeamline::bioXAS()->scalerDwellTimeDetector();
 	if (scalerDwellTimeDetector)

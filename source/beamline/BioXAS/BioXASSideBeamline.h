@@ -85,19 +85,19 @@ public:
 	/// Returns the m1 mirror.
 	virtual BioXASM1Mirror* m1Mirror() const { return m1Mirror_; }
 	/// Returns the carbon filter farm.
-	BioXASSideCarbonFilterFarm* carbonFilterFarm() const { return carbonFilterFarm_; }
+	virtual BioXASSideCarbonFilterFarm* carbonFilterFarm() const { return carbonFilterFarm_; }
 	/// Returns the XIA filters.
-	BioXASSideXIAFilters* xiaFilters() const { return xiaFilters_; }
+	virtual BioXASSideXIAFilters* xiaFilters() const { return xiaFilters_; }
 	/// Returns the DBHR mirrors.
-	BioXASSideDBHRMirror* dbhrMirror() const { return dbhrMirror_; }
+	virtual BioXASSideDBHRMirror* dbhrMirror() const { return dbhrMirror_; }
 	/// Returns the mono.
 	virtual BioXASSSRLMonochromator* mono() const { return mono_; }
 	/// Returns the m2 mirror.
 	virtual BioXASM2Mirror* m2Mirror() const { return m2Mirror_; }
 	/// Returns the standards wheel.
-	CLSStandardsWheel *standardsWheel() const { return standardsWheel_; }
+	virtual CLSStandardsWheel *standardsWheel() const { return standardsWheel_; }
 	/// Returns the beamline JJ Slit.
-	CLSJJSlits *jjSlits() const { return jjSlits_; }
+	virtual CLSJJSlits *jjSlits() const { return jjSlits_; }
 	/// Returns the scaler.
 	virtual CLSSIS3820Scaler* scaler() const { return scaler_; }
 
@@ -171,9 +171,6 @@ public:
 	/// Returns the cryostat z motor.
 	CLSMAXvMotor* cryostatZ() const { return cryostatZ_; }
 
-	/// Returns the motor group.
-	AMMotorGroup* motorGroup() const { return motorGroup_; }
-
 	// Current amplifiers
 	/// Returns the I0 Keithley428 amplifier.
 	CLSKeithley428* i0Keithley() const { return i0Keithley_; }
@@ -212,19 +209,19 @@ public:
 	virtual BioXASFourElementVortexDetector *fourElementVortexDetector() const { return fourElementVortexDetector_; }
 
 	// Endstation table
-	BioXASEndstationTable *endstationTable() const { return endstationTable_; }
+	virtual BioXASEndstationTable *endstationTable() const { return endstationTable_; }
+
+	virtual AMMotorGroup* cryostatStageMotors() const { return cryostatStageMotors_; }
 
 protected:
 	/// Sets up the readings such as pressure, flow switches, temperature, etc.
-	void setupDiagnostics();
+	virtual void setupDiagnostics();
 	/// Sets up logical groupings of controls into sets.
 	void setupControlSets();
 	/// Sets up all the detectors.
 	void setupDetectors();
 	/// Sets up the cryostat stage motors.
 	void setupCryostatStage();
-	/// Sets up the sample stage motors.
-	void setupSampleStage();
 	/// Sets up the detector stage motors.
 	void setupDetectorStage();
 	/// Sets up various beamline components.
@@ -233,8 +230,6 @@ protected:
 	void setupExposedControls();
 	/// Sets up the exposed detectors.
 	void setupExposedDetectors();
-	/// Sets up the motor group for the various sample stages.
-	void setupMotorGroup();
 	/// Sets up all of the detectors that need to be added to scans that aren't a part of typical detectors.  This may just be temporary, not sure.
 	void setupControlsAsDetectors();
 
@@ -357,7 +352,7 @@ protected:
 
 	/// Cryostat motors.
 
-	AMMotorGroup *motorGroup_;
+	AMMotorGroup *cryostatStageMotors_;
 	CLSMAXvMotor *cryostatX_;
 	CLSMAXvMotor *cryostatY_;
 	CLSMAXvMotor *cryostatZ_;

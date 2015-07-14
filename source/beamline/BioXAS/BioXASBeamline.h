@@ -4,13 +4,20 @@
 #include "beamline/AMDetector.h"
 #include "beamline/AMBasicControlDetectorEmulator.h"
 #include "beamline/AMControlSet.h"
+#include "beamline/AMMotorGroup.h"
 
 #include "beamline/CLS/CLSBeamline.h"
 #include "beamline/CLS/CLSBiStateControl.h"
+#include "beamline/CLS/CLSStandardsWheel.h"
+#include "beamline/CLS/CLSJJSlits.h"
 
+#include "beamline/BioXAS/BioXASCarbonFilterFarm.h"
+#include "beamline/BioXAS/BioXASXIAFilters.h"
 #include "beamline/BioXAS/BioXASM1Mirror.h"
-#include "beamline/BioXAS/BioXASMonochromator.h"
+#include "beamline/BioXAS/BioXASSSRLMonochromator.h"
 #include "beamline/BioXAS/BioXASM2Mirror.h"
+#include "beamline/BioXAS/BioXASDBHRMirror.h"
+#include "beamline/BioXAS/BioXASEndstationTable.h"
 #include "beamline/BioXAS/BioXAS32ElementGeDetector.h"
 #include "beamline/BioXAS/BioXASFourElementVortexDetector.h"
 
@@ -64,14 +71,28 @@ public:
 	/// Returns the endstation safety shutter.
 	AMControl* safetyShutterES() const { return 0; }
 
+	/// Returns the carbon filter farm.
+	virtual BioXASCarbonFilterFarm* carbonFilterFarm() const { return 0; }
+	/// Returns the XIA filters.
+	virtual BioXASXIAFilters* xiaFilters() const { return 0; }
 	/// Returns the m1 mirror.
 	virtual BioXASM1Mirror* m1Mirror() const { return 0; }
-
 	/// Returns the monochromator.
-	virtual BioXASMonochromator* mono() const { return 0; }
-
+	virtual BioXASSSRLMonochromator* mono() const { return 0; }
 	/// Returns the m2 mirror.
 	virtual BioXASM2Mirror* m2Mirror() const { return 0; }
+	/// Returns the DBHR mirrors.
+	virtual BioXASDBHRMirror* dbhrMirrors() const { return 0; }
+	/// Returns the standards wheel.
+	virtual CLSStandardsWheel* standardsWheel() const { return 0; }
+	/// Returns the JJ slits.
+	virtual CLSJJSlits* jjSlits() const { return 0; }
+	/// Returns the endstation table.
+	virtual BioXASEndstationTable* endstationTable() const { return 0; }
+	/// Returns the scaler.
+	virtual CLSSIS3820Scaler* scaler() const { return 0; }
+	/// Returns the cryostat stage motor group.
+	virtual AMMotorGroup* cryostatStageMotors() const { return 0; }
 
 	/// Returns the I0 scaler channel detector.
 	virtual AMDetector* i0Detector() const { return 0; }
@@ -85,9 +106,6 @@ public:
 	virtual BioXASFourElementVortexDetector* fourElementVortexDetector() const { return 0; }
 	/// Returns the scaler dwell time detector.
 	virtual AMBasicControlDetectorEmulator* scalerDwellTimeDetector() const { return 0; }
-
-	/// Returns the scaler.
-	virtual CLSSIS3820Scaler* scaler() const { return 0; }
 
 	/// Returns the upstream pressure monitor.
 	AMControl* ccg1() const { return ccg1_; }

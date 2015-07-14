@@ -7,7 +7,7 @@
 
 #include "acquaman/AMScanActionController.h"
 #include "acquaman/BioXAS/BioXASScanConfigurationDbObject.h"
-//#include "acquaman/BioXAS/BioXASXASScanConfiguration.h"
+#include "acquaman/BioXAS/BioXASXASScanConfiguration.h"
 #include "acquaman/BioXAS/BioXASSSRLMonochromatorEnergyCalibrationScanConfiguration.h"
 #include "acquaman/BioXAS/BioXASXRFScanConfiguration.h"
 
@@ -98,12 +98,12 @@ protected:
 	virtual void initializeStorageRing();
 	/// Initializes the beamline object.
 	virtual void initializeBeamline();
+	/// Initializes the periodic table.
+	virtual void initializePeriodicTable();
 	/// Sets up the user interface by specifying the extra pieces that will be added to the main window.
 	virtual void setupUserInterface();
-	/// Sets up all of the connections.
-	virtual void makeConnections();
-	/// Applies the current settings.
-	virtual void applyCurrentSettings();
+	/// Sets up local and remote data paths.
+	virtual bool setupDataFolder() { return false; }
 
 protected:
 	/// Holds the user configuration used for automatically setting up some simple aspects of the user interface.
