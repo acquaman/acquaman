@@ -84,7 +84,7 @@ protected:
 	/// The mono energy calibration configuration.
 	BioXASSSRLMonochromatorEnergyCalibrationScanConfiguration *monoCalibrationConfiguration_;
 	/// The mono energy calibration configuration view.
-	BioXASXASScanConfigurationView *monoCalibrationConfigurationView_;
+	AMScanConfigurationView *monoCalibrationConfigurationView_;
 	/// The mono energy calibration configuration view holder.
 	AMScanConfigurationViewHolder3 *monoCalibrationConfigurationViewHolder_;
 };

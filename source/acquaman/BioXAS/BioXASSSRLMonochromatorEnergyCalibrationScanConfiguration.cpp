@@ -1,5 +1,6 @@
 #include "BioXASSSRLMonochromatorEnergyCalibrationScanConfiguration.h"
 #include "acquaman/BioXAS/BioXASXASScanActionController.h"
+#include "ui/BioXAS/BioXASSSRLMonochromatorEnergyCalibrationScanConfigurationView.h"
 
 BioXASSSRLMonochromatorEnergyCalibrationScanConfiguration::BioXASSSRLMonochromatorEnergyCalibrationScanConfiguration(QObject *parent) :
     BioXASXASScanConfiguration(parent)
@@ -30,4 +31,9 @@ AMScanController* BioXASSSRLMonochromatorEnergyCalibrationScanConfiguration::cre
 	AMScanActionController *controller = new BioXASXASScanActionController(this);
 	controller->buildScanController();
 	return controller;
+}
+
+AMScanConfigurationView* BioXASSSRLMonochromatorEnergyCalibrationScanConfiguration::createView()
+{
+	return new BioXASSSRLMonochromatorEnergyCalibrationScanConfigurationView(this);
 }

@@ -143,7 +143,7 @@ void BioXASSideAppController::setupUserInterface()
 
 	monoCalibrationConfiguration_ = new BioXASSSRLMonochromatorEnergyCalibrationScanConfiguration();
 	monoCalibrationConfiguration_->setEnergy(10000);
-	monoCalibrationConfigurationView_ = new BioXASXASScanConfigurationView(monoCalibrationConfiguration_);
+	monoCalibrationConfigurationView_ = monoCalibrationConfiguration_->createView();
 	monoCalibrationConfigurationViewHolder_ = new AMScanConfigurationViewHolder3("Energy Calibration", false, true, monoCalibrationConfigurationView_);
 	mw_->addPane(monoCalibrationConfigurationViewHolder_, "Scans", "Energy Calibration", ":/utilities-system-monitor.png");
 
