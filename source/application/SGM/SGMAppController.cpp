@@ -27,6 +27,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/CLS/CLSFacilityID.h"
 #include "ui/SGM/SGMPersistentView.h"
 #include "ui/AMMainWindow.h"
+#include "ui/CLS/CLSSIS3820ScalerView.h"
 
 SGMAppController::SGMAppController(QObject *parent) :
 	AMAppController(parent)
@@ -91,6 +92,13 @@ void SGMAppController::setupUserInterface()
 			new SGMPersistentView();
 
 	mw_->addRightWidget(persistentView);
+
+	CLSSIS3820ScalerView* scalerView =
+			new CLSSIS3820ScalerView(SGMBeamline::sgm()->scaler());
+
+	mw_->insertHeading("Components", 0);
+
+	mw_->addPane(AMMainWindow::buildMainWindowPane("Scaler", ":/system-software-update.png", scalerView),"Components", "Scaler",  ":/system-software-update.png");
 }
 
 void SGMAppController::makeConnections()
