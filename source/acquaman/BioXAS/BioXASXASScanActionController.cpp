@@ -158,31 +158,12 @@ AMAction3* BioXASXASScanActionController::createInitializationActions()
 		double regionTime = double(configuration_->scanAxisAt(0)->regionAt(0)->regionTime());
 
 		scalerInitialization = new AMSequentialListAction3(new AMSequentialListActionInfo3("BioXAS Scaler Initialization Actions", "BioXAS Scaler Initialization Actions"));
-		AMListAction3 *scalerInitializationStep;
-
-		scalerInitializationStep = new AMListAction3(new AMListActionInfo3("Scaler Initialization Stage 1", "Scaler Initialization Stage 1"), AMListAction3::Parallel);
-		scalerInitializationStep->addSubAction(scaler->createContinuousEnableAction3(false));
-		scalerInitialization->addSubAction(scalerInitializationStep);
-
-		scalerInitializationStep = new AMListAction3(new AMListActionInfo3("Scaler Initialization Stage 2", "Scaler Initialization Stage 2"), AMListAction3::Parallel);
-		scalerInitializationStep->addSubAction(scaler->createStartAction3(false));
-		scalerInitializationStep->addSubAction(scaler->createScansPerBufferAction3(1));
-		scalerInitializationStep->addSubAction(scaler->createTotalScansAction3(1));
-		scalerInitialization->addSubAction(scalerInitializationStep);
-
-		scalerInitializationStep = new AMListAction3(new AMListActionInfo3("Scaler Initialization Stage 3", "Scaler Initialization Stage 3"), AMListAction3::Parallel);
-		scalerInitializationStep->addSubAction(scaler->createStartAction3(true));
-		scalerInitializationStep->addSubAction(scaler->createWaitForDwellFinishedAction(regionTime + 5.0));
-		scalerInitialization->addSubAction(scalerInitializationStep);
-
-		scalerInitializationStep = new AMListAction3(new AMListActionInfo3("Scaler Initialization Stage 4", "Scaler Initialization Stage 4"));
-		scalerInitializationStep->addSubAction(scaler->createDwellTimeAction3(double(regionTime)));
-		scalerInitialization->addSubAction(scalerInitializationStep);
-
-		scalerInitializationStep = new AMListAction3(new AMListActionInfo3("Scaler Initialization Stage 5", "Scaler Initialization Stage 5"), AMListAction3::Parallel);
-		scalerInitializationStep->addSubAction(scaler->createStartAction3(true));
-		scalerInitializationStep->addSubAction(scaler->createWaitForDwellFinishedAction(regionTime + 5.0));
-		scalerInitialization->addSubAction(scalerInitializationStep);
+		scalerInitialization->addSubAction(scaler->createContinuousEnableAction3(false));
+		scalerInitialization->addSubAction(scaler->createStartAction3(false));
+		scalerInitialization->addSubAction(scaler->createScansPerBufferAction3(1));
+		scalerInitialization->addSubAction(scaler->createTotalScansAction3(1));
+		scalerInitialization->addSubAction(scaler->createStartAction3(true));
+		scalerInitialization->addSubAction(scaler->createWaitForDwellFinishedAction(double(regionTime) + 5.0));
 	}
 
 	// Initialize four element XRF detector, if using.
