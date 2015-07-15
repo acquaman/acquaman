@@ -26,6 +26,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 class SGMMAXvMotor;
 class AMMotorGroup;
+class CLSAdvancedScalerChannelDetector;
 class SGMBeamline : public CLSBeamline
 {
 Q_OBJECT
@@ -57,6 +58,10 @@ protected:
 
 	void setupBeamlineComponents();
 	void setupMotorGroups();
+	void setupDetectors();
+	void setupExposedControls();
+	void setupExposedDetectors();
+
 
 	// Singleton implementation:
 	SGMBeamline();					// protected constructor... only access through Beamline::bl()
@@ -73,6 +78,16 @@ protected:
 	SGMMAXvMotor *ssaManipulatorRot_;
 
 	CLSSIS3820Scaler *scaler_;
+
+	CLSAdvancedScalerChannelDetector *teyDetector_;
+	CLSAdvancedScalerChannelDetector *tfyDetector_;
+	CLSAdvancedScalerChannelDetector *i0Detector_;
+	CLSAdvancedScalerChannelDetector *pdDetector_;
+	CLSAdvancedScalerChannelDetector *filteredPD1Detector_;
+	CLSAdvancedScalerChannelDetector *filteredPD2Detector_;
+	CLSAdvancedScalerChannelDetector *filteredPD3Detector_;
+	CLSAdvancedScalerChannelDetector *filteredPD4Detector_;
+	CLSAdvancedScalerChannelDetector *filteredPD5Detector_;
 
 };
 

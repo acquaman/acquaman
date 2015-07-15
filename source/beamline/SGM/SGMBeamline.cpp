@@ -25,12 +25,16 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "util/AMErrorMonitor.h"
 #include "beamline/CLS/CLSSR570.h"
 #include "beamline/AMMotorGroup.h"
+#include "beamline/CLS/CLSAdvancedScalerChannelDetector.h"
 
 SGMBeamline::SGMBeamline()
 	: CLSBeamline("SGMBeamline")
 {
 	setupBeamlineComponents();
 	setupMotorGroups();
+	setupDetectors();
+	setupExposedControls();
+	setupExposedDetectors();
 }
 
 SGMBeamline::~SGMBeamline()
@@ -125,4 +129,43 @@ void SGMBeamline::setupBeamlineComponents()
 	scaler_->channelAt(9)->setCustomChannelName("FPD4");
 	scaler_->channelAt(10)->setCustomChannelName("FPD5");
 }
+
+void SGMBeamline::setupDetectors()
+{
+	teyDetector_ = new CLSAdvancedScalerChannelDetector("TEY", "TEY", scaler_, 0, this);
+	tfyDetector_ = new CLSAdvancedScalerChannelDetector("TFY", "TFY", scaler_, 2, this);
+	i0Detector_ = new CLSAdvancedScalerChannelDetector("I0", "I0", scaler_, 1, this);
+	pdDetector_ = new CLSAdvancedScalerChannelDetector("PD", "PD", scaler_, 3, this);
+
+	filteredPD1Detector_ = new CLSAdvancedScalerChannelDetector("FilteredPD1", "FilteredPD1", scaler_, 6, this);
+	filteredPD2Detector_ = new CLSAdvancedScalerChannelDetector("FilteredPD2", "FilteredPD2", scaler_, 7, this);
+	filteredPD3Detector_ = new CLSAdvancedScalerChannelDetector("FilteredPD3", "FilteredPD3", scaler_, 8, this);
+	filteredPD4Detector_ = new CLSAdvancedScalerChannelDetector("FilteredPD4", "FilteredPD4", scaler_, 9, this);
+	filteredPD5Detector_ = new CLSAdvancedScalerChannelDetector("FilteredPD5", "FilteredPD5", scaler_, 10, this);
+}
+
+void SGMBeamline::setupExposedControls()
+{
+	addExposedControl(energy_);
+	addExposedControl(exitSlitGap_);
+	addExposedControl(ssaManipulatorX_);
+	addExposedControl(ssaManipulatorY_);
+	addExposedControl(ssaManipulatorZ_);
+	addExposedControl(ssaManipulatorRot_);
+}
+
+void SGMBeamline::setupExposedDetectors()
+{
+	addExposedDetector(teyDetector_);
+	addExposedDetector(tfyDetector_);
+	addExposedDetector(i0Detector_);
+	addExposedDetector(pdDetector_);
+	addExposedDetector(filteredPD1Detector_);
+	addExposedDetector(filteredPD2Detector_);
+	addExposedDetector(filteredPD3Detector_);
+	addExposedDetector(filteredPD4Detector_);
+	addExposedDetector(filteredPD5Detector_);
+
+}
+
 
