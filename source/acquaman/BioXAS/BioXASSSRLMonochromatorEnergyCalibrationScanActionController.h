@@ -15,6 +15,10 @@ public:
 	virtual ~BioXASSSRLMonochromatorEnergyCalibrationScanActionController();
 
 protected:
+	/// Returns a string representation of beamline settings to note.
+	virtual QString beamlineSettings();
+
+protected:
 	/// The BioXAS-specific scan configuration.
 	BioXASSSRLMonochromatorEnergyCalibrationScanConfiguration *configuration_;
 };

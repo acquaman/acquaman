@@ -80,27 +80,6 @@ void BioXASSideAppController::onRegionOfInterestRemoved(AMRegionOfInterest *regi
 	configuration_->removeRegionOfInterest(region);
 }
 
-#include <QDebug>
-
-void BioXASSideAppController::onCurrentScanActionStartedImplementation(AMScanAction *action)
-{
-	BioXASAppController::onCurrentScanActionStartedImplementation(action);
-
-	qDebug() << "\nScan started.";
-
-	if (action) {
-		AMScanActionInfo *info = qobject_cast<AMScanActionInfo*>(action->info());
-
-		if (info) {
-			BioXASSSRLMonochromatorEnergyCalibrationScanConfiguration *config = qobject_cast<BioXASSSRLMonochromatorEnergyCalibrationScanConfiguration*>(info->configuration());
-
-			if (config) {
-				qDebug() << "It is a mono calibration scan.";
-			}
-		}
-	}
-}
-
 void BioXASSideAppController::registerClasses()
 {
 	BioXASAppController::registerClasses();
@@ -143,7 +122,7 @@ void BioXASSideAppController::setupUserInterface()
 
 	monoCalibrationConfiguration_ = new BioXASSSRLMonochromatorEnergyCalibrationScanConfiguration();
 	monoCalibrationConfiguration_->setEnergy(10000);
-	monoCalibrationConfigurationView_ = monoCalibrationConfiguration_->createView();
+	monoCalibrationConfigurationView_ = new BioXASXASScanConfigurationView(monoCalibrationConfiguration_);
 	monoCalibrationConfigurationViewHolder_ = new AMScanConfigurationViewHolder3("Energy Calibration", false, true, monoCalibrationConfigurationView_);
 	mw_->addPane(monoCalibrationConfigurationViewHolder_, "Scans", "Energy Calibration", ":/utilities-system-monitor.png");
 

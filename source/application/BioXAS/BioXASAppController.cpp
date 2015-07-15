@@ -3,11 +3,19 @@
 #include "beamline/BioXAS/BioXASBeamline.h"
 #include "beamline/CLS/CLSStorageRing.h"
 
+#include <QDebug>
+
 BioXASAppController::BioXASAppController(QObject *parent) :
     AMAppController(parent)
 {	
+	// Initialize controller settings.
+
 	userConfiguration_ = new BioXASUserConfiguration(this);
 	setDefaultUseLocalStorage(true);
+
+	// Initialize UI elements.
+
+	energyCalibrationView_ = 0;
 }
 
 BioXASAppController::~BioXASAppController()
@@ -199,8 +207,8 @@ void BioXASAppController::setupUserInterface()
 	////////////////////////////////////
 
 	if (mono) {
-		BioXASSSRLMonochromatorEnergyCalibrationView *energyCalibrationView = new BioXASSSRLMonochromatorEnergyCalibrationView(mono);
-		mw_->addPane(AMMainWindow::buildMainWindowPane("Energy", ":/system-search.png", energyCalibrationView), "Calibration", "Energy", ":system-search.png");
+		energyCalibrationView_ = new BioXASSSRLMonochromatorEnergyCalibrationView(mono);
+		mw_->addPane(AMMainWindow::buildMainWindowPane("Energy", ":/system-search.png", energyCalibrationView_), "Calibration", "Energy", ":system-search.png");
 	}
 }
 
@@ -245,14 +253,53 @@ void BioXASAppController::onCurrentScanActionStartedImplementation(AMScanAction 
 
 	if (userConfiguration_)
 		userConfiguration_->storeToDb(AMDatabase::database("user"));
+
+	// Testing - energy calibration view.
+
+	qDebug() << "\nScan started.";
+
+	if (action) {
+		AMScanActionInfo *info = qobject_cast<AMScanActionInfo*>(action->info());
+
+		if (info) {
+			BioXASSSRLMonochromatorEnergyCalibrationScanConfiguration *config = qobject_cast<BioXASSSRLMonochromatorEnergyCalibrationScanConfiguration*>(info->configuration());
+
+			if (config) {
+				qDebug() << "It is a mono calibration scan.\n";
+			}
+		}
+	}
 }
 
 void BioXASAppController::onCurrentScanActionFinishedImplementation(AMScanAction *action)
-{
-	Q_UNUSED(action)
+{	
+	// Save current configuration to the database.
 
 	if (userConfiguration_)
 		userConfiguration_->storeToDb(AMDatabase::database("user"));
+
+	// If the scan was an energy calibration scan, set the view's scan and make it the current pane.
+
+	if (action) {
+
+		AMScanActionInfo *info = qobject_cast<AMScanActionInfo*>(action->info());
+
+		if (info) {
+			qDebug() << "\nScan finished.";
+
+			BioXASSSRLMonochromatorEnergyCalibrationScanConfiguration *config = qobject_cast<BioXASSSRLMonochromatorEnergyCalibrationScanConfiguration*>(info->configuration());
+
+			if (config) {
+				qDebug() << "It was a mono calibration scan.\n";
+
+				AMScan *calibrationScan = action->controller()->scan();
+				goToEnergyCalibrationView(calibrationScan);
+
+			} else {
+				qDebug() << "It was NOT a mono calibration scan.\n";
+			}
+		}
+	}
 }
 
 void BioXASAppController::onRegionOfInterestAdded(AMRegionOfInterest *region)
@@ -265,4 +312,14 @@ void BioXASAppController::onRegionOfInterestRemoved(AMRegionOfInterest *region)
 {
 	if (userConfiguration_ && userConfiguration_->regionsOfInterest().contains(region))
 		userConfiguration_->removeRegionOfInterest(region);
+}
+
+void BioXASAppController::goToEnergyCalibrationView(AMScan *toView)
+{
+	if (energyCalibrationView_) {
+		if (toView)
+			energyCalibrationView_->setCurrentScan(toView);
+
+		mw_->setCurrentPane(energyCalibrationView_);
+	}
 }

@@ -160,6 +160,7 @@ AMAction3* BioXASXASScanActionController::createInitializationActions()
 		scalerInitialization = new AMSequentialListAction3(new AMSequentialListActionInfo3("BioXAS Scaler Initialization Actions", "BioXAS Scaler Initialization Actions"));
 		scalerInitialization->addSubAction(scaler->createContinuousEnableAction3(false));
 		scalerInitialization->addSubAction(scaler->createStartAction3(false));
+		scalerInitialization->addSubAction(scaler->createDwellTimeAction3(double(regionTime)));
 		scalerInitialization->addSubAction(scaler->createScansPerBufferAction3(1));
 		scalerInitialization->addSubAction(scaler->createTotalScansAction3(1));
 		scalerInitialization->addSubAction(scaler->createStartAction3(true));

@@ -84,6 +84,9 @@ protected slots:
 	/// Handles removing regions of interest from all the configurations that would care.
 	virtual void onRegionOfInterestRemoved(AMRegionOfInterest *region);
 
+	/// Sets the monochromator energy calibration view as the current pane.
+	void goToEnergyCalibrationView(AMScan *toView);
+
 protected:
 	/// Implementation method that individual applications can flesh out if extra setup is required when a scan action is started.  This is not pure virtual because there is no requirement to do anything to scan actions.
 	virtual void onCurrentScanActionStartedImplementation(AMScanAction *action);
@@ -109,6 +112,9 @@ protected:
 protected:
 	/// Holds the user configuration used for automatically setting up some simple aspects of the user interface.
 	BioXASUserConfiguration *userConfiguration_;
+
+	/// The energy calibration view.
+	BioXASSSRLMonochromatorEnergyCalibrationView *energyCalibrationView_;
 };
 
 #endif // BIOXASAPPCONTROLLER_H

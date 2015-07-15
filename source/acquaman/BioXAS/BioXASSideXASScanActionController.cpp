@@ -58,13 +58,13 @@ BioXASSideXASScanActionController::BioXASSideXASScanActionController(BioXASSideX
 	bioXASDetectors.addDetectorInfo(BioXASSideBeamline::bioXAS()->i0Detector()->toInfo());
 	bioXASDetectors.addDetectorInfo(BioXASSideBeamline::bioXAS()->i1Detector()->toInfo());
 	bioXASDetectors.addDetectorInfo(BioXASSideBeamline::bioXAS()->i2Detector()->toInfo());
-	bioXASDetectors.addDetectorInfo(BioXASSideBeamline::bioXAS()->encoderEnergySetpointDetector()->toInfo());
+//	bioXASDetectors.addDetectorInfo(BioXASSideBeamline::bioXAS()->encoderEnergySetpointDetector()->toInfo());
 	bioXASDetectors.addDetectorInfo(BioXASSideBeamline::bioXAS()->encoderEnergyFeedbackDetector()->toInfo());
 	bioXASDetectors.addDetectorInfo(BioXASSideBeamline::bioXAS()->stepEnergyFeedbackDetector()->toInfo());
 	bioXASDetectors.addDetectorInfo(BioXASSideBeamline::bioXAS()->scalerDwellTimeDetector()->toInfo());
-	bioXASDetectors.addDetectorInfo(BioXASSideBeamline::bioXAS()->braggDetector()->toInfo());
-	bioXASDetectors.addDetectorInfo(BioXASSideBeamline::bioXAS()->braggEncoderFeedbackDetector()->toInfo());
-	bioXASDetectors.addDetectorInfo(BioXASSideBeamline::bioXAS()->braggMoveRetriesDetector()->toInfo());
+//	bioXASDetectors.addDetectorInfo(BioXASSideBeamline::bioXAS()->braggDetector()->toInfo());
+//	bioXASDetectors.addDetectorInfo(BioXASSideBeamline::bioXAS()->braggEncoderFeedbackDetector()->toInfo());
+//	bioXASDetectors.addDetectorInfo(BioXASSideBeamline::bioXAS()->braggMoveRetriesDetector()->toInfo());
 	bioXASDetectors.addDetectorInfo(BioXASSideBeamline::bioXAS()->braggStepSetpointDetector()->toInfo());
 
 	if (configuration_->usingXRFDetector())

@@ -48,14 +48,15 @@ protected slots:
 	/// Remove a scan.
 	void removeScan(AMScan *toRemove);
 
+	/// Sets the current mono energy: moves the mono to the given energy, sets the plot cursor coordinates, and sets the energy spinbox value.
+	void setMonoEnergy(double newEnergy);
+
 	/// Handles loading previously collected scan data.
 	void onLoadDataButtonClicked();
 	/// Handles updating the view with previously collected data.
 	void onScanChosen();
-	/// Handles updating the view when the peak energy spinbox value has changed.
-	void onPeakEnergySpinBoxValueChanged();
-	/// Handles updating the view when the desired energy spinbox changes.
-	void onDesiredEnergySpinBoxValueChanged();
+	/// Handles updating the view when the scan view cursor position changes.
+	void onScanViewDataPositionChanged(const QPointF &newPosition);
 	/// Handles calibrating the mono when the calibrate button is clicked.
 	void onCalibrateButtonClicked();
 
@@ -63,6 +64,9 @@ protected slots:
 	bool dropScanURLs(const QList<QUrl>& urls);
 
 protected:
+	/// The current mono energy.
+	double monoEnergy_;
+
 	/// The monochromator being calibrated.
 	BioXASSSRLMonochromator *mono_;
 	/// The current scan.
@@ -74,8 +78,8 @@ protected:
 	QPushButton *loadDataButton_;
 	/// The scan view.
 	AMScanView *scanView_;
-	/// The peak energy spinbox.
-	QDoubleSpinBox *peakEnergySpinBox_;
+	/// The mono energy spinbox.
+	QDoubleSpinBox *monoEnergySpinBox_;
 	/// The desired energy spinbox.
 	QDoubleSpinBox *desiredEnergySpinBox_;
 	/// The calibrate button.
