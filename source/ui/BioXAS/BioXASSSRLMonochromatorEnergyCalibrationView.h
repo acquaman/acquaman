@@ -4,9 +4,14 @@
 #include <QWidget>
 #include <QLayout>
 #include <QMessageBox>
+#include <QDoubleSpinBox>
+#include <QUrl>
 
-#include "ui/dataman/AMScanView.h"
-#include "ui/dataman/AMChooseScanDialog.h"
+class AMScan;
+class AMScanSetModel;
+class AMScanView;
+class AMChooseScanDialog;
+class BioXASSSRLMonochromator;
 
 class BioXASSSRLMonochromatorEnergyCalibrationView : public QWidget
 {
@@ -14,15 +19,19 @@ class BioXASSSRLMonochromatorEnergyCalibrationView : public QWidget
 
 public:
 	/// Constructor.
-	explicit BioXASSSRLMonochromatorEnergyCalibrationView(AMScan *scan = 0, QWidget *parent = 0);
+	explicit BioXASSSRLMonochromatorEnergyCalibrationView(BioXASSSRLMonochromator *mono, AMScan *scan = 0, QWidget *parent = 0);
 	/// Destructor.
 	virtual ~BioXASSSRLMonochromatorEnergyCalibrationView();
 
 signals:
+	/// Notifier that the monochromator being calibrated has changed.
+	void monoChanged(BioXASSSRLMonochromator *newMono);
 	/// Notifier that the current scan has changed.
 	void currentScanChanged(AMScan *newScan);
 
 public slots:
+	/// Sets the mono being calibrated.
+	void setMono(BioXASSSRLMonochromator *newMono);
 	/// Sets the current scan.
 	void setCurrentScan(AMScan *newScan);
 
@@ -43,13 +52,19 @@ protected slots:
 	void onLoadDataButtonClicked();
 	/// Handles updating the view with previously collected data.
 	void onScanChosen();
-	/// Handles updating the scan cursor position to correspond to the peak energy.
+	/// Handles updating the view when the peak energy spinbox value has changed.
 	void onPeakEnergySpinBoxValueChanged();
+	/// Handles updating the view when the desired energy spinbox changes.
+	void onDesiredEnergySpinBoxValueChanged();
+	/// Handles calibrating the mono when the calibrate button is clicked.
+	void onCalibrateButtonClicked();
 
 	/// Opens a set of scans from the database. Returns true if the list contains at least one valid scan that was added.
 	bool dropScanURLs(const QList<QUrl>& urls);
 
 protected:
+	/// The monochromator being calibrated.
+	BioXASSSRLMonochromator *mono_;
 	/// The current scan.
 	AMScan *currentScan_;
 	/// The scan view model.
@@ -61,6 +76,10 @@ protected:
 	AMScanView *scanView_;
 	/// The peak energy spinbox.
 	QDoubleSpinBox *peakEnergySpinBox_;
+	/// The desired energy spinbox.
+	QDoubleSpinBox *desiredEnergySpinBox_;
+	/// The calibrate button.
+	QPushButton *calibrateButton_;
 	/// The choose scan dialog.
 	AMChooseScanDialog *chooseScanDialog_;
 };

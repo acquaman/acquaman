@@ -1,14 +1,21 @@
 #include "BioXASSSRLMonochromatorEnergyCalibrationView.h"
-#include "dataman/AMScan.h"
 
-BioXASSSRLMonochromatorEnergyCalibrationView::BioXASSSRLMonochromatorEnergyCalibrationView(AMScan *scan, QWidget *parent) :
+#include "beamline/BioXAS/BioXASSSRLMonochromator.h"
+#include "dataman/AMScan.h"
+#include "ui/dataman/AMScanView.h"
+#include "ui/dataman/AMChooseScanDialog.h"
+
+BioXASSSRLMonochromatorEnergyCalibrationView::BioXASSSRLMonochromatorEnergyCalibrationView(BioXASSSRLMonochromator *mono, AMScan *scan, QWidget *parent) :
     QWidget(parent)
 {
+	// Initialize local variables.
+
+	mono_ = 0;
 	currentScan_ = 0;
 
 	// Create UI elements.
 
-	loadDataButton_ = new QPushButton();
+	loadDataButton_ = new QPushButton("Load data");
 
 	scanView_ = new AMScanView();
 	scanViewModel_ = scanView_->model();
@@ -18,43 +25,67 @@ BioXASSSRLMonochromatorEnergyCalibrationView::BioXASSSRLMonochromatorEnergyCalib
 	peakEnergySpinBox_ = new QDoubleSpinBox(this);
 	peakEnergySpinBox_->setSuffix("eV");
 
+	QLabel *desiredEnergyPrompt = new QLabel("Desired energy: ");
+
+	desiredEnergySpinBox_ = new QDoubleSpinBox(this);
+	desiredEnergySpinBox_->setSuffix("eV");
+
+	calibrateButton_ = new QPushButton("Calibrate");
+
 	// Create and set layouts.
 
 	QHBoxLayout *dataOptionsLayout = new QHBoxLayout();
 	dataOptionsLayout->addWidget(loadDataButton_);
+	dataOptionsLayout->addStretch();
 
-	QHBoxLayout *peakEnergyLayout = new QHBoxLayout();
-	peakEnergyLayout->addWidget(peakEnergyPrompt);
-	peakEnergyLayout->addWidget(peakEnergySpinBox);
-
-	QVBoxLayout *calibrationOptionsLayout = new QHBoxLayout();
-	calibrationOptionsLayout->addLayout(peakEnergyLayout);
+	QGridLayout *energyLayout = new QGridLayout();
+	energyLayout->addWidget(peakEnergyPrompt, 0, 0, 1, 1, Qt::AlignRight);
+	energyLayout->addWidget(peakEnergySpinBox_, 0, 1);
+	energyLayout->addWidget(desiredEnergyPrompt, 1, 0, 1, 1, Qt::AlignRight);
+	energyLayout->addWidget(desiredEnergySpinBox_, 1, 1);
+	energyLayout->addWidget(calibrateButton_, 1, 2);
 
 	QVBoxLayout *layout = new QVBoxLayout();
 	layout->addLayout(dataOptionsLayout);
-	layout->addWidget(scanView);
-	layout->addLayout(calibrationOptionsLayout);
+	layout->addWidget(scanView_);
+	layout->addLayout(energyLayout);
 
-	setLayout(scanView);
+	setLayout(layout);
 
 	// Initial settings.
 
 	peakEnergySpinBox_->setEnabled(false);
+	desiredEnergySpinBox_->setEnabled(false);
+	calibrateButton_->setEnabled(false);
 
 	// Make connections.
 
 	connect( loadDataButton_, SIGNAL(clicked()), this, SLOT(onLoadDataButtonClicked()) );
-//	connect( scanView_->)
-	connect( peakEnergySpinBox_, SIGNAL(valueChanged(double)), this, SLOT(onEnergySpinBoxValueChanged()) );
+	connect( peakEnergySpinBox_, SIGNAL(valueChanged(double)), this, SLOT(onPeakEnergySpinBoxValueChanged()) );
+	connect( desiredEnergySpinBox_, SIGNAL(valueChanged(double)), this, SLOT(onDesiredEnergySpinBoxValueChanged()) );
+	connect( calibrateButton_, SIGNAL(clicked()), this, SLOT(onCalibrateButtonClicked()) );
 
 	// Current settings.
 
+	setMono(mono);
 	setCurrentScan(scan);
 }
 
 BioXASSSRLMonochromatorEnergyCalibrationView::~BioXASSSRLMonochromatorEnergyCalibrationView()
 {
 
+}
+
+void BioXASSSRLMonochromatorEnergyCalibrationView::setMono(BioXASSSRLMonochromator *newMono)
+{
+	if (mono_ != newMono) {
+
+		mono_ = newMono;
+
+		update();
+
+		emit monoChanged(mono_);
+	}
 }
 
 void BioXASSSRLMonochromatorEnergyCalibrationView::setCurrentScan(AMScan *newScan)
@@ -88,9 +119,10 @@ void BioXASSSRLMonochromatorEnergyCalibrationView::clear()
 			scanViewModel_->removeScan(scan);
 	}
 
-	// Clear the peak energy.
+	// Clear the energy boxes.
 
 	peakEnergySpinBox_->clear();
+	desiredEnergySpinBox_->clear();
 }
 
 void BioXASSSRLMonochromatorEnergyCalibrationView::update()
@@ -100,28 +132,49 @@ void BioXASSSRLMonochromatorEnergyCalibrationView::update()
 		AMDataSource *energySource = currentScan_->dataSourceAt(0);
 
 		if (energySource) {
-			double valueIndex = energySource->size(0)/2;
+
+			int valueIndex = energySource->size(0)/2;
 			double value = energySource->axisValue(0, valueIndex);
 			double valueMax = energySource->axisValue(0, energySource->size(0));
 			double valueMin = energySource->axisValue(0, 0);
 
 			// Update the scan view cursor coordinates with the given value.
 
-			scanView_->setPlotCursorCoordinates(value);
-			scanView_->setPlotCursorVisibility(true);
+//			scanView_->setPlotCursorCoordinates(value);
+//			scanView_->setPlotCursorVisibility(true);
 
 			// Update the peak energy to display the value.
 
 			peakEnergySpinBox_->setEnabled(true);
+			peakEnergySpinBox_->setSuffix("eV");
 			peakEnergySpinBox_->setMinimum(valueMin);
 			peakEnergySpinBox_->setMaximum(valueMax);
 			peakEnergySpinBox_->setValue(value);
+
+			if (mono_) {
+
+				// Update the desired energy to display the value.
+
+				desiredEnergySpinBox_->setEnabled(true);
+				desiredEnergySpinBox_->setSuffix("eV");
+				desiredEnergySpinBox_->setMinimum(valueMin);
+				desiredEnergySpinBox_->setMaximum(valueMax);
+				desiredEnergySpinBox_->setValue(value);
+
+				// Update the calibrate button.
+
+				calibrateButton_->setEnabled(true);
+			}
 		}
 
 	} else {
 
-		scanView_->setPlotCursorVisibility(false);
+		// If there is no current scan, all calibration view elements should be disabled.
+
+//		scanView_->setPlotCursorVisibility(false);
 		peakEnergySpinBox_->setEnabled(false);
+		desiredEnergySpinBox_->setEnabled(false);
+		calibrateButton_->setEnabled(false);
 	}
 }
 
@@ -163,50 +216,96 @@ void BioXASSSRLMonochromatorEnergyCalibrationView::onScanChosen()
 
 void BioXASSSRLMonochromatorEnergyCalibrationView::onPeakEnergySpinBoxValueChanged()
 {
-	if (peakEnergySpinBox_->isEnabled()) {
+	// Set the plot cursor coordinates to match the peak energy.
 
-		// Set the plot cursor coordinates to match the peak energy.
+//	if (peakEnergySpinBox_->isEnabled()) {
+//		double peakEnergy = peakEnergySpinBox_->value();
+//		scanView_->setPlotCursorCoordinates(peakEnergy);
+//	}
 
+	// The mono moves to the energy that is specified by the peak energy box.
+
+	if (mono_ && mono_->energyControl() && peakEnergySpinBox_->isEnabled()) {
 		double peakEnergy = peakEnergySpinBox_->value();
-		scanView_->setPlotCursorCoordinates(peakEnergy);
+		mono_->energyControl()->move(peakEnergy);
+	}
+}
+
+void BioXASSSRLMonochromatorEnergyCalibrationView::onDesiredEnergySpinBoxValueChanged()
+{
+
+}
+
+void BioXASSSRLMonochromatorEnergyCalibrationView::onCalibrateButtonClicked()
+{
+	// Set the monos current position to the desired energy.
+
+	if (mono_ && desiredEnergySpinBox_->isEnabled()) {
+		double desiredEnergy = desiredEnergySpinBox_->value();
+		mono_->energyControl()->setEnergy(desiredEnergy);
 	}
 }
 
 bool BioXASSSRLMonochromatorEnergyCalibrationView::dropScanURLs(const QList<QUrl> &urls)
 {
-	if(	!urls.count() )
-		return false;
+	bool result = false;
 
-	bool accepted = false;
-
-	foreach(QUrl url, urls) {
+	if (urls.count() > 0) {
 
 		bool isScanning;
 		QString scanName;
-		AMScan* scan = AMScan::createFromDatabaseUrl(url, false, &isScanning, &scanName);
+		bool validType = false;
 
-		// See if this scan is acquiring, and refuse to create a new instance if so.
-		/// \todo With the new AMScan memory management model, we could actually open the existing AMScan* instance in multiple editors if desired... But propagation of changes under editing might be a problem, all editors currently assuming they are the only ones modifying the scan.
-		if(isScanning) {
-			QMessageBox stillScanningEnquiry;
-			stillScanningEnquiry.setWindowTitle("This scan is still acquiring.");
-			stillScanningEnquiry.setText(QString("The scan '%1' is currently still acquiring data, so you can't open multiple copies of it yet.")
-										 .arg(scanName));
-			stillScanningEnquiry.setIcon(QMessageBox::Information);
-			stillScanningEnquiry.addButton(QMessageBox::Ok);
-			stillScanningEnquiry.exec();
-			continue;
+		AMScan *scan = AMScan::createFromDatabaseUrl(urls.last(), false, &isScanning, &scanName);
+
+		// Check that the scan at the given URL is valid.
+
+		if (scan) {
+
+			// Check that the scan is of an appropriate type.
+
+			QString scanType = scan->type();
+
+			if (scanType == "AMXASScan") {
+				validType = true;
+
+				// Check that this scan is NOT still acquiring before accepting it.
+				// It's possible to view an acquiring scan here (ie in multiple editors) but if one is edited, changes may not make it to the other.
+
+				if (isScanning) {
+					QMessageBox scanningNotification;
+					scanningNotification.setWindowTitle("Scan still acquiring");
+					scanningNotification.setText(QString("The scan '%1' is currently still acquiring data. It's safest not to open multiple copies of a scan while it is still acquiring.").arg(scanName));
+					scanningNotification.setIcon(QMessageBox::Information);
+					scanningNotification.addButton(QMessageBox::Ok);
+					scanningNotification.exec();
+				}
+
+			} else {
+				QMessageBox scanTypeNotification;
+				scanTypeNotification.setWindowTitle("Not an XAS scan");
+				scanTypeNotification.setText(QString("The scan selected is not an XAS scan. Must choose an XAS scan to proceed with calibration."));
+				scanTypeNotification.setIcon(QMessageBox::Information);
+				scanTypeNotification.addButton(QMessageBox::Ok);
+				scanTypeNotification.exec();
+			}
+
+		} else {
+			QMessageBox scanValidNotification;
+			scanValidNotification.setWindowTitle("Invalid scan selected.");
+			scanValidNotification.setText(QString("The scan selected is not a valid scan. Must choose a valid XAS scan to proceed with calibration."));
+			scanValidNotification.setIcon(QMessageBox::Information);
+			scanValidNotification.addButton(QMessageBox::Ok);
+			scanValidNotification.exec();
 		}
 
-		if(!scan)
-			continue;
-		if(scan->type().compare("AMXASScan"))  //.compare() returns 0 if same
-			continue;
+		// If the scan is valid, an XAS scan, and not scanning, then set it as the current scan. Do nothing otherwise--the above QMessageBoxes should be notification enough.
 
-		// success!
-		addScan(scan);
-		accepted = true;
+		if (scan && validType && !isScanning) {
+			setCurrentScan(scan);
+			result = true;
+		}
 	}
 
-	return accepted;
+	return result;
 }

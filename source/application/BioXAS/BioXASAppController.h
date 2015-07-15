@@ -53,6 +53,7 @@
 #include "ui/BioXAS/BioXASFourElementVortexDetectorView.h"
 #include "ui/BioXAS/BioXASEndstationTableView.h"
 #include "ui/BioXAS/BioXASXASScanConfigurationView.h"
+#include "ui/BioXAS/BioXASSSRLMonochromatorEnergyCalibrationView.h"
 #include "ui/CLS/CLSJJSlitsView.h"
 #include "ui/CLS/CLSStandardsWheelConfigurationView.h"
 #include "ui/util/AMChooseDataFolderDialog.h"

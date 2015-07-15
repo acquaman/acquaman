@@ -105,6 +105,7 @@ void BioXASAppController::setupUserInterface()
 	mw_->insertHeading("General", 0);
 	mw_->insertHeading("Detectors", 1);
 	mw_->insertHeading("Scans", 2);
+	mw_->insertHeading("Calibration", 3);
 
 	// Create beamline component widgets:
 	////////////////////////////////////
@@ -192,6 +193,14 @@ void BioXASAppController::setupUserInterface()
 		fourElementDetectorView->addEmissionLineNameFilter(QRegExp("1"));
 		fourElementDetectorView->addPileUpPeakNameFilter(QRegExp("(K.1|L.1|Ma1)"));
 		mw_->addPane(fourElementDetectorView, "Detectors", "4-element", ":/system-search.png");
+	}
+
+	// Create calibration widgets:
+	////////////////////////////////////
+
+	if (mono) {
+		BioXASSSRLMonochromatorEnergyCalibrationView *energyCalibrationView = new BioXASSSRLMonochromatorEnergyCalibrationView(mono);
+		mw_->addPane(AMMainWindow::buildMainWindowPane("Energy", ":/system-search.png", energyCalibrationView), "Calibration", "Energy", ":system-search.png");
 	}
 }
 
