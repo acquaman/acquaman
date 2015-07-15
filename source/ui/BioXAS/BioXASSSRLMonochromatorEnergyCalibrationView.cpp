@@ -140,18 +140,18 @@ void BioXASSSRLMonochromatorEnergyCalibrationView::update()
 
 			// Update the scan view cursor coordinates with the given value.
 
-//			scanView_->setPlotCursorCoordinates(value);
-//			scanView_->setPlotCursorVisibility(true);
-
-			// Update the peak energy to display the value.
-
-			peakEnergySpinBox_->setEnabled(true);
-			peakEnergySpinBox_->setSuffix("eV");
-			peakEnergySpinBox_->setMinimum(valueMin);
-			peakEnergySpinBox_->setMaximum(valueMax);
-			peakEnergySpinBox_->setValue(value);
+			scanView_->setPlotCursorCoordinates(value);
+			scanView_->setPlotCursorVisibility(true);
 
 			if (mono_) {
+
+				// Update the peak energy to display the value.
+
+				peakEnergySpinBox_->setEnabled(true);
+				peakEnergySpinBox_->setSuffix("eV");
+				peakEnergySpinBox_->setMinimum(valueMin);
+				peakEnergySpinBox_->setMaximum(valueMax);
+				peakEnergySpinBox_->setValue(value);
 
 				// Update the desired energy to display the value.
 
@@ -171,7 +171,7 @@ void BioXASSSRLMonochromatorEnergyCalibrationView::update()
 
 		// If there is no current scan, all calibration view elements should be disabled.
 
-//		scanView_->setPlotCursorVisibility(false);
+		scanView_->setPlotCursorVisibility(false);
 		peakEnergySpinBox_->setEnabled(false);
 		desiredEnergySpinBox_->setEnabled(false);
 		calibrateButton_->setEnabled(false);
@@ -218,10 +218,10 @@ void BioXASSSRLMonochromatorEnergyCalibrationView::onPeakEnergySpinBoxValueChang
 {
 	// Set the plot cursor coordinates to match the peak energy.
 
-//	if (peakEnergySpinBox_->isEnabled()) {
-//		double peakEnergy = peakEnergySpinBox_->value();
-//		scanView_->setPlotCursorCoordinates(peakEnergy);
-//	}
+	if (peakEnergySpinBox_->isEnabled()) {
+		double peakEnergy = peakEnergySpinBox_->value();
+		scanView_->setPlotCursorCoordinates(peakEnergy);
+	}
 
 	// The mono moves to the energy that is specified by the peak energy box.
 
@@ -233,7 +233,7 @@ void BioXASSSRLMonochromatorEnergyCalibrationView::onPeakEnergySpinBoxValueChang
 
 void BioXASSSRLMonochromatorEnergyCalibrationView::onDesiredEnergySpinBoxValueChanged()
 {
-
+	// not sure if anything is needed here yet.
 }
 
 void BioXASSSRLMonochromatorEnergyCalibrationView::onCalibrateButtonClicked()
