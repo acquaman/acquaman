@@ -25,6 +25,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "dataman/AMRun.h"
 #include "beamline/CLS/CLSFacilityID.h"
+#include "ui/SGM/SGMPersistentView.h"
+#include "ui/AMMainWindow.h"
 
 SGMAppController::SGMAppController(QObject *parent) :
 	AMAppController(parent)
@@ -85,6 +87,10 @@ void SGMAppController::setupExporterOptions()
 
 void SGMAppController::setupUserInterface()
 {
+	SGMPersistentView* persistentView =
+			new SGMPersistentView();
+
+	mw_->addRightWidget(persistentView);
 }
 
 void SGMAppController::makeConnections()

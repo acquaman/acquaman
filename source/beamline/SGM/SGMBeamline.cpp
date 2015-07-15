@@ -24,11 +24,13 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/SGM/SGMMAXvMotor.h"
 #include "util/AMErrorMonitor.h"
 #include "beamline/CLS/CLSSR570.h"
+#include "beamline/AMMotorGroup.h"
 
 SGMBeamline::SGMBeamline()
 	: CLSBeamline("SGMBeamline")
 {
 	setupBeamlineComponents();
+	setupMotorGroups();
 }
 
 SGMBeamline::~SGMBeamline()
@@ -44,6 +46,22 @@ SGMBeamline* SGMBeamline::sgm() {
 
 	return static_cast<SGMBeamline*>(instance_);
 
+}
+
+void SGMBeamline::setupMotorGroups()
+{
+	AMMotorGroupObject *motorObject = 0;
+	ssaManipulatorMotorGroup_ = new AMMotorGroup(this);
+
+	motorObject = new AMMotorGroupObject("Sample Stage - X, Y, Z, R",
+										 QStringList() << "X" << "Y" << "Z" << "R",
+										 QStringList() << "mm" << "mm" << "mm" << "deg",
+										 QList<AMControl *>() << ssaManipulatorX_ << ssaManipulatorY_ << ssaManipulatorZ_ << ssaManipulatorRot_ ,
+										 QList<AMMotorGroupObject::Orientation>() << AMMotorGroupObject::Horizontal << AMMotorGroupObject::Vertical << AMMotorGroupObject::Normal << AMMotorGroupObject::Other,
+										 QList<AMMotorGroupObject::MotionType>() << AMMotorGroupObject::Translational << AMMotorGroupObject::Translational << AMMotorGroupObject::Translational << AMMotorGroupObject::Rotational,
+										 this);
+
+	ssaManipulatorMotorGroup_->addMotorGroupObject(motorObject->name(), motorObject);
 }
 
 void SGMBeamline::setupBeamlineComponents()
@@ -107,3 +125,4 @@ void SGMBeamline::setupBeamlineComponents()
 	scaler_->channelAt(9)->setCustomChannelName("FPD4");
 	scaler_->channelAt(10)->setCustomChannelName("FPD5");
 }
+

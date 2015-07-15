@@ -25,6 +25,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/CLS/CLSBeamline.h"
 
 class SGMMAXvMotor;
+class AMMotorGroup;
 class SGMBeamline : public CLSBeamline
 {
 Q_OBJECT
@@ -43,6 +44,8 @@ public:
 	SGMMAXvMotor* ssaManipulatorZ() const { return ssaManipulatorZ_;}
 	SGMMAXvMotor* ssaManipulatorRot() const { return ssaManipulatorRot_;}
 
+	AMMotorGroup* ssaManipulatorMotorGroup() const { return ssaManipulatorMotorGroup_; }
+
 	virtual CLSSIS3820Scaler* scaler() const { return scaler_; }
 public slots:
 
@@ -53,6 +56,7 @@ protected slots:
 protected:
 
 	void setupBeamlineComponents();
+	void setupMotorGroups();
 
 	// Singleton implementation:
 	SGMBeamline();					// protected constructor... only access through Beamline::bl()
@@ -60,6 +64,8 @@ protected:
 	AMControl *energy_;
 	AMControl *exitSlitGap_;
 	AMControl *grating_;
+
+	AMMotorGroup *ssaManipulatorMotorGroup_;
 
 	SGMMAXvMotor *ssaManipulatorX_;
 	SGMMAXvMotor *ssaManipulatorY_;
