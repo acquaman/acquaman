@@ -27,27 +27,71 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 class SGMMAXvMotor;
 class AMMotorGroup;
 class CLSAdvancedScalerChannelDetector;
+/*!
+  * A singleton class which represents the SGM beamline. The beamline class can
+  * be accessed through the SGMBeamline::sgm() function.
+  */
 class SGMBeamline : public CLSBeamline
 {
 Q_OBJECT
 public:
 
-	static SGMBeamline* sgm();		// singleton-class accessor
+	/*!
+	  * Singletone class accessor. Provides access to the SGMBeamline class
+	  * instance.
+	  */
+	static SGMBeamline* sgm();
+
+	/*!
+	  * Virtual destructor for the SGMBeamline class.
+	  */
 	virtual ~SGMBeamline();
 
 
-	AMControl* energy() const { return energy_;}
-	AMControl* exitSlitGap() const { return exitSlitGap_;}
-	AMControl* grating() const { return grating_;}
+	/*!
+	  * The energy control.
+	  */
+	AMControl* energy() const;
 
-	SGMMAXvMotor* ssaManipulatorX() const { return ssaManipulatorX_;}
-	SGMMAXvMotor* ssaManipulatorY() const { return ssaManipulatorY_;}
-	SGMMAXvMotor* ssaManipulatorZ() const { return ssaManipulatorZ_;}
-	SGMMAXvMotor* ssaManipulatorRot() const { return ssaManipulatorRot_;}
+	/*!
+	  * The exit slit gap control.
+	  */
+	AMControl* exitSlitGap() const;
 
-	AMMotorGroup* ssaManipulatorMotorGroup() const { return ssaManipulatorMotorGroup_; }
+	/*!
+	  * The grating control.
+	  */
+	AMControl* grating() const;
 
-	virtual CLSSIS3820Scaler* scaler() const { return scaler_; }
+	/*!
+	  * The motor which controls the sample stage X position.
+	  */
+	SGMMAXvMotor* ssaManipulatorX() const;
+
+	/*!
+	  * The motor which controls the sample stage Y position.
+	  */
+	SGMMAXvMotor* ssaManipulatorY() const;
+
+	/*!
+	  * The motor which controls the sample stage Z position.
+	  */
+	SGMMAXvMotor* ssaManipulatorZ() const;
+
+	/*!
+	  * The motor which controls the sample stage rotational position.
+	  */
+	SGMMAXvMotor* ssaManipulatorRot() const;
+
+	/*!
+	  * The sample stage motor group.
+	  */
+	AMMotorGroup* ssaManipulatorMotorGroup() const;
+
+	/*!
+	  * The scaler.
+	  */
+	virtual CLSSIS3820Scaler* scaler() const;
 public slots:
 
 signals:
@@ -56,15 +100,36 @@ protected slots:
 
 protected:
 
+	/*!
+	  * Initializes the beamline controls (energy, exit slit etc.).
+	  */
 	void setupBeamlineComponents();
+
+	/*!
+	  * Initializes the beamline motor groups (sample maniuplator).
+	  */
 	void setupMotorGroups();
+
+	/*!
+	  * Initializes the beamline detectors (tfy, tey, i0 etc.).
+	  */
 	void setupDetectors();
+
+	/*!
+	  * Adds the required controls to the list of exposed controls.
+	  */
 	void setupExposedControls();
+
+	/*!
+	  * Adds the required detectors to the list of exposed detectors.
+	  */
 	void setupExposedDetectors();
 
 
-	// Singleton implementation:
-	SGMBeamline();					// protected constructor... only access through Beamline::bl()
+	/*!
+	  * Protected constructor for the SGMBeamline to ensure singleton structure.
+	  */
+	SGMBeamline();
 
 	AMControl *energy_;
 	AMControl *exitSlitGap_;

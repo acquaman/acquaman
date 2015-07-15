@@ -26,18 +26,37 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 class AMGenericStepScanConfiguration;
 class AMGenericStepScanConfigurationView;
 class AMScanConfigurationViewHolder3;
+/*!
+  * A class which acts as the central application for SGM Acquaman. Holds the
+  * main window which is displayed to users, as well as performs the application
+  * startup procedures.
+  */
 class SGMAppController : public AMAppController {
 	Q_OBJECT
 
 public:
-	/// This constructor is used to reset the finished signal and determine which database upgrades should be run.
+
+	/*!
+	  * Creates an instance of an SGMAppController.
+	  */
 	explicit SGMAppController(QObject* parent = 0);
-	/// Destructor
+
+	/*!
+	  * Virtual desctructor for an SGMAppController.
+	  */
 	virtual ~SGMAppController() {}
 
-	/// Create and setup all of the application windows, widgets, communication connections, and data objects that are needed on program startup. Returns true on success.  If reimplementing, must call the base-class startup() as the first thing it does.
+	/*!
+	  * Performs the initialization routine for all elements required by the
+	  * SGMAppController.
+	  * \returns True if startup was performed successfully, false otherwise.
+	  */
 	virtual bool startup();
-	/// Destroy all of the windows, widgets, and data objects created by applicationStartup(). Only call this if startup() has ran successfully.  If reimplementing, must call the base-class shutdown() as the last thing it does.
+
+	/*!
+	  * Performs all the required cleanup operations for destroying the resources
+	  * created and owned by the app controller.
+	  */
 	virtual void shutdown();
 
 public slots:
@@ -45,19 +64,44 @@ public slots:
 protected slots:
 
 protected:
-	/// When a scan starts in the Workflow3 system, a scan editor is opened and the default data source is set as the viewed source
+
+	/*!
+	  * Handles cases where a scan action has started in the Workflow3 system.
+	  * Opens a scan editor and sets the default data source as the viewed source.
+	  * \param action ~ The scan action which started.
+	  */
 	virtual void onCurrentScanActionStartedImplementation(AMScanAction *action);
-	/// When a scan finishes in the Workflow3 system, the progress bar is disconnected
+
+	/*!
+	  * Handles cases where a scan action has finished in the Workflow3 system.
+	  * Disconnects the progress bar from updating the finished scan.
+	  * \param action ~ The scan action which finished.
+	  */
 	virtual void onCurrentScanActionFinishedImplementation(AMScanAction *action);
 
-	// Things to do on startup.
-	/// Registers all of the necessary classes that are VESPERS specific.
+	// Startup functions
+	////////////////////
+
+	/*!
+	  * Registers all the SGM specific classes.
+	  */
 	void registerClasses();
-	/// Sets up all of the exporter options for the various scan types.
+
+	/*!
+	  * Sets up all of the exporter options for the various scan types.
+	  */
 	void setupExporterOptions();
-	/// Sets up the user interface by specifying the extra pieces that will be added to the main window.
+
+	/*!
+	  * Adds the additional user interface elements specific to SGM to the
+	  * application main window.
+	  */
 	void setupUserInterface();
-	/// Sets up all of the connections.
+
+	/*!
+	  * Makes all the connections between the classes contained within the
+	  * SGMAppController.
+	  */
 	void makeConnections();
 
 	AMGenericStepScanConfiguration* commissioningConfiguration_;

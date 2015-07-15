@@ -24,9 +24,12 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/CLS/CLSMAXvMotor.h"
 
 /*!
-  Due to the fact that not all motors at the CLS use the same version of the MaxV driver, SGM needs to have its own class for the motor because
-  it uses some options which don't exist on (what we will call "standard", but that is entirely arbitrary) VESPESR.  Because there appears to be
-  less in the VESPERS MaxV driver we will assume that it is the base model and therefore SGM has extra pieces added in.
+  * \brief A class which represents a Max V Motor which contains aspects specific
+  * to SGM.
+  *
+  * Due to the fact that not all motors at the CLS use the same version of the
+  * MaxV driver, SGM needs to have its own class for the motor to add those features
+  * which its version of the driver contains, which others don't.
   */
 class SGMMAXvMotor : public CLSMAXvMotor
 {
@@ -34,84 +37,172 @@ class SGMMAXvMotor : public CLSMAXvMotor
 
 public:
 
-	enum EncoderType {
-		EncoderIncrememtal = 0,		///< An incremental encoder
-		EncoderAbsolute = 1,		///< An absolute encoder
-		EncoderPotentiometer = 2,	///< A potentiometer encoder
-		EncoderNone = 3,		///< No encoder
-		EncoderTypeError = 4		///< There is an error determinging the encoder type
-	};
-
-	enum EncoderEncoding {
-		EncodingBinary = 0,	///< Encoder uses binary encoding
-		EncodingGreyCode = 1,	///< Encoder uses greycode encoding
-		EncodingNone = 2,	///< No encoder, so no encoding
-		EncodingError = 3	///< There is an error determining the encoding type
-	};
-
-	/// Constructor.  Adds more controls to the standard MaxV motor.
 	/*!
-	  \param name A unique description of this motor
-	  \param baseName The base of the PV name (if the motor status was "SMTR16114I1022:status" then the base is "SMTR16114I1022")
-	  \param description A human readable description for this motor
-	  \param hasEncoder Should be set to true if the motor has an encoder
-	  \param tolerance The tolerance that will be used to determine if moves succeed in getting close enough to be considered a success
-	  \param moveStartTimeout How long the motor has to start moving before something is considered amis
-	  \param parent QObject parent class
+	  * An enumeration of all the different encoder types used by MaxVMotors.
 	  */
- 	virtual ~SGMMAXvMotor();
-	SGMMAXvMotor(const QString &name, const QString &baseName, const QString &description, bool hasEncoder, double tolerance, double moveStartTimeoutSeconds = 2.0, QObject *parent = 0);
+	enum EncoderType {
+		EncoderIncrememtal = 0,		// An incremental encoder
+		EncoderAbsolute = 1,		// An absolute encoder
+		EncoderPotentiometer = 2,	// A potentiometer encoder
+		EncoderNone = 3,			// No encoder
+		EncoderTypeError = 4		// There is an error determinging the encoder type
+	};
 
-	/// Indicates that all process variables for this motor are connected
+	/*!
+	  * An enumeration of all the different types of encoding the encoders user
+	  * on MaxVMotors.
+	  */
+	enum EncoderEncoding {
+		EncodingBinary = 0,		// Encoder uses binary encoding
+		EncodingGreyCode = 1,	// Encoder uses greycode encoding
+		EncodingNone = 2,		// No encoder, so no encoding
+		EncodingError = 3		// There is an error determining the encoding type
+	};
+
+
+	/*!
+	  * Creates an instance of an SGMMAXvMotor with the provided data.
+	  * \param name ~ A unique description of this motor.
+	  * \param baseName ~ The base of the PV name (if the motor status was
+	  * "SMTR16114I1022:status" then the base is "SMTR16114I1022").
+	  * \param description ~ A human readable description for this motor.
+	  * \param hasEncoder ~ Whether or not the motor has an encoder.
+	  * \param tolerance ~ The tolerance that will be used to determine if moves
+	  * succeed in getting close enough to be considered a success.
+	  * \param moveStartTimeoutSeconds ~ An optional number of seconds to wait
+	  * for the motor to move before something is considered amis. If none is
+	  * provided 2.0 seconds is used.
+	  * \param parent ~ An optional QObject parent. If none is provided the
+	  * SGMMAXvMotor will have no parent.
+	  */
+	SGMMAXvMotor(const QString &name,
+				 const QString &baseName,
+				 const QString &description,
+				 bool hasEncoder,
+				 double tolerance,
+				 double moveStartTimeoutSeconds = 2.0,
+				 QObject *parent = 0);
+
+	/*!
+	  * Virtual destructor for the SGMMAXvMotor.
+	  */
+	virtual ~SGMMAXvMotor() {}
+
+	/*!
+	  * Whether all process variables for this motor are considered connected.
+	  */
 	virtual bool isConnected() const;
 
-	/// Returns the absolute encoder calibration offset. Returns 0 if the motor isn't connected yet.
+	/*!
+	  * The absolute encoder calibration offset, or 0 if the motor isn't connected.
+	  */
 	double encoderCalibrationAbsoluteOffset() const;
-	/// Returns the encoder type in use. Returns EncoderTypeError if the motor isn't connected yet.
+
+	/*!
+	  * The encoder type in use, or EncoderTypeError if the motor isn't connected.
+	  */
 	SGMMAXvMotor::EncoderType encoderType() const;
-	/// Returns the encoding type in use. Returns EncodingError if the motor isn't connected yet.
+
+	/*!
+	  * The encoder encoding type in use, or EncodingError if the motor isn't
+	  * connected.
+	  */
 	SGMMAXvMotor::EncoderEncoding encoderEncoding() const;
-	/// Returns the actual retries value. Returns 0.5 if the motor isn't connected yet.  This is because actual retries is actually given in integers.
+
+	/*!
+	  * The actual retried value, or 0.5 if the motor isn't connected.
+	  */
 	double actualRetries() const;
 
-	/// Returns a newly created action to change the encoder calibration absolute offset. Returns 0 if the control is not connected.
+	/*!
+	  * Creates and returns an action to change to encoder calibration absolute
+	  * offset. If the motor is not connected, 0 will be returned.
+	  * \param encoderCalibrationAbsoluteOffset ~ The value which the returned
+	  * action will be configured to set the offset to.
+	  */
 	AMAction3* createEncoderCalibrationAbsoluteOffsetAction(double encoderCalibrationAbsoluteOffset);
-	/// Returns a newly created action to change the encoder type. Returns 0 if the control is not connected.
+
+	/*!
+	  * Creates and returns an action to change the encoder type. If the motor
+	  * is not connected, 0 will be returned.
+	  * \param encoderType ~ The value which the returned action will be
+	  * configured to set the encoder type to.
+	  */
 	AMAction3* createEncoderTypeAction(SGMMAXvMotor::EncoderType encoderType);
+
 	/// Returns a newly created action to change the encoder encoding. Returns 0 if the control is not connected.
+	/*!
+	  * Creates and returns an action to change the encoder encoding. If the motor
+	  * is not yet connected, 0 will be returned.
+	  * \param encoderEncoding ~ The value which the returned action will be
+	  * configured to set the encoder encoding to.
+	  */
 	AMAction3* createEncoderEncodingAction(SGMMAXvMotor::EncoderEncoding encoderEncoding);
 
 public slots:
 
-	/// Sets the absolute encoder calibration offset
+	/*!
+	 * Sets the absolute encoder calibration offset.
+	 */
 	void setEncoderCalibrationAbsoluteOffset(double absoluteEncoderCalibrationOffset);
-	/// Sets the encoder type to use
+
+	/*!
+	  * Sets the encoder type to use.
+	  */
 	void setEncoderType(SGMMAXvMotor::EncoderType encoderType);
-	/// Sets the encoding to use
+
+	/*!
+	  * Sets the encoding type to be used by the encoder.
+	  */
 	void setEncoderEncoding(SGMMAXvMotor::EncoderEncoding encoderEncoding);
 
 signals:
-	/// Emitted when the absolute encoder calibration offset changes
+	/*!
+	  * Signal indicating that the absolute encoder calibration offset has
+	  * been altered.
+	  * \param newCalibration ~ The value to which the offset has been set.
+	  */
 	void encoderCalibrationAbsoluteOffsetChanged(double newCalibration);
-	/// Emitted when the encoder type in use changes
+
+	/*!
+	  * Signal indicating that the encoder type has been altered
+	  * \param encoderType ~ The value to which the encoder type has been set.
+	  */
 	void encoderTypeChanged(SGMMAXvMotor::EncoderType encoderType);
-	/// Emitted when the encoder encoding in use changes
+
+	/*!
+	  * Signal indicating that the encoding type used by the encoder has been
+	  * altered.
+	  * \param encoderEncoding ~ The value to which the encoder encoding has
+	  * been set.
+	  */
 	void encoderEncodingChanged(SGMMAXvMotor::EncoderEncoding encoderEncoding);
 
 protected slots:
-	/// Handles changes in the encoder type control
+	/*!
+	  * Handles signals indicating that the encoder type has been altered.
+	  * \param value ~ A double value containing the encoder type in code form.
+	  */
 	void onEncoderTypeChanged(double value);
 
-	/// Handles changes in the encoder encoding
+	/*!
+	  * Handles signals indicating that the encoding type used by the encoder
+	  * has been altered.
+	  * \param value ~ A double value containing the encodering type used by
+	  * the encoder in code form.
+	  */
 	void onEncoderEncodingChanged(double value);
 
 protected:
 	/// Read-write control for the absolute encoder calibration offset
 	AMPVControl *encoderCalibrationAbsoluteOffset_;
+
 	/// Read-write control for the encoder type
 	AMPVControl *encoderType_;
+
 	/// Read-write control for the encoder encoding
 	AMPVControl *encoderEncoding_;
+
 	/// Readonly control for the actual retries value
 	AMReadOnlyPVControl *actualRetries_;
 

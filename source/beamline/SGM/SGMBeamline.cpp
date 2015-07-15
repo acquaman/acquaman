@@ -27,20 +27,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/AMMotorGroup.h"
 #include "beamline/CLS/CLSAdvancedScalerChannelDetector.h"
 
-SGMBeamline::SGMBeamline()
-	: CLSBeamline("SGMBeamline")
-{
-	setupBeamlineComponents();
-	setupMotorGroups();
-	setupDetectors();
-	setupExposedControls();
-	setupExposedDetectors();
-}
-
-SGMBeamline::~SGMBeamline()
-{
-}
-
 SGMBeamline* SGMBeamline::sgm() {
 
 	if(instance_ == 0){
@@ -52,20 +38,53 @@ SGMBeamline* SGMBeamline::sgm() {
 
 }
 
-void SGMBeamline::setupMotorGroups()
+SGMBeamline::~SGMBeamline()
 {
-	AMMotorGroupObject *motorObject = 0;
-	ssaManipulatorMotorGroup_ = new AMMotorGroup(this);
+}
 
-	motorObject = new AMMotorGroupObject("Sample Stage - X, Y, Z, R",
-										 QStringList() << "X" << "Y" << "Z" << "R",
-										 QStringList() << "mm" << "mm" << "mm" << "deg",
-										 QList<AMControl *>() << ssaManipulatorX_ << ssaManipulatorY_ << ssaManipulatorZ_ << ssaManipulatorRot_ ,
-										 QList<AMMotorGroupObject::Orientation>() << AMMotorGroupObject::Horizontal << AMMotorGroupObject::Vertical << AMMotorGroupObject::Normal << AMMotorGroupObject::Other,
-										 QList<AMMotorGroupObject::MotionType>() << AMMotorGroupObject::Translational << AMMotorGroupObject::Translational << AMMotorGroupObject::Translational << AMMotorGroupObject::Rotational,
-										 this);
+AMControl * SGMBeamline::energy() const
+{
+	return energy_;
+}
 
-	ssaManipulatorMotorGroup_->addMotorGroupObject(motorObject->name(), motorObject);
+AMControl * SGMBeamline::exitSlitGap() const
+{
+	return exitSlitGap_;
+}
+
+AMControl * SGMBeamline::grating() const
+{
+	return grating_;
+}
+
+SGMMAXvMotor * SGMBeamline::ssaManipulatorX() const
+{
+	return ssaManipulatorX_;
+}
+
+SGMMAXvMotor * SGMBeamline::ssaManipulatorY() const
+{
+	return ssaManipulatorY_;
+}
+
+SGMMAXvMotor * SGMBeamline::ssaManipulatorZ() const
+{
+	return ssaManipulatorZ_;
+}
+
+SGMMAXvMotor * SGMBeamline::ssaManipulatorRot() const
+{
+	return ssaManipulatorRot_;
+}
+
+AMMotorGroup * SGMBeamline::ssaManipulatorMotorGroup() const
+{
+	return ssaManipulatorMotorGroup_;
+}
+
+CLSSIS3820Scaler * SGMBeamline::scaler() const
+{
+	return scaler_;
 }
 
 void SGMBeamline::setupBeamlineComponents()
@@ -130,6 +149,24 @@ void SGMBeamline::setupBeamlineComponents()
 	scaler_->channelAt(10)->setCustomChannelName("FPD5");
 }
 
+void SGMBeamline::setupMotorGroups()
+{
+	AMMotorGroupObject *motorObject = 0;
+	ssaManipulatorMotorGroup_ = new AMMotorGroup(this);
+
+	motorObject = new AMMotorGroupObject("Sample Stage - X, Y, Z, R",
+										 QStringList() << "X" << "Y" << "Z" << "R",
+										 QStringList() << "mm" << "mm" << "mm" << "deg",
+										 QList<AMControl *>() << ssaManipulatorX_ << ssaManipulatorY_ << ssaManipulatorZ_ << ssaManipulatorRot_ ,
+										 QList<AMMotorGroupObject::Orientation>() << AMMotorGroupObject::Horizontal << AMMotorGroupObject::Vertical << AMMotorGroupObject::Normal << AMMotorGroupObject::Other,
+										 QList<AMMotorGroupObject::MotionType>() << AMMotorGroupObject::Translational << AMMotorGroupObject::Translational << AMMotorGroupObject::Translational << AMMotorGroupObject::Rotational,
+										 this);
+
+	ssaManipulatorMotorGroup_->addMotorGroupObject(motorObject->name(), motorObject);
+}
+
+
+
 void SGMBeamline::setupDetectors()
 {
 	teyDetector_ = new CLSAdvancedScalerChannelDetector("TEY", "TEY", scaler_, 0, this);
@@ -168,4 +205,12 @@ void SGMBeamline::setupExposedDetectors()
 
 }
 
-
+SGMBeamline::SGMBeamline()
+	: CLSBeamline("SGMBeamline")
+{
+	setupBeamlineComponents();
+	setupMotorGroups();
+	setupDetectors();
+	setupExposedControls();
+	setupExposedDetectors();
+}
