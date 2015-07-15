@@ -202,6 +202,12 @@ protected slots:
 	void onSoftLimitStatusesCommandIssued(const AMPIC887AxisCollection& axes);
 
 	/*!
+	  * Handles signals indicating that a get limit switch statuses command has
+	  * been issued.
+	  */
+	void onLimitSwitchStatusesCommandIssued(const AMPIC887AxisCollection& axes);
+
+	/*!
 	  * Handles signals indicating that a get min position command has been issued.
 	  */
 	void onMinPositionCommandIssued(const AMPIC887AxisCollection& axes);

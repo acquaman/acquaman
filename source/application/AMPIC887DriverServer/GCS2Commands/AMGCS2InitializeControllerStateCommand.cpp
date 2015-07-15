@@ -9,6 +9,7 @@
 #include "AMGCS2GetLowSoftLimitsCommand.h"
 #include "AMGCS2GetHighSoftLimitsCommand.h"
 #include "AMGCS2GetSoftLimitsStatusCommand.h"
+#include "AMGCS2GetLimitSwitchStatusCommand.h"
 #include "AMGCS2GetPositionUnitsCommand.h"
 #include "AMGCS2GetStepSizeCommand.h"
 #include "AMGCS2GetMinCommandablePositionCommand.h"
@@ -200,6 +201,16 @@ bool AMGCS2InitializeControllerStateCommand::runImplementation()
 		return false;
 	}
 
+	// Limit switch states for the axes
+	AMGCS2GetLimitSwitchStatusCommand limitSwitchStatesCommand;
+	limitSwitchStatesCommand.setController(controller_);
+	limitSwitchStatesCommand.run();
+
+	if(limitSwitchStatesCommand.runningState() != Succeeded) {
+		lastError_ = "Could not obtain the limit switch state of the controller's hexapod";
+		return false;
+	}
+
 	// The position units of the axes
 	AMGCS2GetPositionUnitsCommand positionUnitsCommand;
 	positionUnitsCommand.setController(controller_);
@@ -318,6 +329,7 @@ bool AMGCS2InitializeControllerStateCommand::runImplementation()
 												 lowSoftLimitsCommand.axesLowSoftLimits(),
 												 highSoftLimitsCommand.axesHighSoftLimits(),
 												 softLimitStatusCommand.softLimitStatuses(),
+												 limitSwitchStatesCommand.limitSwitchStatuses(),
 												 positionUnitsCommand.axesUnits(),
 												 stepSizeCommand.axisStepSizes(),
 												 minCommandablePositionCommand.minCommandablePositions(),

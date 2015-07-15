@@ -380,6 +380,16 @@ void AMPIC887ConsoleApplication::onSoftLimitStatusesCommandIssued(const AMPIC887
 				controllerCollection_.activeController()->softLimitStatuses(axes).toString("Soft Limit Active"));
 }
 
+void AMPIC887ConsoleApplication::onLimitSwitchStatusesCommandIssued(const AMPIC887AxisCollection &axes)
+{
+	if(!controllerCollection_.activeController() && !controllerCollection_.activeController()->isInitialized()) {
+		return;
+	}
+
+	consoleInputHandler_->writeLineToStandardError(
+				controllerCollection_.activeController()->limitSwitchStatuses(axes).toString("Limit Switch Active"));
+}
+
 void AMPIC887ConsoleApplication::onMinPositionCommandIssued(const AMPIC887AxisCollection &axes)
 {
 	if(!controllerCollection_.activeController() && !controllerCollection_.activeController()->isInitialized()) {
@@ -567,6 +577,7 @@ void AMPIC887ConsoleApplication::makeConnections()
 	connect(commandParser_, SIGNAL(lowSoftLimitCommandIssued(AMPIC887AxisCollection)), this, SLOT(onLowSoftLimitCommandIssued(AMPIC887AxisCollection)));
 	connect(commandParser_, SIGNAL(highSoftLimitCommandIssued(AMPIC887AxisCollection)), this, SLOT(onHighSoftLimitCommandIssued(AMPIC887AxisCollection)));
 	connect(commandParser_, SIGNAL(softLimitStatusCommandIssued(AMPIC887AxisCollection)), this, SLOT(onSoftLimitStatusesCommandIssued(AMPIC887AxisCollection)));
+	connect(commandParser_, SIGNAL(limitSwitchStatusCommandIssued(AMPIC887AxisCollection)), this, SLOT(onLimitSwitchStatusesCommandIssued(AMPIC887AxisCollection)));
 	connect(commandParser_, SIGNAL(minPositionCommandIssued(AMPIC887AxisCollection)), this, SLOT(onMinPositionCommandIssued(AMPIC887AxisCollection)));
 	connect(commandParser_, SIGNAL(maxPositionCommandIssued(AMPIC887AxisCollection)), this, SLOT(onMaxPositionCommandIssued(AMPIC887AxisCollection)));
 	connect(commandParser_, SIGNAL(onTargetCommandIssued(AMPIC887AxisCollection)), this, SLOT(onOnTargetCommandIssued(AMPIC887AxisCollection)));
@@ -605,12 +616,3 @@ void AMPIC887ConsoleApplication::makeConnections()
 			this, SLOT(onSetSystemVelocityCommandIssued(double)));
 
 }
-
-
-
-
-
-
-
-
-

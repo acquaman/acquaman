@@ -77,6 +77,7 @@ public:
 					AMPIC887AxisMap<double> lowSoftLimits,
 					AMPIC887AxisMap<double> highSoftLimits,
 					AMPIC887AxisMap<bool> softLimitStates,
+					AMPIC887AxisMap<bool> limitSwitchStates,
 					AMPIC887AxisMap<AMGCS2::PositionUnits> positionUnits,
 					AMPIC887AxisMap<double> stepSizes,
 					AMPIC887AxisMap<double> minCommandablePositions,
@@ -249,6 +250,17 @@ public:
 	void setSoftLimitStates(const AMPIC887AxisMap<bool>& softLimitStates);
 
 	/*!
+	  * The limit switch state value stored for the provided axis.
+	  * \param axis ~ The axis whose limit switch state value is to be returned.
+	  */
+	bool limitSwitchState(AMGCS2::Axis axis) const;
+
+	/*!
+	  * A map of all the stored limit switch states stored.
+	  */
+	const AMPIC887AxisMap<bool> limitSwitchStates() const;
+
+	/*!
 	  * The position units stored for the provided axis.
 	  * \param axis ~ The axis whose position units are to be returned.
 	  */
@@ -345,6 +357,7 @@ protected:
 	AMPIC887AxisMap<double> lowSoftLimits_;
 	AMPIC887AxisMap<double> highSoftLimits_;
 	AMPIC887AxisMap<bool> softLimitStates_;
+	AMPIC887AxisMap<bool> limitSwitchStates_;
 	AMPIC887AxisMap<AMGCS2::PositionUnits> positionUnits_;
 	AMPIC887AxisMap<double> stepSizes_;
 	AMPIC887AxisMap<double> minCommandablePositions_;

@@ -53,7 +53,7 @@ QString AMPIC887ConsoleCommandParser::commandList()
 	commandList.append("SST <axis1> <stepSize1> <axis2> <stepSize2> ... : Sets the step size for the provided axes to the provided values.\n");
 	commandList.append("SST? <axis1> <axis2> ... : Queries the step size for the provided axes. If no axes are provided the step sizes of all axes are queried.\n");
 	commandList.append("STP : Performs an emergency stop of all axes.\n");
-	commandList.append("SVO? <axis1> <axis2> ... : Queries the servo mode status of the provided axes. If none are provided the servo mode status of all axes is queried.\n");
+	commandList.append("SVO? : Queries the servo mode status controller.\n");
 	commandList.append("SVO <true/false> : Activates/deactivates servo mode across all axes of the controller (true = activate, false = desactivate).\n");
 	commandList.append("TMN? <axis1> <axis2> ... : Queries the minimum commandable position of the provided axes. If none are provided the min commandable position of all axes is queried.\n");
 	commandList.append("TMX? <axis1> <axis2> ... : Queries the maximum commandable position of the provided axes. If none are provided the max commandable position of all axes is queried.\n");
@@ -130,7 +130,7 @@ void AMPIC887ConsoleCommandParser::interpretCommandImplementation(const QString 
 
 	} else if (command.startsWith("LIM?")) {
 
-		emit softLimitStatusCommandIssued(axesFromCommandString(command));
+		emit limitSwitchStatusCommandIssued(axesFromCommandString(command));
 
 	} else if (command.startsWith("TMN?")) {
 

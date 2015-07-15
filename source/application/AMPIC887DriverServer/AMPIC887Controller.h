@@ -275,7 +275,7 @@ public:
 
 	/*!
 	  * The current soft limit statuses for the provided axes.
-	  * \param axes ~ The collection of axes whose soft limit statuses is to be
+	  * \param axes ~ The collection of axes whose soft limit statuses are to be
 	  * returned.
 	  */
 	AMPIC887AxisMap<bool> softLimitStatuses(const AMPIC887AxisCollection& axes) const;
@@ -286,6 +286,19 @@ public:
 	  * to set.
 	  */
 	bool setSoftLimitStatuses(const AMPIC887AxisMap<bool>& softLimitStates);
+
+	/*!
+	  * Whether the limit switch is active for the provided axis.
+	  * \param axis ~ The axis whose limit switch status is to be returned.
+	  */
+	bool limitSwitchStatus(AMGCS2::Axis axis) const;
+
+	/*!
+	  * The current limit switch statuses for the provided collection of axes.
+	  * \param axes ~ The collection of axes whose soft limit statuses are to
+	  * be returned.
+	  */
+	AMPIC887AxisMap<bool> limitSwitchStatuses(const AMPIC887AxisCollection& axes) const;
 
 	/*!
 	  * The minimum commandable position of the provided axis

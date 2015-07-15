@@ -144,6 +144,11 @@ signals:
 	void softLimitStatusCommandIssued(const AMPIC887AxisCollection& axes);
 
 	/*!
+	  * Signal indicating that a get limit switch status command has been issued.
+	  */
+	void limitSwitchStatusCommandIssued(const AMPIC887AxisCollection& axes);
+
+	/*!
 	  * Signal indicating that a get min position command has been issued.
 	  */
 	void minPositionCommandIssued(const AMPIC887AxisCollection& axes);

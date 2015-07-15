@@ -409,6 +409,16 @@ bool AMPIC887Controller::setSoftLimitStatuses(const AMPIC887AxisMap<bool> &softL
 	return true;
 }
 
+bool AMPIC887Controller::limitSwitchStatus(AMGCS2::Axis axis) const
+{
+	return controllerState_->hexapodState()->limitSwitchState(axis);
+}
+
+AMPIC887AxisMap<bool> AMPIC887Controller::limitSwitchStatuses(const AMPIC887AxisCollection &axes) const
+{
+	return controllerState_->hexapodState()->limitSwitchStates().values(axes);
+}
+
 double AMPIC887Controller::minCommandablePosition(AMGCS2::Axis axis) const
 {
 	return controllerState_->hexapodState()->minCommandablePosition(axis);

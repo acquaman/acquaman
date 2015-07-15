@@ -52,6 +52,7 @@ void AMPIC887HexapodState::initialize(bool servoMode, double cycleTime, double v
 									  AMPIC887AxisMap<double> lowSoftLimits,
 									  AMPIC887AxisMap<double> highSoftLimits,
 									  AMPIC887AxisMap<bool> softLimitStates,
+									  AMPIC887AxisMap<bool> limitSwitchStates,
 									  AMPIC887AxisMap<AMGCS2::PositionUnits> positionUnits,
 									  AMPIC887AxisMap<double> stepSizes,
 									  AMPIC887AxisMap<double> minCommandablePositions,
@@ -66,6 +67,7 @@ void AMPIC887HexapodState::initialize(bool servoMode, double cycleTime, double v
 	lowSoftLimits_ = lowSoftLimits;
 	highSoftLimits_ = highSoftLimits;
 	softLimitStates_ = softLimitStates;
+	limitSwitchStates_ = limitSwitchStates;
 	positionUnits_ = positionUnits;
 	stepSizes_ = stepSizes;
 	minCommandablePositions_ = minCommandablePositions;
@@ -276,6 +278,16 @@ void AMPIC887HexapodState::setSoftLimitStates(const AMPIC887AxisMap<bool> &softL
 
 		softLimitStates_.insert(currentAxis, softLimitStates.value(currentAxis));
 	}
+}
+
+bool AMPIC887HexapodState::limitSwitchState(AMGCS2::Axis axis) const
+{
+	return limitSwitchStates_.value(axis, false);
+}
+
+const AMPIC887AxisMap<bool> AMPIC887HexapodState::limitSwitchStates() const
+{
+	return limitSwitchStates_;
 }
 
 AMGCS2::PositionUnits AMPIC887HexapodState::positionUnits(AMGCS2::Axis axis) const
