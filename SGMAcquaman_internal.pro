@@ -4,10 +4,16 @@ include ( sgmCommon.pri )
 TARGET = SGMAcquaman	
 
 RESOURCES += \
-	source/beamline/SGM/TransferHelpImages/LoadLockOutImages.qrc \
-	source/beamline/SGM/TransferHelpImages/LoadLockInImages.qrc \
-	source/beamline/SGM/TransferHelpImages/ChamberOutImages.qrc \
-	source/beamline/SGM/TransferHelpImages/ChamberInImages.qrc
+
+HEADERS += \
+	source/application/SGM/SGMAppController.h
 
 SOURCES += \
-	source/application/SGM/SGMMain.cpp
+    source/application/SGM/SGMMain.cpp \
+    source/application/SGM/SGMAppController.cpp
+
+
+
+
+
+
