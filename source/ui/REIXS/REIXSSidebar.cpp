@@ -106,9 +106,8 @@ void REIXSSidebar::onScalerContinuousModeChanged(double on)
 
 void REIXSSidebar::on_MonoStopButton_clicked()
 {
-	REIXSBeamline::bl()->photonSource()->energy()->stop();
-	AMActionRunner3::scanActionRunner()->cancelCurrentAction();
 	AMActionRunner3::workflow()->cancelCurrentAction();
+	REIXSBeamline::bl()->photonSource()->energy()->stop();
 }
 
 void REIXSSidebar::onRingCurrentChanged(double current)

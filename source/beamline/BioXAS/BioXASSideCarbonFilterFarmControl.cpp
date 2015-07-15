@@ -4,13 +4,6 @@
 BioXASSideCarbonFilterFarmControl::BioXASSideCarbonFilterFarmControl(BioXASCarbonFilterFarmActuatorControl *upstreamActuatorControl, BioXASCarbonFilterFarmActuatorControl *downstreamActuatorControl, QObject *parent) :
 	BioXASCarbonFilterFarmControl(upstreamActuatorControl, downstreamActuatorControl, parent)
 {
-	// Make connections.
-	// Emit enumChanged signals when connected, value changes, and setpoint changes. This is to make sure the control is viewed as an enum.
-
-	connect( this, SIGNAL(connected(bool)), this, SIGNAL(enumChanged()) );
-	connect( this, SIGNAL(valueChanged(double)), this, SIGNAL(enumChanged()) );
-	connect( this, SIGNAL(setpointChanged(double)), this, SIGNAL(enumChanged()) );
-
 	// Set the appropriate enum and move enum states.
 
 	setEnumStates(QStringList() << filterToString(BioXASCarbonFilterFarm::Filter::Invalid) << filterToString(BioXASCarbonFilterFarm::Filter::None) << filterToString(BioXASCarbonFilterFarm::Filter::Fifty) << filterToString(BioXASCarbonFilterFarm::Filter::SevenHundred) << filterToString(BioXASCarbonFilterFarm::Filter::SevenHundredFifty));

@@ -35,12 +35,6 @@ BioXASSSRLMonochromatorRegionControl::BioXASSSRLMonochromatorRegionControl(const
 	setAllowsMovesWhileMoving(false);
 	setContextKnownDescription("Region Control");
 
-	// Make connections
-
-	connect( this, SIGNAL(connected(bool)), this, SIGNAL(enumChanged()) );
-	connect( this, SIGNAL(valueChanged(double)), this, SIGNAL(enumChanged()) );
-	connect( this, SIGNAL(setpointChanged(double)), this, SIGNAL(enumChanged()) );
-
 	// Current settings.
 
 	updateStates();
