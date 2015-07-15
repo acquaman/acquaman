@@ -28,6 +28,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/SGM/SGMPersistentView.h"
 #include "ui/AMMainWindow.h"
 #include "ui/CLS/CLSSIS3820ScalerView.h"
+#include "acquaman/AMGenericStepScanConfiguration.h"
+#include "ui/acquaman/AMGenericStepScanConfigurationView.h"
 
 SGMAppController::SGMAppController(QObject *parent) :
 	AMAppController(parent)
@@ -99,6 +101,15 @@ void SGMAppController::setupUserInterface()
 	mw_->insertHeading("Components", 0);
 
 	mw_->addPane(AMMainWindow::buildMainWindowPane("Scaler", ":/system-software-update.png", scalerView),"Components", "Scaler",  ":/system-software-update.png");
+
+	mw_->insertHeading("Scans", 1);
+
+	commissioningConfiguration_ = new AMGenericStepScanConfiguration;
+	commissioningConfiguration_->setAutoExportEnabled(false);
+	commissioningConfiguration_->addDetector(SGMBeamline::sgm()->exposedDetectorByName("I0")->toInfo());
+	commissioningConfigurationView_ = new AMGenericStepScanConfigurationView(commissioningConfiguration_);
+	commissioningConfigurationViewHolder_ = new AMScanConfigurationViewHolder3("Commissioning Tool", false, true, commissioningConfigurationView_);
+	mw_->addPane(commissioningConfigurationViewHolder_, "Scans", "Commissioning Tool", ":/utilities-system-monitor.png");
 }
 
 void SGMAppController::makeConnections()

@@ -23,7 +23,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define SGMAPPCONTROLLER_H
 
 #include "application/AMAppController.h"
-
+class AMGenericStepScanConfiguration;
+class AMGenericStepScanConfigurationView;
+class AMScanConfigurationViewHolder3;
 class SGMAppController : public AMAppController {
 	Q_OBJECT
 
@@ -58,6 +60,9 @@ protected:
 	/// Sets up all of the connections.
 	void makeConnections();
 
+	AMGenericStepScanConfiguration* commissioningConfiguration_;
+	AMGenericStepScanConfigurationView* commissioningConfigurationView_;
+	AMScanConfigurationViewHolder3* commissioningConfigurationViewHolder_;
 };
 
 #endif // SGMAPPCONTROLLER_H
