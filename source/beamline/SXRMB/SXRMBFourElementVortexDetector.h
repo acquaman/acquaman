@@ -65,14 +65,25 @@ public slots:
 	void setPeakingTime(double time);
 
 protected slots:
+	/// Handles updating the acquisition state of the detector.
+	void updateAcquisitionState();
 	/// Handles changing the scale for the raw spectra sources when the maximum energy changes.
 	void onMaximumEnergyChanged(double newMaximum);
+	/// Handles setting the acquisition succeeded state by waiting on all the spectra.
+	void onDataChanged();
 
 protected:
 	/// The maximum energy control.
 	AMPVControl *maximumEnergyControl_;
 	/// The peaking time control.
 	AMPVControl *peakingTimeControl_;
+
+	/// Flag for whether the system should auto initialize after finishing an acquisition.
+	bool autoInitialize_;
+	/// Data read flag that helps determine when the detector is finished its acquisition.
+	bool dataReady_;
+	/// Counter to know how many of the spectra sources have updated their values since acquisition started.
+	int dataReadyCounter_;
 };
 
 #endif // SXRMBFOURELEMENTVORTEXDETECTOR_H
