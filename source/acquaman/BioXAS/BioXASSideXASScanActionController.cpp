@@ -56,14 +56,8 @@ BioXASSideXASScanActionController::BioXASSideXASScanActionController(BioXASSideX
 	if (bioXASDefaultXAS->id() > 0)
 		AMAppControllerSupport::registerClass<BioXASSideXASScanConfiguration, AMExporterXDIFormat, AMExporterOptionXDIFormat>(bioXASDefaultXAS->id());
 
-	AMControlInfo controlInfo;
-	if (configuration_->usingEncoderEnergy())
-		controlInfo = BioXASSideBeamline::bioXAS()->mono()->encoderEnergyControl()->toInfo();
-	else
-		controlInfo = BioXASSideBeamline::bioXAS()->mono()->stepEnergyControl()->toInfo();
-
 	AMControlInfoList list;
-	list.append(controlInfo);
+	list.append(BioXASSideBeamline::bioXAS()->mono()->energyControl()->toInfo());
 	configuration_->setAxisControlInfos(list);
 
 	useFeedback_ = true;
@@ -120,17 +114,9 @@ QString BioXASSideXASScanActionController::beamlineSettings()
 {
 	QString notes;
 
+	// Note storage ring current.
+
 	notes.append(QString("SR1 Current:\t%1 mA\n").arg(CLSStorageRing::sr1()->ringCurrent()));
-
-	// Note which energy control is being used.
-
-	QString controlType;
-	if (configuration_->usingEncoderEnergy())
-		controlType = QString("encoder-based");
-	else
-		controlType = QString("step-based");
-
-	notes.append(QString("Energy option:\t%1\n").arg(controlType));
 
 	return notes;
 }
