@@ -158,6 +158,18 @@ void AMPIC887ConsoleApplication::onSetRecorderTriggerCommandIssued(AMGCS2::DataR
 	}
 }
 
+void AMPIC887ConsoleApplication::onSetRecordConfigCommandIssued(const QHash<int, AMPIC887DataRecorderConfiguration> &recordConfigs)
+{
+	AMPIC887Controller* activeController = controllerCollection_.activeController();
+	if(!activeController) {
+		return;
+	}
+
+	if(!activeController->setRecordConfigs(recordConfigs)) {
+		consoleInputHandler_->writeLineToStandardError(activeController->lastError());
+	}
+}
+
 void AMPIC887ConsoleApplication::onSetServoModeCommandIssued(bool servoMode)
 {
 	AMPIC887Controller* activeController = controllerCollection_.activeController();
@@ -471,6 +483,35 @@ void AMPIC887ConsoleApplication::onRecordTriggerCommandIssued()
 				AMGCS2Support::dataRecordTriggerToString(controllerCollection_.activeController()->recordTrigger())));
 }
 
+void AMPIC887ConsoleApplication::onRecordConfigCommandIssued(const QList<int> &tableIds)
+{
+	if(!controllerCollection_.activeController() && !controllerCollection_.activeController()->isInitialized()) {
+		return;
+	}
+
+	QString resultsString = "Table Id\tRecord Source\t\tRecord Option\n";
+	QHash<int, AMPIC887DataRecorderConfiguration> recordConfigs =
+			controllerCollection_.activeController()->recordConfigs();
+
+	if(!tableIds.isEmpty()) {
+		foreach(int tableId, tableIds) {
+			resultsString.append(QString("%1\t\t%2\n")
+								 .arg(tableId)
+								 .arg(recordConfigs.value(tableId).toString()));
+		}
+	} else {
+		for(int tableId = 1, tableIdCount = 16;
+			tableId <= tableIdCount;
+			++tableId) {
+			resultsString.append(QString("%1\t\t%2\n")
+								 .arg(tableId)
+								 .arg(recordConfigs.value(tableId).toString()));
+		}
+	}
+
+	consoleInputHandler_->writeLineToStandardOutput(resultsString);
+}
+
 void AMPIC887ConsoleApplication::onReferencedStateCommandIssued(const AMPIC887AxisCollection &axes)
 {
 	if(!controllerCollection_.activeController() && !controllerCollection_.activeController()->isInitialized()) {
@@ -615,4 +656,14 @@ void AMPIC887ConsoleApplication::makeConnections()
 	connect(commandParser_, SIGNAL(setSystemVelocityCommandIssued(double)),
 			this, SLOT(onSetSystemVelocityCommandIssued(double)));
 
+	connect(commandParser_, SIGNAL(recordConfigCommandIssued(QList<int>)),
+			this, SLOT(onRecordConfigCommandIssued(QList<int>)));
+
+	connect(commandParser_,SIGNAL(setRecordConfigCommandIssued(QHash<int,AMPIC887DataRecorderConfiguration>)),
+			this, SLOT(onSetRecordConfigCommandIssued(QHash<int,AMPIC887DataRecorderConfiguration>)));
+
 }
+
+
+
+

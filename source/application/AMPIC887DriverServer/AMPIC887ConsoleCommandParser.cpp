@@ -23,8 +23,8 @@ QString AMPIC887ConsoleCommandParser::commandList()
 	commandList.append("DRC <record table id1> <source1> <option1> <record table id2> <source2> <option2> ... : Sets the record configuration for the provided record table.\n");
 	commandList.append("DRL? <record table id1> <record table id2> ... : Queries the number of recorded data points acquired since the last recording was triggered for each of the provided record tables.\n");
 	commandList.append("DRR? <offset point> <number of data points> <record table id> : Queries the specified number of data points from the provided record table, starting at the offset point.\n");
-	commandList.append("DRT <trigger source> : Sets the data record trigger source for all data record tables.\n");
-	commandList.append("DRT? <record table id1> <record table id2> ... : Queries the current recording trigger sources for the provided data record tables.\n");
+	commandList.append("DRT <trigger> : Sets the recording trigger for the controller.\n");
+	commandList.append("DRT? : Queries the current recording trigger for the controller.\n");
 	commandList.append("FRF <axis1> <axis2> ... : Instructs the controller to perform a reference move on the provided axes. If none are provided reference moves will be performed on all axes.\n");
 	commandList.append("FRF? <axis1> <axis2> ... : Queries whether the provided axes have been referenced. If no axes are provided the reference status of all axes will be queries.\n");
 	commandList.append("HDR? : Queries the controller's recording options.\n");
@@ -164,6 +164,10 @@ void AMPIC887ConsoleCommandParser::interpretCommandImplementation(const QString 
 
 		emit recordTriggerCommandIssued();
 
+	} else if (command.startsWith("DRC?")) {
+
+		handleRecordConfigInput(command);
+
 	} else if (command.startsWith("FRF?")) {
 
 		emit referencedStateCommandIssued(axesFromCommandString(command));
@@ -243,6 +247,10 @@ void AMPIC887ConsoleCommandParser::interpretCommandImplementation(const QString 
 	} else if (command.startsWith("DRT")) {
 
 		handleSetRecordTriggerInput(command);
+
+	} else if (command.startsWith("DRC")) {
+
+		handleSetRecordConfigInput(command);
 
 	} else if (command.startsWith("SVO")) {
 
@@ -510,4 +518,77 @@ void AMPIC887ConsoleCommandParser::handleSetSoftLimitStatusInput(const QString &
 	}
 
 	emit setSoftLimitStatesCommandIssued(axisValueMap);
+}
+
+void AMPIC887ConsoleCommandParser::handleRecordConfigInput(const QString &commandString)
+{
+	QStringList argumentList = commandArguments(commandString);
+
+	QList<int> tableIdList;
+
+	foreach(QString argumentString, argumentList) {
+
+		bool parseSuccess = false;
+		int currentArgumentTableId = argumentString.toInt(&parseSuccess);
+		if(parseSuccess) {
+			tableIdList.append(currentArgumentTableId);
+		} else {
+			tableIdList.append(-1);
+		}
+	}
+
+	emit recordConfigCommandIssued(tableIdList);
+}
+
+void AMPIC887ConsoleCommandParser::handleSetRecordConfigInput(const QString &commandString)
+{
+	QStringList argumentList = commandArguments(commandString);
+
+	QHash<int, AMPIC887DataRecorderConfiguration> recordConfigurations;
+
+	int argumentCount = argumentList.count();
+
+	// Ensure arguments are provided and come in sets of 3
+	if(argumentCount < 0 || argumentCount % 3 != 0) {
+		emit setRecordConfigCommandIssued(recordConfigurations);
+		return;
+	}
+
+	/*
+	  The arguments to set data recorder configuration come in sets of 3, so we
+	  iterate through the collection three at a time.
+	  */
+	for(int iTableId = 0, iSource = 1, iOption = 2, argumentCount = argumentList.count();
+		iTableId < argumentCount && iSource < argumentCount && iOption < argumentCount;
+		iTableId += 3, iSource += 3, iOption += 3) {
+
+		bool parseSuccess = false;
+		int recordTableId = -1;
+
+		recordTableId = argumentList.at(iTableId).toInt(&parseSuccess);
+		if(!parseSuccess) {
+			recordTableId = -1;
+		}
+
+
+		QString sourceString = argumentList.at(iSource);
+		AMGCS2::DataRecordSource recordSource = AMGCS2::UnknownDataRecordSource;
+		if(sourceString.length() == 1) {
+			recordSource =
+					AMGCS2Support::charCodeToDataRecordSource(sourceString.at(0));
+		}
+
+		int recordOptionCode = argumentList.at(iOption).toInt(&parseSuccess);
+		AMGCS2::DataRecordOption recordOption = AMGCS2::UnknownRecordOption;
+		if(parseSuccess) {
+			recordOption =
+					AMGCS2Support::intCodeToDataRecordOption(recordOptionCode);
+		}
+
+		recordConfigurations.insert(recordTableId,
+									AMPIC887DataRecorderConfiguration(recordSource, recordOption));
+
+	}
+
+	emit setRecordConfigCommandIssued(recordConfigurations);
 }

@@ -37,7 +37,6 @@ SOURCES *= \
     source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2GetMovingStatusCommand.cpp \
     source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2GetNumberOfRecordedPointsCommand.cpp \
     source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2GetDeviceIdentificationCommand.cpp \
-    source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2GetDataRecorderConfigurationCommand.cpp \
     source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2GetCurrentPositionCommand.cpp \
     source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2GetControllerReadyStatusCommand.cpp \
     source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2GetRecordedDataValuesCommand.cpp \
@@ -76,13 +75,13 @@ SOURCES *= \
     source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2AsyncReferenceMoveCommand.cpp \
     source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2AsyncMoveCommand.cpp \
     source/application/AMPIC887DriverServer/AMPIC887ControllerState.cpp \
-    source/application/AMPIC887DriverServer/AMPIC887AxisState.cpp \
     source/application/AMPIC887DriverServer/AMPIC887HexapodState.cpp \
     source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2InitializeControllerStateCommand.cpp \
     source/application/AMPIC887DriverServer/AMPIC887DataRecorderState.cpp \
     source/application/AMPIC887DriverServer/AMPIC887DataRecorderTableState.cpp \
     source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2AsyncMoveRelativeCommand.cpp \
-    source/application/AMPIC887DriverServer/AMPIC887AxisCollection.cpp
+    source/application/AMPIC887DriverServer/AMPIC887AxisCollection.cpp \
+    source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2GetRecordConfigurationCommand.cpp
 
 HEADERS *= \
 	source/application/AMPIC887DriverServer/AMPIC887ControllerCollection.h \	
@@ -108,7 +107,6 @@ HEADERS *= \
     source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2GetMovingStatusCommand.h \
     source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2GetNumberOfRecordedPointsCommand.h \
     source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2GetDeviceIdentificationCommand.h \
-    source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2GetDataRecorderConfigurationCommand.h \
     source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2GetCurrentPositionCommand.h \
     source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2GetControllerReadyStatusCommand.h \
     source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2GetRecordedDataValuesCommand.h \
@@ -147,14 +145,24 @@ HEADERS *= \
     source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2AsyncReferenceMoveCommand.h \
     source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2AsyncMoveCommand.h \
     source/application/AMPIC887DriverServer/AMPIC887ControllerState.h \
-    source/application/AMPIC887DriverServer/AMPIC887AxisState.h \
     source/application/AMPIC887DriverServer/AMPIC887HexapodState.h \
     source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2InitializeControllerStateCommand.h \
     source/application/AMPIC887DriverServer/AMPIC887DataRecorderState.h \
     source/application/AMPIC887DriverServer/AMPIC887DataRecorderTableState.h \
     source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2AsyncMoveRelativeCommand.h \
     source/application/AMPIC887DriverServer/AMPIC887AxisCollection.h \
-    source/application/AMPIC887DriverServer/AMPIC887AxisMap.h
+    source/application/AMPIC887DriverServer/AMPIC887AxisMap.h \
+    source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2GetRecordConfigurationCommand.h
+
+
+
+
+
+
+
+
+
+
 
 
 

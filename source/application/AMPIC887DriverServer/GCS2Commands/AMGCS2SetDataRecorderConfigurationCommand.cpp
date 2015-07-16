@@ -4,28 +4,22 @@
 #include "PI_GCS2_DLL.h"
 #include "../AMPIC887Controller.h"
 AMGCS2SetDataRecorderConfigurationCommand::AMGCS2SetDataRecorderConfigurationCommand(
-		const QList<AMPIC887DataRecorderConfiguration*>& configurations)
+		const QHash<int, AMPIC887DataRecorderConfiguration>& tableRecordConfigs)
 {
-	configurations_ = configurations;
-}
-
-AMGCS2SetDataRecorderConfigurationCommand::~AMGCS2SetDataRecorderConfigurationCommand()
-{
-	foreach (AMPIC887DataRecorderConfiguration* configuration, configurations_) {
-		delete configuration;
-	}
+	tableRecordConfigs_ = tableRecordConfigs;
 }
 
 bool AMGCS2SetDataRecorderConfigurationCommand::validateArguments()
 {
-	if (configurations_.isEmpty()) {
+	if (tableRecordConfigs_.isEmpty()) {
 		lastError_ = "No configurations provided";
 		return false;
 	}
 
-	foreach(AMPIC887DataRecorderConfiguration* configuration, configurations_) {
-		if(!configuration->isValid()) {
-			lastError_ = "Invalid configuration provided";
+	QList<int> tableIds = tableRecordConfigs_.keys();
+	foreach(int currentTableId, tableIds) {
+		if(!(tableRecordConfigs_.value(currentTableId).isValid())) {
+			lastError_ = "Invalid record configuration";
 			return false;
 		}
 	}
@@ -35,33 +29,39 @@ bool AMGCS2SetDataRecorderConfigurationCommand::validateArguments()
 
 bool AMGCS2SetDataRecorderConfigurationCommand::runImplementation()
 {
-	AMCArrayHandler<int> recordTableIds(RECORD_TABLE_COUNT);
-	AMCArrayHandler<int> recordOptionsArray(RECORD_TABLE_COUNT);
+	int recordConfigsCount = tableRecordConfigs_.count();
+
+	AMCArrayHandler<int> tableIdsHandler(recordConfigsCount);
+	AMCArrayHandler<int> recordOptionsHandler(recordConfigsCount);
 	QString recordSourcesString;
 
-	for (int iRecordConfig = 0, configCount = configurations_.count();
-		 iRecordConfig < configCount;
-		 ++iRecordConfig) {
+	QList<int> tableIds = tableRecordConfigs_.keys();
+	for (int iTableId = 0; iTableId < recordConfigsCount; ++iTableId) {
 
-		AMPIC887DataRecorderConfiguration* currentConfig = configurations_.at(iRecordConfig);
+		int currentTableId = tableIds.at(iTableId);
+		AMPIC887DataRecorderConfiguration currentRecordConfig =
+				tableRecordConfigs_.value(currentTableId);
+
+		int recordOptionsCode =
+				AMGCS2Support::dataRecordOptionToInt(currentRecordConfig.recordOption());
 
 		recordSourcesString.append(QString(" %1")
-								   .arg(AMGCS2Support::dataRecordSourceToCharCode(currentConfig->recordSource())));
+								   .arg(AMGCS2Support::dataRecordSourceToCharCode(currentRecordConfig.recordSource())));
 
-		recordTableIds.cArray()[iRecordConfig] = currentConfig->recordTableId();
-		recordOptionsArray.cArray()[iRecordConfig] = AMGCS2Support::dataRecordOptionToInt(currentConfig->recordOption());
+
+		tableIdsHandler.cArray()[iTableId] = currentTableId;
+		recordOptionsHandler.cArray()[iTableId] = recordOptionsCode;
 	}
 
 	bool success = PI_DRC(controller_->id(),
-						  recordTableIds.cArray(),
+						  tableIdsHandler.cArray(),
 						  recordSourcesString.toStdString().c_str(),
-						  recordOptionsArray.cArray());
+						  recordOptionsHandler.cArray());
 
 	if(!success) {
 		lastError_ = controllerErrorMessage();
 	}
 
 	return success;
-
 }
 

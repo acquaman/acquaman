@@ -1,7 +1,6 @@
 #ifndef AMPIC887HEXAPODSTATE_H
 #define AMPIC887HEXAPODSTATE_H
 
-#include "AMPIC887AxisState.h"
 #include "AMGCS2.h"
 #include <QString>
 #include <QFlags>

@@ -111,6 +111,15 @@ public:
 	  */
 	void clearErrorMessage();
 
+	AMPIC887DataRecorderConfiguration recordConfig(int tableId) const;
+
+	bool setRecordConfig(int tableId,
+						 const AMPIC887DataRecorderConfiguration& recordConfig);
+
+	QHash<int, AMPIC887DataRecorderConfiguration> recordConfigs() const;
+
+	bool setRecordConfigs(const QHash<int, AMPIC887DataRecorderConfiguration> recordConfigs);
+
 	/*!
 	  * The current movement status of the controller's hexapod.
 	  */
@@ -183,20 +192,6 @@ public:
 	  * \param cycleTime ~ The new cycle time for the controller.
 	  */
 	bool setCycleTime(double cycleTime);
-
-	/*!
-	  * The record option of the data table with the provided id.
-	  * \returns The data table's record option if the controller has been initialized
-	  * and the tableId is valid, UnknownRecordOption otherwise.
-	  */
-	AMGCS2::DataRecordOption recordOption(int tableId) const;
-
-	/*!
-	  * The record source of the data table with the provided id.
-	  * \returns The data table's record source if the controller has been initialized
-	  * abd the tableId is valid, UnknownRecordSource otherwise.
-	  */
-	AMGCS2::DataRecordSource recordSource(int tableId) const;
 
 	/*!
 	  * The serial number and make information of the controller.

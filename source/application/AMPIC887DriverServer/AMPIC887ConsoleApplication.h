@@ -115,6 +115,11 @@ protected slots:
 	void onSetRecorderTriggerCommandIssued(AMGCS2::DataRecordTrigger recorderTrigger);
 
 	/*!
+	  * Handles signals indicating that a set record config command has been issued.
+	  */
+	void onSetRecordConfigCommandIssued(const QHash<int, AMPIC887DataRecorderConfiguration>& recordConfigs);
+
+	/*!
 	  * Handles signals indicating that a set servo mode command has been issued.
 	  */
 	void onSetServoModeCommandIssued(bool servoMode);
@@ -250,6 +255,11 @@ protected slots:
 	  * Handles signals indicating that a get record trigger command has been issued.
 	  */
 	void onRecordTriggerCommandIssued();
+
+	/*!
+	  * Handles signals indicating that a get record config command has been issued.
+	  */
+	void onRecordConfigCommandIssued(const QList<int>& tableIds);
 
 	/*!
 	  * Handles signals indicating that a get referenced state command has been

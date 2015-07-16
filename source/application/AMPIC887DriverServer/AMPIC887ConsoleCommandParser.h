@@ -4,6 +4,7 @@
 #include <QStringList>
 
 #include "AMAbstractConsoleCommandParser.h"
+#include "AMPIC887DataRecorderConfiguration.h"
 #include "AMGCS2.h"
 #include "AMPIC887AxisCollection.h"
 #include "AMPIC887AxisMap.h"
@@ -64,6 +65,11 @@ signals:
 	void setRecordTriggerCommandIssued(AMGCS2::DataRecordTrigger recordTrigger);
 
 	/*!
+	  * Signal indicating that a set record config command has been issued.
+	  */
+	void setRecordConfigCommandIssued(const QHash<int, AMPIC887DataRecorderConfiguration>& recordConfigs);
+
+	/*!
 	  * Signal indicating that a set servo mode command has been issued.
 	  */
 	void setServoModeCommandIssued(bool servoMode);
@@ -114,14 +120,9 @@ signals:
 	void cycleTimeCommandIssued();
 
 	/*!
-	  * Signal indicating that a get record option command has been issued.
+	  * Signal indicating that a get record config command has been issued.
 	  */
-	void recordOptionCommandIssued(const QList<int>& tableIds);
-
-	/*!
-	  * Signal indicating that a get record source command has been issued.
-	  */
-	void recordSourceCommandIssued(const QList<int>& tableIds);
+	void recordConfigCommandIssued(const QList<int>& tableIds);
 
 	/*!
 	  * Signal indicating that a get device identification command has been issued.
@@ -332,12 +333,28 @@ protected:
 	void handleSetRecordTriggerInput(const QString& commandString);
 
 	/*!
-	  * Helper methpod for parsing the command string passed along with the set
+	  * Helper method for parsing the command string passed along with the set
 	  * soft limit status command (SSL)
 	  * \param commandString ~ The command string which was entered, and must be
 	  * parsed.
 	  */
 	void handleSetSoftLimitStatusInput(const QString& commandString);
+
+	/*!
+	  * Helper method for parsing the command string passed along with the
+	  * get record configuration command (DRC?)
+	  * \param commandString ~ The command string which was entered, and must be
+	  * parsed.
+	  */
+	void handleRecordConfigInput(const QString& commandString);
+
+	/*!
+	  * Helper methpod for parsing the command string passed along with the
+	  * set record configuration command (DRC).
+	  * \param commandString ~ The command string which was entered, and must be
+	  * parsed.
+	  */
+	void handleSetRecordConfigInput(const QString& commandString);
 };
 
 #endif // AMPIC887CONSOLECOMMANDSET_H

@@ -104,15 +104,6 @@ protected:
 	static AMGCS2Command* buildSetRecordTriggerSourceCommand(const QStringList& argumentList);
 
 	/*!
-	  * Static helper method for parsing the get data record trigger source command
-	  * string arguments.
-	  * \param argumentList ~ A list of the arguments provided to the command.
-	  * \returns An initialized AMGCS2GetRecordTriggerSourceCommand if the arguments
-	  * can be parsed, 0 otherwise.
-	  */
-	static AMGCS2Command* buildGetRecordTriggerSourceCommand(const QStringList& argumentList);
-
-	/*!
 	  * Static helper method for parsing the set cycle time command string arguments.
 	  * \param argumentList ~ A list of the arguments provided to the command.
 	  * \returns An initialized AMGCS2SetCycleTimeCommand if the arguments can be

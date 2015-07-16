@@ -2,49 +2,23 @@
 #include "AMGCS2Support.h"
 AMPIC887DataRecorderState::AMPIC887DataRecorderState()
 {
-	for(int iRecTable = 1; iRecTable <= 16 ; ++iRecTable) {
-
-		tableStates_.append(new AMPIC887DataRecorderTableState(iRecTable));
-	}
-
 	recordTrigger_ = AMGCS2::UnknownRecordTrigger;
 	isInitialized_ = false;
 }
 
-AMPIC887DataRecorderState::~AMPIC887DataRecorderState()
+bool AMPIC887DataRecorderState::isInitialized() const
 {
-	foreach(AMPIC887DataRecorderTableState* tableState, tableStates_) {
-
-		delete tableState;
-	}
-}
-
-bool AMPIC887DataRecorderState::isAllInitialized() const
-{
-	return isInitialized_ &&
-			tableStates_.at(0)->isInitialized() &&
-			tableStates_.at(1)->isInitialized() &&
-			tableStates_.at(2)->isInitialized() &&
-			tableStates_.at(3)->isInitialized() &&
-			tableStates_.at(4)->isInitialized() &&
-			tableStates_.at(5)->isInitialized() &&
-			tableStates_.at(6)->isInitialized() &&
-			tableStates_.at(7)->isInitialized() &&
-			tableStates_.at(8)->isInitialized() &&
-			tableStates_.at(9)->isInitialized() &&
-			tableStates_.at(10)->isInitialized() &&
-			tableStates_.at(11)->isInitialized() &&
-			tableStates_.at(12)->isInitialized() &&
-			tableStates_.at(13)->isInitialized() &&
-			tableStates_.at(14)->isInitialized() &&
-			tableStates_.at(15)->isInitialized();
+	return isInitialized_;
 }
 
 void AMPIC887DataRecorderState::initialize(AMGCS2::DataRecordTrigger recordTrigger,
-										   const QString& recordOptionsString)
+										   const QString& availableRecordParameters,
+										   const QHash<int, AMPIC887DataRecorderConfiguration>& recordConfigs)
 {
 	recordTrigger_ = recordTrigger;
-	recordOptionsString_ = recordOptionsString;
+	availableRecordParameters_ = availableRecordParameters;
+	recordConfigs_ = recordConfigs;
+
 	isInitialized_ = true;
 }
 
@@ -58,14 +32,39 @@ void AMPIC887DataRecorderState::setRecordTrigger(AMGCS2::DataRecordTrigger recor
 	recordTrigger_ = recordTrigger;
 }
 
-AMPIC887DataRecorderTableState * AMPIC887DataRecorderState::stateAt(int index)
+AMPIC887DataRecorderConfiguration AMPIC887DataRecorderState::recordConfig(int tableId) const
 {
-	return tableStates_.at(index - 1);
+	return recordConfigs_.value(tableId, AMPIC887DataRecorderConfiguration(AMGCS2::UnknownDataRecordSource,
+																		   AMGCS2::UnknownRecordOption));
 }
 
-QString AMPIC887DataRecorderState::recordOptionsString() const
+void AMPIC887DataRecorderState::setRecordConfig(int tableId, AMPIC887DataRecorderConfiguration recordConfig)
 {
-	return recordOptionsString_;
+	if(tableId < 1 || tableId > 16) {
+
+		return;
+	}
+
+	recordConfigs_.insert(tableId, recordConfig);
+}
+
+QHash<int, AMPIC887DataRecorderConfiguration> AMPIC887DataRecorderState::recordConfigs() const
+{
+	return recordConfigs_;
+}
+
+void AMPIC887DataRecorderState::setRecordConfigs(const QHash<int, AMPIC887DataRecorderConfiguration> &recordConfigs)
+{
+	QList<int> tableIds = recordConfigs.keys();
+	foreach(int currentTableId, tableIds) {
+
+		recordConfigs_.insert(currentTableId, recordConfigs.value(currentTableId));
+	}
+}
+
+QString AMPIC887DataRecorderState::availableParameters() const
+{
+	return availableRecordParameters_;
 }
 
 QString AMPIC887DataRecorderState::statusString() const
@@ -73,12 +72,21 @@ QString AMPIC887DataRecorderState::statusString() const
 	QString stateString = QString("Data Recorder:\nRecord Trigger: %1\n\nTables:\n")
 			.arg(AMGCS2Support::dataRecordTriggerToString(recordTrigger_));
 
-	foreach(AMPIC887DataRecorderTableState* tableState, tableStates_) {
+	QList<int> tableIds = recordConfigs_.keys();
 
-		stateString.append(QString("%1\n\n").arg(tableState->statusString()));
+	foreach(int currentTableId, tableIds) {
+
+		stateString.append(QString("%1\n")
+						   .arg(recordConfigs_.value(currentTableId).toString()));
 	}
 
 	return stateString;
 }
+
+
+
+
+
+
 
 

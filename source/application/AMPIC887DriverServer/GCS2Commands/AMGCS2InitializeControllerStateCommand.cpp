@@ -16,7 +16,7 @@
 #include "AMGCS2GetMaxCommandablePositionCommand.h"
 #include "AMGCS2GetPivotPointCommand.h"
 #include "AMGCS2GetRecordTriggerSourceCommand.h"
-#include "AMGCS2GetDataRecorderConfigurationCommand.h"
+#include "AMGCS2GetRecordConfigurationCommand.h"
 #include "AMGCS2GetCommandLevelCommand.h"
 #include "AMGCS2GetAvailableParametersCommand.h"
 #include "AMGCS2GetRecorderOptionsCommand.h"
@@ -270,11 +270,8 @@ bool AMGCS2InitializeControllerStateCommand::runImplementation()
 	}
 
 	// Record Trigger
-	// Note command syntax is set up for this to run on each table, but changing
-	// value on one table changes them all. As such this is stored once at the
-	// general recorder state level, not once per table.
 
-	AMGCS2GetRecordTriggerSourceCommand triggerSourceCommand(tableIdsList);
+	AMGCS2GetRecordTriggerSourceCommand triggerSourceCommand;
 	triggerSourceCommand.setController(controller_);
 	triggerSourceCommand.run();
 
@@ -283,8 +280,7 @@ bool AMGCS2InitializeControllerStateCommand::runImplementation()
 		return false;
 	}
 
-	QHash<int, AMGCS2::DataRecordTrigger> recordTriggers =
-			triggerSourceCommand.tableRecordTriggers();
+	// Record options
 
 	AMGCS2GetRecorderOptionsCommand recorderOptionsCommand;
 	recorderOptionsCommand.setController(controller_);
@@ -295,14 +291,12 @@ bool AMGCS2InitializeControllerStateCommand::runImplementation()
 		return false;
 	}
 
-	QString recorderOptions =
-			recorderOptionsCommand.outputString();
 
 	// Data Recorder Table Statuses
 	////////////////////////////////
 
-	// Record configurations (option)
-	AMGCS2GetDataRecorderConfigurationCommand recordConfigurationsCommand;
+	// Record configurations
+	AMGCS2GetRecordConfigurationsCommand recordConfigurationsCommand;
 	recordConfigurationsCommand.setController(controller_);
 	recordConfigurationsCommand.run();
 
@@ -310,9 +304,6 @@ bool AMGCS2InitializeControllerStateCommand::runImplementation()
 		lastError_ = "Could not obtain table recorder configurations";
 		return false;
 	}
-
-	QList<AMPIC887DataRecorderConfiguration*> recordConfigurations =
-			recordConfigurationsCommand.dataRecorderConfigurations();
 
 	// Initialize controller state data
 	////////////////////////////////////
@@ -339,19 +330,10 @@ bool AMGCS2InitializeControllerStateCommand::runImplementation()
 	// Initialize data recorder data
 	/////////////////////////////////
 
-	// Can use the value for 1 table, as this applies to all tables.
-	controllerState_->dataRecorderState()->initialize(recordTriggers.value(1),
-													  recorderOptions);
+	controllerState_->dataRecorderState()->initialize(triggerSourceCommand.recordTrigger(),
+													  recorderOptionsCommand.outputString(),
+													  recordConfigurationsCommand.recordConfigs());
 
-	// Initialize data for recorder tables
-	///////////////////////////////////////
-	for(int iRecordTable = 1; iRecordTable <= 16; ++iRecordTable) {
-		AMPIC887DataRecorderConfiguration* currentConfig =
-				recordConfigurations.at(iRecordTable -1);
-
-		controllerState_->dataRecorderState()->stateAt(iRecordTable)
-				->initialize(currentConfig->recordSource(), currentConfig->recordOption());
-	}
 
 	if(!controllerState_->isAllInitialized()) {
 		lastError_ = "Unknown error initializing the controller state";

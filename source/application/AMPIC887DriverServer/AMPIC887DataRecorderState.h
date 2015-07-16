@@ -1,9 +1,9 @@
 #ifndef AMPIC887DATARECORDERSTATE_H
 #define AMPIC887DATARECORDERSTATE_H
-#include <QList>
+#include <QHash>
 #include <QString>
 #include "AMGCS2.h"
-#include "AMPIC887DataRecorderTableState.h"
+#include "AMPIC887DataRecorderConfiguration.h"
 /*!
   * A class for storing the data relating to a PI C887.11 controller's data recorder.
   * The structure of this state class mirrors that of the controller's recorder,
@@ -19,28 +19,27 @@ public:
     AMPIC887DataRecorderState();
 
 	/*!
-	  * Frees the resources owned by this data recorder state.
+	  * Virtual destructor for a data recorder state
 	  */
-	~AMPIC887DataRecorderState();
+	~AMPIC887DataRecorderState() {}
 
 	/*!
 	  * Whether all data for this data recorder state has been initialized. This
 	  * includes both the top level data for this recorder state, and all the data
 	  * for the contained 16 data recorder table states.
 	  */
-	bool isAllInitialized() const;
+	bool isInitialized() const;
 
 	/*!
-	  * Initializes the top level data for this data record trigger store.
-	  *
-	  * NOTE: Data for the individual data tables will require initialization before
-	  * isAllInitialized() will return true.
+	  * Initializes the data for this data record store.
 	  * \param recordTrigger ~ The trigger to initialize the state with.
-	  * \param recordOptionsString ~ A string containing the record options to
-	  * initialize the state with.
+	  * \param availableRecordParameters ~ Text describing each of the parameters
+	  * available for recording on the controller.
+	  * \param recordConfigs ~ The record configs to initialize the state with.
 	  */
 	void initialize(AMGCS2::DataRecordTrigger recordTrigger,
-					const QString& recordOptionsString);
+					const QString& availableRecordParameters,
+					const QHash<int, AMPIC887DataRecorderConfiguration>& recordConfigs);
 
 	/*!
 	  * The current trigger setting for the recorder stored within this state.
@@ -60,12 +59,29 @@ public:
 	  * is valid.
 	  * \param tableId ~ The id of the table whose recorder state is to be returned.
 	  */
-	AMPIC887DataRecorderTableState* stateAt(int tableId);
+	AMPIC887DataRecorderConfiguration recordConfig(int tableId) const;
 
 	/*!
-	  * The record options string stored within this state.
+	  * Sets the record config for the provided table.
 	  */
-	QString recordOptionsString() const;
+	void setRecordConfig(int tableId, AMPIC887DataRecorderConfiguration recordConfig);
+
+	/*!
+	  * The record configs for all the data tables of the controller.
+	  */
+	QHash<int, AMPIC887DataRecorderConfiguration> recordConfigs() const;
+
+	/*!
+	  * Sets the stored record configs based on the values in the provided hash.
+	  * \param recordConfigs ~ The hash containing values to update the contained
+	  * record configs with.
+	  */
+	void setRecordConfigs(const QHash<int, AMPIC887DataRecorderConfiguration>& recordConfigs);
+
+	/*!
+	  * Text describing all the parameters available for recording on the controller.
+	  */
+	QString availableParameters() const;
 
 	/*!
 	  * A string describing the status of the data recorder and all its contained
@@ -77,8 +93,9 @@ protected:
 	bool isInitialized_;
 
 	AMGCS2::DataRecordTrigger recordTrigger_;
-	QString recordOptionsString_;
-	QList<AMPIC887DataRecorderTableState*> tableStates_;
+	QString availableRecordParameters_;
+	QHash<int, AMPIC887DataRecorderConfiguration> recordConfigs_;
+
 };
 
 #endif // AMPIC887DATARECORDERSTATE_H

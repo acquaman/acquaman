@@ -25,7 +25,7 @@ bool AMGCS2SetRecordTriggerSourceCommand::runImplementation()
 	// Although the library and the manual suggest the ability to set the record
 	// trigger per table, actually setting it for one sets it for all. As such
 	// this command only takes a record trigger, sets it for the first table - which
-	// then sets it globally.
+	// sets it globally.
 
 	AMCArrayHandler<int> recordTableIds(1);
 	AMCArrayHandler<int> triggerSources(1);

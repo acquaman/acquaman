@@ -13,7 +13,7 @@
 #include "GCS2Commands/AMGCS2GetCommandLevelCommand.h"
 #include "GCS2Commands/AMGCS2SetCommandLevelCommand.h"
 #include "GCS2Commands/AMGCS2SetSyntaxVersionCommand.h"
-#include "GCS2Commands/AMGCS2GetDataRecorderConfigurationCommand.h"
+#include "GCS2Commands/AMGCS2GetRecordConfigurationCommand.h"
 #include "AMPIC887DataRecorderConfiguration.h"
 #include "GCS2Commands/AMGCS2SetDataRecorderConfigurationCommand.h"
 #include "GCS2Commands/AMGCS2GetNumberOfRecordedPointsCommand.h"
@@ -75,7 +75,7 @@ AMGCS2Command * AMGCS2CommandFactory::buildCommand(const QString &commandString)
 	} else if (commandString.startsWith("OCSV")) {
 		return new AMGCS2SetSyntaxVersionCommand();
 	} else if(commandString.startsWith("ODRC?")) {
-		return new AMGCS2GetDataRecorderConfigurationCommand();
+		return new AMGCS2GetRecordConfigurationsCommand();
 	} else if(commandString.startsWith("ODRC")) {
 		return buildSetDataRecorderConfigurationCommand(commandArguments(commandString));
 	} else if(commandString.startsWith("ODRL?")) {
@@ -83,7 +83,7 @@ AMGCS2Command * AMGCS2CommandFactory::buildCommand(const QString &commandString)
 	} else if(commandString.startsWith("ODRR?")) {
 		return buildGetRecordedDataValuesCommand(commandArguments(commandString));
 	} else if(commandString.startsWith("ODRT?")) {
-		return buildGetRecordTriggerSourceCommand(commandArguments(commandString));
+		return new AMGCS2GetRecordTriggerSourceCommand();
 	} else if(commandString.startsWith("ODRT")) {
 		return buildSetRecordTriggerSourceCommand(commandArguments(commandString));
 	} else if (commandString.startsWith("OFRF?")){
@@ -240,7 +240,8 @@ AMGCS2Command * AMGCS2CommandFactory::buildSetCommandLevelCommand(const QStringL
 AMGCS2Command * AMGCS2CommandFactory::buildSetDataRecorderConfigurationCommand(const QStringList &argumentList)
 {
 
-	QList<AMPIC887DataRecorderConfiguration*> recordConfigurationList;
+	QHash<int, AMPIC887DataRecorderConfiguration> recordConfigurations;
+
 	int argumentCount = argumentList.count();
 
 	// Ensure arguments are provided and come in sets of 3
@@ -280,14 +281,12 @@ AMGCS2Command * AMGCS2CommandFactory::buildSetDataRecorderConfigurationCommand(c
 		AMGCS2::DataRecordOption recordOption =
 				AMGCS2Support::intCodeToDataRecordOption(recordOptionCode);
 
-		recordConfigurationList.append(
-					new AMPIC887DataRecorderConfiguration(
-						recordTableId,
-						recordSource,
-						recordOption));
+		recordConfigurations.insert(recordTableId,
+									AMPIC887DataRecorderConfiguration(recordSource, recordOption));
+
 	}
 
-	return new AMGCS2SetDataRecorderConfigurationCommand(recordConfigurationList);
+	return new AMGCS2SetDataRecorderConfigurationCommand(recordConfigurations);
 }
 
 AMGCS2Command * AMGCS2CommandFactory::buildGetNumberOfRecordedPointsCommand(const QStringList &argumentList)
@@ -357,31 +356,6 @@ AMGCS2Command * AMGCS2CommandFactory::buildSetRecordTriggerSourceCommand(const Q
 			AMGCS2Support::intCodeToDataRecordTrigger(triggerCode);
 
 	return new AMGCS2SetRecordTriggerSourceCommand(recordTrigger);
-}
-
-AMGCS2Command * AMGCS2CommandFactory::buildGetRecordTriggerSourceCommand(const QStringList &argumentList)
-{
-	if(argumentList.isEmpty()) {
-		return 0;
-	}
-
-	QList<int> recordTableIds;
-
-	for(int iTableId = 0, argCount = argumentList.count();
-		iTableId < argCount;
-		++iTableId) {
-
-		bool parseSuccess = false;
-		int tableId = argumentList.at(iTableId).toInt(&parseSuccess);
-
-		if(!parseSuccess) {
-			return 0;
-		}
-
-		recordTableIds.append(tableId);
-	}
-
-	return new AMGCS2GetRecordTriggerSourceCommand(recordTableIds);
 }
 
 AMGCS2Command * AMGCS2CommandFactory::buildSetCycleTimeCommand(const QStringList &argumentList)

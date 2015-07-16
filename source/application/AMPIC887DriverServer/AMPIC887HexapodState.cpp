@@ -85,6 +85,10 @@ void AMPIC887HexapodState::initialize(bool servoMode, double cycleTime, double v
 
 QString AMPIC887HexapodState::statusString() const
 {
+	if(!isInitialized_) {
+		return QString();
+	}
+
 	QString servoModeString;
 	if(servoMode_) {
 		servoModeString = "Yes";
@@ -95,10 +99,68 @@ QString AMPIC887HexapodState::statusString() const
 			.arg(velocity_)
 			.arg(servoModeString);
 
+	AMPIC887AxisCollection allAxes;
 
-// TODO FIX THIS
+	foreach(AMGCS2::Axis currentAxis, allAxes) {
 
-	return stateString;
+		stateString.append(QString("\n// %1 Axis\n/////////////////////////\n")
+						   .arg(AMGCS2Support::axisToCharacter(currentAxis)));
+
+		QString units = AMGCS2Support::positionUnitsToString(positionUnits_.value(currentAxis));
+		QString boolString;
+		if(referencedStates_.value(currentAxis)) {
+			boolString = "Yes";
+		} else {
+			boolString = "No";
+		}
+		stateString.append(QString("Is Referenced: %1\n").arg(boolString));
+		stateString.append(QString("Current Position: %1 %2\n")
+						   .arg(currentPositions_.value(currentAxis))
+						   .arg(units));
+		stateString.append(QString("Target Position: %1 %2\n")
+						   .arg(targetPositions_.value(currentAxis))
+						   .arg(units));
+		stateString.append(QString("Low Soft Limits: %1 %2\n")
+						   .arg(lowSoftLimits_.value(currentAxis))
+						   .arg(units));
+		stateString.append(QString("High Soft Limits: %1 %2\n")
+						   .arg(highSoftLimits().value(currentAxis))
+						   .arg(units));
+		if(softLimitStates_.value(currentAxis)) {
+			boolString = "Yes";
+		} else {
+			boolString = "No";
+		}
+		stateString.append(QString("Soft Limits Active: %1\n")
+						   .arg(boolString));
+		if(limitSwitchStates_.value(currentAxis)) {
+			boolString = "Yes";
+		} else {
+			boolString = "No";
+		}
+		stateString.append(QString("Hard Limits Active: %1\n")
+						   .arg(boolString));
+		stateString.append(QString("Step Size: %1 %2\n")
+						   .arg(stepSizes_.value(currentAxis))
+						   .arg(units));
+		stateString.append(QString("Min. Position: %1 %2\n")
+						   .arg(minCommandablePositions_.value(currentAxis))
+						   .arg(units));
+		stateString.append(QString("Max. Position: %1 %2\n")
+						   .arg(maxCommandablePositions_.value(currentAxis))
+						   .arg(units));
+
+		if(currentAxis == AMGCS2::XAxis ||
+				currentAxis == AMGCS2::YAxis ||
+				currentAxis == AMGCS2::ZAxis) {
+			stateString.append(QString("Pivot Point: %1 %2\n")
+							   .arg(pivotPoints_.value(currentAxis))
+							   .arg(units));
+		}
+
+	}
+
+	return stateString.trimmed();
 }
 
 bool AMPIC887HexapodState::areAllAxesReferenced() const

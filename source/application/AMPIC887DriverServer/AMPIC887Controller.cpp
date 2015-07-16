@@ -24,6 +24,8 @@
 #include "GCS2Commands/AMGCS2StopCommand.h"
 #include "GCS2Commands/AMGCS2HaltSmoothlyCommand.h"
 
+#include "AMPIC887DataRecorderConfiguration.h"
+
 #include "AMGCS2Support.h"
 
 AMPIC887Controller::AMPIC887Controller(const QString& name, const QString& hostname)
@@ -169,6 +171,40 @@ void AMPIC887Controller::clearErrorMessage()
 	errorClearingTimer_.singleShot(30, this, SLOT(onErrorClearingTimerTimedOut()));
 }
 
+AMPIC887DataRecorderConfiguration AMPIC887Controller::recordConfig(int tableId) const
+{
+	return controllerState_->dataRecorderState()->recordConfig(tableId);
+}
+
+bool AMPIC887Controller::setRecordConfig(int tableId,
+										   const AMPIC887DataRecorderConfiguration &recorderConfig)
+{
+	QHash<int, AMPIC887DataRecorderConfiguration> singleValue;
+	singleValue.insert(tableId, recorderConfig);
+
+	return setRecordConfigs(singleValue);
+}
+
+QHash<int, AMPIC887DataRecorderConfiguration> AMPIC887Controller::recordConfigs() const
+{
+	return controllerState_->dataRecorderState()->recordConfigs();
+}
+
+bool AMPIC887Controller::setRecordConfigs(const QHash<int, AMPIC887DataRecorderConfiguration> recordConfigs)
+{
+	AMGCS2SetDataRecorderConfigurationCommand setRecordConfigCommand(recordConfigs);
+	runCommand(&setRecordConfigCommand);
+
+	if(setRecordConfigCommand.runningState() != AMGCS2Command::Succeeded) {
+		setError(setRecordConfigCommand.lastError());
+		return false;
+	}
+
+	controllerState_->dataRecorderState()->setRecordConfigs(recordConfigs);
+
+	return true;
+}
+
 QFlags<AMGCS2::AxisMovementStatus> AMPIC887Controller::movementStatus() const
 {
 	QFlags<AMGCS2::AxisMovementStatus> movements = QFlags<AMGCS2::AxisMovementStatus>();
@@ -287,16 +323,6 @@ bool AMPIC887Controller::setCycleTime(double cycleTime)
 
 	controllerState_->hexapodState()->setCycleTime(cycleTime);
 	return true;
-}
-
-AMGCS2::DataRecordOption AMPIC887Controller::recordOption(int tableId) const
-{
-	return controllerState_->dataRecorderState()->stateAt(tableId)->recordOption();
-}
-
-AMGCS2::DataRecordSource AMPIC887Controller::recordSource(int tableId) const
-{
-	return controllerState_->dataRecorderState()->stateAt(tableId)->recordSource();
 }
 
 QString AMPIC887Controller::identificationString() const
@@ -514,7 +540,7 @@ QList<int> AMPIC887Controller::recordedData(int tableId) const
 
 QString AMPIC887Controller::recorderOptionsString() const
 {
-	return controllerState_->dataRecorderState()->recordOptionsString();
+	return controllerState_->dataRecorderState()->availableParameters();
 }
 
 AMGCS2::DataRecordTrigger AMPIC887Controller::recordTrigger() const
@@ -1093,3 +1119,5 @@ void AMPIC887Controller::setError(const QString &errorMessage)
 	lastError_ = errorMessage;
 	emit errorEncountered(errorMessage);
 }
+
+
