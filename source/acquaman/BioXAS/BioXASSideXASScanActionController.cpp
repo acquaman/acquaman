@@ -192,8 +192,8 @@ AMAction3* BioXASSideXASScanActionController::createCleanupActions()
 	cleanup->addSubAction(scaler->createDwellTimeAction3(1.0));
 	cleanup->addSubAction(scaler->createContinuousEnableAction3(true));
 
-	// Set the bragg motor power to PowerAutoHardware.
-	cleanup->addSubAction(BioXASSideBeamline::bioXAS()->mono()->braggMotor()->createPowerAction(CLSMAXvMotor::PowerAutoHardware));
+	// Set the bragg motor power to PowerAutoSoftware.
+	cleanup->addSubAction(BioXASSideBeamline::bioXAS()->mono()->braggMotor()->createPowerAction(CLSMAXvMotor::PowerAutoSoftware));
 
 	return cleanup;
 }
