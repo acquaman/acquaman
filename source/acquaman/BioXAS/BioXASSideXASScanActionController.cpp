@@ -147,25 +147,6 @@ AMAction3* BioXASSideXASScanActionController::createInitializationActions()
 	initializationAction->addSubAction(scaler->createStartAction3(true));
 	initializationAction->addSubAction(scaler->createWaitForDwellFinishedAction(regionTime + 5.0));
 
-//	AMListAction3 *stage1 = new AMListAction3(new AMListActionInfo3("BioXAS Side Initialization Stage 1", "BioXAS Side Initialization Stage 1"), AMListAction3::Parallel);
-//	stage1->addSubAction(scaler->createContinuousEnableAction3(false));
-////	stage1->addSubAction(scaler->createDwellTimeAction3(firstRegionTime));
-
-//	AMListAction3 *stage2 = new AMListAction3(new AMListActionInfo3("BioXAS Side Initialization Stage 2", "BioXAS Side Initialization Stage 2"), AMListAction3::Parallel);
-
-//	stage2->addSubAction(scaler->createStartAction3(false));
-//	stage2->addSubAction(scaler->createScansPerBufferAction3(1));
-//	stage2->addSubAction(scaler->createTotalScansAction3(1));
-
-//	AMListAction3 *stage3 = new AMListAction3(new AMListActionInfo3("BioXAS Side Initialization Stage 3", "BioXAS Side Initialization Stage 3"), AMListAction3::Parallel);
-//	stage3->addSubAction(scaler->createStartAction3(true));
-//	stage3->addSubAction(scaler->createWaitForDwellFinishedAction(regionTime + 5.0));
-
-//	initializationAction->addSubAction(stage1);
-//	initializationAction->addSubAction(stage2);
-//	initializationAction->addSubAction(scaler->createDwellTimeAction3(double(configuration_->scanAxisAt(0)->regionAt(0)->regionTime())));
-//	initializationAction->addSubAction(stage3);
-
 	// Set the bragg motor power to PowerOn.
 	initializationAction->addSubAction(BioXASSideBeamline::bioXAS()->mono()->braggMotor()->createPowerAction(CLSMAXvMotor::PowerOn));
 
