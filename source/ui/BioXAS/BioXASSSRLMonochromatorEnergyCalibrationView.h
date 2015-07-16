@@ -48,8 +48,10 @@ protected slots:
 	/// Remove a scan.
 	void removeScan(AMScan *toRemove);
 
-	/// Sets the current mono energy: moves the mono to the given energy, sets the plot cursor coordinates, and sets the energy spinbox value.
+	/// Sets the current mono energy, and then applies it.
 	void setMonoEnergy(double newEnergy);
+	/// Applies the given mono energy: moves the mono to the given energy, sets the plot cursor coordinates, and sets the energy spinbox value.
+	void applyMonoEnergy(double newEnergy);
 
 	/// Handles loading previously collected scan data.
 	void onLoadDataButtonClicked();

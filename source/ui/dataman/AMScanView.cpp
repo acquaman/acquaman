@@ -382,8 +382,10 @@ void AMScanView::setPlotCursorVisibility(bool isVisible)
 		if (view && view->tools()) {
 			foreach (MPlotAbstractTool *tool, view->tools()->tools()) {
 				MPlotDataPositionCursorTool *cursorTool = qobject_cast<MPlotDataPositionCursorTool*>(tool);
-				if (cursorTool)
+				if (cursorTool) {
+					view->tools()->addSelectedTool(cursorTool);
 					cursorTool->setCursorVisibility(isVisible);
+				}
 			}
 		}
 	}

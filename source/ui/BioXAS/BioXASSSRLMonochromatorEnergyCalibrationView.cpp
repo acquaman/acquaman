@@ -1,5 +1,6 @@
 #include "BioXASSSRLMonochromatorEnergyCalibrationView.h"
 
+#include "beamline/BioXAS/BioXASBeamline.h"
 #include "beamline/BioXAS/BioXASSSRLMonochromator.h"
 #include "dataman/AMScan.h"
 #include "ui/dataman/AMScanView.h"
@@ -88,8 +89,10 @@ void BioXASSSRLMonochromatorEnergyCalibrationView::setMono(BioXASSSRLMonochromat
 
 		mono_ = newMono;
 
-		if (mono_)
-			connect( mono_->energyControl(), SIGNAL(valueChanged(double)), this, SLOT(onMonoEnergyChanged()) );
+		if (mono_) {
+			connect( mono_->energyControl(), SIGNAL(valueChanged(double)), this, SLOT(update()) );
+			connect( mono_->energyControl(), SIGNAL(movingChanged(bool)), this, SLOT(update()) );
+		}
 
 		update();
 
@@ -156,7 +159,11 @@ void BioXASSSRLMonochromatorEnergyCalibrationView::update()
 		if (mono_ && mono_->energyControl()) {
 			monoEnergySpinBox_->setEnabled(true);
 			desiredEnergySpinBox_->setEnabled(true);
-			calibrateButton_->setEnabled(true);
+
+			if (mono_->energyControl()->isMoving())
+				calibrateButton_->setEnabled(false);
+			else
+				calibrateButton_->setEnabled(true);
 
 		} else {
 			monoEnergySpinBox_->setEnabled(false);
@@ -221,6 +228,14 @@ void BioXASSSRLMonochromatorEnergyCalibrationView::refresh()
 				desiredEnergySpinBox_->setValue(value);
 			}
 		}
+
+		// Set the first data source as the source shown.
+
+		AMDataSource *dataSource = currentScan_->dataSourceAt(0);
+
+		if (dataSource) {
+			scanViewModel_->setExclusiveDataSourceByName(dataSource->name());
+		}
 	}
 
 	update();
@@ -244,25 +259,32 @@ void BioXASSSRLMonochromatorEnergyCalibrationView::setMonoEnergy(double newEnerg
 {
 	qDebug() << "\nPreparing to set mono energy...";
 
-	if (monoEnergy_ != newEnergy && mono_ && mono_->energyControl() && !mono_->energyControl()->isMoving()) {
+	if (monoEnergy_ != newEnergy && mono_ && mono_->energyControl() && mono_->energyControl()->canMove()) {
 
 		qDebug() << "Setting mono energy:" << newEnergy;
 
 		monoEnergy_ = newEnergy;
 
+		applyMonoEnergy(monoEnergy_);
+
+		qDebug() << "Mono energy update complete.";
+	}
+}
+
+void BioXASSSRLMonochromatorEnergyCalibrationView::applyMonoEnergy(double newEnergy)
+{
+	if (mono_ && mono_->energyControl()) {
 		// Move the mono to the given energy.
 
-		mono_->energyControl()->move(monoEnergy_);
+		mono_->energyControl()->move(newEnergy);
 
 		// Update the mono energy spinbox.
 
-		monoEnergySpinBox_->setValue(monoEnergy_);
+		monoEnergySpinBox_->setValue(newEnergy);
 
 		// Update the scan view cursor position.
 
-		scanView_->setPlotCursorCoordinates(monoEnergy_);
-
-		qDebug() << "Mono energy update complete.";
+		scanView_->setPlotCursorCoordinates(newEnergy);
 	}
 }
 
