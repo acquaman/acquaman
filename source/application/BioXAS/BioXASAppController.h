@@ -9,6 +9,7 @@
 #include "acquaman/BioXAS/BioXASScanConfigurationDbObject.h"
 #include "acquaman/BioXAS/BioXASXASScanConfiguration.h"
 #include "acquaman/BioXAS/BioXASSSRLMonochromatorEnergyCalibrationScanConfiguration.h"
+#include "acquaman/BioXAS/BioXASSSRLMonochromatorEnergyCalibrationScanActionController.h"
 #include "acquaman/BioXAS/BioXASXRFScanConfiguration.h"
 
 #include "actions3/actions/AMScanAction.h"

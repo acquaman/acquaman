@@ -150,10 +150,6 @@ void BioXASSSRLMonochromatorEnergyCalibrationView::update()
 {
 	if (currentScan_) {
 
-		// Update the scan view.
-
-		scanView_->setPlotCursorVisibility(true);
-
 		// Update the energy spinboxes and the calibrate button.
 
 		if (mono_ && mono_->energyControl()) {
@@ -195,6 +191,10 @@ void BioXASSSRLMonochromatorEnergyCalibrationView::refresh()
 	// Apply current scan selection.
 
 	if (currentScan_) {
+
+		// Update the scan view.
+
+		scanView_->setPlotCursorVisibility(true);
 
 		// Set the mono energy to be the point midway through the scan data.
 		// This would be a handy place for a peak finding algorithm upgrade later.

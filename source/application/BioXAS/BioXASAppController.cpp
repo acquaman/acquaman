@@ -282,22 +282,16 @@ void BioXASAppController::onCurrentScanActionFinishedImplementation(AMScanAction
 
 	if (action) {
 
-		AMScanActionInfo *info = qobject_cast<AMScanActionInfo*>(action->info());
+		BioXASSSRLMonochromatorEnergyCalibrationScanActionController *controller = qobject_cast<BioXASSSRLMonochromatorEnergyCalibrationScanActionController*>(action->controller());
 
-		if (info) {
-			qDebug() << "\nScan finished.";
+		if (controller) {
+			qDebug() << "It was a mono calibration scan.\n";
 
-			BioXASSSRLMonochromatorEnergyCalibrationScanConfiguration *config = qobject_cast<BioXASSSRLMonochromatorEnergyCalibrationScanConfiguration*>(info->configuration());
+			AMScan *calibrationScan = controller->scan();
+			goToEnergyCalibrationView(calibrationScan);
 
-			if (config) {
-				qDebug() << "It was a mono calibration scan.\n";
-
-				AMScan *calibrationScan = action->controller()->scan();
-				goToEnergyCalibrationView(calibrationScan);
-
-			} else {
-				qDebug() << "It was NOT a mono calibration scan.\n";
-			}
+		} else {
+			qDebug() << "It was NOT a mono calibration scan.\n";
 		}
 	}
 }
@@ -317,6 +311,8 @@ void BioXASAppController::onRegionOfInterestRemoved(AMRegionOfInterest *region)
 void BioXASAppController::goToEnergyCalibrationView(AMScan *toView)
 {
 	if (energyCalibrationView_) {
+		qDebug() << "Going to energy calibration view...";
+
 		if (toView)
 			energyCalibrationView_->setCurrentScan(toView);
 
