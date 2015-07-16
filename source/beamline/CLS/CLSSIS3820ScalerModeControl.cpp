@@ -236,6 +236,8 @@ void CLSSIS3820ScalerModeControl::setSingleShotNumberOfScansPerBufferValue(doubl
 		singleShotNumberOfScansPerBufferValue_ = newValue;
 }
 
+#include <QDebug>
+
 AMAction3* CLSSIS3820ScalerModeControl::createMoveAction(double setpoint)
 {
 	// AMPseudoMotorControl handles checking whether we are connected, whether we can move,
@@ -243,16 +245,21 @@ AMAction3* CLSSIS3820ScalerModeControl::createMoveAction(double setpoint)
 
 	AMAction3 *result = 0;
 
-	int setpointInt = int(setpoint);
-
-	if (setpointInt == Mode::Continuous) {
-		setSingleShotScanCountValue(scanCountControl_->value());
-		setSingleShotNumberOfScansPerBufferValue(numberOfScansPerBufferControl_->value());
+	switch(int(setpoint)) {
+	case Mode::Continuous:
+//		setSingleShotScanCountValue(scanCountControl_->value());
+//		setSingleShotNumberOfScansPerBufferValue(numberOfScansPerBufferControl_->value());
 
 		result = createMoveToContinuousModeAction();
+		break;
 
-	} else if (setpointInt == Mode::SingleShot) {
+	case Mode::SingleShot:
+		qDebug() << "Moving to single shot mode...";
 		result = createMoveToSingleShotModeAction();
+		break;
+
+	default:
+		break;
 	}
 
 	return result;

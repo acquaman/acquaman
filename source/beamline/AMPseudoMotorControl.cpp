@@ -121,6 +121,8 @@ QString AMPseudoMotorControl::toString() const
 	return result;
 }
 
+#include <QDebug>
+
 AMControl::FailureExplanation AMPseudoMotorControl::move(double setpoint)
 {
 	// Check that this control is connected and able to move before proceeding.
@@ -149,6 +151,7 @@ AMControl::FailureExplanation AMPseudoMotorControl::move(double setpoint)
 	// Instead report a successful move to setpoint.
 
 	if (withinTolerance(setpoint)) {
+		qDebug() << "Within tolerance.";
 		onMoveStarted(0);
 		onMoveSucceeded(0);
 		return AMControl::NoFailure;
