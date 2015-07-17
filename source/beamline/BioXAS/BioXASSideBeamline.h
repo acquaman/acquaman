@@ -242,6 +242,8 @@ public:
 	AMBasicControlDetectorEmulator* braggMoveRetriesDetector() const { return braggMoveRetriesDetector_; }
 	/// Returns the bragg step setpoint detector.
 	AMBasicControlDetectorEmulator* braggStepSetpointDetector() const { return braggStepSetpointDetector_; }
+	/// Returns the bragg motor feedback, step-based.
+	AMBasicControlDetectorEmulator* braggStepMotorFeedbackDetector() const { return braggStepMotorFeedbackDetector_; }
 	/// Returns the 32 element Ge detector.
 	BioXAS32ElementGeDetector *ge32ElementDetector() const { return ge32ElementDetector_; }
 	/// Returns the four element Vortex detector.
@@ -330,6 +332,7 @@ protected:
 	AMBasicControlDetectorEmulator *braggDetector_;
 	AMBasicControlDetectorEmulator *braggMoveRetriesDetector_;
 	AMBasicControlDetectorEmulator *braggStepSetpointDetector_;
+	AMBasicControlDetectorEmulator *braggStepMotorFeedbackDetector_;
 	AMBasicControlDetectorEmulator *braggEncoderFeedbackDetector_;
 	BioXAS32ElementGeDetector *ge32ElementDetector_;
 	BioXASFourElementVortexDetector *fourElementVortexDetector_;
