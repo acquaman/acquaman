@@ -40,9 +40,14 @@ AMGithubProjectManagerMainView::~AMGithubProjectManagerMainView()
 }
 
 void AMGithubProjectManagerMainView::onInitiateButtonClicked(){
-	QString userInfo = userNameLineEdit_->text()+":"+passwordLineEdit_->text();
-	QByteArray userData = userInfo.toLocal8Bit().toBase64();
-	headerData_ = "Basic " + userData;
+//	QString userInfo = userNameLineEdit_->text()+":"+passwordLineEdit_->text();
+//	QString userInfo = userNameLineEdit_->text()+":"+"2f8e7e362e5c0a5ea065255ccfdc369e70f4327b";
+//	QByteArray userData = userInfo.toLocal8Bit().toBase64();
+//	headerData_ = "Basic " + userData;
+
+//	QString tokenInfo = "Authorization: token 2f8e7e362e5c0a5ea065255ccfdc369e70f4327b";
+//	QByteArray tokenData = userInfo.toLocal8Bit().toBase64();
+	headerData_ = "token 2f8e7e362e5c0a5ea065255ccfdc369e70f4327b";
 
 	manager_ = new QNetworkAccessManager(this);
 
@@ -98,7 +103,6 @@ void AMGithubProjectManagerMainView::onGetAllClosedActionsFullResponseReady(QVar
 				}
 
 				AMGitHubIssue *oneIssue = new AMGitHubIssue(jsonMap);
-
 				allIssues_.insert(oneIssue->issueNumber(), oneIssue);
 
 				if(associatedMilestone && !oneIssue->projectTrackingDisabled())
@@ -109,11 +113,11 @@ void AMGithubProjectManagerMainView::onGetAllClosedActionsFullResponseReady(QVar
 
 	if(!lastPage_){
 		currentClosedIssuesPage_ = nextPageNumber;
-		if(nextPageNumber == lastPageNumber)
-			lastPage_ = true;
-
-//		if(nextPageNumber == 20)
+//		if(nextPageNumber == lastPageNumber)
 //			lastPage_ = true;
+
+		if(nextPageNumber == 2)
+			lastPage_ = true;
 
 		qDebug() << "More more issues to fetch, going to page " << currentClosedIssuesPage_;
 
@@ -624,6 +628,7 @@ void AMGithubProjectManagerMainView::onGetOneIssueCommentsReturned(QVariant full
 		qDebug() << "Average Reported Velocity: " << averageCalendarReportedVelocity << "or" << averageAvailabilityReportedVelocity;
 
 
+		/* NO PLOTTING
 		// Create the plot window.
 		MPlotWidget *plotView = new MPlotWidget;
 		plotView->enableAntiAliasing(true);
@@ -702,10 +707,25 @@ void AMGithubProjectManagerMainView::onGetOneIssueCommentsReturned(QVariant full
 		}
 
 		plotView->show();
+		*/
 
-		QString eventsString = QString("https://api.github.com/repos/acquaman/acquaman/issues/1315/events");
-		AMRestActionInfo *getOneIssueEventsActionInfo = new AMRestActionInfo(eventsString, AMRestActionInfo::GetRequest);
+//		QString eventsString = QString("https://api.github.com/repos/acquaman/acquaman/issues/1315/events");
+//		QString eventsString = QString("https://api.zenhub.io/v2/acquaman/acquaman/issues/1176/pipelines");
+//		QString eventsString = QString("https://api.zenhub.io/v2/acquaman/acquaman/issues/1177/estimates?repo=acquaman&issue_number=1177&organization=acquaman");
+//		QString eventsString = QString("https://api.zenhub.io/v2/acquaman/acquaman/issues/1276/pipelines");
+//		QString eventsString = QString("https://api.zenhub.io/v2/acquaman/acquaman/issues/1462/estimates?repo=acquaman&issue_number=1462&organization=acquaman");
+//		QString eventsString = QString("https://api.github.com/repos/acquaman/acquaman/issues/1462/labels");
+//		QString eventsString = QString("https://api.zenhub.io/v2/acquaman/acquaman/issues/1462/estimates?repo=acquaman&issue_number=1462&estimate_value=3&organization=acquaman");
+		QString eventsString = QString("https://api.zenhub.io/v2/acquaman/acquaman/issues/1458/estimates");
+//		QString eventsString = QString("https://api.zenhub.io/v2/acquaman/acquaman/board");
+
+//		AMRestActionInfo *getOneIssueEventsActionInfo = new AMRestActionInfo(eventsString, AMRestActionInfo::GetRequest);
+		AMRestActionInfo *getOneIssueEventsActionInfo = new AMRestActionInfo(eventsString, AMRestActionInfo::PatchRequest);
 		getOneIssueEventsActionInfo->setRawHeader("Authorization", headerData_.toLocal8Bit());
+		QString xauthtokenData = "ced5ec812ee0ee5576da1345550d0110ba65946262541a1db6030ebda5dd4c0d95b31d24d954c563";
+		getOneIssueEventsActionInfo->setRawHeader("x-authentication-token", xauthtokenData.toLocal8Bit());
+		getOneIssueEventsActionInfo->setRawHeader("Content-Type", QString("application/x-www-form-urlencoded").toLocal8Bit());
+//		getOneIssueEventsActionInfo->setRawHeader("Content-Length", QString("70").toLocal8Bit());
 		AMRestAction *getOneIssueEventsAction = new AMRestAction(getOneIssueEventsActionInfo, manager_);
 
 		connect(getOneIssueEventsAction, SIGNAL(fullResponseReady(QVariant, QList<QNetworkReply::RawHeaderPair>)), this, SLOT(onGetOneIssueEventsReturned(QVariant, QList<QNetworkReply::RawHeaderPair>)));
@@ -714,14 +734,65 @@ void AMGithubProjectManagerMainView::onGetOneIssueCommentsReturned(QVariant full
 }
 
 void AMGithubProjectManagerMainView::onGetOneIssueEventsReturned(QVariant fullResponse, QList<QNetworkReply::RawHeaderPair> headerPairs){
-	qDebug() << "Got the event info back";
+	qDebug() << "Got the pipeline for 1462 info back";
 
+	qDebug() << "\n\n" << fullResponse;
+
+//	QVariantList responseList = fullResponse.toList();
+//	for(int x = 0, size = responseList.count(); x < size; x++){
+////		qDebug() << "At" << x;
+////		qDebug() << responseList.at(x);
+////		qDebug() << "\n";
+//		QVariantMap jsonMap = responseList.at(x).toMap();
+//		qDebug() << "At " << x << "event type" << jsonMap.value("event").toString();
+//	}
+
+	/* QString eventsString = QString("https://api.zenhub.io/v2/acquaman/acquaman/issues/1276/pipelines");
 	QVariantList responseList = fullResponse.toList();
 	for(int x = 0, size = responseList.count(); x < size; x++){
-//		qDebug() << "At" << x;
-//		qDebug() << responseList.at(x);
-//		qDebug() << "\n";
-		QVariantMap jsonMap = responseList.at(x).toMap();
-		qDebug() << "At " << x << "event type" << jsonMap.value("event").toString();
+		qDebug() << "At" << x << responseList.at(x);
 	}
+	*/
+
+	/* QString eventsString = QString("https://api.zenhub.io/v2/acquaman/acquaman/issues/1276/pipelines"); */
+	QVariantList responseList = fullResponse.toList();
+	for(int x = 0, size = responseList.count(); x < size; x++){
+		qDebug() << "At" << x << responseList.at(x);
+	}
+	/**/
+
+	/* QString eventsString = QString("https://api.zenhub.io/v2/acquaman/acquaman/board");
+	QVariantMap jsonMap = fullResponse.toMap();
+	QMap<QString, QVariant>::const_iterator j = jsonMap.constBegin();
+	while (j != jsonMap.constEnd()) {
+		if(j.key() == "pipelines"){
+			qDebug() << "PIPELINES:";
+			QVariantList pipelinesList = j.value().toList();
+			for(int x = 0, xSize = pipelinesList.count(); x < xSize; x++){
+				QVariantMap innerMap = pipelinesList.at(x).toMap();
+				QMap<QString, QVariant>::const_iterator k = innerMap.constBegin();
+				while (k != innerMap.constEnd()) {
+					if(k.key() == "issues"){
+						qDebug() << "\tISSUES for: " << innerMap.value("name").toString();
+						QVariantList issuesList = k.value().toList();
+						for(int y = 0, ySize = issuesList.count(); y < ySize; y++){
+							QVariantMap issuesMap = issuesList.at(y).toMap();
+							QMap<QString, QVariant>::const_iterator l = issuesMap.constBegin();
+							while (l != issuesMap.constEnd()) {
+								qDebug() << "\t\t" << l.key() << l.value();
+								l++;
+							}
+						}
+					}
+					else
+						qDebug() << "\t" << k.key() << k.value();
+					k++;
+				}
+			}
+		}
+		else
+			qDebug() << j.key() << j.value();
+		j++;
+	}
+	*/
 }
