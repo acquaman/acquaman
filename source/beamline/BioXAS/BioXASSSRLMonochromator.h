@@ -103,6 +103,11 @@ public:
 	/// Returns the crystal 2 roll motor.
 	CLSMAXvMotor* crystal2RollMotor() const { return crystal2RollMotor_; }
 
+	/// Returns a newly created action that calibrates the given mono energy to the desired mono energy.
+	AMAction3* createEnergyCalibrationAction(double monoEnergy, double desiredEnergy);
+	/// Returns a newly created action that calibrates the mono's current energy to the desired energy.
+	AMAction3* createEnergyCalibrationAction(double desiredEnergy);
+
 signals:
 	/// Notifier that the m1 mirror pitch control has changed.
 	void m1MirrorPitchControlChanged(AMControl *newControl);
