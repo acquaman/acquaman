@@ -66,6 +66,15 @@ protected:
 	AMReadOnlyPVControl *ge13ElementRealTimeControl_;
 	AMDetector *ge13ElementRealTime_;
 
+    // preamp gain controls for detectors 1-12
+    AMControl *preampGainControl1_, *preampGainControl2_, *preampGainControl3_, *preampGainControl4_,
+              *preampGainControl5_, *preampGainControl6_, *preampGainControl7_, *preampGainControl8_,
+              *preampGainControl9_, *preampGainControl10_,*preampGainControl11_,*preampGainControl12_;
+
+    // energy peaking time
+    AMPVControl *peakingTimeControl_;
+
+
 
 };
 
