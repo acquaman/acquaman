@@ -48,9 +48,6 @@ protected slots:
 	/// Handles removing regions of interest from all the configurations that would care.
 	virtual void onRegionOfInterestRemoved(AMRegionOfInterest *region);
 
-	/// Implementation method that individual applications can flesh out if extra setup is required when a scan action is started.  This is not pure virtual because there is no requirement to do anything to scan actions.
-	virtual void onCurrentScanActionStartedImplementation(AMScanAction *action);
-
 protected:
 	/// Registers all of the necessary classes that are BioXAS specific.
 	virtual void registerClasses();

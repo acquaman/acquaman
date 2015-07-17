@@ -118,11 +118,11 @@ void BioXASAppController::setupUserInterface()
 	// Create beamline component widgets:
 	////////////////////////////////////
 
-	BioXASEndstationTable *table = BioXASBeamline::bioXAS()->endstationTable();
-	if (table) {
-		BioXASEndstationTableView *endstationTableView = new BioXASEndstationTableView(table);
-		mw_->addPane(AMMainWindow::buildMainWindowPane("Endstation Table", ":/system-software-update.png", endstationTableView), "General", "Endstation Table", ":/system-software-update.png");
-	}
+//	BioXASEndstationTable *table = BioXASBeamline::bioXAS()->endstationTable();
+//	if (table) {
+//		BioXASEndstationTableView *endstationTableView = new BioXASEndstationTableView(table);
+//		mw_->addPane(AMMainWindow::buildMainWindowPane("Endstation Table", ":/system-software-update.png", endstationTableView), "General", "Endstation Table", ":/system-software-update.png");
+//	}
 
 	BioXASCarbonFilterFarm *filterFarm = BioXASBeamline::bioXAS()->carbonFilterFarm();
 	if (filterFarm) {
@@ -184,14 +184,14 @@ void BioXASAppController::setupUserInterface()
 		mw_->addPane(AMMainWindow::buildMainWindowPane("Scaler", ":/system-search.png", scalerView), "Detectors", "Scaler", ":/system-search.png");
 	}
 
-	BioXAS32ElementGeDetector *geDetector = BioXASBeamline::bioXAS()->ge32ElementDetector();
-	if (geDetector) {
-		BioXAS32ElementGeDetectorView *geDetectorView = new BioXAS32ElementGeDetectorView(geDetector);
-		geDetectorView->buildDetectorView();
-		geDetectorView->addEmissionLineNameFilter(QRegExp("1"));
-		geDetectorView->addPileUpPeakNameFilter(QRegExp("(K.1|L.1|Ma1)"));
-		mw_->addPane(geDetectorView, "Detectors", "Ge 32-el", ":/system-search.png");
-	}
+//	BioXAS32ElementGeDetector *geDetector = BioXASBeamline::bioXAS()->ge32ElementDetector();
+//	if (geDetector) {
+//		BioXAS32ElementGeDetectorView *geDetectorView = new BioXAS32ElementGeDetectorView(geDetector);
+//		geDetectorView->buildDetectorView();
+//		geDetectorView->addEmissionLineNameFilter(QRegExp("1"));
+//		geDetectorView->addPileUpPeakNameFilter(QRegExp("(K.1|L.1|Ma1)"));
+//		mw_->addPane(geDetectorView, "Detectors", "Ge 32-el", ":/system-search.png");
+//	}
 
 	BioXASFourElementVortexDetector *fourElementDetector = BioXASBeamline::bioXAS()->fourElementVortexDetector();
 	if (fourElementDetector) {

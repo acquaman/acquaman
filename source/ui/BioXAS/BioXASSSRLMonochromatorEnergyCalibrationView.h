@@ -6,6 +6,7 @@
 #include <QMessageBox>
 #include <QDoubleSpinBox>
 #include <QUrl>
+#include <QToolButton>
 
 class AMScan;
 class AMScanSetModel;

@@ -82,27 +82,6 @@ void BioXASMainAppController::onRegionOfInterestRemoved(AMRegionOfInterest *regi
 	configuration_->removeRegionOfInterest(region);
 }
 
-#include <QDebug>
-
-void BioXASMainAppController::onCurrentScanActionStartedImplementation(AMScanAction *action)
-{
-	BioXASAppController::onCurrentScanActionStartedImplementation(action);
-
-	qDebug() << "\nScan started.";
-
-	if (action) {
-		AMScanActionInfo *info = qobject_cast<AMScanActionInfo*>(action->info());
-
-		if (info) {
-			BioXASSSRLMonochromatorEnergyCalibrationScanConfiguration *config = qobject_cast<BioXASSSRLMonochromatorEnergyCalibrationScanConfiguration*>(info->configuration());
-
-			if (config) {
-				qDebug() << "It is a mono calibration scan.";
-			}
-		}
-	}
-}
-
 void BioXASMainAppController::registerClasses()
 {
 	BioXASAppController::registerClasses();

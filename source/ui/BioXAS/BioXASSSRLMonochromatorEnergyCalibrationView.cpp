@@ -17,11 +17,12 @@ BioXASSSRLMonochromatorEnergyCalibrationView::BioXASSSRLMonochromatorEnergyCalib
 	// Create UI elements.
 
 	loadDataButton_ = new QPushButton("Load data");
+	loadDataButton_->setToolTip("Use previously acquired data for calibration.");
 
 	scanView_ = new AMScanView();
 	scanViewModel_ = scanView_->model();
 
-	QLabel *peakEnergyPrompt = new QLabel("Mono energy: ");
+	QLabel *monoEnergyPrompt = new QLabel("Mono energy: ");
 
 	monoEnergySpinBox_ = new QDoubleSpinBox(this);
 
@@ -40,7 +41,7 @@ BioXASSSRLMonochromatorEnergyCalibrationView::BioXASSSRLMonochromatorEnergyCalib
 	dataOptionsLayout->addStretch();
 
 	QGridLayout *energyLayout = new QGridLayout();
-	energyLayout->addWidget(peakEnergyPrompt, 0, 0, 1, 1, Qt::AlignRight);
+	energyLayout->addWidget(monoEnergyPrompt, 0, 0, 1, 1, Qt::AlignRight);
 	energyLayout->addWidget(monoEnergySpinBox_, 0, 1);
 	energyLayout->addWidget(desiredEnergyPrompt, 1, 0, 1, 1, Qt::AlignRight);
 	energyLayout->addWidget(desiredEnergySpinBox_, 1, 1);
@@ -70,7 +71,7 @@ BioXASSSRLMonochromatorEnergyCalibrationView::BioXASSSRLMonochromatorEnergyCalib
 	// Current settings.
 
 	setMono(mono);
-	setCurrentScan(scan);
+//	setCurrentScan(scan);
 }
 
 BioXASSSRLMonochromatorEnergyCalibrationView::~BioXASSSRLMonochromatorEnergyCalibrationView()
@@ -136,6 +137,8 @@ void BioXASSSRLMonochromatorEnergyCalibrationView::setCurrentScan(AMScan *newSca
 
 void BioXASSSRLMonochromatorEnergyCalibrationView::clear()
 {
+	qDebug() << "Clearing view.";
+
 	// Clear the scan view.
 
 	scanView_->setPlotCursorVisibility(false);
@@ -150,6 +153,8 @@ void BioXASSSRLMonochromatorEnergyCalibrationView::update()
 {
 	if (currentScan_) {
 
+		qDebug() << "Updating view.";
+
 		// Update the energy spinboxes and the calibrate button.
 
 		if (mono_ && mono_->energyControl()) {
@@ -161,6 +166,8 @@ void BioXASSSRLMonochromatorEnergyCalibrationView::update()
 			else
 				calibrateButton_->setEnabled(true);
 
+			// If there is no mono, all energy-related widgets should be disabled/empty.
+
 		} else {
 			monoEnergySpinBox_->setEnabled(false);
 			desiredEnergySpinBox_->setEnabled(false);
@@ -169,7 +176,7 @@ void BioXASSSRLMonochromatorEnergyCalibrationView::update()
 
 		// Update the mono energy.
 
-		setMonoEnergy(monoEnergy_);
+		applyMonoEnergy(monoEnergy_);
 
 	} else {
 
@@ -184,6 +191,8 @@ void BioXASSSRLMonochromatorEnergyCalibrationView::update()
 
 void BioXASSSRLMonochromatorEnergyCalibrationView::refresh()
 {
+	qDebug() << "Refreshing view.";
+
 	// Clear the view.
 
 	clear();
@@ -211,6 +220,8 @@ void BioXASSSRLMonochromatorEnergyCalibrationView::refresh()
 				double valueMin = energySource->axisValue(0, 0);
 
 				// Update the scan view cursor coordinates with the given value.
+
+				qDebug() << "Refreshing view, about to set mono energy:" << value;
 
 				setMonoEnergy(value);
 
@@ -257,35 +268,27 @@ void BioXASSSRLMonochromatorEnergyCalibrationView::removeScan(AMScan *toRemove)
 
 void BioXASSSRLMonochromatorEnergyCalibrationView::setMonoEnergy(double newEnergy)
 {
-	qDebug() << "\nPreparing to set mono energy...";
-
-	if (monoEnergy_ != newEnergy && mono_ && mono_->energyControl() && mono_->energyControl()->canMove()) {
+	if (monoEnergy_ != newEnergy) {
 
 		qDebug() << "Setting mono energy:" << newEnergy;
 
 		monoEnergy_ = newEnergy;
 
 		applyMonoEnergy(monoEnergy_);
-
-		qDebug() << "Mono energy update complete.";
 	}
 }
 
 void BioXASSSRLMonochromatorEnergyCalibrationView::applyMonoEnergy(double newEnergy)
 {
-	if (mono_ && mono_->energyControl()) {
-		// Move the mono to the given energy.
+	qDebug() << "Applying mono energy:" << newEnergy;
 
-		mono_->energyControl()->move(newEnergy);
+	// Update the mono energy spinbox.
 
-		// Update the mono energy spinbox.
+	monoEnergySpinBox_->setValue(newEnergy);
 
-		monoEnergySpinBox_->setValue(newEnergy);
+	// Update the scan view cursor position.
 
-		// Update the scan view cursor position.
-
-		scanView_->setPlotCursorCoordinates(newEnergy);
-	}
+	scanView_->setPlotCursorCoordinates(newEnergy);
 }
 
 void BioXASSSRLMonochromatorEnergyCalibrationView::onLoadDataButtonClicked()
@@ -306,6 +309,8 @@ void BioXASSSRLMonochromatorEnergyCalibrationView::onScanChosen()
 
 void BioXASSSRLMonochromatorEnergyCalibrationView::onScanViewDataPositionChanged(const QPointF &newPosition)
 {
+	qDebug() << "Scan view data position changed.";
+
 	double newEnergy = newPosition.x();
 	setMonoEnergy(newEnergy);
 }

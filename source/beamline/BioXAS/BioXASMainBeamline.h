@@ -126,7 +126,7 @@ protected:
 	void setupSampleStage();
 	/// Sets up various beamline components.
 	virtual void setupComponents();
-	/// Sets up the exposed actions.
+	/// Sets up the exposed controls.
 	void setupExposedControls();
 	/// Sets up the exposed detectors.
 	void setupExposedDetectors();
