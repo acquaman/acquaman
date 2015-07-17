@@ -36,9 +36,6 @@ public:
 	virtual ~BioXASSideXASScanActionController();
 
 protected:
-	/// Returns actions that will initialize the Side beamline for an XAS scan.
-	AMAction3* createInitializationActions();
-
 	/// Sets the scan axis and adds anything extra.
 	virtual void buildScanControllerImplementation();
 

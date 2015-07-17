@@ -142,16 +142,9 @@ AMAction3* BioXASXASScanActionController::createInitializationActions()
 {
 	AMSequentialListAction3 *result = 0;
 
-	AMSequentialListAction3 *scalerInitialization = 0;
-
-	// The vortex is okay if the scan is using this detector and one is found. Also okay if we aren't using it. We have a problem otherwise.
-	bool vortexOK = false;
-	AMSequentialListAction3 *vortexDetectorInitialization = 0;
-
-	AMSequentialListAction3 *monoInitialization = 0;
-
 	// Initialize the scaler.
 
+	AMSequentialListAction3 *scalerInitialization = 0;
 	CLSSIS3820Scaler *scaler = CLSBeamline::clsBeamline()->scaler();
 
 	if (scaler) {
@@ -159,16 +152,16 @@ AMAction3* BioXASXASScanActionController::createInitializationActions()
 
 		scalerInitialization = new AMSequentialListAction3(new AMSequentialListActionInfo3("BioXAS Scaler Initialization Actions", "BioXAS Scaler Initialization Actions"));
 		scalerInitialization->addSubAction(scaler->createContinuousEnableAction3(false));
-		scalerInitialization->addSubAction(scaler->createStartAction3(false));
-		scalerInitialization->addSubAction(scaler->createDwellTimeAction3(double(regionTime)));
-		scalerInitialization->addSubAction(scaler->createScansPerBufferAction3(1));
-		scalerInitialization->addSubAction(scaler->createTotalScansAction3(1));
+		scalerInitialization->addSubAction(scaler->createDwellTimeAction3(regionTime));
 		scalerInitialization->addSubAction(scaler->createStartAction3(true));
-		scalerInitialization->addSubAction(scaler->createWaitForDwellFinishedAction(double(regionTime) + 5.0));
+		scalerInitialization->addSubAction(scaler->createWaitForDwellFinishedAction(regionTime + 5.0));
 	}
 
 	// Initialize four element XRF detector, if using.
 
+	// The vortex is okay if the scan is using this detector and one is found. Also okay if we aren't using it. We have a problem otherwise.
+	bool vortexOK = false;
+	AMSequentialListAction3 *vortexDetectorInitialization = 0;
 	BioXASFourElementVortexDetector *detector = BioXASBeamline::bioXAS()->fourElementVortexDetector();
 
 	if (configuration_->usingXRFDetector() && detector) {
@@ -188,6 +181,7 @@ AMAction3* BioXASXASScanActionController::createInitializationActions()
 
 	// Initialize the mono.
 
+	AMSequentialListAction3 *monoInitialization = 0;
 	BioXASMonochromator *mono = BioXASBeamline::bioXAS()->mono();
 
 	if (mono) {
@@ -199,6 +193,17 @@ AMAction3* BioXASXASScanActionController::createInitializationActions()
 			monoInitialization = new AMSequentialListAction3(new AMSequentialListActionInfo3("BioXAS Monochromator Initialization", "BioXAS Monochromator Initialization"));
 			monoInitialization->addSubAction(braggMotor->createPowerAction(CLSMAXvMotor::PowerOn));
 		}
+	}
+
+	// Initialize the standards wheel.
+
+	AMAction3* standardsWheelInitialization = 0;
+	CLSStandardsWheel *standardsWheel = BioXASBeamline::bioXAS()->standardsWheel();
+
+	if (standardsWheel && standardsWheel->indexFromName(configuration_->edge().split(" ").first()) != -1) {
+		standardsWheelInitialization = standardsWheel->createMoveToNameAction(configuration_->edge().split(" ").first());
+	} else {
+		standardsWheelInitialization = standardsWheel->createMoveToNameAction("None");
 	}
 
 	// Create complete initialization action.
@@ -217,6 +222,10 @@ AMAction3* BioXASXASScanActionController::createInitializationActions()
 		// Add mono initialization.
 		if (monoInitialization)
 			result->addSubAction(monoInitialization);
+
+		// Add standards wheel initialization.
+		if (standardsWheelInitialization)
+			result->addSubAction(standardsWheelInitialization);
 	}
 
 	return result;
@@ -225,31 +234,30 @@ AMAction3* BioXASXASScanActionController::createInitializationActions()
 AMAction3* BioXASXASScanActionController::createCleanupActions()
 {
 	AMSequentialListAction3 *result = 0;
-	AMSequentialListAction3 *scalerCleanup = 0;
-	AMSequentialListAction3 *monoCleanup = 0;
 
 	// Create scaler cleanup actions.
 
+	AMSequentialListAction3 *scalerCleanup = 0;
 	CLSSIS3820Scaler *scaler = CLSBeamline::clsBeamline()->scaler();
 
 	if (scaler) {
 		scalerCleanup = new AMSequentialListAction3(new AMSequentialListActionInfo3("BioXAS Scaler Cleanup", "BioXAS Scaler Cleanup"));
-		scalerCleanup->addSubAction(scaler->createDwellTimeAction3(1.0));
 		scalerCleanup->addSubAction(scaler->createContinuousEnableAction3(true));
 	}
 
 	// Create mono cleanup actions.
 
+	AMSequentialListAction3 *monoCleanup = 0;
 	BioXASMonochromator *mono = BioXASBeamline::bioXAS()->mono();
 
 	if (mono) {
 
-		// Set the bragg motor power to PowerAutoHardware. The motor can get too warm when left on for too long, that's why we turn it off when not in use.
+		// Set the bragg motor power to PowerAutoSoftware. The motor can get too warm when left on for too long, that's why we turn it off when not in use.
 		CLSMAXvMotor *braggMotor = qobject_cast<CLSMAXvMotor*>(mono->braggMotor());
 
 		if (braggMotor) {
 			monoCleanup = new AMSequentialListAction3(new AMSequentialListActionInfo3("BioXAS Monochromator Cleanup", "BioXAS Monochromator Cleanup"));
-			monoCleanup->addSubAction(braggMotor->createPowerAction(CLSMAXvMotor::PowerAutoHardware));
+			monoCleanup->addSubAction(braggMotor->createPowerAction(CLSMAXvMotor::PowerAutoSoftware));
 		}
 	}
 

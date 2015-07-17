@@ -78,31 +78,6 @@ BioXASSideXASScanActionController::~BioXASSideXASScanActionController()
 
 }
 
-AMAction3* BioXASSideXASScanActionController::createInitializationActions()
-{
-	AMAction3 *result = 0;
-	AMAction3 *generalInitialization = BioXASXASScanActionController::createInitializationActions();
-
-	if (generalInitialization) {
-		AMSequentialListAction3 *sideInitialization = new AMSequentialListAction3(new AMSequentialListActionInfo3("BioXAS Side XAS Scan Initialization", "BioXAS Side XAS Scan Initialization"));
-		sideInitialization->addSubAction(generalInitialization);
-
-		// Initialize the standards wheel.
-
-		CLSStandardsWheel *standardsWheel = BioXASSideBeamline::bioXAS()->standardsWheel();
-
-		if (standardsWheel->indexFromName(configuration_->edge().split(" ").first()) != -1)
-			sideInitialization->addSubAction(standardsWheel->createMoveToNameAction(configuration_->edge().split(" ").first()));
-
-		else
-			sideInitialization->addSubAction(standardsWheel->createMoveToNameAction("None"));
-
-		result = sideInitialization;
-	}
-
-	return result;
-}
-
 void BioXASSideXASScanActionController::buildScanControllerImplementation()
 {
 	BioXASXASScanActionController::buildScanControllerImplementation();
