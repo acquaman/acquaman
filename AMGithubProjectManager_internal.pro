@@ -20,9 +20,21 @@ SOURCES += \
 	AMGithubProjectManager/main.cpp \
 	AMGithubProjectManager/AMGithubProjectManagerMainView.cpp \
 	source/actions3/actions/AMRestActionInfo.cpp \
-	source/actions3/actions/AMRestAction.cpp
+	source/actions3/actions/AMRestAction.cpp \
+    AMGithubProjectManager/AMGitHubIssue.cpp \
+    AMGithubProjectManager/AMGitHubIssueFamily.cpp \
+    AMGithubProjectManager/AMGitHubIssueFamilyView.cpp \
+    AMGithubProjectManager/AMGitHubComplexityManager.cpp \
+    AMGithubProjectManager/AMGitHubProject.cpp \
+    AMGithubProjectManager/AMGitHubMilestone.cpp
 
 HEADERS  += \
 	AMGithubProjectManager/AMGithubProjectManagerMainView.h \
 	source/actions3/actions/AMRestActionInfo.h \
-	source/actions3/actions/AMRestAction.h
+	source/actions3/actions/AMRestAction.h \
+    AMGithubProjectManager/AMGitHubIssue.h \
+    AMGithubProjectManager/AMGitHubIssueFamily.h \
+    AMGithubProjectManager/AMGitHubIssueFamilyView.h \
+    AMGithubProjectManager/AMGitHubComplexityManager.h \
+    AMGithubProjectManager/AMGitHubProject.h \
+    AMGithubProjectManager/AMGitHubMilestone.h

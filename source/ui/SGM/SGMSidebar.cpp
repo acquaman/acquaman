@@ -442,42 +442,42 @@ void SGMSidebar::onRestoreBeamlineActionFinished(){
 	restoreBeamlineAction_ = 0;
 }
 
-#include "actions3/actions/AMRestAction.h"
+//#include "actions3/actions/AMRestAction.h"
 
 void SGMSidebar::onScanningResetButtonClicked(){
 //	SGMBeamline::sgm()->beamlineScanning()->move(0);
 
 	qDebug() << "Clicked here";
 
-	AMListAction3 *masterList = new AMSequentialListAction3(new AMSequentialListActionInfo3("Rest Reqeusts", "Rest Requests"));
+//	AMListAction3 *masterList = new AMSequentialListAction3(new AMSequentialListActionInfo3("Rest Reqeusts", "Rest Requests"));
 
-	//QString userInfo = userName_+":"+password_;
-	QString userInfo = QString("davidChevrier:D1k2C#27G");
-	//QString userInfo = QString("davidChevrier:aabbccdd");
-	QByteArray userData = userInfo.toLocal8Bit().toBase64();
-//	QString headerData = "Basic " + userData;
-	headerData_ = "Basic " + userData;
-	//request.setRawHeader("Authorization", headerData.toLocal8Bit());
+//	//QString userInfo = userName_+":"+password_;
+//	QString userInfo = QString("davidChevrier:D1k2C#27G");
+//	//QString userInfo = QString("davidChevrier:aabbccdd");
+//	QByteArray userData = userInfo.toLocal8Bit().toBase64();
+////	QString headerData = "Basic " + userData;
+//	headerData_ = "Basic " + userData;
+//	//request.setRawHeader("Authorization", headerData.toLocal8Bit());
 
-	manager_ = new QNetworkAccessManager(this);
+//	manager_ = new QNetworkAccessManager(this);
 
-	AMRestActionInfo *restActionInfo = new AMRestActionInfo("https://api.github.com/user", AMRestActionInfo::GetRequest);
-	restActionInfo->setRawHeader("Authorization", headerData_.toLocal8Bit());
-	authenicationAction_ = new AMRestAction(restActionInfo, manager_);
-	masterList->addSubAction(authenicationAction_);
-//	restAction->start();
+//	AMRestActionInfo *restActionInfo = new AMRestActionInfo("https://api.github.com/user", AMRestActionInfo::GetRequest);
+//	restActionInfo->setRawHeader("Authorization", headerData_.toLocal8Bit());
+//	authenicationAction_ = new AMRestAction(restActionInfo, manager_);
+//	masterList->addSubAction(authenicationAction_);
+////	restAction->start();
 
-	currentClosedIssuesPage_ = 1;
-	lastPage_ = false;
-	QString issuesString = QString("https://api.github.com/repos/acquaman/acquaman/issues?filter=all&state=closed&page=%1&per_page=30").arg(currentClosedIssuesPage_);
-	AMRestActionInfo *getAllClosedIssuesActionInfo = new AMRestActionInfo(issuesString, AMRestActionInfo::GetRequest);
-	getAllClosedIssuesActionInfo->setRawHeader("Authorization", headerData_.toLocal8Bit());
-	getAllClosedIssuesAction_ = new AMRestAction(getAllClosedIssuesActionInfo, manager_);
-	masterList->addSubAction(getAllClosedIssuesAction_);
+//	currentClosedIssuesPage_ = 1;
+//	lastPage_ = false;
+//	QString issuesString = QString("https://api.github.com/repos/acquaman/acquaman/issues?filter=all&state=closed&page=%1&per_page=30").arg(currentClosedIssuesPage_);
+//	AMRestActionInfo *getAllClosedIssuesActionInfo = new AMRestActionInfo(issuesString, AMRestActionInfo::GetRequest);
+//	getAllClosedIssuesActionInfo->setRawHeader("Authorization", headerData_.toLocal8Bit());
+//	getAllClosedIssuesAction_ = new AMRestAction(getAllClosedIssuesActionInfo, manager_);
+//	masterList->addSubAction(getAllClosedIssuesAction_);
 
-//	connect(masterList, SIGNAL(succeeded()), this, SLOT(onRestActionsSucceeded()));
-	connect(getAllClosedIssuesAction_, SIGNAL(fullResponseReady(QVariant, QList<QNetworkReply::RawHeaderPair>)), this, SLOT(onGetAllClosedActionsFullResponseReady(QVariant, QList<QNetworkReply::RawHeaderPair>)));
-	masterList->start();
+////	connect(masterList, SIGNAL(succeeded()), this, SLOT(onRestActionsSucceeded()));
+//	connect(getAllClosedIssuesAction_, SIGNAL(fullResponseReady(QVariant, QList<QNetworkReply::RawHeaderPair>)), this, SLOT(onGetAllClosedActionsFullResponseReady(QVariant, QList<QNetworkReply::RawHeaderPair>)));
+//	masterList->start();
 }
 
 void SGMSidebar::onRestActionsSucceeded(){
@@ -656,317 +656,317 @@ void SGMSidebar::onGetAllClosedActionsFullResponseReady(QVariant fullResponse, Q
 
 void SGMSidebar::onGetOneIssueCommentsReturned(QVariant fullResponse, QList<QNetworkReply::RawHeaderPair> headerPairs)
 {
-//	qDebug() << "\n\n\n ONE ISSUE COMMENTS";
+////	qDebug() << "\n\n\n ONE ISSUE COMMENTS";
 
 
-	QVariantList githubListReply = fullResponse.toList();
-	int issueNumber = githubListReply.at(0).toMap().value("issue_url").toString().section("/", -1, -1).toInt();
-	qDebug() << "Checking Issue " << issueNumber << "(" << commentURLs_.count() << " comments remaining to fetch)";
-//	qDebug() << issueNumber;
-	for(int x = 0, size = githubListReply.count(); x < size; x++){
-//		qDebug() << githubListReply.at(x).toMap().value("body").toString();
-		if(githubListReply.at(x).toMap().value("body").toString().contains("Time Estimate:")){
-			QStringList splitCommentBody = githubListReply.at(x).toMap().value("body").toString().split("\n");
-			for(int y = 0, ySize = splitCommentBody.count(); y < ySize; y++){
-				if(splitCommentBody.at(y).contains("Time Estimate:")){
-					QString timeEstimateString = splitCommentBody.at(y);
-					timeEstimateString.remove("Time Estimate:");
-					timeEstimateString = timeEstimateString.simplified();
-					if(timeEstimateString.endsWith("."))
-						timeEstimateString.remove(timeEstimateString.count()-1, 1);
+//	QVariantList githubListReply = fullResponse.toList();
+//	int issueNumber = githubListReply.at(0).toMap().value("issue_url").toString().section("/", -1, -1).toInt();
+//	qDebug() << "Checking Issue " << issueNumber << "(" << commentURLs_.count() << " comments remaining to fetch)";
+////	qDebug() << issueNumber;
+//	for(int x = 0, size = githubListReply.count(); x < size; x++){
+////		qDebug() << githubListReply.at(x).toMap().value("body").toString();
+//		if(githubListReply.at(x).toMap().value("body").toString().contains("Time Estimate:")){
+//			QStringList splitCommentBody = githubListReply.at(x).toMap().value("body").toString().split("\n");
+//			for(int y = 0, ySize = splitCommentBody.count(); y < ySize; y++){
+//				if(splitCommentBody.at(y).contains("Time Estimate:")){
+//					QString timeEstimateString = splitCommentBody.at(y);
+//					timeEstimateString.remove("Time Estimate:");
+//					timeEstimateString = timeEstimateString.simplified();
+//					if(timeEstimateString.endsWith("."))
+//						timeEstimateString.remove(timeEstimateString.count()-1, 1);
 
-					//qDebug() << "Parsed time estimate for " << issueNumber << timeEstimateString.remove("Time Estimate:");
-					qDebug() << "Parsed time estimate for " << issueNumber << timeEstimateString;
+//					//qDebug() << "Parsed time estimate for " << issueNumber << timeEstimateString.remove("Time Estimate:");
+//					qDebug() << "Parsed time estimate for " << issueNumber << timeEstimateString;
 
-					if(allIssues_.contains(issueNumber))
-						allIssues_.value(issueNumber)->setTimeEstimateString(timeEstimateString);
-//						allIssues_.value(issueNumber)->setTimeEstimateString(timeEstimateString.remove("Time Estimate:"));
-				}
-			}
-		}
-	}
+//					if(allIssues_.contains(issueNumber))
+//						allIssues_.value(issueNumber)->setTimeEstimateString(timeEstimateString);
+////						allIssues_.value(issueNumber)->setTimeEstimateString(timeEstimateString.remove("Time Estimate:"));
+//				}
+//			}
+//		}
+//	}
 
-	if(commentURLs_.count() > 0){
-		QString oneCommentURL = commentURLs_.takeFirst();
+//	if(commentURLs_.count() > 0){
+//		QString oneCommentURL = commentURLs_.takeFirst();
 
-		AMRestActionInfo *getOneIssueCommentsActionInfo = new AMRestActionInfo(oneCommentURL, AMRestActionInfo::GetRequest);
-		getOneIssueCommentsActionInfo->setRawHeader("Authorization", headerData_.toLocal8Bit());
-		AMRestAction *getOneIssueCommentsAction = new AMRestAction(getOneIssueCommentsActionInfo, manager_);
+//		AMRestActionInfo *getOneIssueCommentsActionInfo = new AMRestActionInfo(oneCommentURL, AMRestActionInfo::GetRequest);
+//		getOneIssueCommentsActionInfo->setRawHeader("Authorization", headerData_.toLocal8Bit());
+//		AMRestAction *getOneIssueCommentsAction = new AMRestAction(getOneIssueCommentsActionInfo, manager_);
 
-		connect(getOneIssueCommentsAction, SIGNAL(fullResponseReady(QVariant, QList<QNetworkReply::RawHeaderPair>)), this, SLOT(onGetOneIssueCommentsReturned(QVariant, QList<QNetworkReply::RawHeaderPair>)));
-		getOneIssueCommentsAction->start();
-	}
-	else{
+//		connect(getOneIssueCommentsAction, SIGNAL(fullResponseReady(QVariant, QList<QNetworkReply::RawHeaderPair>)), this, SLOT(onGetOneIssueCommentsReturned(QVariant, QList<QNetworkReply::RawHeaderPair>)));
+//		getOneIssueCommentsAction->start();
+//	}
+//	else{
 
-		QMap<int, AMGitHubIssue*>::const_iterator i = allIssues_.constBegin();
-		while (i != allIssues_.constEnd()) {
-			if(!i.value()->isPullRequest() && i.value()->inlineIssue()){
-				AMGitHubIssueFamily *oneIssueFamily = new AMGitHubIssueFamily(i.value(), i.value());
-				allIssueFamilies_.insert(i.value()->issueNumber(), oneIssueFamily);
-			}
-			else if(!i.value()->isPullRequest() && !i.value()->projectTrackingDisabled()){
-				AMGitHubIssueFamily *oneIssueFamily = new AMGitHubIssueFamily(i.value(), 0);
-				allIssueFamilies_.insert(i.value()->issueNumber(), oneIssueFamily);
-			}
-			else if(!i.value()->isPullRequest() && (i.value()->complexityValue() != AMGitHubIssue::InvalidComplexity) && (i.value()->timeEstimateString() != "Invalid Time Estimate") && (!i.value()->timeEstimateString().isEmpty()))
-				qDebug() << "Issue " << i.value()->issueNumber() << " may be an inline issue";
-			i++;
-		}
+//		QMap<int, AMGitHubIssue*>::const_iterator i = allIssues_.constBegin();
+//		while (i != allIssues_.constEnd()) {
+//			if(!i.value()->isPullRequest() && i.value()->inlineIssue()){
+//				AMGitHubIssueFamily *oneIssueFamily = new AMGitHubIssueFamily(i.value(), i.value());
+//				allIssueFamilies_.insert(i.value()->issueNumber(), oneIssueFamily);
+//			}
+//			else if(!i.value()->isPullRequest() && !i.value()->projectTrackingDisabled()){
+//				AMGitHubIssueFamily *oneIssueFamily = new AMGitHubIssueFamily(i.value(), 0);
+//				allIssueFamilies_.insert(i.value()->issueNumber(), oneIssueFamily);
+//			}
+//			else if(!i.value()->isPullRequest() && (i.value()->complexityValue() != AMGitHubIssue::InvalidComplexity) && (i.value()->timeEstimateString() != "Invalid Time Estimate") && (!i.value()->timeEstimateString().isEmpty()))
+//				qDebug() << "Issue " << i.value()->issueNumber() << " may be an inline issue";
+//			i++;
+//		}
 
-		QMap<int, AMGitHubIssue*>::const_iterator j = allIssues_.constBegin();
-		while (j != allIssues_.constEnd()) {
-			if(j.value()->isPullRequest() && allIssueFamilies_.contains(j.value()->originatingIssueNumber()))
-				allIssueFamilies_.value(j.value()->originatingIssueNumber())->setPullRequestIssue(j.value());
+//		QMap<int, AMGitHubIssue*>::const_iterator j = allIssues_.constBegin();
+//		while (j != allIssues_.constEnd()) {
+//			if(j.value()->isPullRequest() && allIssueFamilies_.contains(j.value()->originatingIssueNumber()))
+//				allIssueFamilies_.value(j.value()->originatingIssueNumber())->setPullRequestIssue(j.value());
 
-			j++;
-		}
+//			j++;
+//		}
 
-		QList<int> totallyUnspecifiedIssues;
-		QMap<int, AMGitHubIssueFamily*>::const_iterator k = allIssueFamilies_.constBegin();
-		while(k != allIssueFamilies_.constEnd()){
-			if(k.value()->totallyIncomplete())
-				totallyUnspecifiedIssues.append(k.value()->originatingIssueNumber());
-			k++;
-		}
-		for(int x = 0, size = totallyUnspecifiedIssues.size(); x < size; x++)
-			allIssueFamilies_.remove(totallyUnspecifiedIssues.at(x));
-
-
-		QWidget *familiesMasterWidget = new QWidget();
-		QVBoxLayout *familiesMasterVL = new QVBoxLayout();
-		QScrollArea *familiesScrollArea = new QScrollArea();
-		QWidget *familiesWidget = new QWidget();
-		QVBoxLayout *familiesVL = new QVBoxLayout();
-		qDebug() << "\n\n\n\n";
-		QMap<int, AMGitHubIssueFamily*>::const_iterator m = allIssueFamilies_.constBegin();
-		while(m != allIssueFamilies_.constEnd()){
-			bool printIt = true;
-			if(m.value()->completeInfo())
-				printIt = false;
-			if(m.value()->totallyIncomplete())
-				printIt = false;
-			if(m.value()->onlyMissingActualComplexity())
-				printIt = false;
-			if(m.value()->onlyMissingTimeEstimate())
-				printIt = false;
-//			if(!m.value()->completeInfo() || !m.value()->totallyIncomplete())
-			if(printIt)
-				qDebug() << m.value()->multiLineDebugInfo();
-			AMGitHubIssueFamilyView *oneFamilyView = new AMGitHubIssueFamilyView(m.value());
-			familiesVL->addWidget(oneFamilyView);
-			m++;
-		}
-
-		familiesWidget->setLayout(familiesVL);
-		familiesScrollArea->setWidget(familiesWidget);
-
-		familiesMasterVL->addWidget(familiesScrollArea);
-		familiesMasterWidget->setLayout(familiesMasterVL);
-		familiesMasterWidget->show();
-
-		qDebug() << "\n\n\n\n";
-		QMap<int, AMGitHubIssueFamily*>::const_iterator o = allIssueFamilies_.constBegin();
-		while(o != allIssueFamilies_.constEnd()){
-			if(o.value()->onlyMissingActualComplexity())
-				qDebug() << "Need to do actual complexity for:\n" << o.value()->multiLineDebugInfo() << "\n";
-			o++;
-		}
-
-		qDebug() << "\n\n\n\n";
-		QMap<int, AMGitHubIssueFamily*>::const_iterator p = allIssueFamilies_.constBegin();
-		while(p != allIssueFamilies_.constEnd()){
-			if(p.value()->onlyMissingTimeEstimate())
-				qDebug() << p.value()->originatingIssue()->assignee() << " needs to do time estimate for: " << p.value()->originatingIssueNumber() << "\n";
-			p++;
-		}
-
-		int totallyCompleteIssues = 0;
-		int totallyIncompleteIssues = 0;
-		int onlyMissingActualComplexityIssues = 0;
-		int onlyMissingTimeEstimateIssues = 0;
-
-		qDebug() << "\n\n\n\n";
-		QMap<int, AMGitHubIssueFamily*>::const_iterator q = allIssueFamilies_.constBegin();
-		while(q != allIssueFamilies_.constEnd()){
-			if(q.value()->completeInfo())
-				totallyCompleteIssues++;
-			if(q.value()->totallyIncomplete())
-				totallyIncompleteIssues++;
-			if(q.value()->onlyMissingActualComplexity())
-				onlyMissingActualComplexityIssues++;
-			if(q.value()->onlyMissingTimeEstimate())
-				onlyMissingTimeEstimateIssues++;
-			q++;
-		}
-		qDebug() << totallyCompleteIssues << " of " << allIssueFamilies_.count() << " are fully specfied";
-		qDebug() << totallyIncompleteIssues << " of " << allIssueFamilies_.count() << " are totally unspecified";
-		qDebug() << onlyMissingActualComplexityIssues << " of " << allIssueFamilies_.count() << " are only missing an actual complexity";
-		qDebug() << onlyMissingTimeEstimateIssues << " of " << allIssueFamilies_.count() << " are only missing a time estimate";
-
-		qDebug() << "\n\n\n\n";
-		QVector<int> complexityMappingMatrix = QVector<int>(31, 0);
-		QList<double> estimatedComplexity1Times;
-		QList<double> estimatedComplexity2Times;
-		QList<double> estimatedComplexity3Times;
-		QList<double> estimatedComplexity5Times;
-		QList<double> estimatedComplexity8Times;
-		QList<double> estimatedComplexityKTimes;
-		QList<double> actualComplexity1Times;
-		QList<double> actualComplexity2Times;
-		QList<double> actualComplexity3Times;
-		QList<double> actualComplexity5Times;
-		QList<double> actualComplexity8Times;
-		QMap<int, AMGitHubIssueFamily*>::const_iterator r = allIssueFamilies_.constBegin();
-		while(r != allIssueFamilies_.constEnd()){
-			complexityMappingMatrix[r.value()->complexityMapping()] = complexityMappingMatrix.at(r.value()->complexityMapping())+1;
-
-			if(r.value()->normalizedTimeEstiamte() > 0){
-				switch(r.value()->estimatedComplexity()){
-				case AMGitHubIssue::Complexity1:
-					estimatedComplexity1Times.append(r.value()->normalizedTimeEstiamte());
-					break;
-				case AMGitHubIssue::Complexity2:
-					estimatedComplexity2Times.append(r.value()->normalizedTimeEstiamte());
-					break;
-				case AMGitHubIssue::Complexity3:
-					estimatedComplexity3Times.append(r.value()->normalizedTimeEstiamte());
-					break;
-				case AMGitHubIssue::Complexity5:
-					estimatedComplexity5Times.append(r.value()->normalizedTimeEstiamte());
-					break;
-				case AMGitHubIssue::Complexity8:
-					estimatedComplexity8Times.append(r.value()->normalizedTimeEstiamte());
-					break;
-				case AMGitHubIssue::ComplexityK:
-					estimatedComplexityKTimes.append(r.value()->normalizedTimeEstiamte());
-					break;
-				}
-
-				switch(r.value()->actualComplexity()){
-				case AMGitHubIssue::Complexity1:
-					actualComplexity1Times.append(r.value()->normalizedTimeEstiamte());
-					break;
-				case AMGitHubIssue::Complexity2:
-					actualComplexity2Times.append(r.value()->normalizedTimeEstiamte());
-					break;
-				case AMGitHubIssue::Complexity3:
-					actualComplexity3Times.append(r.value()->normalizedTimeEstiamte());
-					break;
-				case AMGitHubIssue::Complexity5:
-					actualComplexity5Times.append(r.value()->normalizedTimeEstiamte());
-					break;
-				case AMGitHubIssue::Complexity8:
-					actualComplexity8Times.append(r.value()->normalizedTimeEstiamte());
-					break;
-				}
-			}
-			else
-				qDebug() << "Issue " << r.value()->originatingIssueNumber() << " cannot normalize " << r.value()->timeEstimate();
-
-			r++;
-		}
-
-		QString debugString;
-		for(int x = 1, xSize = complexityMappingMatrix.count(); x < xSize; x++){
-			double percentValue = ((double)complexityMappingMatrix.at(x))/((double)allIssueFamilies_.count())*100;
-			debugString.append(QString("%1 \t").arg(percentValue, 0, 'f', 2));
-			if(x%5 == 0){
-				qDebug() << debugString;
-				debugString.clear();
-			}
-		}
-
-		double averageEstimatedComplexity1Time = 0;
-		double averageEstimatedComplexity2Time = 0;
-		double averageEstimatedComplexity3Time = 0;
-		double averageEstimatedComplexity5Time = 0;
-		double averageEstimatedComplexity8Time = 0;
-		double averageEstimatedComplexityKTime = 0;
-		double averageActualComplexity1Time = 0;
-		double averageActualComplexity2Time = 0;
-		double averageActualComplexity3Time = 0;
-		double averageActualComplexity5Time = 0;
-		double averageActualComplexity8Time = 0;
-
-		for(int x = 0, size = estimatedComplexity1Times.count(); x < size; x++)
-			averageEstimatedComplexity1Time += estimatedComplexity1Times.at(x);
-		averageEstimatedComplexity1Time = averageEstimatedComplexity1Time/((double)estimatedComplexity1Times.count());
-
-		for(int x = 0, size = estimatedComplexity2Times.count(); x < size; x++)
-			averageEstimatedComplexity2Time += estimatedComplexity2Times.at(x);
-		averageEstimatedComplexity2Time = averageEstimatedComplexity2Time/((double)estimatedComplexity2Times.count());
-
-		for(int x = 0, size = estimatedComplexity3Times.count(); x < size; x++)
-			averageEstimatedComplexity3Time += estimatedComplexity3Times.at(x);
-		averageEstimatedComplexity3Time = averageEstimatedComplexity3Time/((double)estimatedComplexity3Times.count());
-
-		for(int x = 0, size = estimatedComplexity5Times.count(); x < size; x++)
-			averageEstimatedComplexity5Time += estimatedComplexity5Times.at(x);
-		averageEstimatedComplexity5Time = averageEstimatedComplexity5Time/((double)estimatedComplexity5Times.count());
-
-		for(int x = 0, size = estimatedComplexity8Times.count(); x < size; x++)
-			averageEstimatedComplexity8Time += estimatedComplexity8Times.at(x);
-		averageEstimatedComplexity8Time = averageEstimatedComplexity8Time/((double)estimatedComplexity8Times.count());
-
-		for(int x = 0, size = estimatedComplexityKTimes.count(); x < size; x++)
-			averageEstimatedComplexityKTime += estimatedComplexityKTimes.at(x);
-		averageEstimatedComplexityKTime = averageEstimatedComplexityKTime/((double)estimatedComplexityKTimes.count());
+//		QList<int> totallyUnspecifiedIssues;
+//		QMap<int, AMGitHubIssueFamily*>::const_iterator k = allIssueFamilies_.constBegin();
+//		while(k != allIssueFamilies_.constEnd()){
+//			if(k.value()->totallyIncomplete())
+//				totallyUnspecifiedIssues.append(k.value()->originatingIssueNumber());
+//			k++;
+//		}
+//		for(int x = 0, size = totallyUnspecifiedIssues.size(); x < size; x++)
+//			allIssueFamilies_.remove(totallyUnspecifiedIssues.at(x));
 
 
-		for(int x = 0, size = actualComplexity1Times.count(); x < size; x++)
-			averageActualComplexity1Time += actualComplexity1Times.at(x);
-		averageActualComplexity1Time = averageActualComplexity1Time/((double)actualComplexity1Times.count());
+//		QWidget *familiesMasterWidget = new QWidget();
+//		QVBoxLayout *familiesMasterVL = new QVBoxLayout();
+//		QScrollArea *familiesScrollArea = new QScrollArea();
+//		QWidget *familiesWidget = new QWidget();
+//		QVBoxLayout *familiesVL = new QVBoxLayout();
+//		qDebug() << "\n\n\n\n";
+//		QMap<int, AMGitHubIssueFamily*>::const_iterator m = allIssueFamilies_.constBegin();
+//		while(m != allIssueFamilies_.constEnd()){
+//			bool printIt = true;
+//			if(m.value()->completeInfo())
+//				printIt = false;
+//			if(m.value()->totallyIncomplete())
+//				printIt = false;
+//			if(m.value()->onlyMissingActualComplexity())
+//				printIt = false;
+//			if(m.value()->onlyMissingTimeEstimate())
+//				printIt = false;
+////			if(!m.value()->completeInfo() || !m.value()->totallyIncomplete())
+//			if(printIt)
+//				qDebug() << m.value()->multiLineDebugInfo();
+//			AMGitHubIssueFamilyView *oneFamilyView = new AMGitHubIssueFamilyView(m.value());
+//			familiesVL->addWidget(oneFamilyView);
+//			m++;
+//		}
 
-		for(int x = 0, size = actualComplexity2Times.count(); x < size; x++)
-			averageActualComplexity2Time += actualComplexity2Times.at(x);
-		averageActualComplexity2Time = averageActualComplexity2Time/((double)actualComplexity2Times.count());
+//		familiesWidget->setLayout(familiesVL);
+//		familiesScrollArea->setWidget(familiesWidget);
 
-		for(int x = 0, size = actualComplexity3Times.count(); x < size; x++)
-			averageActualComplexity3Time += actualComplexity3Times.at(x);
-		averageActualComplexity3Time = averageActualComplexity3Time/((double)actualComplexity3Times.count());
+//		familiesMasterVL->addWidget(familiesScrollArea);
+//		familiesMasterWidget->setLayout(familiesMasterVL);
+//		familiesMasterWidget->show();
 
-		for(int x = 0, size = actualComplexity5Times.count(); x < size; x++)
-			averageActualComplexity5Time += actualComplexity5Times.at(x);
-		averageActualComplexity5Time = averageActualComplexity5Time/((double)actualComplexity5Times.count());
+//		qDebug() << "\n\n\n\n";
+//		QMap<int, AMGitHubIssueFamily*>::const_iterator o = allIssueFamilies_.constBegin();
+//		while(o != allIssueFamilies_.constEnd()){
+//			if(o.value()->onlyMissingActualComplexity())
+//				qDebug() << "Need to do actual complexity for:\n" << o.value()->multiLineDebugInfo() << "\n";
+//			o++;
+//		}
 
-		for(int x = 0, size = actualComplexity8Times.count(); x < size; x++)
-			averageActualComplexity8Time += actualComplexity8Times.at(x);
-		averageActualComplexity8Time = averageActualComplexity8Time/((double)actualComplexity8Times.count());
+//		qDebug() << "\n\n\n\n";
+//		QMap<int, AMGitHubIssueFamily*>::const_iterator p = allIssueFamilies_.constBegin();
+//		while(p != allIssueFamilies_.constEnd()){
+//			if(p.value()->onlyMissingTimeEstimate())
+//				qDebug() << p.value()->originatingIssue()->assignee() << " needs to do time estimate for: " << p.value()->originatingIssueNumber() << "\n";
+//			p++;
+//		}
 
-		qDebug() << "Average Estimated Complexity 1 time estimate: " << averageEstimatedComplexity1Time;
-		qDebug() << "Average Estimated Complexity 2 time estimate: " << averageEstimatedComplexity2Time;
-		qDebug() << "Average Estimated Complexity 3 time estimate: " << averageEstimatedComplexity3Time;
-		qDebug() << "Average Estimated Complexity 5 time estimate: " << averageEstimatedComplexity5Time;
-		qDebug() << "Average Estimated Complexity 8 time estimate: " << averageEstimatedComplexity8Time;
-		qDebug() << "Average Estimated Complexity K time estimate: " << averageEstimatedComplexityKTime;
+//		int totallyCompleteIssues = 0;
+//		int totallyIncompleteIssues = 0;
+//		int onlyMissingActualComplexityIssues = 0;
+//		int onlyMissingTimeEstimateIssues = 0;
 
-		qDebug() << "Average Actual Complexity 1 time estimate: " << averageActualComplexity1Time;
-		qDebug() << "Average Actual Complexity 2 time estimate: " << averageActualComplexity2Time;
-		qDebug() << "Average Actual Complexity 3 time estimate: " << averageActualComplexity3Time;
-		qDebug() << "Average Actual Complexity 5 time estimate: " << averageActualComplexity5Time;
-		qDebug() << "Average Actual Complexity 8 time estimate: " << averageActualComplexity8Time;
+//		qDebug() << "\n\n\n\n";
+//		QMap<int, AMGitHubIssueFamily*>::const_iterator q = allIssueFamilies_.constBegin();
+//		while(q != allIssueFamilies_.constEnd()){
+//			if(q.value()->completeInfo())
+//				totallyCompleteIssues++;
+//			if(q.value()->totallyIncomplete())
+//				totallyIncompleteIssues++;
+//			if(q.value()->onlyMissingActualComplexity())
+//				onlyMissingActualComplexityIssues++;
+//			if(q.value()->onlyMissingTimeEstimate())
+//				onlyMissingTimeEstimateIssues++;
+//			q++;
+//		}
+//		qDebug() << totallyCompleteIssues << " of " << allIssueFamilies_.count() << " are fully specfied";
+//		qDebug() << totallyIncompleteIssues << " of " << allIssueFamilies_.count() << " are totally unspecified";
+//		qDebug() << onlyMissingActualComplexityIssues << " of " << allIssueFamilies_.count() << " are only missing an actual complexity";
+//		qDebug() << onlyMissingTimeEstimateIssues << " of " << allIssueFamilies_.count() << " are only missing a time estimate";
 
-//		QString milestonesString = QString("https://api.github.com/repos/acquaman/acquaman/milestones");
-//		AMRestActionInfo *getAllOpenMilestonesActionInfo = new AMRestActionInfo(milestonesString, AMRestActionInfo::GetRequest);
-//		getAllOpenMilestonesActionInfo->setRawHeader("Authorization", headerData_.toLocal8Bit());
-//		AMRestAction *getAllOpenMilestonesAction = new AMRestAction(getAllOpenMilestonesActionInfo, manager_);
-//		connect(getAllOpenMilestonesAction, SIGNAL(fullResponseReady(QVariant,QList<QNetworkReply::RawHeaderPair>)), this, SLOT(onGetAllOpenMilestonesReturned(QVariant,QList<QNetworkReply::RawHeaderPair>)));
-//		getAllOpenMilestonesAction->start();
-	}
+//		qDebug() << "\n\n\n\n";
+//		QVector<int> complexityMappingMatrix = QVector<int>(31, 0);
+//		QList<double> estimatedComplexity1Times;
+//		QList<double> estimatedComplexity2Times;
+//		QList<double> estimatedComplexity3Times;
+//		QList<double> estimatedComplexity5Times;
+//		QList<double> estimatedComplexity8Times;
+//		QList<double> estimatedComplexityKTimes;
+//		QList<double> actualComplexity1Times;
+//		QList<double> actualComplexity2Times;
+//		QList<double> actualComplexity3Times;
+//		QList<double> actualComplexity5Times;
+//		QList<double> actualComplexity8Times;
+//		QMap<int, AMGitHubIssueFamily*>::const_iterator r = allIssueFamilies_.constBegin();
+//		while(r != allIssueFamilies_.constEnd()){
+//			complexityMappingMatrix[r.value()->complexityMapping()] = complexityMappingMatrix.at(r.value()->complexityMapping())+1;
+
+//			if(r.value()->normalizedTimeEstiamte() > 0){
+//				switch(r.value()->estimatedComplexity()){
+//				case AMGitHubIssue::Complexity1:
+//					estimatedComplexity1Times.append(r.value()->normalizedTimeEstiamte());
+//					break;
+//				case AMGitHubIssue::Complexity2:
+//					estimatedComplexity2Times.append(r.value()->normalizedTimeEstiamte());
+//					break;
+//				case AMGitHubIssue::Complexity3:
+//					estimatedComplexity3Times.append(r.value()->normalizedTimeEstiamte());
+//					break;
+//				case AMGitHubIssue::Complexity5:
+//					estimatedComplexity5Times.append(r.value()->normalizedTimeEstiamte());
+//					break;
+//				case AMGitHubIssue::Complexity8:
+//					estimatedComplexity8Times.append(r.value()->normalizedTimeEstiamte());
+//					break;
+//				case AMGitHubIssue::ComplexityK:
+//					estimatedComplexityKTimes.append(r.value()->normalizedTimeEstiamte());
+//					break;
+//				}
+
+//				switch(r.value()->actualComplexity()){
+//				case AMGitHubIssue::Complexity1:
+//					actualComplexity1Times.append(r.value()->normalizedTimeEstiamte());
+//					break;
+//				case AMGitHubIssue::Complexity2:
+//					actualComplexity2Times.append(r.value()->normalizedTimeEstiamte());
+//					break;
+//				case AMGitHubIssue::Complexity3:
+//					actualComplexity3Times.append(r.value()->normalizedTimeEstiamte());
+//					break;
+//				case AMGitHubIssue::Complexity5:
+//					actualComplexity5Times.append(r.value()->normalizedTimeEstiamte());
+//					break;
+//				case AMGitHubIssue::Complexity8:
+//					actualComplexity8Times.append(r.value()->normalizedTimeEstiamte());
+//					break;
+//				}
+//			}
+//			else
+//				qDebug() << "Issue " << r.value()->originatingIssueNumber() << " cannot normalize " << r.value()->timeEstimate();
+
+//			r++;
+//		}
+
+//		QString debugString;
+//		for(int x = 1, xSize = complexityMappingMatrix.count(); x < xSize; x++){
+//			double percentValue = ((double)complexityMappingMatrix.at(x))/((double)allIssueFamilies_.count())*100;
+//			debugString.append(QString("%1 \t").arg(percentValue, 0, 'f', 2));
+//			if(x%5 == 0){
+//				qDebug() << debugString;
+//				debugString.clear();
+//			}
+//		}
+
+//		double averageEstimatedComplexity1Time = 0;
+//		double averageEstimatedComplexity2Time = 0;
+//		double averageEstimatedComplexity3Time = 0;
+//		double averageEstimatedComplexity5Time = 0;
+//		double averageEstimatedComplexity8Time = 0;
+//		double averageEstimatedComplexityKTime = 0;
+//		double averageActualComplexity1Time = 0;
+//		double averageActualComplexity2Time = 0;
+//		double averageActualComplexity3Time = 0;
+//		double averageActualComplexity5Time = 0;
+//		double averageActualComplexity8Time = 0;
+
+//		for(int x = 0, size = estimatedComplexity1Times.count(); x < size; x++)
+//			averageEstimatedComplexity1Time += estimatedComplexity1Times.at(x);
+//		averageEstimatedComplexity1Time = averageEstimatedComplexity1Time/((double)estimatedComplexity1Times.count());
+
+//		for(int x = 0, size = estimatedComplexity2Times.count(); x < size; x++)
+//			averageEstimatedComplexity2Time += estimatedComplexity2Times.at(x);
+//		averageEstimatedComplexity2Time = averageEstimatedComplexity2Time/((double)estimatedComplexity2Times.count());
+
+//		for(int x = 0, size = estimatedComplexity3Times.count(); x < size; x++)
+//			averageEstimatedComplexity3Time += estimatedComplexity3Times.at(x);
+//		averageEstimatedComplexity3Time = averageEstimatedComplexity3Time/((double)estimatedComplexity3Times.count());
+
+//		for(int x = 0, size = estimatedComplexity5Times.count(); x < size; x++)
+//			averageEstimatedComplexity5Time += estimatedComplexity5Times.at(x);
+//		averageEstimatedComplexity5Time = averageEstimatedComplexity5Time/((double)estimatedComplexity5Times.count());
+
+//		for(int x = 0, size = estimatedComplexity8Times.count(); x < size; x++)
+//			averageEstimatedComplexity8Time += estimatedComplexity8Times.at(x);
+//		averageEstimatedComplexity8Time = averageEstimatedComplexity8Time/((double)estimatedComplexity8Times.count());
+
+//		for(int x = 0, size = estimatedComplexityKTimes.count(); x < size; x++)
+//			averageEstimatedComplexityKTime += estimatedComplexityKTimes.at(x);
+//		averageEstimatedComplexityKTime = averageEstimatedComplexityKTime/((double)estimatedComplexityKTimes.count());
+
+
+//		for(int x = 0, size = actualComplexity1Times.count(); x < size; x++)
+//			averageActualComplexity1Time += actualComplexity1Times.at(x);
+//		averageActualComplexity1Time = averageActualComplexity1Time/((double)actualComplexity1Times.count());
+
+//		for(int x = 0, size = actualComplexity2Times.count(); x < size; x++)
+//			averageActualComplexity2Time += actualComplexity2Times.at(x);
+//		averageActualComplexity2Time = averageActualComplexity2Time/((double)actualComplexity2Times.count());
+
+//		for(int x = 0, size = actualComplexity3Times.count(); x < size; x++)
+//			averageActualComplexity3Time += actualComplexity3Times.at(x);
+//		averageActualComplexity3Time = averageActualComplexity3Time/((double)actualComplexity3Times.count());
+
+//		for(int x = 0, size = actualComplexity5Times.count(); x < size; x++)
+//			averageActualComplexity5Time += actualComplexity5Times.at(x);
+//		averageActualComplexity5Time = averageActualComplexity5Time/((double)actualComplexity5Times.count());
+
+//		for(int x = 0, size = actualComplexity8Times.count(); x < size; x++)
+//			averageActualComplexity8Time += actualComplexity8Times.at(x);
+//		averageActualComplexity8Time = averageActualComplexity8Time/((double)actualComplexity8Times.count());
+
+//		qDebug() << "Average Estimated Complexity 1 time estimate: " << averageEstimatedComplexity1Time;
+//		qDebug() << "Average Estimated Complexity 2 time estimate: " << averageEstimatedComplexity2Time;
+//		qDebug() << "Average Estimated Complexity 3 time estimate: " << averageEstimatedComplexity3Time;
+//		qDebug() << "Average Estimated Complexity 5 time estimate: " << averageEstimatedComplexity5Time;
+//		qDebug() << "Average Estimated Complexity 8 time estimate: " << averageEstimatedComplexity8Time;
+//		qDebug() << "Average Estimated Complexity K time estimate: " << averageEstimatedComplexityKTime;
+
+//		qDebug() << "Average Actual Complexity 1 time estimate: " << averageActualComplexity1Time;
+//		qDebug() << "Average Actual Complexity 2 time estimate: " << averageActualComplexity2Time;
+//		qDebug() << "Average Actual Complexity 3 time estimate: " << averageActualComplexity3Time;
+//		qDebug() << "Average Actual Complexity 5 time estimate: " << averageActualComplexity5Time;
+//		qDebug() << "Average Actual Complexity 8 time estimate: " << averageActualComplexity8Time;
+
+////		QString milestonesString = QString("https://api.github.com/repos/acquaman/acquaman/milestones");
+////		AMRestActionInfo *getAllOpenMilestonesActionInfo = new AMRestActionInfo(milestonesString, AMRestActionInfo::GetRequest);
+////		getAllOpenMilestonesActionInfo->setRawHeader("Authorization", headerData_.toLocal8Bit());
+////		AMRestAction *getAllOpenMilestonesAction = new AMRestAction(getAllOpenMilestonesActionInfo, manager_);
+////		connect(getAllOpenMilestonesAction, SIGNAL(fullResponseReady(QVariant,QList<QNetworkReply::RawHeaderPair>)), this, SLOT(onGetAllOpenMilestonesReturned(QVariant,QList<QNetworkReply::RawHeaderPair>)));
+////		getAllOpenMilestonesAction->start();
+//	}
 }
 
 void SGMSidebar::onGetAllOpenMilestonesReturned(QVariant fullResponse, QList<QNetworkReply::RawHeaderPair> headerPairs){
-	qDebug() << "Milestones: \n\n\n";
-	QVariantList fullResponseList = fullResponse.toList();
-	for(int x = 0, size = fullResponseList.count(); x < size; x++){
-		QVariantMap oneResponseMap = fullResponseList.at(x).toMap();
+//	qDebug() << "Milestones: \n\n\n";
+//	QVariantList fullResponseList = fullResponse.toList();
+//	for(int x = 0, size = fullResponseList.count(); x < size; x++){
+//		QVariantMap oneResponseMap = fullResponseList.at(x).toMap();
 
-		QMap<QString, QVariant>::const_iterator r = oneResponseMap.constBegin();
-		while(r != oneResponseMap.constEnd()){
-			qDebug() << r.key() << r.value() << "\n";
-			r++;
-		}
-	}
+//		QMap<QString, QVariant>::const_iterator r = oneResponseMap.constBegin();
+//		while(r != oneResponseMap.constEnd()){
+//			qDebug() << r.key() << r.value() << "\n";
+//			r++;
+//		}
+//	}
 }
 
 void SGMSidebar::onStripToolTimerTimeout(){

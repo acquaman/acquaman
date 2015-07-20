@@ -9,6 +9,10 @@
 #include "actions3/AMListAction3.h"
 #include "actions3/actions/AMRestAction.h"
 
+#include "AMGitHubMilestone.h"
+#include "AMGitHubIssueFamilyView.h"
+#include "AMGitHubComplexityManager.h"
+
 #include "MPlot/MPlot.h"
 #include "MPlot/MPlotWidget.h"
 #include "MPlot/MPlotSeries.h"
@@ -113,11 +117,11 @@ void AMGithubProjectManagerMainView::onGetAllClosedActionsFullResponseReady(QVar
 
 	if(!lastPage_){
 		currentClosedIssuesPage_ = nextPageNumber;
-//		if(nextPageNumber == lastPageNumber)
-//			lastPage_ = true;
-
-		if(nextPageNumber == 2)
+		if(nextPageNumber == lastPageNumber)
 			lastPage_ = true;
+
+//		if(nextPageNumber == 2)
+//			lastPage_ = true;
 
 		qDebug() << "More more issues to fetch, going to page " << currentClosedIssuesPage_;
 
@@ -709,6 +713,7 @@ void AMGithubProjectManagerMainView::onGetOneIssueCommentsReturned(QVariant full
 		plotView->show();
 		*/
 
+
 //		QString eventsString = QString("https://api.github.com/repos/acquaman/acquaman/issues/1315/events");
 //		QString eventsString = QString("https://api.zenhub.io/v2/acquaman/acquaman/issues/1176/pipelines");
 //		QString eventsString = QString("https://api.zenhub.io/v2/acquaman/acquaman/issues/1177/estimates?repo=acquaman&issue_number=1177&organization=acquaman");
@@ -720,16 +725,20 @@ void AMGithubProjectManagerMainView::onGetOneIssueCommentsReturned(QVariant full
 //		QString eventsString = QString("https://api.zenhub.io/v2/acquaman/acquaman/board");
 
 //		AMRestActionInfo *getOneIssueEventsActionInfo = new AMRestActionInfo(eventsString, AMRestActionInfo::GetRequest);
-		AMRestActionInfo *getOneIssueEventsActionInfo = new AMRestActionInfo(eventsString, AMRestActionInfo::PatchRequest);
+		AMRestActionInfo *getOneIssueEventsActionInfo = new AMRestActionInfo(eventsString, AMRestActionInfo::PutRequest);
 		getOneIssueEventsActionInfo->setRawHeader("Authorization", headerData_.toLocal8Bit());
 		QString xauthtokenData = "ced5ec812ee0ee5576da1345550d0110ba65946262541a1db6030ebda5dd4c0d95b31d24d954c563";
 		getOneIssueEventsActionInfo->setRawHeader("x-authentication-token", xauthtokenData.toLocal8Bit());
-		getOneIssueEventsActionInfo->setRawHeader("Content-Type", QString("application/x-www-form-urlencoded").toLocal8Bit());
+		getOneIssueEventsActionInfo->setContentType(AMRestActionInfo::FormURLEncoded);
+		getOneIssueEventsActionInfo->setRequestData(QString("repo=acquaman&issue_number=1458&estimate_value=3&organization=acquaman").toAscii());
+
+//		getOneIssueEventsActionInfo->setRawHeader("Content-Type", QString("application/x-www-form-urlencoded").toLocal8Bit());
 //		getOneIssueEventsActionInfo->setRawHeader("Content-Length", QString("70").toLocal8Bit());
 		AMRestAction *getOneIssueEventsAction = new AMRestAction(getOneIssueEventsActionInfo, manager_);
 
 		connect(getOneIssueEventsAction, SIGNAL(fullResponseReady(QVariant, QList<QNetworkReply::RawHeaderPair>)), this, SLOT(onGetOneIssueEventsReturned(QVariant, QList<QNetworkReply::RawHeaderPair>)));
-		getOneIssueEventsAction->start();
+//		getOneIssueEventsAction->start();
+
 	}
 }
 
