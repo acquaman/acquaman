@@ -41,11 +41,6 @@ BioXASSSRLMonochromatorConfigurationView::BioXASSSRLMonochromatorConfigurationVi
 	crystal2RollEditor_ = new AMExtendedControlEditor(0);
 	crystal2RollEditor_->setTitle("Crystal 2 Roll");
 
-	regionEditor_ = new BioXASSSRLMonochromatorRegionControlEditor(0);
-	regionEditor_->setTitle("Region");
-
-	regionStatusWidget_ = new BioXASSSRLMonochromatorRegionControlView(0);
-
 	stepEnergyEditor_ = new AMExtendedControlEditor(0);
 	stepEnergyEditor_->setTitle("Energy (step)");
 	stepEnergyEditor_->setControlFormat('f', 2);
@@ -68,6 +63,14 @@ BioXASSSRLMonochromatorConfigurationView::BioXASSSRLMonochromatorConfigurationVi
 
 	braggConfigWidget_ = new BioXASSSRLMonochromatorBraggConfigurationView(0);
 
+	calibrateEnergyButton_ = new QPushButton("Calibrate Energy");
+	calibrateGoniometerButton_ = new QPushButton("Calibrate Goniometer");
+
+	regionEditor_ = new BioXASSSRLMonochromatorRegionControlEditor(0);
+	regionEditor_->setTitle("Region");
+
+	regionStatusWidget_ = new BioXASSSRLMonochromatorRegionControlView(0);
+
 	// Create and set layouts.
 	// Motors view
 
@@ -85,23 +88,6 @@ BioXASSSRLMonochromatorConfigurationView::BioXASSSRLMonochromatorConfigurationVi
 	QGroupBox *motorsView = new QGroupBox("Motors");
 	motorsView->setLayout(motorsViewLayout);
 	motorsView->setMinimumWidth(VIEW_WIDTH_MIN);
-
-	// Region view
-
-	QVBoxLayout *regionStatusViewLayout = new QVBoxLayout();
-	regionStatusViewLayout->setMargin(0);
-	regionStatusViewLayout->addWidget(regionStatusWidget_);
-
-	QGroupBox *regionStatusView = new QGroupBox("Status");
-	regionStatusView->setLayout(regionStatusViewLayout);
-
-	QVBoxLayout *regionViewLayout = new QVBoxLayout();
-	regionViewLayout->addWidget(regionEditor_);
-	regionViewLayout->addWidget(regionStatusView);
-
-	QGroupBox *regionView = new QGroupBox("Region");
-	regionView->setLayout(regionViewLayout);
-	regionView->setMinimumWidth(VIEW_WIDTH_MIN);
 
 	// Energy view
 
@@ -133,6 +119,32 @@ BioXASSSRLMonochromatorConfigurationView::BioXASSSRLMonochromatorConfigurationVi
 	QGroupBox *braggConfigView = new QGroupBox("Goniometer configuration");
 	braggConfigView->setLayout(braggConfigViewLayout);
 
+	// Calibrate buttons view.
+
+	QHBoxLayout *calibrateButtonsLayout = new QHBoxLayout();
+	calibrateButtonsLayout->addWidget(calibrateEnergyButton_);
+	calibrateButtonsLayout->addWidget(calibrateGoniometerButton_);
+
+	QGroupBox *calibrateButtonsView = new QGroupBox("Calibration");
+	calibrateButtonsView->setLayout(calibrateButtonsLayout);
+
+	// Region view
+
+	QVBoxLayout *regionStatusViewLayout = new QVBoxLayout();
+	regionStatusViewLayout->setMargin(0);
+	regionStatusViewLayout->addWidget(regionStatusWidget_);
+
+	QGroupBox *regionStatusView = new QGroupBox("Status");
+	regionStatusView->setLayout(regionStatusViewLayout);
+
+	QVBoxLayout *regionViewLayout = new QVBoxLayout();
+	regionViewLayout->addWidget(regionEditor_);
+	regionViewLayout->addWidget(regionStatusView);
+
+	QGroupBox *regionView = new QGroupBox("Region");
+	regionView->setLayout(regionViewLayout);
+	regionView->setMinimumWidth(VIEW_WIDTH_MIN);
+
 	// Main layouts
 
 	QVBoxLayout *leftLayout = new QVBoxLayout();
@@ -140,12 +152,13 @@ BioXASSSRLMonochromatorConfigurationView::BioXASSSRLMonochromatorConfigurationVi
 	leftLayout->addStretch();
 
 	QVBoxLayout *centerLayout = new QVBoxLayout();
-	centerLayout->addWidget(regionView);
+	centerLayout->addWidget(energyView);
+	centerLayout->addWidget(braggConfigView);
 	centerLayout->addStretch();
 
 	QVBoxLayout *rightLayout = new QVBoxLayout();
-	rightLayout->addWidget(energyView);
-	rightLayout->addWidget(braggConfigView);
+	rightLayout->addWidget(calibrateButtonsView);
+	rightLayout->addWidget(regionView);
 	rightLayout->addStretch();
 
 	QHBoxLayout *layout = new QHBoxLayout();
@@ -154,6 +167,11 @@ BioXASSSRLMonochromatorConfigurationView::BioXASSSRLMonochromatorConfigurationVi
 	layout->addLayout(rightLayout);
 
 	setLayout(layout);
+
+	// Make connections
+
+	connect( calibrateEnergyButton_, SIGNAL(clicked()), this, SLOT(onCalibrateEnergyButtonClicked()) );
+	connect( calibrateGoniometerButton_, SIGNAL(clicked()), this, SLOT(onCalibrateGoniometerButtonClicked()) );
 
 	// Current settings
 
@@ -224,6 +242,30 @@ void BioXASSSRLMonochromatorConfigurationView::setMono(BioXASSSRLMonochromator *
 		}
 
 		emit monoChanged(mono_);
+	}
+}
+
+void BioXASSSRLMonochromatorConfigurationView::onCalibrateEnergyButtonClicked()
+{
+	if (mono_ && mono_->energyControl()) {
+		bool inputOK = false;
+
+		double newEnergy = QInputDialog::getDouble(this, "Energy Calibration", "Enter calibrated energy:", mono_->energyControl()->value(), ENERGY_MIN, ENERGY_MAX, 2, &inputOK);
+
+		if (inputOK)
+			mono_->energyControl()->setEnergy(newEnergy);
+	}
+}
+
+void BioXASSSRLMonochromatorConfigurationView::onCalibrateGoniometerButtonClicked()
+{
+	if (mono_ && mono_->braggControl()) {
+		bool inputOK = false;
+
+		double newPosition = QInputDialog::getDouble(this, "Goniometer Calibration", "Enter calibrated goniometer position:", mono_->braggControl()->value(), BRAGG_POSITION_MIN, BRAGG_POSITION_MAX, 2, &inputOK);
+
+		if (inputOK)
+			mono_->calibrateBraggPosition(newPosition);
 	}
 }
 

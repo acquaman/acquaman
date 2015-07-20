@@ -44,6 +44,12 @@ public slots:
 	/// Sets the mono being viewed.
 	void setMono(BioXASSSRLMonochromator *newMono);
 
+protected slots:
+	/// Creates and displays a basic calibration screen for the energy.
+	void onCalibrateEnergyButtonClicked();
+	/// Creates and displays a basic calibration screen for the goniometer.
+	void onCalibrateGoniometerButtonClicked();
+
 protected:
 	/// The mono being viewed.
 	BioXASSSRLMonochromator *mono_;
@@ -67,11 +73,6 @@ protected:
 	/// The crystal 2 roll editor.
 	AMExtendedControlEditor *crystal2RollEditor_;
 
-	/// The region editor.
-	BioXASSSRLMonochromatorRegionControlEditor *regionEditor_;
-	/// The region status display.
-	BioXASSSRLMonochromatorRegionControlView *regionStatusWidget_;
-
 	/// The step-based energy editor.
 	AMExtendedControlEditor *stepEnergyEditor_;
 	/// The encoder-based energy editor.
@@ -82,6 +83,16 @@ protected:
 	AMExtendedControlEditor *encoderBraggEditor_;
 	/// The m1 mirror pitch editor.
 	AMExtendedControlEditor *m1PitchEditor_;
+
+	/// The calibrate energy button.
+	QPushButton *calibrateEnergyButton_;
+	/// The calibrate goniometer button.
+	QPushButton *calibrateGoniometerButton_;
+
+	/// The region editor.
+	BioXASSSRLMonochromatorRegionControlEditor *regionEditor_;
+	/// The region status display.
+	BioXASSSRLMonochromatorRegionControlView *regionStatusWidget_;
 
 	/// The bragg configuration view.
 	BioXASSSRLMonochromatorBraggConfigurationView *braggConfigWidget_;
