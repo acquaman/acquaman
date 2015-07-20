@@ -44,13 +44,6 @@ AMGithubProjectManagerMainView::~AMGithubProjectManagerMainView()
 }
 
 void AMGithubProjectManagerMainView::onInitiateButtonClicked(){
-//	QString userInfo = userNameLineEdit_->text()+":"+passwordLineEdit_->text();
-//	QString userInfo = userNameLineEdit_->text()+":"+"2f8e7e362e5c0a5ea065255ccfdc369e70f4327b";
-//	QByteArray userData = userInfo.toLocal8Bit().toBase64();
-//	headerData_ = "Basic " + userData;
-
-//	QString tokenInfo = "Authorization: token 2f8e7e362e5c0a5ea065255ccfdc369e70f4327b";
-//	QByteArray tokenData = userInfo.toLocal8Bit().toBase64();
 	headerData_ = "token 2f8e7e362e5c0a5ea065255ccfdc369e70f4327b";
 
 	manager_ = new QNetworkAccessManager(this);
