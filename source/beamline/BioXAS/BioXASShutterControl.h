@@ -12,9 +12,14 @@ public:
 	/// Enum describing the different possible shutter states.
 	enum State { Open = 0, Closed = 1, Between = 2, None = 3};
 	/// Constructor.
-	explicit BioXASShuttersControl(QObject *parent = 0);
+	explicit BioXASShuttersControl(const QString &name, QObject *parent = 0);
 	/// Destructor.
 	virtual ~BioXASShuttersControl();
+
+	/// Returns true if the shutters are open, false otherwise. Queries the states of all children to get result.
+	bool isOpen() const;
+	/// Returns true if the shutters are closed, false otherwise. Queries the states of all children to get result.
+	bool isClosed() const;
 
 	/// Returns true if the region is always measurable, provided the control is connected.
 	virtual bool shouldMeasure() const { return true; }
@@ -28,7 +33,7 @@ public:
 	/// Returns true if this control can move right now.
 	virtual bool canMove() const;
 	/// Returns true if this control can stop a change to a new region right now.
-	virtual bool canStop() const { return false; }
+	virtual bool canStop() const;
 
 	/// Returns true if the given value is a valid value for this control, false otherwise.
 	virtual bool validValue(double value) const;
@@ -87,4 +92,4 @@ protected:
 	CLSBiStateControl *safetyShutterES_;
 };
 
-#endif // BIOXASSHUTTERCONTROL_H
+#endif // BIOXASSHUTTERSCONTROL_H

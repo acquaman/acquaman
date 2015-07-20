@@ -32,6 +32,26 @@ BioXASShuttersControl::~BioXASShuttersControl()
 
 }
 
+bool BioXASShuttersControl::isOpen() const
+{
+	bool result = false;
+
+	if (isConnected())
+		result = photonShutterUpstreamFE_->isOpen() && photonShutterDownstreamFE_->isOpen() && safetyShutterFE_->isOpen() && safetyShutterES_->isOpen();
+
+	return result;
+}
+
+bool BioXASShuttersControl::isClosed() const
+{
+	bool result = false;
+
+	if (isConnected())
+		result = safetyShutterES_->isClosed();
+
+	return result;
+}
+
 bool BioXASShuttersControl::canMeasure() const
 {
 	return false;
@@ -171,11 +191,14 @@ void BioXASShuttersControl::updateValue()
 
 	if (isConnected()) {
 
-		if (photonShutterUpstreamFE_->isOpen() && photonShutterDownstreamFE_->isOpen() && safetyShutterFE_->isOpen() && safetyShutterES_->isOpen())
+		if (isOpen())
 			value = Open;
 
-		else
+		else if (isClosed())
 			value = Closed;
+
+		else
+			value = Between;
 	}
 
 	setValue(value);
@@ -197,5 +220,6 @@ void BioXASShuttersControl::updateMoving()
 
 AMAction3* BioXASShuttersControl::createMoveAction(double newState)
 {
+	Q_UNUSED(newState)
 	return 0;
 }
