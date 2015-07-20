@@ -23,7 +23,6 @@ SUBDIRS += \
 	SGMAddOnsCoordinator.pro \
 	SGMAmptekCoordinator.pro \
 	SGMLookupTableCoordinator.pro \
-	SGMSSAAcquaman.pro \
 	SXRMBAcquaman.pro \
 	SXRMBAddOnsCoordinator.pro \
 	VESPERSAcquaman.pro \
