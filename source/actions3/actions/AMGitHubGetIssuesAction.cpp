@@ -9,29 +9,31 @@
 #include "util/AMErrorMonitor.h"
 
 AMGitHubGetIssuesAction::AMGitHubGetIssuesAction(AMGitHubGetIssuesActionInfo *info, QNetworkAccessManager *networkAccessManager, const QString &authorizationHeader, QMap<int, AMGitHubIssue*> *allIssues, QMap<int, AMGitHubMilestone*> *allMilestones, QObject *parent) :
-	AMAction3(info, parent)
+//	AMAction3(info, parent)
+	AMGitHubStandardAction(info, networkAccessManager, authorizationHeader, parent)
 {
-	networkAccessManager_ = networkAccessManager;
-	authorizationHeader_ = authorizationHeader;
+//	networkAccessManager_ = networkAccessManager;
+//	authorizationHeader_ = authorizationHeader;
 
 	allIssues_ = allIssues;
 	allMilestones_ = allMilestones;
 
-	currentIssuesPage_ = 1;
-	lastPage_ = false;
+//	currentIssuesPage_ = 1;
+//	lastPage_ = false;
 }
 
 AMGitHubGetIssuesAction::AMGitHubGetIssuesAction(const AMGitHubGetIssuesAction &other) :
-	AMAction3(other)
+//	AMAction3(other)
+	AMGitHubStandardAction(other)
 {
-	networkAccessManager_ = other.networkAccessManager();
-	authorizationHeader_ = other.authorizationHeader();
+//	networkAccessManager_ = other.networkAccessManager();
+//	authorizationHeader_ = other.authorizationHeader();
 
 	allIssues_ = other.allIssues_;
 	allMilestones_ = other.allMilestones_;
 
-	currentIssuesPage_ = 1;
-	lastPage_ = false;
+//	currentIssuesPage_ = 1;
+//	lastPage_ = false;
 }
 
 AMAction3* AMGitHubGetIssuesAction::createCopy() const
@@ -39,15 +41,15 @@ AMAction3* AMGitHubGetIssuesAction::createCopy() const
 	return new AMGitHubGetIssuesAction(*this);
 }
 
-void AMGitHubGetIssuesAction::setNetworkAccessManager(QNetworkAccessManager *networkAccessManager)
-{
-	networkAccessManager_ = networkAccessManager;
-}
+//void AMGitHubGetIssuesAction::setNetworkAccessManager(QNetworkAccessManager *networkAccessManager)
+//{
+//	networkAccessManager_ = networkAccessManager;
+//}
 
-void AMGitHubGetIssuesAction::setAuthorizationHeader(const QString &authorizationHeader)
-{
-	authorizationHeader_ = authorizationHeader;
-}
+//void AMGitHubGetIssuesAction::setAuthorizationHeader(const QString &authorizationHeader)
+//{
+//	authorizationHeader_ = authorizationHeader;
+//}
 
 void AMGitHubGetIssuesAction::setAllIssuesMap(QMap<int, AMGitHubIssue*> *allIssues)
 {
@@ -106,23 +108,23 @@ void AMGitHubGetIssuesAction::startImplementation()
 	setStarted();
 }
 
-void AMGitHubGetIssuesAction::pauseImplementation()
-{
-}
+//void AMGitHubGetIssuesAction::pauseImplementation()
+//{
+//}
 
-void AMGitHubGetIssuesAction::resumeImplementation()
-{
-}
+//void AMGitHubGetIssuesAction::resumeImplementation()
+//{
+//}
 
-void AMGitHubGetIssuesAction::cancelImplementation()
-{
-	setCancelled();
-}
+//void AMGitHubGetIssuesAction::cancelImplementation()
+//{
+//	setCancelled();
+//}
 
-void AMGitHubGetIssuesAction::skipImplementation(const QString &command)
-{
-	Q_UNUSED(command)
-}
+//void AMGitHubGetIssuesAction::skipImplementation(const QString &command)
+//{
+//	Q_UNUSED(command)
+//}
 
 void AMGitHubGetIssuesAction::onGetAllIssuesFullResponseReady(QVariant fullResponse, QList<QNetworkReply::RawHeaderPair> headerPairs){
 	QVariant allIssuesResponse = fullResponse;

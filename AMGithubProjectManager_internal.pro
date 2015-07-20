@@ -28,7 +28,8 @@ SOURCES += \
     AMGithubProjectManager/AMGitHubProject.cpp \
     AMGithubProjectManager/AMGitHubMilestone.cpp \
     source/actions3/actions/AMGitHubGetIssuesActionInfo.cpp \
-    source/actions3/actions/AMGitHubGetIssuesAction.cpp
+    source/actions3/actions/AMGitHubGetIssuesAction.cpp \
+    source/actions3/actions/AMGitHubStandardAction.cpp
 
 HEADERS  += \
 	AMGithubProjectManager/AMGithubProjectManagerMainView.h \
@@ -41,4 +42,5 @@ HEADERS  += \
     AMGithubProjectManager/AMGitHubProject.h \
     AMGithubProjectManager/AMGitHubMilestone.h \
     source/actions3/actions/AMGitHubGetIssuesActionInfo.h \
-    source/actions3/actions/AMGitHubGetIssuesAction.h
+    source/actions3/actions/AMGitHubGetIssuesAction.h \
+    source/actions3/actions/AMGitHubStandardAction.h
