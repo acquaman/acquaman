@@ -49,7 +49,7 @@ public:
 	static int pageNumberFromURLString(const QString &urlString);
 
 	/// Returns the generic JSON response
-	QVariant fullResponse() const { fullResponse_;}
+	QVariant fullResponse() const { return fullResponse_;}
 
 public slots:
 	/// Sets the pointer to a long-lived network access manager. This action will not clean up the memory or take ownership of this.

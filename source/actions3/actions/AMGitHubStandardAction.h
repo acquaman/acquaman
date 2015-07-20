@@ -7,20 +7,25 @@
 
 class QNetworkAccessManager;
 
+class AMRestAction;
+
+#define AMGITHUBSTANDARDACTION_CANNOT_START_WITHOUT_NETWORKACCESSMANAGER 359001
+#define AMGITHUBSTANDARDACTION_CANNOT_START_WITHOUT_RESTACTION 359002
+
 class AMGitHubStandardAction : public AMAction3
 {
 Q_OBJECT
 public:
 	/// Constructor.
-	Q_INVOKABLE AMGitHubStandardAction(AMActionInfo3 *info, QNetworkAccessManager *networkAccessManager, const QString &authorizationHeader, QObject *parent = 0);
+	AMGitHubStandardAction(AMActionInfo3 *info, QNetworkAccessManager *networkAccessManager, const QString &authorizationHeader, QObject *parent = 0);
 
 	/// Copy constructor.
 	AMGitHubStandardAction(const AMGitHubStandardAction &other);
 	/// Destructor.
 	virtual ~AMGitHubStandardAction() {}
 
-	/// Virtual copy constructor.
-	virtual AMAction3 *createCopy() const;
+//	/// Virtual copy constructor.
+//	virtual AMAction3 *createCopy() const;
 
 	/// Specify that we can pause.
 	virtual bool canPause() const { return false; }
@@ -45,6 +50,10 @@ public slots:
 	/// Sets the string to set in the authorization header field
 	void setAuthorizationHeader(const QString &authorizationHeader);
 
+protected slots:
+	void onRestActionFullResponseReady(QVariant fullResponse, QList<QNetworkReply::RawHeaderPair> headerPairs);
+	void onRestActionFailed();
+
 protected:
 	/// This function is called from the Starting state when the implementation should initiate the action.
 	virtual void startImplementation();
@@ -57,6 +66,11 @@ protected:
 	/// Handles skipping the action.
 	virtual void skipImplementation(const QString &command);
 
+	virtual void setupRestAction() = 0;
+
+	virtual void restResponsePreImplementation(QVariant fullResponse, QList<QNetworkReply::RawHeaderPair> headerPairs) = 0;
+	virtual void restResponseImplementation(QVariant fullResponse, QList<QNetworkReply::RawHeaderPair> headerPairs) = 0;
+
 protected:
 	/// Pointer to a long-lived network access manager
 	QNetworkAccessManager *networkAccessManager_;
@@ -68,6 +82,8 @@ protected:
 	int currentIssuesPage_;
 	/// Holds whether this is the last page or not
 	bool lastPage_;
+
+	AMRestAction *restAction_;
 };
 
 #endif // AMGITHUBSTANDARDACTION_H

@@ -1,7 +1,5 @@
 #include "AMGitHubGetIssuesAction.h"
 
-#include <QNetworkAccessManager>
-#include <QNetworkReply>
 #include <QDebug>
 
 #include "AMRestAction.h"
@@ -9,47 +7,23 @@
 #include "util/AMErrorMonitor.h"
 
 AMGitHubGetIssuesAction::AMGitHubGetIssuesAction(AMGitHubGetIssuesActionInfo *info, QNetworkAccessManager *networkAccessManager, const QString &authorizationHeader, QMap<int, AMGitHubIssue*> *allIssues, QMap<int, AMGitHubMilestone*> *allMilestones, QObject *parent) :
-//	AMAction3(info, parent)
 	AMGitHubStandardAction(info, networkAccessManager, authorizationHeader, parent)
 {
-//	networkAccessManager_ = networkAccessManager;
-//	authorizationHeader_ = authorizationHeader;
-
 	allIssues_ = allIssues;
 	allMilestones_ = allMilestones;
-
-//	currentIssuesPage_ = 1;
-//	lastPage_ = false;
 }
 
 AMGitHubGetIssuesAction::AMGitHubGetIssuesAction(const AMGitHubGetIssuesAction &other) :
-//	AMAction3(other)
 	AMGitHubStandardAction(other)
 {
-//	networkAccessManager_ = other.networkAccessManager();
-//	authorizationHeader_ = other.authorizationHeader();
-
 	allIssues_ = other.allIssues_;
 	allMilestones_ = other.allMilestones_;
-
-//	currentIssuesPage_ = 1;
-//	lastPage_ = false;
 }
 
 AMAction3* AMGitHubGetIssuesAction::createCopy() const
 {
 	return new AMGitHubGetIssuesAction(*this);
 }
-
-//void AMGitHubGetIssuesAction::setNetworkAccessManager(QNetworkAccessManager *networkAccessManager)
-//{
-//	networkAccessManager_ = networkAccessManager;
-//}
-
-//void AMGitHubGetIssuesAction::setAuthorizationHeader(const QString &authorizationHeader)
-//{
-//	authorizationHeader_ = authorizationHeader;
-//}
 
 void AMGitHubGetIssuesAction::setAllIssuesMap(QMap<int, AMGitHubIssue*> *allIssues)
 {
@@ -77,12 +51,12 @@ void AMGitHubGetIssuesAction::startImplementation()
 		setFailed(fundamentalFailureMessage);
 		return;
 	}
-	if(!networkAccessManager_){
-		QString fundamentalFailureMessage = QString("There was an error starting the request to %1/%2, no network access manager was available.").arg(actionInfo->owner()).arg(actionInfo->repo());
-		AMErrorMon::alert(this, AMGITHUBGETISSUESACTION_CANNOT_START_WITHOUT_NETWORKACCESSMANAGER, QString("%1. Please report this problem to the Acquaman developers.").arg(fundamentalFailureMessage));
-		setFailed(fundamentalFailureMessage);
-		return;
-	}
+//	if(!networkAccessManager_){
+//		QString fundamentalFailureMessage = QString("There was an error starting the request to %1/%2, no network access manager was available.").arg(actionInfo->owner()).arg(actionInfo->repo());
+//		AMErrorMon::alert(this, AMGITHUBGETISSUESACTION_CANNOT_START_WITHOUT_NETWORKACCESSMANAGER, QString("%1. Please report this problem to the Acquaman developers.").arg(fundamentalFailureMessage));
+//		setFailed(fundamentalFailureMessage);
+//		return;
+//	}
 	if(!allIssues_){
 		QString fundamentalFailureMessage = QString("There was an error starting the request to %1/%2, no all issues map was available.").arg(actionInfo->owner()).arg(actionInfo->repo());
 		AMErrorMon::alert(this, AMGITHUBGETISSUESACTION_CANNOT_START_WITHOUT_ALL_ISSUES_MAP, QString("%1. Please report this problem to the Acquaman developers.").arg(fundamentalFailureMessage));
@@ -96,54 +70,43 @@ void AMGitHubGetIssuesAction::startImplementation()
 		return;
 	}
 
+//	QString issuesString = QString("https://api.github.com/repos/%1/%2/issues?filter=all&state=%3&page=%4&per_page=30").arg(actionInfo->owner()).arg(actionInfo->repo()).arg(actionInfo->issueStateString()).arg(currentIssuesPage_);
+//	AMRestActionInfo *getAllIssuesActionInfo = new AMRestActionInfo(issuesString, AMRestActionInfo::GetRequest);
+//	getAllIssuesActionInfo->setRawHeader("Authorization", authorizationHeader_.toLocal8Bit());
+//	AMRestAction *getAllIssuesAction = new AMRestAction(getAllIssuesActionInfo, networkAccessManager_);
+
+//	connect(getAllIssuesAction, SIGNAL(fullResponseReady(QVariant, QList<QNetworkReply::RawHeaderPair>)), this, SLOT(onGetAllIssuesFullResponseReady(QVariant, QList<QNetworkReply::RawHeaderPair>)));
+//	connect(getAllIssuesAction, SIGNAL(failed()), this, SLOT(onGetAllIssuesFailed()));
+//	getAllIssuesAction->start();
+
+//	setStarted();
+	AMGitHubStandardAction::startImplementation();
+}
+
+void AMGitHubGetIssuesAction::setupRestAction()
+{
+	AMGitHubGetIssuesActionInfo *actionInfo = githubGetIssueActionInfo();
+
 	QString issuesString = QString("https://api.github.com/repos/%1/%2/issues?filter=all&state=%3&page=%4&per_page=30").arg(actionInfo->owner()).arg(actionInfo->repo()).arg(actionInfo->issueStateString()).arg(currentIssuesPage_);
 	AMRestActionInfo *getAllIssuesActionInfo = new AMRestActionInfo(issuesString, AMRestActionInfo::GetRequest);
 	getAllIssuesActionInfo->setRawHeader("Authorization", authorizationHeader_.toLocal8Bit());
-	AMRestAction *getAllIssuesAction = new AMRestAction(getAllIssuesActionInfo, networkAccessManager_);
 
-	connect(getAllIssuesAction, SIGNAL(fullResponseReady(QVariant, QList<QNetworkReply::RawHeaderPair>)), this, SLOT(onGetAllIssuesFullResponseReady(QVariant, QList<QNetworkReply::RawHeaderPair>)));
-	connect(getAllIssuesAction, SIGNAL(failed()), this, SLOT(onGetAllIssuesFailed()));
-	getAllIssuesAction->start();
-
-	setStarted();
+	restAction_ = new AMRestAction(getAllIssuesActionInfo, networkAccessManager_);
 }
 
-//void AMGitHubGetIssuesAction::pauseImplementation()
-//{
-//}
+void AMGitHubGetIssuesAction::restResponsePreImplementation(QVariant fullResponse, QList<QNetworkReply::RawHeaderPair> headerPairs)
+{
+	Q_UNUSED(fullResponse)
+	Q_UNUSED(headerPairs)
+}
 
-//void AMGitHubGetIssuesAction::resumeImplementation()
-//{
-//}
+void AMGitHubGetIssuesAction::restResponseImplementation(QVariant fullResponse, QList<QNetworkReply::RawHeaderPair> headerPairs)
+{
+	Q_UNUSED(headerPairs)
 
-//void AMGitHubGetIssuesAction::cancelImplementation()
-//{
-//	setCancelled();
-//}
+	qDebug() << "More more issues to fetch, going to page " << currentIssuesPage_;
 
-//void AMGitHubGetIssuesAction::skipImplementation(const QString &command)
-//{
-//	Q_UNUSED(command)
-//}
-
-void AMGitHubGetIssuesAction::onGetAllIssuesFullResponseReady(QVariant fullResponse, QList<QNetworkReply::RawHeaderPair> headerPairs){
 	QVariant allIssuesResponse = fullResponse;
-
-	int lastPageNumber = -1;
-	int nextPageNumber = -1;
-
-	for(int x = 0; x < headerPairs.count(); x++){
-		if(headerPairs.at(x).first == "Link"){
-			QString linkHeader = headerPairs.at(x).second;
-			QStringList linkHeaderItems = linkHeader.split(',');
-			for(int y = 0; y < linkHeaderItems.count(); y++){
-				if(linkHeaderItems.at(y).contains("; rel=\"last\""))
-					lastPageNumber = AMRestAction::pageNumberFromURLString(linkHeaderItems.at(y));
-				if(linkHeaderItems.at(y).contains("; rel=\"next\""))
-					nextPageNumber = AMRestAction::pageNumberFromURLString(linkHeaderItems.at(y));
-			}
-		}
-	}
 
 	if(allIssuesResponse.canConvert(QVariant::List)){
 		QVariantMap jsonMap;
@@ -175,33 +138,84 @@ void AMGitHubGetIssuesAction::onGetAllIssuesFullResponseReady(QVariant fullRespo
 			}
 		}
 	}
+}
 
-	if(!lastPage_){
-		AMGitHubGetIssuesActionInfo *actionInfo = githubGetIssueActionInfo();
+//void AMGitHubGetIssuesAction::onGetAllIssuesFullResponseReady(QVariant fullResponse, QList<QNetworkReply::RawHeaderPair> headerPairs){
+//	QVariant allIssuesResponse = fullResponse;
 
-		currentIssuesPage_ = nextPageNumber;
-		if(nextPageNumber == lastPageNumber)
-			lastPage_ = true;
+//	int lastPageNumber = -1;
+//	int nextPageNumber = -1;
 
-//		if(nextPageNumber == 2)
+//	for(int x = 0; x < headerPairs.count(); x++){
+//		if(headerPairs.at(x).first == "Link"){
+//			QString linkHeader = headerPairs.at(x).second;
+//			QStringList linkHeaderItems = linkHeader.split(',');
+//			for(int y = 0; y < linkHeaderItems.count(); y++){
+//				if(linkHeaderItems.at(y).contains("; rel=\"last\""))
+//					lastPageNumber = AMRestAction::pageNumberFromURLString(linkHeaderItems.at(y));
+//				if(linkHeaderItems.at(y).contains("; rel=\"next\""))
+//					nextPageNumber = AMRestAction::pageNumberFromURLString(linkHeaderItems.at(y));
+//			}
+//		}
+//	}
+
+//	if(allIssuesResponse.canConvert(QVariant::List)){
+//		QVariantMap jsonMap;
+//		QVariantList githubListReply = allIssuesResponse.toList();
+//		if(githubListReply.at(0).canConvert(QVariant::Map)){
+//			for(int x = 0; x < githubListReply.count(); x++){
+//				jsonMap = githubListReply.at(x).toMap();
+
+//				AMGitHubMilestone *associatedMilestone = 0;
+//				if(jsonMap.contains("milestone") && !jsonMap.value("milestone").toMap().value("title").toString().isEmpty()){
+//					int milestoneNumber = -1;
+//					if(jsonMap.value("milestone").toMap().value("number").canConvert<int>())
+//						milestoneNumber = jsonMap.value("milestone").toMap().value("number").toInt();
+//					if(milestoneNumber > 0 && !allMilestones_->contains(milestoneNumber)){
+//						AMGitHubMilestone *oneMilestone = new AMGitHubMilestone(jsonMap.value("milestone").toMap());
+//						allMilestones_->insert(oneMilestone->number(), oneMilestone);
+
+//						associatedMilestone = oneMilestone;
+//					}
+//					else if(milestoneNumber > 0 && allMilestones_->contains(milestoneNumber))
+//						associatedMilestone = allMilestones_->value(milestoneNumber);
+//				}
+
+//				AMGitHubIssue *oneIssue = new AMGitHubIssue(jsonMap);
+//				allIssues_->insert(oneIssue->issueNumber(), oneIssue);
+
+//				if(associatedMilestone && !oneIssue->projectTrackingDisabled())
+//					associatedMilestone->appendAssociatedIssue(oneIssue);
+//			}
+//		}
+//	}
+
+//	if(!lastPage_){
+//		AMGitHubGetIssuesActionInfo *actionInfo = githubGetIssueActionInfo();
+
+//		currentIssuesPage_ = nextPageNumber;
+//		if(nextPageNumber == lastPageNumber)
 //			lastPage_ = true;
 
-		qDebug() << "More more issues to fetch, going to page " << currentIssuesPage_;
+////		if(nextPageNumber == 2)
+////			lastPage_ = true;
 
-		QString issuesString = QString("https://api.github.com/repos/%1/%2/issues?filter=all&state=%3&page=%4&per_page=30").arg(actionInfo->owner()).arg(actionInfo->repo()).arg(actionInfo->issueStateString()).arg(currentIssuesPage_);
-		AMRestActionInfo *getAllIssuesActionInfo = new AMRestActionInfo(issuesString, AMRestActionInfo::GetRequest);
-		getAllIssuesActionInfo->setRawHeader("Authorization", authorizationHeader_.toLocal8Bit());
-		AMRestAction *getAllIssuesAction = new AMRestAction(getAllIssuesActionInfo, networkAccessManager_);
+//		qDebug() << "More more issues to fetch, going to page " << currentIssuesPage_;
 
-		connect(getAllIssuesAction, SIGNAL(fullResponseReady(QVariant, QList<QNetworkReply::RawHeaderPair>)), this, SLOT(onGetAllIssuesFullResponseReady(QVariant, QList<QNetworkReply::RawHeaderPair>)));
-		connect(getAllIssuesAction, SIGNAL(failed()), this, SLOT(onGetAllIssuesFailed()));
-		getAllIssuesAction->start();
-	}
-	else
-		setSucceeded();
-}
+//		QString issuesString = QString("https://api.github.com/repos/%1/%2/issues?filter=all&state=%3&page=%4&per_page=30").arg(actionInfo->owner()).arg(actionInfo->repo()).arg(actionInfo->issueStateString()).arg(currentIssuesPage_);
+//		AMRestActionInfo *getAllIssuesActionInfo = new AMRestActionInfo(issuesString, AMRestActionInfo::GetRequest);
+//		getAllIssuesActionInfo->setRawHeader("Authorization", authorizationHeader_.toLocal8Bit());
+//		AMRestAction *getAllIssuesAction = new AMRestAction(getAllIssuesActionInfo, networkAccessManager_);
 
-void AMGitHubGetIssuesAction::onGetAllIssuesFailed()
-{
-	setFailed();
-}
+//		connect(getAllIssuesAction, SIGNAL(fullResponseReady(QVariant, QList<QNetworkReply::RawHeaderPair>)), this, SLOT(onGetAllIssuesFullResponseReady(QVariant, QList<QNetworkReply::RawHeaderPair>)));
+//		connect(getAllIssuesAction, SIGNAL(failed()), this, SLOT(onGetAllIssuesFailed()));
+//		getAllIssuesAction->start();
+//	}
+//	else
+//		setSucceeded();
+//}
+
+//void AMGitHubGetIssuesAction::onGetAllIssuesFailed()
+//{
+//	setFailed();
+//}
