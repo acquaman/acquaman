@@ -12,7 +12,7 @@ BioXASMainMonochromator::BioXASMainMonochromator(QObject *parent) :
 	paddleStatus_ = new AMReadOnlyPVControl(QString("PaddleStatus"), QString("BL1607-5-I21:Mono:PaddleExtracted"), this);
 	keyStatus_ = new AMReadOnlyPVControl(QString("KeyStatus"), QString("BL1607-5-I21:Mono:KeyStatus"), this);
 	brakeStatus_ = new AMReadOnlyPVControl(QString("BrakeStatus"), QString("BL1607-5-I21:Mono:BrakeOff"), this);
-	bragg_ = new AMPVwStatusControl("Bragg", "SMTR1607-5-I21-12:deg:fbk", "SMTR1607-5-I21-12:deg", "SMTR1607-5-I21-12:status", "SMTR1607-5-I21-12:stop", this, 0.05);
+	encoderBragg_ = new AMPVwStatusControl("Bragg", "SMTR1607-5-I21-12:deg:fbk", "SMTR1607-5-I21-12:deg", "SMTR1607-5-I21-12:status", "SMTR1607-5-I21-12:stop", this, 0.05);
 	stepBragg_ = new AMPVwStatusControl("StepBragg", "SMTR1607-5-I21-12:deg:sp", "SMTR1607-5-I21-12:deg", "SMTR1607-5-I21-12:status", "SMTR1607-5-I21-12:stop", this, 0.05);
 	braggAtCrystalChangePositionStatus_ = new AMReadOnlyPVControl("AtCrystalChangePosition", "BL1607-5-I21:Mono:XtalChangePos", this);
 	crystalChange_ = new AMPVwStatusControl("CrystalChange", "SMTR1607-5-I21-22:mm:fbk", "SMTR1607-5-I21-22:mm", "SMTR1607-5-I21-22:status", "SMTR1607-5-I21-22:stop", this);
@@ -45,7 +45,7 @@ BioXASMainMonochromator::BioXASMainMonochromator(QObject *parent) :
 	region_->setPaddleStatusControl(paddleStatus_);
 	region_->setKeyStatusControl(keyStatus_);
 	region_->setBrakeStatusControl(brakeStatus_);
-	region_->setBraggControl(bragg_);
+	region_->setBraggControl(braggControl());
 	region_->setBraggAtCrystalChangePositionStatusControl(braggAtCrystalChangePositionStatus_);
 	region_->setCrystalChangeControl(crystalChange_);
 	region_->setCrystalChangeCWLimitStatusControl(crystalChangeCWLimitStatus_);
@@ -56,7 +56,7 @@ BioXASMainMonochromator::BioXASMainMonochromator(QObject *parent) :
 	// Create energy control.
 
 	encoderEnergy_ = new BioXASSSRLMonochromatorEnergyControl(name_+"EncoderEnergyControl", this);
-	encoderEnergy_->setBraggControl(bragg_);
+	encoderEnergy_->setBraggControl(encoderBragg_);
 	encoderEnergy_->setBraggSetPositionControl(braggSetPosition_);
 	encoderEnergy_->setRegionControl(region_);
 	encoderEnergy_->setM1MirrorPitchControl(m1Pitch_);
@@ -76,7 +76,7 @@ BioXASMainMonochromator::BioXASMainMonochromator(QObject *parent) :
 	connect( paddleStatus_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 	connect( keyStatus_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 	connect( brakeStatus_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
-	connect( bragg_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+	connect( encoderBragg_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 	connect( stepBragg_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 	connect( braggAtCrystalChangePositionStatus_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 	connect( crystalChange_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
