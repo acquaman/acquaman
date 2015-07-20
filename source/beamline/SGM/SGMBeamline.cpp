@@ -101,7 +101,12 @@ CLSSIS3820Scaler * SGMBeamline::scaler() const
 
 void SGMBeamline::onConnectionStateChanged(bool)
 {
-	emit connected(isConnected());
+	bool actualConnectedState = isConnected();
+
+	if(actualConnectedState != cachedConnectedState_) {
+		cachedConnectedState_ = actualConnectedState;
+		emit connected(actualConnectedState);
+	}
 }
 
 void SGMBeamline::setupBeamlineComponents()
@@ -173,6 +178,11 @@ void SGMBeamline::setupBeamlineComponents()
 	connect(ssaManipulatorZ_, SIGNAL(connected(bool)), this, SLOT(onConnectionStateChanged(bool)));
 	connect(ssaManipulatorRot_, SIGNAL(connected(bool)), this, SLOT(onConnectionStateChanged(bool)));
 	connect(scaler_, SIGNAL(connectedChanged(bool)), this, SLOT(onConnectionStateChanged(bool)));
+
+	// Ensure that the inital cached connected state is valid, and emit an initial
+	// connected signal:
+	cachedConnectedState_ = isConnected();
+	emit connected(cachedConnectedState_);
 }
 
 void SGMBeamline::setupMotorGroups()

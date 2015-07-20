@@ -162,6 +162,8 @@ protected:
 	CLSAdvancedScalerChannelDetector *filteredPD4Detector_;
 	CLSAdvancedScalerChannelDetector *filteredPD5Detector_;
 
+	bool cachedConnectedState_;
+
 };
 
 
