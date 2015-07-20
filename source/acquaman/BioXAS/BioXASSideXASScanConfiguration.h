@@ -63,6 +63,12 @@ public:
 	/// Get a nice looking string that contains all the standard information in an XAS scan.  Used when exporting.
 	virtual QString headerText() const;
 
+	/// Returns the current total estimated time for a scan to complete.
+	double totalTime() const { return totalTime_; }
+
+	/// Overloaded. Returns the current total estimated time but also specifies whether the time should be recomputed first.
+	double totalTime(bool recompute) { if(recompute) computeTotalTimeImplementation(); return totalTime_; }
+
 signals:
 	/// Notifier that the total time estimate has changed.
 	void totalTimeChanged(double);
@@ -80,6 +86,9 @@ protected slots:
 protected:
 	/// Method that does all the calculations for calculating the estimated scan time.
 	virtual void computeTotalTimeImplementation();
+
+	/// Holds the total time in seconds that the scan is estimated to take.
+	double totalTime_;
 };
 
 #endif // BIOXASXASSCANCONFIGURATION_H
