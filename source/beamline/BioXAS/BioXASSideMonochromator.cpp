@@ -45,7 +45,7 @@ BioXASSideMonochromator::BioXASSideMonochromator(QObject *parent) :
 	region_->setPaddleStatusControl(paddleStatus_);
 	region_->setKeyStatusControl(keyStatus_);
 	region_->setBrakeStatusControl(brakeStatus_);
-	region_->setBraggControl(stepBragg_);
+	region_->setBraggControl(braggControl());
 	region_->setBraggAtCrystalChangePositionStatusControl(braggAtCrystalChangePositionStatus_);
 	region_->setCrystalChangeControl(crystalChange_);
 	region_->setCrystalChangeCWLimitStatusControl(crystalChangeCWLimitStatus_);
