@@ -47,6 +47,10 @@ public:
 	  */
 	virtual ~SGMBeamline();
 
+	/*!
+	  * Whether the beamline is currently connected.
+	  */
+	virtual bool isConnected() const;
 
 	/*!
 	  * The energy control.
@@ -97,7 +101,11 @@ public slots:
 signals:
 
 protected slots:
-
+	/*!
+	  * Signal which indicates that the connection state of one of the core
+	  * beamline components has been altered.
+	  */
+	void onConnectionStateChanged(bool);
 protected:
 
 	/*!

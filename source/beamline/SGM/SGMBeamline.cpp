@@ -42,6 +42,18 @@ SGMBeamline::~SGMBeamline()
 {
 }
 
+bool SGMBeamline::isConnected() const
+{
+	return energy_->isConnected() &&
+			exitSlitGap_->isConnected() &&
+			grating_->isConnected() &&
+			ssaManipulatorX_->isConnected() &&
+			ssaManipulatorY_->isConnected() &&
+			ssaManipulatorZ_->isConnected() &&
+			ssaManipulatorRot_->isConnected() &&
+			scaler_->isConnected();
+}
+
 AMControl * SGMBeamline::energy() const
 {
 	return energy_;
@@ -85,6 +97,11 @@ AMMotorGroup * SGMBeamline::ssaManipulatorMotorGroup() const
 CLSSIS3820Scaler * SGMBeamline::scaler() const
 {
 	return scaler_;
+}
+
+void SGMBeamline::onConnectionStateChanged(bool)
+{
+	emit connected(isConnected());
 }
 
 void SGMBeamline::setupBeamlineComponents()
@@ -147,6 +164,15 @@ void SGMBeamline::setupBeamlineComponents()
 	scaler_->channelAt(8)->setCustomChannelName("FPD3");
 	scaler_->channelAt(9)->setCustomChannelName("FPD4");
 	scaler_->channelAt(10)->setCustomChannelName("FPD5");
+
+	connect(energy_, SIGNAL(connected(bool)), this, SLOT(onConnectionStateChanged(bool)));
+	connect(exitSlitGap_ ,SIGNAL(connected(bool)),this, SLOT(onConnectionStateChanged(bool)));
+	connect(grating_, SIGNAL(connected(bool)), this, SLOT(onConnectionStateChanged(bool)));
+	connect(ssaManipulatorX_, SIGNAL(connected(bool)), this, SLOT(onConnectionStateChanged(bool)));
+	connect(ssaManipulatorY_, SIGNAL(connected(bool)), this, SLOT(onConnectionStateChanged(bool)));
+	connect(ssaManipulatorZ_, SIGNAL(connected(bool)), this, SLOT(onConnectionStateChanged(bool)));
+	connect(ssaManipulatorRot_, SIGNAL(connected(bool)), this, SLOT(onConnectionStateChanged(bool)));
+	connect(scaler_, SIGNAL(connectedChanged(bool)), this, SLOT(onConnectionStateChanged(bool)));
 }
 
 void SGMBeamline::setupMotorGroups()
@@ -214,3 +240,6 @@ SGMBeamline::SGMBeamline()
 	setupExposedControls();
 	setupExposedDetectors();
 }
+
+
+
