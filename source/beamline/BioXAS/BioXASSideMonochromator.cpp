@@ -12,8 +12,7 @@ BioXASSideMonochromator::BioXASSideMonochromator(QObject *parent) :
 	paddleStatus_ = new AMReadOnlyPVControl("PaddleStatus", "BL1607-5-I22:Mono:PaddleExtracted", this);
 	keyStatus_ = new AMReadOnlyPVControl("KeyStatus", "BL1607-5-I22:Mono:KeyStatus", this);
 	brakeStatus_ = new AMReadOnlyPVControl("BrakeStatus", "BL1607-5-I22:Mono:BrakeOff", this);
-	encoderBragg_ = new AMPVwStatusControl("Bragg", "SMTR1607-5-I22-12:deg:fbk", "SMTR1607-5-I22-12:deg", "SMTR1607-5-I22-12:status", "SMTR1607-5-I22-12:stop", this, 0.05);
-	stepBragg_ = new AMPVwStatusControl("StepBragg", "SMTR1607-5-I22-12:deg:sp", "SMTR1607-5-I22-12:deg", "SMTR1607-5-I22-12:status", "SMTR1607-5-I22-12:stop", this, 0.05);
+	encoderBragg_ = new AMReadOnlyPVwStatusControl("Bragg", "SMTR1607-5-I22-12:deg:fbk", "SMTR1607-5-I22-12:status", this);
 	braggAtCrystalChangePositionStatus_ = new AMReadOnlyPVControl("AtCrystalChangePosition", "BL1607-5-I22:Mono:XtalChangePos", this);
 	crystalChange_ = new AMPVwStatusControl("CrystalChange", "SMTR1607-5-I22-22:mm:fbk", "SMTR1607-5-I22-22:mm", "SMTR1607-5-I22-22:status", "SMTR1607-5-I22-22:stop", this);
 	crystalChangeCWLimitStatus_ = new AMReadOnlyPVControl("CrystalChangeCWStatus", "SMTR1607-5-I22-22:cw", this);
@@ -26,7 +25,7 @@ BioXASSideMonochromator::BioXASSideMonochromator(QObject *parent) :
 	upperSlitMotor_ = new CLSMAXvMotor(QString("SMTR1607-5-I22-09 VERT UPPER BLADE"), QString("SMTR1607-5-I22-09"), QString("SMTR1607-5-I22-09 VERT UPPER BLADE"), true, 0.1, 2.0, this);
 	lowerSlitMotor_ = new CLSMAXvMotor(QString("SMTR1607-5-I22-10 VERT LOWER BLADE"), QString("SMTR1607-5-I22-10"), QString("SMTR1607-5-I22-10 VERT LOWER BLADE"), true, 0.1, 2.0, this);
 	paddleMotor_ = new CLSMAXvMotor(QString("SMTR1607-5-I22-11 PHOSPHOR PADDLE"), QString("SMTR1607-5-I22-11"), QString("SMTR1607-5-I22-11 PHOSPHOR PADDLE"), true, 0.05, 2.0, this);
-	braggMotor_ = new CLSMAXvMotor(QString("SMTR1607-5-I22-12 BRAGG"), QString("SMTR1607-5-I22-12"), QString("SMTR1607-5-I22-12 BRAGG"), true, 0.05, 2.0, this, QString(":deg"));
+	braggMotor_ = new CLSMAXvMotor(QString("SMTR1607-5-I22-12 BRAGG"), QString("SMTR1607-5-I22-12"), QString("SMTR1607-5-I22-12 BRAGG"), false, 0.05, 2.0, this, QString(":deg"));
 	verticalMotor_ = new CLSMAXvMotor(QString("SMTR1607-5-I22-13 VERTICAL"), QString("SMTR1607-5-I22-13"), QString("SMTR1607-5-I22-13 VERTICAL"), true, 0.05, 2.0, this);
 	lateralMotor_ = new CLSMAXvMotor(QString("SMTR1607-5-I22-14 LATERAL"), QString("SMTR1607-5-I22-14"), QString("SMTR1607-5-I22-14 LATERAL"), true, 0.05, 2.0, this);
 	crystalChangeMotor_ = new CLSMAXvMotor(QString("SMTR1607-5-I22-22 XTAL XCHAGE"), QString("SMTR1607-5-I22-22"), QString("SMTR1607-5-I22-22 XTAL XCHAGE"), true, 0.05, 2.0, this);
@@ -45,7 +44,7 @@ BioXASSideMonochromator::BioXASSideMonochromator(QObject *parent) :
 	region_->setPaddleStatusControl(paddleStatus_);
 	region_->setKeyStatusControl(keyStatus_);
 	region_->setBrakeStatusControl(brakeStatus_);
-	region_->setBraggControl(braggControl());
+	region_->setBraggControl(braggMotor_);
 	region_->setBraggAtCrystalChangePositionStatusControl(braggAtCrystalChangePositionStatus_);
 	region_->setCrystalChangeControl(crystalChange_);
 	region_->setCrystalChangeCWLimitStatusControl(crystalChangeCWLimitStatus_);
@@ -62,7 +61,7 @@ BioXASSideMonochromator::BioXASSideMonochromator(QObject *parent) :
 	encoderEnergy_->setM1MirrorPitchControl(m1Pitch_);
 
 	stepEnergy_ = new BioXASSSRLMonochromatorEnergyControl(name_+"StepEnergyControl", this);
-	stepEnergy_->setBraggControl(stepBragg_);
+	stepEnergy_->setBraggControl(braggMotor_);
 	stepEnergy_->setBraggSetPositionControl(braggSetPosition_);
 	stepEnergy_->setRegionControl(region_);
 	stepEnergy_->setM1MirrorPitchControl(m1Pitch_);
@@ -77,7 +76,7 @@ BioXASSideMonochromator::BioXASSideMonochromator(QObject *parent) :
 	connect( keyStatus_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 	connect( brakeStatus_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 	connect( encoderBragg_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
-	connect( stepBragg_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+//	connect( stepBragg_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 	connect( braggAtCrystalChangePositionStatus_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 	connect( crystalChange_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 	connect( crystalChangeCWLimitStatus_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
