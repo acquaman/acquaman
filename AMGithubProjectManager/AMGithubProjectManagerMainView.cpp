@@ -8,6 +8,7 @@
 
 #include "actions3/AMListAction3.h"
 #include "actions3/actions/AMRestAction.h"
+#include "actions3/actions/AMGitHubGetIssuesAction.h"
 
 #include "AMGitHubMilestone.h"
 #include "AMGitHubIssueFamilyView.h"
@@ -48,108 +49,138 @@ void AMGithubProjectManagerMainView::onInitiateButtonClicked(){
 
 	manager_ = new QNetworkAccessManager(this);
 
-	currentClosedIssuesPage_ = 1;
-	lastPage_ = false;
-	QString issuesString = QString("https://api.github.com/repos/acquaman/acquaman/issues?filter=all&state=all&page=%1&per_page=30").arg(currentClosedIssuesPage_);
-	AMRestActionInfo *getAllClosedIssuesActionInfo = new AMRestActionInfo(issuesString, AMRestActionInfo::GetRequest);
-	getAllClosedIssuesActionInfo->setRawHeader("Authorization", headerData_.toLocal8Bit());
-	getAllClosedIssuesAction_ = new AMRestAction(getAllClosedIssuesActionInfo, manager_);
+//	currentClosedIssuesPage_ = 1;
+//	lastPage_ = false;
+//	QString issuesString = QString("https://api.github.com/repos/acquaman/acquaman/issues?filter=all&state=all&page=%1&per_page=30").arg(currentClosedIssuesPage_);
+//	AMRestActionInfo *getAllClosedIssuesActionInfo = new AMRestActionInfo(issuesString, AMRestActionInfo::GetRequest);
+//	getAllClosedIssuesActionInfo->setRawHeader("Authorization", headerData_.toLocal8Bit());
+//	getAllClosedIssuesAction_ = new AMRestAction(getAllClosedIssuesActionInfo, manager_);
 
-	connect(getAllClosedIssuesAction_, SIGNAL(fullResponseReady(QVariant, QList<QNetworkReply::RawHeaderPair>)), this, SLOT(onGetAllClosedActionsFullResponseReady(QVariant, QList<QNetworkReply::RawHeaderPair>)));
-	getAllClosedIssuesAction_->start();
+//	connect(getAllClosedIssuesAction_, SIGNAL(fullResponseReady(QVariant, QList<QNetworkReply::RawHeaderPair>)), this, SLOT(onGetAllClosedActionsFullResponseReady(QVariant, QList<QNetworkReply::RawHeaderPair>)));
+//	getAllClosedIssuesAction_->start();
+
+	AMGitHubGetIssuesActionInfo *getAllIssuesActionInfo = new AMGitHubGetIssuesActionInfo("acquaman", "acquaman", AMGitHubGetIssuesActionInfo::AllIssues);
+	AMGitHubGetIssuesAction *getAllIssuesAction = new AMGitHubGetIssuesAction(getAllIssuesActionInfo, manager_, headerData_, &allIssues_, &allMilestones_);
+	connect(getAllIssuesAction, SIGNAL(succeeded()), this, SLOT(onGetAllIssuesActionSucceeded()));
+	getAllIssuesAction->start();
+}
+
+void AMGithubProjectManagerMainView::onGetAllIssuesActionSucceeded()
+{
+	QMap<int, AMGitHubIssue*>::const_iterator j = allIssues_.constBegin();
+	while (j != allIssues_.constEnd()) {
+		if(j.value()->isPullRequest() && allIssues_.contains(j.value()->originatingIssueNumber()))
+			j.value()->setOriginatingIssue(allIssues_.value(j.value()->originatingIssueNumber()));
+
+		if( (!j.value()->isPullRequest()) && (j.value()->commentCount() > 0) && (!j.value()->commentsURL().isEmpty()) && (j.value()->complexityValue() != AMGitHubIssue::InvalidComplexity) && (j.value()->issueState() == AMGitHubIssue::ClosedState) ){
+			commentURLs_.append(j.value()->commentsURL());
+		}
+		j++;
+	}
+
+	if(commentURLs_.count() > 0){
+		QString oneCommentURL = commentURLs_.takeFirst();
+
+		AMRestActionInfo *getOneIssueCommentsActionInfo = new AMRestActionInfo(oneCommentURL, AMRestActionInfo::GetRequest);
+		getOneIssueCommentsActionInfo->setRawHeader("Authorization", headerData_.toLocal8Bit());
+		AMRestAction *getOneIssueCommentsAction = new AMRestAction(getOneIssueCommentsActionInfo, manager_);
+
+		connect(getOneIssueCommentsAction, SIGNAL(fullResponseReady(QVariant, QList<QNetworkReply::RawHeaderPair>)), this, SLOT(onGetOneIssueCommentsReturned(QVariant, QList<QNetworkReply::RawHeaderPair>)));
+		getOneIssueCommentsAction->start();
+	}
 }
 
 void AMGithubProjectManagerMainView::onGetAllClosedActionsFullResponseReady(QVariant fullResponse, QList<QNetworkReply::RawHeaderPair> headerPairs){
-	QVariant allClosedIssuesResponse = fullResponse;
+//	QVariant allClosedIssuesResponse = fullResponse;
 
-	int lastPageNumber = -1;
-	int nextPageNumber = -1;
-	for(int x = 0; x < headerPairs.count(); x++){
-		if(headerPairs.at(x).first == "Link"){
-			QString linkHeader = headerPairs.at(x).second;
-			QStringList linkHeaderItems = linkHeader.split(',');
-			for(int y = 0; y < linkHeaderItems.count(); y++){
-				if(linkHeaderItems.at(y).contains("; rel=\"last\""))
-					lastPageNumber = AMRestAction::pageNumberFromURLString(linkHeaderItems.at(y));
-				if(linkHeaderItems.at(y).contains("; rel=\"next\""))
-					nextPageNumber = AMRestAction::pageNumberFromURLString(linkHeaderItems.at(y));
-			}
-		}
-	}
+//	int lastPageNumber = -1;
+//	int nextPageNumber = -1;
+//	for(int x = 0; x < headerPairs.count(); x++){
+//		if(headerPairs.at(x).first == "Link"){
+//			QString linkHeader = headerPairs.at(x).second;
+//			QStringList linkHeaderItems = linkHeader.split(',');
+//			for(int y = 0; y < linkHeaderItems.count(); y++){
+//				if(linkHeaderItems.at(y).contains("; rel=\"last\""))
+//					lastPageNumber = AMRestAction::pageNumberFromURLString(linkHeaderItems.at(y));
+//				if(linkHeaderItems.at(y).contains("; rel=\"next\""))
+//					nextPageNumber = AMRestAction::pageNumberFromURLString(linkHeaderItems.at(y));
+//			}
+//		}
+//	}
 
-	if(allClosedIssuesResponse.canConvert(QVariant::List)){
-		QVariantMap jsonMap;
-		QVariantList githubListReply = allClosedIssuesResponse.toList();
-		if(githubListReply.at(0).canConvert(QVariant::Map)){
-			for(int x = 0; x < githubListReply.count(); x++){
-				jsonMap = githubListReply.at(x).toMap();
+//	if(allClosedIssuesResponse.canConvert(QVariant::List)){
+//		QVariantMap jsonMap;
+//		QVariantList githubListReply = allClosedIssuesResponse.toList();
+//		if(githubListReply.at(0).canConvert(QVariant::Map)){
+//			for(int x = 0; x < githubListReply.count(); x++){
+//				jsonMap = githubListReply.at(x).toMap();
 
-				AMGitHubMilestone *associatedMilestone = 0;
-				if(jsonMap.contains("milestone") && !jsonMap.value("milestone").toMap().value("title").toString().isEmpty()){
-					int milestoneNumber = -1;
-					if(jsonMap.value("milestone").toMap().value("number").canConvert<int>())
-						milestoneNumber = jsonMap.value("milestone").toMap().value("number").toInt();
-					if(milestoneNumber > 0 && !allMilestones_.contains(milestoneNumber)){
-						AMGitHubMilestone *oneMilestone = new AMGitHubMilestone(jsonMap.value("milestone").toMap());
-						allMilestones_.insert(oneMilestone->number(), oneMilestone);
+//				AMGitHubMilestone *associatedMilestone = 0;
+//				if(jsonMap.contains("milestone") && !jsonMap.value("milestone").toMap().value("title").toString().isEmpty()){
+//					int milestoneNumber = -1;
+//					if(jsonMap.value("milestone").toMap().value("number").canConvert<int>())
+//						milestoneNumber = jsonMap.value("milestone").toMap().value("number").toInt();
+//					if(milestoneNumber > 0 && !allMilestones_.contains(milestoneNumber)){
+//						AMGitHubMilestone *oneMilestone = new AMGitHubMilestone(jsonMap.value("milestone").toMap());
+//						allMilestones_.insert(oneMilestone->number(), oneMilestone);
 
-						associatedMilestone = oneMilestone;
-					}
-					else if(milestoneNumber > 0 && allMilestones_.contains(milestoneNumber))
-						associatedMilestone = allMilestones_.value(milestoneNumber);
-				}
+//						associatedMilestone = oneMilestone;
+//					}
+//					else if(milestoneNumber > 0 && allMilestones_.contains(milestoneNumber))
+//						associatedMilestone = allMilestones_.value(milestoneNumber);
+//				}
 
-				AMGitHubIssue *oneIssue = new AMGitHubIssue(jsonMap);
-				allIssues_.insert(oneIssue->issueNumber(), oneIssue);
+//				AMGitHubIssue *oneIssue = new AMGitHubIssue(jsonMap);
+//				allIssues_.insert(oneIssue->issueNumber(), oneIssue);
 
-				if(associatedMilestone && !oneIssue->projectTrackingDisabled())
-					associatedMilestone->appendAssociatedIssue(oneIssue);
-			}
-		}
-	}
+//				if(associatedMilestone && !oneIssue->projectTrackingDisabled())
+//					associatedMilestone->appendAssociatedIssue(oneIssue);
+//			}
+//		}
+//	}
 
-	if(!lastPage_){
-		currentClosedIssuesPage_ = nextPageNumber;
-		if(nextPageNumber == lastPageNumber)
-			lastPage_ = true;
-
-//		if(nextPageNumber == 2)
+//	if(!lastPage_){
+//		currentClosedIssuesPage_ = nextPageNumber;
+//		if(nextPageNumber == lastPageNumber)
 //			lastPage_ = true;
 
-		qDebug() << "More more issues to fetch, going to page " << currentClosedIssuesPage_;
+////		if(nextPageNumber == 2)
+////			lastPage_ = true;
 
-		QString issuesString = QString("https://api.github.com/repos/acquaman/acquaman/issues?filter=all&state=all&page=%1&per_page=30").arg(currentClosedIssuesPage_);
-		AMRestActionInfo *getOneClosedIssuesPageActionInfo = new AMRestActionInfo(issuesString, AMRestActionInfo::GetRequest);
-		getOneClosedIssuesPageActionInfo->setRawHeader("Authorization", headerData_.toLocal8Bit());
-		AMRestAction *getOneClosedIssuesPageAction = new AMRestAction(getOneClosedIssuesPageActionInfo, manager_);
+//		qDebug() << "More more issues to fetch, going to page " << currentClosedIssuesPage_;
 
-		connect(getOneClosedIssuesPageAction, SIGNAL(fullResponseReady(QVariant, QList<QNetworkReply::RawHeaderPair>)), this, SLOT(onGetAllClosedActionsFullResponseReady(QVariant, QList<QNetworkReply::RawHeaderPair>)));
-		getOneClosedIssuesPageAction->start();
-	}
-	else{
+//		QString issuesString = QString("https://api.github.com/repos/acquaman/acquaman/issues?filter=all&state=all&page=%1&per_page=30").arg(currentClosedIssuesPage_);
+//		AMRestActionInfo *getOneClosedIssuesPageActionInfo = new AMRestActionInfo(issuesString, AMRestActionInfo::GetRequest);
+//		getOneClosedIssuesPageActionInfo->setRawHeader("Authorization", headerData_.toLocal8Bit());
+//		AMRestAction *getOneClosedIssuesPageAction = new AMRestAction(getOneClosedIssuesPageActionInfo, manager_);
 
-		QMap<int, AMGitHubIssue*>::const_iterator j = allIssues_.constBegin();
-		while (j != allIssues_.constEnd()) {
-			if(j.value()->isPullRequest() && allIssues_.contains(j.value()->originatingIssueNumber()))
-				j.value()->setOriginatingIssue(allIssues_.value(j.value()->originatingIssueNumber()));
+//		connect(getOneClosedIssuesPageAction, SIGNAL(fullResponseReady(QVariant, QList<QNetworkReply::RawHeaderPair>)), this, SLOT(onGetAllClosedActionsFullResponseReady(QVariant, QList<QNetworkReply::RawHeaderPair>)));
+//		getOneClosedIssuesPageAction->start();
+//	}
+//	else{
 
-			if( (!j.value()->isPullRequest()) && (j.value()->commentCount() > 0) && (!j.value()->commentsURL().isEmpty()) && (j.value()->complexityValue() != AMGitHubIssue::InvalidComplexity) && (j.value()->issueState() == AMGitHubIssue::ClosedState) ){
-				commentURLs_.append(j.value()->commentsURL());
-			}
-			j++;
-		}
+//		QMap<int, AMGitHubIssue*>::const_iterator j = allIssues_.constBegin();
+//		while (j != allIssues_.constEnd()) {
+//			if(j.value()->isPullRequest() && allIssues_.contains(j.value()->originatingIssueNumber()))
+//				j.value()->setOriginatingIssue(allIssues_.value(j.value()->originatingIssueNumber()));
 
-		if(commentURLs_.count() > 0){
-			QString oneCommentURL = commentURLs_.takeFirst();
+//			if( (!j.value()->isPullRequest()) && (j.value()->commentCount() > 0) && (!j.value()->commentsURL().isEmpty()) && (j.value()->complexityValue() != AMGitHubIssue::InvalidComplexity) && (j.value()->issueState() == AMGitHubIssue::ClosedState) ){
+//				commentURLs_.append(j.value()->commentsURL());
+//			}
+//			j++;
+//		}
 
-			AMRestActionInfo *getOneIssueCommentsActionInfo = new AMRestActionInfo(oneCommentURL, AMRestActionInfo::GetRequest);
-			getOneIssueCommentsActionInfo->setRawHeader("Authorization", headerData_.toLocal8Bit());
-			AMRestAction *getOneIssueCommentsAction = new AMRestAction(getOneIssueCommentsActionInfo, manager_);
+//		if(commentURLs_.count() > 0){
+//			QString oneCommentURL = commentURLs_.takeFirst();
 
-			connect(getOneIssueCommentsAction, SIGNAL(fullResponseReady(QVariant, QList<QNetworkReply::RawHeaderPair>)), this, SLOT(onGetOneIssueCommentsReturned(QVariant, QList<QNetworkReply::RawHeaderPair>)));
-			getOneIssueCommentsAction->start();
-		}
-	}
+//			AMRestActionInfo *getOneIssueCommentsActionInfo = new AMRestActionInfo(oneCommentURL, AMRestActionInfo::GetRequest);
+//			getOneIssueCommentsActionInfo->setRawHeader("Authorization", headerData_.toLocal8Bit());
+//			AMRestAction *getOneIssueCommentsAction = new AMRestAction(getOneIssueCommentsActionInfo, manager_);
+
+//			connect(getOneIssueCommentsAction, SIGNAL(fullResponseReady(QVariant, QList<QNetworkReply::RawHeaderPair>)), this, SLOT(onGetOneIssueCommentsReturned(QVariant, QList<QNetworkReply::RawHeaderPair>)));
+//			getOneIssueCommentsAction->start();
+//		}
+//	}
 }
 
 void AMGithubProjectManagerMainView::onGetOneIssueCommentsReturned(QVariant fullResponse, QList<QNetworkReply::RawHeaderPair> headerPairs)
