@@ -73,7 +73,7 @@ void BioXASPersistentView::setMono(BioXASSSRLMonochromator *newMono)
 		if (mono_) {
 			energyEditor_->setControl(mono_->energyControl());
 			regionEditor_->setControl(mono_->regionControl());
-			braggEditor_->setControl(mono_->braggControl());
+			braggEditor_->setControl(mono_->braggMotor());
 		}
 
 		emit monoChanged(mono_);
