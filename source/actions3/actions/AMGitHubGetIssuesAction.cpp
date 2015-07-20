@@ -195,31 +195,8 @@ void AMGitHubGetIssuesAction::onGetAllIssuesFullResponseReady(QVariant fullRespo
 		connect(getAllIssuesAction, SIGNAL(failed()), this, SLOT(onGetAllIssuesFailed()));
 		getAllIssuesAction->start();
 	}
-	else{
-
+	else
 		setSucceeded();
-//		QMap<int, AMGitHubIssue*>::const_iterator j = allIssues_->constBegin();
-//		while (j != allIssues_->constEnd()) {
-//			if(j.value()->isPullRequest() && allIssues_->contains(j.value()->originatingIssueNumber()))
-//				j.value()->setOriginatingIssue(allIssues_->value(j.value()->originatingIssueNumber()));
-
-//			if( (!j.value()->isPullRequest()) && (j.value()->commentCount() > 0) && (!j.value()->commentsURL().isEmpty()) && (j.value()->complexityValue() != AMGitHubIssue::InvalidComplexity) && (j.value()->issueState() == AMGitHubIssue::ClosedState) ){
-//				commentURLs_.append(j.value()->commentsURL());
-//			}
-//			j++;
-//		}
-
-//		if(commentURLs_.count() > 0){
-//			QString oneCommentURL = commentURLs_.takeFirst();
-
-//			AMRestActionInfo *getOneIssueCommentsActionInfo = new AMRestActionInfo(oneCommentURL, AMRestActionInfo::GetRequest);
-//			getOneIssueCommentsActionInfo->setRawHeader("Authorization", headerData_.toLocal8Bit());
-//			AMRestAction *getOneIssueCommentsAction = new AMRestAction(getOneIssueCommentsActionInfo, manager_);
-
-//			connect(getOneIssueCommentsAction, SIGNAL(fullResponseReady(QVariant, QList<QNetworkReply::RawHeaderPair>)), this, SLOT(onGetOneIssueCommentsReturned(QVariant, QList<QNetworkReply::RawHeaderPair>)));
-//			getOneIssueCommentsAction->start();
-//		}
-	}
 }
 
 void AMGitHubGetIssuesAction::onGetAllIssuesFailed()
