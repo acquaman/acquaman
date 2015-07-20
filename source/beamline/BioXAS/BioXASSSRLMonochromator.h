@@ -39,7 +39,7 @@ public:
 	virtual bool isConnected() const;
 
 	/// Returns the energy control (the encoder-based, by default).
-	virtual BioXASSSRLMonochromatorEnergyControl* energyControl() const { return encoderEnergy_; }
+	virtual BioXASSSRLMonochromatorEnergyControl* energyControl() const { return stepEnergy_; }
 	/// Returns the bragg encoder-based energy control.
 	BioXASSSRLMonochromatorEnergyControl* encoderEnergyControl() const { return encoderEnergy_; }
 	/// Returns the bragg step-based energy control.
@@ -62,9 +62,11 @@ public:
 	/// Returns the brake status control.
 	AMControl* brakeStatusControl() const { return brakeStatus_; }
 	/// Returns the bragg control.
-	AMControl* braggControl() const { return bragg_; }
+	AMControl* braggControl() const { return stepBragg_; }
 	/// Returns the step-based bragg position control.
 	AMControl* stepBraggControl() const { return stepBragg_; }
+	/// Returns the encoder-based bragg position control.
+	AMControl* encoderBraggControl() const { return encoderBragg_; }
 	/// Returns the bragg motor at crystal change position status control.
 	AMControl* braggAtCrystalChangePositionStatusControl() const { return braggAtCrystalChangePositionStatus_; }
 	/// Returns the crystal change control.
@@ -140,7 +142,7 @@ protected:
 	/// The key status control.
 	AMControl *keyStatus_;
 	/// The bragg motor control.
-	AMControl *bragg_;
+	AMControl *encoderBragg_;
 	/// The step-based bragg motor position.
 	AMControl *stepBragg_;
 	/// The bragg motor at crystal change position status control.

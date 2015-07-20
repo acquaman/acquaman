@@ -202,6 +202,8 @@ public:
 	AMBasicControlDetectorEmulator* braggMoveRetriesDetector() const { return braggMoveRetriesDetector_; }
 	/// Returns the bragg step setpoint detector.
 	AMBasicControlDetectorEmulator* braggStepSetpointDetector() const { return braggStepSetpointDetector_; }
+	/// Returns the bragg motor feedback, step-based.
+	AMBasicControlDetectorEmulator* braggStepMotorFeedbackDetector() const { return braggStepMotorFeedbackDetector_; }
 
 	/// Returns the 32 element Ge detector.
 	virtual BioXAS32ElementGeDetector *ge32ElementDetector() const { return ge32ElementDetector_; }
@@ -211,6 +213,7 @@ public:
 	// Endstation table
 	virtual BioXASEndstationTable *endstationTable() const { return endstationTable_; }
 
+	/// Returns the cryostat stage motors group.
 	virtual AMMotorGroup* cryostatStageMotors() const { return cryostatStageMotors_; }
 
 protected:
@@ -249,6 +252,7 @@ protected:
 	AMBasicControlDetectorEmulator *braggDetector_;
 	AMBasicControlDetectorEmulator *braggMoveRetriesDetector_;
 	AMBasicControlDetectorEmulator *braggStepSetpointDetector_;
+	AMBasicControlDetectorEmulator *braggStepMotorFeedbackDetector_;
 	AMBasicControlDetectorEmulator *braggEncoderFeedbackDetector_;
 	BioXAS32ElementGeDetector *ge32ElementDetector_;
 	BioXASFourElementVortexDetector *fourElementVortexDetector_;

@@ -471,6 +471,10 @@ void BioXASSideBeamline::setupControlsAsDetectors()
 	braggStepSetpointDetector_ = new AMBasicControlDetectorEmulator("GoniometerMotorStepSetpoint", "Goniometer motor step setpoint", mono_->braggMotor()->stepSetpointControl(), 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
 	braggStepSetpointDetector_->setHiddenFromUsers(false);
 	braggStepSetpointDetector_->setIsVisible(true);
+
+	braggStepMotorFeedbackDetector_ = new AMBasicControlDetectorEmulator("GoniometerMotorFeedbackStep", "Goniometer motor feedback, step-based", mono_->braggMotor()->stepMotorFeedbackControl(), 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	braggStepSetpointDetector_->setHiddenFromUsers(false);
+	braggStepSetpointDetector_->setIsVisible(true);
 }
 
 void BioXASSideBeamline::setupExposedControls()
@@ -528,6 +532,7 @@ void BioXASSideBeamline::setupExposedControls()
 	addExposedControl(mono_->braggMotor()->encoderCalibrationSlopeControl());
 	addExposedControl(mono_->braggMotor()->stepCalibrationSlopeControl());
 	addExposedControl(mono_->braggMotor()->retries());
+	addExposedControl(mono_->braggMotor()->stepMotorFeedbackControl());
 	addExposedControl(mono_->verticalMotor());
 	addExposedControl(mono_->lateralMotor());
 	addExposedControl(mono_->crystal1PitchMotor());

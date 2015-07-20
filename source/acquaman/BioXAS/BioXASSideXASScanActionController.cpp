@@ -38,20 +38,6 @@ BioXASSideXASScanActionController::BioXASSideXASScanActionController(BioXASSideX
 	if (bioXASDefaultXAS->id() > 0)
 		AMAppControllerSupport::registerClass<BioXASSideXASScanConfiguration, AMExporterXDIFormat, AMExporterOptionXDIFormat>(bioXASDefaultXAS->id());
 
-
-	// Set axis control infos.
-
-	AMControlInfo controlInfo;
-	if (configuration_->usingEncoderEnergy())
-		controlInfo = BioXASSideBeamline::bioXAS()->mono()->encoderEnergyControl()->toInfo();
-	else
-		controlInfo = BioXASSideBeamline::bioXAS()->mono()->stepEnergyControl()->toInfo();
-
-	AMControlInfoList list;
-	list.append(controlInfo);
-
-	setConfigurationAxisControlInfos(list);
-
 	// Set detectors.
 
 	AMDetectorInfoSet bioXASDetectors;
@@ -66,6 +52,7 @@ BioXASSideXASScanActionController::BioXASSideXASScanActionController(BioXASSideX
 	bioXASDetectors.addDetectorInfo(BioXASSideBeamline::bioXAS()->braggEncoderFeedbackDetector()->toInfo());
 	bioXASDetectors.addDetectorInfo(BioXASSideBeamline::bioXAS()->braggMoveRetriesDetector()->toInfo());
 	bioXASDetectors.addDetectorInfo(BioXASSideBeamline::bioXAS()->braggStepSetpointDetector()->toInfo());
+	bioXASDetectors.addDetectorInfo(BioXASSideBeamline::bioXAS()->braggStepMotorFeedbackDetector()->toInfo());
 
 	if (configuration_->usingXRFDetector())
 		bioXASDetectors.addDetectorInfo(BioXASSideBeamline::bioXAS()->fourElementVortexDetector()->toInfo());
