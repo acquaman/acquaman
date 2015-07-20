@@ -76,7 +76,7 @@ BioXASSSRLMonochromatorEnergyCalibrationView::BioXASSSRLMonochromatorEnergyCalib
 	// Current settings.
 
 	setMono(mono);
-//	setCurrentScan(scan);
+	setCurrentScan(scan);
 }
 
 BioXASSSRLMonochromatorEnergyCalibrationView::~BioXASSSRLMonochromatorEnergyCalibrationView()
@@ -89,14 +89,13 @@ void BioXASSSRLMonochromatorEnergyCalibrationView::setMono(BioXASSSRLMonochromat
 	if (mono_ != newMono) {
 
 		if (mono_ && mono_->energyControl()) {
-			mono_->disconnect(this);
-			mono_->energyControl()->disconnect(this);
+			disconnect( mono_->energyControl(), 0, this, 0 );
 		}
 
 		mono_ = newMono;
 
 		if (mono_) {
-			connect( mono_->energyControl(), SIGNAL(valueChanged(double)), this, SLOT(update()) );
+			connect( mono_->energyControl(), SIGNAL(valueChanged(double)), this, SLOT(setMonoEnergy(double)) );
 			connect( mono_->energyControl(), SIGNAL(movingChanged(bool)), this, SLOT(update()) );
 		}
 
@@ -158,8 +157,6 @@ void BioXASSSRLMonochromatorEnergyCalibrationView::update()
 {
 	if (currentScan_) {
 
-		qDebug() << "Updating view.";
-
 		// Update the energy spinboxes and the calibrate button.
 
 		if (mono_ && mono_->energyControl()) {
@@ -179,9 +176,9 @@ void BioXASSSRLMonochromatorEnergyCalibrationView::update()
 			calibrateButton_->setEnabled(false);
 		}
 
-		// Update the mono energy.
+//		// Update the mono energy.
 
-		applyMonoEnergy(monoEnergy_);
+//		applyMonoEnergy(monoEnergy_);
 
 	} else {
 
@@ -274,19 +271,13 @@ void BioXASSSRLMonochromatorEnergyCalibrationView::removeScan(AMScan *toRemove)
 void BioXASSSRLMonochromatorEnergyCalibrationView::setMonoEnergy(double newEnergy)
 {
 	if (monoEnergy_ != newEnergy) {
-
-		qDebug() << "Setting mono energy:" << newEnergy;
-
 		monoEnergy_ = newEnergy;
-
 		applyMonoEnergy(monoEnergy_);
 	}
 }
 
 void BioXASSSRLMonochromatorEnergyCalibrationView::applyMonoEnergy(double newEnergy)
 {
-	qDebug() << "Applying mono energy:" << newEnergy;
-
 	// Update the mono energy spinbox.
 
 	monoEnergySpinBox_->setValue(newEnergy);
@@ -386,6 +377,7 @@ bool BioXASSSRLMonochromatorEnergyCalibrationView::dropScanURLs(const QList<QUrl
 		// If the scan is valid, an XAS scan, and not scanning, then set it as the current scan. Do nothing otherwise--the above QMessageBoxes should be notification enough.
 
 		if (scan && validType && !isScanning) {
+			qDebug() << "Setting loaded scan as current scan...";
 			setCurrentScan(scan);
 			result = true;
 		}
