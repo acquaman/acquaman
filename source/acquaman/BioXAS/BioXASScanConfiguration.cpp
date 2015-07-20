@@ -3,6 +3,7 @@
 BioXASScanConfiguration::BioXASScanConfiguration()
 {
 	dbObject_ = new BioXASScanConfigurationDbObject;
+
 	timeOffset_ = 0.0;
 	totalTime_ = 0.0;
 }
@@ -10,6 +11,7 @@ BioXASScanConfiguration::BioXASScanConfiguration()
 BioXASScanConfiguration::BioXASScanConfiguration(const BioXASScanConfiguration &original)
 {
 	dbObject_ = new BioXASScanConfigurationDbObject(*original.dbObject());
+
 	timeOffset_ = original.timeOffset();
 	totalTime_ = original.totalTime();
 }

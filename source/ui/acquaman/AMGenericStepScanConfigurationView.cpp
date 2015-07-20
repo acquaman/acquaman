@@ -65,6 +65,14 @@ AMGenericStepScanConfigurationView::AMGenericStepScanConfigurationView(AMGeneric
 		axisControlChoice2_->addItem(exposedControls->at(i)->name());
 	}
 
+	if (configuration_->axisControlInfos().count() > 0){
+
+		axisControlChoice1_->setCurrentIndex(axisControlChoice1_->findText(configuration_->axisControlInfos().at(0).name()));
+
+		if (configuration_->axisControlInfos().count() == 2)
+			axisControlChoice2_->setCurrentIndex(axisControlChoice2_->findText(configuration_->axisControlInfos().at(1).name()));
+	}
+
 	connect(axisControlChoice1_, SIGNAL(currentIndexChanged(int)), this, SLOT(onAxisControlChoice1Changed()));
 	connect(axisControlChoice2_, SIGNAL(currentIndexChanged(int)), this, SLOT(onAxisControlChoice2Changed()));
 

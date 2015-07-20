@@ -44,7 +44,7 @@ public:
 	AMScanConfigurationViewHolder3(AMScanConfigurationView* view = 0, bool enableLoopAction = false, QWidget *parent = 0);
 
 	/// Construct a holder for AMScanConfigurationView. The configuration view holder adds a frame, and squeezes view in
-	AMScanConfigurationViewHolder3(const QString &frameName, bool enableLoopAction, bool squeezeWidget, AMScanConfigurationView *view = 0,  QWidget *parent = 0);
+	AMScanConfigurationViewHolder3(const QString &frameName, bool enableLoopAction, bool squeezeWidget, AMScanConfigurationView *view = 0,  const QString &iconName = ":/utilities-system-monitor.png", QWidget *parent = 0);
 
 	/// Set the \c view contained within the holder.  If there is an existing view, the old view is deleted.
 	/*! You can pass in 0 to remove the existing view from the holder.*/

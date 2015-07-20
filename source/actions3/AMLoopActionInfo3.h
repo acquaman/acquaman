@@ -63,6 +63,10 @@ signals:
 
 public slots:
 
+protected slots:
+	/// Update the name of the loop action to reflect iterations difference.
+	void onLoopCountChanged(int newLoopCount);
+
 protected:
 	/// The number of iterations to loop for.
 	int loopCount_;

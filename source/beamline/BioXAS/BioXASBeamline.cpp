@@ -1,5 +1,6 @@
 #include "BioXASBeamline.h"
 #include "beamline/BioXAS/BioXASMonochromator.h"
+#include "beamline/BioXAS/BioXASM1Mirror.h"
 #include "beamline/BioXAS/BioXASM2Mirror.h"
 #include "actions3/AMActionSupport.h"
 #include "beamline/CLS/CLSStorageRing.h"
@@ -143,6 +144,7 @@ BioXASBeamline::BioXASBeamline(const QString &controlName) :
 	safetyShutterUpstream_ = 0;
 	safetyShutterDownstream_ = 0;
 
+	m1Mirror_ = 0;
 	m2Mirror_ = 0;
 
 	// Setup procedures.

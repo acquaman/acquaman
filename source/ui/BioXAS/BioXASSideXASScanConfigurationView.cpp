@@ -33,6 +33,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "util/AMEnergyToKSpaceCalculator.h"
 #include "ui/util/AMPeriodicTableDialog.h"
 #include "util/AMPeriodicTable.h"
+#include "util/AMDateTimeUtils.h"
 
 
 BioXASSideXASScanConfigurationView::BioXASSideXASScanConfigurationView(BioXASSideXASScanConfiguration *configuration, QWidget *parent) :
@@ -41,6 +42,8 @@ BioXASSideXASScanConfigurationView::BioXASSideXASScanConfigurationView(BioXASSid
 	configuration_ = configuration;
 
 	regionsView_ = new AMEXAFSScanAxisView("BioXAS-Side Region Configuration", configuration_);
+
+	estimatedTimeLabel_ = new QLabel("0 s");
 
 	usingXRFDetectorCheckBox_ = new QCheckBox("Use Four Element");
 	usingXRFDetectorCheckBox_->setChecked(configuration_->usingXRFDetector());
@@ -102,21 +105,29 @@ BioXASSideXASScanConfigurationView::BioXASSideXASScanConfigurationView(BioXASSid
 	energyAndRegionLayout->addLayout(energyLayout);
 	energyAndRegionLayout->addWidget(regionsView_);
 
-	QHBoxLayout *regionsLayout = new QHBoxLayout;
-	regionsLayout->addLayout(energyAndRegionLayout);
-	regionsLayout->addWidget(usingXRFDetectorCheckBox_, 0, Qt::AlignBottom);
+	QVBoxLayout *optionsLayout = new QVBoxLayout();
+	optionsLayout->addWidget(usingXRFDetectorCheckBox_);
+	optionsLayout->addStretch();
 
-//	QLabel *settingsLabel = new QLabel("Scan Settings:");
-//	settingsLabel->setFont(QFont("Lucida Grande", 12, QFont::Bold));
+	QVBoxLayout *regionButtonsLayout = new QVBoxLayout();
+	regionButtonsLayout->addWidget(autoRegionButton_);
+	regionButtonsLayout->addWidget(pseudoXAFSButton_);
+	regionButtonsLayout->addStretch();
 
-	QHBoxLayout *regionsHL = new QHBoxLayout();
-	regionsHL->addStretch();
-	regionsHL->addWidget(autoRegionButton_);
-	regionsHL->addWidget(pseudoXAFSButton_);
+	QFormLayout *estimatedTimeLayout = new QFormLayout();
+	estimatedTimeLayout->setWidget(0, QFormLayout::LabelRole, new QLabel("Estimated Time:"));
+	estimatedTimeLayout->setWidget(0, QFormLayout::FieldRole, estimatedTimeLabel_);
+
+	QHBoxLayout *miscLayout = new QHBoxLayout();
+	miscLayout->addLayout(regionButtonsLayout);
+	miscLayout->addStretch();
+	miscLayout->addLayout(optionsLayout);
+	miscLayout->addStretch();
+	miscLayout->addLayout(estimatedTimeLayout);
 
 	QVBoxLayout *mainVL = new QVBoxLayout();
-	mainVL->addLayout(regionsLayout);
-	mainVL->addLayout(regionsHL);
+	mainVL->addLayout(energyAndRegionLayout);
+	mainVL->addLayout(miscLayout);
 
 	mainVL->setContentsMargins(20,0,0,20);
 	mainVL->setSpacing(1);
@@ -252,4 +263,15 @@ void BioXASSideXASScanConfigurationView::onEdgeChanged()
 
 	if (energy_->value() != configuration_->energy())
 		energy_->setValue(configuration_->energy());
+}
+
+void BioXASSideXASScanConfigurationView::onEstimatedTimeChanged()
+{
+	configuration_->blockSignals(true);
+	double time = configuration_->totalTime(true);
+	configuration_->blockSignals(false);
+
+	QString timeString = AMDateTimeUtils::convertTimeToString(time);
+
+	estimatedTimeLabel_->setText(timeString);
 }

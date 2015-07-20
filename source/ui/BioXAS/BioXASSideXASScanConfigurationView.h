@@ -68,8 +68,11 @@ protected slots:
 	void onLinesComboBoxIndexChanged(int index);
 	/// Handles setting the proper information if the edge is changed.
 	void onEdgeChanged();
+	/// Helper slot that handles the setting the estimated time label
+	void onEstimatedTimeChanged();
 
 protected:
+	/// The scan configuration being viewed.
 	BioXASSideXASScanConfiguration *configuration_;
 
 	AMTopFrame *topFrame_;
@@ -91,6 +94,8 @@ protected:
 	QLabel *scanEnergyRange_;
 	/// Check box for using the XRF detector.
 	QCheckBox *usingXRFDetectorCheckBox_;
+	/// Label for time estimation
+	QLabel *estimatedTimeLabel_;
 };
 
 #endif // BIOXASXASSCANCONFIGURATIONVIEW_H

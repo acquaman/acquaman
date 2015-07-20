@@ -149,7 +149,7 @@ void CLSJJSlitBladesControl::updateStates()
 	updateGap();
 	updateCenterPosition();
 	updateValue();
-	updateIsMoving();
+	updateMoving();
 	updateMinimumValue();
 	updateMaximumValue();
 }
@@ -164,7 +164,7 @@ void CLSJJSlitBladesControl::updateConnected()
 	setConnected(connected);
 }
 
-void CLSJJSlitBladesControl::updateIsMoving()
+void CLSJJSlitBladesControl::updateMoving()
 {
 	if (isConnected()) {
 		setIsMoving( upperBladeControl_->isMoving() || lowerBladeControl_->isMoving() );

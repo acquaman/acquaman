@@ -1,8 +1,10 @@
 #include "BioXASSSRLMonochromatorRegionControl.h"
 #include "BioXASSSRLMonochromator.h"
 
-BioXASSSRLMonochromatorRegionControl::BioXASSSRLMonochromatorRegionControl(QObject *parent) :
-	AMPseudoMotorControl("RegionControl", "", parent, "BioXAS SSRL Monochromator Region Control")
+#include <QDebug>
+
+BioXASSSRLMonochromatorRegionControl::BioXASSSRLMonochromatorRegionControl(const QString &name, QObject *parent) :
+	AMPseudoMotorControl(name, "", parent)
 {
 	// Initialize local variables.
 
@@ -33,17 +35,9 @@ BioXASSSRLMonochromatorRegionControl::BioXASSSRLMonochromatorRegionControl(QObje
 	setAllowsMovesWhileMoving(false);
 	setContextKnownDescription("Region Control");
 
-	// Make connections
-
-	connect( this, SIGNAL(connected(bool)), this, SIGNAL(enumChanged()) );
-	connect( this, SIGNAL(valueChanged(double)), this, SIGNAL(enumChanged()) );
-	connect( this, SIGNAL(setpointChanged(double)), this, SIGNAL(enumChanged()) );
-
 	// Current settings.
 
-	updateConnected();
-	updateValue();
-	updateIsMoving();
+	updateStates();
 }
 
 BioXASSSRLMonochromatorRegionControl::~BioXASSSRLMonochromatorRegionControl()
@@ -55,7 +49,7 @@ bool BioXASSSRLMonochromatorRegionControl::canMeasure() const
 {
 	bool result = false;
 
-	if (isConnected()) {
+	if (regionAStatus_ && regionBStatus_) {
 		result = (
 				regionAStatus_->canMeasure() &&
 				regionBStatus_->canMeasure()
@@ -120,6 +114,12 @@ bool BioXASSSRLMonochromatorRegionControl::validSetpoint(double value) const
 
 	return isValid;
 }
+
+//void BioXASSSRLMonochromatorRegionControl::addChildControl(AMControl *control)
+//{
+//	qDebug() << "Adding child" << control->name();
+//	AMPseudoMotorControl::addChildControl(control);
+//}
 
 void BioXASSSRLMonochromatorRegionControl::setUpperSlitControl(AMControl *upperSlit)
 {
@@ -308,12 +308,12 @@ void BioXASSSRLMonochromatorRegionControl::setRegionBStatusControl(AMControl *re
 	if (regionBStatus_ != regionStatus) {
 
 		if (regionBStatus_)
-			addChildControl(regionBStatus_);
+			removeChildControl(regionBStatus_);
 
 		regionBStatus_ = regionStatus;
 
 		if (regionBStatus_)
-			removeChildControl(regionBStatus_);
+			addChildControl(regionBStatus_);
 	}
 }
 
@@ -334,7 +334,7 @@ void BioXASSSRLMonochromatorRegionControl::updateConnected()
 	bool regionAStatusOK = (regionAStatus_ && regionAStatus_->isConnected());
 	bool regionBStatusOK = (regionBStatus_ && regionBStatus_->isConnected());
 
-	setConnected(
+	bool isConnected = (
 				upperSlitOK &&
 				lowerSlitOK &&
 				slitsStatusOK &&
@@ -350,6 +350,20 @@ void BioXASSSRLMonochromatorRegionControl::updateConnected()
 				regionAStatusOK &&
 				regionBStatusOK
 				);
+
+	if (isConnected)
+		qDebug() << "\nRegion control is connected.\n";
+	else {
+		qDebug() << "\nRegion control is NOT connected.";
+
+		if (!regionAStatusOK)
+			qDebug() << "\nRegion A status NOT connected.";
+
+		if (!regionBStatusOK)
+			qDebug() << "\nRegion B status NOT connected.";
+	}
+
+	setConnected(isConnected);
 }
 
 void BioXASSSRLMonochromatorRegionControl::updateValue()
@@ -369,7 +383,7 @@ void BioXASSSRLMonochromatorRegionControl::updateValue()
 	}
 }
 
-void BioXASSSRLMonochromatorRegionControl::updateIsMoving()
+void BioXASSSRLMonochromatorRegionControl::updateMoving()
 {
 	if (isConnected()) {
 		setIsMoving(
@@ -531,6 +545,20 @@ AMAction3* BioXASSSRLMonochromatorRegionControl::createWaitForKeyEnabledAction()
 	return action;
 }
 
+AMAction3* BioXASSSRLMonochromatorRegionControl::createSetBraggToleranceAction(double newTolerance)
+{
+	AMControl *control = bragg_;
+	AMAction3 *action = 0;
+
+	if (control && control->isConnected())
+		action = AMActionSupport::buildChangeToleranceAction(bragg_, newTolerance);
+
+	if (!action)
+		AMErrorMon::error(this, BioXAS_MONO_REGION_CHANGE_BRAGG_TOLERANCE_FAILED, "Failed to set the bragg motor tolerance.");
+
+	return action;
+}
+
 AMAction3* BioXASSSRLMonochromatorRegionControl::createMoveBraggAction(double destination)
 {
 	AMControl *control = bragg_;
@@ -583,11 +611,22 @@ AMAction3* BioXASSSRLMonochromatorRegionControl::createWaitForBrakeDisabledActio
 
 AMAction3* BioXASSSRLMonochromatorRegionControl::createMoveBraggToCrystalChangePositionAction()
 {
-	AMListAction3 *moveAndConfirm = new AMListAction3(new AMListActionInfo3("MoveBraggToCCPositionAndConfirm", "Move bragg motor to the crystal change position and confirm it's in position"), AMListAction3::Sequential);
-	moveAndConfirm->addSubAction(createMoveBraggAction(SETPOINT_BRAGG_MOTOR_CRYSTAL_CHANGE_POSITION));
-	moveAndConfirm->addSubAction(createWaitForBraggAtCrystalChangePositionAction());
+	AMControl *control = bragg_;
+	AMAction3 *action = 0;
 
-	return moveAndConfirm;
+	if (control && control->isConnected()) {
+		double oldTolerance = bragg_->tolerance();
+
+		AMListAction3 *moveAndConfirm = new AMListAction3(new AMListActionInfo3("MoveBraggToCCPositionAndConfirm", "Move bragg motor to the crystal change position and confirm it's in position"), AMListAction3::Sequential);
+		moveAndConfirm->addSubAction(createSetBraggToleranceAction(1));
+		moveAndConfirm->addSubAction(createMoveBraggAction(SETPOINT_BRAGG_MOTOR_CRYSTAL_CHANGE_POSITION));
+		moveAndConfirm->addSubAction(createWaitForBraggAtCrystalChangePositionAction());
+		moveAndConfirm->addSubAction(createSetBraggToleranceAction(oldTolerance));
+
+		action = moveAndConfirm;
+	}
+
+	return action;
 }
 
 AMAction3* BioXASSSRLMonochromatorRegionControl::createMoveCrystalChangeAction(double destination)

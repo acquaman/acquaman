@@ -101,8 +101,7 @@ public:
 	static QWidget *buildMainWindowPane(const QString &name, const QString &iconPath, QWidget *appWidget);
 
 	/// Returns a widget composed of the Top Frame and Configuration View
-	static QWidget *buildMainWindowConfigurationPane(const QString &topFrameName, AMScanConfigurationView *configView);
-
+	static QWidget *buildMainWindowConfigurationPane(const QString &topFrameName, AMScanConfigurationView *configView, bool enableLoopAction = false, bool squeezeWidget = true);
 
 
 public slots:

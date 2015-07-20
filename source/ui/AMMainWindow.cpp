@@ -349,19 +349,9 @@ QWidget *AMMainWindow::buildMainWindowPane(const QString &name, const QString &i
 
 }
 
-QWidget *AMMainWindow::buildMainWindowConfigurationPane(const QString &topFrameName, AMScanConfigurationView *configView)
+QWidget *AMMainWindow::buildMainWindowConfigurationPane(const QString &widgetName, AMScanConfigurationView *configView, bool enableLoopAction, bool squeezeWidget)
 {
-	AMTopFrame *frame = new AMTopFrame(topFrameName);
-	AMScanConfigurationViewHolder3 *configViewHolder = new AMScanConfigurationViewHolder3(configView);
+	AMScanConfigurationViewHolder3 *configViewHolder = new AMScanConfigurationViewHolder3(widgetName, enableLoopAction, squeezeWidget, configView);
 
-	QVBoxLayout *verticalLayout = new QVBoxLayout();
-	verticalLayout->addWidget(frame);
-	verticalLayout->addStretch();
-	verticalLayout->addWidget(configViewHolder);
-
-	QGroupBox *groupBox = new QGroupBox();
-	groupBox->setFlat(true);
-	groupBox->setLayout(verticalLayout);
-
-	return groupBox;
+	return configViewHolder;
 }

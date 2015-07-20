@@ -1,11 +1,11 @@
 #ifndef BIOXASSSRLMONOCHROMATORREGIONCONTROL_H
 #define BIOXASSSRLMONOCHROMATORREGIONCONTROL_H
 
-#include "beamline/AMPseudoMotorControl.h"
 #include "actions3/AMActionSupport.h"
 #include "actions3/actions/AMControlWaitAction.h"
 #include "actions3/actions/AMWaitAction.h"
 #include "actions3/AMListAction3.h"
+#include "beamline/AMPseudoMotorControl.h"
 #include "util/AMErrorMonitor.h"
 
 // {setpoint}_{motor}_{property} VALUE
@@ -40,6 +40,7 @@
 #define BioXAS_MONO_REGION_MOVE_PADDLE_FAILED 1407709
 #define BioXAS_MONO_REGION_PADDLE_WAIT_FAILED 1407710
 #define BioXAS_MONO_REGION_KEY_ENABLED_WAIT_FAILED 1407711
+#define BioXAS_MONO_REGION_CHANGE_BRAGG_TOLERANCE_FAILED 14077110
 #define BioXAS_MONO_REGION_MOVE_BRAGG_FAILED 1407712
 #define BioXAS_MONO_REGION_BRAGG_WAIT_FAILED 1407713
 #define BioXAS_MONO_REGION_BRAKE_DISABLED_WAIT_FAILED 1407714
@@ -50,6 +51,8 @@
 #define BioXAS_MONO_REGION_REGION_B_WAIT_FAILED 1407719
 #define BioXAS_MONO_REGION_KEY_DISABLED_WAIT_FAILED 1407720
 
+#include <QDebug>
+
 class BioXASSSRLMonochromatorRegionControl : public AMPseudoMotorControl
 {
 	Q_OBJECT
@@ -59,11 +62,11 @@ public:
 	enum Step { CloseSlits = 0, RemovePaddle, WaitForKeyEnabled, MoveBraggIntoPosition, WaitForBrakeDisabled, MoveCrystalChangeIntoPosition, WaitForBrakeEnabled, MoveBraggIntoRegion, WaitForKeyDisabled, None };
 
 	/// Constructor.
-	explicit BioXASSSRLMonochromatorRegionControl(QObject *parent = 0);
+	explicit BioXASSSRLMonochromatorRegionControl(const QString &name, QObject *parent = 0);
 	/// Destructor.
 	virtual ~BioXASSSRLMonochromatorRegionControl();
 
-	/// Returns true if the region is always measurable (when the control is connected).
+	/// Returns true if the region is always measurable, provided the control is connected.
 	virtual bool shouldMeasure() const { return true; }
 	/// Returns true if a move to a new region is always possible, provided control is connected.
 	virtual bool shouldMove() const { return true; }
@@ -111,6 +114,8 @@ public:
 	/// Returns the region B status control.
 	AMControl* regionBStatusControl() const { return regionBStatus_; }
 
+//	virtual void addChildControl(AMControl *control);
+
 signals:
 	/// Notifier that there has been progress in completing a crystal change.
 	void moveProgressChanged(double numerator, double denominator);
@@ -153,7 +158,7 @@ protected slots:
 	/// Updates the current value.
 	virtual void updateValue();
 	/// Updates the 'is moving' state.
-	virtual void updateIsMoving();
+	virtual void updateMoving();
 
 	/// Handles emitting the appropriate signals when the current step in a move has changed.
 	void onMoveStepChanged(int stepIndex);
@@ -181,6 +186,8 @@ protected:
 	/// Returns a new action that waits for the key status to change to 'Enabled'.
 	AMAction3* createWaitForKeyEnabledAction();
 
+	/// Returns a new action that sets the bragg motor control tolerance to the given value (deg), 0 if not connected.
+	AMAction3* createSetBraggToleranceAction(double newTolerance);
 	/// Returns a new action that moves the bragg motor control to the given destination (degrees), 0 if not connected.
 	AMAction3* createMoveBraggAction(double destination);
 	/// Returns a new action that waits for the mono to signal it has reached the crystal change position.

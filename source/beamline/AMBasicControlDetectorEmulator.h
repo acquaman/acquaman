@@ -29,6 +29,9 @@ class AMBasicControlDetectorEmulator : public AMDetector
 {
 Q_OBJECT
 public:
+	/// Enum that identifies the different control properties that the emulator can monitor.
+	class Control { public: enum Property { Value = 0, Setpoint }; };
+
 	/// Constructor takes a name and description as well as a pointer to the control you wish to acquire
 	AMBasicControlDetectorEmulator(const QString &name, const QString &description, AMControl *control, AMControl *statusControl, double statusAcquiringValue, double statusNotAcquiringValue, AMDetectorDefinitions::ReadMethod readMethod,  QObject *parent = 0);
 	/// Destructor.
@@ -86,6 +89,13 @@ public:
 	/// Returns a AM1DProcessVariableDataSource suitable for viewing
 	virtual AMDataSource* dataSource() const { return 0; }
 
+	/// Returns the control property that the emulator is monitoring.
+	Control::Property controlProperty() const { return controlProperty_; }
+
+signals:
+	/// Notifier that the control property that the emulator is monitoring has changed.
+	void controlPropertyChanged(Control::Property newProperty);
+
 public slots:
 	/// Does nothing and returns false
 	virtual bool setAcquisitionTime(double seconds) { Q_UNUSED(seconds); return false; }
@@ -95,6 +105,9 @@ public slots:
 
 	/// Controls do not support clearing
 	virtual bool clear() { return false; }
+
+	/// Sets the control property that the emulator is monitoring.
+	void setControlProperty(Control::Property newProperty);
 
 protected slots:
 	/// Determines if the detector is connected to ALL controls and process variables.
@@ -131,6 +144,9 @@ protected:
 
 	double statusAcquiringValue_;
 	double statusNotAcquiringValue_;
+
+	/// Holds the control property that the emulator is monitoring.
+	Control::Property controlProperty_;
 };
 
 #endif // AMBASICCONTROLDETECTOREMULATOR_H

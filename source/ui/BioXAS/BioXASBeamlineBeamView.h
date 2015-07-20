@@ -19,10 +19,6 @@ public:
 	/// Destructor.
 	virtual ~BioXASBeamlineBeamView();
 
-signals:
-
-public slots:
-
 protected slots:
 	/// Handles updating the view to reflect the current beam status.
 	void updateBeamStatus();

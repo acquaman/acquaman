@@ -20,18 +20,12 @@ BioXASCarbonFilterFarmActuatorControl::BioXASCarbonFilterFarmActuatorControl(AMC
 	setAllowsMovesWhileMoving(false);
 	setContextKnownDescription("Filter Farm Actuator Control");
 
-	// Emit enumChanged signals when connected, value changes, and setpoint changes. This is to make sure the control is viewed as an enum.
-
-	connect( this, SIGNAL(connected(bool)), this, SIGNAL(enumChanged()) );
-	connect( this, SIGNAL(valueChanged(double)), this, SIGNAL(enumChanged()) );
-	connect( this, SIGNAL(setpointChanged(double)), this, SIGNAL(enumChanged()) );
-
 	// Current settings.
 
 	setPositionControl(positionControl);
 	setStatusControl(statusControl);
 
-	updateValue();
+	updateStates();
 }
 
 BioXASCarbonFilterFarmActuatorControl::~BioXASCarbonFilterFarmActuatorControl()
@@ -224,7 +218,7 @@ void BioXASCarbonFilterFarmActuatorControl::updateValue()
 	}
 }
 
-void BioXASCarbonFilterFarmActuatorControl::updateIsMoving()
+void BioXASCarbonFilterFarmActuatorControl::updateMoving()
 {
 	if (isConnected()) {
 		setIsMoving(position_->isMoving());

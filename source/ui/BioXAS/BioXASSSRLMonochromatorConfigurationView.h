@@ -19,6 +19,7 @@
 #define BRAGG_POSITION_MAX 1000000
 #define SETTLING_TIME_MIN 0
 #define SETTLING_TIME_MAX 100
+#define VIEW_WIDTH_MIN 300
 
 class BioXASSSRLMonochromatorBraggConfigurationView;
 
@@ -44,29 +45,23 @@ public slots:
 	void setMono(BioXASSSRLMonochromator *newMono);
 
 protected slots:
-	/// Displays a dialog for the user to set the calibrated energy.
+	/// Creates and displays a basic calibration screen for the energy.
 	void onCalibrateEnergyButtonClicked();
-	/// Displays a dialog for the user to set the calibrated bragg position.
-	void onCalibrateBraggButtonClicked();
+	/// Creates and displays a basic calibration screen for the goniometer.
+	void onCalibrateGoniometerButtonClicked();
 
 protected:
 	/// The mono being viewed.
 	BioXASSSRLMonochromator *mono_;
 
-	/// The region editor.
-	BioXASSSRLMonochromatorRegionControlEditor *regionEditor_;
-	/// The energy editor.
-	AMExtendedControlEditor *energyEditor_;
-	/// The calibrate energy button.
-	QPushButton *calibrateEnergyButton_;
-	/// The bragg motor position editor.
-	AMExtendedControlEditor *braggEditor_;
-	/// The calibrate bragg button.
-	QPushButton *calibrateBraggButton_;
 	/// The upper slit blade editor.
 	AMExtendedControlEditor *upperSlitEditor_;
 	/// The lower slit blade editor.
 	AMExtendedControlEditor *lowerSlitEditor_;
+	/// The height editor.
+	AMExtendedControlEditor *heightEditor_;
+	/// The lateral editor.
+	AMExtendedControlEditor *lateralEditor_;
 	/// The paddle editor.
 	AMExtendedControlEditor *paddleEditor_;
 	/// The crystal 1 pitch editor.
@@ -78,8 +73,27 @@ protected:
 	/// The crystal 2 roll editor.
 	AMExtendedControlEditor *crystal2RollEditor_;
 
+	/// The step-based energy editor.
+	AMExtendedControlEditor *stepEnergyEditor_;
+	/// The encoder-based energy editor.
+	AMExtendedControlEditor *encoderEnergyEditor_;
+	/// The step-based bragg editor.
+	AMExtendedControlEditor *stepBraggEditor_;
+	/// The encoder-based bragg editor.
+	AMExtendedControlEditor *encoderBraggEditor_;
+	/// The m1 mirror pitch editor.
+	AMExtendedControlEditor *m1PitchEditor_;
+
+	/// The calibrate energy button.
+	QPushButton *calibrateEnergyButton_;
+	/// The calibrate goniometer button.
+	QPushButton *calibrateGoniometerButton_;
+
+	/// The region editor.
+	BioXASSSRLMonochromatorRegionControlEditor *regionEditor_;
 	/// The region status display.
 	BioXASSSRLMonochromatorRegionControlView *regionStatusWidget_;
+
 	/// The bragg configuration view.
 	BioXASSSRLMonochromatorBraggConfigurationView *braggConfigWidget_;
 };

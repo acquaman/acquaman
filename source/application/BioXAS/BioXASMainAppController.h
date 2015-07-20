@@ -22,20 +22,13 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef BIOXASMAINAPPCONTROLLER_H
 #define BIOXASMAINAPPCONTROLLER_H
 
-#include "application/AMAppController.h"
+#include "application/BioXAS/BioXASAppController.h"
 
-class BioXASMainPersistentView;
-class BioXASSIS3820ScalerView;
 class BioXASMainXASScanConfiguration;
 class BioXASMainXASScanConfigurationView;
-class AMScanConfigurationViewHolder3;
-class BioXASSSRLMonochromatorConfigurationView;
-class BioXASM2MirrorView;
-class AMGenericStepScanConfiguration;
-class AMGenericStepScanConfigurationView;
-class BioXASSIS3820ScalerView;
+class BioXASMainPersistentView;
 
-class BioXASMainAppController  : public AMAppController
+class BioXASMainAppController  : public BioXASAppController
 {
 	Q_OBJECT
 
@@ -44,10 +37,9 @@ public:
 	explicit BioXASMainAppController(QObject *parent = 0);
 	/// Destructor.
 	virtual ~BioXASMainAppController() {}
+
 	/// create and setup all of the application windows, widgets, communication connections, and data objects that are needed on program startup. Returns true on success.  If reimplementing, must call the base-class startup() as the first thing it does.
 	virtual bool startup();
-	/// destroy all of the windows, widgets, and data objects created by applicationStartup(). Only call this if startup() has ran successfully.  If reimplementing, must call the base-class shutdown() as the last thing it does.
-	virtual void shutdown();
 
 protected slots:
     /// Handles adding scaler view pane to the main window when the scaler is connected.
@@ -60,8 +52,8 @@ protected:
 	virtual void onCurrentScanActionFinishedImplementation(AMScanAction *action);
 
 	// Things to do on startup.
-	/// Registers all of the necessary classes that are VESPERS specific.
-	void registerClasses();
+	/// Registers all of the necessary classes that are BioXAS specific.
+	virtual void registerClasses();
 	/// Sets up all of the exporter options for the various scan types.
 	void setupExporterOptions();
 	/// Sets up the user interface by specifying the extra pieces that will be added to the main window.
@@ -72,8 +64,12 @@ protected:
 	void applyCurrentSettings();
 
 protected:
+	/// M1 mirror view.
+	BioXASM1MirrorView *m1MirrorView_;
 	/// Mono configuration view.
 	BioXASSSRLMonochromatorConfigurationView *monoConfigView_;
+	/// M2 mirror view.
+	BioXASM2MirrorView *m2MirrorView_;
 	/// Scaler view.
 	BioXASSIS3820ScalerView *scalerView_;
 	/// XAS scan configuration.

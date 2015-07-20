@@ -79,7 +79,7 @@ protected slots:
 	/// Handles updating the control's value. Subclasses should reimplement this.
 	virtual void updateValue() { return; }
 	/// Handles updating the control's 'is moving' state.
-	virtual void updateIsMoving();
+	virtual void updateMoving();
 
 	/// Handles updating the saved gap value, according to the current motor control values.
 	void updateGap();

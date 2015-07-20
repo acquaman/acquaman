@@ -45,7 +45,7 @@ AMScanConfigurationViewHolder3::AMScanConfigurationViewHolder3(AMScanConfigurati
 
 }
 
-AMScanConfigurationViewHolder3::AMScanConfigurationViewHolder3(const QString &frameName, bool enableLoopAction, bool squeezeWidget, AMScanConfigurationView* view,  QWidget *parent) :
+AMScanConfigurationViewHolder3::AMScanConfigurationViewHolder3(const QString &frameName, bool enableLoopAction, bool squeezeWidget, AMScanConfigurationView* view,  const QString &iconName, QWidget *parent) :
 	AMActionRunnerAddActionBar3("Scan", enableLoopAction, parent)
 {
 	view_ = view;
@@ -54,8 +54,7 @@ AMScanConfigurationViewHolder3::AMScanConfigurationViewHolder3(const QString &fr
 
 		if(squeezeWidget){
 
-			topFrame_ = new AMTopFrame(frameName);
-			topFrame_->setIcon(QIcon(":/utilities-system-monitor.png"));
+			topFrame_ = new AMTopFrame(frameName, QIcon(iconName));
 
 			QHBoxLayout *HLayout = new QHBoxLayout;
 			HLayout->addStretch();

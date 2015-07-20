@@ -34,6 +34,8 @@ AMBasicControlDetectorEmulator::AMBasicControlDetectorEmulator(const QString &na
 
 	readMethod_ = readMethod;
 
+	controlProperty_ = Control::Value;
+
 	setIsVisible(false);
 	setHiddenFromUsers(true);
 
@@ -57,13 +59,22 @@ AMBasicControlDetectorEmulator::AMBasicControlDetectorEmulator(const QString &na
 
 AMNumber AMBasicControlDetectorEmulator::reading(const AMnDIndex &indexes) const
 {
-	if(!isConnected())
+	if (!isConnected())
 		return AMNumber(AMNumber::Null);
+
 	// We want an "invalid" AMnDIndex for this 0D detector
-	if(indexes.isValid())
+	if (indexes.isValid())
 		return AMNumber(AMNumber::DimensionError);
 
-	return control_->value();
+	AMNumber result = AMNumber(AMNumber::Null);
+
+	if (controlProperty_ == Control::Value)
+		result = control_->value();
+
+	else if (controlProperty_ == Control::Setpoint)
+		result = control_->setpoint();
+
+	return result;
 }
 
 AMNumber AMBasicControlDetectorEmulator::singleReading() const{
@@ -72,14 +83,32 @@ AMNumber AMBasicControlDetectorEmulator::singleReading() const{
 
 bool AMBasicControlDetectorEmulator::data(double *outputValues) const
 {
-	outputValues[0] = control_->value();
-	return true;
+	bool result = false;
+
+	if (controlProperty_ == Control::Value) {
+		outputValues[0] = control_->value();
+		result = true;
+
+	} else if (controlProperty_ == Control::Setpoint) {
+		outputValues[0] = control_->setpoint();
+		result = true;
+	}
+
+	return result;
 }
 
 AMAction3* AMBasicControlDetectorEmulator::createTriggerAction(AMDetectorDefinitions::ReadMode readMode){
 	if(readMethod() != AMDetectorDefinitions::RequestRead)
 		return 0;
 	return AMDetector::createTriggerAction(readMode);
+}
+
+void AMBasicControlDetectorEmulator::setControlProperty(Control::Property newProperty)
+{
+	if (controlProperty_ != newProperty) {
+		controlProperty_ = newProperty;
+		emit controlPropertyChanged(controlProperty_);
+	}
 }
 
 void AMBasicControlDetectorEmulator::onControlsConnected(bool connected){
