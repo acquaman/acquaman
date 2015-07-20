@@ -29,6 +29,8 @@ signals:
 	void monoChanged(BioXASSSRLMonochromator *newMono);
 	/// Notifier that the current scan has changed.
 	void currentScanChanged(AMScan *newScan);
+	/// Notifier that a monochromator energy calibration scan has been requested.
+	void energyCalibrationScanRequested();
 
 public slots:
 	/// Sets the mono being calibrated.
@@ -79,6 +81,9 @@ protected:
 
 	/// The load data button.
 	QPushButton *loadDataButton_;
+	/// The new data button.
+	QPushButton *newDataButton_;
+
 	/// The scan view.
 	AMScanView *scanView_;
 	/// The mono energy spinbox.

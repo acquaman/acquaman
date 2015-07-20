@@ -19,6 +19,9 @@ BioXASSSRLMonochromatorEnergyCalibrationView::BioXASSSRLMonochromatorEnergyCalib
 	loadDataButton_ = new QPushButton("Load data");
 	loadDataButton_->setToolTip("Use previously acquired data for calibration.");
 
+	newDataButton_ = new QPushButton("New data");
+	newDataButton_->setToolTip("Configure a new scan for calibration.");
+
 	scanView_ = new AMScanView();
 	scanViewModel_ = scanView_->model();
 
@@ -38,6 +41,7 @@ BioXASSSRLMonochromatorEnergyCalibrationView::BioXASSSRLMonochromatorEnergyCalib
 
 	QHBoxLayout *dataOptionsLayout = new QHBoxLayout();
 	dataOptionsLayout->addWidget(loadDataButton_);
+	dataOptionsLayout->addWidget(newDataButton_);
 	dataOptionsLayout->addStretch();
 
 	QGridLayout *energyLayout = new QGridLayout();
@@ -63,6 +67,7 @@ BioXASSSRLMonochromatorEnergyCalibrationView::BioXASSSRLMonochromatorEnergyCalib
 	// Make connections.
 
 	connect( loadDataButton_, SIGNAL(clicked()), this, SLOT(onLoadDataButtonClicked()) );
+	connect( newDataButton_, SIGNAL(clicked()), this, SIGNAL(energyCalibrationScanRequested()) );
 	connect( scanView_, SIGNAL(dataPositionChanged(QPointF)), this, SLOT(onScanViewDataPositionChanged(QPointF)) );
 	connect( monoEnergySpinBox_, SIGNAL(valueChanged(double)), this, SLOT(setMonoEnergy(double)) );
 	connect( desiredEnergySpinBox_, SIGNAL(valueChanged(double)), this, SLOT(onDesiredEnergySpinBoxValueChanged()) );

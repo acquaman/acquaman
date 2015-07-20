@@ -35,10 +35,6 @@ BioXASSideAppController::BioXASSideAppController(QObject *parent)
 	commissioningConfiguration_ = 0;
 	commissioningConfigurationView_ = 0;
 	commissioningConfigurationViewHolder_ = 0;
-
-	monoCalibrationConfiguration_ = 0;
-	monoCalibrationConfigurationView_ = 0;
-	monoCalibrationConfigurationViewHolder_ = 0;
 }
 
 BioXASSideAppController::~BioXASSideAppController()
@@ -119,12 +115,6 @@ void BioXASSideAppController::setupUserInterface()
 	commissioningConfigurationView_ = new AMGenericStepScanConfigurationView(commissioningConfiguration_);
 	commissioningConfigurationViewHolder_ = new AMScanConfigurationViewHolder3("Commissioning Tool", false, true, commissioningConfigurationView_);
 	mw_->addPane(commissioningConfigurationViewHolder_, "Scans", "Commissioning Tool", ":/utilities-system-monitor.png");
-
-	monoCalibrationConfiguration_ = new BioXASSSRLMonochromatorEnergyCalibrationScanConfiguration();
-	monoCalibrationConfiguration_->setEnergy(10000);
-	monoCalibrationConfigurationView_ = new BioXASXASScanConfigurationView(monoCalibrationConfiguration_);
-	monoCalibrationConfigurationViewHolder_ = new AMScanConfigurationViewHolder3("Energy Calibration", false, true, monoCalibrationConfigurationView_);
-	mw_->addPane(monoCalibrationConfigurationViewHolder_, "Scans", "Energy Calibration", ":/utilities-system-monitor.png");
 
 	// Create persistent view panel:
 	////////////////////////////////////

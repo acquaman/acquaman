@@ -15,6 +15,10 @@ BioXASAppController::BioXASAppController(QObject *parent) :
 
 	// Initialize UI elements.
 
+	monoCalibrationConfiguration_ = 0;
+	monoCalibrationConfigurationView_ = 0;
+	monoCalibrationConfigurationViewHolder_ = 0;
+
 	energyCalibrationView_ = 0;
 }
 
@@ -71,6 +75,120 @@ void BioXASAppController::shutdown()
 	AMAppController::shutdown();
 }
 
+void BioXASAppController::onUserConfigurationLoadedFromDb()
+{
+	if (userConfiguration_) {
+		AMXRFDetector *vortexDetector = BioXASBeamline::bioXAS()->fourElementVortexDetector();
+		if (vortexDetector) {
+
+			// Iterate through regions in the user configuration, adding them to the detector's and configuration's ROIs.
+			foreach (AMRegionOfInterest *region, userConfiguration_->regionsOfInterest()){
+				AMRegionOfInterest *newRegion = region->createCopy();
+				vortexDetector->addRegionOfInterest(newRegion);
+				onRegionOfInterestAdded(region);
+			}
+
+			// It is sufficient to only connect the user configuration to the single element because the single element and four element are synchronized together.
+			// This is connected here because we want to listen to the detectors for updates, but don't want to double add regions on startup.
+			connect(vortexDetector, SIGNAL(addedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestAdded(AMRegionOfInterest*)));
+			connect(vortexDetector, SIGNAL(removedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestRemoved(AMRegionOfInterest*)));
+		}
+
+		BioXAS32ElementGeDetector *geDetector = BioXASBeamline::bioXAS()->ge32ElementDetector();
+		if (geDetector) {
+			foreach (AMRegionOfInterest *region, userConfiguration_->regionsOfInterest()){
+				AMRegionOfInterest *newRegion = region->createCopy();
+				geDetector->addRegionOfInterest(newRegion);
+				onRegionOfInterestAdded(region);
+			}
+
+			connect(geDetector, SIGNAL(addedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestAdded(AMRegionOfInterest*)));
+			connect(geDetector, SIGNAL(removedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestRemoved(AMRegionOfInterest*)));
+		}
+	}
+}
+
+void BioXASAppController::onRegionOfInterestAdded(AMRegionOfInterest *region)
+{
+	if (userConfiguration_ && !userConfiguration_->regionsOfInterest().contains(region))
+		userConfiguration_->addRegionOfInterest(region);
+}
+
+void BioXASAppController::onRegionOfInterestRemoved(AMRegionOfInterest *region)
+{
+	if (userConfiguration_ && userConfiguration_->regionsOfInterest().contains(region))
+		userConfiguration_->removeRegionOfInterest(region);
+}
+
+void BioXASAppController::goToEnergyCalibrationView(AMScan *toView)
+{
+	qDebug() << "Going to energy calibration view...";
+
+	if (energyCalibrationView_) {
+		energyCalibrationView_->setCurrentScan(toView);
+		mw_->setCurrentPane(energyCalibrationView_);
+	}
+}
+
+void BioXASAppController::goToEnergyCalibrationScanConfigurationView()
+{
+	if (monoCalibrationConfigurationViewHolder_)
+		mw_->setCurrentPane(monoCalibrationConfigurationViewHolder_);
+}
+
+void BioXASAppController::onCurrentScanActionStartedImplementation(AMScanAction *action)
+{
+	Q_UNUSED(action)
+
+	// Save current configuration to the database.
+
+	if (userConfiguration_)
+		userConfiguration_->storeToDb(AMDatabase::database("user"));
+
+	// Testing - energy calibration view.
+
+	qDebug() << "\nScan started.";
+
+	if (action) {
+		AMScanActionInfo *info = qobject_cast<AMScanActionInfo*>(action->info());
+
+		if (info) {
+			BioXASSSRLMonochromatorEnergyCalibrationScanConfiguration *config = qobject_cast<BioXASSSRLMonochromatorEnergyCalibrationScanConfiguration*>(info->configuration());
+
+			if (config) {
+				qDebug() << "It is a mono calibration scan.\n";
+			}
+		}
+	}
+}
+
+void BioXASAppController::onCurrentScanActionFinishedImplementation(AMScanAction *action)
+{
+	// Save current configuration to the database.
+
+	if (userConfiguration_)
+		userConfiguration_->storeToDb(AMDatabase::database("user"));
+
+	// If the scan was an energy calibration scan, set the view's scan and make it the current pane.
+
+	if (action && action->controller() && action->controller()->scan()) {
+
+		AMScan *scan = action->controller()->scan();
+
+		if (scan) {
+			BioXASSSRLMonochromatorEnergyCalibrationScanConfiguration *energyCalibrationConfiguration = qobject_cast<BioXASSSRLMonochromatorEnergyCalibrationScanConfiguration*>(action->controller()->scan()->scanConfiguration());
+
+			if (energyCalibrationConfiguration) {
+				qDebug() << "It was a mono calibration scan.\n";
+				goToEnergyCalibrationView(scan);
+
+			} else {
+				qDebug() << "It was NOT a mono calibration scan.\n";
+			}
+		}
+	}
+}
+
 void BioXASAppController::registerClasses()
 {
 	AMDbObjectSupport::s()->registerClass<CLSSIS3820ScalerDarkCurrentMeasurementActionInfo>();
@@ -115,7 +233,7 @@ void BioXASAppController::setupUserInterface()
 	mw_->insertHeading("Scans", 2);
 	mw_->insertHeading("Calibration", 3);
 
-	// Create beamline component widgets:
+	// Create beamline component views:
 	////////////////////////////////////
 
 //	BioXASEndstationTable *table = BioXASBeamline::bioXAS()->endstationTable();
@@ -203,119 +321,22 @@ void BioXASAppController::setupUserInterface()
 		mw_->addPane(fourElementDetectorView, "Detectors", "4-element", ":/system-search.png");
 	}
 
-	// Create calibration widgets:
+	// Create scan views:
+	////////////////////////////////////
+
+	monoCalibrationConfiguration_ = new BioXASSSRLMonochromatorEnergyCalibrationScanConfiguration();
+	monoCalibrationConfiguration_->setEnergy(10000);
+	monoCalibrationConfigurationView_ = new BioXASXASScanConfigurationView(monoCalibrationConfiguration_);
+	monoCalibrationConfigurationViewHolder_ = new AMScanConfigurationViewHolder3("Energy Calibration", false, true, monoCalibrationConfigurationView_);
+	mw_->addPane(monoCalibrationConfigurationViewHolder_, "Scans", "Energy Calibration", ":/utilities-system-monitor.png");
+
+	// Create calibration views:
 	////////////////////////////////////
 
 	if (mono) {
 		energyCalibrationView_ = new BioXASSSRLMonochromatorEnergyCalibrationView(mono);
 		mw_->addPane(AMMainWindow::buildMainWindowPane("Energy", ":/system-search.png", energyCalibrationView_), "Calibration", "Energy", ":system-search.png");
-	}
-}
 
-void BioXASAppController::onUserConfigurationLoadedFromDb()
-{
-	if (userConfiguration_) {
-		AMXRFDetector *vortexDetector = BioXASBeamline::bioXAS()->fourElementVortexDetector();
-		if (vortexDetector) {
-
-			// Iterate through regions in the user configuration, adding them to the detector's and configuration's ROIs.
-			foreach (AMRegionOfInterest *region, userConfiguration_->regionsOfInterest()){
-				AMRegionOfInterest *newRegion = region->createCopy();
-				vortexDetector->addRegionOfInterest(newRegion);
-				onRegionOfInterestAdded(region);
-			}
-
-			// It is sufficient to only connect the user configuration to the single element because the single element and four element are synchronized together.
-			// This is connected here because we want to listen to the detectors for updates, but don't want to double add regions on startup.
-			connect(vortexDetector, SIGNAL(addedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestAdded(AMRegionOfInterest*)));
-			connect(vortexDetector, SIGNAL(removedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestRemoved(AMRegionOfInterest*)));
-		}
-
-		BioXAS32ElementGeDetector *geDetector = BioXASBeamline::bioXAS()->ge32ElementDetector();
-		if (geDetector) {
-			foreach (AMRegionOfInterest *region, userConfiguration_->regionsOfInterest()){
-				AMRegionOfInterest *newRegion = region->createCopy();
-				geDetector->addRegionOfInterest(newRegion);
-				onRegionOfInterestAdded(region);
-			}
-
-			connect(geDetector, SIGNAL(addedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestAdded(AMRegionOfInterest*)));
-			connect(geDetector, SIGNAL(removedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestRemoved(AMRegionOfInterest*)));
-		}
-	}
-}
-
-void BioXASAppController::onCurrentScanActionStartedImplementation(AMScanAction *action)
-{
-	Q_UNUSED(action)
-
-	// Save current configuration to the database.
-
-	if (userConfiguration_)
-		userConfiguration_->storeToDb(AMDatabase::database("user"));
-
-	// Testing - energy calibration view.
-
-	qDebug() << "\nScan started.";
-
-	if (action) {
-		AMScanActionInfo *info = qobject_cast<AMScanActionInfo*>(action->info());
-
-		if (info) {
-			BioXASSSRLMonochromatorEnergyCalibrationScanConfiguration *config = qobject_cast<BioXASSSRLMonochromatorEnergyCalibrationScanConfiguration*>(info->configuration());
-
-			if (config) {
-				qDebug() << "It is a mono calibration scan.\n";
-			}
-		}
-	}
-}
-
-void BioXASAppController::onCurrentScanActionFinishedImplementation(AMScanAction *action)
-{	
-	// Save current configuration to the database.
-
-	if (userConfiguration_)
-		userConfiguration_->storeToDb(AMDatabase::database("user"));
-
-	// If the scan was an energy calibration scan, set the view's scan and make it the current pane.
-
-	if (action) {
-
-		BioXASSSRLMonochromatorEnergyCalibrationScanActionController *controller = qobject_cast<BioXASSSRLMonochromatorEnergyCalibrationScanActionController*>(action->controller());
-
-		if (controller) {
-			qDebug() << "It was a mono calibration scan.\n";
-
-			AMScan *calibrationScan = controller->scan();
-			goToEnergyCalibrationView(calibrationScan);
-
-		} else {
-			qDebug() << "It was NOT a mono calibration scan.\n";
-		}
-	}
-}
-
-void BioXASAppController::onRegionOfInterestAdded(AMRegionOfInterest *region)
-{
-	if (userConfiguration_ && !userConfiguration_->regionsOfInterest().contains(region))
-		userConfiguration_->addRegionOfInterest(region);
-}
-
-void BioXASAppController::onRegionOfInterestRemoved(AMRegionOfInterest *region)
-{
-	if (userConfiguration_ && userConfiguration_->regionsOfInterest().contains(region))
-		userConfiguration_->removeRegionOfInterest(region);
-}
-
-void BioXASAppController::goToEnergyCalibrationView(AMScan *toView)
-{
-	if (energyCalibrationView_) {
-		qDebug() << "Going to energy calibration view...";
-
-		if (toView)
-			energyCalibrationView_->setCurrentScan(toView);
-
-		mw_->setCurrentPane(energyCalibrationView_);
+		connect( energyCalibrationView_, SIGNAL(energyCalibrationScanRequested()), this, SLOT(goToEnergyCalibrationScanConfigurationView()) );
 	}
 }

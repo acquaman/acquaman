@@ -87,6 +87,8 @@ protected slots:
 
 	/// Sets the monochromator energy calibration view as the current pane.
 	void goToEnergyCalibrationView(AMScan *toView);
+	/// Sets the monochromator energy calibration scan configuration view as the current pane.
+	void goToEnergyCalibrationScanConfigurationView();
 
 protected:
 	/// Implementation method that individual applications can flesh out if extra setup is required when a scan action is started.  This is not pure virtual because there is no requirement to do anything to scan actions.
@@ -113,6 +115,13 @@ protected:
 protected:
 	/// Holds the user configuration used for automatically setting up some simple aspects of the user interface.
 	BioXASUserConfiguration *userConfiguration_;
+
+	/// The mono energy calibration configuration.
+	BioXASSSRLMonochromatorEnergyCalibrationScanConfiguration *monoCalibrationConfiguration_;
+	/// The mono energy calibration configuration view.
+	BioXASXASScanConfigurationView *monoCalibrationConfigurationView_;
+	/// The mono energy calibration configuration view holder.
+	AMScanConfigurationViewHolder3 *monoCalibrationConfigurationViewHolder_;
 
 	/// The energy calibration view.
 	BioXASSSRLMonochromatorEnergyCalibrationView *energyCalibrationView_;

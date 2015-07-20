@@ -91,7 +91,7 @@ AMAction3* BioXASSSRLMonochromator::createEnergyCalibrationAction(double monoEne
 
 	if (energyControl() && energyControl()->isConnected() && braggMotor_ && braggMotor_->isConnected()) {
 		result = new AMListAction3(new AMListActionInfo3("SSRL Monochromator Calibration Action", "SSRL Monochromator Calibration Action"), AMListAction3::Sequential);
-		result->addSubAction(energyControl()->move(monoEnergy));
+		result->addSubAction(AMActionSupport::buildControlMoveAction(energyControl(), monoEnergy));
 		result->addSubAction(createEnergyCalibrationAction(desiredEnergy));
 	}
 
