@@ -9,6 +9,7 @@
 #include "actions3/AMListAction3.h"
 #include "actions3/actions/AMRestAction.h"
 #include "actions3/actions/AMGitHubGetIssuesAction.h"
+#include "actions3/actions/AMGitHubGetCommentsAction.h"
 
 #include "AMGitHubMilestone.h"
 #include "AMGitHubIssueFamilyView.h"
@@ -68,80 +69,102 @@ void AMGithubProjectManagerMainView::onGetAllIssuesActionSucceeded()
 		j++;
 	}
 
-	if(commentURLs_.count() > 0){
-		QString oneCommentURL = commentURLs_.takeFirst();
+	qDebug() << "Try this fake out";
+//	QStringList fakeCommentURLs;
+//	fakeCommentURLs << "https://api.github.com/repos/acquaman/acquaman/issues/1484/comments";
+//	fakeCommentURLs << "https://api.github.com/repos/acquaman/acquaman/issues/1214/comments";
+	AMGitHubGetCommentsActionInfo *getAllCommentsActionInfo = new AMGitHubGetCommentsActionInfo("acquaman", "acquaman", commentURLs_);
+	AMGitHubGetCommentsAction *getAllCommentsAction = new AMGitHubGetCommentsAction(getAllCommentsActionInfo, manager_, headerData_, &allIssues_);
+	connect(getAllCommentsAction, SIGNAL(succeeded()), this, SLOT(onGetAllCommentsActionSucceeded()));
+	getAllCommentsAction->start();
 
-		AMRestActionInfo *getOneIssueCommentsActionInfo = new AMRestActionInfo(oneCommentURL, AMRestActionInfo::GetRequest);
-		getOneIssueCommentsActionInfo->setRawHeader("Authorization", headerData_.toLocal8Bit());
-		AMRestAction *getOneIssueCommentsAction = new AMRestAction(getOneIssueCommentsActionInfo, manager_);
+//	if(commentURLs_.count() > 0){
+//		QString oneCommentURL = commentURLs_.takeFirst();
 
-		connect(getOneIssueCommentsAction, SIGNAL(fullResponseReady(QVariant, QList<QNetworkReply::RawHeaderPair>)), this, SLOT(onGetOneIssueCommentsReturned(QVariant, QList<QNetworkReply::RawHeaderPair>)));
-		getOneIssueCommentsAction->start();
-	}
+//		AMRestActionInfo *getOneIssueCommentsActionInfo = new AMRestActionInfo(oneCommentURL, AMRestActionInfo::GetRequest);
+//		getOneIssueCommentsActionInfo->setRawHeader("Authorization", headerData_.toLocal8Bit());
+//		AMRestAction *getOneIssueCommentsAction = new AMRestAction(getOneIssueCommentsActionInfo, manager_);
+
+//		connect(getOneIssueCommentsAction, SIGNAL(fullResponseReady(QVariant, QList<QNetworkReply::RawHeaderPair>)), this, SLOT(onGetOneIssueCommentsReturned(QVariant, QList<QNetworkReply::RawHeaderPair>)));
+//		getOneIssueCommentsAction->start();
+//	}
 }
 
 void AMGithubProjectManagerMainView::onGetOneIssueCommentsReturned(QVariant fullResponse, QList<QNetworkReply::RawHeaderPair> headerPairs)
 {
-	int lastPageNumber = -1;
-	int nextPageNumber = -1;
-	QString nextPageURL;
-	for(int x = 0; x < headerPairs.count(); x++){
-		if(headerPairs.at(x).first == "Link"){
-			QString linkHeader = headerPairs.at(x).second;
-			QStringList linkHeaderItems = linkHeader.split(',');
-			for(int y = 0; y < linkHeaderItems.count(); y++){
-				if(linkHeaderItems.at(y).contains("; rel=\"last\"")){
-					lastPageNumber = AMRestAction::pageNumberFromURLString(linkHeaderItems.at(y));
-				}
-				if(linkHeaderItems.at(y).contains("; rel=\"next\"")){
-					nextPageNumber = AMRestAction::pageNumberFromURLString(linkHeaderItems.at(y));
-					nextPageURL = linkHeaderItems.at(y).section(';', 0, 0).remove('<').remove('>');
-					qDebug() << nextPageURL;
-				}
-			}
-		}
+}
+//	int lastPageNumber = -1;
+//	int nextPageNumber = -1;
+//	QString nextPageURL;
+//	for(int x = 0; x < headerPairs.count(); x++){
+//		if(headerPairs.at(x).first == "Link"){
+//			QString linkHeader = headerPairs.at(x).second;
+//			QStringList linkHeaderItems = linkHeader.split(',');
+//			for(int y = 0; y < linkHeaderItems.count(); y++){
+//				if(linkHeaderItems.at(y).contains("; rel=\"last\"")){
+//					lastPageNumber = AMRestAction::pageNumberFromURLString(linkHeaderItems.at(y));
+//				}
+//				if(linkHeaderItems.at(y).contains("; rel=\"next\"")){
+//					nextPageNumber = AMRestAction::pageNumberFromURLString(linkHeaderItems.at(y));
+//					nextPageURL = linkHeaderItems.at(y).section(';', 0, 0).remove('<').remove('>');
+//					qDebug() << nextPageURL;
+//				}
+//			}
+//		}
+//	}
+
+//	QVariantList githubListReply = fullResponse.toList();
+//	int issueNumber = githubListReply.at(0).toMap().value("issue_url").toString().section("/", -1, -1).toInt();
+//	qDebug() << "Checking Issue " << issueNumber << "(" << commentURLs_.count() << " comments remaining to fetch)";
+//	for(int x = 0, size = githubListReply.count(); x < size; x++){
+//		if(githubListReply.at(x).toMap().value("body").toString().contains("Time Estimate:")){
+//			QStringList splitCommentBody = githubListReply.at(x).toMap().value("body").toString().split("\n");
+//			for(int y = 0, ySize = splitCommentBody.count(); y < ySize; y++){
+//				if(splitCommentBody.at(y).contains("Time Estimate:")){
+//					QString timeEstimateString = splitCommentBody.at(y);
+//					timeEstimateString.remove("Time Estimate:");
+//					timeEstimateString = timeEstimateString.simplified();
+//					if(timeEstimateString.endsWith("."))
+//						timeEstimateString.remove(timeEstimateString.count()-1, 1);
+
+//					if(allIssues_.contains(issueNumber))
+//						allIssues_.value(issueNumber)->setTimeEstimateString(timeEstimateString);
+//				}
+//			}
+//		}
+//	}
+
+//	if(nextPageNumber != -1){
+//		AMRestActionInfo *getOneIssueCommentsActionInfo = new AMRestActionInfo(nextPageURL, AMRestActionInfo::GetRequest);
+//		getOneIssueCommentsActionInfo->setRawHeader("Authorization", headerData_.toLocal8Bit());
+//		AMRestAction *getOneIssueCommentsAction = new AMRestAction(getOneIssueCommentsActionInfo, manager_);
+
+//		connect(getOneIssueCommentsAction, SIGNAL(fullResponseReady(QVariant, QList<QNetworkReply::RawHeaderPair>)), this, SLOT(onGetOneIssueCommentsReturned(QVariant, QList<QNetworkReply::RawHeaderPair>)));
+//		getOneIssueCommentsAction->start();
+//	}
+//	else if(commentURLs_.count() > 0){
+//		QString oneCommentURL = commentURLs_.takeFirst();
+
+//		AMRestActionInfo *getOneIssueCommentsActionInfo = new AMRestActionInfo(oneCommentURL, AMRestActionInfo::GetRequest);
+//		getOneIssueCommentsActionInfo->setRawHeader("Authorization", headerData_.toLocal8Bit());
+//		AMRestAction *getOneIssueCommentsAction = new AMRestAction(getOneIssueCommentsActionInfo, manager_);
+
+//		connect(getOneIssueCommentsAction, SIGNAL(fullResponseReady(QVariant, QList<QNetworkReply::RawHeaderPair>)), this, SLOT(onGetOneIssueCommentsReturned(QVariant, QList<QNetworkReply::RawHeaderPair>)));
+//		getOneIssueCommentsAction->start();
+//	}
+//	else{
+
+void AMGithubProjectManagerMainView::onGetAllCommentsActionSucceeded(){
+
+	QMap<int, AMGitHubIssue*>::const_iterator h = allIssues_.constBegin();
+	while(h != allIssues_.constEnd()){
+		if(h.value()->timeEstimateString().isNull())
+			qDebug() << h.value()->issueNumber() << " has no time estimate";
+		else
+			qDebug() << h.value()->issueNumber() << " time estimate: " << h.value()->timeEstimateString();
+		h++;
 	}
-
-	QVariantList githubListReply = fullResponse.toList();
-	int issueNumber = githubListReply.at(0).toMap().value("issue_url").toString().section("/", -1, -1).toInt();
-	qDebug() << "Checking Issue " << issueNumber << "(" << commentURLs_.count() << " comments remaining to fetch)";
-	for(int x = 0, size = githubListReply.count(); x < size; x++){
-		if(githubListReply.at(x).toMap().value("body").toString().contains("Time Estimate:")){
-			QStringList splitCommentBody = githubListReply.at(x).toMap().value("body").toString().split("\n");
-			for(int y = 0, ySize = splitCommentBody.count(); y < ySize; y++){
-				if(splitCommentBody.at(y).contains("Time Estimate:")){
-					QString timeEstimateString = splitCommentBody.at(y);
-					timeEstimateString.remove("Time Estimate:");
-					timeEstimateString = timeEstimateString.simplified();
-					if(timeEstimateString.endsWith("."))
-						timeEstimateString.remove(timeEstimateString.count()-1, 1);
-
-					if(allIssues_.contains(issueNumber))
-						allIssues_.value(issueNumber)->setTimeEstimateString(timeEstimateString);
-				}
-			}
-		}
-	}
-
-	if(nextPageNumber != -1){
-		AMRestActionInfo *getOneIssueCommentsActionInfo = new AMRestActionInfo(nextPageURL, AMRestActionInfo::GetRequest);
-		getOneIssueCommentsActionInfo->setRawHeader("Authorization", headerData_.toLocal8Bit());
-		AMRestAction *getOneIssueCommentsAction = new AMRestAction(getOneIssueCommentsActionInfo, manager_);
-
-		connect(getOneIssueCommentsAction, SIGNAL(fullResponseReady(QVariant, QList<QNetworkReply::RawHeaderPair>)), this, SLOT(onGetOneIssueCommentsReturned(QVariant, QList<QNetworkReply::RawHeaderPair>)));
-		getOneIssueCommentsAction->start();
-	}
-	else if(commentURLs_.count() > 0){
-		QString oneCommentURL = commentURLs_.takeFirst();
-
-		AMRestActionInfo *getOneIssueCommentsActionInfo = new AMRestActionInfo(oneCommentURL, AMRestActionInfo::GetRequest);
-		getOneIssueCommentsActionInfo->setRawHeader("Authorization", headerData_.toLocal8Bit());
-		AMRestAction *getOneIssueCommentsAction = new AMRestAction(getOneIssueCommentsActionInfo, manager_);
-
-		connect(getOneIssueCommentsAction, SIGNAL(fullResponseReady(QVariant, QList<QNetworkReply::RawHeaderPair>)), this, SLOT(onGetOneIssueCommentsReturned(QVariant, QList<QNetworkReply::RawHeaderPair>)));
-		getOneIssueCommentsAction->start();
-	}
-	else{
+	return;
 
 		QMap<int, AMGitHubIssue*>::const_iterator i = allIssues_.constBegin();
 		while (i != allIssues_.constEnd()) {
@@ -661,7 +684,7 @@ void AMGithubProjectManagerMainView::onGetOneIssueCommentsReturned(QVariant full
 //		getOneIssueEventsAction->start();
 
 	}
-}
+//}
 
 void AMGithubProjectManagerMainView::onGetOneIssueEventsReturned(QVariant fullResponse, QList<QNetworkReply::RawHeaderPair> headerPairs){
 	qDebug() << "Got the pipeline for 1462 info back";

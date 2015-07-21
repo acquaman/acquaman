@@ -41,17 +41,18 @@ protected:
 	/// This function is called from the Starting state when the implementation should initiate the action.
 	virtual void startImplementation();
 
-	virtual void setupRestAction();
+	/// Sets up the REST action with the correct pagination for the right call to the issues REST API
+	virtual AMRestAction* setupNextRestAction();
 
+	/// Does nothing in this class
 	virtual void restResponsePreImplementation(QVariant fullResponse, QList<QNetworkReply::RawHeaderPair> headerPairs);
+	/// Actually parses the issues response and instantiates milestones and issues and places them in the maps
 	virtual void restResponseImplementation(QVariant fullResponse, QList<QNetworkReply::RawHeaderPair> headerPairs);
 
-//protected slots:
-//	void onGetAllIssuesFullResponseReady(QVariant fullResponse, QList<QNetworkReply::RawHeaderPair> headerPairs);
-//	void onGetAllIssuesFailed();
-
 protected:
+	/// Pointer to the map of all issues we will place issue objects into
 	QMap<int, AMGitHubIssue*> *allIssues_;
+	/// Pointer to the map of all milestones we will place milestones objects into and retrieve existing ones from
 	QMap<int, AMGitHubMilestone*> *allMilestones_;
 };
 

@@ -26,6 +26,7 @@ protected slots:
 	void onInitiateButtonClicked();
 
 	void onGetAllIssuesActionSucceeded();
+	void onGetAllCommentsActionSucceeded();
 
 	void onGetOneIssueCommentsReturned(QVariant fullResponse, QList<QNetworkReply::RawHeaderPair> headerPairs);
 

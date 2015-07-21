@@ -66,9 +66,12 @@ protected:
 	/// Handles skipping the action.
 	virtual void skipImplementation(const QString &command);
 
-	virtual void setupRestAction() = 0;
+	/// This function is implemented by subclasses to allow them to return a REST action based on their specifications. It will be called during startImplementation and after each page returns
+	virtual AMRestAction* setupNextRestAction() = 0;
 
+	/// This function offers subclasses an opporunity to operate on the response before the headers are check for pagination and status
 	virtual void restResponsePreImplementation(QVariant fullResponse, QList<QNetworkReply::RawHeaderPair> headerPairs) = 0;
+	/// This function is implemented by subclasses to actually do the work of parsing and using the response
 	virtual void restResponseImplementation(QVariant fullResponse, QList<QNetworkReply::RawHeaderPair> headerPairs) = 0;
 
 protected:
@@ -78,11 +81,16 @@ protected:
 	/// Header string to use for authorization
 	QString authorizationHeader_;
 
+	int headerLastPageNumber_;
+	int headerNextPageNumber_;
+	QString headerNextURL_;
+
 	/// Holds the current page we're searching
-	int currentIssuesPage_;
+//	int currentIssuesPage_;
 	/// Holds whether this is the last page or not
 	bool lastPage_;
 
+	/// A pointer to the REST action that will do the work. Subclasses fill in the details in setupRestAction
 	AMRestAction *restAction_;
 };
 

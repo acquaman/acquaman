@@ -29,7 +29,9 @@ SOURCES += \
     AMGithubProjectManager/AMGitHubMilestone.cpp \
     source/actions3/actions/AMGitHubGetIssuesActionInfo.cpp \
     source/actions3/actions/AMGitHubGetIssuesAction.cpp \
-    source/actions3/actions/AMGitHubStandardAction.cpp
+    source/actions3/actions/AMGitHubStandardAction.cpp \
+    source/actions3/actions/AMGitHubGetCommentsAction.cpp \
+    source/actions3/actions/AMGitHubGetCommentsActionInfo.cpp
 
 HEADERS  += \
 	AMGithubProjectManager/AMGithubProjectManagerMainView.h \
@@ -43,4 +45,6 @@ HEADERS  += \
     AMGithubProjectManager/AMGitHubMilestone.h \
     source/actions3/actions/AMGitHubGetIssuesActionInfo.h \
     source/actions3/actions/AMGitHubGetIssuesAction.h \
-    source/actions3/actions/AMGitHubStandardAction.h
+    source/actions3/actions/AMGitHubStandardAction.h \
+    source/actions3/actions/AMGitHubGetCommentsAction.h \
+    source/actions3/actions/AMGitHubGetCommentsActionInfo.h
