@@ -24,6 +24,8 @@ BioXASMainXASScanConfigurationView::BioXASMainXASScanConfigurationView(BioXASMai
 	topFrame_ = new AMTopFrame("Configure an XAS Scan");
 	topFrame_->setIcon(QIcon(":/utilities-system-monitor.png"));
 
+    estimatedTimeLabel_ = new QLabel("0 s");
+
 	regionsView_ = new AMEXAFSScanAxisView("BioXAS Region Configuration", configuration_);
 
 	autoRegionButton_ = new QPushButton("Auto Set XANES Regions");
