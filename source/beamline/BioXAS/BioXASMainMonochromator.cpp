@@ -76,7 +76,6 @@ BioXASMainMonochromator::BioXASMainMonochromator(QObject *parent) :
 	connect( keyStatus_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 	connect( brakeStatus_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 	connect( encoderBragg_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
-//	connect( stepBragg_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 	connect( braggAtCrystalChangePositionStatus_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 	connect( crystalChange_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 	connect( crystalChangeCWLimitStatus_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
