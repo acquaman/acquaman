@@ -151,7 +151,7 @@ AMDataPositionCursorToolView::AMDataPositionCursorToolView(MPlotDataPositionCurs
 	positionSpinBox_->setMaximum(1000000);
 	positionSpinBox_->setValue(0);
 
-	markerComboBox_ = new AMPlotMarkerComboBox();
+	markerComboBox_ = new AMPlotMarkerComboBox(QList<MPlotMarkerShape::Shape>() << MPlotMarkerShape::VerticalBeam << MPlotMarkerShape::HorizontalBeam << MPlotMarkerShape::Cross);
 
 	colorButton_ = new AMColorPickerButton(QColor());
 
