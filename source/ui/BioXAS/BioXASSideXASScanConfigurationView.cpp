@@ -61,6 +61,7 @@ BioXASSideXASScanConfigurationView::BioXASSideXASScanConfigurationView(BioXASSid
 
 	connect(scanName_, SIGNAL(editingFinished()), this, SLOT(onScanNameEdited()));
 	connect(configuration_, SIGNAL(nameChanged(QString)), scanName_, SLOT(setText(QString)));
+    connect(configuration_, SIGNAL(totalTimeChanged(double)), this, SLOT(onEstimatedTimeChanged()));
 
 	// Energy (Eo) selection
 	energy_ = new QDoubleSpinBox;
@@ -115,7 +116,7 @@ BioXASSideXASScanConfigurationView::BioXASSideXASScanConfigurationView(BioXASSid
 	regionButtonsLayout->addStretch();
 
 	QFormLayout *estimatedTimeLayout = new QFormLayout();
-	estimatedTimeLayout->setWidget(0, QFormLayout::LabelRole, new QLabel("Estimated Time:"));
+    estimatedTimeLayout->setWidget(0, QFormLayout::LabelRole, new QLabel("Estimated Time: "));
 	estimatedTimeLayout->setWidget(0, QFormLayout::FieldRole, estimatedTimeLabel_);
 
 	QHBoxLayout *miscLayout = new QHBoxLayout();
