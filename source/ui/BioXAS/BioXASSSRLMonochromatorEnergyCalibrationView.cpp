@@ -4,6 +4,7 @@
 #include "beamline/BioXAS/BioXASSSRLMonochromator.h"
 #include "dataman/AMScan.h"
 #include "ui/dataman/AMScanView.h"
+#include "ui/dataman/AMDataSourcesEditor.h"
 #include "ui/dataman/AMChooseScanDialog.h"
 
 BioXASSSRLMonochromatorEnergyCalibrationView::BioXASSSRLMonochromatorEnergyCalibrationView(BioXASSSRLMonochromator *mono, AMScan *scan, QWidget *parent) :
@@ -39,6 +40,8 @@ BioXASSSRLMonochromatorEnergyCalibrationView::BioXASSSRLMonochromatorEnergyCalib
 	scanView_ = new AMScanView();
 	scanViewModel_ = scanView_->model();
 
+	scanSourcesEditor_ = new AMDataSourcesEditor(scanViewModel_);
+
 	QLabel *monoEnergyPrompt = new QLabel("Mono energy: ");
 
 	monoEnergySpinBox_ = new QDoubleSpinBox(this);
@@ -73,10 +76,14 @@ BioXASSSRLMonochromatorEnergyCalibrationView::BioXASSSRLMonochromatorEnergyCalib
 	energyCenteredLayout->addLayout(energyLayout);
 	energyCenteredLayout->addStretch();
 
-	QVBoxLayout *layout = new QVBoxLayout();
-	layout->addLayout(dataOptionsLayout);
+	QVBoxLayout *calibrationLayout = new QVBoxLayout();
+	calibrationLayout->addLayout(dataOptionsLayout);
+	calibrationLayout->addWidget(scanSourcesEditor_);
+	calibrationLayout->addLayout(energyCenteredLayout);
+
+	QHBoxLayout *layout = new QHBoxLayout();
 	layout->addWidget(scanView_);
-	layout->addLayout(energyCenteredLayout);
+	layout->addLayout(calibrationLayout);
 
 	setLayout(layout);
 
@@ -85,6 +92,7 @@ BioXASSSRLMonochromatorEnergyCalibrationView::BioXASSSRLMonochromatorEnergyCalib
 	connect( loadDataButton_, SIGNAL(clicked()), this, SLOT(onLoadDataButtonClicked()) );
 	connect( newDataButton_, SIGNAL(clicked()), this, SIGNAL(energyCalibrationScanRequested()) );
 	connect( scanView_, SIGNAL(dataPositionChanged(QPointF)), this, SLOT(onScanViewDataPositionChanged(QPointF)) );
+	connect( scanViewModel_, SIGNAL(exclusiveDataSourceChanged(QString)), this, SLOT(onExclusiveDataSourceChanged()) );
 	connect( monoEnergySpinBox_, SIGNAL(valueChanged(double)), this, SLOT(setMonoEnergy(double)) );
 	connect( desiredEnergySpinBox_, SIGNAL(valueChanged(double)), this, SLOT(setDesiredEnergy(double)) );
 	connect( calibrateButton_, SIGNAL(clicked()), this, SLOT(onCalibrateButtonClicked()) );
@@ -286,6 +294,11 @@ void BioXASSSRLMonochromatorEnergyCalibrationView::onScanChosen()
 {
 	if (chooseScanDialog_)
 		dropScanURLs(chooseScanDialog_->getSelectedScans());
+}
+
+void BioXASSSRLMonochromatorEnergyCalibrationView::onExclusiveDataSourceChanged()
+{
+	qDebug() << "The exclusive data source has changed:" << scanViewModel_->exclusiveDataSourceName();
 }
 
 void BioXASSSRLMonochromatorEnergyCalibrationView::onScanViewDataPositionChanged(const QPointF &newPosition)

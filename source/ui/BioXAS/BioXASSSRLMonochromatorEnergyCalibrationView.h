@@ -12,6 +12,7 @@
 class AMScan;
 class AMScanSetModel;
 class AMScanView;
+class AMDataSourcesEditor;
 class AMChooseScanDialog;
 class BioXASSSRLMonochromator;
 
@@ -79,6 +80,8 @@ protected slots:
 	void onLoadDataButtonClicked();
 	/// Handles updating the view with previously collected data.
 	void onScanChosen();
+	/// Handles updating the view when the exclusive data source changes.
+	void onExclusiveDataSourceChanged();
 	/// Handles updating the view when the scan view cursor position changes.
 	void onScanViewDataPositionChanged(const QPointF &newPosition);
 	/// Handles calibrating the mono when the calibrate button is clicked.
@@ -129,6 +132,8 @@ protected:
 
 	/// The scan view.
 	AMScanView *scanView_;
+	/// The scan data sources editor.
+	AMDataSourcesEditor *scanSourcesEditor_;
 	/// The mono energy spinbox.
 	QDoubleSpinBox *monoEnergySpinBox_;
 	/// The desired energy spinbox.
