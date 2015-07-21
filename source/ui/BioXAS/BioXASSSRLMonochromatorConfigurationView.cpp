@@ -234,8 +234,8 @@ void BioXASSSRLMonochromatorConfigurationView::setMono(BioXASSSRLMonochromator *
 
 			stepEnergyEditor_->setControl(mono_->stepEnergyControl());
 			encoderEnergyEditor_->setControl(mono_->encoderEnergyControl());
-			stepBraggEditor_->setControl(mono_->stepBraggControl());
-			encoderBraggEditor_->setControl(mono_->braggControl());
+			stepBraggEditor_->setControl(mono_->braggMotor());
+			encoderBraggEditor_->setControl(mono_->encoderBraggControl());
 			m1PitchEditor_->setControl(mono_->m1MirrorPitchControl());
 
 			braggConfigWidget_->setBraggMotor(mono_->braggMotor());
@@ -259,10 +259,10 @@ void BioXASSSRLMonochromatorConfigurationView::onCalibrateEnergyButtonClicked()
 
 void BioXASSSRLMonochromatorConfigurationView::onCalibrateGoniometerButtonClicked()
 {
-	if (mono_ && mono_->braggControl()) {
+	if (mono_ && mono_->braggMotor()) {
 		bool inputOK = false;
 
-		double newPosition = QInputDialog::getDouble(this, "Goniometer Calibration", "Enter calibrated goniometer position:", mono_->braggControl()->value(), BRAGG_POSITION_MIN, BRAGG_POSITION_MAX, 2, &inputOK);
+		double newPosition = QInputDialog::getDouble(this, "Goniometer Calibration", "Enter calibrated goniometer position:", mono_->braggMotor()->value(), BRAGG_POSITION_MIN, BRAGG_POSITION_MAX, 2, &inputOK);
 
 		if (inputOK)
 			mono_->calibrateBraggPosition(newPosition);

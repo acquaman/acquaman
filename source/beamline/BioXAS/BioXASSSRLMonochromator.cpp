@@ -17,7 +17,6 @@ BioXASSSRLMonochromator::BioXASSSRLMonochromator(const QString &name, QObject *p
 	keyStatus_ = 0;
 	brakeStatus_ = 0;
 	encoderBragg_ = 0;
-	stepBragg_ = 0;
 	braggAtCrystalChangePositionStatus_ = 0;
 	crystalChange_ = 0;
 	crystalChangeCWLimitStatus_ = 0;
@@ -61,7 +60,6 @@ bool BioXASSSRLMonochromator::isConnected() const
 		keyStatus_ && keyStatus_->isConnected() &&
 		brakeStatus_ && brakeStatus_->isConnected() &&
 		encoderBragg_ && encoderBragg_->isConnected() &&
-		stepBragg_ && stepBragg_->isConnected() &&
 		braggAtCrystalChangePositionStatus_ && braggAtCrystalChangePositionStatus_->isConnected() &&
 		crystalChange_ && crystalChange_->isConnected() &&
 		crystalChangeCWLimitStatus_ && crystalChangeCWLimitStatus_->isConnected() &&
