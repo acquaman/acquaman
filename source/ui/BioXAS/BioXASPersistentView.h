@@ -45,16 +45,12 @@ protected:
 	/// The scaler being viewed.
 	CLSSIS3820Scaler *scaler_;
 
-	/// Display that edits the encoder-based energy.
-	AMExtendedControlEditor *encoderEnergyEditor_;
 	/// Display that edits the step-based energy.
-	AMExtendedControlEditor *stepEnergyEditor_;
+	AMExtendedControlEditor *energyEditor_;
 	/// Editor that selects the mono region.
 	BioXASSSRLMonochromatorRegionControlEditor *regionEditor_;
-	/// Display that edits the bragg encoder-based position.
-	AMExtendedControlEditor *encoderBraggEditor_;
 	/// Display that edits the bragg step-based position.
-	AMExtendedControlEditor *stepBraggEditor_;
+	AMExtendedControlEditor *braggEditor_;
 	/// The scaler channel views for the i0, iT, and i2 channels.
 	QGroupBox *channelsBox_;
 };

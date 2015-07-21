@@ -94,7 +94,7 @@ bool AMBasicControlDetectorEmulator::data(double *outputValues) const
 		result = true;
 	}
 
-	return false;
+	return result;
 }
 
 AMAction3* AMBasicControlDetectorEmulator::createTriggerAction(AMDetectorDefinitions::ReadMode readMode){

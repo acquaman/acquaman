@@ -339,7 +339,7 @@ void AMExtendedControlEditor::updateReadOnlyStatus()
 
 void AMExtendedControlEditor::onConnectedChanged()
 {
-	if (control_ && control_->isConnected()) {
+	if (control_ && control_->canMeasure()) {
 
 		onValueChanged(control_->value());
 		onUnitsChanged(control_->units());

@@ -28,6 +28,7 @@ VESPERSScanConfiguration::VESPERSScanConfiguration()
 	totalTime_ = 0;
 	closeFastShutter_ = false;
 	returnToOriginalPosition_ = false;
+	cleanupScaler_ = false;
 }
 
 VESPERSScanConfiguration::VESPERSScanConfiguration(const VESPERSScanConfiguration &original)
@@ -37,6 +38,7 @@ VESPERSScanConfiguration::VESPERSScanConfiguration(const VESPERSScanConfiguratio
 	totalTime_ = original.totalTime();
 	closeFastShutter_ = original.closeFastShutter();
 	returnToOriginalPosition_ = original.returnToOriginalPosition();
+	cleanupScaler_ = original.cleanupScaler();
 }
 
 VESPERSScanConfiguration::~VESPERSScanConfiguration()

@@ -9,6 +9,8 @@
 
 #include "beamline/AMPseudoMotorControl.h"
 
+#include <QDebug>
+
 class BioXASSSRLMonochromatorEnergyControl : public AMPseudoMotorControl
 {
 	Q_OBJECT

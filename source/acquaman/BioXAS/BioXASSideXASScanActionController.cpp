@@ -57,7 +57,7 @@ BioXASSideXASScanActionController::BioXASSideXASScanActionController(BioXASSideX
 		AMAppControllerSupport::registerClass<BioXASSideXASScanConfiguration, AMExporterXDIFormat, AMExporterOptionXDIFormat>(bioXASDefaultXAS->id());
 
 	AMControlInfoList list;
-	list.append(BioXASSideBeamline::bioXAS()->mono()->encoderEnergyControl()->toInfo());
+	list.append(BioXASSideBeamline::bioXAS()->mono()->energyControl()->toInfo());
 	configuration_->setAxisControlInfos(list);
 
 	useFeedback_ = true;
@@ -66,14 +66,15 @@ BioXASSideXASScanActionController::BioXASSideXASScanActionController(BioXASSideX
 	bioXASDetectors.addDetectorInfo(BioXASSideBeamline::bioXAS()->i0Detector()->toInfo());
 	bioXASDetectors.addDetectorInfo(BioXASSideBeamline::bioXAS()->i1Detector()->toInfo());
 	bioXASDetectors.addDetectorInfo(BioXASSideBeamline::bioXAS()->i2Detector()->toInfo());
-	bioXASDetectors.addDetectorInfo(BioXASSideBeamline::bioXAS()->encoderEnergySetpointDetector()->toInfo());
+//	bioXASDetectors.addDetectorInfo(BioXASSideBeamline::bioXAS()->encoderEnergySetpointDetector()->toInfo());
 	bioXASDetectors.addDetectorInfo(BioXASSideBeamline::bioXAS()->encoderEnergyFeedbackDetector()->toInfo());
 	bioXASDetectors.addDetectorInfo(BioXASSideBeamline::bioXAS()->stepEnergyFeedbackDetector()->toInfo());
 	bioXASDetectors.addDetectorInfo(BioXASSideBeamline::bioXAS()->dwellTimeDetector()->toInfo());
 	bioXASDetectors.addDetectorInfo(BioXASSideBeamline::bioXAS()->braggDetector()->toInfo());
-	bioXASDetectors.addDetectorInfo(BioXASSideBeamline::bioXAS()->braggEncoderFeedbackDetector()->toInfo());
-	bioXASDetectors.addDetectorInfo(BioXASSideBeamline::bioXAS()->braggMoveRetriesDetector()->toInfo());
+//	bioXASDetectors.addDetectorInfo(BioXASSideBeamline::bioXAS()->braggEncoderFeedbackDetector()->toInfo());
+//	bioXASDetectors.addDetectorInfo(BioXASSideBeamline::bioXAS()->braggMoveRetriesDetector()->toInfo());
 	bioXASDetectors.addDetectorInfo(BioXASSideBeamline::bioXAS()->braggStepSetpointDetector()->toInfo());
+//	bioXASDetectors.addDetectorInfo(BioXASSideBeamline::bioXAS()->braggStepMotorFeedbackDetector()->toInfo());
 
 	if (configuration_->usingXRFDetector())
 		bioXASDetectors.addDetectorInfo(BioXASSideBeamline::bioXAS()->fourElementVortexDetector()->toInfo());
@@ -114,6 +115,8 @@ QString BioXASSideXASScanActionController::beamlineSettings()
 {
 	QString notes;
 
+	// Note storage ring current.
+
 	notes.append(QString("SR1 Current:\t%1 mA\n").arg(CLSStorageRing::sr1()->ringCurrent()));
 
 	return notes;
@@ -123,26 +126,13 @@ AMAction3* BioXASSideXASScanActionController::createInitializationActions()
 {
 	AMSequentialListAction3 *initializationAction = new AMSequentialListAction3(new AMSequentialListActionInfo3("BioXAS Side Scan Initialization Actions", "BioXAS Side Scan Initialization Actions"));
 	CLSSIS3820Scaler *scaler = BioXASSideBeamline::bioXAS()->scaler();
-	double regionTime = scaler->dwellTime();
 
-	AMListAction3 *stage1 = new AMListAction3(new AMListActionInfo3("BioXAS Side Initialization Stage 1", "BioXAS Side Initialization Stage 1"), AMListAction3::Parallel);
-	stage1->addSubAction(scaler->createContinuousEnableAction3(false));
-//	stage1->addSubAction(scaler->createDwellTimeAction3(firstRegionTime));
+	double regionTime = double(configuration_->scanAxisAt(0)->regionAt(0)->regionTime());
 
-	AMListAction3 *stage2 = new AMListAction3(new AMListActionInfo3("BioXAS Side Initialization Stage 2", "BioXAS Side Initialization Stage 2"), AMListAction3::Parallel);
-
-	stage2->addSubAction(scaler->createStartAction3(false));
-	stage2->addSubAction(scaler->createScansPerBufferAction3(1));
-	stage2->addSubAction(scaler->createTotalScansAction3(1));
-
-	AMListAction3 *stage3 = new AMListAction3(new AMListActionInfo3("BioXAS Side Initialization Stage 3", "BioXAS Side Initialization Stage 3"), AMListAction3::Parallel);
-	stage3->addSubAction(scaler->createStartAction3(true));
-	stage3->addSubAction(scaler->createWaitForDwellFinishedAction(regionTime + 5.0));
-
-	initializationAction->addSubAction(stage1);
-	initializationAction->addSubAction(stage2);
-	initializationAction->addSubAction(scaler->createDwellTimeAction3(double(configuration_->scanAxisAt(0)->regionAt(0)->regionTime())));
-	initializationAction->addSubAction(stage3);
+	initializationAction->addSubAction(scaler->createContinuousEnableAction3(false));
+	initializationAction->addSubAction(scaler->createDwellTimeAction3(regionTime));
+	initializationAction->addSubAction(scaler->createStartAction3(true));
+	initializationAction->addSubAction(scaler->createWaitForDwellFinishedAction(regionTime + 5.0));
 
 	// Set the bragg motor power to PowerOn.
 	initializationAction->addSubAction(BioXASSideBeamline::bioXAS()->mono()->braggMotor()->createPowerAction(CLSMAXvMotor::PowerOn));
@@ -176,8 +166,8 @@ AMAction3* BioXASSideXASScanActionController::createCleanupActions()
 	cleanup->addSubAction(scaler->createDwellTimeAction3(1.0));
 	cleanup->addSubAction(scaler->createContinuousEnableAction3(true));
 
-	// Set the bragg motor power to PowerAutoHardware.
-	cleanup->addSubAction(BioXASSideBeamline::bioXAS()->mono()->braggMotor()->createPowerAction(CLSMAXvMotor::PowerAutoHardware));
+	// Set the bragg motor power to PowerAutoSoftware.
+	cleanup->addSubAction(BioXASSideBeamline::bioXAS()->mono()->braggMotor()->createPowerAction(CLSMAXvMotor::PowerAutoSoftware));
 
 	return cleanup;
 }
@@ -212,7 +202,7 @@ void BioXASSideXASScanActionController::buildScanControllerImplementation()
 	AM1DExpressionAB *deltaEnergySource = 0;
 
 	int energySetpointDetectorIndex = scan_->indexOfDataSource(BioXASSideBeamline::bioXAS()->encoderEnergySetpointDetector()->name());
-	if (energySetpointDetectorIndex) {
+	if (energySetpointDetectorIndex != -1) {
 		energySetpointSource = scan_->dataSourceAt(energySetpointDetectorIndex);
 	}
 
@@ -222,9 +212,9 @@ void BioXASSideXASScanActionController::buildScanControllerImplementation()
 	}
 
 	if (energySetpointSource && energyFeedbackSource) {
-		deltaEnergySource = new AM1DExpressionAB("EnergySetpointFeedback");
+		deltaEnergySource = new AM1DExpressionAB("EncoderEnergySetpointFeedback");
 		deltaEnergySource->setInputDataSources(QList<AMDataSource *>() << energySetpointSource << energyFeedbackSource);
-		deltaEnergySource->setExpression("EnergySetpoint-EnergyFeedback");
+		deltaEnergySource->setExpression(QString("%1-%2").arg(energySetpointSource->name()).arg(energyFeedbackSource->name()));
 
 		scan_->addAnalyzedDataSource(deltaEnergySource, true, false);
 	}
@@ -269,6 +259,7 @@ void BioXASSideXASScanActionController::buildScanControllerImplementation()
 		i0CorrectedDetectorSource->setDescription(QString("%1 Dark Current Corrected").arg(i0DetectorSource->name()));
 		i0CorrectedDetectorSource->setDataName(i0DetectorSource->name());
 		i0CorrectedDetectorSource->setDwellTimeName(dwellTimeSource->name());
+		i0CorrectedDetectorSource->setDarkCurrent(BioXASSideBeamline::bioXAS()->exposedDetectorByName(i0DetectorSource->name())->darkCurrentValue());
 		i0CorrectedDetectorSource->setInputDataSources(QList<AMDataSource*>() << i0DetectorSource << dwellTimeSource);
 		i0CorrectedDetectorSource->setTimeUnitMultiplier(0.001);
 
@@ -282,6 +273,7 @@ void BioXASSideXASScanActionController::buildScanControllerImplementation()
 		i1CorrectedDetectorSource->setDescription(QString("%1 Dark Current Corrected").arg(i1DetectorSource->name()));
 		i1CorrectedDetectorSource->setDataName(i1DetectorSource->name());
 		i1CorrectedDetectorSource->setDwellTimeName(dwellTimeSource->name());
+		i1CorrectedDetectorSource->setDarkCurrent(BioXASSideBeamline::bioXAS()->exposedDetectorByName(i1DetectorSource->name())->darkCurrentValue());
 		i1CorrectedDetectorSource->setInputDataSources(QList<AMDataSource*>() << i1DetectorSource << dwellTimeSource);
 		i1CorrectedDetectorSource->setTimeUnitMultiplier(0.001);
 
@@ -295,6 +287,7 @@ void BioXASSideXASScanActionController::buildScanControllerImplementation()
 		i2CorrectedDetectorSource->setDescription(QString("%1 Dark Current Corrected").arg(i2DetectorSource->name()));
 		i2CorrectedDetectorSource->setDataName(i2DetectorSource->name());
 		i2CorrectedDetectorSource->setDwellTimeName(dwellTimeSource->name());
+		i2CorrectedDetectorSource->setDarkCurrent(BioXASSideBeamline::bioXAS()->exposedDetectorByName(i2DetectorSource->name())->darkCurrentValue());
 		i2CorrectedDetectorSource->setInputDataSources(QList<AMDataSource*>() << i2DetectorSource << dwellTimeSource);
 		i2CorrectedDetectorSource->setTimeUnitMultiplier(0.001);
 

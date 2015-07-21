@@ -15,6 +15,7 @@ HEADERS  += \
 	source/beamline/BioXAS/BioXASShutterToolController.h \
 	source/ui/BioXAS/BioXASToolSuite/ShutterToolMainWindow.h \
 	source/ui/BioXAS/BioXASToolSuite/MotorToolMainScreen.h \
+	source/ui/BioXAS/BioXASCLSMAXvMotorControlEditor.h \
 	source/ui/BioXAS/BioXASPseudoMotorControlEditor.h \
 	source/ui/BioXAS/BioXASToolSuite/BioXASToolSuiteMainWindow.h
 
@@ -24,6 +25,7 @@ SOURCES += \
 	source/beamline/BioXAS/BioXASShutterToolController.cpp \
 	source/ui/BioXAS/BioXASToolSuite/ShutterToolMainWindow.cpp \
 	source/ui/BioXAS/BioXASToolSuite/MotorToolMainScreen.cpp \
+	source/ui/BioXAS/BioXASCLSMAXvMotorControlEditor.cpp \
 	source/ui/BioXAS/BioXASPseudoMotorControlEditor.cpp \
 	source/ui/BioXAS/BioXASToolSuite/BioXASToolSuiteMainWindow.cpp
 
