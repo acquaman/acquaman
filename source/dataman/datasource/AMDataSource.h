@@ -103,6 +103,9 @@ public:
 	/// The infoDescription contains the values of any configurable settings that the data source (especially an analysis block) is using
 	virtual QString infoDescription() const { return QString(); }
 
+	/// Returns the units.
+	QString units() const { return units_; }
+
 
 	// Data source type
 	//////////////////////////
