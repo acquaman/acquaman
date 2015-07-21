@@ -7,6 +7,7 @@
 #include <QDoubleSpinBox>
 #include <QUrl>
 #include <QToolButton>
+#include <QSignalMapper>
 
 class AMScan;
 class AMScanSetModel;
@@ -24,6 +25,17 @@ public:
 	/// Destructor.
 	virtual ~BioXASSSRLMonochromatorEnergyCalibrationView();
 
+	/// Returns the current mono energy.
+	double monoEnergy() const { return monoEnergy_; }
+	/// Returns the current desired energy.
+	double desiredEnergy() const { return desiredEnergy_; }
+	/// Returns the current monochromator.
+	BioXASSSRLMonochromator* mono() const { return mono_; }
+	/// Returns the current scan.
+	AMScan* currentScan() const { return currentScan_; }
+	/// Returns the scan view model.
+	AMScanSetModel* scanViewModel() const { return scanViewModel_; }
+
 signals:
 	/// Notifier that the monochromator being calibrated has changed.
 	void monoChanged(BioXASSSRLMonochromator *newMono);
@@ -31,6 +43,10 @@ signals:
 	void currentScanChanged(AMScan *newScan);
 	/// Notifier that a monochromator energy calibration scan has been requested.
 	void energyCalibrationScanRequested();
+	/// Notifier that the mono energy has changed.
+	void monoEnergyChanged(double newEnergy);
+	/// Notifier that the desired energy has changed.
+	void desiredEnergyChanged(double newEnergy);
 
 public slots:
 	/// Sets the mono being calibrated.
@@ -53,8 +69,8 @@ protected slots:
 
 	/// Sets the current mono energy, and then applies it.
 	void setMonoEnergy(double newEnergy);
-	/// Applies the given mono energy: moves the mono to the given energy, sets the plot cursor coordinates, and sets the energy spinbox value.
-	void applyMonoEnergy(double newEnergy);
+	/// Sets the desired energy.
+	void setDesiredEnergy(double newEnergy);
 
 	/// Handles loading previously collected scan data.
 	void onLoadDataButtonClicked();
@@ -65,12 +81,36 @@ protected slots:
 	/// Handles calibrating the mono when the calibrate button is clicked.
 	void onCalibrateButtonClicked();
 
+	/// Handles updating the scan view.
+	void updateScanView();
+	/// Handles updating the mono energy display.
+	void updateMonoEnergySpinbox();
+	/// Handles updating the desired energy display.
+	void updateDesiredEnergySpinbox();
+	/// Handles updating the calibrate button.
+	void updateCalibrateButton();
+
 	/// Opens a set of scans from the database. Returns true if the list contains at least one valid scan that was added.
 	bool dropScanURLs(const QList<QUrl>& urls);
+
+	/// Handles notifying the user when the calibration has been cancelled, and action cleanup.
+	void onCalibrationCancelled(QObject *action);
+	void onCalibrationCancelled();
+	/// Handles notifying the user when the calibration has failed, and action cleanup.
+	void onCalibrationFailed(QObject *action);
+	void onCalibrationFailed();
+	/// Handles notifying the user when the calibration has succeeded, and action cleanup.
+	void onCalibrationSucceeded(QObject *action);
+	void onCalibrationSucceeded();
+
+	/// Handles action cleanup once the calibration action is complete.
+	void actionCleanup(QObject *action);
 
 protected:
 	/// The current mono energy.
 	double monoEnergy_;
+	/// The current desired energy.
+	double desiredEnergy_;
 
 	/// The monochromator being calibrated.
 	BioXASSSRLMonochromator *mono_;
@@ -94,6 +134,13 @@ protected:
 	QPushButton *calibrateButton_;
 	/// The choose scan dialog.
 	AMChooseScanDialog *chooseScanDialog_;
+
+	/// The calibration cancelled mapper.
+	QSignalMapper *cancelledMapper_;
+	/// The calibration failed mapper.
+	QSignalMapper *failedMapper_;
+	/// The calibration succeeded mapper.
+	QSignalMapper *succeededMapper_;
 };
 
 #endif // BIOXASSSRLMONOCHROMATORENERGYCALIBRATIONVIEW_H
