@@ -531,10 +531,8 @@ AMPIC887AxisMap<AMGCS2::PositionUnits> AMPIC887Controller::positionUnits(const A
 
 QList<int> AMPIC887Controller::recordedData(int tableId) const
 {
-	// Todo: need to get size of last recording for this table, load it in
-	// another thread, and return this data somehow. This might require us to
-	// premtively load the data into the record table by paying attention to
-	// the record trigger and filling it up when it's done each time.
+	Q_UNUSED(tableId)
+	// To be done in #1462
 	return QList<int>();
 }
 

@@ -111,13 +111,35 @@ public:
 	  */
 	void clearErrorMessage();
 
+	/*!
+	  * The record config of the data table with the provided table Id.
+	  * \param tableId ~ The id of the table whose data recorder configuration
+	  * will be returned.
+	  */
 	AMPIC887DataRecorderConfiguration recordConfig(int tableId) const;
 
+	/*!
+	  * Sets the record config of the data table with the provided Id.
+	  * \param tableId ~ The id of the table whose data recorder configuration
+	  * will be set.
+	  * \param recordConfig ~ The value to which the table's record config will
+	  * be set.
+	  * \returns True if the record config could be set, false otherwise.
+	  */
 	bool setRecordConfig(int tableId,
 						 const AMPIC887DataRecorderConfiguration& recordConfig);
 
+	/*!
+	  * The record configs stored for each data table within the controller.
+	  */
 	QHash<int, AMPIC887DataRecorderConfiguration> recordConfigs() const;
 
+	/*!
+	  * Sets the record configs for all the data tables whose id is a key in
+	  * the provided mapping, to the data record config to which it maps.
+	  * \param recordConfigs ~ A mapping of data table id to the record config
+	  * to which it will be set.
+	  */
 	bool setRecordConfigs(const QHash<int, AMPIC887DataRecorderConfiguration> recordConfigs);
 
 	/*!
