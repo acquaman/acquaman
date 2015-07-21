@@ -72,6 +72,9 @@ protected slots:
 	/// Sets the desired energy.
 	void setDesiredEnergy(double newEnergy);
 
+	/// Applies the settings from the given scan.
+	void applyScanSettings(AMScan *scan);
+
 	/// Handles loading previously collected scan data.
 	void onLoadDataButtonClicked();
 	/// Handles updating the view with previously collected data.

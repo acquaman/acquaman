@@ -325,9 +325,6 @@ protected slots:
 	/// when the model's "exclusive data source" changes. This is the one data source that we display for all of our scans (as long as they have it).
 	void onExclusiveDataSourceChanged(const QString& exclusiveDataSource);
 
-	/// Testing.
-	void onDataPositionChanged(const QPointF &newPosition);
-
 protected:
 	/// Helper function to handle adding a scan (at row scanIndex in the model)
 	void addScan(int scanIndex);

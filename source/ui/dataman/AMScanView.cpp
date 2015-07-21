@@ -370,7 +370,7 @@ void AMScanView::setPlotCursorCoordinates(double newCoordinate)
 			foreach (MPlotAbstractTool *tool, view->tools()->tools()) {
 				MPlotDataPositionCursorTool *cursorTool = qobject_cast<MPlotDataPositionCursorTool*>(tool);
 				if (cursorTool)
-					cursorTool->setCursorPosition(newCoordinate);
+					cursorTool->setCursorPositionX(newCoordinate);
 			}
 		}
 	}
@@ -837,7 +837,7 @@ AMScanViewExclusiveView::AMScanViewExclusiveView(AMScanView* masterView) : AMSca
 	// Make connections.
 
 	connect(model(), SIGNAL(exclusiveDataSourceChanged(QString)), this, SLOT(onExclusiveDataSourceChanged(QString)));
-	connect( plot_->plot()->signalSource(), SIGNAL(dataPositionChanged(QPointF)), this, SLOT(onDataPositionChanged(QPointF)) );
+	connect( plot_->plot()->signalSource(), SIGNAL(dataPositionChanged(QPointF)), this, SIGNAL(dataPositionChanged(QPointF)) );
 
 	reviewPlotAxesConfiguration(plot_);
 	refreshTitle();
@@ -965,12 +965,6 @@ void AMScanViewExclusiveView::onExclusiveDataSourceChanged(const QString& exclus
 
 	reviewPlotAxesConfiguration(plot_);
 	refreshTitle();
-}
-
-void AMScanViewExclusiveView::onDataPositionChanged(const QPointF &newPosition)
-{
-	qDebug() << "Exclusive view data position changed:" << newPosition.x();
-	emit dataPositionChanged(newPosition);
 }
 
 void AMScanViewExclusiveView::applyPlotTools(const QList<MPlotAbstractTool*> &newSelection)

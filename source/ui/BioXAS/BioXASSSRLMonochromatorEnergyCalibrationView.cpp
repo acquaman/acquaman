@@ -89,12 +89,14 @@ BioXASSSRLMonochromatorEnergyCalibrationView::BioXASSSRLMonochromatorEnergyCalib
 	connect( desiredEnergySpinBox_, SIGNAL(valueChanged(double)), this, SLOT(setDesiredEnergy(double)) );
 	connect( calibrateButton_, SIGNAL(clicked()), this, SLOT(onCalibrateButtonClicked()) );
 
+	// Initial settings.
+
+	update();
+
 	// Current settings.
 
 	setMono(mono);
 	setCurrentScan(scan);
-
-	update();
 }
 
 BioXASSSRLMonochromatorEnergyCalibrationView::~BioXASSSRLMonochromatorEnergyCalibrationView()
@@ -121,8 +123,6 @@ void BioXASSSRLMonochromatorEnergyCalibrationView::setMono(BioXASSSRLMonochromat
 		emit monoChanged(mono_);
 	}
 }
-
-#include <QDebug>
 
 void BioXASSSRLMonochromatorEnergyCalibrationView::setCurrentScan(AMScan *newScan)
 {
@@ -172,50 +172,7 @@ void BioXASSSRLMonochromatorEnergyCalibrationView::refresh()
 
 	// Apply current scan selection.
 
-	if (currentScan_) {
-
-		// Set the mono energy to be the point midway through the scan data.
-		// This would be a handy place for a peak finding algorithm upgrade later.
-
-		AMDataSource *energySource = currentScan_->dataSourceAt(0);
-
-		if (energySource) {
-
-			int valueIndex = energySource->size(0)/2;
-
-			if (valueIndex > -1) {
-				double value = energySource->axisValue(0, valueIndex);
-				double valueMax = energySource->axisValue(0, energySource->size(0) - 1);
-				double valueMin = energySource->axisValue(0, 0);
-				QString units = energySource->units();
-
-				// Update the mono energy spinbox settings.
-
-				monoEnergySpinBox_->setSuffix(" " + units);
-				monoEnergySpinBox_->setMinimum(valueMin);
-				monoEnergySpinBox_->setMaximum(valueMax);
-
-				// Update the desired energy spinbox settings.
-
-				desiredEnergySpinBox_->setSuffix(" " + units);
-				desiredEnergySpinBox_->setMinimum(valueMin);
-				desiredEnergySpinBox_->setMaximum(valueMax);
-
-				// Update displayed energies.
-
-				setMonoEnergy(value);
-				setDesiredEnergy(value);
-			}
-		}
-
-		// Set the first data source as the source shown.
-
-		AMDataSource *dataSource = currentScan_->dataSourceAt(0);
-
-		if (dataSource) {
-			scanViewModel_->setExclusiveDataSourceByName(dataSource->name());
-		}
-	}
+	applyScanSettings(currentScan_);
 
 	// Update the view.
 
@@ -259,6 +216,62 @@ void BioXASSSRLMonochromatorEnergyCalibrationView::setDesiredEnergy(double newEn
 	}
 }
 
+void BioXASSSRLMonochromatorEnergyCalibrationView::applyScanSettings(AMScan *scan)
+{
+	if (scan) {
+
+		QString energyUnits;
+
+		if (scan->rawData() && scan->rawData()->scanAxesCount() >= 1)
+			energyUnits = scan->rawData()->scanAxisAt(0).units;
+
+		// Set the mono energy to be the point midway through the scan data.
+		// This would be a handy place for a peak finding algorithm upgrade later.
+
+		AMDataSource *energySource = scan->dataSourceAt(0);
+
+		if (energySource) {
+
+			int valueIndex = energySource->size(0)/2;
+
+			if (valueIndex > -1) {
+				double value = energySource->axisValue(0, valueIndex);
+				double valueMax = energySource->axisValue(0, energySource->size(0) - 1);
+				double valueMin = energySource->axisValue(0, 0);
+				QString units = energySource->units();
+
+				// Update min/max energy values.
+
+				monoEnergySpinBox_->setMinimum(valueMin);
+				monoEnergySpinBox_->setMaximum(valueMax);
+
+				desiredEnergySpinBox_->setMinimum(valueMin);
+				desiredEnergySpinBox_->setMaximum(valueMax);
+
+				// Update units.
+
+				if (!units.isEmpty()) {
+					monoEnergySpinBox_->setSuffix(" " + energyUnits);
+					desiredEnergySpinBox_->setSuffix(" " + energyUnits);
+				}
+
+				// Update displayed energies.
+
+				setMonoEnergy(value);
+				setDesiredEnergy(value);
+			}
+		}
+
+		// Set the first data source as the source shown.
+
+		AMDataSource *dataSource = scan->dataSourceAt(0);
+
+		if (dataSource) {
+			scanViewModel_->setExclusiveDataSourceByName(dataSource->name());
+		}
+	}
+}
+
 void BioXASSSRLMonochromatorEnergyCalibrationView::onLoadDataButtonClicked()
 {
 	if (!chooseScanDialog_) {
@@ -277,8 +290,6 @@ void BioXASSSRLMonochromatorEnergyCalibrationView::onScanChosen()
 
 void BioXASSSRLMonochromatorEnergyCalibrationView::onScanViewDataPositionChanged(const QPointF &newPosition)
 {
-	qDebug() << "Scan view data position changed.";
-
 	setMonoEnergy(newPosition.x());
 }
 
