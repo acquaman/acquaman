@@ -14,6 +14,7 @@ BioXASSSRLMonochromatorEnergyControl::BioXASSSRLMonochromatorEnergyControl(const
 
 	setAllowsMovesWhileMoving(false);
 	setContextKnownDescription("Energy");
+	setTolerance(0.05);
 
 	// Initialize member variables.
 
@@ -39,10 +40,11 @@ BioXASSSRLMonochromatorEnergyControl::~BioXASSSRLMonochromatorEnergyControl()
 
 bool BioXASSSRLMonochromatorEnergyControl::canMeasure() const
 {
-	bool result = false;
-
-	if (isConnected())
-		result = ( bragg_->canMeasure() && braggSetPosition_->canMeasure() && region_->canMeasure() && m1MirrorPitch_->canMeasure() );
+	bool result = (
+				bragg_ && bragg_->canMeasure() &&
+				region_ && region_->canMeasure() &&
+				m1MirrorPitch_ && m1MirrorPitch_->canMeasure()
+				);
 
 	return result;
 }
@@ -162,6 +164,11 @@ void BioXASSSRLMonochromatorEnergyControl::updateConnected()
 				region_ && region_->isConnected() &&
 				m1MirrorPitch_ && m1MirrorPitch_->isConnected()
 				);
+
+	if (isConnected)
+		qDebug() << "\nEnergy control is connected.\n";
+	else
+		qDebug() << "\nEnergy control is NOT connected.\n";
 
 	setConnected(isConnected);
 }

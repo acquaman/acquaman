@@ -248,10 +248,11 @@ QList<AMControl *> BioXASSideBeamline::getMotorsByType(BioXASBeamlineDef::BioXAS
 		matchedMotors.append(m2Mirror_->lateralControl());
 		break;
 
-//	case BioXASBeamlineDef::PseudoMonoMotor: // BioXAS Pseudo Mono motor
-//		matchedMotors.append(monoPseudoEnergy_);
-//		matchedMotors.append(monoBraggAngle_);
-//		break;
+	case BioXASBeamlineDef::PseudoMonoMotor: // BioXAS Pseudo Mono motor
+		matchedMotors.append(mono_->encoderEnergyControl());
+		matchedMotors.append(mono_->stepEnergyControl());
+		matchedMotors.append(mono_->regionControl());
+		break;
 
 	default:
 		qDebug() << "ERROR: invalid BioXAS Motor category: " << category;
@@ -581,6 +582,9 @@ void BioXASSideBeamline::setupSampleStage()
 
 void BioXASSideBeamline::setupDetectorStage()
 {
+	// Side Endstation table
+	endstationTable_ = new BioXASEndstationTable("SideBL endstation table", "BL1607-6-I22", false, this);
+
 	detectorStageLateral_ = new CLSMAXvMotor("SMTR1607-6-I22-16 Side Detector Lateral", "SMTR1607-6-I22-16", "SMTR1607-6-I22-16 Side Detector Lateral", true, 0.05, 2.0, this, ":mm");
 }
 
@@ -748,18 +752,21 @@ void BioXASSideBeamline::setupComponents()
 	scaler_->channelAt(16)->setCustomChannelName("I0 Channel");
 	scaler_->channelAt(16)->setCurrentAmplifier(i0Keithley_);
 	scaler_->channelAt(16)->setDetector(i0Detector_);
+	scaler_->channelAt(16)->setVoltagRange(0.1, 9.5);
 
 	// The I1 channel amplifier.
 	i1Keithley_ = new CLSKeithley428("I1 Channel", "AMP1607-602", this);
 	scaler_->channelAt(17)->setCustomChannelName("I1 Channel");
 	scaler_->channelAt(17)->setCurrentAmplifier(i1Keithley_);
 	scaler_->channelAt(17)->setDetector(i1Detector_);
+	scaler_->channelAt(17)->setVoltagRange(0.1, 9.5);
 
 	// The I2 channel amplifier.
 	i2Keithley_ = new CLSKeithley428("I2 Channel", "AMP1607-603", this);
 	scaler_->channelAt(18)->setCustomChannelName("I2 Channel");
 	scaler_->channelAt(18)->setCurrentAmplifier(i2Keithley_);
 	scaler_->channelAt(18)->setDetector(i2Detector_);
+	scaler_->channelAt(18)->setVoltagRange(0.1, 9.5);
 
 	// The carbon filter farm.
 	carbonFilterFarm_ = new BioXASSideCarbonFilterFarm(this);
@@ -808,7 +815,7 @@ void BioXASSideBeamline::setupControlsAsDetectors()
 
 	dwellTimeDetector_ = new AMBasicControlDetectorEmulator("DwellTimeFeedback", "Dwell Time Feedback", scalerDwellTime_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
 
-	braggDetector_ = new AMBasicControlDetectorEmulator("GoniometerMotorFeedback", "Goniometer Motor Feedback", mono_->braggMotor(), 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	braggDetector_ = new AMBasicControlDetectorEmulator("StepAngleFeedback", "Step Angle Feedback", mono_->braggMotor(), 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
 	braggDetector_->setHiddenFromUsers(false);
 	braggDetector_->setIsVisible(true);
 
@@ -820,7 +827,11 @@ void BioXASSideBeamline::setupControlsAsDetectors()
 	braggMoveRetriesDetector_->setHiddenFromUsers(false);
 	braggMoveRetriesDetector_->setIsVisible(true);
 
-	braggStepSetpointDetector_ = new AMBasicControlDetectorEmulator("GoniometerMotorStepSetpoint", "Goniometer motor step setpoint", mono_->braggMotor()->stepSetpointControl(), 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	braggStepSetpointDetector_ = new AMBasicControlDetectorEmulator("StepSetpoint", "Step Setpoint", mono_->braggMotor()->stepSetpointControl(), 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	braggStepSetpointDetector_->setHiddenFromUsers(false);
+	braggStepSetpointDetector_->setIsVisible(true);
+
+	braggStepMotorFeedbackDetector_ = new AMBasicControlDetectorEmulator("GoniometerMotorFeedbackStep", "Goniometer motor feedback, step-based", mono_->braggMotor()->stepMotorFeedbackControl(), 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
 	braggStepSetpointDetector_->setHiddenFromUsers(false);
 	braggStepSetpointDetector_->setIsVisible(true);
 }
@@ -880,6 +891,9 @@ void BioXASSideBeamline::setupExposedControls()
 	addExposedControl(mono_->braggMotor()->encoderCalibrationSlopeControl());
 	addExposedControl(mono_->braggMotor()->stepCalibrationSlopeControl());
 	addExposedControl(mono_->braggMotor()->retries());
+	addExposedControl(mono_->braggMotor()->stepMotorFeedbackControl());
+	addExposedControl(mono_->verticalMotor());
+	addExposedControl(mono_->lateralMotor());
 	addExposedControl(mono_->crystal1PitchMotor());
 	addExposedControl(mono_->crystal1RollMotor());
 	addExposedControl(mono_->crystal2PitchMotor());
@@ -911,6 +925,12 @@ void BioXASSideBeamline::setupExposedControls()
 	addExposedControl(cryostatX_);
 	addExposedControl(cryostatY_);
 	addExposedControl(cryostatZ_);
+
+	// Endstation table
+	addExposedControl(endstationTable_->heightPVController());
+	addExposedControl(endstationTable_->pitchPVController());
+	addExposedControl(endstationTable_->lateralPVController());
+	addExposedControl(endstationTable_->yawPVController());
 }
 
 void BioXASSideBeamline::setupExposedDetectors()

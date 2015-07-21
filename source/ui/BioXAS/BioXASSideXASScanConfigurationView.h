@@ -70,6 +70,7 @@ protected slots:
 	void onEdgeChanged();
 
 protected:
+	/// The scan configuration being viewed.
 	BioXASSideXASScanConfiguration *configuration_;
 
 	AMTopFrame *topFrame_;
