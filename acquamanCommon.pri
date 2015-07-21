@@ -249,8 +249,6 @@ HEADERS += \
 	source/analysis/AMOrderReductionAB.h \
 	source/analysis/AMOrderReductionABEditor.h \
 	source/beamline/AMMotorGroup.h \
-	source/beamline/AM4DMotorGroup.h \
-	source/ui/AM4DMotorGroupView.h \
 	source/ui/AMMotorGroupView.h \
 	source/util/AMPointerTree.h \
 	source/dataman/AMDbUpgrade1Pt4.h \
@@ -641,8 +639,6 @@ SOURCES += \
 	source/analysis/AMOrderReductionAB.cpp \
 	source/analysis/AMOrderReductionABEditor.cpp \
 	source/beamline/AMMotorGroup.cpp \
-	source/beamline/AM4DMotorGroup.cpp \
-	source/ui/AM4DMotorGroupView.cpp \
 	source/ui/AMMotorGroupView.cpp \
 	source/util/AMPointerTree.cpp \
 	source/dataman/AMDbUpgrade1Pt4.cpp \
@@ -837,6 +833,10 @@ contains(DEFINES, AM_BUILD_REPORTER_ENABLED){
 
 	SOURCES *= source/util/AMRunTimeBuildInfo.cpp
 }
+
+
+
+
 
 
 

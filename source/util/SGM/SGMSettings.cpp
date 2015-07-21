@@ -44,7 +44,7 @@ void SGMSettings::load(){
 #ifdef Q_WS_MAC
 	SGMDataFolder_ = settings.value("SGMDataFolder", "/Users/fawkes/Documents/CLS/SGM/ACQUAMANDATA").toString();
 #else
-	SGMDataFolder_ = settings.value("SGMDataFolder", "/home/sgm/beamline/programming").toString();
+	SGMDataFolder_ = settings.value("SGMDataFolder", "/home/workmai/beamline/programming").toString();
 #endif
 	SGMDatabaseFilename_ = settings.value("SGMDatabaseFilename", "sgmdata.db").toString();
 	SGMPublicDatabaseFilename_ = settings.value("SGMPublicDatabaseFilename", "sgmpublic.db").toString();

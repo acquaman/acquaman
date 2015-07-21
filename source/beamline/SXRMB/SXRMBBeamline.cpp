@@ -722,44 +722,60 @@ void SXRMBBeamline::setupMotorGroup()
 	AMMotorGroupObject *motorObject;
 
 	// Microprobe motor group
-	motorObject = new AMMotorGroupObject("Microprobe Stage - X, Z, Y",
-										 QStringList() << "X" << "Z" << "Y",
-										 QStringList() << "mm" << "mm" << "mm",
-										 QList<AMControl *>() << microprobeSampleStageX_ << microprobeSampleStageZ_ << microprobeSampleStageY_,
-										 QList<AMMotorGroupObject::Orientation>() << AMMotorGroupObject::Horizontal << AMMotorGroupObject::Vertical << AMMotorGroupObject::Normal,
-										 QList<AMMotorGroupObject::MotionType>() << AMMotorGroupObject::Translational << AMMotorGroupObject::Translational << AMMotorGroupObject::Translational,
-										 this);
-	motorGroup_->addMotorGroupObject(motorObject->name(), motorObject);
+	motorObject = new AMMotorGroupObject("Microprobe Stage - X, Z, Y");
+
+	motorObject->setDirectionAxis(AMMotorGroupObject::HorizontalMotion,
+						 "X", microprobeSampleStageX_,
+						 "", 0);
+
+	motorObject->setDirectionAxis(AMMotorGroupObject::NormalMotion,
+						 "Y", microprobeSampleStageY_,
+						 "", 0);
+
+	motorObject->setDirectionAxis(AMMotorGroupObject::VerticalMotion,
+						 "Z", microprobeSampleStageZ_,
+						 "", 0);
+
+	motorGroup_->addMotorGroupObject(motorObject);
 
 	// Solidstate motor group
-	motorObject = new AM4DMotorGroupObject("Solid State - X, Z, Y, R",
-										 QStringList() << "X" << "Z" << "Y" << "R",
-										 QStringList() << "mm" << "mm" << "mm" << "deg",
-										 QList<AMControl *>() << solidStateSampleStageX_ << solidStateSampleStageZ_ << solidStateSampleStageY_ << solidStateSampleStageR_,
-										 QList<AMMotorGroupObject::Orientation>() << AMMotorGroupObject::Horizontal << AMMotorGroupObject::Vertical << AMMotorGroupObject::Normal << AMMotorGroupObject::Other,
-										 QList<AMMotorGroupObject::MotionType>() << AMMotorGroupObject::Translational << AMMotorGroupObject::Translational << AMMotorGroupObject::Translational << AMMotorGroupObject::Rotational,
-										 this);
-	motorGroup_->addMotorGroupObject(motorObject->name(), motorObject);
+	motorObject = new AMMotorGroupObject("Solid State - X, Z, Y, R");
+	motorObject->setDirectionAxis(AMMotorGroupObject::HorizontalMotion,
+						 "X", solidStateSampleStageX_,
+						 "", 0);
+
+	motorObject->setDirectionAxis(AMMotorGroupObject::NormalMotion,
+						 "Y", solidStateSampleStageY_,
+						 "", 0);
+
+	motorObject->setDirectionAxis(AMMotorGroupObject::VerticalMotion,
+						 "Z", solidStateSampleStageZ_,
+						 "R", solidStateSampleStageR_);
+
+	motorGroup_->addMotorGroupObject(motorObject);
 
 	// Ambiant with gas chamber motor group
-	motorObject = new AMMotorGroupObject("Ambiant With Gas Chamber - X, Z, R",
-										   QStringList() << "X" << "Z" << "R",
-										   QStringList() << "mm" << "mm" << "deg",
-										   QList<AMControl *>() << ambiantSampleStageX_ << ambiantSampleHolderZ_ << ambiantSampleHolderR_ ,
-										   QList<AMMotorGroupObject::Orientation>() << AMMotorGroupObject::Horizontal << AMMotorGroupObject::Vertical << AMMotorGroupObject::Normal,
-										   QList<AMMotorGroupObject::MotionType>() << AMMotorGroupObject::Translational << AMMotorGroupObject::Translational << AMMotorGroupObject::Rotational,
-										   this);
-	motorGroup_->addMotorGroupObject(motorObject->name(), motorObject);
+	motorObject = new AMMotorGroupObject("Ambiant With Gas Chamber - X, Z, R");
+	motorObject->setDirectionAxis(AMMotorGroupObject::HorizontalMotion,
+						 "X", ambiantSampleStageX_,
+						 "", 0);
+
+	motorObject->setDirectionAxis(AMMotorGroupObject::VerticalMotion,
+						 "Z", ambiantSampleHolderZ_,
+						 "R", ambiantSampleHolderR_);
+
+	motorGroup_->addMotorGroupObject(motorObject);
 
 	// Ambiant without gas chamber motor group
-	motorObject = new AMMotorGroupObject("Ambiant Without Gas Chamber - X, Z",
-										   QStringList() << "X" << "Z",
-										   QStringList() << "mm" << "mm",
-										   QList<AMControl *>() << ambiantSampleStageX_ << ambiantSampleStageZ_ ,
-										   QList<AMMotorGroupObject::Orientation>() << AMMotorGroupObject::Horizontal << AMMotorGroupObject::Vertical,
-										   QList<AMMotorGroupObject::MotionType>() << AMMotorGroupObject::Translational << AMMotorGroupObject::Translational,
-										   this);
-	motorGroup_->addMotorGroupObject(motorObject->name(), motorObject);
+	motorObject = new AMMotorGroupObject("Ambiant Without Gas Chamber - X, Z");
+	motorObject->setDirectionAxis(AMMotorGroupObject::HorizontalMotion,
+						 "X", ambiantSampleStageX_,
+						 "", 0);
+	motorObject->setDirectionAxis(AMMotorGroupObject::VerticalMotion,
+						 "Z", ambiantSampleStageZ_,
+						 "", 0);
+
+	motorGroup_->addMotorGroupObject(motorObject);
 
 }
 

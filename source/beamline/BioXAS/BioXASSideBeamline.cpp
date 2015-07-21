@@ -592,14 +592,14 @@ void BioXASSideBeamline::setupMotorGroup()
 {
 	motorGroup_ = new AMMotorGroup(this);
 
-	AMMotorGroupObject *cryostatStageGroupObject = new AMMotorGroupObject("Cryostat Stage - X, Y, Z",
-																		  QStringList() << "X" << "Z" << "Y",
-																		  QStringList() << "mm" << "mm" << "mm",
-																		  QList<AMControl*>() << cryostatX_ << cryostatZ_ << cryostatY_,
-																		  QList<AMMotorGroupObject::Orientation>() << AMMotorGroupObject::Horizontal << AMMotorGroupObject::Vertical << AMMotorGroupObject::Normal,
-																		  QList<AMMotorGroupObject::MotionType>() << AMMotorGroupObject::Translational << AMMotorGroupObject::Translational << AMMotorGroupObject::Translational,
-																		  this);
-	motorGroup_->addMotorGroupObject(cryostatStageGroupObject->name(), cryostatStageGroupObject);
+	AMMotorGroupObject* cryostatStageGroupObject =
+			new AMMotorGroupObject("Cryostat Stage - X Y Z");
+
+	cryostatStageGroupObject->setDirectionAxis(AMMotorGroupObject::HorizontalMotion, "X", cryostatX_, "", 0);
+	cryostatStageGroupObject->setDirectionAxis(AMMotorGroupObject::NormalMotion, "Y", cryostatY_, "", 0);
+	cryostatStageGroupObject->setDirectionAxis(AMMotorGroupObject::VerticalMotion, "Z", cryostatZ_, "", 0);
+
+	motorGroup_->addMotorGroupObject(cryostatStageGroupObject);
 }
 
 void BioXASSideBeamline::setupDetectors()
