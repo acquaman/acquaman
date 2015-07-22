@@ -89,6 +89,8 @@ protected slots:
 
 	/// Handles updating the scan view.
 	void updateScanView();
+	/// Handles updating the data sources editor.
+	void updateScanSourcesEditor();
 	/// Handles updating the mono energy display.
 	void updateMonoEnergySpinbox();
 	/// Handles updating the desired energy display.

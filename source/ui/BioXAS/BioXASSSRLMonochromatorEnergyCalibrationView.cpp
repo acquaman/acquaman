@@ -167,6 +167,7 @@ void BioXASSSRLMonochromatorEnergyCalibrationView::clear()
 void BioXASSSRLMonochromatorEnergyCalibrationView::update()
 {
 	updateScanView();
+	updateScanSourcesEditor();
 	updateMonoEnergySpinbox();
 	updateDesiredEnergySpinbox();
 	updateCalibrateButton();
@@ -270,13 +271,23 @@ void BioXASSSRLMonochromatorEnergyCalibrationView::applyScanSettings(AMScan *sca
 			}
 		}
 
-		// Set the first data source as the source shown.
+		AMDataSource *displayedSource = 0;
 
-		AMDataSource *dataSource = scan->dataSourceAt(0);
+		// If available, set the dark current corrected absorbance data source as the source shown.
 
-		if (dataSource) {
-			scanViewModel_->setExclusiveDataSourceByName(dataSource->name());
-		}
+		int absorbanceIndex = scan->indexOfDataSource("Absorbance_DarkCorrect");
+		if (absorbanceIndex > -1)
+			displayedSource = scan->dataSourceAt(absorbanceIndex);
+
+		// If the absorbance isn't available, set the first data source as the source shown.
+
+		if (!displayedSource)
+			displayedSource = scan->dataSourceAt(0);
+
+		// Set the displayed source.
+
+		if (displayedSource)
+			scanViewModel_->setExclusiveDataSourceByName(displayedSource->name());
 	}
 }
 
@@ -338,6 +349,13 @@ void BioXASSSRLMonochromatorEnergyCalibrationView::updateScanView()
 
 	scanView_->setPlotCursorVisibility(cursorVisible);
 	scanView_->setPlotCursorCoordinates(monoEnergy_);
+}
+
+void BioXASSSRLMonochromatorEnergyCalibrationView::updateScanSourcesEditor()
+{
+	// Update the scan sources editor with the current scan.
+
+	scanSourcesEditor_->setCurrentScan(currentScan_);
 }
 
 void BioXASSSRLMonochromatorEnergyCalibrationView::updateMonoEnergySpinbox()
