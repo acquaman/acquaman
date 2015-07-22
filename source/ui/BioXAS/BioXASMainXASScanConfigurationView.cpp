@@ -244,11 +244,5 @@ void BioXASMainXASScanConfigurationView::onEdgeChanged()
 
 void BioXASMainXASScanConfigurationView::onEstimatedTimeChanged()
 {
-    configuration_->blockSignals(true);
-    double time = configuration_->totalTime(true);
-    configuration_->blockSignals(false);
-
-    QString timeString = AMDateTimeUtils::convertTimeToString(time);
-
-    estimatedTimeLabel_->setText(timeString);
+   estimatedTimeLabel_->setText(AMDateTimeUtils::convertTimeToString(configuration_->totalTime(true)));
 }

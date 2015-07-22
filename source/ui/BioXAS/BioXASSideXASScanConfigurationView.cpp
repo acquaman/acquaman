@@ -33,7 +33,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "util/AMEnergyToKSpaceCalculator.h"
 #include "ui/util/AMPeriodicTableDialog.h"
 #include "util/AMPeriodicTable.h"
-
+#include "util/AMDateTimeUtils.h"
 
 BioXASSideXASScanConfigurationView::BioXASSideXASScanConfigurationView(BioXASSideXASScanConfiguration *configuration, QWidget *parent) :
 	AMScanConfigurationView(parent)
@@ -265,12 +265,6 @@ void BioXASSideXASScanConfigurationView::onEdgeChanged()
 
 void BioXASSideXASScanConfigurationView::onEstimatedTimeChanged()
 {
-    configuration_->blockSignals(true);
-    double time = configuration_->totalTime(true);
-    configuration_->blockSignals(false);
-
-    QString timeString = AMDateTimeUtils::convertTimeToString(time);
-
-    estimatedTimeLabel_->setText(timeString);
+    estimatedTimeLabel_->setText(AMDateTimeUtils::convertTimeToString(configuration_->totalTime(true)));
 }
 
