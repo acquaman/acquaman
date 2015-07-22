@@ -54,8 +54,6 @@ protected slots:
 protected:
 	/// Method that does all the calculations for calculating the estimated scan time.
 	virtual void computeTotalTimeImplementation();
-    /// Holds the total time in seconds that the scan is estimated to take.
-    double totalTime_;
 };
 
 #endif // BIOXASMAINXASSCANCONFIGURATION_H
