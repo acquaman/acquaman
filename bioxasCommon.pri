@@ -59,8 +59,6 @@ HEADERS += \
 	source/application/BioXAS/BioXAS.h \
 	source/beamline/BioXAS/BioXASMainM2MirrorBendControl.h \
     source/beamline/BioXAS/BioXASMonochromatorEnergyControl.h \
-    source/ui/BioXAS/BioXASSSRLMonochromatorEnergyControlCalibrationView.h \
-    source/beamline/BioXAS/BioXASSSRLMonochromatorEnergyControlCalibrationController.h \
     source/acquaman/BioXAS/BioXASXASScanActionController.h \
     source/acquaman/BioXAS/BioXASXASScanConfiguration.h \
 	source/ui/BioXAS/BioXASXASScanConfigurationView.h \
@@ -121,8 +119,6 @@ SOURCES += \
 	source/ui/BioXAS/BioXASMirrorBendView.cpp \
 	source/beamline/BioXAS/BioXASMainM2MirrorBendControl.cpp \
     source/beamline/BioXAS/BioXASMonochromatorEnergyControl.cpp \
-    source/ui/BioXAS/BioXASSSRLMonochromatorEnergyControlCalibrationView.cpp \
-    source/beamline/BioXAS/BioXASSSRLMonochromatorEnergyControlCalibrationController.cpp \
     source/acquaman/BioXAS/BioXASXASScanActionController.cpp \
     source/acquaman/BioXAS/BioXASXASScanConfiguration.cpp \
 	source/ui/BioXAS/BioXASXASScanConfigurationView.cpp \
@@ -130,3 +126,7 @@ SOURCES += \
     source/acquaman/BioXAS/BioXASSSRLMonochromatorEnergyCalibrationScanActionController.cpp \
 	source/ui/BioXAS/BioXASSSRLMonochromatorEnergyCalibrationView.cpp \
     source/beamline/BioXAS/BioXASShutterControl.cpp
+
+
+
+
