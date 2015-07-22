@@ -55,7 +55,7 @@ BioXASSideXASScanActionController::BioXASSideXASScanActionController(BioXASSideX
 //	bioXASDetectors.addDetectorInfo(BioXASSideBeamline::bioXAS()->braggStepMotorFeedbackDetector()->toInfo());
 
 	if (configuration_->usingXRFDetector())
-		bioXASDetectors.addDetectorInfo(BioXASSideBeamline::bioXAS()->fourElementVortexDetector()->toInfo());
+		bioXASDetectors.addDetectorInfo(BioXASSideBeamline::bioXAS()->ge32ElementDetector()->toInfo());
 
 	setConfigurationDetectorConfigurations(bioXASDetectors);
 }
@@ -65,31 +65,92 @@ BioXASSideXASScanActionController::~BioXASSideXASScanActionController()
 
 }
 
+QString BioXASSideXASScanActionController::beamlineSettings()
+{
+	QString notes;
+
+	// Note storage ring current.
+
+	notes.append(QString("SR1 Current:\t%1 mA\n").arg(CLSStorageRing::sr1()->ringCurrent()));
+
+	return notes;
+}
+
+AMAction3* BioXASSideXASScanActionController::createInitializationActions()
+{
+	AMSequentialListAction3 *initializationAction = new AMSequentialListAction3(new AMSequentialListActionInfo3("BioXAS Side Scan Initialization Actions", "BioXAS Side Scan Initialization Actions"));
+	CLSSIS3820Scaler *scaler = BioXASSideBeamline::bioXAS()->scaler();
+
+	double regionTime = double(configuration_->scanAxisAt(0)->regionAt(0)->regionTime());
+
+	initializationAction->addSubAction(scaler->createContinuousEnableAction3(false));
+	initializationAction->addSubAction(scaler->createDwellTimeAction3(regionTime));
+	initializationAction->addSubAction(scaler->createStartAction3(true));
+	initializationAction->addSubAction(scaler->createWaitForDwellFinishedAction(regionTime + 5.0));
+
+	// Set the bragg motor power to PowerOn.
+	initializationAction->addSubAction(BioXASSideBeamline::bioXAS()->mono()->braggMotor()->createPowerAction(CLSMAXvMotor::PowerOn));
+
+	if (configuration_->usingXRFDetector()){
+
+		AMXspress3XRFDetector *detector = BioXASSideBeamline::bioXAS()->ge32ElementDetector();
+		AMSequentialListAction3 *xspress3Setup = new AMSequentialListAction3(new AMSequentialListActionInfo3("Xspress3 setup", "Xspress3 Setup"));
+		xspress3Setup->addSubAction(detector->createDisarmAction());
+		xspress3Setup->addSubAction(detector->createFramesPerAcquisitionAction(int(configuration_->scanAxisAt(0)->numberOfPoints()*1.1)));	// Adding 10% just because.
+		xspress3Setup->addSubAction(detector->createInitializationAction());
+		initializationAction->addSubAction(xspress3Setup);
+	}
+
+	CLSStandardsWheel *standardsWheel = BioXASSideBeamline::bioXAS()->standardsWheel();
+
+	if (standardsWheel->indexFromName(configuration_->edge().split(" ").first()) != -1)
+		initializationAction->addSubAction(standardsWheel->createMoveToNameAction(configuration_->edge().split(" ").first()));
+
+	else
+		initializationAction->addSubAction(standardsWheel->createMoveToNameAction("None"));
+
+	return initializationAction;
+}
+
+AMAction3* BioXASSideXASScanActionController::createCleanupActions()
+{
+	CLSSIS3820Scaler *scaler = BioXASSideBeamline::bioXAS()->scaler();
+
+	AMListAction3 *cleanup = new AMListAction3(new AMListActionInfo3("BioXAS Side Cleanup", "BioXAS Cleanup"), AMListAction3::Sequential);
+	cleanup->addSubAction(scaler->createDwellTimeAction3(1.0));
+	cleanup->addSubAction(scaler->createContinuousEnableAction3(true));
+
+	// Set the bragg motor power to PowerAutoSoftware.
+	cleanup->addSubAction(BioXASSideBeamline::bioXAS()->mono()->braggMotor()->createPowerAction(CLSMAXvMotor::PowerAutoSoftware));
+
+	return cleanup;
+}
+
 void BioXASSideXASScanActionController::buildScanControllerImplementation()
 {
 	BioXASXASScanActionController::buildScanControllerImplementation();
 
-	// Create analyzed data sources for the monochromator testing measurements.
+//	// Create analyzed data sources for the monochromator testing measurements.
 
-	AMDataSource *energySetpointSource = 0;
-	AMDataSource *energyFeedbackSource = 0;
-	AM1DExpressionAB *deltaEnergySource = 0;
+//	AMDataSource *energySetpointSource = 0;
+//	AMDataSource *energyFeedbackSource = 0;
+//	AM1DExpressionAB *deltaEnergySource = 0;
 
-	int energySetpointDetectorIndex = scan_->indexOfDataSource(BioXASSideBeamline::bioXAS()->encoderEnergySetpointDetector()->name());
-	if (energySetpointDetectorIndex != -1) {
-		energySetpointSource = scan_->dataSourceAt(energySetpointDetectorIndex);
-	}
+//	int energySetpointDetectorIndex = scan_->indexOfDataSource(BioXASSideBeamline::bioXAS()->encoderEnergySetpointDetector()->name());
+//	if (energySetpointDetectorIndex != -1) {
+//		energySetpointSource = scan_->dataSourceAt(energySetpointDetectorIndex);
+//	}
 
-	int energyFeedbackDetectorIndex = scan_->indexOfDataSource(BioXASSideBeamline::bioXAS()->encoderEnergyFeedbackDetector()->name());
-	if (energyFeedbackDetectorIndex != -1) {
-		energyFeedbackSource = scan_->dataSourceAt(energyFeedbackDetectorIndex);
-	}
+//	int energyFeedbackDetectorIndex = scan_->indexOfDataSource(BioXASSideBeamline::bioXAS()->encoderEnergyFeedbackDetector()->name());
+//	if (energyFeedbackDetectorIndex != -1) {
+//		energyFeedbackSource = scan_->dataSourceAt(energyFeedbackDetectorIndex);
+//	}
 
-	if (energySetpointSource && energyFeedbackSource) {
-		deltaEnergySource = new AM1DExpressionAB("EncoderEnergySetpointFeedback");
-		deltaEnergySource->setInputDataSources(QList<AMDataSource *>() << energySetpointSource << energyFeedbackSource);
-		deltaEnergySource->setExpression(QString("%1-%2").arg(energySetpointSource->name()).arg(energyFeedbackSource->name()));
+//	if (energySetpointSource && energyFeedbackSource) {
+//		deltaEnergySource = new AM1DExpressionAB("EncoderEnergySetpointFeedback");
+//		deltaEnergySource->setInputDataSources(QList<AMDataSource *>() << energySetpointSource << energyFeedbackSource);
+//		deltaEnergySource->setExpression(QString("%1-%2").arg(energySetpointSource->name()).arg(energyFeedbackSource->name()));
 
-		scan_->addAnalyzedDataSource(deltaEnergySource, true, false);
-	}
+//		scan_->addAnalyzedDataSource(deltaEnergySource, true, false);
+//	}
 }

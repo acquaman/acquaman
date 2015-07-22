@@ -66,17 +66,13 @@ BioXASXASScanActionController::BioXASXASScanActionController(BioXASXASScanConfig
 	if (i2Detector)
 		bioXASDetectors.addDetectorInfo(i2Detector->toInfo());
 
-//	AMDetector *vortexDetector = BioXASBeamline::bioXAS()->fourElementVortexDetector();
-//	if (vortexDetector)
-//		bioXASDetectors.addDetectorInfo(vortexDetector->toInfo());
-
-//	AMDetector *ge32Detector = BioXASBeamline::bioXAS()->ge32ElementDetector();
-//	if (ge32Detector)
-//		bioXASDetectors.addDetectorInfo(ge32Detector->toInfo());
-
 	AMDetector *scalerDwellTimeDetector = BioXASBeamline::bioXAS()->scalerDwellTimeDetector();
 	if (scalerDwellTimeDetector)
 		bioXASDetectors.addDetectorInfo(scalerDwellTimeDetector->toInfo());
+
+	AMDetector *ge32Detector = BioXASBeamline::bioXAS()->ge32ElementDetector();
+	if (ge32Detector && configuration_->usingXRFDetector())
+		bioXASDetectors.addDetectorInfo(ge32Detector->toInfo());
 
 	setConfigurationDetectorConfigurations(bioXASDetectors);
 
@@ -147,23 +143,23 @@ AMAction3* BioXASXASScanActionController::createInitializationActions()
 		scalerInitialization->addSubAction(scaler->createWaitForDwellFinishedAction(regionTime + 5.0));
 	}
 
-	// Initialize four element XRF detector, if using.
+	// Initialize XRF detector, if using.
 
-	// The vortex is okay if the scan is using this detector and one is found. Also okay if we aren't using it. We have a problem otherwise.
-	bool vortexOK = false;
-	AMSequentialListAction3 *vortexDetectorInitialization = 0;
-	BioXASFourElementVortexDetector *detector = BioXASBeamline::bioXAS()->fourElementVortexDetector();
+	// The detector is okay if the scan is using this detector and one is found. Also okay if we aren't using it. We have a problem otherwise.
+	bool xrfDetectorOK = false;
+	AMSequentialListAction3 *xrfDetectorInitialization = 0;
+	BioXAS32ElementGeDetector *detector = BioXASBeamline::bioXAS()->ge32ElementDetector();
 
 	if (configuration_->usingXRFDetector() && detector) {
-		vortexOK = true;
+		xrfDetectorOK = true;
 
-		vortexDetectorInitialization = new AMSequentialListAction3(new AMSequentialListActionInfo3("BioXAS Xpress3 Initialization", "BioXAS Xpress3 Initialization"));
-		vortexDetectorInitialization->addSubAction(detector->createDisarmAction());
-		vortexDetectorInitialization->addSubAction(detector->createFramesPerAcquisitionAction(int(configuration_->scanAxisAt(0)->numberOfPoints()*1.1)));	// Adding 10% just because.
-		vortexDetectorInitialization->addSubAction(detector->createInitializationAction());
+		xrfDetectorInitialization = new AMSequentialListAction3(new AMSequentialListActionInfo3("BioXAS Xpress3 Initialization", "BioXAS Xpress3 Initialization"));
+		xrfDetectorInitialization->addSubAction(detector->createDisarmAction());
+		xrfDetectorInitialization->addSubAction(detector->createFramesPerAcquisitionAction(int(configuration_->scanAxisAt(0)->numberOfPoints()*1.1)));	// Adding 10% just because.
+		xrfDetectorInitialization->addSubAction(detector->createInitializationAction());
 
 	} else if (!configuration_->usingXRFDetector()) {
-		vortexOK = true;
+		xrfDetectorOK = true;
 
 	} else {
 		AMErrorMon::alert(this, BIOXASXASSCANACTIONCONTROLLER_VORTEX_DETECTOR_NOT_FOUND, "Failed to complete scan initialization--scan to use Vortex detector, but detector not found.");
@@ -198,16 +194,16 @@ AMAction3* BioXASXASScanActionController::createInitializationActions()
 
 	// Create complete initialization action.
 
-	if (vortexOK) {
+	if (xrfDetectorOK) {
 		result = new AMSequentialListAction3(new AMSequentialListActionInfo3("BioXAS XAS Scan Initialization Actions", "BioXAS Main Scan Initialization Actions"));
 
 		// Add scaler initialization.
 		if (scalerInitialization)
 			result->addSubAction(scalerInitialization);
 
-		// Add vortex initialization.
-		if (vortexDetectorInitialization)
-			result->addSubAction(vortexDetectorInitialization);
+		// Add XRF detector initialization.
+		if (xrfDetectorInitialization)
+			result->addSubAction(xrfDetectorInitialization);
 
 		// Add mono initialization.
 		if (monoInitialization)
@@ -407,14 +403,14 @@ void BioXASXASScanActionController::buildScanControllerImplementation()
 		scan_->addAnalyzedDataSource(derivAbsorbanceCorrectedSource, true, false);
 	}
 
-	// Create analyzed data source for the four element Vortex detector.
+	// Create analyzed data source for the 32El Ge detector.
 
-	AMXRFDetector *vortexDetector = BioXASBeamline::bioXAS()->fourElementVortexDetector();
-	if (configuration_->usingXRFDetector() && vortexDetector){
+	AMXRFDetector *ge32Detector = BioXASBeamline::bioXAS()->ge32ElementDetector();
+	if (configuration_->usingXRFDetector() && ge32Detector){
 
-		vortexDetector->removeAllRegionsOfInterest();
+		ge32Detector->removeAllRegionsOfInterest();
 
-		AMDataSource *spectraSource = scan_->dataSourceAt(scan_->indexOfDataSource(vortexDetector->name()));
+		AMDataSource *spectraSource = scan_->dataSourceAt(scan_->indexOfDataSource(ge32Detector->name()));
 		QString edgeSymbol = configuration_->edge().split(" ").first();
 
 		foreach (AMRegionOfInterest *region, configuration_->regionsOfInterest()){
@@ -424,7 +420,7 @@ void BioXASXASScanActionController::buildScanControllerImplementation()
 			newRegion->setBinningRange(regionAB->binningRange());
 			newRegion->setInputDataSources(QList<AMDataSource *>() << spectraSource);
 			scan_->addAnalyzedDataSource(newRegion, false, true);
-			vortexDetector->addRegionOfInterest(region);
+			ge32Detector->addRegionOfInterest(region);
 
 			AM1DNormalizationAB *normalizedRegion = new AM1DNormalizationAB(QString("norm_%1").arg(newRegion->name()));
 			normalizedRegion->setInputDataSources(QList<AMDataSource *>() << newRegion << i0CorrectedDetectorSource);

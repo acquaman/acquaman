@@ -78,21 +78,6 @@ void BioXASAppController::shutdown()
 void BioXASAppController::onUserConfigurationLoadedFromDb()
 {
 	if (userConfiguration_) {
-		AMXRFDetector *vortexDetector = BioXASBeamline::bioXAS()->fourElementVortexDetector();
-		if (vortexDetector) {
-
-			// Iterate through regions in the user configuration, adding them to the detector's and configuration's ROIs.
-			foreach (AMRegionOfInterest *region, userConfiguration_->regionsOfInterest()){
-				AMRegionOfInterest *newRegion = region->createCopy();
-				vortexDetector->addRegionOfInterest(newRegion);
-				onRegionOfInterestAdded(region);
-			}
-
-			// It is sufficient to only connect the user configuration to the single element because the single element and four element are synchronized together.
-			// This is connected here because we want to listen to the detectors for updates, but don't want to double add regions on startup.
-			connect(vortexDetector, SIGNAL(addedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestAdded(AMRegionOfInterest*)));
-			connect(vortexDetector, SIGNAL(removedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestRemoved(AMRegionOfInterest*)));
-		}
 
 		BioXAS32ElementGeDetector *geDetector = BioXASBeamline::bioXAS()->ge32ElementDetector();
 		if (geDetector) {
@@ -302,24 +287,24 @@ void BioXASAppController::setupUserInterface()
 		mw_->addPane(AMMainWindow::buildMainWindowPane("Scaler", ":/system-search.png", scalerView), "Detectors", "Scaler", ":/system-search.png");
 	}
 
-//	BioXAS32ElementGeDetector *geDetector = BioXASBeamline::bioXAS()->ge32ElementDetector();
-//	if (geDetector) {
-//		BioXAS32ElementGeDetectorView *geDetectorView = new BioXAS32ElementGeDetectorView(geDetector);
-//		geDetectorView->buildDetectorView();
-//		geDetectorView->addEmissionLineNameFilter(QRegExp("1"));
-//		geDetectorView->addPileUpPeakNameFilter(QRegExp("(K.1|L.1|Ma1)"));
-//		mw_->addPane(geDetectorView, "Detectors", "Ge 32-el", ":/system-search.png");
-//	}
-
-	BioXASFourElementVortexDetector *fourElementDetector = BioXASBeamline::bioXAS()->fourElementVortexDetector();
-	if (fourElementDetector) {
-		BioXASFourElementVortexDetectorView *fourElementDetectorView = new BioXASFourElementVortexDetectorView(fourElementDetector);
-		fourElementDetectorView->buildDetectorView();
-		fourElementDetectorView->setEnergyRange(3000, 28000);
-		fourElementDetectorView->addEmissionLineNameFilter(QRegExp("1"));
-		fourElementDetectorView->addPileUpPeakNameFilter(QRegExp("(K.1|L.1|Ma1)"));
-		mw_->addPane(fourElementDetectorView, "Detectors", "4-element", ":/system-search.png");
+	BioXAS32ElementGeDetector *geDetector = BioXASBeamline::bioXAS()->ge32ElementDetector();
+	if (geDetector) {
+		BioXAS32ElementGeDetectorView *geDetectorView = new BioXAS32ElementGeDetectorView(geDetector);
+		geDetectorView->buildDetectorView();
+		geDetectorView->addEmissionLineNameFilter(QRegExp("1"));
+		geDetectorView->addPileUpPeakNameFilter(QRegExp("(K.1|L.1|Ma1)"));
+		mw_->addPane(geDetectorView, "Detectors", "Ge 32-el", ":/system-search.png");
 	}
+
+//	BioXASFourElementVortexDetector *fourElementDetector = BioXASBeamline::bioXAS()->fourElementVortexDetector();
+//	if (fourElementDetector) {
+//		BioXASFourElementVortexDetectorView *fourElementDetectorView = new BioXASFourElementVortexDetectorView(fourElementDetector);
+//		fourElementDetectorView->buildDetectorView();
+//		fourElementDetectorView->setEnergyRange(3000, 28000);
+//		fourElementDetectorView->addEmissionLineNameFilter(QRegExp("1"));
+//		fourElementDetectorView->addPileUpPeakNameFilter(QRegExp("(K.1|L.1|Ma1)"));
+//		mw_->addPane(fourElementDetectorView, "Detectors", "4-element", ":/system-search.png");
+//	}
 
 	// Create scan views:
 	////////////////////////////////////

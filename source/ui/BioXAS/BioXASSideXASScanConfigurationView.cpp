@@ -42,7 +42,7 @@ BioXASSideXASScanConfigurationView::BioXASSideXASScanConfigurationView(BioXASSid
 
 	regionsView_ = new AMEXAFSScanAxisView("BioXAS-Side Region Configuration", configuration_);
 
-	usingXRFDetectorCheckBox_ = new QCheckBox("Use Four Element");
+	usingXRFDetectorCheckBox_ = new QCheckBox("Use 32-Element");
 	usingXRFDetectorCheckBox_->setChecked(configuration_->usingXRFDetector());
 	connect(configuration_->dbObject(), SIGNAL(usingXRFDetectorChanged(bool)), usingXRFDetectorCheckBox_, SLOT(setChecked(bool)));
 	connect(usingXRFDetectorCheckBox_, SIGNAL(toggled(bool)), configuration_->dbObject(), SLOT(setUsingXRFDetector(bool)));

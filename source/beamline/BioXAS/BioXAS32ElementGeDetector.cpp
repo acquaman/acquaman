@@ -9,7 +9,8 @@ BioXAS32ElementGeDetector::BioXAS32ElementGeDetector(const QString &name, const 
 	acquireTimeControl_ = new AMSinglePVControl("Integration Time", "BL1607-5-I22:SetPort_1.HIGH", this, 0.001);
 	elapsedTimeControl_ = 0;
 
-	for (int i = 0; i < 32; i++){
+//	for (int i = 0; i < 32; i++){
+	for (int i = 0; i < 8; i++){
 
 		channelEnableControls_.append(new AMSinglePVControl(QString("Channel Enable %1").arg(i+1), QString("DXP1607-I22-01:C%1_PluginControlVal").arg(i+1), this, 0.1));
 		spectraControls_.append(new AMReadOnlyPVControl(QString("Raw Spectrum %1").arg(i+1), QString("DXP1607-I22-01:ARR%1:ArrayData").arg(i+1), this));

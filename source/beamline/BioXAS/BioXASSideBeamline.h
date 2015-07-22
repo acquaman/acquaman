@@ -208,7 +208,11 @@ public:
 	/// Returns the 32 element Ge detector.
 	virtual BioXAS32ElementGeDetector *ge32ElementDetector() const { return ge32ElementDetector_; }
 	/// Returns the four element Vortex detector.
+<<<<<<< HEAD
 	virtual BioXASFourElementVortexDetector *fourElementVortexDetector() const { return fourElementVortexDetector_; }
+=======
+//	BioXASFourElementVortexDetector *fourElementVortexDetector() const { return fourElementVortexDetector_; }
+>>>>>>> master
 
 	// Endstation table
 	virtual BioXASEndstationTable *endstationTable() const { return endstationTable_; }
@@ -255,7 +259,7 @@ protected:
 	AMBasicControlDetectorEmulator *braggStepMotorFeedbackDetector_;
 	AMBasicControlDetectorEmulator *braggEncoderFeedbackDetector_;
 	BioXAS32ElementGeDetector *ge32ElementDetector_;
-	BioXASFourElementVortexDetector *fourElementVortexDetector_;
+//	BioXASFourElementVortexDetector *fourElementVortexDetector_;
 
 	/// The endstation safety shutter.
 	CLSBiStateControl *safetyShutterES_;
