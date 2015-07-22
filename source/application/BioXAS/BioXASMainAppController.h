@@ -74,13 +74,6 @@ protected:
 	AMGenericStepScanConfigurationView *commissioningConfigurationView_;
 	/// The commissioning tool configuration view holder.
 	AMScanConfigurationViewHolder3 *commissioningConfigurationViewHolder_;
-
-	/// The mono energy calibration configuration.
-	BioXASSSRLMonochromatorEnergyCalibrationScanConfiguration *monoCalibrationConfiguration_;
-	/// The mono energy calibration configuration view.
-	BioXASXASScanConfigurationView *monoCalibrationConfigurationView_;
-	/// The mono energy calibration configuration view holder.
-	AMScanConfigurationViewHolder3 *monoCalibrationConfigurationViewHolder_;
 };
 
 #endif // BIOXASMAINAPPCONTROLLER_H
