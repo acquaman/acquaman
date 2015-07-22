@@ -24,6 +24,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "application/BioXAS/BioXASAppController.h"
 
+#include "ui/BioXAS/BioXAS32ElementGeDetectorView.h"
+
 class BioXASEndstationTableView;
 class BioXASSidePersistentView;
 class BioXASSideXASScanConfiguration;
