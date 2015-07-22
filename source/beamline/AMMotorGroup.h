@@ -82,6 +82,15 @@ class AMMotorGroupAxis : public QObject
 {
 	Q_OBJECT
 public:
+
+	/*!
+	  * Enumerates all the different types of motions which an object can move in.
+	  */
+	enum MotionType {
+		TranslationalMotion,
+		RotationalMotion
+	};
+
 	/*!
 	  * Creates an instance of a motor group axis with the provided translational
 	  * and or rotational motions.
@@ -191,90 +200,122 @@ public:
 
 signals:
 	/*!
-	  * Signal indicating that the connected state of the translational motor
+	  * Signal indicating that the connected state of one of the contained motors
 	  * has been altered.
+	  * \param motionType ~ The motion type of the motor which has just been
+	  * connected.
 	  * \param isConnected ~ The new connected state of the translational motor.
 	  */
-	void translationConnectedStateChanged(bool isConnected);
+	void connectedStateChanged(AMMotorGroupAxis::MotionType motionType,
+							   bool isConnected);
 
 	/*!
-	  * Signal indicating that the display precision of the translational motor
+	  * Signal indicating that an error has occurred with one of the contained motors.
+	  * \param motionType ~ The motion type of the motor which has just encountered
+	  * an error.
+	  * \param errorCode ~ A code indicating the nature of the error
+	  */
+	void motorError(AMMotorGroupAxis::MotionType motionType,
+					int errorCode);
+
+	/*!
+	  * Signal indicating that the moving state of one of the contained motors has
+	  * been altered.
+	  * \param motionType ~ The motion type of the motor which has had its moving
+	  * state altered.
+	  * \param isMoving ~ The new moving state of the motor.
+	  */
+	void movingStateChanged(AMMotorGroupAxis::MotionType motionType,
+							bool isMoving);
+
+	/*!
+	  * Signal indicating that the position units for one of the contained motors
 	  * has been altered.
-	  * \param displayPrevcision ~ The new display precision of the translational
-	  * motor.
-	  */
-	void translationDisplayPrecisionChanged(int);
-
-	/*!
-	  * Signal indicating that an error has occured with the translational motor.
-	  * \param errorMessage ~ The error message given by the translational motor.
-	  */
-	void translationError(const QString&);
-
-	/*!
-	  * Signal indicating that an attempted translational move has failed.
-	  * \param explinationCode ~ A code which gives the type of failure.
-	  */
-	void translationMoveFailed(int explinationCode);
-
-	/*!
-	  * Signal indicating that the moving state of the translational motor has been
-	  * altered. I.e. the translational motor has gone from moving to not moving,
-	  * or vice versa.
-	  * \param isMoving ~ The new moving state of the translational motor.
-	  */
-	void translationMovingStateChanged(bool isMoving);
-
-	/*!
-	  * Signal indicating that the position units for the translational motor
-	  * has been altered.
+	  * \param motionType ~ The motion type of the motor which has had its position
+	  * units altered.
 	  * \param units ~ The new position units.
 	  */
-	void translationUnitsChanged(const QString& units);
+	void positionUnitsChanged(AMMotorGroupAxis::MotionType motionType,
+							  const QString& units);
 
 	/*!
-	  * Signal indicating that the connected state of the rotational motor
+	  * Signal indicating that the position value for one of the contained motors
 	  * has been altered.
-	  * \param isConnected ~ The new connected state of the rotational motor.
+	  * \param motionType ~ The motion type of the motor which has had its position
+	  * value altered.
+	  * \param positionValue ~ The new position value of the motor.
 	  */
-	void rotationConnectedStateChanged(bool isConnected);
-
-	/*!
-	  * Signal indicating that the display precision of the rotational motor
-	  * has been altered.
-	  * \param displayPrevcision ~ The new display precision of the rotational
-	  * motor.
-	  */
-	void rotationDisplayPrecisionChanged(int);
-
-	/*!
-	  * Signal indicating that an error has occured with the rotational motor.
-	  * \param errorMessage ~ The error message given by the rotational motor.
-	  */
-	void rotationError(const QString&);
-
-	/*!
-	  * Signal indicating that an attempted rotational move has failed.
-	  * \param explinationCode ~ A code which gives the type of failure.
-	  */
-	void rotationMoveFailed(int explinationCode);
-
-	/*!
-	  * Signal indicating that the moving state of the rotational motor has been
-	  * altered. I.e. the rotational motor has gone from movint to not moving,
-	  * or vice versa.
-	  * \param isMoving ~ The new moving state of the rotational motor.
-	  */
-	void rotationMovingStateChanged(bool isMoving);
-
-	/*!
-	  * Signal indicating that the position units for the rotational motor
-	  * has been altered.
-	  * \param units ~ The new position units.
-	  */
-	void rotationUnitsChanged(const QString& units);
+	void positionValueChanged(AMMotorGroupAxis::MotionType motionType,
+							  double positionValue);
 
 protected slots:
+
+	/*!
+	  * Handles signals indicating that the connected state of the translation
+	  * motor has been altered.
+	  * \param isConnected ~ The connected state of the translation motor.
+	  */
+	void onTranslationConnectedStateChanged(bool isConnected);
+
+	/*!
+	  * Handles signals indicating that an error has occurred with the translation
+	  * motor.
+	  * \param errorCode ~ A code indicating the nature of the error
+	  */
+	void onTranslationMotorError(int errorCode);
+
+	/*!
+	  * Handles signals indicating that the moving state of the translation motor
+	  * has been altered.
+	  * \param isMoving ~ The moving state of the translation motor.
+	  */
+	void onTranslationMovingStateChanged(bool isMoving);
+
+	/*!
+	  * Handles signals indicating that the position units of the translation
+	  * motor have been altered.
+	  */
+	void onTranslationPositionUnitsChanged(const QString& positionUnits);
+
+	/*!
+	  * Handles signals indicating that the position of the translation motor has
+	  * been altered.
+	  */
+	void onTranslationPositionValueChanged(double positionValue);
+
+	/*!
+	  * Handles signals indicating that the connected state of the Rotation
+	  * motor has been altered.
+	  * \param isConnected ~ The connected state of the Rotation motor.
+	  */
+	void onRotationConnectedStateChanged(bool isConnected);
+
+	/*!
+	  * Handles signals indicating that an error has occurred with the Rotation
+	  * motor.
+	  * \param errorCode ~ A code indicating the nature of the error
+	  */
+	void onRotationMotorError(int errorCode);
+
+	/*!
+	  * Handles signals indicating that the moving state of the Rotation motor
+	  * has been altered.
+	  * \param isMoving ~ The moving state of the Rotation motor.
+	  */
+	void onRotationMovingStateChanged(bool isMoving);
+
+	/*!
+	  * Handles signals indicating that the position units of the Rotation
+	  * motor have been altered.
+	  */
+	void onRotationPositionUnitsChanged(const QString& positionUnits);
+
+	/*!
+	  * Handles signals indicating that the position of the Rotation motor has
+	  * been altered.
+	  */
+	void onRotationPositionValueChanged(double positionValue);
+
 protected:
 
 	AMMotorGroupMotion* translationalMotion_;
@@ -450,7 +491,231 @@ public:
 	  */
 	AMAction3* createStopAllAction();
 
+signals:
+	/*!
+	  * Signal indicating that the connected state of one of the contained motors
+	  * has been altered.
+	  * \param motionDirection ~ The direction type of the motor which has just
+	  * been connected.
+	  * \param motionType ~ The motion type of the motor which has just been
+	  * connected.
+	  * \param isConnected ~ The new connected state of the translational motor.
+	  */
+	void connectedStateChanged(AMMotorGroupObject::MotionDirection motionDirection,
+							   AMMotorGroupAxis::MotionType motionType,
+							   bool isConnected);
+
+	/*!
+	  * Signal indicating that an error has with one of the contained motors.
+	  * \param motionDirection ~ The direction type of the motor which has just
+	  * encountered an error.
+	  * \param motionType ~ The motion type of the motor which has just encountered
+	  * an error.
+	  * \param errorCode ~ A code indicating the nature of the error
+	  */
+	void motorError(AMMotorGroupObject::MotionDirection motionDirection,
+					AMMotorGroupAxis::MotionType motionType,
+					int errorCode);
+
+	/*!
+	  * Signal indicating that the moving state of one of the contained motors has
+	  * been altered.
+	  * \param motionDirection ~ The direction type of the motor which has just
+	  * had its moving state altered.
+	  * \param motionType ~ The motion type of the motor which has had its moving
+	  * state altered.
+	  * \param isMoving ~ The new moving state of the motor.
+	  */
+	void movingStateChanged(AMMotorGroupObject::MotionDirection motionDirection,
+							AMMotorGroupAxis::MotionType motionType,
+							bool isMoving);
+
+	/*!
+	  * Signal indicating that the position units for one of the contained motors
+	  * has been altered.
+	  * \param motionDirection ~ The direction type of the motor which has just
+	  * had its position units altered.
+	  * \param motionType ~ The motion type of the motor which has had its position
+	  * units altered.
+	  * \param units ~ The new position units.
+	  */
+	void positionUnitsChanged(AMMotorGroupObject::MotionDirection motionDirection,
+							  AMMotorGroupAxis::MotionType motionType,
+							  const QString& units);
+
+	/*!
+	  * Signal indicating that the position value for one of the contained motors
+	  * has been altered.
+	  * \param motionDirection ~ The direction type of the motor which has just
+	  * had its position value altered.
+	  * \param motionType ~ The motion type of the motor which has had its position
+	  * value altered.
+	  * \param positionValue ~ The position value.
+	  */
+	void positionValueChanged(AMMotorGroupObject::MotionDirection motionDirection,
+							  AMMotorGroupAxis::MotionType motionType,
+							  double positionValue);
+protected slots:
+	/*!
+	  * Handles signals indicating that one of the motors within the horizontal
+	  * motion axis group has had its connection state altered.
+	  * \param motionType ~ The motion type of the motor whose connected state
+	  * has been altered.
+	  * \param isConnected ~ The new connection state of the motor.
+	  */
+	void onHorizontalConnectedStateChanged(AMMotorGroupAxis::MotionType motionType,
+									  bool isConnected);
+
+	/*!
+	  * Handles signals indicating that one of the motors within the horizontal
+	  * motion axis group has encountered an error.
+	  * \param motionType ~ The motion type of the motor which has encountered
+	  * the error.
+	  * \param errorCode ~ A code indicating the nature of the error
+	  */
+	void onHorizontalMotorError(AMMotorGroupAxis::MotionType motionType,
+								int errorCode);
+
+	/*!
+	  * Handles signals indicating that one of the motors within the horizontal
+	  * motion axis group has had its moving state altered.
+	  * \param motionType ~ The motion type of the motor which has had its moving
+	  * state altered.
+	  * \param isMoving ~ Whether the motor is moving.
+	  */
+	void onHorizontalMovingStateChanged(AMMotorGroupAxis::MotionType motionType,
+										bool isMoving);
+
+	/*!
+	  * Handles signals indicating that one of the motors within the horizontal
+	  * motion axis group has had its position units altered.
+	  * \param motionType ~ The motion type of the motor which has had its position
+	  * units altered.
+	  * \param positionUnits ~ The motors position units.
+	  */
+	void onHorizontalPositionUnitsChanged(AMMotorGroupAxis::MotionType motionType,
+										  const QString& positionUnits);
+
+	/*!
+	  * Handles signals indicating that one of the motors within the horizontal
+	  * motion axis group has had its position value altered.
+	  * \param motionType ~ The motion type of the motor which has had its position
+	  * value altered.
+	  * \param positionValue ~ the motors position.
+	  */
+	void onHorizontalPositionValueChanged(AMMotorGroupAxis::MotionType motionType,
+										  double positionValue);
+
+	/*!
+	  * Handles signals indicating that one of the motors within the Vertical
+	  * motion axis group has had its connection state altered.
+	  * \param motionType ~ The motion type of the motor whose connected state
+	  * has been altered.
+	  * \param isConnected ~ The new connection state of the motor.
+	  */
+	void onVerticalConnectedStateChanged(AMMotorGroupAxis::MotionType motionType,
+										 bool isConnected);
+
+	/*!
+	  * Handles signals indicating that one of the motors within the Vertical
+	  * motion axis group has encountered an error.
+	  * \param motionType ~ The motion type of the motor which has encountered
+	  * the error.
+	  * \param errorCode ~ A code indicating the nature of the error
+	  */
+	void onVerticalMotorError(AMMotorGroupAxis::MotionType motionType,
+							  int errorCode);
+
+	/*!
+	  * Handles signals indicating that one of the motors within the Vertical
+	  * motion axis group has had its moving state altered.
+	  * \param motionType ~ The motion type of the motor which has had its moving
+	  * state altered.
+	  * \param isMoving ~ Whether the motor is moving.
+	  */
+	void onVerticalMovingStateChanged(AMMotorGroupAxis::MotionType motionType,
+								   bool isMoving);
+
+	/*!
+	  * Handles signals indicating that one of the motors within the Vertical
+	  * motion axis group has had its position units altered.
+	  * \param motionType ~ The motion type of the motor which has had its position
+	  * units altered.
+	  * \param positionUnits ~ The motors position units.
+	  */
+	void onVerticalPositionUnitsChanged(AMMotorGroupAxis::MotionType motionType,
+									 const QString& positionUnits);
+
+	/*!
+	  * Handles signals indicating that one of the motors within the Vertical
+	  * motion axis group has had its position value altered.
+	  * \param motionType ~ The motion type of the motor which has had its position
+	  * value altered.
+	  * \param positionValue ~ the motors position.
+	  */
+	void onVerticalPositionValueChanged(AMMotorGroupAxis::MotionType motionType,
+									 double positionValue);
+
+	/*!
+	  * Handles signals indicating that one of the motors within the Normal
+	  * motion axis group has had its connection state altered.
+	  * \param motionType ~ The motion type of the motor whose connected state
+	  * has been altered.
+	  * \param isConnected ~ The new connection state of the motor.
+	  */
+	void onNormalConnectedStateChanged(AMMotorGroupAxis::MotionType motionType,
+									  bool isConnected);
+
+	/*!
+	  * Handles signals indicating that one of the motors within the Normal
+	  * motion axis group has encountered an error.
+	  * \param motionType ~ The motion type of the motor which has encountered
+	  * the error.
+	  * \param errorCode ~ A code indicating the nature of the error
+	  */
+	void onNormalMotorError(AMMotorGroupAxis::MotionType motionType,
+						   int errorCode);
+
+	/*!
+	  * Handles signals indicating that one of the motors within the Normal
+	  * motion axis group has had its moving state altered.
+	  * \param motionType ~ The motion type of the motor which has had its moving
+	  * state altered.
+	  * \param isMoving ~ Whether the motor is moving.
+	  */
+	void onNormalMovingStateChanged(AMMotorGroupAxis::MotionType motionType,
+								   bool isMoving);
+
+	/*!
+	  * Handles signals indicating that one of the motors within the Normal
+	  * motion axis group has had its position units altered.
+	  * \param motionType ~ The motion type of the motor which has had its position
+	  * units altered.
+	  * \param positionUnits ~ The motors position units.
+	  */
+	void onNormalPositionUnitsChanged(AMMotorGroupAxis::MotionType motionType,
+									 const QString& positionUnits);
+
+	/*!
+	  * Handles signals indicating that one of the motors within the Normal
+	  * motion axis group has had its position value altered.
+	  * \param motionType ~ The motion type of the motor which has had its position
+	  * value altered.
+	  * \param positionValue ~ the motors position.
+	  */
+	void onNormalPositionValueChanged(AMMotorGroupAxis::MotionType motionType,
+									 double positionValue);
 protected:
+
+	/*!
+	  * Helper function to connect the provided axis to the correct slots based
+	  * on its motion direction association.
+	  * \param motionDirection ~ The direction with which the axis is associated.
+	  * \param axisDetails ~ The axis with whom to connect the slots.
+	  */
+	void connectAxisToSlots(MotionDirection motionDirection,
+							AMMotorGroupAxis* axisDetails);
+
 	QString name_;
 	QMap<MotionDirection, AMMotorGroupAxis*> axes_;
 };

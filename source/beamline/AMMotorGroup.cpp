@@ -43,9 +43,10 @@ QString AMMotorGroupMotion::name() const
 
 QString AMMotorGroupMotion::positionUnits() const
 {
-	if(motor_) {
-		return motor_->units();
+	if(!motor_) {
+		return QString();
 	}
+	return motor_->units();
 }
 
 AMControl * AMMotorGroupMotion::motor() const
@@ -64,49 +65,51 @@ AMMotorGroupAxis::AMMotorGroupAxis(AMMotorGroupMotion* translationalMotion,
 {
 
 	translationalMotion_ = translationalMotion;
-	translationalMotion_->setParent(this);
 	rotationalMotion_ = rotationalMotion;
-	rotationalMotion_->setParent(this);
+
+	if(translationalMotion_) {
+		translationalMotion_->setParent(this);
+	}
 
 	if(translationalMotion_ && translationalMotion_->motor()) {
+
 		connect(translationalMotion_->motor(), SIGNAL(connected(bool)),
-				this, SIGNAL(translationConnectedStateChanged(bool)));
+				this, SLOT(onTranslationConnectedStateChanged(bool)));
 
-		connect(translationalMotion_->motor(), SIGNAL(displayPrecisionChanged(int)),
-				this, SIGNAL(translationDisplayPrecisionChanged(int)));
-
-		connect(translationalMotion_->motor(), SIGNAL(error(QString)),
-				this, SIGNAL(translationError(QString)));
-
-		connect(translationalMotion_->motor(), SIGNAL(moveFailed(int)),
-				this, SIGNAL(translationMoveFailed(int)));
+		connect(translationalMotion_->motor(), SIGNAL(error(int)),
+				this, SLOT(onTranslationMotorError(int)));
 
 		connect(translationalMotion_->motor(), SIGNAL(movingChanged(bool)),
-				this, SIGNAL(translationMovingStateChanged(bool)));
+				this, SLOT(onTranslationMovingStateChanged(bool)));
 
 		connect(translationalMotion_->motor(), SIGNAL(unitsChanged(QString)),
-				this, SIGNAL(translationUnitsChanged(QString)));
+				this, SLOT(onTranslationPositionUnitsChanged(QString)));
+
+		connect(translationalMotion_->motor(), SIGNAL(valueChanged(double)),
+				this, SLOT(onTranslationPositionValueChanged(double)));
+	}
+
+	if(rotationalMotion_) {
+		rotationalMotion_->setParent(this);
 	}
 
 	if(rotationalMotion_ && rotationalMotion_->motor()) {
 
 		connect(rotationalMotion_->motor(), SIGNAL(connected(bool)),
-				this, SIGNAL(rotationConnectedStateChanged(bool)));
+				this, SLOT(onTranslationConnectedStateChanged(bool)));
 
-		connect(rotationalMotion_->motor(), SIGNAL(displayPrecisionChanged(int)),
-				this, SIGNAL(rotationDisplayPrecisionChanged(int)));
-
-		connect(rotationalMotion_->motor(), SIGNAL(error(QString)),
-				this, SIGNAL(rotationError(QString)));
-
-		connect(rotationalMotion_->motor(), SIGNAL(moveFailed(int)),
-				this, SIGNAL(rotationMoveFailed(int)));
+		connect(rotationalMotion_->motor(), SIGNAL(error(int)),
+				this, SLOT(onRotationMotorError(int)));
 
 		connect(rotationalMotion_->motor(), SIGNAL(movingChanged(bool)),
-				this, SIGNAL(rotationMovingStateChanged(bool)));
+				this, SLOT(onRotationMovingStateChanged(bool)));
 
 		connect(rotationalMotion_->motor(), SIGNAL(unitsChanged(QString)),
-				this, SIGNAL(translationUnitsChanged(QString)));
+				this, SLOT(onRotationPositionUnitsChanged(QString)));
+
+		connect(rotationalMotion_->motor(), SIGNAL(valueChanged(double)),
+				this, SLOT(onRotationPositionValueChanged(double)));
+
 	}
 }
 
@@ -207,7 +210,8 @@ AMAction3 * AMMotorGroupAxis::createTranslateMoveAction(double position)
 		return 0;
 	}
 
-	return AMActionSupport::buildControlMoveAction(translationalMotion_->motor(), position);
+	return AMActionSupport::buildControlMoveAction(translationalMotion_->motor(),
+												   position);
 }
 
 AMAction3 * AMMotorGroupAxis::createRotateMoveAction(double position)
@@ -216,7 +220,8 @@ AMAction3 * AMMotorGroupAxis::createRotateMoveAction(double position)
 		return 0;
 	}
 
-	return AMActionSupport::buildControlMoveAction(rotationalMotion_->motor(), position);
+	return AMActionSupport::buildControlMoveAction(rotationalMotion_->motor(),
+												   position);
 }
 
 AMAction3 * AMMotorGroupAxis::createStopTranslateAction()
@@ -226,7 +231,10 @@ AMAction3 * AMMotorGroupAxis::createStopTranslateAction()
 	}
 
 	AMControlInfo translationMotorInfo = translationalMotion_->motor()->toInfo();
-	AMControlStopActionInfo* stopActionInfo = new AMControlStopActionInfo(translationMotorInfo);
+
+	AMControlStopActionInfo* stopActionInfo =
+			new AMControlStopActionInfo(translationMotorInfo);
+
 	return new AMControlStopAction(stopActionInfo, translationalMotion_->motor());
 }
 
@@ -237,9 +245,61 @@ AMAction3 * AMMotorGroupAxis::createStopRotateAction()
 	}
 
 	AMControlInfo rotationMotorInfo = rotationalMotion_->motor()->toInfo();
-	AMControlStopActionInfo* stopActionInfo = new AMControlStopActionInfo(rotationMotorInfo);
+	AMControlStopActionInfo* stopActionInfo =
+			new AMControlStopActionInfo(rotationMotorInfo);
+
 	return new AMControlStopAction(stopActionInfo, rotationalMotion_->motor());
 
+}
+
+void AMMotorGroupAxis::onTranslationConnectedStateChanged(bool isConnected)
+{
+	emit connectedStateChanged(AMMotorGroupAxis::TranslationalMotion, isConnected);
+}
+
+void AMMotorGroupAxis::onTranslationMotorError(const int errorCode)
+{
+	emit motorError(AMMotorGroupAxis::TranslationalMotion, errorCode);
+}
+
+void AMMotorGroupAxis::onTranslationMovingStateChanged(bool isMoving)
+{
+	emit movingStateChanged(AMMotorGroupAxis::TranslationalMotion, isMoving);
+}
+
+void AMMotorGroupAxis::onTranslationPositionUnitsChanged(const QString &positionUnits)
+{
+	emit positionUnitsChanged(AMMotorGroupAxis::TranslationalMotion, positionUnits);
+}
+
+void AMMotorGroupAxis::onTranslationPositionValueChanged(double positionValue)
+{
+	emit positionValueChanged(AMMotorGroupAxis::TranslationalMotion, positionValue);
+}
+
+void AMMotorGroupAxis::onRotationConnectedStateChanged(bool isConnected)
+{
+	emit connectedStateChanged(AMMotorGroupAxis::RotationalMotion, isConnected);
+}
+
+void AMMotorGroupAxis::onRotationMotorError(int errorCode)
+{
+	emit motorError(AMMotorGroupAxis::RotationalMotion, errorCode);
+}
+
+void AMMotorGroupAxis::onRotationMovingStateChanged(bool isMoving)
+{
+	emit movingStateChanged(AMMotorGroupAxis::RotationalMotion, isMoving);
+}
+
+void AMMotorGroupAxis::onRotationPositionUnitsChanged(const QString &positionUnits)
+{
+	emit positionUnitsChanged(AMMotorGroupAxis::RotationalMotion, positionUnits);
+}
+
+void AMMotorGroupAxis::onRotationPositionValueChanged(double positionValue)
+{
+	emit positionValueChanged(AMMotorGroupAxis::RotationalMotion, positionValue);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -257,10 +317,12 @@ AMMotorGroupObject::AMMotorGroupObject(const QString& name, const QMap<MotionDir
 	axes_ = axes;
 
 	// Take ownership of axes by setting outselves as their QObject parent.
-	QList<MotionDirection> containedDesignations = axes.keys();
-	foreach(MotionDirection currentDesignation, containedDesignations) {
+	QList<MotionDirection> containedDirections = axes.keys();
+	foreach(MotionDirection currentDirection, containedDirections) {
 
-		axes.value(currentDesignation)->setParent(this);
+		AMMotorGroupAxis* currentAxis = axes.value(currentDirection);
+		currentAxis->setParent(this);
+		connectAxisToSlots(currentDirection, currentAxis);
 	}
 }
 
@@ -285,10 +347,18 @@ void AMMotorGroupObject::setDirectionAxis(AMMotorGroupObject::MotionDirection mo
 		currentAxis->setParent(0);
 	}
 
-	// Take ownership of the new axis before we add it to the map.
-	axisDetails->setParent(this);
+	if(axisDetails) {
+		// Take ownership of the new axis before we add it to the map.
+		axisDetails->setParent(this);
 
-	axes_.insert(motionDirection, axisDetails);
+		// Set up the connections
+		connectAxisToSlots(motionDirection, axisDetails);
+
+		axes_.insert(motionDirection, axisDetails);
+	} else {
+		axes_.remove(motionDirection);
+	}
+
 }
 
 void AMMotorGroupObject::setDirectionAxis(MotionDirection motionDirection,
@@ -433,11 +503,178 @@ AMAction3 * AMMotorGroupObject::createStopAllAction()
 	return stopAllAction;
 }
 
+void AMMotorGroupObject::onHorizontalConnectedStateChanged(AMMotorGroupAxis::MotionType motionType,
+														   bool isConnected)
+{
+	emit connectedStateChanged(AMMotorGroupObject::HorizontalMotion,
+							   motionType,
+							   isConnected);
+}
+
+void AMMotorGroupObject::onHorizontalMotorError(AMMotorGroupAxis::MotionType motionType,
+												int errorCode)
+{
+	emit motorError(AMMotorGroupObject::HorizontalMotion,
+					 motionType,
+					 errorCode);
+}
+
+void AMMotorGroupObject::onHorizontalMovingStateChanged(AMMotorGroupAxis::MotionType motionType,
+														bool isMoving)
+{
+	emit movingStateChanged(AMMotorGroupObject::HorizontalMotion,
+							motionType,
+							isMoving);
+}
+
+void AMMotorGroupObject::onHorizontalPositionUnitsChanged(AMMotorGroupAxis::MotionType motionType,
+														  const QString &positionUnits)
+{
+	emit positionUnitsChanged(AMMotorGroupObject::HorizontalMotion,
+							  motionType,
+							  positionUnits);
+}
+
+void AMMotorGroupObject::onHorizontalPositionValueChanged(AMMotorGroupAxis::MotionType motionType,
+														  double positionValue)
+{
+	emit positionValueChanged(AMMotorGroupObject::HorizontalMotion,
+							  motionType,
+							  positionValue);
+}
+
+void AMMotorGroupObject::onVerticalConnectedStateChanged(AMMotorGroupAxis::MotionType motionType,
+														 bool isConnected)
+{
+	emit connectedStateChanged(AMMotorGroupObject::VerticalMotion,
+							   motionType,
+							   isConnected);
+}
+
+void AMMotorGroupObject::onVerticalMotorError(AMMotorGroupAxis::MotionType motionType,
+											  int errorCode)
+{
+	emit motorError(AMMotorGroupObject::VerticalMotion,
+					 motionType,
+					 errorCode);
+}
+
+void AMMotorGroupObject::onVerticalMovingStateChanged(AMMotorGroupAxis::MotionType motionType,
+													  bool isMoving)
+{
+	emit movingStateChanged(AMMotorGroupObject::VerticalMotion,
+							motionType,
+							isMoving);
+}
+
+void AMMotorGroupObject::onVerticalPositionUnitsChanged(AMMotorGroupAxis::MotionType motionType,
+														const QString &positionUnits)
+{
+	emit positionUnitsChanged(AMMotorGroupObject::VerticalMotion,
+							  motionType,
+							  positionUnits);
+}
+
+void AMMotorGroupObject::onVerticalPositionValueChanged(AMMotorGroupAxis::MotionType motionType,
+														double positionValue)
+{
+	emit positionValueChanged(AMMotorGroupObject::VerticalMotion,
+							  motionType,
+							  positionValue);
+}
+
+void AMMotorGroupObject::onNormalConnectedStateChanged(AMMotorGroupAxis::MotionType motionType,
+													   bool isConnected)
+{
+	emit connectedStateChanged(AMMotorGroupObject::NormalMotion,
+							   motionType,
+							   isConnected);
+}
+
+void AMMotorGroupObject::onNormalMotorError(AMMotorGroupAxis::MotionType motionType,
+											int errorCode)
+{
+	emit motorError(AMMotorGroupObject::NormalMotion,
+					 motionType,
+					 errorCode);
+}
+
+void AMMotorGroupObject::onNormalMovingStateChanged(AMMotorGroupAxis::MotionType motionType,
+													bool isMoving)
+{
+	emit movingStateChanged(AMMotorGroupObject::NormalMotion,
+							motionType,
+							isMoving);
+}
+
+void AMMotorGroupObject::onNormalPositionUnitsChanged(AMMotorGroupAxis::MotionType motionType,
+													  const QString &positionUnits)
+{
+	emit positionUnitsChanged(AMMotorGroupObject::NormalMotion,
+							  motionType,
+							  positionUnits);
+}
+
+void AMMotorGroupObject::onNormalPositionValueChanged(AMMotorGroupAxis::MotionType motionType,
+													  double positionValue)
+{
+	emit positionValueChanged(AMMotorGroupObject::NormalMotion,
+							  motionType,
+							  positionValue);
+}
+
+void AMMotorGroupObject::connectAxisToSlots(MotionDirection motionDirection,
+											AMMotorGroupAxis* axisDetails)
+{
+
+	if (motionDirection == VerticalMotion) {
+
+		connect(axisDetails, SIGNAL(connectedStateChanged(AMMotorGroupAxis::MotionType,bool)),
+				this, SLOT(onVerticalConnectedStateChanged(AMMotorGroupAxis::MotionType,bool)));
+		connect(axisDetails, SIGNAL(motorError(AMMotorGroupAxis::MotionType,int)),
+				this, SLOT(onVerticalMotorError(AMMotorGroupAxis::MotionType,int)));
+		connect(axisDetails, SIGNAL(movingStateChanged(AMMotorGroupAxis::MotionType,bool)),
+				this, SLOT(onVerticalMovingStateChanged(AMMotorGroupAxis::MotionType,bool)));
+		connect(axisDetails, SIGNAL(positionUnitsChanged(AMMotorGroupAxis::MotionType,QString)),
+				this, SLOT(onVerticalPositionUnitsChanged(AMMotorGroupAxis::MotionType,QString)));
+		connect(axisDetails, SIGNAL(positionValueChanged(AMMotorGroupAxis::MotionType,double)),
+				this, SLOT(onVerticalPositionValueChanged(AMMotorGroupAxis::MotionType,double)));
+
+	} else if (motionDirection == HorizontalMotion) {
+
+		connect(axisDetails, SIGNAL(connectedStateChanged(AMMotorGroupAxis::MotionType,bool)),
+				this, SLOT(onHorizontalConnectedStateChanged(AMMotorGroupAxis::MotionType,bool)));
+		connect(axisDetails, SIGNAL(motorError(AMMotorGroupAxis::MotionType,int)),
+				this, SLOT(onHorizontalMotorError(AMMotorGroupAxis::MotionType,int)));
+		connect(axisDetails, SIGNAL(movingStateChanged(AMMotorGroupAxis::MotionType,bool)),
+				this, SLOT(onHorizontalMovingStateChanged(AMMotorGroupAxis::MotionType,bool)));
+		connect(axisDetails, SIGNAL(positionUnitsChanged(AMMotorGroupAxis::MotionType,QString)),
+				this, SLOT(onHorizontalPositionUnitsChanged(AMMotorGroupAxis::MotionType,QString)));
+		connect(axisDetails, SIGNAL(positionValueChanged(AMMotorGroupAxis::MotionType,double)),
+				this, SLOT(onHorizontalPositionValueChanged(AMMotorGroupAxis::MotionType,double)));
+
+	} else {
+
+		connect(axisDetails, SIGNAL(connectedStateChanged(AMMotorGroupAxis::MotionType,bool)),
+				this, SLOT(onNormalConnectedStateChanged(AMMotorGroupAxis::MotionType,bool)));
+		connect(axisDetails, SIGNAL(motorError(AMMotorGroupAxis::MotionType,int)),
+				this, SLOT(onNormalMotorError(AMMotorGroupAxis::MotionType,int)));
+		connect(axisDetails, SIGNAL(movingStateChanged(AMMotorGroupAxis::MotionType,bool)),
+				this, SLOT(onNormalMovingStateChanged(AMMotorGroupAxis::MotionType,bool)));
+		connect(axisDetails, SIGNAL(positionUnitsChanged(AMMotorGroupAxis::MotionType,QString)),
+				this, SLOT(onNormalPositionUnitsChanged(AMMotorGroupAxis::MotionType,QString)));
+		connect(axisDetails, SIGNAL(positionValueChanged(AMMotorGroupAxis::MotionType,double)),
+				this, SLOT(onNormalPositionValueChanged(AMMotorGroupAxis::MotionType,double)));
+
+	}
+}
+
 ////////////////////////////////////////////////////////////////////////////////
-// Motor Group Object
+// Motor Group
 ////////////////////////////////////////////////////////////////////////////////
 
 AMMotorGroup::AMMotorGroup(QObject *parent)
+	: QObject(parent)
 {
 
 }
@@ -491,305 +728,3 @@ void AMMotorGroup::addMotorGroupObject(AMMotorGroupObject *object)
 	object->setParent(this);
 	groupObjects_.insert(object->name(), object);
 }
-
-//// AMMotorGroupObject
-//////////////////////////////////////////
-
-// AMMotorGroupObject::~AMMotorGroupObject(){}
-//AMMotorGroupObject::AMMotorGroupObject(const QString &name, const QString &prefix, const QString &units, AMControl *control, Orientation orientation, MotionType motionType, QObject *parent)
-//	: QObject(parent)
-//{
-//	name_ = name;
-//	prefixes_ << prefix;
-//	units_ << units;
-//	controls_ << control;
-//	orientations_ << orientation;
-//	motionTypes_ << motionType;
-//}
-
-//AMMotorGroupObject::AMMotorGroupObject(const QString &name, const QStringList &prefixes, const QStringList &units, const QList<AMControl *> controls, QList<Orientation> orientations, QList<MotionType> motionTypes, QObject *parent)
-//	: QObject(parent)
-//{
-//	name_ = name;
-//	prefixes_ = prefixes;
-//	units_ = units;
-//	controls_ = controls;
-//	orientations_ = orientations;
-//	motionTypes_ = motionTypes;
-//}
-
-//int AMMotorGroupObject::horizontalIndex() const
-//{
-//	int index = -1;
-
-//	for (int i = 0, size = orientations_.size(); i < size; i++)
-//		if (orientations_.at(i) == Horizontal)
-//			index = i;
-
-//	return index;
-//}
-
-//int AMMotorGroupObject::verticalIndex() const
-//{
-//	int index = -1;
-
-//	for (int i = 0, size = orientations_.size(); i < size; i++)
-//		if (orientations_.at(i) == Vertical)
-//			index = i;
-
-//	return index;
-//}
-
-//int AMMotorGroupObject::normalIndex() const
-//{
-//	int index = -1;
-
-//	for (int i = 0, size = orientations_.size(); i < size; i++)
-//		if (orientations_.at(i) == Normal)
-//			index = i;
-
-//	return index;
-//}
-
-//int AMMotorGroupObject::otherIndex() const
-//{
-//	int index = -1;
-
-//	for (int i = 0, size = orientations_.size(); i < size; i++)
-//		if (orientations_.at(i) == Other)
-//			index = i;
-
-//	return index;
-//}
-
-//QString AMMotorGroupObject::horizontalPrefix() const
-//{
-//	int index = horizontalIndex();
-
-//	if (index == -1)
-//		return "";
-
-//	return prefixes_.at(index);
-//}
-
-//QString AMMotorGroupObject::verticalPrefix() const
-//{
-//	int index = verticalIndex();
-
-//	if (index == -1)
-//		return "";
-
-//	return prefixes_.at(index);
-//}
-
-//QString AMMotorGroupObject::normalPrefix() const
-//{
-//	int index = normalIndex();
-
-//	if (index == -1)
-//		return "";
-
-//	return prefixes_.at(index);
-//}
-
-//QString AMMotorGroupObject::horizontalUnits() const
-//{
-//	int index = horizontalIndex();
-
-//	if (index == -1)
-//		return "";
-
-//	return units_.at(index);
-//}
-
-//QString AMMotorGroupObject::verticalUnits() const
-//{
-//	int index = verticalIndex();
-
-//	if (index == -1)
-//		return "";
-
-//	return units_.at(index);
-//}
-
-//QString AMMotorGroupObject::normalUnits() const
-//{
-//	int index = normalIndex();
-
-//	if (index == -1)
-//		return "";
-
-//	return units_.at(index);
-//}
-
-//AMControl *AMMotorGroupObject::horizontalControl() const
-//{
-//	int index = horizontalIndex();
-
-//	if (index == -1)
-//		return 0;
-
-//	return controls_.at(index);
-//}
-
-//AMControl *AMMotorGroupObject::verticalControl() const
-//{
-//	int index = verticalIndex();
-
-//	if (index == -1)
-//		return 0;
-
-//	return controls_.at(index);
-//}
-
-//AMControl *AMMotorGroupObject::normalControl() const
-//{
-//	int index = normalIndex();
-
-//	if (index == -1)
-//		return 0;
-
-//	return controls_.at(index);
-//}
-
-//AMMotorGroupObject::MotionType AMMotorGroupObject::horizontalMotionType() const
-//{
-//	int index = horizontalIndex();
-
-//	if (index == -1)
-//		return None;
-
-//	return motionTypes_.at(index);
-//}
-
-//AMMotorGroupObject::MotionType AMMotorGroupObject::verticalMotionType() const
-//{
-//	int index = verticalIndex();
-
-//	if (index == -1)
-//		return None;
-
-//	return motionTypes_.at(index);
-//}
-
-//AMMotorGroupObject::MotionType AMMotorGroupObject::normalMotionType() const
-//{
-//	int index = normalIndex();
-
-//	if (index == -1)
-//		return None;
-
-//	return motionTypes_.at(index);
-//}
-
-//bool AMMotorGroupObject::isMotorMoving() const
-//{
-//	bool isMoving = false;
-
-//	foreach (AMControl *control, controls())
-//		isMoving |= control->isMoving();
-
-//	return isMoving;
-//}
-
-//AMAction3 *AMMotorGroupObject::createHorizontalMoveAction(double position)
-//{
-//	if (!horizontalControl()->isConnected())
-//		return 0;
-
-//	return AMActionSupport::buildControlMoveAction(horizontalControl(), position);
-//}
-
-//AMAction3 *AMMotorGroupObject::createHorizontalStopAction()
-//{
-//	if (!horizontalControl()->isConnected())
-//		return 0;
-
-//	AMControlInfo info = horizontalControl()->toInfo();
-//	AMControlStopActionInfo *actionInfo = new AMControlStopActionInfo(info);
-//	AMAction3 *action = new AMControlStopAction(actionInfo, horizontalControl());
-
-//	return action;
-//}
-
-//AMAction3 *AMMotorGroupObject::createVerticalMoveAction(double position)
-//{
-//	if (!verticalControl()->isConnected())
-//		return 0;
-
-//	return AMActionSupport::buildControlMoveAction(verticalControl(), position);
-//}
-
-//AMAction3 *AMMotorGroupObject::createVerticalStopAction()
-//{
-//	if (!verticalControl()->isConnected())
-//		return 0;
-
-//	AMControlInfo info = verticalControl()->toInfo();
-//	AMControlStopActionInfo *actionInfo = new AMControlStopActionInfo(info);
-//	AMAction3 *action = new AMControlStopAction(actionInfo, verticalControl());
-
-//	return action;
-//}
-
-//AMAction3 *AMMotorGroupObject::createNormalMoveAction(double position)
-//{
-//	if (!normalControl()->isConnected())
-//		return 0;
-
-//	return AMActionSupport::buildControlMoveAction(normalControl(), position);
-//}
-
-//AMAction3 *AMMotorGroupObject::createNormalStopAction()
-//{
-//	if (!normalControl()->isConnected())
-//		return 0;
-
-//	AMControlInfo info = normalControl()->toInfo();
-//	AMControlStopActionInfo *actionInfo = new AMControlStopActionInfo(info);
-//	AMAction3 *action = new AMControlStopAction(actionInfo, normalControl());
-
-//	return action;
-//}
-
-//AMAction3 *AMMotorGroupObject::createStopAllAction()
-//{
-//	if (!(horizontalControl()->isConnected() && verticalControl()->isConnected() && normalControl()->isConnected()))
-//		return 0;
-
-//	AMListAction3 *list = new AMListAction3(new AMListActionInfo3("Stop all motors.", "Stop all motors in the motor group."), AMListAction3::Parallel);
-//	list->addSubAction(createHorizontalStopAction());
-//	list->addSubAction(createVerticalStopAction());
-//	list->addSubAction(createNormalStopAction());
-
-//	return list;
-//}
-
-//#include "ui/AMMotorGroupView.h"
-//AMMotorGroupObjectView* AMMotorGroupObject::createMotorGroupObjectView(){
-//	return new AMMotorGroupObjectView(this);
-//}
-
-//// AMMotorGroup
-////////////////////////////////////////////////////
-
-//AMMotorGroup::AMMotorGroup(QObject *parent)
-//	: QObject(parent)
-//{
-
-//}
-
-//AMMotorGroupObject *AMMotorGroup::motorGroupObject(const QString &name) const
-//{
-//	return infoMap_.value(name, 0);
-//}
-
-//QString AMMotorGroup::name(AMMotorGroupObject *motorObject) const
-//{
-//	return infoMap_.key(motorObject, QString());
-//}
-
-//void AMMotorGroup::addMotorGroupObject(const QString &name, AMMotorGroupObject *object)
-//{
-//	infoMap_.insert(name, object);
-//}

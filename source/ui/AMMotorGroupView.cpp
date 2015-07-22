@@ -18,538 +18,568 @@ You should have received a copy of the GNU General Public License
 along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "AMMotorGroupView.h"
-#include "QVBoxLayout"
+#include <QVBoxLayout>
+#include <QHBoxLayout>
+#include <QGridLayout>
+
+////////////////////////////////////////////////////////////////////////////////
+// Motor Group Object View
+////////////////////////////////////////////////////////////////////////////////
 
 AMMotorGroupObjectView::AMMotorGroupObjectView(AMMotorGroupObject *motorGroupObject,
 											   QWidget *parent)
 	:QWidget(parent)
 {
-//	QVBoxLayout* layout = new QVBoxLayout();
-//	titleLabel_ = new QLabel(motorGroupObject->name());
-//	layout->addWidget(titleLabel_);
 
-//	setLayout(layout);
+	motorGroupObject_ = motorGroupObject;
+
+	if(motorGroupObject_) {
+		setupUi();
+		setupData();
+		setupConnections();
+	}
 }
+
+void AMMotorGroupObjectView::onConnectionStateChanged(AMMotorGroupObject::MotionDirection direction,
+													  AMMotorGroupAxis::MotionType motionType,
+													  bool isConnected)
+{
+
+	switch (direction) {
+
+	case AMMotorGroupObject::VerticalMotion:
+		if(motionType == AMMotorGroupAxis::RotationalMotion) {
+			verticalRotationIncrement_->setVisible(isConnected);
+			verticalRotationDecrement_->setVisible(isConnected);
+			verticalRotationValue_->setVisible(isConnected);
+			verticalRotationLabel_->setVisible(isConnected);
+		} else {
+			verticalTranslationIncrement_->setVisible(isConnected);
+			verticalTranslationDecrement_->setVisible(isConnected);
+			verticalTranslationValue_->setVisible(isConnected);
+			verticalTranslationLabel_->setVisible(isConnected);
+		}
+		break;
+	case AMMotorGroupObject::HorizontalMotion:
+		if(motionType == AMMotorGroupAxis::RotationalMotion) {
+			horizontalRotationIncrement_->setVisible(isConnected);
+			horizontalRotationDecrement_->setVisible(isConnected);
+			horizontalRotationValue_->setVisible(isConnected);
+			horizontalRotationLabel_->setVisible(isConnected);
+		} else {
+			horizontalTranslationIncrement_->setVisible(isConnected);
+			horizontalTranslationDecrement_->setVisible(isConnected);
+			horizontalTranslationValue_->setVisible(isConnected);
+			horizontalTranslationLabel_->setVisible(isConnected);
+		}
+		break;
+	case AMMotorGroupObject::NormalMotion:
+		if(motionType == AMMotorGroupAxis::RotationalMotion) {
+			normalRotationIncrement_->setVisible(isConnected);
+			normalRotationDecrement_->setVisible(isConnected);
+			normalRotationValue_->setVisible(isConnected);
+			normalRotationLabel_->setVisible(isConnected);
+		} else {
+			normalTranslationIncrement_->setVisible(isConnected);
+			normalTranslationDecrement_->setVisible(isConnected);
+			normalTranslationValue_->setVisible(isConnected);
+			normalTranslationLabel_->setVisible(isConnected);
+		}
+		break;
+	}
+}
+
+void AMMotorGroupObjectView::onMotorError(AMMotorGroupObject::MotionDirection direction,
+										  AMMotorGroupAxis::MotionType motionType,
+										  int errorCode)
+{
+	// Add error message to console log.
+	QString axisName;
+	if(motionType == AMMotorGroupAxis::RotationalMotion) {
+		axisName = motorGroupObject_->axis(direction)->rotationName();
+	} else {
+		axisName = motorGroupObject_->axis(direction)->translationName();
+	}
+
+	logConsole_->append(QString("\n%1: %2")
+						.arg(axisName)
+						.arg(AMControl::failureExplanation(errorCode)));
+
+	// In the case of a limit failure, we disable the offending motor.
+	if(AMControl::FailureExplanation(errorCode) == AMControl::LimitFailure) {
+		switch (direction) {
+		case AMMotorGroupObject::VerticalMotion:
+			if(motionType == AMMotorGroupAxis::RotationalMotion) {
+				verticalRotationIncrement_->setEnabled(false);
+				verticalRotationDecrement_->setEnabled(false);
+				verticalRotationValue_->setEnabled(false);
+			} else {
+				verticalTranslationIncrement_->setEnabled(false);
+				verticalTranslationDecrement_->setEnabled(false);
+				verticalTranslationValue_->setEnabled(false);
+			}
+			break;
+		case AMMotorGroupObject::HorizontalMotion:
+			if(motionType == AMMotorGroupAxis::RotationalMotion) {
+				horizontalRotationIncrement_->setEnabled(false);
+				horizontalRotationDecrement_->setEnabled(false);
+				horizontalRotationValue_->setEnabled(false);
+			} else {
+				horizontalTranslationIncrement_->setEnabled(false);
+				horizontalTranslationDecrement_->setEnabled(false);
+				horizontalTranslationValue_->setEnabled(false);
+			}
+			break;
+		case AMMotorGroupObject::NormalMotion:
+			if(motionType == AMMotorGroupAxis::RotationalMotion) {
+				normalRotationIncrement_->setEnabled(false);
+				normalRotationDecrement_->setEnabled(false);
+				normalRotationValue_->setEnabled(false);
+			} else {
+				normalTranslationIncrement_->setEnabled(false);
+				normalTranslationDecrement_->setEnabled(false);
+				normalTranslationValue_->setEnabled(false);
+			}
+			break;
+		}
+	}
+
+	// See if we're a subclass that needs to do anything else.
+	errorHandleImplementation(direction, motionType, errorCode);
+}
+
+void AMMotorGroupObjectView::onMovingStateChanged(AMMotorGroupObject::MotionDirection direction,
+												  AMMotorGroupAxis::MotionType motionType,
+												  bool isMoving)
+{
+	bool enabled = !isMoving;
+
+	switch (direction) {
+	case AMMotorGroupObject::VerticalMotion:
+		if(motionType == AMMotorGroupAxis::RotationalMotion) {
+			verticalRotationIncrement_->setEnabled(enabled);
+			verticalRotationDecrement_->setEnabled(enabled);
+			verticalRotationValue_->setEnabled(enabled);
+		} else {
+			verticalTranslationIncrement_->setEnabled(enabled);
+			verticalTranslationDecrement_->setEnabled(enabled);
+			verticalTranslationValue_->setEnabled(enabled);
+		}
+		break;
+	case AMMotorGroupObject::HorizontalMotion:
+		if(motionType == AMMotorGroupAxis::RotationalMotion) {
+			horizontalRotationIncrement_->setEnabled(enabled);
+			horizontalRotationDecrement_->setEnabled(enabled);
+			horizontalRotationValue_->setEnabled(enabled);
+		} else {
+			horizontalTranslationIncrement_->setEnabled(enabled);
+			horizontalTranslationDecrement_->setEnabled(enabled);
+			horizontalTranslationValue_->setEnabled(enabled);
+		}
+		break;
+	case AMMotorGroupObject::NormalMotion:
+		if(motionType == AMMotorGroupAxis::RotationalMotion) {
+			normalRotationIncrement_->setEnabled(enabled);
+			normalRotationDecrement_->setEnabled(enabled);
+			normalRotationValue_->setEnabled(enabled);
+		} else {
+			normalTranslationIncrement_->setEnabled(enabled);
+			normalTranslationDecrement_->setEnabled(enabled);
+			normalTranslationValue_->setEnabled(enabled);
+		}
+		break;
+	}
+}
+
+void AMMotorGroupObjectView::onPositionUnitsChanged(AMMotorGroupObject::MotionDirection direction,
+													AMMotorGroupAxis::MotionType motionType,
+													const QString &positionUnits)
+{
+	switch (direction) {
+	case AMMotorGroupObject::VerticalMotion:
+		if(motionType == AMMotorGroupAxis::RotationalMotion) {
+			verticalRotationValue_->setSuffix(positionUnits);
+		} else {
+			verticalTranslationValue_->setSuffix(positionUnits);
+		}
+		break;
+	case AMMotorGroupObject::HorizontalMotion:
+		if(motionType == AMMotorGroupAxis::RotationalMotion) {
+			horizontalRotationValue_->setSuffix(positionUnits);
+		} else {
+			horizontalTranslationValue_->setSuffix(positionUnits);
+		}
+		break;
+	case AMMotorGroupObject::NormalMotion:
+		if(motionType == AMMotorGroupAxis::RotationalMotion) {
+			normalRotationValue_->setSuffix(positionUnits);
+		} else {
+			normalTranslationValue_->setSuffix(positionUnits);
+		}
+		break;
+	}
+}
+
+void AMMotorGroupObjectView::onPositionValueChanged(AMMotorGroupObject::MotionDirection direction,
+													AMMotorGroupAxis::MotionType motionType,
+													double positionValue)
+{
+		switch (direction) {
+		case AMMotorGroupObject::VerticalMotion:
+			if(motionType == AMMotorGroupAxis::RotationalMotion) {
+				verticalRotationValue_->setValue(positionValue);
+			} else {
+				verticalTranslationValue_->setValue(positionValue);
+			}
+			break;
+		case AMMotorGroupObject::HorizontalMotion:
+			if(motionType == AMMotorGroupAxis::RotationalMotion) {
+				horizontalRotationValue_->setValue(positionValue);
+			} else {
+				horizontalTranslationValue_->setValue(positionValue);
+			}
+			break;
+		case AMMotorGroupObject::NormalMotion:
+			if(motionType == AMMotorGroupAxis::RotationalMotion) {
+				normalRotationValue_->setValue(positionValue);
+			} else {
+				normalTranslationValue_->setValue(positionValue);
+			}
+			break;
+		}
+}
+
+void AMMotorGroupObjectView::onShowLogButtonClicked()
+{
+	logConsole_->setVisible(!logConsole_->isVisible());
+}
+
+void AMMotorGroupObjectView::setupUi()
+{
+	QVBoxLayout* mainLayout = new QVBoxLayout();
+
+	// Title Label
+	QFont titleFont;
+	titleFont.setPointSize(18);
+	titleFont.setBold(true);
+
+	titleLabel_ = new QLabel();
+	titleLabel_->setFont(titleFont);
+
+	mainLayout->addWidget(titleLabel_);
+
+	// Error Box
+	logConsole_ = new QTextEdit();
+	logConsole_->setReadOnly(true);
+	logConsole_->setVisible(false);
+
+	showLogButton_ = new QToolButton();
+	showLogButton_->setIcon(QIcon(":/accessories-text-editor.png"));
+	showLogButton_->setToolTip("Show/Hide Log");
+
+	// Initialize Widgets
+	horizontalTranslationIncrement_ = new QToolButton();
+	horizontalTranslationIncrement_->setIcon(QIcon(":/go-next.png"));
+
+	horizontalTranslationDecrement_ = new QToolButton();
+	horizontalTranslationDecrement_->setIcon(QIcon(":/go-previous.png"));
+
+	horizontalRotationIncrement_ = new QToolButton();
+	horizontalRotationIncrement_->setIcon(QIcon(":/ArrowCW.png"));
+
+	horizontalRotationDecrement_ = new QToolButton();
+	horizontalRotationDecrement_->setIcon(QIcon(":/ArrowCCW.png"));
+
+
+	verticalTranslationIncrement_ = new QToolButton();
+	verticalTranslationIncrement_->setIcon(QIcon(":/go-up.png"));
+
+	verticalTranslationDecrement_ = new QToolButton();
+	verticalTranslationDecrement_->setIcon(QIcon(":/go-down.png"));
+
+	verticalRotationIncrement_ = new QToolButton();
+	verticalRotationIncrement_->setIcon(QIcon(":/ArrowCW.png"));
+
+	verticalRotationDecrement_ = new QToolButton();
+	verticalRotationDecrement_->setIcon(QIcon(":/ArrowCCW.png"));
+
+
+	normalTranslationIncrement_ = new QToolButton();
+	normalTranslationIncrement_->setIcon(QIcon(":/go-in.png"));
+
+	normalTranslationDecrement_ = new QToolButton();
+	normalTranslationDecrement_->setIcon(QIcon(":/go-out.png"));
+
+	normalRotationIncrement_ = new QToolButton();
+	normalRotationIncrement_->setIcon(QIcon(":/ArrowCW.png"));
+
+	normalRotationDecrement_ = new QToolButton();
+	normalRotationDecrement_->setIcon(QIcon(":/ArrowCCW.png"));
+
+	stopAllButton_ = new QToolButton();
+	stopAllButton_->setIcon(QIcon(":/stop.png"));
+
+	horizontalTranslationValue_ = new QDoubleSpinBox();
+	horizontalTranslationLabel_ = new QLabel();
+	horizontalRotationValue_ = new QDoubleSpinBox();
+	horizontalRotationLabel_ = new QLabel();
+
+	verticalTranslationValue_ = new QDoubleSpinBox();
+	verticalTranslationLabel_ = new QLabel();
+	verticalRotationValue_ = new QDoubleSpinBox();
+	verticalRotationLabel_ = new QLabel();
+
+	normalTranslationValue_ = new QDoubleSpinBox();
+	normalTranslationLabel_ = new QLabel();
+	normalRotationValue_ = new QDoubleSpinBox();
+	normalRotationLabel_ = new QLabel();
+
+	// Do Layout
+	QHBoxLayout* contentLayout = new QHBoxLayout();
+	mainLayout->addLayout(contentLayout);
+
+	QGridLayout* movementButtonLayout = new QGridLayout();
+
+	contentLayout->addLayout(movementButtonLayout);
+
+	movementButtonLayout->addWidget(horizontalTranslationIncrement_, 2, 3);
+	movementButtonLayout->addWidget(horizontalTranslationDecrement_, 2, 1);
+	movementButtonLayout->addWidget(horizontalRotationIncrement_, 2, 4);
+	movementButtonLayout->addWidget(horizontalRotationDecrement_, 2, 0);
+
+	movementButtonLayout->addWidget(verticalTranslationIncrement_, 1, 2);
+	movementButtonLayout->addWidget(verticalTranslationDecrement_, 3, 2);
+	movementButtonLayout->addWidget(verticalRotationIncrement_, 0, 2);
+	movementButtonLayout->addWidget(verticalRotationDecrement_, 4, 2);
+
+	movementButtonLayout->addWidget(normalTranslationIncrement_, 1, 3);
+	movementButtonLayout->addWidget(normalTranslationDecrement_, 3, 1);
+	movementButtonLayout->addWidget(normalRotationIncrement_, 0, 4);
+	movementButtonLayout->addWidget(normalRotationDecrement_, 4, 0);
+
+	movementButtonLayout->addWidget(stopAllButton_, 2,2);
+
+	QGridLayout* valuesLayout = new QGridLayout();
+	contentLayout->addLayout(valuesLayout);
+	valuesLayout->addWidget(horizontalTranslationLabel_, 0, 0);
+	valuesLayout->addWidget(horizontalTranslationValue_, 0, 1);
+	valuesLayout->addWidget(horizontalRotationLabel_, 1, 0);
+	valuesLayout->addWidget(horizontalRotationValue_, 1, 1);
+
+	valuesLayout->addWidget(verticalTranslationLabel_, 2, 0);
+	valuesLayout->addWidget(verticalTranslationValue_, 2, 1);
+	valuesLayout->addWidget(verticalRotationLabel_, 3, 0);
+	valuesLayout->addWidget(verticalRotationValue_, 3, 1);
+
+	valuesLayout->addWidget(normalTranslationLabel_, 4, 0);
+	valuesLayout->addWidget(normalTranslationValue_, 4, 1);
+	valuesLayout->addWidget(normalRotationLabel_, 5, 0);
+	valuesLayout->addWidget(normalRotationValue_, 5, 1);
+
+	mainLayout->addWidget(showLogButton_);
+	mainLayout->addWidget(logConsole_);
+
+	mainLayout->addStretch();
+	contentLayout->addStretch();
+	setLayout(mainLayout);
+}
+
+void AMMotorGroupObjectView::setupData()
+{
+	titleLabel_->setText(motorGroupObject_->name());
+
+	bool canMoveGrouping = motorGroupObject_->hasHorizontalAxis() && motorGroupObject_->horizontalAxis()->canRotate();
+	horizontalRotationIncrement_->setVisible(canMoveGrouping);
+	horizontalRotationDecrement_->setVisible(canMoveGrouping);
+	horizontalRotationValue_->setVisible(canMoveGrouping);
+	horizontalRotationLabel_->setVisible(canMoveGrouping);
+	if(canMoveGrouping) {
+		double rotationValue =
+				motorGroupObject_->horizontalAxis()->currentRotationPosition();
+		QString suffix =
+				motorGroupObject_->horizontalAxis()->rotationPositionUnits();
+		QString name =
+				motorGroupObject_->horizontalAxis()->rotationName();
+
+		horizontalRotationValue_->setValue(rotationValue);
+		horizontalRotationValue_->setSuffix(suffix);
+		horizontalRotationLabel_->setText(name);
+	}
+
+	canMoveGrouping = motorGroupObject_->hasHorizontalAxis() && motorGroupObject_->horizontalAxis()->canTranslate();
+	horizontalTranslationIncrement_->setVisible(canMoveGrouping);
+	horizontalTranslationDecrement_->setVisible(canMoveGrouping);
+	horizontalTranslationValue_->setVisible(canMoveGrouping);
+	horizontalTranslationLabel_->setVisible(canMoveGrouping);
+	if(canMoveGrouping) {
+		double rotationValue =
+				motorGroupObject_->horizontalAxis()->currentTranslationPosition();
+		QString suffix =
+				motorGroupObject_->horizontalAxis()->translationPositionUnits();
+		QString name =
+				motorGroupObject_->horizontalAxis()->translationName();
+
+		horizontalTranslationValue_->setValue(rotationValue);
+		horizontalTranslationValue_->setSuffix(suffix);
+		horizontalTranslationLabel_->setText(name);
+	}
+
+	canMoveGrouping = motorGroupObject_->hasVerticalAxis() && motorGroupObject_->verticalAxis()->canRotate();
+	verticalRotationIncrement_->setVisible(canMoveGrouping);
+	verticalRotationDecrement_->setVisible(canMoveGrouping);
+	verticalRotationValue_->setVisible(canMoveGrouping);
+	verticalRotationLabel_->setVisible(canMoveGrouping);
+	if(canMoveGrouping) {
+		double rotationValue =
+				motorGroupObject_->verticalAxis()->currentRotationPosition();
+		QString suffix =
+				motorGroupObject_->verticalAxis()->rotationPositionUnits();
+		QString name =
+				motorGroupObject_->verticalAxis()->rotationName();
+
+		verticalRotationValue_->setValue(rotationValue);
+		verticalRotationValue_->setSuffix(suffix);
+		verticalRotationLabel_->setText(name);
+	}
+
+	canMoveGrouping = motorGroupObject_->hasVerticalAxis() && motorGroupObject_->verticalAxis()->canTranslate();
+	verticalTranslationIncrement_->setVisible(canMoveGrouping);
+	verticalTranslationDecrement_->setVisible(canMoveGrouping);
+	verticalTranslationValue_->setVisible(canMoveGrouping);
+	verticalTranslationLabel_->setVisible(canMoveGrouping);
+	if(canMoveGrouping) {
+		double rotationValue =
+				motorGroupObject_->verticalAxis()->currentTranslationPosition();
+		QString suffix =
+				motorGroupObject_->verticalAxis()->translationPositionUnits();
+		QString name =
+				motorGroupObject_->verticalAxis()->translationName();
+
+		verticalTranslationValue_->setValue(rotationValue);
+		verticalTranslationValue_->setSuffix(suffix);
+		verticalTranslationLabel_->setText(name);
+	}
+
+	canMoveGrouping = motorGroupObject_->hasNormalAxis() && motorGroupObject_->normalAxis()->canRotate();
+	normalRotationIncrement_->setVisible(canMoveGrouping);
+	normalRotationDecrement_->setVisible(canMoveGrouping);
+	normalRotationValue_->setVisible(canMoveGrouping);
+	normalRotationLabel_->setVisible(canMoveGrouping);
+	if(canMoveGrouping) {
+		double rotationValue =
+				motorGroupObject_->normalAxis()->currentRotationPosition();
+		QString suffix =
+				motorGroupObject_->normalAxis()->rotationPositionUnits();
+		QString name =
+				motorGroupObject_->normalAxis()->rotationName();
+
+		normalRotationValue_->setValue(rotationValue);
+		normalRotationValue_->setSuffix(suffix);
+		normalRotationLabel_->setText(name);
+	}
+
+	canMoveGrouping = motorGroupObject_->hasNormalAxis() && motorGroupObject_->normalAxis()->canTranslate();
+	normalTranslationIncrement_->setVisible(canMoveGrouping);
+	normalTranslationDecrement_->setVisible(canMoveGrouping);
+	normalTranslationValue_->setVisible(canMoveGrouping);
+	normalTranslationLabel_->setVisible(canMoveGrouping);
+	if(canMoveGrouping) {
+		double rotationValue =
+				motorGroupObject_->normalAxis()->currentTranslationPosition();
+		QString suffix =
+				motorGroupObject_->normalAxis()->translationPositionUnits();
+		QString name =
+				motorGroupObject_->normalAxis()->translationName();
+
+		normalTranslationValue_->setValue(rotationValue);
+		normalTranslationValue_->setSuffix(suffix);
+		normalTranslationLabel_->setText(name);
+	}
+}
+
+
+void AMMotorGroupObjectView::setupConnections()
+{
+	connect(motorGroupObject_, SIGNAL(connectedStateChanged(AMMotorGroupObject::MotionDirection,AMMotorGroupAxis::MotionType,bool)),
+			this, SLOT(onConnectionStateChanged(AMMotorGroupObject::MotionDirection,AMMotorGroupAxis::MotionType,bool)));
+
+	connect(motorGroupObject_, SIGNAL(motorError(AMMotorGroupObject::MotionDirection,AMMotorGroupAxis::MotionType,int)),
+			this, SLOT(onMotorError(AMMotorGroupObject::MotionDirection,AMMotorGroupAxis::MotionType,int)));
+
+	connect(motorGroupObject_, SIGNAL(movingStateChanged(AMMotorGroupObject::MotionDirection,AMMotorGroupAxis::MotionType,bool)),
+			this, SLOT(onMovingStateChanged(AMMotorGroupObject::MotionDirection,AMMotorGroupAxis::MotionType,bool)));
+
+	connect(motorGroupObject_, SIGNAL(positionUnitsChanged(AMMotorGroupObject::MotionDirection,AMMotorGroupAxis::MotionType,QString)),
+			this, SLOT(onPositionUnitsChanged(AMMotorGroupObject::MotionDirection,AMMotorGroupAxis::MotionType,QString)));
+
+	connect(motorGroupObject_, SIGNAL(positionValueChanged(AMMotorGroupObject::MotionDirection,AMMotorGroupAxis::MotionType,double)),
+			this, SLOT(onPositionValueChanged(AMMotorGroupObject::MotionDirection,AMMotorGroupAxis::MotionType,double)));
+
+	connect(showLogButton_, SIGNAL(clicked()),
+			this, SLOT(onShowLogButtonClicked()));
+
+}
+
+void AMMotorGroupObjectView::errorHandleImplementation(AMMotorGroupObject::MotionDirection,
+													   AMMotorGroupAxis::MotionType,
+													   int)
+{
+	// Do nothing here. If subclasses want to do some custom things for the
+	// error case, they can do so in their own override of this function.
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// Motor Group View
+////////////////////////////////////////////////////////////////////////////////
 
 AMMotorGroupView::AMMotorGroupView(AMMotorGroup* motorGroup,
 								   QWidget* parent)
 	: QWidget(parent)
 {
 
-//	groupObjectTabs_ = new QTabWidget();
-//	QVBoxLayout* layout = new QVBoxLayout();
-//	layout->addWidget(groupObjectTabs_);
 
-//	foreach(AMMotorGroupObject* currentObject, motorGroup->motorGroupObjects()) {
-//		AMMotorGroupObjectView* currentObjectView = new AMMotorGroupObjectView(currentObject);
-//		groupObjectTabs_->addTab(currentObjectView, currentObject->name());
-//	}
+	motorGroup_ = motorGroup;
 
+	groupMotionStatusMapper_ = new QSignalMapper(this);
+
+	groupObjectTabs_ = new QTabWidget();
+	QVBoxLayout* layout = new QVBoxLayout();
+	layout->addWidget(groupObjectTabs_);
+
+	foreach(AMMotorGroupObject* currentObject, motorGroup->motorGroupObjects()) {
+		AMMotorGroupObjectView* currentObjectView = new AMMotorGroupObjectView(currentObject);
+
+		QIcon tabIcon = QIcon(":/OFF.png");
+		int tabIndex =
+				groupObjectTabs_->addTab(currentObjectView, tabIcon, currentObject->name());
+
+		motorGroupTabMap_.insert(currentObject->name(), tabIndex);
+
+		connect(currentObject, SIGNAL(motorError(AMMotorGroupObject::MotionDirection,AMMotorGroupAxis::MotionType,int)),
+				groupMotionStatusMapper_, SLOT(map()));
+
+		groupMotionStatusMapper_->setMapping(currentObject, currentObject->name());
+	}
+
+	connect(groupMotionStatusMapper_, SIGNAL(mapped(const QString&)),
+			this, SLOT(onGroupObjectMotionStatusAltered(const QString&)));
+
+	setLayout(layout);
 }
 
-
-//// AMMotorGroupObjectView
-////////////////////////////////////////////////
-//AMMotorGroupObjectView::AMMotorGroupObjectView(AMMotorGroupObject *motorGroupObject, QWidget *parent)
-//	: QWidget(parent)
-//{
-//	motorGroupObject_ = motorGroupObject;
-
-//	controlSetpointsPrecision_ = 3;
-
-//	QFont font(this->font());
-//	font.setBold(true);
-
-//	titleLabel_ = new QLabel(motorGroupObject->name());
-//	titleLabel_->setFont(font);
-
-//	foreach (QString prefix, motorGroupObject_->prefixes()){
-
-//		QLabel *label = new QLabel(prefix % " :");
-//		label->setFont(font);
-//		prefixLabels_ << label;
-//	}
-
-//	QLabel *jog = new QLabel("Jog :");
-//	jog->setFont(font);
-
-//	status_ = new QLabel;
-//	status_->setPixmap(QIcon(":/OFF.png").pixmap(25));
-
-//	goUp_ = new QToolButton;
-//	goDown_ = new QToolButton;
-//	connect(goUp_, SIGNAL(clicked()), this, SLOT(onUpClicked()));
-//	connect(goDown_, SIGNAL(clicked()), this, SLOT(onDownClicked()));
-
-//	if (motorGroupObject_->verticalIndex() == -1){
-
-//		goUp_->hide();
-//		goDown_->hide();
-//	}
-
-//	else if (motorGroupObject_->motionTypeAt(motorGroupObject_->verticalIndex()) == AMMotorGroupObject::Translational){
-
-//		goUp_->setIcon(QIcon(":/go-up.png"));
-//		goDown_->setIcon(QIcon(":/go-down.png"));
-//	}
-
-//	else{
-
-//		goUp_->setIcon(QIcon(":/ArrowCW.png"));
-//		goDown_->setIcon(QIcon(":/ArrowCCW.png"));
-//	}
-
-//	goLeft_ = new QToolButton;
-//	goRight_ = new QToolButton;
-//	connect(goLeft_, SIGNAL(clicked()), this, SLOT(onLeftClicked()));
-//	connect(goRight_, SIGNAL(clicked()), this, SLOT(onRightClicked()));
-
-//	if (motorGroupObject_->horizontalIndex() == -1){
-
-//		goLeft_->hide();
-//		goRight_->hide();
-//	}
-
-//	else if (motorGroupObject_->motionTypeAt(motorGroupObject_->horizontalIndex()) == AMMotorGroupObject::Translational){
-
-//		goLeft_->setIcon(QIcon(":/go-previous.png"));
-//		goRight_->setIcon(QIcon(":/go-next.png"));
-//	}
-
-//	else{
-
-//		goLeft_->setIcon(QIcon(":/ArrowCW.png"));
-//		goRight_->setIcon(QIcon(":/ArrowCCW.png"));
-//	}
-
-//	goIn_ = new QToolButton;
-//	goOut_ = new QToolButton;
-//	connect(goIn_, SIGNAL(clicked()), this, SLOT(onInClicked()));
-//	connect(goOut_, SIGNAL(clicked()), this, SLOT(onOutClicked()));
-
-//	if (motorGroupObject_->normalIndex() == -1){
-
-//		goIn_->hide();
-//		goOut_->hide();
-//	}
-
-//	else if (motorGroupObject_->motionTypeAt(motorGroupObject_->normalIndex()) == AMMotorGroupObject::Translational){
-
-//		goIn_->setIcon(QIcon(":/go-out.png"));
-//		goOut_->setIcon(QIcon(":/go-in.png"));
-//	}
-
-//	else{
-
-//		goIn_->setIcon(QIcon(":/ArrowCCW.png"));
-//		goOut_->setIcon(QIcon(":/ArrowCW.png"));
-//	}
-
-//	stopButton_ = new QToolButton;
-//	stopButton_->setIcon(QIcon(":/stop.png"));
-//	connect(stopButton_, SIGNAL(clicked()), this, SLOT(onStopClicked()));
-
-//	arrowLayout_ = new QGridLayout;
-//	arrowLayout_->addWidget(goUp_, 0, 1);
-//	arrowLayout_->addWidget(goDown_, 2, 1);
-//	arrowLayout_->addWidget(goLeft_, 1, 0);
-//	arrowLayout_->addWidget(goRight_, 1, 2);
-//	arrowLayout_->addWidget(goIn_, 2, 0);
-//	arrowLayout_->addWidget(goOut_, 0, 2);
-//	arrowLayout_->addWidget(stopButton_, 1, 1);
-//	arrowLayout_->addWidget(status_, 0, 0);
-
-//	QStringList units = motorGroupObject_->units();
-//	units.removeDuplicates();
-//	QString unitString = "";
-
-//	foreach (QString temp, units)
-//		unitString = unitString % temp % "/";
-
-//	unitString.chop(1);
-
-//	jog_ = new QDoubleSpinBox;
-//	jog_->setSuffix(" " % unitString);
-//	jog_->setSingleStep(0.001);
-//	jog_->setMinimum(0.0000);
-//	jog_->setValue(0.050);
-//	jog_->setDecimals(3);
-//	jog_->setAlignment(Qt::AlignCenter);
-//	jog_->setFixedWidth(110);
-
-//	jogLayout_ = new QHBoxLayout;
-//	jogLayout_->addWidget(jog, 0, Qt::AlignRight);
-//	jogLayout_->addWidget(jog_, 0, Qt::AlignRight);
-
-//	absoluteValueLayout_ = new QVBoxLayout;
-
-//	for (int i = 0, size = motorGroupObject_->size(); i < size; i++){
-
-//		QDoubleSpinBox *setpoint = new QDoubleSpinBox;
-//		setpoint->setAlignment(Qt::AlignCenter);
-//		setpoint->setFixedWidth(110);
-//		setpoint->setSingleStep(0.001);
-//		setpoint->setDecimals(controlSetpointsPrecision_);
-//		setpoint->setSuffix(" " % motorGroupObject_->unitAt(i));
-//		setpoint->setRange(-200, 200);
-//		controlSetpoints_ << setpoint;
-
-//		QHBoxLayout *hLayout = new QHBoxLayout;
-//		hLayout->addWidget(prefixLabels_.at(i), 0, Qt::AlignRight);
-//		hLayout->addWidget(setpoint, 0, Qt::AlignRight);
-//		controlSetpointLayouts_ << hLayout;
-
-//		absoluteValueLayout_->addLayout(hLayout);
-//	}
-
-//	absoluteValueLayout_->addLayout(jogLayout_);
-
-//	for (int i = 0, size = controlSetpoints_.size(); i < size; i++){
-
-//		connect(motorGroupObject_->controlAt(i), SIGNAL(valueChanged(double)), controlSetpoints_.at(i), SLOT(setValue(double)));
-//		connect(motorGroupObject_->controlAt(i), SIGNAL(movingChanged(bool)), this, SLOT(onMovingChanged()));
-
-//		if(motorGroupObject_->controlAt(i)->isConnected()){
-
-//			controlSetpoints_.at(i)->setValue(motorGroupObject_->controlAt(i)->value());
-//			controlSetpoints_.at(i)->setRange(motorGroupObject_->controlAt(i)->range().first, motorGroupObject_->controlAt(i)->range().second);
-//		}
-//	}
-
-//	connect(controlSetpoints_.at(0), SIGNAL(editingFinished()), this, SLOT(onFirstControlSetpoint()));
-
-//	if (controlSetpoints_.size() > 1)
-//		connect(controlSetpoints_.at(1), SIGNAL(editingFinished()), this, SLOT(onSecondControlSetpoint()));
-
-//	if (controlSetpoints_.size() > 2)
-//		connect(controlSetpoints_.at(2), SIGNAL(editingFinished()), this, SLOT(onThirdControlSetpoint()));
-
-//	motorGroupLayout_ = new QHBoxLayout;
-//	motorGroupLayout_->addLayout(arrowLayout_);
-//	motorGroupLayout_->addLayout(absoluteValueLayout_);
-
-//	QVBoxLayout *fullLayout = new QVBoxLayout;
-//	fullLayout->addWidget(titleLabel_);
-//	fullLayout->addLayout(motorGroupLayout_);
-
-//	setLayout(fullLayout);
-//}
-
-//AMMotorGroupObjectView::~AMMotorGroupObjectView()
-//{
-//}
-
-//void AMMotorGroupObjectView::setControlSetpointPrecision(int controlSetpointsPrecision){
-//	controlSetpointsPrecision_ = controlSetpointsPrecision;
-//	for(int x = 0, size = controlSetpoints_.count(); x < size; x++)
-//		controlSetpoints_.at(x)->setDecimals(controlSetpointsPrecision_);
-//}
-
-//QDoubleSpinBox* AMMotorGroupObjectView::jogSpinBox(){
-//	return jog_;
-//}
-
-//QList<QDoubleSpinBox *> AMMotorGroupObjectView::controlSetpointsSpinBoxes(){
-//	return controlSetpoints_;
-//}
-
-//void AMMotorGroupObjectView::onUpClicked()
-//{
-//	int index = motorGroupObject_->verticalIndex();
-//	motorGroupObject_->controlAt(index)->move(controlSetpoints_.at(index)->value() + jog_->value());
-//}
-
-//void AMMotorGroupObjectView::onDownClicked()
-//{
-//	int index = motorGroupObject_->verticalIndex();
-//	motorGroupObject_->controlAt(index)->move(controlSetpoints_.at(index)->value() - jog_->value());
-//}
-
-//void AMMotorGroupObjectView::onLeftClicked()
-//{
-//	int index = motorGroupObject_->horizontalIndex();
-//	motorGroupObject_->controlAt(index)->move(controlSetpoints_.at(index)->value() - jog_->value());
-//}
-
-//void AMMotorGroupObjectView::onRightClicked()
-//{
-//	int index = motorGroupObject_->horizontalIndex();
-//	motorGroupObject_->controlAt(index)->move(controlSetpoints_.at(index)->value() + jog_->value());
-//}
-
-//void AMMotorGroupObjectView::onOutClicked()
-//{
-//	int index = motorGroupObject_->normalIndex();
-//	motorGroupObject_->controlAt(index)->move(controlSetpoints_.at(index)->value() + jog_->value());
-//}
-
-//void AMMotorGroupObjectView::onInClicked()
-//{
-//	int index = motorGroupObject_->normalIndex();
-//	motorGroupObject_->controlAt(index)->move(controlSetpoints_.at(index)->value() - jog_->value());
-//}
-
-//void AMMotorGroupObjectView::onStopClicked()
-//{
-//	foreach (AMControl *control, motorGroupObject_->controls())
-//		control->stop();
-//}
-
-//void AMMotorGroupObjectView::onMovingChanged()
-//{
-//	bool isMoving = motorGroupObject_->isMotorMoving();
-
-//	status_->setPixmap(QIcon(isMoving ? ":/ON.png" : ":/OFF.png").pixmap(25));
-
-//	goUp_->setDisabled(isMoving);
-//	goDown_->setDisabled(isMoving);
-//	goLeft_->setDisabled(isMoving);
-//	goRight_->setDisabled(isMoving);
-//	goIn_->setDisabled(isMoving);
-//	goOut_->setDisabled(isMoving);
-//}
-
-//void AMMotorGroupObjectView::onFirstControlSetpoint()
-//{
-//	motorGroupObject_->controlAt(0)->move(controlSetpoints_.at(0)->value());
-//}
-
-//void AMMotorGroupObjectView::onSecondControlSetpoint()
-//{
-//	motorGroupObject_->controlAt(1)->move(controlSetpoints_.at(1)->value());
-//}
-
-//void AMMotorGroupObjectView::onThirdControlSetpoint()
-//{
-//	motorGroupObject_->controlAt(2)->move(controlSetpoints_.at(2)->value());
-//}
-
-//// AMMotorGroupView
-///////////////////////////////////////////////
-//AMMotorGroupView::~AMMotorGroupView()
-//{
-//}
-
-//AMMotorGroupView::AMMotorGroupView(AMMotorGroup *motorGroup, QWidget *parent)
-//	: QWidget(parent)
-//{
-//	initAndLayoutMotorGroupView(motorGroup, Exclusive);
-//}
-
-//AMMotorGroupView::AMMotorGroupView(AMMotorGroup *motorGroup, ViewMode viewMode, QWidget *parent)
-//	: QWidget(parent)
-//{
-//	initAndLayoutMotorGroupView(motorGroup, viewMode);
-//}
-
-//void AMMotorGroupView::onCustomContextMenuRequested(const QPoint &pos)
-//{
-//	QMenu popup(this);
-//	QAction *temp;
-
-//	buildStandardMenuItems(&popup);
-
-//	temp = popup.exec(mapToGlobal(pos));
-
-//	if (temp)
-//		handleStandardMenuItems(temp->text());
-//}
-
-//void AMMotorGroupView::handleStandardMenuItems(const QString &command)
-//{
-//	if (command.contains("Switch to Multiple"))
-//		setViewMode(Multiple);
-
-//	else if (command.contains("Switch to Exclusive"))
-//		setViewMode(Exclusive);
-
-//	else
-//		setMotorGroupView(command);
-//}
-
-//void AMMotorGroupView::setMotorGroupView(const QString &name)
-//{
-//	if (!motorGroupViews_.contains(name))
-//		return;
-
-//	if (viewMode_ == Exclusive){
-
-//		foreach(AMMotorGroupObjectView *view, motorGroupViews_.values())
-//			view->hide();
-
-//		currentMotorGroupObjectView_ = motorGroupViews_.value(name);
-//		motorGroupViews_.value(name)->show();
-
-//		if (availableMotorGroupObjects_->currentIndex() != availableMotorGroupObjects_->findText(name)){
-
-//			availableMotorGroupObjects_->blockSignals(true);
-//			availableMotorGroupObjects_->setCurrentIndex(availableMotorGroupObjects_->findText(name));
-//			availableMotorGroupObjects_->blockSignals(false);
-//		}
-
-//		emit currentMotorGroupObjectViewChanged(name);
-//	}
-
-//	else if (viewMode_ == Multiple){
-
-//		AMMotorGroupObjectView *view = motorGroupViews_.value(name);
-
-//		if (visibleMotorGroupObjectViews_.contains(name))
-//			visibleMotorGroupObjectViews_.remove(name);
-
-//		else
-//			visibleMotorGroupObjectViews_.insert(name, view);
-
-//		view->setVisible(!view->isVisible());
-//		emit motorGroupVisibilityChanged(name);
-//	}
-//}
-
-//void AMMotorGroupView::setViewMode(ViewMode mode)
-//{
-//	if (viewMode_ != mode){
-
-//		viewMode_ = mode;
-
-//		showAvailableMotorGroupChoices(viewMode_ == Exclusive);
-
-//		// Since Multiple view is the only one currently that shows the titles, I'm cheating by checking only against it.
-//		foreach (AMMotorGroupObjectView *view, motorGroupViews_.values()){
-
-//			view->setTitleVisible(viewMode_ == Multiple);
-//			view->hide();
-//		}
-
-//		if (viewMode_ == Exclusive){
-
-//			currentMotorGroupObjectView_->show();
-//			emit currentMotorGroupObjectViewChanged(currentMotorGroupObjectView_->motorGroupObject()->name());
-//		}
-
-//		else if (viewMode_ == Multiple){
-
-//			// This is just in case there isn't a selected view yet.
-//			if (visibleMotorGroupObjectViews_.isEmpty()){
-
-//				visibleMotorGroupObjectViews_.insert(currentMotorGroupObjectView_->motorGroupObject()->name(), currentMotorGroupObjectView_);
-//				currentMotorGroupObjectView_->show();
-//			}
-
-//			else
-//				foreach (AMMotorGroupObjectView *view, visibleMotorGroupObjectViews_.values())
-//					view->show();
-
-//			emit motorGroupVisibilityChanged("");
-//		}
-//	}
-//}
-
-//void AMMotorGroupView::showAvailableMotorGroupChoices(bool show)
-//{
-//	availableMotorGroupObjects_->setVisible(show);
-//}
-
-//void AMMotorGroupView::buildStandardMenuItems(QMenu *menu)
-//{
-//	if (viewMode_ == Exclusive){
-
-//		menu->addAction("Switch to Multiple View");
-//	}
-
-//	else if (viewMode_ == Multiple){
-
-//		menu->addAction("Switch to Exclusive View");
-//		menu->addSeparator();
-
-//		for (int i = 0, size = motorGroupViews_.size(); i < size; i++){
-
-//			QAction *action = new QAction(motorGroupViews_.keys().at(i), menu);
-//			action->setCheckable(true);
-//			action->setChecked(motorGroupViews_.values().at(i)->isVisible());
-//			menu->addAction(action);
-//		}
-//	}
-//}
-
-//QString AMMotorGroupView::currentMotorGroupObjectName() const
-//{
-//	return viewMode_ == Exclusive ? currentMotorGroupObjectView_->motorGroupObject()->name() : "";
-//}
-
-//AMMotorGroupObjectView *AMMotorGroupView::currentMotorGroupObjectView() const
-//{
-//	return viewMode_ == Exclusive ? currentMotorGroupObjectView_ : 0;
-//}
-
-//QStringList AMMotorGroupView::visibleMotorGroupObjectNames() const
-//{
-//	if (viewMode_ == Multiple){
-
-//		QStringList visibleNames;
-
-//		foreach (AMMotorGroupObjectView *view, motorGroupViews_.values())
-//			if (view->isVisible())
-//				visibleNames << view->motorGroupObject()->name();
-
-//		return visibleNames;
-//	}
-
-//	else
-//		return QStringList();
-//}
-
-//QList<AMMotorGroupObjectView *> AMMotorGroupView::visibleMotorGroupObjectViews() const
-//{
-//	if (viewMode_ == Multiple){
-
-//		QList<AMMotorGroupObjectView *> visibleViews;
-
-//		foreach (AMMotorGroupObjectView *view, motorGroupViews_.values())
-//			if (view->isVisible())
-//				visibleViews << view;
-
-//		return visibleViews;
-//	}
-
-//	else
-//		return QList<AMMotorGroupObjectView *>();
-//}
-
-//void AMMotorGroupView::initAndLayoutMotorGroupView(AMMotorGroup *motorGroup, ViewMode viewMode)
-//{
-//	viewMode_ = viewMode;
-//	motorGroup_ = motorGroup;
-
-//	availableMotorGroupObjects_ = new QComboBox;
-
-//	QString name;
-//	for(int x = 0; x < motorGroup_->size(); x++){
-//		name = motorGroup_->names().at(x);
-//		availableMotorGroupObjects_->addItem(name);
-//		AMMotorGroupObjectView *motorGroupObjectView = motorGroup->motorGroupObjects().at(x)->createMotorGroupObjectView();
-//		if(!motorGroupObjectView)
-//			motorGroupObjectView = new AMMotorGroupObjectView(motorGroup_->motorGroupObject(name));
-//		motorGroupViews_.insert(name, motorGroupObjectView);
-//	}
-
-//	if (viewMode_ == Multiple){
-//		showAvailableMotorGroupChoices(false);
-//		foreach (AMMotorGroupObjectView *view, motorGroupViews_.values())
-//			view->hide();
-//	}
-
-//	foreach (AMMotorGroupObjectView *view, motorGroupViews_.values())
-//		view->setTitleVisible(false);
-
-//	QVBoxLayout *groupLayout = new QVBoxLayout;
-//	groupLayout->addWidget(availableMotorGroupObjects_, 0, Qt::AlignLeft);
-
-//	foreach (AMMotorGroupObjectView *view, motorGroupViews_.values())
-//		groupLayout->addWidget(view);
-
-//	setLayout(groupLayout);
-//	setContextMenuPolicy(Qt::CustomContextMenu);
-
-//	connect(this, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(onCustomContextMenuRequested(QPoint)));
-//	connect(availableMotorGroupObjects_, SIGNAL(currentIndexChanged(QString)), this, SLOT(setMotorGroupView(QString)));
-//}
+void AMMotorGroupView::onGroupObjectMotionStatusAltered(const QString& groupObjectName)
+{
+	AMMotorGroupObject* motorGroupObject = motorGroup_->motorGroupObject(groupObjectName);
+	QIcon statusIcon;
+	if(motorGroupObject->isMoving()) {
+		statusIcon = QIcon(":/ON.png");
+	} else {
+		statusIcon = QIcon(":/OFF.png");
+	}
+
+	int tabIndex = motorGroupTabMap_.value(groupObjectName, -1);
+
+	if(tabIndex >= 0 ) {
+		groupObjectTabs_->setTabIcon(tabIndex, statusIcon);
+	}
+}
