@@ -65,7 +65,8 @@ HEADERS += \
     source/acquaman/BioXAS/BioXASSSRLMonochromatorEnergyCalibrationScanConfiguration.h \
     source/acquaman/BioXAS/BioXASSSRLMonochromatorEnergyCalibrationScanActionController.h \
 	source/ui/BioXAS/BioXASSSRLMonochromatorEnergyCalibrationView.h \
-    source/beamline/BioXAS/BioXASShutterControl.h
+	source/beamline/BioXAS/BioXASShutterControl.h \
+	source/ui/BioXAS/BioXAS32ElementGeDetectorView.h
 
 SOURCES += \
 	source/acquaman/BioXAS/BioXASXRFScanConfiguration.cpp \
@@ -125,8 +126,5 @@ SOURCES += \
     source/acquaman/BioXAS/BioXASSSRLMonochromatorEnergyCalibrationScanConfiguration.cpp \
     source/acquaman/BioXAS/BioXASSSRLMonochromatorEnergyCalibrationScanActionController.cpp \
 	source/ui/BioXAS/BioXASSSRLMonochromatorEnergyCalibrationView.cpp \
-    source/beamline/BioXAS/BioXASShutterControl.cpp
-
-
-
-
+	source/beamline/BioXAS/BioXASShutterControl.cpp \
+	source/ui/BioXAS/BioXAS32ElementGeDetectorView.cpp
