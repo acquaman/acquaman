@@ -224,11 +224,11 @@ void BioXASSideAppController::setupUserInterface()
 	// Create scaler view, if scaler is present and connected.
 	onScalerConnected();
 
-//	BioXAS32ElementGeDetectorView *geDetectorView = new BioXAS32ElementGeDetectorView(BioXASSideBeamline::bioXAS()->ge32ElementDetector());
-//	geDetectorView->buildDetectorView();
-//	geDetectorView->addEmissionLineNameFilter(QRegExp("1"));
-//	geDetectorView->addPileUpPeakNameFilter(QRegExp("(K.1|L.1|Ma1)"));
-//	mw_->addPane(geDetectorView, "Detectors", "Ge 32-el", ":/system-search.png");
+	BioXAS32ElementGeDetectorView *geDetectorView = new BioXAS32ElementGeDetectorView(BioXASSideBeamline::bioXAS()->ge32ElementDetector());
+	geDetectorView->buildDetectorView();
+	geDetectorView->addEmissionLineNameFilter(QRegExp("1"));
+	geDetectorView->addPileUpPeakNameFilter(QRegExp("(K.1|L.1|Ma1)"));
+	mw_->addPane(geDetectorView, "Detectors", "Ge 32-el", ":/system-search.png");
 
 	BioXASFourElementVortexDetectorView *fourElementDetectorView = new BioXASFourElementVortexDetectorView(BioXASSideBeamline::bioXAS()->fourElementVortexDetector());
 	fourElementDetectorView->buildDetectorView();
