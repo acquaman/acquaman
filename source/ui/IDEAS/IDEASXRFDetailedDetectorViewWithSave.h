@@ -27,6 +27,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "acquaman/IDEAS/IDEASXRFScanConfiguration.h"
 #include "actions3/actions/AMScanAction.h"
 
+
 #include <QPushButton>
 #include <QSignalMapper>
 #include <QPlainTextEdit>
@@ -41,21 +42,24 @@ class IDEASXRFDetailedDetectorViewWithSave : public AMXRFDetailedDetectorView
 public:
 	/// Constructor.
 	IDEASXRFDetailedDetectorViewWithSave(AMXRFDetector *detector, QWidget *parent = 0);
+
 	/// Destructor.
 	virtual ~IDEASXRFDetailedDetectorViewWithSave();
 
 	/// Re-implementing but still going to use the base class buildDetectorView since this view is merely adding to it.
 	virtual void buildDetectorView();
 
+signals:
+
+
 protected slots:
 	void onSaveScanButtonClicked();
 	void onNotesTextChanged();
 	void onScanNameChanged(QString name);
 	void onScanNumberChanged(int number);
-	void onPeakingTimeBoxChanged(const QString &arg1);
 	void onAcquisitionSucceeded();
-	void onKETEKPeakingTimeChanged();
 	void onDeadTimeCheckButtonClicked();
+
 
 protected:
 	/// Method that builds the Scan Save Button and associated things.
@@ -76,7 +80,7 @@ protected:
 	QLineEdit *scanName;
 	QLabel *scanNumberLabel;
 	QSpinBox *scanNumber;
-	QComboBox *peakingTimeBox;
+
 
 	/// The scan configuration.  Contains some configuration details about the scan such as integration time, minimum energy, maximum energy.
 	IDEASXRFScanConfiguration *config_;

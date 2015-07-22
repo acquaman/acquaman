@@ -822,6 +822,7 @@ SOURCES += \
     source/ui/dataman/AMScanViewPlotSelectedToolsView.cpp \
     source/dataman/AMScanViewPlotTools.cpp
 
+
 RESOURCES *= source/icons/icons.qrc \
 		source/configurationFiles/configurationFiles.qrc \
 		source/util/ElementData.qrc \

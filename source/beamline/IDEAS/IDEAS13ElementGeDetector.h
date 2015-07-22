@@ -47,7 +47,11 @@ public:
 	/// The vortex detectors support elapsed time.
 	virtual bool supportsElapsedTime() const { return true; }
 
+	/// Returns the real time for the detector.
+	AMDetector *dwellTime() const {return ge13ElementRealTime_; }
+
 signals:
+
 
 public slots:
 
@@ -56,6 +60,22 @@ public slots:
 
 	/// Vortex detectors do not support clearing
 	virtual bool clear() { return false; }
+
+
+protected:
+	AMReadOnlyPVControl *ge13ElementRealTimeControl_;
+	AMDetector *ge13ElementRealTime_;
+
+    // preamp gain controls for detectors 1-12
+    AMControl *preampGainControl1_, *preampGainControl2_, *preampGainControl3_, *preampGainControl4_,
+              *preampGainControl5_, *preampGainControl6_, *preampGainControl7_, *preampGainControl8_,
+              *preampGainControl9_, *preampGainControl10_,*preampGainControl11_,*preampGainControl12_;
+
+    // energy peaking time
+    AMPVControl *peakingTimeControl_;
+
+
+
 };
 
 #endif // IDEAS13ELEMENTGEDETECTOR_H

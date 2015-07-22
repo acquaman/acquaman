@@ -13,6 +13,7 @@
 #include "util/AMEnergyToKSpaceCalculator.h"
 #include "ui/util/AMPeriodicTableDialog.h"
 #include "util/AMPeriodicTable.h"
+#include "util/AMDateTimeUtils.h"
 
 
 BioXASMainXASScanConfigurationView::BioXASMainXASScanConfigurationView(BioXASMainXASScanConfiguration *configuration, QWidget *parent) :
@@ -22,6 +23,8 @@ BioXASMainXASScanConfigurationView::BioXASMainXASScanConfigurationView(BioXASMai
 
 	topFrame_ = new AMTopFrame("Configure an XAS Scan");
 	topFrame_->setIcon(QIcon(":/utilities-system-monitor.png"));
+
+    estimatedTimeLabel_ = new QLabel("0 s");
 
 	regionsView_ = new AMEXAFSScanAxisView("BioXAS Region Configuration", configuration_);
 
@@ -36,6 +39,8 @@ BioXASMainXASScanConfigurationView::BioXASMainXASScanConfigurationView(BioXASMai
 
 	connect(scanName_, SIGNAL(editingFinished()), this, SLOT(onScanNameEdited()));
 	connect(configuration_, SIGNAL(nameChanged(QString)), scanName_, SLOT(setText(QString)));
+    connect(configuration_, SIGNAL(totalTimeChanged(double)), this, SLOT(onEstimatedTimeChanged()));
+
 
 	// Energy (Eo) selection
 	energy_ = new QDoubleSpinBox;
@@ -76,6 +81,10 @@ BioXASMainXASScanConfigurationView::BioXASMainXASScanConfigurationView(BioXASMai
 	energyLayout->addWidget(elementChoice_);
 	energyLayout->addWidget(lineChoice_);
 
+    QFormLayout *estimatedTimeLayout = new QFormLayout();
+    estimatedTimeLayout->setWidget(0, QFormLayout::LabelRole, new QLabel("Estimated Time: "));
+    estimatedTimeLayout->setWidget(0, QFormLayout::FieldRole, estimatedTimeLabel_);
+
 	QVBoxLayout *mainVL = new QVBoxLayout();
 	mainVL->addWidget(topFrame_);
 	mainVL->addLayout(energyLayout);
@@ -91,6 +100,8 @@ BioXASMainXASScanConfigurationView::BioXASMainXASScanConfigurationView(BioXASMai
 
 	QVBoxLayout *settingsVL = new QVBoxLayout();
 	settingsVL->addLayout(regionsHL);
+    settingsVL->addStretch();
+    settingsVL->addLayout(estimatedTimeLayout);
 //	settingsVL->addWidget(settingsLabel);
 
 	mainVL->addStretch();
@@ -231,4 +242,15 @@ void BioXASMainXASScanConfigurationView::onEdgeChanged()
 
 	if (energy_->value() != configuration_->energy())
 		energy_->setValue(configuration_->energy());
+}
+
+void BioXASMainXASScanConfigurationView::onEstimatedTimeChanged()
+{
+    configuration_->blockSignals(true);
+    double time = configuration_->totalTime(true);
+    configuration_->blockSignals(false);
+
+    QString timeString = AMDateTimeUtils::convertTimeToString(time);
+
+    estimatedTimeLabel_->setText(timeString);
 }

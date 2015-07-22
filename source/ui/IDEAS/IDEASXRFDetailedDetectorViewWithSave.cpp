@@ -30,17 +30,20 @@ IDEASXRFDetailedDetectorViewWithSave::IDEASXRFDetailedDetectorViewWithSave(AMXRF
 	: AMXRFDetailedDetectorView(detector, parent)
 {
 	config_ = new IDEASXRFScanConfiguration;
-
 	setMaximumHeight(885);
 
 	if (detector_->name() == "KETEK")
+	{
 		config_->setFluorescenceDetector(IDEASXRFScanConfiguration::Ketek);
 
+	}
 	else if (detector_->name() == "13-el Ge")
 		config_->setFluorescenceDetector(IDEASXRFScanConfiguration::Ge13Element);
 
         scanAction_ = 0; //NULL
 }
+
+
 
 IDEASXRFDetailedDetectorViewWithSave::~IDEASXRFDetailedDetectorViewWithSave(){}
 
@@ -62,16 +65,6 @@ void IDEASXRFDetailedDetectorViewWithSave::buildScanSaveViews()
 	scanInfoGridLayout->setContentsMargins(12, -1, -1, -1);
 
 	deadTimeCheckButton = new QPushButton("Check Dead Time");
-
-	peakingTimeBox = new QComboBox();
-	peakingTimeBox->setObjectName(QString::fromUtf8("peakingTimeBox"));
-	peakingTimeBox->addItem("Setting Unknown");
-	peakingTimeBox->addItem("High Rate / Low Res");
-	peakingTimeBox->addItem("High Res / Low Rate");
-	peakingTimeBox->addItem("Ultra Res / Slow Rate");
-
-	connect(IDEASBeamline::ideas()->ketekPeakingTime(), SIGNAL(connected(bool)), this, SLOT(onKETEKPeakingTimeChanged()));
-	connect(IDEASBeamline::ideas()->ketekPeakingTime(), SIGNAL(valueChanged(double)), this, SLOT(onKETEKPeakingTimeChanged()));
 
 	notesEdit = new QPlainTextEdit(this);
 	notesEdit->setObjectName(QString::fromUtf8("notesEdit"));
@@ -122,8 +115,6 @@ void IDEASXRFDetailedDetectorViewWithSave::buildScanSaveViews()
 
 	rightLayout_->addWidget(deadTimeCheckButton);
 
-	rightLayout_->addWidget(peakingTimeBox);
-
 	rightLayout_->addStretch();
 
 	rightLayout_->addLayout(scanInfoGridLayout);
@@ -139,12 +130,10 @@ void IDEASXRFDetailedDetectorViewWithSave::buildScanSaveViews()
 	connect(notesEdit, SIGNAL(textChanged()), this, SLOT(onNotesTextChanged()));
 	connect(scanName, SIGNAL(textChanged(QString)), this, SLOT(onScanNameChanged(QString)));
 	connect(scanNumber, SIGNAL(valueChanged(int)), this, SLOT(onScanNumberChanged(int)));
-	connect(peakingTimeBox, SIGNAL(currentIndexChanged(QString)), this, SLOT(onPeakingTimeBoxChanged(QString)));
 	connect(deadTimeCheckButton, SIGNAL(clicked()), this, SLOT(onDeadTimeCheckButtonClicked()));
 	connect(acquireButton_, SIGNAL(clicked(bool)),saveScanButton_, SLOT(setEnabled(bool)));
 	connect(detector_, SIGNAL(acquisitionSucceeded()),this, SLOT(onAcquisitionSucceeded()));
 	connect(cancelButton_, SIGNAL(clicked()),this, SLOT(onAcquisitionSucceeded()));
-
 
 }
 
@@ -175,28 +164,6 @@ void IDEASXRFDetailedDetectorViewWithSave::onScanNumberChanged(int number)
 	config_->setScanNumber(number);
 }
 
-void IDEASXRFDetailedDetectorViewWithSave::onPeakingTimeBoxChanged(const QString &arg1)
-{
-
-	if (arg1 == "High Rate / Low Res")
-	{
-	    IDEASBeamline::ideas()->ketekPeakingTime()->move(0.300);
-	    IDEASBeamline::ideas()->ketekPreampGain()->move(1.2600);
-	}
-	else if (arg1 == "High Res / Low Rate")
-	{
-	    IDEASBeamline::ideas()->ketekPeakingTime()->move(2.00);
-	    IDEASBeamline::ideas()->ketekPreampGain()->move(1.2375);
-	}
-	else if (arg1 == "Ultra Res / Slow Rate")
-	{
-	    IDEASBeamline::ideas()->ketekPeakingTime()->move(4.00);
-	    IDEASBeamline::ideas()->ketekPreampGain()->move(1.2375);
-
-	  }
-
-}
-
 void IDEASXRFDetailedDetectorViewWithSave::onAcquisitionSucceeded()
 {
     saveScanButton_->setEnabled(true);
@@ -220,24 +187,6 @@ void IDEASXRFDetailedDetectorViewWithSave::onAcquisitionSucceeded()
     config_->setPositions(positions);
 }
 
-void IDEASXRFDetailedDetectorViewWithSave::onKETEKPeakingTimeChanged()
-{
-
-    // HACK ugly hard coded magic numbers...   Works for now.
-    peakingTimeBox->blockSignals(true);
-
-    if (IDEASBeamline::ideas()->ketekPeakingTime()->value() == 0.3)
-	peakingTimeBox->setCurrentIndex(1);
-    else if (IDEASBeamline::ideas()->ketekPeakingTime()->value() == 2.0)
-	peakingTimeBox->setCurrentIndex(2);
-    else if (IDEASBeamline::ideas()->ketekPeakingTime()->value() == 4.0)
-	peakingTimeBox->setCurrentIndex(3);
-    else
-	peakingTimeBox->setCurrentIndex(0);
-
-    peakingTimeBox->blockSignals(false);
-
-}
 
 void IDEASXRFDetailedDetectorViewWithSave::onDeadTimeCheckButtonClicked()
 {
