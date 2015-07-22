@@ -305,6 +305,7 @@ void BioXASXASScanActionController::buildScanControllerImplementation()
 
 	if (i0DetectorSource && i1DetectorSource && i2DetectorSource) {
 		absorbanceSource = new AM1DExpressionAB("Absorbance");
+		absorbanceSource->setDescription("Absorbance");
 		absorbanceSource->setInputDataSources(QList<AMDataSource*>() << i0DetectorSource << i1DetectorSource << i2DetectorSource);
 		absorbanceSource->setExpression(QString("ln(%1/%2)").arg(i1DetectorSource->name(), i2DetectorSource->name()));
 
@@ -386,6 +387,7 @@ void BioXASXASScanActionController::buildScanControllerImplementation()
 
 	if (i0CorrectedDetectorSource && i1CorrectedDetectorSource && i2CorrectedDetectorSource) {
 		absorbanceCorrectedSource = new AM1DExpressionAB("Absorbance_DarkCorrect");
+		absorbanceCorrectedSource->setDescription("Absorbance Dark Current Corrected");
 		absorbanceCorrectedSource->setInputDataSources(QList<AMDataSource*>() << i0CorrectedDetectorSource << i1CorrectedDetectorSource << i2CorrectedDetectorSource);
 		absorbanceCorrectedSource->setExpression(QString("ln(%1/%2)").arg(i1CorrectedDetectorSource->name(), i2CorrectedDetectorSource->name()));
 
