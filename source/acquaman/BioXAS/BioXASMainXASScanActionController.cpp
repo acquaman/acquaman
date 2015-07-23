@@ -102,7 +102,15 @@ QString BioXASMainXASScanActionController::beamlineSettings()
 {
 	QString notes;
 
+	// Note the storage ring current.
+
 	notes.append(QString("SR1 Current:\t%1 mA\n").arg(CLSStorageRing::sr1()->ringCurrent()));
+
+	// Note the mono settling time, if applicable.
+
+	double settlingTime = BioXASMainBeamline::bioXAS()->mono()->braggMotor()->settlingTime();
+	if (settlingTime > 0)
+		notes.append(QString("Settling time:\t%1 s\n").arg(settlingTime));
 
 	return notes;
 }
