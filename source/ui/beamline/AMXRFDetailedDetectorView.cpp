@@ -61,6 +61,8 @@ AMXRFDetailedDetectorView::AMXRFDetailedDetectorView(AMXRFDetector *detector, QW
 	connect(regionOfInterestMapper_, SIGNAL(mapped(QObject*)), this, SLOT(onRegionOfInterestBoundsChanged(QObject*)));
 
 	deadTimeViewFactor_ = int(sqrt(double(detector->elements())));
+	// this is to make sure we have more columns than rows, which will looks nicer
+	deadTimeViewFactor_ = (detector->elements() / deadTimeViewFactor_ ) > deadTimeViewFactor_ ? deadTimeViewFactor_ + 1 : deadTimeViewFactor_;
 }
 
 void AMXRFDetailedDetectorView::buildDetectorView()

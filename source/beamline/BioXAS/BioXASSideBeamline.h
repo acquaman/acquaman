@@ -247,7 +247,7 @@ public:
 	/// Returns the 32 element Ge detector.
 	BioXAS32ElementGeDetector *ge32ElementDetector() const { return ge32ElementDetector_; }
 	/// Returns the four element Vortex detector.
-	BioXASFourElementVortexDetector *fourElementVortexDetector() const { return fourElementVortexDetector_; }
+//	BioXASFourElementVortexDetector *fourElementVortexDetector() const { return fourElementVortexDetector_; }
 
 	// Endstation table
 	BioXASEndstationTable *endstationTable() const { return endstationTable_; }
@@ -335,7 +335,7 @@ protected:
 	AMBasicControlDetectorEmulator *braggStepMotorFeedbackDetector_;
 	AMBasicControlDetectorEmulator *braggEncoderFeedbackDetector_;
 	BioXAS32ElementGeDetector *ge32ElementDetector_;
-	BioXASFourElementVortexDetector *fourElementVortexDetector_;
+//	BioXASFourElementVortexDetector *fourElementVortexDetector_;
 
 	/// The JJ slits
 	CLSJJSlits *jjSlits_;

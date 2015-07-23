@@ -257,7 +257,7 @@ void AMDataPositionCursorToolView::refresh()
 void AMDataPositionCursorToolView::onPositionChanged()
 {
 	if (tool_)
-		tool_->setCursorPosition(positionSpinBox_->value());
+		tool_->setCursorPositionX(positionSpinBox_->value());
 }
 
 void AMDataPositionCursorToolView::onMarkerChanged()

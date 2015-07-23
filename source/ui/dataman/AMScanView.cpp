@@ -370,7 +370,7 @@ void AMScanView::setPlotCursorCoordinates(double newCoordinate)
 			foreach (MPlotAbstractTool *tool, view->tools()->tools()) {
 				MPlotDataPositionCursorTool *cursorTool = qobject_cast<MPlotDataPositionCursorTool*>(tool);
 				if (cursorTool)
-					cursorTool->setCursorPosition(newCoordinate);
+					cursorTool->setCursorPositionX(newCoordinate);
 			}
 		}
 	}
