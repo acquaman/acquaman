@@ -22,27 +22,18 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef BIOXASSIDEAPPCONTROLLER_H
 #define BIOXASSIDEAPPCONTROLLER_H
 
-#include "application/AMAppController.h"
+#include "application/BioXAS/BioXASAppController.h"
 
-class QGroupBox;
-class QWidget;
-class BioXASSIS3820ScalerView;
-class CLSJJSlitsView;
+class BioXASEndstationTableView;
 class BioXASSidePersistentView;
 class BioXASSideXASScanConfiguration;
 class BioXASSideXASScanConfigurationView;
 class AMScanConfigurationViewHolder3;
-class BioXASSSRLMonochromatorConfigurationView;
-class BioXASUserConfiguration;
 class AMRegionOfInterest;
-class BioXASXIAFiltersView;
-class BioXASCarbonFilterFarmView;
-class BioXASM2MirrorView;
-class BioXASDBHRMirrorView;
 class AMGenericStepScanConfiguration;
 class AMGenericStepScanConfigurationView;
 
-class BioXASSideAppController : public AMAppController
+class BioXASSideAppController : public BioXASAppController
 {
 	Q_OBJECT
 
@@ -87,20 +78,21 @@ protected:
 	/// Applies the current settings.
 	void applyCurrentSettings();
 
-	/// create squeeze groupbox layout
-	QGroupBox *createSqueezeGroupBoxWithView(QString title, QWidget *view);
-
 protected:
 	/// The scaler view.
 	BioXASSIS3820ScalerView *scalerView_;
 	/// The mono configuration view.
 	BioXASSSRLMonochromatorConfigurationView *monoConfigView_;
+	/// The endstation table view
+	BioXASEndstationTableView *endstationTableView_;
 	/// The JJ slit view
 	CLSJJSlitsView *jjSlitsView_;
 	/// The XIA filters view.
 	BioXASXIAFiltersView *xiaFiltersView_;
 	/// The carbon filter farm view.
 	BioXASCarbonFilterFarmView *carbonFilterFarmView_;
+	/// The m1 mirror view.
+	BioXASM1MirrorView *m1MirrorView_;
 	/// The m2 mirror view.
 	BioXASM2MirrorView *m2MirrorView_;
 	/// The dbhr mirror view.

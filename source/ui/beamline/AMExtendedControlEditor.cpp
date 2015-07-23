@@ -43,8 +43,6 @@ AMExtendedControlEditor::AMExtendedControlEditor(AMControl* control, AMControl* 
 {
 	setObjectName("AMControlEdit");
 
-	moveCounter_ = 0;
-
 	control_ = 0;
 	readOnly_ = true;
 	readOnlyPreference_ = true;
@@ -125,7 +123,7 @@ AMControl* AMExtendedControlEditor::control() const{
 }
 
 bool AMExtendedControlEditor::setControlFormat(const QChar& format, int precision){
-	if(format == 'g' || format == 'G' || format == 'e' || format == 'E' || format == 'f'){
+	if(format == 'g' || format == 'G' || format == 'e' || format == 'E' || format == 'f' || format == 'F'){
 		format_ = format;
 		precision_ = precision;
 		if(control_ && control_->isConnected())
@@ -341,7 +339,7 @@ void AMExtendedControlEditor::updateReadOnlyStatus()
 
 void AMExtendedControlEditor::onConnectedChanged()
 {
-	if (control_ && control_->isConnected()) {
+	if (control_ && control_->canMeasure()) {
 
 		onValueChanged(control_->value());
 		onUnitsChanged(control_->units());

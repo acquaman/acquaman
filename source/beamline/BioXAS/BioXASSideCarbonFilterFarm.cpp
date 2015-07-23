@@ -1,7 +1,7 @@
 #include "BioXASSideCarbonFilterFarm.h"
 
 BioXASSideCarbonFilterFarm::BioXASSideCarbonFilterFarm(QObject *parent) :
-	BioXASCarbonFilterFarm("BioXASSideCarbonFilterFarm", parent)
+	BioXASCarbonFilterFarm("SideCarbonFilterFarm", parent)
 {
 	// Create components.
 

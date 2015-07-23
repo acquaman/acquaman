@@ -408,21 +408,28 @@ HEADERS += \
 	source/dataman/AMXRFScan.h \
 	source/ui/util/AMChooseDataFolderDialog.h \
 	source/acquaman/AMTimedScanActionControllerAssembler.h \
-    source/dataman/AMLightweightScanInfoFactory.h \
-    source/ui/util/AMGridFlowGeometryManager.h \
-    source/ui/dataman/AMScanThumbnailGridViewItemDelegate.h \
-    source/ui/dataman/AMScanThumbnailGridView.h \
-    source/ui/dataman/AMScanThumbnailGridInputManager.h \
+	source/dataman/AMLightweightScanInfoFactory.h \
+	source/ui/util/AMGridFlowGeometryManager.h \
+	source/ui/dataman/AMScanThumbnailGridViewItemDelegate.h \
+	source/ui/dataman/AMScanThumbnailGridView.h \
+	source/ui/dataman/AMScanThumbnailGridInputManager.h \
 	source/ui/dataman/AMScanThumbnailGridGeometryManager.h \
 	source/acquaman/AMGenericStepScanController.h \
-    source/acquaman/AMGenericStepScanConfiguration.h \
+	source/acquaman/AMGenericStepScanConfiguration.h \
 	source/ui/acquaman/AMGenericStepScanConfigurationView.h \
 	source/util/AMCSVParser.h \
 	source/actions3/AMTimeoutLoopActionInfo.h \
 	source/actions3/AMTimeoutLoopAction.h \
-    source/beamline/AMPseudoMotorControl.h \
-    source/beamline/AMXspress3XRFDetector.h \
-    source/ui/beamline/AMXspress3XRFDetectorView.h
+	source/beamline/AMPseudoMotorControl.h \
+	source/beamline/AMXspress3XRFDetector.h \
+	source/ui/beamline/AMXspress3XRFDetectorView.h \
+    source/dataman/export/AMExporterXDIFormat.h \
+    source/dataman/export/AMExporterOptionXDIFormat.h \
+    source/ui/dataman/AMScanViewPlotToolsView.h \
+    source/ui/dataman/AMScanViewPlotToolsButtonView.h \
+    source/ui/dataman/AMScanViewPlotToolView.h \
+    source/ui/dataman/AMScanViewPlotSelectedToolsView.h \
+    source/dataman/AMScanViewPlotTools.h
 
 FORMS += \
 
@@ -793,20 +800,27 @@ SOURCES += \
 	source/ui/util/AMChooseDataFolderDialog.cpp \
 	source/acquaman/AMTimedScanActionControllerAssembler.cpp \
 	source/dataman/AMLightweightScanInfoFactory.cpp \
-    source/ui/util/AMGridFlowGeometryManager.cpp \
-    source/ui/dataman/AMScanThumbnailGridViewItemDelegate.cpp \
-    source/ui/dataman/AMScanThumbnailGridView.cpp \
-    source/ui/dataman/AMScanThumbnailGridInputManager.cpp \
+	source/ui/util/AMGridFlowGeometryManager.cpp \
+	source/ui/dataman/AMScanThumbnailGridViewItemDelegate.cpp \
+	source/ui/dataman/AMScanThumbnailGridView.cpp \
+	source/ui/dataman/AMScanThumbnailGridInputManager.cpp \
 	source/ui/dataman/AMScanThumbnailGridGeometryManager.cpp \
 	source/acquaman/AMGenericStepScanController.cpp \
-    source/acquaman/AMGenericStepScanConfiguration.cpp \
+	source/acquaman/AMGenericStepScanConfiguration.cpp \
 	source/ui/acquaman/AMGenericStepScanConfigurationView.cpp \
 	source/util/AMCSVParser.cpp \
 	source/actions3/AMTimeoutLoopActionInfo.cpp \
 	source/actions3/AMTimeoutLoopAction.cpp \
-    source/beamline/AMPseudoMotorControl.cpp \
-    source/beamline/AMXspress3XRFDetector.cpp \
-    source/ui/beamline/AMXspress3XRFDetectorView.cpp
+	source/beamline/AMPseudoMotorControl.cpp \
+	source/beamline/AMXspress3XRFDetector.cpp \
+	source/ui/beamline/AMXspress3XRFDetectorView.cpp \
+    source/dataman/export/AMExporterXDIFormat.cpp \
+    source/dataman/export/AMExporterOptionXDIFormat.cpp \
+    source/ui/dataman/AMScanViewPlotToolsView.cpp \
+    source/ui/dataman/AMScanViewPlotToolsButtonView.cpp \
+    source/ui/dataman/AMScanViewPlotToolView.cpp \
+    source/ui/dataman/AMScanViewPlotSelectedToolsView.cpp \
+    source/dataman/AMScanViewPlotTools.cpp
 
 
 RESOURCES *= source/icons/icons.qrc \
@@ -824,6 +838,30 @@ contains(DEFINES, AM_BUILD_REPORTER_ENABLED){
 
 	SOURCES *= source/util/AMRunTimeBuildInfo.cpp
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

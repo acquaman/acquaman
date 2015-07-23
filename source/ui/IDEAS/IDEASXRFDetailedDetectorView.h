@@ -19,32 +19,44 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#ifndef IDEASXRFDETAILEDDETECTORVIEWWITHSAVE_H
-#define IDEASXRFDETAILEDDETECTORVIEWWITHSAVE_H
+#ifndef IDEASXRFDETAILEDDETECTORVIEW_H
+#define IDEASXRFDETAILEDDETECTORVIEW_H
 
 #include "ui/beamline/AMXRFDetailedDetectorView.h"
 
+<<<<<<< HEAD:source/ui/IDEAS/IDEASXRFDetailedDetectorViewWithSave.h
 #include "acquaman/IDEAS/IDEASXRFScanConfiguration.h"
 #include "actions3/actions/AMScanAction.h"
 
 
+=======
+>>>>>>> master:source/ui/IDEAS/IDEASXRFDetailedDetectorView.h
 #include <QPushButton>
 #include <QSignalMapper>
 #include <QPlainTextEdit>
 #include <QLineEdit>
 #include <QtGui/QComboBox>
 
+#include "acquaman/IDEAS/IDEASXRFScanConfiguration.h"
+#include "actions3/actions/AMScanAction.h"
+#include "ui/dataman/AMChooseScanDialog.h"
 
-class IDEASXRFDetailedDetectorViewWithSave : public AMXRFDetailedDetectorView
+class AMExportController;
+
+class IDEASXRFDetailedDetectorView : public AMXRFDetailedDetectorView
 {
 	Q_OBJECT
 
 public:
 	/// Constructor.
+<<<<<<< HEAD:source/ui/IDEAS/IDEASXRFDetailedDetectorViewWithSave.h
 	IDEASXRFDetailedDetectorViewWithSave(AMXRFDetector *detector, QWidget *parent = 0);
 
+=======
+	IDEASXRFDetailedDetectorView(AMXRFDetector *detector, QWidget *parent = 0);
+>>>>>>> master:source/ui/IDEAS/IDEASXRFDetailedDetectorView.h
 	/// Destructor.
-	virtual ~IDEASXRFDetailedDetectorViewWithSave();
+	virtual ~IDEASXRFDetailedDetectorView();
 
 	/// Re-implementing but still going to use the base class buildDetectorView since this view is merely adding to it.
 	virtual void buildDetectorView();
@@ -53,11 +65,24 @@ signals:
 
 
 protected slots:
+	/// Starts the acquisition.  Calls acquire() but subclasses can reimplement if there is a more sofisticated start routine.
+	virtual void startAcquisition();
+	/// Handles bringing up and exporting the given XRF scans.
 	void onSaveScanButtonClicked();
+<<<<<<< HEAD:source/ui/IDEAS/IDEASXRFDetailedDetectorViewWithSave.h
 	void onNotesTextChanged();
 	void onScanNameChanged(QString name);
 	void onScanNumberChanged(int number);
 	void onAcquisitionSucceeded();
+=======
+	/// Handles grabbing the scan and exporting it.
+	void exportScan();
+	/// Handles deleting the export controller.
+	void onExportControllerStateChanged(int state);
+
+	void onPeakingTimeBoxChanged(const QString &arg1);
+	void onKETEKPeakingTimeChanged();
+>>>>>>> master:source/ui/IDEAS/IDEASXRFDetailedDetectorView.h
 	void onDeadTimeCheckButtonClicked();
 
 
@@ -67,10 +92,15 @@ protected:
 
 	/// The button for saving the scan.
 	QPushButton *saveScanButton_;
+	/// Choose scan dialog.
+	AMChooseScanDialog *chooseScanDialog_;
+	/// The export controller.
+	AMExportController *exportController_;
 
 	/// button to trigger a 0.1s XRF acquitisition to check to too-high count rates.
 	QPushButton *deadTimeCheckButton;
 
+<<<<<<< HEAD:source/ui/IDEAS/IDEASXRFDetailedDetectorViewWithSave.h
 
 	/// A  scan configuration notes editor
 	QPlainTextEdit *notesEdit;
@@ -89,6 +119,9 @@ protected:
         AMAction3* scanAction_;
 
 
+=======
+	QComboBox *peakingTimeBox;
+>>>>>>> master:source/ui/IDEAS/IDEASXRFDetailedDetectorView.h
 };
 
-#endif // IDEASXRFDETAILEDDETECTORVIEWWITHSAVE_H
+#endif // IDEASXRFDETAILEDDETECTORVIEW_H

@@ -23,6 +23,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define IDEASKETEKDETECTOR_H
 
 #include "beamline/AMXRFDetector.h"
+#include "application/IDEAS/IDEAS.h"
 
 /// Implementation of the AMXRFDetector for the KETEK fluorescence detector for the IDEAS beamline.
 class IDEASKETEKDetector : public AMXRFDetector
@@ -36,7 +37,10 @@ public:
     /// Destructor
     virtual ~IDEASKETEKDetector();
 
-    /// The KETEK doesn't explicitly require powering on
+	/// Returns the type of the detector
+	virtual int type() { return IDEAS::KetekDetector; }
+
+	/// The KETEK doesn't explicitly require powering on
     virtual bool requiresPower() const { return false; }
 
     /// Cancelling is implemented for the KETEK detectors

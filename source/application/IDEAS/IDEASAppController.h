@@ -26,6 +26,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 class AMScanConfigurationViewHolder3;
 class IDEASXASScanConfigurationView;
+<<<<<<< HEAD
+=======
+class IDEASXRFDetailedDetectorView;
+>>>>>>> master
 class IDEASSampleCameraPanel;
 class IDEASKETEKDetailedDetectorView;
 class IDEAS13ElementGeDetailedDetectorView;
@@ -84,10 +88,17 @@ protected:
 	IDEASXASScanConfigurationView *xasScanConfigurationView_;
 	/// View holder for XAS
 	AMScanConfigurationViewHolder3 *xasScanConfigurationHolder3_;
+<<<<<<< HEAD
 	/// View for the IDEAS's Ketek XRF scan configurations
 	IDEASKETEKDetailedDetectorView *ideasKETEKDetailedDetectorView_;
 	/// View for the IDEAS's g13 Element scan configurations
 	IDEAS13ElementGeDetailedDetectorView *ideas13ElementGeDetailedDetectorView_;
+=======
+	/// View for the IDEAS's XRF scan configurations
+	IDEASXRFDetailedDetectorView *ideasKETEKDetailedDetectorView_;
+	/// View for the IDEAS's XRF scan configurations
+	IDEASXRFDetailedDetectorView *ideas13ElementGeDetailedDetectorView_;
+>>>>>>> master
 	/// View for viewing the sample cameras and aligning samples
 	IDEASSampleCameraPanel *sampleCameraPanel_;
 };

@@ -32,6 +32,21 @@ AMPseudoMotorControl::~AMPseudoMotorControl()
 
 }
 
+bool AMPseudoMotorControl::validValue(double value) const
+{
+	bool isValid = false;
+
+	if (value >= minimumValue() && value <= maximumValue())
+		isValid = true;
+
+	return isValid;
+}
+
+bool AMPseudoMotorControl::validSetpoint(double value) const
+{
+	return validValue(value);
+}
+
 void AMPseudoMotorControl::addChildControl(AMControl *control)
 {
 	if (control) {
@@ -39,7 +54,7 @@ void AMPseudoMotorControl::addChildControl(AMControl *control)
 
 		connect( control, SIGNAL(connected(bool)), this, SLOT(updateStates()) );
 		connect( control, SIGNAL(valueChanged(double)), this, SLOT(updateValue()) );
-		connect( control, SIGNAL(movingChanged(bool)), this, SLOT(updateIsMoving()) );
+		connect( control, SIGNAL(movingChanged(bool)), this, SLOT(updateMoving()) );
 	}
 }
 
@@ -51,10 +66,65 @@ void AMPseudoMotorControl::removeChildControl(AMControl *control)
 	}
 }
 
-#include <QDebug>
+QString AMPseudoMotorControl::toString() const
+{
+	// Note this control's name.
+
+	QString controlName = "Name: " + objectName();
+
+	// Note this control's description.
+
+	QString controlDescription = "Description: " + description();
+
+	// Note this control's general connected state.
+
+	QString controlConnected = "Connected: ";
+	if (isConnected())
+		controlConnected += "Yes";
+	else
+		controlConnected += "No";
+
+	// Note the connected state of each of the child controls.
+
+	controlConnected += "\n";
+
+	int childCount = childControlCount();
+
+	for (int childIndex = 0; childIndex < childCount; childIndex++) {
+		AMControl *child = childControlAt(childIndex);
+
+		if (child) {
+			controlConnected += "\t" + child->objectName() + " connected: ";
+
+			if (child->isConnected())
+				controlConnected += "Yes";
+			else
+				controlConnected += "No";
+		}
+
+		if (childIndex < childCount - 1)
+			controlConnected += "\n";
+	}
+
+	// Note this control's moving state.
+
+	QString controlMoving = "Moving: ";
+	if (isMoving())
+		controlMoving += "Yes";
+	else
+		controlMoving += "No";
+
+	// Create and return complete info string.
+
+	QString result = controlName + "\n" + controlDescription + "\n" + controlConnected + "\n" + controlMoving;
+
+	return result;
+}
 
 AMControl::FailureExplanation AMPseudoMotorControl::move(double setpoint)
 {
+	// Check that this control is connected and able to move before proceeding.
+
 	if (!isConnected()) {
 		AMErrorMon::alert(this, AMPSEUDOMOTORCONTROL_NOT_CONNECTED, QString("Failed to move %1: control is not connected.").arg(name()));
 		return AMControl::NotConnectedFailure;
@@ -75,39 +145,52 @@ AMControl::FailureExplanation AMPseudoMotorControl::move(double setpoint)
 		return AMControl::LimitFailure;
 	}
 
+	// If the new setpoint is within tolerance, no need to proceed with move.
+	// Instead report a successful move to setpoint.
+
+	if (withinTolerance(setpoint)) {
+		onMoveStarted(0);
+		onMoveSucceeded(0);
+		return AMControl::NoFailure;
+	}
+
+	// Otherwise, an actual move is needed.
 	// Update the setpoint.
 
 	setSetpoint(setpoint);
 
-	// Otherwise, create new move action.
+	// Create new move action.
 
 	AMAction3 *moveAction = createMoveAction(setpoint_);
 
+	// Check that a valid move action was generated.
+	// If an invalid move action was created, abort the move.
+
 	if (!moveAction) {
-		AMErrorMon::information(this, AMPSEUDOMOTORCONTROL_INVALID_MOVE_ACTION, QString("Did not move %1: invalid move action generated.").arg(name()));
+		AMErrorMon::alert(this, AMPSEUDOMOTORCONTROL_INVALID_MOVE_ACTION, QString("Did not move %1: invalid move action generated.").arg(name()));
 		onMoveStarted(0);
-		onMoveSucceeded(0);
-
-	} else {
-
-		// Create move action signal mappings.
-
-		startedMapper_->setMapping(moveAction, moveAction);
-		connect( moveAction, SIGNAL(started()), startedMapper_, SLOT(map()) );
-
-		cancelledMapper_->setMapping(moveAction, moveAction);
-		connect( moveAction, SIGNAL(cancelled()), cancelledMapper_, SLOT(map()) );
-
-		failedMapper_->setMapping(moveAction, moveAction);
-		connect( moveAction, SIGNAL(failed()), failedMapper_, SLOT(map()) );
-
-		succeededMapper_->setMapping(moveAction, moveAction);
-		connect( moveAction, SIGNAL(succeeded()), succeededMapper_, SLOT(map()) );
-
-		// Run action.
-
-		moveAction->start();
+		onMoveFailed(0);
+		return AMControl::LimitFailure;
 	}
+
+	// Otherwise, proceed with initializing and running the move action.
+	// Create move action signal mappings.
+
+	startedMapper_->setMapping(moveAction, moveAction);
+	connect( moveAction, SIGNAL(started()), startedMapper_, SLOT(map()) );
+
+	cancelledMapper_->setMapping(moveAction, moveAction);
+	connect( moveAction, SIGNAL(cancelled()), cancelledMapper_, SLOT(map()) );
+
+	failedMapper_->setMapping(moveAction, moveAction);
+	connect( moveAction, SIGNAL(failed()), failedMapper_, SLOT(map()) );
+
+	succeededMapper_->setMapping(moveAction, moveAction);
+	connect( moveAction, SIGNAL(succeeded()), succeededMapper_, SLOT(map()) );
+
+	// Run action.
+
+	moveAction->start();
 
 	return AMControl::NoFailure;
 }
@@ -130,6 +213,22 @@ bool AMPseudoMotorControl::stop()
 	}
 
 	return result;
+}
+
+void AMPseudoMotorControl::setEnumStates(const QStringList &enumStateNames)
+{
+	AMControl::setEnumStates(enumStateNames);
+
+	if (!enumStateNames.isEmpty()) {
+		connect( this, SIGNAL(valueChanged(double)), this, SIGNAL(enumChanged()) );
+		connect( this, SIGNAL(connected(bool)), this, SIGNAL(enumChanged()) );
+		connect( this, SIGNAL(setpointChanged(double)), this, SIGNAL(enumChanged()) );
+
+	} else {
+		disconnect( this, SIGNAL(valueChanged(double)), this, SIGNAL(enumChanged()) );
+		disconnect( this, SIGNAL(connected(bool)), this, SIGNAL(enumChanged()) );
+		disconnect( this, SIGNAL(setpointChanged(double)), this, SIGNAL(enumChanged()) );
+	}
 }
 
 void AMPseudoMotorControl::setConnected(bool isConnected)
@@ -192,13 +291,14 @@ void AMPseudoMotorControl::updateStates()
 {
 	updateConnected();
 	updateValue();
-	updateIsMoving();
+	updateMoving();
 }
 
 void AMPseudoMotorControl::onMoveStarted(QObject *action)
 {
 	Q_UNUSED(action)
 	setMoveInProgress(true);
+	emit moveStarted();
 }
 
 void AMPseudoMotorControl::onMoveCancelled(QObject *action)
@@ -222,7 +322,7 @@ void AMPseudoMotorControl::onMoveSucceeded(QObject *action)
 void AMPseudoMotorControl::moveCleanup(QObject *action)
 {
 	setMoveInProgress(false);
-	updateIsMoving();
+	updateMoving();
 
 	if (action) {
 		action->disconnect();

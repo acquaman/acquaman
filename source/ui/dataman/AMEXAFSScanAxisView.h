@@ -79,6 +79,8 @@ protected slots:
 	void onMaximumTimeUpdated();
 
 protected:
+	/// Helper method that sets the tool tip if we are a k-space region.
+	void updateKSpaceToolTip();
 
 	/// The pointer to the region.
 	AMScanAxisEXAFSRegion *region_;
