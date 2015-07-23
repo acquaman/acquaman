@@ -163,8 +163,8 @@ AMAction3* BioXASSideXASScanActionController::createCleanupActions()
 	CLSSIS3820Scaler *scaler = BioXASSideBeamline::bioXAS()->scaler();
 
 	AMListAction3 *cleanup = new AMListAction3(new AMListActionInfo3("BioXAS Side Cleanup", "BioXAS Cleanup"), AMListAction3::Sequential);
-	cleanup->addSubAction(scaler->createDwellTimeAction3(1.0));
 	cleanup->addSubAction(scaler->createContinuousEnableAction3(true));
+	cleanup->addSubAction(scaler->createDwellTimeAction3(1.0));
 
 	// Set the bragg motor power to PowerAutoSoftware.
 	cleanup->addSubAction(BioXASSideBeamline::bioXAS()->mono()->braggMotor()->createPowerAction(CLSMAXvMotor::PowerAutoSoftware));

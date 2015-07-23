@@ -152,8 +152,8 @@ AMAction3* BioXASMainXASScanActionController::createCleanupActions()
 	CLSSIS3820Scaler *scaler = BioXASMainBeamline::bioXAS()->scaler();
 
 	AMListAction3 *cleanup = new AMListAction3(new AMListActionInfo3("BioXAS Main Cleanup", "BioXAS Main Cleanup"), AMListAction3::Sequential);
-	cleanup->addSubAction(scaler->createDwellTimeAction3(1.0));
 	cleanup->addSubAction(scaler->createContinuousEnableAction3(true));
+	cleanup->addSubAction(scaler->createDwellTimeAction3(1.0));
 
 	// Set the bragg motor power to PowerAutoHardware. The motor can get too warm when left on for too long, that's why we turn it off when not in use.
 	cleanup->addSubAction(BioXASMainBeamline::bioXAS()->mono()->braggMotor()->createPowerAction(CLSMAXvMotor::PowerAutoHardware));
