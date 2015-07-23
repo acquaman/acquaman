@@ -84,7 +84,7 @@ void AMXspress3XRFDetectorView::updateStatusAndAcquisitionButtons()
 {
 	if (detector_->requiresInitialization() || detector_->isNotReadyForAcquisition()){
 
-		statusLabel_->setPixmap(QIcon(":/RED.png").pixmap(22));
+		statusLabel_->setPixmap(QIcon(":/32x32/redLEDOn.png").pixmap(22));
 		acquireButton_->setEnabled(false);
 		cancelButton_->setEnabled(false);
 		initializeButton_->setVisible(true);
@@ -92,7 +92,7 @@ void AMXspress3XRFDetectorView::updateStatusAndAcquisitionButtons()
 
 	else if (detector_->isInitializing()){
 
-		statusLabel_->setPixmap(QIcon(":/Yellow.png").pixmap(22));
+		statusLabel_->setPixmap(QIcon(":/32x32/yellowLEDOn.png").pixmap(22));
 		acquireButton_->setEnabled(false);
 		cancelButton_->setEnabled(false);
 		initializeButton_->setVisible(false);
@@ -100,7 +100,7 @@ void AMXspress3XRFDetectorView::updateStatusAndAcquisitionButtons()
 
 	else if (detector_->isReadyForAcquisition()){
 
-		statusLabel_->setPixmap(QIcon(":/OFF.png").pixmap(22));
+		statusLabel_->setPixmap(QIcon(":/32x32/greenLEDOff.png").pixmap(22));
 		acquireButton_->setEnabled(true);
 		cancelButton_->setEnabled(false);
 		initializeButton_->setVisible(false);
@@ -108,7 +108,7 @@ void AMXspress3XRFDetectorView::updateStatusAndAcquisitionButtons()
 
 	else if (detector_->isAcquiring()){
 
-		statusLabel_->setPixmap(QIcon(":/ON.png").pixmap(22));
+		statusLabel_->setPixmap(QIcon(":/32x32/greenLEDOn.png").pixmap(22));
 		acquireButton_->setEnabled(false);
 		cancelButton_->setEnabled(true);
 		initializeButton_->setVisible(false);

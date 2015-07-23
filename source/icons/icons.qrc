@@ -99,13 +99,10 @@
         <file>greencheckmark.png</file>
         <file>hammer.png</file>
         <file>lightning.png</file>
-        <file>OFF.png</file>
-        <file>ON.png</file>
         <file>play_button_green.png</file>
         <file>PressureIcon.png</file>
         <file>red-laser.png</file>
         <file>red-stop-button.png</file>
-        <file>RED.png</file>
         <file>reset.png</file>
         <file>ThermometerIcon.png</file>
         <file>trashcan.png</file>
@@ -189,7 +186,6 @@
         <file>32x32/format-line-spacing-triple.png</file>
         <file>32x32/media-seek-forward-6.png</file>
         <file>32x32/format-list-ordered.png</file>
-        <file>Yellow.png</file>
         <file>go-in.png</file>
         <file>go-out.png</file>
         <file>16x16/lock.png</file>
