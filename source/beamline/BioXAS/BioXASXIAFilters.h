@@ -4,6 +4,7 @@
 #include <QObject>
 #include <QSignalMapper>
 
+#include "beamline/BioXAS/BioXASBeamlineComponent.h"
 #include "beamline/CLS/CLSBiStateControl.h"
 
 // Setpoints.
@@ -17,7 +18,7 @@
 #define BIOXAS_XIA_FILTERS_INVALID_SETPOINT 29348723
 #define BIOXAS_XIA_FILTERS_MOVE_FAILED 29348724
 
-class BioXASXIAFilters : public QObject
+class BioXASXIAFilters : public BioXASBeamlineComponent
 {
     Q_OBJECT
 
@@ -26,12 +27,12 @@ public:
 	class Filter { public: enum Position { Out = 0, In }; };
 
 	/// Constructor.
-    explicit BioXASXIAFilters(QObject *parent = 0);
+	explicit BioXASXIAFilters(const QString &name, QObject *parent = 0);
 	/// Destructor.
 	virtual ~BioXASXIAFilters();
 
-	/// Returns true if the filters are connected, false otherwise.
-	bool isConnected() const { return connected_; }
+	/// Returns the current connected state.
+	virtual bool isConnected() const;
 
 	/// Returns the first filter control.
 	AMControl* filter1() const { return filter1_; }
@@ -42,21 +43,7 @@ public:
 	/// Returns the fourth filter control.
 	AMControl* filter4() const { return filter4_; }
 
-signals:
-	/// Notifier that the current connection state has changed.
-	void connectedChanged(bool isConnected);
-
-protected slots:
-	/// Sets the current connection state.
-	void setConnected(bool isConnected);
-
-	/// Handles updating the current connection state.
-	void onConnectedChanged();
-
 protected:
-	/// The current connection state.
-	bool connected_;
-
 	/// Controls for the first filter.
 	CLSBiStateControl *filter1_;
 	/// Control for the second filter.
@@ -65,7 +52,6 @@ protected:
 	CLSBiStateControl *filter3_;
 	/// Control for the fourth filter.
 	CLSBiStateControl *filter4_;
-
 };
 
 #endif // BIOXASXIAFILTERS_H

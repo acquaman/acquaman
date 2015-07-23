@@ -1,7 +1,7 @@
 #include "BioXASSideXIAFilters.h"
 
 BioXASSideXIAFilters::BioXASSideXIAFilters(QObject *parent) :
-    BioXASXIAFilters(parent)
+	BioXASXIAFilters("BioXAS Side XIA Filters", parent)
 {
 	// Initialize inherited variables.
 
@@ -12,10 +12,14 @@ BioXASSideXIAFilters::BioXASSideXIAFilters(QObject *parent) :
 
 	// Make connections.
 
-	connect( filter1_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()) );
-	connect( filter2_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()) );
-	connect( filter3_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()) );
-	connect( filter4_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()) );
+	connect( filter1_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+	connect( filter2_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+	connect( filter3_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+	connect( filter4_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+
+	// Current settings.
+
+	updateConnected();
 }
 
 BioXASSideXIAFilters::~BioXASSideXIAFilters()

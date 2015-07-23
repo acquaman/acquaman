@@ -2,8 +2,8 @@
 #include "util/AMErrorMonitor.h"
 #include "actions3/AMActionSupport.h"
 
-BioXASXIAFilters::BioXASXIAFilters(QObject *parent) :
-	QObject(parent)
+BioXASXIAFilters::BioXASXIAFilters(const QString &name, QObject *parent) :
+	BioXASBeamlineComponent(name, parent)
 {
 	// Initialize local variables.
 
@@ -22,20 +22,14 @@ BioXASXIAFilters::~BioXASXIAFilters()
 
 }
 
-void BioXASXIAFilters::setConnected(bool isConnected)
+bool BioXASXIAFilters::isConnected() const
 {
-	if (connected_ != isConnected) {
-		connected_ = isConnected;
-		emit connectedChanged(connected_);
-	}
-}
+	bool isConnected = (
+				filter1_ && filter1_->isConnected() &&
+				filter2_ && filter2_->isConnected() &&
+				filter3_ && filter3_->isConnected() &&
+				filter4_ && filter4_->isConnected()
+				);
 
-void BioXASXIAFilters::onConnectedChanged()
-{
-	bool filter1OK = (filter1_ && filter1_->isConnected());
-	bool filter2OK = (filter2_ && filter2_->isConnected());
-	bool filter3OK = (filter3_ && filter3_->isConnected());
-	bool filter4OK = (filter4_ && filter4_->isConnected());
-
-	setConnected(filter1OK && filter2OK && filter3OK && filter4OK);
+	return isConnected;
 }
