@@ -61,7 +61,7 @@ CLSSIS3820CompositeScalerChannelView::CLSSIS3820CompositeScalerChannelView(CLSSI
 	connect(scalerOutput_, SIGNAL(clicked()), this, SLOT(onScalerOutputClicked()));
 
 	statusLabel_ = new QLabel;
-	statusLabel_->setPixmap(QIcon(":/OFF.png").pixmap(22));
+	statusLabel_->setPixmap(QIcon(":/32x32/greenLEDOff.png").pixmap(22));
 	statusLabel_->setVisible(channel1_->voltageRange().isValid());
 	connect(channel1_, SIGNAL(voltageRangeChanged(AMRange)), this, SLOT(updateStatusLabel()));
 
@@ -103,19 +103,19 @@ void CLSSIS3820CompositeScalerChannelView::updateStatusLabel()
 {
 	if (channel1_->withinLinearRange()){
 
-		statusLabel_->setPixmap(QIcon(":/ON.png").pixmap(22));
+		statusLabel_->setPixmap(QIcon(":/32x32/greenLEDOn.png").pixmap(22));
 		statusLabel_->setToolTip("");
 	}
 
 	else if (channel1_->voltageTooLow()){
 
-		statusLabel_->setPixmap(QIcon(":/RED.png").pixmap(22));
+		statusLabel_->setPixmap(QIcon(":/32x32/redLEDOn.png").pixmap(22));
 		statusLabel_->setToolTip(QString("The voltage is too low!\nIncrease the sensitivity until the voltage is higher than %1 V.").arg(channel1_->minimumVoltage()));
 	}
 
 	else if (channel1_->voltageTooHigh()){
 
-		statusLabel_->setPixmap(QIcon(":/RED.png").pixmap(22));
+		statusLabel_->setPixmap(QIcon(":/32x32/redLEDOn.png").pixmap(22));
 		statusLabel_->setToolTip(QString("The voltage is too high!\nDecrease the sensitivity until the voltage is lower than %1 V.").arg(channel1_->maximumVoltage()));
 	}
 }

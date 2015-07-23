@@ -244,6 +244,19 @@ void IDEASBeamline::onShutterStatusChanged()
 	emit overallShutterStatus(safetyShutter_->isOpen() && photonShutter2_->isOpen() && safetyShutter2_->isOpen());
 }
 
+AMXRFDetector *IDEASBeamline::XRFDetector(IDEAS::FluorescenceDetector detectorType)
+{
+	AMXRFDetector * XRFDetector = 0;
+
+	if (detectorType == IDEAS::KetekDetector)
+		XRFDetector = IDEASBeamline::ideas()->ketek();
+
+	else if (detectorType == IDEAS::Ge13ElementDetector)
+		XRFDetector = IDEASBeamline::ideas()->ge13Element();
+
+	return XRFDetector;
+}
+
 AMAction3 *IDEASBeamline::createSamplePlatformMoveVertical(double verticalPosition)
 {
 	if(!samplePlatformVertical_->isConnected())

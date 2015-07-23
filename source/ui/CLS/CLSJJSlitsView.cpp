@@ -6,7 +6,6 @@
 #include <QLabel>
 
 #include "beamline/CLS/CLSJJSlits.h"
-#include "beamline/BioXAS/BioXASSideBeamline.h"
 #include "ui/beamline/AMExtendedControlEditor.h"
 
 CLSJJSlitsView::CLSJJSlitsView(CLSJJSlits *jjSlits, QWidget *parent) :

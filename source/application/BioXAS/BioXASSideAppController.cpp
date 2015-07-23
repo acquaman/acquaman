@@ -224,18 +224,18 @@ void BioXASSideAppController::setupUserInterface()
 	// Create scaler view, if scaler is present and connected.
 	onScalerConnected();
 
-//	BioXAS32ElementGeDetectorView *geDetectorView = new BioXAS32ElementGeDetectorView(BioXASSideBeamline::bioXAS()->ge32ElementDetector());
-//	geDetectorView->buildDetectorView();
-//	geDetectorView->addEmissionLineNameFilter(QRegExp("1"));
-//	geDetectorView->addPileUpPeakNameFilter(QRegExp("(K.1|L.1|Ma1)"));
-//	mw_->addPane(geDetectorView, "Detectors", "Ge 32-el", ":/system-search.png");
+	BioXAS32ElementGeDetectorView *geDetectorView = new BioXAS32ElementGeDetectorView(BioXASSideBeamline::bioXAS()->ge32ElementDetector());
+	geDetectorView->buildDetectorView();
+	geDetectorView->addEmissionLineNameFilter(QRegExp("1"));
+	geDetectorView->addPileUpPeakNameFilter(QRegExp("(K.1|L.1|Ma1)"));
+	mw_->addPane(geDetectorView, "Detectors", "Ge 32-el", ":/system-search.png");
 
-	BioXASFourElementVortexDetectorView *fourElementDetectorView = new BioXASFourElementVortexDetectorView(BioXASSideBeamline::bioXAS()->fourElementVortexDetector());
-	fourElementDetectorView->buildDetectorView();
-	fourElementDetectorView->setEnergyRange(3000, 28000);
-	fourElementDetectorView->addEmissionLineNameFilter(QRegExp("1"));
-	fourElementDetectorView->addPileUpPeakNameFilter(QRegExp("(K.1|L.1|Ma1)"));
-	mw_->addPane(fourElementDetectorView, "Detectors", "4-element", ":/system-search.png");
+//	BioXASFourElementVortexDetectorView *fourElementDetectorView = new BioXASFourElementVortexDetectorView(BioXASSideBeamline::bioXAS()->fourElementVortexDetector());
+//	fourElementDetectorView->buildDetectorView();
+//	fourElementDetectorView->setEnergyRange(3000, 28000);
+//	fourElementDetectorView->addEmissionLineNameFilter(QRegExp("1"));
+//	fourElementDetectorView->addPileUpPeakNameFilter(QRegExp("(K.1|L.1|Ma1)"));
+//	mw_->addPane(fourElementDetectorView, "Detectors", "4-element", ":/system-search.png");
 
 	configuration_ = new BioXASSideXASScanConfiguration();
 	configuration_->setEnergy(10000);
@@ -289,7 +289,7 @@ void BioXASSideAppController::onCurrentScanActionFinishedImplementation(AMScanAc
 
 void BioXASSideAppController::onUserConfigurationLoadedFromDb()
 {
-	AMXRFDetector *detector = BioXASSideBeamline::bioXAS()->fourElementVortexDetector();
+	AMXRFDetector *detector = BioXASSideBeamline::bioXAS()->ge32ElementDetector();
 
 	foreach (AMRegionOfInterest *region, userConfiguration_->regionsOfInterest()){
 
@@ -299,10 +299,10 @@ void BioXASSideAppController::onUserConfigurationLoadedFromDb()
 	}
 
 	// This is connected here because we want to listen to the detectors for updates, but don't want to double add regions on startup.
-//	connect(BioXASSideBeamline::bioXAS()->ge32ElementDetector(), SIGNAL(addedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestAdded(AMRegionOfInterest*)));
-//	connect(BioXASSideBeamline::bioXAS()->ge32ElementDetector(), SIGNAL(removedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestRemoved(AMRegionOfInterest*)));
-	connect(BioXASSideBeamline::bioXAS()->fourElementVortexDetector(), SIGNAL(addedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestAdded(AMRegionOfInterest*)));
-	connect(BioXASSideBeamline::bioXAS()->fourElementVortexDetector(), SIGNAL(removedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestRemoved(AMRegionOfInterest*)));
+	connect(BioXASSideBeamline::bioXAS()->ge32ElementDetector(), SIGNAL(addedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestAdded(AMRegionOfInterest*)));
+	connect(BioXASSideBeamline::bioXAS()->ge32ElementDetector(), SIGNAL(removedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestRemoved(AMRegionOfInterest*)));
+//	connect(BioXASSideBeamline::bioXAS()->fourElementVortexDetector(), SIGNAL(addedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestAdded(AMRegionOfInterest*)));
+//	connect(BioXASSideBeamline::bioXAS()->fourElementVortexDetector(), SIGNAL(removedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestRemoved(AMRegionOfInterest*)));
 }
 
 void BioXASSideAppController::onRegionOfInterestAdded(AMRegionOfInterest *region)

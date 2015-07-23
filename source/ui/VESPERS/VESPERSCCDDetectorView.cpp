@@ -39,7 +39,7 @@ VESPERSCCDDetectorView::VESPERSCCDDetectorView(VESPERSCCDDetector *detector, QWi
 	topFrame->setIcon(QIcon(":/utilities-system-monitor.png"));
 
 	isAcquiring_ = new QLabel;
-	isAcquiring_->setPixmap(QIcon(":/OFF.png").pixmap(22));
+	isAcquiring_->setPixmap(QIcon(":/32x32/greenLEDOff.png").pixmap(22));
 	state_ = new QLabel;
 	connect(detector_, SIGNAL(acquisitionStateChanged(AMDetector::AcqusitionState)), this, SLOT(onIsAcquiringChanged()));
 
@@ -144,13 +144,13 @@ void VESPERSCCDDetectorView::onIsAcquiringChanged()
 
 	if (acquiring){
 
-		isAcquiring_->setPixmap(QIcon(":/ON.png").pixmap(25));
+		isAcquiring_->setPixmap(QIcon(":/32x32/greenLEDOn.png").pixmap(25));
 		state_->setText("Acquiring");
 	}
 
 	else {
 
-		isAcquiring_->setPixmap(QIcon(":/OFF.png").pixmap(25));
+		isAcquiring_->setPixmap(QIcon(":/32x32/greenLEDOff.png").pixmap(25));
 		state_->setText("Idle");
 		elapsedTimer_.stop();
 	}

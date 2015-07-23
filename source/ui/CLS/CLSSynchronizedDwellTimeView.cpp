@@ -36,7 +36,7 @@ CLSSynchronizedDwellTimeElementView::CLSSynchronizedDwellTimeElementView(CLSSync
 	element_ = dwellTimeElement;
 
 	status_ = new QLabel;
-	status_->setPixmap(QIcon(":/OFF.png").pixmap(25, 25));
+	status_->setPixmap(QIcon(":/32x32/greenLEDOff.png").pixmap(25, 25));
 	connect(element_, SIGNAL(statusChanged(bool)), this, SLOT(onStatusChanged(bool)));
 
 	QLabel *name = new QLabel(element_->name());
@@ -148,7 +148,7 @@ CLSSynchronizedDwellTimeView::CLSSynchronizedDwellTimeView(CLSSynchronizedDwellT
 		dwellTimeSpinBox_->setValue(dwellTime_->time());
 		startButton_->setEnabled(!dwellTime_->isScanning());
 		stopButton_->setEnabled(dwellTime_->isScanning());
-		statusLabel_->setPixmap(QIcon(dwellTime_->isScanning() ? ":/ON.png" : ":/OFF.png").pixmap(25));
+		statusLabel_->setPixmap(QIcon(dwellTime_->isScanning() ? ":/32x32/greenLEDOn.png" : ":/32x32/greenLEDOff.png").pixmap(25));
 
 		if(dwellTime_->mode() == CLSSynchronizedDwellTime::SingleShot)
 			modeComboBox_->setCurrentIndex(0);
@@ -177,7 +177,7 @@ CLSSynchronizedDwellTimeView::CLSSynchronizedDwellTimeView(CLSSynchronizedDwellT
 
 void CLSSynchronizedDwellTimeView::onStatusChanged(bool status)
 {
-	statusLabel_->setPixmap(QIcon(status ? ":/ON.png" : ":/OFF.png").pixmap(25));
+	statusLabel_->setPixmap(QIcon(status ? ":/32x32/greenLEDOn.png" : ":/32x32/greenLEDOff.png").pixmap(25));
 }
 
 void CLSSynchronizedDwellTimeView::setAdvancedViewVisible(bool advancedViewVisible)
@@ -231,7 +231,7 @@ void CLSSynchronizedDwellTimeView::onDwellTimeConnected(bool value)
 		dwellTimeSpinBox_->setValue(dwellTime_->time());
 		startButton_->setEnabled(!dwellTime_->isScanning());
 		stopButton_->setEnabled(dwellTime_->isScanning());
-		statusLabel_->setPixmap(QIcon(dwellTime_->isScanning() ? ":/ON.png" : ":/OFF.png").pixmap(25));
+		statusLabel_->setPixmap(QIcon(dwellTime_->isScanning() ? ":/32x32/greenLEDOn.png" : ":/32x32/greenLEDOff.png").pixmap(25));
 		if(dwellTime_->mode() == CLSSynchronizedDwellTime::SingleShot)
 			modeComboBox_->setCurrentIndex(0);
 		else

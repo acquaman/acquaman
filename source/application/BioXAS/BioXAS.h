@@ -6,6 +6,14 @@
 
 namespace BioXAS
 {
+	/// Handles the XRF detector choice.  Available choices are None, KETEK, and 13-element Ge.
+	enum FluorescenceDetector {
+
+		NoneXRFDetector = 0,
+		FourElementVortexDetector = 1,
+		Ge13ElementDetector = 2
+	};
+
 	/// Builds the standard exporter option used for all exported scans.
 	inline AMExporterOptionXDIFormat *buildStandardXDIFormatExporterOption(const QString &name, const QString &elementSymbol, const QString &elementEdge, bool includeHigherOrderSources)
 	{

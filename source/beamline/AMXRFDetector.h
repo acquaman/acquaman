@@ -61,6 +61,8 @@ public:
 	/// Destructor.
 	virtual ~AMXRFDetector();
 
+	/// Returns the type of the detector
+	virtual int type() { return -1; }
 	/// Returns the number of elements in the detector.
 	int elements() const { return rawSpectraSources_.size(); }
 	/// Returns the current acquisition dwell time from the integration time control

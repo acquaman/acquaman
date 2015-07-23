@@ -61,7 +61,7 @@ QGroupBox *SXRMBScanConfigurationView::createAndLayoutDetectorSettings(SXRMBScan
 	connect(configuration->dbObject(), SIGNAL(fluorescenceDetectorChanged(SXRMB::FluorescenceDetectors)), this, SLOT(updateFluorescenceDetectorComboBox(SXRMB::FluorescenceDetectors)));
 
 	// default using bruker
-	updateFluorescenceDetectorComboBox(SXRMB::Bruker);
+	updateFluorescenceDetectorComboBox(SXRMB::BrukerDetector);
 
 	return detectorSettingGroupBox;
 }

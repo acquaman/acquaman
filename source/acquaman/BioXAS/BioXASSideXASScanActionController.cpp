@@ -77,7 +77,7 @@ BioXASSideXASScanActionController::BioXASSideXASScanActionController(BioXASSideX
 //	bioXASDetectors.addDetectorInfo(BioXASSideBeamline::bioXAS()->braggStepMotorFeedbackDetector()->toInfo());
 
 	if (configuration_->usingXRFDetector())
-		bioXASDetectors.addDetectorInfo(BioXASSideBeamline::bioXAS()->fourElementVortexDetector()->toInfo());
+		bioXASDetectors.addDetectorInfo(BioXASSideBeamline::bioXAS()->ge32ElementDetector()->toInfo());
 
 	configuration_->setDetectorConfigurations(bioXASDetectors);
 
@@ -139,7 +139,7 @@ AMAction3* BioXASSideXASScanActionController::createInitializationActions()
 
 	if (configuration_->usingXRFDetector()){
 
-		AMXspress3XRFDetector *detector = BioXASSideBeamline::bioXAS()->fourElementVortexDetector();
+		AMXspress3XRFDetector *detector = BioXASSideBeamline::bioXAS()->ge32ElementDetector();
 		AMSequentialListAction3 *xspress3Setup = new AMSequentialListAction3(new AMSequentialListActionInfo3("Xspress3 setup", "Xspress3 Setup"));
 		xspress3Setup->addSubAction(detector->createDisarmAction());
 		xspress3Setup->addSubAction(detector->createFramesPerAcquisitionAction(int(configuration_->scanAxisAt(0)->numberOfPoints()*1.1)));	// Adding 10% just because.
@@ -321,7 +321,7 @@ void BioXASSideXASScanActionController::buildScanControllerImplementation()
 
 	if (configuration_->usingXRFDetector()){
 
-		AMXRFDetector *detector = BioXASSideBeamline::bioXAS()->fourElementVortexDetector();
+		AMXRFDetector *detector = BioXASSideBeamline::bioXAS()->ge32ElementDetector();
 		detector->removeAllRegionsOfInterest();
 		AMDataSource *spectraSource = scan_->dataSourceAt(scan_->indexOfDataSource(detector->name()));
 		QString edgeSymbol = configuration_->edge().split(" ").first();

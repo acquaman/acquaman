@@ -5,7 +5,7 @@ SXRMBUserConfiguration::SXRMBUserConfiguration(QObject *parent)
 {
 	setName("User Configuration");
 
-	setFluorescenceDetector(SXRMB::Bruker);
+	setFluorescenceDetector(SXRMB::BrukerDetector);
 }
 
 SXRMBUserConfiguration::~SXRMBUserConfiguration()

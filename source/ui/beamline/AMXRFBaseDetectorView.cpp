@@ -67,7 +67,7 @@ void AMXRFBaseDetectorView::buildDetectorView()
 	connect(cancelButton_, SIGNAL(clicked()), this, SLOT(cancelAcquisition()));
 
 	statusLabel_ = new QLabel;
-	statusLabel_->setPixmap(QIcon(":/OFF.png").pixmap(22));
+	statusLabel_->setPixmap(QIcon(":/32x32/greenLEDOff.png").pixmap(22));
 	connect(detector_, SIGNAL(initializationStateChanged(AMDetector::InitializationState)), this, SLOT(onInitializationStateChanged(AMDetector::InitializationState)));
 	connect(detector_, SIGNAL(acquisitionStateChanged(AMDetector::AcqusitionState)), this, SLOT(onAcquisitionStateChanged(AMDetector::AcqusitionState)));
 	connect(detector_, SIGNAL(cleanupStateChanged(AMDetector::CleanupState)), this, SLOT(onCleanupStateChanged(AMDetector::CleanupState)));
@@ -169,7 +169,7 @@ void AMXRFBaseDetectorView::onAcquisitionStateChanged(AMDetector::AcqusitionStat
 {
 	bool isAcquiring = state == AMDetector::Acquiring;
 	acquireButton_->setDisabled(isAcquiring);
-	statusLabel_->setPixmap(QIcon(isAcquiring ? ":/ON.png" : ":/OFF.png").pixmap(22));
+	statusLabel_->setPixmap(QIcon(isAcquiring ? ":/32x32/greenLEDOn.png" : ":/32x32/greenLEDOff.png").pixmap(22));
 }
 
 void AMXRFBaseDetectorView::onNewAcquisitionTimeSetpoint()

@@ -2,6 +2,7 @@
 #define IDEAS13ELEMENTGEDETECTOR_H
 
 #include "beamline/AMXRFDetector.h"
+#include "application/IDEAS/IDEAS.h"
 
 /// Implementation of AMXRFDetector for the 13 element germanium detector on IDEAS.
 class IDEAS13ElementGeDetector : public AMXRFDetector
@@ -13,6 +14,9 @@ public:
 	IDEAS13ElementGeDetector(const QString &name, const QString &description, QObject *parent = 0);
 	/// Destructor.
 	~IDEAS13ElementGeDetector(){}
+
+	/// Returns the type of the detector
+	virtual int type() { return IDEAS::Ge13ElementDetector; }
 
 	/// The germanium detector doesn't explicitly require powering on
 	virtual bool requiresPower() const { return false; }

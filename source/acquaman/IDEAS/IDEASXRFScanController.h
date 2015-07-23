@@ -43,6 +43,10 @@ public slots:
 protected slots:
 	/// Helper slot to finish up a scan.
 	void onDetectorAcquisitionFinished();
+	/// Helper slot that emits the current progress of the scan.
+	void onProgressUpdate();
+	/// Checks to see if the scan has finished.  If it is, then the finish scan sequence is started.
+	void onStatusChanged();
 
 
 protected:

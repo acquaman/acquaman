@@ -21,21 +21,21 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef IDEASBEAMLINE_H
 #define IDEASBEAMLINE_H
 
-#include "beamline/CLS/CLSBeamline.h"
 #include "beamline/AMControlSet.h"
-#include "beamline/CLS/CLSSIS3820Scaler.h"
 #include "beamline/AMMotorGroup.h"
-#include "beamline/CLS/CLSPseudoMotorGroup.h"
-#include "beamline/CLS/CLSBiStateControl.h"
-#include "beamline/CLS/CLSSIS3820Scaler.h"
-
 
 #include "util/AMErrorMonitor.h"
 #include "util/AMBiHash.h"
 
+#include "beamline/CLS/CLSBeamline.h"
+#include "beamline/CLS/CLSSIS3820Scaler.h"
+#include "beamline/CLS/CLSPseudoMotorGroup.h"
+#include "beamline/CLS/CLSBiStateControl.h"
+#include "beamline/CLS/CLSSIS3820Scaler.h"
 #include "beamline/CLS/CLSBasicScalerChannelDetector.h"
 #include "beamline/CLS/CLSBasicCompositeScalerChannelDetector.h"
 
+#include "application/IDEAS/IDEAS.h"
 #include "beamline/IDEAS/IDEASMonochromatorControl.h"
 #include "beamline/IDEAS/IDEASKETEKDetector.h"
 #include "beamline/IDEAS/IDEAS13ElementGeDetector.h"
@@ -46,7 +46,6 @@ class IDEASBeamline : public CLSBeamline
 	Q_OBJECT
 
 public:
-
 	/// Returns the instance of the beamline that has been created.
 	static IDEASBeamline* ideas()
 	{
@@ -105,12 +104,11 @@ public:
 	AMMotorGroupObject *samplePlatformMotorGroupObject() const { return motorGroup_->motorGroupObject("Sample Platform"); }
 	AMMotorGroupObject *vacuumStageMotorGroupObject() const { return motorGroup_->motorGroupObject("Vacuum Stage"); }
 
-
-
 	AMMotorGroup *motorGroup() const { return motorGroup_;}
-
-
 	AMControl *vacuumSampleStage() const { return vacuumSampleStage_ ; }
+
+	/// Returns the XRF detector
+	AMXRFDetector *XRFDetector(IDEAS::FluorescenceDetector detectorType);
 
 	/// Returns the KETEK detector pointer.
 	IDEASKETEKDetector *ketek() const { return ketek_; }
