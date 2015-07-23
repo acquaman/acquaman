@@ -48,6 +48,7 @@ bool AMRegionOfInterestAB::areInputDataSourcesAcceptable(const QList<AMDataSourc
 
 	return false;
 }
+#include <QDebug>
 
 AMNumber AMRegionOfInterestAB::value(const AMnDIndex &indexes) const
 {
@@ -65,7 +66,7 @@ AMNumber AMRegionOfInterestAB::value(const AMnDIndex &indexes) const
 
 	if (!binningRange_.isValid())
 		return AMNumber(AMNumber::InvalidError);
-
+	qDebug() << name() << dataUpdateRequired_ << lowerDirtyIndex_.toString() << upperDirtyIndex_.toString();
 	if (dataUpdateRequired_)
 		computeCachedValues();
 
@@ -74,7 +75,7 @@ AMNumber AMRegionOfInterestAB::value(const AMnDIndex &indexes) const
 	switch(rank()){
 
 	case 0:
-
+		qDebug() << name() << "Inside value():" << cachedOutput_.at(0);
 		returnValue = cachedOutput_.at(0);
 		break;
 
@@ -120,7 +121,6 @@ bool AMRegionOfInterestAB::values(const AMnDIndex &indexStart, const AMnDIndex &
 	switch(rank()){
 
 	case 0:
-
 		*outputValues = cachedOutput_.at(0);
 
 		break;
@@ -184,8 +184,12 @@ bool AMRegionOfInterestAB::values(const AMnDIndex &indexStart, const AMnDIndex &
 void AMRegionOfInterestAB::setBinningRange(const AMRange &newRange)
 {
 	dataUpdateRequired_ = true;
-	lowerDirtyIndex_ = AMnDIndex(axes_.size(), AMnDIndex::DoInit, 0);
-	upperDirtyIndex_ = size()-1;
+
+	if (spectrum_){
+
+		lowerDirtyIndex_ = AMnDIndex(spectrum_->rank(), AMnDIndex::DoInit, 0);
+		upperDirtyIndex_ = spectrum_->size()-1;
+	}
 
 	binningRange_ = newRange;
 	emitValuesChanged();
@@ -194,8 +198,12 @@ void AMRegionOfInterestAB::setBinningRange(const AMRange &newRange)
 void AMRegionOfInterestAB::setBinningRangeLowerBound(double lowerBound)
 {
 	dataUpdateRequired_ = true;
-	lowerDirtyIndex_ = AMnDIndex(axes_.size(), AMnDIndex::DoInit, 0);
-	upperDirtyIndex_ = size()-1;
+
+	if (spectrum_){
+
+		lowerDirtyIndex_ = AMnDIndex(spectrum_->rank(), AMnDIndex::DoInit, 0);
+		upperDirtyIndex_ = spectrum_->size()-1;
+	}
 
 	binningRange_.setMinimum(lowerBound);
 	emitValuesChanged();
@@ -204,8 +212,12 @@ void AMRegionOfInterestAB::setBinningRangeLowerBound(double lowerBound)
 void AMRegionOfInterestAB::setBinningRangeUpperBound(double upperBound)
 {
 	dataUpdateRequired_ = true;
-	lowerDirtyIndex_ = AMnDIndex(axes_.size(), AMnDIndex::DoInit, 0);
-	upperDirtyIndex_ = size()-1;
+
+	if (spectrum_){
+
+		lowerDirtyIndex_ = AMnDIndex(spectrum_->rank(), AMnDIndex::DoInit, 0);
+		upperDirtyIndex_ = spectrum_->size()-1;
+	}
 
 	binningRange_.setMaximum(upperBound);
 	emitValuesChanged();
@@ -248,7 +260,7 @@ bool AMRegionOfInterestAB::axisValues(int axisNumber, int startIndex, int endInd
 
 	return spectrum_->axisValues(axisNumber, startIndex, endIndex, outputValues);
 }
-
+#include <QDebug>
 void AMRegionOfInterestAB::computeCachedValues() const
 {
 	// Need to turn the range into index positions.
@@ -258,22 +270,28 @@ void AMRegionOfInterestAB::computeCachedValues() const
 	int maximum = int((binningRange_.maximum() - double(axisInfoOfInterest.start))/double(axisInfoOfInterest.increment));
 	int axisLength = maximum - minimum + 1;
 
-	AMnDIndex start = AMnDIndex(lowerDirtyIndex_.rank()+1, AMnDIndex::DoNotInit);
-	AMnDIndex end = AMnDIndex(upperDirtyIndex_.rank()+1, AMnDIndex::DoNotInit);
+	AMnDIndex start = lowerDirtyIndex_;
+	AMnDIndex end = upperDirtyIndex_;
 
-	for (int i = 0, dirtyRank = lowerDirtyIndex_.rank(); i < dirtyRank; i++){
+	if (start.isValid() && end.isValid()){
 
-		start[i] = lowerDirtyIndex_.at(i);
-		end[i] = upperDirtyIndex_.at(i);
+		start[start.rank()-1] = minimum;
+		end[end.rank()-1] = maximum;
 	}
 
-	start[lowerDirtyIndex_.rank()] = minimum;
-	end[upperDirtyIndex_.rank()] = maximum;
+	else {
+
+		start = AMnDIndex(minimum);
+		end = AMnDIndex(maximum);
+	}
 
 	QVector<double> data = QVector<double>(start.totalPointsTo(end));
 
-	if (spectrum_->values(start, end, data.data())){
+	bool validSpectrum = spectrum_->values(start, end, data.data());
+//	if (spectrum_->values(start, end, data.data())){
+	qDebug() << name() << "Inside computeCachedValues():" << validSpectrum << start.toString() << end.toString() << lowerDirtyIndex_.toString() << upperDirtyIndex_.toString();
 
+	if (validSpectrum){
 		switch(rank()){
 
 		case 0:{
@@ -282,7 +300,7 @@ void AMRegionOfInterestAB::computeCachedValues() const
 
 			for (int i = 0, size = data.size(); i < size; i++)
 				value += data.at(i);
-
+			qDebug() << name() << "Inside computeCacheValues: " << value;
 			cachedOutput_[0] = (value < 0 ? -1 : value);
 
 			break;
@@ -365,11 +383,20 @@ void AMRegionOfInterestAB::onInputSourceValuesChanged(const AMnDIndex& start, co
 {
 	if (!dataUpdateRequired_)
 		dataUpdateRequired_ = true;
-
+	qDebug() << name() << "Inside inputValuesChanged():" << lowerDirtyIndex_.toString() << start.toString() << lowerDirtyIndex_.globalMinimum(start).toString() << upperDirtyIndex_.toString() << end.toString() << upperDirtyIndex_.globalMaximum(end).toString();
 	lowerDirtyIndex_ = lowerDirtyIndex_.globalMinimum(start);
 	upperDirtyIndex_ = upperDirtyIndex_.globalMaximum(end);
 
-	emitValuesChanged(start, end);
+	AMnDIndex outputStart = AMnDIndex(start.rank()-1, AMnDIndex::DoInit);
+	AMnDIndex outputEnd = AMnDIndex(end.rank()-1, AMnDIndex::DoInit);
+
+	for (int i = 0, size = outputStart.rank(); i < size; i++){
+
+		outputStart[i] = start.at(i);
+		outputEnd[i] = end.at(i);
+	}
+
+	emitValuesChanged(outputStart, outputEnd);
 }
 
 void AMRegionOfInterestAB::onInputSourceSizeChanged()
@@ -384,9 +411,9 @@ void AMRegionOfInterestAB::onInputSourceSizeChanged()
 	}
 
 	dataUpdateRequired_ = true;
-	lowerDirtyIndex_ = AMnDIndex(axes_.size(), AMnDIndex::DoInit, 0);
-	upperDirtyIndex_ = size()-1;
-	cachedOutput_ = QVector<double>(size().product());
+	lowerDirtyIndex_ = AMnDIndex(spectrum_->rank(), AMnDIndex::DoInit, 0);
+	upperDirtyIndex_ = spectrum_->size()-1;
+	cachedOutput_ = QVector<double>(size().product(), -1);
 }
 
 void AMRegionOfInterestAB::onInputSourceStateChanged()
@@ -437,9 +464,9 @@ void AMRegionOfInterestAB::setInputDataSourcesImplementation(const QList<AMDataS
 		connect(spectrum_->signalSource(), SIGNAL(stateChanged(int)), this, SLOT(onInputSourceStateChanged()));
 
 		dataUpdateRequired_ = true;
-		lowerDirtyIndex_ = AMnDIndex(axes_.size(), AMnDIndex::DoInit, 0);
-		upperDirtyIndex_ = size()-1;
-		cachedOutput_ = QVector<double>(size().product());
+		lowerDirtyIndex_ = AMnDIndex(spectrum_->rank(), AMnDIndex::DoInit, 0);
+		upperDirtyIndex_ = spectrum_->size()-1;
+		cachedOutput_ = QVector<double>(size().product(), -1.0);
 	}
 
 	reviewState();

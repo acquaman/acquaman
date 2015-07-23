@@ -105,16 +105,15 @@ void AM1DSummingAB::computeCachedValues() const
 	sources_.at(0)->values(lowerDirtyIndex_, upperDirtyIndex_, data.data());
 
 	int xOffset = lowerDirtyIndex_.i();
-	int iSize = lowerDirtyIndex_.distanceTo(0, upperDirtyIndex_);
 
-	memcpy(cachedOutput_.data()+xOffset, data.constData(), iSize*sizeof(double));
+	memcpy(cachedOutput_.data()+xOffset, data.constData(), totalSize*sizeof(double));
 
 	// Iterate through the rest of the sources.
 	for (int index = 1, count = sources_.size(); index < count; index++){
 
 		sources_.at(index)->values(lowerDirtyIndex_, upperDirtyIndex_, data.data());
 
-		for (int i = 0; i < iSize; i++)
+		for (int i = 0; i < totalSize; i++)
 			cachedOutput_[i+xOffset] += data.at(i);
 	}
 
