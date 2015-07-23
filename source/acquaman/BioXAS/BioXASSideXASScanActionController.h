@@ -36,12 +36,8 @@ public:
 	virtual ~BioXASSideXASScanActionController();
 
 protected:
-	/// Sets the scan axis and adds anything extra.
-	virtual void buildScanControllerImplementation();
-
-protected:
 	/// The Side-specific BioXAS XAS scan configuration.
-	BioXASSideXASScanConfiguration *configuration_;
+	BioXASSideXASScanConfiguration *sideConfiguration_;
 };
 
 #endif // BIOXASSIDEXASSCANACTIONCONTROLLER_H

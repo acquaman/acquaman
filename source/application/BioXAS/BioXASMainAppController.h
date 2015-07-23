@@ -60,6 +60,9 @@ protected:
 	/// Sets up local and remote data paths.
 	virtual bool setupDataFolder();
 
+	/// Sets up an XAS scan configuration.
+	virtual void setupXASScanConfiguration(BioXASXASScanConfiguration *configuration);
+
 protected:
 	/// XAS scan configuration.
 	BioXASMainXASScanConfiguration *configuration_;
@@ -67,13 +70,6 @@ protected:
 	BioXASXASScanConfigurationView *configurationView_;
 	/// XAS scan configuration view holder.
 	AMScanConfigurationViewHolder3 *configurationViewHolder_;
-
-	/// The commissioning tool configuration.
-	AMGenericStepScanConfiguration *commissioningConfiguration_;
-	/// The commissioning tool configuration view.
-	AMGenericStepScanConfigurationView *commissioningConfigurationView_;
-	/// The commissioning tool configuration view holder.
-	AMScanConfigurationViewHolder3 *commissioningConfigurationViewHolder_;
 };
 
 #endif // BIOXASMAINAPPCONTROLLER_H

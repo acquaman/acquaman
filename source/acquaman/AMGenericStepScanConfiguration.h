@@ -51,9 +51,9 @@ signals:
 
 public slots:
 	/// Sets a controlInfo to an axis.  If the axis has no control associated with it yet, then it will add it to the list, otherwise it will replace it.
-	void setControl(int axisId, AMControlInfo newInfo);
+	virtual void setControl(int axisId, AMControlInfo newInfo);
 	/// Removes a control from the given axis.  Also removes the axis.
-	void removeControl(int axisId);
+	virtual void removeControl(int axisId);
 	/// Adds a detector to the detector info list.
 	void addDetector(AMDetectorInfo newInfo);
 	/// Removes the detector from the detector info list.

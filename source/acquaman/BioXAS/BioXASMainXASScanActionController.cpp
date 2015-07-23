@@ -22,36 +22,18 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "BioXASMainXASScanActionController.h"
 
 #include "acquaman/BioXAS/BioXASMainXASScanConfiguration.h"
-
 #include "beamline/BioXAS/BioXASMainBeamline.h"
 
 BioXASMainXASScanActionController::BioXASMainXASScanActionController(BioXASMainXASScanConfiguration *configuration, QObject *parent) :
 	BioXASXASScanActionController(configuration, parent)
 {
-	configuration_ = configuration;
+	mainConfiguration_ = configuration;
 
 	// Set exporter option.
 
-	AMExporterOptionXDIFormat *bioXASDefaultXAS = BioXAS::buildStandardXDIFormatExporterOption("BioXAS XAS (XDI Format)", configuration_->edge().split(" ").first(), configuration_->edge().split(" ").last(), true);
+	AMExporterOptionXDIFormat *bioXASDefaultXAS = BioXAS::buildStandardXDIFormatExporterOption("BioXAS XAS (XDI Format)", mainConfiguration_->edge().split(" ").first(), mainConfiguration_->edge().split(" ").last(), true);
 	if (bioXASDefaultXAS->id() > 0)
 		AMAppControllerSupport::registerClass<BioXASMainXASScanConfiguration, AMExporterXDIFormat, AMExporterOptionXDIFormat>(bioXASDefaultXAS->id());
-
-	// Set detectors.
-
-	AMDetectorInfoSet bioXASDetectors;
-	bioXASDetectors.addDetectorInfo(BioXASMainBeamline::bioXAS()->i0Detector()->toInfo());
-	bioXASDetectors.addDetectorInfo(BioXASMainBeamline::bioXAS()->i1Detector()->toInfo());
-	bioXASDetectors.addDetectorInfo(BioXASMainBeamline::bioXAS()->i2Detector()->toInfo());
-	bioXASDetectors.addDetectorInfo(BioXASMainBeamline::bioXAS()->scalerDwellTimeDetector()->toInfo());
-	bioXASDetectors.addDetectorInfo(BioXASMainBeamline::bioXAS()->encoderEnergySetpointDetector()->toInfo());
-	bioXASDetectors.addDetectorInfo(BioXASMainBeamline::bioXAS()->encoderEnergyFeedbackDetector()->toInfo());
-	bioXASDetectors.addDetectorInfo(BioXASMainBeamline::bioXAS()->stepEnergyFeedbackDetector()->toInfo());
-	bioXASDetectors.addDetectorInfo(BioXASMainBeamline::bioXAS()->braggDetector()->toInfo());
-	bioXASDetectors.addDetectorInfo(BioXASMainBeamline::bioXAS()->braggEncoderFeedbackDetector()->toInfo());
-	bioXASDetectors.addDetectorInfo(BioXASMainBeamline::bioXAS()->braggMoveRetriesDetector()->toInfo());
-	bioXASDetectors.addDetectorInfo(BioXASMainBeamline::bioXAS()->braggStepSetpointDetector()->toInfo());
-
-	setConfigurationDetectorConfigurations(bioXASDetectors);
 }
 
 BioXASMainXASScanActionController::~BioXASMainXASScanActionController()

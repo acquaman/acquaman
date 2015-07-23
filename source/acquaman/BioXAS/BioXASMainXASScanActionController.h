@@ -17,7 +17,7 @@ public:
 
 protected:
 	/// The BioXAS-specific scan configuration.
-    BioXASMainXASScanConfiguration *configuration_;
+	BioXASMainXASScanConfiguration *mainConfiguration_;
 };
 
 #endif // BIOXASMAINXASSCANACTIONCONTROLLER_H

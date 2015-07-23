@@ -8,7 +8,7 @@
 #include <QStringBuilder>
 
 BioXASXASScanConfiguration::BioXASXASScanConfiguration(QObject *parent) :
-	AMStepScanConfiguration(parent), BioXASScanConfiguration()
+	AMGenericStepScanConfiguration(parent), BioXASScanConfiguration()
 {
 	setName("XAS Scan");
 	setUserScanName("XAS Scan");
@@ -19,35 +19,16 @@ BioXASXASScanConfiguration::BioXASXASScanConfiguration(QObject *parent) :
 
 	connect(axis, SIGNAL(regionAdded(AMScanAxisRegion*)), this, SLOT(onRegionAdded(AMScanAxisRegion*)));
 	connect(axis, SIGNAL(regionRemoved(AMScanAxisRegion*)), this, SLOT(onRegionRemoved(AMScanAxisRegion*)));
-	connect(region, SIGNAL(regionStartChanged(AMNumber)), this, SLOT(computeTotalTime()));
-	connect(region, SIGNAL(regionStepChanged(AMNumber)), this, SLOT(computeTotalTime()));
-	connect(region, SIGNAL(regionEndChanged(AMNumber)), this, SLOT(computeTotalTime()));
-	connect(region, SIGNAL(regionTimeChanged(AMNumber)), this, SLOT(computeTotalTime()));
+
 	connect(region, SIGNAL(maximumTimeChanged(AMNumber)), this, SLOT(computeTotalTime()));
 	connect(region, SIGNAL(equationChanged(AMVariableIntegrationTime::Equation)), this, SLOT(computeTotalTime()));
 }
 
 BioXASXASScanConfiguration::BioXASXASScanConfiguration(const BioXASXASScanConfiguration &original) :
-	AMStepScanConfiguration(original), BioXASScanConfiguration()
+	AMGenericStepScanConfiguration(original), BioXASScanConfiguration()
 {
-	setName(original.name());
-	setUserScanName(original.name());
-
-	computeTotalTime();
-
 	connect(scanAxisAt(0), SIGNAL(regionAdded(AMScanAxisRegion*)), this, SLOT(onRegionAdded(AMScanAxisRegion*)));
 	connect(scanAxisAt(0), SIGNAL(regionRemoved(AMScanAxisRegion*)), this, SLOT(onRegionRemoved(AMScanAxisRegion*)));
-
-	foreach (AMScanAxisRegion *region, scanAxisAt(0)->regions().toList()){
-
-		AMScanAxisEXAFSRegion *exafsRegion = qobject_cast<AMScanAxisEXAFSRegion *>(region);
-		connect(exafsRegion, SIGNAL(regionStartChanged(AMNumber)), this, SLOT(computeTotalTime()));
-		connect(exafsRegion, SIGNAL(regionStepChanged(AMNumber)), this, SLOT(computeTotalTime()));
-		connect(exafsRegion, SIGNAL(regionEndChanged(AMNumber)), this, SLOT(computeTotalTime()));
-		connect(exafsRegion, SIGNAL(regionTimeChanged(AMNumber)), this, SLOT(computeTotalTime()));
-		connect(exafsRegion, SIGNAL(maximumTimeChanged(AMNumber)), this, SLOT(computeTotalTime()));
-		connect(exafsRegion, SIGNAL(equationChanged(AMVariableIntegrationTime::Equation)), this, SLOT(computeTotalTime()));
-	}
 }
 
 BioXASXASScanConfiguration::~BioXASXASScanConfiguration()
@@ -100,6 +81,16 @@ AMScanConfigurationView* BioXASXASScanConfiguration::createView()
 	return new BioXASXASScanConfigurationView(this);
 }
 
+void BioXASXASScanConfiguration::setControl(AMControlInfo newInfo)
+{
+	AMGenericStepScanConfiguration::setControl(0, newInfo);
+}
+
+void BioXASXASScanConfiguration::removeControl()
+{
+	AMGenericStepScanConfiguration::removeControl(0);
+}
+
 void BioXASXASScanConfiguration::onRegionAdded(AMScanAxisRegion *region)
 {
 	AMScanAxisEXAFSRegion *exafsRegion = qobject_cast<AMScanAxisEXAFSRegion *>(region);
@@ -120,34 +111,4 @@ void BioXASXASScanConfiguration::onRegionRemoved(AMScanAxisRegion *region)
 {
 	region->disconnect(this);
 	computeTotalTime();
-}
-
-void BioXASXASScanConfiguration::computeTotalTimeImplementation()
-{
-	double time = 0;
-
-	// Some region stuff.
-	foreach (AMScanAxisRegion *region, scanAxisAt(0)->regions().toList()){
-
-		AMScanAxisEXAFSRegion *exafsRegion = qobject_cast<AMScanAxisEXAFSRegion *>(region);
-		int numberOfPoints = int((double(exafsRegion->regionEnd()) - double(exafsRegion->regionStart()))/double(exafsRegion->regionStep()) + 1);
-
-		if (exafsRegion->inKSpace() && exafsRegion->maximumTime().isValid()){
-
-			QVector<double> regionTimes = QVector<double>(numberOfPoints);
-			AMVariableIntegrationTime calculator(exafsRegion->equation(), exafsRegion->regionTime(), exafsRegion->maximumTime(), exafsRegion->regionStart(), exafsRegion->regionStep(), exafsRegion->regionEnd(), exafsRegion->a2());
-			calculator.variableTime(regionTimes.data());
-
-			for (int i = 0; i < numberOfPoints; i++)
-				time += regionTimes.at(i);
-		}
-
-		else
-			time += (double(exafsRegion->regionTime())+timeOffset_)*numberOfPoints;
-	}
-
-	totalTime_ = time;
-	setExpectedDuration(totalTime_);
-	emit totalTimeChanged(totalTime_);
-	emit configurationChanged();
 }

@@ -13,7 +13,11 @@ BioXASAppController::BioXASAppController(QObject *parent) :
 	userConfiguration_ = new BioXASUserConfiguration(this);
 	setDefaultUseLocalStorage(true);
 
-	// Initialize UI elements.
+	// Initialize member variables.
+
+	commissioningConfiguration_ = 0;
+	commissioningConfigurationView_ = 0;
+	commissioningConfigurationViewHolder_ = 0;
 
 	monoCalibrationConfiguration_ = 0;
 	monoCalibrationConfigurationView_ = 0;
@@ -142,6 +146,8 @@ void BioXASAppController::onCurrentScanActionStartedImplementation(AMScanAction 
 
 			if (config) {
 				qDebug() << "It is a mono calibration scan.\n";
+
+				goToEnergyCalibrationView(0);
 			}
 		}
 	}
@@ -179,6 +185,7 @@ void BioXASAppController::registerClasses()
 	AMDbObjectSupport::s()->registerClass<CLSSIS3820ScalerDarkCurrentMeasurementActionInfo>();
 	AMDbObjectSupport::s()->registerClass<BioXASScanConfigurationDbObject>();
 	AMDbObjectSupport::s()->registerClass<BioXASUserConfiguration>();
+	AMDbObjectSupport::s()->registerClass<BioXASXASScanConfiguration>();
 	AMDbObjectSupport::s()->registerClass<BioXASSSRLMonochromatorEnergyCalibrationScanConfiguration>();
 	AMDbObjectSupport::s()->registerClass<BioXASXRFScanConfiguration>();
 }
@@ -221,11 +228,11 @@ void BioXASAppController::setupUserInterface()
 	// Create beamline component views:
 	////////////////////////////////////
 
-//	BioXASEndstationTable *table = BioXASBeamline::bioXAS()->endstationTable();
-//	if (table) {
-//		BioXASEndstationTableView *endstationTableView = new BioXASEndstationTableView(table);
-//		mw_->addPane(AMMainWindow::buildMainWindowPane("Endstation Table", ":/system-software-update.png", endstationTableView), "General", "Endstation Table", ":/system-software-update.png");
-//	}
+	BioXASEndstationTable *table = BioXASBeamline::bioXAS()->endstationTable();
+	if (table) {
+		BioXASEndstationTableView *endstationTableView = new BioXASEndstationTableView(table);
+		mw_->addPane(AMMainWindow::buildMainWindowPane("Endstation Table", ":/system-software-update.png", endstationTableView), "General", "Endstation Table", ":/system-software-update.png");
+	}
 
 	BioXASCarbonFilterFarm *filterFarm = BioXASBeamline::bioXAS()->carbonFilterFarm();
 	if (filterFarm) {
@@ -296,21 +303,27 @@ void BioXASAppController::setupUserInterface()
 		mw_->addPane(geDetectorView, "Detectors", "Ge 32-el", ":/system-search.png");
 	}
 
-//	BioXASFourElementVortexDetector *fourElementDetector = BioXASBeamline::bioXAS()->fourElementVortexDetector();
-//	if (fourElementDetector) {
-//		BioXASFourElementVortexDetectorView *fourElementDetectorView = new BioXASFourElementVortexDetectorView(fourElementDetector);
-//		fourElementDetectorView->buildDetectorView();
-//		fourElementDetectorView->setEnergyRange(3000, 28000);
-//		fourElementDetectorView->addEmissionLineNameFilter(QRegExp("1"));
-//		fourElementDetectorView->addPileUpPeakNameFilter(QRegExp("(K.1|L.1|Ma1)"));
-//		mw_->addPane(fourElementDetectorView, "Detectors", "4-element", ":/system-search.png");
-//	}
+	BioXASFourElementVortexDetector *fourElementDetector = BioXASBeamline::bioXAS()->fourElementVortexDetector();
+	if (fourElementDetector) {
+		BioXASFourElementVortexDetectorView *fourElementDetectorView = new BioXASFourElementVortexDetectorView(fourElementDetector);
+		fourElementDetectorView->buildDetectorView();
+		fourElementDetectorView->setEnergyRange(3000, 28000);
+		fourElementDetectorView->addEmissionLineNameFilter(QRegExp("1"));
+		fourElementDetectorView->addPileUpPeakNameFilter(QRegExp("(K.1|L.1|Ma1)"));
+		mw_->addPane(fourElementDetectorView, "Detectors", "4-element", ":/system-search.png");
+	}
 
 	// Create scan views:
 	////////////////////////////////////
 
+	commissioningConfiguration_ = new AMGenericStepScanConfiguration;
+	setupGenericStepScanConfiguration(commissioningConfiguration_);
+	commissioningConfigurationView_ = new AMGenericStepScanConfigurationView(commissioningConfiguration_);
+	commissioningConfigurationViewHolder_ = new AMScanConfigurationViewHolder3("Commissioning Tool", false, true, commissioningConfigurationView_);
+	mw_->addPane(commissioningConfigurationViewHolder_, "Scans", "Commissioning Tool", ":/utilities-system-monitor.png");
+
 	monoCalibrationConfiguration_ = new BioXASSSRLMonochromatorEnergyCalibrationScanConfiguration();
-	monoCalibrationConfiguration_->setEnergy(10000);
+	setupXASScanConfiguration(monoCalibrationConfiguration_);
 	monoCalibrationConfigurationView_ = new BioXASXASScanConfigurationView(monoCalibrationConfiguration_);
 	monoCalibrationConfigurationViewHolder_ = new AMScanConfigurationViewHolder3("Energy Calibration", false, true, monoCalibrationConfigurationView_);
 	mw_->addPane(monoCalibrationConfigurationViewHolder_, "Scans", "Energy Calibration", ":/utilities-system-monitor.png");
@@ -323,5 +336,64 @@ void BioXASAppController::setupUserInterface()
 		mw_->addPane(AMMainWindow::buildMainWindowPane("Energy", ":/system-search.png", energyCalibrationView_), "Calibration", "Energy", ":system-search.png");
 
 		connect( energyCalibrationView_, SIGNAL(energyCalibrationScanRequested()), this, SLOT(goToEnergyCalibrationScanConfigurationView()) );
+	}
+}
+
+void BioXASAppController::setupXASScanConfiguration(BioXASXASScanConfiguration *configuration)
+{
+	if (configuration) {
+
+		// Set the energy.
+
+		configuration->setEnergy(1000);
+
+		// Set the energy as the scanned control.
+
+		BioXASMonochromator *mono = BioXASBeamline::bioXAS()->mono();
+		if (mono) {
+			AMControl *energyControl = mono->energyControl();
+			if (energyControl)
+				configuration->setControl(energyControl->toInfo());
+		}
+
+		// Set scan detectors.
+
+		AMDetector *i0Detector = BioXASBeamline::bioXAS()->i0Detector();
+		if (i0Detector)
+			configuration->addDetector(i0Detector->toInfo());
+
+		AMDetector *i1Detector = BioXASBeamline::bioXAS()->i1Detector();
+		if (i1Detector)
+			configuration->addDetector(i1Detector->toInfo());
+
+		AMDetector *i2Detector = BioXASBeamline::bioXAS()->i2Detector();
+		if (i2Detector)
+			configuration->addDetector(i2Detector->toInfo());
+
+		AMDetector *scalerDwellTimeDetector = BioXASBeamline::bioXAS()->scalerDwellTimeDetector();
+		if (scalerDwellTimeDetector)
+			configuration->addDetector(scalerDwellTimeDetector->toInfo());
+
+		AMDetector *vortexDetector = BioXASBeamline::bioXAS()->fourElementVortexDetector();
+		if (vortexDetector && configuration->usingXRFDetector())
+			configuration->addDetector(vortexDetector->toInfo());
+
+		AMDetector *ge32Detector = BioXASBeamline::bioXAS()->ge32ElementDetector();
+		if (ge32Detector && configuration->usingXRFDetector())
+			configuration->addDetector(ge32Detector->toInfo());
+	}
+}
+
+void BioXASAppController::setupGenericStepScanConfiguration(AMGenericStepScanConfiguration *configuration)
+{
+	if (configuration) {
+
+		configuration->setAutoExportEnabled(false);
+
+		// Set scan detectors.
+
+		AMDetector *i0Detector = BioXASBeamline::bioXAS()->i0Detector();
+		if (i0Detector)
+			configuration->addDetector(i0Detector->toInfo());
 	}
 }

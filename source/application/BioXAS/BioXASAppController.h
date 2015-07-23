@@ -112,9 +112,21 @@ protected:
 	/// Sets up local and remote data paths.
 	virtual bool setupDataFolder() { return false; }
 
+	/// Sets up an XAS scan configuration.
+	virtual void setupXASScanConfiguration(BioXASXASScanConfiguration *configuration);
+	/// Sets up a generic step scan configuration.
+	virtual void setupGenericStepScanConfiguration(AMGenericStepScanConfiguration *configuration);
+
 protected:
 	/// Holds the user configuration used for automatically setting up some simple aspects of the user interface.
 	BioXASUserConfiguration *userConfiguration_;
+
+	/// The commissioning tool configuration.
+	AMGenericStepScanConfiguration *commissioningConfiguration_;
+	/// The commissioning tool configuration view.
+	AMGenericStepScanConfigurationView *commissioningConfigurationView_;
+	/// The commissioning tool configuration view holder.
+	AMScanConfigurationViewHolder3 *commissioningConfigurationViewHolder_;
 
 	/// The mono energy calibration configuration.
 	BioXASSSRLMonochromatorEnergyCalibrationScanConfiguration *monoCalibrationConfiguration_;

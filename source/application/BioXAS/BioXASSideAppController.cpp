@@ -25,16 +25,14 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/BioXAS/BioXASSideBeamline.h"
 #include "ui/BioXAS/BioXASSidePersistentView.h"
 
+#include <QDebug>
+
 BioXASSideAppController::BioXASSideAppController(QObject *parent)
 	: BioXASAppController(parent)
 {
 	configuration_ = 0;
 	configurationView_ = 0;
 	configurationViewHolder_ = 0;
-
-	commissioningConfiguration_ = 0;
-	commissioningConfigurationView_ = 0;
-	commissioningConfigurationViewHolder_ = 0;
 }
 
 BioXASSideAppController::~BioXASSideAppController()
@@ -101,20 +99,16 @@ void BioXASSideAppController::setupUserInterface()
 
 	mw_->setWindowTitle("Acquaman - BioXAS Side");
 
+	// Create scan views:
+	////////////////////////////////////
+
 	configuration_ = new BioXASSideXASScanConfiguration();
-	configuration_->setEnergy(10000);
+	setupXASScanConfiguration(configuration_);
 	configurationView_ = new BioXASXASScanConfigurationView(configuration_);
 	configurationViewHolder_ = new AMScanConfigurationViewHolder3("Configure an XAS Scan", true, true, configurationView_);
 	connect(configuration_, SIGNAL(totalTimeChanged(double)), configurationViewHolder_, SLOT(updateOverallScanTime(double)));
 	configurationViewHolder_->updateOverallScanTime(configuration_->totalTime());
 	mw_->addPane(configurationViewHolder_, "Scans", "XAS Scan", ":/utilities-system-monitor.png");
-
-	commissioningConfiguration_ = new AMGenericStepScanConfiguration;
-	commissioningConfiguration_->setAutoExportEnabled(false);
-	commissioningConfiguration_->addDetector(BioXASSideBeamline::bioXAS()->exposedDetectorByName("I0Detector")->toInfo());
-	commissioningConfigurationView_ = new AMGenericStepScanConfigurationView(commissioningConfiguration_);
-	commissioningConfigurationViewHolder_ = new AMScanConfigurationViewHolder3("Commissioning Tool", false, true, commissioningConfigurationView_);
-	mw_->addPane(commissioningConfigurationViewHolder_, "Scans", "Commissioning Tool", ":/utilities-system-monitor.png");
 
 	// Create persistent view panel:
 	////////////////////////////////////
@@ -127,4 +121,32 @@ void BioXASSideAppController::setupUserInterface()
 bool BioXASSideAppController::setupDataFolder()
 {
 	return AMChooseDataFolderDialog::getDataFolder("/AcquamanLocalData/bioxas-s/AcquamanSideData", "/home/bioxas-s/AcquamanSideData", "users", QStringList());
+}
+
+void BioXASSideAppController::setupXASScanConfiguration(BioXASXASScanConfiguration *configuration)
+{
+	if (configuration) {
+
+		// Start with default XAS settings.
+
+		BioXASAppController::setupXASScanConfiguration(configuration);
+
+		// Add extra detectors.
+
+		AMDetector *encoderEnergyFeedback = BioXASSideBeamline::bioXAS()->encoderEnergyFeedbackDetector();
+		if (encoderEnergyFeedback)
+			configuration->addDetector(encoderEnergyFeedback->toInfo());
+
+		AMDetector *stepEnergyFeedback = BioXASSideBeamline::bioXAS()->stepEnergyFeedbackDetector();
+		if (stepEnergyFeedback)
+			configuration->addDetector(stepEnergyFeedback->toInfo());
+
+		AMDetector *goniometerAngle = BioXASSideBeamline::bioXAS()->braggDetector();
+		if (goniometerAngle)
+			configuration->addDetector(goniometerAngle->toInfo());
+
+		AMDetector *goniometerStepSetpoint = BioXASSideBeamline::bioXAS()->braggStepSetpointDetector();
+		if (goniometerStepSetpoint)
+			configuration->addDetector(goniometerStepSetpoint->toInfo());
+	}
 }

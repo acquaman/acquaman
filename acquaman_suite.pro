@@ -10,11 +10,7 @@ SUBDIRS += \
 	EnsureHeaderNotice.pro \
 	AMCrashReporter.pro \
 	CLSNetworkDirectorySynchronizer.pro \
-	BioXASMainAcquaman.pro \
-	BioXASSideAcquaman.pro \
-	BioXASImagingAcquaman.pro \
-	BioXASSideTableCoordinator.pro \
-	BioXASToolSuite.pro \
+	BioXASAcquaman.pro \
 	MidIRBPM.pro \
 	REIXSTest.pro \
 	REIXSAcquaman.pro \
@@ -38,4 +34,3 @@ SUBDIRS += \
 	StripTool2.pro \
 	CLSPGTDwellTimeCoordinator.pro \
 	CLSSR570Coordinator.pro
-

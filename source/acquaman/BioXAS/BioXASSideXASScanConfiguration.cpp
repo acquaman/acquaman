@@ -18,15 +18,10 @@ You should have received a copy of the GNU General Public License
 along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include "acquaman/BioXAS/BioXASSideXASScanConfiguration.h"
 
-#include "BioXASSideXASScanConfiguration.h"
-
-#include "dataman/AMScanAxisEXAFSRegion.h"
 #include "acquaman/BioXAS/BioXASSideXASScanActionController.h"
 #include "ui/BioXAS/BioXASSideXASScanConfigurationView.h"
-#include "util/AMEnergyToKSpaceCalculator.h"
-
-#include <QStringBuilder>
 
 BioXASSideXASScanConfiguration::BioXASSideXASScanConfiguration(QObject *parent) :
 	BioXASXASScanConfiguration(parent)

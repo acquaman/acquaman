@@ -114,6 +114,9 @@ protected slots:
 	/// Handles action cleanup once the calibration action is complete.
 	void actionCleanup(QObject *action);
 
+	/// Testing.
+	void onDesiredEnergyValueChanged();
+
 protected:
 	/// The current mono energy.
 	double monoEnergy_;

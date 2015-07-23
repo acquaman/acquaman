@@ -1,11 +1,16 @@
 #include "BioXASSSRLMonochromatorEnergyCalibrationView.h"
 
+#include "acquaman/AMScanConfiguration.h"
+#include "acquaman/BioXAS/BioXASXASScanConfiguration.h"
 #include "beamline/BioXAS/BioXASBeamline.h"
 #include "beamline/BioXAS/BioXASSSRLMonochromator.h"
 #include "dataman/AMScan.h"
 #include "ui/dataman/AMScanView.h"
 #include "ui/dataman/AMDataSourcesEditor.h"
 #include "ui/dataman/AMChooseScanDialog.h"
+#include "util/AMPeriodicTable.h"
+
+#include <QDebug>
 
 BioXASSSRLMonochromatorEnergyCalibrationView::BioXASSSRLMonochromatorEnergyCalibrationView(BioXASSSRLMonochromator *mono, AMScan *scan, QWidget *parent) :
     QWidget(parent)
@@ -94,7 +99,7 @@ BioXASSSRLMonochromatorEnergyCalibrationView::BioXASSSRLMonochromatorEnergyCalib
 	connect( scanView_, SIGNAL(dataPositionChanged(QPointF)), this, SLOT(onScanViewDataPositionChanged(QPointF)) );
 	connect( scanViewModel_, SIGNAL(exclusiveDataSourceChanged(QString)), this, SLOT(onExclusiveDataSourceChanged()) );
 	connect( monoEnergySpinBox_, SIGNAL(valueChanged(double)), this, SLOT(setMonoEnergy(double)) );
-	connect( desiredEnergySpinBox_, SIGNAL(valueChanged(double)), this, SLOT(setDesiredEnergy(double)) );
+	connect( desiredEnergySpinBox_, SIGNAL(valueChanged(double)), this, SLOT(onDesiredEnergyValueChanged()) );
 	connect( calibrateButton_, SIGNAL(clicked()), this, SLOT(onCalibrateButtonClicked()) );
 
 	// Initial settings.
@@ -205,6 +210,8 @@ void BioXASSSRLMonochromatorEnergyCalibrationView::removeScan(AMScan *toRemove)
 void BioXASSSRLMonochromatorEnergyCalibrationView::setMonoEnergy(double newEnergy)
 {
 	if (monoEnergy_ != newEnergy) {
+		qDebug() << "Setting mono energy: " << newEnergy;
+
 		monoEnergy_ = newEnergy;
 
 		updateMonoEnergySpinbox();
@@ -217,6 +224,9 @@ void BioXASSSRLMonochromatorEnergyCalibrationView::setMonoEnergy(double newEnerg
 void BioXASSSRLMonochromatorEnergyCalibrationView::setDesiredEnergy(double newEnergy)
 {
 	if (desiredEnergy_ != newEnergy) {
+
+		qDebug() << "Setting desired energy: " << newEnergy;
+
 		desiredEnergy_ = newEnergy;
 
 		updateDesiredEnergySpinbox();
@@ -228,6 +238,8 @@ void BioXASSSRLMonochromatorEnergyCalibrationView::setDesiredEnergy(double newEn
 void BioXASSSRLMonochromatorEnergyCalibrationView::applyScanSettings(AMScan *scan)
 {
 	if (scan) {
+
+		qDebug() << "Applying new scan settings.";
 
 		QString energyUnits;
 
@@ -264,11 +276,49 @@ void BioXASSSRLMonochromatorEnergyCalibrationView::applyScanSettings(AMScan *sca
 					desiredEnergySpinBox_->setSuffix(" " + energyUnits);
 				}
 
-				// Update displayed energies.
+				// Update mono energy.
 
 				setMonoEnergy(value);
-				setDesiredEnergy(value);
 			}
+		}
+
+		// The desired energy should initially be the edge scanned, value from the Periodic Table.
+
+		BioXASXASScanConfiguration *scanConfiguration = qobject_cast<BioXASXASScanConfiguration*>(scan->scanConfiguration());
+
+		if (scanConfiguration) {
+			qDebug() << "Scan configuration is a BioXASXASScanConfiguration.";
+
+			QString elementSymbol = scanConfiguration->edge().split(" ").first();
+			QString elementEdge = scanConfiguration->edge().split(" ").last();
+
+			qDebug() << "Element scanned:" << elementSymbol;
+			qDebug() << "Edge scanned:" << elementEdge;
+
+			AMElement *element = AMPeriodicTable::table()->elementBySymbol(elementSymbol);
+
+			double edgeEnergy = 0;
+
+			if (elementEdge == "K")
+				edgeEnergy = element->KEdge().energy();
+			else if (elementEdge == "L1")
+				edgeEnergy = element->L1Edge().energy();
+			else if (elementEdge == "L2")
+				edgeEnergy = element->L2Edge().energy();
+			else if (elementEdge == "L3")
+				edgeEnergy = element->L3Edge().energy();
+
+			qDebug() << "Edge energy: " << edgeEnergy;
+
+			// If the edge energy is still zero, set it to be the same as the mono energy.
+			// Otherwise, set it to the edge energy.
+
+			if (edgeEnergy == 0)
+				setDesiredEnergy(monoEnergy_);
+			else
+				setDesiredEnergy(edgeEnergy);
+		} else {
+			qDebug() << "Scan configuration is NOT a BioXASXASScanConfiguration...?";
 		}
 
 		AMDataSource *displayedSource = 0;
@@ -455,7 +505,6 @@ bool BioXASSSRLMonochromatorEnergyCalibrationView::dropScanURLs(const QList<QUrl
 		// If the scan is valid, an XAS scan, and not scanning, then set it as the current scan. Do nothing otherwise--the above QMessageBoxes should be notification enough.
 
 		if (scan && validType && !isScanning) {
-			qDebug() << "Setting loaded scan as current scan...";
 			setCurrentScan(scan);
 			result = true;
 		}
@@ -520,4 +569,12 @@ void BioXASSSRLMonochromatorEnergyCalibrationView::actionCleanup(QObject *action
 
 		action->deleteLater();
 	}
+}
+
+void BioXASSSRLMonochromatorEnergyCalibrationView::onDesiredEnergyValueChanged()
+{
+	double newEnergy = desiredEnergySpinBox_->value();
+
+	qDebug() << "Desired energy spinbox value changed. Current value:" << newEnergy;
+	setDesiredEnergy(newEnergy);
 }

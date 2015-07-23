@@ -33,14 +33,6 @@ BioXASMainAppController::BioXASMainAppController(QObject *parent)
 	configuration_ = 0;
 	configurationView_ = 0;
 	configurationViewHolder_ = 0;
-
-	commissioningConfiguration_ = 0;
-	commissioningConfigurationView_ = 0;
-	commissioningConfigurationViewHolder_ = 0;
-
-	monoCalibrationConfiguration_ = 0;
-	monoCalibrationConfigurationView_ = 0;
-	monoCalibrationConfigurationViewHolder_ = 0;
 }
 
 BioXASMainAppController::~BioXASMainAppController()
@@ -107,6 +99,9 @@ void BioXASMainAppController::setupUserInterface()
 
 	mw_->setWindowTitle("Acquaman - BioXAS Main");
 
+	// Create scan views:
+	////////////////////////////////////
+
 	configuration_ = new BioXASMainXASScanConfiguration();
 	configuration_->setEnergy(10000);
 	configurationView_ = new BioXASXASScanConfigurationView(configuration_);
@@ -114,11 +109,6 @@ void BioXASMainAppController::setupUserInterface()
 	connect(configuration_, SIGNAL(totalTimeChanged(double)), configurationViewHolder_, SLOT(updateOverallScanTime(double)));
 	configurationViewHolder_->updateOverallScanTime(configuration_->totalTime());
 	mw_->addPane(configurationViewHolder_, "Scans", "XAS Scan", ":/utilities-system-monitor.png");
-
-	commissioningConfiguration_ = new AMGenericStepScanConfiguration;
-	commissioningConfigurationView_ = new AMGenericStepScanConfigurationView(commissioningConfiguration_);
-	commissioningConfigurationViewHolder_ = new AMScanConfigurationViewHolder3("Commissioning Tool",true, true, commissioningConfigurationView_);
-	mw_->addPane(commissioningConfigurationViewHolder_, "Scans", "Commissioning Tool", ":/utilities-system-monitor.png");
 
 	// Create persistent view panel:
 	////////////////////////////////////
@@ -131,4 +121,30 @@ void BioXASMainAppController::setupUserInterface()
 bool BioXASMainAppController::setupDataFolder()
 {
 	return AMChooseDataFolderDialog::getDataFolder("/AcquamanLocalData/bioxas-m/AcquamanMainData", "/home/bioxas-m/AcquamanMainData", "users", QStringList());
+}
+
+void BioXASMainAppController::setupXASScanConfiguration(BioXASXASScanConfiguration *configuration)
+{
+	if (configuration) {
+
+		// Set the configuration detectors.
+
+		BioXASAppController::setupXASScanConfiguration(configuration);
+
+		AMDetector *encoderEnergyFeedback = BioXASMainBeamline::bioXAS()->encoderEnergyFeedbackDetector();
+		if (encoderEnergyFeedback)
+			configuration->addDetector(encoderEnergyFeedback->toInfo());
+
+		AMDetector *stepEnergyFeedback = BioXASMainBeamline::bioXAS()->stepEnergyFeedbackDetector();
+		if (stepEnergyFeedback)
+			configuration->addDetector(stepEnergyFeedback->toInfo());
+
+		AMDetector *goniometerAngle = BioXASMainBeamline::bioXAS()->braggDetector();
+		if (goniometerAngle)
+			configuration->addDetector(goniometerAngle->toInfo());
+
+		AMDetector *goniometerStepSetpoint = BioXASMainBeamline::bioXAS()->braggStepSetpointDetector();
+		if (goniometerStepSetpoint)
+			configuration->addDetector(goniometerStepSetpoint->toInfo());
+	}
 }

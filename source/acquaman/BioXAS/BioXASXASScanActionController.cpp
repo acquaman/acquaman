@@ -17,100 +17,25 @@
 #include "beamline/CLS/CLSBasicScalerChannelDetector.h"
 #include "beamline/CLS/CLSStorageRing.h"
 
-#include "dataman/AMXASScan.h"
-
 #include "util/AMErrorMonitor.h"
 
 BioXASXASScanActionController::BioXASXASScanActionController(BioXASXASScanConfiguration *configuration, QObject *parent) :
-	AMStepScanActionController(configuration, parent)
+	AMGenericStepScanController(configuration, parent)
 {
-	configuration_ = configuration;
+	bioXASConfiguration_ = configuration;
 
 	// Create scan object.
 
-	scan_ = new AMXASScan();
-	scan_->setName(configuration_->name());
-	scan_->setFileFormat("amCDFv1");
-	scan_->setScanConfiguration(configuration_);
-	scan_->setIndexType("fileSystem");
-	scan_->rawData()->addScanAxis(AMAxisInfo("eV", 0, "Incident Energy", "eV"));
 	scan_->setNotes(beamlineSettings());
-
-	// Set axis control infos.
-
-	AMControlInfoList list;
-
-	BioXASMonochromator *mono = BioXASBeamline::bioXAS()->mono();
-	if (mono) {
-		AMControl *energyControl = BioXASBeamline::bioXAS()->mono()->energyControl();
-
-		if (energyControl)
-			list.append(energyControl->toInfo());
-	}
-
-	setConfigurationAxisControlInfos(list);
-
-	// Set detectors.
-
-	AMDetectorInfoSet bioXASDetectors;
-
-	AMDetector *i0Detector = BioXASBeamline::bioXAS()->i0Detector();
-	if (i0Detector)
-		bioXASDetectors.addDetectorInfo(i0Detector->toInfo());
-
-	AMDetector *i1Detector = BioXASBeamline::bioXAS()->i1Detector();
-	if (i1Detector)
-		bioXASDetectors.addDetectorInfo(i1Detector->toInfo());
-
-	AMDetector *i2Detector = BioXASBeamline::bioXAS()->i2Detector();
-	if (i2Detector)
-		bioXASDetectors.addDetectorInfo(i2Detector->toInfo());
-
-	AMDetector *scalerDwellTimeDetector = BioXASBeamline::bioXAS()->scalerDwellTimeDetector();
-	if (scalerDwellTimeDetector)
-		bioXASDetectors.addDetectorInfo(scalerDwellTimeDetector->toInfo());
-
-	AMDetector *ge32Detector = BioXASBeamline::bioXAS()->ge32ElementDetector();
-	if (ge32Detector && configuration_->usingXRFDetector())
-		bioXASDetectors.addDetectorInfo(ge32Detector->toInfo());
-
-	setConfigurationDetectorConfigurations(bioXASDetectors);
 
 	// Set up the scan timer.
 
 	useFeedback_ = true;
-
-	secondsElapsed_ = 0;
-	secondsTotal_ = configuration_->totalTime();
-	elapsedTime_.setInterval(1000);
-
-	connect(this, SIGNAL(started()), &elapsedTime_, SLOT(start()));
-	connect(this, SIGNAL(cancelled()), &elapsedTime_, SLOT(stop()));
-	connect(this, SIGNAL(paused()), &elapsedTime_, SLOT(stop()));
-	connect(this, SIGNAL(resumed()), &elapsedTime_, SLOT(start()));
-	connect(this, SIGNAL(failed()), &elapsedTime_, SLOT(stop()));
-	connect(this, SIGNAL(finished()), &elapsedTime_, SLOT(stop()));
-
-	connect(&elapsedTime_, SIGNAL(timeout()), this, SLOT(onScanTimerUpdate()));
 }
 
 BioXASXASScanActionController::~BioXASXASScanActionController()
 {
 
-}
-
-void BioXASXASScanActionController::setConfigurationAxisControlInfos(const AMControlInfoList &infos)
-{
-	if (configuration_) {
-		configuration_->setAxisControlInfos(infos);
-	}
-}
-
-void BioXASXASScanActionController::setConfigurationDetectorConfigurations(const AMDetectorInfoSet &infos)
-{
-	if (configuration_) {
-		configuration_->setDetectorConfigurations(infos);
-	}
 }
 
 QString BioXASXASScanActionController::beamlineSettings()
@@ -134,7 +59,7 @@ AMAction3* BioXASXASScanActionController::createInitializationActions()
 	CLSSIS3820Scaler *scaler = CLSBeamline::clsBeamline()->scaler();
 
 	if (scaler) {
-		double regionTime = double(configuration_->scanAxisAt(0)->regionAt(0)->regionTime());
+		double regionTime = double(bioXASConfiguration_->scanAxisAt(0)->regionAt(0)->regionTime());
 
 		scalerInitialization = new AMSequentialListAction3(new AMSequentialListActionInfo3("BioXAS Scaler Initialization Actions", "BioXAS Scaler Initialization Actions"));
 		scalerInitialization->addSubAction(scaler->createContinuousEnableAction3(false));
@@ -150,19 +75,19 @@ AMAction3* BioXASXASScanActionController::createInitializationActions()
 	AMSequentialListAction3 *xrfDetectorInitialization = 0;
 	BioXAS32ElementGeDetector *detector = BioXASBeamline::bioXAS()->ge32ElementDetector();
 
-	if (configuration_->usingXRFDetector() && detector) {
+	if (bioXASConfiguration_->usingXRFDetector() && detector) {
 		xrfDetectorOK = true;
 
 		xrfDetectorInitialization = new AMSequentialListAction3(new AMSequentialListActionInfo3("BioXAS Xpress3 Initialization", "BioXAS Xpress3 Initialization"));
 		xrfDetectorInitialization->addSubAction(detector->createDisarmAction());
-		xrfDetectorInitialization->addSubAction(detector->createFramesPerAcquisitionAction(int(configuration_->scanAxisAt(0)->numberOfPoints()*1.1)));	// Adding 10% just because.
+		xrfDetectorInitialization->addSubAction(detector->createFramesPerAcquisitionAction(int(bioXASConfiguration_->scanAxisAt(0)->numberOfPoints()*1.1)));	// Adding 10% just because.
 		xrfDetectorInitialization->addSubAction(detector->createInitializationAction());
 
-	} else if (!configuration_->usingXRFDetector()) {
+	} else if (!bioXASConfiguration_->usingXRFDetector()) {
 		xrfDetectorOK = true;
 
 	} else {
-		AMErrorMon::alert(this, BIOXASXASSCANACTIONCONTROLLER_VORTEX_DETECTOR_NOT_FOUND, "Failed to complete scan initialization--scan to use Vortex detector, but detector not found.");
+		AMErrorMon::alert(this, BIOXASXASSCANACTIONCONTROLLER_XRF_DETECTOR_NOT_FOUND, "Failed to complete scan initialization--scan to use XRF detector, but detector not found.");
 	}
 
 	// Initialize the mono.
@@ -186,8 +111,8 @@ AMAction3* BioXASXASScanActionController::createInitializationActions()
 	AMAction3* standardsWheelInitialization = 0;
 	CLSStandardsWheel *standardsWheel = BioXASBeamline::bioXAS()->standardsWheel();
 
-	if (standardsWheel && standardsWheel->indexFromName(configuration_->edge().split(" ").first()) != -1) {
-		standardsWheelInitialization = standardsWheel->createMoveToNameAction(configuration_->edge().split(" ").first());
+	if (standardsWheel && standardsWheel->indexFromName(bioXASConfiguration_->edge().split(" ").first()) != -1) {
+		standardsWheelInitialization = standardsWheel->createMoveToNameAction(bioXASConfiguration_->edge().split(" ").first());
 	} else {
 		standardsWheelInitialization = standardsWheel->createMoveToNameAction("None");
 	}
@@ -408,14 +333,14 @@ void BioXASXASScanActionController::buildScanControllerImplementation()
 	// Create analyzed data source for the 32El Ge detector.
 
 	AMXRFDetector *ge32Detector = BioXASBeamline::bioXAS()->ge32ElementDetector();
-	if (configuration_->usingXRFDetector() && ge32Detector){
+	if (bioXASConfiguration_->usingXRFDetector() && ge32Detector){
 
 		ge32Detector->removeAllRegionsOfInterest();
 
 		AMDataSource *spectraSource = scan_->dataSourceAt(scan_->indexOfDataSource(ge32Detector->name()));
-		QString edgeSymbol = configuration_->edge().split(" ").first();
+		QString edgeSymbol = bioXASConfiguration_->edge().split(" ").first();
 
-		foreach (AMRegionOfInterest *region, configuration_->regionsOfInterest()){
+		foreach (AMRegionOfInterest *region, bioXASConfiguration_->regionsOfInterest()){
 
 			AMRegionOfInterestAB *regionAB = (AMRegionOfInterestAB *)region->valueSource();
 			AMRegionOfInterestAB *newRegion = new AMRegionOfInterestAB(regionAB->name().remove(' '));
@@ -430,18 +355,5 @@ void BioXASXASScanActionController::buildScanControllerImplementation()
 			normalizedRegion->setNormalizationName(i0CorrectedDetectorSource->name());
 			scan_->addAnalyzedDataSource(normalizedRegion, newRegion->name().contains(edgeSymbol), !newRegion->name().contains(edgeSymbol));
 		}
-	}
-}
-
-void BioXASXASScanActionController::onScanTimerUpdate()
-{
-	if (elapsedTime_.isActive()){
-
-		if (secondsElapsed_ >= secondsTotal_)
-			secondsElapsed_ = secondsTotal_;
-		else
-			secondsElapsed_ += 1.0;
-
-		emit progress(secondsElapsed_, secondsTotal_);
 	}
 }
