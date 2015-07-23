@@ -29,8 +29,9 @@ CLSPseudoMotorGroupObjectView::CLSPseudoMotorGroupObjectView(CLSPseudoMotorGroup
 }
 
 CLSPseudoMotorGroupView::CLSPseudoMotorGroupView(CLSPseudoMotorGroup *motorGroup,
+												 AMMotorGroupView::ViewMode viewMode,
 												 QWidget *parent)
-	: AMMotorGroupView(motorGroup, parent)
+	: AMMotorGroupView(motorGroup, viewMode, parent)
 {
 
 }

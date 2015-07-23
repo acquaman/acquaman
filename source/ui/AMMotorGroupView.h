@@ -29,51 +29,263 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QDoubleSpinBox>
 #include <QTextEdit>
 #include <QSignalMapper>
-
+#include <QComboBox>
+#include <QStackedWidget>
 #include "beamline/AMMotorGroup.h"
 
+/*!
+  * \brief A class for visualizing the data of an AMMotorGroupObject.
+  * Allows the users to set the position of any of the axes within a motor group
+  * object, as well as 'step' each of the axes by customizable amounts.
+  */
 class AMMotorGroupObjectView : public QWidget
 {
 	Q_OBJECT
 
 public:
+	/*!
+	  * Creates an instance of an AMMotorGroupView, which will visualize the data
+	  * contained within the provided motor group object.
+	  */
 	explicit AMMotorGroupObjectView(
 			AMMotorGroupObject* motorGroupObject,
 			QWidget* parent = 0);
 
+	/*!
+	  * Virtual destructor for an AMMotorGroupObjectView
+	  */
 	virtual ~AMMotorGroupObjectView() {}
 
 protected slots:
+	/*!
+	  * Handles signals indicating that a motor within the group object has
+	  * had its connection state altered.
+	  * \param direction ~ The direction of the motor.
+	  * \param motionType ~ The motion type of the motor.
+	  * \param isConnected ~ The connected state of the motor.
+	  */
 	void onConnectionStateChanged(AMMotorGroupObject::MotionDirection direction,
 								  AMMotorGroupAxis::MotionType motionType,
 								  bool isConnected);
 
+	/*!
+	  * Handles signals indicating that a motor within the group object has encountered
+	  * an error.
+	  * \param direction ~ The direction of the motor.
+	  * \param motionType ~ The motion type of the motor.
+	  * \param errorCode ~ The code which describes the type of error.
+	  */
 	void onMotorError(AMMotorGroupObject::MotionDirection direction,
 					  AMMotorGroupAxis::MotionType motionType,
 					  int errorCode);
 
+	/*!
+	  * Handles signals indicating that a motor within the group object has had
+	  * its movement state altered.
+	  * \param direction ~ The direction of the motor.
+	  * \param motionType ~ The motion type of the motor.
+	  * \param isMoving ~ The movement state of the motor.
+	  */
 	void onMovingStateChanged(AMMotorGroupObject::MotionDirection direction,
 							  AMMotorGroupAxis::MotionType motionType,
 							  bool isMoving);
 
+	/*!
+	  * Handles signals indicating that a motor within the group object has had
+	  * its position units changed.
+	  * \param direction ~ The direction of the motor.
+	  * \param motionType ~ The motion type of the motor.
+	  * \param positionUnits ~ The position units of the motor.
+	  */
 	void onPositionUnitsChanged(AMMotorGroupObject::MotionDirection direction,
 								AMMotorGroupAxis::MotionType motionType,
 								const QString& positionUnits);
 
+	/*!
+	  * Handles signals indicating that a motor within the group object has had
+	  * its position value changed.
+	  * \param direction ~ The direction of the motor.
+	  * \param motionType ~ The motion type of the motor.
+	  * \param positionValue ~ The position value of the motor.
+	  */
 	void onPositionValueChanged(AMMotorGroupObject::MotionDirection direction,
 								AMMotorGroupAxis::MotionType motionType,
 								double positionValue);
 
-	void onShowLogButtonClicked();
+	/*!
+	  * Handles signals indicating that the increment horizontal translation button
+	  * has been clicked. Moves the horizontal translation motor by the value
+	  * speicifed in the step spin box, if the motor can be moved.
+	  */
+	void onHorizontalTranslationIncrementClicked();
+
+	/*!
+	  * Handles signals indicating that the decrement horizontal translation button
+	  * has been clicked. Moves the horizontal translation motor backward by the value
+	  * speicifed in the step spin box, if the motor can be moved.
+	  */
+	void onHorizontalTranslationDecrementClicked();
+
+	/*!
+	  * Handles signals indicating that the increment horizontal rotation button
+	  * has been clicked. Moves the horizontal rotation motor by the value
+	  * speicifed in the step spin box, if the motor can be moved.
+	  */
+	void onHorizontalRotationIncrementClicked();
+
+	/*!
+	  * Handles signals indicating that the decrement horizontal rotation button
+	  * has been clicked. Moves the horizontal rotation motor backward by the value
+	  * speicifed in the step spin box, if the motor can be moved.
+	  */
+	void onHorizontalRotationDecrementClicked();
+
+	/*!
+	  * Handles signals indicating that the increment vertical translation button
+	  * has been clicked. Moves the vertical translation motor by the value
+	  * speicifed in the step spin box, if the motor can be moved.
+	  */
+	void onVerticalTranslationIncrementClicked();
+
+	/*!
+	  * Handles signals indicating that the decrement vertical translation button
+	  * has been clicked. Moves the horizontal translation motor backward by the value
+	  * speicifed in the step spin box, if the motor can be moved.
+	  */
+	void onVerticalTranslationDecrementClicked();
+
+	/*!
+	  * Handles signals indicating that the increment vertical rotation button
+	  * has been clicked. Moves the vertical rotation motor by the value
+	  * speicifed in the step spin box, if the motor can be moved.
+	  */
+	void onVerticalRotationIncrementClicked();
+
+	/*!
+	  * Handles signals indicating that the decrement vertical rotation button
+	  * has been clicked. Moves the vertical rotation motor backward by the value
+	  * speicifed in the step spin box, if the motor can be moved.
+	  */
+	void onVerticalRotationDecrementClicked();
+
+	/*!
+	  * Handles signals indicating that the increment Normal translation button
+	  * has been clicked. Moves the Normal translation motor by the value
+	  * speicifed in the step spin box, if the motor can be moved.
+	  */
+	void onNormalTranslationIncrementClicked();
+
+	/*!
+	  * Handles signals indicating that the decrement Normal translation button
+	  * has been clicked. Moves the horizontal translation motor backward by the value
+	  * speicifed in the step spin box, if the motor can be moved.
+	  */
+	void onNormalTranslationDecrementClicked();
+
+	/*!
+	  * Handles signals indicating that the increment Normal rotation button
+	  * has been clicked. Moves the Normal rotation motor by the value
+	  * speicifed in the step spin box, if the motor can be moved.
+	  */
+	void onNormalRotationIncrementClicked();
+
+	/*!
+	  * Handles signals indicating that the decrement Normal rotation button
+	  * has been clicked. Moves the Normal rotation motor backward by the value
+	  * speicifed in the step spin box, if the motor can be moved.
+	  */
+	void onNormalRotationDecrementClicked();
+
+	/*!
+	  * Handles signals indicating that the stop button has been clicked. Instructs
+	  * the motor group object to stop all of its axes.
+	  */
+	void onStopClicked();
+
+	/*!
+	  * Handles signals indicating that the set point spinbox for the horizontal
+	  * translation has had its value altered.
+	  */
+	void onHorizontalTranslationValueChanged();
+
+	/*!
+	  * Handles signals indicating that the set point spinbox for the horizontal
+	  * rotation has had its value altered.
+	  */
+	void onHorizontalRotationValueChanged();
+
+	/*!
+	  * Handles signals indicating that the set point spinbox for the vertical
+	  * translation has had its value altered.
+	  */
+	void onVerticalTranslationValueChanged();
+
+	/*!
+	  * Handles signals indicating that the set point spinbox for the vertical
+	  * rotation has had its value altered.
+	  */
+	void onVerticalRotationValueChanged();
+
+	/*!
+	  * Handles signals indicating that the set point spinbox for the normal
+	  * translation has had its value altered.
+	  */
+	void onNormalTranslationValueChanged();
+
+	/*!
+	  * Handles signals indicating that the set point spinbox for the normal
+	  * rotation has had its value altered.
+	  */
+	void onNormalRotationValueChanged();
+
+	/*!
+	  * Handles signals indicating that the dismiss error message button has been
+	  * clicked.
+	  */
+	void onErrorMessageDismissClicked();
+
 protected:
 
+	/*!
+	  * Helper method which performs all the initialization and layout of the
+	  * contained widgets.
+	  */
 	void setupUi();
+
+	/*!
+	  * \brief Helper method which sets the data values and states for all the
+	  * contained widgets based on the data within the motor group object model.
+	  *
+	  * This must be run after setupUi()
+	  */
 	void setupData();
+
+	/*!
+	  * \brief Helper method which connects the signals from the motor group object
+	  * model to the slots within this view.
+	  */
 	void setupConnections();
 
+	/*!
+	  * Sets the position units to be displayed in the jog spinbox. Shows a set
+	  * of each position unit contained within the group object, separated by a "/"
+	  */
+	void refreshJogUnits();
+
+	/*!
+	  * \brief Virtual implementation function which allows subclasses to perform
+	  * customized actions when an error is encountered.
+	  * In order to define such custom actions, subclass this class, then override
+	  * this method.
+	  * \param direction ~ The direction of the motor which encountered the error.
+	  * \param motionType ~ The motion type of the motor which encountered the
+	  * error.
+	  * \param errorCode ~ A code which identified the type of error encountered
+	  * by the motor.
+	  */
 	virtual void errorHandleImplementation(AMMotorGroupObject::MotionDirection direction,
 										   AMMotorGroupAxis::MotionType motionType,
-										   int errorCode);
+										   int errorCode);	
 
 	// Model Reference
 	AMMotorGroupObject* motorGroupObject_;
@@ -81,14 +293,15 @@ protected:
 
 	// Widgets
 	QLabel* titleLabel_;
-
-	QTextEdit* logConsole_;
-	QToolButton* showLogButton_;
+	QLabel* errorLabel_;
+	QLabel* statusLabel_;
+	QToolButton* dismissError_;
 
 	QToolButton* horizontalTranslationIncrement_;
 	QToolButton* horizontalTranslationDecrement_;
 	QDoubleSpinBox* horizontalTranslationValue_;
 	QLabel* horizontalTranslationLabel_;
+
 	QToolButton* horizontalRotationIncrement_;
 	QToolButton* horizontalRotationDecrement_;
 	QDoubleSpinBox* horizontalRotationValue_;
@@ -98,6 +311,7 @@ protected:
 	QToolButton* verticalTranslationDecrement_;
 	QDoubleSpinBox* verticalTranslationValue_;
 	QLabel* verticalTranslationLabel_;
+
 	QToolButton* verticalRotationIncrement_;
 	QToolButton* verticalRotationDecrement_;
 	QDoubleSpinBox* verticalRotationValue_;
@@ -107,31 +321,80 @@ protected:
 	QToolButton* normalTranslationDecrement_;
 	QDoubleSpinBox* normalTranslationValue_;
 	QLabel* normalTranslationLabel_;
+
 	QToolButton* normalRotationIncrement_;
 	QToolButton* normalRotationDecrement_;
 	QDoubleSpinBox* normalRotationValue_;
 	QLabel* normalRotationLabel_;
 
+	QDoubleSpinBox* jogSize_;
 	QToolButton* stopAllButton_;
+
 };
 
 
-
+/*!
+  * A class for visualizing the data within a motor group. Each motor group
+  * object contained within the group will be visualized as a separate tab.
+  */
 class AMMotorGroupView : public QWidget
 {
 	Q_OBJECT
 public:
-	explicit AMMotorGroupView(AMMotorGroup* motorGroup_, QWidget* parent = 0);
+	/*!
+	  * Enumerates the different view modes for the AMMotorGroupView. Compact
+	  * displays each contained motor group object view under a combo box, normal
+	  * view displays each of them under a tab of a tab widget.
+	  */
+	enum ViewMode {
+		NormalView,
+		CompactView
+	};
 
+	/*!
+	  * Creates an instance of an AMMotorGroupView which will visualize the data
+	  * within the provided AMMotorGroup.
+	  * \param motorGroup ~ The motor group whose data is to be visualized.
+	  * \param viewMode ~ The viewmode to use to display the motor group.
+	  */
+	explicit AMMotorGroupView(AMMotorGroup* motorGroup,
+							  ViewMode viewMode,
+							  QWidget* parent = 0);
+
+	/*!
+	  * Virtual destructor for an AMMotorGroupView
+	  */
 	virtual ~AMMotorGroupView() {}
 
 protected slots:
+	/*!
+	  * Handles signals indicating that one of the motors in one of the contained
+	  * motor group objects has had its motion status altered.
+	  * \param groupObjectName ~ The name of the group object which contains the
+	  * motor whose motion status has been altered.
+	  */
 	void onGroupObjectMotionStatusAltered(const QString& groupObjectName);
 protected:
 
+	/*!
+	  * Helper method which creates the ui for the compact view type
+	  */
+	void setupCompactUi();
+
+	/*!
+	  * Helper method which creates the ui for the normal view type
+	  */
+	void setupNormalUi();
+
 	AMMotorGroup* motorGroup_;
+	// Used only for normal view:
 	QTabWidget* groupObjectTabs_;
 	QHash<QString, int>	 motorGroupTabMap_;
 	QSignalMapper* groupMotionStatusMapper_;
+
+	// Used only for compact view:
+	QComboBox* groupObjectSelector_;
+	QStackedWidget* groupObjectStack_;
+
 };
 #endif // AMMOTORGROUPVIEW_H

@@ -1213,6 +1213,7 @@ void SGMBeamline::setupControls(){
 	if(amNames2pvNames_.lookupFailed())
 		AMErrorMon::alert(this, SGMBEAMLINE_PV_NAME_LOOKUPS_FAILED, "PV Name lookups in the SGM Beamline failed");
 
+	motorGroup_ = new AMMotorGroup(this);
 
 	AMMotorGroupObject* sampleManipulatorGroupObject =
 			new AMMotorGroupObject("Manipulator");
@@ -1227,9 +1228,10 @@ void SGMBeamline::setupControls(){
 
 	sampleManipulatorGroupObject->setDirectionAxis(AMMotorGroupObject::VerticalMotion,
 										  "Z", ssaManipulatorZ_,
-										  "R", ssaManipulatorRot_);
+										  "rZ", ssaManipulatorRot_);
 
-	motorGroup_ = new AMMotorGroup(this);
+	sampleManipulatorGroupObject->axis(AMMotorGroupObject::VerticalMotion)->setRotationPositionUnits("deg");
+
 	motorGroup_->addMotorGroupObject(sampleManipulatorGroupObject);
 }
 

@@ -509,7 +509,7 @@ void SXRMBAppController::onShowAmbiantSampleStageMotorsTriggered()
 		tableHeightLayout->addWidget(ambiantTableHeightControlEditor);
 		tableHeightLayout->addWidget(stopButton);
 
-		ambiantSampleStageMotorGroupView_ = new AMMotorGroupView(SXRMBBeamline::sxrmb()->motorGroup(), AMMotorGroupView::Exclusive);
+		ambiantSampleStageMotorGroupView_ = new AMMotorGroupView(SXRMBBeamline::sxrmb()->motorGroup(), AMMotorGroupView::CompactView);
 		ambiantSampleStageMotorGroupView_->setMotorGroupView(motorGroupName);
 		ambiantSampleStageMotorGroupView_->showAvailableMotorGroupChoices(false);
 

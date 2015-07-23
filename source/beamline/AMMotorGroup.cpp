@@ -28,6 +28,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 ////////////////////////////////////////////////////////////////////////////////
 // Motor Group Motion
 ////////////////////////////////////////////////////////////////////////////////
+
 AMMotorGroupMotion::AMMotorGroupMotion(const QString& name,
 									   AMControl* motor)
 	: QObject(0)
@@ -46,7 +47,17 @@ QString AMMotorGroupMotion::positionUnits() const
 	if(!motor_) {
 		return QString();
 	}
+
+	if(!positionUnits_.isEmpty()) {
+		return positionUnits_;
+	}
+
 	return motor_->units();
+}
+
+void AMMotorGroupMotion::setPositionUnits(const QString &positionUnits)
+{
+	positionUnits_ = positionUnits;
 }
 
 AMControl * AMMotorGroupMotion::motor() const
@@ -96,7 +107,7 @@ AMMotorGroupAxis::AMMotorGroupAxis(AMMotorGroupMotion* translationalMotion,
 	if(rotationalMotion_ && rotationalMotion_->motor()) {
 
 		connect(rotationalMotion_->motor(), SIGNAL(connected(bool)),
-				this, SLOT(onTranslationConnectedStateChanged(bool)));
+				this, SLOT(onRotationConnectedStateChanged(bool)));
 
 		connect(rotationalMotion_->motor(), SIGNAL(error(int)),
 				this, SLOT(onRotationMotorError(int)));
@@ -167,6 +178,43 @@ QString AMMotorGroupAxis::rotationPositionUnits() const
 	return rotationalMotion_->positionUnits();
 }
 
+double AMMotorGroupAxis::minRotationPosition() const
+{
+	if(!canRotate()) {
+		return 0;
+	}
+
+	return rotationalMotion_->motor()->minimumValue();
+}
+
+double AMMotorGroupAxis::minTranslationPosition() const
+{
+	if(!canTranslate()) {
+		return 0;
+	}
+
+	return translationalMotion_->motor()->minimumValue();
+
+}
+
+double AMMotorGroupAxis::maxRotationPosition() const
+{
+	if(!canRotate()) {
+		return 0;
+	}
+
+	return rotationalMotion_->motor()->maximumValue();
+}
+
+double AMMotorGroupAxis::maxTranslationPosition() const
+{
+	if(!canTranslate()) {
+		return 0;
+	}
+
+	return translationalMotion_->motor()->maximumValue();
+}
+
 bool AMMotorGroupAxis::isMoving() const
 {
 	return ( isTranslating() || isRotating() );
@@ -202,6 +250,54 @@ bool AMMotorGroupAxis::canRotate() const
 	return rotationalMotion_ &&
 			rotationalMotion_->motor() &&
 			rotationalMotion_->motor()->isConnected();
+}
+
+void AMMotorGroupAxis::setTranslatePosition(double position)
+{
+	if(canTranslate()) {
+		translationalMotion_->motor()->move(position);
+	}
+}
+
+void AMMotorGroupAxis::setRotatePosition(double position)
+{
+	if(canRotate()) {
+		rotationalMotion_->motor()->move(position);
+	}
+}
+
+void AMMotorGroupAxis::setTranslationPositionUnits(const QString &positionUnits)
+{
+	if(canTranslate()) {
+		if(translationPositionUnits() != positionUnits) {
+			translationalMotion_->setPositionUnits(positionUnits);
+			emit positionUnitsChanged(AMMotorGroupAxis::TranslationalMotion, positionUnits);
+		}
+	}
+}
+
+void AMMotorGroupAxis::setRotationPositionUnits(const QString &positionUnits)
+{
+	if(rotationalMotion_) {
+		if(rotationPositionUnits() != positionUnits) {
+			rotationalMotion_->setPositionUnits(positionUnits);
+			emit positionUnitsChanged(AMMotorGroupAxis::RotationalMotion, positionUnits);
+		}
+	}
+}
+
+void AMMotorGroupAxis::stopTranslation()
+{
+	if(canTranslate()) {
+		translationalMotion_->motor()->stop();
+	}
+}
+
+void AMMotorGroupAxis::stopRotation()
+{
+	if(canRotate()) {
+		rotationalMotion_->motor()->stop();
+	}
 }
 
 AMAction3 * AMMotorGroupAxis::createTranslateMoveAction(double position)
@@ -269,7 +365,13 @@ void AMMotorGroupAxis::onTranslationMovingStateChanged(bool isMoving)
 
 void AMMotorGroupAxis::onTranslationPositionUnitsChanged(const QString &positionUnits)
 {
-	emit positionUnitsChanged(AMMotorGroupAxis::TranslationalMotion, positionUnits);
+	// The position units is the one incoming from the motor control. If this
+	// is different from the one for the translational position units, then the
+	// position units has been manually set in this group, and we don't need to
+	// emit the signal
+	if(translationalMotion_->positionUnits() == positionUnits) {
+		emit positionUnitsChanged(AMMotorGroupAxis::TranslationalMotion, positionUnits);
+	}
 }
 
 void AMMotorGroupAxis::onTranslationPositionValueChanged(double positionValue)
@@ -294,7 +396,13 @@ void AMMotorGroupAxis::onRotationMovingStateChanged(bool isMoving)
 
 void AMMotorGroupAxis::onRotationPositionUnitsChanged(const QString &positionUnits)
 {
-	emit positionUnitsChanged(AMMotorGroupAxis::RotationalMotion, positionUnits);
+	// The position units is the one incoming from the motor control. If this
+	// is different from the one for the rotational position units, then the
+	// position units has been manually set in this group, and we don't need to
+	// emit the signal
+	if(rotationalMotion_->positionUnits() == positionUnits) {
+		emit positionUnitsChanged(AMMotorGroupAxis::TranslationalMotion, positionUnits);
+	}
 }
 
 void AMMotorGroupAxis::onRotationPositionValueChanged(double positionValue)
@@ -501,6 +609,24 @@ AMAction3 * AMMotorGroupObject::createStopAllAction()
 	}
 
 	return stopAllAction;
+}
+
+void AMMotorGroupObject::stopAll()
+{
+	if(hasVerticalAxis()) {
+		verticalAxis()->stopRotation();
+		verticalAxis()->stopTranslation();
+	}
+
+	if(hasHorizontalAxis()) {
+		horizontalAxis()->stopRotation();
+		horizontalAxis()->stopTranslation();
+	}
+
+	if(hasNormalAxis()) {
+		normalAxis()->stopRotation();
+		normalAxis()->stopTranslation();
+	}
 }
 
 void AMMotorGroupObject::onHorizontalConnectedStateChanged(AMMotorGroupAxis::MotionType motionType,
@@ -728,3 +854,10 @@ void AMMotorGroup::addMotorGroupObject(AMMotorGroupObject *object)
 	object->setParent(this);
 	groupObjects_.insert(object->name(), object);
 }
+
+
+
+
+
+
+

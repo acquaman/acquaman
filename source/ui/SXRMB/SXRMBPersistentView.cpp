@@ -146,7 +146,7 @@ void SXRMBPersistentView::layoutBeamlineEnergy()
 void SXRMBPersistentView::layoutMotorGroup()
 {
 	// create motor groups
-	motorGroupView_ = new AMMotorGroupView(SXRMBBeamline::sxrmb()->motorGroup(), AMMotorGroupView::Exclusive);
+	motorGroupView_ = new AMMotorGroupView(SXRMBBeamline::sxrmb()->motorGroup(), AMMotorGroupView::CompactView);
 	motorGroupView_->showAvailableMotorGroupChoices(false);
 	motorGroupView_->setMotorGroupView(SXRMBBeamline::sxrmb()->currentMotorGroupName());
 

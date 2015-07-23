@@ -42,6 +42,7 @@ class CLSPseudoMotorGroupView : public AMMotorGroupView
 	Q_OBJECT
 public:
 	explicit CLSPseudoMotorGroupView(CLSPseudoMotorGroup* motorGroup,
+									 AMMotorGroupView::ViewMode viewMode,
 									 QWidget* parent = 0);
 
 	virtual ~CLSPseudoMotorGroupView() {}

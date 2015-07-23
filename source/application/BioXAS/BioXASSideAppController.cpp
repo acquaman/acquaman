@@ -218,7 +218,7 @@ void BioXASSideAppController::setupUserInterface()
 	CLSStandardsWheelConfigurationView *wheelView = new CLSStandardsWheelConfigurationView(BioXASSideBeamline::bioXAS()->standardsWheel());
 	mw_->addPane(AMMainWindow::buildMainWindowPane("Standards Wheel", ":/system-software-update.png", wheelView), "General", "Standards Wheel", ":/system-software-update.png");
 
-	AMMotorGroupView *cryostatStageView = new AMMotorGroupView(BioXASSideBeamline::bioXAS()->motorGroup());
+	AMMotorGroupView *cryostatStageView = new AMMotorGroupView(BioXASSideBeamline::bioXAS()->motorGroup(), AMMotorGroupView::CompactView);
 	mw_->addPane(AMMainWindow::buildMainWindowPane("Cryostat Stage", ":/system-software-update.png", cryostatStageView), "General", "Cryostat Stage", ":/system-software-update.png");
 
 	// Create scaler view, if scaler is present and connected.

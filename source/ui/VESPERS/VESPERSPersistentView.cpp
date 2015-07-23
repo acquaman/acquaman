@@ -76,7 +76,7 @@ VESPERSPersistentView::VESPERSPersistentView(QWidget *parent) :
 	connect(VESPERSBeamline::vespers()->safetyShutter2(), SIGNAL(stateChanged(int)), this, SLOT(onSafetyShutter2StateChanged(int)));
 	onSafetyShutter2StateChanged(VESPERSBeamline::vespers()->safetyShutter2()->state());
 
-	motorGroupView_ = new CLSPseudoMotorGroupView(VESPERSBeamline::vespers()->motorGroup(), AMMotorGroupView::Exclusive);
+	motorGroupView_ = new CLSPseudoMotorGroupView(VESPERSBeamline::vespers()->motorGroup(), AMMotorGroupView::CompactView);
 	connect(motorGroupView_, SIGNAL(currentMotorGroupObjectViewChanged(QString)), this, SIGNAL(currentSampleStageChanged(QString)));
 	motorGroupView_->setMotorGroupView("Sample Stage - H, V, N");
 

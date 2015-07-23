@@ -1495,9 +1495,11 @@ bool SGMAppController::setupSGMViews(){
 	mw_->insertHeading("Beamline Control", 0);
 
 	AMMotorGroupView* motorGroupView =
-			new AMMotorGroupView(SGMBeamline::sgm()->motorGroup());
+			new AMMotorGroupView(SGMBeamline::sgm()->motorGroup(), AMMotorGroupView::CompactView);
 
-	mw_->addPane(motorGroupView, "Beamline Control", "Manual Sample Controls",  ":/system-software-update.png");
+	if(motorGroupView) {
+		mw_->addPane(motorGroupView, "Beamline Control", "Manual Sample Controls",  ":/system-software-update.png");
+	}	
 
 	AMSampleCamera::set()->setSSAManipulatorX(SGMBeamline::sgm()->ssaManipulatorX());
 	AMSampleCamera::set()->setSSAManipulatorY(SGMBeamline::sgm()->ssaManipulatorY());
