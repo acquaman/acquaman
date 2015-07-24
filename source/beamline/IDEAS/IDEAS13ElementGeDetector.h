@@ -54,6 +54,33 @@ public:
 	/// Returns the real time for the detector.
 	AMDetector *dwellTime() const {return ge13ElementRealTime_; }
 
+    /// Returns AMPVControl for peaking time
+    double peakingTime() const { return peakingTimeControl_->value(); }
+    /// Returns AMPVControl for preamp gain
+    double preampGain1() const  { return preampGainControl1_->value(); }
+    /// Returns AMPVControl for preamp gain
+    double preampGain2() const  { return preampGainControl2_->value(); }
+    /// Returns AMPVControl for preamp gain
+    double preampGain3() const  { return preampGainControl3_->value(); }
+    /// Returns AMPVControl for preamp gain
+    double preampGain4() const  { return preampGainControl4_->value(); }
+    /// Returns AMPVControl for preamp gain
+    double preampGain5() const  { return preampGainControl5_->value(); }
+    /// Returns AMPVControl for preamp gain
+    double preampGain6() const  { return preampGainControl6_->value(); }
+    /// Returns AMPVControl for preamp gain
+    double preampGain7() const  { return preampGainControl7_->value(); }
+    /// Returns AMPVControl for preamp gain
+    double preampGain8() const  { return preampGainControl8_->value(); }
+    /// Returns AMPVControl for preamp gain
+    double preampGain9() const  { return preampGainControl9_->value(); }
+    /// Returns AMPVControl for preamp gain
+    double preampGain10() const  { return preampGainControl10_->value(); }
+    /// Returns AMPVControl for preamp gain
+    double preampGain11() const  { return preampGainControl11_->value(); }
+    /// Returns AMPVControl for preamp gain
+    double preampGain12() const  { return preampGainControl12_->value(); }
+
 signals:
 
 
