@@ -48,7 +48,7 @@ protected slots:
     /// Handles setting the proper information if the edge is changed.
     void onEdgeChanged();
     /// Helper slot that handles the setting the estimated time label
-    void onEstimatedTimeChanged();
+    void onEstimatedTimeChanged(double time);
 
 protected:
     BioXASMainXASScanConfiguration *configuration_;

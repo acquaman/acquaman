@@ -37,7 +37,7 @@ BioXASMainXASScanConfigurationView::BioXASMainXASScanConfigurationView(BioXASMai
 
 	connect(scanName_, SIGNAL(editingFinished()), this, SLOT(onScanNameEdited()));
 	connect(configuration_, SIGNAL(nameChanged(QString)), scanName_, SLOT(setText(QString)));
-    connect(configuration_, SIGNAL(totalTimeChanged(double)), this, SLOT(onEstimatedTimeChanged()));
+    connect(configuration_, SIGNAL(totalTimeChanged(double)), this, SLOT(onEstimatedTimeChanged(double)));
 
 
 	// Energy (Eo) selection
@@ -242,7 +242,7 @@ void BioXASMainXASScanConfigurationView::onEdgeChanged()
 		energy_->setValue(configuration_->energy());
 }
 
-void BioXASMainXASScanConfigurationView::onEstimatedTimeChanged()
+void BioXASMainXASScanConfigurationView::onEstimatedTimeChanged(double time)
 {
-   estimatedTimeLabel_->setText(AMDateTimeUtils::convertTimeToString(configuration_->totalTime(true)));
+   estimatedTimeLabel_->setText(time);
 }
