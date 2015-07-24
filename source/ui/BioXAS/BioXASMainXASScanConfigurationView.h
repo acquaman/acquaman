@@ -47,6 +47,8 @@ protected slots:
     void onLinesComboBoxIndexChanged(int index);
     /// Handles setting the proper information if the edge is changed.
     void onEdgeChanged();
+    /// Helper slot that handles the setting the estimated time label
+    void onEstimatedTimeChanged(double time);
 
 protected:
     BioXASMainXASScanConfiguration *configuration_;
@@ -68,6 +70,8 @@ protected:
     QLabel *pointPerScan_;
     /// Label holding the energy space scan range.
     QLabel *scanEnergyRange_;
+    /// Label for time estimation
+    QLabel *estimatedTimeLabel_;
 };
 
 #endif // BIOXASMAINXASSCANCONFIGURATIONVIEW_H
