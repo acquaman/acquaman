@@ -51,6 +51,9 @@ public:
 	/// Removes a given control from the list of child controls.
 	virtual void removeChildControl(AMControl *control);
 
+	/// Returns a string representation of this control.
+	virtual QString toString() const;
+
 signals:
 	/// Notifier that the minimum value has changed.
 	void minimumValueChanged(double newValue);
@@ -64,6 +67,8 @@ public slots:
 	virtual bool stop();
 
 protected slots:
+	/// Sets the enum states.
+	void setEnumStates(const QStringList &enumStateNames);
 	/// Sets the connected state.
 	void setConnected(bool isConnected);
 	/// Sets the value.

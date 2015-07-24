@@ -42,14 +42,10 @@ BioXASSideXASScanConfigurationView::BioXASSideXASScanConfigurationView(BioXASSid
 
 	regionsView_ = new AMEXAFSScanAxisView("BioXAS-Side Region Configuration", configuration_);
 
-	usingXRFDetectorCheckBox_ = new QCheckBox("Use Four Element");
+	usingXRFDetectorCheckBox_ = new QCheckBox("Use 32-Element");
 	usingXRFDetectorCheckBox_->setChecked(configuration_->usingXRFDetector());
 	connect(configuration_->dbObject(), SIGNAL(usingXRFDetectorChanged(bool)), usingXRFDetectorCheckBox_, SLOT(setChecked(bool)));
 	connect(usingXRFDetectorCheckBox_, SIGNAL(toggled(bool)), configuration_->dbObject(), SLOT(setUsingXRFDetector(bool)));
-
-	usingEncoderEnergyCheckBox_ = new QCheckBox("Use encoder-based energy");
-	usingEncoderEnergyCheckBox_->setChecked(configuration_->usingEncoderEnergy());
-	connect( usingEncoderEnergyCheckBox_, SIGNAL(toggled(bool)), this, SLOT(onUsingEncoderEnergyCheckBoxToggled()) );
 
 	autoRegionButton_ = new QPushButton("Auto Set XANES Regions");
 	connect(autoRegionButton_, SIGNAL(clicked()), this, SLOT(setupDefaultXANESScanRegions()));
@@ -108,7 +104,6 @@ BioXASSideXASScanConfigurationView::BioXASSideXASScanConfigurationView(BioXASSid
 
 	QVBoxLayout *optionsLayout = new QVBoxLayout();
 	optionsLayout->addWidget(usingXRFDetectorCheckBox_);
-	optionsLayout->addWidget(usingEncoderEnergyCheckBox_);
 	optionsLayout->addStretch();
 
 	QVBoxLayout *regionButtonsLayout = new QVBoxLayout();
@@ -259,9 +254,4 @@ void BioXASSideXASScanConfigurationView::onEdgeChanged()
 
 	if (energy_->value() != configuration_->energy())
 		energy_->setValue(configuration_->energy());
-}
-
-void BioXASSideXASScanConfigurationView::onUsingEncoderEnergyCheckBoxToggled()
-{
-	configuration_->setUsingEncoderEnergy(usingEncoderEnergyCheckBox_->isChecked());
 }

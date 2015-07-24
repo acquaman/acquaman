@@ -356,6 +356,7 @@ bool REIXSRIXSScanConfigurationView::dropScanURLs(const QList<QUrl>& urls) {
 
 void REIXSRIXSScanConfigurationView::addScan(AMScan* newScan) {
 	scanView_->setPlotCursorVisibility(false);
+
 	currentScan_ = scanSetModel_->scanAt(0);
 	scanSetModel_->removeScan(currentScan_);
 	scanSetModel_->addScan(newScan);
