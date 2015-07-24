@@ -20,162 +20,80 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 
 #include "CLSPseudoMotorGroupView.h"
-
-CLSPseudoMotorGroupObjectView::CLSPseudoMotorGroupObjectView(CLSPseudoMotorGroupObject *motorGroupObject,
-															 QWidget *parent)
-	: AMMotorGroupObjectView(motorGroupObject, parent)
-{
-
-}
+#include <QMessageBox>
+#include <QAction>
+#include <QMenu>
 
 CLSPseudoMotorGroupView::CLSPseudoMotorGroupView(CLSPseudoMotorGroup *motorGroup,
 												 AMMotorGroupView::ViewMode viewMode,
 												 QWidget *parent)
 	: AMMotorGroupView(motorGroup, viewMode, parent)
 {
-
+	isInitialized_ = false;
+	setContextMenuPolicy(Qt::CustomContextMenu);
+	connect(this, SIGNAL(currentMotorGroupObjectViewChanged(QString)),
+			this, SLOT(onGroupObjectViewChanged(QString)));
 }
 
+void CLSPseudoMotorGroupView::onCustomContextMenuRequested(const QPoint &pos)
+{
+	QMenu popup(this);
+	QAction *temp;
 
-//#include "beamline/CLS/CLSPseudoMotorGroup.h"
+	buildCLSPseudoMotorGroupMenuItems(&popup);
 
-//#include <QMessageBox>
-//#include <QMenu>
+	temp = popup.exec(mapToGlobal(pos));
 
-//// CLSPseudoMotorGroupObjectView
-//////////////////////////////////////////////////////
+	if (temp){
 
-// CLSPseudoMotorGroupObjectView::~CLSPseudoMotorGroupObjectView(){}
-//CLSPseudoMotorGroupObjectView::CLSPseudoMotorGroupObjectView(CLSPseudoMotorGroupObject *motorGroupObject, QWidget *parent)
-//	: AMMotorGroupObjectView(motorGroupObject, parent)
-//{
+		if (temp->text().contains("Reset"))
+			resetCLSPseudoMotorGroupMenuItem();
+	}
+}
 
-//}
+void CLSPseudoMotorGroupView::onGroupObjectViewChanged(const QString &groupObjectName)
+{
+	CLSPseudoMotorGroupObject* currentMotorGroupObject =
+			qobject_cast<CLSPseudoMotorGroupObject*>(motorGroup_->motorGroupObject(groupObjectName));
 
-//// CLSPseudoMotorGroupView
-//////////////////////////////////////////////////////
+	if(currentMotorGroupObject && isInitialized_) {
+		recommendResettingCLSPseudoMotorGroupObject(currentMotorGroupObject);
+	} else {
+		isInitialized_ = true;
+	}
+}
 
-// CLSPseudoMotorGroupView::~CLSPseudoMotorGroupView(){}
-//CLSPseudoMotorGroupView::CLSPseudoMotorGroupView(CLSPseudoMotorGroup *motorGroup, QWidget *parent)
-//	: AMMotorGroupView(motorGroup, parent)
-//{
-//	initialized_ = false;
-//	connect(this, SIGNAL(currentMotorGroupObjectViewChanged(QString)), this, SLOT(onNewExclusiveViewMotorGroupViewChange(QString)));
-//	connect(this, SIGNAL(motorGroupVisibilityChanged(QString)), this, SLOT(onNewMultipleViewMotorGroupViewChange(QString)));
-//}
+void CLSPseudoMotorGroupView::buildCLSPseudoMotorGroupMenuItems(QMenu *menu)
+{
+	if(!selectedGroupObject()) {
+		return;
+	}
 
-//CLSPseudoMotorGroupView::CLSPseudoMotorGroupView(CLSPseudoMotorGroup *motorGroup, ViewMode viewMode, QWidget *parent)
-//	: AMMotorGroupView(motorGroup, viewMode, parent)
-//{
-//	initialized_ = false;
-//	connect(this, SIGNAL(currentMotorGroupObjectViewChanged(QString)), this, SLOT(onNewExclusiveViewMotorGroupViewChange(QString)));
-//	connect(this, SIGNAL(motorGroupVisibilityChanged(QString)), this, SLOT(onNewMultipleViewMotorGroupViewChange(QString)));
-//}
+	QAction *action = menu->addAction(QString("Reset %1")
+									  .arg(selectedGroupObject()->name()));
 
-//void CLSPseudoMotorGroupView::onCustomContextMenuRequested(const QPoint &pos)
-//{
-//	QMenu popup(this);
-//	QAction *temp;
+	action->setEnabled(qobject_cast<CLSPseudoMotorGroupObject *>(selectedGroupObject()) != 0);
+}
 
-//	buildCLSPseudoMotorGroupMenuItems(&popup);
-//	popup.addSeparator();
-//	buildStandardMenuItems(&popup);
+void CLSPseudoMotorGroupView::resetCLSPseudoMotorGroupMenuItem()
+{
+	CLSPseudoMotorGroupObject *pseudoMotor = qobject_cast<CLSPseudoMotorGroupObject *>(selectedGroupObject());
 
-//	temp = popup.exec(mapToGlobal(pos));
+	if(pseudoMotor) {
+		pseudoMotor->resetPseudoMotor();
+	}
+}
 
-//	if (temp){
+void CLSPseudoMotorGroupView::recommendResettingCLSPseudoMotorGroupObject(CLSPseudoMotorGroupObject *motorObject)
+{
+	QMessageBox message(this);
+	message.setWindowTitle("New Pseudo-Motor Selected");
+	message.setText("The new motor group you've selected is not referenced to current position of the motors.  It is recommended to reset the motors, otherwise the result of the first move will be unexpected.");
+	message.setIcon(QMessageBox::Warning);
+	message.addButton("Reset Now", QMessageBox::AcceptRole);
+	message.addButton("Later", QMessageBox::RejectRole);
+	message.exec();
 
-//		if (temp->text().contains("Reset"))
-//			resetCLSPseudoMotorGroupMenuItems(temp->text());
-
-//		else
-//			handleStandardMenuItems(temp->text());
-//	}
-//}
-
-//void CLSPseudoMotorGroupView::onNewExclusiveViewMotorGroupViewChange(const QString &name)
-//{
-//	Q_UNUSED(name);
-
-//	CLSPseudoMotorGroupObject *pseudoMotorObject = qobject_cast<CLSPseudoMotorGroupObject *>(currentMotorGroupObjectView()->motorGroupObject());
-
-//	if (pseudoMotorObject && initialized_)
-//		recommendResettingCLSPseudoMotorGroupObject(pseudoMotorObject);
-
-//	else
-//		initialized_ = true;
-//}
-
-//void CLSPseudoMotorGroupView::onNewMultipleViewMotorGroupViewChange(const QString &name)
-//{
-//	int newIndex = visibleMotorGroupObjectNames().indexOf(name);
-
-//	if (visibleMotorGroupObjectViews().at(newIndex)->isVisible()){
-
-//		CLSPseudoMotorGroupObject *pseudoMotorObject = qobject_cast<CLSPseudoMotorGroupObject *>(visibleMotorGroupObjectViews().at(newIndex)->motorGroupObject());
-
-//		if (pseudoMotorObject && initialized_)
-//			recommendResettingCLSPseudoMotorGroupObject(pseudoMotorObject);
-
-//		else
-//			initialized_ = true;
-//	}
-//}
-
-//void CLSPseudoMotorGroupView::recommendResettingCLSPseudoMotorGroupObject(CLSPseudoMotorGroupObject *motorObject)
-//{
-//	QMessageBox message(this);
-//	message.setWindowTitle("New Pseudo-Motor Selected");
-//	message.setText("The new motor group you've selected is not referenced to current position of the motors.  It is recommended to reset the motors, otherwise the result of the first move will be unexpected.");
-//	message.setIcon(QMessageBox::Warning);
-//	message.addButton("Reset Now", QMessageBox::AcceptRole);
-//	message.addButton("Later", QMessageBox::RejectRole);
-//	message.exec();
-
-//	if (message.clickedButton()->text() == "Reset Now")
-//		motorObject->resetPseudoMotor();
-//}
-
-//void CLSPseudoMotorGroupView::buildCLSPseudoMotorGroupMenuItems(QMenu *menu)
-//{
-//	if (viewMode_ == Exclusive){
-
-//		QAction *action = menu->addAction(QString("Reset %1").arg(currentMotorGroupObjectView()->motorGroupObject()->name()));
-//		action->setEnabled(qobject_cast<CLSPseudoMotorGroupObject *>(currentMotorGroupObjectView()->motorGroupObject()) != 0);
-//	}
-
-//	else if (viewMode_ == Multiple){
-
-//		QAction *action = menu->addAction("Reset All Selected Motors");
-//		bool containsPseudoMotors = false;
-
-//		foreach (AMMotorGroupObjectView *view, visibleMotorGroupObjectViews())
-//			if (qobject_cast<CLSPseudoMotorGroupObject *>(view->motorGroupObject()))
-//				containsPseudoMotors = true;
-
-//		action->setEnabled(containsPseudoMotors);
-//	}
-//}
-
-//void CLSPseudoMotorGroupView::resetCLSPseudoMotorGroupMenuItems(const QString &command)
-//{
-//	Q_UNUSED(command)
-
-//	if (viewMode_ == Exclusive && qobject_cast<CLSPseudoMotorGroupObject *>(currentMotorGroupObjectView()->motorGroupObject())){
-
-//		CLSPseudoMotorGroupObject *pseudoMotor = qobject_cast<CLSPseudoMotorGroupObject *>(currentMotorGroupObjectView()->motorGroupObject());
-//		pseudoMotor->resetPseudoMotor();
-//	}
-
-//	else if (viewMode_ == Multiple){
-
-//		foreach (AMMotorGroupObjectView *view, visibleMotorGroupObjectViews()){
-
-//			if (qobject_cast<CLSPseudoMotorGroupObject *>(view->motorGroupObject())){
-
-//				CLSPseudoMotorGroupObject *pseudoMotor = qobject_cast<CLSPseudoMotorGroupObject *>(currentMotorGroupObjectView()->motorGroupObject());
-//				pseudoMotor->resetPseudoMotor();
-//			}
-//		}
-//	}
-//}
+	if (message.clickedButton()->text() == "Reset Now")
+		motorObject->resetPseudoMotor();
+}

@@ -914,14 +914,27 @@ AMMotorGroupView::AMMotorGroupView(AMMotorGroup* motorGroup,
 								   QWidget* parent)
 	: QWidget(parent)
 {
-
 	motorGroup_ = motorGroup;
+
+	if(!motorGroup_) {
+		return;
+	}
 
 	if(viewMode == NormalView) {
 		setupNormalUi();
 	} else {
 		setupCompactUi();
 	}
+
+}
+
+AMMotorGroupObject * AMMotorGroupView::selectedGroupObject() const
+{
+	if(currentSelectedGroupObjectName_.isEmpty()) {
+		return 0;
+	}
+
+	return motorGroup_->motorGroupObject(currentSelectedGroupObjectName_);
 }
 
 void AMMotorGroupView::onGroupObjectMotionStatusAltered(const QString& groupObjectName)
@@ -941,8 +954,33 @@ void AMMotorGroupView::onGroupObjectMotionStatusAltered(const QString& groupObje
 	}
 }
 
+void AMMotorGroupView::onGroupComboBoxIndexChanged(int index)
+{
+	groupObjectStack_->setCurrentIndex(index);
+
+	QString nameOfSelectedGroup =
+			groupObjectSelector_->itemText(index);
+
+	currentSelectedGroupObjectName_ = nameOfSelectedGroup;
+	emit currentMotorGroupObjectViewChanged(nameOfSelectedGroup);
+}
+
+void AMMotorGroupView::onGroupTabViewIndexChanged(int index)
+{
+	QString nameOfSelectedGroup =
+			motorGroupTabMap_.key(index);
+
+	currentSelectedGroupObjectName_ = nameOfSelectedGroup;
+	emit currentMotorGroupObjectViewChanged(nameOfSelectedGroup);
+}
+
 void AMMotorGroupView::setupCompactUi()
 {
+	// Zero widgets we're not going to use:
+	groupObjectTabs_ = 0;
+	groupMotionStatusMapper_ = 0;
+
+	// Set up the stuff we are going to use.
 	QVBoxLayout* mainLayout = new QVBoxLayout();
 
 	groupObjectSelector_ = new QComboBox();
@@ -957,7 +995,12 @@ void AMMotorGroupView::setupCompactUi()
 	}
 
 	connect(groupObjectSelector_, SIGNAL(currentIndexChanged(int)),
-			groupObjectStack_, SLOT(setCurrentIndex(int)));
+			this, SLOT(onGroupComboBoxIndexChanged(int)));
+
+
+	if(groupObjectSelector_->count() > 0) {
+		currentSelectedGroupObjectName_ = groupObjectSelector_->itemText(0);
+	}
 
 	mainLayout->addWidget(groupObjectSelector_);
 	mainLayout->addWidget(groupObjectStack_);
@@ -967,6 +1010,11 @@ void AMMotorGroupView::setupCompactUi()
 
 void AMMotorGroupView::setupNormalUi()
 {
+	// Zero widgets we're not going to use:
+	groupObjectSelector_ = 0;
+	groupObjectStack_ = 0;
+
+	// Set up the stuff we are going to use.
 	groupMotionStatusMapper_ = new QSignalMapper(this);
 
 	groupObjectTabs_ = new QTabWidget();
@@ -989,11 +1037,19 @@ void AMMotorGroupView::setupNormalUi()
 		groupMotionStatusMapper_->setMapping(currentObject, currentObject->name());
 	}
 
+	if(!motorGroupTabMap_.isEmpty()) {
+		currentSelectedGroupObjectName_ = motorGroupTabMap_.key(0);
+	}
+
 	connect(groupMotionStatusMapper_, SIGNAL(mapped(const QString&)),
 			this, SLOT(onGroupObjectMotionStatusAltered(const QString&)));
 
+	connect(groupObjectTabs_, SIGNAL(currentChanged(int)),
+			this, SLOT(onGroupTabViewIndexChanged(int)));
+
 	setLayout(layout);
 }
+
 
 
 

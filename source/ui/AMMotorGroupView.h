@@ -366,6 +366,20 @@ public:
 	  */
 	virtual ~AMMotorGroupView() {}
 
+	/*!
+	  * The current visible group object. If no group object is visible (eg if the
+	  * group is empty) 0 is returned.
+	  */
+	AMMotorGroupObject* selectedGroupObject() const;
+signals:
+	/*!
+	  * Signal which indicates that the current motor group object view being
+	  * displayed has altered.
+	  * \param groupObjectName ~ The name of the group object whose view is being
+	  * displayed.
+	  */
+	void currentMotorGroupObjectViewChanged(const QString& groupObjectName);
+
 protected slots:
 	/*!
 	  * Handles signals indicating that one of the motors in one of the contained
@@ -374,6 +388,22 @@ protected slots:
 	  * motor whose motion status has been altered.
 	  */
 	void onGroupObjectMotionStatusAltered(const QString& groupObjectName);
+
+	/*!
+	  * Handles signals indicating that the group combo box has had its index
+	  * changed. Sets the visible group object view to that of the selected index
+	  * then emits the currentMotorGroupObjectViewChanged signal.
+	  * \param index ~ The index of the combo box which was selected. Indicates
+	  * the index in the stack widget which contains the view to show.
+	  */
+	void onGroupComboBoxIndexChanged(int index);
+
+	/*!
+	  * Handles signals indicating that the group tab view has had its selected
+	  * tab index changed. Emits the currentMotorGroupObjectViewChanged signal.
+	  * \param index ~ The index of the tab which was selected.
+	  */
+	void onGroupTabViewIndexChanged(int index);
 protected:
 
 	/*!
@@ -387,6 +417,7 @@ protected:
 	void setupNormalUi();
 
 	AMMotorGroup* motorGroup_;
+	QString currentSelectedGroupObjectName_;
 	// Used only for normal view:
 	QTabWidget* groupObjectTabs_;
 	QHash<QString, int>	 motorGroupTabMap_;
