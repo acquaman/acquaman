@@ -244,5 +244,5 @@ void BioXASMainXASScanConfigurationView::onEdgeChanged()
 
 void BioXASMainXASScanConfigurationView::onEstimatedTimeChanged(double time)
 {
-   estimatedTimeLabel_->setText(time);
+   estimatedTimeLabel_->setText(AMDateTimeUtils::convertTimeToString(time));
 }
