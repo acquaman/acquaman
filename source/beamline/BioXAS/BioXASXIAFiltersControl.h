@@ -58,9 +58,9 @@ protected slots:
 	virtual void updateConnected();
 
 	/// Returns true if the given filter is in, false if the filter is not found or if it is not in.
-	virtual bool filterIsIn(CLSBiStateControl *control) const;
+	virtual bool filterIsIn(AMControl *control) const;
 	/// Returns true if the given filter is out, false if the filter is not found or if it is not out.
-	virtual bool filterIsOut(CLSBiStateControl *control) const;
+	virtual bool filterIsOut(AMControl *control) const;
 
 protected:
 	/// Returns a new action that moves this control.

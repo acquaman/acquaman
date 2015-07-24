@@ -5,6 +5,8 @@
 #include <QSignalMapper>
 
 #include "beamline/BioXAS/BioXASBeamlineComponent.h"
+#include "beamline/BioXAS/BioXASXIAFiltersControl.h"
+
 #include "beamline/CLS/CLSBiStateControl.h"
 
 // Setpoints.
@@ -34,6 +36,9 @@ public:
 	/// Returns the current connected state.
 	virtual bool isConnected() const;
 
+	/// Returns the filters control.
+	BioXASXIAFiltersControl *filtersControl() const { return filtersControl_; }
+
 	/// Returns the first filter control.
 	AMControl* filter1() const { return filter1_; }
 	/// Returns the second filter control.
@@ -44,6 +49,9 @@ public:
 	AMControl* filter4() const { return filter4_; }
 
 protected:
+	/// The filters control.
+	BioXASXIAFiltersControl *filtersControl_;
+
 	/// Controls for the first filter.
 	CLSBiStateControl *filter1_;
 	/// Control for the second filter.

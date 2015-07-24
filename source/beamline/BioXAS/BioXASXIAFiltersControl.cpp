@@ -161,22 +161,26 @@ void BioXASXIAFiltersControl::updateConnected()
 	setConnected(isConnected);
 }
 
-bool BioXASXIAFiltersControl::filterIsIn(CLSBiStateControl *control) const
+bool BioXASXIAFiltersControl::filterIsIn(AMControl *control) const
 {
 	bool result = false;
 
-	if (control && children_.contains(control))
-		result = int(control->value()) == Filter::In;
+	CLSBiStateControl *actuator = qobject_cast<CLSBiStateControl*>(control);
+
+	if (actuator && validFilterActuator(actuator))
+		result = int(actuator->value()) == Filter::In;
 
 	return result;
 }
 
-bool BioXASXIAFiltersControl::filterIsOut(CLSBiStateControl *control) const
+bool BioXASXIAFiltersControl::filterIsOut(AMControl *control) const
 {
 	bool result = false;
 
-	if (control && children_.contains(control))
-		result = int(control->value()) == Filter::Out;
+	CLSBiStateControl *actuator = qobject_cast<CLSBiStateControl*>(control);
+
+	if (actuator && validFilterActuator(actuator))
+		result = int(actuator->value()) == Filter::Out;
 
 	return result;
 }
@@ -209,7 +213,7 @@ AMAction3* BioXASXIAFiltersControl::createMoveAction(double setpoint)
 		result->addSubAction(AMActionSupport::buildControlMoveAction(thirdFilterActuator_, Filter::Out));
 		result->addSubAction(AMActionSupport::buildControlMoveAction(fourthFilterActuator_, Filter::Out));
 
-	} else if (setpoint = 1.0) {
+	} else if (setpoint == 1.0) {
 		result->addSubAction(AMActionSupport::buildControlMoveAction(firstFilterActuator_, Filter::Out));
 		result->addSubAction(AMActionSupport::buildControlMoveAction(secondFilterActuator_, Filter::Out));
 		result->addSubAction(AMActionSupport::buildControlMoveAction(thirdFilterActuator_, Filter::In));
