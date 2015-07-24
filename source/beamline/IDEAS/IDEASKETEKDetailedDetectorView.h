@@ -1,10 +1,10 @@
 #ifndef IDEASKETEKDETAILEDDETECTORVIEW_H
 #define IDEASKETEKDETAILEDDETECTORVIEW_H
 
-#include "ui/IDEAS/IDEASXRFDetailedDetectorViewWithSave.h"
+#include "ui/IDEAS/IDEASXRFDetailedDetectorView.h"
 #include "beamline/IDEAS/IDEASKETEKDetector.h"
 
-class IDEASKETEKDetailedDetectorView : public IDEASXRFDetailedDetectorViewWithSave
+class IDEASKETEKDetailedDetectorView : public IDEASXRFDetailedDetectorView
 {
 	Q_OBJECT
 public:

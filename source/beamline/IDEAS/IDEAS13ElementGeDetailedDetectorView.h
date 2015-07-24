@@ -1,10 +1,10 @@
 #ifndef IDEAS13ELEMENTGEDETAILEDDETECTORVIEW_H
 #define IDEAS13ELEMENTGEDETAILEDDETECTORVIEW_H
 
-#include "ui/IDEAS/IDEASXRFDetailedDetectorViewWithSave.h"
+#include "ui/IDEAS/IDEASXRFDetailedDetectorView.h"
 #include "beamline/IDEAS/IDEAS13ElementGeDetector.h"
 
-class IDEAS13ElementGeDetailedDetectorView : public IDEASXRFDetailedDetectorViewWithSave
+class IDEAS13ElementGeDetailedDetectorView : public IDEASXRFDetailedDetectorView
 {
 	Q_OBJECT
 public:

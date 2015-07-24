@@ -24,13 +24,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "ui/beamline/AMXRFDetailedDetectorView.h"
 
-<<<<<<< HEAD:source/ui/IDEAS/IDEASXRFDetailedDetectorViewWithSave.h
+
 #include "acquaman/IDEAS/IDEASXRFScanConfiguration.h"
 #include "actions3/actions/AMScanAction.h"
 
-
-=======
->>>>>>> master:source/ui/IDEAS/IDEASXRFDetailedDetectorView.h
 #include <QPushButton>
 #include <QSignalMapper>
 #include <QPlainTextEdit>
@@ -49,12 +46,7 @@ class IDEASXRFDetailedDetectorView : public AMXRFDetailedDetectorView
 
 public:
 	/// Constructor.
-<<<<<<< HEAD:source/ui/IDEAS/IDEASXRFDetailedDetectorViewWithSave.h
-	IDEASXRFDetailedDetectorViewWithSave(AMXRFDetector *detector, QWidget *parent = 0);
-
-=======
 	IDEASXRFDetailedDetectorView(AMXRFDetector *detector, QWidget *parent = 0);
->>>>>>> master:source/ui/IDEAS/IDEASXRFDetailedDetectorView.h
 	/// Destructor.
 	virtual ~IDEASXRFDetailedDetectorView();
 
@@ -69,12 +61,6 @@ protected slots:
 	virtual void startAcquisition();
 	/// Handles bringing up and exporting the given XRF scans.
 	void onSaveScanButtonClicked();
-<<<<<<< HEAD:source/ui/IDEAS/IDEASXRFDetailedDetectorViewWithSave.h
-	void onNotesTextChanged();
-	void onScanNameChanged(QString name);
-	void onScanNumberChanged(int number);
-	void onAcquisitionSucceeded();
-=======
 	/// Handles grabbing the scan and exporting it.
 	void exportScan();
 	/// Handles deleting the export controller.
@@ -82,7 +68,7 @@ protected slots:
 
 	void onPeakingTimeBoxChanged(const QString &arg1);
 	void onKETEKPeakingTimeChanged();
->>>>>>> master:source/ui/IDEAS/IDEASXRFDetailedDetectorView.h
+
 	void onDeadTimeCheckButtonClicked();
 
 
@@ -100,28 +86,8 @@ protected:
 	/// button to trigger a 0.1s XRF acquitisition to check to too-high count rates.
 	QPushButton *deadTimeCheckButton;
 
-<<<<<<< HEAD:source/ui/IDEAS/IDEASXRFDetailedDetectorViewWithSave.h
-
-	/// A  scan configuration notes editor
-	QPlainTextEdit *notesEdit;
-
-	QGridLayout *scanInfoGridLayout;
-	QLabel *scanNameLabel;
-	QLineEdit *scanName;
-	QLabel *scanNumberLabel;
-	QSpinBox *scanNumber;
-
-
-	/// The scan configuration.  Contains some configuration details about the scan such as integration time, minimum energy, maximum energy.
-	IDEASXRFScanConfiguration *config_;
-
-        /// The scan action created when a scan is saved
-        AMAction3* scanAction_;
-
-
-=======
 	QComboBox *peakingTimeBox;
->>>>>>> master:source/ui/IDEAS/IDEASXRFDetailedDetectorView.h
+
 };
 
 #endif // IDEASXRFDETAILEDDETECTORVIEW_H

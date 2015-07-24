@@ -1,7 +1,7 @@
 #include "IDEASKETEKDetailedDetectorView.h"
 
 IDEASKETEKDetailedDetectorView::IDEASKETEKDetailedDetectorView(IDEASKETEKDetector *detector, QWidget *parent)
-	: IDEASXRFDetailedDetectorViewWithSave(detector, parent)
+    : IDEASXRFDetailedDetectorView(detector, parent)
 {
 	ketekDetector_ = detector;
 }
@@ -14,7 +14,7 @@ IDEASKETEKDetailedDetectorView::~IDEASKETEKDetailedDetectorView()
 void IDEASKETEKDetailedDetectorView::buildDetectorView()
 {
 	/// Call inherited parent classes buildDetectorView
-	IDEASXRFDetailedDetectorViewWithSave::buildDetectorView();
+    IDEASXRFDetailedDetectorView::buildDetectorView();
 
 	peakingTimeBox_ = new QComboBox();
 	peakingTimeBox_->setObjectName(QString::fromUtf8("peakingTimeBox"));

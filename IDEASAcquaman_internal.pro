@@ -18,9 +18,8 @@ HEADERS +=	source/application/IDEAS/IDEASAppController.h \
 	source/ui/IDEAS/IDEASXRFDetailedDetectorView.h \
 	source/ui/IDEAS/IDEASScalerView.h \
 	source/ui/IDEAS/IDEASSampleCameraPanel.h \
-        source/StripTool2/IDEAS/IDEASScalerStripTool.h \
         source/beamline/IDEAS/IDEASKETEKDetailedDetectorView.h \
-        source/beamline/IDEAS/IDEAS13ElementGeDetailedDetectorView.h
+        source/beamline/IDEAS/IDEAS13ElementGeDetailedDetectorView.h \
 	source/beamline/IDEAS/IDEAS13ElementGeDetector.h \
 	source/StripTool2/IDEAS/IDEASScalerStripTool.h
 
@@ -38,9 +37,8 @@ SOURCES +=	source/application/IDEAS/IDEASAppController.cpp \
 	source/ui/IDEAS/IDEASXRFDetailedDetectorView.cpp \
 	source/ui/IDEAS/IDEASScalerView.cpp \
 	source/ui/IDEAS/IDEASSampleCameraPanel.cpp \
-        source/StripTool2/IDEAS/IDEASScalerStripTool.cpp \
         source/beamline/IDEAS/IDEASKETEKDetailedDetectorView.cpp \
-        source/beamline/IDEAS/IDEAS13ElementGeDetailedDetectorView.cpp
+        source/beamline/IDEAS/IDEAS13ElementGeDetailedDetectorView.cpp \
         source/beamline/IDEAS/IDEAS13ElementGeDetector.cpp \
 	source/StripTool2/IDEAS/IDEASScalerStripTool.cpp
 
