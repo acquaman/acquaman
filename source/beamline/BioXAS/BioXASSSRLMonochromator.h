@@ -38,6 +38,9 @@ public:
 	/// Returns true if the mono is connected, false otherwise.
 	virtual bool isConnected() const;
 
+	/// Returns the mono move settling time.
+	double settlingTime() const { return settlingTime_; }
+
 	/// Returns the energy control (the encoder-based, by default).
 	virtual BioXASSSRLMonochromatorEnergyControl* energyControl() const { return stepEnergy_; }
 	/// Returns the bragg encoder-based energy control.
@@ -117,11 +120,20 @@ signals:
 public slots:
 	/// Sets the m1 mirror pitch control.
 	void setM1MirrorPitchControl(AMControl* newControl);
+	/// Sets the mono move settling time.
+	void setSettlingTime(double newTimeSeconds);
 
 	/// Sets the calibrated bragg position.
 	void calibrateBraggPosition(double newPosition);
 
+protected slots:
+	/// Handles updating the motors necessary to produce the desired mono move settling time.
+	void updateMotorSettlingTime();
+
 protected:
+	/// The mono move settling time, in seconds.
+	double settlingTime_;
+
 	/// The bragg encoder-based energy control.
 	BioXASSSRLMonochromatorEnergyControl *encoderEnergy_;
 	/// The bragg step-based energy control.
