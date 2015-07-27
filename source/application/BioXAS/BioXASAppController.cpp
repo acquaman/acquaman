@@ -138,19 +138,19 @@ void BioXASAppController::onCurrentScanActionStartedImplementation(AMScanAction 
 
 	qDebug() << "\nScan started.";
 
-	if (action) {
-		AMScanActionInfo *info = qobject_cast<AMScanActionInfo*>(action->info());
+//	if (action) {
+//		AMScanActionInfo *info = qobject_cast<AMScanActionInfo*>(action->info());
 
-		if (info) {
-			BioXASSSRLMonochromatorEnergyCalibrationScanConfiguration *config = qobject_cast<BioXASSSRLMonochromatorEnergyCalibrationScanConfiguration*>(info->configuration());
+//		if (info) {
+//			BioXASSSRLMonochromatorEnergyCalibrationScanConfiguration *config = qobject_cast<BioXASSSRLMonochromatorEnergyCalibrationScanConfiguration*>(info->configuration());
 
-			if (config) {
-				qDebug() << "It is a mono calibration scan.\n";
+//			if (config) {
+//				qDebug() << "It is a mono calibration scan.\n";
 
-				goToEnergyCalibrationView(0);
-			}
-		}
-	}
+//				goToEnergyCalibrationView(0);
+//			}
+//		}
+//	}
 }
 
 void BioXASAppController::onCurrentScanActionFinishedImplementation(AMScanAction *action)
@@ -160,24 +160,24 @@ void BioXASAppController::onCurrentScanActionFinishedImplementation(AMScanAction
 	if (userConfiguration_)
 		userConfiguration_->storeToDb(AMDatabase::database("user"));
 
-	// If the scan was an energy calibration scan, set the view's scan and make it the current pane.
+//	// If the scan was an energy calibration scan, set the view's scan and make it the current pane.
 
-	if (action && action->controller() && action->controller()->scan()) {
+//	if (action && action->controller() && action->controller()->scan()) {
 
-		AMScan *scan = action->controller()->scan();
+//		AMScan *scan = action->controller()->scan();
 
-		if (scan) {
-			BioXASSSRLMonochromatorEnergyCalibrationScanConfiguration *energyCalibrationConfiguration = qobject_cast<BioXASSSRLMonochromatorEnergyCalibrationScanConfiguration*>(action->controller()->scan()->scanConfiguration());
+//		if (scan) {
+//			BioXASSSRLMonochromatorEnergyCalibrationScanConfiguration *energyCalibrationConfiguration = qobject_cast<BioXASSSRLMonochromatorEnergyCalibrationScanConfiguration*>(action->controller()->scan()->scanConfiguration());
 
-			if (energyCalibrationConfiguration) {
-				qDebug() << "It was a mono calibration scan.\n";
-				goToEnergyCalibrationView(scan);
+//			if (energyCalibrationConfiguration) {
+//				qDebug() << "It was a mono calibration scan.\n";
+//				goToEnergyCalibrationView(scan);
 
-			} else {
-				qDebug() << "It was NOT a mono calibration scan.\n";
-			}
-		}
-	}
+//			} else {
+//				qDebug() << "It was NOT a mono calibration scan.\n";
+//			}
+//		}
+//	}
 }
 
 void BioXASAppController::registerClasses()
