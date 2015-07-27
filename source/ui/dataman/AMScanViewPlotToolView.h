@@ -77,6 +77,7 @@ public:
 	explicit AMDataPositionCursorToolView(MPlotDataPositionCursorTool *tool, QWidget *parent = 0);
 	/// Destructor.
 	virtual ~AMDataPositionCursorToolView();
+
 	/// Returns the tool being viewed.
 	MPlotDataPositionCursorTool* tool() const { return tool_; }
 
@@ -103,18 +104,18 @@ protected slots:
 	/// Handles updating the tool when the cursor color button reports a new color available.
 	void onColorChanged();
 	/// Handles updating the tool when the cursor checkbox is clicked.
-	void onVisibilityChanged();
+	void onCursorVisibilityChanged();
 
 	/// Handles updating the view to match the tool's value and units.
 	void updatePositionLabel();
-	/// Handles updating the view to match the tool's value and units.
-	void updatePositionSpinBox();
+	/// Handles updating the view to match the tool's value and units, shows only the spinboxes that are needed.
+	void updatePositionSpinBoxes();
 	/// Handles updating the view to match the tool's marker.
 	void updateMarkerComboBox();
 	/// Handles updating the view to match the tool's color.
 	void updateColorButton();
 	/// Handles updating the view to match the tool's visibility.
-	void updateVisibility();
+	void updateVisibilityCheckBox();
 
 protected:
 	/// Returns a string representation of the given 1D position.
@@ -128,14 +129,16 @@ protected:
 
 	/// The position label.
 	QLabel *positionLabel_;
-	/// The double spinbox that displays the cursor position.
-	QDoubleSpinBox *positionSpinBox_;
+	/// The double spinbox that displays the cursor x position.
+	QDoubleSpinBox *xPositionSpinBox_;
+	/// The double spinbox that displays the cursor y position.
+	QDoubleSpinBox *yPositionSpinBox_;
 	/// The plot marker combo box.
 	AMPlotMarkerComboBox *markerComboBox_;
 	/// The button that displays and selects the cursor color.
 	AMColorPickerButton *colorButton_;
 	/// The checkbox that displays cursor visibility.
-	QCheckBox *visibilityCheckBox_;
+	QCheckBox *cursorVisibilityCheckBox_;
 };
 
 #endif // AMSCANVIEWPLOTTOOLVIEW_H

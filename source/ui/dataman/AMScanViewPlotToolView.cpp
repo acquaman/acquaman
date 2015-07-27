@@ -146,16 +146,15 @@ AMDataPositionCursorToolView::AMDataPositionCursorToolView(MPlotDataPositionCurs
 
 	positionLabel_ = new QLabel();
 
-	positionSpinBox_ = new QDoubleSpinBox();
-	positionSpinBox_->setMinimum(-1000000);
-	positionSpinBox_->setMaximum(1000000);
-	positionSpinBox_->setValue(0);
+	xPositionSpinBox_ = new QDoubleSpinBox();
 
-	markerComboBox_ = new AMPlotMarkerComboBox(QList<MPlotMarkerShape::Shape>() << MPlotMarkerShape::VerticalBeam << MPlotMarkerShape::HorizontalBeam << MPlotMarkerShape::Cross);
+	yPositionSpinBox_ = new QDoubleSpinBox();
+
+	markerComboBox_ = new AMPlotMarkerComboBox();
 
 	colorButton_ = new AMColorPickerButton(QColor());
 
-	visibilityCheckBox_ = new QCheckBox("Show cursor");
+	cursorVisibilityCheckBox_ = new QCheckBox("Show cursor");
 
 	// Create and set layouts.
 
@@ -163,26 +162,25 @@ AMDataPositionCursorToolView::AMDataPositionCursorToolView(MPlotDataPositionCurs
 	layout->setMargin(0);
 	layout->addWidget(positionPrompt);
 	layout->addWidget(positionLabel_);
-	layout->addWidget(positionSpinBox_);
+	layout->addWidget(xPositionSpinBox_);
+	layout->addWidget(yPositionSpinBox_);
 	layout->addWidget(markerComboBox_);
 	layout->addWidget(colorButton_);
-	layout->addWidget(visibilityCheckBox_);
+	layout->addWidget(cursorVisibilityCheckBox_);
 
 	setLayout(layout);
 
 	// Initial settings.
 
-	positionSpinBox_->hide();
-	markerComboBox_->hide();
-	colorButton_->hide();
-	visibilityCheckBox_->setChecked(false);
+	refresh();
 
 	// Make connections.
 
-	connect( positionSpinBox_, SIGNAL(valueChanged(double)), this, SLOT(onPositionChanged()) );
+	connect( xPositionSpinBox_, SIGNAL(valueChanged(double)), this, SLOT(onPositionChanged()) );
+	connect( yPositionSpinBox_, SIGNAL(valueChanged(double)), this, SLOT(onPositionChanged()) );
 	connect( markerComboBox_, SIGNAL(currentMarkerShapeChanged(MPlotMarkerShape::Shape)), this, SLOT(onMarkerChanged()) );
 	connect( colorButton_, SIGNAL(colorChanged(QColor)), this, SLOT(onColorChanged()) );
-	connect( visibilityCheckBox_, SIGNAL(clicked()), this, SLOT(onVisibilityChanged()) );
+	connect( cursorVisibilityCheckBox_, SIGNAL(clicked()), this, SLOT(onCursorVisibilityChanged()) );
 
 	// Current settings.
 
@@ -205,13 +203,11 @@ void AMDataPositionCursorToolView::setTool(MPlotDataPositionCursorTool *newTool)
 		tool_ = newTool;
 
 		if (tool_) {
-			connect( tool_, SIGNAL(cursorPositionChanged(QPointF)), this, SLOT(updatePositionLabel()) );
-			connect( tool_, SIGNAL(cursorPositionChanged(QPointF)), this, SLOT(updatePositionSpinBox()) );
-			connect( tool_, SIGNAL(unitsChanged(QStringList)), this, SLOT(updatePositionLabel()) );
-			connect( tool_, SIGNAL(unitsChanged(QStringList)), this, SLOT(updatePositionSpinBox()) );
-			connect( tool_, SIGNAL(cursorMarkerChanged(MPlotMarkerShape::Shape)), this, SLOT(updateMarkerComboBox()) );
-			connect( tool_, SIGNAL(cursorColorChanged(QColor)), this, SLOT(updateColorButton()) );
-			connect( tool_, SIGNAL(cursorVisibilityChanged(bool)), this, SLOT(updateVisibility()) );
+			connect( tool_, SIGNAL(cursorPositionChanged(QPointF)), this, SLOT(update()) );
+			connect( tool_, SIGNAL(unitsChanged(QStringList)), this, SLOT(update()) );
+			connect( tool_, SIGNAL(cursorMarkerChanged(MPlotMarkerShape::Shape)), this, SLOT(update()) );
+			connect( tool_, SIGNAL(cursorColorChanged(QColor)), this, SLOT(update()) );
+			connect( tool_, SIGNAL(cursorVisibilityChanged(bool)), this, SLOT(update()) );
 		}
 
 		emit toolChanged(tool_);
@@ -222,62 +218,86 @@ void AMDataPositionCursorToolView::setTool(MPlotDataPositionCursorTool *newTool)
 
 void AMDataPositionCursorToolView::clear()
 {
-	positionSpinBox_->blockSignals(true);
+	xPositionSpinBox_->blockSignals(true);
+	yPositionSpinBox_->blockSignals(true);
 	markerComboBox_->blockSignals(true);
 	colorButton_->blockSignals(true);
-	visibilityCheckBox_->blockSignals(true);
+	cursorVisibilityCheckBox_->blockSignals(true);
 
 	positionLabel_->clear();
-	markerComboBox_->setSelectedMarkerShape(MPlotMarkerShape::None);
-	positionSpinBox_->setValue(0);
+	markerComboBox_->clear();
+	xPositionSpinBox_->clear();
+	yPositionSpinBox_->clear();
 	colorButton_->setColor(QColor());
-	visibilityCheckBox_->setChecked(false);
+	cursorVisibilityCheckBox_->setChecked(false);
 
-	positionSpinBox_->blockSignals(false);
+	xPositionSpinBox_->blockSignals(false);
+	yPositionSpinBox_->blockSignals(false);
 	markerComboBox_->blockSignals(false);
 	colorButton_->blockSignals(false);
-	visibilityCheckBox_->blockSignals(false);
+	cursorVisibilityCheckBox_->blockSignals(false);
 }
 
 void AMDataPositionCursorToolView::update()
 {
 	updatePositionLabel();
-	updatePositionSpinBox();
+	updatePositionSpinBoxes();
 	updateMarkerComboBox();
 	updateColorButton();
-	updateVisibility();
+	updateVisibilityCheckBox();
 }
 
 void AMDataPositionCursorToolView::refresh()
 {
 	clear();
+
+	// Set up the position spinboxes.
+
+	xPositionSpinBox_->setMinimum(-1000000);
+	xPositionSpinBox_->setMaximum(1000000);
+	xPositionSpinBox_->setValue(0);
+
+	yPositionSpinBox_->setMinimum(-1000000);
+	yPositionSpinBox_->setMaximum(1000000);
+	yPositionSpinBox_->setValue(0);
+
+	// Set the marker shape options for the marker combo box.
+
+	markerComboBox_->addItems(QList<MPlotMarkerShape::Shape>() << MPlotMarkerShape::VerticalBeam << MPlotMarkerShape::HorizontalBeam << MPlotMarkerShape::Cross);
+
 	update();
 }
 
 void AMDataPositionCursorToolView::onPositionChanged()
 {
+	QPointF newPosition = QPointF(xPositionSpinBox_->value(), yPositionSpinBox_->value());
+
 	if (tool_)
-		tool_->setCursorPositionX(positionSpinBox_->value());
+		tool_->setCursorPosition(newPosition);
 }
 
 void AMDataPositionCursorToolView::onMarkerChanged()
 {
+	MPlotMarkerShape::Shape newMarker = markerComboBox_->selectedMarkerShape();
+
 	if (tool_)
-		tool_->setCursorMarker(markerComboBox_->selectedMarkerShape());
+		tool_->setCursorMarker(newMarker);
 }
 
 void AMDataPositionCursorToolView::onColorChanged()
 {
-	if (tool_) {
-		tool_->setCursorColor(colorButton_->color());
-	}
+	QColor newColor = colorButton_->color();
+
+	if (tool_)
+		tool_->setCursorColor(newColor);
 }
 
-void AMDataPositionCursorToolView::onVisibilityChanged()
+void AMDataPositionCursorToolView::onCursorVisibilityChanged()
 {
-	if (tool_) {
-		tool_->setCursorVisibility(visibilityCheckBox_->isChecked());
-	}
+	bool cursorVisible = cursorVisibilityCheckBox_->isChecked();
+
+	if (tool_)
+		tool_->setCursorVisibility(cursorVisible);
 }
 
 void AMDataPositionCursorToolView::updatePositionLabel()
@@ -285,75 +305,143 @@ void AMDataPositionCursorToolView::updatePositionLabel()
 	QString toDisplay;
 
 	if (tool_) {
-		QPointF value;
-		QString units;
-		QStringList unitsList;
 
-		value = tool_->cursorPosition();
-		unitsList = tool_->units();
+		// Update the text displayed.
 
-		if (!unitsList.isEmpty())
-			units = unitsList.first();
+		QPointF value = tool_->cursorPosition();
+		QStringList unitsList = tool_->units();
 
-		toDisplay = positionToString(value.x(), units);
+		toDisplay = positionToString(value, unitsList);
+
+		// Update label visibility.
+
+		if (tool_->cursorVisible())
+			positionLabel_->hide();
+		else
+			positionLabel_->show();
 	}
 
 	positionLabel_->setText(toDisplay);
 }
 
-void AMDataPositionCursorToolView::updatePositionSpinBox()
+void AMDataPositionCursorToolView::updatePositionSpinBoxes()
 {
 	if (tool_) {
+
+		// Update the value of the position spinboxes.
+
 		QPointF cursorPosition = tool_->cursorPosition();
-		QString units;
-		QStringList unitsList;
 
-		unitsList = tool_->units();
+		if (xPositionSpinBox_->value() != cursorPosition.x())
+			xPositionSpinBox_->setValue(cursorPosition.x());
 
-		if (!unitsList.isEmpty())
-			units = unitsList.first();
+		if (yPositionSpinBox_->value() != cursorPosition.y())
+			yPositionSpinBox_->setValue(cursorPosition.y());
 
-		if (positionSpinBox_->value() != cursorPosition.x()) {
-			positionSpinBox_->setValue(cursorPosition.x());
-			positionSpinBox_->setSuffix(" " + units);
+		// Update the units displayed.
+
+		QStringList unitsList = tool_->units();
+		int unitsCount = unitsList.count();
+
+		if (unitsCount > 0)
+			xPositionSpinBox_->setSuffix(" " + unitsList.at(0));
+
+		if (unitsCount > 1)
+			yPositionSpinBox_->setSuffix(" " + unitsList.at(1));
+
+		// Update the spinbox visibility.
+
+		bool cursorVisible = tool_->cursorVisible();
+
+		if (cursorVisible) {
+
+			// If the cursor is visible, then the spinbox visibility corresponds to the
+			// currently selected marker.
+
+			MPlotMarkerShape::Shape marker = tool_->cursorMarker();
+
+			if (marker == MPlotMarkerShape::VerticalBeam) {
+				xPositionSpinBox_->show();
+				yPositionSpinBox_->hide();
+
+			} else if (marker == MPlotMarkerShape::HorizontalBeam) {
+				xPositionSpinBox_->hide();
+				yPositionSpinBox_->show();
+
+			} else {
+				xPositionSpinBox_->show();
+				yPositionSpinBox_->show();
+			}
+
+		} else {
+
+			// If the cursor is not visible, then both spinboxes should be hidden.
+
+			xPositionSpinBox_->hide();
+			yPositionSpinBox_->hide();
 		}
+
+	} else {
+
+		// If there is no tool, then both spinboxes should be hidden.
+
+		xPositionSpinBox_->hide();
+		yPositionSpinBox_->hide();
 	}
 }
 
 void AMDataPositionCursorToolView::updateMarkerComboBox()
 {
 	if (tool_) {
+
+		// Update the marker shape.
+
 		markerComboBox_->setSelectedMarkerShape(tool_->cursorMarker());
+
+		// Update the combo box visibility.
+
+		if (tool_->cursorVisible())
+			markerComboBox_->show();
+		else
+			markerComboBox_->hide();
+
+	} else {
+
+		// If there is no tool, the marker combobox should be hidden.
+
+		markerComboBox_->hide();
 	}
 }
 
 void AMDataPositionCursorToolView::updateColorButton()
 {
 	if (tool_) {
+
+		// Update the color.
+
 		colorButton_->setColor(tool_->cursorColor());
+
+		// Update the color button visibility.
+
+		if (tool_->cursorVisible())
+			colorButton_->show();
+		else
+			colorButton_->hide();
+
+	} else {
+
+		// If there is no tool, the color button should be hidden.
+
+		colorButton_->hide();
 	}
 }
 
-void AMDataPositionCursorToolView::updateVisibility()
+void AMDataPositionCursorToolView::updateVisibilityCheckBox()
 {
-	if (tool_) {
-		bool cursorVisible = tool_->cursorVisible();
-
-		if (cursorVisible) {
-			positionLabel_->hide();
-			positionSpinBox_->show();
-			markerComboBox_->show();
-			colorButton_->show();
-
-		} else {
-			positionLabel_->show();
-			positionSpinBox_->hide();
-			markerComboBox_->hide();
-			colorButton_->hide();
-		}
-
-		visibilityCheckBox_->setChecked(cursorVisible);
-	}
+	if (tool_)
+		cursorVisibilityCheckBox_->setChecked(tool_->cursorVisible());
+	else
+		cursorVisibilityCheckBox_->setChecked(false);
 }
 
 QString AMDataPositionCursorToolView::positionToString(double value, const QString &units)
