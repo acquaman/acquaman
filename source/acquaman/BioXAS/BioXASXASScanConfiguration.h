@@ -8,8 +8,7 @@ class BioXASXASScanConfiguration : public AMGenericStepScanConfiguration, public
 {
     Q_OBJECT
 
-//	Q_PROPERTY(AMDbObject* configurationDbObject READ dbReadScanConfigurationDbObject WRITE dbWriteScanConfigurationDbObject)
-//	Q_PROPERTY(QString header READ headerText WRITE setHeaderText)
+	Q_CLASSINFO("AMDbObject_Attributes", "description=BioXAS XAS Scan Configuration")
 
 public:
 	/// Constructor.
@@ -28,11 +27,11 @@ public:
 	/// Returns the standard information for an XAS scan.  Used when exporting.
 	virtual QString headerText() const;
 
-//	/// Returns a pointer to a newly-created copy of this scan configuration.  (It takes the role of a copy constructor, but is virtual so that our high-level classes can copy a scan configuration without knowing exactly what kind it is.)
-//	virtual AMScanConfiguration* createCopy() const = 0;
-//	/// Returns a pointer to a newly-created AMScanController that is appropriate for executing this kind of scan configuration.  The controller should be initialized to use this scan configuration object as its scan configuration.  Ownership of the new controller becomes the responsibility of the caller.
-//	virtual AMScanController* createController() = 0;
-	/// Returns a pointer to a newly-created AMScanConfigurationView that is appropriate for viewing and editing this kind of scan configuration. Ownership of the new controller becomes the responsibility of the caller.
+	/// Returns a newly-created copy of this scan configuration.  (It takes the role of a copy constructor, but is virtual so that our high-level classes can copy a scan configuration without knowing exactly what kind it is.)
+	virtual AMScanConfiguration* createCopy() const = 0;
+	/// Returns a newly-created AMScanController that is appropriate for executing this kind of scan configuration.  The controller should be initialized to use this scan configuration object as its scan configuration.  Ownership of the new controller becomes the responsibility of the caller.
+	virtual AMScanController* createController() = 0;
+	/// Returns a newly-created AMScanConfigurationView that is appropriate for viewing and editing this kind of scan configuration. Ownership of the new controller becomes the responsibility of the caller.
 	virtual AMScanConfigurationView* createView();
 
 public slots:
