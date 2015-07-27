@@ -461,6 +461,7 @@ void AMMotorGroupObjectView::onHorizontalTranslationValueChanged()
 	if(motorGroupObject_->hasHorizontalAxis() &&
 			motorGroupObject_->horizontalAxis()->canTranslate()) {
 
+
 		motorGroupObject_->horizontalAxis()->setTranslatePosition(horizontalTranslationValue_->value());
 	}
 }

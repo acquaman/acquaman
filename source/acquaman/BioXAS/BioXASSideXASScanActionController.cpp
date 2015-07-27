@@ -56,14 +56,8 @@ BioXASSideXASScanActionController::BioXASSideXASScanActionController(BioXASSideX
 	if (bioXASDefaultXAS->id() > 0)
 		AMAppControllerSupport::registerClass<BioXASSideXASScanConfiguration, AMExporterXDIFormat, AMExporterOptionXDIFormat>(bioXASDefaultXAS->id());
 
-	AMControlInfo controlInfo;
-	if (configuration_->usingEncoderEnergy())
-		controlInfo = BioXASSideBeamline::bioXAS()->mono()->encoderEnergyControl()->toInfo();
-	else
-		controlInfo = BioXASSideBeamline::bioXAS()->mono()->stepEnergyControl()->toInfo();
-
 	AMControlInfoList list;
-	list.append(controlInfo);
+	list.append(BioXASSideBeamline::bioXAS()->mono()->energyControl()->toInfo());
 	configuration_->setAxisControlInfos(list);
 
 	useFeedback_ = true;
@@ -72,17 +66,18 @@ BioXASSideXASScanActionController::BioXASSideXASScanActionController(BioXASSideX
 	bioXASDetectors.addDetectorInfo(BioXASSideBeamline::bioXAS()->i0Detector()->toInfo());
 	bioXASDetectors.addDetectorInfo(BioXASSideBeamline::bioXAS()->i1Detector()->toInfo());
 	bioXASDetectors.addDetectorInfo(BioXASSideBeamline::bioXAS()->i2Detector()->toInfo());
-	bioXASDetectors.addDetectorInfo(BioXASSideBeamline::bioXAS()->encoderEnergySetpointDetector()->toInfo());
+//	bioXASDetectors.addDetectorInfo(BioXASSideBeamline::bioXAS()->encoderEnergySetpointDetector()->toInfo());
 	bioXASDetectors.addDetectorInfo(BioXASSideBeamline::bioXAS()->encoderEnergyFeedbackDetector()->toInfo());
 	bioXASDetectors.addDetectorInfo(BioXASSideBeamline::bioXAS()->stepEnergyFeedbackDetector()->toInfo());
 	bioXASDetectors.addDetectorInfo(BioXASSideBeamline::bioXAS()->dwellTimeDetector()->toInfo());
 	bioXASDetectors.addDetectorInfo(BioXASSideBeamline::bioXAS()->braggDetector()->toInfo());
-	bioXASDetectors.addDetectorInfo(BioXASSideBeamline::bioXAS()->braggEncoderFeedbackDetector()->toInfo());
-	bioXASDetectors.addDetectorInfo(BioXASSideBeamline::bioXAS()->braggMoveRetriesDetector()->toInfo());
+//	bioXASDetectors.addDetectorInfo(BioXASSideBeamline::bioXAS()->braggEncoderFeedbackDetector()->toInfo());
+//	bioXASDetectors.addDetectorInfo(BioXASSideBeamline::bioXAS()->braggMoveRetriesDetector()->toInfo());
 	bioXASDetectors.addDetectorInfo(BioXASSideBeamline::bioXAS()->braggStepSetpointDetector()->toInfo());
+//	bioXASDetectors.addDetectorInfo(BioXASSideBeamline::bioXAS()->braggStepMotorFeedbackDetector()->toInfo());
 
 	if (configuration_->usingXRFDetector())
-		bioXASDetectors.addDetectorInfo(BioXASSideBeamline::bioXAS()->fourElementVortexDetector()->toInfo());
+		bioXASDetectors.addDetectorInfo(BioXASSideBeamline::bioXAS()->ge32ElementDetector()->toInfo());
 
 	configuration_->setDetectorConfigurations(bioXASDetectors);
 
@@ -120,17 +115,15 @@ QString BioXASSideXASScanActionController::beamlineSettings()
 {
 	QString notes;
 
+	// Note storage ring current.
+
 	notes.append(QString("SR1 Current:\t%1 mA\n").arg(CLSStorageRing::sr1()->ringCurrent()));
 
-	// Note which energy control is being used.
+	// Note the mono settling time, if applicable.
 
-	QString controlType;
-	if (configuration_->usingEncoderEnergy())
-		controlType = QString("encoder-based");
-	else
-		controlType = QString("step-based");
-
-	notes.append(QString("Energy option:\t%1\n").arg(controlType));
+	double settlingTime = BioXASSideBeamline::bioXAS()->mono()->braggMotor()->settlingTime();
+	if (settlingTime > 0)
+		notes.append(QString("Settling time:\t%1 s\n").arg(settlingTime));
 
 	return notes;
 }
@@ -152,7 +145,7 @@ AMAction3* BioXASSideXASScanActionController::createInitializationActions()
 
 	if (configuration_->usingXRFDetector()){
 
-		AMXspress3XRFDetector *detector = BioXASSideBeamline::bioXAS()->fourElementVortexDetector();
+		AMXspress3XRFDetector *detector = BioXASSideBeamline::bioXAS()->ge32ElementDetector();
 		AMSequentialListAction3 *xspress3Setup = new AMSequentialListAction3(new AMSequentialListActionInfo3("Xspress3 setup", "Xspress3 Setup"));
 		xspress3Setup->addSubAction(detector->createDisarmAction());
 		xspress3Setup->addSubAction(detector->createFramesPerAcquisitionAction(int(configuration_->scanAxisAt(0)->numberOfPoints()*1.1)));	// Adding 10% just because.
@@ -176,8 +169,8 @@ AMAction3* BioXASSideXASScanActionController::createCleanupActions()
 	CLSSIS3820Scaler *scaler = BioXASSideBeamline::bioXAS()->scaler();
 
 	AMListAction3 *cleanup = new AMListAction3(new AMListActionInfo3("BioXAS Side Cleanup", "BioXAS Cleanup"), AMListAction3::Sequential);
-	cleanup->addSubAction(scaler->createDwellTimeAction3(1.0));
 	cleanup->addSubAction(scaler->createContinuousEnableAction3(true));
+	cleanup->addSubAction(scaler->createDwellTimeAction3(1.0));
 
 	// Set the bragg motor power to PowerAutoSoftware.
 	cleanup->addSubAction(BioXASSideBeamline::bioXAS()->mono()->braggMotor()->createPowerAction(CLSMAXvMotor::PowerAutoSoftware));
@@ -334,7 +327,7 @@ void BioXASSideXASScanActionController::buildScanControllerImplementation()
 
 	if (configuration_->usingXRFDetector()){
 
-		AMXRFDetector *detector = BioXASSideBeamline::bioXAS()->fourElementVortexDetector();
+		AMXRFDetector *detector = BioXASSideBeamline::bioXAS()->ge32ElementDetector();
 		detector->removeAllRegionsOfInterest();
 		AMDataSource *spectraSource = scan_->dataSourceAt(scan_->indexOfDataSource(detector->name()));
 		QString edgeSymbol = configuration_->edge().split(" ").first();

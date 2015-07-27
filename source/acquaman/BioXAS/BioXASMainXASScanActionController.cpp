@@ -102,7 +102,15 @@ QString BioXASMainXASScanActionController::beamlineSettings()
 {
 	QString notes;
 
+	// Note the storage ring current.
+
 	notes.append(QString("SR1 Current:\t%1 mA\n").arg(CLSStorageRing::sr1()->ringCurrent()));
+
+	// Note the mono settling time, if applicable.
+
+	double settlingTime = BioXASMainBeamline::bioXAS()->mono()->braggMotor()->settlingTime();
+	if (settlingTime > 0)
+		notes.append(QString("Settling time:\t%1 s\n").arg(settlingTime));
 
 	return notes;
 }
@@ -152,8 +160,8 @@ AMAction3* BioXASMainXASScanActionController::createCleanupActions()
 	CLSSIS3820Scaler *scaler = BioXASMainBeamline::bioXAS()->scaler();
 
 	AMListAction3 *cleanup = new AMListAction3(new AMListActionInfo3("BioXAS Main Cleanup", "BioXAS Main Cleanup"), AMListAction3::Sequential);
-	cleanup->addSubAction(scaler->createDwellTimeAction3(1.0));
 	cleanup->addSubAction(scaler->createContinuousEnableAction3(true));
+	cleanup->addSubAction(scaler->createDwellTimeAction3(1.0));
 
 	// Set the bragg motor power to PowerAutoHardware. The motor can get too warm when left on for too long, that's why we turn it off when not in use.
 	cleanup->addSubAction(BioXASMainBeamline::bioXAS()->mono()->braggMotor()->createPowerAction(CLSMAXvMotor::PowerAutoHardware));
