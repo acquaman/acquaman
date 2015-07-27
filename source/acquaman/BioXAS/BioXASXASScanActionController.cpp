@@ -24,12 +24,6 @@ BioXASXASScanActionController::BioXASXASScanActionController(BioXASXASScanConfig
 {
 	bioXASConfiguration_ = configuration;
 
-	// Create scan object.
-
-	scan_->setNotes(beamlineSettings());
-
-	// Set up the scan timer.
-
 	useFeedback_ = true;
 }
 
@@ -48,9 +42,12 @@ QString BioXASXASScanActionController::beamlineSettings()
 
 	// Note the mono settling time, if applicable.
 
-	double settlingTime = BioXASMainBeamline::bioXAS()->mono()->braggMotor()->settlingTime();
-	if (settlingTime > 0)
-		notes.append(QString("Settling time:\t%1 s\n").arg(settlingTime));
+	BioXASSSRLMonochromator *mono = BioXASBeamline::bioXAS()->mono();
+	if (mono) {
+		double settlingTime = mono->braggMotor()->settlingTime();
+		if (settlingTime > 0)
+			notes.append(QString("Settling time:\t%1 s\n").arg(settlingTime));
+	}
 
 	return notes;
 }
