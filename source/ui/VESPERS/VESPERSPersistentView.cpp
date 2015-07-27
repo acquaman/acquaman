@@ -78,7 +78,7 @@ VESPERSPersistentView::VESPERSPersistentView(QWidget *parent) :
 
 	motorGroupView_ = new CLSPseudoMotorGroupView(VESPERSBeamline::vespers()->motorGroup(), AMMotorGroupView::CompactView);
 	connect(motorGroupView_, SIGNAL(currentMotorGroupObjectViewChanged(QString)), this, SIGNAL(currentSampleStageChanged(QString)));
-	motorGroupView_->setMotorGroupView("Sample Stage - H, V, N");
+	motorGroupView()->setSelectedGroupObject("Sample Stage - H, V, N");
 
 	// PID control view widgets.
 	VESPERSPIDLoopControlView *pidSampleStageView = new VESPERSPIDLoopControlView(VESPERSBeamline::vespers()->sampleStagePID());

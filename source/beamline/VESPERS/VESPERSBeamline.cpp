@@ -385,7 +385,7 @@ void VESPERSBeamline::setupMotorGroup()
 						 "Z", bigBeamZ_,
 						 "", 0);
 
-	motorGroup_->addMotorGroupObject(motorObject->name());
+	motorGroup_->addMotorGroupObject(motorObject);
 }
 
 QString VESPERSBeamline::motorGroupName(VESPERS::Motors motor) const
@@ -749,26 +749,33 @@ void VESPERSBeamline::setupControlsAsDetectors()
 
 void VESPERSBeamline::setupExposedControls()
 {
-	addExposedControl(pseudoSampleStageMotorGroupObject()->horizontalControl());
-	addExposedControl(pseudoSampleStageMotorGroupObject()->verticalControl());
-	addExposedControl(pseudoSampleStageMotorGroupObject()->normalControl());
-	addExposedControl(realSampleStageMotorGroupObject()->horizontalControl());
-	addExposedControl(realSampleStageMotorGroupObject()->verticalControl());
-	addExposedControl(realSampleStageMotorGroupObject()->normalControl());
-	addExposedControl(pseudoWireStageMotorGroupObject()->horizontalControl());
-	addExposedControl(pseudoWireStageMotorGroupObject()->verticalControl());
-	addExposedControl(pseudoWireStageMotorGroupObject()->normalControl());
-	addExposedControl(bigBeamMotorGroupObject()->horizontalControl());
-	addExposedControl(bigBeamMotorGroupObject()->verticalControl());
-	addExposedControl(pseudoAttocubeStageMotorGroupObject()->horizontalControl());
-	addExposedControl(pseudoAttocubeStageMotorGroupObject()->verticalControl());
-	addExposedControl(pseudoAttocubeStageMotorGroupObject()->normalControl());
-	addExposedControl(realAttocubeStageMotorGroupObject()->horizontalControl());
-	addExposedControl(realAttocubeStageMotorGroupObject()->verticalControl());
-	addExposedControl(realAttocubeStageMotorGroupObject()->normalControl());
-	addExposedControl(attocubeRxMotorGroupObject()->horizontalControl());
-	addExposedControl(attocubeRyMotorGroupObject()->horizontalControl());
-	addExposedControl(attocubeRzMotorGroupObject()->horizontalControl());
+	addExposedControl(pseudoSampleStageMotorGroupObject()->horizontalAxis()->translationMotor());
+	addExposedControl(pseudoSampleStageMotorGroupObject()->verticalAxis()->translationMotor());
+	addExposedControl(pseudoSampleStageMotorGroupObject()->normalAxis()->translationMotor());
+
+	addExposedControl(realSampleStageMotorGroupObject()->horizontalAxis()->translationMotor());
+	addExposedControl(realSampleStageMotorGroupObject()->verticalAxis()->translationMotor());
+	addExposedControl(realSampleStageMotorGroupObject()->normalAxis()->translationMotor());
+
+	addExposedControl(pseudoWireStageMotorGroupObject()->horizontalAxis()->translationMotor());
+	addExposedControl(pseudoWireStageMotorGroupObject()->verticalAxis()->translationMotor());
+	addExposedControl(pseudoWireStageMotorGroupObject()->normalAxis()->translationMotor());
+
+	addExposedControl(bigBeamMotorGroupObject()->horizontalAxis()->translationMotor());
+	addExposedControl(bigBeamMotorGroupObject()->verticalAxis()->translationMotor());
+
+	addExposedControl(pseudoAttocubeStageMotorGroupObject()->horizontalAxis()->translationMotor());
+	addExposedControl(pseudoAttocubeStageMotorGroupObject()->verticalAxis()->translationMotor());
+	addExposedControl(pseudoAttocubeStageMotorGroupObject()->normalAxis()->translationMotor());
+
+	addExposedControl(realAttocubeStageMotorGroupObject()->horizontalAxis()->translationMotor());
+	addExposedControl(realAttocubeStageMotorGroupObject()->verticalAxis()->translationMotor());
+	addExposedControl(realAttocubeStageMotorGroupObject()->normalAxis()->translationMotor());
+
+	addExposedControl(attocubeRxMotorGroupObject()->horizontalAxis()->rotationMotor());
+	addExposedControl(attocubeRyMotorGroupObject()->normalAxis()->rotationMotor());
+	addExposedControl(attocubeRzMotorGroupObject()->verticalAxis()->rotationMotor());
+
 	addExposedControl(mono_->delEControl());
 	addExposedControl(mono_->EaControl());
 }

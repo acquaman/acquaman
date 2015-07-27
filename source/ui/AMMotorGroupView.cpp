@@ -40,6 +40,50 @@ AMMotorGroupObjectView::AMMotorGroupObjectView(AMMotorGroupObject *motorGroupObj
 	}
 }
 
+void AMMotorGroupObjectView::setJogSize(double jogSize)
+{
+	jogSize_->setValue(jogSize);
+}
+
+void AMMotorGroupObjectView::setJogSingleStep(double jogSingleStep)
+{
+	jogSize_->setSingleStep(jogSingleStep);
+}
+
+void AMMotorGroupObjectView::setJogPrecision(int jogPrecision)
+{
+	jogSize_->setDecimals(jogPrecision);
+}
+
+void AMMotorGroupObjectView::setJogRange(double minJog, double maxJog)
+{
+	jogSize_->setRange(minJog, maxJog);
+}
+
+void AMMotorGroupObjectView::setMotorValuesPrecision(int motorValuesPrecision)
+{
+	horizontalTranslationValue_->setDecimals(motorValuesPrecision);
+	horizontalRotationValue_->setDecimals(motorValuesPrecision);
+
+	verticalTranslationValue_->setDecimals(motorValuesPrecision);
+	verticalRotationValue_->setDecimals(motorValuesPrecision);
+
+	normalTranslationValue_->setDecimals(motorValuesPrecision);
+	normalRotationValue_->setDecimals(motorValuesPrecision);
+}
+
+void AMMotorGroupObjectView::setMotorValuesRange(double minValue, double maxValue)
+{
+	horizontalTranslationValue_->setRange(minValue, maxValue);
+	horizontalRotationValue_->setRange(minValue, maxValue);
+
+	verticalTranslationValue_->setRange(minValue, maxValue);
+	verticalRotationValue_->setRange(minValue, maxValue);
+
+	normalTranslationValue_->setRange(minValue, maxValue);
+	normalRotationValue_->setRange(minValue, maxValue);
+}
+
 void AMMotorGroupObjectView::onConnectionStateChanged(AMMotorGroupObject::MotionDirection direction,
 													  AMMotorGroupAxis::MotionType motionType,
 													  bool isConnected)
@@ -915,6 +959,7 @@ AMMotorGroupView::AMMotorGroupView(AMMotorGroup* motorGroup,
 	: QWidget(parent)
 {
 	motorGroup_ = motorGroup;
+	viewMode_ = viewMode;
 
 	if(!motorGroup_) {
 		return;
@@ -935,6 +980,34 @@ AMMotorGroupObject * AMMotorGroupView::selectedGroupObject() const
 	}
 
 	return motorGroup_->motorGroupObject(currentSelectedGroupObjectName_);
+}
+
+void AMMotorGroupView::setSelectedGroupObject(const QString &groupObjectName)
+{
+	if(viewMode_ == NormalView) {
+
+		int tabIndexOfGroupObject = motorGroupTabMap_.value(groupObjectName, -1);
+		if(tabIndexOfGroupObject == -1) {
+			return;
+		}
+
+		groupObjectTabs_->setCurrentIndex(tabIndexOfGroupObject);
+
+	} else {
+
+		for(int iItem = 0, itemCount = groupObjectSelector_->count();
+			iItem < itemCount;
+			++iItem) {
+
+			if(groupObjectSelector_->itemText(iItem) == groupObjectName) {
+
+				if(groupObjectSelector_->currentIndex() != iItem) {
+					groupObjectSelector_->setCurrentIndex(iItem);
+				}
+				return;
+			}
+		}
+	}
 }
 
 void AMMotorGroupView::onGroupObjectMotionStatusAltered(const QString& groupObjectName)
@@ -1049,10 +1122,6 @@ void AMMotorGroupView::setupNormalUi()
 
 	setLayout(layout);
 }
-
-
-
-
 
 
 

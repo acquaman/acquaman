@@ -364,9 +364,9 @@ void VESPERS2DScanConfigurationView::onSetStartPosition()
 
 	if (motor == (VESPERS::H | VESPERS::V)){
 
-		h = VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->horizontalControl()->value();
-		v = VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->verticalControl()->value();
-		n = VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->normalControl()->value();
+		h = VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->horizontalAxis()->translationMotor()->value();
+		v = VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->verticalAxis()->translationMotor()->value();
+		n = VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->normalAxis()->translationMotor()->value();
 	}
 
 	else if (motor == (VESPERS::X | VESPERS::Z)){
@@ -380,7 +380,7 @@ void VESPERS2DScanConfigurationView::onSetStartPosition()
 
 		h = VESPERSBeamline::vespers()->attoStageHorizontal()->value();
 		v = VESPERSBeamline::vespers()->attoStageVertical()->value();
-		n = VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->normalControl()->value();  // focusing isn't done with attocube motors.
+		n = VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->normalAxis()->translationMotor()->value();  // focusing isn't done with attocube motors.
 	}
 
 	else if (motor == (VESPERS::AttoX | VESPERS::AttoZ)){
@@ -392,8 +392,8 @@ void VESPERS2DScanConfigurationView::onSetStartPosition()
 
 	else if (motor == (VESPERS::BigBeamX | VESPERS::BigBeamZ)){
 
-		h = VESPERSBeamline::vespers()->bigBeamMotorGroupObject()->horizontalControl()->value();
-		v = VESPERSBeamline::vespers()->bigBeamMotorGroupObject()->verticalControl()->value();
+		h = VESPERSBeamline::vespers()->bigBeamMotorGroupObject()->horizontalAxis()->translationMotor()->value();
+		v = VESPERSBeamline::vespers()->bigBeamMotorGroupObject()->verticalAxis()->translationMotor()->value();
 		n = 888888.88;
 	}
 
@@ -414,8 +414,8 @@ void VESPERS2DScanConfigurationView::onSetEndPosition()
 
 	if (motor == (VESPERS::H | VESPERS::V)){
 
-		h = VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->horizontalControl()->value();
-		v = VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->verticalControl()->value();
+		h = VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->horizontalAxis()->translationMotor()->value();
+		v = VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->verticalAxis()->translationMotor()->value();
 	}
 
 	else if (motor == (VESPERS::X | VESPERS::Z)){
@@ -438,8 +438,8 @@ void VESPERS2DScanConfigurationView::onSetEndPosition()
 
 	else if (motor == (VESPERS::BigBeamX | VESPERS::BigBeamZ)){
 
-		h = VESPERSBeamline::vespers()->bigBeamMotorGroupObject()->horizontalControl()->value();
-		v = VESPERSBeamline::vespers()->bigBeamMotorGroupObject()->verticalControl()->value();
+		h = VESPERSBeamline::vespers()->bigBeamMotorGroupObject()->horizontalAxis()->translationMotor()->value();
+		v = VESPERSBeamline::vespers()->bigBeamMotorGroupObject()->verticalAxis()->translationMotor()->value();
 	}
 
 	configuration_->scanAxisAt(0)->regionAt(0)->setRegionEnd(h);
@@ -456,13 +456,13 @@ void VESPERS2DScanConfigurationView::onSetNormalPosition()
 	VESPERS::Motors motor = configuration_->motor();
 
 	if (motor == (VESPERS::H | VESPERS::V))
-		n = VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->normalControl()->value();
+		n = VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->normalAxis()->translationMotor()->value();
 
 	if (motor == (VESPERS::X | VESPERS::Z))
 		n = VESPERSBeamline::vespers()->sampleStageY()->value();
 
 	if (motor == (VESPERS::AttoH | VESPERS::AttoV))
-		n = VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->normalControl()->value();  // focusing isn't done with attocube motors.
+		n = VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->normalAxis()->translationMotor()->value();  // focusing isn't done with attocube motors.
 
 	if (motor == (VESPERS::AttoX | VESPERS::AttoZ))
 		n = VESPERSBeamline::vespers()->sampleStageY()->value();

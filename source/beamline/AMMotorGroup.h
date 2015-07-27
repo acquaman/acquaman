@@ -197,6 +197,18 @@ public:
 	bool canRotate() const;
 
 	/*!
+	  * The motor control which performs translations on this axis. If this axis
+	  * cannot translate, 0 is returned. See canTranslate();
+	  */
+	AMControl* translationMotor() const;
+
+	/*!
+	  * The motor control which performs rotations on this axis. If this axis
+	  * cannot rotate, 0 is returned. See canRotate();
+	  */
+	AMControl* rotationMotor() const;
+
+	/*!
 	  * Instructs the translation motor to move to the provided position.
 	  * \param position ~ The position to which the translation motor will attempt
 	  * to move.

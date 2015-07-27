@@ -56,6 +56,55 @@ public:
 	  */
 	virtual ~AMMotorGroupObjectView() {}
 
+public slots:
+	/*!
+	  * Sets the jog size value displayed in the jog spinbox.
+	  * \param jogSize ~ The size of each jog to display in the jog spinbox
+	  */
+	void setJogSize(double jogSize);
+
+	/*!
+	  * Sets the single step size (ie. how much the jog size is incremented and
+	  * decremented with a click) of the jog spin box.
+	  * \param jogSingleStep ~ The size of a single increment/decrement of the jog
+	  * value.
+	  */
+	void setJogSingleStep(double jogSingleStep);
+
+	/*!
+	  * Sets how many decimals of precision are to be displayed in the jog spin
+	  * box.
+	  * \param jogPrecision ~ The number of decimals to display in the jog spin
+	  * box.
+	  */
+	void setJogPrecision(int jogPrecision);
+
+	/*!
+	  * Sets the min and max size of the values in the jog spin box.
+	  * \parma minJog ~ The minimum value which can be entered in the jog spin
+	  * box.
+	  * \param maxJog ~ The maximum value which can be entered in the jog spin box.
+	  */
+	void setJogRange(double minJog, double maxJog);
+
+	/*!
+	  * Sets how many decimals of precision are to be displayed in the motor values
+	  * setpoint spin boxes.
+	  * \parma motorValuesPrecision ~ The precision to be displayed in the motor
+	  * values spin box.
+	  */
+	void setMotorValuesPrecision(int motorValuesPrecision);
+
+	/*!
+	  * Sets the min and max values which can be entered into the motor values
+	  * spinboxes.
+	  * \param minValue ~ The minimum value which can be entered into the motor
+	  * value spin boxes.
+	  * \param maxValue ~ The maximum value which can be entered into the motor
+	  * value spin boxes.
+	  */
+	void setMotorValuesRange(double minValue, double maxValue);
+
 protected slots:
 	/*!
 	  * Handles signals indicating that a motor within the group object has
@@ -371,6 +420,15 @@ public:
 	  * group is empty) 0 is returned.
 	  */
 	AMMotorGroupObject* selectedGroupObject() const;
+
+	/*!
+	  * Sets the current visible group object view to the one which matches the
+	  * passed group object name. If no group object is found with the provided
+	  * name, then no change is made.
+	  * \param groupObjectName ~ The name of the group object whose view is to
+	  * be made visible.
+	  */
+	void setSelectedGroupObject(const QString& groupObjectName);
 signals:
 	/*!
 	  * Signal which indicates that the current motor group object view being
@@ -418,6 +476,7 @@ protected:
 
 	AMMotorGroup* motorGroup_;
 	QString currentSelectedGroupObjectName_;
+	ViewMode viewMode_;
 	// Used only for normal view:
 	QTabWidget* groupObjectTabs_;
 	QHash<QString, int>	 motorGroupTabMap_;

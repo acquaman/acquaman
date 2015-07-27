@@ -626,13 +626,13 @@ void VESPERSAppController::moveImmediately(const AMGenericScanEditor *editor)
 	if (config->motor() == (VESPERS::H | VESPERS::V)){
 
 		moveImmediatelyAction_ = new AMListAction3(new AMListActionInfo3("Move immediately", "Moves sample stage to given coordinates."), AMListAction3::Sequential);
-		moveImmediatelyAction_->addSubAction(VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->createHorizontalMoveAction(editor->dataPosition().x()));
-		moveImmediatelyAction_->addSubAction(VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->createVerticalMoveAction(editor->dataPosition().y()));
+		moveImmediatelyAction_->addSubAction(VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->horizontalAxis()->createTranslateMoveAction(editor->dataPosition().x()));
+		moveImmediatelyAction_->addSubAction(VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->verticalAxis()->createTranslateMoveAction(editor->dataPosition().y()));
 
 		if (config->normalPosition() != 888888.88){
 
 			moveImmediatelyAction_->addSubAction(new AMWaitAction(new AMWaitActionInfo(0.01)));
-			moveImmediatelyAction_->addSubAction(VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->createNormalMoveAction(config->normalPosition()));
+			moveImmediatelyAction_->addSubAction(VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->normalAxis()->createTranslateMoveAction(config->normalPosition()));
 		}
 
 		connect(moveImmediatelyAction_, SIGNAL(succeeded()), this, SLOT(onMoveImmediatelySuccess()));
@@ -643,13 +643,13 @@ void VESPERSAppController::moveImmediately(const AMGenericScanEditor *editor)
 	else if (config->motor() == (VESPERS::X | VESPERS::Z)){
 
 		moveImmediatelyAction_ = new AMListAction3(new AMListActionInfo3("Move immediately", "Moves sample stage to given coordinates."), AMListAction3::Sequential);
-		moveImmediatelyAction_->addSubAction(VESPERSBeamline::vespers()->realSampleStageMotorGroupObject()->createHorizontalMoveAction(editor->dataPosition().x()));
-		moveImmediatelyAction_->addSubAction(VESPERSBeamline::vespers()->realSampleStageMotorGroupObject()->createVerticalMoveAction(editor->dataPosition().y()));
+		moveImmediatelyAction_->addSubAction(VESPERSBeamline::vespers()->realSampleStageMotorGroupObject()->horizontalAxis()->createTranslateMoveAction(editor->dataPosition().x()));
+		moveImmediatelyAction_->addSubAction(VESPERSBeamline::vespers()->realSampleStageMotorGroupObject()->verticalAxis()->createTranslateMoveAction(editor->dataPosition().y()));
 
 		if (config->normalPosition() != 888888.88){
 
 			moveImmediatelyAction_->addSubAction(new AMWaitAction(new AMWaitActionInfo(0.01)));
-			moveImmediatelyAction_->addSubAction(VESPERSBeamline::vespers()->realSampleStageMotorGroupObject()->createNormalMoveAction(config->normalPosition()));
+			moveImmediatelyAction_->addSubAction(VESPERSBeamline::vespers()->realAttocubeStageMotorGroupObject()->normalAxis()->createTranslateMoveAction(config->normalPosition()));
 		}
 
 		connect(moveImmediatelyAction_, SIGNAL(succeeded()), this, SLOT(onMoveImmediatelySuccess()));
@@ -660,8 +660,8 @@ void VESPERSAppController::moveImmediately(const AMGenericScanEditor *editor)
 	else if (config->motor() == (VESPERS::BigBeamX | VESPERS::BigBeamZ)){
 
 		moveImmediatelyAction_ = new AMListAction3(new AMListActionInfo3("Move immediately", "Moves sample stage to given coordinates."), AMListAction3::Sequential);
-		moveImmediatelyAction_->addSubAction(VESPERSBeamline::vespers()->bigBeamMotorGroupObject()->createHorizontalMoveAction(editor->dataPosition().x()));
-		moveImmediatelyAction_->addSubAction(VESPERSBeamline::vespers()->bigBeamMotorGroupObject()->createVerticalMoveAction(editor->dataPosition().y()));
+		moveImmediatelyAction_->addSubAction(VESPERSBeamline::vespers()->bigBeamMotorGroupObject()->horizontalAxis()->createTranslateMoveAction(editor->dataPosition().x()));
+		moveImmediatelyAction_->addSubAction(VESPERSBeamline::vespers()->bigBeamMotorGroupObject()->verticalAxis()->createTranslateMoveAction(editor->dataPosition().y()));
 
 		connect(moveImmediatelyAction_, SIGNAL(succeeded()), this, SLOT(onMoveImmediatelySuccess()));
 		connect(moveImmediatelyAction_, SIGNAL(failed(int)), this, SLOT(onMoveImmediatelyFailure()));
@@ -1010,7 +1010,7 @@ void VESPERSAppController::onUserConfigurationLoadedFromDb()
 			<< timeScanConfiguration_
 			<< timedLineScanConfiguration_;
 
-	persistentView_->motorGroupView()->setMotorGroupView(VESPERSBeamline::vespers()->motorGroupName(userConfiguration_->motor()));
+	persistentView_->motorGroupView()->setSelectedGroupObject(VESPERSBeamline::vespers()->motorGroupName(userConfiguration_->motor()));
 
 	foreach (VESPERSScanConfiguration *configuration, configurations){
 

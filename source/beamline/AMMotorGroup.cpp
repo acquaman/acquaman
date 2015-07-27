@@ -252,6 +252,24 @@ bool AMMotorGroupAxis::canRotate() const
 			rotationalMotion_->motor()->isConnected();
 }
 
+AMControl * AMMotorGroupAxis::translationMotor() const
+{
+	if(!canTranslate()) {
+		return 0;
+	}
+
+	return translationalMotion_->motor();
+}
+
+AMControl * AMMotorGroupAxis::rotationMotor() const
+{
+	if(!canRotate()) {
+		return 0;
+	}
+
+	return rotationalMotion_->motor();
+}
+
 void AMMotorGroupAxis::setTranslatePosition(double position)
 {
 	if(canTranslate()) {
@@ -854,6 +872,8 @@ void AMMotorGroup::addMotorGroupObject(AMMotorGroupObject *object)
 	object->setParent(this);
 	groupObjects_.insert(object->name(), object);
 }
+
+
 
 
 

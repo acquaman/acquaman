@@ -81,7 +81,7 @@ void IDEASBeamline::setupMotorGroup()
 							   "Z", vacuumSampleStage_,
 							   "", 0);
 
-	motorGroup_->addMotorGroupObject(motorObject);
+	motorGroup_->addMotorGroupObject(vacuumStageObject);
 }
 
 void IDEASBeamline::setupDetectors()
