@@ -12,6 +12,7 @@
 #include "ui/util/AMPeriodicTableDialog.h"
 #include "util/AMEnergyToKSpaceCalculator.h"
 #include "util/AMPeriodicTable.h"
+#include "util/AMDateTimeUtils.h"
 
 
 BioXASXASScanConfigurationView::BioXASXASScanConfigurationView(BioXASXASScanConfiguration *configuration, const QString &title, const QString &iconName, QWidget *parent) :
@@ -35,6 +36,8 @@ BioXASXASScanConfigurationView::BioXASXASScanConfigurationView(BioXASXASScanConf
 
 	connect(scanName_, SIGNAL(editingFinished()), this, SLOT(onScanNameEdited()));
 	connect(configuration_, SIGNAL(nameChanged(QString)), scanName_, SLOT(setText(QString)));
+    connect(configuration_, SIGNAL(totalTimeChanged(double)), this, SLOT(onEstimatedTimeChanged(double)));
+
 
 	// Energy (Eo) selection
 	energy_ = new QDoubleSpinBox;
@@ -75,6 +78,10 @@ BioXASXASScanConfigurationView::BioXASXASScanConfigurationView(BioXASXASScanConf
 	energyLayout->addWidget(elementChoice_);
 	energyLayout->addWidget(lineChoice_);
 
+    QFormLayout *estimatedTimeLayout = new QFormLayout();
+    estimatedTimeLayout->setWidget(0, QFormLayout::LabelRole, new QLabel("Estimated Time: "));
+    estimatedTimeLayout->setWidget(0, QFormLayout::FieldRole, estimatedTimeLabel_);
+
 	QVBoxLayout *mainVL = new QVBoxLayout();
 	mainVL->addWidget(topFrame_);
 	mainVL->addLayout(energyLayout);
@@ -90,6 +97,8 @@ BioXASXASScanConfigurationView::BioXASXASScanConfigurationView(BioXASXASScanConf
 
 	QVBoxLayout *settingsVL = new QVBoxLayout();
 	settingsVL->addLayout(regionsHL);
+    settingsVL->addStretch();
+    settingsVL->addLayout(estimatedTimeLayout);
 //	settingsVL->addWidget(settingsLabel);
 
 	mainVL->addStretch();
@@ -239,4 +248,9 @@ void BioXASXASScanConfigurationView::onEdgeChanged()
 
 	if (energy_->value() != configuration_->energy())
 		energy_->setValue(configuration_->energy());
+}
+
+void BioXASMainXASScanConfigurationView::onEstimatedTimeChanged(double time)
+{
+   estimatedTimeLabel_->setText(AMDateTimeUtils::convertTimeToString(time));
 }
