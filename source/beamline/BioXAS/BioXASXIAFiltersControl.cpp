@@ -168,7 +168,7 @@ bool BioXASXIAFiltersControl::filterIsIn(AMControl *control) const
 	CLSBiStateControl *actuator = qobject_cast<CLSBiStateControl*>(control);
 
 	if (actuator && validFilterActuator(actuator))
-		result = int(actuator->value()) == Filter::In;
+		result = ( int(actuator->value()) == Filter::In );
 
 	return result;
 }
@@ -180,7 +180,7 @@ bool BioXASXIAFiltersControl::filterIsOut(AMControl *control) const
 	CLSBiStateControl *actuator = qobject_cast<CLSBiStateControl*>(control);
 
 	if (actuator && validFilterActuator(actuator))
-		result = int(actuator->value()) == Filter::Out;
+		result = ( int(actuator->value()) == Filter::Out );
 
 	return result;
 }
