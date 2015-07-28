@@ -356,19 +356,19 @@ void VESPERSBeamline::setupMotorGroup()
 	motorGroup_->addMotorGroupObject(motorObject);
 
 	// Add Attocube stage groups for Rx, Ry and Rz (these are kept separate)
-	motorObject = new AMMotorGroupObject("Attocube Stage - Rx");
+	motorObject = new AMMotorGroupObject("Attocube Stage - Rx", this);
 	motorObject->setDirectionAxis(AMMotorGroupObject::HorizontalMotion,
 						 "", 0,
 						 "Rx", attoStageRx_);
 	motorGroup_->addMotorGroupObject(motorObject);
 
-	motorObject = new AMMotorGroupObject("Attocube Stage - Ry");
+	motorObject = new AMMotorGroupObject("Attocube Stage - Ry", this);
 	motorObject->setDirectionAxis(AMMotorGroupObject::NormalMotion,
 						 "", 0,
 						 "Ry", attoStageRy_);
 	motorGroup_->addMotorGroupObject(motorObject);
 
-	motorObject = new AMMotorGroupObject("Attocube Stage - Rz");
+	motorObject = new AMMotorGroupObject("Attocube Stage - Rz", this);
 	motorObject->setDirectionAxis(AMMotorGroupObject::VerticalMotion,
 						 "", 0,
 						 "Rx", attoStageRz_);
@@ -376,7 +376,7 @@ void VESPERSBeamline::setupMotorGroup()
 
 	// Add Big beam
 
-	motorObject = new AMMotorGroupObject("Big Beam - X, Z");
+	motorObject = new AMMotorGroupObject("Big Beam - X, Z", this);
 	motorObject->setDirectionAxis(AMMotorGroupObject::HorizontalMotion,
 						 "X", bigBeamX_,
 						 "", 0);

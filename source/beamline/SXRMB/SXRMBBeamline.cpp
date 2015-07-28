@@ -722,7 +722,7 @@ void SXRMBBeamline::setupMotorGroup()
 	AMMotorGroupObject *motorObject;
 
 	// Microprobe motor group
-	motorObject = new AMMotorGroupObject("Microprobe Stage - X, Z, Y");
+	motorObject = new AMMotorGroupObject("Microprobe Stage - X, Z, Y", this);
 
 	motorObject->setDirectionAxis(AMMotorGroupObject::HorizontalMotion,
 						 "X", microprobeSampleStageX_,
@@ -739,7 +739,7 @@ void SXRMBBeamline::setupMotorGroup()
 	motorGroup_->addMotorGroupObject(motorObject);
 
 	// Solidstate motor group
-	motorObject = new AMMotorGroupObject("Solid State - X, Z, Y, R");
+	motorObject = new AMMotorGroupObject("Solid State - X, Z, Y, R", this);
 	motorObject->setDirectionAxis(AMMotorGroupObject::HorizontalMotion,
 						 "X", solidStateSampleStageX_,
 						 "", 0);
@@ -755,7 +755,7 @@ void SXRMBBeamline::setupMotorGroup()
 	motorGroup_->addMotorGroupObject(motorObject);
 
 	// Ambiant with gas chamber motor group
-	motorObject = new AMMotorGroupObject("Ambiant With Gas Chamber - X, Z, R");
+	motorObject = new AMMotorGroupObject("Ambiant With Gas Chamber - X, Z, R", this);
 	motorObject->setDirectionAxis(AMMotorGroupObject::HorizontalMotion,
 						 "X", ambiantSampleStageX_,
 						 "", 0);
@@ -767,7 +767,7 @@ void SXRMBBeamline::setupMotorGroup()
 	motorGroup_->addMotorGroupObject(motorObject);
 
 	// Ambiant without gas chamber motor group
-	motorObject = new AMMotorGroupObject("Ambiant Without Gas Chamber - X, Z");
+	motorObject = new AMMotorGroupObject("Ambiant Without Gas Chamber - X, Z", this);
 	motorObject->setDirectionAxis(AMMotorGroupObject::HorizontalMotion,
 						 "X", ambiantSampleStageX_,
 						 "", 0);

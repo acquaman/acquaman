@@ -62,7 +62,7 @@ void IDEASBeamline::setupSampleStage()
 void IDEASBeamline::setupMotorGroup()
 {
 	// Set up sample platform motor object:
-	AMMotorGroupObject* samplePlatformObject = new AMMotorGroupObject("Sample Platform");
+	AMMotorGroupObject* samplePlatformObject = new AMMotorGroupObject("Sample Platform", this);
 
 	samplePlatformObject->setDirectionAxis(AMMotorGroupObject::HorizontalMotion,
 								  "X", samplePlatformHorizontal_,
@@ -75,7 +75,7 @@ void IDEASBeamline::setupMotorGroup()
 	motorGroup_->addMotorGroupObject(samplePlatformObject);
 
 	// Set up vacuum stage motor object:
-	AMMotorGroupObject* vacuumStageObject = new AMMotorGroupObject("Vacuum Stage");
+	AMMotorGroupObject* vacuumStageObject = new AMMotorGroupObject("Vacuum Stage", this);
 
 	vacuumStageObject->setDirectionAxis(AMMotorGroupObject::VerticalMotion,
 							   "Z", vacuumSampleStage_,

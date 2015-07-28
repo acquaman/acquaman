@@ -593,7 +593,7 @@ void BioXASSideBeamline::setupMotorGroup()
 	motorGroup_ = new AMMotorGroup(this);
 
 	AMMotorGroupObject* cryostatStageGroupObject =
-			new AMMotorGroupObject("Cryostat Stage - X Y Z");
+			new AMMotorGroupObject("Cryostat Stage - X Y Z", this);
 
 	cryostatStageGroupObject->setDirectionAxis(AMMotorGroupObject::HorizontalMotion, "X", cryostatX_, "", 0);
 	cryostatStageGroupObject->setDirectionAxis(AMMotorGroupObject::NormalMotion, "Y", cryostatY_, "", 0);

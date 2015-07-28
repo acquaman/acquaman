@@ -962,16 +962,13 @@ AMMotorGroupView::AMMotorGroupView(AMMotorGroup* motorGroup,
 	motorGroup_ = motorGroup;
 	viewMode_ = viewMode;
 
-	if(!motorGroup_) {
-		return;
+	if(motorGroup_) {
+		if(viewMode == NormalView) {
+			setupNormalUi();
+		} else {
+			setupCompactUi();
+		}
 	}
-
-	if(viewMode == NormalView) {
-		setupNormalUi();
-	} else {
-		setupCompactUi();
-	}
-
 }
 
 AMMotorGroupObject * AMMotorGroupView::selectedGroupObject() const
@@ -988,24 +985,23 @@ void AMMotorGroupView::setSelectedGroupObject(const QString &groupObjectName)
 	if(viewMode_ == NormalView) {
 
 		int tabIndexOfGroupObject = motorGroupTabMap_.value(groupObjectName, -1);
-		if(tabIndexOfGroupObject == -1) {
-			return;
-		}
-
-		groupObjectTabs_->setCurrentIndex(tabIndexOfGroupObject);
+		if(tabIndexOfGroupObject != -1) {
+			groupObjectTabs_->setCurrentIndex(tabIndexOfGroupObject);
+		}		
 
 	} else {
 
+		bool objectFound = false;
 		for(int iItem = 0, itemCount = groupObjectSelector_->count();
-			iItem < itemCount;
+			iItem < itemCount && !objectFound;
 			++iItem) {
 
 			if(groupObjectSelector_->itemText(iItem) == groupObjectName) {
 
+				objectFound = true;
 				if(groupObjectSelector_->currentIndex() != iItem) {
 					groupObjectSelector_->setCurrentIndex(iItem);
 				}
-				return;
 			}
 		}
 	}

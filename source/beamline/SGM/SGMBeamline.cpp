@@ -1216,7 +1216,7 @@ void SGMBeamline::setupControls(){
 	motorGroup_ = new AMMotorGroup(this);
 
 	AMMotorGroupObject* sampleManipulatorGroupObject =
-			new AMMotorGroupObject("Manipulator");
+			new AMMotorGroupObject("Manipulator", this);
 
 	sampleManipulatorGroupObject->setDirectionAxis(AMMotorGroupObject::HorizontalMotion,
 										  "X", ssaManipulatorX_,
