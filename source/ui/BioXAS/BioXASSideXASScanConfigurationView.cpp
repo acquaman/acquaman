@@ -33,7 +33,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "util/AMEnergyToKSpaceCalculator.h"
 #include "ui/util/AMPeriodicTableDialog.h"
 #include "util/AMPeriodicTable.h"
-
+#include "util/AMDateTimeUtils.h"
 
 BioXASSideXASScanConfigurationView::BioXASSideXASScanConfigurationView(BioXASSideXASScanConfiguration *configuration, QWidget *parent) :
 	AMScanConfigurationView(parent)
@@ -58,6 +58,7 @@ BioXASSideXASScanConfigurationView::BioXASSideXASScanConfigurationView(BioXASSid
 
 	connect(scanName_, SIGNAL(editingFinished()), this, SLOT(onScanNameEdited()));
 	connect(configuration_, SIGNAL(nameChanged(QString)), scanName_, SLOT(setText(QString)));
+    connect(configuration_, SIGNAL(totalTimeChanged(double)), this, SLOT(onEstimatedTimeChanged(double)));
 
 	// Energy (Eo) selection
 	energy_ = new QDoubleSpinBox;
@@ -111,10 +112,16 @@ BioXASSideXASScanConfigurationView::BioXASSideXASScanConfigurationView(BioXASSid
 	regionButtonsLayout->addWidget(pseudoXAFSButton_);
 	regionButtonsLayout->addStretch();
 
+	QFormLayout *estimatedTimeLayout = new QFormLayout();
+    estimatedTimeLayout->setWidget(0, QFormLayout::LabelRole, new QLabel("Estimated Time: "));
+	estimatedTimeLayout->setWidget(0, QFormLayout::FieldRole, estimatedTimeLabel_);
+
 	QHBoxLayout *miscLayout = new QHBoxLayout();
 	miscLayout->addLayout(regionButtonsLayout);
 	miscLayout->addStretch();
 	miscLayout->addLayout(optionsLayout);
+    miscLayout->addStretch();
+    miscLayout->addLayout(estimatedTimeLayout);
 
 	QVBoxLayout *mainVL = new QVBoxLayout();
 	mainVL->addLayout(energyAndRegionLayout);
@@ -255,3 +262,9 @@ void BioXASSideXASScanConfigurationView::onEdgeChanged()
 	if (energy_->value() != configuration_->energy())
 		energy_->setValue(configuration_->energy());
 }
+
+void BioXASSideXASScanConfigurationView::onEstimatedTimeChanged(double time)
+{    
+    estimatedTimeLabel_->setText(AMDateTimeUtils::convertTimeToString(time));
+}
+
