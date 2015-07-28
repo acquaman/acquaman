@@ -33,6 +33,9 @@ public:
 	/// Returns true if the given value is a valid value for this control, false otherwise.
 	virtual bool validValue(double value) const;
 
+	/// Returns a string representation of the given thickness, an empty string if no match is found.
+	virtual QString thicknessToString(double thickness) const;
+
 signals:
 	/// Notifier that the first filter actuator control has changed.
 	void firstFilterActuatorControlChanged(CLSBiStateControl *newControl);

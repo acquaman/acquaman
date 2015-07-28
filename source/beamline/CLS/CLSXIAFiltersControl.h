@@ -19,6 +19,9 @@ public:
 	/// Returns true if the given value is a valid setpoint for this control, false otherwise.
 	virtual bool validSetpoint(double setpoint) const { return validValue(setpoint); }
 
+	/// Returns a string representation of the given thickness, an empty string if no match is found.
+	virtual QString thicknessToString(double thickness) const = 0;
+
 signals:
 	/// Notifier that a filter actuator control has been added.
 	void filterActuatorControlAdded(AMControl *newControl);
@@ -58,6 +61,9 @@ protected:
 	virtual bool filterIsIn(AMControl *control) const = 0;
 	/// Returns true if the given filter control is valid and out, false otherwise.
 	virtual bool filterIsOut(AMControl *control) const = 0;
+
+	/// Generates this control's enum states from the filter thickness map. Must be called by subclass.
+	void setupEnumStates();
 
 protected:
 	/// The mapping between each filter actuator control and associated filter thickness.

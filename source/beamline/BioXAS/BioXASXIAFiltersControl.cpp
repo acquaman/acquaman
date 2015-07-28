@@ -85,6 +85,16 @@ bool BioXASXIAFiltersControl::validValue(double value) const
 	return result;
 }
 
+QString BioXASXIAFiltersControl::thicknessToString(double thickness) const
+{
+	QString result;
+
+	if (validValue(thickness))
+		result = QString::number(thickness, 'f');
+
+	return result;
+}
+
 void BioXASXIAFiltersControl::setFirstFilterActuatorControl(CLSBiStateControl *newControl, double filterThickness)
 {
 	if (firstFilterActuator_ != newControl) {
@@ -96,6 +106,8 @@ void BioXASXIAFiltersControl::setFirstFilterActuatorControl(CLSBiStateControl *n
 
 		if (firstFilterActuator_)
 			addFilterActuatorControl(firstFilterActuator_, filterThickness);
+
+		setupEnumStates();
 
 		emit firstFilterActuatorControlChanged(firstFilterActuator_);
 	}
@@ -113,6 +125,8 @@ void BioXASXIAFiltersControl::setSecondFilterActuatorControl(CLSBiStateControl *
 		if (secondFilterActuator_)
 			addFilterActuatorControl(secondFilterActuator_, filterThickness);
 
+		setupEnumStates();
+
 		emit secondFilterActuatorControlChanged(secondFilterActuator_);
 	}
 }
@@ -129,6 +143,8 @@ void BioXASXIAFiltersControl::setThirdFilterActuatorControl(CLSBiStateControl *n
 		if (thirdFilterActuator_)
 			addFilterActuatorControl(thirdFilterActuator_, filterThickness);
 
+		setupEnumStates();
+
 		emit thirdFilterActuatorControlChanged(thirdFilterActuator_);
 	}
 }
@@ -144,6 +160,8 @@ void BioXASXIAFiltersControl::setFourthFilterActuatorControl(CLSBiStateControl *
 
 		if (fourthFilterActuator_)
 			addFilterActuatorControl(fourthFilterActuator_, filterThickness);
+
+		setupEnumStates();
 
 		emit fourthFilterActuatorControlChanged(fourthFilterActuator_);
 	}

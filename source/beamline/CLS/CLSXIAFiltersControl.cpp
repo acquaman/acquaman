@@ -122,3 +122,14 @@ double CLSXIAFiltersControl::activeFilterThickness() const
 
 	return result;
 }
+
+void CLSXIAFiltersControl::setupEnumStates()
+{
+	QStringList enumList;
+
+	foreach (double thickness, filterThicknessMap_)
+		enumList << thicknessToString(thickness);
+
+	setEnumStates(enumList);
+	setMoveEnumStates(enumList);
+}
