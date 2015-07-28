@@ -59,6 +59,7 @@ HEADERS += \
 	source/application/BioXAS/BioXAS.h \
 	source/beamline/BioXAS/BioXASMainM2MirrorBendControl.h \
 	source/beamline/BioXAS/BioXASShutterControl.h \
+	source/ui/BioXAS/BioXASEndstationTableView.h \
 	source/ui/BioXAS/BioXAS32ElementGeDetectorView.h
 
 SOURCES += \
@@ -113,6 +114,7 @@ SOURCES += \
 	source/ui/BioXAS/BioXASMirrorBendView.cpp \
 	source/beamline/BioXAS/BioXASMainM2MirrorBendControl.cpp \
 	source/beamline/BioXAS/BioXASShutterControl.cpp \
+	source/ui/BioXAS/BioXASEndstationTableView.cpp \
 	source/ui/BioXAS/BioXAS32ElementGeDetectorView.cpp
 
 

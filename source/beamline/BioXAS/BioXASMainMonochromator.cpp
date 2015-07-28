@@ -102,6 +102,7 @@ BioXASMainMonochromator::BioXASMainMonochromator(QObject *parent) :
 	// Current settings.
 
 	updateConnected();
+	updateMotorSettlingTime();
 }
 
 BioXASMainMonochromator::~BioXASMainMonochromator()
