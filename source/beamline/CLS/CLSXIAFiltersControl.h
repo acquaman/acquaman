@@ -16,22 +16,6 @@ public:
 	/// Destructor.
 	virtual ~CLSXIAFiltersControl();
 
-	/// Returns true if this control is always measurable, provided the control is connected.
-	virtual bool shouldMeasure() const = 0;
-	/// Returns true if a move is always possible, provided control is connected.
-	virtual bool shouldMove() const = 0;
-	/// Returns true if this control can stop a move in progress, provided it is connected.
-	virtual bool shouldStop() const = 0;
-
-	/// Returns true if this control can take a measurement right now.
-	virtual bool canMeasure() const = 0;
-	/// Returns true if this control can move right now.
-	virtual bool canMove() const = 0;
-	/// Returns true if this control can stop a move right now.
-	virtual bool canStop() const = 0;
-
-	/// Returns true if the given value is a valid value for this control, false otherwise.
-	virtual bool validValue(double value) const = 0;
 	/// Returns true if the given value is a valid setpoint for this control, false otherwise.
 	virtual bool validSetpoint(double setpoint) const { return validValue(setpoint); }
 
@@ -54,17 +38,12 @@ public slots:
 	void removeFilterThickness(AMControl *control);
 
 protected slots:
-	/// Updates the connected state.
-	virtual void updateConnected() = 0;
 	/// Updates the current value.
 	virtual void updateValue();
 	/// Updates the 'is moving' state.
 	virtual void updateMoving();
 
 protected:
-	/// Returns a new action that moves this control.
-	AMAction3* createMoveAction(double setpoint) = 0;
-
 	/// Returns true if the given control is a valid filter actuator.
 	bool validFilterActuator(AMControl *control) const;
 
