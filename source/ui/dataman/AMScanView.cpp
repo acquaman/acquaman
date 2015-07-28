@@ -347,7 +347,7 @@ void AMScanView::setSingleSpectrumDataSource(const QString &name)
 void AMScanView::setPlotCursorCoordinates(const QPointF &newCoordinates)
 {
 	foreach (AMScanViewInternal *view, views_) {
-		if (view) {
+		if (view && view->tools()) {
 			foreach (MPlotAbstractTool *tool, view->tools()->tools()) {
 				MPlotDataPositionCursorTool *cursorTool = qobject_cast<MPlotDataPositionCursorTool*>(tool);
 				if (cursorTool)
@@ -366,7 +366,7 @@ void AMScanView::setPlotCursorCoordinates(AMNumber newCoordinate)
 void AMScanView::setPlotCursorCoordinates(double newCoordinate)
 {
 	foreach (AMScanViewInternal *view, views_) {
-		if (view) {
+		if (view && view->tools()) {
 			foreach (MPlotAbstractTool *tool, view->tools()->tools()) {
 				MPlotDataPositionCursorTool *cursorTool = qobject_cast<MPlotDataPositionCursorTool*>(tool);
 				if (cursorTool)
@@ -379,7 +379,7 @@ void AMScanView::setPlotCursorCoordinates(double newCoordinate)
 void AMScanView::setPlotCursorVisibility(bool isVisible)
 {
 	foreach (AMScanViewInternal *view, views_) {
-		if (view) {
+		if (view && view->tools()) {
 			foreach (MPlotAbstractTool *tool, view->tools()->tools()) {
 				MPlotDataPositionCursorTool *cursorTool = qobject_cast<MPlotDataPositionCursorTool*>(tool);
 				if (cursorTool)
