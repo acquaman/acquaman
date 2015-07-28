@@ -41,8 +41,7 @@ public:
 	  * \param motor ~ The motor which will be performing the motions.
 	  * NOTE: The class takes NO ownership of the passed motor control.
 	  */
-	AMMotorGroupMotion(const QString& name,
-					   AMControl* motor);
+	AMMotorGroupMotion(const QString& name, AMControl* motor, QObject* parent = 0);
 
 	/*!
 	  * Virtual destructor for a motor group motion.
@@ -108,7 +107,8 @@ public:
 	  * 0 is provided it is assumed that this axis cannot rotate.
 	  */
 	AMMotorGroupAxis(AMMotorGroupMotion* translationalMotion,
-					 AMMotorGroupMotion* rotationalMotion);
+					 AMMotorGroupMotion* rotationalMotion,
+					 QObject* parent = 0);
 
 	/*!
 	  * Virtual destructor for a motor group axis.
@@ -430,7 +430,7 @@ public:
 	  * \param name ~ A human readable name which can be used to logically identify
 	  * the contained axes (eg. sample stage).
 	  */
-	AMMotorGroupObject(const QString& name);
+	AMMotorGroupObject(const QString& name, QObject* parent = 0);
 
 	/*!
 	 * Creates an instance of an AMMotorGroupObject with the provided name, and
@@ -853,13 +853,12 @@ public:
 public slots:
 
 	/*!
-	 * \brief Adds a group object to this group. If a motor group object is
-	 * already found with this name, its resources will be freed, and it will
-	 * be replaced by the new group object. This motor group will take ownership
-	 * of the provided group object.
+	 * \brief Adds a group object to this group.
 	 * \param object ~ The group object to be added to this group.
+	 * \returns A reference to the motor group object which was replaced in the
+	 * set, or 0 if no motor group object was replaced.
 	 */
-	void addMotorGroupObject(AMMotorGroupObject *object);
+	AMMotorGroupObject* addMotorGroupObject(AMMotorGroupObject *object);
 
 protected:
 	/// Holds the map of the infos and the reference names.

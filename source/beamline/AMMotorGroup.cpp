@@ -29,9 +29,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 // Motor Group Motion
 ////////////////////////////////////////////////////////////////////////////////
 
-AMMotorGroupMotion::AMMotorGroupMotion(const QString& name,
-									   AMControl* motor)
-	: QObject(0)
+AMMotorGroupMotion::AMMotorGroupMotion(const QString& name, AMControl* motor, QObject* parent)
+	: QObject(parent)
 {
 	name_ = name;
 	motor_ = motor;
@@ -71,8 +70,9 @@ AMControl * AMMotorGroupMotion::motor() const
 ////////////////////////////////////////////////////////////////////////////////
 
 AMMotorGroupAxis::AMMotorGroupAxis(AMMotorGroupMotion* translationalMotion,
-								   AMMotorGroupMotion* rotationalMotion)
-	: QObject(0)
+								   AMMotorGroupMotion* rotationalMotion,
+								   QObject* parent)
+	: QObject(parent)
 {
 
 	translationalMotion_ = translationalMotion;
@@ -432,7 +432,8 @@ void AMMotorGroupAxis::onRotationPositionValueChanged(double positionValue)
 // Motor Group Object
 ////////////////////////////////////////////////////////////////////////////////
 
-AMMotorGroupObject::AMMotorGroupObject(const QString &name)
+AMMotorGroupObject::AMMotorGroupObject(const QString &name, QObject* parent)
+	: QObject(parent)
 {
 	name_ = name;
 }
@@ -453,7 +454,7 @@ AMMotorGroupObject::AMMotorGroupObject(const QString& name, const QMap<MotionDir
 }
 
 void AMMotorGroupObject::setDirectionAxis(AMMotorGroupObject::MotionDirection motionDirection,
-								 AMMotorGroupAxis *axisDetails)
+										  AMMotorGroupAxis *axisDetails)
 {
 
 	// Do we already have an entry for this motion direction?
@@ -467,7 +468,7 @@ void AMMotorGroupObject::setDirectionAxis(AMMotorGroupObject::MotionDirection mo
 
 	} else if (currentAxis != 0) {
 
-		// Current exist exists, but is different. Need to free the current axis'
+		// Current axis exists, but is different. Need to free the current axis'
 		// resources before we replace it.
 		currentAxis->deleteLater();
 		currentAxis->setParent(0);
@@ -488,10 +489,10 @@ void AMMotorGroupObject::setDirectionAxis(AMMotorGroupObject::MotionDirection mo
 }
 
 void AMMotorGroupObject::setDirectionAxis(MotionDirection motionDirection,
-								 const QString& translationalName,
-								 AMControl* translationalMotor,
-								 const QString& rotationalName,
-								 AMControl* rotationalMotor)
+										  const QString& translationalName,
+										  AMControl* translationalMotor,
+										  const QString& rotationalName,
+										  AMControl* rotationalMotor)
 {
 	AMMotorGroupMotion* translation = 0;
 	if(translationalMotor) {
@@ -848,29 +849,25 @@ QString AMMotorGroup::name(AMMotorGroupObject *motorObject) const
 	return groupObjects_.key(motorObject, QString());
 }
 
-void AMMotorGroup::addMotorGroupObject(AMMotorGroupObject *object)
+AMMotorGroupObject* AMMotorGroup::addMotorGroupObject(AMMotorGroupObject *object)
 {
 	if(object == 0) {
-		return;
+		return 0;
 	}
 
-	AMMotorGroupObject* currentObject = motorGroupObject(object->name());
+	AMMotorGroupObject* replacedObject = motorGroupObject(object->name());
 
-	if(currentObject == object) {
+	if(replacedObject == object) {
 
 		// The object we have with this name is the same as the one we've just
-		// been passed. Do nothing.
-		return;
-	} else if ( currentObject != 0 ) {
-
-		// We already had a different entry for this name, free its resources
-		currentObject->setParent(0);
-		currentObject->deleteLater();
+		// been passed. Returns 0 to indicate nothing has been replaced.
+		return 0;
 	}
 
-	// Take ownership of the passed object and add it to our map.
-	object->setParent(this);
+	// Add the object to the map and return the replaced object (which might be
+	// 0 if nothing was replaced).
 	groupObjects_.insert(object->name(), object);
+	return replacedObject;
 }
 
 
