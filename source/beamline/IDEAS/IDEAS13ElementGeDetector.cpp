@@ -26,18 +26,9 @@ IDEAS13ElementGeDetector::IDEAS13ElementGeDetector(const QString &name, const QS
     peakingTimeControl_ = new AMSinglePVControl("Peaking Time", "dxp1608-B21-13:EnergyPkTime", this, 0.01);
 
     // preamp Gain controls for elements 1-12
-    preampGainControl1_ = new AMPVControl("13-el Ge Preamp Gain 1","dxp1608-B12-13:dxp1:PreampGain_RBV","dxp1608-B12-13:dxp1:PreampGain", QString(), this, AMCONTROL_TOLERANCE_DONT_CARE);
-    preampGainControl2_ = new AMPVControl("13-el Ge Preamp Gain 2","dxp1608-B12-13:dxp2:PreampGain_RBV","dxp1608-B12-13:dxp2:PreampGain", QString(), this, AMCONTROL_TOLERANCE_DONT_CARE);
-    preampGainControl3_ = new AMPVControl("13-el Ge Preamp Gain 3","dxp1608-B12-13:dxp3:PreampGain_RBV","dxp1608-B12-13:dxp3:PreampGain", QString(), this, AMCONTROL_TOLERANCE_DONT_CARE);
-    preampGainControl4_ = new AMPVControl("13-el Ge Preamp Gain 4","dxp1608-B12-13:dxp4:PreampGain_RBV","dxp1608-B12-13:dxp4:PreampGain", QString(), this, AMCONTROL_TOLERANCE_DONT_CARE);
-    preampGainControl5_ = new AMPVControl("13-el Ge Preamp Gain 5","dxp1608-B12-13:dxp5:PreampGain_RBV","dxp1608-B12-13:dxp5:PreampGain", QString(), this, AMCONTROL_TOLERANCE_DONT_CARE);
-    preampGainControl6_ = new AMPVControl("13-el Ge Preamp Gain 6","dxp1608-B12-13:dxp6:PreampGain_RBV","dxp1608-B12-13:dxp6:PreampGain", QString(), this, AMCONTROL_TOLERANCE_DONT_CARE);
-    preampGainControl7_ = new AMPVControl("13-el Ge Preamp Gain 7","dxp1608-B12-13:dxp7:PreampGain_RBV","dxp1608-B12-13:dxp7:PreampGain", QString(), this, AMCONTROL_TOLERANCE_DONT_CARE);
-    preampGainControl8_ = new AMPVControl("13-el Ge Preamp Gain 8","dxp1608-B12-13:dxp8:PreampGain_RBV","dxp1608-B12-13:dxp8:PreampGain", QString(), this, AMCONTROL_TOLERANCE_DONT_CARE);
-    preampGainControl9_ = new AMPVControl("13-el Ge Preamp Gain 9","dxp1608-B12-13:dxp9:PreampGain_RBV","dxp1608-B12-13:dxp9:PreampGain", QString(), this, AMCONTROL_TOLERANCE_DONT_CARE);
-    preampGainControl10_ = new AMPVControl("13-el Ge Preamp Gain 10","dxp1608-B12-13:dxp10:PreampGain_RBV","dxp1608-B12-13:dxp10:PreampGain", QString(), this, AMCONTROL_TOLERANCE_DONT_CARE);
-    preampGainControl11_ = new AMPVControl("13-el Ge Preamp Gain 11","dxp1608-B12-13:dxp11:PreampGain_RBV","dxp1608-B12-13:dxp11:PreampGain", QString(), this, AMCONTROL_TOLERANCE_DONT_CARE);
-    preampGainControl12_ = new AMPVControl("13-el Ge Preamp Gain 12","dxp1608-B12-13:dxp12:PreampGain_RBV","dxp1608-B12-13:dxp12:PreampGain", QString(), this, AMCONTROL_TOLERANCE_DONT_CARE);
+    for(int i = 0; i < 12; i++){
+        preampGainControls_ << new AMPVControl(QString("13-el Ge Preamp Gain %1").arg(i+1),QString("dxp1608-B12-13:dxp%1:PreampGain_RBV").arg(i+1), "dxp1608-B12-13:dxp%1:PreampGain", QString(), this);
+    }
 
 	// Currently only using 12 due to lack of electronics.
 	for (int i = 0; i < 12; i++){
@@ -52,9 +43,13 @@ IDEAS13ElementGeDetector::IDEAS13ElementGeDetector(const QString &name, const QS
 	foreach (AMDataSource *source, rawSpectraSources_)
 		((AM1DProcessVariableDataSource *)source)->setScale(10);
 
-
-
 }
+
+double IDEAS13ElementGeDetector::preampGainAt(int index) const
+{
+   return preampGainControls_.at(index)->value();
+}
+
 
 QString IDEAS13ElementGeDetector::synchronizedDwellKey() const
 {

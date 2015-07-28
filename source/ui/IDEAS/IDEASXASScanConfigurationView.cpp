@@ -160,16 +160,16 @@ IDEASXASScanConfigurationView::IDEASXASScanConfigurationView(IDEASXASScanConfigu
 	QLabel *settingsLabel = new QLabel("Scan Settings:");
 	settingsLabel->setFont(QFont("Lucida Grande", 12, QFont::Bold));
 
-	QHBoxLayout *XRFDetector = new QHBoxLayout();
-	XRFDetector->addWidget(isXRFScanCheckBox_);
-	XRFDetector->addSpacing(10);
-	XRFDetector->addWidget(fluorescenceDetectorComboBox_);
+    QHBoxLayout *xrfDetector = new QHBoxLayout();
+    xrfDetector->addWidget(isXRFScanCheckBox_);
+    xrfDetector->addSpacing(10);
+    xrfDetector->addWidget(fluorescenceDetectorComboBox_);
 
 	QFormLayout *configFL = new QFormLayout();
 	configFL->setAlignment(Qt::AlignLeft);
 	configFL->setFieldGrowthPolicy(QFormLayout::FieldsStayAtSizeHint);
 	configFL->addRow("Scan Name: ", scanName_);
-	configFL->addRow("Include: ",XRFDetector);
+    configFL->addRow("Include: ",xrfDetector);
 	configFL->addRow("", isTransScanCheckBox_);
 	configFL->addRow("", useRefCheckBox_);
 
