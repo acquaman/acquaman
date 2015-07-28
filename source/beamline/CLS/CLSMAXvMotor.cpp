@@ -37,6 +37,8 @@ CLSMAXvMotor::CLSMAXvMotor(const QString &name, const QString &baseName, const Q
 
 	stepSetpoint_ = new AMReadOnlyPVControl(name+"StepSetpoint", baseName+":step:sp", this);
 
+	stepMotorFeedback_ = new AMReadOnlyPVControl(name+"StepFeedback", baseName+pvUnitFieldName+":sp", this);
+
 	EGUVelocity_ = new AMPVControl(name+"EGUVelocity", baseName+":vel"+pvUnitFieldName+"ps:sp", baseName+":velo"+pvUnitFieldName+"ps", QString(), this, 0.05);
 	EGUBaseVelocity_ = new AMPVControl(name+"EGUBaseVelocity", baseName+":vBase"+pvUnitFieldName+"ps:sp", baseName+":vBase"+pvUnitFieldName+"ps", QString(), this, 0.05);
 	EGUAcceleration_ = new AMPVControl(name+"EGUAcceleration", baseName+":acc"+pvUnitFieldName+"pss:sp", baseName+":accel"+pvUnitFieldName+"pss", QString(), this, 2);
@@ -156,6 +158,8 @@ CLSMAXvMotor::CLSMAXvMotor(const QString &name, const QString &baseName, const Q
 	connect(encoderPercentApproach_, SIGNAL(valueChanged(double)), this, SIGNAL(encoderPercentApproachChanged(double)));
 	connect(encoderStepSoftRatio_, SIGNAL(connected(bool)), this, SLOT(onPVConnected(bool)));
 	connect(encoderStepSoftRatio_, SIGNAL(valueChanged(double)), this, SIGNAL(encoderStepSoftRatioChanged(double)));
+
+	connect( stepMotorFeedback_, SIGNAL(connected(bool)), this, SLOT(onPVConnected(bool)) );
 }
 
 bool CLSMAXvMotor::isConnected() const{
@@ -181,7 +185,8 @@ bool CLSMAXvMotor::isConnected() const{
 			&& stepCalibrationOffset_->isConnected()
 			&& motorType_->isConnected()
 			&& limitActiveState_->isConnected()
-			&& limitDisabled_->isConnected();
+			&& limitDisabled_->isConnected()
+			&& stepMotorFeedback_->isConnected();
 	if(hasEncoder_)
 		encoderFunctions = encoderCalibrationSlope_->isConnected()
 			&& encoderCalibrationOffset_->isConnected()

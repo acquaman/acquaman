@@ -33,7 +33,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "util/AMEnergyToKSpaceCalculator.h"
 #include "ui/util/AMPeriodicTableDialog.h"
 #include "util/AMPeriodicTable.h"
-
+#include "util/AMDateTimeUtils.h"
 
 BioXASSideXASScanConfigurationView::BioXASSideXASScanConfigurationView(BioXASSideXASScanConfiguration *configuration, QWidget *parent) :
 	AMScanConfigurationView(parent)
@@ -42,14 +42,10 @@ BioXASSideXASScanConfigurationView::BioXASSideXASScanConfigurationView(BioXASSid
 
 	regionsView_ = new AMEXAFSScanAxisView("BioXAS-Side Region Configuration", configuration_);
 
-	usingXRFDetectorCheckBox_ = new QCheckBox("Use Four Element");
+	usingXRFDetectorCheckBox_ = new QCheckBox("Use 32-Element");
 	usingXRFDetectorCheckBox_->setChecked(configuration_->usingXRFDetector());
 	connect(configuration_->dbObject(), SIGNAL(usingXRFDetectorChanged(bool)), usingXRFDetectorCheckBox_, SLOT(setChecked(bool)));
 	connect(usingXRFDetectorCheckBox_, SIGNAL(toggled(bool)), configuration_->dbObject(), SLOT(setUsingXRFDetector(bool)));
-
-	usingEncoderEnergyCheckBox_ = new QCheckBox("Use encoder-based energy");
-	usingEncoderEnergyCheckBox_->setChecked(configuration_->usingEncoderEnergy());
-	connect( usingEncoderEnergyCheckBox_, SIGNAL(toggled(bool)), this, SLOT(onUsingEncoderEnergyCheckBoxToggled()) );
 
 	autoRegionButton_ = new QPushButton("Auto Set XANES Regions");
 	connect(autoRegionButton_, SIGNAL(clicked()), this, SLOT(setupDefaultXANESScanRegions()));
@@ -62,6 +58,7 @@ BioXASSideXASScanConfigurationView::BioXASSideXASScanConfigurationView(BioXASSid
 
 	connect(scanName_, SIGNAL(editingFinished()), this, SLOT(onScanNameEdited()));
 	connect(configuration_, SIGNAL(nameChanged(QString)), scanName_, SLOT(setText(QString)));
+    connect(configuration_, SIGNAL(totalTimeChanged(double)), this, SLOT(onEstimatedTimeChanged(double)));
 
 	// Energy (Eo) selection
 	energy_ = new QDoubleSpinBox;
@@ -108,7 +105,6 @@ BioXASSideXASScanConfigurationView::BioXASSideXASScanConfigurationView(BioXASSid
 
 	QVBoxLayout *optionsLayout = new QVBoxLayout();
 	optionsLayout->addWidget(usingXRFDetectorCheckBox_);
-	optionsLayout->addWidget(usingEncoderEnergyCheckBox_);
 	optionsLayout->addStretch();
 
 	QVBoxLayout *regionButtonsLayout = new QVBoxLayout();
@@ -116,10 +112,16 @@ BioXASSideXASScanConfigurationView::BioXASSideXASScanConfigurationView(BioXASSid
 	regionButtonsLayout->addWidget(pseudoXAFSButton_);
 	regionButtonsLayout->addStretch();
 
+	QFormLayout *estimatedTimeLayout = new QFormLayout();
+    estimatedTimeLayout->setWidget(0, QFormLayout::LabelRole, new QLabel("Estimated Time: "));
+	estimatedTimeLayout->setWidget(0, QFormLayout::FieldRole, estimatedTimeLabel_);
+
 	QHBoxLayout *miscLayout = new QHBoxLayout();
 	miscLayout->addLayout(regionButtonsLayout);
 	miscLayout->addStretch();
 	miscLayout->addLayout(optionsLayout);
+    miscLayout->addStretch();
+    miscLayout->addLayout(estimatedTimeLayout);
 
 	QVBoxLayout *mainVL = new QVBoxLayout();
 	mainVL->addLayout(energyAndRegionLayout);
@@ -261,7 +263,8 @@ void BioXASSideXASScanConfigurationView::onEdgeChanged()
 		energy_->setValue(configuration_->energy());
 }
 
-void BioXASSideXASScanConfigurationView::onUsingEncoderEnergyCheckBoxToggled()
-{
-	configuration_->setUsingEncoderEnergy(usingEncoderEnergyCheckBox_->isChecked());
+void BioXASSideXASScanConfigurationView::onEstimatedTimeChanged(double time)
+{    
+    estimatedTimeLabel_->setText(AMDateTimeUtils::convertTimeToString(time));
 }
+

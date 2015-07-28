@@ -151,6 +151,8 @@ AMDataPositionCursorToolView::AMDataPositionCursorToolView(MPlotDataPositionCurs
 	positionSpinBox_->setMaximum(1000000);
 	positionSpinBox_->setValue(0);
 
+	markerComboBox_ = new AMPlotMarkerComboBox(QList<MPlotMarkerShape::Shape>() << MPlotMarkerShape::VerticalBeam << MPlotMarkerShape::HorizontalBeam << MPlotMarkerShape::Cross);
+
 	colorButton_ = new AMColorPickerButton(QColor());
 
 	visibilityCheckBox_ = new QCheckBox("Show cursor");
@@ -162,6 +164,7 @@ AMDataPositionCursorToolView::AMDataPositionCursorToolView(MPlotDataPositionCurs
 	layout->addWidget(positionPrompt);
 	layout->addWidget(positionLabel_);
 	layout->addWidget(positionSpinBox_);
+	layout->addWidget(markerComboBox_);
 	layout->addWidget(colorButton_);
 	layout->addWidget(visibilityCheckBox_);
 
@@ -170,12 +173,14 @@ AMDataPositionCursorToolView::AMDataPositionCursorToolView(MPlotDataPositionCurs
 	// Initial settings.
 
 	positionSpinBox_->hide();
+	markerComboBox_->hide();
 	colorButton_->hide();
 	visibilityCheckBox_->setChecked(false);
 
 	// Make connections.
 
 	connect( positionSpinBox_, SIGNAL(valueChanged(double)), this, SLOT(onPositionChanged()) );
+	connect( markerComboBox_, SIGNAL(currentMarkerShapeChanged(MPlotMarkerShape::Shape)), this, SLOT(onMarkerChanged()) );
 	connect( colorButton_, SIGNAL(colorChanged(QColor)), this, SLOT(onColorChanged()) );
 	connect( visibilityCheckBox_, SIGNAL(clicked()), this, SLOT(onVisibilityChanged()) );
 
@@ -204,6 +209,7 @@ void AMDataPositionCursorToolView::setTool(MPlotDataPositionCursorTool *newTool)
 			connect( tool_, SIGNAL(cursorPositionChanged(QPointF)), this, SLOT(updatePositionSpinBox()) );
 			connect( tool_, SIGNAL(unitsChanged(QStringList)), this, SLOT(updatePositionLabel()) );
 			connect( tool_, SIGNAL(unitsChanged(QStringList)), this, SLOT(updatePositionSpinBox()) );
+			connect( tool_, SIGNAL(cursorMarkerChanged(MPlotMarkerShape::Shape)), this, SLOT(updateMarkerComboBox()) );
 			connect( tool_, SIGNAL(cursorColorChanged(QColor)), this, SLOT(updateColorButton()) );
 			connect( tool_, SIGNAL(cursorVisibilityChanged(bool)), this, SLOT(updateVisibility()) );
 		}
@@ -217,15 +223,18 @@ void AMDataPositionCursorToolView::setTool(MPlotDataPositionCursorTool *newTool)
 void AMDataPositionCursorToolView::clear()
 {
 	positionSpinBox_->blockSignals(true);
+	markerComboBox_->blockSignals(true);
 	colorButton_->blockSignals(true);
 	visibilityCheckBox_->blockSignals(true);
 
 	positionLabel_->clear();
+	markerComboBox_->setSelectedMarkerShape(MPlotMarkerShape::None);
 	positionSpinBox_->setValue(0);
 	colorButton_->setColor(QColor());
 	visibilityCheckBox_->setChecked(false);
 
 	positionSpinBox_->blockSignals(false);
+	markerComboBox_->blockSignals(false);
 	colorButton_->blockSignals(false);
 	visibilityCheckBox_->blockSignals(false);
 }
@@ -234,6 +243,7 @@ void AMDataPositionCursorToolView::update()
 {
 	updatePositionLabel();
 	updatePositionSpinBox();
+	updateMarkerComboBox();
 	updateColorButton();
 	updateVisibility();
 }
@@ -247,7 +257,13 @@ void AMDataPositionCursorToolView::refresh()
 void AMDataPositionCursorToolView::onPositionChanged()
 {
 	if (tool_)
-		tool_->setCursorPosition(positionSpinBox_->value());
+		tool_->setCursorPositionX(positionSpinBox_->value());
+}
+
+void AMDataPositionCursorToolView::onMarkerChanged()
+{
+	if (tool_)
+		tool_->setCursorMarker(markerComboBox_->selectedMarkerShape());
 }
 
 void AMDataPositionCursorToolView::onColorChanged()
@@ -304,6 +320,13 @@ void AMDataPositionCursorToolView::updatePositionSpinBox()
 	}
 }
 
+void AMDataPositionCursorToolView::updateMarkerComboBox()
+{
+	if (tool_) {
+		markerComboBox_->setSelectedMarkerShape(tool_->cursorMarker());
+	}
+}
+
 void AMDataPositionCursorToolView::updateColorButton()
 {
 	if (tool_) {
@@ -319,11 +342,13 @@ void AMDataPositionCursorToolView::updateVisibility()
 		if (cursorVisible) {
 			positionLabel_->hide();
 			positionSpinBox_->show();
+			markerComboBox_->show();
 			colorButton_->show();
 
 		} else {
 			positionLabel_->show();
 			positionSpinBox_->hide();
+			markerComboBox_->hide();
 			colorButton_->hide();
 		}
 

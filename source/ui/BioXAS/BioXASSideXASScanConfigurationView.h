@@ -68,9 +68,8 @@ protected slots:
 	void onLinesComboBoxIndexChanged(int index);
 	/// Handles setting the proper information if the edge is changed.
 	void onEdgeChanged();
-
-	/// Handles setting the configuration flag for whether the encoder-based energy control is used.
-	void onUsingEncoderEnergyCheckBoxToggled();
+    /// Helper slot that handles the setting the estimated time label
+    void onEstimatedTimeChanged(double time);
 
 protected:
 	/// The scan configuration being viewed.
@@ -95,8 +94,8 @@ protected:
 	QLabel *scanEnergyRange_;
 	/// Check box for using the XRF detector.
 	QCheckBox *usingXRFDetectorCheckBox_;
-	/// Check box for using the encoder-based energy control (or step-based).
-	QCheckBox *usingEncoderEnergyCheckBox_;
+    /// Label for time estimation
+    QLabel *estimatedTimeLabel_;
 };
 
 #endif // BIOXASXASSCANCONFIGURATIONVIEW_H

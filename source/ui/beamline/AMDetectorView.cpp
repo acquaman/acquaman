@@ -37,7 +37,7 @@ AMDetectorGeneralBriefView::AMDetectorGeneralBriefView(AMDetector *detector, QWi
 	connect(detector_, SIGNAL(acquisitionSucceeded()), this, SLOT(onAcquisitionSucceeded()));
 
 	statusLabel_ = new QLabel();
-	statusLabel_->setPixmap(QIcon(":/OFF.png").pixmap(20));
+	statusLabel_->setPixmap(QIcon(":/32x32/greenLEDOff.png").pixmap(20));
 	singleReadingLabel_ = new QLabel();
 
 	if(detector_->isConnected())
@@ -56,9 +56,9 @@ AMDetectorGeneralBriefView::AMDetectorGeneralBriefView(AMDetector *detector, QWi
 
 void AMDetectorGeneralBriefView::onAcquisitionStateChanged(AMDetector::AcqusitionState acquisitionState){
 	if(acquisitionState == AMDetector::ReadyForAcquisition)
-		statusLabel_->setPixmap(QIcon(":/OFF.png").pixmap(20));
+		statusLabel_->setPixmap(QIcon(":/32x32/greenLEDOff.png").pixmap(20));
 	else if(acquisitionState == AMDetector::Acquiring)
-		statusLabel_->setPixmap(QIcon(":/ON.png").pixmap(20));
+		statusLabel_->setPixmap(QIcon(":/32x32/greenLEDOn.png").pixmap(20));
 }
 
 void AMDetectorGeneralBriefView::onAcquisitionSucceeded(){
@@ -83,7 +83,7 @@ AMDetectorGeneralDetailedView::AMDetectorGeneralDetailedView(AMDetector *detecto
 	connect(detector_, SIGNAL(readModeChanged(AMDetectorDefinitions::ReadMode)), this, SLOT(onReadModeChanged(AMDetectorDefinitions::ReadMode)));
 
 	statusLabel_ = new QLabel();
-	statusLabel_->setPixmap(QIcon(":/OFF.png").pixmap(20));
+	statusLabel_->setPixmap(QIcon(":/32x32/greenLEDOff.png").pixmap(20));
 	acquisitionTimeDSB_ = new QDoubleSpinBox();
 	acquisitionTimeDSB_->setMinimum(0.1);
 	acquisitionTimeDSB_->setMaximum(10);
@@ -200,9 +200,9 @@ void AMDetectorGeneralDetailedView::onConnectedChanged(bool connected){
 
 void AMDetectorGeneralDetailedView::onAcquisitionStateChanged(AMDetector::AcqusitionState acquisitionState){
 	if(acquisitionState == AMDetector::ReadyForAcquisition)
-		statusLabel_->setPixmap(QIcon(":/OFF.png").pixmap(20));
+		statusLabel_->setPixmap(QIcon(":/32x32/greenLEDOff.png").pixmap(20));
 	else if(acquisitionState == AMDetector::Acquiring)
-		statusLabel_->setPixmap(QIcon(":/ON.png").pixmap(20));
+		statusLabel_->setPixmap(QIcon(":/32x32/greenLEDOn.png").pixmap(20));
 
 	if(acquisitionState != AMDetector::Acquiring)
 		singleReadingDSB_->setValue(detector_->singleReading());
