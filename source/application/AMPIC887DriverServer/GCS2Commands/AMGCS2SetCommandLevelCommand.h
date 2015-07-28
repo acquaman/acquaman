@@ -31,12 +31,6 @@ public:
 	  */
 	virtual ~AMGCS2SetCommandLevelCommand() {}
 
-	/*!
-	  * Outputs a string representing the command level the controller was set to
-	  * if the command has been run successfully, "Command level not altered" otherwise.
-	  */
-	virtual QString outputString() const;
-
 protected:
 	/*!
 	  * Ensures that a password has been provided if the new command level is

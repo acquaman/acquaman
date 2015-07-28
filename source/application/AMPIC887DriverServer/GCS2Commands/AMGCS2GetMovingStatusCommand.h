@@ -32,10 +32,6 @@ public:
 	  */
 	QFlags<AMGCS2::AxisMovementStatus> movementStatuses();
 
-	/*!
-	  * Returns a stringified version of the axes movement statuses.
-	  */
-	virtual QString outputString() const;
 protected:
 
 	/*!

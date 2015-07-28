@@ -27,13 +27,6 @@ public:
 	virtual ~AMGCS2GetRecordConfigurationsCommand() {}
 
 	/*!
-	  * The reported data recorder configuration in a human readable format.
-	  * \returns Stringified form of the data recorder configuration if the command
-	  * was run successfully, the empty string otherwise.
-	  */
-	virtual QString outputString() const;
-
-	/*!
 	  * The returned data recorder configurations for each recorder table of the
 	  * controller.
 	  * \returns A list of data recorder configurations for the tables of the controller

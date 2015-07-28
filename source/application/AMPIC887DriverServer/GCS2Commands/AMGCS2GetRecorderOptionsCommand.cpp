@@ -6,14 +6,13 @@ AMGCS2GetRecorderOptionsCommand::AMGCS2GetRecorderOptionsCommand()
 {
 }
 
-QString AMGCS2GetRecorderOptionsCommand::outputString() const
+QString AMGCS2GetRecorderOptionsCommand::recordOptions() const
 {
 	if(runningState_ != Succeeded) {
 		return "";
-	} else {
-		return QString("NOTE: The following information applies to the raw controller command set, not necessarily these drivers. For programmer referenece only.\n%1")
-				.arg(optionResults_);
 	}
+
+	return optionResults_;
 }
 
 bool AMGCS2GetRecorderOptionsCommand::runImplementation()

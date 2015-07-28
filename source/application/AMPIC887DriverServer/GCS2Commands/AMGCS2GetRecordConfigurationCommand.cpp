@@ -10,23 +10,6 @@ AMGCS2GetRecordConfigurationsCommand::AMGCS2GetRecordConfigurationsCommand(const
 	tablesIdsToQuery_ = tableIds;
 }
 
-QString AMGCS2GetRecordConfigurationsCommand::outputString() const
-{
-	if(runningState_ != Succeeded) {
-		return QString();
-	}
-
-	QString returnOutput;
-	returnOutput.append(QString("Source\t\tOption (code)\n"));
-
-	foreach(AMPIC887DataRecorderConfiguration configuration, recordConfigs() ) {
-		returnOutput.append(configuration.toString());
-		returnOutput.append('\n');
-	}
-
-	return returnOutput.trimmed();
-}
-
 QHash<int, AMPIC887DataRecorderConfiguration> AMGCS2GetRecordConfigurationsCommand::recordConfigs() const
 {
 	return recordConfigs_;

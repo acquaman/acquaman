@@ -30,13 +30,6 @@ public:
 	virtual ~AMGCS2GetTargetPositionCommand() {}
 
 	/*!
-	  * Returns a human readable text representation of the target positions.
-	  * \returns A stringified version of the target positions if the command was
-	  * run successfully, the empty string otherwise.
-	  */
-	virtual QString outputString() const;
-
-	/*!
 	  * The axis target positions returned by the command if the command was run
 	  * successfully, an empty map otherwise.
 	  */

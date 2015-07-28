@@ -8,24 +8,6 @@ AMGCS2GetMaxCommandablePositionCommand::AMGCS2GetMaxCommandablePositionCommand(c
 	axesToQuery_ = axesToQuery;
 }
 
-QString AMGCS2GetMaxCommandablePositionCommand::outputString() const
-{
-	if(runningState_ != Succeeded) {
-		return "";
-	}
-
-	QString returnString("Axis\t\tMax Commandable Position\n");
-
-	foreach(AMGCS2::Axis currentAxis, maxCommandablePositions_.keys()) {
-
-		returnString.append(QString("%1\t\t%2\n")
-							.arg(AMGCS2Support::axisToCharacter(currentAxis))
-							.arg(maxCommandablePositions_.value(currentAxis)));
-	}
-
-	return returnString.trimmed();
-}
-
 AMPIC887AxisMap<double> AMGCS2GetMaxCommandablePositionCommand::maxCommandablePositions() const
 {
 	return maxCommandablePositions_;

@@ -9,15 +9,6 @@ AMGCS2SetCommandLevelCommand::AMGCS2SetCommandLevelCommand(AMGCS2::ControllerCom
 	password_ = password;
 }
 
-QString AMGCS2SetCommandLevelCommand::outputString() const
-{
-	if(runningState_ != Succeeded) {
-		return "Command level not altered.";
-	} else {
-		return AMGCS2Support::commandLevelToString(newCommandLevel_);
-	}
-}
-
 bool AMGCS2SetCommandLevelCommand::validateArguments()
 {
 	if(newCommandLevel_ == AMGCS2::AdvancedCommandLevel && password_.isEmpty()) {

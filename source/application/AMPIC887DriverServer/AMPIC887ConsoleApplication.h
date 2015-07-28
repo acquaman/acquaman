@@ -58,16 +58,6 @@ protected slots:
 	void onActiveControllerChangeIssued(const QString& controllerName);
 
 	/*!
-	  * Handles signals indicating that a command which does not form part of the
-	  * usual command parsers list (ie. help, quit, activate etc). In our case
-	  * this needs to be passed along to the active controller to see if it is
-	  * a GCS2 command
-	  * \param commandString ~ The text input to the console which is to be
-	  * interpreted by a controller.
-	  */
-	void onOtherCommandIssued(const QString& commandString);
-
-	/*!
 	  * Handles signals indicating that one of the controllers in the application
 	  * has some text it wishes to output to the console terminal.
 	  * \param outputString ~ The text that the controller wishes to output.

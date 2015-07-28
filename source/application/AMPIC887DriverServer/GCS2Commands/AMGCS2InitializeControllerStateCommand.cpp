@@ -94,7 +94,7 @@ bool AMGCS2InitializeControllerStateCommand::runImplementation()
 	}
 
 	QString availableParameters =
-			availableParametersCommand.outputString();
+			availableParametersCommand.availableParameters();
 
 	// Device identification
 	AMGCS2GetDeviceIdentificationCommand deviceIdentificationCommand;
@@ -107,7 +107,7 @@ bool AMGCS2InitializeControllerStateCommand::runImplementation()
 	}
 
 	QString deviceIdentification =
-			deviceIdentificationCommand.outputString();
+			deviceIdentificationCommand.deviceIdentification();
 
 	// Hexapod Level Statuses
 	////////////////////////////
@@ -331,7 +331,7 @@ bool AMGCS2InitializeControllerStateCommand::runImplementation()
 	/////////////////////////////////
 
 	controllerState_->dataRecorderState()->initialize(triggerSourceCommand.recordTrigger(),
-													  recorderOptionsCommand.outputString(),
+													  recorderOptionsCommand.recordOptions(),
 													  recordConfigurationsCommand.recordConfigs());
 
 

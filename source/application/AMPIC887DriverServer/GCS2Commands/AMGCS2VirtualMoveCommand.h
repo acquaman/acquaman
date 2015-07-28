@@ -29,14 +29,6 @@ public:
 	virtual ~AMGCS2VirtualMoveCommand() {}
 
 	/*!
-	  * The reported approachability of the axis positions which the command was
-	  * initialized with in a human readable form.
-	  * \returns Stringified form of whether the provided axes positions are valid
-	  * if the command was run successfully, the empty string otherwise.
-	  */
-	QString outputString() const;
-
-	/*!
 	  * Whether the axis positions which the command was initialized with are
 	  * safe to approach.
 	  * \returns True if the command was run successfully and the axis positions

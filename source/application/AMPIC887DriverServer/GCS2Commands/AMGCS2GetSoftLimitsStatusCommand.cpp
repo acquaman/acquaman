@@ -9,33 +9,6 @@ AMGCS2GetSoftLimitsStatusCommand::AMGCS2GetSoftLimitsStatusCommand(const AMPIC88
 	axesToQuery_ = axesToQuery;
 }
 
-QString AMGCS2GetSoftLimitsStatusCommand::outputString() const
-{
-	if(runningState_ != Succeeded) {
-		return "";
-	}
-
-	QString outputString("Axis\t\tSoft limit status\n");
-
-	foreach(AMGCS2::Axis currentAxis, softLimitStatuses_.keys()) {
-
-
-		QString activeString;
-		if(softLimitStatuses_.value(currentAxis)) {
-			activeString = "Active";
-		} else {
-			activeString = "Inactive";
-		}
-
-
-		outputString.append(QString("%1\t\t%2\n")
-							.arg(AMGCS2Support::axisToCharacter(currentAxis))
-							.arg(activeString));
-	}
-
-	return outputString.trimmed();
-}
-
 AMPIC887AxisMap<bool> AMGCS2GetSoftLimitsStatusCommand::softLimitStatuses() const
 {
 	return softLimitStatuses_;

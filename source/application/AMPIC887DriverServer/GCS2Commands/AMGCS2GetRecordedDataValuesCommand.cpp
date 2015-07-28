@@ -11,28 +11,6 @@ AMGCS2GetRecordedDataValuesCommand::AMGCS2GetRecordedDataValuesCommand(int recor
 	offsetPoint_ = offsetPoint;
 }
 
-QString AMGCS2GetRecordedDataValuesCommand::outputString() const
-{
-	if(runningState_ != Succeeded) {
-		return "";
-	}
-
-	QString returnString = QString("Record Table: %1\n").arg(recordTableId_);
-	returnString.append(QString("Table index\t\tValue\n"));
-
-	for(int iResultValue = 0, resultCount = dataValues_.count();
-		iResultValue < resultCount;
-		++iResultValue) {
-
-		returnString.append(QString("%1\t\t\t%2\n")
-							.arg(iResultValue + offsetPoint_)
-							.arg(dataValues_.at(iResultValue)));
-
-	}
-
-	return returnString.trimmed();
-}
-
 bool AMGCS2GetRecordedDataValuesCommand::validateArguments()
 {
 	if(recordTableId_ < 1 || recordTableId_ > 16) {

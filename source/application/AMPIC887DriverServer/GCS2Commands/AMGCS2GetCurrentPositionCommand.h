@@ -33,11 +33,6 @@ public:
 	  */
 	AMPIC887AxisMap<double> axisPositions();
 
-	/*!
-	  * A stringified form on the returned axis positions if the command
-	  * has been successfully run, or the empty string otherwise.
-	  */
-	virtual QString outputString() const;
 protected:
 
 	/*!

@@ -9,19 +9,6 @@ AMGCS2VirtualMoveCommand::AMGCS2VirtualMoveCommand(const AMPIC887AxisMap<double>
 	isMoveSafe_ = false;
 }
 
-QString AMGCS2VirtualMoveCommand::outputString() const
-{
-	if(runningState_ != Succeeded) {
-		return "";
-	}
-
-	if(isMoveSafe_) {
-		return "Position can be approached";
-	} else {
-		return "Not safe to approach position";
-	}
-}
-
 bool AMGCS2VirtualMoveCommand::isMoveSafe() const
 {
 	return isMoveSafe_;

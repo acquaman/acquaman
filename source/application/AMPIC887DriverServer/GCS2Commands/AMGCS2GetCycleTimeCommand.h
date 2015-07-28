@@ -21,13 +21,6 @@ public:
 	virtual ~AMGCS2GetCycleTimeCommand() {}
 
 	/*!
-	  * A human readable string version of the cycle time.
-	  * \return Stringified cycle time if the command was run successfully,
-	  * the empty string otherwise.
-	  */
-	virtual QString outputString() const;
-
-	/*!
 	  * The cycle time from the controller.
 	  * \returns The cycle time value reported by the controller if the command
 	  * was run successfully, 0 otherwise.

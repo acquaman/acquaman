@@ -7,13 +7,13 @@ AMGCS2GetDeviceIdentificationCommand::AMGCS2GetDeviceIdentificationCommand()
 {
 }
 
-QString AMGCS2GetDeviceIdentificationCommand::outputString() const
+QString AMGCS2GetDeviceIdentificationCommand::deviceIdentification() const
 {
-	if(runningState_ != Succeeded)	{
+	if(runningState_ != Succeeded) {
 		return "";
-	} else {
-		return deviceIdenfiticationString_;
 	}
+
+	return deviceIdenfiticationString_;
 }
 
 bool AMGCS2GetDeviceIdentificationCommand::runImplementation()
@@ -33,3 +33,5 @@ bool AMGCS2GetDeviceIdentificationCommand::runImplementation()
 
 	return success;
 }
+
+

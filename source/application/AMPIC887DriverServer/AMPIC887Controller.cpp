@@ -1,5 +1,4 @@
 #include "AMPIC887Controller.h"
-#include "AMGCS2CommandFactory.h"
 #include "PI_GCS2_DLL.h"
 #include "GCS2Commands/AMGCS2AsyncCommand.h"
 #include "GCS2Commands/AMGCS2InitializeControllerStateCommand.h"
@@ -60,43 +59,6 @@ AMPIC887Controller::~AMPIC887Controller()
 QString AMPIC887Controller::lastError() const
 {
 	return lastError_;
-}
-
-void AMPIC887Controller::interpretAndRunCommand(const QString &commandText)
-{
-	AMGCS2Command* command = AMGCS2CommandFactory::buildCommand(commandText);
-
-	if(!command) {
-		emit errorEncountered("Command could not be parsed");
-		return;
-	}
-
-	if(command->commandType() == AMGCS2Command::Asynchronous) {
-
-		AMGCS2AsyncCommand* asyncCommand = dynamic_cast<AMGCS2AsyncCommand*>(command);
-
-		if(asyncCommand) {
-			connect(asyncCommand, SIGNAL(succeeded(AMGCS2AsyncCommand*)), this, SLOT(onAsyncCommandSucceeded(AMGCS2AsyncCommand*)));
-			connect(asyncCommand, SIGNAL(failed(AMGCS2AsyncCommand*)), this, SLOT(onAsyncCommandFailed(AMGCS2AsyncCommand*)));
-			runCommand(asyncCommand);
-		}
-	} else {
-
-		runCommand(command);
-
-		if(command->runningState() == AMGCS2Command::Succeeded) {
-
-			QString outputString = command->outputString();
-
-			if(!outputString.isEmpty()) {
-				emit output(outputString);
-			}
-		} else {
-			emit errorEncountered(command->lastError());
-		}
-
-		delete command;
-	}
 }
 
 bool AMPIC887Controller::connectToController()
@@ -749,22 +711,6 @@ void AMPIC887Controller::referenceMove(const AMPIC887AxisCollection& axes)
 			this, SLOT(onAsyncReferenceMoveSucceeded(AMGCS2AsyncCommand*)));
 
 	runCommand(asyncReferenceMoveCommand);
-}
-
-void AMPIC887Controller::onAsyncCommandFailed(AMGCS2AsyncCommand *command)
-{
-	emit errorEncountered(command->lastError());
-	command->deleteLater();
-}
-
-void AMPIC887Controller::onAsyncCommandSucceeded(AMGCS2AsyncCommand *command)
-{
-	QString outputText = command->outputString();
-
-	if(!outputText.isEmpty()) {
-		emit output(outputText);
-	}
-	command->deleteLater();
 }
 
 void AMPIC887Controller::onAsyncMoveStarted(AMGCS2AsyncCommand *command)

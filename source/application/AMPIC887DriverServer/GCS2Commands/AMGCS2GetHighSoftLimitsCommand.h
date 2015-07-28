@@ -33,13 +33,6 @@ public:
 	  */
 	AMPIC887AxisMap<double> axesHighSoftLimits() const;
 
-	/*!
-	  * Outputs a human readable string of the queried high lower limit values.
-	  * \returns Stringified form of the soft high limit values if the command
-	  * was run successfully, the empty string otherwise.
-	  */
-	virtual QString outputString() const;
-
 protected:
 	/*!
 	  * Ensures that the arguments provided to the command are valid:

@@ -8,24 +8,6 @@ AMGCS2GetTargetPositionCommand::AMGCS2GetTargetPositionCommand(const AMPIC887Axi
 	axesToQuery_ = axesToQuery;
 }
 
-QString AMGCS2GetTargetPositionCommand::outputString() const
-{
-	if(runningState_ != Succeeded) {
-		return "";
-	}
-
-	QString returnString("Axis\t\tTarget Position\n");
-
-	foreach(AMGCS2::Axis currentAxis, axisTargetPositions_.keys()) {
-
-		returnString.append(QString("%1\t\t%2\n")
-							.arg(AMGCS2Support::axisToCharacter(currentAxis))
-							.arg(axisTargetPositions_.value(currentAxis)));
-	}
-
-	return returnString.trimmed();
-}
-
 AMPIC887AxisMap<double> AMGCS2GetTargetPositionCommand::axisTargetPositions() const
 {
 	return axisTargetPositions_;

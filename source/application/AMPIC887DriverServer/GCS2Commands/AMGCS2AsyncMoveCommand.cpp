@@ -13,15 +13,6 @@ AMGCS2AsyncMoveCommand::~AMGCS2AsyncMoveCommand() {
 	delete command_;
 }
 
-QString AMGCS2AsyncMoveCommand::outputString() const
-{
-	if(runningState_ == Succeeded) {
-		return "Move succeeded";
-	} else {
-		return "";
-	}
-}
-
 AMPIC887AxisMap<double> AMGCS2AsyncMoveCommand::targetPositions() const
 {
 	return targetPositions_;

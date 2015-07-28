@@ -14,15 +14,6 @@ AMGCS2AsyncMoveRelativeCommand::~AMGCS2AsyncMoveRelativeCommand()
 	delete moveRelativeCommand_;
 }
 
-QString AMGCS2AsyncMoveRelativeCommand::outputString() const
-{
-	if(runningState_ != Succeeded) {
-		return "";
-	}
-
-	return "Move Succeeded";
-}
-
 AMPIC887AxisMap<double> AMGCS2AsyncMoveRelativeCommand::relativeTargetPositions() const
 {
 	return relativeAxisPositions_;

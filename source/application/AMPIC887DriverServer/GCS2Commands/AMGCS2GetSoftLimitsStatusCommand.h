@@ -28,14 +28,6 @@ public:
 	virtual ~AMGCS2GetSoftLimitsStatusCommand() {}
 
 	/*!
-	  * A human readable string representation of the queried axes' soft limit
-	  * statuses.
-	  * \returns Stringified soft limit status if the command was run successfully,
-	  * the empty string otherwise.
-	  */
-	virtual QString outputString() const;
-
-	/*!
 	  * The soft limit statuses the controller responded with.
 	  * \returns The soft limit statuses of the axes of the controller if the command
 	  * was run successfully, an empty map otherwise.

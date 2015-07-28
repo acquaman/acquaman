@@ -253,11 +253,6 @@ signals:
 	  */
 	void changeActiveController(const QString& controllerName);
 
-	/*!
-	  * Signals that a command other than the standard ones handled by the parser
-	  * has been issued.
-	  */
-	void otherCommandIssued(const QString& commandString);
 protected:
 	/*!
 	  * Interprets the provided command using the list of acceptable commands which

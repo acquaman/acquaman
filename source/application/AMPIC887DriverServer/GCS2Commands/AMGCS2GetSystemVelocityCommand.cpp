@@ -6,15 +6,6 @@ AMGCS2GetSystemVelocityCommand::AMGCS2GetSystemVelocityCommand()
 	systemVelocity_ = 0;
 }
 
-QString AMGCS2GetSystemVelocityCommand::outputString() const
-{
-	if(runningState_ != Succeeded) {
-		return "";
-	}
-
-	return QString("System Velocity: %1mm/s").arg(systemVelocity_);
-}
-
 double AMGCS2GetSystemVelocityCommand::systemVelocity() const
 {
 	return systemVelocity_;

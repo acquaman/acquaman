@@ -13,15 +13,6 @@ AMPIC887AxisMap<double> AMGCS2GetHighSoftLimitsCommand::axesHighSoftLimits() con
 	return axesHighSoftLimits_;
 }
 
-QString AMGCS2GetHighSoftLimitsCommand::outputString() const
-{
-	if(runningState_ != Succeeded) {
-		return "";
-	}
-
-	return axesHighSoftLimits_.toString("High Soft Limits");
-}
-
 bool AMGCS2GetHighSoftLimitsCommand::validateArguments()
 {
 	if(axesToQuery_.isEmpty()) {

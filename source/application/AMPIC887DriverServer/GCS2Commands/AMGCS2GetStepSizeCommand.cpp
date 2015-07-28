@@ -9,24 +9,6 @@ AMGCS2GetStepSizeCommand::AMGCS2GetStepSizeCommand(const AMPIC887AxisCollection&
 	axesToQuery_ = axesToQuery;
 }
 
-QString AMGCS2GetStepSizeCommand::outputString() const
-{
-	if(runningState_ != Succeeded) {
-		return "";
-	}
-
-	QString returnString("Axis\t\tStep Size\n");
-
-	foreach(AMGCS2::Axis currentAxis, axisStepSizes_.keys()) {
-
-		returnString.append(QString("%1\t\t%2\n")
-							.arg(AMGCS2Support::axisToCharacter(currentAxis))
-							.arg(axisStepSizes_.value(currentAxis)));
-	}
-
-	return returnString.trimmed();
-}
-
 AMPIC887AxisMap<double> AMGCS2GetStepSizeCommand::axisStepSizes() const
 {
 	return axisStepSizes_;

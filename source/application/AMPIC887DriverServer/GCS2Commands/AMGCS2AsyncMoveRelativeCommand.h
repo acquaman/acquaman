@@ -29,12 +29,6 @@ public:
 	virtual ~AMGCS2AsyncMoveRelativeCommand();
 
 	/*!
-	  * Outputs "Move Succeeded" if the running state of the command is Succeeded,
-	  * the empty string otherwise.
-	  */
-	virtual QString outputString() const;
-
-	/*!
 	  * The relative target positions which were issued to the command on contruction.
 	  */
 	AMPIC887AxisMap<double> relativeTargetPositions() const;

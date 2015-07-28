@@ -23,13 +23,6 @@ public:
 	virtual ~AMGCS2GetRecordTriggerSourceCommand() {}
 
 	/*!
-	  * Outputs a human readable string version of the mapping from record table
-	  * to record trigger which was obtained if the command was run successfully,
-	  * the empty string otherwise.
-	  */
-	virtual QString outputString() const;
-
-	/*!
 	  * The record trigger obtained by the command, or UnknownRecordTrigger if
 	  * the command has not been run successfully.
 	  */

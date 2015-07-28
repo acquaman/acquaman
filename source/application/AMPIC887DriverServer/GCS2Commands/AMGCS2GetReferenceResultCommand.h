@@ -30,12 +30,6 @@ public:
 	virtual ~AMGCS2GetReferenceResultCommand() {}
 
 	/*!
-	  * Outputs the reference status of each of the queried axes if the command
-	  * was run successfully, the empty string otherwise.
-	  */
-	virtual QString outputString() const;
-
-	/*!
 	  * A mapping of the axes provided in the initialization of the command to their
 	  * current reference status if the command was run successfully, otherwise
 	  * an empty map.

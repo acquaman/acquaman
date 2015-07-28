@@ -30,12 +30,6 @@ public:
 	virtual ~AMGCS2AsyncMoveCommand();
 
 	/*!
-	  * Returns "Movement Succeeded" if the movement has fully completed, otherwise
-	  * returns the empty string.
-	  */
-	virtual QString outputString() const;
-
-	/*!
 	  * The target positions which the command was initially instructed to move
 	  * the axes to.
 	  */

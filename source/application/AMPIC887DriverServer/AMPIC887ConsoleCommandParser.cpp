@@ -281,8 +281,7 @@ void AMPIC887ConsoleCommandParser::interpretCommandImplementation(const QString 
 		}
 
 	} else {
-
-		emit otherCommandIssued(command);
+		emit unknownCommand(command);
 	}
 
 	if(command != "quit") {

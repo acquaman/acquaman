@@ -13,15 +13,6 @@ AMPIC887AxisMap<double> AMGCS2GetLowSoftLimitsCommand::axesLowSoftLimits() const
 	return axesLowSoftLimits_;
 }
 
-QString AMGCS2GetLowSoftLimitsCommand::outputString() const
-{
-	if(runningState_ != Succeeded) {
-		return "";
-	}
-
-	return axesLowSoftLimits_.toString("Low Soft Limits");
-}
-
 bool AMGCS2GetLowSoftLimitsCommand::validateArguments()
 {
 	if(axesToQuery_.isEmpty()) {

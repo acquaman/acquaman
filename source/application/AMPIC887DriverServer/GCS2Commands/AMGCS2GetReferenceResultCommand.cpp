@@ -9,15 +9,6 @@ AMGCS2GetReferenceResultCommand::AMGCS2GetReferenceResultCommand(const AMPIC887A
 	axesToQuery_ = axesToQuery;
 }
 
-QString AMGCS2GetReferenceResultCommand::outputString() const
-{
-	if(runningState_ != Succeeded) {
-		return "";
-	}
-
-	return axisReferenceResults_.toString("Is Referenced");
-}
-
 AMPIC887AxisMap<bool> AMGCS2GetReferenceResultCommand::axesReferenceResults() const
 {
 	return axisReferenceResults_;

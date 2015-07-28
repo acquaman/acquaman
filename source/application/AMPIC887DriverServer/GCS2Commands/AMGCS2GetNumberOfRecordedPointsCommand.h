@@ -32,14 +32,6 @@ public:
 	  */
 	QHash<int, int> numberOfDataPointsRecorded() const;
 
-	/*!
-	  * Outputs the number of data points recorded for each of the tables the command
-	  * was initialized with, in a human readable form.
-	  * \returns A stringified form of the number of data points recorded for each
-	  * of the tables the command was initialized with, or the empty string if the
-	  * command has not yet been run successfully.
-	  */
-	virtual QString outputString() const;
 protected:
 	/*!
 	  * Ensures that the list of record tables the command was initialized with

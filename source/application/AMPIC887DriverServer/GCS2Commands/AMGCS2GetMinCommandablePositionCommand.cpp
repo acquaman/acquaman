@@ -9,24 +9,6 @@ AMGCS2GetMinCommandablePositionCommand::AMGCS2GetMinCommandablePositionCommand(c
 	axesToQuery_ = axesToQuery;
 }
 
-QString AMGCS2GetMinCommandablePositionCommand::outputString() const
-{
-	if(runningState_ != Succeeded) {
-		return "";
-	}
-
-	QString returnString("Axis\t\tMin Commandable Position\n");
-
-	foreach(AMGCS2::Axis currentAxis, minCommandablePositions_.keys()) {
-
-		returnString.append(QString("%1\t\t%2\n")
-							.arg(AMGCS2Support::axisToCharacter(currentAxis))
-							.arg(minCommandablePositions_.value(currentAxis)));
-	}
-
-	return returnString.trimmed();
-}
-
 AMPIC887AxisMap<double> AMGCS2GetMinCommandablePositionCommand::minCommandablePositions() const
 {
 	return minCommandablePositions_;

@@ -10,15 +10,6 @@ AMGCS2GetOnTargetStateCommand::AMGCS2GetOnTargetStateCommand(const AMPIC887AxisC
 	axesToQuery_ = axesToQuery;
 }
 
-QString AMGCS2GetOnTargetStateCommand::outputString() const
-{
-	if(runningState_ != Succeeded) {
-		return "";
-	}
-
-	return onTargetStates_.toString("On Target");
-}
-
 AMPIC887AxisMap<bool> AMGCS2GetOnTargetStateCommand::onTargetStates() const
 {
 	return onTargetStates_;

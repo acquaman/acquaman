@@ -29,14 +29,6 @@ public:
 	virtual ~AMGCS2GetLimitSwitchStatusCommand() {}
 
 	/*!
-	  * Outputs a string representation of the limit switch statuses of all the
-	  * axes which the command was initialized with.
-	  * \returns A stringified representation of the axes limit switches if the
-	  * command was run successfully, the empty string otherwise.
-	  */
-	virtual QString outputString() const;
-
-	/*!
 	  * The limit switch statuses of the axes which the command was initialized
 	  * with, if the command was run succesfully, an empty map otherwise.
 	  */

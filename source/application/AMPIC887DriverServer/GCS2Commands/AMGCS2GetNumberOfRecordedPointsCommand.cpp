@@ -12,23 +12,6 @@ QHash<int, int> AMGCS2GetNumberOfRecordedPointsCommand::numberOfDataPointsRecord
 	return numberOfDataPointsRecorded_;
 }
 
-QString AMGCS2GetNumberOfRecordedPointsCommand::outputString() const
-{
-	if(runningState_ != Succeeded) {
-		return "";
-	}
-
-	QString outputString("Record Table\t\tNumber of Data Points Recorded\n");
-	foreach(int recordTableId, recordTablesToQuery_) {
-
-		outputString.append(QString("%1\t\t\t%2\n")
-							.arg(recordTableId)
-							.arg(numberOfDataPointsRecorded_.value(recordTableId)));
-	}
-
-	return outputString.trimmed();
-}
-
 bool AMGCS2GetNumberOfRecordedPointsCommand::validateArguments()
 {
 	if(recordTablesToQuery_.isEmpty()) {

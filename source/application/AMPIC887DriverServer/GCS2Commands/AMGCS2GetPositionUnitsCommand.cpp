@@ -14,24 +14,6 @@ AMPIC887AxisMap<AMGCS2::PositionUnits> AMGCS2GetPositionUnitsCommand::axesUnits(
 	return axesUnits_;
 }
 
-QString AMGCS2GetPositionUnitsCommand::outputString() const
-{
-	if(runningState_ != Succeeded) {
-		return "";
-	}
-
-	QString outputString("Axis\t\tUnits\n");
-
-	foreach(AMGCS2::Axis currentAxis, axesUnits_.keys()) {
-
-		outputString.append(QString("%1\t\t%2\n")
-							.arg(AMGCS2Support::axisToCharacter(currentAxis))
-							.arg(AMGCS2Support::positionUnitsToString(axesUnits_.value(currentAxis))));
-	}
-
-	return outputString.trimmed();
-}
-
 bool AMGCS2GetPositionUnitsCommand::validateArguments()
 {
 	if(axesToQuery_.isEmpty()) {

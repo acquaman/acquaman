@@ -6,14 +6,13 @@ AMGCS2GetAvailableParametersCommand::AMGCS2GetAvailableParametersCommand()
 {
 }
 
-QString AMGCS2GetAvailableParametersCommand::outputString() const
+QString AMGCS2GetAvailableParametersCommand::availableParameters() const
 {
 	if(runningState_ != Succeeded) {
 		return "";
-	} else {
-		return QString("NOTE: The following information applies to the raw controller command set, not necessarily these drivers. For programmer referenece only.\n%1")
-				.arg(parameterResults_);
 	}
+
+	return parameterResults_;
 }
 
 bool AMGCS2GetAvailableParametersCommand::runImplementation()

@@ -31,12 +31,6 @@ public:
 	  */
 	virtual ~AMGCS2AsyncReferenceMoveCommand() {}
 
-	/*!
-	  * Text which can be read when the reference move has been completed.
-	  * \returns A message indicating the success of the reference move if
-	  */
-	virtual QString outputString() const;
-
 protected:
 	/*!
 	  * Defines the steps taken to start the reference move command on a controller.

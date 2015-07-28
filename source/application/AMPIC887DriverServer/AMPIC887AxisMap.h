@@ -2,7 +2,6 @@
 #define AMPIC887AXISMAP_H
 
 #include <QMap>
-#include <QHash> //TEMP
 #include <QList>
 #include "AMGCS2.h"
 #include "AMPIC887AxisCollection.h"

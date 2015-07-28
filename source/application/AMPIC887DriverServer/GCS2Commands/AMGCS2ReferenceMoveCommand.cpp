@@ -8,15 +8,6 @@ AMGCS2ReferenceMoveCommand::AMGCS2ReferenceMoveCommand(const AMPIC887AxisCollect
 	axesToReference_ = axesToReference;
 }
 
-QString AMGCS2ReferenceMoveCommand::outputString() const
-{
-	if(runningState_ != Succeeded) {
-		return "Reference move begun";
-	} else {
-		return "";
-	}
-}
-
 bool AMGCS2ReferenceMoveCommand::validateArguments()
 {
 	if(axesToReference_.isEmpty()) {

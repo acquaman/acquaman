@@ -32,12 +32,6 @@ public:
 	  */
 	virtual ~AMGCS2ReferenceMoveCommand() {}
 
-	/*!
-	  * Outputs "Reference Begun" if the command was run successfully, or the
-	  * empty string otherwise.
-	  */
-	virtual QString outputString() const;
-
 protected:
 
 	/*!

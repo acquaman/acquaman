@@ -23,14 +23,6 @@ public:
 	virtual ~AMGCS2GetServoModeCommand() {}
 
 	/*!
-	  * The servo mode status of the axes the command was initialized with
-	  * in a human readable form.
-	  * \returns Stringified form of the servo mode statuses if the command was
-	  * run successfully, the empty string otherwise.
-	  */
-	virtual QString outputString() const;
-
-	/*!
 	  * The servo mode state reported by the controller.
 	  */
 	bool servoModeState() const;

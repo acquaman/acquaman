@@ -6,15 +6,6 @@ AMGCS2SetSyntaxVersionCommand::AMGCS2SetSyntaxVersionCommand()
 {
 }
 
-QString AMGCS2SetSyntaxVersionCommand::outputString() const
-{
-	if(runningState_ != Succeeded) {
-		return "Syntax version not altered";
-	} else {
-		return "Snytax version set to GCS v2.0.";
-	}
-}
-
 bool AMGCS2SetSyntaxVersionCommand::runImplementation()
 {
 	// There is no corresponding library funciton specifically for setting the

@@ -29,13 +29,6 @@ public:
 	virtual ~AMGCS2GetPivotPointCommand() {}
 
 	/*!
-	  * Outputs the pivot point poisition as a human readable string.
-	  * \returns Stringified version of the pivot point if the command has been
-	  * run successfully, the empty string otherwise.
-	  */
-	virtual QString outputString() const;
-
-	/*!
 	  * A mapping of Axis to the position of the pivot point within that axis.
 	  * \returns Mapping of axis to pivot point position if the command has been
 	  * run successfully, an empty hash otherwise.

@@ -70,9 +70,3 @@ AMGCS2Command::CommandType AMGCS2Command::commandType() const
 {
 	return commandType_;
 }
-
-QString AMGCS2Command::outputString() const
-{
-	return QString();
-}
-

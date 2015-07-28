@@ -8,16 +8,6 @@ AMGCS2GetRecordTriggerSourceCommand::AMGCS2GetRecordTriggerSourceCommand()
 	recordTrigger_ = AMGCS2::UnknownRecordTrigger;
 }
 
-QString AMGCS2GetRecordTriggerSourceCommand::outputString() const
-{
-	if(runningState_ != Succeeded) {
-		return "";
-	}
-
-	return QString("Record Trigger: %1")
-			.arg(AMGCS2Support::dataRecordTriggerToString(recordTrigger_));
-}
-
 AMGCS2::DataRecordTrigger AMGCS2GetRecordTriggerSourceCommand::recordTrigger() const
 {
 	return recordTrigger_;

@@ -29,10 +29,6 @@ public:
 	  */
 	virtual ~AMGCS2SetSyntaxVersionCommand() {}
 
-	/*!
-	  * Returns the success status of the attempt to set the syntax version.
-	  */
-	virtual QString outputString() const;
 protected:
 	/*!
 	  * Defines the steps required to set a controller's syntax version.

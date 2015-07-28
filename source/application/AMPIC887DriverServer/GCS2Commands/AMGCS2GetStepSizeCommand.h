@@ -27,13 +27,6 @@ public:
 	virtual ~AMGCS2GetStepSizeCommand() {}
 
 	/*!
-	  * A human readable string version of the step sizes reported by the controller.
-	  * \returns A stringified form of the step sizes reported if the command was
-	  * run successfully, the empty string otherwise.
-	  */
-	virtual QString outputString() const;
-
-	/*!
 	  * A mapping of axis to its step size as reported by the controller.
 	  * \returns A mapping of axis to step size if the command was run successfully,
 	  * an empty hash otherwise.

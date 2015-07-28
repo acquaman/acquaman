@@ -28,14 +28,6 @@ public:
 	virtual ~AMGCS2GetMaxCommandablePositionCommand() {}
 
 	/*!
-	  * A human readable string representation of the reported max commandable
-	  * positions.
-	  * \returns Stringified representation of the reported max commandable positions
-	  * if the command was run successfully, the empty string otherwise.
-	  */
-	virtual QString outputString() const;
-
-	/*!
 	  * The reported maximum commandable positions of the axes the command was
 	  * initialized with.
 	  * \returns A map of axes to max commandable position if the command was run

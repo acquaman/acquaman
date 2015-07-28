@@ -47,14 +47,6 @@ public:
 	QString lastError() const;
 
 	/*!
-	  * Attempts to interpret the provided command text as a GCS2 command, and
-	  * if it can, run it.
-	  * \param commandText ~ The text input to the console which is to be interpreted
-	  * as a GCS2 command
-	  */
-	void interpretAndRunCommand(const QString& commandText);
-
-	/*!
 	  * Connects/reconnects to the controller represented by this class.
 	  * \returns True if a connection could be established with the controller,
 	  * false otherwise
@@ -522,8 +514,6 @@ public:
 
 public slots:
 
-
-
 	/*!
 	  * Moves the controller hexapod axes to the provided positions.
 	  * \param axisPositions ~ A mapping of axis to its new target position.
@@ -563,18 +553,6 @@ signals:
 
 
 protected slots:
-	/*!
-	  * Handles an asynchronous command indicating that it has failed.
-	  * \param command ~ The command which failed.
-	  */
-	void onAsyncCommandFailed(AMGCS2AsyncCommand* command);
-
-	/*!
-	  * Handles an asynchronous command indicating that it has succeeded.
-	  * \param command ~ The command which succeeded.
-	  */
-	void onAsyncCommandSucceeded(AMGCS2AsyncCommand* command);
-
 	/*!
 	  * Handles signals indicating that an asynchronous move command has started
 	  * \param command ~ The asynchronous move command that has started.

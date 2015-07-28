@@ -27,14 +27,6 @@ public:
 	virtual ~AMGCS2GetMinCommandablePositionCommand() {}
 
 	/*!
-	  * A human readable string representation of the reported min commandable
-	  * positions.
-	  * \returns Stringified representation of the reported min commandable positions
-	  * if the command was run successfully, the empty string otherwise.
-	  */
-	virtual QString outputString() const;
-
-	/*!
 	  * The reported minimum commandable positions of the axes the command was
 	  * initialized with.
 	  * \returns A map of axes to min commandable position if the command was run

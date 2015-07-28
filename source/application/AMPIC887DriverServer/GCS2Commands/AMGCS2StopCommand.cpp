@@ -7,11 +7,6 @@ AMGCS2StopCommand::AMGCS2StopCommand()
 	statusString_ = "Controller stop not issued";
 }
 
-QString AMGCS2StopCommand::outputString() const
-{
-	return statusString_;
-}
-
 bool AMGCS2StopCommand::runImplementation()
 {
 	// Reset status string

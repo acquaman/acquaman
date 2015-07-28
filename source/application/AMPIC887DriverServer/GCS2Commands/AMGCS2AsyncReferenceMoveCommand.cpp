@@ -9,15 +9,6 @@ AMGCS2AsyncReferenceMoveCommand::AMGCS2AsyncReferenceMoveCommand(const AMPIC887A
 	axesToReference_ = axesToReference;
 }
 
-QString AMGCS2AsyncReferenceMoveCommand::outputString() const
-{
-	if(runningState_ == Succeeded) {
-		return "Reference move complete";
-	} else {
-		return "";
-	}
-}
-
 bool AMGCS2AsyncReferenceMoveCommand::runImplementation()
 {
 	// Better to implement this in terms of a synchronous reference move command

@@ -34,13 +34,6 @@ public:
 	  */
 	AMPIC887AxisMap<AMGCS2::PositionUnits> axesUnits() const;
 
-	/*!
-	  * The mapping of axes to position units in a human readable format.
-	  * \returns Stringified for of axis to position units if the command was run
-	  * successfully, the empty string otherwise.
-	  */
-	virtual QString outputString() const;
-
 protected:
 	/*!
 	  * Ensures the arguments the command was initialized with are valid:

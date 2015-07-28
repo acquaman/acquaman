@@ -9,30 +9,6 @@ AMGCS2GetLimitSwitchStatusCommand::AMGCS2GetLimitSwitchStatusCommand(const AMPIC
 	axesToQuery_ = axesToQuery;
 }
 
-QString AMGCS2GetLimitSwitchStatusCommand::outputString() const
-{
-	if(runningState_ != Succeeded) {
-		return "";
-	} else {
-		QString returnString("Axis\t\tLimit Switch Active\n");
-		foreach(AMGCS2::Axis currentAxis, limitSwitchStatuses_.keys()) {
-
-			QString result;
-			if(limitSwitchStatuses_.value(currentAxis)) {
-				result = "Yes";
-			} else {
-				result = "No";
-			}
-
-			returnString.append(QString("%1\t\t%2\n")
-								.arg(AMGCS2Support::axisToCharacter(currentAxis))
-								.arg(result));
-		}
-
-		return returnString;
-	}
-}
-
 AMPIC887AxisMap<bool> AMGCS2GetLimitSwitchStatusCommand::limitSwitchStatuses() const
 {
 	return limitSwitchStatuses_;

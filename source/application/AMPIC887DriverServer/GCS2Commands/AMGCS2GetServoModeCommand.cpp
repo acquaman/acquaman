@@ -8,19 +8,6 @@ AMGCS2GetServoModeCommand::AMGCS2GetServoModeCommand()
 
 }
 
-QString AMGCS2GetServoModeCommand::outputString() const
-{
-	if(runningState_ != Succeeded) {
-		return "";
-	}
-
-	if(servoModeState_) {
-		return "Controller in Servo Mode";
-	} else {
-		return "Controller not in Servo Mode";
-	}
-}
-
 bool AMGCS2GetServoModeCommand::servoModeState() const
 {
 	return servoModeState_;

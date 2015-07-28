@@ -26,15 +26,6 @@ public:
 	virtual ~AMGCS2GetOnTargetStateCommand() {}
 
 	/*!
-	  * A human readable version of the on target states of the axes which
-	  * the command was initialized with.
-	  * \returns Stringified for of the on target states of the axes which the
-	  * command was initialized with if the command was run successfully, the
-	  * empty string otherwise.
-	  */
-	virtual QString outputString() const;
-
-	/*!
 	  * A mapping of the axes which the command was initialized with to its on
 	  * target state reported by the controller.
 	  * \returns A mapping axes to on target state if the command was run successfully,

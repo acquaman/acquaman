@@ -8,26 +8,6 @@ AMGCS2GetPivotPointCommand::AMGCS2GetPivotPointCommand(const AMPIC887AxisCollect
 	axesToQuery_ = axesToQuery;
 }
 
-QString AMGCS2GetPivotPointCommand::outputString() const
-{
-	if(runningState_ != Succeeded) {
-		return "";
-	}
-
-
-	QString outputString("Axis\t\tPivot Point\n");
-
-	foreach(AMGCS2::Axis currentAxis, axisPivotPoints_.keys()) {
-
-		double pivotPointValue = axisPivotPoints_.value(currentAxis);
-		outputString.append(QString("%1\t\t%2\n")
-							.arg(AMGCS2Support::axisToCharacter(currentAxis))
-							.arg(pivotPointValue));
-	}
-
-	return outputString.trimmed();
-}
-
 AMPIC887AxisMap<double> AMGCS2GetPivotPointCommand::axisPivotPoints() const
 {
 	return axisPivotPoints_;
