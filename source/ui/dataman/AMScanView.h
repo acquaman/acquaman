@@ -97,6 +97,10 @@ public:
 
 	explicit AMScanViewInternal(AMScanView* masterView);
 
+	/// Returns the x axis units.
+	QString xAxisUnits() const { return xAxisUnits_; }
+	/// Returns the y axis units.
+	QString yAxisUnits() const { return yAxisUnits_; }
 	/// Returns the tools available for this scan view.
 	AMScanViewPlotTools* tools() const { return tools_; }
 
@@ -113,8 +117,12 @@ public slots:
 	/// Handles updating the plot with the tools provided in the tool options.
 	void updatePlotTools();
 
-	/// Handles adding and removing tools.
-	virtual void applyPlotTools(const QList<MPlotAbstractTool*> &newSelection) { Q_UNUSED(newSelection) return; }
+	/// Sets the units for all tools that require units.
+	void setPlotToolUnits(const QStringList &unitsList);
+	/// Sets the bottom axis name of the given plot.
+	void setPlotBottomAxisName(MPlot *plot, const QString &bottomAxisName);
+	/// Sets the right axis name of the given plot.
+	void setPlotRightAxisName(MPlot *plot, const QString &rightAxisName);
 
 protected:
 	/// Helper function to create an appropriate MPlotItem and connect it to the \c dataSource, depending on the dimensionality of \c dataSource.  Returns 0 if we can't handle this dataSource and no item was created (ex: unsupported dimensionality, we only handle 1D or 2D data for now.)
@@ -132,9 +140,17 @@ protected:
 	QString bottomAxisName(AMScan* scan, AMDataSource* dataSource);
 	/// Returns a suitable right axis name for a \c scan and \c dataSource
 	QString rightAxisName(AMScan* scan, AMDataSource* dataSource);
+	/// Returns the bottom axis units from a scan.
+	QString bottomAxisUnits(AMScan *scan, AMDataSource *dataSource);
+	/// Returns the right axis units associated with a given data source.
+	QString rightAxisUnits(AMDataSource *dataSource);
 
 	AMScanView* masterView_;
 
+	/// The x axis units.
+	QString xAxisUnits_;
+	/// The y axis units.
+	QString yAxisUnits_;
 	/// The tools available for this scan view.
 	AMScanViewPlotTools *tools_;
 
@@ -163,14 +179,33 @@ protected slots:
 	/// Removes all tools from the given plot.
 	virtual void removeToolsFromPlot(MPlot *plot);
 
+
+
+
+	/// Sets the x axis units.
+	void setXAxisUnits(const QString &newUnits);
+	/// Handles applying new x axis units.
+	void applyXAxisUnits(MPlot *plot, const QString &xAxisUnits);
+
+	/// Sets the y axis units.
+	void setYAxisUnits(const QString &newUnits);
+	/// Handles applying new y axis units.
+	void applyYAxisUnits(MPlot *plot, const QString &yAxisUnits);
+
 	/// Sets the plot tools.
 	void setPlotTools(AMScanViewPlotTools *newTools);
+	/// Handles adding and removing tools.
+	virtual void applyPlotTools(const QList<MPlotAbstractTool*> &newSelection) { Q_UNUSED(newSelection) return; }
 
 signals:
 	/// Notifier that the data position marker has changed.
 	void dataPositionChanged(const QPointF &);
 	/// Notifier that the plot tools available have changed.
 	void plotToolsChanged(AMScanViewPlotTools *newTools);
+	/// Notifier that the x axis units have changed.
+	void xAxisUnitsChanged(const QString &newUnits);
+	/// Notifier that the y axis units have changed.
+	void yAxisUnitsChanged(const QString &newUnits);
 };
 
 #define AM_SCAN_VIEW_HIDE_SCANBARS_AFTER_N_SCANS 7

@@ -312,16 +312,8 @@ void AMScanView::setUnitsFromScan(AMScan *scan)
 	}
 
 	foreach (AMScanViewInternal *scanView, views_) {
-		if (scanView && scanView->tools()) {
-			foreach (MPlotAbstractTool *tool, scanView->tools()->tools()) {
-
-				// If one of the views' tools is a position tool, update the units.
-
-				MPlotDataPositionTool *positionTool = qobject_cast<MPlotDataPositionTool*>(tool);
-				if (positionTool) {
-					positionTool->setUnits(QStringList() << xUnits);
-				}
-			}
+		if (scanView) {
+			scanView->setPlotToolUnits(QStringList() << xUnits);
 		}
 	}
 }
@@ -617,6 +609,27 @@ AMScanViewInternal::AMScanViewInternal(AMScanView* masterView)
 	tools_ = 0;
 }
 
+void AMScanViewInternal::setXAxisUnits(const QString &newUnits)
+{
+	if (xAxisUnits_ != newUnits) {
+		xAxisUnits_ = newUnits;
+		emit xAxisUnitsChanged(xAxisUnits_);
+	}
+}
+
+void AMScanViewInternal::applyXAxisUnits(MPlot *plot, const QString &xAxisUnits)
+{
+
+}
+
+void AMScanViewInternal::setYAxisUnits(const QString &newUnits)
+{
+	if (yAxisUnits_ != newUnits) {
+		yAxisUnits_ = newUnits;
+		emit yAxisUnitsChanged(yAxisUnits_);
+	}
+}
+
 void AMScanViewInternal::setPlotTools(AMScanViewPlotTools *newTools)
 {
 	if (tools_ != newTools) {
@@ -641,6 +654,31 @@ void AMScanViewInternal::updatePlotTools()
 {
 	if (tools_)
 		applyPlotTools(tools_->selectedTools());
+}
+
+void AMScanViewInternal::setPlotToolUnits(const QStringList &unitsList)
+{
+	if (tools_) {
+		for (int toolIndex = 0, toolCount = tools_->tools().count(); toolIndex < toolCount; toolIndex++) {
+			MPlotDataPositionTool *positionTool = qobject_cast<MPlotDataPositionTool*>(tools_->tools().at(toolIndex));
+
+			if (positionTool) {
+				positionTool->setUnits(unitsList);
+			}
+		}
+	}
+}
+
+void AMScanViewInternal::setPlotBottomAxisName(MPlot *plot, const QString &bottomAxisName)
+{
+	if (plot && plot->axisBottom())
+		plot->axisBottom()->setAxisName(bottomAxisName);
+}
+
+void AMScanViewInternal::setPlotRightAxisName(MPlot *plot, const QString &rightAxisName)
+{
+	if (plot && plot->axisRight())
+		plot->axisRight()->setAxisName(rightAxisName);
 }
 
 AMScanSetModel* AMScanViewInternal::model() const { return masterView_->model(); }
@@ -1023,7 +1061,6 @@ void AMScanViewExclusiveView::reviewScan(int scanIndex) {
 	// does this scan have the "exclusive" data source in it?
 	if(dataSource) {
 
-
 		// the current plot item exists, but it's the wrong type to handle the current scan data. (ie: dataSource->rank() is 2, but we've currently got a plot series instead of a plot image.
 		if(plotItems_.at(scanIndex) && plotItems_.at(scanIndex)->rank() != dataSource->rank() ) {
 			// delete the plot item, we'll recreate the new one of the proper size in the next check.
@@ -1041,8 +1078,9 @@ void AMScanViewExclusiveView::reviewScan(int scanIndex) {
 				plot_->plot()->addItem(newItem, (dataSource->rank() == 2? MPlot::Right : MPlot::Left));
 				AMScan *scan = model()->scanAt(scanIndex);
 
-				plot_->plot()->axisBottom()->setAxisName(bottomAxisName(scan, dataSource));
-				plot_->plot()->axisRight()->setAxisName(rightAxisName(scan, dataSource));
+				setPlotBottomAxisName(plot_->plot(), bottomAxisName(scan, dataSource));
+				setPlotRightAxisName(plot_->plot(), rightAxisName(scan, dataSource));
+				setPlotToolUnits(QStringList() << bottomAxisUnits(scan, dataSource) << rightAxisUnits(dataSource));
 
 			}
 			/// \todo: if there are 2d images on any plots, set their right axis to show the right axisScale, and show ticks.
@@ -2395,14 +2433,32 @@ QString AMScanViewInternal::rightAxisName(AMScan *scan, AMDataSource *dataSource
 		return QString();
 }
 
-//void AMScanView::onToolsChanged()
-//{
-//	// Notify each view that they should review the tools applied.
+QString AMScanViewInternal::bottomAxisUnits(AMScan *scan, AMDataSource *dataSource)
+{
+	QString result;
 
-//	foreach (AMScanViewInternal *view, views_) {
-//		view->updatePlotTools();
-//	}
-//}
+	if (scan) {
+		if (dataSource && scan->scanRank() == 0) {
+			result = dataSource->axisInfoAt(0).units;
+
+		} else if (scan->scanRank() == 1 || scan->scanRank() == 2 || scan->scanRank() == 3) {
+			result = scan->rawData()->scanAxisAt(0).units;
+		}
+	}
+
+	return result;
+}
+
+QString AMScanViewInternal::rightAxisUnits(AMDataSource *dataSource)
+{
+	QString result;
+
+	if (dataSource && dataSource->rank() > 1) {
+		result = dataSource->axisInfoAt(1).units;
+	}
+
+	return result;
+}
 
 void AMScanView::onRowInserted(const QModelIndex &parent, int start, int end)
 {
