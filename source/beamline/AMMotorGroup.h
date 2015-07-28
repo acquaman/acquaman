@@ -209,44 +209,6 @@ public:
 	AMControl* rotationMotor() const;
 
 	/*!
-	  * Instructs the translation motor to move to the provided position.
-	  * \param position ~ The position to which the translation motor will attempt
-	  * to move.
-	  */
-	void setTranslatePosition(double position);
-
-	/*!
-	  * Instructs the rotation motor to move to the provided position.
-	  * \param position ~ The position to which the rotation motor will attempt
-	  * to move.
-	  */
-	void setRotatePosition(double position);
-
-	/*!
-	  * Sets the override values for the position units for the translational motions.
-	  * \param positionUnits ~ The position units to associate with the translational
-	  * movements.
-	  */
-	void setTranslationPositionUnits(const QString& positionUnits);
-
-	/*!
-	  * Sets the override values for the position units for the rotational motions.
-	  * \param positionUnits ~ The position units to associate with the rotational
-	  * movements.
-	  */
-	void setRotationPositionUnits(const QString& positionUnits);
-
-	/*!
-	  * Stops motions of the translation motor.
-	  */
-	void stopTranslation();
-
-	/*!
-	  * Stops motions of the rotation motor.
-	  */
-	void stopRotation();
-
-	/*!
 	  * \brief Creates an action to permform a translational movement on this axis
 	  * to the provided position.
 	  * If no translation control exists, 0 will be returned. See canTranslate().
@@ -275,6 +237,45 @@ public:
 	  * If no rotation control exists, 0 will be returned. See canRotate().
 	  */
 	AMAction3* createStopRotateAction();
+public slots:
+
+	/*!
+	  * Stops motions of the translation motor.
+	  */
+	void stopTranslation();
+
+	/*!
+	  * Stops motions of the rotation motor.
+	  */
+	void stopRotation();
+
+	/*!
+	  * Instructs the translation motor to move to the provided position.
+	  * \param position ~ The position to which the translation motor will attempt
+	  * to move.
+	  */
+	void setTranslatePosition(double position);
+
+	/*!
+	  * Instructs the rotation motor to move to the provided position.
+	  * \param position ~ The position to which the rotation motor will attempt
+	  * to move.
+	  */
+	void setRotatePosition(double position);
+
+	/*!
+	  * Sets the override values for the position units for the translational motions.
+	  * \param positionUnits ~ The position units to associate with the translational
+	  * movements.
+	  */
+	void setTranslationPositionUnits(const QString& positionUnits);
+
+	/*!
+	  * Sets the override values for the position units for the rotational motions.
+	  * \param positionUnits ~ The position units to associate with the rotational
+	  * movements.
+	  */
+	void setRotationPositionUnits(const QString& positionUnits);
 
 signals:
 	/*!
@@ -569,6 +570,7 @@ public:
 	  */
 	AMAction3* createStopAllAction();
 
+public slots:
 	/*!
 	  * Instructs all axes within the group object to cease their motions.
 	  */

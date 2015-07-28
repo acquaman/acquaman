@@ -270,54 +270,6 @@ AMControl * AMMotorGroupAxis::rotationMotor() const
 	return rotationalMotion_->motor();
 }
 
-void AMMotorGroupAxis::setTranslatePosition(double position)
-{
-	if(canTranslate()) {
-		translationalMotion_->motor()->move(position);
-	}
-}
-
-void AMMotorGroupAxis::setRotatePosition(double position)
-{
-	if(canRotate()) {
-		rotationalMotion_->motor()->move(position);
-	}
-}
-
-void AMMotorGroupAxis::setTranslationPositionUnits(const QString &positionUnits)
-{
-	if(canTranslate()) {
-		if(translationPositionUnits() != positionUnits) {
-			translationalMotion_->setPositionUnits(positionUnits);
-			emit positionUnitsChanged(AMMotorGroupAxis::TranslationalMotion, positionUnits);
-		}
-	}
-}
-
-void AMMotorGroupAxis::setRotationPositionUnits(const QString &positionUnits)
-{
-	if(rotationalMotion_) {
-		if(rotationPositionUnits() != positionUnits) {
-			rotationalMotion_->setPositionUnits(positionUnits);
-			emit positionUnitsChanged(AMMotorGroupAxis::RotationalMotion, positionUnits);
-		}
-	}
-}
-
-void AMMotorGroupAxis::stopTranslation()
-{
-	if(canTranslate()) {
-		translationalMotion_->motor()->stop();
-	}
-}
-
-void AMMotorGroupAxis::stopRotation()
-{
-	if(canRotate()) {
-		rotationalMotion_->motor()->stop();
-	}
-}
-
 AMAction3 * AMMotorGroupAxis::createTranslateMoveAction(double position)
 {
 	if( !canTranslate() ) {
@@ -364,6 +316,54 @@ AMAction3 * AMMotorGroupAxis::createStopRotateAction()
 
 	return new AMControlStopAction(stopActionInfo, rotationalMotion_->motor());
 
+}
+
+void AMMotorGroupAxis::stopTranslation()
+{
+	if(canTranslate()) {
+		translationalMotion_->motor()->stop();
+	}
+}
+
+void AMMotorGroupAxis::stopRotation()
+{
+	if(canRotate()) {
+		rotationalMotion_->motor()->stop();
+	}
+}
+
+void AMMotorGroupAxis::setTranslatePosition(double position)
+{
+	if(canTranslate()) {
+		translationalMotion_->motor()->move(position);
+	}
+}
+
+void AMMotorGroupAxis::setRotatePosition(double position)
+{
+	if(canRotate()) {
+		rotationalMotion_->motor()->move(position);
+	}
+}
+
+void AMMotorGroupAxis::setTranslationPositionUnits(const QString &positionUnits)
+{
+	if(canTranslate()) {
+		if(translationPositionUnits() != positionUnits) {
+			translationalMotion_->setPositionUnits(positionUnits);
+			emit positionUnitsChanged(AMMotorGroupAxis::TranslationalMotion, positionUnits);
+		}
+	}
+}
+
+void AMMotorGroupAxis::setRotationPositionUnits(const QString &positionUnits)
+{
+	if(rotationalMotion_) {
+		if(rotationPositionUnits() != positionUnits) {
+			rotationalMotion_->setPositionUnits(positionUnits);
+			emit positionUnitsChanged(AMMotorGroupAxis::RotationalMotion, positionUnits);
+		}
+	}
 }
 
 void AMMotorGroupAxis::onTranslationConnectedStateChanged(bool isConnected)
