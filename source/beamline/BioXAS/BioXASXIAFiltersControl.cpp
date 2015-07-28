@@ -129,7 +129,7 @@ void BioXASXIAFiltersControl::setThirdFilterActuatorControl(CLSBiStateControl *n
 		if (thirdFilterActuator_)
 			addFilterActuatorControl(thirdFilterActuator_, filterThickness);
 
-		emit secondFilterActuatorControlChanged(thirdFilterActuator_);
+		emit thirdFilterActuatorControlChanged(thirdFilterActuator_);
 	}
 }
 
@@ -145,7 +145,7 @@ void BioXASXIAFiltersControl::setFourthFilterActuatorControl(CLSBiStateControl *
 		if (fourthFilterActuator_)
 			addFilterActuatorControl(fourthFilterActuator_, filterThickness);
 
-		emit secondFilterActuatorControlChanged(fourthFilterActuator_);
+		emit fourthFilterActuatorControlChanged(fourthFilterActuator_);
 	}
 }
 
