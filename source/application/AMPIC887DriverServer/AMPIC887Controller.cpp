@@ -651,64 +651,85 @@ bool AMPIC887Controller::haltSmoothly(const AMPIC887AxisCollection& axes)
 
 void AMPIC887Controller::move(const AMPIC887AxisMap<double>& axisPositions)
 {
-	AMPIC887AxisCollection axesToMove = axisPositions.axes();
-	foreach(AMGCS2::Axis currentAxis, axesToMove) {
-		if(!controllerState_->hexapodState()->referencedState(currentAxis)) {
-			setError(QString("Cannot move axis %1: Axis not referenced")
-					 .arg(AMGCS2Support::axisToCharacter(currentAxis)));
-			return;
+	if(isMoving()) {
+
+		setError("Cannot perform movement. Hexapod is already in motion");
+
+	} else {
+
+		AMPIC887AxisCollection axesToMove = axisPositions.axes();
+		foreach(AMGCS2::Axis currentAxis, axesToMove) {
+			if(!controllerState_->hexapodState()->referencedState(currentAxis)) {
+				setError(QString("Cannot move axis %1: Axis not referenced")
+						 .arg(AMGCS2Support::axisToCharacter(currentAxis)));
+				return;
+			}
 		}
+
+		AMGCS2AsyncMoveCommand* asyncMoveCommand = new AMGCS2AsyncMoveCommand(axisPositions);
+
+		connect(asyncMoveCommand, SIGNAL(started(AMGCS2AsyncCommand*)),
+				this, SLOT(onAsyncMoveStarted(AMGCS2AsyncCommand*)));
+		connect(asyncMoveCommand, SIGNAL(failed(AMGCS2AsyncCommand*)),
+				this, SLOT(onAsyncMoveFailed(AMGCS2AsyncCommand*)));
+		connect(asyncMoveCommand, SIGNAL(succeeded(AMGCS2AsyncCommand*)),
+				this, SLOT(onAsyncMoveSucceeded(AMGCS2AsyncCommand*)));
+
+		runCommand(asyncMoveCommand);
 	}
-
-	AMGCS2AsyncMoveCommand* asyncMoveCommand = new AMGCS2AsyncMoveCommand(axisPositions);
-
-	connect(asyncMoveCommand, SIGNAL(started(AMGCS2AsyncCommand*)),
-			this, SLOT(onAsyncMoveStarted(AMGCS2AsyncCommand*)));
-	connect(asyncMoveCommand, SIGNAL(failed(AMGCS2AsyncCommand*)),
-			this, SLOT(onAsyncMoveFailed(AMGCS2AsyncCommand*)));
-	connect(asyncMoveCommand, SIGNAL(succeeded(AMGCS2AsyncCommand*)),
-			this, SLOT(onAsyncMoveSucceeded(AMGCS2AsyncCommand*)));
-
-	runCommand(asyncMoveCommand);
 }
 
 void AMPIC887Controller::moveRelative(const AMPIC887AxisMap<double>& relativePositions)
 {
-	AMPIC887AxisCollection axesToMove = relativePositions.axes();
-	foreach(AMGCS2::Axis currentAxis, axesToMove) {
-		if(!controllerState_->hexapodState()->referencedState(currentAxis)) {
-			setError(QString("Cannot move axis %1: Axis not referenced")
-					 .arg(AMGCS2Support::axisToCharacter(currentAxis)));
-			return;
+	if(isMoving()) {
+
+		setError("Cannot perform movement. Hexapod is already in motion");
+
+	} else {
+
+		AMPIC887AxisCollection axesToMove = relativePositions.axes();
+		foreach(AMGCS2::Axis currentAxis, axesToMove) {
+			if(!controllerState_->hexapodState()->referencedState(currentAxis)) {
+				setError(QString("Cannot move axis %1: Axis not referenced")
+						 .arg(AMGCS2Support::axisToCharacter(currentAxis)));
+				return;
+			}
 		}
+
+		AMGCS2AsyncMoveRelativeCommand* asyncMoveRelativeCommand =
+				new AMGCS2AsyncMoveRelativeCommand(relativePositions);
+
+		connect(asyncMoveRelativeCommand, SIGNAL(started(AMGCS2AsyncCommand*)),
+				this, SLOT(onAsyncMoveRelativeStarted(AMGCS2AsyncCommand*)));
+		connect(asyncMoveRelativeCommand, SIGNAL(failed(AMGCS2AsyncCommand*)),
+				this, SLOT(onAsyncMoveRelativeFailed(AMGCS2AsyncCommand*)));
+		connect(asyncMoveRelativeCommand, SIGNAL(succeeded(AMGCS2AsyncCommand*)),
+				this, SLOT(onAsyncMoveRelativeSucceeded(AMGCS2AsyncCommand*)));
+
+		runCommand(asyncMoveRelativeCommand);
 	}
-
-	AMGCS2AsyncMoveRelativeCommand* asyncMoveRelativeCommand =
-			new AMGCS2AsyncMoveRelativeCommand(relativePositions);
-
-	connect(asyncMoveRelativeCommand, SIGNAL(started(AMGCS2AsyncCommand*)),
-			this, SLOT(onAsyncMoveRelativeStarted(AMGCS2AsyncCommand*)));
-	connect(asyncMoveRelativeCommand, SIGNAL(failed(AMGCS2AsyncCommand*)),
-			this, SLOT(onAsyncMoveRelativeFailed(AMGCS2AsyncCommand*)));
-	connect(asyncMoveRelativeCommand, SIGNAL(succeeded(AMGCS2AsyncCommand*)),
-			this, SLOT(onAsyncMoveRelativeSucceeded(AMGCS2AsyncCommand*)));
-
-	runCommand(asyncMoveRelativeCommand);
 }
 
 void AMPIC887Controller::referenceMove(const AMPIC887AxisCollection& axes)
 {
-	AMGCS2AsyncReferenceMoveCommand* asyncReferenceMoveCommand =
-			new AMGCS2AsyncReferenceMoveCommand(axes);
+	if(isMoving()) {
 
-	connect(asyncReferenceMoveCommand, SIGNAL(started(AMGCS2AsyncCommand*)),
-			this, SLOT(onAsyncReferenceMoveStarted(AMGCS2AsyncCommand*)));
-	connect(asyncReferenceMoveCommand, SIGNAL(failed(AMGCS2AsyncCommand*)),
-			this, SLOT(onAsyncReferenceMoveFailed(AMGCS2AsyncCommand*)));
-	connect(asyncReferenceMoveCommand, SIGNAL(succeeded(AMGCS2AsyncCommand*)),
-			this, SLOT(onAsyncReferenceMoveSucceeded(AMGCS2AsyncCommand*)));
+		setError("Cannot perform reference move. Hexapod is already in motion");
 
-	runCommand(asyncReferenceMoveCommand);
+	} else {
+
+		AMGCS2AsyncReferenceMoveCommand* asyncReferenceMoveCommand =
+				new AMGCS2AsyncReferenceMoveCommand(axes);
+
+		connect(asyncReferenceMoveCommand, SIGNAL(started(AMGCS2AsyncCommand*)),
+				this, SLOT(onAsyncReferenceMoveStarted(AMGCS2AsyncCommand*)));
+		connect(asyncReferenceMoveCommand, SIGNAL(failed(AMGCS2AsyncCommand*)),
+				this, SLOT(onAsyncReferenceMoveFailed(AMGCS2AsyncCommand*)));
+		connect(asyncReferenceMoveCommand, SIGNAL(succeeded(AMGCS2AsyncCommand*)),
+				this, SLOT(onAsyncReferenceMoveSucceeded(AMGCS2AsyncCommand*)));
+
+		runCommand(asyncReferenceMoveCommand);
+	}
 }
 
 void AMPIC887Controller::onAsyncMoveStarted(AMGCS2AsyncCommand *command)
