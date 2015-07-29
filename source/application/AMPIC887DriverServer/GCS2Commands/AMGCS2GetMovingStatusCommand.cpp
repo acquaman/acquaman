@@ -4,11 +4,10 @@
 #include "PI_GCS2_DLL.h"
 #include "../AMPIC887Controller.h"
 AMGCS2GetMovingStatusCommand::AMGCS2GetMovingStatusCommand()
-{
-	movementStatuses_ =QFlags<AMGCS2::AxisMovementStatus>(AMGCS2::UnknownAxisMovementStatus);
+{	
 }
 
-QFlags<AMGCS2::AxisMovementStatus> AMGCS2GetMovingStatusCommand::movementStatuses()
+AMGCS2::AxisMovementStatuses AMGCS2GetMovingStatusCommand::movementStatuses()
 {
 	return movementStatuses_;
 }
@@ -16,7 +15,7 @@ QFlags<AMGCS2::AxisMovementStatus> AMGCS2GetMovingStatusCommand::movementStatuse
 bool AMGCS2GetMovingStatusCommand::runImplementation()
 {
 	// Clear any previous results.
-	movementStatuses_ = QFlags<AMGCS2::AxisMovementStatus>();
+	movementStatuses_ = 0;
 
 	AMPIC887AxisCollection axesToQuery = AMPIC887AxisCollection(AMPIC887AxisCollection::AllAxes);
 	if(axesToQuery.count() == 0) {
@@ -65,7 +64,7 @@ bool AMGCS2GetMovingStatusCommand::runImplementation()
 		}
 
 	} else {
-		movementStatuses_ = QFlags<AMGCS2::AxisMovementStatus>(AMGCS2::UnknownAxisMovementStatus);
+		movementStatuses_ = AMGCS2::UnknownAxisMovementStatus;
 		lastError_ = controllerErrorMessage();
 	}
 

@@ -63,36 +63,36 @@ void AMGCS2AsyncMoveCommand::isFinishedImplementation()
 		return;
 	}
 
-	QFlags<AMGCS2::AxisMovementStatus> movementStatuses =
+	AMGCS2::AxisMovementStatuses movementStatuses =
 			movingStatusCommand.movementStatuses();
 
-	bool allStillMoving = true;
+	bool anyStillMoving = false;
 	foreach(AMGCS2::Axis currentAxis, axesMoved) {
 		switch(currentAxis) {
 		case AMGCS2::XAxis:
-			allStillMoving &= movementStatuses.testFlag(AMGCS2::XAxisIsMoving);
+			anyStillMoving |= movementStatuses.testFlag(AMGCS2::XAxisIsMoving);
 			break;
 		case AMGCS2::YAxis:
-			allStillMoving &= movementStatuses.testFlag(AMGCS2::YAxisIsMoving);
+			anyStillMoving |= movementStatuses.testFlag(AMGCS2::YAxisIsMoving);
 			break;
 		case AMGCS2::ZAxis:
-			allStillMoving &= movementStatuses.testFlag(AMGCS2::ZAxisIsMoving);
+			anyStillMoving |= movementStatuses.testFlag(AMGCS2::ZAxisIsMoving);
 			break;
 		case AMGCS2::UAxis:
-			allStillMoving &= movementStatuses.testFlag(AMGCS2::UAxisIsMoving);
+			anyStillMoving |= movementStatuses.testFlag(AMGCS2::UAxisIsMoving);
 			break;
 		case AMGCS2::VAxis:
-			allStillMoving &= movementStatuses.testFlag(AMGCS2::VAxisIsMoving);
+			anyStillMoving |= movementStatuses.testFlag(AMGCS2::VAxisIsMoving);
 			break;
 		case AMGCS2::WAxis:
-			allStillMoving &= movementStatuses.testFlag(AMGCS2::WAxisIsMoving);
+			anyStillMoving |= movementStatuses.testFlag(AMGCS2::WAxisIsMoving);
 			break;
 		default:
 			break;
 		}
 	}
 
-	if(allStillMoving) {
+	if(anyStillMoving) {
 		// We're still moving. Do nothing and wait for the next check.
 		return;
 	}

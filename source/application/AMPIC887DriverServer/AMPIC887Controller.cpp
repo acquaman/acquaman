@@ -165,9 +165,9 @@ bool AMPIC887Controller::setRecordConfigs(const QHash<int, AMPIC887DataRecorderC
 	return true;
 }
 
-QFlags<AMGCS2::AxisMovementStatus> AMPIC887Controller::movementStatus() const
+AMGCS2::AxisMovementStatuses AMPIC887Controller::movementStatus() const
 {
-	QFlags<AMGCS2::AxisMovementStatus> movements = QFlags<AMGCS2::AxisMovementStatus>();
+	AMGCS2::AxisMovementStatuses movements;
 
 	if(xMotions_ > 0) {
 		movements |= AMGCS2::XAxisIsMoving;

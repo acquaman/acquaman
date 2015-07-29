@@ -232,7 +232,7 @@ void AMPIC887ConsoleApplication::onMotionStatusCommandIssued()
 		return;
 	}
 
-	QFlags<AMGCS2::AxisMovementStatus> movementStatuses =
+	AMGCS2::AxisMovementStatuses movementStatuses =
 			controllerCollection_.activeController()->movementStatus();
 
 	if(movementStatuses.testFlag(AMGCS2::UnknownAxisMovementStatus)) {

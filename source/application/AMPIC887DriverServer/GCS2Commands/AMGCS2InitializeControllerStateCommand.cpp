@@ -51,7 +51,7 @@ bool AMGCS2InitializeControllerStateCommand::validateArguments()
 		return false;
 	}
 
-	QFlags<AMGCS2::AxisMovementStatus> axisMovementStatuses =
+	AMGCS2::AxisMovementStatuses axisMovementStatuses =
 			movingStatusCommand.movementStatuses();
 
 	if(axisMovementStatuses) {

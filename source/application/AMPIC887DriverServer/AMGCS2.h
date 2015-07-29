@@ -30,14 +30,16 @@ namespace AMGCS2 {
 	  * a C887.11 controller.
 	  */
 	enum AxisMovementStatus {
-		UnknownAxisMovementStatus = 1,
-		XAxisIsMoving = 2,
-		YAxisIsMoving = 4,
-		ZAxisIsMoving = 8,
-		UAxisIsMoving = 16,
-		VAxisIsMoving = 32,
-		WAxisIsMoving = 64
+		UnknownAxisMovementStatus = 0,
+		XAxisIsMoving = 1,
+		YAxisIsMoving = 2,
+		ZAxisIsMoving = 3,
+		UAxisIsMoving = 8,
+		VAxisIsMoving = 16,
+		WAxisIsMoving = 32
 	};
+
+	Q_DECLARE_FLAGS(AxisMovementStatuses, AxisMovementStatus)
 
 	/*!
 	  * Enumerates the different command levels of the C887.11 controller.
@@ -104,4 +106,6 @@ namespace AMGCS2 {
 		Degrees
 	};
 }
+
+Q_DECLARE_OPERATORS_FOR_FLAGS(AMGCS2::AxisMovementStatuses)
 #endif // AMGCS2_H

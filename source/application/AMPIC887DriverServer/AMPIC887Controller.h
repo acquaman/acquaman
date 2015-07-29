@@ -137,7 +137,7 @@ public:
 	/*!
 	  * The current movement status of the controller's hexapod.
 	  */
-	QFlags<AMGCS2::AxisMovementStatus> movementStatus() const;
+	AMGCS2::AxisMovementStatuses movementStatus() const;
 
 	/*!
 	  * Whether any axis of the hexapod is currently in motion.
