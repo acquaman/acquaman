@@ -50,9 +50,9 @@ public slots:
 protected:
 
 	/*!
-	  * Runs the implementation specific isFinishedImplemetation function ,emits
-	  * the relevant signal indicated by the implementations return value (if required)
-	  * and ceases the mechanism for checking if the command has done.
+	  * Runs the implementation specific checkRunningState function, emits
+	  * the relevant signal indicated by the current running state (if required)
+	  * and ceases the mechanism for checking if the command has completed.
 	  */
 	void timerEvent(QTimerEvent *);
 
@@ -62,7 +62,7 @@ protected:
 	  * has been detected, and sets the last error message if an error has been
 	  * detected.
 	  */
-	virtual void isFinishedImplementation() = 0;
+	virtual void checkRunningState() = 0;
 
 	QTime startTime_;
 	int timerId_;

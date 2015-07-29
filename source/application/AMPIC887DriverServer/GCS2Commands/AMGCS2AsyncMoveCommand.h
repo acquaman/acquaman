@@ -54,7 +54,7 @@ protected:
 	  * Defines the steps taken to check whether the move command is still
 	  * being performed.
 	  */
-	virtual void isFinishedImplementation();
+	virtual void checkRunningState();
 
 	AMGCS2MoveCommand* command_;
 	AMPIC887AxisMap<double> targetPositions_;

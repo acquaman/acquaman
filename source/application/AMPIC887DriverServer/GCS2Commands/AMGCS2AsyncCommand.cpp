@@ -57,7 +57,7 @@ void AMGCS2AsyncCommand::timerEvent(QTimerEvent *)
 		killTimer(timerId_);
 		emit failed(this);
 	} else {
-		isFinishedImplementation();
+		checkRunningState();
 		switch (runningState_) {
 		case NotStarted:
 			// This should never happen

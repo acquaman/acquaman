@@ -47,7 +47,7 @@ bool AMGCS2AsyncMoveCommand::runImplementation()
 	return true;
 }
 
-void AMGCS2AsyncMoveCommand::isFinishedImplementation()
+void AMGCS2AsyncMoveCommand::checkRunningState()
 {
 	AMPIC887AxisCollection axesMoved = targetPositions_.axes();
 

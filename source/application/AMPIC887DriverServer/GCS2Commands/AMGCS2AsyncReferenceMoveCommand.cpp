@@ -26,7 +26,7 @@ bool AMGCS2AsyncReferenceMoveCommand::runImplementation()
 	return success;
 }
 
-void AMGCS2AsyncReferenceMoveCommand::isFinishedImplementation()
+void AMGCS2AsyncReferenceMoveCommand::checkRunningState()
 {
 	AMGCS2GetReferenceResultCommand referenceResultsCommand(axesToReference_);
 	referenceResultsCommand.setController(controller_);

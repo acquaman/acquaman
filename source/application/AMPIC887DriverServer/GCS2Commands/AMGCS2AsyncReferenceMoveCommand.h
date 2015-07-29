@@ -42,7 +42,7 @@ protected:
 	  * move. If a change of state is detected, sets the current running state of
 	  * the command and, if failed, and relevant error messages.
 	  */
-	virtual void isFinishedImplementation();
+	virtual void checkRunningState();
 
 	AMPIC887AxisCollection axesToReference_;
 };

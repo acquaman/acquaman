@@ -69,7 +69,7 @@ bool AMGCS2AsyncMoveRelativeCommand::runImplementation()
 	return true;
 }
 
-void AMGCS2AsyncMoveRelativeCommand::isFinishedImplementation()
+void AMGCS2AsyncMoveRelativeCommand::checkRunningState()
 {
 	AMPIC887AxisCollection axesMoved = relativeAxisPositions_.axes();
 

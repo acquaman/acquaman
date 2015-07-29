@@ -49,7 +49,7 @@ protected:
 	  * Defines the checks to be made on the current running status of the relative
 	  * move.
 	  */
-	virtual void isFinishedImplementation();
+	virtual void checkRunningState();
 
 	AMGCS2MoveRelativeCommand* moveRelativeCommand_;
 	AMPIC887AxisMap<double> relativeAxisPositions_;
