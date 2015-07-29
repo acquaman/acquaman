@@ -430,8 +430,7 @@ bool AMPIC887Controller::onTargetState(AMGCS2::Axis axis)
 	double currentAxisPosition = currentPosition(axis);
 	double currentTargetPosition = targetPosition(axis);
 
-	double epsilon = 0.0001;
-	return qAbs(currentAxisPosition - currentTargetPosition) < epsilon;
+	return qAbs(currentAxisPosition - currentTargetPosition) < AXIS_POSITION_TOLERANCE;
 }
 
 AMPIC887AxisMap<bool> AMPIC887Controller::onTargetStates(const AMPIC887AxisCollection &axes)

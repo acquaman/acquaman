@@ -3,6 +3,7 @@
 #include "AMGCS2GetCurrentPositionCommand.h"
 #include "AMGCS2GetTargetPositionCommand.h"
 #include "../AMGCS2Support.h"
+#include "../AMPIC887Controller.h"
 AMGCS2AsyncMoveCommand::AMGCS2AsyncMoveCommand(const AMPIC887AxisMap<double>& targetPositions)
 {
 	command_ = new AMGCS2MoveCommand(targetPositions);
@@ -132,14 +133,12 @@ void AMGCS2AsyncMoveCommand::isFinishedImplementation()
 		double finalPosition = finalPositions.value(currentAxis);
 		double currentTargetPosition = currentTargetPositions.value(currentAxis);
 
-		double epsilon = 0.0001;
-
-		if(qAbs(destination - finalPosition) > epsilon) {
+		if(qAbs(destination - finalPosition) > AXIS_POSITION_TOLERANCE) {
 			// We've stopped and aren't yet at out final position, this might
 			// be because our target position has been altered with another move
 			// or a stop (in which case we failed) or because we're just doing
 			// our fine grain motions.
-			if(qAbs(destination - currentTargetPosition) > epsilon) {
+			if(qAbs(destination - currentTargetPosition) > AXIS_POSITION_TOLERANCE) {
 				// Our target position has been altered.
 				lastError_ = "Move failed to reach target";
 				runningState_ = Failed;

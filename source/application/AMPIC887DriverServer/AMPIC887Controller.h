@@ -1,7 +1,8 @@
 #ifndef AMPIC887CONTROLLER_H
 #define AMPIC887CONTROLLER_H
 
-#define CONTROLLER_PORT 50000 // PI C887.11 controller are hardwired to use port 50000
+#define CONTROLLER_PORT 50000		// PI C887.11 controller are hardwired to use port 50000
+#define AXIS_POSITION_TOLERANCE 0.0001	// The accuracy with which the position of an axis can be known (mm)
 
 #include <QObject>
 #include <QString>
