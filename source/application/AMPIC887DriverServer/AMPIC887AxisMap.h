@@ -17,7 +17,10 @@ public:
 	/*!
 	  * Creates an instance of an axis map, which is empty.
 	  */
-	AMPIC887AxisMap() {}
+	AMPIC887AxisMap()
+		: QMap<AMGCS2::Axis, T>()
+	{
+	}
 
 	/*!
 	  * Returns a collection of the axes which this map contains.
@@ -83,7 +86,10 @@ public:
 	/*!
 	  * Creates an instance of an axis map, which is empty.
 	  */
-	AMPIC887AxisMap() {}
+	AMPIC887AxisMap()
+		: QMap<AMGCS2::Axis, bool>()
+	{
+	}
 
 	/*!
 	  * Returns a collection of the axes which this map contains.
@@ -160,7 +166,10 @@ public:
 	/*!
 	  * Creates an instance of an axis map, which is empty.
 	  */
-	AMPIC887AxisMap() {}
+	AMPIC887AxisMap()
+		: QMap<AMGCS2::Axis, double>()
+	{
+	}
 
 	/*!
 	  * Returns a collection of the axes which this map contains.
@@ -230,7 +239,10 @@ public:
 	/*!
 	  * Creates an instance of an axis map, which is empty.
 	  */
-	AMPIC887AxisMap() {}
+	AMPIC887AxisMap()
+		: QMap<AMGCS2::Axis, AMGCS2::PositionUnits>()
+	{
+	}
 
 	/*!
 	  * Returns a collection of the axes which this map contains.
