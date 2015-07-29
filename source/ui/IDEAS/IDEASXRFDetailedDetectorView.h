@@ -24,6 +24,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "ui/beamline/AMXRFDetailedDetectorView.h"
 
+
+#include "acquaman/IDEAS/IDEASXRFScanConfiguration.h"
+#include "actions3/actions/AMScanAction.h"
+
 #include <QPushButton>
 #include <QSignalMapper>
 #include <QPlainTextEdit>
@@ -49,6 +53,9 @@ public:
 	/// Re-implementing but still going to use the base class buildDetectorView since this view is merely adding to it.
 	virtual void buildDetectorView();
 
+signals:
+
+
 protected slots:
 	/// Starts the acquisition.  Calls acquire() but subclasses can reimplement if there is a more sofisticated start routine.
 	virtual void startAcquisition();
@@ -61,7 +68,9 @@ protected slots:
 
 	void onPeakingTimeBoxChanged(const QString &arg1);
 	void onKETEKPeakingTimeChanged();
+
 	void onDeadTimeCheckButtonClicked();
+
 
 protected:
 	/// Method that builds the Scan Save Button and associated things.
@@ -78,6 +87,7 @@ protected:
 	QPushButton *deadTimeCheckButton;
 
 	QComboBox *peakingTimeBox;
+
 };
 
 #endif // IDEASXRFDETAILEDDETECTORVIEW_H
