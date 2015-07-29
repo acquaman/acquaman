@@ -13,7 +13,8 @@ public:
 	enum InitializationState {
 		EmptyCollection,	// Collection is initialized with no contained axes
 		AllAxes,			// Collection is initialized with all axes
-		LinearAxes			// Collection is initialized with linear axes (X, Y, Z)
+		LinearAxes,			// Collection is initialized with linear axes (X, Y, Z)
+		RotationalAxes		// Collection is initialized with rotational axes (U, V, W)
 	};
 
 	// Enumerates the different valid states which the colleciton can be in

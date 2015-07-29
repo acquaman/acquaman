@@ -5,13 +5,13 @@
 
 AMPIC887AxisCollection::AMPIC887AxisCollection(InitializationState initializationState)
 {
-	if(initializationState != EmptyCollection) {
+	if(initializationState == LinearAxes || initializationState == AllAxes) {
 		append(AMGCS2::XAxis);
 		append(AMGCS2::YAxis);
 		append(AMGCS2::ZAxis);
 	}
 
-	if(initializationState == AllAxes) {
+	if(initializationState == RotationalAxes || initializationState == AllAxes) {
 		append(AMGCS2::UAxis);
 		append(AMGCS2::VAxis);
 		append(AMGCS2::WAxis);
