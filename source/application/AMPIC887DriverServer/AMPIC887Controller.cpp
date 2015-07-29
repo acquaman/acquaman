@@ -462,20 +462,39 @@ AMPIC887AxisMap<double> AMPIC887Controller::pivotPoints(const AMPIC887AxisCollec
 
 bool AMPIC887Controller::setPivotPoints(const AMPIC887AxisMap<double> &pivotPoints)
 {
-	if(controllerState_->hexapodState()->pivotPoints() == pivotPoints) {
+	AMPIC887AxisCollection rotationalAxes = AMPIC887AxisCollection(AMPIC887AxisCollection::RotationalAxes);
+	AMPIC887AxisMap<double> rotationalPositions = currentPositions(rotationalAxes);
+
+	bool areAllAtOrigin = true;
+	foreach(AMGCS2::Axis currentAxis, rotationalAxes) {
+
+		areAllAtOrigin &= ( qAbs(rotationalPositions.value(currentAxis)) < AXIS_POSITION_TOLERANCE );
+	}
+
+	if(isMoving()) {
+		setError("Cannot set pivot points while axes are in motion");
+	} else if (!areAllAtOrigin) {
+		setError("Cannot set pivot point when U, V, W axes are not all at 0");
+	} else {
+
+		if(controllerState_->hexapodState()->pivotPoints() == pivotPoints) {
+			return true;
+		}
+
+		AMGCS2SetPivotPointCommand setPivotPointCommand(pivotPoints);
+		runCommand(&setPivotPointCommand);
+
+		if(setPivotPointCommand.runningState() != AMGCS2Command::Succeeded) {
+			setError(setPivotPointCommand.lastError());
+			return false;
+		}
+
+		controllerState_->hexapodState()->setPivotPoints(pivotPoints);
+
 		return true;
 	}
 
-	AMGCS2SetPivotPointCommand setPivotPointCommand(pivotPoints);
-	runCommand(&setPivotPointCommand);
-
-	if(setPivotPointCommand.runningState() != AMGCS2Command::Succeeded) {
-		setError(setPivotPointCommand.lastError());
-		return false;
-	}
-
-	controllerState_->hexapodState()->setPivotPoints(pivotPoints);
-	return true;
+	return false;
 }
 
 AMGCS2::PositionUnits AMPIC887Controller::positionUnits(AMGCS2::Axis axis) const

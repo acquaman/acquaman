@@ -435,6 +435,7 @@ void AMPIC887HexapodState::setPivotPoint(AMGCS2::Axis axis, double pivotPoint)
 void AMPIC887HexapodState::setPivotPoints(const AMPIC887AxisMap<double> &pivotPoints)
 {
 	AMPIC887AxisCollection axes = pivotPoints.axes();
+
 	foreach(AMGCS2::Axis currentAxis, axes) {
 
 		pivotPoints_.insert(currentAxis, pivotPoints.value(currentAxis));
