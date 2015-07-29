@@ -1011,6 +1011,8 @@ void AMPIC887Controller::onAsyncReferenceMoveFailed(AMGCS2AsyncCommand *command)
 	--vMotions_;
 	--wMotions_;
 
+	updateStateOnStop();
+
 	command->deleteLater();
 }
 
