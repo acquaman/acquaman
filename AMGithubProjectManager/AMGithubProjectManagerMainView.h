@@ -27,6 +27,9 @@ protected slots:
 
 	void onGetAllIssuesActionSucceeded();
 	void onGetAllCommentsActionSucceeded();
+	void onGetAllZenhubEstimatesSucceeded();
+
+	void onOneZenhubEstimateUpdateSucceeded();
 
 	void onGetOneIssueCommentsReturned(QVariant fullResponse, QList<QNetworkReply::RawHeaderPair> headerPairs);
 
@@ -48,6 +51,8 @@ protected:
 	QMap<int, AMGitHubIssueFamily*> fullySpecifiedIssueFamilies_;
 	QStringList commentURLs_;
 	QMap<int, AMGitHubMilestone*> allMilestones_;
+
+	QList<int> updateZenhubEstimatesList_;
 };
 
 #endif // AMGITHUBPROJECTMANAGERMAINVIEW_H

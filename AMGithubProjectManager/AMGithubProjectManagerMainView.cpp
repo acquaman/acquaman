@@ -10,6 +10,7 @@
 #include "actions3/actions/AMRestAction.h"
 #include "actions3/actions/AMGitHubGetIssuesAction.h"
 #include "actions3/actions/AMGitHubGetCommentsAction.h"
+#include "actions3/actions/AMZenHubGetEstimatesAction.h"
 
 #include "AMGitHubMilestone.h"
 #include "AMGitHubIssueFamilyView.h"
@@ -50,6 +51,18 @@ void AMGithubProjectManagerMainView::onInitiateButtonClicked(){
 
 	manager_ = new QNetworkAccessManager(this);
 
+//		QStringList estimateURLs;
+//		estimateURLs << "https://api.zenhub.io/v2/acquaman/acquaman/issues/1460/estimates";
+//		estimateURLs << "https://api.zenhub.io/v2/acquaman/acquaman/issues/1461/estimates";
+//		estimateURLs << "https://api.zenhub.io/v2/acquaman/acquaman/issues/1463/estimates";
+//		estimateURLs << "https://api.zenhub.io/v2/acquaman/acquaman/issues/1464/estimates";
+//		estimateURLs << "https://api.zenhub.io/v2/acquaman/acquaman/issues/1465/estimates";
+//		AMZenHubGetEstimatesActionInfo *getAllEstimatesActionInfo = new AMZenHubGetEstimatesActionInfo("acquaman", "acquaman", estimateURLs);
+//		AMZenHubGetEstimatesAction *getAllEstimatesAction = new AMZenHubGetEstimatesAction(getAllEstimatesActionInfo, manager_, headerData_, &allIssues_);
+//		getAllEstimatesAction->start();
+
+//		return;
+
 	AMGitHubGetIssuesActionInfo *getAllIssuesActionInfo = new AMGitHubGetIssuesActionInfo("acquaman", "acquaman", AMGitHubGetIssuesActionInfo::AllIssues);
 	AMGitHubGetIssuesAction *getAllIssuesAction = new AMGitHubGetIssuesAction(getAllIssuesActionInfo, manager_, headerData_, &allIssues_, &allMilestones_);
 	connect(getAllIssuesAction, SIGNAL(succeeded()), this, SLOT(onGetAllIssuesActionSucceeded()));
@@ -70,24 +83,24 @@ void AMGithubProjectManagerMainView::onGetAllIssuesActionSucceeded()
 	}
 
 	qDebug() << "Try this fake out";
-//	QStringList fakeCommentURLs;
-//	fakeCommentURLs << "https://api.github.com/repos/acquaman/acquaman/issues/1484/comments";
-//	fakeCommentURLs << "https://api.github.com/repos/acquaman/acquaman/issues/1214/comments";
+	//	QStringList fakeCommentURLs;
+	//	fakeCommentURLs << "https://api.github.com/repos/acquaman/acquaman/issues/1484/comments";
+	//	fakeCommentURLs << "https://api.github.com/repos/acquaman/acquaman/issues/1214/comments";
 	AMGitHubGetCommentsActionInfo *getAllCommentsActionInfo = new AMGitHubGetCommentsActionInfo("acquaman", "acquaman", commentURLs_);
 	AMGitHubGetCommentsAction *getAllCommentsAction = new AMGitHubGetCommentsAction(getAllCommentsActionInfo, manager_, headerData_, &allIssues_);
 	connect(getAllCommentsAction, SIGNAL(succeeded()), this, SLOT(onGetAllCommentsActionSucceeded()));
 	getAllCommentsAction->start();
 
-//	if(commentURLs_.count() > 0){
-//		QString oneCommentURL = commentURLs_.takeFirst();
+	//	if(commentURLs_.count() > 0){
+	//		QString oneCommentURL = commentURLs_.takeFirst();
 
-//		AMRestActionInfo *getOneIssueCommentsActionInfo = new AMRestActionInfo(oneCommentURL, AMRestActionInfo::GetRequest);
-//		getOneIssueCommentsActionInfo->setRawHeader("Authorization", headerData_.toLocal8Bit());
-//		AMRestAction *getOneIssueCommentsAction = new AMRestAction(getOneIssueCommentsActionInfo, manager_);
+	//		AMRestActionInfo *getOneIssueCommentsActionInfo = new AMRestActionInfo(oneCommentURL, AMRestActionInfo::GetRequest);
+	//		getOneIssueCommentsActionInfo->setRawHeader("Authorization", headerData_.toLocal8Bit());
+	//		AMRestAction *getOneIssueCommentsAction = new AMRestAction(getOneIssueCommentsActionInfo, manager_);
 
-//		connect(getOneIssueCommentsAction, SIGNAL(fullResponseReady(QVariant, QList<QNetworkReply::RawHeaderPair>)), this, SLOT(onGetOneIssueCommentsReturned(QVariant, QList<QNetworkReply::RawHeaderPair>)));
-//		getOneIssueCommentsAction->start();
-//	}
+	//		connect(getOneIssueCommentsAction, SIGNAL(fullResponseReady(QVariant, QList<QNetworkReply::RawHeaderPair>)), this, SLOT(onGetOneIssueCommentsReturned(QVariant, QList<QNetworkReply::RawHeaderPair>)));
+	//		getOneIssueCommentsAction->start();
+	//	}
 }
 
 void AMGithubProjectManagerMainView::onGetOneIssueCommentsReturned(QVariant fullResponse, QList<QNetworkReply::RawHeaderPair> headerPairs)
@@ -156,310 +169,415 @@ void AMGithubProjectManagerMainView::onGetOneIssueCommentsReturned(QVariant full
 
 void AMGithubProjectManagerMainView::onGetAllCommentsActionSucceeded(){
 
+	QStringList allEstimateURLs;
 	QMap<int, AMGitHubIssue*>::const_iterator h = allIssues_.constBegin();
 	while(h != allIssues_.constEnd()){
 		if(h.value()->timeEstimateString().isNull())
 			qDebug() << h.value()->issueNumber() << " has no time estimate";
 		else
 			qDebug() << h.value()->issueNumber() << " time estimate: " << h.value()->timeEstimateString();
+
+		if(!h.value()->projectTrackingDisabled() && !h.value()->isPullRequest())
+			allEstimateURLs << QString("https://api.zenhub.io/v2/acquaman/acquaman/issues/%1/estimates").arg(h.value()->issueNumber());
+
 		h++;
 	}
+
+	AMZenHubGetEstimatesActionInfo *getAllEstimatesActionInfo = new AMZenHubGetEstimatesActionInfo("acquaman", "acquaman", allEstimateURLs);
+	AMZenHubGetEstimatesAction *getAllEstimatesAction = new AMZenHubGetEstimatesAction(getAllEstimatesActionInfo, manager_, headerData_, &allIssues_);
+	connect(getAllEstimatesAction, SIGNAL(succeeded()), this, SLOT(onGetAllZenhubEstimatesSucceeded()));
+	getAllEstimatesAction->start();
+}
+
+void AMGithubProjectManagerMainView::onGetAllZenhubEstimatesSucceeded()
+{
+	qDebug() << "All estimates returned. Start parsing.\n\n\n\n\n";
+	QMap<int, AMGitHubIssue*>::const_iterator h = allIssues_.constBegin();
+	while(h != allIssues_.constEnd()){
+		int githubComplexityIndex = (int)(h.value()->complexityValue());
+		int zenhubComplexityIndex = (int)(h.value()->zenhubComplexityValue());
+
+		if(githubComplexityIndex > 4)
+			githubComplexityIndex = 1000;
+		if(zenhubComplexityIndex > 7)
+			zenhubComplexityIndex = 100;
+
+//		qDebug() << "Issue Number: " << h.value()->issueNumber() << " Github: " << githubComplexityIndex << " Zenhub: " << zenhubComplexityIndex << "Difference: " << zenhubComplexityIndex-githubComplexityIndex;
+
+//		if((githubComplexityIndex-zenhubComplexityIndex == 2) && (h.value()->closedDate() < QDateTime::fromString("2015-07-01", "yyyy-MM-dd"))){
+//			qDebug() << "Found a delta 2 for " << h.value()->issueNumber() << " closed on " << h.value()->closedDate();
+//			updateZenhubEstimatesList_.append(h.value()->issueNumber());
+//		}
+
+		if((githubComplexityIndex != zenhubComplexityIndex) && (h.value()->complexityValue() != AMGitHubIssue::InvalidComplexity) && (!h.value()->isPullRequest()) && (!h.value()->projectTrackingDisabled()) && (h.value()->createdDate() < QDateTime::fromString("2015-07-06", "yyyy-MM-dd")))
+			updateZenhubEstimatesList_.append(h.value()->issueNumber());
+
+//		qDebug() << h.value()->issueNumber() << AMGitHubIssue::integerFromComplexity(h.value()->complexityValue()) << AMGitHubIssue::integerFromZenhubComplexityValue(h.value()->zenhubComplexityValue());
+
+		h++;
+	}
+//	qDebug() << "\n\n\n\n\n\n\n\n";
+
+	qDebug() << allIssues_.count() << " total issues";
+	qDebug() << updateZenhubEstimatesList_.count() << " updates to do";
+	qDebug() << "\n\n\n";
+	qDebug() << updateZenhubEstimatesList_;
+
+	if(!updateZenhubEstimatesList_.isEmpty()){
+		AMGitHubIssue *oneIssue = allIssues_.value(updateZenhubEstimatesList_.takeLast());
+		QString estimateString = QString("https://api.zenhub.io/v2/acquaman/acquaman/issues/%1/estimates").arg(oneIssue->issueNumber());
+		qDebug() << "Updating " << oneIssue->issueNumber();
+		//	qDebug() << "Let's try one! " << oneIssue->issueNumber() << AMGitHubIssue::integerFromComplexity(oneIssue->complexityValue()) << AMGitHubIssue::integerFromZenhubComplexityValue(oneIssue->zenhubComplexityValue())
+		//		 << estimateString;
+		AMRestActionInfo *putOneEstimateActionInfo = new AMRestActionInfo(estimateString, AMRestActionInfo::PutRequest);
+		putOneEstimateActionInfo->setRawHeader("Authorization", headerData_.toLocal8Bit());
+		QString xauthtokenData = "ced5ec812ee0ee5576da1345550d0110ba65946262541a1db6030ebda5dd4c0d95b31d24d954c563";
+		putOneEstimateActionInfo->setRawHeader("x-authentication-token", xauthtokenData.toLocal8Bit());
+		putOneEstimateActionInfo->setContentType(AMRestActionInfo::FormURLEncoded);
+		QString requestDataString = QString("repo=acquaman&issue_number=%1&estimate_value=%2&organization=acquaman").arg(oneIssue->issueNumber()).arg(AMGitHubIssue::integerFromComplexity(oneIssue->complexityValue()));
+		putOneEstimateActionInfo->setRequestData(requestDataString.toAscii());
+		AMRestAction *putOneEstimateAction = new AMRestAction(putOneEstimateActionInfo, manager_);
+		connect(putOneEstimateAction, SIGNAL(fullResponseReady(QVariant,QList<QNetworkReply::RawHeaderPair>)), this, SLOT(onOneZenhubEstimateUpdateSucceeded()));
+		putOneEstimateAction->start();
+	}
+
+
+	return;
+}
+
+void AMGithubProjectManagerMainView::onOneZenhubEstimateUpdateSucceeded()
+{
+	if(!updateZenhubEstimatesList_.isEmpty()){
+		AMGitHubIssue *oneIssue = allIssues_.value(updateZenhubEstimatesList_.takeLast());
+		QString estimateString = QString("https://api.zenhub.io/v2/acquaman/acquaman/issues/%1/estimates").arg(oneIssue->issueNumber());
+		//	qDebug() << "Let's try one! " << oneIssue->issueNumber() << AMGitHubIssue::integerFromComplexity(oneIssue->complexityValue()) << AMGitHubIssue::integerFromZenhubComplexityValue(oneIssue->zenhubComplexityValue())
+		//		 << estimateString;
+		qDebug() << "Updating " << oneIssue->issueNumber();
+		AMRestActionInfo *putOneEstimateActionInfo = new AMRestActionInfo(estimateString, AMRestActionInfo::PutRequest);
+		putOneEstimateActionInfo->setRawHeader("Authorization", headerData_.toLocal8Bit());
+		QString xauthtokenData = "ced5ec812ee0ee5576da1345550d0110ba65946262541a1db6030ebda5dd4c0d95b31d24d954c563";
+		putOneEstimateActionInfo->setRawHeader("x-authentication-token", xauthtokenData.toLocal8Bit());
+		putOneEstimateActionInfo->setContentType(AMRestActionInfo::FormURLEncoded);
+		QString requestDataString = QString("repo=acquaman&issue_number=%1&estimate_value=%2&organization=acquaman").arg(oneIssue->issueNumber()).arg(AMGitHubIssue::integerFromComplexity(oneIssue->complexityValue()));
+		putOneEstimateActionInfo->setRequestData(requestDataString.toAscii());
+		AMRestAction *putOneEstimateAction = new AMRestAction(putOneEstimateActionInfo, manager_);
+		connect(putOneEstimateAction, SIGNAL(fullResponseReady(QVariant,QList<QNetworkReply::RawHeaderPair>)), this, SLOT(onOneZenhubEstimateUpdateSucceeded()));
+		putOneEstimateAction->start();
+	}
+
 	return;
 
-		QMap<int, AMGitHubIssue*>::const_iterator i = allIssues_.constBegin();
-		while (i != allIssues_.constEnd()) {
-			if(!i.value()->isPullRequest() && i.value()->inlineIssue()){
-				AMGitHubIssueFamily *oneIssueFamily = new AMGitHubIssueFamily(i.value(), i.value());
-				allIssueFamilies_.insert(i.value()->issueNumber(), oneIssueFamily);
+
+	QMap<int, AMGitHubIssue*>::const_iterator i = allIssues_.constBegin();
+	while (i != allIssues_.constEnd()) {
+		if(!i.value()->isPullRequest() && i.value()->inlineIssue()){
+			AMGitHubIssueFamily *oneIssueFamily = new AMGitHubIssueFamily(i.value(), i.value());
+			allIssueFamilies_.insert(i.value()->issueNumber(), oneIssueFamily);
+		}
+		else if(!i.value()->isPullRequest() && !i.value()->projectTrackingDisabled()){
+			AMGitHubIssueFamily *oneIssueFamily = new AMGitHubIssueFamily(i.value(), 0);
+			allIssueFamilies_.insert(i.value()->issueNumber(), oneIssueFamily);
+		}
+		else if(!i.value()->isPullRequest() && (i.value()->complexityValue() != AMGitHubIssue::InvalidComplexity) && (i.value()->timeEstimateString() != "Invalid Time Estimate") && (!i.value()->timeEstimateString().isEmpty()))
+			qDebug() << "Issue " << i.value()->issueNumber() << " may be an inline issue";
+		i++;
+	}
+
+	QMap<int, AMGitHubIssue*>::const_iterator j = allIssues_.constBegin();
+	while (j != allIssues_.constEnd()) {
+		if(j.value()->isPullRequest() && allIssueFamilies_.contains(j.value()->originatingIssueNumber()))
+			allIssueFamilies_.value(j.value()->originatingIssueNumber())->setPullRequestIssue(j.value());
+
+		j++;
+	}
+
+	QList<int> totallyUnspecifiedIssues;
+	QList<int> fullySpecifiedIssues;
+	QMap<int, AMGitHubIssueFamily*>::const_iterator k = allIssueFamilies_.constBegin();
+	while(k != allIssueFamilies_.constEnd()){
+		if(k.value()->totallyIncomplete())
+			totallyUnspecifiedIssues.append(k.value()->originatingIssueNumber());
+		if(k.value()->completeInfo())
+			fullySpecifiedIssues.append(k.value()->originatingIssueNumber());
+		k++;
+	}
+	for(int x = 0, size = totallyUnspecifiedIssues.size(); x < size; x++)
+		allIssueFamilies_.remove(totallyUnspecifiedIssues.at(x));
+	for(int x = 0, size = fullySpecifiedIssues.size(); x < size; x++)
+		fullySpecifiedIssueFamilies_.insert(fullySpecifiedIssues.at(x), allIssueFamilies_.value(fullySpecifiedIssues.at(x)));
+
+
+	QWidget *familiesMasterWidget = new QWidget();
+	QVBoxLayout *familiesMasterVL = new QVBoxLayout();
+	QScrollArea *familiesScrollArea = new QScrollArea();
+	QWidget *familiesWidget = new QWidget();
+	QVBoxLayout *familiesVL = new QVBoxLayout();
+	qDebug() << "\n\n\n\n";
+	QMap<int, AMGitHubIssueFamily*>::const_iterator m = allIssueFamilies_.constBegin();
+	while(m != allIssueFamilies_.constEnd()){
+		bool printIt = true;
+		if(m.value()->completeInfo())
+			printIt = false;
+		if(m.value()->totallyIncomplete())
+			printIt = false;
+		if(m.value()->onlyMissingActualComplexity())
+			printIt = false;
+		if(m.value()->onlyMissingTimeEstimate())
+			printIt = false;
+		if(printIt)
+			qDebug() << m.value()->multiLineDebugInfo();
+		AMGitHubIssueFamilyView *oneFamilyView = new AMGitHubIssueFamilyView(m.value());
+		familiesVL->addWidget(oneFamilyView);
+		m++;
+	}
+
+	familiesWidget->setLayout(familiesVL);
+	familiesScrollArea->setWidget(familiesWidget);
+
+	familiesMasterVL->addWidget(familiesScrollArea);
+	familiesMasterWidget->setLayout(familiesMasterVL);
+	familiesMasterWidget->show();
+
+	qDebug() << "\n\n\n\n";
+	QMap<int, AMGitHubIssueFamily*>::const_iterator o = allIssueFamilies_.constBegin();
+	while(o != allIssueFamilies_.constEnd()){
+		if(o.value()->onlyMissingActualComplexity())
+			qDebug() << "Need to do actual complexity for:\n" << o.value()->multiLineDebugInfo() << "\n";
+		o++;
+	}
+
+	qDebug() << "\n\n\n\n";
+	QMap<int, AMGitHubIssueFamily*>::const_iterator p = allIssueFamilies_.constBegin();
+	while(p != allIssueFamilies_.constEnd()){
+		if(p.value()->onlyMissingTimeEstimate())
+			qDebug() << p.value()->originatingIssue()->assignee() << " needs to do time estimate for: " << p.value()->originatingIssueNumber() << "\n";
+		p++;
+	}
+
+	int totallyCompleteIssues = 0;
+	int totallyIncompleteIssues = 0;
+	int onlyMissingActualComplexityIssues = 0;
+	int onlyMissingTimeEstimateIssues = 0;
+
+	qDebug() << "\n\n\n\n";
+	QMap<int, AMGitHubIssueFamily*>::const_iterator q = allIssueFamilies_.constBegin();
+	while(q != allIssueFamilies_.constEnd()){
+		if(q.value()->completeInfo())
+			totallyCompleteIssues++;
+		if(q.value()->totallyIncomplete())
+			totallyIncompleteIssues++;
+		if(q.value()->onlyMissingActualComplexity())
+			onlyMissingActualComplexityIssues++;
+		if(q.value()->onlyMissingTimeEstimate())
+			onlyMissingTimeEstimateIssues++;
+		q++;
+	}
+	qDebug() << totallyCompleteIssues << " of " << allIssueFamilies_.count() << " are fully specfied";
+	qDebug() << totallyIncompleteIssues << " of " << allIssueFamilies_.count() << " are totally unspecified";
+	qDebug() << onlyMissingActualComplexityIssues << " of " << allIssueFamilies_.count() << " are only missing an actual complexity";
+	qDebug() << onlyMissingTimeEstimateIssues << " of " << allIssueFamilies_.count() << " are only missing a time estimate";
+
+	qDebug() << "\n\n\n\n";
+
+	AMGitHubComplexityManager *complexityManager = new AMGitHubComplexityManager();
+
+	QMap<int, AMGitHubIssueFamily*>::const_iterator r = fullySpecifiedIssueFamilies_.constBegin();
+	while(r != fullySpecifiedIssueFamilies_.constEnd()){
+		complexityManager->incrementComplexityMapping(r.value()->complexityMapping());
+		if(r.value()->normalizedTimeEstiamte() > 0){
+			complexityManager->addTimeEstimateForEstimatedComplexity(r.value()->normalizedTimeEstiamte(), r.value()->estimatedComplexity());
+			complexityManager->addTimeEstimateForActualComplexity(r.value()->normalizedTimeEstiamte(), r.value()->actualComplexity());
+		}
+		else
+			qDebug() << "Issue " << r.value()->originatingIssueNumber() << " cannot normalize " << r.value()->timeEstimate();
+
+		r++;
+	}
+
+	//		QString debugString;
+	//		QString debugStringQuantized;
+	//		for(int x = 1, xSize = complexityMappingMatrix.count(); x < xSize; x++){
+	//			double percentValue = ((double)complexityMappingMatrix.at(x))/((double)allIssueFamilies_.count())*100;
+	//			debugString.append(QString("%1\t").arg(percentValue, 0, 'f', 2));
+	//			debugStringQuantized.append(QString("%1\t").arg(complexityMappingMatrix.at(x)));
+	//			if(x%5 == 0){
+	//				debugString.append("\n");
+	//				debugStringQuantized.append("\n");
+	//			}
+	//		}
+	//		qDebug() << debugString;
+	//		qDebug() << debugStringQuantized;
+
+	qDebug() << "Average Estimated Complexity 1 time estimate: " << complexityManager->averageTimeForEstimatedComplexity(AMGitHubIssue::Complexity1);
+	qDebug() << "Average Estimated Complexity 2 time estimate: " << complexityManager->averageTimeForEstimatedComplexity(AMGitHubIssue::Complexity2);
+	qDebug() << "Average Estimated Complexity 3 time estimate: " << complexityManager->averageTimeForEstimatedComplexity(AMGitHubIssue::Complexity3);
+	qDebug() << "Average Estimated Complexity 5 time estimate: " << complexityManager->averageTimeForEstimatedComplexity(AMGitHubIssue::Complexity5);
+	qDebug() << "Average Estimated Complexity 8 time estimate: " << complexityManager->averageTimeForEstimatedComplexity(AMGitHubIssue::Complexity8);
+	qDebug() << "Average Estimated Complexity K time estimate: " << complexityManager->averageTimeForEstimatedComplexity(AMGitHubIssue::ComplexityK);
+
+	qDebug() << "Average Actual Complexity 1 time estimate: " << complexityManager->averageTimeForActualComplexity(AMGitHubIssue::Complexity1);
+	qDebug() << "Average Actual Complexity 2 time estimate: " << complexityManager->averageTimeForActualComplexity(AMGitHubIssue::Complexity2);
+	qDebug() << "Average Actual Complexity 3 time estimate: " << complexityManager->averageTimeForActualComplexity(AMGitHubIssue::Complexity3);
+	qDebug() << "Average Actual Complexity 5 time estimate: " << complexityManager->averageTimeForActualComplexity(AMGitHubIssue::Complexity5);
+	qDebug() << "Average Actual Complexity 8 time estimate: " << complexityManager->averageTimeForActualComplexity(AMGitHubIssue::Complexity8);
+
+	qDebug() << "Probable Estimated Complexity 1 time estimate: " << complexityManager->probableTimeForEstimatedComplexity(AMGitHubIssue::Complexity1);
+	qDebug() << "Probable Estimated Complexity 2 time estimate: " << complexityManager->probableTimeForEstimatedComplexity(AMGitHubIssue::Complexity2);
+	qDebug() << "Probable Estimated Complexity 3 time estimate: " << complexityManager->probableTimeForEstimatedComplexity(AMGitHubIssue::Complexity3);
+	qDebug() << "Probable Estimated Complexity 5 time estimate: " << complexityManager->probableTimeForEstimatedComplexity(AMGitHubIssue::Complexity5);
+	qDebug() << "Probable Estimated Complexity 8 time estimate: " << complexityManager->probableTimeForEstimatedComplexity(AMGitHubIssue::Complexity8);
+
+	QMap<int, AMGitHubMilestone*>::const_iterator c = allMilestones_.constBegin();
+	while(c != allMilestones_.constEnd()){
+		//			qDebug() << "Milestone " << c.key() << " named " << c.value()->title() << " is " << c.value()->stateAsString();
+		QString associatedIssuesString;
+		for(int x = 0, size = c.value()->associatedIssues().count(); x < size; x++){
+			associatedIssuesString.append(QString("%1 [%2] \n").arg(c.value()->associatedIssues().at(x)->issueNumber()).arg(AMGitHubIssue::stringFromState(c.value()->associatedIssues().at(x)->issueState())));
+			if(!c.value()->associatedIssues().at(x)->isPullRequest() && allIssueFamilies_.contains(c.value()->associatedIssues().at(x)->issueNumber())){
+				//					qDebug() << c.value()->associatedIssues().at(x)->issueNumber() << " is not a pull request, log it";
+				c.value()->appendAssociatedFamily(allIssueFamilies_.value(c.value()->associatedIssues().at(x)->issueNumber()));
 			}
-			else if(!i.value()->isPullRequest() && !i.value()->projectTrackingDisabled()){
-				AMGitHubIssueFamily *oneIssueFamily = new AMGitHubIssueFamily(i.value(), 0);
-				allIssueFamilies_.insert(i.value()->issueNumber(), oneIssueFamily);
-			}
-			else if(!i.value()->isPullRequest() && (i.value()->complexityValue() != AMGitHubIssue::InvalidComplexity) && (i.value()->timeEstimateString() != "Invalid Time Estimate") && (!i.value()->timeEstimateString().isEmpty()))
-				qDebug() << "Issue " << i.value()->issueNumber() << " may be an inline issue";
-			i++;
+			//				else if(c.value()->associatedIssues().at(x)->isPullRequest())
+			//					qDebug() << c.value()->associatedIssues().at(x)->issueNumber() << " is a pull request, ignore it";
+			//				qDebug() << "Current associated families size: " << c.value()->associatedFamilies().count();
+		}
+		//			if(!associatedIssuesString.isEmpty())
+		//				qDebug() << associatedIssuesString << "\n";
+		c++;
+	}
+
+	AMGitHubMilestone *bioxasSideMilestone = allMilestones_.value(10);
+	QList<double> normalizedEstimatedList;
+	double normalizedEstimated = 0;
+	QList<double> normalizedCurrentList;
+	double normalizedCurrent = 0;
+	QList<double> normalizedCompletedList;
+	double normalizedCompleted = 0;
+	QList<double> normalizedValueList;
+	double normalizedValue = 0;
+
+	QList<double> normalizedOpenList;
+	double normalizedOpen = 0;
+	QList<double> normalizedClosedList;
+	double normalizedClosed = 0;
+
+	QWidget *bioXASSideMasterWidget = new QWidget();
+	QVBoxLayout *bioXASSideMasterVL = new QVBoxLayout();
+	QScrollArea *bioXASSideScrollArea = new QScrollArea();
+	QWidget *bioXASSideWidget = new QWidget();
+	QVBoxLayout *bioXASSideVL = new QVBoxLayout();
+
+	//		QList<AMGitHubIssueFamily*> workingIssueFamilies = bioxasSideMilestone->associatedFamilies();
+	QList<AMGitHubIssueFamily*> workingIssueFamilies;
+	QMap<int, AMGitHubIssueFamily*>::const_iterator rr = allIssueFamilies_.constBegin();
+	while(rr != allIssueFamilies_.constEnd()){
+		qDebug() << "Adding " << rr.value()->originatingIssueNumber() << "as" << workingIssueFamilies.count();
+		workingIssueFamilies.append(rr.value());
+		rr++;
+	}
+
+	//		for(int x = 0, size = bioxasSideMilestone->associatedFamilies().count(); x < size; x++){
+	for(int x = 0, size = workingIssueFamilies.count(); x < size; x++){
+		//			AMGitHubIssueFamilyView *oneFamilyView = new AMGitHubIssueFamilyView(bioxasSideMilestone->associatedFamilies().at(x));
+		//			AMGitHubIssueFamilyView *oneFamilyView = new AMGitHubIssueFamilyView(workingIssueFamilies.at(x));
+		//			bioXASSideVL->addWidget(oneFamilyView);
+
+		//			qDebug() << "Issue " << bioxasSideMilestone->associatedFamilies().at(x)->originatingIssueNumber() << " created at " << bioxasSideMilestone->associatedFamilies().at(x)->originatingIssue()->createdDate() << " and closed at " << bioxasSideMilestone->associatedFamilies().at(x)->originatingIssue()->closedDate();
+
+		//			qDebug() << "Family " << x << " orginates from " << bioxasSideMilestone->associatedFamilies().at(x)->originatingIssueNumber();
+
+
+		qDebug() << "About to look into " << x << workingIssueFamilies.at(x)->originatingIssueNumber();
+		if(workingIssueFamilies.at(x)->estimatedComplexity() != AMGitHubIssue::InvalidComplexity){
+			normalizedEstimatedList.append(complexityManager->probableTimeForEstimatedComplexity(workingIssueFamilies.at(x)->estimatedComplexity()));
+			if(workingIssueFamilies.at(x)->originatingIssue()->issueState() == AMGitHubIssue::OpenState)
+				normalizedOpenList.append(complexityManager->probableTimeForEstimatedComplexity(workingIssueFamilies.at(x)->estimatedComplexity()));
+		}
+		if(workingIssueFamilies.at(x)->actualComplexity() != AMGitHubIssue::InvalidComplexity){
+			normalizedCompletedList.append(complexityManager->probableTimeForEstimatedComplexity(workingIssueFamilies.at(x)->actualComplexity()));
+			if(workingIssueFamilies.at(x)->originatingIssue()->issueState() == AMGitHubIssue::ClosedState)
+				normalizedClosedList.append(complexityManager->probableTimeForEstimatedComplexity(workingIssueFamilies.at(x)->actualComplexity()));
+		}
+		if(workingIssueFamilies.at(x)->normalizedTimeEstiamte() > 0){
+			normalizedValueList.append(workingIssueFamilies.at(x)->normalizedTimeEstiamte());
 		}
 
-		QMap<int, AMGitHubIssue*>::const_iterator j = allIssues_.constBegin();
-		while (j != allIssues_.constEnd()) {
-			if(j.value()->isPullRequest() && allIssueFamilies_.contains(j.value()->originatingIssueNumber()))
-				allIssueFamilies_.value(j.value()->originatingIssueNumber())->setPullRequestIssue(j.value());
+		if(workingIssueFamilies.at(x)->originatingIssue()->isClosed())
+			normalizedCurrentList.append(complexityManager->probableTimeForEstimatedComplexity(workingIssueFamilies.at(x)->actualComplexity()));
+		else if(workingIssueFamilies.at(x)->originatingIssue()->isOpen())
+			normalizedCurrentList.append(complexityManager->probableTimeForEstimatedComplexity(workingIssueFamilies.at(x)->estimatedComplexity()));
+	}
 
-			j++;
-		}
+	bioXASSideWidget->setLayout(bioXASSideVL);
+	bioXASSideScrollArea->setWidget(bioXASSideWidget);
 
-		QList<int> totallyUnspecifiedIssues;
-		QList<int> fullySpecifiedIssues;
-		QMap<int, AMGitHubIssueFamily*>::const_iterator k = allIssueFamilies_.constBegin();
-		while(k != allIssueFamilies_.constEnd()){
-			if(k.value()->totallyIncomplete())
-				totallyUnspecifiedIssues.append(k.value()->originatingIssueNumber());
-			if(k.value()->completeInfo())
-				fullySpecifiedIssues.append(k.value()->originatingIssueNumber());
-			k++;
-		}
-		for(int x = 0, size = totallyUnspecifiedIssues.size(); x < size; x++)
-			allIssueFamilies_.remove(totallyUnspecifiedIssues.at(x));
-		for(int x = 0, size = fullySpecifiedIssues.size(); x < size; x++)
-			fullySpecifiedIssueFamilies_.insert(fullySpecifiedIssues.at(x), allIssueFamilies_.value(fullySpecifiedIssues.at(x)));
+	bioXASSideMasterVL->addWidget(bioXASSideScrollArea);
+	bioXASSideMasterWidget->setLayout(bioXASSideMasterVL);
+	bioXASSideMasterWidget->show();
 
+	for(int x = 0, size = normalizedEstimatedList.count(); x < size; x++)
+		normalizedEstimated += normalizedEstimatedList.at(x);
+	for(int x = 0, size = normalizedCurrentList.count(); x < size; x++)
+		normalizedCurrent += normalizedCurrentList.at(x);
+	for(int x = 0, size = normalizedCompletedList.count(); x < size; x++)
+		normalizedCompleted += normalizedCompletedList.at(x);
+	for(int x = 0, size = normalizedValueList.count(); x < size; x++)
+		normalizedValue += normalizedValueList.at(x);
+	for(int x = 0, size = normalizedOpenList.count(); x < size; x++)
+		normalizedOpen += normalizedOpenList.at(x);
+	for(int x = 0, size = normalizedClosedList.count(); x < size; x++)
+		normalizedClosed += normalizedClosedList.at(x);
 
-		QWidget *familiesMasterWidget = new QWidget();
-		QVBoxLayout *familiesMasterVL = new QVBoxLayout();
-		QScrollArea *familiesScrollArea = new QScrollArea();
-		QWidget *familiesWidget = new QWidget();
-		QVBoxLayout *familiesVL = new QVBoxLayout();
-		qDebug() << "\n\n\n\n";
-		QMap<int, AMGitHubIssueFamily*>::const_iterator m = allIssueFamilies_.constBegin();
-		while(m != allIssueFamilies_.constEnd()){
-			bool printIt = true;
-			if(m.value()->completeInfo())
-				printIt = false;
-			if(m.value()->totallyIncomplete())
-				printIt = false;
-			if(m.value()->onlyMissingActualComplexity())
-				printIt = false;
-			if(m.value()->onlyMissingTimeEstimate())
-				printIt = false;
-			if(printIt)
-				qDebug() << m.value()->multiLineDebugInfo();
-			AMGitHubIssueFamilyView *oneFamilyView = new AMGitHubIssueFamilyView(m.value());
-			familiesVL->addWidget(oneFamilyView);
-			m++;
-		}
+	qDebug() << "\n\n\n\n";
 
-		familiesWidget->setLayout(familiesVL);
-		familiesScrollArea->setWidget(familiesWidget);
+	//		qDebug() << "Normalized Estimated List: " << normalizedEstimatedList;
+	//		qDebug() << "Normalized Current List: " << normalizedCurrentList;
+	//		qDebug() << "Normalized Completed List: " << normalizedCompletedList;
+	//		qDebug() << "Normalized Value List: " << normalizedValueList;
 
-		familiesMasterVL->addWidget(familiesScrollArea);
-		familiesMasterWidget->setLayout(familiesMasterVL);
-		familiesMasterWidget->show();
+	qDebug() << "Normalized Estimated Total: " << normalizedEstimated;
+	qDebug() << "Normalized Current Total: " << normalizedCurrent;
+	qDebug() << "Normalized Completed Total: " << normalizedCompleted;
+	qDebug() << "Normalized Value Total: " << normalizedValue;
 
-		qDebug() << "\n\n\n\n";
-		QMap<int, AMGitHubIssueFamily*>::const_iterator o = allIssueFamilies_.constBegin();
-		while(o != allIssueFamilies_.constEnd()){
-			if(o.value()->onlyMissingActualComplexity())
-				qDebug() << "Need to do actual complexity for:\n" << o.value()->multiLineDebugInfo() << "\n";
-			o++;
-		}
+	qDebug() << "\n\n";
+	//		qDebug() << "Normalized Open List: " << normalizedOpenList;
+	//		qDebug() << "Normalized Closed List: " << normalizedClosedList;
 
-		qDebug() << "\n\n\n\n";
-		QMap<int, AMGitHubIssueFamily*>::const_iterator p = allIssueFamilies_.constBegin();
-		while(p != allIssueFamilies_.constEnd()){
-			if(p.value()->onlyMissingTimeEstimate())
-				qDebug() << p.value()->originatingIssue()->assignee() << " needs to do time estimate for: " << p.value()->originatingIssueNumber() << "\n";
-			p++;
-		}
-
-		int totallyCompleteIssues = 0;
-		int totallyIncompleteIssues = 0;
-		int onlyMissingActualComplexityIssues = 0;
-		int onlyMissingTimeEstimateIssues = 0;
-
-		qDebug() << "\n\n\n\n";
-		QMap<int, AMGitHubIssueFamily*>::const_iterator q = allIssueFamilies_.constBegin();
-		while(q != allIssueFamilies_.constEnd()){
-			if(q.value()->completeInfo())
-				totallyCompleteIssues++;
-			if(q.value()->totallyIncomplete())
-				totallyIncompleteIssues++;
-			if(q.value()->onlyMissingActualComplexity())
-				onlyMissingActualComplexityIssues++;
-			if(q.value()->onlyMissingTimeEstimate())
-				onlyMissingTimeEstimateIssues++;
-			q++;
-		}
-		qDebug() << totallyCompleteIssues << " of " << allIssueFamilies_.count() << " are fully specfied";
-		qDebug() << totallyIncompleteIssues << " of " << allIssueFamilies_.count() << " are totally unspecified";
-		qDebug() << onlyMissingActualComplexityIssues << " of " << allIssueFamilies_.count() << " are only missing an actual complexity";
-		qDebug() << onlyMissingTimeEstimateIssues << " of " << allIssueFamilies_.count() << " are only missing a time estimate";
-
-		qDebug() << "\n\n\n\n";
-
-		AMGitHubComplexityManager *complexityManager = new AMGitHubComplexityManager();
-
-		QMap<int, AMGitHubIssueFamily*>::const_iterator r = fullySpecifiedIssueFamilies_.constBegin();
-		while(r != fullySpecifiedIssueFamilies_.constEnd()){
-			complexityManager->incrementComplexityMapping(r.value()->complexityMapping());
-			if(r.value()->normalizedTimeEstiamte() > 0){
-				complexityManager->addTimeEstimateForEstimatedComplexity(r.value()->normalizedTimeEstiamte(), r.value()->estimatedComplexity());
-				complexityManager->addTimeEstimateForActualComplexity(r.value()->normalizedTimeEstiamte(), r.value()->actualComplexity());
-			}
-			else
-				qDebug() << "Issue " << r.value()->originatingIssueNumber() << " cannot normalize " << r.value()->timeEstimate();
-
-			r++;
-		}
-
-//		QString debugString;
-//		QString debugStringQuantized;
-//		for(int x = 1, xSize = complexityMappingMatrix.count(); x < xSize; x++){
-//			double percentValue = ((double)complexityMappingMatrix.at(x))/((double)allIssueFamilies_.count())*100;
-//			debugString.append(QString("%1\t").arg(percentValue, 0, 'f', 2));
-//			debugStringQuantized.append(QString("%1\t").arg(complexityMappingMatrix.at(x)));
-//			if(x%5 == 0){
-//				debugString.append("\n");
-//				debugStringQuantized.append("\n");
-//			}
-//		}
-//		qDebug() << debugString;
-//		qDebug() << debugStringQuantized;
-
-		qDebug() << "Average Estimated Complexity 1 time estimate: " << complexityManager->averageTimeForEstimatedComplexity(AMGitHubIssue::Complexity1);
-		qDebug() << "Average Estimated Complexity 2 time estimate: " << complexityManager->averageTimeForEstimatedComplexity(AMGitHubIssue::Complexity2);
-		qDebug() << "Average Estimated Complexity 3 time estimate: " << complexityManager->averageTimeForEstimatedComplexity(AMGitHubIssue::Complexity3);
-		qDebug() << "Average Estimated Complexity 5 time estimate: " << complexityManager->averageTimeForEstimatedComplexity(AMGitHubIssue::Complexity5);
-		qDebug() << "Average Estimated Complexity 8 time estimate: " << complexityManager->averageTimeForEstimatedComplexity(AMGitHubIssue::Complexity8);
-		qDebug() << "Average Estimated Complexity K time estimate: " << complexityManager->averageTimeForEstimatedComplexity(AMGitHubIssue::ComplexityK);
-
-		qDebug() << "Average Actual Complexity 1 time estimate: " << complexityManager->averageTimeForActualComplexity(AMGitHubIssue::Complexity1);
-		qDebug() << "Average Actual Complexity 2 time estimate: " << complexityManager->averageTimeForActualComplexity(AMGitHubIssue::Complexity2);
-		qDebug() << "Average Actual Complexity 3 time estimate: " << complexityManager->averageTimeForActualComplexity(AMGitHubIssue::Complexity3);
-		qDebug() << "Average Actual Complexity 5 time estimate: " << complexityManager->averageTimeForActualComplexity(AMGitHubIssue::Complexity5);
-		qDebug() << "Average Actual Complexity 8 time estimate: " << complexityManager->averageTimeForActualComplexity(AMGitHubIssue::Complexity8);
-
-		qDebug() << "Probable Estimated Complexity 1 time estimate: " << complexityManager->probableTimeForEstimatedComplexity(AMGitHubIssue::Complexity1);
-		qDebug() << "Probable Estimated Complexity 2 time estimate: " << complexityManager->probableTimeForEstimatedComplexity(AMGitHubIssue::Complexity2);
-		qDebug() << "Probable Estimated Complexity 3 time estimate: " << complexityManager->probableTimeForEstimatedComplexity(AMGitHubIssue::Complexity3);
-		qDebug() << "Probable Estimated Complexity 5 time estimate: " << complexityManager->probableTimeForEstimatedComplexity(AMGitHubIssue::Complexity5);
-		qDebug() << "Probable Estimated Complexity 8 time estimate: " << complexityManager->probableTimeForEstimatedComplexity(AMGitHubIssue::Complexity8);
-
-		QMap<int, AMGitHubMilestone*>::const_iterator c = allMilestones_.constBegin();
-		while(c != allMilestones_.constEnd()){
-//			qDebug() << "Milestone " << c.key() << " named " << c.value()->title() << " is " << c.value()->stateAsString();
-			QString associatedIssuesString;
-			for(int x = 0, size = c.value()->associatedIssues().count(); x < size; x++){
-				associatedIssuesString.append(QString("%1 [%2] \n").arg(c.value()->associatedIssues().at(x)->issueNumber()).arg(AMGitHubIssue::stringFromState(c.value()->associatedIssues().at(x)->issueState())));
-				if(!c.value()->associatedIssues().at(x)->isPullRequest() && allIssueFamilies_.contains(c.value()->associatedIssues().at(x)->issueNumber())){
-//					qDebug() << c.value()->associatedIssues().at(x)->issueNumber() << " is not a pull request, log it";
-					c.value()->appendAssociatedFamily(allIssueFamilies_.value(c.value()->associatedIssues().at(x)->issueNumber()));
-				}
-//				else if(c.value()->associatedIssues().at(x)->isPullRequest())
-//					qDebug() << c.value()->associatedIssues().at(x)->issueNumber() << " is a pull request, ignore it";
-//				qDebug() << "Current associated families size: " << c.value()->associatedFamilies().count();
-			}
-//			if(!associatedIssuesString.isEmpty())
-//				qDebug() << associatedIssuesString << "\n";
-			c++;
-		}
-
-		AMGitHubMilestone *bioxasSideMilestone = allMilestones_.value(10);
-		QList<double> normalizedEstimatedList;
-		double normalizedEstimated = 0;
-		QList<double> normalizedCurrentList;
-		double normalizedCurrent = 0;
-		QList<double> normalizedCompletedList;
-		double normalizedCompleted = 0;
-		QList<double> normalizedValueList;
-		double normalizedValue = 0;
-
-		QList<double> normalizedOpenList;
-		double normalizedOpen = 0;
-		QList<double> normalizedClosedList;
-		double normalizedClosed = 0;
-
-		QWidget *bioXASSideMasterWidget = new QWidget();
-		QVBoxLayout *bioXASSideMasterVL = new QVBoxLayout();
-		QScrollArea *bioXASSideScrollArea = new QScrollArea();
-		QWidget *bioXASSideWidget = new QWidget();
-		QVBoxLayout *bioXASSideVL = new QVBoxLayout();
-
-//		QList<AMGitHubIssueFamily*> workingIssueFamilies = bioxasSideMilestone->associatedFamilies();
-		QList<AMGitHubIssueFamily*> workingIssueFamilies;
-		QMap<int, AMGitHubIssueFamily*>::const_iterator rr = allIssueFamilies_.constBegin();
-		while(rr != allIssueFamilies_.constEnd()){
-			qDebug() << "Adding " << rr.value()->originatingIssueNumber() << "as" << workingIssueFamilies.count();
-			workingIssueFamilies.append(rr.value());
-			rr++;
-		}
-
-//		for(int x = 0, size = bioxasSideMilestone->associatedFamilies().count(); x < size; x++){
-		for(int x = 0, size = workingIssueFamilies.count(); x < size; x++){
-//			AMGitHubIssueFamilyView *oneFamilyView = new AMGitHubIssueFamilyView(bioxasSideMilestone->associatedFamilies().at(x));
-//			AMGitHubIssueFamilyView *oneFamilyView = new AMGitHubIssueFamilyView(workingIssueFamilies.at(x));
-//			bioXASSideVL->addWidget(oneFamilyView);
-
-//			qDebug() << "Issue " << bioxasSideMilestone->associatedFamilies().at(x)->originatingIssueNumber() << " created at " << bioxasSideMilestone->associatedFamilies().at(x)->originatingIssue()->createdDate() << " and closed at " << bioxasSideMilestone->associatedFamilies().at(x)->originatingIssue()->closedDate();
-
-//			qDebug() << "Family " << x << " orginates from " << bioxasSideMilestone->associatedFamilies().at(x)->originatingIssueNumber();
+	qDebug() << "Normalized Open Total: " << normalizedOpen;
+	qDebug() << "Normalized Closed Total: " << normalizedClosed;
 
 
-			qDebug() << "About to look into " << x << workingIssueFamilies.at(x)->originatingIssueNumber();
-			if(workingIssueFamilies.at(x)->estimatedComplexity() != AMGitHubIssue::InvalidComplexity){
-				normalizedEstimatedList.append(complexityManager->probableTimeForEstimatedComplexity(workingIssueFamilies.at(x)->estimatedComplexity()));
-				if(workingIssueFamilies.at(x)->originatingIssue()->issueState() == AMGitHubIssue::OpenState)
-					normalizedOpenList.append(complexityManager->probableTimeForEstimatedComplexity(workingIssueFamilies.at(x)->estimatedComplexity()));
-			}
-			if(workingIssueFamilies.at(x)->actualComplexity() != AMGitHubIssue::InvalidComplexity){
-				normalizedCompletedList.append(complexityManager->probableTimeForEstimatedComplexity(workingIssueFamilies.at(x)->actualComplexity()));
-				if(workingIssueFamilies.at(x)->originatingIssue()->issueState() == AMGitHubIssue::ClosedState)
-					normalizedClosedList.append(complexityManager->probableTimeForEstimatedComplexity(workingIssueFamilies.at(x)->actualComplexity()));
-			}
-			if(workingIssueFamilies.at(x)->normalizedTimeEstiamte() > 0){
-				normalizedValueList.append(workingIssueFamilies.at(x)->normalizedTimeEstiamte());
-			}
+	QList<QList<double> > allOutstandingEstimatesLists;
+	QList<double> allOutstandingEstimatesTotals;
+	QList<QList<double> > allCompletedEstimatesLists;
+	QList<double> allCompletedEstimatesTotals;
+	QList<QList<double> > allWithdrawnEstimatesLists;
+	QList<double> allWithdrawnEstimatesTotals;
 
-			if(workingIssueFamilies.at(x)->originatingIssue()->isClosed())
-				normalizedCurrentList.append(complexityManager->probableTimeForEstimatedComplexity(workingIssueFamilies.at(x)->actualComplexity()));
-			else if(workingIssueFamilies.at(x)->originatingIssue()->isOpen())
-				normalizedCurrentList.append(complexityManager->probableTimeForEstimatedComplexity(workingIssueFamilies.at(x)->estimatedComplexity()));
-		}
+	QList<QList<double> > allComplexityMappedCompetedWorkLists;
+	QList<double> allComplexityMappedCompetedWorkTotals;
+	QList<QList<double> > allReportedCompetedWorkLists;
+	QList<double> allReportedCompetedWorkTotals;
 
-		bioXASSideWidget->setLayout(bioXASSideVL);
-		bioXASSideScrollArea->setWidget(bioXASSideWidget);
+	QList<QDateTime> dateList;
+	QDateTime oneDateTime = QDateTime::currentDateTime();
+	dateList.append(oneDateTime);
+	allOutstandingEstimatesLists.append(QList<double>());
+	allCompletedEstimatesLists.append(QList<double>());
+	allWithdrawnEstimatesLists.append(QList<double>());
+	allOutstandingEstimatesTotals.append(0);
+	allCompletedEstimatesTotals.append(0);
+	allWithdrawnEstimatesTotals.append(0);
 
-		bioXASSideMasterVL->addWidget(bioXASSideScrollArea);
-		bioXASSideMasterWidget->setLayout(bioXASSideMasterVL);
-		bioXASSideMasterWidget->show();
+	allComplexityMappedCompetedWorkLists.append(QList<double>());
+	allReportedCompetedWorkLists.append(QList<double>());
+	allComplexityMappedCompetedWorkTotals.append(0);
+	allReportedCompetedWorkTotals.append(0);
 
-		for(int x = 0, size = normalizedEstimatedList.count(); x < size; x++)
-			normalizedEstimated += normalizedEstimatedList.at(x);
-		for(int x = 0, size = normalizedCurrentList.count(); x < size; x++)
-			normalizedCurrent += normalizedCurrentList.at(x);
-		for(int x = 0, size = normalizedCompletedList.count(); x < size; x++)
-			normalizedCompleted += normalizedCompletedList.at(x);
-		for(int x = 0, size = normalizedValueList.count(); x < size; x++)
-			normalizedValue += normalizedValueList.at(x);
-		for(int x = 0, size = normalizedOpenList.count(); x < size; x++)
-			normalizedOpen += normalizedOpenList.at(x);
-		for(int x = 0, size = normalizedClosedList.count(); x < size; x++)
-			normalizedClosed += normalizedClosedList.at(x);
-
-		qDebug() << "\n\n\n\n";
-
-//		qDebug() << "Normalized Estimated List: " << normalizedEstimatedList;
-//		qDebug() << "Normalized Current List: " << normalizedCurrentList;
-//		qDebug() << "Normalized Completed List: " << normalizedCompletedList;
-//		qDebug() << "Normalized Value List: " << normalizedValueList;
-
-		qDebug() << "Normalized Estimated Total: " << normalizedEstimated;
-		qDebug() << "Normalized Current Total: " << normalizedCurrent;
-		qDebug() << "Normalized Completed Total: " << normalizedCompleted;
-		qDebug() << "Normalized Value Total: " << normalizedValue;
-
-		qDebug() << "\n\n";
-//		qDebug() << "Normalized Open List: " << normalizedOpenList;
-//		qDebug() << "Normalized Closed List: " << normalizedClosedList;
-
-		qDebug() << "Normalized Open Total: " << normalizedOpen;
-		qDebug() << "Normalized Closed Total: " << normalizedClosed;
-
-
-		QList<QList<double> > allOutstandingEstimatesLists;
-		QList<double> allOutstandingEstimatesTotals;
-		QList<QList<double> > allCompletedEstimatesLists;
-		QList<double> allCompletedEstimatesTotals;
-		QList<QList<double> > allWithdrawnEstimatesLists;
-		QList<double> allWithdrawnEstimatesTotals;
-
-		QList<QList<double> > allComplexityMappedCompetedWorkLists;
-		QList<double> allComplexityMappedCompetedWorkTotals;
-		QList<QList<double> > allReportedCompetedWorkLists;
-		QList<double> allReportedCompetedWorkTotals;
-
-		QList<QDateTime> dateList;
-		QDateTime oneDateTime = QDateTime::currentDateTime();
+	//		for(int x = 0, size = 10; x < size; x++){
+	for(int x = 0, size = 12; x < size; x++){
+		oneDateTime = oneDateTime.addDays(-7);
 		dateList.append(oneDateTime);
 		allOutstandingEstimatesLists.append(QList<double>());
 		allCompletedEstimatesLists.append(QList<double>());
@@ -472,111 +590,95 @@ void AMGithubProjectManagerMainView::onGetAllCommentsActionSucceeded(){
 		allReportedCompetedWorkLists.append(QList<double>());
 		allComplexityMappedCompetedWorkTotals.append(0);
 		allReportedCompetedWorkTotals.append(0);
+	}
 
-//		for(int x = 0, size = 10; x < size; x++){
-		for(int x = 0, size = 12; x < size; x++){
-			oneDateTime = oneDateTime.addDays(-7);
-			dateList.append(oneDateTime);
-			allOutstandingEstimatesLists.append(QList<double>());
-			allCompletedEstimatesLists.append(QList<double>());
-			allWithdrawnEstimatesLists.append(QList<double>());
-			allOutstandingEstimatesTotals.append(0);
-			allCompletedEstimatesTotals.append(0);
-			allWithdrawnEstimatesTotals.append(0);
 
-			allComplexityMappedCompetedWorkLists.append(QList<double>());
-			allReportedCompetedWorkLists.append(QList<double>());
-			allComplexityMappedCompetedWorkTotals.append(0);
-			allReportedCompetedWorkTotals.append(0);
+	//		for(int x = 0, xSize = bioxasSideMilestone->associatedFamilies().count(); x < xSize; x++){
+	for(int x = 0, xSize = workingIssueFamilies.count(); x < xSize; x++){
+		for(int y = 0, ySize = dateList.count(); y < ySize; y++){
+			allOutstandingEstimatesLists[y].append(complexityManager->outstandingEstimateAtDate(workingIssueFamilies.at(x), dateList.at(y)));
+			allCompletedEstimatesLists[y].append(complexityManager->completedEstimateAtDate(workingIssueFamilies.at(x), dateList.at(y)));
+			allWithdrawnEstimatesLists[y].append(complexityManager->withdrawnEstimateAtDate(workingIssueFamilies.at(x), dateList.at(y)));
+
+			allComplexityMappedCompetedWorkLists[y].append(complexityManager->complexityMappedCompletedWorkAtDate(workingIssueFamilies.at(x), dateList.at(y)));
+			allReportedCompetedWorkLists[y].append(complexityManager->reportedCompletedWorkAtDate(workingIssueFamilies.at(x), dateList.at(y)));
 		}
+	}
+
+	for(int x = 0, xSize = dateList.count(); x < xSize; x++){
+		for(int y = 0, ySize = allOutstandingEstimatesLists.at(x).count(); y < ySize; y++)
+			allOutstandingEstimatesTotals[x] = allOutstandingEstimatesTotals.at(x)+allOutstandingEstimatesLists.at(x).at(y);
+		for(int y = 0, ySize = allCompletedEstimatesLists.at(x).count(); y < ySize; y++)
+			allCompletedEstimatesTotals[x] = allCompletedEstimatesTotals.at(x)+allCompletedEstimatesLists.at(x).at(y);
+		for(int y = 0, ySize = allWithdrawnEstimatesLists.at(x).count(); y < ySize; y++)
+			allWithdrawnEstimatesTotals[x] = allWithdrawnEstimatesTotals.at(x)+allWithdrawnEstimatesLists.at(x).at(y);
+
+		for(int y = 0, ySize = allComplexityMappedCompetedWorkLists.at(x).count(); y < ySize; y++)
+			allComplexityMappedCompetedWorkTotals[x] = allComplexityMappedCompetedWorkTotals.at(x)+allComplexityMappedCompetedWorkLists.at(x).at(y);
+		for(int y = 0, ySize = allReportedCompetedWorkLists.at(x).count(); y < ySize; y++)
+			allReportedCompetedWorkTotals[x] = allReportedCompetedWorkTotals.at(x)+allReportedCompetedWorkLists.at(x).at(y);
+	}
+
+	QList<double> weeklyEstimatedVelocity;
+	QList<double> weeklyComplexityMappedVelocity;
+	QList<double> weeklyReportedVelocity;
+
+	weeklyEstimatedVelocity.append(0);
+	weeklyComplexityMappedVelocity.append(0);
+	weeklyReportedVelocity.append(0);
+	for(int x = 1, size = dateList.count(); x < size; x++){
+		weeklyEstimatedVelocity.append(allCompletedEstimatesTotals.at(x-1)-allCompletedEstimatesTotals.at(x));
+		weeklyComplexityMappedVelocity.append(allComplexityMappedCompetedWorkTotals.at(x-1)-allComplexityMappedCompetedWorkTotals.at(x));
+		weeklyReportedVelocity.append(allReportedCompetedWorkTotals.at(x-1)-allReportedCompetedWorkTotals.at(x));
+	}
+
+	double averageEstimatedVelocityTotal = 0;
+	double averageComplexityMappedVelocityTotal = 0;
+	double averageReportedVelocityTotal = 0;
+
+	for(int x = 0, size = dateList.count(); x < size; x++){
+		averageEstimatedVelocityTotal += weeklyEstimatedVelocity.at(x);
+		averageComplexityMappedVelocityTotal += weeklyComplexityMappedVelocity.at(x);
+		averageReportedVelocityTotal += weeklyReportedVelocity.at(x);
+	}
+
+	double averageCalendarEstimatedVelocity  = averageEstimatedVelocityTotal/(dateList.count()-1);
+	double averageCalendarComplexityMappedVelocity = averageComplexityMappedVelocityTotal/(dateList.count()-1);
+	double averageCalendarReportedVelocity = averageReportedVelocityTotal/(dateList.count()-1);
+	double availablePersonWeeks = 48-(3+2+2+4); //10 weeks, 4 full time people, Sheldon away for 3 weeks vacation, Sheldon half time for one month, Darren gone for 2 weeks, Iain didn't start until May
+	//		double availablePersonWeeks = 16;
+	double averageAvailabilityEstimatedVelocity = averageEstimatedVelocityTotal/availablePersonWeeks;
+	double averageAvailabilityComplexityMappedVelocity = averageComplexityMappedVelocityTotal/availablePersonWeeks;
+	double averageAvailabilityReportedVelocity = averageReportedVelocityTotal/availablePersonWeeks;
+
+	//		for(int x = 0, xSize = dateList.count(); x < xSize; x++){
+	//			qDebug() << "At date: " << dateList.at(x);
+	//			qDebug() << "Outstanding Estimate List: " << allOutstandingEstimatesLists.at(x);
+	//			qDebug() << "Completed Estimate List: " << allCompletedEstimatesLists.at(x);
+	//			qDebug() << "Withdrawn Estimate List: " << allWithdrawnEstimatesLists.at(x);
+	//			qDebug() << "Outstanding Estimate Total: " << allOutstandingEstimatesTotals.at(x);
+	//			qDebug() << "Completed Estimate Total: " << allCompletedEstimatesTotals.at(x);
+	//			qDebug() << "Withdrawn Estimate Total: " << allWithdrawnEstimatesTotals.at(x);
+
+	//			qDebug() << "Complexity Mapped Completed Work List: " << allComplexityMappedCompetedWorkLists.at(x);
+	//			qDebug() << "Reported Completed Work List: " << allReportedCompetedWorkLists.at(x);
+	//			qDebug() << "Complexity Mapped Completed Work Total: " << allComplexityMappedCompetedWorkTotals.at(x);
+	//			qDebug() << "Reported Completed Work Total: " << allReportedCompetedWorkTotals.at(x);
+
+	//			qDebug() << "\n\n";
+	//		}
+
+	//		qDebug() << "Weekly Estimated Velocities: " << weeklyEstimatedVelocity;
+	//		qDebug() << "Weekly Complexity Mapped Velocities: " << weeklyComplexityMappedVelocity;
+	//		qDebug() << "Weekly Reported Velocities: " << weeklyReportedVelocity;
+
+	qDebug() << "\n\n";
+	qDebug() << "Average Estimated Velocity: " << averageCalendarEstimatedVelocity << "or" << averageAvailabilityEstimatedVelocity;
+	qDebug() << "Average Complexity Mapped Velocity: " << averageCalendarComplexityMappedVelocity << "or" << averageAvailabilityComplexityMappedVelocity;
+	qDebug() << "Average Reported Velocity: " << averageCalendarReportedVelocity << "or" << averageAvailabilityReportedVelocity;
 
 
-//		for(int x = 0, xSize = bioxasSideMilestone->associatedFamilies().count(); x < xSize; x++){
-		for(int x = 0, xSize = workingIssueFamilies.count(); x < xSize; x++){
-			for(int y = 0, ySize = dateList.count(); y < ySize; y++){
-				allOutstandingEstimatesLists[y].append(complexityManager->outstandingEstimateAtDate(workingIssueFamilies.at(x), dateList.at(y)));
-				allCompletedEstimatesLists[y].append(complexityManager->completedEstimateAtDate(workingIssueFamilies.at(x), dateList.at(y)));
-				allWithdrawnEstimatesLists[y].append(complexityManager->withdrawnEstimateAtDate(workingIssueFamilies.at(x), dateList.at(y)));
-
-				allComplexityMappedCompetedWorkLists[y].append(complexityManager->complexityMappedCompletedWorkAtDate(workingIssueFamilies.at(x), dateList.at(y)));
-				allReportedCompetedWorkLists[y].append(complexityManager->reportedCompletedWorkAtDate(workingIssueFamilies.at(x), dateList.at(y)));
-			}
-		}
-
-		for(int x = 0, xSize = dateList.count(); x < xSize; x++){
-			for(int y = 0, ySize = allOutstandingEstimatesLists.at(x).count(); y < ySize; y++)
-				allOutstandingEstimatesTotals[x] = allOutstandingEstimatesTotals.at(x)+allOutstandingEstimatesLists.at(x).at(y);
-			for(int y = 0, ySize = allCompletedEstimatesLists.at(x).count(); y < ySize; y++)
-				allCompletedEstimatesTotals[x] = allCompletedEstimatesTotals.at(x)+allCompletedEstimatesLists.at(x).at(y);
-			for(int y = 0, ySize = allWithdrawnEstimatesLists.at(x).count(); y < ySize; y++)
-				allWithdrawnEstimatesTotals[x] = allWithdrawnEstimatesTotals.at(x)+allWithdrawnEstimatesLists.at(x).at(y);
-
-			for(int y = 0, ySize = allComplexityMappedCompetedWorkLists.at(x).count(); y < ySize; y++)
-				allComplexityMappedCompetedWorkTotals[x] = allComplexityMappedCompetedWorkTotals.at(x)+allComplexityMappedCompetedWorkLists.at(x).at(y);
-			for(int y = 0, ySize = allReportedCompetedWorkLists.at(x).count(); y < ySize; y++)
-				allReportedCompetedWorkTotals[x] = allReportedCompetedWorkTotals.at(x)+allReportedCompetedWorkLists.at(x).at(y);
-		}
-
-		QList<double> weeklyEstimatedVelocity;
-		QList<double> weeklyComplexityMappedVelocity;
-		QList<double> weeklyReportedVelocity;
-
-		weeklyEstimatedVelocity.append(0);
-		weeklyComplexityMappedVelocity.append(0);
-		weeklyReportedVelocity.append(0);
-		for(int x = 1, size = dateList.count(); x < size; x++){
-			weeklyEstimatedVelocity.append(allCompletedEstimatesTotals.at(x-1)-allCompletedEstimatesTotals.at(x));
-			weeklyComplexityMappedVelocity.append(allComplexityMappedCompetedWorkTotals.at(x-1)-allComplexityMappedCompetedWorkTotals.at(x));
-			weeklyReportedVelocity.append(allReportedCompetedWorkTotals.at(x-1)-allReportedCompetedWorkTotals.at(x));
-		}
-
-		double averageEstimatedVelocityTotal = 0;
-		double averageComplexityMappedVelocityTotal = 0;
-		double averageReportedVelocityTotal = 0;
-
-		for(int x = 0, size = dateList.count(); x < size; x++){
-			averageEstimatedVelocityTotal += weeklyEstimatedVelocity.at(x);
-			averageComplexityMappedVelocityTotal += weeklyComplexityMappedVelocity.at(x);
-			averageReportedVelocityTotal += weeklyReportedVelocity.at(x);
-		}
-
-		double averageCalendarEstimatedVelocity  = averageEstimatedVelocityTotal/(dateList.count()-1);
-		double averageCalendarComplexityMappedVelocity = averageComplexityMappedVelocityTotal/(dateList.count()-1);
-		double averageCalendarReportedVelocity = averageReportedVelocityTotal/(dateList.count()-1);
-		double availablePersonWeeks = 48-(3+2+2+4); //10 weeks, 4 full time people, Sheldon away for 3 weeks vacation, Sheldon half time for one month, Darren gone for 2 weeks, Iain didn't start until May
-//		double availablePersonWeeks = 16;
-		double averageAvailabilityEstimatedVelocity = averageEstimatedVelocityTotal/availablePersonWeeks;
-		double averageAvailabilityComplexityMappedVelocity = averageComplexityMappedVelocityTotal/availablePersonWeeks;
-		double averageAvailabilityReportedVelocity = averageReportedVelocityTotal/availablePersonWeeks;
-
-//		for(int x = 0, xSize = dateList.count(); x < xSize; x++){
-//			qDebug() << "At date: " << dateList.at(x);
-//			qDebug() << "Outstanding Estimate List: " << allOutstandingEstimatesLists.at(x);
-//			qDebug() << "Completed Estimate List: " << allCompletedEstimatesLists.at(x);
-//			qDebug() << "Withdrawn Estimate List: " << allWithdrawnEstimatesLists.at(x);
-//			qDebug() << "Outstanding Estimate Total: " << allOutstandingEstimatesTotals.at(x);
-//			qDebug() << "Completed Estimate Total: " << allCompletedEstimatesTotals.at(x);
-//			qDebug() << "Withdrawn Estimate Total: " << allWithdrawnEstimatesTotals.at(x);
-
-//			qDebug() << "Complexity Mapped Completed Work List: " << allComplexityMappedCompetedWorkLists.at(x);
-//			qDebug() << "Reported Completed Work List: " << allReportedCompetedWorkLists.at(x);
-//			qDebug() << "Complexity Mapped Completed Work Total: " << allComplexityMappedCompetedWorkTotals.at(x);
-//			qDebug() << "Reported Completed Work Total: " << allReportedCompetedWorkTotals.at(x);
-
-//			qDebug() << "\n\n";
-//		}
-
-//		qDebug() << "Weekly Estimated Velocities: " << weeklyEstimatedVelocity;
-//		qDebug() << "Weekly Complexity Mapped Velocities: " << weeklyComplexityMappedVelocity;
-//		qDebug() << "Weekly Reported Velocities: " << weeklyReportedVelocity;
-
-		qDebug() << "\n\n";
-		qDebug() << "Average Estimated Velocity: " << averageCalendarEstimatedVelocity << "or" << averageAvailabilityEstimatedVelocity;
-		qDebug() << "Average Complexity Mapped Velocity: " << averageCalendarComplexityMappedVelocity << "or" << averageAvailabilityComplexityMappedVelocity;
-		qDebug() << "Average Reported Velocity: " << averageCalendarReportedVelocity << "or" << averageAvailabilityReportedVelocity;
-
-
-		/* NO PLOTTING
+	/* NO PLOTTING
 		// Create the plot window.
 		MPlotWidget *plotView = new MPlotWidget;
 		plotView->enableAntiAliasing(true);
@@ -658,32 +760,34 @@ void AMGithubProjectManagerMainView::onGetAllCommentsActionSucceeded(){
 		*/
 
 
-//		QString eventsString = QString("https://api.github.com/repos/acquaman/acquaman/issues/1315/events");
-//		QString eventsString = QString("https://api.zenhub.io/v2/acquaman/acquaman/issues/1176/pipelines");
-//		QString eventsString = QString("https://api.zenhub.io/v2/acquaman/acquaman/issues/1177/estimates?repo=acquaman&issue_number=1177&organization=acquaman");
-//		QString eventsString = QString("https://api.zenhub.io/v2/acquaman/acquaman/issues/1276/pipelines");
-//		QString eventsString = QString("https://api.zenhub.io/v2/acquaman/acquaman/issues/1462/estimates?repo=acquaman&issue_number=1462&organization=acquaman");
-//		QString eventsString = QString("https://api.github.com/repos/acquaman/acquaman/issues/1462/labels");
-//		QString eventsString = QString("https://api.zenhub.io/v2/acquaman/acquaman/issues/1462/estimates?repo=acquaman&issue_number=1462&estimate_value=3&organization=acquaman");
-		QString eventsString = QString("https://api.zenhub.io/v2/acquaman/acquaman/issues/1458/estimates");
-//		QString eventsString = QString("https://api.zenhub.io/v2/acquaman/acquaman/board");
+	/*
+	//		QString eventsString = QString("https://api.github.com/repos/acquaman/acquaman/issues/1315/events");
+	//		QString eventsString = QString("https://api.zenhub.io/v2/acquaman/acquaman/issues/1176/pipelines");
+	//		QString eventsString = QString("https://api.zenhub.io/v2/acquaman/acquaman/issues/1177/estimates?repo=acquaman&issue_number=1177&organization=acquaman");
+	//		QString eventsString = QString("https://api.zenhub.io/v2/acquaman/acquaman/issues/1276/pipelines");
+	//		QString eventsString = QString("https://api.zenhub.io/v2/acquaman/acquaman/issues/1462/estimates?repo=acquaman&issue_number=1462&organization=acquaman");
+	//		QString eventsString = QString("https://api.github.com/repos/acquaman/acquaman/issues/1462/labels");
+	//		QString eventsString = QString("https://api.zenhub.io/v2/acquaman/acquaman/issues/1462/estimates?repo=acquaman&issue_number=1462&estimate_value=3&organization=acquaman");
+	QString eventsString = QString("https://api.zenhub.io/v2/acquaman/acquaman/issues/1458/estimates");
+	//		QString eventsString = QString("https://api.zenhub.io/v2/acquaman/acquaman/board");
 
-//		AMRestActionInfo *getOneIssueEventsActionInfo = new AMRestActionInfo(eventsString, AMRestActionInfo::GetRequest);
-		AMRestActionInfo *getOneIssueEventsActionInfo = new AMRestActionInfo(eventsString, AMRestActionInfo::PutRequest);
-		getOneIssueEventsActionInfo->setRawHeader("Authorization", headerData_.toLocal8Bit());
-		QString xauthtokenData = "ced5ec812ee0ee5576da1345550d0110ba65946262541a1db6030ebda5dd4c0d95b31d24d954c563";
-		getOneIssueEventsActionInfo->setRawHeader("x-authentication-token", xauthtokenData.toLocal8Bit());
-		getOneIssueEventsActionInfo->setContentType(AMRestActionInfo::FormURLEncoded);
-		getOneIssueEventsActionInfo->setRequestData(QString("repo=acquaman&issue_number=1458&estimate_value=3&organization=acquaman").toAscii());
+	//		AMRestActionInfo *getOneIssueEventsActionInfo = new AMRestActionInfo(eventsString, AMRestActionInfo::GetRequest);
+	AMRestActionInfo *getOneIssueEventsActionInfo = new AMRestActionInfo(eventsString, AMRestActionInfo::PutRequest);
+	getOneIssueEventsActionInfo->setRawHeader("Authorization", headerData_.toLocal8Bit());
+	QString xauthtokenData = "ced5ec812ee0ee5576da1345550d0110ba65946262541a1db6030ebda5dd4c0d95b31d24d954c563";
+	getOneIssueEventsActionInfo->setRawHeader("x-authentication-token", xauthtokenData.toLocal8Bit());
+	getOneIssueEventsActionInfo->setContentType(AMRestActionInfo::FormURLEncoded);
+	getOneIssueEventsActionInfo->setRequestData(QString("repo=acquaman&issue_number=1458&estimate_value=3&organization=acquaman").toAscii());
 
-//		getOneIssueEventsActionInfo->setRawHeader("Content-Type", QString("application/x-www-form-urlencoded").toLocal8Bit());
-//		getOneIssueEventsActionInfo->setRawHeader("Content-Length", QString("70").toLocal8Bit());
-		AMRestAction *getOneIssueEventsAction = new AMRestAction(getOneIssueEventsActionInfo, manager_);
+	//		getOneIssueEventsActionInfo->setRawHeader("Content-Type", QString("application/x-www-form-urlencoded").toLocal8Bit());
+	//		getOneIssueEventsActionInfo->setRawHeader("Content-Length", QString("70").toLocal8Bit());
+	AMRestAction *getOneIssueEventsAction = new AMRestAction(getOneIssueEventsActionInfo, manager_);
 
-		connect(getOneIssueEventsAction, SIGNAL(fullResponseReady(QVariant, QList<QNetworkReply::RawHeaderPair>)), this, SLOT(onGetOneIssueEventsReturned(QVariant, QList<QNetworkReply::RawHeaderPair>)));
-//		getOneIssueEventsAction->start();
+	connect(getOneIssueEventsAction, SIGNAL(fullResponseReady(QVariant, QList<QNetworkReply::RawHeaderPair>)), this, SLOT(onGetOneIssueEventsReturned(QVariant, QList<QNetworkReply::RawHeaderPair>)));
+	//		getOneIssueEventsAction->start();
 
-	}
+	*/
+}
 //}
 
 void AMGithubProjectManagerMainView::onGetOneIssueEventsReturned(QVariant fullResponse, QList<QNetworkReply::RawHeaderPair> headerPairs){
@@ -691,14 +795,14 @@ void AMGithubProjectManagerMainView::onGetOneIssueEventsReturned(QVariant fullRe
 
 	qDebug() << "\n\n" << fullResponse;
 
-//	QVariantList responseList = fullResponse.toList();
-//	for(int x = 0, size = responseList.count(); x < size; x++){
-////		qDebug() << "At" << x;
-////		qDebug() << responseList.at(x);
-////		qDebug() << "\n";
-//		QVariantMap jsonMap = responseList.at(x).toMap();
-//		qDebug() << "At " << x << "event type" << jsonMap.value("event").toString();
-//	}
+	//	QVariantList responseList = fullResponse.toList();
+	//	for(int x = 0, size = responseList.count(); x < size; x++){
+	////		qDebug() << "At" << x;
+	////		qDebug() << responseList.at(x);
+	////		qDebug() << "\n";
+	//		QVariantMap jsonMap = responseList.at(x).toMap();
+	//		qDebug() << "At " << x << "event type" << jsonMap.value("event").toString();
+	//	}
 
 	/* QString eventsString = QString("https://api.zenhub.io/v2/acquaman/acquaman/issues/1276/pipelines");
 	QVariantList responseList = fullResponse.toList();

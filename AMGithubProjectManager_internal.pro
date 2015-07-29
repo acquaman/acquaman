@@ -31,7 +31,9 @@ SOURCES += \
     source/actions3/actions/AMGitHubGetIssuesAction.cpp \
     source/actions3/actions/AMGitHubStandardAction.cpp \
     source/actions3/actions/AMGitHubGetCommentsAction.cpp \
-    source/actions3/actions/AMGitHubGetCommentsActionInfo.cpp
+    source/actions3/actions/AMGitHubGetCommentsActionInfo.cpp \
+    source/actions3/actions/AMZenHubGetEstimatesActionInfo.cpp \
+    source/actions3/actions/AMZenHubGetEstimatesAction.cpp
 
 HEADERS  += \
 	AMGithubProjectManager/AMGithubProjectManagerMainView.h \
@@ -47,4 +49,6 @@ HEADERS  += \
     source/actions3/actions/AMGitHubGetIssuesAction.h \
     source/actions3/actions/AMGitHubStandardAction.h \
     source/actions3/actions/AMGitHubGetCommentsAction.h \
-    source/actions3/actions/AMGitHubGetCommentsActionInfo.h
+    source/actions3/actions/AMGitHubGetCommentsActionInfo.h \
+    source/actions3/actions/AMZenHubGetEstimatesActionInfo.h \
+    source/actions3/actions/AMZenHubGetEstimatesAction.h

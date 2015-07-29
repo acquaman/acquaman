@@ -19,6 +19,7 @@ AMGitHubIssue::AMGitHubIssue(QVariantMap jsonMap, QObject *parent) :
 	projectTrackingDisabled_ = false;
 	inlineIssue_ = false;
 	issueState_ = AMGitHubIssue::InvalidState;
+	zenhubComplexityValue_ = AMGitHubIssue::ZenhubComplexityInvalid;
 
 	if(jsonMap.value("number").canConvert<int>())
 		issueNumber_ = jsonMap.value("number").toInt();
@@ -95,6 +96,10 @@ AMGitHubIssue::ComplexityValue AMGitHubIssue::complexityFromString(const QString
 		return AMGitHubIssue::Complexity5;
 	else if(complexityString == "Complexity8")
 		return AMGitHubIssue::Complexity8;
+	else if(complexityString == "Complexity13")
+		return AMGitHubIssue::Complexity13;
+	else if(complexityString == "Complexity21")
+		return AMGitHubIssue::Complexity21;
 	else if(complexityString == "ComplexityK")
 		return AMGitHubIssue::ComplexityK;
 	else
@@ -113,12 +118,37 @@ QString AMGitHubIssue::stringFromComplexity(AMGitHubIssue::ComplexityValue compl
 		return "Complexity5";
 	case AMGitHubIssue::Complexity8:
 		return "Complexity8";
+	case AMGitHubIssue::Complexity13:
+		return "Complexity13";
+	case AMGitHubIssue::Complexity21:
+		return "Complexity21";
 	case AMGitHubIssue::ComplexityK:
 		return "ComplexityK";
 	case AMGitHubIssue::InvalidComplexity:
 		return "Invalid Complexity";
 	default:
 		return "Invalid Complexity";
+	}
+}
+
+int AMGitHubIssue::integerFromComplexity(AMGitHubIssue::ComplexityValue complexityValue){
+	switch(complexityValue){
+	case AMGitHubIssue::Complexity1:
+		return 1;
+	case AMGitHubIssue::Complexity2:
+		return 2;
+	case AMGitHubIssue::Complexity3:
+		return 3;
+	case AMGitHubIssue::Complexity5:
+		return 5;
+	case AMGitHubIssue::Complexity8:
+		return 8;
+	case AMGitHubIssue::Complexity13:
+		return 13;
+	case AMGitHubIssue::Complexity21:
+		return 21;
+	default:
+		return -1;
 	}
 }
 
@@ -168,4 +198,53 @@ QString AMGitHubIssue::multiLineDebugInfo() const
 		retVal.append(QString("Time Estimate:\t\t%1\n").arg(timeEstimateString_));
 
 	return retVal;
+}
+
+AMGitHubIssue::ZenhubComplexityValue AMGitHubIssue::zenhubComplexityFromInteger(int zenhubComplexityAsInteger)
+{
+	switch(zenhubComplexityAsInteger){
+	case 1:
+		return AMGitHubIssue::ZenhubComplexity1;
+	case 2:
+		return AMGitHubIssue::ZenhubComplexity2;
+	case 3:
+		return AMGitHubIssue::ZenhubComplexity3;
+	case 5:
+		return AMGitHubIssue::ZenhubComplexity5;
+	case 8:
+		return AMGitHubIssue::ZenhubComplexity8;
+	case 13:
+		return AMGitHubIssue::ZenhubComplexity13;
+	case 21:
+		return AMGitHubIssue::ZenhubComplexity21;
+	case 40:
+		return AMGitHubIssue::ZenhubComplexity40;
+	default:
+		return AMGitHubIssue::ZenhubComplexityInvalid;
+	}
+}
+
+int AMGitHubIssue::integerFromZenhubComplexityValue(AMGitHubIssue::ZenhubComplexityValue zenhubComplexityValue)
+{
+	switch(zenhubComplexityValue){
+	case AMGitHubIssue::ZenhubComplexity1:
+		return 1;
+	case AMGitHubIssue::ZenhubComplexity2:
+		return 2;
+	case AMGitHubIssue::ZenhubComplexity3:
+		return 3;
+	case AMGitHubIssue::ZenhubComplexity5:
+		return 5;
+	case AMGitHubIssue::ZenhubComplexity8:
+		return 8;
+	case AMGitHubIssue::ZenhubComplexity13:
+		return 13;
+	case AMGitHubIssue::ZenhubComplexity21:
+		return 21;
+	case AMGitHubIssue::ZenhubComplexity40:
+		return 40;
+	case AMGitHubIssue::ZenhubComplexityInvalid:
+	default:
+		return -1;
+	}
 }

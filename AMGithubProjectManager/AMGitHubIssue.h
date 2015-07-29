@@ -11,7 +11,9 @@ class AMGitHubIssue : public QObject
 Q_OBJECT
 public:
 	enum IssueState { ClosedState, OpenState, InvalidState };
-	enum ComplexityValue { Complexity1, Complexity2, Complexity3, Complexity5, Complexity8, ComplexityK, InvalidComplexity };
+	enum ComplexityValue { Complexity1, Complexity2, Complexity3, Complexity5, Complexity8, Complexity13, Complexity21, ComplexityK, InvalidComplexity };
+
+	enum ZenhubComplexityValue { ZenhubComplexity1, ZenhubComplexity2, ZenhubComplexity3, ZenhubComplexity5, ZenhubComplexity8, ZenhubComplexity13, ZenhubComplexity21, ZenhubComplexity40, ZenhubComplexityInvalid };
 
 //	AMGitHubIssue(int issueNumber = -1, AMGitHubIssue::ComplexityValue complexityValue = AMGitHubIssue::InvalidComplexity, const QString &title = "Invalid Title", bool isPullRequest = false, AMGitHubIssue *originatingIssue = 0, int originatingIssueNumber = -1, int commentCount = 0, const QString &commentsURL = "InvalidURL", const QString &timeEstimateString = "Invalid Time Estimate", const QString &assignee = "Invalid Assignee", bool projectTrackingDisabled = false, bool inlineIssue = false, AMGitHubIssue::IssueState issueState = AMGitHubIssue::InvalidState, QObject *parent = 0);
 	AMGitHubIssue(QVariantMap jsonMap, QObject *parent = 0);
@@ -38,11 +40,16 @@ public:
 
 	static AMGitHubIssue::ComplexityValue complexityFromString(const QString &complexityString);
 	static QString stringFromComplexity(AMGitHubIssue::ComplexityValue complexityValue);
+	static int integerFromComplexity(AMGitHubIssue::ComplexityValue complexityValue);
 
 	static QString stringFromState(AMGitHubIssue::IssueState issueState);
 
 	QString oneLineDebugInfo() const;
 	QString multiLineDebugInfo() const;
+
+	AMGitHubIssue::ZenhubComplexityValue zenhubComplexityValue() const { return zenhubComplexityValue_; }
+	static AMGitHubIssue::ZenhubComplexityValue zenhubComplexityFromInteger(int zenhubComplexityAsInteger);
+	static int integerFromZenhubComplexityValue(AMGitHubIssue::ZenhubComplexityValue zenhubComplexityValue);
 
 public slots:
 	void setIssueNumber(int issueNumber) { issueNumber_ = issueNumber; }
@@ -57,6 +64,8 @@ public slots:
 	void setAssignee(const QString &assignee) { assignee_ = assignee; }
 	void setProjectTrackingDisabled(bool projectTrackingDisabled) { projectTrackingDisabled_ = projectTrackingDisabled; }
 	void setInlineIssue(bool inlineIssue) { inlineIssue_ = inlineIssue; }
+
+	void setZenubComplexityValue(AMGitHubIssue::ZenhubComplexityValue zenhubComplexityValue) { zenhubComplexityValue_ = zenhubComplexityValue; }
 
 protected:
 	int issueNumber_;
@@ -74,6 +83,8 @@ protected:
 	AMGitHubIssue::IssueState issueState_;
 	QDateTime createdDate_;
 	QDateTime closedDate_;
+
+	AMGitHubIssue::ZenhubComplexityValue zenhubComplexityValue_;
 };
 
 #endif // AMGITHUBISSUE_H
