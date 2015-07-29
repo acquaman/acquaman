@@ -165,7 +165,7 @@ bool AMPIC887Controller::setRecordConfigs(const QHash<int, AMPIC887DataRecorderC
 	return true;
 }
 
-AMGCS2::AxisMovementStatuses AMPIC887Controller::movementStatus() const
+AMGCS2::AxisMovementStatuses AMPIC887Controller::movementStatuses() const
 {
 	AMGCS2::AxisMovementStatuses movements;
 
