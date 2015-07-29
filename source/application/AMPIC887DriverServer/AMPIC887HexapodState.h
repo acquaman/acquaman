@@ -71,17 +71,17 @@ public:
 	  * \param velocity ~ The current axis velocity.
 	  */
 	void initialize(bool servoMode, double cycleTime, double velocity,
-					AMPIC887AxisMap<bool> referencedStates,
-					AMPIC887AxisMap<double> currentPositions,
-					AMPIC887AxisMap<double> lowSoftLimits,
-					AMPIC887AxisMap<double> highSoftLimits,
-					AMPIC887AxisMap<bool> softLimitStates,
-					AMPIC887AxisMap<bool> limitSwitchStates,
-					AMPIC887AxisMap<AMGCS2::PositionUnits> positionUnits,
-					AMPIC887AxisMap<double> stepSizes,
-					AMPIC887AxisMap<double> minCommandablePositions,
-					AMPIC887AxisMap<double> maxCommandablePositions,
-					AMPIC887AxisMap<double> pivotPoints);
+					const AMPIC887AxisMap<bool>& referencedStates,
+					const AMPIC887AxisMap<double>& currentPositions,
+					const AMPIC887AxisMap<double>& lowSoftLimits,
+					const AMPIC887AxisMap<double>& highSoftLimits,
+					const AMPIC887AxisMap<bool>& softLimitStates,
+					const AMPIC887AxisMap<bool>& limitSwitchStates,
+					const AMPIC887AxisMap<AMGCS2::PositionUnits>& positionUnits,
+					const AMPIC887AxisMap<double>& stepSizes,
+					const AMPIC887AxisMap<double>& minCommandablePositions,
+					const AMPIC887AxisMap<double>& maxCommandablePositions,
+					const AMPIC887AxisMap<double>& pivotPoints);
 
 	/*!
 	  * A status string displaying the current data stored in this hexapod state.
