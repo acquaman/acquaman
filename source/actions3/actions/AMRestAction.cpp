@@ -83,6 +83,8 @@ void AMRestAction::startImplementation()
 		break;
 	case AMRestActionInfo::PutRequest:
 		restReply_ = networkAccessManager_->put(request, buffer);
+	case AMRestActionInfo::DeleteRequest:
+		restReply_ = networkAccessManager_->sendCustomRequest(request, "DELETE");
 		break;
 	default:
 		break;

@@ -25,13 +25,13 @@ public:
 protected slots:
 	void onInitiateButtonClicked();
 
+	void onOneComplexityLabelFixed();
+
 	void onGetAllIssuesActionSucceeded();
 	void onGetAllCommentsActionSucceeded();
 	void onGetAllZenhubEstimatesSucceeded();
 
 	void onOneZenhubEstimateUpdateSucceeded();
-
-	void onGetOneIssueCommentsReturned(QVariant fullResponse, QList<QNetworkReply::RawHeaderPair> headerPairs);
 
 	void onGetOneIssueEventsReturned(QVariant fullResponse, QList<QNetworkReply::RawHeaderPair> headerPairs);
 
@@ -52,7 +52,8 @@ protected:
 	QStringList commentURLs_;
 	QMap<int, AMGitHubMilestone*> allMilestones_;
 
-	QList<int> updateZenhubEstimatesList_;
+	QStringList openIssuesToFix_;
+	QStringList openIssueComplexitiesToFix_;
 };
 
 #endif // AMGITHUBPROJECTMANAGERMAINVIEW_H

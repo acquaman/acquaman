@@ -17,7 +17,7 @@ Q_PROPERTY(QByteArray requestData READ requestData WRITE setRequestData)
 
 public:
 	/// Enum for HTTP Verb request type
-	enum VerbRequestType { GetRequest, PostRequest, PatchRequest, PutRequest };
+	enum VerbRequestType { GetRequest, PostRequest, PatchRequest, PutRequest, DeleteRequest };
 	/// Enum for the HTTP Content type to use
 	enum ContentType { JSONContent, FormURLEncoded };
 
