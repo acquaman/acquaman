@@ -18,6 +18,12 @@ AMPIC887AxisCollection::AMPIC887AxisCollection(InitializationState initializatio
 	}
 }
 
+AMPIC887AxisCollection::AMPIC887AxisCollection(const QList<AMGCS2::Axis>& axes)
+	:	QList<AMGCS2::Axis>(axes)
+{
+
+}
+
 AMPIC887AxisCollection::ValidState AMPIC887AxisCollection::validate() const
 {
 	foreach(AMGCS2::Axis currentAxis, *this) {

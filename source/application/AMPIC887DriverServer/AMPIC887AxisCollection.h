@@ -35,6 +35,13 @@ public:
 	AMPIC887AxisCollection(InitializationState initializationState = AllAxes);
 
 	/*!
+	  * Creates an instance of an axis collection which contains the provided
+	  * list of axes.
+	  * \param axes ~ The list of axes from which to build the axis collection.
+	  */
+	explicit AMPIC887AxisCollection(const QList<AMGCS2::Axis>& axes);
+
+	/*!
 	  * The valid state of the axis collection.
 	  * \returns ValidState indicating the validity of the collection.
 	  */
