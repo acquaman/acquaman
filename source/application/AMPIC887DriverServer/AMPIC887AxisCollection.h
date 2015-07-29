@@ -21,7 +21,8 @@ public:
 	enum ValidState {
 		Valid,					// Collection is valid
 		ContainsUnknownAxis,	// Collection contains an unknown axis
-		ContainsDuplicateAxes	// Collection contains duplicates
+		ContainsDuplicateAxes,	// Collection contains duplicates
+		UnknownValidState		// Collections valid state is unknown
 	};
 
 	/*!
