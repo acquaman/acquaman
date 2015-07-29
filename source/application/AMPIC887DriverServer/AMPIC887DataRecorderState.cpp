@@ -19,7 +19,9 @@ void AMPIC887DataRecorderState::initialize(AMGCS2::DataRecordTrigger recordTrigg
 	availableRecordParameters_ = availableRecordParameters;
 	recordConfigs_ = recordConfigs;
 
-	isInitialized_ = true;
+	isInitialized_ = ( recordTrigger_ != AMGCS2::UnknownRecordTrigger &&
+						!availableRecordParameters_.isEmpty() &&
+						!recordConfigs_.isEmpty());
 }
 
 AMGCS2::DataRecordTrigger AMPIC887DataRecorderState::recordTrigger() const

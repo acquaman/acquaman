@@ -31,12 +31,16 @@ void AMPIC887ControllerState::initialize(AMGCS2::ControllerCommandLevel commandL
 	currentCommandLevel_ = commandLevel;
 	availableParameters_ = availableParameters;
 	identificationString_ = identification;
-	isInitialized_ = true;
+
+	isInitialized_ = (currentCommandLevel_ != AMGCS2::UnknownCommandLevel &&
+						!availableParameters_.isEmpty() &&
+						!identificationString_.isEmpty());
 }
 
 bool AMPIC887ControllerState::isAllInitialized() const
 {
-	return hexapodState_->isInitialized() &&
+	return isInitialized_ &&
+			hexapodState_->isInitialized() &&
 			dataRecorderState_->isInitialized();
 }
 
