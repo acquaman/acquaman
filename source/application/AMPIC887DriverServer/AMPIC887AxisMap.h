@@ -27,14 +27,7 @@ public:
 	  */
 	AMPIC887AxisCollection axes() const
 	{
-		AMPIC887AxisCollection returnCollection(AMPIC887AxisCollection::EmptyCollection);
-		QList<AMGCS2::Axis> axisEntries = this->keys();
-
-		foreach(AMGCS2::Axis currentAxisEntry, axisEntries) {
-			returnCollection.append(currentAxisEntry);
-		}
-
-		return returnCollection;
+		return AMPIC887AxisCollection(this->keys());
 	}
 
 	/*!
@@ -96,14 +89,7 @@ public:
 	  */
 	AMPIC887AxisCollection axes() const
 	{
-		AMPIC887AxisCollection returnCollection(AMPIC887AxisCollection::EmptyCollection);
-		QList<AMGCS2::Axis> axisEntries = keys();
-
-		foreach(AMGCS2::Axis currentAxisEntry, axisEntries) {
-			returnCollection.append(currentAxisEntry);
-		}
-
-		return returnCollection;
+		return AMPIC887AxisCollection(keys());
 	}
 
 	/*!
@@ -176,14 +162,7 @@ public:
 	  */
 	AMPIC887AxisCollection axes() const
 	{
-		AMPIC887AxisCollection returnCollection(AMPIC887AxisCollection::EmptyCollection);
-		QList<AMGCS2::Axis> axisEntries = keys();
-
-		foreach(AMGCS2::Axis currentAxisEntry, axisEntries) {
-			returnCollection.append(currentAxisEntry);
-		}
-
-		return returnCollection;
+		return AMPIC887AxisCollection(keys());
 	}
 
 	/*!
@@ -249,14 +228,7 @@ public:
 	  */
 	AMPIC887AxisCollection axes() const
 	{
-		AMPIC887AxisCollection returnCollection(AMPIC887AxisCollection::EmptyCollection);
-		QList<AMGCS2::Axis> axisEntries =  keys();
-
-		foreach(AMGCS2::Axis currentAxisEntry, axisEntries) {
-			returnCollection.append(currentAxisEntry);
-		}
-
-		return returnCollection;
+		return AMPIC887AxisCollection(keys());
 	}
 
 	/*!
