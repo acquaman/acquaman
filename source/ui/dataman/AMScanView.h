@@ -143,7 +143,7 @@ protected:
 	/// Returns the bottom axis units from a scan.
 	QString bottomAxisUnits(AMScan *scan, AMDataSource *dataSource);
 	/// Returns the right axis units associated with a given data source.
-	QString rightAxisUnits(AMDataSource *dataSource);
+	QString rightAxisUnits(AMScan *scan, AMDataSource *dataSource);
 
 	AMScanView* masterView_;
 

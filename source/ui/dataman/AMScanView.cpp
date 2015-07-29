@@ -630,6 +630,11 @@ void AMScanViewInternal::setYAxisUnits(const QString &newUnits)
 	}
 }
 
+void AMScanViewInternal::applyYAxisUnits(MPlot *plot, const QString &yAxisUnits)
+{
+
+}
+
 void AMScanViewInternal::setPlotTools(AMScanViewPlotTools *newTools)
 {
 	if (tools_ != newTools) {
@@ -1080,7 +1085,7 @@ void AMScanViewExclusiveView::reviewScan(int scanIndex) {
 
 				setPlotBottomAxisName(plot_->plot(), bottomAxisName(scan, dataSource));
 				setPlotRightAxisName(plot_->plot(), rightAxisName(scan, dataSource));
-				setPlotToolUnits(QStringList() << bottomAxisUnits(scan, dataSource) << rightAxisUnits(dataSource));
+				setPlotToolUnits(QStringList() << bottomAxisUnits(scan, dataSource) << rightAxisUnits(scan, dataSource));
 
 			}
 			/// \todo: if there are 2d images on any plots, set their right axis to show the right axisScale, and show ticks.
@@ -1090,6 +1095,8 @@ void AMScanViewExclusiveView::reviewScan(int scanIndex) {
 
 		else {	// We already have one.  Review and update the existing plot item. (When would this be called? // A: When the exclusive data source changes, for one thing. need to change old series/image to represent new data)
 			plotItems_.at(scanIndex)->setDescription(model()->scanAt(scanIndex)->fullName());
+
+			setPlotToolUnits(QStringList() << bottomAxisUnits(model()->scanAt(scanIndex), dataSource) << rightAxisUnits(model()->scanAt(scanIndex), dataSource));
 
 			switch(dataSource->rank()) {
 			case 1: {
@@ -1103,6 +1110,7 @@ void AMScanViewExclusiveView::reviewScan(int scanIndex) {
 				MPlotMarkerShape::Shape shape = model()->markerShape(scanIndex, dataSourceIndex);
 				QColor markerColor = model()->markerColor(scanIndex, dataSourceIndex);
 				series->setMarker(shape, 6, QPen(markerColor));
+
 				break; }
 			case 2: {
 				MPlotAbstractImage* image = static_cast<MPlotAbstractImage*>(plotItems_.at(scanIndex));
@@ -2449,12 +2457,32 @@ QString AMScanViewInternal::bottomAxisUnits(AMScan *scan, AMDataSource *dataSour
 	return result;
 }
 
-QString AMScanViewInternal::rightAxisUnits(AMDataSource *dataSource)
+#include <QDebug>
+
+QString AMScanViewInternal::rightAxisUnits(AMScan *scan, AMDataSource *dataSource)
 {
 	QString result;
 
-	if (dataSource && dataSource->rank() > 1) {
-		result = dataSource->axisInfoAt(1).units;
+	qDebug() << "\n";
+
+	if (dataSource) {
+		qDebug() << "Data source valid.";
+
+		qDebug() << "Data source rank:" << dataSource->rank();
+
+		if (dataSource->rank() >= 1) {
+
+			qDebug() << "Data source has rank greater than or equal to 1.";
+
+			qDebug() << "Data source x units: " << dataSource->axisInfoAt(0).units;
+//			qDebug() << "Data source y units: " << dataSource->axisInfoAt(1).units;
+
+		} else {
+			qDebug() << "Data source has rank less than 1--unexpected.";
+		}
+
+	} else {
+		qDebug() << "Data source not valid??";
 	}
 
 	return result;

@@ -4,6 +4,8 @@ AMScanPlotView::AMScanPlotView(QWidget *parent) :
     QWidget(parent)
 {
 	plot_ = createDefaultPlot();
+
+	properties_ = new AMScanPlotViewProperties(this);
 }
 
 AMScanPlotView::~AMScanPlotView()
@@ -11,57 +13,23 @@ AMScanPlotView::~AMScanPlotView()
 
 }
 
-void AMScanPlotView::setXAxisUnits(const QString &newUnits)
+void AMScanPlotView::setProperties(AMScanPlotViewProperties *newProperties)
 {
-	if (xAxisUnits_ != newUnits) {
-		xAxisUnits_ = newUnits;
+	if (properties_ != newProperties) {
 
-		updateXAxisName();
+		if (properties_) {
 
-		emit xAxisUnitsChanged(xAxisUnits_);
-	}
-}
+		}
 
-void AMScanPlotView::setYAxisUnits(const QString &newUnits)
-{
-	if (yAxisUnits_ != newUnits) {
-		yAxisUnits_ = newUnits;
+		properties_ = newProperties;
 
-		updateYAxisName();
-
-		emit yAxisUnitsChanged(yAxisUnits_);
-	}
-}
-
-void AMScanPlotView::setLogScaleEnabled(bool isEnabled)
-{
-	if (logScaleEnabled_ != isEnabled) {
-		logScaleEnabled_ = isEnabled;
-		emit logScaleEnabledChanged(logScaleEnabled_);
-	}
-}
-
-void AMScanPlotView::setNormalizationEnabled(bool isEnabled)
-{
-	if (normalizationEnabled_ != isEnabled) {
-		normalizationEnabled_ = isEnabled;
-		emit normalizationEnabledChanged(normalizationEnabled_);
-	}
-}
-
-void AMScanPlotView::setWaterfallOffsetEnabled(bool isEnabled)
-{
-	if (waterfallOffsetEnabled_ != isEnabled) {
-		waterfallOffsetEnabled_ = isEnabled;
-		emit waterfallOffsetEnabledChanged(waterfallOffsetEnabled_);
-	}
-}
-
-void AMScanPlotView::setWaterfallOffset(double newOffset)
-{
-	if (waterfallOffset_ != newOffset) {
-		waterfallOffset_ = newOffset;
-		emit waterfallOffsetChanged(waterfallOffset_);
+		if (properties_) {
+			connect( properties_, SIGNAL(xAxisUnitsChanged(QString)), this, SLOT(updateXAxisName()) );
+			connect( properties_, SIGNAL(yAxisUnitsChanged(QString)), this, SLOT(updateYAxisName()) );
+			connect( properties_, SIGNAL(logScaleEnabledChanged(bool)), this, SLOT(updateLogScale()) );
+			connect( properties_, SIGNAL(normalizationEnabledChanged(bool)), this, SLOT(updateNormalization()) );
+			connect( properties_, SIGNAL(waterfallOffsetChanged(double)), this, SLOT(updateWaterfallOffset()) );
+		}
 	}
 }
 
@@ -73,6 +41,33 @@ void AMScanPlotView::updateXAxisName()
 void AMScanPlotView::updateYAxisName()
 {
 
+}
+
+void AMScanPlotView::updateLogScale()
+{
+
+}
+
+void AMScanPlotView::updateNormalization()
+{
+
+}
+
+void AMScanPlotView::updateWaterfallOffset()
+{
+	if (properties_) {
+		plot_->plot()->setAxisScaleWaterfall(MPlot::Left, properties_->waterfallOffset());
+	}
+}
+
+void AMScanPlotView::updateDataRangeConstraints()
+{
+	if (properties_) {
+		plot_->plot()->axisScale(MPlot::Left)->setDataRangeConstraint(properties_->dataRangeConstraint(MPlot::Left));
+		plot_->plot()->axisScale(MPlot::Right)->setDataRangeConstraint(properties_->dataRangeConstraint(MPlot::Right));
+		plot_->plot()->axisScale(MPlot::Bottom)->setDataRangeConstraint(properties_->dataRangeConstraint(MPlot::Bottom));
+		plot_->plot()->axisScale(MPlot::Top)->setDataRangeConstraint(properties_->dataRangeConstraint(MPlot::Top));
+	}
 }
 
 void AMScanPlotView::addDataSource(AMDataSource *newSource)

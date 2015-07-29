@@ -430,7 +430,8 @@ HEADERS += \
     source/ui/dataman/AMScanViewPlotToolView.h \
     source/ui/dataman/AMScanViewPlotSelectedToolsView.h \
     source/dataman/AMScanViewPlotTools.h \
-    source/ui/dataman/AMScanPlotView.h
+    source/ui/dataman/AMScanPlotView.h \
+    source/dataman/AMScanPlotViewProperties.h
 
 FORMS += \
 
@@ -822,7 +823,8 @@ SOURCES += \
     source/ui/dataman/AMScanViewPlotToolView.cpp \
     source/ui/dataman/AMScanViewPlotSelectedToolsView.cpp \
     source/dataman/AMScanViewPlotTools.cpp \
-    source/ui/dataman/AMScanPlotView.cpp
+    source/ui/dataman/AMScanPlotView.cpp \
+    source/dataman/AMScanPlotViewProperties.cpp
 
 RESOURCES *= source/icons/icons.qrc \
 		source/configurationFiles/configurationFiles.qrc \
@@ -839,6 +841,8 @@ contains(DEFINES, AM_BUILD_REPORTER_ENABLED){
 
 	SOURCES *= source/util/AMRunTimeBuildInfo.cpp
 }
+
+
 
 
 
