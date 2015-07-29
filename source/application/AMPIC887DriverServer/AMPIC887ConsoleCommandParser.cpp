@@ -85,7 +85,7 @@ void AMPIC887ConsoleCommandParser::interpretCommandImplementation(const QString 
 		} else if(commandParts.count() > 2) {
 			emit unknownCommand(QString("Cannot active more than one controller at a time."));
 		} else {
-			emit changeActiveController(commandParts.at(1));
+			emit activeControllerChangeRequested(commandParts.at(1));
 		}
 
 	} else if (command.startsWith("STP")) {

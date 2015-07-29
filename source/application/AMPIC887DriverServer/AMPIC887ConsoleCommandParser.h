@@ -251,7 +251,7 @@ signals:
 	  * \param controllerName ~ The name of the controller to make the active
 	  * controller.
 	  */
-	void changeActiveController(const QString& controllerName);
+	void activeControllerChangeRequested(const QString& controllerName);
 
 protected:
 	/*!

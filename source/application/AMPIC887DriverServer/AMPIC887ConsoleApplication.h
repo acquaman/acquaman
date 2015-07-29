@@ -50,12 +50,12 @@ protected slots:
 	void onStatusCommandIssued();
 
 	/*!
-	  * Handles signals indicating that the active controller command has been issued.
-	  * Sets the active controller to the first located controller in the collection
-	  * which matches the passed name.
+	  * Handles signals indicating that a request to change the active controller
+	  * has been issued. Attempts to locate a controller with the provided name,
+	  * and makes it the active controller if one is found.
 	  * \param controllerName ~ The name of the controller to be made active.
 	  */
-	void onActiveControllerChangeIssued(const QString& controllerName);
+	void onActiveControllerChangeRequested(const QString& controllerName);
 
 	/*!
 	  * Handles signals indicating that one of the controllers in the application

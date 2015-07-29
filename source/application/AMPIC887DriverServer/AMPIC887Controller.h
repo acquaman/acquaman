@@ -132,7 +132,7 @@ public:
 	  * \param recordConfigs ~ A mapping of data table id to the record config
 	  * to which it will be set.
 	  */
-	bool setRecordConfigs(const QHash<int, AMPIC887DataRecorderConfiguration> recordConfigs);
+	bool setRecordConfigs(const QHash<int, AMPIC887DataRecorderConfiguration>& recordConfigs);
 
 	/*!
 	  * The current movement status of the controller's hexapod.

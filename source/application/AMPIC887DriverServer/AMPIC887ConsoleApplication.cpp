@@ -54,7 +54,7 @@ void AMPIC887ConsoleApplication::onStatusCommandIssued()
 	consoleInputHandler_->writeLineToStandardOutput(controllerCollection_.connectionStatuses());
 }
 
-void AMPIC887ConsoleApplication::onActiveControllerChangeIssued(const QString &controllerName)
+void AMPIC887ConsoleApplication::onActiveControllerChangeRequested(const QString &controllerName)
 {
 	if(controllerCollection_.activeController()->name() != controllerName) {
 		controllerCollection_.setActiveController(controllerName);
@@ -593,7 +593,7 @@ void AMPIC887ConsoleApplication::makeConnections()
 	connect(commandParser_, SIGNAL(help()), this, SLOT(onHelpCommandIssued()));
 	connect(commandParser_, SIGNAL(quit()), this, SLOT(onQuitCommandIssued()));
 	connect(commandParser_, SIGNAL(status()), this, SLOT(onStatusCommandIssued()));
-	connect(commandParser_, SIGNAL(changeActiveController(QString)), this, SLOT(onActiveControllerChangeIssued(QString)));
+	connect(commandParser_, SIGNAL(activeControllerChangeRequested(QString)), this, SLOT(onActiveControllerChangeRequested(QString)));
 	connect(commandParser_, SIGNAL(moveCommandIssued(AMPIC887AxisMap<double>)), this, SLOT(onMoveCommandIssued(AMPIC887AxisMap<double>)));
 	connect(commandParser_, SIGNAL(moveRelativeCommandIssued(AMPIC887AxisMap<double>)), this, SLOT(onMoveRelativeCommandIssued(AMPIC887AxisMap<double>)));
 	connect(commandParser_, SIGNAL(motionStatusCommandIssued()), this, SLOT(onMotionStatusCommandIssued()));

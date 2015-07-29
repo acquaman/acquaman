@@ -64,9 +64,7 @@ QString AMPIC887Controller::lastError() const
 bool AMPIC887Controller::connectToController()
 {
 	id_ = PI_ConnectTCPIP(hostname_.toStdString().c_str(), CONTROLLER_PORT);
-	bool success = connectionEstablished();
-
-	return success;
+	return connectionEstablished();
 }
 
 void AMPIC887Controller::disconnectFromController()
@@ -152,7 +150,7 @@ QHash<int, AMPIC887DataRecorderConfiguration> AMPIC887Controller::recordConfigs(
 	return controllerState_->dataRecorderState()->recordConfigs();
 }
 
-bool AMPIC887Controller::setRecordConfigs(const QHash<int, AMPIC887DataRecorderConfiguration> recordConfigs)
+bool AMPIC887Controller::setRecordConfigs(const QHash<int, AMPIC887DataRecorderConfiguration>& recordConfigs)
 {
 	AMGCS2SetDataRecorderConfigurationCommand setRecordConfigCommand(recordConfigs);
 	runCommand(&setRecordConfigCommand);
