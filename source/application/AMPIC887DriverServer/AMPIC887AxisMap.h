@@ -97,7 +97,7 @@ public:
 	AMPIC887AxisCollection axes() const
 	{
 		AMPIC887AxisCollection returnCollection(AMPIC887AxisCollection::EmptyCollection);
-		QList<AMGCS2::Axis> axisEntries = this->keys();
+		QList<AMGCS2::Axis> axisEntries = keys();
 
 		foreach(AMGCS2::Axis currentAxisEntry, axisEntries) {
 			returnCollection.append(currentAxisEntry);
@@ -114,10 +114,10 @@ public:
 	{
 		QString returnString = QString("Axis\t\t%1\n").arg(header);
 
-		QList<AMGCS2::Axis> axes = this->keys();
+		QList<AMGCS2::Axis> axes = keys();
 		foreach(AMGCS2::Axis currentAxis, axes) {
 			QString axisValue;
-			if(this->value(currentAxis)) {
+			if( value(currentAxis)) {
 				axisValue = "Yes";
 			} else {
 				axisValue = "No";
@@ -136,7 +136,7 @@ public:
 	  */
 	bool containsUnknownAxis() const
 	{
-		return this->contains(AMGCS2::UnknownAxis);
+		return contains(AMGCS2::UnknownAxis);
 	}
 
 	/*!
@@ -150,8 +150,8 @@ public:
 	{
 		AMPIC887AxisMap<bool> returnValues;
 		foreach(AMGCS2::Axis currentAxis, keys) {
-			if(this->contains(currentAxis)) {
-				returnValues.insert(currentAxis, this->value(currentAxis));
+			if( contains(currentAxis)) {
+				returnValues.insert(currentAxis, value(currentAxis));
 			}
 		}
 
@@ -177,7 +177,7 @@ public:
 	AMPIC887AxisCollection axes() const
 	{
 		AMPIC887AxisCollection returnCollection(AMPIC887AxisCollection::EmptyCollection);
-		QList<AMGCS2::Axis> axisEntries = this->keys();
+		QList<AMGCS2::Axis> axisEntries = keys();
 
 		foreach(AMGCS2::Axis currentAxisEntry, axisEntries) {
 			returnCollection.append(currentAxisEntry);
@@ -194,11 +194,11 @@ public:
 	{
 		QString returnString = QString("Axis\t\t%1\n").arg(header);
 
-		QList<AMGCS2::Axis> axes = this->keys();
+		QList<AMGCS2::Axis> axes = keys();
 		foreach(AMGCS2::Axis currentAxis, axes) {
 			returnString.append(QString("%1\t\t%2\n")
 								.arg(AMGCS2Support::axisToCharacter(currentAxis))
-								.arg(this->value(currentAxis)));
+								.arg( value(currentAxis)));
 		}
 
 		return returnString.trimmed();
@@ -209,7 +209,7 @@ public:
 	  */
 	bool containsUnknownAxis() const
 	{
-		return this->contains(AMGCS2::UnknownAxis);
+		return contains(AMGCS2::UnknownAxis);
 	}
 
 	/*!
@@ -223,8 +223,8 @@ public:
 	{
 		AMPIC887AxisMap<double> returnValues;
 		foreach(AMGCS2::Axis currentAxis, keys) {
-			if(this->contains(currentAxis)) {
-				returnValues.insert(currentAxis, this->value(currentAxis));
+			if(contains(currentAxis)) {
+				returnValues.insert(currentAxis, value(currentAxis));
 			}
 		}
 
@@ -250,7 +250,7 @@ public:
 	AMPIC887AxisCollection axes() const
 	{
 		AMPIC887AxisCollection returnCollection(AMPIC887AxisCollection::EmptyCollection);
-		QList<AMGCS2::Axis> axisEntries = this->keys();
+		QList<AMGCS2::Axis> axisEntries =  keys();
 
 		foreach(AMGCS2::Axis currentAxisEntry, axisEntries) {
 			returnCollection.append(currentAxisEntry);
@@ -267,12 +267,12 @@ public:
 	{
 		QString returnString = QString("Axis\t\t%1\n").arg(header);
 
-		QList<AMGCS2::Axis> axes = this->keys();
+		QList<AMGCS2::Axis> axes =  keys();
 		foreach(AMGCS2::Axis currentAxis, axes) {
 
 			returnString.append(QString("%1\t\t%2\n")
 								.arg(AMGCS2Support::axisToCharacter(currentAxis))
-								.arg(AMGCS2Support::positionUnitsToString(this->value(currentAxis))));
+								.arg(AMGCS2Support::positionUnitsToString( value(currentAxis))));
 		}
 
 		return returnString.trimmed();
@@ -283,7 +283,7 @@ public:
 	  */
 	bool containsUnknownAxis() const
 	{
-		return this->contains(AMGCS2::UnknownAxis);
+		return  contains(AMGCS2::UnknownAxis);
 	}
 
 	/*!
@@ -297,8 +297,8 @@ public:
 	{
 		AMPIC887AxisMap<AMGCS2::PositionUnits> returnValues;
 		foreach(AMGCS2::Axis currentAxis, keys) {
-			if(this->contains(currentAxis)) {
-				returnValues.insert(currentAxis, this->value(currentAxis));
+			if( contains(currentAxis)) {
+				returnValues.insert(currentAxis,  value(currentAxis));
 			}
 		}
 
