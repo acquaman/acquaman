@@ -3,12 +3,22 @@
 AMPIC887DataRecorderState::AMPIC887DataRecorderState()
 {
 	recordTrigger_ = AMGCS2::UnknownRecordTrigger;
-	isInitialized_ = false;
 }
 
-bool AMPIC887DataRecorderState::isInitialized() const
+bool AMPIC887DataRecorderState::isDataValid() const
 {
-	return isInitialized_;
+	bool allConfigsValid = true;
+	QList<int> recordTableIds = recordConfigs_.keys();
+	foreach(int currentTableId, recordTableIds ) {
+
+		AMPIC887DataRecorderConfiguration currentRecordConfig = recordConfigs_.value(currentTableId);
+		allConfigsValid &= ( currentTableId >= 0 && currentTableId <= RECORD_TABLE_COUNT );
+		allConfigsValid &= ( currentRecordConfig.isValid() );
+	}
+
+	return allConfigsValid &&
+			!availableRecordParameters_.isEmpty() &&
+			recordTrigger_ != AMGCS2::UnknownRecordTrigger;
 }
 
 void AMPIC887DataRecorderState::initialize(AMGCS2::DataRecordTrigger recordTrigger,
@@ -18,10 +28,6 @@ void AMPIC887DataRecorderState::initialize(AMGCS2::DataRecordTrigger recordTrigg
 	recordTrigger_ = recordTrigger;
 	availableRecordParameters_ = availableRecordParameters;
 	recordConfigs_ = recordConfigs;
-
-	isInitialized_ = ( recordTrigger_ != AMGCS2::UnknownRecordTrigger &&
-						!availableRecordParameters_.isEmpty() &&
-						!recordConfigs_.isEmpty());
 }
 
 AMGCS2::DataRecordTrigger AMPIC887DataRecorderState::recordTrigger() const

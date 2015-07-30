@@ -47,10 +47,11 @@ public:
 					const QString& identification);
 
 	/*!
-	  * Whether all the data stored within this controller state is initialized.
+	  * Whether all the data stored within this controller state is valid for
+	  * safe controller operation.
 	  * \return True if the contained hexapod is initialized, false otherwise.
 	  */
-	bool isAllInitialized() const;
+	bool isDataValid() const;
 
 	/*!
 	  * Returns a string which describes the current status of the controller's
@@ -80,7 +81,6 @@ public:
 	void setCurrentCommandLevel(AMGCS2::ControllerCommandLevel currentCommandLevel);
 protected:
 
-	bool isInitialized_;
 	AMPIC887HexapodState* hexapodState_;
 	AMPIC887DataRecorderState* dataRecorderState_;
 

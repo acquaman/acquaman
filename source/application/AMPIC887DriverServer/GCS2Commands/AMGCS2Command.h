@@ -2,8 +2,6 @@
 #define AMGCS2COMMAND_H
 
 #define BUFFER_SIZE 2500
-#define AXIS_COUNT 6
-#define RECORD_TABLE_COUNT 16
 
 #include <QString>
 /*!

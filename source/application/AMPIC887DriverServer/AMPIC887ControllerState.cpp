@@ -5,7 +5,6 @@ AMPIC887ControllerState::AMPIC887ControllerState()
 	hexapodState_ = new AMPIC887HexapodState();
 	dataRecorderState_ = new AMPIC887DataRecorderState();
 	currentCommandLevel_ = AMGCS2::UnknownCommandLevel;
-	isInitialized_ = false;
 }
 
 AMPIC887ControllerState::~AMPIC887ControllerState()
@@ -31,17 +30,15 @@ void AMPIC887ControllerState::initialize(AMGCS2::ControllerCommandLevel commandL
 	currentCommandLevel_ = commandLevel;
 	availableParameters_ = availableParameters;
 	identificationString_ = identification;
-
-	isInitialized_ = (currentCommandLevel_ != AMGCS2::UnknownCommandLevel &&
-						!availableParameters_.isEmpty() &&
-						!identificationString_.isEmpty());
 }
 
-bool AMPIC887ControllerState::isAllInitialized() const
+bool AMPIC887ControllerState::isDataValid() const
 {
-	return isInitialized_ &&
-			hexapodState_->isInitialized() &&
-			dataRecorderState_->isInitialized();
+	return currentCommandLevel_ != AMGCS2::UnknownCommandLevel &&
+			!availableParameters_.isEmpty() &&
+			!identificationString_.isEmpty() &&
+			hexapodState_->isDataValid() &&
+			dataRecorderState_->isDataValid();
 }
 
 QString AMPIC887ControllerState::statusString() const

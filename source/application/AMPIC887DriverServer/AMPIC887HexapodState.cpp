@@ -3,7 +3,6 @@
 AMPIC887HexapodState::AMPIC887HexapodState()
 {
 	servoMode_ = false;
-	isInitialized_ = false;
 }
 
 AMPIC887HexapodState::~AMPIC887HexapodState()
@@ -41,11 +40,6 @@ void AMPIC887HexapodState::setVelocity(double velocity)
 	velocity_ = velocity;
 }
 
-bool AMPIC887HexapodState::isInitialized() const
-{
-	return isInitialized_;
-}
-
 void AMPIC887HexapodState::initialize(bool servoMode, double cycleTime, double velocity,
 									  const AMPIC887AxisMap<bool>& referencedStates,
 									  const AMPIC887AxisMap<double>& currentPositions,
@@ -79,16 +73,71 @@ void AMPIC887HexapodState::initialize(bool servoMode, double cycleTime, double v
 	foreach(AMGCS2::Axis currentAxis, axes) {
 		targetPositions_.insert(currentAxis, currentPositions_.value(currentAxis));
 	}
+}
 
-	isInitialized_ = true;
+bool AMPIC887HexapodState::isDataValid() const
+{
+
+	bool unitsAsExpected = true;
+	AMPIC887AxisCollection axes = positionUnits_.axes();
+	foreach(AMGCS2::Axis currentAxis, axes) {
+
+		switch(currentAxis) {
+
+		case AMGCS2::XAxis:
+		case AMGCS2::YAxis:
+		case AMGCS2::ZAxis:
+			unitsAsExpected &= (positionUnits_.value(currentAxis) == AMGCS2::Millimetres);
+			break;
+		case AMGCS2::UAxis:
+		case AMGCS2::VAxis:
+		case AMGCS2::WAxis:
+			unitsAsExpected &= (positionUnits_.value(currentAxis) == AMGCS2::Degrees);
+		default:
+			break;
+		}
+	}
+
+	return !referencedStates_.isEmpty() &&
+			!referencedStates_.containsUnknownAxis() &&
+			referencedStates_.containsAllAxes() &&
+			!currentPositions_.isEmpty() &&
+			!currentPositions_.containsUnknownAxis() &&
+			currentPositions_.containsAllAxes() &&
+			!lowSoftLimits_.isEmpty() &&
+			!lowSoftLimits_.containsUnknownAxis() &&
+			lowSoftLimits_.containsAllAxes() &&
+			!highSoftLimits_.isEmpty() &&
+			!highSoftLimits_.containsUnknownAxis() &&
+			highSoftLimits_.containsAllAxes() &&
+			!softLimitStates_.isEmpty() &&
+			!softLimitStates_.containsUnknownAxis() &&
+			softLimitStates_.containsAllAxes() &&
+			!limitSwitchStates_.isEmpty() &&
+			!limitSwitchStates_.containsUnknownAxis() &&
+			limitSwitchStates_.containsAllAxes() &&
+			!positionUnits_.isEmpty() &&
+			!positionUnits_.containsUnknownAxis() &&
+			positionUnits_.containsAllAxes() &&
+			!positionUnits_.values().contains(AMGCS2::UnknownPositionUnit) &&
+			unitsAsExpected &&
+			!stepSizes_.isEmpty() &&
+			!stepSizes_.containsUnknownAxis() &&
+			stepSizes_.containsAllAxes() &&
+			!minCommandablePositions_.isEmpty() &&
+			!minCommandablePositions_.containsUnknownAxis() &&
+			minCommandablePositions_.containsAllAxes() &&
+			!maxCommandablePositions_.isEmpty() &&
+			!maxCommandablePositions_.containsUnknownAxis() &&
+			maxCommandablePositions_.containsAllAxes() &&
+			!pivotPoints_.isEmpty() &&
+			!pivotPoints_.containsUnknownAxis() &&
+			!pivotPoints_.containsRotationalAxes() &&
+			pivotPoints_.count() == LINEAR_AXIS_COUNT;
 }
 
 QString AMPIC887HexapodState::statusString() const
 {
-	if(!isInitialized_) {
-		return QString();
-	}
-
 	QString servoModeString;
 	if(servoMode_) {
 		servoModeString = "Yes";
@@ -106,34 +155,34 @@ QString AMPIC887HexapodState::statusString() const
 		stateString.append(QString("\n// %1 Axis\n/////////////////////////\n")
 						   .arg(AMGCS2Support::axisToCharacter(currentAxis)));
 
-		QString units = AMGCS2Support::positionUnitsToString(positionUnits_.value(currentAxis));
+		QString units = AMGCS2Support::positionUnitsToString(positionUnits_.value(currentAxis, AMGCS2::UnknownPositionUnit));
 		QString boolString;
-		if(referencedStates_.value(currentAxis)) {
+		if(referencedStates_.value(currentAxis, false)) {
 			boolString = "Yes";
 		} else {
 			boolString = "No";
 		}
 		stateString.append(QString("Is Referenced: %1\n").arg(boolString));
 		stateString.append(QString("Current Position: %1 %2\n")
-						   .arg(currentPositions_.value(currentAxis))
+						   .arg(currentPositions_.value(currentAxis, 0))
 						   .arg(units));
 		stateString.append(QString("Target Position: %1 %2\n")
-						   .arg(targetPositions_.value(currentAxis))
+						   .arg(targetPositions_.value(currentAxis, 0))
 						   .arg(units));
 		stateString.append(QString("Low Soft Limits: %1 %2\n")
-						   .arg(lowSoftLimits_.value(currentAxis))
+						   .arg(lowSoftLimits_.value(currentAxis, 0))
 						   .arg(units));
 		stateString.append(QString("High Soft Limits: %1 %2\n")
-						   .arg(highSoftLimits().value(currentAxis))
+						   .arg(highSoftLimits().value(currentAxis, 0))
 						   .arg(units));
-		if(softLimitStates_.value(currentAxis)) {
+		if(softLimitStates_.value(currentAxis, false)) {
 			boolString = "Yes";
 		} else {
 			boolString = "No";
 		}
 		stateString.append(QString("Soft Limits Active: %1\n")
 						   .arg(boolString));
-		if(limitSwitchStates_.value(currentAxis)) {
+		if(limitSwitchStates_.value(currentAxis, false)) {
 			boolString = "Yes";
 		} else {
 			boolString = "No";
@@ -141,20 +190,20 @@ QString AMPIC887HexapodState::statusString() const
 		stateString.append(QString("Hard Limits Active: %1\n")
 						   .arg(boolString));
 		stateString.append(QString("Step Size: %1 %2\n")
-						   .arg(stepSizes_.value(currentAxis))
+						   .arg(stepSizes_.value(currentAxis, 0))
 						   .arg(units));
 		stateString.append(QString("Min. Position: %1 %2\n")
-						   .arg(minCommandablePositions_.value(currentAxis))
+						   .arg(minCommandablePositions_.value(currentAxis, 0))
 						   .arg(units));
 		stateString.append(QString("Max. Position: %1 %2\n")
-						   .arg(maxCommandablePositions_.value(currentAxis))
+						   .arg(maxCommandablePositions_.value(currentAxis, 0))
 						   .arg(units));
 
 		if(currentAxis == AMGCS2::XAxis ||
 				currentAxis == AMGCS2::YAxis ||
 				currentAxis == AMGCS2::ZAxis) {
 			stateString.append(QString("Pivot Point: %1 %2\n")
-							   .arg(pivotPoints_.value(currentAxis))
+							   .arg(pivotPoints_.value(currentAxis, 0))
 							   .arg(units));
 		}
 
@@ -165,13 +214,12 @@ QString AMPIC887HexapodState::statusString() const
 
 bool AMPIC887HexapodState::areAllAxesReferenced() const
 {
-	return isInitialized_ &&
-			referencedStates_.value(AMGCS2::XAxis) &&
-			referencedStates_.value(AMGCS2::YAxis) &&
-			referencedStates_.value(AMGCS2::ZAxis) &&
-			referencedStates_.value(AMGCS2::UAxis) &&
-			referencedStates_.value(AMGCS2::VAxis) &&
-			referencedStates_.value(AMGCS2::WAxis);
+	return	referencedStates_.value(AMGCS2::XAxis, false) &&
+			referencedStates_.value(AMGCS2::YAxis, false) &&
+			referencedStates_.value(AMGCS2::ZAxis, false) &&
+			referencedStates_.value(AMGCS2::UAxis, false) &&
+			referencedStates_.value(AMGCS2::VAxis, false) &&
+			referencedStates_.value(AMGCS2::WAxis, false);
 }
 
 bool AMPIC887HexapodState::referencedState(AMGCS2::Axis axis) const

@@ -24,11 +24,10 @@ public:
 	~AMPIC887DataRecorderState() {}
 
 	/*!
-	  * Whether all data for this data recorder state has been initialized. This
-	  * includes both the top level data for this recorder state, and all the data
-	  * for the contained 16 data recorder table states.
+	  * Whether all data for this data recorder state is valid for the safe
+	  * operation of the data recorder.
 	  */
-	bool isInitialized() const;
+	bool isDataValid() const;
 
 	/*!
 	  * Initializes the data for this data record store.
@@ -89,8 +88,6 @@ public:
 	  */
 	QString statusString() const;
 protected:
-
-	bool isInitialized_;
 
 	AMGCS2::DataRecordTrigger recordTrigger_;
 	QString availableRecordParameters_;

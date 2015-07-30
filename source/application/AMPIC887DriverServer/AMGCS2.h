@@ -1,6 +1,11 @@
 #ifndef AMGCS2_H
 #define AMGCS2_H
 
+#define LINEAR_AXIS_COUNT 3
+#define ROTATION_AXIS_COUNT 3
+#define AXIS_COUNT (LINEAR_AXIS_COUNT + ROTATION_AXIS_COUNT)
+#define RECORD_TABLE_COUNT 16
+
 #include <QChar>
 /*!
   * Namespace which contains all the enumerators for use with the GCS2.0 syntax

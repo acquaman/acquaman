@@ -49,13 +49,61 @@ public:
 	}
 
 	/*!
+	  * Whether this map contains entries for all valid axes
+	  */
+	bool containsAllAxes() const
+	{
+		return !containsUnknownAxis() &&
+				this->count() == AXIS_COUNT;
+	}
+
+	/*!
+	  * Whether this map contains an entry for a rotational axis
+	  */
+	bool containsRotationalAxes() const
+	{
+		QList<AMGCS2::Axis> axes = this->keys();
+		foreach(AMGCS2::Axis currentAxis, axes) {
+
+			if(currentAxis == AMGCS2::UAxis ||
+					currentAxis == AMGCS2::VAxis ||
+					currentAxis == AMGCS2::WAxis) {
+
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+
+	/*!
+	  * Whether this map contains an entry for a linear axis
+	  */
+	bool containsLinearAxis() const
+	{
+		QList<AMGCS2::Axis> axes = this->keys();
+		foreach(AMGCS2::Axis currentAxis, axes) {
+
+			if(currentAxis == AMGCS2::XAxis ||
+					currentAxis == AMGCS2::YAxis ||
+					currentAxis == AMGCS2::ZAxis) {
+
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/*!
 	  * A map of the provided axes to their values stored within this map. If
 	  * a key contained within the provided collection is not contained within
 	  * this map it will not be included in the returned map.
 	  * \param keys ~ A collection of axes whose values within this map will
 	  * be returned.
 	  */
-	AMPIC887AxisMap<T> values(const AMPIC887AxisCollection& keys) const
+	AMPIC887AxisMap<T> matchingValues(const AMPIC887AxisCollection& keys) const
 	{
 		AMPIC887AxisMap<T> returnValues;
 		foreach(AMGCS2::Axis currentAxis, keys) {
@@ -126,13 +174,61 @@ public:
 	}
 
 	/*!
+	  * Whether this map contains entries for all valid axes
+	  */
+	bool containsAllAxes() const
+	{
+		return !containsUnknownAxis() &&
+				this->count() == AXIS_COUNT;
+	}
+
+	/*!
+	  * Whether this map contains an entry for a rotational axis
+	  */
+	bool containsRotationalAxes() const
+	{
+		QList<AMGCS2::Axis> axes = keys();
+		foreach(AMGCS2::Axis currentAxis, axes) {
+
+			if(currentAxis == AMGCS2::UAxis ||
+					currentAxis == AMGCS2::VAxis ||
+					currentAxis == AMGCS2::WAxis) {
+
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+
+	/*!
+	  * Whether this map contains an entry for a linear axis
+	  */
+	bool containsLinearAxis() const
+	{
+		QList<AMGCS2::Axis> axes = keys();
+		foreach(AMGCS2::Axis currentAxis, axes) {
+
+			if(currentAxis == AMGCS2::XAxis ||
+					currentAxis == AMGCS2::YAxis ||
+					currentAxis == AMGCS2::ZAxis) {
+
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/*!
 	  * A map of the provided axes to their values stored within this map. If
 	  * a key contained within the provided collection is not contained within
 	  * this map it will not be included in the returned map.
 	  * \param keys ~ A collection of axes whose values within this map will
 	  * be returned.
 	  */
-	AMPIC887AxisMap<bool> values(const AMPIC887AxisCollection& keys) const
+	AMPIC887AxisMap<bool> matchingValues(const AMPIC887AxisCollection& keys) const
 	{
 		AMPIC887AxisMap<bool> returnValues;
 		foreach(AMGCS2::Axis currentAxis, keys) {
@@ -192,13 +288,61 @@ public:
 	}
 
 	/*!
+	  * Whether this map contains entries for all valid axes
+	  */
+	bool containsAllAxes() const
+	{
+		return !containsUnknownAxis() &&
+				this->count() == AXIS_COUNT;
+	}
+
+	/*!
+	  * Whether this map contains an entry for a rotational axis
+	  */
+	bool containsRotationalAxes() const
+	{
+		QList<AMGCS2::Axis> axes = keys();
+		foreach(AMGCS2::Axis currentAxis, axes) {
+
+			if(currentAxis == AMGCS2::UAxis ||
+					currentAxis == AMGCS2::VAxis ||
+					currentAxis == AMGCS2::WAxis) {
+
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+
+	/*!
+	  * Whether this map contains an entry for a linear axis
+	  */
+	bool containsLinearAxis() const
+	{
+		QList<AMGCS2::Axis> axes = keys();
+		foreach(AMGCS2::Axis currentAxis, axes) {
+
+			if(currentAxis == AMGCS2::XAxis ||
+					currentAxis == AMGCS2::YAxis ||
+					currentAxis == AMGCS2::ZAxis) {
+
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/*!
 	  * A map of the provided axes to their values stored within this map. If
 	  * a key contained within the provided collection is not contained within
 	  * this map it will not be included in the returned map.
 	  * \param keys ~ A collection of axes whose values within this map will
 	  * be returned.
 	  */
-	AMPIC887AxisMap<double> values(const AMPIC887AxisCollection& keys) const
+	AMPIC887AxisMap<double> matchingValues(const AMPIC887AxisCollection& keys) const
 	{
 		AMPIC887AxisMap<double> returnValues;
 		foreach(AMGCS2::Axis currentAxis, keys) {
@@ -259,13 +403,61 @@ public:
 	}
 
 	/*!
+	  * Whether this map contains entries for all valid axes
+	  */
+	bool containsAllAxes() const
+	{
+		return !containsUnknownAxis() &&
+				this->count() == AXIS_COUNT;
+	}
+
+	/*!
+	  * Whether this map contains an entry for a rotational axis
+	  */
+	bool containsRotationalAxes() const
+	{
+		QList<AMGCS2::Axis> axes = keys();
+		foreach(AMGCS2::Axis currentAxis, axes) {
+
+			if(currentAxis == AMGCS2::UAxis ||
+					currentAxis == AMGCS2::VAxis ||
+					currentAxis == AMGCS2::WAxis) {
+
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+
+	/*!
+	  * Whether this map contains an entry for a linear axis
+	  */
+	bool containsLinearAxis() const
+	{
+		QList<AMGCS2::Axis> axes = keys();
+		foreach(AMGCS2::Axis currentAxis, axes) {
+
+			if(currentAxis == AMGCS2::XAxis ||
+					currentAxis == AMGCS2::YAxis ||
+					currentAxis == AMGCS2::ZAxis) {
+
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/*!
 	  * A map of the provided axes to their values stored within this map. If
 	  * a key contained within the provided collection is not contained within
 	  * this map it will not be included in the returned map.
 	  * \param keys ~ A collection of axes whose values within this map will
 	  * be returned.
 	  */
-	AMPIC887AxisMap<AMGCS2::PositionUnits> values(const AMPIC887AxisCollection& keys) const
+	AMPIC887AxisMap<AMGCS2::PositionUnits> matchingValues(const AMPIC887AxisCollection& keys) const
 	{
 		AMPIC887AxisMap<AMGCS2::PositionUnits> returnValues;
 		foreach(AMGCS2::Axis currentAxis, keys) {

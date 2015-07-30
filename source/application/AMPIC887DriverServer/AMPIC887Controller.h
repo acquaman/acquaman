@@ -23,6 +23,7 @@ class AMPIC887Controller : public QObject
 {
 	Q_OBJECT
 public:
+
 	/*!
 	  * Creates a new instance of an C887.11 controller, with the provided hostname
 	  * and id. The controller will attempt to make a conneciton immediately
@@ -65,10 +66,9 @@ public:
 	bool connectionEstablished() const;
 
 	/*!
-	  * Whether the data has been initialized for this controller. That is, a
-	  * connection has been made and the starting state of the controller loaded.
+	  * Whether this controller is in a valid state to accept commands
 	  */
-	bool isInitialized() const;
+	bool isInValidState() const;
 
 	/*!
 	  * The name by which the controller is known.
@@ -536,6 +536,13 @@ public slots:
 	  * a reference move will be performed on all axes.
 	  */
 	void referenceMove(const AMPIC887AxisCollection& axes = AMPIC887AxisCollection());
+
+	/*!
+	  * Initializes the controller state data by running a command to obtain the
+	  * data from the controller.
+	  */
+	void initializeControllerStateData();
+
 signals:
 	/*!
 	  * Signal indicating that the controller has some output text which. For commands
@@ -614,12 +621,6 @@ protected slots:
 	  */
 	void onErrorClearingTimerTimedOut();
 protected:
-
-	/*!
-	  * Initializes the controller state data by running a command to obtain the
-	  * data from the controller.
-	  */
-	void initializeControllerStateData();
 
 	/*!
 	  * Runs the provided command.

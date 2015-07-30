@@ -335,11 +335,6 @@ bool AMGCS2InitializeControllerStateCommand::runImplementation()
 													  recordConfigurationsCommand.recordConfigs());
 
 
-	if(!controllerState_->isAllInitialized()) {
-		lastError_ = "Unknown error initializing the controller state";
-		return false;
-	}
-
 	return true;
 }
 

@@ -82,10 +82,10 @@ bool AMPIC887Controller::connectionEstablished() const
 	return id_ >= 0;
 }
 
-bool AMPIC887Controller::isInitialized() const
+bool AMPIC887Controller::isInValidState() const
 {
 	return connectionEstablished() &&
-			controllerState_->isAllInitialized();
+			controllerState_->isDataValid();
 }
 
 QString AMPIC887Controller::name() const
@@ -249,7 +249,7 @@ AMPIC887AxisMap<double> AMPIC887Controller::currentPositions(const AMPIC887AxisC
 		refreshCurrentPositions();
 	}
 
-	return controllerState_->hexapodState()->currentPositions().values(axes);
+	return controllerState_->hexapodState()->currentPositions().matchingValues(axes);
 }
 
 double AMPIC887Controller::targetPosition(AMGCS2::Axis axis)
@@ -259,7 +259,7 @@ double AMPIC887Controller::targetPosition(AMGCS2::Axis axis)
 
 AMPIC887AxisMap<double> AMPIC887Controller::targetPositions(const AMPIC887AxisCollection& axes)
 {
-	return controllerState_->hexapodState()->targetPositions().values(axes);
+	return controllerState_->hexapodState()->targetPositions().matchingValues(axes);
 }
 
 double AMPIC887Controller::cycleTime() const
@@ -304,7 +304,7 @@ bool AMPIC887Controller::setLowSoftLimit(AMGCS2::Axis axis, double lowSoftLimit)
 
 AMPIC887AxisMap<double> AMPIC887Controller::lowSoftLimits(const AMPIC887AxisCollection &axes) const
 {
-	return controllerState_->hexapodState()->lowSoftLimits().values(axes);
+	return controllerState_->hexapodState()->lowSoftLimits().matchingValues(axes);
 }
 
 bool AMPIC887Controller::setLowSoftLimits(const AMPIC887AxisMap<double>& lowSoftLimits)
@@ -339,7 +339,7 @@ bool AMPIC887Controller::setHighSoftLimit(AMGCS2::Axis axis, double highSoftLimi
 
 AMPIC887AxisMap<double> AMPIC887Controller::highSoftLimits(const AMPIC887AxisCollection &axes) const
 {
-	return controllerState_->hexapodState()->highSoftLimits().values(axes);
+	return controllerState_->hexapodState()->highSoftLimits().matchingValues(axes);
 }
 
 bool AMPIC887Controller::setHighSoftLimits(const AMPIC887AxisMap<double> &highSoftLimits)
@@ -374,7 +374,7 @@ bool AMPIC887Controller::setSoftLimitStatus(AMGCS2::Axis axis, bool softLimitSta
 
 AMPIC887AxisMap<bool> AMPIC887Controller::softLimitStatuses(const AMPIC887AxisCollection &axes) const
 {
-	return controllerState_->hexapodState()->softLimitStates().values(axes);
+	return controllerState_->hexapodState()->softLimitStates().matchingValues(axes);
 }
 
 bool AMPIC887Controller::setSoftLimitStatuses(const AMPIC887AxisMap<bool> &softLimitStates)
@@ -402,7 +402,7 @@ bool AMPIC887Controller::limitSwitchStatus(AMGCS2::Axis axis) const
 
 AMPIC887AxisMap<bool> AMPIC887Controller::limitSwitchStatuses(const AMPIC887AxisCollection &axes) const
 {
-	return controllerState_->hexapodState()->limitSwitchStates().values(axes);
+	return controllerState_->hexapodState()->limitSwitchStates().matchingValues(axes);
 }
 
 double AMPIC887Controller::minCommandablePosition(AMGCS2::Axis axis) const
@@ -412,7 +412,7 @@ double AMPIC887Controller::minCommandablePosition(AMGCS2::Axis axis) const
 
 AMPIC887AxisMap<double> AMPIC887Controller::minCommandablePositions(const AMPIC887AxisCollection &axes) const
 {
-	return controllerState_->hexapodState()->minCommandablePositions().values(axes);
+	return controllerState_->hexapodState()->minCommandablePositions().matchingValues(axes);
 }
 
 double AMPIC887Controller::maxCommandablePosition(AMGCS2::Axis axis) const
@@ -422,7 +422,7 @@ double AMPIC887Controller::maxCommandablePosition(AMGCS2::Axis axis) const
 
 AMPIC887AxisMap<double> AMPIC887Controller::maxCommandablePositions(const AMPIC887AxisCollection &axes) const
 {
-	return controllerState_->hexapodState()->maxCommandablePositions().values(axes);
+	return controllerState_->hexapodState()->maxCommandablePositions().matchingValues(axes);
 }
 
 bool AMPIC887Controller::onTargetState(AMGCS2::Axis axis)
@@ -457,7 +457,7 @@ bool AMPIC887Controller::setPivotPoint(AMGCS2::Axis axis, double pivotPoint)
 
 AMPIC887AxisMap<double> AMPIC887Controller::pivotPoints(const AMPIC887AxisCollection &axes) const
 {
-	return controllerState_->hexapodState()->pivotPoints().values(axes);
+	return controllerState_->hexapodState()->pivotPoints().matchingValues(axes);
 }
 
 bool AMPIC887Controller::setPivotPoints(const AMPIC887AxisMap<double> &pivotPoints)
@@ -504,7 +504,7 @@ AMGCS2::PositionUnits AMPIC887Controller::positionUnits(AMGCS2::Axis axis) const
 
 AMPIC887AxisMap<AMGCS2::PositionUnits> AMPIC887Controller::positionUnits(const AMPIC887AxisCollection &axes) const
 {
-	return controllerState_->hexapodState()->positionUnits().values(axes);
+	return controllerState_->hexapodState()->positionUnits().matchingValues(axes);
 }
 
 QList<int> AMPIC887Controller::recordedData(int tableId) const
@@ -550,7 +550,7 @@ bool AMPIC887Controller::isAxisReferenced(AMGCS2::Axis axis) const
 
 AMPIC887AxisMap<bool> AMPIC887Controller::axisReferencedStates(const AMPIC887AxisCollection &axes) const
 {
-	return controllerState_->hexapodState()->referencedStates().values(axes);
+	return controllerState_->hexapodState()->referencedStates().matchingValues(axes);
 }
 
 bool AMPIC887Controller::areAxesReferenced() const
@@ -595,7 +595,7 @@ bool AMPIC887Controller::setStepSize(AMGCS2::Axis axis, double stepSize)
 
 AMPIC887AxisMap<double> AMPIC887Controller::stepSizes(const AMPIC887AxisCollection &axes) const
 {
-	return controllerState_->hexapodState()->stepSizes().values(axes);
+	return controllerState_->hexapodState()->stepSizes().matchingValues(axes);
 }
 
 bool AMPIC887Controller::setStepSizes(const AMPIC887AxisMap<double> &stepSizes)
@@ -747,6 +747,19 @@ void AMPIC887Controller::referenceMove(const AMPIC887AxisCollection& axes)
 				this, SLOT(onAsyncReferenceMoveSucceeded(AMGCS2AsyncCommand*)));
 
 		runCommand(asyncReferenceMoveCommand);
+	}
+}
+
+void AMPIC887Controller::initializeControllerStateData()
+{
+	if(!connectToController()) {
+		setError("Cannot initialize data for controller, no connection established");
+	} else {
+
+		AMGCS2InitializeControllerStateCommand initializeCommand =
+				AMGCS2InitializeControllerStateCommand(controllerState_);
+
+		runCommand(&initializeCommand);
 	}
 }
 
@@ -1042,14 +1055,6 @@ void AMPIC887Controller::onErrorClearingTimerTimedOut()
 	PI_qERR(id_, &dummyValue);
 	isBusy_ = false;
 	updateStateOnStop();
-}
-
-void AMPIC887Controller::initializeControllerStateData()
-{
-	AMGCS2InitializeControllerStateCommand initializeCommand =
-			AMGCS2InitializeControllerStateCommand(controllerState_);
-
-	runCommand(&initializeCommand);
 }
 
 void AMPIC887Controller::runCommand(AMGCS2Command *command)

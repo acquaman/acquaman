@@ -57,11 +57,6 @@ public:
 	void setVelocity(double velocity);
 
 	/*!
-	  * Whether all the data for this hexapod state has been initialized.
-	  */
-	bool isInitialized() const;
-
-	/*!
 	  * Initializes the data for this hexapod state.
 	  * NOTE: This does not initialize the data for the contained axis states. In
 	  * order for isAllInitialized() to return true, all the axis states must also
@@ -82,6 +77,12 @@ public:
 					const AMPIC887AxisMap<double>& minCommandablePositions,
 					const AMPIC887AxisMap<double>& maxCommandablePositions,
 					const AMPIC887AxisMap<double>& pivotPoints);
+
+	/*!
+	  * Whether the data contained within this hexapod state is valid for safe
+	  * operation of a hexapod.
+	  */
+	bool isDataValid() const;
 
 	/*!
 	  * A status string displaying the current data stored in this hexapod state.
@@ -345,7 +346,6 @@ public:
 	void setPivotPoints(const AMPIC887AxisMap<double>& pivotPoints);
 
 protected:
-	bool isInitialized_;
 	bool servoMode_;
 	double cycleTime_;
 	double velocity_;

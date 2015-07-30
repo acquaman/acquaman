@@ -83,8 +83,8 @@ void AMPIC887ConsoleApplication::onSetCommandLevelCommandIssued(AMGCS2::Controll
 
 	if(!activeController) {
 		consoleInputHandler_->writeLineToStandardError("No active controller");
-	} else if(!activeController->isInitialized()) {
-		consoleInputHandler_->writeLineToStandardError("Active controller not initialized.");
+	} else if(!activeController->isInValidState()) {
+		consoleInputHandler_->writeLineToStandardError("Active controller not in a valid state. Reinitialize the controller with an init command..");
 	} else if(!activeController->setCommandLevel(commandLevel, password)) {
 		consoleInputHandler_->writeLineToStandardError(activeController->lastError());
 	}
@@ -96,8 +96,8 @@ void AMPIC887ConsoleApplication::onSetCycleTimeCommandIssued(double cycleTime)
 
 	if(!activeController) {
 		consoleInputHandler_->writeLineToStandardError("No active controller");
-	} else if(!activeController->isInitialized()) {
-		consoleInputHandler_->writeLineToStandardError("Active controller not initialized.");
+	} else if(!activeController->isInValidState()) {
+		consoleInputHandler_->writeLineToStandardError("Active controller not in a valid state. Reinitialize the controller with an init command..");
 	} else if(!activeController->setCycleTime(cycleTime)) {
 		consoleInputHandler_->writeLineToStandardError(activeController->lastError());
 	}
@@ -109,8 +109,8 @@ void AMPIC887ConsoleApplication::onSetHighSoftLimitsCommandIssued(const AMPIC887
 
 	if(!activeController) {
 		consoleInputHandler_->writeLineToStandardError("No active controller");
-	} else if(!activeController->isInitialized()) {
-		consoleInputHandler_->writeLineToStandardError("Active controller not initialized.");
+	} else if(!activeController->isInValidState()) {
+		consoleInputHandler_->writeLineToStandardError("Active controller not in a valid state. Reinitialize the controller with an init command..");
 	} else if(!activeController->setHighSoftLimits(highSoftLimits)) {
 		consoleInputHandler_->writeLineToStandardError(activeController->lastError());
 	}
@@ -122,8 +122,8 @@ void AMPIC887ConsoleApplication::onSetLowSoftLimitsCommandIssued(const AMPIC887A
 
 	if(!activeController) {
 		consoleInputHandler_->writeLineToStandardError("No active controller");
-	} else if(!activeController->isInitialized()) {
-		consoleInputHandler_->writeLineToStandardError("Active controller not initialized.");
+	} else if(!activeController->isInValidState()) {
+		consoleInputHandler_->writeLineToStandardError("Active controller not in a valid state. Reinitialize the controller with an init command..");
 	} else if(!activeController->setLowSoftLimits(lowSoftLimits)) {
 		consoleInputHandler_->writeLineToStandardError(activeController->lastError());
 	}
@@ -135,8 +135,8 @@ void AMPIC887ConsoleApplication::onSetPivotPointCommandIssued(const AMPIC887Axis
 
 	if(!activeController) {
 		consoleInputHandler_->writeLineToStandardError("No active controller");
-	} else if(!activeController->isInitialized()) {
-		consoleInputHandler_->writeLineToStandardError("Active controller not initialized.");
+	} else if(!activeController->isInValidState()) {
+		consoleInputHandler_->writeLineToStandardError("Active controller not in a valid state. Reinitialize the controller with an init command..");
 	} else if(!activeController->setPivotPoints(pivotPoints)) {
 		consoleInputHandler_->writeLineToStandardError(activeController->lastError());
 	}
@@ -148,8 +148,8 @@ void AMPIC887ConsoleApplication::onSetRecorderTriggerCommandIssued(AMGCS2::DataR
 
 	if(!activeController) {
 		consoleInputHandler_->writeLineToStandardError("No active controller");
-	} else if(!activeController->isInitialized()) {
-		consoleInputHandler_->writeLineToStandardError("Active controller not initialized.");
+	} else if(!activeController->isInValidState()) {
+		consoleInputHandler_->writeLineToStandardError("Active controller not in a valid state. Reinitialize the controller with an init command..");
 	} else if(!activeController->setRecordTrigger(recorderTrigger)) {
 		consoleInputHandler_->writeLineToStandardError(activeController->lastError());
 	}
@@ -161,8 +161,8 @@ void AMPIC887ConsoleApplication::onSetRecordConfigCommandIssued(const QHash<int,
 
 	if(!activeController) {
 		consoleInputHandler_->writeLineToStandardError("No active controller");
-	} else if(!activeController->isInitialized()) {
-		consoleInputHandler_->writeLineToStandardError("Active controller not initialized.");
+	} else if(!activeController->isInValidState()) {
+		consoleInputHandler_->writeLineToStandardError("Active controller not in a valid state. Reinitialize the controller with an init command..");
 	} else if(!activeController->setRecordConfigs(recordConfigs)) {
 		consoleInputHandler_->writeLineToStandardError(activeController->lastError());
 	}
@@ -174,8 +174,8 @@ void AMPIC887ConsoleApplication::onSetServoModeCommandIssued(bool servoMode)
 
 	if(!activeController) {
 		consoleInputHandler_->writeLineToStandardError("No active controller");
-	} else if(!activeController->isInitialized()) {
-		consoleInputHandler_->writeLineToStandardError("Active controller not initialized.");
+	} else if(!activeController->isInValidState()) {
+		consoleInputHandler_->writeLineToStandardError("Active controller not in a valid state. Reinitialize the controller with an init command..");
 	} else if(!activeController->setServoMode(servoMode)) {
 		consoleInputHandler_->writeLineToStandardError(activeController->lastError());
 	}
@@ -187,8 +187,8 @@ void AMPIC887ConsoleApplication::onSetSoftLimitStatesCommandIssued(const AMPIC88
 
 	if(!activeController) {
 		consoleInputHandler_->writeLineToStandardError("No active controller");
-	} else if(!activeController->isInitialized()) {
-		consoleInputHandler_->writeLineToStandardError("Active controller not initialized.");
+	} else if(!activeController->isInValidState()) {
+		consoleInputHandler_->writeLineToStandardError("Active controller not in a valid state. Reinitialize the controller with an init command..");
 	} else if(!activeController->setSoftLimitStatuses(softLimitStates)) {
 		consoleInputHandler_->writeLineToStandardError(activeController->lastError());
 	}
@@ -200,8 +200,8 @@ void AMPIC887ConsoleApplication::onSetStepSizeCommandIssued(const AMPIC887AxisMa
 
 	if(!activeController) {
 		consoleInputHandler_->writeLineToStandardError("No active controller");
-	} else if(!activeController->isInitialized()) {
-		consoleInputHandler_->writeLineToStandardError("Active controller not initialized.");
+	} else if(!activeController->isInValidState()) {
+		consoleInputHandler_->writeLineToStandardError("Active controller not in a valid state. Reinitialize the controller with an init command..");
 	} else if(!activeController->setStepSizes(stepSizes)) {
 		consoleInputHandler_->writeLineToStandardError(activeController->lastError());
 	}
@@ -213,8 +213,8 @@ void AMPIC887ConsoleApplication::onSetSystemVelocityCommandIssued(double systemV
 
 	if(!activeController) {
 		consoleInputHandler_->writeLineToStandardError("No active controller");
-	} else if(!activeController->isInitialized()) {
-		consoleInputHandler_->writeLineToStandardError("Active controller not initialized.");
+	} else if(!activeController->isInValidState()) {
+		consoleInputHandler_->writeLineToStandardError("Active controller not in a valid state. Reinitialize the controller with an init command..");
 	} else if(!activeController->setSystemVelocity(systemVelocity)) {
 		consoleInputHandler_->writeLineToStandardError(activeController->lastError());
 	}
@@ -226,8 +226,8 @@ void AMPIC887ConsoleApplication::onMoveCommandIssued(const AMPIC887AxisMap<doubl
 
 	if(!activeController) {
 		consoleInputHandler_->writeLineToStandardError("No active controller");
-	} else if(!activeController->isInitialized()) {
-		consoleInputHandler_->writeLineToStandardError("Active controller not initialized.");
+	} else if(!activeController->isInValidState()) {
+		consoleInputHandler_->writeLineToStandardError("Active controller not in a valid state. Reinitialize the controller with an init command..");
 	} else {
 		activeController->move(axisPositions);
 	}
@@ -239,8 +239,8 @@ void AMPIC887ConsoleApplication::onMoveRelativeCommandIssued(const AMPIC887AxisM
 
 	if(!activeController) {
 		consoleInputHandler_->writeLineToStandardError("No active controller");
-	} else if(!activeController->isInitialized()) {
-		consoleInputHandler_->writeLineToStandardError("Active controller not initialized.");
+	} else if(!activeController->isInValidState()) {
+		consoleInputHandler_->writeLineToStandardError("Active controller not in a valid state. Reinitialize the controller with an init command..");
 	} else {
 		activeController->moveRelative(relativePositions);
 	}
@@ -252,8 +252,8 @@ void AMPIC887ConsoleApplication::onMotionStatusCommandIssued()
 
 	if(!activeController) {
 		consoleInputHandler_->writeLineToStandardError("No active controller");
-	} else if (!activeController->isInitialized()) {
-		consoleInputHandler_->writeLineToStandardError("Active controller not initialized.");
+	} else if (!activeController->isInValidState()) {
+		consoleInputHandler_->writeLineToStandardError("Active controller not in a valid state. Reinitialize the controller with an init command..");
 	} else {
 
 
@@ -324,8 +324,8 @@ void AMPIC887ConsoleApplication::onReferenceMoveCommandIssued(const AMPIC887Axis
 
 	if(!activeController) {
 		consoleInputHandler_->writeLineToStandardError("No active controller.");
-	} else if (!activeController->isInitialized()) {
-		consoleInputHandler_->writeLineToStandardError("Active controller not initialized.");
+	} else if (!activeController->isInValidState()) {
+		consoleInputHandler_->writeLineToStandardError("Active controller not in a valid state. Reinitialize the controller with an init command..");
 	} else {
 		controllerCollection_.activeController()->referenceMove(axes);
 	}
@@ -337,8 +337,8 @@ void AMPIC887ConsoleApplication::onAvailableParametersCommandIssued()
 
 	if(!activeController) {
 		consoleInputHandler_->writeLineToStandardError("No active controller.");
-	} else if (!activeController->isInitialized()) {
-		consoleInputHandler_->writeLineToStandardError("Active controller not initialized.");
+	} else if (!activeController->isInValidState()) {
+		consoleInputHandler_->writeLineToStandardError("Active controller not in a valid state. Reinitialize the controller with an init command..");
 	} else {
 		consoleInputHandler_->writeLineToStandardOutput(
 					activeController->availableParametersString());
@@ -351,8 +351,8 @@ void AMPIC887ConsoleApplication::onCommandLevelCommandIssued()
 
 	if(!activeController) {
 		consoleInputHandler_->writeLineToStandardError("No active controller.");
-	} else if (!activeController->isInitialized()) {
-		consoleInputHandler_->writeLineToStandardError("Active controller not initialized.");
+	} else if (!activeController->isInValidState()) {
+		consoleInputHandler_->writeLineToStandardError("Active controller not in a valid state. Reinitialize the controller with an init command..");
 	} else {
 		consoleInputHandler_->writeLineToStandardOutput(
 				AMGCS2Support::commandLevelToString(activeController->commandLevel()));
@@ -366,8 +366,8 @@ void AMPIC887ConsoleApplication::onCurrentPositionCommandIssued(const AMPIC887Ax
 
 	if(!activeController) {
 		consoleInputHandler_->writeLineToStandardError("No active controller.");
-	} else if (!activeController->isInitialized()) {
-		consoleInputHandler_->writeLineToStandardError("Active controller not initialized.");
+	} else if (!activeController->isInValidState()) {
+		consoleInputHandler_->writeLineToStandardError("Active controller not in a valid state. Reinitialize the controller with an init command..");
 	} else {
 		consoleInputHandler_->writeLineToStandardOutput(
 					activeController->currentPositions(axes).toString("Current Position"));
@@ -380,8 +380,8 @@ void AMPIC887ConsoleApplication::onCycleTimeCommandIssued()
 
 	if(!activeController) {
 		consoleInputHandler_->writeLineToStandardError("No active controller.");
-	} else if (!activeController->isInitialized()) {
-		consoleInputHandler_->writeLineToStandardError("Active controller not initialized.");
+	} else if (!activeController->isInValidState()) {
+		consoleInputHandler_->writeLineToStandardError("Active controller not in a valid state. Reinitialize the controller with an init command..");
 	} else {
 		QString currentCycleTime = QString("Cycle Time: %1 ms")
 				.arg(activeController->cycleTime());
@@ -396,8 +396,8 @@ void AMPIC887ConsoleApplication::onDeviceIdentificationCommandIssued()
 
 	if(!activeController) {
 		consoleInputHandler_->writeLineToStandardError("No active controller.");
-	} else if (!activeController->isInitialized()) {
-		consoleInputHandler_->writeLineToStandardError("Active controller not initialized.");
+	} else if (!activeController->isInValidState()) {
+		consoleInputHandler_->writeLineToStandardError("Active controller not in a valid state. Reinitialize the controller with an init command..");
 	} else {
 		consoleInputHandler_->writeLineToStandardOutput(
 					activeController->identificationString());
@@ -410,8 +410,8 @@ void AMPIC887ConsoleApplication::onLowSoftLimitCommandIssued(const AMPIC887AxisC
 
 	if(!activeController) {
 		consoleInputHandler_->writeLineToStandardError("No active controller.");
-	} else if (!activeController->isInitialized()) {
-		consoleInputHandler_->writeLineToStandardError("Active controller not initialized.");
+	} else if (!activeController->isInValidState()) {
+		consoleInputHandler_->writeLineToStandardError("Active controller not in a valid state. Reinitialize the controller with an init command..");
 	} else {
 		consoleInputHandler_->writeLineToStandardOutput(
 					activeController->lowSoftLimits(axes).toString("Low Soft Limits"));
@@ -424,8 +424,8 @@ void AMPIC887ConsoleApplication::onHighSoftLimitCommandIssued(const AMPIC887Axis
 
 	if(!activeController) {
 		consoleInputHandler_->writeLineToStandardError("No active controller.");
-	} else if (!activeController->isInitialized()) {
-		consoleInputHandler_->writeLineToStandardError("Active controller not initialized.");
+	} else if (!activeController->isInValidState()) {
+		consoleInputHandler_->writeLineToStandardError("Active controller not in a valid state. Reinitialize the controller with an init command..");
 	} else {
 		consoleInputHandler_->writeLineToStandardOutput(
 					activeController->highSoftLimits(axes).toString("High Soft Limits"));
@@ -438,8 +438,8 @@ void AMPIC887ConsoleApplication::onSoftLimitStatusesCommandIssued(const AMPIC887
 
 	if(!activeController) {
 		consoleInputHandler_->writeLineToStandardError("No active controller.");
-	} else if (!activeController->isInitialized()) {
-		consoleInputHandler_->writeLineToStandardError("Active controller not initialized.");
+	} else if (!activeController->isInValidState()) {
+		consoleInputHandler_->writeLineToStandardError("Active controller not in a valid state. Reinitialize the controller with an init command..");
 	} else {
 		consoleInputHandler_->writeLineToStandardOutput(
 					activeController->softLimitStatuses(axes).toString("Soft Limit Active"));
@@ -452,8 +452,8 @@ void AMPIC887ConsoleApplication::onLimitSwitchStatusesCommandIssued(const AMPIC8
 
 	if(!activeController) {
 		consoleInputHandler_->writeLineToStandardError("No active controller.");
-	} else if (!activeController->isInitialized()) {
-		consoleInputHandler_->writeLineToStandardError("Active controller not initialized.");
+	} else if (!activeController->isInValidState()) {
+		consoleInputHandler_->writeLineToStandardError("Active controller not in a valid state. Reinitialize the controller with an init command..");
 	} else {
 		consoleInputHandler_->writeLineToStandardError(
 					activeController->limitSwitchStatuses(axes).toString("Limit Switch Active"));
@@ -466,8 +466,8 @@ void AMPIC887ConsoleApplication::onMinPositionCommandIssued(const AMPIC887AxisCo
 
 	if(!activeController) {
 		consoleInputHandler_->writeLineToStandardError("No active controller.");
-	} else if (!activeController->isInitialized()) {
-		consoleInputHandler_->writeLineToStandardError("Active controller not initialized.");
+	} else if (!activeController->isInValidState()) {
+		consoleInputHandler_->writeLineToStandardError("Active controller not in a valid state. Reinitialize the controller with an init command..");
 	} else {
 		consoleInputHandler_->writeLineToStandardOutput(
 					activeController->minCommandablePositions(axes).toString("Min Position"));
@@ -480,8 +480,8 @@ void AMPIC887ConsoleApplication::onMaxPositionCommandIssued(const AMPIC887AxisCo
 
 	if(!activeController) {
 		consoleInputHandler_->writeLineToStandardError("No active controller.");
-	} else if (!activeController->isInitialized()) {
-		consoleInputHandler_->writeLineToStandardError("Active controller not initialized.");
+	} else if (!activeController->isInValidState()) {
+		consoleInputHandler_->writeLineToStandardError("Active controller not in a valid state. Reinitialize the controller with an init command..");
 	} else {
 		consoleInputHandler_->writeLineToStandardOutput(
 					activeController->maxCommandablePositions(axes).toString("Max Position"));
@@ -494,8 +494,8 @@ void AMPIC887ConsoleApplication::onOnTargetCommandIssued(const AMPIC887AxisColle
 
 	if(!activeController) {
 		consoleInputHandler_->writeLineToStandardError("No active controller.");
-	} else if (!activeController->isInitialized()) {
-		consoleInputHandler_->writeLineToStandardError("Active controller not initialized.");
+	} else if (!activeController->isInValidState()) {
+		consoleInputHandler_->writeLineToStandardError("Active controller not in a valid state. Reinitialize the controller with an init command..");
 	} else {
 		consoleInputHandler_->writeLineToStandardOutput(
 					activeController->onTargetStates(axes).toString("On Target"));
@@ -508,8 +508,8 @@ void AMPIC887ConsoleApplication::onPivotPointCommandIssued(const AMPIC887AxisCol
 
 	if(!activeController) {
 		consoleInputHandler_->writeLineToStandardError("No active controller.");
-	} else if (!activeController->isInitialized()) {
-		consoleInputHandler_->writeLineToStandardError("Active controller not initialized.");
+	} else if (!activeController->isInValidState()) {
+		consoleInputHandler_->writeLineToStandardError("Active controller not in a valid state. Reinitialize the controller with an init command..");
 	} else {
 		consoleInputHandler_->writeLineToStandardOutput(
 					activeController->pivotPoints(axes).toString("Pivot Points"));
@@ -522,8 +522,8 @@ void AMPIC887ConsoleApplication::onTargetPositionCommandIssued(const AMPIC887Axi
 
 	if(!activeController) {
 		consoleInputHandler_->writeLineToStandardError("No active controller.");
-	} else if (!activeController->isInitialized()) {
-		consoleInputHandler_->writeLineToStandardError("Active controller not initialized.");
+	} else if (!activeController->isInValidState()) {
+		consoleInputHandler_->writeLineToStandardError("Active controller not in a valid state. Reinitialize the controller with an init command..");
 	} else {
 		consoleInputHandler_->writeLineToStandardOutput(
 					activeController->targetPositions(axes).toString("Target Position"));
@@ -536,8 +536,8 @@ void AMPIC887ConsoleApplication::onPositionUnitsCommandIssued(const AMPIC887Axis
 
 	if(!activeController) {
 		consoleInputHandler_->writeLineToStandardError("No active controller.");
-	} else if (!activeController->isInitialized()) {
-		consoleInputHandler_->writeLineToStandardError("Active controller not initialized.");
+	} else if (!activeController->isInValidState()) {
+		consoleInputHandler_->writeLineToStandardError("Active controller not in a valid state. Reinitialize the controller with an init command..");
 	} else {
 		consoleInputHandler_->writeLineToStandardOutput(
 					activeController->positionUnits(axes).toString("Position Units"));
@@ -550,8 +550,8 @@ void AMPIC887ConsoleApplication::onAvailableRecorderOptionsCommandIssued()
 
 	if(!activeController) {
 		consoleInputHandler_->writeLineToStandardError("No active controller.");
-	} else if (!activeController->isInitialized()) {
-		consoleInputHandler_->writeLineToStandardError("Active controller not initialized.");
+	} else if (!activeController->isInValidState()) {
+		consoleInputHandler_->writeLineToStandardError("Active controller not in a valid state. Reinitialize the controller with an init command..");
 	} else {
 		consoleInputHandler_->writeLineToStandardOutput(
 					activeController->recorderOptionsString());
@@ -564,8 +564,8 @@ void AMPIC887ConsoleApplication::onRecordTriggerCommandIssued()
 
 	if(!activeController) {
 		consoleInputHandler_->writeLineToStandardError("No active controller.");
-	} else if (!activeController->isInitialized()) {
-		consoleInputHandler_->writeLineToStandardError("Active controller not initialized.");
+	} else if (!activeController->isInValidState()) {
+		consoleInputHandler_->writeLineToStandardError("Active controller not in a valid state. Reinitialize the controller with an init command..");
 	} else {
 		consoleInputHandler_->writeLineToStandardOutput(QString("Record Trigger: %1").arg(
 					AMGCS2Support::dataRecordTriggerToString(activeController->recordTrigger())));
@@ -578,8 +578,8 @@ void AMPIC887ConsoleApplication::onRecordConfigCommandIssued(const QList<int> &t
 
 	if(!activeController) {
 		consoleInputHandler_->writeLineToStandardError("No active controller.");
-	} else if (!activeController->isInitialized()) {
-		consoleInputHandler_->writeLineToStandardError("Active controller not initialized.");
+	} else if (!activeController->isInValidState()) {
+		consoleInputHandler_->writeLineToStandardError("Active controller not in a valid state. Reinitialize the controller with an init command..");
 	} else {
 		QString resultsString = "Table Id\tRecord Source\t\tRecord Option\n";
 		QHash<int, AMPIC887DataRecorderConfiguration> recordConfigs =
@@ -611,8 +611,8 @@ void AMPIC887ConsoleApplication::onReferencedStateCommandIssued(const AMPIC887Ax
 
 	if(!activeController) {
 		consoleInputHandler_->writeLineToStandardError("No active controller.");
-	} else if (!activeController->isInitialized()) {
-		consoleInputHandler_->writeLineToStandardError("Active controller not initialized.");
+	} else if (!activeController->isInValidState()) {
+		consoleInputHandler_->writeLineToStandardError("Active controller not in a valid state. Reinitialize the controller with an init command..");
 	} else {
 		consoleInputHandler_->writeLineToStandardOutput(
 					activeController->axisReferencedStates(axes).toString("Is Referenced"));
@@ -625,8 +625,8 @@ void AMPIC887ConsoleApplication::onServoModeStateCommandIssued()
 
 	if(!activeController) {
 		consoleInputHandler_->writeLineToStandardError("No active controller.");
-	} else if (!activeController->isInitialized()) {
-		consoleInputHandler_->writeLineToStandardError("Active controller not initialized.");
+	} else if (!activeController->isInValidState()) {
+		consoleInputHandler_->writeLineToStandardError("Active controller not in a valid state. Reinitialize the controller with an init command..");
 	} else {
 		QString servoStateString = "Servo Mode: ";
 
@@ -646,8 +646,8 @@ void AMPIC887ConsoleApplication::onStepSizeCommandIssued(const AMPIC887AxisColle
 
 	if(!activeController) {
 		consoleInputHandler_->writeLineToStandardError("No active controller.");
-	} else if (!activeController->isInitialized()) {
-		consoleInputHandler_->writeLineToStandardError("Active controller not initialized.");
+	} else if (!activeController->isInValidState()) {
+		consoleInputHandler_->writeLineToStandardError("Active controller not in a valid state. Reinitialize the controller with an init command..");
 	} else {
 		consoleInputHandler_->writeLineToStandardOutput(
 					activeController->stepSizes(axes).toString("Step Sizes"));
@@ -660,8 +660,8 @@ void AMPIC887ConsoleApplication::onSystemVelocityCommandIssued()
 
 	if(!activeController) {
 		consoleInputHandler_->writeLineToStandardError("No active controller.");
-	} else if (!activeController->isInitialized()) {
-		consoleInputHandler_->writeLineToStandardError("Active controller not initialized.");
+	} else if (!activeController->isInValidState()) {
+		consoleInputHandler_->writeLineToStandardError("Active controller not in a valid state. Reinitialize the controller with an init command..");
 	} else {
 		consoleInputHandler_->writeLineToStandardOutput(
 					QString("System Velocity: %1 mm/s").arg(
@@ -675,8 +675,8 @@ void AMPIC887ConsoleApplication::onStopCommandIssued()
 
 	if(!activeController) {
 		consoleInputHandler_->writeLineToStandardError("No active controller.");
-	} else if (!activeController->isInitialized()) {
-		consoleInputHandler_->writeLineToStandardError("Active controller not initialized.");
+	} else if (!activeController->isInValidState()) {
+		consoleInputHandler_->writeLineToStandardError("Active controller not in a valid state. Reinitialize the controller with an init command..");
 	} else {
 		activeController->stop();
 	}
@@ -688,8 +688,8 @@ void AMPIC887ConsoleApplication::onHaltCommandIssued(const AMPIC887AxisCollectio
 
 	if(!activeController) {
 		consoleInputHandler_->writeLineToStandardError("No active controller.");
-	} else if (!activeController->isInitialized()) {
-		consoleInputHandler_->writeLineToStandardError("Active controller not initialized.");
+	} else if (!activeController->isInValidState()) {
+		consoleInputHandler_->writeLineToStandardError("Active controller not in a valid state. Reinitialize the controller with an init command..");
 	} else {
 		activeController->haltSmoothly(axes);
 	}
