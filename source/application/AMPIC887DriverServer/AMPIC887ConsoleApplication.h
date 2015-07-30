@@ -50,6 +50,12 @@ protected slots:
 	void onStatusCommandIssued();
 
 	/*!
+	  * Handles signals indicating that an initialize active controller command
+	  * has been issued.
+	  */
+	void onInitControllerCommandIssued();
+
+	/*!
 	  * Handles signals indicating that a request to change the active controller
 	  * has been issued. Attempts to locate a controller with the provided name,
 	  * and makes it the active controller if one is found.

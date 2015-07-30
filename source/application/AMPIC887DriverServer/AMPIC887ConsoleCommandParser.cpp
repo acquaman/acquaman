@@ -14,6 +14,7 @@ QString AMPIC887ConsoleCommandParser::commandList()
 	commandList.append("quit : Exits the system\n");
 	commandList.append("status: Gets the status of the current connected controllers\n");
 	commandList.append("activate <controller_name> : Sets the current active controller.\n");
+	commandList.append("init : Initializes data for the current active controller.\n");
 
 	commandList.append("\nDriver GCS2 Commands:\n");
 	commandList.append("CCL? : Queries the controller's current command level\n");
@@ -76,7 +77,9 @@ void AMPIC887ConsoleCommandParser::interpretCommandImplementation(const QString 
 	} else if( command == "status") {
 
 		emit status();
+	} else if(command.startsWith("init")) {
 
+		emit initializeControllerCommandIssued();
 	} else if(command.startsWith("activate")) {
 
 		QStringList commandParts = command.split(" ");

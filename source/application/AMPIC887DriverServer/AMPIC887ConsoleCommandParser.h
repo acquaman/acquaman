@@ -231,6 +231,12 @@ signals:
 	void motionStatusCommandIssued();
 
 	/*!
+	  * Signal indicating that a command to initialize the state of the current
+	  * controller has been issued.
+	  */
+	void initializeControllerCommandIssued();
+
+	/*!
 	  * Signals that the quit command has been issued.
 	  */
 	void quit();

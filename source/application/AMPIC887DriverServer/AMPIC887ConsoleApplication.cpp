@@ -54,6 +54,17 @@ void AMPIC887ConsoleApplication::onStatusCommandIssued()
 	consoleInputHandler_->writeLineToStandardOutput(controllerCollection_.connectionStatuses());
 }
 
+void AMPIC887ConsoleApplication::onInitControllerCommandIssued()
+{
+	AMPIC887Controller* activeController = controllerCollection_.activeController();
+
+	if(!activeController) {
+		consoleInputHandler_->writeLineToStandardError("No active controller");
+	} else {
+		activeController->initializeControllerStateData();
+	}
+}
+
 void AMPIC887ConsoleApplication::onActiveControllerChangeRequested(const QString &controllerName)
 {
 	if(controllerCollection_.activeController()->name() != controllerName) {
@@ -775,8 +786,7 @@ void AMPIC887ConsoleApplication::makeConnections()
 			this, SLOT(onRecordConfigCommandIssued(QList<int>)));
 
 	connect(commandParser_,SIGNAL(setRecordConfigCommandIssued(QHash<int,AMPIC887DataRecorderConfiguration>)),
-			this, SLOT(onSetRecordConfigCommandIssued(QHash<int,AMPIC887DataRecorderConfiguration>)));
-
+			this, SLOT(onSetRecordConfigCommandIssued(QHash<int,AMPIC887DataRecorderConfiguration>)));	
 }
 
 
