@@ -92,15 +92,10 @@ class MPlotDataPositionCursorTool;
 class  AMScanViewInternal : public QGraphicsWidget {
 	Q_OBJECT
 public:
-
-	virtual ~AMScanViewInternal();
-
+	/// Constructor.
 	explicit AMScanViewInternal(AMScanView* masterView);
-
-	/// Returns the x axis units.
-	QString xAxisUnits() const { return xAxisUnits_; }
-	/// Returns the y axis units.
-	QString yAxisUnits() const { return yAxisUnits_; }
+	/// Destructor.
+	virtual ~AMScanViewInternal();
 	/// Returns the tools available for this scan view.
 	AMScanViewPlotTools* tools() const { return tools_; }
 
@@ -136,21 +131,35 @@ protected:
 	  */
 	void reviewPlotAxesConfiguration(MPlotGW* plot);
 
-	/// Returns a suitable bottom axis name for a \c scan and \c dataSource
-	QString bottomAxisName(AMScan* scan, AMDataSource* dataSource);
-	/// Returns a suitable right axis name for a \c scan and \c dataSource
-	QString rightAxisName(AMScan* scan, AMDataSource* dataSource);
-	/// Returns the bottom axis units from a scan.
-	QString bottomAxisUnits(AMScan *scan, AMDataSource *dataSource);
-	/// Returns the right axis units associated with a given data source.
-	QString rightAxisUnits(AMScan *scan, AMDataSource *dataSource);
+	/// Returns the scan axis name for the given scan.
+	QString scanAxisName(AMScan *scan, int axisNumber);
+	/// Returns the axis name for the given data source.
+	QString axisName(AMDataSource *dataSource, int axisNumber);
+	/// Returns the axis name for the given scan, either the scan axis name or the data source axis name as appropriate.
+	QString axisName(AMScan *scan, int axisNumber, int dataSourceIndex = 0);
+
+	/// Returns the scan axis units for the given scan.
+	QString scanAxisUnits(AMScan *scan, int axisNumber);
+	/// Returns the axis units for the given data source.
+	QString axisUnits(AMDataSource *dataSource, int axisNumber);
+	/// Returns the axis units for the given scan, either the scan axis units or the data source axis units as appropriate.
+	QString axisUnits(AMScan *scan, int axisNumber, int dataSourceIndex = 0);
+
+	/// Returns the scan index of the scan that contains the given data source, -1 if no scan contains the source.
+	int scanIndexFromDataSource(AMDataSource *dataSource);
+	/// Returns the scan index of the scan that contains the data source with the given name, -1 if no scan contains the source.
+	int scanIndexFromDataSource(const QString &dataSourceName);
+
+	/// Returns true if the scan contains the given data source, false otherwise.
+	bool scanContainsSource(AMScan *scan, AMDataSource *dataSource);
+	/// Returns true if the scan contains a data source with the given name, false otherwise.
+	bool scanContainsSource(AMScan *scan, const QString &dataSourceName);
+
+	/// Returns the list of visible data sources.
+	QList<AMDataSource*> visibleDataSources();
 
 	AMScanView* masterView_;
 
-	/// The x axis units.
-	QString xAxisUnits_;
-	/// The y axis units.
-	QString yAxisUnits_;
 	/// The tools available for this scan view.
 	AMScanViewPlotTools *tools_;
 
@@ -179,19 +188,6 @@ protected slots:
 	/// Removes all tools from the given plot.
 	virtual void removeToolsFromPlot(MPlot *plot);
 
-
-
-
-	/// Sets the x axis units.
-	void setXAxisUnits(const QString &newUnits);
-	/// Handles applying new x axis units.
-	void applyXAxisUnits(MPlot *plot, const QString &xAxisUnits);
-
-	/// Sets the y axis units.
-	void setYAxisUnits(const QString &newUnits);
-	/// Handles applying new y axis units.
-	void applyYAxisUnits(MPlot *plot, const QString &yAxisUnits);
-
 	/// Sets the plot tools.
 	void setPlotTools(AMScanViewPlotTools *newTools);
 	/// Handles adding and removing tools.
@@ -202,10 +198,6 @@ signals:
 	void dataPositionChanged(const QPointF &);
 	/// Notifier that the plot tools available have changed.
 	void plotToolsChanged(AMScanViewPlotTools *newTools);
-	/// Notifier that the x axis units have changed.
-	void xAxisUnitsChanged(const QString &newUnits);
-	/// Notifier that the y axis units have changed.
-	void yAxisUnitsChanged(const QString &newUnits);
 };
 
 #define AM_SCAN_VIEW_HIDE_SCANBARS_AFTER_N_SCANS 7
@@ -348,6 +340,11 @@ public slots:
 	void setPlotCursorVisibility(bool isVisible);
 
 protected slots:
+	/// Updates the displayed axis names.
+	void updateAxisNames();
+	/// Updates the displayed axis units.
+	void updateUnits();
+
 	/// after a scan or data source is added in the model
 	virtual void onRowInserted(const QModelIndex& parent, int start, int end);
 	/// before a scan or data source is deleted in the model:
@@ -361,6 +358,25 @@ protected slots:
 	void onExclusiveDataSourceChanged(const QString& exclusiveDataSource);
 
 protected:
+	/// Returns the current axis name.
+	QString axisName(int axisNumber);
+	/// Returns the current bottom axis name.
+	QString bottomAxisName();
+	/// Returns the current right axis name.
+	QString rightAxisName();
+
+	/// Returns the current axis units.
+	QString axisUnits(int axisNumber);
+	/// Returns the current bottom axis units.
+	QString bottomAxisUnits();
+	/// Returns the current right axis units.
+	QString rightAxisUnits();
+
+	/// Returns true if the given scan contains an exclusive data source.
+	bool scanContainsExclusiveSource(AMScan *scan);
+	/// Returns the index of the exclusive source within the scan, -1 if no exclusive source found.
+	int scanExclusiveSourceIndex(AMScan *scan);
+
 	/// Helper function to handle adding a scan (at row scanIndex in the model)
 	void addScan(int scanIndex);
 
@@ -422,6 +438,20 @@ protected slots:
 	virtual void onModelDataChanged(const QModelIndex& topLeft, const QModelIndex& bottomRight);
 
 protected:
+	/// Returns the current axis name.
+	QString axisName(int axisNumber);
+	/// Returns the current bottom axis name.
+	QString bottomAxisName();
+	/// Returns the current right axis name.
+	QString rightAxisName();
+
+	/// Returns the current axis units.
+	QString axisUnits(int axisNumber);
+	/// Returns the current bottom axis units.
+	QString bottomAxisUnits();
+	/// Returns the current right axis units.
+	QString rightAxisUnits();
+
 	/// helper function: adds the scan at \c scanIndex
 	void addScan(int scanIndex);
 
@@ -473,6 +503,20 @@ protected slots:
 	virtual void onModelDataChanged(const QModelIndex& topLeft, const QModelIndex& bottomRight);
 
 protected:
+	/// Returns the current axis name.
+	QString axisName(int axisNumber);
+	/// Returns the current bottom axis name.
+	QString bottomAxisName();
+	/// Returns the current right axis name.
+	QString rightAxisName();
+
+	/// Returns the current axis units.
+	QString axisUnits(int axisNumber);
+	/// Returns the current bottom axis units.
+	QString bottomAxisUnits();
+	/// Returns the current right axis units.
+	QString rightAxisUnits();
+
 	/// Sets the preset data constraints for the given axis scale. \note This method currently only changes the dataRangeConstraint for MPlot::Left.  As other axis scales need calibration, they will be added as well.
 	void setDataRangeConstraint(int id);
 
@@ -532,6 +576,20 @@ protected slots:
 	virtual void onModelDataChanged(const QModelIndex& topLeft, const QModelIndex& bottomRight);
 
 protected:
+	/// Returns the current axis name.
+	QString axisName(int axisNumber);
+	/// Returns the current bottom axis name.
+	QString bottomAxisName();
+	/// Returns the current right axis name.
+	QString rightAxisName();
+
+	/// Returns the current axis units.
+	QString axisUnits(int axisNumber);
+	/// Returns the current bottom axis units.
+	QString bottomAxisUnits();
+	/// Returns the current right axis units.
+	QString rightAxisUnits();
+
 	/// Sets the preset data constraints for the given axis scale. \note This method currently only changes the dataRangeConstraint for MPlot::Left.  As other axis scales need calibration, they will be added as well.
 	void setDataRangeConstraint(int id);
 

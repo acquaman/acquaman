@@ -305,17 +305,17 @@ void AMScanView::setSpectrumViewVisibility(bool visible)
 
 void AMScanView::setUnitsFromScan(AMScan *scan)
 {
-	QString xUnits = "";
+//	QString xUnits = "";
 
-	if (scan && scan->rawData() && scan->rawData()->scanAxesCount() >= 1) {
-		xUnits = scan->rawData()->scanAxisAt(0).units;
-	}
+//	if (scan && scan->rawData() && scan->rawData()->scanAxesCount() >= 1) {
+//		xUnits = scan->rawData()->scanAxisAt(0).units;
+//	}
 
-	foreach (AMScanViewInternal *scanView, views_) {
-		if (scanView) {
-			scanView->setPlotToolUnits(QStringList() << xUnits);
-		}
-	}
+//	foreach (AMScanViewInternal *scanView, views_) {
+//		if (scanView) {
+//			scanView->setPlotToolUnits(QStringList() << xUnits);
+//		}
+//	}
 }
 
 void AMScanView::onDataPositionChanged(const QPointF &point)
@@ -609,32 +609,6 @@ AMScanViewInternal::AMScanViewInternal(AMScanView* masterView)
 	tools_ = 0;
 }
 
-void AMScanViewInternal::setXAxisUnits(const QString &newUnits)
-{
-	if (xAxisUnits_ != newUnits) {
-		xAxisUnits_ = newUnits;
-		emit xAxisUnitsChanged(xAxisUnits_);
-	}
-}
-
-void AMScanViewInternal::applyXAxisUnits(MPlot *plot, const QString &xAxisUnits)
-{
-
-}
-
-void AMScanViewInternal::setYAxisUnits(const QString &newUnits)
-{
-	if (yAxisUnits_ != newUnits) {
-		yAxisUnits_ = newUnits;
-		emit yAxisUnitsChanged(yAxisUnits_);
-	}
-}
-
-void AMScanViewInternal::applyYAxisUnits(MPlot *plot, const QString &yAxisUnits)
-{
-
-}
-
 void AMScanViewInternal::setPlotTools(AMScanViewPlotTools *newTools)
 {
 	if (tools_ != newTools) {
@@ -676,14 +650,30 @@ void AMScanViewInternal::setPlotToolUnits(const QStringList &unitsList)
 
 void AMScanViewInternal::setPlotBottomAxisName(MPlot *plot, const QString &bottomAxisName)
 {
-	if (plot && plot->axisBottom())
+	qDebug() << "Setting plot bottom axis name:" << bottomAxisName;
+
+	if (plot && plot->axisBottom()) {
 		plot->axisBottom()->setAxisName(bottomAxisName);
+
+		if (!bottomAxisName.isEmpty())
+			plot->axisBottom()->showAxisName(true);
+		else
+			plot->axisBottom()->showAxisName(false);
+	}
 }
 
 void AMScanViewInternal::setPlotRightAxisName(MPlot *plot, const QString &rightAxisName)
 {
-	if (plot && plot->axisRight())
+	qDebug() << "Setting plot right axis name:" << rightAxisName;
+
+	if (plot && plot->axisRight()) {
 		plot->axisRight()->setAxisName(rightAxisName);
+
+		if (!rightAxisName.isEmpty())
+			plot->axisRight()->showAxisName(true);
+		else
+			plot->axisRight()->showAxisName(false);
+	}
 }
 
 AMScanSetModel* AMScanViewInternal::model() const { return masterView_->model(); }
@@ -1019,6 +1009,18 @@ void AMScanViewExclusiveView::setPlotCursorVisibility(bool isVisible)
 	}
 }
 
+void AMScanViewExclusiveView::updateAxisNames()
+{
+	setPlotBottomAxisName(plot_->plot(), bottomAxisName());
+	setPlotRightAxisName(plot_->plot(), rightAxisName());
+}
+
+void AMScanViewExclusiveView::updateUnits()
+{
+	updateAxisNames();
+	setPlotToolUnits(QStringList() << bottomAxisUnits() << rightAxisUnits());
+}
+
 void AMScanViewExclusiveView::refreshTitle() {
 
 	int numScansShown = 0;
@@ -1029,6 +1031,261 @@ void AMScanViewExclusiveView::refreshTitle() {
 	QString scanCount = (numScansShown == 1) ? " (1 scan)" : QString(" (%1 scans)").arg(numScansShown);
 	/// \todo This should show a data source description, not a name. However, we don't know that all the descriptions (for all the data sources matching the exclusive data source) are the same....
 	plot_->plot()->legend()->setTitleText(model()->exclusiveDataSourceName() + scanCount);	// result ex: "tey (3 scans)"
+}
+
+QString AMScanViewExclusiveView::axisName(int axisNumber)
+{
+	QString result;
+
+	switch (axisNumber) {
+	case 0:
+		result = bottomAxisName();
+		break;
+	case 1:
+		result = rightAxisName();
+		break;
+	default:
+		break;
+	}
+
+	return result;
+}
+
+QString AMScanViewExclusiveView::bottomAxisName()
+{
+	qDebug() << "Generating exclusive view bottom axis name.";
+
+	QString result;
+
+	int scanCount = model()->scanCount();
+
+	// Iterate through the scans and check that all scans agree on what the bottom
+	// axis name should be.
+
+	if (scanCount > 0) {
+		AMScan *firstScan = model()->scanAt(0);
+		QString firstName = AMScanViewInternal::axisName(firstScan, 0);
+
+		if (scanCount > 1) {
+
+			bool sameName = true;
+
+			for (int scanIndex = 1; scanIndex < scanCount && sameName; scanIndex++) {
+				QString newName = AMScanViewInternal::axisName(model()->scanAt(scanIndex), 0);
+
+				if (firstName != newName)
+					sameName = false;
+			}
+
+			if (sameName)
+				result =  firstName;
+
+		} else {
+			result = firstName;
+		}
+	}
+
+	qDebug() << "Exclusive view bottom axis name:" << result;
+
+	return result;
+}
+
+QString AMScanViewExclusiveView::rightAxisName()
+{
+	qDebug() << "Generating exclusive view right axis name.";
+
+	QString result;
+
+	bool proceed = true;
+	bool sourceFound = false;
+	bool sameName = true;
+
+	QString name;
+
+	// Iterate through the scans and check that all scans with exclusive data sources agree on what
+	// the axis name should be.
+
+	for (int scanIndex = 0, scanCount = model()->scanCount(); scanIndex < scanCount && proceed; scanIndex++) {
+		AMScan *scan = model()->scanAt(0);
+
+		if (scanContainsExclusiveSource(scan)) {
+			qDebug() << scan->fullName() << "contains exclusive data source.";
+
+			if (!sourceFound) {
+				sourceFound = true;
+				QString sourceName = scan->dataSourceAt(scanExclusiveSourceIndex(scan))->description();
+				qDebug() << "At least one exclusive data source found:" << sourceName;
+
+				name = AMScanViewInternal::axisName(scan, 1, scanExclusiveSourceIndex(scan));
+
+			} else {
+				qDebug() << "Multiple exclusive data sources found.";
+				QString newName = AMScanViewInternal::axisName(scan, 1, scanExclusiveSourceIndex(scan));
+
+				if (name != newName)
+					sameName = false;
+
+				if (!sameName)
+					qDebug() << "There are multiple exclusive data sources and they do NOT agree on axis name.";
+			}
+		} else {
+			qDebug() << scan->fullName() << "does NOT contain exclusive data source.";
+		}
+
+		// Stop checking the scans if we arrive at a bad condition: if at least two scans have
+		// exclusive data sources and they don't agree on the axis name.
+
+		if (sourceFound && !sameName)
+			proceed = false;
+	}
+
+	// If at least one exclusive data source was found and all scans are in agreement,
+	// return the axis name.
+
+	if (sourceFound && sameName)
+		result = name;
+
+	qDebug() << "Exclusive view right axis name:" << result;
+
+	return result;
+}
+
+QString AMScanViewExclusiveView::axisUnits(int axisNumber)
+{
+	QString result;
+
+	switch (axisNumber) {
+	case 0:
+		result = bottomAxisUnits();
+		break;
+	case 1:
+		result = rightAxisUnits();
+		break;
+	default:
+		break;
+	}
+
+	return result;
+}
+
+QString AMScanViewExclusiveView::bottomAxisUnits()
+{
+	qDebug() << "Generating exclusive view bottom axis units.";
+
+	QString result;
+
+	int scanCount = model()->scanCount();
+
+	// Iterate through the scans and check that all scans agree on what the bottom
+	// axis units should be.
+
+	if (scanCount > 0) {
+		AMScan *firstScan = model()->scanAt(0);
+		QString firstUnits = AMScanViewInternal::axisUnits(firstScan, 0);
+
+		if (scanCount > 1) {
+
+			bool sameUnits = true;
+
+			for (int scanIndex = 1; scanIndex < scanCount && sameUnits; scanIndex++) {
+				QString newUnits = AMScanViewInternal::axisUnits(model()->scanAt(scanIndex), 0);
+
+				if (firstUnits != newUnits)
+					sameUnits = false;
+			}
+
+			if (sameUnits)
+				result =  firstUnits;
+
+		} else {
+			result = firstUnits;
+		}
+	}
+
+	qDebug() << "Exclusive view bottom axis units:" << result;
+
+	return result;
+}
+
+QString AMScanViewExclusiveView::rightAxisUnits()
+{
+	qDebug() << "Generating exclusive view right axis units.";
+
+	QString result;
+
+	// Proceed with generating right axis units only if normalization and log scale are both not enabled.
+
+	if (!normalizationEnabled_ && !logScaleEnabled_) {
+
+		bool proceed = true;
+		bool sourceFound = false;
+		bool sameUnits = true;
+
+		QString units;
+
+		// Iterate through the scans and check that all scans with exclusive data sources agree on what
+		// the axis units should be.
+
+		for (int scanIndex = 0, scanCount = model()->scanCount(); scanIndex < scanCount && proceed; scanIndex++) {
+			AMScan *scan = model()->scanAt(0);
+
+			if (scanContainsExclusiveSource(scan)) {
+				qDebug() << scan->fullName() << "contains exclusive data source.";
+
+				if (!sourceFound) {
+					sourceFound = true;
+					units = AMScanViewInternal::axisUnits(scan, 1, scanExclusiveSourceIndex(scan));
+
+				} else {
+					QString newUnits = AMScanViewInternal::axisUnits(scan, 1, scanExclusiveSourceIndex(scan));
+
+					if (units != newUnits)
+						sameUnits = false;
+				}
+			} else {
+				qDebug() << scan->fullName() << "does NOT contain exclusive data source.";
+			}
+
+			// Stop checking the scans if we arrive at a bad condition: if at least two scans have
+			// exclusive data sources and they don't agree on the axis units.
+
+			if (sourceFound && !sameUnits)
+				proceed = false;
+		}
+
+		// If at least one exclusive data source was found and all scans are in agreement,
+		// return the axis units.
+
+		if (sourceFound && sameUnits)
+			result = units;
+
+		qDebug() << "Exclusive view right axis units:" << result;
+	}
+
+	return result;
+}
+
+bool AMScanViewExclusiveView::scanContainsExclusiveSource(AMScan *scan)
+{
+	bool result = false;
+
+	QString exclusiveName = model()->exclusiveDataSourceName();
+
+	if (scan && !exclusiveName.isEmpty()) {
+		result = scanContainsSource(scan, exclusiveName);
+	}
+
+	return result;
+}
+
+int AMScanViewExclusiveView::scanExclusiveSourceIndex(AMScan *scan)
+{
+	int result = -1;
+
+	if (scan)
+		result = scan->indexOfDataSource(model()->exclusiveDataSourceName());
+
+	return result;
 }
 
 // Helper function to handle adding a scan (at row scanIndex in the model)
@@ -1058,6 +1315,13 @@ void AMScanViewExclusiveView::addScan(int scanIndex) {
 // Helper function to review a scan when a data source is added or the exclusive data source changes.
 void AMScanViewExclusiveView::reviewScan(int scanIndex) {
 
+	// Update the plot axis names.
+
+	qDebug() << "\nReviewing scan.";
+
+	updateAxisNames();
+	updateUnits();
+
 	QString dataSourceName = model()->exclusiveDataSourceName();
 
 	int dataSourceIndex = model()->scanAt(scanIndex)->indexOfDataSource(dataSourceName);
@@ -1081,12 +1345,6 @@ void AMScanViewExclusiveView::reviewScan(int scanIndex) {
 			if(newItem) {
 				newItem->setDescription(model()->scanAt(scanIndex)->fullName());
 				plot_->plot()->addItem(newItem, (dataSource->rank() == 2? MPlot::Right : MPlot::Left));
-				AMScan *scan = model()->scanAt(scanIndex);
-
-				setPlotBottomAxisName(plot_->plot(), bottomAxisName(scan, dataSource));
-				setPlotRightAxisName(plot_->plot(), rightAxisName(scan, dataSource));
-				setPlotToolUnits(QStringList() << bottomAxisUnits(scan, dataSource) << rightAxisUnits(scan, dataSource));
-
 			}
 			/// \todo: if there are 2d images on any plots, set their right axis to show the right axisScale, and show ticks.
 
@@ -1095,8 +1353,6 @@ void AMScanViewExclusiveView::reviewScan(int scanIndex) {
 
 		else {	// We already have one.  Review and update the existing plot item. (When would this be called? // A: When the exclusive data source changes, for one thing. need to change old series/image to represent new data)
 			plotItems_.at(scanIndex)->setDescription(model()->scanAt(scanIndex)->fullName());
-
-			setPlotToolUnits(QStringList() << bottomAxisUnits(model()->scanAt(scanIndex), dataSource) << rightAxisUnits(model()->scanAt(scanIndex), dataSource));
 
 			switch(dataSource->rank()) {
 			case 1: {
@@ -1143,6 +1399,7 @@ void AMScanViewExclusiveView::enableLogScale(bool logScaleOn)
 
 	setDataRangeConstraint(MPlot::Left);
 	plot_->plot()->enableLogScale(MPlot::Left, logScaleOn);
+	updateUnits();
 }
 
 void AMScanViewExclusiveView::enableNormalization(bool normalizationOn, double min, double max) {
@@ -1150,7 +1407,7 @@ void AMScanViewExclusiveView::enableNormalization(bool normalizationOn, double m
 
 	setDataRangeConstraint(MPlot::Left);
 	plot_->plot()->enableAxisNormalization(MPlot::Left, normalizationOn, MPlotAxisRange(min, max));
-
+	updateUnits();
 }
 
 void AMScanViewExclusiveView::enableWaterfallOffset(bool waterfallOn) {
@@ -1239,6 +1496,122 @@ AMScanViewMultiView::AMScanViewMultiView(AMScanView* masterView) : AMScanViewInt
 	refreshTitles();
 }
 
+QString AMScanViewMultiView::axisName(int axisNumber)
+{
+	QString result;
+
+	switch (axisNumber) {
+	case 0:
+		result = bottomAxisName();
+		break;
+	case 1:
+		result = rightAxisName();
+		break;
+	default:
+		break;
+	}
+
+	return result;
+}
+
+QString AMScanViewMultiView::bottomAxisName()
+{
+	QString result;
+
+	int scanCount = model()->scanCount();
+
+	// Iterate through the scans and check that all scans agree on what the bottom
+	// axis name should be.
+
+	if (scanCount > 0) {
+		AMScan *firstScan = model()->scanAt(0);
+		QString firstName = AMScanViewInternal::axisName(firstScan, 0);
+
+		if (scanCount > 1) {
+
+			bool sameName = true;
+
+			for (int scanIndex = 1; scanIndex < scanCount && sameName; scanIndex++) {
+				QString newName = AMScanViewInternal::axisName(model()->scanAt(scanIndex), 0);
+
+				if (firstName != newName)
+					sameName = false;
+			}
+
+			if (sameName)
+				result =  firstName;
+
+		} else {
+			result = firstName;
+		}
+	}
+
+	return result;
+}
+
+QString AMScanViewMultiView::rightAxisName()
+{
+	return QString();
+}
+
+QString AMScanViewMultiView::axisUnits(int axisNumber)
+{
+	QString result;
+
+	switch (axisNumber) {
+	case 0:
+		result = bottomAxisUnits();
+		break;
+	case 1:
+		result = rightAxisUnits();
+		break;
+	default:
+		break;
+	}
+
+	return result;
+}
+
+QString AMScanViewMultiView::bottomAxisUnits()
+{
+	QString result;
+
+	int scanCount = model()->scanCount();
+
+	// Iterate through the scans and check that all scans agree on what the bottom
+	// axis units should be.
+
+	if (scanCount > 0) {
+		AMScan *firstScan = model()->scanAt(0);
+		QString firstUnits = AMScanViewInternal::axisUnits(firstScan, 0);
+
+		if (scanCount > 1) {
+
+			bool sameUnits = true;
+
+			for (int scanIndex = 1; scanIndex < scanCount && sameUnits; scanIndex++) {
+				QString newUnits = AMScanViewInternal::axisUnits(model()->scanAt(scanIndex), 0);
+
+				if (firstUnits != newUnits)
+					sameUnits = false;
+			}
+
+			if (sameUnits)
+				result =  firstUnits;
+
+		} else {
+			result = firstUnits;
+		}
+	}
+
+	return result;
+}
+
+QString AMScanViewMultiView::rightAxisUnits()
+{
+	return QString();
+}
+
 void AMScanViewMultiView::addScan(int si) {
 	QList<MPlotItem*> scanList;
 
@@ -1253,10 +1626,11 @@ void AMScanViewMultiView::addScan(int si) {
 				plot_->plot()->addItem(newItem, (dataSource->rank() == 2 ? MPlot::Right : MPlot::Left));
 				/// \todo: if there are 2d images on any plots, set their right axis to show the right axisScale, and show ticks.
 
-				AMScan *scan = model()->scanAt(si);
+//				plot_->plot()->axisBottom()->setAxisName(bottomAxisName(scan, dataSource));
+//				plot_->plot()->axisRight()->setAxisName(rightAxisName(scan, dataSource));
 
-				plot_->plot()->axisBottom()->setAxisName(bottomAxisName(scan, dataSource));
-				plot_->plot()->axisRight()->setAxisName(rightAxisName(scan, dataSource));
+				setPlotBottomAxisName(plot_->plot(), bottomAxisName());
+				setPlotRightAxisName(plot_->plot(), rightAxisName());
 
 				newItem->setDescription(model()->scanAt(si)->fullName() + ": " + dataSource->name());
 			}
@@ -1580,8 +1954,11 @@ void AMScanViewMultiScansView::addScan(int si) {
 				plots_.at(si)->plot()->addItem(newItem, (dataSource->rank() == 2 ? MPlot::Right : MPlot::Left));
 
 				AMScan *scan = model()->scanAt(si);
-				plots_.at(si)->plot()->axisBottom()->setAxisName(bottomAxisName(scan, dataSource));
-				plots_.at(si)->plot()->axisRight()->setAxisName(rightAxisName(scan, dataSource));
+
+				setPlotBottomAxisName(plots_.at(si)->plot(), bottomAxisName());
+				setPlotRightAxisName(plots_.at(si)->plot(), rightAxisName());
+//				plots_.at(si)->plot()->axisBottom()->setAxisName(bottomAxisName(scan, dataSource));
+//				plots_.at(si)->plot()->axisRight()->setAxisName(rightAxisName(scan, dataSource));
 			}
 			scanList << newItem;
 
@@ -1792,6 +2169,122 @@ void AMScanViewMultiScansView::onModelDataChanged(const QModelIndex& topLeft, co
 			reviewPlotAxesConfiguration(plots_.at(si));
 		refreshLegend(si);
 	}
+}
+
+QString AMScanViewMultiScansView::axisName(int axisNumber)
+{
+	QString result;
+
+	switch (axisNumber) {
+	case 0:
+		result = bottomAxisName();
+		break;
+	case 1:
+		result = rightAxisName();
+		break;
+	default:
+		break;
+	}
+
+	return result;
+}
+
+QString AMScanViewMultiScansView::bottomAxisName()
+{
+	QString result;
+
+	int scanCount = model()->scanCount();
+
+	// Iterate through the scans and check that all scans agree on what the bottom
+	// axis name should be.
+
+	if (scanCount > 0) {
+		AMScan *firstScan = model()->scanAt(0);
+		QString firstName = AMScanViewInternal::axisName(firstScan, 0);
+
+		if (scanCount > 1) {
+
+			bool sameName = true;
+
+			for (int scanIndex = 1; scanIndex < scanCount && sameName; scanIndex++) {
+				QString newName = AMScanViewInternal::axisName(model()->scanAt(scanIndex), 0);
+
+				if (firstName != newName)
+					sameName = false;
+			}
+
+			if (sameName)
+				result =  firstName;
+
+		} else {
+			result = firstName;
+		}
+	}
+
+	return result;
+}
+
+QString AMScanViewMultiScansView::rightAxisName()
+{
+	return QString();
+}
+
+QString AMScanViewMultiScansView::axisUnits(int axisNumber)
+{
+	QString result;
+
+	switch (axisNumber) {
+	case 0:
+		result = bottomAxisUnits();
+		break;
+	case 1:
+		result = rightAxisUnits();
+		break;
+	default:
+		break;
+	}
+
+	return result;
+}
+
+QString AMScanViewMultiScansView::bottomAxisUnits()
+{
+	QString result;
+
+	int scanCount = model()->scanCount();
+
+	// Iterate through the scans and check that all scans agree on what the bottom
+	// axis units should be.
+
+	if (scanCount > 0) {
+		AMScan *firstScan = model()->scanAt(0);
+		QString firstUnits = AMScanViewInternal::axisUnits(firstScan, 0);
+
+		if (scanCount > 1) {
+
+			bool sameUnits = true;
+
+			for (int scanIndex = 1; scanIndex < scanCount && sameUnits; scanIndex++) {
+				QString newUnits = AMScanViewInternal::axisUnits(model()->scanAt(scanIndex), 0);
+
+				if (firstUnits != newUnits)
+					sameUnits = false;
+			}
+
+			if (sameUnits)
+				result =  firstUnits;
+
+		} else {
+			result = firstUnits;
+		}
+	}
+
+	return result;
+}
+
+QString AMScanViewMultiScansView::rightAxisUnits()
+{
+	return QString();
 }
 
 void AMScanViewMultiScansView::applyPlotTools(const QList<MPlotAbstractTool *> &newSelection)
@@ -2053,22 +2546,37 @@ void AMScanViewMultiSourcesView::onModelDataChanged(const QModelIndex& topLeft, 
 	}
 }
 
-//void AMScanViewMultiSourcesView::onToolSelectionChanged(QList<MPlotAbstractTool*> newSelection)
-//{
-//	// Clear all plots of previously added tools.
+QString AMScanViewMultiSourcesView::axisName(int axisNumber)
+{
+	Q_UNUSED(axisNumber)
+	return QString();
+}
 
-//	foreach (MPlotGW *plot, dataSource2Plot_.values()) {
-//		plot->plot()->removeTools();
-//	}
+QString AMScanViewMultiSourcesView::bottomAxisName()
+{
+	return QString();
+}
 
-//	// Add tools to the plots, according to selection.
+QString AMScanViewMultiSourcesView::rightAxisName()
+{
+	return QString();
+}
 
-//	foreach (MPlotGW *plot, dataSource2Plot_.values()) {
-//		foreach (MPlotAbstractTool *tool, newSelection) {
-//			addToolToPlot(plot->plot(), tool);
-//		}
-//	}
-//}
+QString AMScanViewMultiSourcesView::axisUnits(int axisNumber)
+{
+	Q_UNUSED(axisNumber)
+	return QString();
+}
+
+QString AMScanViewMultiSourcesView::bottomAxisUnits()
+{
+	return QString();
+}
+
+QString AMScanViewMultiSourcesView::rightAxisUnits()
+{
+	return QString();
+}
 
 // re-do the layout
 void AMScanViewMultiSourcesView::reLayout() {
@@ -2216,8 +2724,11 @@ bool AMScanViewMultiSourcesView::reviewDataSources() {
 					// zzzzzzzz Always add, even if 0? (requires checking everywhere for null plot items). Or only add if valid? (Going with latter... hope this is okay, in event someone tries at add 0d, 3d or 4d data source.
 					sourceAndScan2PlotItem_[sourceName].insert(scan, newItem);
 
-					dataSource2Plot_[sourceName]->plot()->axisBottom()->setAxisName(bottomAxisName(scan, dataSource));
-					dataSource2Plot_[sourceName]->plot()->axisRight()->setAxisName(rightAxisName(scan, dataSource));
+//					dataSource2Plot_[sourceName]->plot()->axisBottom()->setAxisName(bottomAxisName(scan, dataSource));
+//					dataSource2Plot_[sourceName]->plot()->axisRight()->setAxisName(rightAxisName(scan, dataSource));
+
+					setPlotBottomAxisName(dataSource2Plot_[sourceName]->plot(), bottomAxisName());
+					setPlotRightAxisName(dataSource2Plot_[sourceName]->plot(), rightAxisName());
 				}
 			}
 		}
@@ -2403,86 +2914,546 @@ void AMScanView::printGraphics()
 
 }
 
-QString AMScanViewInternal::bottomAxisName(AMScan *scan, AMDataSource *dataSource)
-{
-	if (scan->scanRank() == 0) {
-		AMAxisInfo ai = dataSource->axisInfoAt(0);
-		QString rv = ai.description;
-		if(!ai.units.isEmpty())
-			rv.append(", " % ai.units);
-		return rv;
-	}
-
-	if (scan->scanRank() == 1 || scan->scanRank() == 2 || scan->scanRank() == 3) {
-		AMAxisInfo ai = scan->rawData()->scanAxisAt(0);	// this isn't really cool... Should stick to publicly exposed data from the data source.
-		QString rv = ai.description;
-		if(!ai.units.isEmpty())
-			rv.append(", " % ai.units);
-		return rv;
-	}
-
-	return QString();
-}
-
-QString AMScanViewInternal::rightAxisName(AMScan *scan, AMDataSource *dataSource)
-{
-	Q_UNUSED(scan)
-
-	if (dataSource->rank() == 2) {
-		AMAxisInfo ai = dataSource->axisInfoAt(1);
-		QString rv = ai.description;
-		if(!ai.units.isEmpty()) {
-			rv.append(", " % ai.units);
-		}
-		return rv;
-	}
-
-	else
-		return QString();
-}
-
-QString AMScanViewInternal::bottomAxisUnits(AMScan *scan, AMDataSource *dataSource)
+QString AMScanViewInternal::scanAxisName(AMScan *scan, int axisNumber)
 {
 	QString result;
 
 	if (scan) {
-		if (dataSource && scan->scanRank() == 0) {
-			result = dataSource->axisInfoAt(0).units;
 
-		} else if (scan->scanRank() == 1 || scan->scanRank() == 2 || scan->scanRank() == 3) {
-			result = scan->rawData()->scanAxisAt(0).units;
+		int scanRank = scan->scanRank();
+		int dataSourceCount = scan->dataSourceCount();
+
+		if (axisNumber >= 0 && axisNumber <= scanRank) {
+
+			// The scan rank represents the number of axis that are scanned over (eg 1 for XAS scans).
+
+			if (scanRank == 0 && axisNumber == 0 && dataSourceCount > 0) {
+
+				// If the scan rank is zero and we want the first scan axis name,
+				// must derive the axis name from the data sources.
+				// Use the first data source.
+
+				result = axisName(scan->dataSourceAt(0), axisNumber);
+
+			} else if (scanRank > 0) {
+
+				// If the scan rank is greater than zero, the axis name comes from the scan axis infos.
+
+				AMAxisInfo axisInfo = scan->rawData()->scanAxisAt(axisNumber);
+
+				QString axisDescription = axisInfo.description;
+				QString axisUnits = axisInfo.units;
+
+				if (axisUnits.isEmpty())
+					result = axisDescription;
+				else
+					result = axisDescription + ", " + axisUnits;
+			}
+		}
+	}
+
+	qDebug() << "Scan axis name for axis number" << axisNumber << ":" << result;
+
+	return result;
+}
+
+QString AMScanViewInternal::axisName(AMDataSource *dataSource, int axisNumber)
+{
+	qDebug() << "Generating axis name from data source.";
+
+	QString result;
+
+	if (dataSource) {
+		int axisInfoCount = dataSource->axes().count();
+
+		qDebug() << "Data source has" << axisInfoCount << "axes.";
+
+		if (axisNumber >= 0 && axisNumber < axisInfoCount) {
+			QString axisDescription = dataSource->axisInfoAt(axisNumber).description;
+			QString axisUnits = dataSource->axisInfoAt(axisNumber).units;
+
+			if (axisUnits.isEmpty())
+				result = axisDescription;
+			else
+				result = axisDescription + ", " + axisUnits;
+
+		} else {
+			qDebug() << "Given axis number" << axisNumber << "is greater than the data source's axis count. No name generated.";
+		}
+	} else {
+		qDebug() << "Invalid data source. No axis name generated.";
+	}
+
+	qDebug() << "Data source axis name for axis number" << axisNumber << ":" << result;
+
+	return result;
+}
+
+QString AMScanViewInternal::axisName(AMScan *scan, int axisNumber, int dataSourceIndex)
+{
+	QString result;
+
+	if (scan) {
+
+		int scanAxisCount = scan->rawData()->scanAxesCount();
+		int dataSourceCount = scan->dataSourceCount();
+
+		// Check that the axis number and data source index given make sense.
+
+		if (axisNumber >= 0 && dataSourceIndex >= 0 && dataSourceIndex < dataSourceCount) {
+
+			// If the requested axis number corresponds to a scanned axis, return the scan axis name.
+
+			if (axisNumber < scanAxisCount) {
+				qDebug() << "Axis number corresponds to a scanned axis.";
+				result = scanAxisName(scan, axisNumber);
+
+			} else {
+
+				qDebug() << "Axis number does NOT correspond to a scanned axis. Checking data sources...";
+
+				// If the requested axis number is greater than the number of scanned axes,
+				// try to generate the axis name from the data source.
+
+				AMDataSource *dataSource = scan->dataSourceAt(dataSourceIndex);
+				result = axisName(dataSource, axisNumber);
+			}
+		}
+	}
+
+	qDebug() << "AMScanViewInternal::axisName(AMScan*, int, int). Result:" << result;
+
+	return result;
+}
+
+QString AMScanViewInternal::scanAxisUnits(AMScan *scan, int axisNumber)
+{
+	QString result;
+
+	if (scan) {
+
+		int scanRank = scan->scanRank();
+		int dataSourceCount = scan->dataSourceCount();
+
+		if (axisNumber >= 0 && axisNumber <= scanRank) {
+
+			// The scan rank represents the number of axis that are scanned over (eg 1 for XAS scans).
+
+			if (scanRank == 0 && axisNumber == 0 && dataSourceCount > 0) {
+
+				// If the scan rank is zero and we want the first scan axis units,
+				// must derive the axis units from the data sources.
+				// Use the first data source.
+
+				result = axisUnits(scan->dataSourceAt(0), axisNumber);
+
+			} else if (scanRank > 0) {
+
+				// If the scan rank is greater than zero, the axis units come from the scan axis infos.
+
+				result = scan->rawData()->scanAxisAt(axisNumber).units;
+			}
 		}
 	}
 
 	return result;
 }
 
-#include <QDebug>
-
-QString AMScanViewInternal::rightAxisUnits(AMScan *scan, AMDataSource *dataSource)
+QString AMScanViewInternal::axisUnits(AMDataSource *dataSource, int axisNumber)
 {
 	QString result;
 
-	qDebug() << "\n";
-
 	if (dataSource) {
-		qDebug() << "Data source valid.";
+		int axisCount = dataSource->axes().count();
 
-		qDebug() << "Data source rank:" << dataSource->rank();
+		if (axisNumber >= 0 && axisNumber < axisCount)
+			result = dataSource->axisInfoAt(axisNumber).units;
+	}
 
-		if (dataSource->rank() >= 1) {
+	return result;
+}
 
-			qDebug() << "Data source has rank greater than or equal to 1.";
+QString AMScanViewInternal::axisUnits(AMScan *scan, int axisNumber, int dataSourceIndex)
+{
+	QString result;
 
-			qDebug() << "Data source x units: " << dataSource->axisInfoAt(0).units;
-//			qDebug() << "Data source y units: " << dataSource->axisInfoAt(1).units;
+	if (scan) {
 
-		} else {
-			qDebug() << "Data source has rank less than 1--unexpected.";
+		int scanAxisCount = scan->rawData()->scanAxesCount();
+		int dataSourceCount = scan->dataSourceCount();
+
+		// Check that the axis number and the data source index given make sense.
+
+		if (axisNumber >= 0 && dataSourceIndex >= 0 && dataSourceIndex < dataSourceCount) {
+
+			if (axisNumber < scanAxisCount) {
+
+				// If the requested axis number corresponds to a scanned axis, return the scan axis units.
+
+				result = scanAxisUnits(scan, axisNumber);
+
+			} else {
+
+				// If the requested axis number is greater than the number of scanned axes,
+				// try to generate the axis name from the data source.
+
+				AMDataSource *dataSource = scan->dataSourceAt(dataSourceIndex);
+				result = axisUnits(dataSource, axisNumber);
+			}
 		}
+	}
 
-	} else {
-		qDebug() << "Data source not valid??";
+	return result;
+}
+
+//QString AMScanViewInternal::bottomAxisName(AMScan *scan, AMDataSource *dataSource)
+//{
+//	if (scan->scanRank() == 0) {
+//		AMAxisInfo ai = dataSource->axisInfoAt(0);
+//		QString rv = ai.description;
+//		if(!ai.units.isEmpty())
+//			rv.append(", " % ai.units);
+//		return rv;
+//	}
+
+//	if (scan->scanRank() == 1 || scan->scanRank() == 2 || scan->scanRank() == 3) {
+//		AMAxisInfo ai = scan->rawData()->scanAxisAt(0);	// this isn't really cool... Should stick to publicly exposed data from the data source.
+//		QString rv = ai.description;
+//		if(!ai.units.isEmpty())
+//			rv.append(", " % ai.units);
+//		return rv;
+//	}
+
+//	return QString();
+//}
+
+//QString AMScanViewInternal::rightAxisName(AMScan *scan, AMDataSource *dataSource)
+//{
+//	Q_UNUSED(scan)
+
+//	QString result;
+
+//	if (dataSource && dataSource->rank() == 2) {
+//		QString dataSourceDescription = dataSource->axisInfoAt(1).description;
+//		QString dataSourceUnits = dataSource->axisInfoAt(1).units;
+
+//		if (normalizationEnabled_ || dataSourceUnits.isEmpty())
+//			result = dataSourceDescription;
+//		else
+//			result = dataSourceDescription + ", " + dataSourceUnits;
+//	}
+
+//	return result;
+//}
+
+//QString AMScanViewInternal::bottomAxisName(AMScan *scan)
+//{
+//	QString result;
+
+//	if (scan) {
+
+//		if (scan->scanRank() > 0) {
+//			result = bottomAxisName(scan, 0);
+
+//		} else {
+//			QString name = bottomAxisName(scan, scan->dataSourceAt(0));
+//			bool sameName = true;
+
+//			for (int dataSourceIndex = 1, dataSourceCount = scan->dataSourceCount(); dataSourceIndex < dataSourceCount && sameName; dataSourceIndex++) {
+//				QString newName = bottomAxisName(scan, scan->dataSourceAt(dataSourceIndex));
+
+//				if (name != newName)
+//					sameName = false;
+//			}
+
+//			if (sameName)
+//				result = name;
+//		}
+//	}
+
+//	return result;
+//}
+
+//#include <QDebug>
+
+//QString AMScanViewInternal::bottomAxisName()
+//{
+//	QString result;
+
+//	int scanCount = model()->scanCount();
+
+//	if (scanCount > 0) {
+
+//		QString name = bottomAxisName(model()->scanAt(0));
+
+//		if (scanCount > 1) {
+
+//			// If there are many scans, check that they all use the same axis name.
+
+//			bool sameName = true;
+
+//			for (int scanIndex = 1; scanIndex < scanCount && sameName; scanIndex++) {
+//				QString newName = bottomAxisName(model()->scanAt(scanIndex));
+
+//				if (name != newName)
+//					sameName = false;
+//			}
+
+//			// If all scans agree, use the given bottom axis name. Otherwise, result is an empty string.
+
+//			if (sameName)
+//				result = name;
+
+//		} else {
+
+//			// If the model only has one scan, the bottom axis name is the name applicable for the one scan.
+
+//			result = name;
+//		}
+//	}
+
+//	qDebug() << "\nBottom axis name:" << result;
+
+//	return result;
+//}
+
+//QString AMScanViewInternal::rightAxisName()
+//{
+//	QString result;
+
+//	if (model()->scanCount() > 0 && !normalizationEnabled_) {
+
+//		// We display right axis information only if there is an exclusive data source present, otherwise display nothing.
+
+//		QString exclusiveSourceName = model()->exclusiveDataSourceName();
+
+//		if (!exclusiveSourceName.isEmpty()) {
+//			AMScan *scan = model()->scanAt( scanIndexFromDataSource(exclusiveSourceName) );
+
+//			if (scan) {
+//				int dataSourceIndex = scan->indexOfDataSource(exclusiveSourceName);
+//				AMDataSource *dataSource = scan->dataSourceAt(dataSourceIndex);
+
+//				result = rightAxisName(scan, dataSource);
+//			}
+//		}
+//	}
+
+//	return result;
+//}
+
+//QString AMScanViewInternal::bottomAxisUnits(AMScan *scan, AMDataSource *dataSource)
+//{
+//	QString result;
+
+//	if (scan) {
+//		if (dataSource && scan->scanRank() == 0) {
+//			result = dataSource->axisInfoAt(0).units;
+
+//		} else if (scan->scanRank() > 0) {
+//			result = scan->rawData()->scanAxisAt(0).units;
+//		}
+//	}
+
+//	return result;
+//}
+
+//QString AMScanViewInternal::rightAxisUnits(AMScan *scan, AMDataSource *dataSource)
+//{
+//	Q_UNUSED(scan)
+
+//	QString result;
+
+//	if (dataSource) {
+//		if (dataSource->rank() >= 1) {
+//			result = dataSource->axisInfoAt(0).units;
+//		}
+//	}
+
+//	return result;
+//}
+
+//QString AMScanViewInternal::bottomAxisUnits(AMScan *scan)
+//{
+//	QString result;
+
+//	if (scan) {
+
+//		int dataSourceCount = scan->dataSourceCount();
+//		int scanRank = scan->rank();
+
+//		if (dataSourceCount > 0) {
+
+//			QString dataSourceUnits;
+
+//			if (scanRank == 0) {
+
+//				// If the scan rank is 0, we derive the units from the data sources.
+
+//				dataSourceUnits = scan->dataSourceAt(0)->axisInfoAt(0).units;
+
+//				// If there are many data sources, check that their units agree.
+
+//				if (dataSourceCount > 1) {
+//					bool sameUnits = true;
+
+//					for (int dataSourceIndex = 1; dataSourceIndex < dataSourceCount && sameUnits; dataSourceIndex++) {
+//						QString newUnits = scan->dataSourceAt(dataSourceIndex)->axisInfoAt(0).units;
+
+//						if (dataSourceUnits != newUnits)
+//							sameUnits = false;
+//					}
+
+//					if (!sameUnits)
+//						dataSourceUnits = QString();
+//				}
+
+//				result = dataSourceUnits;
+
+//			} else if (scanRank > 0) {
+
+//				// If the scan rank is greater than 0, the units come straight from the scan axis.
+
+//				result = scan->rawData()->scanAxisAt(0).units;
+//			}
+//		}
+//	}
+
+//	return result;
+//}
+
+//QString AMScanViewInternal::rightAxisUnits(AMScan *scan)
+//{
+
+//}
+
+//QString AMScanViewInternal::bottomAxisUnits()
+//{
+//	return QString();
+//}
+
+//QString AMScanViewInternal::rightAxisUnits()
+//{
+//	QString result;
+
+//	int scanCount = model()->scanCount();
+
+//	// Units for the right axis are only meaningful if all plotted data sources have the same units and
+//	// normalization is not enabled.
+
+//	if (scanCount > 0 && !normalizationEnabled_) {
+
+//		if (scanCount == 1) {
+
+//			QString exclusiveSourceName = model()->exclusiveDataSourceName();
+
+//			if (!exclusiveSourceName.isEmpty()) {
+//				AMScan *scan = model()->scanAt( scanIndexFromDataSource(exclusiveSourceName) );
+
+//				if (scan) {
+//					int dataSourceIndex = scan->indexOfDataSource(exclusiveSourceName);
+//					AMDataSource *dataSource = scan->dataSourceAt(dataSourceIndex);
+
+//					result = rightAxisUnits(scan, dataSource);
+//				}
+//			}
+
+//		} else {
+
+
+
+//		}
+//	}
+
+//	return result;
+//}
+
+int AMScanViewInternal::scanIndexFromDataSource(AMDataSource *dataSource)
+{
+	int result = -1;
+
+	int scanCount = model()->scanCount();
+
+	if (dataSource && scanCount > 0) {
+
+		bool scanFound = false;
+
+		for (int scanIndex = 0; scanIndex < scanCount && !scanFound; scanIndex++) {
+			AMScan *scan = model()->scanAt(scanIndex);
+
+			if (scanContainsSource(scan, dataSource)) {
+				scanFound = true;
+				result = scanIndex;
+			}
+		}
+	}
+
+	return result;
+}
+
+int AMScanViewInternal::scanIndexFromDataSource(const QString &dataSourceName)
+{
+	int result = -1;
+
+	if (!dataSourceName.isEmpty()) {
+		bool scanFound = false;
+
+		for (int scanIndex = 0, scanCount = model()->scanCount(); scanIndex < scanCount && !scanFound; scanIndex++) {
+			AMScan *scan = model()->scanAt(scanIndex);
+
+			if (scanContainsSource(scan, dataSourceName)) {
+				scanFound = true;
+				result = scanIndex;
+			}
+		}
+	}
+
+	return result;
+}
+
+bool AMScanViewInternal::scanContainsSource(AMScan *scan, AMDataSource *dataSource)
+{
+	bool result = false;
+
+	if (scan && dataSource) {
+		int dataSourceIndex = scan->indexOfDataSource(dataSource);
+
+		if (dataSourceIndex > -1)
+			result = true;
+	}
+
+	return result;
+}
+
+bool AMScanViewInternal::scanContainsSource(AMScan *scan, const QString &dataSourceName)
+{
+	bool result = false;
+
+	if (scan && !dataSourceName.isEmpty()) {
+		int dataSourceIndex = scan->indexOfDataSource(dataSourceName);
+
+		if (dataSourceIndex > -1)
+			result = true;
+	}
+
+	return result;
+}
+
+QList<AMDataSource*> AMScanViewInternal::visibleDataSources()
+{
+	QList<AMDataSource*> result;
+
+	QStringList visibleDataSourceNames = model()->visibleDataSourceNames();
+
+	for (int scanIndex = 0, scanCount = model()->scanCount(); scanIndex < scanCount; scanIndex++) {
+		AMScan *scan = model()->scanAt(scanIndex);
+
+		for (int visibleSourceIndex = 0, visibleSourceCount = visibleDataSourceNames.count(); visibleSourceIndex < visibleSourceCount; visibleSourceIndex++) {
+			QString visibleSourceName = visibleDataSourceNames.at(visibleSourceIndex);
+
+			if (scanContainsSource(scan, visibleSourceName))
+				result.append(scan->dataSourceAt(scan->indexOfDataSource(visibleSourceName)));
+		}
 	}
 
 	return result;
