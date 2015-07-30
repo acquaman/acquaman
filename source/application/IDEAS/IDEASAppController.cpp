@@ -25,6 +25,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/CLS/CLSStorageRing.h"
 #include "beamline/IDEAS/IDEASBeamline.h"
 
+
 #include "actions3/AMActionRunner3.h"
 #include "actions3/actions/AMScanAction.h"
 #include "actions3/AMListAction3.h"
@@ -51,6 +52,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "ui/IDEAS/IDEASPersistentView.h"
 #include "ui/IDEAS/IDEASXASScanConfigurationView.h"
+
+#include "beamline/IDEAS/IDEASKETEKDetailedDetectorView.h"
+#include "beamline/IDEAS/IDEAS13ElementGeDetailedDetectorView.h"
 #include "ui/IDEAS/IDEASXRFDetailedDetectorView.h"
 #include "ui/IDEAS/IDEASSampleCameraPanel.h"
 
@@ -96,6 +100,7 @@ bool IDEASAppController::startup()
 
 		// Github setup for adding VESPERS specific comment.
 		additionalIssueTypesAndAssignees_.append("I think it's a IDEAS specific issue", "epengr");
+
 
 		return true;
 	}
@@ -160,7 +165,7 @@ void IDEASAppController::setupUserInterface()
 
 	mw_->insertHeading("XRF Detectors", 1);
 
-	ideasKETEKDetailedDetectorView_ = new IDEASXRFDetailedDetectorView(IDEASBeamline::ideas()->ketek());
+	ideasKETEKDetailedDetectorView_ = new IDEASKETEKDetailedDetectorView(IDEASBeamline::ideas()->ketek());
 	ideasKETEKDetailedDetectorView_->buildDetectorView();
 	ideasKETEKDetailedDetectorView_->setEnergyRange(1000, 20480);
 	ideasKETEKDetailedDetectorView_->addEmissionLineNameFilter(QRegExp("1"));
@@ -168,7 +173,7 @@ void IDEASAppController::setupUserInterface()
 	ideasKETEKDetailedDetectorView_->addCombinationPileUpPeakNameFilter(QRegExp("(Ka1|La1|Ma1)"));
 	mw_->addPane(ideasKETEKDetailedDetectorView_, "XRF Detectors", "KETEK", ":/system-search.png");
 
-	ideas13ElementGeDetailedDetectorView_ = new IDEASXRFDetailedDetectorView(IDEASBeamline::ideas()->ge13Element());
+	ideas13ElementGeDetailedDetectorView_ = new IDEAS13ElementGeDetailedDetectorView(IDEASBeamline::ideas()->ge13Element());
 	ideas13ElementGeDetailedDetectorView_->buildDetectorView();
 	ideas13ElementGeDetailedDetectorView_->setEnergyRange(1000, 20480);
 	ideas13ElementGeDetailedDetectorView_->addEmissionLineNameFilter(QRegExp("1"));
@@ -183,6 +188,7 @@ void IDEASAppController::setupUserInterface()
 
 	xasScanConfigurationView_ = 0; //NULL
 	xasScanConfigurationHolder3_ = new AMScanConfigurationViewHolder3(0, true);
+
 	mw_->addPane(xasScanConfigurationHolder3_, "Scans", "IDEAS XAS Scan", ":/utilities-system-monitor.png");
 
 	sampleCameraPanel_ = new IDEASSampleCameraPanel();
