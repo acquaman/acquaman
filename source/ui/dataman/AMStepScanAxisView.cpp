@@ -44,6 +44,7 @@ AMStepScanAxisElementView::AMStepScanAxisElementView(AMScanAxisRegion *region, Q
 
 	delta_ = new QDoubleSpinBox;
 	delta_->setRange(0, 100000);
+	delta_->setSingleStep(0.05);
 	delta_->setSuffix(" eV");
     delta_->setDecimals(3);
 	delta_->setValue(double(region_->regionStep()));
