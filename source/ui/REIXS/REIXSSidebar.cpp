@@ -99,9 +99,16 @@ void REIXSSidebar::onScalerContinuousButtonToggled(bool on)
 	REIXSBeamline::bl()->scaler()->setContinuous(on);
 }
 
-void REIXSSidebar::onScalerContinuousModeChanged(double on)
+void REIXSSidebar::onScalerConnected(bool isConnected)
 {
-	enableScalerContinuousCheckBox_->setChecked(bool(on));
+	if(isConnected && REIXSBeamline::bl()->scaler()->isScanning() && REIXSBeamline::bl()->scaler()->totalScans() == 0) {
+		enableScalerContinuousCheckBox_->setChecked(true);
+	}
+}
+
+void REIXSSidebar::onScalerContinuousModeChanged(bool on)
+{
+	enableScalerContinuousCheckBox_->setChecked(on);
 }
 
 void REIXSSidebar::on_MonoStopButton_clicked()
@@ -140,7 +147,12 @@ void REIXSSidebar::setupConnections()
 
 	connect(beamOnButton_, SIGNAL(clicked()), this, SLOT(onBeamOnButtonClicked()));
 	connect(beamOffButton_, SIGNAL(clicked()), this, SLOT(onBeamOffButtonClicked()));
+
 	connect(enableScalerContinuousCheckBox_, SIGNAL(clicked(bool)), this, SLOT(onScalerContinuousButtonToggled(bool)));
+	connect(REIXSBeamline::bl()->scaler(), SIGNAL(continuousChanged(bool)), this, SLOT(onScalerContinuousModeChanged(bool)));
+	connect(REIXSBeamline::bl()->scaler(), SIGNAL(connectedChanged(bool)), this, SLOT(onScalerConnected(bool)));
+
+
 	connect(MonoStopButton_, SIGNAL(clicked()), this, SLOT(on_MonoStopButton_clicked()));
 
 	connect(REIXSBeamline::bl()->photonSource()->ringCurrent(), SIGNAL(valueChanged(double)), this, SLOT(onRingCurrentChanged(double)));
@@ -220,6 +232,7 @@ void REIXSSidebar::layoutDetectorContent()
 	TFYValue_->setFixedHeight(55);
 	enableScalerContinuousCheckBox_ = new QCheckBox("Enable Real-Time Updates");
 	enableScalerContinuousCheckBox_->setChecked(REIXSBeamline::bl()->scaler()->isContinuous());
+
 
 	QVBoxLayout *detectorPanelLayout = new QVBoxLayout();
 	detectorPanelLayout->addWidget(XESValue_);
