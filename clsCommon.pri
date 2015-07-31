@@ -50,8 +50,12 @@ HEADERS *=\
 	source/beamline/CLS/CLSStandardsWheel.h \
 	source/ui/CLS/CLSStandardsWheelConfigurationView.h \
     source/beamline/CLS/CLSSIS3820ScalerModeControl.h \
-    source/acquaman/CLS/CLSJJSlitsCenterOptimizationScanConfiguration.h \
-    source/acquaman/CLS/CLSJJSlitsCenterOptimizationScanController.h
+    source/actions3/CLS/CLSJJSlitsOptimizationAction.h \
+    source/actions3/CLS/CLSJJSlitsOptimizationActionInfo.h \
+    source/acquaman/CLS/CLSJJSlitScanConfiguration.h \
+    source/ui/acquaman/CLS/CLSJJSlitScanConfigurationView.h \
+    source/actions3/CLS/CLSJJSlitOptimizationActionInfo.h \
+    source/actions3/CLS/CLSJJSlitOptimizationAction.h
 
 SOURCES *= \
 	source/actions3/actions/CLSSIS3820ScalerDarkCurrentMeasurementAction.cpp \
@@ -98,8 +102,28 @@ SOURCES *= \
 	source/beamline/CLS/CLSStandardsWheel.cpp \
 	source/ui/CLS/CLSStandardsWheelConfigurationView.cpp \
     source/beamline/CLS/CLSSIS3820ScalerModeControl.cpp \
-    source/acquaman/CLS/CLSJJSlitsCenterOptimizationScanConfiguration.cpp \
-    source/acquaman/CLS/CLSJJSlitsCenterOptimizationScanController.cpp
+    source/actions3/CLS/CLSJJSlitsOptimizationAction.cpp \
+    source/actions3/CLS/CLSJJSlitsOptimizationActionInfo.cpp \
+    source/acquaman/CLS/CLSJJSlitScanConfiguration.cpp \
+    source/ui/acquaman/CLS/CLSJJSlitScanConfigurationView.cpp \
+    source/actions3/CLS/CLSJJSlitOptimizationActionInfo.cpp \
+    source/actions3/CLS/CLSJJSlitOptimizationAction.cpp
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

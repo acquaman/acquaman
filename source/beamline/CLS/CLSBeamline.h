@@ -3,6 +3,7 @@
 
 #include "beamline/AMBeamline.h"
 #include "beamline/CLS/CLSSIS3820Scaler.h"
+#include "beamline/CLS/CLSJJSlits.h"
 
 class CLSBeamline : public AMBeamline
 {
@@ -25,6 +26,8 @@ public:
 
 	/// Returns the beamline's scaler.
 	virtual CLSSIS3820Scaler* scaler() const { return 0; }
+	/// Returns the beamline's JJ slits.
+	virtual CLSJJSlits* jjSlits() const { return 0; }
 
 protected:
 	/// Protected constructor, for singleton pattern.

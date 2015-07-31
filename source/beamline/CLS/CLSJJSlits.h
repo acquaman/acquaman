@@ -13,6 +13,12 @@ class CLSJJSlits : public QObject
 	Q_OBJECT
 
 public:
+	/// Enum describing the different blades properties.
+	class Blades { public:
+				   enum Direction {None = 0, Vertical = 1, Horizontal = 2 };
+				   enum Value { Invalid = 0, Gap = 1, Center = 2 };
+				 };
+
 	/// Constructor
 	explicit CLSJJSlits(const QString &name, const QString &upperBladePVName, const QString &lowerBladePVName, const QString &inboardBladePVName, const QString &outboardBladePVName, QObject*parent = 0);
 	/// Destructor
@@ -39,6 +45,50 @@ public:
 	AMControl* horizontalGapControl() const { return horizontalGap_; }
 	/// Returns the horizontal blades center control.
 	AMControl* horizontalCenterControl() const { return horizontalCenter_; }
+
+	/// Returns the control with the given direction and value.
+	AMControl* control(CLSJJSlits::Blades::Direction direction, CLSJJSlits::Blades::Value value);
+	/// Returns a list of controls with the given direction.
+	QList<AMControl*> controls(CLSJJSlits::Blades::Direction direction);
+	/// Returns a list of controls with the given value.
+	QList<AMControl*> controls(CLSJJSlits::Blades::Value value);
+
+	/// Returns a newly-created action that moves the specified control to the desired setpoint.
+	AMAction3* createMoveAction(CLSJJSlits::Blades::Direction direction, CLSJJSlits::Blades::Value value, double setpoint);
+	/// Returns a newly-created action that move all of the controls to the desired positions.
+	AMAction3* createMoveAction(double verticalGapSetpoint, double verticalCenterSetpoint, double horizontalGapSetpoint, double horizontalCenterSetpoint);
+
+	/// Returns a newly-created action that moves all controls to the origin (0, 0).
+	AMAction3* createMoveToOriginAction();
+	/// Returns a newly-created action that moves the desired controls to the origin.
+	AMAction3* createMoveToOriginAction(CLSJJSlits::Blades::Direction direction);
+
+	/// Returns a newly-created action that moves the desired controls to the minimum gap.
+	AMAction3* createMoveToMinGapAction(CLSJJSlits::Blades::Direction direction);
+	/// Returns a newly-created action that moves the desired controls to the maximum gap.
+	AMAction3* createMoveToMaxGapAction(CLSJJSlits::Blades::Direction direction);
+
+	/// Returns a newly-created action that moves the desired controls so the gap is closed.
+	AMAction3* createCloseGapAction(CLSJJSlits::Blades::Direction direction);
+	/// Returns a newly-created action that moves the desired controls to the widest possible gap.
+	AMAction3* createOpenGapAction(CLSJJSlits::Blades::Direction direction);
+
+	/// Returns a newly-created action that moves the desired control to the min position.
+	AMAction3* createMoveToMinPositionAction(CLSJJSlits::Blades::Direction direction, CLSJJSlits::Blades::Value value);
+	/// Returns a newly-created action that moves the desired control to the max position.
+	AMAction3* createMoveToMaxPositionAction(CLSJJSlits::Blades::Direction direction, CLSJJSlits::Blades::Value value);
+	/// Returns a newly-created action that moves the desired controls to the max position.
+	AMAction3* createMoveToMaxPositionAction(CLSJJSlits::Blades::Value value);
+
+	/// Returns a newly-created action that scans the given control for its optimal value, and applies the optimization.
+	AMAction3* createOptimizationAction(CLSJJSlits::Blades::Direction direction, CLSJJSlits::Blades::Value value);
+	/// Returns a newly-created action that scans the given controls for their optimal value, and applies the optimization.
+	AMAction3* createOptimizationAction(CLSJJSlits::Blades::Value value);
+
+	/// Returns a string representation of the direction.
+	QString directionToString(CLSJJSlits::Blades::Direction direction) const;
+	/// Returns a string representation of the value.
+	QString valueToString(CLSJJSlits::Blades::Value value) const;
 
 signals:
 	/// Notifier that the connected state has changed.
@@ -74,7 +124,6 @@ protected:
 	CLSJJSlitGapControl *horizontalGap_;
 	/// Horizontal blades center control.
 	CLSJJSlitCenterControl *horizontalCenter_;
-
 };
 
 #endif // CLSJJSLITS_H
