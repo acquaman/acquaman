@@ -421,3 +421,8 @@ void AMSMAKExporter::writeSMAKFile()
 
 	ts << option_->newlineDelimiter();
 }
+
+AMExporterOption * AMSMAKExporter::createDefaultOption() const
+{
+	return new AMExporterOptionSMAK();
+}

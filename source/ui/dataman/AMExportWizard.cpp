@@ -417,13 +417,21 @@ void AMExportWizardOptionPage::populateOptionSelector()
 	if(controller_->option())
 	{
 		QString controllerOptionName = controller_->option()->name();
+		bool foundControllerOptionName = false;
 
 		for (int iComboBoxOption = 0, size = optionSelector_->count(); iComboBoxOption < size; iComboBoxOption++)
 		{
-			if(optionSelector_->itemText(iComboBoxOption) == controllerOptionName)
+			if(optionSelector_->itemText(iComboBoxOption) == controllerOptionName){
+
 				optionSelector_->setCurrentIndex(iComboBoxOption);
+				foundControllerOptionName = true;
+			}
 		}
+
+		if (!foundControllerOptionName)
+			optionSelector_->setCurrentIndex(optionSelector_->count()-1);
 	}
+
 	else
 		optionSelector_->setCurrentIndex(optionSelector_->count()-1);
 
