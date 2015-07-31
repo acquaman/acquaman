@@ -60,13 +60,12 @@ QString AMPIC887Controller::lastError() const
 {
 	return lastError_;
 }
-#include <QDebug>
+
 bool AMPIC887Controller::connectToController()
 {
 	id_ = PI_ConnectTCPIP(hostname_.toStdString().c_str(), CONTROLLER_PORT);
 	bool success = connectionEstablished();
 
-	qDebug() << "Connected: " << success;
 	return success;
 }
 
