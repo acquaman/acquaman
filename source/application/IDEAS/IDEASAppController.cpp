@@ -25,6 +25,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/CLS/CLSStorageRing.h"
 #include "beamline/IDEAS/IDEASBeamline.h"
 
+
 #include "actions3/AMActionRunner3.h"
 #include "actions3/actions/AMScanAction.h"
 #include "actions3/AMListAction3.h"
@@ -51,7 +52,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "ui/IDEAS/IDEASPersistentView.h"
 #include "ui/IDEAS/IDEASXASScanConfigurationView.h"
-#include "ui/IDEAS/IDEASXRFDetailedDetectorViewWithSave.h"
+
+#include "beamline/IDEAS/IDEASKETEKDetailedDetectorView.h"
+#include "beamline/IDEAS/IDEAS13ElementGeDetailedDetectorView.h"
+#include "ui/IDEAS/IDEASXRFDetailedDetectorView.h"
 #include "ui/IDEAS/IDEASSampleCameraPanel.h"
 
 IDEASAppController::IDEASAppController(QObject *parent)
@@ -96,6 +100,7 @@ bool IDEASAppController::startup()
 
 		// Github setup for adding VESPERS specific comment.
 		additionalIssueTypesAndAssignees_.append("I think it's a IDEAS specific issue", "epengr");
+
 
 		return true;
 	}
@@ -160,21 +165,21 @@ void IDEASAppController::setupUserInterface()
 
 	mw_->insertHeading("XRF Detectors", 1);
 
-	ideasKETEKDetailedDetectorViewWithSave_ = new IDEASXRFDetailedDetectorViewWithSave(IDEASBeamline::ideas()->ketek());
-	ideasKETEKDetailedDetectorViewWithSave_->buildDetectorView();
-	ideasKETEKDetailedDetectorViewWithSave_->setEnergyRange(1000, 20480);
-	ideasKETEKDetailedDetectorViewWithSave_->addEmissionLineNameFilter(QRegExp("1"));
-	ideasKETEKDetailedDetectorViewWithSave_->addPileUpPeakNameFilter(QRegExp("(K.1|L.1|Ma1)"));
-	ideasKETEKDetailedDetectorViewWithSave_->addCombinationPileUpPeakNameFilter(QRegExp("(Ka1|La1|Ma1)"));
-	mw_->addPane(ideasKETEKDetailedDetectorViewWithSave_, "XRF Detectors", "KETEK", ":/system-search.png");
+	ideasKETEKDetailedDetectorView_ = new IDEASKETEKDetailedDetectorView(IDEASBeamline::ideas()->ketek());
+	ideasKETEKDetailedDetectorView_->buildDetectorView();
+	ideasKETEKDetailedDetectorView_->setEnergyRange(1000, 20480);
+	ideasKETEKDetailedDetectorView_->addEmissionLineNameFilter(QRegExp("1"));
+	ideasKETEKDetailedDetectorView_->addPileUpPeakNameFilter(QRegExp("(K.1|L.1|Ma1)"));
+	ideasKETEKDetailedDetectorView_->addCombinationPileUpPeakNameFilter(QRegExp("(Ka1|La1|Ma1)"));
+	mw_->addPane(ideasKETEKDetailedDetectorView_, "XRF Detectors", "KETEK", ":/system-search.png");
 
-	ideas13ElementGeDetailedDetectorViewWithSave_ = new IDEASXRFDetailedDetectorViewWithSave(IDEASBeamline::ideas()->ge13Element());
-	ideas13ElementGeDetailedDetectorViewWithSave_->buildDetectorView();
-	ideas13ElementGeDetailedDetectorViewWithSave_->setEnergyRange(1000, 20480);
-	ideas13ElementGeDetailedDetectorViewWithSave_->addEmissionLineNameFilter(QRegExp("1"));
-	ideas13ElementGeDetailedDetectorViewWithSave_->addPileUpPeakNameFilter(QRegExp("(K.1|L.1|Ma1)"));
-	ideas13ElementGeDetailedDetectorViewWithSave_->addCombinationPileUpPeakNameFilter(QRegExp("(Ka1|La1|Ma1)"));
-	mw_->addPane(ideas13ElementGeDetailedDetectorViewWithSave_, "XRF Detectors", "13-el Ge", ":/system-search.png");
+	ideas13ElementGeDetailedDetectorView_ = new IDEAS13ElementGeDetailedDetectorView(IDEASBeamline::ideas()->ge13Element());
+	ideas13ElementGeDetailedDetectorView_->buildDetectorView();
+	ideas13ElementGeDetailedDetectorView_->setEnergyRange(1000, 20480);
+	ideas13ElementGeDetailedDetectorView_->addEmissionLineNameFilter(QRegExp("1"));
+	ideas13ElementGeDetailedDetectorView_->addPileUpPeakNameFilter(QRegExp("(K.1|L.1|Ma1)"));
+	ideas13ElementGeDetailedDetectorView_->addCombinationPileUpPeakNameFilter(QRegExp("(Ka1|La1|Ma1)"));
+	mw_->addPane(ideas13ElementGeDetailedDetectorView_, "XRF Detectors", "13-el Ge", ":/system-search.png");
 
 	mw_->insertHeading("Scans", 2);
 
@@ -183,6 +188,7 @@ void IDEASAppController::setupUserInterface()
 
 	xasScanConfigurationView_ = 0; //NULL
 	xasScanConfigurationHolder3_ = new AMScanConfigurationViewHolder3(0, true);
+
 	mw_->addPane(xasScanConfigurationHolder3_, "Scans", "IDEAS XAS Scan", ":/utilities-system-monitor.png");
 
 	sampleCameraPanel_ = new IDEASSampleCameraPanel();

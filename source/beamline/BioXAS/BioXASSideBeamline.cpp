@@ -607,8 +607,8 @@ void BioXASSideBeamline::setupDetectors()
 	i0Detector_ = new CLSBasicScalerChannelDetector("I0Detector", "I0 Detector", scaler_, 16, this);
 	i1Detector_ = new CLSBasicScalerChannelDetector("I1Detector", "I1 Detector", scaler_, 17, this);
 	i2Detector_ = new CLSBasicScalerChannelDetector("I2Detector", "I2 Detector", scaler_, 18, this);
-//	ge32ElementDetector_ = new BioXAS32ElementGeDetector("Ge32Element", "Ge 32 Element", this);
-	fourElementVortexDetector_ = new BioXASFourElementVortexDetector("FourElementVortex", "Four Element Vortex Detector", this);
+	ge32ElementDetector_ = new BioXAS32ElementGeDetector("Ge32Element", "Ge 32 Element", this);
+//	fourElementVortexDetector_ = new BioXASFourElementVortexDetector("FourElementVortex", "Four Element Vortex Detector", this);
 }
 
 void BioXASSideBeamline::setupCryostatStage()
@@ -752,21 +752,21 @@ void BioXASSideBeamline::setupComponents()
 	scaler_->channelAt(16)->setCustomChannelName("I0 Channel");
 	scaler_->channelAt(16)->setCurrentAmplifier(i0Keithley_);
 	scaler_->channelAt(16)->setDetector(i0Detector_);
-	scaler_->channelAt(16)->setVoltagRange(0.1, 4.5);
+	scaler_->channelAt(16)->setVoltagRange(0.1, 9.5);
 
 	// The I1 channel amplifier.
 	i1Keithley_ = new CLSKeithley428("I1 Channel", "AMP1607-602", this);
 	scaler_->channelAt(17)->setCustomChannelName("I1 Channel");
 	scaler_->channelAt(17)->setCurrentAmplifier(i1Keithley_);
 	scaler_->channelAt(17)->setDetector(i1Detector_);
-	scaler_->channelAt(17)->setVoltagRange(0.1, 4.5);
+	scaler_->channelAt(17)->setVoltagRange(0.1, 9.5);
 
 	// The I2 channel amplifier.
 	i2Keithley_ = new CLSKeithley428("I2 Channel", "AMP1607-603", this);
 	scaler_->channelAt(18)->setCustomChannelName("I2 Channel");
 	scaler_->channelAt(18)->setCurrentAmplifier(i2Keithley_);
 	scaler_->channelAt(18)->setDetector(i2Detector_);
-	scaler_->channelAt(18)->setVoltagRange(0.1, 4.5);
+	scaler_->channelAt(18)->setVoltagRange(0.1, 9.5);
 
 	// The carbon filter farm.
 	carbonFilterFarm_ = new BioXASSideCarbonFilterFarm(this);
@@ -815,7 +815,7 @@ void BioXASSideBeamline::setupControlsAsDetectors()
 
 	dwellTimeDetector_ = new AMBasicControlDetectorEmulator("DwellTimeFeedback", "Dwell Time Feedback", scalerDwellTime_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
 
-	braggDetector_ = new AMBasicControlDetectorEmulator("GoniometerMotorFeedback", "Goniometer Motor Feedback", mono_->braggMotor(), 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	braggDetector_ = new AMBasicControlDetectorEmulator("StepAngleFeedback", "Step Angle Feedback", mono_->braggMotor(), 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
 	braggDetector_->setHiddenFromUsers(false);
 	braggDetector_->setIsVisible(true);
 
@@ -827,7 +827,7 @@ void BioXASSideBeamline::setupControlsAsDetectors()
 	braggMoveRetriesDetector_->setHiddenFromUsers(false);
 	braggMoveRetriesDetector_->setIsVisible(true);
 
-	braggStepSetpointDetector_ = new AMBasicControlDetectorEmulator("GoniometerMotorStepSetpoint", "Goniometer motor step setpoint", mono_->braggMotor()->stepSetpointControl(), 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	braggStepSetpointDetector_ = new AMBasicControlDetectorEmulator("StepSetpoint", "Step Setpoint", mono_->braggMotor()->stepSetpointControl(), 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
 	braggStepSetpointDetector_->setHiddenFromUsers(false);
 	braggStepSetpointDetector_->setIsVisible(true);
 
@@ -946,6 +946,6 @@ void BioXASSideBeamline::setupExposedDetectors()
 	addExposedDetector(braggEncoderFeedbackDetector_);
 	addExposedDetector(braggMoveRetriesDetector_);
 	addExposedDetector(braggStepSetpointDetector_);
-//	addExposedDetector(ge32ElementDetector_);
-	addExposedDetector(fourElementVortexDetector_);
+	addExposedDetector(ge32ElementDetector_);
+//	addExposedDetector(fourElementVortexDetector_);
 }
