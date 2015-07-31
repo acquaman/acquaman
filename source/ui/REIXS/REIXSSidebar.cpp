@@ -101,9 +101,12 @@ void REIXSSidebar::onScalerContinuousButtonToggled(bool on)
 
 void REIXSSidebar::onScalerConnected(bool isConnected)
 {
-	if(isConnected && REIXSBeamline::bl()->scaler()->isScanning() && REIXSBeamline::bl()->scaler()->totalScans() == 0) {
-		enableScalerContinuousCheckBox_->setChecked(true);
-	}
+
+//	qDebug() << "on connection scaler thinks it's:" << REIXSBeamline::bl()->scaler()->isContinuous();
+//	if(isConnected && REIXSBeamline::bl()->scaler()->isScanning() && REIXSBeamline::bl()->scaler()->totalScans() == 0) {
+//		enableScalerContinuousCheckBox_->setChecked(true);
+//	}
+	enableScalerContinuousCheckBox_->setChecked(REIXSBeamline::bl()->scaler()->isContinuous());
 }
 
 void REIXSSidebar::onScalerContinuousModeChanged(bool on)
