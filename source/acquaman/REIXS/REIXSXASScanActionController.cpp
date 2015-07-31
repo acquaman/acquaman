@@ -218,7 +218,7 @@ AMAction3* REIXSXASScanActionController::createInitializationActions(){
 	if(configuration_->applyPolarization() && configuration_->polarization() == 5 && configuration_->polarizationAngle() != REIXSBeamline::bl()->photonSource()->epuPolarizationAngle()->value())
 		initializationStage1->addSubAction(AMActionSupport::buildControlMoveAction((REIXSBeamline::bl()->photonSource()->epuPolarizationAngle()),configuration_->polarizationAngle()));
 
-	initializationStage1->addSubAction(REIXSBeamline::bl()->scaler()->createStartAction3(false));
+//	initializationStage1->addSubAction(REIXSBeamline::bl()->scaler()->createStartAction3(false));
 	initializationStage1->addSubAction(REIXSBeamline::bl()->scaler()->createContinuousEnableAction3(false));
 
 
@@ -240,10 +240,7 @@ AMAction3* REIXSXASScanActionController::createCleanupActions(){
 	AMListAction3 *cleanupActions = new AMListAction3(new AMListActionInfo3("REIXS XAS Cleanup Actions", "REIXS XAS Cleanup Actions"));// sequentially set up scaler
 
 	CLSSIS3820Scaler *scaler = REIXSBeamline::bl()->scaler();
-	cleanupActions->addSubAction(scaler->createStartAction3(false));
-	cleanupActions->addSubAction(new AMWaitAction(new AMWaitActionInfo(1.0)));
 	cleanupActions->addSubAction(scaler->createDwellTimeAction3(1.0));
-	cleanupActions->addSubAction(new AMWaitAction(new AMWaitActionInfo(1.0)));
 	cleanupActions->addSubAction(scaler->createContinuousEnableAction3(true));
 
 	return cleanupActions;
