@@ -3,6 +3,7 @@
 #include "../AMGCS2Support.h"
 #include "../AMPIC887Controller.h"
 #include "PI_GCS2_DLL.h"
+
 AMGCS2MoveCommand::AMGCS2MoveCommand(const AMPIC887AxisMap<double>& targetPositions)
 {
 	targetPositions_ = targetPositions;
@@ -59,7 +60,7 @@ bool AMGCS2MoveCommand::runImplementation()
 					 positionValuesHandler.cArray());
 
 	if(!success) {
-		lastError() = controllerErrorMessage();
+		lastError_ = controllerErrorMessage();
 	}
 
 	return success;

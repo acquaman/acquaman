@@ -284,7 +284,7 @@ void AMPIC887ConsoleCommandParser::interpretCommandImplementation(const QString 
 		}
 
 	} else {
-		emit unknownCommand(command);
+		emit unknownCommand("Command not recognized. Type 'help' to see a list of commands");
 	}
 
 	if(command != "quit") {

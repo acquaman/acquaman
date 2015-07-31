@@ -38,6 +38,8 @@ void AMGCS2Command::run()
 	} else if(validateArguments()) {
 		if(runImplementation()) {
 			runningState_ = Succeeded;
+		} else {
+			runningState_ = Failed;
 		}
 	} else {
 		lastError_ = QString("Could not run command: Validation of arguments failed (%1))")

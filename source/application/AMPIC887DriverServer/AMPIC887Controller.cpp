@@ -60,11 +60,14 @@ QString AMPIC887Controller::lastError() const
 {
 	return lastError_;
 }
-
+#include <QDebug>
 bool AMPIC887Controller::connectToController()
 {
 	id_ = PI_ConnectTCPIP(hostname_.toStdString().c_str(), CONTROLLER_PORT);
-	return connectionEstablished();
+	bool success = connectionEstablished();
+
+	qDebug() << "Connected: " << success;
+	return success;
 }
 
 void AMPIC887Controller::disconnectFromController()
@@ -752,7 +755,7 @@ void AMPIC887Controller::referenceMove(const AMPIC887AxisCollection& axes)
 
 void AMPIC887Controller::initializeControllerStateData()
 {
-	if(!connectToController()) {
+	if(!connectionEstablished()) {
 		setError("Cannot initialize data for controller, no connection established");
 	} else {
 
@@ -843,7 +846,7 @@ void AMPIC887Controller::onAsyncMoveFailed(AMGCS2AsyncCommand *command)
 	AMGCS2AsyncMoveCommand* moveCommand = qobject_cast<AMGCS2AsyncMoveCommand*>(command);
 
 	if(moveCommand) {
-
+		setError(QString("Move failed with message: %1").arg(command->lastError()));
 		AMPIC887AxisCollection axesMoving = moveCommand->targetPositions().axes();
 		foreach(AMGCS2::Axis currentAxis, axesMoving) {
 			switch (currentAxis) {
@@ -870,7 +873,7 @@ void AMPIC887Controller::onAsyncMoveFailed(AMGCS2AsyncCommand *command)
 			}
 		}
 	}
-
+	updateStateOnStop();
 	command->deleteLater();
 }
 
@@ -981,7 +984,7 @@ void AMPIC887Controller::onAsyncMoveRelativeFailed(AMGCS2AsyncCommand *command)
 			}
 		}
 	}
-
+	updateStateOnStop();
 	command->deleteLater();
 }
 
