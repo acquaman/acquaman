@@ -501,6 +501,8 @@ public:
 	  */
 	bool setSystemVelocity(double systemVelocity);
 
+public slots:
+
 	/*!
 	  * Instructs the controller to make an immediate stop.
 	  */
@@ -512,8 +514,6 @@ public:
 	  * \param axes ~ The axes whose motions are to be halted.
 	  */
 	bool haltSmoothly(const AMPIC887AxisCollection& axes);
-
-public slots:
 
 	/*!
 	  * Moves the controller hexapod axes to the provided positions.
