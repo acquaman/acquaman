@@ -341,7 +341,6 @@ protected:
 
 
 	// Widgets
-	QLabel* titleLabel_;
 	QLabel* errorLabel_;
 	QLabel* statusLabel_;
 	QToolButton* dismissError_;

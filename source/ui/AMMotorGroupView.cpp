@@ -523,16 +523,6 @@ void AMMotorGroupObjectView::setupUi()
 
 	// Initialize Widgets
 
-	// Title Label
-	QFont titleFont;
-	titleFont.setPointSize(14);
-	titleFont.setBold(true);
-
-	titleLabel_ = new QLabel();
-	titleLabel_->setFont(titleFont);
-
-	mainLayout->addWidget(titleLabel_);
-
 	// Error Box
 	errorLabel_ = new QLabel();
 	errorLabel_->setStyleSheet("QLabel { color: red; } ");
@@ -669,7 +659,6 @@ void AMMotorGroupObjectView::setupUi()
 
 void AMMotorGroupObjectView::setupData()
 {
-	titleLabel_->setText(motorGroupObject_->name());
 	refreshJogUnits();
 	jogSize_->setSingleStep(0.001);
 	jogSize_->setMinimum(0.0000);

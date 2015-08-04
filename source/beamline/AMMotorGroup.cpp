@@ -126,93 +126,93 @@ AMMotorGroupAxis::AMMotorGroupAxis(AMMotorGroupMotion* translationalMotion,
 
 QString AMMotorGroupAxis::translationName() const
 {
-	if(!canTranslate()) {
+
+	if(translationalMotion_) {
+		return translationalMotion_->name();
+	} else {
 		return QString();
 	}
-
-	return translationalMotion_->name();
 }
 
 QString AMMotorGroupAxis::rotationName() const
 {
-	if(!canRotate()) {
+	if(rotationalMotion_) {
+		return rotationalMotion_->name();
+	} else {
 		return QString();
 	}
-
-	return rotationalMotion_->name();
 }
 
 double AMMotorGroupAxis::currentTranslationPosition() const
 {
-	if(!canTranslate()) {
+	if(translationalMotion_ && translationalMotion_->motor()) {
+		return translationalMotion_->motor()->value();
+	} else {
 		return 0;
 	}
-
-	return translationalMotion_->motor()->value();
 }
 
 double AMMotorGroupAxis::currentRotationPosition() const
 {
-	if(!canRotate()) {
+	if(rotationalMotion_ && rotationalMotion_->motor()) {
+		return rotationalMotion_->motor()->value();
+	} else {
 		return 0;
 	}
-
-	return rotationalMotion_->motor()->value();
 }
 
 QString AMMotorGroupAxis::translationPositionUnits() const
 {
-	if(!canTranslate()) {
+	if(translationalMotion_ && translationalMotion_->motor()) {
+		return translationalMotion_->motor()->units();
+	} else {
 		return QString();
 	}
-
-	return translationalMotion_->positionUnits();
 }
 
 QString AMMotorGroupAxis::rotationPositionUnits() const
 {
-	if(!canRotate()) {
+	if(rotationalMotion_ && rotationalMotion_->motor()) {
+		return rotationalMotion_->motor()->units();
+	} else {
 		return QString();
 	}
-
-	return rotationalMotion_->positionUnits();
 }
 
 double AMMotorGroupAxis::minRotationPosition() const
 {
-	if(!canRotate()) {
+	if(rotationalMotion_ && rotationalMotion_->motor()) {
+		return rotationalMotion_->motor()->minimumValue();
+	} else {
 		return 0;
 	}
-
-	return rotationalMotion_->motor()->minimumValue();
 }
 
 double AMMotorGroupAxis::minTranslationPosition() const
 {
-	if(!canTranslate()) {
+	if(translationalMotion_ && translationalMotion_->motor()) {
+		return translationalMotion_->motor()->minimumValue();
+	} else {
 		return 0;
 	}
-
-	return translationalMotion_->motor()->minimumValue();
-
 }
 
 double AMMotorGroupAxis::maxRotationPosition() const
 {
-	if(!canRotate()) {
+	if(rotationalMotion_ && rotationalMotion_->motor()) {
+		return rotationalMotion_->motor()->maximumValue();
+	} else {
 		return 0;
 	}
-
-	return rotationalMotion_->motor()->maximumValue();
 }
 
 double AMMotorGroupAxis::maxTranslationPosition() const
 {
-	if(!canTranslate()) {
+	if(translationalMotion_ && translationalMotion_->motor()) {
+		return translationalMotion_->motor()->maximumValue();
+	} else {
 		return 0;
 	}
-
-	return translationalMotion_->motor()->maximumValue();
 }
 
 bool AMMotorGroupAxis::isMoving() const
