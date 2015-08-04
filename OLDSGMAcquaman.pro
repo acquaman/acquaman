@@ -5,5 +5,4 @@
 TEMPLATE = subdirs
 SUBDIRS += \
 	Initialize.pro \
-	pluginProjects/FileLoaders/AMFileLoaderPlugins.pro \
-        SGMAcquaman.pro
+	SGMAcquaman_internal.pro

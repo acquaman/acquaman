@@ -23,13 +23,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "actions3/AMActionSupport.h"
 #include "actions3/actions/AMControlStopAction.h"
 
-SGMMAXvMotor::SGMMAXvMotor(const QString &name,
-						   const QString &baseName,
-						   const QString &description,
-						   bool hasEncoder,
-						   double tolerance,
-						   double moveStartTimeoutSeconds,
-						   QObject *parent)
+
+
+ SGMMAXvMotor::~SGMMAXvMotor(){}
+SGMMAXvMotor::SGMMAXvMotor(const QString &name, const QString &baseName, const QString &description, bool hasEncoder, double tolerance, double moveStartTimeoutSeconds, QObject *parent)
 	: CLSMAXvMotor(name, baseName, description, hasEncoder, tolerance, moveStartTimeoutSeconds, parent)
 {
 	encoderCalibrationAbsoluteOffset_ = new AMPVControl(name+"EncoderCalibrationAbsoluteOffset", baseName+":enc:absOffset", baseName+":enc:absOffset", QString(), this, 1);
