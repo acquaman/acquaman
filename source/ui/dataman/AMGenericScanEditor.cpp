@@ -342,7 +342,9 @@ void AMGenericScanEditor::addScan(AMScan* newScan) {
 
 	connect(newScan, SIGNAL(nameChanged(QString)), this, SLOT(onScanDetailsChanged()));
 	connect(newScan, SIGNAL(numberChanged(int)), this, SLOT(onScanDetailsChanged()));
-	connect(currentScan_->scanConfiguration(), SIGNAL(configurationChanged()), this, SLOT(refreshScanInfo()));
+
+	if (newScan->scanConfiguration())
+		connect(newScan->scanConfiguration(), SIGNAL(configurationChanged()), this, SLOT(refreshScanInfo()));
 
 
 	emit scanAdded(this, newScan);
@@ -393,8 +395,9 @@ void AMGenericScanEditor::onCurrentChanged ( const QModelIndex & selected, const
 		disconnect(currentScan_, SIGNAL(numberChanged(int)), this, SLOT(refreshWindowTitle()));
 		disconnect(currentScan_, SIGNAL(nameChanged(QString)), this, SLOT(refreshWindowTitle()));
 		disconnect(currentScan_, SIGNAL(scanInitialConditionsChanged()), this, SLOT(refreshScanConditions()));
-		disconnect(currentScan_->scanConfiguration(), SIGNAL(configurationChanged()), this, SLOT(refreshScanInfo()));
 
+		if (currentScan_->scanConfiguration())
+			disconnect(currentScan_->scanConfiguration(), SIGNAL(configurationChanged()), this, SLOT(refreshScanInfo()));
 	}
 
 	// it becomes now the new scan:
@@ -415,7 +418,9 @@ void AMGenericScanEditor::onCurrentChanged ( const QModelIndex & selected, const
 		connect(currentScan_, SIGNAL(numberChanged(int)), this, SLOT(refreshWindowTitle()));
 		connect(currentScan_, SIGNAL(nameChanged(QString)), this, SLOT(refreshWindowTitle()));
 		connect(currentScan_, SIGNAL(scanInitialConditionsChanged()), this, SLOT(refreshScanConditions()));
-		connect(currentScan_->scanConfiguration(), SIGNAL(configurationChanged()), this, SLOT(refreshScanInfo()));
+
+		if (currentScan_->scanConfiguration())
+			connect(currentScan_->scanConfiguration(), SIGNAL(configurationChanged()), this, SLOT(refreshScanInfo()));
 
 
 		// \todo When migrating to multiple scan selection, this will need to be changed:
@@ -1226,4 +1231,9 @@ void AMGenericScanEditor::setupUi()
 	notesEdit_->setPlainText(QString());
 
 	setLayout(verticalLayout3_);
+}
+
+void AMGenericScanEditor::refreshScanInfo()
+{
+	updateEditor(currentScan_);
 }

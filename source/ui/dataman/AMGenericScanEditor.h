@@ -154,7 +154,7 @@ public slots:
 	void refreshWindowTitle();
 
 	/// This helper function refreshes the editor widgets with the values from the current scan
-	void refreshScanInfo(){updateEditor(currentScan_); qDebug()<<"refreshScanInfo() called with" << currentScan_;}
+	void refreshScanInfo();
 
 
 protected slots:
