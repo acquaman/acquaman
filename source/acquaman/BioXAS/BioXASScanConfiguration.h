@@ -34,8 +34,6 @@ public:
 	QString edge() const { return dbObject_->edge(); }
 	/// Returns whether the scan is using an XRF detector or not.
 	bool usingXRFDetector() const { return dbObject_->usingXRFDetector(); }
-	/// Returns whether the scan is using an encoder-based energy control (or step-based).
-	bool usingEncoderEnergy() const { return usingEncoderEnergy_; }
 	/// Returns the list of regions of interest.
 	QList<AMRegionOfInterest *> regionsOfInterest() const { return dbObject_->regionsOfInterest(); }
 
@@ -55,8 +53,6 @@ public:
 	void setEdge(const QString &newEdge) { dbObject_->setEdge(newEdge); }
 	/// Sets whether the configuration is using an XRF detector.
 	void setUsingXRFDetector(bool hasXRF) { dbObject_->setUsingXRFDetector(hasXRF); }
-	/// Sets whether the configuration is using the encoder-based energy control (or step-based).
-	void setUsingEncoderEnergy(bool usingEncoder);
 	/// Adds a region of interest to the list.
 	void addRegionOfInterest(AMRegionOfInterest *region) { dbObject_->addRegionOfInterest(region); }
 	/// Removes a region of interest from the list.
@@ -89,8 +85,6 @@ protected:
 	/// The database object we're encapsulating.
 	BioXASScanConfigurationDbObject *dbObject_;
 
-	/// Flag indicating whether the energy control used is encoder-based (or step-based).
-	bool usingEncoderEnergy_;
 	/// Holds the total time in seconds that the scan is estimated to take.
 	double totalTime_;
 	/// Holds the offset per point of extra time when doing a scan.

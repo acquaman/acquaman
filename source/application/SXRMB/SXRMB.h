@@ -41,9 +41,9 @@ namespace SXRMB {
 	/// Enum for making the decision on what fluorescence detector the user wants to use.
 	enum FluorescenceDetector
 	{
-		NoXRF = 0,
-		Bruker = 1,
-		FourElement = 2
+		NoXRFDetector = 0,
+		BrukerDetector = 1,
+		FourElementDetector = 2
 	};
 	Q_DECLARE_FLAGS(FluorescenceDetectors, FluorescenceDetector)
 

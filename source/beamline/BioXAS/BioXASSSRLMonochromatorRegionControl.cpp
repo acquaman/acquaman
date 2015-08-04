@@ -1,6 +1,8 @@
 #include "BioXASSSRLMonochromatorRegionControl.h"
 #include "BioXASSSRLMonochromator.h"
 
+#include <QDebug>
+
 BioXASSSRLMonochromatorRegionControl::BioXASSSRLMonochromatorRegionControl(const QString &name, QObject *parent) :
 	AMPseudoMotorControl(name, "", parent)
 {
@@ -32,12 +34,6 @@ BioXASSSRLMonochromatorRegionControl::BioXASSSRLMonochromatorRegionControl(const
 	setMoveEnumStates(QStringList() << "A" << "B");
 	setAllowsMovesWhileMoving(false);
 	setContextKnownDescription("Region Control");
-
-	// Make connections
-
-	connect( this, SIGNAL(connected(bool)), this, SIGNAL(enumChanged()) );
-	connect( this, SIGNAL(valueChanged(double)), this, SIGNAL(enumChanged()) );
-	connect( this, SIGNAL(setpointChanged(double)), this, SIGNAL(enumChanged()) );
 
 	// Current settings.
 
@@ -118,6 +114,12 @@ bool BioXASSSRLMonochromatorRegionControl::validSetpoint(double value) const
 
 	return isValid;
 }
+
+//void BioXASSSRLMonochromatorRegionControl::addChildControl(AMControl *control)
+//{
+//	qDebug() << "Adding child" << control->name();
+//	AMPseudoMotorControl::addChildControl(control);
+//}
 
 void BioXASSSRLMonochromatorRegionControl::setUpperSlitControl(AMControl *upperSlit)
 {
@@ -306,12 +308,12 @@ void BioXASSSRLMonochromatorRegionControl::setRegionBStatusControl(AMControl *re
 	if (regionBStatus_ != regionStatus) {
 
 		if (regionBStatus_)
-			addChildControl(regionBStatus_);
+			removeChildControl(regionBStatus_);
 
 		regionBStatus_ = regionStatus;
 
 		if (regionBStatus_)
-			removeChildControl(regionBStatus_);
+			addChildControl(regionBStatus_);
 	}
 }
 
@@ -332,7 +334,7 @@ void BioXASSSRLMonochromatorRegionControl::updateConnected()
 	bool regionAStatusOK = (regionAStatus_ && regionAStatus_->isConnected());
 	bool regionBStatusOK = (regionBStatus_ && regionBStatus_->isConnected());
 
-	setConnected(
+	bool isConnected = (
 				upperSlitOK &&
 				lowerSlitOK &&
 				slitsStatusOK &&
@@ -348,6 +350,20 @@ void BioXASSSRLMonochromatorRegionControl::updateConnected()
 				regionAStatusOK &&
 				regionBStatusOK
 				);
+
+	if (isConnected)
+		qDebug() << "\nRegion control is connected.\n";
+	else {
+		qDebug() << "\nRegion control is NOT connected.";
+
+		if (!regionAStatusOK)
+			qDebug() << "\nRegion A status NOT connected.";
+
+		if (!regionBStatusOK)
+			qDebug() << "\nRegion B status NOT connected.";
+	}
+
+	setConnected(isConnected);
 }
 
 void BioXASSSRLMonochromatorRegionControl::updateValue()

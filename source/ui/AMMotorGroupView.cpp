@@ -55,7 +55,7 @@ AMMotorGroupObjectView::AMMotorGroupObjectView(AMMotorGroupObject *motorGroupObj
 	jog->setFont(font);
 
 	status_ = new QLabel;
-	status_->setPixmap(QIcon(":/OFF.png").pixmap(25));
+	status_->setPixmap(QIcon(":/32x32/greenLEDOff.png").pixmap(25));
 
 	goUp_ = new QToolButton;
 	goDown_ = new QToolButton;
@@ -280,7 +280,7 @@ void AMMotorGroupObjectView::onMovingChanged()
 {
 	bool isMoving = motorGroupObject_->isMotorMoving();
 
-	status_->setPixmap(QIcon(isMoving ? ":/ON.png" : ":/OFF.png").pixmap(25));
+	status_->setPixmap(QIcon(isMoving ? ":/32x32/greenLEDOn.png" : ":/32x32/greenLEDOff.png").pixmap(25));
 
 	goUp_->setDisabled(isMoving);
 	goDown_->setDisabled(isMoving);
