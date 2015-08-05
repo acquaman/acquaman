@@ -39,24 +39,32 @@ QMutex AMDatabase::databaseLookupMutex_(QMutex::Recursive);
 
 // This constructor is protected. Only access is through AMDatabase::createDatabase().
  AMDatabase::~AMDatabase(){}
-AMDatabase::AMDatabase(const QString& connectionName, const QString& dbAccessString) :
-	QObject(),
+AMDatabase::AMDatabase(const QString& connectionName, const QString& dbAccessString, bool openAsReadOnly)
+	: QObject(),
 	connectionName_(connectionName),
 	dbAccessString_(dbAccessString),
 	qdbMutex_(QMutex::Recursive)
 {
-	QFileInfo accessInfo(dbAccessString_);
-	if(accessInfo.exists())
-		isReadOnly_ = !accessInfo.isWritable();
-	else
-		isReadOnly_ = false; // Probably not correct. If this the call that creates a new database, when does the .db file actually get created?
+
+	if (openAsReadOnly)
+		isReadOnly_ = true;
+
+	else {
+
+		QFileInfo accessInfo(dbAccessString_);
+		if(accessInfo.exists())
+			isReadOnly_ = !accessInfo.isWritable();
+		else
+			isReadOnly_ = false; // Probably not correct. If this the call that creates a new database, when does the .db file actually get created?
+	}
 
 	// Make sure the database is initialized in the creating thread:
 	qdb();
 
 }
 
-AMDatabase* AMDatabase::createDatabase(const QString &connectionName, const QString &dbAccessString) {
+AMDatabase* AMDatabase::createDatabase(const QString &connectionName, const QString &dbAccessString, bool openAsReadOnly)
+{
 	QMutexLocker ml(&databaseLookupMutex_);
 
 	if(connectionName2Instance_.contains(connectionName)) {
@@ -65,7 +73,7 @@ AMDatabase* AMDatabase::createDatabase(const QString &connectionName, const QStr
 		return 0;
 	}
 
-	AMDatabase* db = new AMDatabase(connectionName, dbAccessString);
+	AMDatabase* db = new AMDatabase(connectionName, dbAccessString, openAsReadOnly);
 	// keep this object in the main thread, if not there already:
 	if(QThread::currentThread() != QApplication::instance()->thread())
 		db->moveToThread(QApplication::instance()->thread());
@@ -817,7 +825,7 @@ bool AMDatabase::commitTransaction(int timeoutMs)
 
 	if(attempt > 1) {
 		if(success) {
-            AMErrorMon::debug(this, AMDATABASE_COMMIT_CONTENTION_SUCCEEDED, QString("AMDatabase detected contention for database access in commitTransaction(). It took %1 tries for the commit to succeed.").arg(attempt) );
+			AMErrorMon::debug(this, AMDATABASE_COMMIT_CONTENTION_SUCCEEDED, QString("AMDatabase detected contention for database access in commitTransaction(). It took %1 tries for the commit to succeed.").arg(attempt) );
 		}
 		else {
 			AMErrorMon::debug(this, AMDATABASE_COMMIT_CONTENTION_FAILED, QString("AMDatabase detected contention for database access in commitTransaction(). After %1 attempts, the commit still did not succeed.").arg(attempt) );
@@ -853,6 +861,12 @@ bool AMDatabase::supportsTransactions() const
 
 bool AMDatabase::execQuery(QSqlQuery &query, int timeoutMs)
 {
+//	if (isReadOnly() && !query.isSelect()){
+
+//		AMErrorMon::debug(this, AMDATABASE_IS_READ_ONLY, "This database is read-only and the desired command would modify the contents of the database.");
+//		return false;
+//	}
+
 	QTime startTime;
 	startTime.start();
 

@@ -184,9 +184,9 @@ bool AMDbObject::storeToDb(AMDatabase* db, bool generateThumbnails) {
 	//////////////////////////////////////////////////
 	for(int i=0; i<myInfo->columnCount; i++) {
 
-        int columnType = myInfo->columnTypes.at(i);
+		int columnType = myInfo->columnTypes.at(i);
 		QByteArray columnNameBA = myInfo->columns.at(i).toAscii();
-        const char* columnName = columnNameBA.constData();
+		const char* columnName = columnNameBA.constData();
 
 		// add column name to key list... UNLESS the type is an AMDbObjectList. In that case, it gets its own table instead of a column.
 		if(columnType != qMetaTypeId<AMDbObjectList>() && columnType != qMetaTypeId<AMConstDbObjectList>())
@@ -909,4 +909,9 @@ AMDbThumbnailsGeneratedEvent::AMDbThumbnailsGeneratedEvent(const QList<AMDbThumb
 {
 }
 
+void AMDbObject::setModified(bool isModified)
+{
+	if(!database()->isReadOnly() && isModified != modified_)
+		emit modifiedChanged(modified_ = isModified);
+}
 

@@ -39,6 +39,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define AMDATABASE_LOCK_FOR_EXECQUERY_CONTENTION_FAILED -3106
 #define AMDATABASE_MISSING_TABLE_NAME_IN_RETRIEVE -3107
 #define AMDATABASE_RETRIEVE_QUERY_FAILED -3108
+#define AMDATABASE_IS_READ_ONLY -3109
 
 /// This class provides thread-safe, general access to an SQL database.
 /*! Instances of this class are used to query or modify a database; all of the functions are thread-safe and will operate using a per-thread connection to the same underlying database.
@@ -53,17 +54,17 @@ class AMDatabase : public QObject {
 	Q_OBJECT
 
 public:
- 	virtual ~AMDatabase();
+	virtual ~AMDatabase();
 
 	// Multiton accessor functions: getting access to an AMDatabase instance.
 	/////////////////////////////////////
 	/// Create a new database instance with the given \c connectionName and \c dbAccessString.
 	/*! The AMDatabase constructor is private so that we can enforce unique connection names across the program. This is the only way to access it.
-The \c connectionName will be used to retrieve this instance later using AMDatabase::database(). It needs to be unique (program-wide); this function will return 0 if a connection with that name already exists.
-
-The parameters by which to access the database are given in \c dbAccessString. (For the current SQLITE database, dbAccessString is just the path to the database file.)
+		The \c connectionName will be used to retrieve this instance later using AMDatabase::database(). It needs to be unique (program-wide); this function will return 0 if a connection with that name already exists.
+		The parameters by which to access the database are given in \c dbAccessString. (For the current SQLITE database, dbAccessString is just the path to the database file.)
+		\param openAsReadOnly is a defaulted parameter that defaults to false (you typically want the ability to have changes to your database stick).  If set to true, execQuery() will not take place for statements that modify the database.
 */
-	static AMDatabase* createDatabase(const QString& connectionName, const QString& dbAccessString);
+	static AMDatabase* createDatabase(const QString& connectionName, const QString& dbAccessString, bool openAsReadOnly = false);
 	/// Get access to a database based on the \c connectionName. If the connection doesn't exist, returns 0.
 	static AMDatabase* database(const QString& connectionName);
 	/// Delete a database instance that is not longer required.
@@ -233,7 +234,8 @@ protected:
 private:
 	/// Constructor is private.  ConnectionName is a unique connection name (program-wide) for this database. dbAccessString provides the database-engine specific connection details.
 	/*! (For the current SQLITE database, dbAccessString is just the path to the database file.)*/
-	AMDatabase(const QString& connectionName, const QString& dbAccessString);
+	/// \param openAsReadOnly is a defaulted parameter that defaults to false (you typically want the ability to have changes to your database stick).  If set to true, execQuery() will not take place for statements that modify the database.
+	AMDatabase(const QString& connectionName, const QString& dbAccessString, bool openAsReadOnly = false);
 
 	// Instance variables:
 	///////////////////////////

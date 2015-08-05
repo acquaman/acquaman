@@ -61,6 +61,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QMessageBox>
 #include <QInputDialog>
 #include <QStringBuilder>
+#include <QFileDialog>
 
 #include "util/AMSettings.h"
 #include "dataman/AMScan.h"
@@ -603,7 +604,7 @@ bool AMDatamanAppController::onEveryTimeDatabaseUpgrade(QList<AMDbUpgrade *> upg
 	QString backupsSubFolder = QDateTime::currentDateTime().toString("MMMddyyy_hhmmss");
 	QDir databaseBackupDir;
 	QString lastErrorString;
-	int lastErrorCode;
+	int lastErrorCode = -1;
 
 	// Loop over the database upgrades and apply them if necessary
 	for(int x = 0; x < upgrades.size(); x++){
@@ -992,6 +993,9 @@ bool AMDatamanAppController::startupInstallActions()
 	printGraphicsAction_->setStatusTip("Print the current plot.");
 	connect(printGraphicsAction_, SIGNAL(triggered()), this, SLOT(onActionPrintGraphics()));
 
+	QAction *openOtherDatabaseAction = new QAction("Open existing database", mw_);
+	openOtherDatabaseAction->setStatusTip("Open another database.");
+	connect(openOtherDatabaseAction, SIGNAL(triggered()), this, SLOT(onOpenOtherDatabaseClicked()));
 
 	//install menu bar, and add actions
 	//////////////////////////////////////
@@ -1012,7 +1016,9 @@ bool AMDatamanAppController::startupInstallActions()
 	fileMenu_->addAction(printGraphicsAction_);
 	fileMenu_->addSeparator();
 	fileMenu_->addAction(amSettingsAction);
-
+	fileMenu_->addSeparator();
+	fileMenu_->addAction(openOtherDatabaseAction);
+	fileMenu_->addSeparator();
 	fileMenu_->addAction(forceQuitAction);
 
 	viewMenu_ = menuBar_->addMenu("View");
@@ -1035,6 +1041,11 @@ void AMDatamanAppController::shutdown() {
 
 	// Close down connection to the user Database
 	AMDatabase::deleteDatabase("user");
+
+	foreach (AMDatabase *database, otherOpenDatabases_)
+		AMDatabase::deleteDatabase(database->connectionName());
+
+	otherOpenDatabases_.clear();
 }
 
 
@@ -1114,9 +1125,8 @@ void AMDatamanAppController::onAddButtonClicked() {
 	}
 }
 
-//#include "dataman/AMScanEditorModelItem.h"
-void AMDatamanAppController::onDataViewItemsActivated(const QList<QUrl>& itemUrls) {
-
+void AMDatamanAppController::onDataViewItemsActivated(const QList<QUrl>& itemUrls)
+{
 	dropScanURLs(itemUrls);
 }
 
@@ -1564,7 +1574,6 @@ AMScan *AMDatamanAppController::dropScanURL(const QUrl &url)
 	AMDatabase* db = AMDatabase::database(url.host());
 	if(!db)
 		return 0;
-	// \bug This does not verify that the incoming scans came from the user database. In fact, it happily accepts scans from other databases. Check if we assume anywhere inside AMGenericScanEditor that we're using the AMDatabase::database("user") database. (If we do, this could cause problems when multiple databases exist.)
 
 	QStringList path = url.path().split('/', QString::SkipEmptyParts);
 	if(path.count() != 2)
@@ -1814,4 +1823,43 @@ bool AMDatamanAppController::anyOpenScansModified() const
 	}
 
 	return false;
+}
+
+void AMDatamanAppController::onOpenOtherDatabaseClicked()
+{
+	QString otherFileName = QFileDialog::getOpenFileName(0, "Open other database...", ".", "*.db");
+	QStringList otherFileNameList = otherFileName.split("/");
+	QString otherDatabaseName = otherFileNameList.at(otherFileNameList.indexOf("userData")-1).toLower();
+
+	AMDatabase *otherDatabase = AMDatabase::createDatabase(otherDatabaseName, otherFileName, true);
+	otherOpenDatabases_ << otherDatabase;
+	AMScanDataView *newScanDataView = new AMScanDataView(otherDatabase);
+
+	// Make a dataview widget and add it under two links/headings: "Runs" and "Experiments". See AMMainWindowModel for more information.
+	////////////////////////////////////
+
+	newScanDataView->setWindowTitle(otherDatabaseName);
+
+	QStandardItem* dataViewItem = new QStandardItem();
+	dataViewItem->setData(qVariantFromValue((QWidget*)newScanDataView), AM::WidgetRole);
+	dataViewItem->setFlags(Qt::ItemIsEnabled);	// enabled, but should not be selectable
+	QFont font = QFont("Lucida Grande", 10, QFont::Bold);
+	font.setCapitalization(QFont::AllUppercase);
+	dataViewItem->setFont(font);
+	dataViewItem->setData(QBrush(QColor::fromRgb(100, 109, 125)), Qt::ForegroundRole);
+	dataViewItem->setData(true, AMWindowPaneModel::DockStateRole);
+
+	mw_->windowPaneModel()->appendRow(dataViewItem);
+
+	QStandardItem *runsParentItem = new QStandardItem(QIcon(":/22x22/lock.png"), "Runs");
+	mw_->windowPaneModel()->initAliasItem(runsParentItem, dataViewItem, "Runs", -1);
+	dataViewItem->appendRow(runsParentItem);
+
+	new AMRunExperimentInsert(otherDatabase, runsParentItem, 0, this);
+
+	// connect the activated signal from the dataview to our own slot
+	connect(newScanDataView, SIGNAL(selectionActivated(QList<QUrl>)), this, SLOT(onDataViewItemsActivated(QList<QUrl>)));
+	connect(newScanDataView, SIGNAL(selectionActivatedSeparateWindows(QList<QUrl>)), this, SLOT(onDataViewItemsActivatedSeparateWindows(QList<QUrl>)));
+	connect(newScanDataView, SIGNAL(selectionExported(QList<QUrl>)), this, SLOT(onDataViewItemsExported(QList<QUrl>)));
+	connect(newScanDataView, SIGNAL(launchScanConfigurationsFromDb(QList<QUrl>)), this, SLOT(onLaunchScanConfigurationsFromDb(QList<QUrl>)));
 }
