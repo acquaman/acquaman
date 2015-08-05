@@ -95,33 +95,23 @@ public:
 
 
 	/// Contrary to what the docs say, the QSQLiteDriver never re-tries a query that fails when the database was busy/locked. You can use this function instead of QSqlQuery::exec(). Whenever a query fails due to a busy error, it will block up to a maximum timeout of \c timeoutMs ms while re-trying automatically every 5ms.
-	static bool execQuery(QSqlQuery& query, int timeoutMs = 5000);
+	bool execQuery(QSqlQuery& query, int timeoutMs = 5000);
 
 
 	// Instance Functions
 	///////////////////////////
 
 	/// This is the connection name of this database instance.
-	QString connectionName() {
-		return connectionName_;
-	}
+	QString connectionName() const { return connectionName_; }
 
 	/// This is the full path to the database
-	QString dbAccessString() const{
-		return dbAccessString_;
-	}
+	QString dbAccessString() const { return dbAccessString_; }
 
 	/// This returns whether or not this instance can be written to (all valid connections can be read from)
-	bool isReadOnly() const{
-		return isReadOnly_;
-	}
+	bool isReadOnly() const { return isReadOnly_; }
 
 	/// This returns whether or not the database has any tables (if no tables, then it's empty)
-	bool isEmpty() const{
-		if(qdb().tables().count() == 0)
-			return true;
-		return false;
-	}
+	bool isEmpty() const { return (qdb().tables().count() == 0); }
 
 
 	/// Inserting or updating a row in the database.
@@ -156,7 +146,7 @@ public:
 
 		Returns an empty list on failure.
 	*/
-	QVariantList retrieve(int id, const QString& table, const QStringList& colNames) const;
+	QVariantList retrieve(int id, const QString& table, const QStringList& colNames);
 	/// retrieve a column from the database
 	/*! \c table is the database table name
 		\c colName is the name of the column you wish to get all the values for
@@ -165,13 +155,13 @@ public:
 		No id parameter is used, because a value for each id is returned
 		Returns an empty list on failure.
 	*/
-	QVariantList retrieve(const QString& table, const QString& colName) const;
+	QVariantList retrieve(const QString& table, const QString& colName);
 
 	/// Retrieve a single parameter/value for an object.  This is simpler than retrieve() when all you need is a single value.
-	QVariant retrieve(int id, const QString& table, const QString& colName) const;
+	QVariant retrieve(int id, const QString& table, const QString& colName);
 
 	/// Retrieves the maximum value stored in table.colName, with the option to match prior to detemining the max with a where clause.
-	QVariant retrieveMax(const QString& table, const QString& colName, const QString& whereClause = QString()) const;
+	QVariant retrieveMax(const QString& table, const QString& colName, const QString& whereClause = QString());
 
 	/// Checks whether \param tableName exists within the database.
 	bool tableExists(const QString &tableName);
@@ -193,14 +183,14 @@ public:
 
 	/// Return a list of all the objects/rows (by id) that match 'value' in a certain column.
 	/// ex: AMDatabase::db()->objectsMatching("name", "Carbon60"), or AMDatabase::db()->objectsMatching("dateTime", QDateTime::currentDateTime())
-	QList<int> objectsMatching(const QString& tableName, const QString& colName, const QVariant& value) const;
+	QList<int> objectsMatching(const QString& tableName, const QString& colName, const QVariant& value);
 
 	/// Return a list of all the objects/rows (by id) that contain 'value' in a certain column
 	/// ex: AMDatabase::db()->scansContaining("name", "Carbon60") could return Scans with names Carbon60_alpha and bCarbon60_gamma
-	QList<int> objectsContaining(const QString& tableName, const QString& colName, const QVariant& value) const;
+	QList<int> objectsContaining(const QString& tableName, const QString& colName, const QVariant& value);
 
 	/// returns a list of all the objecst/rows (by id) that match a given condition. \c whereClause is a string suitable for appending after an SQL "WHERE" statement. If you want the id of all objects, you can omit the where clause.
-	QList<int> objectsWhere(const QString& tableName, const QString& whereClause = QString()) const;
+	QList<int> objectsWhere(const QString& tableName, const QString& whereClause = QString());
 
 
 	/// Starts an SQL transaction if the implementation supports them. Returns true on success.

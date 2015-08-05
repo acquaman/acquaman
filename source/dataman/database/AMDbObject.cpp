@@ -911,7 +911,14 @@ AMDbThumbnailsGeneratedEvent::AMDbThumbnailsGeneratedEvent(const QList<AMDbThumb
 
 void AMDbObject::setModified(bool isModified)
 {
-	if(!database()->isReadOnly() && isModified != modified_)
+	// First one is to allow the db object to be reset after being loaded from the database.
+	if (database() && database()->isReadOnly()){
+
+		if (modified_)
+			emit modifiedChanged(modified_ = false);
+	}
+
+	else if (isModified != modified_)
 		emit modifiedChanged(modified_ = isModified);
 }
 
