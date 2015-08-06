@@ -124,6 +124,11 @@ void SGMBeamline::setupBeamlineComponents()
 	grating_->setDescription("Grating Selection");
 	grating_->setAttemptMoveWhenWithinTolerance(false);
 
+	// Hexapod
+	hexapodXAxis_ = new AMPVwStatusControl("HexapodX", "HXPD1611-4-I10-01:X:mm:fbk", "HXPD1611-4-I10-01:X:mm", "HXPD1611-4-I10-01:X:status", "HXPD1611-4-I10-01:stop",this, 0.01, 2.0, new CLSMAXvControlStatusChecker());
+	hexapodYAxis_ = new AMPVwStatusControl("HexapodY", "HXPD1611-4-I10-01:Y:mm:fbk", "HXPD1611-4-I10-01:Y:mm", "HXPD1611-4-I10-01:Y:status", "HXPD1611-4-I10-01:stop",this, 0.01, 2.0, new CLSMAXvControlStatusChecker());
+	hexapodZAxis_ = new AMPVwStatusControl("HexapodZ", "HXPD1611-4-I10-01:Z:mm:fbk", "HXPD1611-4-I10-01:Z:mm", "HXPD1611-4-I10-01:Z:status", "HXPD1611-4-I10-01:stop",this, 0.01, 2.0, new CLSMAXvControlStatusChecker());
+
 	// SSA Manipulators
 	ssaManipulatorX_ = new SGMMAXvMotor("ssaManipulatorX", "SMTR16114I1022", "SSA Inboard/Outboard", true, 0.2, 2.0, this);
 	ssaManipulatorX_->setContextKnownDescription("X");
@@ -225,6 +230,9 @@ void SGMBeamline::setupExposedControls()
 	addExposedControl(ssaManipulatorY_);
 	addExposedControl(ssaManipulatorZ_);
 	addExposedControl(ssaManipulatorRot_);
+	addExposedControl(hexapodXAxis_);
+	addExposedControl(hexapodYAxis_);
+	addExposedControl(hexapodZAxis_);
 }
 
 void SGMBeamline::setupExposedDetectors()

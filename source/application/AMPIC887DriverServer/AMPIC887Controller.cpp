@@ -47,6 +47,8 @@ AMPIC887Controller::AMPIC887Controller(const QString& name, const QString& hostn
 	} else {
 		lastError_ = "No connection obtained with the controller";
 	}
+	positionUpdateTimer_.setInterval(50);
+	connect(&positionUpdateTimer_, SIGNAL(timeout()), this, SLOT(onPositionUpdateTimerInterval()));
 }
 
 AMPIC887Controller::~AMPIC887Controller()
@@ -765,12 +767,18 @@ void AMPIC887Controller::initializeControllerStateData()
 	}
 }
 
+void AMPIC887Controller::onPositionUpdateTimerInterval()
+{
+	emit positionUpdate(currentPositions(AMPIC887AxisCollection()));
+}
+
 void AMPIC887Controller::onAsyncMoveStarted(AMGCS2AsyncCommand *command)
 {
 	currentPositionRefreshRequired_ = true;
 	AMGCS2AsyncMoveCommand* moveCommand = qobject_cast<AMGCS2AsyncMoveCommand*>(command);
 
 	if(moveCommand) {
+
 
 		AMPIC887AxisCollection axesMoving = moveCommand->targetPositions().axes();
 		foreach(AMGCS2::Axis currentAxis, axesMoving) {
@@ -801,6 +809,9 @@ void AMPIC887Controller::onAsyncMoveStarted(AMGCS2AsyncCommand *command)
 				break;
 			}
 		}
+
+		emit moveStarted(movementStatuses());
+		positionUpdateTimer_.start();
 	}
 }
 
@@ -810,6 +821,8 @@ void AMPIC887Controller::onAsyncMoveSucceeded(AMGCS2AsyncCommand *command)
 
 	if(moveCommand) {
 
+		positionUpdateTimer_.stop();
+		emit moveComplete();
 		AMPIC887AxisCollection axesMoving = moveCommand->targetPositions().axes();
 		foreach(AMGCS2::Axis currentAxis, axesMoving) {
 			switch (currentAxis) {
@@ -846,6 +859,8 @@ void AMPIC887Controller::onAsyncMoveFailed(AMGCS2AsyncCommand *command)
 
 	if(moveCommand) {
 		setError(QString("Move failed with message: %1").arg(command->lastError()));
+		positionUpdateTimer_.stop();
+		emit moveFailed();
 		AMPIC887AxisCollection axesMoving = moveCommand->targetPositions().axes();
 		foreach(AMGCS2::Axis currentAxis, axesMoving) {
 			switch (currentAxis) {
@@ -882,6 +897,8 @@ void AMPIC887Controller::onAsyncMoveRelativeStarted(AMGCS2AsyncCommand *command)
 	AMGCS2AsyncMoveRelativeCommand* moveRelativeCommand = qobject_cast<AMGCS2AsyncMoveRelativeCommand*>(command);
 
 	if(moveRelativeCommand) {
+
+
 		AMPIC887AxisCollection axesMoving = moveRelativeCommand->relativeTargetPositions().axes();
 		foreach(AMGCS2::Axis currentAxis, axesMoving) {
 
@@ -912,6 +929,9 @@ void AMPIC887Controller::onAsyncMoveRelativeStarted(AMGCS2AsyncCommand *command)
 				break;
 			}
 		}
+
+		emit moveStarted(movementStatuses());
+		positionUpdateTimer_.start();
 	}
 }
 
@@ -921,6 +941,8 @@ void AMPIC887Controller::onAsyncMoveRelativeSucceeded(AMGCS2AsyncCommand *comman
 
 	if(moveRelativeCommand) {
 
+		positionUpdateTimer_.stop();
+		emit moveComplete();
 		AMPIC887AxisCollection axesMoving = moveRelativeCommand->relativeTargetPositions().axes();
 		foreach(AMGCS2::Axis currentAxis, axesMoving) {
 			switch (currentAxis) {
@@ -956,7 +978,8 @@ void AMPIC887Controller::onAsyncMoveRelativeFailed(AMGCS2AsyncCommand *command)
 	AMGCS2AsyncMoveRelativeCommand* moveRelativeCommand = qobject_cast<AMGCS2AsyncMoveRelativeCommand*>(command);
 
 	if(moveRelativeCommand) {
-
+		positionUpdateTimer_.stop();
+		emit moveFailed();
 		AMPIC887AxisCollection axesMoving = moveRelativeCommand->relativeTargetPositions().axes();
 		foreach(AMGCS2::Axis currentAxis, axesMoving) {
 			switch (currentAxis) {
@@ -1015,10 +1038,15 @@ void AMPIC887Controller::onAsyncReferenceMoveStarted(AMGCS2AsyncCommand *)
 	controllerState_->hexapodState()->setTargetPosition(AMGCS2::UAxis, 0);
 	controllerState_->hexapodState()->setTargetPosition(AMGCS2::VAxis, 0);
 	controllerState_->hexapodState()->setTargetPosition(AMGCS2::WAxis, 0);
+
+	emit moveStarted(movementStatuses());
+	positionUpdateTimer_.start();
 }
 
 void AMPIC887Controller::onAsyncReferenceMoveSucceeded(AMGCS2AsyncCommand *command)
 {
+	positionUpdateTimer_.stop();
+	emit moveComplete();
 	--xMotions_;
 	--yMotions_;
 	--zMotions_;
@@ -1038,6 +1066,8 @@ void AMPIC887Controller::onAsyncReferenceMoveSucceeded(AMGCS2AsyncCommand *comma
 
 void AMPIC887Controller::onAsyncReferenceMoveFailed(AMGCS2AsyncCommand *command)
 {
+	positionUpdateTimer_.stop();
+	emit moveFailed();
 	--xMotions_;
 	--yMotions_;
 	--zMotions_;
@@ -1109,5 +1139,7 @@ void AMPIC887Controller::setError(const QString &errorMessage)
 	lastError_ = errorMessage;
 	emit errorEncountered(errorMessage);
 }
+
+
 
 

@@ -27,6 +27,7 @@ AMPIC887ConsoleApplication::AMPIC887ConsoleApplication(int argc, char *argv[]) :
 		consoleInputHandler_->writeLineToStandardOutput("Type 'help' for a list of commands.");
 		consoleInputHandler_->displayCommandPrompt();
 
+		controllerCoordinator_ = new AMPIC887EpicsCoordinator(controllerCollection_.activeController(), this);
 		makeConnections();
 	} else {
 

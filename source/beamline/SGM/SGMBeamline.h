@@ -143,6 +143,10 @@ protected:
 	AMControl *exitSlitGap_;
 	AMControl *grating_;
 
+	AMControl* hexapodXAxis_;
+	AMControl* hexapodYAxis_;
+	AMControl* hexapodZAxis_;
+
 	AMMotorGroup *ssaManipulatorMotorGroup_;
 
 	SGMMAXvMotor *ssaManipulatorX_;

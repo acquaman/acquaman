@@ -6,6 +6,7 @@
 #include "AMPIC887Controller.h"
 #include "AMPIC887ControllerCollection.h"
 #include "AMPIC887AxisCollection.h"
+#include "AMPIC887EpicsCoordinator.h"
 
 class AMConsoleInputHandler;
 class AMPIC887ConsoleCommandParser;
@@ -310,6 +311,7 @@ protected:
 	AMConsoleInputHandler* consoleInputHandler_;
 	AMPIC887ConsoleCommandParser* commandParser_;
 	AMPIC887ControllerCollection controllerCollection_;
+	AMPIC887EpicsCoordinator* controllerCoordinator_;
 };
 
 #endif // AMPIC887CONSOLEAPPLICATION_H
