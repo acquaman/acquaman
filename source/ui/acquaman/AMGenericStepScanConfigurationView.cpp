@@ -106,8 +106,15 @@ AMGenericStepScanConfigurationView::AMGenericStepScanConfigurationView(AMGeneric
 
 	positionsBox->setLayout(positionLayout);
 
-	onAxisControlChoice1Changed();
-	onAxisControlChoice2Changed();
+	// Set initial spinbox values in cases where we don't yet have axes:
+	if(configuration_->scanAxes().count() == 0) {
+		// Set defaults for axis 1 and 2
+		onAxisControlChoice1Changed();
+		onAxisControlChoice2Changed();
+	} else if(configuration_->scanAxes().count() == 1) {
+		// Set defaults just for axis 2
+		onAxisControlChoice2Changed();
+	}
 
 	QScrollArea *detectorScrollArea = new QScrollArea;
 	QGroupBox *detectorGroupBox = new QGroupBox("Detectors");
