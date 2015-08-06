@@ -46,8 +46,10 @@ AMDatabase::AMDatabase(const QString& connectionName, const QString& dbAccessStr
 	qdbMutex_(QMutex::Recursive)
 {
 
-	if (openAsReadOnly)
+	if (openAsReadOnly){
+
 		isReadOnly_ = true;
+	}
 
 	else {
 
@@ -859,10 +861,9 @@ bool AMDatabase::supportsTransactions() const
 	return qdb().driver()->hasFeature(QSqlDriver::Transactions);
 }
 
-#include <QDebug>
 bool AMDatabase::execQuery(QSqlQuery &query, int timeoutMs)
 {
-	if (isReadOnly() && !query.executedQuery().startsWith("SELECT", Qt::CaseInsensitive)){
+	if (isReadOnly() && !(query.executedQuery().startsWith("SELECT", Qt::CaseInsensitive) || query.executedQuery().startsWith("PRAGMA", Qt::CaseInsensitive))){
 
 		AMErrorMon::debug(this, AMDATABASE_IS_READ_ONLY, QString("This database is read-only and the desired command would modify the contents of the database. Query: %1").arg(query.executedQuery()));
 		return false;
