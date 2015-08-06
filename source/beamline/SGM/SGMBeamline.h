@@ -147,7 +147,7 @@ protected:
 	AMControl* hexapodYAxis_;
 	AMControl* hexapodZAxis_;
 
-	AMMotorGroup *ssaManipulatorMotorGroup_;
+	AMMotorGroup *sampleMotorGroups_;
 
 	SGMMAXvMotor *ssaManipulatorX_;
 	SGMMAXvMotor *ssaManipulatorY_;

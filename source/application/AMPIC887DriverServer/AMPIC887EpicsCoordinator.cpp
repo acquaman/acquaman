@@ -272,7 +272,7 @@ void AMPIC887EpicsCoordinator::onAllConnected(bool connectedState)
 	if(connectedState) {
 
 		if(!controller_->isInValidState()) {
-			qDebug() << "Initialization: Setting x Axis status to Error";
+			qDebug() << "Initialization: Setting Axes status to Error";
 			xAxisStatus_->move(4);
 			yAxisStatus_->move(4);
 			zAxisStatus_->move(4);

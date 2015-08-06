@@ -91,7 +91,7 @@ SGMMAXvMotor * SGMBeamline::ssaManipulatorRot() const
 
 AMMotorGroup * SGMBeamline::ssaManipulatorMotorGroup() const
 {
-	return ssaManipulatorMotorGroup_;
+	return sampleMotorGroups_;
 }
 
 CLSSIS3820Scaler * SGMBeamline::scaler() const
@@ -193,7 +193,7 @@ void SGMBeamline::setupBeamlineComponents()
 void SGMBeamline::setupMotorGroups()
 {
 	AMMotorGroupObject *motorObject = 0;
-	ssaManipulatorMotorGroup_ = new AMMotorGroup(this);
+	sampleMotorGroups_ = new AMMotorGroup(this);
 
 	motorObject = new AMMotorGroupObject("Sample Stage - X, Y, Z, R",
 										 QStringList() << "X" << "Y" << "Z" << "R",
@@ -203,7 +203,18 @@ void SGMBeamline::setupMotorGroups()
 										 QList<AMMotorGroupObject::MotionType>() << AMMotorGroupObject::Translational << AMMotorGroupObject::Translational << AMMotorGroupObject::Translational << AMMotorGroupObject::Rotational,
 										 this);
 
-	ssaManipulatorMotorGroup_->addMotorGroupObject(motorObject->name(), motorObject);
+	sampleMotorGroups_->addMotorGroupObject(motorObject->name(), motorObject);
+
+	motorObject = new AMMotorGroupObject("Hexapod - X, Y, Z",
+										 QStringList() << "X" << "Y" << "Z",
+										 QStringList() << "mm" << "mm" << "mm",
+										 QList<AMControl*>() << hexapodXAxis_ << hexapodYAxis_ << hexapodZAxis_,
+										 QList<AMMotorGroupObject::Orientation>() << AMMotorGroupObject::Horizontal << AMMotorGroupObject::Vertical << AMMotorGroupObject::Normal,
+										 QList<AMMotorGroupObject::MotionType>() << AMMotorGroupObject::Translational << AMMotorGroupObject::Translational << AMMotorGroupObject::Translational,
+										 this);
+
+	sampleMotorGroups_->addMotorGroupObject(motorObject->name(), motorObject);
+
 }
 
 
