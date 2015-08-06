@@ -1828,38 +1828,42 @@ bool AMDatamanAppController::anyOpenScansModified() const
 void AMDatamanAppController::onOpenOtherDatabaseClicked()
 {
 	QString otherFileName = QFileDialog::getOpenFileName(0, "Open other database...", ".", "*.db");
-	QStringList otherFileNameList = otherFileName.split("/");
-	QString otherDatabaseName = otherFileNameList.at(otherFileNameList.indexOf("userData")-1).toLower();
 
-	AMDatabase *otherDatabase = AMDatabase::createDatabase(otherDatabaseName, otherFileName, true);
-	otherOpenDatabases_ << otherDatabase;
-	AMScanDataView *newScanDataView = new AMScanDataView(otherDatabase);
+	if (!otherFileName.isEmpty()){
 
-	// Make a dataview widget and add it under two links/headings: "Runs" and "Experiments". See AMMainWindowModel for more information.
-	////////////////////////////////////
+		QStringList otherFileNameList = otherFileName.split("/");
+		QString otherDatabaseName = otherFileNameList.at(otherFileNameList.indexOf("userData")-1).toLower();
 
-	newScanDataView->setWindowTitle(otherDatabaseName);
+		AMDatabase *otherDatabase = AMDatabase::createDatabase(otherDatabaseName, otherFileName, true);
+		otherOpenDatabases_ << otherDatabase;
+		AMScanDataView *newScanDataView = new AMScanDataView(otherDatabase);
 
-	QStandardItem* dataViewItem = new QStandardItem();
-	dataViewItem->setData(qVariantFromValue((QWidget*)newScanDataView), AM::WidgetRole);
-	dataViewItem->setFlags(Qt::ItemIsEnabled);	// enabled, but should not be selectable
-	QFont font = QFont("Lucida Grande", 10, QFont::Bold);
-	font.setCapitalization(QFont::AllUppercase);
-	dataViewItem->setFont(font);
-	dataViewItem->setData(QBrush(QColor::fromRgb(100, 109, 125)), Qt::ForegroundRole);
-	dataViewItem->setData(true, AMWindowPaneModel::DockStateRole);
+		// Make a dataview widget and add it under two links/headings: "Runs" and "Experiments". See AMMainWindowModel for more information.
+		////////////////////////////////////
 
-	mw_->windowPaneModel()->appendRow(dataViewItem);
+		newScanDataView->setWindowTitle(otherDatabaseName);
 
-	QStandardItem *runsParentItem = new QStandardItem(QIcon(":/22x22/lock.png"), "Runs");
-	mw_->windowPaneModel()->initAliasItem(runsParentItem, dataViewItem, "Runs", -1);
-	dataViewItem->appendRow(runsParentItem);
+		QStandardItem* dataViewItem = new QStandardItem();
+		dataViewItem->setData(qVariantFromValue((QWidget*)newScanDataView), AM::WidgetRole);
+		dataViewItem->setFlags(Qt::ItemIsEnabled);	// enabled, but should not be selectable
+		QFont font = QFont("Lucida Grande", 10, QFont::Bold);
+		font.setCapitalization(QFont::AllUppercase);
+		dataViewItem->setFont(font);
+		dataViewItem->setData(QBrush(QColor::fromRgb(100, 109, 125)), Qt::ForegroundRole);
+		dataViewItem->setData(true, AMWindowPaneModel::DockStateRole);
 
-	new AMRunExperimentInsert(otherDatabase, runsParentItem, 0, this);
+		mw_->windowPaneModel()->appendRow(dataViewItem);
 
-	// connect the activated signal from the dataview to our own slot
-	connect(newScanDataView, SIGNAL(selectionActivated(QList<QUrl>)), this, SLOT(onDataViewItemsActivated(QList<QUrl>)));
-	connect(newScanDataView, SIGNAL(selectionActivatedSeparateWindows(QList<QUrl>)), this, SLOT(onDataViewItemsActivatedSeparateWindows(QList<QUrl>)));
-	connect(newScanDataView, SIGNAL(selectionExported(QList<QUrl>)), this, SLOT(onDataViewItemsExported(QList<QUrl>)));
-	connect(newScanDataView, SIGNAL(launchScanConfigurationsFromDb(QList<QUrl>)), this, SLOT(onLaunchScanConfigurationsFromDb(QList<QUrl>)));
+		QStandardItem *runsParentItem = new QStandardItem(QIcon(":/22x22/lock.png"), "Runs");
+		mw_->windowPaneModel()->initAliasItem(runsParentItem, dataViewItem, "Runs", -1);
+		dataViewItem->appendRow(runsParentItem);
+
+		new AMRunExperimentInsert(otherDatabase, runsParentItem, 0, this);
+
+		// connect the activated signal from the dataview to our own slot
+		connect(newScanDataView, SIGNAL(selectionActivated(QList<QUrl>)), this, SLOT(onDataViewItemsActivated(QList<QUrl>)));
+		connect(newScanDataView, SIGNAL(selectionActivatedSeparateWindows(QList<QUrl>)), this, SLOT(onDataViewItemsActivatedSeparateWindows(QList<QUrl>)));
+		connect(newScanDataView, SIGNAL(selectionExported(QList<QUrl>)), this, SLOT(onDataViewItemsExported(QList<QUrl>)));
+		connect(newScanDataView, SIGNAL(launchScanConfigurationsFromDb(QList<QUrl>)), this, SLOT(onLaunchScanConfigurationsFromDb(QList<QUrl>)));
+	}
 }

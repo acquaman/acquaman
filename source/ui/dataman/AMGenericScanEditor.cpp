@@ -281,6 +281,7 @@ AMGenericScanEditor::~AMGenericScanEditor() {
 
 	del_->deleteLater();
 	oneSecondTimer_->deleteLater();
+
 	if(chooseScanDialog_)
 		chooseScanDialog_->deleteLater();
 }
@@ -657,11 +658,19 @@ void AMGenericScanEditor::onSaveScanButtonClicked() {
 	}
 }
 
-void AMGenericScanEditor::onOpenScanButtonClicked() {
-	if(!chooseScanDialog_) {
-		chooseScanDialog_ = new AMChooseScanDialog(AMDatabase::database("user"), "Add an existing scan", "Choose one or more existing scans to open in this editor.", true, this);
-		connect(chooseScanDialog_, SIGNAL(accepted()), this, SLOT(onChooseScanDialogAccepted()));
-	}
+void AMGenericScanEditor::onOpenScanButtonClicked()
+{
+	QStringList databaseNames = AMDatabase::registeredDatabases();
+	databaseNames.removeOne("actions");
+	databaseNames.removeOne("scanActions");
+	QList<AMDatabase *> databases;
+
+	foreach (QString databaseName, databaseNames)
+		databases << AMDatabase::database(databaseName);
+
+	chooseScanDialog_ = new AMChooseScanDialog(databases, "Add an existing scan", "Choose one or more existing scans to open in this editor.", this);
+	connect(chooseScanDialog_, SIGNAL(accepted()), this, SLOT(onChooseScanDialogAccepted()));
+	connect(chooseScanDialog_, SIGNAL(rejected()), this, SLOT(onChooseScanDialogRejected()));
 
 	chooseScanDialog_->show();
 }
@@ -674,7 +683,14 @@ void AMGenericScanEditor::removeScan(AMScan *scan) {
 void AMGenericScanEditor::onChooseScanDialogAccepted()
 {
 	dropScanURLs(chooseScanDialog_->getSelectedScans());
-	chooseScanDialog_->clearSelection();
+	chooseScanDialog_->deleteLater();
+	chooseScanDialog_ = 0;
+}
+
+void AMGenericScanEditor::onChooseScanDialogRejected()
+{
+	chooseScanDialog_->deleteLater();
+	chooseScanDialog_ = 0;
 }
 
 void AMGenericScanEditor::closeEvent(QCloseEvent* e)
