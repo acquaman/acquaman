@@ -65,17 +65,17 @@ IDEASXASScanActionController::IDEASXASScanActionController(IDEASXASScanConfigura
 	configuration_->setAxisControlInfos(list);
 
 	AMDetectorInfoSet ideasDetectors;
-	ideasDetectors.addDetectorInfo(IDEASBeamline::ideas()->I_0()->toInfo());
-	ideasDetectors.addDetectorInfo(IDEASBeamline::ideas()->Sample()->toInfo());
-	ideasDetectors.addDetectorInfo(IDEASBeamline::ideas()->Reference()->toInfo());
+	ideasDetectors.addDetectorInfo(IDEASBeamline::ideas()->i0()->toInfo());
+	ideasDetectors.addDetectorInfo(IDEASBeamline::ideas()->sampleIonChamber()->toInfo());
+	ideasDetectors.addDetectorInfo(IDEASBeamline::ideas()->referenceIonChamber()->toInfo());
 
-	if (configuration_->fluorescenceDetector() == IDEASXASScanConfiguration::Ketek){
+	if (configuration_->fluorescenceDetector().testFlag(IDEAS::Ketek)){
 
 		ideasDetectors.addDetectorInfo(IDEASBeamline::ideas()->exposedDetectorByName("KETEK")->toInfo());
 		ideasDetectors.addDetectorInfo(IDEASBeamline::ideas()->ketek()->dwellTime()->toInfo());
 	}
 
-	else if (configuration_->fluorescenceDetector() == IDEASXASScanConfiguration::Ge13Element){
+	else if (configuration_->fluorescenceDetector().testFlag(IDEAS::Ge13Element)){
 
 		ideasDetectors.addDetectorInfo(IDEASBeamline::ideas()->exposedDetectorByName("13-el Ge")->toInfo());
 		ideasDetectors.addDetectorInfo(IDEASBeamline::ideas()->ge13Element()->dwellTime()->toInfo());
@@ -107,10 +107,10 @@ void IDEASXASScanActionController::buildScanControllerImplementation()
 {
 	AMXRFDetector *detector = 0;
 
-	if (configuration_->fluorescenceDetector() == IDEASXASScanConfiguration::Ketek)
+	if (configuration_->fluorescenceDetector().testFlag(IDEAS::Ketek))
 		detector = qobject_cast<AMXRFDetector *>(IDEASBeamline::bl()->exposedDetectorByName("KETEK"));
 
-	else if (configuration_->fluorescenceDetector() == IDEASXASScanConfiguration::Ge13Element)
+	else if (configuration_->fluorescenceDetector().testFlag(IDEAS::Ge13Element))
 		detector = qobject_cast<AMXRFDetector *>(IDEASBeamline::bl()->exposedDetectorByName("13-el Ge"));
 
 	QList<AMDataSource*> raw1DDataSources;

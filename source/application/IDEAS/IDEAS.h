@@ -4,17 +4,19 @@
 #include "dataman/database/AMDbObjectSupport.h"
 #include "dataman/export/AMExporterOptionGeneralAscii.h"
 
-namespace IDEAS {
+namespace IDEAS
+{
 	#define ERR_IDEAS_XRF_DETECTOR_NOT_CONNECTED 590201 //XRF detector not initialized
 	#define ERR_IDEAS_XRF_DETECTOR_SCAN_NOT_EXIST 590202 //XRF scan does not exist
 
 	/// Handles the XRF detector choice.  Available choices are None, KETEK, and 13-element Ge.
 	enum FluorescenceDetector {
 
-		NoneXRFDetector = 0,
-		KetekDetector = 1,
-		Ge13ElementDetector = 2
+		NoXRF = 0,
+		Ketek = 1,
+		Ge13Element = 2
 	};
+	Q_DECLARE_FLAGS(FluorescenceDetectors, FluorescenceDetector)
 
 	/// Builds the standard exporter option used for all exported scans.
 	inline AMExporterOptionGeneralAscii *buildStandardExporterOption(const QString &name, bool includeHigherOrderSources, bool hasGotoPosition, bool addeVFeedbackMessage, bool exportSpectraInRows)
@@ -51,5 +53,7 @@ namespace IDEAS {
 		return exporterOption;
 	}
 }
+
+Q_DECLARE_OPERATORS_FOR_FLAGS(IDEAS::FluorescenceDetectors)
 
 #endif // IDEAS_H

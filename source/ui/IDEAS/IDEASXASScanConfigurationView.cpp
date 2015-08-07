@@ -160,16 +160,16 @@ IDEASXASScanConfigurationView::IDEASXASScanConfigurationView(IDEASXASScanConfigu
 	QLabel *settingsLabel = new QLabel("Scan Settings:");
 	settingsLabel->setFont(QFont("Lucida Grande", 12, QFont::Bold));
 
-    QHBoxLayout *xrfDetector = new QHBoxLayout();
-    xrfDetector->addWidget(isXRFScanCheckBox_);
-    xrfDetector->addSpacing(10);
-    xrfDetector->addWidget(fluorescenceDetectorComboBox_);
+	QHBoxLayout *xrfDetector = new QHBoxLayout();
+	xrfDetector->addWidget(isXRFScanCheckBox_);
+	xrfDetector->addSpacing(10);
+	xrfDetector->addWidget(fluorescenceDetectorComboBox_);
 
 	QFormLayout *configFL = new QFormLayout();
 	configFL->setAlignment(Qt::AlignLeft);
 	configFL->setFieldGrowthPolicy(QFormLayout::FieldsStayAtSizeHint);
 	configFL->addRow("Scan Name: ", scanName_);
-    configFL->addRow("Include: ",xrfDetector);
+	configFL->addRow("Include: ",xrfDetector);
 	configFL->addRow("", isTransScanCheckBox_);
 	configFL->addRow("", useRefCheckBox_);
 
@@ -365,38 +365,38 @@ void IDEASXASScanConfigurationView::onROIChange()
 {
 	AMXRFDetector *detector = 0;
 
-	if (configuration_->fluorescenceDetector() == IDEASXASScanConfiguration::None)
+	if (configuration_->fluorescenceDetector().testFlag(IDEAS::NoXRF))
 		ROIsLabel_->setText("");
 
-	else if (configuration_->fluorescenceDetector() == IDEASXASScanConfiguration::Ketek)
+	else if (configuration_->fluorescenceDetector().testFlag(IDEAS::Ketek))
 		detector = IDEASBeamline::ideas()->ketek();
 
-	else if (configuration_->fluorescenceDetector() == IDEASXASScanConfiguration::Ge13Element)
+	else if (configuration_->fluorescenceDetector().testFlag(IDEAS::Ge13Element))
 		detector = IDEASBeamline::ideas()->ge13Element();
 
 	if (detector){
-		
+
 		if (detector->regionsOfInterest().isEmpty())
 		{
 			ROIsLabel_->setText("No XRF detector regions of interest selected.");
-			
+
 			if (isXRFScanCheckBox_->isChecked())
 				 ROIsLabel_->setStyleSheet("QLabel { background-color : red; color : white}");
-			
+
 			else
 				 ROIsLabel_->setStyleSheet("QLabel { color : black; }");
 		}
-		
+
 		else {
-			
+
 			QString regionsText;
-		
+
 			foreach (AMRegionOfInterest *region, detector->regionsOfInterest())
 				regionsText.append(QString("%1 (%2 eV - %3 eV)\n").arg(region->name()).arg(int(region->lowerBound())).arg(int(region->upperBound())));
-			
+
 			ROIsLabel_->setStyleSheet("QLabel { color : black; }");
 			ROIsLabel_->setText(regionsText);
-			
+
 		}
 	}
 }
@@ -425,12 +425,12 @@ void IDEASXASScanConfigurationView::onPeakingTimeChanged(double value)
 {
 
 	if (value == 0.3)
-	    peakingSetting_->setText("High Rate / Low Resolution");
+		peakingSetting_->setText("High Rate / Low Resolution");
 	else if (value == 2.0)
-	    peakingSetting_->setText("High Resolution / Low Rate");
+		peakingSetting_->setText("High Resolution / Low Rate");
 	else if (value == 4.0)
-	    peakingSetting_->setText("Ultra Resolution / Slow Rate");
+		peakingSetting_->setText("Ultra Resolution / Slow Rate");
 	else
-	    peakingSetting_->setText("High Rate / Low Resolution");
+		peakingSetting_->setText("High Rate / Low Resolution");
 
 }
