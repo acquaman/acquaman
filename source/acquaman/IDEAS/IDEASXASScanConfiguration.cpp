@@ -28,7 +28,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "util/AMEnergyToKSpaceCalculator.h"
 
 IDEASXASScanConfiguration::IDEASXASScanConfiguration(QObject *parent) :
-	AMStepScanConfiguration(parent)
+	AMStepScanConfiguration(parent), IDEASScanConfiguration()
 {
 	setAutoExportEnabled(false);
 
@@ -41,8 +41,6 @@ IDEASXASScanConfiguration::IDEASXASScanConfiguration(QObject *parent) :
 	edge_ = "";
 	energy_ = 0.0;
 	useFixedTime_ = false;
-	totalTime_ = 0;
-	timeOffset_ = 0.4;
 	minEnergy_ = 0;
 	maxEnergy_ = 0;
 	totalPoints_ = 0;
@@ -65,7 +63,7 @@ IDEASXASScanConfiguration::IDEASXASScanConfiguration(QObject *parent) :
 }
 
 IDEASXASScanConfiguration::IDEASXASScanConfiguration(const IDEASXASScanConfiguration &original) :
-	AMStepScanConfiguration(original)
+	AMStepScanConfiguration(original), IDEASScanConfiguration(original)
 {
 	setAutoExportEnabled(false);
 	setName(original.name());
@@ -73,9 +71,6 @@ IDEASXASScanConfiguration::IDEASXASScanConfiguration(const IDEASXASScanConfigura
 	isXRFScan_ = original.isXRFScan();
 	isTransScan_ = original.isTransScan();
 	useRef_ = original.useRef();
-	timeOffset_ = original.timeOffset();
-	totalTime_ = original.totalTime();
-
 
 	edge_ = original.edge();
 	energy_ = original.energy();

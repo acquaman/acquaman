@@ -24,8 +24,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "acquaman/AMStepScanConfiguration.h"
 #include "application/IDEAS/IDEAS.h"
+#include "acquaman/IDEAS/IDEASScanConfiguration.h"
 
-class IDEASXASScanConfiguration : public AMStepScanConfiguration
+class IDEASXASScanConfiguration : public AMStepScanConfiguration, IDEASScanConfiguration
 {
 	Q_OBJECT
 
@@ -157,10 +158,6 @@ protected:
 	double energy_;
 	/// Holds whether the EXAFS scan will use fixed or variable integration time.
 	bool useFixedTime_;
-	/// Holds the offset per point of extra time when doing a scan.
-	double timeOffset_;
-	/// Holds the total time in seconds that the scan is estimated to take.
-	double totalTime_;
 	/// Holds the total number of points in the scan.
 	double totalPoints_;
 	/// Holds the starting energy for the scan.
