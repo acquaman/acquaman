@@ -1,0 +1,10 @@
+#ifndef IDEASSCANCONFIGURATIONDBOBJECT_H
+#define IDEASSCANCONFIGURATIONDBOBJECT_H
+
+class IDEASScanConfigurationDbObject
+{
+public:
+    IDEASScanConfigurationDbObject();
+};
+
+#endif // IDEASSCANCONFIGURATIONDBOBJECT_H

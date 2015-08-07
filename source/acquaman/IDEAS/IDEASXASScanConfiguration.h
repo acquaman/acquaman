@@ -50,7 +50,7 @@ public:
 		Ketek = 1,
 		Ge13Element = 2
 	};
-//	Q_DECLARE_FLAGS(FluorescenceDetectors, FluorescenceDetector)
+	Q_DECLARE_FLAGS(FluorescenceDetectors, FluorescenceDetector)
 
 	/// Constructor
 	Q_INVOKABLE IDEASXASScanConfiguration(QObject *parent = 0);
@@ -185,6 +185,6 @@ protected:
 	IDEASXASScanConfiguration::FluorescenceDetector fluorescenceDetector_;
 };
 
-//Q_DECLARE_OPERATORS_FOR_FLAGS(IDEASXASScanConfiguration::FluorescenceDetectors)
+Q_DECLARE_OPERATORS_FOR_FLAGS(IDEASXASScanConfiguration::FluorescenceDetectors)
 
 #endif // IDEASXASSCANCONFIGURATION_H

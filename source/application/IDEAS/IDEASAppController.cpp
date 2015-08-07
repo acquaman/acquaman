@@ -45,7 +45,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "acquaman/IDEAS/IDEASXASScanConfiguration.h"
 #include "acquaman/IDEAS/IDEASXRFScanConfiguration.h"
 
-//#include "ui/CLS/CLSSynchronizedDwellTimeView.h"
 #include "ui/AMMainWindow.h"
 #include "ui/dataman/AMGenericScanEditor.h"
 #include "ui/acquaman/AMScanConfigurationViewHolder3.h"
@@ -132,12 +131,12 @@ void IDEASAppController::setupExporterOptions()
 
 	ideasDefaultXAS->setName("IDEAS Default XAS");
 	ideasDefaultXAS->setFileName("$name_$number.dat");
-    ideasDefaultXAS->setHeaderText("Scan: $name #$number\nDate: $dateTime\n\nRing Current: $control[ringCurrent]\nInitial I_0: $control[I0Current]\n"
-                                   "Sample Slit Width: $control[Sample Slit Width]\tSample Slit Height: $control[Sample Slit Height]\n"
-                                   "Sample Vertical Position: $control[Sample Vertical Position]\tSample Horizontal Position: $control[Sample Horizontal Position]\n"
-                                   "Vacuum Stage Position: $control[Vacuum Stage Position]\n"
-                                   "Sample Temp: $control[sampleTemp]");
-    ideasDefaultXAS->setHeaderIncluded(true);
+	ideasDefaultXAS->setHeaderText("Scan: $name #$number\nDate: $dateTime\n\nRing Current: $control[ringCurrent]\nInitial I_0: $control[I0Current]\n"
+								   "Sample Slit Width: $control[Sample Slit Width]\tSample Slit Height: $control[Sample Slit Height]\n"
+								   "Sample Vertical Position: $control[Sample Vertical Position]\tSample Horizontal Position: $control[Sample Horizontal Position]\n"
+								   "Vacuum Stage Position: $control[Vacuum Stage Position]\n"
+								   "Sample Temp: $control[sampleTemp]");
+	ideasDefaultXAS->setHeaderIncluded(true);
 	ideasDefaultXAS->setColumnHeader("$dataSetName $dataSetInfoDescription");
 	ideasDefaultXAS->setColumnHeaderIncluded(true);
 	ideasDefaultXAS->setColumnHeaderDelimiter("");
