@@ -90,7 +90,7 @@ public:
 	/*!
 	  * The sample stage motor group.
 	  */
-	AMMotorGroup* ssaManipulatorMotorGroup() const;
+	AMMotorGroup* sampleManipulatorsMotorGroup() const;
 
 	/*!
 	  * The scaler.
@@ -147,7 +147,7 @@ protected:
 	AMControl* hexapodYAxis_;
 	AMControl* hexapodZAxis_;
 
-	AMMotorGroup *sampleMotorGroups_;
+	AMMotorGroup *sampleManipulatorsMotorGroup_;
 
 	SGMMAXvMotor *ssaManipulatorX_;
 	SGMMAXvMotor *ssaManipulatorY_;

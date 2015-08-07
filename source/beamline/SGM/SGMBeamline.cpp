@@ -89,9 +89,9 @@ SGMMAXvMotor * SGMBeamline::ssaManipulatorRot() const
 	return ssaManipulatorRot_;
 }
 
-AMMotorGroup * SGMBeamline::ssaManipulatorMotorGroup() const
+AMMotorGroup * SGMBeamline::sampleManipulatorsMotorGroup() const
 {
-	return sampleMotorGroups_;
+	return sampleManipulatorsMotorGroup_;
 }
 
 CLSSIS3820Scaler * SGMBeamline::scaler() const
@@ -193,17 +193,17 @@ void SGMBeamline::setupBeamlineComponents()
 void SGMBeamline::setupMotorGroups()
 {
 	AMMotorGroupObject *motorObject = 0;
-	sampleMotorGroups_ = new AMMotorGroup(this);
+	sampleManipulatorsMotorGroup_ = new AMMotorGroup(this);
 
-	motorObject = new AMMotorGroupObject("Sample Stage - X, Y, Z, R",
-										 QStringList() << "X" << "Y" << "Z" << "R",
-										 QStringList() << "mm" << "mm" << "mm" << "deg",
-										 QList<AMControl *>() << ssaManipulatorX_ << ssaManipulatorY_ << ssaManipulatorZ_ << ssaManipulatorRot_ ,
-										 QList<AMMotorGroupObject::Orientation>() << AMMotorGroupObject::Horizontal << AMMotorGroupObject::Vertical << AMMotorGroupObject::Normal << AMMotorGroupObject::Other,
-										 QList<AMMotorGroupObject::MotionType>() << AMMotorGroupObject::Translational << AMMotorGroupObject::Translational << AMMotorGroupObject::Translational << AMMotorGroupObject::Rotational,
-										 this);
+//	motorObject = new AMMotorGroupObject("Sample Stage - X, Y, Z, R",
+//										 QStringList() << "X" << "Y" << "Z" << "R",
+//										 QStringList() << "mm" << "mm" << "mm" << "deg",
+//										 QList<AMControl *>() << ssaManipulatorX_ << ssaManipulatorY_ << ssaManipulatorZ_ << ssaManipulatorRot_ ,
+//										 QList<AMMotorGroupObject::Orientation>() << AMMotorGroupObject::Horizontal << AMMotorGroupObject::Vertical << AMMotorGroupObject::Normal << AMMotorGroupObject::Other,
+//										 QList<AMMotorGroupObject::MotionType>() << AMMotorGroupObject::Translational << AMMotorGroupObject::Translational << AMMotorGroupObject::Translational << AMMotorGroupObject::Rotational,
+//										 this);
 
-	sampleMotorGroups_->addMotorGroupObject(motorObject->name(), motorObject);
+//	sampleManipulatorsMotorGroup_->addMotorGroupObject(motorObject->name(), motorObject);
 
 	motorObject = new AMMotorGroupObject("Hexapod - X, Y, Z",
 										 QStringList() << "X" << "Y" << "Z",
@@ -213,7 +213,7 @@ void SGMBeamline::setupMotorGroups()
 										 QList<AMMotorGroupObject::MotionType>() << AMMotorGroupObject::Translational << AMMotorGroupObject::Translational << AMMotorGroupObject::Translational,
 										 this);
 
-	sampleMotorGroups_->addMotorGroupObject(motorObject->name(), motorObject);
+	sampleManipulatorsMotorGroup_->addMotorGroupObject(motorObject->name(), motorObject);
 
 }
 
