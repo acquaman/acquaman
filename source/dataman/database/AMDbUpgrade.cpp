@@ -78,7 +78,7 @@ bool AMDbUpgrade::upgradeRequired() const{
 	// Check to make sure each has the upgrade table using the PRAGMA query
 	QSqlQuery q = databaseToUpgrade_->query();
 	q.prepare("PRAGMA table_info(AMDbObjectUpgrades_table)");
-	if(!AMDatabase::execQuery(q)) {
+	if(!databaseToUpgrade_->execQuery(q)) {
 		q.finish();
 		AMErrorMon::report(AMErrorReport(0, AMErrorReport::Debug, -270103, QString("Database support: There was an error while trying to read meta data on the upgrades table.")));
 		return false;
@@ -223,7 +223,7 @@ bool AMDbUpgradeSupport::dbObjectClassBecomes(AMDatabase *databaseToEdit, const 
 				// Query if this table has an index (or indices) defined for it
 				QSqlQuery q1 = userDb->query();
 				q1.prepare("PRAGMA index_list("%originalIndexTableName%")");
-				if(!AMDatabase::execQuery(q1)) {
+				if(!userDb->execQuery(q1)) {
 					q1.finish();
 					AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, -291, QString("Database support: There was an error trying to find the index list for %1.").arg(originalIndexTableName)));
 					return false;
@@ -240,7 +240,7 @@ bool AMDbUpgradeSupport::dbObjectClassBecomes(AMDatabase *databaseToEdit, const 
 					QSqlQuery q1A = userDb->query();
 					q1A.prepare(QString("DROP INDEX %1;").arg(indexListResponses.at(x)));
 
-					if(AMDatabase::execQuery(q1A)){
+					if(userDb->execQuery(q1A)){
 						q1A.finish();
 					}
 					else{
@@ -253,7 +253,7 @@ bool AMDbUpgradeSupport::dbObjectClassBecomes(AMDatabase *databaseToEdit, const 
 				// Actually rename the table (we need to do this every time)
 				QSqlQuery q2 = userDb->query();
 				q2.prepare("ALTER table "%originalIndexTableName%" RENAME to "%newIndexTableName);
-				if(!AMDatabase::execQuery(q2)) {
+				if(!userDb->execQuery(q2)) {
 					q2.finish();
 					AMErrorMon::report(AMErrorReport(0, AMErrorReport::Debug, -283, QString("Database support: There was an error while trying to update table %1 to become %2.").arg(originalIndexTableName).arg(newIndexTableName)));
 					return false;
@@ -268,7 +268,7 @@ bool AMDbUpgradeSupport::dbObjectClassBecomes(AMDatabase *databaseToEdit, const 
 					indexName.remove(QRegExp("[\\s\\,\\;]"));// remove whitespace, commas, and semicolons from index name...
 					q2A.prepare(QString("CREATE INDEX %1 ON %2(%3);").arg(indexName, newIndexTableName, columnName));
 
-					if(AMDatabase::execQuery(q2A)){
+					if(userDb->execQuery(q2A)){
 						q2A.finish();
 					}
 					else{
@@ -291,7 +291,7 @@ bool AMDbUpgradeSupport::dbObjectClassBecomes(AMDatabase *databaseToEdit, const 
 		// Finally, rename the table from the original name to the new name
 		QSqlQuery q = userDb->query();
 		q.prepare("ALTER table "%originalTableName%" RENAME to "%newTableName);
-		if(!AMDatabase::execQuery(q)) {
+		if(!userDb->execQuery(q)) {
 			q.finish();
 			AMErrorMon::report(AMErrorReport(0, AMErrorReport::Debug, -273, QString("Database support: There was an error while trying to update table %1 to become %2.").arg(originalClassName).arg(newClassName)));
 			return false;
@@ -324,7 +324,7 @@ bool AMDbUpgradeSupport::dbObjectClassMerge(AMDatabase *databaseToEdit, const QS
 	// Query and record all the column names (except id) from the from table. We need this string list to pass around.
 	QSqlQuery q = userDb->query();
 	q.prepare("PRAGMA table_info("%mergeFromTableName%")");
-	if(!AMDatabase::execQuery(q)) {
+	if(!userDb->execQuery(q)) {
 		q.finish();
 		AMErrorMon::report(AMErrorReport(0, AMErrorReport::Debug, -274, QString("Database support: There was an error while trying to read meta data on table %1.").arg(mergeFromTableName)));
 		return false;
@@ -410,7 +410,7 @@ bool AMDbUpgradeSupport::dbObjectClassMerge(AMDatabase *databaseToEdit, const QS
 	// Actually delete the "from" side class table.
 	q = userDb->query();
 	q.prepare("DROP TABLE "%mergeFromTableName);
-	if(!AMDatabase::execQuery(q)) {
+	if(!userDb->execQuery(q)) {
 		q.finish();
 		AMErrorMon::report(AMErrorReport(0, AMErrorReport::Debug, -280, QString("Database support: There was an error while trying to rollback table %1.").arg(mergeFromTableName)));
 		return false;
