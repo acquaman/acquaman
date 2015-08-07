@@ -579,6 +579,14 @@ signals:
 	  * updated. Emitted periodically during a move operation.
 	  */
 	void positionUpdate(const AMPIC887AxisMap<double>& newPositions);
+
+	/*!
+	  * Signal indicating that the system velocity of the controller has been
+	  * altered.
+	  * \param newSystemVelocity ~ The new value to which the system velocity
+	  * has been set.
+	  */
+	void systemVelocityChanged(double newSystemVelocity);
 protected slots:
 
 	/*!

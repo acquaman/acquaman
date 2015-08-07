@@ -640,6 +640,7 @@ bool AMPIC887Controller::setSystemVelocity(double systemVelocity)
 	}
 
 	controllerState_->hexapodState()->setVelocity(systemVelocity);
+	emit systemVelocityChanged(systemVelocity);
 	return true;
 }
 

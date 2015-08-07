@@ -14,6 +14,7 @@ AMPIC887EpicsCoordinator::AMPIC887EpicsCoordinator(AMPIC887Controller* controlle
 	uAxisInitialMovement_ = false;
 	vAxisInitialMovement_ = false;
 	wAxisInitialMovement_ = false;
+	systemVelocityInitialMovement_ = false;
 
 	xAxisValue_ = new AMSinglePVControl("HexapodXAxisValue", "HXPD1611-4-I10-01:X:mm:fbk", this, AXIS_POSITION_TOLERANCE);
 	xAxisSetpoint_ = new AMSinglePVControl("HexapodXAxisSetpoint", "HXPD1611-4-I10-01:X:mm", this, AXIS_POSITION_TOLERANCE);
@@ -39,6 +40,8 @@ AMPIC887EpicsCoordinator::AMPIC887EpicsCoordinator(AMPIC887Controller* controlle
 	wAxisSetpoint_ = new AMSinglePVControl("HexapodWAxisSetpoint", "HXPD1611-4-I10-01:W:deg", this, AXIS_POSITION_TOLERANCE);
 	wAxisStatus_ = new AMSinglePVControl("HexapodWAxisStatus", "HXPD1611-4-I10-01:W:status", this, 0.5);
 
+	systemVelocityValue_ = new AMSinglePVControl("HexapodSystemVelocityValue", "HXPD1611-4-I10-01:velocity:fbk", this, 0.001);
+	systemVelocitySetpoint_ = new AMSinglePVControl("HexapodSystemVelocityValue", "HXPD1611-4-I10-01:velocity", this, 0.001);
 	stopAll_ = new AMSinglePVControl("HexapodStopAll", "HXPD1611-4-I10-01:stop", this, 0.5);
 
 	allControls_->addControl(xAxisValue_);
@@ -65,6 +68,8 @@ AMPIC887EpicsCoordinator::AMPIC887EpicsCoordinator(AMPIC887Controller* controlle
 	allControls_->addControl(wAxisSetpoint_);
 	allControls_->addControl(wAxisStatus_);
 
+	allControls_->addControl(systemVelocityValue_);
+	allControls_->addControl(systemVelocitySetpoint_);
 	allControls_->addControl(stopAll_);
 
 	connect(allControls_, SIGNAL(connected(bool)), this, SLOT(onAllConnected(bool)));
@@ -95,6 +100,13 @@ void AMPIC887EpicsCoordinator::onPositionUpdate(const AMPIC887AxisMap<double> &n
 
 	if(!wAxisValue_->withinTolerance(newPositions.value(AMGCS2::WAxis))) {
 		wAxisValue_->move(newPositions.value(AMGCS2::WAxis));
+	}
+}
+
+void AMPIC887EpicsCoordinator::onSystemVelocityChanged(double systemVelocity)
+{
+	if(!systemVelocityValue_->withinTolerance(systemVelocity)) {
+		systemVelocityValue_->move(systemVelocity);
 	}
 }
 
@@ -197,9 +209,9 @@ void AMPIC887EpicsCoordinator::onMotionFailed()
 
 void AMPIC887EpicsCoordinator::onXAxisSetpointChanged(double setpoint)
 {
-	if(xAxisInitialMovement_)
+	if(xAxisInitialMovement_) {
 		xAxisInitialMovement_ = false;
-	else{
+	} else {
 		qDebug() << "X setpoint to " << setpoint;
 		AMPIC887AxisMap<double> newPosition;
 		newPosition.insert(AMGCS2::XAxis, setpoint);
@@ -209,9 +221,9 @@ void AMPIC887EpicsCoordinator::onXAxisSetpointChanged(double setpoint)
 
 void AMPIC887EpicsCoordinator::onYAxisSetpointChanged(double setpoint)
 {
-	if(yAxisInitialMovement_)
+	if(yAxisInitialMovement_) {
 		yAxisInitialMovement_ = false;
-	else{
+	} else {
 		qDebug() << "Y setpoint to " << setpoint;
 		AMPIC887AxisMap<double> newPosition;
 		newPosition.insert(AMGCS2::YAxis, setpoint);
@@ -221,9 +233,9 @@ void AMPIC887EpicsCoordinator::onYAxisSetpointChanged(double setpoint)
 
 void AMPIC887EpicsCoordinator::onZAxisSetpointChanged(double setpoint)
 {
-	if(zAxisInitialMovement_)
+	if(zAxisInitialMovement_) {
 		zAxisInitialMovement_ = false;
-	else{
+	} else {
 		qDebug() << "Z setpoint to " << setpoint;
 		AMPIC887AxisMap<double> newPosition;
 		newPosition.insert(AMGCS2::ZAxis, setpoint);
@@ -233,9 +245,9 @@ void AMPIC887EpicsCoordinator::onZAxisSetpointChanged(double setpoint)
 
 void AMPIC887EpicsCoordinator::onUAxisSetpointChanged(double setpoint)
 {
-	if(uAxisInitialMovement_)
+	if(uAxisInitialMovement_) {
 		uAxisInitialMovement_ = false;
-	else{
+	} else {
 		qDebug() << "U setpoint to " << setpoint;
 		AMPIC887AxisMap<double> newPosition;
 		newPosition.insert(AMGCS2::UAxis, setpoint);
@@ -245,9 +257,9 @@ void AMPIC887EpicsCoordinator::onUAxisSetpointChanged(double setpoint)
 
 void AMPIC887EpicsCoordinator::onVAxisSetpointChanged(double setpoint)
 {
-	if(vAxisInitialMovement_)
+	if(vAxisInitialMovement_) {
 		vAxisInitialMovement_ = false;
-	else{
+	} else {
 		qDebug() << "V setpoint to " << setpoint;
 		AMPIC887AxisMap<double> newPosition;
 		newPosition.insert(AMGCS2::VAxis, setpoint);
@@ -257,13 +269,40 @@ void AMPIC887EpicsCoordinator::onVAxisSetpointChanged(double setpoint)
 
 void AMPIC887EpicsCoordinator::onWAxisSetpointChanged(double setpoint)
 {
-	if(wAxisInitialMovement_)
+	if(wAxisInitialMovement_) {
 		wAxisInitialMovement_ = false;
-	else{
+	} else {
 		qDebug() << "W setpoint to " << setpoint;
 		AMPIC887AxisMap<double> newPosition;
 		newPosition.insert(AMGCS2::WAxis, setpoint);
 		controller_->move(newPosition);
+	}
+}
+
+
+void AMPIC887EpicsCoordinator::onSystemVelocitySetpointChanged(double value)
+{
+	if(systemVelocityInitialMovement_) {
+		systemVelocityInitialMovement_ = false;
+	} else {
+
+		if(controller_->setSystemVelocity(value)) {
+			qDebug() << "System velocity set to " << value;
+		} else {
+			qDebug() << "Failed to set system velocity to " << value;
+		}
+	}
+}
+
+void AMPIC887EpicsCoordinator::onStopAll(double)
+{
+	if(stopAll_->withinTolerance(1.0)) {
+		controller_->stop();
+		stopAll_->move(0.0);
+	}
+
+	if(!stopAll_->withinTolerance(0.0)) {
+		stopAll_->move(0.0);
 	}
 }
 
@@ -401,7 +440,20 @@ void AMPIC887EpicsCoordinator::onAllConnected(bool connectedState)
 				qDebug() << "Initialization: Setting w Axis status to move done";
 				wAxisStatus_->move(0);
 			}
+
+			// Initialize system velocity
+			if(!systemVelocityValue_->withinTolerance(controller_->systemVelocity())) {
+				qDebug() << "Initialization: Setting system velocity to " << controller_->systemVelocity();
+				systemVelocityValue_->move(controller_->systemVelocity());
+			}
+
+			if(!systemVelocitySetpoint_->withinTolerance(controller_->systemVelocity())) {
+				systemVelocityInitialMovement_ = true;
+				qDebug() << "Initialization: Setting system velocity setpoint to " << controller_->systemVelocity();
+				systemVelocitySetpoint_->move(controller_->systemVelocity());
+			}
 		}
+
 		connect(xAxisSetpoint_, SIGNAL(valueChanged(double)), this, SLOT(onXAxisSetpointChanged(double)));
 		connect(yAxisSetpoint_, SIGNAL(valueChanged(double)), this, SLOT(onYAxisSetpointChanged(double)));
 		connect(zAxisSetpoint_, SIGNAL(valueChanged(double)), this, SLOT(onZAxisSetpointChanged(double)));
@@ -409,26 +461,18 @@ void AMPIC887EpicsCoordinator::onAllConnected(bool connectedState)
 		connect(vAxisSetpoint_, SIGNAL(valueChanged(double)), this, SLOT(onVAxisSetpointChanged(double)));
 		connect(wAxisSetpoint_, SIGNAL(valueChanged(double)), this, SLOT(onWAxisSetpointChanged(double)));
 
+		connect(systemVelocitySetpoint_, SIGNAL(valueChanged(double)), this, SLOT(onSystemVelocitySetpointChanged(double)));
 		connect(stopAll_, SIGNAL(valueChanged(double)), this, SLOT(onStopAll(double)));
 
 		connect(controller_, SIGNAL(moveStarted(AMGCS2::AxisMovementStatuses)), this, SLOT(onMotionStartedChanged(AMGCS2::AxisMovementStatuses)));
 		connect(controller_, SIGNAL(moveFailed()), this, SLOT(onMotionFailed()));
 		connect(controller_, SIGNAL(moveComplete()), this, SLOT(onMotionCompleted()));
 		connect(controller_, SIGNAL(positionUpdate(AMPIC887AxisMap<double>)), this, SLOT(onPositionUpdate(AMPIC887AxisMap<double>)));
+		connect(controller_, SIGNAL(systemVelocityChanged(double)), this, SLOT(onSystemVelocityChanged(double)));
 	}
 }
 
-void AMPIC887EpicsCoordinator::onStopAll(double)
-{
-	if(stopAll_->withinTolerance(1.0)) {
-		controller_->stop();
-		stopAll_->move(0.0);
-	}
 
-	if(!stopAll_->withinTolerance(0.0)) {
-		stopAll_->move(0.0);
-	}
-}
 
 
 

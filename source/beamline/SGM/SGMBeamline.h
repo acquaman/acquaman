@@ -68,6 +68,11 @@ public:
 	AMControl* grating() const;
 
 	/*!
+	  * The control for the hexapod velocity
+	  */
+	AMControl* hexapodVelocity() const;
+
+	/*!
 	  * The motor which controls the sample stage X position.
 	  */
 	SGMMAXvMotor* ssaManipulatorX() const;
@@ -146,6 +151,8 @@ protected:
 	AMControl* hexapodXAxis_;
 	AMControl* hexapodYAxis_;
 	AMControl* hexapodZAxis_;
+
+	AMControl* hexapodVelocity_;
 
 	AMMotorGroup *sampleManipulatorsMotorGroup_;
 

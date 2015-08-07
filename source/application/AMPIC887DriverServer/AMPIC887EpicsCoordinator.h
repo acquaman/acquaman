@@ -17,6 +17,7 @@ signals:
 public slots:
 protected slots:
 	void onPositionUpdate(const AMPIC887AxisMap<double>& newPositions);
+	void onSystemVelocityChanged(double systemVelocity);
 	void onMotionStartedChanged(AMGCS2::AxisMovementStatuses movementStatuses);
 	void onMotionCompleted();
 	void onMotionFailed();
@@ -26,8 +27,9 @@ protected slots:
 	void onUAxisSetpointChanged(double setpoint);
 	void onVAxisSetpointChanged(double setpoint);
 	void onWAxisSetpointChanged(double setpoint);
-	void onAllConnected(bool connectedState);
+	void onSystemVelocitySetpointChanged(double value);
 	void onStopAll(double stopAllValue);
+	void onAllConnected(bool connectedState);
 protected:
 	AMControlSet* allControls_;
 	AMControl* xAxisValue_;
@@ -54,6 +56,8 @@ protected:
 	AMControl* wAxisSetpoint_;
 	AMControl* wAxisStatus_;
 
+	AMControl* systemVelocityValue_;
+	AMControl* systemVelocitySetpoint_;
 
 	AMControl* stopAll_;
 	bool connectedOnce_;
@@ -65,6 +69,7 @@ protected:
 	bool uAxisInitialMovement_;
 	bool vAxisInitialMovement_;
 	bool wAxisInitialMovement_;
+	bool systemVelocityInitialMovement_;
 };
 
 #endif // AMPIC887EPICSCOORDINATOR_H
