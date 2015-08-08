@@ -58,40 +58,10 @@ void AMGithubProjectManagerMainView::onInitiateButtonClicked(){
 //	removeOneLabelAction->start();
 //	return;
 
-
-	openIssuesToFix_ << "354"<< "355"<< "484"<< "513"<< "561"<< "566"<< "569"<< "570"<< "580"<< "581"<< "582"<< "638"<< "652"<< "657"<< "671"<< "686"<< "699"<< "717"<< "722"<< "726"<< "727"<< "761"<< "796"<< "831"<< "847"<< "859"<< "875"<< "891"<< "896"<< "916"<< "918"<< "919"<< "920"<< "936"<< "976"<< "1015"<< "1028"<< "1029"<< "1030"<< "1033"<< "1037"<< "1048"<< "1053"<< "1082"<< "1087"<< "1088"<< "1089"<< "1094"<< "1108"<< "1109"<< "1115"<< "1123"<< "1126"<< "1143"<< "1156"<< "1158"<< "1159"<< "1185"<< "1191"<< "1225"<< "1230"<< "1238"<< "1245"<< "1268"<< "1278"<< "1282"<< "1340"<< "1345"<< "1399"<< "1412"<< "1413"<< "1417"<< "1423"<< "1424"<< "1435"<< "1445"<< "1451"<< "1452"<< "1453"<< "1462"<< "1464"<< "1465";
-	openIssueComplexitiesToFix_ << "Complexity8"<< "Complexity13"<< "Complexity8"<< "Complexity8"<< "Complexity8"<< "Complexity13"<< "Complexity8"<< "Complexity8"<< "Complexity8"<< "Complexity5"<< "Complexity5"<< "Complexity8"<< "Complexity5"<< "Complexity8"<< "Complexity13"<< "Complexity8"<< "Complexity8"<< "Complexity8"<< "Complexity8"<< "Complexity13"<< "Complexity8"<< "Complexity5"<< "Complexity13"<< "Complexity8"<< "Complexity5"<< "Complexity8"<< "Complexity3"<< "Complexity8"<< "Complexity5"<< "Complexity3"<< "Complexity5"<< "Complexity8"<< "Complexity5"<< "Complexity8"<< "Complexity8"<< "Complexity3"<< "Complexity8"<< "Complexity13"<< "Complexity8"<< "Complexity8"<< "Complexity5"<< "Complexity5"<< "Complexity3"<< "Complexity3"<< "Complexity5"<< "Complexity5"<< "Complexity13"<< "Complexity5"<< "Complexity13"<< "Complexity8"<< "Complexity5"<< "Complexity8"<< "Complexity13"<< "Complexity5"<< "Complexity3"<< "Complexity5"<< "Complexity3"<< "Complexity3"<< "Complexity8"<< "Complexity5"<< "Complexity5"<< "Complexity8"<< "Complexity13"<< "Complexity3"<< "Complexity8"<< "Complexity3"<< "Complexity5"<< "Complexity8"<< "Complexity5"<< "Complexity5"<< "Complexity5"<< "Complexity5"<< "Complexity8"<< "Complexity5"<< "Complexity8"<< "Complexity5"<< "Complexity5"<< "Complexity5"<< "Complexity8"<< "Complexity13"<< "Complexity13"<< "Complexity8";
-
-//	openIssuesToFix_ << "50" << "53" << "262";
-//	openIssueComplexitiesToFix_ << "Complexity21"<< "Complexity5" << "Complexity8";
-
-	if(!openIssuesToFix_.isEmpty()){
-		QString removeLabelString = QString("https://api.github.com/repos/%1/%2/issues/%3/labels/%4").arg("acquaman").arg("acquaman").arg(openIssuesToFix_.takeFirst()).arg(openIssueComplexitiesToFix_.takeFirst());
-		qDebug() << "Fixing " << removeLabelString;
-		AMRestActionInfo *removeOneLabelActionInfo = new AMRestActionInfo(removeLabelString, AMRestActionInfo::DeleteRequest);
-		removeOneLabelActionInfo->setRawHeader("Authorization", headerData_.toLocal8Bit());
-		AMRestAction *removeOneLabelAction = new AMRestAction(removeOneLabelActionInfo, manager_);
-		connect(removeOneLabelAction, SIGNAL(succeeded()), this, SLOT(onOneComplexityLabelFixed()));
-		removeOneLabelAction->start();
-	}
-
-//	AMGitHubGetIssuesActionInfo *getAllIssuesActionInfo = new AMGitHubGetIssuesActionInfo("acquaman", "acquaman", AMGitHubGetIssuesActionInfo::AllIssues);
-//	AMGitHubGetIssuesAction *getAllIssuesAction = new AMGitHubGetIssuesAction(getAllIssuesActionInfo, manager_, headerData_, &allIssues_, &allMilestones_);
-//	connect(getAllIssuesAction, SIGNAL(succeeded()), this, SLOT(onGetAllIssuesActionSucceeded()));
-//	getAllIssuesAction->start();
-}
-
-void AMGithubProjectManagerMainView::onOneComplexityLabelFixed()
-{
-	if(!openIssuesToFix_.isEmpty()){
-		QString removeLabelString = QString("https://api.github.com/repos/%1/%2/issues/%3/labels/%4").arg("acquaman").arg("acquaman").arg(openIssuesToFix_.takeFirst()).arg(openIssueComplexitiesToFix_.takeFirst());
-		qDebug() << "Fixing " << removeLabelString;
-		AMRestActionInfo *removeOneLabelActionInfo = new AMRestActionInfo(removeLabelString, AMRestActionInfo::DeleteRequest);
-		removeOneLabelActionInfo->setRawHeader("Authorization", headerData_.toLocal8Bit());
-		AMRestAction *removeOneLabelAction = new AMRestAction(removeOneLabelActionInfo, manager_);
-		connect(removeOneLabelAction, SIGNAL(succeeded()), this, SLOT(onOneComplexityLabelFixed()));
-		removeOneLabelAction->start();
-	}
+	AMGitHubGetIssuesActionInfo *getAllIssuesActionInfo = new AMGitHubGetIssuesActionInfo("acquaman", "acquaman", AMGitHubGetIssuesActionInfo::AllIssues);
+	AMGitHubGetIssuesAction *getAllIssuesAction = new AMGitHubGetIssuesAction(getAllIssuesActionInfo, manager_, headerData_, &allIssues_, &allMilestones_);
+	connect(getAllIssuesAction, SIGNAL(succeeded()), this, SLOT(onGetAllIssuesActionSucceeded()));
+	getAllIssuesAction->start();
 }
 
 void AMGithubProjectManagerMainView::onGetAllIssuesActionSucceeded()
@@ -149,7 +119,8 @@ void AMGithubProjectManagerMainView::onGetAllZenhubEstimatesSucceeded()
 
 	QMap<int, AMGitHubIssue*>::const_iterator h = allIssues_.constBegin();
 	while(h != allIssues_.constEnd()){
-		if(!h.value()->isPullRequest() && !h.value()->projectTrackingDisabled() && (h.value()->createdDate() < QDateTime::fromString("2015-07-06", "yyyy-MM-dd")) ){
+//		if(!h.value()->isPullRequest() && !h.value()->projectTrackingDisabled() && (h.value()->createdDate() < QDateTime::fromString("2015-07-31", "yyyy-MM-dd")) ){
+		if(!h.value()->isPullRequest() && !h.value()->projectTrackingDisabled() && (h.value()->createdDate() < QDateTime::fromString("2015-07-05", "yyyy-MM-dd")) ){
 			allTrackableIssuesWithinRange.append(h.value()->issueNumber());
 
 			if((h.value()->complexityValue() == AMGitHubIssue::InvalidComplexity) && h.value()->isClosed())
@@ -173,7 +144,7 @@ void AMGithubProjectManagerMainView::onGetAllZenhubEstimatesSucceeded()
 	qDebug() << "Good Issues: " << goodIssues.count();
 	qDebug() << "Closed Missing label: " << closedMissingComplexityLabel.count();
 	qDebug() << "Open Missing label AND Estimate: " << openMissingComplexityLabelAndEstimate.count();
-	qDebug() << "Open Missing label Has Estimate: " << openMissingComplexityLabelHasEstimate.count();
+	qDebug() << "GOOD ONES: " << openMissingComplexityLabelHasEstimate.count();
 	qDebug() << "Mismatches: " << complexityMismatches.count();
 	qDebug() << "Missing Zenhub estimate: " << missingZenhubEstimate.count();
 
@@ -182,7 +153,7 @@ void AMGithubProjectManagerMainView::onGetAllZenhubEstimatesSucceeded()
 	qDebug() << "\n\nGood Issues: " << goodIssues;
 	qDebug() << "\n\nClosed Missing label: " << closedMissingComplexityLabel;
 	qDebug() << "\n\nOpen Missing label AND Estimate: " << openMissingComplexityLabelAndEstimate;
-	qDebug() << "\n\nOpen Missing label has Estimate: " << openMissingComplexityLabelHasEstimate;
+	qDebug() << "\n\nGOOD ONES: " << openMissingComplexityLabelHasEstimate;
 	qDebug() << "\n\nMismatches: " << complexityMismatches;
 	qDebug() << "\n\nMissing Zenhub estimate: " << missingZenhubEstimate;
 
@@ -212,9 +183,11 @@ void AMGithubProjectManagerMainView::onGetAllZenhubEstimatesSucceeded()
 	}
 
 	QMap<int, AMGitHubIssueFamily*> recentIssueFamilies;
+	QMap<int, AMGitHubIssueFamily*> openGoodIssueFamilies;
 	QMap<int, AMGitHubIssueFamily*> openUnestimatedIssueFamilies;
 	QMap<int, AMGitHubIssueFamily*> openMatchingIssueFamilies;
 	QMap<int, AMGitHubIssueFamily*> openMismatchedIssueFamilies;
+	QMap<int, AMGitHubIssueFamily*> finalizedIssueFamilies;
 	QMap<int, AMGitHubIssueFamily*> completeIssueFamilies;
 	QMap<int, AMGitHubIssueFamily*> missingActualComplexityIssueFamilies;
 	QMap<int, AMGitHubIssueFamily*> missingPullRequestIssueFamilies;
@@ -225,14 +198,21 @@ void AMGithubProjectManagerMainView::onGetAllZenhubEstimatesSucceeded()
 		AMGitHubIssue *originatingIssue = k.value()->originatingIssue();
 		AMGitHubIssue *pullRequestIssue = k.value()->pullRequestIssue();
 
+//		if(originatingIssue->createdDate() > QDateTime::fromString("2015-07-31", "yyyy-MM-dd"))
 		if(originatingIssue->createdDate() > QDateTime::fromString("2015-07-05", "yyyy-MM-dd"))
 			recentIssueFamilies.insert(originatingIssue->issueNumber(), k.value());
+		else if(originatingIssue->isOpen() && (originatingIssue->complexityValue() == AMGitHubIssue::InvalidComplexity) && (originatingIssue->zenhubComplexityValue() != AMGitHubIssue::ZenhubComplexityInvalid) )
+			openGoodIssueFamilies.insert(originatingIssue->issueNumber(), k.value());
 		else if(originatingIssue->isOpen() && (originatingIssue->complexityValue() == AMGitHubIssue::InvalidComplexity) && (originatingIssue->zenhubComplexityValue() == AMGitHubIssue::ZenhubComplexityInvalid) )
 			openUnestimatedIssueFamilies.insert(originatingIssue->issueNumber(), k.value());
 		else if(originatingIssue->isOpen() && (AMGitHubIssue::integerFromComplexity(originatingIssue->complexityValue()) == AMGitHubIssue::integerFromZenhubComplexityValue(originatingIssue->zenhubComplexityValue())) )
 			openMatchingIssueFamilies.insert(originatingIssue->issueNumber(), k.value());
 		else if(originatingIssue->isOpen())
 			openMismatchedIssueFamilies.insert(originatingIssue->issueNumber(), k.value());
+		else if(originatingIssue && originatingIssue->inlineIssue() && (originatingIssue->complexityValue() != AMGitHubIssue::InvalidComplexity) && (originatingIssue->zenhubComplexityValue() != AMGitHubIssue::ZenhubComplexityInvalid))
+			finalizedIssueFamilies.insert(originatingIssue->issueNumber(), k.value());
+		else if(originatingIssue && pullRequestIssue && (originatingIssue->complexityValue() != AMGitHubIssue::InvalidComplexity) && (originatingIssue->zenhubComplexityValue() != AMGitHubIssue::ZenhubComplexityInvalid) && (pullRequestIssue->projectTrackingDisabled()))
+			finalizedIssueFamilies.insert(originatingIssue->issueNumber(), k.value());
 		else if(originatingIssue && pullRequestIssue && (originatingIssue->complexityValue() != AMGitHubIssue::InvalidComplexity) && (originatingIssue->zenhubComplexityValue() != AMGitHubIssue::ZenhubComplexityInvalid) && (pullRequestIssue->complexityValue() != AMGitHubIssue::InvalidComplexity))
 			completeIssueFamilies.insert(originatingIssue->issueNumber(), k.value());
 		else if(originatingIssue && pullRequestIssue && (originatingIssue->complexityValue() != AMGitHubIssue::InvalidComplexity) && (originatingIssue->zenhubComplexityValue() != AMGitHubIssue::ZenhubComplexityInvalid) && (pullRequestIssue->complexityValue() == AMGitHubIssue::InvalidComplexity))
@@ -242,32 +222,16 @@ void AMGithubProjectManagerMainView::onGetAllZenhubEstimatesSucceeded()
 		else
 			allOtherIssueFamilies.insert(originatingIssue->issueNumber(), k.value());
 
-//		QString debugString;
-//		if(pullRequestIssue){
-//			debugString = QString("%1 (%2) %3 - %4 (%5)")
-//					.arg(originatingIssue->issueNumber())
-//					.arg(pullRequestIssue->issueNumber())
-//					.arg(AMGitHubIssue::integerFromComplexity(k.value()->estimatedComplexity()))
-//					.arg(AMGitHubIssue::integerFromZenhubComplexityValue(originatingIssue->zenhubComplexityValue()))
-//					.arg(AMGitHubIssue::integerFromComplexity(k.value()->actualComplexity()));
-//		}
-//		else{
-//			debugString = QString("%1 (xxx) %2 - %3 (xxx)")
-//					.arg(originatingIssue->issueNumber())
-//					.arg(AMGitHubIssue::integerFromComplexity(k.value()->estimatedComplexity()))
-//					.arg(AMGitHubIssue::integerFromZenhubComplexityValue(originatingIssue->zenhubComplexityValue()));
-//		}
-
-//		qDebug() << debugString;
-
 		k++;
 	}
 
 	qDebug() << "Total Families: " << allIssueFamilies_.count();
 	qDebug() << "Recent Families: " << recentIssueFamilies.count();
+	qDebug() << "Open GOOD Families: " << openGoodIssueFamilies.count();
 	qDebug() << "Open Unestimated Families: " << openUnestimatedIssueFamilies.count();
 	qDebug() << "Open Matching Families: " << openMatchingIssueFamilies.count();
 	qDebug() << "Open Mismatched Families: " << openMismatchedIssueFamilies.count();
+	qDebug() << "Finalized Families: " << finalizedIssueFamilies.count();
 	qDebug() << "Complete Families: " << completeIssueFamilies.count();
 	qDebug() << "Missing Actual Complexity Families: " << missingActualComplexityIssueFamilies.count();
 	qDebug() << "Missing Pull Request Families: " << missingPullRequestIssueFamilies.count();
@@ -279,6 +243,20 @@ void AMGithubProjectManagerMainView::onGetAllZenhubEstimatesSucceeded()
 //		qDebug() << ka.key() << ka.value()->originatingIssue()->createdDate().toString("yyyy-MM-dd");
 //		ka++;
 //	}
+
+	qDebug() << "\n\nOPEN GOOD";
+	QMap<int, AMGitHubIssueFamily*>::const_iterator ka = openGoodIssueFamilies.constBegin();
+	while(ka != openGoodIssueFamilies.constEnd()){
+		qDebug() << ka.key() << AMGitHubIssue::integerFromZenhubComplexityValue(ka.value()->originatingIssue()->zenhubComplexityValue());
+		ka++;
+	}
+
+	qDebug() << "\n\nOPEN UNESTIMATED";
+	QMap<int, AMGitHubIssueFamily*>::const_iterator kw = openUnestimatedIssueFamilies.constBegin();
+	while(kw != openUnestimatedIssueFamilies.constEnd()){
+		qDebug() << kw.key();
+		kw++;
+	}
 
 	qDebug() << "\n\nOPEN MATCHING";
 	QStringList openMatchingFamiliesList;
@@ -298,6 +276,19 @@ void AMGithubProjectManagerMainView::onGetAllZenhubEstimatesSucceeded()
 	while(kq != openMismatchedIssueFamilies.constEnd()){
 		qDebug() << kq.key() << AMGitHubIssue::integerFromComplexity(kq.value()->originatingIssue()->complexityValue()) << AMGitHubIssue::integerFromZenhubComplexityValue(kq.value()->originatingIssue()->zenhubComplexityValue());
 		kq++;
+	}
+
+	qDebug() << "\n\nFINALIZED";
+	QMap<int, AMGitHubIssueFamily*>::const_iterator kz = finalizedIssueFamilies.constBegin();
+	while(kz != finalizedIssueFamilies.constEnd()){
+		QString debugString = QString("%1 (%2) %3 - %4 (%5)")
+				.arg(kz.key())
+				.arg(kz.value()->pullRequestIssueNumber())
+				.arg(AMGitHubIssue::integerFromZenhubComplexityValue(kz.value()->originatingIssue()->zenhubComplexityValue()))
+				.arg(AMGitHubIssue::integerFromZenhubComplexityValue(kz.value()->originatingIssue()->zenhubComplexityValue()))
+				.arg(AMGitHubIssue::integerFromComplexity(kz.value()->originatingIssue()->complexityValue()));
+		qDebug() << debugString;
+		kz++;
 	}
 
 	qDebug() << "\n\nCOMPLETE";
@@ -344,7 +335,55 @@ void AMGithubProjectManagerMainView::onGetAllZenhubEstimatesSucceeded()
 		kf++;
 	}
 
+
+	qDebug() << "\n\nFinalizing...";
+//	int finalizingCounter = 0;
+	QMap<int, AMGitHubIssueFamily*>::const_iterator kt = completeIssueFamilies.constBegin();
+	while(kt != completeIssueFamilies.constEnd()){
+		AMGitHubIssueFamily *oneIssueFamily = kt.value();
+		if(!oneIssueFamily->originatingIssue()->inlineIssue()){
+//			AMGitHubUpdateCompletedIssueFamily *oneUpdate = new AMGitHubUpdateCompletedIssueFamily(oneIssueFamily, manager_, headerData_);
+//			oneUpdate->start();
+			familiesToFinalize_.append(oneIssueFamily);
+		}
+
+		kt++;
+//		finalizingCounter++;
+//		if(finalizingCounter > 5){
+//			qDebug() << "Done 5, let's check on that shiatzu";
+//			return;
+//		}
+	}
+
+	finalizingCounter_ = 0;
+	onOneFamilyFinalized();
+
+//	if(completeIssueFamilies.contains(348)){
+//		AMGitHubIssueFamily *oneIssueFamily = completeIssueFamilies.value(348);
+//		qDebug() << "Found complete issue " << oneIssueFamily->originatingIssue()->issueNumber() << oneIssueFamily->pullRequestIssue()->issueNumber();
+
+//		AMGitHubUpdateCompletedIssueFamily *oneUpdate = new AMGitHubUpdateCompletedIssueFamily(oneIssueFamily, manager_, headerData_);
+//		oneUpdate->start();
+//	}
+//	else{
+//		qDebug() << "348 is NOT in the completed families";
+//	}
+
 	return;
+}
+
+void AMGithubProjectManagerMainView::onOneFamilyFinalized()
+{
+//	if(finalizingCounter_ > 15){
+//		qDebug() << "Done 15, let's check them over";
+//		return;
+//	}
+	if(familiesToFinalize_.count() > 0){
+		AMGitHubUpdateCompletedIssueFamily *oneUpdate = new AMGitHubUpdateCompletedIssueFamily(familiesToFinalize_.takeFirst(), manager_, headerData_);
+		connect(oneUpdate, SIGNAL(updated()), this, SLOT(onOneFamilyFinalized()));
+		oneUpdate->start();
+		finalizingCounter_++;
+	}
 }
 
 void AMGithubProjectManagerMainView::onOneZenhubEstimateUpdateSucceeded()
@@ -937,4 +976,84 @@ void AMGithubProjectManagerMainView::onGetOneIssueEventsReturned(QVariant fullRe
 		j++;
 	}
 	*/
+}
+
+
+AMGitHubUpdateCompletedIssueFamily::AMGitHubUpdateCompletedIssueFamily(AMGitHubIssueFamily *issueFamily, QNetworkAccessManager *manager, const QString &headerData, QObject *parent) :
+	QObject(parent)
+{
+	issueFamily_ = issueFamily;
+	initialIssueComplexityLabel_ = issueFamily_->originatingIssue()->complexityValue();
+	initialIssueZenhubComplexity_ = issueFamily->originatingIssue()->zenhubComplexityValue();
+	initialPullRequestComplexityLabel_ = issueFamily_->pullRequestIssue()->complexityValue();
+
+	manager_ = manager;
+	headerData_ = headerData;
+}
+
+void AMGitHubUpdateCompletedIssueFamily::start()
+{
+	QString removeLabelString = QString("https://api.github.com/repos/%1/%2/issues/%3/labels/%4").arg("acquaman").arg("acquaman").arg(issueFamily_->originatingIssue()->issueNumber()).arg(AMGitHubIssue::stringFromComplexity(issueFamily_->originatingIssue()->complexityValue()));
+	AMRestActionInfo *removeOneLabelActionInfo = new AMRestActionInfo(removeLabelString, AMRestActionInfo::DeleteRequest);
+	removeOneLabelActionInfo->setRawHeader("Authorization", headerData_.toLocal8Bit());
+	AMRestAction *removeOneLabelAction = new AMRestAction(removeOneLabelActionInfo, manager_);
+	connect(removeOneLabelAction, SIGNAL(succeeded()), this, SLOT(onRemoveInitialComplexityLabelSucceeded()));
+	removeOneLabelAction->start();
+}
+
+#include "qjson/serializer.h"
+#include "qjson/parser.h"
+
+void AMGitHubUpdateCompletedIssueFamily::onRemoveInitialComplexityLabelSucceeded()
+{
+	qDebug() << "Succeeded removing originating issue complexity label for " << issueFamily_->originatingIssue()->issueNumber();
+
+	QVariantList jdata;
+	jdata.append(QString(AMGitHubIssue::stringFromComplexity(issueFamily_->pullRequestIssue()->complexityValue())));
+	QJson::Serializer jserializer;
+	QByteArray jsonData = jserializer.serialize(jdata);
+
+	QString replaceLabelString = QString("https://api.github.com/repos/%1/%2/issues/%3/labels").arg("acquaman").arg("acquaman").arg(issueFamily_->originatingIssue()->issueNumber());
+	AMRestActionInfo *replaceLabelActionInfo = new AMRestActionInfo(replaceLabelString, AMRestActionInfo::PostRequest, AMRestActionInfo::JSONContent, jsonData);
+	replaceLabelActionInfo->setRawHeader("Authorization", headerData_.toLocal8Bit());
+
+	AMRestAction *replaceLabelAction = new AMRestAction(replaceLabelActionInfo, manager_);
+	connect(replaceLabelAction, SIGNAL(succeeded()), this, SLOT(onUpdateComplexityLabelSucceeded()));
+	replaceLabelAction->start();
+}
+
+void AMGitHubUpdateCompletedIssueFamily::onUpdateComplexityLabelSucceeded()
+{
+	qDebug() << "Succeeded updating originating issue complexity label for " << issueFamily_->originatingIssue()->issueNumber();
+
+	QString removeLabelString = QString("https://api.github.com/repos/%1/%2/issues/%3/labels/%4").arg("acquaman").arg("acquaman").arg(issueFamily_->pullRequestIssue()->issueNumber()).arg(AMGitHubIssue::stringFromComplexity(issueFamily_->pullRequestIssue()->complexityValue()));
+	AMRestActionInfo *removeOneLabelActionInfo = new AMRestActionInfo(removeLabelString, AMRestActionInfo::DeleteRequest);
+	removeOneLabelActionInfo->setRawHeader("Authorization", headerData_.toLocal8Bit());
+	AMRestAction *removeOneLabelAction = new AMRestAction(removeOneLabelActionInfo, manager_);
+	connect(removeOneLabelAction, SIGNAL(succeeded()), this, SLOT(onRemovePullRequestComplexityLabelSucceeded()));
+	removeOneLabelAction->start();
+}
+
+void AMGitHubUpdateCompletedIssueFamily::onRemovePullRequestComplexityLabelSucceeded()
+{
+	qDebug() << "Succeeded removing pull request issue complexity label for " << issueFamily_->originatingIssue()->issueNumber();
+
+	QVariantList jdata;
+	jdata.append(QString("Project Tracking Disabled"));
+	QJson::Serializer jserializer;
+	QByteArray jsonData = jserializer.serialize(jdata);
+
+	QString replaceLabelString = QString("https://api.github.com/repos/%1/%2/issues/%3/labels").arg("acquaman").arg("acquaman").arg(issueFamily_->pullRequestIssue()->issueNumber());
+	AMRestActionInfo *replaceLabelActionInfo = new AMRestActionInfo(replaceLabelString, AMRestActionInfo::PostRequest, AMRestActionInfo::JSONContent, jsonData);
+	replaceLabelActionInfo->setRawHeader("Authorization", headerData_.toLocal8Bit());
+
+	AMRestAction *replaceLabelAction = new AMRestAction(replaceLabelActionInfo, manager_);
+	connect(replaceLabelAction, SIGNAL(succeeded()), this, SLOT(onUpdatePullRequestLabelSucceeded()));
+	replaceLabelAction->start();
+}
+
+void AMGitHubUpdateCompletedIssueFamily::onUpdatePullRequestLabelSucceeded()
+{
+	qDebug() << "Succeeded in updating issue family for " << issueFamily_->originatingIssue()->issueNumber() << issueFamily_->pullRequestIssue()->issueNumber();
+	emit updated();
 }

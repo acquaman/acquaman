@@ -9,10 +9,11 @@ class QLineEdit;
 class QNetworkAccessManager;
 class AMControlButton;
 class AMRestAction;
-class AMGitHubIssue;
+//class AMGitHubIssue;
 class AMGitHubIssueFamily;
 class AMGitHubMilestone;
 
+#include "AMGitHubIssue.h"
 
 class AMGithubProjectManagerMainView : public QWidget
 {
@@ -25,11 +26,11 @@ public:
 protected slots:
 	void onInitiateButtonClicked();
 
-	void onOneComplexityLabelFixed();
-
 	void onGetAllIssuesActionSucceeded();
 	void onGetAllCommentsActionSucceeded();
 	void onGetAllZenhubEstimatesSucceeded();
+
+	void onOneFamilyFinalized();
 
 	void onOneZenhubEstimateUpdateSucceeded();
 
@@ -54,6 +55,37 @@ protected:
 
 	QStringList openIssuesToFix_;
 	QStringList openIssueComplexitiesToFix_;
+
+	QList<AMGitHubIssueFamily*> familiesToFinalize_;
+	int finalizingCounter_;
+};
+
+class AMGitHubUpdateCompletedIssueFamily : public QObject
+{
+Q_OBJECT
+public:
+	AMGitHubUpdateCompletedIssueFamily(AMGitHubIssueFamily *issueFamily, QNetworkAccessManager *manager, const QString &headerData, QObject *parent = 0);
+
+public slots:
+	void start();
+
+signals:
+	void updated();
+
+protected slots:
+	void onRemoveInitialComplexityLabelSucceeded();
+	void onUpdateComplexityLabelSucceeded();
+	void onRemovePullRequestComplexityLabelSucceeded();
+	void onUpdatePullRequestLabelSucceeded();
+
+protected:
+	AMGitHubIssueFamily *issueFamily_;
+	AMGitHubIssue::ComplexityValue initialIssueComplexityLabel_;
+	AMGitHubIssue::ZenhubComplexityValue initialIssueZenhubComplexity_;
+	AMGitHubIssue::ComplexityValue initialPullRequestComplexityLabel_;
+
+	QNetworkAccessManager *manager_;
+	QString headerData_;
 };
 
 #endif // AMGITHUBPROJECTMANAGERMAINVIEW_H
