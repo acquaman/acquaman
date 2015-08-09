@@ -24,8 +24,8 @@ public:
 	AMGitHubIssue* originatingIssue() const { return originatingIssue_; }
 	AMGitHubIssue* pullRequestIssue() const { return pullRequestIssue_; }
 
-	AMGitHubIssue::ComplexityValue estimatedComplexity() const;
-	AMGitHubIssue::ComplexityValue actualComplexity() const;
+	AMGitHubIssue::ActualComplexityValue estimatedComplexity() const;
+	AMGitHubIssue::ActualComplexityValue actualComplexity() const;
 
 	QString timeEstimate() const;
 

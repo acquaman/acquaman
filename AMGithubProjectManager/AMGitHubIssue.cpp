@@ -1,12 +1,14 @@
 #include "AMGitHubIssue.h"
 
+#include <QRegExp>
+
 #include <QDebug>
 
 AMGitHubIssue::AMGitHubIssue(QVariantMap jsonMap, QObject *parent) :
 	QObject(parent)
 {
 	issueNumber_ = -1;
-	complexityValue_ = AMGitHubIssue::InvalidComplexity;
+	actualComplexityValue_ = AMGitHubIssue::ActualComplexityInvalid;
 	title_ = "Invalid Title";
 	isPullRequest_ = false;
 	originatingIssue_ = 0;
@@ -19,7 +21,8 @@ AMGitHubIssue::AMGitHubIssue(QVariantMap jsonMap, QObject *parent) :
 	projectTrackingDisabled_ = false;
 	inlineIssue_ = false;
 	issueState_ = AMGitHubIssue::InvalidState;
-	zenhubComplexityValue_ = AMGitHubIssue::ZenhubComplexityInvalid;
+	complexityMapping_ = 0;
+	estimatedComplexityValue_ = AMGitHubIssue::EstimatedComplexityInvalid;
 
 	if(jsonMap.value("number").canConvert<int>())
 		issueNumber_ = jsonMap.value("number").toInt();
@@ -43,7 +46,7 @@ AMGitHubIssue::AMGitHubIssue(QVariantMap jsonMap, QObject *parent) :
 			QVariantMap labelMap = labelsList.at(x).toMap();
 //			qDebug() << "One label: " << labelMap;
 			if(labelMap.contains("name") && labelMap.value("name").toString().contains("Complexity"))
-				complexityValue_ = complexityFromString(labelMap.value("name").toString());
+				actualComplexityValue_ = actualComplexityFromString(labelMap.value("name").toString());
 			if(labelMap.contains("name") && labelMap.value("name").toString().contains("Project Tracking Disabled"))
 				projectTrackingDisabled_ = true;
 			if(labelMap.contains("name") && labelMap.value("name").toString().contains("Project Tracking Inline Issue"))
@@ -78,74 +81,76 @@ AMGitHubIssue::AMGitHubIssue(QVariantMap jsonMap, QObject *parent) :
 			closedDate_ = QDateTime();
 		}
 	}
+
+	complexityMapping_ = new AMGitHubComplexityMapping(this);
 }
 
 AMGitHubIssue::~AMGitHubIssue()
 {
 }
 
-AMGitHubIssue::ComplexityValue AMGitHubIssue::complexityFromString(const QString &complexityString)
+AMGitHubIssue::ActualComplexityValue AMGitHubIssue::actualComplexityFromString(const QString &actualComplexityString)
 {
-	if(complexityString == "Complexity1")
-		return AMGitHubIssue::Complexity1;
-	else if(complexityString == "Complexity2")
-		return AMGitHubIssue::Complexity2;
-	else if(complexityString == "Complexity3")
-		return AMGitHubIssue::Complexity3;
-	else if(complexityString == "Complexity5")
-		return AMGitHubIssue::Complexity5;
-	else if(complexityString == "Complexity8")
-		return AMGitHubIssue::Complexity8;
-	else if(complexityString == "Complexity13")
-		return AMGitHubIssue::Complexity13;
-	else if(complexityString == "Complexity21")
-		return AMGitHubIssue::Complexity21;
-	else if(complexityString == "ComplexityK")
-		return AMGitHubIssue::ComplexityK;
+	if(actualComplexityString == "Complexity1")
+		return AMGitHubIssue::ActualComplexity1;
+	else if(actualComplexityString == "Complexity2")
+		return AMGitHubIssue::ActualComplexity2;
+	else if(actualComplexityString == "Complexity3")
+		return AMGitHubIssue::ActualComplexity3;
+	else if(actualComplexityString == "Complexity5")
+		return AMGitHubIssue::ActualComplexity5;
+	else if(actualComplexityString == "Complexity8")
+		return AMGitHubIssue::ActualComplexity8;
+	else if(actualComplexityString == "Complexity13")
+		return AMGitHubIssue::ActualComplexity13;
+	else if(actualComplexityString == "Complexity21")
+		return AMGitHubIssue::ActualComplexity21;
+//	else if(actualComplexityString == "ComplexityK")
+//		return AMGitHubIssue::ComplexityK;
 	else
-		return AMGitHubIssue::InvalidComplexity;
+		return AMGitHubIssue::ActualComplexityInvalid;
 }
 
-QString AMGitHubIssue::stringFromComplexity(AMGitHubIssue::ComplexityValue complexityValue){
+QString AMGitHubIssue::stringFromActualComplexity(AMGitHubIssue::ActualComplexityValue complexityValue){
 	switch(complexityValue){
-	case AMGitHubIssue::Complexity1:
+	case AMGitHubIssue::ActualComplexity1:
 		return "Complexity1";
-	case AMGitHubIssue::Complexity2:
+	case AMGitHubIssue::ActualComplexity2:
 		return "Complexity2";
-	case AMGitHubIssue::Complexity3:
+	case AMGitHubIssue::ActualComplexity3:
 		return "Complexity3";
-	case AMGitHubIssue::Complexity5:
+	case AMGitHubIssue::ActualComplexity5:
 		return "Complexity5";
-	case AMGitHubIssue::Complexity8:
+	case AMGitHubIssue::ActualComplexity8:
 		return "Complexity8";
-	case AMGitHubIssue::Complexity13:
+	case AMGitHubIssue::ActualComplexity13:
 		return "Complexity13";
-	case AMGitHubIssue::Complexity21:
+	case AMGitHubIssue::ActualComplexity21:
 		return "Complexity21";
-	case AMGitHubIssue::ComplexityK:
-		return "ComplexityK";
-	case AMGitHubIssue::InvalidComplexity:
+//	case AMGitHubIssue::ComplexityK:
+//		return "ComplexityK";
+	case AMGitHubIssue::ActualComplexityInvalid:
 		return "Invalid Complexity";
 	default:
 		return "Invalid Complexity";
 	}
 }
 
-int AMGitHubIssue::integerFromComplexity(AMGitHubIssue::ComplexityValue complexityValue){
+int AMGitHubIssue::integerFromActualComplexity(AMGitHubIssue::ActualComplexityValue complexityValue){
 	switch(complexityValue){
-	case AMGitHubIssue::Complexity1:
+	case AMGitHubIssue::ActualComplexity1:
 		return 1;
-	case AMGitHubIssue::Complexity2:
+	case AMGitHubIssue::ActualComplexity2:
 		return 2;
-	case AMGitHubIssue::Complexity3:
+	case AMGitHubIssue::ActualComplexity3:
 		return 3;
-	case AMGitHubIssue::Complexity5:
+	case AMGitHubIssue::ActualComplexity5:
 		return 5;
-	case AMGitHubIssue::Complexity8:
+	case AMGitHubIssue::ActualComplexity8:
 		return 8;
-	case AMGitHubIssue::Complexity13:
+	case AMGitHubIssue::ActualComplexity13:
 		return 13;
-	case AMGitHubIssue::Complexity21:
+	case AMGitHubIssue::ActualComplexity21:
 		return 21;
 	default:
 		return -1;
@@ -163,15 +168,61 @@ QString AMGitHubIssue::stringFromState(AMGitHubIssue::IssueState issueState){
 	}
 }
 
+double AMGitHubIssue::normalizedTimeEstimate() const{
+	QString timeEstimateFirstHalf = timeEstimateString().section(' ', 0, 0);
+	QString timeEstimateSecondHalf = timeEstimateString().section(' ', 1, 1);
+
+	bool convertsToDouble = false;
+	double timeValue = timeEstimateFirstHalf.toDouble(&convertsToDouble);
+	if(!convertsToDouble)
+		return -1;
+
+	double multiplier;
+	QRegExp secondRX("[Ss]econd");
+	QRegExp minuteRX("[Mm]inute");
+	QRegExp hourRX("[Hh]our");
+	QRegExp dayRX("[Dd]ay");
+	QRegExp weekRX("[Ww]eek");
+	QRegExp monthRX("[Mm]onth");
+	if(timeEstimateSecondHalf.contains(secondRX))
+		multiplier = 1.0/60.0/60.0;
+	else if(timeEstimateSecondHalf.contains(minuteRX))
+		multiplier = 1.0/60.0;
+	else if(timeEstimateSecondHalf.contains(hourRX))
+		multiplier = 1.0;
+	else if(timeEstimateSecondHalf.contains(dayRX))
+		multiplier = 1.0*8.0;
+	else if(timeEstimateSecondHalf.contains(weekRX))
+		multiplier = 1.0*8.0*5.0;
+	else if(timeEstimateSecondHalf.contains(monthRX))
+		multiplier = 1.0*8.0*5.0*4.0;
+	else
+		return -1;
+
+	double retVal = timeValue*multiplier;
+	if(retVal < 1.0/60.0)
+		retVal = 1.0/60.0;
+	return retVal;
+}
+
+bool AMGitHubIssue::completeIssue() const
+{
+	if(!complexityMapping_->validMapping())
+		return false;
+	if(normalizedTimeEstimate() < 0)
+		return false;
+	return true;
+}
+
 QString AMGitHubIssue::oneLineDebugInfo() const
 {
 	QString retVal;
 	if(!isPullRequest_)
-		retVal = QString("[%1] %2: %3").arg(issueNumber_).arg(title_).arg(AMGitHubIssue::stringFromComplexity(complexityValue_));
+		retVal = QString("[%1] %2: %3").arg(issueNumber_).arg(title_).arg(AMGitHubIssue::stringFromActualComplexity(actualComplexityValue_));
 	else if(originatingIssue_)
-		retVal = QString("[%1 --> %2] %3: %4").arg(issueNumber_).arg(originatingIssue_->issueNumber()).arg(title_).arg(AMGitHubIssue::stringFromComplexity(complexityValue_));
+		retVal = QString("[%1 --> %2] %3: %4").arg(issueNumber_).arg(originatingIssue_->issueNumber()).arg(title_).arg(AMGitHubIssue::stringFromActualComplexity(actualComplexityValue_));
 	else
-		retVal = QString("[%1 ==> %2] %3: %4").arg(issueNumber_).arg(originatingIssueNumber_).arg(title_).arg(AMGitHubIssue::stringFromComplexity(complexityValue_));
+		retVal = QString("[%1 ==> %2] %3: %4").arg(issueNumber_).arg(originatingIssueNumber_).arg(title_).arg(AMGitHubIssue::stringFromActualComplexity(actualComplexityValue_));
 
 	if(!timeEstimateString_.isEmpty() || timeEstimateString_ == "Invalid Time Estimate")
 		retVal.append(QString("{%1}").arg(timeEstimateString_));
@@ -193,58 +244,167 @@ QString AMGitHubIssue::multiLineDebugInfo() const
 		retVal = QString("[%1 ==> %2]\n").arg(issueNumber_).arg(originatingIssueNumber_);
 
 	retVal.append(QString("Title:\t\t\t%1\n").arg(title_));
-	retVal.append(QString("Complexity:\t\t\t%1\n").arg(AMGitHubIssue::stringFromComplexity(complexityValue_)));
+	retVal.append(QString("Complexity:\t\t\t%1\n").arg(AMGitHubIssue::stringFromActualComplexity(actualComplexityValue_)));
 	if(!timeEstimateString_.isEmpty() || timeEstimateString_ == "Invalid Time Estimate")
 		retVal.append(QString("Time Estimate:\t\t%1\n").arg(timeEstimateString_));
 
 	return retVal;
 }
 
-AMGitHubIssue::ZenhubComplexityValue AMGitHubIssue::zenhubComplexityFromInteger(int zenhubComplexityAsInteger)
+AMGitHubIssue::EstimatedComplexityValue AMGitHubIssue::estimatedComplexityFromInteger(int estimatedComplexityAsInteger)
 {
-	switch(zenhubComplexityAsInteger){
+	switch(estimatedComplexityAsInteger){
 	case 1:
-		return AMGitHubIssue::ZenhubComplexity1;
+		return AMGitHubIssue::EstimatedComplexity1;
 	case 2:
-		return AMGitHubIssue::ZenhubComplexity2;
+		return AMGitHubIssue::EstimatedComplexity2;
 	case 3:
-		return AMGitHubIssue::ZenhubComplexity3;
+		return AMGitHubIssue::EstimatedComplexity3;
 	case 5:
-		return AMGitHubIssue::ZenhubComplexity5;
+		return AMGitHubIssue::EstimatedComplexity5;
 	case 8:
-		return AMGitHubIssue::ZenhubComplexity8;
+		return AMGitHubIssue::EstimatedComplexity8;
 	case 13:
-		return AMGitHubIssue::ZenhubComplexity13;
+		return AMGitHubIssue::EstimatedComplexity13;
 	case 21:
-		return AMGitHubIssue::ZenhubComplexity21;
+		return AMGitHubIssue::EstimatedComplexity21;
 	case 40:
-		return AMGitHubIssue::ZenhubComplexity40;
+		return AMGitHubIssue::EstimatedComplexity40;
 	default:
-		return AMGitHubIssue::ZenhubComplexityInvalid;
+		return AMGitHubIssue::EstimatedComplexityInvalid;
 	}
 }
 
-int AMGitHubIssue::integerFromZenhubComplexityValue(AMGitHubIssue::ZenhubComplexityValue zenhubComplexityValue)
+int AMGitHubIssue::integerFromEstimatedComplexity(AMGitHubIssue::EstimatedComplexityValue zenhubComplexityValue)
 {
 	switch(zenhubComplexityValue){
-	case AMGitHubIssue::ZenhubComplexity1:
+	case AMGitHubIssue::EstimatedComplexity1:
 		return 1;
-	case AMGitHubIssue::ZenhubComplexity2:
+	case AMGitHubIssue::EstimatedComplexity2:
 		return 2;
-	case AMGitHubIssue::ZenhubComplexity3:
+	case AMGitHubIssue::EstimatedComplexity3:
 		return 3;
-	case AMGitHubIssue::ZenhubComplexity5:
+	case AMGitHubIssue::EstimatedComplexity5:
 		return 5;
-	case AMGitHubIssue::ZenhubComplexity8:
+	case AMGitHubIssue::EstimatedComplexity8:
 		return 8;
-	case AMGitHubIssue::ZenhubComplexity13:
+	case AMGitHubIssue::EstimatedComplexity13:
 		return 13;
-	case AMGitHubIssue::ZenhubComplexity21:
+	case AMGitHubIssue::EstimatedComplexity21:
 		return 21;
-	case AMGitHubIssue::ZenhubComplexity40:
+	case AMGitHubIssue::EstimatedComplexity40:
 		return 40;
-	case AMGitHubIssue::ZenhubComplexityInvalid:
+	case AMGitHubIssue::EstimatedComplexityInvalid:
 	default:
 		return -1;
 	}
+}
+
+void AMGitHubIssue::setActualComplexityValue(AMGitHubIssue::ActualComplexityValue actualComplexityValue)
+{
+	actualComplexityValue_ = actualComplexityValue;
+	complexityMapping_->deleteLater();
+	complexityMapping_ = new AMGitHubComplexityMapping(this);
+}
+
+void AMGitHubIssue::setEstimatedComplexityValue(AMGitHubIssue::EstimatedComplexityValue estimatedComplexityValue)
+{
+	estimatedComplexityValue_ = estimatedComplexityValue;
+	complexityMapping_->deleteLater();
+	complexityMapping_ = new AMGitHubComplexityMapping(this);
+}
+
+AMGitHubComplexityMapping::AMGitHubComplexityMapping(int mappingIndex, QObject *parent) :
+	QObject(parent)
+{
+	if(validMappingIndex(mappingIndex)){
+		validMapping_ = true;
+		actualComplexityValue_ = AMGitHubComplexityMapping::actualComplexityValueFromMappingIndex(mappingIndex);
+		estimatedComplexityValue_ = AMGitHubComplexityMapping::estimatedComplexityValueFromMappingIndex(mappingIndex);
+	}
+	else{
+		validMapping_ = false;
+		actualComplexityValue_ = AMGitHubIssue::ActualComplexityInvalid;
+		estimatedComplexityValue_ = AMGitHubIssue::EstimatedComplexityInvalid;
+	}
+}
+
+AMGitHubComplexityMapping::AMGitHubComplexityMapping(AMGitHubIssue *issue, QObject *parent) :
+	QObject(parent)
+{
+	if(validComplexityValues(issue->actualComplexityValue(), issue->estimatedComplexityValue())){
+		validMapping_ = true;
+		actualComplexityValue_ = issue->actualComplexityValue();
+		estimatedComplexityValue_ = issue->estimatedComplexityValue();
+	}
+	else{
+		validMapping_ = false;
+		actualComplexityValue_ = AMGitHubIssue::ActualComplexityInvalid;
+		estimatedComplexityValue_ = AMGitHubIssue::EstimatedComplexityInvalid;
+	}
+}
+
+AMGitHubComplexityMapping::AMGitHubComplexityMapping(AMGitHubIssue::ActualComplexityValue actualComplexityValue, AMGitHubIssue::EstimatedComplexityValue estimatedComplexityValue, QObject *parent) :
+	QObject(parent)
+{
+	if(validComplexityValues(actualComplexityValue, estimatedComplexityValue)){
+		validMapping_ = true;
+		actualComplexityValue_ = actualComplexityValue;
+		estimatedComplexityValue_ = estimatedComplexityValue;
+	}
+	else{
+		validMapping_ = false;
+		actualComplexityValue_ = AMGitHubIssue::ActualComplexityInvalid;
+		estimatedComplexityValue_ = AMGitHubIssue::EstimatedComplexityInvalid;
+	}
+}
+
+int AMGitHubComplexityMapping::mappingIndex() const
+{
+	if(validMapping_){
+		int maxEstimate = int(AMGitHubIssue::EstimatedComplexityInvalid)-1;
+		int indexActual = int(actualComplexityValue_);
+		int indexEstimate = int(estimatedComplexityValue_);
+
+		return maxEstimate*indexActual + indexEstimate;
+	}
+	return -1;
+}
+
+AMGitHubIssue::ActualComplexityValue AMGitHubComplexityMapping::actualComplexityValueFromMappingIndex(int index)
+{
+	int maxEstimate = int(AMGitHubIssue::EstimatedComplexityInvalid)-1;
+	int asInt = index/maxEstimate;
+	return AMGitHubIssue::ActualComplexityValue(asInt);
+}
+
+AMGitHubIssue::EstimatedComplexityValue AMGitHubComplexityMapping::estimatedComplexityValueFromMappingIndex(int index)
+{
+	int maxEstimate = int(AMGitHubIssue::EstimatedComplexityInvalid)-1;
+	int asInt = index%maxEstimate;
+	return AMGitHubIssue::EstimatedComplexityValue(asInt);
+}
+
+bool AMGitHubComplexityMapping::validMappingIndex(int mappingIndex)
+{
+	int maxEstimate = int(AMGitHubIssue::EstimatedComplexityInvalid)-1;
+	int maxActual = int(AMGitHubIssue::ActualComplexityInvalid)-1;
+	if(mappingIndex < 0 || (mappingIndex >= maxEstimate*maxActual) )
+		return false;
+	return true;
+}
+
+bool AMGitHubComplexityMapping::validComplexityValues(AMGitHubIssue::ActualComplexityValue actualComplexityValue, AMGitHubIssue::EstimatedComplexityValue estimatedComplexityValue)
+{
+	int maxEstimate = int(AMGitHubIssue::EstimatedComplexityInvalid)-1;
+	int maxActual = int(AMGitHubIssue::ActualComplexityInvalid)-1;
+
+	int actualAsInt = int(actualComplexityValue);
+	int estimateAsInt = int(estimatedComplexityValue);
+
+	if(actualAsInt < 0 || actualAsInt > maxActual)
+		return false;
+	if(estimateAsInt < 0 || estimateAsInt > maxEstimate)
+		return false;
+	return true;
 }

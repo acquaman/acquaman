@@ -144,7 +144,7 @@ void AMZenHubGetEstimatesAction::onRestActionFullResponseReady(QVariant fullResp
 	qDebug() << "The estimate for " << issueNumber << " is " << estimateValue;
 
 	if(allIssues_->contains(issueNumber))
-		allIssues_->value(issueNumber)->setZenubComplexityValue(AMGitHubIssue::zenhubComplexityFromInteger(estimateValue));
+		allIssues_->value(issueNumber)->setEstimatedComplexityValue(AMGitHubIssue::estimatedComplexityFromInteger(estimateValue));
 	else
 		qDebug() << "Could not find " << issueNumber << " to set zenhub estimate for " << lastURL_;
 

@@ -20,13 +20,13 @@ AMGitHubIssueFamilyView::AMGitHubIssueFamilyView(AMGitHubIssueFamily *issueFamil
 		else
 			fl->addRow("Pull Request:", new QLabel("MISSING"));
 
-		if(issueFamily_->originatingIssue() && issueFamily_->estimatedComplexity() != AMGitHubIssue::InvalidComplexity)
-			fl->addRow("Estimated Complexity:", new QLabel(AMGitHubIssue::stringFromComplexity(issueFamily_->estimatedComplexity())));
+		if(issueFamily_->originatingIssue() && issueFamily_->estimatedComplexity() != AMGitHubIssue::ActualComplexityInvalid)
+			fl->addRow("Estimated Complexity:", new QLabel(AMGitHubIssue::stringFromActualComplexity(issueFamily_->estimatedComplexity())));
 		else
 			fl->addRow("Estimated Complexity:", new QLabel("MISSING"));
 
-		if(issueFamily_->pullRequestIssue() && issueFamily_->actualComplexity() != AMGitHubIssue::InvalidComplexity)
-			fl->addRow("Actual Complexity:", new QLabel(AMGitHubIssue::stringFromComplexity(issueFamily_->actualComplexity())));
+		if(issueFamily_->pullRequestIssue() && issueFamily_->actualComplexity() != AMGitHubIssue::ActualComplexityInvalid)
+			fl->addRow("Actual Complexity:", new QLabel(AMGitHubIssue::stringFromActualComplexity(issueFamily_->actualComplexity())));
 		else
 			fl->addRow("Actual Complexity:", new QLabel("MISSING"));
 

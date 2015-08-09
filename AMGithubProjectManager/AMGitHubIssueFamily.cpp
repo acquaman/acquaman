@@ -27,18 +27,18 @@ int AMGitHubIssueFamily::pullRequestIssueNumber() const
 	return -1;
 }
 
-AMGitHubIssue::ComplexityValue AMGitHubIssueFamily::estimatedComplexity() const
+AMGitHubIssue::ActualComplexityValue AMGitHubIssueFamily::estimatedComplexity() const
 {
 	if(originatingIssue_)
-		return originatingIssue_->complexityValue();
-	return AMGitHubIssue::InvalidComplexity;
+		return originatingIssue_->actualComplexityValue();
+	return AMGitHubIssue::ActualComplexityInvalid;
 }
 
-AMGitHubIssue::ComplexityValue AMGitHubIssueFamily::actualComplexity() const
+AMGitHubIssue::ActualComplexityValue AMGitHubIssueFamily::actualComplexity() const
 {
 	if(pullRequestIssue_)
-		return pullRequestIssue_->complexityValue();
-	return AMGitHubIssue::InvalidComplexity;
+		return pullRequestIssue_->actualComplexityValue();
+	return AMGitHubIssue::ActualComplexityInvalid;
 }
 
 QString AMGitHubIssueFamily::timeEstimate() const
@@ -62,13 +62,13 @@ QString AMGitHubIssueFamily::multiLineDebugInfo() const
 	else
 		retVal.append(QString("Pull Request:\tMISSING\n"));
 
-	if(originatingIssue_ && estimatedComplexity() != AMGitHubIssue::InvalidComplexity)
-		retVal.append(QString("Estimated Complexity:\t%1\n").arg(AMGitHubIssue::stringFromComplexity(estimatedComplexity())));
+	if(originatingIssue_ && estimatedComplexity() != AMGitHubIssue::ActualComplexityInvalid)
+		retVal.append(QString("Estimated Complexity:\t%1\n").arg(AMGitHubIssue::stringFromActualComplexity(estimatedComplexity())));
 	else
 		retVal.append(QString("Estimated Complexity:\tMISSING\n"));
 
-	if(pullRequestIssue_ && actualComplexity() != AMGitHubIssue::InvalidComplexity)
-		retVal.append(QString("Actual Complexity:\t%1\n").arg(AMGitHubIssue::stringFromComplexity(actualComplexity())));
+	if(pullRequestIssue_ && actualComplexity() != AMGitHubIssue::ActualComplexityInvalid)
+		retVal.append(QString("Actual Complexity:\t%1\n").arg(AMGitHubIssue::stringFromActualComplexity(actualComplexity())));
 	else
 		retVal.append(QString("Actual Complexity:\tMISSING\n"));
 
@@ -89,10 +89,10 @@ bool AMGitHubIssueFamily::completeInfo() const
 	if(!originatingIssue_ || !pullRequestIssue_)
 		return false;
 
-	if(originatingIssue_ && estimatedComplexity() == AMGitHubIssue::InvalidComplexity)
+	if(originatingIssue_ && estimatedComplexity() == AMGitHubIssue::ActualComplexityInvalid)
 		return false;
 
-	if(pullRequestIssue_ && actualComplexity() == AMGitHubIssue::InvalidComplexity)
+	if(pullRequestIssue_ && actualComplexity() == AMGitHubIssue::ActualComplexityInvalid)
 		return false;
 
 	if(originatingIssue_ && (timeEstimate() == "Invalid Time Estimated" || timeEstimate().isEmpty()) )
@@ -105,7 +105,7 @@ bool AMGitHubIssueFamily::totallyIncomplete() const{
 	if(originatingIssue_ && originatingIssue()->projectTrackingDisabled())
 		return false;
 
-	if(!pullRequestIssue_ && estimatedComplexity() == AMGitHubIssue::InvalidComplexity && (timeEstimate() == "Invalid Time Estimated" || timeEstimate().isEmpty()))
+	if(!pullRequestIssue_ && estimatedComplexity() == AMGitHubIssue::ActualComplexityInvalid && (timeEstimate() == "Invalid Time Estimated" || timeEstimate().isEmpty()))
 		return true;
 
 	return false;
@@ -115,7 +115,7 @@ bool AMGitHubIssueFamily::onlyMissingActualComplexity() const{
 	if(originatingIssue_ && originatingIssue()->projectTrackingDisabled())
 		return false;
 
-	if(originatingIssue_ && pullRequestIssue_ && (estimatedComplexity() != AMGitHubIssue::InvalidComplexity) && (timeEstimate() != "Invalid Time Estimated") && !timeEstimate().isEmpty() && actualComplexity() == AMGitHubIssue::InvalidComplexity)
+	if(originatingIssue_ && pullRequestIssue_ && (estimatedComplexity() != AMGitHubIssue::ActualComplexityInvalid) && (timeEstimate() != "Invalid Time Estimated") && !timeEstimate().isEmpty() && actualComplexity() == AMGitHubIssue::ActualComplexityInvalid)
 		return true;
 	return false;
 }
@@ -124,125 +124,125 @@ bool AMGitHubIssueFamily::onlyMissingTimeEstimate() const{
 	if(originatingIssue_ && originatingIssue()->projectTrackingDisabled())
 		return false;
 
-	if(originatingIssue_ && pullRequestIssue_ && (estimatedComplexity() != AMGitHubIssue::InvalidComplexity) && (timeEstimate() == "Invalid Time Estimated" || timeEstimate().isEmpty()) && (actualComplexity() != AMGitHubIssue::InvalidComplexity) )
+	if(originatingIssue_ && pullRequestIssue_ && (estimatedComplexity() != AMGitHubIssue::ActualComplexityInvalid) && (timeEstimate() == "Invalid Time Estimated" || timeEstimate().isEmpty()) && (actualComplexity() != AMGitHubIssue::ActualComplexityInvalid) )
 		return true;
 	return false;
 }
 
 AMGitHubIssueFamily::ComplexityMapping AMGitHubIssueFamily::complexityMapping() const{
-	AMGitHubIssue::ComplexityValue localEstimatedComplexity = estimatedComplexity();
-	AMGitHubIssue::ComplexityValue localActualComplexity = actualComplexity();
+	AMGitHubIssue::ActualComplexityValue localEstimatedComplexity = estimatedComplexity();
+	AMGitHubIssue::ActualComplexityValue localActualComplexity = actualComplexity();
 
 	switch(localEstimatedComplexity){
-	case AMGitHubIssue::Complexity1:{
+	case AMGitHubIssue::ActualComplexity1:{
 		switch(localActualComplexity){
-		case AMGitHubIssue::Complexity1:
+		case AMGitHubIssue::ActualComplexity1:
 			return AMGitHubIssueFamily::Complexity1ToComplexity1;
-		case AMGitHubIssue::Complexity2:
+		case AMGitHubIssue::ActualComplexity2:
 			return AMGitHubIssueFamily::Complexity1ToComplexity2;
-		case AMGitHubIssue::Complexity3:
+		case AMGitHubIssue::ActualComplexity3:
 			return AMGitHubIssueFamily::Complexity1ToComplexity3;
-		case AMGitHubIssue::Complexity5:
+		case AMGitHubIssue::ActualComplexity5:
 			return AMGitHubIssueFamily::Complexity1ToComplexity5;
-		case AMGitHubIssue::Complexity8:
+		case AMGitHubIssue::ActualComplexity8:
 			return AMGitHubIssueFamily::Complexity1ToComplexity8;
-		case AMGitHubIssue::ComplexityK:
-			return AMGitHubIssueFamily::InvalidComplexityMapping;
+//		case AMGitHubIssue::ComplexityK:
+//			return AMGitHubIssueFamily::InvalidComplexityMapping;
 		default:
 			return AMGitHubIssueFamily::InvalidComplexityMapping;
 		}
 		break;}
-	case AMGitHubIssue::Complexity2:{
+	case AMGitHubIssue::ActualComplexity2:{
 		switch(localActualComplexity){
-		case AMGitHubIssue::Complexity1:
+		case AMGitHubIssue::ActualComplexity1:
 			return AMGitHubIssueFamily::Complexity2ToComplexity1;
-		case AMGitHubIssue::Complexity2:
+		case AMGitHubIssue::ActualComplexity2:
 			return AMGitHubIssueFamily::Complexity2ToComplexity2;
-		case AMGitHubIssue::Complexity3:
+		case AMGitHubIssue::ActualComplexity3:
 			return AMGitHubIssueFamily::Complexity2ToComplexity3;
-		case AMGitHubIssue::Complexity5:
+		case AMGitHubIssue::ActualComplexity5:
 			return AMGitHubIssueFamily::Complexity2ToComplexity5;
-		case AMGitHubIssue::Complexity8:
+		case AMGitHubIssue::ActualComplexity8:
 			return AMGitHubIssueFamily::Complexity2ToComplexity8;
-		case AMGitHubIssue::ComplexityK:
-			return AMGitHubIssueFamily::InvalidComplexityMapping;
+//		case AMGitHubIssue::ComplexityK:
+//			return AMGitHubIssueFamily::InvalidComplexityMapping;
 		default:
 			return AMGitHubIssueFamily::InvalidComplexityMapping;
 		}
 		break;}
-	case AMGitHubIssue::Complexity3:{
+	case AMGitHubIssue::ActualComplexity3:{
 		switch(localActualComplexity){
-		case AMGitHubIssue::Complexity1:
+		case AMGitHubIssue::ActualComplexity1:
 			return AMGitHubIssueFamily::Complexity3ToComplexity1;
-		case AMGitHubIssue::Complexity2:
+		case AMGitHubIssue::ActualComplexity2:
 			return AMGitHubIssueFamily::Complexity3ToComplexity2;
-		case AMGitHubIssue::Complexity3:
+		case AMGitHubIssue::ActualComplexity3:
 			return AMGitHubIssueFamily::Complexity3ToComplexity3;
-		case AMGitHubIssue::Complexity5:
+		case AMGitHubIssue::ActualComplexity5:
 			return AMGitHubIssueFamily::Complexity3ToComplexity5;
-		case AMGitHubIssue::Complexity8:
+		case AMGitHubIssue::ActualComplexity8:
 			return AMGitHubIssueFamily::Complexity3ToComplexity8;
-		case AMGitHubIssue::ComplexityK:
-			return AMGitHubIssueFamily::InvalidComplexityMapping;
+//		case AMGitHubIssue::ComplexityK:
+//			return AMGitHubIssueFamily::InvalidComplexityMapping;
 		default:
 			return AMGitHubIssueFamily::InvalidComplexityMapping;
 		}
 		break;}
-	case AMGitHubIssue::Complexity5:{
+	case AMGitHubIssue::ActualComplexity5:{
 		switch(localActualComplexity){
-		case AMGitHubIssue::Complexity1:
+		case AMGitHubIssue::ActualComplexity1:
 			return AMGitHubIssueFamily::Complexity5ToComplexity1;
-		case AMGitHubIssue::Complexity2:
+		case AMGitHubIssue::ActualComplexity2:
 			return AMGitHubIssueFamily::Complexity5ToComplexity2;
-		case AMGitHubIssue::Complexity3:
+		case AMGitHubIssue::ActualComplexity3:
 			return AMGitHubIssueFamily::Complexity5ToComplexity3;
-		case AMGitHubIssue::Complexity5:
+		case AMGitHubIssue::ActualComplexity5:
 			return AMGitHubIssueFamily::Complexity5ToComplexity5;
-		case AMGitHubIssue::Complexity8:
+		case AMGitHubIssue::ActualComplexity8:
 			return AMGitHubIssueFamily::Complexity5ToComplexity8;
-		case AMGitHubIssue::ComplexityK:
-			return AMGitHubIssueFamily::InvalidComplexityMapping;
+//		case AMGitHubIssue::ComplexityK:
+//			return AMGitHubIssueFamily::InvalidComplexityMapping;
 		default:
 			return AMGitHubIssueFamily::InvalidComplexityMapping;
 		}
 		break;}
-	case AMGitHubIssue::Complexity8:{
+	case AMGitHubIssue::ActualComplexity8:{
 		switch(localActualComplexity){
-		case AMGitHubIssue::Complexity1:
+		case AMGitHubIssue::ActualComplexity1:
 			return AMGitHubIssueFamily::Complexity8ToComplexity1;
-		case AMGitHubIssue::Complexity2:
+		case AMGitHubIssue::ActualComplexity2:
 			return AMGitHubIssueFamily::Complexity8ToComplexity2;
-		case AMGitHubIssue::Complexity3:
+		case AMGitHubIssue::ActualComplexity3:
 			return AMGitHubIssueFamily::Complexity8ToComplexity3;
-		case AMGitHubIssue::Complexity5:
+		case AMGitHubIssue::ActualComplexity5:
 			return AMGitHubIssueFamily::Complexity8ToComplexity5;
-		case AMGitHubIssue::Complexity8:
+		case AMGitHubIssue::ActualComplexity8:
 			return AMGitHubIssueFamily::Complexity8ToComplexity8;
-		case AMGitHubIssue::ComplexityK:
-			return AMGitHubIssueFamily::InvalidComplexityMapping;
+//		case AMGitHubIssue::ComplexityK:
+//			return AMGitHubIssueFamily::InvalidComplexityMapping;
 		default:
 			return AMGitHubIssueFamily::InvalidComplexityMapping;
 		}
 		break;}
-	case AMGitHubIssue::ComplexityK:{
-		switch(localActualComplexity){
-		case AMGitHubIssue::Complexity1:
-			return AMGitHubIssueFamily::ComplexityKToComplexity1;
-		case AMGitHubIssue::Complexity2:
-			return AMGitHubIssueFamily::ComplexityKToComplexity2;
-		case AMGitHubIssue::Complexity3:
-			return AMGitHubIssueFamily::ComplexityKToComplexity3;
-		case AMGitHubIssue::Complexity5:
-			return AMGitHubIssueFamily::ComplexityKToComplexity5;
-		case AMGitHubIssue::Complexity8:
-			return AMGitHubIssueFamily::ComplexityKToComplexity8;
-		case AMGitHubIssue::ComplexityK:
-			return AMGitHubIssueFamily::InvalidComplexityMapping;
-		default:
-			return AMGitHubIssueFamily::InvalidComplexityMapping;
-		}
-		break;}
-	case AMGitHubIssue::InvalidComplexity:
+//	case AMGitHubIssue::ComplexityK:{
+//		switch(localActualComplexity){
+//		case AMGitHubIssue::ActualComplexity1:
+//			return AMGitHubIssueFamily::ComplexityKToComplexity1;
+//		case AMGitHubIssue::ActualComplexity2:
+//			return AMGitHubIssueFamily::ComplexityKToComplexity2;
+//		case AMGitHubIssue::ActualComplexity3:
+//			return AMGitHubIssueFamily::ComplexityKToComplexity3;
+//		case AMGitHubIssue::ActualComplexity5:
+//			return AMGitHubIssueFamily::ComplexityKToComplexity5;
+//		case AMGitHubIssue::ActualComplexity8:
+//			return AMGitHubIssueFamily::ComplexityKToComplexity8;
+////		case AMGitHubIssue::ComplexityK:
+////			return AMGitHubIssueFamily::InvalidComplexityMapping;
+//		default:
+//			return AMGitHubIssueFamily::InvalidComplexityMapping;
+//		}
+//		break;}
+	case AMGitHubIssue::ActualComplexityInvalid:
 		return AMGitHubIssueFamily::InvalidComplexityMapping;
 	default:
 		return AMGitHubIssueFamily::InvalidComplexityMapping;
