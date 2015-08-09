@@ -3,7 +3,6 @@
 AMGitHubComplexityManager::AMGitHubComplexityManager(QObject *parent) :
 	QObject(parent)
 {
-//	complexityMappingMatrix_ = QVector<int>(31, 0);
 	int maxEstimate = int(AMGitHubIssue::EstimatedComplexityInvalid)-1;
 	int maxActual = int(AMGitHubIssue::ActualComplexityInvalid)-1;
 	complexityMappingMatrix_ = QVector<QList<AMGitHubIssue*> >(maxEstimate*maxActual);
@@ -178,197 +177,75 @@ QString AMGitHubComplexityManager::fullMatrixString() const
 	return retVal;
 }
 
-//double AMGitHubComplexityManager::averageTimeForEstimatedComplexity(AMGitHubIssue::ActualComplexityValue estimatedComplexityValue){
-//	QList<double> localEstimatedComplexityTime;
-//	switch(estimatedComplexityValue){
-//	case AMGitHubIssue::ActualComplexity1:
-//		localEstimatedComplexityTime = estimatedComplexity1Times_;
-//		break;
-//	case AMGitHubIssue::ActualComplexity2:
-//		localEstimatedComplexityTime = estimatedComplexity2Times_;
-//		break;
-//	case AMGitHubIssue::ActualComplexity3:
-//		localEstimatedComplexityTime = estimatedComplexity3Times_;
-//		break;
-//	case AMGitHubIssue::ActualComplexity5:
-//		localEstimatedComplexityTime = estimatedComplexity5Times_;
-//		break;
-//	case AMGitHubIssue::ActualComplexity8:
-//		localEstimatedComplexityTime = estimatedComplexity8Times_;
-//		break;
-////	case AMGitHubIssue::ComplexityK:
-////		localEstimatedComplexityTime = estimatedComplexityKTimes_;
-////		break;
-//	case AMGitHubIssue::ActualComplexityInvalid:
-//		break;
-//	}
+double AMGitHubComplexityManager::outstandingEstimateAtDate(AMGitHubIssue *issue, const QDateTime &date)
+{
+	if(!issue || !issue->createdDate().isValid())
+		return 0;
 
-//	if(localEstimatedComplexityTime.count() == 0)
-//		return 0;
+	if(date < issue->createdDate())
+		return 0;
 
-//	double retVal = 0;
-//	for(int x = 0, size = localEstimatedComplexityTime.count(); x < size; x++)
-//		retVal += localEstimatedComplexityTime.at(x);
-//	retVal = retVal/localEstimatedComplexityTime.count();
-//	return retVal;
-//}
+	if(issue->closedDate().isValid() && (date >= issue->closedDate()) )
+		return 0;
 
-//double AMGitHubComplexityManager::averageTimeForActualComplexity(AMGitHubIssue::ActualComplexityValue actualComplexityValue){
-//	QList<double> localActualComplexityTime;
-//	switch(actualComplexityValue){
-//	case AMGitHubIssue::ActualComplexity1:
-//		localActualComplexityTime = actualComplexity1Times_;
-//		break;
-//	case AMGitHubIssue::ActualComplexity2:
-//		localActualComplexityTime = actualComplexity2Times_;
-//		break;
-//	case AMGitHubIssue::ActualComplexity3:
-//		localActualComplexityTime = actualComplexity3Times_;
-//		break;
-//	case AMGitHubIssue::ActualComplexity5:
-//		localActualComplexityTime = actualComplexity5Times_;
-//		break;
-//	case AMGitHubIssue::ActualComplexity8:
-//		localActualComplexityTime = actualComplexity8Times_;
-//		break;
-////	case AMGitHubIssue::ComplexityK:
-////		return 0;
-////		localActualComplexityTime = actualComplexityKTimes_;
-////		break;
-//	case AMGitHubIssue::ActualComplexityInvalid:
-//		return 0;
-//	}
+	return probableTimeForEstimatedComplexity(issue->estimatedComplexityValue());
+}
 
-//	if(localActualComplexityTime.count() == 0)
-//		return 0;
+double AMGitHubComplexityManager::completedEstimateAtDate(AMGitHubIssue *issue, const QDateTime &date)
+{
+	if(!issue || !issue->createdDate().isValid())
+		return 0;
 
-//	double retVal = 0;
-//	for(int x = 0, size = localActualComplexityTime.count(); x < size; x++)
-//		retVal += localActualComplexityTime.at(x);
-//	retVal = retVal/localActualComplexityTime.count();
-//	return retVal;
-//}
+	if(date < issue->createdDate())
+		return 0;
 
-//double AMGitHubComplexityManager::probableTimeForEstimatedComplexity(AMGitHubIssue::ActualComplexityValue estimatedComplexityValue){
-//	int localTotalEstimatedComplexityIssues = 0;
-//	int indexStartValue;
+	if(issue->closedDate().isValid() && (date >= issue->closedDate()) )
+		return probableTimeForEstimatedComplexity(issue->estimatedComplexityValue());
 
-//	switch(estimatedComplexityValue){
-//	case AMGitHubIssue::ActualComplexity1:
-//		indexStartValue = 1;
-//		break;
-//	case AMGitHubIssue::ActualComplexity2:
-//		indexStartValue = 6;
-//		break;
-//	case AMGitHubIssue::ActualComplexity3:
-//		indexStartValue = 11;
-//		break;
-//	case AMGitHubIssue::ActualComplexity5:
-//		indexStartValue = 16;
-//		break;
-//	case AMGitHubIssue::ActualComplexity8:
-//		indexStartValue = 21;
-//		break;
-////	case AMGitHubIssue::ComplexityK:
-////		return -1;
-////		indexStartValue = 26;
-////		break;
-//	case AMGitHubIssue::ActualComplexityInvalid:
-//		return 0;
-//	}
+	return 0;
+}
 
-//	for(int x = indexStartValue, size = indexStartValue+5; x < size; x++)
-//		localTotalEstimatedComplexityIssues += complexityMappingMatrix_.at(x);
+double AMGitHubComplexityManager::withdrawnEstimateAtDate(AMGitHubIssue *issue, const QDateTime &date){
+	if(!issue || !issue->createdDate().isValid())
+		return 0;
 
-//	double retVal = 0;
-//	retVal = averageTimeForActualComplexity(AMGitHubIssue::ActualComplexity1)*complexityMappingMatrix_.at(indexStartValue)/localTotalEstimatedComplexityIssues
-//			+ averageTimeForActualComplexity(AMGitHubIssue::ActualComplexity2)*complexityMappingMatrix_.at(indexStartValue+1)/localTotalEstimatedComplexityIssues
-//			+ averageTimeForActualComplexity(AMGitHubIssue::ActualComplexity3)*complexityMappingMatrix_.at(indexStartValue+2)/localTotalEstimatedComplexityIssues
-//			+ averageTimeForActualComplexity(AMGitHubIssue::ActualComplexity5)*complexityMappingMatrix_.at(indexStartValue+3)/localTotalEstimatedComplexityIssues
-//			+ averageTimeForActualComplexity(AMGitHubIssue::ActualComplexity8)*complexityMappingMatrix_.at(indexStartValue+4)/localTotalEstimatedComplexityIssues;
+	if(date < issue->createdDate())
+		return 0;
 
-//	return retVal;
-//}
+	if(issue->closedDate().isValid() && (date >= issue->closedDate()) && (issue->actualComplexityValue() == AMGitHubIssue::ActualComplexityInvalid))
+		return probableTimeForEstimatedComplexity(issue->estimatedComplexityValue());
 
-//double AMGitHubComplexityManager::outstandingEstimateAtDate(AMGitHubIssueFamily *issueFamily, const QDateTime &date){
-//	if(!issueFamily || !issueFamily->originatingIssue() || !issueFamily->originatingIssue()->createdDate().isValid())
-//		return 0;
+	return 0;
+}
 
-//	AMGitHubIssue *originatingIssue = issueFamily->originatingIssue();
-//	if(date < originatingIssue->createdDate())
-//		return 0;
+double AMGitHubComplexityManager::complexityMappedCompletedWorkAtDate(AMGitHubIssue *issue, const QDateTime &date){
+	if(!issue || !issue->createdDate().isValid())
+		return 0;
 
-//	if(originatingIssue->closedDate().isValid() && (date >= originatingIssue->closedDate()) )
-//		return 0;
+	if(date < issue->createdDate())
+		return 0;
 
-//	return probableTimeForEstimatedComplexity(issueFamily->estimatedComplexity());
-//}
+	if(issue->closedDate().isValid() && (date >= issue->closedDate()) && (issue->actualComplexityValue() != AMGitHubIssue::ActualComplexityInvalid) )
+		return averageTimeForActualComplexity(issue->actualComplexityValue());
 
-//double AMGitHubComplexityManager::completedEstimateAtDate(AMGitHubIssueFamily *issueFamily, const QDateTime &date){
-//	if(!issueFamily || !issueFamily->originatingIssue() || !issueFamily->originatingIssue()->createdDate().isValid())
-//		return 0;
+	return 0;
+}
 
-//	AMGitHubIssue *originatingIssue = issueFamily->originatingIssue();
-//	if(date < originatingIssue->createdDate())
-//		return 0;
+double AMGitHubComplexityManager::reportedCompletedWorkAtDate(AMGitHubIssue *issue, const QDateTime &date){
+	if(!issue || !issue->createdDate().isValid())
+		return 0;
 
-////	if(originatingIssue->closedDate().isValid() && (date >= originatingIssue->closedDate()) && (issueFamily->actualComplexity() != AMGitHubIssue::InvalidComplexity) )
-////		return averageTimeForActualComplexity(issueFamily->actualComplexity());
+	if(date < issue->createdDate())
+		return 0;
 
-//	if(originatingIssue->closedDate().isValid() && (date >= originatingIssue->closedDate()) )
-//		return probableTimeForEstimatedComplexity(issueFamily->estimatedComplexity());
+	if(issue->closedDate().isValid() && (date >= issue->closedDate()) && (issue->actualComplexityValue() != AMGitHubIssue::ActualComplexityInvalid) ){
+		if(issue->normalizedTimeEstimate() < 0)
+			return 0;
+		return issue->normalizedTimeEstimate();
+	}
 
-//	return 0;
-//}
-
-//double AMGitHubComplexityManager::withdrawnEstimateAtDate(AMGitHubIssueFamily *issueFamily, const QDateTime &date){
-//	if(!issueFamily || !issueFamily->originatingIssue() || !issueFamily->originatingIssue()->createdDate().isValid())
-//		return 0;
-
-//	AMGitHubIssue *originatingIssue = issueFamily->originatingIssue();
-//	if(date < originatingIssue->createdDate())
-//		return 0;
-
-//	if(originatingIssue->closedDate().isValid() && (date >= originatingIssue->closedDate()) && !issueFamily->pullRequestIssue() && !originatingIssue->inlineIssue() )
-//		return probableTimeForEstimatedComplexity(issueFamily->estimatedComplexity());
-
-//	return 0;
-//}
-
-//double AMGitHubComplexityManager::complexityMappedCompletedWorkAtDate(AMGitHubIssueFamily *issueFamily, const QDateTime &date){
-//	if(!issueFamily || !issueFamily->originatingIssue() || !issueFamily->originatingIssue()->createdDate().isValid())
-//		return 0;
-
-//	AMGitHubIssue *originatingIssue = issueFamily->originatingIssue();
-//	if(date < originatingIssue->createdDate())
-//		return 0;
-
-//	if(originatingIssue->closedDate().isValid() && (date >= originatingIssue->closedDate()) && (issueFamily->actualComplexity() != AMGitHubIssue::ActualComplexityInvalid) )
-//		return averageTimeForActualComplexity(issueFamily->actualComplexity());
-
-//	return 0;
-//}
-
-//double AMGitHubComplexityManager::reportedCompletedWorkAtDate(AMGitHubIssueFamily *issueFamily, const QDateTime &date){
-//	if(!issueFamily || !issueFamily->originatingIssue() || !issueFamily->originatingIssue()->createdDate().isValid())
-//		return 0;
-
-//	AMGitHubIssue *originatingIssue = issueFamily->originatingIssue();
-//	if(date < originatingIssue->createdDate())
-//		return 0;
-
-//	if(originatingIssue->closedDate().isValid() && (date >= originatingIssue->closedDate()) && (issueFamily->actualComplexity() != AMGitHubIssue::ActualComplexityInvalid) ){
-//		if(issueFamily->normalizedTimeEstiamte() < 0)
-//			return 0;
-//		return issueFamily->normalizedTimeEstiamte();
-//	}
-
-//	return 0;
-//}
-
-//void AMGitHubComplexityManager::incrementComplexityMapping(AMGitHubIssueFamily::ComplexityMapping complexityMapping){
-//	complexityMappingMatrix_[complexityMapping] = complexityMappingMatrix_.at(complexityMapping)+1;
-//}
+	return 0;
+}
 
 bool AMGitHubComplexityManager::addMapping(AMGitHubIssue *oneIssue)
 {
@@ -391,59 +268,3 @@ void AMGitHubComplexityManager::clearComplexityMappings(){
 	complexityMappingMatrix_ = QVector<QList<AMGitHubIssue*> >(maxEstimate*maxActual);
 	mappedIssues_.clear();
 }
-
-//void AMGitHubComplexityManager::addTimeEstimateForEstimatedComplexity(double normalizedTimeEstimate, AMGitHubIssue::ActualComplexityValue complexityValue){
-//	if(normalizedTimeEstimate <= 0)
-//		return;
-
-//	switch(complexityValue){
-//	case AMGitHubIssue::ActualComplexity1:
-//		estimatedComplexity1Times_.append(normalizedTimeEstimate);
-//		break;
-//	case AMGitHubIssue::ActualComplexity2:
-//		estimatedComplexity2Times_.append(normalizedTimeEstimate);
-//		break;
-//	case AMGitHubIssue::ActualComplexity3:
-//		estimatedComplexity3Times_.append(normalizedTimeEstimate);
-//		break;
-//	case AMGitHubIssue::ActualComplexity5:
-//		estimatedComplexity5Times_.append(normalizedTimeEstimate);
-//		break;
-//	case AMGitHubIssue::ActualComplexity8:
-//		estimatedComplexity8Times_.append(normalizedTimeEstimate);
-//		break;
-////	case AMGitHubIssue::ComplexityK:
-////		estimatedComplexityKTimes_.append(normalizedTimeEstimate);
-////		break;
-//	case AMGitHubIssue::ActualComplexityInvalid:
-//		break;
-//	}
-//}
-
-//void AMGitHubComplexityManager::addTimeEstimateForActualComplexity(double normalizedTimeEstimate, AMGitHubIssue::ActualComplexityValue complexityValue){
-//	if(normalizedTimeEstimate <= 0)
-//		return;
-
-//	switch(complexityValue){
-//	case AMGitHubIssue::ActualComplexity1:
-//		actualComplexity1Times_.append(normalizedTimeEstimate);
-//		break;
-//	case AMGitHubIssue::ActualComplexity2:
-//		actualComplexity2Times_.append(normalizedTimeEstimate);
-//		break;
-//	case AMGitHubIssue::ActualComplexity3:
-//		actualComplexity3Times_.append(normalizedTimeEstimate);
-//		break;
-//	case AMGitHubIssue::ActualComplexity5:
-//		actualComplexity5Times_.append(normalizedTimeEstimate);
-//		break;
-//	case AMGitHubIssue::ActualComplexity8:
-//		actualComplexity8Times_.append(normalizedTimeEstimate);
-//		break;
-////	case AMGitHubIssue::ComplexityK:
-//////		actualComplexityKTimes_.append(normalizedTimeEstimate);
-////		break;
-//	case AMGitHubIssue::ActualComplexityInvalid:
-//		break;
-//	}
-//}

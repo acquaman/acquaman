@@ -6,15 +6,16 @@
 #include <QDebug>
 #include <QScrollArea>
 
-#include "actions3/AMListAction3.h"
-#include "actions3/actions/AMRestAction.h"
-#include "actions3/actions/AMGitHubGetIssuesAction.h"
-#include "actions3/actions/AMGitHubGetCommentsAction.h"
-#include "actions3/actions/AMZenHubGetEstimatesAction.h"
+//#include "actions3/AMListAction3.h"
+//#include "actions3/actions/AMRestAction.h"
+//#include "actions3/actions/AMGitHubGetIssuesAction.h"
+//#include "actions3/actions/AMGitHubGetCommentsAction.h"
+//#include "actions3/actions/AMZenHubGetEstimatesAction.h"
 
 #include "AMGitHubMilestone.h"
 #include "AMGitHubIssueFamilyView.h"
 #include "AMGitHubComplexityManager.h"
+#include "AMGitHubRepository.h"
 
 #include "MPlot/MPlot.h"
 #include "MPlot/MPlotWidget.h"
@@ -47,9 +48,18 @@ AMGithubProjectManagerMainView::~AMGithubProjectManagerMainView()
 }
 
 void AMGithubProjectManagerMainView::onInitiateButtonClicked(){
-	headerData_ = "token 2f8e7e362e5c0a5ea065255ccfdc369e70f4327b";
+//	headerData_ = "token 2f8e7e362e5c0a5ea065255ccfdc369e70f4327b";
 
 	manager_ = new QNetworkAccessManager(this);
+
+	repository_ = new AMGitHubRepository("acquaman", "acquaman", manager_, "token 2f8e7e362e5c0a5ea065255ccfdc369e70f4327b");
+
+	allIssues_ = repository_->allIssues();
+	allMilestones_ = repository_->allMilestones();
+//	allIssueFamilies_ = repository_->allIssueFamilies();
+
+	connect(repository_, SIGNAL(repositoryLoaded()), this, SLOT(onGetAllZenhubEstimatesSucceeded()));
+	repository_->initiateRepositoryLoading();
 
 //	QString removeLabelString = QString("https://api.github.com/repos/%1/%2/issues/%3/labels/%4").arg("acquaman").arg("acquaman").arg(39).arg("Complexity13");
 //	AMRestActionInfo *removeOneLabelActionInfo = new AMRestActionInfo(removeLabelString, AMRestActionInfo::DeleteRequest);
@@ -57,7 +67,8 @@ void AMGithubProjectManagerMainView::onInitiateButtonClicked(){
 //	AMRestAction *removeOneLabelAction = new AMRestAction(removeOneLabelActionInfo, manager_);
 //	removeOneLabelAction->start();
 //	return;
-
+}
+/*
 	AMGitHubGetIssuesActionInfo *getAllIssuesActionInfo = new AMGitHubGetIssuesActionInfo("acquaman", "acquaman", AMGitHubGetIssuesActionInfo::AllIssues);
 	AMGitHubGetIssuesAction *getAllIssuesAction = new AMGitHubGetIssuesAction(getAllIssuesActionInfo, manager_, headerData_, &allIssues_, &allMilestones_);
 	connect(getAllIssuesAction, SIGNAL(succeeded()), this, SLOT(onGetAllIssuesActionSucceeded()));
@@ -108,6 +119,7 @@ void AMGithubProjectManagerMainView::onGetAllCommentsActionSucceeded(){
 	connect(getAllEstimatesAction, SIGNAL(succeeded()), this, SLOT(onGetAllZenhubEstimatesSucceeded()));
 	getAllEstimatesAction->start();
 }
+*/
 
 void AMGithubProjectManagerMainView::onGetAllZenhubEstimatesSucceeded()
 {
@@ -121,8 +133,8 @@ void AMGithubProjectManagerMainView::onGetAllZenhubEstimatesSucceeded()
 	QList<int> complexityMismatches;
 	QList<int> goodIssues;
 
-	QMap<int, AMGitHubIssue*>::const_iterator h = allIssues_.constBegin();
-	while(h != allIssues_.constEnd()){
+	QMap<int, AMGitHubIssue*>::const_iterator h = allIssues_->constBegin();
+	while(h != allIssues_->constEnd()){
 //		if(!h.value()->isPullRequest() && !h.value()->projectTrackingDisabled() && (h.value()->createdDate() < QDateTime::fromString("2015-07-31", "yyyy-MM-dd")) ){
 		if(!h.value()->isPullRequest() && !h.value()->projectTrackingDisabled() && (h.value()->createdDate() < QDateTime::fromString("2015-07-05", "yyyy-MM-dd")) ){
 			allTrackableIssuesWithinRange.append(h.value()->issueNumber());
@@ -163,8 +175,8 @@ void AMGithubProjectManagerMainView::onGetAllZenhubEstimatesSucceeded()
 
 
 
-	QMap<int, AMGitHubIssue*>::const_iterator i = allIssues_.constBegin();
-	while (i != allIssues_.constEnd()) {
+	QMap<int, AMGitHubIssue*>::const_iterator i = allIssues_->constBegin();
+	while (i != allIssues_->constEnd()) {
 		if(!i.value()->isPullRequest() && i.value()->inlineIssue()){
 			AMGitHubIssueFamily *oneIssueFamily = new AMGitHubIssueFamily(i.value(), i.value());
 			allIssueFamilies_.insert(i.value()->issueNumber(), oneIssueFamily);
@@ -178,8 +190,8 @@ void AMGithubProjectManagerMainView::onGetAllZenhubEstimatesSucceeded()
 		i++;
 	}
 
-	QMap<int, AMGitHubIssue*>::const_iterator j = allIssues_.constBegin();
-	while (j != allIssues_.constEnd()) {
+	QMap<int, AMGitHubIssue*>::const_iterator j = allIssues_->constBegin();
+	while (j != allIssues_->constEnd()) {
 		if(j.value()->isPullRequest() && allIssueFamilies_.contains(j.value()->originatingIssueNumber()))
 			allIssueFamilies_.value(j.value()->originatingIssueNumber())->setPullRequestIssue(j.value());
 
@@ -341,8 +353,8 @@ void AMGithubProjectManagerMainView::onGetAllZenhubEstimatesSucceeded()
 
 
 	AMGitHubComplexityManager *complexityManager = new AMGitHubComplexityManager();
-	QMap<int, AMGitHubIssue*>::const_iterator ia = allIssues_.constBegin();
-	while (ia != allIssues_.constEnd()) {
+	QMap<int, AMGitHubIssue*>::const_iterator ia = allIssues_->constBegin();
+	while (ia != allIssues_->constEnd()) {
 		if(ia.value()->completeIssue())
 			complexityManager->addMapping(ia.value());
 		ia++;
