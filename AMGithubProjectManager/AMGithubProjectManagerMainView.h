@@ -29,12 +29,8 @@ protected slots:
 
 	void onOneZenhubEstimateUpdateSucceeded();
 
-	void onGetOneIssueEventsReturned(QVariant fullResponse, QList<QNetworkReply::RawHeaderPair> headerPairs);
-
 protected:
 	QPushButton *initiateButton_;
-	QLineEdit *userNameLineEdit_;
-	QLineEdit *passwordLineEdit_;
 
 	QNetworkAccessManager *manager_;
 
@@ -42,7 +38,7 @@ protected:
 
 	const QMap<int, AMGitHubIssue*> *allIssues_;
 	const QMap<int, AMGitHubMilestone*> *allMilestones_;
-	QMap<int, AMGitHubIssueFamily*> allIssueFamilies_;
+	const QMap<int, AMGitHubIssueFamily*> *allIssueFamilies_;
 };
 
 #endif // AMGITHUBPROJECTMANAGERMAINVIEW_H

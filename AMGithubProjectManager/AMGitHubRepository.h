@@ -56,6 +56,17 @@ public:
 	/// A count of (closed) issues that have either complete or a pull request in the old style (not really missing any info)
 	int fullySpecifiedClosedIssueCount() const { return fullySpecifiedClosedIssues_->count(); }
 
+	/// A count of ALL families
+	int familyCount() const { return allIssueFamilies_->count(); }
+	/// A count of families that are fully specified for their current state (with respect to open, closed, pull request, etc)
+	int fullySpecifiedFamilyCount() const { return fullySpecifiedFamilies_->count(); }
+	/// A count of families that are fully closed and fully specified
+	int completedFamilyCount() const { return completedFamilies_->count(); }
+
+
+	/// A count of ALL milestones
+	int milestoneCount() const { return allMilestones_->count(); }
+
 public slots:
 	void initiateRepositoryLoading();
 
@@ -79,8 +90,10 @@ protected:
 	QNetworkAccessManager *manager_;
 	QString accessToken_;
 
+	/// Map of all issues
 	QMap<int, AMGitHubIssue*> *allIssues_;
 
+	/// Category maps for issues
 	QMap<int, AMGitHubIssue*> *allOpenIssues_;
 	QMap<int, AMGitHubIssue*> *fullySpecifiedOpenIssues_;
 	QMap<int, AMGitHubIssue*> *missingEstimateOpenIssues_;
@@ -96,7 +109,14 @@ protected:
 	QMap<int, AMGitHubIssue*> *fullySpecifiedClosedIssues_;
 
 
+	/// Map of all families
 	QMap<int, AMGitHubIssueFamily*> *allIssueFamilies_;
+
+	/// Category maps for families
+	QMap<int, AMGitHubIssueFamily*> *fullySpecifiedFamilies_;
+	QMap<int, AMGitHubIssueFamily*> *completedFamilies_;
+
+	/// Map of all milestones
 	QMap<int, AMGitHubMilestone*> *allMilestones_;
 
 	QStringList commentURLs_;

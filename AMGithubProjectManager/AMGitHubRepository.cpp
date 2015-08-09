@@ -38,6 +38,10 @@ AMGitHubRepository::AMGitHubRepository(const QString &owner, const QString &repo
 
 
 	allIssueFamilies_ = new QMap<int, AMGitHubIssueFamily*>();
+
+	fullySpecifiedFamilies_ = new QMap<int, AMGitHubIssueFamily*>();
+	completedFamilies_ = new QMap<int, AMGitHubIssueFamily*>();
+
 	allMilestones_ = new QMap<int, AMGitHubMilestone*>();
 }
 
@@ -98,6 +102,22 @@ void AMGitHubRepository::onGetAllZenhubEstimatesSucceeded()
 
 	QMap<int, AMGitHubIssue*>::const_iterator h = allIssues_->constBegin();
 	while(h != allIssues_->constEnd()){
+		// Inline issues that are not pull request use the originating issue for both fields in the family
+		if(!h.value()->isPullRequest() && h.value()->inlineIssue()){
+			AMGitHubIssueFamily *oneIssueFamily = new AMGitHubIssueFamily(h.value(), h.value());
+			allIssueFamilies_->insert(h.value()->issueNumber(), oneIssueFamily);
+			if(allMilestones_->contains(h.value()->issueNumber()))
+				allMilestones_->value(h.value()->issueNumber())->associateFamily(oneIssueFamily);
+		}
+		// Issues that aren't pull requests and aren't tracking disabled are the originating issue for a family (we'll iterate again to figure out if they have an associated pull request)
+		else if(!h.value()->isPullRequest() && !h.value()->projectTrackingDisabled()){
+			AMGitHubIssueFamily *oneIssueFamily = new AMGitHubIssueFamily(h.value(), 0);
+			allIssueFamilies_->insert(h.value()->issueNumber(), oneIssueFamily);
+			if(allMilestones_->contains(h.value()->issueNumber()))
+				allMilestones_->value(h.value()->issueNumber())->associateFamily(oneIssueFamily);
+		}
+
+		// Sort open issues into category maps
 		if(h.value()->isOpen()){
 			allOpenIssues_->insert(h.key(), h.value());
 			if(h.value()->issueFullySpecifiedForState())
@@ -105,6 +125,7 @@ void AMGitHubRepository::onGetAllZenhubEstimatesSucceeded()
 			if(h.value()->issueMissingEstimateComplexity())
 				missingEstimateOpenIssues_->insert(h.key(), h.value());
 		}
+		// Sort closed issues into category maps
 		if(h.value()->isClosed()){
 			allClosedIssues_->insert(h.key(), h.value());
 			if(h.value()->issueCompletelyUntracked())
@@ -126,6 +147,26 @@ void AMGitHubRepository::onGetAllZenhubEstimatesSucceeded()
 		}
 
 		h++;
+	}
+
+	QMap<int, AMGitHubIssue*>::const_iterator i = allIssues_->constBegin();
+	while (i != allIssues_->constEnd()) {
+		// Pull requests that have originating issues in the family map set themselves as the pull request
+		if(i.value()->isPullRequest() && allIssueFamilies_->contains(i.value()->originatingIssueNumber()))
+			allIssueFamilies_->value(i.value()->originatingIssueNumber())->setPullRequestIssue(i.value());
+
+		i++;
+	}
+
+	QMap<int, AMGitHubIssueFamily*>::const_iterator j = allIssueFamilies_->constBegin();
+	while(j != allIssueFamilies_->constEnd()) {
+
+		if(j.value()->fullySpecifiedFamily())
+			fullySpecifiedFamilies_->insert(j.value()->originatingIssue()->issueNumber(), j.value());
+		if(j.value()->completedFamily())
+			completedFamilies_->insert(j.value()->originatingIssue()->issueNumber(), j.value());
+
+		j++;
 	}
 
 	qDebug() << "Repository loaded";
