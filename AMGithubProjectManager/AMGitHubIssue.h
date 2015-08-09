@@ -24,7 +24,9 @@ public:
 	QString assignee() const { return assignee_; }
 
 	AMGitHubIssue::ActualComplexityValue actualComplexityValue() const { return actualComplexityValue_; }
+	bool validActualComplexity() const;
 	AMGitHubIssue::EstimatedComplexityValue estimatedComplexityValue() const { return estimatedComplexityValue_; }
+	bool validEstimatedComplexity() const;
 	QString timeEstimateString() const { return timeEstimateString_; }
 
 	bool isPullRequest() const { return isPullRequest_; }
@@ -37,6 +39,10 @@ public:
 	bool projectTrackingDisabled() const { return projectTrackingDisabled_; }
 	bool inlineIssue() const { return inlineIssue_; }
 
+	bool issueCompletelyUntracked() const;
+	bool issueTrackedWithoutEstimates() const;
+	bool completeIssue() const;
+
 	AMGitHubIssue::IssueState issueState() const { return issueState_; }
 	bool isOpen() const { return issueState_ == AMGitHubIssue::OpenState; }
 	bool isClosed() const { return issueState_ == AMGitHubIssue::ClosedState; }
@@ -47,8 +53,6 @@ public:
 	QDateTime closedDate() const { return closedDate_; }
 
 	double normalizedTimeEstimate() const;
-
-	bool completeIssue() const;
 
 	QString oneLineDebugInfo() const;
 	QString multiLineDebugInfo() const;

@@ -21,6 +21,22 @@ AMGitHubRepository::AMGitHubRepository(const QString &owner, const QString &repo
 	accessToken_ = accessToken;
 
 	allIssues_ = new QMap<int, AMGitHubIssue*>();
+
+	allOpenIssues_ = new QMap<int, AMGitHubIssue*>();
+	fullySpecifiedOpenIssues_ = new QMap<int, AMGitHubIssue*>();
+	missingEstimateOpenIssues_ = new QMap<int, AMGitHubIssue*>();
+
+	allClosedIssues_ = new QMap<int, AMGitHubIssue*>();
+	completelyUntrackedIssues_ = new QMap<int, AMGitHubIssue*>();
+	trackedWithoutEstimateIssues_ = new QMap<int, AMGitHubIssue*>();
+	fullyTrackedIssues_ = new QMap<int, AMGitHubIssue*>();
+	completeIssues_ = new QMap<int, AMGitHubIssue*>();
+	missingEstimateClosedIssues_ = new QMap<int, AMGitHubIssue*>();
+	missingActualClosedIssues_ = new QMap<int, AMGitHubIssue*>();
+	missingTimeClosedIssues_ = new QMap<int, AMGitHubIssue*>();
+	fullySpecifiedClosedIssues_ = new QMap<int, AMGitHubIssue*>();
+
+
 	allIssueFamilies_ = new QMap<int, AMGitHubIssueFamily*>();
 	allMilestones_ = new QMap<int, AMGitHubMilestone*>();
 }
@@ -79,6 +95,39 @@ void AMGitHubRepository::onGetAllCommentsActionSucceeded(){
 
 void AMGitHubRepository::onGetAllZenhubEstimatesSucceeded()
 {
-	qDebug() << "Repositor loaded";
+
+	QMap<int, AMGitHubIssue*>::const_iterator h = allIssues_->constBegin();
+	while(h != allIssues_->constEnd()){
+		if(h.value()->isOpen()){
+			allOpenIssues_->insert(h.key(), h.value());
+			if(h.value()->validEstimatedComplexity())
+				fullySpecifiedOpenIssues_->insert(h.key(), h.value());
+			if(!h.value()->validEstimatedComplexity())
+				missingEstimateOpenIssues_->insert(h.key(), h.value());
+		}
+		if(h.value()->isClosed()){
+			allClosedIssues_->insert(h.key(), h.value());
+			if(h.value()->issueCompletelyUntracked())
+				completelyUntrackedIssues_->insert(h.key(), h.value());
+			if(h.value()->issueTrackedWithoutEstimates())
+				trackedWithoutEstimateIssues_->insert(h.key(), h.value());
+			if(!h.value()->issueCompletelyUntracked() && !h.value()->issueTrackedWithoutEstimates())
+				fullyTrackedIssues_->insert(h.key(), h.value());
+			if(h.value()->completeIssue())
+				completeIssues_->insert(h.key(), h.value());
+			if(!h.value()->validEstimatedComplexity() && !h.value()->issueCompletelyUntracked() && !h.value()->issueTrackedWithoutEstimates())
+				missingEstimateClosedIssues_->insert(h.key(), h.value());
+			if(!h.value()->validActualComplexity() && !h.value()->issueCompletelyUntracked() && !h.value()->issueTrackedWithoutEstimates())
+				missingActualClosedIssues_->insert(h.key(), h.value());
+			if((h.value()->normalizedTimeEstimate() < 0)  && !h.value()->issueCompletelyUntracked() && !h.value()->issueTrackedWithoutEstimates())
+				missingTimeClosedIssues_->insert(h.key(), h.value());
+			if(h.value()->completeIssue() || h.value()->issueTrackedWithoutEstimates() )
+				fullySpecifiedClosedIssues_->insert(h.key(), h.value());
+		}
+
+		h++;
+	}
+
+	qDebug() << "Repository loaded";
 	emit repositoryLoaded();
 }

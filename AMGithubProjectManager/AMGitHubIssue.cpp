@@ -89,6 +89,43 @@ AMGitHubIssue::~AMGitHubIssue()
 {
 }
 
+bool AMGitHubIssue::validActualComplexity() const
+{
+	if(actualComplexityValue_ != AMGitHubIssue::ActualComplexityInvalid)
+		return true;
+	return false;
+}
+
+bool AMGitHubIssue::validEstimatedComplexity() const
+{
+	if(estimatedComplexityValue_ != AMGitHubIssue::EstimatedComplexityInvalid)
+		return true;
+	return false;
+}
+
+bool AMGitHubIssue::issueCompletelyUntracked() const
+{
+	if(!isPullRequest_ && projectTrackingDisabled())
+		return true;
+	return false;
+}
+
+bool AMGitHubIssue::issueTrackedWithoutEstimates() const
+{
+	if(isPullRequest_ && projectTrackingDisabled())
+		return true;
+	return false;
+}
+
+bool AMGitHubIssue::completeIssue() const
+{
+	if(!complexityMapping_->validMapping())
+		return false;
+	if(normalizedTimeEstimate() < 0)
+		return false;
+	return true;
+}
+
 AMGitHubIssue::ActualComplexityValue AMGitHubIssue::actualComplexityFromString(const QString &actualComplexityString)
 {
 	if(actualComplexityString == "Complexity1")
@@ -203,15 +240,6 @@ double AMGitHubIssue::normalizedTimeEstimate() const{
 	if(retVal < 1.0/60.0)
 		retVal = 1.0/60.0;
 	return retVal;
-}
-
-bool AMGitHubIssue::completeIssue() const
-{
-	if(!complexityMapping_->validMapping())
-		return false;
-	if(normalizedTimeEstimate() < 0)
-		return false;
-	return true;
 }
 
 QString AMGitHubIssue::oneLineDebugInfo() const
