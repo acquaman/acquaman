@@ -1,5 +1,61 @@
 #include "AMGitHubProject.h"
 
+AMGitHubIssueValueMap::AMGitHubIssueValueMap(QObject *parent) :
+	QObject(parent)
+{
+	valueMap_ = new QMap<const AMGitHubIssue*, double>();
+}
+
+bool AMGitHubIssueValueMap::containsIssue(const AMGitHubIssue *issue) const
+{
+	return valueMap_->contains(issue);
+}
+
+double AMGitHubIssueValueMap::valueForIssue(const AMGitHubIssue *issue) const
+{
+	if(valueMap_->contains(issue))
+		return valueMap_->value(issue);
+	return 0;
+}
+
+QList<double> AMGitHubIssueValueMap::valueList() const
+{
+	QList<double> retVal;
+	QMap<const AMGitHubIssue*, double>::const_iterator i = valueMap_->constBegin();
+	while(i != valueMap_->constEnd()){
+		retVal.append(i.value());
+		i++;
+	}
+	return retVal;
+}
+
+double AMGitHubIssueValueMap::total() const
+{
+	double runningTotal = 0;
+	QMap<const AMGitHubIssue*, double>::const_iterator i = valueMap_->constBegin();
+	while(i != valueMap_->constEnd()){
+		runningTotal += i.value();
+		i++;
+	}
+	return runningTotal;
+}
+
+double AMGitHubIssueValueMap::average(double divisor) const
+{
+	if(divisor < 0)
+		return total()/(double)(valueMap_->count());
+	if(divisor == 0)
+		return 0;
+	return total()/divisor;
+}
+
+void AMGitHubIssueValueMap::insertMapping(const AMGitHubIssue *issue, double value)
+{
+	if(valueMap_->contains(issue))
+		return;
+	valueMap_->insert(issue, value);
+}
+
 /*
 AMGitHubProject::AMGitHubProject(QList<AMGitHubIssueFamily *> projectIssues, const QDateTime &endDate, int weeksToCompute, QObject *parent) :
 	QObject(parent)

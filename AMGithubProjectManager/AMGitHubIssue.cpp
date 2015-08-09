@@ -246,6 +246,20 @@ QString AMGitHubIssue::stringFromState(AMGitHubIssue::IssueState issueState){
 	}
 }
 
+AMGitHubIssue::EstimatedComplexityValue AMGitHubIssue::correspondingEstimatedComplexity(AMGitHubIssue::ActualComplexityValue actualComplexity)
+{
+	int actualAsInt = int(actualComplexity);
+	AMGitHubIssue::EstimatedComplexityValue retVal = AMGitHubIssue::EstimatedComplexityValue(actualAsInt);
+	return retVal;
+}
+
+AMGitHubIssue::ActualComplexityValue AMGitHubIssue::correspondingActualComplexity(AMGitHubIssue::EstimatedComplexityValue estimatedComplexity)
+{
+	int estimateAsInt = int(estimatedComplexity);
+	AMGitHubIssue::ActualComplexityValue retVal = AMGitHubIssue::ActualComplexityValue(estimateAsInt);
+	return retVal;
+}
+
 double AMGitHubIssue::normalizedTimeEstimate() const{
 	QString timeEstimateFirstHalf = timeEstimateString().section(' ', 0, 0);
 	QString timeEstimateSecondHalf = timeEstimateString().section(' ', 1, 1);

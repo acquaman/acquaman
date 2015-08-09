@@ -9,6 +9,7 @@
 #include "AMGitHubIssueFamilyView.h"
 #include "AMGitHubComplexityManager.h"
 #include "AMGitHubRepository.h"
+#include "AMGitHubProject.h"
 
 #include "MPlot/MPlot.h"
 #include "MPlot/MPlotWidget.h"
@@ -99,6 +100,58 @@ void AMGithubProjectManagerMainView::onGetAllZenhubEstimatesSucceeded()
 	qDebug() << "\n\n";
 	qDebug() << "All Milestones:           " << repository_->milestoneCount();
 
+
+
+	AMGitHubIssueValueMap normalizedEstimateMap;
+	AMGitHubIssueValueMap normalizedCurrentMap;
+	AMGitHubIssueValueMap normalizedCompletedMap;
+	AMGitHubIssueValueMap normalizedTimeReportingMap;
+	AMGitHubIssueValueMap normalizedOpenMap;
+	AMGitHubIssueValueMap normalizedClosedMap;
+
+	QList<AMGitHubIssue*> workingIssues;
+	QMap<int, AMGitHubIssue*>::const_iterator ib = allIssues_->constBegin();
+	while (ib != allIssues_->constEnd()) {
+		if(ib.value()->issueFullySpecifiedForState() && !ib.value()->issueTrackedWithoutEstimates())
+			workingIssues.append(ib.value());
+		ib++;
+	}
+
+	for(int x = 0, size = workingIssues.count(); x < size; x++){
+		AMGitHubIssue *oneIssue = workingIssues.at(x);
+		AMGitHubIssue::EstimatedComplexityValue oneEstimatedComplexity = oneIssue->estimatedComplexityValue();
+		AMGitHubIssue::ActualComplexityValue oneActualComplexity = oneIssue->actualComplexityValue();
+		double oneTimeReportingValue = oneIssue->normalizedTimeEstimate();
+
+		if(oneEstimatedComplexity != AMGitHubIssue::EstimatedComplexityInvalid){
+			normalizedEstimateMap.insertMapping(oneIssue, complexityManager->probableTimeForEstimatedComplexity(oneEstimatedComplexity));
+			if(oneIssue->isOpen())
+				normalizedOpenMap.insertMapping(oneIssue, complexityManager->probableTimeForEstimatedComplexity(oneEstimatedComplexity));
+		}
+		if(oneActualComplexity != AMGitHubIssue::ActualComplexityInvalid){
+			normalizedCompletedMap.insertMapping(oneIssue, complexityManager->probableTimeForEstimatedComplexity(AMGitHubIssue::correspondingEstimatedComplexity(oneActualComplexity)));
+			if(oneIssue->isClosed())
+				normalizedClosedMap.insertMapping(oneIssue, complexityManager->probableTimeForEstimatedComplexity(AMGitHubIssue::correspondingEstimatedComplexity(oneActualComplexity)));
+		}
+		if(oneTimeReportingValue > 0){
+			normalizedTimeReportingMap.insertMapping(oneIssue, oneTimeReportingValue);
+		}
+
+		if(oneIssue->isClosed())
+			normalizedCurrentMap.insertMapping(oneIssue, complexityManager->probableTimeForEstimatedComplexity(AMGitHubIssue::correspondingEstimatedComplexity(oneActualComplexity)));
+		else if(oneIssue->isOpen())
+			normalizedCurrentMap.insertMapping(oneIssue, complexityManager->probableTimeForEstimatedComplexity(oneEstimatedComplexity));
+	}
+
+	qDebug() << QString("Normalized Estimates [%1] Total: %2").arg(normalizedEstimateMap.valueMap()->count()).arg(normalizedEstimateMap.total());
+	qDebug() << QString("Normalized Current   [%1] Total: %2").arg(normalizedCurrentMap.valueMap()->count()).arg(normalizedCurrentMap.total());
+	qDebug() << QString("Normalized Completed [%1] Total: %2").arg(normalizedCompletedMap.valueMap()->count()).arg(normalizedCompletedMap.total());
+	qDebug() << QString("Normalized Times     [%1] Total: %2").arg(normalizedTimeReportingMap.valueMap()->count()).arg(normalizedTimeReportingMap.total());
+
+	qDebug() << "\n\n";
+	qDebug() << QString("Normalized Open      [%1] Total: %2").arg(normalizedOpenMap.valueMap()->count()).arg(normalizedOpenMap.total());
+	qDebug() << QString("Normalized Closed    [%1] Total: %2").arg(normalizedClosedMap.valueMap()->count()).arg(normalizedClosedMap.total());
+
 	return;
 }
 
@@ -139,7 +192,6 @@ void AMGithubProjectManagerMainView::onOneZenhubEstimateUpdateSucceeded()
 		rr++;
 	}
 
-	//		for(int x = 0, size = bioxasSideMilestone->associatedFamilies().count(); x < size; x++){
 	for(int x = 0, size = workingIssueFamilies.count(); x < size; x++){
 		//			AMGitHubIssueFamilyView *oneFamilyView = new AMGitHubIssueFamilyView(bioxasSideMilestone->associatedFamilies().at(x));
 		//			AMGitHubIssueFamilyView *oneFamilyView = new AMGitHubIssueFamilyView(workingIssueFamilies.at(x));

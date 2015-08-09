@@ -81,6 +81,9 @@ public:
 
 	static QString stringFromState(AMGitHubIssue::IssueState issueState);
 
+	static AMGitHubIssue::EstimatedComplexityValue correspondingEstimatedComplexity(AMGitHubIssue::ActualComplexityValue actualComplexity);
+	static AMGitHubIssue::ActualComplexityValue correspondingActualComplexity(AMGitHubIssue::EstimatedComplexityValue estimatedComplexity);
+
 public slots:
 	void setIssueNumber(int issueNumber) { issueNumber_ = issueNumber; }
 	void setTitle(const QString &title) { title_ = title; }

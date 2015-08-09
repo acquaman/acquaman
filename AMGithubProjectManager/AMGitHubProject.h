@@ -4,6 +4,27 @@
 #include "AMGitHubIssueFamily.h"
 #include "AMGitHubMilestone.h"
 
+class AMGitHubIssueValueMap : public QObject
+{
+Q_OBJECT
+public:
+	AMGitHubIssueValueMap(QObject *parent = 0);
+
+	bool containsIssue(const AMGitHubIssue *issue) const;
+	double valueForIssue(const AMGitHubIssue *issue) const;
+	QList<double> valueList() const;
+	const QMap<const AMGitHubIssue*, double>* valueMap() const { return valueMap_; }
+
+	double total() const;
+	double average(double divisor = -1) const;
+
+public slots:
+	void insertMapping(const AMGitHubIssue *issue, double value);
+
+protected:
+	QMap<const AMGitHubIssue*, double> *valueMap_;
+};
+
 /*
 class AMGitHubProject : public QObject
 {
