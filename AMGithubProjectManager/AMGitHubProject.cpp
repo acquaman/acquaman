@@ -1,5 +1,6 @@
 #include "AMGitHubProject.h"
 
+/*
 AMGitHubProject::AMGitHubProject(QList<AMGitHubIssueFamily *> projectIssues, const QDateTime &endDate, int weeksToCompute, QObject *parent) :
 	QObject(parent)
 {
@@ -204,3 +205,4 @@ void AMGitHubProject::evaluate(){
 //	qDebug() << "Average Complexity Mapped Velocity: " << averageCalendarComplexityMappedVelocity << "or" << averageAvailabilityComplexityMappedVelocity;
 //	qDebug() << "Average Reported Velocity: " << averageCalendarReportedVelocity << "or" << averageAvailabilityReportedVelocity;
 }
+*/

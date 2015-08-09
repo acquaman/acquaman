@@ -1,12 +1,12 @@
 #include "AMGitHubMilestone.h"
 
-AMGitHubMilestone::AMGitHubMilestone(int number, const QString &title, AMGitHubMilestone::MilestoneState state, QObject *parent) :
-	QObject(parent)
-{
-	number_ = number;
-	title_ = title;
-	state_ = state;
-}
+//AMGitHubMilestone::AMGitHubMilestone(int number, const QString &title, AMGitHubMilestone::MilestoneState state, QObject *parent) :
+//	QObject(parent)
+//{
+//	number_ = number;
+//	title_ = title;
+//	state_ = state;
+//}
 
 AMGitHubMilestone::AMGitHubMilestone(QVariantMap jsonMap, QObject *parent) :
 	QObject(parent)
@@ -46,12 +46,14 @@ QString AMGitHubMilestone::stateAsString() const{
 	}
 }
 
-void AMGitHubMilestone::appendAssociatedIssue(AMGitHubIssue *associatedIssue){
-	if(!associatedIssues_.contains(associatedIssue))
-		associatedIssues_.append(associatedIssue);
+void AMGitHubMilestone::associatedIssue(AMGitHubIssue *associatedIssue){
+//	if(!associatedIssues_.contains(associatedIssue))
+//		associatedIssues_.append(associatedIssue);
+	if(!associatedIssues_->contains(associatedIssue->issueNumber()))
+		associatedIssues_->insert(associatedIssue->issueNumber(), associatedIssue);
 }
 
-void AMGitHubMilestone::appendAssociatedFamily(AMGitHubIssueFamily *associatedFamily){
-	if(!associatedFamilies_.contains(associatedFamily))
-		associatedFamilies_.append(associatedFamily);
-}
+//void AMGitHubMilestone::appendAssociatedFamily(AMGitHubIssueFamily *associatedFamily){
+//	if(!associatedFamilies_.contains(associatedFamily))
+//		associatedFamilies_.append(associatedFamily);
+//}

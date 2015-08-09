@@ -4,6 +4,7 @@
 #include "AMGitHubIssueFamily.h"
 #include "AMGitHubMilestone.h"
 
+/*
 class AMGitHubProject : public QObject
 {
 Q_OBJECT
@@ -64,5 +65,6 @@ protected:
 	double averageAvailabilityComplexityMappedVelocity_;
 	double averageAvailabilityReportedVelocity_;
 };
+*/
 
 #endif // AMGITHUBPROJECT_H

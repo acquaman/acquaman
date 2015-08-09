@@ -39,9 +39,24 @@ public:
 	bool projectTrackingDisabled() const { return projectTrackingDisabled_; }
 	bool inlineIssue() const { return inlineIssue_; }
 
+	/// No tracking whatsoever (really old issues)
 	bool issueCompletelyUntracked() const;
+	/// Tracked but no Estimate/Actual/Time info (old pull requests)
 	bool issueTrackedWithoutEstimates() const;
+	/// Issue SHOULD have full Estimate/Actual/Time info
+	bool fullyTrackedIssue() const;
+	/// Issue has full Estimate/Actual/Time info
 	bool completeIssue() const;
+
+	/// Open issues missing valid estimate and closed issues that should have an estimate but are missing one
+	bool issueMissingEstimateComplexity() const;
+	/// Closed issues that should have an actual but are missing one
+	bool issueMissingActualComplexity() const;
+	/// Closed issues that should have a time report but are missing one
+	bool issueMissingTimeReporting() const;
+
+	/// Open issues with estimate, closed issues with full Estimate/Actual/Time info, and closed issues that are partially tracked
+	bool issueFullySpecifiedForState() const;
 
 	AMGitHubIssue::IssueState issueState() const { return issueState_; }
 	bool isOpen() const { return issueState_ == AMGitHubIssue::OpenState; }
@@ -125,6 +140,8 @@ public:
 
 	int mappingIndex() const;
 	bool validMapping() const { return validMapping_; }
+
+	bool symmetricComplexityMapping() const;
 
 	static AMGitHubIssue::ActualComplexityValue actualComplexityValueFromMappingIndex(int index);
 	static AMGitHubIssue::EstimatedComplexityValue estimatedComplexityValueFromMappingIndex(int index);

@@ -7,6 +7,28 @@ class AMGitHubIssueFamily : public QObject
 {
 Q_OBJECT
 public:
+	AMGitHubIssueFamily(AMGitHubIssue *originatingIssue, AMGitHubIssue *pullRequestIssue, QObject *parent = 0);
+
+	const AMGitHubIssue* originatingIssue() const { return originatingIssue_; }
+	const AMGitHubIssue* pullRequestIssue() const { return pullRequestIssue_; }
+
+	AMGitHubIssue* originatingIssue() { return originatingIssue_; }
+	AMGitHubIssue* pullRequestIssue() { return pullRequestIssue_; }
+
+public slots:
+	void setOriginatingIssue(AMGitHubIssue *originatingIssue) { originatingIssue_ = originatingIssue; }
+	void setPullRequestIssue(AMGitHubIssue *pullRequestIssue) { pullRequestIssue_ = pullRequestIssue; }
+
+protected:
+	AMGitHubIssue *originatingIssue_;
+	AMGitHubIssue *pullRequestIssue_;
+};
+
+/*
+class AMGitHubIssueFamily : public QObject
+{
+Q_OBJECT
+public:
 	enum ComplexityMapping { InvalidComplexityMapping = 0,
 				 Complexity1ToComplexity1 = 1, Complexity1ToComplexity2 = 2, Complexity1ToComplexity3 = 3, Complexity1ToComplexity5 = 4, Complexity1ToComplexity8 = 5,
 				 Complexity2ToComplexity1 = 6, Complexity2ToComplexity2 = 7, Complexity2ToComplexity3= 7, Complexity2ToComplexity5 = 9, Complexity2ToComplexity8 = 10,
@@ -49,5 +71,6 @@ protected:
 	AMGitHubIssue *originatingIssue_;
 	AMGitHubIssue *pullRequestIssue_;
 };
+*/
 
 #endif // AMGITHUBISSUEFAMILY_H

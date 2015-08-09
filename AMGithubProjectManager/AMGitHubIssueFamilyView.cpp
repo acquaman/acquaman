@@ -7,16 +7,17 @@ AMGitHubIssueFamilyView::AMGitHubIssueFamilyView(AMGitHubIssueFamily *issueFamil
 	QWidget(parent)
 {
 	issueFamily_ = issueFamily;
+	/*
 	if(issueFamily){
 		QFormLayout *fl = new QFormLayout();
 
 		if(issueFamily_->originatingIssue())
-			fl->addRow("Original:", new QLabel(QString("%1").arg(issueFamily_->originatingIssueNumber())));
+			fl->addRow("Original:", new QLabel(QString("%1").arg(issueFamily_->originatingIssue()->issueNumber())));
 		else
 			fl->addRow("Original:", new QLabel("MISSING"));
 
 		if(issueFamily_->pullRequestIssue())
-			fl->addRow("Pull Request:", new QLabel(QString("%1").arg(issueFamily_->pullRequestIssueNumber())));
+			fl->addRow("Pull Request:", new QLabel(QString("%1").arg(issueFamily_->pullRequestIssue()->issueNumber())));
 		else
 			fl->addRow("Pull Request:", new QLabel("MISSING"));
 
@@ -42,4 +43,5 @@ AMGitHubIssueFamilyView::AMGitHubIssueFamilyView(AMGitHubIssueFamily *issueFamil
 
 		setLayout(fl);
 	}
+	*/
 }

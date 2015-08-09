@@ -100,9 +100,9 @@ void AMGitHubRepository::onGetAllZenhubEstimatesSucceeded()
 	while(h != allIssues_->constEnd()){
 		if(h.value()->isOpen()){
 			allOpenIssues_->insert(h.key(), h.value());
-			if(h.value()->validEstimatedComplexity())
+			if(h.value()->issueFullySpecifiedForState())
 				fullySpecifiedOpenIssues_->insert(h.key(), h.value());
-			if(!h.value()->validEstimatedComplexity())
+			if(h.value()->issueMissingEstimateComplexity())
 				missingEstimateOpenIssues_->insert(h.key(), h.value());
 		}
 		if(h.value()->isClosed()){
@@ -111,17 +111,17 @@ void AMGitHubRepository::onGetAllZenhubEstimatesSucceeded()
 				completelyUntrackedIssues_->insert(h.key(), h.value());
 			if(h.value()->issueTrackedWithoutEstimates())
 				trackedWithoutEstimateIssues_->insert(h.key(), h.value());
-			if(!h.value()->issueCompletelyUntracked() && !h.value()->issueTrackedWithoutEstimates())
+			if(h.value()->fullyTrackedIssue())
 				fullyTrackedIssues_->insert(h.key(), h.value());
 			if(h.value()->completeIssue())
 				completeIssues_->insert(h.key(), h.value());
-			if(!h.value()->validEstimatedComplexity() && !h.value()->issueCompletelyUntracked() && !h.value()->issueTrackedWithoutEstimates())
+			if(h.value()->issueMissingEstimateComplexity())
 				missingEstimateClosedIssues_->insert(h.key(), h.value());
-			if(!h.value()->validActualComplexity() && !h.value()->issueCompletelyUntracked() && !h.value()->issueTrackedWithoutEstimates())
+			if(h.value()->issueMissingActualComplexity())
 				missingActualClosedIssues_->insert(h.key(), h.value());
-			if((h.value()->normalizedTimeEstimate() < 0)  && !h.value()->issueCompletelyUntracked() && !h.value()->issueTrackedWithoutEstimates())
+			if(h.value()->issueMissingTimeReporting())
 				missingTimeClosedIssues_->insert(h.key(), h.value());
-			if(h.value()->completeIssue() || h.value()->issueTrackedWithoutEstimates() )
+			if(h.value()->issueFullySpecifiedForState())
 				fullySpecifiedClosedIssues_->insert(h.key(), h.value());
 		}
 

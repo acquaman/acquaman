@@ -126,7 +126,7 @@ void AMGitHubGetIssuesAction::restResponseImplementation(QVariant fullResponse, 
 				allIssues_->insert(oneIssue->issueNumber(), oneIssue);
 
 				if(associatedMilestone && !oneIssue->projectTrackingDisabled())
-					associatedMilestone->appendAssociatedIssue(oneIssue);
+					associatedMilestone->associatedIssue(oneIssue);
 			}
 		}
 	}

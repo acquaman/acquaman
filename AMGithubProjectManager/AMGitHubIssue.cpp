@@ -117,6 +117,11 @@ bool AMGitHubIssue::issueTrackedWithoutEstimates() const
 	return false;
 }
 
+bool AMGitHubIssue::fullyTrackedIssue() const
+{
+	return !issueCompletelyUntracked() && !issueTrackedWithoutEstimates();
+}
+
 bool AMGitHubIssue::completeIssue() const
 {
 	if(!complexityMapping_->validMapping())
@@ -124,6 +129,42 @@ bool AMGitHubIssue::completeIssue() const
 	if(normalizedTimeEstimate() < 0)
 		return false;
 	return true;
+}
+
+bool AMGitHubIssue::issueMissingEstimateComplexity() const
+{
+	if(isOpen() && !validEstimatedComplexity())
+		return true;
+	if(isClosed() && !validEstimatedComplexity() && !issueCompletelyUntracked() && !issueTrackedWithoutEstimates())
+		return true;
+	return false;
+}
+
+bool AMGitHubIssue::issueMissingActualComplexity() const
+{
+	if(isOpen())
+		return false;
+	if(isClosed() && !validActualComplexity() && !issueCompletelyUntracked() && !issueTrackedWithoutEstimates())
+		return true;
+	return false;
+}
+
+bool AMGitHubIssue::issueMissingTimeReporting() const
+{
+	if(isOpen())
+		return false;
+	if(isClosed() && (normalizedTimeEstimate() < 0)  && !issueCompletelyUntracked() && !issueTrackedWithoutEstimates())
+		return true;
+	return false;
+}
+
+bool AMGitHubIssue::issueFullySpecifiedForState() const
+{
+	if(isOpen() && validEstimatedComplexity())
+		return true;
+	if(isClosed() && (completeIssue() || issueTrackedWithoutEstimates()) )
+		return true;
+	return false;
 }
 
 AMGitHubIssue::ActualComplexityValue AMGitHubIssue::actualComplexityFromString(const QString &actualComplexityString)
@@ -397,6 +438,18 @@ int AMGitHubComplexityMapping::mappingIndex() const
 		return maxEstimate*indexActual + indexEstimate;
 	}
 	return -1;
+}
+
+bool AMGitHubComplexityMapping::symmetricComplexityMapping() const
+{
+	if(!validMapping())
+		return false;
+	int maxEstimate = int(AMGitHubIssue::EstimatedComplexityInvalid)-1;
+	int columnValue = mappingIndex()%maxEstimate;
+	int rowValue = mappingIndex()/maxEstimate;
+	if(columnValue == rowValue)
+		return true;
+	return false;
 }
 
 AMGitHubIssue::ActualComplexityValue AMGitHubComplexityMapping::actualComplexityValueFromMappingIndex(int index)

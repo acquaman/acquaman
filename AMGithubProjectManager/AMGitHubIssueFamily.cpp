@@ -9,6 +9,14 @@ AMGitHubIssueFamily::AMGitHubIssueFamily(AMGitHubIssue *originatingIssue, AMGitH
 	pullRequestIssue_ = pullRequestIssue;
 }
 
+/*
+AMGitHubIssueFamily::AMGitHubIssueFamily(AMGitHubIssue *originatingIssue, AMGitHubIssue *pullRequestIssue, QObject *parent) :
+	QObject(parent)
+{
+	originatingIssue_ = originatingIssue;
+	pullRequestIssue_ = pullRequestIssue;
+}
+
 AMGitHubIssueFamily::~AMGitHubIssueFamily()
 {
 }
@@ -291,3 +299,4 @@ double AMGitHubIssueFamily::normalizedTimeEstiamte() const{
 		retVal = 1.0;
 	return retVal;
 }
+*/
