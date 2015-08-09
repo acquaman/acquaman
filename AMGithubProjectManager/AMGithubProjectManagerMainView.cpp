@@ -81,7 +81,7 @@ void AMGithubProjectManagerMainView::onGetAllZenhubEstimatesSucceeded()
 	qDebug() << "Full Mapping Matrix";
 	qDebug() << complexityManager->fullMatrixString();
 
-	int maxEstimate = int(AMGitHubIssue::EstimatedComplexityInvalid)-1;
+	int maxEstimate = int(AMGitHubIssue::EstimatedComplexityInvalid);
 	for(int x = 0, size = maxEstimate; x < size; x++){
 		AMGitHubIssue::EstimatedComplexityValue oneEstimatedComplexity = AMGitHubIssue::EstimatedComplexityValue(x);
 		AMGitHubIssue::ActualComplexityValue oneActualComplexity = AMGitHubIssue::ActualComplexityValue(x);

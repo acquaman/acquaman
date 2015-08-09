@@ -183,8 +183,8 @@ AMGitHubIssue::ActualComplexityValue AMGitHubIssue::actualComplexityFromString(c
 		return AMGitHubIssue::ActualComplexity13;
 	else if(actualComplexityString == "Complexity21")
 		return AMGitHubIssue::ActualComplexity21;
-//	else if(actualComplexityString == "ComplexityK")
-//		return AMGitHubIssue::ComplexityK;
+	else if(actualComplexityString == "Complexity40")
+		return AMGitHubIssue::ActualComplexity40;
 	else
 		return AMGitHubIssue::ActualComplexityInvalid;
 }
@@ -205,8 +205,8 @@ QString AMGitHubIssue::stringFromActualComplexity(AMGitHubIssue::ActualComplexit
 		return "Complexity13";
 	case AMGitHubIssue::ActualComplexity21:
 		return "Complexity21";
-//	case AMGitHubIssue::ComplexityK:
-//		return "ComplexityK";
+	case AMGitHubIssue::ActualComplexity40:
+		return "Complexity40";
 	case AMGitHubIssue::ActualComplexityInvalid:
 		return "Invalid Complexity";
 	default:
@@ -230,6 +230,8 @@ int AMGitHubIssue::integerFromActualComplexity(AMGitHubIssue::ActualComplexityVa
 		return 13;
 	case AMGitHubIssue::ActualComplexity21:
 		return 21;
+	case AMGitHubIssue::ActualComplexity40:
+		return 40;
 	default:
 		return -1;
 	}
@@ -445,11 +447,12 @@ AMGitHubComplexityMapping::AMGitHubComplexityMapping(AMGitHubIssue::ActualComple
 int AMGitHubComplexityMapping::mappingIndex() const
 {
 	if(validMapping_){
-		int maxEstimate = int(AMGitHubIssue::EstimatedComplexityInvalid)-1;
+		int maxEstimate = int(AMGitHubIssue::EstimatedComplexityInvalid);
 		int indexActual = int(actualComplexityValue_);
 		int indexEstimate = int(estimatedComplexityValue_);
 
-		return maxEstimate*indexActual + indexEstimate;
+//		return maxEstimate*indexActual + indexEstimate;
+		return maxEstimate*indexEstimate + indexActual;
 	}
 	return -1;
 }
@@ -458,7 +461,7 @@ bool AMGitHubComplexityMapping::symmetricComplexityMapping() const
 {
 	if(!validMapping())
 		return false;
-	int maxEstimate = int(AMGitHubIssue::EstimatedComplexityInvalid)-1;
+	int maxEstimate = int(AMGitHubIssue::EstimatedComplexityInvalid);
 	int columnValue = mappingIndex()%maxEstimate;
 	int rowValue = mappingIndex()/maxEstimate;
 	if(columnValue == rowValue)
@@ -468,22 +471,22 @@ bool AMGitHubComplexityMapping::symmetricComplexityMapping() const
 
 AMGitHubIssue::ActualComplexityValue AMGitHubComplexityMapping::actualComplexityValueFromMappingIndex(int index)
 {
-	int maxEstimate = int(AMGitHubIssue::EstimatedComplexityInvalid)-1;
-	int asInt = index/maxEstimate;
+	int maxEstimate = int(AMGitHubIssue::EstimatedComplexityInvalid);
+	int asInt = index%maxEstimate;
 	return AMGitHubIssue::ActualComplexityValue(asInt);
 }
 
 AMGitHubIssue::EstimatedComplexityValue AMGitHubComplexityMapping::estimatedComplexityValueFromMappingIndex(int index)
 {
-	int maxEstimate = int(AMGitHubIssue::EstimatedComplexityInvalid)-1;
-	int asInt = index%maxEstimate;
+	int maxEstimate = int(AMGitHubIssue::EstimatedComplexityInvalid);
+	int asInt = index/maxEstimate;
 	return AMGitHubIssue::EstimatedComplexityValue(asInt);
 }
 
 bool AMGitHubComplexityMapping::validMappingIndex(int mappingIndex)
 {
-	int maxEstimate = int(AMGitHubIssue::EstimatedComplexityInvalid)-1;
-	int maxActual = int(AMGitHubIssue::ActualComplexityInvalid)-1;
+	int maxEstimate = int(AMGitHubIssue::EstimatedComplexityInvalid);
+	int maxActual = int(AMGitHubIssue::ActualComplexityInvalid);
 	if(mappingIndex < 0 || (mappingIndex >= maxEstimate*maxActual) )
 		return false;
 	return true;
@@ -491,15 +494,15 @@ bool AMGitHubComplexityMapping::validMappingIndex(int mappingIndex)
 
 bool AMGitHubComplexityMapping::validComplexityValues(AMGitHubIssue::ActualComplexityValue actualComplexityValue, AMGitHubIssue::EstimatedComplexityValue estimatedComplexityValue)
 {
-	int maxEstimate = int(AMGitHubIssue::EstimatedComplexityInvalid)-1;
-	int maxActual = int(AMGitHubIssue::ActualComplexityInvalid)-1;
+	int maxEstimate = int(AMGitHubIssue::EstimatedComplexityInvalid);
+	int maxActual = int(AMGitHubIssue::ActualComplexityInvalid);
 
 	int actualAsInt = int(actualComplexityValue);
 	int estimateAsInt = int(estimatedComplexityValue);
 
-	if(actualAsInt < 0 || actualAsInt > maxActual)
+	if(actualAsInt < 0 || actualAsInt >= maxActual)
 		return false;
-	if(estimateAsInt < 0 || estimateAsInt > maxEstimate)
+	if(estimateAsInt < 0 || estimateAsInt >= maxEstimate)
 		return false;
 	return true;
 }

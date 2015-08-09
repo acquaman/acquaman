@@ -16,8 +16,8 @@ public:
 	double probabilityOfMapping(AMGitHubIssue::EstimatedComplexityValue estimatedComplexityValue, AMGitHubIssue::ActualComplexityValue actualComplexityValue) const;
 	double probabilityOfMapping(AMGitHubComplexityMapping *complexityMapping) const;
 
-	double probabilityOfMappingInColumn(AMGitHubIssue::EstimatedComplexityValue estimatedComplexityValue, AMGitHubIssue::ActualComplexityValue actualComplexityValue) const;
-	double probabilityOfMappingInColumn(AMGitHubComplexityMapping *complexityMapping) const;
+	double probabilityOfMappingInRow(AMGitHubIssue::EstimatedComplexityValue estimatedComplexityValue, AMGitHubIssue::ActualComplexityValue actualComplexityValue) const;
+	double probabilityOfMappingInRow(AMGitHubComplexityMapping *complexityMapping) const;
 
 	double averageTimeForEstimatedComplexity(AMGitHubIssue::EstimatedComplexityValue estimatedComplexityValue) const;
 	double averageTimeForActualComplexity(AMGitHubIssue::ActualComplexityValue actualComplexityValue) const;

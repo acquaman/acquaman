@@ -1,11 +1,17 @@
 #include "AMGitHubComplexityManager.h"
 
+#include <QDebug>
+
 AMGitHubComplexityManager::AMGitHubComplexityManager(QObject *parent) :
 	QObject(parent)
 {
-	int maxEstimate = int(AMGitHubIssue::EstimatedComplexityInvalid)-1;
-	int maxActual = int(AMGitHubIssue::ActualComplexityInvalid)-1;
+	int maxEstimate = int(AMGitHubIssue::EstimatedComplexityInvalid);
+	int maxActual = int(AMGitHubIssue::ActualComplexityInvalid);
 	complexityMappingMatrix_ = QVector<QList<AMGitHubIssue*> >(maxEstimate*maxActual);
+
+	qDebug() << "Max estimate: " << maxEstimate;
+	qDebug() << "Max actual: " << maxActual;
+	qDebug() << "Total: " << maxEstimate*maxActual;
 }
 
 double AMGitHubComplexityManager::probabilityOfMapping(AMGitHubIssue::EstimatedComplexityValue estimatedComplexityValue, AMGitHubIssue::ActualComplexityValue actualComplexityValue) const
@@ -29,44 +35,44 @@ double AMGitHubComplexityManager::probabilityOfMapping(AMGitHubComplexityMapping
 	return matrixCount/totalCount;
 }
 
-double AMGitHubComplexityManager::probabilityOfMappingInColumn(AMGitHubIssue::EstimatedComplexityValue estimatedComplexityValue, AMGitHubIssue::ActualComplexityValue actualComplexityValue) const
+double AMGitHubComplexityManager::probabilityOfMappingInRow(AMGitHubIssue::EstimatedComplexityValue estimatedComplexityValue, AMGitHubIssue::ActualComplexityValue actualComplexityValue) const
 {
 	AMGitHubComplexityMapping *tempMapping = new AMGitHubComplexityMapping(actualComplexityValue, estimatedComplexityValue);
-	double retVal = probabilityOfMappingInColumn(tempMapping);
+	double retVal = probabilityOfMappingInRow(tempMapping);
 	tempMapping->deleteLater();
 	return retVal;
 }
 
-double AMGitHubComplexityManager::probabilityOfMappingInColumn(AMGitHubComplexityMapping *complexityMapping) const
+double AMGitHubComplexityManager::probabilityOfMappingInRow(AMGitHubComplexityMapping *complexityMapping) const
 {
 	if(!complexityMapping->validMapping())
 		return 0;
 
 	double matrixCount = complexityMappingMatrix_.at(complexityMapping->mappingIndex()).count();
-	double columnCount = 0;
+	double rowCount = 0;
 
 	int estimatedAsInt = int(complexityMapping->estimatedComplexityValue());
-	int maxEstimate = int(AMGitHubIssue::EstimatedComplexityInvalid)-1;
+	int maxEstimate = int(AMGitHubIssue::EstimatedComplexityInvalid);
 	for(int x = 0, size = complexityMappingMatrix_.size(); x < size; x++){
 		if(x%maxEstimate == estimatedAsInt)
-			columnCount += complexityMappingMatrix_.at(x).count();
+			rowCount += complexityMappingMatrix_.at(x).count();
 	}
 
-	if(columnCount == 0)
+	if(rowCount == 0)
 		return 0;
-	return matrixCount/columnCount;
+	return matrixCount/rowCount;
 }
 
 double AMGitHubComplexityManager::averageTimeForEstimatedComplexity(AMGitHubIssue::EstimatedComplexityValue estimatedComplexityValue) const
 {
 	int estimatedAsInt = int(estimatedComplexityValue);
-	int maxEstimate = int(AMGitHubIssue::EstimatedComplexityInvalid)-1;
+	int maxEstimate = int(AMGitHubIssue::EstimatedComplexityInvalid);
 
 	double runningTotal = 0;
 	int totalComplexityValues = 0;
 
 	for(int x = 0, xSize = complexityMappingMatrix_.size(); x < xSize; x++){
-		if(x%maxEstimate == estimatedAsInt){
+		if(x/maxEstimate == estimatedAsInt){
 			QList<AMGitHubIssue*> oneList = complexityMappingMatrix_[x];
 			for(int y = 0, ySize = oneList.count(); y < ySize; y++){
 				if(oneList.at(y)->normalizedTimeEstimate() > 0){
@@ -86,13 +92,13 @@ double AMGitHubComplexityManager::averageTimeForEstimatedComplexity(AMGitHubIssu
 double AMGitHubComplexityManager::averageTimeForActualComplexity(AMGitHubIssue::ActualComplexityValue actualComplexityValue) const
 {
 	int actualAsInt = int(actualComplexityValue);
-	int maxEstimate = int(AMGitHubIssue::EstimatedComplexityInvalid)-1;
+	int maxEstimate = int(AMGitHubIssue::EstimatedComplexityInvalid);
 
 	double runningTotal = 0;
 	int totalComplexityValues = 0;
 
 	for(int x = 0, xSize = complexityMappingMatrix_.size(); x < xSize; x++){
-		if(x/maxEstimate == actualAsInt){
+		if(x%maxEstimate == actualAsInt){
 			QList<AMGitHubIssue*> oneList = complexityMappingMatrix_[x];
 			for(int y = 0, ySize = oneList.count(); y < ySize; y++){
 				if(oneList.at(y)->normalizedTimeEstimate() > 0){
@@ -113,10 +119,10 @@ double AMGitHubComplexityManager::probableTimeForEstimatedComplexity(AMGitHubIss
 {
 	double runningTotal = 0;
 
-	int maxActual = int(AMGitHubIssue::ActualComplexityInvalid)-1;
-	for(int x = 0, size = maxActual; x <size; x++){
+	int maxActual = int(AMGitHubIssue::ActualComplexityInvalid);
+	for(int x = 0, size = maxActual; x < size; x++){
 		AMGitHubIssue::ActualComplexityValue oneActualComplexity = AMGitHubIssue::ActualComplexityValue(x);
-		runningTotal += probabilityOfMappingInColumn(estimatedComplexityValue, oneActualComplexity)*averageTimeForActualComplexity(oneActualComplexity);
+		runningTotal += probabilityOfMappingInRow(estimatedComplexityValue, oneActualComplexity)*averageTimeForActualComplexity(oneActualComplexity);
 	}
 
 	return runningTotal;
@@ -127,13 +133,13 @@ QString AMGitHubComplexityManager::probableTimeStringForEstimatedComplexity(AMGi
 	QString retVal;
 	double runningTotal = 0;
 
-	int maxActual = int(AMGitHubIssue::ActualComplexityInvalid)-1;
+	int maxActual = int(AMGitHubIssue::ActualComplexityInvalid);
 	double estatimatedActualInt = AMGitHubIssue::integerFromEstimatedComplexity(estimatedComplexityValue);
-	for(int x = 0, size = maxActual; x <size; x++){
+	for(int x = 0, size = maxActual; x < size; x++){
 		AMGitHubIssue::ActualComplexityValue oneActualComplexity = AMGitHubIssue::ActualComplexityValue(x);
-		runningTotal += probabilityOfMappingInColumn(estimatedComplexityValue, oneActualComplexity)*averageTimeForActualComplexity(oneActualComplexity);
+		runningTotal += probabilityOfMappingInRow(estimatedComplexityValue, oneActualComplexity)*averageTimeForActualComplexity(oneActualComplexity);
 		double actualActualInt = AMGitHubIssue::integerFromActualComplexity(oneActualComplexity);
-		retVal.append(QString("[%1-->%2]%3*%4 +").arg(estatimatedActualInt, 0, 'f', 0).arg(actualActualInt, 0, 'f', 0).arg(probabilityOfMappingInColumn(estimatedComplexityValue, oneActualComplexity), 0, 'f', 3).arg(averageTimeForActualComplexity(oneActualComplexity), 0, 'f', 3));
+		retVal.append(QString("[%1-->%2]%3*%4 +").arg(estatimatedActualInt, 0, 'f', 0).arg(actualActualInt, 0, 'f', 0).arg(probabilityOfMappingInRow(estimatedComplexityValue, oneActualComplexity), 0, 'f', 3).arg(averageTimeForActualComplexity(oneActualComplexity), 0, 'f', 3));
 	}
 	retVal.remove(retVal.size()-2, 2);
 	retVal.prepend(QString("Estimate %1 as %2: ").arg(estatimatedActualInt, 0, 'f', 0).arg(runningTotal, 0, 'f', 3));
@@ -144,11 +150,11 @@ QString AMGitHubComplexityManager::fullMatrixString() const
 {
 	QString retVal;
 
-	int maxEstimate = int(AMGitHubIssue::EstimatedComplexityInvalid)-1;
-	int maxActual = int(AMGitHubIssue::ActualComplexityInvalid)-1;
+	int maxEstimate = int(AMGitHubIssue::EstimatedComplexityInvalid);
+	int maxActual = int(AMGitHubIssue::ActualComplexityInvalid);
 
 	retVal.append(QString("------ "));
-	for(int x = 0, size = maxActual; x <= size; x++){
+	for(int x = 0, size = maxActual; x < size; x++){
 		AMGitHubIssue::ActualComplexityValue oneActual = AMGitHubIssue::ActualComplexityValue(x);
 		double actualInt = AMGitHubIssue::integerFromActualComplexity(oneActual);
 		retVal.append(QString("%1").arg(actualInt, -7, 'f', 0, ' '));
@@ -168,8 +174,10 @@ QString AMGitHubComplexityManager::fullMatrixString() const
 			retVal.append("\n");
 			rowCounter++;
 			AMGitHubIssue::EstimatedComplexityValue oneEstimated = AMGitHubIssue::EstimatedComplexityValue(rowCounter);
-			double estimatedInt = AMGitHubIssue::integerFromEstimatedComplexity(oneEstimated);
-			retVal.append(QString("%1").arg(estimatedInt, -7, 'f', 0, ' '));
+			if(oneEstimated != AMGitHubIssue::EstimatedComplexityInvalid){
+				double estimatedInt = AMGitHubIssue::integerFromEstimatedComplexity(oneEstimated);
+				retVal.append(QString("%1").arg(estimatedInt, -7, 'f', 0, ' '));
+			}
 		}
 	}
 	retVal.append("\n");
@@ -263,8 +271,8 @@ bool AMGitHubComplexityManager::addMapping(AMGitHubIssue *oneIssue)
 
 void AMGitHubComplexityManager::clearComplexityMappings(){
 
-	int maxEstimate = int(AMGitHubIssue::EstimatedComplexityInvalid)-1;
-	int maxActual = int(AMGitHubIssue::ActualComplexityInvalid)-1;
+	int maxEstimate = int(AMGitHubIssue::EstimatedComplexityInvalid);
+	int maxActual = int(AMGitHubIssue::ActualComplexityInvalid);
 	complexityMappingMatrix_ = QVector<QList<AMGitHubIssue*> >(maxEstimate*maxActual);
 	mappedIssues_.clear();
 }
