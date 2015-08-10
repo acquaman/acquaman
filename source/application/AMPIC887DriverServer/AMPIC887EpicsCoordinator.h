@@ -42,8 +42,8 @@ protected:
 	AMControl* yAxisValue_;
 	AMControl* yAxisSetpoint_;
 	AMControl* yAxisStatus_;
-	AMControl* xAxisDriveHigh_;
-	AMControl* xAxisDriveLow_;
+	AMControl* yAxisDriveHigh_;
+	AMControl* yAxisDriveLow_;
 
 	AMControl* zAxisValue_;
 	AMControl* zAxisSetpoint_;
