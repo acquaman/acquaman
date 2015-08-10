@@ -39,6 +39,7 @@ bool BioXASMainBeamline::isConnected() const
 				m2Mirror_->isConnected() &&
 				jjSlits_->isConnected() &&
 				xiaFilters_->isConnected() &&
+				dbhrMirrors_->isConnected() &&
 				scaler_->isConnected()
 				);
 
@@ -174,6 +175,10 @@ void BioXASMainBeamline::setupComponents()
 	xiaFilters_ = new BioXASMainXIAFilters(this);
 	connect( xiaFilters_, SIGNAL(connectedChanged(bool)), this, SLOT(updateConnected()) );
 
+	// DBHR mirrors.
+	dbhrMirrors_ = new BioXASMainDBHRMirrors(this);
+	connect( dbhrMirrors_, SIGNAL(connectedChanged(bool)), this, SLOT(updateConnected()) );
+
 	// Scaler
 	scaler_ = new CLSSIS3820Scaler("BL1607-5-I21:mcs", this);
 	connect( scaler_, SIGNAL(connectedChanged(bool)), this, SLOT(updateConnected()) );
@@ -270,6 +275,12 @@ void BioXASMainBeamline::setupExposedControls()
 	// XIA filters control.
 
 	addExposedControl(xiaFilters_->filtersControl());
+
+	// DBHR mirrors controls.
+
+	addExposedControl(dbhrMirrors_->m1VerticalControl());
+	addExposedControl(dbhrMirrors_->m2VerticalControl());
+	addExposedControl(dbhrMirrors_->pitchControl());
 }
 
 void BioXASMainBeamline::setupExposedDetectors()

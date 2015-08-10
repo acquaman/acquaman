@@ -43,6 +43,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/BioXAS/BioXASMainM2Mirror.h"
 #include "beamline/BioXAS/BioXASMainM1Mirror.h"
 #include "beamline/BioXAS/BioXASMainXIAFilters.h"
+#include "beamline/BioXAS/BioXASMainDBHRMirrors.h"
 
 #include "util/AMErrorMonitor.h"
 #include "util/AMBiHash.h"
@@ -77,6 +78,8 @@ public:
 	virtual CLSJJSlits* jjSlits() const { return jjSlits_; }
 	/// Returns the XIA filters.
 	BioXASMainXIAFilters* xiaFilters() const { return xiaFilters_; }
+	/// Returns the DBHR mirrors.
+	BioXASMainDBHRMirrors* dbhrMirrors() const { return dbhrMirrors_; }
 	/// Returns the scaler.
 	virtual CLSSIS3820Scaler* scaler() const { return scaler_; }
 
@@ -148,6 +151,8 @@ protected:
 	CLSJJSlits *jjSlits_;
 	/// XIA filters
 	BioXASMainXIAFilters *xiaFilters_;
+	/// DBHR mirrors
+	BioXASMainDBHRMirrors *dbhrMirrors_;
 
 	// Detectors
 	CLSBasicScalerChannelDetector *i0Detector_;
