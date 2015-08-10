@@ -24,10 +24,6 @@ public:
 	  */
 	bool isReady() const;
 
-	/*!
-	  * Returns a stringified form of the controllers ready status.
-	  */
-	virtual QString outputString() const;
 protected:
 	/*!
 	  * Defines the steps taken to ask the controller for its ready status.

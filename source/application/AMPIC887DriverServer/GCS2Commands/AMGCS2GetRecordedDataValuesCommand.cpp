@@ -1,6 +1,7 @@
 #include "AMGCS2GetRecordedDataValuesCommand.h"
 #include "PI_GCS2_DLL.h"
 #include "util/AMCArrayHandler.h"
+#include "../AMPIC887Controller.h"
 AMGCS2GetRecordedDataValuesCommand::AMGCS2GetRecordedDataValuesCommand(int recordTableId,
 																	   int numberOfValues,
 																	   int offsetPoint)
@@ -8,28 +9,6 @@ AMGCS2GetRecordedDataValuesCommand::AMGCS2GetRecordedDataValuesCommand(int recor
 	recordTableId_ = recordTableId;
 	numberOfValues_ = numberOfValues;
 	offsetPoint_ = offsetPoint;
-}
-
-QString AMGCS2GetRecordedDataValuesCommand::outputString() const
-{
-	if(!wasSuccessful_) {
-		return "";
-	}
-
-	QString returnString = QString("Record Table: %1\n").arg(recordTableId_);
-	returnString.append(QString("Table index\t\tValue\n"));
-
-	for(int iResultValue = 0, resultCount = dataValues_.count();
-		iResultValue < resultCount;
-		++iResultValue) {
-
-		returnString.append(QString("%1\t\t\t%2\n")
-							.arg(iResultValue + offsetPoint_)
-							.arg(dataValues_.at(iResultValue)));
-
-	}
-
-	return returnString.trimmed();
 }
 
 bool AMGCS2GetRecordedDataValuesCommand::validateArguments()
@@ -60,7 +39,7 @@ bool AMGCS2GetRecordedDataValuesCommand::runImplementation()
 
 	AMCArrayHandler<double> resultsArray(numberOfValues_);
 
-	bool success = PI_qDRR_SYNC(controllerId_,
+	bool success = PI_qDRR_SYNC(controller_->id(),
 								recordTableId_,
 								offsetPoint_,
 								numberOfValues_,

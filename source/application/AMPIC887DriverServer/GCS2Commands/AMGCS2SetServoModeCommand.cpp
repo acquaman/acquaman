@@ -2,6 +2,7 @@
 #include "../AMGCS2Support.h"
 #include "util/AMCArrayHandler.h"
 #include "PI_GCS2_DLL.h"
+#include "../AMPIC887Controller.h"
 AMGCS2SetServoModeCommand::AMGCS2SetServoModeCommand(bool activeStatus)
 {
 	activeStatus_ = activeStatus;
@@ -34,7 +35,7 @@ bool AMGCS2SetServoModeCommand::runImplementation()
 	servoModesHandler.cArray()[4] = activeStatusValue;
 	servoModesHandler.cArray()[5] = activeStatusValue;
 
-	bool success = PI_SVO(controllerId_,
+	bool success = PI_SVO(controller_->id(),
 						  axesString.toStdString().c_str(),
 						  servoModesHandler.cArray());
 

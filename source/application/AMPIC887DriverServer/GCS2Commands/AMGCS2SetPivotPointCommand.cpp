@@ -2,32 +2,27 @@
 #include "../AMGCS2Support.h"
 #include "util/AMCArrayHandler.h"
 #include "PI_GCS2_DLL.h"
-AMGCS2SetPivotPointCommand::AMGCS2SetPivotPointCommand(const QHash<AMGCS2::Axis, double>& pivotPoint)
+#include "../AMPIC887Controller.h"
+AMGCS2SetPivotPointCommand::AMGCS2SetPivotPointCommand(const AMPIC887AxisMap<double>& pivotPoints)
 {
-	pivotPoint_ = pivotPoint;
+	pivotPoints_ = pivotPoints;
 }
 
 bool AMGCS2SetPivotPointCommand::validateArguments()
 {
-	if(pivotPoint_.isEmpty()) {
-		lastError_ = "No axes:pivot values provided";
+	if(pivotPoints_.isEmpty()) {
+		lastError_ = "No high soft limits to set";
 		return false;
 	}
 
-	if(pivotPoint_.count() > 3) {
-		lastError_ = "More than the maximum number of axes:pivot values provided";
+	if(pivotPoints_.containsUnknownAxis()) {
+		lastError_ = "Contains unknown axis";
 		return false;
 	}
 
-	foreach(AMGCS2::Axis currentAxis, pivotPoint_.keys()) {
-		if(currentAxis == AMGCS2::UnknownAxis ||
-				currentAxis == AMGCS2::UAxis ||
-				currentAxis == AMGCS2::VAxis ||
-				currentAxis == AMGCS2::WAxis) {
-
-			lastError_ = "Invalid axis specified (only X, Y and Z are valid)";
-			return false;
-		}
+	if(pivotPoints_.axes().containsRotationalAxes()) {
+		lastError_ = "Contains rotational axes";
+		return false;
 	}
 
 	return true;
@@ -35,24 +30,23 @@ bool AMGCS2SetPivotPointCommand::validateArguments()
 
 bool AMGCS2SetPivotPointCommand::runImplementation()
 {
-	AMCArrayHandler<double> pivotPointValuesHandler(AXIS_COUNT);
-	QString axesString;
+	AMPIC887AxisCollection axes = pivotPoints_.axes();
+	int axisCount = axes.count();
 
-	QList<AMGCS2::Axis> axesToSet = pivotPoint_.keys();
+	AMCArrayHandler<double> pivotPointValuesHandler(axisCount);
+	QString axesString = axes.toString();
 
-	for(int iAxis = 0, axisCount = axesToSet.count();
+	for(int iAxis = 0;
 		iAxis < axisCount;
 		++iAxis) {
 
-		AMGCS2::Axis currentAxis = axesToSet.at(iAxis);
-		axesString.append(QString(" %1")
-						  .arg(AMGCS2Support::axisToCharacter(currentAxis)));
+		AMGCS2::Axis currentAxis = axes.at(iAxis);
 
 		pivotPointValuesHandler.cArray()[iAxis]
-				= pivotPoint_.value(currentAxis);
+				= pivotPoints_.value(currentAxis);
 	}
 
-	bool success = PI_SPI(controllerId_,
+	bool success = PI_SPI(controller_->id(),
 						  axesString.toStdString().c_str(),
 						  pivotPointValuesHandler.cArray());
 

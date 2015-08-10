@@ -2,37 +2,19 @@
 #include "util/AMCArrayHandler.h"
 #include "../AMGCS2Support.h"
 #include "PI_GCS2_DLL.h"
-
+#include "../AMPIC887Controller.h"
 AMGCS2SetRecordTriggerSourceCommand::AMGCS2SetRecordTriggerSourceCommand(
-		const QHash<int, AMGCS2::DataRecordTrigger> tableTriggers)
+		AMGCS2::DataRecordTrigger tableTrigger)
 {
 
-	tableTriggers_ = tableTriggers;
+	tableTrigger_ = tableTrigger;
 }
 
 bool AMGCS2SetRecordTriggerSourceCommand::validateArguments()
 {
-	if(tableTriggers_.isEmpty()) {
-
-		lastError_ = "Cannot set table triggers. None provided.";
+	if(tableTrigger_ == AMGCS2::UnknownRecordTrigger) {
+		lastError_ = "Provided record trigger is not valid";
 		return false;
-	}
-
-	QList<int> tableTriggerIds = tableTriggers_.keys();
-	for(int iTableTrigger = 0, triggerCount = tableTriggerIds.count();
-		iTableTrigger < triggerCount;
-		++iTableTrigger) {
-
-		int recordTableId = tableTriggerIds.at(iTableTrigger);
-
-		if(recordTableId < 1 || recordTableId > 16) {
-			lastError_ = QString("Record table id of %1 is out of valid range (1 to 16)").arg(recordTableId);
-		}
-
-		if(tableTriggers_.value(recordTableId) == AMGCS2::UnknownRecordTrigger) {
-			lastError_ = "Provided record trigger is not valid";
-			return false;
-		}
 	}
 
 	return true;
@@ -40,31 +22,24 @@ bool AMGCS2SetRecordTriggerSourceCommand::validateArguments()
 
 bool AMGCS2SetRecordTriggerSourceCommand::runImplementation()
 {
-	int tableTriggersCount = tableTriggers_.count();
-	AMCArrayHandler<int> recordTableIds(tableTriggersCount);
-	AMCArrayHandler<int> triggerSources(tableTriggersCount);
+	// Although the library and the manual suggest the ability to set the record
+	// trigger per table, actually setting it for one sets it for all. As such
+	// this command only takes a record trigger, sets it for the first table - which
+	// sets it globally.
+
+	AMCArrayHandler<int> recordTableIds(1);
+	AMCArrayHandler<int> triggerSources(1);
 	// Library requires dummy values to be included in the call...for some reason.
-	QString dummyValues;
+	QString dummyValue = "0";
 
-	QList<int> tableIdKeys = tableTriggers_.keys();
+	recordTableIds.cArray()[0] = 1;
+	triggerSources.cArray()[0] = AMGCS2Support::dataRecordTriggerToInt(tableTrigger_);
 
-	for(int iRecordTableId = 0;
-		iRecordTableId < tableTriggersCount;
-		++iRecordTableId) {
-
-		int currentTableId = tableIdKeys.at(iRecordTableId);
-		int currentTriggerCode = AMGCS2Support::dataRecordTriggerToInt(tableTriggers_.value(currentTableId));
-
-		recordTableIds.cArray()[iRecordTableId] = currentTableId;
-		triggerSources.cArray()[iRecordTableId] = currentTriggerCode;
-		dummyValues.append(QString(" DUMMY"));
-	}
-
-	bool success = PI_DRT(controllerId_,
+	bool success = PI_DRT(controller_->id(),
 						  recordTableIds.cArray(),
 						  triggerSources.cArray(),
-						  dummyValues.toStdString().c_str(),
-						  tableTriggersCount);
+						  dummyValue.toStdString().c_str(),
+						  1);
 
 	if(!success) {
 		lastError_ = controllerErrorMessage();

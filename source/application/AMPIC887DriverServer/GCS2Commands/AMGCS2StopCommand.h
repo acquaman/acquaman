@@ -20,10 +20,6 @@ public:
 	  */
 	virtual ~AMGCS2StopCommand() {}
 
-	/*!
-	  * A string status which reflects whether the controller was stopped.
-	  */
-	virtual QString outputString() const;
 protected:
 	/*!
 	  * Defines the steps taken to issue a stop all command to the controller.

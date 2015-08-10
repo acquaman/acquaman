@@ -1,6 +1,7 @@
 #include "AMGCS2GetNumberOfRecordedPointsCommand.h"
 #include "util/AMCArrayHandler.h"
 #include "PI_GCS2_DLL.h"
+#include "../AMPIC887Controller.h"
 AMGCS2GetNumberOfRecordedPointsCommand::AMGCS2GetNumberOfRecordedPointsCommand(const QList<int>& recordTables)
 {
 	recordTablesToQuery_ = recordTables;
@@ -9,23 +10,6 @@ AMGCS2GetNumberOfRecordedPointsCommand::AMGCS2GetNumberOfRecordedPointsCommand(c
 QHash<int, int> AMGCS2GetNumberOfRecordedPointsCommand::numberOfDataPointsRecorded() const
 {
 	return numberOfDataPointsRecorded_;
-}
-
-QString AMGCS2GetNumberOfRecordedPointsCommand::outputString() const
-{
-	if(!wasSuccessful_) {
-		return "";
-	}
-
-	QString outputString("Record Table\t\tNumber of Data Points Recorded\n");
-	foreach(int recordTableId, recordTablesToQuery_) {
-
-		outputString.append(QString("%1\t\t\t%2\n")
-							.arg(recordTableId)
-							.arg(numberOfDataPointsRecorded_.value(recordTableId)));
-	}
-
-	return outputString.trimmed();
 }
 
 bool AMGCS2GetNumberOfRecordedPointsCommand::validateArguments()
@@ -63,7 +47,7 @@ bool AMGCS2GetNumberOfRecordedPointsCommand::runImplementation()
 		recordTableIdsArray.cArray()[iRecordTableId] = recordTablesToQuery_.at(iRecordTableId);
 	}
 
-	bool success = PI_qDRL(controllerId_,
+	bool success = PI_qDRL(controller_->id(),
 						   recordTableIdsArray.cArray(),
 						   numberOfDataPointsRecordedArray.cArray(),
 						   recordTablesToQuery_.count());

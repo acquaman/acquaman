@@ -2,31 +2,28 @@
 
 #include "../AMGCS2Support.h"
 #include "PI_GCS2_DLL.h"
-AMGCS2ReferenceMoveCommand::AMGCS2ReferenceMoveCommand(const QList<AMGCS2::Axis>& axes)
+#include "../AMPIC887Controller.h"
+AMGCS2ReferenceMoveCommand::AMGCS2ReferenceMoveCommand(const AMPIC887AxisCollection& axesToReference)
 {
-	axesToReference_ = axes;
-}
-
-QString AMGCS2ReferenceMoveCommand::outputString() const
-{
-	if(wasSuccessful_) {
-		return "Reference move begun";
-	} else {
-		return "";
-	}
+	axesToReference_ = axesToReference;
 }
 
 bool AMGCS2ReferenceMoveCommand::validateArguments()
 {
-	foreach(AMGCS2::Axis currentAxis, axesToReference_) {
-		if(currentAxis == AMGCS2::UnknownAxis) {
-			lastError_ = "Can not reference move unknown axis";
-			return false;
-		}
+	if(axesToReference_.isEmpty()) {
+		lastError_ = "No axes to reference";
+		return false;
 	}
 
-	if(axesToReference_.count() > AXIS_COUNT) {
-		lastError_ = "Duplicate axes provided.";
+	AMPIC887AxisCollection::ValidState validState = axesToReference_.validate();
+
+	if(validState == AMPIC887AxisCollection::ContainsUnknownAxis) {
+		lastError_ = "Unknown axis";
+		return false;
+	}
+
+	if(validState == AMPIC887AxisCollection::ContainsDuplicateAxes) {
+		lastError_ = "Duplicate axes";
 		return false;
 	}
 
@@ -35,13 +32,9 @@ bool AMGCS2ReferenceMoveCommand::validateArguments()
 
 bool AMGCS2ReferenceMoveCommand::runImplementation()
 {
-	QString axesString;
+	QString axesString = axesToReference_.toString();
 
-	foreach(AMGCS2::Axis currentAxis, axesToReference_) {
-		axesString.append(QString(" %1").arg(AMGCS2Support::axisToCharacter(currentAxis)));
-	}
-
-	bool success = PI_FRF(controllerId_, axesString.trimmed().toStdString().c_str());
+	bool success = PI_FRF(controller_->id(), axesString.toStdString().c_str());
 
 	if(!success) {
 		lastError_ = controllerErrorMessage();

@@ -2,47 +2,35 @@
 #include "../AMGCS2Support.h"
 #include "util/AMCArrayHandler.h"
 #include "PI_GCS2_DLL.h"
+#include "../AMPIC887Controller.h"
 #include <QStringList>
-AMGCS2GetPositionUnitsCommand::AMGCS2GetPositionUnitsCommand(const QList<AMGCS2::Axis>& axes)
+AMGCS2GetPositionUnitsCommand::AMGCS2GetPositionUnitsCommand(const AMPIC887AxisCollection& axesToQuery)
 {
-	axesToQuery_ = axes;
+	axesToQuery_ = axesToQuery;
 }
 
-QHash<AMGCS2::Axis, AMGCS2::PositionUnits> AMGCS2GetPositionUnitsCommand::axesUnits() const
+AMPIC887AxisMap<AMGCS2::PositionUnits> AMGCS2GetPositionUnitsCommand::axesUnits() const
 {
 	return axesUnits_;
 }
 
-QString AMGCS2GetPositionUnitsCommand::outputString() const
-{
-	if(!wasSuccessful_) {
-		return "";
-	}
-
-	QString outputString("Axis\t\tUnits\n");
-
-	foreach(AMGCS2::Axis currentAxis, axesUnits_.keys()) {
-
-		outputString.append(QString("%1\t\t%2\n")
-							.arg(AMGCS2Support::axisToCharacter(currentAxis))
-							.arg(AMGCS2Support::positionUnitsToString(axesUnits_.value(currentAxis))));
-	}
-
-	return outputString.trimmed();
-}
-
 bool AMGCS2GetPositionUnitsCommand::validateArguments()
 {
-	if(axesToQuery_.count() > AXIS_COUNT) {
-		lastError_ = "Too many axes specified";
+	if(axesToQuery_.isEmpty()) {
+		lastError_ = "No axes to query";
 		return false;
 	}
 
-	foreach(AMGCS2::Axis currentAxis, axesToQuery_) {
-		if(currentAxis == AMGCS2::UnknownAxis) {
-			lastError_ = "Cannot get position units - Unknown axis";
-			return false;
-		}
+	AMPIC887AxisCollection::ValidState validState = axesToQuery_.validate();
+
+	if(validState == AMPIC887AxisCollection::ContainsUnknownAxis) {
+		lastError_ = "Unknown axis";
+		return false;
+	}
+
+	if(validState == AMPIC887AxisCollection::ContainsDuplicateAxes) {
+		lastError_ = "Duplicate axes";
+		return false;
 	}
 
 	return true;
@@ -50,78 +38,44 @@ bool AMGCS2GetPositionUnitsCommand::validateArguments()
 
 bool AMGCS2GetPositionUnitsCommand::runImplementation()
 {
-	AMCArrayHandler<char> unitsBufferHandler(BUFFER_SIZE);
+	// Clear previous results
+	axesUnits_.clear();
+
+	AMCArrayHandler<char> unitValuesHandler(BUFFER_SIZE);
 	bool success = false;
-	if(axesToQuery_.isEmpty()) {
-
-		success = PI_qPUN(controllerId_, 0, unitsBufferHandler.cArray(), BUFFER_SIZE);
-
-		if(success) {
-			QString unitsString = unitsBufferHandler.cArray();
-			// units are returned in format: "axis=value\n"
-			// we need to remove the "axis=" part and use trimmed to remove the \n
-			QStringList rawUnitsList = unitsString.split(" ");
-			QStringList unitsList;
-
-			foreach(QString rawUnitReturn, rawUnitsList) {
-				unitsList.append(rawUnitReturn.trimmed().mid(2, rawUnitReturn.length() - 2));
-			}
 
 
-			AMGCS2::PositionUnits units = AMGCS2Support::stringToPositionUnits(unitsList.at(0));
-			axesUnits_.insert(AMGCS2::XAxis, units);
-			units = AMGCS2Support::stringToPositionUnits(unitsList.at(1));
-			axesUnits_.insert(AMGCS2::YAxis, units);
-			units = AMGCS2Support::stringToPositionUnits(unitsList.at(2));
-			axesUnits_.insert(AMGCS2::ZAxis, units);
-			units = AMGCS2Support::stringToPositionUnits(unitsList.at(3));
-			axesUnits_.insert(AMGCS2::UAxis, units);
-			units = AMGCS2Support::stringToPositionUnits(unitsList.at(4));
-			axesUnits_.insert(AMGCS2::VAxis, units);
-			units = AMGCS2Support::stringToPositionUnits(unitsList.at(5));
-			axesUnits_.insert(AMGCS2::WAxis, units);
+	QString axesArgumentsString = axesToQuery_.toString();
+
+	success = PI_qPUN(controller_->id(),
+					  axesArgumentsString.toStdString().c_str(),
+					  unitValuesHandler.cArray(),
+					  BUFFER_SIZE);
+
+	if(success) {
+
+		// Units are returned in format "axis=value\n"
+		QString rawReturnValue = unitValuesHandler.cArray();
+		QStringList rawReturnList = rawReturnValue.split(" ");
+		QStringList parsedStringList;
+
+		foreach(QString rawValue, rawReturnList) {
+			parsedStringList.append(rawValue.trimmed().mid(2, rawValue.length() - 2));
+		}
+
+
+		for(int iAxis = 0, axesCount = axesToQuery_.count();
+			iAxis < axesCount;
+			++iAxis) {
+
+			AMGCS2::Axis currentAxis = axesToQuery_.at(iAxis);
+			AMGCS2::PositionUnits positionUnits =
+					AMGCS2Support::stringToPositionUnits(parsedStringList.at(iAxis));
+
+			axesUnits_.insert(currentAxis, positionUnits);
 		}
 
 	} else {
-
-		QString axesString;
-
-		foreach(AMGCS2::Axis currentAxis, axesToQuery_) {
-			axesString.append(QString(" %1")
-							  .arg(AMGCS2Support::axisToCharacter(currentAxis)));
-		}
-
-		success = PI_qPUN(controllerId_,
-						  axesString.toStdString().c_str(),
-						  unitsBufferHandler.cArray(),
-						  BUFFER_SIZE);
-
-		if(success) {
-			QString unitsString = unitsBufferHandler.cArray();
-			// units are returned in format: "axis=value\n"
-			// we need to remove the "axis=" part and use trimmed to remove the \n
-			QStringList rawUnitsList = unitsString.split(" ");
-			QStringList unitsList;
-
-			foreach(QString rawUnitReturn, rawUnitsList) {
-				unitsList.append(rawUnitReturn.trimmed().mid(2, rawUnitReturn.length() - 2));
-			}
-
-			for(int iAxis = 0, axisCount = axesToQuery_.count();
-				iAxis < axisCount;
-				++iAxis) {
-
-				AMGCS2::Axis currentAxis = axesToQuery_.at(iAxis);
-				AMGCS2::PositionUnits positionUnits =
-						AMGCS2Support::stringToPositionUnits(unitsList.at(iAxis));
-
-				axesUnits_.insert(currentAxis, positionUnits);
-			}
-
-		}
-	}
-
-	if(!success) {
 		lastError_ = controllerErrorMessage();
 	}
 

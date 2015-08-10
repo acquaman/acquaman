@@ -3,7 +3,7 @@
 
 #include "AMGCS2Command.h"
 #include "../AMGCS2.h"
-#include <QHash>
+#include "../AMPIC887AxisMap.h"
 /*!
   * \brief A command representing a query to a PI C887.11 controller for whether
   * it is safe from the current platform position to approach the given axis
@@ -21,20 +21,12 @@ public:
 	  * Creates an instance of a virtual move command which will check whether
 	  * the provided axes positions are approachable.
 	  */
-	AMGCS2VirtualMoveCommand(const QHash<AMGCS2::Axis, double> axisPositions);
+	AMGCS2VirtualMoveCommand(const AMPIC887AxisMap<double>& axisPositions);
 
 	/*!
 	  * Virtual destructor for a virtual move command
 	  */
 	virtual ~AMGCS2VirtualMoveCommand() {}
-
-	/*!
-	  * The reported approachability of the axis positions which the command was
-	  * initialized with in a human readable form.
-	  * \returns Stringified form of whether the provided axes positions are valid
-	  * if the command was run successfully, the empty string otherwise.
-	  */
-	QString outputString() const;
 
 	/*!
 	  * Whether the axis positions which the command was initialized with are
@@ -58,7 +50,7 @@ protected:
 	  */
 	virtual bool runImplementation();
 
-	QHash<AMGCS2::Axis, double> axisPositions_;
+	AMPIC887AxisMap<double> axisPositions_;
 	bool isMoveSafe_;
 };
 

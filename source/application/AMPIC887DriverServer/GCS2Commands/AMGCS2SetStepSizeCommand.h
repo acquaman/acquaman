@@ -2,7 +2,7 @@
 #define AMGCS2SETSTEPSIZECOMMAND_H
 #include "AMGCS2Command.h"
 #include "../AMGCS2.h"
-#include <QHash>
+#include "../AMPIC887AxisMap.h"
 
 /*!
   * A command representing an instruction for a PI C887.11 controller to alter
@@ -16,7 +16,7 @@ public:
 	  * sizes of the provided axes to the provided values.
 	  * \param axisStepSizes ~ A mapping of axes to new step size values
 	  */
-	AMGCS2SetStepSizeCommand(const QHash<AMGCS2::Axis, double>& axisStepSizes);
+	AMGCS2SetStepSizeCommand(const AMPIC887AxisMap<double>& axisStepSizes);
 
 	/*!
 	  * Virtual destructor for a set step size command.
@@ -39,7 +39,7 @@ protected:
 	  */
 	virtual bool runImplementation();
 
-	QHash<AMGCS2::Axis, double> axisStepSizes_;
+	AMPIC887AxisMap<double> axisStepSizes_;
 };
 
 #endif // AMGCS2SETSTEPSIZECOMMAND_H

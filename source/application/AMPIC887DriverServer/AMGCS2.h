@@ -1,6 +1,11 @@
 #ifndef AMGCS2_H
 #define AMGCS2_H
 
+#define LINEAR_AXIS_COUNT 3
+#define ROTATION_AXIS_COUNT 3
+#define AXIS_COUNT (LINEAR_AXIS_COUNT + ROTATION_AXIS_COUNT)
+#define RECORD_TABLE_COUNT 16
+
 #include <QChar>
 /*!
   * Namespace which contains all the enumerators for use with the GCS2.0 syntax
@@ -38,6 +43,8 @@ namespace AMGCS2 {
 		VAxisIsMoving = 32,
 		WAxisIsMoving = 64
 	};
+
+	Q_DECLARE_FLAGS(AxisMovementStatuses, AxisMovementStatus)
 
 	/*!
 	  * Enumerates the different command levels of the C887.11 controller.
@@ -104,4 +111,6 @@ namespace AMGCS2 {
 		Degrees
 	};
 }
+
+Q_DECLARE_OPERATORS_FOR_FLAGS(AMGCS2::AxisMovementStatuses)
 #endif // AMGCS2_H

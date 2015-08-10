@@ -5,6 +5,7 @@
 
 #include "AMPIC887Controller.h"
 #include "AMPIC887ControllerCollection.h"
+#include "AMPIC887AxisCollection.h"
 
 class AMConsoleInputHandler;
 class AMPIC887ConsoleCommandParser;
@@ -49,21 +50,244 @@ protected slots:
 	void onStatusCommandIssued();
 
 	/*!
-	  * Handles signals indicating that the active controller command has been issued.
-	  * Sets the active controller to the first located controller in the collection
-	  * which matches the passed name.
-	  * \param controllerName ~ The name of the controller to be made active.
+	  * Handles signals indicating that an initialize active controller command
+	  * has been issued.
 	  */
-	void onActiveControllerChangeIssued(const QString& controllerName);
+	void onInitControllerCommandIssued();
 
 	/*!
-	  * Handles signals indicating that a GCS2 command has been issued. Runs the
-	  * command on the current active controller, if one is found. If the command
-	  * is not successful in running then its error message is output to standard
-	  * error.
-	  * \param command ~ The command to be run on the current active controller.
+	  * Handles signals indicating that a request to change the active controller
+	  * has been issued. Attempts to locate a controller with the provided name,
+	  * and makes it the active controller if one is found.
+	  * \param controllerName ~ The name of the controller to be made active.
 	  */
-	void onGCS2CommandIssued(AMGCS2Command* command);
+	void onActiveControllerChangeRequested(const QString& controllerName);
+
+	/*!
+	  * Handles signals indicating that one of the controllers in the application
+	  * has some text it wishes to output to the console terminal.
+	  * \param outputString ~ The text that the controller wishes to output.
+	  */
+	void onControllerOutputReceived(const QString& outputString);
+
+	/*!
+	  * Handles signals indicating that one of the controller in the application
+	  * has encountered an error.
+	  * \param errorMessage ~ An message describing the error.
+	  */
+	void onControllerErrorEncountered(const QString& errorMessage);
+
+	/*!
+	  * Handles signals indicating that a set command level command has been issued.
+	  */
+	void onSetCommandLevelCommandIssued(AMGCS2::ControllerCommandLevel commandLevel,
+										const QString& password);
+
+	/*!
+	  * Handles signals indicating that a set cycle time command has been issued.
+	  */
+	void onSetCycleTimeCommandIssued(double cycleTime);
+
+	/*!
+	  * Handles signals indicating that a set high soft limits command has been
+	  * issued.
+	  */
+	void onSetHighSoftLimitsCommandIssued(const AMPIC887AxisMap<double>& highSoftLimits);
+
+	/*!
+	  * Handles signals indicating that a set low soft limits command has been
+	  * issued.
+	  */
+	void onSetLowSoftLimitsCommandIssued(const AMPIC887AxisMap<double>& lowSoftLimits);
+
+	/*!
+	  * Handles signals indicating that a set pivot point command has been issued.
+	  */
+	void onSetPivotPointCommandIssued(const AMPIC887AxisMap<double>& pivotPoints);
+
+	/*!
+	  * Handles signals indicating that a set record trigger command has been issued.
+	  */
+	void onSetRecorderTriggerCommandIssued(AMGCS2::DataRecordTrigger recorderTrigger);
+
+	/*!
+	  * Handles signals indicating that a set record config command has been issued.
+	  */
+	void onSetRecordConfigCommandIssued(const QHash<int, AMPIC887DataRecorderConfiguration>& recordConfigs);
+
+	/*!
+	  * Handles signals indicating that a set servo mode command has been issued.
+	  */
+	void onSetServoModeCommandIssued(bool servoMode);
+
+	/*!
+	  * Handles signals indicating that a set soft limit states command has been
+	  * issued.
+	  */
+	void onSetSoftLimitStatesCommandIssued(const AMPIC887AxisMap<bool>& softLimitStates);
+
+	/*!
+	  * Handles signals indicating that a set step size command has been issued.
+	  */
+	void onSetStepSizeCommandIssued(const AMPIC887AxisMap<double>& stepSizes);
+
+	/*!
+	  * Handles signals indicating that a set system velocity command has been
+	  * issued.
+	  */
+	void onSetSystemVelocityCommandIssued(double systemVelocity);
+
+	/*!
+	  * Handles signals indicating that a move command has been issued.
+	  */
+	void onMoveCommandIssued(const AMPIC887AxisMap<double>& axisPositions);
+
+	/*!
+	  * Handles signals indicating that a move relative command has been issued.
+	  */
+	void onMoveRelativeCommandIssued(const AMPIC887AxisMap<double>& relativePositions);
+
+	/*!
+	  * Handles signals indicating that a motion status command has been issued.
+	  */
+	void onMotionStatusCommandIssued();
+
+	/*!
+	  * Handles signals indicating that a reference moce command has been issued.
+	  */
+	void onReferenceMoveCommandIssued(const AMPIC887AxisCollection& axes);
+
+	/*!
+	  * Handles signals indicating that a get available parameters command has
+	  * been issued.
+	  */
+	void onAvailableParametersCommandIssued();
+
+	/*!
+	  * Handles signals indicating that a get command level command has been
+	  * issued.
+	  */
+	void onCommandLevelCommandIssued();
+
+	/*!
+	  * Handles signals indicating that a get current position command has been
+	  * issued.
+	  */
+	void onCurrentPositionCommandIssued(const AMPIC887AxisCollection& axes);
+
+	/*!
+	  * Handles signals indicating that a get cycle time command has been issued.
+	  */
+	void onCycleTimeCommandIssued();
+
+	/*!
+	  * Handles signals indicating that a get device identification command has
+	  * been issued.
+	  */
+	void onDeviceIdentificationCommandIssued();
+
+	/*!
+	  * Handles signals indicating that a get low soft limit command has been issued.
+	  */
+	void onLowSoftLimitCommandIssued(const AMPIC887AxisCollection& axes);
+
+	/*!
+	  * Handles signals indicating that a get high soft limit command has been issued.
+	  */
+	void onHighSoftLimitCommandIssued(const AMPIC887AxisCollection& axes);
+
+	/*!
+	  * Handles signals indicating that a get soft limit statuses command has been
+	  * issued.
+	  */
+	void onSoftLimitStatusesCommandIssued(const AMPIC887AxisCollection& axes);
+
+	/*!
+	  * Handles signals indicating that a get limit switch statuses command has
+	  * been issued.
+	  */
+	void onLimitSwitchStatusesCommandIssued(const AMPIC887AxisCollection& axes);
+
+	/*!
+	  * Handles signals indicating that a get min position command has been issued.
+	  */
+	void onMinPositionCommandIssued(const AMPIC887AxisCollection& axes);
+
+	/*!
+	  * Handles signals indicating that a get max position command has been issued.
+	  */
+	void onMaxPositionCommandIssued(const AMPIC887AxisCollection& axes);
+
+	/*!
+	  * Handles signals indicating that a get on target state command has been
+	  * issued.
+	  */
+	void onOnTargetCommandIssued(const AMPIC887AxisCollection& axes);
+
+	/*!
+	  * Handles signals indicating that a get pivot point command has been issued.
+	  */
+	void onPivotPointCommandIssued(const AMPIC887AxisCollection& axes);
+
+	/*!
+	  * Handles signals indicating that a get target position command has been
+	  * issued.
+	  */
+	void onTargetPositionCommandIssued(const AMPIC887AxisCollection& axes);
+
+	/*!
+	  * Handles signals indicating that a get position units command has been
+	  * issued.
+	  */
+	void onPositionUnitsCommandIssued(const AMPIC887AxisCollection& axes);
+
+	/*!
+	  * Handles signals indicating that a get available recorder options command
+	  * has been issued.
+	  */
+	void onAvailableRecorderOptionsCommandIssued();
+
+	/*!
+	  * Handles signals indicating that a get record trigger command has been issued.
+	  */
+	void onRecordTriggerCommandIssued();
+
+	/*!
+	  * Handles signals indicating that a get record config command has been issued.
+	  */
+	void onRecordConfigCommandIssued(const QList<int>& tableIds);
+
+	/*!
+	  * Handles signals indicating that a get referenced state command has been
+	  * issued.
+	  */
+	void onReferencedStateCommandIssued(const AMPIC887AxisCollection& axes);
+
+	/*!
+	  * Handles signals indicating that a get servo mode state command has been
+	  * issued.
+	  */
+	void onServoModeStateCommandIssued();
+
+	/*!
+	  * Handles signals indicating that a get step size command has been issued.
+	  */
+	void onStepSizeCommandIssued(const AMPIC887AxisCollection& axes);
+
+	/*!
+	  * Handles signals indicating that a get system velocity command has been issued.
+	  */
+	void onSystemVelocityCommandIssued();
+
+	/*!
+	  * Handles signals indicating that a stop command has been issued.
+	  */
+	void onStopCommandIssued();
+
+	/*!
+	  * Handles signals indicating that a halt command has been issued.
+	  */
+	void onHaltCommandIssued(const AMPIC887AxisCollection& axes);
 
 protected:
 	/*!
@@ -77,6 +301,11 @@ protected:
 	  * \returns True if at least one controller could be connected to, false otherwise.
 	  */
 	bool startupControllers();
+
+	/*!
+	  * Connects signals from the command parser to this class' slots.
+	  */
+	void makeConnections();
 
 	AMConsoleInputHandler* consoleInputHandler_;
 	AMPIC887ConsoleCommandParser* commandParser_;

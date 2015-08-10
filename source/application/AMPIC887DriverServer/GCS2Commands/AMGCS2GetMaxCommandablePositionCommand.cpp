@@ -2,46 +2,33 @@
 #include "../AMGCS2Support.h"
 #include "util/AMCArrayHandler.h"
 #include "PI_GCS2_DLL.h"
-AMGCS2GetMaxCommandablePositionCommand::AMGCS2GetMaxCommandablePositionCommand(const QList<AMGCS2::Axis> axes )
+#include "../AMPIC887Controller.h"
+AMGCS2GetMaxCommandablePositionCommand::AMGCS2GetMaxCommandablePositionCommand(const AMPIC887AxisCollection& axesToQuery)
 {
-	axesToQuery_ = axes;
+	axesToQuery_ = axesToQuery;
 }
 
-QString AMGCS2GetMaxCommandablePositionCommand::outputString() const
-{
-	if(!wasSuccessful_) {
-		return "";
-	}
-
-	QString returnString("Axis\t\tMax Commandable Position\n");
-
-	foreach(AMGCS2::Axis currentAxis, maxCommandablePositions_.keys()) {
-
-		returnString.append(QString("%1\t\t%2\n")
-							.arg(AMGCS2Support::axisToCharacter(currentAxis))
-							.arg(maxCommandablePositions_.value(currentAxis)));
-	}
-
-	return returnString.trimmed();
-}
-
-QHash<AMGCS2::Axis, double> AMGCS2GetMaxCommandablePositionCommand::maxCommandablePositions() const
+AMPIC887AxisMap<double> AMGCS2GetMaxCommandablePositionCommand::maxCommandablePositions() const
 {
 	return maxCommandablePositions_;
 }
 
 bool AMGCS2GetMaxCommandablePositionCommand::validateArguments()
 {
-	foreach(AMGCS2::Axis currentAxis, axesToQuery_) {
-
-		if(currentAxis == AMGCS2::UnknownAxis) {
-			lastError_ = "Unknown axis provided";
-			return false;
-		}
+	if(axesToQuery_.isEmpty()) {
+		lastError_ = "No axes to query";
+		return false;
 	}
 
-	if(axesToQuery_.count() > AXIS_COUNT) {
-		lastError_ = "Too many axes provided";
+	AMPIC887AxisCollection::ValidState validState = axesToQuery_.validate();
+
+	if(validState == AMPIC887AxisCollection::ContainsUnknownAxis) {
+		lastError_ = "Unknown axis";
+		return false;
+	}
+
+	if(validState == AMPIC887AxisCollection::ContainsDuplicateAxes) {
+		lastError_ = "Duplicate axes";
 		return false;
 	}
 
@@ -50,56 +37,29 @@ bool AMGCS2GetMaxCommandablePositionCommand::validateArguments()
 
 bool AMGCS2GetMaxCommandablePositionCommand::runImplementation()
 {
+	// Clear previous results
 	maxCommandablePositions_.clear();
 
-	AMCArrayHandler<double> maxPositionHandler(AXIS_COUNT);
+	AMCArrayHandler<double> maxPositionValuesHandler(axesToQuery_.count());
 	bool success = false;
 
-	if(axesToQuery_.count() == 0) {
 
-		success = PI_qTMX(controllerId_, 0, maxPositionHandler.cArray());
+	QString axesArgumentsString = axesToQuery_.toString();
 
-		if(success) {
+	success = PI_qTMX(controller_->id(),
+					  axesArgumentsString.toStdString().c_str(),
+					  maxPositionValuesHandler.cArray());
 
-			maxCommandablePositions_.insert(AMGCS2::XAxis, maxPositionHandler.cArray()[0]);
-			maxCommandablePositions_.insert(AMGCS2::YAxis, maxPositionHandler.cArray()[1]);
-			maxCommandablePositions_.insert(AMGCS2::ZAxis, maxPositionHandler.cArray()[2]);
-			maxCommandablePositions_.insert(AMGCS2::UAxis, maxPositionHandler.cArray()[3]);
-			maxCommandablePositions_.insert(AMGCS2::VAxis, maxPositionHandler.cArray()[4]);
-			maxCommandablePositions_.insert(AMGCS2::WAxis, maxPositionHandler.cArray()[5]);
-		}
-	} else {
+	if(success) {
 
-		QString axesString;
-		for(int iAxis = 0, axisCount = axesToQuery_.count();
-			iAxis < axisCount;
+		for(int iAxis = 0, axesCount = axesToQuery_.count();
+			iAxis < axesCount;
 			++iAxis) {
 
-			AMGCS2::Axis currentAxis = axesToQuery_.at(iAxis);
-
-			axesString.append(QString(" %1")
-							  .arg(AMGCS2Support::axisToCharacter(currentAxis)));
-
-			success = PI_qTMX(controllerId_,
-								   axesString.toStdString().c_str(),
-								   maxPositionHandler.cArray());
-
-			if(success) {
-
-				for(int iAxis = 0, axisCount = axesToQuery_.count();
-					iAxis < axisCount;
-					++iAxis) {
-
-					AMGCS2::Axis currentAxis = axesToQuery_.at(iAxis);
-
-					maxCommandablePositions_.insert(currentAxis,
-													maxPositionHandler.cArray()[iAxis]);
-				}
-			}
+			maxCommandablePositions_.insert(axesToQuery_.at(iAxis),
+								  maxPositionValuesHandler.cArray()[iAxis]);
 		}
-	}
-
-	if(!success) {
+	} else {
 		lastError_ = controllerErrorMessage();
 	}
 

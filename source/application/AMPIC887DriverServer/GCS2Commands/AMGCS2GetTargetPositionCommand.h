@@ -3,9 +3,9 @@
 
 #include "AMGCS2Command.h"
 #include "../AMGCS2.h"
+#include "../AMPIC887AxisCollection.h"
+#include "../AMPIC887AxisMap.h"
 
-#include <QList>
-#include <QHash>
 /*!
   * A command representing a query for the target positions which the provided
   * axes are currently moving towards.
@@ -19,10 +19,10 @@ public:
 	/*!
 	  * Creates an instance of a get target position command which will report
 	  * the target positions of the provided axes.
-	  * \param axes ~ Optional list of axes whose target positions will be returned.
+	  * \param axesToQuery ~ Optional list of axes whose target positions will be returned.
 	  * If none is provided the target positions of all axes will be returned.
 	  */
-	AMGCS2GetTargetPositionCommand(const QList<AMGCS2::Axis>& axes = QList<AMGCS2::Axis>());
+	AMGCS2GetTargetPositionCommand(const AMPIC887AxisCollection& axesToQuery = AMPIC887AxisCollection());
 
 	/*!
 	  * Virtual destructor for a get target position command.
@@ -30,17 +30,10 @@ public:
 	virtual ~AMGCS2GetTargetPositionCommand() {}
 
 	/*!
-	  * Returns a human readable text representation of the target positions.
-	  * \returns A stringified version of the target positions if the command was
-	  * run successfully, the empty string otherwise.
-	  */
-	virtual QString outputString() const;
-
-	/*!
 	  * The axis target positions returned by the command if the command was run
 	  * successfully, an empty map otherwise.
 	  */
-	QHash<AMGCS2::Axis, double> axisTargetPositions() const;
+	AMPIC887AxisMap<double> axisTargetPositions() const;
 
 protected:
 	/*!
@@ -58,8 +51,8 @@ protected:
 	  */
 	virtual bool runImplementation();
 
-	QHash<AMGCS2::Axis, double> axisTargetPositions_;
-	QList<AMGCS2::Axis> axesToQuery_;
+	AMPIC887AxisMap<double> axisTargetPositions_;
+	AMPIC887AxisCollection axesToQuery_;
 };
 
 #endif // AMGCS2GETTARGETPOSITIONCOMMAND_H

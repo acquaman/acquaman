@@ -3,8 +3,9 @@
 
 #include "AMGCS2Command.h"
 #include "../AMGCS2.h"
-#include <QList>
-#include <QHash>
+#include "../AMPIC887AxisCollection.h"
+#include "../AMPIC887AxisMap.h"
+
 /*!
   * A command representing a query to a PI C887.11 controller to report the step
   * size of the provided axes.
@@ -18,7 +19,7 @@ public:
 	  * \param axes ~ An optional list of axes whose step sizes are to be queried.
 	  * If none is provided the step size of all axes will be queried.
 	  */
-	AMGCS2GetStepSizeCommand(const QList<AMGCS2::Axis>& axes = QList<AMGCS2::Axis>());
+	AMGCS2GetStepSizeCommand(const AMPIC887AxisCollection& axesToQuery = AMPIC887AxisCollection());
 
 	/*!
 	  * Virtual destructor for a get step size command
@@ -26,18 +27,11 @@ public:
 	virtual ~AMGCS2GetStepSizeCommand() {}
 
 	/*!
-	  * A human readable string version of the step sizes reported by the controller.
-	  * \returns A stringified form of the step sizes reported if the command was
-	  * run successfully, the empty string otherwise.
-	  */
-	virtual QString outputString() const;
-
-	/*!
 	  * A mapping of axis to its step size as reported by the controller.
 	  * \returns A mapping of axis to step size if the command was run successfully,
 	  * an empty hash otherwise.
 	  */
-	QHash<AMGCS2::Axis, double> axisStepSizes() const;
+	AMPIC887AxisMap<double> axisStepSizes() const;
 
 protected:
 	/*!
@@ -53,8 +47,8 @@ protected:
 	  */
 	virtual bool runImplementation();
 
-	QList<AMGCS2::Axis> axesToQuery_;
-	QHash<AMGCS2::Axis, double> axisStepSizes_;
+	AMPIC887AxisCollection axesToQuery_;
+	AMPIC887AxisMap<double> axisStepSizes_;
 };
 
 #endif // AMGCS2GETSTEPSIZECOMMAND_H

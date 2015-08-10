@@ -1,14 +1,10 @@
 #include "AMGCS2GetCommandLevelCommand.h"
 #include "PI_GCS2_DLL.h"
 #include "../AMGCS2Support.h"
+#include "../AMPIC887Controller.h"
 AMGCS2GetCommandLevelCommand::AMGCS2GetCommandLevelCommand()
 {
 	commandLevel_ = AMGCS2::UnknownCommandLevel;
-}
-
-QString AMGCS2GetCommandLevelCommand::outputString() const
-{
-	return AMGCS2Support::commandLevelToString(commandLevel_);
 }
 
 AMGCS2::ControllerCommandLevel AMGCS2GetCommandLevelCommand::commandLevel()
@@ -23,7 +19,7 @@ bool AMGCS2GetCommandLevelCommand::runImplementation()
 
 	int returnedCommandLevel = -1;
 
-	bool success = PI_qCCL(controllerId_, &returnedCommandLevel);
+	bool success = PI_qCCL(controller_->id(), &returnedCommandLevel);
 
 	if(!success) {
 		lastError_ = controllerErrorMessage();

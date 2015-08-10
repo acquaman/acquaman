@@ -2,23 +2,11 @@
 #include "util/AMCArrayHandler.h"
 #include "../AMGCS2Support.h"
 #include "PI_GCS2_DLL.h"
-AMGCS2VirtualMoveCommand::AMGCS2VirtualMoveCommand(const QHash<AMGCS2::Axis, double> axisPositions)
+#include "../AMPIC887Controller.h"
+AMGCS2VirtualMoveCommand::AMGCS2VirtualMoveCommand(const AMPIC887AxisMap<double>& axisPositions)
 {
 	axisPositions_ = axisPositions;
 	isMoveSafe_ = false;
-}
-
-QString AMGCS2VirtualMoveCommand::outputString() const
-{
-	if(!wasSuccessful_) {
-		return "";
-	}
-
-	if(isMoveSafe_) {
-		return "Position can be approached";
-	} else {
-		return "Not safe to approach position";
-	}
 }
 
 bool AMGCS2VirtualMoveCommand::isMoveSafe() const
@@ -33,12 +21,9 @@ bool AMGCS2VirtualMoveCommand::validateArguments()
 		return false;
 	}
 
-	foreach (AMGCS2::Axis currentAxis, axisPositions_.keys()) {
-
-		if(currentAxis == AMGCS2::UnknownAxis) {
-			lastError_ = "Unknown axis";
-			return false;
-		}
+	if(axisPositions_.containsUnknownAxis()) {
+		lastError_ = "Unknown axis provided";
+		return false;
 	}
 
 	return true;
@@ -46,34 +31,29 @@ bool AMGCS2VirtualMoveCommand::validateArguments()
 
 bool AMGCS2VirtualMoveCommand::runImplementation()
 {
-	isMoveSafe_ = false;
-	AMCArrayHandler<double> positionValues(axisPositions_.count());
-	QString axesString;
-	QList<AMGCS2::Axis> axes = axisPositions_.keys();
+	AMPIC887AxisCollection axes = axisPositions_.axes();
+	int axisCount = axes.count();
+	QString axisString = axes.toString();
+	AMCArrayHandler<double> positionValuesHandler(axisCount);
 
-	for(int iAxis = 0, axisCount = axes.count();
-		iAxis < axisCount;
-		++iAxis) {
+	for(int iAxis = 0; iAxis < axisCount; ++iAxis) {
 
 		AMGCS2::Axis currentAxis = axes.at(iAxis);
-		axesString.append(QString(" %1")
-						  .arg(AMGCS2Support::axisToCharacter(currentAxis)));
-
-		positionValues.cArray()[iAxis] = axisPositions_.value(currentAxis);
+		positionValuesHandler.cArray()[iAxis] = axisPositions_.value(currentAxis);
 	}
 
-	int moveSafeValue = 0;
+	int moveSafe = 0;
 
-	bool success = PI_qVMO(controllerId_,
-						   axesString.toStdString().c_str(),
-						   positionValues.cArray(),
-						   &moveSafeValue);
+	bool success = PI_qVMO(controller_->id(),
+						   axisString.toStdString().c_str(),
+						   positionValuesHandler.cArray(),
+						   &moveSafe);
 
-	if(!success) {
-		lastError_ = controllerErrorMessage();
-		isMoveSafe_ = false;
+	if(success) {
+		isMoveSafe_ = (moveSafe == 1);
 	} else {
-		isMoveSafe_ = (moveSafeValue == 1);
+		isMoveSafe_ = false;
+		lastError_ = controllerErrorMessage();
 	}
 
 	return success;

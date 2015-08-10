@@ -3,7 +3,7 @@
 
 #include "AMGCS2Command.h"
 #include "../AMGCS2.h"
-#include <QHash>
+#include "../AMPIC887AxisMap.h"
 /*!
   * A command representing an instruction to a PI C887.11 controller to set the
   * soft high limits of the provided axes.
@@ -17,7 +17,7 @@ public:
 	  * \param axisHighLimits ~ A mapping of axes to the values which their high
 	  * soft limits will be set to.
 	  */
-	AMGCS2SetHighSoftLimitsCommand(const QHash<AMGCS2::Axis, double>& axisHighLimits);
+	AMGCS2SetHighSoftLimitsCommand(const AMPIC887AxisMap<double>& axisHighLimits);
 
 	/*!
 	  * Virtual destructor for a set high soft limits command.
@@ -40,7 +40,7 @@ protected:
 	  */
 	virtual bool runImplementation();
 
-	QHash<AMGCS2::Axis, double> axisHighLimits_;
+	AMPIC887AxisMap<double> axisHighLimits_;
 };
 
 #endif // AMGCS2SETHIGHSOFTLIMITSCOMMAND_H

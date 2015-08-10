@@ -29,14 +29,6 @@ public:
 	  */
 	virtual ~AMGCS2GetRecordedDataValuesCommand() {}
 
-	/*!
-	  * A human readable string version of the returned data, showing the position
-	  * within the record table from which that data was retrieved.
-	  * \returns Stringified version of the returned data values obtained if the
-	  * command was run successfully, the empty string otherwise.
-	  */
-	virtual QString outputString() const;
-
 protected:
 	/*!
 	  * Ensures that the command arguments are valid:
