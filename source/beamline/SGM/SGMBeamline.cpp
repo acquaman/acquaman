@@ -215,6 +215,16 @@ void SGMBeamline::setupMotorGroups()
 
 //	sampleManipulatorsMotorGroup_->addMotorGroupObject(motorObject->name(), motorObject);
 
+	motorObject = new AMMotorGroupObject("Hexapod - U, V, W",
+										 QStringList() << "U" << "V" << "W",
+										 QStringList() << "deg" << "deg" << "deg",
+										 QList<AMControl*>() << hexapodUAxis_ << hexapodVAxis_ << hexapodWAxis_,
+										 QList<AMMotorGroupObject::Orientation>() << AMMotorGroupObject::Horizontal << AMMotorGroupObject::Vertical << AMMotorGroupObject::Normal,
+										 QList<AMMotorGroupObject::MotionType>() << AMMotorGroupObject::Rotational << AMMotorGroupObject::Rotational << AMMotorGroupObject::Rotational,
+										 this);
+
+	sampleManipulatorsMotorGroup_->addMotorGroupObject(motorObject->name(), motorObject);
+
 	motorObject = new AMMotorGroupObject("Hexapod - X, Y, Z",
 										 QStringList() << "X" << "Y" << "Z",
 										 QStringList() << "mm" << "mm" << "mm",
@@ -224,17 +234,6 @@ void SGMBeamline::setupMotorGroups()
 										 this);
 
 	sampleManipulatorsMotorGroup_->addMotorGroupObject(motorObject->name(), motorObject);
-
-	motorObject = new AMMotorGroupObject("Hexapod - U, V, W",
-										 QStringList() << "U" << "V" << "W",
-										 QStringList() << "deg" << "deg" << "deg",
-										 QList<AMControl*>() << hexapodUAxis_ << hexapodVAxis_ << hexapodZAxis_,
-										 QList<AMMotorGroupObject::Orientation>() << AMMotorGroupObject::Horizontal << AMMotorGroupObject::Vertical << AMMotorGroupObject::Normal,
-										 QList<AMMotorGroupObject::MotionType>() << AMMotorGroupObject::Rotational << AMMotorGroupObject::Rotational << AMMotorGroupObject::Rotational,
-										 this);
-
-	sampleManipulatorsMotorGroup_->addMotorGroupObject(motorObject->name(), motorObject);
-
 }
 
 
