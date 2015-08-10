@@ -66,6 +66,13 @@ void BioXASAppController::addComponentView(QObject *component)
 			componentFound = true;
 		}
 
+		BioXASXIAFilters *xiaFilters = qobject_cast<BioXASXIAFilters*>(component);
+		if (!componentFound && xiaFilters) {
+			componentView = new BioXASXIAFiltersView(xiaFilters);
+			componentName = "XIA Filters";
+			componentFound = true;
+		}
+
 		// If a view was created, add it to the 'General' pane.
 
 		if (componentFound) {

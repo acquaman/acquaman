@@ -34,19 +34,11 @@ bool BioXASMainBeamline::isConnected() const
 				// General BioXAS components.
 				BioXASBeamline::isConnected() &&
 
-				// M1 mirror
 				m1Mirror_->isConnected() &&
-
-				// Monochromator
 				mono_->isConnected() &&
-
-				// M2 mirror
 				m2Mirror_->isConnected() &&
-
-				// JJ slits
 				jjSlits_->isConnected() &&
-
-				// Scaler
+				xiaFilters_->isConnected() &&
 				scaler_->isConnected()
 				);
 
@@ -178,6 +170,10 @@ void BioXASMainBeamline::setupComponents()
 	jjSlits_ = new CLSJJSlits("JJSlits", "SMTR1607-7-I21-11", "SMTR1607-7-I21-10", "SMTR1607-7-I21-12", "SMTR1607-7-I21-13", this);
 	connect( jjSlits_, SIGNAL(connectedChanged(bool)), this, SLOT(updateConnected()) );
 
+	// XIA filters.
+	xiaFilters_ = new BioXASMainXIAFilters(this);
+	connect( xiaFilters_, SIGNAL(connectedChanged(bool)), this, SLOT(updateConnected()) );
+
 	// Scaler
 	scaler_ = new CLSSIS3820Scaler("BL1607-5-I21:mcs", this);
 	connect( scaler_, SIGNAL(connectedChanged(bool)), this, SLOT(updateConnected()) );
@@ -270,6 +266,10 @@ void BioXASMainBeamline::setupExposedControls()
 	addExposedControl(jjSlits_->verticalGapControl());
 	addExposedControl(jjSlits_->horizontalCenterControl());
 	addExposedControl(jjSlits_->horizontalGapControl());
+
+	// XIA filters control.
+
+	addExposedControl(xiaFilters_->filtersControl());
 }
 
 void BioXASMainBeamline::setupExposedDetectors()

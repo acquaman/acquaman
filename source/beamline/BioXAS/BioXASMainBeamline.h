@@ -42,6 +42,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/BioXAS/BioXAS32ElementGeDetector.h"
 #include "beamline/BioXAS/BioXASMainM2Mirror.h"
 #include "beamline/BioXAS/BioXASMainM1Mirror.h"
+#include "beamline/BioXAS/BioXASMainXIAFilters.h"
 
 #include "util/AMErrorMonitor.h"
 #include "util/AMBiHash.h"
@@ -74,6 +75,8 @@ public:
 	virtual BioXASMainMonochromator *mono() const { return mono_; }
 	/// Returns the JJ slits.
 	virtual CLSJJSlits* jjSlits() const { return jjSlits_; }
+	/// Returns the XIA filters.
+	BioXASMainXIAFilters* xiaFilters() const { return xiaFilters_; }
 	/// Returns the scaler.
 	virtual CLSSIS3820Scaler* scaler() const { return scaler_; }
 
@@ -143,6 +146,8 @@ protected:
 	BioXASMainMonochromator *mono_;
 	/// JJ slits
 	CLSJJSlits *jjSlits_;
+	/// XIA filters
+	BioXASMainXIAFilters *xiaFilters_;
 
 	// Detectors
 	CLSBasicScalerChannelDetector *i0Detector_;
