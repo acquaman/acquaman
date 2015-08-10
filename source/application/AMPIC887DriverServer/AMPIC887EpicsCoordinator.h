@@ -36,38 +36,26 @@ protected:
 	AMControl* xAxisValue_;
 	AMControl* xAxisSetpoint_;
 	AMControl* xAxisStatus_;
-	AMControl* xAxisDriveHigh_;
-	AMControl* xAxisDriveLow_;
 
 	AMControl* yAxisValue_;
 	AMControl* yAxisSetpoint_;
 	AMControl* yAxisStatus_;
-	AMControl* yAxisDriveHigh_;
-	AMControl* yAxisDriveLow_;
 
 	AMControl* zAxisValue_;
 	AMControl* zAxisSetpoint_;
 	AMControl* zAxisStatus_;
-	AMControl* zAxisDriveHigh_;
-	AMControl* zAxisDriveLow_;
 
 	AMControl* uAxisValue_;
 	AMControl* uAxisSetpoint_;
 	AMControl* uAxisStatus_;
-	AMControl* uAxisDriveHigh_;
-	AMControl* uAxisDriveLow_;
 
 	AMControl* vAxisValue_;
 	AMControl* vAxisSetpoint_;
 	AMControl* vAxisStatus_;
-	AMControl* vAxisDriveHigh_;
-	AMControl* vAxisDriveLow_;
 
 	AMControl* wAxisValue_;
 	AMControl* wAxisSetpoint_;
 	AMControl* wAxisStatus_;
-	AMControl* wAxisDriveHigh_;
-	AMControl* wAxisDriveLow_;
 
 	AMControl* systemVelocityValue_;
 	AMControl* systemVelocitySetpoint_;
