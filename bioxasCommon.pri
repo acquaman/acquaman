@@ -32,8 +32,6 @@ HEADERS += \
 	source/beamline/BioXAS/BioXASMonochromator.h \
 	source/beamline/BioXAS/BioXASM2Mirror.h \
 	source/ui/BioXAS/BioXASM2MirrorView.h \
-	source/beamline/BioXAS/BioXASDBHRMirror.h \
-	source/ui/BioXAS/BioXASDBHRMirrorView.h \
 	source/beamline/BioXAS/BioXASEndstationTable.h \
 	source/beamline/BioXAS/BioXASM1Mirror.h \
 	source/beamline/BioXAS/BioXASBeamlineComponent.h \
@@ -61,7 +59,9 @@ HEADERS += \
 	source/beamline/BioXAS/BioXASShutterControl.h \
 	source/ui/BioXAS/BioXASEndstationTableView.h \
 	source/ui/BioXAS/BioXAS32ElementGeDetectorView.h \
-    source/beamline/BioXAS/BioXASXIAFiltersControl.h
+    source/beamline/BioXAS/BioXASXIAFiltersControl.h \
+    source/beamline/BioXAS/BioXASDBHRMirrors.h \
+    source/ui/BioXAS/BioXASDBHRMirrorsView.h
 
 SOURCES += \
 	source/acquaman/BioXAS/BioXASXRFScanConfiguration.cpp \
@@ -89,8 +89,6 @@ SOURCES += \
 	source/beamline/BioXAS/BioXASMonochromator.cpp \
 	source/beamline/BioXAS/BioXASM2Mirror.cpp \
 	source/ui/BioXAS/BioXASM2MirrorView.cpp \
-	source/beamline/BioXAS/BioXASDBHRMirror.cpp \
-	source/ui/BioXAS/BioXASDBHRMirrorView.cpp \
 	source/beamline/BioXAS/BioXASEndstationTable.cpp \
 	source/beamline/BioXAS/BioXASM1Mirror.cpp \
 	source/beamline/BioXAS/BioXASBeamlineComponent.cpp \
@@ -117,6 +115,16 @@ SOURCES += \
 	source/beamline/BioXAS/BioXASShutterControl.cpp \
 	source/ui/BioXAS/BioXASEndstationTableView.cpp \
 	source/ui/BioXAS/BioXAS32ElementGeDetectorView.cpp \
-    source/beamline/BioXAS/BioXASXIAFiltersControl.cpp
+    source/beamline/BioXAS/BioXASXIAFiltersControl.cpp \
+    source/beamline/BioXAS/BioXASDBHRMirrors.cpp \
+    source/ui/BioXAS/BioXASDBHRMirrorsView.cpp
+
+
+
+
+
+
+
+
 
 

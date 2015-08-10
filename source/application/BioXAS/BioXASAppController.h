@@ -37,7 +37,7 @@
 #include "ui/BioXAS/BioXASCarbonFilterFarmView.h"
 #include "ui/BioXAS/BioXASM1MirrorView.h"
 #include "ui/BioXAS/BioXASM2MirrorView.h"
-#include "ui/BioXAS/BioXASDBHRMirrorView.h"
+#include "ui/BioXAS/BioXASDBHRMirrorsView.h"
 #include "ui/BioXAS/BioXASSIS3820ScalerView.h"
 #include "ui/BioXAS/BioXASFourElementVortexDetectorView.h"
 #include "ui/CLS/CLSJJSlitsView.h"

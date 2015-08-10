@@ -31,13 +31,13 @@ public:
 	virtual bool canStop() const;
 
 	/// Returns the first filter actuator control.
-	AMControl* firstFilterActuatorControl() const { return firstFilterActuatorControl_; }
+	AMControl* firstFilterActuatorControl() const { return firstFilterActuator_; }
 	/// Returns the second filter actuator control.
-	AMControl* secondFilterActuatorControl() const { return secondFilterActuatorControl_; }
+	AMControl* secondFilterActuatorControl() const { return secondFilterActuator_; }
 	/// Returns the third filter actuator control.
-	AMControl* thirdFilterActuatorControl() const { return thirdFilterActuatorControl_; }
+	AMControl* thirdFilterActuatorControl() const { return thirdFilterActuator_; }
 	/// Returns the fourth filter actuator control.
-	AMControl* fourthFilterActuatorControl() const { return fourthFilterActuatorControl_; }
+	AMControl* fourthFilterActuatorControl() const { return fourthFilterActuator_; }
 
 	/// Returns true if the given value is a valid value for this control, false otherwise.
 	virtual bool validValue(double value) const;

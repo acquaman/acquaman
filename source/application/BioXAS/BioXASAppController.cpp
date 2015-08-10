@@ -73,6 +73,13 @@ void BioXASAppController::addComponentView(QObject *component)
 			componentFound = true;
 		}
 
+		BioXASDBHRMirrors *dbhrMirrors = qobject_cast<BioXASDBHRMirrors*>(component);
+		if (!componentFound && dbhrMirrors) {
+			componentView = new BioXASDBHRMirrorsView(dbhrMirrors);
+			componentName = "DBHR Mirrors";
+			componentFound = true;
+		}
+
 		// If a view was created, add it to the 'General' pane.
 
 		if (componentFound) {
