@@ -19,26 +19,38 @@ AMPIC887EpicsCoordinator::AMPIC887EpicsCoordinator(AMPIC887Controller* controlle
 	xAxisValue_ = new AMSinglePVControl("HexapodXAxisValue", "HXPD1611-4-I10-01:X:mm:fbk", this, AXIS_POSITION_TOLERANCE);
 	xAxisSetpoint_ = new AMSinglePVControl("HexapodXAxisSetpoint", "HXPD1611-4-I10-01:X:mm", this, AXIS_POSITION_TOLERANCE);
 	xAxisStatus_ = new AMSinglePVControl("HexapodXAxisStatus", "HXPD1611-4-I10-01:X:status", this, 0.5);
+	xAxisDriveHigh_ = new AMSinglePVControl("HexapodXAxisDriveHigh", "HXPD1611-4-I10-01:X:mm.DRVH", this, AXIS_POSITION_TOLERANCE);
+	xAxisDriveLow_ = new AMSinglePVControl("HexapodXAxisDriveLow", "HXPD1611-4-I10-01:X:mm.DRVL", this, AXIS_POSITION_TOLERANCE);
 
 	yAxisValue_ = new AMSinglePVControl("HexapodYAxisValue", "HXPD1611-4-I10-01:Y:mm:fbk", this, AXIS_POSITION_TOLERANCE);
 	yAxisSetpoint_ = new AMSinglePVControl("HexapodYAxisSetpoint", "HXPD1611-4-I10-01:Y:mm", this, AXIS_POSITION_TOLERANCE);
 	yAxisStatus_ = new AMSinglePVControl("HexapodYAxisStatus", "HXPD1611-4-I10-01:Y:status", this, 0.5);
+	yAxisDriveHigh_ = new AMSinglePVControl("HexapodYAxisDriveHigh", "HXPD1611-4-I10-01:Y:mm.DRVH", this, AXIS_POSITION_TOLERANCE);
+	yAxisDriveLow_ = new AMSinglePVControl("HexapodYAxisDriveLow", "HXPD1611-4-I10-01:Y:mm.DRVL", this, AXIS_POSITION_TOLERANCE);
 
 	zAxisValue_ = new AMSinglePVControl("HexapodZAxisValue", "HXPD1611-4-I10-01:Z:mm:fbk", this, AXIS_POSITION_TOLERANCE);
 	zAxisSetpoint_ = new AMSinglePVControl("HexapodZAxisSetpoint", "HXPD1611-4-I10-01:Z:mm", this, AXIS_POSITION_TOLERANCE);
 	zAxisStatus_ = new AMSinglePVControl("HexapodZAxisStatus", "HXPD1611-4-I10-01:Z:status", this, 0.5);
+	zAxisDriveHigh_ = new AMSinglePVControl("HexapodZAxisDriveHigh", "HXPD1611-4-I10-01:Z:mm.DRVH", this, AXIS_POSITION_TOLERANCE);
+	zAxisDriveLow_ = new AMSinglePVControl("HexapodZAxisDriveLow", "HXPD1611-4-I10-01:Z:mm.DRVL", this, AXIS_POSITION_TOLERANCE);
 
 	uAxisValue_ = new AMSinglePVControl("HexapodUAxisValue", "HXPD1611-4-I10-01:U:deg:fbk", this, AXIS_POSITION_TOLERANCE);
 	uAxisSetpoint_ = new AMSinglePVControl("HexapodUAxisSetpoint", "HXPD1611-4-I10-01:U:deg", this, AXIS_POSITION_TOLERANCE);
 	uAxisStatus_ = new AMSinglePVControl("HexapodUAxisStatus", "HXPD1611-4-I10-01:U:status", this, 0.5);
+	uAxisDriveHigh_ = new AMSinglePVControl("HexapodUAxisDriveHigh", "HXPD1611-4-I10-01:U:deg.DRVH", this, AXIS_POSITION_TOLERANCE);
+	uAxisDriveLow_ = new AMSinglePVControl("HexapodUAxisDriveLow", "HXPD1611-4-I10-01:U:deg.DRVL", this, AXIS_POSITION_TOLERANCE);
 
 	vAxisValue_ = new AMSinglePVControl("HexapodVAxisValue", "HXPD1611-4-I10-01:V:deg:fbk", this, AXIS_POSITION_TOLERANCE);
 	vAxisSetpoint_ = new AMSinglePVControl("HexapodVAxisSetpoint", "HXPD1611-4-I10-01:V:deg", this, AXIS_POSITION_TOLERANCE);
 	vAxisStatus_ = new AMSinglePVControl("HexapodVAxisStatus", "HXPD1611-4-I10-01:V:status", this, 0.5);
+	vAxisDriveHigh_ = new AMSinglePVControl("HexapodVAxisDriveHigh", "HXPD1611-4-I10-01:V:deg.DRVH", this, AXIS_POSITION_TOLERANCE);
+	vAxisDriveLow_ = new AMSinglePVControl("HexapodVAxisDriveLow", "HXPD1611-4-I10-01:V:deg.DRVL", this, AXIS_POSITION_TOLERANCE);
 
 	wAxisValue_ = new AMSinglePVControl("HexapodWAxisValue", "HXPD1611-4-I10-01:W:deg:fbk", this, AXIS_POSITION_TOLERANCE);
 	wAxisSetpoint_ = new AMSinglePVControl("HexapodWAxisSetpoint", "HXPD1611-4-I10-01:W:deg", this, AXIS_POSITION_TOLERANCE);
 	wAxisStatus_ = new AMSinglePVControl("HexapodWAxisStatus", "HXPD1611-4-I10-01:W:status", this, 0.5);
+	wAxisDriveHigh_ = new AMSinglePVControl("HexapodWAxisDriveHigh", "HXPD1611-4-I10-01:W:deg.DRVH", this, AXIS_POSITION_TOLERANCE);
+	wAxisDriveLow_ = new AMSinglePVControl("HexapodWAxisDriveLow", "HXPD1611-4-I10-01:W:deg.DRVL", this, AXIS_POSITION_TOLERANCE);
 
 	systemVelocityValue_ = new AMSinglePVControl("HexapodSystemVelocityValue", "HXPD1611-4-I10-01:velocity:fbk", this, 0.001);
 	systemVelocitySetpoint_ = new AMSinglePVControl("HexapodSystemVelocityValue", "HXPD1611-4-I10-01:velocity", this, 0.001);
@@ -47,26 +59,38 @@ AMPIC887EpicsCoordinator::AMPIC887EpicsCoordinator(AMPIC887Controller* controlle
 	allControls_->addControl(xAxisValue_);
 	allControls_->addControl(xAxisSetpoint_);
 	allControls_->addControl(xAxisStatus_);
+	allControls_->addControl(xAxisDriveHigh_);
+	allControls_->addControl(xAxisDriveLow_);
 
 	allControls_->addControl(yAxisValue_);
 	allControls_->addControl(yAxisSetpoint_);
 	allControls_->addControl(yAxisStatus_);
+	allControls_->addControl(yAxisDriveHigh_);
+	allControls_->addControl(yAxisDriveLow_);
 
 	allControls_->addControl(zAxisValue_);
 	allControls_->addControl(zAxisSetpoint_);
 	allControls_->addControl(zAxisStatus_);
+	allControls_->addControl(zAxisDriveHigh_);
+	allControls_->addControl(zAxisDriveLow_);
 
 	allControls_->addControl(uAxisValue_);
 	allControls_->addControl(uAxisSetpoint_);
 	allControls_->addControl(uAxisStatus_);
+	allControls_->addControl(uAxisDriveHigh_);
+	allControls_->addControl(uAxisDriveLow_);
 
 	allControls_->addControl(vAxisValue_);
 	allControls_->addControl(vAxisSetpoint_);
 	allControls_->addControl(vAxisStatus_);
+	allControls_->addControl(vAxisDriveHigh_);
+	allControls_->addControl(vAxisDriveLow_);
 
 	allControls_->addControl(wAxisValue_);
 	allControls_->addControl(wAxisSetpoint_);
 	allControls_->addControl(wAxisStatus_);
+	allControls_->addControl(wAxisDriveHigh_);
+	allControls_->addControl(wAxisDriveLow_);
 
 	allControls_->addControl(systemVelocityValue_);
 	allControls_->addControl(systemVelocitySetpoint_);
@@ -341,6 +365,22 @@ void AMPIC887EpicsCoordinator::onAllConnected(bool connectedState)
 				xAxisStatus_->move(0);
 			}
 
+			double minValue = controller_->minCommandablePosition(AMGCS2::XAxis);
+			double maxValue = controller_->maxCommandablePosition(AMGCS2::XAxis);
+			if(controller_->softLimitStatus(AMGCS2::XAxis)) {
+				minValue = controller_->lowSoftLimit(AMGCS2::XAxis);
+				maxValue = controller_->highSoftLimit(AMGCS2::XAxis);
+			}
+
+			if(!xAxisDriveLow_->withinTolerance(minValue)) {
+				xAxisDriveLow_->move(minValue);
+			}
+
+			if(!xAxisDriveHigh_->withinTolerance(maxValue)) {
+				xAxisDriveHigh_->move(maxValue);
+			}
+
+
 			// Initializing y Axis
 			if(!yAxisValue_->withinTolerance(controller_->currentPosition(AMGCS2::YAxis))) {
 				qDebug() << "Initialzation: Setting y Axis position to " << controller_->currentPosition(AMGCS2::YAxis);
@@ -359,6 +399,21 @@ void AMPIC887EpicsCoordinator::onAllConnected(bool connectedState)
 			} else if (!yAxisStatus_->withinTolerance(0)) {
 				qDebug() << "Initialization: Setting y Axis status to move done";
 				yAxisStatus_->move(0);
+			}
+
+			minValue = controller_->minCommandablePosition(AMGCS2::YAxis);
+			maxValue = controller_->maxCommandablePosition(AMGCS2::YAxis);
+			if(controller_->softLimitStatus(AMGCS2::YAxis)) {
+				minValue = controller_->lowSoftLimit(AMGCS2::YAxis);
+				maxValue = controller_->highSoftLimit(AMGCS2::YAxis);
+			}
+
+			if(!yAxisDriveLow_->withinTolerance(minValue)) {
+				yAxisDriveLow_->move(minValue);
+			}
+
+			if(!yAxisDriveHigh_->withinTolerance(maxValue)) {
+				yAxisDriveHigh_->move(maxValue);
 			}
 
 			// Initializing z Axis
@@ -381,6 +436,21 @@ void AMPIC887EpicsCoordinator::onAllConnected(bool connectedState)
 				zAxisStatus_->move(0);
 			}
 
+			minValue = controller_->minCommandablePosition(AMGCS2::ZAxis);
+			maxValue = controller_->maxCommandablePosition(AMGCS2::ZAxis);
+			if(controller_->softLimitStatus(AMGCS2::ZAxis)) {
+				minValue = controller_->lowSoftLimit(AMGCS2::ZAxis);
+				maxValue = controller_->highSoftLimit(AMGCS2::ZAxis);
+			}
+
+			if(!zAxisDriveLow_->withinTolerance(minValue)) {
+				zAxisDriveLow_->move(minValue);
+			}
+
+			if(!zAxisDriveHigh_->withinTolerance(maxValue)) {
+				zAxisDriveHigh_->move(maxValue);
+			}
+
 			// Initializing u Axis
 			if(!uAxisValue_->withinTolerance(controller_->currentPosition(AMGCS2::UAxis))) {
 				qDebug() << "Initialzation: Setting u Axis position to " << controller_->currentPosition(AMGCS2::UAxis);
@@ -399,6 +469,21 @@ void AMPIC887EpicsCoordinator::onAllConnected(bool connectedState)
 			} else if (!uAxisStatus_->withinTolerance(0)) {
 				qDebug() << "Initialization: Setting u Axis status to move done";
 				uAxisStatus_->move(0);
+			}
+
+			minValue = controller_->minCommandablePosition(AMGCS2::UAxis);
+			maxValue = controller_->maxCommandablePosition(AMGCS2::UAxis);
+			if(controller_->softLimitStatus(AMGCS2::UAxis)) {
+				minValue = controller_->lowSoftLimit(AMGCS2::UAxis);
+				maxValue = controller_->highSoftLimit(AMGCS2::UAxis);
+			}
+
+			if(!uAxisDriveLow_->withinTolerance(minValue)) {
+				uAxisDriveLow_->move(minValue);
+			}
+
+			if(!uAxisDriveHigh_->withinTolerance(maxValue)) {
+				uAxisDriveHigh_->move(maxValue);
 			}
 
 			// Initializing v Axis
@@ -421,6 +506,21 @@ void AMPIC887EpicsCoordinator::onAllConnected(bool connectedState)
 				vAxisStatus_->move(0);
 			}
 
+			minValue = controller_->minCommandablePosition(AMGCS2::VAxis);
+			maxValue = controller_->maxCommandablePosition(AMGCS2::VAxis);
+			if(controller_->softLimitStatus(AMGCS2::VAxis)) {
+				minValue = controller_->lowSoftLimit(AMGCS2::VAxis);
+				maxValue = controller_->highSoftLimit(AMGCS2::VAxis);
+			}
+
+			if(!vAxisDriveLow_->withinTolerance(minValue)) {
+				vAxisDriveLow_->move(minValue);
+			}
+
+			if(!vAxisDriveHigh_->withinTolerance(maxValue)) {
+				vAxisDriveHigh_->move(maxValue);
+			}
+
 			// Initializing w Axis
 			if(!wAxisValue_->withinTolerance(controller_->currentPosition(AMGCS2::WAxis))) {
 				qDebug() << "Initialzation: Setting w Axis position to " << controller_->currentPosition(AMGCS2::WAxis);
@@ -439,6 +539,21 @@ void AMPIC887EpicsCoordinator::onAllConnected(bool connectedState)
 			} else if (!wAxisStatus_->withinTolerance(0)) {
 				qDebug() << "Initialization: Setting w Axis status to move done";
 				wAxisStatus_->move(0);
+			}
+
+			minValue = controller_->minCommandablePosition(AMGCS2::WAxis);
+			maxValue = controller_->maxCommandablePosition(AMGCS2::WAxis);
+			if(controller_->softLimitStatus(AMGCS2::WAxis)) {
+				minValue = controller_->lowSoftLimit(AMGCS2::WAxis);
+				maxValue = controller_->highSoftLimit(AMGCS2::WAxis);
+			}
+
+			if(!wAxisDriveLow_->withinTolerance(minValue)) {
+				wAxisDriveLow_->move(minValue);
+			}
+
+			if(!wAxisDriveHigh_->withinTolerance(maxValue)) {
+				wAxisDriveHigh_->move(maxValue);
 			}
 
 			// Initialize system velocity
