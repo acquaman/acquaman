@@ -151,6 +151,9 @@ protected:
 	AMControl* hexapodXAxis_;
 	AMControl* hexapodYAxis_;
 	AMControl* hexapodZAxis_;
+	AMControl* hexapodUAxis_;
+	AMControl* hexapodVAxis_;
+	AMControl* hexapodWAxis_;
 
 	AMControl* hexapodVelocity_;
 

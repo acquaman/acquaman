@@ -82,11 +82,11 @@ void SGMAppController::shutdown() {
 	AMAppController::shutdown();
 }
 
-void SGMAppController::onCurrentScanActionStartedImplementation(AMScanAction *action)
+void SGMAppController::onCurrentScanActionStartedImplementation(AMScanAction */*action*/)
 {
 }
 
-void SGMAppController::onCurrentScanActionFinishedImplementation(AMScanAction *action)
+void SGMAppController::onCurrentScanActionFinishedImplementation(AMScanAction */*action*/)
 {
 }
 

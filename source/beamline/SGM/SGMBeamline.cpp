@@ -133,6 +133,10 @@ void SGMBeamline::setupBeamlineComponents()
 	hexapodXAxis_ = new AMPVwStatusControl("HexapodX", "HXPD1611-4-I10-01:X:mm:fbk", "HXPD1611-4-I10-01:X:mm", "HXPD1611-4-I10-01:X:status", "HXPD1611-4-I10-01:stop",this, 0.01, 2.0, new CLSMAXvControlStatusChecker());
 	hexapodYAxis_ = new AMPVwStatusControl("HexapodY", "HXPD1611-4-I10-01:Y:mm:fbk", "HXPD1611-4-I10-01:Y:mm", "HXPD1611-4-I10-01:Y:status", "HXPD1611-4-I10-01:stop",this, 0.01, 2.0, new CLSMAXvControlStatusChecker());
 	hexapodZAxis_ = new AMPVwStatusControl("HexapodZ", "HXPD1611-4-I10-01:Z:mm:fbk", "HXPD1611-4-I10-01:Z:mm", "HXPD1611-4-I10-01:Z:status", "HXPD1611-4-I10-01:stop",this, 0.01, 2.0, new CLSMAXvControlStatusChecker());
+	hexapodUAxis_ = new AMPVwStatusControl("HexapodU", "HXPD1611-4-I10-01:U:deg:fbk", "HXPD1611-4-I10-01:U:deg", "HXPD1611-4-I10-01:U:status", "HXPD1611-4-I10-01:stop", this, 0.01, 2.0, new CLSMAXvControlStatusChecker());
+	hexapodVAxis_ = new AMPVwStatusControl("HexapodV", "HXPD1611-4-I10-01:V:deg:fbk", "HXPD1611-4-I10-01:V:deg", "HXPD1611-4-I10-01:V:status", "HXPD1611-4-I10-01:stop", this, 0.01, 2.0, new CLSMAXvControlStatusChecker());
+	hexapodWAxis_ = new AMPVwStatusControl("HexapodW", "HXPD1611-4-I10-01:W:deg:fbk", "HXPD1611-4-I10-01:W:deg", "HXPD1611-4-I10-01:W:status", "HXPD1611-4-I10-01:stop", this, 0.01, 2.0, new CLSMAXvControlStatusChecker());
+
 	hexapodVelocity_ = new AMPVControl("HexapodVelocity", "HXPD1611-4-I10-01:velocity:fbk", "HXPD1611-4-I10-01:velocity",QString(), this, 0.001, 2.0);
 
 	// SSA Manipulators
@@ -221,6 +225,16 @@ void SGMBeamline::setupMotorGroups()
 
 	sampleManipulatorsMotorGroup_->addMotorGroupObject(motorObject->name(), motorObject);
 
+	motorObject = new AMMotorGroupObject("Hexapod - U, V, W",
+										 QStringList() << "U" << "V" << "W",
+										 QStringList() << "deg" << "deg" << "deg",
+										 QList<AMControl*>() << hexapodUAxis_ << hexapodVAxis_ << hexapodZAxis_,
+										 QList<AMMotorGroupObject::Orientation>() << AMMotorGroupObject::Horizontal << AMMotorGroupObject::Vertical << AMMotorGroupObject::Normal,
+										 QList<AMMotorGroupObject::MotionType>() << AMMotorGroupObject::Rotational << AMMotorGroupObject::Rotational << AMMotorGroupObject::Rotational,
+										 this);
+
+	sampleManipulatorsMotorGroup_->addMotorGroupObject(motorObject->name(), motorObject);
+
 }
 
 
@@ -250,6 +264,9 @@ void SGMBeamline::setupExposedControls()
 	addExposedControl(hexapodXAxis_);
 	addExposedControl(hexapodYAxis_);
 	addExposedControl(hexapodZAxis_);
+	addExposedControl(hexapodUAxis_);
+	addExposedControl(hexapodVAxis_);
+	addExposedControl(hexapodWAxis_);
 }
 
 void SGMBeamline::setupExposedDetectors()

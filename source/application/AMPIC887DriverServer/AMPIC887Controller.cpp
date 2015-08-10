@@ -27,6 +27,7 @@
 
 #include "AMGCS2Support.h"
 
+#include <QDebug>
 AMPIC887Controller::AMPIC887Controller(const QString& name, const QString& hostname)
 	:QObject(0)
 {
@@ -195,6 +196,7 @@ AMGCS2::AxisMovementStatuses AMPIC887Controller::movementStatuses() const
 
 	if(wMotions_ > 0) {
 		movements |= AMGCS2::WAxisIsMoving;
+		qDebug() << "W axis reports that it is moving";
 	}
 
 	return movements;
@@ -805,6 +807,7 @@ void AMPIC887Controller::onAsyncMoveStarted(AMGCS2AsyncCommand *command)
 				break;
 			case AMGCS2::WAxis:
 				++wMotions_;
+				qDebug() << "Set w axis motion count to " << wMotions_;
 				break;
 			default:
 				break;
@@ -844,6 +847,7 @@ void AMPIC887Controller::onAsyncMoveSucceeded(AMGCS2AsyncCommand *command)
 				break;
 			case AMGCS2::WAxis:
 				--wMotions_;
+				qDebug() << "Set w axis motion count to " << wMotions_;
 				break;
 			default:
 				break;
@@ -882,6 +886,7 @@ void AMPIC887Controller::onAsyncMoveFailed(AMGCS2AsyncCommand *command)
 				break;
 			case AMGCS2::WAxis:
 				--wMotions_;
+				qDebug() << "Set w axis motion count to " << wMotions_;
 				break;
 			default:
 				break;
