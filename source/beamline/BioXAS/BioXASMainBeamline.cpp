@@ -37,6 +37,7 @@ bool BioXASMainBeamline::isConnected() const
 				m1Mirror_->isConnected() &&
 				mono_->isConnected() &&
 				m2Mirror_->isConnected() &&
+				carbonFilterFarm_->isConnected() &&
 				jjSlits_->isConnected() &&
 				xiaFilters_->isConnected() &&
 				dbhrMirrors_->isConnected() &&
@@ -52,8 +53,8 @@ QList<AMControl *> BioXASMainBeamline::getMotorsByType(BioXASBeamlineDef::BioXAS
 
 	switch (category) {
 	case BioXASBeamlineDef::FilterMotor: // BioXAS Filter motors
-		matchedMotors.append(carbonFilterFarm1_);
-		matchedMotors.append(carbonFilterFarm2_);
+		matchedMotors.append(carbonFilterFarm_->upstreamActuatorControl());
+		matchedMotors.append(carbonFilterFarm_->downstreamActuatorControl());
 		break;
 
 	case BioXASBeamlineDef::M1Motor:	// BioXAS M1 motors
@@ -167,6 +168,10 @@ void BioXASMainBeamline::setupComponents()
 	m2Mirror_ = new BioXASMainM2Mirror(this);
 	connect( m2Mirror_, SIGNAL(connectedChanged(bool)), this, SLOT(updateConnected()) );
 
+	// Carbon filter farm.
+	carbonFilterFarm_ = new BioXASMainCarbonFilterFarm(this);
+	connect( carbonFilterFarm_, SIGNAL(connectedChanged(bool)), this, SLOT(updateConnected()) );
+
 	// JJ slits.
 	jjSlits_ = new CLSJJSlits("JJSlits", "SMTR1607-7-I21-11", "SMTR1607-7-I21-10", "SMTR1607-7-I21-12", "SMTR1607-7-I21-13", this);
 	connect( jjSlits_, SIGNAL(connectedChanged(bool)), this, SLOT(updateConnected()) );
@@ -265,6 +270,11 @@ void BioXASMainBeamline::setupExposedControls()
 	addExposedControl(m2Mirror_->lateralControl());
 	addExposedControl(m2Mirror_->bendControl());
 
+	// Carbon filter farm controls.
+
+	addExposedControl(carbonFilterFarm_->upstreamActuatorControl());
+	addExposedControl(carbonFilterFarm_->downstreamActuatorControl());
+
 	// JJ slits controls.
 
 	addExposedControl(jjSlits_->verticalCenterControl());
@@ -296,13 +306,6 @@ void BioXASMainBeamline::setupExposedDetectors()
 	addExposedDetector(braggEncoderFeedbackDetector_);
 	addExposedDetector(braggMoveRetriesDetector_);
 	addExposedDetector(braggStepSetpointDetector_);
-}
-
-void BioXASMainBeamline::setupMotorGroup()
-{
-	// BioXAS filter motors
-	carbonFilterFarm1_ = new CLSMAXvMotor(QString("SMTR1607-5-I00-03 Filter 1"), QString("SMTR1607-5-I00-03"), QString("SMTR1607-5-I00-03 Filter 1"), true, 0.05, 2.0, this, QString(":mm"));
-	carbonFilterFarm2_ = new CLSMAXvMotor(QString("SMTR1607-5-I00-04 Filter 2"), QString("SMTR1607-5-I00-04"), QString("SMTR1607-5-I00-04 Filter 2"), true, 0.05, 2.0, this, QString(":mm"));
 }
 
 void BioXASMainBeamline::setupControlsAsDetectors()
@@ -346,7 +349,6 @@ BioXASMainBeamline::BioXASMainBeamline()
 	setupDiagnostics();
 	setupSampleStage();
 	setupControlSets();
-	setupMotorGroup();
 	setupControlsAsDetectors();
 	setupExposedControls();
 	setupExposedDetectors();

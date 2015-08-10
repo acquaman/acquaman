@@ -59,6 +59,13 @@ void BioXASAppController::addComponentView(QObject *component)
 			componentFound = true;
 		}
 
+		BioXASCarbonFilterFarm *carbonFilterFarm = qobject_cast<BioXASCarbonFilterFarm*>(component);
+		if (!componentFound && carbonFilterFarm) {
+			componentView = new BioXASCarbonFilterFarmView(carbonFilterFarm);
+			componentName = "Carbon Filter Farm";
+			componentFound = true;
+		}
+
 		CLSJJSlits *jjSlits = qobject_cast<CLSJJSlits*>(component);
 		if (!componentFound && jjSlits) {
 			componentView = new CLSJJSlitsView(jjSlits);

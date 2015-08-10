@@ -44,6 +44,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/BioXAS/BioXASMainM1Mirror.h"
 #include "beamline/BioXAS/BioXASMainXIAFilters.h"
 #include "beamline/BioXAS/BioXASMainDBHRMirrors.h"
+#include "beamline/BioXAS/BioXASMainCarbonFilterFarm.h"
 
 #include "util/AMErrorMonitor.h"
 #include "util/AMBiHash.h"
@@ -74,6 +75,8 @@ public:
 	virtual BioXASM2Mirror *m2Mirror() const { return m2Mirror_; }
 	/// Returns the beamline monochromator.
 	virtual BioXASMainMonochromator *mono() const { return mono_; }
+	/// Returns the carbon filter farm.
+	BioXASMainCarbonFilterFarm* carbonFilterFarm() const { return carbonFilterFarm_; }
 	/// Returns the JJ slits.
 	virtual CLSJJSlits* jjSlits() const { return jjSlits_; }
 	/// Returns the XIA filters.
@@ -131,8 +134,6 @@ protected:
 	void setupExposedControls();
 	/// Sets up the exposed detectors.
 	void setupExposedDetectors();
-	/// Sets up the motor group for the various sample stages.
-	void setupMotorGroup();
 	/// Sets up all of the detectors that need to be added to scans that aren't a part of typical detectors.  This may just be temporary, not sure.
 	void setupControlsAsDetectors();
 
@@ -140,13 +141,10 @@ protected:
 	BioXASMainBeamline();
 
 protected:
-	/// BioXAS main beamline motors
-	/// BioXAS filter motors
-	CLSMAXvMotor *carbonFilterFarm1_;
-	CLSMAXvMotor *carbonFilterFarm2_;
-
 	// Monochromator
 	BioXASMainMonochromator *mono_;
+	/// The carbon filter farm.
+	BioXASMainCarbonFilterFarm *carbonFilterFarm_;
 	/// JJ slits
 	CLSJJSlits *jjSlits_;
 	/// XIA filters
