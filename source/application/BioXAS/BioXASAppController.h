@@ -61,11 +61,15 @@ public:
 	/// Registers all of the necessary classes that are BioXAS-specific.
 	virtual void registerClasses();
 
-signals:
-
-public slots:
-
 protected:
+	/// Creates a view appropriate for the given beamline component and adds it to the 'General' main window pane.
+	void addComponentView(QObject *component);
+	/// Creates a view appropriate for the given detector and adds it to the 'Detectors' main window pane.
+	void addDetectorView(QObject *detector);
+	/// Creates a commissioning scan configuration view for the given scan configuration and adds it to the 'Scan' main window pane.
+	void addCommissioningScanConfigurationView(AMGenericStepScanConfiguration *configuration);
+	/// Adds the given view to the persistent view panel.
+	void addPersistentView(QWidget *persistentView);
 };
 
 #endif // BIOXASAPPCONTROLLER_H

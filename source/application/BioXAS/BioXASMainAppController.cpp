@@ -36,16 +36,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 BioXASMainAppController::BioXASMainAppController(QObject *parent)
 	: BioXASAppController(parent)
 {
-	// Initialize variables.
-
-	m1MirrorView_ = 0;
-	monoConfigView_ = 0;
-	m2MirrorView_ = 0;
-	scalerView_ = 0;
-	configuration_ = 0;
-	configurationView_ = 0;
-	configurationViewHolder_ = 0;
-
 	setDefaultUseLocalStorage(true);
 }
 
@@ -80,8 +70,6 @@ bool BioXASMainAppController::startup()
 
 		setupExporterOptions();
 		setupUserInterface();
-		makeConnections();
-		applyCurrentSettings();
 
 		return true;
 
@@ -91,14 +79,14 @@ bool BioXASMainAppController::startup()
 	}
 }
 
-void BioXASMainAppController::onScalerConnected()
+void BioXASMainAppController::onCurrentScanActionStartedImplementation(AMScanAction *action)
 {
-	CLSSIS3820Scaler *scaler = BioXASMainBeamline::bioXAS()->scaler();
+	Q_UNUSED(action)
+}
 
-	if (scaler && scaler->isConnected() && !scalerView_) {
-		scalerView_ = new BioXASSIS3820ScalerView(scaler, true);
-		mw_->addPane(AMMainWindow::buildMainWindowPane("Scaler",":/utilities-system-monitor.png", scalerView_), "Detectors", "Scaler", ":/utilities-system-monitor.png", true);
-	}
+void BioXASMainAppController::onCurrentScanActionFinishedImplementation(AMScanAction *action)
+{
+	Q_UNUSED(action)
 }
 
 void BioXASMainAppController::registerClasses()
@@ -151,55 +139,32 @@ void BioXASMainAppController::setupUserInterface()
 	// Add widgets to main window panes:
 	////////////////////////////////////
 
-	m1MirrorView_ = new BioXASM1MirrorView(BioXASMainBeamline::bioXAS()->m1Mirror());
-	mw_->addPane(AMMainWindow::buildMainWindowPane("M1 Mirror", ":/system-software-update.png", m1MirrorView_), "General", "M1 Mirror", ":/system-software-update.png");
+	addComponentView(BioXASMainBeamline::bioXAS()->m1Mirror());
+	addComponentView(BioXASMainBeamline::bioXAS()->mono());
+	addComponentView(BioXASMainBeamline::bioXAS()->m2Mirror());
+	addComponentView(BioXASMainBeamline::bioXAS()->jjSlits());
 
-	monoConfigView_ = new BioXASSSRLMonochromatorConfigurationView(BioXASMainBeamline::bioXAS()->mono());
-	mw_->addPane(AMMainWindow::buildMainWindowPane("Monochromator", ":/system-software-update.png", monoConfigView_), "General", "Monochromator", ":/system-software-update.png");
+	addDetectorView(BioXASMainBeamline::bioXAS()->scaler());
 
-	m2MirrorView_ = new BioXASM2MirrorView(BioXASMainBeamline::bioXAS()->m2Mirror());
-	mw_->addPane(AMMainWindow::buildMainWindowPane("M2 Mirror", ":/system-software-update.png", m2MirrorView_), "General", "M2 Mirror", ":/system-software-update.png");
+	xasScanConfiguration_ = new BioXASMainXASScanConfiguration();
+	xasScanConfiguration_->setEnergy(10000);
+	addXASScanConfigurationView(xasScanConfiguration_);
 
-	jjSlitsView_ = new CLSJJSlitsView(BioXASMainBeamline::bioXAS()->jjSlits());
-	mw_->addPane(AMMainWindow::buildMainWindowPane("JJ Slits", ":/system-software-update.png", jjSlitsView_), "General", "JJ Slits", ":/system-software-update.png");
+	commissioningScanConfiguration_ = new AMGenericStepScanConfiguration;
+	addCommissioningScanConfigurationView(commissioningScanConfiguration_);
 
-	configuration_ = new BioXASMainXASScanConfiguration();
-	configuration_->setEnergy(10000);
-	configurationView_ = new BioXASMainXASScanConfigurationView(configuration_);
-	configurationViewHolder_ = new AMScanConfigurationViewHolder3("Configure an XAS Scan", true, true, configurationView_);
-	connect(configuration_, SIGNAL(totalTimeChanged(double)), configurationViewHolder_, SLOT(updateOverallScanTime(double)));
-	configurationViewHolder_->updateOverallScanTime(configuration_->totalTime());
-	mw_->addPane(configurationViewHolder_, "Scans", "XAS Scan", ":/utilities-system-monitor.png");
-
-	commissioningConfiguration_ = new AMGenericStepScanConfiguration;
-	commissioningConfigurationView_ = new AMGenericStepScanConfigurationView(commissioningConfiguration_);
-	commissioningConfigurationViewHolder_ = new AMScanConfigurationViewHolder3("Commissioning Tool",true, true, commissioningConfigurationView_);
-	mw_->addPane(commissioningConfigurationViewHolder_, "Scans", "Commissioning Tool", ":/utilities-system-monitor.png");
-
-	// Create persistent view panel:
-	////////////////////////////////////
-
-	persistentPanel_ = new BioXASMainPersistentView();
-	persistentPanel_->setFixedWidth(400);
-	mw_->addRightWidget(persistentPanel_);
+	addPersistentView(new BioXASMainPersistentView());
 }
 
-void BioXASMainAppController::makeConnections()
+void BioXASMainAppController::addXASScanConfigurationView(BioXASMainXASScanConfiguration *configuration)
 {
-	connect( BioXASMainBeamline::bioXAS()->scaler(), SIGNAL(connectedChanged(bool)), this, SLOT(onScalerConnected()) );
-}
+	if (configuration) {
+		BioXASMainXASScanConfigurationView *configurationView = new BioXASMainXASScanConfigurationView(configuration);
+		AMScanConfigurationViewHolder3 *configurationViewHolder = new AMScanConfigurationViewHolder3("Configure an XAS Scan", true, true, configurationView);
 
-void BioXASMainAppController::applyCurrentSettings()
-{
-	onScalerConnected();
-}
+		connect(configuration, SIGNAL(totalTimeChanged(double)), configurationViewHolder, SLOT(updateOverallScanTime(double)));
+		configurationViewHolder->updateOverallScanTime(configuration->totalTime());
 
-void BioXASMainAppController::onCurrentScanActionStartedImplementation(AMScanAction *action)
-{
-	Q_UNUSED(action)
-}
-
-void BioXASMainAppController::onCurrentScanActionFinishedImplementation(AMScanAction *action)
-{
-	Q_UNUSED(action)
+		mw_->addPane(configurationViewHolder, "Scans", "XAS Scan", ":/utilities-system-monitor.png");
+	}
 }
