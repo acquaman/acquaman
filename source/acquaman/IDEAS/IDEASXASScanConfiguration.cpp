@@ -250,6 +250,7 @@ void IDEASXASScanConfiguration::onRegionAdded(AMScanAxisRegion *region)
 void IDEASXASScanConfiguration::onRegionRemoved(AMScanAxisRegion *region)
 {
 	region->disconnect(this);
+	region->deleteLater();
 	computeTotalTime();
 }
 

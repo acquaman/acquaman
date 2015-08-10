@@ -168,5 +168,6 @@ void BioXASMainXASScanConfiguration::onRegionAdded(AMScanAxisRegion *region)
 void BioXASMainXASScanConfiguration::onRegionRemoved(AMScanAxisRegion *region)
 {
 	region->disconnect(this);
+	region->deleteLater();
 	computeTotalTime();
 }
