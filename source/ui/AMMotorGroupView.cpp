@@ -62,14 +62,14 @@ void AMMotorGroupObjectView::setJogRange(double minJog, double maxJog)
 
 void AMMotorGroupObjectView::setMotorValuesPrecision(int motorValuesPrecision)
 {
-	horizontalTranslationValue_->setDecimals(motorValuesPrecision);
-	horizontalRotationValue_->setDecimals(motorValuesPrecision);
+	horizontalTranslationValue_->setPrecision(motorValuesPrecision);
+	horizontalRotationValue_->setPrecision(motorValuesPrecision);
 
-	verticalTranslationValue_->setDecimals(motorValuesPrecision);
-	verticalRotationValue_->setDecimals(motorValuesPrecision);
+	verticalTranslationValue_->setPrecision(motorValuesPrecision);
+	verticalRotationValue_->setPrecision(motorValuesPrecision);
 
-	normalTranslationValue_->setDecimals(motorValuesPrecision);
-	normalRotationValue_->setDecimals(motorValuesPrecision);
+	normalTranslationValue_->setPrecision(motorValuesPrecision);
+	normalRotationValue_->setPrecision(motorValuesPrecision);
 }
 
 void AMMotorGroupObjectView::setMotorValuesRange(double minValue, double maxValue)
@@ -249,60 +249,30 @@ void AMMotorGroupObjectView::onPositionUnitsChanged(AMMotorGroupObject::MotionDi
 													AMMotorGroupAxis::MotionType motionType,
 													const QString &positionUnits)
 {
-	QString suffix = QString(" %1").arg(positionUnits);
 	switch (direction) {
 	case AMMotorGroupObject::VerticalMotion:
 		if(motionType == AMMotorGroupAxis::RotationalMotion) {
-			verticalRotationValue_->setSuffix(suffix);
+			verticalRotationValue_->setUnits(positionUnits);
 		} else {
-			verticalTranslationValue_->setSuffix(suffix);
+			verticalTranslationValue_->setUnits(positionUnits);
 		}
 		break;
 	case AMMotorGroupObject::HorizontalMotion:
 		if(motionType == AMMotorGroupAxis::RotationalMotion) {
-			horizontalRotationValue_->setSuffix(suffix);
+			horizontalRotationValue_->setUnits(positionUnits);
 		} else {
-			horizontalTranslationValue_->setSuffix(suffix);
+			horizontalTranslationValue_->setUnits(positionUnits);
 		}
 		break;
 	case AMMotorGroupObject::NormalMotion:
 		if(motionType == AMMotorGroupAxis::RotationalMotion) {
-			normalRotationValue_->setSuffix(suffix);
+			normalRotationValue_->setUnits(positionUnits);
 		} else {
-			normalTranslationValue_->setSuffix(suffix);
+			normalTranslationValue_->setUnits(positionUnits);
 		}
 		break;
 	}
 	refreshJogUnits();
-}
-
-void AMMotorGroupObjectView::onPositionValueChanged(AMMotorGroupObject::MotionDirection direction,
-													AMMotorGroupAxis::MotionType motionType,
-													double positionValue)
-{
-		switch (direction) {
-		case AMMotorGroupObject::VerticalMotion:
-			if(motionType == AMMotorGroupAxis::RotationalMotion) {
-				verticalRotationValue_->setValue(positionValue);
-			} else {
-				verticalTranslationValue_->setValue(positionValue);
-			}
-			break;
-		case AMMotorGroupObject::HorizontalMotion:
-			if(motionType == AMMotorGroupAxis::RotationalMotion) {
-				horizontalRotationValue_->setValue(positionValue);
-			} else {
-				horizontalTranslationValue_->setValue(positionValue);
-			}
-			break;
-		case AMMotorGroupObject::NormalMotion:
-			if(motionType == AMMotorGroupAxis::RotationalMotion) {
-				normalRotationValue_->setValue(positionValue);
-			} else {
-				normalTranslationValue_->setValue(positionValue);
-			}
-			break;
-		}
 }
 
 void AMMotorGroupObjectView::onHorizontalTranslationIncrementClicked()
@@ -456,61 +426,6 @@ void AMMotorGroupObjectView::onStopClicked()
 	motorGroupObject_->stopAll();
 }
 
-void AMMotorGroupObjectView::onHorizontalTranslationValueChanged()
-{
-	if(motorGroupObject_->hasHorizontalAxis() &&
-			motorGroupObject_->horizontalAxis()->canTranslate()) {
-
-
-		motorGroupObject_->horizontalAxis()->setTranslatePosition(horizontalTranslationValue_->value());
-	}
-}
-
-void AMMotorGroupObjectView::onHorizontalRotationValueChanged()
-{
-	if(motorGroupObject_->hasHorizontalAxis() &&
-			motorGroupObject_->horizontalAxis()->canRotate()) {
-
-		motorGroupObject_->horizontalAxis()->setRotatePosition(horizontalRotationValue_->value());
-	}
-}
-
-void AMMotorGroupObjectView::onVerticalTranslationValueChanged()
-{
-	if(motorGroupObject_->hasVerticalAxis() &&
-			motorGroupObject_->verticalAxis()->canTranslate()) {
-
-		motorGroupObject_->verticalAxis()->setTranslatePosition(verticalTranslationValue_->value());
-	}
-}
-
-void AMMotorGroupObjectView::onVerticalRotationValueChanged()
-{
-	if(motorGroupObject_->hasVerticalAxis() &&
-			motorGroupObject_->verticalAxis()->canRotate()) {
-
-		motorGroupObject_->verticalAxis()->setRotatePosition(verticalRotationValue_->value());
-	}
-}
-
-void AMMotorGroupObjectView::onNormalTranslationValueChanged()
-{
-	if(motorGroupObject_->hasNormalAxis() &&
-			motorGroupObject_->normalAxis()->canTranslate()) {
-
-		motorGroupObject_->normalAxis()->setTranslatePosition(normalTranslationValue_->value());
-	}
-}
-
-void AMMotorGroupObjectView::onNormalRotationValueChanged()
-{
-	if(motorGroupObject_->hasNormalAxis() &&
-			motorGroupObject_->normalAxis()->canRotate()) {
-
-		motorGroupObject_->normalAxis()->setRotatePosition(normalRotationValue_->value());
-	}
-}
-
 void AMMotorGroupObjectView::onErrorMessageDismissClicked()
 {
 	errorLabel_->setVisible(false);
@@ -573,23 +488,23 @@ void AMMotorGroupObjectView::setupUi()
 	stopAllButton_ = new QToolButton();
 	stopAllButton_->setIcon(QIcon(":/stop.png"));
 
-	horizontalTranslationValue_ = new QDoubleSpinBox();
+	horizontalTranslationValue_ = new AMExtendedControlEditor(0);
 	horizontalTranslationLabel_ = new QLabel();
 
-	horizontalRotationValue_ = new QDoubleSpinBox();
+	horizontalRotationValue_ = new AMExtendedControlEditor(0);
 	horizontalRotationLabel_ = new QLabel();
 
 
-	verticalTranslationValue_ = new QDoubleSpinBox();
+	verticalTranslationValue_ = new AMExtendedControlEditor(0);
 	verticalTranslationLabel_ = new QLabel();
 
-	verticalRotationValue_ = new QDoubleSpinBox();
+	verticalRotationValue_ = new AMExtendedControlEditor(0);
 	verticalRotationLabel_ = new QLabel();
 
-	normalTranslationValue_ = new QDoubleSpinBox();
+	normalTranslationValue_ = new AMExtendedControlEditor(0);
 	normalTranslationLabel_ = new QLabel();
 
-	normalRotationValue_ = new QDoubleSpinBox();
+	normalRotationValue_ = new AMExtendedControlEditor(0);
 	normalRotationLabel_ = new QLabel();
 
 	jogSize_ = new QDoubleSpinBox();
@@ -606,7 +521,7 @@ void AMMotorGroupObjectView::setupUi()
 
 	contentLayout->addLayout(movementButtonLayout);
 
-	movementButtonLayout->addWidget(statusLabel_, 0, 0);
+	movementButtonLayout->addWidget(statusLabel_, 1, 1);
 	movementButtonLayout->addWidget(horizontalTranslationIncrement_, 2, 3);
 	movementButtonLayout->addWidget(horizontalTranslationDecrement_, 2, 1);
 	movementButtonLayout->addWidget(horizontalRotationIncrement_, 2, 4);
@@ -670,23 +585,12 @@ void AMMotorGroupObjectView::setupData()
 	horizontalRotationIncrement_->setVisible(canMoveGrouping);
 	horizontalRotationDecrement_->setVisible(canMoveGrouping);
 	horizontalRotationValue_->setVisible(canMoveGrouping);
+	horizontalRotationValue_->hideBorder();
 	horizontalRotationLabel_->setVisible(canMoveGrouping);
 	if(canMoveGrouping) {
-		double rotationValue =
-				motorGroupObject_->horizontalAxis()->currentRotationPosition();
-		double minPosition =
-				motorGroupObject_->horizontalAxis()->minRotationPosition();
-		double maxPosition =
-				motorGroupObject_->horizontalAxis()->maxRotationPosition();
-		QString suffix = QString(" %1")
-				.arg(motorGroupObject_->horizontalAxis()->rotationPositionUnits());
-		QString name =
-				motorGroupObject_->horizontalAxis()->rotationName();
-
-		horizontalRotationValue_->setValue(rotationValue);
-		horizontalRotationValue_->setSuffix(suffix);
-		horizontalRotationValue_->setRange(minPosition, maxPosition);
-		horizontalRotationLabel_->setText(name);
+		horizontalRotationValue_->setControl(motorGroupObject_->horizontalAxis()->rotationMotor());
+		horizontalRotationValue_->setUnits(motorGroupObject_->horizontalAxis()->rotationPositionUnits());
+		horizontalRotationLabel_->setText(motorGroupObject_->horizontalAxis()->rotationName());
 
 	}
 
@@ -694,116 +598,60 @@ void AMMotorGroupObjectView::setupData()
 	horizontalTranslationIncrement_->setVisible(canMoveGrouping);
 	horizontalTranslationDecrement_->setVisible(canMoveGrouping);
 	horizontalTranslationValue_->setVisible(canMoveGrouping);
+	horizontalTranslationValue_->hideBorder();
 	horizontalTranslationLabel_->setVisible(canMoveGrouping);
 	if(canMoveGrouping) {
-		double translationValue =
-				motorGroupObject_->horizontalAxis()->currentTranslationPosition();
-		double minPosition =
-				motorGroupObject_->horizontalAxis()->minTranslationPosition();
-		double maxPosition =
-				motorGroupObject_->horizontalAxis()->maxTranslationPosition();
-		QString suffix = QString(" %1").arg(
-				motorGroupObject_->horizontalAxis()->translationPositionUnits());
-		QString name =
-				motorGroupObject_->horizontalAxis()->translationName();
-
-		horizontalTranslationValue_->setValue(translationValue);
-		horizontalTranslationValue_->setSuffix(suffix);
-		horizontalTranslationValue_->setRange(minPosition, maxPosition);
-		horizontalTranslationLabel_->setText(name);
+		horizontalTranslationValue_->setControl(motorGroupObject_->horizontalAxis()->translationMotor());
+		horizontalTranslationValue_->setUnits(motorGroupObject_->horizontalAxis()->translationPositionUnits());
+		horizontalTranslationLabel_->setText(motorGroupObject_->horizontalAxis()->translationName());
 	}
 
 	canMoveGrouping = motorGroupObject_->hasVerticalAxis() && motorGroupObject_->verticalAxis()->canRotate();
 	verticalRotationIncrement_->setVisible(canMoveGrouping);
 	verticalRotationDecrement_->setVisible(canMoveGrouping);
 	verticalRotationValue_->setVisible(canMoveGrouping);
+	verticalRotationValue_->hideBorder();
 	verticalRotationLabel_->setVisible(canMoveGrouping);
 	if(canMoveGrouping) {
-		double rotationValue =
-				motorGroupObject_->verticalAxis()->currentRotationPosition();
-		double minPosition =
-				motorGroupObject_->verticalAxis()->minRotationPosition();
-		double maxPosition =
-				motorGroupObject_->verticalAxis()->maxRotationPosition();
-		QString suffix = QString(" %1")
-				.arg(motorGroupObject_->verticalAxis()->rotationPositionUnits());
-		QString name =
-				motorGroupObject_->verticalAxis()->rotationName();
-
-		verticalRotationValue_->setValue(rotationValue);
-		verticalRotationValue_->setSuffix(suffix);
-		verticalRotationValue_->setRange(minPosition, maxPosition);
-		verticalRotationLabel_->setText(name);
+		verticalRotationValue_->setControl(motorGroupObject_->verticalAxis()->rotationMotor());
+		verticalRotationValue_->setUnits(motorGroupObject_->verticalAxis()->rotationPositionUnits());
+		verticalRotationLabel_->setText(motorGroupObject_->verticalAxis()->rotationName());
 	}
 
 	canMoveGrouping = motorGroupObject_->hasVerticalAxis() && motorGroupObject_->verticalAxis()->canTranslate();
 	verticalTranslationIncrement_->setVisible(canMoveGrouping);
 	verticalTranslationDecrement_->setVisible(canMoveGrouping);
 	verticalTranslationValue_->setVisible(canMoveGrouping);
+	verticalTranslationValue_->hideBorder();
 	verticalTranslationLabel_->setVisible(canMoveGrouping);
 	if(canMoveGrouping) {
-		double translationValue =
-				motorGroupObject_->verticalAxis()->currentTranslationPosition();
-		double minPosition =
-				motorGroupObject_->verticalAxis()->minTranslationPosition();
-		double maxPosition =
-				motorGroupObject_->verticalAxis()->maxTranslationPosition();
-		QString suffix = QString(" %1")
-				.arg(motorGroupObject_->verticalAxis()->translationPositionUnits());
-		QString name =
-				motorGroupObject_->verticalAxis()->translationName();
-
-		verticalTranslationValue_->setValue(translationValue);
-		verticalTranslationValue_->setSuffix(suffix);
-		verticalTranslationValue_->setRange(minPosition, maxPosition);
-		verticalTranslationLabel_->setText(name);
+		verticalTranslationValue_->setControl(motorGroupObject_->verticalAxis()->translationMotor());
+		verticalTranslationValue_->setUnits(motorGroupObject_->verticalAxis()->translationPositionUnits());
+		verticalTranslationLabel_->setText(motorGroupObject_->verticalAxis()->translationName());
 	}
 
 	canMoveGrouping = motorGroupObject_->hasNormalAxis() && motorGroupObject_->normalAxis()->canRotate();
 	normalRotationIncrement_->setVisible(canMoveGrouping);
 	normalRotationDecrement_->setVisible(canMoveGrouping);
 	normalRotationValue_->setVisible(canMoveGrouping);
+	normalRotationValue_->hideBorder();
 	normalRotationLabel_->setVisible(canMoveGrouping);
 	if(canMoveGrouping) {
-		double rotationValue =
-				motorGroupObject_->normalAxis()->currentRotationPosition();
-		double minPosition =
-				motorGroupObject_->normalAxis()->minRotationPosition();
-		double maxPosition =
-				motorGroupObject_->normalAxis()->maxRotationPosition();
-		QString suffix = QString(" %1")
-				.arg(motorGroupObject_->normalAxis()->rotationPositionUnits());
-
-		QString name =
-				motorGroupObject_->normalAxis()->rotationName();
-
-		normalRotationValue_->setValue(rotationValue);
-		normalRotationValue_->setSuffix(suffix);
-		normalRotationValue_->setRange(minPosition, maxPosition);
-		normalRotationLabel_->setText(name);
+		normalRotationValue_->setControl(motorGroupObject_->normalAxis()->rotationMotor());
+		normalRotationValue_->setUnits(motorGroupObject_->normalAxis()->rotationPositionUnits());
+		normalRotationLabel_->setText(motorGroupObject_->normalAxis()->rotationName());
 	}
 
 	canMoveGrouping = motorGroupObject_->hasNormalAxis() && motorGroupObject_->normalAxis()->canTranslate();
 	normalTranslationIncrement_->setVisible(canMoveGrouping);
 	normalTranslationDecrement_->setVisible(canMoveGrouping);
 	normalTranslationValue_->setVisible(canMoveGrouping);
+	normalTranslationValue_->hideBorder();
 	normalTranslationLabel_->setVisible(canMoveGrouping);
 	if(canMoveGrouping) {
-		double translationValue =
-				motorGroupObject_->normalAxis()->currentTranslationPosition();
-		double minPosition =
-				motorGroupObject_->normalAxis()->minTranslationPosition();
-		double maxPosition =
-				motorGroupObject_->normalAxis()->maxTranslationPosition();
-		QString suffix = QString(" %1")
-				.arg(motorGroupObject_->normalAxis()->translationPositionUnits());
-		QString name =
-				motorGroupObject_->normalAxis()->translationName();
-
-		normalTranslationValue_->setValue(translationValue);
-		normalTranslationValue_->setSuffix(suffix);
-		normalTranslationValue_->setRange(minPosition, maxPosition);
-		normalTranslationLabel_->setText(name);
+		normalTranslationValue_->setControl(motorGroupObject_->normalAxis()->translationMotor());
+		normalTranslationValue_->setUnits(motorGroupObject_->normalAxis()->translationPositionUnits());
+		normalTranslationLabel_->setText(motorGroupObject_->normalAxis()->translationName());
 	}
 }
 
@@ -821,9 +669,6 @@ void AMMotorGroupObjectView::setupConnections()
 
 	connect(motorGroupObject_, SIGNAL(positionUnitsChanged(AMMotorGroupObject::MotionDirection,AMMotorGroupAxis::MotionType,QString)),
 			this, SLOT(onPositionUnitsChanged(AMMotorGroupObject::MotionDirection,AMMotorGroupAxis::MotionType,QString)));
-
-	connect(motorGroupObject_, SIGNAL(positionValueChanged(AMMotorGroupObject::MotionDirection,AMMotorGroupAxis::MotionType,double)),
-			this, SLOT(onPositionValueChanged(AMMotorGroupObject::MotionDirection,AMMotorGroupAxis::MotionType,double)));
 
 	connect(horizontalTranslationIncrement_, SIGNAL(clicked()),
 			this, SLOT(onHorizontalTranslationIncrementClicked()));
@@ -863,26 +708,6 @@ void AMMotorGroupObjectView::setupConnections()
 
 	connect(stopAllButton_, SIGNAL(clicked()),
 			this, SLOT(onStopClicked()));
-
-	connect(horizontalTranslationValue_, SIGNAL(editingFinished()),
-			this, SLOT(onHorizontalTranslationValueChanged()));
-
-	connect(horizontalRotationValue_, SIGNAL(editingFinished()),
-			this, SLOT(onHorizontalRotationValueChanged()));
-
-	connect(verticalTranslationValue_, SIGNAL(editingFinished()),
-			this, SLOT(onVerticalTranslationValueChanged()));
-
-	connect(verticalRotationValue_, SIGNAL(editingFinished()),
-			this, SLOT(onVerticalRotationValueChanged()));
-
-	connect(normalTranslationValue_, SIGNAL(editingFinished()),
-			this, SLOT(onNormalTranslationValueChanged()));
-
-	connect(normalRotationValue_, SIGNAL(editingFinished()),
-			this, SLOT(onNormalRotationValueChanged()));
-
-
 
 }
 

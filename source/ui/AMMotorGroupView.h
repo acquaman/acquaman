@@ -32,6 +32,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QComboBox>
 #include <QStackedWidget>
 #include "beamline/AMMotorGroup.h"
+#include "ui/beamline/AMExtendedControlEditor.h"
 
 /*!
   * \brief A class for visualizing the data of an AMMotorGroupObject.
@@ -151,17 +152,6 @@ protected slots:
 								const QString& positionUnits);
 
 	/*!
-	  * Handles signals indicating that a motor within the group object has had
-	  * its position value changed.
-	  * \param direction ~ The direction of the motor.
-	  * \param motionType ~ The motion type of the motor.
-	  * \param positionValue ~ The position value of the motor.
-	  */
-	void onPositionValueChanged(AMMotorGroupObject::MotionDirection direction,
-								AMMotorGroupAxis::MotionType motionType,
-								double positionValue);
-
-	/*!
 	  * Handles signals indicating that the increment horizontal translation button
 	  * has been clicked. Moves the horizontal translation motor by the value
 	  * speicifed in the step spin box, if the motor can be moved.
@@ -252,42 +242,6 @@ protected slots:
 	void onStopClicked();
 
 	/*!
-	  * Handles signals indicating that the set point spinbox for the horizontal
-	  * translation has had its value altered.
-	  */
-	void onHorizontalTranslationValueChanged();
-
-	/*!
-	  * Handles signals indicating that the set point spinbox for the horizontal
-	  * rotation has had its value altered.
-	  */
-	void onHorizontalRotationValueChanged();
-
-	/*!
-	  * Handles signals indicating that the set point spinbox for the vertical
-	  * translation has had its value altered.
-	  */
-	void onVerticalTranslationValueChanged();
-
-	/*!
-	  * Handles signals indicating that the set point spinbox for the vertical
-	  * rotation has had its value altered.
-	  */
-	void onVerticalRotationValueChanged();
-
-	/*!
-	  * Handles signals indicating that the set point spinbox for the normal
-	  * translation has had its value altered.
-	  */
-	void onNormalTranslationValueChanged();
-
-	/*!
-	  * Handles signals indicating that the set point spinbox for the normal
-	  * rotation has had its value altered.
-	  */
-	void onNormalRotationValueChanged();
-
-	/*!
 	  * Handles signals indicating that the dismiss error message button has been
 	  * clicked.
 	  */
@@ -347,32 +301,32 @@ protected:
 
 	QToolButton* horizontalTranslationIncrement_;
 	QToolButton* horizontalTranslationDecrement_;
-	QDoubleSpinBox* horizontalTranslationValue_;
+	AMExtendedControlEditor* horizontalTranslationValue_;
 	QLabel* horizontalTranslationLabel_;
 
 	QToolButton* horizontalRotationIncrement_;
 	QToolButton* horizontalRotationDecrement_;
-	QDoubleSpinBox* horizontalRotationValue_;
+	AMExtendedControlEditor* horizontalRotationValue_;
 	QLabel* horizontalRotationLabel_;
 
 	QToolButton* verticalTranslationIncrement_;
 	QToolButton* verticalTranslationDecrement_;
-	QDoubleSpinBox* verticalTranslationValue_;
+	AMExtendedControlEditor* verticalTranslationValue_;
 	QLabel* verticalTranslationLabel_;
 
 	QToolButton* verticalRotationIncrement_;
 	QToolButton* verticalRotationDecrement_;
-	QDoubleSpinBox* verticalRotationValue_;
+	AMExtendedControlEditor* verticalRotationValue_;
 	QLabel* verticalRotationLabel_;
 
 	QToolButton* normalTranslationIncrement_;
 	QToolButton* normalTranslationDecrement_;
-	QDoubleSpinBox* normalTranslationValue_;
+	AMExtendedControlEditor* normalTranslationValue_;
 	QLabel* normalTranslationLabel_;
 
 	QToolButton* normalRotationIncrement_;
 	QToolButton* normalRotationDecrement_;
-	QDoubleSpinBox* normalRotationValue_;
+	AMExtendedControlEditor* normalRotationValue_;
 	QLabel* normalRotationLabel_;
 
 	QDoubleSpinBox* jogSize_;
