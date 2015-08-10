@@ -100,6 +100,8 @@ void AMGithubProjectManagerMainView::onGetAllZenhubEstimatesSucceeded()
 	qDebug() << "\n\n";
 	qDebug() << "All Milestones:           " << repository_->milestoneCount();
 
+	qDebug() << "\n\n\n\n";
+
 
 
 	AMGitHubIssueValueMap normalizedEstimateMap;
@@ -118,6 +120,8 @@ void AMGithubProjectManagerMainView::onGetAllZenhubEstimatesSucceeded()
 	}
 
 	for(int x = 0, size = workingIssues.count(); x < size; x++){
+		if((x%10 == 0) || (x == size-1))
+			qDebug() << "Maps " << x << " of " << size;
 		AMGitHubIssue *oneIssue = workingIssues.at(x);
 		AMGitHubIssue::EstimatedComplexityValue oneEstimatedComplexity = oneIssue->estimatedComplexityValue();
 		AMGitHubIssue::ActualComplexityValue oneActualComplexity = oneIssue->actualComplexityValue();
@@ -152,6 +156,71 @@ void AMGithubProjectManagerMainView::onGetAllZenhubEstimatesSucceeded()
 	qDebug() << QString("Normalized Open      [%1] Total: %2").arg(normalizedOpenMap.valueMap()->count()).arg(normalizedOpenMap.total());
 	qDebug() << QString("Normalized Closed    [%1] Total: %2").arg(normalizedClosedMap.valueMap()->count()).arg(normalizedClosedMap.total());
 
+	qDebug() << "\n\n\n\n";
+
+	// Generate date list
+	QList<QDateTime> dateList;
+	QDateTime initialDateTime = QDateTime::currentDateTime();
+	int weeksToIterate = 20;
+	initialDateTime = initialDateTime.addDays(-7*weeksToIterate);
+	dateList.append(initialDateTime);
+	QDateTime oneDateTime = initialDateTime;
+	for(int x = 0, size = weeksToIterate; x < size; x++){
+		oneDateTime = oneDateTime.addDays(7);
+		dateList.append(oneDateTime);
+	}
+
+	AMGitHubIssueValueDateProgression *outstandingEstimatesProgression = new AMGitHubIssueValueDateProgression();
+	AMGitHubIssueValueDateProgression *completedEstimatesProgression = new AMGitHubIssueValueDateProgression();
+	AMGitHubIssueValueDateProgression *withdrawnEstimatesProgression = new AMGitHubIssueValueDateProgression();
+	AMGitHubIssueValueDateProgression *complexityMappedCompletedWorkProgression = new AMGitHubIssueValueDateProgression();
+	AMGitHubIssueValueDateProgression *reportedCompletedWorkProgression = new AMGitHubIssueValueDateProgression();
+
+	AMGitHubIssueValueMap *oneOutstandingEstimateMap;
+	AMGitHubIssueValueMap *oneCompletedEstimateMap;
+	AMGitHubIssueValueMap *oneWithdrawnEstimateMap;
+	AMGitHubIssueValueMap *oneComplexityMappedCompletedWorkEstimateMap;
+	AMGitHubIssueValueMap *oneReportedCompletedWorkEstimateMap;
+
+
+	for(int x = 0, xSize = dateList.count(); x < xSize; x++){
+		QDateTime oneDateTime = dateList.at(x);
+		qDebug() << "Progressions " << x << " of " << xSize << " for " << oneDateTime.toString("yyyy MM dd");
+
+		oneOutstandingEstimateMap = new AMGitHubIssueValueMap();
+		oneCompletedEstimateMap = new AMGitHubIssueValueMap();
+		oneWithdrawnEstimateMap = new AMGitHubIssueValueMap();
+		oneComplexityMappedCompletedWorkEstimateMap = new AMGitHubIssueValueMap();
+		oneReportedCompletedWorkEstimateMap = new AMGitHubIssueValueMap();
+
+		for(int y = 0, ySize = workingIssues.count(); y < ySize; y++){
+			AMGitHubIssue *oneIssue = workingIssues.at(y);
+			oneOutstandingEstimateMap->insertMapping(oneIssue, complexityManager->outstandingEstimateAtDate(oneIssue, oneDateTime));
+			oneCompletedEstimateMap->insertMapping(oneIssue, complexityManager->completedEstimateAtDate(oneIssue, oneDateTime));
+			oneWithdrawnEstimateMap->insertMapping(oneIssue, complexityManager->withdrawnEstimateAtDate(oneIssue, oneDateTime));
+			oneComplexityMappedCompletedWorkEstimateMap->insertMapping(oneIssue, complexityManager->complexityMappedCompletedWorkAtDate(oneIssue, oneDateTime));
+			oneReportedCompletedWorkEstimateMap->insertMapping(oneIssue, complexityManager->reportedCompletedWorkAtDate(oneIssue, oneDateTime));
+		}
+
+		outstandingEstimatesProgression->insertMapping(oneDateTime, oneOutstandingEstimateMap);
+		completedEstimatesProgression->insertMapping(oneDateTime, oneCompletedEstimateMap);
+		withdrawnEstimatesProgression->insertMapping(oneDateTime, oneWithdrawnEstimateMap);
+		complexityMappedCompletedWorkProgression->insertMapping(oneDateTime, oneComplexityMappedCompletedWorkEstimateMap);
+		reportedCompletedWorkProgression->insertMapping(oneDateTime, oneReportedCompletedWorkEstimateMap);
+	}
+
+	for(int x = 0, size = dateList.count(); x < size; x++){
+		qDebug() << "For date: " << dateList.at(x).toString("yyyy MM dd");
+		qDebug() << "Outstanding Estimates:            " << outstandingEstimatesProgression->totalForDate(dateList.at(x));
+		qDebug() << "Completed Estimates:              " << completedEstimatesProgression->totalForDate(dateList.at(x));
+		qDebug() << "Withdrawn Estimates:              " << withdrawnEstimatesProgression->totalForDate(dateList.at(x));
+		qDebug() << "Complexity Mapped Completed Work: " << complexityMappedCompletedWorkProgression->totalForDate(dateList.at(x));
+		qDebug() << "Reported Completed Work:          " << reportedCompletedWorkProgression->totalForDate(dateList.at(x));
+		qDebug() << "\n\n";
+	}
+
+
+
 	return;
 }
 
@@ -162,6 +231,7 @@ void AMGithubProjectManagerMainView::onOneZenhubEstimateUpdateSucceeded()
 
 
 	/*
+	/////////////// VALUE MAPS ///////////////
 	AMGitHubMilestone *bioxasSideMilestone = allMilestones_.value(10);
 	QList<double> normalizedEstimatedList;
 	double normalizedEstimated = 0;
@@ -261,7 +331,11 @@ void AMGithubProjectManagerMainView::onOneZenhubEstimateUpdateSucceeded()
 
 	qDebug() << "Normalized Open Total: " << normalizedOpen;
 	qDebug() << "Normalized Closed Total: " << normalizedClosed;
+	*/
 
+
+	/*
+	/////////////// DATE PROGRESSIONS ///////////////
 
 	QList<QList<double> > allOutstandingEstimatesLists;
 	QList<double> allOutstandingEstimatesTotals;
@@ -333,7 +407,11 @@ void AMGithubProjectManagerMainView::onOneZenhubEstimateUpdateSucceeded()
 		for(int y = 0, ySize = allReportedCompetedWorkLists.at(x).count(); y < ySize; y++)
 			allReportedCompetedWorkTotals[x] = allReportedCompetedWorkTotals.at(x)+allReportedCompetedWorkLists.at(x).at(y);
 	}
+	*/
 
+
+	/*
+	/////////////// VELOCITIES ///////////////
 	QList<double> weeklyEstimatedVelocity;
 	QList<double> weeklyComplexityMappedVelocity;
 	QList<double> weeklyReportedVelocity;

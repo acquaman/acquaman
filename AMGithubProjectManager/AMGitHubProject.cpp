@@ -56,6 +56,89 @@ void AMGitHubIssueValueMap::insertMapping(const AMGitHubIssue *issue, double val
 	valueMap_->insert(issue, value);
 }
 
+AMGitHubIssueValueDateProgression::AMGitHubIssueValueDateProgression(QObject *parent) :
+	QObject(parent)
+{
+	dateProgression_ = new QMap<QDateTime, AMGitHubIssueValueMap*>();
+}
+
+bool AMGitHubIssueValueDateProgression::containsDateTime(const QDateTime &dateTime) const
+{
+	return dateProgression_->contains(dateTime);
+}
+
+const AMGitHubIssueValueMap* AMGitHubIssueValueDateProgression::valueMapForDateTime(const QDateTime &dateTime) const
+{
+	if(dateProgression_->contains(dateTime))
+		return dateProgression_->value(dateTime);
+	return 0;
+}
+
+QList<QDateTime> AMGitHubIssueValueDateProgression::dateTimeList() const
+{
+	QList<QDateTime> retVal;
+	QMap<QDateTime, AMGitHubIssueValueMap*>::const_iterator i = dateProgression_->constBegin();
+	while(i != dateProgression_->constEnd()){
+		retVal.append(i.key());
+		i++;
+	}
+	return retVal;
+}
+
+QList<AMGitHubIssueValueMap*> AMGitHubIssueValueDateProgression::valueMapList() const
+{
+	QList<AMGitHubIssueValueMap*> retVal;
+	QMap<QDateTime, AMGitHubIssueValueMap*>::const_iterator i = dateProgression_->constBegin();
+	while(i != dateProgression_->constEnd()){
+		retVal.append(i.value());
+		i++;
+	}
+	return retVal;
+}
+
+QList<double> AMGitHubIssueValueDateProgression::totalsList() const
+{
+	QList<double> retVal;
+	QMap<QDateTime, AMGitHubIssueValueMap*>::const_iterator i = dateProgression_->constBegin();
+	while(i != dateProgression_->constEnd()){
+		retVal.append(totalForDate(i.key()));
+		i++;
+	}
+	return retVal;
+}
+
+QList<double> AMGitHubIssueValueDateProgression::averageList(double divisor) const
+{
+	QList<double> retVal;
+	QMap<QDateTime, AMGitHubIssueValueMap*>::const_iterator i = dateProgression_->constBegin();
+	while(i != dateProgression_->constEnd()){
+		retVal.append(averageForDate(i.key(), divisor));
+		i++;
+	}
+	return retVal;
+}
+
+double AMGitHubIssueValueDateProgression::totalForDate(const QDateTime &dateTime) const
+{
+	if(dateProgression_->contains(dateTime))
+		return dateProgression_->value(dateTime)->total();
+	return 0;
+}
+
+double AMGitHubIssueValueDateProgression::averageForDate(const QDateTime &dateTime, double divisor) const
+{
+	if(dateProgression_->contains(dateTime))
+		return dateProgression_->value(dateTime)->average(divisor);
+	return 0;
+}
+
+void AMGitHubIssueValueDateProgression::insertMapping(const QDateTime &dateTime, AMGitHubIssueValueMap *valueMap)
+{
+	if(dateProgression_->contains(dateTime))
+		return;
+	dateProgression_->insert(dateTime, valueMap);
+}
+
 /*
 AMGitHubProject::AMGitHubProject(QList<AMGitHubIssueFamily *> projectIssues, const QDateTime &endDate, int weeksToCompute, QObject *parent) :
 	QObject(parent)

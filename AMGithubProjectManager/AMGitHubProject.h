@@ -25,6 +25,30 @@ protected:
 	QMap<const AMGitHubIssue*, double> *valueMap_;
 };
 
+class AMGitHubIssueValueDateProgression : public QObject
+{
+Q_OBJECT
+public:
+	AMGitHubIssueValueDateProgression(QObject *parent = 0);
+
+	bool containsDateTime(const QDateTime &dateTime) const;
+	const AMGitHubIssueValueMap* valueMapForDateTime(const QDateTime &dateTime) const;
+	QList<QDateTime> dateTimeList() const;
+	QList<AMGitHubIssueValueMap*> valueMapList() const;
+	QList<double> totalsList() const;
+	QList<double> averageList(double divisor = -1) const;
+	const QMap<QDateTime, AMGitHubIssueValueMap*>* dateProgression() const { return dateProgression_; }
+
+	double totalForDate(const QDateTime &dateTime) const;
+	double averageForDate(const QDateTime &dateTime, double divisor = -1) const;
+
+public slots:
+	void insertMapping(const QDateTime &dateTime, AMGitHubIssueValueMap *valueMap);
+
+protected:
+	QMap<QDateTime, AMGitHubIssueValueMap*> *dateProgression_;
+};
+
 /*
 class AMGitHubProject : public QObject
 {

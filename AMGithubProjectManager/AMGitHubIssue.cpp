@@ -451,7 +451,6 @@ int AMGitHubComplexityMapping::mappingIndex() const
 		int indexActual = int(actualComplexityValue_);
 		int indexEstimate = int(estimatedComplexityValue_);
 
-//		return maxEstimate*indexActual + indexEstimate;
 		return maxEstimate*indexEstimate + indexActual;
 	}
 	return -1;
