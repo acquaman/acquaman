@@ -580,7 +580,7 @@ void AMPIC887EpicsCoordinator::onAllConnected(bool connectedState)
 		connect(stopAll_, SIGNAL(valueChanged(double)), this, SLOT(onStopAll(double)));
 
 		connect(controller_, SIGNAL(moveStarted(AMGCS2::AxisMovementStatuses)), this, SLOT(onMotionStartedChanged(AMGCS2::AxisMovementStatuses)));
-		connect(controller_, SIGNAL(moveFailed(AMGCS2::AxisMovementStatuses movementStatuses)), this, SLOT(onMotionFailed(AMGCS2::AxisMovementStatuses movementStatuses)));
+		connect(controller_, SIGNAL(moveFailed(AMGCS2::AxisMovementStatuses)), this, SLOT(onMotionFailed(AMGCS2::AxisMovementStatuses)));
 		connect(controller_, SIGNAL(moveComplete()), this, SLOT(onMotionCompleted()));
 		connect(controller_, SIGNAL(positionUpdate(AMPIC887AxisMap<double>)), this, SLOT(onPositionUpdate(AMPIC887AxisMap<double>)));
 		connect(controller_, SIGNAL(systemVelocityChanged(double)), this, SLOT(onSystemVelocityChanged(double)));
