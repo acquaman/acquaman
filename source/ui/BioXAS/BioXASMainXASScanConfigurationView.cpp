@@ -35,6 +35,8 @@ BioXASMainXASScanConfigurationView::BioXASMainXASScanConfigurationView(BioXASMai
 	scanName_ = new QLineEdit();
 	scanName_->setText(configuration_->userScanName());
 
+	estimatedTimeLabel_ = new QLabel();
+
 	connect(scanName_, SIGNAL(editingFinished()), this, SLOT(onScanNameEdited()));
 	connect(configuration_, SIGNAL(nameChanged(QString)), scanName_, SLOT(setText(QString)));
     connect(configuration_, SIGNAL(totalTimeChanged(double)), this, SLOT(onEstimatedTimeChanged(double)));
