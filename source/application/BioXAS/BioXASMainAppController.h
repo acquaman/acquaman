@@ -70,6 +70,8 @@ protected:
 	BioXASSSRLMonochromatorConfigurationView *monoConfigView_;
 	/// M2 mirror view.
 	BioXASM2MirrorView *m2MirrorView_;
+	/// JJ slits view.
+	CLSJJSlitsView *jjSlitsView_;
 	/// Scaler view.
 	BioXASSIS3820ScalerView *scalerView_;
 	/// XAS scan configuration.

@@ -34,6 +34,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/CLS/CLSBasicCompositeScalerChannelDetector.h"
 #include "beamline/CLS/CLSMAXvMotor.h"
 #include "beamline/CLS/CLSKeithley428.h"
+#include "beamline/CLS/CLSJJSlits.h"
 
 #include "beamline/BioXAS/BioXASPseudoMotorControl.h"
 #include "beamline/BioXAS/BioXASBeamlineDef.h"
@@ -71,6 +72,8 @@ public:
 	virtual BioXASM2Mirror *m2Mirror() const { return m2Mirror_; }
 	/// Returns the beamline monochromator.
 	virtual BioXASMainMonochromator *mono() const { return mono_; }
+	/// Returns the JJ slits.
+	virtual CLSJJSlits* jjSlits() const { return jjSlits_; }
 	/// Returns the scaler.
 	virtual CLSSIS3820Scaler* scaler() const { return scaler_; }
 
@@ -138,6 +141,8 @@ protected:
 
 	// Monochromator
 	BioXASMainMonochromator *mono_;
+	/// JJ slits
+	CLSJJSlits *jjSlits_;
 
 	// Detectors
 	CLSBasicScalerChannelDetector *i0Detector_;

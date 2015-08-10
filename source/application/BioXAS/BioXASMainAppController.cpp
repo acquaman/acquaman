@@ -160,6 +160,9 @@ void BioXASMainAppController::setupUserInterface()
 	m2MirrorView_ = new BioXASM2MirrorView(BioXASMainBeamline::bioXAS()->m2Mirror());
 	mw_->addPane(AMMainWindow::buildMainWindowPane("M2 Mirror", ":/system-software-update.png", m2MirrorView_), "General", "M2 Mirror", ":/system-software-update.png");
 
+	jjSlitsView_ = new CLSJJSlitsView(BioXASMainBeamline::bioXAS()->jjSlits());
+	mw_->addPane(AMMainWindow::buildMainWindowPane("JJ Slits", ":/system-software-update.png", jjSlitsView_), "General", "JJ Slits", ":/system-software-update.png");
+
 	configuration_ = new BioXASMainXASScanConfiguration();
 	configuration_->setEnergy(10000);
 	configurationView_ = new BioXASMainXASScanConfigurationView(configuration_);

@@ -43,6 +43,9 @@ bool BioXASMainBeamline::isConnected() const
 				// M2 mirror
 				m2Mirror_->isConnected() &&
 
+				// JJ slits
+				jjSlits_->isConnected() &&
+
 				// Scaler
 				scaler_->isConnected()
 				);
@@ -171,6 +174,10 @@ void BioXASMainBeamline::setupComponents()
 	m2Mirror_ = new BioXASMainM2Mirror(this);
 	connect( m2Mirror_, SIGNAL(connectedChanged(bool)), this, SLOT(updateConnected()) );
 
+	// JJ slits.
+	jjSlits_ = new CLSJJSlits("JJSlits", "SMTR1607-7-I21-11", "SMTR1607-7-I21-10", "SMTR1607-7-I21-12", "SMTR1607-7-I21-13", this);
+	connect( jjSlits_, SIGNAL(connectedChanged(bool)), this, SLOT(updateConnected()) );
+
 	// Scaler
 	scaler_ = new CLSSIS3820Scaler("BL1607-5-I21:mcs", this);
 	connect( scaler_, SIGNAL(connectedChanged(bool)), this, SLOT(updateConnected()) );
@@ -217,24 +224,6 @@ void BioXASMainBeamline::setupExposedControls()
 	addExposedControl(m1Mirror_->lateralControl());
 	addExposedControl(m1Mirror_->bendControl());
 
-	// M2 mirror controls.
-
-	addExposedControl(m2Mirror_->upstreamInboardMotorControl());
-	addExposedControl(m2Mirror_->upstreamOutboardMotorControl());
-	addExposedControl(m2Mirror_->downstreamMotorControl());
-	addExposedControl(m2Mirror_->stripeSelectMotorControl());
-	addExposedControl(m2Mirror_->yawMotorControl());
-	addExposedControl(m2Mirror_->benderUpstreamMotorControl());
-	addExposedControl(m2Mirror_->benderDownstreamMotorControl());
-	addExposedControl(m2Mirror_->screenMotorControl());
-
-	addExposedControl(m2Mirror_->rollControl());
-	addExposedControl(m2Mirror_->pitchControl());
-	addExposedControl(m2Mirror_->heightControl());
-	addExposedControl(m2Mirror_->yawControl());
-	addExposedControl(m2Mirror_->lateralControl());
-	addExposedControl(m2Mirror_->bendControl());
-
 	// Mono controls.
 	addExposedControl(mono_->encoderEnergyControl());
 	addExposedControl(mono_->stepEnergyControl());
@@ -256,6 +245,31 @@ void BioXASMainBeamline::setupExposedControls()
 	addExposedControl(mono_->crystal1RollMotor());
 	addExposedControl(mono_->crystal2PitchMotor());
 	addExposedControl(mono_->crystal2RollMotor());
+
+	// M2 mirror controls.
+
+	addExposedControl(m2Mirror_->upstreamInboardMotorControl());
+	addExposedControl(m2Mirror_->upstreamOutboardMotorControl());
+	addExposedControl(m2Mirror_->downstreamMotorControl());
+	addExposedControl(m2Mirror_->stripeSelectMotorControl());
+	addExposedControl(m2Mirror_->yawMotorControl());
+	addExposedControl(m2Mirror_->benderUpstreamMotorControl());
+	addExposedControl(m2Mirror_->benderDownstreamMotorControl());
+	addExposedControl(m2Mirror_->screenMotorControl());
+
+	addExposedControl(m2Mirror_->rollControl());
+	addExposedControl(m2Mirror_->pitchControl());
+	addExposedControl(m2Mirror_->heightControl());
+	addExposedControl(m2Mirror_->yawControl());
+	addExposedControl(m2Mirror_->lateralControl());
+	addExposedControl(m2Mirror_->bendControl());
+
+	// JJ slits controls.
+
+	addExposedControl(jjSlits_->verticalCenterControl());
+	addExposedControl(jjSlits_->verticalGapControl());
+	addExposedControl(jjSlits_->horizontalCenterControl());
+	addExposedControl(jjSlits_->horizontalGapControl());
 }
 
 void BioXASMainBeamline::setupExposedDetectors()
