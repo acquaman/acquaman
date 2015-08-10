@@ -3,12 +3,14 @@
 IDEASScanConfigurationDbObject::IDEASScanConfigurationDbObject(QObject *parent)
 	: AMDbObject(parent)
 {
+	energy_ = 0;
 	fluorescenceDetector_ = IDEAS::NoXRF;
 }
 
 IDEASScanConfigurationDbObject::IDEASScanConfigurationDbObject(const IDEASScanConfigurationDbObject &original)
 	: AMDbObject(original)
 {
+	energy_ = original.energy();
 	fluorescenceDetector_ = original.fluorescenceDetector();
 
 	foreach (AMRegionOfInterest *region, original.regionsOfInterest())
@@ -18,6 +20,16 @@ IDEASScanConfigurationDbObject::IDEASScanConfigurationDbObject(const IDEASScanCo
 IDEASScanConfigurationDbObject::~IDEASScanConfigurationDbObject()
 {
 
+}
+
+void IDEASScanConfigurationDbObject::setEnergy(double edgeEnergy)
+{
+	if (energy_ != edgeEnergy){
+
+		energy_ = edgeEnergy;
+		emit energyChanged(energy_);
+		setModified(true);
+	}
 }
 
 void IDEASScanConfigurationDbObject::setFluorescenceDetector(IDEAS::FluorescenceDetectors detector)

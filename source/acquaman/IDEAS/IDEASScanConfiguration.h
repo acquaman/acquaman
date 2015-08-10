@@ -31,6 +31,8 @@ public:
 	// Getters
 	/////////////////////////////////////////
 
+	/// Returns the energy.
+	double energy() const { return dbObject_->energy(); }
 	/// Returns the current fluorescence detector choice.
 	IDEAS::FluorescenceDetectors fluorescenceDetector() const { return dbObject_->fluorescenceDetector(); }
 	/// Returns the list of regions of interest.
@@ -46,6 +48,8 @@ public:
 	// Setters
 	////////////////////////////////////////
 
+	/// Sets the energy.
+	void setEnergy(double newEnergy) { dbObject_->setEnergy(newEnergy); }
 	/// Sets the choice for the fluorescence detector.
 	void setFluorescenceDetector(IDEAS::FluorescenceDetectors detector) { dbObject_->setFluorescenceDetector(detector); }
 	/// Overloaded.  Used for database loading.

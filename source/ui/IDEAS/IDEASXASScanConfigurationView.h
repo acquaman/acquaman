@@ -90,10 +90,9 @@ protected:
 
 	AMTopFrame *topFrame_;
 	AMEXAFSScanAxisView *regionsView_;
-        QPushButton *autoRegionButton_;
+	QPushButton *autoRegionButton_;
 	QPushButton *pseudoXAFSButton_;
 
-	QCheckBox *isXRFScanCheckBox_;
 	QCheckBox *isTransScanCheckBox_;
 	QCheckBox *useRefCheckBox_;
 

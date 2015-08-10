@@ -42,6 +42,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "util/AMPeriodicTable.h"
 
+#include "acquaman/IDEAS/IDEASScanConfiguration.h"
 #include "acquaman/IDEAS/IDEASXASScanConfiguration.h"
 #include "acquaman/IDEAS/IDEASXRFScanConfiguration.h"
 
@@ -116,6 +117,7 @@ void IDEASAppController::shutdown()
 
 void IDEASAppController::registerClasses()
 {
+	AMDbObjectSupport::s()->registerClass<IDEASScanConfigurationDbObject>();
 	AMDbObjectSupport::s()->registerClass<IDEASXASScanConfiguration>();
 	AMDbObjectSupport::s()->registerClass<IDEASXRFScanConfiguration>();
 }

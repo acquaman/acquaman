@@ -123,7 +123,7 @@ void IDEASXASScanActionController::buildScanControllerImplementation()
 	int rawIsampleIndex = scan_->rawDataSources()->indexOfKey("Sample");
 	int rawIrefIndex = scan_->rawDataSources()->indexOfKey("Reference");
 
-	if (detector && configuration_->isXRFScan()){
+	if (detector && !configuration_->fluorescenceDetector().testFlag(IDEAS::NoXRF)){
 
 		foreach (AMRegionOfInterest *region, detector->regionsOfInterest()){
 
@@ -135,7 +135,7 @@ void IDEASXASScanActionController::buildScanControllerImplementation()
 		}
 	}
 
-	if(rawI0Index != -1 && rawIsampleIndex != -1 && configuration_->isTransScan()) {
+	if(rawI0Index != -1 && rawIsampleIndex != -1 && configuration_->usingTransmission()) {
 
 		AM1DCalibrationAB* NormSample = new AM1DCalibrationAB("NormSample");
 		NormSample->setDescription("NormSample");
@@ -147,7 +147,7 @@ void IDEASXASScanActionController::buildScanControllerImplementation()
 		scan_->addAnalyzedDataSource(NormSample);
 	 }
 
-	if(rawIrefIndex != -1 && rawIsampleIndex != -1 && configuration_->isTransScan() && configuration_->useRef()) {
+	if(rawIrefIndex != -1 && rawIsampleIndex != -1 && configuration_->usingTransmission() && configuration_->usingReference()) {
 
 		AM1DCalibrationAB* NormRef = new AM1DCalibrationAB("NormRef");
 		NormRef->setDescription("NormRef");
@@ -159,7 +159,7 @@ void IDEASXASScanActionController::buildScanControllerImplementation()
 		scan_->addAnalyzedDataSource(NormRef);
 	}
 
-	if (detector && configuration_->isXRFScan()){
+	if (detector && !configuration_->fluorescenceDetector().testFlag(IDEAS::NoXRF)){
 
 		QList<AMDataSource*> raw2DDataSources;
 		for(int i=0; i<scan_->rawDataSources()->count(); i++)
@@ -234,7 +234,7 @@ void IDEASXASScanActionController::onInitializationActionsListSucceeded(){
 	positions.remove(positions.indexOf("Energy"));
 	positions.remove(positions.indexOf("XRF1E Real Time"));
 
-	if(!configuration_->isXRFScan())
+	if(!configuration_->fluorescenceDetector().testFlag(IDEAS::NoXRF))
 	{
 		positions.remove(positions.indexOf("XRF1E Peaking Time"));
 		positions.remove(positions.indexOf("XRF1E Trigger Level"));

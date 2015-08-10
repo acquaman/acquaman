@@ -1,7 +1,7 @@
 #include "IDEASKETEKDetailedDetectorView.h"
 
 IDEASKETEKDetailedDetectorView::IDEASKETEKDetailedDetectorView(IDEASKETEKDetector *detector, QWidget *parent)
-    : IDEASXRFDetailedDetectorView(detector, parent)
+	: IDEASXRFDetailedDetectorView(detector, parent)
 {
 	ketekDetector_ = detector;
 }
@@ -13,8 +13,7 @@ IDEASKETEKDetailedDetectorView::~IDEASKETEKDetailedDetectorView()
 
 void IDEASKETEKDetailedDetectorView::buildDetectorView()
 {
-	/// Call inherited parent classes buildDetectorView
-    IDEASXRFDetailedDetectorView::buildDetectorView();
+	IDEASXRFDetailedDetectorView::buildDetectorView();
 
 	peakingTimeBox_ = new QComboBox();
 	peakingTimeBox_->setObjectName(QString::fromUtf8("peakingTimeBox"));
@@ -59,13 +58,13 @@ void IDEASKETEKDetailedDetectorView::onPeakingTimeChanged()
 	peakingTimeBox_->blockSignals(true);
 
 	if (ketekDetector_->peakingTime() == 0.3)
-	    peakingTimeBox_->setCurrentIndex(1);
+		peakingTimeBox_->setCurrentIndex(1);
 	else if (ketekDetector_->peakingTime() == 2.0)
-	    peakingTimeBox_->setCurrentIndex(2);
+		peakingTimeBox_->setCurrentIndex(2);
 	else if (ketekDetector_->peakingTime() == 4.0)
-	    peakingTimeBox_->setCurrentIndex(3);
+		peakingTimeBox_->setCurrentIndex(3);
 	else
-	    peakingTimeBox_->setCurrentIndex(0);
+		peakingTimeBox_->setCurrentIndex(0);
 
 	peakingTimeBox_->blockSignals(false);
 

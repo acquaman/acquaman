@@ -10,6 +10,7 @@ class IDEASScanConfigurationDbObject : public AMDbObject
 {
 	Q_OBJECT
 
+	Q_PROPERTY(double energy READ energy WRITE setEnergy)
 	Q_PROPERTY(int fluorescenceDetector READ fluorescenceDetector WRITE setFluorescenceDetector)
 	Q_PROPERTY(AMDbObjectList regionsOfInterest READ dbReadRegionsOfInterest WRITE dbLoadRegionsOfInterest)
 
@@ -23,18 +24,24 @@ public:
 	/// Destructor.
 	virtual ~IDEASScanConfigurationDbObject();
 
+	/// Returns the edge energy for the scan.
+	double energy() const { return energy_; }
 	/// Returns the current fluorescence detector choice.
 	IDEAS::FluorescenceDetectors fluorescenceDetector() const { return fluorescenceDetector_; }
 	/// Returns the list of regions the configuration has a hold of.
 	QList<AMRegionOfInterest *> regionsOfInterest() const { return regionsOfInterest_; }
 
 signals:
+	/// Notifier that the edge energy has changed.
+	void energyChanged(double);
 	/// Notifier that the fluorescence choice has changed.
 	void fluorescenceDetectorChanged(IDEAS::FluorescenceDetectors);
 	/// Same signal.  Just passing as an int.
 	void fluorescenceDetectorChanged(int);
 
 public slots:
+	/// Sets the edge energy.
+	void setEnergy(double edgeEnergy);
 	/// Sets the choice for the fluorescence detector.
 	void setFluorescenceDetector(IDEAS::FluorescenceDetectors detector);
 	/// Overloaded.  Used for database loading.
@@ -50,6 +57,8 @@ protected:
 	/// Called by the dtabase system on loadFromDb() to give us our new list of AMRegionOfInterest.
 	void dbLoadRegionsOfInterest(const AMDbObjectList &newRegions);
 
+	/// The edge energy for the scan.
+	double energy_;
 	/// Fluorescence detector choice.
 	IDEAS::FluorescenceDetectors fluorescenceDetector_;
 	/// The list of the regions of interest.
