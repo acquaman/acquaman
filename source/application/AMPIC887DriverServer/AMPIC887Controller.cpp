@@ -861,7 +861,7 @@ void AMPIC887Controller::onAsyncMoveFailed(AMGCS2AsyncCommand *command)
 	if(moveCommand) {
 		setError(QString("Move failed with message: %1").arg(command->lastError()));
 		positionUpdateTimer_.stop();
-		emit moveFailed();
+		emit moveFailed(movementStatuses());
 		AMPIC887AxisCollection axesMoving = moveCommand->targetPositions().axes();
 		foreach(AMGCS2::Axis currentAxis, axesMoving) {
 			switch (currentAxis) {
@@ -980,7 +980,7 @@ void AMPIC887Controller::onAsyncMoveRelativeFailed(AMGCS2AsyncCommand *command)
 
 	if(moveRelativeCommand) {
 		positionUpdateTimer_.stop();
-		emit moveFailed();
+		emit moveFailed(movementStatuses());
 		AMPIC887AxisCollection axesMoving = moveRelativeCommand->relativeTargetPositions().axes();
 		foreach(AMGCS2::Axis currentAxis, axesMoving) {
 			switch (currentAxis) {
@@ -1068,7 +1068,7 @@ void AMPIC887Controller::onAsyncReferenceMoveSucceeded(AMGCS2AsyncCommand *comma
 void AMPIC887Controller::onAsyncReferenceMoveFailed(AMGCS2AsyncCommand *command)
 {
 	positionUpdateTimer_.stop();
-	emit moveFailed();
+	emit moveFailed(movementStatuses());
 	--xMotions_;
 	--yMotions_;
 	--zMotions_;

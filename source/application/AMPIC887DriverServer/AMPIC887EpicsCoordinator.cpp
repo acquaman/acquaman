@@ -203,30 +203,30 @@ void AMPIC887EpicsCoordinator::onMotionCompleted()
 	}
 }
 
-void AMPIC887EpicsCoordinator::onMotionFailed()
+void AMPIC887EpicsCoordinator::onMotionFailed(AMGCS2::AxisMovementStatuses movementStatuses)
 {
 	qDebug() << "Motions failed";
-	if(!xAxisStatus_->withinTolerance(4)) {
+	if(!xAxisStatus_->withinTolerance(4) && movementStatuses.testFlag(AMGCS2::XAxisIsMoving)) {
 		xAxisStatus_->move(4);
 	}
 
-	if(!yAxisStatus_->withinTolerance(4)) {
+	if(!yAxisStatus_->withinTolerance(4) && movementStatuses.testFlag(AMGCS2::YAxisIsMoving)) {
 		yAxisStatus_->move(4);
 	}
 
-	if(!zAxisStatus_->withinTolerance(4)) {
+	if(!zAxisStatus_->withinTolerance(4) && movementStatuses.testFlag(AMGCS2::ZAxisIsMoving)) {
 		zAxisStatus_->move(4);
 	}
 
-	if(!uAxisStatus_->withinTolerance(4)) {
+	if(!uAxisStatus_->withinTolerance(4) && movementStatuses.testFlag(AMGCS2::UAxisIsMoving)) {
 		uAxisStatus_->move(4);
 	}
 
-	if(!vAxisStatus_->withinTolerance(4)) {
+	if(!vAxisStatus_->withinTolerance(4) && movementStatuses.testFlag(AMGCS2::VAxisIsMoving)) {
 		vAxisStatus_->move(4);
 	}
 
-	if(!wAxisStatus_->withinTolerance(4)) {
+	if(!wAxisStatus_->withinTolerance(4) && movementStatuses.testFlag(AMGCS2::WAxisIsMoving)) {
 		wAxisStatus_->move(4);
 	}
 }
@@ -580,7 +580,7 @@ void AMPIC887EpicsCoordinator::onAllConnected(bool connectedState)
 		connect(stopAll_, SIGNAL(valueChanged(double)), this, SLOT(onStopAll(double)));
 
 		connect(controller_, SIGNAL(moveStarted(AMGCS2::AxisMovementStatuses)), this, SLOT(onMotionStartedChanged(AMGCS2::AxisMovementStatuses)));
-		connect(controller_, SIGNAL(moveFailed()), this, SLOT(onMotionFailed()));
+		connect(controller_, SIGNAL(moveFailed(AMGCS2::AxisMovementStatuses movementStatuses)), this, SLOT(onMotionFailed(AMGCS2::AxisMovementStatuses movementStatuses)));
 		connect(controller_, SIGNAL(moveComplete()), this, SLOT(onMotionCompleted()));
 		connect(controller_, SIGNAL(positionUpdate(AMPIC887AxisMap<double>)), this, SLOT(onPositionUpdate(AMPIC887AxisMap<double>)));
 		connect(controller_, SIGNAL(systemVelocityChanged(double)), this, SLOT(onSystemVelocityChanged(double)));

@@ -572,7 +572,7 @@ signals:
 	/*!
 	  * Signal indicating that the controller's hexapod has failed a movement.
 	  */
-	void moveFailed();
+	void moveFailed(AMGCS2::AxisMovementStatuses movementStatuses);
 
 	/*!
 	  * Signal indicating that the position of the axes of the controller have

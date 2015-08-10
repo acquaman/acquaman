@@ -20,7 +20,7 @@ protected slots:
 	void onSystemVelocityChanged(double systemVelocity);
 	void onMotionStartedChanged(AMGCS2::AxisMovementStatuses movementStatuses);
 	void onMotionCompleted();
-	void onMotionFailed();
+	void onMotionFailed(AMGCS2::AxisMovementStatuses movementStatuses);
 	void onXAxisSetpointChanged(double setpoint);
 	void onYAxisSetpointChanged(double setpoint);
 	void onZAxisSetpointChanged(double setpoint);
