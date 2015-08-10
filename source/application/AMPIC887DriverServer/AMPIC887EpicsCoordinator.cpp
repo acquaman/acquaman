@@ -19,6 +19,8 @@ AMPIC887EpicsCoordinator::AMPIC887EpicsCoordinator(AMPIC887Controller* controlle
 	xAxisValue_ = new AMSinglePVControl("HexapodXAxisValue", "HXPD1611-4-I10-01:X:mm:fbk", this, AXIS_POSITION_TOLERANCE);
 	xAxisSetpoint_ = new AMSinglePVControl("HexapodXAxisSetpoint", "HXPD1611-4-I10-01:X:mm", this, AXIS_POSITION_TOLERANCE);
 	xAxisStatus_ = new AMSinglePVControl("HexapodXAxisStatus", "HXPD1611-4-I10-01:X:status", this, 0.5);
+	xAxisDriveHigh_ = new AMSinglePVControl("HexapodXAxisDriveHigh", "HXPD1611-4-I10-01:X:mm.DRVH", this, AXIS_POSITION_TOLERANCE);
+	xAxisDriveLow_ = new AMSinglePVControl("HexapodXAxisDriveLow", "HXPD1611-4-I10-01:X:mm.DRVL", this, AXIS_POSITION_TOLERANCE);
 
 	yAxisValue_ = new AMSinglePVControl("HexapodYAxisValue", "HXPD1611-4-I10-01:Y:mm:fbk", this, AXIS_POSITION_TOLERANCE);
 	yAxisSetpoint_ = new AMSinglePVControl("HexapodYAxisSetpoint", "HXPD1611-4-I10-01:Y:mm", this, AXIS_POSITION_TOLERANCE);
@@ -340,6 +342,22 @@ void AMPIC887EpicsCoordinator::onAllConnected(bool connectedState)
 				qDebug() << "Initialization: Setting x Axis status to move done";
 				xAxisStatus_->move(0);
 			}
+
+			double minValue = controller_->minCommandablePosition(AMGCS2::XAxis);
+			double maxValue = controller_->maxCommandablePosition(AMGCS2::XAxis);
+			if(controller_->softLimitStatus(AMGCS2::XAxis)) {
+				minValue = controller_->lowSoftLimit(AMGCS2::XAxis);
+				maxValue = controller_->highSoftLimit(AMGCS2::XAxis);
+			}
+
+			if(!xAxisDriveLow_->withinTolerance(minValue)) {
+				xAxisDriveLow_->move(minValue);
+			}
+
+			if(!xAxisDriveHigh_->withinTolerance(maxValue)) {
+				xAxisDriveHigh_->move(maxValue);
+			}
+
 
 			// Initializing y Axis
 			if(!yAxisValue_->withinTolerance(controller_->currentPosition(AMGCS2::YAxis))) {
