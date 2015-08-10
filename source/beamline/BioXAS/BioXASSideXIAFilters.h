@@ -12,7 +12,6 @@ public:
     explicit BioXASSideXIAFilters(QObject *parent = 0);
 	/// Destructor.
 	virtual ~BioXASSideXIAFilters();
-
 };
 
 #endif // BIOXASSIDEXIAFILTERS_H

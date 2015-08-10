@@ -1,7 +1,7 @@
 #include "BioXASSideXIAFilters.h"
 
 BioXASSideXIAFilters::BioXASSideXIAFilters(QObject *parent) :
-    BioXASXIAFilters(parent)
+	BioXASXIAFilters("BioXAS Side XIA Filters", parent)
 {
 	// Initialize inherited variables.
 
@@ -10,12 +10,19 @@ BioXASSideXIAFilters::BioXASSideXIAFilters(QObject *parent) :
 	filter3_ = new CLSBiStateControl("XIA Filter 3", "XIA Filter 3", "PFIL1607-6-I22-03:ctl", "PFIL1607-6-I22-03:OprOpen", "PFIL1607-6-I22-03:OprClose", new AMControlStatusCheckerDefault(2), this);
 	filter4_ = new CLSBiStateControl("XIA Filter 4", "XIA Filter 4", "PFIL1607-6-I22-04:ctl", "PFIL1607-6-I22-04:OprOpen", "PFIL1607-6-I22-04:OprClose", new AMControlStatusCheckerDefault(2), this);
 
+	filtersControl_ = new BioXASXIAFiltersControl(name() + " Control", this);
+	filtersControl_->addFilterActuatorControl(filter1_, 0.25);
+	filtersControl_->addFilterActuatorControl(filter2_, 0.5);
+	filtersControl_->addFilterActuatorControl(filter3_, 1.0);
+	filtersControl_->addFilterActuatorControl(filter4_, 10.0);
+
 	// Make connections.
 
-	connect( filter1_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()) );
-	connect( filter2_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()) );
-	connect( filter3_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()) );
-	connect( filter4_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()) );
+	connect( filtersControl_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+
+	// Current settings.
+
+	updateConnected();
 }
 
 BioXASSideXIAFilters::~BioXASSideXIAFilters()
