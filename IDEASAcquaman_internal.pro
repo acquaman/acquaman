@@ -23,7 +23,8 @@ HEADERS +=	source/application/IDEAS/IDEASAppController.h \
 	source/beamline/IDEAS/IDEAS13ElementGeDetector.h \
 	source/StripTool2/IDEAS/IDEASScalerStripTool.h \
     source/acquaman/IDEAS/IDEASScanConfiguration.h \
-    source/acquaman/IDEAS/IDEASScanConfigurationDbObject.h
+    source/acquaman/IDEAS/IDEASScanConfigurationDbObject.h \
+    source/dataman/IDEAS/IDEASDbUpgrade1Pt1.h
 
 SOURCES +=	source/application/IDEAS/IDEASAppController.cpp \
 	source/application/IDEAS/IDEASMain.cpp \
@@ -44,7 +45,8 @@ SOURCES +=	source/application/IDEAS/IDEASAppController.cpp \
         source/beamline/IDEAS/IDEAS13ElementGeDetector.cpp \
 	source/StripTool2/IDEAS/IDEASScalerStripTool.cpp \
     source/acquaman/IDEAS/IDEASScanConfiguration.cpp \
-    source/acquaman/IDEAS/IDEASScanConfigurationDbObject.cpp
+    source/acquaman/IDEAS/IDEASScanConfigurationDbObject.cpp \
+    source/dataman/IDEAS/IDEASDbUpgrade1Pt1.cpp
 
 #Striptool:
 SOURCES +=\
@@ -79,6 +81,8 @@ HEADERS  += \
 	source/StripTool2/STColorButton.h \
 	source/StripTool2/STPlotSelectorTool.h \
 	source/StripTool2/ST0DTimestampAB.h
+
+
 
 
 

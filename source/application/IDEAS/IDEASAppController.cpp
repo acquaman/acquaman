@@ -40,6 +40,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/export/AMExporterGeneralAscii.h"
 #include "dataman/export/AMExporterAthena.h"
 
+#include "dataman/IDEAS/IDEASDbUpgrade1Pt1.h"
+
 #include "util/AMPeriodicTable.h"
 
 #include "acquaman/IDEAS/IDEASScanConfiguration.h"
@@ -61,7 +63,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 IDEASAppController::IDEASAppController(QObject *parent)
 	: AMAppController(parent)
 {
-
+	appendDatabaseUpgrade(new IDEASDbUpgrade1Pt1("user", this));
+	appendDatabaseUpgrade(new IDEASDbUpgrade1Pt1("actions", this));
 }
 
 bool IDEASAppController::startup()
