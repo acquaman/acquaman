@@ -291,7 +291,7 @@ REIXSRIXSScanConfigurationView::~REIXSRIXSScanConfigurationView()
 void REIXSRIXSScanConfigurationView::onloadXASDataClicked()
 {
 	if(!chooseScanDialog_) {
-		chooseScanDialog_ = new AMChooseScanDialog(AMDatabase::database("user"), "Open an existing scan", "Choose existing XAS scan to open.", false, this);
+		chooseScanDialog_ = new AMChooseScanDialog(AMDatabase::database("user"), "Open an existing scan", "Choose existing XAS scan to open.", this);
 		connect(chooseScanDialog_, SIGNAL(accepted()), this, SLOT(onloadXASDataChosen()));
 	}
 	chooseScanDialog_->show();

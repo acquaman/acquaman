@@ -60,7 +60,8 @@ HEADERS += \
 	source/beamline/BioXAS/BioXASMainM2MirrorBendControl.h \
 	source/beamline/BioXAS/BioXASShutterControl.h \
 	source/ui/BioXAS/BioXASEndstationTableView.h \
-	source/ui/BioXAS/BioXAS32ElementGeDetectorView.h
+	source/ui/BioXAS/BioXAS32ElementGeDetectorView.h \
+    source/beamline/BioXAS/BioXASXIAFiltersControl.h
 
 SOURCES += \
 	source/acquaman/BioXAS/BioXASXRFScanConfiguration.cpp \
@@ -115,6 +116,7 @@ SOURCES += \
 	source/beamline/BioXAS/BioXASMainM2MirrorBendControl.cpp \
 	source/beamline/BioXAS/BioXASShutterControl.cpp \
 	source/ui/BioXAS/BioXASEndstationTableView.cpp \
-	source/ui/BioXAS/BioXAS32ElementGeDetectorView.cpp
+	source/ui/BioXAS/BioXAS32ElementGeDetectorView.cpp \
+    source/beamline/BioXAS/BioXASXIAFiltersControl.cpp
 
 

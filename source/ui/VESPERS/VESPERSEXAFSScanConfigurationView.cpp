@@ -181,6 +181,13 @@ VESPERSEXAFSScanConfigurationView::VESPERSEXAFSScanConfigurationView(VESPERSEXAF
 	QGroupBox *detectorGroupBox = new QGroupBox("Detectors");
 	detectorGroupBox->setLayout(detectorLayout);
 
+	QGroupBox *afterScanBox = createAfterScanOptionsBox(configuration_->closeFastShutter(), configuration_->returnToOriginalPosition(), configuration_->cleanupScaler());
+	connect(closeFastShutterCheckBox_, SIGNAL(toggled(bool)), this, SLOT(setCloseFastShutter(bool)));
+//	connect(goToPositionCheckBox_, SIGNAL(toggled(bool)), this, SLOT(setReturnToOriginalPosition(bool)));
+	connect(cleanupScalerCheckBox_, SIGNAL(toggled(bool)), this, SLOT(setCleanupScaler(bool)));
+
+	goToPositionCheckBox_->setDisabled(true);
+
 	// Setting up the layout.
 	QGridLayout *contentsLayout = new QGridLayout;
 	contentsLayout->addLayout(energyLayout, 0, 0, 1, 3);
@@ -190,6 +197,7 @@ VESPERSEXAFSScanConfigurationView::VESPERSEXAFSScanConfigurationView(VESPERSEXAF
 	contentsLayout->addWidget(timeOffsetBox, 5, 0, 1, 1);
 	contentsLayout->addWidget(detectorGroupBox, 3, 2, 1, 1);
 	contentsLayout->addWidget(autoExportGroupBox, 4, 1, 1, 2);
+	contentsLayout->addWidget(afterScanBox, 5, 2, 1, 1);
 
 	QHBoxLayout *squeezeContents = new QHBoxLayout;
 	squeezeContents->addStretch();

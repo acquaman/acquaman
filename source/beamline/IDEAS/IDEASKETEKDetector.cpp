@@ -22,6 +22,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "IDEASKETEKDetector.h"
 
 #include "beamline/AMBeamline.h"
+#include "beamline/AMAdvancedControlDetectorEmulator.h"
+
+IDEASKETEKDetector::~IDEASKETEKDetector(){}
+
 
 IDEASKETEKDetector::IDEASKETEKDetector(const QString &name, const QString &description, QObject *parent)
     : AMXRFDetector(name, description, parent)
@@ -33,6 +37,19 @@ IDEASKETEKDetector::IDEASKETEKDetector(const QString &name, const QString &descr
     ai.increment = 10;
     ai.isUniform = true;
     axes_ << ai;
+
+    // Ketex functionality
+
+    peakingTimeControl_ = new AMPVControl("XRF1E Peaking Time","dxp1608-1002:dxp1:PeakingTime_RBV","dxp1608-1002:dxp1:PeakingTime", QString(), this, AMCONTROL_TOLERANCE_DONT_CARE);
+    ketekTriggerLevel_ = new AMPVControl("XRF1E Trigger Level","dxp1608-1002:dxp1:TriggerThreshold_RBV","dxp1608-1002:dxp1:TriggerThreshold", QString(), this, AMCONTROL_TOLERANCE_DONT_CARE);
+    ketekBaselineThreshold_ = new AMPVControl("XRF1E Baseline Threshold","dxp1608-1002:dxp1:BaselineThreshold_RBV","dxp1608-1002:dxp1:BaselineThreshold", QString(), this, AMCONTROL_TOLERANCE_DONT_CARE);
+    preampGainControl_ = new AMPVControl("XRF1E Preamp Gain","dxp1608-1002:dxp1:PreampGain_RBV","dxp1608-1002:dxp1:PreampGain", QString(), this, AMCONTROL_TOLERANCE_DONT_CARE);
+
+    realTimeControl_ = new AMReadOnlyPVControl("XRF1E Real Time", "dxp1608-1002:mca1.ERTM", this);
+
+    ketekRealTime_ = new AMBasicControlDetectorEmulator("dwellTime", "Dwell Time", realTimeControl_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+
+
 
     // Stuff required by AMXRFDetector.
     acquireControl_ = new AMPVControl("Acquisition Time", "dxp1608-1002:mca1EraseStart", "dxp1608-1002:mca1EraseStart", "dxp1608-1002:mca1Stop", this, 0.5);
@@ -50,6 +67,9 @@ IDEASKETEKDetector::IDEASKETEKDetector(const QString &name, const QString &descr
 
     foreach (AMDataSource *source, rawSpectraSources_)
             ((AM1DProcessVariableDataSource *)source)->setScale(10);
+
+    connect(peakingTimeControl_, SIGNAL(valueChanged(double)), this, SIGNAL(peakingTimeChanged(double)));
+
 }
 
 QString IDEASKETEKDetector::synchronizedDwellKey() const
@@ -91,3 +111,17 @@ bool IDEASKETEKDetector::setReadMode(AMDetectorDefinitions::ReadMode readMode)
 
         return false;
 }
+
+void IDEASKETEKDetector::setPeakingTime(double time)
+{
+	if(peakingTimeControl_->value() != time)
+		peakingTimeControl_->move(time);
+}
+
+void IDEASKETEKDetector::setPreampGain(double value)
+{
+	if(preampGainControl_->value() != value)
+		preampGainControl_->move(value);
+
+}
+

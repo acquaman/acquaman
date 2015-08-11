@@ -370,9 +370,6 @@ AMAction3* VESPERSSpatialLineScanActionController::createCleanupActions()
 	AMSequentialListAction3 *cleanupActions = new AMSequentialListAction3(new AMSequentialListActionInfo3("Cleanup actions", "Cleanup actions"));
 	cleanupActions->addSubAction(buildCleanupAction());
 
-	if (configuration_->closeFastShutter())
-		cleanupActions->addSubAction(AMActionSupport::buildControlMoveAction(VESPERSBeamline::vespers()->endstation()->shutterControl(), 0.0));
-
 	if (configuration_->returnToOriginalPosition()){
 
 		VESPERS::Motors motor = configuration_->motor();

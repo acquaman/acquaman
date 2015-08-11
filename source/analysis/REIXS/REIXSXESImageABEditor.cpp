@@ -950,7 +950,7 @@ void REIXSXESImageABEditorShiftModel::yValues(unsigned indexStart, unsigned inde
 void REIXSXESImageABEditor::onApplyToOtherScansMenuClicked()
 {
 	if(!chooseScanDialog_) {
-		chooseScanDialog_ = new AMChooseScanDialog(AMDatabase::database("user"), "Choose scans...", "Choose the scans you want to apply these analysis parameters to.", true, this);
+		chooseScanDialog_ = new AMChooseScanDialog(AMDatabase::database("user"), "Choose scans...", "Choose the scans you want to apply these analysis parameters to.", this);
 		/*
 		chooseScanDialog_->dataView_->setOrganizeMode(AMDataViews::OrganizeScanTypes);
 		*/
