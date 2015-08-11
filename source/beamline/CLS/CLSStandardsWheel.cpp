@@ -55,6 +55,7 @@ CLSStandardsWheel::CLSStandardsWheel(const QString &name, const QString &basePVN
 
 	connect(elementMapper_, SIGNAL(mapped(int)), this, SLOT(onMappedElementChanged(int)));
 	connect(wheel_, SIGNAL(valueChanged(double)), this, SLOT(onNewWheelPosition()));
+	connect( wheel_, SIGNAL(connected(bool)), this, SIGNAL(connectedChanged(bool)) );
 }
 
 CLSStandardsWheel::~CLSStandardsWheel()

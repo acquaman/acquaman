@@ -53,6 +53,9 @@ public:
 	/// Destructor.
 	~CLSStandardsWheel();
 
+	/// Returns true if the standards wheel is connected, false otherwise.
+	bool isConnected() const { return wheel_->isConnected(); }
+
 	/// Returns the name of the element at \param index.
 	const QString &name(int index) const { return wheelElements_.at(index)->name(); }
 	/// Returns the index for a given name.
@@ -74,6 +77,8 @@ signals:
 	void nameChanged(int, const QString &);
 	/// Notifier that the position has changed.
 	void positionChanged(int);
+	/// Notifier that the connected state has changed.
+	void connectedChanged(bool connected);
 
 public slots:
 	/// Sets the name of a given element.
