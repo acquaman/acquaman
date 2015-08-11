@@ -116,7 +116,8 @@ bool IDEASDbUpgrade1Pt1::upgradeImplementation()
 	QStringList types;
 	types << "TEXT" << "INTEGER" << "INTEGER" << "TEXT" << "REAL" << "INTEGER";
 
-	if (!databaseToUpgrade_->ensureTable("IDEASScanConfigurationDbObject_table", names, types)){
+	if (!databaseToUpgrade_->tableExists("IDEASScanConfigurationDbObject_table")
+			&& !AMDbUpgradeSupport::addTable(databaseToUpgrade_, "IDEASScanConfigurationDbObject_table", names, types, true, "IDEAS Scan Configuration Database Object", "IDEASScanConfigurationDbObject;AMDbObject;QObject")){
 
 		AMErrorMon::alert(this, IDEASDBUPGRADE1PT1_COULD_NOT_ADD_TABLE, "Could not add the IDEASScanConfigurationDbObject_table to the database.");
 		databaseToUpgrade_->rollbackTransaction();
@@ -126,7 +127,8 @@ bool IDEASDbUpgrade1Pt1::upgradeImplementation()
 	names = QStringList() << "id1" << "table1" << "id2" << "table2";
 	types = QStringList() << "INTEGER" << "TEXT" << "INTEGER" << "TEXT";
 
-	if (!databaseToUpgrade_->ensureTable("IDEASScanConfigurationDbObject_table_regionsOfInterest", names, types)){
+	if (!databaseToUpgrade_->tableExists("IDEASScanConfigurationDbObject_table_regionsOfInterest")
+			&& !databaseToUpgrade_->ensureTable("IDEASScanConfigurationDbObject_table_regionsOfInterest", names, types)){
 
 		AMErrorMon::alert(this, IDEASDBUPGRADE1PT1_COULD_NOT_ADD_TABLE, "Could not add the IDEASScanConfigurationDbObject_table_regionsOfInterest to the database.");
 		databaseToUpgrade_->rollbackTransaction();
@@ -135,7 +137,8 @@ bool IDEASDbUpgrade1Pt1::upgradeImplementation()
 
 	// Add the dbObject column to the XAS scan configuration table.
 
-	if (!databaseToUpgrade_->ensureColumn("IDEASXASScanConfiguration_table", "configurationDbObject", "TEXT")){
+	if (!databaseToUpgrade_->columnExists("IDEASXASScanConfiguration_table", "configurationDbObject")
+			&& !databaseToUpgrade_->ensureColumn("IDEASXASScanConfiguration_table", "configurationDbObject", "TEXT")){
 
 		AMErrorMon::alert(this, IDEASDBUPGRADE1PT1_COULD_NOT_CREATE_COLUMN, "Could no create the configurationDbObject column inside of IDEASXASScanConfiguration_table");
 		databaseToUpgrade_->rollbackTransaction();
@@ -194,53 +197,18 @@ bool IDEASDbUpgrade1Pt1::upgradeImplementation()
 
 	// Database cleanup.
 
-	QStringList dboColumnNames = QStringList() << "AMDbObjectType" << "tableName" << "description" << "version" << "inheritance";
-	QVariantList dboValues = QVariantList() << "IDEASScanConfigurationDbObject" << "IDEASScanConfigurationDbObject_table" << "IDEAS Scan Configuration Database Object" << 1 << "IDEASScanConfigurationDbObject;AMDbObject;QObject";
-	int newId = databaseToUpgrade_->insertOrUpdate(0, "AMDbObjectTypes_table", dboColumnNames, dboValues);
+	QList<int> idOfDbObject = databaseToUpgrade_->objectsMatching("AMDbObjectTypes_table", "tableName", "IDEASXASScanConfiguration_table");
 
-	if (newId == 0){
+	if (!idOfDbObject.isEmpty()){
 
-		databaseToUpgrade_->rollbackTransaction();
-		AMErrorMon::alert(this, IDEASDBUPGRADE1PT5_COULD_NOT_ADD_NEW_ENTRY_VESPERSSCANCONFIGURATIONDBOBJECT_TO_AMDBOBJECTTYPES_TABLE, "Could not add the new IDEASScanConfigurationDbObject entry to the AMDbObjectTypes table.");
-		return false;
-	}
-
-	// First: allColumns
-	if (databaseToUpgrade_->insertOrUpdate(0, "AMDbObjectTypes_allColumns", QStringList() << "typeId" << "columnName", QVariantList() << newId << "name") == 0
-			|| databaseToUpgrade_->insertOrUpdate(0, "AMDbObjectTypes_allColumns", QStringList() << "typeId" << "columnName", QVariantList() << newId << "energy") == 0
-			|| databaseToUpgrade_->insertOrUpdate(0, "AMDbObjectTypes_allColumns", QStringList() << "typeId" << "columnName", QVariantList() << newId << "fluorescenceDetector") == 0
-			){
-
-		databaseToUpgrade_->rollbackTransaction();
-		AMErrorMon::alert(this, IDEASDBUPGRADE1PT1_COULD_NOT_ADD_NEW_ENTRIES_TO_AMDBOBJECTTYPES_TABLE_ALLCOLUMNS, "Could not add the entries for IDEASScanConfigurationDbObject to the allColumns associated table of AMDbObjectTypes table.");
-		return false;
-	}
-
-	// Second: visibleColumns
-	if (databaseToUpgrade_->insertOrUpdate(0, "AMDbObjectTypes_visibleColumns", QStringList() << "typeId" << "columnName", QVariantList() << newId << "name") == 0
-			|| databaseToUpgrade_->insertOrUpdate(0, "AMDbObjectTypes_visibleColumns", QStringList() << "typeId" << "columnName", QVariantList() << newId << "energy") == 0
-			|| databaseToUpgrade_->insertOrUpdate(0, "AMDbObjectTypes_visibleColumns", QStringList() << "typeId" << "columnName", QVariantList() << newId << "fluorescenceDetector") == 0
-			){
-
-		databaseToUpgrade_->rollbackTransaction();
-		AMErrorMon::alert(this, IDEASDBUPGRADE1PT1_COULD_NOT_ADD_NEW_ENTRIES_TO_AMDBOBJECTTYPES_TABLE_VISIBLECOLUMNS, "Could not add the entries for IDEASScanConfigurationDbObject to the visibleColumns associated table of AMDbObjectTypes table.");
-		return false;
-	}
-
-	// Third: loadColumns
-	if (databaseToUpgrade_->insertOrUpdate(0, "AMDbObjectTypes_loadColumns", QStringList() << "typeId" << "columnName", QVariantList() << newId << "name") == 0
-			|| databaseToUpgrade_->insertOrUpdate(0, "AMDbObjectTypes_loadColumns", QStringList() << "typeId" << "columnName", QVariantList() << newId << "energy") == 0
-			|| databaseToUpgrade_->insertOrUpdate(0, "AMDbObjectTypes_loadColumns", QStringList() << "typeId" << "columnName", QVariantList() << newId << "fluorescenceDetector") == 0
-			){
-
-		databaseToUpgrade_->rollbackTransaction();
-		AMErrorMon::alert(this, IDEASDBUPGRADE1PT1_COULD_NOT_ADD_NEW_ENTRIES_TO_AMDBOBJECTTYPES_TABLE_LOADCOLUMNS, "Could not add the entries for IDEASScanConfigurationDbObject to the loadColumns associated table of AMDbObjectTypes table.");
-		return false;
+		databaseToUpgrade_->insertOrUpdate(0, "AMDbObjectTypes_allColumns", QStringList() << "typeId" << "columnName", QVariantList() << idOfDbObject.first() << "configurationDbObject");
+		databaseToUpgrade_->insertOrUpdate(0, "AMDbObjectTypes_visibleColumns", QStringList() << "typeId" << "columnName", QVariantList() << idOfDbObject.first() << "configurationDbObject");
+		databaseToUpgrade_->insertOrUpdate(0, "AMDbObjectTypes_loadColumns", QStringList() << "typeId" << "columnName", QVariantList() << idOfDbObject.first() << "configurationDbObject");
 	}
 
 	databaseToUpgrade_->commitTransaction();
 
-	return false;
+	return true;
 }
 
 AMDbUpgrade *IDEASDbUpgrade1Pt1::createCopy() const
