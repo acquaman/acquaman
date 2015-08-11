@@ -19,7 +19,8 @@ HEADERS += \
     source/beamline/BioXAS/BioXASMainM1MirrorBendControl.h \
     source/beamline/BioXAS/BioXASMainCarbonFilterFarm.h \
     source/beamline/BioXAS/BioXASMainXIAFilters.h \
-    source/beamline/BioXAS/BioXASMainDBHRMirrors.h
+    source/beamline/BioXAS/BioXASMainDBHRMirrors.h \
+    source/beamline/BioXAS/BioXASMainCarbonFilterFarmControl.h
 
 SOURCES += \
     source/application/BioXAS/BioXASMainAppController.cpp \
@@ -34,7 +35,10 @@ SOURCES += \
     source/beamline/BioXAS/BioXASMainM1MirrorBendControl.cpp \
     source/beamline/BioXAS/BioXASMainCarbonFilterFarm.cpp \
     source/beamline/BioXAS/BioXASMainXIAFilters.cpp \
-    source/beamline/BioXAS/BioXASMainDBHRMirrors.cpp
+    source/beamline/BioXAS/BioXASMainDBHRMirrors.cpp \
+    source/beamline/BioXAS/BioXASMainCarbonFilterFarmControl.cpp
+
+
 
 
 
