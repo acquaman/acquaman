@@ -2,85 +2,39 @@
 #include "../AMGCS2Support.h"
 #include "PI_GCS2_DLL.h"
 #include "util/AMCArrayHandler.h"
-AMGCS2GetRecordTriggerSourceCommand::AMGCS2GetRecordTriggerSourceCommand(const QList<int> recordTableIds)
+#include "../AMPIC887Controller.h"
+AMGCS2GetRecordTriggerSourceCommand::AMGCS2GetRecordTriggerSourceCommand()
 {
-	recordTablesToQuery_ = recordTableIds;
+	recordTrigger_ = AMGCS2::UnknownRecordTrigger;
 }
 
-QString AMGCS2GetRecordTriggerSourceCommand::outputString() const
+AMGCS2::DataRecordTrigger AMGCS2GetRecordTriggerSourceCommand::recordTrigger() const
 {
-	if(!wasSuccessful_) {
-		return "";
-	}
-
-	QString returnString("Record Table\t\tTrigger Source\n");
-
-	for(int iRecordTableId = 0, recordTableCount = recordTablesToQuery_.count();
-		iRecordTableId < recordTableCount;
-		++iRecordTableId) {
-
-		int currentRecordTable = recordTablesToQuery_.at(iRecordTableId);
-
-		AMGCS2::DataRecordTrigger currentRecordTrigger =
-				tableRecordTriggers().value(currentRecordTable);
-
-		returnString.append(QString("%1\t\t\t%2 (%3)\n")
-							.arg(currentRecordTable)
-							.arg(AMGCS2Support::dataRecordTriggerToString(currentRecordTrigger))
-							.arg(AMGCS2Support::dataRecordTriggerToInt(currentRecordTrigger)));
-	}
-
-	return returnString.trimmed();
-}
-
-QHash<int, AMGCS2::DataRecordTrigger> AMGCS2GetRecordTriggerSourceCommand::tableRecordTriggers() const
-{
-	return tableRecordTriggers_;
-}
-
-bool AMGCS2GetRecordTriggerSourceCommand::validateArguments()
-{
-	if(recordTablesToQuery_.isEmpty()) {
-		lastError_ = "Cannot obtain record triggers. No tables provided.";
-		return false;
-	}
-
-	for(int iRecordTable = 0, recordTableCount = recordTablesToQuery_.count();
-		iRecordTable < recordTableCount;
-		++iRecordTable) {
-
-		int currentRecordTableId = recordTablesToQuery_.at(iRecordTable);
-		if(currentRecordTableId < 1 || currentRecordTableId > 16) {
-			lastError_ = QString("Record table id %1 not valid. Must be between 1 and 16").arg(currentRecordTableId);
-			return false;
-		}
-	}
-
-	return true;
+	return recordTrigger_;
 }
 
 bool AMGCS2GetRecordTriggerSourceCommand::runImplementation()
 {
-	// Clear previous results;
-	tableRecordTriggers_.clear();
+	// Clear previous result;
+	recordTrigger_ = AMGCS2::UnknownRecordTrigger;
 
-	int recordTableCount = recordTablesToQuery_.count();
-	AMCArrayHandler<int> recordTableIds(recordTableCount);
-	AMCArrayHandler<int> triggerSourceCodes(recordTableCount);
-	AMCArrayHandler<char> dummyValueResults(BUFFER_SIZE);
+	// The GCS2 Syntax suggests that each table has its own trigger, however triggers
+	// for all tables are always the same. This command is structured to only return
+	// a single trigger, to remove this confusion.
+	int triggersToObtain = 1;
 
-	for(int iRecordTable = 0;
-		iRecordTable < recordTableCount;
-		++iRecordTable) {
+	AMCArrayHandler<int> dataTableIdsHandler(triggersToObtain);
+	AMCArrayHandler<int> triggerCodesHandler(triggersToObtain);
+	AMCArrayHandler<char> dummyValuesHandler(BUFFER_SIZE);
 
-		recordTableIds.cArray()[iRecordTable] = recordTablesToQuery_.at(iRecordTable);
-	}
+	// Set the only table id to query to be the id of table 1.
+	dataTableIdsHandler.cArray()[0] = 1;
 
-	bool success = PI_qDRT(controllerId_,
-						   recordTableIds.cArray(),
-						   triggerSourceCodes.cArray(),
-						   dummyValueResults.cArray(),
-						   recordTableCount,
+	bool success = PI_qDRT(controller_->id(),
+						   dataTableIdsHandler.cArray(),
+						   triggerCodesHandler.cArray(),
+						   dummyValuesHandler.cArray(),
+						   triggersToObtain,
 						   BUFFER_SIZE);
 
 	if(!success) {
@@ -88,18 +42,11 @@ bool AMGCS2GetRecordTriggerSourceCommand::runImplementation()
 		lastError_ = controllerErrorMessage();
 	} else {
 
-		for(int iRecordTable = 0;
-			iRecordTable < recordTableCount;
-			++iRecordTable) {
-
-			int currentRecordTableId = recordTableIds.cArray()[iRecordTable];
-			int currentTriggerCode = triggerSourceCodes.cArray()[iRecordTable];
-			AMGCS2::DataRecordTrigger currentTrigger =
-					AMGCS2Support::intCodeToDataRecordTrigger(currentTriggerCode);
-
-			tableRecordTriggers_.insert(currentRecordTableId, currentTrigger);
-		}
+		recordTrigger_ =
+				AMGCS2Support::intCodeToDataRecordTrigger(triggerCodesHandler.cArray()[0]);
 	}
 
 	return success;
 }
+
+

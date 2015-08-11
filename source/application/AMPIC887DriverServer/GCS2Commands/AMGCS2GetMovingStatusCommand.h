@@ -30,12 +30,8 @@ public:
 	  * failed or has not yet been run) then the flag UnknownAxisMovementStatus
 	  * will be true.
 	  */
-	QFlags<AMGCS2::AxisMovementStatus> movementStatuses();
+	AMGCS2::AxisMovementStatuses movementStatuses();
 
-	/*!
-	  * Returns a stringified version of the axes movement statuses.
-	  */
-	virtual QString outputString() const;
 protected:
 
 	/*!
@@ -44,7 +40,7 @@ protected:
 	  */
 	virtual bool runImplementation();
 
-	QFlags<AMGCS2::AxisMovementStatus> movementStatuses_;
+	AMGCS2::AxisMovementStatuses movementStatuses_;
 };
 
 #endif // AMGCS2GETMOVINGSTATUSCOMMAND_H

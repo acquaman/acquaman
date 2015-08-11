@@ -2,18 +2,42 @@
 #define AMGCS2COMMAND_H
 
 #define BUFFER_SIZE 2500
-#define AXIS_COUNT 6
-#define RECORD_TABLE_COUNT 16
 
 #include <QString>
 /*!
   * Abstract class which represents a command which can be run on an AMPIC887Controller,
   * reporting whether the command was successful and its last encountered error
   * if one has occurred.
+  *
+  * NOTE: Synchronous commands should inherit directly from AMGCS2Command, and will
+  * have the type Synchronous. Asynchronous commands should inherit from AMGCS2AsynCommand
+  * and will have the type Asynchronous.
   */
+class AMPIC887Controller;
 class AMGCS2Command
 {
 public:
+
+	/*!
+	  * Enumerates all the different running states of a command. For syncrhonous
+	  * command only the NotStarted, Succeeded or Failed running states should be
+	  * used.
+	  */
+	enum RunningState {
+		NotStarted,
+		Running,
+		Succeeded,
+		Failed
+	};
+
+	/*!
+	  * Enumerates between the synchronous and asynchronous command types.
+	  */
+	enum CommandType {
+		Synchronous,
+		Asynchronous
+	};
+
 	/*!
 	  * Base constructor for an AMGCS2Command. Sets the wasSuccessful() state to
 	  * false.
@@ -27,10 +51,9 @@ public:
 	virtual ~AMGCS2Command() {}
 
 	/*!
-	  * Whether the AMGCS2Command was run successfully. If the command has not yet
-	  * been run then a value of false is returned.
+	  * The current running state of the command.
 	  */
-	bool wasSuccessful() const;
+	RunningState runningState() const;
 
 	/*!
 	  * The last encountered error message for the AMGCS2Command. If the command
@@ -39,20 +62,21 @@ public:
 	QString lastError() const;
 
 	/*!
-	  * Runs the command.
+	  * Runs the command. Note, for defining a single command this should not be
+	  * overridden. Instead override the runImplementation() command.
 	  */
-	void run();
+	virtual void run();
 
 	/*!
-	  * Sets the id of the controller upon which this command will be run.
+	  * Sets the controller upon which this command will be run.
 	  */
-	void setControllerId(int id);
+	void setController(AMPIC887Controller* controller);
 
 	/*!
-	  * The output message which contains the output for the command in a stringified
-	  * form. Override this function if you wish a command to display some output.
+	  * Whether the command is synchronous or asynchronous.
 	  */
-	virtual QString outputString() const;
+	CommandType commandType() const;
+
 protected:
 
 	/*!
@@ -81,10 +105,10 @@ protected:
 	  */
 	QString controllerErrorMessage();
 
-	bool wasSuccessful_;
 	QString lastError_;
-	int controllerId_;
-
+	AMPIC887Controller* controller_;
+	RunningState runningState_;
+	CommandType commandType_;
 };
 
 #endif // AMGCS2COMMAND_H

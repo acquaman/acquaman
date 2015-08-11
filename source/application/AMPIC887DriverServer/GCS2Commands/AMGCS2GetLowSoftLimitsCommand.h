@@ -2,8 +2,9 @@
 #define AMGCS2GETLOWSOFTLIMITSCOMMAND_H
 #include "AMGCS2Command.h"
 #include "../AMGCS2.h"
-#include <QList>
-#include <QHash>
+#include "../AMPIC887AxisCollection.h"
+#include "../AMPIC887AxisMap.h"
+
 /*!
   * Command representing a query to a PI C887.11 controller for the soft lower
   * limits of the provided axes.
@@ -14,11 +15,12 @@ public:
 	/*!
 	  * Creates an instance of a get low soft limits command which which will
 	  * query the soft lower limits of the provided axes.
-	  * \param axes ~ An optional list of axes whose soft lower limits are to be
+	  * \param axesToQuery ~ An optional list of axes whose soft lower limits are to be
 	  * queried. If none is provided the soft lower limits of all axes will be
 	  * queried.
 	  */
-	AMGCS2GetLowSoftLimitsCommand(const QList<AMGCS2::Axis>& axes = QList<AMGCS2::Axis>());
+	AMGCS2GetLowSoftLimitsCommand(
+			const AMPIC887AxisCollection& axesToQuery = AMPIC887AxisCollection());
 
 	/*!
 	  * Virtual destructor for a get low soft limits command
@@ -27,17 +29,10 @@ public:
 
 	/*!
 	  * The soft low limit values of the axes which the command was initialized.
-	  * \returns The queries soft low limits values if the command was run successfully,
-	  * an empty hash otherwise.
+	  * \returns The queried soft low limits values if the command was run successfully,
+	  * an empty map otherwise.
 	  */
-	QHash<AMGCS2::Axis, double> axesLowSoftLimits() const;
-
-	/*!
-	  * Outputs a human readable string of the queried soft lower limit values.
-	  * \returns Stringified for of the soft lower limit values if the command
-	  * was run successfully, the empty string otherwise.
-	  */
-	virtual QString outputString() const;
+	AMPIC887AxisMap<double> axesLowSoftLimits() const;
 
 protected:
 	/*!
@@ -55,8 +50,8 @@ protected:
 	  */
 	virtual bool runImplementation();
 
-	QList<AMGCS2::Axis> axesToQuery_;
-	QHash<AMGCS2::Axis, double> axesLowSoftLimits_;
+	AMPIC887AxisCollection axesToQuery_;
+	AMPIC887AxisMap<double> axesLowSoftLimits_;
 };
 
 #endif // AMGCS2GETLOWSOFTLIMITSCOMMAND_H

@@ -3,7 +3,7 @@
 
 #include "AMGCS2Command.h"
 #include "../AMGCS2.h"
-#include <QList>
+#include "../AMPIC887AxisCollection.h"
 /*!
   * A command representing a request to a controller to perform a reference move
   * on the provided list of axes.
@@ -21,22 +21,16 @@ public:
 	/*!
 	  * Creates an instance of a reference move command which is ready to instruct
 	  * a controller to perform a reference move on the provided axes.
-	  * \param axes ~ An optional list of axes on which the reference move will
+	  * \param axesToReference ~ An optional list of axes on which the reference move will
 	  * be performed. If none are provided the controller will be instructed to
 	  * perform a reference move across all axes.
 	  */
-	AMGCS2ReferenceMoveCommand(const QList<AMGCS2::Axis>& axes = QList<AMGCS2::Axis>());
+	AMGCS2ReferenceMoveCommand(const AMPIC887AxisCollection& axesToReference = AMPIC887AxisCollection());
 
 	/*!
 	  * Virtual destructor for a reference move command.
 	  */
 	virtual ~AMGCS2ReferenceMoveCommand() {}
-
-	/*!
-	  * Outputs "Reference Begun" if the command was run successfully, or the
-	  * empty string otherwise.
-	  */
-	virtual QString outputString() const;
 
 protected:
 
@@ -54,7 +48,7 @@ protected:
 	virtual bool runImplementation();
 
 
-	QList<AMGCS2::Axis> axesToReference_;
+	AMPIC887AxisCollection axesToReference_;
 };
 
 #endif // AMGCS2REFERENCEMOVECOMMAND_H

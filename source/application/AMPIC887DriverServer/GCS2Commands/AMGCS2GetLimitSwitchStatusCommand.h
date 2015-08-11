@@ -3,8 +3,9 @@
 
 #include "AMGCS2Command.h"
 #include "../AMGCS2.h"
-#include <QList>
-#include <QHash>
+#include "../AMPIC887AxisCollection.h"
+#include "../AMPIC887AxisMap.h"
+
 /*!
   * A command representing a query to a C887.11 controller for it to report whether
   * the provided axes have limit switches.
@@ -15,11 +16,12 @@ public:
 	/*!
 	  * Creates a new instance of a get limit switch status command which will
 	  * report whether the provided axes have limit switches.
-	  * \param axes ~ An optional list of the axes whose limit switch status is
+	  * \param axesToQuery ~ An optional list of the axes whose limit switch status is
 	  * to be reported. If none is provided the limit switch status of all axes
 	  * is to be returned.
 	  */
-	AMGCS2GetLimitSwitchStatusCommand(const QList<AMGCS2::Axis>& axes = QList<AMGCS2::Axis>());
+	AMGCS2GetLimitSwitchStatusCommand(
+			const AMPIC887AxisCollection& axesToQuery = AMPIC887AxisCollection());
 
 	/*!
 	  * Virtual destructor for a get limit switch status command.
@@ -27,18 +29,10 @@ public:
 	virtual ~AMGCS2GetLimitSwitchStatusCommand() {}
 
 	/*!
-	  * Outputs a string representation of the limit switch statuses of all the
-	  * axes which the command was initialized with.
-	  * \returns A stringified representation of the axes limit switches if the
-	  * command was run successfully, the empty string otherwise.
-	  */
-	virtual QString outputString() const;
-
-	/*!
 	  * The limit switch statuses of the axes which the command was initialized
 	  * with, if the command was run succesfully, an empty map otherwise.
 	  */
-	QHash<AMGCS2::Axis, bool> limitSwitchStatuses() const;
+	AMPIC887AxisMap<bool> limitSwitchStatuses() const;
 
 protected:
 	/*!
@@ -55,8 +49,8 @@ protected:
 	  */
 	virtual bool runImplementation();
 
-	QList<AMGCS2::Axis> axesToQuery_;
-	QHash<AMGCS2::Axis, bool> limitSwitchStatuses_;
+	AMPIC887AxisCollection axesToQuery_;
+	AMPIC887AxisMap<bool> limitSwitchStatuses_;
 };
 
 #endif // AMGCS2GETLIMITSWITCHSTATUSCOMMAND_H

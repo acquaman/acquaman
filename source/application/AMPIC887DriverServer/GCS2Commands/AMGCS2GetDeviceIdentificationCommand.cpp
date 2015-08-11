@@ -2,17 +2,18 @@
 
 #include "PI_GCS2_DLL.h"
 #include "util/AMCArrayHandler.h"
+#include "../AMPIC887Controller.h"
 AMGCS2GetDeviceIdentificationCommand::AMGCS2GetDeviceIdentificationCommand()
 {
 }
 
-QString AMGCS2GetDeviceIdentificationCommand::outputString() const
+QString AMGCS2GetDeviceIdentificationCommand::deviceIdentification() const
 {
-	if(wasSuccessful())	{
-		return deviceIdenfiticationString_;
-	} else {
+	if(runningState_ != Succeeded) {
 		return "";
 	}
+
+	return deviceIdenfiticationString_;
 }
 
 bool AMGCS2GetDeviceIdentificationCommand::runImplementation()
@@ -22,7 +23,7 @@ bool AMGCS2GetDeviceIdentificationCommand::runImplementation()
 
 	AMCArrayHandler<char> responseString(BUFFER_SIZE);
 
-	bool success = PI_qIDN(controllerId_, responseString.cArray(), BUFFER_SIZE);
+	bool success = PI_qIDN(controller_->id(), responseString.cArray(), BUFFER_SIZE);
 
 	if(success) {
 		deviceIdenfiticationString_ = QString(responseString.cArray());
@@ -32,3 +33,5 @@ bool AMGCS2GetDeviceIdentificationCommand::runImplementation()
 
 	return success;
 }
+
+

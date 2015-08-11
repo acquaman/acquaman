@@ -2,12 +2,12 @@
 #include "util/AMCArrayHandler.h"
 #include "../AMGCS2Support.h"
 #include "PI_GCS2_DLL.h"
+#include "../AMPIC887Controller.h"
 AMGCS2GetMovingStatusCommand::AMGCS2GetMovingStatusCommand()
-{
-	movementStatuses_ =QFlags<AMGCS2::AxisMovementStatus>(AMGCS2::UnknownAxisMovementStatus);
+{	
 }
 
-QFlags<AMGCS2::AxisMovementStatus> AMGCS2GetMovingStatusCommand::movementStatuses()
+AMGCS2::AxisMovementStatuses AMGCS2GetMovingStatusCommand::movementStatuses()
 {
 	return movementStatuses_;
 }
@@ -15,21 +15,19 @@ QFlags<AMGCS2::AxisMovementStatus> AMGCS2GetMovingStatusCommand::movementStatuse
 bool AMGCS2GetMovingStatusCommand::runImplementation()
 {
 	// Clear any previous results.
-	movementStatuses_ = QFlags<AMGCS2::AxisMovementStatus>();
+	movementStatuses_ = 0;
 
-	QString axesString;
-
-	QList<AMGCS2::Axis> axesToQuery;
-	axesToQuery << AMGCS2::XAxis << AMGCS2::YAxis << AMGCS2::ZAxis << AMGCS2::UAxis
-				   << AMGCS2::VAxis << AMGCS2::WAxis;
-
-	AMCArrayHandler<int> valuesHandler(axesToQuery.count());
-
-	foreach (AMGCS2::Axis axis, axesToQuery) {
-		axesString.append(QString(" %1").arg(AMGCS2Support::axisToCharacter(axis)));
+	AMPIC887AxisCollection axesToQuery = AMPIC887AxisCollection(AMPIC887AxisCollection::AllAxes);
+	if(axesToQuery.count() == 0) {
+		return false;
 	}
 
-	bool success = PI_IsMoving(controllerId_, axesString.toStdString().c_str(), valuesHandler.cArray());
+	QString axesString = axesToQuery.toString();
+	AMCArrayHandler<int> valuesHandler(axesToQuery.count());
+
+	bool success = PI_IsMoving(controller_->id(),
+							   axesString.toStdString().c_str(),
+							   valuesHandler.cArray());
 
 
 	if(success) {
@@ -66,69 +64,9 @@ bool AMGCS2GetMovingStatusCommand::runImplementation()
 		}
 
 	} else {
-		movementStatuses_ = QFlags<AMGCS2::AxisMovementStatus>(AMGCS2::UnknownAxisMovementStatus);
+		movementStatuses_ = AMGCS2::UnknownAxisMovementStatus;
 		lastError_ = controllerErrorMessage();
 	}
 
 	return success;
 }
-
-QString AMGCS2GetMovingStatusCommand::outputString() const
-{
-	if(movementStatuses_.testFlag(AMGCS2::UnknownAxisMovementStatus)) {
-		return "Axis movement status not known.";
-	}
-
-	QString movementStatusesText;
-	bool anyMovement = false;
-
-	if(movementStatuses_.testFlag(AMGCS2::XAxisIsMoving)) {
-		anyMovement = true;
-		movementStatusesText.append("X is moving\n");
-	} else {
-		movementStatusesText.append("X is not moving\n");
-	}
-
-	if(movementStatuses_.testFlag(AMGCS2::YAxisIsMoving)) {
-		anyMovement = true;
-		movementStatusesText.append("Y is moving\n");
-	} else {
-		movementStatusesText.append("Y is not moving\n");
-	}
-
-	if(movementStatuses_.testFlag(AMGCS2::ZAxisIsMoving)) {
-		anyMovement = true;
-		movementStatusesText.append("Z is moving\n");
-	} else {
-		movementStatusesText.append("Z is not moving\n");
-	}
-
-	if(movementStatuses_.testFlag(AMGCS2::UAxisIsMoving)) {
-		anyMovement = true;
-		movementStatusesText.append("U is moving\n");
-	} else {
-		movementStatusesText.append("U is not moving\n");
-	}
-
-	if(movementStatuses_.testFlag(AMGCS2::VAxisIsMoving)) {
-		anyMovement = true;
-		movementStatusesText.append("V is moving\n");
-	} else {
-		movementStatusesText.append("V is not moving\n");
-	}
-
-	if(movementStatuses_.testFlag(AMGCS2::WAxisIsMoving)) {
-		anyMovement = true;
-		movementStatusesText.append("W is moving\n");
-	} else {
-		movementStatusesText.append("W is not moving\n");
-	}
-
-	if(anyMovement)	{
-		return movementStatusesText;
-	} else {
-		return "No axes movement";
-	}
-}
-
-

@@ -2,47 +2,34 @@
 #include "../AMGCS2Support.h"
 #include "util/AMCArrayHandler.h"
 #include "PI_GCS2_DLL.h"
+#include "../AMPIC887Controller.h"
 
-AMGCS2GetMinCommandablePositionCommand::AMGCS2GetMinCommandablePositionCommand(const QList<AMGCS2::Axis> axes)
+AMGCS2GetMinCommandablePositionCommand::AMGCS2GetMinCommandablePositionCommand(const AMPIC887AxisCollection& axesToQuery)
 {
-	axesToQuery_ = axes;
+	axesToQuery_ = axesToQuery;
 }
 
-QString AMGCS2GetMinCommandablePositionCommand::outputString() const
-{
-	if(!wasSuccessful_) {
-		return "";
-	}
-
-	QString returnString("Axis\t\tMin Commandable Position\n");
-
-	foreach(AMGCS2::Axis currentAxis, minCommandablePositions_.keys()) {
-
-		returnString.append(QString("%1\t\t%2\n")
-							.arg(AMGCS2Support::axisToCharacter(currentAxis))
-							.arg(minCommandablePositions_.value(currentAxis)));
-	}
-
-	return returnString.trimmed();
-}
-
-QHash<AMGCS2::Axis, double> AMGCS2GetMinCommandablePositionCommand::minCommandablePositions() const
+AMPIC887AxisMap<double> AMGCS2GetMinCommandablePositionCommand::minCommandablePositions() const
 {
 	return minCommandablePositions_;
 }
 
 bool AMGCS2GetMinCommandablePositionCommand::validateArguments()
 {
-	foreach(AMGCS2::Axis currentAxis, axesToQuery_) {
-
-		if(currentAxis == AMGCS2::UnknownAxis) {
-			lastError_ = "Unknown axis provided";
-			return false;
-		}
+	if(axesToQuery_.isEmpty()) {
+		lastError_ = "No axes to query";
+		return false;
 	}
 
-	if(axesToQuery_.count() > AXIS_COUNT) {
-		lastError_ = "Too many axes provided";
+	AMPIC887AxisCollection::ValidState validState = axesToQuery_.validate();
+
+	if(validState == AMPIC887AxisCollection::ContainsUnknownAxis) {
+		lastError_ = "Unknown axis";
+		return false;
+	}
+
+	if(validState == AMPIC887AxisCollection::ContainsDuplicateAxes) {
+		lastError_ = "Duplicate axes";
 		return false;
 	}
 
@@ -51,56 +38,29 @@ bool AMGCS2GetMinCommandablePositionCommand::validateArguments()
 
 bool AMGCS2GetMinCommandablePositionCommand::runImplementation()
 {
+	// Clear previous results
 	minCommandablePositions_.clear();
 
-	AMCArrayHandler<double> minPositionHandler(AXIS_COUNT);
+	AMCArrayHandler<double> minPositionValuesHandler(axesToQuery_.count());
 	bool success = false;
 
-	if(axesToQuery_.count() == 0) {
 
-		success = PI_qTMN(controllerId_, 0, minPositionHandler.cArray());
+	QString axesArgumentsString = axesToQuery_.toString();
 
-		if(success) {
+	success = PI_qTMN(controller_->id(),
+					  axesArgumentsString.toStdString().c_str(),
+					  minPositionValuesHandler.cArray());
 
-			minCommandablePositions_.insert(AMGCS2::XAxis, minPositionHandler.cArray()[0]);
-			minCommandablePositions_.insert(AMGCS2::YAxis, minPositionHandler.cArray()[1]);
-			minCommandablePositions_.insert(AMGCS2::ZAxis, minPositionHandler.cArray()[2]);
-			minCommandablePositions_.insert(AMGCS2::UAxis, minPositionHandler.cArray()[3]);
-			minCommandablePositions_.insert(AMGCS2::VAxis, minPositionHandler.cArray()[4]);
-			minCommandablePositions_.insert(AMGCS2::WAxis, minPositionHandler.cArray()[5]);
-		}
-	} else {
+	if(success) {
 
-		QString axesString;
-		for(int iAxis = 0, axisCount = axesToQuery_.count();
-			iAxis < axisCount;
+		for(int iAxis = 0, axesCount = axesToQuery_.count();
+			iAxis < axesCount;
 			++iAxis) {
 
-			AMGCS2::Axis currentAxis = axesToQuery_.at(iAxis);
-
-			axesString.append(QString(" %1")
-							  .arg(AMGCS2Support::axisToCharacter(currentAxis)));
-
-			success = PI_qTMN(controllerId_,
-								   axesString.toStdString().c_str(),
-								   minPositionHandler.cArray());
-
-			if(success) {
-
-				for(int iAxis = 0, axisCount = axesToQuery_.count();
-					iAxis < axisCount;
-					++iAxis) {
-
-					AMGCS2::Axis currentAxis = axesToQuery_.at(iAxis);
-
-					minCommandablePositions_.insert(currentAxis,
-													minPositionHandler.cArray()[iAxis]);
-				}
-			}
+			minCommandablePositions_.insert(axesToQuery_.at(iAxis),
+								  minPositionValuesHandler.cArray()[iAxis]);
 		}
-	}
-
-	if(!success) {
+	} else {
 		lastError_ = controllerErrorMessage();
 	}
 

@@ -21,13 +21,6 @@ public:
 	virtual ~AMGCS2GetSystemVelocityCommand() {}
 
 	/*!
-	  * The reported system velocity in a human readable form
-	  * \returns The reported system velocity if the command was run successfully,
-	  * the empty string otherwise.
-	  */
-	virtual QString outputString() const;
-
-	/*!
 	  * The reported system velocity in mm/s.
 	  * \returns The reported system velocity if the command was run successfully,
 	  * 0 otherwise.

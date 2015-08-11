@@ -2,7 +2,8 @@
 #include "../AMGCS2Support.h"
 #include "util/AMCArrayHandler.h"
 #include "PI_GCS2_DLL.h"
-AMGCS2SetStepSizeCommand::AMGCS2SetStepSizeCommand(const QHash<AMGCS2::Axis, double>& axisStepSizes)
+#include "../AMPIC887Controller.h"
+AMGCS2SetStepSizeCommand::AMGCS2SetStepSizeCommand(const AMPIC887AxisMap<double>& axisStepSizes)
 {
 	axisStepSizes_ = axisStepSizes;
 }
@@ -10,19 +11,12 @@ AMGCS2SetStepSizeCommand::AMGCS2SetStepSizeCommand(const QHash<AMGCS2::Axis, dou
 bool AMGCS2SetStepSizeCommand::validateArguments()
 {
 	if(axisStepSizes_.isEmpty()) {
-		lastError_ = "No axes/step sizes provided.";
+		lastError_ = "No step sizes to set";
 		return false;
 	}
 
-	foreach(AMGCS2::Axis currentAxis, axisStepSizes_.keys()) {
-		if(currentAxis == AMGCS2::UnknownAxis) {
-			lastError_ = "Unknown axis provided";
-			return false;
-		}
-	}
-
-	if(axisStepSizes_.count() > AXIS_COUNT) {
-		lastError_ = "Too many axes provided";
+	if(axisStepSizes_.containsUnknownAxis()) {
+		lastError_ = "Contains unknown axis";
 		return false;
 	}
 
@@ -31,22 +25,22 @@ bool AMGCS2SetStepSizeCommand::validateArguments()
 
 bool AMGCS2SetStepSizeCommand::runImplementation()
 {
-	AMCArrayHandler<double> stepSizeValueHandler(axisStepSizes_.count());
-	QString axesString;
-	QList<AMGCS2::Axis> axes = axisStepSizes_.keys();
+	AMPIC887AxisCollection axes = axisStepSizes_.axes();
+	int axisCount = axes.count();
 
-	for(int iAxis = 0, axisCount = axes.count();
+	AMCArrayHandler<double> stepSizeValueHandler(axisCount);
+	QString axesString = axes.toString();
+
+	for(int iAxis = 0;
 		iAxis < axisCount;
 		++iAxis) {
 
 		AMGCS2::Axis currentAxis = axes.at(iAxis);
-		axesString.append(QString(" %1")
-						  .arg(AMGCS2Support::axisToCharacter(currentAxis)));
 
 		stepSizeValueHandler.cArray()[iAxis] = axisStepSizes_.value(currentAxis);
 	}
 
-	bool success = PI_SST(controllerId_,
+	bool success = PI_SST(controller_->id(),
 						  axesString.toStdString().c_str(),
 						  stepSizeValueHandler.cArray());
 

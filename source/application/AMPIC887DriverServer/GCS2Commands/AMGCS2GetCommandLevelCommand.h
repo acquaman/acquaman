@@ -20,12 +20,6 @@ public:
 	virtual ~AMGCS2GetCommandLevelCommand() {}
 
 	/*!
-	  * A stringified form of the controller's command level, if this command was
-	  * run successfully, otherwise "Unkown Command Level".
-	  */
-	virtual QString outputString() const;
-
-	/*!
 	  * The controller's command level, if this command was run successfully, otherwise,
 	  * UnknownCommandLevel.
 	  */

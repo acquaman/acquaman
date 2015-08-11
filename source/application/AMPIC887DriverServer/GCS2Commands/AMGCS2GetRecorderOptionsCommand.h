@@ -22,11 +22,10 @@ public:
 	virtual ~AMGCS2GetRecorderOptionsCommand() {}
 
 	/*!
-	  * The recorder option results returned by the controller.
-	  * \returns Text containing all the recorder options returned by the controller
-	  * if the command was run successfully, the empty string otherwise.
+	  * The obtained recorder options if the command was run successfully, the
+	  * empty string otherwise.
 	  */
-	virtual QString outputString() const;
+	QString recordOptions() const;
 
 protected:
 

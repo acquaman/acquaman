@@ -1,7 +1,7 @@
 #ifndef AMGCS2SETDATARECORDERCONFIGURATIONCOMMAND_H
 #define AMGCS2SETDATARECORDERCONFIGURATIONCOMMAND_H
 
-#include <QList>
+#include <QHash>
 
 #include "AMGCS2Command.h"
 #include "../AMGCS2.h"
@@ -19,13 +19,13 @@ public:
 	  * instruct a controller to alter its record configuration to the provided
 	  * record configuration.
 	  */
-	AMGCS2SetDataRecorderConfigurationCommand(const QList<AMPIC887DataRecorderConfiguration*>& configurations);
+	AMGCS2SetDataRecorderConfigurationCommand(const QHash<int, AMPIC887DataRecorderConfiguration>& tableRecordConfigs);
 
 	/*!
 	  * Virtual destructor for the set data recorder configuration command.
 	  * Cleans up the list of passed configurations.
 	  */
-	virtual ~AMGCS2SetDataRecorderConfigurationCommand();
+	virtual ~AMGCS2SetDataRecorderConfigurationCommand() {}
 protected:
 	/*!
 	  * Ensures that the passed list of configurations is valid (i.e. is not empty
@@ -38,7 +38,7 @@ protected:
 	  */
 	virtual bool runImplementation();
 
-	QList<AMPIC887DataRecorderConfiguration*> configurations_;
+	QHash<int, AMPIC887DataRecorderConfiguration> tableRecordConfigs_;
 };
 
 #endif // AMGCS2SETDATARECORDERCONFIGURATIONCOMMAND_H

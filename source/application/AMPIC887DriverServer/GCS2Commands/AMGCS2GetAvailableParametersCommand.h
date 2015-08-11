@@ -21,11 +21,10 @@ public:
 	virtual ~AMGCS2GetAvailableParametersCommand() {}
 
 	/*!
-	  * The returned available parameters.
-	  * \returns The controller's returned available parameters if the command
-	  * was run successfully, the empty string otherwise.
+	  * The returned available parameters if the command was run successfully,
+	  * the empty string otherwise.
 	  */
-	virtual QString outputString() const;
+	QString availableParameters() const;
 
 protected:
 

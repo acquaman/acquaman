@@ -21,10 +21,11 @@ public:
 	~AMGCS2GetDeviceIdentificationCommand() {}
 
 	/*!
-	  * The device identification for the controller if the command was successfully
-	  * run, or the empty string otherwise.
+	  * The obtained device identification if the command was run successfully,
+	  * the empty string otherwise.
 	  */
-	virtual QString outputString() const;
+	QString deviceIdentification() const;
+
 protected:
 	/*!
 	  * Defines the steps taken to obtain the device identification from a controller.

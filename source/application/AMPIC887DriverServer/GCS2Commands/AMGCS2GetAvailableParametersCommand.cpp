@@ -1,25 +1,25 @@
 #include "AMGCS2GetAvailableParametersCommand.h"
 #include "util/AMCArrayHandler.h"
 #include "PI_GCS2_DLL.h"
+#include "../AMPIC887Controller.h"
 AMGCS2GetAvailableParametersCommand::AMGCS2GetAvailableParametersCommand()
 {
 }
 
-QString AMGCS2GetAvailableParametersCommand::outputString() const
+QString AMGCS2GetAvailableParametersCommand::availableParameters() const
 {
-	if(wasSuccessful_) {
-		return QString("NOTE: The following information applies to the raw controller command set, not necessarily these drivers. For programmer referenece only.\n%1")
-				.arg(parameterResults_);
-	} else {
+	if(runningState_ != Succeeded) {
 		return "";
 	}
+
+	return parameterResults_;
 }
 
 bool AMGCS2GetAvailableParametersCommand::runImplementation()
 {
 	AMCArrayHandler<char> availableParameterResults(BUFFER_SIZE);
 
-	bool success = PI_qHPA(controllerId_,
+	bool success = PI_qHPA(controller_->id(),
 						   availableParameterResults.cArray(),
 						   BUFFER_SIZE);
 

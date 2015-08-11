@@ -2,8 +2,8 @@
 #define AMGCS2GETHIGHSOFTLIMITSCOMMAND_H
 #include "AMGCS2Command.h"
 #include "../AMGCS2.h"
-#include <QList>
-#include <QHash>
+#include "../AMPIC887AxisCollection.h"
+#include "../AMPIC887AxisMap.h"
 /*!
   * Command representing a query to a PI C887.11 controller for the soft high
   * limits of the provided axes.
@@ -14,11 +14,12 @@ public:
 	/*!
 	  * Creates an instance of a get high soft limits command which which will
 	  * query the soft high limits of the provided axes.
-	  * \param axes ~ An optional list of axes whose soft high limits are to be
+	  * \param axesToQuery ~ An optional list of axes whose soft high limits are to be
 	  * queried. If none is provided the soft high limits of all axes will be
 	  * queried.
 	  */
-	AMGCS2GetHighSoftLimitsCommand(const QList<AMGCS2::Axis>& axes = QList<AMGCS2::Axis>());
+	AMGCS2GetHighSoftLimitsCommand(
+			const AMPIC887AxisCollection& axesToQuery = AMPIC887AxisCollection());
 
 	/*!
 	  * Virtual destructor for a get high soft limits command
@@ -30,14 +31,7 @@ public:
 	  * \returns The queried soft high limits values if the command was run successfully,
 	  * an empty hash otherwise.
 	  */
-	QHash<AMGCS2::Axis, double> axesHighSoftLimits() const;
-
-	/*!
-	  * Outputs a human readable string of the queried high lower limit values.
-	  * \returns Stringified form of the soft high limit values if the command
-	  * was run successfully, the empty string otherwise.
-	  */
-	virtual QString outputString() const;
+	AMPIC887AxisMap<double> axesHighSoftLimits() const;
 
 protected:
 	/*!
@@ -55,8 +49,8 @@ protected:
 	  */
 	virtual bool runImplementation();
 
-	QList<AMGCS2::Axis> axesToQuery_;
-	QHash<AMGCS2::Axis, double> axesHighSoftLimits_;
+	AMPIC887AxisCollection axesToQuery_;
+	AMPIC887AxisMap<double> axesHighSoftLimits_;
 };
 
 #endif // AMGCS2GETHIGHSOFTLIMITSCOMMAND_H
