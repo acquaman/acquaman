@@ -260,6 +260,9 @@ The Drag is accepted when:
 	/// Helps force quit Acquaman by setting a flag to override the check in the event filter for QEvent::Close
 	void forceQuitAcquaman();
 
+	/// Opens another database in read-only mode so that you can compare data across databases.
+	void onOpenOtherDatabaseClicked();
+
 protected slots:
 
 	/// This slot catches changes in the current widget of the AMMainWindow. \c pane is the new current widget.  Re-implement to catch any widget-specific responses that you need here.
@@ -387,9 +390,10 @@ protected:
 	/// This will be set to true if this is the first time a user has run Acquaman
 	bool isFirstTimeRun_;
 
+	/// Holds the list of extra databases that have been opened since the application has started.
+	QList<AMDatabase *> otherOpenDatabases_;
 	/// Holds the list of database upgrades to do in order (holds these as QMetaObjects so they can be new'd at the correct time)
 	QList<AMDbUpgrade*> databaseUpgrades_;
-
 	/// Holds a list of additional databases to look in for export options (the "user" database will always be searched")
 	QStringList additionalExporterOptionsDatabases_;
 
