@@ -64,6 +64,9 @@ public:
 	/// Returns the current position index.
 	int currentPosition() const;
 
+	/// Returns the wheel control.
+	CLSMAXvMotor* wheelControl() const { return wheel_; }
+
 	/// Returns the list of elements.
 	QList<CLSStandardsWheelElement *> wheelElements() const { return wheelElements_; }
 	/// Returns the element at the given index.

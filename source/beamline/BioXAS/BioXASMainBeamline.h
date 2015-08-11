@@ -45,6 +45,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/BioXAS/BioXASMainXIAFilters.h"
 #include "beamline/BioXAS/BioXASMainDBHRMirrors.h"
 #include "beamline/BioXAS/BioXASMainCarbonFilterFarm.h"
+#include "beamline/BioXAS/BioXASMainStandardsWheel.h"
 
 #include "util/AMErrorMonitor.h"
 #include "util/AMBiHash.h"
@@ -83,6 +84,8 @@ public:
 	BioXASMainXIAFilters* xiaFilters() const { return xiaFilters_; }
 	/// Returns the DBHR mirrors.
 	BioXASMainDBHRMirrors* dbhrMirrors() const { return dbhrMirrors_; }
+	/// Returns the standards wheel.
+	BioXASMainStandardsWheel* standardsWheel() const { return standardsWheel_; }
 	/// Returns the scaler.
 	virtual CLSSIS3820Scaler* scaler() const { return scaler_; }
 
@@ -151,6 +154,8 @@ protected:
 	BioXASMainXIAFilters *xiaFilters_;
 	/// DBHR mirrors
 	BioXASMainDBHRMirrors *dbhrMirrors_;
+	/// Standards wheel
+	BioXASMainStandardsWheel *standardsWheel_;
 
 	// Detectors
 	CLSBasicScalerChannelDetector *i0Detector_;

@@ -1,5 +1,6 @@
 #include "BioXASAppController.h"
 #include "beamline/CLS/CLSJJSlits.h"
+#include "beamline/CLS/CLSStandardsWheel.h"
 
 BioXASAppController::BioXASAppController(QObject *parent) :
     AMAppController(parent)
@@ -84,6 +85,13 @@ void BioXASAppController::addComponentView(QObject *component)
 		if (!componentFound && dbhrMirrors) {
 			componentView = new BioXASDBHRMirrorsView(dbhrMirrors);
 			componentName = "DBHR Mirrors";
+			componentFound = true;
+		}
+
+		CLSStandardsWheel *standardsWheel = qobject_cast<CLSStandardsWheel*>(component);
+		if (!componentFound && standardsWheel) {
+			componentView = new CLSStandardsWheelConfigurationView(standardsWheel);
+			componentName = "Standards Wheel";
 			componentFound = true;
 		}
 

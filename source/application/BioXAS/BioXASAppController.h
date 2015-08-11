@@ -41,6 +41,7 @@
 #include "ui/BioXAS/BioXASSIS3820ScalerView.h"
 #include "ui/BioXAS/BioXASFourElementVortexDetectorView.h"
 #include "ui/CLS/CLSJJSlitsView.h"
+#include "ui/CLS/CLSStandardsWheelConfigurationView.h"
 #include "ui/util/AMChooseDataFolderDialog.h"
 
 #include "util/AMPeriodicTable.h"
