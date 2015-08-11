@@ -79,6 +79,8 @@ protected slots:
 	void updateFluorescenceDetectorComboBox(int detector);
 	/// Handles changes to the fluorescence detector choice.
 	void onFluorescenceChoiceChanged(int id);
+	/// Handles changes in peaking time from detector
+	void onPeakingTimeChanged(double value);
 
 protected:
 	/// Creates a combo box for the fluorescenceDetector enum.  Returns a pointer to the widget.
@@ -96,6 +98,10 @@ protected:
 	QCheckBox *useRefCheckBox_;
 
 	QLineEdit *scanName_;
+
+	/// Label for peaking value sent from the detector
+	QLabel *peakingSetting_;
+
 
 	/// Double spin box for changing the energy.
 	QDoubleSpinBox *energy_;

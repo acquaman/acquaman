@@ -35,7 +35,7 @@ AMStepScanAxisElementView::AMStepScanAxisElementView(AMScanAxisRegion *region, Q
 	region_ = region;
 
 	start_ = new QDoubleSpinBox;
-	start_->setRange(-100000, 100000);
+	start_->setRange(0, 100000);
 	start_->setSuffix(" eV");
     start_->setDecimals(3);
 	start_->setValue(double(region_->regionStart()));
@@ -43,7 +43,8 @@ AMStepScanAxisElementView::AMStepScanAxisElementView(AMScanAxisRegion *region, Q
 	connect(start_, SIGNAL(editingFinished()), this, SLOT(onStartPositionUpdated()));
 
 	delta_ = new QDoubleSpinBox;
-	delta_->setRange(-100000, 100000);
+	delta_->setRange(0, 100000);
+	delta_->setSingleStep(0.05);
 	delta_->setSuffix(" eV");
     delta_->setDecimals(3);
 	delta_->setValue(double(region_->regionStep()));
@@ -52,7 +53,7 @@ AMStepScanAxisElementView::AMStepScanAxisElementView(AMScanAxisRegion *region, Q
 	connect(delta_, SIGNAL(editingFinished()), this, SLOT(onDeltaPositionUpdated()));
 
 	end_ = new QDoubleSpinBox;
-	end_->setRange(-100000, 100000);
+	end_->setRange(0, 100000);
 	end_->setSuffix(" eV");
     end_->setDecimals(3);
 	end_->setValue(double(region_->regionEnd()));
@@ -60,7 +61,7 @@ AMStepScanAxisElementView::AMStepScanAxisElementView(AMScanAxisRegion *region, Q
 	connect(end_, SIGNAL(editingFinished()), this, SLOT(onEndPositionUpdated()));
 
 	time_ = new QDoubleSpinBox;
-	time_->setRange(-100000, 100000);
+	time_->setRange(0, 100000);
 	time_->setSuffix(" s");
 	time_->setDecimals(2);
 	time_->setValue(double(region_->regionTime()));

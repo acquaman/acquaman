@@ -90,7 +90,7 @@ void IDEASXRFDetailedDetectorView::buildScanSaveViews()
 void IDEASXRFDetailedDetectorView::onSaveScanButtonClicked()
 {
 	if(!chooseScanDialog_) {
-		chooseScanDialog_ = new AMChooseScanDialog(AMDatabase::database("user"), "Choose XRF Spectrum...", "Choose the XRF Spectrum you want to export.", true, this);
+		chooseScanDialog_ = new AMChooseScanDialog(AMDatabase::database("user"), "Choose XRF Spectrum...", "Choose the XRF Spectrum you want to export.", this);
 		chooseScanDialog_->setAttribute(Qt::WA_DeleteOnClose, false);
 		connect(chooseScanDialog_, SIGNAL(accepted()), this, SLOT(exportScan()));
 	}
@@ -182,18 +182,18 @@ void IDEASXRFDetailedDetectorView::onPeakingTimeBoxChanged(const QString &arg1)
 
 	if (arg1 == "High Rate / Low Res")
 	{
-	    IDEASBeamline::ideas()->ketekPeakingTime()->move(0.300);
-	    IDEASBeamline::ideas()->ketekPreampGain()->move(1.2600);
+		IDEASBeamline::ideas()->ketekPeakingTime()->move(0.300);
+		IDEASBeamline::ideas()->ketekPreampGain()->move(1.2600);
 	}
 	else if (arg1 == "High Res / Low Rate")
 	{
-	    IDEASBeamline::ideas()->ketekPeakingTime()->move(2.00);
-	    IDEASBeamline::ideas()->ketekPreampGain()->move(1.2375);
+		IDEASBeamline::ideas()->ketekPeakingTime()->move(2.00);
+		IDEASBeamline::ideas()->ketekPreampGain()->move(1.2375);
 	}
 	else if (arg1 == "Ultra Res / Slow Rate")
 	{
-	    IDEASBeamline::ideas()->ketekPeakingTime()->move(4.00);
-	    IDEASBeamline::ideas()->ketekPreampGain()->move(1.2375);
+		IDEASBeamline::ideas()->ketekPeakingTime()->move(4.00);
+		IDEASBeamline::ideas()->ketekPreampGain()->move(1.2375);
 
 	}
 }
@@ -201,19 +201,19 @@ void IDEASXRFDetailedDetectorView::onPeakingTimeBoxChanged(const QString &arg1)
 void IDEASXRFDetailedDetectorView::onKETEKPeakingTimeChanged()
 {
 
-    // HACK ugly hard coded magic numbers...   Works for now.
-    peakingTimeBox->blockSignals(true);
+	// HACK ugly hard coded magic numbers...   Works for now.
+	peakingTimeBox->blockSignals(true);
 
-    if (IDEASBeamline::ideas()->ketekPeakingTime()->value() == 0.3)
+	if (IDEASBeamline::ideas()->ketekPeakingTime()->value() == 0.3)
 	peakingTimeBox->setCurrentIndex(1);
-    else if (IDEASBeamline::ideas()->ketekPeakingTime()->value() == 2.0)
+	else if (IDEASBeamline::ideas()->ketekPeakingTime()->value() == 2.0)
 	peakingTimeBox->setCurrentIndex(2);
-    else if (IDEASBeamline::ideas()->ketekPeakingTime()->value() == 4.0)
+	else if (IDEASBeamline::ideas()->ketekPeakingTime()->value() == 4.0)
 	peakingTimeBox->setCurrentIndex(3);
-    else
+	else
 	peakingTimeBox->setCurrentIndex(0);
 
-    peakingTimeBox->blockSignals(false);
+	peakingTimeBox->blockSignals(false);
 
 }
 
