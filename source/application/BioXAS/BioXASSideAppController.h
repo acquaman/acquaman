@@ -24,14 +24,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "application/BioXAS/BioXASAppController.h"
 
-class BioXASSidePersistentView;
-class BioXASSideXASScanConfiguration;
-class BioXASXASScanConfigurationView;
-class AMScanConfigurationViewHolder3;
-class AMRegionOfInterest;
-class AMGenericStepScanConfiguration;
-class AMGenericStepScanConfigurationView;
-
 class BioXASSideAppController : public BioXASAppController
 {
 	Q_OBJECT
@@ -52,10 +44,6 @@ protected slots:
 	virtual void onRegionOfInterestRemoved(AMRegionOfInterest *region);
 
 protected:
-	/// Registers all of the necessary classes that are specific to this beamline.
-	virtual void registerClasses();
-	/// Sets up all of the exporter options for the various scan types.
-	virtual void setupExporterOptions();
 	/// Initializes the beamline object.
 	virtual void initializeBeamline();
 	/// Sets up the user interface by specifying the extra pieces that will be added to the main window.
@@ -65,14 +53,6 @@ protected:
 
 	/// Sets up an XAS scan configuration.
 	virtual void setupXASScanConfiguration(BioXASXASScanConfiguration *configuration);
-
-protected:
-	/// The XAS scan configuration.
-	BioXASSideXASScanConfiguration *configuration_;
-	/// The XAS scan configuration view.
-	BioXASXASScanConfigurationView *configurationView_;
-	/// The XAS scan configuration view holder.
-	AMScanConfigurationViewHolder3 *configurationViewHolder_;
 };
 
 #endif // BIOXASSIDEAPPCONTROLLER_H

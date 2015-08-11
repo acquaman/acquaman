@@ -12,7 +12,6 @@ class BioXASScanConfigurationDbObject : public AMDbObject
 	Q_PROPERTY(double energy READ energy WRITE setEnergy)
 	Q_PROPERTY(QString edge READ edge WRITE setEdge)
 	Q_PROPERTY(bool usingXRFDetector READ usingXRFDetector WRITE setUsingXRFDetector)
-	Q_PROPERTY(AMDbObjectList regionsOfInterest READ dbReadRegionsOfInterest WRITE dbLoadRegionsOfInterest)
 
 	Q_CLASSINFO("usingXRFDetector", "upgradeDefault=false")
 

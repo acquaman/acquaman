@@ -20,19 +20,13 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 
 #include "BioXASMainAppController.h"
-
-#include "acquaman/BioXAS/BioXASMainXASScanConfiguration.h"
 #include "beamline/BioXAS/BioXASMainBeamline.h"
 #include "ui/BioXAS/BioXASMainPersistentView.h"
 
 BioXASMainAppController::BioXASMainAppController(QObject *parent)
 	: BioXASAppController(parent)
 {
-	// Initialize variables.
-
-	configuration_ = 0;
-	configurationView_ = 0;
-	configurationViewHolder_ = 0;
+	setDefaultUseLocalStorage(true);
 }
 
 BioXASMainAppController::~BioXASMainAppController()
@@ -74,20 +68,6 @@ void BioXASMainAppController::onRegionOfInterestRemoved(AMRegionOfInterest *regi
 	configuration_->removeRegionOfInterest(region);
 }
 
-void BioXASMainAppController::registerClasses()
-{
-	BioXASAppController::registerClasses();
-	AMDbObjectSupport::s()->registerClass<BioXASMainXASScanConfiguration>();
-}
-
-void BioXASMainAppController::setupExporterOptions()
-{
-	AMExporterOptionXDIFormat *bioXASDefaultXAS = BioXAS::buildStandardXDIFormatExporterOption("BioXAS XAS (XDI Format)", "", "", true);
-
-	if(bioXASDefaultXAS->id() > 0)
-		AMAppControllerSupport::registerClass<BioXASMainXASScanConfiguration, AMExporterXDIFormat, AMExporterOptionXDIFormat>(bioXASDefaultXAS->id());
-}
-
 void BioXASMainAppController::initializeBeamline()
 {
 	BioXASMainBeamline::bioXAS();
@@ -99,23 +79,7 @@ void BioXASMainAppController::setupUserInterface()
 
 	mw_->setWindowTitle("Acquaman - BioXAS Main");
 
-	// Create scan views:
-	////////////////////////////////////
-
-	configuration_ = new BioXASMainXASScanConfiguration();
-	configuration_->setEnergy(10000);
-	configurationView_ = new BioXASXASScanConfigurationView(configuration_);
-	configurationViewHolder_ = new AMScanConfigurationViewHolder3("Configure an XAS Scan", true, true, configurationView_);
-	connect(configuration_, SIGNAL(totalTimeChanged(double)), configurationViewHolder_, SLOT(updateOverallScanTime(double)));
-	configurationViewHolder_->updateOverallScanTime(configuration_->totalTime());
-	mw_->addPane(configurationViewHolder_, "Scans", "XAS Scan", ":/utilities-system-monitor.png");
-
-	// Create persistent view panel:
-	////////////////////////////////////
-
-	BioXASMainPersistentView *persistentPanel = new BioXASMainPersistentView();
-	persistentPanel->setFixedWidth(400);
-	mw_->addRightWidget(persistentPanel);
+	addPersistentView(new BioXASMainPersistentView());
 }
 
 bool BioXASMainAppController::setupDataFolder()
@@ -127,9 +91,11 @@ void BioXASMainAppController::setupXASScanConfiguration(BioXASXASScanConfigurati
 {
 	if (configuration) {
 
-		// Set the configuration detectors.
+		// Start with default XAS settings.
 
 		BioXASAppController::setupXASScanConfiguration(configuration);
+
+		// Set the configuration detectors.
 
 		AMDetector *encoderEnergyFeedback = BioXASMainBeamline::bioXAS()->encoderEnergyFeedbackDetector();
 		if (encoderEnergyFeedback)

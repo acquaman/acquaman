@@ -24,7 +24,11 @@
 #include "application/BioXAS/BioXAS.h"
 
 #include "beamline/AMBeamline.h"
+#include "beamline/BioXAS/BioXAS32ElementGeDetector.h"
+#include "beamline/BioXAS/BioXASFourElementVortexDetector.h"
 #include "beamline/CLS/CLSFacilityID.h"
+#include "beamline/CLS/CLSJJSlits.h"
+#include "beamline/CLS/CLSStandardsWheel.h"
 
 #include "dataman/AMRun.h"
 #include "dataman/AMScanAxisEXAFSRegion.h"
@@ -49,7 +53,7 @@
 #include "ui/BioXAS/BioXASCarbonFilterFarmView.h"
 #include "ui/BioXAS/BioXASM1MirrorView.h"
 #include "ui/BioXAS/BioXASM2MirrorView.h"
-#include "ui/BioXAS/BioXASDBHRMirrorView.h"
+#include "ui/BioXAS/BioXASDBHRMirrorsView.h"
 #include "ui/BioXAS/BioXASSIS3820ScalerView.h"
 #include "ui/BioXAS/BioXASFourElementVortexDetectorView.h"
 #include "ui/BioXAS/BioXASEndstationTableView.h"
@@ -112,6 +116,19 @@ protected:
 	/// Sets up local and remote data paths.
 	virtual bool setupDataFolder() { return false; }
 
+	/// Creates a view appropriate for the given beamline component and adds it to the 'General' main window pane.
+	void addComponentView(QObject *component);
+	/// Creates a view appropriate for the given detector and adds it to the 'Detectors' main window pane.
+	void addDetectorView(QObject *detector);
+	/// Creates an XAS scan configuration view for the given scan configuration and adds it to the 'Scans' main window pane.
+	void addXASScanConfigurationView(BioXASXASScanConfiguration *configuration);
+	/// Creates a commissioning scan configuration view for the given scan configuration and adds it to the 'Scan' main window pane.
+	void addCommissioningScanConfigurationView(AMGenericStepScanConfiguration *configuration);
+	/// Creates a calibration view appropriate for the given item and adds it to the 'Calibration' main window pane.
+	void addCalibrationView(QObject *toCalibrate);
+	/// Adds the given view to the persistent view panel.
+	void addPersistentView(QWidget *persistentView);
+
 	/// Sets up an XAS scan configuration.
 	virtual void setupXASScanConfiguration(BioXASXASScanConfiguration *configuration);
 	/// Sets up a generic step scan configuration.
@@ -121,19 +138,13 @@ protected:
 	/// Holds the user configuration used for automatically setting up some simple aspects of the user interface.
 	BioXASUserConfiguration *userConfiguration_;
 
+	/// The XAS scan configuration.
+	BioXASXASScanConfiguration *xasConfiguration_;
 	/// The commissioning tool configuration.
 	AMGenericStepScanConfiguration *commissioningConfiguration_;
-	/// The commissioning tool configuration view.
-	AMGenericStepScanConfigurationView *commissioningConfigurationView_;
-	/// The commissioning tool configuration view holder.
-	AMScanConfigurationViewHolder3 *commissioningConfigurationViewHolder_;
 
 	/// The mono energy calibration configuration.
 	BioXASSSRLMonochromatorEnergyCalibrationScanConfiguration *monoCalibrationConfiguration_;
-	/// The mono energy calibration configuration view.
-	BioXASXASScanConfigurationView *monoCalibrationConfigurationView_;
-	/// The mono energy calibration configuration view holder.
-	AMScanConfigurationViewHolder3 *monoCalibrationConfigurationViewHolder_;
 
 	/// The energy calibration view.
 	BioXASSSRLMonochromatorEnergyCalibrationView *energyCalibrationView_;

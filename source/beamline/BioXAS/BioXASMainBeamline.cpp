@@ -30,24 +30,26 @@ BioXASMainBeamline::~BioXASMainBeamline()
 
 bool BioXASMainBeamline::isConnected() const
 {
-	bool newState = (
+	bool connected = (
 				// General BioXAS components.
 				BioXASBeamline::isConnected() &&
 
-				// M1 mirror
+				safetyShutterES_->isConnected() &&
 				m1Mirror_->isConnected() &&
-
-				// Monochromator
 				mono_->isConnected() &&
-
-				// M2 mirror
 				m2Mirror_->isConnected() &&
+				carbonFilterFarm_->isConnected() &&
+				jjSlits_->isConnected() &&
+				xiaFilters_->isConnected() &&
+				dbhrMirrors_->isConnected() &&
+				standardsWheel_->isConnected() &&
+				endstationTable_->isConnected() &&
+				scaler_->isConnected() &&
 
-				// Scaler
-				scaler_->isConnected()
+				utilities_->isConnected()
 				);
 
-	return newState;
+	return connected;
 }
 
 QList<AMControl *> BioXASMainBeamline::getMotorsByType(BioXASBeamlineDef::BioXASMotorType category)
@@ -56,8 +58,8 @@ QList<AMControl *> BioXASMainBeamline::getMotorsByType(BioXASBeamlineDef::BioXAS
 
 	switch (category) {
 	case BioXASBeamlineDef::FilterMotor: // BioXAS Filter motors
-		matchedMotors.append(carbonFilterFarm1_);
-		matchedMotors.append(carbonFilterFarm2_);
+		matchedMotors.append(carbonFilterFarm_->upstreamActuatorControl());
+		matchedMotors.append(carbonFilterFarm_->downstreamActuatorControl());
 		break;
 
 	case BioXASBeamlineDef::M1Motor:	// BioXAS M1 motors
@@ -128,33 +130,16 @@ QList<AMControl *> BioXASMainBeamline::getMotorsByType(BioXASBeamlineDef::BioXAS
 	return matchedMotors;
 }
 
-void BioXASMainBeamline::setupDiagnostics()
-{
-
-}
-
-void BioXASMainBeamline::setupControlSets()
-{
-
-}
-
 void BioXASMainBeamline::setupDetectors()
 {
 	i0Detector_ = new CLSBasicScalerChannelDetector("I0Detector", "I0 Detector", scaler_, 16, this);
-
 	i1Detector_ = new CLSBasicScalerChannelDetector("I1Detector", "I1 Detector", scaler_, 17, this);
-
 	i2Detector_ = new CLSBasicScalerChannelDetector("I2Detector", "I2 Detector", scaler_, 18, this);
-}
-
-void BioXASMainBeamline::setupSampleStage()
-{
-
 }
 
 void BioXASMainBeamline::setupComponents()
 {
-	// The Main endstation safety shutter.
+	// Endstation safety shutter.
 	safetyShutterES_ = new  CLSBiStateControl("MainShutter", "MainShutter", "SSH1607-5-I21-01:state", "SSH1607-5-I21-01:opr:open", "SSH1607-5-I21-01:opr:close", new AMControlStatusCheckerDefault(2), this);
 	connect( safetyShutterES_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
@@ -171,26 +156,56 @@ void BioXASMainBeamline::setupComponents()
 	m2Mirror_ = new BioXASMainM2Mirror(this);
 	connect( m2Mirror_, SIGNAL(connectedChanged(bool)), this, SLOT(updateConnected()) );
 
+	// Carbon filter farm.
+	carbonFilterFarm_ = new BioXASMainCarbonFilterFarm(this);
+	connect( carbonFilterFarm_, SIGNAL(connectedChanged(bool)), this, SLOT(updateConnected()) );
+
+	// JJ slits.
+	jjSlits_ = new CLSJJSlits("JJSlits", "SMTR1607-7-I21-11", "SMTR1607-7-I21-10", "SMTR1607-7-I21-12", "SMTR1607-7-I21-13", this);
+	connect( jjSlits_, SIGNAL(connectedChanged(bool)), this, SLOT(updateConnected()) );
+
+	// XIA filters.
+	xiaFilters_ = new BioXASMainXIAFilters(this);
+	connect( xiaFilters_, SIGNAL(connectedChanged(bool)), this, SLOT(updateConnected()) );
+
+	// DBHR mirrors.
+	dbhrMirrors_ = new BioXASMainDBHRMirrors(this);
+	connect( dbhrMirrors_, SIGNAL(connectedChanged(bool)), this, SLOT(updateConnected()) );
+
+	// Standards wheel.
+	standardsWheel_ = new BioXASMainStandardsWheel(this);
+	connect( standardsWheel_, SIGNAL(connectedChanged(bool)), this, SLOT(updateConnected()) );
+
+	// Endstation table.
+	endstationTable_ = new BioXASEndstationTable("MainEndstationTable", "SMTR1607-7-I21-02");
+	connect( endstationTable_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+
 	// Scaler
 	scaler_ = new CLSSIS3820Scaler("BL1607-5-I21:mcs", this);
 	connect( scaler_, SIGNAL(connectedChanged(bool)), this, SLOT(updateConnected()) );
 
 	scalerDwellTime_ = new AMReadOnlyPVControl("ScalerDwellTime", "BL1607-5-I21:mcs:delay", this, "Scaler dwell time");
 
+	// Utilities
+	utilities_ = new BioXASBeamlineUtilities(this);
+	connect( utilities_, SIGNAL(connectedChanged(bool)), this, SLOT(updateConnected()) );
+
 	// Detectors
 	setupDetectors();
 
-	// Amplifiers
+	// I0 channel amplifier
 	i0Keithley_ = new CLSKeithley428("I0 Channel", "AMP1607-701", this);
 	scaler_->channelAt(16)->setCustomChannelName("I0 Channel");
 	scaler_->channelAt(16)->setCurrentAmplifier(i0Keithley_);
 	scaler_->channelAt(16)->setDetector(i0Detector_);
 
+	// I1 channel amplifier
 	i1Keithley_ = new CLSKeithley428("I1 Channel", "AMP1607-702", this);
 	scaler_->channelAt(17)->setCustomChannelName("I1 Channel");
 	scaler_->channelAt(17)->setCurrentAmplifier(i1Keithley_);
 	scaler_->channelAt(17)->setDetector(i1Detector_);
 
+	// I2 channel amplifier
 	i2Keithley_ = new CLSKeithley428("I2 Channel", "AMP1607-703", this);
 	scaler_->channelAt(18)->setCustomChannelName("I2 Channel");
 	scaler_->channelAt(18)->setCurrentAmplifier(i2Keithley_);
@@ -217,25 +232,8 @@ void BioXASMainBeamline::setupExposedControls()
 	addExposedControl(m1Mirror_->lateralControl());
 	addExposedControl(m1Mirror_->bendControl());
 
-	// M2 mirror controls.
-
-	addExposedControl(m2Mirror_->upstreamInboardMotorControl());
-	addExposedControl(m2Mirror_->upstreamOutboardMotorControl());
-	addExposedControl(m2Mirror_->downstreamMotorControl());
-	addExposedControl(m2Mirror_->stripeSelectMotorControl());
-	addExposedControl(m2Mirror_->yawMotorControl());
-	addExposedControl(m2Mirror_->benderUpstreamMotorControl());
-	addExposedControl(m2Mirror_->benderDownstreamMotorControl());
-	addExposedControl(m2Mirror_->screenMotorControl());
-
-	addExposedControl(m2Mirror_->rollControl());
-	addExposedControl(m2Mirror_->pitchControl());
-	addExposedControl(m2Mirror_->heightControl());
-	addExposedControl(m2Mirror_->yawControl());
-	addExposedControl(m2Mirror_->lateralControl());
-	addExposedControl(m2Mirror_->bendControl());
-
 	// Mono controls.
+
 	addExposedControl(mono_->encoderEnergyControl());
 	addExposedControl(mono_->stepEnergyControl());
 	addExposedControl(mono_->regionControl());
@@ -256,36 +254,74 @@ void BioXASMainBeamline::setupExposedControls()
 	addExposedControl(mono_->crystal1RollMotor());
 	addExposedControl(mono_->crystal2PitchMotor());
 	addExposedControl(mono_->crystal2RollMotor());
+
+	// M2 mirror controls.
+
+	addExposedControl(m2Mirror_->upstreamInboardMotorControl());
+	addExposedControl(m2Mirror_->upstreamOutboardMotorControl());
+	addExposedControl(m2Mirror_->downstreamMotorControl());
+	addExposedControl(m2Mirror_->stripeSelectMotorControl());
+	addExposedControl(m2Mirror_->yawMotorControl());
+	addExposedControl(m2Mirror_->benderUpstreamMotorControl());
+	addExposedControl(m2Mirror_->benderDownstreamMotorControl());
+	addExposedControl(m2Mirror_->screenMotorControl());
+
+	addExposedControl(m2Mirror_->rollControl());
+	addExposedControl(m2Mirror_->pitchControl());
+	addExposedControl(m2Mirror_->heightControl());
+	addExposedControl(m2Mirror_->yawControl());
+	addExposedControl(m2Mirror_->lateralControl());
+	addExposedControl(m2Mirror_->bendControl());
+
+	// Carbon filter farm controls.
+
+	addExposedControl(carbonFilterFarm_->upstreamActuatorControl());
+	addExposedControl(carbonFilterFarm_->downstreamActuatorControl());
+
+	// JJ slits controls.
+
+	addExposedControl(jjSlits_->verticalCenterControl());
+	addExposedControl(jjSlits_->verticalGapControl());
+	addExposedControl(jjSlits_->horizontalCenterControl());
+	addExposedControl(jjSlits_->horizontalGapControl());
+
+	// XIA filters control.
+
+	addExposedControl(xiaFilters_->filtersControl());
+
+	// DBHR mirrors controls.
+
+	addExposedControl(dbhrMirrors_->m1VerticalControl());
+	addExposedControl(dbhrMirrors_->m2VerticalControl());
+	addExposedControl(dbhrMirrors_->pitchControl());
+
+	// Standards wheel.
+
+	addExposedControl(standardsWheel_->wheelControl());
+
+	// Endstation table
+
+	addExposedControl(endstationTable_->heightPVController());
+	addExposedControl(endstationTable_->pitchPVController());
+	addExposedControl(endstationTable_->lateralPVController());
+	addExposedControl(endstationTable_->yawPVController());
 }
 
 void BioXASMainBeamline::setupExposedDetectors()
 {
-	addExposedDetector(dwellTimeDetector_);
 	addExposedDetector(i0Detector_);
 	addExposedDetector(i1Detector_);
 	addExposedDetector(i2Detector_);
-	addExposedDetector(encoderEnergySetpointDetector_);
+	addExposedDetector(dwellTimeDetector_);
 	addExposedDetector(encoderEnergyFeedbackDetector_);
 	addExposedDetector(stepEnergyFeedbackDetector_);
 	addExposedDetector(braggDetector_);
-	addExposedDetector(braggEncoderFeedbackDetector_);
-	addExposedDetector(braggMoveRetriesDetector_);
 	addExposedDetector(braggStepSetpointDetector_);
-}
-
-void BioXASMainBeamline::setupMotorGroup()
-{
-	// BioXAS filter motors
-	carbonFilterFarm1_ = new CLSMAXvMotor(QString("SMTR1607-5-I00-03 Filter 1"), QString("SMTR1607-5-I00-03"), QString("SMTR1607-5-I00-03 Filter 1"), true, 0.05, 2.0, this, QString(":mm"));
-	carbonFilterFarm2_ = new CLSMAXvMotor(QString("SMTR1607-5-I00-04 Filter 2"), QString("SMTR1607-5-I00-04"), QString("SMTR1607-5-I00-04 Filter 2"), true, 0.05, 2.0, this, QString(":mm"));
 }
 
 void BioXASMainBeamline::setupControlsAsDetectors()
 {
-	encoderEnergySetpointDetector_ = new AMBasicControlDetectorEmulator("EncoderEnergySetpoint", "EncoderEnergySetpoint", mono_->encoderEnergyControl(), 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
-	encoderEnergySetpointDetector_->setControlProperty(AMBasicControlDetectorEmulator::Control::Setpoint);
-	encoderEnergySetpointDetector_->setHiddenFromUsers(false);
-	encoderEnergySetpointDetector_->setIsVisible(true);
+	dwellTimeDetector_ = new AMBasicControlDetectorEmulator("DwellTimeFeedback", "Dwell Time Feedback", scalerDwellTime_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
 
 	encoderEnergyFeedbackDetector_ = new AMBasicControlDetectorEmulator("EncoderEnergyFeedback", "EncoderEnergyFeedback", mono_->encoderEnergyControl(), 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
 	encoderEnergyFeedbackDetector_->setHiddenFromUsers(false);
@@ -295,19 +331,9 @@ void BioXASMainBeamline::setupControlsAsDetectors()
 	stepEnergyFeedbackDetector_->setHiddenFromUsers(false);
 	stepEnergyFeedbackDetector_->setIsVisible(true);
 
-	dwellTimeDetector_ = new AMBasicControlDetectorEmulator("DwellTimeFeedback", "Dwell Time Feedback", scalerDwellTime_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
-
 	braggDetector_ = new AMBasicControlDetectorEmulator("GoniometerMotorFeedback", "Goniometer Motor Feedback", mono_->braggMotor(), 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
 	braggDetector_->setHiddenFromUsers(false);
 	braggDetector_->setIsVisible(true);
-
-	braggEncoderFeedbackDetector_ = new AMBasicControlDetectorEmulator("GoniometerMotorEncoderFeedback", "Goniometer Motor Encoder Feedback", mono_->braggMotor()->encoderFeedbackControl(), 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
-	braggEncoderFeedbackDetector_->setHiddenFromUsers(false);
-	braggEncoderFeedbackDetector_->setIsVisible(true);
-
-	braggMoveRetriesDetector_ = new AMBasicControlDetectorEmulator("GoniometerMotorMoveRetries", "Number of goniometer motor move retries", mono_->braggMotor()->retries(), 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
-	braggMoveRetriesDetector_->setHiddenFromUsers(false);
-	braggMoveRetriesDetector_->setIsVisible(true);
 
 	braggStepSetpointDetector_ = new AMBasicControlDetectorEmulator("GoniometerMotorStepSetpoint", "Goniometer motor step setpoint", mono_->braggMotor()->stepSetpointControl(), 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
 	braggStepSetpointDetector_->setHiddenFromUsers(false);
@@ -318,10 +344,6 @@ BioXASMainBeamline::BioXASMainBeamline()
 	: BioXASBeamline("BioXAS Beamline - Main Endstation")
 {
 	setupComponents();
-	setupDiagnostics();
-	setupSampleStage();
-	setupControlSets();
-	setupMotorGroup();
 	setupControlsAsDetectors();
 	setupExposedControls();
 	setupExposedDetectors();
