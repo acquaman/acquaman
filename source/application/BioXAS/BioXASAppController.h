@@ -17,9 +17,14 @@
 
 #include "application/AMAppController.h"
 #include "application/AMAppControllerSupport.h"
+#include "application/BioXAS/BioXAS.h"
 
 #include "beamline/AMBeamline.h"
+#include "beamline/BioXAS/BioXAS32ElementGeDetector.h"
+#include "beamline/BioXAS/BioXASFourElementVortexDetector.h"
 #include "beamline/CLS/CLSFacilityID.h"
+#include "beamline/CLS/CLSJJSlits.h"
+#include "beamline/CLS/CLSStandardsWheel.h"
 
 #include "dataman/AMRun.h"
 #include "dataman/AMScanAxisEXAFSRegion.h"
@@ -28,6 +33,7 @@
 
 #include "ui/AMMainWindow.h"
 #include "ui/AMTopFrame.h"
+#include "ui/AMMotorGroupView.h"
 #include "ui/acquaman/AMGenericStepScanConfigurationView.h"
 #include "ui/acquaman/AMScanConfigurationViewHolder3.h"
 #include "ui/dataman/AMGenericScanEditor.h"
@@ -40,6 +46,7 @@
 #include "ui/BioXAS/BioXASDBHRMirrorsView.h"
 #include "ui/BioXAS/BioXASSIS3820ScalerView.h"
 #include "ui/BioXAS/BioXASFourElementVortexDetectorView.h"
+#include "ui/BioXAS/BioXASEndstationTableView.h"
 #include "ui/CLS/CLSJJSlitsView.h"
 #include "ui/CLS/CLSStandardsWheelConfigurationView.h"
 #include "ui/util/AMChooseDataFolderDialog.h"

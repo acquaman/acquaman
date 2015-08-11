@@ -236,6 +236,7 @@ void BioXASMainBeamline::setupExposedControls()
 	addExposedControl(m1Mirror_->bendControl());
 
 	// Mono controls.
+
 	addExposedControl(mono_->encoderEnergyControl());
 	addExposedControl(mono_->stepEnergyControl());
 	addExposedControl(mono_->regionControl());

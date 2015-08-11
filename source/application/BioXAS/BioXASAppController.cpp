@@ -1,6 +1,4 @@
 #include "BioXASAppController.h"
-#include "beamline/CLS/CLSJJSlits.h"
-#include "beamline/CLS/CLSStandardsWheel.h"
 
 BioXASAppController::BioXASAppController(QObject *parent) :
     AMAppController(parent)
@@ -95,6 +93,13 @@ void BioXASAppController::addComponentView(QObject *component)
 			componentFound = true;
 		}
 
+		BioXASEndstationTable *table = qobject_cast<BioXASEndstationTable*>(component);
+		if (!componentFound && table) {
+			componentView = new BioXASEndstationTableView(table);
+			componentName = "Endstation Table";
+			componentFound = true;
+		}
+
 		// If a view was created, add it to the 'General' pane.
 
 		if (componentFound) {
@@ -117,6 +122,31 @@ void BioXASAppController::addDetectorView(QObject *detector)
 		if (!detectorFound && scaler) {
 			detectorView = new BioXASSIS3820ScalerView(scaler, true);
 			detectorName = "Scaler";
+			detectorFound = true;
+		}
+
+		BioXAS32ElementGeDetector *ge32Detector = qobject_cast<BioXAS32ElementGeDetector*>(detector);
+		if (!detectorFound && ge32Detector) {
+			BioXAS32ElementGeDetectorView *view = new BioXAS32ElementGeDetectorView(ge32Detector);
+			view->buildDetectorView();
+			view->addEmissionLineNameFilter(QRegExp("1"));
+			view->addPileUpPeakNameFilter(QRegExp("(K.1|L.1|Ma1)"));
+
+			detectorView = view;
+			detectorName = "Ge 32-el";
+			detectorFound = true;
+		}
+
+		BioXASFourElementVortexDetector *vortex4Detector = qobject_cast<BioXASFourElementVortexDetector*>(detector);
+		if (!detectorFound && vortex4Detector) {
+			BioXASFourElementVortexDetectorView *view = new BioXASFourElementVortexDetectorView(vortex4Detector);
+			view->buildDetectorView();
+			view->setEnergyRange(3000, 28000);
+			view->addEmissionLineNameFilter(QRegExp("1"));
+			view->addPileUpPeakNameFilter(QRegExp("(K.1|L.1|Ma1)"));
+
+			detectorView = view;
+			detectorName = "4-element";
 			detectorFound = true;
 		}
 

@@ -155,6 +155,7 @@ void BioXASMainAppController::setupUserInterface()
 	addXASScanConfigurationView(xasScanConfiguration_);
 
 	commissioningScanConfiguration_ = new AMGenericStepScanConfiguration;
+	commissioningScanConfiguration_->setAutoExportEnabled(false);
 	addCommissioningScanConfigurationView(commissioningScanConfiguration_);
 
 	addPersistentView(new BioXASMainPersistentView());

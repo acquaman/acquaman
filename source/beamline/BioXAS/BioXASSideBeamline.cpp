@@ -67,7 +67,7 @@ bool BioXASSideBeamline::isConnected() const
 
 				// Mirrors.
 				m2Mirror_->isConnected() &&
-				dbhrMirror_->isConnected() &&
+				dbhrMirrors_->isConnected() &&
 
 				// Motors.
 				cryostatX_->isConnected() &&
@@ -794,8 +794,8 @@ void BioXASSideBeamline::setupComponents()
 	connect( m2Mirror_, SIGNAL(connectedChanged(bool)), this, SLOT(updateConnected()) );
 
 	// The DBHR mirrors.
-	dbhrMirror_ = new BioXASSideDBHRMirror(this);
-	connect( dbhrMirror_, SIGNAL(connectedChanged(bool)), this, SLOT(updateConnected()) );
+	dbhrMirrors_ = new BioXASSideDBHRMirrors(this);
+	connect( dbhrMirrors_, SIGNAL(connectedChanged(bool)), this, SLOT(updateConnected()) );
 }
 
 void BioXASSideBeamline::setupControlsAsDetectors()
@@ -912,9 +912,9 @@ void BioXASSideBeamline::setupExposedControls()
 
 	// DBHR controls.
 
-	addExposedControl(dbhrMirror_->pitchControl());
-	addExposedControl(dbhrMirror_->m1VerticalControl());
-	addExposedControl(dbhrMirror_->m2VerticalControl());
+	addExposedControl(dbhrMirrors_->pitchControl());
+	addExposedControl(dbhrMirrors_->m1VerticalControl());
+	addExposedControl(dbhrMirrors_->m2VerticalControl());
 
 	// Detector stage controls.
 
