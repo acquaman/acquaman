@@ -344,7 +344,7 @@ void BioXASSSRLMonochromatorEnergyCalibrationView::applyScanSettings(AMScan *sca
 void BioXASSSRLMonochromatorEnergyCalibrationView::onLoadDataButtonClicked()
 {
 	if (!chooseScanDialog_) {
-		chooseScanDialog_ = new AMChooseScanDialog(AMDatabase::database("user"), "Open an existing scan", "Choose existing XAS scan to open.", false, this);
+		chooseScanDialog_ = new AMChooseScanDialog(AMDatabase::database("user"), "Open an existing scan", "Choose existing XAS scan to open.", this);
 		connect( chooseScanDialog_, SIGNAL(accepted()), this, SLOT(onScanChosen()) );
 	}
 
