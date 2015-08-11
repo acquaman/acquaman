@@ -196,7 +196,6 @@ bool IDEASDbUpgrade1Pt1::upgradeImplementation()
 
 	QStringList dboColumnNames = QStringList() << "AMDbObjectType" << "tableName" << "description" << "version" << "inheritance";
 	QVariantList dboValues = QVariantList() << "IDEASScanConfigurationDbObject" << "IDEASScanConfigurationDbObject_table" << "IDEAS Scan Configuration Database Object" << 1 << "IDEASScanConfigurationDbObject;AMDbObject;QObject";
-	databaseToUpgrade_->ensureColumn("AMDbObjectTypes_table", "inheritance", "TEXT");
 	int newId = databaseToUpgrade_->insertOrUpdate(0, "AMDbObjectTypes_table", dboColumnNames, dboValues);
 
 	if (newId == 0){
