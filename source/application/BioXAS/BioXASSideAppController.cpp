@@ -21,78 +21,23 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "BioXASSideAppController.h"
 
-#include <QGroupBox>
-#include <QWidget>
+#include "acquaman/BioXAS/BioXASSideXASScanConfiguration.h"
 
-#include "actions3/AMActionRunner3.h"
-#include "actions3/actions/AMScanAction.h"
-#include "actions3/AMListAction3.h"
-
-#include "application/AMAppControllerSupport.h"
-#include "application/BioXAS/BioXAS.h"
-
-#include "dataman/AMRun.h"
-#include "dataman/AMScanAxisEXAFSRegion.h"
-#include "dataman/database/AMDbObjectSupport.h"
 #include "dataman/export/AMExportController.h"
 #include "dataman/export/AMExporterOptionGeneralAscii.h"
 #include "dataman/export/AMExporterGeneralAscii.h"
 #include "dataman/export/AMExporterAthena.h"
 #include "dataman/export/AMExporterXDIFormat.h"
 #include "dataman/export/AMExporterOptionXDIFormat.h"
-#include "dataman/BioXAS/BioXASUserConfiguration.h"
-
-#include "util/AMPeriodicTable.h"
-
-#include "beamline/CLS/CLSFacilityID.h"
-#include "beamline/CLS/CLSSIS3820Scaler.h"
 
 #include "beamline/BioXAS/BioXASSideBeamline.h"
-#include "acquaman/BioXAS/BioXASSideXASScanConfiguration.h"
-#include "acquaman/BioXAS/BioXASXRFScanConfiguration.h"
 
-#include "ui/AMMainWindow.h"
-#include "ui/acquaman/AMGenericStepScanConfigurationView.h"
-#include "ui/acquaman/AMScanConfigurationViewHolder3.h"
-#include "ui/dataman/AMGenericScanEditor.h"
-#include "ui/AMMotorGroupView.h"
-
-#include "ui/CLS/CLSJJSlitsView.h"
-
-#include "ui/util/AMChooseDataFolderDialog.h"
-
-#include "ui/BioXAS/BioXASEndstationTableView.h"
 #include "ui/BioXAS/BioXASSidePersistentView.h"
 #include "ui/BioXAS/BioXASSideXASScanConfigurationView.h"
-#include "ui/BioXAS/BioXAS32ElementGeDetectorView.h"
-#include "ui/BioXAS/BioXASSSRLMonochromatorConfigurationView.h"
-
-#include "ui/CLS/CLSStandardsWheelConfigurationView.h"
-
-#include "ui/BioXAS/BioXASXIAFiltersView.h"
-#include "ui/BioXAS/BioXASCarbonFilterFarmView.h"
-#include "ui/BioXAS/BioXASM2MirrorView.h"
-#include "ui/BioXAS/BioXASDBHRMirrorView.h"
-#include "ui/BioXAS/BioXASSIS3820ScalerView.h"
-#include "ui/BioXAS/BioXASFourElementVortexDetectorView.h"
 
 BioXASSideAppController::BioXASSideAppController(QObject *parent)
 	: BioXASAppController(parent)
 {
-	scalerView_ = 0;
-	monoConfigView_ = 0;
-	jjSlitsView_ = 0;
-	xiaFiltersView_ = 0;
-	carbonFilterFarmView_ = 0;
-	m2MirrorView_ = 0;
-	dbhrView_ = 0;
-
-	persistentPanel_ = 0;
-
-	configuration_ = 0;
-	configurationView_ = 0;
-	configurationViewHolder_ = 0;
-
 	setDefaultUseLocalStorage(true);
 	userConfiguration_ = new BioXASUserConfiguration(this);
 }
@@ -129,8 +74,6 @@ bool BioXASSideAppController::startup()
 
 		setupExporterOptions();
 		setupUserInterface();
-		makeConnections();
-		applyCurrentSettings();
 
 		if (!userConfiguration_->loadFromDb(AMDatabase::database("user"), 1)){
 
@@ -149,16 +92,6 @@ void BioXASSideAppController::shutdown()
 	// Make sure we release/clean-up the beamline interface
 	AMBeamline::releaseBl();
 	AMAppController::shutdown();
-}
-
-void BioXASSideAppController::onScalerConnected()
-{
-	CLSSIS3820Scaler *scaler = BioXASSideBeamline::bioXAS()->scaler();
-
-	if (scaler && scaler->isConnected() && !scalerView_) {
-		scalerView_ = new BioXASSIS3820ScalerView(scaler, true);
-		mw_->addPane(AMMainWindow::buildMainWindowPane("Scaler", ":/system-search.png", scalerView_), "Detectors", "Scaler", ":/system-search.png", true);
-	}
 }
 
 void BioXASSideAppController::registerClasses()
@@ -191,86 +124,45 @@ void BioXASSideAppController::setupUserInterface()
 	// Add widgets to main window panes:
 	////////////////////////////////////
 
-	endstationTableView_ = new BioXASEndstationTableView(BioXASSideBeamline::bioXAS()->endstationTable());
-	mw_->addPane(AMMainWindow::buildMainWindowPane("Endstation Table", ":/system-software-update.png", endstationTableView_), "General", "Endstation Table", ":/system-software-update.png");
-
-	carbonFilterFarmView_ = new BioXASCarbonFilterFarmView(BioXASSideBeamline::bioXAS()->carbonFilterFarm());
-	mw_->addPane(AMMainWindow::buildMainWindowPane("Carbon Filter Farm", ":/system-software-update.png", carbonFilterFarmView_), "General", "Carbon filter farm", ":/system-software-update.png");
-
-	m1MirrorView_ = new BioXASM1MirrorView(BioXASSideBeamline::bioXAS()->m1Mirror());
-	mw_->addPane(AMMainWindow::buildMainWindowPane("M1 Mirror", ":/system-software-update.png", m1MirrorView_), "General", "M1 Mirror", ":/system-software-update.png");
-
-	monoConfigView_ = new BioXASSSRLMonochromatorConfigurationView(BioXASSideBeamline::bioXAS()->mono());
-	mw_->addPane(AMMainWindow::buildMainWindowPane("Monochromator", ":/system-software-update.png", monoConfigView_), "General", "Monochromator", ":/system-software-update.png");
-
-	jjSlitsView_ = new CLSJJSlitsView(BioXASSideBeamline::bioXAS()->jjSlits());
-	mw_->addPane(AMMainWindow::buildMainWindowPane("JJ Slits", ":/system-software-update.png", jjSlitsView_), "General", "JJ Slits", ":/system-software-update.png");
-
-	xiaFiltersView_ = new BioXASXIAFiltersView(BioXASSideBeamline::bioXAS()->xiaFilters());
-	mw_->addPane(AMMainWindow::buildMainWindowPane("XIA Filters", ":/system-software-update.png", xiaFiltersView_), "General", "XIA Filters", ":/system-software-update.png");
-
-	m2MirrorView_ = new BioXASM2MirrorView(BioXASSideBeamline::bioXAS()->m2Mirror());
-	mw_->addPane(AMMainWindow::buildMainWindowPane("M2 Mirror", ":/system-software-update.png", m2MirrorView_), "General", "M2 Mirror", ":/system-software-update.png");
-
-	dbhrView_ = new BioXASDBHRMirrorView(BioXASSideBeamline::bioXAS()->dbhrMirror());
-	mw_->addPane(AMMainWindow::buildMainWindowPane("DBHR Mirrors", ":/system-software-update.png", dbhrView_), "General", "DBHR Mirrors", ":/system-software-update.png");
-
-	CLSStandardsWheelConfigurationView *wheelView = new CLSStandardsWheelConfigurationView(BioXASSideBeamline::bioXAS()->standardsWheel());
-	mw_->addPane(AMMainWindow::buildMainWindowPane("Standards Wheel", ":/system-software-update.png", wheelView), "General", "Standards Wheel", ":/system-software-update.png");
+	addComponentView(BioXASSideBeamline::bioXAS()->m1Mirror());
+	addComponentView(BioXASSideBeamline::bioXAS()->mono());
+	addComponentView(BioXASSideBeamline::bioXAS()->m2Mirror());
+	addComponentView(BioXASSideBeamline::bioXAS()->carbonFilterFarm());
+	addComponentView(BioXASSideBeamline::bioXAS()->dbhrMirrors());
+	addComponentView(BioXASSideBeamline::bioXAS()->xiaFilters());
+	addComponentView(BioXASSideBeamline::bioXAS()->jjSlits());
+	addComponentView(BioXASSideBeamline::bioXAS()->standardsWheel());
+	addComponentView(BioXASSideBeamline::bioXAS()->endstationTable());
 
 	AMMotorGroupView *cryostatStageView = new AMMotorGroupView(BioXASSideBeamline::bioXAS()->motorGroup());
 	mw_->addPane(AMMainWindow::buildMainWindowPane("Cryostat Stage", ":/system-software-update.png", cryostatStageView), "General", "Cryostat Stage", ":/system-software-update.png");
 
-	// Create scaler view, if scaler is present and connected.
-	onScalerConnected();
-
-	BioXAS32ElementGeDetectorView *geDetectorView = new BioXAS32ElementGeDetectorView(BioXASSideBeamline::bioXAS()->ge32ElementDetector());
-	geDetectorView->buildDetectorView();
-	geDetectorView->addEmissionLineNameFilter(QRegExp("1"));
-	geDetectorView->addPileUpPeakNameFilter(QRegExp("(K.1|L.1|Ma1)"));
-	mw_->addPane(geDetectorView, "Detectors", "Ge 32-el", ":/system-search.png");
-
-//	BioXASFourElementVortexDetectorView *fourElementDetectorView = new BioXASFourElementVortexDetectorView(BioXASSideBeamline::bioXAS()->fourElementVortexDetector());
-//	fourElementDetectorView->buildDetectorView();
-//	fourElementDetectorView->setEnergyRange(3000, 28000);
-//	fourElementDetectorView->addEmissionLineNameFilter(QRegExp("1"));
-//	fourElementDetectorView->addPileUpPeakNameFilter(QRegExp("(K.1|L.1|Ma1)"));
-//	mw_->addPane(fourElementDetectorView, "Detectors", "4-element", ":/system-search.png");
+	addDetectorView(BioXASSideBeamline::bioXAS()->scaler());
+	addDetectorView(BioXASSideBeamline::bioXAS()->ge32ElementDetector());
+//	addDetectorView(BioXASSideBeamline::bioXAS()->fourElementDetector());
 
 	configuration_ = new BioXASSideXASScanConfiguration();
 	configuration_->setEnergy(10000);
-	configurationView_ = new BioXASSideXASScanConfigurationView(configuration_);
-	configurationViewHolder_ = new AMScanConfigurationViewHolder3("Configure an XAS Scan", true, true, configurationView_);
-	connect(configuration_, SIGNAL(totalTimeChanged(double)), configurationViewHolder_, SLOT(updateOverallScanTime(double)));
-	configurationViewHolder_->updateOverallScanTime(configuration_->totalTime());
-	mw_->addPane(configurationViewHolder_, "Scans", "XAS Scan", ":/utilities-system-monitor.png");
+	addXASScanConfigurationView(configuration_);
 
 	commissioningConfiguration_ = new AMGenericStepScanConfiguration;
 	commissioningConfiguration_->setAutoExportEnabled(false);
-	commissioningConfiguration_->addDetector(BioXASSideBeamline::bioXAS()->exposedDetectorByName("I0Detector")->toInfo());
-	commissioningConfigurationView_ = new AMGenericStepScanConfigurationView(commissioningConfiguration_);
-	commissioningConfigurationViewHolder_ = new AMScanConfigurationViewHolder3("Commissioning Tool", false, true, commissioningConfigurationView_);
-	mw_->addPane(commissioningConfigurationViewHolder_, "Scans", "Commissioning Tool", ":/utilities-system-monitor.png");
+	addCommissioningScanConfigurationView(commissioningConfiguration_);
 
-	// Create persistent view panel:
-	////////////////////////////////////
-
-	persistentPanel_ = new BioXASSidePersistentView();
-	persistentPanel_->setFixedWidth(400);
-	mw_->addRightWidget(persistentPanel_);
+	addPersistentView(new BioXASSidePersistentView());
 }
 
-void BioXASSideAppController::makeConnections()
+void BioXASSideAppController::addXASScanConfigurationView(BioXASSideXASScanConfiguration *configuration)
 {
-	connect( BioXASSideBeamline::bioXAS()->scaler(), SIGNAL(connectedChanged(bool)), this, SLOT(onScalerConnected()) );
+	if (configuration) {
+		BioXASSideXASScanConfigurationView *configurationView = new BioXASSideXASScanConfigurationView(configuration);
+		AMScanConfigurationViewHolder3 *configurationViewHolder = new AMScanConfigurationViewHolder3("Configure an XAS Scan", true, true, configurationView);
 
-	// It is sufficient to only connect the user configuration to the single element because the single element and four element are synchronized together.
-	connect(userConfiguration_, SIGNAL(loadedFromDb()), this, SLOT(onUserConfigurationLoadedFromDb()));
-}
+		connect( configuration, SIGNAL(totalTimeChanged(double)), configurationViewHolder, SLOT(updateOverallScanTime(double)) );
+		configurationViewHolder->updateOverallScanTime(configuration->totalTime());
 
-void BioXASSideAppController::applyCurrentSettings()
-{
-	onScalerConnected();
+		mw_->addPane(configurationViewHolder, "Scans", "XAS Scan", ":/utilities-system-monitor.png");
+	}
 }
 
 void BioXASSideAppController::onCurrentScanActionStartedImplementation(AMScanAction *action)

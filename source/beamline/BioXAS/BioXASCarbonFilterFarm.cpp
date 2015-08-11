@@ -6,9 +6,6 @@ BioXASCarbonFilterFarm::BioXASCarbonFilterFarm(const QString &name, QObject *par
 {
 	// Initialize local variables.
 
-	name_ = name;
-	connected_ = false;
-
 	filter_ = 0;
 
 	upstreamActuator_ = 0;
