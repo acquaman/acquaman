@@ -86,6 +86,8 @@ public:
 	BioXASMainDBHRMirrors* dbhrMirrors() const { return dbhrMirrors_; }
 	/// Returns the standards wheel.
 	BioXASMainStandardsWheel* standardsWheel() const { return standardsWheel_; }
+	/// Returns the endstation table.
+	BioXASEndstationTable *endstationTable() const { return endstationTable_; }
 	/// Returns the scaler.
 	virtual CLSSIS3820Scaler* scaler() const { return scaler_; }
 
@@ -156,6 +158,8 @@ protected:
 	BioXASMainDBHRMirrors *dbhrMirrors_;
 	/// Standards wheel
 	BioXASMainStandardsWheel *standardsWheel_;
+	/// Endstation table
+	BioXASEndstationTable *endstationTable_;
 
 	// Detectors
 	CLSBasicScalerChannelDetector *i0Detector_;

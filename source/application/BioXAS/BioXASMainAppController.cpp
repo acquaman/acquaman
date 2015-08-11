@@ -147,6 +147,7 @@ void BioXASMainAppController::setupUserInterface()
 	addComponentView(BioXASMainBeamline::bioXAS()->xiaFilters());
 	addComponentView(BioXASMainBeamline::bioXAS()->dbhrMirrors());
 	addComponentView(BioXASMainBeamline::bioXAS()->standardsWheel());
+	addComponentView(BioXASMainBeamline::bioXAS()->endstationTable());
 
 	addDetectorView(BioXASMainBeamline::bioXAS()->scaler());
 

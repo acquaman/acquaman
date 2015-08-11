@@ -42,6 +42,8 @@ bool BioXASMainBeamline::isConnected() const
 				xiaFilters_->isConnected() &&
 				dbhrMirrors_->isConnected() &&
 				standardsWheel_->isConnected() &&
+				endstationTable_->isConnected() &&
+
 				scaler_->isConnected()
 				);
 
@@ -189,6 +191,10 @@ void BioXASMainBeamline::setupComponents()
 	standardsWheel_ = new BioXASMainStandardsWheel(this);
 	connect( standardsWheel_, SIGNAL(connectedChanged(bool)), this, SLOT(updateConnected()) );
 
+	// Endstation table.
+	endstationTable_ = new BioXASEndstationTable("MainEndstationTable", "SMTR1607-7-I21-02");
+	connect( endstationTable_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+
 	// Scaler
 	scaler_ = new CLSSIS3820Scaler("BL1607-5-I21:mcs", this);
 	connect( scaler_, SIGNAL(connectedChanged(bool)), this, SLOT(updateConnected()) );
@@ -301,6 +307,13 @@ void BioXASMainBeamline::setupExposedControls()
 	// Standards wheel.
 
 	addExposedControl(standardsWheel_->wheelControl());
+
+	// Endstation table
+
+	addExposedControl(endstationTable_->heightPVController());
+	addExposedControl(endstationTable_->pitchPVController());
+	addExposedControl(endstationTable_->lateralPVController());
+	addExposedControl(endstationTable_->yawPVController());
 }
 
 void BioXASMainBeamline::setupExposedDetectors()
