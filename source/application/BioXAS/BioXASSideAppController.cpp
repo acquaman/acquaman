@@ -134,7 +134,7 @@ void BioXASSideAppController::setupUserInterface()
 	addComponentView(BioXASSideBeamline::bioXAS()->standardsWheel());
 	addComponentView(BioXASSideBeamline::bioXAS()->endstationTable());
 
-	AMMotorGroupView *cryostatStageView = new AMMotorGroupView(BioXASSideBeamline::bioXAS()->motorGroup());
+	AMMotorGroupView *cryostatStageView = new AMMotorGroupView(BioXASSideBeamline::bioXAS()->motorGroup(), AMMotorGroupView::CompactView);
 	mw_->addPane(AMMainWindow::buildMainWindowPane("Cryostat Stage", ":/system-software-update.png", cryostatStageView), "General", "Cryostat Stage", ":/system-software-update.png");
 
 	addDetectorView(BioXASSideBeamline::bioXAS()->scaler());
