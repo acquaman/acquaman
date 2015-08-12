@@ -164,7 +164,7 @@ double AMMotorGroupAxis::currentRotationPosition() const
 QString AMMotorGroupAxis::translationPositionUnits() const
 {
 	if(translationalMotion_ && translationalMotion_->motor()) {
-		return translationalMotion_->motor()->units();
+		return translationalMotion_->positionUnits();
 	} else {
 		return QString();
 	}
@@ -173,7 +173,7 @@ QString AMMotorGroupAxis::translationPositionUnits() const
 QString AMMotorGroupAxis::rotationPositionUnits() const
 {
 	if(rotationalMotion_ && rotationalMotion_->motor()) {
-		return rotationalMotion_->motor()->units();
+		return rotationalMotion_->positionUnits();
 	} else {
 		return QString();
 	}
