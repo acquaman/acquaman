@@ -89,9 +89,9 @@ SGMMAXvMotor * SGMBeamline::ssaManipulatorRot() const
 	return ssaManipulatorRot_;
 }
 
-AMMotorGroup * SGMBeamline::ssaManipulatorMotorGroup() const
+AMMotorGroup * SGMBeamline::motorGroup() const
 {
-	return ssaManipulatorMotorGroup_;
+	return motorGroup_;
 }
 
 CLSSIS3820Scaler * SGMBeamline::scaler() const
@@ -187,18 +187,26 @@ void SGMBeamline::setupBeamlineComponents()
 
 void SGMBeamline::setupMotorGroups()
 {
-	AMMotorGroupObject *motorObject = 0;
-	ssaManipulatorMotorGroup_ = new AMMotorGroup(this);
+	motorGroup_ = new AMMotorGroup(this);
 
-	motorObject = new AMMotorGroupObject("Sample Stage - X, Y, Z, R",
-										 QStringList() << "X" << "Y" << "Z" << "R",
-										 QStringList() << "mm" << "mm" << "mm" << "deg",
-										 QList<AMControl *>() << ssaManipulatorX_ << ssaManipulatorY_ << ssaManipulatorZ_ << ssaManipulatorRot_ ,
-										 QList<AMMotorGroupObject::Orientation>() << AMMotorGroupObject::Horizontal << AMMotorGroupObject::Vertical << AMMotorGroupObject::Normal << AMMotorGroupObject::Other,
-										 QList<AMMotorGroupObject::MotionType>() << AMMotorGroupObject::Translational << AMMotorGroupObject::Translational << AMMotorGroupObject::Translational << AMMotorGroupObject::Rotational,
-										 this);
+	AMMotorGroupObject* sampleManipulatorGroupObject =
+			new AMMotorGroupObject("Manipulator", this);
 
-	ssaManipulatorMotorGroup_->addMotorGroupObject(motorObject->name(), motorObject);
+	sampleManipulatorGroupObject->setDirectionAxis(AMMotorGroupObject::HorizontalMotion,
+										  "X", ssaManipulatorX_,
+										  "", 0);
+
+	sampleManipulatorGroupObject->setDirectionAxis(AMMotorGroupObject::NormalMotion,
+										  "Y", ssaManipulatorY_,
+										  "", 0);
+
+	sampleManipulatorGroupObject->setDirectionAxis(AMMotorGroupObject::VerticalMotion,
+										  "Z", ssaManipulatorZ_,
+										  "rZ", ssaManipulatorRot_);
+
+	sampleManipulatorGroupObject->axis(AMMotorGroupObject::VerticalMotion)->setRotationPositionUnits("deg");
+
+	motorGroup_->addMotorGroupObject(sampleManipulatorGroupObject);
 }
 
 
@@ -209,6 +217,7 @@ void SGMBeamline::setupDetectors()
 	tfyDetector_ = new CLSAdvancedScalerChannelDetector("TFY", "TFY", scaler_, 2, this);
 	i0Detector_ = new CLSAdvancedScalerChannelDetector("I0", "I0", scaler_, 1, this);
 	pdDetector_ = new CLSAdvancedScalerChannelDetector("PD", "PD", scaler_, 3, this);
+
 
 	filteredPD1Detector_ = new CLSAdvancedScalerChannelDetector("FilteredPD1", "FilteredPD1", scaler_, 6, this);
 	filteredPD2Detector_ = new CLSAdvancedScalerChannelDetector("FilteredPD2", "FilteredPD2", scaler_, 7, this);

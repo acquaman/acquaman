@@ -19,7 +19,7 @@ void SGMPersistentView::setupUi()
 	exitSlitControlEditor_ = new AMExtendedControlEditor(SGMBeamline::sgm()->exitSlitGap());
 	gratingSelectionControlEditor_ = new AMExtendedControlEditor(SGMBeamline::sgm()->grating());
 	AMMotorGroupView* ssaManipulatorMotorGroupView =
-			new AMMotorGroupView(SGMBeamline::sgm()->ssaManipulatorMotorGroup());
+			new AMMotorGroupView(SGMBeamline::sgm()->motorGroup(), AMMotorGroupView::CompactView);
 
 	QGroupBox* sgmControlsGroupBox = new QGroupBox("SGM Beamline");
 	sgmControlsGroupBox->setFlat(true);
