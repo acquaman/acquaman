@@ -209,6 +209,7 @@ AMAction3* REIXSXASScanActionController::createInitializationActions(){
 
 	AMListAction3 *initializationActions = new AMListAction3(new AMListActionInfo3("REIXS XAS Initialization Actions", "REIXS XAS Initialization Actions"));
 
+	//STAGE 1/////////////////////////////
 
 	AMListAction3 *initializationStage1 = new AMListAction3(new AMListActionInfo3("REIXS XAS Initialization Stage 1", "REIXS XAS Initialization Stage 1"), AMListAction3::Parallel);
 
@@ -218,9 +219,9 @@ AMAction3* REIXSXASScanActionController::createInitializationActions(){
 	if(configuration_->applyPolarization() && configuration_->polarization() == 5 && configuration_->polarizationAngle() != REIXSBeamline::bl()->photonSource()->epuPolarizationAngle()->value())
 		initializationStage1->addSubAction(AMActionSupport::buildControlMoveAction((REIXSBeamline::bl()->photonSource()->epuPolarizationAngle()),configuration_->polarizationAngle()));
 
-	initializationStage1->addSubAction(REIXSBeamline::bl()->scaler()->createStartAction3(false));
 	initializationStage1->addSubAction(REIXSBeamline::bl()->scaler()->createContinuousEnableAction3(false));
 
+	//STAGE 2/////////////////////////////
 
 	AMListAction3 *initializationStage2 = new AMListAction3(new AMListActionInfo3("REIXS XAS Initialization Stage 2", "REIXS XAS Initialization Stage 2"), AMListAction3::Parallel);
 
@@ -229,6 +230,9 @@ AMAction3* REIXSXASScanActionController::createInitializationActions(){
 
 	initializationStage2->addSubAction(REIXSBeamline::bl()->scaler()->createScansPerBufferAction3(1));
 	initializationStage2->addSubAction(REIXSBeamline::bl()->scaler()->createTotalScansAction3(1));
+
+	//////////////////////////////////////
+
 
 	initializationActions->addSubAction(initializationStage1);
 	initializationActions->addSubAction(initializationStage2);

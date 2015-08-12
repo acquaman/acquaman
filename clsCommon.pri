@@ -55,7 +55,8 @@ HEADERS *=\
     source/acquaman/CLS/CLSJJSlitScanConfiguration.h \
     source/ui/acquaman/CLS/CLSJJSlitScanConfigurationView.h \
     source/actions3/CLS/CLSJJSlitOptimizationActionInfo.h \
-    source/actions3/CLS/CLSJJSlitOptimizationAction.h
+	source/actions3/CLS/CLSJJSlitOptimizationAction.h \
+	source/beamline/CLS/CLSXIAFiltersControl.h
 
 SOURCES *= \
 	source/actions3/actions/CLSSIS3820ScalerDarkCurrentMeasurementAction.cpp \
@@ -107,26 +108,5 @@ SOURCES *= \
     source/acquaman/CLS/CLSJJSlitScanConfiguration.cpp \
     source/ui/acquaman/CLS/CLSJJSlitScanConfigurationView.cpp \
     source/actions3/CLS/CLSJJSlitOptimizationActionInfo.cpp \
-    source/actions3/CLS/CLSJJSlitOptimizationAction.cpp
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+	source/actions3/CLS/CLSJJSlitOptimizationAction.cpp \
+    source/beamline/CLS/CLSXIAFiltersControl.cpp

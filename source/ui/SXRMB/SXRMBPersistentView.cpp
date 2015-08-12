@@ -104,7 +104,8 @@ void SXRMBPersistentView::onBeamlineEndstationChanged(SXRMB::Endstation fromEnds
 	QString motorGroupName = SXRMBBeamline::sxrmb()->currentMotorGroupName();
 
 	endstationLabel_->setText("Endstation: <b><i>" + endstationName + "</i></b>");
-	motorGroupView_->setMotorGroupView(motorGroupName);
+
+	motorGroupView_->setSelectedGroupObject(motorGroupName);
 
 	beamlineI0DetectorSR570View_->setVisible(toEndstation != SXRMB::Microprobe);
 	i0DetectorSR570View_->setVisible(toEndstation != SXRMB::SolidState);
@@ -146,9 +147,8 @@ void SXRMBPersistentView::layoutBeamlineEnergy()
 void SXRMBPersistentView::layoutMotorGroup()
 {
 	// create motor groups
-	motorGroupView_ = new AMMotorGroupView(SXRMBBeamline::sxrmb()->motorGroup(), AMMotorGroupView::Exclusive);
-	motorGroupView_->showAvailableMotorGroupChoices(false);
-	motorGroupView_->setMotorGroupView(SXRMBBeamline::sxrmb()->currentMotorGroupName());
+	motorGroupView_ = new AMMotorGroupView(SXRMBBeamline::sxrmb()->motorGroup(), AMMotorGroupView::CompactView);
+	motorGroupView_->setSelectedGroupObject(SXRMBBeamline::sxrmb()->currentMotorGroupName());
 
 	QVBoxLayout *motorGroupLayout = new QVBoxLayout();
 	motorGroupLayout->setContentsMargins(4, 0, 4, 0);

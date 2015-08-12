@@ -17,9 +17,14 @@
 
 #include "application/AMAppController.h"
 #include "application/AMAppControllerSupport.h"
+#include "application/BioXAS/BioXAS.h"
 
 #include "beamline/AMBeamline.h"
+#include "beamline/BioXAS/BioXAS32ElementGeDetector.h"
+#include "beamline/BioXAS/BioXASFourElementVortexDetector.h"
 #include "beamline/CLS/CLSFacilityID.h"
+#include "beamline/CLS/CLSJJSlits.h"
+#include "beamline/CLS/CLSStandardsWheel.h"
 
 #include "dataman/AMRun.h"
 #include "dataman/AMScanAxisEXAFSRegion.h"
@@ -28,6 +33,7 @@
 
 #include "ui/AMMainWindow.h"
 #include "ui/AMTopFrame.h"
+#include "ui/AMMotorGroupView.h"
 #include "ui/acquaman/AMGenericStepScanConfigurationView.h"
 #include "ui/acquaman/AMScanConfigurationViewHolder3.h"
 #include "ui/dataman/AMGenericScanEditor.h"
@@ -37,10 +43,12 @@
 #include "ui/BioXAS/BioXASCarbonFilterFarmView.h"
 #include "ui/BioXAS/BioXASM1MirrorView.h"
 #include "ui/BioXAS/BioXASM2MirrorView.h"
-#include "ui/BioXAS/BioXASDBHRMirrorView.h"
+#include "ui/BioXAS/BioXASDBHRMirrorsView.h"
 #include "ui/BioXAS/BioXASSIS3820ScalerView.h"
 #include "ui/BioXAS/BioXASFourElementVortexDetectorView.h"
+#include "ui/BioXAS/BioXASEndstationTableView.h"
 #include "ui/CLS/CLSJJSlitsView.h"
+#include "ui/CLS/CLSStandardsWheelConfigurationView.h"
 #include "ui/util/AMChooseDataFolderDialog.h"
 
 #include "util/AMPeriodicTable.h"
@@ -61,11 +69,15 @@ public:
 	/// Registers all of the necessary classes that are BioXAS-specific.
 	virtual void registerClasses();
 
-signals:
-
-public slots:
-
 protected:
+	/// Creates a view appropriate for the given beamline component and adds it to the 'General' main window pane.
+	void addComponentView(QObject *component);
+	/// Creates a view appropriate for the given detector and adds it to the 'Detectors' main window pane.
+	void addDetectorView(QObject *detector);
+	/// Creates a commissioning scan configuration view for the given scan configuration and adds it to the 'Scan' main window pane.
+	void addCommissioningScanConfigurationView(AMGenericStepScanConfiguration *configuration);
+	/// Adds the given view to the persistent view panel.
+	void addPersistentView(QWidget *persistentView);
 };
 
 #endif // BIOXASAPPCONTROLLER_H

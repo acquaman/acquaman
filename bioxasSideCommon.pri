@@ -16,11 +16,11 @@ HEADERS += \
 	source/beamline/BioXAS/BioXASSideCarbonFilterFarmControl.h \
 	source/beamline/BioXAS/BioXASSideM2Mirror.h \
 	source/beamline/BioXAS/BioXASSideXIAFilters.h \
-    source/beamline/BioXAS/BioXASSideDBHRMirror.h \
     source/beamline/BioXAS/BioXASSideCarbonFilterFarm.h \
 	source/beamline/BioXAS/BioXASSideM1Mirror.h \
     source/beamline/BioXAS/BioXASSideM1MirrorBendControl.h \
-    source/beamline/BioXAS/BioXASSideM2MirrorBendControl.h
+	source/beamline/BioXAS/BioXASSideM2MirrorBendControl.h \
+    source/beamline/BioXAS/BioXASSideDBHRMirrors.h
 
 SOURCES += \
     source/application/BioXAS/BioXASSideAppController.cpp \
@@ -33,22 +33,11 @@ SOURCES += \
 	source/beamline/BioXAS/BioXASSideCarbonFilterFarmControl.cpp \
 	source/beamline/BioXAS/BioXASSideM2Mirror.cpp \
 	source/beamline/BioXAS/BioXASSideXIAFilters.cpp \
-    source/beamline/BioXAS/BioXASSideDBHRMirror.cpp \
     source/beamline/BioXAS/BioXASSideCarbonFilterFarm.cpp \
 	source/beamline/BioXAS/BioXASSideM1Mirror.cpp \
     source/beamline/BioXAS/BioXASSideM1MirrorBendControl.cpp \
-    source/beamline/BioXAS/BioXASSideM2MirrorBendControl.cpp
-
-
-
-
-
-
-
-
-
-
-
+	source/beamline/BioXAS/BioXASSideM2MirrorBendControl.cpp \
+    source/beamline/BioXAS/BioXASSideDBHRMirrors.cpp
 
 
 
