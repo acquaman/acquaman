@@ -13,9 +13,16 @@ CLSJJSlitOptimizationAction::CLSJJSlitOptimizationAction(CLSJJSlitOptimizationAc
 
 	if (jjSlits && jjSlits->isConnected()) {
 
+		// Pre-optimization settings.
+
+		double initialVerticalGap = jjSlits->verticalGapControl()->value();
+		double initialVerticalCenter = jjSlits->verticalCenterControl()->value();
+		double initialHorizontalGap = jjSlits->horizontalGapControl()->value();
+		double initialHorizontalCenter = jjSlits->horizontalCenterControl()->value();
+
 		if (info->bladesDirection() == CLSJJSlits::Blades::Vertical && info->bladesValue() == CLSJJSlits::Blades::Center) {
 
-			// Move all controls to the 'home' position.
+			// Move all controls to the origin.
 
 			addSubAction(jjSlits->createMoveToOriginAction());
 
@@ -31,14 +38,29 @@ CLSJJSlitOptimizationAction::CLSJJSlitOptimizationAction(CLSJJSlitOptimizationAc
 			// Analyze the step scan results, identify the optimal value.
 
 			AMScan *results = jjSlitsOptimizationScan->controller()->scan();
+
+
+
 			double optimalValue = 0;
+		}
 
-			// Move all controls to home position.
+		// Move all controls to home position.
 
-			addSubAction(jjSlits->createMoveToHomePositionAction());
+		addSubAction(jjSlits->createMoveToOriginAction());
 
-			// Update blade positions.
+		// Move controls to optimal positions.
 
-			addSubAction(jjSlits->createMoveAction(info->initialVerticalGap(), optimalValue, info->initialHorizontalGap(), info->initialHorizontalCenter()));
+		addSubAction(jjSlits->createMoveAction(initialVerticalGap, initialHorizontalGap, initialVerticalCenter, initialHorizontalCenter));
 	}
+}
+
+CLSJJSlitOptimizationAction::CLSJJSlitOptimizationAction(const CLSJJSlitOptimizationActionInfo &original) :
+	AMListAction3(original)
+{
+
+}
+
+CLSJJSlitOptimizationAction::~CLSJJSlitOptimizationAction()
+{
+
 }

@@ -13,11 +13,10 @@ class CLSJJSlits : public QObject
 	Q_OBJECT
 
 public:
-	/// Enum describing the different blades properties.
-	class Blades { public:
-				   enum Direction {None = 0, Vertical = 1, Horizontal = 2 };
-				   enum Value { Invalid = 0, Gap = 1, Center = 2 };
-				 };
+	/// Enum describing different slit directions.
+	class Direction { public: enum Option { Invalid = 0, Vertical = 1, Horizontal = 2 }; };
+	/// Enum describing different slit properties.
+	class Property { public: enum Option { Invalid = 0, Gap = 1, Center = 2 }; };
 
 	/// Constructor
 	explicit CLSJJSlits(const QString &name, const QString &upperBladePVName, const QString &lowerBladePVName, const QString &inboardBladePVName, const QString &outboardBladePVName, QObject*parent = 0);
@@ -47,48 +46,53 @@ public:
 	AMControl* horizontalCenterControl() const { return horizontalCenter_; }
 
 	/// Returns the control with the given direction and value.
-	AMControl* control(CLSJJSlits::Blades::Direction direction, CLSJJSlits::Blades::Value value);
+	AMControl* control(CLSJJSlits::Direction::Option direction, CLSJJSlits::Property::Option property);
 	/// Returns a list of controls with the given direction.
-	QList<AMControl*> controls(CLSJJSlits::Blades::Direction direction);
+	QList<AMControl*> controls(CLSJJSlits::Direction::Option direction);
 	/// Returns a list of controls with the given value.
-	QList<AMControl*> controls(CLSJJSlits::Blades::Value value);
+	QList<AMControl*> controls(CLSJJSlits::Property::Option property);
 
 	/// Returns a newly-created action that moves the specified control to the desired setpoint.
-	AMAction3* createMoveAction(CLSJJSlits::Blades::Direction direction, CLSJJSlits::Blades::Value value, double setpoint);
+	AMAction3* createMoveAction(CLSJJSlits::Direction::Option direction, CLSJJSlits::Property::Option property, double setpoint);
 	/// Returns a newly-created action that move all of the controls to the desired positions.
 	AMAction3* createMoveAction(double verticalGapSetpoint, double verticalCenterSetpoint, double horizontalGapSetpoint, double horizontalCenterSetpoint);
 
 	/// Returns a newly-created action that moves all controls to the origin (0, 0).
 	AMAction3* createMoveToOriginAction();
 	/// Returns a newly-created action that moves the desired controls to the origin.
-	AMAction3* createMoveToOriginAction(CLSJJSlits::Blades::Direction direction);
+	AMAction3* createMoveToOriginAction(CLSJJSlits::Direction::Option direction);
 
 	/// Returns a newly-created action that moves the desired controls to the minimum gap.
-	AMAction3* createMoveToMinGapAction(CLSJJSlits::Blades::Direction direction);
+	AMAction3* createMoveToMinGapAction(CLSJJSlits::Direction::Option direction);
 	/// Returns a newly-created action that moves the desired controls to the maximum gap.
-	AMAction3* createMoveToMaxGapAction(CLSJJSlits::Blades::Direction direction);
+	AMAction3* createMoveToMaxGapAction(CLSJJSlits::Direction::Option direction);
 
 	/// Returns a newly-created action that moves the desired controls so the gap is closed.
-	AMAction3* createCloseGapAction(CLSJJSlits::Blades::Direction direction);
+	AMAction3* createCloseGapAction(CLSJJSlits::Direction::Option direction);
 	/// Returns a newly-created action that moves the desired controls to the widest possible gap.
-	AMAction3* createOpenGapAction(CLSJJSlits::Blades::Direction direction);
+	AMAction3* createOpenGapAction(CLSJJSlits::Direction::Option direction);
 
 	/// Returns a newly-created action that moves the desired control to the min position.
-	AMAction3* createMoveToMinPositionAction(CLSJJSlits::Blades::Direction direction, CLSJJSlits::Blades::Value value);
+	AMAction3* createMoveToMinPositionAction(CLSJJSlits::Direction::Option direction, CLSJJSlits::Property::Option property);
 	/// Returns a newly-created action that moves the desired control to the max position.
-	AMAction3* createMoveToMaxPositionAction(CLSJJSlits::Blades::Direction direction, CLSJJSlits::Blades::Value value);
+	AMAction3* createMoveToMaxPositionAction(CLSJJSlits::Direction::Option direction, CLSJJSlits::Property::Option property);
 	/// Returns a newly-created action that moves the desired controls to the max position.
-	AMAction3* createMoveToMaxPositionAction(CLSJJSlits::Blades::Value value);
+	AMAction3* createMoveToMaxPositionAction(CLSJJSlits::Property::Option property);
 
 	/// Returns a newly-created action that scans the given control for its optimal value, and applies the optimization.
-	AMAction3* createOptimizationAction(CLSJJSlits::Blades::Direction direction, CLSJJSlits::Blades::Value value);
+	AMAction3* createOptimizationAction(CLSJJSlits::Direction::Option direction, CLSJJSlits::Property::Option property);
 	/// Returns a newly-created action that scans the given controls for their optimal value, and applies the optimization.
-	AMAction3* createOptimizationAction(CLSJJSlits::Blades::Value value);
+	AMAction3* createOptimizationAction(CLSJJSlits::Property::Option property);
 
 	/// Returns a string representation of the direction.
-	QString directionToString(CLSJJSlits::Blades::Direction direction) const;
-	/// Returns a string representation of the value.
-	QString valueToString(CLSJJSlits::Blades::Value value) const;
+	static QString directionToString(CLSJJSlits::Direction::Option direction);
+	/// Returns a string representation of the property.
+	static QString propertyToString(CLSJJSlits::Property::Option property);
+
+	/// Returns the direction corresponding to the given string, Invalid if no match is found.
+	static CLSJJSlits::Direction::Option stringToDirection(const QString &string);
+	/// Returns the property corresponding to the given string, Invalid if no match is found.
+	static CLSJJSlits::Property::Option stringToProperty(const QString &string);
 
 signals:
 	/// Notifier that the connected state has changed.

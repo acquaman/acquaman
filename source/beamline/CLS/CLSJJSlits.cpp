@@ -39,30 +39,30 @@ CLSJJSlits::~CLSJJSlits()
 
 }
 
-AMControl* CLSJJSlits::control(CLSJJSlits::Blades::Direction direction, CLSJJSlits::Blades::Value value)
+AMControl* CLSJJSlits::control(CLSJJSlits::Direction::Option direction, CLSJJSlits::Property::Option property)
 {
 	AMControl *result = 0;
 
-	if (direction == Blades::Vertical && value == Blades::Gap)
+	if (direction == Direction::Vertical && property == Property::Gap)
 		result = verticalGap_;
-	else if (direction == Blades::Vertical && value == Blades::Center)
+	else if (direction == Direction::Vertical && property == Property::Center)
 		result = verticalCenter_;
-	else if (direction == Blades::Horizontal && value == Blades::Gap)
+	else if (direction == Direction::Horizontal && property == Property::Gap)
 		result = horizontalGap_;
-	else if (direction == Blades::Horizontal && value == Blades::Center)
+	else if (direction == Direction::Horizontal && property == Property::Center)
 		result = horizontalCenter_;
 
 	return result;
 }
 
-QList<AMControl*> CLSJJSlits::controls(CLSJJSlits::Blades::Direction direction)
+QList<AMControl*> CLSJJSlits::controls(CLSJJSlits::Direction::Option direction)
 {
 	QList<AMControl*> result;
 
-	if (direction == Blades::Vertical) {
+	if (direction == Direction::Vertical) {
 		result.append(verticalGap_);
 		result.append(verticalCenter_);
-	} else if (direction == Blades::Horizontal) {
+	} else if (direction == Direction::Horizontal) {
 		result.append(horizontalGap_);
 		result.append(horizontalCenter_);
 	}
@@ -70,14 +70,14 @@ QList<AMControl*> CLSJJSlits::controls(CLSJJSlits::Blades::Direction direction)
 	return result;
 }
 
-QList<AMControl*> CLSJJSlits::controls(CLSJJSlits::Blades::Value value)
+QList<AMControl*> CLSJJSlits::controls(CLSJJSlits::Property::Option property)
 {
 	QList<AMControl*> result;
 
-	if (value == Blades::Gap) {
+	if (property == Property::Gap) {
 		result.append(verticalGap_);
 		result.append(horizontalGap_);
-	} else if (value == Blades::Center) {
+	} else if (property == Property::Center) {
 		result.append(verticalCenter_);
 		result.append(horizontalCenter_);
 	}
@@ -85,21 +85,21 @@ QList<AMControl*> CLSJJSlits::controls(CLSJJSlits::Blades::Value value)
 	return result;
 }
 
-AMAction3* CLSJJSlits::createMoveAction(CLSJJSlits::Blades::Direction direction, CLSJJSlits::Blades::Value value, double setpoint)
+AMAction3* CLSJJSlits::createMoveAction(CLSJJSlits::Direction::Option direction, CLSJJSlits::Property::Option property, double setpoint)
 {
-	AMControl *toMove = control(direction, value);
+	AMControl *toMove = control(direction, property);
 	return AMActionSupport::buildControlMoveAction(toMove, setpoint);
 }
 
 AMAction3* CLSJJSlits::createMoveAction(double verticalGapSetpoint, double verticalCenterSetpoint, double horizontalGapSetpoint, double horizontalCenterSetpoint)
 {
 	AMListAction3 *moveGap = new AMListAction3(new AMListActionInfo3("Moving gap", "Move gap"), AMListAction3::Parallel);
-	moveGap->addSubAction(createMoveAction(CLSJJSlits::Blades::Vertical, CLSJJSlits::Blades::Gap, verticalGapSetpoint));
-	moveGap->addSubAction(createMoveAction(CLSJJSlits::Blades::Horizontal, CLSJJSlits::Blades::Gap, horizontalGapSetpoint));
+	moveGap->addSubAction(createMoveAction(CLSJJSlits::Direction::Vertical, CLSJJSlits::Property::Gap, verticalGapSetpoint));
+	moveGap->addSubAction(createMoveAction(CLSJJSlits::Direction::Horizontal, CLSJJSlits::Property::Gap, horizontalGapSetpoint));
 
 	AMListAction3 *moveCenter = new AMListAction3(new AMListActionInfo3("Move center", "Move center"), AMListAction3::Parallel);
-	moveCenter->addSubAction(createMoveAction(CLSJJSlits::Blades::Vertical, CLSJJSlits::Blades::Center, verticalCenterSetpoint));
-	moveCenter->addSubAction(createMoveAction(CLSJJSlits::Blades::Horizontal, CLSJJSlits::Blades::Center, horizontalCenterSetpoint));
+	moveCenter->addSubAction(createMoveAction(CLSJJSlits::Direction::Vertical, CLSJJSlits::Property::Center, verticalCenterSetpoint));
+	moveCenter->addSubAction(createMoveAction(CLSJJSlits::Direction::Horizontal, CLSJJSlits::Property::Center, horizontalCenterSetpoint));
 
 	AMListAction3 *result = new AMListAction3(new AMListActionInfo3("Move JJ slits", "Move JJ slits"), AMListAction3::Sequential);
 	result->addSubAction(moveGap);
@@ -113,76 +113,76 @@ AMAction3* CLSJJSlits::createMoveToOriginAction()
 	return createMoveAction(0, 0, 0, 0);
 }
 
-AMAction3* CLSJJSlits::createMoveToOriginAction(CLSJJSlits::Blades::Direction direction)
+AMAction3* CLSJJSlits::createMoveToOriginAction(CLSJJSlits::Direction::Option direction)
 {
 	AMListAction3 *result = new AMListAction3(new AMListActionInfo3(QString("Moving to %1 Origin").arg(directionToString(direction)), QString("Moving to %1 Origin").arg(directionToString(direction))), AMListAction3::Sequential);
-	result->addSubAction(createMoveAction(direction, CLSJJSlits::Blades::Center, 0));
-	result->addSubAction(createMoveAction(direction, CLSJJSlits::Blades::Gap, 0));
+	result->addSubAction(createMoveAction(direction, CLSJJSlits::Property::Center, 0));
+	result->addSubAction(createMoveAction(direction, CLSJJSlits::Property::Gap, 0));
 
 	return result;
 }
 
-AMAction3* CLSJJSlits::createMoveToMinGapAction(CLSJJSlits::Blades::Direction direction)
+AMAction3* CLSJJSlits::createMoveToMinGapAction(CLSJJSlits::Direction::Option direction)
 {
-	return createMoveToMinPositionAction(direction, CLSJJSlits::Blades::Gap);
+	return createMoveToMinPositionAction(direction, CLSJJSlits::Property::Gap);
 }
 
-AMAction3* CLSJJSlits::createMoveToMaxGapAction(CLSJJSlits::Blades::Direction direction)
+AMAction3* CLSJJSlits::createMoveToMaxGapAction(CLSJJSlits::Direction::Option direction)
 {
-	return createMoveToMaxPosition(direction, CLSJJSlits::Blades::Gap);
+	return createMoveToMaxPosition(direction, CLSJJSlits::Property::Gap);
 }
 
-AMAction3* CLSJJSlits::createCloseGapAction(CLSJJSlits::Blades::Direction direction)
+AMAction3* CLSJJSlits::createCloseGapAction(CLSJJSlits::Direction::Option direction)
 {
 	return createMoveToOriginAction(direction);
 }
 
-AMAction3* CLSJJSlits::createOpenGapAction(CLSJJSlits::Blades::Direction direction)
+AMAction3* CLSJJSlits::createOpenGapAction(CLSJJSlits::Direction::Option direction)
 {
 	AMListAction3 *result = new AMListAction3(new AMListActionInfo3(QString("Opening %1 Gap").arg(directionToString(direction)), QString("Opening %1 Gap").arg(directionToString(direction))), AMListAction3::Sequential);
 	result->addSubAction(createMoveToOriginAction(direction));
-	result->addSubAction(createMoveToMaxPositionAction(direction, CLSJJSlits::Blades::Gap));
+	result->addSubAction(createMoveToMaxPositionAction(direction, CLSJJSlits::Property::Gap));
 
 	return result;
 }
 
-AMAction3* CLSJJSlits::createMoveToMinPositionAction(CLSJJSlits::Blades::Direction direction, CLSJJSlits::Blades::Value value)
+AMAction3* CLSJJSlits::createMoveToMinPositionAction(CLSJJSlits::Direction::Option direction, CLSJJSlits::Property::Option property)
 {
-	AMControl *toMove = control(direction, value);
+	AMControl *toMove = control(direction, property);
 	return AMActionSupport::buildControlMoveAction(toMove, toMove->minimumValue());
 }
 
-AMAction3* CLSJJSlits::createMoveToMaxPositionAction(CLSJJSlits::Blades::Direction direction, CLSJJSlits::Blades::Value value)
+AMAction3* CLSJJSlits::createMoveToMaxPositionAction(CLSJJSlits::Direction::Option direction, CLSJJSlits::Property::Option property)
 {
-	AMControl *toMove = control(direction, value);
+	AMControl *toMove = control(direction, property);
 	return AMActionSupport::buildControlMoveAction(toMove, toMove->maximumValue());
 }
 
-AMAction3* CLSJJSlits::createOptimizationAction(CLSJJSlits::Blades::Direction direction, CLSJJSlits::Blades::Value value)
+AMAction3* CLSJJSlits::createOptimizationAction(CLSJJSlits::Direction::Option direction, CLSJJSlits::Property::Option property)
 {
-	CLSJJSlitOptimizationActionInfo *actionInfo = new CLSJJSlitOptimizationActionInfo(direction, value);
+	CLSJJSlitOptimizationActionInfo *actionInfo = new CLSJJSlitOptimizationActionInfo(direction, property);
 	CLSJJSlitOptimizationAction *action = new CLSJJSlitOptimizationAction(actionInfo);
 
 	return action;
 }
 
-AMAction3* CLSJJSlits::createOptimizationAction(CLSJJSlits::Blades::Value value)
+AMAction3* CLSJJSlits::createOptimizationAction(CLSJJSlits::Property::Option property)
 {
-	CLSJJSlitsOptimizationActionInfo *actionInfo = new CLSJJSlitsOptimizationActionInfo();
-	CLSJJSlitsOptimizationAction *action = new CLSJJSlitsOptimizationAction(actionInfo);
+//	CLSJJSlitsOptimizationActionInfo *actionInfo = new CLSJJSlitsOptimizationActionInfo();
+//	CLSJJSlitsOptimizationAction *action = new CLSJJSlitsOptimizationAction(actionInfo);
 
-	return action;
+//	return action;
 }
 
-QString CLSJJSlits::directionToString(CLSJJSlits::Blades::Direction direction) const
+QString CLSJJSlits::directionToString(CLSJJSlits::Direction::Option direction) const
 {
 	QString result;
 
 	switch (direction) {
-	case CLSJJSlits::Blades::Vertical:
+	case CLSJJSlits::Direction::Vertical:
 		result = "Vertical";
 		break;
-	case CLSJJSlits::Blades::Horizontal:
+	case CLSJJSlits::Direction::Horizontal:
 		result = "Horizontal";
 		break;
 	default:
@@ -192,20 +192,44 @@ QString CLSJJSlits::directionToString(CLSJJSlits::Blades::Direction direction) c
 	return result;
 }
 
-QString CLSJJSlits::valueToString(CLSJJSlits::Blades::Value value) const
+QString CLSJJSlits::propertyToString(CLSJJSlits::Property::Option property) const
 {
 	QString result;
 
 	switch (value) {
-	case CLSJJSlits::Blades::Gap:
+	case CLSJJSlits::Property::Gap:
 		result = "Gap";
 		break;
-	case CLSJJSlits::Blades::Center:
+	case CLSJJSlits::Property::Center:
 		result = "Center";
 		break;
 	default:
 		break;
 	}
+
+	return result;
+}
+
+CLSJJSlits::Direction::Option CLSJJSlits::stringToDirection(const QString &string)
+{
+	CLSJJSlits::Direction::Option result = CLSJJSlits::Direction::Invalid;
+
+	if (string == "Vertical")
+		result = CLSJJSlits::Direction::Vertical;
+	else if (string == "Horizontal")
+		result = CLSJJSlits::Direction::Horizontal;
+
+	return result;
+}
+
+CLSJJSlits::Property::Option CLSJJSlits::stringToProperty(const QString &string)
+{
+	CLSJJSlits::Property::Option result = CLSJJSlits::Property::Invalid;
+
+	if (string == "Gap")
+		result = CLSJJSlits::Property::Gap;
+	else if (string == "Center")
+		result = CLSJJSlits::Property::Center;
 
 	return result;
 }
