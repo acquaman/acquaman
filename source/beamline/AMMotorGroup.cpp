@@ -254,20 +254,20 @@ bool AMMotorGroupAxis::canRotate() const
 
 AMControl * AMMotorGroupAxis::translationMotor() const
 {
-	if(!canTranslate()) {
+	if(translationalMotion_) {
+		return translationalMotion_->motor();
+	} else {
 		return 0;
 	}
-
-	return translationalMotion_->motor();
 }
 
 AMControl * AMMotorGroupAxis::rotationMotor() const
 {
-	if(!canRotate()) {
+	if(rotationalMotion_) {
+		return rotationalMotion_->motor();
+	} else {
 		return 0;
 	}
-
-	return rotationalMotion_->motor();
 }
 
 AMAction3 * AMMotorGroupAxis::createTranslateMoveAction(double position)
