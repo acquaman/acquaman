@@ -1,10 +1,6 @@
 #ifndef BIOXASXASSCANCONFIGURATIONVIEW_H
 #define BIOXASXASSCANCONFIGURATIONVIEW_H
 
-#include "ui/acquaman/AMScanConfigurationView.h"
-#include "acquaman/BioXAS/BioXASMainXASScanConfiguration.h"
-#include "util/AMElement.h"
-
 #include <QPushButton>
 #include <QComboBox>
 #include <QCheckBox>
@@ -12,6 +8,11 @@
 #include <QLineEdit>
 #include <QLabel>
 #include <QToolButton>
+
+#include "acquaman/BioXAS/BioXASMainXASScanConfiguration.h"
+#include "ui/acquaman/AMScanConfigurationView.h"
+#include "ui/acquaman/AMScanConfigurationViewHolder3.h"
+#include "util/AMElement.h"
 
 class AMScanController;
 class AMEXAFSScanAxisView;

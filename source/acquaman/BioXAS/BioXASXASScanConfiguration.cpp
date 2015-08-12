@@ -76,6 +76,21 @@ QString BioXASXASScanConfiguration::headerText() const
 	return header;
 }
 
+AMScanConfiguration* BioXASXASScanConfiguration::createCopy() const
+{
+	AMScanConfiguration *configuration = new BioXASXASScanConfiguration(*this);
+	configuration->dissociateFromDb(true);
+	return configuration;
+}
+
+AMScanController* BioXASXASScanConfiguration::createController()
+{
+	AMScanActionController *controller = new BioXASXASScanActionController(this);
+	controller->buildScanController();
+
+	return controller;
+}
+
 AMScanConfigurationView* BioXASXASScanConfiguration::createView()
 {
 	return new BioXASXASScanConfigurationView(this);

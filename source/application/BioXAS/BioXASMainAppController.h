@@ -37,12 +37,6 @@ public:
 	/// Create and setup all of the application windows, widgets, communication connections, and data objects that are needed on program startup. Returns true on success, false otherwise.
 	virtual bool startup();
 
-protected slots:
-	/// Handles adding regions of interest to all the configurations that would care.
-	virtual void onRegionOfInterestAdded(AMRegionOfInterest *region);
-	/// Handles removing regions of interest from all the configurations that would care.
-	virtual void onRegionOfInterestRemoved(AMRegionOfInterest *region);
-
 protected:
 	/// Initializes the beamline object.
 	virtual void initializeBeamline();

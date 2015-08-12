@@ -29,10 +29,8 @@ BioXASSideBeamline::BioXASSideBeamline()
 	: BioXASBeamline("BioXAS Beamline - Side Endstation")
 {
 	setupComponents();
-	setupDiagnostics();
 	setupDetectorStage();
 	setupCryostatStage();
-	setupControlSets();
 	setupControlsAsDetectors();
 	setupExposedControls();
 	setupExposedDetectors();

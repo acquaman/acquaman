@@ -116,16 +116,32 @@ protected:
 	/// Sets up local and remote data paths.
 	virtual bool setupDataFolder() { return false; }
 
-	/// Creates a view appropriate for the given beamline component and adds it to the 'General' main window pane.
-	void addComponentView(QObject *component);
-	/// Creates a view appropriate for the given detector and adds it to the 'Detectors' main window pane.
-	void addDetectorView(QObject *detector);
-	/// Creates an XAS scan configuration view for the given scan configuration and adds it to the 'Scans' main window pane.
-	void addXASScanConfigurationView(BioXASXASScanConfiguration *configuration);
-	/// Creates a commissioning scan configuration view for the given scan configuration and adds it to the 'Scan' main window pane.
-	void addCommissioningScanConfigurationView(AMGenericStepScanConfiguration *configuration);
-	/// Creates a calibration view appropriate for the given item and adds it to the 'Calibration' main window pane.
-	void addCalibrationView(QObject *toCalibrate);
+	/// Adds a given view to the 'General' main window pane, with the given name.
+	void addViewToGeneralPane(QWidget *view, const QString &viewName, const QString &iconName);
+	/// Adds a given view to the 'Detectors' main window pane, with the given name.
+	void addViewToDetectorsPane(QWidget *view, const QString &viewName, const QString &iconName);
+	/// Adds a given view to the 'Scans' main window pane, with the given name.
+	void addViewToScansPane(QWidget *view, const QString &viewName, const QString &iconName);
+	/// Adds a given view to the 'Calibration' main window pane, with the given name.
+	void addViewToCalibrationPane(QWidget *view, const QString &viewName, const QString &iconName);
+
+	/// Creates and returns a view appropriate for viewing the given beamline component. Returns 0 if no view was created.
+	virtual QWidget* createComponentView(QObject *component);
+	/// Creates and returns a view appropriate for viewing the given scan configuration. Returns 0 if no view was created.
+	virtual AMScanConfigurationView* createScanConfigurationView(AMScanConfiguration *configuration, const QString &configurationName, const QString &iconName);
+	/// Creates and returns a view appropriate for viewing the given scan configuration, within a configuration view holder. Returns 0 if no view was created.
+	virtual AMScanConfigurationViewHolder3* createScanConfigurationViewWithHolder(AMScanConfiguration *configuration, const QString &configurationName, const QString &iconName, const QString &viewName);
+	/// Creates and returns a view appropriate for calibrating the given component. Returns 0 if no view was created.
+	virtual QWidget* createCalibrationView(QObject *component);
+
+	/// Creates a component view appropriate for viewing the given beamline component, and adds it to the appropriate main window pane.
+	void addComponentView(QObject *component, const QString &componentName);
+	/// Creates a view appropriate for the given detector and adds it to the appropriate main window pane.
+	void addDetectorView(QObject *detector, const QString &detectorName);
+	/// Creates a view appropriate for the given scan configuration and adds it to the appropriate main window pane.
+	void addScanConfigurationView(AMScanConfiguration *configuration, const QString &configurationName, const QString &viewName);
+	/// Creates a view appropriate for calibrating the given component and adds it to the appropriate main window pane.
+	void addCalibrationView(QObject *toCalibrate, const QString &calibrationName);
 	/// Adds the given view to the persistent view panel.
 	void addPersistentView(QWidget *persistentView);
 
@@ -140,11 +156,18 @@ protected:
 
 	/// The XAS scan configuration.
 	BioXASXASScanConfiguration *xasConfiguration_;
+	/// The XAS scan configuration view.
+	QWidget *xasConfigurationView_;
+
 	/// The commissioning tool configuration.
 	AMGenericStepScanConfiguration *commissioningConfiguration_;
+	/// The commissioning tool configuration view.
+	QWidget *commissioningConfigurationView_;
 
 	/// The mono energy calibration configuration.
-	BioXASSSRLMonochromatorEnergyCalibrationScanConfiguration *monoCalibrationConfiguration_;
+	BioXASSSRLMonochromatorEnergyCalibrationScanConfiguration *energyCalibrationConfiguration_;
+	/// The mono energy calibration configuration view.
+	QWidget *energyCalibrationConfigurationView_;
 
 	/// The energy calibration view.
 	BioXASSSRLMonochromatorEnergyCalibrationView *energyCalibrationView_;

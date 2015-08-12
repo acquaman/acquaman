@@ -55,7 +55,6 @@ HEADERS += \
 	source/ui/BioXAS/BioXASPersistentView.h \
 	source/ui/BioXAS/BioXASMirrorBendView.h \
 	source/application/BioXAS/BioXAS.h \
-	source/beamline/BioXAS/BioXASMainM2MirrorBendControl.h \
     source/beamline/BioXAS/BioXASMonochromatorEnergyControl.h \
     source/acquaman/BioXAS/BioXASXASScanActionController.h \
     source/acquaman/BioXAS/BioXASXASScanConfiguration.h \
@@ -119,7 +118,6 @@ SOURCES += \
 	source/application/BioXAS/BioXASAppController.cpp \
 	source/ui/BioXAS/BioXASPersistentView.cpp \
 	source/ui/BioXAS/BioXASMirrorBendView.cpp \
-	source/beamline/BioXAS/BioXASMainM2MirrorBendControl.cpp \
     source/beamline/BioXAS/BioXASMonochromatorEnergyControl.cpp \
     source/acquaman/BioXAS/BioXASXASScanActionController.cpp \
     source/acquaman/BioXAS/BioXASXASScanConfiguration.cpp \
@@ -134,5 +132,9 @@ SOURCES += \
     source/beamline/BioXAS/BioXASDBHRMirrors.cpp \
 	source/ui/BioXAS/BioXASDBHRMirrorsView.cpp \
     source/beamline/BioXAS/BioXASBeamlineUtilities.cpp
+
+
+
+
 
 

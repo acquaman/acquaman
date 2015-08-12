@@ -26,7 +26,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 BioXASMainAppController::BioXASMainAppController(QObject *parent)
 	: BioXASAppController(parent)
 {
-	setDefaultUseLocalStorage(true);
+
 }
 
 BioXASMainAppController::~BioXASMainAppController()
@@ -54,18 +54,6 @@ bool BioXASMainAppController::startup()
 	}
 
 	return result;
-}
-
-void BioXASMainAppController::onRegionOfInterestAdded(AMRegionOfInterest *region)
-{
-	BioXASAppController::onRegionOfInterestAdded(region);
-	configuration_->addRegionOfInterest(region);
-}
-
-void BioXASMainAppController::onRegionOfInterestRemoved(AMRegionOfInterest *region)
-{
-	BioXASAppController::onRegionOfInterestRemoved(region);
-	configuration_->removeRegionOfInterest(region);
 }
 
 void BioXASMainAppController::initializeBeamline()
