@@ -21,6 +21,11 @@ CLSJJSlitOptimizationAction::CLSJJSlitOptimizationAction(CLSJJSlitOptimizationAc
 		double initialHorizontalGap = jjSlits->horizontalGapControl()->value();
 		double initialHorizontalCenter = jjSlits->horizontalCenterControl()->value();
 
+		double finalVerticalGap = 0;
+		double finalVerticalCenter = 0;
+		double finalHorizontalGap = 0;
+		double finalHorizontalCenter = 0;
+
 		if (info->direction() == CLSJJSlits::Direction::Vertical && info->property() == CLSJJSlits::Property::Center) {
 
 			// Move all controls to the origin.
@@ -31,7 +36,7 @@ CLSJJSlitOptimizationAction::CLSJJSlitOptimizationAction(CLSJJSlitOptimizationAc
 
 			addSubAction(AMActionSupport::buildControlMoveAction(jjSlits->horizontalGapControl(), jjSlits->horizontalGapControl()->maximumValue()));
 
-			// Create generic step scan for the control being optimized.
+			// Create scan for the control being optimized.
 
 			AMScanAction *jjSlitsOptimizationScan = new AMScanAction(new AMScanActionInfo(info->scanConfiguration()));
 			addSubAction(jjSlitsOptimizationScan);
@@ -40,9 +45,14 @@ CLSJJSlitOptimizationAction::CLSJJSlitOptimizationAction(CLSJJSlitOptimizationAc
 
 			AMScan *results = jjSlitsOptimizationScan->controller()->scan();
 
-
+			// ...
 
 			double optimalValue = 0;
+
+			finalVerticalGap = initialVerticalGap;
+			finalVerticalCenter = optimalValue;
+			finalHorizontalGap = initialHorizontalGap;
+			finalHorizontalCenter = initialHorizontalCenter;
 		}
 
 		// Move all controls to home position.
@@ -51,7 +61,7 @@ CLSJJSlitOptimizationAction::CLSJJSlitOptimizationAction(CLSJJSlitOptimizationAc
 
 		// Move controls to optimal positions.
 
-		addSubAction(jjSlits->createMoveAction(initialVerticalGap, initialHorizontalGap, initialVerticalCenter, initialHorizontalCenter));
+		addSubAction(jjSlits->createMoveAction(finalVerticalGap, finalHorizontalGap, finalVerticalCenter, finalVerticalCenter));
 	}
 }
 

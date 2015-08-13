@@ -25,11 +25,11 @@ CLSJJSlitScanConfigurationView::CLSJJSlitScanConfigurationView(CLSJJSlitScanConf
 	directionOptionsLayout->addWidget(verticalOption);
 	directionOptionsLayout->addWidget(horizontalOption);
 
-	QGroupBox *directionOptions = new QGroupBox("Blades Options");
+	QGroupBox *directionOptions = new QGroupBox("Direction");
 	directionOptions->setFlat(true);
 	directionOptions->setLayout(directionOptionsLayout);
 
-	// Create JJ slit property options.
+	// Create JJ slit value options.
 
 	QButtonGroup *propertyOptionsGroup = new QButtonGroup();
 
@@ -43,7 +43,7 @@ CLSJJSlitScanConfigurationView::CLSJJSlitScanConfigurationView(CLSJJSlitScanConf
 	propertyOptionsLayout->addWidget(gapOption);
 	propertyOptionsLayout->addWidget(centerOption);
 
-	QGroupBox *propertyOptions = new QGroupBox("Property Options");
+	QGroupBox *propertyOptions = new QGroupBox("Value");
 	propertyOptions->setFlat(true);
 	propertyOptions->setLayout(propertyOptionsLayout);
 
@@ -70,7 +70,7 @@ CLSJJSlitScanConfigurationView::CLSJJSlitScanConfigurationView(CLSJJSlitScanConf
 
 	// Create and set main layouts.
 
-	QVBoxLayout *optionsLayout = new QVBoxLayout();
+	QHBoxLayout *optionsLayout = new QHBoxLayout();
 	optionsLayout->addWidget(directionOptions);
 	optionsLayout->addWidget(propertyOptions);
 
@@ -84,7 +84,7 @@ CLSJJSlitScanConfigurationView::CLSJJSlitScanConfigurationView(CLSJJSlitScanConf
 
 	setLayout(layout);
 
-	// Initial settings.
+	// Initial settings. Find a way to use configuration to set the direction_ and property_.
 
 	direction_ = CLSJJSlits::Direction::Vertical;
 	verticalOption->setChecked(true);
@@ -160,9 +160,17 @@ void CLSJJSlitScanConfigurationView::updateScanConfigurationControls(CLSJJSlits:
 	if (jjSlits) {
 		AMControl *control = jjSlits->control(direction, property);
 
-		if (control)
+		if (control) {
+
+			// these need to be editable.
+
 			configuration_->setControl(0, control->toInfo());
-		else
+			configuration_->scanAxisAt(0)->regionAt(0)->setRegionStart(0);
+			configuration_->scanAxisAt(0)->regionAt(0)->setRegionStep(0.01);
+			configuration_->scanAxisAt(0)->regionAt(0)->setRegionEnd(control->maximumValue());
+
+		} else {
 			configuration_->removeControl(0);
+		}
 	}
 }
