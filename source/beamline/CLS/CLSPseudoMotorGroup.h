@@ -24,23 +24,51 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "beamline/AMMotorGroup.h"
 
-/// This class extends the AMMotorGroupObject for the CLS pseudo motor application.  The main addition is adding the control which resets the pseudo motors since they don't have absolute references.
+/*!
+  * A class representing a motor group object for a CLS pseudo motor. The main
+  * addition is a control which resets the pseudo motors since they don't have
+  * absolute references.
+  */
 class CLSPseudoMotorGroupObject : public AMMotorGroupObject
 {
 	Q_OBJECT
 
 public:
-	/// Constructor.  Builds a new motor group object which mimics the AMMotorGroupObject with the addition of a reset control.
- 	virtual ~CLSPseudoMotorGroupObject();
-	CLSPseudoMotorGroupObject(const QString &name, const QString &prefix, const QString &units, AMControl *control, Orientation orientation, MotionType motionType, AMControl *resetControl, QObject *parent = 0);
-	/// Constructor.  Builds a new motor group object which mimics the AMMotorGroupObject with up to three controls.
-	CLSPseudoMotorGroupObject(const QString &name, const QStringList &prefixes, const QStringList &units, const QList<AMControl *> controls, QList<Orientation> orientations, QList<MotionType> motionTypes, AMControl *resetControl, QObject *parent = 0);
+	/*!
+	  * Creates an instance of a pseudo motor group object with the provided name,
+	  * and the provided reset control. This object will contain no axes.
+	  * \param name ~ A human readable name with which to associate this pseudo
+	  * motor group object.
+	  * \param resetControl ~ The control which handles resetting the pseudo
+	  * motor.
+	  */
+	CLSPseudoMotorGroupObject(const QString &name,
+							  AMControl* resetControl);
 
-	/// Returns the reset control.
+	/*!
+	  * Creates an instance of a pseudo motor group object with the provided name,
+	  * axes and reset control.
+	  * \param name ~ A human readable name with which to associate this pseudo
+	  * motor group object.
+	  * \param axes ~ A collection of the axes which comprise this motor group.
+	  * \param resetControl ~ The control which handles resetting the pseudo
+	  * motor.
+	  */
+	CLSPseudoMotorGroupObject(const QString &name,
+							  const QMap<MotionDirection, AMMotorGroupAxis*>& axes,
+							  AMControl* resetControl);
+
+	virtual ~CLSPseudoMotorGroupObject() {}
+
+	/*!
+	  * The motor groups reset control.
+	  */
 	AMControl *resetControl() const { return resetControl_; }
 
 public slots:
-	/// Reset this CLSPseudoMotorGroupObject.
+	/*!
+	  * Performs a reset on this pseudo motor group object.
+	  */
 	void resetPseudoMotor() const { resetControl_->move(1); }
 
 protected:

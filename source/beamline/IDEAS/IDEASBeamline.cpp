@@ -61,27 +61,27 @@ void IDEASBeamline::setupSampleStage()
 
 void IDEASBeamline::setupMotorGroup()
 {
-	AMMotorGroupObject *motorObject = 0;
-	motorGroup_ = new AMMotorGroup(this);
-	motorObject = new AMMotorGroupObject("Sample Platform",
-								   QStringList() << "X" << "Z",
-								   QStringList() << "mm" << "mm",
-								   QList<AMControl*>() << samplePlatformHorizontal_ << samplePlatformVertical_,
-								   QList<AMMotorGroupObject::Orientation>() << AMMotorGroupObject::Horizontal << AMMotorGroupObject::Vertical,
-								   QList<AMMotorGroupObject::MotionType>() << AMMotorGroupObject::Translational << AMMotorGroupObject::Translational,
-								   this);
-	motorGroup_->addMotorGroupObject(motorObject->name(), motorObject);
+	// Set up sample platform motor object:
+	AMMotorGroupObject* samplePlatformObject = new AMMotorGroupObject("Sample Platform", this);
 
-	motorObject = new AMMotorGroupObject("Vacuum Stage",
-								   QStringList() << "Z",
-								   QStringList() << "mm",
-								   QList<AMControl*>() << vacuumSampleStage_,
-								   QList<AMMotorGroupObject::Orientation>() << AMMotorGroupObject::Vertical,
-								   QList<AMMotorGroupObject::MotionType>() << AMMotorGroupObject::Translational,
-								   this);
-	motorGroup_->addMotorGroupObject(motorObject->name(), motorObject);
+	samplePlatformObject->setDirectionAxis(AMMotorGroupObject::HorizontalMotion,
+								  "X", samplePlatformHorizontal_,
+								  "", 0);
 
+	samplePlatformObject->setDirectionAxis(AMMotorGroupObject::VerticalMotion,
+								  "Z", samplePlatformVertical_,
+								  "", 0);
 
+	motorGroup_->addMotorGroupObject(samplePlatformObject);
+
+	// Set up vacuum stage motor object:
+	AMMotorGroupObject* vacuumStageObject = new AMMotorGroupObject("Vacuum Stage", this);
+
+	vacuumStageObject->setDirectionAxis(AMMotorGroupObject::VerticalMotion,
+							   "Z", vacuumSampleStage_,
+							   "", 0);
+
+	motorGroup_->addMotorGroupObject(vacuumStageObject);
 }
 
 void IDEASBeamline::setupDetectors()

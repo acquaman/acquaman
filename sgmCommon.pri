@@ -15,13 +15,3 @@ HEADERS += \
 SOURCES += \
     source/beamline/SGM/SGMMAXvMotor.cpp \
     source/beamline/SGM/SGMBeamline.cpp
-
-
-
-
-
-
-
-
-
-

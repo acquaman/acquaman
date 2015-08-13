@@ -67,7 +67,7 @@ bool BioXASSideBeamline::isConnected() const
 
 				// Mirrors.
 				m2Mirror_->isConnected() &&
-				dbhrMirror_->isConnected() &&
+				dbhrMirrors_->isConnected() &&
 
 				// Motors.
 				cryostatX_->isConnected() &&
@@ -592,14 +592,14 @@ void BioXASSideBeamline::setupMotorGroup()
 {
 	motorGroup_ = new AMMotorGroup(this);
 
-	AMMotorGroupObject *cryostatStageGroupObject = new AMMotorGroupObject("Cryostat Stage - X, Y, Z",
-																		  QStringList() << "X" << "Z" << "Y",
-																		  QStringList() << "mm" << "mm" << "mm",
-																		  QList<AMControl*>() << cryostatX_ << cryostatZ_ << cryostatY_,
-																		  QList<AMMotorGroupObject::Orientation>() << AMMotorGroupObject::Horizontal << AMMotorGroupObject::Vertical << AMMotorGroupObject::Normal,
-																		  QList<AMMotorGroupObject::MotionType>() << AMMotorGroupObject::Translational << AMMotorGroupObject::Translational << AMMotorGroupObject::Translational,
-																		  this);
-	motorGroup_->addMotorGroupObject(cryostatStageGroupObject->name(), cryostatStageGroupObject);
+	AMMotorGroupObject* cryostatStageGroupObject =
+			new AMMotorGroupObject("Cryostat Stage - X Y Z", this);
+
+	cryostatStageGroupObject->setDirectionAxis(AMMotorGroupObject::HorizontalMotion, "X", cryostatX_, "", 0);
+	cryostatStageGroupObject->setDirectionAxis(AMMotorGroupObject::NormalMotion, "Y", cryostatY_, "", 0);
+	cryostatStageGroupObject->setDirectionAxis(AMMotorGroupObject::VerticalMotion, "Z", cryostatZ_, "", 0);
+
+	motorGroup_->addMotorGroupObject(cryostatStageGroupObject);
 }
 
 void BioXASSideBeamline::setupDetectors()
@@ -794,8 +794,8 @@ void BioXASSideBeamline::setupComponents()
 	connect( m2Mirror_, SIGNAL(connectedChanged(bool)), this, SLOT(updateConnected()) );
 
 	// The DBHR mirrors.
-	dbhrMirror_ = new BioXASSideDBHRMirror(this);
-	connect( dbhrMirror_, SIGNAL(connectedChanged(bool)), this, SLOT(updateConnected()) );
+	dbhrMirrors_ = new BioXASSideDBHRMirrors(this);
+	connect( dbhrMirrors_, SIGNAL(connectedChanged(bool)), this, SLOT(updateConnected()) );
 }
 
 void BioXASSideBeamline::setupControlsAsDetectors()
@@ -912,9 +912,9 @@ void BioXASSideBeamline::setupExposedControls()
 
 	// DBHR controls.
 
-	addExposedControl(dbhrMirror_->pitchControl());
-	addExposedControl(dbhrMirror_->m1VerticalControl());
-	addExposedControl(dbhrMirror_->m2VerticalControl());
+	addExposedControl(dbhrMirrors_->pitchControl());
+	addExposedControl(dbhrMirrors_->m1VerticalControl());
+	addExposedControl(dbhrMirrors_->m2VerticalControl());
 
 	// Detector stage controls.
 
