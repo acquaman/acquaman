@@ -8,8 +8,6 @@
 #include "acquaman/AMScanActionController.h"
 #include "acquaman/BioXAS/BioXASScanConfigurationDbObject.h"
 #include "acquaman/BioXAS/BioXASXASScanConfiguration.h"
-#include "acquaman/BioXAS/BioXASSSRLMonochromatorEnergyCalibrationScanConfiguration.h"
-#include "acquaman/BioXAS/BioXASSSRLMonochromatorEnergyCalibrationScanActionController.h"
 #include "acquaman/BioXAS/BioXASXRFScanConfiguration.h"
 
 #include "actions3/actions/AMScanAction.h"
@@ -89,10 +87,13 @@ protected slots:
 	/// Handles removing regions of interest from all the configurations that would care.
 	virtual void onRegionOfInterestRemoved(AMRegionOfInterest *region);
 
-	/// Sets the monochromator energy calibration view as the current pane.
-	void goToEnergyCalibrationView(AMScan *toView);
+	/// Sets the XAS scan configuration view as the current pane.
+	void goToXASScanConfigurationView(BioXASXASScanConfiguration *configuration);
 	/// Sets the monochromator energy calibration scan configuration view as the current pane.
 	void goToEnergyCalibrationScanConfigurationView();
+
+	/// Sets the monochromator energy calibration view as the current pane.
+	void goToEnergyCalibrationView(AMScan *toView);
 
 protected:
 	/// Implementation method that individual applications can flesh out if extra setup is required when a scan action is started.  This is not pure virtual because there is no requirement to do anything to scan actions.
@@ -117,20 +118,20 @@ protected:
 	virtual bool setupDataFolder() { return false; }
 
 	/// Adds a given view to the 'General' main window pane, with the given name.
-	void addViewToGeneralPane(QWidget *view, const QString &viewName, const QString &iconName);
+	void addViewToGeneralPane(QWidget *view, const QString &viewName);
 	/// Adds a given view to the 'Detectors' main window pane, with the given name.
-	void addViewToDetectorsPane(QWidget *view, const QString &viewName, const QString &iconName);
+	void addViewToDetectorsPane(QWidget *view, const QString &viewName);
 	/// Adds a given view to the 'Scans' main window pane, with the given name.
-	void addViewToScansPane(QWidget *view, const QString &viewName, const QString &iconName);
+	void addViewToScansPane(QWidget *view, const QString &viewName);
 	/// Adds a given view to the 'Calibration' main window pane, with the given name.
-	void addViewToCalibrationPane(QWidget *view, const QString &viewName, const QString &iconName);
+	void addViewToCalibrationPane(QWidget *view, const QString &viewName);
 
 	/// Creates and returns a view appropriate for viewing the given beamline component. Returns 0 if no view was created.
 	virtual QWidget* createComponentView(QObject *component);
 	/// Creates and returns a view appropriate for viewing the given scan configuration. Returns 0 if no view was created.
-	virtual AMScanConfigurationView* createScanConfigurationView(AMScanConfiguration *configuration, const QString &configurationName, const QString &iconName);
+	virtual AMScanConfigurationView* createScanConfigurationView(AMScanConfiguration *configuration);
 	/// Creates and returns a view appropriate for viewing the given scan configuration, within a configuration view holder. Returns 0 if no view was created.
-	virtual AMScanConfigurationViewHolder3* createScanConfigurationViewWithHolder(AMScanConfiguration *configuration, const QString &configurationName, const QString &iconName, const QString &viewName);
+	virtual AMScanConfigurationViewHolder3* createScanConfigurationViewWithHolder(AMScanConfiguration *configuration);
 	/// Creates and returns a view appropriate for calibrating the given component. Returns 0 if no view was created.
 	virtual QWidget* createCalibrationView(QObject *component);
 
@@ -139,7 +140,7 @@ protected:
 	/// Creates a view appropriate for the given detector and adds it to the appropriate main window pane.
 	void addDetectorView(QObject *detector, const QString &detectorName);
 	/// Creates a view appropriate for the given scan configuration and adds it to the appropriate main window pane.
-	void addScanConfigurationView(AMScanConfiguration *configuration, const QString &configurationName, const QString &viewName);
+	void addScanConfigurationView(AMScanConfiguration *configuration, const QString &viewName);
 	/// Creates a view appropriate for calibrating the given component and adds it to the appropriate main window pane.
 	void addCalibrationView(QObject *toCalibrate, const QString &calibrationName);
 	/// Adds the given view to the persistent view panel.
@@ -165,7 +166,7 @@ protected:
 	QWidget *commissioningConfigurationView_;
 
 	/// The mono energy calibration configuration.
-	BioXASSSRLMonochromatorEnergyCalibrationScanConfiguration *energyCalibrationConfiguration_;
+	BioXASXASScanConfiguration *energyCalibrationConfiguration_;
 	/// The mono energy calibration configuration view.
 	QWidget *energyCalibrationConfigurationView_;
 

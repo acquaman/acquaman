@@ -111,6 +111,17 @@ void BioXASAppController::onRegionOfInterestRemoved(AMRegionOfInterest *region)
 		xasConfiguration_->removeRegionOfInterest(region);
 }
 
+void BioXASAppController::goToXASScanConfigurationView(BioXASXASScanConfiguration *configuration)
+{
+//	xasConfigurationView_
+}
+
+void BioXASAppController::goToEnergyCalibrationScanConfigurationView()
+{
+	if (energyCalibrationView_)
+		mw_->setCurrentPane(energyCalibrationView_);
+}
+
 void BioXASAppController::goToEnergyCalibrationView(AMScan *toView)
 {
 	qDebug() << "Going to energy calibration view...";
@@ -121,12 +132,6 @@ void BioXASAppController::goToEnergyCalibrationView(AMScan *toView)
 	}
 }
 
-void BioXASAppController::goToEnergyCalibrationScanConfigurationView()
-{
-	if (energyCalibrationView_)
-		mw_->setCurrentPane(energyCalibrationView_);
-}
-
 void BioXASAppController::onCurrentScanActionStartedImplementation(AMScanAction *action)
 {
 	Q_UNUSED(action)
@@ -135,24 +140,6 @@ void BioXASAppController::onCurrentScanActionStartedImplementation(AMScanAction 
 
 	if (userConfiguration_)
 		userConfiguration_->storeToDb(AMDatabase::database("user"));
-
-	// Testing - energy calibration view.
-
-	qDebug() << "\nScan started.";
-
-//	if (action) {
-//		AMScanActionInfo *info = qobject_cast<AMScanActionInfo*>(action->info());
-
-//		if (info) {
-//			BioXASSSRLMonochromatorEnergyCalibrationScanConfiguration *config = qobject_cast<BioXASSSRLMonochromatorEnergyCalibrationScanConfiguration*>(info->configuration());
-
-//			if (config) {
-//				qDebug() << "It is a mono calibration scan.\n";
-
-//				goToEnergyCalibrationView(0);
-//			}
-//		}
-//	}
 }
 
 void BioXASAppController::onCurrentScanActionFinishedImplementation(AMScanAction *action)
@@ -162,24 +149,24 @@ void BioXASAppController::onCurrentScanActionFinishedImplementation(AMScanAction
 	if (userConfiguration_)
 		userConfiguration_->storeToDb(AMDatabase::database("user"));
 
-//	// If the scan was an energy calibration scan, set the view's scan and make it the current pane.
+	// If the scan was an energy calibration scan, set the calibration view's scan and make it the current pane.
 
-//	if (action && action->controller() && action->controller()->scan()) {
+	if (action && action->controller() && action->controller()->scan()) {
 
-//		AMScan *scan = action->controller()->scan();
+		AMScan *scan = action->controller()->scan();
 
-//		if (scan) {
-//			BioXASSSRLMonochromatorEnergyCalibrationScanConfiguration *energyCalibrationConfiguration = qobject_cast<BioXASSSRLMonochromatorEnergyCalibrationScanConfiguration*>(action->controller()->scan()->scanConfiguration());
+		if (scan) {
+			BioXASXASScanConfiguration *xasScanConfiguration = qobject_cast<BioXASXASScanConfiguration*>(action->controller()->scan()->scanConfiguration());
 
-//			if (energyCalibrationConfiguration) {
-//				qDebug() << "It was a mono calibration scan.\n";
-//				goToEnergyCalibrationView(scan);
+			if (xasScanConfiguration && xasScanConfiguration->name() == "Energy Calibration XAS Scan") {
+				qDebug() << "It was a mono calibration scan.\n";
+				goToEnergyCalibrationView(scan);
 
-//			} else {
-//				qDebug() << "It was NOT a mono calibration scan.\n";
-//			}
-//		}
-//	}
+			} else {
+				qDebug() << "It was NOT a mono calibration scan.\n";
+			}
+		}
+	}
 }
 
 void BioXASAppController::registerClasses()
@@ -188,7 +175,6 @@ void BioXASAppController::registerClasses()
 	AMDbObjectSupport::s()->registerClass<BioXASScanConfigurationDbObject>();
 	AMDbObjectSupport::s()->registerClass<BioXASUserConfiguration>();
 	AMDbObjectSupport::s()->registerClass<BioXASXASScanConfiguration>();
-	AMDbObjectSupport::s()->registerClass<BioXASSSRLMonochromatorEnergyCalibrationScanConfiguration>();
 	AMDbObjectSupport::s()->registerClass<BioXASXRFScanConfiguration>();
 }
 
@@ -250,18 +236,20 @@ void BioXASAppController::setupUserInterface()
 
 	xasConfiguration_ = new BioXASXASScanConfiguration();
 	setupXASScanConfiguration(xasConfiguration_);
-	xasConfigurationView_ = createScanConfigurationViewWithHolder(xasConfiguration_, "", ":/utilities-system-monitor.png", "XAS Scan");
-	addViewToScansPane(xasConfigurationView_, "XAS Scan", ":/utilities-system-monitor.png");
+	xasConfigurationView_ = createScanConfigurationViewWithHolder(xasConfiguration_);
+	addViewToScansPane(xasConfigurationView_, "XAS Scan");
 
 	commissioningConfiguration_ = new AMGenericStepScanConfiguration;
 	setupGenericStepScanConfiguration(commissioningConfiguration_);
-	commissioningConfigurationView_ = createScanConfigurationViewWithHolder(commissioningConfiguration_, "", ":/utilities-system-monitor.png", "Commissioning Tool");
-	addViewToScansPane(commissioningConfigurationView_, "Commissioning Tool", ":/utilities-system-monitor.png");
+	commissioningConfigurationView_ = createScanConfigurationViewWithHolder(commissioningConfiguration_);
+	addViewToScansPane(commissioningConfigurationView_, "Commissioning Tool");
 
-	energyCalibrationConfiguration_ = new BioXASSSRLMonochromatorEnergyCalibrationScanConfiguration();
+	energyCalibrationConfiguration_ = new BioXASXASScanConfiguration();
+	energyCalibrationConfiguration_->setName("Energy Calibration XAS Scan");
+	energyCalibrationConfiguration_->setUserScanName("Energy Calibration XAS Scan");
 	setupXASScanConfiguration(energyCalibrationConfiguration_);
-	energyCalibrationConfigurationView_ = createScanConfigurationViewWithHolder(energyCalibrationConfiguration_, "", ":/utilities-system-monitor.png", "Energy Calibration");
-	addViewToScansPane(energyCalibrationConfigurationView_, "Energy Calibration", ":/utilities-system-monitor.png");
+	energyCalibrationConfigurationView_ = createScanConfigurationViewWithHolder(energyCalibrationConfiguration_);
+	addViewToScansPane(energyCalibrationConfigurationView_, "Energy Calibration");
 
 	// Create calibration views:
 	////////////////////////////////////
@@ -270,28 +258,33 @@ void BioXASAppController::setupUserInterface()
 	addViewToCalibrationPane(energyCalibrationView_, "Energy");
 }
 
-void BioXASAppController::addViewToGeneralPane(QWidget *view, const QString &viewName, const QString &iconName)
+void BioXASAppController::addViewToGeneralPane(QWidget *view, const QString &viewName)
 {
 	if (view)
-		mw_->addPane(AMMainWindow::buildMainWindowPane(viewName, iconName, view), "General", viewName, iconName);
+		mw_->addPane(AMMainWindow::buildMainWindowPane(viewName, ":/system-software-update.png", view), "General", viewName, ":/system-software-update.png");
 }
 
-void BioXASAppController::addViewToDetectorsPane(QWidget *view, const QString &viewName, const QString &iconName)
+void BioXASAppController::addViewToDetectorsPane(QWidget *view, const QString &viewName)
 {
-	if (view)
-		mw_->addPane(AMMainWindow::buildMainWindowPane(viewName, iconName, view), "Detectors", viewName, iconName);
+	if (view) {
+		BioXAS32ElementGeDetectorView *ge32View = qobject_cast<BioXAS32ElementGeDetectorView*>(view);
+		if (ge32View)
+			mw_->addPane(view, "Detectors", viewName, ":/utilities-system-monitor.png");
+		else
+			mw_->addPane(AMMainWindow::buildMainWindowPane(viewName, ":/utilities-system-monitor.png", view), "Detectors", viewName, ":/utilities-system-monitor.png");
+	}
 }
 
-void BioXASAppController::addViewToScansPane(QWidget *view, const QString &viewName, const QString &iconName)
+void BioXASAppController::addViewToScansPane(QWidget *view, const QString &viewName)
 {
 	if (view)
-		mw_->addPane(view, "Scans", viewName, iconName);
+		mw_->addPane(AMMainWindow::buildMainWindowPane(viewName, ":/utilities-system-monitor.png", view), "Scans", viewName, ":/utilities-system-monitor.png");
 }
 
-void BioXASAppController::addViewToCalibrationPane(QWidget *view, const QString &viewName, const QString &iconName)
+void BioXASAppController::addViewToCalibrationPane(QWidget *view, const QString &viewName)
 {
 	if (view)
-		mw_->addPane(AMMainWindow::buildMainWindowPane(viewName, iconName, view), "Calibration", viewName, iconName);
+		mw_->addPane(AMMainWindow::buildMainWindowPane(viewName, ":system-search.png", view), "Calibration", viewName, ":system-search.png");
 }
 
 QWidget* BioXASAppController::createComponentView(QObject *component)
@@ -397,7 +390,7 @@ QWidget* BioXASAppController::createComponentView(QObject *component)
 	return componentView;
 }
 
-AMScanConfigurationView* BioXASAppController::createScanConfigurationView(AMScanConfiguration *configuration, const QString &scanName, const QString &iconName)
+AMScanConfigurationView* BioXASAppController::createScanConfigurationView(AMScanConfiguration *configuration)
 {
 	AMScanConfigurationView *configurationView = 0;
 
@@ -406,7 +399,7 @@ AMScanConfigurationView* BioXASAppController::createScanConfigurationView(AMScan
 
 		BioXASXASScanConfiguration *xasConfiguration = qobject_cast<BioXASXASScanConfiguration*>(configuration);
 		if (!configurationFound && xasConfiguration) {
-			configurationView = new BioXASXASScanConfigurationView(xasConfiguration, scanName, iconName);
+			configurationView = new BioXASXASScanConfigurationView(xasConfiguration);
 			configurationFound = true;
 		}
 
@@ -415,28 +408,22 @@ AMScanConfigurationView* BioXASAppController::createScanConfigurationView(AMScan
 			configurationView = new AMGenericStepScanConfigurationView(commissioningConfiguration);
 			configurationFound = true;
 		}
-
-		BioXASSSRLMonochromatorEnergyCalibrationScanConfiguration *energyCalibrationConfiguration = qobject_cast<BioXASSSRLMonochromatorEnergyCalibrationScanConfiguration*>(configuration);
-		if (!configurationFound && energyCalibrationConfiguration) {
-			configurationView = new BioXASXASScanConfigurationView(energyCalibrationConfiguration, scanName, iconName);
-			configurationFound = true;
-		}
 	}
 
 	return configurationView;
 }
 
-AMScanConfigurationViewHolder3* BioXASAppController::createScanConfigurationViewWithHolder(AMScanConfiguration *configuration, const QString &scanName, const QString &iconName, const QString &viewName)
+AMScanConfigurationViewHolder3* BioXASAppController::createScanConfigurationViewWithHolder(AMScanConfiguration *configuration)
 {
 	AMScanConfigurationViewHolder3 *view = 0;
 
 	if (configuration) {
-		AMScanConfigurationView *configurationView = createScanConfigurationView(configuration, scanName, iconName);
+		AMScanConfigurationView *configurationView = createScanConfigurationView(configuration);
 
 		// If the configuration view was created, wrap it in a configuration view holder.
 
 		if (configurationView) {
-			view = new AMScanConfigurationViewHolder3(viewName, true, true, configurationView, iconName);
+			view = new AMScanConfigurationViewHolder3(configurationView, true);
 
 			// If the configuration has a total time, make the appropriate connections.
 
@@ -471,22 +458,22 @@ QWidget* BioXASAppController::createCalibrationView(QObject *component)
 
 void BioXASAppController::addComponentView(QObject *component, const QString &componentName)
 {
-	addViewToGeneralPane( createComponentView(component), componentName, ":/system-software-update.png" );
+	addViewToGeneralPane( createComponentView(component), componentName );
 }
 
 void BioXASAppController::addDetectorView(QObject *detector, const QString &detectorName)
 {
-	addViewToDetectorsPane( createComponentView(detector), detectorName, ":/utilities-system-monitor.png" );
+	addViewToDetectorsPane( createComponentView(detector), detectorName );
 }
 
-void BioXASAppController::addScanConfigurationView(AMScanConfiguration *configuration, const QString &configurationName, const QString &viewName)
+void BioXASAppController::addScanConfigurationView(AMScanConfiguration *configuration, const QString &viewName)
 {
-	addViewToScansPane( createScanConfigurationViewWithHolder(configuration, configurationName, ":/utilities-system-monitor.png", viewName), viewName, ":/utilities-system-monitor.png");
+	addViewToScansPane( createScanConfigurationViewWithHolder(configuration), viewName );
 }
 
 void BioXASAppController::addCalibrationView(QObject *component, const QString &calibrationName)
 {
-	addViewToCalibrationPane( createCalibrationView(component), calibrationName, ":system-search.png" );
+	addViewToCalibrationPane( createCalibrationView(component), calibrationName );
 }
 
 void BioXASAppController::addPersistentView(QWidget *persistentView)

@@ -1,13 +1,7 @@
 #include "BioXASXASScanConfigurationView.h"
 
-#include <QBoxLayout>
-#include <QFormLayout>
-#include <QLabel>
-#include <QInputDialog>
-#include <QStringBuilder>
-
 #include "acquaman/AMScanController.h"
-#include "ui/AMTopFrame.h"
+#include "beamline/BioXAS/BioXASBeamline.h"
 #include "ui/dataman/AMEXAFSScanAxisView.h"
 #include "ui/util/AMPeriodicTableDialog.h"
 #include "util/AMEnergyToKSpaceCalculator.h"
@@ -15,53 +9,130 @@
 #include "util/AMDateTimeUtils.h"
 
 
-BioXASXASScanConfigurationView::BioXASXASScanConfigurationView(BioXASXASScanConfiguration *configuration, const QString &title, const QString &iconName, QWidget *parent) :
+BioXASXASScanConfigurationView::BioXASXASScanConfigurationView(BioXASXASScanConfiguration *configuration, QWidget *parent) :
 	AMScanConfigurationView(parent)
 {
+	// Initialize member variables.
+
 	configuration_ = configuration;
 
-	topFrame_ = new AMTopFrame(title);
-	topFrame_->setIcon(QIcon(iconName));
+	// Create scan name view.
 
-	regionsView_ = new AMEXAFSScanAxisView("BioXAS Region Configuration", configuration_);
-
-	autoRegionButton_ = new QPushButton("Auto Set XANES Regions");
-	connect(autoRegionButton_, SIGNAL(clicked()), this, SLOT(setupDefaultXANESScanRegions()));
-
-	pseudoXAFSButton_ = new QPushButton("Auto Set EXAFS Regions");
-	connect(pseudoXAFSButton_, SIGNAL(clicked()), this, SLOT(setupDefaultEXAFSScanRegions()));
+	QLabel *scanNamePrompt = new QLabel("Name: ");
 
 	scanName_ = new QLineEdit();
-	scanName_->setText(configuration_->userScanName());
 
-	estimatedTimeLabel_ = new QLabel();
+	QHBoxLayout *scanNameLayout = new QHBoxLayout();
+	scanNameLayout->addWidget(scanNamePrompt);
+	scanNameLayout->addWidget(scanName_);
+	scanNameLayout->addStretch();
 
-	connect(scanName_, SIGNAL(editingFinished()), this, SLOT(onScanNameEdited()));
-	connect(configuration_, SIGNAL(nameChanged(QString)), scanName_, SLOT(setText(QString)));
-    connect(configuration_, SIGNAL(totalTimeChanged(double)), this, SLOT(onEstimatedTimeChanged(double)));
+	// Create energy selection view.
 
+	QLabel *energyPrompt = new QLabel("Energy: ");
 
-	// Energy (Eo) selection
 	energy_ = new QDoubleSpinBox;
 	energy_->setSuffix(" eV");
 	energy_->setMinimum(0);
 	energy_->setMaximum(30000);
-	connect(energy_, SIGNAL(editingFinished()), this, SLOT(setEnergy()));
 
 	elementChoice_ = new QToolButton;
-	connect(elementChoice_, SIGNAL(clicked()), this, SLOT(onElementChoiceClicked()));
 
 	lineChoice_ = new QComboBox;
+
+	QHBoxLayout *energyLayout = new QHBoxLayout;
+	energyLayout->addWidget(energyPrompt);
+	energyLayout->addWidget(energy_);
+	energyLayout->addStretch();
+	energyLayout->addWidget(elementChoice_);
+	energyLayout->addWidget(lineChoice_);
+
+	// Create regions view.
+
+	regionsView_ = new AMEXAFSScanAxisView("Region Configuration", configuration_);
+
+	QLabel *estimatedTimePrompt = new QLabel("Estimated time: ");
+	estimatedTimeLabel_ = new QLabel();
+
+	autoRegionButton_ = new QPushButton("Auto Set XANES Regions");
+	pseudoXAFSButton_ = new QPushButton("Auto Set EXAFS Regions");
+
+	QHBoxLayout *regionsButtonsLayout = new QHBoxLayout();
+	regionsButtonsLayout->addWidget(autoRegionButton_);
+	regionsButtonsLayout->addWidget(pseudoXAFSButton_);
+
+	QHBoxLayout *regionsExtrasLayout = new QHBoxLayout();
+	regionsExtrasLayout->addWidget(estimatedTimePrompt);
+	regionsExtrasLayout->addWidget(estimatedTimeLabel_);
+	regionsExtrasLayout->addStretch();
+	regionsExtrasLayout->addLayout(regionsButtonsLayout);
+
+	QVBoxLayout *regionsLayout = new QVBoxLayout();
+	regionsLayout->addWidget(regionsView_);
+	regionsLayout->addLayout(regionsExtrasLayout);
+
+	// Create detectors view.
+
+	detectorsView_ = new AMGenericStepScanConfigurationDetectorsView(configuration_, AMBeamline::bl()->exposedDetectors());
+
+	// Create and set main layouts
+
+	QVBoxLayout *scanSettingsBoxLayout = new QVBoxLayout();
+	scanSettingsBoxLayout->addLayout(scanNameLayout);
+	scanSettingsBoxLayout->addLayout(energyLayout);
+	scanSettingsBoxLayout->addLayout(regionsLayout);
+
+	QGroupBox *scanSettingsBox = new QGroupBox("Scan settings");
+	scanSettingsBox->setLayout(scanSettingsBoxLayout);
+
+	QVBoxLayout *detectorBoxLayout = new QVBoxLayout();
+	detectorBoxLayout->addWidget(detectorsView_);
+
+	QGroupBox *detectorBox = new QGroupBox("Detectors");
+	detectorBox->setLayout(detectorBoxLayout);
+
+	QScrollArea *detectorScrollArea = new QScrollArea;
+	detectorScrollArea->setWidget(detectorBox);
+	detectorScrollArea->setFrameStyle(QFrame::NoFrame);
+
+	QHBoxLayout *finalHorizontalLayout = new QHBoxLayout();
+	finalHorizontalLayout->addWidget(scanSettingsBox);
+	finalHorizontalLayout->addWidget(detectorScrollArea);
+	finalHorizontalLayout->setContentsMargins(20,0,0,20);
+	finalHorizontalLayout->setSpacing(1);
+
+	QVBoxLayout *finalVerticalLayout = new QVBoxLayout();
+	finalVerticalLayout->addStretch();
+	finalVerticalLayout->addLayout(finalHorizontalLayout);
+	finalVerticalLayout->addStretch();
+
+	setLayout(finalVerticalLayout);
+
+	// Make connections.
+
+	connect(scanName_, SIGNAL(editingFinished()), this, SLOT(onScanNameEdited()));
+	connect(energy_, SIGNAL(editingFinished()), this, SLOT(setEnergy()));
+	connect(elementChoice_, SIGNAL(clicked()), this, SLOT(onElementChoiceClicked()));
 	connect(lineChoice_, SIGNAL(currentIndexChanged(int)), this, SLOT(onLinesComboBoxIndexChanged(int)));
+	connect(autoRegionButton_, SIGNAL(clicked()), this, SLOT(setupDefaultXANESScanRegions()));
+	connect(pseudoXAFSButton_, SIGNAL(clicked()), this, SLOT(setupDefaultEXAFSScanRegions()));
+
+	connect(configuration_, SIGNAL(nameChanged(QString)), scanName_, SLOT(setText(QString)));
+	connect(configuration_, SIGNAL(totalTimeChanged(double)), this, SLOT(onEstimatedTimeChanged(double)));
+	connect(configuration_->dbObject(), SIGNAL(edgeChanged(QString)), this, SLOT(onEdgeChanged()));
+
+	// Current settings.
+
+	scanName_->setText(configuration_->userScanName());
+
 
 	if (configuration_->edge().isEmpty()){
 
 		elementChoice_->setText("Cu");
 		fillLinesComboBox(AMPeriodicTable::table()->elementBySymbol("Cu"));
 		lineChoice_->setCurrentIndex(0);
-	}
-	// Resets the view for the view to what it should be.  Using the saved for the energy in case it is different from the original line energy.
-	else {
+
+	} else {
 		elementChoice_->setText(configuration_->edge().split(" ").first());
 		lineChoice_->blockSignals(true);
 		fillLinesComboBox(AMPeriodicTable::table()->elementBySymbol(elementChoice_->text()));
@@ -69,47 +140,6 @@ BioXASXASScanConfigurationView::BioXASXASScanConfigurationView(BioXASXASScanConf
 		lineChoice_->blockSignals(false);
 		energy_->setValue(configuration_->energy());
 	}
-
-	connect(configuration_->dbObject(), SIGNAL(edgeChanged(QString)), this, SLOT(onEdgeChanged()));
-
-	QFormLayout *energySetpointLayout = new QFormLayout;
-	energySetpointLayout->addRow("Energy:", energy_);
-
-	QHBoxLayout *energyLayout = new QHBoxLayout;
-	energyLayout->addLayout(energySetpointLayout);
-	energyLayout->addWidget(elementChoice_);
-	energyLayout->addWidget(lineChoice_);
-
-    QFormLayout *estimatedTimeLayout = new QFormLayout();
-    estimatedTimeLayout->setWidget(0, QFormLayout::LabelRole, new QLabel("Estimated Time: "));
-    estimatedTimeLayout->setWidget(0, QFormLayout::FieldRole, estimatedTimeLabel_);
-
-	QVBoxLayout *mainVL = new QVBoxLayout();
-	mainVL->addWidget(topFrame_);
-	mainVL->addLayout(energyLayout);
-	mainVL->addWidget(regionsView_);
-
-//	QLabel *settingsLabel = new QLabel("Scan Settings:");
-//	settingsLabel->setFont(QFont("Lucida Grande", 12, QFont::Bold));
-
-	QHBoxLayout *regionsHL = new QHBoxLayout();
-	regionsHL->addStretch();
-	regionsHL->addWidget(autoRegionButton_);
-	regionsHL->addWidget(pseudoXAFSButton_);
-
-	QVBoxLayout *settingsVL = new QVBoxLayout();
-	settingsVL->addLayout(regionsHL);
-    settingsVL->addStretch();
-    settingsVL->addLayout(estimatedTimeLayout);
-//	settingsVL->addWidget(settingsLabel);
-
-	mainVL->addStretch();
-	mainVL->addLayout(settingsVL);
-	mainVL->addStretch();
-
-	mainVL->setContentsMargins(20,0,0,20);
-	mainVL->setSpacing(1);
-	setLayout(mainVL);
 }
 
 BioXASXASScanConfigurationView::~BioXASXASScanConfigurationView()
@@ -122,14 +152,37 @@ const AMScanConfiguration* BioXASXASScanConfigurationView::configuration() const
 	return configuration_;
 }
 
-void BioXASXASScanConfigurationView::setTitle(const QString &newTitle)
+void BioXASXASScanConfigurationView::setScanConfiguration(BioXASXASScanConfiguration *newConfiguration)
 {
-	topFrame_->setTitle(newTitle);
+	if (configuration_ != newConfiguration) {
+
+		if (configuration_) {
+
+		}
+
+		configuration_ = newConfiguration;
+
+		if (configuration_) {
+
+		}
+
+		emit scanConfigurationChanged(configuration_);
+	}
 }
 
-void BioXASXASScanConfigurationView::setIconName(const QString &newIcon)
+void BioXASXASScanConfigurationView::clear()
 {
-	topFrame_->setIcon(QIcon(newIcon));
+
+}
+
+void BioXASXASScanConfigurationView::update()
+{
+
+}
+
+void BioXASXASScanConfigurationView::refresh()
+{
+
 }
 
 void BioXASXASScanConfigurationView::setupDefaultXANESScanRegions()
@@ -185,7 +238,6 @@ void BioXASXASScanConfigurationView::setupDefaultEXAFSScanRegions()
 
 void BioXASXASScanConfigurationView::onScanNameEdited()
 {
-	configuration_->setName(scanName_->text());
 	configuration_->setUserScanName(scanName_->text());
 }
 

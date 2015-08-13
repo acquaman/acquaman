@@ -59,8 +59,6 @@ HEADERS += \
     source/acquaman/BioXAS/BioXASXASScanActionController.h \
     source/acquaman/BioXAS/BioXASXASScanConfiguration.h \
 	source/ui/BioXAS/BioXASXASScanConfigurationView.h \
-    source/acquaman/BioXAS/BioXASSSRLMonochromatorEnergyCalibrationScanConfiguration.h \
-    source/acquaman/BioXAS/BioXASSSRLMonochromatorEnergyCalibrationScanActionController.h \
 	source/ui/BioXAS/BioXASSSRLMonochromatorEnergyCalibrationView.h \
 	source/beamline/BioXAS/BioXASShutterControl.h \
 	source/ui/BioXAS/BioXASEndstationTableView.h \
@@ -123,8 +121,6 @@ SOURCES += \
     source/acquaman/BioXAS/BioXASXASScanActionController.cpp \
     source/acquaman/BioXAS/BioXASXASScanConfiguration.cpp \
 	source/ui/BioXAS/BioXASXASScanConfigurationView.cpp \
-    source/acquaman/BioXAS/BioXASSSRLMonochromatorEnergyCalibrationScanConfiguration.cpp \
-    source/acquaman/BioXAS/BioXASSSRLMonochromatorEnergyCalibrationScanActionController.cpp \
 	source/ui/BioXAS/BioXASSSRLMonochromatorEnergyCalibrationView.cpp \
 	source/beamline/BioXAS/BioXASShutterControl.cpp \
 	source/ui/BioXAS/BioXASEndstationTableView.cpp \
@@ -134,6 +130,10 @@ SOURCES += \
 	source/ui/BioXAS/BioXASDBHRMirrorsView.cpp \
     source/beamline/BioXAS/BioXASBeamlineUtilities.cpp \
     source/beamline/BioXAS/BioXASCryostatStage.cpp
+
+
+
+
 
 
 
