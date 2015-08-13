@@ -12,7 +12,7 @@ public:
 	/// Constructor.
 	explicit CLSJJSlitOptimizationAction(CLSJJSlitOptimizationActionInfo *info, QObject *parent = 0);
 	/// Copy constructor.
-	CLSJJSlitOptimizationAction(const CLSJJSlitOptimizationActionInfo &original);
+	CLSJJSlitOptimizationAction(const CLSJJSlitOptimizationAction &original);
 	/// Destructor.
 	virtual ~CLSJJSlitOptimizationAction();
 
@@ -26,9 +26,9 @@ public:
 
 protected:
 	/// Returns the specific action info for this class.
-	const CLSJJSlitOptimizationActionInfo* jjSlitOptimizationActionInfo() const { return qobject_cast<const CLSJJSlitOptimizationActionInfo*>(info_); }
+	const CLSJJSlitOptimizationActionInfo* jjSlitOptimizationActionInfo() const { return qobject_cast<const CLSJJSlitOptimizationActionInfo*>(info()); }
 	/// Returns the specific action info for this class.
-	const CLSJJSlitOptimizationActionInfo* jjSlitOptimizationActionInfo() { return qobject_cast<CLSJJSlitOptimizationActionInfo*>(info_); }
+	const CLSJJSlitOptimizationActionInfo* jjSlitOptimizationActionInfo() { return qobject_cast<CLSJJSlitOptimizationActionInfo*>(info()); }
 };
 
 #endif // CLSJJSLITOPTIMIZATIONACTION_H

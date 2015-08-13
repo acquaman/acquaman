@@ -29,9 +29,9 @@ public:
 
 protected:
 	/// Returns the specific action info for this class.
-	const CLSJJSlitsOptimizationActionInfo* jjSlitsOptimizationActionInfo() const { return qobject_cast<const CLSJJSlitsOptimizationActionInfo*>(info_); }
+	const CLSJJSlitsOptimizationActionInfo* jjSlitsOptimizationActionInfo() const { return qobject_cast<const CLSJJSlitsOptimizationActionInfo*>(info()); }
 	/// Returns the specific action info for this class.
-	const CLSJJSlitsOptimizationActionInfo* jjSlitsOptimizationActionInfo() { return qobject_cast<CLSJJSlitsOptimizationActionInfo*>(info_); }
+	const CLSJJSlitsOptimizationActionInfo* jjSlitsOptimizationActionInfo() { return qobject_cast<CLSJJSlitsOptimizationActionInfo*>(info()); }
 
 };
 

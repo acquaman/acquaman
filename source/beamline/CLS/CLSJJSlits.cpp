@@ -1,4 +1,5 @@
 #include "CLSJJSlits.h"
+#include "acquaman/CLS/CLSJJSlitScanConfiguration.h"
 #include "actions3/AMListAction3.h"
 #include "actions3/AMActionSupport.h"
 #include "actions3/CLS/CLSJJSlitOptimizationAction.h"
@@ -21,6 +22,8 @@ CLSJJSlits::CLSJJSlits(const QString &name, const QString &upperBladePVName, con
 	verticalCenter_ = new CLSJJSlitCenterControl(name_+"VerticalCenter", upperBlade_, lowerBlade_, this);
 	horizontalGap_ = new CLSJJSlitGapControl(name_+"HorizontalGap", outboardBlade_, inboardBlade_, this);
 	horizontalCenter_ = new CLSJJSlitCenterControl(name_+"HorizontalCenter", outboardBlade_, inboardBlade_, this);
+
+	slitScanConfiguration_ = new CLSJJSlitScanConfiguration(this);
 
 	// Listen for connected states.
 
@@ -129,7 +132,7 @@ AMAction3* CLSJJSlits::createMoveToMinGapAction(CLSJJSlits::Direction::Option di
 
 AMAction3* CLSJJSlits::createMoveToMaxGapAction(CLSJJSlits::Direction::Option direction)
 {
-	return createMoveToMaxPosition(direction, CLSJJSlits::Property::Gap);
+	return createMoveToMaxPositionAction(direction, CLSJJSlits::Property::Gap);
 }
 
 AMAction3* CLSJJSlits::createCloseGapAction(CLSJJSlits::Direction::Option direction)
@@ -160,7 +163,7 @@ AMAction3* CLSJJSlits::createMoveToMaxPositionAction(CLSJJSlits::Direction::Opti
 
 AMAction3* CLSJJSlits::createOptimizationAction(CLSJJSlits::Direction::Option direction, CLSJJSlits::Property::Option property)
 {
-	CLSJJSlitOptimizationActionInfo *actionInfo = new CLSJJSlitOptimizationActionInfo(direction, property);
+	CLSJJSlitOptimizationActionInfo *actionInfo = new CLSJJSlitOptimizationActionInfo(direction, property, verticalGap_->value(), verticalCenter_->value(), horizontalGap_->value(), horizontalCenter_->value(), slitScanConfiguration_);
 	CLSJJSlitOptimizationAction *action = new CLSJJSlitOptimizationAction(actionInfo);
 
 	return action;
@@ -168,13 +171,16 @@ AMAction3* CLSJJSlits::createOptimizationAction(CLSJJSlits::Direction::Option di
 
 AMAction3* CLSJJSlits::createOptimizationAction(CLSJJSlits::Property::Option property)
 {
+	Q_UNUSED(property)
 //	CLSJJSlitsOptimizationActionInfo *actionInfo = new CLSJJSlitsOptimizationActionInfo();
 //	CLSJJSlitsOptimizationAction *action = new CLSJJSlitsOptimizationAction(actionInfo);
 
 //	return action;
+
+	return 0;
 }
 
-QString CLSJJSlits::directionToString(CLSJJSlits::Direction::Option direction) const
+QString CLSJJSlits::directionToString(CLSJJSlits::Direction::Option direction)
 {
 	QString result;
 
@@ -192,11 +198,11 @@ QString CLSJJSlits::directionToString(CLSJJSlits::Direction::Option direction) c
 	return result;
 }
 
-QString CLSJJSlits::propertyToString(CLSJJSlits::Property::Option property) const
+QString CLSJJSlits::propertyToString(CLSJJSlits::Property::Option property)
 {
 	QString result;
 
-	switch (value) {
+	switch (property) {
 	case CLSJJSlits::Property::Gap:
 		result = "Gap";
 		break;

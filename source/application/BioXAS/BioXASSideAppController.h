@@ -69,6 +69,9 @@ protected:
 	/// Creates an XAS scan configuration view for the given scan configuration and adds it to the 'Scans' main window pane.
 	void addXASScanConfigurationView(BioXASSideXASScanConfiguration *configuration);
 
+	/// Creates a JJ slits scan configuration view for the given JJ slits, and adds it to the 'Scans' main window pane.
+	void addJJSlitScanConfigurationView(CLSJJSlits *jjSlits);
+
 protected:
 	/// The XAS scan configuration.
 	BioXASSideXASScanConfiguration *configuration_;

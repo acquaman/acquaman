@@ -58,7 +58,6 @@ HEADERS += \
 	source/beamline/BioXAS/BioXASShutterControl.h \
 	source/ui/BioXAS/BioXASEndstationTableView.h \
 	source/ui/BioXAS/BioXAS32ElementGeDetectorView.h \
-	source/acquaman/BioXAS/BioXASJJSlitsCenterOptimizationScanConfiguration.h \
     source/beamline/BioXAS/BioXASXIAFiltersControl.h \
     source/beamline/BioXAS/BioXASDBHRMirrors.h \
 	source/ui/BioXAS/BioXASDBHRMirrorsView.h
@@ -114,7 +113,8 @@ SOURCES += \
 	source/beamline/BioXAS/BioXASShutterControl.cpp \
 	source/ui/BioXAS/BioXASEndstationTableView.cpp \
 	source/ui/BioXAS/BioXAS32ElementGeDetectorView.cpp \
-	source/acquaman/BioXAS/BioXASJJSlitsCenterOptimizationScanConfiguration.cpp \
     source/beamline/BioXAS/BioXASXIAFiltersControl.cpp \
     source/beamline/BioXAS/BioXASDBHRMirrors.cpp \
 	source/ui/BioXAS/BioXASDBHRMirrorsView.cpp
+
+

@@ -1,4 +1,5 @@
 #include "CLSJJSlitOptimizationAction.h"
+#include "acquaman/AMScanActionController.h"
 #include "actions3/AMActionSupport.h"
 #include "actions3/actions/AMScanAction.h"
 #include "beamline/CLS/CLSBeamline.h"
@@ -20,7 +21,7 @@ CLSJJSlitOptimizationAction::CLSJJSlitOptimizationAction(CLSJJSlitOptimizationAc
 		double initialHorizontalGap = jjSlits->horizontalGapControl()->value();
 		double initialHorizontalCenter = jjSlits->horizontalCenterControl()->value();
 
-		if (info->bladesDirection() == CLSJJSlits::Blades::Vertical && info->bladesValue() == CLSJJSlits::Blades::Center) {
+		if (info->direction() == CLSJJSlits::Direction::Vertical && info->property() == CLSJJSlits::Property::Center) {
 
 			// Move all controls to the origin.
 
@@ -54,7 +55,7 @@ CLSJJSlitOptimizationAction::CLSJJSlitOptimizationAction(CLSJJSlitOptimizationAc
 	}
 }
 
-CLSJJSlitOptimizationAction::CLSJJSlitOptimizationAction(const CLSJJSlitOptimizationActionInfo &original) :
+CLSJJSlitOptimizationAction::CLSJJSlitOptimizationAction(const CLSJJSlitOptimizationAction &original) :
 	AMListAction3(original)
 {
 

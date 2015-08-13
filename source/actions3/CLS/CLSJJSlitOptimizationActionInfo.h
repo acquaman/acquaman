@@ -11,7 +11,7 @@ class CLSJJSlitOptimizationActionInfo : public AMListActionInfo3
 
 public:
 	/// Constructor.
-	Q_INVOKABLE CLSJJSlitOptimizationActionInfo(CLSJJSlits::Blades::Direction bladesDirection = CLSJJSlits::Blades::None, CLSJJSlits::Blades::Value bladesValue = CLSJJSlits::Blades::Invalid, double initialVerticalGap = 0, double initialVerticalCenter = 0, double initialHorizontalGap = 0, double initialHorizontalCenter = 0, CLSJJSlitScanConfiguration *scanConfiguration = 0, QObject *parent = 0);
+	Q_INVOKABLE CLSJJSlitOptimizationActionInfo(CLSJJSlits::Direction::Option direction = CLSJJSlits::Direction::Invalid, CLSJJSlits::Property::Option property = CLSJJSlits::Property::Invalid, double initialVerticalGap = 0, double initialVerticalCenter = 0, double initialHorizontalGap = 0, double initialHorizontalCenter = 0, CLSJJSlitScanConfiguration *scanConfiguration = 0, QObject *parent = 0);
 	/// Copy constructor.
 	CLSJJSlitOptimizationActionInfo(const CLSJJSlitOptimizationActionInfo &original);
 	/// Destructor.
@@ -22,10 +22,10 @@ public:
 	/// Returns this action info's description.
 	virtual QString typeDescription() const { return "JJ Slit Optimization"; }
 
-	/// Returns the blade direction of interest.
-	CLSJJSlits::Blades::Direction direction() const { return direction_; }
-	/// Returns the blade value of interest.
-	CLSJJSlits::Blades::Value value() const { return value_; }
+	/// Returns the slit direction of interest.
+	CLSJJSlits::Direction::Option direction() const { return direction_; }
+	/// Returns the slit value of interest.
+	CLSJJSlits::Property::Option property() const { return property_; }
 
 	/// Returns the initial vertical gap.
 	double initialVerticalGap() const { return initialVerticalGap_; }
@@ -40,10 +40,10 @@ public:
 	CLSJJSlitScanConfiguration* scanConfiguration() const { return scanConfiguration_; }
 
 protected:
-	/// The blade direction of interest.
-	int direction_;
-	/// The blade value of interest.
-	int value_;
+	/// The slit direction of interest.
+	CLSJJSlits::Direction::Option direction_;
+	/// The slit property of interest.
+	CLSJJSlits::Property::Option property_;
 
 	/// The initial vertical gap.
 	double initialVerticalGap_;

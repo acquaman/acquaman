@@ -2,11 +2,11 @@
 
 #include "beamline/CLS/CLSJJSlits.h"
 
-CLSJJSlitsOptimizationActionInfo::CLSJJSlitsOptimizationActionInfo(CLSJJSlits::Blades::Direction slit, CLSJJSlits::Blades::Value value, double initialVerticalGap, double initialVerticalCenter, double initialHorizontalGap, double initialHorizontalCenter, CLSJJSlitScanConfiguration *scanConfiguration, QObject *parent) :
+CLSJJSlitsOptimizationActionInfo::CLSJJSlitsOptimizationActionInfo(CLSJJSlits::Direction::Option direction, CLSJJSlits::Property::Option property, double initialVerticalGap, double initialVerticalCenter, double initialHorizontalGap, double initialHorizontalCenter, CLSJJSlitScanConfiguration *scanConfiguration, QObject *parent) :
 	AMListActionInfo3(QString(), QString(), QString(), parent)
 {
-	slit_ = int(slit);
-	value_ = int(value);
+	direction_ = direction;
+	property_ = property;
 
 	initialVerticalGap_ = initialVerticalGap;
 	initialVerticalCenter_ = initialVerticalCenter;
@@ -22,7 +22,7 @@ CLSJJSlitsOptimizationActionInfo::CLSJJSlitsOptimizationActionInfo(CLSJJSlits::B
 CLSJJSlitsOptimizationActionInfo::CLSJJSlitsOptimizationActionInfo(const CLSJJSlitsOptimizationActionInfo &original) :
 	AMListActionInfo3(original)
 {
-	slit_ = original.slit();
+	direction_ = original.direction();
 	property_ = original.property();
 
 	initialVerticalGap_ = original.initialVerticalGap();

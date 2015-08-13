@@ -34,7 +34,7 @@ AMScanController* CLSJJSlitScanConfiguration::createController()
 	return controller;
 }
 
-AMScanConfigurationView* CLSJJSlitScanConfiguration::createView() const
+AMScanConfigurationView* CLSJJSlitScanConfiguration::createView()
 {
 	return new CLSJJSlitScanConfigurationView(this);
 }

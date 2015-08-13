@@ -7,6 +7,8 @@
 #include "beamline/CLS/CLSJJSlitGapControl.h"
 #include "beamline/CLS/CLSJJSlitCenterControl.h"
 
+class CLSJJSlitScanConfiguration;
+
 /// The class definition of CLSJJSlit, which contains a vertical CLSJJSlitsBladesControl and a horizontal CLSJJSlitsBladesControl
 class CLSJJSlits : public QObject
 {
@@ -44,6 +46,9 @@ public:
 	AMControl* horizontalGapControl() const { return horizontalGap_; }
 	/// Returns the horizontal blades center control.
 	AMControl* horizontalCenterControl() const { return horizontalCenter_; }
+
+	/// Returns the slit scan configuration.
+	CLSJJSlitScanConfiguration* slitScanConfiguration() const { return slitScanConfiguration_; }
 
 	/// Returns the control with the given direction and value.
 	AMControl* control(CLSJJSlits::Direction::Option direction, CLSJJSlits::Property::Option property);
@@ -128,6 +133,9 @@ protected:
 	CLSJJSlitGapControl *horizontalGap_;
 	/// Horizontal blades center control.
 	CLSJJSlitCenterControl *horizontalCenter_;
+
+	/// The JJ slit scan configuration.
+	CLSJJSlitScanConfiguration *slitScanConfiguration_;
 };
 
 #endif // CLSJJSLITS_H

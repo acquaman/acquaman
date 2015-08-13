@@ -23,7 +23,7 @@ public:
 	/// Returns a newly-created scan controller appropriate for executing this kind of scan configuration.
 	virtual AMScanController* createController();
 	/// Returns a newly-created view that is appropriate for viewing this kind of scan configuration.
-	virtual AMScanConfigurationView* createView() const;
+	virtual AMScanConfigurationView* createView();
 
 	/// Returns the technique.
 	virtual QString technique() const { return "JJ Slit Scan"; }

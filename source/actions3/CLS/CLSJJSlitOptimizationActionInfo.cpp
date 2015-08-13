@@ -1,10 +1,10 @@
 #include "CLSJJSlitOptimizationActionInfo.h"
 
-CLSJJSlitOptimizationActionInfo::CLSJJSlitOptimizationActionInfo(CLSJJSlits::Blades::Direction bladesDirection, CLSJJSlits::Blades::Value bladesValue, double initialVerticalGap, double initialVerticalCenter, double initialHorizontalGap, double initialHorizontalCenter, CLSJJSlitScanConfiguration *scanConfiguration, QObject *parent) :
+CLSJJSlitOptimizationActionInfo::CLSJJSlitOptimizationActionInfo(CLSJJSlits::Direction::Option direction, CLSJJSlits::Property::Option property, double initialVerticalGap, double initialVerticalCenter, double initialHorizontalGap, double initialHorizontalCenter, CLSJJSlitScanConfiguration *scanConfiguration, QObject *parent) :
 	AMListActionInfo3(QString(), QString(), QString(), parent)
 {
-	direction_ = int(bladesDirection);
-	value_ = int(bladesValue);
+	direction_ = direction;
+	property_ = property;
 
 	initialVerticalGap_ = initialVerticalGap;
 	initialVerticalCenter_ = initialVerticalCenter;
@@ -21,7 +21,7 @@ CLSJJSlitOptimizationActionInfo::CLSJJSlitOptimizationActionInfo(const CLSJJSlit
 	AMListActionInfo3(original)
 {
 	direction_ = original.direction();
-	value_ = original.value();
+	property_ = original.property();
 
 	initialVerticalGap_ = original.initialVerticalGap();
 	initialVerticalCenter_ = original.initialVerticalCenter();
