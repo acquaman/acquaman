@@ -68,7 +68,8 @@ HEADERS += \
     source/beamline/BioXAS/BioXASXIAFiltersControl.h \
     source/beamline/BioXAS/BioXASDBHRMirrors.h \
 	source/ui/BioXAS/BioXASDBHRMirrorsView.h \
-    source/beamline/BioXAS/BioXASBeamlineUtilities.h
+    source/beamline/BioXAS/BioXASBeamlineUtilities.h \
+    source/beamline/BioXAS/BioXASCryostatStage.h
 
 SOURCES += \
 	source/acquaman/BioXAS/BioXASXRFScanConfiguration.cpp \
@@ -131,7 +132,10 @@ SOURCES += \
 	source/beamline/BioXAS/BioXASXIAFiltersControl.cpp \
     source/beamline/BioXAS/BioXASDBHRMirrors.cpp \
 	source/ui/BioXAS/BioXASDBHRMirrorsView.cpp \
-    source/beamline/BioXAS/BioXASBeamlineUtilities.cpp
+    source/beamline/BioXAS/BioXASBeamlineUtilities.cpp \
+    source/beamline/BioXAS/BioXASCryostatStage.cpp
+
+
 
 
 

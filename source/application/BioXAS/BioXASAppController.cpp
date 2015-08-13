@@ -238,13 +238,8 @@ void BioXASAppController::setupUserInterface()
 	addComponentView(BioXASBeamline::bioXAS()->xiaFilters(), "XIA Filters");
 	addComponentView(BioXASBeamline::bioXAS()->dbhrMirrors(), "DBHR Mirrors");
 	addComponentView(BioXASBeamline::bioXAS()->standardsWheel(), "Standards Wheel");
+	addComponentView(BioXASBeamline::bioXAS()->cryostatStage(), "Cryostat Stage");
 	addComponentView(BioXASBeamline::bioXAS()->endstationTable(), "Endstation Table");
-
-	AMMotorGroup *cryostatStageMotors = BioXASBeamline::bioXAS()->cryostatStageMotors();
-	if (cryostatStageMotors) {
-		AMMotorGroupView *cryostatStageView = new AMMotorGroupView(cryostatStageMotors);
-		mw_->addPane(AMMainWindow::buildMainWindowPane("Cryostat Stage", ":/system-software-update.png", cryostatStageView), "General", "Cryostat Stage", ":/system-software-update.png");
-	}
 
 	addDetectorView(BioXASBeamline::bioXAS()->scaler(), "Scaler");
 	addDetectorView(BioXASBeamline::bioXAS()->ge32ElementDetector(), "Ge 32-el");
@@ -272,7 +267,7 @@ void BioXASAppController::setupUserInterface()
 	////////////////////////////////////
 
 	energyCalibrationView_ = qobject_cast<BioXASSSRLMonochromatorEnergyCalibrationView*>(createCalibrationView(BioXASBeamline::bioXAS()->mono()));
-	addViewToCalibrationPane(energyCalibrationView_, "Energy", ":/system-software-update.png");
+	addViewToCalibrationPane(energyCalibrationView_, "Energy");
 }
 
 void BioXASAppController::addViewToGeneralPane(QWidget *view, const QString &viewName, const QString &iconName)
@@ -389,6 +384,12 @@ QWidget* BioXASAppController::createComponentView(QObject *component)
 			view->addPileUpPeakNameFilter(QRegExp("(K.1|L.1|Ma1)"));
 
 			componentView = view;
+			componentFound = true;
+		}
+
+		BioXASCryostatStage *cryostatStage = qobject_cast<BioXASCryostatStage*>(component);
+		if (!componentFound && cryostatStage) {
+			componentView = new AMMotorGroupView(cryostatStage->motorGroup(), AMMotorGroupView::CompactView);
 			componentFound = true;
 		}
 	}

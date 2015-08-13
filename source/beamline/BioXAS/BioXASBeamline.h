@@ -26,6 +26,7 @@
 #include "beamline/BioXAS/BioXASBeamlineDef.h"
 #include "beamline/BioXAS/BioXASPseudoMotorControl.h"
 #include "beamline/BioXAS/BioXASBeamlineUtilities.h"
+#include "beamline/BioXAS/BioXASCryostatStage.h"
 
 #include "util/AMErrorMonitor.h"
 #include "util/AMBiHash.h"
@@ -94,7 +95,7 @@ public:
 	/// Returns the scaler.
 	virtual CLSSIS3820Scaler* scaler() const { return 0; }
 	/// Returns the cryostat stage motor group.
-	virtual AMMotorGroup* cryostatStageMotors() const { return 0; }
+	virtual BioXASCryostatStage* cryostatStage() const { return 0; }
 
 	/// Returns the beamline utilities.
 	virtual BioXASBeamlineUtilities* utilities() const { return 0; }

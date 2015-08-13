@@ -31,6 +31,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/BioXAS/BioXASSideM2Mirror.h"
 #include "beamline/BioXAS/BioXASSideDBHRMirrors.h"
 #include "beamline/BioXAS/BioXASSideBeamlineUtilities.h"
+#include "beamline/BioXAS/BioXASSideCryostatStage.h"
 
 class BioXASSideBeamline : public BioXASBeamline
 {
@@ -72,11 +73,10 @@ public:
 	virtual BioXASSideDBHRMirrors* dbhrMirrors() const { return dbhrMirrors_; }
 	/// Returns the standards wheel.
 	virtual CLSStandardsWheel* standardsWheel() const { return standardsWheel_; }
+	/// Returns the cryostat stage motors group.
+	virtual BioXASSideCryostatStage* cryostatStage() const { return cryostatStage_; }
 	/// Returns the endstation table.
 	virtual BioXASEndstationTable *endstationTable() const { return endstationTable_; }
-
-	/// Returns the cryostat stage motors group.
-	virtual AMMotorGroup* cryostatStageMotors() const { return cryostatStageMotors_; }
 
 	/// Returns the scaler.
 	virtual CLSSIS3820Scaler* scaler() const { return scaler_; }
@@ -89,12 +89,6 @@ public:
 
 	/// Returns the lateral detector stage motor.
 	CLSMAXvMotor* detectorStageLateral() const { return detectorStageLateral_; }
-	/// Returns the cryostat x motor.
-	CLSMAXvMotor* cryostatX() const { return cryostatX_; }
-	/// Returns the cryostat y motor.
-	CLSMAXvMotor* cryostatY() const { return cryostatY_; }
-	/// Returns the cryostat z motor.
-	CLSMAXvMotor* cryostatZ() const { return cryostatZ_; }
 
 	/// Return the set of BioXAS Motors by given motor category
 	QList<AMControl *> getMotorsByType(BioXASBeamlineDef::BioXASMotorType category) const;
@@ -127,8 +121,6 @@ public:
 protected:
 	/// Sets up all the detectors.
 	void setupDetectors();
-	/// Sets up the cryostat stage motors.
-	void setupCryostatStage();
 	/// Sets up the detector stage motors.
 	void setupDetectorStage();
 	/// Sets up various beamline components.
@@ -163,18 +155,10 @@ protected:
 	BioXASSideDBHRMirrors *dbhrMirrors_;
 	/// Standards wheel
 	CLSStandardsWheel *standardsWheel_;
+	/// Cryostat stage
+	BioXASSideCryostatStage *cryostatStage_;
 	/// Endstation table
 	BioXASEndstationTable *endstationTable_;
-
-	// Cryostat stage motors
-	/// Cryostat stage motor group.
-	AMMotorGroup *cryostatStageMotors_;
-	/// Cryostat stage x motor.
-	CLSMAXvMotor *cryostatX_;
-	/// Cryostat stage y motor.
-	CLSMAXvMotor *cryostatY_;
-	/// Cryostat stage z motor.
-	CLSMAXvMotor *cryostatZ_;
 
 	/// Detector stage lateral motor.
 	CLSMAXvMotor *detectorStageLateral_;
