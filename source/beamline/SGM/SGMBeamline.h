@@ -27,6 +27,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 class SGMMAXvMotor;
 class AMMotorGroup;
 class CLSAdvancedScalerChannelDetector;
+class SGMHexapod;
 /*!
   * A singleton class which represents the SGM beamline. The beamline class can
   * be accessed through the SGMBeamline::sgm() function.
@@ -68,9 +69,9 @@ public:
 	AMControl* grating() const;
 
 	/*!
-	  * The control for the hexapod velocity
+	  * The control set for the hexapod
 	  */
-	AMControl* hexapodVelocity() const;
+	SGMHexapod* hexapod() const;
 
 	/*!
 	  * The motor which controls the sample stage X position.
@@ -148,21 +149,14 @@ protected:
 	AMControl *exitSlitGap_;
 	AMControl *grating_;
 
-	AMControl* hexapodXAxis_;
-	AMControl* hexapodYAxis_;
-	AMControl* hexapodZAxis_;
-	AMControl* hexapodUAxis_;
-	AMControl* hexapodVAxis_;
-	AMControl* hexapodWAxis_;
-
-	AMControl* hexapodVelocity_;
-
 	AMMotorGroup *sampleManipulatorsMotorGroup_;
 
 	SGMMAXvMotor *ssaManipulatorX_;
 	SGMMAXvMotor *ssaManipulatorY_;
 	SGMMAXvMotor *ssaManipulatorZ_;
 	SGMMAXvMotor *ssaManipulatorRot_;
+
+	SGMHexapod* hexapod_;
 
 	CLSSIS3820Scaler *scaler_;
 

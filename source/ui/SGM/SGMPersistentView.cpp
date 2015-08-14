@@ -4,7 +4,10 @@
 #include <QGroupBox>
 
 #include "beamline/SGM/SGMBeamline.h"
+#include "beamline/SGM/SGMHexapod.h"
 #include "ui/AMMotorGroupView.h"
+#include "ui/SGM/SGMHexapodTrajectoryView.h"
+
 SGMPersistentView::SGMPersistentView(QWidget *parent) :
     QWidget(parent)
 {
@@ -18,7 +21,8 @@ void SGMPersistentView::setupUi()
 	energyControlEditor_ = new AMExtendedControlEditor(SGMBeamline::sgm()->energy());
 	exitSlitControlEditor_ = new AMExtendedControlEditor(SGMBeamline::sgm()->exitSlitGap());
 	gratingSelectionControlEditor_ = new AMExtendedControlEditor(SGMBeamline::sgm()->grating());
-	hexapodVelocityControlEditor_ = new AMExtendedControlEditor(SGMBeamline::sgm()->hexapodVelocity());
+	hexapodVelocityControlEditor_ = new AMExtendedControlEditor(SGMBeamline::sgm()->hexapod()->systemVelocity());
+	hexapodTrajectoryView_ = new SGMHexapodTrajectoryView(SGMBeamline::sgm()->hexapod());
 	AMMotorGroupView* ssaManipulatorMotorGroupView =
 			new AMMotorGroupView(SGMBeamline::sgm()->sampleManipulatorsMotorGroup(), AMMotorGroupView::Exclusive);
 
@@ -38,8 +42,14 @@ void SGMPersistentView::setupUi()
 
 	sgmControlsGroupBox->setLayout(controlsGroupLayout);
 
+	QGroupBox* hexapodTrajectoryGroupBox = new QGroupBox("Hexapod Trajectory Motions");
+	hexapodTrajectoryGroupBox->setFlat(true);
+
+	QVBoxLayout* trajectoryGroupLayout = new QVBoxLayout();
+	hexapodTrajectoryGroupBox->setLayout(trajectoryGroupLayout);
+
 	QVBoxLayout* mainLayout = new QVBoxLayout();
 	mainLayout->addWidget(sgmControlsGroupBox);
-
+	mainLayout->addWidget(hexapodTrajectoryGroupBox);
 	setLayout(mainLayout);
 }
