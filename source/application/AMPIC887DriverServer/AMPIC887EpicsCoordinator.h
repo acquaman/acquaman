@@ -6,6 +6,7 @@
 #include "beamline/AMControl.h"
 #include "beamline/AMPVControl.h"
 #include "AMPIC887Controller.h"
+#include "AMPIC887TrajectoryCoordinator.h"
 
 /*!
   * A class which coordinates communication between an AMPIC887Controller instance
@@ -32,6 +33,16 @@ signals:
 
 public slots:
 protected slots:
+
+	/*!
+	  * Slot which handles signals indicating that the target position of the axes
+	  * has been updated. Pushes the target position values onto the setpoint PVs
+	  * (including the trajectory setpoint contained within the trajectory coordinator).
+	  * \param targetPositions ~ A map containing the target position of all axes
+	  * of the hexapod.
+	  */
+	void onTargetPositionChanged(const AMPIC887AxisMap<double>& targetPositions);
+
 	/*!
 	  * Slot which handles signals indicating that a position update has been
 	  * received from the controller. Pushes the passed newPosition values onto
@@ -144,59 +155,61 @@ protected slots:
 	  * up the signals to coordinate between the two.
 	  */
 	void onAllConnected(bool connectedState);
+
+	/*!
+	  * Slot which handles the trajectory coordinator signalling that a trajectory
+	  * move has been requested.
+	  * \param targetPositions ~ The target positions of the axes to be moved.
+	  */
+	void onTrajectoryMove(AMPIC887AxisMap<double>& targetPositions);
 protected:
 
 	AMControlSet* allControls_;
-	AMControl* xAxisValue_;
+
+	AMControl* xAxisFeedback_;
 	AMControl* xAxisSetpoint_;
 	AMControl* xAxisStatus_;
 	AMControl* xAxisDriveHigh_;
 	AMControl* xAxisDriveLow_;
 
-	AMControl* yAxisValue_;
+	AMControl* yAxisFeedback_;
 	AMControl* yAxisSetpoint_;
 	AMControl* yAxisStatus_;
 	AMControl* yAxisDriveHigh_;
 	AMControl* yAxisDriveLow_;
 
-	AMControl* zAxisValue_;
+	AMControl* zAxisFeedback_;
 	AMControl* zAxisSetpoint_;
 	AMControl* zAxisStatus_;
 	AMControl* zAxisDriveHigh_;
 	AMControl* zAxisDriveLow_;
 
-	AMControl* uAxisValue_;
+	AMControl* uAxisFeedback_;
 	AMControl* uAxisSetpoint_;
 	AMControl* uAxisStatus_;
 	AMControl* uAxisDriveHigh_;
 	AMControl* uAxisDriveLow_;
 
-	AMControl* vAxisValue_;
+	AMControl* vAxisFeedback_;
 	AMControl* vAxisSetpoint_;
 	AMControl* vAxisStatus_;
 	AMControl* vAxisDriveHigh_;
 	AMControl* vAxisDriveLow_;
 
-	AMControl* wAxisValue_;
+	AMControl* wAxisFeedback_;
 	AMControl* wAxisSetpoint_;
 	AMControl* wAxisStatus_;
 	AMControl* wAxisDriveHigh_;
 	AMControl* wAxisDriveLow_;
 
-	AMControl* systemVelocityValue_;
+	AMControl* systemVelocityFeedback_;
 	AMControl* systemVelocitySetpoint_;
 
 	AMControl* stopAll_;
 	bool connectedOnce_;
 	AMPIC887Controller* controller_;
 
-	bool xAxisInitialMovement_;
-	bool yAxisInitialMovement_;
-	bool zAxisInitialMovement_;
-	bool uAxisInitialMovement_;
-	bool vAxisInitialMovement_;
-	bool wAxisInitialMovement_;
-	bool systemVelocityInitialMovement_;
+	AMPIC887TrajectoryCoordinator* trajectoryCoordinator_;
 };
 
 #endif // AMPIC887EPICSCOORDINATOR_H
