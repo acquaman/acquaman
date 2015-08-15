@@ -14,7 +14,7 @@ BioXASXASScanConfigurationView::BioXASXASScanConfigurationView(BioXASXASScanConf
 {
 	// Initialize member variables.
 
-	configuration_ = configuration;
+	configuration_ = 0;
 
 	// Create scan name view.
 
@@ -27,49 +27,13 @@ BioXASXASScanConfigurationView::BioXASXASScanConfigurationView(BioXASXASScanConf
 	scanNameLayout->addWidget(scanName_);
 	scanNameLayout->addStretch();
 
-	// Create energy selection view.
+	// Create energy editor.
 
-	QLabel *energyPrompt = new QLabel("Energy: ");
+	energyEditor_ = new BioXASXASScanConfigurationEnergyEditor(0);
 
-	energy_ = new QDoubleSpinBox;
-	energy_->setSuffix(" eV");
-	energy_->setMinimum(0);
-	energy_->setMaximum(30000);
+	// Create regions editor.
 
-	elementChoice_ = new QToolButton;
-
-	lineChoice_ = new QComboBox;
-
-	QHBoxLayout *energyLayout = new QHBoxLayout;
-	energyLayout->addWidget(energyPrompt);
-	energyLayout->addWidget(energy_);
-	energyLayout->addStretch();
-	energyLayout->addWidget(elementChoice_);
-	energyLayout->addWidget(lineChoice_);
-
-	// Create regions view.
-
-	regionsView_ = new AMEXAFSScanAxisView("Region Configuration", configuration_);
-
-	QLabel *estimatedTimePrompt = new QLabel("Estimated time: ");
-	estimatedTimeLabel_ = new QLabel();
-
-	autoRegionButton_ = new QPushButton("Auto Set XANES Regions");
-	pseudoXAFSButton_ = new QPushButton("Auto Set EXAFS Regions");
-
-	QHBoxLayout *regionsButtonsLayout = new QHBoxLayout();
-	regionsButtonsLayout->addWidget(autoRegionButton_);
-	regionsButtonsLayout->addWidget(pseudoXAFSButton_);
-
-	QHBoxLayout *regionsExtrasLayout = new QHBoxLayout();
-	regionsExtrasLayout->addWidget(estimatedTimePrompt);
-	regionsExtrasLayout->addWidget(estimatedTimeLabel_);
-	regionsExtrasLayout->addStretch();
-	regionsExtrasLayout->addLayout(regionsButtonsLayout);
-
-	QVBoxLayout *regionsLayout = new QVBoxLayout();
-	regionsLayout->addWidget(regionsView_);
-	regionsLayout->addLayout(regionsExtrasLayout);
+	regionsEditor_ = new BioXASXASScanConfigurationRegionsEditor(0);
 
 	// Create detectors view.
 
@@ -79,8 +43,8 @@ BioXASXASScanConfigurationView::BioXASXASScanConfigurationView(BioXASXASScanConf
 
 	QVBoxLayout *scanSettingsBoxLayout = new QVBoxLayout();
 	scanSettingsBoxLayout->addLayout(scanNameLayout);
-	scanSettingsBoxLayout->addLayout(energyLayout);
-	scanSettingsBoxLayout->addLayout(regionsLayout);
+	scanSettingsBoxLayout->addWidget(energyEditor_);
+	scanSettingsBoxLayout->addWidget(regionsEditor_);
 
 	QGroupBox *scanSettingsBox = new QGroupBox("Scan settings");
 	scanSettingsBox->setLayout(scanSettingsBoxLayout);
@@ -111,35 +75,10 @@ BioXASXASScanConfigurationView::BioXASXASScanConfigurationView(BioXASXASScanConf
 	// Make connections.
 
 	connect(scanName_, SIGNAL(editingFinished()), this, SLOT(onScanNameEdited()));
-	connect(energy_, SIGNAL(editingFinished()), this, SLOT(setEnergy()));
-	connect(elementChoice_, SIGNAL(clicked()), this, SLOT(onElementChoiceClicked()));
-	connect(lineChoice_, SIGNAL(currentIndexChanged(int)), this, SLOT(onLinesComboBoxIndexChanged(int)));
-	connect(autoRegionButton_, SIGNAL(clicked()), this, SLOT(setupDefaultXANESScanRegions()));
-	connect(pseudoXAFSButton_, SIGNAL(clicked()), this, SLOT(setupDefaultEXAFSScanRegions()));
-
-	connect(configuration_, SIGNAL(nameChanged(QString)), scanName_, SLOT(setText(QString)));
-	connect(configuration_, SIGNAL(totalTimeChanged(double)), this, SLOT(onEstimatedTimeChanged(double)));
-	connect(configuration_->dbObject(), SIGNAL(edgeChanged(QString)), this, SLOT(onEdgeChanged()));
 
 	// Current settings.
 
-	scanName_->setText(configuration_->userScanName());
-
-
-	if (configuration_->edge().isEmpty()){
-
-		elementChoice_->setText("Cu");
-		fillLinesComboBox(AMPeriodicTable::table()->elementBySymbol("Cu"));
-		lineChoice_->setCurrentIndex(0);
-
-	} else {
-		elementChoice_->setText(configuration_->edge().split(" ").first());
-		lineChoice_->blockSignals(true);
-		fillLinesComboBox(AMPeriodicTable::table()->elementBySymbol(elementChoice_->text()));
-		lineChoice_->setCurrentIndex(lineChoice_->findText(configuration_->edge(), Qt::MatchStartsWith | Qt::MatchCaseSensitive));
-		lineChoice_->blockSignals(false);
-		energy_->setValue(configuration_->energy());
-	}
+	setConfiguration(configuration);
 }
 
 BioXASXASScanConfigurationView::~BioXASXASScanConfigurationView()
@@ -152,159 +91,151 @@ const AMScanConfiguration* BioXASXASScanConfigurationView::configuration() const
 	return configuration_;
 }
 
-void BioXASXASScanConfigurationView::setScanConfiguration(BioXASXASScanConfiguration *newConfiguration)
+void BioXASXASScanConfigurationView::setConfiguration(BioXASXASScanConfiguration *newConfiguration)
 {
 	if (configuration_ != newConfiguration) {
 
 		if (configuration_) {
 
+			disconnect( configuration_, 0, this, 0 );
+
 		}
 
 		configuration_ = newConfiguration;
 
+
 		if (configuration_) {
+
+			connect(configuration_, SIGNAL(nameChanged(QString)), scanName_, SLOT(setText(QString)));
 
 		}
 
-		emit scanConfigurationChanged(configuration_);
+		refresh();
+
+		emit configurationChanged(configuration_);
 	}
 }
 
 void BioXASXASScanConfigurationView::clear()
 {
-
+	scanName_->clear();
+	energyEditor_->clear();
+	regionsEditor_->clear();
+	detectorsView_->clear();
 }
 
 void BioXASXASScanConfigurationView::update()
 {
 
+	if (configuration_) {
+
+		// Update scan name.
+
+		scanName_->setText(configuration_->userScanName());
+
+		// Update energy selection.
+
+		energyEditor_->update();
+
+		// Update regions editor.
+
+		regionsEditor_->update();
+
+		// Update detectors view.
+
+		detectorsView_->update();
+	}
 }
 
 void BioXASXASScanConfigurationView::refresh()
 {
+	// Clear view.
 
-}
+	clear();
 
-void BioXASXASScanConfigurationView::setupDefaultXANESScanRegions()
-{
-	while (configuration_->scanAxisAt(0)->regionCount())
-	{
-		regionsView_->removeEXAFSRegion(0);
+	if (configuration_) {
+		energyEditor_->setConfiguration(configuration_);
+		regionsEditor_->setConfiguration(configuration_);
+		detectorsView_->setConfiguration(configuration_);
 	}
 
-	AMScanAxisEXAFSRegion *region = new AMScanAxisEXAFSRegion;
-	region->setEdgeEnergy(configuration_->energy());
-	region->setRegionStart(configuration_->energy() - 30);
-	region->setRegionStep(0.5);
-	region->setRegionEnd(configuration_->energy() + 40);
-	region->setRegionTime(1.0);
-	regionsView_->insertEXAFSRegion(0, region);
+	// Update the view.
+
+	update();
 }
 
-void BioXASXASScanConfigurationView::setupDefaultEXAFSScanRegions()
-{
+//void BioXASXASScanConfigurationView::setupDefaultXANESScanRegions()
+//{
+//	while (configuration_->scanAxisAt(0)->regionCount())
+//	{
+//		regionsView_->removeEXAFSRegion(0);
+//	}
 
-	while (configuration_->scanAxisAt(0)->regionCount())
-	{
-		regionsView_->removeEXAFSRegion(0);
+//	AMScanAxisEXAFSRegion *region = new AMScanAxisEXAFSRegion;
+//	region->setEdgeEnergy(configuration_->energy());
+//	region->setRegionStart(configuration_->energy() - 30);
+//	region->setRegionStep(0.5);
+//	region->setRegionEnd(configuration_->energy() + 40);
+//	region->setRegionTime(1.0);
+//	regionsView_->insertEXAFSRegion(0, region);
+//}
+
+//void BioXASXASScanConfigurationView::setupDefaultEXAFSScanRegions()
+//{
+
+//	while (configuration_->scanAxisAt(0)->regionCount())
+//	{
+//		regionsView_->removeEXAFSRegion(0);
+//	}
+
+//	AMScanAxisEXAFSRegion *region = new AMScanAxisEXAFSRegion;
+//	region->setEdgeEnergy(configuration_->energy());
+//	region->setRegionStart(configuration_->energy() - 200);
+//	region->setRegionStep(10);
+//	region->setRegionEnd(configuration_->energy() - 30);
+//	region->setRegionTime(1.0);
+//	regionsView_->insertEXAFSRegion(0, region);
+
+//	region = new AMScanAxisEXAFSRegion;
+//	region->setEdgeEnergy(configuration_->energy());
+//	region->setRegionStart(configuration_->energy() - 30);
+//	region->setRegionStep(0.5);
+//	region->setRegionEnd(configuration_->energy() + 40);
+//	region->setRegionTime(1.0);
+//	regionsView_->insertEXAFSRegion(1, region);
+
+//	region = new AMScanAxisEXAFSRegion;
+//	region->setEdgeEnergy(configuration_->energy());
+//	region->setInKSpace(true);
+//	region->setRegionStart(AMEnergyToKSpaceCalculator::k(region->edgeEnergy(), double(region->edgeEnergy()) + 40));
+//	region->setRegionStep(0.05);
+//	region->setRegionEnd(10);
+//	region->setRegionTime(1.0);
+//	region->setMaximumTime(10.0);
+//	regionsView_->insertEXAFSRegion(2, region);
+//}
+
+//void BioXASXASScanConfigurationView::setEnergy()
+//{
+//	configuration_->setEnergy(energy_->value());
+//	regionsView_->setEdgeEnergy(energy_->value());
+//}
+
+void BioXASXASScanConfigurationView::updateName()
+{
+	if (configuration_) {
+		scanName_->setEnabled(true);
+		scanName_->setText(configuration_->userScanName());
+
+	} else {
+		scanName_->setText(QString());
+		scanName_->setEnabled(false);
 	}
-
-	AMScanAxisEXAFSRegion *region = new AMScanAxisEXAFSRegion;
-	region->setEdgeEnergy(configuration_->energy());
-	region->setRegionStart(configuration_->energy() - 200);
-	region->setRegionStep(10);
-	region->setRegionEnd(configuration_->energy() - 30);
-	region->setRegionTime(1.0);
-	regionsView_->insertEXAFSRegion(0, region);
-
-	region = new AMScanAxisEXAFSRegion;
-	region->setEdgeEnergy(configuration_->energy());
-	region->setRegionStart(configuration_->energy() - 30);
-	region->setRegionStep(0.5);
-	region->setRegionEnd(configuration_->energy() + 40);
-	region->setRegionTime(1.0);
-	regionsView_->insertEXAFSRegion(1, region);
-
-	region = new AMScanAxisEXAFSRegion;
-	region->setEdgeEnergy(configuration_->energy());
-	region->setInKSpace(true);
-	region->setRegionStart(AMEnergyToKSpaceCalculator::k(region->edgeEnergy(), double(region->edgeEnergy()) + 40));
-	region->setRegionStep(0.05);
-	region->setRegionEnd(10);
-	region->setRegionTime(1.0);
-	region->setMaximumTime(10.0);
-	regionsView_->insertEXAFSRegion(2, region);
 }
 
-void BioXASXASScanConfigurationView::onScanNameEdited()
+void BioXASXASScanConfigurationView::updateConfigurationName()
 {
-	configuration_->setUserScanName(scanName_->text());
-}
-
-void BioXASXASScanConfigurationView::setEnergy()
-{
-	configuration_->setEnergy(energy_->value());
-	regionsView_->setEdgeEnergy(energy_->value());
-}
-
-void BioXASXASScanConfigurationView::onElementChoiceClicked()
-{
-	AMElement *el = AMPeriodicTableDialog::getElement(this);
-
-	if (el){
-
-		elementChoice_->setText(el->symbol());
-		fillLinesComboBox(el);
-		lineChoice_->setCurrentIndex(0);
+	if (configuration_) {
+		configuration_->setUserScanName(scanName_->text());
 	}
-}
-
-void BioXASXASScanConfigurationView::fillLinesComboBox(AMElement *el)
-{
-	if (!el)
-		return;
-
-	AMAbsorptionEdge edge;
-	lineChoice_->clear();
-
-	for (int i = 0; i < el->absorptionEdges().size(); i++){
-
-		edge = el->absorptionEdges().at(i);
-
-		if (edge.energy() <= 24000 && edge.energy() >= 1500)
-			lineChoice_->addItem(edge.name()+": "+edge.energyString()+" eV", edge.energy());
-	}
-
-	lineChoice_->setCurrentIndex(-1);
-}
-
-void BioXASXASScanConfigurationView::onLinesComboBoxIndexChanged(int index)
-{
-	if (lineChoice_->count() == 0 || index == -1)
-		return;
-
-	energy_->setValue(lineChoice_->itemData(index).toDouble());
-	setEnergy();
-	configuration_->setEdge(lineChoice_->itemText(index).split(":").first());
-}
-
-void BioXASXASScanConfigurationView::onEdgeChanged()
-{
-	QString currentChoice = lineChoice_->itemText(lineChoice_->currentIndex()).split(":").first();
-	if (configuration_->edge() == currentChoice)
-		return;
-
-	elementChoice_->setText(configuration_->edge().split(" ").first());
-	lineChoice_->blockSignals(true);
-	fillLinesComboBox(AMPeriodicTable::table()->elementBySymbol(elementChoice_->text()));
-	lineChoice_->blockSignals(false);
-	lineChoice_->setCurrentIndex(lineChoice_->findText(configuration_->edge(), Qt::MatchStartsWith | Qt::MatchCaseSensitive));
-
-	if (energy_->value() != configuration_->energy())
-		energy_->setValue(configuration_->energy());
-}
-
-void BioXASXASScanConfigurationView::onEstimatedTimeChanged(double time)
-{
-   estimatedTimeLabel_->setText(AMDateTimeUtils::convertTimeToString(time));
 }

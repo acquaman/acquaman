@@ -16,7 +16,8 @@
 #include "ui/acquaman/AMScanConfigurationView.h"
 #include "ui/acquaman/AMScanConfigurationViewHolder3.h"
 #include "ui/acquaman/AMGenericStepScanConfigurationDetectorsView.h"
-#include "util/AMElement.h"
+#include "ui/BioXAS/BioXASXASScanConfigurationEnergyEditor.h"
+#include "ui/BioXAS/BioXASXASScanConfigurationRegionsEditor.h"
 
 class AMScanController;
 class AMEXAFSScanAxisView;
@@ -38,11 +39,11 @@ public:
 
 signals:
 	/// Notifier that the scan configuration being viewed has changed.
-	void scanConfigurationChanged(BioXASXASScanConfiguration *newConfiguration);
+	void configurationChanged(BioXASXASScanConfiguration *newConfiguration);
 
 public slots:
 	/// Sets the XAS scan configuration being viewed.
-	void setScanConfiguration(BioXASXASScanConfiguration *newConfiguration);
+	void setConfiguration(BioXASXASScanConfiguration *newConfiguration);
 
 	/// Clears the view.
 	void clear();
@@ -57,20 +58,11 @@ public slots:
     void setupDefaultEXAFSScanRegions();
 
 protected slots:
-    /// Handles setting the name of the configuration from the line edit.
-    void onScanNameEdited();
-    /// Sets the new energy.
-    void setEnergy();
-    /// Handles choosing a new element when the element button is clicked.
-    void onElementChoiceClicked();
-    /// Fills in the combo box with lines that can be scanned.
-    void fillLinesComboBox(AMElement *el);
-    /// Handles changes in the combo box index.
-    void onLinesComboBoxIndexChanged(int index);
-    /// Handles setting the proper information if the edge is changed.
-    void onEdgeChanged();
-    /// Helper slot that handles the setting the estimated time label
-    void onEstimatedTimeChanged(double time);
+	/// Updates the displayed scan name to correspond to the configuration's scan name.
+	void updateName();
+
+	/// Updates the scan configuration name.
+	void updateConfigurationName();
 
 protected:
 	/// The configuration being viewed.
@@ -78,20 +70,10 @@ protected:
 
 	/// Display for the scan name.
     QLineEdit *scanName_;
-    /// Double spin box for changing the energy.
-    QDoubleSpinBox *energy_;
-    /// Button used to choose an element to scan over.
-    QToolButton *elementChoice_;
-    /// The combo box that holds all the lines that can be chosen to scan over.
-    QComboBox *lineChoice_;
-	/// The regions view.
-	AMEXAFSScanAxisView *regionsView_;
-	/// Button that sets the XANES regions.
-	QPushButton *autoRegionButton_;
-	/// Button that sets the EXAFS regions.
-	QPushButton *pseudoXAFSButton_;
-    /// Label for time estimation
-    QLabel *estimatedTimeLabel_;
+	/// Energy editor.
+	BioXASXASScanConfigurationEnergyEditor *energyEditor_;
+	/// Regions editor.
+	BioXASXASScanConfigurationRegionsEditor *regionsEditor_;
 	/// The detectors view.
 	AMGenericStepScanConfigurationDetectorsView *detectorsView_;
 };
