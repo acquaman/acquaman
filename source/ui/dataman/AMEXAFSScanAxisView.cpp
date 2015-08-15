@@ -250,6 +250,11 @@ AMEXAFSScanAxisView::AMEXAFSScanAxisView(const QString &title, AMStepScanConfigu
 	setLayout(scanAxisViewLayout_);
 }
 
+AMEXAFSScanAxisView::~AMEXAFSScanAxisView()
+{
+
+}
+
 void AMEXAFSScanAxisView::onLockRegionsToggled(bool toggled)
 {
 	if (toggled){
