@@ -69,14 +69,8 @@ AMGithubProjectManagerMainView::~AMGithubProjectManagerMainView()
 
 void AMGithubProjectManagerMainView::onInitiateButtonClicked()
 {
-//	repository_ = new AMGitHubRepository("acquaman", "acquaman", manager_, "token 2f8e7e362e5c0a5ea065255ccfdc369e70f4327b");
-
 	connect(repository_, SIGNAL(repositorySubItemProgressUpdated(int)), this, SLOT(onRepositorySubItemProgressUpdated(int)));
 	connect(repository_, SIGNAL(repositoryOverallProgressUpdated(int)), this, SLOT(onRepositoryOverallProgressUpdated(int)));
-
-//	allIssues_ = repository_->allIssues();
-//	allMilestones_ = repository_->allMilestones();
-//	allIssueFamilies_ = repository_->allIssueFamilies();
 
 	connect(repository_, SIGNAL(repositoryLoaded()), this, SLOT(onRepositoryLoaded()));
 	repository_->initiateRepositoryLoading();
@@ -140,31 +134,6 @@ void AMGithubProjectManagerMainView::onRepositoryReloaded()
 
 void AMGithubProjectManagerMainView::repositoryReadyToProceed()
 {
-	/*
-	qDebug() << "All Issues:                     " << repository_->issueCount();
-	qDebug() << "Open Issues:                    " << repository_->openIssueCount();
-	qDebug() << "Closed Issues:                  " << repository_->closedIssueCount();
-	qDebug() << "\n";
-	qDebug() << "Open and Specified:             " << repository_->fullySpecifiedOpenIssueCount();
-	qDebug() << "Open but Missing Estimate:      " << repository_->missingEstimateOpenIssueCount();
-	qDebug() << "\n";
-	qDebug() << "Closed and Untracked:           " << repository_->completeUntrackedIssueCount();
-	qDebug() << "Closed and Partially Tracked:   " << repository_->trackedWithoutEstimateIssueCount();
-	qDebug() << "Closed and Fully Tracked:       " << repository_->fullyTrackedIssueCount();
-	qDebug() << "\n";
-	qDebug() << "Closed and Complete:            " << repository_->completeIssueCount();
-	qDebug() << "Closed but Missing Estimate:    " << repository_->missingEstimateClosedIssueCount();
-	qDebug() << "Closed but Missing Actual:      " << repository_->missingActualClosedIssueCount();
-	qDebug() << "Closed but Missing Time Report: " << repository_->missingTimeClosedIssueCount();
-	qDebug() << "Closed and Specified:           " << repository_->fullySpecifiedClosedIssueCount();
-	qDebug() << "\n\n\n";
-
-	qDebug() << "\n\nMissing Time Report: " << repository_->missingTimeClosedIssues()->keys();
-	qDebug() << "\n\nMissing Estimates: " << repository_->missingEstimateClosedIssues()->keys();
-	qDebug() << "\n\nMissing Actuals: " << repository_->missingActualClosedIssues()->keys();
-	qDebug() << "\n\n\n\n";
-	*/
-
 	AMGitHubComplexityManager *complexityManager = new AMGitHubComplexityManager();
 	QMap<int, AMGitHubIssue*>::const_iterator ia = allIssues_->constBegin();
 	while (ia != allIssues_->constEnd()) {
@@ -173,40 +142,12 @@ void AMGithubProjectManagerMainView::repositoryReadyToProceed()
 		ia++;
 	}
 
-	/*
-	qDebug() << "Analyzed Issues: " << complexityManager->analyzedIssues();
-	qDebug() << "Full Mapping Matrix";
-	qDebug() << complexityManager->fullMatrixString();
-	*/
+	AMGitHubRepositoryView *repositoryView = new AMGitHubRepositoryView(repository_);
+	repositoryView->show();
 
 	AMGitHubComplexityManagerView *complexityManagerView = new AMGitHubComplexityManagerView(complexityManager);
 	complexityManagerView->show();
 
-	/*
-	int maxEstimate = int(AMGitHubIssue::EstimatedComplexityInvalid);
-	for(int x = 0, size = maxEstimate; x < size; x++){
-		AMGitHubIssue::EstimatedComplexityValue oneEstimatedComplexity = AMGitHubIssue::EstimatedComplexityValue(x);
-		AMGitHubIssue::ActualComplexityValue oneActualComplexity = AMGitHubIssue::ActualComplexityValue(x);
-		qDebug() << "\n";
-		qDebug() << "Average Time For Estimate " << AMGitHubIssue::integerFromEstimatedComplexity(oneEstimatedComplexity) << complexityManager->averageTimeForEstimatedComplexity(oneEstimatedComplexity);
-		qDebug() << "Average Time For Actual " << AMGitHubIssue::integerFromActualComplexity(oneActualComplexity) << complexityManager->averageTimeForActualComplexity(oneActualComplexity);
-		qDebug() << "Probable Time For Estimate " << AMGitHubIssue::integerFromEstimatedComplexity(oneEstimatedComplexity) << complexityManager->probableTimeForEstimatedComplexity(oneEstimatedComplexity);
-		qDebug() << complexityManager->probableTimeStringForEstimatedComplexity(oneEstimatedComplexity);
-	}
-
-	qDebug() << "\n\n";
-	qDebug() << "All Families:             " << repository_->familyCount();
-	qDebug() << "Fully Specified Families: " << repository_->fullySpecifiedFamilyCount();
-	qDebug() << "Completed Families:       " << repository_->completedFamilyCount();
-
-	qDebug() << "\n\n";
-	qDebug() << "All Milestones:           " << repository_->milestoneCount();
-
-	qDebug() << "\n\n\n\n";
-	*/
-
-	AMGitHubRepositoryView *repositoryView = new AMGitHubRepositoryView(repository_);
-	repositoryView->show();
 
 	/*
 	AMGitHubIssueValueMap normalizedEstimateMap;
