@@ -136,8 +136,8 @@ void AMGitHubRepository::reloadRepositoryFromFile(const QString &filePath)
 		return;
 
 	QTextStream githubStream(&githubFile);
-	int numberOfIssues = githubStream.readLine().toInt();
 
+	int numberOfIssues = githubStream.readLine().toInt();
 	AMGitHubIssue *oneIssue;
 	for(int x = 0; x < numberOfIssues; x++){
 		QString line = githubStream.readLine();
@@ -147,19 +147,17 @@ void AMGitHubRepository::reloadRepositoryFromFile(const QString &filePath)
 
 		allIssues_->insert(oneIssue->issueNumber(), oneIssue);
 	}
-//	while (!githubStream.atEnd()) {
-//		QString line = githubStream.readLine();
-
-//		oneIssue = new AMGitHubIssue(QVariantMap());
-//		oneIssue->resetFromJSON(line.toAscii());
-
-//		allIssues_->insert(oneIssue->issueNumber(), oneIssue);
-//		qDebug() << "Just added issue number " << oneIssue->issueNumber() << " Issue count is now " << allIssues_->count();
-//	}
 
 	int numberOfMilestones = githubStream.readLine().toInt();
+	AMGitHubMilestone *oneMilestone;
 	for(int x = 0; x < numberOfMilestones; x++){
-		qDebug() << "Milestone: " << githubStream.readLine();
+		QString line = githubStream.readLine();
+
+		oneMilestone = new AMGitHubMilestone(QVariantMap());
+		oneMilestone->resetFromJSON(line.toAscii(), allIssues_);
+
+		allMilestones_->insert(oneMilestone->number(), oneMilestone);
+
 	}
 
 	githubFile.close();
@@ -173,7 +171,6 @@ void AMGitHubRepository::reloadRepositoryFromFile(const QString &filePath)
 
 	sortMaps();
 
-	qDebug() << "Repository reloaded";
 	emit repositoryStatusMessageChanged("Repository Reloaded");
 	emit repositoryReloaded();
 }

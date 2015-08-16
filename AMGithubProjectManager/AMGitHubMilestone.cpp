@@ -1,5 +1,7 @@
 #include "AMGitHubMilestone.h"
 
+#include <QDebug>
+
 #include "qjson/serializer.h"
 #include "qjson/parser.h"
 
@@ -81,4 +83,34 @@ void AMGitHubMilestone::associateFamily(AMGitHubIssueFamily *associatedFamily)
 {
 	if(!associatedFamilies_->contains(associatedFamily->originatingIssue()->issueNumber()))
 		associatedFamilies_->insert(associatedFamily->originatingIssue()->issueNumber(), associatedFamily);
+}
+
+void AMGitHubMilestone::resetFromMap(const QVariantMap &map, QMap<int, AMGitHubIssue *> *allIssues)
+{
+	if(map.contains("number"))
+		number_ = map.value("number").toInt();
+	if(map.contains("title"))
+		title_ = map.value("title").toString();
+	if(map.contains("state"))
+		state_ = AMGitHubMilestone::MilestoneState(map.value("state").toLongLong());
+
+	if(map.contains("issueNumbers")){
+		QVariantList issueNumbers = map.value("issueNumbers").toList();
+		for(int x = 0, size = issueNumbers.count(); x < size; x++)
+			if(allIssues->contains(issueNumbers.at(x).toInt()))
+				associateIssue(allIssues->value(issueNumbers.at(x).toInt()));
+	}
+}
+
+void AMGitHubMilestone::resetFromJSON(const QByteArray &json, QMap<int, AMGitHubIssue*> *allIssues)
+{
+	QJson::Parser jparser;
+	bool successfulParsing = false;
+	QVariant parseVariant = jparser.parse(json, &successfulParsing);
+	if(successfulParsing && parseVariant.canConvert<QVariantMap>()){
+		QVariantMap parseVariantMap = parseVariant.toMap();
+		resetFromMap(parseVariantMap, allIssues);
+	}
+	else
+		qDebug() << "[AMGitHubMilestone] Failed to parse JSON in resetFromJSON";
 }

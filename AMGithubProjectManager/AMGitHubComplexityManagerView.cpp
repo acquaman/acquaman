@@ -3,6 +3,11 @@
 #include <QStandardItemModel>
 #include <QTableView>
 #include <QBoxLayout>
+#include <QFormLayout>
+#include <QLabel>
+#include <QScrollArea>
+#include <QGridLayout>
+#include <QTimer>
 
 AMGitHubComplexityManagerView::AMGitHubComplexityManagerView(AMGitHubComplexityManager *complexityManager, QWidget *parent) :
 	QWidget(parent)
@@ -18,8 +23,8 @@ AMGitHubComplexityManagerView::AMGitHubComplexityManagerView(AMGitHubComplexityM
 	for(int x = 0, size = AMGitHubComplexityMapping::maximumIndex(); x < size; x++){
 		oneMapping = new AMGitHubComplexityMapping(x);
 
-		QStandardItem *oneProbabilityOfMappingItem = new QStandardItem(QString("%1").arg(complexityManager_->probabilityOfMapping(oneMapping)));
-		QStandardItem *oneProbabilityOfMappingInRowItem = new QStandardItem(QString("%1").arg(complexityManager_->probabilityOfMappingInRow(oneMapping)));
+		QStandardItem *oneProbabilityOfMappingItem = new QStandardItem(QString("%1%").arg(complexityManager_->probabilityOfMapping(oneMapping)*100, 0, 'f', 2));
+		QStandardItem *oneProbabilityOfMappingInRowItem = new QStandardItem(QString("%1%").arg(complexityManager_->probabilityOfMappingInRow(oneMapping)*100, 0, 'f', 2));
 
 		oneProbabilityOfMappingModelRow.append(oneProbabilityOfMappingItem);
 		oneProbabilityOfMappingInRowModelRow.append(oneProbabilityOfMappingInRowItem);
@@ -46,15 +51,76 @@ AMGitHubComplexityManagerView::AMGitHubComplexityManagerView(AMGitHubComplexityM
 		probabilityOfMappingInRowModel_->setHeaderData(x, Qt::Vertical, QString("Estimated %1").arg(AMGitHubIssue::integerFromEstimatedComplexity(oneEstimate)));
 	}
 
+	QGroupBox *overallProbabilityGroupBox = new QGroupBox("Overall Probability");
 	probabilityOfMappingTableView_ = new QTableView();
+	probabilityOfMappingTableView_->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+	probabilityOfMappingTableView_->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 	probabilityOfMappingTableView_->setModel(probabilityOfMappingModel_);
+	QVBoxLayout *overallProbabilityVL = new QVBoxLayout;
+	overallProbabilityVL->addWidget(probabilityOfMappingTableView_);
+	overallProbabilityGroupBox->setLayout(overallProbabilityVL);
 
+	QGroupBox *rowProbabilityGroupBox = new QGroupBox("Row Probability");
 	probabilityOfMappingInRowTableView_ = new QTableView();
+	probabilityOfMappingInRowTableView_->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+	probabilityOfMappingInRowTableView_->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 	probabilityOfMappingInRowTableView_->setModel(probabilityOfMappingInRowModel_);
+	QVBoxLayout *rowProbabilityVL = new QVBoxLayout;
+	rowProbabilityVL->addWidget(probabilityOfMappingInRowTableView_);
+	rowProbabilityGroupBox->setLayout(rowProbabilityVL);
 
 	QVBoxLayout *mainVL = new QVBoxLayout();
-	mainVL->addWidget(probabilityOfMappingTableView_);
-	mainVL->addWidget(probabilityOfMappingInRowTableView_);
+	mainVL->addWidget(new QLabel(QString("Total Analyzed Issues: %1").arg(complexityManager_->analyzedIssues())));
+	mainVL->addWidget(overallProbabilityGroupBox);
+	mainVL->addStretch();
+	mainVL->addWidget(rowProbabilityGroupBox);
+	mainVL->addStretch();
+
+
+	QGridLayout *complexityValueViewsGridLayout = new QGridLayout;
+	AMGitHubComplexityValueView *oneComplexityValueView;
+	for(int x = 0, size = int(AMGitHubIssue::EstimatedComplexityInvalid); x < size; x++){
+		AMGitHubIssue::EstimatedComplexityValue oneEstimatedComplexityValue = AMGitHubIssue::EstimatedComplexityValue(x);
+		oneComplexityValueView = new AMGitHubComplexityValueView(oneEstimatedComplexityValue, complexityManager_);
+		complexityValueViews_.append(oneComplexityValueView);
+	}
+	int columnCounter = 0;
+	int rowCounter = 0;
+	for(int x = 0, size = complexityValueViews_.count(); x < size; x++){
+		complexityValueViewsGridLayout->addWidget(complexityValueViews_.at(x), rowCounter, columnCounter);
+		columnCounter++;
+		if(columnCounter%3 == 0){
+			columnCounter = 0;
+			rowCounter++;
+		}
+	}
+	mainVL->addLayout(complexityValueViewsGridLayout);
 
 	setLayout(mainVL);
+
+	QTimer::singleShot(0, this, SLOT(adjustTableSizes()));
+}
+
+void AMGitHubComplexityManagerView::adjustTableSizes()
+{
+	probabilityOfMappingTableView_->setMinimumSize(950, 250);
+	probabilityOfMappingInRowTableView_->setMinimumSize(950, 250);
+}
+
+AMGitHubComplexityValueView::AMGitHubComplexityValueView(AMGitHubIssue::EstimatedComplexityValue estimatedComplexityValue, AMGitHubComplexityManager *complexityManager, QWidget *parent) :
+	QGroupBox(parent)
+{
+	estimatedComplexityValue_ = estimatedComplexityValue;
+	equivalentActualComplexityValue_ = AMGitHubIssue::correspondingActualComplexity(estimatedComplexityValue_);
+	complexityManager_ = complexityManager;
+
+	setTitle(QString("Complexity %1").arg(AMGitHubIssue::integerFromEstimatedComplexity(estimatedComplexityValue_)));
+
+	QFormLayout *mainFL = new QFormLayout();
+
+	mainFL->addRow(QString("Average Time for Estimated %1").arg(AMGitHubIssue::integerFromEstimatedComplexity(estimatedComplexityValue_)), new QLabel(QString("%1").arg(complexityManager_->averageTimeForEstimatedComplexity(estimatedComplexityValue_))));
+	mainFL->addRow(QString("Average Time for Actual %1").arg(AMGitHubIssue::integerFromActualComplexity(equivalentActualComplexityValue_)), new QLabel(QString("%1").arg(complexityManager_->averageTimeForActualComplexity(equivalentActualComplexityValue_))));
+	mainFL->addRow(QString("Probable Time for Estimated %1").arg(AMGitHubIssue::integerFromEstimatedComplexity(estimatedComplexityValue_)), new QLabel(QString("%1").arg(complexityManager_->probableTimeForEstimatedComplexity(estimatedComplexityValue_))));
+
+	setLayout(mainFL);
 }

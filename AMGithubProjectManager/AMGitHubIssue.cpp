@@ -474,10 +474,8 @@ void AMGitHubIssue::resetFromJSON(const QByteArray &json)
 		QVariantMap parseVariantMap = parseVariant.toMap();
 		resetFromMap(parseVariantMap);
 	}
-	else{
-		qDebug() << "Failed to parse JSON in resetFromJSON";
-	}
-
+	else
+		qDebug() << "[AMGitHubIssue] Failed to parse JSON in resetFromJSON";
 }
 
 AMGitHubComplexityMapping::AMGitHubComplexityMapping(int mappingIndex, QObject *parent) :

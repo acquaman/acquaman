@@ -56,7 +56,7 @@ AMGitHubRepositoryView::AMGitHubRepositoryView(AMGitHubRepository *repository, Q
 }
 
 AMGitHubIssueMapView::AMGitHubIssueMapView(const QMap<int, AMGitHubIssue *> *issueMap, QWidget *parent) :
-	QWidget(parent)
+	QGroupBox(parent)
 {
 	issueMap_ = issueMap;
 
@@ -88,8 +88,6 @@ AMGitHubRepositoryIssueMapTypeView::AMGitHubRepositoryIssueMapTypeView(AMGitHubR
 	mainHL->addWidget(countLabel_);
 	mainHL->addWidget(moreInfoButton_);
 
-	setWindowTitle(issuesMapTypeString_);
-
 	setLayout(mainHL);
 	connect(moreInfoButton_, SIGNAL(clicked()), this, SLOT(onMoreInfoButtonClicked()));
 }
@@ -104,5 +102,6 @@ void AMGitHubRepositoryIssueMapTypeView::onMoreInfoButtonClicked()
 	}
 
 	mapView_ = new AMGitHubIssueMapView(repository_->issuesMap(issuesMapType_));
+	mapView_->setTitle(issuesMapTypeString_);
 	mapView_->show();
 }

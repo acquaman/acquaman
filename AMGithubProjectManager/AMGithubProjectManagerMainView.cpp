@@ -130,35 +130,17 @@ void AMGithubProjectManagerMainView::onRepositoryLoaded()
 
 	githubFile.close();
 
-	qDebug() << "Repository is loaded";
-
 	repositoryReadyToProceed();
 }
 
 void AMGithubProjectManagerMainView::onRepositoryReloaded()
 {
-	qDebug() << "Repository is reloaded";
 	repositoryReadyToProceed();
 }
 
 void AMGithubProjectManagerMainView::repositoryReadyToProceed()
 {
 	/*
-	QFile githubFile("lastGitHub.txt");
-	if (!githubFile.open(QIODevice::WriteOnly | QIODevice::Text))
-		return;
-
-	QTextStream githubStream(&githubFile);
-	QMap<int, AMGitHubIssue*>::const_iterator ib = allIssues_->constBegin();
-	while (ib != allIssues_->constEnd()) {
-		githubStream << ib.value()->toJSON() << "\n";
-		ib++;
-	}
-	githubFile.close();
-	*/
-
-	qDebug() << "Repository is loaded";
-
 	qDebug() << "All Issues:                     " << repository_->issueCount();
 	qDebug() << "Open Issues:                    " << repository_->openIssueCount();
 	qDebug() << "Closed Issues:                  " << repository_->closedIssueCount();
@@ -181,6 +163,7 @@ void AMGithubProjectManagerMainView::repositoryReadyToProceed()
 	qDebug() << "\n\nMissing Estimates: " << repository_->missingEstimateClosedIssues()->keys();
 	qDebug() << "\n\nMissing Actuals: " << repository_->missingActualClosedIssues()->keys();
 	qDebug() << "\n\n\n\n";
+	*/
 
 	AMGitHubComplexityManager *complexityManager = new AMGitHubComplexityManager();
 	QMap<int, AMGitHubIssue*>::const_iterator ia = allIssues_->constBegin();
@@ -189,13 +172,17 @@ void AMGithubProjectManagerMainView::repositoryReadyToProceed()
 			complexityManager->addMapping(ia.value());
 		ia++;
 	}
+
+	/*
 	qDebug() << "Analyzed Issues: " << complexityManager->analyzedIssues();
 	qDebug() << "Full Mapping Matrix";
 	qDebug() << complexityManager->fullMatrixString();
+	*/
 
 	AMGitHubComplexityManagerView *complexityManagerView = new AMGitHubComplexityManagerView(complexityManager);
 	complexityManagerView->show();
 
+	/*
 	int maxEstimate = int(AMGitHubIssue::EstimatedComplexityInvalid);
 	for(int x = 0, size = maxEstimate; x < size; x++){
 		AMGitHubIssue::EstimatedComplexityValue oneEstimatedComplexity = AMGitHubIssue::EstimatedComplexityValue(x);
@@ -216,6 +203,7 @@ void AMGithubProjectManagerMainView::repositoryReadyToProceed()
 	qDebug() << "All Milestones:           " << repository_->milestoneCount();
 
 	qDebug() << "\n\n\n\n";
+	*/
 
 	AMGitHubRepositoryView *repositoryView = new AMGitHubRepositoryView(repository_);
 	repositoryView->show();

@@ -2,6 +2,7 @@
 #define AMGITHUBREPOSITORYVIEW_H
 
 #include <QWidget>
+#include <QGroupBox>
 
 #include "AMGitHubRepository.h"
 
@@ -40,7 +41,7 @@ protected:
 	QList<AMGitHubRepositoryIssueMapTypeView*> allIssueMapTypeViews_;
 };
 
-class AMGitHubIssueMapView : public QWidget
+class AMGitHubIssueMapView : public QGroupBox
 {
 Q_OBJECT
 public:

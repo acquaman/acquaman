@@ -25,6 +25,9 @@ public slots:
 	void associateIssue(AMGitHubIssue *associateIssue);
 	void associateFamily(AMGitHubIssueFamily *associatedFamily);
 
+	void resetFromMap(const QVariantMap &map, QMap<int, AMGitHubIssue*> *allIssues);
+	void resetFromJSON(const QByteArray &json, QMap<int, AMGitHubIssue*> *allIssues);
+
 protected:
 	int number_;
 	QString title_;
