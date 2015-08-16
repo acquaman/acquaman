@@ -15,6 +15,11 @@ class AMGitHubRepository : public QObject
 {
 Q_OBJECT
 public:
+	enum IssueMapType {AllIssuesMap, OpenIssuesMap, ClosedIssuesMap, FullySpecifiedOpenMap, MissingEstimateOpenMap,
+		      UntrackedClosedMap, PartiallyTrackedClosedMap, FullyTrackedClosedMap, CompleteClosedMap,
+		      MissingEstimateClosedMap, MissingActualClosedMap, MissingTimeReportClosedMap, FullySpecifiedClosedMap,
+		      InvalidIssuesMap};
+
 	AMGitHubRepository(const QString &owner, const QString &repo, QNetworkAccessManager *manager, const QString &accessToken, QObject *parent = 0);
 
 	QString owner() const { return owner_; }
@@ -23,9 +28,32 @@ public:
 	QNetworkAccessManager* networkAccessManager() const { return manager_; }
 	QString accessToken() const { return accessToken_; }
 
+	const QMap<int, AMGitHubIssue*>* issuesMap(AMGitHubRepository::IssueMapType issuesMapType) const;
+
 	const QMap<int, AMGitHubIssue*>* allIssues() const { return allIssues_; }
+	const QMap<int, AMGitHubIssue*>* openIssues() const { return allOpenIssues_; }
+	const QMap<int, AMGitHubIssue*>* closedIssues() const { return allClosedIssues_; }
+
+	const QMap<int, AMGitHubIssue*>* fullySpecifiedOpenIssues() const { return fullySpecifiedOpenIssues_; }
+	const QMap<int, AMGitHubIssue*>* missingEstimateOpenIssues() const { return missingEstimateOpenIssues_; }
+
+	const QMap<int, AMGitHubIssue*>* untrackedClosedIssues() const { return completelyUntrackedIssues_; }
+	const QMap<int, AMGitHubIssue*>* partiallyTrackedClosedIssues() const { return trackedWithoutEstimateIssues_; }
+	const QMap<int, AMGitHubIssue*>* fullyTrackedClosedIssues() const { return fullyTrackedIssues_; }
+	const QMap<int, AMGitHubIssue*>* completeClosedIssues() const { return completeIssues_; }
+
+	const QMap<int, AMGitHubIssue*> *missingEstimateClosedIssues() const { return missingEstimateClosedIssues_; }
+	const QMap<int, AMGitHubIssue*> *missingActualClosedIssues() const { return missingActualClosedIssues_; }
+	const QMap<int, AMGitHubIssue*> *missingTimeClosedIssues() const { return missingTimeClosedIssues_; }
+
+	const QMap<int, AMGitHubIssue*> *fullySpecifiedClosedIssues() const { return fullySpecifiedClosedIssues_; }
+
 	const QMap<int, AMGitHubIssueFamily*>* allIssueFamilies() const { return allIssueFamilies_; }
+
 	const QMap<int, AMGitHubMilestone*>* allMilestones() const { return allMilestones_; }
+
+
+	int issuesCount(AMGitHubRepository::IssueMapType issuesMapType) const;
 
 	/// A count of ALL issues both open and closed. Should match the number in the repo
 	int issueCount() const { return allIssues_->count(); }

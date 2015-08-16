@@ -8,10 +8,6 @@ AMGitHubComplexityManager::AMGitHubComplexityManager(QObject *parent) :
 	int maxEstimate = int(AMGitHubIssue::EstimatedComplexityInvalid);
 	int maxActual = int(AMGitHubIssue::ActualComplexityInvalid);
 	complexityMappingMatrix_ = QVector<QList<AMGitHubIssue*> >(maxEstimate*maxActual);
-
-	qDebug() << "Max estimate: " << maxEstimate;
-	qDebug() << "Max actual: " << maxActual;
-	qDebug() << "Total: " << maxEstimate*maxActual;
 }
 
 double AMGitHubComplexityManager::probabilityOfMapping(AMGitHubIssue::EstimatedComplexityValue estimatedComplexityValue, AMGitHubIssue::ActualComplexityValue actualComplexityValue) const
@@ -54,7 +50,7 @@ double AMGitHubComplexityManager::probabilityOfMappingInRow(AMGitHubComplexityMa
 	int estimatedAsInt = int(complexityMapping->estimatedComplexityValue());
 	int maxEstimate = int(AMGitHubIssue::EstimatedComplexityInvalid);
 	for(int x = 0, size = complexityMappingMatrix_.size(); x < size; x++){
-		if(x%maxEstimate == estimatedAsInt)
+		if(x/maxEstimate == estimatedAsInt)
 			rowCount += complexityMappingMatrix_.at(x).count();
 	}
 
@@ -148,41 +144,52 @@ QString AMGitHubComplexityManager::probableTimeStringForEstimatedComplexity(AMGi
 
 QString AMGitHubComplexityManager::fullMatrixString() const
 {
-	QString retVal;
+	QString indexProbabilityString;
+	QString mappingProbabilityString;
 
 	int maxEstimate = int(AMGitHubIssue::EstimatedComplexityInvalid);
 	int maxActual = int(AMGitHubIssue::ActualComplexityInvalid);
 
-	retVal.append(QString("------ "));
+	indexProbabilityString.append(QString("Ev /A> "));
+	mappingProbabilityString.append(QString("Ev /A> "));
 	for(int x = 0, size = maxActual; x < size; x++){
 		AMGitHubIssue::ActualComplexityValue oneActual = AMGitHubIssue::ActualComplexityValue(x);
 		double actualInt = AMGitHubIssue::integerFromActualComplexity(oneActual);
-		retVal.append(QString("%1").arg(actualInt, -7, 'f', 0, ' '));
+		indexProbabilityString.append(QString("%1").arg(actualInt, -7, 'f', 0, ' '));
+		mappingProbabilityString.append(QString("%1").arg(actualInt, -7, 'f', 0, ' '));
 	}
-	retVal.append("\n");
+	indexProbabilityString.append("\n");
+	mappingProbabilityString.append("\n");
 
 	double runningTotal = 0;
 	int rowCounter = 0;
 	AMGitHubIssue::EstimatedComplexityValue oneEstimated = AMGitHubIssue::EstimatedComplexityValue(rowCounter);
 	double estimatedInt = AMGitHubIssue::integerFromEstimatedComplexity(oneEstimated);
-	retVal.append(QString("%1").arg(estimatedInt, -7, 'f', 0, ' '));
+	indexProbabilityString.append(QString("%1").arg(estimatedInt, -7, 'f', 0, ' '));
+	mappingProbabilityString.append(QString("%1").arg(estimatedInt, -7, 'f', 0, ' '));
 	for(int x = 0, size = complexityMappingMatrix_.count(); x < size; x++){
 		AMGitHubComplexityMapping *tempMapping = new AMGitHubComplexityMapping(x);
-		retVal.append(QString("%1").arg(probabilityOfMapping(tempMapping), -7, 'f', 3, ' '));
+		indexProbabilityString.append(QString("%1").arg(probabilityOfMapping(tempMapping), -7, 'f', 3, ' '));
+		mappingProbabilityString.append(QString("%1").arg(probabilityOfMappingInRow(tempMapping), -7, 'f', 3, ' '));
 		runningTotal += probabilityOfMapping(tempMapping);
 		if(x%maxEstimate == maxEstimate-1){
-			retVal.append("\n");
+			indexProbabilityString.append("\n");
+			mappingProbabilityString.append("\n");
 			rowCounter++;
 			AMGitHubIssue::EstimatedComplexityValue oneEstimated = AMGitHubIssue::EstimatedComplexityValue(rowCounter);
 			if(oneEstimated != AMGitHubIssue::EstimatedComplexityInvalid){
 				double estimatedInt = AMGitHubIssue::integerFromEstimatedComplexity(oneEstimated);
-				retVal.append(QString("%1").arg(estimatedInt, -7, 'f', 0, ' '));
+				indexProbabilityString.append(QString("%1").arg(estimatedInt, -7, 'f', 0, ' '));
+				mappingProbabilityString.append(QString("%1").arg(estimatedInt, -7, 'f', 0, ' '));
 			}
 		}
 	}
-	retVal.append("\n");
-	retVal.append(QString("Cumulative: %1").arg(runningTotal, 0, 'f', 3));
+	indexProbabilityString.append(QString("Cumulative: %1").arg(runningTotal, 0, 'f', 3));
+//	return indexProbabilityString;
+
+	QString retVal = QString("%1\n\n%2").arg(indexProbabilityString).arg(mappingProbabilityString);
 	return retVal;
+
 }
 
 double AMGitHubComplexityManager::outstandingEstimateAtDate(AMGitHubIssue *issue, const QDateTime &date)

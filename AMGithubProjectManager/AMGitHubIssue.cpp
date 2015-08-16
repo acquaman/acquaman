@@ -505,3 +505,11 @@ bool AMGitHubComplexityMapping::validComplexityValues(AMGitHubIssue::ActualCompl
 		return false;
 	return true;
 }
+
+int AMGitHubComplexityMapping::maximumIndex()
+{
+	int maxEstimate = int(AMGitHubIssue::EstimatedComplexityInvalid);
+	int maxActual = int(AMGitHubIssue::ActualComplexityInvalid);
+
+	return maxEstimate*maxActual-1;
+}

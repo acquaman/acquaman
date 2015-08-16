@@ -8,7 +8,9 @@
 #include "AMGitHubMilestone.h"
 #include "AMGitHubIssueFamilyView.h"
 #include "AMGitHubComplexityManager.h"
+#include "AMGitHubComplexityManagerView.h"
 #include "AMGitHubRepository.h"
+#include "AMGitHubRepositoryView.h"
 #include "AMGitHubProject.h"
 
 #include "MPlot/MPlot.h"
@@ -70,6 +72,11 @@ void AMGithubProjectManagerMainView::onGetAllZenhubEstimatesSucceeded()
 	qDebug() << "Closed and Specified:           " << repository_->fullySpecifiedClosedIssueCount();
 	qDebug() << "\n\n\n";
 
+	qDebug() << "\n\nMissing Time Report: " << repository_->missingTimeClosedIssues()->keys();
+	qDebug() << "\n\nMissing Estimates: " << repository_->missingEstimateClosedIssues()->keys();
+	qDebug() << "\n\nMissing Actuals: " << repository_->missingActualClosedIssues()->keys();
+	qDebug() << "\n\n\n\n";
+
 	AMGitHubComplexityManager *complexityManager = new AMGitHubComplexityManager();
 	QMap<int, AMGitHubIssue*>::const_iterator ia = allIssues_->constBegin();
 	while (ia != allIssues_->constEnd()) {
@@ -80,6 +87,9 @@ void AMGithubProjectManagerMainView::onGetAllZenhubEstimatesSucceeded()
 	qDebug() << "Analyzed Issues: " << complexityManager->analyzedIssues();
 	qDebug() << "Full Mapping Matrix";
 	qDebug() << complexityManager->fullMatrixString();
+
+	AMGitHubComplexityManagerView *complexityManagerView = new AMGitHubComplexityManagerView(complexityManager);
+	complexityManagerView->show();
 
 	int maxEstimate = int(AMGitHubIssue::EstimatedComplexityInvalid);
 	for(int x = 0, size = maxEstimate; x < size; x++){
@@ -102,8 +112,10 @@ void AMGithubProjectManagerMainView::onGetAllZenhubEstimatesSucceeded()
 
 	qDebug() << "\n\n\n\n";
 
+	AMGitHubRepositoryView *repositoryView = new AMGitHubRepositoryView(repository_);
+	repositoryView->show();
 
-
+	/*
 	AMGitHubIssueValueMap normalizedEstimateMap;
 	AMGitHubIssueValueMap normalizedCurrentMap;
 	AMGitHubIssueValueMap normalizedCompletedMap;
@@ -218,7 +230,7 @@ void AMGithubProjectManagerMainView::onGetAllZenhubEstimatesSucceeded()
 		qDebug() << "Reported Completed Work:          " << reportedCompletedWorkProgression->totalForDate(dateList.at(x));
 		qDebug() << "\n\n";
 	}
-
+	*/
 
 
 	return;

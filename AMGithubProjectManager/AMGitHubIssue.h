@@ -151,6 +151,7 @@ public:
 
 	static bool validMappingIndex(int mappingIndex);
 	static bool validComplexityValues(AMGitHubIssue::ActualComplexityValue actualComplexityValue, AMGitHubIssue::EstimatedComplexityValue estimatedComplexityValue);
+	static int maximumIndex();
 
 protected:
 	AMGitHubIssue::ActualComplexityValue actualComplexityValue_;

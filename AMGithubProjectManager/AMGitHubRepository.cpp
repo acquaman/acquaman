@@ -45,6 +45,76 @@ AMGitHubRepository::AMGitHubRepository(const QString &owner, const QString &repo
 	allMilestones_ = new QMap<int, AMGitHubMilestone*>();
 }
 
+const QMap<int, AMGitHubIssue*>* AMGitHubRepository::issuesMap(AMGitHubRepository::IssueMapType issuesMapType) const
+{
+	switch(issuesMapType){
+	case AllIssuesMap:
+		return allIssues();
+	case OpenIssuesMap:
+		return openIssues();
+	case ClosedIssuesMap:
+		return closedIssues();
+	case FullySpecifiedOpenMap:
+		return fullySpecifiedOpenIssues();
+	case MissingEstimateOpenMap:
+		return missingEstimateOpenIssues();
+	case UntrackedClosedMap:
+		return untrackedClosedIssues();
+	case PartiallyTrackedClosedMap:
+		return partiallyTrackedClosedIssues();
+	case FullyTrackedClosedMap:
+		return fullyTrackedClosedIssues();
+	case CompleteClosedMap:
+		return completeClosedIssues();
+	case MissingEstimateClosedMap:
+		return missingEstimateClosedIssues();
+	case MissingActualClosedMap:
+		return missingActualClosedIssues();
+	case MissingTimeReportClosedMap:
+		return missingTimeClosedIssues();
+	case FullySpecifiedClosedMap:
+		return fullySpecifiedClosedIssues();
+	case InvalidIssuesMap:
+	default:
+		return 0;
+	}
+}
+
+int AMGitHubRepository::issuesCount(AMGitHubRepository::IssueMapType issuesMapType) const
+{
+	switch(issuesMapType){
+	case AllIssuesMap:
+		return issueCount();
+	case OpenIssuesMap:
+		return openIssueCount();
+	case ClosedIssuesMap:
+		return closedIssueCount();
+	case FullySpecifiedOpenMap:
+		return fullySpecifiedOpenIssueCount();
+	case MissingEstimateOpenMap:
+		return missingEstimateOpenIssueCount();
+	case UntrackedClosedMap:
+		return completeUntrackedIssueCount();
+	case PartiallyTrackedClosedMap:
+		return trackedWithoutEstimateIssueCount();
+	case FullyTrackedClosedMap:
+		return fullyTrackedIssueCount();
+	case CompleteClosedMap:
+		return completeIssueCount();
+	case MissingEstimateClosedMap:
+		return missingEstimateClosedIssueCount();
+	case MissingActualClosedMap:
+		return missingActualClosedIssueCount();
+	case MissingTimeReportClosedMap:
+		return missingTimeClosedIssueCount();
+	case FullySpecifiedClosedMap:
+		return fullySpecifiedClosedIssueCount();
+	case InvalidIssuesMap:
+	default:
+		return 0;
+	}
+}
+
 void AMGitHubRepository::initiateRepositoryLoading()
 {
 	AMGitHubGetIssuesActionInfo *getAllIssuesActionInfo = new AMGitHubGetIssuesActionInfo(owner_, repo_, AMGitHubGetIssuesActionInfo::AllIssues);
