@@ -3,11 +3,12 @@
 #include "util/AMPeriodicTable.h"
 
 BioXASXASScanConfigurationEnergyEditor::BioXASXASScanConfigurationEnergyEditor(BioXASXASScanConfiguration *configuration, QWidget *parent) :
-	QWidget(parent)
+	AMScanConfigurationView(parent)
 {
 	// Initialize class variables.
 
 	configuration_ = 0;
+	element_ = 0;
 
 	// Create UI elements.
 
@@ -50,6 +51,11 @@ BioXASXASScanConfigurationEnergyEditor::~BioXASXASScanConfigurationEnergyEditor(
 
 }
 
+const AMScanConfiguration* BioXASXASScanConfigurationEnergyEditor::configuration() const
+{
+	return configuration_;
+}
+
 void BioXASXASScanConfigurationEnergyEditor::setConfiguration(BioXASXASScanConfiguration *newConfiguration)
 {
 	if (configuration_ != newConfiguration) {
@@ -78,7 +84,9 @@ void BioXASXASScanConfigurationEnergyEditor::setConfiguration(BioXASXASScanConfi
 
 void BioXASXASScanConfigurationEnergyEditor::clear()
 {
-
+	energy_->clear();
+	elementChoice_->setText("");
+	lineChoice_->clear();
 }
 
 void BioXASXASScanConfigurationEnergyEditor::update()
@@ -88,7 +96,6 @@ void BioXASXASScanConfigurationEnergyEditor::update()
 		if (configuration_->edge().isEmpty()) {
 
 			setElement(AMPeriodicTable::table()->elementBySymbol("Cu"));
-			lineChoice_->setCurrentIndex(0);
 
 		} else {
 
@@ -104,13 +111,6 @@ void BioXASXASScanConfigurationEnergyEditor::refresh()
 	// Clear the view.
 
 	clear();
-
-	// Construct new view.
-
-	if (configuration_) {
-
-
-	}
 
 	// Update the view.
 
@@ -141,6 +141,7 @@ void BioXASXASScanConfigurationEnergyEditor::updateEnergySpinBox()
 	if (configuration_) {
 		energy_->setEnabled(true);
 		energy_->setValue(configuration_->energy());
+
 	} else {
 		energy_->setEnabled(false);
 	}
@@ -157,6 +158,7 @@ void BioXASXASScanConfigurationEnergyEditor::updateElementChoiceButton()
 	if (configuration_ && element_) {
 		elementChoice_->setEnabled(true);
 		elementChoice_->setText(element_->symbol());
+
 	} else {
 		elementChoice_->setText(QString());
 		elementChoice_->setEnabled(false);
@@ -213,19 +215,6 @@ void BioXASXASScanConfigurationEnergyEditor::updateElement()
 	}
 }
 
-QString BioXASXASScanConfigurationEnergyEditor::currentLineChoice() const
-{
-	QString result;
-
-	int currentIndex = lineChoice_->currentIndex();
-
-	if (currentIndex > -1) {
-		result = lineChoice_->itemText(currentIndex).split(":").first();
-	}
-
-	return result;
-}
-
 void BioXASXASScanConfigurationEnergyEditor::onElementChoiceClicked()
 {
 	// Open up an element selection dialog, where the user can pick the desired
@@ -246,4 +235,17 @@ void BioXASXASScanConfigurationEnergyEditor::onLineChoiceCurrentIndexChanged(int
 		updateEnergySpinBox(lineChoice_->itemData(newIndex).toDouble());
 		updateConfigurationEdge();
 	}
+}
+
+QString BioXASXASScanConfigurationEnergyEditor::currentLineChoice() const
+{
+	QString result;
+
+	int currentIndex = lineChoice_->currentIndex();
+
+	if (currentIndex > -1) {
+		result = lineChoice_->itemText(currentIndex).split(":").first();
+	}
+
+	return result;
 }

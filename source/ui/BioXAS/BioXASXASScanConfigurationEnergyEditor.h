@@ -9,11 +9,12 @@
 #include <QLayout>
 
 #include "acquaman/BioXAS/BioXASXASScanConfiguration.h"
+#include "ui/acquaman/AMScanConfigurationView.h"
 
 class AMElement;
 class AMAbsorptionEdge;
 
-class BioXASXASScanConfigurationEnergyEditor : public QWidget
+class BioXASXASScanConfigurationEnergyEditor : public AMScanConfigurationView
 {
 	Q_OBJECT
 
@@ -24,7 +25,7 @@ public:
 	virtual ~BioXASXASScanConfigurationEnergyEditor();
 
 	/// Returns the scan configuration being viewed.
-	BioXASXASScanConfiguration* configuration() const { return configuration_; }
+	const AMScanConfiguration* configuration() const;
 
 signals:
 	/// Notifier that the scan configuration being viewed has changed.
@@ -57,9 +58,6 @@ protected slots:
 	/// Updates the line choice combobox.
 	void updateLineChoiceComboBox();
 
-	void onElementChoiceClicked();
-	void onLineChoiceCurrentIndexChanged(int newIndex);
-
 	/// Updates the scan configuration energy.
 	void updateConfigurationEnergy();
 	/// Updates the scan configuration edge.
@@ -67,6 +65,9 @@ protected slots:
 
 	/// Updates the element to correspond to the configuration's current edge.
 	void updateElement();
+
+	void onElementChoiceClicked();
+	void onLineChoiceCurrentIndexChanged(int newIndex);
 
 protected:
 	/// Returns a string representing the current line choice.

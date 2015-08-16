@@ -37,7 +37,7 @@ BioXASXASScanConfigurationView::BioXASXASScanConfigurationView(BioXASXASScanConf
 
 	// Create detectors view.
 
-	detectorsView_ = new AMGenericStepScanConfigurationDetectorsView(configuration_, AMBeamline::bl()->exposedDetectors());
+	detectorsView_ = new AMGenericStepScanConfigurationDetectorsView(0, AMBeamline::bl()->exposedDetectors());
 
 	// Create and set main layouts
 
@@ -163,63 +163,6 @@ void BioXASXASScanConfigurationView::refresh()
 
 	update();
 }
-
-//void BioXASXASScanConfigurationView::setupDefaultXANESScanRegions()
-//{
-//	while (configuration_->scanAxisAt(0)->regionCount())
-//	{
-//		regionsView_->removeEXAFSRegion(0);
-//	}
-
-//	AMScanAxisEXAFSRegion *region = new AMScanAxisEXAFSRegion;
-//	region->setEdgeEnergy(configuration_->energy());
-//	region->setRegionStart(configuration_->energy() - 30);
-//	region->setRegionStep(0.5);
-//	region->setRegionEnd(configuration_->energy() + 40);
-//	region->setRegionTime(1.0);
-//	regionsView_->insertEXAFSRegion(0, region);
-//}
-
-//void BioXASXASScanConfigurationView::setupDefaultEXAFSScanRegions()
-//{
-
-//	while (configuration_->scanAxisAt(0)->regionCount())
-//	{
-//		regionsView_->removeEXAFSRegion(0);
-//	}
-
-//	AMScanAxisEXAFSRegion *region = new AMScanAxisEXAFSRegion;
-//	region->setEdgeEnergy(configuration_->energy());
-//	region->setRegionStart(configuration_->energy() - 200);
-//	region->setRegionStep(10);
-//	region->setRegionEnd(configuration_->energy() - 30);
-//	region->setRegionTime(1.0);
-//	regionsView_->insertEXAFSRegion(0, region);
-
-//	region = new AMScanAxisEXAFSRegion;
-//	region->setEdgeEnergy(configuration_->energy());
-//	region->setRegionStart(configuration_->energy() - 30);
-//	region->setRegionStep(0.5);
-//	region->setRegionEnd(configuration_->energy() + 40);
-//	region->setRegionTime(1.0);
-//	regionsView_->insertEXAFSRegion(1, region);
-
-//	region = new AMScanAxisEXAFSRegion;
-//	region->setEdgeEnergy(configuration_->energy());
-//	region->setInKSpace(true);
-//	region->setRegionStart(AMEnergyToKSpaceCalculator::k(region->edgeEnergy(), double(region->edgeEnergy()) + 40));
-//	region->setRegionStep(0.05);
-//	region->setRegionEnd(10);
-//	region->setRegionTime(1.0);
-//	region->setMaximumTime(10.0);
-//	regionsView_->insertEXAFSRegion(2, region);
-//}
-
-//void BioXASXASScanConfigurationView::setEnergy()
-//{
-//	configuration_->setEnergy(energy_->value());
-//	regionsView_->setEdgeEnergy(energy_->value());
-//}
 
 void BioXASXASScanConfigurationView::updateName()
 {

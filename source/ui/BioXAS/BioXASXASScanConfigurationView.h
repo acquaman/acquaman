@@ -14,14 +14,9 @@
 
 #include "acquaman/BioXAS/BioXASXASScanConfiguration.h"
 #include "ui/acquaman/AMScanConfigurationView.h"
-#include "ui/acquaman/AMScanConfigurationViewHolder3.h"
 #include "ui/acquaman/AMGenericStepScanConfigurationDetectorsView.h"
 #include "ui/BioXAS/BioXASXASScanConfigurationEnergyEditor.h"
 #include "ui/BioXAS/BioXASXASScanConfigurationRegionsEditor.h"
-
-class AMScanController;
-class AMEXAFSScanAxisView;
-class AMTopFrame;
 
 class BioXASXASScanConfigurationView : public AMScanConfigurationView
 {
@@ -52,11 +47,6 @@ public slots:
 	/// Refreshes the view.
 	void refresh();
 
-    /// Slot that sets up the regions for standard XANES scans.
-    void setupDefaultXANESScanRegions();
-    /// Slot that sets up the regions for standard EXAFS scans.
-    void setupDefaultEXAFSScanRegions();
-
 protected slots:
 	/// Updates the displayed scan name to correspond to the configuration's scan name.
 	void updateName();
@@ -68,7 +58,7 @@ protected:
 	/// The configuration being viewed.
 	BioXASXASScanConfiguration *configuration_;
 
-	/// Display for the scan name.
+	/// Scan name editor.
     QLineEdit *scanName_;
 	/// Energy editor.
 	BioXASXASScanConfigurationEnergyEditor *energyEditor_;
