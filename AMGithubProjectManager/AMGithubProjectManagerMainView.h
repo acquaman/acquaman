@@ -26,14 +26,25 @@ public:
 
 protected slots:
 	void onInitiateButtonClicked();
-	void onGetAllZenhubEstimatesSucceeded();
+	void onReloadButtonClicked();
+
+	void onRepositorySubItemProgressUpdated(int percentComplete);
+	void onRepositoryOverallProgressUpdated(int percentComplete);
+
+	void onRepositoryLoaded();
+	void onRepositoryReloaded();
+
+protected:
+	void repositoryReadyToProceed();
 
 	void onOneZenhubEstimateUpdateSucceeded();
 
 protected:
 	QPushButton *initiateButton_;
+	QPushButton *reloadButton_;
 	QProgressBar *subItemProgressBar_;
 	QProgressBar *overallProgressBar_;
+	QList<int> overallProgressValues_;
 	QLabel *statusMessageLabel_;
 
 	QNetworkAccessManager *manager_;

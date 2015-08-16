@@ -1,5 +1,7 @@
 #include "AMGitHubRepository.h"
 
+#include <QFile>
+
 #include "actions3/AMListAction3.h"
 #include "actions3/actions/AMRestAction.h"
 #include "actions3/actions/AMGitHubGetIssuesAction.h"
@@ -117,6 +119,8 @@ int AMGitHubRepository::issuesCount(AMGitHubRepository::IssueMapType issuesMapTy
 
 void AMGitHubRepository::initiateRepositoryLoading()
 {
+	emit repositoryOverallProgressUpdated(0);
+	emit repositoryOverallProgressUpdated(33);
 	emit repositoryStatusMessageChanged("Retrieving Issues");
 	AMGitHubGetIssuesActionInfo *getAllIssuesActionInfo = new AMGitHubGetIssuesActionInfo(owner_, repo_, AMGitHubGetIssuesActionInfo::AllIssues);
 	AMGitHubGetIssuesAction *getAllIssuesAction = new AMGitHubGetIssuesAction(getAllIssuesActionInfo, manager_, accessToken_, allIssues_, allMilestones_);
@@ -125,10 +129,58 @@ void AMGitHubRepository::initiateRepositoryLoading()
 	getAllIssuesAction->start();
 }
 
+void AMGitHubRepository::reloadRepositoryFromFile(const QString &filePath)
+{
+	QFile githubFile(filePath);
+	if (!githubFile.open(QIODevice::ReadOnly | QIODevice::Text))
+		return;
+
+	QTextStream githubStream(&githubFile);
+	int numberOfIssues = githubStream.readLine().toInt();
+
+	AMGitHubIssue *oneIssue;
+	for(int x = 0; x < numberOfIssues; x++){
+		QString line = githubStream.readLine();
+
+		oneIssue = new AMGitHubIssue(QVariantMap());
+		oneIssue->resetFromJSON(line.toAscii());
+
+		allIssues_->insert(oneIssue->issueNumber(), oneIssue);
+	}
+//	while (!githubStream.atEnd()) {
+//		QString line = githubStream.readLine();
+
+//		oneIssue = new AMGitHubIssue(QVariantMap());
+//		oneIssue->resetFromJSON(line.toAscii());
+
+//		allIssues_->insert(oneIssue->issueNumber(), oneIssue);
+//		qDebug() << "Just added issue number " << oneIssue->issueNumber() << " Issue count is now " << allIssues_->count();
+//	}
+
+	int numberOfMilestones = githubStream.readLine().toInt();
+	for(int x = 0; x < numberOfMilestones; x++){
+		qDebug() << "Milestone: " << githubStream.readLine();
+	}
+
+	githubFile.close();
+
+	QMap<int, AMGitHubIssue*>::const_iterator j = allIssues_->constBegin();
+	while (j != allIssues_->constEnd()) {
+		if(j.value()->isPullRequest() && allIssues_->contains(j.value()->originatingIssueNumber()))
+			j.value()->setOriginatingIssue(allIssues_->value(j.value()->originatingIssueNumber()));
+		j++;
+	}
+
+	sortMaps();
+
+	qDebug() << "Repository reloaded";
+	emit repositoryStatusMessageChanged("Repository Reloaded");
+	emit repositoryReloaded();
+}
+
 void AMGitHubRepository::onGetAllIssuesActionSucceeded()
 {
-	this->disconnect(SLOT(onActionProgressChanged(double,double)));
-	emit repositoryOverallProgressUpdated(33);
+	emit repositoryOverallProgressUpdated(66);
 
 	emit repositoryStatusMessageChanged("Retrieving Comments");
 	QMap<int, AMGitHubIssue*>::const_iterator j = allIssues_->constBegin();
@@ -152,8 +204,7 @@ void AMGitHubRepository::onGetAllIssuesActionSucceeded()
 
 void AMGitHubRepository::onGetAllCommentsActionSucceeded()
 {
-	this->disconnect(SLOT(onActionProgressChanged(double,double)));
-	emit repositoryOverallProgressUpdated(66);
+	emit repositoryOverallProgressUpdated(99);
 
 	emit repositoryStatusMessageChanged("Retrieving Estimates");
 	QStringList allEstimateURLs;
@@ -181,9 +232,10 @@ void AMGitHubRepository::onGetAllCommentsActionSucceeded()
 
 void AMGitHubRepository::onGetAllZenhubEstimatesSucceeded()
 {
-	this->disconnect(SLOT(onActionProgressChanged(double,double)));
 	emit repositoryOverallProgressUpdated(100);
 
+	sortMaps();
+	/*
 	QMap<int, AMGitHubIssue*>::const_iterator h = allIssues_->constBegin();
 	while(h != allIssues_->constEnd()){
 		// Inline issues that are not pull request use the originating issue for both fields in the family
@@ -252,6 +304,7 @@ void AMGitHubRepository::onGetAllZenhubEstimatesSucceeded()
 
 		j++;
 	}
+	*/
 
 	emit repositoryStatusMessageChanged("Repository Loaded");
 	emit repositoryLoaded();
@@ -262,4 +315,76 @@ void AMGitHubRepository::onActionProgressChanged(double numerator, double denomi
 	double percentComplete = 100*numerator/denominator;
 	int percentCompleteAsInt = int(percentComplete);
 	emit repositorySubItemProgressUpdated(percentCompleteAsInt);
+}
+
+void AMGitHubRepository::sortMaps()
+{
+	QMap<int, AMGitHubIssue*>::const_iterator h = allIssues_->constBegin();
+	while(h != allIssues_->constEnd()){
+		// Inline issues that are not pull request use the originating issue for both fields in the family
+		if(!h.value()->isPullRequest() && h.value()->inlineIssue()){
+			AMGitHubIssueFamily *oneIssueFamily = new AMGitHubIssueFamily(h.value(), h.value());
+			allIssueFamilies_->insert(h.value()->issueNumber(), oneIssueFamily);
+			if(allMilestones_->contains(h.value()->issueNumber()))
+				allMilestones_->value(h.value()->issueNumber())->associateFamily(oneIssueFamily);
+		}
+		// Issues that aren't pull requests and aren't tracking disabled are the originating issue for a family (we'll iterate again to figure out if they have an associated pull request)
+		else if(!h.value()->isPullRequest() && !h.value()->projectTrackingDisabled()){
+			AMGitHubIssueFamily *oneIssueFamily = new AMGitHubIssueFamily(h.value(), 0);
+			allIssueFamilies_->insert(h.value()->issueNumber(), oneIssueFamily);
+			if(allMilestones_->contains(h.value()->issueNumber()))
+				allMilestones_->value(h.value()->issueNumber())->associateFamily(oneIssueFamily);
+		}
+
+		// Sort open issues into category maps
+		if(h.value()->isOpen()){
+			allOpenIssues_->insert(h.key(), h.value());
+			if(h.value()->issueFullySpecifiedForState())
+				fullySpecifiedOpenIssues_->insert(h.key(), h.value());
+			if(h.value()->issueMissingEstimateComplexity())
+				missingEstimateOpenIssues_->insert(h.key(), h.value());
+		}
+		// Sort closed issues into category maps
+		if(h.value()->isClosed()){
+			allClosedIssues_->insert(h.key(), h.value());
+			if(h.value()->issueCompletelyUntracked())
+				completelyUntrackedIssues_->insert(h.key(), h.value());
+			if(h.value()->issueTrackedWithoutEstimates())
+				trackedWithoutEstimateIssues_->insert(h.key(), h.value());
+			if(h.value()->fullyTrackedIssue())
+				fullyTrackedIssues_->insert(h.key(), h.value());
+			if(h.value()->completeIssue())
+				completeIssues_->insert(h.key(), h.value());
+			if(h.value()->issueMissingEstimateComplexity())
+				missingEstimateClosedIssues_->insert(h.key(), h.value());
+			if(h.value()->issueMissingActualComplexity())
+				missingActualClosedIssues_->insert(h.key(), h.value());
+			if(h.value()->issueMissingTimeReporting())
+				missingTimeClosedIssues_->insert(h.key(), h.value());
+			if(h.value()->issueFullySpecifiedForState())
+				fullySpecifiedClosedIssues_->insert(h.key(), h.value());
+		}
+
+		h++;
+	}
+
+	QMap<int, AMGitHubIssue*>::const_iterator i = allIssues_->constBegin();
+	while (i != allIssues_->constEnd()) {
+		// Pull requests that have originating issues in the family map set themselves as the pull request
+		if(i.value()->isPullRequest() && allIssueFamilies_->contains(i.value()->originatingIssueNumber()))
+			allIssueFamilies_->value(i.value()->originatingIssueNumber())->setPullRequestIssue(i.value());
+
+		i++;
+	}
+
+	QMap<int, AMGitHubIssueFamily*>::const_iterator j = allIssueFamilies_->constBegin();
+	while(j != allIssueFamilies_->constEnd()) {
+
+		if(j.value()->fullySpecifiedFamily())
+			fullySpecifiedFamilies_->insert(j.value()->originatingIssue()->issueNumber(), j.value());
+		if(j.value()->completedFamily())
+			completedFamilies_->insert(j.value()->originatingIssue()->issueNumber(), j.value());
+
+		j++;
+	}
 }

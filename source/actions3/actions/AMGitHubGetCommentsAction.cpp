@@ -69,7 +69,7 @@ AMRestAction* AMGitHubGetCommentsAction::setupNextRestAction()
 		headerNextPageNumber_ = -1;
 		headerLastPageNumber_ = -1;
 		QString oneCommentURL = commentURLsCopy_.takeFirst();
-		qDebug() << "Moving on to " << oneCommentURL;
+//		qDebug() << "Moving on to " << oneCommentURL;
 
 		AMRestActionInfo *getCommentsActionInfo = new AMRestActionInfo(oneCommentURL, AMRestActionInfo::GetRequest);
 		getCommentsActionInfo->setRawHeader("Authorization", authorizationHeader_.toLocal8Bit());

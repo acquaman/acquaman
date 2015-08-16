@@ -6,6 +6,7 @@
 #include <QDebug>
 #include <QScrollArea>
 #include <QProgressBar>
+#include <QFile>
 
 #include "AMGitHubMilestone.h"
 #include "AMGitHubIssueFamilyView.h"
@@ -25,8 +26,13 @@
 AMGithubProjectManagerMainView::AMGithubProjectManagerMainView(QWidget *parent)
 	: QWidget(parent)
 {
+	QHBoxLayout *loadingButtonHL = new QHBoxLayout();
 	initiateButton_ = new QPushButton("Initiate");
+	reloadButton_ = new QPushButton("Reload");
+	loadingButtonHL->addWidget(initiateButton_);
+	loadingButtonHL->addWidget(reloadButton_);
 	connect(initiateButton_, SIGNAL(clicked()), this, SLOT(onInitiateButtonClicked()));
+	connect(reloadButton_, SIGNAL(clicked()), this, SLOT(onReloadButtonClicked()));
 
 	subItemProgressBar_ = new QProgressBar();
 	subItemProgressBar_->setRange(0, 100);
@@ -39,12 +45,21 @@ AMGithubProjectManagerMainView::AMGithubProjectManagerMainView(QWidget *parent)
 	statusMessageLabel_ = new QLabel();
 
 	QVBoxLayout *vl = new QVBoxLayout();
-	vl->addWidget(initiateButton_);
+	vl->addLayout(loadingButtonHL);
 	vl->addWidget(subItemProgressBar_);
 	vl->addWidget(overallProgressBar_);
 	vl->addWidget(statusMessageLabel_);
 
 	setLayout(vl);
+
+	manager_ = new QNetworkAccessManager(this);
+	repository_ = new AMGitHubRepository("acquaman", "acquaman", manager_, "token 2f8e7e362e5c0a5ea065255ccfdc369e70f4327b");
+
+	allIssues_ = repository_->allIssues();
+	allMilestones_ = repository_->allMilestones();
+	allIssueFamilies_ = repository_->allIssueFamilies();
+
+	connect(repository_, SIGNAL(repositoryStatusMessageChanged(QString)), statusMessageLabel_, SLOT(setText(QString)));
 }
 
 AMGithubProjectManagerMainView::~AMGithubProjectManagerMainView()
@@ -52,25 +67,96 @@ AMGithubProjectManagerMainView::~AMGithubProjectManagerMainView()
 
 }
 
-void AMGithubProjectManagerMainView::onInitiateButtonClicked(){
-	manager_ = new QNetworkAccessManager(this);
+void AMGithubProjectManagerMainView::onInitiateButtonClicked()
+{
+//	repository_ = new AMGitHubRepository("acquaman", "acquaman", manager_, "token 2f8e7e362e5c0a5ea065255ccfdc369e70f4327b");
 
-	repository_ = new AMGitHubRepository("acquaman", "acquaman", manager_, "token 2f8e7e362e5c0a5ea065255ccfdc369e70f4327b");
+	connect(repository_, SIGNAL(repositorySubItemProgressUpdated(int)), this, SLOT(onRepositorySubItemProgressUpdated(int)));
+	connect(repository_, SIGNAL(repositoryOverallProgressUpdated(int)), this, SLOT(onRepositoryOverallProgressUpdated(int)));
 
-	connect(repository_, SIGNAL(repositorySubItemProgressUpdated(int)), subItemProgressBar_, SLOT(setValue(int)));
-	connect(repository_, SIGNAL(repositoryOverallProgressUpdated(int)), overallProgressBar_, SLOT(setValue(int)));
-	connect(repository_, SIGNAL(repositoryStatusMessageChanged(QString)), statusMessageLabel_, SLOT(setText(QString)));
+//	allIssues_ = repository_->allIssues();
+//	allMilestones_ = repository_->allMilestones();
+//	allIssueFamilies_ = repository_->allIssueFamilies();
 
-	allIssues_ = repository_->allIssues();
-	allMilestones_ = repository_->allMilestones();
-	allIssueFamilies_ = repository_->allIssueFamilies();
-
-	connect(repository_, SIGNAL(repositoryLoaded()), this, SLOT(onGetAllZenhubEstimatesSucceeded()));
+	connect(repository_, SIGNAL(repositoryLoaded()), this, SLOT(onRepositoryLoaded()));
 	repository_->initiateRepositoryLoading();
 }
 
-void AMGithubProjectManagerMainView::onGetAllZenhubEstimatesSucceeded()
+void AMGithubProjectManagerMainView::onReloadButtonClicked()
 {
+	if(QFile::exists("lastGitHub.txt")){
+		connect(repository_, SIGNAL(repositoryReloaded()), this, SLOT(onRepositoryReloaded()));
+		repository_->reloadRepositoryFromFile("lastGitHub.txt");
+	}
+}
+
+void AMGithubProjectManagerMainView::onRepositorySubItemProgressUpdated(int percentComplete)
+{
+	subItemProgressBar_->setValue(percentComplete);
+
+	double currentSubItem = double(percentComplete);
+	double lastOverallValue = overallProgressValues_.at(overallProgressValues_.count()-2);
+	double currentOverallValue = overallProgressValues_.at(overallProgressValues_.count()-1);
+	double partialProgress = lastOverallValue + (currentSubItem/100)*(currentOverallValue-lastOverallValue);
+	overallProgressBar_->setValue(partialProgress);
+}
+
+void AMGithubProjectManagerMainView::onRepositoryOverallProgressUpdated(int percentComplete)
+{
+	overallProgressValues_.append(percentComplete);
+}
+
+void AMGithubProjectManagerMainView::onRepositoryLoaded()
+{
+	QFile githubFile("lastGitHub.txt");
+	if (!githubFile.open(QIODevice::WriteOnly | QIODevice::Text))
+		return;
+
+	QTextStream githubStream(&githubFile);
+
+	githubStream << allIssues_->count() << "\n";
+	QMap<int, AMGitHubIssue*>::const_iterator j = allIssues_->constBegin();
+	while (j != allIssues_->constEnd()) {
+		githubStream << j.value()->toJSON() << "\n";
+		j++;
+	}
+
+	githubStream << allMilestones_->count() << "\n";
+	QMap<int, AMGitHubMilestone*>::const_iterator i = allMilestones_->constBegin();
+	while(i != allMilestones_->constEnd()){
+		githubStream << i.value()->toJSON() << "\n";
+		i++;
+	}
+
+	githubFile.close();
+
+	qDebug() << "Repository is loaded";
+
+	repositoryReadyToProceed();
+}
+
+void AMGithubProjectManagerMainView::onRepositoryReloaded()
+{
+	qDebug() << "Repository is reloaded";
+	repositoryReadyToProceed();
+}
+
+void AMGithubProjectManagerMainView::repositoryReadyToProceed()
+{
+	/*
+	QFile githubFile("lastGitHub.txt");
+	if (!githubFile.open(QIODevice::WriteOnly | QIODevice::Text))
+		return;
+
+	QTextStream githubStream(&githubFile);
+	QMap<int, AMGitHubIssue*>::const_iterator ib = allIssues_->constBegin();
+	while (ib != allIssues_->constEnd()) {
+		githubStream << ib.value()->toJSON() << "\n";
+		ib++;
+	}
+	githubFile.close();
+	*/
+
 	qDebug() << "Repository is loaded";
 
 	qDebug() << "All Issues:                     " << repository_->issueCount();

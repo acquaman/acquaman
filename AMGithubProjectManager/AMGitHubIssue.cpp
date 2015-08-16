@@ -1,8 +1,10 @@
 #include "AMGitHubIssue.h"
 
 #include <QRegExp>
-
 #include <QDebug>
+
+#include "qjson/serializer.h"
+#include "qjson/parser.h"
 
 AMGitHubIssue::AMGitHubIssue(QVariantMap jsonMap, QObject *parent) :
 	QObject(parent)
@@ -87,6 +89,36 @@ AMGitHubIssue::AMGitHubIssue(QVariantMap jsonMap, QObject *parent) :
 
 AMGitHubIssue::~AMGitHubIssue()
 {
+}
+
+QVariantMap AMGitHubIssue::toMap() const
+{
+	QVariantMap retVal;
+
+	retVal.insert("issueNumber", issueNumber_);
+	retVal.insert("title", title_);
+	retVal.insert("assignee", assignee_);
+	retVal.insert("actualComplexity", actualComplexityValue_);
+	retVal.insert("estimatedComplexity", estimatedComplexityValue_);
+	retVal.insert("timeEstimateString", timeEstimateString_);
+	retVal.insert("isPullRequest", isPullRequest_);
+	retVal.insert("originatingIssueNumber", originatingIssueNumber_);
+	retVal.insert("projectTrackingDisabled", projectTrackingDisabled_);
+	retVal.insert("inlineIssue", inlineIssue_);
+	retVal.insert("issueState", issueState_);
+	retVal.insert("createdDate", createdDate_);
+	retVal.insert("closedDate", closedDate_);
+
+	return retVal;
+}
+
+QByteArray AMGitHubIssue::toJSON() const
+{
+	QVariantMap asMap = toMap();
+
+	QJson::Serializer jserializer;
+	QByteArray retVal = jserializer.serialize(asMap);
+	return retVal;
 }
 
 bool AMGitHubIssue::validActualComplexity() const
@@ -397,6 +429,55 @@ void AMGitHubIssue::setEstimatedComplexityValue(AMGitHubIssue::EstimatedComplexi
 	estimatedComplexityValue_ = estimatedComplexityValue;
 	complexityMapping_->deleteLater();
 	complexityMapping_ = new AMGitHubComplexityMapping(this);
+}
+
+void AMGitHubIssue::resetFromMap(const QVariantMap &map)
+{
+	if(map.contains("issueNumber"))
+		issueNumber_ = map.value("issueNumber").toInt();
+	if(map.contains("title"))
+		title_ = map.value("title").toString();
+	if(map.contains("assignee"))
+		assignee_ = map.value("assignee").toString();
+	if(map.contains("actualComplexity"))
+		actualComplexityValue_ = AMGitHubIssue::ActualComplexityValue(map.value("actualComplexity").toLongLong());
+	if(map.contains("estimatedComplexity"))
+		estimatedComplexityValue_ = AMGitHubIssue::EstimatedComplexityValue(map.value("estimatedComplexity").toLongLong());
+
+	if(map.contains("timeEstimateString"))
+		timeEstimateString_ = map.value("timeEstimateString").toString();
+	if(map.contains("isPullRequest"))
+		isPullRequest_ = map.value("isPullRequest").toBool();
+	if(map.contains("originatingIssueNumber"))
+		originatingIssueNumber_ = map.value("originatingIssueNumber").toInt();
+	if(map.contains("projectTrackingDisabled"))
+		projectTrackingDisabled_ = map.value("projectTrackingDisabled").toBool();
+	if(map.contains("inlineIssue"))
+		inlineIssue_ = map.value("inlineIssue").toBool();
+	if(map.contains("issueState"))
+		issueState_ = AMGitHubIssue::IssueState(map.value("issueState").toLongLong());
+	if(map.contains("createdDate"))
+		createdDate_ = map.value("createdDate").toDateTime();
+	if(map.contains("closedDate"))
+		closedDate_ = map.value("closedDate").toDateTime();
+
+	complexityMapping_->deleteLater();
+	complexityMapping_ = new AMGitHubComplexityMapping(this);
+}
+
+void AMGitHubIssue::resetFromJSON(const QByteArray &json)
+{
+	QJson::Parser jparser;
+	bool successfulParsing = false;
+	QVariant parseVariant = jparser.parse(json, &successfulParsing);
+	if(successfulParsing && parseVariant.canConvert<QVariantMap>()){
+		QVariantMap parseVariantMap = parseVariant.toMap();
+		resetFromMap(parseVariantMap);
+	}
+	else{
+		qDebug() << "Failed to parse JSON in resetFromJSON";
+	}
+
 }
 
 AMGitHubComplexityMapping::AMGitHubComplexityMapping(int mappingIndex, QObject *parent) :

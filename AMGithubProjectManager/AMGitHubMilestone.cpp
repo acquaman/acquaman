@@ -1,5 +1,8 @@
 #include "AMGitHubMilestone.h"
 
+#include "qjson/serializer.h"
+#include "qjson/parser.h"
+
 AMGitHubMilestone::AMGitHubMilestone(QVariantMap jsonMap, QObject *parent) :
 	QObject(parent)
 {
@@ -41,6 +44,31 @@ QString AMGitHubMilestone::stateAsString() const
 	default:
 		return "Invalid State";
 	}
+}
+
+QVariantMap AMGitHubMilestone::toMap() const
+{
+	QVariantMap retVal;
+
+	retVal.insert("number", number_);
+	retVal.insert("title", title_);
+	retVal.insert("state", state_);
+
+	QVariantList issueNumbers;
+	for(int x = 0, size = associatedIssues_->keys().count(); x < size; x++)
+		issueNumbers.append(associatedIssues_->keys().at(x));
+	retVal.insert("issueNumbers", issueNumbers);
+
+	return retVal;
+}
+
+QByteArray AMGitHubMilestone::toJSON() const
+{
+	QVariantMap asMap = toMap();
+
+	QJson::Serializer jserializer;
+	QByteArray retVal = jserializer.serialize(asMap);
+	return retVal;
 }
 
 void AMGitHubMilestone::associateIssue(AMGitHubIssue *associatedIssue)

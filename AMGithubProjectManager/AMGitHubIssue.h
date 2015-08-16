@@ -19,6 +19,9 @@ public:
 	AMGitHubIssue(QVariantMap jsonMap, QObject *parent = 0);
 	virtual ~AMGitHubIssue();
 
+	QVariantMap toMap() const;
+	QByteArray toJSON() const;
+
 	int issueNumber() const { return issueNumber_; }
 	QString title() const { return title_; }
 	QString assignee() const { return assignee_; }
@@ -103,6 +106,9 @@ public slots:
 	void setProjectTrackingDisabled(bool projectTrackingDisabled) { projectTrackingDisabled_ = projectTrackingDisabled; }
 	void setInlineIssue(bool inlineIssue) { inlineIssue_ = inlineIssue; }
 
+	void resetFromMap(const QVariantMap &map);
+	void resetFromJSON(const QByteArray &json);
+
 protected:
 	int issueNumber_;
 	QString title_;
@@ -129,6 +135,10 @@ protected:
 	QDateTime createdDate_;
 	QDateTime closedDate_;
 };
+
+Q_DECLARE_METATYPE(AMGitHubIssue::ActualComplexityValue)
+Q_DECLARE_METATYPE(AMGitHubIssue::EstimatedComplexityValue)
+Q_DECLARE_METATYPE(AMGitHubIssue::IssueState)
 
 class AMGitHubComplexityMapping : public QObject
 {

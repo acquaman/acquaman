@@ -97,6 +97,7 @@ public:
 
 public slots:
 	void initiateRepositoryLoading();
+	void reloadRepositoryFromFile(const QString &filePath);
 
 	void setOwner(const QString &owner) { owner_ = owner; }
 	void setRepo(const QString &repo) { repo_ = repo; }
@@ -105,6 +106,7 @@ public slots:
 
 signals:
 	void repositoryLoaded();
+	void repositoryReloaded();
 
 	void repositorySubItemProgressUpdated(int percentComplete);
 	void repositoryOverallProgressUpdated(int percentComplete);
@@ -116,6 +118,9 @@ protected slots:
 	void onGetAllZenhubEstimatesSucceeded();
 
 	void onActionProgressChanged(double numerator, double denominator);
+
+protected:
+	void sortMaps();
 
 protected:
 	QString owner_;

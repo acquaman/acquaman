@@ -142,7 +142,7 @@ void AMZenHubGetEstimatesAction::onRestActionFullResponseReady(QVariant fullResp
 	}
 
 	int issueNumber = lastURL_.section("/", -2, -2).toInt();
-	qDebug() << "The estimate for " << issueNumber << " is " << estimateValue;
+//	qDebug() << "The estimate for " << issueNumber << " is " << estimateValue;
 
 	if(allIssues_->contains(issueNumber))
 		allIssues_->value(issueNumber)->setEstimatedComplexityValue(AMGitHubIssue::estimatedComplexityFromInteger(estimateValue));
