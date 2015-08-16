@@ -5,8 +5,9 @@
 #include <QNetworkReply>
 
 class QPushButton;
-class QLineEdit;
+class QLabel;
 class QNetworkAccessManager;
+class QProgressBar;
 
 class AMGitHubRepository;
 class AMControlButton;
@@ -31,6 +32,9 @@ protected slots:
 
 protected:
 	QPushButton *initiateButton_;
+	QProgressBar *subItemProgressBar_;
+	QProgressBar *overallProgressBar_;
+	QLabel *statusMessageLabel_;
 
 	QNetworkAccessManager *manager_;
 

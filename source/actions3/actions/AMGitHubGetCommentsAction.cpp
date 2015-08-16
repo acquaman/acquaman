@@ -91,7 +91,10 @@ void AMGitHubGetCommentsAction::restResponseImplementation(QVariant fullResponse
 
 	QVariantList githubListReply = fullResponse.toList();
 	int issueNumber = githubListReply.at(0).toMap().value("issue_url").toString().section("/", -1, -1).toInt();
-	qDebug() << "Checking Issue " << issueNumber << "(" << commentURLsCopy_.count() << " comments remaining to fetch)";
+//	qDebug() << "Checking Issue " << issueNumber << "(" << commentURLsCopy_.count() << " comments remaining to fetch)";
+
+	setProgress(githubGetCommentsActionInfo()->commentURLs().count()-commentURLsCopy_.count(), githubGetCommentsActionInfo()->commentURLs().count());
+
 	for(int x = 0, size = githubListReply.count(); x < size; x++){
 		if(githubListReply.at(x).toMap().value("body").toString().contains("Time Estimate:")){
 			QStringList splitCommentBody = githubListReply.at(x).toMap().value("body").toString().split("\n");

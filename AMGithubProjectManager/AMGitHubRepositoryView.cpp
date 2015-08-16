@@ -88,6 +88,8 @@ AMGitHubRepositoryIssueMapTypeView::AMGitHubRepositoryIssueMapTypeView(AMGitHubR
 	mainHL->addWidget(countLabel_);
 	mainHL->addWidget(moreInfoButton_);
 
+	setWindowTitle(issuesMapTypeString_);
+
 	setLayout(mainHL);
 	connect(moreInfoButton_, SIGNAL(clicked()), this, SLOT(onMoreInfoButtonClicked()));
 }

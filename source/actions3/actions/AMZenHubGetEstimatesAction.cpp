@@ -115,7 +115,8 @@ AMRestAction* AMZenHubGetEstimatesAction::setupNextRestAction()
 {
 	if(estimatesURLsCopy_.count() > 0){
 		QString oneEstimateURL = estimatesURLsCopy_.takeFirst();
-		qDebug() << "Moving on to " << oneEstimateURL << "(" << estimatesURLsCopy_.count() << " remaining)";
+//		qDebug() << "Moving on to " << oneEstimateURL << "(" << estimatesURLsCopy_.count() << " remaining)";
+		setProgress(zenhubGetEstimatesActionInfo()->estimateURLs().count()-estimatesURLsCopy_.count(), zenhubGetEstimatesActionInfo()->estimateURLs().count());
 		lastURL_ = oneEstimateURL;
 
 		AMRestActionInfo *getEstimatesActionInfo = new AMRestActionInfo(oneEstimateURL, AMRestActionInfo::GetRequest);

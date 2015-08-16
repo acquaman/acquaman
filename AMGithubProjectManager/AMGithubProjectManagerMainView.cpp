@@ -1,9 +1,11 @@
 #include "AMGithubProjectManagerMainView.h"
 
 #include <QPushButton>
+#include <QLabel>
 #include <QBoxLayout>
 #include <QDebug>
 #include <QScrollArea>
+#include <QProgressBar>
 
 #include "AMGitHubMilestone.h"
 #include "AMGitHubIssueFamilyView.h"
@@ -26,8 +28,21 @@ AMGithubProjectManagerMainView::AMGithubProjectManagerMainView(QWidget *parent)
 	initiateButton_ = new QPushButton("Initiate");
 	connect(initiateButton_, SIGNAL(clicked()), this, SLOT(onInitiateButtonClicked()));
 
+	subItemProgressBar_ = new QProgressBar();
+	subItemProgressBar_->setRange(0, 100);
+	subItemProgressBar_->setValue(0);
+
+	overallProgressBar_ = new QProgressBar();
+	overallProgressBar_->setRange(0, 100);
+	overallProgressBar_->setValue(0);
+
+	statusMessageLabel_ = new QLabel();
+
 	QVBoxLayout *vl = new QVBoxLayout();
 	vl->addWidget(initiateButton_);
+	vl->addWidget(subItemProgressBar_);
+	vl->addWidget(overallProgressBar_);
+	vl->addWidget(statusMessageLabel_);
 
 	setLayout(vl);
 }
@@ -41,6 +56,10 @@ void AMGithubProjectManagerMainView::onInitiateButtonClicked(){
 	manager_ = new QNetworkAccessManager(this);
 
 	repository_ = new AMGitHubRepository("acquaman", "acquaman", manager_, "token 2f8e7e362e5c0a5ea065255ccfdc369e70f4327b");
+
+	connect(repository_, SIGNAL(repositorySubItemProgressUpdated(int)), subItemProgressBar_, SLOT(setValue(int)));
+	connect(repository_, SIGNAL(repositoryOverallProgressUpdated(int)), overallProgressBar_, SLOT(setValue(int)));
+	connect(repository_, SIGNAL(repositoryStatusMessageChanged(QString)), statusMessageLabel_, SLOT(setText(QString)));
 
 	allIssues_ = repository_->allIssues();
 	allMilestones_ = repository_->allMilestones();

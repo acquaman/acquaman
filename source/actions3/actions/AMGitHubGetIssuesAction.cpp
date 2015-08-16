@@ -96,7 +96,8 @@ void AMGitHubGetIssuesAction::restResponseImplementation(QVariant fullResponse, 
 {
 	Q_UNUSED(headerPairs)
 
-	qDebug() << "More more issues to fetch, going to page " << headerNextPageNumber_;
+//	qDebug() << "More more issues to fetch, going to page " << headerNextPageNumber_;
+	setProgress(headerNextPageNumber_, headerLastPageNumber_);
 
 	QVariant allIssuesResponse = fullResponse;
 

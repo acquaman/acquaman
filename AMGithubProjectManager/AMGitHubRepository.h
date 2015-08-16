@@ -106,10 +106,16 @@ public slots:
 signals:
 	void repositoryLoaded();
 
+	void repositorySubItemProgressUpdated(int percentComplete);
+	void repositoryOverallProgressUpdated(int percentComplete);
+	void repositoryStatusMessageChanged(const QString &statusMessage);
+
 protected slots:
 	void onGetAllIssuesActionSucceeded();
 	void onGetAllCommentsActionSucceeded();
 	void onGetAllZenhubEstimatesSucceeded();
+
+	void onActionProgressChanged(double numerator, double denominator);
 
 protected:
 	QString owner_;

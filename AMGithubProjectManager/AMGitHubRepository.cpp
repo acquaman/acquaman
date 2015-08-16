@@ -117,14 +117,20 @@ int AMGitHubRepository::issuesCount(AMGitHubRepository::IssueMapType issuesMapTy
 
 void AMGitHubRepository::initiateRepositoryLoading()
 {
+	emit repositoryStatusMessageChanged("Retrieving Issues");
 	AMGitHubGetIssuesActionInfo *getAllIssuesActionInfo = new AMGitHubGetIssuesActionInfo(owner_, repo_, AMGitHubGetIssuesActionInfo::AllIssues);
 	AMGitHubGetIssuesAction *getAllIssuesAction = new AMGitHubGetIssuesAction(getAllIssuesActionInfo, manager_, accessToken_, allIssues_, allMilestones_);
 	connect(getAllIssuesAction, SIGNAL(succeeded()), this, SLOT(onGetAllIssuesActionSucceeded()));
+	connect(getAllIssuesAction, SIGNAL(progressChanged(double,double)), this, SLOT(onActionProgressChanged(double,double)));
 	getAllIssuesAction->start();
 }
 
 void AMGitHubRepository::onGetAllIssuesActionSucceeded()
 {
+	this->disconnect(SLOT(onActionProgressChanged(double,double)));
+	emit repositoryOverallProgressUpdated(33);
+
+	emit repositoryStatusMessageChanged("Retrieving Comments");
 	QMap<int, AMGitHubIssue*>::const_iterator j = allIssues_->constBegin();
 	while (j != allIssues_->constEnd()) {
 		if(j.value()->isPullRequest() && allIssues_->contains(j.value()->originatingIssueNumber()))
@@ -140,11 +146,16 @@ void AMGitHubRepository::onGetAllIssuesActionSucceeded()
 	AMGitHubGetCommentsActionInfo *getAllCommentsActionInfo = new AMGitHubGetCommentsActionInfo(owner_, repo_, commentURLs_);
 	AMGitHubGetCommentsAction *getAllCommentsAction = new AMGitHubGetCommentsAction(getAllCommentsActionInfo, manager_, accessToken_, allIssues_);
 	connect(getAllCommentsAction, SIGNAL(succeeded()), this, SLOT(onGetAllCommentsActionSucceeded()));
+	connect(getAllCommentsAction, SIGNAL(progressChanged(double,double)), this, SLOT(onActionProgressChanged(double,double)));
 	getAllCommentsAction->start();
 }
 
-void AMGitHubRepository::onGetAllCommentsActionSucceeded(){
+void AMGitHubRepository::onGetAllCommentsActionSucceeded()
+{
+	this->disconnect(SLOT(onActionProgressChanged(double,double)));
+	emit repositoryOverallProgressUpdated(66);
 
+	emit repositoryStatusMessageChanged("Retrieving Estimates");
 	QStringList allEstimateURLs;
 	QMap<int, AMGitHubIssue*>::const_iterator h = allIssues_->constBegin();
 	while(h != allIssues_->constEnd()){
@@ -164,11 +175,14 @@ void AMGitHubRepository::onGetAllCommentsActionSucceeded(){
 	AMZenHubGetEstimatesActionInfo *getAllEstimatesActionInfo = new AMZenHubGetEstimatesActionInfo("acquaman", "acquaman", allEstimateURLs);
 	AMZenHubGetEstimatesAction *getAllEstimatesAction = new AMZenHubGetEstimatesAction(getAllEstimatesActionInfo, manager_, accessToken_, allIssues_);
 	connect(getAllEstimatesAction, SIGNAL(succeeded()), this, SLOT(onGetAllZenhubEstimatesSucceeded()));
+	connect(getAllEstimatesAction, SIGNAL(progressChanged(double,double)), this, SLOT(onActionProgressChanged(double,double)));
 	getAllEstimatesAction->start();
 }
 
 void AMGitHubRepository::onGetAllZenhubEstimatesSucceeded()
 {
+	this->disconnect(SLOT(onActionProgressChanged(double,double)));
+	emit repositoryOverallProgressUpdated(100);
 
 	QMap<int, AMGitHubIssue*>::const_iterator h = allIssues_->constBegin();
 	while(h != allIssues_->constEnd()){
@@ -239,6 +253,13 @@ void AMGitHubRepository::onGetAllZenhubEstimatesSucceeded()
 		j++;
 	}
 
-	qDebug() << "Repository loaded";
+	emit repositoryStatusMessageChanged("Repository Loaded");
 	emit repositoryLoaded();
+}
+
+void AMGitHubRepository::onActionProgressChanged(double numerator, double denominator)
+{
+	double percentComplete = 100*numerator/denominator;
+	int percentCompleteAsInt = int(percentComplete);
+	emit repositorySubItemProgressUpdated(percentCompleteAsInt);
 }

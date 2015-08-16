@@ -21,6 +21,8 @@ protected:
 	QTableView *probabilityOfMappingTableView_;
 	QStandardItemModel *probabilityOfMappingInRowModel_;
 	QTableView *probabilityOfMappingInRowTableView_;
+
+
 };
 
 #endif // AMGITHUBCOMPLEXITYMANAGERVIEW_H
