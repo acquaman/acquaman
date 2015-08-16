@@ -71,6 +71,7 @@ bool BioXASAppController::startup()
 void BioXASAppController::shutdown()
 {
 	// Make sure we release/clean-up the beamline interface
+
 	AMBeamline::releaseBl();
 	AMAppController::shutdown();
 }
@@ -109,11 +110,6 @@ void BioXASAppController::onRegionOfInterestRemoved(AMRegionOfInterest *region)
 
 	if (xasConfiguration_)
 		xasConfiguration_->removeRegionOfInterest(region);
-}
-
-void BioXASAppController::goToXASScanConfigurationView(BioXASXASScanConfiguration *configuration)
-{
-//	xasConfigurationView_
 }
 
 void BioXASAppController::goToEnergyCalibrationScanConfigurationView()

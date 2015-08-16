@@ -87,8 +87,6 @@ protected slots:
 	/// Handles removing regions of interest from all the configurations that would care.
 	virtual void onRegionOfInterestRemoved(AMRegionOfInterest *region);
 
-	/// Sets the XAS scan configuration view as the current pane.
-	void goToXASScanConfigurationView(BioXASXASScanConfiguration *configuration);
 	/// Sets the monochromator energy calibration scan configuration view as the current pane.
 	void goToEnergyCalibrationScanConfigurationView();
 
