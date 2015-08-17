@@ -46,11 +46,6 @@ public:
 	AMControl* downstreamStatusControl() const { return downstreamStatus_; }
 
 protected:
-	/// The name.
-	QString name_;
-	/// The current connected state.
-	bool connected_;
-
 	/// The total filter control.
 	BioXASCarbonFilterFarmControl *filter_;
 

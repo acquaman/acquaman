@@ -36,7 +36,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "actions3/actions/AMScanAction.h"
 
 #include "beamline/AMMotorGroup.h"
-#include "beamline/SGM/SGMSampleManipulatorMotorGroup.h"
 #include "actions3/actions/AMControlStopAction.h"
 
 
@@ -1214,17 +1213,26 @@ void SGMBeamline::setupControls(){
 	if(amNames2pvNames_.lookupFailed())
 		AMErrorMon::alert(this, SGMBEAMLINE_PV_NAME_LOOKUPS_FAILED, "PV Name lookups in the SGM Beamline failed");
 
-	AMMotorGroupObject *motorObject = 0;
 	motorGroup_ = new AMMotorGroup(this);
-	//motorObject = new AMMotorGroupObject("Manipulator",
-	motorObject = new SGMSampleManipulatorMotorGroupObject("Manipulator",
-							       QStringList() << "X" << "Y" << "Z" << "R",
-							       QStringList() << "mm" << "mm" << "mm" << "deg",
-							       QList<AMControl*>() << ssaManipulatorX_ << ssaManipulatorY_ << ssaManipulatorZ_ << ssaManipulatorRot_,
-							       QList<AMMotorGroupObject::Orientation>() << AMMotorGroupObject::Horizontal << AMMotorGroupObject::Normal << AMMotorGroupObject::Vertical << AMMotorGroupObject::Other,
-							       QList<AMMotorGroupObject::MotionType>() << AMMotorGroupObject::Translational << AMMotorGroupObject::Translational << AMMotorGroupObject::Translational << AMMotorGroupObject::Rotational,
-							       this);
-	motorGroup_->addMotorGroupObject(motorObject->name(), motorObject);
+
+	AMMotorGroupObject* sampleManipulatorGroupObject =
+			new AMMotorGroupObject("Manipulator", this);
+
+	sampleManipulatorGroupObject->setDirectionAxis(AMMotorGroupObject::HorizontalMotion,
+										  "X", ssaManipulatorX_,
+										  "", 0);
+
+	sampleManipulatorGroupObject->setDirectionAxis(AMMotorGroupObject::NormalMotion,
+										  "Y", ssaManipulatorY_,
+										  "", 0);
+
+	sampleManipulatorGroupObject->setDirectionAxis(AMMotorGroupObject::VerticalMotion,
+										  "Z", ssaManipulatorZ_,
+										  "rZ", ssaManipulatorRot_);
+
+	sampleManipulatorGroupObject->axis(AMMotorGroupObject::VerticalMotion)->setRotationPositionUnits("deg");
+
+	motorGroup_->addMotorGroupObject(sampleManipulatorGroupObject);
 }
 
 void SGMBeamline::setupExposedControls(){

@@ -34,6 +34,9 @@ protected:
 	/// The filters being viewed.
 	BioXASXIAFilters *filters_;
 
+	/// The editor for the filters control.
+	AMExtendedControlEditor *filtersControlEditor_;
+
 	/// The editor for the first filter.
 	AMExtendedControlEditor *editor1_;
 	/// The editor for the second filter.

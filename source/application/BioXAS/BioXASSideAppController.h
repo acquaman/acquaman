@@ -24,14 +24,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "application/BioXAS/BioXASAppController.h"
 
-class BioXASEndstationTableView;
 class BioXASSidePersistentView;
 class BioXASSideXASScanConfiguration;
 class BioXASSideXASScanConfigurationView;
-class AMScanConfigurationViewHolder3;
-class AMRegionOfInterest;
-class AMGenericStepScanConfiguration;
-class AMGenericStepScanConfigurationView;
 
 class BioXASSideAppController : public BioXASAppController
 {
@@ -50,9 +45,6 @@ public:
 	virtual void shutdown();
 
 protected slots:
-	/// Creates the scaler view and adds it to the 'Detectors' pane, if the scaler is connected and the view hasn't been created previously.
-	void onScalerConnected();
-
 	/// Handles setting up all the necessary settings based on the loaded user configuration.
 	void onUserConfigurationLoadedFromDb();
 	/// Handles adding regions of interest to all the configurations that would care.
@@ -73,33 +65,11 @@ protected:
 	void setupExporterOptions();
 	/// Sets up the user interface by specifying the extra pieces that will be added to the main window.
 	void setupUserInterface();
-	/// Sets up all of the connections.
-	void makeConnections();
-	/// Applies the current settings.
-	void applyCurrentSettings();
+
+	/// Creates an XAS scan configuration view for the given scan configuration and adds it to the 'Scans' main window pane.
+	void addXASScanConfigurationView(BioXASSideXASScanConfiguration *configuration);
 
 protected:
-	/// The scaler view.
-	BioXASSIS3820ScalerView *scalerView_;
-	/// The mono configuration view.
-	BioXASSSRLMonochromatorConfigurationView *monoConfigView_;
-	/// The endstation table view
-	BioXASEndstationTableView *endstationTableView_;
-	/// The JJ slit view
-	CLSJJSlitsView *jjSlitsView_;
-	/// The XIA filters view.
-	BioXASXIAFiltersView *xiaFiltersView_;
-	/// The carbon filter farm view.
-	BioXASCarbonFilterFarmView *carbonFilterFarmView_;
-	/// The m1 mirror view.
-	BioXASM1MirrorView *m1MirrorView_;
-	/// The m2 mirror view.
-	BioXASM2MirrorView *m2MirrorView_;
-	/// The dbhr mirror view.
-	BioXASDBHRMirrorView *dbhrView_;
-	/// The right-side persistent view.
-	BioXASSidePersistentView *persistentPanel_;
-
 	/// The XAS scan configuration.
 	BioXASSideXASScanConfiguration *configuration_;
 	/// The XAS scan configuration view.
