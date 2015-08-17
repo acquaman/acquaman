@@ -8,8 +8,9 @@
 
 #include "acquaman/AMGenericStepScanConfiguration.h"
 #include "beamline/AMDetectorSet.h"
+#include "ui/acquaman/AMScanConfigurationView.h"
 
-class AMGenericStepScanConfigurationDetectorsView : public QWidget
+class AMGenericStepScanConfigurationDetectorsView : public AMScanConfigurationView
 {
     Q_OBJECT
 
@@ -20,7 +21,7 @@ public:
 	virtual ~AMGenericStepScanConfigurationDetectorsView();
 
 	/// Returns the configuration being viewed.
-	AMScanConfiguration* configuration() const { return configuration_; }
+	const AMScanConfiguration* configuration() const;
 	/// Returns the detector set being viewed.
 	AMDetectorSet* detectors() const { return detectors_; }
 

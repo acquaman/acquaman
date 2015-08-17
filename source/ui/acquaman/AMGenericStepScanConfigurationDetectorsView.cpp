@@ -1,7 +1,7 @@
 #include "AMGenericStepScanConfigurationDetectorsView.h"
 
 AMGenericStepScanConfigurationDetectorsView::AMGenericStepScanConfigurationDetectorsView(AMGenericStepScanConfiguration *configuration, AMDetectorSet *detectors, QWidget *parent) :
-	QWidget(parent)
+	AMScanConfigurationView(parent)
 {
 	// Initialize class variables.
 
@@ -16,6 +16,7 @@ AMGenericStepScanConfigurationDetectorsView::AMGenericStepScanConfigurationDetec
 	// Create and set layouts.
 
 	layout_ = new QVBoxLayout();
+	layout_->setMargin(0);
 	setLayout(layout_);
 
 	// Make connections.
@@ -31,6 +32,11 @@ AMGenericStepScanConfigurationDetectorsView::AMGenericStepScanConfigurationDetec
 AMGenericStepScanConfigurationDetectorsView::~AMGenericStepScanConfigurationDetectorsView()
 {
 
+}
+
+const AMScanConfiguration* AMGenericStepScanConfigurationDetectorsView::configuration() const
+{
+	return configuration_;
 }
 
 void AMGenericStepScanConfigurationDetectorsView::setConfiguration(AMGenericStepScanConfiguration *newConfiguration)
