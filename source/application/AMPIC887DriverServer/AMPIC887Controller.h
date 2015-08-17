@@ -559,8 +559,42 @@ signals:
 	  */
 	void errorEncountered(const QString& errorMessage) const;
 
+	/*!
+	  * Signal indicating that the controller's hexapod has begun moving.
+	  */
+	void moveStarted(AMGCS2::AxisMovementStatuses movemenStatuses);
 
+	/*!
+	  * Signal indicating that the controller's hexapod has completed a movement.
+	  */
+	void moveComplete();
+
+	/*!
+	  * Signal indicating that the controller's hexapod has failed a movement.
+	  */
+	void moveFailed(AMGCS2::AxisMovementStatuses movementStatuses);
+
+	/*!
+	  * Signal indicating that the position of the axes of the controller have
+	  * updated. Emitted periodically during a move operation.
+	  */
+	void positionUpdate(const AMPIC887AxisMap<double>& newPositions);
+
+	/*!
+	  * Signal indicating that the system velocity of the controller has been
+	  * altered.
+	  * \param newSystemVelocity ~ The new value to which the system velocity
+	  * has been set.
+	  */
+	void systemVelocityChanged(double newSystemVelocity);
 protected slots:
+
+	/*!
+	  * Handles signals from the timer indicating that a position update signal
+	  * needs to be emitted.
+	  */
+	void onPositionUpdateTimerInterval();
+
 	/*!
 	  * Handles signals indicating that an asynchronous move command has started
 	  * \param command ~ The asynchronous move command that has started.
@@ -656,7 +690,7 @@ protected:
 	bool isBusy_;
 	int id_;
 	QString lastError_;
-
+	QTimer positionUpdateTimer_;
 	mutable bool currentPositionRefreshRequired_;
 	//State data
 	////////////

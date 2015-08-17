@@ -38,6 +38,7 @@ protected:
 	AMExtendedControlEditor* energyControlEditor_;
 	AMExtendedControlEditor* exitSlitControlEditor_;
 	AMExtendedControlEditor* gratingSelectionControlEditor_;
+	AMExtendedControlEditor* hexapodVelocityControlEditor_;
 
 };
 

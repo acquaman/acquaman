@@ -30,6 +30,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/CLS/CLSSIS3820ScalerView.h"
 #include "acquaman/AMGenericStepScanConfiguration.h"
 #include "ui/acquaman/AMGenericStepScanConfigurationView.h"
+#include "util/AMErrorMonitor.h"
+
+#include <stdlib.h> // Used for obtaining username to prevent users other than iain (for dev) or SGM-Upgrade (for commissioning). Remove for deploy.
 
 SGMAppController::SGMAppController(QObject *parent) :
 	AMAppController(parent)
@@ -38,6 +41,13 @@ SGMAppController::SGMAppController(QObject *parent) :
 }
 
 bool SGMAppController::startup() {
+
+	QString currentUser = getenv("USER");
+
+	if(currentUser != "workmai" && currentUser != "sgm-upgrade") {
+		AMErrorMon::error(this, SGMAPPCONTROLLER_WRONG_USER, "This user account is not permitted to run the SGM Upgrade version of Acquaman.");
+		return false;
+	}
 
 	// Run all of the Acquaman App startup routines. Some of these are reimplemented in this class.
 	if(!AMAppController::startup())
@@ -72,11 +82,11 @@ void SGMAppController::shutdown() {
 	AMAppController::shutdown();
 }
 
-void SGMAppController::onCurrentScanActionStartedImplementation(AMScanAction *action)
+void SGMAppController::onCurrentScanActionStartedImplementation(AMScanAction */*action*/)
 {
 }
 
-void SGMAppController::onCurrentScanActionFinishedImplementation(AMScanAction *action)
+void SGMAppController::onCurrentScanActionFinishedImplementation(AMScanAction */*action*/)
 {
 }
 

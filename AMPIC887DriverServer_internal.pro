@@ -79,7 +79,8 @@ SOURCES *= \
     source/application/AMPIC887DriverServer/AMPIC887DataRecorderTableState.cpp \
     source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2AsyncMoveRelativeCommand.cpp \
     source/application/AMPIC887DriverServer/AMPIC887AxisCollection.cpp \
-    source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2GetRecordConfigurationCommand.cpp
+    source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2GetRecordConfigurationCommand.cpp \
+    source/application/AMPIC887DriverServer/AMPIC887EpicsCoordinator.cpp
 
 HEADERS *= \
 	source/application/AMPIC887DriverServer/AMPIC887ControllerCollection.h \	
@@ -148,7 +149,14 @@ HEADERS *= \
     source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2AsyncMoveRelativeCommand.h \
     source/application/AMPIC887DriverServer/AMPIC887AxisCollection.h \
     source/application/AMPIC887DriverServer/AMPIC887AxisMap.h \
-    source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2GetRecordConfigurationCommand.h
+    source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2GetRecordConfigurationCommand.h \
+    source/application/AMPIC887DriverServer/AMPIC887EpicsCoordinator.h
+
+
+
+
+
+
 
 
 

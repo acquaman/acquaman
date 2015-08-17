@@ -22,6 +22,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef SGMAPPCONTROLLER_H
 #define SGMAPPCONTROLLER_H
 
+#define SGMAPPCONTROLLER_WRONG_USER 563321
+
 #include "application/AMAppController.h"
 class AMGenericStepScanConfiguration;
 class AMGenericStepScanConfigurationView;
