@@ -24,6 +24,7 @@ AMPIC887TrajectoryCoordinator::AMPIC887TrajectoryCoordinator(const AMPIC887AxisM
 	trajectoryStartMove_ = new AMSinglePVControl("HexapodTrajectoryStart", "HXPD1611-4-I10-01:trajectory:start", this, 0.5);
 	trajectoryReset_ = new AMSinglePVControl("HexapodTrajectoryReset", "HXPD1611-4-I10-01:trajectory:reset", this, 0.5);
 
+	allControls_ = new AMControlSet(this);
 	allControls_->addControl(xAxisTrajectorySetpoint_);
 	allControls_->addControl(yAxisTrajectorySetpoint_);
 	allControls_->addControl(zAxisTrajectorySetpoint_);
@@ -39,6 +40,37 @@ AMPIC887TrajectoryCoordinator::AMPIC887TrajectoryCoordinator(const AMPIC887AxisM
 void AMPIC887TrajectoryCoordinator::setLastSetTargetPosition(const AMPIC887AxisMap<double> &targetPositions)
 {
 	lastSetTargetPositions_ = targetPositions;
+}
+
+AMPIC887AxisMap<double> AMPIC887TrajectoryCoordinator::currentTrajectory() const
+{
+	AMPIC887AxisMap<double> returnTrajectory;
+
+	if(xIsSet_) {
+		returnTrajectory.insert(AMGCS2::XAxis, xAxisTrajectorySetpoint_->value());
+	}
+
+	if(yIsSet_) {
+		returnTrajectory.insert(AMGCS2::YAxis, yAxisTrajectorySetpoint_->value());
+	}
+
+	if(zIsSet_) {
+		returnTrajectory.insert(AMGCS2::ZAxis, zAxisTrajectorySetpoint_->value());
+	}
+
+	if(uIsSet_) {
+		returnTrajectory.insert(AMGCS2::UAxis, uAxisTrajectorySetpoint_->value());
+	}
+
+	if(vIsSet_) {
+		returnTrajectory.insert(AMGCS2::VAxis, vAxisTrajectorySetpoint_->value());
+	}
+
+	if(wIsSet_) {
+		returnTrajectory.insert(AMGCS2::WAxis, wAxisTrajectorySetpoint_->value());
+	}
+
+	return returnTrajectory;
 }
 
 void AMPIC887TrajectoryCoordinator::onAllConnected(bool connectedState)
@@ -147,7 +179,7 @@ void AMPIC887TrajectoryCoordinator::onStartChanged(double /*setpoint*/)
 {
 	if(trajectoryStartMove_->withinTolerance(1.0)) {
 		qDebug() << "Trajectory motion started";
-		emit startTrajectoryMotion(constructTrajectory());
+		emit startTrajectoryMotion();
 
 		xIsSet_ = false;
 		yIsSet_ = false;
@@ -207,36 +239,4 @@ void AMPIC887TrajectoryCoordinator::onResetChanged(double /*setpoint*/)
 		trajectoryReset_->move(0.0);
 	}
 }
-
-AMPIC887AxisMap<double> AMPIC887TrajectoryCoordinator::constructTrajectory() const
-{
-	AMPIC887AxisMap<double> returnTrajectory;
-
-	if(xIsSet_) {
-		returnTrajectory.insert(AMGCS2::XAxis, xAxisTrajectorySetpoint_->value());
-	}
-
-	if(yIsSet_) {
-		returnTrajectory.insert(AMGCS2::YAxis, yAxisTrajectorySetpoint_->value());
-	}
-
-	if(zIsSet_) {
-		returnTrajectory.insert(AMGCS2::ZAxis, zAxisTrajectorySetpoint_->value());
-	}
-
-	if(uIsSet_) {
-		returnTrajectory.insert(AMGCS2::UAxis, uAxisTrajectorySetpoint_->value());
-	}
-
-	if(vIsSet_) {
-		returnTrajectory.insert(AMGCS2::VAxis, vAxisTrajectorySetpoint_->value());
-	}
-
-	if(wIsSet_) {
-		returnTrajectory.insert(AMGCS2::WAxis, wAxisTrajectorySetpoint_->value());
-	}
-
-	return returnTrajectory;
-}
-
 

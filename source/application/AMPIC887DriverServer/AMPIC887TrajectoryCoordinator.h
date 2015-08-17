@@ -37,13 +37,18 @@ public:
 	  * set when the reset PV is invoked.
 	  */
 	void setLastSetTargetPosition(const AMPIC887AxisMap<double>& targetPositions);
+
+	/*!
+	  * The current set trajectories since the last time the reset or start PVs
+	  * were called. If no trajectory positions have been set, an emty map is
+	  * returned.
+	  */
+	AMPIC887AxisMap<double> currentTrajectory() const;
 signals:
 	/*!
-	  * A signal which indicates that a trajectory motion has been requested with
-	  * the provided axes positions.
-	  * \param trajectory ~ A map of axes to their desired positions.
+	  * A signal which indicates that a trajectory motion has been requested.
 	  */
-	void startTrajectoryMotion(const AMPIC887AxisMap<double> trajectory);
+	void startTrajectoryMotion();
 public slots:
 
 protected slots:
@@ -112,13 +117,6 @@ protected slots:
 	  */
 	void onResetChanged(double setpoint);
 protected:
-
-	/*!
-	  * Helper function which constructs an axis map of target positions which
-	  * includes values for all axes whose bit flag indicates a value has been
-	  * specified for this trajectory move.
-	  */
-	AMPIC887AxisMap<double> constructTrajectory() const;
 
 	AMControlSet* allControls_;
 

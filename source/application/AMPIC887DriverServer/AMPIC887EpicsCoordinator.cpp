@@ -90,8 +90,10 @@ AMPIC887EpicsCoordinator::AMPIC887EpicsCoordinator(AMPIC887Controller* controlle
 	allControls_->addControl(stopAll_);
 
 	connect(allControls_, SIGNAL(connected(bool)), this, SLOT(onAllConnected(bool)));
-	connect(trajectoryCoordinator_, SIGNAL(startTrajectoryMotion(AMPIC887AxisMap<double>)),
-			this, SLOT(onTrajectoryMove(AMPIC887AxisMap<double>&)));
+	connect(trajectoryCoordinator_, SIGNAL(startTrajectoryMotion()),
+			this, SLOT(onTrajectoryMove()));
+	connect(controller_, SIGNAL(targetPositionChanged(AMPIC887AxisMap<double>)),
+			this, SLOT(onTargetPositionChanged(AMPIC887AxisMap<double>)));
 }
 
 void AMPIC887EpicsCoordinator::onTargetPositionChanged(const AMPIC887AxisMap<double> &targetPositions)
@@ -590,8 +592,10 @@ void AMPIC887EpicsCoordinator::onAllConnected(bool connectedState)
 	}
 }
 
-void AMPIC887EpicsCoordinator::onTrajectoryMove(AMPIC887AxisMap<double> &targetPositions)
+void AMPIC887EpicsCoordinator::onTrajectoryMove()
 {
+	AMPIC887AxisMap<double> targetPositions = trajectoryCoordinator_->currentTrajectory();
+
 	if(!targetPositions.isEmpty()) {
 		controller_->move(targetPositions);
 	}

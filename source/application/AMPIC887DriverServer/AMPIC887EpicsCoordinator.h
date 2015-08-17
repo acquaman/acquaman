@@ -159,9 +159,8 @@ protected slots:
 	/*!
 	  * Slot which handles the trajectory coordinator signalling that a trajectory
 	  * move has been requested.
-	  * \param targetPositions ~ The target positions of the axes to be moved.
 	  */
-	void onTrajectoryMove(AMPIC887AxisMap<double>& targetPositions);
+	void onTrajectoryMove();
 protected:
 
 	AMControlSet* allControls_;
