@@ -20,6 +20,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 
 #include "SGMSampleManagementView.h"
+#include "ui/AMMotorGroupView.h"
 
 #include <QBoxLayout>
 #include <QPushButton>
@@ -27,8 +28,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QLabel>
 
 #include "beamline/SGM/SGMBeamline.h"
-#include "ui/SGM/SGMSampleManipulatorMotorGroupView.h"
-
 SGMSampleManagementView::SGMSampleManagementView(QWidget *parent) :
 	AMBeamlineSampleManagementView(SGMBeamline::sgm(), SGMBeamline::sgm()->motorGroup(), parent)
 {
@@ -67,6 +66,7 @@ SGMSampleManagementView::SGMSampleManagementView(QWidget *parent) :
 	lightTransferVL->addStretch();
 
 	leftVL_->removeWidget(motorGroupView_);
+
 	QHBoxLayout *lowerLeftHL = new QHBoxLayout();
 	lowerLeftHL->addWidget(motorGroupView_);
 	lowerLeftHL->addLayout(lightTransferVL);
