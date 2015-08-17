@@ -395,7 +395,7 @@ AMScanConfigurationView* BioXASAppController::createScanConfigurationView(AMScan
 
 		BioXASXASScanConfiguration *xasConfiguration = qobject_cast<BioXASXASScanConfiguration*>(configuration);
 		if (!configurationFound && xasConfiguration) {
-			configurationView = new BioXASXASScanConfigurationView(xasConfiguration);
+			configurationView = new BioXASXASScanConfigurationEditor(xasConfiguration);
 			configurationFound = true;
 		}
 
@@ -516,11 +516,11 @@ void BioXASAppController::setupXASScanConfiguration(BioXASXASScanConfiguration *
 			configuration->addDetector(scalerDwellTimeDetector->toInfo());
 
 		AMDetector *vortexDetector = BioXASBeamline::bioXAS()->fourElementVortexDetector();
-		if (vortexDetector && configuration->usingXRFDetector())
+		if (vortexDetector)
 			configuration->addDetector(vortexDetector->toInfo());
 
 		AMDetector *ge32Detector = BioXASBeamline::bioXAS()->ge32ElementDetector();
-		if (ge32Detector && configuration->usingXRFDetector())
+		if (ge32Detector)
 			configuration->addDetector(ge32Detector->toInfo());
 	}
 }

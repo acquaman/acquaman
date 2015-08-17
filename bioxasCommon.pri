@@ -58,7 +58,6 @@ HEADERS += \
     source/beamline/BioXAS/BioXASMonochromatorEnergyControl.h \
     source/acquaman/BioXAS/BioXASXASScanActionController.h \
     source/acquaman/BioXAS/BioXASXASScanConfiguration.h \
-	source/ui/BioXAS/BioXASXASScanConfigurationView.h \
 	source/ui/BioXAS/BioXASSSRLMonochromatorEnergyCalibrationView.h \
 	source/beamline/BioXAS/BioXASShutterControl.h \
 	source/ui/BioXAS/BioXASEndstationTableView.h \
@@ -70,7 +69,9 @@ HEADERS += \
     source/beamline/BioXAS/BioXASCryostatStage.h \
     source/ui/BioXAS/BioXASXASScanConfigurationRegionsEditor.h \
     source/ui/BioXAS/BioXASXASScanConfigurationEnergyEditor.h \
-    source/ui/BioXAS/BioXASXASScanConfigurationEdgeEditor.h
+    source/ui/BioXAS/BioXASXASScanConfigurationEdgeEditor.h \
+    source/ui/BioXAS/BioXASXASScanConfigurationEditor.h \
+    source/ui/BioXAS/BioXASXASScanConfigurationView.h
 
 SOURCES += \
 	source/acquaman/BioXAS/BioXASXRFScanConfiguration.cpp \
@@ -123,7 +124,6 @@ SOURCES += \
     source/beamline/BioXAS/BioXASMonochromatorEnergyControl.cpp \
     source/acquaman/BioXAS/BioXASXASScanActionController.cpp \
     source/acquaman/BioXAS/BioXASXASScanConfiguration.cpp \
-	source/ui/BioXAS/BioXASXASScanConfigurationView.cpp \
 	source/ui/BioXAS/BioXASSSRLMonochromatorEnergyCalibrationView.cpp \
 	source/beamline/BioXAS/BioXASShutterControl.cpp \
 	source/ui/BioXAS/BioXASEndstationTableView.cpp \
@@ -135,7 +135,15 @@ SOURCES += \
     source/beamline/BioXAS/BioXASCryostatStage.cpp \
     source/ui/BioXAS/BioXASXASScanConfigurationRegionsEditor.cpp \
     source/ui/BioXAS/BioXASXASScanConfigurationEnergyEditor.cpp \
-    source/ui/BioXAS/BioXASXASScanConfigurationEdgeEditor.cpp
+    source/ui/BioXAS/BioXASXASScanConfigurationEdgeEditor.cpp \
+    source/ui/BioXAS/BioXASXASScanConfigurationEditor.cpp \
+    source/ui/BioXAS/BioXASXASScanConfigurationView.cpp
+
+
+
+
+
+
 
 
 

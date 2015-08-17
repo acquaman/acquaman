@@ -108,22 +108,18 @@ void AMGenericStepScanConfigurationDetectorsView::update()
 
 			if (detector && button) {
 
-				bool detectorConnected = detector->isConnected();
 				bool detectorUsed = configuration_->detectorConfigurations().contains(detector->name());
 
-				// If the detector is not connected, button should be disabled.
-
-				if (detectorConnected)
-					button->setEnabled(true);
-				else
-					button->setEnabled(false);
-
 				// If the detector is used in the configuration, button should be checked.
+
+				button->blockSignals(true);
 
 				if (detectorUsed)
 					button->setChecked(true);
 				else
 					button->setChecked(false);
+
+				button->blockSignals(false);
 			}
 		}
 
@@ -151,7 +147,7 @@ void AMGenericStepScanConfigurationDetectorsView::refresh()
 		}
 	}
 
-	// Update the view, so the correct buttons are checked and enabled.
+	// Update the view, so the correct buttons are checked.
 
 	update();
 }

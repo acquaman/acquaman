@@ -3,14 +3,10 @@
 #include "util/AMEnergyToKSpaceCalculator.h"
 #include "util/AMDateTimeUtils.h"
 
-#include <QDebug>
-
 BioXASXASScanConfigurationRegionsEditor::BioXASXASScanConfigurationRegionsEditor(BioXASXASScanConfiguration *configuration, QWidget *parent) :
-	AMScanConfigurationView(parent)
+	BioXASXASScanConfigurationView(parent)
 {
 	// Initialize class variables.
-
-	configuration_ = 0;
 
 	regionsView_ = 0;
 	autoRegionButton_ = 0;
@@ -44,11 +40,6 @@ BioXASXASScanConfigurationRegionsEditor::BioXASXASScanConfigurationRegionsEditor
 BioXASXASScanConfigurationRegionsEditor::~BioXASXASScanConfigurationRegionsEditor()
 {
 
-}
-
-const AMScanConfiguration* BioXASXASScanConfigurationRegionsEditor::configuration() const
-{
-	return configuration_;
 }
 
 void BioXASXASScanConfigurationRegionsEditor::setConfiguration(BioXASXASScanConfiguration *newConfiguration)

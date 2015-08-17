@@ -1,12 +1,8 @@
 #include "BioXASXASScanConfigurationEnergyEditor.h"
 
 BioXASXASScanConfigurationEnergyEditor::BioXASXASScanConfigurationEnergyEditor(BioXASXASScanConfiguration *configuration, QWidget *parent) :
-	AMScanConfigurationView(parent)
+	BioXASXASScanConfigurationView(parent)
 {
-	// Initialize class variables.
-
-	configuration_ = 0;
-
 	// Create UI elements.
 
 	QLabel *energyPrompt = new QLabel("Energy: ");
@@ -20,7 +16,7 @@ BioXASXASScanConfigurationEnergyEditor::BioXASXASScanConfigurationEnergyEditor(B
 
 	// Create and set layouts.
 
-	QHBoxLayout *layout = new QHBoxLayout;
+	QHBoxLayout *layout = new QHBoxLayout();
 	layout->setMargin(0);
 	layout->addWidget(energyPrompt);
 	layout->addWidget(energySpinBox_);
@@ -43,11 +39,6 @@ BioXASXASScanConfigurationEnergyEditor::~BioXASXASScanConfigurationEnergyEditor(
 
 }
 
-const AMScanConfiguration* BioXASXASScanConfigurationEnergyEditor::configuration() const
-{
-	return configuration_;
-}
-
 void BioXASXASScanConfigurationEnergyEditor::setConfiguration(BioXASXASScanConfiguration *newConfiguration)
 {
 	if (configuration_ != newConfiguration) {
@@ -57,8 +48,10 @@ void BioXASXASScanConfigurationEnergyEditor::setConfiguration(BioXASXASScanConfi
 
 		configuration_ = newConfiguration;
 
+		initializeConfiguration(configuration_);
+
 		if (configuration_)
-			connect( configuration_->dbObject(), SIGNAL(energyChanged(double)), this, SLOT(updateEnergy()) );
+			connect( configuration_->dbObject(), SIGNAL(energyChanged(double)), this, SLOT(update()) );
 
 		refresh();
 
@@ -74,9 +67,8 @@ void BioXASXASScanConfigurationEnergyEditor::clear()
 
 void BioXASXASScanConfigurationEnergyEditor::update()
 {
-	updateEnergy();
-
 	edgeEditor_->update();
+	updateEnergy();
 }
 
 void BioXASXASScanConfigurationEnergyEditor::refresh()
@@ -85,7 +77,7 @@ void BioXASXASScanConfigurationEnergyEditor::refresh()
 
 	clear();
 
-	// Set the configuration for member widgets.
+	// Initialize member widgets.
 
 	edgeEditor_->setConfiguration(configuration_);
 
@@ -97,22 +89,17 @@ void BioXASXASScanConfigurationEnergyEditor::refresh()
 void BioXASXASScanConfigurationEnergyEditor::updateEnergy()
 {
 	if (configuration_) {
+		double newEnergy = configuration_->energy();
+
 		energySpinBox_->setEnabled(true);
-		energySpinBox_->setValue(configuration_->energy());
+		energySpinBox_->setValue(newEnergy);
 
 	} else {
 		energySpinBox_->setEnabled(false);
 	}
 }
 
-void BioXASXASScanConfigurationEnergyEditor::setConfigurationEnergy(double newEnergy)
-{
-	if (configuration_) {
-		configuration_->setEnergy(newEnergy);
-	}
-}
-
 void BioXASXASScanConfigurationEnergyEditor::updateConfigurationEnergy()
 {
-	setConfigurationEnergy(energySpinBox_->value());
+	setConfigurationEnergy(configuration_, energySpinBox_->value());
 }

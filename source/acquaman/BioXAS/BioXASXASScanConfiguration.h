@@ -4,6 +4,8 @@
 #include "acquaman/AMGenericStepScanConfiguration.h"
 #include "acquaman/BioXAS/BioXASScanConfiguration.h"
 
+class AMAbsorptionEdge;
+
 class BioXASXASScanConfiguration : public AMGenericStepScanConfiguration, public BioXASScanConfiguration
 {
     Q_OBJECT

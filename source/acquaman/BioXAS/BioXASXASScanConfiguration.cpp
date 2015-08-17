@@ -2,8 +2,9 @@
 
 #include "acquaman/BioXAS/BioXASXASScanActionController.h"
 #include "dataman/AMScanAxisEXAFSRegion.h"
-#include "ui/BioXAS/BioXASXASScanConfigurationView.h"
+#include "ui/BioXAS/BioXASXASScanConfigurationEditor.h"
 #include "util/AMEnergyToKSpaceCalculator.h"
+#include "util/AMAbsorptionEdge.h"
 
 #include <QStringBuilder>
 
@@ -93,7 +94,7 @@ AMScanController* BioXASXASScanConfiguration::createController()
 
 AMScanConfigurationView* BioXASXASScanConfiguration::createView()
 {
-	return new BioXASXASScanConfigurationView(this);
+	return new BioXASXASScanConfigurationEditor(this);
 }
 
 void BioXASXASScanConfiguration::setControl(AMControlInfo newInfo)
