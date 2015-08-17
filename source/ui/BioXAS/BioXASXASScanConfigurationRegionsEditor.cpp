@@ -3,6 +3,8 @@
 #include "util/AMEnergyToKSpaceCalculator.h"
 #include "util/AMDateTimeUtils.h"
 
+#include <QDebug>
+
 BioXASXASScanConfigurationRegionsEditor::BioXASXASScanConfigurationRegionsEditor(BioXASXASScanConfiguration *configuration, QWidget *parent) :
 	AMScanConfigurationView(parent)
 {
@@ -63,7 +65,7 @@ void BioXASXASScanConfigurationRegionsEditor::setConfiguration(BioXASXASScanConf
 
 		if (configuration_) {
 
-			connect( configuration_, SIGNAL(totalTimeChanged(double)), this, SLOT(onEstimatedTimeChanged(double)) );
+			connect( configuration_, SIGNAL(totalTimeChanged(double)), this, SLOT(updateEstimatedTimeLabel()) );
 
 		}
 
@@ -179,7 +181,7 @@ void BioXASXASScanConfigurationRegionsEditor::setupDefaultXANESRegions()
 
 		double edgeEnergy = configuration_->energy();
 
-		AMScanAxisEXAFSRegion *region = createXANESRegion(edgeEnergy, edgeEnergy - 30, 0.5, edgeEnergy + 40, 1.0);
+		AMScanAxisEXAFSRegion *region = createDefaultXANESRegion(edgeEnergy);
 		regionsView_->insertEXAFSRegion(0, region);
 	}
 }
@@ -209,6 +211,11 @@ void BioXASXASScanConfigurationRegionsEditor::setupDefaultEXAFSRegions()
 		newRegion = createEXAFSRegionInKSpace(edgeEnergy, AMEnergyToKSpaceCalculator::k(edgeEnergy, edgeEnergy + 40), 0.05, 10, 1.0, 10.0);
 		regionsView_->insertEXAFSRegion(2, newRegion);
 	}
+}
+
+AMScanAxisEXAFSRegion* BioXASXASScanConfigurationRegionsEditor::createDefaultXANESRegion(double edgeEnergy)
+{
+	return createXANESRegion(edgeEnergy, edgeEnergy - 30, 0.5, edgeEnergy + 40, 1.0);
 }
 
 AMScanAxisEXAFSRegion* BioXASXASScanConfigurationRegionsEditor::createXANESRegion(double edgeEnergy, double regionStart, double regionStep, double regionEnd, double regionTime) const

@@ -48,6 +48,8 @@ protected slots:
 	void setupDefaultEXAFSRegions();
 
 protected:
+	/// Creates and returns a default XANES region.
+	AMScanAxisEXAFSRegion* createDefaultXANESRegion(double edgeEnergy);
 	/// Creates and returns a XANES region.
 	AMScanAxisEXAFSRegion* createXANESRegion(double edgeEnergy, double regionStart, double regionStep, double regionEnd, double regionTime) const;
 	/// Creates and returns an EXAFS region.
