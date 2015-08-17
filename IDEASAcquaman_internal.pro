@@ -24,7 +24,10 @@ HEADERS +=	source/application/IDEAS/IDEASAppController.h \
 	source/StripTool2/IDEAS/IDEASScalerStripTool.h \
     source/acquaman/IDEAS/IDEASScanConfiguration.h \
     source/acquaman/IDEAS/IDEASScanConfigurationDbObject.h \
-    source/dataman/IDEAS/IDEASDbUpgrade1Pt1.h
+    source/dataman/IDEAS/IDEASDbUpgrade1Pt1.h \
+    source/acquaman/IDEAS/IDEAS2DScanConfiguration.h \
+    source/acquaman/IDEAS/IDEAS2DScanActionController.h \
+    source/ui/IDEAS/IDEAS2DScanConfigurationView.h
 
 SOURCES +=	source/application/IDEAS/IDEASAppController.cpp \
 	source/application/IDEAS/IDEASMain.cpp \
@@ -46,7 +49,10 @@ SOURCES +=	source/application/IDEAS/IDEASAppController.cpp \
 	source/StripTool2/IDEAS/IDEASScalerStripTool.cpp \
     source/acquaman/IDEAS/IDEASScanConfiguration.cpp \
     source/acquaman/IDEAS/IDEASScanConfigurationDbObject.cpp \
-    source/dataman/IDEAS/IDEASDbUpgrade1Pt1.cpp
+    source/dataman/IDEAS/IDEASDbUpgrade1Pt1.cpp \
+    source/acquaman/IDEAS/IDEAS2DScanConfiguration.cpp \
+    source/acquaman/IDEAS/IDEAS2DScanActionController.cpp \
+    source/ui/IDEAS/IDEAS2DScanConfigurationView.cpp
 
 #Striptool:
 SOURCES +=\
@@ -81,6 +87,12 @@ HEADERS  += \
 	source/StripTool2/STColorButton.h \
 	source/StripTool2/STPlotSelectorTool.h \
 	source/StripTool2/ST0DTimestampAB.h
+
+
+
+
+
+
 
 
 

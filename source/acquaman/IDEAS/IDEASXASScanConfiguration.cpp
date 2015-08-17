@@ -35,6 +35,7 @@ IDEASXASScanConfiguration::IDEASXASScanConfiguration(QObject *parent) :
 	setName("Unnamed Scan");
 	setUserScanName("Unnamed Scan");
 
+	dbObject_->setParent(this);
 	edge_ = "";
 	usingTransmission_ = true;
 	usingReference_ = true;
@@ -62,6 +63,7 @@ IDEASXASScanConfiguration::IDEASXASScanConfiguration(const IDEASXASScanConfigura
 	setName(original.name());
 	setUserScanName(original.userScanName());
 
+	dbObject_->setParent(this);
 	edge_ = original.edge();
 	usingTransmission_ = original.usingTransmission();
 	usingReference_ = original.usingReference();
@@ -108,6 +110,16 @@ AMScanConfigurationView* IDEASXASScanConfiguration::createView(){
 	return new IDEASXASScanConfigurationView(this);
 }
 
+QString IDEASXASScanConfiguration::technique() const
+{
+	return "XAS";
+}
+
+QString IDEASXASScanConfiguration::description() const
+{
+	return "IDEAS XAS Scan";
+}
+
 QString IDEASXASScanConfiguration::detailedDescription() const{
 	return QString("XAS Scan from %1 to %2").arg(double(scanAxisAt(0)->regionAt(0)->regionStart())).arg(double(scanAxisAt(0)->regionAt(scanAxisAt(0)->regionCount()-1)->regionEnd()));
 }
@@ -115,6 +127,9 @@ QString IDEASXASScanConfiguration::detailedDescription() const{
 QString IDEASXASScanConfiguration::headerText() const
 {
 	QString header("Configuration of the Scan\n\n");
+
+	header.append(fluorescenceHeaderString(fluorescenceDetector()));
+	header.append(regionsOfInterestHeaderString(regionsOfInterest()) % "\n");
 
 	header.append("Scanned Edge:\t" + edge() + "\n");
 

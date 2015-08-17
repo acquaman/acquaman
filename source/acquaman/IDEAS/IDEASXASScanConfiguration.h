@@ -34,6 +34,7 @@ class IDEASXASScanConfiguration : public AMStepScanConfiguration, public IDEASSc
 	Q_PROPERTY(QString edge READ edge WRITE setEdge)
 	Q_PROPERTY(bool usingTransmission READ usingTransmission WRITE setUsingTransmission)
 	Q_PROPERTY(bool usingReference READ usingReference WRITE setUsingReference)
+	Q_PROPERTY(QString header READ headerText WRITE setHeaderText)
 
 	Q_CLASSINFO("AMDbObject_Attributes", "description=IDEAS XAS Scan Configuration")
 
@@ -54,6 +55,10 @@ public:
 	/// Returns a pointer to a newly-created AMScanConfigurationView that is appropriate for viewing and editing this kind of scan configuration. Ownership of the new controller becomes the responsibility of the caller.
 	virtual AMScanConfigurationView* createView();
 
+	/// Returns the technique string.
+	QString technique() const;
+	/// A human-readable description of this scan configuration. Can be re-implemented to provide more details. Used by scan action to set the title for the action view.
+	virtual QString description() const;
 	/// A human-readable synopsis of this scan configuration. Can be re-implemented to proved more details. Used by scan action to set the main text in the action view.
 	virtual QString detailedDescription() const;
 
