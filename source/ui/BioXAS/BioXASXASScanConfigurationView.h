@@ -51,6 +51,8 @@ protected slots:
 	/// Updates the displayed scan name to correspond to the configuration's scan name.
 	void updateName();
 
+	/// Sets the configuration name.
+	void setConfigurationName(const QString &newName);
 	/// Updates the scan configuration name.
 	void updateConfigurationName();
 

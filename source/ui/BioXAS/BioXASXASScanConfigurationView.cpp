@@ -46,7 +46,7 @@ BioXASXASScanConfigurationView::BioXASXASScanConfigurationView(BioXASXASScanConf
 	scanSettingsBoxLayout->addWidget(energyEditor_);
 	scanSettingsBoxLayout->addWidget(regionsEditor_);
 
-	QGroupBox *scanSettingsBox = new QGroupBox("Scan settings");
+	QGroupBox *scanSettingsBox = new QGroupBox("Scan");
 	scanSettingsBox->setLayout(scanSettingsBoxLayout);
 
 	QVBoxLayout *detectorBoxLayout = new QVBoxLayout();
@@ -176,9 +176,13 @@ void BioXASXASScanConfigurationView::updateName()
 	}
 }
 
+void BioXASXASScanConfigurationView::setConfigurationName(const QString &newName)
+{
+	if (configuration_)
+		configuration_->setUserScanName(newName);
+}
+
 void BioXASXASScanConfigurationView::updateConfigurationName()
 {
-	if (configuration_) {
-		configuration_->setUserScanName(scanName_->text());
-	}
+	setConfigurationName(scanName_->text());
 }
