@@ -164,7 +164,7 @@ double AMMotorGroupAxis::currentRotationPosition() const
 QString AMMotorGroupAxis::translationPositionUnits() const
 {
 	if(translationalMotion_ && translationalMotion_->motor()) {
-		return translationalMotion_->motor()->units();
+		return translationalMotion_->positionUnits();
 	} else {
 		return QString();
 	}
@@ -173,7 +173,7 @@ QString AMMotorGroupAxis::translationPositionUnits() const
 QString AMMotorGroupAxis::rotationPositionUnits() const
 {
 	if(rotationalMotion_ && rotationalMotion_->motor()) {
-		return rotationalMotion_->motor()->units();
+		return rotationalMotion_->positionUnits();
 	} else {
 		return QString();
 	}
@@ -254,20 +254,20 @@ bool AMMotorGroupAxis::canRotate() const
 
 AMControl * AMMotorGroupAxis::translationMotor() const
 {
-	if(!canTranslate()) {
+	if(translationalMotion_) {
+		return translationalMotion_->motor();
+	} else {
 		return 0;
 	}
-
-	return translationalMotion_->motor();
 }
 
 AMControl * AMMotorGroupAxis::rotationMotor() const
 {
-	if(!canRotate()) {
+	if(rotationalMotion_) {
+		return rotationalMotion_->motor();
+	} else {
 		return 0;
 	}
-
-	return rotationalMotion_->motor();
 }
 
 AMAction3 * AMMotorGroupAxis::createTranslateMoveAction(double position)
