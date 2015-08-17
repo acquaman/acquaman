@@ -74,7 +74,7 @@ BioXASXASScanConfigurationView::BioXASXASScanConfigurationView(BioXASXASScanConf
 
 	// Make connections.
 
-	connect(scanName_, SIGNAL(editingFinished()), this, SLOT(onScanNameEdited()));
+	connect(scanName_, SIGNAL(editingFinished()), this, SLOT(updateConfigurationName()));
 
 	// Current settings.
 
@@ -106,7 +106,7 @@ void BioXASXASScanConfigurationView::setConfiguration(BioXASXASScanConfiguration
 
 		if (configuration_) {
 
-			connect(configuration_, SIGNAL(nameChanged(QString)), scanName_, SLOT(setText(QString)));
+			connect(configuration_, SIGNAL(nameChanged(QString)), this, SLOT(updateName()) );
 
 		}
 
