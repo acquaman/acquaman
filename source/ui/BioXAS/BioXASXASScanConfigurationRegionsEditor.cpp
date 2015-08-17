@@ -55,19 +55,13 @@ void BioXASXASScanConfigurationRegionsEditor::setConfiguration(BioXASXASScanConf
 {
 	if (configuration_ != newConfiguration) {
 
-		if (configuration_) {
-
+		if (configuration_)
 			disconnect( configuration_, 0, this, 0 );
-
-		}
 
 		configuration_ = newConfiguration;
 
-		if (configuration_) {
-
+		if (configuration_)
 			connect( configuration_, SIGNAL(totalTimeChanged(double)), this, SLOT(updateEstimatedTimeLabel()) );
-
-		}
 
 		refresh();
 
