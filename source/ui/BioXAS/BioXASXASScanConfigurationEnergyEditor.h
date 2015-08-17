@@ -51,27 +51,40 @@ protected slots:
 
 	/// Updates the energy spinbox with the configuration's current energy.
 	void updateEnergySpinBox();
-	/// Updates the energy spinbox with the given energy.
-	void updateEnergySpinBox(double newEnergy);
 	/// Updates the element choice button.
 	void updateElementChoiceButton();
 	/// Updates the line choice combobox.
 	void updateLineChoiceComboBox();
 
-	/// Updates the scan configuration energy.
+	/// Updates the scan configuration energy to match the energy spinbox value.
 	void updateConfigurationEnergy();
-	/// Updates the scan configuration edge.
+	/// Updates the scan configuration edge to match the line choice value.
 	void updateConfigurationEdge();
 
 	/// Updates the element to correspond to the configuration's current edge.
 	void updateElement();
 
+	/// Sets the configuration's energy.
+	void setConfigurationEnergy(double newEnergy);
+	/// Sets the configuration's edge.
+	void setConfigurationEdge(const QString &edge);
+
 	void onElementChoiceClicked();
 	void onLineChoiceCurrentIndexChanged(int newIndex);
 
 protected:
+	/// Returns a string representing the line choice at the given index.
+	QString lineChoiceAt(int index) const;
 	/// Returns a string representing the current line choice.
 	QString currentLineChoice() const;
+
+	/// Returns the energy of the line choice at the given index.
+	double lineChoiceEnergyAt(int index) const;
+	/// Returns the energy corresponding to the current line choice.
+	double currentLineChoiceEnergy() const;
+
+	/// Returns the configuration's element (symbol).
+	QString configurationElement() const;
 
 protected:
 	/// The scan configuration being viewed.
@@ -85,7 +98,6 @@ protected:
 	QToolButton *elementChoice_;
 	/// The combo box that holds all the lines that can be chosen to scan over.
 	QComboBox *lineChoice_;
-
 };
 
 #endif // BIOXASXASSCANCONFIGURATIONENERGYEDITOR_H
