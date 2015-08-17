@@ -20,7 +20,11 @@ macx {
         # EPICS Dependencies:
         EPICS_INCLUDE_DIRS = $$PATH_TO_AM/../epics/base/include \
                                 $$PATH_TO_AM/../epics/base/include/os/Linux
-        EPICS_LIB_DIR = $$PATH_TO_AM/../epics/base/lib/linux-x86
+        contains(USERNAME, iain) {
+            EPICS_LIB_DIR = $$PATH_TO_AM/../epics/base/lib/linux-x86_64
+        } else {
+            EPICS_LIB_DIR = $$PATH_TO_AM/../epics/base/lib/linux-x86
+        }
 }
 
 # Special build paths and options for running on the Jenkins auto-build server (currently at http://beamteam.usask.ca:8080)
