@@ -149,7 +149,7 @@ void AMGithubProjectManagerMainView::repositoryReadyToProceed()
 	complexityManagerView->show();
 
 
-	/*
+	/**/
 	AMGitHubIssueValueMap normalizedEstimateMap;
 	AMGitHubIssueValueMap normalizedCurrentMap;
 	AMGitHubIssueValueMap normalizedCompletedMap;
@@ -203,6 +203,9 @@ void AMGithubProjectManagerMainView::repositoryReadyToProceed()
 	qDebug() << QString("Normalized Closed    [%1] Total: %2").arg(normalizedClosedMap.valueMap()->count()).arg(normalizedClosedMap.total());
 
 	qDebug() << "\n\n\n\n";
+
+	/**/
+	/*
 
 	// Generate date list
 	QList<QDateTime> dateList;

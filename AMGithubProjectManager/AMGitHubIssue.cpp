@@ -26,6 +26,8 @@ AMGitHubIssue::AMGitHubIssue(QVariantMap jsonMap, QObject *parent) :
 	complexityMapping_ = 0;
 	estimatedComplexityValue_ = AMGitHubIssue::EstimatedComplexityInvalid;
 
+	normalizedTimeEstimate_ = -2;
+
 	if(jsonMap.value("number").canConvert<int>())
 		issueNumber_ = jsonMap.value("number").toInt();
 	if(jsonMap.value("title").canConvert<QString>()){
@@ -294,14 +296,25 @@ AMGitHubIssue::ActualComplexityValue AMGitHubIssue::correspondingActualComplexit
 	return retVal;
 }
 
+void AMGitHubIssue::setTimeEstimateString(const QString &timeEstimateString)
+{
+	timeEstimateString_ = timeEstimateString;
+	normalizedTimeEstimate_ = -2;
+}
+
 double AMGitHubIssue::normalizedTimeEstimate() const{
+	if(normalizedTimeEstimate_ != -2)
+		return normalizedTimeEstimate_;
+
 	QString timeEstimateFirstHalf = timeEstimateString().section(' ', 0, 0);
 	QString timeEstimateSecondHalf = timeEstimateString().section(' ', 1, 1);
 
 	bool convertsToDouble = false;
 	double timeValue = timeEstimateFirstHalf.toDouble(&convertsToDouble);
-	if(!convertsToDouble)
-		return -1;
+	if(!convertsToDouble){
+		normalizedTimeEstimate_ = -1;
+		return normalizedTimeEstimate_;
+	}
 
 	double multiplier;
 	QRegExp secondRX("[Ss]econd");
@@ -322,13 +335,15 @@ double AMGitHubIssue::normalizedTimeEstimate() const{
 		multiplier = 1.0*8.0*5.0;
 	else if(timeEstimateSecondHalf.contains(monthRX))
 		multiplier = 1.0*8.0*5.0*4.0;
-	else
-		return -1;
+	else{
+		normalizedTimeEstimate_ = -1;
+		return normalizedTimeEstimate_;
+	}
 
-	double retVal = timeValue*multiplier;
-	if(retVal < 1.0/60.0)
-		retVal = 1.0/60.0;
-	return retVal;
+	normalizedTimeEstimate_ = timeValue*multiplier;
+	if(normalizedTimeEstimate_ < 1.0/60.0)
+		normalizedTimeEstimate_ = 1.0/60.0;
+	return normalizedTimeEstimate_;
 }
 
 QString AMGitHubIssue::oneLineDebugInfo() const
@@ -444,8 +459,10 @@ void AMGitHubIssue::resetFromMap(const QVariantMap &map)
 	if(map.contains("estimatedComplexity"))
 		estimatedComplexityValue_ = AMGitHubIssue::EstimatedComplexityValue(map.value("estimatedComplexity").toLongLong());
 
-	if(map.contains("timeEstimateString"))
+	if(map.contains("timeEstimateString")){
 		timeEstimateString_ = map.value("timeEstimateString").toString();
+		normalizedTimeEstimate_ = -2;
+	}
 	if(map.contains("isPullRequest"))
 		isPullRequest_ = map.value("isPullRequest").toBool();
 	if(map.contains("originatingIssueNumber"))

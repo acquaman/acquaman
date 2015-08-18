@@ -94,7 +94,7 @@ public slots:
 
 	void setActualComplexityValue(AMGitHubIssue::ActualComplexityValue actualComplexityValue);
 	void setEstimatedComplexityValue(AMGitHubIssue::EstimatedComplexityValue estimatedComplexityValue);
-	void setTimeEstimateString(const QString &timeEstimateString) { timeEstimateString_ = timeEstimateString; }
+	void setTimeEstimateString(const QString &timeEstimateString);
 
 	void setIsPullRequest(bool isPullRequest) { isPullRequest_ = isPullRequest; }
 	void setOriginatingIssue(AMGitHubIssue *originatingIssue) { originatingIssue_ = originatingIssue; }
@@ -134,6 +134,8 @@ protected:
 
 	QDateTime createdDate_;
 	QDateTime closedDate_;
+
+	mutable double normalizedTimeEstimate_;
 };
 
 Q_DECLARE_METATYPE(AMGitHubIssue::ActualComplexityValue)
