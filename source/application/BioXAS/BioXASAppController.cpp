@@ -3,6 +3,8 @@
 #include "beamline/BioXAS/BioXASBeamline.h"
 #include "beamline/CLS/CLSStorageRing.h"
 
+#include "dataman/BioXAS/BioXASDbUpgrade1Pt1.h"
+
 #include <QDebug>
 
 BioXASAppController::BioXASAppController(QObject *parent) :
@@ -12,6 +14,11 @@ BioXASAppController::BioXASAppController(QObject *parent) :
 
 	userConfiguration_ = new BioXASUserConfiguration(this);
 	setDefaultUseLocalStorage(true);
+
+	// Database upgrades.
+
+	AMDbUpgrade *bioxas1pt1 = new BioXASDbUpgrade1Pt1("user", this);
+	appendDatabaseUpgrade(bioxas1pt1);
 
 	// Initialize member variables.
 

@@ -71,7 +71,8 @@ HEADERS += \
     source/ui/BioXAS/BioXASXASScanConfigurationEnergyEditor.h \
     source/ui/BioXAS/BioXASXASScanConfigurationEdgeEditor.h \
     source/ui/BioXAS/BioXASXASScanConfigurationEditor.h \
-    source/ui/BioXAS/BioXASXASScanConfigurationView.h
+    source/ui/BioXAS/BioXASXASScanConfigurationView.h \
+    source/dataman/BioXAS/BioXASDbUpgrade1Pt1.h
 
 SOURCES += \
 	source/acquaman/BioXAS/BioXASXRFScanConfiguration.cpp \
@@ -137,7 +138,10 @@ SOURCES += \
     source/ui/BioXAS/BioXASXASScanConfigurationEnergyEditor.cpp \
     source/ui/BioXAS/BioXASXASScanConfigurationEdgeEditor.cpp \
     source/ui/BioXAS/BioXASXASScanConfigurationEditor.cpp \
-    source/ui/BioXAS/BioXASXASScanConfigurationView.cpp
+    source/ui/BioXAS/BioXASXASScanConfigurationView.cpp \
+    source/dataman/BioXAS/BioXASDbUpgrade1Pt1.cpp
+
+
 
 
 
