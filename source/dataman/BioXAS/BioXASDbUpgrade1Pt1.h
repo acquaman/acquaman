@@ -5,7 +5,7 @@
 
 #define BIOXASDBUPGRADE1PT1_COULD_NOT_REMOVE_COLUMN 234987
 #define BIOXASDBUPGRADE1PT1_COULD_NOT_CREATE_TABLE 234988
-#define BIOXASUPGRADE1PT1_COULD_NOT_INSERT_OR_UPDATE_TABLE 234989
+#define BIOXASDBUPGRADE1PT1_COULD_NOT_INSERT_OR_UPDATE_TABLE 234989
 
 /// Upgrades database to account for new BioXASXASScanConfiguration, which functionally replaces existing BioXASSideXASScanConfiguration and BioXASMainXASScanConfiguration.
 class BioXASDbUpgrade1Pt1 : public AMDbUpgrade

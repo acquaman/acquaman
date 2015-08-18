@@ -34,7 +34,7 @@ bool BioXASDbUpgrade1Pt1::upgradeImplementation()
 	// Remove usingXRFDetector column from BioXASScanConfigurationDbObject_table. It is no longer used.
 
 	if (databaseToUpgrade_->tableExists("BioXASScanConfigurationDbObject_table")) {
-		if (databaseToUpgrade_->columnExists("usingXRFDetector")) {
+		if (databaseToUpgrade_->columnExists("BioXASXASScanConfigurationDbObject_table", "usingXRFDetector")) {
 			if (!AMDbUpgradeSupport::removeColumn(databaseToUpgrade_, "BioXASScanConfigurationDbObject_table", "usingXRFDetector")) {
 				AMErrorMon::alert(this, BIOXASDBUPGRADE1PT1_COULD_NOT_REMOVE_COLUMN, "Could not remove the usingXRFDetector column from BioXASScanConfigurationDbObject_table.");
 				databaseToUpgrade_->rollbackTransaction();
@@ -94,7 +94,7 @@ bool BioXASDbUpgrade1Pt1::upgradeImplementation()
 
 			if (newId == 0) {
 				databaseToUpgrade_->rollbackTransaction();
-				AMErrorMon::alert(this, BIOXASUPGRADE1PT1_COULD_NOT_INSERT_OR_UPDATE_TABLE, "Could not populate BioXASXASScanConfiguration_table with old configurations from BioXASSideXASScanConfiguration_table.");
+				AMErrorMon::alert(this, BIOXASDBUPGRADE1PT1_COULD_NOT_INSERT_OR_UPDATE_TABLE, "Could not populate BioXASXASScanConfiguration_table with old configurations from BioXASSideXASScanConfiguration_table.");
 				return false;
 			}
 		}
@@ -138,7 +138,7 @@ bool BioXASDbUpgrade1Pt1::upgradeImplementation()
 
 			if (newId == 0) {
 				databaseToUpgrade_->rollbackTransaction();
-				AMErrorMon::alert(this, BIOXASUPGRADE1PT1_COULD_NOT_INSERT_OR_UPDATE_TABLE, "Could not populate BioXASXASScanConfiguration_table with old configurations from BioXASMainXASScanConfiguration_table.");
+				AMErrorMon::alert(this, BIOXASDBUPGRADE1PT1_COULD_NOT_INSERT_OR_UPDATE_TABLE, "Could not populate BioXASXASScanConfiguration_table with old configurations from BioXASMainXASScanConfiguration_table.");
 				return false;
 			}
 		}
