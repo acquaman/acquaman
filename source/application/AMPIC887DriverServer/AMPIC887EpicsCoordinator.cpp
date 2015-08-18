@@ -1,6 +1,8 @@
 #include "AMPIC887EpicsCoordinator.h"
 #include "AMPIC887Controller.h"
 #include <QDebug>
+#include <QTimer>
+
 AMPIC887EpicsCoordinator::AMPIC887EpicsCoordinator(AMPIC887Controller* controller, QObject *parent) :
     QObject(parent)
 {
@@ -264,6 +266,11 @@ void AMPIC887EpicsCoordinator::onXAxisSetpointChanged(double setpoint)
 		AMPIC887AxisMap<double> newPosition;
 		newPosition.insert(AMGCS2::XAxis, setpoint);
 		controller_->move(newPosition);
+	} else {
+		// Setpoint has been changed to same value. We need to pretend that we've
+		// moved for AM's sake.
+		onMotionStartedChanged(AMGCS2::XAxisIsMoving);
+		QTimer::singleShot(20, this, SLOT(onMotionCompleted()));
 	}
 }
 
@@ -274,6 +281,11 @@ void AMPIC887EpicsCoordinator::onYAxisSetpointChanged(double setpoint)
 		AMPIC887AxisMap<double> newPosition;
 		newPosition.insert(AMGCS2::YAxis, setpoint);
 		controller_->move(newPosition);
+	} else {
+		// Setpoint has been changed to same value. We need to pretend that we've
+		// moved for AM's sake.
+		onMotionStartedChanged(AMGCS2::YAxisIsMoving);
+		QTimer::singleShot(20, this, SLOT(onMotionCompleted()));
 	}
 }
 
@@ -284,6 +296,11 @@ void AMPIC887EpicsCoordinator::onZAxisSetpointChanged(double setpoint)
 		AMPIC887AxisMap<double> newPosition;
 		newPosition.insert(AMGCS2::ZAxis, setpoint);
 		controller_->move(newPosition);
+	} else {
+		// Setpoint has been changed to same value. We need to pretend that we've
+		// moved for AM's sake.
+		onMotionStartedChanged(AMGCS2::ZAxisIsMoving);
+		QTimer::singleShot(20, this, SLOT(onMotionCompleted()));
 	}
 }
 
@@ -294,6 +311,11 @@ void AMPIC887EpicsCoordinator::onUAxisSetpointChanged(double setpoint)
 		AMPIC887AxisMap<double> newPosition;
 		newPosition.insert(AMGCS2::UAxis, setpoint);
 		controller_->move(newPosition);
+	} else {
+		// Setpoint has been changed to same value. We need to pretend that we've
+		// moved for AM's sake.
+		onMotionStartedChanged(AMGCS2::UAxisIsMoving);
+		QTimer::singleShot(20, this, SLOT(onMotionCompleted()));
 	}
 }
 
@@ -304,6 +326,11 @@ void AMPIC887EpicsCoordinator::onVAxisSetpointChanged(double setpoint)
 		AMPIC887AxisMap<double> newPosition;
 		newPosition.insert(AMGCS2::VAxis, setpoint);
 		controller_->move(newPosition);
+	} else {
+		// Setpoint has been changed to same value. We need to pretend that we've
+		// moved for AM's sake.
+		onMotionStartedChanged(AMGCS2::VAxisIsMoving);
+		QTimer::singleShot(20, this, SLOT(onMotionCompleted()));
 	}
 }
 
@@ -314,6 +341,11 @@ void AMPIC887EpicsCoordinator::onWAxisSetpointChanged(double setpoint)
 		AMPIC887AxisMap<double> newPosition;
 		newPosition.insert(AMGCS2::WAxis, setpoint);
 		controller_->move(newPosition);
+	} else {
+		// Setpoint has been changed to same value. We need to pretend that we've
+		// moved for AM's sake.
+		onMotionStartedChanged(AMGCS2::WAxisIsMoving);
+		QTimer::singleShot(20, this, SLOT(onMotionCompleted()));
 	}
 }
 

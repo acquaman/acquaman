@@ -1,6 +1,7 @@
 #include "SGMHexapod.h"
 #include "beamline/AMControl.h"
 #include "beamline/AMPVControl.h"
+#include "beamline/SGM/SGMMAXvMotor.h"
 
 SGMHexapod::SGMHexapod(QObject *parent) :
     QObject(parent)
@@ -21,9 +22,35 @@ SGMHexapod::SGMHexapod(QObject *parent) :
 	uAxisTrajectorySetpoint_ = new AMSinglePVControl("Hexapod U Trajectory Setpoint", "HXPD1611-4-I10-01:trajectory:U:deg", this, 0.01);
 	vAxisTrajectorySetpoint_ = new AMSinglePVControl("Hexapod V Trajectory Setpoint", "HXPD1611-4-I10-01:trajectory:V:deg", this, 0.01);
 	wAxisTrajectorySetpoint_ = new AMSinglePVControl("Hexapod W Trajectory Setpoint", "HXPD1611-4-I10-01:trajectory:W:deg", this, 0.01);
-
 	trajectoryStart_ = new AMSinglePVControl("Hexapod Trajectory Move Start", "HXPD1611-4-I10-01:trajectory:start", this, 0.5);
 	trajectoryReset_ = new AMSinglePVControl("Hexapod Trajectory Reset", "HXPD1611-4-I10-01:trajectory:reset", this, 0.5);
+
+	allControls_ = new AMControlSet(this);
+	allControls_->addControl(xAxis_);
+	allControls_->addControl(yAxis_);
+	allControls_->addControl(zAxis_);
+	allControls_->addControl(uAxis_);
+	allControls_->addControl(vAxis_);
+	allControls_->addControl(wAxis_);
+
+	allControls_->addControl(systemVelocity_);
+	allControls_->addControl(stopAll_);
+
+	allControls_->addControl(xAxisTrajectorySetpoint_);
+	allControls_->addControl(yAxisTrajectorySetpoint_);
+	allControls_->addControl(zAxisTrajectorySetpoint_);
+	allControls_->addControl(uAxisTrajectorySetpoint_);
+	allControls_->addControl(vAxisTrajectorySetpoint_);
+	allControls_->addControl(wAxisTrajectorySetpoint_);
+	allControls_->addControl(trajectoryStart_);
+	allControls_->addControl(trajectoryReset_);
+
+	connect(allControls_, SIGNAL(connected(bool)), this, SIGNAL(connected(bool)));
+}
+
+bool SGMHexapod::isConnected()
+{
+	return allControls_->isConnected();
 }
 
 AMControl * SGMHexapod::xAxis() const
@@ -105,3 +132,5 @@ AMControl * SGMHexapod::trajectoryReset() const
 {
 	return trajectoryReset_;
 }
+
+

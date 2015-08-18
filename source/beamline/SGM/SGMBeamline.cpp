@@ -95,9 +95,9 @@ SGMMAXvMotor * SGMBeamline::ssaManipulatorRot() const
 	return ssaManipulatorRot_;
 }
 
-AMMotorGroup * SGMBeamline::motorGroup() const
+AMMotorGroup * SGMBeamline::sampleManipulatorsMotorGroup() const
 {
-	return motorGroup_;
+	return sampleManipulatorsMotorGroup_;
 }
 
 CLSSIS3820Scaler * SGMBeamline::scaler() const
@@ -196,7 +196,7 @@ void SGMBeamline::setupBeamlineComponents()
 
 void SGMBeamline::setupMotorGroups()
 {
-	motorGroup_ = new AMMotorGroup(this);
+	sampleManipulatorsMotorGroup_ = new AMMotorGroup(this);
 
 	// Scienta manipulator
 	AMMotorGroupObject* groupObject =
@@ -216,24 +216,24 @@ void SGMBeamline::setupMotorGroups()
 
 	groupObject->axis(AMMotorGroupObject::VerticalMotion)->setRotationPositionUnits("deg");
 
-	motorGroup_->addMotorGroupObject(groupObject);
+	sampleManipulatorsMotorGroup_->addMotorGroupObject(groupObject);
 
 	// Hexapod manipulator
 	groupObject = new AMMotorGroupObject("Hexapod Manipulator", this);
 
 	groupObject->setDirectionAxis(AMMotorGroupObject::HorizontalMotion,
-								  "X", hexapodXAxis_,
-								  "U", hexapodUAxis_);
+								  "X", hexapod_->xAxis(),
+								  "U", hexapod_->uAxis());
 
 	groupObject->setDirectionAxis(AMMotorGroupObject::VerticalMotion,
-								  "Y", hexapodYAxis_,
-								  "V", hexapodVAxis_);
+								  "Y", hexapod_->yAxis(),
+								  "V", hexapod_->vAxis());
 
 	groupObject->setDirectionAxis(AMMotorGroupObject::NormalMotion,
-								  "Z", hexapodZAxis_,
-								  "W", hexapodWAxis_);
+								  "Z", hexapod_->zAxis(),
+								  "W", hexapod_->wAxis());
 
-	motorGroup_->addMotorGroupObject(groupObject);
+	sampleManipulatorsMotorGroup_->addMotorGroupObject(groupObject);
 }
 
 

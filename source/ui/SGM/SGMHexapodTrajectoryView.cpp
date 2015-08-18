@@ -8,13 +8,33 @@ SGMHexapodTrajectoryView::SGMHexapodTrajectoryView(SGMHexapod* hexapod,
 {
 	hexapod_ = hexapod;
 	setupUi();
-	setupData();
-	setupConnections();
+	if(hexapod_->isConnected()) {
+		setupData();
+		setupConnections();
+	} else {
+		connect(hexapod_, SIGNAL(connected(bool)), this, SLOT(onInitialHexapodConnection(bool)));
+	}
+}
+
+
+void SGMHexapodTrajectoryView::onInitialHexapodConnection(bool connectedState)
+{
+	if(connectedState) {
+		setupData();
+		setupConnections();
+	}
 }
 
 void SGMHexapodTrajectoryView::onMoveButtonClicked()
 {
 	hexapod_->trajectoryStart()->move(1);
+	// Reset colours on move:
+	xSetpointSpinbox_->setStyleSheet("background-color: #ffffff;");
+	ySetpointSpinbox_->setStyleSheet("background-color: #ffffff;");
+	zSetpointSpinbox_->setStyleSheet("background-color: #ffffff;");
+	uSetpointSpinbox_->setStyleSheet("background-color: #ffffff;");
+	vSetpointSpinbox_->setStyleSheet("background-color: #ffffff;");
+	wSetpointSpinbox_->setStyleSheet("background-color: #ffffff;");
 }
 
 void SGMHexapodTrajectoryView::onResetButtonClicked()
@@ -90,6 +110,7 @@ void SGMHexapodTrajectoryView::onXSetpointPVValueChanged()
 void SGMHexapodTrajectoryView::onYSetpointPVValueChanged()
 {
 	if(hexapod_ && !hexapod_->yAxisTrajectorySetpoint()->withinTolerance(ySetpointSpinbox_->value())) {
+
 		ySetpointSpinbox_->setValue(hexapod_->yAxisTrajectorySetpoint()->value());
 		// Indicate a set back to PV value with white bg color
 		ySetpointSpinbox_->setStyleSheet("background-color: #ffffff;");
@@ -188,6 +209,14 @@ void SGMHexapodTrajectoryView::setupData()
 		uSetpointSpinbox_->setValue(hexapod_->uAxis()->value());
 		vSetpointSpinbox_->setValue(hexapod_->vAxis()->value());
 		wSetpointSpinbox_->setValue(hexapod_->wAxis()->value());
+
+		xSetpointSpinbox_->setRange(hexapod_->xAxis()->minimumValue(), hexapod_->xAxis()->maximumValue());
+		ySetpointSpinbox_->setRange(hexapod_->yAxis()->minimumValue(), hexapod_->yAxis()->maximumValue());
+		zSetpointSpinbox_->setRange(hexapod_->zAxis()->minimumValue(), hexapod_->zAxis()->maximumValue());
+		uSetpointSpinbox_->setRange(hexapod_->uAxis()->minimumValue(), hexapod_->uAxis()->maximumValue());
+		vSetpointSpinbox_->setRange(hexapod_->vAxis()->minimumValue(), hexapod_->vAxis()->maximumValue());
+		wSetpointSpinbox_->setRange(hexapod_->wAxis()->minimumValue(), hexapod_->wAxis()->maximumValue());
+
 	}
 }
 

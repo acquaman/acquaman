@@ -2,7 +2,7 @@
 #define SGMHEXAPOD_H
 
 #include <QObject>
-
+#include "beamline/AMControlSet.h"
 /*!
   * A class which represents the AMPIC887 Controlled hexapod within the SGM
   * endstation.
@@ -20,7 +20,13 @@ public:
 	/*!
 	  * Virtual destructor for an SGMHexapod
 	  */
-	~SGMHexapod() {}
+	~SGMHexapod() {}	
+
+	/*!
+	  * The connected state of all the hexapod controls.
+	  * \returns True if all hexapod controls are connected, false otherwise.
+	  */
+	bool isConnected();
 
 	/*!
 	  * The main x Axis Control.
@@ -103,6 +109,13 @@ public:
 	AMControl* trajectoryReset() const;
 signals:
 
+	/*!
+	  * Signal which indicates that the connected state of the controls in the
+	  * hexapod have been altered.
+	  * \param connected ~ The connected state of the hexapod controls. True if
+	  * all hexapod controls are connected, false otherwise.
+	  */
+	void connected(bool connected);
 public slots:
 
 protected:
@@ -124,6 +137,8 @@ protected:
 	AMControl* wAxisTrajectorySetpoint_;
 	AMControl* trajectoryStart_;
 	AMControl* trajectoryReset_;
+
+	AMControlSet* allControls_;
 
 };
 

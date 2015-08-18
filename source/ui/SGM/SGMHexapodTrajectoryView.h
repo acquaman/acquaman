@@ -29,6 +29,15 @@ public:
 signals:
 
 public slots:
+
+	/*!
+	  * Handles signals indicating that the hexapod controls have all been connected
+	  * for the first time. In the case that the hexapod is provided to this view
+	  * without all the controls connected this slot listens for the connected
+	  * signal such that the initialization of data can be postponed until ready.
+	  */
+	void onInitialHexapodConnection(bool connectedState);
+
 	/*!
 	  * Handles signals indicating that the move button has been clicked. Sets
 	  * the hexapod's trajectory move PV to 1 (starting a move).

@@ -96,7 +96,7 @@ public:
 	/*!
 	  * The sample stage motor group.
 	  */
-	AMMotorGroup* motorGroup() const;
+	AMMotorGroup* sampleManipulatorsMotorGroup() const;
 
 	/*!
 	  * The scaler.
