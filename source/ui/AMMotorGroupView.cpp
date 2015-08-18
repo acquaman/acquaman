@@ -581,7 +581,7 @@ void AMMotorGroupObjectView::setupData()
 	jogSize_->setDecimals(3);
 	jogSize_->setFixedWidth(110);
 
-	bool canMoveGrouping = motorGroupObject_->hasHorizontalAxis() && motorGroupObject_->horizontalAxis()->canRotate();
+	bool canMoveGrouping = motorGroupObject_->hasHorizontalAxis() && motorGroupObject_->horizontalAxis()->rotationMotor();
 	horizontalRotationIncrement_->setVisible(canMoveGrouping);
 	horizontalRotationDecrement_->setVisible(canMoveGrouping);
 	horizontalRotationValue_->setVisible(canMoveGrouping);
@@ -594,7 +594,7 @@ void AMMotorGroupObjectView::setupData()
 
 	}
 
-	canMoveGrouping = motorGroupObject_->hasHorizontalAxis() && motorGroupObject_->horizontalAxis()->canTranslate();
+	canMoveGrouping = motorGroupObject_->hasHorizontalAxis() && motorGroupObject_->horizontalAxis()->translationMotor();
 	horizontalTranslationIncrement_->setVisible(canMoveGrouping);
 	horizontalTranslationDecrement_->setVisible(canMoveGrouping);
 	horizontalTranslationValue_->setVisible(canMoveGrouping);
@@ -606,7 +606,7 @@ void AMMotorGroupObjectView::setupData()
 		horizontalTranslationLabel_->setText(motorGroupObject_->horizontalAxis()->translationName());
 	}
 
-	canMoveGrouping = motorGroupObject_->hasVerticalAxis() && motorGroupObject_->verticalAxis()->canRotate();
+	canMoveGrouping = motorGroupObject_->hasVerticalAxis() && motorGroupObject_->verticalAxis()->rotationMotor();
 	verticalRotationIncrement_->setVisible(canMoveGrouping);
 	verticalRotationDecrement_->setVisible(canMoveGrouping);
 	verticalRotationValue_->setVisible(canMoveGrouping);
@@ -618,7 +618,7 @@ void AMMotorGroupObjectView::setupData()
 		verticalRotationLabel_->setText(motorGroupObject_->verticalAxis()->rotationName());
 	}
 
-	canMoveGrouping = motorGroupObject_->hasVerticalAxis() && motorGroupObject_->verticalAxis()->canTranslate();
+	canMoveGrouping = motorGroupObject_->hasVerticalAxis() && motorGroupObject_->verticalAxis()->translationMotor();
 	verticalTranslationIncrement_->setVisible(canMoveGrouping);
 	verticalTranslationDecrement_->setVisible(canMoveGrouping);
 	verticalTranslationValue_->setVisible(canMoveGrouping);
@@ -630,7 +630,7 @@ void AMMotorGroupObjectView::setupData()
 		verticalTranslationLabel_->setText(motorGroupObject_->verticalAxis()->translationName());
 	}
 
-	canMoveGrouping = motorGroupObject_->hasNormalAxis() && motorGroupObject_->normalAxis()->canRotate();
+	canMoveGrouping = motorGroupObject_->hasNormalAxis() && motorGroupObject_->normalAxis()->rotationMotor();
 	normalRotationIncrement_->setVisible(canMoveGrouping);
 	normalRotationDecrement_->setVisible(canMoveGrouping);
 	normalRotationValue_->setVisible(canMoveGrouping);
@@ -642,7 +642,7 @@ void AMMotorGroupObjectView::setupData()
 		normalRotationLabel_->setText(motorGroupObject_->normalAxis()->rotationName());
 	}
 
-	canMoveGrouping = motorGroupObject_->hasNormalAxis() && motorGroupObject_->normalAxis()->canTranslate();
+	canMoveGrouping = motorGroupObject_->hasNormalAxis() && motorGroupObject_->normalAxis()->translationMotor();
 	normalTranslationIncrement_->setVisible(canMoveGrouping);
 	normalTranslationDecrement_->setVisible(canMoveGrouping);
 	normalTranslationValue_->setVisible(canMoveGrouping);
