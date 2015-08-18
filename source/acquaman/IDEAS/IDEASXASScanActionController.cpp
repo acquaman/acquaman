@@ -35,17 +35,14 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "acquaman/AMEXAFSScanActionControllerAssembler.h"
 #include "analysis/AM1DCalibrationAB.h"
 
-
-#include <QDebug>
-
-IDEASXASScanActionController::IDEASXASScanActionController(IDEASXASScanConfiguration *cfg, QObject *parent) :
-	AMStepScanActionController(cfg, parent)
+IDEASXASScanActionController::IDEASXASScanActionController(IDEASXASScanConfiguration *configuration, QObject *parent) :
+	AMStepScanActionController(configuration, parent)
 {
-	configuration_ = cfg;
+	configuration_ = configuration;
 
 	scan_ = new AMXASScan();
 	scan_->setFileFormat("amRegionAscii2013");
-	scan_->setScanConfiguration(cfg);
+	scan_->setScanConfiguration(configuration);
 	scan_->setIndexType("fileSystem");
 	scan_->rawData()->addScanAxis(AMAxisInfo("eV", 0, "Incident Energy", "eV"));
 
@@ -66,9 +63,9 @@ IDEASXASScanActionController::IDEASXASScanActionController(IDEASXASScanConfigura
 	configuration_->setAxisControlInfos(list);
 
 	AMDetectorInfoSet ideasDetectors;
-	ideasDetectors.addDetectorInfo(AMBeamline::bl()->exposedDetectorByName("I_0"));
-	ideasDetectors.addDetectorInfo(AMBeamline::bl()->exposedDetectorByName("Sample"));
-	ideasDetectors.addDetectorInfo(AMBeamline::bl()->exposedDetectorByName("Reference"));
+	ideasDetectors.addDetectorInfo(AMBeamline::bl()->exposedDetectorByName("I_0")->toInfo());
+	ideasDetectors.addDetectorInfo(AMBeamline::bl()->exposedDetectorByName("Sample")->toInfo());
+	ideasDetectors.addDetectorInfo(AMBeamline::bl()->exposedDetectorByName("Reference")->toInfo());
 
 	if (configuration_->fluorescenceDetector().testFlag(IDEAS::Ketek)){
 
@@ -148,13 +145,20 @@ void IDEASXASScanActionController::buildScanControllerImplementation()
 		detector->removeAllRegionsOfInterest();
 
 		QString edgeSymbol = configuration_->edge().split(" ").first();
+		QList<AMDataSource *> all1DDataSources;
+
+		foreach (AMDataSource *dataSource, scan_->rawDataSources()->toList())
+			all1DDataSources << dataSource;
+
+		foreach (AMDataSource *dataSource, scan_->analyzedDataSources()->toList())
+			all1DDataSources << dataSource;
 
 		foreach (AMRegionOfInterest *region, configuration_->regionsOfInterest()){
 
 			AMRegionOfInterestAB *regionAB = (AMRegionOfInterestAB *)region->valueSource();
 			AMRegionOfInterestAB *newRegion = new AMRegionOfInterestAB(regionAB->name().remove(' '));
 			newRegion->setBinningRange(regionAB->binningRange());
-			newRegion->setInputDataSources(QList<AMDataSource *>() << spectraSource);
+			newRegion->setInputDataSources(QList<AMDataSource *>() << scan_->dataSourceAt(scan_->indexOfDataSource(detector->name())));
 			scan_->addAnalyzedDataSource(newRegion, false, true);
 			detector->addRegionOfInterest(region);
 
@@ -172,9 +176,7 @@ void IDEASXASScanActionController::buildScanControllerImplementation()
 
 AMAction3* IDEASXASScanActionController::createInitializationActions()
 {
-	AMListAction3 *initializationActions = new AMListAction3(new AMListActionInfo3("IDEAS XAS Initialization Actions", "IDEAS XAS Initialization Actions"));
-
-	AMListAction3 *initializationStage1 = new AMListAction3(new AMListActionInfo3("IDEAS XAS Initialization Stage 1", "IDEAS XAS Initialization Stage 1"), AMListAction3::Parallel);
+	AMListAction3 *initializationActions = new AMListAction3(new AMListActionInfo3("IDEAS XAS Initialization Stage 1", "IDEAS XAS Initialization Stage 1"), AMListAction3::Parallel);
 
 	double startEnergy = double(configuration_->scanAxisAt(0)->regionAt(0)->regionStart());
 	double mono2d = IDEASBeamline::ideas()->mono2d()->value();
@@ -187,14 +189,10 @@ AMAction3* IDEASXASScanActionController::createInitializationActions()
 	if(backlashEnergy < IDEASBeamline::ideas()->monoLowEV()->value())
 		backlashEnergy = IDEASBeamline::ideas()->monoLowEV()->value();
 
-	initializationStage1->addSubAction(AMActionSupport::buildControlMoveAction(IDEASBeamline::ideas()->monoDirectEnergyControl(), backlashEnergy));
-	initializationStage1->addSubAction(IDEASBeamline::ideas()->scaler()->createStartAction3(false));
-	initializationStage1->addSubAction(IDEASBeamline::ideas()->scaler()->createTotalScansAction3(1));
+	initializationActions->addSubAction(AMActionSupport::buildControlMoveAction(IDEASBeamline::ideas()->monoDirectEnergyControl(), backlashEnergy));
+	initializationActions->addSubAction(IDEASBeamline::ideas()->scaler()->createContinuousEnableAction3(false));
 
-	AMListAction3 *initializationStage2 = new AMListAction3(new AMListActionInfo3("IDEAS XAS Initialization Stage 2", "IDEAS XAS Initialization Stage 2"), AMListAction3::Sequential);
-
-	initializationActions->addSubAction(initializationStage1);
-	initializationActions->addSubAction(initializationStage2);
+	initializationActions->addSubAction(initializationActions);
 
 	return initializationActions;
 }
@@ -225,10 +223,8 @@ AMAction3* IDEASXASScanActionController::createCleanupActions(){
 	AMListAction3 *cleanupActions = new AMListAction3(new AMListActionInfo3("IDEAS XAS Cleanup Actions", "IDEAS XAS Cleanup Actions"));
 
 	cleanupActions->addSubAction(new AMWaitAction(new AMWaitActionInfo(IDEASBeamline::ideas()->scaler()->dwellTime())));
-	cleanupActions->addSubAction(IDEASBeamline::ideas()->scaler()->createStartAction3(false));
 	cleanupActions->addSubAction(IDEASBeamline::ideas()->scaler()->createDwellTimeAction3(0.1));
-	cleanupActions->addSubAction(IDEASBeamline::ideas()->scaler()->createTotalScansAction3(0));
-	cleanupActions->addSubAction(IDEASBeamline::ideas()->scaler()->createStartAction3(true));
+	cleanupActions->addSubAction(IDEASBeamline::ideas()->scaler()->createContinuousEnableAction3(true));
 
 
 	return cleanupActions;

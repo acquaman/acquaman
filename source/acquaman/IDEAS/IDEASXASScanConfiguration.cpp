@@ -27,6 +27,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/AMScanAxisEXAFSRegion.h"
 #include "util/AMEnergyToKSpaceCalculator.h"
 
+#include <QStringBuilder>
+
 IDEASXASScanConfiguration::IDEASXASScanConfiguration(QObject *parent) :
 	AMStepScanConfiguration(parent), IDEASScanConfiguration()
 {
@@ -131,7 +133,7 @@ QString IDEASXASScanConfiguration::headerText() const
 	header.append(fluorescenceHeaderString(fluorescenceDetector()));
 	header.append(regionsOfInterestHeaderString(regionsOfInterest()) % "\n");
 
-	header.append("Scanned Edge:\t" + edge() + "\n");
+	header.append("Scanned Edge:\t" % edge() % "\n");
 
 	return header;
 }
