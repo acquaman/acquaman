@@ -1,136 +1,164 @@
 #include "AMPIC887EpicsCoordinator.h"
 #include "AMPIC887Controller.h"
 #include <QDebug>
+#include <QTimer>
+
 AMPIC887EpicsCoordinator::AMPIC887EpicsCoordinator(AMPIC887Controller* controller, QObject *parent) :
     QObject(parent)
 {
 	connectedOnce_ = false;
 	controller_ = controller;
 	allControls_ = new AMControlSet(this);
+	trajectoryCoordinator_ = new AMPIC887TrajectoryCoordinator(controller_->targetPositions(AMPIC887AxisCollection()), this);
 
-	xAxisInitialMovement_ = false;
-	yAxisInitialMovement_ = false;
-	zAxisInitialMovement_ = false;
-	uAxisInitialMovement_ = false;
-	vAxisInitialMovement_ = false;
-	wAxisInitialMovement_ = false;
-	systemVelocityInitialMovement_ = false;
-
-	xAxisValue_ = new AMSinglePVControl("HexapodXAxisValue", "HXPD1611-4-I10-01:X:mm:fbk", this, AXIS_POSITION_TOLERANCE);
+	xAxisFeedback_ = new AMSinglePVControl("HexapodXAxisValue", "HXPD1611-4-I10-01:X:mm:fbk", this, AXIS_POSITION_TOLERANCE);
 	xAxisSetpoint_ = new AMSinglePVControl("HexapodXAxisSetpoint", "HXPD1611-4-I10-01:X:mm", this, AXIS_POSITION_TOLERANCE);
 	xAxisStatus_ = new AMSinglePVControl("HexapodXAxisStatus", "HXPD1611-4-I10-01:X:status", this, 0.5);
 	xAxisDriveHigh_ = new AMSinglePVControl("HexapodXAxisDriveHigh", "HXPD1611-4-I10-01:X:mm.DRVH", this, AXIS_POSITION_TOLERANCE);
 	xAxisDriveLow_ = new AMSinglePVControl("HexapodXAxisDriveLow", "HXPD1611-4-I10-01:X:mm.DRVL", this, AXIS_POSITION_TOLERANCE);
 
-	yAxisValue_ = new AMSinglePVControl("HexapodYAxisValue", "HXPD1611-4-I10-01:Y:mm:fbk", this, AXIS_POSITION_TOLERANCE);
+	yAxisFeedback_ = new AMSinglePVControl("HexapodYAxisValue", "HXPD1611-4-I10-01:Y:mm:fbk", this, AXIS_POSITION_TOLERANCE);
 	yAxisSetpoint_ = new AMSinglePVControl("HexapodYAxisSetpoint", "HXPD1611-4-I10-01:Y:mm", this, AXIS_POSITION_TOLERANCE);
 	yAxisStatus_ = new AMSinglePVControl("HexapodYAxisStatus", "HXPD1611-4-I10-01:Y:status", this, 0.5);
 	yAxisDriveHigh_ = new AMSinglePVControl("HexapodYAxisDriveHigh", "HXPD1611-4-I10-01:Y:mm.DRVH", this, AXIS_POSITION_TOLERANCE);
 	yAxisDriveLow_ = new AMSinglePVControl("HexapodYAxisDriveLow", "HXPD1611-4-I10-01:Y:mm.DRVL", this, AXIS_POSITION_TOLERANCE);
 
-	zAxisValue_ = new AMSinglePVControl("HexapodZAxisValue", "HXPD1611-4-I10-01:Z:mm:fbk", this, AXIS_POSITION_TOLERANCE);
+	zAxisFeedback_ = new AMSinglePVControl("HexapodZAxisValue", "HXPD1611-4-I10-01:Z:mm:fbk", this, AXIS_POSITION_TOLERANCE);
 	zAxisSetpoint_ = new AMSinglePVControl("HexapodZAxisSetpoint", "HXPD1611-4-I10-01:Z:mm", this, AXIS_POSITION_TOLERANCE);
 	zAxisStatus_ = new AMSinglePVControl("HexapodZAxisStatus", "HXPD1611-4-I10-01:Z:status", this, 0.5);
 	zAxisDriveHigh_ = new AMSinglePVControl("HexapodZAxisDriveHigh", "HXPD1611-4-I10-01:Z:mm.DRVH", this, AXIS_POSITION_TOLERANCE);
 	zAxisDriveLow_ = new AMSinglePVControl("HexapodZAxisDriveLow", "HXPD1611-4-I10-01:Z:mm.DRVL", this, AXIS_POSITION_TOLERANCE);
 
-	uAxisValue_ = new AMSinglePVControl("HexapodUAxisValue", "HXPD1611-4-I10-01:U:deg:fbk", this, AXIS_POSITION_TOLERANCE);
+	uAxisFeedback_ = new AMSinglePVControl("HexapodUAxisValue", "HXPD1611-4-I10-01:U:deg:fbk", this, AXIS_POSITION_TOLERANCE);
 	uAxisSetpoint_ = new AMSinglePVControl("HexapodUAxisSetpoint", "HXPD1611-4-I10-01:U:deg", this, AXIS_POSITION_TOLERANCE);
 	uAxisStatus_ = new AMSinglePVControl("HexapodUAxisStatus", "HXPD1611-4-I10-01:U:status", this, 0.5);
 	uAxisDriveHigh_ = new AMSinglePVControl("HexapodUAxisDriveHigh", "HXPD1611-4-I10-01:U:deg.DRVH", this, AXIS_POSITION_TOLERANCE);
 	uAxisDriveLow_ = new AMSinglePVControl("HexapodUAxisDriveLow", "HXPD1611-4-I10-01:U:deg.DRVL", this, AXIS_POSITION_TOLERANCE);
 
-	vAxisValue_ = new AMSinglePVControl("HexapodVAxisValue", "HXPD1611-4-I10-01:V:deg:fbk", this, AXIS_POSITION_TOLERANCE);
+	vAxisFeedback_ = new AMSinglePVControl("HexapodVAxisValue", "HXPD1611-4-I10-01:V:deg:fbk", this, AXIS_POSITION_TOLERANCE);
 	vAxisSetpoint_ = new AMSinglePVControl("HexapodVAxisSetpoint", "HXPD1611-4-I10-01:V:deg", this, AXIS_POSITION_TOLERANCE);
 	vAxisStatus_ = new AMSinglePVControl("HexapodVAxisStatus", "HXPD1611-4-I10-01:V:status", this, 0.5);
 	vAxisDriveHigh_ = new AMSinglePVControl("HexapodVAxisDriveHigh", "HXPD1611-4-I10-01:V:deg.DRVH", this, AXIS_POSITION_TOLERANCE);
 	vAxisDriveLow_ = new AMSinglePVControl("HexapodVAxisDriveLow", "HXPD1611-4-I10-01:V:deg.DRVL", this, AXIS_POSITION_TOLERANCE);
 
-	wAxisValue_ = new AMSinglePVControl("HexapodWAxisValue", "HXPD1611-4-I10-01:W:deg:fbk", this, AXIS_POSITION_TOLERANCE);
+	wAxisFeedback_ = new AMSinglePVControl("HexapodWAxisValue", "HXPD1611-4-I10-01:W:deg:fbk", this, AXIS_POSITION_TOLERANCE);
 	wAxisSetpoint_ = new AMSinglePVControl("HexapodWAxisSetpoint", "HXPD1611-4-I10-01:W:deg", this, AXIS_POSITION_TOLERANCE);
 	wAxisStatus_ = new AMSinglePVControl("HexapodWAxisStatus", "HXPD1611-4-I10-01:W:status", this, 0.5);
 	wAxisDriveHigh_ = new AMSinglePVControl("HexapodWAxisDriveHigh", "HXPD1611-4-I10-01:W:deg.DRVH", this, AXIS_POSITION_TOLERANCE);
 	wAxisDriveLow_ = new AMSinglePVControl("HexapodWAxisDriveLow", "HXPD1611-4-I10-01:W:deg.DRVL", this, AXIS_POSITION_TOLERANCE);
 
-	systemVelocityValue_ = new AMSinglePVControl("HexapodSystemVelocityValue", "HXPD1611-4-I10-01:velocity:fbk", this, 0.001);
+	systemVelocityFeedback_ = new AMSinglePVControl("HexapodSystemVelocityValue", "HXPD1611-4-I10-01:velocity:fbk", this, 0.001);
 	systemVelocitySetpoint_ = new AMSinglePVControl("HexapodSystemVelocityValue", "HXPD1611-4-I10-01:velocity", this, 0.001);
 	stopAll_ = new AMSinglePVControl("HexapodStopAll", "HXPD1611-4-I10-01:stop", this, 0.5);
 
-	allControls_->addControl(xAxisValue_);
+	allControls_->addControl(xAxisFeedback_);
 	allControls_->addControl(xAxisSetpoint_);
 	allControls_->addControl(xAxisStatus_);
 	allControls_->addControl(xAxisDriveHigh_);
 	allControls_->addControl(xAxisDriveLow_);
 
-	allControls_->addControl(yAxisValue_);
+	allControls_->addControl(yAxisFeedback_);
 	allControls_->addControl(yAxisSetpoint_);
 	allControls_->addControl(yAxisStatus_);
 	allControls_->addControl(yAxisDriveHigh_);
 	allControls_->addControl(yAxisDriveLow_);
 
-	allControls_->addControl(zAxisValue_);
+	allControls_->addControl(zAxisFeedback_);
 	allControls_->addControl(zAxisSetpoint_);
 	allControls_->addControl(zAxisStatus_);
 	allControls_->addControl(zAxisDriveHigh_);
 	allControls_->addControl(zAxisDriveLow_);
 
-	allControls_->addControl(uAxisValue_);
+	allControls_->addControl(uAxisFeedback_);
 	allControls_->addControl(uAxisSetpoint_);
 	allControls_->addControl(uAxisStatus_);
 	allControls_->addControl(uAxisDriveHigh_);
 	allControls_->addControl(uAxisDriveLow_);
 
-	allControls_->addControl(vAxisValue_);
+	allControls_->addControl(vAxisFeedback_);
 	allControls_->addControl(vAxisSetpoint_);
 	allControls_->addControl(vAxisStatus_);
 	allControls_->addControl(vAxisDriveHigh_);
 	allControls_->addControl(vAxisDriveLow_);
 
-	allControls_->addControl(wAxisValue_);
+	allControls_->addControl(wAxisFeedback_);
 	allControls_->addControl(wAxisSetpoint_);
 	allControls_->addControl(wAxisStatus_);
 	allControls_->addControl(wAxisDriveHigh_);
 	allControls_->addControl(wAxisDriveLow_);
 
-	allControls_->addControl(systemVelocityValue_);
+	allControls_->addControl(systemVelocityFeedback_);
 	allControls_->addControl(systemVelocitySetpoint_);
 	allControls_->addControl(stopAll_);
 
 	connect(allControls_, SIGNAL(connected(bool)), this, SLOT(onAllConnected(bool)));
+	connect(trajectoryCoordinator_, SIGNAL(startTrajectoryMotion()),
+			this, SLOT(onTrajectoryMove()));
+	connect(controller_, SIGNAL(targetPositionChanged(AMPIC887AxisMap<double>)),
+			this, SLOT(onTargetPositionChanged(AMPIC887AxisMap<double>)));
+}
 
+void AMPIC887EpicsCoordinator::onTargetPositionChanged(const AMPIC887AxisMap<double> &targetPositions)
+{
+
+	trajectoryCoordinator_->setLastSetTargetPosition(targetPositions);
+
+	if(connectedOnce_ && !xAxisSetpoint_->withinTolerance(targetPositions.value(AMGCS2::XAxis))) {
+		xAxisSetpoint_->move(targetPositions.value(AMGCS2::XAxis));
+	}
+
+	if(connectedOnce_ && !yAxisSetpoint_->withinTolerance(targetPositions.value(AMGCS2::YAxis))) {
+		yAxisSetpoint_->move(targetPositions.value(AMGCS2::YAxis));
+	}
+
+	if(connectedOnce_ && !zAxisSetpoint_->withinTolerance(targetPositions.value(AMGCS2::ZAxis))) {
+		zAxisSetpoint_->move(targetPositions.value(AMGCS2::ZAxis));
+	}
+
+	if(connectedOnce_ && !uAxisSetpoint_->withinTolerance(targetPositions.value(AMGCS2::UAxis))) {
+		uAxisSetpoint_->move(targetPositions.value(AMGCS2::UAxis));
+	}
+
+	if(connectedOnce_ && !vAxisSetpoint_->withinTolerance(targetPositions.value(AMGCS2::VAxis))) {
+		vAxisSetpoint_->move(targetPositions.value(AMGCS2::VAxis));
+	}
+
+	if(connectedOnce_ && !wAxisSetpoint_->withinTolerance(targetPositions.value(AMGCS2::WAxis))) {
+		wAxisSetpoint_->move(targetPositions.value(AMGCS2::WAxis));
+	}
 }
 
 void AMPIC887EpicsCoordinator::onPositionUpdate(const AMPIC887AxisMap<double> &newPositions)
 {
-	if(!xAxisValue_->withinTolerance(newPositions.value(AMGCS2::XAxis))) {
-		xAxisValue_->move(newPositions.value(AMGCS2::XAxis));
+	if(!xAxisFeedback_->withinTolerance(newPositions.value(AMGCS2::XAxis))) {
+		xAxisFeedback_->move(newPositions.value(AMGCS2::XAxis));
 	}
 
-	if(!yAxisValue_->withinTolerance(newPositions.value(AMGCS2::YAxis))) {
-		yAxisValue_->move(newPositions.value(AMGCS2::YAxis));
+	if(!yAxisFeedback_->withinTolerance(newPositions.value(AMGCS2::YAxis))) {
+		yAxisFeedback_->move(newPositions.value(AMGCS2::YAxis));
 	}
 
-	if(!zAxisValue_->withinTolerance(newPositions.value(AMGCS2::ZAxis))) {
-		zAxisValue_->move(newPositions.value(AMGCS2::ZAxis));
+	if(!zAxisFeedback_->withinTolerance(newPositions.value(AMGCS2::ZAxis))) {
+		zAxisFeedback_->move(newPositions.value(AMGCS2::ZAxis));
 	}
 
-	if(!uAxisValue_->withinTolerance(newPositions.value(AMGCS2::UAxis))) {
-		uAxisValue_->move(newPositions.value(AMGCS2::UAxis));
+	if(!uAxisFeedback_->withinTolerance(newPositions.value(AMGCS2::UAxis))) {
+		uAxisFeedback_->move(newPositions.value(AMGCS2::UAxis));
 	}
 
-	if(!vAxisValue_->withinTolerance(newPositions.value(AMGCS2::VAxis))) {
-		vAxisValue_->move(newPositions.value(AMGCS2::VAxis));
+	if(!vAxisFeedback_->withinTolerance(newPositions.value(AMGCS2::VAxis))) {
+		vAxisFeedback_->move(newPositions.value(AMGCS2::VAxis));
 	}
 
-	if(!wAxisValue_->withinTolerance(newPositions.value(AMGCS2::WAxis))) {
-		wAxisValue_->move(newPositions.value(AMGCS2::WAxis));
+	if(!wAxisFeedback_->withinTolerance(newPositions.value(AMGCS2::WAxis))) {
+		wAxisFeedback_->move(newPositions.value(AMGCS2::WAxis));
 	}
 }
 
 void AMPIC887EpicsCoordinator::onSystemVelocityChanged(double systemVelocity)
 {
-	if(!systemVelocityValue_->withinTolerance(systemVelocity)) {
-		systemVelocityValue_->move(systemVelocity);
+	if(!systemVelocityFeedback_->withinTolerance(systemVelocity)) {
+		systemVelocityFeedback_->move(systemVelocity);
 	}
 }
 
@@ -233,82 +261,98 @@ void AMPIC887EpicsCoordinator::onMotionFailed(AMGCS2::AxisMovementStatuses movem
 
 void AMPIC887EpicsCoordinator::onXAxisSetpointChanged(double setpoint)
 {
-	if(xAxisInitialMovement_) {
-		xAxisInitialMovement_ = false;
-	} else {
+	if(!xAxisSetpoint_->withinTolerance(controller_->targetPosition(AMGCS2::XAxis))) {
 		qDebug() << "X setpoint to " << setpoint;
 		AMPIC887AxisMap<double> newPosition;
 		newPosition.insert(AMGCS2::XAxis, setpoint);
 		controller_->move(newPosition);
+	} else {
+		// Setpoint has been changed to same value. We need to pretend that we've
+		// moved for AM's sake.
+		onMotionStartedChanged(AMGCS2::XAxisIsMoving);
+		QTimer::singleShot(20, this, SLOT(onMotionCompleted()));
 	}
 }
 
 void AMPIC887EpicsCoordinator::onYAxisSetpointChanged(double setpoint)
 {
-	if(yAxisInitialMovement_) {
-		yAxisInitialMovement_ = false;
-	} else {
+	if(!yAxisSetpoint_->withinTolerance(controller_->targetPosition(AMGCS2::YAxis))) {
 		qDebug() << "Y setpoint to " << setpoint;
 		AMPIC887AxisMap<double> newPosition;
 		newPosition.insert(AMGCS2::YAxis, setpoint);
 		controller_->move(newPosition);
+	} else {
+		// Setpoint has been changed to same value. We need to pretend that we've
+		// moved for AM's sake.
+		onMotionStartedChanged(AMGCS2::YAxisIsMoving);
+		QTimer::singleShot(20, this, SLOT(onMotionCompleted()));
 	}
 }
 
 void AMPIC887EpicsCoordinator::onZAxisSetpointChanged(double setpoint)
 {
-	if(zAxisInitialMovement_) {
-		zAxisInitialMovement_ = false;
-	} else {
+	if(!zAxisSetpoint_->withinTolerance(controller_->targetPosition(AMGCS2::ZAxis))) {
 		qDebug() << "Z setpoint to " << setpoint;
 		AMPIC887AxisMap<double> newPosition;
 		newPosition.insert(AMGCS2::ZAxis, setpoint);
 		controller_->move(newPosition);
+	} else {
+		// Setpoint has been changed to same value. We need to pretend that we've
+		// moved for AM's sake.
+		onMotionStartedChanged(AMGCS2::ZAxisIsMoving);
+		QTimer::singleShot(20, this, SLOT(onMotionCompleted()));
 	}
 }
 
 void AMPIC887EpicsCoordinator::onUAxisSetpointChanged(double setpoint)
 {
-	if(uAxisInitialMovement_) {
-		uAxisInitialMovement_ = false;
-	} else {
+	if(!uAxisSetpoint_->withinTolerance(controller_->targetPosition(AMGCS2::UAxis))) {
 		qDebug() << "U setpoint to " << setpoint;
 		AMPIC887AxisMap<double> newPosition;
 		newPosition.insert(AMGCS2::UAxis, setpoint);
 		controller_->move(newPosition);
+	} else {
+		// Setpoint has been changed to same value. We need to pretend that we've
+		// moved for AM's sake.
+		onMotionStartedChanged(AMGCS2::UAxisIsMoving);
+		QTimer::singleShot(20, this, SLOT(onMotionCompleted()));
 	}
 }
 
 void AMPIC887EpicsCoordinator::onVAxisSetpointChanged(double setpoint)
 {
-	if(vAxisInitialMovement_) {
-		vAxisInitialMovement_ = false;
-	} else {
+	if(!vAxisSetpoint_->withinTolerance(controller_->targetPosition(AMGCS2::VAxis))) {
 		qDebug() << "V setpoint to " << setpoint;
 		AMPIC887AxisMap<double> newPosition;
 		newPosition.insert(AMGCS2::VAxis, setpoint);
 		controller_->move(newPosition);
+	} else {
+		// Setpoint has been changed to same value. We need to pretend that we've
+		// moved for AM's sake.
+		onMotionStartedChanged(AMGCS2::VAxisIsMoving);
+		QTimer::singleShot(20, this, SLOT(onMotionCompleted()));
 	}
 }
 
 void AMPIC887EpicsCoordinator::onWAxisSetpointChanged(double setpoint)
 {
-	if(wAxisInitialMovement_) {
-		wAxisInitialMovement_ = false;
-	} else {
+	if(!wAxisSetpoint_->withinTolerance(controller_->targetPosition(AMGCS2::WAxis))) {
 		qDebug() << "W setpoint to " << setpoint;
 		AMPIC887AxisMap<double> newPosition;
 		newPosition.insert(AMGCS2::WAxis, setpoint);
 		controller_->move(newPosition);
+	} else {
+		// Setpoint has been changed to same value. We need to pretend that we've
+		// moved for AM's sake.
+		onMotionStartedChanged(AMGCS2::WAxisIsMoving);
+		QTimer::singleShot(20, this, SLOT(onMotionCompleted()));
 	}
 }
 
 
 void AMPIC887EpicsCoordinator::onSystemVelocitySetpointChanged(double value)
 {
-	if(systemVelocityInitialMovement_) {
-		systemVelocityInitialMovement_ = false;
-	} else {
+	if(!systemVelocitySetpoint_->withinTolerance(controller_->systemVelocity())) {
 
 		if(controller_->setSystemVelocity(value)) {
 			qDebug() << "System velocity set to " << value;
@@ -346,13 +390,12 @@ void AMPIC887EpicsCoordinator::onAllConnected(bool connectedState)
 
 			connectedOnce_ = true;
 			// Initializing x Axis
-			if(!xAxisValue_->withinTolerance(controller_->currentPosition(AMGCS2::XAxis))) {
+			if(!xAxisFeedback_->withinTolerance(controller_->currentPosition(AMGCS2::XAxis))) {
 				qDebug() << "Initialization: Setting x Axis position to " << controller_->currentPosition(AMGCS2::XAxis);
-				xAxisValue_->move(controller_->currentPosition(AMGCS2::XAxis));
+				xAxisFeedback_->move(controller_->currentPosition(AMGCS2::XAxis));
 			}
 
 			if(!xAxisSetpoint_->withinTolerance(controller_->targetPosition(AMGCS2::XAxis))) {
-				xAxisInitialMovement_ = true;
 				qDebug() << "Initialization: Setting x Axis setpoint to " << controller_->targetPosition(AMGCS2::XAxis);
 				xAxisSetpoint_->move(controller_->targetPosition(AMGCS2::XAxis));
 			}
@@ -382,13 +425,12 @@ void AMPIC887EpicsCoordinator::onAllConnected(bool connectedState)
 
 
 			// Initializing y Axis
-			if(!yAxisValue_->withinTolerance(controller_->currentPosition(AMGCS2::YAxis))) {
+			if(!yAxisFeedback_->withinTolerance(controller_->currentPosition(AMGCS2::YAxis))) {
 				qDebug() << "Initialzation: Setting y Axis position to " << controller_->currentPosition(AMGCS2::YAxis);
-				yAxisValue_->move(controller_->currentPosition(AMGCS2::YAxis));
+				yAxisFeedback_->move(controller_->currentPosition(AMGCS2::YAxis));
 			}
 
 			if(!yAxisSetpoint_->withinTolerance(controller_->targetPosition(AMGCS2::YAxis))) {
-				yAxisInitialMovement_ = true;
 				qDebug() << "Initialization: Setting y Axis setpoint to " << controller_->targetPosition(AMGCS2::YAxis);
 				yAxisSetpoint_->move(controller_->targetPosition(AMGCS2::YAxis));
 			}
@@ -417,13 +459,12 @@ void AMPIC887EpicsCoordinator::onAllConnected(bool connectedState)
 			}
 
 			// Initializing z Axis
-			if(!zAxisValue_->withinTolerance(controller_->currentPosition(AMGCS2::ZAxis))) {
+			if(!zAxisFeedback_->withinTolerance(controller_->currentPosition(AMGCS2::ZAxis))) {
 				qDebug() << "Initialzation: Setting z Axis position to " << controller_->currentPosition(AMGCS2::ZAxis);
-				zAxisValue_->move(controller_->currentPosition(AMGCS2::ZAxis));
+				zAxisFeedback_->move(controller_->currentPosition(AMGCS2::ZAxis));
 			}
 
 			if(!zAxisSetpoint_->withinTolerance(controller_->targetPosition(AMGCS2::ZAxis))) {
-				zAxisInitialMovement_ = true;
 				qDebug() << "Initialization: Setting z Axis setpoint to " << controller_->targetPosition(AMGCS2::ZAxis);
 				zAxisSetpoint_->move(controller_->targetPosition(AMGCS2::ZAxis));
 			}
@@ -452,13 +493,12 @@ void AMPIC887EpicsCoordinator::onAllConnected(bool connectedState)
 			}
 
 			// Initializing u Axis
-			if(!uAxisValue_->withinTolerance(controller_->currentPosition(AMGCS2::UAxis))) {
+			if(!uAxisFeedback_->withinTolerance(controller_->currentPosition(AMGCS2::UAxis))) {
 				qDebug() << "Initialzation: Setting u Axis position to " << controller_->currentPosition(AMGCS2::UAxis);
-				uAxisValue_->move(controller_->currentPosition(AMGCS2::UAxis));
+				uAxisFeedback_->move(controller_->currentPosition(AMGCS2::UAxis));
 			}
 
 			if(!uAxisSetpoint_->withinTolerance(controller_->targetPosition(AMGCS2::UAxis))) {
-				uAxisInitialMovement_ = true;
 				qDebug() << "Initialization: Setting u Axis setpoint to " << controller_->targetPosition(AMGCS2::UAxis);
 				uAxisSetpoint_->move(controller_->targetPosition(AMGCS2::UAxis));
 			}
@@ -487,13 +527,12 @@ void AMPIC887EpicsCoordinator::onAllConnected(bool connectedState)
 			}
 
 			// Initializing v Axis
-			if(!vAxisValue_->withinTolerance(controller_->currentPosition(AMGCS2::VAxis))) {
+			if(!vAxisFeedback_->withinTolerance(controller_->currentPosition(AMGCS2::VAxis))) {
 				qDebug() << "Initialzation: Setting v Axis position to " << controller_->currentPosition(AMGCS2::VAxis);
-				vAxisValue_->move(controller_->currentPosition(AMGCS2::VAxis));
+				vAxisFeedback_->move(controller_->currentPosition(AMGCS2::VAxis));
 			}
 
 			if(!vAxisSetpoint_->withinTolerance(controller_->targetPosition(AMGCS2::VAxis))) {
-				vAxisInitialMovement_ = true;
 				qDebug() << "Initialization: Setting v Axis setpoint to " << controller_->targetPosition(AMGCS2::VAxis);
 				vAxisSetpoint_->move(controller_->targetPosition(AMGCS2::VAxis));
 			}
@@ -522,13 +561,12 @@ void AMPIC887EpicsCoordinator::onAllConnected(bool connectedState)
 			}
 
 			// Initializing w Axis
-			if(!wAxisValue_->withinTolerance(controller_->currentPosition(AMGCS2::WAxis))) {
+			if(!wAxisFeedback_->withinTolerance(controller_->currentPosition(AMGCS2::WAxis))) {
 				qDebug() << "Initialzation: Setting w Axis position to " << controller_->currentPosition(AMGCS2::WAxis);
-				wAxisValue_->move(controller_->currentPosition(AMGCS2::WAxis));
+				wAxisFeedback_->move(controller_->currentPosition(AMGCS2::WAxis));
 			}
 
 			if(!wAxisSetpoint_->withinTolerance(controller_->targetPosition(AMGCS2::WAxis))) {
-				wAxisInitialMovement_ = true;
 				qDebug() << "Initialization: Setting w Axis setpoint to " << controller_->targetPosition(AMGCS2::WAxis);
 				wAxisSetpoint_->move(controller_->targetPosition(AMGCS2::WAxis));
 			}
@@ -557,13 +595,12 @@ void AMPIC887EpicsCoordinator::onAllConnected(bool connectedState)
 			}
 
 			// Initialize system velocity
-			if(!systemVelocityValue_->withinTolerance(controller_->systemVelocity())) {
+			if(!systemVelocityFeedback_->withinTolerance(controller_->systemVelocity())) {
 				qDebug() << "Initialization: Setting system velocity to " << controller_->systemVelocity();
-				systemVelocityValue_->move(controller_->systemVelocity());
+				systemVelocityFeedback_->move(controller_->systemVelocity());
 			}
 
 			if(!systemVelocitySetpoint_->withinTolerance(controller_->systemVelocity())) {
-				systemVelocityInitialMovement_ = true;
 				qDebug() << "Initialization: Setting system velocity setpoint to " << controller_->systemVelocity();
 				systemVelocitySetpoint_->move(controller_->systemVelocity());
 			}
@@ -586,6 +623,17 @@ void AMPIC887EpicsCoordinator::onAllConnected(bool connectedState)
 		connect(controller_, SIGNAL(systemVelocityChanged(double)), this, SLOT(onSystemVelocityChanged(double)));
 	}
 }
+
+void AMPIC887EpicsCoordinator::onTrajectoryMove()
+{
+	AMPIC887AxisMap<double> targetPositions = trajectoryCoordinator_->currentTrajectory();
+
+	if(!targetPositions.isEmpty()) {
+		controller_->move(targetPositions);
+	}
+}
+
+
 
 
 

@@ -849,6 +849,7 @@ void AMPIC887Controller::onAsyncMoveSucceeded(AMGCS2AsyncCommand *command)
 				break;
 			}
 		}
+		emit targetPositionChanged(controllerState_->hexapodState()->targetPositions());
 	}
 
 	command->deleteLater();
@@ -931,6 +932,7 @@ void AMPIC887Controller::onAsyncMoveRelativeStarted(AMGCS2AsyncCommand *command)
 			}
 		}
 
+
 		emit moveStarted(movementStatuses());
 		positionUpdateTimer_.start();
 	}
@@ -969,6 +971,7 @@ void AMPIC887Controller::onAsyncMoveRelativeSucceeded(AMGCS2AsyncCommand *comman
 				break;
 			}
 		}
+		emit targetPositionChanged(controllerState_->hexapodState()->targetPositions());
 	}
 
 	command->deleteLater();
@@ -1062,6 +1065,8 @@ void AMPIC887Controller::onAsyncReferenceMoveSucceeded(AMGCS2AsyncCommand *comma
 	controllerState_->hexapodState()->setReferencedState(AMGCS2::VAxis, true);
 	controllerState_->hexapodState()->setReferencedState(AMGCS2::WAxis, true);
 
+	emit targetPositionChanged(controllerState_->hexapodState()->targetPositions());
+
 	command->deleteLater();
 }
 
@@ -1125,7 +1130,7 @@ void AMPIC887Controller::refreshCurrentPositions()
 void AMPIC887Controller::updateStateOnStop()
 {
 	refreshCurrentPositions();
-
+	emit targetPositionChanged(controllerState_->hexapodState()->targetPositions());
 	// Set target position = current position
 	AMPIC887AxisCollection allAxes;
 	foreach(AMGCS2::Axis currentAxis, allAxes) {

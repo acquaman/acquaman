@@ -587,6 +587,13 @@ signals:
 	  * has been set.
 	  */
 	void systemVelocityChanged(double newSystemVelocity);
+
+	/*!
+	  * Signal indicating that the target positions of the controller have been
+	  * altered.
+	  * \param newTarget ~ The new target positions of all the axes of the hexapod.
+	  */
+	void targetPositionChanged(const AMPIC887AxisMap<double>& newTarget);
 protected slots:
 
 	/*!

@@ -26,6 +26,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/CLS/CLSSR570.h"
 #include "beamline/AMMotorGroup.h"
 #include "beamline/CLS/CLSAdvancedScalerChannelDetector.h"
+#include "beamline/SGM/SGMHexapod.h"
 
 SGMBeamline* SGMBeamline::sgm() {
 
@@ -69,9 +70,9 @@ AMControl * SGMBeamline::grating() const
 	return grating_;
 }
 
-AMControl * SGMBeamline::hexapodVelocity() const
+SGMHexapod* SGMBeamline::hexapod() const
 {
-	return hexapodVelocity_;
+	return hexapod_;
 }
 
 SGMMAXvMotor * SGMBeamline::ssaManipulatorX() const
@@ -94,9 +95,9 @@ SGMMAXvMotor * SGMBeamline::ssaManipulatorRot() const
 	return ssaManipulatorRot_;
 }
 
-AMMotorGroup * SGMBeamline::motorGroup() const
+AMMotorGroup * SGMBeamline::sampleManipulatorsMotorGroup() const
 {
-	return motorGroup_;
+	return sampleManipulatorsMotorGroup_;
 }
 
 CLSSIS3820Scaler * SGMBeamline::scaler() const
@@ -130,14 +131,7 @@ void SGMBeamline::setupBeamlineComponents()
 	grating_->setAttemptMoveWhenWithinTolerance(false);
 
 	// Hexapod
-	hexapodXAxis_ = new AMPVwStatusControl("HexapodX", "HXPD1611-4-I10-01:X:mm:fbk", "HXPD1611-4-I10-01:X:mm", "HXPD1611-4-I10-01:X:status", "HXPD1611-4-I10-01:stop",this, 0.01, 2.0, new CLSMAXvControlStatusChecker());
-	hexapodYAxis_ = new AMPVwStatusControl("HexapodY", "HXPD1611-4-I10-01:Y:mm:fbk", "HXPD1611-4-I10-01:Y:mm", "HXPD1611-4-I10-01:Y:status", "HXPD1611-4-I10-01:stop",this, 0.01, 2.0, new CLSMAXvControlStatusChecker());
-	hexapodZAxis_ = new AMPVwStatusControl("HexapodZ", "HXPD1611-4-I10-01:Z:mm:fbk", "HXPD1611-4-I10-01:Z:mm", "HXPD1611-4-I10-01:Z:status", "HXPD1611-4-I10-01:stop",this, 0.01, 2.0, new CLSMAXvControlStatusChecker());
-	hexapodUAxis_ = new AMPVwStatusControl("HexapodU", "HXPD1611-4-I10-01:U:deg:fbk", "HXPD1611-4-I10-01:U:deg", "HXPD1611-4-I10-01:U:status", "HXPD1611-4-I10-01:stop", this, 0.01, 2.0, new CLSMAXvControlStatusChecker());
-	hexapodVAxis_ = new AMPVwStatusControl("HexapodV", "HXPD1611-4-I10-01:V:deg:fbk", "HXPD1611-4-I10-01:V:deg", "HXPD1611-4-I10-01:V:status", "HXPD1611-4-I10-01:stop", this, 0.01, 2.0, new CLSMAXvControlStatusChecker());
-	hexapodWAxis_ = new AMPVwStatusControl("HexapodW", "HXPD1611-4-I10-01:W:deg:fbk", "HXPD1611-4-I10-01:W:deg", "HXPD1611-4-I10-01:W:status", "HXPD1611-4-I10-01:stop", this, 0.01, 2.0, new CLSMAXvControlStatusChecker());
-
-	hexapodVelocity_ = new AMPVControl("HexapodVelocity", "HXPD1611-4-I10-01:velocity:fbk", "HXPD1611-4-I10-01:velocity",QString(), this, 0.001, 2.0);
+	hexapod_ = new SGMHexapod(this);
 
 	// SSA Manipulators
 	ssaManipulatorX_ = new SGMMAXvMotor("ssaManipulatorX", "SMTR16114I1022", "SSA Inboard/Outboard", true, 0.2, 2.0, this);
@@ -202,7 +196,7 @@ void SGMBeamline::setupBeamlineComponents()
 
 void SGMBeamline::setupMotorGroups()
 {
-	motorGroup_ = new AMMotorGroup(this);
+	sampleManipulatorsMotorGroup_ = new AMMotorGroup(this);
 
 	// Scienta manipulator
 	AMMotorGroupObject* groupObject =
@@ -222,24 +216,24 @@ void SGMBeamline::setupMotorGroups()
 
 	groupObject->axis(AMMotorGroupObject::VerticalMotion)->setRotationPositionUnits("deg");
 
-	motorGroup_->addMotorGroupObject(groupObject);
+	sampleManipulatorsMotorGroup_->addMotorGroupObject(groupObject);
 
 	// Hexapod manipulator
 	groupObject = new AMMotorGroupObject("Hexapod Manipulator", this);
 
 	groupObject->setDirectionAxis(AMMotorGroupObject::HorizontalMotion,
-								  "X", hexapodXAxis_,
-								  "U", hexapodUAxis_);
+								  "X", hexapod_->xAxis(),
+								  "U", hexapod_->uAxis());
 
 	groupObject->setDirectionAxis(AMMotorGroupObject::VerticalMotion,
-								  "Y", hexapodYAxis_,
-								  "V", hexapodVAxis_);
+								  "Y", hexapod_->yAxis(),
+								  "V", hexapod_->vAxis());
 
 	groupObject->setDirectionAxis(AMMotorGroupObject::NormalMotion,
-								  "Z", hexapodZAxis_,
-								  "W", hexapodWAxis_);
+								  "Z", hexapod_->zAxis(),
+								  "W", hexapod_->wAxis());
 
-	motorGroup_->addMotorGroupObject(groupObject);
+	sampleManipulatorsMotorGroup_->addMotorGroupObject(groupObject);
 }
 
 
@@ -267,12 +261,12 @@ void SGMBeamline::setupExposedControls()
 	addExposedControl(ssaManipulatorY_);
 	addExposedControl(ssaManipulatorZ_);
 	addExposedControl(ssaManipulatorRot_);
-	addExposedControl(hexapodXAxis_);
-	addExposedControl(hexapodYAxis_);
-	addExposedControl(hexapodZAxis_);
-	addExposedControl(hexapodUAxis_);
-	addExposedControl(hexapodVAxis_);
-	addExposedControl(hexapodWAxis_);
+	addExposedControl(hexapod_->xAxis());
+	addExposedControl(hexapod_->yAxis());
+	addExposedControl(hexapod_->zAxis());
+	addExposedControl(hexapod_->uAxis());
+	addExposedControl(hexapod_->vAxis());
+	addExposedControl(hexapod_->wAxis());
 }
 
 void SGMBeamline::setupExposedDetectors()
