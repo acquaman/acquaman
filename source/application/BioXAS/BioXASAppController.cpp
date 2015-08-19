@@ -434,7 +434,7 @@ AMScanConfigurationViewHolder3* BioXASAppController::createScanConfigurationView
 
 			AMGenericStepScanConfiguration *stepScanConfiguration = qobject_cast<AMGenericStepScanConfiguration*>(configuration);
 			if (stepScanConfiguration) {
-				connect( stepScanConfiguration, SIGNAL(totalTimeChanged()), view, SLOT(updateOverallScanTime(double)) );
+				connect( stepScanConfiguration, SIGNAL(totalTimeChanged(double)), view, SLOT(updateOverallScanTime(double)) );
 				view->updateOverallScanTime(stepScanConfiguration->totalTime());
 			}
 		}
