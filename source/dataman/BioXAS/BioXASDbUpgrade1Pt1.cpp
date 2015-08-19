@@ -178,6 +178,7 @@ bool BioXASDbUpgrade1Pt1::upgradeImplementation()
 		if (databaseToUpgrade_->insertOrUpdate(0, "AMDbObjectTypes_loadColumns", names, types)) {
 			databaseToUpgrade_->rollbackTransaction();
 			AMErrorMon::alert(this, BIOXASDBUPGRADE1PT1_COULD_NOT_INSERT_OR_UPDATE_TABLE, "Could not add BioXASXASScanConfiguration entry to AMDbObjectType_loadColumns.");
+			return false;
 		}
 	}
 
