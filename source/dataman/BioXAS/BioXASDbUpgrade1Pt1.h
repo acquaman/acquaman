@@ -44,6 +44,9 @@ protected:
 	/// Returns true if successful, false otherwise. Iterates through entries in AMScan_table and updates scanConfiguration entries from the named configuration table to BioXASXASScanConfiguration_table.
 	bool updateScanTable(int configurationID, const QString &configurationTableName);
 
+	/// Returns true if successful, false otherwise. Adds entries from named configuration's scan axes table to BioXASXASScanConfiguration_table_scanAxes.
+	bool addConfigurationAxesToXASAxesTable(const QString &configurationTableName, const QString &scanAxesTableName);
+
 };
 
 #endif // BIOXASDBUPGRADE1PT1_H
