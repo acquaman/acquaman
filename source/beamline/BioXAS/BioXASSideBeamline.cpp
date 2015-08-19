@@ -727,7 +727,7 @@ void BioXASSideBeamline::setupComponents()
 	scaler_ = new CLSSIS3820Scaler("MCS1607-601", this);
 	connect( scaler_, SIGNAL(connectedChanged(bool)), this, SLOT(updateConnected()) );
 
-	scalerDwellTime_ = new AMReadOnlyPVControl("ScalerDwellTime", "BL1607-5-I22:mcs:delay", this, "Scaler dwell time");
+	scalerDwellTime_ = new AMReadOnlyPVControl("ScalerDwellTime", "MCS1607-601:delay", this, "Scaler dwell time");
 
 	standardsWheel_ = new CLSStandardsWheel("StandardsWheel", "SMTR1607-6-I22-19", this);
 	standardsWheel_->setName(0, "Cr");
