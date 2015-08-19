@@ -196,7 +196,7 @@ void BioXASMainBeamline::setupComponents()
 	connect( endstationTable_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
 	// Scaler
-	scaler_ = new CLSSIS3820Scaler("BL1607-5-I21:mcs", this);
+	scaler_ = new CLSSIS3820Scaler("MCS1607-701", this);
 	connect( scaler_, SIGNAL(connectedChanged(bool)), this, SLOT(updateConnected()) );
 
 	scalerDwellTime_ = new AMReadOnlyPVControl("ScalerDwellTime", "BL1607-5-I21:mcs:delay", this, "Scaler dwell time");
