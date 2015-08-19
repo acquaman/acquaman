@@ -42,6 +42,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "dataman/IDEAS/IDEASDbUpgrade1Pt1.h"
 
+#include "dataman/IDEAS/IDEASUserConfiguration.h"
+
 #include "util/AMPeriodicTable.h"
 
 #include "acquaman/IDEAS/IDEASScanConfiguration.h"
@@ -65,6 +67,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 IDEASAppController::IDEASAppController(QObject *parent)
 	: AMAppController(parent)
 {
+	userConfiguration_ = new IDEASUserConfiguration(this);
+
 	appendDatabaseUpgrade(new IDEASDbUpgrade1Pt1("user", this));
 	appendDatabaseUpgrade(new IDEASDbUpgrade1Pt1("actions", this));
 }
@@ -103,6 +107,14 @@ bool IDEASAppController::startup()
 		setupUserInterface();
 		makeConnections();
 
+		if (!userConfiguration_->loadFromDb(AMDatabase::database("user"), 1)){
+
+			userConfiguration_->storeToDb(AMDatabase::database("user"));
+			// This is connected here because our standard way for these signal connections is to load from db first, which clearly won't happen on the first time.
+			connect(IDEASBeamline::ideas()->ketek(), SIGNAL(addedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestAdded(AMRegionOfInterest*)));
+			connect(IDEASBeamline::ideas()->ketek(), SIGNAL(removedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestRemoved(AMRegionOfInterest*)));
+		}
+
 		// Github setup for adding VESPERS specific comment.
 		additionalIssueTypesAndAssignees_.append("I think it's a IDEAS specific issue", "epengr");
 
@@ -125,6 +137,7 @@ void IDEASAppController::registerClasses()
 	AMDbObjectSupport::s()->registerClass<IDEASScanConfigurationDbObject>();
 	AMDbObjectSupport::s()->registerClass<IDEASXASScanConfiguration>();
 	AMDbObjectSupport::s()->registerClass<IDEASXRFScanConfiguration>();
+	AMDbObjectSupport::s()->registerClass<IDEAS2DScanConfiguration>();
 }
 
 void IDEASAppController::setupExporterOptions()
@@ -197,8 +210,8 @@ void IDEASAppController::setupUserInterface()
 
 	mw_->addPane(xasScanConfigurationHolder3_, "Scans", "IDEAS XAS Scan", ":/utilities-system-monitor.png");
 
-	IDEAS2DScanConfiguration *mapScanConfiguration = new IDEAS2DScanConfiguration(this);
-	mapScanConfigurationView_ = new IDEAS2DScanConfigurationView(mapScanConfiguration);
+	mapScanConfiguration_ = new IDEAS2DScanConfiguration(this);
+	mapScanConfigurationView_ = new IDEAS2DScanConfigurationView(mapScanConfiguration_);
 	mapScanConfigurationHolder3_ = new AMScanConfigurationViewHolder3("IDEAS 2D Map Scan", false, true, mapScanConfigurationView_);
 
 	mw_->addPane(mapScanConfigurationHolder3_, "Scans", "IDEAS 2D Scan", ":/utilities-system-monitor.png");
@@ -213,21 +226,22 @@ void IDEASAppController::setupUserInterface()
 void IDEASAppController::makeConnections()
 {
 	connect(this, SIGNAL(scanEditorCreated(AMGenericScanEditor*)), this, SLOT(onScanEditorCreated(AMGenericScanEditor*)));
-
+	// It is sufficient to only connect the user configuration to the single element because the single element and four element are synchronized together.
+	connect(userConfiguration_, SIGNAL(loadedFromDb()), this, SLOT(onUserConfigurationLoadedFromDb()));
 }
 
 void IDEASAppController::onEnergyConnected(bool connected){
 	Q_UNUSED(connected)
 	if(IDEASBeamline::ideas()->monoEnergyControl() && IDEASBeamline::ideas()->monoEnergyControl()->isConnected() && !xasScanConfigurationView_){
 		// Do New XAS
-		IDEASXASScanConfiguration *xasScanConfiguration = new IDEASXASScanConfiguration(this);
+		xasScanConfiguration_ = new IDEASXASScanConfiguration(this);
 
-		xasScanConfigurationView_ = new IDEASXASScanConfigurationView(xasScanConfiguration);
+		xasScanConfigurationView_ = new IDEASXASScanConfigurationView(xasScanConfiguration_);
 		xasScanConfigurationView_->setupDefaultXANESScanRegions();
 		xasScanConfigurationHolder3_->setView(xasScanConfigurationView_);
 
-		connect(xasScanConfiguration, SIGNAL(totalTimeChanged(double)), xasScanConfigurationHolder3_, SLOT(updateOverallScanTime(double)));
-		xasScanConfigurationHolder3_->updateOverallScanTime(xasScanConfiguration->totalTime());
+		connect(xasScanConfiguration_, SIGNAL(totalTimeChanged(double)), xasScanConfigurationHolder3_, SLOT(updateOverallScanTime(double)));
+		xasScanConfigurationHolder3_->updateOverallScanTime(xasScanConfiguration_->totalTime());
 	}
 }
 
@@ -235,12 +249,25 @@ void IDEASAppController::onCurrentScanActionStartedImplementation(AMScanAction *
 {
 	Q_UNUSED(action)
 	connect(CLSStorageRing::sr1(), SIGNAL(beamAvaliability(bool)), this, SLOT(onBeamAvailabilityChanged(bool)));
+	userConfiguration_->storeToDb(AMDatabase::database("user"));
 }
 
 void IDEASAppController::onCurrentScanActionFinishedImplementation(AMScanAction *action)
 {
 	Q_UNUSED(action)
 	disconnect(CLSStorageRing::sr1(), SIGNAL(beamAvaliability(bool)), this, SLOT(onBeamAvailabilityChanged(bool)));
+
+	// Save the current configuration to the database.
+	// Being explicit due to the nature of how many casts were necessary.  I could probably explicitly check to ensure each cast is successful, but I'll risk it for now.
+	const AMScanActionInfo *actionInfo = qobject_cast<const AMScanActionInfo *>(action->info());
+	const IDEASScanConfiguration *ideasConfiguration = dynamic_cast<const IDEASScanConfiguration *>(actionInfo->configuration());
+	IDEASScanConfigurationDbObject *configuration = qobject_cast<IDEASScanConfigurationDbObject *>(ideasConfiguration->dbObject());
+
+	if (configuration){
+
+		userConfiguration_->setFluorescenceDetector(configuration->fluorescenceDetector());
+		userConfiguration_->storeToDb(AMDatabase::database("user"));
+	}
 }
 
 void IDEASAppController::onBeamAvailabilityChanged(bool beamAvailable)
@@ -304,4 +331,42 @@ void IDEASAppController::configureSingleSpectrumView(AMGenericScanEditor *editor
 			editor->setSingleSpectrumViewDataSourceName(spectraNames.first());
 
 	editor->setPlotRange(AMPeriodicTable::table()->elementBySymbol("Al")->Kalpha().energy(), 20480);
+}
+
+void IDEASAppController::onUserConfigurationLoadedFromDb()
+{
+	QList<IDEASScanConfiguration *> configurations = QList<IDEASScanConfiguration *>()
+			<< xasScanConfiguration_
+			<< mapScanConfiguration_;
+
+	foreach (IDEASScanConfiguration *configuration, configurations)
+		configuration->setFluorescenceDetector(userConfiguration_->fluorescenceDetector());
+
+	AMXRFDetector *detector = IDEASBeamline::ideas()->ketek();
+
+	foreach (AMRegionOfInterest *region, userConfiguration_->regionsOfInterest()){
+
+		AMRegionOfInterest *newRegion = region->createCopy();
+		detector->addRegionOfInterest(newRegion);
+		mapScanConfiguration_->addRegionOfInterest(region);
+		xasScanConfiguration_->addRegionOfInterest(region);
+	}
+
+	// This is connected here because we want to listen to the detectors for updates, but don't want to double add regions on startup.
+	connect(IDEASBeamline::ideas()->ketek(), SIGNAL(addedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestAdded(AMRegionOfInterest*)));
+	connect(IDEASBeamline::ideas()->ketek(), SIGNAL(removedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestRemoved(AMRegionOfInterest*)));
+}
+
+void IDEASAppController::onRegionOfInterestAdded(AMRegionOfInterest *region)
+{
+	userConfiguration_->addRegionOfInterest(region);
+	mapScanConfiguration_->addRegionOfInterest(region);
+	xasScanConfiguration_->addRegionOfInterest(region);
+}
+
+void IDEASAppController::onRegionOfInterestRemoved(AMRegionOfInterest *region)
+{
+	userConfiguration_->removeRegionOfInterest(region);
+	mapScanConfiguration_->removeRegionOfInterest(region);
+	xasScanConfiguration_->removeRegionOfInterest(region);
 }

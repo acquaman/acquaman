@@ -25,6 +25,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "application/AMAppController.h"
 
 class AMScanConfigurationViewHolder3;
+class IDEASXASScanConfiguration;
 class IDEASXASScanConfigurationView;
 class IDEASXRFDetailedDetectorView;
 class IDEASSampleCameraPanel;
@@ -32,6 +33,8 @@ class IDEASKETEKDetailedDetectorView;
 class IDEAS13ElementGeDetailedDetectorView;
 class IDEAS2DScanConfiguration;
 class IDEAS2DScanConfigurationView;
+class IDEASUserConfiguration;
+class AMRegionOfInterest;
 
 class IDEASAppController : public AMAppController
 {
@@ -81,13 +84,23 @@ protected:
 	/// Method that finds the spectra data sources and then sets the generic scan editor single spectra viewer properly.
 	void configureSingleSpectrumView(AMGenericScanEditor *editor, AMScan *scan);
 
+	/// Handles setting up all the necessary settings based on the loaded user configuration.
+	void onUserConfigurationLoadedFromDb();
+	/// Handles adding regions of interest to all the configurations that would care.
+	void onRegionOfInterestAdded(AMRegionOfInterest *region);
+	/// Handles removing regions of interest from all the configurations that would care.
+	void onRegionOfInterestRemoved(AMRegionOfInterest *region);
 
 protected:
+	/// The configuration for XAS scans.
+	IDEASXASScanConfiguration *xasScanConfiguration_;
 	/// View for the IDEAS's XAS scan configurations
 	IDEASXASScanConfigurationView *xasScanConfigurationView_;
 	/// View holder for XAS
 	AMScanConfigurationViewHolder3 *xasScanConfigurationHolder3_;
 
+	/// The configuration for 2D scans.
+	IDEAS2DScanConfiguration *mapScanConfiguration_;
 	/// View for the IDEAS's 2D scan configurations.
 	IDEAS2DScanConfigurationView *mapScanConfigurationView_;
 	/// View holder for 2D scan configuration views.
@@ -99,6 +112,9 @@ protected:
 	IDEAS13ElementGeDetailedDetectorView *ideas13ElementGeDetailedDetectorView_;
 	/// View for viewing the sample cameras and aligning samples
 	IDEASSampleCameraPanel *sampleCameraPanel_;
+
+	/// The user configuration that holds some user specific parameters.
+	IDEASUserConfiguration *userConfiguration_;
 };
 
 #endif // IDEASAPPCONTROLLER_H
