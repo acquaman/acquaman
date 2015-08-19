@@ -193,13 +193,13 @@ void IDEASAppController::setupUserInterface()
 	mw_->addRightWidget(persistentPanel);
 
 	xasScanConfigurationView_ = 0; //NULL
-	xasScanConfigurationHolder3_ = new AMScanConfigurationViewHolder3(0, true);
+	xasScanConfigurationHolder3_ = new AMScanConfigurationViewHolder3("IDEAS XAS Scan", true, true);
 
 	mw_->addPane(xasScanConfigurationHolder3_, "Scans", "IDEAS XAS Scan", ":/utilities-system-monitor.png");
 
 	IDEAS2DScanConfiguration *mapScanConfiguration = new IDEAS2DScanConfiguration(this);
 	mapScanConfigurationView_ = new IDEAS2DScanConfigurationView(mapScanConfiguration);
-	mapScanConfigurationHolder3_ = new AMScanConfigurationViewHolder3(mapScanConfigurationView_, true);
+	mapScanConfigurationHolder3_ = new AMScanConfigurationViewHolder3("IDEAS 2D Map Scan", false, true, mapScanConfigurationView_);
 
 	mw_->addPane(mapScanConfigurationHolder3_, "Scans", "IDEAS 2D Scan", ":/utilities-system-monitor.png");
 

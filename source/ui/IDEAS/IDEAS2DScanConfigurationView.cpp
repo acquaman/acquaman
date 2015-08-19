@@ -160,7 +160,7 @@ IDEAS2DScanConfigurationView::IDEAS2DScanConfigurationView(IDEAS2DScanConfigurat
 	QGridLayout *contentsLayout = new QGridLayout;
 	contentsLayout->addWidget(positionsBox, 0, 0, 2, 4);
 	contentsLayout->addWidget(timeGroupBox, 2, 0, 1, 4);
-	contentsLayout->addWidget(scanNameGroupBox, 3, 0, 1, 3);
+	contentsLayout->addWidget(scanNameGroupBox, 3, 0, 1, 4);
 	contentsLayout->addWidget(beamlineSettingsGroupBox_, 0, 4, 3, 2);
 	contentsLayout->addWidget(detectorSettingGroupBox, 3, 4, 1, 2);
 	contentsLayout->addWidget(errorLabel_, 4, 0, 2, 4);
