@@ -39,6 +39,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/export/AMExporterOptionGeneralAscii.h"
 #include "dataman/export/AMExporterGeneralAscii.h"
 #include "dataman/export/AMExporterAthena.h"
+#include "dataman/export/AMSMAKExporter.h"
+#include "dataman/export/AMExporterOptionSMAK.h"
 
 #include "dataman/IDEAS/IDEASDbUpgrade1Pt1.h"
 
@@ -142,37 +144,19 @@ void IDEASAppController::registerClasses()
 
 void IDEASAppController::setupExporterOptions()
 {
-	QList<int> matchIDs = AMDatabase::database("user")->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<AMExporterOptionGeneralAscii>(), "name", "IDEAS Default XAS");
+	AMExporterOptionGeneralAscii *exporterOption = IDEAS::buildStandardExporterOption("IDEASDefault", true, true);
 
-	AMExporterOptionGeneralAscii *ideasDefaultXAS = new AMExporterOptionGeneralAscii();
+	if(exporterOption->id() > 0)
+		AMAppControllerSupport::registerClass<IDEASXASScanConfiguration, AMExporterAthena, AMExporterOptionGeneralAscii>(exporterOption->id());
 
-	if (matchIDs.count() != 0)
-			ideasDefaultXAS->loadFromDb(AMDatabase::database("user"), matchIDs.at(0));
+	exporterOption->deleteLater();
 
-	ideasDefaultXAS->setName("IDEAS Default XAS");
-	ideasDefaultXAS->setFileName("$name_$number.dat");
-	ideasDefaultXAS->setHeaderText("Scan: $name #$number\nDate: $dateTime\n\nRing Current: $control[ringCurrent]\nInitial I_0: $control[I0Current]\n"
-								   "Sample Slit Width: $control[Sample Slit Width]\tSample Slit Height: $control[Sample Slit Height]\n"
-								   "Sample Vertical Position: $control[Sample Vertical Position]\tSample Horizontal Position: $control[Sample Horizontal Position]\n"
-								   "Vacuum Stage Position: $control[Vacuum Stage Position]\n"
-								   "Sample Temp: $control[sampleTemp]");
-	ideasDefaultXAS->setHeaderIncluded(true);
-	ideasDefaultXAS->setColumnHeader("$dataSetName $dataSetInfoDescription");
-	ideasDefaultXAS->setColumnHeaderIncluded(true);
-	ideasDefaultXAS->setColumnHeaderDelimiter("");
-	ideasDefaultXAS->setSectionHeader("");
-	ideasDefaultXAS->setSectionHeaderIncluded(true);
-	ideasDefaultXAS->setIncludeAllDataSources(true);
-	ideasDefaultXAS->setFirstColumnOnly(true);
-	ideasDefaultXAS->setIncludeHigherDimensionSources(true);
-	ideasDefaultXAS->setSeparateHigherDimensionalSources(true);
-	ideasDefaultXAS->setSeparateSectionFileName("$name_$dataSetName_$number.dat");
-	ideasDefaultXAS->setHigherDimensionsInRows(true);
-	ideasDefaultXAS->storeToDb(AMDatabase::database("user"));
+	AMExporterOptionSMAK *smakOption = IDEAS::buildSMAKExporterOption("IDEAS2DDefault", true, true);
 
-	if(ideasDefaultXAS->id() > 0)
-			AMAppControllerSupport::registerClass<IDEASXASScanConfiguration, AMExporterAthena, AMExporterOptionGeneralAscii>(ideasDefaultXAS->id());
+	if (smakOption->id() > 0)
+		AMAppControllerSupport::registerClass<IDEAS2DScanConfiguration, AMSMAKExporter, AMExporterOptionSMAK>(smakOption->id());
 
+	smakOption->deleteLater();
 }
 
 void IDEASAppController::setupUserInterface()

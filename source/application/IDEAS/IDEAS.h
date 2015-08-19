@@ -27,11 +27,15 @@ namespace IDEAS
 		AMExporterOptionGeneralAscii *exporterOption = new AMExporterOptionGeneralAscii();
 
 		if (matchIDs.count() != 0)
-			exporterOption->loadFromDb(AMDatabase::database("user"), matchIDs.at(0));
+				exporterOption->loadFromDb(AMDatabase::database("user"), matchIDs.at(0));
 
-		exporterOption->setName(name);
-		exporterOption->setFileName("$name_$fsIndex.dat");
-		exporterOption->setHeaderText("Scan: $name #$number\nDate: $dateTime\nSample: $sample\nFacility: $facilityDescription\n\n$scanConfiguration[header]\n\n$notes\n\n");
+		exporterOption->setName("IDEAS Default XAS");
+		exporterOption->setFileName("$name_$number.dat");
+		exporterOption->setHeaderText("Scan: $name #$number\nDate: $dateTime\n\nRing Current: $control[ringCurrent]\nInitial I_0: $control[I0Current]\n"
+									   "Sample Slit Width: $control[Sample Slit Width]\tSample Slit Height: $control[Sample Slit Height]\n"
+									   "Sample Vertical Position: $control[Sample Vertical Position]\tSample Horizontal Position: $control[Sample Horizontal Position]\n"
+									   "Vacuum Stage Position: $control[Vacuum Stage Position]\n"
+									   "Sample Temp: $control[sampleTemp]");
 		exporterOption->setHeaderIncluded(true);
 		exporterOption->setColumnHeader("$dataSetName $dataSetInfoDescription");
 		exporterOption->setColumnHeaderIncluded(true);
@@ -42,7 +46,7 @@ namespace IDEAS
 		exporterOption->setFirstColumnOnly(true);
 		exporterOption->setIncludeHigherDimensionSources(includeHigherOrderSources);
 		exporterOption->setSeparateHigherDimensionalSources(true);
-		exporterOption->setSeparateSectionFileName("$name_$dataSetName_$fsIndex.dat");
+		exporterOption->setSeparateSectionFileName("$name_$dataSetName_$number.dat");
 		exporterOption->setHigherDimensionsInRows(exportSpectraInRows);
 		exporterOption->storeToDb(AMDatabase::database("user"));
 
@@ -61,7 +65,11 @@ namespace IDEAS
 
 		exporterOption->setName(name);
 		exporterOption->setFileName("$name_$fsIndex.dat");
-		exporterOption->setHeaderText("Scan: $name #$number\nDate: $dateTime\nSample: $sample\nFacility: $facilityDescription\n\n$scanConfiguration[header]\n\n$notes\n\n");
+		exporterOption->setHeaderText("Scan: $name #$number\nDate: $dateTime\n\nRing Current: $control[ringCurrent]\nInitial I_0: $control[I0Current]\n"
+									   "Sample Slit Width: $control[Sample Slit Width]\tSample Slit Height: $control[Sample Slit Height]\n"
+									   "Sample Vertical Position: $control[Sample Vertical Position]\tSample Horizontal Position: $control[Sample Horizontal Position]\n"
+									   "Vacuum Stage Position: $control[Vacuum Stage Position]\n"
+									   "Sample Temp: $control[sampleTemp]");
 		exporterOption->setHeaderIncluded(true);
 		exporterOption->setColumnHeader("$dataSetName $dataSetInfoDescription");
 		exporterOption->setColumnHeaderIncluded(true);
