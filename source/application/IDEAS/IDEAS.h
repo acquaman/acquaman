@@ -3,6 +3,7 @@
 
 #include "dataman/database/AMDbObjectSupport.h"
 #include "dataman/export/AMExporterOptionGeneralAscii.h"
+#include "dataman/export/AMExporterOptionSMAK.h"
 
 namespace IDEAS
 {
@@ -19,7 +20,7 @@ namespace IDEAS
 	Q_DECLARE_FLAGS(FluorescenceDetectors, FluorescenceDetector)
 
 	/// Builds the standard exporter option used for all exported scans.
-	inline AMExporterOptionGeneralAscii *buildStandardExporterOption(const QString &name, bool includeHigherOrderSources, bool hasGotoPosition, bool addeVFeedbackMessage, bool exportSpectraInRows)
+	inline AMExporterOptionGeneralAscii *buildStandardExporterOption(const QString &name, bool includeHigherOrderSources, bool exportSpectraInRows)
 	{
 		QList<int> matchIDs = AMDatabase::database("user")->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<AMExporterOptionGeneralAscii>(), "name", name);
 
@@ -30,12 +31,7 @@ namespace IDEAS
 
 		exporterOption->setName(name);
 		exporterOption->setFileName("$name_$fsIndex.dat");
-		if (hasGotoPosition && addeVFeedbackMessage)
-			exporterOption->setHeaderText("Scan: $name #$number\nDate: $dateTime\nSample: $sample\nFacility: $facilityDescription\n\n$scanConfiguration[header]\nActual Horizontal Position:\t$controlValue[Horizontal Sample Stage] mm\nActual Vertical Position:\t$controlValue[Vertical Sample Stage] mm\n\n$notes\nNote that I0.X is the energy feedback.\n\n");
-		else if (hasGotoPosition)
-			exporterOption->setHeaderText("Scan: $name #$number\nDate: $dateTime\nSample: $sample\nFacility: $facilityDescription\n\n$scanConfiguration[header]\nActual Horizontal Position:\t$controlValue[Horizontal Sample Stage] mm\n\n$notes\n\n");
-		else
-			exporterOption->setHeaderText("Scan: $name #$number\nDate: $dateTime\nSample: $sample\nFacility: $facilityDescription\n\n$scanConfiguration[header]\n\n$notes\n\n");
+		exporterOption->setHeaderText("Scan: $name #$number\nDate: $dateTime\nSample: $sample\nFacility: $facilityDescription\n\n$scanConfiguration[header]\n\n$notes\n\n");
 		exporterOption->setHeaderIncluded(true);
 		exporterOption->setColumnHeader("$dataSetName $dataSetInfoDescription");
 		exporterOption->setColumnHeaderIncluded(true);
@@ -48,6 +44,37 @@ namespace IDEAS
 		exporterOption->setSeparateHigherDimensionalSources(true);
 		exporterOption->setSeparateSectionFileName("$name_$dataSetName_$fsIndex.dat");
 		exporterOption->setHigherDimensionsInRows(exportSpectraInRows);
+		exporterOption->storeToDb(AMDatabase::database("user"));
+
+		return exporterOption;
+	}
+
+	/// Builds the SMAK exporter option used for all exported scans.
+	inline AMExporterOptionSMAK *buildSMAKExporterOption(const QString &name, bool includeHigherOrderSources, bool exportSpectraInRows)
+	{
+		QList<int> matchIDs = AMDatabase::database("user")->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<AMExporterOptionSMAK>(), "name", name);
+
+		AMExporterOptionSMAK *exporterOption = new AMExporterOptionSMAK();
+
+		if (matchIDs.count() != 0)
+			exporterOption->loadFromDb(AMDatabase::database("user"), matchIDs.at(0));
+
+		exporterOption->setName(name);
+		exporterOption->setFileName("$name_$fsIndex.dat");
+		exporterOption->setHeaderText("Scan: $name #$number\nDate: $dateTime\nSample: $sample\nFacility: $facilityDescription\n\n$scanConfiguration[header]\n\n$notes\n\n");
+		exporterOption->setHeaderIncluded(true);
+		exporterOption->setColumnHeader("$dataSetName $dataSetInfoDescription");
+		exporterOption->setColumnHeaderIncluded(true);
+		exporterOption->setColumnHeaderDelimiter("");
+		exporterOption->setSectionHeader("");
+		exporterOption->setSectionHeaderIncluded(true);
+		exporterOption->setIncludeAllDataSources(true);
+		exporterOption->setFirstColumnOnly(true);
+		exporterOption->setIncludeHigherDimensionSources(includeHigherOrderSources);
+		exporterOption->setSeparateHigherDimensionalSources(true);
+		exporterOption->setSeparateSectionFileName("$name_$dataSetName_$fsIndex.dat");
+		exporterOption->setHigherDimensionsInRows(exportSpectraInRows);
+		exporterOption->setRegExpString("^\\w{1,2}Ka1|^\\w{1,2}Kb1|^\\w{1,2}La1|^\\w{1,2}Lb1|^\\w{1,2}Lg1|I_0");
 		exporterOption->storeToDb(AMDatabase::database("user"));
 
 		return exporterOption;

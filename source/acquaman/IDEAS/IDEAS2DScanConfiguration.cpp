@@ -68,7 +68,8 @@ AMScanController* IDEAS2DScanConfiguration::createController()
 	return controller;
 }
 
-AMScanConfigurationView* IDEAS2DScanConfiguration::createView(){
+AMScanConfigurationView* IDEAS2DScanConfiguration::createView()
+{
 	return new IDEAS2DScanConfigurationView(this);
 }
 

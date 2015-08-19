@@ -219,8 +219,8 @@ void IDEASXASScanActionController::onInitializationActionsListSucceeded()
 	AMScanActionController::onInitializationActionsListSucceeded();
 }
 
-AMAction3* IDEASXASScanActionController::createCleanupActions(){
-
+AMAction3* IDEASXASScanActionController::createCleanupActions()
+{
 	AMListAction3 *cleanupActions = new AMListAction3(new AMListActionInfo3("IDEAS XAS Cleanup Actions", "IDEAS XAS Cleanup Actions"));
 
 	cleanupActions->addSubAction(new AMWaitAction(new AMWaitActionInfo(IDEASBeamline::ideas()->scaler()->dwellTime())));

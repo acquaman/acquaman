@@ -47,6 +47,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "acquaman/IDEAS/IDEASScanConfiguration.h"
 #include "acquaman/IDEAS/IDEASXASScanConfiguration.h"
 #include "acquaman/IDEAS/IDEASXRFScanConfiguration.h"
+#include "acquaman/IDEAS/IDEAS2DScanConfiguration.h"
 
 #include "ui/AMMainWindow.h"
 #include "ui/dataman/AMGenericScanEditor.h"
@@ -54,6 +55,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "ui/IDEAS/IDEASPersistentView.h"
 #include "ui/IDEAS/IDEASXASScanConfigurationView.h"
+#include "ui/IDEAS/IDEAS2DScanConfigurationView.h"
 
 #include "beamline/IDEAS/IDEASKETEKDetailedDetectorView.h"
 #include "beamline/IDEAS/IDEAS13ElementGeDetailedDetectorView.h"
@@ -194,6 +196,12 @@ void IDEASAppController::setupUserInterface()
 	xasScanConfigurationHolder3_ = new AMScanConfigurationViewHolder3(0, true);
 
 	mw_->addPane(xasScanConfigurationHolder3_, "Scans", "IDEAS XAS Scan", ":/utilities-system-monitor.png");
+
+	IDEAS2DScanConfiguration *mapScanConfiguration = new IDEAS2DScanConfiguration(this);
+	mapScanConfigurationView_ = new IDEAS2DScanConfigurationView(mapScanConfiguration);
+	mapScanConfigurationHolder3_ = new AMScanConfigurationViewHolder3(mapScanConfigurationView_, true);
+
+	mw_->addPane(mapScanConfigurationHolder3_, "Scans", "IDEAS 2D Scan", ":/utilities-system-monitor.png");
 
 	sampleCameraPanel_ = new IDEASSampleCameraPanel();
 	mw_->addPane(sampleCameraPanel_, "Experiment Tools", "Sample Alignment",":/22x22/gnome-display-properties.png");

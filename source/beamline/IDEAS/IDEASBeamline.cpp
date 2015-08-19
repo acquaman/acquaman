@@ -188,6 +188,8 @@ void IDEASBeamline::setupExposedControls()
 	addExposedControl(ketekBaselineThreshold_);
 	addExposedControl(ketekPreampGain_);
 
+	addExposedControl(samplePlatformHorizontal_);
+	addExposedControl(samplePlatformVertical_);
 }
 
 void IDEASBeamline::setupExposedDetectors()

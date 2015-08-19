@@ -30,6 +30,8 @@ class IDEASXRFDetailedDetectorView;
 class IDEASSampleCameraPanel;
 class IDEASKETEKDetailedDetectorView;
 class IDEAS13ElementGeDetailedDetectorView;
+class IDEAS2DScanConfiguration;
+class IDEAS2DScanConfigurationView;
 
 class IDEASAppController : public AMAppController
 {
@@ -85,6 +87,12 @@ protected:
 	IDEASXASScanConfigurationView *xasScanConfigurationView_;
 	/// View holder for XAS
 	AMScanConfigurationViewHolder3 *xasScanConfigurationHolder3_;
+
+	/// View for the IDEAS's 2D scan configurations.
+	IDEAS2DScanConfigurationView *mapScanConfigurationView_;
+	/// View holder for 2D scan configuration views.
+	AMScanConfigurationViewHolder3 *mapScanConfigurationHolder3_;
+
 	/// View for the IDEAS's Ketek XRF scan configurations
 	IDEASKETEKDetailedDetectorView *ideasKETEKDetailedDetectorView_;
 	/// View for the IDEAS's g13 Element scan configurations

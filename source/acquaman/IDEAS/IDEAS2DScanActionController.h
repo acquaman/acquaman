@@ -25,13 +25,13 @@ protected:
 	AMAction3* createInitializationActions();
 	/// Reimplemented to put the beamline in a good state after a scan has been completed.
 	AMAction3* createCleanupActions();
-	/// Re-implemented due to the extra complexity of setting up IDEAS.
-	virtual void cancelImplementation();
 	/// Reimplemented to populate scan initial conditions
 	void onInitializationActionsListSucceeded();
 
 	/// Sets the scan axis and adds anything extra.
 	virtual void buildScanControllerImplementation();
+	/// Creates the axis order for higher dimensional scans.  The default order is the axis order, but if a different order is desired, then you should reimplement this in subclasses.
+	virtual void createAxisOrderMap();
 
 	/// Specific scan configuration with all the SGM specific information inside.
 	IDEAS2DScanConfiguration *configuration_;
