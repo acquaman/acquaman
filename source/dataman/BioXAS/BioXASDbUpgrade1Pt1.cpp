@@ -48,10 +48,10 @@ bool BioXASDbUpgrade1Pt1::upgradeImplementation()
 	// Create and populate BioXASXASScanConfiguration_table, if it doesn't already exist.
 
 	if (!databaseToUpgrade_->tableExists("BioXASXASScanConfiguration_table")) {
-		QStringList names = QStringList() << "AMDbObjectType" << "thumbnailCount" << "thumbnailFirstId" << "name" << "detectorConfigurations" << "axisControlInfos" << "configurationDbObject" << "header";
-		QStringList types = QStringList() << "TEXT" << "INTEGER" << "INTEGER" << "TEXT" << "TEXT" << "TEXT" << "TEXT" << "TEXT";
+		QStringList dbObjectNames = QStringList() << "AMDbObjectType" << "thumbnailCount" << "thumbnailFirstId" << "name" << "detectorConfigurations" << "axisControlInfos" << "configurationDbObject" << "header";
+		QStringList dbObjectTypes = QStringList() << "TEXT" << "INTEGER" << "INTEGER" << "TEXT" << "TEXT" << "TEXT" << "TEXT" << "TEXT";
 
-		if (!databaseToUpgrade_->ensureTable("BioXASXASScanConfiguration", names, types)) {
+		if (!AMDbUpgradeSupport::addTable(databaseToUpgrade_, "BioXASXASScanConfiguration", dbObjectNames, dbObjectTypes, true, "BioXAS XAS Scan Configuration", "BioXASXASScanConfiguration;AMGenericStepScanConfiguration;AMStepScanConfiguration;AMScanConfiguration;AMDbObject;QObject")) {
 			databaseToUpgrade_->rollbackTransaction();
 			AMErrorMon::alert(this, BIOXASDBUPGRADE1PT1_COULD_NOT_CREATE_TABLE, "Could not create BioXASXASScanConfiguration_table.");
 			return false;
@@ -85,7 +85,7 @@ bool BioXASDbUpgrade1Pt1::upgradeImplementation()
 															   << "configurationDbObject"
 															   << "header",
 															   QVariantList()
-															   << QVariant()
+															   << "BioXASXASScanConfiguration"
 															   << names.at(idIndex)
 															   << detectors.at(idIndex)
 															   << axisControls.at(idIndex)
@@ -143,42 +143,6 @@ bool BioXASDbUpgrade1Pt1::upgradeImplementation()
 					return false;
 				}
 			}
-		}
-	}
-
-	// Add BioXASXASScanConfiguration_table to AMDbObjectTypes_table and associated tables, if appropriate entries do not already exist.
-
-	QVariantList objectTypes = databaseToUpgrade_->retrieve("AMDbObjectTypes_table", "AMDbObjectType");
-	if (!objectTypes.contains(QVariant("BioXASXASScanConfiguration"))) {
-
-		QStringList objectTypeNames = QStringList() << "AMDbObjectType" << "tableName" << "description" << "version" << "inheritance";
-		QVariantList objectTypeValues = QVariantList() << "BioXASXASScanConfiguration" << "BioXASXASScanConfiguration_table" << "BioXAS XAS Scan Configuration" << 1 << "BioXASXASScanConfiguration;AMGenericStepScanConfiguration;AMStepScanConfiguration;AMScanConfiguration;AMDbObject;QObject";
-
-		if (databaseToUpgrade_->insertOrUpdate(0, "AMDbObjectTypes_table", objectTypeNames, objectTypeValues)) {
-			databaseToUpgrade_->rollbackTransaction();
-			AMErrorMon::alert(this, BIOXASDBUPGRADE1PT1_COULD_NOT_INSERT_OR_UPDATE_TABLE, "Could not add BioXASXASScanConfiguration entry to AMDbObjectType_table.");
-			return false;
-		}
-
-		QStringList names = QStringList() << "AMDbObjectType" << "thumbnailCount" << "thumbnailFirstId" << "name" << "detectorConfigurations" << "axisControlInfos" << "configurationDbObject" << "header";
-		QStringList types = QStringList() << "TEXT" << "INTEGER" << "INTEGER" << "TEXT" << "TEXT" << "TEXT" << "TEXT" << "TEXT";
-
-		if (databaseToUpgrade_->insertOrUpdate(0, "AMDbObjectTypes_allColumns", names, types)) {
-			databaseToUpgrade_->rollbackTransaction();
-			AMErrorMon::alert(this, BIOXASDBUPGRADE1PT1_COULD_NOT_INSERT_OR_UPDATE_TABLE, "Could not add BioXASXASScanConfiguration entry to AMDbObjectType_allColumns.");
-			return false;
-		}
-
-		if (databaseToUpgrade_->insertOrUpdate(0, "AMDbObjectTypes_visibleColumns", names, types)) {
-			databaseToUpgrade_->rollbackTransaction();
-			AMErrorMon::alert(this, BIOXASDBUPGRADE1PT1_COULD_NOT_INSERT_OR_UPDATE_TABLE, "Could not add BioXASXASScanConfiguration entry to AMDbObjectType_visibleColumns.");
-			return false;
-		}
-
-		if (databaseToUpgrade_->insertOrUpdate(0, "AMDbObjectTypes_loadColumns", names, types)) {
-			databaseToUpgrade_->rollbackTransaction();
-			AMErrorMon::alert(this, BIOXASDBUPGRADE1PT1_COULD_NOT_INSERT_OR_UPDATE_TABLE, "Could not add BioXASXASScanConfiguration entry to AMDbObjectType_loadColumns.");
-			return false;
 		}
 	}
 
