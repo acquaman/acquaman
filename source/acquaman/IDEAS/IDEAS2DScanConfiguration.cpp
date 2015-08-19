@@ -1,5 +1,10 @@
 #include "IDEAS2DScanConfiguration.h"
 
+#include "acquaman/IDEAS/IDEAS2DScanActionController.h"
+#include "ui/IDEAS/IDEAS2DScanConfigurationView.h"
+
+#include <QStringBuilder>
+
 IDEAS2DScanConfiguration::IDEAS2DScanConfiguration(QObject *parent)
 	: AMStepScanConfiguration(parent), IDEASScanConfiguration()
 {

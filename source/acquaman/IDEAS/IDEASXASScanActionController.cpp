@@ -49,10 +49,13 @@ IDEASXASScanActionController::IDEASXASScanActionController(IDEASXASScanConfigura
 	QString scanName;
 
 	if(configuration_->userScanName() == ""){
+
 		scanName = configuration_->autoScanName();
 		scan_->setName(QString("%1").arg(scanName));
 	}
+
 	else{
+
 		scanName = configuration_->userScanName();
 		scan_->setName(QString("%1").arg(scanName));
 	}
@@ -192,8 +195,6 @@ AMAction3* IDEASXASScanActionController::createInitializationActions()
 	initializationActions->addSubAction(AMActionSupport::buildControlMoveAction(IDEASBeamline::ideas()->monoDirectEnergyControl(), backlashEnergy));
 	initializationActions->addSubAction(IDEASBeamline::ideas()->scaler()->createContinuousEnableAction3(false));
 
-	initializationActions->addSubAction(initializationActions);
-
 	return initializationActions;
 }
 
@@ -206,16 +207,16 @@ void IDEASXASScanActionController::onInitializationActionsListSucceeded()
 	positions.remove(positions.indexOf("Energy"));
 	positions.remove(positions.indexOf("XRF1E Real Time"));
 
-	if(!configuration_->fluorescenceDetector().testFlag(IDEAS::NoXRF))
-	{
+	if(!configuration_->fluorescenceDetector().testFlag(IDEAS::NoXRF)){
+
 		positions.remove(positions.indexOf("XRF1E Peaking Time"));
 		positions.remove(positions.indexOf("XRF1E Trigger Level"));
 		positions.remove(positions.indexOf("XRF1E Baseline Threshold"));
 		positions.remove(positions.indexOf("XRF1E Preamp Gain"));
 	}
+
 	scan_->setScanInitialConditions(positions);
 	AMScanActionController::onInitializationActionsListSucceeded();
-
 }
 
 AMAction3* IDEASXASScanActionController::createCleanupActions(){
@@ -225,7 +226,6 @@ AMAction3* IDEASXASScanActionController::createCleanupActions(){
 	cleanupActions->addSubAction(new AMWaitAction(new AMWaitActionInfo(IDEASBeamline::ideas()->scaler()->dwellTime())));
 	cleanupActions->addSubAction(IDEASBeamline::ideas()->scaler()->createDwellTimeAction3(0.1));
 	cleanupActions->addSubAction(IDEASBeamline::ideas()->scaler()->createContinuousEnableAction3(true));
-
 
 	return cleanupActions;
 }
