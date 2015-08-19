@@ -592,8 +592,7 @@ void BioXASSideBeamline::setupMotorGroup()
 {
 	motorGroup_ = new AMMotorGroup(this);
 
-	AMMotorGroupObject* cryostatStageGroupObject =
-			new AMMotorGroupObject("Cryostat Stage - X Y Z", this);
+	AMMotorGroupObject* cryostatStageGroupObject = new AMMotorGroupObject("Cryostat Stage - X Y Z", this);
 
 	cryostatStageGroupObject->setDirectionAxis(AMMotorGroupObject::HorizontalMotion, "X", cryostatX_, "", 0);
 	cryostatStageGroupObject->setDirectionAxis(AMMotorGroupObject::NormalMotion, "Y", cryostatY_, "", 0);
@@ -725,7 +724,7 @@ void BioXASSideBeamline::setupComponents()
 	connect( safetyShutterDownstream_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
 	// The scaler.
-	scaler_ = new CLSSIS3820Scaler("BL1607-5-I22:mcs", this);
+	scaler_ = new CLSSIS3820Scaler("MCS1607-601", this);
 	connect( scaler_, SIGNAL(connectedChanged(bool)), this, SLOT(updateConnected()) );
 
 	scalerDwellTime_ = new AMReadOnlyPVControl("ScalerDwellTime", "BL1607-5-I22:mcs:delay", this, "Scaler dwell time");
