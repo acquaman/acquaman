@@ -17,8 +17,10 @@ BioXASAppController::BioXASAppController(QObject *parent) :
 
 	// Database upgrades.
 
-	AMDbUpgrade *bioxas1pt1 = new BioXASDbUpgrade1Pt1("user", this);
-	appendDatabaseUpgrade(bioxas1pt1);
+	AMDbUpgrade *bioxas1pt1UserDb = new BioXASDbUpgrade1Pt1("user", this);
+	appendDatabaseUpgrade(bioxas1pt1UserDb);
+	AMDbUpgrade *bioxas1pt1ActionsDb = new BioXASDbUpgrade1Pt1("actions", this);
+	appendDatabaseUpgrade(bioxas1pt1ActionsDb);
 
 	// Initialize member variables.
 
