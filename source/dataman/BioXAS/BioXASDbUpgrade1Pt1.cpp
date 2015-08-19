@@ -148,6 +148,8 @@ bool BioXASDbUpgrade1Pt1::upgradeImplementation()
 
 	// Upgrade complete.
 
+	AMErrorMon::alert(this, BIOXASDBUPGRADE1PT1_UPGRADE_COMPLETED_SUCCESSFULLY, "Database upgrade completed successfully!");
+
 	databaseToUpgrade_->commitTransaction();
 
 	return true;

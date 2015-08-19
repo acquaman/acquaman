@@ -6,6 +6,7 @@
 #define BIOXASDBUPGRADE1PT1_COULD_NOT_REMOVE_COLUMN 234987
 #define BIOXASDBUPGRADE1PT1_COULD_NOT_CREATE_TABLE 234988
 #define BIOXASDBUPGRADE1PT1_COULD_NOT_INSERT_OR_UPDATE_TABLE 234989
+#define BIOXASDBUPGRADE1PT1_UPGRADE_COMPLETED_SUCCESSFULLY 2348990
 
 /// Upgrades database to account for new BioXASXASScanConfiguration, which functionally replaces existing BioXASSideXASScanConfiguration and BioXASMainXASScanConfiguration.
 class BioXASDbUpgrade1Pt1 : public AMDbUpgrade
@@ -21,19 +22,19 @@ public:
 	/// Indicates the dependencies of this upgrade.
 	virtual QStringList upgradeFromTags() const;
 
-	/// Returns true. All modifications to the structure of the database needs to be done.
+	/// Returns true if this upgrade needs to be done.
 	virtual bool upgradeNecessary() const;
 
-	/// Makes all the necessary changes outlined in the class description.
+	/// Returns true if the upgrade is completed successfully, false otherwise. Contains the steps to complete the upgrade.
 	virtual bool upgradeImplementation();
 
-	/// Creates a new copy of this upgrade (caller is responsible for memory).
+	/// Creates a new copy of this upgrade.
 	virtual AMDbUpgrade *createCopy() const;
 
-	/// Returns the upgrade tag for this upgrade.
+	/// Returns the upgrade tag.
 	virtual QString upgradeToTag() const;
 
-	/// Returns the description of the upgrade.
+	/// Returns the description.
 	virtual QString description() const;
 
 };
