@@ -104,7 +104,7 @@ protected:
 	/// Build a position QDoubleSpinBox based on the prefix, suffix and value.  They have the same format, this should cut down on duplicate code.
 	QDoubleSpinBox *createPositionDoubleSpinBox(const QString &prefix, const QString &suffix, double value, int decimals);
 	/// Creates a group box that holds "things to do after a scan" option.
-	QGroupBox *createAfterScanOptionsBox(bool autoCloseShutter, bool gotoOriginalPosition);
+	QGroupBox *createAfterScanOptionsBox(bool autoCloseShutter, bool gotoOriginalPosition, bool cleanupScaler);
 
 	/// This disables the common items for the fluorescence detector (disables None).
 	void disableStandardFluorescenceOptions();
@@ -158,6 +158,8 @@ protected:
 	QCheckBox *closeFastShutterCheckBox_;
 	/// Check box for whether the sample stage should go back to its original position after a scan.
 	QCheckBox *returnToOriginalPositionCheckBox_;
+	/// Check box for whether the scaler should be cleaned up.
+	QCheckBox *cleanupScalerCheckBox_;
 };
 
 #endif // VESPERSSCANCONFIGURATIONVIEW_H

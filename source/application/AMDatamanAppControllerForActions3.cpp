@@ -187,3 +187,11 @@ bool AMDatamanAppControllerForActions3::startupRegisterDatabases()
 
 	return true;
 }
+
+void AMDatamanAppControllerForActions3::shutdown()
+{
+	AMDatamanAppController::shutdown();
+
+	AMDatabase::deleteDatabase("actions");
+	AMDatabase::deleteDatabase("scanActions");
+}

@@ -96,7 +96,7 @@ bool VESPERSDatabaseDuplicateEntryObject::fix()
 
 	query.prepare("SELECT name FROM AMRawDataSource_table WHERE " % duplicateWhereClause);
 
-	if (!AMDatabase::execQuery(query)){
+	if (!database_->execQuery(query)){
 
 		query.finish();
 		return false;

@@ -59,7 +59,7 @@ IDEASXASScanConfigurationView::IDEASXASScanConfigurationView(IDEASXASScanConfigu
 	connect(scanName_, SIGNAL(editingFinished()), this, SLOT(onScanNameEdited()));
 	connect(configuration_, SIGNAL(nameChanged(QString)), scanName_, SLOT(setText(QString)));
 
-	isXRFScanCheckBox_ = new QCheckBox("XRF");
+	isXRFScanCheckBox_ = new QCheckBox("XRF:");
 	isXRFScanCheckBox_->setChecked(configuration->isXRFScan());
 	connect(isXRFScanCheckBox_, SIGNAL(clicked(bool)), configuration_, SLOT(setIsXRFScan(bool)));
 
@@ -111,6 +111,8 @@ IDEASXASScanConfigurationView::IDEASXASScanConfigurationView(IDEASXASScanConfigu
 	pointPerScan_ = new QLabel;
 	scanEnergyRange_ = new QLabel;
 	ROIsLabel_ = new QLabel;
+	peakingSetting_ = new QLabel;
+
 	connect(configuration_, SIGNAL(totalTimeChanged(double)), this, SLOT(onEstimatedTimeChanged()));
 	connect(configuration_, SIGNAL(scanAxisAdded(AMScanAxis*)), this, SLOT(onEstimatedTimeChanged()));
 	connect(configuration_, SIGNAL(scanAxisRemoved(AMScanAxis*)), this, SLOT(onEstimatedTimeChanged()));
@@ -125,14 +127,13 @@ IDEASXASScanConfigurationView::IDEASXASScanConfigurationView(IDEASXASScanConfigu
 	connect(IDEASBeamline::ideas()->ge13Element(),SIGNAL(removedRegionOfInterest(AMRegionOfInterest*)),this,SLOT(onROIChange()));
 	connect(fluorescenceDetectorComboBox_, SIGNAL(currentIndexChanged(int)), this, SLOT(onROIChange()));
 
+	connect(IDEASBeamline::ideas()->ketek(), SIGNAL(peakingTimeChanged(double)), this, SLOT(onPeakingTimeChanged(double)));
+	connect(IDEASBeamline::ideas()->ge13Element(), SIGNAL(peakingTimeChanged(double)), this, SLOT(onPeakingTimeChanged(double)));
 
 	connect(isXRFScanCheckBox_, SIGNAL(clicked()),this,SLOT(onROIChange()));
 	onROIChange();
 
 	fluorescenceDetectorComboBox_->setCurrentIndex((int)configuration_->fluorescenceDetector());
-
-	QFormLayout *detectorLayout = new QFormLayout;
-	detectorLayout->addRow("XRF:", fluorescenceDetectorComboBox_);
 
 	QFormLayout *numberOfScansLayout = new QFormLayout;
 	numberOfScansLayout->addRow("Estimated time per scan:", estimatedTime_);
@@ -140,6 +141,7 @@ IDEASXASScanConfigurationView::IDEASXASScanConfigurationView(IDEASXASScanConfigu
 	numberOfScansLayout->addRow("Scan energy range:", scanEnergyRange_);
 	numberOfScansLayout->addRow("Selected XRF Detector Regions:", new QLabel(""));
 	numberOfScansLayout->addRow("", ROIsLabel_);
+	numberOfScansLayout->addRow("Peaking Settings: ", peakingSetting_);
 
 	QFormLayout *energySetpointLayout = new QFormLayout;
 	energySetpointLayout->addRow("Energy:", energy_);
@@ -155,15 +157,19 @@ IDEASXASScanConfigurationView::IDEASXASScanConfigurationView(IDEASXASScanConfigu
 	mainVL->addWidget(regionsView_);
 	mainVL->addLayout(numberOfScansLayout);
 
-
 	QLabel *settingsLabel = new QLabel("Scan Settings:");
 	settingsLabel->setFont(QFont("Lucida Grande", 12, QFont::Bold));
+
+    QHBoxLayout *xrfDetector = new QHBoxLayout();
+    xrfDetector->addWidget(isXRFScanCheckBox_);
+    xrfDetector->addSpacing(10);
+    xrfDetector->addWidget(fluorescenceDetectorComboBox_);
 
 	QFormLayout *configFL = new QFormLayout();
 	configFL->setAlignment(Qt::AlignLeft);
 	configFL->setFieldGrowthPolicy(QFormLayout::FieldsStayAtSizeHint);
 	configFL->addRow("Scan Name: ", scanName_);
-	configFL->addRow("Include: ",isXRFScanCheckBox_);
+    configFL->addRow("Include: ",xrfDetector);
 	configFL->addRow("", isTransScanCheckBox_);
 	configFL->addRow("", useRefCheckBox_);
 
@@ -176,7 +182,6 @@ IDEASXASScanConfigurationView::IDEASXASScanConfigurationView(IDEASXASScanConfigu
 	settingsVL->addLayout(regionsHL);
 	settingsVL->addWidget(settingsLabel);
 	settingsVL->addLayout(configFL);
-	settingsVL->addLayout(detectorLayout);
 
 	mainVL->addStretch();
 	mainVL->addLayout(settingsVL);
@@ -207,11 +212,28 @@ void IDEASXASScanConfigurationView::setupDefaultXANESScanRegions()
 
 	AMScanAxisEXAFSRegion *region = new AMScanAxisEXAFSRegion;
 	region->setEdgeEnergy(configuration_->energy());
-	region->setRegionStart(configuration_->energy() - 30);
-	region->setRegionStep(0.5);
-	region->setRegionEnd(configuration_->energy() + 40);
+	region->setRegionStart(configuration_->energy() - 50);
+	region->setRegionStep(1.0);
+	region->setRegionEnd(configuration_->energy() - 20);
 	region->setRegionTime(1.0);
 	regionsView_->insertEXAFSRegion(0, region);
+
+	region = new AMScanAxisEXAFSRegion;
+	region->setEdgeEnergy(configuration_->energy());
+	region->setRegionStart(configuration_->energy() - 20);
+	region->setRegionStep(0.5);
+	region->setRegionEnd(configuration_->energy() + 20);
+	region->setRegionTime(1.0);
+	regionsView_->insertEXAFSRegion(1, region);
+
+	region = new AMScanAxisEXAFSRegion;
+	region->setEdgeEnergy(configuration_->energy());
+	region->setRegionStart(configuration_->energy() + 20);
+	region->setRegionStep(2.0);
+	region->setRegionEnd(configuration_->energy() + 100);
+	region->setRegionTime(1.0);
+	regionsView_->insertEXAFSRegion(2, region);
+
 }
 
 void IDEASXASScanConfigurationView::setupDefaultEXAFSScanRegions()
@@ -397,4 +419,18 @@ void IDEASXASScanConfigurationView::updateFluorescenceDetectorComboBox(int detec
 void IDEASXASScanConfigurationView::onFluorescenceChoiceChanged(int id)
 {
 	configuration_->setFluorescenceDetector(id);
+}
+
+void IDEASXASScanConfigurationView::onPeakingTimeChanged(double value)
+{
+
+	if (value == 0.3)
+	    peakingSetting_->setText("High Rate / Low Resolution");
+	else if (value == 2.0)
+	    peakingSetting_->setText("High Resolution / Low Rate");
+	else if (value == 4.0)
+	    peakingSetting_->setText("Ultra Resolution / Slow Rate");
+	else
+	    peakingSetting_->setText("High Rate / Low Resolution");
+
 }
