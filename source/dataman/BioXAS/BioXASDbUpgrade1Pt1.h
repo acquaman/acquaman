@@ -41,6 +41,9 @@ protected:
 	/// Returns true if successful, false otherwise. Merges data from the named table into BioXASXASScanConfiguration_table.
 	bool addConfigurationTableToXASTable(const QString &configurationTableName);
 
+	/// Returns true if successful, false otherwise. Iterates through entries in AMScan_table and updates scanConfiguration entries from the named configuration table to BioXASXASScanConfiguration_table.
+	bool updateScanTable(int configurationID, const QString &configurationTableName);
+
 };
 
 #endif // BIOXASDBUPGRADE1PT1_H

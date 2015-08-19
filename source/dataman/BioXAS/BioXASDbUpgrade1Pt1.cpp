@@ -59,13 +59,15 @@ bool BioXASDbUpgrade1Pt1::upgradeImplementation()
 
 		// Populate BioXASXASScanConfiguration_table with items from BioXASSideXASScanConfiguration_table, if it exists.
 
-		if (!addConfigurationTableToXASTable("BioXASSideXASScanConfiguration_table"))
-			return false;
+		if (databaseToUpgrade_->tableExists("BioXASSideXASScanConfiguration_table"))
+			if (!addConfigurationTableToXASTable("BioXASSideXASScanConfiguration_table"))
+				return false;
 
 		// Populate BioXASXASScanConfiguration_table with items from BioXASMainXASScanConfiguration_table, if it exists.
 
-		if (!addConfigurationTableToXASTable("BioXASMainXASScanConfiguration_table"))
-			return false;
+		if (databaseToUpgrade_->tableExists("BioXASMainXASScanConfiguration_table"))
+			if (!addConfigurationTableToXASTable("BioXASMainXASScanConfiguration_table"))
+				return false;
 	}
 
 	// Upgrade complete.
@@ -127,7 +129,8 @@ bool BioXASDbUpgrade1Pt1::addConfigurationTableToXASTable(const QString &configu
 	foreach (QVariant id, ids)
 		updateIds << id.toString().split(";").last().toInt();
 
-	// Add each configuration to BioXASXASScanConfiguration_table.
+	// Add each configuration to BioXASXASScanConfiguration_table, and update corresponding entry in
+	// AMScan_table.
 
 	for (int idIndex = 0, idIndexCount = updateIds.count(); idIndex < idIndexCount; idIndex++) {
 
@@ -157,11 +160,65 @@ bool BioXASDbUpgrade1Pt1::addConfigurationTableToXASTable(const QString &configu
 			AMErrorMon::alert(this, BIOXASDBUPGRADE1PT1_COULD_NOT_INSERT_OR_UPDATE_TABLE, QString("Could not populate BioXASXASScanConfiguration_table with old configurations from %1.").arg(configurationTableName));
 			return false;
 		}
+
+		if (!updateScanTable(newId, configurationTableName))
+			return false;
 	}
 
 	// Insertion of new entries to BioXASXASScanConfiguration_table complete.
 
 	AMErrorMon::alert(this, BIOXASDBUPGRADE1PT1_INSERT_OR_UPDATE_SUCCESSFUL, QString("Successfully added entries from %1 to BioXASXASScanConfiguration_table!").arg(configurationTableName));
+
+	return true;
+}
+
+bool BioXASDbUpgrade1Pt1::updateScanTable(int configurationID, const QString &configurationTableName)
+{
+	if (!databaseToUpgrade_->tableExists("AMScan_table")) {
+		databaseToUpgrade_->rollbackTransaction();
+		AMErrorMon::alert(this, BIOXASDBUPGRADE1PT1_TABLE_DOES_NOT_EXIST, QString("Could not update AMScan_table entries--AMScan_table does not exist.").arg(configurationTableName));
+		return false;
+	}
+
+	// Collect information from AMScan_table to be updated, or used for update.
+
+	QVariantList ids = databaseToUpgrade_->retrieve("AMScan_table", "id");
+	QVariantList configurations = databaseToUpgrade_->retrieve("AMScan_table", "scanConfiguration");
+
+	QList<int> updateIds;
+
+	foreach (QVariant id, ids)
+		updateIds << id.toString().split(";").last().toInt();
+
+
+	// Iterate through the entries in AMScan_table until out of entries or an entry is found
+	// that has the scanConfiguration matching the given table name and id.
+	// Each scan will correspond to a unique scan configuration--no need to keep looking once
+	// configuration is found.
+
+	bool configurationFound = false;
+
+	for (int idIndex = 0, idIndexCount = updateIds.count(); idIndex < idIndexCount && !configurationFound; idIndex++) {
+
+		QString entry = configurations.at(idIndex).toString();
+		QString entryTableName = entry.split(";").first();
+
+		if (entryTableName == configurationTableName) {
+			QString newEntry = "BioXASXASScanConfiguration;" + QString::number(configurationID);
+
+			if (!databaseToUpgrade_->update(updateIds.at(idIndex), "AMScan_table", "scanConfiguration", newEntry)) {
+				databaseToUpgrade_->rollbackTransaction();
+				AMErrorMon::alert(this, BIOXASDBUPGRADE1PT1_COULD_NOT_INSERT_OR_UPDATE_TABLE, QString("Could not update %1 entry in AMScan_table.").arg(configurationTableName));
+				return false;
+			}
+
+			configurationFound = true;
+		}
+	}
+
+	if (!configurationFound) {
+		AMErrorMon::alert(this, BIOXASDBUPGRADE1PT1_COULD_NOT_INSERT_OR_UPDATE_TABLE, QString("Could not update %1 entry in AMScan_table--entry could not be found.").arg(configurationTableName));
+	}
 
 	return true;
 }
