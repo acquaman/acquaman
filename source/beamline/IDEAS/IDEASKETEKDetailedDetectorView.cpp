@@ -38,7 +38,7 @@ void IDEASKETEKDetailedDetectorView::onPeakingTimeBoxChanged(const QString &arg1
 	}
 	else if (arg1 == "High Res / Low Rate")
 	{
-		ketekDetector_->setPeakingTime(0.200);
+		ketekDetector_->setPeakingTime(2.00);
 		ketekDetector_->setPreampGain(1.2375);
 	}
 	else if (arg1 == "Ultra Res / Slow Rate")
