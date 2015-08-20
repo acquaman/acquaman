@@ -39,7 +39,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 class AMScanController;
 class AMEXAFSScanAxisView;
-class AMTopFrame;
 
 class IDEASXASScanConfigurationView : public AMScanConfigurationView
 {
@@ -88,7 +87,6 @@ protected:
 
 	IDEASXASScanConfiguration *configuration_;
 
-	AMTopFrame *topFrame_;
 	AMEXAFSScanAxisView *regionsView_;
 	QPushButton *autoRegionButton_;
 	QPushButton *pseudoXAFSButton_;

@@ -223,7 +223,7 @@ void IDEASAppController::onEnergyConnected(bool connected){
 
 		xasScanConfigurationView_ = new IDEASXASScanConfigurationView(xasScanConfiguration_);
 		xasScanConfigurationView_->setupDefaultXANESScanRegions();
-		xasScanConfigurationHolder3_->setView(xasScanConfigurationView_);
+		xasScanConfigurationHolder3_->setView(xasScanConfigurationView_, "Configure XAS scan", true, true);
 
 		connect(xasScanConfiguration_, SIGNAL(totalTimeChanged(double)), xasScanConfigurationHolder3_, SLOT(updateOverallScanTime(double)));
 		xasScanConfigurationHolder3_->updateOverallScanTime(xasScanConfiguration_->totalTime());
