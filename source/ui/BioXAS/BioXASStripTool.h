@@ -1,7 +1,6 @@
 #ifndef BIOXASSTRIPTOOL_H
 #define BIOXASSTRIPTOOL_H
 
-#include "beamline/AMPVControl.h"
 #include "ui/AMStripTool.h"
 
 class BioXASStripTool : public AMStripTool

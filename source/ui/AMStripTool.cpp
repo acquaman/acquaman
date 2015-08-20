@@ -32,11 +32,54 @@ AMStripTool::AMStripTool(QWidget *parent) :
 	layout->addWidget(plotWidget_);
 
 	setLayout(layout);
+
+	// Context menu.
+
+	setContextMenuPolicy(Qt::CustomContextMenu);
+	connect( this, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(onCustomContextMenuRequested(QPoint)) );
 }
 
 AMStripTool::~AMStripTool()
 {
 
+}
+
+bool AMStripTool::contains(AMControl *control)
+{
+	return controlPlotItemMap_.contains(control);
+}
+
+bool AMStripTool::contains(const QString &pvName)
+{
+	bool controlFound = false;
+	QList<AMControl*> controls = controlPlotItemMap_.keys();
+
+	for (int i = 0, count = controls.size(); i < count && !controlFound; i++) {
+		AMControl *control = controls.at(i);
+		if (control->name() == pvName)
+			controlFound = true;
+	}
+
+	return controlFound;
+}
+
+void AMStripTool::addPV(const QString &pvName)
+{
+	AMReadOnlyPVControl *control = new AMReadOnlyPVControl(pvName, pvName, this);
+	addControl(control);
+}
+
+void AMStripTool::removePV(const QString &pvName)
+{
+	QList<AMControl*> controls = controlPlotItemMap_.keys();
+
+	for (int i = 0, count = controls.size(); i < count; i++) {
+		AMControl *control = controls.at(i);
+
+		if (control->name() == pvName) {
+			removeControl(control);
+		}
+	}
 }
 
 void AMStripTool::addControl(AMControl *control)
@@ -47,6 +90,8 @@ void AMStripTool::addControl(AMControl *control)
 		if (item) {
 			plot_->addItem(item);
 			controlPlotItemMap_.insert(control, item);
+
+			emit controlAdded(control);
 		}
 	}
 }
@@ -60,9 +105,39 @@ void AMStripTool::removeControl(AMControl *control)
 			plot_->removeItem(item);
 			controlPlotItemMap_.remove(control);
 
+			emit controlRemoved(control);
+
 			delete item;
 		}
 	}
+}
+
+void AMStripTool::showAddPVDialog()
+{
+	bool ok = false;
+	QString pvName = QInputDialog::getText(this, "Add PV", "PV name:", QLineEdit::Normal, "", &ok);
+
+	if (ok && !pvName.isEmpty())
+		addPV(pvName);
+}
+
+void AMStripTool::onCustomContextMenuRequested(QPoint point)
+{
+	QMenu menu(this);
+
+	// Add menu options.
+
+	QAction *addPVAction = menu.addAction("Add PV");
+
+	// Execute selected option.
+
+	QAction *selection = menu.exec(mapToGlobal(point));
+
+	if (selection) {
+		if (selection->text() == addPVAction->text())
+			showAddPVDialog();
+	}
+
 }
 
 MPlotItem* AMStripTool::createPlotItem(AMControl *control)
