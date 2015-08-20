@@ -25,6 +25,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QWidget>
 
 #include "ui/BioXAS/BioXASPersistentView.h"
+#include "MPlot/MPlotWidget.h"
+#include "beamline/AMPVControl.h"
+
+#include "ui/AMStripTool.h"
 
 class BioXASSidePersistentView : public QWidget
 {
@@ -39,6 +43,11 @@ public:
 protected:
 	/// General BioXAS persistent view.
 	BioXASPersistentView *generalView_;
+
+	/// Storage ring current control.
+	AMReadOnlyPVControl *ringCurrent_;
+	/// Strip tool
+	AMStripTool *stripTool_;
 };
 
 #endif // BIOXASSIDEPERSISTENTVIEW_H

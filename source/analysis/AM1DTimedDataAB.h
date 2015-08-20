@@ -31,7 +31,7 @@ class AM1DTimedDataAB : public AMStandardAnalysisBlock
 {
 	Q_OBJECT
 
-	Q_CLASSINFO("AMDbObject_Attributes", "description=1D Relative Time Block")
+	Q_CLASSINFO("AMDbObject_Attributes", "description=1D Value/Timestamp AB")
 
 public:
 	/// Constructor.

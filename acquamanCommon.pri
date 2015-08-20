@@ -27,6 +27,8 @@ include ( $$PATH_TO_AM/compositeCommon/QJSON.pri )
 include ( $$PATH_TO_AM/compositeCommon/AMBeamline.pri )
 include ( $$PATH_TO_AM/compositeCommon/AMPVControl.pri )
 
+include ( $$PATH_TO_AM/compositeCommon/AMStripTool.pri )
+
 # Source Files (Acquaman Framework Common)
 #######################
 
@@ -427,7 +429,10 @@ HEADERS += \
     source/ui/dataman/AMScanViewPlotToolsButtonView.h \
     source/ui/dataman/AMScanViewPlotToolView.h \
     source/ui/dataman/AMScanViewPlotSelectedToolsView.h \
-    source/dataman/AMScanViewPlotTools.h
+    source/dataman/AMScanViewPlotTools.h \
+    source/analysis/AM0DTimestampAB.h \
+    source/beamline/AMTime.h \
+	source/dataman/datasource/AMControlDataSource.h
 
 FORMS += \
 
@@ -816,7 +821,9 @@ SOURCES += \
     source/ui/dataman/AMScanViewPlotToolsButtonView.cpp \
     source/ui/dataman/AMScanViewPlotToolView.cpp \
     source/ui/dataman/AMScanViewPlotSelectedToolsView.cpp \
-    source/dataman/AMScanViewPlotTools.cpp
+    source/dataman/AMScanViewPlotTools.cpp \
+    source/analysis/AM0DTimestampAB.cpp \
+	source/dataman/datasource/AMControlDataSource.cpp
 
 
 RESOURCES *= source/icons/icons.qrc \
@@ -828,6 +835,7 @@ RESOURCES *= source/icons/icons.qrc \
 OTHER_FILES *= \
 	source/stylesheets/sliderWaitLessThan.qss \
 	source/stylesheets/sliderWaitGreaterThan.qss
+
 
 contains(DEFINES, AM_BUILD_REPORTER_ENABLED){
 	HEADERS *= source/util/AMRunTimeBuildInfo.h
