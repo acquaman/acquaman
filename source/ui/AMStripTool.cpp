@@ -60,7 +60,7 @@ void AMStripTool::removeControl(AMControl *control)
 			plot_->removeItem(item);
 			controlPlotItemMap_.remove(control);
 
-//			delete item;
+			delete item;
 		}
 	}
 }

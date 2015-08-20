@@ -60,7 +60,8 @@ HEADERS += \
 	source/ui/BioXAS/BioXAS32ElementGeDetectorView.h \
     source/beamline/BioXAS/BioXASXIAFiltersControl.h \
     source/beamline/BioXAS/BioXASDBHRMirrors.h \
-	source/ui/BioXAS/BioXASDBHRMirrorsView.h
+	source/ui/BioXAS/BioXASDBHRMirrorsView.h \
+    source/ui/BioXAS/BioXASStripTool.h
 
 SOURCES += \
 	source/acquaman/BioXAS/BioXASXRFScanConfiguration.cpp \
@@ -115,4 +116,5 @@ SOURCES += \
 	source/ui/BioXAS/BioXAS32ElementGeDetectorView.cpp \
     source/beamline/BioXAS/BioXASXIAFiltersControl.cpp \
     source/beamline/BioXAS/BioXASDBHRMirrors.cpp \
-	source/ui/BioXAS/BioXASDBHRMirrorsView.cpp
+	source/ui/BioXAS/BioXASDBHRMirrorsView.cpp \
+    source/ui/BioXAS/BioXASStripTool.cpp

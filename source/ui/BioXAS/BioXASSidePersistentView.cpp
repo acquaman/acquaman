@@ -33,10 +33,7 @@ BioXASSidePersistentView::BioXASSidePersistentView(QWidget *parent) :
 
 	generalView_ = new BioXASPersistentView(BioXASSideBeamline::bioXAS()->mono(), BioXASSideBeamline::bioXAS()->scaler());
 
-	ringCurrent_ = new AMReadOnlyPVControl("SR1Current", "PCT1402-01:mA:fbk", this);
-
-	stripTool_ = new AMStripTool();
-	stripTool_->addControl(ringCurrent_);
+	stripTool_ = new BioXASStripTool();
 
 	// Create and set main layout.
 
