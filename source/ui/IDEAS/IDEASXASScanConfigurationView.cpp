@@ -58,12 +58,12 @@ IDEASXASScanConfigurationView::IDEASXASScanConfigurationView(IDEASXASScanConfigu
 
 	isTransScanCheckBox_ = new QCheckBox("transmission");
 	isTransScanCheckBox_->setChecked(configuration->usingTransmission());
-	connect(isTransScanCheckBox_, SIGNAL(clicked(bool)), configuration_, SLOT(setIsTransScan(bool)));
+	connect(isTransScanCheckBox_, SIGNAL(clicked(bool)), configuration_, SLOT(setUsingTransmission(bool)));
 
 	useRefCheckBox_ = new QCheckBox("reference sample");
 	useRefCheckBox_->setChecked(configuration->usingReference());
 	useRefCheckBox_->setEnabled(configuration->usingTransmission());
-	connect(useRefCheckBox_, SIGNAL(clicked(bool)), configuration_, SLOT(setUseRef(bool)));
+	connect(useRefCheckBox_, SIGNAL(clicked(bool)), configuration_, SLOT(setUsingReference(bool)));
 	connect(isTransScanCheckBox_, SIGNAL(clicked(bool)),useRefCheckBox_,SLOT(setEnabled(bool)));
 
 	// The fluorescence detector setup
@@ -122,7 +122,7 @@ IDEASXASScanConfigurationView::IDEASXASScanConfigurationView(IDEASXASScanConfigu
 	connect(fluorescenceDetectorComboBox_, SIGNAL(currentIndexChanged(int)), this, SLOT(onROIChange()));
 
 	connect(IDEASBeamline::ideas()->ketek(), SIGNAL(peakingTimeChanged(double)), this, SLOT(onPeakingTimeChanged(double)));
-	connect(IDEASBeamline::ideas()->ge13Element(), SIGNAL(peakingTimeChanged(double)), this, SLOT(onPeakingTimeChanged(double)));
+//	connect(IDEASBeamline::ideas()->ge13Element(), SIGNAL(peakingTimeChanged(double)), this, SLOT(onPeakingTimeChanged(double)));
 
 	onROIChange();
 

@@ -190,6 +190,7 @@ void IDEASAppController::setupUserInterface()
 	IDEASPersistentView *persistentPanel = new IDEASPersistentView;
 	mw_->addRightWidget(persistentPanel);
 
+	xasScanConfiguration_ = new IDEASXASScanConfiguration(this);
 	xasScanConfigurationView_ = 0; //NULL
 	xasScanConfigurationHolder3_ = new AMScanConfigurationViewHolder3("IDEAS XAS Scan", true, true);
 
@@ -219,7 +220,6 @@ void IDEASAppController::onEnergyConnected(bool connected){
 	Q_UNUSED(connected)
 	if(IDEASBeamline::ideas()->monoEnergyControl() && IDEASBeamline::ideas()->monoEnergyControl()->isConnected() && !xasScanConfigurationView_){
 		// Do New XAS
-		xasScanConfiguration_ = new IDEASXASScanConfiguration(this);
 
 		xasScanConfigurationView_ = new IDEASXASScanConfigurationView(xasScanConfiguration_);
 		xasScanConfigurationView_->setupDefaultXANESScanRegions();

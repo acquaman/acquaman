@@ -47,11 +47,13 @@ AMDetectorDwellTimeSource::AMDetectorDwellTimeSource(const QString &name, QObjec
 	name_ = name;
 }
 
-void AMDetectorDwellTimeSource::requestSetDwellTime(double dwellSeconds){
+#include <QDebug>
+void AMDetectorDwellTimeSource::requestSetDwellTime(double dwellSeconds)
+{
+	qDebug() << "We are requesting the following dwell time: " << dwellSeconds;
     emit setDwellTime(dwellSeconds);
 }
 
-#include <QDebug>
 void AMDetectorDwellTimeSource:: requestSetDarkCurrentCorrectionTime(double timeSeconds) {
     qDebug() << "Want to emit darkCurrentCorrectionTime as " << timeSeconds << " in " << name();
     emit setDarkCurrentCorrectionTime(timeSeconds);

@@ -151,10 +151,12 @@ void IDEASXASScanActionController::buildScanControllerImplementation()
 		QList<AMDataSource *> all1DDataSources;
 
 		foreach (AMDataSource *dataSource, scan_->rawDataSources()->toList())
-			all1DDataSources << dataSource;
+			if (dataSource->rank() == 1)
+				all1DDataSources << dataSource;
 
 		foreach (AMDataSource *dataSource, scan_->analyzedDataSources()->toList())
-			all1DDataSources << dataSource;
+			if (dataSource->rank() == 1)
+				all1DDataSources << dataSource;
 
 		foreach (AMRegionOfInterest *region, configuration_->regionsOfInterest()){
 
@@ -168,7 +170,7 @@ void IDEASXASScanActionController::buildScanControllerImplementation()
 			QString regionName = regionAB->name().replace(" ","_");
 			AM1DCalibrationAB* normalizedRegion = new AM1DCalibrationAB(QString("Norm%1").arg(regionName));
 			normalizedRegion->setDescription(QString("Norm%1").arg(regionName));
-			normalizedRegion->setInputDataSources(all1DDataSources);
+			normalizedRegion->setInputDataSources(QList<AMDataSource *>() << newRegion << all1DDataSources);
 			normalizedRegion->setToEdgeJump(true);
 			normalizedRegion->setDataName(regionName);
 			normalizedRegion->setNormalizationName("I_0");
@@ -194,6 +196,11 @@ AMAction3* IDEASXASScanActionController::createInitializationActions()
 
 	initializationActions->addSubAction(AMActionSupport::buildControlMoveAction(IDEASBeamline::ideas()->monoDirectEnergyControl(), backlashEnergy));
 	initializationActions->addSubAction(IDEASBeamline::ideas()->scaler()->createContinuousEnableAction3(false));
+
+	double regionTime = double(configuration_->scanAxisAt(0)->regionAt(0)->regionTime());
+	initializationActions->addSubAction(IDEASBeamline::ideas()->scaler()->createDwellTimeAction3(regionTime));
+	initializationActions->addSubAction(IDEASBeamline::ideas()->scaler()->createStartAction3(true));
+	initializationActions->addSubAction(IDEASBeamline::ideas()->scaler()->createWaitForDwellFinishedAction(regionTime + 5.0));
 
 	return initializationActions;
 }
@@ -223,7 +230,6 @@ AMAction3* IDEASXASScanActionController::createCleanupActions()
 {
 	AMListAction3 *cleanupActions = new AMListAction3(new AMListActionInfo3("IDEAS XAS Cleanup Actions", "IDEAS XAS Cleanup Actions"));
 
-	cleanupActions->addSubAction(new AMWaitAction(new AMWaitActionInfo(IDEASBeamline::ideas()->scaler()->dwellTime())));
 	cleanupActions->addSubAction(IDEASBeamline::ideas()->scaler()->createDwellTimeAction3(0.1));
 	cleanupActions->addSubAction(IDEASBeamline::ideas()->scaler()->createContinuousEnableAction3(true));
 

@@ -45,16 +45,16 @@ IDEAS2DScanActionController::IDEAS2DScanActionController(IDEAS2DScanConfiguratio
 	int yPoints = configuration_->scanAxisAt(1)->numberOfPoints();
 
 	AMControlInfoList list;
-	list.append(AMBeamline::bl()->exposedControlByName("Sample Platform Vertical")->toInfo());
 	list.append(AMBeamline::bl()->exposedControlByName("Sample Platform Horizontal")->toInfo());
+	list.append(AMBeamline::bl()->exposedControlByName("Sample Platform Vertical")->toInfo());
 	configuration_->setAxisControlInfos(list);
 
 	scan_->rawData()->addScanAxis(AMAxisInfo("H", 0, "Horizontal Position", "mm"));
 	scan_->rawData()->addScanAxis(AMAxisInfo("V", yPoints, "Vertical Position", "mm"));
 
 	AMDetectorInfoSet detectors;
-	detectors.addDetectorInfo(AMBeamline::bl()->exposedDetectorByName("I0Detector")->toInfo());
-	detectors.addDetectorInfo(AMBeamline::bl()->exposedDetectorByName("TEYDetector")->toInfo());
+	detectors.addDetectorInfo(AMBeamline::bl()->exposedDetectorByName("I_0")->toInfo());
+	detectors.addDetectorInfo(AMBeamline::bl()->exposedDetectorByName("Sample")->toInfo());
 
 	if (configuration_->fluorescenceDetector().testFlag(IDEAS::Ketek)) {
 
@@ -105,7 +105,7 @@ void IDEAS2DScanActionController::buildScanControllerImplementation()
 
 		detector->removeAllRegionsOfInterest();
 
-		QList<AMDataSource *> i0Sources = QList<AMDataSource *>() << scan_->dataSourceAt(scan_->indexOfDataSource("I0Detector"));
+		QList<AMDataSource *> i0Sources = QList<AMDataSource *>() << scan_->dataSourceAt(scan_->indexOfDataSource("I_0"));
 
 		AMDataSource *spectraSource = scan_->dataSourceAt(scan_->indexOfDataSource(detector->name()));
 

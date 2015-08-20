@@ -109,7 +109,7 @@ QString IDEAS2DScanConfiguration::headerText() const
 
 void IDEAS2DScanConfiguration::computeTotalTimeImplementation()
 {
-	double time = scanAxisAt(0)->timePerAxis() + scanAxisAt(1)->timePerAxis();
+	double time = scanAxisAt(0)->numberOfPoints()*scanAxisAt(1)->numberOfPoints()*double(scanAxisAt(0)->regionAt(0)->regionTime());
 
 	totalTime_ = time;
 	setExpectedDuration(totalTime_);
