@@ -140,6 +140,7 @@ void IDEASAppController::registerClasses()
 	AMDbObjectSupport::s()->registerClass<IDEASXASScanConfiguration>();
 	AMDbObjectSupport::s()->registerClass<IDEASXRFScanConfiguration>();
 	AMDbObjectSupport::s()->registerClass<IDEAS2DScanConfiguration>();
+	AMDbObjectSupport::s()->registerClass<IDEASUserConfiguration>();
 }
 
 void IDEASAppController::setupExporterOptions()
