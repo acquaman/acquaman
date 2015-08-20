@@ -29,7 +29,9 @@ signals:
 
 public slots:
 	/// Adds a control to the plot.
-	void addControl(AMControl *control_);
+	void addControl(AMControl *control);
+	/// Removes a control from the plot.
+	void removeControl(AMControl *control);
 
 protected:
 	/// Creates and returns a series suitable for plotting pv updates with accompanying timestamps for the given control.
@@ -42,6 +44,8 @@ protected:
 	/// The plot widget.
 	MPlotWidget *plotWidget_;
 
+	/// A map of controls to plot items.
+	QMap<AMControl*, MPlotItem*> controlPlotItemMap_;
 };
 
 #endif // AMSTRIPTOOL_H

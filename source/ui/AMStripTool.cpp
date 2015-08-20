@@ -41,10 +41,28 @@ AMStripTool::~AMStripTool()
 
 void AMStripTool::addControl(AMControl *control)
 {
-	MPlotItem *series = createPlotItem(control);
+	if (control) {
+		MPlotItem *item = createPlotItem(control);
 
-	if (series)
-		plot_->addItem(series);
+		if (item) {
+			plot_->addItem(item);
+			controlPlotItemMap_.insert(control, item);
+		}
+	}
+}
+
+void AMStripTool::removeControl(AMControl *control)
+{
+	if (control) {
+		MPlotItem *item = controlPlotItemMap_.value(control, 0);
+
+		if (item) {
+			plot_->removeItem(item);
+			controlPlotItemMap_.remove(control);
+
+//			delete item;
+		}
+	}
 }
 
 MPlotItem* AMStripTool::createPlotItem(AMControl *control)
