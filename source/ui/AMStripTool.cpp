@@ -41,13 +41,13 @@ AMStripTool::~AMStripTool()
 
 void AMStripTool::addControl(AMControl *control)
 {
-	MPlotItem *series = createTimedDataPlotItem(control);
+	MPlotItem *series = createPlotItem(control);
 
 	if (series)
 		plot_->addItem(series);
 }
 
-MPlotItem* AMStripTool::createTimedDataPlotItem(AMControl *control)
+MPlotItem* AMStripTool::createPlotItem(AMControl *control)
 {
 	MPlotSeriesBasic *result = 0;
 

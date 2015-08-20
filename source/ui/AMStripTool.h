@@ -33,7 +33,7 @@ public slots:
 
 protected:
 	/// Creates and returns a series suitable for plotting pv updates with accompanying timestamps for the given control.
-	MPlotItem* createTimedDataPlotItem(AMControl *control);
+	MPlotItem* createPlotItem(AMControl *control);
 
 
 protected:
