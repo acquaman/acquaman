@@ -6,14 +6,9 @@
 #include <QMenu>
 #include <QInputDialog>
 
-#include "MPlot/MPlot.h"
-#include "MPlot/MPlotWidget.h"
-
 #include "beamline/AMControl.h"
-#include "beamline/AMPVControl.h"
-
-class AMDataSource;
-class AMDataSourceSeriesData;
+#include "ui/AMStripToolItem.h"
+#include "MPlot/MPlot.h"
 
 class AMStripTool : public QObject
 {
@@ -27,43 +22,36 @@ public:
 
 	/// Returns the plot.
 	MPlot* plot() const { return plot_; }
-	/// Returns the list of controls that have been added.
-	QList<AMControl*> controls() const { return controlPlotItemMap_.keys(); }
-
-	/// Returns true if the striptool contains this control, false otherwise.
-	bool contains(AMControl *control);
-	/// Returns true if the striptool contains a control with the given name, false otherwise.
-	bool contains(const QString &pvName);
+	/// Returns the list of striptool items.
+	QList<AMStripToolItem*> items() const { return items_; }
 
 signals:
-	/// Notifier that a control has been added.
-	void controlAdded(AMControl *newControl);
-	/// Notifier that a control has been removed.
-	void controlRemoved(AMControl *control);
+	/// Notifier that an item has been added.
+	void itemAdded(AMStripToolItem *newItem);
+	/// Notifier that an item has been removed.
+	void itemRemoved(AMStripToolItem *item);
 
 public slots:
-	/// Adds a control by name.
-	void addPV(const QString &pvName);
-	/// Removes a control by name.
-	void removePV(const QString &pvName);
+	/// Adds an item by control. Returns true if successful, false otherwise.
+	bool addItem(AMControl *control);
+	/// Removes an item by control. Returns true if successful, false otherwise.
+	bool removeItem(AMControl *control);
 
-	/// Adds a control to the plot.
-	void addControl(AMControl *control);
-	/// Removes a control from the plot.
-	void removeControl(AMControl *control);
+	/// Adds an item by pv name. Returns true if successful, false otherwise.
+	bool addItem(const QString &pvName);
+	/// Removes an item by pv name. Returns true if successful, false otherwise.
+	bool removeItem(const QString &pvName);
+
+	/// Adds an item. Returns true if successful, false otherwise.
+	bool addItem(AMStripToolItem *item);
+	/// Removes an item. Returns true if successful, false otherwise.
+	bool removeItem(AMStripToolItem *item);
 
 protected:
-	/// Creates and returns a series suitable for plotting pv updates with accompanying timestamps for the given control.
-	MPlotItem* createPlotItem(AMControl *control);
-
-protected:
-	/// The plot proper.
+	/// The plot.
 	MPlot *plot_;
-	/// The plot widget.
-	MPlotWidget *plotWidget_;
-
-	/// A map of controls to plot items.
-	QMap<AMControl*, MPlotItem*> controlPlotItemMap_;
+	/// The list of striptool items.
+	QList<AMStripToolItem*> items_;
 };
 
 #endif // AMSTRIPTOOL_H

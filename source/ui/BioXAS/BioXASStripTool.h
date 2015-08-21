@@ -2,6 +2,7 @@
 #define BIOXASSTRIPTOOL_H
 
 #include "ui/AMStripToolWidget.h"
+#include "beamline/AMPVControl.h"
 
 class BioXASStripToolWidget : public AMStripToolWidget
 {

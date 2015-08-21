@@ -8,7 +8,7 @@ BioXASStripToolWidget::BioXASStripToolWidget(QWidget *parent) :
 	AMStripTool *stripTool = new AMStripTool(this);
 
 	ringCurrent_ = new AMReadOnlyPVControl("SR1Current", "PCT1402-01:mA:fbk", this);
-	stripTool->addControl(ringCurrent_);
+	stripTool->addItem(ringCurrent_);
 
 	setStripTool(stripTool);
 

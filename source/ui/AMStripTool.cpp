@@ -1,10 +1,5 @@
 #include "AMStripTool.h"
 
-#include "dataman/datasource/AMStripToolControlDataSource.h"
-#include "dataman/datasource/AMDataSourceSeriesData.h"
-
-#include "MPlot/MPlotSeries.h"
-
 AMStripTool::AMStripTool(QObject *parent) :
 	QObject(parent)
 {
@@ -28,82 +23,84 @@ AMStripTool::~AMStripTool()
 
 }
 
-bool AMStripTool::contains(AMControl *control)
+bool AMStripTool::addItem(AMControl *control)
 {
-	return controlPlotItemMap_.contains(control);
+	bool itemAdded = false;
+
+	if (control)
+		itemAdded = addItem(new AMStripToolItem(control, this));
+
+	return itemAdded;
 }
 
-bool AMStripTool::contains(const QString &pvName)
+bool AMStripTool::removeItem(AMControl *control)
 {
-	bool controlFound = false;
-	QList<AMControl*> controls = controlPlotItemMap_.keys();
-
-	for (int i = 0, count = controls.size(); i < count && !controlFound; i++) {
-		AMControl *control = controls.at(i);
-		if (control->name() == pvName)
-			controlFound = true;
-	}
-
-	return controlFound;
-}
-
-void AMStripTool::addPV(const QString &pvName)
-{
-	AMReadOnlyPVControl *control = new AMReadOnlyPVControl(pvName, pvName, this);
-	addControl(control);
-}
-
-void AMStripTool::removePV(const QString &pvName)
-{
-	QList<AMControl*> controls = controlPlotItemMap_.keys();
-
-	for (int i = 0, count = controls.size(); i < count; i++) {
-		AMControl *control = controls.at(i);
-
-		if (control->name() == pvName) {
-			removeControl(control);
-		}
-	}
-}
-
-void AMStripTool::addControl(AMControl *control)
-{
-	if (control) {
-		MPlotItem *item = createPlotItem(control);
-
-		if (item) {
-			plot_->addItem(item);
-			controlPlotItemMap_.insert(control, item);
-
-			emit controlAdded(control);
-		}
-	}
-}
-
-void AMStripTool::removeControl(AMControl *control)
-{
-	if (control) {
-		MPlotItem *item = controlPlotItemMap_.value(control, 0);
-
-		if (item) {
-			plot_->removeItem(item);
-			controlPlotItemMap_.remove(control);
-
-			emit controlRemoved(control);
-
-			delete item;
-		}
-	}
-}
-
-MPlotItem* AMStripTool::createPlotItem(AMControl *control)
-{
-	MPlotSeriesBasic *result = 0;
+	bool itemRemoved = false;
 
 	if (control) {
-		AMDataSource *dataSource = new AMStripToolControlDataSource(control, control->name(), this);
-		result = new MPlotSeriesBasic(new AMDataSourceSeriesData(dataSource));
+		for (int itemIndex = 0, itemCount = items_.size(); itemIndex < itemCount && !itemRemoved; itemIndex++) {
+			AMStripToolItem *item = items_.at(itemIndex);
+
+			if (item->control() == control) {
+				items_.removeAt(itemIndex);
+				itemRemoved = true;
+
+				item->deleteLater();
+			}
+		}
 	}
 
-	return result;
+	return itemRemoved;
+}
+
+bool AMStripTool::addItem(const QString &pvName)
+{
+	bool itemAdded = false;
+
+	if (!pvName.isEmpty())
+		itemAdded = addItem(new AMStripToolItem(pvName, this));
+
+	return itemAdded;
+}
+
+bool AMStripTool::removeItem(const QString &pvName)
+{
+	bool itemRemoved = false;
+
+	if (!pvName.isEmpty()) {
+		for (int itemIndex = 0, itemCount = items_.size(); itemIndex < itemCount && !itemRemoved; itemIndex++) {
+			AMStripToolItem *item = items_.at(itemIndex);
+
+			if (item->control() && item->control()->name() == pvName) {
+				items_.removeAt(itemIndex);
+				itemRemoved = true;
+
+				item->deleteLater();
+			}
+		}
+	}
+
+	return itemRemoved;
+}
+
+bool AMStripTool::addItem(AMStripToolItem *item)
+{
+	bool itemAdded = false;
+
+	if (item && !items_.contains(item)) {
+		items_.append(item);
+		itemAdded = true;
+	}
+
+	return itemAdded;
+}
+
+bool AMStripTool::removeItem(AMStripToolItem *item)
+{
+	bool itemRemoved = false;
+
+	if (item)
+		itemRemoved = items_.removeOne(item);
+
+	return itemRemoved;
 }

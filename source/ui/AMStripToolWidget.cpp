@@ -61,7 +61,7 @@ void AMStripToolWidget::showAddPVDialog()
 		QString pvName = QInputDialog::getText(this, "Add PV", "PV name:", QLineEdit::Normal, "", &ok);
 
 		if (ok && !pvName.isEmpty())
-			stripTool_->addPV(pvName);
+			stripTool_->addItem(pvName);
 	}
 }
 
