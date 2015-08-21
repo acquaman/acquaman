@@ -20,7 +20,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 
 #include "AMBeamlineCameraWidget.h"
-
+#include <QPushButton>
 #include <QCheckBox>
 #include <QBoxLayout>
 #include <QFrame>
@@ -34,12 +34,14 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/dataman/AMColorPickerButton.h"
 
  AMBeamlineCameraWidget::~AMBeamlineCameraWidget(){}
-AMBeamlineCameraWidget::AMBeamlineCameraWidget(QWidget *parent, bool useOpenGlViewport) :
-	QWidget(parent)
+ AMBeamlineCameraWidget::AMBeamlineCameraWidget(QWidget *parent, bool useOpenGlViewport) :
+	QWidget(parent)  
 {
 	crosshairLocked_ = false;
+	setCrosshairCenterPosition(QPointF(0.5, 0.5)); //centered by default
 
 	setWindowTitle("Video");
+
 
 	// GUI setup:
 	//////////////////////////
@@ -61,6 +63,7 @@ AMBeamlineCameraWidget::AMBeamlineCameraWidget(QWidget *parent, bool useOpenGlVi
 	crosshairThicknessSlider_->setValue(1);
 	chl->addSpacing(20);
 	chl->addWidget(lockCrosshairCheckBox_ = new QCheckBox("Lock position"));
+	chl->addWidget(recenterCrosshairPushbutton_ = new QPushButton("Recenter"));
 	chl->addStretch();
 	crosshairFrame->setLayout(chl);
 
@@ -77,6 +80,10 @@ AMBeamlineCameraWidget::AMBeamlineCameraWidget(QWidget *parent, bool useOpenGlVi
 	connect(showCrosshairCheckBox_, SIGNAL(clicked(bool)), this, SLOT(setCrosshairVisible(bool)));
 	connect(lockCrosshairCheckBox_, SIGNAL(clicked(bool)), this, SLOT(setCrosshairLocked(bool)));
 	connect(crosshairThicknessSlider_, SIGNAL(valueChanged(int)), this, SLOT(setCrosshairLineThickness(int)));
+	connect(recenterCrosshairPushbutton_, SIGNAL(clicked()), this, SLOT(onRecenterCrosshairPushbuttonClicked()));
+
+	setCrosshairPosition(crosshairCenter_);
+
 
 }
 
@@ -108,6 +115,8 @@ void AMBeamlineCameraWidget::setCrosshairLocked(bool doLock)
 {
 	crosshairLocked_ = doLock;
 
+	recenterCrosshairPushbutton_->setDisabled(doLock);
+
 	if(lockCrosshairCheckBox_->isChecked() != doLock) {
 		lockCrosshairCheckBox_->blockSignals(true);
 		lockCrosshairCheckBox_->setChecked(doLock);
@@ -118,8 +127,15 @@ void AMBeamlineCameraWidget::setCrosshairLocked(bool doLock)
 void AMBeamlineCameraWidget::onVideoWidgetDoubleClicked(const QPointF &clickPoint)
 {
 	if(!crosshairLocked_)
-		videoWidget_->setCrosshairPosition(clickPoint);
+		setCrosshairPosition(clickPoint);
 }
+
+void AMBeamlineCameraWidget::onRecenterCrosshairPushbuttonClicked()
+{
+	if(!crosshairLocked_)
+		setCrosshairPosition(crosshairCenter_);
+}
+
 
 QColor AMBeamlineCameraWidget::crosshairColor() const
 {
@@ -139,6 +155,13 @@ QPointF AMBeamlineCameraWidget::crosshairPosition() const
 void AMBeamlineCameraWidget::setCrosshairPosition(const QPointF &pos) const
 {
 	videoWidget_->setCrosshairPosition(pos);
+	recenterCrosshairPushbutton_->setToolTip(QString("x: %1, y: %2").arg(pos.x()).arg(pos.y()));
+}
+
+void AMBeamlineCameraWidget::setCrosshairCenterPosition (const QPointF &pos)
+{
+	crosshairCenter_.setX(pos.x());
+	crosshairCenter_.setY(pos.y());
 }
 
 void AMBeamlineCameraWidget::setCrosshairLineThickness(int thickness)

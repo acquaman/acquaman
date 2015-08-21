@@ -30,6 +30,7 @@ class QCheckBox;
 class AMCrosshairOverlayVideoWidget;
 class AMColorPickerButton;
 class QSlider;
+class QPushButton;
 
 /// This class provides a general-purpose widget that people can use to monitor the video from different network camera sources.
 class AMBeamlineCameraWidget : public QWidget
@@ -73,6 +74,8 @@ public slots:
 	void setCrosshairLocked(bool doLock = true);
 	/// Set the crosshair position (relative X-Y position on the video display, from (0,0)[top left] to (1,1)[bottom right] )
 	void setCrosshairPosition(const QPointF& pos) const;
+	/// sets a new crosshair center position
+	void setCrosshairCenterPosition(const QPointF& pos);
 
 protected:
 
@@ -80,13 +83,17 @@ protected:
 	QCheckBox* showCrosshairCheckBox_, *lockCrosshairCheckBox_;
 	AMColorPickerButton* crosshairColorPicker_;
 	QSlider* crosshairThicknessSlider_;
+	QPushButton *recenterCrosshairPushbutton_;
 
 	bool crosshairLocked_;
+	QPointF crosshairCenter_;
 
 protected slots:
 
 	/// Called when double-clicking on the video widget (move the cursor if not locked)
 	void onVideoWidgetDoubleClicked(const QPointF& clickPoint);
+	/// Reset the crosshair to the defined crosshairCenter
+	void onRecenterCrosshairPushbuttonClicked();
 
 };
 
