@@ -11,6 +11,36 @@ AMStripToolItems::~AMStripToolItems()
 
 }
 
+AMStripToolItem* AMStripToolItems::item(AMControl *control)
+{
+	AMStripToolItem *result = 0;
+
+	if (control)
+		result = item(control->name());
+
+	return result;
+}
+
+AMStripToolItem* AMStripToolItems::item(const QString &pvName)
+{
+	AMStripToolItem *result = 0;
+
+	if (!pvName.isEmpty()) {
+		bool itemFound = false;
+
+		for (int itemIndex = 0, itemCount = itemsList_.size(); itemIndex < itemCount && !itemFound; itemIndex++) {
+			AMStripToolItem *item = itemsList_.at(itemIndex);
+
+			if (item && item->control() && item->control()->name() == pvName) {
+				result = item;
+				itemFound = true;
+			}
+		}
+	}
+
+	return result;
+}
+
 bool AMStripToolItems::addItem(AMControl *control)
 {
 	bool itemAdded = false;
@@ -25,16 +55,8 @@ bool AMStripToolItems::removeItem(AMControl *control)
 {
 	bool itemRemoved = false;
 
-	if (control) {
-
-		for (int itemIndex = 0, itemCount = itemsList_.size(); itemIndex < itemCount && !itemRemoved; itemIndex++) {
-			AMStripToolItem *item = itemsList_.at(itemIndex);
-
-			if (item->control() == control) {
-				removeItem(item);
-			}
-		}
-	}
+	if (control)
+		itemRemoved = removeItem( item(control) );
 
 	return itemRemoved;
 }
@@ -53,14 +75,8 @@ bool AMStripToolItems::removeItem(const QString &pvName)
 {
 	bool itemRemoved = false;
 
-	if (!pvName.isEmpty()) {
-		for (int itemIndex = 0, itemCount = itemsList_.size(); itemIndex < itemCount && !itemRemoved; itemIndex++) {
-			AMStripToolItem *item = itemsList_.at(itemIndex);
-
-			if (item && item->control() && item->control()->name() == pvName)
-				itemRemoved = removeItem(item);
-		}
-	}
+	if (!pvName.isEmpty())
+		itemRemoved = removeItem( item(pvName) );
 
 	return itemRemoved;
 }

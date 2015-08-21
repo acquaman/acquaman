@@ -17,6 +17,10 @@ public:
 
 	/// Returns the list of items.
 	QList<AMStripToolItem*> itemsList() const { return itemsList_; }
+	/// Returns the item with the given control, 0 if item not found.
+	AMStripToolItem* item(AMControl *control);
+	/// Returns the item with the given pvName, 0 if item not found.
+	AMStripToolItem* item(const QString &pvName);
 
 signals:
 	/// Notifier that an item has been added.

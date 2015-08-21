@@ -51,28 +51,31 @@ bool AMStripTool::addItem(AMControl *control)
 {
 	bool itemAdded = false;
 
-	if (control && items_)
-		itemAdded = items_->addItem(control);
+	if (control && items_) {
+		itemAdded = addItem(new AMStripToolItem(control, items_));
+	}
 
 	return itemAdded;
 }
 
 bool AMStripTool::removeItem(AMControl *control)
 {
-	bool result = false;
+	bool itemRemoved = false;
 
-	if (control && items_)
-		result = items_->removeItem(control);
+	if (control && items_) {
+		itemRemoved = removeItem( items_->item(control) );
+	}
 
-	return result;
+	return itemRemoved;
 }
 
 bool AMStripTool::addItem(const QString &pvName)
 {
 	bool itemAdded = false;
 
-	if (!pvName.isEmpty() && items_)
-		itemAdded = items_->addItem(pvName);
+	if (!pvName.isEmpty() && items_) {
+		itemAdded = addItem( new AMStripToolItem(pvName, items_));
+	}
 
 	return itemAdded;
 }
@@ -81,8 +84,9 @@ bool AMStripTool::removeItem(const QString &pvName)
 {
 	bool itemRemoved = false;
 
-	if (!pvName.isEmpty() && items_)
-		itemRemoved = items_->removeItem(pvName);
+	if (!pvName.isEmpty() && items_) {
+		itemRemoved = removeItem( items_->item(pvName) );
+	}
 
 	return itemRemoved;
 }
@@ -91,8 +95,10 @@ bool AMStripTool::addItem(AMStripToolItem *item)
 {
 	bool itemAdded = false;
 
-	if (item && items_)
+	if (item && items_) {
 		itemAdded = items_->addItem(item);
+		addItemToPlot( item );
+	}
 
 	return itemAdded;
 }
@@ -101,8 +107,10 @@ bool AMStripTool::removeItem(AMStripToolItem *item)
 {
 	bool itemRemoved = false;
 
-	if (item && items_)
+	if (item && items_) {
+		removeItemFromPlot( item );
 		itemRemoved = items_->removeItem(item);
+	}
 
 	return itemRemoved;
 }
