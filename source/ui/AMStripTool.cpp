@@ -106,3 +106,15 @@ bool AMStripTool::removeItem(AMStripToolItem *item)
 
 	return itemRemoved;
 }
+
+void AMStripTool::addItemToPlot(AMStripToolItem *item)
+{
+	if (item && item->plotItem())
+		plot_->addItem(item->plotItem());
+}
+
+void AMStripTool::removeItemFromPlot(AMStripToolItem *item)
+{
+	if (item && item->plotItem())
+		plot_->removeItem(item->plotItem());
+}

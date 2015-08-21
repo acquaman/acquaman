@@ -49,6 +49,12 @@ public slots:
 	/// Removes an item. Returns true if successful, false otherwise.
 	bool removeItem(AMStripToolItem *item);
 
+protected slots:
+	/// Adds an item to the plot.
+	void addItemToPlot(AMStripToolItem *item);
+	/// Removes an item from the plot.
+	void removeItemFromPlot(AMStripToolItem *item);
+
 protected:
 	/// The plot.
 	MPlot *plot_;
