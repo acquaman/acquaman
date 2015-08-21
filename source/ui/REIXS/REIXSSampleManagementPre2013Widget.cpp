@@ -1,0 +1,63 @@
+#include "REIXSSampleManagementPre2013Widget.h"
+
+#include <QGridLayout>
+#include <QUrl>
+#include <QGroupBox>
+
+#include "ui/AMTopFrame2.h"
+
+#include "ui/AMBeamlineCameraWidget.h"
+
+REIXSSampleManagementPre2013Widget::REIXSSampleManagementPre2013Widget(QWidget *manipulatorWidget, const QUrl& sampleCamera1Url, const QUrl& sampleCamera2Url, AMSamplePlatePre2013* samplePlate, AMSampleManipulator* manipulator, QWidget *parent) :
+	QWidget(parent)
+{
+#ifdef AM_MOBILITY_VIDEO_ENABLED
+	cameraWidget1_ = new AMBeamlineCameraWidget(this, false);
+	cameraWidget1_->playSource(sampleCamera1Url);
+	cameraWidget1_->setCrosshairCenterPosition(QPointF(0.75, 0.6));
+	cameraWidget1_->setCrosshairPosition(QPointF(0.75, 0.6));
+	cameraWidget1_->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
+	cameraWidget2_ = new AMBeamlineCameraWidget(this, false);
+	cameraWidget2_->playSource(sampleCamera2Url);
+	cameraWidget2_->setCrosshairCenterPosition(QPointF(0.5, 0.7));
+	cameraWidget2_->setCrosshairPosition(QPointF(0.5, 0.7));
+	cameraWidget2_->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
+#else
+	Q_UNUSED(sampleCameraUrl1);
+	Q_UNUSED(sampleCameraUrl2);
+#endif
+
+	topFrame_ = new AMTopFrame2("Sample Management & Positioning", QIcon(":/system-software-update.png"));
+
+	plateView_ = new AMSamplePlatePre2013View(samplePlate);
+	plateView_->setManipulator(manipulator);
+
+	manipulatorWidget_ = manipulatorWidget;
+
+	connect(plateView_, SIGNAL(newSamplePlateSelected()), this, SLOT(onNewSamplePlateSelected()));
+
+	QVBoxLayout *vl = new QVBoxLayout();
+	QGridLayout* gl = new QGridLayout();
+	vl->addWidget(topFrame_);
+	vl->addLayout(gl);
+
+#ifdef AM_MOBILITY_VIDEO_ENABLED
+	gl->addWidget(cameraWidget1_, 0, 0, 1, 1);
+	gl->addWidget(cameraWidget2_, 0, 1, 1, 1);
+#endif
+	gl->addWidget(plateView_, 0, 2, 2, 1);
+	gl->addWidget(manipulatorWidget_, 1, 0, 1, 2);
+	gl->setColumnStretch(0,1);
+	gl->setColumnStretch(1,0);
+
+	vl->setContentsMargins(0,0,0,0);
+	gl->setContentsMargins(10, 0, 10, 0);
+
+	setLayout(vl);
+}
+
+REIXSSampleManagementPre2013Widget::~REIXSSampleManagementPre2013Widget(){}
+
+void REIXSSampleManagementPre2013Widget::onNewSamplePlateSelected() {
+	emit newSamplePlateSelected(plateView_->samplePlate());
+}
