@@ -33,7 +33,7 @@ BioXASSidePersistentView::BioXASSidePersistentView(QWidget *parent) :
 
 	generalView_ = new BioXASPersistentView(BioXASSideBeamline::bioXAS()->mono(), BioXASSideBeamline::bioXAS()->scaler());
 
-	stripTool_ = new BioXASStripTool();
+	stripTool_ = new BioXASStripToolWidget();
 
 	// Create and set main layout.
 

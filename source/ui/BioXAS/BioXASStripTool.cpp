@@ -1,12 +1,16 @@
 #include "BioXASStripTool.h"
 
-BioXASStripTool::BioXASStripTool(QWidget *parent) :
-	AMStripTool(parent)
+BioXASStripToolWidget::BioXASStripToolWidget(QWidget *parent) :
+	AMStripToolWidget(0, parent)
 {
-	// Create and add control preferences.
+	// Create and set striptool.
+
+	AMStripTool *stripTool = new AMStripTool(this);
 
 	ringCurrent_ = new AMReadOnlyPVControl("SR1Current", "PCT1402-01:mA:fbk", this);
-	addControl(ringCurrent_);
+	stripTool->addControl(ringCurrent_);
+
+	setStripTool(stripTool);
 
 	// Sizing preferences.
 
@@ -20,17 +24,17 @@ BioXASStripTool::BioXASStripTool(QWidget *parent) :
 	resize(width(), width());
 }
 
-BioXASStripTool::~BioXASStripTool()
+BioXASStripToolWidget::~BioXASStripToolWidget()
 {
 
 }
 
-QSize BioXASStripTool::sizeHint() const
+QSize BioXASStripToolWidget::sizeHint() const
 {
 	return QSize(100, 100);
 }
 
-int BioXASStripTool::heightForWidth(int width) const
+int BioXASStripToolWidget::heightForWidth(int width) const
 {
 	return width;
 }

@@ -42,7 +42,7 @@ protected:
 	/// General BioXAS persistent view.
 	BioXASPersistentView *generalView_;
 	/// Strip tool
-	BioXASStripTool *stripTool_;
+	BioXASStripToolWidget *stripTool_;
 };
 
 #endif // BIOXASSIDEPERSISTENTVIEW_H

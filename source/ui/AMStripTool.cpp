@@ -5,8 +5,8 @@
 
 #include "MPlot/MPlotSeries.h"
 
-AMStripTool::AMStripTool(QWidget *parent) :
-	QWidget(parent)
+AMStripTool::AMStripTool(QObject *parent) :
+	QObject(parent)
 {
 	// Create plot.
 
@@ -21,22 +21,6 @@ AMStripTool::AMStripTool(QWidget *parent) :
 	plot_->axisScaleBottom()->setPadding(0);
 	plot_->axisScaleLeft()->setPadding(0);
 	plot_->legend()->enableDefaultLegend(false);
-
-	plotWidget_ = new MPlotWidget();
-	plotWidget_->setPlot(plot_);
-
-	// Create and set layouts.
-
-	QVBoxLayout *layout = new QVBoxLayout();
-	layout->setMargin(0);
-	layout->addWidget(plotWidget_);
-
-	setLayout(layout);
-
-	// Context menu.
-
-	setContextMenuPolicy(Qt::CustomContextMenu);
-	connect( this, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(onCustomContextMenuRequested(QPoint)) );
 }
 
 AMStripTool::~AMStripTool()
@@ -110,34 +94,6 @@ void AMStripTool::removeControl(AMControl *control)
 			delete item;
 		}
 	}
-}
-
-void AMStripTool::showAddPVDialog()
-{
-	bool ok = false;
-	QString pvName = QInputDialog::getText(this, "Add PV", "PV name:", QLineEdit::Normal, "", &ok);
-
-	if (ok && !pvName.isEmpty())
-		addPV(pvName);
-}
-
-void AMStripTool::onCustomContextMenuRequested(QPoint point)
-{
-	QMenu menu(this);
-
-	// Add menu options.
-
-	QAction *addPVAction = menu.addAction("Add PV");
-
-	// Execute selected option.
-
-	QAction *selection = menu.exec(mapToGlobal(point));
-
-	if (selection) {
-		if (selection->text() == addPVAction->text())
-			showAddPVDialog();
-	}
-
 }
 
 MPlotItem* AMStripTool::createPlotItem(AMControl *control)

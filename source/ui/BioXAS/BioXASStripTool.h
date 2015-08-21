@@ -1,17 +1,17 @@
 #ifndef BIOXASSTRIPTOOL_H
 #define BIOXASSTRIPTOOL_H
 
-#include "ui/AMStripTool.h"
+#include "ui/AMStripToolWidget.h"
 
-class BioXASStripTool : public AMStripTool
+class BioXASStripToolWidget : public AMStripToolWidget
 {
 	Q_OBJECT
 
 public:
 	/// Constructor.
-	explicit BioXASStripTool(QWidget *parent = 0);
+	explicit BioXASStripToolWidget(QWidget *parent = 0);
 	/// Destructor.
-	virtual ~BioXASStripTool();
+	virtual ~BioXASStripToolWidget();
 
 	/// Returns the size hint.
 	virtual QSize sizeHint() const;

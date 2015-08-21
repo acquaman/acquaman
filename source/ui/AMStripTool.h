@@ -15,13 +15,13 @@
 class AMDataSource;
 class AMDataSourceSeriesData;
 
-class AMStripTool : public QWidget
+class AMStripTool : public QObject
 {
 	Q_OBJECT
 
 public:
 	/// Constructor.
-	explicit AMStripTool(QWidget *parent = 0);
+	explicit AMStripTool(QObject *parent = 0);
 	/// Destructor.
 	virtual ~AMStripTool();
 
@@ -51,13 +51,6 @@ public slots:
 	void addControl(AMControl *control);
 	/// Removes a control from the plot.
 	void removeControl(AMControl *control);
-
-protected slots:
-	/// Displays a dialog for adding a control by name.
-	void showAddPVDialog();
-
-	/// Handles creating a custom context menu.
-	virtual void onCustomContextMenuRequested(QPoint point);
 
 protected:
 	/// Creates and returns a series suitable for plotting pv updates with accompanying timestamps for the given control.
