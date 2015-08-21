@@ -228,7 +228,8 @@ void REIXSSidebar::layoutDetectorContent()
 	XESValue_->setFixedHeight(55);
 	TFYValue_ = new QLabel("TFY:\t\t0 counts");
 	TFYValue_->setFixedHeight(55);
-	enableScalerContinuousCheckBox_ = new QCheckBox("Enable Real-Time Updates");
+	enableScalerContinuousCheckBox_ = new QPushButton("Monitor Counts");
+	enableScalerContinuousCheckBox_->setCheckable(true);
 	enableScalerContinuousCheckBox_->setChecked(REIXSBeamline::bl()->scaler()->isContinuous());
 
 

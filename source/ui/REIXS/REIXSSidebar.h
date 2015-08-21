@@ -49,7 +49,7 @@ private:
 	QPushButton *MonoStopButton_;
 
 	QGroupBox *detectorsGroupBox_;
-	QCheckBox *enableScalerContinuousCheckBox_;
+	QPushButton *enableScalerContinuousCheckBox_;
 	QLabel *XESValue_;
 	QLabel *TFYValue_;
 
