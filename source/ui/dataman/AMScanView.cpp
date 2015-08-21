@@ -1109,17 +1109,14 @@ QString AMScanViewExclusiveView::rightAxisName()
 		AMScan *scan = model()->scanAt(0);
 
 		if (scanContainsExclusiveSource(scan)) {
-			qDebug() << scan->fullName() << "contains exclusive data source.";
 
 			if (!sourceFound) {
 				sourceFound = true;
 				QString sourceName = scan->dataSourceAt(scanExclusiveSourceIndex(scan))->description();
-				qDebug() << "At least one exclusive data source found:" << sourceName;
-
 				name = AMScanViewInternal::axisName(scan, 1, scanExclusiveSourceIndex(scan));
 
 			} else {
-				qDebug() << "Multiple exclusive data sources found.";
+
 				QString newName = AMScanViewInternal::axisName(scan, 1, scanExclusiveSourceIndex(scan));
 
 				if (name != newName)

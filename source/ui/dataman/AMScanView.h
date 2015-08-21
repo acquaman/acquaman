@@ -46,7 +46,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/dataman/AMCramBarHorizontal.h"
 #include "ui/dataman/AMScanViewUtilities.h"
 
-#include <QDebug>
+//#include <QDebug>
 
 
 #define AMSCANVIEW_CANNOT_CREATE_PLOT_ITEM_FOR_NULL_DATA_SOURCE 280101
