@@ -77,8 +77,11 @@ protected slots:
 	/// Monitors REIXSBeamline::bl()->valvesAndShutters()::beamOnChanged() to light up the "beam on" summary LED.
 	void onBeamOnChanged(bool isOn);
 
+	/// When the scaler connects
+	void onScalerConnected(bool isConnected);
+
 	/// When the scaler's continuous mode is changed
-	void onScalerContinuousModeChanged(double on);
+	void onScalerContinuousModeChanged(bool on);
 
 private slots:
 	void on_MonoStopButton_clicked();

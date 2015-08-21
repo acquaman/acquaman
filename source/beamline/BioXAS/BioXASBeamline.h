@@ -4,6 +4,8 @@
 #include "beamline/CLS/CLSBeamline.h"
 #include "beamline/CLS/CLSBiStateControl.h"
 
+#include "beamline/BioXAS/BioXASEndstationTable.h"
+
 class BioXASMonochromator;
 class BioXASM1Mirror;
 class BioXASM2Mirror;

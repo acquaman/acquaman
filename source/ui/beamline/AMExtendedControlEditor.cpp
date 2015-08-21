@@ -133,6 +133,20 @@ bool AMExtendedControlEditor::setControlFormat(const QChar& format, int precisio
 	return false;
 }
 
+void AMExtendedControlEditor::setPrecision(int precision)
+{
+	precision_ = precision;
+
+	if (control_)
+		onValueChanged(control_->value());
+}
+
+void AMExtendedControlEditor::setRange(double maxValue, double minValue)
+{
+	maxValue_ = maxValue;
+	minValue = minValue;
+}
+
 void AMExtendedControlEditor::hideBorder()
 {
 	setStyleSheet("border:0;");
@@ -170,6 +184,11 @@ void AMExtendedControlEditor::setControl(AMControl *newControl)
 				else
 					setTitleText(control_->description());
 			}
+
+			// Set control values
+			precision_ = control_->displayPrecision();
+			maxValue_ = control_->maximumValue();
+			minValue_ = control_->minimumValue();
 
 			// Make connections.
 			connect(control_, SIGNAL(valueChanged(double)), this, SLOT(onValueChanged(double)));
@@ -378,8 +397,8 @@ void AMExtendedControlEditor::onEditStart() {
 		return;
 	}
 
-	dialog_->setDoubleMaximum(control_->maximumValue());
-	dialog_->setDoubleMinimum(control_->minimumValue());
+	dialog_->setDoubleMaximum(maxValue_);
+	dialog_->setDoubleMinimum(minValue_);
 
 	if(configureOnly_ && control_->isEnum() && control_->moveEnumNames().contains(valueLabel_->text()))
 		dialog_->setDoubleValue(control_->moveEnumNames().indexOf(valueLabel_->text()));
@@ -614,5 +633,7 @@ void AMExtendedControlEditor::onControlMoveStarted(){
 	}
 	if(moveCounter_ != 0)
 		QTimer::singleShot(500, this, SLOT(onControlMoveStarted()));
-	*/
+ */
 }
+
+

@@ -374,9 +374,9 @@ void VESPERS3DScanConfigurationView::onEstimatedTimeChanged()
 
 void VESPERS3DScanConfigurationView::onSetStartPosition()
 {
-	double h = VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->horizontalControl()->value();
-	double v = VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->verticalControl()->value();
-	double n = VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->normalControl()->value();
+	double h = VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->horizontalAxis()->translationMotor()->value();
+	double v = VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->verticalAxis()->translationMotor()->value();
+	double n = VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->normalAxis()->translationMotor()->value();
 
 	configuration_->scanAxisAt(0)->regionAt(0)->setRegionStart(h);
 	configuration_->scanAxisAt(1)->regionAt(0)->setRegionStart(v);
@@ -389,8 +389,8 @@ void VESPERS3DScanConfigurationView::onSetStartPosition()
 
 void VESPERS3DScanConfigurationView::onSetEndPosition()
 {
-	double h = VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->horizontalControl()->value();
-	double v = VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->verticalControl()->value();
+	double h = VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->horizontalAxis()->translationMotor()->value();
+	double v = VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->verticalAxis()->translationMotor()->value();
 
 	configuration_->scanAxisAt(0)->regionAt(0)->setRegionEnd(h);
 	configuration_->scanAxisAt(1)->regionAt(0)->setRegionEnd(v);
@@ -402,7 +402,7 @@ void VESPERS3DScanConfigurationView::onSetEndPosition()
 
 void VESPERS3DScanConfigurationView::onSetWireStartPosition()
 {
-	double wire = VESPERSBeamline::vespers()->pseudoWireStageMotorGroupObject()->verticalControl()->value();
+	double wire = VESPERSBeamline::vespers()->pseudoWireStageMotorGroupObject()->verticalAxis()->translationMotor()->value();
 
 	configuration_->scanAxisAt(2)->regionAt(0)->setRegionStart(wire);
 	wireStart_->setValue(wire);
@@ -412,7 +412,7 @@ void VESPERS3DScanConfigurationView::onSetWireStartPosition()
 
 void VESPERS3DScanConfigurationView::onSetWireEndPosition()
 {
-	double wire = VESPERSBeamline::vespers()->pseudoWireStageMotorGroupObject()->verticalControl()->value();
+	double wire = VESPERSBeamline::vespers()->pseudoWireStageMotorGroupObject()->verticalAxis()->translationMotor()->value();
 
 	configuration_->scanAxisAt(2)->regionAt(0)->setRegionEnd(wire);
 	wireEnd_->setValue(wire);

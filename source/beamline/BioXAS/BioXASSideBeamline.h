@@ -51,7 +51,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/BioXAS/BioXASSideXIAFilters.h"
 #include "beamline/BioXAS/BioXASSideM1Mirror.h"
 #include "beamline/BioXAS/BioXASSideM2Mirror.h"
-#include "beamline/BioXAS/BioXASSideDBHRMirror.h"
+#include "beamline/BioXAS/BioXASSideDBHRMirrors.h"
 #include "beamline/BioXAS/BioXASEndstationTable.h"
 #include "beamline/BioXAS/BioXASFourElementVortexDetector.h"
 
@@ -97,7 +97,7 @@ public:
 	/// Returns the XIA filters.
 	BioXASSideXIAFilters* xiaFilters() const { return xiaFilters_; }
 	/// Returns the DBHR mirrors.
-	BioXASSideDBHRMirror* dbhrMirror() const { return dbhrMirror_; }
+	BioXASSideDBHRMirrors* dbhrMirrors() const { return dbhrMirrors_; }
 	/// Returns the standards wheel.
 	CLSStandardsWheel *standardsWheel() const { return standardsWheel_; }
 
@@ -361,7 +361,7 @@ protected:
 
 	// DBHR mirror.
 
-	BioXASSideDBHRMirror *dbhrMirror_;
+	BioXASSideDBHRMirrors *dbhrMirrors_;
 
 	// Misc controls
 
