@@ -8,6 +8,7 @@
 
 #include "beamline/AMControl.h"
 #include "ui/AMStripToolItem.h"
+#include "ui/AMStripToolItems.h"
 #include "MPlot/MPlot.h"
 
 class AMStripTool : public QObject
@@ -22,16 +23,17 @@ public:
 
 	/// Returns the plot.
 	MPlot* plot() const { return plot_; }
-	/// Returns the list of striptool items.
-	QList<AMStripToolItem*> items() const { return items_; }
+	/// Returns the collection of striptool items.
+	AMStripToolItems* items() const { return items_; }
 
 signals:
-	/// Notifier that an item has been added.
-	void itemAdded(AMStripToolItem *newItem);
-	/// Notifier that an item has been removed.
-	void itemRemoved(AMStripToolItem *item);
+	/// Notifier that the items have been changed.
+	void itemsChanged(AMStripToolItems *newItems);
 
 public slots:
+	/// Sets the collection of striptool items.
+	void setItems(AMStripToolItems *newItems);
+
 	/// Adds an item by control. Returns true if successful, false otherwise.
 	bool addItem(AMControl *control);
 	/// Removes an item by control. Returns true if successful, false otherwise.
@@ -50,8 +52,8 @@ public slots:
 protected:
 	/// The plot.
 	MPlot *plot_;
-	/// The list of striptool items.
-	QList<AMStripToolItem*> items_;
+	/// The collection of current striptool items.
+	AMStripToolItems *items_;
 };
 
 #endif // AMSTRIPTOOL_H
