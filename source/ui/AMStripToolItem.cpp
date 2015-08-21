@@ -45,9 +45,6 @@ void AMStripToolItem::setControl(AMControl *newControl)
 
 		control_ = newControl;
 
-		createdByControl_ = true;
-		createdByName_ = false;
-
 		if (control_) {
 			plotItem_ = createPlotItem(control_);
 		}
@@ -59,18 +56,12 @@ void AMStripToolItem::setControl(AMControl *newControl)
 void AMStripToolItem::setControl(const QString &pvName)
 {
 	setControl( createControl(pvName) );
-
-	createdByControl_ = false;
-	createdByName_ = true;
 }
 
 void AMStripToolItem::initialize()
 {
 	control_ = 0;
 	plotItem_ = 0;
-
-	createdByControl_ = false;
-	createdByName_ = false;
 }
 
 AMControl* AMStripToolItem::createControl(const QString &pvName)

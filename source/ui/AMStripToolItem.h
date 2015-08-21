@@ -18,10 +18,6 @@ public:
 	/// Destructor.
 	virtual ~AMStripToolItem();
 
-	/// Returns true if this item was created by control.
-	bool createdByControl() const { return createdByControl_; }
-	/// Returns true if this item was created by name.
-	bool createdByName() const { return createdByName_; }
 	/// Returns the control.
 	AMControl* control() const { return control_; }
 	/// Returns the plot item.
@@ -47,10 +43,6 @@ protected:
 	MPlotItem* createPlotItem(AMControl *control);
 
 protected:
-	/// Bool indicating whether this item was created by control.
-	bool createdByControl_;
-	/// Bool indicating whether this item was created by name.
-	bool createdByName_;
 	/// The item's control, the source of values tracked.
 	AMControl *control_;
 	/// The item's plot representation.

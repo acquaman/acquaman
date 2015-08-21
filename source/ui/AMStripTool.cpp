@@ -33,8 +33,6 @@ void AMStripTool::setItems(AMStripToolItems *newItems)
 
 		if (items_) {
 
-			if (items_->parent() == this)
-				items_->deleteLater();
 		}
 
 		items_ = newItems;
@@ -52,7 +50,7 @@ bool AMStripTool::addItem(AMControl *control)
 	bool itemAdded = false;
 
 	if (control && items_) {
-		itemAdded = addItem(new AMStripToolItem(control, items_));
+		itemAdded = addItem( new AMStripToolItem(control, items_) );
 	}
 
 	return itemAdded;
@@ -74,7 +72,7 @@ bool AMStripTool::addItem(const QString &pvName)
 	bool itemAdded = false;
 
 	if (!pvName.isEmpty() && items_) {
-		itemAdded = addItem( new AMStripToolItem(pvName, items_));
+		itemAdded = addItem( new AMStripToolItem(pvName, items_) );
 	}
 
 	return itemAdded;
