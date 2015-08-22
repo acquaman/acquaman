@@ -26,7 +26,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "ui/BioXAS/BioXASPersistentView.h"
 
-#include "ui/BioXAS/BioXASStripTool.h"
+#include "ui/AMStripToolWidget.h"
 
 class BioXASSidePersistentView : public QWidget
 {
@@ -34,7 +34,7 @@ class BioXASSidePersistentView : public QWidget
 
 public:
 	/// Constructor.
-	explicit BioXASSidePersistentView(QWidget *parent = 0);
+	explicit BioXASSidePersistentView(AMStripTool *stripTool, QWidget *parent = 0);
 	/// Destructor.
 	virtual ~BioXASSidePersistentView();
 
@@ -42,7 +42,7 @@ protected:
 	/// General BioXAS persistent view.
 	BioXASPersistentView *generalView_;
 	/// Strip tool
-	BioXASStripToolWidget *stripTool_;
+	AMStripToolWidget *stripToolWidget_;
 };
 
 #endif // BIOXASSIDEPERSISTENTVIEW_H

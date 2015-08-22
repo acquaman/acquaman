@@ -26,20 +26,20 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QComboBox>
 
-BioXASSidePersistentView::BioXASSidePersistentView(QWidget *parent) :
+BioXASSidePersistentView::BioXASSidePersistentView(AMStripTool *stripTool, QWidget *parent) :
 	QWidget(parent)
 {
 	// Create UI elements.
 
 	generalView_ = new BioXASPersistentView(BioXASSideBeamline::bioXAS()->mono(), BioXASSideBeamline::bioXAS()->scaler());
 
-	stripTool_ = new BioXASStripToolWidget();
+	stripToolWidget_ = new AMStripToolWidget(0);
 
 	// Create and set main layout.
 
 	QVBoxLayout *layout = new QVBoxLayout();
 	layout->addWidget(generalView_);
-	layout->addWidget(stripTool_);
+	layout->addWidget(stripToolWidget_);
 	layout->addStretch();
 
 	setLayout(layout);
@@ -51,6 +51,7 @@ BioXASSidePersistentView::BioXASSidePersistentView(QWidget *parent) :
 	// Current settings.
 
 	generalView_->setScalerChannelsVisible(BioXASSideBeamline::bioXAS()->scaler()->isConnected());
+	stripToolWidget_->setStripTool(stripTool);
 }
 
 BioXASSidePersistentView::~BioXASSidePersistentView()

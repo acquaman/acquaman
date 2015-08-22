@@ -24,6 +24,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "application/BioXAS/BioXASAppController.h"
 
+#include "ui/BioXAS/BioXASStripTool.h"
+#include "ui/AMStripToolEditor.h"
+
 class BioXASSidePersistentView;
 class BioXASSideXASScanConfiguration;
 class BioXASSideXASScanConfigurationView;
@@ -83,6 +86,11 @@ protected:
 	AMGenericStepScanConfigurationView *commissioningConfigurationView_;
 	/// The commissioning tool configuration view holder.
 	AMScanConfigurationViewHolder3 *commissioningConfigurationViewHolder_;
+
+	/// The strip tool
+	AMStripTool *stripTool_;
+	/// The strip tool editor.
+	AMStripToolEditor *stripToolEditor_;
 
 	/// Holds the user configuration used for automatically setting up some simple aspects of the user interface.
 	BioXASUserConfiguration *userConfiguration_;

@@ -40,6 +40,8 @@ BioXASSideAppController::BioXASSideAppController(QObject *parent)
 {
 	setDefaultUseLocalStorage(true);
 	userConfiguration_ = new BioXASUserConfiguration(this);
+
+	stripTool_ = new BioXASStripTool(this);
 }
 
 bool BioXASSideAppController::startup()
@@ -149,7 +151,10 @@ void BioXASSideAppController::setupUserInterface()
 	commissioningConfiguration_->setAutoExportEnabled(false);
 	addCommissioningScanConfigurationView(commissioningConfiguration_);
 
-	addPersistentView(new BioXASSidePersistentView());
+	stripToolEditor_ = new AMStripToolEditor(stripTool_);
+	mw_->addPane(AMMainWindow::buildMainWindowPane("Strip Tool", ":/system-software-update.png", stripToolEditor_), "Experiment Tools", "Strip Tool", ":/system-software-update.png");
+
+	addPersistentView(new BioXASSidePersistentView(stripTool_));
 }
 
 void BioXASSideAppController::addXASScanConfigurationView(BioXASSideXASScanConfiguration *configuration)

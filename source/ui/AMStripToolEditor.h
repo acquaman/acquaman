@@ -13,19 +13,30 @@ class AMStripToolEditor : public AMStripToolView
 
 public:
 	/// Constructor.
-	explicit AMStripToolEditor(QWidget *parent = 0);
+	explicit AMStripToolEditor(AMStripTool *stripTool, QWidget *parent = 0);
 	/// Destructor.
 	virtual ~AMStripToolEditor();
+
+	/// Returns the striptool being viewed.
+	virtual AMStripTool* stripTool() const { return stripTool_; }
 
 signals:
 
 public slots:
+	/// Sets the striptool being viewed.
+	void setStripTool(AMStripTool *newTool);
+
+protected:
+	/// Creates and returns a scan populated with datasources matching the given striptool's.
+	AMScan* createScan(AMStripTool *stripTool);
 
 protected:
 	/// The striptool being viewed.
 	AMStripTool *stripTool_;
 	/// The striptool 'scan'.
 	AMScan *scan_;
+	/// The scan set model.
+	AMScanSetModel *scanSetModel_;
 	/// The scan view used to visualize the strip tool data.
 	AMScanView *stripToolView_;
 	/// The editor used to editor the strip tool sources.

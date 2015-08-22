@@ -39,6 +39,9 @@ void AMStripToolItem::setControl(AMControl *newControl)
 	if (control_ != newControl) {
 
 		if (control_) {
+			delete dataSource_;
+			dataSource_ = 0;
+
 			delete plotItem_;
 			plotItem_ = 0;
 		}
@@ -46,7 +49,8 @@ void AMStripToolItem::setControl(AMControl *newControl)
 		control_ = newControl;
 
 		if (control_) {
-			plotItem_ = createPlotItem(control_);
+			dataSource_ = createDataSource(control_);
+			plotItem_ = createPlotItem(dataSource_);
 		}
 
 		emit controlChanged(control_);
@@ -74,14 +78,22 @@ AMControl* AMStripToolItem::createControl(const QString &pvName)
 	return result;
 }
 
-MPlotItem* AMStripToolItem::createPlotItem(AMControl *control)
+AMDataSource* AMStripToolItem::createDataSource(AMControl *control)
+{
+	AMDataSource *result = 0;
+
+	if (control)
+		result = new AMStripToolControlDataSource(control, control->name(), this);
+
+	return result;
+}
+
+MPlotItem* AMStripToolItem::createPlotItem(AMDataSource *dataSource)
 {
 	MPlotSeriesBasic *result = 0;
 
-	if (control) {
-		AMDataSource *dataSource = new AMStripToolControlDataSource(control, control->name(), this);
+	if (dataSource)
 		result = new MPlotSeriesBasic(new AMDataSourceSeriesData(dataSource));
-	}
 
 	return result;
 }

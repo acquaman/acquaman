@@ -21,6 +21,8 @@ public:
 	virtual AMStripTool* stripTool() const = 0;
 
 signals:
+	/// Notifier that the striptool being viewed has changed.
+	void stripToolChanged(AMStripTool *newTool);
 
 public slots:
 	/// Sets the striptool being viewed.
