@@ -7,10 +7,10 @@
 #include <QLayout>
 
 #include "acquaman/BioXAS/BioXASXASScanConfiguration.h"
-#include "ui/acquaman/AMScanConfigurationView.h"
+#include "ui/BioXAS/BioXASXASScanConfigurationView.h"
 #include "ui/dataman/AMEXAFSScanAxisView.h"
 
-class BioXASXASScanConfigurationRegionsEditor : public AMScanConfigurationView
+class BioXASXASScanConfigurationRegionsEditor : public BioXASXASScanConfigurationView
 {
 	Q_OBJECT
 
@@ -20,23 +20,16 @@ public:
 	/// Destructor.
 	virtual ~BioXASXASScanConfigurationRegionsEditor();
 
-	/// Returns the scan configuration being viewed.
-	virtual const AMScanConfiguration* configuration() const;
-
-signals:
-	/// Notifier that the scan configuration being viewed has changed.
-	void configurationChanged(BioXASXASScanConfiguration *newConfiguration);
-
 public slots:
 	/// Sets the scan configuration being viewed.
-	void setConfiguration(BioXASXASScanConfiguration *newConfiguration);
+	virtual void setConfiguration(BioXASXASScanConfiguration *newConfiguration);
 
 	/// Clears the view.
-	void clear();
+	virtual void clear();
 	/// Updates the view with the current configuration information.
-	void update();
+	virtual void update();
 	/// Refreshes the view.
-	void refresh();
+	virtual void refresh();
 
 protected slots:
 	/// Updates the estimated time label.
@@ -58,9 +51,6 @@ protected:
 	AMScanAxisEXAFSRegion* createEXAFSRegionInKSpace(double edgeEnergy, double regionStart, double regionStep, double regionEnd, double regionTime, double maximumTime) const;
 
 protected:
-	/// The scan configuration being viewed.
-	BioXASXASScanConfiguration* configuration_;
-
 	/// The regions view.
 	AMEXAFSScanAxisView *regionsView_;
 	/// Button that sets the XANES regions.

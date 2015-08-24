@@ -136,7 +136,9 @@ bool AMExtendedControlEditor::setControlFormat(const QChar& format, int precisio
 void AMExtendedControlEditor::setPrecision(int precision)
 {
 	precision_ = precision;
-	onValueChanged(control_->value());
+
+	if (control_)
+		onValueChanged(control_->value());
 }
 
 void AMExtendedControlEditor::setRange(double maxValue, double minValue)

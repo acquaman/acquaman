@@ -216,7 +216,7 @@ void BioXASSideBeamline::setupComponents()
 	cryostatStage_ = new BioXASSideCryostatStage(this);
 
 	// Scaler.
-	scaler_ = new CLSSIS3820Scaler("BL1607-5-I22:mcs", this);
+	scaler_ = new CLSSIS3820Scaler("MCS1607-601", this);
 	connect( scaler_, SIGNAL(connectedChanged(bool)), this, SLOT(updateConnected()) );
 
 	scalerDwellTime_ = new AMReadOnlyPVControl("ScalerDwellTime", "BL1607-5-I22:mcs:delay", this, "Scaler dwell time");

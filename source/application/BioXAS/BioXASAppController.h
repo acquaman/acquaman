@@ -55,7 +55,7 @@
 #include "ui/BioXAS/BioXASSIS3820ScalerView.h"
 #include "ui/BioXAS/BioXASFourElementVortexDetectorView.h"
 #include "ui/BioXAS/BioXASEndstationTableView.h"
-#include "ui/BioXAS/BioXASXASScanConfigurationView.h"
+#include "ui/BioXAS/BioXASXASScanConfigurationEditor.h"
 #include "ui/BioXAS/BioXASSSRLMonochromatorEnergyCalibrationView.h"
 #include "ui/CLS/CLSJJSlitsView.h"
 #include "ui/CLS/CLSStandardsWheelConfigurationView.h"

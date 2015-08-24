@@ -9,9 +9,6 @@ HEADERS += \
     source/application/BioXAS/BioXASSideAppController.h \
     source/beamline/BioXAS/BioXASSideBeamline.h \
     source/beamline/BioXAS/BioXASSideMonochromator.h \
-    source/acquaman/BioXAS/BioXASSideXASScanActionController.h \
-    source/acquaman/BioXAS/BioXASSideXASScanConfiguration.h \
-    source/ui/BioXAS/BioXASSideXASScanConfigurationView.h \
     source/ui/BioXAS/BioXASSidePersistentView.h \
 	source/beamline/BioXAS/BioXASSideCarbonFilterFarmControl.h \
 	source/beamline/BioXAS/BioXASSideM2Mirror.h \
@@ -28,9 +25,6 @@ SOURCES += \
     source/application/BioXAS/BioXASSideAppController.cpp \
     source/beamline/BioXAS/BioXASSideBeamline.cpp \
     source/beamline/BioXAS/BioXASSideMonochromator.cpp \
-    source/acquaman/BioXAS/BioXASSideXASScanActionController.cpp \
-    source/acquaman/BioXAS/BioXASSideXASScanConfiguration.cpp \
-    source/ui/BioXAS/BioXASSideXASScanConfigurationView.cpp \
     source/ui/BioXAS/BioXASSidePersistentView.cpp \
 	source/beamline/BioXAS/BioXASSideCarbonFilterFarmControl.cpp \
 	source/beamline/BioXAS/BioXASSideM2Mirror.cpp \
@@ -42,6 +36,12 @@ SOURCES += \
     source/beamline/BioXAS/BioXASSideDBHRMirrors.cpp \
     source/beamline/BioXAS/BioXASSideBeamlineUtilities.cpp \
     source/beamline/BioXAS/BioXASSideCryostatStage.cpp
+
+
+
+
+
+
 
 
 

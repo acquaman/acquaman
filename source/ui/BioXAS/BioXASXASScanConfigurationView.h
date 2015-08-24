@@ -1,73 +1,63 @@
 #ifndef BIOXASXASSCANCONFIGURATIONVIEW_H
 #define BIOXASXASSCANCONFIGURATIONVIEW_H
 
-#include <QPushButton>
-#include <QComboBox>
-#include <QCheckBox>
-#include <QDoubleSpinBox>
-#include <QLineEdit>
-#include <QLabel>
-#include <QToolButton>
-#include <QStringBuilder>
-#include <QScrollArea>
-#include <QGroupBox>
-
 #include "acquaman/BioXAS/BioXASXASScanConfiguration.h"
 #include "ui/acquaman/AMScanConfigurationView.h"
-#include "ui/acquaman/AMGenericStepScanConfigurationDetectorsView.h"
-#include "ui/BioXAS/BioXASXASScanConfigurationEnergyEditor.h"
-#include "ui/BioXAS/BioXASXASScanConfigurationRegionsEditor.h"
+#include "util/AMPeriodicTable.h"
+#include "util/AMAbsorptionEdge.h"
+#include "util/AMElement.h"
 
 class BioXASXASScanConfigurationView : public AMScanConfigurationView
 {
-
-	Q_OBJECT
+    Q_OBJECT
 
 public:
 	/// Constructor.
-	explicit BioXASXASScanConfigurationView(BioXASXASScanConfiguration *configuration, QWidget *parent = 0);
+    explicit BioXASXASScanConfigurationView(QWidget *parent = 0);
 	/// Destructor.
 	virtual ~BioXASXASScanConfigurationView();
 
-	/// Returns the scan configuration being viewed.
-    virtual const AMScanConfiguration* configuration() const;
+	/// Returns the configuration being viewed.
+	const virtual AMScanConfiguration* configuration() const;
 
 signals:
-	/// Notifier that the scan configuration being viewed has changed.
+	/// Notifier that the configuration has changed.
 	void configurationChanged(BioXASXASScanConfiguration *newConfiguration);
 
 public slots:
-	/// Sets the XAS scan configuration being viewed.
-	void setConfiguration(BioXASXASScanConfiguration *newConfiguration);
+	/// Sets the scan configuration.
+	virtual void setConfiguration(BioXASXASScanConfiguration *newConfiguration) = 0;
 
 	/// Clears the view.
-	void clear();
+	virtual void clear() = 0;
 	/// Updates the view.
-	void update();
+	virtual void update() = 0;
 	/// Refreshes the view.
-	void refresh();
+	virtual void refresh() = 0;
 
 protected slots:
-	/// Updates the displayed scan name to correspond to the configuration's scan name.
-	void updateName();
-
 	/// Sets the configuration name.
-	void setConfigurationName(const QString &newName);
-	/// Updates the scan configuration name.
-	void updateConfigurationName();
+	void setConfigurationName(BioXASXASScanConfiguration *configuration, const QString &newName);
+	/// Sets the configuration's edge.
+	void setConfigurationEdge(BioXASXASScanConfiguration *configuration, const QString &edgeString);
+	/// Sets the configuration's energy.
+	void setConfigurationEnergy(BioXASXASScanConfiguration *configuration, double newEnergy);
+
+protected:
+	/// Initializes a scan with an element and edge, if required.
+	void initializeConfiguration(BioXASXASScanConfiguration *configuration);
+
+	/// Returns the configuration's current element.
+	AMElement* configurationElement(BioXASXASScanConfiguration *configuration) const;
+	/// Returns a string representation of the configuration's current edge.
+	QString configurationEdge(BioXASXASScanConfiguration *configuration) const;
+
+	/// Returns a string representation of the given absorption edge.
+	QString edgeToString(const AMAbsorptionEdge &edge) const;
 
 protected:
 	/// The configuration being viewed.
 	BioXASXASScanConfiguration *configuration_;
-
-	/// Scan name editor.
-    QLineEdit *scanName_;
-	/// Energy editor.
-	BioXASXASScanConfigurationEnergyEditor *energyEditor_;
-	/// Regions editor.
-	BioXASXASScanConfigurationRegionsEditor *regionsEditor_;
-	/// The detectors view.
-	AMGenericStepScanConfigurationDetectorsView *detectorsView_;
 };
 
 #endif // BIOXASXASSCANCONFIGURATIONVIEW_H

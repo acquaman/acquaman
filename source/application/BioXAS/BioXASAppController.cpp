@@ -3,6 +3,8 @@
 #include "beamline/BioXAS/BioXASBeamline.h"
 #include "beamline/CLS/CLSStorageRing.h"
 
+#include "dataman/BioXAS/BioXASDbUpgrade1Pt1.h"
+
 #include <QDebug>
 
 BioXASAppController::BioXASAppController(QObject *parent) :
@@ -12,6 +14,13 @@ BioXASAppController::BioXASAppController(QObject *parent) :
 
 	userConfiguration_ = new BioXASUserConfiguration(this);
 	setDefaultUseLocalStorage(true);
+
+	// Database upgrades.
+
+	AMDbUpgrade *bioxas1pt1UserDb = new BioXASDbUpgrade1Pt1("user", this);
+	appendDatabaseUpgrade(bioxas1pt1UserDb);
+	AMDbUpgrade *bioxas1pt1ActionsDb = new BioXASDbUpgrade1Pt1("actions", this);
+	appendDatabaseUpgrade(bioxas1pt1ActionsDb);
 
 	// Initialize member variables.
 
@@ -395,7 +404,7 @@ AMScanConfigurationView* BioXASAppController::createScanConfigurationView(AMScan
 
 		BioXASXASScanConfiguration *xasConfiguration = qobject_cast<BioXASXASScanConfiguration*>(configuration);
 		if (!configurationFound && xasConfiguration) {
-			configurationView = new BioXASXASScanConfigurationView(xasConfiguration);
+			configurationView = new BioXASXASScanConfigurationEditor(xasConfiguration);
 			configurationFound = true;
 		}
 
@@ -425,7 +434,7 @@ AMScanConfigurationViewHolder3* BioXASAppController::createScanConfigurationView
 
 			AMGenericStepScanConfiguration *stepScanConfiguration = qobject_cast<AMGenericStepScanConfiguration*>(configuration);
 			if (stepScanConfiguration) {
-				connect( stepScanConfiguration, SIGNAL(totalTimeChanged()), view, SLOT(updateOverallScanTime(double)) );
+				connect( stepScanConfiguration, SIGNAL(totalTimeChanged(double)), view, SLOT(updateOverallScanTime(double)) );
 				view->updateOverallScanTime(stepScanConfiguration->totalTime());
 			}
 		}
@@ -516,11 +525,11 @@ void BioXASAppController::setupXASScanConfiguration(BioXASXASScanConfiguration *
 			configuration->addDetector(scalerDwellTimeDetector->toInfo());
 
 		AMDetector *vortexDetector = BioXASBeamline::bioXAS()->fourElementVortexDetector();
-		if (vortexDetector && configuration->usingXRFDetector())
+		if (vortexDetector)
 			configuration->addDetector(vortexDetector->toInfo());
 
 		AMDetector *ge32Detector = BioXASBeamline::bioXAS()->ge32ElementDetector();
-		if (ge32Detector && configuration->usingXRFDetector())
+		if (ge32Detector)
 			configuration->addDetector(ge32Detector->toInfo());
 	}
 }

@@ -3,17 +3,14 @@
 #include "util/AMPeriodicTable.h"
 
 BioXASXASScanConfigurationEdgeEditor::BioXASXASScanConfigurationEdgeEditor(BioXASXASScanConfiguration *configuration, QWidget *parent) :
-	AMScanConfigurationView(parent)
+	BioXASXASScanConfigurationView(parent)
 {
-	// Initialize class variables.
-
-	configuration_ = 0;
-
 	// Create UI elements.
 
-	elementButton_ = new QToolButton;
+	elementButton_ = new QToolButton();
 
-	edgeComboBox_ = new QComboBox;
+	edgeComboBox_ = new QComboBox();
+	edgeComboBox_->setMinimumWidth(150);
 
 	// Create and set layouts.
 
@@ -38,11 +35,6 @@ BioXASXASScanConfigurationEdgeEditor::~BioXASXASScanConfigurationEdgeEditor()
 
 }
 
-const AMScanConfiguration* BioXASXASScanConfigurationEdgeEditor::configuration() const
-{
-	return configuration_;
-}
-
 void BioXASXASScanConfigurationEdgeEditor::setConfiguration(BioXASXASScanConfiguration *newConfiguration)
 {
 	if (configuration_ != newConfiguration) {
@@ -51,6 +43,8 @@ void BioXASXASScanConfigurationEdgeEditor::setConfiguration(BioXASXASScanConfigu
 			disconnect( configuration_->dbObject(), 0, this, 0 );
 
 		configuration_ = newConfiguration;
+
+		initializeConfiguration(configuration_);
 
 		if (configuration_)
 			connect( configuration_->dbObject(), SIGNAL(edgeChanged(QString)), this, SLOT(update()) );
@@ -79,15 +73,6 @@ void BioXASXASScanConfigurationEdgeEditor::refresh()
 
 	clear();
 
-	// Set the initial element/edge selected.
-
-	if (configuration_) {
-		if (configuration_->edge().isEmpty()) {
-			AMElement *element = AMPeriodicTable::table()->elementBySymbol("Cu");
-			setConfigurationEdge(edgeToString(element->L1Edge()));
-		}
-	}
-
 	// Update the view.
 
 	update();
@@ -96,7 +81,7 @@ void BioXASXASScanConfigurationEdgeEditor::refresh()
 void BioXASXASScanConfigurationEdgeEditor::updateElementButton()
 {
 	if (configuration_)
-		setElement(configurationElement());
+		setElement(configurationElement(configuration_));
 }
 
 void BioXASXASScanConfigurationEdgeEditor::setElement(AMElement *element)
@@ -107,14 +92,17 @@ void BioXASXASScanConfigurationEdgeEditor::setElement(AMElement *element)
 
 void BioXASXASScanConfigurationEdgeEditor::updateEdgeComboBox()
 {
-	// Clear the combo box of previous edges.
+	// Clear the combo box of previous edges and update the displayed edges to correspond
+	// to the configuration element.
+
+	edgeComboBox_->blockSignals(true);
 
 	edgeComboBox_->clear();
 
-	// Update the displayed edges.
-
-	AMElement *newElement = configurationElement();
+	AMElement *newElement = configurationElement(configuration_);
 	addEdges(newElement);
+
+	edgeComboBox_->blockSignals(false);
 
 	// Set the current edge to be the configuration edge, or the first edge.
 
@@ -131,15 +119,11 @@ void BioXASXASScanConfigurationEdgeEditor::addEdges(AMElement *element)
 
 	if (element) {
 
-		edgeComboBox_->blockSignals(true);
-
 		for (int edgeIndex = 0, edgeCount = element->absorptionEdges().size(); edgeIndex < edgeCount; edgeIndex++) {
 
 			AMAbsorptionEdge edge = element->absorptionEdges().at(edgeIndex);
 			addEdge(edge);
 		}
-
-		edgeComboBox_->blockSignals(false);
 	}
 }
 
@@ -157,24 +141,12 @@ void BioXASXASScanConfigurationEdgeEditor::updateConfiguration()
 
 void BioXASXASScanConfigurationEdgeEditor::updateConfigurationEdge()
 {
-	setConfigurationEdge(currentEdge());
-}
-
-void BioXASXASScanConfigurationEdgeEditor::setConfigurationEdge(const QString &edgeString)
-{
-	if (configuration_)
-		configuration_->setEdge(edgeString);
+	setConfigurationEdge(configuration_, currentEdge());
 }
 
 void BioXASXASScanConfigurationEdgeEditor::updateConfigurationEnergy()
 {
-	setConfigurationEnergy(currentEdgeEnergy());
-}
-
-void BioXASXASScanConfigurationEdgeEditor::setConfigurationEnergy(double newEnergy)
-{
-	if (configuration_)
-		configuration_->setEnergy(newEnergy);
+	setConfigurationEnergy(configuration_, currentEdgeEnergy());
 }
 
 void BioXASXASScanConfigurationEdgeEditor::onElementButtonClicked()
@@ -182,10 +154,18 @@ void BioXASXASScanConfigurationEdgeEditor::onElementButtonClicked()
 	// Show the element selection dialog.
 
 	AMElement *newElement = AMPeriodicTableDialog::getElement(this);
-	QList<AMAbsorptionEdge> edges = newElement->absorptionEdges();
 
-	if (edges.size() > 0)
-		setConfigurationEdge(edgeToString(edges.first()));
+	// Update the configuration with the first edge of the new element.
+
+	if (newElement) {
+		QList<AMAbsorptionEdge> edges = newElement->absorptionEdges();
+
+		if (!edges.isEmpty()) {
+			AMAbsorptionEdge edge = edges.first();
+			setConfigurationEdge(configuration_, edgeToString(edge));
+			setConfigurationEnergy(configuration_, edge.energy());
+		}
+	}
 }
 
 QString BioXASXASScanConfigurationEdgeEditor::currentEdge() const
@@ -219,44 +199,6 @@ double BioXASXASScanConfigurationEdgeEditor::edgeEnergyAt(int index)
 
 	if (index > -1 && index < edgeComboBox_->count())
 		result = edgeComboBox_->itemData(index).toDouble();
-
-	return result;
-}
-
-AMElement* BioXASXASScanConfigurationEdgeEditor::configurationElement() const
-{
-	AMElement *result = 0;
-
-	if (configuration_) {
-		QString elementSymbol;
-
-		QStringList configurationEdgeText = configuration_->edge().split(" ");
-		if (configurationEdgeText.count() > 1)
-			elementSymbol = configurationEdgeText.first();
-
-		if (!elementSymbol.isEmpty())
-			result = AMPeriodicTable::table()->elementBySymbol(elementSymbol);
-	}
-
-	return result;
-}
-
-QString BioXASXASScanConfigurationEdgeEditor::configurationEdge() const
-{
-	QString result;
-
-	if (configuration_)
-		result = configuration_->edge();
-
-	return result;
-}
-
-QString BioXASXASScanConfigurationEdgeEditor::edgeToString(const AMAbsorptionEdge &edge) const
-{
-	QString result;
-
-	if (!edge.isNull())
-		result = edge.name() + ": " + edge.energyString() + " eV";
 
 	return result;
 }
