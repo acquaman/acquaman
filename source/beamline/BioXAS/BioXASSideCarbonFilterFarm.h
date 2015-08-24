@@ -2,7 +2,6 @@
 #define BIOXASSIDECARBONFILTERFARM_H
 
 #include "beamline/BioXAS/BioXASCarbonFilterFarm.h"
-#include "beamline/BioXAS/BioXASSideCarbonFilterFarmControl.h"
 
 // Valid actuator positions.
 #define BIOXASSIDECARBONFILTERFARM_UPSTREAM_OUT 18.996

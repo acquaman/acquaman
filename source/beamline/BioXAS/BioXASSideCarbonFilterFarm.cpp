@@ -29,10 +29,10 @@ BioXASSideCarbonFilterFarm::BioXASSideCarbonFilterFarm(QObject *parent) :
 	downstreamActuator_->setWindowPosition(Window::Bottom, BIOXASSIDECARBONFILTERFARM_DOWNSTREAM_BOTTOM);
 	downstreamActuator_->setWindowPosition(Window::Top, BIOXASSIDECARBONFILTERFARM_DOWNSTREAM_TOP);
 
-	filter_->setWindowFilter(Actuator::Upstream, Window::Bottom, Filter::Fifty);
-	filter_->setWindowFilter(Actuator::Upstream, Window::Top, Filter::Fifty);
-	filter_->setWindowFilter(Actuator::Downstream, Window::Bottom, Filter::None);
-	filter_->setWindowFilter(Actuator::Downstream, Window::Top, Filter::SevenHundred);
+	filter_->setWindowFilter(Actuator::Upstream, Window::Bottom, 50);
+	filter_->setWindowFilter(Actuator::Upstream, Window::Top, 50);
+	filter_->setWindowFilter(Actuator::Downstream, Window::Bottom, 0);
+	filter_->setWindowFilter(Actuator::Downstream, Window::Top, 700);
 
 	updateConnected();
 }
