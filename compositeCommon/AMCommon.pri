@@ -11,6 +11,7 @@ macx {
 
 	contains(USERNAME, helfrij){
 		CONFIG -= mobility
+		CONFIG -= app_bundle
 	}
 
 	QMAKE_CXXFLAGS_X86_64 *= "-mmacosx-version-min=10.7"

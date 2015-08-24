@@ -61,6 +61,8 @@ void IDEASBeamline::setupSampleStage()
 
 void IDEASBeamline::setupMotorGroup()
 {
+	motorGroup_ = new AMMotorGroup(this);
+
 	// Set up sample platform motor object:
 	AMMotorGroupObject* samplePlatformObject = new AMMotorGroupObject("Sample Platform", this);
 
