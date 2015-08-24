@@ -153,13 +153,14 @@ AMAction3* BioXASSideXASScanActionController::createInitializationActions()
 		initializationAction->addSubAction(xspress3Setup);
 	}
 
-	CLSStandardsWheel *standardsWheel = BioXASSideBeamline::bioXAS()->standardsWheel();
+	// Commented out Aug 24, 2015. The standards wheel motor can't move and would like to proceed with scanning.
+//	CLSStandardsWheel *standardsWheel = BioXASSideBeamline::bioXAS()->standardsWheel();
 
-	if (standardsWheel->indexFromName(configuration_->edge().split(" ").first()) != -1)
-		initializationAction->addSubAction(standardsWheel->createMoveToNameAction(configuration_->edge().split(" ").first()));
+//	if (standardsWheel->indexFromName(configuration_->edge().split(" ").first()) != -1)
+//		initializationAction->addSubAction(standardsWheel->createMoveToNameAction(configuration_->edge().split(" ").first()));
 
-	else
-		initializationAction->addSubAction(standardsWheel->createMoveToNameAction("None"));
+//	else
+//		initializationAction->addSubAction(standardsWheel->createMoveToNameAction("None"));
 
 	return initializationAction;
 }
