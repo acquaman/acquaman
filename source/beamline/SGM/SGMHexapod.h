@@ -28,6 +28,8 @@ public:
 	  */
 	bool isConnected();
 
+	AMControl* xPrime() const;
+
 	/*!
 	  * The main x Axis Control.
 	  */
@@ -119,6 +121,8 @@ signals:
 public slots:
 
 protected:
+	AMControl* xPrime_;
+
 	AMControl* xAxis_;
 	AMControl* yAxis_;
 	AMControl* zAxis_;

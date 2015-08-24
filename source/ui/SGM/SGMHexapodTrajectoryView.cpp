@@ -106,11 +106,11 @@ void SGMHexapodTrajectoryView::onXSetpointPVValueChanged()
 		xSetpointSpinbox_->setStyleSheet("background-color: #ffffff;");
 	}
 }
-
+#include <QDebug>
 void SGMHexapodTrajectoryView::onYSetpointPVValueChanged()
 {
 	if(hexapod_ && !hexapod_->yAxisTrajectorySetpoint()->withinTolerance(ySetpointSpinbox_->value())) {
-
+		qDebug() << "\tUpdating Y Spinbox value to " << hexapod_->yAxisTrajectorySetpoint()->value();
 		ySetpointSpinbox_->setValue(hexapod_->yAxisTrajectorySetpoint()->value());
 		// Indicate a set back to PV value with white bg color
 		ySetpointSpinbox_->setStyleSheet("background-color: #ffffff;");
@@ -192,10 +192,11 @@ void SGMHexapodTrajectoryView::setupUi()
 	mainLayout->addWidget(moveButton_, 7, 1, 1, 2, Qt::AlignHCenter);
 	mainLayout->addWidget(resetButton_,7, 4, 1, 2, Qt::AlignHCenter);
 }
-
+#include <QDebug>
 void SGMHexapodTrajectoryView::setupData()
 {
 	if(hexapod_) {
+		qDebug() << "\tInitializing Y Axis value to " << hexapod_->yAxis()->value();
 		xSetpointLabel_->setText(hexapod_->xAxis()->name());
 		ySetpointLabel_->setText(hexapod_->yAxis()->name());
 		zSetpointLabel_->setText(hexapod_->zAxis()->name());

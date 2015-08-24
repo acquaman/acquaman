@@ -2,7 +2,7 @@
 #include "beamline/AMControl.h"
 #include "beamline/AMPVControl.h"
 #include "beamline/SGM/SGMMAXvMotor.h"
-
+#include "beamline/AM3DRotatedSystemPseudoMotorControl.h"
 SGMHexapod::SGMHexapod(QObject *parent) :
     QObject(parent)
 {
@@ -24,6 +24,13 @@ SGMHexapod::SGMHexapod(QObject *parent) :
 	wAxisTrajectorySetpoint_ = new AMSinglePVControl("Hexapod W Trajectory Setpoint", "HXPD1611-4-I10-01:trajectory:W:deg", this, 0.01);
 	trajectoryStart_ = new AMSinglePVControl("Hexapod Trajectory Move Start", "HXPD1611-4-I10-01:trajectory:start", this, 0.5);
 	trajectoryReset_ = new AMSinglePVControl("Hexapod Trajectory Reset", "HXPD1611-4-I10-01:trajectory:reset", this, 0.5);
+
+	xPrime_ = new AM3DRotatedSystemPseudoMotorControl(AM3DMotionPseudoMotorControl::XAxis,
+									new AMPVwStatusControl("Hexapod X", "HXPD1611-4-I10-01:X:mm:fbk", "HXPD1611-4-I10-01:trajectory:X:mm", "HXPD1611-4-I10-01:X:status", "HXPD1611-4-I10-01:stop", this, 0.01, 2.0, new CLSMAXvControlStatusChecker()),
+									new AMPVwStatusControl("Hexapod X", "HXPD1611-4-I10-01:X:mm:fbk", "HXPD1611-4-I10-01:trajectory:X:mm", "HXPD1611-4-I10-01:X:status", "HXPD1611-4-I10-01:stop", this, 0.01, 2.0, new CLSMAXvControlStatusChecker()),
+									new AMPVwStatusControl("Hexapod X", "HXPD1611-4-I10-01:X:mm:fbk", "HXPD1611-4-I10-01:trajectory:X:mm", "HXPD1611-4-I10-01:X:status", "HXPD1611-4-I10-01:stop", this, 0.01, 2.0, new CLSMAXvControlStatusChecker()),
+									"X Axis Prime",
+									"mm", this);
 
 	allControls_ = new AMControlSet(this);
 	allControls_->addControl(xAxis_);
@@ -51,6 +58,12 @@ SGMHexapod::SGMHexapod(QObject *parent) :
 bool SGMHexapod::isConnected()
 {
 	return allControls_->isConnected();
+}
+
+
+AMControl * SGMHexapod::xPrime() const
+{
+	return xPrime_;
 }
 
 AMControl * SGMHexapod::xAxis() const
@@ -132,5 +145,6 @@ AMControl * SGMHexapod::trajectoryReset() const
 {
 	return trajectoryReset_;
 }
+
 
 

@@ -234,6 +234,14 @@ void SGMBeamline::setupMotorGroups()
 								  "W", hexapod_->wAxis());
 
 	sampleManipulatorsMotorGroup_->addMotorGroupObject(groupObject);
+
+	groupObject = new AMMotorGroupObject("TEST", this);
+
+	groupObject->setDirectionAxis(AMMotorGroupObject::HorizontalMotion,
+								  "X PRIME", hexapod_->xPrime(),
+								  "", 0);
+
+	sampleManipulatorsMotorGroup_->addMotorGroupObject(groupObject);
 }
 
 
