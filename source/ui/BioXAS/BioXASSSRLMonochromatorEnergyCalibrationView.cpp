@@ -63,10 +63,9 @@ BioXASSSRLMonochromatorEnergyCalibrationView::BioXASSSRLMonochromatorEnergyCalib
 
 	// Create and set layouts.
 
-	QHBoxLayout *dataOptionsLayout = new QHBoxLayout();
-	dataOptionsLayout->addWidget(loadDataButton_);
-	dataOptionsLayout->addWidget(newDataButton_);
-	dataOptionsLayout->addStretch();
+	QVBoxLayout *dataButtonsLayout = new QVBoxLayout();
+	dataButtonsLayout->addWidget(loadDataButton_);
+	dataButtonsLayout->addWidget(newDataButton_);
 
 	QGridLayout *energyLayout = new QGridLayout();
 	energyLayout->addWidget(monoEnergyPrompt, 0, 0, 1, 1, Qt::AlignRight);
@@ -75,20 +74,23 @@ BioXASSSRLMonochromatorEnergyCalibrationView::BioXASSSRLMonochromatorEnergyCalib
 	energyLayout->addWidget(desiredEnergySpinBox_, 1, 1);
 	energyLayout->addWidget(calibrateButton_, 1, 2);
 
-	QHBoxLayout *energyCenteredLayout = new QHBoxLayout();
-	energyCenteredLayout->setMargin(0);
-	energyCenteredLayout->addStretch();
-	energyCenteredLayout->addLayout(energyLayout);
-	energyCenteredLayout->addStretch();
+	QHBoxLayout *calibrationViewLayout = new QHBoxLayout();
+	calibrationViewLayout->addLayout(dataButtonsLayout);
+	calibrationViewLayout->addLayout(energyLayout);
 
-	QVBoxLayout *calibrationLayout = new QVBoxLayout();
-	calibrationLayout->addLayout(dataOptionsLayout);
-	calibrationLayout->addWidget(scanSourcesEditor_);
-	calibrationLayout->addLayout(energyCenteredLayout);
+	QGroupBox *calibrationView = new QGroupBox();
+	calibrationView->setLayout(calibrationViewLayout);
+
+	QVBoxLayout *leftLayout = new QVBoxLayout();
+	leftLayout->addWidget(scanView_);
+	leftLayout->addWidget(calibrationView);
+
+	QVBoxLayout *rightLayout = new QVBoxLayout();
+	rightLayout->addWidget(scanSourcesEditor_);
 
 	QHBoxLayout *layout = new QHBoxLayout();
-	layout->addWidget(scanView_);
-	layout->addLayout(calibrationLayout);
+	layout->addLayout(leftLayout);
+	layout->addLayout(rightLayout);
 
 	setLayout(layout);
 

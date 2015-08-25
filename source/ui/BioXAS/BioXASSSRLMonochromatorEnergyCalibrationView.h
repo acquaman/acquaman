@@ -8,6 +8,7 @@
 #include <QUrl>
 #include <QToolButton>
 #include <QSignalMapper>
+#include <QGroupBox>
 
 class AMScan;
 class AMScanSetModel;
