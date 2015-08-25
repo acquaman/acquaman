@@ -176,19 +176,16 @@ AMAction3* BioXASCarbonFilterFarmActuatorWindowControl::createMoveAction(double 
 {
 	AMListAction3 *action = 0;
 
-	if (isConnected() && validSetpoint(windowSetpoint)) {
+	Window window = Window(windowSetpoint);
 
-		Window window = Window(windowSetpoint);
+	if (positionMap_.contains(window)) {
+		action = new AMListAction3(new AMListActionInfo3("Move BioXAS Carbon Filter Farm Actuator", "Move BioXAS Carbon Filter Farm Actuator"), AMListAction3::Sequential);
 
-		if (positionMap_.contains(window)) {
-			action = new AMListAction3(new AMListActionInfo3("Move BioXAS Carbon Filter Farm Actuator", "Move BioXAS Carbon Filter Farm Actuator"), AMListAction3::Sequential);
+		AMAction3 *move = AMActionSupport::buildControlMoveAction(position_, positionOfWindow(window));
+		action->addSubAction(move);
 
-			AMAction3 *move = AMActionSupport::buildControlMoveAction(position_, positionOfWindow(window));
-			action->addSubAction(move);
-
-			AMAction3 *check = AMActionSupport::buildControlWaitAction(status_, BioXASCarbonFilterFarm::Position::Valid, TIMEOUT_MOVE);
-			action->addSubAction(check);
-		}
+		AMAction3 *check = AMActionSupport::buildControlWaitAction(status_, BioXASCarbonFilterFarm::Position::Valid, TIMEOUT_MOVE);
+		action->addSubAction(check);
 	}
 
 	return action;
