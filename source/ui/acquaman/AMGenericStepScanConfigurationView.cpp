@@ -322,13 +322,7 @@ void AMGenericStepScanConfigurationView::updateScanInformation()
 	if (configuration_->scanAxes().size() == 1){
 
 		double size = fabs(double(configuration_->scanAxisAt(0)->regionAt(0)->regionEnd())-double(configuration_->scanAxisAt(0)->regionAt(0)->regionStart()));
-		int points = int((size)/double(configuration_->scanAxisAt(0)->regionAt(0)->regionStep()));
-
-		if ((size - (points + 0.01)*double(configuration_->scanAxisAt(0)->regionAt(0)->regionStep())) < 0)
-			points += 1;
-
-		else
-			points += 2;
+		int points = configuration_->scanAxisAt(0)->numberOfPoints();
 
 		scanInformation_->setText(QString("Scan Size: %1\t Points: %2")
 						  .arg(QString::number(size, 'f', 1))
@@ -341,17 +335,8 @@ void AMGenericStepScanConfigurationView::updateScanInformation()
 		double hSize = fabs(double(configuration_->scanAxisAt(0)->regionAt(0)->regionEnd())-double(configuration_->scanAxisAt(0)->regionAt(0)->regionStart()));
 		double vSize = fabs(double(configuration_->scanAxisAt(1)->regionAt(0)->regionEnd())-double(configuration_->scanAxisAt(1)->regionAt(0)->regionStart()));
 
-		int hPoints = int((hSize)/double(configuration_->scanAxisAt(0)->regionAt(0)->regionStep()));
-		if ((hSize - (hPoints + 0.01)*double(configuration_->scanAxisAt(0)->regionAt(0)->regionStep())) < 0)
-			hPoints += 1;
-		else
-			hPoints += 2;
-
-		int vPoints = int((vSize)/double(configuration_->scanAxisAt(1)->regionAt(0)->regionStep()));
-		if ((vSize - (vPoints + 0.01)*double(configuration_->scanAxisAt(1)->regionAt(0)->regionStep())) < 0)
-			vPoints += 1;
-		else
-			vPoints += 2;
+		int hPoints = configuration_->scanAxisAt(0)->numberOfPoints();
+		int vPoints = configuration_->scanAxisAt(1)->numberOfPoints();
 
 		scanInformation_->setText(QString("Scan Size: %1 x %2 \t Points: %3 x %4")
 						  .arg(QString::number(hSize, 'f', 1))
