@@ -139,11 +139,13 @@ void AMGenericStepScanConfigurationDetectorsView::refresh()
 
 		for (int detectorIndex = 0, detectorCount = detectors_->count(); detectorIndex < detectorCount; detectorIndex++) {
 
-			QString detectorName = detectors_->at(detectorIndex)->name();
+			AMDetector *detector = detectors_->at(detectorIndex);
 
-			QCheckBox *checkBox = new QCheckBox(detectorName);
-			detectorsButtonGroup_->addButton(checkBox, detectorIndex);
-			layout_->addWidget(checkBox);
+			if (detector && detector->isConnected()) {
+				QCheckBox *checkBox = new QCheckBox(detector->name());
+				detectorsButtonGroup_->addButton(checkBox, detectorIndex);
+				layout_->addWidget(checkBox);
+			}
 		}
 	}
 
