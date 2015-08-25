@@ -55,6 +55,16 @@ bool SGMBeamline::isConnected() const
 			scaler_->isConnected();
 }
 
+AMControl * SGMBeamline::endStationTranslationSetpoint() const
+{
+	return endStationTranslationSetpont_;
+}
+
+AMControl * SGMBeamline::endStationTranslationFeedback() const
+{
+	return endStationTranslationFeedback_;
+}
+
 AMControl * SGMBeamline::energy() const
 {
 	return energy_;
@@ -135,6 +145,12 @@ void SGMBeamline::setupBeamlineComponents()
 	exitSlitPosition_->setDescription("Exit Slit Position");
 	exitSlitPosition_->setContextKnownDescription("Exit Slit");
 
+	// End Station Translation
+	endStationTranslationSetpont_ = new AMSinglePVControl("endStationStep", "SMTR16114I1038:step", this, 1.0, 2.0);
+	endStationTranslationSetpont_->setDescription("Step");
+	endStationTranslationFeedback_ = new AMReadOnlyPVControl("endStationFeedback", "ENC16114I1029:raw:cnt:fbk", this);
+	endStationTranslationFeedback_->setDescription("Position");
+
 	// Grating
 	grating_ = new AMPVwStatusControl("grating", "BL1611-ID-1:AddOns:grating", "BL1611-ID-1:AddOns:grating", "SMTR16114I1016:state", "SMTR16114I1016:emergStop", this, 0.1, 2.0, new AMControlStatusCheckerStopped(0));
 	grating_->setDescription("Grating Selection");
@@ -192,6 +208,8 @@ void SGMBeamline::setupBeamlineComponents()
 	connect(energy_, SIGNAL(connected(bool)), this, SLOT(onConnectionStateChanged(bool)));
 	connect(exitSlitGap_ ,SIGNAL(connected(bool)),this, SLOT(onConnectionStateChanged(bool)));
 	connect(exitSlitPosition_, SIGNAL(connected(bool)), this, SLOT(onConnectionStateChanged(bool)));
+	connect(endStationTranslationSetpont_, SIGNAL(connected(bool)), this, SLOT(onConnectionStateChanged(bool)));
+	connect(endStationTranslationFeedback_, SIGNAL(connected(bool)), this, SLOT(onConnectionStateChanged(bool)));
 	connect(grating_, SIGNAL(connected(bool)), this, SLOT(onConnectionStateChanged(bool)));
 	connect(ssaManipulatorX_, SIGNAL(connected(bool)), this, SLOT(onConnectionStateChanged(bool)));
 	connect(ssaManipulatorY_, SIGNAL(connected(bool)), this, SLOT(onConnectionStateChanged(bool)));
@@ -305,3 +323,5 @@ SGMBeamline::SGMBeamline()
 	setupExposedControls();
 	setupExposedDetectors();
 }
+
+

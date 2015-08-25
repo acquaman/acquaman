@@ -21,6 +21,8 @@ void SGMPersistentView::setupUi()
 	energyControlEditor_ = new AMExtendedControlEditor(SGMBeamline::sgm()->energy());
 	exitSlitGapControlEditor_ = new AMExtendedControlEditor(SGMBeamline::sgm()->exitSlitGap());
 	exitSlitPositionControlEditor_ = new AMExtendedControlEditor(SGMBeamline::sgm()->exitSlitPosition());
+	endStationTranslationSetpointControlEditor_ = new AMExtendedControlEditor(SGMBeamline::sgm()->endStationTranslationSetpoint());
+	endStationTranslationFeedbackControlEditor_ = new AMExtendedControlEditor(SGMBeamline::sgm()->endStationTranslationFeedback());
 	gratingSelectionControlEditor_ = new AMExtendedControlEditor(SGMBeamline::sgm()->grating());
 
 	hexapodVelocityControlEditor_ = new AMExtendedControlEditor(SGMBeamline::sgm()->hexapod()->systemVelocity());
@@ -32,7 +34,7 @@ void SGMPersistentView::setupUi()
 
 	QGroupBox* sgmControlsGroupBox = new QGroupBox("SGM Beamline");
 	sgmControlsGroupBox->setFlat(true);
-
+	QGroupBox* endStationGroupBox = new QGroupBox("End Station Translation");
 
 	QVBoxLayout* controlsGroupLayout = new QVBoxLayout();
 
@@ -41,6 +43,12 @@ void SGMPersistentView::setupUi()
 	controlsGroupLayout->addWidget(exitSlitPositionControlEditor_);
 	controlsGroupLayout->addWidget(gratingSelectionControlEditor_);
 	controlsGroupLayout->addWidget(hexapodVelocityControlEditor_);
+	QHBoxLayout* endStationTranslationLayout = new QHBoxLayout();
+
+	endStationTranslationLayout->addWidget(endStationTranslationSetpointControlEditor_);
+	endStationTranslationLayout->addWidget(endStationTranslationFeedbackControlEditor_);
+	endStationGroupBox->setLayout(endStationTranslationLayout);
+	controlsGroupLayout->addWidget(endStationGroupBox);
 	controlsGroupLayout->addWidget(manipulatorsMotorGroupView);
 
 
