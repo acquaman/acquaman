@@ -1,19 +1,24 @@
 #include "BioXASSideCarbonFilterFarm.h"
+#include "beamline/BioXAS/BioXASCarbonFilterFarmActuatorWindowControl.h"
+#include "beamline/BioXAS/BioXASCarbonFilterFarmActuatorFilterThicknessControl.h"
+#include "beamline/BioXAS/BioXASCarbonFilterFarmFilterThicknessControl.h"
 
 BioXASSideCarbonFilterFarm::BioXASSideCarbonFilterFarm(QObject *parent) :
 	BioXASCarbonFilterFarm("SideCarbonFilterFarm", parent)
 {
 	// Create components.
 
-	upstreamPosition_ = new AMPVControl(name_+"UpstreamPosition", "SMTR1607-5-I00-01:mm:fbk", "SMTR1607-5-I00-01:mm:sp", "SMTR1607-5-I00-01:stop", this);
-	upstreamStatus_ = new AMReadOnlyPVControl(name_+"UpstreamStatus", "SMTR1607-5-I00-01:inPosition", this);
-	upstreamActuator_ = new BioXASCarbonFilterFarmActuatorControl(upstreamPosition_, upstreamStatus_, this);
+	upstreamPosition_ = new AMPVControl(name_+"UpstreamActuatorPosition", "SMTR1607-5-I00-01:mm:fbk", "SMTR1607-5-I00-01:mm:sp", "SMTR1607-5-I00-01:stop", this);
+	upstreamStatus_ = new AMReadOnlyPVControl(name_+"UpstreamActuatorStatus", "SMTR1607-5-I00-01:inPosition", this);
+	upstreamActuatorWindow_ = new BioXASCarbonFilterFarmActuatorWindowControl(name_+"UpstreamActuatorWindow", "", upstreamPosition_, upstreamStatus_, this);
+	upstreamActuatorFilterThickness_ = new BioXASCarbonFilterFarmActuatorFilterThicknessControl(name_+"UpstreamActuatorFilterThickness", "mm", upstreamPosition_, upstreamStatus_, this);
 
-	downstreamPosition_ = new AMPVControl(name_+"DownstreamPosition", "SMTR1607-5-I00-02:mm:fbk", "SMTR1607-5-I00-02:mm:sp", "SMTR1607-5-I00-02:stop", this);
-	downstreamStatus_ = new AMReadOnlyPVControl(name_+"DownstreamStatus", "SMTR1607-5-I00-02:inPosition", this);
-	downstreamActuator_ = new BioXASCarbonFilterFarmActuatorControl(downstreamPosition_, downstreamStatus_, this);
+	downstreamPosition_ = new AMPVControl(name_+"DownstreamActuatorPosition", "SMTR1607-5-I00-02:mm:fbk", "SMTR1607-5-I00-02:mm:sp", "SMTR1607-5-I00-02:stop", this);
+	downstreamStatus_ = new AMReadOnlyPVControl(name_+"DownstreamActuatorStatus", "SMTR1607-5-I00-02:inPosition", this);
+	upstreamActuatorWindow_ = new BioXASCarbonFilterFarmActuatorWindowControl(name_+"DownstreamActuatorWindow", "", upstreamPosition_, upstreamStatus_, this);
+	upstreamActuatorFilterThickness_ = new BioXASCarbonFilterFarmActuatorFilterThicknessControl(name_+"DownstreamActuatorFilterThickness", "mm", downstreamPosition_, downstreamStatus_, this);
 
-	filter_ = new BioXASSideCarbonFilterFarmControl(upstreamActuator_, downstreamActuator_, this);
+	filterThickness_ = new BioXASCarbonFilterFarmFilterThicknessControl(name_+"FilterThickness", "mm", upstreamActuatorFilterThickness_, downstreamActuatorFilterThickness_, this);
 
 	// Make connections.
 
@@ -21,18 +26,24 @@ BioXASSideCarbonFilterFarm::BioXASSideCarbonFilterFarm(QObject *parent) :
 
 	// Current settings.
 
-	upstreamActuator_->setWindowPosition(Window::None, BIOXASSIDECARBONFILTERFARM_UPSTREAM_OUT);
-	upstreamActuator_->setWindowPosition(Window::Bottom, BIOXASSIDECARBONFILTERFARM_UPSTREAM_BOTTOM);
-	upstreamActuator_->setWindowPosition(Window::Top, BIOXASSIDECARBONFILTERFARM_UPSTREAM_TOP);
+	upstreamActuatorWindow_->setWindowPosition(Actuator::None, BIOXASSIDECARBONFILTERFARM_UPSTREAM_OUT);
+	upstreamActuator_->setWindowPosition(Actuator::Bottom, BIOXASSIDECARBONFILTERFARM_UPSTREAM_BOTTOM);
+	upstreamActuator_->setWindowPosition(Actuator::Top, BIOXASSIDECARBONFILTERFARM_UPSTREAM_TOP);
 
-	downstreamActuator_->setWindowPosition(Window::None, BIOXASSIDECARBONFILTERFARM_DOWNSTREAM_OUT);
-	downstreamActuator_->setWindowPosition(Window::Bottom, BIOXASSIDECARBONFILTERFARM_DOWNSTREAM_BOTTOM);
-	downstreamActuator_->setWindowPosition(Window::Top, BIOXASSIDECARBONFILTERFARM_DOWNSTREAM_TOP);
+	downstreamActuator_->setWindowPosition(Actuator::None, BIOXASSIDECARBONFILTERFARM_DOWNSTREAM_OUT);
+	downstreamActuator_->setWindowPosition(Actuator::Bottom, BIOXASSIDECARBONFILTERFARM_DOWNSTREAM_BOTTOM);
+	downstreamActuator_->setWindowPosition(Actuator::Top, BIOXASSIDECARBONFILTERFARM_DOWNSTREAM_TOP);
 
-	filter_->setWindowFilter(Actuator::Upstream, Window::Bottom, 50);
-	filter_->setWindowFilter(Actuator::Upstream, Window::Top, 50);
-	filter_->setWindowFilter(Actuator::Downstream, Window::Bottom, 0);
-	filter_->setWindowFilter(Actuator::Downstream, Window::Top, 700);
+	upstreamActuatorFilterThickness_->setWindowFilterThickness(Actuator::Bottom, 50);
+	upstreamActuatorFilterThickness_->setWindowFilterThickness(Actuator::Top, 50);
+
+	downstreamActuatorFilterThickness_->setWindowFilterThickness(Actuator::Bottom, 700);
+	downstreamActuatorFilterThickness_->setWindowFilterThickness(Actuator::Top, 0);
+
+	filterThickness_->setFilterThickness(0, 0, 0);
+	filterThickness_->setFilterThickness(50, 50, 0);
+	filterThickness_->setFilterThickness(700, 0, 700);
+	filterThickness_->setFilterThickness(750, 50, 700);
 
 	updateConnected();
 }

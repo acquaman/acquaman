@@ -1,14 +1,9 @@
 #ifndef BIOXASCARBONFILTERFARMACTUATORCONTROL_H
 #define BIOXASCARBONFILTERFARMACTUATORCONTROL_H
 
-#include <QSignalMapper>
+#include "beamline/BioXAS/BioXASCarbonFilterFarmControl.h"
 
-#include "beamline/AMPVControl.h"
-#include "beamline/AMPseudoMotorControl.h"
-#include "actions3/AMListAction3.h"
-#include "actions3/AMActionSupport.h"
-
-class BioXASCarbonFilterFarmActuatorControl : public AMPseudoMotorControl
+class BioXASCarbonFilterFarmActuatorControl : public BioXASCarbonFilterFarmControl
 {
     Q_OBJECT
 
@@ -17,6 +12,13 @@ public:
 	explicit BioXASCarbonFilterFarmActuatorControl(const QString &name, const QString &units, QObject *parent = 0);
 	/// Destructor.
 	virtual ~BioXASCarbonFilterFarmActuatorControl();
+
+	/// Returns true if this control can measure its value right now. False otherwise.
+	virtual bool canMeasure() const;
+	/// Returns true if this control can move right now. False otherwise.
+	virtual bool canMove() const;
+	/// Returns true if this control can stop a move right now. False otherwise.
+	virtual bool canStop() const;
 
 	/// Returns the position control.
 	AMControl* positionControl() const { return position_; }
@@ -31,9 +33,15 @@ signals:
 
 public slots:
 	/// Sets the position control.
-	void setPositionControl(AMControl *newControl);
+	virtual void setPositionControl(AMControl *newControl);
 	/// Sets the status control.
-	void setStatusControl(AMControl *newControl);
+	virtual void setStatusControl(AMControl *newControl);
+
+protected slots:
+	/// Updates the connected state.
+	virtual void updateConnected();
+	/// Updates the moving state.
+	virtual void updateMoving();
 
 protected:
 	/// The position control.

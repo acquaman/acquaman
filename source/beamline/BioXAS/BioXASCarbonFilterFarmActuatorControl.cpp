@@ -1,9 +1,8 @@
 #include "BioXASCarbonFilterFarmActuatorControl.h"
 #include "beamline/BioXAS/BioXASCarbonFilterFarm.h"
-#include "util/AMErrorMonitor.h"
 
 BioXASCarbonFilterFarmActuatorControl::BioXASCarbonFilterFarmActuatorControl(const QString &name, const QString &units, QObject *parent) :
-	AMPseudoMotorControl(name, units, parent)
+	BioXASCarbonFilterFarmControl(name, units, parent)
 {
 	// Initialize local variables.
 
@@ -16,7 +15,35 @@ BioXASCarbonFilterFarmActuatorControl::~BioXASCarbonFilterFarmActuatorControl()
 
 }
 
+bool BioXASCarbonFilterFarmActuatorControl::canMeasure() const
+{
+	bool result = false;
 
+	if (isConnected())
+		result = position_->canMeasure();
+
+	return result;
+}
+
+bool BioXASCarbonFilterFarmActuatorControl::canMove() const
+{
+	bool result = false;
+
+	if (isConnected())
+		result = position_->canMove();
+
+	return result;
+}
+
+bool BioXASCarbonFilterFarmActuatorControl::canStop() const
+{
+	bool result = false;
+
+	if (isConnected())
+		result = position_->canStop();
+
+	return result;
+}
 
 void BioXASCarbonFilterFarmActuatorControl::setPositionControl(AMControl *newControl)
 {
@@ -31,6 +58,8 @@ void BioXASCarbonFilterFarmActuatorControl::setPositionControl(AMControl *newCon
 		if (position_) {
 			addChildControl(position_);
 		}
+
+		updateStates();
 	}
 }
 
@@ -47,6 +76,23 @@ void BioXASCarbonFilterFarmActuatorControl::setStatusControl(AMControl *newContr
 		if (status_) {
 			addChildControl(status_);
 		}
+
+		updateStates();
 	}
 }
 
+void BioXASCarbonFilterFarmActuatorControl::updateConnected()
+{
+	bool isConnected = (
+				position_ && position_->isConnected() &&
+				status_ && status_->isConnected()
+				);
+
+	setConnected(isConnected);
+}
+
+void BioXASCarbonFilterFarmActuatorControl::updateMoving()
+{
+	if (isConnected())
+		setIsMoving(position_->isMoving());
+}

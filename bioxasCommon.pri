@@ -62,7 +62,9 @@ HEADERS += \
     source/beamline/BioXAS/BioXASDBHRMirrors.h \
 	source/ui/BioXAS/BioXASDBHRMirrorsView.h \
     source/beamline/BioXAS/BioXASCarbonFilterFarmActuator.h \
-    source/beamline/BioXAS/BioXASCarbonFilterFarmActuatorWindowControl.h
+    source/beamline/BioXAS/BioXASCarbonFilterFarmActuatorWindowControl.h \
+    source/beamline/BioXAS/BioXASCarbonFilterFarmFilterThicknessControl.h \
+    source/beamline/BioXAS/BioXASCarbonFilterFarmActuatorFilterThicknessControl.h
 
 SOURCES += \
 	source/acquaman/BioXAS/BioXASXRFScanConfiguration.cpp \
@@ -119,7 +121,17 @@ SOURCES += \
     source/beamline/BioXAS/BioXASDBHRMirrors.cpp \
 	source/ui/BioXAS/BioXASDBHRMirrorsView.cpp \
     source/beamline/BioXAS/BioXASCarbonFilterFarmActuator.cpp \
-    source/beamline/BioXAS/BioXASCarbonFilterFarmActuatorWindowControl.cpp
+    source/beamline/BioXAS/BioXASCarbonFilterFarmActuatorWindowControl.cpp \
+    source/beamline/BioXAS/BioXASCarbonFilterFarmFilterThicknessControl.cpp \
+    source/beamline/BioXAS/BioXASCarbonFilterFarmActuatorFilterThicknessControl.cpp
+
+
+
+
+
+
+
+
 
 
 
