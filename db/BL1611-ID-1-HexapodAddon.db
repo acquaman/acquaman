@@ -56,54 +56,6 @@ record( ao, "HXPD1611-4-I10-01:trajectory:reset" )
 	field( VAL, "0" )
 	field( MDEL, "-1" )
 }
-record( ao, "HXPD1611-4-I10-01:X:mm" )
-{
-	field( VAL, "0" )
-	field( DRVH, "17.0001" )
-	field( DRVL, "-17.0001" )
-	field( EGU, "mm" )
-	field( MDEL, "-1" )
-}
-record( ao, "HXPD1611-4-I10-01:Y:mm" )
-{
-	field( VAL, "0" )
-	field( DRVH, "16.0001" )
-	field( DRVL, "-16.0001" )
-	field( EGU, "mm" )
-	field( MDEL, "-1" )
-}
-record( ao, "HXPD1611-4-I10-01:Z:mm" )
-{
-	field( VAL, "0" )
-	field( DRVH, "6.5001" )
-	field( DRVL, "-6.5001" )
-	field( EGU, "mm" )
-	field( MDEL, "-1" )
-}
-record( ao, "HXPD1611-4-I10-01:U:deg" )
-{
-	field( VAL, "0" )
-	field( DRVH, "10.0001" )
-	field( DRVL, "-10.0001" )
-	field( EGU, "deg" )
-	field( MDEL, "-1" )
-}
-record( ao, "HXPD1611-4-I10-01:V:deg" )
-{
-	field( VAL, "0" )
-	field( DRVH, "10.0001" )
-	field( DRVL, "-10.0001" )
-	field( EGU, "deg" )
-	field( MDEL, "-1" )
-}
-record( ao, "HXPD1611-4-I10-01:W:deg" )
-{
-	field( VAL, "0" )
-	field( DRVH, "21.0001" )
-	field( DRVL, "-21.0001" )
-	field( EGU, "deg" )
-	field( MDEL, "-1" )
-}
 record( ao, "HXPD1611-4-I10-01:X:mm:fbk" )
 {
 	field( VAL, "0" )

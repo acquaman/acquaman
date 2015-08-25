@@ -3,52 +3,103 @@
 #include "beamline/AMPVControl.h"
 #include "beamline/SGM/SGMMAXvMotor.h"
 #include "beamline/AM3DRotatedSystemPseudoMotorControl.h"
+#include "beamline/SGM/SGMHexapodTransformedAxis.h"
 SGMHexapod::SGMHexapod(QObject *parent) :
     QObject(parent)
 {
-	xAxis_ = new AMPVwStatusControl("Hexapod X", "HXPD1611-4-I10-01:X:mm:fbk", "HXPD1611-4-I10-01:X:mm", "HXPD1611-4-I10-01:X:status", "HXPD1611-4-I10-01:stop",this, 0.01, 2.0, new CLSMAXvControlStatusChecker());
-	yAxis_ = new AMPVwStatusControl("Hexapod Y", "HXPD1611-4-I10-01:Y:mm:fbk", "HXPD1611-4-I10-01:Y:mm", "HXPD1611-4-I10-01:Y:status", "HXPD1611-4-I10-01:stop",this, 0.01, 2.0, new CLSMAXvControlStatusChecker());
-	zAxis_ = new AMPVwStatusControl("Hexapod Z", "HXPD1611-4-I10-01:Z:mm:fbk", "HXPD1611-4-I10-01:Z:mm", "HXPD1611-4-I10-01:Z:status", "HXPD1611-4-I10-01:stop",this, 0.01, 2.0, new CLSMAXvControlStatusChecker());
-	uAxis_ = new AMPVwStatusControl("Hexapod U", "HXPD1611-4-I10-01:U:deg:fbk", "HXPD1611-4-I10-01:U:deg", "HXPD1611-4-I10-01:U:status", "HXPD1611-4-I10-01:stop", this, 0.01, 2.0, new CLSMAXvControlStatusChecker());
-	vAxis_ = new AMPVwStatusControl("Hexapod V", "HXPD1611-4-I10-01:V:deg:fbk", "HXPD1611-4-I10-01:V:deg", "HXPD1611-4-I10-01:V:status", "HXPD1611-4-I10-01:stop", this, 0.01, 2.0, new CLSMAXvControlStatusChecker());
-	wAxis_ = new AMPVwStatusControl("Hexapod W", "HXPD1611-4-I10-01:W:deg:fbk", "HXPD1611-4-I10-01:W:deg", "HXPD1611-4-I10-01:W:status", "HXPD1611-4-I10-01:stop", this, 0.01, 2.0, new CLSMAXvControlStatusChecker());
+	AMControl* globalXAxisSetpoint = new AMSinglePVControl("Hexapod Global X Axis", "HXPD1611-4-I10-01:trajectory:X:mm", this, 0.01, 2.0);
+	AMControl* globalYAxisSetpoint = new AMSinglePVControl("Hexapod Global Y Axis", "HXPD1611-4-I10-01:trajectory:Y:mm", this, 0.01, 2.0);
+	AMControl* globalZAxisSetpoint = new AMSinglePVControl("Hexapod Global Z Axis", "HXPD1611-4-I10-01:trajectory:Z:mm", this, 0.01, 2.0);
+
+	AMControl* globalXAxisFeedback = new AMReadOnlyPVwStatusControl("Hexapod Global X Axis Feedback", "HXPD1611-4-I10-01:X:mm:fbk", "HXPD1611-4-I10-01:X:status",this, new CLSMAXvControlStatusChecker());
+	AMControl* globalYAxisFeedback = new AMReadOnlyPVwStatusControl("Hexapod Global Y Axis Feedback", "HXPD1611-4-I10-01:Y:mm:fbk", "HXPD1611-4-I10-01:Y:status",this, new CLSMAXvControlStatusChecker());
+	AMControl* globalZAxisFeedback = new AMReadOnlyPVwStatusControl("Hexapod Global Z Axis Feedback", "HXPD1611-4-I10-01:Z:mm:fbk", "HXPD1611-4-I10-01:Z:status",this, new CLSMAXvControlStatusChecker());
+
+
+
+	trajectoryStart_ = new AMSinglePVControl("Hexapod Trajectory Move Start", "HXPD1611-4-I10-01:trajectory:start", this, 0.5);
+	trajectoryReset_ = new AMSinglePVControl("Hexapod Trajectory Reset", "HXPD1611-4-I10-01:trajectory:reset", this, 0.5);
 
 	systemVelocity_ = new AMPVControl("Hexapod Velocity", "HXPD1611-4-I10-01:velocity:fbk", "HXPD1611-4-I10-01:velocity",QString(), this, 0.001, 2.0);
 	stopAll_ = new AMSinglePVControl("Hexapod Stop", "HXPD1611-4-I10-01:stop", this, 0.5);
 
-	xAxisTrajectorySetpoint_ = new AMSinglePVControl("Hexapod X Trajectory Setpoint", "HXPD1611-4-I10-01:trajectory:X:mm", this, 0.01);
-	yAxisTrajectorySetpoint_ = new AMSinglePVControl("Hexapod Y Trajectory Setpoint", "HXPD1611-4-I10-01:trajectory:Y:mm", this, 0.01);
-	zAxisTrajectorySetpoint_ = new AMSinglePVControl("Hexapod Z Trajectory Setpoint", "HXPD1611-4-I10-01:trajectory:Z:mm", this, 0.01);
-	uAxisTrajectorySetpoint_ = new AMSinglePVControl("Hexapod U Trajectory Setpoint", "HXPD1611-4-I10-01:trajectory:U:deg", this, 0.01);
-	vAxisTrajectorySetpoint_ = new AMSinglePVControl("Hexapod V Trajectory Setpoint", "HXPD1611-4-I10-01:trajectory:V:deg", this, 0.01);
-	wAxisTrajectorySetpoint_ = new AMSinglePVControl("Hexapod W Trajectory Setpoint", "HXPD1611-4-I10-01:trajectory:W:deg", this, 0.01);
-	trajectoryStart_ = new AMSinglePVControl("Hexapod Trajectory Move Start", "HXPD1611-4-I10-01:trajectory:start", this, 0.5);
-	trajectoryReset_ = new AMSinglePVControl("Hexapod Trajectory Reset", "HXPD1611-4-I10-01:trajectory:reset", this, 0.5);
+	xAxisPrimeControl_ = new SGMHexapodTransformedAxis(AM3DMotionPseudoMotorControl::XAxis,
+													   globalXAxisSetpoint,
+													   globalXAxisFeedback,
+													   globalYAxisSetpoint,
+													   globalYAxisFeedback,
+													   globalZAxisSetpoint,
+													   globalZAxisFeedback,
+													   trajectoryStart_,
+													   "Hexapod X Axis Prime",
+													   "mm",
+													   this);
 
-	xPrime_ = new AM3DRotatedSystemPseudoMotorControl(AM3DMotionPseudoMotorControl::XAxis,
-									new AMPVwStatusControl("Hexapod X", "HXPD1611-4-I10-01:X:mm:fbk", "HXPD1611-4-I10-01:trajectory:X:mm", "HXPD1611-4-I10-01:X:status", "HXPD1611-4-I10-01:stop", this, 0.01, 2.0, new CLSMAXvControlStatusChecker()),
-									new AMPVwStatusControl("Hexapod X", "HXPD1611-4-I10-01:X:mm:fbk", "HXPD1611-4-I10-01:trajectory:X:mm", "HXPD1611-4-I10-01:X:status", "HXPD1611-4-I10-01:stop", this, 0.01, 2.0, new CLSMAXvControlStatusChecker()),
-									new AMPVwStatusControl("Hexapod X", "HXPD1611-4-I10-01:X:mm:fbk", "HXPD1611-4-I10-01:trajectory:X:mm", "HXPD1611-4-I10-01:X:status", "HXPD1611-4-I10-01:stop", this, 0.01, 2.0, new CLSMAXvControlStatusChecker()),
-									"X Axis Prime",
-									"mm", this);
+	yAxisPrimeControl_ = new SGMHexapodTransformedAxis(AM3DMotionPseudoMotorControl::YAxis,
+													   globalXAxisSetpoint,
+													   globalXAxisFeedback,
+													   globalYAxisSetpoint,
+													   globalYAxisFeedback,
+													   globalZAxisSetpoint,
+													   globalZAxisFeedback,
+													   trajectoryStart_,
+													   "Hexapod Y Axis Prime",
+													   "mm",
+													   this);
+
+	zAxisPrimeControl_ = new SGMHexapodTransformedAxis(AM3DMotionPseudoMotorControl::ZAxis,
+													   globalXAxisSetpoint,
+													   globalXAxisFeedback,
+													   globalYAxisSetpoint,
+													   globalYAxisFeedback,
+													   globalZAxisSetpoint,
+													   globalZAxisFeedback,
+													   trajectoryStart_,
+													   "Hexapod Z Axis Prime",
+													   "mm",
+													   this);
+
+	xAxisPrimeTrajectoryControl_ = new AM3DRotatedSystemPseudoMotorControl(AM3DMotionPseudoMotorControl::XAxis,
+																		   globalXAxisSetpoint,
+																		   globalYAxisSetpoint,
+																		   globalZAxisSetpoint,
+																		   "Hexapod Trajectory X Axis Prime",
+																		   "mm",
+																		   this);
+
+	yAxisPrimeTrajectoryControl_ = new AM3DRotatedSystemPseudoMotorControl(AM3DMotionPseudoMotorControl::YAxis,
+																		   globalXAxisSetpoint,
+																		   globalYAxisSetpoint,
+																		   globalZAxisSetpoint,
+																		   "Hexapod Trajectory Y Axis Prime",
+																		   "mm",
+																		   this);
+
+	zAxisPrimeTrajectoryControl_ = new AM3DRotatedSystemPseudoMotorControl(AM3DMotionPseudoMotorControl::ZAxis,
+																		   globalXAxisSetpoint,
+																		   globalYAxisSetpoint,
+																		   globalZAxisSetpoint,
+																		   "Hexapod Trajectory Z Axis Prime",
+																		   "mm",
+																		   this);
+
+
+
+
+
 
 	allControls_ = new AMControlSet(this);
-	allControls_->addControl(xAxis_);
-	allControls_->addControl(yAxis_);
-	allControls_->addControl(zAxis_);
-	allControls_->addControl(uAxis_);
-	allControls_->addControl(vAxis_);
-	allControls_->addControl(wAxis_);
+	allControls_->addControl(xAxisPrimeControl_);
+	allControls_->addControl(yAxisPrimeControl_);
+	allControls_->addControl(zAxisPrimeControl_);
 
 	allControls_->addControl(systemVelocity_);
 	allControls_->addControl(stopAll_);
 
-	allControls_->addControl(xAxisTrajectorySetpoint_);
-	allControls_->addControl(yAxisTrajectorySetpoint_);
-	allControls_->addControl(zAxisTrajectorySetpoint_);
-	allControls_->addControl(uAxisTrajectorySetpoint_);
-	allControls_->addControl(vAxisTrajectorySetpoint_);
-	allControls_->addControl(wAxisTrajectorySetpoint_);
+	allControls_->addControl(xAxisPrimeTrajectoryControl_);
+	allControls_->addControl(yAxisPrimeTrajectoryControl_);
+	allControls_->addControl(zAxisPrimeTrajectoryControl_);
+
 	allControls_->addControl(trajectoryStart_);
 	allControls_->addControl(trajectoryReset_);
 
@@ -61,40 +112,36 @@ bool SGMHexapod::isConnected()
 }
 
 
-AMControl * SGMHexapod::xPrime() const
+AMControl * SGMHexapod::xAxisPrimeControl() const
 {
-	return xPrime_;
+	return xAxisPrimeControl_;
 }
 
-AMControl * SGMHexapod::xAxis() const
+AMControl * SGMHexapod::yAxisPrimeControl() const
 {
-	return xAxis_;
+	return yAxisPrimeControl_;
 }
 
-AMControl * SGMHexapod::yAxis() const
+AMControl * SGMHexapod::zAxisPrimeControl() const
 {
-	return yAxis_;
+	return zAxisPrimeControl_;
 }
 
-AMControl * SGMHexapod::zAxis() const
+AMControl * SGMHexapod::xAxisPrimeTrajectoryControl() const
 {
-	return zAxis_;
+	return xAxisPrimeTrajectoryControl_;
 }
 
-AMControl * SGMHexapod::uAxis() const
+AMControl * SGMHexapod::yAxisPrimeTrajectoryControl() const
 {
-	return uAxis_;
+	return yAxisPrimeTrajectoryControl_;
 }
 
-AMControl * SGMHexapod::vAxis() const
+AMControl * SGMHexapod::zAxisPrimeTrajectoryControl() const
 {
-	return vAxis_;
+	return zAxisPrimeTrajectoryControl_;
 }
 
-AMControl * SGMHexapod::wAxis() const
-{
-	return wAxis_;
-}
 
 AMControl * SGMHexapod::systemVelocity() const
 {
@@ -106,36 +153,6 @@ AMControl * SGMHexapod::stopAll() const
 	return stopAll_;
 }
 
-AMControl * SGMHexapod::xAxisTrajectorySetpoint() const
-{
-	return xAxisTrajectorySetpoint_;
-}
-
-AMControl * SGMHexapod::yAxisTrajectorySetpoint() const
-{
-	return yAxisTrajectorySetpoint_;
-}
-
-AMControl * SGMHexapod::zAxisTrajectorySetpoint() const
-{
-	return zAxisTrajectorySetpoint_;
-}
-
-AMControl * SGMHexapod::uAxisTrajectorySetpoint() const
-{
-	return uAxisTrajectorySetpoint_;
-}
-
-AMControl * SGMHexapod::vAxisTrajectorySetpoint() const
-{
-	return vAxisTrajectorySetpoint_;
-}
-
-AMControl * SGMHexapod::wAxisTrajectorySetpoint() const
-{
-	return wAxisTrajectorySetpoint_;
-}
-
 AMControl * SGMHexapod::trajectoryStart() const
 {
 	return trajectoryStart_;
@@ -145,6 +162,3 @@ AMControl * SGMHexapod::trajectoryReset() const
 {
 	return trajectoryReset_;
 }
-
-
-

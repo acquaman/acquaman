@@ -1,5 +1,5 @@
 #include "AMPIC887TrajectoryCoordinator.h"
-
+#include "AMPIC887Controller.h"
 #include <QDebug>
 AMPIC887TrajectoryCoordinator::AMPIC887TrajectoryCoordinator(const AMPIC887AxisMap<double>& initialTargets,
 															 QObject *parent) :
@@ -15,12 +15,12 @@ AMPIC887TrajectoryCoordinator::AMPIC887TrajectoryCoordinator(const AMPIC887AxisM
 	vIsSet_ = false;
 	wIsSet_ = false;
 
-	xAxisTrajectorySetpoint_ = new AMSinglePVControl("HexapodTrajectoryXSetpoint", "HXPD1611-4-I10-01:trajectory:X:mm", this, 0.001);
-	yAxisTrajectorySetpoint_ = new AMSinglePVControl("HexapodTrajectoryYSetpoint", "HXPD1611-4-I10-01:trajectory:Y:mm", this, 0.001);
-	zAxisTrajectorySetpoint_ = new AMSinglePVControl("HexapodTrajectoryZSetpoint", "HXPD1611-4-I10-01:trajectory:Z:mm", this, 0.001);
-	uAxisTrajectorySetpoint_ = new AMSinglePVControl("HexapodTrajectoryUSetpoint", "HXPD1611-4-I10-01:trajectory:U:deg", this, 0.001);
-	vAxisTrajectorySetpoint_ = new AMSinglePVControl("HexapodTrajectoryVSetpoint", "HXPD1611-4-I10-01:trajectory:V:deg", this, 0.001);
-	wAxisTrajectorySetpoint_ = new AMSinglePVControl("HexapodTrajectoryWSetpoint", "HXPD1611-4-I10-01:trajectory:W:deg", this, 0.001);
+	xAxisTrajectorySetpoint_ = new AMSinglePVControl("HexapodTrajectoryXSetpoint", "HXPD1611-4-I10-01:trajectory:X:mm", this, AXIS_POSITION_TOLERANCE);
+	yAxisTrajectorySetpoint_ = new AMSinglePVControl("HexapodTrajectoryYSetpoint", "HXPD1611-4-I10-01:trajectory:Y:mm", this, AXIS_POSITION_TOLERANCE);
+	zAxisTrajectorySetpoint_ = new AMSinglePVControl("HexapodTrajectoryZSetpoint", "HXPD1611-4-I10-01:trajectory:Z:mm", this, AXIS_POSITION_TOLERANCE);
+	uAxisTrajectorySetpoint_ = new AMSinglePVControl("HexapodTrajectoryUSetpoint", "HXPD1611-4-I10-01:trajectory:U:deg", this, AXIS_POSITION_TOLERANCE);
+	vAxisTrajectorySetpoint_ = new AMSinglePVControl("HexapodTrajectoryVSetpoint", "HXPD1611-4-I10-01:trajectory:V:deg", this, AXIS_POSITION_TOLERANCE);
+	wAxisTrajectorySetpoint_ = new AMSinglePVControl("HexapodTrajectoryWSetpoint", "HXPD1611-4-I10-01:trajectory:W:deg", this, AXIS_POSITION_TOLERANCE);
 	trajectoryStartMove_ = new AMSinglePVControl("HexapodTrajectoryStart", "HXPD1611-4-I10-01:trajectory:start", this, 0.5);
 	trajectoryReset_ = new AMSinglePVControl("HexapodTrajectoryReset", "HXPD1611-4-I10-01:trajectory:reset", this, 0.5);
 

@@ -3,7 +3,6 @@
 #include "actions3/AMActionSupport.h"
 
 
-#include <QDebug>
 AM3DMotionPseudoMotorControl::AM3DMotionPseudoMotorControl(AxisDesignation axis,
 														   AMControl* globalXAxis,
 														   AMControl* globalYAxis,
@@ -165,35 +164,46 @@ void AM3DMotionPseudoMotorControl::updateSetpoint()
 
 bool AM3DMotionPseudoMotorControl::affectedByMotionsInX() const
 {
-	QVector3D globalXMotionVector(10, 0, 0);
-	QVector3D primeXMotionVector = globalAxisToPrime(globalXMotionVector);
+	QVector3D testStartPrimePosition(0,0,0);
+	QVector3D testGlobalPosition = primeAxisToGlobal(testStartPrimePosition);
 
-	double thisAxisValue = designatedAxisValue(primeXMotionVector);
+	testGlobalPosition.setX(1);
+	QVector3D testEndPrimePosition = globalAxisToPrime(testGlobalPosition);
 
-	return (qAbs(thisAxisValue) > 0.0001);
+	double thisAxisStartPosition = designatedAxisValue(testStartPrimePosition);
+	double thisAxisEndPosition = designatedAxisValue(testEndPrimePosition);
+
+	return (qAbs(thisAxisStartPosition - thisAxisEndPosition) > 0.0001);
 
 }
 
 bool AM3DMotionPseudoMotorControl::affectedByMotionsInY() const
 {
+	QVector3D testStartPrimePosition(0,0,0);
+	QVector3D testGlobalPosition = primeAxisToGlobal(testStartPrimePosition);
 
-	QVector3D globalYMotionVector(0, 10, 0);
-	QVector3D primeYMotionVector = globalAxisToPrime(globalYMotionVector);
+	testGlobalPosition.setY(1);
+	QVector3D testEndPrimePosition = globalAxisToPrime(testGlobalPosition);
 
-	double thisAxisValue = designatedAxisValue(primeYMotionVector);
+	double thisAxisStartPosition = designatedAxisValue(testStartPrimePosition);
+	double thisAxisEndPosition = designatedAxisValue(testEndPrimePosition);
 
-	return (qAbs(thisAxisValue) > 0.0001);
+	return (qAbs(thisAxisStartPosition - thisAxisEndPosition) > 0.0001);
 }
 
 bool AM3DMotionPseudoMotorControl::affectedByMotionsInZ() const
 {
 
-	QVector3D globalZMotionVector(0, 0, 10);
-	QVector3D primeZMotionVector = globalAxisToPrime(globalZMotionVector);
+	QVector3D testStartPrimePosition(0,0,0);
+	QVector3D testGlobalPosition = primeAxisToGlobal(testStartPrimePosition);
 
-	double thisAxisValue = designatedAxisValue(primeZMotionVector);
+	testGlobalPosition.setZ(1);
+	QVector3D testEndPrimePosition = globalAxisToPrime(testGlobalPosition);
 
-	return (qAbs(thisAxisValue) > 0.0001);
+	double thisAxisStartPosition = designatedAxisValue(testStartPrimePosition);
+	double thisAxisEndPosition = designatedAxisValue(testEndPrimePosition);
+
+	return (qAbs(thisAxisStartPosition - thisAxisEndPosition) > 0.0001);
 }
 
 AMAction3 * AM3DMotionPseudoMotorControl::createMoveAction(double setpoint)
@@ -228,15 +238,15 @@ AMAction3 * AM3DMotionPseudoMotorControl::createMoveAction(double setpoint)
 		QVector3D newGlobalSetpoints = primeAxisToGlobal(primeSetpoint);
 
 		// Create the required move actions in the global system:
-		if(qAbs(globalXAxis_->setpoint() - newGlobalSetpoints.x()) < tolerance()) {
+		if(qAbs(globalXAxis_->setpoint() - newGlobalSetpoints.x()) > tolerance()) {
 			action->addSubAction(AMActionSupport::buildControlMoveAction(globalXAxis_, newGlobalSetpoints.x()));
 		}
 
-		if(qAbs(globalYAxis_->setpoint() - newGlobalSetpoints.y()) < tolerance()) {
+		if(qAbs(globalYAxis_->setpoint() - newGlobalSetpoints.y()) > tolerance()) {
 			action->addSubAction(AMActionSupport::buildControlMoveAction(globalYAxis_, newGlobalSetpoints.y()));
 		}
 
-		if(qAbs(globalZAxis_->setpoint() - newGlobalSetpoints.z()) < tolerance()) {
+		if(qAbs(globalZAxis_->setpoint() - newGlobalSetpoints.z()) > tolerance()) {
 			action->addSubAction(AMActionSupport::buildControlMoveAction(globalZAxis_, newGlobalSetpoints.z()));
 		}
 

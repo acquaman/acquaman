@@ -82,60 +82,6 @@ protected slots:
 	void onMotionFailed(AMGCS2::AxisMovementStatuses movementStatuses);
 
 	/*!
-	  * Slot which handles a value being pushed to the X Axis setpoint PV. Passes
-	  * the movement request to the controller in order that it can attempt to
-	  * begin the move.
-	  * \param setpoint ~ The position value which has been pushed onto the setpoint
-	  * PV.
-	  */
-	void onXAxisSetpointChanged(double setpoint);
-
-	/*!
-	  * Slot which handles a value being pushed to the Y Axis setpoint PV. Passes
-	  * the movement request to the controller in order that it can attempt to
-	  * begin the move.
-	  * \param setpoint ~ The position value which has been pushed onto the setpoint
-	  * PV.
-	  */
-	void onYAxisSetpointChanged(double setpoint);
-
-	/*!
-	  * Slot which handles a value being pushed to the Z Axis setpoint PV. Passes
-	  * the movement request to the controller in order that it can attempt to
-	  * begin the move.
-	  * \param setpoint ~ The position value which has been pushed onto the setpoint
-	  * PV.
-	  */
-	void onZAxisSetpointChanged(double setpoint);
-
-	/*!
-	  * Slot which handles a value being pushed to the U Axis setpoint PV. Passes
-	  * the movement request to the controller in order that it can attempt to
-	  * begin the move.
-	  * \param setpoint ~ The position value which has been pushed onto the setpoint
-	  * PV.
-	  */
-	void onUAxisSetpointChanged(double setpoint);
-
-	/*!
-	  * Slot which handles a value being pushed to the V Axis setpoint PV. Passes
-	  * the movement request to the controller in order that it can attempt to
-	  * begin the move.
-	  * \param setpoint ~ The position value which has been pushed onto the setpoint
-	  * PV.
-	  */
-	void onVAxisSetpointChanged(double setpoint);
-
-	/*!
-	  * Slot which handles a value being pushed to the W Axis setpoint PV. Passes
-	  * the movement request to the controller in order that it can attempt to
-	  * begin the move.
-	  * \param setpoint ~ The position value which was pushed onto the setpoint
-	  * PV.
-	  */
-	void onWAxisSetpointChanged(double setpoint);
-
-	/*!
 	  * Slot which handles a value being pushed to the system velocity setpoint
 	  * PV. Passes the request to alter the system velocity on to the controller.
 	  * \param value ~ The velocity value which was pushed onto the setpoint PV.
@@ -166,40 +112,22 @@ protected:
 	AMControlSet* allControls_;
 
 	AMControl* xAxisFeedback_;
-	AMControl* xAxisSetpoint_;
 	AMControl* xAxisStatus_;
-	AMControl* xAxisDriveHigh_;
-	AMControl* xAxisDriveLow_;
 
 	AMControl* yAxisFeedback_;
-	AMControl* yAxisSetpoint_;
 	AMControl* yAxisStatus_;
-	AMControl* yAxisDriveHigh_;
-	AMControl* yAxisDriveLow_;
 
 	AMControl* zAxisFeedback_;
-	AMControl* zAxisSetpoint_;
 	AMControl* zAxisStatus_;
-	AMControl* zAxisDriveHigh_;
-	AMControl* zAxisDriveLow_;
 
 	AMControl* uAxisFeedback_;
-	AMControl* uAxisSetpoint_;
 	AMControl* uAxisStatus_;
-	AMControl* uAxisDriveHigh_;
-	AMControl* uAxisDriveLow_;
 
 	AMControl* vAxisFeedback_;
-	AMControl* vAxisSetpoint_;
 	AMControl* vAxisStatus_;
-	AMControl* vAxisDriveHigh_;
-	AMControl* vAxisDriveLow_;
 
 	AMControl* wAxisFeedback_;
-	AMControl* wAxisSetpoint_;
 	AMControl* wAxisStatus_;
-	AMControl* wAxisDriveHigh_;
-	AMControl* wAxisDriveLow_;
 
 	AMControl* systemVelocityFeedback_;
 	AMControl* systemVelocitySetpoint_;

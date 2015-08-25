@@ -55,7 +55,7 @@ public:
 	AM3DMotionPseudoMotorControl(AxisDesignation axis,
 								 AMControl* globalXAxis,
 								 AMControl* globalYAxis,
-								 AMControl* globalZAxis,
+								 AMControl* globalZAxis,								 
 								 const QString &name,
 								 const QString &units,
 								 QObject *parent = 0,
@@ -177,7 +177,7 @@ protected:
 	  * \param globalVector ~ A vector in the global coordinate system which will
 	  * be tranformed into the arbitrary transformed system.
 	  */
-	virtual QVector3D globalAxisToPrime(const QVector3D& globalVector) const = 0;
+	virtual QVector3D globalAxisToPrime(const QVector3D& globalVector) const {return globalVector;}
 
 	/*!
 	  * Virtual funciton which performs the calculation required to transform a
@@ -185,7 +185,7 @@ protected:
 	  * \param primeVector ~ A vector in the arbitrary coordinate system which
 	  * will be transformed into the global system.
 	  */
-	virtual QVector3D primeAxisToGlobal(const QVector3D& primeVector) const = 0;
+	virtual QVector3D primeAxisToGlobal(const QVector3D& primeVector) const { return primeVector;}
 
 	/*!
 	  * Helper funciton which extracts the value from a vector which relates to

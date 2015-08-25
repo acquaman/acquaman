@@ -28,37 +28,17 @@ public:
 	  */
 	bool isConnected();
 
-	AMControl* xPrime() const;
+	AMControl* xAxisPrimeControl() const;
 
-	/*!
-	  * The main x Axis Control.
-	  */
-	AMControl* xAxis() const;
+	AMControl* yAxisPrimeControl() const;
 
-	/*!
-	  * The main y Axis Control.
-	  */
-	AMControl* yAxis() const;
+	AMControl* zAxisPrimeControl() const;
 
-	/*!
-	  * The main z Axis Control.
-	  */
-	AMControl* zAxis() const;
+	AMControl* xAxisPrimeTrajectoryControl() const;
 
-	/*!
-	  * The main u Axis Control.
-	  */
-	AMControl* uAxis() const;
+	AMControl* yAxisPrimeTrajectoryControl() const;
 
-	/*!
-	  * The main v Axis Control.
-	  */
-	AMControl* vAxis() const;
-
-	/*!
-	  * The main w Axis Control.
-	  */
-	AMControl* wAxis() const;
+	AMControl* zAxisPrimeTrajectoryControl() const;
 
 	/*!
 	  * The system velocity Control.
@@ -69,36 +49,6 @@ public:
 	  * The stop all Control.
 	  */
 	AMControl* stopAll() const;
-
-	/*!
-	  * The x Axis trajectory setpoint control
-	  */
-	AMControl* xAxisTrajectorySetpoint() const;
-
-	/*!
-	  * The y Axis trajectory setpoint control
-	  */
-	AMControl* yAxisTrajectorySetpoint() const;
-
-	/*!
-	  * The z Axis trajectory setpoint control
-	  */
-	AMControl* zAxisTrajectorySetpoint() const;
-
-	/*!
-	  * The u Axis trajectory setpoint control
-	  */
-	AMControl* uAxisTrajectorySetpoint() const;
-
-	/*!
-	  * The v Axis trajectory setpoint control
-	  */
-	AMControl* vAxisTrajectorySetpoint() const;
-
-	/*!
-	  * The w Axis trajectory setpoint control
-	  */
-	AMControl* wAxisTrajectorySetpoint() const;
 
 	/*!
 	  * The trajectory move start control.
@@ -119,26 +69,20 @@ signals:
 	  */
 	void connected(bool connected);
 public slots:
-
 protected:
-	AMControl* xPrime_;
 
-	AMControl* xAxis_;
-	AMControl* yAxis_;
-	AMControl* zAxis_;
-	AMControl* uAxis_;
-	AMControl* vAxis_;
-	AMControl* wAxis_;
+	AMControl* xAxisPrimeControl_;
+	AMControl* yAxisPrimeControl_;
+	AMControl* zAxisPrimeControl_;
+
+	AMControl* xAxisPrimeTrajectoryControl_;
+	AMControl* yAxisPrimeTrajectoryControl_;
+	AMControl* zAxisPrimeTrajectoryControl_;
 
 	AMControl* systemVelocity_;
 	AMControl* stopAll_;
 
-	AMControl* xAxisTrajectorySetpoint_;
-	AMControl* yAxisTrajectorySetpoint_;
-	AMControl* zAxisTrajectorySetpoint_;
-	AMControl* uAxisTrajectorySetpoint_;
-	AMControl* vAxisTrajectorySetpoint_;
-	AMControl* wAxisTrajectorySetpoint_;
+
 	AMControl* trajectoryStart_;
 	AMControl* trajectoryReset_;
 

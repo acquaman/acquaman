@@ -28,7 +28,7 @@ public:
 	virtual ~SGMHexapodTrajectoryView() {}
 signals:
 
-public slots:
+protected slots:
 
 	/*!
 	  * Handles signals indicating that the hexapod controls have all been connected
@@ -160,16 +160,16 @@ protected:
 	QLabel* xSetpointLabel_;
 	QLabel* ySetpointLabel_;
 	QLabel* zSetpointLabel_;
-	QLabel* uSetpointLabel_;
-	QLabel* vSetpointLabel_;
-	QLabel* wSetpointLabel_;
+//	QLabel* uSetpointLabel_;
+//	QLabel* vSetpointLabel_;
+//	QLabel* wSetpointLabel_;
 
 	QDoubleSpinBox* xSetpointSpinbox_;
 	QDoubleSpinBox* ySetpointSpinbox_;
 	QDoubleSpinBox* zSetpointSpinbox_;
-	QDoubleSpinBox* uSetpointSpinbox_;
-	QDoubleSpinBox* vSetpointSpinbox_;
-	QDoubleSpinBox* wSetpointSpinbox_;
+//	QDoubleSpinBox* uSetpointSpinbox_;
+//	QDoubleSpinBox* vSetpointSpinbox_;
+//	QDoubleSpinBox* wSetpointSpinbox_;
 
 	QPushButton* moveButton_;
 	QPushButton* resetButton_;

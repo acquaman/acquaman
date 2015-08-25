@@ -222,23 +222,15 @@ void SGMBeamline::setupMotorGroups()
 	groupObject = new AMMotorGroupObject("Hexapod Manipulator", this);
 
 	groupObject->setDirectionAxis(AMMotorGroupObject::HorizontalMotion,
-								  "X", hexapod_->xAxis(),
-								  "U", hexapod_->uAxis());
+								  "X", hexapod_->xAxisPrimeControl(),
+								  "", 0);
 
 	groupObject->setDirectionAxis(AMMotorGroupObject::VerticalMotion,
-								  "Y", hexapod_->yAxis(),
-								  "V", hexapod_->vAxis());
+								  "Y", hexapod_->yAxisPrimeControl(),
+								  "", 0);
 
 	groupObject->setDirectionAxis(AMMotorGroupObject::NormalMotion,
-								  "Z", hexapod_->zAxis(),
-								  "W", hexapod_->wAxis());
-
-	sampleManipulatorsMotorGroup_->addMotorGroupObject(groupObject);
-
-	groupObject = new AMMotorGroupObject("TEST", this);
-
-	groupObject->setDirectionAxis(AMMotorGroupObject::HorizontalMotion,
-								  "X PRIME", hexapod_->xPrime(),
+								  "Z", hexapod_->zAxisPrimeControl(),
 								  "", 0);
 
 	sampleManipulatorsMotorGroup_->addMotorGroupObject(groupObject);
@@ -269,12 +261,12 @@ void SGMBeamline::setupExposedControls()
 	addExposedControl(ssaManipulatorY_);
 	addExposedControl(ssaManipulatorZ_);
 	addExposedControl(ssaManipulatorRot_);
-	addExposedControl(hexapod_->xAxis());
-	addExposedControl(hexapod_->yAxis());
-	addExposedControl(hexapod_->zAxis());
-	addExposedControl(hexapod_->uAxis());
-	addExposedControl(hexapod_->vAxis());
-	addExposedControl(hexapod_->wAxis());
+	addExposedControl(hexapod_->xAxisPrimeControl());
+	addExposedControl(hexapod_->yAxisPrimeControl());
+	addExposedControl(hexapod_->zAxisPrimeControl());
+//	addExposedControl(hexapod_->uAxisPrimeControl());
+//	addExposedControl(hexapod_->vAxisPrimeControl());
+//	addExposedControl(hexapod_->wAxisPrimeControl());
 }
 
 void SGMBeamline::setupExposedDetectors()
