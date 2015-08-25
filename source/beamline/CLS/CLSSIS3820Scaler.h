@@ -85,7 +85,11 @@ public:
 	AMDetectorTriggerSource* triggerSource();
 	/// Returns the dwell time source for the scaler
 	AMDetectorDwellTimeSource* dwellTimeSource();
+	/// Returns the synchronized dwell key.
 	QString synchronizedDwellKey() const { return synchronizedDwellKey_; }
+
+	/// Returns the dwell time control.
+	AMControl* dwellTimeControl() const { return dwellTime_; }
 
 	/// Creates an action to start the scaler to \param setScanning.
 	AMAction3* createStartAction3(bool setScanning);

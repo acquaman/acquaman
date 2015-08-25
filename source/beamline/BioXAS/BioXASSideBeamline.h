@@ -169,8 +169,6 @@ protected:
 	// Scaler controls
 	/// Scaler
 	CLSSIS3820Scaler *scaler_;
-	/// Scaler dwell time control
-	AMControl *scalerDwellTime_;
 	/// I0 Keithley amplifier
 	CLSKeithley428 *i0Keithley_;
 	/// I1 Keithley amplifier

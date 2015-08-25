@@ -184,8 +184,6 @@ void BioXASMainBeamline::setupComponents()
 	scaler_ = new CLSSIS3820Scaler("MCS1607-701", this);
 	connect( scaler_, SIGNAL(connectedChanged(bool)), this, SLOT(updateConnected()) );
 
-	scalerDwellTime_ = new AMReadOnlyPVControl("ScalerDwellTime", "BL1607-5-I21:mcs:delay", this, "Scaler dwell time");
-
 	// Utilities
 	utilities_ = new BioXASBeamlineUtilities(this);
 	connect( utilities_, SIGNAL(connectedChanged(bool)), this, SLOT(updateConnected()) );
@@ -321,7 +319,7 @@ void BioXASMainBeamline::setupExposedDetectors()
 
 void BioXASMainBeamline::setupControlsAsDetectors()
 {
-	dwellTimeDetector_ = new AMBasicControlDetectorEmulator("DwellTimeFeedback", "Dwell Time Feedback", scalerDwellTime_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	dwellTimeDetector_ = new AMBasicControlDetectorEmulator("DwellTimeFeedback", "Dwell Time Feedback", scaler_->dwellTimeControl(), 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
 
 	encoderEnergyFeedbackDetector_ = new AMBasicControlDetectorEmulator("EncoderEnergyFeedback", "EncoderEnergyFeedback", mono_->encoderEnergyControl(), 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
 	encoderEnergyFeedbackDetector_->setHiddenFromUsers(false);
