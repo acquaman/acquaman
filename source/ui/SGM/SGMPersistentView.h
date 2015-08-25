@@ -37,7 +37,8 @@ protected:
 	void setupUi();
 
 	AMExtendedControlEditor* energyControlEditor_;
-	AMExtendedControlEditor* exitSlitControlEditor_;
+	AMExtendedControlEditor* exitSlitGapControlEditor_;
+	AMExtendedControlEditor* exitSlitPositionControlEditor_;
 	AMExtendedControlEditor* gratingSelectionControlEditor_;
 	AMExtendedControlEditor* hexapodVelocityControlEditor_;
 	SGMHexapodTrajectoryView* hexapodTrajectoryView_;

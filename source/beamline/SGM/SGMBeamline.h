@@ -64,6 +64,11 @@ public:
 	AMControl* exitSlitGap() const;
 
 	/*!
+	  * The exit slit position control.
+	  */
+	AMControl* exitSlitPosition() const;
+
+	/*!
 	  * The grating control.
 	  */
 	AMControl* grating() const;
@@ -147,6 +152,7 @@ protected:
 
 	AMControl *energy_;
 	AMControl *exitSlitGap_;
+	AMControl *exitSlitPosition_;
 	AMControl *grating_;
 
 	AMMotorGroup *sampleManipulatorsMotorGroup_;
