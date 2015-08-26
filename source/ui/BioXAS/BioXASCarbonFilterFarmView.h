@@ -1,6 +1,8 @@
 #ifndef BIOXASCARBONFILTERFARMVIEW_H
 #define BIOXASCARBONFILTERFARMVIEW_H
 
+#include <QWidget>
+#include <QLabel>
 #include <QGridLayout>
 
 #include "beamline/BioXAS/BioXASCarbonFilterFarm.h"

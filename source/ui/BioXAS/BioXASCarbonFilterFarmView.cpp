@@ -23,28 +23,13 @@ BioXASCarbonFilterFarmView::BioXASCarbonFilterFarmView(BioXASCarbonFilterFarm *f
 	// Create and set layouts.
 
 	QGridLayout *layout = new QGridLayout();
-	layout->addWidget(upstreamPrompt, )
-
-	QVBoxLayout *upstreamTestingLayout = new QVBoxLayout();
-	upstreamTestingLayout->addWidget(upstreamEditor_);
-	upstreamTestingLayout->addWidget(upstreamPositionEditor_);
-	upstreamTestingLayout->addWidget(upstreamPositionStatusEditor_);
-
-	QGroupBox *upstreamTesting = new QGroupBox("Testing - upstream sub-controls");
-	upstreamTesting->setLayout(upstreamTestingLayout);
-
-	QVBoxLayout *downstreamTestingLayout = new QVBoxLayout();
-	downstreamTestingLayout->addWidget(downstreamEditor_);
-	downstreamTestingLayout->addWidget(downstreamPositionEditor_);
-	downstreamTestingLayout->addWidget(downstreamPositionStatusEditor_);
-
-	QGroupBox *downstreamTesting = new QGroupBox("Testing - downstream sub-controls");
-	downstreamTesting->setLayout(downstreamTestingLayout);
-
-	QVBoxLayout *layout = new QVBoxLayout();
-	layout->addWidget(filterEditor_);
-	layout->addWidget(upstreamTesting);
-	layout->addWidget(downstreamTesting);
+	layout->addWidget(upstreamPrompt, 0, 0);
+	layout->addWidget(upstreamWindowEditor_, 0, 1);
+	layout->addWidget(upstreamThicknessEditor_, 0, 2);
+	layout->addWidget(downstreamPrompt, 1, 0);
+	layout->addWidget(downstreamWindowEditor_, 1, 1);
+	layout->addWidget(downstreamThicknessEditor_, 1, 2);
+	layout->addWidget(totalThicknessEditor_, 2, 2);
 
 	setLayout(layout);
 
@@ -66,15 +51,11 @@ void BioXASCarbonFilterFarmView::setFilterFarm(BioXASCarbonFilterFarm *newFilter
 
 			// Clear UI elements.
 
-			filterEditor_->setControl(0);
-
-			upstreamEditor_->setControl(0);
-			upstreamPositionEditor_->setControl(0);
-			upstreamPositionStatusEditor_->setControl(0);
-
-			downstreamEditor_->setControl(0);
-			downstreamPositionEditor_->setControl(0);
-			downstreamPositionStatusEditor_->setControl(0);
+			upstreamWindowEditor_->setControl(0);
+			upstreamThicknessEditor_->setControl(0);
+			downstreamWindowEditor_->setControl(0);
+			downstreamThicknessEditor_->setControl(0);
+			totalThicknessEditor_->setControl(0);
 		}
 
 		filterFarm_ = newFilterFarm;
@@ -83,15 +64,11 @@ void BioXASCarbonFilterFarmView::setFilterFarm(BioXASCarbonFilterFarm *newFilter
 
 			// Update UI elements.
 
-			filterEditor_->setControl(filterFarm_->filterControl());
-
-			upstreamEditor_->setControl(filterFarm_->upstreamActuatorControl());
-			upstreamPositionEditor_->setControl(filterFarm_->upstreamPositionControl());
-			upstreamPositionStatusEditor_->setControl(filterFarm_->upstreamStatusControl());
-
-			downstreamEditor_->setControl(filterFarm_->downstreamActuatorControl());
-			downstreamPositionEditor_->setControl(filterFarm_->downstreamPositionControl());
-			downstreamPositionStatusEditor_->setControl(filterFarm_->downstreamStatusControl());
+			upstreamWindowEditor_->setControl(filterFarm_->upstreamActuatorWindowControl());
+			upstreamThicknessEditor_->setControl(filterFarm_->upstreamActuatorFilterThicknessControl());
+			downstreamWindowEditor_->setControl(filterFarm_->downstreamActuatorWindowControl());
+			downstreamThicknessEditor_->setControl(filterFarm_->downstreamActuatorFilterThicknessControl());
+			totalThicknessEditor_->setControl(filterFarm_->filterThicknessControl());
 		}
 
 		emit filterFarmChanged(filterFarm_);
