@@ -8,28 +8,22 @@ BioXASCarbonFilterFarmView::BioXASCarbonFilterFarmView(BioXASCarbonFilterFarm *f
 
 	filterFarm_ = 0;
 
-	filterEditor_ = new AMExtendedControlEditor(0);
-	filterEditor_->setTitle("Active filter thickness");
+	// Create UI elements.
 
-	upstreamEditor_ = new AMExtendedControlEditor(0);
-	upstreamEditor_->setTitle("Actuator control");
+	QLabel *upstreamPrompt = new QLabel("Upstream actuator:");
+	upstreamWindowEditor_ = new AMExtendedControlEditor(0);
+	upstreamThicknessEditor_ = new AMExtendedControlEditor(0);
 
-	upstreamPositionEditor_ = new AMExtendedControlEditor(0);
-	upstreamPositionEditor_->setTitle("Position");
+	QLabel *downstreamPrompt = new QLabel("Downstream actuator:");
+	downstreamWindowEditor_ = new AMExtendedControlEditor(0);
+	downstreamThicknessEditor_ = new AMExtendedControlEditor(0);
 
-	upstreamPositionStatusEditor_ = new AMExtendedControlEditor(0);
-	upstreamPositionStatusEditor_->setTitle("Position status");
-
-	downstreamEditor_ = new AMExtendedControlEditor(0);
-	downstreamEditor_->setTitle("Actuator control");
-
-	downstreamPositionEditor_ = new AMExtendedControlEditor(0);
-	downstreamPositionEditor_->setTitle("Position");
-
-	downstreamPositionStatusEditor_ = new AMExtendedControlEditor(0);
-	downstreamPositionStatusEditor_->setTitle("Position status");
+	totalThicknessEditor_ = new AMExtendedControlEditor(0);
 
 	// Create and set layouts.
+
+	QGridLayout *layout = new QGridLayout();
+	layout->addWidget(upstreamPrompt, )
 
 	QVBoxLayout *upstreamTestingLayout = new QVBoxLayout();
 	upstreamTestingLayout->addWidget(upstreamEditor_);

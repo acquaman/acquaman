@@ -1,8 +1,7 @@
 #ifndef BIOXASCARBONFILTERFARMVIEW_H
 #define BIOXASCARBONFILTERFARMVIEW_H
 
-#include <QWidget>
-#include <QLayout>
+#include <QGridLayout>
 
 #include "beamline/BioXAS/BioXASCarbonFilterFarm.h"
 
@@ -33,23 +32,16 @@ protected:
 	/// The filter farm being viewed.
 	BioXASCarbonFilterFarm *filterFarm_;
 
-	/// The filter farm total thickness control editor.
-	AMExtendedControlEditor *filterEditor_;
-
-	// For testing
-	/// The upstream actuator control editor.
-	AMExtendedControlEditor *upstreamEditor_;
-	/// The upstream actuator position control editor.
-	AMExtendedControlEditor *upstreamPositionEditor_;
-	/// The upstream actuator position status control editor.
-	AMExtendedControlEditor *upstreamPositionStatusEditor_;
-	/// The downstream actuator control editor.
-	AMExtendedControlEditor *downstreamEditor_;
-	/// The downstream actuator position control editor.
-	AMExtendedControlEditor *downstreamPositionEditor_;
-	/// The downstream actuator position status control editor.
-	AMExtendedControlEditor *downstreamPositionStatusEditor_;
-
+	/// The upstream window control editor.
+	AMExtendedControlEditor *upstreamWindowEditor_;
+	/// The upstream filter thickness control editor.
+	AMExtendedControlEditor *upstreamThicknessEditor_;
+	/// The downstream window control editor.
+	AMExtendedControlEditor *downstreamWindowEditor_;
+	/// The downstream filter thickness control editor.
+	AMExtendedControlEditor *downstreamThicknessEditor_;
+	/// The total filter thickness control editor.
+	AMExtendedControlEditor *totalThicknessEditor_;
 };
 
 #endif // BIOXASCARBONFILTERFARMVIEW_H
