@@ -17,7 +17,7 @@ REIXSSampleManagementPre2013Widget::REIXSSampleManagementPre2013Widget(QWidget *
 
 
 
-	cameraWidget1_ = new AMBeamlineCameraWidget(this, true);
+	cameraWidget1_ = new AMBeamlineCameraWidget(this, false);
 	cameraWidget1_->playSource(sampleCamera1Url);
 	cameraWidget1_->setCrosshairCenterPosition(QPointF(0.75, 0.6));
 	cameraWidget1_->setCrosshairPosition(QPointF(0.75, 0.6));
@@ -26,7 +26,7 @@ REIXSSampleManagementPre2013Widget::REIXSSampleManagementPre2013Widget(QWidget *
 	cameraWidget1_->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
 
 
-	cameraWidget2_ = new AMBeamlineCameraWidget(this, true);
+	cameraWidget2_ = new AMBeamlineCameraWidget(this, false);
 	cameraWidget2_->playSource(sampleCamera2Url);
 	cameraWidget2_->setCrosshairCenterPosition(QPointF(0.5, 0.7));
 	cameraWidget2_->setCrosshairPosition(QPointF(0.5, 0.7));
@@ -62,10 +62,10 @@ REIXSSampleManagementPre2013Widget::REIXSSampleManagementPre2013Widget(QWidget *
 	gl->addWidget(plateView_, 0, 4, 3, 1);
 	gl->addWidget(manipulatorWidget_, 1, 1, 1, 2);
 	gl->setColumnStretch(0,1);
-	gl->setColumnStretch(1,0);
-	gl->setColumnStretch(2,0);
+	gl->setColumnStretch(1,2);
+	gl->setColumnStretch(2,2);
 	gl->setColumnStretch(3,1);
-	gl->setColumnStretch(2,0);
+	gl->setColumnStretch(4,0);
 
 	gl->setRowStretch(0,2);
 	gl->setRowStretch(1,0);

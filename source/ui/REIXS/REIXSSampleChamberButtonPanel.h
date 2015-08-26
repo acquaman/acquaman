@@ -62,6 +62,7 @@ private:
 	AMControlMoveButton *sampleCCW_;
 
 	QToolButton *stopAll_;
+	QToolButton *stopAll2_;
 };
 
 #endif // REIXSSAMPLECHAMBERBUTTONPANEL_H

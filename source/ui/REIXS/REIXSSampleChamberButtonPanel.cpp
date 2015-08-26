@@ -26,6 +26,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QLabel>
 #include <QSpacerItem>
 #include <QToolButton>
+#include <QFrame>
 
 #include "beamline/REIXS/REIXSBeamline.h"
 #include "ui/beamline/AMControlMoveButton.h"
@@ -40,6 +41,7 @@ REIXSSampleChamberButtonPanel::REIXSSampleChamberButtonPanel(QWidget *parent) :
 	initializeUiComponents();
 
 	connect(stopAll_, SIGNAL(clicked()), this, SLOT(onStopButtonClicked()));
+	connect(stopAll2_, SIGNAL(clicked()), this, SLOT(onStopButtonClicked()));
 }
 
 REIXSSampleChamberButtonPanel::~REIXSSampleChamberButtonPanel()
@@ -141,16 +143,16 @@ void REIXSSampleChamberButtonPanel::setupUi()
 	QGridLayout *gridLayout = new QGridLayout();
 	setLayout(gridLayout);
 
-	QLabel *sampleLabel1 = new QLabel("Front View (Y, Z, R)");
+	QLabel *sampleLabel1 = new QLabel("Beam View (Y, Z)");
 	customizedSizePolicy.setHeightForWidth(sampleLabel1->sizePolicy().hasHeightForWidth());
 	sampleLabel1->setSizePolicy(customizedSizePolicy);
 
-	QLabel *sampleLabel2 = new QLabel("Along Beam (X)");
+	QLabel *sampleLabel2 = new QLabel("Spectrometer View (X, R)");
 	customizedSizePolicy.setHeightForWidth(sampleLabel2->sizePolicy().hasHeightForWidth());
 	sampleLabel2->setSizePolicy(customizedSizePolicy);
 
 	gridLayout->addWidget(sampleLabel1, 0, 0, 1, 3);
-	gridLayout->addWidget(sampleLabel2, 0, 4, 1, 2);
+	gridLayout->addWidget(sampleLabel2, 0, 6, 1, 3);
 
 	sampleCW_ = createAMControlMoveButton("CW", iconCW);
 	sampleCCW_ = createAMControlMoveButton("CCW", iconCCW);
@@ -161,21 +163,39 @@ void REIXSSampleChamberButtonPanel::setupUi()
 	sampleZup_ = createAMControlMoveButton("+Z", iconDown);
 	sampleZdown_ = createAMControlMoveButton("-Z", iconUp);
 
+	QFrame *line = new QFrame();
+	line->setFrameShape(QFrame::VLine);
+	line->setFrameShadow(QFrame::Sunken);
 
-	gridLayout->addWidget(sampleCW_,	3, 0, 1, 1);
+
 	gridLayout->addWidget(sampleZdown_, 3, 1, 1, 1);
-	gridLayout->addWidget(sampleCCW_,	3, 2, 1, 1);
-
 	gridLayout->addWidget(sampleYdown_, 4, 0, 1, 1);
 	gridLayout->addWidget(sampleZup_,	4, 1, 1, 1);
 	gridLayout->addWidget(sampleYup_,	4, 2, 1, 1);
 
-	gridLayout->addWidget(sampleXup_,	3, 4, 1, 1);
-	gridLayout->addWidget(sampleXdown_, 4, 5, 1, 1);
+	//gridLayout->addWidget(line, 3, 4, 3, 1);
+
+	gridLayout->addWidget(sampleCW_,	3, 6, 1, 1);
+	gridLayout->addWidget(sampleCCW_,	3, 7, 1, 1);
+	gridLayout->addWidget(sampleXup_,	4, 6, 1, 1);
+	gridLayout->addWidget(sampleXdown_, 4, 7, 1, 1);
+
+
+	gridLayout->setColumnStretch(1,0);
+	gridLayout->setColumnStretch(2,0);
+	gridLayout->setColumnStretch(3,1);
+	gridLayout->setColumnStretch(4,0);
+	gridLayout->setColumnStretch(5,2);
+	gridLayout->setColumnStretch(6,0);
+	gridLayout->setColumnStretch(7,0);
+
 
 	stopAll_ = createQToolButton("Stop", iconStop);
+	stopAll2_ = createQToolButton("Stop", iconStop);
+	stopAll2_->setMinimumWidth(64);
 
-	gridLayout->addWidget(stopAll_, 5, 0, 1, 6);
+	gridLayout->addWidget(stopAll_, 5, 0, 1, 3);
+	gridLayout->addWidget(stopAll2_, 5, 6, 1, 2);
 
 }
 
