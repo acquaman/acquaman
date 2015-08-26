@@ -91,6 +91,9 @@ void IDEASBeamline::setupDetectors()
 	ketek_ = new IDEASKETEKDetector("KETEK", "Single Element XRF Detector", this);
 	ge13Element_ = new IDEAS13ElementGeDetector("13-el Ge", "The thirteen element Germanium Detector", this);
 
+    addSynchronizedXRFDetector(ketek_);
+    addSynchronizedXRFDetector(ge13Element_);
+
 	ketekPeakingTime_ = new AMPVControl("XRF1E Peaking Time","dxp1608-1002:dxp1:PeakingTime_RBV","dxp1608-1002:dxp1:PeakingTime", QString(), this, AMCONTROL_TOLERANCE_DONT_CARE);
 	ketekTriggerLevel_ = new AMPVControl("XRF1E Trigger Level","dxp1608-1002:dxp1:TriggerThreshold_RBV","dxp1608-1002:dxp1:TriggerThreshold", QString(), this, AMCONTROL_TOLERANCE_DONT_CARE);
 	ketekBaselineThreshold_ = new AMPVControl("XRF1E Baseline Threshold","dxp1608-1002:dxp1:BaselineThreshold_RBV","dxp1608-1002:dxp1:BaselineThreshold", QString(), this, AMCONTROL_TOLERANCE_DONT_CARE);
