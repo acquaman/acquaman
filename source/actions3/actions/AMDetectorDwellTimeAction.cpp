@@ -108,12 +108,12 @@ void AMDetectorDwellTimeAction::startImplementation(){
 		}
 	}
 }
-#include <QDebug>
+
 void AMDetectorDwellTimeAction::onDwellSetStarted(double dwellTime){
 	if(dwellTimeSource_)
 		disconnect(dwellTimeSource_, SIGNAL(setDwellTime(double)), this, SLOT(onDwellSetStarted(double)));
-	qDebug() << "Inside DwellSetStarted" << dwellTime << detectorDwellTimeInfo()->dwellSeconds() << detector()->acquisitionTimeTolerance();
-	if(fabs(dwellTime - detectorDwellTimeInfo()->dwellSeconds()) < detector_->acquisitionTimeTolerance())
+
+    if(fabs(dwellTime - detectorDwellTimeInfo()->dwellSeconds()) < detector_->acquisitionTimeTolerance())
 		setSucceeded();
 	else{
 

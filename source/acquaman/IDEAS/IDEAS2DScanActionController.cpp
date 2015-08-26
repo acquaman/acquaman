@@ -135,7 +135,7 @@ void IDEAS2DScanActionController::createAxisOrderMap()
 
 AMAction3 * IDEAS2DScanActionController::createInitializationActions()
 {
-	AMListAction3 *initializationActions = new AMListAction3(new AMListActionInfo3("IDEAS XAS Initialization Stage 1", "IDEAS XAS Initialization Stage 1"), AMListAction3::Parallel);
+    AMListAction3 *initializationActions = new AMListAction3(new AMListActionInfo3("IDEAS 2D Initialization", "IDEAS 2D Initialization"), AMListAction3::Parallel);
 
 	double startEnergy = configuration_->energy();
 	double mono2d = IDEASBeamline::ideas()->mono2d()->value();
@@ -156,7 +156,7 @@ AMAction3 * IDEAS2DScanActionController::createInitializationActions()
 
 AMAction3 * IDEAS2DScanActionController::createCleanupActions()
 {
-	AMListAction3 *cleanupActions = new AMListAction3(new AMListActionInfo3("IDEAS XAS Cleanup Actions", "IDEAS XAS Cleanup Actions"));
+    AMListAction3 *cleanupActions = new AMListAction3(new AMListActionInfo3("IDEAS 2D Cleanup Actions", "IDEAS 2D Cleanup Actions"));
 
 	cleanupActions->addSubAction(new AMWaitAction(new AMWaitActionInfo(IDEASBeamline::ideas()->scaler()->dwellTime())));
 	cleanupActions->addSubAction(IDEASBeamline::ideas()->scaler()->createDwellTimeAction3(0.1));
