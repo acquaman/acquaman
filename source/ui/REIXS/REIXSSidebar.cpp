@@ -99,7 +99,7 @@ void REIXSSidebar::onScalerContinuousButtonToggled(bool on)
 	REIXSBeamline::bl()->scaler()->setContinuous(on);
 }
 
-void REIXSSidebar::onScalerConnected(bool isConnected)
+void REIXSSidebar::onScalerConnected()
 {
 	enableScalerContinuousCheckBox_->setChecked(REIXSBeamline::bl()->scaler()->isContinuous());
 }
@@ -148,7 +148,7 @@ void REIXSSidebar::setupConnections()
 
 	connect(enableScalerContinuousCheckBox_, SIGNAL(clicked(bool)), this, SLOT(onScalerContinuousButtonToggled(bool)));
 	connect(REIXSBeamline::bl()->scaler(), SIGNAL(continuousChanged(bool)), this, SLOT(onScalerContinuousModeChanged(bool)));
-	connect(REIXSBeamline::bl()->scaler(), SIGNAL(connectedChanged(bool)), this, SLOT(onScalerConnected(bool)));
+    connect(REIXSBeamline::bl()->scaler(), SIGNAL(connectedChanged(bool)), this, SLOT(onScalerConnected()));
 
 
 	connect(MonoStopButton_, SIGNAL(clicked()), this, SLOT(on_MonoStopButton_clicked()));
