@@ -24,12 +24,13 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QWidget>
 #include <QGridLayout>
 #include <QLabel>
-#include <QSpacerItem>
 #include <QToolButton>
 #include <QFrame>
 
 #include "beamline/REIXS/REIXSBeamline.h"
 #include "ui/beamline/AMControlMoveButton.h"
+#include "ui/beamline/AMCompositeControlDirectionMoveButton.h"
+
 
 REIXSSampleChamberButtonPanel::REIXSSampleChamberButtonPanel(QWidget *parent) :
 	QWidget(parent)
@@ -151,8 +152,13 @@ void REIXSSampleChamberButtonPanel::setupUi()
 	customizedSizePolicy.setHeightForWidth(sampleLabel2->sizePolicy().hasHeightForWidth());
 	sampleLabel2->setSizePolicy(customizedSizePolicy);
 
+	QLabel *sampleLabel3 = new QLabel("Move in Plate Plane:");
+	customizedSizePolicy.setHeightForWidth(sampleLabel3->sizePolicy().hasHeightForWidth());
+	sampleLabel3->setSizePolicy(customizedSizePolicy);
+
 	gridLayout->addWidget(sampleLabel1, 0, 0, 1, 3);
-	gridLayout->addWidget(sampleLabel2, 0, 6, 1, 3);
+	gridLayout->addWidget(sampleLabel2, 0, 8, 1, 3);
+	gridLayout->addWidget(sampleLabel3, 4, 4, 1, 3);
 
 	sampleCW_ = createAMControlMoveButton("CW", iconCW);
 	sampleCCW_ = createAMControlMoveButton("CCW", iconCCW);
@@ -162,6 +168,11 @@ void REIXSSampleChamberButtonPanel::setupUi()
 	sampleYdown_ = createAMControlMoveButton("-Y", iconPrevious);
 	sampleZup_ = createAMControlMoveButton("+Z", iconDown);
 	sampleZdown_ = createAMControlMoveButton("-Z", iconUp);
+	sampleLeft_ = createAMCompositeControlDirectionMoveButton("Left", iconPrevious);
+	sampleRight_ = createAMCompositeControlDirectionMoveButton("Right", iconNext);
+	sampleIn_    = createAMCompositeControlDirectionMoveButton("In", iconDown);
+	sampleOut_   = createAMCompositeControlDirectionMoveButton("Out", iconUp);
+
 
 	QFrame *line = new QFrame();
 	line->setFrameShape(QFrame::VLine);
@@ -173,29 +184,40 @@ void REIXSSampleChamberButtonPanel::setupUi()
 	gridLayout->addWidget(sampleZup_,	4, 1, 1, 1);
 	gridLayout->addWidget(sampleYup_,	4, 2, 1, 1);
 
-	//gridLayout->addWidget(line, 3, 4, 3, 1);
 
-	gridLayout->addWidget(sampleCW_,	3, 6, 1, 1);
-	gridLayout->addWidget(sampleCCW_,	3, 7, 1, 1);
-	gridLayout->addWidget(sampleXup_,	4, 6, 1, 1);
-	gridLayout->addWidget(sampleXdown_, 4, 7, 1, 1);
+	gridLayout->addWidget(sampleOut_, 5, 5, 1, 1);
+	gridLayout->addWidget(sampleLeft_, 6, 4, 1, 1);
+	gridLayout->addWidget(sampleIn_,	6, 5, 1, 1);
+	gridLayout->addWidget(sampleRight_,	6, 6, 1, 1);
 
 
+	gridLayout->addWidget(sampleCW_,	3, 8, 1, 1);
+	gridLayout->addWidget(sampleCCW_,	3, 9, 1, 1);
+	gridLayout->addWidget(sampleXup_,	4, 8, 1, 1);
+	gridLayout->addWidget(sampleXdown_, 4, 9, 1, 1);
+
+
+	gridLayout->setColumnStretch(0,0);
 	gridLayout->setColumnStretch(1,0);
 	gridLayout->setColumnStretch(2,0);
 	gridLayout->setColumnStretch(3,1);
 	gridLayout->setColumnStretch(4,0);
-	gridLayout->setColumnStretch(5,2);
+	gridLayout->setColumnStretch(5,0);
 	gridLayout->setColumnStretch(6,0);
-	gridLayout->setColumnStretch(7,0);
+	gridLayout->setColumnStretch(7,1);
+	gridLayout->setColumnStretch(8,0);
+	gridLayout->setColumnStretch(9,0);
+	gridLayout->setColumnStretch(10,0);
 
 
 	stopAll_ = createQToolButton("Stop", iconStop);
 	stopAll2_ = createQToolButton("Stop", iconStop);
 	stopAll2_->setMinimumWidth(64);
+	stopAll3_ = createQToolButton("Stop", iconStop);
 
 	gridLayout->addWidget(stopAll_, 5, 0, 1, 3);
-	gridLayout->addWidget(stopAll2_, 5, 6, 1, 2);
+	gridLayout->addWidget(stopAll2_, 5, 8, 1, 2);
+	gridLayout->addWidget(stopAll3_, 7, 4, 1, 3);
 
 }
 
@@ -233,6 +255,32 @@ void REIXSSampleChamberButtonPanel::initializeUiComponents()
 	sampleCCW_->setControl(chamber->r());
 	sampleCCW_->setStepSizes(QList<double>() << 1 << 5 << 10 << 45 << 90);
 	sampleCCW_->setStepSizeIndex(1);
+
+	sampleLeft_->setControl(chamber->y());
+	sampleLeft_->setControl2(chamber->x());
+	sampleLeft_->setControlR(chamber->r());
+	sampleLeft_->setStepSizes(QList<double>() << 0.2 << 1 << 5 << 10);
+	sampleLeft_->setStepSizeIndex(1);
+	sampleLeft_->setDirectionReversed(true);
+	sampleLeft_->setDirection2Reversed(true);
+	sampleRight_->setControl(chamber->y());
+	sampleRight_->setControl2(chamber->x());
+	sampleRight_->setControlR(chamber->r());
+	sampleRight_->setStepSizes(QList<double>() << 0.2 << 1 << 5 << 10);
+	sampleRight_->setStepSizeIndex(1);
+
+	sampleIn_->setControl(chamber->x());
+	sampleIn_->setControl2(chamber->y());
+	sampleIn_->setControlR(chamber->r());
+	sampleIn_->setStepSizes(QList<double>() << 0.2 << 1 << 5 << 10);
+	sampleIn_->setStepSizeIndex(1);
+	sampleIn_->setDirection2Reversed(true);
+	sampleOut_->setControl(chamber->x());
+	sampleOut_->setControl2(chamber->y());
+	sampleOut_->setControlR(chamber->r());
+	sampleOut_->setStepSizes(QList<double>() << 0.2 << 1 << 5 << 10);
+	sampleOut_->setStepSizeIndex(1);
+	sampleOut_->setDirectionReversed(true);
 }
 
 QToolButton *REIXSSampleChamberButtonPanel::createQToolButton(QString text, QIcon icon)
@@ -258,6 +306,23 @@ AMControlMoveButton *REIXSSampleChamberButtonPanel::createAMControlMoveButton(QS
 	font.setPointSize(9);
 
 	AMControlMoveButton *controlMoveButton = new AMControlMoveButton();
+	controlMoveButton->setMinimumSize(QSize(52, 46));
+	controlMoveButton->setMaximumSize(QSize(52, 46));
+	controlMoveButton->setFont(font);
+	controlMoveButton->setIconSize(QSize(22, 22));
+	controlMoveButton->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
+	controlMoveButton->setText(text);
+	controlMoveButton->setIcon(icon);
+
+	return controlMoveButton;
+}
+
+AMCompositeControlDirectionMoveButton *REIXSSampleChamberButtonPanel::createAMCompositeControlDirectionMoveButton(QString text, QIcon icon)
+{
+	QFont font;
+	font.setPointSize(9);
+
+	AMCompositeControlDirectionMoveButton *controlMoveButton = new AMCompositeControlDirectionMoveButton();
 	controlMoveButton->setMinimumSize(QSize(52, 46));
 	controlMoveButton->setMaximumSize(QSize(52, 46));
 	controlMoveButton->setFont(font);

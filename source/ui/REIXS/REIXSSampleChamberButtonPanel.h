@@ -29,6 +29,8 @@ class QIcon;
 class QToolButton;
 
 class AMControlMoveButton;
+class AMCompositeControlDirectionMoveButton;
+
 
 class REIXSSampleChamberButtonPanel : public QWidget
 {
@@ -50,6 +52,7 @@ protected:
 
 	QToolButton *createQToolButton(QString text, QIcon icon);
 	AMControlMoveButton *createAMControlMoveButton(QString text, QIcon icon);
+	AMCompositeControlDirectionMoveButton *createAMCompositeControlDirectionMoveButton(QString text, QIcon icon);
 
 private:
 	AMControlMoveButton *sampleXup_;
@@ -60,9 +63,14 @@ private:
 	AMControlMoveButton *sampleZdown_;
 	AMControlMoveButton *sampleCW_;
 	AMControlMoveButton *sampleCCW_;
+	AMCompositeControlDirectionMoveButton *sampleLeft_;
+	AMCompositeControlDirectionMoveButton *sampleRight_;
+	AMCompositeControlDirectionMoveButton *sampleIn_;
+	AMCompositeControlDirectionMoveButton *sampleOut_;
 
 	QToolButton *stopAll_;
 	QToolButton *stopAll2_;
+	QToolButton *stopAll3_;
 };
 
 #endif // REIXSSAMPLECHAMBERBUTTONPANEL_H
