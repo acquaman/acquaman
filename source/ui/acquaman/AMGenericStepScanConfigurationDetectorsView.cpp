@@ -71,7 +71,7 @@ void AMGenericStepScanConfigurationDetectorsView::setDetectors(AMDetectorSet *ne
 
 		if (detectors_) {
 			connect( detectors_, SIGNAL(detectorAdded(int)), this, SLOT(refresh()) );
-			connect( detectors_, SIGNAL(detectorConnectedChanged(bool,AMDetector*)), this, SLOT(update()) );
+			connect( detectors_, SIGNAL(detectorConnectedChanged(bool,AMDetector*)), this, SLOT(refresh()) );
 			connect( detectors_, SIGNAL(detectorRemoved(int)), this, SLOT(refresh()) );
 		}
 
@@ -83,13 +83,19 @@ void AMGenericStepScanConfigurationDetectorsView::setDetectors(AMDetectorSet *ne
 
 void AMGenericStepScanConfigurationDetectorsView::clear()
 {
-	for (int buttonIndex = 0, buttonCount = detectorsButtonGroup_->buttons().count(); buttonIndex < buttonCount; buttonIndex++) {
-		QAbstractButton *button = detectorsButtonGroup_->button(buttonIndex);
+	int buttonCount = detectorsButtonGroup_->buttons().count();
 
-		layout_->removeWidget(button);
-		detectorsButtonGroup_->removeButton(button);
+	if (detectors_ && buttonCount > 0) {
+		for (int detectorIndex = 0, detectorCount = detectors_->count(); detectorIndex < detectorCount; detectorIndex++) {
+			QAbstractButton *button = detectorsButtonGroup_->button(detectorIndex);
 
-		button->deleteLater();
+			if (button) {
+				layout_->removeWidget(button);
+				detectorsButtonGroup_->removeButton(button);
+
+				button->deleteLater();
+			}
+		}
 	}
 }
 

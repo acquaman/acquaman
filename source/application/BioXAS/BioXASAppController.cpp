@@ -509,27 +509,27 @@ void BioXASAppController::setupXASScanConfiguration(BioXASXASScanConfiguration *
 		// Set scan detectors.
 
 		AMDetector *i0Detector = BioXASBeamline::bioXAS()->i0Detector();
-		if (i0Detector)
+		if (i0Detector && i0Detector->isConnected())
 			configuration->addDetector(i0Detector->toInfo());
 
 		AMDetector *i1Detector = BioXASBeamline::bioXAS()->i1Detector();
-		if (i1Detector)
+		if (i1Detector && i1Detector->isConnected())
 			configuration->addDetector(i1Detector->toInfo());
 
 		AMDetector *i2Detector = BioXASBeamline::bioXAS()->i2Detector();
-		if (i2Detector)
+		if (i2Detector && i2Detector->isConnected())
 			configuration->addDetector(i2Detector->toInfo());
 
 		AMDetector *scalerDwellTimeDetector = BioXASBeamline::bioXAS()->scalerDwellTimeDetector();
-		if (scalerDwellTimeDetector)
+		if (scalerDwellTimeDetector && scalerDwellTimeDetector->isConnected())
 			configuration->addDetector(scalerDwellTimeDetector->toInfo());
 
 		AMDetector *vortexDetector = BioXASBeamline::bioXAS()->fourElementVortexDetector();
-		if (vortexDetector)
+		if (vortexDetector && vortexDetector->isConnected())
 			configuration->addDetector(vortexDetector->toInfo());
 
 		AMDetector *ge32Detector = BioXASBeamline::bioXAS()->ge32ElementDetector();
-		if (ge32Detector)
+		if (ge32Detector && ge32Detector->isConnected())
 			configuration->addDetector(ge32Detector->toInfo());
 	}
 }
@@ -543,7 +543,7 @@ void BioXASAppController::setupGenericStepScanConfiguration(AMGenericStepScanCon
 		// Set scan detectors.
 
 		AMDetector *i0Detector = BioXASBeamline::bioXAS()->i0Detector();
-		if (i0Detector)
+		if (i0Detector && i0Detector->isConnected())
 			configuration->addDetector(i0Detector->toInfo());
 	}
 }
