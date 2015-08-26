@@ -31,6 +31,7 @@ class AMCrosshairOverlayVideoWidget;
 class AMColorPickerButton;
 class QSlider;
 class QPushButton;
+class QLabel;
 
 /// This class provides a general-purpose widget that people can use to monitor the video from different network camera sources.
 class AMBeamlineCameraWidget : public QWidget
@@ -84,6 +85,7 @@ protected:
 	AMColorPickerButton* crosshairColorPicker_;
 	QSlider* crosshairThicknessSlider_;
 	QPushButton *recenterCrosshairPushbutton_;
+	QLabel *colorLabel_, *lineLabel_;
 
 	bool crosshairLocked_;
 	QPointF crosshairCenter_;

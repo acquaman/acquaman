@@ -42,6 +42,17 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 	setWindowTitle("Video");
 
+	showCrosshairCheckBox_ = new QCheckBox("Crosshair:");
+	crosshairColorPicker_ = new AMColorPickerButton(Qt::red);
+	crosshairThicknessSlider_ = new QSlider(Qt::Horizontal);
+	crosshairThicknessSlider_->setMaximumWidth(80);
+	crosshairThicknessSlider_->setRange(1,6);
+	crosshairThicknessSlider_->setValue(1);
+	lockCrosshairCheckBox_ = new QCheckBox("Lock position");
+	recenterCrosshairPushbutton_ = new QPushButton("Recenter");
+	videoWidget_ = new AMCrosshairOverlayVideoWidget(0, useOpenGlViewport);
+	colorLabel_ = new QLabel("Color:");
+	lineLabel_ = new QLabel("Line:");
 
 	// GUI setup:
 	//////////////////////////
@@ -52,23 +63,20 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 	QFrame* crosshairFrame = new QFrame();
 	QHBoxLayout* chl = new QHBoxLayout();
 	chl->setContentsMargins(12,4,12,4);
-	chl->addWidget(showCrosshairCheckBox_ = new QCheckBox("Crosshair:"));
+	chl->addWidget(showCrosshairCheckBox_);
 	chl->addSpacing(20);
-	chl->addWidget(new QLabel("Color:"));
-	chl->addWidget(crosshairColorPicker_ = new AMColorPickerButton(Qt::red));
-	chl->addWidget(new QLabel("Line:"));
-	chl->addWidget(crosshairThicknessSlider_ = new QSlider(Qt::Horizontal));
-	crosshairThicknessSlider_->setMaximumWidth(80);
-	crosshairThicknessSlider_->setRange(1,6);
-	crosshairThicknessSlider_->setValue(1);
+	chl->addWidget(colorLabel_);
+	chl->addWidget(crosshairColorPicker_);
+	chl->addWidget(lineLabel_);
+	chl->addWidget(crosshairThicknessSlider_);
 	chl->addSpacing(20);
-	chl->addWidget(lockCrosshairCheckBox_ = new QCheckBox("Lock position"));
-	chl->addWidget(recenterCrosshairPushbutton_ = new QPushButton("Recenter"));
+	chl->addWidget(lockCrosshairCheckBox_);
+	chl->addWidget(recenterCrosshairPushbutton_);
 	chl->addStretch();
 	crosshairFrame->setLayout(chl);
 
 	vl->addWidget(crosshairFrame);
-	vl->addWidget(videoWidget_ = new AMCrosshairOverlayVideoWidget(0, useOpenGlViewport));
+	vl->addWidget(videoWidget_);
 	setLayout(vl);
 
 	// Make conections:
