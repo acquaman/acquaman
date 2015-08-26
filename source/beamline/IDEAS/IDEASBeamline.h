@@ -108,7 +108,7 @@ public:
 	AMControl *vacuumSampleStage() const { return vacuumSampleStage_ ; }
 
 	/// Returns the XRF detector
-	AMXRFDetector *XRFDetector(IDEAS::FluorescenceDetector detectorType);
+	AMXRFDetector *xrfDetector(IDEAS::FluorescenceDetectors detectorType);
 
 	/// Returns the KETEK detector pointer.
 	IDEASKETEKDetector *ketek() const { return ketek_; }
@@ -120,9 +120,12 @@ public:
 	/// Returns the real time for the Ge detector.
 	AMDetector *ge13ElementDwellTime() const { return ge13ElementRealTime_; }
 
-	CLSBasicScalerChannelDetector *I_0() const {return I0IonChamberScaler_;}
-	CLSBasicScalerChannelDetector *Sample() const {return SampleIonChamberScaler_;}
-	CLSBasicScalerChannelDetector *Reference() const {return ReferenceIonChamberScaler_;}
+	/// Returns the default I0 ion chamber.
+	CLSBasicScalerChannelDetector *i0() const {return i0IonChamberScaler_;}
+	/// Returns the sample ion chamber.
+	CLSBasicScalerChannelDetector *sampleIonChamber() const {return sampleIonChamberScaler_;}
+	/// Returns the ion chamber for reference samples.
+	CLSBasicScalerChannelDetector *referenceIonChamber() const {return referenceIonChamberScaler_;}
 
 	// The scaler.
 	/// Returns the scaler.
@@ -200,9 +203,9 @@ protected:
 	/// Control for the mode of the IDEAS Ammeter Group
 	AMPVControl *ammeterGroupMode_;
 
-	CLSBasicScalerChannelDetector *I0IonChamberScaler_;
-	CLSBasicScalerChannelDetector *SampleIonChamberScaler_;
-	CLSBasicScalerChannelDetector *ReferenceIonChamberScaler_;
+	CLSBasicScalerChannelDetector *i0IonChamberScaler_;
+	CLSBasicScalerChannelDetector *sampleIonChamberScaler_;
+	CLSBasicScalerChannelDetector *referenceIonChamberScaler_;
 
 	// Scaler.
 	CLSSIS3820Scaler *scaler_;

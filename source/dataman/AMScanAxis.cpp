@@ -189,17 +189,15 @@ bool AMScanAxis::removeRegion(AMScanAxisRegion *region)
 	if (index >= 0){
 
 		regions_.remove(index);
-		return true;
+		emit regionRemoved(region);
+
+		disconnect(region, SIGNAL(regionStartChanged(AMNumber)), this, SIGNAL(regionsChanged()));
+		disconnect(region, SIGNAL(regionStepChanged(AMNumber)), this, SIGNAL(regionsChanged()));
+		disconnect(region, SIGNAL(regionEndChanged(AMNumber)), this, SIGNAL(regionsChanged()));
+		disconnect(region, SIGNAL(regionTimeChanged(AMNumber)), this, SIGNAL(regionsChanged()));
 	}
 
-	emit regionRemoved(region);
-
-	disconnect(region, SIGNAL(regionStartChanged(AMNumber)), this, SIGNAL(regionsChanged()));
-	disconnect(region, SIGNAL(regionStepChanged(AMNumber)), this, SIGNAL(regionsChanged()));
-	disconnect(region, SIGNAL(regionEndChanged(AMNumber)), this, SIGNAL(regionsChanged()));
-	disconnect(region, SIGNAL(regionTimeChanged(AMNumber)), this, SIGNAL(regionsChanged()));
-
-	return false;
+	return (index >= 0);
 }
 
 void AMScanAxis::setAxisType(AMScanAxis::AxisType axisType)

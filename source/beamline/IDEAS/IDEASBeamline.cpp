@@ -104,9 +104,9 @@ void IDEASBeamline::setupDetectors()
 	ge13ElementRealTime_ = new AMBasicControlDetectorEmulator("13E_dwellTime", "13-element Ge dwell time", ge13ElementRealTimeControl_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
 
 
-	I0IonChamberScaler_ = new CLSBasicScalerChannelDetector("I_0","I_0 Ion Chamber", scaler_, 0, this);
-	SampleIonChamberScaler_ = new CLSBasicScalerChannelDetector("Sample","Sample Ion Chamber", scaler_, 1, this);
-	ReferenceIonChamberScaler_  = new CLSBasicScalerChannelDetector("Reference","Reference Ion Chamber", scaler_, 2, this);
+	i0IonChamberScaler_ = new CLSBasicScalerChannelDetector("I_0","I_0 Ion Chamber", scaler_, 0, this);
+	sampleIonChamberScaler_ = new CLSBasicScalerChannelDetector("Sample","Sample Ion Chamber", scaler_, 1, this);
+	referenceIonChamberScaler_  = new CLSBasicScalerChannelDetector("Reference","Reference Ion Chamber", scaler_, 2, this);
 }
 
 void IDEASBeamline::setupControlSets()
@@ -190,13 +190,15 @@ void IDEASBeamline::setupExposedControls()
 	addExposedControl(ketekBaselineThreshold_);
 	addExposedControl(ketekPreampGain_);
 
+	addExposedControl(samplePlatformHorizontal_);
+	addExposedControl(samplePlatformVertical_);
 }
 
 void IDEASBeamline::setupExposedDetectors()
 {
-	addExposedDetector(I0IonChamberScaler_);
-	addExposedDetector(SampleIonChamberScaler_);
-	addExposedDetector(ReferenceIonChamberScaler_);
+	addExposedDetector(i0IonChamberScaler_);
+	addExposedDetector(sampleIonChamberScaler_);
+	addExposedDetector(referenceIonChamberScaler_);
 
 	addExposedDetector(ketek_);
 	addExposedDetector(ketekRealTime_);
@@ -249,14 +251,14 @@ void IDEASBeamline::onShutterStatusChanged()
 	emit overallShutterStatus(safetyShutter_->isOpen() && photonShutter2_->isOpen() && safetyShutter2_->isOpen());
 }
 
-AMXRFDetector *IDEASBeamline::XRFDetector(IDEAS::FluorescenceDetector detectorType)
+AMXRFDetector *IDEASBeamline::xrfDetector(IDEAS::FluorescenceDetectors detectorType)
 {
 	AMXRFDetector * XRFDetector = 0;
 
-	if (detectorType == IDEAS::KetekDetector)
+	if (detectorType.testFlag(IDEAS::Ketek))
 		XRFDetector = IDEASBeamline::ideas()->ketek();
 
-	else if (detectorType == IDEAS::Ge13ElementDetector)
+	else if (detectorType.testFlag(IDEAS::Ge13Element))
 		XRFDetector = IDEASBeamline::ideas()->ge13Element();
 
 	return XRFDetector;
