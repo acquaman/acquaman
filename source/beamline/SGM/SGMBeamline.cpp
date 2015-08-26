@@ -65,6 +65,11 @@ AMControl * SGMBeamline::exitSlitGap() const
 	return exitSlitGap_;
 }
 
+AMControl * SGMBeamline::exitSlitPosition() const
+{
+	return exitSlitPosition_;
+}
+
 AMControl * SGMBeamline::grating() const
 {
 	return grating_;
@@ -125,6 +130,11 @@ void SGMBeamline::setupBeamlineComponents()
 	exitSlitGap_ = new AMPVwStatusControl("exitSlitGap", "PSL16114I1004:Y:mm:fbk", "BL1611-ID-1:AddOns:ExitSlitGap:Y:mm", "BL1611-ID-1:AddOns:ExitSlitGap:Y:status", "SMTR16114I1017:stop", this, 0.5);
 	exitSlitGap_->setDescription("Exit Slit Gap");
 
+	// Exit Slit Position
+	exitSlitPosition_ = new AMPVwStatusControl("exitSlitPosition", "PSL16114I1003:Y:mm:fbk", "PSL16114I1003:Y:mm:encsp", "SMTR16114I1003:status", "SMTR16114I1003:stop", this, 0.1, 2.0, new AMControlStatusCheckerDefault(1));
+	exitSlitPosition_->setDescription("Exit Slit Position");
+	exitSlitPosition_->setContextKnownDescription("Exit Slit");
+
 	// Grating
 	grating_ = new AMPVwStatusControl("grating", "BL1611-ID-1:AddOns:grating", "BL1611-ID-1:AddOns:grating", "SMTR16114I1016:state", "SMTR16114I1016:emergStop", this, 0.1, 2.0, new AMControlStatusCheckerStopped(0));
 	grating_->setDescription("Grating Selection");
@@ -181,12 +191,14 @@ void SGMBeamline::setupBeamlineComponents()
 
 	connect(energy_, SIGNAL(connected(bool)), this, SLOT(onConnectionStateChanged(bool)));
 	connect(exitSlitGap_ ,SIGNAL(connected(bool)),this, SLOT(onConnectionStateChanged(bool)));
+	connect(exitSlitPosition_, SIGNAL(connected(bool)), this, SLOT(onConnectionStateChanged(bool)));
 	connect(grating_, SIGNAL(connected(bool)), this, SLOT(onConnectionStateChanged(bool)));
 	connect(ssaManipulatorX_, SIGNAL(connected(bool)), this, SLOT(onConnectionStateChanged(bool)));
 	connect(ssaManipulatorY_, SIGNAL(connected(bool)), this, SLOT(onConnectionStateChanged(bool)));
 	connect(ssaManipulatorZ_, SIGNAL(connected(bool)), this, SLOT(onConnectionStateChanged(bool)));
 	connect(ssaManipulatorRot_, SIGNAL(connected(bool)), this, SLOT(onConnectionStateChanged(bool)));
 	connect(scaler_, SIGNAL(connectedChanged(bool)), this, SLOT(onConnectionStateChanged(bool)));
+
 
 	// Ensure that the inital cached connected state is valid, and emit an initial
 	// connected signal:
@@ -257,6 +269,7 @@ void SGMBeamline::setupExposedControls()
 {
 	addExposedControl(energy_);
 	addExposedControl(exitSlitGap_);
+	addExposedControl(exitSlitPosition_);
 	addExposedControl(ssaManipulatorX_);
 	addExposedControl(ssaManipulatorY_);
 	addExposedControl(ssaManipulatorZ_);
