@@ -1,8 +1,13 @@
-#include "BioXASCarbonFilterFarmActuatorFilterThicknessControl.h"
+#include "BioXASCarbonFilterFarmActuatorWindowFilterThicknessControl.h"
+#include "actions3/AMActionSupport.h"
 
-BioXASCarbonFilterFarmActuatorFilterThicknessControl::BioXASCarbonFilterFarmActuatorFilterThicknessControl(const QString &name, const QString &units, AMControl *positionControl, AMControl *statusControl, QObject *parent) :
-	BioXASCarbonFilterFarmActuatorControl(name, units, parent)
+BioXASCarbonFilterFarmActuatorWindowFilterThicknessControl::BioXASCarbonFilterFarmActuatorWindowFilterThicknessControl(const QString &name, const QString &units, BioXASCarbonFilterFarmActuatorWindowControl *windowControl, QObject *parent) :
+	BioXASCarbonFilterFarmControl(name, units, parent)
 {
+	// Initialize local variables.
+
+	window_ = 0;
+
 	// Initialize inherited variables.
 
 	value_ = 0;
@@ -11,85 +16,139 @@ BioXASCarbonFilterFarmActuatorFilterThicknessControl::BioXASCarbonFilterFarmActu
 	maximumValue_ = 1000;
 
 	setAllowsMovesWhileMoving(false);
-	setContextKnownDescription("Filter Farm Actuator Filter Thickness Control");
-
-	// Initialize member variables.
-
-	windowControl_ = new BioXASCarbonFilterFarmActuatorWindowControl(positionControl, statusControl, this);
+	setContextKnownDescription("Actuator Filter Thickness Control");
 
 	// Current settings.
 
-	setPositionControl(positionControl);
-	setStatusControl(statusControl);
-
-	updateStates();
+	setWindowControl(windowControl);
 }
 
-BioXASCarbonFilterFarmActuatorFilterThicknessControl::~BioXASCarbonFilterFarmActuatorFilterThicknessControl()
+BioXASCarbonFilterFarmActuatorWindowFilterThicknessControl::~BioXASCarbonFilterFarmActuatorWindowFilterThicknessControl()
 {
 
 }
 
-bool BioXASCarbonFilterFarmActuatorFilterThicknessControl::validValue(double value) const
+bool BioXASCarbonFilterFarmActuatorWindowFilterThicknessControl::canMeasure() const
+{
+	bool result = false;
+
+	if (isConnected())
+		result = window_->canMeasure();
+
+	return result;
+}
+
+bool BioXASCarbonFilterFarmActuatorWindowFilterThicknessControl::canMove() const
+{
+	bool result = false;
+
+	if (isConnected())
+		result = window_->canMove();
+
+	return result;
+}
+
+bool BioXASCarbonFilterFarmActuatorWindowFilterThicknessControl::canStop() const
+{
+	bool result = false;
+
+	if (isConnected())
+		result = window_->canStop();
+
+	return result;
+}
+
+bool BioXASCarbonFilterFarmActuatorWindowFilterThicknessControl::validValue(double value) const
 {
 	return windowFilterMap_.values().contains(value);
 }
 
-QString BioXASCarbonFilterFarmActuatorFilterThicknessControl::filterThicknessToString(double filterThickness)
+QString BioXASCarbonFilterFarmActuatorWindowFilterThicknessControl::filterThicknessToString(double filterThickness)
 {
 	return QString::number(filterThickness, 'f', 0);
 }
 
-double BioXASCarbonFilterFarmActuatorFilterThicknessControl::filterThicknessAtWindow(BioXASCarbonFilterFarm::Actuator::Window window)
+double BioXASCarbonFilterFarmActuatorWindowFilterThicknessControl::filterThicknessAtWindow(BioXASCarbonFilterFarm::Actuator::Window window)
 {
 	return windowFilterMap_.value(window, -1);
 }
 
-QList<BioXASCarbonFilterFarm::Actuator::Window> BioXASCarbonFilterFarmActuatorFilterThicknessControl::windowsWithFilterThickness(double filterThickness)
+QList<BioXASCarbonFilterFarm::Actuator::Window> BioXASCarbonFilterFarmActuatorWindowFilterThicknessControl::windowsWithFilterThickness(double filterThickness)
 {
 	return windowFilterMap_.keys(filterThickness);
 }
 
-void BioXASCarbonFilterFarmActuatorFilterThicknessControl::setPositionControl(AMControl *newControl)
+void BioXASCarbonFilterFarmActuatorWindowFilterThicknessControl::setWindowControl(BioXASCarbonFilterFarmActuatorWindowControl *newControl)
 {
-	// The window control should be modified first, as the positionControlChanged() signal is
-	// emitted when BioXASCarbonFilterFarmActuatorControl::setPosition() is called.
+	if (window_ != newControl) {
 
-	windowControl_->setPositionControl(newControl);
-	BioXASCarbonFilterFarmActuatorControl::setPositionControl(newControl);
+		if (window_)
+			removeChildControl(window_);
+
+		window_ = newControl;
+
+		if (window_)
+			addChildControl(window_);
+
+		emit windowControlChanged(window_);
+
+		updateStates();
+	}
 }
 
-void BioXASCarbonFilterFarmActuatorFilterThicknessControl::setStatusControl(AMControl *newControl)
-{
-	// The window control should be modified first, as the statusControlChanged() signal is
-	// emitted when BioXASCarbonFilterFarmActuatorControl::setStatus() is called.
-
-	windowControl_->setStatusControl(newControl);
-	BioXASCarbonFilterFarmActuatorControl::setStatusControl(newControl);
-}
-
-void BioXASCarbonFilterFarmActuatorFilterThicknessControl::setWindowFilterThickness(BioXASCarbonFilterFarm::Actuator::Window window, double filterThickness)
+void BioXASCarbonFilterFarmActuatorWindowFilterThicknessControl::setWindowFilterThickness(BioXASCarbonFilterFarm::Actuator::Window window, double filterThickness)
 {
 	windowFilterMap_.insert(window, filterThickness);
 }
 
-void BioXASCarbonFilterFarmActuatorFilterThicknessControl::updateValue()
+void BioXASCarbonFilterFarmActuatorWindowFilterThicknessControl::updateConnected()
 {
-	if (isConnected())
-		setValue( filterThicknessAtWindow(windowControl_->value()) );
-	else
-		setValue(-1);
+	bool connected = ( window_ && window_->isConnected() );
+	setConnected(connected);
 }
 
-AMAction3* BioXASCarbonFilterFarmActuatorFilterThicknessControl::createMoveAction(double filterThickness)
+void BioXASCarbonFilterFarmActuatorWindowFilterThicknessControl::updateValue()
+{
+	double value = -1;
+
+	if (isConnected())
+		value = filterThicknessAtWindow(BioXASCarbonFilterFarm::Actuator::Window(window_->value()));
+
+	setValue(value);
+}
+
+void BioXASCarbonFilterFarmActuatorWindowFilterThicknessControl::updateMoving()
+{
+	bool isMoving = false;
+
+	if (isConnected())
+		isMoving = (window_->isMoving());
+
+	setIsMoving(isMoving);
+}
+
+AMAction3* BioXASCarbonFilterFarmActuatorWindowFilterThicknessControl::createMoveAction(double filterThickness)
 {
 	// The tests to make sure this control is connected and the given filter thickness is valid
 	// should have already been performed in this class' validSetpoint(double) and in
 	// AMPseudoMotorControl::move(double).
 
-	AMAction3 *moveAction = AMActionSupport::buildControlMoveAction(windowControl_, windowsWithFilterThickness(filterThickness).first());
+	AMAction3 *moveAction = AMActionSupport::buildControlMoveAction(window_, windowsWithFilterThickness(filterThickness).first());
 
 	return moveAction;
 }
 
+void BioXASCarbonFilterFarmActuatorWindowFilterThicknessControl::setupEnumStates()
+{
+	QStringList enumList;
 
+	foreach (double filterThickness, windowFilterMap_) {
+		QString filterString = filterThicknessToString(filterThickness);
+
+		if (!enumList.contains(filterString))
+			enumList << filterString;
+	}
+
+	setEnumStates(enumList);
+	setMoveEnumStates(enumList);
+}

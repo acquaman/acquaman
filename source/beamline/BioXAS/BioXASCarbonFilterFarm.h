@@ -4,8 +4,9 @@
 #include "beamline/BioXAS/BioXASBeamlineComponent.h"
 #include "beamline/CLS/CLSMAXvMotor.h"
 
+class BioXASCarbonFilterFarmActuatorControl;
 class BioXASCarbonFilterFarmActuatorWindowControl;
-class BioXASCarbonFilterFarmActuatorFilterThicknessControl;
+class BioXASCarbonFilterFarmActuatorWindowFilterThicknessControl;
 class BioXASCarbonFilterFarmFilterThicknessControl;
 
 class BioXASCarbonFilterFarm : public BioXASBeamlineComponent
@@ -20,6 +21,8 @@ public:
 		enum Window { Invalid = 0, None, Bottom, Top };
 		/// Enum describing the actuator position status options.
 		enum Status { NotInPosition = 0, InPosition };
+		/// Enum describing the actuator location.
+		enum Location { Unknown = 0, Upstream, Downstream };
 	};
 
 	/// Constructor.
@@ -31,25 +34,29 @@ public:
 	bool isConnected() const;
 
 	/// Returns the upstream position control.
-	AMControl* upstreamPositionControl() const { return upstreamPosition_; }
+	AMControl* upstreamPositionControl();
 	/// Returns the upstream status control.
-	AMControl* upstreamStatusControl() const { return upstreamStatus_; }
+	AMControl* upstreamStatusControl();
+	/// Returns the upstream actuator control.
+	AMControl* upstreamActuatorControl();
 	/// Returns the upstream actuator window control.
-	AMControl* upstreamActuatorWindowControl() const { return upstreamActuatorWindow_; }
+	AMControl* upstreamActuatorWindowControl();
 	/// Returns the upstream actuator filter thickness control.
-	AMControl* upstreamActuatorFilterThicknessControl() const { return upstreamActuatorFilterThickness_; }
+	AMControl* upstreamActuatorFilterThicknessControl();
 
 	/// Returns the downstream position control.
-	AMControl* downstreamPositionControl() const { return downstreamPosition_; }
+	AMControl* downstreamPositionControl();
 	/// Returns the downstream status control.
-	AMControl* downstreamStatusControl() const { return downstreamStatus_; }
+	AMControl* downstreamStatusControl();
+	/// Returns the downstream actuator control.
+	AMControl* downstreamActuatorControl();
 	/// Returns the downstream actuator window control.
-	AMControl* downstreamActuatorWindowControl() const { return downstreamActuatorWindow_; }
+	AMControl* downstreamActuatorWindowControl();
 	/// Returns the downstream actuator filter thickness control.
-	AMControl* downstreamActuatorFilterThicknessControl() const { return downstreamActuatorFilterThickness_; }
+	AMControl* downstreamActuatorFilterThicknessControl();
 
 	/// Returns the total filter thickness control.
-	AMControl* filterThicknessControl() const { return filterThickness_; }
+	AMControl* filterThicknessControl();
 
 protected:
 
@@ -57,19 +64,23 @@ protected:
 	AMControl *upstreamPosition_;
 	/// The upstream status control.
 	AMControl *upstreamStatus_;
+	/// The upstream actuator control.
+	BioXASCarbonFilterFarmActuatorControl *upstreamActuator_;
 	/// The upstream actuator window control.
 	BioXASCarbonFilterFarmActuatorWindowControl *upstreamActuatorWindow_;
 	/// The upstream actuator filter thickness control.
-	BioXASCarbonFilterFarmActuatorFilterThicknessControl *upstreamActuatorFilterThickness_;
+	BioXASCarbonFilterFarmActuatorWindowFilterThicknessControl *upstreamActuatorFilterThickness_;
 
 	/// The downstream position motor control.
 	AMControl *downstreamPosition_;
 	/// The downstream status control.
 	AMControl *downstreamStatus_;
+	/// The downstream actuator control.
+	BioXASCarbonFilterFarmActuatorControl *downstreamActuator_;
 	/// The downstream actuator window control.
 	BioXASCarbonFilterFarmActuatorWindowControl *downstreamActuatorWindow_;
 	/// The downstream actuator filter thickness control.
-	BioXASCarbonFilterFarmActuatorFilterThicknessControl *downstreamActuatorFilterThickness_;
+	BioXASCarbonFilterFarmActuatorWindowFilterThicknessControl *downstreamActuatorFilterThickness_;
 
 	/// The total filter control.
 	BioXASCarbonFilterFarmFilterThicknessControl *filterThickness_;

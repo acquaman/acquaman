@@ -905,9 +905,17 @@ void BioXASSideBeamline::setupExposedControls()
 	addExposedControl(jjSlits_->horizontalCenterControl());
 	addExposedControl(jjSlits_->horizontalGapControl());
 
-	// Carbon filter farm control.
+	// Carbon filter farm controls.
 
-	addExposedControl(carbonFilterFarm_->filterControl());
+	addExposedControl(carbonFilterFarm_->upstreamActuatorControl());
+	addExposedControl(carbonFilterFarm_->upstreamActuatorWindowControl());
+	addExposedControl(carbonFilterFarm_->upstreamActuatorFilterThicknessControl());
+
+	addExposedControl(carbonFilterFarm_->downstreamActuatorControl());
+	addExposedControl(carbonFilterFarm_->downstreamActuatorWindowControl());
+	addExposedControl(carbonFilterFarm_->downstreamActuatorFilterThicknessControl());
+
+	addExposedControl(carbonFilterFarm_->filterThicknessControl());
 
 	// DBHR controls.
 

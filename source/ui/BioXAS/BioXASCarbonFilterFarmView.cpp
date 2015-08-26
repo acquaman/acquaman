@@ -10,26 +10,46 @@ BioXASCarbonFilterFarmView::BioXASCarbonFilterFarmView(BioXASCarbonFilterFarm *f
 
 	// Create UI elements.
 
-	QLabel *upstreamPrompt = new QLabel("Upstream actuator:");
-	upstreamWindowEditor_ = new AMExtendedControlEditor(0);
-	upstreamThicknessEditor_ = new AMExtendedControlEditor(0);
+	upstreamPositionEditor_ = new AMExtendedControlEditor(0);
+	upstreamPositionEditor_->setTitle("Position");
 
-	QLabel *downstreamPrompt = new QLabel("Downstream actuator:");
+	upstreamStatusEditor_ = new AMExtendedControlEditor(0, 0, true);
+	upstreamStatusEditor_->setTitle("Status");
+
+	upstreamWindowEditor_ = new AMExtendedControlEditor(0);
+	upstreamWindowEditor_->setTitle("Active window");
+
+	upstreamThicknessEditor_ = new AMExtendedControlEditor(0);
+	upstreamThicknessEditor_->setTitle("Filter thickness");
+
+	downstreamPositionEditor_ = new AMExtendedControlEditor(0);
+	downstreamPositionEditor_->setTitle("Position");
+
+	downstreamStatusEditor_ = new AMExtendedControlEditor(0, 0, true);
+	downstreamStatusEditor_->setTitle("Status");
+
 	downstreamWindowEditor_ = new AMExtendedControlEditor(0);
+	downstreamWindowEditor_->setTitle("Active window");
+
 	downstreamThicknessEditor_ = new AMExtendedControlEditor(0);
+	downstreamThicknessEditor_->setTitle("Filter thickness");
 
 	totalThicknessEditor_ = new AMExtendedControlEditor(0);
+	totalThicknessEditor_->setTitle("Total filter thickness");
 
 	// Create and set layouts.
 
-	QGridLayout *layout = new QGridLayout();
-	layout->addWidget(upstreamPrompt, 0, 0);
-	layout->addWidget(upstreamWindowEditor_, 0, 1);
-	layout->addWidget(upstreamThicknessEditor_, 0, 2);
-	layout->addWidget(downstreamPrompt, 1, 0);
-	layout->addWidget(downstreamWindowEditor_, 1, 1);
-	layout->addWidget(downstreamThicknessEditor_, 1, 2);
-	layout->addWidget(totalThicknessEditor_, 2, 2);
+	QWidget *upstreamActuatorView = createActuatorView("Upstream actuator", upstreamPositionEditor_, upstreamStatusEditor_, upstreamWindowEditor_, upstreamThicknessEditor_);
+
+	QWidget *downstreamActuatorView = createActuatorView("Downstream actuator", downstreamPositionEditor_, downstreamStatusEditor_, downstreamWindowEditor_, downstreamThicknessEditor_);
+
+	QHBoxLayout *actuatorsLayout = new QHBoxLayout();
+	actuatorsLayout->addWidget(upstreamActuatorView);
+	actuatorsLayout->addWidget(downstreamActuatorView);
+
+	QVBoxLayout *layout = new QVBoxLayout();
+	layout->addLayout(actuatorsLayout);
+	layout->addWidget(totalThicknessEditor_);
 
 	setLayout(layout);
 
@@ -56,6 +76,11 @@ void BioXASCarbonFilterFarmView::setFilterFarm(BioXASCarbonFilterFarm *newFilter
 			downstreamWindowEditor_->setControl(0);
 			downstreamThicknessEditor_->setControl(0);
 			totalThicknessEditor_->setControl(0);
+
+			upstreamPositionEditor_->setControl(0);
+			upstreamStatusEditor_->setControl(0);
+			downstreamPositionEditor_->setControl(0);
+			downstreamStatusEditor_->setControl(0);
 		}
 
 		filterFarm_ = newFilterFarm;
@@ -69,8 +94,38 @@ void BioXASCarbonFilterFarmView::setFilterFarm(BioXASCarbonFilterFarm *newFilter
 			downstreamWindowEditor_->setControl(filterFarm_->downstreamActuatorWindowControl());
 			downstreamThicknessEditor_->setControl(filterFarm_->downstreamActuatorFilterThicknessControl());
 			totalThicknessEditor_->setControl(filterFarm_->filterThicknessControl());
+
+			upstreamPositionEditor_->setControl(filterFarm_->upstreamPositionControl());
+			upstreamStatusEditor_->setControl(filterFarm_->upstreamStatusControl());
+			downstreamPositionEditor_->setControl(filterFarm_->downstreamPositionControl());
+			downstreamStatusEditor_->setControl(filterFarm_->downstreamStatusControl());
 		}
 
 		emit filterFarmChanged(filterFarm_);
 	}
+}
+
+QWidget* BioXASCarbonFilterFarmView::createActuatorView(const QString &title, QWidget *positionEditor, QWidget *statusEditor, QWidget *windowEditor, QWidget *thicknessEditor)
+{
+	QLayout *viewLayout = createActuatorViewLayout(positionEditor, statusEditor, windowEditor, thicknessEditor);
+
+	QGroupBox *view = new QGroupBox();
+	view->setTitle(title);
+	view->setLayout(viewLayout);
+
+	return view;
+}
+
+QLayout* BioXASCarbonFilterFarmView::createActuatorViewLayout(QWidget *positionEditor, QWidget *statusEditor, QWidget *windowEditor, QWidget *thicknessEditor)
+{
+	QHBoxLayout *positionLayout = new QHBoxLayout();
+	positionLayout->addWidget(positionEditor);
+	positionLayout->addWidget(statusEditor);
+
+	QVBoxLayout *actuatorLayout = new QVBoxLayout();
+	actuatorLayout->addLayout(positionLayout);
+	actuatorLayout->addWidget(windowEditor);
+	actuatorLayout->addWidget(thicknessEditor);
+
+	return actuatorLayout;
 }

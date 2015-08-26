@@ -3,13 +3,15 @@
 
 #include "beamline/BioXAS/BioXASCarbonFilterFarmControl.h"
 
+#define TIMEOUT_MOVE 10
+
 class BioXASCarbonFilterFarmActuatorControl : public BioXASCarbonFilterFarmControl
 {
     Q_OBJECT
 
 public:
 	/// Constructor.
-	explicit BioXASCarbonFilterFarmActuatorControl(const QString &name, const QString &units, QObject *parent = 0);
+	explicit BioXASCarbonFilterFarmActuatorControl(const QString &name, const QString &units, AMControl *positionControl, AMControl *statusControl, QObject *parent = 0);
 	/// Destructor.
 	virtual ~BioXASCarbonFilterFarmActuatorControl();
 
@@ -33,15 +35,21 @@ signals:
 
 public slots:
 	/// Sets the position control.
-	virtual void setPositionControl(AMControl *newControl);
+	void setPositionControl(AMControl *newControl);
 	/// Sets the status control.
-	virtual void setStatusControl(AMControl *newControl);
+	void setStatusControl(AMControl *newControl);
 
 protected slots:
 	/// Updates the connected state.
 	virtual void updateConnected();
+	/// Updates the current value.
+	virtual void updateValue();
 	/// Updates the moving state.
 	virtual void updateMoving();
+
+protected:
+	/// Returns a new action that moves the actuator to the desired window setpoint. Returns 0 if unable to move or if the setpoint is invalid.
+	virtual AMAction3* createMoveAction(double windowSetpoint);
 
 protected:
 	/// The position control.

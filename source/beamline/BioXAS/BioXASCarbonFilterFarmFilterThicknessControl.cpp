@@ -1,6 +1,8 @@
 #include "BioXASCarbonFilterFarmFilterThicknessControl.h"
+#include "actions3/AMActionSupport.h"
+#include "actions3/AMListAction3.h"
 
-BioXASCarbonFilterFarmFilterThicknessControl::BioXASCarbonFilterFarmFilterThicknessControl(const QString &name, const QString &units, BioXASCarbonFilterFarmActuatorFilterThicknessControl *upstreamFilterThickness, BioXASCarbonFilterFarmActuatorFilterThicknessControl *downstreamFilterThickness, QObject *parent) :
+BioXASCarbonFilterFarmFilterThicknessControl::BioXASCarbonFilterFarmFilterThicknessControl(const QString &name, const QString &units, BioXASCarbonFilterFarmActuatorWindowFilterThicknessControl *upstreamFilterThickness, BioXASCarbonFilterFarmActuatorWindowFilterThicknessControl *downstreamFilterThickness, QObject *parent) :
 	BioXASCarbonFilterFarmControl(name, units, parent)
 {
 	// Initialize inherited variables.
@@ -10,7 +12,7 @@ BioXASCarbonFilterFarmFilterThicknessControl::BioXASCarbonFilterFarmFilterThickn
 	minimumValue_ = 0;
 	maximumValue_ = 1000;
 
-	setContextKnownDescription("Filter Farm Thickness Control");
+	setContextKnownDescription("Filter Thickness Control");
 
 	// Initialize local variables.
 
@@ -21,8 +23,6 @@ BioXASCarbonFilterFarmFilterThicknessControl::BioXASCarbonFilterFarmFilterThickn
 
 	setUpstreamFilterThicknessControl(upstreamFilterThickness);
 	setDownstreamFilterThicknessControl(downstreamFilterThickness);
-
-	updateStates();
 }
 
 BioXASCarbonFilterFarmFilterThicknessControl::~BioXASCarbonFilterFarmFilterThicknessControl()
@@ -81,7 +81,7 @@ double BioXASCarbonFilterFarmFilterThicknessControl::downstreamFilterThickness(d
 	return result;
 }
 
-void BioXASCarbonFilterFarmFilterThicknessControl::setUpstreamFilterThicknessControl(BioXASCarbonFilterFarmActuatorFilterThicknessControl *newControl)
+void BioXASCarbonFilterFarmFilterThicknessControl::setUpstreamFilterThicknessControl(BioXASCarbonFilterFarmActuatorWindowFilterThicknessControl *newControl)
 {
 	if (upstreamFilterThickness_ != newControl) {
 
@@ -97,7 +97,7 @@ void BioXASCarbonFilterFarmFilterThicknessControl::setUpstreamFilterThicknessCon
 	}
 }
 
-void BioXASCarbonFilterFarmFilterThicknessControl::setDownstreamFilterThicknessControl(BioXASCarbonFilterFarmActuatorFilterThicknessControl *newControl)
+void BioXASCarbonFilterFarmFilterThicknessControl::setDownstreamFilterThicknessControl(BioXASCarbonFilterFarmActuatorWindowFilterThicknessControl *newControl)
 {
 	if (downstreamFilterThickness_ != newControl) {
 

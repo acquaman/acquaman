@@ -24,7 +24,6 @@ HEADERS += \
 	source/acquaman/BioXAS/BioXASScanConfigurationDbObject.h \
 	source/acquaman/BioXAS/BioXASScanConfiguration.h \
 	source/beamline/BioXAS/BioXASCarbonFilterFarm.h \
-	source/beamline/BioXAS/BioXASCarbonFilterFarmActuatorControl.h \
 	source/beamline/BioXAS/BioXASXIAFilters.h \
 	source/ui/BioXAS/BioXASXIAFiltersView.h \
 	source/ui/BioXAS/BioXASCarbonFilterFarmView.h \
@@ -61,10 +60,10 @@ HEADERS += \
     source/beamline/BioXAS/BioXASXIAFiltersControl.h \
     source/beamline/BioXAS/BioXASDBHRMirrors.h \
 	source/ui/BioXAS/BioXASDBHRMirrorsView.h \
-    source/beamline/BioXAS/BioXASCarbonFilterFarmActuator.h \
     source/beamline/BioXAS/BioXASCarbonFilterFarmActuatorWindowControl.h \
     source/beamline/BioXAS/BioXASCarbonFilterFarmFilterThicknessControl.h \
-    source/beamline/BioXAS/BioXASCarbonFilterFarmActuatorFilterThicknessControl.h
+    source/beamline/BioXAS/BioXASCarbonFilterFarmActuatorControl.h \
+    source/beamline/BioXAS/BioXASCarbonFilterFarmActuatorWindowFilterThicknessControl.h
 
 SOURCES += \
 	source/acquaman/BioXAS/BioXASXRFScanConfiguration.cpp \
@@ -84,7 +83,6 @@ SOURCES += \
 	source/acquaman/BioXAS/BioXASScanConfigurationDbObject.cpp \
 	source/acquaman/BioXAS/BioXASScanConfiguration.cpp \
 	source/beamline/BioXAS/BioXASCarbonFilterFarm.cpp \
-	source/beamline/BioXAS/BioXASCarbonFilterFarmActuatorControl.cpp \
 	source/beamline/BioXAS/BioXASXIAFilters.cpp \
 	source/ui/BioXAS/BioXASXIAFiltersView.cpp \
 	source/ui/BioXAS/BioXASCarbonFilterFarmView.cpp \
@@ -120,10 +118,22 @@ SOURCES += \
     source/beamline/BioXAS/BioXASXIAFiltersControl.cpp \
     source/beamline/BioXAS/BioXASDBHRMirrors.cpp \
 	source/ui/BioXAS/BioXASDBHRMirrorsView.cpp \
-    source/beamline/BioXAS/BioXASCarbonFilterFarmActuator.cpp \
     source/beamline/BioXAS/BioXASCarbonFilterFarmActuatorWindowControl.cpp \
     source/beamline/BioXAS/BioXASCarbonFilterFarmFilterThicknessControl.cpp \
-    source/beamline/BioXAS/BioXASCarbonFilterFarmActuatorFilterThicknessControl.cpp
+    source/beamline/BioXAS/BioXASCarbonFilterFarmActuatorFilterThicknessControl.cpp \
+    source/beamline/BioXAS/BioXASCarbonFilterFarmActuatorControl.cpp
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

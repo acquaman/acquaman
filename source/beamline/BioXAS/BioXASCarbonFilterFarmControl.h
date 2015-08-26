@@ -2,7 +2,7 @@
 #define BIOXASCARBONFILTERFARMCONTROL_H
 
 #include "beamline/AMPseudoMotorControl.h"
-#include "beamline/BioXAS/BioXASCarbonFilterFarmActuatorControl.h"
+#include "beamline/BioXAS/BioXASCarbonFilterFarm.h"
 
 // error codes.
 

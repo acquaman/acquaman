@@ -285,7 +285,14 @@ void BioXASMainBeamline::setupExposedControls()
 	// Carbon filter farm controls.
 
 	addExposedControl(carbonFilterFarm_->upstreamActuatorControl());
+	addExposedControl(carbonFilterFarm_->upstreamActuatorWindowControl());
+	addExposedControl(carbonFilterFarm_->upstreamActuatorFilterThicknessControl());
+
 	addExposedControl(carbonFilterFarm_->downstreamActuatorControl());
+	addExposedControl(carbonFilterFarm_->downstreamActuatorWindowControl());
+	addExposedControl(carbonFilterFarm_->downstreamActuatorFilterThicknessControl());
+
+	addExposedControl(carbonFilterFarm_->filterThicknessControl());
 
 	// JJ slits controls.
 

@@ -2,7 +2,7 @@
 #define BIOXASCARBONFILTERFARMFILTERTHICKNESSCONTROL_H
 
 #include "beamline/BioXAS/BioXASCarbonFilterFarmControl.h"
-#include "beamline/BioXAS/BioXASCarbonFilterFarmActuatorFilterThicknessControl.h"
+#include "beamline/BioXAS/BioXASCarbonFilterFarmActuatorWindowFilterThicknessControl.h"
 
 class BioXASCarbonFilterFarmFilterThicknessControl : public BioXASCarbonFilterFarmControl
 {
@@ -10,7 +10,7 @@ class BioXASCarbonFilterFarmFilterThicknessControl : public BioXASCarbonFilterFa
 
 public:
 	/// Constructor.
-	explicit BioXASCarbonFilterFarmFilterThicknessControl(const QString &name, const QString &units, BioXASCarbonFilterFarmActuatorFilterThicknessControl *upstreamFilterThickness, BioXASCarbonFilterFarmActuatorFilterThicknessControl *downstreamFilterThickness, QObject *parent = 0);
+	explicit BioXASCarbonFilterFarmFilterThicknessControl(const QString &name, const QString &units, BioXASCarbonFilterFarmActuatorWindowFilterThicknessControl *upstreamFilterThickness, BioXASCarbonFilterFarmActuatorWindowFilterThicknessControl *downstreamFilterThickness, QObject *parent = 0);
 	/// Destructor.
 	virtual ~BioXASCarbonFilterFarmFilterThicknessControl();
 
@@ -42,9 +42,9 @@ signals:
 
 public slots:
 	/// Sets the upstream actuator filter thickness control.
-	void setUpstreamFilterThicknessControl(BioXASCarbonFilterFarmActuatorFilterThicknessControl *newControl);
+	void setUpstreamFilterThicknessControl(BioXASCarbonFilterFarmActuatorWindowFilterThicknessControl *newControl);
 	/// Sets the downstream actuator filter thickness control.
-	void setDownstreamFilterThicknessControl(BioXASCarbonFilterFarmActuatorFilterThicknessControl *newControl);
+	void setDownstreamFilterThicknessControl(BioXASCarbonFilterFarmActuatorWindowFilterThicknessControl *newControl);
 	/// Sets a total filter thickness to upstream and downstream filter thicknesses mapping.
 	void setFilterThickness(double totalFilterThickness, double upstreamFilterThickness, double downstreamFilterThickness);
 
@@ -66,9 +66,9 @@ protected:
 	/// The mapping between total filter thickness and the desired downstream filter thickness.
 	QMap<double, double> downstreamFilterThicknessesMap_;
 	/// The upstream actuator filter thickness control.
-	BioXASCarbonFilterFarmActuatorFilterThicknessControl *upstreamFilterThickness_;
+	BioXASCarbonFilterFarmActuatorWindowFilterThicknessControl *upstreamFilterThickness_;
 	/// The downstream actuator filter thickness control.
-	BioXASCarbonFilterFarmActuatorFilterThicknessControl *downstreamFilterThickness_;
+	BioXASCarbonFilterFarmActuatorWindowFilterThicknessControl *downstreamFilterThickness_;
 };
 
 #endif // BIOXASCARBONFILTERFARMFILTERTHICKNESSCONTROL_H
