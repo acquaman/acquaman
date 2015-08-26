@@ -51,7 +51,7 @@ void AMCompositeControlDirectionMoveButton::setControl(AMControl *control)
 
 	control_ = control;
 	if(control_) {
-		connect(control_, SIGNAL(destroyed()), this, SLOT(oncontrolDestroyed()));
+		connect(control_, SIGNAL(destroyed()), this, SLOT(onControlDestroyed()));
 		connect(control_, SIGNAL(connected(bool)), this, SLOT(checkStatus()));
 	}
 
@@ -103,7 +103,7 @@ void AMCompositeControlDirectionMoveButton::setControlR(AMControl *controlR)
 
 	controlR_ = controlR;
 	if(control_) {
-		connect(controlR_, SIGNAL(destroyed()), this, SLOT(oncontrolRDestroyed()));
+		connect(controlR_, SIGNAL(destroyed()), this, SLOT(onControlRDestroyed()));
 		connect(controlR_, SIGNAL(connected(bool)), this, SLOT(checkStatus()));
 	}
 
