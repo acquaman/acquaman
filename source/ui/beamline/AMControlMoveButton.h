@@ -43,7 +43,7 @@ public:
 								 bool directionReversed = false);
 
 	/// Set the control that is moved by this button. It's okay for \c control to be 0, in which case this button will simply do nothing until you call setControl() again with a valid control.
-	void setControl(AMControl* control);
+	virtual void setControl(AMControl* control);
 	/// Returns the control that is moved by this button. Could be 0 if this button has no control set.
 	AMControl* control() const { return control_; }
 
@@ -67,7 +67,7 @@ public slots:
 	void setDirectionReversed(bool trueForReverse) { directionReversed_ = trueForReverse; }
 
 	/// "Press" the button: When set to true, the button's down state is activated.  When changed to false, the button is changed to the up state, and a click() is generated.  \note If the button is already in the up state when press(false) is called, no click() will be generated.
-	void press(bool down = true);
+	virtual void press(bool down = true);
 	/// Synonym for press(false)
 	void release() { press(false); }
 
@@ -77,11 +77,11 @@ signals:
 
 protected slots:
 	/// When the button is clicked, a relativeMove() will be initiated on the control(), with a distance of currentStepSize().  If reverseDirection() is true, the direction will be reversed from the sign of currentStepSize().
-	void onButtonClicked();
+	virtual void onButtonClicked();
 	/// When the existing control is destroyed, we must set our control to 0.
 	void onControlDestroyed();
 	/// Called when the button is right-clicked to request a custom context menu
-	void onCustomContextMenuRequested(const QPoint& point);
+	virtual void onCustomContextMenuRequested(const QPoint& point);
 
 protected:
 

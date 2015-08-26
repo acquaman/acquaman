@@ -133,6 +133,7 @@ HEADERS += \
 	source/dataman/import/AMScanDatabaseImportController.h \
 	source/ui/dataman/AMScanDatabaseImportWizard.h \
 	source/ui/beamline/AMControlMoveButton.h \
+	source/ui/beamline/AMCompositeControlDirectionMoveButton.h \
 	source/beamline/AMSampleManipulator.h \
 	source/beamline/AMControlSetSampleManipulator.h \
 	source/util/AMGithubManager.h \
@@ -527,6 +528,7 @@ SOURCES += \
 	source/dataman/import/AMScanDatabaseImportController.cpp \
 	source/ui/dataman/AMScanDatabaseImportWizard.cpp \
 	source/ui/beamline/AMControlMoveButton.cpp \
+	source/ui/beamline/AMCompositeControlDirectionMoveButton.cpp \
 	source/beamline/AMControlSetSampleManipulator.cpp \
 	source/util/AMGithubManager.cpp \
 	source/ui/util/AMGithubIssueSubmissionView.cpp \
