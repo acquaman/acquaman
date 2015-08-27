@@ -18,7 +18,7 @@ AMGenericStepScanController::AMGenericStepScanController(AMGenericStepScanConfig
 
 	if (configuration_->scanAxes().size() == 2){
 
-		int yPoints = int(round((double(configuration_->scanAxisAt(1)->regionAt(0)->regionEnd()) - double(configuration_->scanAxisAt(1)->regionAt(0)->regionStart()))/double(configuration_->scanAxisAt(1)->regionAt(0)->regionStep()))) + 1;
+		int yPoints = configuration_->scanAxisAt(1)->numberOfPoints();
 		AMControlInfo axisControlInfo2 = configuration_->axisControlInfos().at(1);
 		scan_->rawData()->addScanAxis(AMAxisInfo(axisControlInfo2.name(), yPoints, axisControlInfo2.description()));
 	}

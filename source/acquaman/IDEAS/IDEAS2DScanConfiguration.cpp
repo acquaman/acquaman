@@ -1,22 +1,19 @@
-#include "SXRMB2DMapScanConfiguration.h"
+#include "IDEAS2DScanConfiguration.h"
 
-#include <math.h>
+#include "acquaman/IDEAS/IDEAS2DScanActionController.h"
+#include "ui/IDEAS/IDEAS2DScanConfigurationView.h"
+
 #include <QStringBuilder>
 
-#include "acquaman/SXRMB/SXRMB2DScanActionController.h"
-#include "ui/SXRMB/SXRMB2DMapScanConfigurationView.h"
-
-
-SXRMB2DMapScanConfiguration::SXRMB2DMapScanConfiguration(QObject *parent)
-	: AMStepScanConfiguration(parent), SXRMBScanConfiguration()
+IDEAS2DScanConfiguration::IDEAS2DScanConfiguration(QObject *parent)
+	: AMStepScanConfiguration(parent), IDEASScanConfiguration()
 {
-	timeOffset_ = 0.8;
+	setAutoExportEnabled(false);
 
-	setName("2D Map");
-	setUserScanName("2D Map");
-	setEnergy(3000.0);
+	setName("Unnamed Scan");
+	setUserScanName("Unnamed Scan");
 
-	exportAsAscii_ = false;
+	dbObject_->setParent(this);
 
 	AMScanAxisRegion *region = new AMScanAxisRegion;
 	AMScanAxis *axis = new AMScanAxis(AMScanAxis::StepAxis, region);
@@ -34,14 +31,14 @@ SXRMB2DMapScanConfiguration::SXRMB2DMapScanConfiguration(QObject *parent)
 	connect(scanAxisAt(1)->regionAt(0), SIGNAL(regionEndChanged(AMNumber)), this, SLOT(computeTotalTime()));
 }
 
-SXRMB2DMapScanConfiguration::SXRMB2DMapScanConfiguration(const SXRMB2DMapScanConfiguration &original)
-	: AMStepScanConfiguration(original), SXRMBScanConfiguration(original)
+IDEAS2DScanConfiguration::IDEAS2DScanConfiguration(const IDEAS2DScanConfiguration &original)
+	: AMStepScanConfiguration(original), IDEASScanConfiguration(original)
 {
 	setName(original.name());
-	setUserScanName(original.userScanName());
+	setUserScanName(original.name());
+	dbObject_->setParent(this);
 
-	exportAsAscii_ = original.exportAsAscii();
-
+	computeTotalTime();
 	connect(scanAxisAt(0)->regionAt(0), SIGNAL(regionStartChanged(AMNumber)), this, SLOT(computeTotalTime()));
 	connect(scanAxisAt(0)->regionAt(0), SIGNAL(regionStepChanged(AMNumber)), this, SLOT(computeTotalTime()));
 	connect(scanAxisAt(0)->regionAt(0), SIGNAL(regionEndChanged(AMNumber)), this, SLOT(computeTotalTime()));
@@ -51,30 +48,51 @@ SXRMB2DMapScanConfiguration::SXRMB2DMapScanConfiguration(const SXRMB2DMapScanCon
 	connect(scanAxisAt(1)->regionAt(0), SIGNAL(regionEndChanged(AMNumber)), this, SLOT(computeTotalTime()));
 }
 
-AMScanConfiguration *SXRMB2DMapScanConfiguration::createCopy() const
+IDEAS2DScanConfiguration::~IDEAS2DScanConfiguration()
 {
-	AMScanConfiguration *configuration = new SXRMB2DMapScanConfiguration(*this);
+
+}
+
+AMScanConfiguration* IDEAS2DScanConfiguration::createCopy() const
+{
+	AMScanConfiguration *configuration = new IDEAS2DScanConfiguration(*this);
 	configuration->dissociateFromDb(true);
 	return configuration;
 }
 
-AMScanController *SXRMB2DMapScanConfiguration::createController()
+AMScanController* IDEAS2DScanConfiguration::createController()
 {
-	AMScanActionController *controller = new SXRMB2DScanActionController(this);
+	IDEAS2DScanActionController *controller = new IDEAS2DScanActionController(this);
 	controller->buildScanController();
 
 	return controller;
 }
 
-AMScanConfigurationView *SXRMB2DMapScanConfiguration::createView()
+AMScanConfigurationView* IDEAS2DScanConfiguration::createView()
 {
-	return new SXRMB2DMapScanConfigurationView(this);
+	return new IDEAS2DScanConfigurationView(this);
 }
 
-QString SXRMB2DMapScanConfiguration::headerText() const
+QString IDEAS2DScanConfiguration::technique() const
+{
+	return "2D Scan";
+}
+
+QString IDEAS2DScanConfiguration::description() const
+{
+	return "IDEAS 2D Scan";
+}
+
+QString IDEAS2DScanConfiguration::detailedDescription() const
+{
+	return "Spatial x-ray fluorescence 2D map";
+}
+
+QString IDEAS2DScanConfiguration::headerText() const
 {
 	QString header("Configuration of the Scan\n\n");
 
+	header.append(fluorescenceHeaderString(fluorescenceDetector()));
 	header.append(regionsOfInterestHeaderString(regionsOfInterest()) % "\n");
 
 	header.append("\n");
@@ -85,30 +103,15 @@ QString SXRMB2DMapScanConfiguration::headerText() const
 	header.append("Y Axis\n");
 	header.append(QString("Start:\t%1 mm\tEnd:\t%2 mm\n").arg(double(scanAxisAt(1)->regionAt(0)->regionStart())).arg(double(scanAxisAt(1)->regionAt(0)->regionEnd())));
 	header.append(QString("Step Size:\t%1 mm\n").arg(double(scanAxisAt(1)->regionAt(0)->regionStep())));
-	header.append("\n");
-	header.append(QString("Focus position:\t%1 mm\n").arg(y()));
 
 	return header;
 }
 
-void SXRMB2DMapScanConfiguration::computeTotalTimeImplementation()
+void IDEAS2DScanConfiguration::computeTotalTimeImplementation()
 {
-	double time = 0;
+	double time = scanAxisAt(0)->numberOfPoints()*scanAxisAt(1)->numberOfPoints()*double(scanAxisAt(0)->regionAt(0)->regionTime());
 
-	// Get the number of points.
-	time = scanAxisAt(0)->numberOfPoints() + scanAxisAt(1)->numberOfPoints();
-
-	time *= double(scanAxisAt(0)->regionAt(0)->regionTime()) + timeOffset_;
-
-	totalTime_ = time + 9; // initialization time is about 9s
+	totalTime_ = time;
 	setExpectedDuration(totalTime_);
 	emit totalTimeChanged(totalTime_);
-}
-
-void SXRMB2DMapScanConfiguration::setExportAsAscii(bool exportAsAscii)
-{
-	if (exportAsAscii_ == exportAsAscii)
-		return;
-
-	exportAsAscii_ = exportAsAscii;
 }

@@ -38,7 +38,7 @@ public:
     virtual ~IDEASKETEKDetector();
 
 	/// Returns the type of the detector
-	virtual int type() { return IDEAS::KetekDetector; }
+	virtual int type() { return IDEAS::Ketek; }
 
 	/// The KETEK doesn't explicitly require powering on
     virtual bool requiresPower() const { return false; }

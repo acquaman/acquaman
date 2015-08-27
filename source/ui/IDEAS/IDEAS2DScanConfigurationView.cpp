@@ -1,4 +1,9 @@
-#include "SXRMB2DOxidationMapScanConfigurationView.h"
+#include "IDEAS2DScanConfigurationView.h"
+
+#include "application/IDEAS/IDEAS.h"
+#include "beamline/IDEAS/IDEASBeamline.h"
+
+#include "util/AMDateTimeUtils.h"
 
 #include <QGridLayout>
 #include <QVBoxLayout>
@@ -9,21 +14,12 @@
 #include <QPushButton>
 #include <QSpinBox>
 #include <QMenu>
+#include <QStringBuilder>
 
-#include "application/SXRMB/SXRMB.h"
-#include "beamline/SXRMB/SXRMBBeamline.h"
-#include "ui/AMTopFrame.h"
-#include "util/AMDateTimeUtils.h"
-#include "util/AMPeriodicTable.h"
-
-SXRMB2DOxidationMapScanConfigurationView::SXRMB2DOxidationMapScanConfigurationView(SXRMB2DMapScanConfiguration *configuration, QWidget *parent)
-	: SXRMBScanConfigurationView( parent)
+IDEAS2DScanConfigurationView::IDEAS2DScanConfigurationView(IDEAS2DScanConfiguration *configuration, QWidget *parent)
+	: AMScanConfigurationView(parent)
 {
-	SXRMBBeamline *sxrmbBL = SXRMBBeamline::sxrmb();
-
 	configuration_ = configuration;
-
-	AMTopFrame *frame = new AMTopFrame("SXRMB Oxidation Map Configuration");
 
 	// 1st row: set the start position
 	hStart_ = createPositionDoubleSpinBox("H: ", " mm", configuration_->scanAxisAt(0)->regionAt(0)->regionStart(), 3);
@@ -60,14 +56,6 @@ SXRMB2DOxidationMapScanConfigurationView::SXRMB2DOxidationMapScanConfigurationVi
 	connect(vStep_, SIGNAL(editingFinished()), this, SLOT(onYStepChanged()));
 	connect(configuration_->scanAxisAt(1)->regionAt(0), SIGNAL(regionStepChanged(AMNumber)), this, SLOT(setYAxisStep(AMNumber)));
 
-	// 4th row: set the focus position
-	normalPosition_ = createPositionDoubleSpinBox("N: ", " mm", configuration_->y(), 3);
-	connect(normalPosition_, SIGNAL(editingFinished()), this, SLOT(onNormalPositionChanged()));
-	connect(configuration_->dbObject(), SIGNAL(yChanged(double)), normalPosition_, SLOT(setValue(double)));
-
-	QPushButton *updateNormalPosition = new QPushButton("Set Normal");
-	connect(updateNormalPosition, SIGNAL(clicked()), this, SLOT(onSetNormalPosition()));
-
 	// the grid layout to hold the positions
 	QGridLayout *positionGridLayout = new QGridLayout;
 	positionGridLayout->addWidget(new QLabel("Start:"), 0, 0, 1, 2);
@@ -84,10 +72,6 @@ SXRMB2DOxidationMapScanConfigurationView::SXRMB2DOxidationMapScanConfigurationVi
 	positionGridLayout->addWidget(hStep_, 2, 2, 1, 2);
 	positionGridLayout->addWidget(vStep_, 2, 4, 1, 2);
 
-	positionGridLayout->addWidget(new QLabel("Focus Position:"), 3, 0, 1, 2);
-	positionGridLayout->addWidget(normalPosition_, 3, 2, 1, 2);
-	positionGridLayout->addWidget(updateNormalPosition, 3, 6, 1, 2);
-
 	// the map information
 	mapInfo_ = new QLabel;
 	updateMapInfo();
@@ -97,7 +81,6 @@ SXRMB2DOxidationMapScanConfigurationView::SXRMB2DOxidationMapScanConfigurationVi
 	positionsLayout->addLayout(positionGridLayout);
 	positionsLayout->addWidget(mapInfo_);
 
-	// Setup the group box for setting the start and end points.
 	QGroupBox *positionsBox = new QGroupBox("Positions");
 	positionsBox->setLayout(positionsLayout);
 
@@ -116,6 +99,7 @@ SXRMB2DOxidationMapScanConfigurationView::SXRMB2DOxidationMapScanConfigurationVi
 	connect(configuration_, SIGNAL(totalTimeChanged(double)), this, SLOT(onEstimatedTimeChanged()));
 	onEstimatedTimeChanged();
 
+	// Setup the group box for time.
 	QVBoxLayout *timeBoxLayout = new QVBoxLayout;
 	timeBoxLayout->addLayout(timeLayout);
 	timeBoxLayout->addWidget(estimatedTime_);
@@ -124,7 +108,7 @@ SXRMB2DOxidationMapScanConfigurationView::SXRMB2DOxidationMapScanConfigurationVi
 	timeGroupBox->setLayout(timeBoxLayout);
 
 	// Scan name selection
-	scanName_ = createScanNameView(configuration_->name());
+	scanName_ = createScanNameView(configuration_->userScanName());
 	connect(scanName_, SIGNAL(editingFinished()), this, SLOT(onScanNameEdited()));
 	connect(configuration_, SIGNAL(nameChanged(QString)), scanName_, SLOT(setText(QString)));
 	onScanNameEdited();
@@ -135,23 +119,29 @@ SXRMB2DOxidationMapScanConfigurationView::SXRMB2DOxidationMapScanConfigurationVi
 	QGroupBox *scanNameGroupBox = new QGroupBox("Scan Information");
 	scanNameGroupBox->setLayout(scanNameLayout);
 
-	// Auto-export option.
-	QGroupBox *autoExportGroupBox = addExporterOptionsView(QStringList() << "Ascii" << "SMAK");
-	connect(autoExportButtonGroup_, SIGNAL(buttonClicked(int)), this, SLOT(updateAutoExporter(int)));
-	autoExportButtonGroup_->button(configuration_->exportAsAscii() ? 0 : 1)->click();
+	// BL energy setting
+	scanEnergySpinBox_ = createEnergySpinBox("eV", 0, 15000, configuration_->energy());
+	scanEnergySettingWarningLabel_ = new QLabel("Settings do not match beamline.");
+	scanEnergySettingWarningLabel_->setStyleSheet("QLabel {color: red}");
+	setScanEnergyFromBeamlineButton_ = new QPushButton("Set From Beamline");
 
-	// The oxidation energy view.
-	AMEnergyList energyList;
-	energyList.insertEnergy(0, AMPeriodicTable::table()->elementBySymbol("S")->KEdge().energy());
-	oxidationEnergyListView_ = new AMEnergyListView("", energyList);
-	oxidationEnergyListView_->setRange(sxrmbBL->energy()->minimumValue(), sxrmbBL->energy()->maximumValue());
+	connect(scanEnergySpinBox_, SIGNAL(editingFinished()), this, SLOT(onScanEnergySpinBoxEditingFinished()));
+	connect(setScanEnergyFromBeamlineButton_, SIGNAL(clicked()), this, SLOT(onSetScanEnergyFromBeamlineButtonClicked()));
+	connect(IDEASBeamline::ideas()->monoEnergyControl(), SIGNAL(valueChanged(double)), this, SLOT(onBeamlineEnergyChanged(double)));
+	onScanEnergySpinBoxEditingFinished();
 
-	QVBoxLayout *energyListViewBoxLayout = new QVBoxLayout;
-	energyListViewBoxLayout->addWidget(oxidationEnergyListView_);
-	energyListViewBoxLayout->addStretch();
+	QFormLayout *scanEnergyFL = new QFormLayout();
+	scanEnergyFL->addRow("Energy", scanEnergySpinBox_);
 
-	QGroupBox *energyListViewBox = new QGroupBox("Oxidation Energies");
-	energyListViewBox->setLayout(energyListViewBoxLayout);
+	QVBoxLayout *beamlineSettingsGroupBoxVL = new QVBoxLayout();
+	beamlineSettingsGroupBoxVL->addLayout(scanEnergyFL);
+	beamlineSettingsGroupBoxVL->addStretch();
+	beamlineSettingsGroupBoxVL->addWidget(scanEnergySettingWarningLabel_);
+	beamlineSettingsGroupBoxVL->addWidget(setScanEnergyFromBeamlineButton_);
+
+	beamlineSettingsGroupBox_ = new QGroupBox("Beamline Settings");
+	beamlineSettingsGroupBox_->setMinimumWidth(230);
+	beamlineSettingsGroupBox_->setLayout(beamlineSettingsGroupBoxVL);
 
 	// detector setting
 	QGroupBox *detectorSettingGroupBox = createAndLayoutDetectorSettings(configuration_);
@@ -166,33 +156,29 @@ SXRMB2DOxidationMapScanConfigurationView::SXRMB2DOxidationMapScanConfigurationVi
 	errorLabel_->setFont(font);
 	errorLabel_->setPalette(palette);
 
-	// Setting up the content layout to host the position setting, time setting, and scan setting
+	// Setting up the layout.
 	QGridLayout *contentsLayout = new QGridLayout;
 	contentsLayout->addWidget(positionsBox, 0, 0, 2, 4);
 	contentsLayout->addWidget(timeGroupBox, 2, 0, 1, 4);
-	contentsLayout->addWidget(scanNameGroupBox, 3, 0, 1, 3);
-	contentsLayout->addWidget(autoExportGroupBox, 3, 3, 1, 1);
-	contentsLayout->addWidget(energyListViewBox, 0, 4, 3, 2);
+	contentsLayout->addWidget(scanNameGroupBox, 3, 0, 1, 4);
+	contentsLayout->addWidget(beamlineSettingsGroupBox_, 0, 4, 3, 2);
 	contentsLayout->addWidget(detectorSettingGroupBox, 3, 4, 1, 2);
 	contentsLayout->addWidget(errorLabel_, 4, 0, 2, 4);
 
-	QHBoxLayout *squeezeContents = new QHBoxLayout;
-	squeezeContents->addStretch();
-	squeezeContents->addLayout(contentsLayout);
-	squeezeContents->addStretch();
-
-	QVBoxLayout *configViewLayout = new QVBoxLayout;
-	configViewLayout->addWidget(frame);
-	configViewLayout->addStretch();
-	configViewLayout->addLayout(squeezeContents);
-	configViewLayout->addStretch();
-
-	setLayout(configViewLayout);
-
-	connect(sxrmbBL, SIGNAL(endstationChanged(SXRMB::Endstation, SXRMB::Endstation)), this, SLOT(onBeamlineEndstationChanged(SXRMB::Endstation, SXRMB::Endstation)));
+	setLayout(contentsLayout);
 }
 
-QLineEdit *SXRMB2DOxidationMapScanConfigurationView::createScanNameView(const QString &name)
+IDEAS2DScanConfigurationView::~IDEAS2DScanConfigurationView()
+{
+
+}
+
+const AMScanConfiguration *IDEAS2DScanConfigurationView::configuration() const
+{
+	return configuration_;
+}
+
+QLineEdit *IDEAS2DScanConfigurationView::createScanNameView(const QString &name)
 {
 	QLineEdit *scanName = new QLineEdit;
 	scanName->setText(name);
@@ -201,7 +187,7 @@ QLineEdit *SXRMB2DOxidationMapScanConfigurationView::createScanNameView(const QS
 	return scanName;
 }
 
-QDoubleSpinBox *SXRMB2DOxidationMapScanConfigurationView::createPositionDoubleSpinBox(const QString &prefix, const QString &suffix, double value, int decimals)
+QDoubleSpinBox *IDEAS2DScanConfigurationView::createPositionDoubleSpinBox(const QString &prefix, const QString &suffix, double value, int decimals)
 {
 	QDoubleSpinBox *box = new QDoubleSpinBox;
 	box->setPrefix(prefix);
@@ -214,7 +200,7 @@ QDoubleSpinBox *SXRMB2DOxidationMapScanConfigurationView::createPositionDoubleSp
 	return box;
 }
 
-QDoubleSpinBox *SXRMB2DOxidationMapScanConfigurationView::createDwellTimeSpinBox(double time)
+QDoubleSpinBox *IDEAS2DScanConfigurationView::createDwellTimeSpinBox(double time)
 {
 	QDoubleSpinBox *dwellTime = new QDoubleSpinBox;
 	dwellTime->setRange(0, 1000000);
@@ -226,110 +212,135 @@ QDoubleSpinBox *SXRMB2DOxidationMapScanConfigurationView::createDwellTimeSpinBox
 	return dwellTime;
 }
 
-void SXRMB2DOxidationMapScanConfigurationView::onScanNameEdited()
+QDoubleSpinBox *IDEAS2DScanConfigurationView::createEnergySpinBox(QString units, double minimumValue, double maximumValue, double defaultValue)
+{
+	QDoubleSpinBox *sampleStageSpinBox = new QDoubleSpinBox();
+	sampleStageSpinBox->setSuffix(" " % units);
+	sampleStageSpinBox->setSingleStep(0.01);
+	sampleStageSpinBox->setDecimals(2);
+	sampleStageSpinBox->setAlignment(Qt::AlignCenter);
+	sampleStageSpinBox->setFixedWidth(110);
+
+	sampleStageSpinBox->setRange(minimumValue, maximumValue);
+	sampleStageSpinBox->setValue(defaultValue);
+
+	return sampleStageSpinBox;
+}
+
+void IDEAS2DScanConfigurationView::onScanNameEdited()
 {
 	QString name = scanName_->text();
 	configuration_->setName(name);
 	configuration_->setUserScanName(name);
 }
 
-void SXRMB2DOxidationMapScanConfigurationView::onEstimatedTimeChanged()
+void IDEAS2DScanConfigurationView::onEstimatedTimeChanged()
 {
 	estimatedTime_->setText("Estimated time per scan:\t" + AMDateTimeUtils::convertTimeToString(configuration_->totalTime()));
 }
 
-void SXRMB2DOxidationMapScanConfigurationView::onSetStartPosition()
+void IDEAS2DScanConfigurationView::onSetStartPosition()
 {
-	double h = SXRMBBeamline::sxrmb()->microprobeSampleStageX()->value();
-	double v = SXRMBBeamline::sxrmb()->microprobeSampleStageZ()->value();
-	double n = SXRMBBeamline::sxrmb()->microprobeSampleStageY()->value();;
+	double h = IDEASBeamline::ideas()->samplePlatformHorizontal()->value();
+	double v = IDEASBeamline::ideas()->samplePlatformVertical()->value();
 
 	configuration_->scanAxisAt(0)->regionAt(0)->setRegionStart(h);
 	configuration_->scanAxisAt(1)->regionAt(0)->setRegionStart(v);
-	configuration_->setY(n);
+
 	hStart_->setValue(h);
 	vStart_->setValue(v);
+
 	updateMapInfo();
 	checkScanAxisValidity();
 }
 
-void SXRMB2DOxidationMapScanConfigurationView::onSetEndPosition()
+void IDEAS2DScanConfigurationView::onSetEndPosition()
 {
-	double h = SXRMBBeamline::sxrmb()->microprobeSampleStageX()->value();
-	double v = SXRMBBeamline::sxrmb()->microprobeSampleStageZ()->value();
+	double h = IDEASBeamline::ideas()->samplePlatformHorizontal()->value();
+	double v = IDEASBeamline::ideas()->samplePlatformVertical()->value();
 
 	configuration_->scanAxisAt(0)->regionAt(0)->setRegionEnd(h);
 	configuration_->scanAxisAt(1)->regionAt(0)->setRegionEnd(v);
+
 	hEnd_->setValue(h);
 	vEnd_->setValue(v);
+
 	updateMapInfo();
 	checkScanAxisValidity();
 }
 
-void SXRMB2DOxidationMapScanConfigurationView::onSetNormalPosition()
-{
-	double n = SXRMBBeamline::sxrmb()->microprobeSampleStageY()->value();
-	configuration_->setY(n);
-	updateMapInfo();
-	checkScanAxisValidity();
-}
-
-void SXRMB2DOxidationMapScanConfigurationView::onXStartChanged()
+void IDEAS2DScanConfigurationView::onXStartChanged()
 {
 	configuration_->scanAxisAt(0)->regionAt(0)->setRegionStart(hStart_->value());
 	updateMapInfo();
 	checkScanAxisValidity();
 }
 
-void SXRMB2DOxidationMapScanConfigurationView::onXEndChanged()
+void IDEAS2DScanConfigurationView::onXEndChanged()
 {
 	configuration_->scanAxisAt(0)->regionAt(0)->setRegionEnd(hEnd_->value());
 	updateMapInfo();
 	checkScanAxisValidity();
 }
 
-void SXRMB2DOxidationMapScanConfigurationView::onXStepChanged()
+void IDEAS2DScanConfigurationView::onXStepChanged()
 {
 	configuration_->scanAxisAt(0)->regionAt(0)->setRegionStep(hStep_->value()/1000);
 	updateMapInfo();
 	checkScanAxisValidity();
 }
 
-void SXRMB2DOxidationMapScanConfigurationView::onYStartChanged()
+void IDEAS2DScanConfigurationView::onYStartChanged()
 {
 	configuration_->scanAxisAt(1)->regionAt(0)->setRegionStart(vStart_->value());
 	updateMapInfo();
 	checkScanAxisValidity();
 }
 
-void SXRMB2DOxidationMapScanConfigurationView::onYEndChanged()
+void IDEAS2DScanConfigurationView::onYEndChanged()
 {
 	configuration_->scanAxisAt(1)->regionAt(0)->setRegionEnd(vEnd_->value());
 	updateMapInfo();
 	checkScanAxisValidity();
 }
 
-void SXRMB2DOxidationMapScanConfigurationView::onYStepChanged()
+void IDEAS2DScanConfigurationView::onYStepChanged()
 {
 	configuration_->scanAxisAt(1)->regionAt(0)->setRegionStep(vStep_->value()/1000);
 	updateMapInfo();
 	checkScanAxisValidity();
 }
 
-void SXRMB2DOxidationMapScanConfigurationView::onNormalPositionChanged()
-{
-	configuration_->setY(normalPosition_->value());
-	updateMapInfo();
-	checkScanAxisValidity();
-}
-
-void SXRMB2DOxidationMapScanConfigurationView::onDwellTimeChanged()
+void IDEAS2DScanConfigurationView::onDwellTimeChanged()
 {
 	configuration_->scanAxisAt(0)->regionAt(0)->setRegionTime(dwellTime_->value());
 	configuration_->scanAxisAt(1)->regionAt(0)->setRegionTime(dwellTime_->value());
 }
 
-void SXRMB2DOxidationMapScanConfigurationView::updateMapInfo()
+void IDEAS2DScanConfigurationView::onScanEnergySpinBoxEditingFinished()
+{
+	configuration_->setEnergy(scanEnergySpinBox_->value());
+
+	if (IDEASBeamline::ideas()->monoEnergyControl()->withinTolerance(scanEnergySpinBox_->value()))
+		scanEnergySettingWarningLabel_->hide();
+
+	else
+		scanEnergySettingWarningLabel_->show();
+}
+
+void IDEAS2DScanConfigurationView::onSetScanEnergyFromBeamlineButtonClicked()
+{
+	scanEnergySpinBox_->setValue(IDEASBeamline::ideas()->monoEnergyControl()->value());
+	onScanEnergySpinBoxEditingFinished();
+}
+
+void IDEAS2DScanConfigurationView::onBeamlineEnergyChanged(double value)
+{
+	Q_UNUSED(value)
+	onScanEnergySpinBoxEditingFinished();
+}
+
+void IDEAS2DScanConfigurationView::updateMapInfo()
 {
 	double hSize = fabs(double(configuration_->scanAxisAt(0)->regionAt(0)->regionEnd())-double(configuration_->scanAxisAt(0)->regionAt(0)->regionStart()));
 	double vSize = fabs(double(configuration_->scanAxisAt(1)->regionAt(0)->regionEnd())-double(configuration_->scanAxisAt(1)->regionAt(0)->regionStart()));
@@ -346,88 +357,47 @@ void SXRMB2DOxidationMapScanConfigurationView::updateMapInfo()
 			  );
 }
 
-QGroupBox *SXRMB2DOxidationMapScanConfigurationView::addExporterOptionsView(QStringList list)
-{
-	QRadioButton *autoExportButton;
-	QHBoxLayout *autoExportLayout = new QHBoxLayout;
-	autoExportButtonGroup_ = new QButtonGroup;
-
-	for (int i = 0, iSize = list.size(); i < iSize; i++){
-
-		autoExportButton = new QRadioButton(list.at(i));
-		autoExportButtonGroup_->addButton(autoExportButton, i);
-		autoExportLayout->addWidget(autoExportButton);
-	}
-
-	QGroupBox *autoExportGroupBox = new QGroupBox("Export Options");
-	autoExportGroupBox->setLayout(autoExportLayout);
-
-	return autoExportGroupBox;
-}
-
-void SXRMB2DOxidationMapScanConfigurationView::onBeamlineEndstationChanged(SXRMB::Endstation fromEndstation, SXRMB::Endstation toEndstation)
-{
-	Q_UNUSED(fromEndstation)
-
-	if (toEndstation == SXRMB::AmbiantWithGasChamber || toEndstation == SXRMB::AmbiantWithoutGasChamber) {
-		powerOnHVControlCheckBox_->setChecked(false);
-		powerOnHVControlCheckBox_->setVisible(false);
-	} else{
-		powerOnHVControlCheckBox_->setVisible(true);
-	}
-}
-
-void SXRMB2DOxidationMapScanConfigurationView::setXAxisStart(const AMNumber &value)
+void IDEAS2DScanConfigurationView::setXAxisStart(const AMNumber &value)
 {
 	hStart_->setValue(double(value));
 }
 
-void SXRMB2DOxidationMapScanConfigurationView::setYAxisStart(const AMNumber &value)
+void IDEAS2DScanConfigurationView::setYAxisStart(const AMNumber &value)
 {
 	vStart_->setValue(double(value));
 }
 
-void SXRMB2DOxidationMapScanConfigurationView::setXAxisStep(const AMNumber &value)
+void IDEAS2DScanConfigurationView::setXAxisStep(const AMNumber &value)
 {
 	hStep_->setValue(double(value)*1000);
 }
 
-void SXRMB2DOxidationMapScanConfigurationView::setYAxisStep(const AMNumber &value)
+void IDEAS2DScanConfigurationView::setYAxisStep(const AMNumber &value)
 {
 	vStep_->setValue(double(value)*1000);
 }
 
-void SXRMB2DOxidationMapScanConfigurationView::setXAxisEnd(const AMNumber &value)
+void IDEAS2DScanConfigurationView::setXAxisEnd(const AMNumber &value)
 {
 	hEnd_->setValue(double(value));
 }
 
-void SXRMB2DOxidationMapScanConfigurationView::setYAxisEnd(const AMNumber &value)
+void IDEAS2DScanConfigurationView::setYAxisEnd(const AMNumber &value)
 {
 	vEnd_->setValue(double(value));
 }
 
-void SXRMB2DOxidationMapScanConfigurationView::setDwellTime(const AMNumber &value)
+void IDEAS2DScanConfigurationView::setDwellTime(const AMNumber &value)
 {
 	dwellTime_->setValue(double(value));
 }
 
-void SXRMB2DOxidationMapScanConfigurationView::updateAutoExporter(int useAscii)
+void IDEAS2DScanConfigurationView::onFluorescenceDetectorChanged(int detector)
 {
-	configuration_->setExportAsAscii(useAscii == 0);
+	configuration_->setFluorescenceDetector((IDEAS::FluorescenceDetectors)detector);
 }
 
-void SXRMB2DOxidationMapScanConfigurationView::onFluorescenceDetectorChanged(int detector)
-{
-	configuration_->setFluorescenceDetector((SXRMB::FluorescenceDetectors)detector);
-}
-
-void SXRMB2DOxidationMapScanConfigurationView::onPowerOnTEYHVControlEnabled(bool value)
-{
-	configuration_->setPowerOnHVControlEnabled(value);
-}
-
-void SXRMB2DOxidationMapScanConfigurationView::checkScanAxisValidity()
+void IDEAS2DScanConfigurationView::checkScanAxisValidity()
 {
 	QString errorString = "";
 
@@ -455,3 +425,40 @@ void SXRMB2DOxidationMapScanConfigurationView::checkScanAxisValidity()
 	errorLabel_->setText(errorString);
 }
 
+void IDEAS2DScanConfigurationView::updateFluorescenceDetectorComboBox(IDEAS::FluorescenceDetectors detector)
+{
+	fluorescenceDetectorComboBox_->setCurrentIndex(int(detector));
+}
+
+QComboBox *IDEAS2DScanConfigurationView::createFluorescenceComboBox()
+{
+	QComboBox *newComboBox = new QComboBox;
+	newComboBox->insertItem(0, "None");
+	newComboBox->insertItem(1, "Ketek");
+	newComboBox->insertItem(2, "13-el Ge");
+
+	return newComboBox;
+}
+
+QGroupBox *IDEAS2DScanConfigurationView::createAndLayoutDetectorSettings(IDEASScanConfiguration *configuration)
+{
+	fluorescenceDetectorComboBox_ = createFluorescenceComboBox();
+
+	QHBoxLayout *brukerDetectorHLayout = new QHBoxLayout;
+	brukerDetectorHLayout->addWidget(new QLabel("XRF:"));
+	brukerDetectorHLayout->addWidget(fluorescenceDetectorComboBox_);
+
+	QVBoxLayout *detectorBoxLayout = new QVBoxLayout;
+	detectorBoxLayout->addLayout(brukerDetectorHLayout);
+
+	QGroupBox * detectorSettingGroupBox = new QGroupBox("Detector Setting");
+	detectorSettingGroupBox->setLayout(detectorBoxLayout);
+
+	connect(fluorescenceDetectorComboBox_, SIGNAL(currentIndexChanged(int)), this, SLOT(onFluorescenceDetectorChanged(int)));
+	connect(configuration->dbObject(), SIGNAL(fluorescenceDetectorChanged(IDEAS::FluorescenceDetectors)), this, SLOT(updateFluorescenceDetectorComboBox(IDEAS::FluorescenceDetectors)));
+
+	// default using bruker
+	updateFluorescenceDetectorComboBox(IDEAS::Ketek);
+
+	return detectorSettingGroupBox;
+}

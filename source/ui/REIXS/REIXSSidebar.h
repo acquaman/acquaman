@@ -78,7 +78,7 @@ protected slots:
 	void onBeamOnChanged(bool isOn);
 
 	/// When the scaler connects
-	void onScalerConnected(bool isConnected);
+    void onScalerConnected();
 
 	/// When the scaler's continuous mode is changed
 	void onScalerContinuousModeChanged(bool on);

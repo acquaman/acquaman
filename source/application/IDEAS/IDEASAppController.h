@@ -25,11 +25,16 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "application/AMAppController.h"
 
 class AMScanConfigurationViewHolder3;
+class IDEASXASScanConfiguration;
 class IDEASXASScanConfigurationView;
 class IDEASXRFDetailedDetectorView;
 class IDEASSampleCameraPanel;
 class IDEASKETEKDetailedDetectorView;
 class IDEAS13ElementGeDetailedDetectorView;
+class IDEAS2DScanConfiguration;
+class IDEAS2DScanConfigurationView;
+class IDEASUserConfiguration;
+class AMRegionOfInterest;
 
 class IDEASAppController : public AMAppController
 {
@@ -59,7 +64,12 @@ protected slots:
 	/// Helper slot that handles checking out scans when they are added to a scan editor.  For now, all this does is choose which data source is visualized in AMSingleSpectrumView in AM2DScanView.
 	void onScanAddedToEditor(AMGenericScanEditor *editor, AMScan *scan);
 
-
+	/// Handles setting up all the necessary settings based on the loaded user configuration.
+	void onUserConfigurationLoadedFromDb();
+	/// Handles adding regions of interest to all the configurations that would care.
+	void onRegionOfInterestAdded(AMRegionOfInterest *region);
+	/// Handles removing regions of interest from all the configurations that would care.
+	void onRegionOfInterestRemoved(AMRegionOfInterest *region);
 
 protected:
 	/// Implementation method that individual applications can flesh out if extra setup is required when a scan action is started.  This is not pure virtual because there is no requirement to do anything to scan actions.
@@ -79,18 +89,29 @@ protected:
 	/// Method that finds the spectra data sources and then sets the generic scan editor single spectra viewer properly.
 	void configureSingleSpectrumView(AMGenericScanEditor *editor, AMScan *scan);
 
-
-protected:
+	/// The configuration for XAS scans.
+	IDEASXASScanConfiguration *xasScanConfiguration_;
 	/// View for the IDEAS's XAS scan configurations
 	IDEASXASScanConfigurationView *xasScanConfigurationView_;
 	/// View holder for XAS
 	AMScanConfigurationViewHolder3 *xasScanConfigurationHolder3_;
+
+	/// The configuration for 2D scans.
+	IDEAS2DScanConfiguration *mapScanConfiguration_;
+	/// View for the IDEAS's 2D scan configurations.
+	IDEAS2DScanConfigurationView *mapScanConfigurationView_;
+	/// View holder for 2D scan configuration views.
+	AMScanConfigurationViewHolder3 *mapScanConfigurationHolder3_;
+
 	/// View for the IDEAS's Ketek XRF scan configurations
 	IDEASKETEKDetailedDetectorView *ideasKETEKDetailedDetectorView_;
 	/// View for the IDEAS's g13 Element scan configurations
 	IDEAS13ElementGeDetailedDetectorView *ideas13ElementGeDetailedDetectorView_;
 	/// View for viewing the sample cameras and aligning samples
 	IDEASSampleCameraPanel *sampleCameraPanel_;
+
+	/// The user configuration that holds some user specific parameters.
+	IDEASUserConfiguration *userConfiguration_;
 };
 
 #endif // IDEASAPPCONTROLLER_H

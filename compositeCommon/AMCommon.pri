@@ -14,6 +14,10 @@ macx {
 		CONFIG -= app_bundle
 	}
 
+	contains(USERNAME, hunterd){
+		CONFIG -= mobility
+	}
+
 	QMAKE_CXXFLAGS_X86_64 *= "-mmacosx-version-min=10.7"
 
 	QMAKE_LFLAGS_DEBUG *= "-mmacosx-version-min=10.7"

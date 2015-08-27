@@ -99,7 +99,9 @@ AMOverlayVideoWidget2::~AMOverlayVideoWidget2() {
 	#endif
 }
 
-void AMOverlayVideoWidget2::setPaintBlack(bool paintBlack){
+void AMOverlayVideoWidget2::setPaintBlack(bool paintBlack)
+{
+    Q_UNUSED(paintBlack)
 	#ifdef AM_MOBILITY_VIDEO_ENABLED
 	videoItem_->setPaintBlack(paintBlack);
 	videoItem_->update();
