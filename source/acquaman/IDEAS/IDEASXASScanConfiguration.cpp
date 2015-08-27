@@ -32,9 +32,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 IDEASXASScanConfiguration::IDEASXASScanConfiguration(QObject *parent) :
 	AMStepScanConfiguration(parent), IDEASScanConfiguration()
 {
-	setAutoExportEnabled(false);
-
-	setName("Unnamed Scan");
+    setName("Unnamed Scan");
 	setUserScanName("Unnamed Scan");
 
 	dbObject_->setParent(this);

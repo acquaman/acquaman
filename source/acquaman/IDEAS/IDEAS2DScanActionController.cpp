@@ -25,8 +25,11 @@ IDEAS2DScanActionController::IDEAS2DScanActionController(IDEAS2DScanConfiguratio
 
 	// SMAK format requires a specific spectra file format.
 	AMExporterOptionSMAK *exportOptions = IDEAS::buildSMAKExporterOption("IDEAS2DDefault", true, true);
-	if(exportOptions->id() > 0)
+
+    if(exportOptions->id() > 0)
 		AMAppControllerSupport::registerClass<IDEAS2DScanConfiguration, AMSMAKExporter, AMExporterOptionSMAK>(exportOptions->id());
+
+    exportOptions->deleteLater();
 
 	QString scanName;
 
