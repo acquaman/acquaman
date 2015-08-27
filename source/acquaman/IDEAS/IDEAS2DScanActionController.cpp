@@ -93,7 +93,15 @@ IDEAS2DScanActionController::~IDEAS2DScanActionController()
 
 void IDEAS2DScanActionController::buildScanControllerImplementation()
 {
-	AMXRFDetector *detector = 0;
+    QList<AMDataSource *> i0Sources = QList<AMDataSource *>() << scan_->dataSourceAt(scan_->indexOfDataSource("I_0"));
+
+    AM2DNormalizationAB *transmissionAB = new AM2DNormalizationAB("transmission");
+    transmissionAB->setInputDataSources(i0Sources << scan_->rawDataSources()->at(scan_->rawDataSources()->indexOfKey("Sample")));
+    transmissionAB->setDataName("I_0");
+    transmissionAB->setNormalizationName("Sample");
+    scan_->addAnalyzedDataSource(transmissionAB);
+
+    AMXRFDetector *detector = 0;
 
 	if (configuration_->fluorescenceDetector().testFlag(IDEAS::Ketek))
 		detector = qobject_cast<AMXRFDetector *>(AMBeamline::bl()->exposedDetectorByName("KETEK"));
@@ -104,8 +112,6 @@ void IDEAS2DScanActionController::buildScanControllerImplementation()
 	if (detector){
 
 		detector->removeAllRegionsOfInterest();
-
-		QList<AMDataSource *> i0Sources = QList<AMDataSource *>() << scan_->dataSourceAt(scan_->indexOfDataSource("I_0"));
 
 		AMDataSource *spectraSource = scan_->dataSourceAt(scan_->indexOfDataSource(detector->name()));
 
