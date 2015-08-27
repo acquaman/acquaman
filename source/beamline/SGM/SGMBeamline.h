@@ -54,6 +54,16 @@ public:
 	virtual bool isConnected() const;
 
 	/*!
+	  * The end station step setpoint
+	  */
+	AMControl* endStationTranslationSetpoint() const;
+
+	/*!
+	  * The end station translation feedback
+	  */
+	AMControl* endStationTranslationFeedback() const;
+
+	/*!
 	  * The energy control.
 	  */
 	AMControl* energy() const;
@@ -154,6 +164,8 @@ protected:
 	AMControl *exitSlitGap_;
 	AMControl *exitSlitPosition_;
 	AMControl *grating_;
+	AMControl *endStationTranslationSetpont_;
+	AMControl *endStationTranslationFeedback_;
 
 	AMMotorGroup *sampleManipulatorsMotorGroup_;
 

@@ -27,6 +27,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/AMMotorGroup.h"
 #include "beamline/CLS/CLSAdvancedScalerChannelDetector.h"
 #include "beamline/SGM/SGMHexapod.h"
+#include "beamline/AMBasicControlDetectorEmulator.h"
 
 SGMBeamline* SGMBeamline::sgm() {
 
@@ -53,6 +54,16 @@ bool SGMBeamline::isConnected() const
 			ssaManipulatorZ_->isConnected() &&
 			ssaManipulatorRot_->isConnected() &&
 			scaler_->isConnected();
+}
+
+AMControl * SGMBeamline::endStationTranslationSetpoint() const
+{
+	return endStationTranslationSetpont_;
+}
+
+AMControl * SGMBeamline::endStationTranslationFeedback() const
+{
+	return endStationTranslationFeedback_;
 }
 
 AMControl * SGMBeamline::energy() const
@@ -135,6 +146,13 @@ void SGMBeamline::setupBeamlineComponents()
 	exitSlitPosition_->setDescription("Exit Slit Position");
 	exitSlitPosition_->setContextKnownDescription("Exit Slit");
 
+	// End Station Translation
+	endStationTranslationSetpont_ = new AMSinglePVControl("endStationStep", "SMTR16114I1038:step", this, 1.0, 2.0);
+	endStationTranslationSetpont_->setDescription("Step");
+	endStationTranslationFeedback_ = new AMReadOnlyPVControl("endStationFeedback", "ENC16114I1029:raw:cnt:fbk", this);
+	endStationTranslationFeedback_->setDescription("Position");
+	endStationTranslationFeedback_->setTolerance(1e15);
+
 	// Grating
 	grating_ = new AMPVwStatusControl("grating", "BL1611-ID-1:AddOns:grating", "BL1611-ID-1:AddOns:grating", "SMTR16114I1016:state", "SMTR16114I1016:emergStop", this, 0.1, 2.0, new AMControlStatusCheckerStopped(0));
 	grating_->setDescription("Grating Selection");
@@ -192,6 +210,8 @@ void SGMBeamline::setupBeamlineComponents()
 	connect(energy_, SIGNAL(connected(bool)), this, SLOT(onConnectionStateChanged(bool)));
 	connect(exitSlitGap_ ,SIGNAL(connected(bool)),this, SLOT(onConnectionStateChanged(bool)));
 	connect(exitSlitPosition_, SIGNAL(connected(bool)), this, SLOT(onConnectionStateChanged(bool)));
+	connect(endStationTranslationSetpont_, SIGNAL(connected(bool)), this, SLOT(onConnectionStateChanged(bool)));
+	connect(endStationTranslationFeedback_, SIGNAL(connected(bool)), this, SLOT(onConnectionStateChanged(bool)));
 	connect(grating_, SIGNAL(connected(bool)), this, SLOT(onConnectionStateChanged(bool)));
 	connect(ssaManipulatorX_, SIGNAL(connected(bool)), this, SLOT(onConnectionStateChanged(bool)));
 	connect(ssaManipulatorY_, SIGNAL(connected(bool)), this, SLOT(onConnectionStateChanged(bool)));
@@ -267,6 +287,7 @@ void SGMBeamline::setupDetectors()
 
 void SGMBeamline::setupExposedControls()
 {
+	addExposedControl(endStationTranslationSetpont_);
 	addExposedControl(energy_);
 	addExposedControl(exitSlitGap_);
 	addExposedControl(exitSlitPosition_);
@@ -284,6 +305,12 @@ void SGMBeamline::setupExposedControls()
 
 void SGMBeamline::setupExposedDetectors()
 {
+	AMBasicControlDetectorEmulator* endStationPositionDetector =
+			new AMBasicControlDetectorEmulator("EA2Pos", "Position of the End Station 2", endStationTranslationFeedback_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+
+	endStationPositionDetector->setIsVisible(true);
+	endStationPositionDetector->setHiddenFromUsers(false);
+	addExposedDetector(endStationPositionDetector);
 	addExposedDetector(teyDetector_);
 	addExposedDetector(tfyDetector_);
 	addExposedDetector(i0Detector_);
@@ -305,3 +332,5 @@ SGMBeamline::SGMBeamline()
 	setupExposedControls();
 	setupExposedDetectors();
 }
+
+

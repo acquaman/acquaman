@@ -41,6 +41,8 @@ protected:
 	AMExtendedControlEditor* exitSlitPositionControlEditor_;
 	AMExtendedControlEditor* gratingSelectionControlEditor_;
 	AMExtendedControlEditor* hexapodVelocityControlEditor_;
+	AMExtendedControlEditor* endStationTranslationSetpointControlEditor_;
+	AMExtendedControlEditor* endStationTranslationFeedbackControlEditor_;
 	SGMHexapodTrajectoryView* hexapodTrajectoryView_;
 
 };
