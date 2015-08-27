@@ -13,15 +13,18 @@
 #include <QFrame>
 
 AMXYThetaControlMoveButton::AMXYThetaControlMoveButton(QWidget *parent,
-																			  AMControl* controlX,
-																			  AMControl* controlY,
-																			  AMControl* controlTheta,
-																			  QList<double> stepSizes,
-																			  bool directionReversed,
-																			  bool direction2Reversed ) : QToolButton(parent)
+													   AMControl* controlX,
+													   AMControl* controlY,
+													   AMControl* controlTheta,
+													   QList<double> stepSizes,
+													   bool directionReversed,
+													   bool direction2Reversed,
+													   double angleOffset) : QToolButton(parent)
 {
 	directionXReversed_ = directionReversed;
 	directionYReversed_ = direction2Reversed;
+
+	angleOffset_ = angleOffset;
 
 	controlX_ = 0;
 	setControl(controlX);
@@ -34,7 +37,7 @@ AMXYThetaControlMoveButton::AMXYThetaControlMoveButton(QWidget *parent,
 
 	checkStatus();
 
-	setToolTip("Angled Move");
+	setToolTip("XYTheta Move");
 
 	stepSizes_ = stepSizes;
 	if(stepSizes_.isEmpty())
@@ -134,8 +137,8 @@ void AMXYThetaControlMoveButton::setControlR(AMControl *controlR)
 void AMXYThetaControlMoveButton::onButtonClicked()
 {
 	if(controlX_ && controlY_ && controlTheta_) {
-		controlX_->moveRelative(currentStepSize() * (directionXReversed_ ? -1.0 : 1.0) * sin(controlTheta_->value()/57.297));
-		controlY_->moveRelative(currentStepSize() * (directionYReversed_ ? -1.0 : 1.0) * cos(controlTheta_->value()/57.297));
+		controlX_->moveRelative(currentStepSize() * (directionXReversed_ ? -1.0 : 1.0) * sin((controlTheta_->value() + angleOffset_)/57.297));
+		controlY_->moveRelative(currentStepSize() * (directionYReversed_ ? -1.0 : 1.0) * cos((controlTheta_->value() + angleOffset_)/57.297));
 	}
 }
 

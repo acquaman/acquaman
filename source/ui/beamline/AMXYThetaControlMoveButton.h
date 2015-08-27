@@ -21,7 +21,7 @@ public:
 	explicit AMXYThetaControlMoveButton(QWidget *parent = 0,
 								 AMControl* controlX = 0, AMControl* controlY = 0, AMControl* controlTheta = 0,
 								 QList<double> stepSizes = QList<double>() << 1 << 5 << 10,
-								 bool directionXReversed = false, bool directionYReversed = false);
+								 bool directionXReversed = false, bool directionYReversed = false, double angleOffest = 0);
 
 	/// Returns the control that is moved by this button. Could be 0 if this button has no control set.
 	AMControl* controlX() const { return controlX_; }
@@ -50,6 +50,9 @@ public:
 	/// Returns true if the move direction should be opposite the signs given in stepSizes().
 	bool directionYReversed() const { return directionYReversed_; }
 
+	/// Returns the current Angle Offset value
+	double angleOffset() const {return angleOffset_; }
+
 public slots:
 	/// Select one of the available step sizes, from the list of stepSizes().
 	bool setStepSizeIndex(int index);
@@ -60,6 +63,8 @@ public slots:
 	void setDirectionXReversed(bool trueForReverse) { directionXReversed_ = trueForReverse; }
 	/// Specifies to reverse the direction of the y-axis moves.
 	void setDirectionYReversed(bool trueForReverse) { directionYReversed_ = trueForReverse; }
+	/// Specifies the angle offest to adjust plane of motion
+	void setAngleOffset(double  newAngleOffset) { angleOffset_ = newAngleOffset; }
 
 	/// "Press" the button: When set to true, the button's down state is activated.  When changed to false, the button is changed to the up state, and a click() is generated.  \note If the button is already in the up state when press(false) is called, no click() will be generated.
 	void press(bool down = true);
@@ -95,6 +100,7 @@ protected:
 	bool directionYReversed_;
 	QList<double> stepSizes_;
 	int stepSizeIndex_;
+	double angleOffset_;
 
 
 };
