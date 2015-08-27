@@ -59,7 +59,6 @@ IDEASXASScanConfiguration::IDEASXASScanConfiguration(QObject *parent) :
 IDEASXASScanConfiguration::IDEASXASScanConfiguration(const IDEASXASScanConfiguration &original) :
 	AMStepScanConfiguration(original), IDEASScanConfiguration(original)
 {
-	setAutoExportEnabled(false);
 	setName(original.name());
 	setUserScanName(original.userScanName());
 
