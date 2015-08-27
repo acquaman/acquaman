@@ -27,13 +27,13 @@ AMXYThetaControlMoveButton::AMXYThetaControlMoveButton(QWidget *parent,
 	angleOffset_ = angleOffset;
 
 	controlX_ = 0;
-	setControl(controlX);
+	setControlX(controlX);
 
 	controlY_ = 0;
-	setControl2(controlY);
+	setControlY(controlY);
 
 	controlTheta_ = 0;
-	setControlR(controlTheta);
+	setControlTheta(controlTheta);
 
 	checkStatus();
 
@@ -56,7 +56,7 @@ AMXYThetaControlMoveButton::AMXYThetaControlMoveButton(QWidget *parent,
 
 
 
-void AMXYThetaControlMoveButton::setControl(AMControl *control)
+void AMXYThetaControlMoveButton::setControlX(AMControl *control)
 {
 	if(control == controlX_)
 		return;
@@ -82,7 +82,7 @@ void AMXYThetaControlMoveButton::setControl(AMControl *control)
 	checkStatus();
 }
 
-void AMXYThetaControlMoveButton::setControl2(AMControl *control2)
+void AMXYThetaControlMoveButton::setControlY(AMControl *control2)
 {
 	if(control2 == controlY_)
 		return;
@@ -108,7 +108,7 @@ void AMXYThetaControlMoveButton::setControl2(AMControl *control2)
 	checkStatus();
 }
 
-void AMXYThetaControlMoveButton::setControlR(AMControl *controlR)
+void AMXYThetaControlMoveButton::setControlTheta(AMControl *controlR)
 {
 	if(controlR == controlTheta_)
 		return;
@@ -145,15 +145,15 @@ void AMXYThetaControlMoveButton::onButtonClicked()
 
 void AMXYThetaControlMoveButton::onControlXDestroyed()
 {
-	setControl(0);
+	setControlX(0);
 }
 void AMXYThetaControlMoveButton::onControlYDestroyed()
 {
-	setControl2(0);
+	setControlY(0);
 }
 void AMXYThetaControlMoveButton::onControlThetaDestroyed()
 {
-	setControlR(0);
+	setControlTheta(0);
 }
 
 void AMXYThetaControlMoveButton::checkStatus()

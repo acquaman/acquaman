@@ -32,11 +32,11 @@ public:
 
 
 	/// Set the first control that is moved by this button. It's okay for \c control to be 0, in which case this button will simply do nothing until you call setControl() again with a valid control.
-	void setControl(AMControl* controlX);
+	void setControlX(AMControl* controlX);
 	/// Set the second control that is moved by this button. It's okay for \c control to be 0, in which case this button will simply do nothing until you call setControl() again with a valid control.
-	void setControl2(AMControl* controlY);
+	void setControlY(AMControl* controlY);
 	/// Set the rotation control that is moved by this button. It's okay for \c control to be 0, in which case this button will simply do nothing until you call setControl() again with a valid control.
-	void setControlR(AMControl* controlTheta);
+	void setControlTheta(AMControl* controlTheta);
 
 	/// Returns the distance of the move step that will be taken when the button is clicked.
 	double currentStepSize() const { return stepSizes_.at(stepSizeIndex_); }
