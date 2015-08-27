@@ -304,7 +304,7 @@ void SGMBeamline::setupExposedControls()
 void SGMBeamline::setupExposedDetectors()
 {
 	AMBasicControlDetectorEmulator* endStationPositionDetector =
-			new AMBasicControlDetectorEmulator("ES2Pos", "Position of the End Station", endStationTranslationFeedback_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+			new AMBasicControlDetectorEmulator("EA2Pos", "Position of the End Station 2", endStationTranslationFeedback_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
 
 	addExposedDetector(endStationPositionDetector);
 	addExposedDetector(teyDetector_);
