@@ -72,6 +72,8 @@ IDEASAppController::IDEASAppController(QObject *parent)
 {
 	userConfiguration_ = new IDEASUserConfiguration(this);
 
+	setDefaultUseLocalStorage(true);
+
 	appendDatabaseUpgrade(new IDEASDbUpgrade1Pt1("user", this));
 	appendDatabaseUpgrade(new IDEASDbUpgrade1Pt1("actions", this));
 }
