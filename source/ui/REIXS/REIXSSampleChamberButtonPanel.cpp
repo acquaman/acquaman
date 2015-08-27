@@ -26,6 +26,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QLabel>
 #include <QToolButton>
 #include <QFrame>
+#include <QSpinBox>
+#include <QDoubleSpinBox>
 
 #include "beamline/REIXS/REIXSBeamline.h"
 #include "ui/beamline/AMControlMoveButton.h"
@@ -41,8 +43,13 @@ REIXSSampleChamberButtonPanel::REIXSSampleChamberButtonPanel(QWidget *parent) :
 	setupUi();
 	initializeUiComponents();
 
+
 	connect(stopAll_, SIGNAL(clicked()), this, SLOT(onStopButtonClicked()));
 	connect(stopAll2_, SIGNAL(clicked()), this, SLOT(onStopButtonClicked()));
+	connect(angleOffsetSpinBox_, SIGNAL(valueChanged(double)), sampleIn_, SLOT(setAngleOffset(double)));
+	connect(angleOffsetSpinBox_, SIGNAL(valueChanged(double)), sampleOut_, SLOT(setAngleOffset(double)));
+	connect(angleOffsetSpinBox_, SIGNAL(valueChanged(double)), sampleLeft_, SLOT(setAngleOffset(double)));
+	connect(angleOffsetSpinBox_, SIGNAL(valueChanged(double)), sampleRight_, SLOT(setAngleOffset(double)));
 }
 
 REIXSSampleChamberButtonPanel::~REIXSSampleChamberButtonPanel()
@@ -125,12 +132,16 @@ void REIXSSampleChamberButtonPanel::setupUi()
 	iconCCW.addFile(":/22x22/arrow-CCW.png", QSize(), QIcon::Normal, QIcon::Off);
 	QIcon iconUp;
 	iconUp.addFile(":/22x22/go-up-dark.png", QSize(), QIcon::Normal, QIcon::Off);
+	QIcon iconDown;
+	iconDown.addFile(":/22x22/go-down-dark.png", QSize(), QIcon::Normal, QIcon::Off);
 	QIcon iconPrevious;
 	iconPrevious.addFile(":/22x22/go-previous-dark.png", QSize(), QIcon::Normal, QIcon::Off);
 	QIcon iconNext;
 	iconNext.addFile(":/22x22/go-next-dark.png", QSize(), QIcon::Normal, QIcon::Off);
-	QIcon iconDown;
-	iconDown.addFile(":/22x22/go-down-dark.png", QSize(), QIcon::Normal, QIcon::Off);
+	QIcon iconOut;
+	iconOut.addFile(":/22x22/go-upleft-dark.png", QSize(), QIcon::Normal, QIcon::Off);
+	QIcon iconIn;
+	iconIn.addFile(":/22x22/go-downright-dark.png", QSize(), QIcon::Normal, QIcon::Off);
 	QIcon iconStop;
 	iconStop.addFile(":/stop.png", QSize(), QIcon::Normal, QIcon::Off);
 
@@ -144,21 +155,18 @@ void REIXSSampleChamberButtonPanel::setupUi()
 	QGridLayout *gridLayout = new QGridLayout();
 	setLayout(gridLayout);
 
-	QLabel *sampleLabel1 = new QLabel("Beam View (Y, Z)");
-	customizedSizePolicy.setHeightForWidth(sampleLabel1->sizePolicy().hasHeightForWidth());
-	sampleLabel1->setSizePolicy(customizedSizePolicy);
+	QLabel *beamViewLabel = new QLabel("Beam View (Y, Z)");
+	customizedSizePolicy.setHeightForWidth(beamViewLabel->sizePolicy().hasHeightForWidth());
+	beamViewLabel->setSizePolicy(customizedSizePolicy);
 
-	QLabel *sampleLabel2 = new QLabel("Spectrometer View (X, R)");
-	customizedSizePolicy.setHeightForWidth(sampleLabel2->sizePolicy().hasHeightForWidth());
-	sampleLabel2->setSizePolicy(customizedSizePolicy);
+	QLabel *spectrometerViewLabel = new QLabel("Spectrometer View (X, R)");
+	customizedSizePolicy.setHeightForWidth(spectrometerViewLabel->sizePolicy().hasHeightForWidth());
+	spectrometerViewLabel->setSizePolicy(customizedSizePolicy);
 
-	QLabel *sampleLabel3 = new QLabel("Move in Plate Plane:");
-	customizedSizePolicy.setHeightForWidth(sampleLabel3->sizePolicy().hasHeightForWidth());
-	sampleLabel3->setSizePolicy(customizedSizePolicy);
+	QLabel *inPlaneLabel = new QLabel("\nMove in Plate Plane:");
+	customizedSizePolicy.setHeightForWidth(inPlaneLabel->sizePolicy().hasHeightForWidth());
+	inPlaneLabel->setSizePolicy(customizedSizePolicy);
 
-	gridLayout->addWidget(sampleLabel1, 0, 0, 1, 3);
-	gridLayout->addWidget(sampleLabel2, 0, 8, 1, 3);
-	gridLayout->addWidget(sampleLabel3, 4, 4, 1, 3);
 
 	sampleCW_ = createAMControlMoveButton("CW", iconCW);
 	sampleCCW_ = createAMControlMoveButton("CCW", iconCCW);
@@ -166,12 +174,23 @@ void REIXSSampleChamberButtonPanel::setupUi()
 	sampleXup_ = createAMControlMoveButton("-X", iconPrevious);
 	sampleYup_ = createAMControlMoveButton("+Y", iconNext);
 	sampleYdown_ = createAMControlMoveButton("-Y", iconPrevious);
-	sampleZup_ = createAMControlMoveButton("+Z", iconDown);
-	sampleZdown_ = createAMControlMoveButton("-Z", iconUp);
+	sampleZup_ = createAMControlMoveButton("-Z", iconDown);
+	sampleZdown_ = createAMControlMoveButton("+Z", iconUp);
+	sampleZup2_ = createAMControlMoveButton("-Z", iconDown);
+	sampleZdown2_ = createAMControlMoveButton("+Z", iconUp);
 	sampleLeft_ = createAMXYThetaControlMoveButton("Left", iconPrevious);
 	sampleRight_ = createAMXYThetaControlMoveButton("Right", iconNext);
-	sampleIn_    = createAMXYThetaControlMoveButton("In", iconDown);
-	sampleOut_   = createAMXYThetaControlMoveButton("Out", iconUp);
+	sampleIn_    = createAMXYThetaControlMoveButton("In", iconIn);
+	sampleOut_   = createAMXYThetaControlMoveButton("Out", iconOut);
+
+	angleOffsetSpinBox_ = new QDoubleSpinBox();
+	angleOffsetSpinBox_->setMaximum(15);
+	angleOffsetSpinBox_->setMinimum(-15);
+	angleOffsetSpinBox_->setSingleStep(0.1);
+	angleOffsetSpinBox_->setDecimals(1);
+	angleOffsetSpinBox_->setSuffix(" deg");
+	QLabel *angleOffsetLabel = new QLabel("Angle\nOffset:");
+
 
 
 	QFrame *line = new QFrame();
@@ -179,18 +198,25 @@ void REIXSSampleChamberButtonPanel::setupUi()
 	line->setFrameShadow(QFrame::Sunken);
 
 
+	gridLayout->addWidget(beamViewLabel, 0, 0, 1, 3);
 	gridLayout->addWidget(sampleZdown_, 3, 1, 1, 1);
 	gridLayout->addWidget(sampleYdown_, 4, 0, 1, 1);
 	gridLayout->addWidget(sampleZup_,	4, 1, 1, 1);
 	gridLayout->addWidget(sampleYup_,	4, 2, 1, 1);
 
 
-	gridLayout->addWidget(sampleOut_, 5, 5, 1, 1);
+	gridLayout->addWidget(inPlaneLabel, 3, 4, 1, 3);
+	gridLayout->addWidget(angleOffsetLabel, 4, 4, 1, 1);
+	gridLayout->addWidget(angleOffsetSpinBox_, 4, 5, 1, 2);
 	gridLayout->addWidget(sampleLeft_, 6, 4, 1, 1);
-	gridLayout->addWidget(sampleIn_,	6, 5, 1, 1);
 	gridLayout->addWidget(sampleRight_,	6, 6, 1, 1);
+	gridLayout->addWidget(sampleZup2_, 6, 5, 1, 1);
+	gridLayout->addWidget(sampleZdown2_,5, 5, 1, 1);
+	gridLayout->addWidget(sampleOut_, 5, 4, 1, 1);
+	gridLayout->addWidget(sampleIn_,5, 6, 1, 1);
 
 
+	gridLayout->addWidget(spectrometerViewLabel, 0, 8, 1, 3);
 	gridLayout->addWidget(sampleCW_,	3, 8, 1, 1);
 	gridLayout->addWidget(sampleCCW_,	3, 9, 1, 1);
 	gridLayout->addWidget(sampleXup_,	4, 8, 1, 1);
@@ -242,11 +268,19 @@ void REIXSSampleChamberButtonPanel::initializeUiComponents()
 
 	sampleZup_->setControl(chamber->z());
 	sampleZup_->setStepSizes(QList<double>() << 0.2 << 1 << 5 << 10 << 50 << 100);
-	sampleZup_->setStepSizeIndex(2);
+	sampleZup_->setStepSizeIndex(1);
 	sampleZup_->setDirectionReversed(true);// yup, down is up. Go figure.
 	sampleZdown_->setControl(chamber->z());
 	sampleZdown_->setStepSizes(QList<double>() << 0.2 << 1 << 5 << 10 << 50 << 100);
-	sampleZdown_->setStepSizeIndex(2);
+	sampleZdown_->setStepSizeIndex(1);
+
+	sampleZup2_->setControl(chamber->z());
+	sampleZup2_->setStepSizes(QList<double>() << 0.2 << 1 << 5 << 10 << 50 << 100);
+	sampleZup2_->setStepSizeIndex(1);
+	sampleZup2_->setDirectionReversed(true);// yup, down is up. Go figure.
+	sampleZdown2_->setControl(chamber->z());
+	sampleZdown2_->setStepSizes(QList<double>() << 0.2 << 1 << 5 << 10 << 50 << 100);
+	sampleZdown2_->setStepSizeIndex(1);
 
 	sampleCW_->setControl(chamber->r());
 	sampleCW_->setStepSizes(QList<double>() << 1 << 5 << 10 << 45 << 90);
@@ -281,6 +315,12 @@ void REIXSSampleChamberButtonPanel::initializeUiComponents()
 	sampleOut_->setStepSizes(QList<double>() << 0.2 << 1 << 5 << 10);
 	sampleOut_->setStepSizeIndex(1);
 	sampleOut_->setDirectionXReversed(true);
+
+	sampleLeft_->setAngleOffset(0);
+	sampleRight_->setAngleOffset(0);
+	sampleIn_->setAngleOffset(0);
+	sampleOut_->setAngleOffset(0);
+	angleOffsetSpinBox_->setValue(0);
 }
 
 QToolButton *REIXSSampleChamberButtonPanel::createQToolButton(QString text, QIcon icon)
@@ -311,7 +351,7 @@ AMControlMoveButton *REIXSSampleChamberButtonPanel::createAMControlMoveButton(QS
 	controlMoveButton->setFont(font);
 	controlMoveButton->setIconSize(QSize(22, 22));
 	controlMoveButton->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
-	controlMoveButton->setText(text);
+	controlMoveButton->setToolTip(text);
 	controlMoveButton->setIcon(icon);
 
 	return controlMoveButton;
@@ -328,7 +368,7 @@ AMXYThetaControlMoveButton *REIXSSampleChamberButtonPanel::createAMXYThetaContro
 	controlMoveButton->setFont(font);
 	controlMoveButton->setIconSize(QSize(22, 22));
 	controlMoveButton->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
-	controlMoveButton->setText(text);
+	controlMoveButton->setToolTip(text);
 	controlMoveButton->setIcon(icon);
 
 	return controlMoveButton;

@@ -27,6 +27,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 class QString;
 class QIcon;
 class QToolButton;
+class QDoubleSpinBox;
 
 class AMControlMoveButton;
 class AMXYThetaControlMoveButton;
@@ -61,6 +62,8 @@ private:
 	AMControlMoveButton *sampleYup_;
 	AMControlMoveButton *sampleZup_;
 	AMControlMoveButton *sampleZdown_;
+	AMControlMoveButton *sampleZup2_;
+	AMControlMoveButton *sampleZdown2_;
 	AMControlMoveButton *sampleCW_;
 	AMControlMoveButton *sampleCCW_;
 	AMXYThetaControlMoveButton *sampleLeft_;
@@ -71,6 +74,8 @@ private:
 	QToolButton *stopAll_;
 	QToolButton *stopAll2_;
 	QToolButton *stopAll3_;
+
+	QDoubleSpinBox *angleOffsetSpinBox_;
 };
 
 #endif // REIXSSAMPLECHAMBERBUTTONPANEL_H
