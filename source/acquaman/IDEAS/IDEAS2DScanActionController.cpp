@@ -144,20 +144,9 @@ void IDEAS2DScanActionController::createAxisOrderMap()
 
 AMAction3 * IDEAS2DScanActionController::createInitializationActions()
 {
-    AMListAction3 *initializationActions = new AMListAction3(new AMListActionInfo3("IDEAS 2D Initialization", "IDEAS 2D Initialization"), AMListAction3::Parallel);
+	AMListAction3 *initializationActions = new AMListAction3(new AMListActionInfo3("IDEAS 2D Initialization", "IDEAS 2D Initialization"), AMListAction3::Parallel);
 
-	double startEnergy = configuration_->energy();
-	double mono2d = IDEASBeamline::ideas()->mono2d()->value();
-	double braggAngle = asin(12398.4193 / mono2d / startEnergy);
-	double backlashDegrees = 4;
-
-	double deltaEnergy = (backlashDegrees / 180 * M_PI) * (mono2d * startEnergy * startEnergy * cos(braggAngle * M_PI / 180)) / (-12398.4193);
-	double backlashEnergy = startEnergy + deltaEnergy;
-
-	if(backlashEnergy < IDEASBeamline::ideas()->monoLowEV()->value())
-		backlashEnergy = IDEASBeamline::ideas()->monoLowEV()->value();
-
-	initializationActions->addSubAction(AMActionSupport::buildControlMoveAction(IDEASBeamline::ideas()->monoDirectEnergyControl(), backlashEnergy));
+	initializationActions->addSubAction(AMActionSupport::buildControlMoveAction(IDEASBeamline::ideas()->monoEnergyControl(), configuration_->energy()));
 	initializationActions->addSubAction(IDEASBeamline::ideas()->scaler()->createContinuousEnableAction3(false));
 
 	return initializationActions;
