@@ -27,6 +27,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/AMMotorGroup.h"
 #include "beamline/CLS/CLSAdvancedScalerChannelDetector.h"
 #include "beamline/SGM/SGMHexapod.h"
+#include "beamline/AMBasicControlDetectorEmulator.h"
 
 SGMBeamline* SGMBeamline::sgm() {
 
@@ -302,6 +303,10 @@ void SGMBeamline::setupExposedControls()
 
 void SGMBeamline::setupExposedDetectors()
 {
+	AMBasicControlDetectorEmulator* endStationPositionDetector =
+			new AMBasicControlDetectorEmulator("ES2Pos", "Position of the End Station", endStationTranslationFeedback_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+
+	addExposedDetector(endStationPositionDetector);
 	addExposedDetector(teyDetector_);
 	addExposedDetector(tfyDetector_);
 	addExposedDetector(i0Detector_);
