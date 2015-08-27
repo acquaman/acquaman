@@ -53,6 +53,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "acquaman/IDEAS/IDEASXRFScanConfiguration.h"
 #include "acquaman/IDEAS/IDEAS2DScanConfiguration.h"
 
+#include "ui/util/AMChooseDataFolderDialog.h"
 #include "ui/AMMainWindow.h"
 #include "ui/dataman/AMGenericScanEditor.h"
 #include "ui/acquaman/AMScanConfigurationViewHolder3.h"
@@ -77,7 +78,9 @@ IDEASAppController::IDEASAppController(QObject *parent)
 
 bool IDEASAppController::startup()
 {
-	getUserDataFolderFromDialog();
+    // Get a destination folder.
+    if (!AMChooseDataFolderDialog::getDataFolder("/AcquamanLocalData/ideas", "/home/ideas", "users"))
+        return false;
 
 	// Start up the main program.
 	if(AMAppController::startup()) {
