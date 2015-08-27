@@ -46,7 +46,7 @@ REIXSSampleManagementPre2013Widget::REIXSSampleManagementPre2013Widget(QWidget *
 
 	manipulatorWidget_ = manipulatorWidget;
 
-	QSpacerItem *bottomSpacer = new QSpacerItem(1,1,QSizePolicy::MinimumExpanding,QSizePolicy::MinimumExpanding);
+	QSpacerItem *bottomSpacer = new QSpacerItem(1,50,QSizePolicy::MinimumExpanding,QSizePolicy::Minimum);
 
 	connect(plateView_, SIGNAL(newSamplePlateSelected()), this, SLOT(onNewSamplePlateSelected()));
 
@@ -67,9 +67,9 @@ REIXSSampleManagementPre2013Widget::REIXSSampleManagementPre2013Widget(QWidget *
 	gl->setColumnStretch(3,1);
 	gl->setColumnStretch(4,0);
 
-	gl->setRowStretch(0,2);
+	gl->setRowStretch(0,1);
 	gl->setRowStretch(1,0);
-	gl->setRowStretch(2,1);
+	gl->setRowStretch(2,0);
 
 	gl->addItem(bottomSpacer,2,1,1,4);
 
