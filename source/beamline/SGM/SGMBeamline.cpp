@@ -151,6 +151,7 @@ void SGMBeamline::setupBeamlineComponents()
 	endStationTranslationSetpont_->setDescription("Step");
 	endStationTranslationFeedback_ = new AMReadOnlyPVControl("endStationFeedback", "ENC16114I1029:raw:cnt:fbk", this);
 	endStationTranslationFeedback_->setDescription("Position");
+	endStationTranslationFeedback_->setTolerance(1e15);
 
 	// Grating
 	grating_ = new AMPVwStatusControl("grating", "BL1611-ID-1:AddOns:grating", "BL1611-ID-1:AddOns:grating", "SMTR16114I1016:state", "SMTR16114I1016:emergStop", this, 0.1, 2.0, new AMControlStatusCheckerStopped(0));
@@ -286,6 +287,7 @@ void SGMBeamline::setupDetectors()
 
 void SGMBeamline::setupExposedControls()
 {
+	addExposedControl(endStationTranslationSetpont_);
 	addExposedControl(energy_);
 	addExposedControl(exitSlitGap_);
 	addExposedControl(exitSlitPosition_);
@@ -306,6 +308,8 @@ void SGMBeamline::setupExposedDetectors()
 	AMBasicControlDetectorEmulator* endStationPositionDetector =
 			new AMBasicControlDetectorEmulator("EA2Pos", "Position of the End Station 2", endStationTranslationFeedback_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
 
+	endStationPositionDetector->setIsVisible(true);
+	endStationPositionDetector->setHiddenFromUsers(false);
 	addExposedDetector(endStationPositionDetector);
 	addExposedDetector(teyDetector_);
 	addExposedDetector(tfyDetector_);

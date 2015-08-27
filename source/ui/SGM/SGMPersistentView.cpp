@@ -47,6 +47,7 @@ void SGMPersistentView::setupUi()
 
 	endStationTranslationLayout->addWidget(endStationTranslationSetpointControlEditor_);
 	endStationTranslationLayout->addWidget(endStationTranslationFeedbackControlEditor_);
+	endStationTranslationFeedbackControlEditor_->setPrecision(12);
 	endStationGroupBox->setLayout(endStationTranslationLayout);
 	controlsGroupLayout->addWidget(endStationGroupBox);
 	controlsGroupLayout->addWidget(manipulatorsMotorGroupView);
