@@ -29,7 +29,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "beamline/REIXS/REIXSBeamline.h"
 #include "ui/beamline/AMControlMoveButton.h"
-#include "ui/beamline/AMCompositeControlDirectionMoveButton.h"
+#include "ui/beamline/AMXYThetaControlMoveButton.h"
 
 
 REIXSSampleChamberButtonPanel::REIXSSampleChamberButtonPanel(QWidget *parent) :
@@ -168,10 +168,10 @@ void REIXSSampleChamberButtonPanel::setupUi()
 	sampleYdown_ = createAMControlMoveButton("-Y", iconPrevious);
 	sampleZup_ = createAMControlMoveButton("+Z", iconDown);
 	sampleZdown_ = createAMControlMoveButton("-Z", iconUp);
-	sampleLeft_ = createAMCompositeControlDirectionMoveButton("Left", iconPrevious);
-	sampleRight_ = createAMCompositeControlDirectionMoveButton("Right", iconNext);
-	sampleIn_    = createAMCompositeControlDirectionMoveButton("In", iconDown);
-	sampleOut_   = createAMCompositeControlDirectionMoveButton("Out", iconUp);
+	sampleLeft_ = createAMXYThetaControlMoveButton("Left", iconPrevious);
+	sampleRight_ = createAMXYThetaControlMoveButton("Right", iconNext);
+	sampleIn_    = createAMXYThetaControlMoveButton("In", iconDown);
+	sampleOut_   = createAMXYThetaControlMoveButton("Out", iconUp);
 
 
 	QFrame *line = new QFrame();
@@ -261,8 +261,8 @@ void REIXSSampleChamberButtonPanel::initializeUiComponents()
 	sampleLeft_->setControlR(chamber->r());
 	sampleLeft_->setStepSizes(QList<double>() << 0.2 << 1 << 5 << 10);
 	sampleLeft_->setStepSizeIndex(1);
-	sampleLeft_->setDirectionReversed(true);
-	sampleLeft_->setDirection2Reversed(true);
+	sampleLeft_->setDirectionXReversed(true);
+	sampleLeft_->setDirectionYReversed(true);
 	sampleRight_->setControl(chamber->y());
 	sampleRight_->setControl2(chamber->x());
 	sampleRight_->setControlR(chamber->r());
@@ -274,13 +274,13 @@ void REIXSSampleChamberButtonPanel::initializeUiComponents()
 	sampleIn_->setControlR(chamber->r());
 	sampleIn_->setStepSizes(QList<double>() << 0.2 << 1 << 5 << 10);
 	sampleIn_->setStepSizeIndex(1);
-	sampleIn_->setDirection2Reversed(true);
+	sampleIn_->setDirectionYReversed(true);
 	sampleOut_->setControl(chamber->x());
 	sampleOut_->setControl2(chamber->y());
 	sampleOut_->setControlR(chamber->r());
 	sampleOut_->setStepSizes(QList<double>() << 0.2 << 1 << 5 << 10);
 	sampleOut_->setStepSizeIndex(1);
-	sampleOut_->setDirectionReversed(true);
+	sampleOut_->setDirectionXReversed(true);
 }
 
 QToolButton *REIXSSampleChamberButtonPanel::createQToolButton(QString text, QIcon icon)
@@ -317,12 +317,12 @@ AMControlMoveButton *REIXSSampleChamberButtonPanel::createAMControlMoveButton(QS
 	return controlMoveButton;
 }
 
-AMCompositeControlDirectionMoveButton *REIXSSampleChamberButtonPanel::createAMCompositeControlDirectionMoveButton(QString text, QIcon icon)
+AMXYThetaControlMoveButton *REIXSSampleChamberButtonPanel::createAMXYThetaControlMoveButton(QString text, QIcon icon)
 {
 	QFont font;
 	font.setPointSize(9);
 
-	AMCompositeControlDirectionMoveButton *controlMoveButton = new AMCompositeControlDirectionMoveButton();
+	AMXYThetaControlMoveButton *controlMoveButton = new AMXYThetaControlMoveButton();
 	controlMoveButton->setMinimumSize(QSize(52, 46));
 	controlMoveButton->setMaximumSize(QSize(52, 46));
 	controlMoveButton->setFont(font);
