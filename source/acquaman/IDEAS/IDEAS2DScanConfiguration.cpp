@@ -8,8 +8,6 @@
 IDEAS2DScanConfiguration::IDEAS2DScanConfiguration(QObject *parent)
 	: AMStepScanConfiguration(parent), IDEASScanConfiguration()
 {
-	setAutoExportEnabled(false);
-
 	setName("Unnamed Scan");
 	setUserScanName("Unnamed Scan");
 

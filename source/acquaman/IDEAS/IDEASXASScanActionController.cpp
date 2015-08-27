@@ -28,7 +28,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "analysis/AM1DExpressionAB.h"
 #include "analysis/AM2DSummingAB.h"
 #include "application/IDEAS/IDEASAppController.h"
-
+#include "application/AMAppControllerSupport.h"
+#include "dataman/export/AMExporterAthena.h"
 #include "actions3/AMListAction3.h"
 #include "actions3/AMActionSupport.h"
 #include "actions3/actions/AMWaitAction.h"
@@ -45,6 +46,13 @@ IDEASXASScanActionController::IDEASXASScanActionController(IDEASXASScanConfigura
 	scan_->setScanConfiguration(configuration);
 	scan_->setIndexType("fileSystem");
 	scan_->rawData()->addScanAxis(AMAxisInfo("eV", 0, "Incident Energy", "eV"));
+
+    AMExporterOptionGeneralAscii *exporterOption = IDEAS::buildStandardExporterOption("IDEASDefault", true, true);
+
+    if(exporterOption->id() > 0)
+        AMAppControllerSupport::registerClass<IDEASXASScanConfiguration, AMExporterAthena, AMExporterOptionGeneralAscii>(exporterOption->id());
+
+    exporterOption->deleteLater();
 
 	QString scanName;
 
