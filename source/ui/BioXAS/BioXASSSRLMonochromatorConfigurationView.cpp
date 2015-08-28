@@ -234,7 +234,7 @@ void BioXASSSRLMonochromatorConfigurationView::setMono(BioXASSSRLMonochromator *
 
 			stepEnergyEditor_->setControl(mono_->stepEnergyControl());
 			encoderEnergyEditor_->setControl(mono_->encoderEnergyControl());
-			stepBraggEditor_->setControl(mono_->braggMotor());
+			stepBraggEditor_->setControl(mono_->stepBraggControl());
 			encoderBraggEditor_->setControl(mono_->encoderBraggControl());
 			m1PitchEditor_->setControl(mono_->m1MirrorPitchControl());
 
