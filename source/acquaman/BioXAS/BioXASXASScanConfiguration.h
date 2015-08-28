@@ -37,13 +37,13 @@ public:
 	virtual AMScanConfigurationView* createView();
 
 public slots:
-	/// Sets a controlInfo to an axis.  If the axis has no control associated with it yet, then it will add it to the list, otherwise it will replace it.
+	/// Adds the scanned control.
 	virtual void setControl(AMControlInfo newInfo);
-	/// Removes a control from the given axis.  Also removes the axis.
+	/// Removes the scanned control.
 	virtual void removeControl();
 
 protected slots:
-	/// Helper slot that connects the new region ot the computeTotalTime slot.
+	/// Helper slot that connects the new region to the computeTotalTime slot.
 	void onRegionAdded(AMScanAxisRegion *region);
 	/// Helper slot that disconnects the region from the computeTotalTime slot.
 	void onRegionRemoved(AMScanAxisRegion *region);
