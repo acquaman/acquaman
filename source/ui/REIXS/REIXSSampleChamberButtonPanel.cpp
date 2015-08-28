@@ -323,7 +323,7 @@ void REIXSSampleChamberButtonPanel::initializeUiComponents()
 	angleOffsetSpinBox_->setValue(0);
 }
 
-QToolButton *REIXSSampleChamberButtonPanel::createQToolButton(QString text, QIcon icon)
+QToolButton *REIXSSampleChamberButtonPanel::createQToolButton(const QString &text, const QIcon &icon)
 {
 	QToolButton *toolButton= new QToolButton();
 	toolButton->setIconSize(QSize(32, 32));
@@ -340,7 +340,7 @@ QToolButton *REIXSSampleChamberButtonPanel::createQToolButton(QString text, QIco
 	return toolButton;
 }
 
-AMControlMoveButton *REIXSSampleChamberButtonPanel::createAMControlMoveButton(QString text, QIcon icon)
+AMControlMoveButton *REIXSSampleChamberButtonPanel::createAMControlMoveButton(const QString &text, const QIcon &icon)
 {
 	QFont font;
 	font.setPointSize(9);
@@ -357,7 +357,7 @@ AMControlMoveButton *REIXSSampleChamberButtonPanel::createAMControlMoveButton(QS
 	return controlMoveButton;
 }
 
-AMXYThetaControlMoveButton *REIXSSampleChamberButtonPanel::createAMXYThetaControlMoveButton(QString text, QIcon icon)
+AMXYThetaControlMoveButton *REIXSSampleChamberButtonPanel::createAMXYThetaControlMoveButton(const QString &text, const QIcon &icon)
 {
 	QFont font;
 	font.setPointSize(9);

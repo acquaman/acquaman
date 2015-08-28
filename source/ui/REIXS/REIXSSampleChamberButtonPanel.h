@@ -51,9 +51,9 @@ protected:
 	void setupUi();
 	void initializeUiComponents();
 
-	QToolButton *createQToolButton(QString text, QIcon icon);
-	AMControlMoveButton *createAMControlMoveButton(QString text, QIcon icon);
-	AMXYThetaControlMoveButton *createAMXYThetaControlMoveButton(QString text, QIcon icon);
+	QToolButton *createQToolButton(const QString &text, const QIcon &icon);
+	AMControlMoveButton *createAMControlMoveButton(const QString &text, const QIcon &icon);
+	AMXYThetaControlMoveButton *createAMXYThetaControlMoveButton(const QString &text, const QIcon &icon);
 
 private:
 	AMControlMoveButton *sampleXup_;
