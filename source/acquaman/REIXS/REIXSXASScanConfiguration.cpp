@@ -177,6 +177,7 @@ void REIXSXASScanConfiguration::onRegionAdded(AMScanAxisRegion *region)
 void REIXSXASScanConfiguration::onRegionRemoved(AMScanAxisRegion *region)
 {
 	region->disconnect(this);
+	region->deleteLater();
 	computeTotalTime();
 }
 

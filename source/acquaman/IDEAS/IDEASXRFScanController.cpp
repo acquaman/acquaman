@@ -36,7 +36,7 @@ IDEASXRFScanController::IDEASXRFScanController(IDEASXRFScanConfiguration *scanCo
 {
 	configuration_ = scanConfig;
 
-	detector_ = IDEASBeamline::ideas()->XRFDetector(configuration_->fluorescenceDetector());
+	detector_ = IDEASBeamline::ideas()->xrfDetector(configuration_->fluorescenceDetector());
 
 	scan_ = new AMXRFScan;
 	scan_->setScanConfiguration(configuration_);

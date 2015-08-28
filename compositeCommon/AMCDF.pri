@@ -1,7 +1,13 @@
 macx {
 	# CDFlib dependencies
-	CDF_LIB = /Applications/cdf34_0-dist/lib/libcdf.a
-	CDF_INCLUDE_DIR = /Applications/cdf34_0-dist/include
+	contains(USERNAME, hunterd){
+		CDF_LIB = /Applications/cdf34_1-dist/lib/libcdf.a
+		CDF_INCLUDE_DIR = /Applications/cdf34_1-dist/include
+	} else {
+
+		CDF_LIB = /Applications/cdf34_0-dist/lib/libcdf.a
+		CDF_INCLUDE_DIR = /Applications/cdf34_0-dist/include
+	}
 } else:linux-g++-64 {
 	contains(USERNAME, david){
 		# CDFlib dependencies
