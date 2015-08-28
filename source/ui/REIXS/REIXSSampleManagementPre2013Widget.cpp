@@ -5,7 +5,7 @@
 #include <QGroupBox>
 #include <QSpacerItem>
 
-#include "ui/AMTopFrame2.h"
+#include "ui/AMTopFrame.h"
 
 #include "ui/AMBeamlineCameraWidget.h"
 
@@ -39,7 +39,7 @@ REIXSSampleManagementPre2013Widget::REIXSSampleManagementPre2013Widget(QWidget *
 	Q_UNUSED(sampleCameraUrl2);
 #endif
 
-	topFrame_ = new AMTopFrame2("Sample Management & Positioning", QIcon(":/system-software-update.png"));
+	topFrame_ = new AMTopFrame("Sample Management & Positioning", QIcon(":/system-software-update.png"));
 
 	plateView_ = new AMSamplePlatePre2013View(samplePlate);
 	plateView_->setManipulator(manipulator);

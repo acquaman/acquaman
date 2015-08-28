@@ -28,7 +28,7 @@ class QGridLayout;
 class QUrl;
 class QGroupBox;
 
-class AMTopFrame2;
+class AMTopFrame;
 
 
 #include "ui/dataman/AMSamplePlatePre2013View.h"
@@ -81,7 +81,7 @@ protected:
 	AMSamplePlatePre2013View *plateView_;
 	QWidget *manipulatorWidget_;
 
-	AMTopFrame2 *topFrame_;
+	AMTopFrame *topFrame_;
 };
 
 

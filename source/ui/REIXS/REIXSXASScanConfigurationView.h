@@ -31,7 +31,7 @@ class QLabel;
 class QLineEdit;
 
 class AMSamplePre2013Selector;
-class AMTopFrame2;
+class AMTopFrame;
 
 /// Editor widget for a REIXSXASScanConfiguration, used to configure XAS scans to run now or later.
 class REIXSXASScanConfigurationView : public AMScanConfigurationView
@@ -64,7 +64,7 @@ private:
 	REIXSXASScanConfiguration* config_;
 
 	AMSamplePre2013Selector* sampleSelector_;
-	AMTopFrame2* topFrame_;
+	AMTopFrame* topFrame_;
 
 	QCheckBox *applyGratingBox_;
 	QComboBox *gratingBox_;

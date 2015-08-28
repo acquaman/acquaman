@@ -199,7 +199,6 @@ HEADERS += \
 	source/ui/beamline/AMExtendedControlEditor.h \
 	source/ui/beamline/AMControlButton.h \
 	source/dataman/AMLineScan.h \
-	source/ui/AMTopFrame2.h \
 	source/application/AMDatamanAppControllerForActions3.h \
 	source/analysis/AM2DAdditionAB.h \
 	source/analysis/AM3DAdditionAB.h \
@@ -590,7 +589,6 @@ SOURCES += \
 	source/ui/beamline/AMExtendedControlEditor.cpp \
 	source/ui/beamline/AMControlButton.cpp \
 	source/dataman/AMLineScan.cpp \
-	source/ui/AMTopFrame2.cpp \
 	source/application/AMDatamanAppControllerForActions3.cpp \
 	source/analysis/AM2DAdditionAB.cpp \
 	source/analysis/AM3DAdditionAB.cpp \
