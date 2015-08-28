@@ -11,25 +11,14 @@
 BioXASXASScanConfiguration::BioXASXASScanConfiguration(QObject *parent) :
 	AMGenericStepScanConfiguration(parent), BioXASScanConfiguration()
 {
-	setName("XAS Scan");
-	setUserScanName("XAS Scan");
-
-	AMScanAxisEXAFSRegion *region = new AMScanAxisEXAFSRegion;
-	AMScanAxis *axis = new AMScanAxis(AMScanAxis::StepAxis, region);
-	appendScanAxis(axis);
-
-	connect(axis, SIGNAL(regionAdded(AMScanAxisRegion*)), this, SLOT(onRegionAdded(AMScanAxisRegion*)));
-	connect(axis, SIGNAL(regionRemoved(AMScanAxisRegion*)), this, SLOT(onRegionRemoved(AMScanAxisRegion*)));
-
-	connect(region, SIGNAL(maximumTimeChanged(AMNumber)), this, SLOT(computeTotalTime()));
-	connect(region, SIGNAL(equationChanged(AMVariableIntegrationTime::Equation)), this, SLOT(computeTotalTime()));
+	setName(description());
+	setUserScanName(description());
 }
 
 BioXASXASScanConfiguration::BioXASXASScanConfiguration(const BioXASXASScanConfiguration &original) :
 	AMGenericStepScanConfiguration(original), BioXASScanConfiguration()
 {
-	connect(scanAxisAt(0), SIGNAL(regionAdded(AMScanAxisRegion*)), this, SLOT(onRegionAdded(AMScanAxisRegion*)));
-	connect(scanAxisAt(0), SIGNAL(regionRemoved(AMScanAxisRegion*)), this, SLOT(onRegionRemoved(AMScanAxisRegion*)));
+
 }
 
 BioXASXASScanConfiguration::~BioXASXASScanConfiguration()

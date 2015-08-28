@@ -59,6 +59,7 @@ bool BioXASAppController::startup()
 		setAutomaticBringScanEditorToFront(true);
 
 		setupExporterOptions();
+		setupScanConfigurations();
 		setupUserInterface();
 
 		if (userConfiguration_) {
@@ -177,8 +178,8 @@ void BioXASAppController::onCurrentScanActionFinishedImplementation(AMScanAction
 void BioXASAppController::registerClasses()
 {
 	AMDbObjectSupport::s()->registerClass<CLSSIS3820ScalerDarkCurrentMeasurementActionInfo>();
-	AMDbObjectSupport::s()->registerClass<BioXASScanConfigurationDbObject>();
 	AMDbObjectSupport::s()->registerClass<BioXASUserConfiguration>();
+	AMDbObjectSupport::s()->registerClass<BioXASScanConfigurationDbObject>();
 	AMDbObjectSupport::s()->registerClass<BioXASXASScanConfiguration>();
 	AMDbObjectSupport::s()->registerClass<BioXASXRFScanConfiguration>();
 }
@@ -239,20 +240,12 @@ void BioXASAppController::setupUserInterface()
 	// Create scan views:
 	////////////////////////////////////
 
-	xasConfiguration_ = new BioXASXASScanConfiguration();
-	setupXASScanConfiguration(xasConfiguration_);
 	xasConfigurationView_ = createScanConfigurationViewWithHolder(xasConfiguration_);
 	addViewToScansPane(xasConfigurationView_, "XAS Scan");
 
-	commissioningConfiguration_ = new AMGenericStepScanConfiguration;
-	setupGenericStepScanConfiguration(commissioningConfiguration_);
 	commissioningConfigurationView_ = createScanConfigurationViewWithHolder(commissioningConfiguration_);
 	addViewToScansPane(commissioningConfigurationView_, "Commissioning Tool");
 
-	energyCalibrationConfiguration_ = new BioXASXASScanConfiguration();
-	energyCalibrationConfiguration_->setName("Energy Calibration XAS Scan");
-	energyCalibrationConfiguration_->setUserScanName("Energy Calibration XAS Scan");
-	setupXASScanConfiguration(energyCalibrationConfiguration_);
 	energyCalibrationConfigurationView_ = createScanConfigurationViewWithHolder(energyCalibrationConfiguration_);
 	addViewToScansPane(energyCalibrationConfigurationView_, "Energy Calibration");
 
@@ -261,6 +254,20 @@ void BioXASAppController::setupUserInterface()
 
 	energyCalibrationView_ = qobject_cast<BioXASSSRLMonochromatorEnergyCalibrationView*>(createCalibrationView(BioXASBeamline::bioXAS()->mono()));
 	addViewToCalibrationPane(energyCalibrationView_, "Energy");
+}
+
+void BioXASAppController::setupScanConfigurations()
+{
+	xasConfiguration_ = new BioXASXASScanConfiguration();
+	setupXASScanConfiguration(xasConfiguration_);
+
+	commissioningConfiguration_ = new AMGenericStepScanConfiguration();
+	setupGenericStepScanConfiguration(commissioningConfiguration_);
+
+	energyCalibrationConfiguration_ = new BioXASXASScanConfiguration();
+	energyCalibrationConfiguration_->setName("Energy Calibration XAS Scan");
+	energyCalibrationConfiguration_->setUserScanName("Energy Calibration XAS Scan");
+	setupXASScanConfiguration(energyCalibrationConfiguration_);
 }
 
 void BioXASAppController::addViewToGeneralPane(QWidget *view, const QString &viewName)

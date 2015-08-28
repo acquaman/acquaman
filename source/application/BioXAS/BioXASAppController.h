@@ -93,12 +93,12 @@ protected slots:
 	/// Sets the monochromator energy calibration view as the current pane.
 	void goToEnergyCalibrationView(AMScan *toView);
 
-protected:
 	/// Implementation method that individual applications can flesh out if extra setup is required when a scan action is started.  This is not pure virtual because there is no requirement to do anything to scan actions.
 	virtual void onCurrentScanActionStartedImplementation(AMScanAction *action);
 	/// Implementation method that individual applications can flesh out if extra cleanup is required when a scan action finishes.  This is not pure virtual because there is no requirement to do anything to scan actions.
 	virtual void onCurrentScanActionFinishedImplementation(AMScanAction *action);
 
+protected:
 	/// Registers all of the necessary classes that are BioXAS-specific.
 	virtual void registerClasses();
 
@@ -112,8 +112,10 @@ protected:
 	virtual void initializePeriodicTable();
 	/// Sets up the user interface by specifying the extra pieces that will be added to the main window.
 	virtual void setupUserInterface();
-	/// Sets up local and remote data paths.
+	/// Sets up local and remote data paths. Subclasses should reimplement.
 	virtual bool setupDataFolder() { return false; }
+	/// Sets up the available scan configurations.
+	virtual void setupScanConfigurations();
 
 	/// Adds a given view to the 'General' main window pane, with the given name.
 	void addViewToGeneralPane(QWidget *view, const QString &viewName);
