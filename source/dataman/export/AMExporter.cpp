@@ -191,6 +191,8 @@ QString AMExporter::krDelimitedNotes(const QString& arg) {
 }
 
 QString AMExporter::krSimplifiedNotes(const QString& arg) {
+	Q_UNUSED(arg)
+
 	if(!currentScan_)
 		return "[??]";
 
@@ -415,8 +417,9 @@ QString AMExporter::krControlEnum(const QString& controlName) {
 	if(!scanConfig)
 		return QString::number(ci.value()) % " " % ci.units();
 
-
-	if(scanConfig->canEnumConvert(controlName))
+	if(!ci.enumString().isEmpty())
+		return ci.enumString();
+	else if(scanConfig->canEnumConvert(controlName))
 		return scanConfig->enumConvert(controlName, ci.value());
 	else
 		return QString::number(ci.value()) % " " % ci.units();
