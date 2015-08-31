@@ -44,7 +44,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/acquaman/AMScanConfigurationView.h"
 #include "ui/acquaman/AMScanConfigurationViewHolder3.h"
 #include "ui/dataman/AMGenericScanEditor.h"
-#include "ui/dataman/AMSampleManagementPre2013Widget.h"	/// \todo This doesn't belong in dataman
+#include "ui/REIXS/REIXSSampleManagementPre2013Widget.h"
 #include "ui/util/AMChooseDataFolderDialog.h"
 
 #include "acquaman/REIXS/REIXSXESScanConfiguration.h"
@@ -212,9 +212,9 @@ void REIXSAppController::setupUserInterface()
 
 
 	sampleChamberButtonPanel_ = new REIXSSampleChamberButtonPanel();
-	AMSampleManagementPre2013Widget* sampleManagementPane = new AMSampleManagementPre2013Widget(sampleChamberButtonPanel_,
+	REIXSSampleManagementPre2013Widget* sampleManagementPane = new REIXSSampleManagementPre2013Widget(sampleChamberButtonPanel_,
 																				  QUrl("http://v2e1610-401.clsi.ca/mjpg/1/video.mjpg"),
-																				  "Sample Camera: down beam path",
+																				  QUrl("http://v2e1610-401.clsi.ca/mjpg/2/video.mjpg"),
 																				  REIXSBeamline::bl()->samplePlate(),
 																				  new REIXSSampleManipulator(),
 																				  0);
