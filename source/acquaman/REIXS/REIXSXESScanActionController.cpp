@@ -225,8 +225,20 @@ void REIXSXESScanActionController::initializePositions()
 	positions.append(REIXSBeamline::bl()->spectrometer()->tmMCPPreamp()->toInfo());
 
 	positions.append(REIXSBeamline::bl()->photonSource()->ringCurrent()->toInfo());
+
 	positions.append(REIXSBeamline::bl()->I0Current()->toInfo());
+	double I0CurrentValue = REIXSBeamline::bl()->I0Current()->value() / 200000 * REIXSBeamline::bl()->scaler()->channelAt(16)->currentAmplifier()->value();
+	AMControlInfo I0Value("I0Value", I0CurrentValue, 0, 0, QString(REIXSBeamline::bl()->scaler()->channelAt(16)->currentAmplifier()->units().remove("/V")), 0.1, "I0 Amplifier Output");
+	positions.append(I0Value);
+	AMControlInfo I0Sensitivity("I0Sensitivity", REIXSBeamline::bl()->scaler()->channelAt(16)->currentAmplifier()->value(), 0, 0, REIXSBeamline::bl()->scaler()->channelAt(16)->currentAmplifier()->units(), 0.1, "I0 Amplifier Sensitivity");
+	positions.append(I0Sensitivity);
+
 	positions.append(REIXSBeamline::bl()->TEYCurrent()->toInfo());
+	double TEYCurrentValue = REIXSBeamline::bl()->TEYCurrent()->value() / 200000 * REIXSBeamline::bl()->scaler()->channelAt(18)->currentAmplifier()->value();
+	AMControlInfo TEYValue("TEYValue", TEYCurrentValue, 0, 0, QString(REIXSBeamline::bl()->scaler()->channelAt(18)->currentAmplifier()->units().remove("/V")), 0.1, "TEY Amplifier Output");
+	positions.append(TEYValue);
+	AMControlInfo TEYSensitivity("TEYSensitivity", REIXSBeamline::bl()->scaler()->channelAt(18)->currentAmplifier()->value(), 0, 0, REIXSBeamline::bl()->scaler()->channelAt(18)->currentAmplifier()->units(), 0.1, "TEY Amplifier Sensitivity");
+	positions.append(TEYSensitivity);
 
 
 	scan_->setScanInitialConditions(positions);
