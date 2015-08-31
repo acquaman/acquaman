@@ -260,9 +260,13 @@ void REIXSAppController::setupUserInterface()
 
 void REIXSAppController::setupExporterOptions()
 {
-	AMExporterOptionGeneralAscii *exportOptions = REIXS::buildStandardExporterOption("REIXSXASDefault", true, true, true, true);
+	AMExporterOptionGeneralAscii *exportOptions = REIXS::buildStandardExporterOption("REIXSXASDefault", false);
 	if(exportOptions->id() > 0)
-		AMAppControllerSupport::registerClass<REIXSXASScanConfiguration, AMExporterAthena, AMExporterOptionGeneralAscii>(exportOptions->id());
+		AMAppControllerSupport::registerClass<REIXSXASScanConfiguration, AMExporterGeneralAscii, AMExporterOptionGeneralAscii>(exportOptions->id());
+
+	exportOptions = REIXS::buildStandardExporterOption("REIXSXESDefault", true);
+	if(exportOptions->id() > 0)
+		AMAppControllerSupport::registerClass<REIXSXASScanConfiguration, AMExporterGeneralAscii, AMExporterOptionGeneralAscii>(exportOptions->id());
 }
 
 void REIXSAppController::makeConnections()
