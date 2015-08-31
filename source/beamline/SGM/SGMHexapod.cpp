@@ -85,7 +85,7 @@ SGMHexapod::SGMHexapod(QObject *parent) :
 
 
 	//Test rotations:
-	rotateSystem(180, 0, 0);
+	rotateSystem(75, 79.4547, 45);
 
 
 	allControls_ = new AMControlSet(this);
