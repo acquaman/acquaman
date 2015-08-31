@@ -76,8 +76,6 @@ void AMXYThetaControlMoveButton::setControlX(AMControl *control)
 		connect(controlX_, SIGNAL(connected(bool)), this, SLOT(checkStatus()));
 	}
 
-	setText(QString::number(currentStepSize()) % (controlX_ ? controlX_->units() : QString()));
-
 	// enabled / disabled:
 	checkStatus();
 }
@@ -97,20 +95,18 @@ void AMXYThetaControlMoveButton::setControlY(AMControl *control2)
 	}
 
 	controlY_ = control2;
-	if(controlX_) {
+	if(controlY_) {
 		connect(controlY_, SIGNAL(destroyed()), this, SLOT(onControlYDestroyed()));
 		connect(controlY_, SIGNAL(connected(bool)), this, SLOT(checkStatus()));
 	}
-
-	setText(QString::number(currentStepSize()) % (controlX_ ? controlX_->units() : QString()));
 
 	// enabled / disabled:
 	checkStatus();
 }
 
-void AMXYThetaControlMoveButton::setControlTheta(AMControl *controlR)
+void AMXYThetaControlMoveButton::setControlTheta(AMControl *controlTheta)
 {
-	if(controlR == controlTheta_)
+	if(controlTheta == controlTheta_)
 		return;
 
 	if(contextMenu_) {
@@ -122,13 +118,11 @@ void AMXYThetaControlMoveButton::setControlTheta(AMControl *controlR)
 		disconnect(controlTheta_, 0, this, 0);
 	}
 
-	controlTheta_ = controlR;
-	if(controlX_) {
+	controlTheta_ = controlTheta;
+	if(controlTheta_) {
 		connect(controlTheta_, SIGNAL(destroyed()), this, SLOT(onControlThetaDestroyed()));
 		connect(controlTheta_, SIGNAL(connected(bool)), this, SLOT(checkStatus()));
 	}
-
-	setText(QString::number(currentStepSize()) % (controlX_ ? controlX_->units() : QString()));
 
 	// enabled / disabled:
 	checkStatus();

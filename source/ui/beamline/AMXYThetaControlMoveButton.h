@@ -78,11 +78,11 @@ signals:
 protected slots:
 	/// When the button is clicked, relativeMove()s will be initiated on control() and control2(), based on distance of currentStepSize() and controlR().value().
 	virtual void onButtonClicked();
-	/// When the existing control1 is destroyed, we must set our control to 0.
+	/// When the existing controlX is destroyed, we must set our control to 0.
 	void onControlXDestroyed();
-	/// When the existing control1 is destroyed, we must set our control to 0.
+	/// When the existing controlY is destroyed, we must set our control to 0.
 	void onControlYDestroyed();
-	/// When the existing controlR is destroyed, we must set our control to 0.
+	/// When the existing controlTheta is destroyed, we must set our control to 0.
 	void onControlThetaDestroyed();
 	/// Checkes all controls and updates the button state
 	void checkStatus();
