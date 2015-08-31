@@ -1,9 +1,9 @@
-#include "AM3DMotionPseudoMotorControl.h"
+#include "AM3DCoordinatedSystemControl.h"
 #include "actions3/AMListAction3.h"
 #include "actions3/AMActionSupport.h"
 
 
-AM3DMotionPseudoMotorControl::AM3DMotionPseudoMotorControl(AxisDesignation axis,
+AM3DCoordinatedSystemControl::AM3DCoordinatedSystemControl(AxisDesignation axis,
 														   AMControl* globalXAxis,
 														   AMControl* globalYAxis,
 														   AMControl* globalZAxis,
@@ -29,7 +29,7 @@ AM3DMotionPseudoMotorControl::AM3DMotionPseudoMotorControl(AxisDesignation axis,
 	updateStates();
 }
 
-bool AM3DMotionPseudoMotorControl::shouldMeasure() const
+bool AM3DCoordinatedSystemControl::shouldMeasure() const
 {
 
 	return globalXAxis_ && globalXAxis_->shouldMeasure() &&
@@ -37,42 +37,42 @@ bool AM3DMotionPseudoMotorControl::shouldMeasure() const
 			globalZAxis_ && globalZAxis_->shouldMeasure();
 }
 
-bool AM3DMotionPseudoMotorControl::shouldMove() const
+bool AM3DCoordinatedSystemControl::shouldMove() const
 {
 	return globalXAxis_ && globalXAxis_->shouldMove() &&
 			globalYAxis_ && globalYAxis_->shouldMove() &&
 			globalZAxis_ && globalZAxis_->shouldMove();
 }
 
-bool AM3DMotionPseudoMotorControl::shouldStop() const
+bool AM3DCoordinatedSystemControl::shouldStop() const
 {
 	return globalXAxis_ && globalXAxis_->shouldStop() &&
 			globalYAxis_ && globalYAxis_->shouldStop() &&
 			globalZAxis_ && globalZAxis_->shouldStop();
 }
 
-bool AM3DMotionPseudoMotorControl::canMeasure() const
+bool AM3DCoordinatedSystemControl::canMeasure() const
 {
 	return globalXAxis_ && globalXAxis_->canMeasure() &&
 			globalYAxis_ && globalYAxis_->canMeasure() &&
 			globalZAxis_ && globalZAxis_->canMeasure();
 }
 
-bool AM3DMotionPseudoMotorControl::canMove() const
+bool AM3DCoordinatedSystemControl::canMove() const
 {
 	return globalXAxis_ && globalXAxis_->canMove() &&
 			globalYAxis_ && globalYAxis_->canMove() &&
 			globalZAxis_ && globalZAxis_->canMove();
 }
 
-bool AM3DMotionPseudoMotorControl::canStop() const
+bool AM3DCoordinatedSystemControl::canStop() const
 {
 	return globalXAxis_ && globalXAxis_->canStop() &&
 			globalYAxis_ && globalYAxis_->canStop() &&
 			globalZAxis_ && globalZAxis_->canStop();
 }
 
-void AM3DMotionPseudoMotorControl::addChildControl(AMControl *control)
+void AM3DCoordinatedSystemControl::addChildControl(AMControl *control)
 {
 	AMPseudoMotorControl::addChildControl(control);
 
@@ -81,7 +81,7 @@ void AM3DMotionPseudoMotorControl::addChildControl(AMControl *control)
 	}
 }
 
-void AM3DMotionPseudoMotorControl::updateConnected()
+void AM3DCoordinatedSystemControl::updateConnected()
 {
 	setConnected(globalXAxis_ && globalXAxis_->isConnected() &&
 			globalYAxis_ && globalYAxis_->isConnected() &&
@@ -91,7 +91,7 @@ void AM3DMotionPseudoMotorControl::updateConnected()
 	updateMaximumValue();
 }
 
-void AM3DMotionPseudoMotorControl::updateValue()
+void AM3DCoordinatedSystemControl::updateValue()
 {
 	if(globalXAxis_ && globalYAxis_ && globalZAxis_) {
 		QVector3D globalValues(globalXAxis_->value(), globalYAxis_->value(), globalZAxis_->value());
@@ -105,7 +105,7 @@ void AM3DMotionPseudoMotorControl::updateValue()
 	}
 }
 
-void AM3DMotionPseudoMotorControl::updateMoving()
+void AM3DCoordinatedSystemControl::updateMoving()
 {
 	if(globalXAxis_ && globalYAxis_ && globalZAxis_) {
 		bool isNowMoving = false;
@@ -120,27 +120,39 @@ void AM3DMotionPseudoMotorControl::updateMoving()
 	}
 }
 
-void AM3DMotionPseudoMotorControl::updateMinimumValue()
+void AM3DCoordinatedSystemControl::updateMinimumValue()
+{
+	// These have to be done at the same time, as a tranform might lead us to
+	// a smaller max than min, in which case we have to reverse them.
+	updateMaximumAndMinimumValues();
+}
+
+void AM3DCoordinatedSystemControl::updateMaximumValue()
+{
+	// These have to be done at the same time, as a tranform might lead us to
+	// a smaller max than min, in which case we have to reverse them.
+	updateMaximumAndMinimumValues();
+}
+
+
+void AM3DCoordinatedSystemControl::updateMaximumAndMinimumValues()
 {
 	if(globalXAxis_ && globalYAxis_ && globalZAxis_) {
 		QVector3D globalMinimumValues(globalXAxis_->minimumValue(), globalYAxis_->minimumValue(), globalZAxis_->minimumValue());
 		QVector3D primeMinimumValues = globalAxisToPrime(globalMinimumValues);
 
-		double newMinimumValue = designatedAxisValue(primeMinimumValues);
+		QVector3D globalMaximumValues(globalXAxis_->maximumValue(), globalYAxis_->maximumValue(), globalZAxis_->maximumValue());
+		QVector3D primeMaximumValues = globalAxisToPrime(globalMaximumValues);
+
+		double convertedMinimumValue = designatedAxisValue(primeMinimumValues);
+		double convertedMaximumValue = designatedAxisValue(primeMaximumValues);
+
+		double newMinimumValue = qMin(convertedMinimumValue, convertedMaximumValue);
+		double newMaximumValue = qMax(convertedMinimumValue, convertedMaximumValue);
 
 		if(qAbs(minimumValue() - newMinimumValue) > tolerance()) {
 			setMinimumValue(newMinimumValue);
 		}
-	}
-}
-
-void AM3DMotionPseudoMotorControl::updateMaximumValue()
-{
-	if(globalXAxis_ && globalYAxis_ && globalZAxis_) {
-		QVector3D globalMaximumValues(globalXAxis_->maximumValue(), globalYAxis_->maximumValue(), globalZAxis_->maximumValue());
-		QVector3D primeMaximumValues = globalAxisToPrime(globalMaximumValues);
-
-		double newMaximumValue = designatedAxisValue(primeMaximumValues);
 
 		if(qAbs(maximumValue() - newMaximumValue) > tolerance()) {
 			setMaximumValue(newMaximumValue);
@@ -148,7 +160,8 @@ void AM3DMotionPseudoMotorControl::updateMaximumValue()
 	}
 }
 
-void AM3DMotionPseudoMotorControl::updateSetpoint()
+
+void AM3DCoordinatedSystemControl::updateSetpoint()
 {
 	if(globalXAxis_ && globalYAxis_ && globalZAxis_) {
 		QVector3D globalSetpoints(globalXAxis_->setpoint(), globalYAxis_->setpoint(), globalZAxis_->setpoint());
@@ -162,7 +175,7 @@ void AM3DMotionPseudoMotorControl::updateSetpoint()
 	}
 }
 
-bool AM3DMotionPseudoMotorControl::affectedByMotionsInX() const
+bool AM3DCoordinatedSystemControl::affectedByMotionsInX() const
 {
 	QVector3D testStartPrimePosition(0,0,0);
 	QVector3D testGlobalPosition = primeAxisToGlobal(testStartPrimePosition);
@@ -177,7 +190,7 @@ bool AM3DMotionPseudoMotorControl::affectedByMotionsInX() const
 
 }
 
-bool AM3DMotionPseudoMotorControl::affectedByMotionsInY() const
+bool AM3DCoordinatedSystemControl::affectedByMotionsInY() const
 {
 	QVector3D testStartPrimePosition(0,0,0);
 	QVector3D testGlobalPosition = primeAxisToGlobal(testStartPrimePosition);
@@ -191,7 +204,7 @@ bool AM3DMotionPseudoMotorControl::affectedByMotionsInY() const
 	return (qAbs(thisAxisStartPosition - thisAxisEndPosition) > 0.0001);
 }
 
-bool AM3DMotionPseudoMotorControl::affectedByMotionsInZ() const
+bool AM3DCoordinatedSystemControl::affectedByMotionsInZ() const
 {
 
 	QVector3D testStartPrimePosition(0,0,0);
@@ -206,7 +219,7 @@ bool AM3DMotionPseudoMotorControl::affectedByMotionsInZ() const
 	return (qAbs(thisAxisStartPosition - thisAxisEndPosition) > 0.0001);
 }
 
-AMAction3 * AM3DMotionPseudoMotorControl::createMoveAction(double setpoint)
+AMAction3 * AM3DCoordinatedSystemControl::createMoveAction(double setpoint)
 {
 	AMListAction3* action = 0;
 
@@ -255,7 +268,7 @@ AMAction3 * AM3DMotionPseudoMotorControl::createMoveAction(double setpoint)
 	return action;
 }
 
-double AM3DMotionPseudoMotorControl::designatedAxisValue(const QVector3D &vector) const
+double AM3DCoordinatedSystemControl::designatedAxisValue(const QVector3D &vector) const
 {
 	switch(axis_) {
 	case XAxis:
@@ -268,4 +281,3 @@ double AM3DMotionPseudoMotorControl::designatedAxisValue(const QVector3D &vector
 
 	return 0;
 }
-

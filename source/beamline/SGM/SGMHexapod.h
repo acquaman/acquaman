@@ -8,6 +8,8 @@
   * endstation.
   */
 class AMControl;
+class SGMHexapodTransformedAxis;
+class AM3DRotatedSystemControl;
 class SGMHexapod : public QObject
 {
     Q_OBJECT
@@ -59,6 +61,15 @@ public:
 	  * The trajectory reset control.
 	  */
 	AMControl* trajectoryReset() const;
+
+	/*!
+	  * Rotates the coordinate system used by the hexapod by the provided values,
+	  * applied as Euler angles in order rX, rY, rZ.
+	  * \param rX ~ The amount to rotate the system about the X Axis (1st)
+	  * \param rY ~ The amount to rotate the system about the Y Axis (2nd)
+	  * \param rZ ~ The amount to rotate the system about the Z Axis (3rd)
+	  */
+	void rotateSystem(double rX, double rY, double rZ);
 signals:
 
 	/*!
@@ -71,13 +82,13 @@ signals:
 public slots:
 protected:
 
-	AMControl* xAxisPrimeControl_;
-	AMControl* yAxisPrimeControl_;
-	AMControl* zAxisPrimeControl_;
+	SGMHexapodTransformedAxis* xAxisPrimeControl_;
+	SGMHexapodTransformedAxis* yAxisPrimeControl_;
+	SGMHexapodTransformedAxis* zAxisPrimeControl_;
 
-	AMControl* xAxisPrimeTrajectoryControl_;
-	AMControl* yAxisPrimeTrajectoryControl_;
-	AMControl* zAxisPrimeTrajectoryControl_;
+	AM3DRotatedSystemControl* xAxisPrimeTrajectoryControl_;
+	AM3DRotatedSystemControl* yAxisPrimeTrajectoryControl_;
+	AM3DRotatedSystemControl* zAxisPrimeTrajectoryControl_;
 
 	AMControl* systemVelocity_;
 	AMControl* stopAll_;

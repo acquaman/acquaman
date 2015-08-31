@@ -1,5 +1,5 @@
-#ifndef AM3DMOTIONPSEUDOMOTORCONTROL_H
-#define AM3DMOTIONPSEUDOMOTORCONTROL_H
+#ifndef AM3DCOORDINATEDSYSTEMCONTROL_H
+#define AM3DCOORDINATEDSYSTEMCONTROL_H
 
 #include "beamline/AMPseudoMotorControl.h"
 #include <QVector3D>
@@ -20,7 +20,7 @@
   * As such it is strongly recommended that the three motors be of the same type,
   * controlled by the same driver version (eg. three MaxVMotors).
   */
-class AM3DMotionPseudoMotorControl : public AMPseudoMotorControl
+class AM3DCoordinatedSystemControl : public AMPseudoMotorControl
 {
     Q_OBJECT
 public:
@@ -52,7 +52,7 @@ public:
 	  * \param parent ~ The parent QObject in the QObject ownership hierarchy.
 	  * \param description ~ A brief description of the control.
 	  */
-	AM3DMotionPseudoMotorControl(AxisDesignation axis,
+	AM3DCoordinatedSystemControl(AxisDesignation axis,
 								 AMControl* globalXAxis,
 								 AMControl* globalYAxis,
 								 AMControl* globalZAxis,								 
@@ -64,7 +64,7 @@ public:
 	/*!
 	  * Virtual destructor for an AM3DPseudoMotorControl.
 	  */
-	virtual ~AM3DMotionPseudoMotorControl() {}
+	virtual ~AM3DCoordinatedSystemControl() {}
 
 	/*!
 	  * Whether this pseudo motor is expected to be able to return feedback.
@@ -140,6 +140,14 @@ protected slots:
 	void updateMaximumValue();
 
 	/*!
+	  * Updates the maximum and minimum position values possible for this pseudo
+	  * motor by transforming the range of possible values for each within the
+	  * global axes to the arbitrary coordinate system, then setting the minimum
+	  * to the smaller of the two, and the maximum to the larger of the two.
+	  */
+	virtual void updateMaximumAndMinimumValues();
+
+	/*!
 	  * Updates the setpoint value of this pseudo motor by transforming the global
 	  * set of setpoints into the arbitrary coordinate system.
 	  */
@@ -180,7 +188,7 @@ protected:
 	virtual QVector3D globalAxisToPrime(const QVector3D& globalVector) const {return globalVector;}
 
 	/*!
-	  * Virtual funciton which performs the calculation required to transform a
+	  * Virtual function which performs the calculation required to transform a
 	  * vector movement from the arbitrary tranformed system to the global one.
 	  * \param primeVector ~ A vector in the arbitrary coordinate system which
 	  * will be transformed into the global system.
@@ -188,7 +196,7 @@ protected:
 	virtual QVector3D primeAxisToGlobal(const QVector3D& primeVector) const { return primeVector;}
 
 	/*!
-	  * Helper funciton which extracts the value from a vector which relates to
+	  * Helper function which extracts the value from a vector which relates to
 	  * the current axis designation of this pseudo motor.
 	  * \param vector ~ The vector which a value is to be extracted from.
 	  */
@@ -201,4 +209,4 @@ protected:
 	AxisDesignation axis_;
 };
 
-#endif // AM3DMOTIONPSEUDOMOTORCONTROL_H
+#endif // AM3DCOORDINATEDSYSTEMCONTROL_H

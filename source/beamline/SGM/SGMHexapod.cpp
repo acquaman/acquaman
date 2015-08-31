@@ -2,7 +2,6 @@
 #include "beamline/AMControl.h"
 #include "beamline/AMPVControl.h"
 #include "beamline/SGM/SGMMAXvMotor.h"
-#include "beamline/AM3DRotatedSystemPseudoMotorControl.h"
 #include "beamline/SGM/SGMHexapodTransformedAxis.h"
 SGMHexapod::SGMHexapod(QObject *parent) :
     QObject(parent)
@@ -23,7 +22,7 @@ SGMHexapod::SGMHexapod(QObject *parent) :
 	systemVelocity_ = new AMPVControl("Hexapod Velocity", "HXPD1611-4-I10-01:velocity:fbk", "HXPD1611-4-I10-01:velocity",QString(), this, 0.001, 2.0);
 	stopAll_ = new AMSinglePVControl("Hexapod Stop", "HXPD1611-4-I10-01:stop", this, 0.5);
 
-	xAxisPrimeControl_ = new SGMHexapodTransformedAxis(AM3DMotionPseudoMotorControl::XAxis,
+	xAxisPrimeControl_ = new SGMHexapodTransformedAxis(AM3DCoordinatedSystemControl::XAxis,
 													   globalXAxisSetpoint,
 													   globalXAxisFeedback,
 													   globalYAxisSetpoint,
@@ -35,7 +34,7 @@ SGMHexapod::SGMHexapod(QObject *parent) :
 													   "mm",
 													   this);
 
-	yAxisPrimeControl_ = new SGMHexapodTransformedAxis(AM3DMotionPseudoMotorControl::YAxis,
+	yAxisPrimeControl_ = new SGMHexapodTransformedAxis(AM3DCoordinatedSystemControl::YAxis,
 													   globalXAxisSetpoint,
 													   globalXAxisFeedback,
 													   globalYAxisSetpoint,
@@ -47,7 +46,7 @@ SGMHexapod::SGMHexapod(QObject *parent) :
 													   "mm",
 													   this);
 
-	zAxisPrimeControl_ = new SGMHexapodTransformedAxis(AM3DMotionPseudoMotorControl::ZAxis,
+	zAxisPrimeControl_ = new SGMHexapodTransformedAxis(AM3DCoordinatedSystemControl::ZAxis,
 													   globalXAxisSetpoint,
 													   globalXAxisFeedback,
 													   globalYAxisSetpoint,
@@ -59,7 +58,7 @@ SGMHexapod::SGMHexapod(QObject *parent) :
 													   "mm",
 													   this);
 
-	xAxisPrimeTrajectoryControl_ = new AM3DRotatedSystemPseudoMotorControl(AM3DMotionPseudoMotorControl::XAxis,
+	xAxisPrimeTrajectoryControl_ = new AM3DRotatedSystemControl(AM3DCoordinatedSystemControl::XAxis,
 																		   globalXAxisSetpoint,
 																		   globalYAxisSetpoint,
 																		   globalZAxisSetpoint,
@@ -67,7 +66,7 @@ SGMHexapod::SGMHexapod(QObject *parent) :
 																		   "mm",
 																		   this);
 
-	yAxisPrimeTrajectoryControl_ = new AM3DRotatedSystemPseudoMotorControl(AM3DMotionPseudoMotorControl::YAxis,
+	yAxisPrimeTrajectoryControl_ = new AM3DRotatedSystemControl(AM3DCoordinatedSystemControl::YAxis,
 																		   globalXAxisSetpoint,
 																		   globalYAxisSetpoint,
 																		   globalZAxisSetpoint,
@@ -75,7 +74,7 @@ SGMHexapod::SGMHexapod(QObject *parent) :
 																		   "mm",
 																		   this);
 
-	zAxisPrimeTrajectoryControl_ = new AM3DRotatedSystemPseudoMotorControl(AM3DMotionPseudoMotorControl::ZAxis,
+	zAxisPrimeTrajectoryControl_ = new AM3DRotatedSystemControl(AM3DCoordinatedSystemControl::ZAxis,
 																		   globalXAxisSetpoint,
 																		   globalYAxisSetpoint,
 																		   globalZAxisSetpoint,
@@ -85,7 +84,8 @@ SGMHexapod::SGMHexapod(QObject *parent) :
 
 
 
-
+	//Test rotations:
+	rotateSystem(180, 0, 0);
 
 
 	allControls_ = new AMControlSet(this);
@@ -162,3 +162,15 @@ AMControl * SGMHexapod::trajectoryReset() const
 {
 	return trajectoryReset_;
 }
+
+void SGMHexapod::rotateSystem(double rX, double rY, double rZ)
+{
+	xAxisPrimeControl_->rotate(rX, rY, rZ);
+	yAxisPrimeControl_->rotate(rX, rY, rZ);
+	zAxisPrimeControl_->rotate(rX, rY, rZ);
+
+	xAxisPrimeTrajectoryControl_->rotate(rX, rY, rZ);
+	yAxisPrimeTrajectoryControl_->rotate(rX, rY, rZ);
+	zAxisPrimeTrajectoryControl_->rotate(rX, rY, rZ);
+}
+

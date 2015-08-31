@@ -191,7 +191,6 @@ void SGMHexapodTrajectoryView::setupUi()
 	mainLayout->addWidget(moveButton_, 7, 1, 1, 2, Qt::AlignHCenter);
 	mainLayout->addWidget(resetButton_,7, 4, 1, 2, Qt::AlignHCenter);
 
-	mainLayout->addWidget(statuses_, 1,5);
 }
 
 void SGMHexapodTrajectoryView::setupData()

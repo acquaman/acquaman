@@ -2,7 +2,6 @@
 #include "actions3/AMListAction3.h"
 #include "actions3/AMActionSupport.h"
 
-#include <QDebug>
 SGMHexapodTransformedAxis::SGMHexapodTransformedAxis(AxisDesignation axis,
 													 AMControl* globalXAxisSetpoint,
 													 AMControl* globalXAxisFeedback,
@@ -15,7 +14,7 @@ SGMHexapodTransformedAxis::SGMHexapodTransformedAxis(AxisDesignation axis,
 													 const QString &units,
 													 QObject *parent,
 													 const QString &description)
-	: AM3DRotatedSystemPseudoMotorControl(axis, globalXAxisSetpoint, globalYAxisSetpoint, globalZAxisSetpoint, name, units, parent, description )
+	: AM3DRotatedSystemControl(axis, globalXAxisSetpoint, globalYAxisSetpoint, globalZAxisSetpoint, name, units, parent, description )
 {
 	trajectoryStartControl_ = trajectoryStartControl;
 	globalXAxisFeedback_ = globalXAxisFeedback;
@@ -49,7 +48,7 @@ AMAction3 * SGMHexapodTransformedAxis::createMoveAction(double setpoint)
 		QVector3D currentGlobalSetpoints(globalXAxis_->setpoint(), globalYAxis_->setpoint(), globalZAxis_->setpoint());
 
 		// Add the actions for moving to the provided setpoint from the base class
-		AMAction3* baseAction = AM3DRotatedSystemPseudoMotorControl::createMoveAction(setpoint);
+		AMAction3* baseAction = AM3DRotatedSystemControl::createMoveAction(setpoint);
 		returnAction->addSubAction(baseAction);
 
 		// Add an action to trigger the move.
@@ -95,26 +94,19 @@ void SGMHexapodTransformedAxis::updateValue()
 		}
 	}
 }
-#include <QDebug>
+
 void SGMHexapodTransformedAxis::updateMoving()
 {
 	if(globalXAxis_ && globalYAxis_ && globalZAxis_ &&
 			globalXAxisFeedback_ && globalYAxisFeedback_ && globalZAxisFeedback_) {
 		bool isNowMoving = false;
-		qDebug() << "\tSGMHexapodTransformedAxis::updateMoving() for " << name();
-		qDebug() << "\t\tX feedback is moving: " << globalXAxisFeedback_->isMoving();
-		qDebug() << "\t\tWe're affected by X: " << affectedByMotionsInX();
-		qDebug() << "\t\tY feedback is moving: " << globalYAxisFeedback_->isMoving();
-		qDebug() << "\t\tWe're affected by Y: " << affectedByMotionsInY();
-		qDebug() << "\t\tZ feedback is moving: " << globalZAxisFeedback_->isMoving();
-		qDebug() << "\t\tWe're affected by Z: " << affectedByMotionsInZ();
+
 		isNowMoving |= (globalXAxisFeedback_->isMoving() && affectedByMotionsInX());
 		isNowMoving |= (globalYAxisFeedback_->isMoving() && affectedByMotionsInY());
 		isNowMoving |= (globalZAxisFeedback_->isMoving() && affectedByMotionsInZ());
 
 
 		if(isNowMoving != isMoving()) {
-			qDebug() << "\tSetting movement status to: " << isNowMoving;
 			setIsMoving(isNowMoving);
 		}
 	}
