@@ -192,11 +192,11 @@ void REIXSXESScanActionController::initializePositions()
 	AMControlInfo polarization("beamlinePolarization", REIXSBeamline::bl()->photonSource()->epuPolarization()->value(), 0, 0, "[choice]", 0.1, "EPU Polarization");
 	polarization.setEnumString(REIXSBeamline::bl()->photonSource()->epuPolarization()->enumNameAt(REIXSBeamline::bl()->photonSource()->epuPolarization()->value()));
 	positions.append(polarization);
-		if(REIXSBeamline::bl()->photonSource()->epuPolarization()->value() == 5)
-		{
-			AMControlInfo polarizationAngle("beamlinePolarizationAngle", REIXSBeamline::bl()->photonSource()->epuPolarizationAngle()->value(), 0, 0, "degrees", 0.1, "EPU Polarization Angle");
-			positions.append(polarizationAngle);
-		}
+	if(REIXSBeamline::bl()->photonSource()->epuPolarization()->value() == 5)
+	{
+		AMControlInfo polarizationAngle("beamlinePolarizationAngle", REIXSBeamline::bl()->photonSource()->epuPolarizationAngle()->value(), 0, 0, "degrees", 0.1, "EPU Polarization Angle");
+		positions.append(polarizationAngle);
+	}
 	positions.append(REIXSBeamline::bl()->photonSource()->monoGratingSelector()->toInfo());
 	positions.append(REIXSBeamline::bl()->photonSource()->monoGratingTranslation()->toInfo());
 	positions.append(REIXSBeamline::bl()->photonSource()->monoMirrorSelector()->toInfo());
@@ -223,7 +223,10 @@ void REIXSXESScanActionController::initializePositions()
 
 	positions.append(REIXSBeamline::bl()->spectrometer()->tmSOE()->toInfo());
 	positions.append(REIXSBeamline::bl()->spectrometer()->tmMCPPreamp()->toInfo());
-	positions.append(REIXSBeamline::bl()->sampleChamber()->tmSample()->toInfo());
+
+	positions.append(REIXSBeamline::bl()->photonSource()->ringCurrent()->toInfo());
+	positions.append(REIXSBeamline::bl()->I0Current()->toInfo());
+	positions.append(REIXSBeamline::bl()->TEYCurrent()->toInfo());
 
 
 	scan_->setScanInitialConditions(positions);

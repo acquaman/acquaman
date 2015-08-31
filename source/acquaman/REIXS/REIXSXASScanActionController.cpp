@@ -155,7 +155,10 @@ void REIXSXASScanActionController::onInitializationActionSucceeded(){
 
 	positions.append(REIXSBeamline::bl()->spectrometer()->tmSOE()->toInfo());
 	positions.append(REIXSBeamline::bl()->spectrometer()->tmMCPPreamp()->toInfo());
-	positions.append(REIXSBeamline::bl()->sampleChamber()->tmSample()->toInfo());
+
+	positions.append(REIXSBeamline::bl()->photonSource()->ringCurrent()->toInfo());
+	positions.append(REIXSBeamline::bl()->I0Current()->toInfo());
+	positions.append(REIXSBeamline::bl()->TEYCurrent()->toInfo());
 
 	scan_->setScanInitialConditions(positions);
 }
