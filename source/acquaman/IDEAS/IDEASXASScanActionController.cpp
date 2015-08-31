@@ -217,10 +217,10 @@ AMAction3* IDEASXASScanActionController::createInitializationActions()
 void IDEASXASScanActionController::onInitializationActionsListSucceeded()
 {
 	AMControlInfoList positions(IDEASBeamline::ideas()->exposedControls()->toInfoList());
-	positions.remove(positions.indexOf("masterDwell"));
 	positions.remove(positions.indexOf("DirectEnergy"));
 	positions.remove(positions.indexOf("Energy"));
 	positions.remove(positions.indexOf("XRF1E Real Time"));
+	positions.remove(positions.indexOf("13-element Ge dwell time"));
 
 	if(!configuration_->fluorescenceDetector().testFlag(IDEAS::NoXRF)){
 
@@ -229,6 +229,12 @@ void IDEASXASScanActionController::onInitializationActionsListSucceeded()
 		positions.remove(positions.indexOf("XRF1E Baseline Threshold"));
 		positions.remove(positions.indexOf("XRF1E Preamp Gain"));
 	}
+	positions.append(IDEASBeamline::ideas()->I0Current()->toInfo());
+	double I0CurrentValue = IDEASBeamline::ideas()->I0Current()->value() / 200000 * IDEASBeamline::ideas()->scaler()->channelAt(0)->currentAmplifier()->value();
+	AMControlInfo I0Value("I0Value", I0CurrentValue, 0, 0, QString(REIXSBeamline::bl()->scaler()->channelAt(0)->currentAmplifier()->units().remove("/V")), 0.1, "I0 Amplifier Output");
+	positions.append(I0Value);
+	AMControlInfo I0Sensitivity("I0Sensitivity", IDEASBeamline::ideas()->scaler()->channelAt(0)->currentAmplifier()->value(), 0, 0, IDEASBeamline::ideas()->scaler()->channelAt(0)->currentAmplifier()->units(), 0.1, "I0 Amplifier Sensitivity");
+	positions.append(I0Sensitivity);
 
 	scan_->setScanInitialConditions(positions);
 	AMScanActionController::onInitializationActionsListSucceeded();
