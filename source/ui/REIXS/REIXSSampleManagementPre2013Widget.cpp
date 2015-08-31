@@ -35,8 +35,8 @@ REIXSSampleManagementPre2013Widget::REIXSSampleManagementPre2013Widget(QWidget *
 	cameraWidget2_->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
 
 #else
-	Q_UNUSED(sampleCameraUrl1);
-	Q_UNUSED(sampleCameraUrl2);
+	Q_UNUSED(sampleCamera1Url);
+	Q_UNUSED(sampleCamera2Url);
 #endif
 
 	topFrame_ = new AMTopFrame("Sample Management & Positioning", QIcon(":/system-software-update.png"));
