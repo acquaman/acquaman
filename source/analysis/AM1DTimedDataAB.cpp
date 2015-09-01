@@ -115,8 +115,7 @@ bool AM1DTimedDataAB::axisValues(int axisNumber, int startIndex, int endIndex, d
 	if (startIndex >= times_.size() || endIndex >= times_.size())
 		return false;
 
-	for (int i = 0, totalSize = endIndex-startIndex+1; i < totalSize; i++)
-        outputValues[i] = times_.at(i+startIndex);
+    memcpy(outputValues, times_.constData()+startIndex, (endIndex-startIndex+1)*sizeof(double));
 
 	return true;
 }

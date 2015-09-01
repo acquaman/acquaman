@@ -125,35 +125,18 @@ void AMDataSourceImageData::onAxisValuesChanged(int axisId)
 {
 	if (axisId == -1){
 
-        QVector<double> axisData = QVector<double>(xSize_, 0);
-		source_->axisValues(0, 0, xSize_-1, axisData.data());
-
-		for (int i = 0; i < xSize_; i++)
-            xAxis_[i] = axisData.at(i);
-
-        axisData = QVector<double>(ySize_, 0);
-		source_->axisValues(1, 0, ySize_-1, axisData.data());
-
-		for (int j = 0; j < ySize_; j++)
-            yAxis_[j] = axisData.at(j);
+        source_->axisValues(0, 0, xSize_-1, xAxis_.data());
+        source_->axisValues(1, 0, ySize_-1, yAxis_.data());
 	}
 
 	else if (axisId == 0){
 
-        QVector<double> axisData = QVector<double>(xSize_, 0);
-		source_->axisValues(0, 0, xSize_-1, axisData.data());
-
-		for (int i = 0; i < xSize_; i++)
-            xAxis_[i] = axisData.at(i);
+        source_->axisValues(0, 0, xSize_-1, xAxis_.data());
 	}
 
 	else if (axisId == 1) {
 
-        QVector<double> axisData = QVector<double>(ySize_, 0);
-		source_->axisValues(1, 0, ySize_-1, axisData.data());
-
-		for (int j = 0; j < ySize_; j++)
-            yAxis_[j] = axisData.at(j);
+        source_->axisValues(1, 0, ySize_-1, yAxis_.data());
 	}
 
 	recomputeBoundingRect(axisId);

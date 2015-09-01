@@ -318,15 +318,8 @@ bool AM1DExpressionAB::axisValues(int axisNumber, int startIndex, int endIndex, 
 		if (xDirectVar_.useAxisValue)
 			sources_.at(xDirectVar_.sourceIndex)->axisValues(axisNumber, startIndex, endIndex, outputValues);
 
-		else {
-
-			int size = endIndex - startIndex + 1;
-			QVector<double> tempOutput = QVector<double>(size, 0);
-			sources_.at(xDirectVar_.sourceIndex)->values(startIndex, endIndex, tempOutput.data());
-
-			for (int i = 0; i < size; i++)
-                outputValues[i] = tempOutput.at(i);
-		}
+        else
+            sources_.at(xDirectVar_.sourceIndex)->values(startIndex, endIndex, outputValues);
 	}
 
 	else {
