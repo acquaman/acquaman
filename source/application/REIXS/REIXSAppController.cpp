@@ -266,7 +266,7 @@ void REIXSAppController::setupExporterOptions()
 
 	exportOptions = REIXS::buildStandardExporterOption("REIXSXESDefault", true);
 	if(exportOptions->id() > 0)
-		AMAppControllerSupport::registerClass<REIXSXASScanConfiguration, AMExporterGeneralAscii, AMExporterOptionGeneralAscii>(exportOptions->id());
+		AMAppControllerSupport::registerClass<REIXSXESScanConfiguration, AMExporterGeneralAscii, AMExporterOptionGeneralAscii>(exportOptions->id());
 }
 
 void REIXSAppController::makeConnections()
