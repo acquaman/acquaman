@@ -153,11 +153,11 @@ BioXASSSRLMonochromatorConfigurationView::BioXASSSRLMonochromatorConfigurationVi
 
 	QVBoxLayout *centerLayout = new QVBoxLayout();
 	centerLayout->addWidget(energyView);
+	centerLayout->addWidget(calibrateButtonsView);
 	centerLayout->addWidget(braggConfigView);
 	centerLayout->addStretch();
 
 	QVBoxLayout *rightLayout = new QVBoxLayout();
-	rightLayout->addWidget(calibrateButtonsView);
 	rightLayout->addWidget(regionView);
 	rightLayout->addStretch();
 
