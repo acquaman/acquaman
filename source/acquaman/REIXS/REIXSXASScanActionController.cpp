@@ -24,6 +24,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/AMXASScan.h"
 #include "beamline/REIXS/REIXSBeamline.h"
 #include "beamline/CLS/CLSSIS3820Scaler.h"
+#include "beamline/AMCurrentAmplifier.h"
+
 
 #include "actions3/AMListAction3.h"
 #include "actions3/actions/AMWaitAction.h"

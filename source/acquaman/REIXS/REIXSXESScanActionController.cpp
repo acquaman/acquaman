@@ -29,6 +29,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/datastore/AMCDFDataStore.h"
 #include "dataman/AMTextStream.h"
 #include "beamline/CLS/CLSSIS3820Scaler.h"
+#include "beamline/AMCurrentAmplifier.h"
+
 
 #include "actions3/AMActionSupport.h"
 #include "actions3/AMListAction3.h"
@@ -228,7 +230,7 @@ void REIXSXESScanActionController::initializePositions()
 	positions.append(REIXSBeamline::bl()->photonSource()->ringCurrent()->toInfo());
 
 	positions.append(REIXSBeamline::bl()->I0Current()->toInfo());
-	double I0CurrentValue = REIXSBeamline::bl()->scaler()->channelAt(16)->voltage() * REIXSBeamline::bl()->scaler()->channelAt(16)->currentAmplifier().value();
+	double I0CurrentValue = REIXSBeamline::bl()->scaler()->channelAt(16)->voltage() * REIXSBeamline::bl()->scaler()->channelAt(16)->currentAmplifier()->value();
 	AMControlInfo I0Value("I0Value", I0CurrentValue, 0, 0, QString(REIXSBeamline::bl()->scaler()->channelAt(16)->currentAmplifier()->units().remove("/V")), 0.1, "I0 Amplifier Output");
 	positions.append(I0Value);
 	AMControlInfo I0Sensitivity("I0Sensitivity", REIXSBeamline::bl()->scaler()->channelAt(16)->currentAmplifier()->value(), 0, 0, REIXSBeamline::bl()->scaler()->channelAt(16)->currentAmplifier()->units(), 0.1, "I0 Amplifier Sensitivity");
