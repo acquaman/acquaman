@@ -27,8 +27,11 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 class QString;
 class QIcon;
 class QToolButton;
+class QDoubleSpinBox;
 
 class AMControlMoveButton;
+class AMXYThetaControlMoveButton;
+
 
 class REIXSSampleChamberButtonPanel : public QWidget
 {
@@ -48,8 +51,9 @@ protected:
 	void setupUi();
 	void initializeUiComponents();
 
-	QToolButton *createQToolButton(QString text, QIcon icon);
-	AMControlMoveButton *createAMControlMoveButton(QString text, QIcon icon);
+	QToolButton *createQToolButton(const QString &text, const QIcon &icon);
+	AMControlMoveButton *createAMControlMoveButton(const QString &text, const QIcon &icon);
+	AMXYThetaControlMoveButton *createAMXYThetaControlMoveButton(const QString &text, const QIcon &icon);
 
 private:
 	AMControlMoveButton *sampleXup_;
@@ -58,10 +62,20 @@ private:
 	AMControlMoveButton *sampleYup_;
 	AMControlMoveButton *sampleZup_;
 	AMControlMoveButton *sampleZdown_;
+	AMControlMoveButton *sampleZup2_;
+	AMControlMoveButton *sampleZdown2_;
 	AMControlMoveButton *sampleCW_;
 	AMControlMoveButton *sampleCCW_;
+	AMXYThetaControlMoveButton *sampleLeft_;
+	AMXYThetaControlMoveButton *sampleRight_;
+	AMXYThetaControlMoveButton *sampleIn_;
+	AMXYThetaControlMoveButton *sampleOut_;
 
 	QToolButton *stopAll_;
+	QToolButton *stopAll2_;
+	QToolButton *stopAll3_;
+
+	QDoubleSpinBox *angleOffsetSpinBox_;
 };
 
 #endif // REIXSSAMPLECHAMBERBUTTONPANEL_H
