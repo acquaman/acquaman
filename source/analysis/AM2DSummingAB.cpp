@@ -305,7 +305,7 @@ AMNumber AM2DSummingAB::axisValue(int axisNumber, int index) const {
 	return inputSource_->axisValue(otherAxis, index);
 }
 
-bool AM2DSummingAB::axisValues(int axisNumber, int startIndex, int endIndex, AMNumber *outputValues) const
+bool AM2DSummingAB::axisValues(int axisNumber, int startIndex, int endIndex, double *outputValues) const
 {
 	if (!isValid())
 		return false;

@@ -487,7 +487,7 @@ AMNumber AM1DDerivativeAB::axisValue(int axisNumber, int index) const
 
 }
 
-bool AM1DDerivativeAB::axisValues(int axisNumber, int startIndex, int endIndex, AMNumber *outputValues) const
+bool AM1DDerivativeAB::axisValues(int axisNumber, int startIndex, int endIndex, double *outputValues) const
 {
 	if (!isValid())
 		return false;

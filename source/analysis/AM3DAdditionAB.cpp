@@ -119,7 +119,7 @@ AMNumber AM3DAdditionAB::axisValue(int axisNumber, int index) const
 	return sources_.at(0)->axisValue(axisNumber, index);
 }
 
-bool AM3DAdditionAB::axisValues(int axisNumber, int startIndex, int endIndex, AMNumber *outputValues) const
+bool AM3DAdditionAB::axisValues(int axisNumber, int startIndex, int endIndex, double *outputValues) const
 {
 	if (!isValid())
 		return false;
