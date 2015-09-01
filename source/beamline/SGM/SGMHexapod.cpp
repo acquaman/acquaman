@@ -84,8 +84,8 @@ SGMHexapod::SGMHexapod(QObject *parent) :
 
 
 
-	//Test rotations:
-	rotateSystem(75, 79.4547, 45);
+	// Set hexapod system as the plane of the sample plate.
+	rotateSystem(45, 0, 105);
 
 
 	allControls_ = new AMControlSet(this);

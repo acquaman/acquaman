@@ -28,42 +28,61 @@ SGMHexapodTransformedAxis::SGMHexapodTransformedAxis(AxisDesignation axis,
 
 AMAction3 * SGMHexapodTransformedAxis::createMoveAction(double setpoint)
 {
-	AMListAction3* returnAction = 0;
+	AMListAction3* action = 0;
 
-	// In order to do this we're going to have to work with the trajectory
-	// PVs, which will mean obtaining their current setpoints, getting the
-	// move action(s) from the base class, tacking an action on to push to the
-	// trajectory start PV, and then finally reverting the trajectory setpoints
-	// back to their original values so as not to interfere with a trajectory that
-	// a user was part way through setting.
 	if(globalXAxis_ && globalYAxis_ && globalZAxis_ && trajectoryStartControl_) {
 
+		action = new AMListAction3(new AMListActionInfo3(QString("Moving %1").arg(name()),
+														 QString("Moving %1 from %2 to %3")
+														 .arg(value()).arg(setpoint)),
+								   AMListAction3::Sequential);
 
-		returnAction = new AMListAction3(new AMListActionInfo3(QString("Moving %1").arg(name()),
-															   QString("Moving %1").arg(name())),
-										 AMListAction3::Sequential);
+		AMListAction3* moveActions = new AMListAction3(new AMListActionInfo3(QString("Moving %1").arg(name()),
+																			 QString("Moving %1").arg(name())),
+													   AMListAction3::Parallel);
 
-
-		// Save the current global setpoints
+		// Grab the current global positions:
 		QVector3D currentGlobalSetpoints(globalXAxis_->setpoint(), globalYAxis_->setpoint(), globalZAxis_->setpoint());
+		// Transform it to our system:
+		QVector3D primeSetpoint = globalAxisToPrime(currentGlobalSetpoints);
 
-		// Add the actions for moving to the provided setpoint from the base class
-		AMAction3* baseAction = AM3DRotatedSystemControl::createMoveAction(setpoint);
-		returnAction->addSubAction(baseAction);
+		// Set the value in terms of our system based on the axis we are:
+		switch(axis_) {
+		case XAxis:
+			primeSetpoint.setX(setpoint);
+			break;
+		case YAxis:
+			primeSetpoint.setY(setpoint);
+			break;
+		case ZAxis:
+			primeSetpoint.setZ(setpoint);
 
-		// Add an action to trigger the move.
-		returnAction->addSubAction(AMActionSupport::buildControlMoveAction(trajectoryStartControl_, 1));
+		}
 
-//		// Add actions to return the setpoints to their original values
-//		AMListAction3* restoreAction = new AMListAction3(new AMListActionInfo3(QString("Restoring %1").arg(name()),
-//																			 QString("Restoring %1").arg(name())),
-//													   AMListAction3::Parallel);
-//		restoreAction->addSubAction(AMActionSupport::buildControlMoveAction(globalXAxis_, currentGlobalSetpoints.x()));
-//		restoreAction->addSubAction(AMActionSupport::buildControlMoveAction(globalYAxis_, currentGlobalSetpoints.y()));
-//		restoreAction->addSubAction(AMActionSupport::buildControlMoveAction(globalZAxis_, currentGlobalSetpoints.z()));
+		// Transform back the the global system:
+		QVector3D newGlobalSetpoints = primeAxisToGlobal(primeSetpoint);
+
+		// Create the required move actions in the global system:
+		if(qAbs(globalXAxis_->setpoint() - newGlobalSetpoints.x()) > tolerance()) {
+			moveActions->addSubAction(AMActionSupport::buildControlMoveAction(globalXAxis_, newGlobalSetpoints.x()));
+		}
+
+		if(qAbs(globalYAxis_->setpoint() - newGlobalSetpoints.y()) > tolerance()) {
+			moveActions->addSubAction(AMActionSupport::buildControlMoveAction(globalYAxis_, newGlobalSetpoints.y()));
+		}
+
+		if(qAbs(globalZAxis_->setpoint() - newGlobalSetpoints.z()) > tolerance()) {
+			moveActions->addSubAction(AMActionSupport::buildControlMoveAction(globalZAxis_, newGlobalSetpoints.z()));
+		}
+
+		action->addSubAction(moveActions);
+
+		AMAction3* trajectoryStartAction = AMActionSupport::buildControlMoveAction(trajectoryStartControl_, 1);
+		action->addSubAction(trajectoryStartAction);
+
 	}
 
-	return returnAction;
+	return action;
 }
 
 void SGMHexapodTransformedAxis::updateConnected()

@@ -31,22 +31,14 @@ void AM3DRotatedSystemControl::rotate(double rX, double rY, double rZ)
 
 	updateStates();
 }
-#include <QDebug>
+
 QVector3D AM3DRotatedSystemControl::globalAxisToPrime(const QVector3D &globalVector) const
 {
-	if(name() == "Hexapod Trajectory Y Axis Prime") {
-		qDebug() << "\t" << name() << "global of " << globalVector << "tranformed to " << globalToPrimeTransform_.rotatedVector(globalVector);
-		qDebug() << toString();
-	}
 	return globalToPrimeTransform_.rotatedVector(globalVector);
 }
 
 QVector3D AM3DRotatedSystemControl::primeAxisToGlobal(const QVector3D &primeVector) const
 {
-	if(name() == "Hexapod Trajectory Y Axis Prime") {
-		qDebug() << "\t" << name() << "prime of " << primeVector << "tranformed to " << primeToGlobalTransform_.rotatedVector(primeVector);
-		qDebug() << toString();
-	}
 	return primeToGlobalTransform_.rotatedVector(primeVector);
 }
 

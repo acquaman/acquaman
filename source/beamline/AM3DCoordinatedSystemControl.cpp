@@ -134,30 +134,10 @@ void AM3DCoordinatedSystemControl::updateMaximumValue()
 	updateMaximumAndMinimumValues();
 }
 
-
 void AM3DCoordinatedSystemControl::updateMaximumAndMinimumValues()
 {
-	if(globalXAxis_ && globalYAxis_ && globalZAxis_) {
-		QVector3D globalMinimumValues(globalXAxis_->minimumValue(), globalYAxis_->minimumValue(), globalZAxis_->minimumValue());
-		QVector3D primeMinimumValues = globalAxisToPrime(globalMinimumValues);
-
-		QVector3D globalMaximumValues(globalXAxis_->maximumValue(), globalYAxis_->maximumValue(), globalZAxis_->maximumValue());
-		QVector3D primeMaximumValues = globalAxisToPrime(globalMaximumValues);
-
-		double convertedMinimumValue = designatedAxisValue(primeMinimumValues);
-		double convertedMaximumValue = designatedAxisValue(primeMaximumValues);
-
-		double newMinimumValue = qMin(convertedMinimumValue, convertedMaximumValue);
-		double newMaximumValue = qMax(convertedMinimumValue, convertedMaximumValue);
-
-		if(qAbs(minimumValue() - newMinimumValue) > tolerance()) {
-			setMinimumValue(newMinimumValue);
-		}
-
-		if(qAbs(maximumValue() - newMaximumValue) > tolerance()) {
-			setMaximumValue(newMaximumValue);
-		}
-	}
+	setMinimumValue(-100);
+	setMaximumValue(100);
 }
 
 
@@ -186,7 +166,7 @@ bool AM3DCoordinatedSystemControl::affectedByMotionsInX() const
 	double thisAxisStartPosition = designatedAxisValue(testStartPrimePosition);
 	double thisAxisEndPosition = designatedAxisValue(testEndPrimePosition);
 
-	return (qAbs(thisAxisStartPosition - thisAxisEndPosition) > 0.0001);
+	return (qAbs(thisAxisStartPosition - thisAxisEndPosition) > 0.001);
 
 }
 
@@ -201,7 +181,7 @@ bool AM3DCoordinatedSystemControl::affectedByMotionsInY() const
 	double thisAxisStartPosition = designatedAxisValue(testStartPrimePosition);
 	double thisAxisEndPosition = designatedAxisValue(testEndPrimePosition);
 
-	return (qAbs(thisAxisStartPosition - thisAxisEndPosition) > 0.0001);
+	return (qAbs(thisAxisStartPosition - thisAxisEndPosition) > 0.001);
 }
 
 bool AM3DCoordinatedSystemControl::affectedByMotionsInZ() const
@@ -216,7 +196,7 @@ bool AM3DCoordinatedSystemControl::affectedByMotionsInZ() const
 	double thisAxisStartPosition = designatedAxisValue(testStartPrimePosition);
 	double thisAxisEndPosition = designatedAxisValue(testEndPrimePosition);
 
-	return (qAbs(thisAxisStartPosition - thisAxisEndPosition) > 0.0001);
+	return (qAbs(thisAxisStartPosition - thisAxisEndPosition) > 0.001);
 }
 
 AMAction3 * AM3DCoordinatedSystemControl::createMoveAction(double setpoint)
@@ -226,8 +206,13 @@ AMAction3 * AM3DCoordinatedSystemControl::createMoveAction(double setpoint)
 	if(globalXAxis_ && globalYAxis_ && globalZAxis_) {
 
 		action = new AMListAction3(new AMListActionInfo3(QString("Moving %1").arg(name()),
-														 QString("Moving %1").arg(name())),
-														 AMListAction3::Parallel);
+														 QString("Moving %1 from %2 to %3")
+														 .arg(value()).arg(setpoint)),
+								   AMListAction3::Sequential);
+
+		AMListAction3* moveActions = new AMListAction3(new AMListActionInfo3(QString("Moving %1").arg(name()),
+																			 QString("Moving %1").arg(name())),
+													   AMListAction3::Parallel);
 
 		// Grab the current global positions:
 		QVector3D currentGlobalSetpoints(globalXAxis_->setpoint(), globalYAxis_->setpoint(), globalZAxis_->setpoint());
@@ -252,17 +237,18 @@ AMAction3 * AM3DCoordinatedSystemControl::createMoveAction(double setpoint)
 
 		// Create the required move actions in the global system:
 		if(qAbs(globalXAxis_->setpoint() - newGlobalSetpoints.x()) > tolerance()) {
-			action->addSubAction(AMActionSupport::buildControlMoveAction(globalXAxis_, newGlobalSetpoints.x()));
+			moveActions->addSubAction(AMActionSupport::buildControlMoveAction(globalXAxis_, newGlobalSetpoints.x()));
 		}
 
 		if(qAbs(globalYAxis_->setpoint() - newGlobalSetpoints.y()) > tolerance()) {
-			action->addSubAction(AMActionSupport::buildControlMoveAction(globalYAxis_, newGlobalSetpoints.y()));
+			moveActions->addSubAction(AMActionSupport::buildControlMoveAction(globalYAxis_, newGlobalSetpoints.y()));
 		}
 
 		if(qAbs(globalZAxis_->setpoint() - newGlobalSetpoints.z()) > tolerance()) {
-			action->addSubAction(AMActionSupport::buildControlMoveAction(globalZAxis_, newGlobalSetpoints.z()));
+			moveActions->addSubAction(AMActionSupport::buildControlMoveAction(globalZAxis_, newGlobalSetpoints.z()));
 		}
 
+		action->addSubAction(moveActions);
 	}
 
 	return action;
