@@ -126,8 +126,8 @@ bool IDEASXRFScanController::startImplementation()
 	AMControlInfoList positions(IDEASBeamline::ideas()->exposedControls()->toInfoList());
 	positions.remove(positions.indexOf("DirectEnergy"));
 	positions.append(IDEASBeamline::ideas()->I0Current()->toInfo());
-	double I0CurrentValue = IDEASBeamline::ideas()->I0Current()->value() / 200000 * IDEASBeamline::ideas()->scaler()->channelAt(0)->currentAmplifier()->value();
-	AMControlInfo I0Value("I0Value", I0CurrentValue, 0, 0, QString(REIXSBeamline::bl()->scaler()->channelAt(0)->currentAmplifier()->units().remove("/V")), 0.1, "I0 Amplifier Output");
+	double I0CurrentValue = IDEASBeamline::ideas()->scaler()->channelAt(0)->voltage() * IDEASBeamline::ideas()->scaler()->channelAt(0)->currentAmplifier()->value();
+	AMControlInfo I0Value("I0Value", I0CurrentValue, 0, 0, QString(IDEASBeamline::ideas()->scaler()->channelAt(0)->currentAmplifier()->units().remove("/V")), 0.1, "I0 Amplifier Output");
 	positions.append(I0Value);
 	AMControlInfo I0Sensitivity("I0Sensitivity", IDEASBeamline::ideas()->scaler()->channelAt(0)->currentAmplifier()->value(), 0, 0, IDEASBeamline::ideas()->scaler()->channelAt(0)->currentAmplifier()->units(), 0.1, "I0 Amplifier Sensitivity");
 	positions.append(I0Sensitivity);

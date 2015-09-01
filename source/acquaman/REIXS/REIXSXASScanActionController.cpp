@@ -23,7 +23,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "dataman/AMXASScan.h"
 #include "beamline/REIXS/REIXSBeamline.h"
-#include "beamline/AMCurrentAmplifier.h"
+#include "beamline/CLS/CLSSIS3820Scaler.h"
 
 #include "actions3/AMListAction3.h"
 #include "actions3/actions/AMWaitAction.h"
@@ -34,7 +34,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "analysis/AM1DNormalizationAB.h"
 #include "analysis/AM1DCalibrationAB.h"
 
-#include "beamline/CLS/CLSSIS3820Scaler.h"
 
 #include "actions3/AMActionSupport.h"
 
@@ -160,14 +159,14 @@ void REIXSXASScanActionController::onInitializationActionSucceeded(){
 	positions.append(REIXSBeamline::bl()->photonSource()->ringCurrent()->toInfo());
 
 	positions.append(REIXSBeamline::bl()->I0Current()->toInfo());
-	double I0CurrentValue = REIXSBeamline::bl()->I0Current()->value() / 200000 * REIXSBeamline::bl()->scaler()->channelAt(16)->currentAmplifier()->value();
+	double I0CurrentValue = REIXSBeamline::bl()->scaler()->channelAt(16)->voltage() * REIXSBeamline::bl()->scaler()->channelAt(16)->currentAmplifier()->value();
 	AMControlInfo I0Value("I0Value", I0CurrentValue, 0, 0, QString(REIXSBeamline::bl()->scaler()->channelAt(16)->currentAmplifier()->units().remove("/V")), 0.1, "I0 Amplifier Output");
 	positions.append(I0Value);
 	AMControlInfo I0Sensitivity("I0Sensitivity", REIXSBeamline::bl()->scaler()->channelAt(16)->currentAmplifier()->value(), 0, 0, REIXSBeamline::bl()->scaler()->channelAt(16)->currentAmplifier()->units(), 0.1, "I0 Amplifier Sensitivity");
 	positions.append(I0Sensitivity);
 
 	positions.append(REIXSBeamline::bl()->TEYCurrent()->toInfo());
-	double TEYCurrentValue = REIXSBeamline::bl()->TEYCurrent()->value() / 200000 * REIXSBeamline::bl()->scaler()->channelAt(18)->currentAmplifier()->value();
+	double TEYCurrentValue = REIXSBeamline::bl()->scaler()->channelAt(18)->voltage() * REIXSBeamline::bl()->scaler()->channelAt(18)->currentAmplifier()->value();
 	AMControlInfo TEYValue("TEYValue", TEYCurrentValue, 0, 0, QString(REIXSBeamline::bl()->scaler()->channelAt(18)->currentAmplifier()->units().remove("/V")), 0.1, "TEY Amplifier Output");
 	positions.append(TEYValue);
 	AMControlInfo TEYSensitivity("TEYSensitivity", REIXSBeamline::bl()->scaler()->channelAt(18)->currentAmplifier()->value(), 0, 0, REIXSBeamline::bl()->scaler()->channelAt(18)->currentAmplifier()->units(), 0.1, "TEY Amplifier Sensitivity");
