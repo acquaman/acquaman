@@ -32,7 +32,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "application/REIXS/REIXS.h"
 #include "util/AMDateTimeUtils.h"
 
-#include "ui/AMTopFrame2.h"
+#include "ui/AMTopFrame.h"
 #include "ui/dataman/AMStepScanAxisView.h"
 #include "ui/dataman/AMSamplePre2013Selector.h"
 
@@ -76,7 +76,6 @@ void REIXSXASScanConfigurationView::onEstimatedTimeChanged()
 
 	QString timeString = AMDateTimeUtils::convertTimeToString(time);
 
-	topFrame_->setLeftSubText("Expected acquisition time: " % timeString);
 	estimatedTimeLabel_->setText(timeString);
 	totalPointsLabel_->setText(QString::number(config_->totalPoints()));
 }
@@ -146,7 +145,7 @@ void REIXSXASScanConfigurationView::setupUi()
 
 
 	// layout the components
-	topFrame_ = new AMTopFrame2("Setup XAS Scan", QIcon(":/utilities-system-monitor.png"));
+	topFrame_ = new AMTopFrame("Setup XAS Scan", QIcon(":/utilities-system-monitor.png"));
 
 	QGroupBox *monoGroupBox = new QGroupBox("Monochromator");
 	monoGroupBox->setLayout(monoGroupBoxFormLayout);
