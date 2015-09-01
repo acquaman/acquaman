@@ -195,6 +195,12 @@ void IDEASBeamline::setupExposedControls()
 
 	addExposedControl(samplePlatformHorizontal_);
 	addExposedControl(samplePlatformVertical_);
+	addExposedControl(vacuumSampleStage_);
+
+	addExposedControl(jjSlitHGap_);
+	addExposedControl(jjSlitHCenter_);
+	addExposedControl(jjSlitVGap_);
+	addExposedControl(jjSlitVCenter_);
 }
 
 void IDEASBeamline::setupExposedDetectors()
