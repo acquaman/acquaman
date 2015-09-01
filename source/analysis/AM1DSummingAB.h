@@ -77,6 +77,18 @@ protected:
 	virtual void setInputDataSourcesImplementation(const QList<AMDataSource*>& dataSources);
 	/// Helper function to look at our overall situation and determine what the output state should be.
 	void reviewState();
+
+	/// Computes the new cached values.
+	void computeCachedValues() const;
+
+	/// Flag for knowing when to recompute the cached data.
+	mutable bool dataUpdateRequired_;
+	/// Vector that holds the latest computed values for this analysis block.
+	mutable QVector<double> cachedOutput_;
+	/// The lower index of the dirtied data region.
+	mutable AMnDIndex lowerDirtyIndex_;
+	/// The upper index of the dirtied data region.
+	mutable AMnDIndex upperDirtyIndex_;
 };
 
 #endif // AM1DSUMMINGAB_H

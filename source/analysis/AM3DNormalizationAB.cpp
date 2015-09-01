@@ -30,6 +30,12 @@ AM3DNormalizationAB::AM3DNormalizationAB(const QString &outputName, QObject *par
 	canAnalyze_ = false;
 	dataName_ = "";
 	normalizationName_ = "";
+
+	dataUpdateRequired_ = false;
+	lowerDirtyIndex_ = AMnDIndex();
+	upperDirtyIndex_ = AMnDIndex();
+	cachedOutput_ = QVector<double>();
+
 	axes_ << AMAxisInfo("invalid", 0, "No input data") << AMAxisInfo("invalid", 0, "No input data") << AMAxisInfo("invalid", 0, "No input data");
 	setState(AMDataSource::InvalidFlag);
 }
@@ -131,6 +137,11 @@ void AM3DNormalizationAB::setInputSources()
 	emitValuesChanged();
 	emitAxisInfoChanged();
 	emitInfoChanged();
+
+	dataUpdateRequired_ = true;
+	lowerDirtyIndex_ = AMnDIndex(axes_.size(), AMnDIndex::DoInit, 0);
+	upperDirtyIndex_ = size()-1;
+	cachedOutput_ = QVector<double>(size().product());
 }
 
 bool AM3DNormalizationAB::canAnalyze(const QString &dataName, const QString &normalizationName) const
@@ -161,15 +172,10 @@ AMNumber AM3DNormalizationAB::value(const AMnDIndex &indexes) const
 		return AMNumber(AMNumber::OutOfBoundsError);
 #endif
 
-	// Can't divide by zero.
-	if (double(normalizer_->value(indexes)) == 0)
-		return 0;
+	if (dataUpdateRequired_)
+		computeCachedValues();
 
-	// The normalizer must be positive.
-	if (double(normalizer_->value(indexes)) < 0)
-		return -1;
-
-	return double(data_->value(indexes))/double(normalizer_->value(indexes));
+	return cachedOutput_.at(indexes.i()+size(0)*indexes.j()+size(0)*size(1)*indexes.k());
 }
 
 bool AM3DNormalizationAB::values(const AMnDIndex &indexStart, const AMnDIndex &indexEnd, double *outputValues) const
@@ -187,27 +193,72 @@ bool AM3DNormalizationAB::values(const AMnDIndex &indexStart, const AMnDIndex &i
 		return false;
 #endif
 
+	if (dataUpdateRequired_)
+		computeCachedValues();
+
 	int totalSize = indexStart.totalPointsTo(indexEnd);
+
+	if (totalSize == size().product())
+		memcpy(outputValues, cachedOutput_.constData(), totalSize*sizeof(double));
+
+	else {
+
+		int iSize = indexStart.distanceTo(0, indexEnd);
+		int xOffset = indexStart.i();
+		int yOffset = indexStart.j();
+		int zOffset = indexStart.k();
+		int xSize = size(0);
+		int ySize = size(1);
+		const double *cachedOutputDoublePointer = cachedOutput_.constData();
+
+		for (int j = 0, jSize = indexStart.distanceTo(1, indexEnd); j < jSize; j++)
+			for (int k = 0, kSize = indexStart.distanceTo(2, indexEnd); k < kSize; k++)
+				memcpy(outputValues+(iSize*j+k*iSize*jSize), cachedOutputDoublePointer+(xOffset+xSize*(j+yOffset)+xSize*ySize*(k+zOffset)), iSize*sizeof(double));
+	}
+
+	return true;
+}
+
+void AM3DNormalizationAB::computeCachedValues() const
+{
+	int totalSize = lowerDirtyIndex_.totalPointsTo(upperDirtyIndex_);
 
 	QVector<double> data = QVector<double>(totalSize);
 	QVector<double> normalizer = QVector<double>(totalSize);
 
-	data_->values(indexStart, indexEnd, data.data());
-	normalizer_->values(indexStart, indexEnd, normalizer.data());
+	data_->values(lowerDirtyIndex_, upperDirtyIndex_, data.data());
+	normalizer_->values(lowerDirtyIndex_, upperDirtyIndex_, normalizer.data());
 
-	for (int i = 0; i < totalSize; i++){
+	int xOffset = lowerDirtyIndex_.i();
+	int yOffset = lowerDirtyIndex_.j();
+	int zOffset = lowerDirtyIndex_.k();
+	int xSize = size(0);
+	int ySize = size(1);
 
-		if (normalizer.at(i) == 0)
-			outputValues[i] = 0;
+	for (int k = 0, kSize = lowerDirtyIndex_.distanceTo(2, upperDirtyIndex_); k < kSize; k++){
 
-		else if (normalizer.at(i) < 0)
-			outputValues[i] = -1;
+		for (int j = 0, jSize = lowerDirtyIndex_.distanceTo(1, upperDirtyIndex_); j < jSize; j++){
 
-		else
-			outputValues[i] = data.at(i)/normalizer.at(i);
+			for (int i = 0, iSize = lowerDirtyIndex_.distanceTo(0, upperDirtyIndex_); i < iSize; i++){
+
+				int index = i+xOffset + (j+yOffset)*xSize + (k+zOffset)*xSize*ySize;
+				int dataIndex = i + j*iSize + k*iSize*jSize;
+
+				if (normalizer.at(dataIndex) == 0)
+					cachedOutput_[index] = 0;
+
+				else if (normalizer.at(dataIndex) < 0 || data.at(dataIndex) == -1)
+					cachedOutput_[index] = -1;
+
+				else
+					cachedOutput_[index] = data.at(dataIndex)/normalizer.at(dataIndex);
+			}
+		}
 	}
 
-	return true;
+	dataUpdateRequired_ = false;
+	lowerDirtyIndex_ = AMnDIndex();
+	upperDirtyIndex_ = AMnDIndex();
 }
 
 AMNumber AM3DNormalizationAB::axisValue(int axisNumber, int index) const
@@ -240,6 +291,12 @@ bool AM3DNormalizationAB::axisValues(int axisNumber, int startIndex, int endInde
 
 void AM3DNormalizationAB::onInputSourceValuesChanged(const AMnDIndex& start, const AMnDIndex& end)
 {
+	if (!dataUpdateRequired_)
+		dataUpdateRequired_ = true;
+
+	lowerDirtyIndex_ = lowerDirtyIndex_.globalMinimum(start);
+	upperDirtyIndex_ = upperDirtyIndex_.globalMaximum(end);
+
 	emitValuesChanged(start, end);
 }
 
@@ -262,6 +319,11 @@ void AM3DNormalizationAB::onInputSourceSizeChanged()
 		axes_[2].size = data_->size(2);
 		emitSizeChanged(2);
 	}
+
+	dataUpdateRequired_ = true;
+	lowerDirtyIndex_ = AMnDIndex(axes_.size(), AMnDIndex::DoInit, 0);
+	upperDirtyIndex_ = size()-1;
+	cachedOutput_ = QVector<double>(size().product());
 }
 
 void AM3DNormalizationAB::onInputSourceStateChanged() {
@@ -300,6 +362,11 @@ void AM3DNormalizationAB::setInputDataSourcesImplementation(const QList<AMDataSo
 		axes_[1] = AMAxisInfo("invalid", 0, "No input data");
 		axes_[2] = AMAxisInfo("invalid", 0, "No input data");
 		setDescription("Normalized 3D Data Source");
+
+		dataUpdateRequired_ = false;
+		lowerDirtyIndex_ = AMnDIndex();
+		upperDirtyIndex_ = AMnDIndex();
+		cachedOutput_ = QVector<double>();
 	}
 
 	else if (dataSources.count() == 2){
@@ -321,6 +388,11 @@ void AM3DNormalizationAB::setInputDataSourcesImplementation(const QList<AMDataSo
 		connect(normalizer_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onInputSourceValuesChanged(AMnDIndex,AMnDIndex)));
 		connect(normalizer_->signalSource(), SIGNAL(sizeChanged(int)), this, SLOT(onInputSourceSizeChanged()));
 		connect(normalizer_->signalSource(), SIGNAL(stateChanged(int)), this, SLOT(onInputSourceStateChanged()));
+
+		dataUpdateRequired_ = true;
+		lowerDirtyIndex_ = AMnDIndex(axes_.size(), AMnDIndex::DoInit, 0);
+		upperDirtyIndex_ = size()-1;
+		cachedOutput_ = QVector<double>(size().product());
 	}
 
 	else {

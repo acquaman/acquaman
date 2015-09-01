@@ -134,6 +134,42 @@ public:
 		}
 	}
 
+	/// Returns the AMnDIndex with the lowest values from each dimension between this index and the given one.  Assumes \param otherIndex has the same rank as we do.
+	/// \note if one of the AMnDIndex is invalid it will simply return the other index.  If both are invalid, it will return an invalid index.
+	inline AMnDIndex globalMinimum(const AMnDIndex &otherIndex)
+	{
+		if (isValid() && !otherIndex.isValid())
+			return *this;
+
+		else if (!isValid() && otherIndex.isValid())
+			return otherIndex;
+
+		AMnDIndex retVal = *this;
+
+		for (int i = 0; i < rank_; i++)
+			retVal[i] = (at(i) < otherIndex.at(i)) ? at(i) : otherIndex.at(i);
+
+		return retVal;
+	}
+
+	/// Returns the AMnDIndex with the highest values from each dimension between this index and the given one.  Assumes \param otherIndex has the same rank as we do.
+	/// \note if one of the AMnDIndex is invalid it will simply return the other index.  If both are invalid, it will return an invalid index.
+	inline AMnDIndex globalMaximum(const AMnDIndex &otherIndex)
+	{
+		if (isValid() && !otherIndex.isValid())
+			return *this;
+
+		else if (!isValid() && otherIndex.isValid())
+			return otherIndex;
+
+		AMnDIndex retVal = *this;
+
+		for (int i = 0; i < rank_; i++)
+			retVal[i] = (at(i) > otherIndex.at(i)) ? at(i) : otherIndex.at(i);
+
+		return retVal;
+	}
+
 	// Modification functions
 	////////////////////////////////
 
@@ -226,6 +262,12 @@ public:
 		for(int mu=rank_-1; mu>=0; --mu)
 			rv *= at(mu);
 		return rv;
+	}
+
+	/// Returns the length of an axis between this index and \param toIndex specified by \param axis.  Assumes indices are the same.
+	inline long distanceTo(int axisId, const AMnDIndex &toIndex) const
+	{
+		return (qAbs(at(axisId)-toIndex.at(axisId)) + 1);
 	}
 
 	/// Calculate the total number of points in the space of the data block between this index and \c toIndex (inclusive).  For example, if this index is (2,2) and \c toIndex = (3,3), the block includes (2,2),(2,3),(3,2),(3,3) and this function would return 4.

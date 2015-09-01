@@ -27,6 +27,11 @@ AMRegionOfInterestAB::AMRegionOfInterestAB(const QString &outputName, QObject *p
 	spectrum_ = 0;
 	binningRange_ = AMRange();
 
+	dataUpdateRequired_ = false;
+	lowerDirtyIndex_ = AMnDIndex();
+	upperDirtyIndex_ = AMnDIndex();
+	cachedOutput_ = QVector<double>();
+
 	setState(AMDataSource::InvalidFlag);
 }
 
@@ -43,6 +48,7 @@ bool AMRegionOfInterestAB::areInputDataSourcesAcceptable(const QList<AMDataSourc
 
 	return false;
 }
+#include <QDebug>
 
 AMNumber AMRegionOfInterestAB::value(const AMnDIndex &indexes) const
 {
@@ -53,49 +59,43 @@ AMNumber AMRegionOfInterestAB::value(const AMnDIndex &indexes) const
 		return AMNumber(AMNumber::InvalidError);
 
 #ifdef AM_ENABLE_BOUNDS_CHECKING
-	for (int i = 0, size = axes_.size(); i < size; i++)
+	for (int i = 0, axisSize = axes_.size(); i < axisSize; i++)
 		if (indexes.at(i) >= axes_.at(i).size)
 			return AMNumber(AMNumber::OutOfBoundsError);
 #endif
 
 	if (!binningRange_.isValid())
 		return AMNumber(AMNumber::InvalidError);
+	qDebug() << name() << dataUpdateRequired_ << lowerDirtyIndex_.toString() << upperDirtyIndex_.toString();
+	if (dataUpdateRequired_)
+		computeCachedValues();
 
-	// Need to turn the range into index positions.
-	AMAxisInfo axisInfoOfInterest = spectrum_->axisInfoAt(spectrum_->rank()-1);
+	AMNumber returnValue;
 
-	int minimum = int((binningRange_.minimum() - double(axisInfoOfInterest.start))/double(axisInfoOfInterest.increment));
-	int maximum = int((binningRange_.maximum() - double(axisInfoOfInterest.start))/double(axisInfoOfInterest.increment));
+	switch(rank()){
 
-	AMnDIndex start = AMnDIndex(indexes.rank()+1, AMnDIndex::DoNotInit);
-	AMnDIndex end = AMnDIndex(indexes.rank()+1, AMnDIndex::DoNotInit);
+	case 0:
+		qDebug() << name() << "Inside value():" << cachedOutput_.at(0);
+		returnValue = cachedOutput_.at(0);
+		break;
 
-	for (int i = 0, size = indexes.rank(); i < size; i++){
+	case 1:
 
-		start[i] = indexes.at(i);
-		end[i] = indexes.at(i);
+		returnValue = cachedOutput_.at(indexes.i());
+		break;
+
+	case 2:
+
+		returnValue = cachedOutput_.at(indexes.i()*size(1)+indexes.j());
+		break;
+
+	case 3:
+
+		returnValue = cachedOutput_.at(indexes.i()*size(1)*size(2)+indexes.j()*size(2)+indexes.k());
+		break;
 	}
 
-	start[indexes.rank()] = minimum;
-	end[indexes.rank()] = maximum;
-
-	QVector<double> data = QVector<double>(maximum - minimum + 1);
-
-	if (spectrum_->values(start, end, data.data())){
-
-		// If negative, then there isn't real data yet.
-		if (data.at(0) < 0)
-			return -1.0;
-
-		double value = 0;
-
-		for (int i = 0, size = data.size(); i < size; i++)
-			value += data.at(i);
-
-		return value;
-	}
-
-	return AMNumber(AMNumber::InvalidError);
+	return returnValue;
 }
 
 bool AMRegionOfInterestAB::values(const AMnDIndex &indexStart, const AMnDIndex &indexEnd, double *outputValues) const
@@ -107,7 +107,7 @@ bool AMRegionOfInterestAB::values(const AMnDIndex &indexStart, const AMnDIndex &
 		return false;
 
 #ifdef AM_ENABLE_BOUNDS_CHECKING
-	for (int i = 0, size = axes_.size(); i < size; i++)
+	for (int i = 0, axisSize = axes_.size(); i < axisSize; i++)
 		if (indexEnd.at(i) >= axes_.at(i).size || (unsigned)indexStart.at(i) > (unsigned)indexEnd.at(i))
 			return false;
 #endif
@@ -115,118 +115,110 @@ bool AMRegionOfInterestAB::values(const AMnDIndex &indexStart, const AMnDIndex &
 	if (!binningRange_.isValid())
 		return false;
 
-	// Need to turn the range into index positions.
-	AMAxisInfo axisInfoOfInterest = spectrum_->axisInfoAt(spectrum_->rank()-1);
+	if (dataUpdateRequired_)
+		computeCachedValues();
 
-	int minimum = int((binningRange_.minimum() - double(axisInfoOfInterest.start))/double(axisInfoOfInterest.increment));
-	int maximum = int((binningRange_.maximum() - double(axisInfoOfInterest.start))/double(axisInfoOfInterest.increment));
-	int axisLength = maximum - minimum + 1;
+	switch(rank()){
 
-	AMnDIndex start = AMnDIndex(indexStart.rank()+1, AMnDIndex::DoNotInit);
-	AMnDIndex end = AMnDIndex(indexEnd.rank()+1, AMnDIndex::DoNotInit);
+	case 0:
+		*outputValues = cachedOutput_.at(0);
 
-	for (int i = 0, size = indexStart.rank(); i < size; i++){
+		break;
 
-		start[i] = indexStart.at(i);
-		end[i] = indexEnd.at(i);
+	case 1:{
+
+		int totalSize = indexStart.totalPointsTo(indexEnd);
+		int xOffset = indexStart.i();
+
+		memcpy(outputValues, cachedOutput_.constData()+xOffset, totalSize*sizeof(double));
+
+		break;
 	}
 
-	start[indexStart.rank()] = minimum;
-	end[indexEnd.rank()] = maximum;
+	case 2:{
 
-	QVector<double> data = QVector<double>(start.totalPointsTo(end));
+		int totalSize = indexStart.totalPointsTo(indexEnd);
 
-	if (spectrum_->values(start, end, data.data())){
+		if (totalSize == size().product())
+			memcpy(outputValues, cachedOutput_.constData(), totalSize*sizeof(double));
 
-		switch(rank()){
+		else {
 
-		case 0:{
+			int yLength = indexStart.distanceTo(1, indexEnd);
+			int xOffset = indexStart.i();
+			int yOffset = indexStart.j();
+			int ySize = size(1);
+			const double *cachedOutputDoublePointer = cachedOutput_.constData();
 
-			double value = 0;
-
-			for (int i = 0, size = data.size(); i < size; i++)
-				value += data.at(i);
-
-			*outputValues = (value < 0 ? -1 : value);
-
-			break;
+			for (int i = 0, iSize = indexStart.distanceTo(0, indexEnd); i < iSize; i++)
+				memcpy(outputValues+yLength*i, cachedOutputDoublePointer+((i+xOffset)*ySize+yOffset), yLength*sizeof(double));
 		}
 
-		case 1:{
-
-			for (int i = 0, size = indexStart.totalPointsTo(indexEnd); i < size; i++){
-
-				double value = 0;
-
-				for (int j = 0, jSize = maximum - minimum + 1; j < jSize; j++)
-					value += data.at(i*axisLength+j);
-
-				outputValues[i] = (value < 0 ? -1 : value);
-			}
-
-			break;
-		}
-
-		case 2:{
-
-			for (int i = 0, iSize = end.i()-start.i()+1; i < iSize; i++){
-
-				for (int j = 0, jSize = end.j()-start.j()+1; j < jSize; j++){
-
-					double value = 0;
-
-					for (int k = 0, kSize = maximum - minimum + 1; k < kSize; k++)
-						value += data.at(i*jSize*axisLength+j*axisLength+k);
-
-					outputValues[i*jSize+j] = (value < 0 ? -1 : value);
-				}
-			}
-
-			break;
-		}
-
-		case 3:{
-
-			for (int i = 0, iSize = end.i()-start.i()+1; i < iSize; i++){
-
-				for (int j = 0, jSize = end.j()-start.j()+1; j < jSize; j++){
-
-					for (int k = 0, kSize = end.k()-start.k()+1; k < kSize; k++){
-
-						double value = 0;
-
-						for (int l = 0, lSize = maximum - minimum + 1; l < lSize; l++)
-							value += data.at(i*jSize*kSize*axisLength+j*kSize*axisLength+k*axisLength+l);
-
-						outputValues[i*jSize*kSize+j*kSize+k] = (value < 0 ? -1 : value);
-					}
-				}
-			}
-
-			break;
-		}
-		}
-
-		return true;
+		break;
 	}
 
-	return false;
+	case 3:{
+
+		int yLength = indexStart.distanceTo(1, indexEnd);
+		int zLength = indexStart.distanceTo(2, indexEnd);
+		int xOffset = indexStart.i();
+		int yOffset = indexStart.j();
+		int zOffset = indexStart.k();
+		int ySize = size(1);
+		int zSize = size(2);
+		const double *cachedOutputDoublePointer = cachedOutput_.constData();
+
+		for (int i = 0, iSize = indexStart.distanceTo(0, indexEnd); i < iSize; i++){
+
+			for (int j = 0, jSize = indexStart.distanceTo(0, indexEnd); j < jSize; j++)
+				memcpy(outputValues+(i*yLength*zLength+j*zLength), cachedOutputDoublePointer+((i+xOffset)*ySize*zSize+(j+yOffset)*zSize+zOffset), zLength*sizeof(double));
+		}
+
+		break;
+	}
+	}
+
+	return true;
 }
 
 void AMRegionOfInterestAB::setBinningRange(const AMRange &newRange)
 {
+	dataUpdateRequired_ = true;
+
+	if (spectrum_){
+
+		lowerDirtyIndex_ = AMnDIndex(spectrum_->rank(), AMnDIndex::DoInit, 0);
+		upperDirtyIndex_ = spectrum_->size()-1;
+	}
+
 	binningRange_ = newRange;
 	emitValuesChanged();
 }
 
 void AMRegionOfInterestAB::setBinningRangeLowerBound(double lowerBound)
 {
+	dataUpdateRequired_ = true;
+
+	if (spectrum_){
+
+		lowerDirtyIndex_ = AMnDIndex(spectrum_->rank(), AMnDIndex::DoInit, 0);
+		upperDirtyIndex_ = spectrum_->size()-1;
+	}
+
 	binningRange_.setMinimum(lowerBound);
 	emitValuesChanged();
 }
 
 void AMRegionOfInterestAB::setBinningRangeUpperBound(double upperBound)
 {
+	dataUpdateRequired_ = true;
+
+	if (spectrum_){
+
+		lowerDirtyIndex_ = AMnDIndex(spectrum_->rank(), AMnDIndex::DoInit, 0);
+		upperDirtyIndex_ = spectrum_->size()-1;
+	}
+
 	binningRange_.setMaximum(upperBound);
 	emitValuesChanged();
 }
@@ -268,15 +260,148 @@ bool AMRegionOfInterestAB::axisValues(int axisNumber, int startIndex, int endInd
 
 	return spectrum_->axisValues(axisNumber, startIndex, endIndex, outputValues);
 }
+#include <QDebug>
+void AMRegionOfInterestAB::computeCachedValues() const
+{
+	// Need to turn the range into index positions.
+	AMAxisInfo axisInfoOfInterest = spectrum_->axisInfoAt(spectrum_->rank()-1);
+
+	int minimum = int((binningRange_.minimum() - double(axisInfoOfInterest.start))/double(axisInfoOfInterest.increment));
+	int maximum = int((binningRange_.maximum() - double(axisInfoOfInterest.start))/double(axisInfoOfInterest.increment));
+	int axisLength = maximum - minimum + 1;
+
+	AMnDIndex start = lowerDirtyIndex_;
+	AMnDIndex end = upperDirtyIndex_;
+
+	if (start.isValid() && end.isValid()){
+
+		start[start.rank()-1] = minimum;
+		end[end.rank()-1] = maximum;
+	}
+
+	else {
+
+		start = AMnDIndex(minimum);
+		end = AMnDIndex(maximum);
+	}
+
+	QVector<double> data = QVector<double>(start.totalPointsTo(end));
+
+	bool validSpectrum = spectrum_->values(start, end, data.data());
+//	if (spectrum_->values(start, end, data.data())){
+	qDebug() << name() << "Inside computeCachedValues():" << validSpectrum << start.toString() << end.toString() << lowerDirtyIndex_.toString() << upperDirtyIndex_.toString();
+
+	if (validSpectrum){
+		switch(rank()){
+
+		case 0:{
+
+			double value = 0;
+
+			for (int i = 0, size = data.size(); i < size; i++)
+				value += data.at(i);
+			qDebug() << name() << "Inside computeCacheValues: " << value;
+			cachedOutput_[0] = (value < 0 ? -1 : value);
+
+			break;
+		}
+
+		case 1:{
+
+			int xOffset = lowerDirtyIndex_.i();
+
+			for (int i = 0, size = lowerDirtyIndex_.distanceTo(0, upperDirtyIndex_); i < size; i++){
+
+				double value = 0;
+
+				for (int j = 0, jSize = maximum - minimum + 1; j < jSize; j++)
+					value += data.at(i*axisLength+j);
+
+				cachedOutput_[i+xOffset] = (value < 0 ? -1 : value);
+			}
+
+			break;
+		}
+
+		case 2:{
+
+			int xOffset = lowerDirtyIndex_.i();
+			int yOffset = lowerDirtyIndex_.j();
+			int ySize = size(1);
+
+			for (int i = 0, iSize = lowerDirtyIndex_.distanceTo(0, upperDirtyIndex_); i < iSize; i++){
+
+				for (int j = 0, jSize = lowerDirtyIndex_.distanceTo(1, upperDirtyIndex_); j < jSize; j++){
+
+					double value = 0;
+
+					for (int k = 0, kSize = maximum - minimum + 1; k < kSize; k++)
+						value += data.at(i*jSize*axisLength+j*axisLength+k);
+
+					cachedOutput_[(i+xOffset)*ySize+(j+yOffset)] = (value < 0 ? -1 : value);
+				}
+			}
+
+			break;
+		}
+
+		case 3:{
+
+			int xOffset = lowerDirtyIndex_.i();
+			int yOffset = lowerDirtyIndex_.j();
+			int zOffset = lowerDirtyIndex_.k();
+			int ySize = size(1);
+			int zSize = size(2);
+
+			for (int i = 0, iSize = lowerDirtyIndex_.distanceTo(0, upperDirtyIndex_); i < iSize; i++){
+
+				for (int j = 0, jSize = lowerDirtyIndex_.distanceTo(1, upperDirtyIndex_); j < jSize; j++){
+
+					for (int k = 0, kSize = lowerDirtyIndex_.distanceTo(2, upperDirtyIndex_); k < kSize; k++){
+
+						double value = 0;
+
+						for (int l = 0, lSize = maximum - minimum + 1; l < lSize; l++)
+							value += data.at(i*jSize*kSize*axisLength+j*kSize*axisLength+k*axisLength+l);
+
+						cachedOutput_[(i+xOffset)*ySize*zSize+(j+yOffset)*zSize+(k+zOffset)] = (value < 0 ? -1 : value);
+					}
+				}
+			}
+
+			break;
+		}
+		}
+
+		dataUpdateRequired_ = false;
+		lowerDirtyIndex_ = AMnDIndex();
+		upperDirtyIndex_ = AMnDIndex();
+	}
+}
 
 void AMRegionOfInterestAB::onInputSourceValuesChanged(const AMnDIndex& start, const AMnDIndex& end)
 {
-	emitValuesChanged(start, end);
+	if (!dataUpdateRequired_)
+		dataUpdateRequired_ = true;
+	qDebug() << name() << "Inside inputValuesChanged():" << lowerDirtyIndex_.toString() << start.toString() << lowerDirtyIndex_.globalMinimum(start).toString() << upperDirtyIndex_.toString() << end.toString() << upperDirtyIndex_.globalMaximum(end).toString();
+	lowerDirtyIndex_ = lowerDirtyIndex_.globalMinimum(start);
+	upperDirtyIndex_ = upperDirtyIndex_.globalMaximum(end);
+
+	AMnDIndex outputStart = AMnDIndex(start.rank()-1, AMnDIndex::DoInit);
+	AMnDIndex outputEnd = AMnDIndex(end.rank()-1, AMnDIndex::DoInit);
+
+	for (int i = 0, size = outputStart.rank(); i < size; i++){
+
+		outputStart[i] = start.at(i);
+		outputEnd[i] = end.at(i);
+	}
+
+	emitValuesChanged(outputStart, outputEnd);
 }
 
 void AMRegionOfInterestAB::onInputSourceSizeChanged()
 {
-	for (int i = 0, size = axes_.size(); i < size; i++){
+	for (int i = 0, numberOfAxes = axes_.size(); i < numberOfAxes; i++){
 
 		if (axes_.at(i).size != spectrum_->size(i)){
 
@@ -284,6 +409,11 @@ void AMRegionOfInterestAB::onInputSourceSizeChanged()
 			emitSizeChanged(i);
 		}
 	}
+
+	dataUpdateRequired_ = true;
+	lowerDirtyIndex_ = AMnDIndex(spectrum_->rank(), AMnDIndex::DoInit, 0);
+	upperDirtyIndex_ = spectrum_->size()-1;
+	cachedOutput_ = QVector<double>(size().product(), -1);
 }
 
 void AMRegionOfInterestAB::onInputSourceStateChanged()
@@ -310,6 +440,11 @@ void AMRegionOfInterestAB::setInputDataSourcesImplementation(const QList<AMDataS
 		sources_.clear();
 		setDescription("-- No input data --");
 		axes_.clear();
+
+		dataUpdateRequired_ = false;
+		lowerDirtyIndex_ = AMnDIndex();
+		upperDirtyIndex_ = AMnDIndex();
+		cachedOutput_ = QVector<double>();
 	}
 
 	// we know that this will only be called with valid input source
@@ -321,12 +456,17 @@ void AMRegionOfInterestAB::setInputDataSourcesImplementation(const QList<AMDataS
 		setDescription(name());
 		axes_.clear();
 
-		for (int i = 0, size = spectrum_->rank()-1; i < size; i++)
+		for (int i = 0, spectrumRank = spectrum_->rank()-1; i < spectrumRank; i++)
 			axes_.append(spectrum_->axisInfoAt(i));
 
 		connect(spectrum_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onInputSourceValuesChanged(AMnDIndex,AMnDIndex)));
 		connect(spectrum_->signalSource(), SIGNAL(sizeChanged(int)), this, SLOT(onInputSourceSizeChanged()));
 		connect(spectrum_->signalSource(), SIGNAL(stateChanged(int)), this, SLOT(onInputSourceStateChanged()));
+
+		dataUpdateRequired_ = true;
+		lowerDirtyIndex_ = AMnDIndex(spectrum_->rank(), AMnDIndex::DoInit, 0);
+		upperDirtyIndex_ = spectrum_->size()-1;
+		cachedOutput_ = QVector<double>(size().product(), -1.0);
 	}
 
 	reviewState();

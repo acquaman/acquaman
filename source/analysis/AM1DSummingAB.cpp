@@ -25,6 +25,11 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 AM1DSummingAB::AM1DSummingAB(const QString &outputName, QObject *parent)
 	: AMStandardAnalysisBlock(outputName, parent)
 {
+	dataUpdateRequired_ = false;
+	lowerDirtyIndex_ = AMnDIndex();
+	upperDirtyIndex_ = AMnDIndex();
+	cachedOutput_ = QVector<double>();
+
 	axes_ << AMAxisInfo("invalid", 0, "No input data");
 	setState(AMDataSource::InvalidFlag);
 }
@@ -60,12 +65,10 @@ AMNumber AM1DSummingAB::value(const AMnDIndex &indexes) const
 			return AMNumber(AMNumber::OutOfBoundsError);
 #endif
 
-	double val = 0;
+	if (dataUpdateRequired_)
+		computeCachedValues();
 
-	for (int i = 0; i < sources_.size(); i++)
-		val += (double)sources_.at(i)->value(indexes.i());
-
-	return val;
+	return cachedOutput_.at(indexes.i());
 }
 
 bool AM1DSummingAB::values(const AMnDIndex &indexStart, const AMnDIndex &indexEnd, double *outputValues) const
@@ -85,25 +88,38 @@ bool AM1DSummingAB::values(const AMnDIndex &indexStart, const AMnDIndex &indexEn
 		return false;
 #endif
 
+	if (dataUpdateRequired_)
+		computeCachedValues();
+
 	int totalSize = indexStart.totalPointsTo(indexEnd);
-
-	QVector<double> data = QVector<double>(totalSize);
-	sources_.at(0)->values(indexStart, indexEnd, data.data());
-
-	// Do the first data source separately to initialize the values.
-	for (int i = 0; i < totalSize; i++)
-		outputValues[i] = data.at(i);
-
-	// Iterate through the rest of the sources.
-	for (int i = 1, count = sources_.size(); i < count; i++){
-
-		sources_.at(i)->values(indexStart, indexEnd, data.data());
-
-		for (int j = 0; j < totalSize; j++)
-			outputValues[j] += data.at(j);
-	}
+	memcpy(outputValues, cachedOutput_.constData()+indexStart.i(), totalSize*sizeof(double));
 
 	return true;
+}
+
+void AM1DSummingAB::computeCachedValues() const
+{
+	int totalSize = lowerDirtyIndex_.totalPointsTo(upperDirtyIndex_);
+
+	QVector<double> data = QVector<double>(totalSize);
+	sources_.at(0)->values(lowerDirtyIndex_, upperDirtyIndex_, data.data());
+
+	int xOffset = lowerDirtyIndex_.i();
+
+	memcpy(cachedOutput_.data()+xOffset, data.constData(), totalSize*sizeof(double));
+
+	// Iterate through the rest of the sources.
+	for (int index = 1, count = sources_.size(); index < count; index++){
+
+		sources_.at(index)->values(lowerDirtyIndex_, upperDirtyIndex_, data.data());
+
+		for (int i = 0; i < totalSize; i++)
+			cachedOutput_[i+xOffset] += data.at(i);
+	}
+
+	dataUpdateRequired_ = false;
+	lowerDirtyIndex_ = AMnDIndex();
+	upperDirtyIndex_ = AMnDIndex();
 }
 
 AMNumber AM1DSummingAB::axisValue(int axisNumber, int index) const
@@ -139,6 +155,12 @@ bool AM1DSummingAB::axisValues(int axisNumber, int startIndex, int endIndex, AMN
 // Connected to be called when the values of the input data source change
 void AM1DSummingAB::onInputSourceValuesChanged(const AMnDIndex& start, const AMnDIndex& end)
 {
+	if (!dataUpdateRequired_)
+		dataUpdateRequired_ = true;
+
+	lowerDirtyIndex_ = lowerDirtyIndex_.globalMinimum(start);
+	upperDirtyIndex_ = upperDirtyIndex_.globalMaximum(end);
+
 	emitValuesChanged(start, end);
 }
 
@@ -149,6 +171,11 @@ void AM1DSummingAB::onInputSourceSizeChanged()
 		axes_[0] = sources_.at(0)->axisInfoAt(0);
 
 	emitSizeChanged();
+
+	dataUpdateRequired_ = true;
+	lowerDirtyIndex_ = AMnDIndex(axes_.size(), AMnDIndex::DoInit, 0);
+	upperDirtyIndex_ = size()-1;
+	cachedOutput_ = QVector<double>(size().product());
 }
 
 // Connected to be called when the state() flags of any input source change
@@ -178,6 +205,11 @@ void AM1DSummingAB::setInputDataSourcesImplementation(const QList<AMDataSource*>
 		sources_.clear();
 		axes_[0] = AMAxisInfo("invalid", 0, "No input data");
 		setDescription("-- No input data --");
+
+		dataUpdateRequired_ = false;
+		lowerDirtyIndex_ = AMnDIndex();
+		upperDirtyIndex_ = AMnDIndex();
+		cachedOutput_ = QVector<double>();
 	}
 
 	// we know that this will only be called with valid input source
@@ -195,6 +227,11 @@ void AM1DSummingAB::setInputDataSourcesImplementation(const QList<AMDataSource*>
 			connect(sources_.at(i)->signalSource(), SIGNAL(sizeChanged(int)), this, SLOT(onInputSourceSizeChanged()));
 			connect(sources_.at(i)->signalSource(), SIGNAL(stateChanged(int)), this, SLOT(onInputSourceStateChanged()));
 		}
+
+		dataUpdateRequired_ = true;
+		lowerDirtyIndex_ = AMnDIndex(axes_.size(), AMnDIndex::DoInit, 0);
+		upperDirtyIndex_ = size()-1;
+		cachedOutput_ = QVector<double>(size().product());
 	}
 
 	reviewState();
