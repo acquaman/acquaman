@@ -150,12 +150,22 @@ void IDEASAppController::registerClasses()
 
 void IDEASAppController::setupExporterOptions()
 {
-	AMExporterOptionGeneralAscii *exporterOption = IDEAS::buildStandardExporterOption("IDEASDefault", true, true);
+	AMExporterOptionGeneralAscii *XASexporterOption = IDEAS::buildStandardExporterOption("IDEASXASDefault", true, true, true);
 
-	if(exporterOption->id() > 0)
-		AMAppControllerSupport::registerClass<IDEASXASScanConfiguration, AMExporterAthena, AMExporterOptionGeneralAscii>(exporterOption->id());
+	if(XASexporterOption->id() > 0)
+	{
+		AMAppControllerSupport::registerClass<IDEASXASScanConfiguration, AMExporterAthena, AMExporterOptionGeneralAscii>(XASexporterOption->id());
+		AMAppControllerSupport::registerClass<IDEASXASScanConfiguration, AMExporterGeneralAscii, AMExporterOptionGeneralAscii>(XASexporterOption->id());
+	}
 
-	exporterOption->deleteLater();
+	XASexporterOption->deleteLater();
+
+	AMExporterOptionGeneralAscii *XRFexporterOption = IDEAS::buildStandardExporterOption("IDEASXRFDefault", true, true, false);
+
+	if(XRFexporterOption->id() > 0)
+		AMAppControllerSupport::registerClass<IDEASXRFScanConfiguration, AMExporterGeneralAscii, AMExporterOptionGeneralAscii>(XRFexporterOption->id());
+
+	XRFexporterOption->deleteLater();
 
 	AMExporterOptionSMAK *smakOption = IDEAS::buildSMAKExporterOption("IDEAS2DDefault", true, true);
 
