@@ -259,7 +259,7 @@ AMNumber AMnDDeadTimeAB::axisValue(int axisNumber, int index) const
 	return spectrum_->axisValue(axisNumber, index);
 }
 
-bool AMnDDeadTimeAB::axisValues(int axisNumber, int startIndex, int endIndex, AMNumber *outputValues) const
+bool AMnDDeadTimeAB::axisValues(int axisNumber, int startIndex, int endIndex, double *outputValues) const
 {
 	if(!isValid())
 		return false;

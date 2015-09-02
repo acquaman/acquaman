@@ -156,7 +156,7 @@ void  AMDataSourceSeriesData::onDataChanged(const AMnDIndex &start, const AMnDIn
 
 void AMDataSourceSeriesData::onAxisValuesChanged()
 {
-	QVector<AMNumber> axisData = QVector<AMNumber>(axisSize_, 0);
+    QVector<double> axisData = QVector<double>(axisSize_, 0);
 	source_->axisValues(0, 0, axisSize_-1, axisData.data());
 
 	for (int i = 0; i < axisSize_; i++)

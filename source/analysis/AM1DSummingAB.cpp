@@ -122,7 +122,7 @@ AMNumber AM1DSummingAB::axisValue(int axisNumber, int index) const
 	return sources_.first()->axisValue(0, index);
 }
 
-bool AM1DSummingAB::axisValues(int axisNumber, int startIndex, int endIndex, AMNumber *outputValues) const
+bool AM1DSummingAB::axisValues(int axisNumber, int startIndex, int endIndex, double *outputValues) const
 {
 	if (!isValid())
 		return false;

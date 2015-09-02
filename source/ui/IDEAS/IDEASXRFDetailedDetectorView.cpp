@@ -144,7 +144,7 @@ void IDEASXRFDetailedDetectorView::exportScan()
 	exportDir.cd("exportData");
 	exportController_->setDestinationFolderPath(exportDir.absolutePath());
 	exportController_->chooseExporter("AMExporterGeneralAscii");
-	exportController_->setOption(IDEAS::buildStandardExporterOption("IDEASDefault", true, true));
+	exportController_->setOption(IDEAS::buildStandardExporterOption("IDEASXRFDefault", true, true, false));
 	exportController_->option()->setFileName("$name_$number.dat");
 	exportController_->start(true);
 }
