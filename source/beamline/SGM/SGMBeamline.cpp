@@ -264,9 +264,6 @@ void SGMBeamline::setupExposedControls()
 	addExposedControl(hexapod_->xAxisPrimeControl());
 	addExposedControl(hexapod_->yAxisPrimeControl());
 	addExposedControl(hexapod_->zAxisPrimeControl());
-//	addExposedControl(hexapod_->uAxisPrimeControl());
-//	addExposedControl(hexapod_->vAxisPrimeControl());
-//	addExposedControl(hexapod_->wAxisPrimeControl());
 }
 
 void SGMBeamline::setupExposedDetectors()

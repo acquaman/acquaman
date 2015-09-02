@@ -76,30 +76,6 @@ protected slots:
 	void onZSetpointSpinboxEditingFinished();
 
 	/*!
-	  * Handles signals indicating that editing has finished on the u spinbox.
-	  * Sets the u trajectory pv to the spin box's current value and sets the
-	  * background colour of the spinbox to indicate editing if the set value is
-	  * different to the pv value.
-	  */
-	void onUSetpointSpinboxEditingFinished();
-
-	/*!
-	  * Handles signals indicating that editing has finished on the v spinbox.
-	  * Sets the v trajectory pv to the spin box's current value and sets the
-	  * background colour of the spinbox to indicate editing if the set value is
-	  * different to the pv value.
-	  */
-	void onVSetpointSpinboxEditingFinished();
-
-	/*!
-	  * Handles signals indicating that editing has finished on the w spinbox.
-	  * Sets the w trajectory pv to the spin box's current value and sets the
-	  * background colour of the spinbox to indicate editing if the set value is
-	  * different to the pv value.
-	  */
-	void onWSetpointSpinboxEditingFinished();
-
-	/*!
 	  * Handles signals from the x trajectory PV indicating that its value has
 	  * changed. Updates the value in the spinbox and sets its background colour
 	  * to white if the pv value is different from the spinbox value.
@@ -120,26 +96,6 @@ protected slots:
 	  */
 	void onZSetpointPVValueChanged();
 
-	/*!
-	  * Handles signals from the u trajectory PV indicating that its value has
-	  * changed. Updates the value in the spinbox and sets its background colour
-	  * to white if the pv value is different from the spinbox value.
-	  */
-	void onUSetpointPVValueChanged();
-
-	/*!
-	  * Handles signals from the v trajectory PV indicating that its value has
-	  * changed. Updates the value in the spinbox and sets its background colour
-	  * to white if the pv value is different from the spinbox value.
-	  */
-	void onVSetpointPVValueChanged();
-
-	/*!
-	  * Handles signals from the w trajectory PV indicating that its value has
-	  * changed. Updates the value in the spinbox and sets its background colour
-	  * to white if the pv value is different from the spinbox value.
-	  */
-	void onWSetpointPVValueChanged();
 protected:
 	/*!
 	  * Initializes ui components and performs layout
@@ -160,16 +116,10 @@ protected:
 	QLabel* xSetpointLabel_;
 	QLabel* ySetpointLabel_;
 	QLabel* zSetpointLabel_;
-//	QLabel* uSetpointLabel_;
-//	QLabel* vSetpointLabel_;
-//	QLabel* wSetpointLabel_;
 
 	QDoubleSpinBox* xSetpointSpinbox_;
 	QDoubleSpinBox* ySetpointSpinbox_;
 	QDoubleSpinBox* zSetpointSpinbox_;
-//	QDoubleSpinBox* uSetpointSpinbox_;
-//	QDoubleSpinBox* vSetpointSpinbox_;
-//	QDoubleSpinBox* wSetpointSpinbox_;
 
 	QPushButton* moveButton_;
 	QPushButton* resetButton_;
