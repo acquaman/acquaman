@@ -78,7 +78,7 @@ public:
 	AMControl *monoHighEV() const { return monoHighEV_; }
 	AMControl *monoLowEV() const { return monoLowEV_; }
 	AMControl *ringCurrent() const { return ringCurrent_; }
-	AMControl *I0Current() const { return I0Current_; }
+	AMControl *I0Current() const { return i0Current_; }
 	AMControl *sampleTemp() const { return sampleTemp_; }
 
 	AMControl *monoBraggAngle() const { return monoBraggAngle_; }
@@ -225,7 +225,7 @@ protected:
 	AMReadOnlyPVControl *ge13ElementRealTimeControl_;
 
 
-	AMControl *monoCrystal_, *monoLowEV_, *monoHighEV_, *ringCurrent_, *I0Current_, *sampleTemp_, *monoBraggAngle_, *mono2d_, *monoAngleOffset_;
+	AMControl *monoCrystal_, *monoLowEV_, *monoHighEV_, *ringCurrent_, *i0Current_, *sampleTemp_, *monoBraggAngle_, *mono2d_, *monoAngleOffset_;
 
 	//Sample Stage motors
 	/////////////////////

@@ -25,6 +25,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/AMXASScan.h"
 #include "beamline/CLS/CLSSynchronizedDwellTime.h"
 #include "beamline/IDEAS/IDEASBeamline.h"
+#include "beamline/CLS/CLSSIS3820Scaler.h"
+#include "beamline/AMCurrentAmplifier.h"
 #include "analysis/AM1DExpressionAB.h"
 #include "analysis/AM2DSummingAB.h"
 #include "application/IDEAS/IDEASAppController.h"
@@ -47,7 +49,7 @@ IDEASXASScanActionController::IDEASXASScanActionController(IDEASXASScanConfigura
 	scan_->setIndexType("fileSystem");
 	scan_->rawData()->addScanAxis(AMAxisInfo("eV", 0, "Incident Energy", "eV"));
 
-    AMExporterOptionGeneralAscii *exporterOption = IDEAS::buildStandardExporterOption("IDEASDefault", true, true);
+    AMExporterOptionGeneralAscii *exporterOption = IDEAS::buildStandardExporterOption("IDEASXASDefault", true, true, true);
 
     if(exporterOption->id() > 0)
         AMAppControllerSupport::registerClass<IDEASXASScanConfiguration, AMExporterAthena, AMExporterOptionGeneralAscii>(exporterOption->id());
@@ -217,18 +219,16 @@ AMAction3* IDEASXASScanActionController::createInitializationActions()
 void IDEASXASScanActionController::onInitializationActionsListSucceeded()
 {
 	AMControlInfoList positions(IDEASBeamline::ideas()->exposedControls()->toInfoList());
-	positions.remove(positions.indexOf("masterDwell"));
 	positions.remove(positions.indexOf("DirectEnergy"));
 	positions.remove(positions.indexOf("Energy"));
 	positions.remove(positions.indexOf("XRF1E Real Time"));
-
-	if(!configuration_->fluorescenceDetector().testFlag(IDEAS::NoXRF)){
-
-		positions.remove(positions.indexOf("XRF1E Peaking Time"));
-		positions.remove(positions.indexOf("XRF1E Trigger Level"));
-		positions.remove(positions.indexOf("XRF1E Baseline Threshold"));
-		positions.remove(positions.indexOf("XRF1E Preamp Gain"));
-	}
+	positions.remove(positions.indexOf("13-element Ge dwell time"));
+	AMControlInfo I0Sensitivity("I0Sensitivity", IDEASBeamline::ideas()->scaler()->channelAt(0)->currentAmplifier()->value(), 0, 0, IDEASBeamline::ideas()->scaler()->channelAt(0)->currentAmplifier()->units(), 0.1, "I0 Amplifier Sensitivity");
+	positions.append(I0Sensitivity);
+	AMControlInfo sampleSensitivity("sampleSensitivity", IDEASBeamline::ideas()->scaler()->channelAt(1)->currentAmplifier()->value(), 0, 0, IDEASBeamline::ideas()->scaler()->channelAt(1)->currentAmplifier()->units(), 0.1, "Sample Amplifier Sensitivity");
+	positions.append(sampleSensitivity);
+	AMControlInfo referenceSensitivity("referenceSensitivity", IDEASBeamline::ideas()->scaler()->channelAt(2)->currentAmplifier()->value(), 0, 0, IDEASBeamline::ideas()->scaler()->channelAt(2)->currentAmplifier()->units(), 0.1, "Reference Amplifier Sensitivity");
+	positions.append(referenceSensitivity);
 
 	scan_->setScanInitialConditions(positions);
 	AMScanActionController::onInitializationActionsListSucceeded();

@@ -28,6 +28,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "analysis/REIXS/REIXSXESImageAB.h"
 #include "dataman/datastore/AMCDFDataStore.h"
 #include "dataman/AMTextStream.h"
+#include "beamline/CLS/CLSSIS3820Scaler.h"
+#include "beamline/AMCurrentAmplifier.h"
+
 
 #include "actions3/AMActionSupport.h"
 #include "actions3/AMListAction3.h"
@@ -192,11 +195,11 @@ void REIXSXESScanActionController::initializePositions()
 	AMControlInfo polarization("beamlinePolarization", REIXSBeamline::bl()->photonSource()->epuPolarization()->value(), 0, 0, "[choice]", 0.1, "EPU Polarization");
 	polarization.setEnumString(REIXSBeamline::bl()->photonSource()->epuPolarization()->enumNameAt(REIXSBeamline::bl()->photonSource()->epuPolarization()->value()));
 	positions.append(polarization);
-		if(REIXSBeamline::bl()->photonSource()->epuPolarization()->value() == 5)
-		{
-			AMControlInfo polarizationAngle("beamlinePolarizationAngle", REIXSBeamline::bl()->photonSource()->epuPolarizationAngle()->value(), 0, 0, "degrees", 0.1, "EPU Polarization Angle");
-			positions.append(polarizationAngle);
-		}
+	if(REIXSBeamline::bl()->photonSource()->epuPolarization()->value() == 5)
+	{
+		AMControlInfo polarizationAngle("beamlinePolarizationAngle", REIXSBeamline::bl()->photonSource()->epuPolarizationAngle()->value(), 0, 0, "degrees", 0.1, "EPU Polarization Angle");
+		positions.append(polarizationAngle);
+	}
 	positions.append(REIXSBeamline::bl()->photonSource()->monoGratingSelector()->toInfo());
 	positions.append(REIXSBeamline::bl()->photonSource()->monoGratingTranslation()->toInfo());
 	positions.append(REIXSBeamline::bl()->photonSource()->monoMirrorSelector()->toInfo());
@@ -223,7 +226,22 @@ void REIXSXESScanActionController::initializePositions()
 
 	positions.append(REIXSBeamline::bl()->spectrometer()->tmSOE()->toInfo());
 	positions.append(REIXSBeamline::bl()->spectrometer()->tmMCPPreamp()->toInfo());
-	positions.append(REIXSBeamline::bl()->sampleChamber()->tmSample()->toInfo());
+
+	positions.append(REIXSBeamline::bl()->photonSource()->ringCurrent()->toInfo());
+
+	positions.append(REIXSBeamline::bl()->I0Current()->toInfo());
+	double I0CurrentValue = REIXSBeamline::bl()->scaler()->channelAt(16)->voltage() * REIXSBeamline::bl()->scaler()->channelAt(16)->currentAmplifier()->value();
+	AMControlInfo I0Value("I0Value", I0CurrentValue, 0, 0, QString(REIXSBeamline::bl()->scaler()->channelAt(16)->currentAmplifier()->units().remove("/V")), 0.1, "I0 Amplifier Output");
+	positions.append(I0Value);
+	AMControlInfo I0Sensitivity("I0Sensitivity", REIXSBeamline::bl()->scaler()->channelAt(16)->currentAmplifier()->value(), 0, 0, REIXSBeamline::bl()->scaler()->channelAt(16)->currentAmplifier()->units(), 0.1, "I0 Amplifier Sensitivity");
+	positions.append(I0Sensitivity);
+
+	positions.append(REIXSBeamline::bl()->TEYCurrent()->toInfo());
+	double TEYCurrentValue = REIXSBeamline::bl()->scaler()->channelAt(18)->voltage() * REIXSBeamline::bl()->scaler()->channelAt(18)->currentAmplifier()->value();
+	AMControlInfo TEYValue("TEYValue", TEYCurrentValue, 0, 0, QString(REIXSBeamline::bl()->scaler()->channelAt(18)->currentAmplifier()->units().remove("/V")), 0.1, "TEY Amplifier Output");
+	positions.append(TEYValue);
+	AMControlInfo TEYSensitivity("TEYSensitivity", REIXSBeamline::bl()->scaler()->channelAt(18)->currentAmplifier()->value(), 0, 0, REIXSBeamline::bl()->scaler()->channelAt(18)->currentAmplifier()->units(), 0.1, "TEY Amplifier Sensitivity");
+	positions.append(TEYSensitivity);
 
 
 	scan_->setScanInitialConditions(positions);
