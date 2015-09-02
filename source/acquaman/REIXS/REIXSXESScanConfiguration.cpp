@@ -131,7 +131,9 @@ void REIXSXESScanConfiguration::computeTotalTimeImplementation()
 	double averageCountRate =  REIXSBeamline::bl()->mcpDetector()->countsPerSecond();
 	double estimatedTime = maximumTotalCounts_ / averageCountRate;
 
-	totalTime_ = qMin(double(maximumDurationSeconds_), estimatedTime);
+	double scanLength = REIXSBeamline::bl()->mcpDetector()->acquisitionTime();
+
+	totalTime_ = qMin(double(scanLength), estimatedTime);
 
 	setExpectedDuration(totalTime_);
 	emit totalTimeChanged(totalTime_);
