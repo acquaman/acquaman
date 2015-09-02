@@ -129,50 +129,45 @@ void AMPIC887TrajectoryCoordinator::onAllConnected(bool connectedState)
 
 void AMPIC887TrajectoryCoordinator::onXAxisSetpointChanged(double setpoint)
 {
-	if(!xAxisTrajectorySetpoint_->withinTolerance(lastSetTargetPositions_.value(AMGCS2::XAxis))) {
-		qDebug() << "X Axis trajectory set to " << setpoint;
-		xIsSet_ = true;
-	}
+	qDebug() << "X Axis trajectory set to " << setpoint;
+	xIsSet_ = true;
+
 }
 
 void AMPIC887TrajectoryCoordinator::onYAxisSetpointChanged(double setpoint)
 {
-	if(!yAxisTrajectorySetpoint_->withinTolerance(lastSetTargetPositions_.value(AMGCS2::YAxis))) {
-		qDebug() << "Y Axis trajectory set to " << setpoint;
-		yIsSet_ = true;
-	}
+	qDebug() << "Y Axis trajectory set to " << setpoint;
+	yIsSet_ = true;
+
 }
 
 void AMPIC887TrajectoryCoordinator::onZAxisSetpointChanged(double setpoint)
 {
-	if(!zAxisTrajectorySetpoint_->withinTolerance(lastSetTargetPositions_.value(AMGCS2::ZAxis))) {
-		qDebug() << "Z Axis trajectory set to " << setpoint;
-		zIsSet_ = true;
-	}
+	qDebug() << "Z Axis trajectory set to " << setpoint;
+	zIsSet_ = true;
+
 }
 
 void AMPIC887TrajectoryCoordinator::onUAxisSetpointChanged(double setpoint)
 {
-	if(!uAxisTrajectorySetpoint_->withinTolerance(lastSetTargetPositions_.value(AMGCS2::UAxis))) {
-		qDebug() << "U Axis trajectory set to " << setpoint;
-		uIsSet_ = true;
-	}
+
+	qDebug() << "U Axis trajectory set to " << setpoint;
+	uIsSet_ = true;
+
 }
 
 void AMPIC887TrajectoryCoordinator::onVAxisSetpointChanged(double setpoint)
 {
-	if(!vAxisTrajectorySetpoint_->withinTolerance(lastSetTargetPositions_.value(AMGCS2::VAxis))) {
-		qDebug() << "V Axis trajectory set to " << setpoint;
-		vIsSet_ = true;
-	}
+	qDebug() << "V Axis trajectory set to " << setpoint;
+	vIsSet_ = true;
+
 }
 
 void AMPIC887TrajectoryCoordinator::onWAxisSetpointChanged(double setpoint)
 {
-	if(!wAxisTrajectorySetpoint_->withinTolerance(lastSetTargetPositions_.value(AMGCS2::WAxis))) {
-		qDebug() << "W Axis trajectory set to " << setpoint;
-		wIsSet_ = true;
-	}
+	qDebug() << "W Axis trajectory set to " << setpoint;
+	wIsSet_ = true;
+
 }
 
 void AMPIC887TrajectoryCoordinator::onStartChanged(double /*setpoint*/)

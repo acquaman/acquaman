@@ -70,29 +70,13 @@ void AMPIC887EpicsCoordinator::onTargetPositionChanged(const AMPIC887AxisMap<dou
 
 void AMPIC887EpicsCoordinator::onPositionUpdate(const AMPIC887AxisMap<double> &newPositions)
 {
-	if(!xAxisFeedback_->withinTolerance(newPositions.value(AMGCS2::XAxis))) {
-		xAxisFeedback_->move(newPositions.value(AMGCS2::XAxis));
-	}
+	xAxisFeedback_->move(newPositions.value(AMGCS2::XAxis));
+	yAxisFeedback_->move(newPositions.value(AMGCS2::YAxis));
+	zAxisFeedback_->move(newPositions.value(AMGCS2::ZAxis));
 
-	if(!yAxisFeedback_->withinTolerance(newPositions.value(AMGCS2::YAxis))) {
-		yAxisFeedback_->move(newPositions.value(AMGCS2::YAxis));
-	}
-
-	if(!zAxisFeedback_->withinTolerance(newPositions.value(AMGCS2::ZAxis))) {
-		zAxisFeedback_->move(newPositions.value(AMGCS2::ZAxis));
-	}
-
-	if(!uAxisFeedback_->withinTolerance(newPositions.value(AMGCS2::UAxis))) {
-		uAxisFeedback_->move(newPositions.value(AMGCS2::UAxis));
-	}
-
-	if(!vAxisFeedback_->withinTolerance(newPositions.value(AMGCS2::VAxis))) {
-		vAxisFeedback_->move(newPositions.value(AMGCS2::VAxis));
-	}
-
-	if(!wAxisFeedback_->withinTolerance(newPositions.value(AMGCS2::WAxis))) {
-		wAxisFeedback_->move(newPositions.value(AMGCS2::WAxis));
-	}
+	uAxisFeedback_->move(newPositions.value(AMGCS2::UAxis));
+	vAxisFeedback_->move(newPositions.value(AMGCS2::VAxis));
+	wAxisFeedback_->move(newPositions.value(AMGCS2::WAxis));
 }
 
 void AMPIC887EpicsCoordinator::onSystemVelocityChanged(double systemVelocity)

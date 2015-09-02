@@ -3,17 +3,22 @@
 #include "beamline/AMPVControl.h"
 #include "beamline/SGM/SGMMAXvMotor.h"
 #include "beamline/SGM/SGMHexapodTransformedAxis.h"
+
 SGMHexapod::SGMHexapod(QObject *parent) :
     QObject(parent)
 {
-	AMControl* globalXAxisSetpoint = new AMSinglePVControl("Hexapod Global X Axis", "HXPD1611-4-I10-01:trajectory:X:mm", this, 0.01, 2.0);
-	AMControl* globalYAxisSetpoint = new AMSinglePVControl("Hexapod Global Y Axis", "HXPD1611-4-I10-01:trajectory:Y:mm", this, 0.01, 2.0);
-	AMControl* globalZAxisSetpoint = new AMSinglePVControl("Hexapod Global Z Axis", "HXPD1611-4-I10-01:trajectory:Z:mm", this, 0.01, 2.0);
+
+	AMControl* globalXAxisSetpoint = new AMSinglePVControl("Hexapod Global X Axis", "HXPD1611-4-I10-01:trajectory:X:mm", this, HEXAPOD_POSITION_TOLERANCE, 2.0);
+	AMControl* globalYAxisSetpoint = new AMSinglePVControl("Hexapod Global Y Axis", "HXPD1611-4-I10-01:trajectory:Y:mm", this, HEXAPOD_POSITION_TOLERANCE, 2.0);
+	AMControl* globalZAxisSetpoint = new AMSinglePVControl("Hexapod Global Z Axis", "HXPD1611-4-I10-01:trajectory:Z:mm", this, HEXAPOD_POSITION_TOLERANCE, 2.0);
 
 	AMControl* globalXAxisFeedback = new AMReadOnlyPVwStatusControl("Hexapod Global X Axis Feedback", "HXPD1611-4-I10-01:X:mm:fbk", "HXPD1611-4-I10-01:X:status",this, new CLSMAXvControlStatusChecker());
 	AMControl* globalYAxisFeedback = new AMReadOnlyPVwStatusControl("Hexapod Global Y Axis Feedback", "HXPD1611-4-I10-01:Y:mm:fbk", "HXPD1611-4-I10-01:Y:status",this, new CLSMAXvControlStatusChecker());
 	AMControl* globalZAxisFeedback = new AMReadOnlyPVwStatusControl("Hexapod Global Z Axis Feedback", "HXPD1611-4-I10-01:Z:mm:fbk", "HXPD1611-4-I10-01:Z:status",this, new CLSMAXvControlStatusChecker());
 
+	AMControl* globalXAxisStatus = new AMSinglePVControl("Hexapod Global X Axis Status", "HXPD1611-4-I10-01:X:status", this, 0.5);
+	AMControl* globalYAxisStatus = new AMSinglePVControl("Hexapod Global Y Axis Status", "HXPD1611-4-I10-01:Y:status", this, 0.5);
+	AMControl* globalZAxisStatus = new AMSinglePVControl("Hexapod Global Z Axis Status", "HXPD1611-4-I10-01:Z:status", this, 0.5);
 
 
 	trajectoryStart_ = new AMSinglePVControl("Hexapod Trajectory Move Start", "HXPD1611-4-I10-01:trajectory:start", this, 0.5);
@@ -25,10 +30,13 @@ SGMHexapod::SGMHexapod(QObject *parent) :
 	xAxisPrimeControl_ = new SGMHexapodTransformedAxis(AM3DCoordinatedSystemControl::XAxis,
 													   globalXAxisSetpoint,
 													   globalXAxisFeedback,
+													   globalXAxisStatus,
 													   globalYAxisSetpoint,
 													   globalYAxisFeedback,
+													   globalYAxisStatus,
 													   globalZAxisSetpoint,
 													   globalZAxisFeedback,
+													   globalZAxisStatus,
 													   trajectoryStart_,
 													   "Hexapod X Axis Prime",
 													   "mm",
@@ -37,10 +45,13 @@ SGMHexapod::SGMHexapod(QObject *parent) :
 	yAxisPrimeControl_ = new SGMHexapodTransformedAxis(AM3DCoordinatedSystemControl::YAxis,
 													   globalXAxisSetpoint,
 													   globalXAxisFeedback,
+													   globalXAxisStatus,
 													   globalYAxisSetpoint,
 													   globalYAxisFeedback,
+													   globalYAxisStatus,
 													   globalZAxisSetpoint,
 													   globalZAxisFeedback,
+													   globalZAxisStatus,
 													   trajectoryStart_,
 													   "Hexapod Y Axis Prime",
 													   "mm",
@@ -49,10 +60,13 @@ SGMHexapod::SGMHexapod(QObject *parent) :
 	zAxisPrimeControl_ = new SGMHexapodTransformedAxis(AM3DCoordinatedSystemControl::ZAxis,
 													   globalXAxisSetpoint,
 													   globalXAxisFeedback,
+													   globalXAxisStatus,
 													   globalYAxisSetpoint,
 													   globalYAxisFeedback,
+													   globalYAxisStatus,
 													   globalZAxisSetpoint,
 													   globalZAxisFeedback,
+													   globalZAxisStatus,
 													   trajectoryStart_,
 													   "Hexapod Z Axis Prime",
 													   "mm",

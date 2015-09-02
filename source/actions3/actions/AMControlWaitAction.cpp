@@ -154,7 +154,10 @@ bool AMControlWaitAction::checkCurrentControlValue()
     } else if (controlWaitInfo()->matchType() == AMControlWaitActionInfo::MatchLessThan) {
         if (control_->value() < setpoint.value())
             return true;
-    }
+	} else if (controlWaitInfo()->matchType() == AMControlWaitActionInfo::MatchWithinTolerance) {
+		if (control_->withinTolerance(setpoint.value()))
+			return true;
+	}
 
     return false;
 }

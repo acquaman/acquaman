@@ -2,7 +2,6 @@
 #include "actions3/AMListAction3.h"
 #include "actions3/AMActionSupport.h"
 
-
 AM3DCoordinatedSystemControl::AM3DCoordinatedSystemControl(AxisDesignation axis,
 														   AMControl* globalXAxis,
 														   AMControl* globalYAxis,
@@ -99,9 +98,7 @@ void AM3DCoordinatedSystemControl::updateValue()
 
 		double newValue = designatedAxisValue(primeValues);
 
-		if(!withinTolerance(newValue)) {
-			setValue(newValue);
-		}
+		setValue(newValue);
 	}
 }
 
@@ -149,9 +146,7 @@ void AM3DCoordinatedSystemControl::updateSetpoint()
 
 		double newSetpoint = designatedAxisValue(primeSetpoints);
 
-		if(qAbs(setpoint() - newSetpoint) > tolerance()) {
-			setSetpoint(newSetpoint);
-		}
+		setSetpoint(newSetpoint);
 	}
 }
 
@@ -236,17 +231,10 @@ AMAction3 * AM3DCoordinatedSystemControl::createMoveAction(double setpoint)
 		QVector3D newGlobalSetpoints = primeAxisToGlobal(primeSetpoint);
 
 		// Create the required move actions in the global system:
-		if(qAbs(globalXAxis_->setpoint() - newGlobalSetpoints.x()) > tolerance()) {
-			moveActions->addSubAction(AMActionSupport::buildControlMoveAction(globalXAxis_, newGlobalSetpoints.x()));
-		}
+		moveActions->addSubAction(AMActionSupport::buildControlMoveAction(globalXAxis_, newGlobalSetpoints.x()));
+		moveActions->addSubAction(AMActionSupport::buildControlMoveAction(globalYAxis_, newGlobalSetpoints.y()));
+		moveActions->addSubAction(AMActionSupport::buildControlMoveAction(globalZAxis_, newGlobalSetpoints.z()));
 
-		if(qAbs(globalYAxis_->setpoint() - newGlobalSetpoints.y()) > tolerance()) {
-			moveActions->addSubAction(AMActionSupport::buildControlMoveAction(globalYAxis_, newGlobalSetpoints.y()));
-		}
-
-		if(qAbs(globalZAxis_->setpoint() - newGlobalSetpoints.z()) > tolerance()) {
-			moveActions->addSubAction(AMActionSupport::buildControlMoveAction(globalZAxis_, newGlobalSetpoints.z()));
-		}
 
 		action->addSubAction(moveActions);
 	}

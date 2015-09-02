@@ -27,6 +27,7 @@ void AM3DRotatedSystemControl::rotate(double rX, double rY, double rZ)
 
 	globalToPrimeTransform_ = qTemp * qZ;
 	globalToPrimeTransform_.normalize();
+	// Inverse quaternion is the conjugate, provided it is normalized first.
 	primeToGlobalTransform_ = globalToPrimeTransform_.conjugate();
 
 	updateStates();

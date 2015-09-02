@@ -17,10 +17,13 @@ public:
 	  * \param axis ~ The designation of the axis this motor represents.
 	  * \param globalXAxisSetpoint ~ The trajectory setpoint PV for the X Axis.
 	  * \param globalXAxisFeedback ~ The actual feedback PV for the X Axis.
+	  * \param globalXAxisStatus ~ The status PV for the X Axis.
 	  * \param globalYAxisSetpoint ~ The trajectory setpoint PV for the Y Axis.
 	  * \param globalYAxisFeedback ~ The actual feedback PV for the Y Axis.
+	  * \param globalYAxisStatus ~ The status PV for the Y Axis.
 	  * \param globalZAxisSetpoint ~ The trajectory setpoint PV for the Z Axis.
 	  * \param globalZAxisFeedback ~ The actual feedback PV for the Z Axis.
+	  * \param globalZAxisStatus ~ The status PV for the Z Axis
 	  * \param trajectoryStartControl ~ The PV control which starts a trajectory
 	  * motion of the hexapod.
 	  * \param name ~ The name of this axis motor.
@@ -31,10 +34,13 @@ public:
 	explicit SGMHexapodTransformedAxis(AxisDesignation axis,
 									   AMControl* globalXAxisSetpoint,
 									   AMControl* globalXAxisFeedback,
+									   AMControl* globalXAxisStatus,
 									   AMControl* globalYAxisSetpoint,
 									   AMControl* globalYAxisFeedback,
+									   AMControl* globalYAxisStatus,
 									   AMControl* globalZAxisSetpoint,
 									   AMControl* globalZAxisFeedback,
+									   AMControl* globalZAxisStatus,
 									   AMControl* trajectoryStartControl,
 									   const QString &name,
 									   const QString &units,
@@ -77,6 +83,10 @@ protected:
 	AMControl* globalXAxisFeedback_;
 	AMControl* globalYAxisFeedback_;
 	AMControl* globalZAxisFeedback_;
+
+	AMControl* globalXAxisStatus_;
+	AMControl* globalYAxisStatus_;
+	AMControl* globalZAxisStatus_;
 };
 
 #endif // SGMHEXAPODTRANSFORMEDAXIS_H

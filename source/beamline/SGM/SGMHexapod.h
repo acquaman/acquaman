@@ -3,6 +3,8 @@
 
 #include <QObject>
 #include "beamline/AMControlSet.h"
+
+#define HEXAPOD_POSITION_TOLERANCE 0.008
 /*!
   * A class which represents the AMPIC887 Controlled hexapod within the SGM
   * endstation.
@@ -30,16 +32,34 @@ public:
 	  */
 	bool isConnected();
 
+	/*!
+	  * The motor for the X Axis of the hexapod
+	  */
 	AMControl* xAxisPrimeControl() const;
 
+	/*!
+	  * The motor for the Y Axis of the hexapod
+	  */
 	AMControl* yAxisPrimeControl() const;
 
+	/*!
+	  * The motor for the Z Axis of the hexapod
+	  */
 	AMControl* zAxisPrimeControl() const;
 
+	/*!
+	  * The setpoint for the X Axis component of a trajectory move.
+	  */
 	AMControl* xAxisPrimeTrajectoryControl() const;
 
+	/*!
+	  * The setpoint for the Y Axis component of a trajectory move.
+	  */
 	AMControl* yAxisPrimeTrajectoryControl() const;
 
+	/*!
+	  * The setpoint for the Z Axis component of a trajectory move.
+	  */
 	AMControl* zAxisPrimeTrajectoryControl() const;
 
 	/*!

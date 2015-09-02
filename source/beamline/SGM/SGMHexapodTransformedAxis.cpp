@@ -1,14 +1,18 @@
 #include "SGMHexapodTransformedAxis.h"
 #include "actions3/AMListAction3.h"
 #include "actions3/AMActionSupport.h"
+#include "beamline/AMPVControl.h"
 
 SGMHexapodTransformedAxis::SGMHexapodTransformedAxis(AxisDesignation axis,
 													 AMControl* globalXAxisSetpoint,
 													 AMControl* globalXAxisFeedback,
+													 AMControl* globalXAxisStatus,
 													 AMControl* globalYAxisSetpoint,
 													 AMControl* globalYAxisFeedback,
+													 AMControl* globalYAxisStatus,
 													 AMControl* globalZAxisSetpoint,
 													 AMControl* globalZAxisFeedback,
+													 AMControl* globalZAxisStatus,
 													 AMControl* trajectoryStartControl,
 													 const QString &name,
 													 const QString &units,
@@ -21,9 +25,14 @@ SGMHexapodTransformedAxis::SGMHexapodTransformedAxis(AxisDesignation axis,
 	globalYAxisFeedback_ = globalYAxisFeedback;
 	globalZAxisFeedback_ = globalZAxisFeedback;
 
+	globalXAxisStatus_ = globalXAxisStatus;
+	globalYAxisStatus_ = globalYAxisStatus;
+	globalZAxisStatus_ = globalZAxisStatus;
+
 	addChildControl(globalXAxisFeedback_);
 	addChildControl(globalYAxisFeedback_);
 	addChildControl(globalZAxisFeedback_);
+
 }
 
 AMAction3 * SGMHexapodTransformedAxis::createMoveAction(double setpoint)
@@ -63,23 +72,26 @@ AMAction3 * SGMHexapodTransformedAxis::createMoveAction(double setpoint)
 		QVector3D newGlobalSetpoints = primeAxisToGlobal(primeSetpoint);
 
 		// Create the required move actions in the global system:
-		if(qAbs(globalXAxis_->setpoint() - newGlobalSetpoints.x()) > tolerance()) {
-			moveActions->addSubAction(AMActionSupport::buildControlMoveAction(globalXAxis_, newGlobalSetpoints.x()));
-		}
+		moveActions->addSubAction(AMActionSupport::buildControlMoveAction(globalXAxis_, newGlobalSetpoints.x()));
+		moveActions->addSubAction(AMActionSupport::buildControlMoveAction(globalYAxis_, newGlobalSetpoints.y()));
+		moveActions->addSubAction(AMActionSupport::buildControlMoveAction(globalZAxis_, newGlobalSetpoints.z()));
 
-		if(qAbs(globalYAxis_->setpoint() - newGlobalSetpoints.y()) > tolerance()) {
-			moveActions->addSubAction(AMActionSupport::buildControlMoveAction(globalYAxis_, newGlobalSetpoints.y()));
-		}
-
-		if(qAbs(globalZAxis_->setpoint() - newGlobalSetpoints.z()) > tolerance()) {
-			moveActions->addSubAction(AMActionSupport::buildControlMoveAction(globalZAxis_, newGlobalSetpoints.z()));
-		}
 
 		action->addSubAction(moveActions);
 
 		AMAction3* trajectoryStartAction = AMActionSupport::buildControlMoveAction(trajectoryStartControl_, 1);
 		action->addSubAction(trajectoryStartAction);
 
+		AMAction3* waitAction = AMActionSupport::buildControlWaitAction(this, setpoint, 100, AMControlWaitActionInfo::MatchWithinTolerance);
+
+		AMAction3* waitXAction = AMActionSupport::buildControlWaitAction(globalXAxisStatus_, 0, 100, AMControlWaitActionInfo::MatchWithinTolerance);
+		AMAction3* waitYAction = AMActionSupport::buildControlWaitAction(globalYAxisStatus_, 0, 100, AMControlWaitActionInfo::MatchWithinTolerance);
+		AMAction3* waitZAction = AMActionSupport::buildControlWaitAction(globalZAxisStatus_, 0, 100, AMControlWaitActionInfo::MatchWithinTolerance);
+
+		action->addSubAction(waitAction);
+		action->addSubAction(waitXAction);
+		action->addSubAction(waitYAction);
+		action->addSubAction(waitZAction);
 	}
 
 	return action;
