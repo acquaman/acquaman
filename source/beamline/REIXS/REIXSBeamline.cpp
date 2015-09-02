@@ -97,7 +97,7 @@ REIXSBeamline::REIXSBeamline() :
 	tfyDetector_ = new CLSBasicScalerChannelDetector("TFY", "TFY", scaler_, 4, this);
 	pfyDetector_ = new CLSBasicScalerChannelDetector("PFY", "PFY", scaler_, 3, this);
 
-	I0Current_ = new AMReadOnlyPVControl("I0Current","BL1610-ID-2:mcs16:fbk", this, "I0 Current");
+	i0Current_ = new AMReadOnlyPVControl("I0Current","BL1610-ID-2:mcs16:fbk", this, "I0 Current");
 	TEYCurrent_ = new AMReadOnlyPVControl("TEYCurrent","BL1610-ID-2:mcs18:fbk", this, "TEY Current");
 
 	/*
@@ -135,7 +135,7 @@ REIXSBeamline::REIXSBeamline() :
 	tmSet_->addControl(spectrometer()->tmMCPPreamp());
 
 	meterSet_ = new AMControlSet(this);
-	meterSet_->addControl(I0Current_);
+	meterSet_->addControl(i0Current_);
 	meterSet_->addControl(TEYCurrent_);
 
 	setupExposedControls();

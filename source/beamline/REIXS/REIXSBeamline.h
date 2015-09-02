@@ -460,7 +460,7 @@ public:
 
 	virtual CLSSIS3820Scaler *scaler() const { return scaler_; }
 
-	AMControl* I0Current() { return I0Current_; }
+	AMControl* I0Current() { return i0Current_; }
 	AMControl* TEYCurrent() { return TEYCurrent_; }
 
 
@@ -512,7 +512,7 @@ protected:
 	AMDetector* teyDetector_;
 	AMDetector* tfyDetector_;
 	AMDetector* pfyDetector_;
-	AMControl *I0Current_;
+	AMControl *i0Current_;
 	AMControl *TEYCurrent_;
 };
 
