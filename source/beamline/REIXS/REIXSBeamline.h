@@ -461,7 +461,7 @@ public:
 	virtual CLSSIS3820Scaler *scaler() const { return scaler_; }
 
 	AMControl* I0Current() { return i0Current_; }
-	AMControl* TEYCurrent() { return TEYCurrent_; }
+	AMControl* TEYCurrent() { return teyCurrent_; }
 
 
 	/// Build a list of actions that opens/closes necessary shutters.
@@ -513,7 +513,7 @@ protected:
 	AMDetector* tfyDetector_;
 	AMDetector* pfyDetector_;
 	AMControl *i0Current_;
-	AMControl *TEYCurrent_;
+	AMControl *teyCurrent_;
 };
 
 #endif // REIXSBEAMLINE_H

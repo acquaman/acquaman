@@ -98,7 +98,7 @@ REIXSBeamline::REIXSBeamline() :
 	pfyDetector_ = new CLSBasicScalerChannelDetector("PFY", "PFY", scaler_, 3, this);
 
 	i0Current_ = new AMReadOnlyPVControl("I0Current","BL1610-ID-2:mcs16:fbk", this, "I0 Current");
-	TEYCurrent_ = new AMReadOnlyPVControl("TEYCurrent","BL1610-ID-2:mcs18:fbk", this, "TEY Current");
+	teyCurrent_ = new AMReadOnlyPVControl("TEYCurrent","BL1610-ID-2:mcs18:fbk", this, "TEY Current");
 
 	/*
 	 Build a control set of all the controls we want to make available to REIXSControlMoveAction, as well as record in the scan's scanInitialConditions()
@@ -136,7 +136,7 @@ REIXSBeamline::REIXSBeamline() :
 
 	meterSet_ = new AMControlSet(this);
 	meterSet_->addControl(i0Current_);
-	meterSet_->addControl(TEYCurrent_);
+	meterSet_->addControl(teyCurrent_);
 
 	setupExposedControls();
 	setupExposedDetectors();
