@@ -24,6 +24,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 AM3DAdditionAB::AM3DAdditionAB(const QString &outputName, QObject *parent)
 	: AMStandardAnalysisBlock(outputName, parent)
 {
+    cacheUpdateRequired_ = false;
 	axes_ << AMAxisInfo("invalid", 0, "No input data") << AMAxisInfo("invalid", 0, "No input data") << AMAxisInfo("invalid", 0, "No input data");
 	setState(AMDataSource::InvalidFlag);
 }
@@ -59,12 +60,10 @@ AMNumber AM3DAdditionAB::value(const AMnDIndex &indexes) const
 			return AMNumber(AMNumber::OutOfBoundsError);
 #endif
 
-	double val = 0;
+    if (cacheUpdateRequired_)
+        computeCachedValues();
 
-	for (int i = 0; i < sources_.size(); i++)
-		val += (double)sources_.at(i)->value(indexes);
-
-	return val;
+    return cachedData_.at(indexes.flatIndexInArrayOfSize(size()));
 }
 
 bool AM3DAdditionAB::values(const AMnDIndex &indexStart, const AMnDIndex &indexEnd, double *outputValues) const
@@ -84,23 +83,11 @@ bool AM3DAdditionAB::values(const AMnDIndex &indexStart, const AMnDIndex &indexE
 		return false;
 #endif
 
-	int totalSize = indexStart.totalPointsTo(indexEnd);
+    if (cacheUpdateRequired_)
+        computeCachedValues();
 
-	QVector<double> data = QVector<double>(totalSize);
-	sources_.at(0)->values(indexStart, indexEnd, data.data());
-
-	// Do the first data source separately to initialize the values.
-	for (int i = 0; i < totalSize; i++)
-		outputValues[i] = data.at(i);
-
-	// Iterate through the rest of the sources.
-	for (int i = 1, count = sources_.size(); i < count; i++){
-
-		sources_.at(i)->values(indexStart, indexEnd, data.data());
-
-		for (int j = 0; j < totalSize; j++)
-			outputValues[j] += data.at(j);
-	}
+    int totalSize = indexStart.totalPointsTo(indexEnd);
+    memcpy(outputValues, cachedData_.constData()+indexStart.flatIndexInArrayOfSize(size()), totalSize*sizeof(double));
 
 	return true;
 }
@@ -136,6 +123,7 @@ bool AM3DAdditionAB::axisValues(int axisNumber, int startIndex, int endIndex, do
 // Connected to be called when the values of the input data source change
 void AM3DAdditionAB::onInputSourceValuesChanged(const AMnDIndex& start, const AMnDIndex& end)
 {
+    cacheUpdateRequired_ = true;
 	emitValuesChanged(start, end);
 }
 
@@ -159,6 +147,8 @@ void AM3DAdditionAB::onInputSourceSizeChanged()
 		axes_[2].size = sources_.at(0)->size(2);
 		emitSizeChanged(2);
 	}
+
+    cacheUpdateRequired_ = true;
 }
 
 // Connected to be called when the state() flags of any input source change
@@ -252,5 +242,29 @@ void AM3DAdditionAB::reviewState()
 	if (valid)
 		setState(0);
 	else
-		setState(AMDataSource::InvalidFlag);
+        setState(AMDataSource::InvalidFlag);
+}
+
+void AM3DAdditionAB::computeCachedValues() const
+{
+    AMnDIndex start = AMnDIndex(0, 0, 0);
+    AMnDIndex end = size();
+    int totalSize = start.totalPointsTo(end);
+
+    QVector<double> data = QVector<double>(totalSize);
+    sources_.at(0)->values(start, end, data.data());
+
+    // Do the first data source separately to initialize the values.
+    cachedData_ = data;
+
+    // Iterate through the rest of the sources.
+    for (int i = 1, count = sources_.size(); i < count; i++){
+
+        sources_.at(i)->values(start, end, data.data());
+
+        for (int j = 0; j < totalSize; j++)
+            cachedData_[j] += data.at(j);
+    }
+
+    cacheUpdateRequired_ = false;
 }
