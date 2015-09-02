@@ -65,6 +65,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/REIXS/REIXSXESHexapodControlEditor.h"
 #include "ui/REIXS/REIXSXESSpectrometerControlEditor.h"
 #include "ui/REIXS/REIXSSampleChamberButtonPanel.h"
+#include "ui/REIXS/REIXSAppBottomPanel.h"
 
 
 REIXSAppController::REIXSAppController(QObject *parent) :
@@ -272,4 +273,12 @@ void REIXSAppController::makeConnections()
 	connect(rixsScanConfigurationViewHolder_, SIGNAL(showWorkflowRequested()), this, SLOT(goToWorkflow()));
 	connect(xasScanConfigurationViewHolder_, SIGNAL(showWorkflowRequested()), this, SLOT(goToWorkflow()));
 	connect(this, SIGNAL(scanEditorCreated(AMGenericScanEditor*)), this, SLOT(onScanEditorCreated(AMGenericScanEditor*)));
+}
+
+void REIXSAppController::addBottomPanel()
+{
+	REIXSAppBottomPanel *panel = new REIXSAppBottomPanel(AMActionRunner3::workflow());
+	mw_->addBottomWidget(panel);
+	connect(panel, SIGNAL(addExperimentButtonClicked()), this, SLOT(onAddButtonClicked()));
+	bottomPanel_ = panel;
 }
