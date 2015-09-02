@@ -11,34 +11,42 @@
 BioXASXASScanConfigurationEditor::BioXASXASScanConfigurationEditor(BioXASXASScanConfiguration *configuration, QWidget *parent) :
 	BioXASXASScanConfigurationView(parent)
 {
-	// Create scan name view.
+	qDebug() << "Creating XAS scan configuration editor...";
 
-	QLabel *scanNamePrompt = new QLabel("Name: ");
+	// Create UI elements.
 
-	scanName_ = new QLineEdit();
+	QLabel *namePrompt = new QLabel("Name: ");
 
-	QHBoxLayout *scanNameLayout = new QHBoxLayout();
-	scanNameLayout->addWidget(scanNamePrompt);
-	scanNameLayout->addWidget(scanName_);
-	scanNameLayout->addStretch();
+	nameLineEdit_ = new QLineEdit();
 
-	// Create energy editor.
+	QLabel *energyPrompt = new QLabel("Energy: ");
 
-	energyEditor_ = new BioXASXASScanConfigurationEnergyEditor(0);
+	energySpinBox_ = new QDoubleSpinBox();
+	energySpinBox_->setSuffix(" eV");
+	energySpinBox_->setMinimum(0);
+	energySpinBox_->setMaximum(30000);
 
-	// Create regions editor.
+	edgeEditor_ = new BioXASXASScanConfigurationEdgeEditor(0);
 
 	regionsEditor_ = new BioXASXASScanConfigurationRegionsEditor(0);
-
-	// Create detectors view.
 
 	detectorsView_ = new AMGenericStepScanConfigurationDetectorsView(0, AMBeamline::bl()->exposedDetectors());
 
 	// Create and set main layouts
 
+	QHBoxLayout *edgeEditorLayout = new QHBoxLayout();
+	edgeEditorLayout->addStretch();
+	edgeEditorLayout->addWidget(edgeEditor_);
+
+	QGridLayout *propertiesLayout = new QGridLayout();
+	propertiesLayout->addWidget(namePrompt, 0, 0, 1, 1, Qt::AlignRight);
+	propertiesLayout->addWidget(nameLineEdit_, 0, 1);
+	propertiesLayout->addWidget(energyPrompt, 1, 0, 1, 1, Qt::AlignRight);
+	propertiesLayout->addWidget(energySpinBox_, 1, 1);
+	propertiesLayout->addLayout(edgeEditorLayout, 1, 2);
+
 	QVBoxLayout *scanBoxLayout = new QVBoxLayout();
-	scanBoxLayout->addLayout(scanNameLayout);
-	scanBoxLayout->addWidget(energyEditor_);
+	scanBoxLayout->addLayout(propertiesLayout);
 	scanBoxLayout->addWidget(regionsEditor_);
 
 	QGroupBox *scanBox = new QGroupBox("Scan");
@@ -58,11 +66,14 @@ BioXASXASScanConfigurationEditor::BioXASXASScanConfigurationEditor(BioXASXASScan
 
 	// Make connections.
 
-	connect(scanName_, SIGNAL(editingFinished()), this, SLOT(updateConfigurationName()));
+	connect(nameLineEdit_, SIGNAL(editingFinished()), this, SLOT(updateConfigurationName()));
+	connect( energySpinBox_, SIGNAL(editingFinished()), this, SLOT(updateConfigurationEnergy()) );
 
 	// Current settings.
 
 	setConfiguration(configuration);
+
+	qDebug() << "Creation of XAS scan configuration editor complete.";
 }
 
 BioXASXASScanConfigurationEditor::~BioXASXASScanConfigurationEditor()
@@ -74,83 +85,109 @@ void BioXASXASScanConfigurationEditor::setConfiguration(BioXASXASScanConfigurati
 {
 	if (configuration_ != newConfiguration) {
 
-		if (configuration_)
+		qDebug() << "Setting new XAS scan configuration...";
+
+		if (configuration_) {
 			disconnect( configuration_, 0, this, 0 );
+			disconnect( configuration_->dbObject(), 0, this, 0 );
+		}
 
 		configuration_ = newConfiguration;
 
 		initializeConfiguration(configuration_);
 
-		if (configuration_)
-			connect(configuration_, SIGNAL(nameChanged(QString)), this, SLOT(updateName()) );
+		if (configuration_) {
+			connect( configuration_, SIGNAL(nameChanged(QString)), this, SLOT(updateNameLineEdit()) );
+			connect( configuration_->dbObject(), SIGNAL(energyChanged(double)), this, SLOT(updateEnergySpinBox()) );
+		}
 
 		refresh();
 
 		emit configurationChanged(configuration_);
+
+		qDebug() << "Set new XAS scan configuration.";
 	}
 }
 
 void BioXASXASScanConfigurationEditor::clear()
 {
-	scanName_->clear();
-	energyEditor_->clear();
+	qDebug() << "Clearing the XAS scan configuration editor.";
+	nameLineEdit_->clear();
+	energySpinBox_->clear();
+	edgeEditor_->clear();
 	regionsEditor_->clear();
 	detectorsView_->clear();
+	qDebug() << "Clearing XAS scan configuration editor complete.";
 }
 
 void BioXASXASScanConfigurationEditor::update()
 {
+	qDebug() << "Updating the XAS scan configuration editor...";
 
-	if (configuration_) {
+	updateNameLineEdit();
+	updateEnergySpinBox();
+	edgeEditor_->update();
+	regionsEditor_->update();
+	detectorsView_->update();
 
-		// Update scan name.
-
-		scanName_->setText(configuration_->userScanName());
-
-		// Update energy selection.
-
-		energyEditor_->update();
-
-		// Update regions editor.
-
-		regionsEditor_->update();
-
-		// Update detectors view.
-
-		detectorsView_->update();
-	}
+	qDebug() << "Update of XAS scan configuration editor complete.";
 }
 
 void BioXASXASScanConfigurationEditor::refresh()
 {
+	qDebug() << "Refreshing XAS scan configuration editor...";
+
 	// Clear view.
 
 	clear();
 
 	// Initialize member widgets.
 
-	energyEditor_->setConfiguration(configuration_);
+	edgeEditor_->setConfiguration(configuration_);
 	regionsEditor_->setConfiguration(configuration_);
 	detectorsView_->setConfiguration(configuration_);
 
 	// Update the view.
 
 	update();
+
+	qDebug() << "Refresh of XAS scan configuration editor complete.";
 }
 
-void BioXASXASScanConfigurationEditor::updateName()
+void BioXASXASScanConfigurationEditor::updateNameLineEdit()
 {
-	if (configuration_) {
-		scanName_->setEnabled(true);
-		scanName_->setText(configuration_->userScanName());
+	QString text;
+	bool enabled = false;
 
-	} else {
-		scanName_->setText(QString());
-		scanName_->setEnabled(false);
+	if (configuration_) {
+		text = configuration_->userScanName();
+		enabled = true;
 	}
+
+	nameLineEdit_->setText(text);
+	nameLineEdit_->setEnabled(enabled);
+}
+
+void BioXASXASScanConfigurationEditor::updateEnergySpinBox()
+{
+	double value = 0;
+	bool enabled = false;
+
+	if (configuration_) {
+		value = configuration_->energy();
+		enabled = true;
+	}
+
+	energySpinBox_->setValue(value);
+	energySpinBox_->setEnabled(enabled);
 }
 
 void BioXASXASScanConfigurationEditor::updateConfigurationName()
 {
-	setConfigurationName(configuration_, scanName_->text());
+	setConfigurationName(configuration_, nameLineEdit_->text());
+}
+
+void BioXASXASScanConfigurationEditor::updateConfigurationEnergy()
+{
+	setConfigurationEnergy(configuration_, energySpinBox_->value());
 }

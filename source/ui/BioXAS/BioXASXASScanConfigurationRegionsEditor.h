@@ -34,40 +34,33 @@ public slots:
 protected slots:
 	/// Updates the estimated time label.
 	void updateEstimatedTimeLabel();
+	/// Updates the XANES button.
+	void updateXANESButton();
+	/// Updates the EXAFS button.
+	void updateEXAFSButton();
 
-	/// Sets up the default XANES regions.
-	void setupDefaultXANESRegions();
-	/// Sets up the default EXAFS regions.
-	void setupDefaultEXAFSRegions();
+	/// Handles setting up a default XANES region, if the current configuration is valid.
+	void onXANESButtonClicked();
+	/// Handles setting up default EXAFS regions, if the current configuration is valid.
+	void onEXAFSButtonClicked();
 
-protected:
-	/// Creates and returns a default XANES region.
-	AMScanAxisEXAFSRegion* createDefaultXANESRegion(double edgeEnergy);
-	/// Creates and returns a XANES region.
-	AMScanAxisEXAFSRegion* createXANESRegion(double edgeEnergy, double regionStart, double regionStep, double regionEnd, double regionTime) const;
-	/// Creates and returns an EXAFS region.
-	AMScanAxisEXAFSRegion* createEXAFSRegion(double edgeEnergy, double regionStart, double regionStep, double regionEnd, double regionTime) const;
-	/// Creates and returns an EXAFS region with some values set for k space.
-	AMScanAxisEXAFSRegion* createEXAFSRegionInKSpace(double edgeEnergy, double regionStart, double regionStep, double regionEnd, double regionTime, double maximumTime) const;
+	/// Handles making the appropriate connections when the configuration has a new scan axis.
+	void onConfigurationScanAxisAdded(AMScanAxis *newAxis);
+	/// Handles disconnecting the appropriate connections when the configuration has removed a scan axis.
+	void onConfigurationScanAxisRemoved(AMScanAxis *axis);
 
 protected:
 	/// The regions view.
 	AMEXAFSScanAxisView *regionsView_;
 	/// Button that sets the XANES regions.
-	QPushButton *autoRegionButton_;
+	QPushButton *xanesButton_;
 	/// Button that sets the EXAFS regions.
-	QPushButton *pseudoXAFSButton_;
-	/// Label to introduce the time estimation label.
-	QLabel *estimatedTimePrompt_;
+	QPushButton *exafsButton_;
 	/// Label for time estimation.
 	QLabel *estimatedTimeLabel_;
 
 	/// The regions view layout.
 	QHBoxLayout *regionsViewLayout_;
-	/// The buttons layout.
-	QHBoxLayout *buttonsLayout_;
-	/// The estimated time layout.
-	QHBoxLayout *estimatedTimeLayout_;
 };
 
 #endif // BIOXASXASSCANCONFIGURATIONREGIONSEDITOR_H

@@ -4,7 +4,7 @@
 #include "acquaman/AMGenericStepScanConfiguration.h"
 #include "acquaman/BioXAS/BioXASScanConfiguration.h"
 
-class AMAbsorptionEdge;
+class AMScanAxisEXAFSRegion;
 
 class BioXASXASScanConfiguration : public AMGenericStepScanConfiguration, public BioXASScanConfiguration
 {
@@ -42,11 +42,24 @@ public slots:
 	/// Removes the scanned control.
 	virtual void removeControl();
 
-protected slots:
-	/// Helper slot that connects the new region to the computeTotalTime slot.
-	void onRegionAdded(AMScanAxisRegion *region);
-	/// Helper slot that disconnects the region from the computeTotalTime slot.
-	void onRegionRemoved(AMScanAxisRegion *region);
+	/// Clears all regions.
+	void clearRegions();
+
+	/// Sets up the default XANES regions.
+	void setupDefaultXANESRegions();
+	/// Sets up the default EXAFS regions.
+	void setupDefaultEXAFSRegions();
+
+protected:
+	/// Creates and returns a default XANES region.
+	AMScanAxisEXAFSRegion* createDefaultXANESRegion(double edgeEnergy);
+	/// Creates and returns a XANES region.
+	AMScanAxisEXAFSRegion* createXANESRegion(double edgeEnergy, double regionStart, double regionStep, double regionEnd, double regionTime) const;
+	/// Creates and returns an EXAFS region.
+	AMScanAxisEXAFSRegion* createEXAFSRegion(double edgeEnergy, double regionStart, double regionStep, double regionEnd, double regionTime) const;
+	/// Creates and returns an EXAFS region with some values set for k space.
+	AMScanAxisEXAFSRegion* createEXAFSRegionInKSpace(double edgeEnergy, double regionStart, double regionStep, double regionEnd, double regionTime, double maximumTime) const;
+
 };
 
 #endif // BIOXASXASSCANCONFIGURATION_H

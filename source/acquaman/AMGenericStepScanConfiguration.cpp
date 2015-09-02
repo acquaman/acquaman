@@ -149,6 +149,8 @@ void AMGenericStepScanConfiguration::setControl(int axisId, AMControlInfo newInf
 		axisControlInfos_.replace(1, newInfo);
 		setModified(true);
 	}
+
+	computeTotalTime();
 }
 
 void AMGenericStepScanConfiguration::removeControl(int axisId)

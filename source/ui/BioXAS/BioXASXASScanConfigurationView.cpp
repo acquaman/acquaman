@@ -38,6 +38,18 @@ void BioXASXASScanConfigurationView::setConfigurationEnergy(BioXASXASScanConfigu
 	}
 }
 
+void BioXASXASScanConfigurationView::clearConfigurationRegions(BioXASXASScanConfiguration *configuration)
+{
+	if (configuration && configuration->scanAxisAt(0)) {
+		for (int regionIndex = 0, regionCount = configuration->scanAxisAt(0)->regionCount(); regionIndex < regionCount; regionIndex++) {
+			AMScanAxisRegion *region = configuration->scanAxisAt(0)->regionAt(regionIndex);
+
+			if (region)
+				configuration->scanAxisAt(0)->removeRegion(region);
+		}
+	}
+}
+
 void BioXASXASScanConfigurationView::initializeConfiguration(BioXASXASScanConfiguration *configuration)
 {
 	if (configuration && configuration->edge().isEmpty()) {

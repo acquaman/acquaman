@@ -9,21 +9,31 @@ BioXASXASScanConfigurationRegionsEditor::BioXASXASScanConfigurationRegionsEditor
 	// Initialize class variables.
 
 	regionsView_ = 0;
-	autoRegionButton_ = 0;
-	pseudoXAFSButton_ = 0;
-	estimatedTimePrompt_ = 0;
-	estimatedTimeLabel_ = 0;
+
+	// Create UI elements.
+
+	QLabel *estimatedTimePrompt = new QLabel("Estimated time: ");
+	estimatedTimeLabel_ = new QLabel();
+
+	xanesButton_ = new QPushButton("Auto Set XANES Regions");
+	exafsButton_ = new QPushButton("Auto Set EXAFS Regions");
 
 	// Create and set layouts.
 
 	regionsViewLayout_ = new QHBoxLayout();
-	estimatedTimeLayout_ = new QHBoxLayout();
-	buttonsLayout_ = new QHBoxLayout();
+
+	QHBoxLayout *estimatedTimeLayout = new QHBoxLayout();
+	estimatedTimeLayout->addWidget(estimatedTimePrompt);
+	estimatedTimeLayout->addWidget(estimatedTimeLabel_);
+
+	QHBoxLayout *buttonsLayout = new QHBoxLayout();
+	buttonsLayout->addWidget(xanesButton_);
+	buttonsLayout->addWidget(exafsButton_);
 
 	QHBoxLayout *extrasLayout = new QHBoxLayout();
-	extrasLayout->addLayout(estimatedTimeLayout_);
+	extrasLayout->addLayout(estimatedTimeLayout);
 	extrasLayout->addStretch();
-	extrasLayout->addLayout(buttonsLayout_);
+	extrasLayout->addLayout(buttonsLayout);
 
 	QVBoxLayout *layout = new QVBoxLayout();
 	layout->setMargin(0);
@@ -31,6 +41,11 @@ BioXASXASScanConfigurationRegionsEditor::BioXASXASScanConfigurationRegionsEditor
 	layout->addLayout(extrasLayout);
 
 	setLayout(layout);
+
+	// Make connections.
+
+	connect( xanesButton_, SIGNAL(clicked()), this, SLOT(onXANESButtonClicked()) );
+	connect( exafsButton_, SIGNAL(clicked()), this, SLOT(onEXAFSButtonClicked()) );
 
 	// Current settings.
 
@@ -51,8 +66,11 @@ void BioXASXASScanConfigurationRegionsEditor::setConfiguration(BioXASXASScanConf
 
 		configuration_ = newConfiguration;
 
-		if (configuration_)
+		if (configuration_) {
 			connect( configuration_, SIGNAL(totalTimeChanged(double)), this, SLOT(updateEstimatedTimeLabel()) );
+			connect( configuration_, SIGNAL(scanAxisAdded(AMScanAxis*)), this, SLOT(onConfigurationScanAxisAdded(AMScanAxis*)) );
+			connect( configuration_, SIGNAL(scanAxisRemoved(AMScanAxis*)), this, SLOT(onConfigurationScanAxisRemoved(AMScanAxis*)) );
+		}
 
 		refresh();
 
@@ -72,36 +90,14 @@ void BioXASXASScanConfigurationRegionsEditor::clear()
 
 	// Clear the estimated time.
 
-	if (estimatedTimePrompt_) {
-		estimatedTimeLayout_->removeWidget(estimatedTimePrompt_);
-		estimatedTimePrompt_->deleteLater();
-		estimatedTimePrompt_ = 0;
-	}
-
-	if (estimatedTimeLabel_) {
-		estimatedTimeLayout_->removeWidget(estimatedTimeLabel_);
-		estimatedTimeLabel_->deleteLater();
-		estimatedTimeLabel_ = 0;
-	}
-
-	// Clear the buttons.
-
-	if (autoRegionButton_) {
-		buttonsLayout_->removeWidget(autoRegionButton_);
-		autoRegionButton_->deleteLater();
-		autoRegionButton_ = 0;
-	}
-
-	if (pseudoXAFSButton_) {
-		buttonsLayout_->removeWidget(pseudoXAFSButton_);
-		pseudoXAFSButton_->deleteLater();
-		pseudoXAFSButton_ = 0;
-	}
+	estimatedTimeLabel_->clear();
 }
 
 void BioXASXASScanConfigurationRegionsEditor::update()
 {
 	updateEstimatedTimeLabel();
+	updateXANESButton();
+	updateEXAFSButton();
 }
 
 void BioXASXASScanConfigurationRegionsEditor::refresh()
@@ -114,29 +110,12 @@ void BioXASXASScanConfigurationRegionsEditor::refresh()
 
 	if (configuration_) {
 
-		regionsView_ = new AMEXAFSScanAxisView("Region Configuration", configuration_);
-
-		estimatedTimePrompt_ = new QLabel("Estimated time: ");
-		estimatedTimeLabel_ = new QLabel();
-
-		autoRegionButton_ = new QPushButton("Auto Set XANES Regions");
-		pseudoXAFSButton_ = new QPushButton("Auto Set EXAFS Regions");
+		if (configuration_->scanAxisAt(0))
+			regionsView_ = new AMEXAFSScanAxisView("Region Configuration", configuration_);
 
 		// Update layouts.
 
 		regionsViewLayout_->addWidget(regionsView_);
-
-		estimatedTimeLayout_->addWidget(estimatedTimePrompt_);
-		estimatedTimeLayout_->addWidget(estimatedTimeLabel_);
-
-		buttonsLayout_->addWidget(autoRegionButton_);
-		buttonsLayout_->addWidget(pseudoXAFSButton_);
-
-		// Make connections.
-
-		connect( autoRegionButton_, SIGNAL(clicked()), this, SLOT(setupDefaultXANESRegions()) );
-		connect( pseudoXAFSButton_, SIGNAL(clicked()), this, SLOT(setupDefaultEXAFSRegions()) );
-
 	}
 
 	// Update view.
@@ -146,97 +125,63 @@ void BioXASXASScanConfigurationRegionsEditor::refresh()
 
 void BioXASXASScanConfigurationRegionsEditor::updateEstimatedTimeLabel()
 {
-	if (configuration_ && estimatedTimeLabel_) {
-		estimatedTimeLabel_->setText(AMDateTimeUtils::convertTimeToString(configuration_->totalTime()));
+	double newTime = 0;
+
+	if (configuration_)
+		newTime = configuration_->totalTime();
+
+	if (estimatedTimeLabel_)
+		estimatedTimeLabel_->setText(AMDateTimeUtils::convertTimeToString(newTime));
+}
+
+void BioXASXASScanConfigurationRegionsEditor::updateXANESButton()
+{
+	bool isEnabled = false;
+
+	if (configuration_)
+		isEnabled = true;
+
+	if (xanesButton_)
+		xanesButton_->setEnabled(isEnabled);
+}
+
+void BioXASXASScanConfigurationRegionsEditor::updateEXAFSButton()
+{
+	bool isEnabled = false;
+
+	if (configuration_)
+		isEnabled = true;
+
+	if (exafsButton_)
+		exafsButton_->setEnabled(isEnabled);
+}
+
+void BioXASXASScanConfigurationRegionsEditor::onXANESButtonClicked()
+{
+	if (configuration_)
+		configuration_->setupDefaultXANESRegions();
+}
+
+void BioXASXASScanConfigurationRegionsEditor::onEXAFSButtonClicked()
+{
+	if (configuration_)
+		configuration_->setupDefaultEXAFSRegions();
+}
+
+void BioXASXASScanConfigurationRegionsEditor::onConfigurationScanAxisAdded(AMScanAxis *newAxis)
+{
+	if (newAxis) {
+		connect( newAxis, SIGNAL(regionAdded(AMScanAxisRegion*)), this, SLOT(refresh()) );
+		connect( newAxis, SIGNAL(regionOverwritten(AMScanAxisRegion*)), this, SLOT(refresh()) );
+		connect( newAxis, SIGNAL(regionRemoved(AMScanAxisRegion*)), this, SLOT(refresh()) );
+		connect( newAxis, SIGNAL(regionsChanged()), this, SLOT(refresh()) );
 	}
 }
 
-void BioXASXASScanConfigurationRegionsEditor::setupDefaultXANESRegions()
+void BioXASXASScanConfigurationRegionsEditor::onConfigurationScanAxisRemoved(AMScanAxis *axis)
 {
-	if (configuration_ && regionsView_) {
-
-		// Clear regions view of any previous regions.
-
-		while (configuration_->scanAxisAt(0)->regionCount())
-		{
-			regionsView_->removeEXAFSRegion(0);
-		}
-
-		// Create new region and add to the regions view.
-
-		double edgeEnergy = configuration_->energy();
-
-		AMScanAxisEXAFSRegion *region = createDefaultXANESRegion(edgeEnergy);
-		regionsView_->insertEXAFSRegion(0, region);
+	if (axis) {
+		disconnect( axis, 0, this, 0 );
 	}
 }
 
-void BioXASXASScanConfigurationRegionsEditor::setupDefaultEXAFSRegions()
-{
-	if (configuration_ && regionsView_) {
-
-		// Clear regions view of any previous regions.
-
-		while (configuration_->scanAxisAt(0)->regionCount())
-		{
-			regionsView_->removeEXAFSRegion(0);
-		}
-
-		// Create new regions and add to the regions view.
-
-		AMScanAxisEXAFSRegion *newRegion;
-		double edgeEnergy = configuration_->energy();
-
-		newRegion = createEXAFSRegion(edgeEnergy, edgeEnergy - 200, 10, edgeEnergy - 30, 1.0);
-		regionsView_->insertEXAFSRegion(0, newRegion);
-
-		newRegion = createEXAFSRegion(edgeEnergy, edgeEnergy - 30, 0.5, edgeEnergy + 40, 1.0);
-		regionsView_->insertEXAFSRegion(1, newRegion);
-
-		newRegion = createEXAFSRegionInKSpace(edgeEnergy, AMEnergyToKSpaceCalculator::k(edgeEnergy, edgeEnergy + 40), 0.05, 10, 1.0, 10.0);
-		regionsView_->insertEXAFSRegion(2, newRegion);
-	}
-}
-
-AMScanAxisEXAFSRegion* BioXASXASScanConfigurationRegionsEditor::createDefaultXANESRegion(double edgeEnergy)
-{
-	return createXANESRegion(edgeEnergy, edgeEnergy - 30, 0.5, edgeEnergy + 40, 1.0);
-}
-
-AMScanAxisEXAFSRegion* BioXASXASScanConfigurationRegionsEditor::createXANESRegion(double edgeEnergy, double regionStart, double regionStep, double regionEnd, double regionTime) const
-{
-	AMScanAxisEXAFSRegion *region = new AMScanAxisEXAFSRegion;
-	region->setEdgeEnergy(edgeEnergy);
-	region->setRegionStart(regionStart);
-	region->setRegionStep(regionStep);
-	region->setRegionEnd(regionEnd);
-	region->setRegionTime(regionTime);
-
-	return region;
-}
-
-AMScanAxisEXAFSRegion* BioXASXASScanConfigurationRegionsEditor::createEXAFSRegion(double edgeEnergy, double regionStart, double regionStep, double regionEnd, double regionTime) const
-{
-	AMScanAxisEXAFSRegion *region = new AMScanAxisEXAFSRegion;
-	region->setEdgeEnergy(edgeEnergy);
-	region->setRegionStart(regionStart);
-	region->setRegionStep(regionStep);
-	region->setRegionEnd(regionEnd);
-	region->setRegionTime(regionTime);
-
-	return region;
-}
-
-AMScanAxisEXAFSRegion* BioXASXASScanConfigurationRegionsEditor::createEXAFSRegionInKSpace(double edgeEnergy, double regionStart, double regionStep, double regionEnd, double regionTime, double maximumTime) const
-{
-	AMScanAxisEXAFSRegion *region = new AMScanAxisEXAFSRegion;
-	region->setEdgeEnergy(edgeEnergy);
-	region->setInKSpace(true);
-	region->setRegionStart(regionStart);
-	region->setRegionStep(regionStep);
-	region->setRegionEnd(regionEnd);
-	region->setRegionTime(regionTime);
-	region->setMaximumTime(maximumTime);
-
-	return region;
-}

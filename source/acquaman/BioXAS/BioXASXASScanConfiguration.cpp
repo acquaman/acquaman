@@ -1,10 +1,10 @@
 #include "BioXASXASScanConfiguration.h"
 
 #include "acquaman/BioXAS/BioXASXASScanActionController.h"
+#include "beamline/BioXAS/BioXASBeamline.h"
 #include "dataman/AMScanAxisEXAFSRegion.h"
 #include "ui/BioXAS/BioXASXASScanConfigurationEditor.h"
 #include "util/AMEnergyToKSpaceCalculator.h"
-#include "util/AMAbsorptionEdge.h"
 
 #include <QStringBuilder>
 
@@ -89,6 +89,7 @@ AMScanConfigurationView* BioXASXASScanConfiguration::createView()
 void BioXASXASScanConfiguration::setControl(AMControlInfo newInfo)
 {
 	AMGenericStepScanConfiguration::setControl(0, newInfo);
+	setupDefaultXANESRegions();
 }
 
 void BioXASXASScanConfiguration::removeControl()
@@ -96,24 +97,120 @@ void BioXASXASScanConfiguration::removeControl()
 	AMGenericStepScanConfiguration::removeControl(0);
 }
 
-void BioXASXASScanConfiguration::onRegionAdded(AMScanAxisRegion *region)
+void BioXASXASScanConfiguration::clearRegions()
 {
-	AMScanAxisEXAFSRegion *exafsRegion = qobject_cast<AMScanAxisEXAFSRegion *>(region);
+	qDebug() << "Clearing all regions...";
 
-	if (exafsRegion){
+	bool removeOK = true;
 
-		connect(exafsRegion, SIGNAL(regionStartChanged(AMNumber)), this, SLOT(computeTotalTime()));
-		connect(exafsRegion, SIGNAL(regionStepChanged(AMNumber)), this, SLOT(computeTotalTime()));
-		connect(exafsRegion, SIGNAL(regionEndChanged(AMNumber)), this, SLOT(computeTotalTime()));
-		connect(exafsRegion, SIGNAL(regionTimeChanged(AMNumber)), this, SLOT(computeTotalTime()));
-		connect(exafsRegion, SIGNAL(maximumTimeChanged(AMNumber)), this, SLOT(computeTotalTime()));
-		connect(exafsRegion, SIGNAL(equationChanged(AMVariableIntegrationTime::Equation)), this, SLOT(computeTotalTime()));
-		computeTotalTime();
+	foreach (AMScanAxis *scanAxis, scanAxes()) {
+		if (scanAxis)
+			removeOK = removeOK && scanAxis->clearRegions();
 	}
+
+	if (removeOK)
+		qDebug() << "Successfully cleared all regions.";
+	else
+		qDebug() << "Clearing all regions was NOT successful.";
 }
 
-void BioXASXASScanConfiguration::onRegionRemoved(AMScanAxisRegion *region)
+void BioXASXASScanConfiguration::setupDefaultXANESRegions()
 {
-	region->disconnect(this);
-	computeTotalTime();
+	qDebug() << "Setting up default XANES regions...";
+
+	// Clear previous regions.
+
+	clearRegions();
+
+	// Create new region and add to the list of regions for the first scan axis.
+
+	if (scanAxisAt(0)) {
+
+		qDebug() << "Adding regions to scan axis.";
+
+		AMScanAxisEXAFSRegion *region = createDefaultXANESRegion(energy());
+		scanAxisAt(0)->insertRegion(0, region);
+
+	} else {
+		qDebug() << "Scan axis is NOT valid.";
+	}
+
+	qDebug() << "Setting up default XANES regions complete.";
 }
+
+void BioXASXASScanConfiguration::setupDefaultEXAFSRegions()
+{
+	qDebug() << "Setting up default EXAFS regions...";
+
+	// Clear previous regions.
+
+	clearRegions();
+
+	// Create new regions and add to the list of regions for the first scan axis.
+
+	if (scanAxisAt(0)) {
+
+		qDebug() << "Adding regions to scan axis...";
+
+		AMScanAxisEXAFSRegion *newRegion;
+		double edgeEnergy = energy();
+
+		newRegion = createEXAFSRegion(edgeEnergy, edgeEnergy - 200, 10, edgeEnergy - 30, 1.0);
+		scanAxisAt(0)->insertRegion(0, newRegion);
+
+		newRegion = createEXAFSRegion(edgeEnergy, edgeEnergy - 30, 0.5, edgeEnergy + 40, 1.0);
+		scanAxisAt(0)->insertRegion(1, newRegion);
+
+		newRegion = createEXAFSRegionInKSpace(edgeEnergy, AMEnergyToKSpaceCalculator::k(edgeEnergy, edgeEnergy + 40), 0.05, 10, 1.0, 10.0);
+		scanAxisAt(0)->insertRegion(2, newRegion);
+
+	} else {
+		qDebug() << "Scan axis is NOT valid.";
+	}
+
+	qDebug() << "Setting up EXAFS regions complete.";
+}
+
+AMScanAxisEXAFSRegion* BioXASXASScanConfiguration::createDefaultXANESRegion(double edgeEnergy)
+{
+	return createXANESRegion(edgeEnergy, edgeEnergy - 30, 0.5, edgeEnergy + 40, 1.0);
+}
+
+AMScanAxisEXAFSRegion* BioXASXASScanConfiguration::createXANESRegion(double edgeEnergy, double regionStart, double regionStep, double regionEnd, double regionTime) const
+{
+	AMScanAxisEXAFSRegion *region = new AMScanAxisEXAFSRegion;
+	region->setEdgeEnergy(edgeEnergy);
+	region->setRegionStart(regionStart);
+	region->setRegionStep(regionStep);
+	region->setRegionEnd(regionEnd);
+	region->setRegionTime(regionTime);
+
+	return region;
+}
+
+AMScanAxisEXAFSRegion* BioXASXASScanConfiguration::createEXAFSRegion(double edgeEnergy, double regionStart, double regionStep, double regionEnd, double regionTime) const
+{
+	AMScanAxisEXAFSRegion *region = new AMScanAxisEXAFSRegion;
+	region->setEdgeEnergy(edgeEnergy);
+	region->setRegionStart(regionStart);
+	region->setRegionStep(regionStep);
+	region->setRegionEnd(regionEnd);
+	region->setRegionTime(regionTime);
+
+	return region;
+}
+
+AMScanAxisEXAFSRegion* BioXASXASScanConfiguration::createEXAFSRegionInKSpace(double edgeEnergy, double regionStart, double regionStep, double regionEnd, double regionTime, double maximumTime) const
+{
+	AMScanAxisEXAFSRegion *region = new AMScanAxisEXAFSRegion;
+	region->setEdgeEnergy(edgeEnergy);
+	region->setInKSpace(true);
+	region->setRegionStart(regionStart);
+	region->setRegionStep(regionStep);
+	region->setRegionEnd(regionEnd);
+	region->setRegionTime(regionTime);
+	region->setMaximumTime(maximumTime);
+
+	return region;
+}
+

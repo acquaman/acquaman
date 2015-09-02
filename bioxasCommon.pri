@@ -68,13 +68,10 @@ HEADERS += \
     source/beamline/BioXAS/BioXASBeamlineUtilities.h \
     source/beamline/BioXAS/BioXASCryostatStage.h \
     source/ui/BioXAS/BioXASXASScanConfigurationRegionsEditor.h \
-    source/ui/BioXAS/BioXASXASScanConfigurationEnergyEditor.h \
     source/ui/BioXAS/BioXASXASScanConfigurationEdgeEditor.h \
     source/ui/BioXAS/BioXASXASScanConfigurationEditor.h \
     source/ui/BioXAS/BioXASXASScanConfigurationView.h \
-    source/dataman/BioXAS/BioXASDbUpgrade1Pt1.h \
-    source/ui/BioXAS/BioXASEXAFSScanAxisView.h \
-    source/ui/BioXAS/BioXASEXAFSScanAxisElementView.h
+    source/dataman/BioXAS/BioXASDbUpgrade1Pt1.h
 
 SOURCES += \
 	source/acquaman/BioXAS/BioXASXRFScanConfiguration.cpp \
@@ -137,13 +134,16 @@ SOURCES += \
     source/beamline/BioXAS/BioXASBeamlineUtilities.cpp \
     source/beamline/BioXAS/BioXASCryostatStage.cpp \
     source/ui/BioXAS/BioXASXASScanConfigurationRegionsEditor.cpp \
-    source/ui/BioXAS/BioXASXASScanConfigurationEnergyEditor.cpp \
     source/ui/BioXAS/BioXASXASScanConfigurationEdgeEditor.cpp \
     source/ui/BioXAS/BioXASXASScanConfigurationEditor.cpp \
     source/ui/BioXAS/BioXASXASScanConfigurationView.cpp \
-    source/dataman/BioXAS/BioXASDbUpgrade1Pt1.cpp \
-    source/ui/BioXAS/BioXASEXAFSScanAxisView.cpp \
-    source/ui/BioXAS/BioXASEXAFSScanAxisElementView.cpp
+    source/dataman/BioXAS/BioXASDbUpgrade1Pt1.cpp
+
+
+
+
+
+
 
 
 

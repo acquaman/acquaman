@@ -8,7 +8,7 @@
 #include "acquaman/BioXAS/BioXASXASScanConfiguration.h"
 #include "ui/acquaman/AMScanConfigurationView.h"
 #include "ui/acquaman/AMGenericStepScanConfigurationDetectorsView.h"
-#include "ui/BioXAS/BioXASXASScanConfigurationEnergyEditor.h"
+#include "ui/BioXAS/BioXASXASScanConfigurationEdgeEditor.h"
 #include "ui/BioXAS/BioXASXASScanConfigurationRegionsEditor.h"
 
 class BioXASXASScanConfigurationEditor : public BioXASXASScanConfigurationView
@@ -35,16 +35,22 @@ public slots:
 
 protected slots:
 	/// Updates the displayed scan name to correspond to the configuration's scan name.
-	void updateName();
+	void updateNameLineEdit();
+	/// Updates the displayed energy to correspond to the configuration's energy.
+	void updateEnergySpinBox();
 
 	/// Updates the scan configuration name.
 	void updateConfigurationName();
+	/// Updates the configuration's energy.
+	void updateConfigurationEnergy();
 
 protected:
 	/// Scan name editor.
-    QLineEdit *scanName_;
-	/// Energy editor.
-	BioXASXASScanConfigurationEnergyEditor *energyEditor_;
+	QLineEdit *nameLineEdit_;
+	/// Energy spinbox.
+	QDoubleSpinBox *energySpinBox_;
+	/// Edge editor.
+	BioXASXASScanConfigurationEdgeEditor *edgeEditor_;
 	/// Regions editor.
 	BioXASXASScanConfigurationRegionsEditor *regionsEditor_;
 	/// The detectors view.
