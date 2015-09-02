@@ -36,7 +36,9 @@ HEADERS +=	\
 	source/ui/REIXS/REIXSScalerView.h \
 	source/ui/REIXS/REIXSXESSpectrometerControlPanel.h \
 	source/acquaman/REIXS/REIXSScanActionControllerMCPFileWriter.h \
-    source/ui/REIXS/REIXSSampleManagementPre2013Widget.h
+    source/ui/REIXS/REIXSSampleManagementPre2013Widget.h \
+    source/ui/REIXS/REIXSAppBottomPanel.h \
+    source/ui/REIXS/REIXSActionRunnerBottomBarCurrentView3.h
 
 SOURCES += \
 	source/application/REIXS/REIXSMain.cpp \
@@ -71,7 +73,13 @@ SOURCES += \
     source/ui/REIXS/REIXSScalerView.cpp \
     source/ui/REIXS/REIXSXESSpectrometerControlPanel.cpp \
     source/acquaman/REIXS/REIXSScanActionControllerMCPFileWriter.cpp \
-    source/ui/REIXS/REIXSSampleManagementPre2013Widget.cpp
+    source/ui/REIXS/REIXSSampleManagementPre2013Widget.cpp \
+    source/ui/REIXS/REIXSAppBottomPanel.cpp \
+    source/ui/REIXS/REIXSActionRunnerBottomBarCurrentView3.cpp
+
+
+
+
 
 
 
