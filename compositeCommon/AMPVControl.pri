@@ -14,3 +14,7 @@ SOURCES *= \
 	source/beamline/AMProcessVariable.cpp \
 	source/beamline/AMProcessVariablePrivate.cpp \
 	source/util/AMDeferredFunctionCall.cpp
+
+
+
+

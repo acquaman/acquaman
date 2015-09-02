@@ -4,10 +4,24 @@ include ( sgmCommon.pri )
 TARGET = SGMAcquaman	
 
 RESOURCES += \
-	source/beamline/SGM/TransferHelpImages/LoadLockOutImages.qrc \
-	source/beamline/SGM/TransferHelpImages/LoadLockInImages.qrc \
-	source/beamline/SGM/TransferHelpImages/ChamberOutImages.qrc \
-	source/beamline/SGM/TransferHelpImages/ChamberInImages.qrc
+
+HEADERS += \
+	source/application/SGM/SGMAppController.h \
+	source/ui/SGM/SGMPersistentView.h \
+    source/ui/SGM/SGMHexapodTrajectoryView.h
 
 SOURCES += \
-	source/application/SGM/SGMMain.cpp
+    source/application/SGM/SGMMain.cpp \
+    source/application/SGM/SGMAppController.cpp \
+	source/ui/SGM/SGMPersistentView.cpp \
+    source/ui/SGM/SGMHexapodTrajectoryView.cpp
+
+
+
+
+
+
+
+
+
+

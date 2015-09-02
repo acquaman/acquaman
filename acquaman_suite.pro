@@ -23,7 +23,6 @@ SUBDIRS += \
 	SGMAddOnsCoordinator.pro \
 	SGMAmptekCoordinator.pro \
 	SGMLookupTableCoordinator.pro \
-	SGMSSAAcquaman.pro \
 	SXRMBAcquaman.pro \
 	SXRMBAddOnsCoordinator.pro \
 	VESPERSAcquaman.pro \
@@ -37,5 +36,6 @@ SUBDIRS += \
 	StripToolProject.pro \
 	StripTool2.pro \
 	CLSPGTDwellTimeCoordinator.pro \
-	CLSSR570Coordinator.pro
+	CLSSR570Coordinator.pro \
+	AMPIC887DriverServer.pro
 

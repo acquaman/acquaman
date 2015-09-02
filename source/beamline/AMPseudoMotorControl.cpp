@@ -114,9 +114,12 @@ QString AMPseudoMotorControl::toString() const
 	else
 		controlMoving += "No";
 
+	// Note this control's Minimum and Maximum values.
+	QString valuesRange = QString("Minimum: %1\tMaximum: %2").arg(minimumValue()).arg(maximumValue());
+
 	// Create and return complete info string.
 
-	QString result = controlName + "\n" + controlDescription + "\n" + controlConnected + "\n" + controlMoving;
+	QString result = controlName + "\n" + controlDescription + "\n" + controlConnected + "\n" + controlMoving + "\n" + valuesRange;
 
 	return result;
 }
