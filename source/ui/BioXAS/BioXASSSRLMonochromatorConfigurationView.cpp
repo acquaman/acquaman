@@ -153,11 +153,11 @@ BioXASSSRLMonochromatorConfigurationView::BioXASSSRLMonochromatorConfigurationVi
 
 	QVBoxLayout *centerLayout = new QVBoxLayout();
 	centerLayout->addWidget(energyView);
+	centerLayout->addWidget(calibrateButtonsView);
 	centerLayout->addWidget(braggConfigView);
 	centerLayout->addStretch();
 
 	QVBoxLayout *rightLayout = new QVBoxLayout();
-	rightLayout->addWidget(calibrateButtonsView);
 	rightLayout->addWidget(regionView);
 	rightLayout->addStretch();
 
@@ -234,7 +234,7 @@ void BioXASSSRLMonochromatorConfigurationView::setMono(BioXASSSRLMonochromator *
 
 			stepEnergyEditor_->setControl(mono_->stepEnergyControl());
 			encoderEnergyEditor_->setControl(mono_->encoderEnergyControl());
-			stepBraggEditor_->setControl(mono_->braggMotor());
+			stepBraggEditor_->setControl(mono_->stepBraggControl());
 			encoderBraggEditor_->setControl(mono_->encoderBraggControl());
 			m1PitchEditor_->setControl(mono_->m1MirrorPitchControl());
 

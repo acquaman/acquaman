@@ -249,8 +249,7 @@ QList<AMControl *> BioXASSideBeamline::getMotorsByType(BioXASBeamlineDef::BioXAS
 		break;
 
 	case BioXASBeamlineDef::PseudoMonoMotor: // BioXAS Pseudo Mono motor
-		matchedMotors.append(mono_->encoderEnergyControl());
-		matchedMotors.append(mono_->stepEnergyControl());
+		matchedMotors.append(mono_->energyControl());
 		matchedMotors.append(mono_->regionControl());
 		break;
 
