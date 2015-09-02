@@ -5,7 +5,7 @@
 
 #include "beamline/AMControl.h"
 #include "dataman/datasource/AMDataSource.h"
-#include "MPlot/MPlotItem.h"
+#include "MPlot/MPlotSeries.h"
 
 class AMStripToolItem : public QObject
 {
@@ -24,7 +24,7 @@ public:
 	/// Returns the data source.
 	AMDataSource *dataSource() const { return dataSource_; }
 	/// Returns the plot item.
-	MPlotItem* plotItem() const { return plotItem_; }
+	MPlotSeriesBasic* plotItem() const { return plotItem_; }
 
 signals:
 	/// Notifier that the control has changed.
@@ -45,7 +45,7 @@ protected:
 	/// Creates and returns a data source of updates for the given control.
 	AMDataSource* createDataSource(AMControl *control);
 	/// Creates and returns a series suitable for plotting pv updates with accompanying timestamps for the given control.
-	MPlotItem* createPlotItem(AMDataSource *dataSource);
+	MPlotSeriesBasic* createPlotItem(AMDataSource *dataSource);
 
 protected:
 	/// The item's control, the source of values tracked.
@@ -53,7 +53,7 @@ protected:
 	/// The item's data source.
 	AMDataSource *dataSource_;
 	/// The item's plot representation.
-	MPlotItem *plotItem_;
+	MPlotSeriesBasic *plotItem_;
 };
 
 #endif // AMSTRIPTOOLITEM_H

@@ -16,12 +16,19 @@ AMStripToolEditor::AMStripToolEditor(AMStripTool *stripTool, QWidget *parent) :
 
 	sourcesEditor_ = new AMDataSourcesEditor(scanSetModel_);
 
+	itemEditor_ = new AMStripToolItemEditor(0);
+
 	// Create and set layouts.
 
-	QHBoxLayout *layout = new QHBoxLayout();
+	QHBoxLayout *topLayout = new QHBoxLayout();
+	topLayout->setMargin(0);
+	topLayout->addWidget(stripToolView_);
+	topLayout->addWidget(sourcesEditor_);
+
+	QVBoxLayout *layout = new QVBoxLayout();
 	layout->setMargin(0);
-	layout->addWidget(stripToolView_);
-	layout->addWidget(sourcesEditor_);
+	layout->addLayout(topLayout);
+	layout->addWidget(itemEditor_);
 
 	setLayout(layout);
 
@@ -54,6 +61,11 @@ void AMStripToolEditor::setStripTool(AMStripTool *newTool)
 
 		emit stripToolChanged(stripTool_);
 	}
+}
+
+void AMStripToolEditor::setStripToolItem(AMStripToolItem *item)
+{
+	itemEditor_->setItem(item);
 }
 
 AMScan* AMStripToolEditor::createScan(AMStripTool *stripTool)

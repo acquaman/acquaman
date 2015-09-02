@@ -88,7 +88,7 @@ AMDataSource* AMStripToolItem::createDataSource(AMControl *control)
 	return result;
 }
 
-MPlotItem* AMStripToolItem::createPlotItem(AMDataSource *dataSource)
+MPlotSeriesBasic* AMStripToolItem::createPlotItem(AMDataSource *dataSource)
 {
 	MPlotSeriesBasic *result = 0;
 

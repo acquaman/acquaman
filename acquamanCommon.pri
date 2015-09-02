@@ -432,7 +432,8 @@ HEADERS += \
     source/dataman/AMScanViewPlotTools.h \
     source/analysis/AM0DTimestampAB.h \
     source/beamline/AMTime.h \
-	source/dataman/datasource/AMControlDataSource.h
+	source/dataman/datasource/AMControlDataSource.h \
+    source/ui/AMStripToolItemEditor.h
 
 FORMS += \
 
@@ -823,7 +824,8 @@ SOURCES += \
     source/ui/dataman/AMScanViewPlotSelectedToolsView.cpp \
     source/dataman/AMScanViewPlotTools.cpp \
     source/analysis/AM0DTimestampAB.cpp \
-	source/dataman/datasource/AMControlDataSource.cpp
+	source/dataman/datasource/AMControlDataSource.cpp \
+    source/ui/AMStripToolItemEditor.cpp
 
 
 RESOURCES *= source/icons/icons.qrc \

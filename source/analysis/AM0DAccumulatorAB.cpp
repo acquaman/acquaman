@@ -189,7 +189,7 @@ void AM0DAccumulatorAB::setInputDataSourcesImplementation(const QList<AMDataSour
 	// disconnect connections from old sources, if they exist.
 	if (!sources_.isEmpty()) {
 		disconnect( sources_.at(0)->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onInputSourceValuesChanged(AMnDIndex,AMnDIndex)) );
-		disconnect( sources_.at(0)->signalSource(), SIGNAL(stateChanged(int)), this, SLOT(onInputSourcesStateChanged()) );
+		disconnect( sources_.at(0)->signalSource(), SIGNAL(stateChanged(int)), this, SLOT(onInputSourceStateChanged()) );
 	}
 
 	// set to invalid if new dataSources is empty.

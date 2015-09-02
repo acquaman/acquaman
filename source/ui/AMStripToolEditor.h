@@ -6,6 +6,7 @@
 #include "ui/AMStripToolView.h"
 #include "ui/dataman/AMScanView.h"
 #include "ui/dataman/AMDataSourcesEditor.h"
+#include "ui/AMStripToolItemEditor.h"
 
 class AMStripToolEditor : public AMStripToolView
 {
@@ -26,6 +27,10 @@ public slots:
 	/// Sets the striptool being viewed.
 	void setStripTool(AMStripTool *newTool);
 
+protected slots:
+	/// Sets the item to be edited.
+	void setStripToolItem(AMStripToolItem *item);
+
 protected:
 	/// Creates and returns a scan populated with datasources matching the given striptool's.
 	AMScan* createScan(AMStripTool *stripTool);
@@ -41,6 +46,9 @@ protected:
 	AMScanView *stripToolView_;
 	/// The editor used to editor the strip tool sources.
 	AMDataSourcesEditor *sourcesEditor_;
+
+	/// The editor for a single strip tool item.
+	AMStripToolItemEditor *itemEditor_;
 };
 
 #endif // AMSTRIPTOOLEDITOR_H
