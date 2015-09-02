@@ -173,7 +173,7 @@ bool AMRawDataSource::isDataStoreCompatible(const AMDataStore *dataStore) const
 	return true;
 }
 
-bool AMRawDataSource::axisValues(int axisNumber, int startIndex, int endIndex, AMNumber *outputValues) const
+bool AMRawDataSource::axisValues(int axisNumber, int startIndex, int endIndex, double *outputValues) const
 {
 	if (!isValid())
 		return false;
@@ -194,7 +194,7 @@ bool AMRawDataSource::axisValues(int axisNumber, int startIndex, int endIndex, A
 		const AMAxisInfo& axis = axes_.at(axisNumber);
 
 		for (int i = 0, size = endIndex-startIndex+1; i < size; i++)
-			outputValues[i] = AMNumber(double(axis.start) + (startIndex+i)*double(axis.increment));
+            outputValues[i] = double(axis.start) + (startIndex+i)*double(axis.increment);
 	}
 
 	return true;

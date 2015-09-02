@@ -211,7 +211,7 @@ AMNumber AM1DRunningAverageFilterAB::axisValue(int axisNumber, int index) const{
 
 }
 
-bool AM1DRunningAverageFilterAB::axisValues(int axisNumber, int startIndex, int endIndex, AMNumber *outputValues) const
+bool AM1DRunningAverageFilterAB::axisValues(int axisNumber, int startIndex, int endIndex, double *outputValues) const
 {
 	if (!isValid())
 		return false;

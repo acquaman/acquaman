@@ -111,12 +111,12 @@ public:
 	}
 
 	/// Performance optimization of axisValue():  instead of a single value, copies a block of values from \c startIndex to \c endIndex in \c outputValues.  The provided pointer must contain enough space for all the requested values.
-	virtual bool axisValues(int axisNumber, int startIndex, int endIndex, AMNumber *outputValues) const
+    virtual bool axisValues(int axisNumber, int startIndex, int endIndex, double *outputValues) const
 	{
 		Q_UNUSED(axisNumber);
 
 		for (int i = 0, size = endIndex-startIndex+1; i < size; i++)
-			outputValues[i] = startIndex + i;
+            outputValues[i] = double(startIndex + i);
 
 		return true;
 	}

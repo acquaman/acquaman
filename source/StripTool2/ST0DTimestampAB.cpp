@@ -175,7 +175,7 @@ AMNumber ST0DTimestampAB::axisValue(int axisNumber, int index) const
 	return index;
 }
 
-bool ST0DTimestampAB::axisValues(int axisNumber, int startIndex, int endIndex, AMNumber *outputValues) const
+bool ST0DTimestampAB::axisValues(int axisNumber, int startIndex, int endIndex, double *outputValues) const
 {
 	if (!isValid())
 		return false;
@@ -190,7 +190,7 @@ bool ST0DTimestampAB::axisValues(int axisNumber, int startIndex, int endIndex, A
 		return false;
 
 	for (int i = 0, size = endIndex-startIndex+1; i < size; i++)
-		outputValues[i] = AMNumber(i+startIndex);
+        outputValues[i] = double(i+startIndex);
 
 	return true;
 }
