@@ -143,6 +143,7 @@ void AM2DAdditionAB::onInputSourceSizeChanged()
 	}
 
     cacheUpdateRequired_ = true;
+    cachedData_ = QVector<double>(size().product());
 }
 
 // Connected to be called when the state() flags of any input source change
@@ -238,9 +239,9 @@ void AM2DAdditionAB::reviewState()
 void AM2DAdditionAB::computeCachedValues() const
 {
     AMnDIndex start = AMnDIndex(0, 0);
-    AMnDIndex end = size();
+    AMnDIndex end = size()-1;
     int totalSize = start.totalPointsTo(end);
-
+    qDebug() << totalSize << size().product();
     QVector<double> data = QVector<double>(totalSize);
     sources_.at(0)->values(start, end, data.data());
 
