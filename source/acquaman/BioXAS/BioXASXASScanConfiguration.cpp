@@ -40,7 +40,7 @@ QString BioXASXASScanConfiguration::headerText() const
 	header.append("Regions Scanned\n");
 
 	foreach (AMScanAxisRegion *region, scanAxisAt(0)->regions().toList()){
-		header.append( regionToString(region) );
+		header.append(region->toString());
 	}
 
 	return header;
@@ -79,25 +79,17 @@ void BioXASXASScanConfiguration::removeControl()
 
 void BioXASXASScanConfiguration::clearRegions()
 {
-	qDebug() << "Clearing all regions...";
+	for (int axisIndex = 0, axisCount = scanAxes_.count(); axisIndex < axisCount; axisIndex++) {
+		AMScanAxis *scanAxis = scanAxisAt(axisIndex);
 
-	bool removeOK = true;
-
-	foreach (AMScanAxis *scanAxis, scanAxes()) {
 		if (scanAxis)
-			removeOK = removeOK && scanAxis->clearRegions();
+			foreach (AMScanAxisRegion *region, scanAxis->regions().toList())
+				removeRegion(axisIndex, region);
 	}
-
-	if (removeOK)
-		qDebug() << "Successfully cleared all regions.";
-	else
-		qDebug() << "Clearing all regions was NOT successful.";
 }
 
 void BioXASXASScanConfiguration::setupDefaultXANESRegions()
 {
-	qDebug() << "Setting up default XANES regions...";
-
 	// Clear previous regions.
 
 	clearRegions();
@@ -105,23 +97,13 @@ void BioXASXASScanConfiguration::setupDefaultXANESRegions()
 	// Create new region and add to the list of regions for the first scan axis.
 
 	if (scanAxisAt(0)) {
-
-		qDebug() << "Adding regions to scan axis.";
-
 		AMScanAxisEXAFSRegion *region = createDefaultXANESRegion(energy());
-		scanAxisAt(0)->insertRegion(0, region);
-
-	} else {
-		qDebug() << "Scan axis is NOT valid.";
+		addRegion(0, 0, region);
 	}
-
-	qDebug() << "Setting up default XANES regions complete.";
 }
 
 void BioXASXASScanConfiguration::setupDefaultEXAFSRegions()
 {
-	qDebug() << "Setting up default EXAFS regions...";
-
 	// Clear previous regions.
 
 	clearRegions();
@@ -130,38 +112,58 @@ void BioXASXASScanConfiguration::setupDefaultEXAFSRegions()
 
 	if (scanAxisAt(0)) {
 
-		qDebug() << "Adding regions to scan axis...";
-
 		AMScanAxisEXAFSRegion *newRegion;
 		double edgeEnergy = energy();
 
 		newRegion = createEXAFSRegion(edgeEnergy, edgeEnergy - 200, 10, edgeEnergy - 30, 1.0);
-		scanAxisAt(0)->insertRegion(0, newRegion);
+		addRegion(0, 0, newRegion);
 
 		newRegion = createEXAFSRegion(edgeEnergy, edgeEnergy - 30, 0.5, edgeEnergy + 40, 1.0);
-		scanAxisAt(0)->insertRegion(1, newRegion);
+		addRegion(0, 1, newRegion);
 
 		newRegion = createEXAFSRegionInKSpace(edgeEnergy, AMEnergyToKSpaceCalculator::k(edgeEnergy, edgeEnergy + 40), 0.05, 10, 1.0, 10.0);
-		scanAxisAt(0)->insertRegion(2, newRegion);
-
-	} else {
-		qDebug() << "Scan axis is NOT valid.";
+		addRegion(0, 2, newRegion);
 	}
-
-	qDebug() << "Setting up EXAFS regions complete.";
 }
 
-void BioXASXASScanConfiguration::setupDefaultEdge()
+void BioXASXASScanConfiguration::addRegion(int scanAxisIndex, int regionIndex, AMScanAxisRegion *region)
 {
-	AMElement *defaultElement = AMPeriodicTable::table()->elementBySymbol("Cu");
-	QList<AMAbsorptionEdge> edges = defaultElement->absorptionEdges();
+	AMScanAxis *scanAxis = scanAxisAt(scanAxisIndex);
 
-	if (!edges.isEmpty()) {
-		AMAbsorptionEdge defaultEdge = edges.first();
-		double defaultEnergy = defaultEdge.energy();
+	if (scanAxis && region) {
+		scanAxis->insertRegion(regionIndex, region);
+		connectRegion(region);
+	}
 
-		setEdge(edgeToString(defaultEdge));
-		setEnergy(defaultEnergy);
+	computeTotalTime();
+}
+
+void BioXASXASScanConfiguration::connectRegion(AMScanAxisRegion *region)
+{
+	if (region) {
+		connect( region, SIGNAL(regionStartChanged(AMNumber)), this, SLOT(computeTotalTime()) );
+		connect( region, SIGNAL(regionStepChanged(AMNumber)), this, SLOT(computeTotalTime()) );
+		connect( region, SIGNAL(regionEndChanged(AMNumber)), this, SLOT(computeTotalTime()) );
+		connect( region, SIGNAL(regionTimeChanged(AMNumber)), this, SLOT(computeTotalTime()) );
+	}
+}
+
+void BioXASXASScanConfiguration::removeRegion(int scanAxisIndex, AMScanAxisRegion *region)
+{
+	AMScanAxis *scanAxis = scanAxisAt(scanAxisIndex);
+
+	if (scanAxis && region) {
+		scanAxis->removeRegion(region);
+		disconnectRegion(region);
+	}
+
+	computeTotalTime();
+}
+
+void BioXASXASScanConfiguration::disconnectRegion(AMScanAxisRegion *region)
+{
+	if (region) {
+		disconnect( region, 0, this, 0 );
 	}
 }
 
@@ -207,41 +209,3 @@ AMScanAxisEXAFSRegion* BioXASXASScanConfiguration::createEXAFSRegionInKSpace(dou
 
 	return region;
 }
-
-QString BioXASXASScanConfiguration::regionToString(AMScanAxisRegion *region) const
-{
-	QString result;
-
-	if (region) {
-
-		AMScanAxisEXAFSRegion *exafsRegion = qobject_cast<AMScanAxisEXAFSRegion*>(region);
-		if (exafsRegion && exafsRegion->inKSpace() && exafsRegion->maximumTime().isValid()) {
-			result = QString("Start: %1 eV\tDelta: %2 k\tEnd: %3 k\tStart time: %4 s\tMaximum time (used with variable integration time): %5 s\n")
-											  .arg(double(AMEnergyToKSpaceCalculator::energy(energy(), exafsRegion->regionStart())))
-											  .arg(double(exafsRegion->regionStep()))
-											  .arg(double(exafsRegion->regionEnd()))
-											  .arg(double(exafsRegion->regionTime()))
-											  .arg(double(exafsRegion->maximumTime()));
-		} else {
-			result = QString("Start: %1 eV\tDelta: %2 k\tEnd: %3 k\tTime: %4 s\n")
-											  .arg(double(AMEnergyToKSpaceCalculator::energy(energy(), exafsRegion->regionStart())))
-											  .arg(double(exafsRegion->regionStep()))
-											  .arg(double(exafsRegion->regionEnd()))
-											  .arg(double(exafsRegion->regionTime()));
-		}
-
-	}
-
-	return result;
-}
-
-QString BioXASXASScanConfiguration::edgeToString(const AMAbsorptionEdge &edge) const
-{
-	QString result;
-
-	if (!edge.isNull())
-		result = edge.name() + ": " + edge.energyString() + " eV";
-
-	return result;
-}
-

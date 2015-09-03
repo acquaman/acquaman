@@ -27,15 +27,15 @@ void BioXASXASScanConfigurationView::setConfigurationName(BioXASXASScanConfigura
 void BioXASXASScanConfigurationView::setConfigurationEdge(BioXASXASScanConfiguration *configuration, const AMAbsorptionEdge &newEdge)
 {
 	if (configuration) {
-		QString edgeString = configuration_->edgeToString(newEdge);
+		QString edgeString = newEdge.toString();
 		setConfigurationEdge(configuration, edgeString);
 	}
 }
 
 void BioXASXASScanConfigurationView::setConfigurationEdge(BioXASXASScanConfiguration *configuration, const QString &newEdgeString)
 {
-	if (configuration_ && configuration_->edge() != newEdgeString)
-		configuration_->setEdge(newEdgeString);
+	if (configuration && configuration->edge() != newEdgeString)
+		configuration->setEdge(newEdgeString);
 }
 
 void BioXASXASScanConfigurationView::setConfigurationEnergy(BioXASXASScanConfiguration *configuration, double newEnergy)

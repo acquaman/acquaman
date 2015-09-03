@@ -32,8 +32,6 @@ public:
 	double energy() const { return dbObject_->energy(); }
 	/// Returns the edge.
 	QString edge() const { return dbObject_->edge(); }
-	/// Returns whether the scan is using an XRF detector or not.
-	bool usingXRFDetector() const { return dbObject_->usingXRFDetector(); }
 	/// Returns the list of regions of interest.
 	QList<AMRegionOfInterest *> regionsOfInterest() const { return dbObject_->regionsOfInterest(); }
 
@@ -44,8 +42,6 @@ public:
 	void setEnergy(double newEnergy) { dbObject_->setEnergy(newEnergy); }
 	/// Sets the edge.
 	void setEdge(const QString &newEdge) { dbObject_->setEdge(newEdge); }
-	/// Sets whether the configuration is using an XRF detector.
-	void setUsingXRFDetector(bool hasXRF) { dbObject_->setUsingXRFDetector(hasXRF); }
 	/// Adds a region of interest to the list.
 	void addRegionOfInterest(AMRegionOfInterest *region) { dbObject_->addRegionOfInterest(region); }
 	/// Removes a region of interest from the list.
