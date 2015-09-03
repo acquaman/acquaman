@@ -218,28 +218,22 @@ void AMDataSourceImageData::updateCachedValues() const
 {
     AMnDIndex start = AMnDIndex(0, 0);
     AMnDIndex end = AMnDIndex(xSize_-1, ySize_-1);
-    QVector<double> newData = QVector<double>(start.totalPointsTo(end));
 
-    if (source_->values(start, end, newData.data())){
+    if (source_->values(start, end, data_.data())){
 
-		double rangeMinimum = newData.first();
-		double rangeMaximum = newData.first();
+        double rangeMinimum = data_.first();
+        double rangeMaximum = data_.first();
 
-        for (int j = 0, jSize = end.j()-start.j()+1; j < jSize; j++){
+        for (int i = 0, size = data_.size(); i < size; i++){
 
-            for (int i = 0, iSize = end.i()-start.i()+1; i < iSize; i++){
+            double newValue = data_.at(i);
 
-				double newValue = newData.at(i*jSize+j);
+            if (newValue > rangeMaximum)
+                rangeMaximum = newValue;
 
-				if (newValue > rangeMaximum)
-					rangeMaximum = newValue;
-
-				if (newValue < rangeMinimum)
-					rangeMinimum = newValue;
-
-                data_[i*ySize_ + j] = newValue;
-			}
-		}
+            if (newValue < rangeMinimum)
+                rangeMinimum = newValue;
+        }
 
         range_ = MPlotRange(rangeMinimum, rangeMaximum);
 		updateCacheRequired_ = false;
