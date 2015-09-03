@@ -134,6 +134,8 @@ void BioXASXASScanConfigurationRegionsEditor::updateEstimatedTimeLabel()
 	if (configuration_)
 		newTime = configuration_->totalTime();
 
+	qDebug() << "Editor estimated time:" << newTime;
+
 	if (estimatedTimeLabel_)
 		estimatedTimeLabel_->setText(AMDateTimeUtils::convertTimeToString(newTime));
 }
@@ -208,10 +210,10 @@ QWidget* BioXASXASScanConfigurationRegionsEditor::createRegionsView(BioXASXASSca
 	QWidget *view = 0;
 
 	if (configuration) {
-		QList<AMScanAxis*> axes = configuration_->scanAxes();
+		QList<AMScanAxis*> axes = configuration->scanAxes();
 
 		if (!axes.isEmpty())
-			view = new AMEXAFSScanAxisView("", configuration);
+			view = new AMEXAFSScanAxisView("Regions", configuration);
 	}
 
 	return view;
