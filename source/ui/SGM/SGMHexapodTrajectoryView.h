@@ -96,6 +96,11 @@ protected slots:
 	  */
 	void onZSetpointPVValueChanged();
 
+	/*!
+	  * Handles signals from the start move PV that its setpoint has been altered.
+	  */
+	void onStartMovePVChanged(double setpoint);
+
 protected:
 	/*!
 	  * Initializes ui components and performs layout
