@@ -100,7 +100,7 @@ void BioXASEXAFSScanAxisView::refresh()
 
 	// Create new regions view.
 
-	QWidget *regionsView
+	QWidget *regionsView = createRegionsView()
 
 	// Update the view.
 
