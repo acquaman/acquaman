@@ -45,13 +45,17 @@ protected slots:
 	void onEXAFSButtonClicked();
 
 	/// Handles making the appropriate connections when the configuration has a new scan axis.
-	void onConfigurationScanAxisAdded(AMScanAxis *newAxis);
+	void connectScanAxis(AMScanAxis *newAxis);
 	/// Handles disconnecting the appropriate connections when the configuration has removed a scan axis.
-	void onConfigurationScanAxisRemoved(AMScanAxis *axis);
+	void disconnectScanAxis(AMScanAxis *axis);
+
+protected:
+	/// Creates and returns a regions view for the given configuration.
+	static QWidget* createRegionsView(BioXASXASScanConfiguration *configuration);
 
 protected:
 	/// The regions view.
-	AMEXAFSScanAxisView *regionsView_;
+	QWidget *regionsView_;
 	/// Button that sets the XANES regions.
 	QPushButton *xanesButton_;
 	/// Button that sets the EXAFS regions.

@@ -6,11 +6,9 @@
 BioXASXASScanConfigurationRegionsEditor::BioXASXASScanConfigurationRegionsEditor(BioXASXASScanConfiguration *configuration, QWidget *parent) :
 	BioXASXASScanConfigurationView(parent)
 {
-	// Initialize class variables.
+	// Create UI elements.
 
 	regionsView_ = 0;
-
-	// Create UI elements.
 
 	QLabel *estimatedTimePrompt = new QLabel("Estimated time: ");
 	estimatedTimeLabel_ = new QLabel();
@@ -61,15 +59,24 @@ void BioXASXASScanConfigurationRegionsEditor::setConfiguration(BioXASXASScanConf
 {
 	if (configuration_ != newConfiguration) {
 
-		if (configuration_)
+		if (configuration_) {
 			disconnect( configuration_, 0, this, 0 );
+
+			foreach (AMScanAxis *axis, configuration_->scanAxes())
+				disconnectScanAxis(axis);
+		}
 
 		configuration_ = newConfiguration;
 
 		if (configuration_) {
 			connect( configuration_, SIGNAL(totalTimeChanged(double)), this, SLOT(updateEstimatedTimeLabel()) );
-			connect( configuration_, SIGNAL(scanAxisAdded(AMScanAxis*)), this, SLOT(onConfigurationScanAxisAdded(AMScanAxis*)) );
-			connect( configuration_, SIGNAL(scanAxisRemoved(AMScanAxis*)), this, SLOT(onConfigurationScanAxisRemoved(AMScanAxis*)) );
+			connect( configuration_, SIGNAL(scanAxisAdded(AMScanAxis*)), this, SLOT(connectScanAxis(AMScanAxis*)) );
+			connect( configuration_, SIGNAL(scanAxisRemoved(AMScanAxis*)), this, SLOT(disconnectScanAxis(AMScanAxis*)) );
+
+			// Want to listen for any changes to existing scan axes, as region changes mean we must refresh this view.
+
+			foreach (AMScanAxis *axis, configuration_->scanAxes())
+				connectScanAxis(axis);
 		}
 
 		refresh();
@@ -109,13 +116,10 @@ void BioXASXASScanConfigurationRegionsEditor::refresh()
 	// Construct new view using configuration information.
 
 	if (configuration_) {
+		regionsView_ = createRegionsView(configuration_);
 
-		if (configuration_->scanAxisAt(0))
-			regionsView_ = new AMEXAFSScanAxisView("Region Configuration", configuration_);
-
-		// Update layouts.
-
-		regionsViewLayout_->addWidget(regionsView_);
+		if (regionsView_)
+			regionsViewLayout_->addWidget(regionsView_);
 	}
 
 	// Update view.
@@ -136,24 +140,38 @@ void BioXASXASScanConfigurationRegionsEditor::updateEstimatedTimeLabel()
 
 void BioXASXASScanConfigurationRegionsEditor::updateXANESButton()
 {
-	bool isEnabled = false;
+	bool enabled = false;
+	bool visible = false;
 
-	if (configuration_)
-		isEnabled = true;
+	if (configuration_) {
+		enabled = true;
 
-	if (xanesButton_)
-		xanesButton_->setEnabled(isEnabled);
+		if (configuration_->scanAxisAt(0))
+			visible = true;
+	}
+
+	if (xanesButton_) {
+		xanesButton_->setEnabled(enabled);
+		xanesButton_->setVisible(visible);
+	}
 }
 
 void BioXASXASScanConfigurationRegionsEditor::updateEXAFSButton()
 {
-	bool isEnabled = false;
+	bool enabled = false;
+	bool visible = false;
 
-	if (configuration_)
-		isEnabled = true;
+	if (configuration_) {
+		enabled = true;
 
-	if (exafsButton_)
-		exafsButton_->setEnabled(isEnabled);
+		if (configuration_->scanAxisAt(0))
+			visible = true;
+	}
+
+	if (exafsButton_) {
+		exafsButton_->setEnabled(enabled);
+		exafsButton_->setVisible(visible);
+	}
 }
 
 void BioXASXASScanConfigurationRegionsEditor::onXANESButtonClicked()
@@ -168,7 +186,7 @@ void BioXASXASScanConfigurationRegionsEditor::onEXAFSButtonClicked()
 		configuration_->setupDefaultEXAFSRegions();
 }
 
-void BioXASXASScanConfigurationRegionsEditor::onConfigurationScanAxisAdded(AMScanAxis *newAxis)
+void BioXASXASScanConfigurationRegionsEditor::connectScanAxis(AMScanAxis *newAxis)
 {
 	if (newAxis) {
 		connect( newAxis, SIGNAL(regionAdded(AMScanAxisRegion*)), this, SLOT(refresh()) );
@@ -178,10 +196,23 @@ void BioXASXASScanConfigurationRegionsEditor::onConfigurationScanAxisAdded(AMSca
 	}
 }
 
-void BioXASXASScanConfigurationRegionsEditor::onConfigurationScanAxisRemoved(AMScanAxis *axis)
+void BioXASXASScanConfigurationRegionsEditor::disconnectScanAxis(AMScanAxis *axis)
 {
 	if (axis) {
 		disconnect( axis, 0, this, 0 );
 	}
 }
 
+QWidget* BioXASXASScanConfigurationRegionsEditor::createRegionsView(BioXASXASScanConfiguration *configuration)
+{
+	QWidget *view = 0;
+
+	if (configuration) {
+		QList<AMScanAxis*> axes = configuration_->scanAxes();
+
+		if (!axes.isEmpty())
+			view = new AMEXAFSScanAxisView("", configuration);
+	}
+
+	return view;
+}
