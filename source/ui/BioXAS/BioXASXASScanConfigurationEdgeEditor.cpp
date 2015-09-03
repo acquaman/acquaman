@@ -44,8 +44,6 @@ void BioXASXASScanConfigurationEdgeEditor::setConfiguration(BioXASXASScanConfigu
 
 		configuration_ = newConfiguration;
 
-		initializeConfiguration(configuration_);
-
 		if (configuration_)
 			connect( configuration_->dbObject(), SIGNAL(edgeChanged(QString)), this, SLOT(update()) );
 
@@ -129,8 +127,8 @@ void BioXASXASScanConfigurationEdgeEditor::addEdges(AMElement *element)
 
 void BioXASXASScanConfigurationEdgeEditor::addEdge(const AMAbsorptionEdge &edge)
 {
-	if (!edge.isNull())
-		edgeComboBox_->addItem(edgeToString(edge), edge.energy());
+	if (configuration_ && !edge.isNull())
+		edgeComboBox_->addItem(configuration_->edgeToString(edge), edge.energy());
 }
 
 void BioXASXASScanConfigurationEdgeEditor::updateConfiguration()
@@ -162,7 +160,7 @@ void BioXASXASScanConfigurationEdgeEditor::onElementButtonClicked()
 
 		if (!edges.isEmpty()) {
 			AMAbsorptionEdge edge = edges.first();
-			setConfigurationEdge(configuration_, edgeToString(edge));
+			setConfigurationEdge(configuration_, edge);
 			setConfigurationEnergy(configuration_, edge.energy());
 		}
 	}

@@ -5,6 +5,9 @@
 #include "dataman/AMScanAxisEXAFSRegion.h"
 #include "ui/BioXAS/BioXASXASScanConfigurationEditor.h"
 #include "util/AMEnergyToKSpaceCalculator.h"
+#include "util/AMPeriodicTable.h"
+#include "util/AMElement.h"
+#include "util/AMAbsorptionEdge.h"
 
 #include <QStringBuilder>
 
@@ -37,30 +40,7 @@ QString BioXASXASScanConfiguration::headerText() const
 	header.append("Regions Scanned\n");
 
 	foreach (AMScanAxisRegion *region, scanAxisAt(0)->regions().toList()){
-
-		AMScanAxisEXAFSRegion *exafsRegion = qobject_cast<AMScanAxisEXAFSRegion *>(region);
-
-		if (exafsRegion->inKSpace() && (exafsRegion->maximumTime().isValid() || exafsRegion->maximumTime() == exafsRegion->regionTime()))
-			header.append(QString("Start: %1 eV\tDelta: %2 k\tEnd: %3 k\tTime: %4 s\n")
-						.arg(double(AMEnergyToKSpaceCalculator::energy(energy(), exafsRegion->regionStart())))
-						.arg(double(exafsRegion->regionStep()))
-						.arg(double(exafsRegion->regionEnd()))
-						.arg(double(exafsRegion->regionTime())));
-
-		else if (exafsRegion->inKSpace() && exafsRegion->maximumTime().isValid())
-			header.append(QString("Start: %1 eV\tDelta: %2 k\tEnd: %3 k\tStart time: %4 s\tMaximum time (used with variable integration time): %5 s\n")
-					  .arg(double(AMEnergyToKSpaceCalculator::energy(energy(), exafsRegion->regionStart())))
-					  .arg(double(exafsRegion->regionStep()))
-					  .arg(double(exafsRegion->regionEnd()))
-					  .arg(double(exafsRegion->regionTime()))
-					  .arg(double(exafsRegion->maximumTime())));
-
-		else
-			header.append(QString("Start: %1 eV\tDelta: %2 eV\tEnd: %3 eV\tTime: %4 s\n")
-					  .arg(double(exafsRegion->regionStart()))
-					  .arg(double(exafsRegion->regionStep()))
-					  .arg(double(exafsRegion->regionEnd()))
-					  .arg(double(exafsRegion->regionTime())));
+		header.append( regionToString(region) );
 	}
 
 	return header;
@@ -171,6 +151,20 @@ void BioXASXASScanConfiguration::setupDefaultEXAFSRegions()
 	qDebug() << "Setting up EXAFS regions complete.";
 }
 
+void BioXASXASScanConfiguration::setupDefaultEdge()
+{
+	AMElement *defaultElement = AMPeriodicTable::table()->elementBySymbol("Cu");
+	QList<AMAbsorptionEdge> edges = defaultElement->absorptionEdges();
+
+	if (!edges.isEmpty()) {
+		AMAbsorptionEdge defaultEdge = edges.first();
+		double defaultEnergy = defaultEdge.energy();
+
+		setEdge(edgeToString(defaultEdge));
+		setEnergy(defaultEnergy);
+	}
+}
+
 AMScanAxisEXAFSRegion* BioXASXASScanConfiguration::createDefaultXANESRegion(double edgeEnergy)
 {
 	return createXANESRegion(edgeEnergy, edgeEnergy - 30, 0.5, edgeEnergy + 40, 1.0);
@@ -212,5 +206,42 @@ AMScanAxisEXAFSRegion* BioXASXASScanConfiguration::createEXAFSRegionInKSpace(dou
 	region->setMaximumTime(maximumTime);
 
 	return region;
+}
+
+QString BioXASXASScanConfiguration::regionToString(AMScanAxisRegion *region) const
+{
+	QString result;
+
+	if (region) {
+
+		AMScanAxisEXAFSRegion *exafsRegion = qobject_cast<AMScanAxisEXAFSRegion*>(region);
+		if (exafsRegion && exafsRegion->inKSpace() && exafsRegion->maximumTime().isValid()) {
+			result = QString("Start: %1 eV\tDelta: %2 k\tEnd: %3 k\tStart time: %4 s\tMaximum time (used with variable integration time): %5 s\n")
+											  .arg(double(AMEnergyToKSpaceCalculator::energy(energy(), exafsRegion->regionStart())))
+											  .arg(double(exafsRegion->regionStep()))
+											  .arg(double(exafsRegion->regionEnd()))
+											  .arg(double(exafsRegion->regionTime()))
+											  .arg(double(exafsRegion->maximumTime()));
+		} else {
+			result = QString("Start: %1 eV\tDelta: %2 k\tEnd: %3 k\tTime: %4 s\n")
+											  .arg(double(AMEnergyToKSpaceCalculator::energy(energy(), exafsRegion->regionStart())))
+											  .arg(double(exafsRegion->regionStep()))
+											  .arg(double(exafsRegion->regionEnd()))
+											  .arg(double(exafsRegion->regionTime()));
+		}
+
+	}
+
+	return result;
+}
+
+QString BioXASXASScanConfiguration::edgeToString(const AMAbsorptionEdge &edge) const
+{
+	QString result;
+
+	if (!edge.isNull())
+		result = edge.name() + ": " + edge.energyString() + " eV";
+
+	return result;
 }
 

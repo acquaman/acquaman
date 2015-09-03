@@ -5,6 +5,8 @@
 #include "acquaman/BioXAS/BioXASScanConfiguration.h"
 
 class AMScanAxisEXAFSRegion;
+class AMElement;
+class AMAbsorptionEdge;
 
 class BioXASXASScanConfiguration : public AMGenericStepScanConfiguration, public BioXASScanConfiguration
 {
@@ -36,6 +38,11 @@ public:
 	/// Returns a newly-created AMScanConfigurationView that is appropriate for viewing and editing this kind of scan configuration. Ownership of the new controller becomes the responsibility of the caller.
 	virtual AMScanConfigurationView* createView();
 
+	/// Returns a string representation of the given region.
+	QString regionToString(AMScanAxisRegion *region) const;
+	/// Returns a string representation of the given absorption edge.
+	QString edgeToString(const AMAbsorptionEdge &edge) const;
+
 public slots:
 	/// Adds the scanned control.
 	virtual void setControl(AMControlInfo newInfo);
@@ -44,11 +51,12 @@ public slots:
 
 	/// Clears all regions.
 	void clearRegions();
-
 	/// Sets up the default XANES regions.
 	void setupDefaultXANESRegions();
 	/// Sets up the default EXAFS regions.
 	void setupDefaultEXAFSRegions();
+	/// Sets up the default energy and edge.
+	void setupDefaultEdge();
 
 protected:
 	/// Creates and returns a default XANES region.
@@ -59,7 +67,6 @@ protected:
 	AMScanAxisEXAFSRegion* createEXAFSRegion(double edgeEnergy, double regionStart, double regionStep, double regionEnd, double regionTime) const;
 	/// Creates and returns an EXAFS region with some values set for k space.
 	AMScanAxisEXAFSRegion* createEXAFSRegionInKSpace(double edgeEnergy, double regionStart, double regionStep, double regionEnd, double regionTime, double maximumTime) const;
-
 };
 
 #endif // BIOXASXASSCANCONFIGURATION_H

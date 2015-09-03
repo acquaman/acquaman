@@ -20,51 +20,34 @@ const AMScanConfiguration* BioXASXASScanConfigurationView::configuration() const
 
 void BioXASXASScanConfigurationView::setConfigurationName(BioXASXASScanConfiguration *configuration, const QString &newName)
 {
-	if (configuration)
+	if (configuration && configuration->userScanName() != newName)
 		configuration->setUserScanName(newName);
 }
 
-void BioXASXASScanConfigurationView::setConfigurationEdge(BioXASXASScanConfiguration *configuration, const QString &edgeString)
+void BioXASXASScanConfigurationView::setConfigurationEdge(BioXASXASScanConfiguration *configuration, const AMAbsorptionEdge &newEdge)
 {
-	if (configuration && configuration->edge() != edgeString) {
-		configuration->setEdge(edgeString);
+	if (configuration) {
+		QString edgeString = configuration_->edgeToString(newEdge);
+		setConfigurationEdge(configuration, edgeString);
 	}
+}
+
+void BioXASXASScanConfigurationView::setConfigurationEdge(BioXASXASScanConfiguration *configuration, const QString &newEdgeString)
+{
+	if (configuration_ && configuration_->edge() != newEdgeString)
+		configuration_->setEdge(newEdgeString);
 }
 
 void BioXASXASScanConfigurationView::setConfigurationEnergy(BioXASXASScanConfiguration *configuration, double newEnergy)
 {
-	if (configuration && configuration->energy() != newEnergy) {
+	if (configuration && configuration->energy() != newEnergy)
 		configuration->setEnergy(newEnergy);
-	}
 }
 
 void BioXASXASScanConfigurationView::clearConfigurationRegions(BioXASXASScanConfiguration *configuration)
 {
-	if (configuration && configuration->scanAxisAt(0)) {
-		for (int regionIndex = 0, regionCount = configuration->scanAxisAt(0)->regionCount(); regionIndex < regionCount; regionIndex++) {
-			AMScanAxisRegion *region = configuration->scanAxisAt(0)->regionAt(regionIndex);
-
-			if (region)
-				configuration->scanAxisAt(0)->removeRegion(region);
-		}
-	}
-}
-
-void BioXASXASScanConfigurationView::initializeConfiguration(BioXASXASScanConfiguration *configuration)
-{
-	if (configuration && configuration->edge().isEmpty()) {
-
-		AMElement *initialElement = AMPeriodicTable::table()->elementBySymbol("Cu");
-		QList<AMAbsorptionEdge> edges = initialElement->absorptionEdges();
-
-		if (!edges.isEmpty()) {
-			AMAbsorptionEdge initialEdge = edges.first();
-			double initialEnergy = initialEdge.energy();
-
-			setConfigurationEdge(configuration, edgeToString(initialEdge));
-			setConfigurationEnergy(configuration, initialEnergy);
-		}
-	}
+	if (configuration)
+		configuration->clearRegions();
 }
 
 AMElement* BioXASXASScanConfigurationView::configurationElement(BioXASXASScanConfiguration *configuration) const
@@ -91,16 +74,6 @@ QString BioXASXASScanConfigurationView::configurationEdge(BioXASXASScanConfigura
 
 	if (configuration)
 		result = configuration->edge();
-
-	return result;
-}
-
-QString BioXASXASScanConfigurationView::edgeToString(const AMAbsorptionEdge &edge) const
-{
-	QString result;
-
-	if (!edge.isNull())
-		result = edge.name() + ": " + edge.energyString() + " eV";
 
 	return result;
 }

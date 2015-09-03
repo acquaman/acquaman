@@ -39,7 +39,9 @@ protected slots:
 	/// Sets the configuration name.
 	void setConfigurationName(BioXASXASScanConfiguration *configuration, const QString &newName);
 	/// Sets the configuration's edge.
-	void setConfigurationEdge(BioXASXASScanConfiguration *configuration, const QString &edgeString);
+	void setConfigurationEdge(BioXASXASScanConfiguration *configuration, const AMAbsorptionEdge &newEdge);
+	/// Sets the configuration's edge.
+	void setConfigurationEdge(BioXASXASScanConfiguration *configuration, const QString &newEdgeString);
 	/// Sets the configuration's energy.
 	void setConfigurationEnergy(BioXASXASScanConfiguration *configuration, double newEnergy);
 
@@ -47,16 +49,10 @@ protected slots:
 	void clearConfigurationRegions(BioXASXASScanConfiguration *configuration);
 
 protected:
-	/// Initializes a scan with an element and edge, if required.
-	void initializeConfiguration(BioXASXASScanConfiguration *configuration);
-
 	/// Returns the configuration's current element.
 	AMElement* configurationElement(BioXASXASScanConfiguration *configuration) const;
 	/// Returns a string representation of the configuration's current edge.
 	QString configurationEdge(BioXASXASScanConfiguration *configuration) const;
-
-	/// Returns a string representation of the given absorption edge.
-	QString edgeToString(const AMAbsorptionEdge &edge) const;
 
 protected:
 	/// The configuration being viewed.

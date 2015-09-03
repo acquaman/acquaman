@@ -94,8 +94,6 @@ void BioXASXASScanConfigurationEditor::setConfiguration(BioXASXASScanConfigurati
 
 		configuration_ = newConfiguration;
 
-		initializeConfiguration(configuration_);
-
 		if (configuration_) {
 			connect( configuration_, SIGNAL(nameChanged(QString)), this, SLOT(updateNameLineEdit()) );
 			connect( configuration_->dbObject(), SIGNAL(energyChanged(double)), this, SLOT(updateEnergySpinBox()) );
