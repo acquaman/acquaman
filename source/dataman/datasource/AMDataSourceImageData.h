@@ -99,13 +99,8 @@ protected:
 	QVector<double> yAxis_;
 	/// The cached z-values.
 	mutable QVector<double> data_;
-
 	/// Flag used for knowing when to recache the data in the model.
-	mutable bool updateCacheRequired_;
-	/// QPoint that defines the bottom left point of the dirty data.
-	mutable AMnDIndex dirtyRectBottomLeft_;
-	/// QPoint that defines the top right point of the dirty data.
-	mutable AMnDIndex dirtyRectTopRight_;
+    mutable bool updateCacheRequired_;
 };
 
 

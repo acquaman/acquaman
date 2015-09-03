@@ -65,7 +65,7 @@ AMNumber AM2DAdditionAB::value(const AMnDIndex &indexes) const
 
     return cachedData_.at(indexes.flatIndexInArrayOfSize(size()));
 }
-
+#include <QDebug>
 bool AM2DAdditionAB::values(const AMnDIndex &indexStart, const AMnDIndex &indexEnd, double *outputValues) const
 {
 	if(indexStart.rank() != 2 || indexEnd.rank() != 2)

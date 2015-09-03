@@ -26,8 +26,6 @@ AMDataSourceImageData::AMDataSourceImageData(QObject* parent)
 {
 	source_ = 0;
 	updateCacheRequired_ = true;
-	dirtyRectBottomLeft_ = AMnDIndex();
-	dirtyRectTopRight_ = AMnDIndex();
 }
 
 AMDataSourceImageData::~AMDataSourceImageData()
@@ -145,35 +143,9 @@ void AMDataSourceImageData::onAxisValuesChanged(int axisId)
 
 void AMDataSourceImageData::onDataChanged(const AMnDIndex &start, const AMnDIndex &end)
 {
+    Q_UNUSED(start)
+    Q_UNUSED(end)
 	updateCacheRequired_ = true;
-
-	AMnDIndex dirtyStartIndex = start.isValid() ? start : AMnDIndex(0, 0);
-	AMnDIndex dirtyEndIndex = end.isValid() ? end : AMnDIndex(xSize_-1, ySize_-1);
-
-	if (!dirtyRectBottomLeft_.isValid())
-		dirtyRectBottomLeft_ = AMnDIndex(dirtyStartIndex.i(), dirtyStartIndex.j());
-
-	else {
-
-		if (dirtyRectBottomLeft_.i() > dirtyStartIndex.i())
-			dirtyRectBottomLeft_[0] = dirtyStartIndex.i();
-
-		if (dirtyRectBottomLeft_.j() > dirtyStartIndex.j())
-			dirtyRectBottomLeft_[1] = dirtyStartIndex.j();
-	}
-
-	if (!dirtyRectTopRight_.isValid())
-		dirtyRectTopRight_ = AMnDIndex(dirtyEndIndex.i(), dirtyEndIndex.j());
-
-	else {
-
-		if (dirtyRectTopRight_.i() < dirtyEndIndex.i())
-			dirtyRectTopRight_[0] = dirtyEndIndex.i();
-
-		if (dirtyRectTopRight_.j() < dirtyEndIndex.j())
-			dirtyRectTopRight_[1] = dirtyEndIndex.j();
-	}
-
 	emitDataChanged();
 }
 
@@ -268,18 +240,18 @@ MPlotRange AMDataSourceImageData::range() const
 
 void AMDataSourceImageData::updateCachedValues() const
 {
-	QVector<double> newData = QVector<double>(dirtyRectBottomLeft_.totalPointsTo(dirtyRectTopRight_));
+    AMnDIndex start = AMnDIndex(0, 0);
+    AMnDIndex end = AMnDIndex(xSize_-1, ySize_-1);
+    QVector<double> newData = QVector<double>(start.totalPointsTo(end));
 
-	if (source_->values(dirtyRectBottomLeft_, dirtyRectTopRight_, newData.data())){
+    if (source_->values(start, end, newData.data())){
 
-		int iOffset = dirtyRectBottomLeft_.i()*ySize_;
-		int jOffset = dirtyRectBottomLeft_.j();
 		double rangeMinimum = newData.first();
 		double rangeMaximum = newData.first();
 
-		for (int j = 0, jSize = dirtyRectTopRight_.j()-dirtyRectBottomLeft_.j()+1; j < jSize; j++){
+        for (int j = 0, jSize = end.j()-start.j()+1; j < jSize; j++){
 
-			for (int i = 0, iSize = dirtyRectTopRight_.i()-dirtyRectBottomLeft_.i()+1; i < iSize; i++){
+            for (int i = 0, iSize = end.i()-start.i()+1; i < iSize; i++){
 
 				double newValue = newData.at(i*jSize+j);
 
@@ -289,25 +261,11 @@ void AMDataSourceImageData::updateCachedValues() const
 				if (newValue < rangeMinimum)
 					rangeMinimum = newValue;
 
-				data_[i*ySize_ + iOffset + j + jOffset] = newValue;
+                data_[i*ySize_ + j] = newValue;
 			}
 		}
 
-		// The default range is invalid.
-		if (range_.isNull() || dirtyRectBottomLeft_.totalPointsTo(dirtyRectTopRight_) == xSize_*ySize_)
-			range_ = MPlotRange(rangeMinimum, rangeMaximum);
-
-		else {
-
-			if (range_.x() > rangeMinimum)
-				range_.setX(rangeMinimum);
-
-			if (range_.y() < rangeMaximum)
-				range_.setY(rangeMaximum);
-		}
-
-		dirtyRectBottomLeft_ = AMnDIndex();
-		dirtyRectTopRight_ = AMnDIndex();
+        range_ = MPlotRange(rangeMinimum, rangeMaximum);
 		updateCacheRequired_ = false;
 	}
 }
