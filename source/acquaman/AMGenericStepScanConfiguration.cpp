@@ -112,8 +112,6 @@ double AMGenericStepScanConfiguration::calculateRegionsTotalTime(AMScanAxis *sca
 
 void AMGenericStepScanConfiguration::setControl(int axisId, AMControlInfo newInfo)
 {
-	qDebug() << "Setting configuration control...";
-
 	if (axisId == 0 && axisControlInfos_.isEmpty()){
 
 		axisControlInfos_.append(newInfo);
@@ -156,11 +154,7 @@ void AMGenericStepScanConfiguration::setControl(int axisId, AMControlInfo newInf
 		setModified(true);
 	}
 
-	qDebug() << "Getting ready to recompute total time...";
-
 	computeTotalTime();
-
-	qDebug() << "Configuration control set.";
 }
 
 void AMGenericStepScanConfiguration::removeControl(int axisId)

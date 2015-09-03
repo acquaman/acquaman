@@ -2,8 +2,6 @@
 #include "beamline/BioXAS/BioXASSSRLMonochromator.h"
 #include <math.h>
 
-#include <QDebug>
-
 BioXASSSRLMonochromatorEnergyControl::BioXASSSRLMonochromatorEnergyControl(const QString &name, QObject *parent) :
 	BioXASMonochromatorEnergyControl(name, parent)
 {
@@ -199,11 +197,6 @@ void BioXASSSRLMonochromatorEnergyControl::updateConnected()
 				region_ && region_->isConnected() &&
 				m1MirrorPitch_ && m1MirrorPitch_->isConnected()
 				);
-
-	if (isConnected)
-		qDebug() << "\nEnergy control is connected.\n";
-	else
-		qDebug() << "\nEnergy control is NOT connected.\n";
 
 	setConnected(isConnected);
 }

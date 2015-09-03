@@ -406,14 +406,11 @@ AMScanConfigurationView* BioXASAppController::createScanConfigurationView(AMScan
 {
 	AMScanConfigurationView *configurationView = 0;
 
-	qDebug() << "App controller creating scan configuration view...";
-
 	if (configuration) {
 		bool configurationFound = false;
 
 		BioXASXASScanConfiguration *xasConfiguration = qobject_cast<BioXASXASScanConfiguration*>(configuration);
 		if (!configurationFound && xasConfiguration) {
-			qDebug() << "App controller creating XAS scan configuration view...";
 			configurationView = new BioXASXASScanConfigurationEditor(xasConfiguration);
 			configurationFound = true;
 		}
@@ -430,8 +427,6 @@ AMScanConfigurationView* BioXASAppController::createScanConfigurationView(AMScan
 
 AMScanConfigurationViewHolder3* BioXASAppController::createScanConfigurationViewWithHolder(AMScanConfiguration *configuration)
 {
-	qDebug() << "App controller creating scan configuration view with holder...";
-
 	AMScanConfigurationViewHolder3 *view = 0;
 
 	if (configuration) {

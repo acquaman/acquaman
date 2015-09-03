@@ -345,6 +345,8 @@ void BioXASSSRLMonochromatorEnergyCalibrationView::applyScanSettings(AMScan *sca
 
 void BioXASSSRLMonochromatorEnergyCalibrationView::onLoadDataButtonClicked()
 {
+	qDebug() << "Load data button clicked.";
+
 	if (!chooseScanDialog_) {
 		chooseScanDialog_ = new AMChooseScanDialog(AMDatabase::database("user"), "Open an existing scan", "Choose existing XAS scan to open.", this);
 		connect( chooseScanDialog_, SIGNAL(accepted()), this, SLOT(onScanChosen()) );
@@ -507,6 +509,8 @@ bool BioXASSSRLMonochromatorEnergyCalibrationView::dropScanURLs(const QList<QUrl
 		// If the scan is valid, an XAS scan, and not scanning, then set it as the current scan. Do nothing otherwise--the above QMessageBoxes should be notification enough.
 
 		if (scan && validType && !isScanning) {
+
+			qDebug() << "Valid scan selected. Proceeding with loading data...";
 			setCurrentScan(scan);
 			result = true;
 		}

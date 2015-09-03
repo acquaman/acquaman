@@ -134,8 +134,6 @@ void BioXASXASScanConfigurationRegionsEditor::updateEstimatedTimeLabel()
 	if (configuration_)
 		newTime = configuration_->totalTime();
 
-	qDebug() << "Editor estimated time:" << newTime;
-
 	if (estimatedTimeLabel_)
 		estimatedTimeLabel_->setText(AMDateTimeUtils::convertTimeToString(newTime));
 }

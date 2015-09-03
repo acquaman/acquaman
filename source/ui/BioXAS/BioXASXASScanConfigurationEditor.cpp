@@ -11,8 +11,6 @@
 BioXASXASScanConfigurationEditor::BioXASXASScanConfigurationEditor(BioXASXASScanConfiguration *configuration, QWidget *parent) :
 	BioXASXASScanConfigurationView(parent)
 {
-	qDebug() << "Creating XAS scan configuration editor...";
-
 	// Create UI elements.
 
 	QLabel *namePrompt = new QLabel("Name: ");
@@ -72,8 +70,6 @@ BioXASXASScanConfigurationEditor::BioXASXASScanConfigurationEditor(BioXASXASScan
 	// Current settings.
 
 	setConfiguration(configuration);
-
-	qDebug() << "Creation of XAS scan configuration editor complete.";
 }
 
 BioXASXASScanConfigurationEditor::~BioXASXASScanConfigurationEditor()
@@ -84,8 +80,6 @@ BioXASXASScanConfigurationEditor::~BioXASXASScanConfigurationEditor()
 void BioXASXASScanConfigurationEditor::setConfiguration(BioXASXASScanConfiguration *newConfiguration)
 {
 	if (configuration_ != newConfiguration) {
-
-		qDebug() << "Setting new XAS scan configuration...";
 
 		if (configuration_) {
 			disconnect( configuration_, 0, this, 0 );
@@ -102,39 +96,29 @@ void BioXASXASScanConfigurationEditor::setConfiguration(BioXASXASScanConfigurati
 		refresh();
 
 		emit configurationChanged(configuration_);
-
-		qDebug() << "Set new XAS scan configuration.";
 	}
 }
 
 void BioXASXASScanConfigurationEditor::clear()
 {
-	qDebug() << "Clearing the XAS scan configuration editor.";
 	nameLineEdit_->clear();
 	energySpinBox_->clear();
 	edgeEditor_->clear();
 	regionsEditor_->clear();
 	detectorsView_->clear();
-	qDebug() << "Clearing XAS scan configuration editor complete.";
 }
 
 void BioXASXASScanConfigurationEditor::update()
 {
-	qDebug() << "Updating the XAS scan configuration editor...";
-
 	updateNameLineEdit();
 	updateEnergySpinBox();
 	edgeEditor_->update();
 	regionsEditor_->update();
 	detectorsView_->update();
-
-	qDebug() << "Update of XAS scan configuration editor complete.";
 }
 
 void BioXASXASScanConfigurationEditor::refresh()
 {
-	qDebug() << "Refreshing XAS scan configuration editor...";
-
 	// Clear view.
 
 	clear();
@@ -148,8 +132,6 @@ void BioXASXASScanConfigurationEditor::refresh()
 	// Update the view.
 
 	update();
-
-	qDebug() << "Refresh of XAS scan configuration editor complete.";
 }
 
 void BioXASXASScanConfigurationEditor::updateNameLineEdit()
