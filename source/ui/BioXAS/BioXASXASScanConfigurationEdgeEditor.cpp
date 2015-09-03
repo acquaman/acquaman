@@ -128,7 +128,7 @@ void BioXASXASScanConfigurationEdgeEditor::addEdges(AMElement *element)
 void BioXASXASScanConfigurationEdgeEditor::addEdge(const AMAbsorptionEdge &edge)
 {
 	if (configuration_ && !edge.isNull())
-		edgeComboBox_->addItem(configuration_->edgeToString(edge), edge.energy());
+		edgeComboBox_->addItem(edge.toString(), edge.energy());
 }
 
 void BioXASXASScanConfigurationEdgeEditor::updateConfiguration()
