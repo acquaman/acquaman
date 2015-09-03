@@ -73,7 +73,7 @@ protected slots:
 	/// Handles updating the size of the given axis.  Will invalidate the axis values of that axis.
 	void onSizeChanged(int axisId);
 	/// Recomputes the bounding rect. Called if the size or axis values change.  Only updates the corresponding size if specified.
-	void recomputeBoundingRect(int axisId);
+    void recomputeBoundingRect();
 
 	/// ensure that we don't keep trying to read data from a source that has been deleted.
 	void onDataSourceDeleted();

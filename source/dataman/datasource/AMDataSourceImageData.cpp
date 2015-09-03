@@ -137,7 +137,7 @@ void AMDataSourceImageData::onAxisValuesChanged(int axisId)
 		source_->axisValues(1, 0, ySize_-1, yAxis_.data());
 	}
 
-	recomputeBoundingRect(axisId);
+    recomputeBoundingRect();
 	emitBoundsChanged();
 }
 
@@ -176,7 +176,7 @@ void AMDataSourceImageData::onSizeChanged(int axisId)
 	onDataChanged(AMnDIndex(0,0), AMnDIndex(xSize_-1, ySize_-1));
 }
 
-void AMDataSourceImageData::recomputeBoundingRect(int axisId)
+void AMDataSourceImageData::recomputeBoundingRect()
 {
 	if(!isValid_)
 		boundingRect_ = QRectF();
@@ -184,7 +184,7 @@ void AMDataSourceImageData::recomputeBoundingRect(int axisId)
 	if(xSize_ == 0 || ySize_ == 0)
 		boundingRect_ = QRectF();
 
-	else if (axisId == -1){
+    else {
 
 		double minimumX = xAxis_.at(0);
 		double maximumX = xAxis_.at(xSize_-1);
@@ -198,30 +198,6 @@ void AMDataSourceImageData::recomputeBoundingRect(int axisId)
 			qSwap(minimumY, maximumY);
 
 		boundingRect_ = QRectF(minimumX, minimumY, maximumX-minimumX, maximumY-minimumY);
-	}
-
-	else if (axisId == 0){
-
-		double minimumX = xAxis_.at(0);
-		double maximumX = xAxis_.at(xSize_-1);
-
-		if(maximumX < minimumX)
-			qSwap(minimumX, maximumX);
-
-		boundingRect_.setX(minimumX);
-		boundingRect_.setWidth(maximumX-minimumX);
-	}
-
-	else if (axisId == 1){
-
-		double minimumY = yAxis_.at(0);
-		double maximumY = yAxis_.at(ySize_-1);
-
-		if(maximumY < minimumY)
-			qSwap(minimumY, maximumY);
-
-		boundingRect_.setY(minimumY);
-		boundingRect_.setHeight(maximumY-minimumY);
 	}
 }
 
