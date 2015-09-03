@@ -123,18 +123,18 @@ void AMDataSourceImageData::onAxisValuesChanged(int axisId)
 {
 	if (axisId == -1){
 
-        source_->axisValues(0, 0, xSize_-1, xAxis_.data());
-        source_->axisValues(1, 0, ySize_-1, yAxis_.data());
+		source_->axisValues(0, 0, xSize_-1, xAxis_.data());
+		source_->axisValues(1, 0, ySize_-1, yAxis_.data());
 	}
 
 	else if (axisId == 0){
 
-        source_->axisValues(0, 0, xSize_-1, xAxis_.data());
+		source_->axisValues(0, 0, xSize_-1, xAxis_.data());
 	}
 
 	else if (axisId == 1) {
 
-        source_->axisValues(1, 0, ySize_-1, yAxis_.data());
+		source_->axisValues(1, 0, ySize_-1, yAxis_.data());
 	}
 
 	recomputeBoundingRect(axisId);
