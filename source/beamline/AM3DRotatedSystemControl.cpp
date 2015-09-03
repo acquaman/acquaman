@@ -25,12 +25,19 @@ void AM3DRotatedSystemControl::rotate(double rX, double rY, double rZ)
 
 	QQuaternion qTemp = qX * qY;
 
-	globalToPrimeTransform_ = qTemp * qZ;
+	QQuaternion resultQuaternion = qTemp * qZ;
+	globalToPrimeTransform_ = globalToPrimeTransform_ * resultQuaternion;
 	globalToPrimeTransform_.normalize();
 	// Inverse quaternion is the conjugate, provided it is normalized first.
 	primeToGlobalTransform_ = globalToPrimeTransform_.conjugate();
 
 	updateStates();
+}
+
+void AM3DRotatedSystemControl::resetRotationsToGlobal()
+{
+	globalToPrimeTransform_ = QQuaternion();
+	primeToGlobalTransform_ = QQuaternion();
 }
 
 QVector3D AM3DRotatedSystemControl::globalAxisToPrime(const QVector3D &globalVector) const
@@ -42,5 +49,6 @@ QVector3D AM3DRotatedSystemControl::primeAxisToGlobal(const QVector3D &primeVect
 {
 	return primeToGlobalTransform_.rotatedVector(primeVector);
 }
+
 
 

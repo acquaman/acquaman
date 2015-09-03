@@ -37,12 +37,19 @@ public:
 
 	/*!
 	  * Rotates the coordinate system using the provided Euler angles.
-	  * NOTE: Rotations are provided in sequence, X, Y, Z.
+	  * NOTE: Rotations are provided in sequence, X, Y, Z. and are applied
+	  * commumulatively.
 	  * \param rX ~ The value to rotate the system about the X Axis (1st)
 	  * \param rY ~ The value to rotate the system about the Y Axis (2nd)
 	  * \param rZ ~ The value to rotate the system about the Z Axis (3rd)
 	  */
 	void rotate(double rX, double rY, double rZ);
+
+	/*!
+	  * Resets the rotation of the coordinate system back to that of the global
+	  * system used natively by the motors.
+	  */
+	void resetRotationsToGlobal();
 signals:
 
 public slots:
