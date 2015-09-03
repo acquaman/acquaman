@@ -240,8 +240,6 @@ AMEXAFSScanAxisView::AMEXAFSScanAxisView(const QString &title, AMStepScanConfigu
 	topRowLayout->addWidget(addRegionButton_);
 	scanAxisViewLayout_->addLayout(topRowLayout);
 
-	qDebug() << "Creating configuration region view. Axes:" << configuration_->scanAxes().count();
-
 	foreach (AMScanAxisRegion *region, configuration_->scanAxisAt(0)->regions().toList()) {
 		AMScanAxisEXAFSRegion *exafsRegion = qobject_cast<AMScanAxisEXAFSRegion*>(region);
 
@@ -305,8 +303,6 @@ void AMEXAFSScanAxisView::disconnectRegions() const
 void AMEXAFSScanAxisView::onAddRegionButtonClicked()
 {
 	if (configuration_->scanAxisAt(0)->regionCount() == 0){
-
-		qDebug() << "Adding first region.";
 
 		QMenu menu(addRegionButton_);
 		menu.addAction("Add energy region...");
