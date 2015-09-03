@@ -3,11 +3,15 @@
 
 #include <QObject>
 #include "beamline/AMControlSet.h"
+
+#define HEXAPOD_POSITION_TOLERANCE 0.008
 /*!
   * A class which represents the AMPIC887 Controlled hexapod within the SGM
   * endstation.
   */
 class AMControl;
+class SGMHexapodTransformedAxis;
+class AM3DRotatedSystemControl;
 class SGMHexapod : public QObject
 {
     Q_OBJECT
@@ -29,34 +33,34 @@ public:
 	bool isConnected();
 
 	/*!
-	  * The main x Axis Control.
+	  * The motor for the X Axis of the hexapod
 	  */
-	AMControl* xAxis() const;
+	AMControl* xAxisPrimeControl() const;
 
 	/*!
-	  * The main y Axis Control.
+	  * The motor for the Y Axis of the hexapod
 	  */
-	AMControl* yAxis() const;
+	AMControl* yAxisPrimeControl() const;
 
 	/*!
-	  * The main z Axis Control.
+	  * The motor for the Z Axis of the hexapod
 	  */
-	AMControl* zAxis() const;
+	AMControl* zAxisPrimeControl() const;
 
 	/*!
-	  * The main u Axis Control.
+	  * The setpoint for the X Axis component of a trajectory move.
 	  */
-	AMControl* uAxis() const;
+	AMControl* xAxisPrimeTrajectoryControl() const;
 
 	/*!
-	  * The main v Axis Control.
+	  * The setpoint for the Y Axis component of a trajectory move.
 	  */
-	AMControl* vAxis() const;
+	AMControl* yAxisPrimeTrajectoryControl() const;
 
 	/*!
-	  * The main w Axis Control.
+	  * The setpoint for the Z Axis component of a trajectory move.
 	  */
-	AMControl* wAxis() const;
+	AMControl* zAxisPrimeTrajectoryControl() const;
 
 	/*!
 	  * The system velocity Control.
@@ -69,36 +73,6 @@ public:
 	AMControl* stopAll() const;
 
 	/*!
-	  * The x Axis trajectory setpoint control
-	  */
-	AMControl* xAxisTrajectorySetpoint() const;
-
-	/*!
-	  * The y Axis trajectory setpoint control
-	  */
-	AMControl* yAxisTrajectorySetpoint() const;
-
-	/*!
-	  * The z Axis trajectory setpoint control
-	  */
-	AMControl* zAxisTrajectorySetpoint() const;
-
-	/*!
-	  * The u Axis trajectory setpoint control
-	  */
-	AMControl* uAxisTrajectorySetpoint() const;
-
-	/*!
-	  * The v Axis trajectory setpoint control
-	  */
-	AMControl* vAxisTrajectorySetpoint() const;
-
-	/*!
-	  * The w Axis trajectory setpoint control
-	  */
-	AMControl* wAxisTrajectorySetpoint() const;
-
-	/*!
 	  * The trajectory move start control.
 	  */
 	AMControl* trajectoryStart() const;
@@ -107,6 +81,15 @@ public:
 	  * The trajectory reset control.
 	  */
 	AMControl* trajectoryReset() const;
+
+	/*!
+	  * Rotates the coordinate system used by the hexapod by the provided values,
+	  * applied as Euler angles in order rX, rY, rZ.
+	  * \param rX ~ The amount to rotate the system about the X Axis (1st)
+	  * \param rY ~ The amount to rotate the system about the Y Axis (2nd)
+	  * \param rZ ~ The amount to rotate the system about the Z Axis (3rd)
+	  */
+	void rotateSystem(double rX, double rY, double rZ);
 signals:
 
 	/*!
@@ -117,24 +100,20 @@ signals:
 	  */
 	void connected(bool connected);
 public slots:
-
 protected:
-	AMControl* xAxis_;
-	AMControl* yAxis_;
-	AMControl* zAxis_;
-	AMControl* uAxis_;
-	AMControl* vAxis_;
-	AMControl* wAxis_;
+
+	SGMHexapodTransformedAxis* xAxisPrimeControl_;
+	SGMHexapodTransformedAxis* yAxisPrimeControl_;
+	SGMHexapodTransformedAxis* zAxisPrimeControl_;
+
+	AM3DRotatedSystemControl* xAxisPrimeTrajectoryControl_;
+	AM3DRotatedSystemControl* yAxisPrimeTrajectoryControl_;
+	AM3DRotatedSystemControl* zAxisPrimeTrajectoryControl_;
 
 	AMControl* systemVelocity_;
 	AMControl* stopAll_;
 
-	AMControl* xAxisTrajectorySetpoint_;
-	AMControl* yAxisTrajectorySetpoint_;
-	AMControl* zAxisTrajectorySetpoint_;
-	AMControl* uAxisTrajectorySetpoint_;
-	AMControl* vAxisTrajectorySetpoint_;
-	AMControl* wAxisTrajectorySetpoint_;
+
 	AMControl* trajectoryStart_;
 	AMControl* trajectoryReset_;
 

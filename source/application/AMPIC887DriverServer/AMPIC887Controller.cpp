@@ -823,6 +823,8 @@ void AMPIC887Controller::onAsyncMoveSucceeded(AMGCS2AsyncCommand *command)
 	if(moveCommand) {
 
 		positionUpdateTimer_.stop();
+		// update position one last time
+		onPositionUpdateTimerInterval();
 		emit moveComplete();
 		AMPIC887AxisCollection axesMoving = moveCommand->targetPositions().axes();
 		foreach(AMGCS2::Axis currentAxis, axesMoving) {
@@ -945,6 +947,8 @@ void AMPIC887Controller::onAsyncMoveRelativeSucceeded(AMGCS2AsyncCommand *comman
 	if(moveRelativeCommand) {
 
 		positionUpdateTimer_.stop();
+		// update position one last time
+		onPositionUpdateTimerInterval();
 		emit moveComplete();
 		AMPIC887AxisCollection axesMoving = moveRelativeCommand->relativeTargetPositions().axes();
 		foreach(AMGCS2::Axis currentAxis, axesMoving) {
@@ -1050,6 +1054,8 @@ void AMPIC887Controller::onAsyncReferenceMoveStarted(AMGCS2AsyncCommand *)
 void AMPIC887Controller::onAsyncReferenceMoveSucceeded(AMGCS2AsyncCommand *command)
 {
 	positionUpdateTimer_.stop();
+	// update position one last time
+	onPositionUpdateTimerInterval();
 	emit moveComplete();
 	--xMotions_;
 	--yMotions_;
