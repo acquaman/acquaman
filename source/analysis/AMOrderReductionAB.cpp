@@ -427,7 +427,7 @@ AMNumber AMOrderReductionAB::axisValue(int axisNumber, int index) const
 	return source_->axisValue(actualAxis, index);
 }
 
-bool AMOrderReductionAB::axisValues(int axisNumber, int startIndex, int endIndex, AMNumber *outputValues) const
+bool AMOrderReductionAB::axisValues(int axisNumber, int startIndex, int endIndex, double *outputValues) const
 {
 	if (!isValid())
 		return false;

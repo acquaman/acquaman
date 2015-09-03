@@ -132,8 +132,7 @@ QList<AMControl *> BioXASSideBeamline::getMotorsByType(BioXASBeamlineDef::BioXAS
 		break;
 
 	case BioXASBeamlineDef::PseudoMonoMotor: // BioXAS Pseudo Mono motor
-		matchedMotors.append(mono_->encoderEnergyControl());
-		matchedMotors.append(mono_->stepEnergyControl());
+		matchedMotors.append(mono_->energyControl());
 		matchedMotors.append(mono_->regionControl());
 		break;
 
@@ -216,7 +215,7 @@ void BioXASSideBeamline::setupComponents()
 	cryostatStage_ = new BioXASSideCryostatStage(this);
 
 	// Scaler.
-	scaler_ = new CLSSIS3820Scaler("BL1607-5-I22:mcs", this);
+	scaler_ = new CLSSIS3820Scaler("MCS1607-601:mcs", this);
 	connect( scaler_, SIGNAL(connectedChanged(bool)), this, SLOT(updateConnected()) );
 
 	// Utilities.

@@ -39,19 +39,28 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/export/AMExporterOptionGeneralAscii.h"
 #include "dataman/export/AMExporterGeneralAscii.h"
 #include "dataman/export/AMExporterAthena.h"
+#include "dataman/export/AMSMAKExporter.h"
+#include "dataman/export/AMExporterOptionSMAK.h"
+
+#include "dataman/IDEAS/IDEASDbUpgrade1Pt1.h"
+
+#include "dataman/IDEAS/IDEASUserConfiguration.h"
 
 #include "util/AMPeriodicTable.h"
 
+#include "acquaman/IDEAS/IDEASScanConfiguration.h"
 #include "acquaman/IDEAS/IDEASXASScanConfiguration.h"
 #include "acquaman/IDEAS/IDEASXRFScanConfiguration.h"
+#include "acquaman/IDEAS/IDEAS2DScanConfiguration.h"
 
-//#include "ui/CLS/CLSSynchronizedDwellTimeView.h"
+#include "ui/util/AMChooseDataFolderDialog.h"
 #include "ui/AMMainWindow.h"
 #include "ui/dataman/AMGenericScanEditor.h"
 #include "ui/acquaman/AMScanConfigurationViewHolder3.h"
 
 #include "ui/IDEAS/IDEASPersistentView.h"
 #include "ui/IDEAS/IDEASXASScanConfigurationView.h"
+#include "ui/IDEAS/IDEAS2DScanConfigurationView.h"
 
 #include "beamline/IDEAS/IDEASKETEKDetailedDetectorView.h"
 #include "beamline/IDEAS/IDEAS13ElementGeDetailedDetectorView.h"
@@ -61,12 +70,19 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 IDEASAppController::IDEASAppController(QObject *parent)
 	: AMAppController(parent)
 {
+	userConfiguration_ = new IDEASUserConfiguration(this);
 
+	setDefaultUseLocalStorage(true);
+
+	appendDatabaseUpgrade(new IDEASDbUpgrade1Pt1("user", this));
+	appendDatabaseUpgrade(new IDEASDbUpgrade1Pt1("actions", this));
 }
 
 bool IDEASAppController::startup()
 {
-	getUserDataFolderFromDialog();
+    // Get a destination folder.
+    if (!AMChooseDataFolderDialog::getDataFolder("/AcquamanLocalData/ideas", "/home/ideas", "users"))
+        return false;
 
 	// Start up the main program.
 	if(AMAppController::startup()) {
@@ -98,6 +114,14 @@ bool IDEASAppController::startup()
 		setupUserInterface();
 		makeConnections();
 
+		if (!userConfiguration_->loadFromDb(AMDatabase::database("user"), 1)){
+
+			userConfiguration_->storeToDb(AMDatabase::database("user"));
+			// This is connected here because our standard way for these signal connections is to load from db first, which clearly won't happen on the first time.
+			connect(IDEASBeamline::ideas()->ketek(), SIGNAL(addedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestAdded(AMRegionOfInterest*)));
+			connect(IDEASBeamline::ideas()->ketek(), SIGNAL(removedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestRemoved(AMRegionOfInterest*)));
+		}
+
 		// Github setup for adding VESPERS specific comment.
 		additionalIssueTypesAndAssignees_.append("I think it's a IDEAS specific issue", "epengr");
 
@@ -117,43 +141,38 @@ void IDEASAppController::shutdown()
 
 void IDEASAppController::registerClasses()
 {
+	AMDbObjectSupport::s()->registerClass<IDEASScanConfigurationDbObject>();
 	AMDbObjectSupport::s()->registerClass<IDEASXASScanConfiguration>();
 	AMDbObjectSupport::s()->registerClass<IDEASXRFScanConfiguration>();
+	AMDbObjectSupport::s()->registerClass<IDEAS2DScanConfiguration>();
+	AMDbObjectSupport::s()->registerClass<IDEASUserConfiguration>();
 }
 
 void IDEASAppController::setupExporterOptions()
 {
-	QList<int> matchIDs = AMDatabase::database("user")->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<AMExporterOptionGeneralAscii>(), "name", "IDEAS Default XAS");
+	AMExporterOptionGeneralAscii *XASexporterOption = IDEAS::buildStandardExporterOption("IDEASXASDefault", true, true, true);
 
-	AMExporterOptionGeneralAscii *ideasDefaultXAS = new AMExporterOptionGeneralAscii();
+	if(XASexporterOption->id() > 0)
+	{
+		AMAppControllerSupport::registerClass<IDEASXASScanConfiguration, AMExporterAthena, AMExporterOptionGeneralAscii>(XASexporterOption->id());
+		AMAppControllerSupport::registerClass<IDEASXASScanConfiguration, AMExporterGeneralAscii, AMExporterOptionGeneralAscii>(XASexporterOption->id());
+	}
 
-	if (matchIDs.count() != 0)
-			ideasDefaultXAS->loadFromDb(AMDatabase::database("user"), matchIDs.at(0));
+	XASexporterOption->deleteLater();
 
-	ideasDefaultXAS->setName("IDEAS Default XAS");
-	ideasDefaultXAS->setFileName("$name_$number.dat");
-    ideasDefaultXAS->setHeaderText("Scan: $name #$number\nDate: $dateTime\n\nRing Current: $control[ringCurrent]\nInitial I_0: $control[I0Current]\n"
-                                   "Sample Slit Width: $control[Sample Slit Width]\tSample Slit Height: $control[Sample Slit Height]\n"
-                                   "Sample Vertical Position: $control[Sample Vertical Position]\tSample Horizontal Position: $control[Sample Horizontal Position]\n"
-                                   "Vacuum Stage Position: $control[Vacuum Stage Position]\n"
-                                   "Sample Temp: $control[sampleTemp]");
-    ideasDefaultXAS->setHeaderIncluded(true);
-	ideasDefaultXAS->setColumnHeader("$dataSetName $dataSetInfoDescription");
-	ideasDefaultXAS->setColumnHeaderIncluded(true);
-	ideasDefaultXAS->setColumnHeaderDelimiter("");
-	ideasDefaultXAS->setSectionHeader("");
-	ideasDefaultXAS->setSectionHeaderIncluded(true);
-	ideasDefaultXAS->setIncludeAllDataSources(true);
-	ideasDefaultXAS->setFirstColumnOnly(true);
-	ideasDefaultXAS->setIncludeHigherDimensionSources(true);
-	ideasDefaultXAS->setSeparateHigherDimensionalSources(true);
-	ideasDefaultXAS->setSeparateSectionFileName("$name_$dataSetName_$number.dat");
-	ideasDefaultXAS->setHigherDimensionsInRows(true);
-	ideasDefaultXAS->storeToDb(AMDatabase::database("user"));
+	AMExporterOptionGeneralAscii *XRFexporterOption = IDEAS::buildStandardExporterOption("IDEASXRFDefault", true, true, false);
 
-	if(ideasDefaultXAS->id() > 0)
-			AMAppControllerSupport::registerClass<IDEASXASScanConfiguration, AMExporterAthena, AMExporterOptionGeneralAscii>(ideasDefaultXAS->id());
+	if(XRFexporterOption->id() > 0)
+		AMAppControllerSupport::registerClass<IDEASXRFScanConfiguration, AMExporterGeneralAscii, AMExporterOptionGeneralAscii>(XRFexporterOption->id());
 
+	XRFexporterOption->deleteLater();
+
+	AMExporterOptionSMAK *smakOption = IDEAS::buildSMAKExporterOption("IDEAS2DDefault", true, true);
+
+	if (smakOption->id() > 0)
+		AMAppControllerSupport::registerClass<IDEAS2DScanConfiguration, AMSMAKExporter, AMExporterOptionSMAK>(smakOption->id());
+
+	smakOption->deleteLater();
 }
 
 void IDEASAppController::setupUserInterface()
@@ -186,10 +205,17 @@ void IDEASAppController::setupUserInterface()
 	IDEASPersistentView *persistentPanel = new IDEASPersistentView;
 	mw_->addRightWidget(persistentPanel);
 
+	xasScanConfiguration_ = new IDEASXASScanConfiguration(this);
 	xasScanConfigurationView_ = 0; //NULL
-	xasScanConfigurationHolder3_ = new AMScanConfigurationViewHolder3(0, true);
+	xasScanConfigurationHolder3_ = new AMScanConfigurationViewHolder3("IDEAS XAS Scan", true, true);
 
 	mw_->addPane(xasScanConfigurationHolder3_, "Scans", "IDEAS XAS Scan", ":/utilities-system-monitor.png");
+
+	mapScanConfiguration_ = new IDEAS2DScanConfiguration(this);
+	mapScanConfigurationView_ = new IDEAS2DScanConfigurationView(mapScanConfiguration_);
+	mapScanConfigurationHolder3_ = new AMScanConfigurationViewHolder3("IDEAS 2D Map Scan", false, true, mapScanConfigurationView_);
+
+	mw_->addPane(mapScanConfigurationHolder3_, "Scans", "IDEAS 2D Scan", ":/utilities-system-monitor.png");
 
 	sampleCameraPanel_ = new IDEASSampleCameraPanel();
 	mw_->addPane(sampleCameraPanel_, "Experiment Tools", "Sample Alignment",":/22x22/gnome-display-properties.png");
@@ -201,21 +227,21 @@ void IDEASAppController::setupUserInterface()
 void IDEASAppController::makeConnections()
 {
 	connect(this, SIGNAL(scanEditorCreated(AMGenericScanEditor*)), this, SLOT(onScanEditorCreated(AMGenericScanEditor*)));
-
+	// It is sufficient to only connect the user configuration to the single element because the single element and four element are synchronized together.
+	connect(userConfiguration_, SIGNAL(loadedFromDb()), this, SLOT(onUserConfigurationLoadedFromDb()));
 }
 
 void IDEASAppController::onEnergyConnected(bool connected){
 	Q_UNUSED(connected)
 	if(IDEASBeamline::ideas()->monoEnergyControl() && IDEASBeamline::ideas()->monoEnergyControl()->isConnected() && !xasScanConfigurationView_){
 		// Do New XAS
-		IDEASXASScanConfiguration *xasScanConfiguration = new IDEASXASScanConfiguration(this);
 
-		xasScanConfigurationView_ = new IDEASXASScanConfigurationView(xasScanConfiguration);
+		xasScanConfigurationView_ = new IDEASXASScanConfigurationView(xasScanConfiguration_);
 		xasScanConfigurationView_->setupDefaultXANESScanRegions();
-		xasScanConfigurationHolder3_->setView(xasScanConfigurationView_);
+		xasScanConfigurationHolder3_->setView(xasScanConfigurationView_, "Configure XAS scan", true, true);
 
-		connect(xasScanConfiguration, SIGNAL(totalTimeChanged(double)), xasScanConfigurationHolder3_, SLOT(updateOverallScanTime(double)));
-		xasScanConfigurationHolder3_->updateOverallScanTime(xasScanConfiguration->totalTime());
+		connect(xasScanConfiguration_, SIGNAL(totalTimeChanged(double)), xasScanConfigurationHolder3_, SLOT(updateOverallScanTime(double)));
+		xasScanConfigurationHolder3_->updateOverallScanTime(xasScanConfiguration_->totalTime());
 	}
 }
 
@@ -223,12 +249,25 @@ void IDEASAppController::onCurrentScanActionStartedImplementation(AMScanAction *
 {
 	Q_UNUSED(action)
 	connect(CLSStorageRing::sr1(), SIGNAL(beamAvaliability(bool)), this, SLOT(onBeamAvailabilityChanged(bool)));
+	userConfiguration_->storeToDb(AMDatabase::database("user"));
 }
 
 void IDEASAppController::onCurrentScanActionFinishedImplementation(AMScanAction *action)
 {
 	Q_UNUSED(action)
 	disconnect(CLSStorageRing::sr1(), SIGNAL(beamAvaliability(bool)), this, SLOT(onBeamAvailabilityChanged(bool)));
+
+	// Save the current configuration to the database.
+	// Being explicit due to the nature of how many casts were necessary.  I could probably explicitly check to ensure each cast is successful, but I'll risk it for now.
+	const AMScanActionInfo *actionInfo = qobject_cast<const AMScanActionInfo *>(action->info());
+	const IDEASScanConfiguration *ideasConfiguration = dynamic_cast<const IDEASScanConfiguration *>(actionInfo->configuration());
+	IDEASScanConfigurationDbObject *configuration = qobject_cast<IDEASScanConfigurationDbObject *>(ideasConfiguration->dbObject());
+
+	if (configuration){
+
+		userConfiguration_->setFluorescenceDetector(configuration->fluorescenceDetector());
+		userConfiguration_->storeToDb(AMDatabase::database("user"));
+	}
 }
 
 void IDEASAppController::onBeamAvailabilityChanged(bool beamAvailable)
@@ -292,4 +331,42 @@ void IDEASAppController::configureSingleSpectrumView(AMGenericScanEditor *editor
 			editor->setSingleSpectrumViewDataSourceName(spectraNames.first());
 
 	editor->setPlotRange(AMPeriodicTable::table()->elementBySymbol("Al")->Kalpha().energy(), 20480);
+}
+
+void IDEASAppController::onUserConfigurationLoadedFromDb()
+{
+	QList<IDEASScanConfiguration *> configurations = QList<IDEASScanConfiguration *>()
+			<< xasScanConfiguration_
+			<< mapScanConfiguration_;
+
+	foreach (IDEASScanConfiguration *configuration, configurations)
+		configuration->setFluorescenceDetector(userConfiguration_->fluorescenceDetector());
+
+	AMXRFDetector *detector = IDEASBeamline::ideas()->ketek();
+
+	foreach (AMRegionOfInterest *region, userConfiguration_->regionsOfInterest()){
+
+		AMRegionOfInterest *newRegion = region->createCopy();
+		detector->addRegionOfInterest(newRegion);
+		mapScanConfiguration_->addRegionOfInterest(region);
+		xasScanConfiguration_->addRegionOfInterest(region);
+	}
+
+	// This is connected here because we want to listen to the detectors for updates, but don't want to double add regions on startup.
+	connect(IDEASBeamline::ideas()->ketek(), SIGNAL(addedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestAdded(AMRegionOfInterest*)));
+	connect(IDEASBeamline::ideas()->ketek(), SIGNAL(removedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestRemoved(AMRegionOfInterest*)));
+}
+
+void IDEASAppController::onRegionOfInterestAdded(AMRegionOfInterest *region)
+{
+	userConfiguration_->addRegionOfInterest(region);
+	mapScanConfiguration_->addRegionOfInterest(region);
+	xasScanConfiguration_->addRegionOfInterest(region);
+}
+
+void IDEASAppController::onRegionOfInterestRemoved(AMRegionOfInterest *region)
+{
+	userConfiguration_->removeRegionOfInterest(region);
+	mapScanConfiguration_->removeRegionOfInterest(region);
+	xasScanConfiguration_->removeRegionOfInterest(region);
 }

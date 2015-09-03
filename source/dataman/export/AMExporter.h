@@ -154,6 +154,8 @@ protected:
 	QString krName(const QString& arg = QString());
 	QString krNumber(const QString& arg = QString());
 	QString krNotes(const QString& arg = QString());
+	QString krDelimitedNotes(const QString& arg = QString());
+	QString krSimplifiedNotes(const QString& arg = QString());
 	QString krDate(const QString& arg = QString());
 	QString krTime(const QString& arg = QString());
 	QString krDateTime(const QString& arg = QString());
@@ -175,6 +177,8 @@ protected:
 	QString krControlDescription(const QString& controlName);
 	QString krControlValue(const QString& controlName);
 	QString krControlUnits(const QString& controlName);
+	QString krControlEnum(const QString& controlName);
+
 
 	QString krAllControls(const QString& arg = QString());
 

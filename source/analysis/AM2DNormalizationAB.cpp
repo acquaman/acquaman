@@ -222,7 +222,7 @@ AMNumber AM2DNormalizationAB::axisValue(int axisNumber, int index) const
 	return data_->axisValue(axisNumber, index);
 }
 
-bool AM2DNormalizationAB::axisValues(int axisNumber, int startIndex, int endIndex, AMNumber *outputValues) const
+bool AM2DNormalizationAB::axisValues(int axisNumber, int startIndex, int endIndex, double *outputValues) const
 {
 	if (!isValid())
 		return false;

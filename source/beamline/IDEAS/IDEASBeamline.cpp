@@ -47,7 +47,7 @@ IDEASBeamline::IDEASBeamline()
 void IDEASBeamline::setupDiagnostics()
 {
 	ringCurrent_ = new AMReadOnlyPVControl("ringCurrent","PCT1402-01:mA:fbk", this, "Storage Ring Current");
-	I0Current_ = new AMReadOnlyPVControl("I0Current","A1608-10-01:A:fbk", this, "I0 Current");
+	i0Current_ = new AMReadOnlyPVControl("I0Current","A1608-10-01:A:fbk", this, "I0 Current");
 	sampleTemp_ = new AMReadOnlyPVControl("sampleTemp","TC1608-10-02:reading", this, "Sample Temperature");
 }
 
@@ -91,6 +91,9 @@ void IDEASBeamline::setupDetectors()
 	ketek_ = new IDEASKETEKDetector("KETEK", "Single Element XRF Detector", this);
 	ge13Element_ = new IDEAS13ElementGeDetector("13-el Ge", "The thirteen element Germanium Detector", this);
 
+    addSynchronizedXRFDetector(ketek_);
+    addSynchronizedXRFDetector(ge13Element_);
+
 	ketekPeakingTime_ = new AMPVControl("XRF1E Peaking Time","dxp1608-1002:dxp1:PeakingTime_RBV","dxp1608-1002:dxp1:PeakingTime", QString(), this, AMCONTROL_TOLERANCE_DONT_CARE);
 	ketekTriggerLevel_ = new AMPVControl("XRF1E Trigger Level","dxp1608-1002:dxp1:TriggerThreshold_RBV","dxp1608-1002:dxp1:TriggerThreshold", QString(), this, AMCONTROL_TOLERANCE_DONT_CARE);
 	ketekBaselineThreshold_ = new AMPVControl("XRF1E Baseline Threshold","dxp1608-1002:dxp1:BaselineThreshold_RBV","dxp1608-1002:dxp1:BaselineThreshold", QString(), this, AMCONTROL_TOLERANCE_DONT_CARE);
@@ -104,9 +107,9 @@ void IDEASBeamline::setupDetectors()
 	ge13ElementRealTime_ = new AMBasicControlDetectorEmulator("13E_dwellTime", "13-element Ge dwell time", ge13ElementRealTimeControl_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
 
 
-	I0IonChamberScaler_ = new CLSBasicScalerChannelDetector("I_0","I_0 Ion Chamber", scaler_, 0, this);
-	SampleIonChamberScaler_ = new CLSBasicScalerChannelDetector("Sample","Sample Ion Chamber", scaler_, 1, this);
-	ReferenceIonChamberScaler_  = new CLSBasicScalerChannelDetector("Reference","Reference Ion Chamber", scaler_, 2, this);
+	i0IonChamberScaler_ = new CLSBasicScalerChannelDetector("I_0","I_0 Ion Chamber", scaler_, 0, this);
+	sampleIonChamberScaler_ = new CLSBasicScalerChannelDetector("Sample","Sample Ion Chamber", scaler_, 1, this);
+	referenceIonChamberScaler_  = new CLSBasicScalerChannelDetector("Reference","Reference Ion Chamber", scaler_, 2, this);
 }
 
 void IDEASBeamline::setupControlSets()
@@ -175,7 +178,7 @@ void IDEASBeamline::setupControlsAsDetectors()
 void IDEASBeamline::setupExposedControls()
 {
 	addExposedControl(ringCurrent_);
-	addExposedControl(I0Current_);
+	addExposedControl(i0Current_);
 	addExposedControl(sampleTemp_);
 	addExposedControl(monoEnergy_);
 	addExposedControl(monoDirectEnergy_);
@@ -190,13 +193,21 @@ void IDEASBeamline::setupExposedControls()
 	addExposedControl(ketekBaselineThreshold_);
 	addExposedControl(ketekPreampGain_);
 
+	addExposedControl(samplePlatformHorizontal_);
+	addExposedControl(samplePlatformVertical_);
+	addExposedControl(vacuumSampleStage_);
+
+	addExposedControl(jjSlitHGap_);
+	addExposedControl(jjSlitHCenter_);
+	addExposedControl(jjSlitVGap_);
+	addExposedControl(jjSlitVCenter_);
 }
 
 void IDEASBeamline::setupExposedDetectors()
 {
-	addExposedDetector(I0IonChamberScaler_);
-	addExposedDetector(SampleIonChamberScaler_);
-	addExposedDetector(ReferenceIonChamberScaler_);
+	addExposedDetector(i0IonChamberScaler_);
+	addExposedDetector(sampleIonChamberScaler_);
+	addExposedDetector(referenceIonChamberScaler_);
 
 	addExposedDetector(ketek_);
 	addExposedDetector(ketekRealTime_);
@@ -249,14 +260,14 @@ void IDEASBeamline::onShutterStatusChanged()
 	emit overallShutterStatus(safetyShutter_->isOpen() && photonShutter2_->isOpen() && safetyShutter2_->isOpen());
 }
 
-AMXRFDetector *IDEASBeamline::XRFDetector(IDEAS::FluorescenceDetector detectorType)
+AMXRFDetector *IDEASBeamline::xrfDetector(IDEAS::FluorescenceDetectors detectorType)
 {
 	AMXRFDetector * XRFDetector = 0;
 
-	if (detectorType == IDEAS::KetekDetector)
+	if (detectorType.testFlag(IDEAS::Ketek))
 		XRFDetector = IDEASBeamline::ideas()->ketek();
 
-	else if (detectorType == IDEAS::Ge13ElementDetector)
+	else if (detectorType.testFlag(IDEAS::Ge13Element))
 		XRFDetector = IDEASBeamline::ideas()->ge13Element();
 
 	return XRFDetector;

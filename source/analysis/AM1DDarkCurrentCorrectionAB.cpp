@@ -233,7 +233,7 @@ AMNumber AM1DDarkCurrentCorrectionAB::axisValue(int axisNumber, int index) const
 	return data_->axisValue(axisNumber, index);
 }
 
-bool AM1DDarkCurrentCorrectionAB::axisValues(int axisNumber, int startIndex, int endIndex, AMNumber *outputValues) const
+bool AM1DDarkCurrentCorrectionAB::axisValues(int axisNumber, int startIndex, int endIndex, double *outputValues) const
 {
 	if (!isValid())
 		return false;

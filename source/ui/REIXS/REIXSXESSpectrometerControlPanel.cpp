@@ -2,7 +2,7 @@
 #include <QGroupBox>
 #include <QBoxLayout>
 #include <QtGui/QFormLayout>
-#include "ui/AMTopFrame2.h"
+#include "ui/AMTopFrame.h"
 
 
 
@@ -45,7 +45,7 @@ REIXSXESSpectrometerControlPanel::REIXSXESSpectrometerControlPanel(REIXSXESMCPDe
 	QVBoxLayout* outerVLayout = new QVBoxLayout();
 	outerVLayout->setContentsMargins(0,0,0,0);
 	outerVLayout->setSpacing(0);
-	outerVLayout->addWidget(new AMTopFrame2("XES Spectrometer Setup", QIcon(":/utilities-system-monitor.png")));
+	outerVLayout->addWidget(new AMTopFrame("XES Spectrometer Setup", QIcon(":/utilities-system-monitor.png")));
 
 	QFormLayout* sampleAlignmentLayout = new QFormLayout();
 	sampleAlignmentLayout->addRow("Shift Sample Upstream: ", sampleXDown_);

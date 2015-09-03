@@ -162,7 +162,7 @@ int outputSize = indexStart.totalPointsTo(indexEnd);
 	virtual AMNumber axisValue(int axisNumber, int index) const = 0;
 
 	/// Performance optimization of axisValue():  instead of a single value, copies a block of values from \c startIndex to \c endIndex in \c outputValues.  The provided pointer must contain enough space for all the requested values.
-	virtual bool axisValues(int axisNumber, int startIndex, int endIndex, AMNumber *outputValues) const;
+    virtual bool axisValues(int axisNumber, int startIndex, int endIndex, double *outputValues) const;
 
 	// Observers
 	//////////////////////////

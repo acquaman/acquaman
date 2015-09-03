@@ -33,7 +33,7 @@ IDEASXRFScanConfiguration::IDEASXRFScanConfiguration(AMDetectorInfo detectorInfo
 	scanNumber_ = 0;
 	scanNotes_ = "";
 	positions_.clear();
-	fluorescenceDetector_ = IDEAS::NoneXRFDetector;
+	fluorescenceDetector_ = IDEAS::NoXRF;
 }
 
 IDEASXRFScanConfiguration::IDEASXRFScanConfiguration(QObject *parent)
@@ -79,7 +79,7 @@ QString IDEASXRFScanConfiguration::detailedDescription() const
 		return QString();
 }
 
-void IDEASXRFScanConfiguration::setFluorescenceDetector(IDEAS::FluorescenceDetector detector)
+void IDEASXRFScanConfiguration::setFluorescenceDetector(IDEAS::FluorescenceDetectors detector)
 {
 	if (fluorescenceDetector_ != detector){
 
@@ -87,7 +87,7 @@ void IDEASXRFScanConfiguration::setFluorescenceDetector(IDEAS::FluorescenceDetec
 		emit fluorescenceDetectorChanged(fluorescenceDetector_);
 		emit fluorescenceDetectorChanged(int(fluorescenceDetector_));
 
-		AMXRFDetector *XRFDetector = IDEASBeamline::ideas()->XRFDetector(fluorescenceDetector());
+		AMXRFDetector *XRFDetector = IDEASBeamline::ideas()->xrfDetector(fluorescenceDetector());
 		if (XRFDetector)
 			setDetectorInfo(XRFDetector->toInfo());
 		setModified(true);

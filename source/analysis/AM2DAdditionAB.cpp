@@ -119,7 +119,7 @@ AMNumber AM2DAdditionAB::axisValue(int axisNumber, int index) const
 	return sources_.at(0)->axisValue(axisNumber, index);
 }
 
-bool AM2DAdditionAB::axisValues(int axisNumber, int startIndex, int endIndex, AMNumber *outputValues) const
+bool AM2DAdditionAB::axisValues(int axisNumber, int startIndex, int endIndex, double *outputValues) const
 {
 	if (!isValid())
 		return false;
