@@ -64,6 +64,12 @@ protected slots:
 	void computeTotalTime();
 
 protected:
+	/// Calculates and returns the time it would take to scan the given region, 0 if there are any issues with the given region.
+	double calculateRegionTotalTime(AMScanAxisRegion *region);
+	/// Calculates and returns the time it would take to scan the regions of a given scan axis, 0 if there are any issues with the given axis.
+	double calculateRegionsTotalTime(AMScanAxis *scanAxis);
+
+protected:
 	/// Holds the total time in seconds that the scan is estimated to take.
 	double totalTime_;
 };
