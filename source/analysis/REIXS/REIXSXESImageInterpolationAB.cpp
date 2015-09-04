@@ -1183,10 +1183,11 @@ void REIXSXESImageInterpolationAB::setCorrelation2Smoothing(QPair<int,int> cSmoo
 void REIXSXESImageInterpolationAB::setBinningLevel(int binningLevel)
 {
 	binningLevel_ = binningLevel;
-
-	axes_[0].size = inputSource_->size(0) / binningLevel_;
-	cachedValues_.resize(axes_.at(0).size);
-	cachedAxisValues_.resize(axes_.at(0).size);
+	if(inputSource_){
+		axes_[0].size = inputSource_->size(0) / binningLevel_;
+		cachedValues_.resize(axes_.at(0).size);
+		cachedAxisValues_.resize(axes_.at(0).size);
+	}
 
 	axisValueCacheInvalid_ = true;
 	cacheInvalid_ = true;

@@ -61,6 +61,8 @@ class REIXSXESImageInterpolationAB : public AMStandardAnalysisBlock
 	Q_PROPERTY(int correlation2SmoothingType READ correlation2SmoothingType WRITE setCorrelation2SmoothingType)
 	Q_PROPERTY(int correlation2SmoothingMode READ correlation2SmoothingMode WRITE setCorrelation2SmoothingMode)
 
+	Q_PROPERTY(int binningLevel READ binningLevel WRITE setBinningLevel)
+
 	Q_PROPERTY(bool liveCorrelation READ liveCorrelation WRITE enableLiveCorrelation)
 	Q_PROPERTY(double energyCalibrationOffset READ energyCalibrationOffset WRITE setEnergyCalibrationOffset)
 	Q_PROPERTY(double tiltCalibrationOffset READ tiltCalibrationOffset WRITE setTiltCalibrationOffset)
