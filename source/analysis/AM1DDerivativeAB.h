@@ -102,7 +102,10 @@ protected:
 	/// Helper method that sets the inputSource_ pointer to the correct one based on the current state of analyzedName_.
 	void setInputSource();
 
-	/// Pointer to the data source that will be analyzed.
+    /// Computes the cached data for access getters value() and values().
+    void computeCachedValues() const;
+
+    /// Pointer to the data source that will be analyzed.
 	AMDataSource* inputSource_;	// our single input source, or 0 if we don't have one.
 
 	/// The name of the data source that should be analyzed.
@@ -112,6 +115,11 @@ protected:
 
 	/// Helper function to look at our overall situation and determine what the output state should be.
 	void reviewState();
+
+    /// Flag for knowing whether we need to compute the values.
+    mutable bool cacheUpdateRequired_;
+    /// The vector holding the data.
+    mutable QVector<double> cachedData_;
 };
 
 #endif // AM1DDERIVATIVEAB_H
