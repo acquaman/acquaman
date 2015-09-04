@@ -211,7 +211,7 @@ bool AM1DNormalizationAB::values(const AMnDIndex &indexStart, const AMnDIndex &i
         computeCachedValues();
 
     int totalSize = indexStart.totalPointsTo(indexEnd);
-    memcpy(outputValues, cachedData_.constData()+indexStart.i()*size(1), totalSize*sizeof(double));
+    memcpy(outputValues, cachedData_.constData()+indexStart.i(), totalSize*sizeof(double));
 
     return true;
 }
