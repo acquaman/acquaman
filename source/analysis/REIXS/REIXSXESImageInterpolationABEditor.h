@@ -240,7 +240,7 @@ protected:
 	QPushButton* correlateNowButton_;
 	QComboBox* correlation1SmoothingBox_;
 	QComboBox* correlation2SmoothingBox_;
-	QComboBox* binningLevelBox_;
+	QSpinBox* binningLevelBox_;
 	QCheckBox* liveCorrelationCheckBox_;
 	QDoubleSpinBox* energyCalibrationOffsetBox_, *tiltCalibrationOffsetBox_, *rangeRoundControl_;
 	QTabWidget* tabWidget_;
