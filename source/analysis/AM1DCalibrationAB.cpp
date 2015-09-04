@@ -18,7 +18,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#include <QDebug>
 #include <QtCore/qmath.h>
 
 #include "AM1DCalibrationAB.h"
@@ -134,7 +133,6 @@ void AM1DCalibrationAB::setToEdgeJump(bool toEdgeJump)
 		return;
 
 	toEdgeJump_ = toEdgeJump;
-	qDebug() << "toEdgeJump is now" << toEdgeJump_;
 	setModified(true);
 	emitValuesChanged();
 }
@@ -411,7 +409,6 @@ bool AM1DCalibrationAB::values(const AMnDIndex &indexStart, const AMnDIndex &ind
 
 
 
-		qDebug() << "the choosen pre edge point is" << preEdgePointValue << " with a value of" << offset  ;
 		// shift spectra so that pre edge reference point is 0
 		for (int i = 0; i < totalSize; i++)
 			outputValues[i] = outputValues[i] - offset;
