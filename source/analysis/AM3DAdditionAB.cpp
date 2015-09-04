@@ -63,7 +63,7 @@ AMNumber AM3DAdditionAB::value(const AMnDIndex &indexes) const
     if (cacheUpdateRequired_)
         computeCachedValues();
 
-    return cachedData_.at(indexes.flatIndexInArrayOfSize(size()));
+    return cachedData_.at(indexes.i()*size(1)*size(2)+indexes.j()*size(2)+indexes.k());
 }
 
 bool AM3DAdditionAB::values(const AMnDIndex &indexStart, const AMnDIndex &indexEnd, double *outputValues) const
@@ -87,7 +87,7 @@ bool AM3DAdditionAB::values(const AMnDIndex &indexStart, const AMnDIndex &indexE
         computeCachedValues();
 
     int totalSize = indexStart.totalPointsTo(indexEnd);
-    memcpy(outputValues, cachedData_.constData()+indexStart.flatIndexInArrayOfSize(size()), totalSize*sizeof(double));
+    memcpy(outputValues, cachedData_.constData()+indexStart.i()*size(1)*size(2)+indexStart.j()*size(2), totalSize*sizeof(double));
 
 	return true;
 }
@@ -130,25 +130,13 @@ void AM3DAdditionAB::onInputSourceValuesChanged(const AMnDIndex& start, const AM
 // Connected to be called when the size of the input source changes
 void AM3DAdditionAB::onInputSourceSizeChanged()
 {
-	if(axes_.at(0).size != sources_.at(0)->size(0)){
-
-		axes_[0].size = sources_.at(0)->size(0);
-		emitSizeChanged(0);
-	}
-
-	if(axes_.at(1).size != sources_.at(0)->size(1)){
-
-		axes_[1].size = sources_.at(0)->size(1);
-		emitSizeChanged(1);
-	}
-
-	if(axes_.at(2).size != sources_.at(0)->size(2)){
-
-		axes_[2].size = sources_.at(0)->size(2);
-		emitSizeChanged(2);
-	}
+    axes_[0].size = sources_.at(0)->size(0);
+    axes_[1].size = sources_.at(0)->size(1);
+    axes_[2].size = sources_.at(0)->size(2);
 
     cacheUpdateRequired_ = true;
+    cachedData_ = QVector<double>(size().product());
+    emitSizeChanged();
 }
 
 // Connected to be called when the state() flags of any input source change
@@ -192,6 +180,9 @@ void AM3DAdditionAB::setInputDataSourcesImplementation(const QList<AMDataSource*
 		axes_[1] = sources_.at(0)->axisInfoAt(1);
 		axes_[2] = sources_.at(0)->axisInfoAt(2);
 
+        cacheUpdateRequired_ = true;
+        cachedData_ = QVector<double>(size().product());
+
 		setDescription(QString("Sum of spectra from %1 maps").arg(sources_.size()));
 
 		for (int i = 0; i < sources_.size(); i++){
@@ -204,13 +195,9 @@ void AM3DAdditionAB::setInputDataSourcesImplementation(const QList<AMDataSource*
 
 	reviewState();
 
-	emitSizeChanged(0);
-	emitSizeChanged(1);
-	emitSizeChanged(2);
-	emitValuesChanged();
-	emitAxisInfoChanged(0);
-	emitAxisInfoChanged(1);
-	emitAxisInfoChanged(2);
+    emitSizeChanged();
+    emitValuesChanged();
+    emitAxisInfoChanged();
 	emitInfoChanged();
 }
 
@@ -248,7 +235,7 @@ void AM3DAdditionAB::reviewState()
 void AM3DAdditionAB::computeCachedValues() const
 {
     AMnDIndex start = AMnDIndex(0, 0, 0);
-    AMnDIndex end = size();
+    AMnDIndex end = size()-1;
     int totalSize = start.totalPointsTo(end);
 
     QVector<double> data = QVector<double>(totalSize);
