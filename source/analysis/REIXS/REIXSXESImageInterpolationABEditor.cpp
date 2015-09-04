@@ -70,6 +70,13 @@ REIXSXESImageInterpolationABEditor::REIXSXESImageInterpolationABEditor(REIXSXESI
 	tiltCalibrationOffsetBox_->setSingleStep(0.1);
 	tiltCalibrationOffsetBox_->setSuffix(" deg");
 
+	binningLevelBox_ = new QComboBox();
+	binningLevelBox_->addItem("none");
+	binningLevelBox_->addItem("2");
+	binningLevelBox_->addItem("4");
+	binningLevelBox_->addItem("8");
+	binningLevelBox_->addItem("16");
+
 	rangeMinYControl_ = new QSpinBox();
 	rangeMinYControl_->setSingleStep(1);
 	rangeMinYControl_->setMinimum(0);
@@ -292,6 +299,7 @@ REIXSXESImageInterpolationABEditor::REIXSXESImageInterpolationABEditor(REIXSXESI
 					calibrationSpinnerLayout->addWidget(energyCalibrationOffsetBox_);
 					calibrationSpinnerLayout->addWidget(tiltCalibrationOffsetBox_);
 				calibrationLayout->addRow("Offset:",calibrationSpinnerLayout);
+				calibrationLayout->addRow("Binning:",binningLevelBox_);
 			calibrationGroupBox->setLayout(calibrationLayout);
 		//END OF CALIBRATION PAGE LAYOUT
 	tabWidget_->addTab(calibrationGroupBox,"Cal");
@@ -442,6 +450,7 @@ REIXSXESImageInterpolationABEditor::REIXSXESImageInterpolationABEditor(REIXSXESI
 
 	connect(correlation1SmoothingBox_, SIGNAL(currentIndexChanged(int)), this, SLOT(onCSmoothBox1Changed()));
 	connect(correlation2SmoothingBox_, SIGNAL(currentIndexChanged(int)), this, SLOT(onCSmoothBox2Changed()));
+	connect(binningLevelBox_, SIGNAL(currentIndexChanged(int)), this, SLOT(onBinningLevelBoxChanged(int)));
 	connect(smooth1ModelBox_, SIGNAL(valueChanged(int)), this, SLOT(onCSmooth1ModeChanged()));
 	connect(smooth2Mode1Box_, SIGNAL(valueChanged(int)), this, SLOT(onCSmooth2ModeChanged()));
 
@@ -814,6 +823,26 @@ void REIXSXESImageInterpolationABEditor::onAnalysisBlockInputDataSourcesChanged(
 		correlation2SmoothingBox_->setCurrentIndex(analysisBlock_->correlation2Smoothing().first);
 		correlation2SmoothingBox_->blockSignals(false);
 
+		binningLevelBox_->blockSignals(true);
+		switch(analysisBlock_->binningLevel()){
+		case 1:
+			binningLevelBox_->setCurrentIndex(0);
+			break;
+		case 2:
+			binningLevelBox_->setCurrentIndex(1);
+			break;
+		case 4:
+			binningLevelBox_->setCurrentIndex(2);
+			break;
+		case 8:
+			binningLevelBox_->setCurrentIndex(3);
+			break;
+		case 16:
+			binningLevelBox_->setCurrentIndex(4);
+			break;
+		}
+		binningLevelBox_->blockSignals(false);
+
 		smooth1ModelBox_->blockSignals(true);
 		smooth1ModelBox_->setValue(analysisBlock_->correlation1Smoothing().second);
 		if(analysisBlock_->correlation1Smoothing().first == 1)
@@ -1019,7 +1048,6 @@ int REIXSXESImageInterpolationABEditorEllipticalMask::count() const
 
 void REIXSXESImageInterpolationABEditorEllipticalMask::rangeValuesChanged()
 {
-	emitDataChanged();
 }
 
 /*
@@ -1480,4 +1508,23 @@ void REIXSXESImageInterpolationABEditor::onShiftValuesChanged()
 
 }
 
-
+void REIXSXESImageInterpolationABEditor::onBinningLevelBoxChanged(int index)
+{
+	switch(index) {
+	case 0:  //none
+		analysisBlock_->setBinningLevel(1);
+		break;
+	case 1:  //2
+		analysisBlock_->setBinningLevel(2);
+		break;
+	case 2:  //4
+		analysisBlock_->setBinningLevel(4);
+		break;
+	case 3:  //8
+		analysisBlock_->setBinningLevel(8);
+		break;
+	case 4:  //16
+		analysisBlock_->setBinningLevel(16);
+		break;
+	}
+}

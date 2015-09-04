@@ -143,6 +143,8 @@ int outputSize = indexStart.totalPointsTo(indexEnd);
 	int correlation1CenterPixel() const { return correlation1CenterPx_; }
 	/// The central pixel value to use when running an auto-correlation routine
 	int correlation2CenterPixel() const { return correlation2CenterPx_; }
+	/// The central pixel value to use when running an auto-correlation routine
+	int binningLevel() const { return binningLevel_; }
 
 	/// The full-width of the region around correlationCenterPixel() to compute when running an auto-correlation routine.
 	int correlation1HalfWidth() const{ return correlation1HalfWidth_; }
@@ -204,6 +206,9 @@ public slots:
 	void setCorrelation2HalfWidth(int width);
 	/// Sets the smoothing used on the shift curve after correlation. \c type must be one of ShiftCurveSmoothing.
 	void setCorrelation2Smoothing(QPair<int,int> cSmooth);
+
+	/// Handles changing the binning level and trigging a recompute
+	void setBinningLevel(int binningLevel);
 
 	void setCorrelation1SmoothingType(int type);
 	void setCorrelation1SmoothingMode(int mode);
@@ -304,8 +309,10 @@ protected:
 	AMIntList shiftValues1_;
 	/// The second set of shift values used to offset each row of the image when summing
 	AMIntList shiftValues2_;
-	/// The level of onterpolation, hard-coded for now
+	/// The level of interpolation, hard-coded for now
 	int interpolationLevel_;
+	/// The level of binning
+	int binningLevel_;
 	/// The last computed shift value map
 	mutable QVector<double> lastShiftValueMap_;
 

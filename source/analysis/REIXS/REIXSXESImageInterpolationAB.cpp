@@ -60,6 +60,7 @@ REIXSXESImageInterpolationAB::REIXSXESImageInterpolationAB(const QString &output
 	setDescription("XES Interpolated Spectrum");
 
 	interpolationLevel_ = 10;
+	binningLevel_ = 1;
 	// shift values can start out empty.
 	shiftValues1_ << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0;
 	shiftValues2_ << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0;
@@ -381,40 +382,44 @@ void REIXSXESImageInterpolationAB::computeCachedValues() const
 		double numY = (double)(sumRangeMaxY_ - sumRangeMinY_);
 
 
-		for(int i=0; i<iSize; ++i) {
-			double newVal = 0.0;
-			int contributingRows = 0;
-			if(i > sumRangeMinX_ && i < sumRangeMaxX_) {
-				double xVal = (double)i - originX;
-				for(int j=sumRangeMinY_; j<=sumRangeMaxY_; j++) { // loop through rows
-					if(rangeRound_ == 0.0) { //not ellipse
-						int sourceI = i + shiftValues1_.at(j);
-						if(sourceI < iSize && sourceI >= 0) {
-							newVal += image.at(sourceI*jSize + j);
-							contributingRows++;
-						}
-					}
-					else {
-
-						double yVal = (double)j - originY;
-						if((fabs(xVal) <= numX/2.0*(1.0 - rangeRound_)) || (fabs(yVal) <= numY/2.0*(1.0 - rangeRound_)) || ((((xVal-(1-rangeRound_)*numX/2.0)/(rangeRound_*numX/2.0))*((xVal-(1-rangeRound_)*numX/2.0)/(rangeRound_*numX/2.0))+((yVal-(1-rangeRound_)*numY/2.0)/(rangeRound_*numY/2.0))*((yVal-(1-rangeRound_)*numY/2.0)/(rangeRound_*numY/2.0))) < 1)) { //within ellipse
+		for(int b = 0; b < iSize / binningLevel_; b++) {
+			cachedValues_[b] = 0;
+			for(int temp = 0; temp < binningLevel_; temp++ ) {
+				int i = b * binningLevel_ + temp;
+				double newVal = 0.0;
+				int contributingRows = 0;
+				if(i > sumRangeMinX_ && i < sumRangeMaxX_) {
+					double xVal = (double)i - originX;
+					for(int j=sumRangeMinY_; j<=sumRangeMaxY_; j++) { // loop through rows
+						if(rangeRound_ == 0.0) { //not ellipse
 							int sourceI = i + shiftValues1_.at(j);
 							if(sourceI < iSize && sourceI >= 0) {
 								newVal += image.at(sourceI*jSize + j);
 								contributingRows++;
 							}
 						}
+						else {
+
+							double yVal = (double)j - originY;
+							if((fabs(xVal) <= numX/2.0*(1.0 - rangeRound_)) || (fabs(yVal) <= numY/2.0*(1.0 - rangeRound_)) || ((((xVal-(1-rangeRound_)*numX/2.0)/(rangeRound_*numX/2.0))*((xVal-(1-rangeRound_)*numX/2.0)/(rangeRound_*numX/2.0))+((yVal-(1-rangeRound_)*numY/2.0)/(rangeRound_*numY/2.0))*((yVal-(1-rangeRound_)*numY/2.0)/(rangeRound_*numY/2.0))) < 1)) { //within ellipse
+								int sourceI = i + shiftValues1_.at(j);
+								if(sourceI < iSize && sourceI >= 0) {
+									newVal += image.at(sourceI*jSize + j);
+									contributingRows++;
+								}
+							}
+						}
 					}
 				}
-			}
-			// normalize by dividing by the number of rows that contributed. Since we want to keep the output in units similar to raw counts, multiply by the nominal (usual) number of contributing rows.
-			// Essentially, this normalization prevents columns near the edge that miss out on some rows due to shifting from being artificially suppressed.  For inner columns, contributingRows will (sumRangeMax_ - sumRangeMin_ + 1).
-			if(contributingRows == 0)
-				newVal = 0;
-			else
-				newVal = newVal * double(sumRangeMaxY_ - sumRangeMinY_ + 1) / double(contributingRows);
+				// normalize by dividing by the number of rows that contributed. Since we want to keep the output in units similar to raw counts, multiply by the nominal (usual) number of contributing rows.
+				// Essentially, this normalization prevents columns near the edge that miss out on some rows due to shifting from being artificially suppressed.  For inner columns, contributingRows will (sumRangeMax_ - sumRangeMin_ + 1).
+				if(contributingRows == 0)
+					newVal = 0;
+				else
+					newVal = newVal * double(sumRangeMaxY_ - sumRangeMinY_ + 1) / double(contributingRows);
 
-			cachedValues_[i] = newVal;
+				cachedValues_[b] = cachedValues_[b] + newVal;
+			}
 		}
 	}
 	else
@@ -492,44 +497,47 @@ void REIXSXESImageInterpolationAB::computeCachedValues() const
 		double numY = (double)(sumRangeMaxY_ - sumRangeMinY_);
 
 
-		for(int i = 0; i < iSize; i++) {
+		for(int b = 0; b < iSize / binningLevel_; b++) {
+			cachedValues_[b] = 0;
+			for(int temp = 0; temp < binningLevel_; temp++ ) {
+				int i = b * binningLevel_ + temp;
+				double newVal = 0.0;
+				int contributingRows = 0;
 
-			double newVal = 0.0;
-			int contributingRows = 0;
+				if(i > sumRangeMinX_ && i < sumRangeMaxX_) {
 
-			if(i > sumRangeMinX_ && i < sumRangeMaxX_) {
+					double xVal = (double)i - originX;
 
-				double xVal = (double)i - originX;
+					for (int j = sumRangeMinY_; j <= sumRangeMaxY_; j++) { // loop through rows
 
-				for (int j = sumRangeMinY_; j <= sumRangeMaxY_; j++) { // loop through rows
-
-					if (rangeRound_ == 0.0) { //not ellipse
-
-						newVal += tempFinalVectorPointer[j+i*jSize]; //0.5 to ensure proper rounding, rather than truncating
-						contributingRows++;
-					}
-
-					else {
-
-						double yVal = (double)j - originY;
-
-						if((fabs(xVal) <= numX/2.0*(1.0 - rangeRound_)) || (fabs(yVal) <= numY/2.0*(1.0 - rangeRound_)) || ((((xVal-(1-rangeRound_)*numX/2.0)/(rangeRound_*numX/2.0))*((xVal-(1-rangeRound_)*numX/2.0)/(rangeRound_*numX/2.0))+((yVal-(1-rangeRound_)*numY/2.0)/(rangeRound_*numY/2.0))*((yVal-(1-rangeRound_)*numY/2.0)/(rangeRound_*numY/2.0))) < 1)) { //within ellipse
+						if (rangeRound_ == 0.0) { //not ellipse
 
 							newVal += tempFinalVectorPointer[j+i*jSize]; //0.5 to ensure proper rounding, rather than truncating
 							contributingRows++;
 						}
+
+						else {
+
+							double yVal = (double)j - originY;
+
+							if((fabs(xVal) <= numX/2.0*(1.0 - rangeRound_)) || (fabs(yVal) <= numY/2.0*(1.0 - rangeRound_)) || ((((xVal-(1-rangeRound_)*numX/2.0)/(rangeRound_*numX/2.0))*((xVal-(1-rangeRound_)*numX/2.0)/(rangeRound_*numX/2.0))+((yVal-(1-rangeRound_)*numY/2.0)/(rangeRound_*numY/2.0))*((yVal-(1-rangeRound_)*numY/2.0)/(rangeRound_*numY/2.0))) < 1)) { //within ellipse
+
+								newVal += tempFinalVectorPointer[j+i*jSize]; //0.5 to ensure proper rounding, rather than truncating
+								contributingRows++;
+							}
+						}
 					}
 				}
+				// normalize by dividing by the number of rows that contributed. Since we want to keep the output in units similar to raw counts, multiply by the nominal (usual) number of contributing rows.
+				// Essentially, this normalization prevents columns near the edge that miss out on some rows due to shifting from being artificially suppressed.  For inner columns, contributingRows will (sumRangeMax_ - sumRangeMin_ + 1).
+				if(contributingRows == 0)
+					newVal = 0;
+
+				else
+					newVal = newVal * double(sumRangeMaxY_ - sumRangeMinY_ + 1) / double(contributingRows);
+
+				cachedValues_[b] = cachedValues_[b] + newVal;
 			}
-			// normalize by dividing by the number of rows that contributed. Since we want to keep the output in units similar to raw counts, multiply by the nominal (usual) number of contributing rows.
-			// Essentially, this normalization prevents columns near the edge that miss out on some rows due to shifting from being artificially suppressed.  For inner columns, contributingRows will (sumRangeMax_ - sumRangeMin_ + 1).
-			if(contributingRows == 0)
-				newVal = 0;
-
-			else
-				newVal = newVal * double(sumRangeMaxY_ - sumRangeMinY_ + 1) / double(contributingRows);
-
-			cachedValues_[i] = newVal;
 		}
 	}
 
@@ -605,8 +613,8 @@ void REIXSXESImageInterpolationAB::onInputSourceSizeChanged()
 	axisValueCacheInvalid_ = true;
 
 	bool sizeChanged = false;
-	if(axes_.at(0).size != inputSource_->size(0)) {
-		axes_[0].size = inputSource_->size(0);
+	if(axes_.at(0).size != inputSource_->size(0) / binningLevel_) {
+		axes_[0].size = inputSource_->size(0) / binningLevel_;
 		cachedValues_.resize(axes_.at(0).size);
 		cachedAxisValues_.resize(axes_.at(0).size);
 		sizeChanged = true;
@@ -963,6 +971,7 @@ void REIXSXESImageInterpolationAB::computeCachedAxisValues() const
 	// Calculate bottom half of the axis. (low energies). Sign is -1
 	int sign = -1;
 	int centerPixel = size(0)/2;
+	qDebug() << "centerPixel =" << centerPixel << "size(0)" << size(0);
 
 	for(int i=0; i<centerPixel; ++i) {
 		// distance away from center, always positive.
@@ -975,10 +984,12 @@ void REIXSXESImageInterpolationAB::computeCachedAxisValues() const
 		double sinbp = sinBeta*sqrt( 1.0-sindb*sindb ) + cosBeta*sindb;
 		//solving the grating equation for eV:
 		cachedAxisValues_[i] = 0.0012398417*grooveDensity / (sinAlpha - sinbp) + energyCalibrationOffset_;	// NOTE: we're adding in the user-specified energy offset here.
+		qDebug() << "cachedAxisValues_[" << i << "] = " << cachedAxisValues_[i];
 	}
 
 	// midpoint:
 	cachedAxisValues_[centerPixel] = 0.0012398417*grooveDensity / (sinAlpha - sinBeta) + energyCalibrationOffset_;	// NOTE: we're adding in the user-specified energy offset here.
+	qDebug() << "cachedAxisValues_[" << centerPixel << "] = " << cachedAxisValues_[centerPixel];
 
 	// Calculate top half of axis. (high energies). Sign is 1:
 	sign = 1;
@@ -989,49 +1000,8 @@ void REIXSXESImageInterpolationAB::computeCachedAxisValues() const
 		double sinbp = sinBeta*sqrt( 1.0-sindb*sindb ) + cosBeta*sindb;
 		cachedAxisValues_[i] = 0.0012398417*grooveDensity / (sinAlpha - sinbp) + energyCalibrationOffset_;	// NOTE: we're adding in the user-specified energy offset here.
 
+		qDebug() << "cachedAxisValues_[" << i << "] = " << cachedAxisValues_[i];
 	}
-	//////////////////////////////////////////////////////
-
-
-	// David's implementation: (SUSPICIOUS?!?)
-	//////////////////////////////////////////////////////
-	/*
-	double singp = cos(beta);
-	double cosgp = sin(beta);
-
-	int centerPixel = size(0)/2;
-	for(int i=0, cc=size(0); i<cc; ++i) {
-
-		// distance away from center, always positive.
-		double dx = (centerPixel-i)*mmPerPixel*singp;
-
-		// db: "delta Beta": the angle difference from the nominal beta.
-
-		double db = atan(dx/(rPrime-(centerPixel-i)*mmPerPixel*cosgp));
-
-
-		//bp ("beta-prime") is the diffraction angle at detector point 'i' sinbp = sin( beta + db )
-		//																		 = sinb*cos(db) + cosb*sindb
-		//																		 = sinb*sqrt(1-sin^2(db)) + cosb*sindb
-		//double sinbp = sinBeta*sqrt( 1.0-sindb*sindb ) + cosBeta*sindb
-		double sinbp = sin(beta - db);
-
-
-		//solving the grating equation for eV:
-		cachedAxisValues_[i] = 0.0012398417*grooveDensity / (sinAlpha - sinbp);
-	}
-	//////////////////////////////////////////////////////
-
-	qDebug()<< "rPrime = " << rPrime;
-	qDebug() <<"cosgp = " << cosgp;
-	qDebug()<< "cosBeta = " << cosBeta;
-	qDebug()<< "sinBeta = " << sinBeta;
-	qDebug()<< "gamma = " << gamma;
-	qDebug()<< "beta = " << beta;
-	qDebug()<< "grooveDensity = " << grooveDensity;
-	qDebug()<< "sinAlpha = " << sinAlpha;
-	*/
-
 
 	axisValuesInvalid_ = false;
 }
@@ -1210,3 +1180,17 @@ void REIXSXESImageInterpolationAB::setCorrelation2Smoothing(QPair<int,int> cSmoo
 	setModified(true);
 }
 
+void REIXSXESImageInterpolationAB::setBinningLevel(int binningLevel)
+{
+	binningLevel_ = binningLevel;
+
+	axes_[0].size = inputSource_->size(0) / binningLevel_;
+	cachedValues_.resize(axes_.at(0).size);
+	cachedAxisValues_.resize(axes_.at(0).size);
+
+	axisValueCacheInvalid_ = true;
+	cacheInvalid_ = true;
+	setModified(true);
+	emitSizeChanged(); //recompute all axis
+	emitValuesChanged();
+}
