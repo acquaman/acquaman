@@ -90,6 +90,11 @@ public:
 	  * \param rZ ~ The amount to rotate the system about the Z Axis (3rd)
 	  */
 	void rotateSystem(double rX, double rY, double rZ);
+
+	/*!
+	  * Resets the system of the hexapod back to the plane of the base plate.
+	  */
+	void resetSystem();
 signals:
 
 	/*!

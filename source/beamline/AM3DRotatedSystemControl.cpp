@@ -38,6 +38,8 @@ void AM3DRotatedSystemControl::resetRotationsToGlobal()
 {
 	globalToPrimeTransform_ = QQuaternion();
 	primeToGlobalTransform_ = QQuaternion();
+
+	updateStates();
 }
 
 QVector3D AM3DRotatedSystemControl::globalAxisToPrime(const QVector3D &globalVector) const

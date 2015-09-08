@@ -31,6 +31,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "acquaman/AMGenericStepScanConfiguration.h"
 #include "ui/acquaman/AMGenericStepScanConfigurationView.h"
 #include "util/AMErrorMonitor.h"
+#include "ui/SGM/SGMHexapodView.h"
 
 #include <stdlib.h> // Used for obtaining username to prevent users other than iain (for dev) or SGM-Upgrade (for commissioning). Remove for deploy.
 
@@ -111,6 +112,11 @@ void SGMAppController::setupUserInterface()
 	mw_->insertHeading("Components", 0);
 
 	mw_->addPane(AMMainWindow::buildMainWindowPane("Scaler", ":/system-software-update.png", scalerView),"Components", "Scaler",  ":/system-software-update.png");
+
+	SGMHexapodView* hexapodView =
+			new SGMHexapodView(SGMBeamline::sgm()->hexapod());
+
+	mw_->addPane(AMMainWindow::buildMainWindowPane("Hexapod", ":/system-software-update.png", hexapodView), "Components", "Hexapod", ":/system-software-update.png");
 
 	mw_->insertHeading("Scans", 1);
 

@@ -96,12 +96,6 @@ SGMHexapod::SGMHexapod(QObject *parent) :
 																		   "mm",
 																		   this);
 
-
-
-	// Set hexapod system as the plane of the sample plate.
-	rotateSystem(45, 0, 105);
-
-
 	allControls_ = new AMControlSet(this);
 	allControls_->addControl(xAxisPrimeControl_);
 	allControls_->addControl(yAxisPrimeControl_);
@@ -186,5 +180,16 @@ void SGMHexapod::rotateSystem(double rX, double rY, double rZ)
 	xAxisPrimeTrajectoryControl_->rotate(rX, rY, rZ);
 	yAxisPrimeTrajectoryControl_->rotate(rX, rY, rZ);
 	zAxisPrimeTrajectoryControl_->rotate(rX, rY, rZ);
+}
+
+void SGMHexapod::resetSystem()
+{
+	xAxisPrimeControl_->resetRotationsToGlobal();
+	yAxisPrimeControl_->resetRotationsToGlobal();
+	zAxisPrimeControl_->resetRotationsToGlobal();
+
+	xAxisPrimeTrajectoryControl_->resetRotationsToGlobal();
+	yAxisPrimeTrajectoryControl_->resetRotationsToGlobal();
+	zAxisPrimeTrajectoryControl_->resetRotationsToGlobal();
 }
 

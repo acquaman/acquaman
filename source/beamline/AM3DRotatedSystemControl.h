@@ -38,7 +38,7 @@ public:
 	/*!
 	  * Rotates the coordinate system using the provided Euler angles.
 	  * NOTE: Rotations are provided in sequence, X, Y, Z. and are applied
-	  * commumulatively.
+	  * cumulatively.
 	  * \param rX ~ The value to rotate the system about the X Axis (1st)
 	  * \param rY ~ The value to rotate the system about the Y Axis (2nd)
 	  * \param rZ ~ The value to rotate the system about the Z Axis (3rd)
