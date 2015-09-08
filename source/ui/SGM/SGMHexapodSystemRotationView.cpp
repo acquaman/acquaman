@@ -6,37 +6,6 @@
 #include <QPoint>
 
 #include "beamline/SGM/SGMHexapod.h"
-SGMRotationDisplayWidget::SGMRotationDisplayWidget(QWidget *parent)
-	: QWidget(parent)
-{
-	setMinimumSize(250, 250);
-}
-
-void SGMRotationDisplayWidget::paintEvent(QPaintEvent *e)
-{
-	QPainter painter(this);
-	QPoint origin(width() / 2, height()/ 2);
-
-	// Draw background
-	painter.fillRect(e->rect(), QColor::fromRgb(255, 255, 255));
-
-	// Draw Y Axis Lines
-	painter.setPen(QPen(QColor::fromRgb(23, 94, 56)));
-	painter.drawLine(origin.x(), origin.y(), origin.x(), origin.y() + height() / 2);
-	painter.drawLine(origin.x(), origin.y(), origin.x(), origin.y() - height() / 2);
-
-	// Draw X Axis Lines
-	painter.setPen(QPen(QColor::fromRgb(65, 71, 153)));
-	painter.drawLine(origin.x(), origin.y(), origin.x() + width() / 2, origin.y());
-	painter.drawLine(origin.x(), origin.y(), origin.x() - width() / 2, origin.y());
-
-	// Draw Z Axis Lines
-	painter.setPen(QPen(QColor::fromRgb(181, 76, 109)));
-	painter.drawLine(origin.x(), origin.y(), origin.x() + width() / 1.5, origin.y() - height() / 2);
-	painter.drawLine(origin.x(), origin.y(), origin.x() - width() / 1.5, origin.y() + height() / 2);
-
-}
-
 SGMHexapodSystemRotationView::SGMHexapodSystemRotationView(SGMHexapod* hexapod, QWidget *parent) :
     QWidget(parent)
 {
@@ -97,8 +66,6 @@ void SGMHexapodSystemRotationView::setupUI()
 	applyRotationButton_ = new QPushButton("Apply");
 	resetRotationButton_ = new QPushButton("Restore default");
 
-	rotationDisplay_ = new SGMRotationDisplayWidget();
-
 	mainLayout->addWidget(xAngleTransformLabel_, 0, 0);
 	mainLayout->addWidget(xAngleTransformSpinbox_, 0, 1);
 
@@ -111,7 +78,6 @@ void SGMHexapodSystemRotationView::setupUI()
 	mainLayout->addWidget(applyRotationButton_, 3, 0);
 	mainLayout->addWidget(resetRotationButton_, 3, 1);
 
-	mainLayout->addWidget(rotationDisplay_, 4, 0);
 	connect(applyRotationButton_, SIGNAL(clicked()), this, SLOT(onApplyButtonClicked()));
 	connect(resetRotationButton_, SIGNAL(clicked()), this, SLOT(onResetButtonClicked()));
 }

@@ -7,15 +7,6 @@
 #include <QLabel>
 class SGMHexapod;
 
-class SGMRotationDisplayWidget : public QWidget
-{
-	Q_OBJECT
-public:
-	SGMRotationDisplayWidget(QWidget* parent = 0);
-protected:
-	void paintEvent(QPaintEvent *);
-};
-
 /*!
   * A ui class which allows users to tweak the rotation of the coordinate system
   * of the hexapod.
@@ -65,8 +56,6 @@ protected:
 	QDoubleSpinBox* xAngleTransformSpinbox_;
 	QDoubleSpinBox* yAngleTransformSpinbox_;
 	QDoubleSpinBox* zAngleTransformSpinbox_;
-
-	SGMRotationDisplayWidget* rotationDisplay_;
 };
 
 #endif // SGMHEXAPODSYSTEMROTATIONVIEW_H

@@ -30,29 +30,22 @@ void SGMHexapodView::setupUi()
 	QGroupBox* positionGroupBox = new QGroupBox("Hexapod Position");
 
 	QVBoxLayout* positionLayout = new QVBoxLayout();
-	positionLayout->addWidget(hexapodPositionView);
 	positionGroupBox->setLayout(positionLayout);
+	positionLayout->addWidget(hexapodPositionView, 0, Qt::AlignTop);
 
 	QVBoxLayout* trajectoryLayout = new QVBoxLayout();
-	trajectoryLayout->addWidget(hexapodTrajectoryView_);
+	trajectoryLayout->addWidget(hexapodTrajectoryView_, 0, Qt::AlignTop);
 	trajectoryGroupBox->setLayout(trajectoryLayout);
 
 	QVBoxLayout* rotationLayout = new QVBoxLayout();
-	rotationLayout->addWidget(hexapodSystemRotationView_);
 	rotationGroupBox->setLayout(rotationLayout);
+	rotationLayout->addWidget(hexapodSystemRotationView_, 0, Qt::AlignTop);
 
-	QHBoxLayout* layout1 = new QHBoxLayout();
-	layout1->addWidget(positionGroupBox);
-	layout1->addWidget(trajectoryGroupBox);
-	layout1->addStretch();
+	mainLayout->addWidget(positionGroupBox);
+	mainLayout->addWidget(trajectoryGroupBox);
+	mainLayout->addWidget(rotationGroupBox);
 
-	QHBoxLayout* layout2 = new QHBoxLayout();
-	layout2->addWidget(rotationGroupBox);
-	layout2->addStretch();
-
-	mainLayout->addLayout(layout1,1);
-	mainLayout->addLayout(layout2,1);
-
+	mainLayout->addStretch();
 	setLayout(mainLayout);
 
 }
