@@ -77,6 +77,14 @@ protected:
 	virtual void setInputDataSourcesImplementation(const QList<AMDataSource*>& dataSources);
 	/// Helper function to look at our overall situation and determine what the output state should be.
 	void reviewState();
+
+    /// Computes the cached data for access getters value() and values().
+    void computeCachedValues() const;
+
+    //// Flag for knowing whether we need to compute the values.
+    mutable bool cacheUpdateRequired_;
+    /// The vector holding the data.
+    mutable QVector<double> cachedData_;
 };
 
 #endif // AM1DSUMMINGAB_H
