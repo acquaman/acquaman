@@ -250,7 +250,7 @@ AMNumber AMRegionOfInterestAB::axisValue(int axisNumber, int index) const
 	return spectrum_->axisValue(axisNumber, index);
 }
 
-bool AMRegionOfInterestAB::axisValues(int axisNumber, int startIndex, int endIndex, AMNumber *outputValues) const
+bool AMRegionOfInterestAB::axisValues(int axisNumber, int startIndex, int endIndex, double *outputValues) const
 {
 	if (!isValid())
 		return false;

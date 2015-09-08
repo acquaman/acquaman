@@ -93,6 +93,79 @@ REIXSXESScanConfiguration::REIXSXESScanConfiguration(const REIXSXESScanConfigura
 	namedAutomatically_ = original.namedAutomatically();
 }
 
+
+bool REIXSXESScanConfiguration::canEnumConvert(const QString &enumName) const{
+	if(enumName == "spectrometerGrating" || enumName == "beamlinePolarization"  || enumName == "monoMirrorSelector"  || enumName == "monoGratingSelector")
+		return true;
+	return false;
+}
+
+QString REIXSXESScanConfiguration::enumConvert(const QString &enumName, int enumValue) const{
+	if(enumName == "spectrometerGrating"){
+		switch(enumValue){
+		case 0:
+			return "LEG";
+		case 1:
+			return "Impurity";
+		case 2:
+			return "MEG";
+		case 3:
+			return "HEG";
+		case 4:
+			return "HRMEG";
+		case 5:
+			return "HRHEG";
+		case 6:
+			return "LEG 2nd Order";
+
+		}
+	}
+	else if(enumName == "beamlinePolarization"){
+		switch(enumValue){
+		case 0:
+			return "Circular Left";
+		case 1:
+			return "Circular Right";
+		case 2:
+			return "Linear Horizontal";
+		case 3:
+			return "Linear Vertical-";
+		case 4:
+			return "Linear Vertical+";
+		case 5:
+			return "Linear Inclined";
+		}
+	}
+	else if(enumName == "monoMirrorSelector"){
+		switch(enumValue){
+		case 0:
+			return "Nickle";
+		case 1:
+			return "Carbon";
+		case 2:
+			return "Silicon";
+		case 3:
+			return "Au";
+		case 4:
+			return "Out of Position";
+		}
+	}
+	else if(enumName == "monoGratingSelector"){
+		switch(enumValue){
+		case 0:
+			return "Ni-LEG";
+		case 1:
+			return "Au-LEG";
+		case 2:
+			return "Au-HEG";
+		case 3:
+			return "Out of Position";
+		}
+	}
+	return "[??]";
+}
+
+
 // Returns a pointer to a newly-created copy of this scan configuration.  (It takes the role of a copy constructor, but is virtual so that our high-level classes can copy a scan configuration without knowing exactly what kind it is.)
 AMScanConfiguration* REIXSXESScanConfiguration::createCopy() const
 {
@@ -131,7 +204,9 @@ void REIXSXESScanConfiguration::computeTotalTimeImplementation()
 	double averageCountRate =  REIXSBeamline::bl()->mcpDetector()->countsPerSecond();
 	double estimatedTime = maximumTotalCounts_ / averageCountRate;
 
-	totalTime_ = qMin(double(maximumDurationSeconds_), estimatedTime);
+	double scanLength = REIXSBeamline::bl()->mcpDetector()->acquisitionTime();
+
+	totalTime_ = qMin(double(scanLength), estimatedTime);
 
 	setExpectedDuration(totalTime_);
 	emit totalTimeChanged(totalTime_);

@@ -469,7 +469,7 @@ AMNumber AM4DBinningAB::axisValue(int axisNumber, int index) const {
 	return inputSource_->axisValue(actualAxis, index);
 }
 
-bool AM4DBinningAB::axisValues(int axisNumber, int startIndex, int endIndex, AMNumber *outputValues) const
+bool AM4DBinningAB::axisValues(int axisNumber, int startIndex, int endIndex, double *outputValues) const
 {
 	if (!isValid())
 		return false;

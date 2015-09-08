@@ -104,6 +104,76 @@ REIXSXASScanConfiguration::REIXSXASScanConfiguration(const REIXSXASScanConfigura
 	}
 }
 
+bool REIXSXASScanConfiguration::canEnumConvert(const QString &enumName) const{
+	if(enumName == "spectrometerGrating" || enumName == "beamlinePolarization"  || enumName == "monoMirrorSelector"  || enumName == "monoGratingSelector")
+		return true;
+	return false;
+}
+
+QString REIXSXASScanConfiguration::enumConvert(const QString &enumName, int enumValue) const{
+	if(enumName == "spectrometerGrating"){
+		switch(enumValue){
+		case 0:
+			return "LEG";
+		case 1:
+			return "Impurity";
+		case 2:
+			return "MEG";
+		case 3:
+			return "HEG";
+		case 4:
+			return "HRMEG";
+		case 5:
+			return "HRHEG";
+		case 6:
+			return "LEG 2nd Order";
+		}
+	}
+	else if(enumName == "beamlinePolarization"){
+		switch(enumValue){
+		case 0:
+			return "Circular Left";
+		case 1:
+			return "Circular Right";
+		case 2:
+			return "Linear Horizontal";
+		case 3:
+			return "Linear Vertical-";
+		case 4:
+			return "Linear Vertical+";
+		case 5:
+			return "Linear Inclined";
+		}
+	}
+	else if(enumName == "monoMirrorSelector"){
+		switch(enumValue){
+		case 0:
+			return "Nickle";
+		case 1:
+			return "Carbon";
+		case 2:
+			return "Silicon";
+		case 3:
+			return "Au";
+		case 4:
+			return "Out of Position";
+		}
+	}
+	else if(enumName == "monoGratingSelector"){
+		switch(enumValue){
+		case 0:
+			return "Ni-LEG";
+		case 1:
+			return "Au-LEG";
+		case 2:
+			return "Au-HEG";
+		case 3:
+			return "Out of Position";
+		}
+	}
+	return "[??]";
+}
+
 AMScanConfiguration * REIXSXASScanConfiguration::createCopy() const
 {
 	AMScanConfiguration *configuration = new REIXSXASScanConfiguration(*this);
@@ -177,6 +247,7 @@ void REIXSXASScanConfiguration::onRegionAdded(AMScanAxisRegion *region)
 void REIXSXASScanConfiguration::onRegionRemoved(AMScanAxisRegion *region)
 {
 	region->disconnect(this);
+	region->deleteLater();
 	computeTotalTime();
 }
 

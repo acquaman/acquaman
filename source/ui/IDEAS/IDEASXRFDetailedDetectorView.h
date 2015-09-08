@@ -66,9 +66,6 @@ protected slots:
 	/// Handles deleting the export controller.
 	void onExportControllerStateChanged(int state);
 
-	void onPeakingTimeBoxChanged(const QString &arg1);
-	void onKETEKPeakingTimeChanged();
-
 	void onDeadTimeCheckButtonClicked();
 
 

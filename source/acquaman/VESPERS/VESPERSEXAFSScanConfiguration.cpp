@@ -317,5 +317,6 @@ void VESPERSEXAFSScanConfiguration::onRegionAdded(AMScanAxisRegion *region)
 void VESPERSEXAFSScanConfiguration::onRegionRemoved(AMScanAxisRegion *region)
 {
 	region->disconnect(this);
+	region->deleteLater();
 	computeTotalTime();
 }

@@ -73,7 +73,7 @@ protected slots:
 	/// Handles updating the size of the given axis.  Will invalidate the axis values of that axis.
 	void onSizeChanged(int axisId);
 	/// Recomputes the bounding rect. Called if the size or axis values change.  Only updates the corresponding size if specified.
-	void recomputeBoundingRect(int axisId);
+    void recomputeBoundingRect();
 
 	/// ensure that we don't keep trying to read data from a source that has been deleted.
 	void onDataSourceDeleted();
@@ -99,13 +99,8 @@ protected:
 	QVector<double> yAxis_;
 	/// The cached z-values.
 	mutable QVector<double> data_;
-
 	/// Flag used for knowing when to recache the data in the model.
-	mutable bool updateCacheRequired_;
-	/// QPoint that defines the bottom left point of the dirty data.
-	mutable AMnDIndex dirtyRectBottomLeft_;
-	/// QPoint that defines the top right point of the dirty data.
-	mutable AMnDIndex dirtyRectTopRight_;
+    mutable bool updateCacheRequired_;
 };
 
 
