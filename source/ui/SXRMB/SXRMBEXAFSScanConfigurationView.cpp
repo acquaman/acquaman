@@ -209,6 +209,8 @@ void SXRMBEXAFSScanConfigurationView::setupDefaultEXAFSScanRegions()
 
 void SXRMBEXAFSScanConfigurationView::onBeamlineEndstationChanged(SXRMB::Endstation fromEndstation, SXRMB::Endstation toEndstation)
 {
+    Q_UNUSED(toEndstation)
+
 	// disconnect the signal/slot from the prior endstation
 	SXRMBBeamline *sxrmbBL = SXRMBBeamline::sxrmb();
 	AMPVwStatusControl* sampleStageXControl = sxrmbBL->endstationSampleStageX(fromEndstation);

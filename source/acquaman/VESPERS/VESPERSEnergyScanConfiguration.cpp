@@ -209,5 +209,6 @@ void VESPERSEnergyScanConfiguration::onRegionAdded(AMScanAxisRegion *region)
 void VESPERSEnergyScanConfiguration::onRegionRemoved(AMScanAxisRegion *region)
 {
 	region->disconnect(this);
+	region->deleteLater();
 	computeTotalTime();
 }

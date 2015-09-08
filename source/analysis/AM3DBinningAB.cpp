@@ -405,7 +405,7 @@ AMNumber AM3DBinningAB::axisValue(int axisNumber, int index) const {
 	return inputSource_->axisValue(actualAxis, index);
 }
 
-bool AM3DBinningAB::axisValues(int axisNumber, int startIndex, int endIndex, AMNumber *outputValues) const
+bool AM3DBinningAB::axisValues(int axisNumber, int startIndex, int endIndex, double *outputValues) const
 {
 	if (!isValid())
 		return false;
