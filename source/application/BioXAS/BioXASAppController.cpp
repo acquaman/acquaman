@@ -29,6 +29,7 @@ BioXASAppController::BioXASAppController(QObject *parent) :
 	energyCalibrationConfiguration_ = 0;
 
 	energyCalibrationView_ = 0;
+	energyCalibrationViewPane_ = 0;
 }
 
 BioXASAppController::~BioXASAppController()
@@ -132,9 +133,9 @@ void BioXASAppController::goToEnergyCalibrationView(AMScan *toView)
 {
 	qDebug() << "Going to energy calibration view...";
 
-	if (energyCalibrationView_) {
+	if (energyCalibrationView_ && energyCalibrationViewPane_) {
 		energyCalibrationView_->setCurrentScan(toView);
-		mw_->setCurrentPane(energyCalibrationView_);
+		mw_->setCurrentPane(energyCalibrationViewPane_);
 	}
 }
 
@@ -150,6 +151,8 @@ void BioXASAppController::onCurrentScanActionStartedImplementation(AMScanAction 
 
 void BioXASAppController::onCurrentScanActionFinishedImplementation(AMScanAction *action)
 {
+	qDebug() << "Scan finished.";
+
 	// Save current configuration to the database.
 
 	if (userConfiguration_)
@@ -252,8 +255,10 @@ void BioXASAppController::setupUserInterface()
 	// Create calibration views:
 	////////////////////////////////////
 
-	energyCalibrationView_ = qobject_cast<BioXASSSRLMonochromatorEnergyCalibrationView*>(createCalibrationView(BioXASBeamline::bioXAS()->mono()));
-	addViewToCalibrationPane(energyCalibrationView_, "Energy");
+	BioXASSSRLMonochromator *mono = BioXASBeamline::bioXAS()->mono();
+	if (mono) {
+		addCalibrationView(mono, "Energy");
+	}
 }
 
 void BioXASAppController::setupScanConfigurations()
@@ -295,8 +300,15 @@ void BioXASAppController::addViewToScansPane(QWidget *view, const QString &viewN
 
 void BioXASAppController::addViewToCalibrationPane(QWidget *view, const QString &viewName)
 {
-	if (view)
-		mw_->addPane(AMMainWindow::buildMainWindowPane(viewName, ":system-search.png", view), "Calibration", viewName, ":system-search.png");
+	if (view) {
+		QWidget *viewPane = AMMainWindow::buildMainWindowPane(viewName, ":system-search.png", view);
+
+		BioXASSSRLMonochromatorEnergyCalibrationView *energyCalibrationView = qobject_cast<BioXASSSRLMonochromatorEnergyCalibrationView*>(view);
+		if (energyCalibrationView)
+			energyCalibrationViewPane_ = viewPane;
+
+		mw_->addPane(viewPane, "Calibration", viewName, ":system-search.png");
+	}
 }
 
 QWidget* BioXASAppController::createComponentView(QObject *component)
@@ -459,8 +471,7 @@ QWidget* BioXASAppController::createCalibrationView(QObject *component)
 
 		BioXASSSRLMonochromator *mono = qobject_cast<BioXASSSRLMonochromator*>(component);
 		if (!componentFound && mono) {
-			calibrationView = new BioXASSSRLMonochromatorEnergyCalibrationView(mono);
-			connect( calibrationView, SIGNAL(energyCalibrationScanRequested()), this, SLOT(goToEnergyCalibrationScanConfigurationView()) );
+			calibrationView = new BioXASSSRLMonochromatorEnergyCalibrationView(mono, 0);
 			componentFound = true;
 		}
 	}
@@ -485,7 +496,13 @@ void BioXASAppController::addScanConfigurationView(AMScanConfiguration *configur
 
 void BioXASAppController::addCalibrationView(QObject *component, const QString &calibrationName)
 {
-	addViewToCalibrationPane( createCalibrationView(component), calibrationName );
+	BioXASSSRLMonochromator *mono = qobject_cast<BioXASSSRLMonochromator*>(component);
+	if (mono) {
+		energyCalibrationView_ = qobject_cast<BioXASSSRLMonochromatorEnergyCalibrationView*>(createCalibrationView(mono));
+		connect( energyCalibrationView_, SIGNAL(energyCalibrationScanRequested()), this, SLOT(goToEnergyCalibrationScanConfigurationView()) );
+	}
+
+	addViewToCalibrationPane(energyCalibrationView_, calibrationName );
 }
 
 void BioXASAppController::addPersistentView(QWidget *persistentView)

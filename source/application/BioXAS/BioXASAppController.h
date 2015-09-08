@@ -172,6 +172,8 @@ protected:
 
 	/// The energy calibration view.
 	BioXASSSRLMonochromatorEnergyCalibrationView *energyCalibrationView_;
+	/// The energy calibration view pane.
+	QWidget *energyCalibrationViewPane_;
 };
 
 #endif // BIOXASAPPCONTROLLER_H
