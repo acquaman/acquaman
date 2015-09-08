@@ -160,6 +160,8 @@ void SGMBeamline::setupBeamlineComponents()
 
 	// Hexapod
 	hexapod_ = new SGMHexapod(this);
+	// Rotate the hexapod system to the plane of the sample plate.
+	hexapod_->rotateSystem(45, 0, 105);
 
 	// SSA Manipulators
 	ssaManipulatorX_ = new SGMMAXvMotor("ssaManipulatorX", "SMTR16114I1022", "SSA Inboard/Outboard", true, 0.2, 2.0, this);
