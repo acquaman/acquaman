@@ -353,14 +353,14 @@ void AM1DCalibrationAB::computeCachedValues() const
     cacheUpdateRequired_ = false;
 }
 
-bool AM1DCalibrationAB::canAnalyze(const QString &dataName, const QString &NormalizationName) const
+bool AM1DCalibrationAB::canAnalyze(const QString &dataName, const QString &normalizationName) const
 {
 	// Can always analyze two 1D data sources.
 	if (sources_.count() == 2)
 		return true;
 
-	// The first data source is reserved for the data.
-	if (indexOfInputSource(dataName) >= 0 && indexOfInputSource(NormalizationName))
+	// Both data and normalization names must correspond to valid data sources.
+	if (indexOfInputSource(dataName) >= 0 && indexOfInputSource(normalizationName))
 		return true;
 
 	return false;
