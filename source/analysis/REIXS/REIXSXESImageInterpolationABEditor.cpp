@@ -73,6 +73,7 @@ REIXSXESImageInterpolationABEditor::REIXSXESImageInterpolationABEditor(REIXSXESI
 	binningLevelBox_ = new QSpinBox();
 	binningLevelBox_->setMinimum(1);
 	binningLevelBox_->setMaximum(32);
+	binningLevelBox_->setMaximumWidth(64);
 
 
 	rangeMinYControl_ = new QSpinBox();
@@ -842,8 +843,8 @@ void REIXSXESImageInterpolationABEditor::onAnalysisBlockInputDataSourcesChanged(
 		liveCorrelationCheckBox_->blockSignals(false);
 
 		shiftDisplayOffsetSlider_->blockSignals(true);
-		shiftDisplayOffsetSlider_->setRange(0, analysisBlock_->size(0)-1);
-		shiftDisplayOffsetSlider_->setValue(analysisBlock_->size(0)/2);
+		shiftDisplayOffsetSlider_->setRange(0, analysisBlock_->inputSourceSize(0)-1);
+		shiftDisplayOffsetSlider_->setValue(analysisBlock_->inputSourceSize(0)/2);
 		shiftDisplayOffsetSlider_->blockSignals(false);
 
 		image_ = new MPlotImageBasic();
