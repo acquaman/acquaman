@@ -535,6 +535,7 @@ void REIXSXESImageInterpolationABEditor::onRangeRoundControlChanged(double newRa
 	analysisBlock_->setRangeRound(newRangeRound);
 
 	//update ellipse...
+	placeRangeRectangle();
 	ellipseData_->rangeValuesChanged();
 
 }
@@ -843,8 +844,8 @@ void REIXSXESImageInterpolationABEditor::onAnalysisBlockInputDataSourcesChanged(
 		liveCorrelationCheckBox_->blockSignals(false);
 
 		shiftDisplayOffsetSlider_->blockSignals(true);
-		shiftDisplayOffsetSlider_->setRange(0, analysisBlock_->inputSourceSize(0)-1);
-		shiftDisplayOffsetSlider_->setValue(analysisBlock_->inputSourceSize(0)/2);
+		shiftDisplayOffsetSlider_->setRange(0, inputSource->size(0)-1);
+		shiftDisplayOffsetSlider_->setValue(inputSource->size(0)/2);
 		shiftDisplayOffsetSlider_->blockSignals(false);
 
 		image_ = new MPlotImageBasic();
@@ -1031,6 +1032,7 @@ int REIXSXESImageInterpolationABEditorEllipticalMask::count() const
 
 void REIXSXESImageInterpolationABEditorEllipticalMask::rangeValuesChanged()
 {
+	emitDataChanged();
 }
 
 /*
@@ -1102,7 +1104,7 @@ REIXSXESImageInterpolationABEditorShiftModel::REIXSXESImageInterpolationABEditor
 	: QObject(parent)
 {
 	analysisBlock_ = analysisBlock;
-	displayXOffset_ = analysisBlock_->size(0)/2;
+	displayXOffset_ = analysisBlock_->inputDataSourceAt(0)->size(0)/2;
 
 	connect(analysisBlock_->signalSource(), SIGNAL(sizeChanged(int)), this, SLOT(onOutputSizeChanged()));
 	connect(analysisBlock_, SIGNAL(inputSourcesChanged()), this, SLOT(onOutputSizeChanged()));
@@ -1136,7 +1138,8 @@ void REIXSXESImageInterpolationABEditorShiftModel::setDisplayXOffset(int offset)
 
 void REIXSXESImageInterpolationABEditorShiftModel::onOutputSizeChanged()
 {
-	setDisplayXOffset(analysisBlock_->size(0)/2);
+	if (displayXOffset_ > analysisBlock_->inputDataSourceAt(0)->size(0))
+			setDisplayXOffset(analysisBlock_->inputDataSourceAt(0)->size(0)/2);
 	emitDataChanged();
 }
 

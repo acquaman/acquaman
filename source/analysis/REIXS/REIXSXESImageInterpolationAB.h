@@ -69,6 +69,7 @@ class REIXSXESImageInterpolationAB : public AMStandardAnalysisBlock
 
 	Q_CLASSINFO("AMDbObject_Attributes", "description=REIXS XES detector image analysis to 1D spectrum")
 	Q_CLASSINFO("correlationSmoothing", "upgradeDefault=1")
+	Q_CLASSINFO("binningLevel", "upgradeDefault=3")
 
 public:
 	/// Enum describing the options for smoothing the auto-correlated shift curve.
@@ -262,6 +263,8 @@ protected:
 	void computeShiftMap(int iSize, int jSize, double *shiftValues) const;
 	/// Helper to compute energy axis scale, and fill cachedAxisValues_.
 	void computeCachedAxisValues() const;
+	///helper function to determine if a pixel is with the mask area (uses _rangeRound)
+	bool isWithinMaskEllipse(double xVal, double yVal, double width, double height) const;
 
 	/// Helper function to look at our overall situation and determine what the output state should be.
 	void reviewState();

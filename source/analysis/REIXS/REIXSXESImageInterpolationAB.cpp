@@ -25,7 +25,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 REIXSXESImageInterpolationAB::REIXSXESImageInterpolationAB(const QString &outputName, QObject *parent) :
 	AMStandardAnalysisBlock(outputName, parent)
 {
-	// Live correlation turned off by default. Prevents correlation while loading from db and no shift is really better than a random shift initially.
+	// Live correlation turned off by default. Prevents correlation while loading from db and no shift is really better than a random shift, initially.
 	liveCorrelation_ = false;
 
 	curve1Smoother_ = 0;
@@ -60,7 +60,7 @@ REIXSXESImageInterpolationAB::REIXSXESImageInterpolationAB(const QString &output
 	setDescription("XES Interpolated Spectrum");
 
 	interpolationLevel_ = 10;
-	binningLevel_ = 1;
+	binningLevel_ = 3;
 	// shift values can start out empty.
 	shiftValues1_ << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0;
 	shiftValues2_ << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0;
@@ -378,14 +378,14 @@ void REIXSXESImageInterpolationAB::computeCachedValues() const
 		double originX = (double)sumRangeMinX_ + ((double)sumRangeMaxX_ - (double)sumRangeMinX_)/2.0;
 		double originY = (double)sumRangeMinY_ + ((double)sumRangeMaxY_ - (double)sumRangeMinY_)/2.0;
 		//Width and height of the sum region, in pixels
-		double numX = (double)(sumRangeMaxX_ - sumRangeMinX_);
-		double numY = (double)(sumRangeMaxY_ - sumRangeMinY_);
+		double sumRangeWidth = (double)(sumRangeMaxX_ - sumRangeMinX_);
+		double sumRangeHeight = (double)(sumRangeMaxY_ - sumRangeMinY_);
 
 
-		for(int b = 0; b < iSize / binningLevel_; b++) {
-			cachedValues_[b] = 0;
+		for(int bin = 0; bin < iSize / binningLevel_; bin++) {
+			cachedValues_[bin] = 0;
 			for(int temp = 0; temp < binningLevel_; temp++ ) {
-				int i = b * binningLevel_ + temp;
+				int i = bin * binningLevel_ + temp;
 				double newVal = 0.0;
 				int contributingRows = 0;
 				if(i > sumRangeMinX_ && i < sumRangeMaxX_) {
@@ -401,7 +401,7 @@ void REIXSXESImageInterpolationAB::computeCachedValues() const
 						else {
 
 							double yVal = (double)j - originY;
-							if((fabs(xVal) <= numX/2.0*(1.0 - rangeRound_)) || (fabs(yVal) <= numY/2.0*(1.0 - rangeRound_)) || ((((xVal-(1-rangeRound_)*numX/2.0)/(rangeRound_*numX/2.0))*((xVal-(1-rangeRound_)*numX/2.0)/(rangeRound_*numX/2.0))+((yVal-(1-rangeRound_)*numY/2.0)/(rangeRound_*numY/2.0))*((yVal-(1-rangeRound_)*numY/2.0)/(rangeRound_*numY/2.0))) < 1)) { //within ellipse
+							if(isWithinMaskEllipse(xVal, yVal, sumRangeWidth, sumRangeHeight)) {
 								int sourceI = i + shiftValues1_.at(j);
 								if(sourceI < iSize && sourceI >= 0) {
 									newVal += image.at(sourceI*jSize + j);
@@ -418,7 +418,7 @@ void REIXSXESImageInterpolationAB::computeCachedValues() const
 				else
 					newVal = newVal * double(sumRangeMaxY_ - sumRangeMinY_ + 1) / double(contributingRows);
 
-				cachedValues_[b] = cachedValues_[b] + newVal;
+				cachedValues_[bin] = cachedValues_[bin] + newVal;
 			}
 		}
 	}
@@ -493,14 +493,14 @@ void REIXSXESImageInterpolationAB::computeCachedValues() const
 		double originX = (double)sumRangeMinX_ + ((double)sumRangeMaxX_ - (double)sumRangeMinX_)/2.0;
 		double originY = (double)sumRangeMinY_ + ((double)sumRangeMaxY_ - (double)sumRangeMinY_)/2.0;
 		//Width and height of the sum region, in pixels
-		double numX = (double)(sumRangeMaxX_ - sumRangeMinX_);
-		double numY = (double)(sumRangeMaxY_ - sumRangeMinY_);
+		double sumRangeWidth = (double)(sumRangeMaxX_ - sumRangeMinX_);
+		double sumRangeHeight = (double)(sumRangeMaxY_ - sumRangeMinY_);
 
 
-		for(int b = 0; b < iSize / binningLevel_; b++) {
-			cachedValues_[b] = 0;
+		for(int bin = 0; bin < iSize / binningLevel_; bin++) {
+			cachedValues_[bin] = 0;
 			for(int temp = 0; temp < binningLevel_; temp++ ) {
-				int i = b * binningLevel_ + temp;
+				int i = bin * binningLevel_ + temp;
 				double newVal = 0.0;
 				int contributingRows = 0;
 
@@ -512,7 +512,7 @@ void REIXSXESImageInterpolationAB::computeCachedValues() const
 
 						if (rangeRound_ == 0.0) { //not ellipse
 
-							newVal += tempFinalVectorPointer[j+i*jSize]; //0.5 to ensure proper rounding, rather than truncating
+							newVal += tempFinalVectorPointer[j+i*jSize];
 							contributingRows++;
 						}
 
@@ -520,9 +520,9 @@ void REIXSXESImageInterpolationAB::computeCachedValues() const
 
 							double yVal = (double)j - originY;
 
-							if((fabs(xVal) <= numX/2.0*(1.0 - rangeRound_)) || (fabs(yVal) <= numY/2.0*(1.0 - rangeRound_)) || ((((xVal-(1-rangeRound_)*numX/2.0)/(rangeRound_*numX/2.0))*((xVal-(1-rangeRound_)*numX/2.0)/(rangeRound_*numX/2.0))+((yVal-(1-rangeRound_)*numY/2.0)/(rangeRound_*numY/2.0))*((yVal-(1-rangeRound_)*numY/2.0)/(rangeRound_*numY/2.0))) < 1)) { //within ellipse
+							if(isWithinMaskEllipse(xVal, yVal, sumRangeWidth, sumRangeHeight)) {
 
-								newVal += tempFinalVectorPointer[j+i*jSize]; //0.5 to ensure proper rounding, rather than truncating
+								newVal += tempFinalVectorPointer[j+i*jSize];
 								contributingRows++;
 							}
 						}
@@ -536,7 +536,7 @@ void REIXSXESImageInterpolationAB::computeCachedValues() const
 				else
 					newVal = newVal * double(sumRangeMaxY_ - sumRangeMinY_ + 1) / double(contributingRows);
 
-				cachedValues_[b] = cachedValues_[b] + newVal;
+				cachedValues_[bin] += newVal;
 			}
 		}
 	}
@@ -971,7 +971,6 @@ void REIXSXESImageInterpolationAB::computeCachedAxisValues() const
 	// Calculate bottom half of the axis. (low energies). Sign is -1
 	int sign = -1;
 	int centerPixel = size(0)/2;
-	qDebug() << "centerPixel =" << centerPixel << "size(0)" << size(0);
 
 	for(int i=0; i<centerPixel; ++i) {
 		// distance away from center, always positive.
@@ -984,12 +983,10 @@ void REIXSXESImageInterpolationAB::computeCachedAxisValues() const
 		double sinbp = sinBeta*sqrt( 1.0-sindb*sindb ) + cosBeta*sindb;
 		//solving the grating equation for eV:
 		cachedAxisValues_[i] = 0.0012398417*grooveDensity / (sinAlpha - sinbp) + energyCalibrationOffset_;	// NOTE: we're adding in the user-specified energy offset here.
-		qDebug() << "cachedAxisValues_[" << i << "] = " << cachedAxisValues_[i];
 	}
 
 	// midpoint:
 	cachedAxisValues_[centerPixel] = 0.0012398417*grooveDensity / (sinAlpha - sinBeta) + energyCalibrationOffset_;	// NOTE: we're adding in the user-specified energy offset here.
-	qDebug() << "cachedAxisValues_[" << centerPixel << "] = " << cachedAxisValues_[centerPixel];
 
 	// Calculate top half of axis. (high energies). Sign is 1:
 	sign = 1;
@@ -999,11 +996,14 @@ void REIXSXESImageInterpolationAB::computeCachedAxisValues() const
 		double sindb = sign*( dx*singp/sqrt(rPrime*rPrime + dx*dx - 2*rPrime*dx*cosgp*sign) );
 		double sinbp = sinBeta*sqrt( 1.0-sindb*sindb ) + cosBeta*sindb;
 		cachedAxisValues_[i] = 0.0012398417*grooveDensity / (sinAlpha - sinbp) + energyCalibrationOffset_;	// NOTE: we're adding in the user-specified energy offset here.
-
-		qDebug() << "cachedAxisValues_[" << i << "] = " << cachedAxisValues_[i];
 	}
 
 	axisValuesInvalid_ = false;
+}
+
+bool REIXSXESImageInterpolationAB::isWithinMaskEllipse(double xVal, double yVal, double width, double height) const
+{
+	return ((fabs(xVal) <= width/2.0*(1.0 - rangeRound_)) || (fabs(yVal) <= height/2.0*(1.0 - rangeRound_)) || ((((xVal-(1-rangeRound_)*width/2.0)/(rangeRound_*width/2.0))*((xVal-(1-rangeRound_)*width/2.0)/(rangeRound_*width/2.0))+((yVal-(1-rangeRound_)*height/2.0)/(rangeRound_*height/2.0))*((yVal-(1-rangeRound_)*height/2.0)/(rangeRound_*height/2.0))) < 1));
 }
 
 void REIXSXESImageInterpolationAB::setEnergyCalibrationOffset(double energyCalibrationOffset)
@@ -1185,8 +1185,8 @@ void REIXSXESImageInterpolationAB::setBinningLevel(int binningLevel)
 	binningLevel_ = binningLevel;
 	if(inputSource_){
 		axes_[0].size = inputSource_->size(0) / binningLevel_;
-		cachedValues_.resize(axes_.at(0).size);
-		cachedAxisValues_.resize(axes_.at(0).size);
+		cachedValues_ = QVector<double>(axes_.at(0).size);
+		cachedAxisValues_ = QVector<double>(axes_.at(0).size);
 	}
 
 	axisValueCacheInvalid_ = true;
