@@ -46,16 +46,18 @@ public slots:
 
 protected slots:
 	/// Handles updating the configurations detector infos.
-	void onDetectorSelectionChanged(int buttonIndex);
+	void onButtonSelectionChanged(int buttonIndex);
 
 protected:
 	/// The scan configuration being viewed.
 	AMGenericStepScanConfiguration *configuration_;
 	/// The detector set being viewed.
 	AMDetectorSet *detectors_;
+	/// The mapping between detector and button.
+	QMap<AMDetector*, QAbstractButton*> detectorButtonMap_;
 
 	/// The detectors button group.
-	QButtonGroup *detectorsButtonGroup_;
+	QButtonGroup *buttonGroup_;
 	/// The main layout.
 	QVBoxLayout *layout_;
 };

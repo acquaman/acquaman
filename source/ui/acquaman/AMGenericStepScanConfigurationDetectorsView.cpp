@@ -10,8 +10,8 @@ AMGenericStepScanConfigurationDetectorsView::AMGenericStepScanConfigurationDetec
 
 	// Create UI elements.
 
-	detectorsButtonGroup_ = new QButtonGroup();
-	detectorsButtonGroup_->setExclusive(false);
+	buttonGroup_ = new QButtonGroup();
+	buttonGroup_->setExclusive(false);
 
 	// Create and set layouts.
 
@@ -21,7 +21,7 @@ AMGenericStepScanConfigurationDetectorsView::AMGenericStepScanConfigurationDetec
 
 	// Make connections.
 
-	connect( detectorsButtonGroup_, SIGNAL(buttonClicked(int)), this, SLOT(onDetectorSelectionChanged(int)) );
+	connect( buttonGroup_, SIGNAL(buttonClicked(int)), this, SLOT(onButtonSelectionChanged(int)) );
 
 	// Current settings.
 
@@ -71,7 +71,7 @@ void AMGenericStepScanConfigurationDetectorsView::setDetectors(AMDetectorSet *ne
 
 		if (detectors_) {
 			connect( detectors_, SIGNAL(detectorAdded(int)), this, SLOT(refresh()) );
-			connect( detectors_, SIGNAL(detectorConnectedChanged(bool,AMDetector*)), this, SLOT(refresh()) );
+			connect( detectors_, SIGNAL(detectorConnectedChanged(bool,AMDetector*)), this, SLOT(update()) );
 			connect( detectors_, SIGNAL(detectorRemoved(int)), this, SLOT(refresh()) );
 		}
 
@@ -83,54 +83,63 @@ void AMGenericStepScanConfigurationDetectorsView::setDetectors(AMDetectorSet *ne
 
 void AMGenericStepScanConfigurationDetectorsView::clear()
 {
-	int buttonCount = detectorsButtonGroup_->buttons().count();
+	// Clear the detector/button mapping.
 
-	if (detectors_ && buttonCount > 0) {
-		for (int detectorIndex = 0, detectorCount = detectors_->count(); detectorIndex < detectorCount; detectorIndex++) {
-			QAbstractButton *button = detectorsButtonGroup_->button(detectorIndex);
+	detectorButtonMap_.clear();
 
-			if (button) {
-				layout_->removeWidget(button);
-				detectorsButtonGroup_->removeButton(button);
+	// Iterate through all buttons and remove them from the layout and the
+	// button group.
 
-				button->deleteLater();
-			}
+	for (int buttonIndex = 0, buttonCount = buttonGroup_->buttons().count(); buttonIndex < buttonCount; buttonIndex++) {
+		QAbstractButton *button = buttonGroup_->button(buttonIndex);
+
+		if (button) {
+			layout_->removeWidget(button);
+			buttonGroup_->removeButton(button);
+
+			button->deleteLater();
 		}
 	}
 }
 
 void AMGenericStepScanConfigurationDetectorsView::update()
 {
-	if (configuration_ && detectors_) {
+	// Iterate through existing buttons to make sure they accurately reflect present detector information.
 
-		// Iterate through existing buttons to make sure they accurately reflect present detector information.
+	buttonGroup_->blockSignals(true);
 
-		detectorsButtonGroup_->blockSignals(true);
+	for (int buttonIndex = 0, buttonCount = buttonGroup_->buttons().count(); buttonIndex < buttonCount; buttonIndex++) {
 
-		for (int detectorIndex = 0, detectorCount = detectors_->count(); detectorIndex < detectorCount; detectorIndex++) {
+		QAbstractButton *button = buttonGroup_->button(buttonIndex);
+		AMDetector *detector = detectorButtonMap_.key(button, 0);
 
-			QAbstractButton *button = detectorsButtonGroup_->button(detectorIndex);
-			AMDetector *detector = detectors_->detectorAt(detectorIndex);
+		if (detector && button) {
 
-			if (detector && button) {
+			// If the detector is connected, the button should be listed as normal. Otherwise, the button should be unchecked and disabled.
+			// If the detector is connected and used in the configuration, button should be checked.
 
-				bool detectorUsed = configuration_->detectorConfigurations().contains(detector->name());
+			bool detectorConnected = detector->isConnected();
+			bool detectorUsed = false;
 
-				// If the detector is used in the configuration, button should be checked.
+			if (configuration_)
+				detectorUsed = configuration_->detectorConfigurations().contains(detector->name());
 
-				button->blockSignals(true);
+			button->blockSignals(true);
 
-				if (detectorUsed)
-					button->setChecked(true);
-				else
-					button->setChecked(false);
+			if (detectorConnected) {
+				button->setChecked(detectorUsed);
+				button->setEnabled(true);
 
-				button->blockSignals(false);
+			} else {
+				button->setChecked(false);
+				button->setEnabled(false);
 			}
-		}
 
-		detectorsButtonGroup_->blockSignals(false);
+			button->blockSignals(false);
+		}
 	}
+
+	buttonGroup_->blockSignals(false);
 }
 
 void AMGenericStepScanConfigurationDetectorsView::refresh()
@@ -147,23 +156,30 @@ void AMGenericStepScanConfigurationDetectorsView::refresh()
 
 			AMDetector *detector = detectors_->at(detectorIndex);
 
-			if (detector && detector->isConnected()) {
+			if (detector) {
+
+				// Create new checkbox for the detector.
+
 				QCheckBox *checkBox = new QCheckBox(detector->name());
-				detectorsButtonGroup_->addButton(checkBox, detectorIndex);
+				buttonGroup_->addButton(checkBox, detectorIndex);
 				layout_->addWidget(checkBox);
+
+				// Add detector and checkbox mapping.
+
+				detectorButtonMap_.insert(detector, checkBox);
 			}
 		}
 	}
 
-	// Update the view, so the correct buttons are checked.
+	// Update the view, so the correct buttons are enabled and checked.
 
 	update();
 }
 
-void AMGenericStepScanConfigurationDetectorsView::onDetectorSelectionChanged(int detectorIndex)
+void AMGenericStepScanConfigurationDetectorsView::onButtonSelectionChanged(int buttonIndex)
 {
-	QAbstractButton *button = detectorsButtonGroup_->button(detectorIndex);
-	AMDetector *detector = detectors_->detectorAt(detectorIndex);
+	QAbstractButton *button = buttonGroup_->button(buttonIndex);
+	AMDetector *detector = detectorButtonMap_.key(button, 0);
 
 	// If the button is checked and corresponds to a detector, make sure that detector is
 	// added to the configuration. Remove the detector if its button is unchecked.

@@ -44,12 +44,6 @@ void BioXASXASScanConfigurationView::setConfigurationEnergy(BioXASXASScanConfigu
 		configuration->setEnergy(newEnergy);
 }
 
-void BioXASXASScanConfigurationView::clearConfigurationRegions(BioXASXASScanConfiguration *configuration)
-{
-	if (configuration)
-		configuration->clearRegions();
-}
-
 AMElement* BioXASXASScanConfigurationView::configurationElement(BioXASXASScanConfiguration *configuration) const
 {
 	AMElement *result = 0;

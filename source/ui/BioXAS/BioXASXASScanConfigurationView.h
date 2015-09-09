@@ -45,9 +45,6 @@ protected slots:
 	/// Sets the configuration's energy.
 	void setConfigurationEnergy(BioXASXASScanConfiguration *configuration, double newEnergy);
 
-	/// Clears the configuration's regions.
-	void clearConfigurationRegions(BioXASXASScanConfiguration *configuration);
-
 protected:
 	/// Returns the configuration's current element.
 	AMElement* configurationElement(BioXASXASScanConfiguration *configuration) const;

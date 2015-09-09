@@ -78,11 +78,11 @@ bool BioXASSideAppController::setupDataFolder()
 
 void BioXASSideAppController::setupXASScanConfiguration(BioXASXASScanConfiguration *configuration)
 {
+	// Start with default XAS settings.
+
+	BioXASAppController::setupXASScanConfiguration(configuration);
+
 	if (configuration) {
-
-		// Start with default XAS settings.
-
-		BioXASAppController::setupXASScanConfiguration(configuration);
 
 		// Set the configuration detectors.
 
