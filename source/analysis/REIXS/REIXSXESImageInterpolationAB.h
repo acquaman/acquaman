@@ -61,12 +61,15 @@ class REIXSXESImageInterpolationAB : public AMStandardAnalysisBlock
 	Q_PROPERTY(int correlation2SmoothingType READ correlation2SmoothingType WRITE setCorrelation2SmoothingType)
 	Q_PROPERTY(int correlation2SmoothingMode READ correlation2SmoothingMode WRITE setCorrelation2SmoothingMode)
 
+	Q_PROPERTY(int binningLevel READ binningLevel WRITE setBinningLevel)
+
 	Q_PROPERTY(bool liveCorrelation READ liveCorrelation WRITE enableLiveCorrelation)
 	Q_PROPERTY(double energyCalibrationOffset READ energyCalibrationOffset WRITE setEnergyCalibrationOffset)
 	Q_PROPERTY(double tiltCalibrationOffset READ tiltCalibrationOffset WRITE setTiltCalibrationOffset)
 
 	Q_CLASSINFO("AMDbObject_Attributes", "description=REIXS XES detector image analysis to 1D spectrum")
 	Q_CLASSINFO("correlationSmoothing", "upgradeDefault=1")
+	Q_CLASSINFO("binningLevel", "upgradeDefault=3")
 
 public:
 	/// Enum describing the options for smoothing the auto-correlated shift curve.
@@ -143,6 +146,8 @@ int outputSize = indexStart.totalPointsTo(indexEnd);
 	int correlation1CenterPixel() const { return correlation1CenterPx_; }
 	/// The central pixel value to use when running an auto-correlation routine
 	int correlation2CenterPixel() const { return correlation2CenterPx_; }
+	/// The central pixel value to use when running an auto-correlation routine
+	int binningLevel() const { return binningLevel_; }
 
 	/// The full-width of the region around correlationCenterPixel() to compute when running an auto-correlation routine.
 	int correlation1HalfWidth() const{ return correlation1HalfWidth_; }
@@ -205,6 +210,9 @@ public slots:
 	/// Sets the smoothing used on the shift curve after correlation. \c type must be one of ShiftCurveSmoothing.
 	void setCorrelation2Smoothing(QPair<int,int> cSmooth);
 
+	/// Handles changing the binning level and trigging a recompute
+	void setBinningLevel(int binningLevel);
+
 	void setCorrelation1SmoothingType(int type);
 	void setCorrelation1SmoothingMode(int mode);
 
@@ -255,6 +263,8 @@ protected:
 	void computeShiftMap(int iSize, int jSize, double *shiftValues) const;
 	/// Helper to compute energy axis scale, and fill cachedAxisValues_.
 	void computeCachedAxisValues() const;
+	///helper function to determine if a pixel is with the mask area (uses _rangeRound)
+	bool isWithinMaskEllipse(double xVal, double yVal, double width, double height) const;
 
 	/// Helper function to look at our overall situation and determine what the output state should be.
 	void reviewState();
@@ -304,8 +314,10 @@ protected:
 	AMIntList shiftValues1_;
 	/// The second set of shift values used to offset each row of the image when summing
 	AMIntList shiftValues2_;
-	/// The level of onterpolation, hard-coded for now
+	/// The level of interpolation, hard-coded for now
 	int interpolationLevel_;
+	/// The level of binning
+	int binningLevel_;
 	/// The last computed shift value map
 	mutable QVector<double> lastShiftValueMap_;
 
