@@ -167,13 +167,8 @@ void BioXASAppController::onCurrentScanActionFinishedImplementation(AMScanAction
 		if (scan) {
 			BioXASXASScanConfiguration *xasScanConfiguration = qobject_cast<BioXASXASScanConfiguration*>(action->controller()->scan()->scanConfiguration());
 
-			if (xasScanConfiguration && xasScanConfiguration->name() == "Energy Calibration XAS Scan") {
-				qDebug() << "It was a mono calibration scan.\n";
+			if (xasScanConfiguration && xasScanConfiguration->name() == "Energy Calibration XAS Scan")
 				goToEnergyCalibrationView(scan);
-
-			} else {
-				qDebug() << "It was NOT a mono calibration scan.\n";
-			}
 		}
 	}
 }
@@ -255,10 +250,7 @@ void BioXASAppController::setupUserInterface()
 	// Create calibration views:
 	////////////////////////////////////
 
-	BioXASSSRLMonochromator *mono = BioXASBeamline::bioXAS()->mono();
-	if (mono) {
-		addCalibrationView(mono, "Energy");
-	}
+	addCalibrationView(BioXASBeamline::bioXAS()->mono(), "Energy");
 }
 
 void BioXASAppController::setupScanConfigurations()
