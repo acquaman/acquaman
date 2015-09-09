@@ -64,8 +64,8 @@ BioXASXASScanConfigurationEditor::BioXASXASScanConfigurationEditor(BioXASXASScan
 
 	// Make connections.
 
-	connect(nameLineEdit_, SIGNAL(editingFinished()), this, SLOT(updateConfigurationName()));
-	connect( energySpinBox_, SIGNAL(editingFinished()), this, SLOT(updateConfigurationEnergy()) );
+	connect( nameLineEdit_, SIGNAL(textChanged(QString)), this, SLOT(updateConfigurationName()) );
+	connect( energySpinBox_, SIGNAL(valueChanged(double)), this, SLOT(updateConfigurationEnergy()) );
 
 	// Current settings.
 

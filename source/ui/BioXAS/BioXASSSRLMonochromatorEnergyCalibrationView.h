@@ -16,6 +16,7 @@ class AMScanView;
 class AMDataSourcesEditor;
 class AMChooseScanDialog;
 class BioXASSSRLMonochromator;
+class BioXASXASScanConfiguration;
 
 class BioXASSSRLMonochromatorEnergyCalibrationView : public QWidget
 {
@@ -76,13 +77,13 @@ protected slots:
 
 	/// Applies the settings from the given scan.
 	void applyScanSettings(AMScan *scan);
+	/// Applies the settings from the given configuration.
+	void applyConfigurationSettings(BioXASXASScanConfiguration *configuration);
 
 	/// Handles loading previously collected scan data.
 	void onLoadDataButtonClicked();
 	/// Handles updating the view with previously collected data.
 	void onScanChosen();
-	/// Handles updating the view when the exclusive data source changes.
-	void onExclusiveDataSourceChanged();
 	/// Handles updating the view when the scan view cursor position changes.
 	void onScanViewDataPositionChanged(const QPointF &newPosition);
 	/// Handles calibrating the mono when the calibrate button is clicked.

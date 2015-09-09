@@ -90,7 +90,7 @@ protected slots:
 	/// Sets the monochromator energy calibration scan configuration view as the current pane.
 	void goToEnergyCalibrationScanConfigurationView();
 
-	/// Sets the monochromator energy calibration view as the current pane.
+	/// Sets the monochromator energy calibration view as the current pane, and sets the desired scan.
 	void goToEnergyCalibrationView(AMScan *toView);
 
 	/// Implementation method that individual applications can flesh out if extra setup is required when a scan action is started.  This is not pure virtual because there is no requirement to do anything to scan actions.
@@ -117,6 +117,15 @@ protected:
 	/// Sets up the available scan configurations.
 	virtual void setupScanConfigurations();
 
+	/// Creates and returns a 'General' main window pane for the given widget, with the given title name.
+	virtual QWidget* createGeneralPane(QWidget *view, const QString &viewName);
+	/// Creates and returns a 'Detectors' main window pane for the given widget, with the given title name.
+	virtual QWidget* createDetectorsPane(QWidget *view, const QString &viewName);
+	/// Creates and returns a 'Scans' main window pane for the given widget, with the given title name.
+	virtual QWidget* createScansPane(QWidget *view, const QString &viewName);
+	/// Creates and returns a 'Calibration' main window pane for the given widget, with the given title name.
+	virtual QWidget* createCalibrationPane(QWidget *view, const QString &viewName);
+
 	/// Adds a given view to the 'General' main window pane, with the given name.
 	void addViewToGeneralPane(QWidget *view, const QString &viewName);
 	/// Adds a given view to the 'Detectors' main window pane, with the given name.
@@ -134,6 +143,9 @@ protected:
 	virtual AMScanConfigurationViewHolder3* createScanConfigurationViewWithHolder(AMScanConfiguration *configuration);
 	/// Creates and returns a view appropriate for calibrating the given component. Returns 0 if no view was created.
 	virtual QWidget* createCalibrationView(QObject *component);
+
+	/// Creates and returns a view appropriate for calibrating the mono energy. Returns 0 if no view was created.
+	virtual BioXASSSRLMonochromatorEnergyCalibrationView* createEnergyCalibrationView(BioXASSSRLMonochromator *mono);
 
 	/// Creates a component view appropriate for viewing the given beamline component, and adds it to the appropriate main window pane.
 	void addComponentView(QObject *component, const QString &componentName);
@@ -154,6 +166,8 @@ protected:
 protected:
 	/// Holds the user configuration used for automatically setting up some simple aspects of the user interface.
 	BioXASUserConfiguration *userConfiguration_;
+	/// Mapping between views and window panes. Used for switching the current pane.
+	QMap<QWidget*, QWidget*> viewPaneMapping_;
 
 	/// The XAS scan configuration.
 	BioXASXASScanConfiguration *xasConfiguration_;
@@ -172,8 +186,16 @@ protected:
 
 	/// The energy calibration view.
 	BioXASSSRLMonochromatorEnergyCalibrationView *energyCalibrationView_;
-	/// The energy calibration view pane.
-	QWidget *energyCalibrationViewPane_;
+
+	/// The general pane icon file.
+	QString generalPaneIcon_;
+	/// The detectors pane icon file.
+	QString detectorsPaneIcon_;
+	/// The scans pane icon file.
+	QString scansPaneIcon_;
+	/// The calibration pane icon file.
+	QString calibrationPaneIcon_;
+
 };
 
 #endif // BIOXASAPPCONTROLLER_H

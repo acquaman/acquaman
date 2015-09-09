@@ -2,6 +2,7 @@
 #define BIOXASSCANCONFIGURATION_H
 
 #include "acquaman/BioXAS/BioXASScanConfigurationDbObject.h"
+#include <QDebug>
 
 /*!
   This class is a non-QObject class that holds the database object for generic
@@ -29,9 +30,9 @@ public:
 	/////////////////////////////////////////////
 
 	/// Returns the energy.
-	double energy() const { return dbObject_->energy(); }
+	double energy() const { qDebug() << "Configuration energy:" << dbObject_->energy(); return dbObject_->energy(); }
 	/// Returns the edge.
-	QString edge() const { return dbObject_->edge(); }
+	QString edge() const { qDebug() << "Configuration edge:" << dbObject_->edge(); return dbObject_->edge(); }
 	/// Returns the list of regions of interest.
 	QList<AMRegionOfInterest *> regionsOfInterest() const { return dbObject_->regionsOfInterest(); }
 
@@ -39,9 +40,9 @@ public:
 	///////////////////////////////////////////
 
 	/// Sets the energy.
-	void setEnergy(double newEnergy) { dbObject_->setEnergy(newEnergy); }
+	void setEnergy(double newEnergy) { qDebug() << "Configuration energy being set to:" << newEnergy; dbObject_->setEnergy(newEnergy); }
 	/// Sets the edge.
-	void setEdge(const QString &newEdge) { dbObject_->setEdge(newEdge); }
+	void setEdge(const QString &newEdge) { qDebug() << "Configuration edge being set to:" << newEdge; dbObject_->setEdge(newEdge); }
 	/// Adds a region of interest to the list.
 	void addRegionOfInterest(AMRegionOfInterest *region) { dbObject_->addRegionOfInterest(region); }
 	/// Removes a region of interest from the list.

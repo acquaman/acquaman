@@ -27,7 +27,12 @@ void BioXASXASScanConfigurationView::setConfigurationName(BioXASXASScanConfigura
 void BioXASXASScanConfigurationView::setConfigurationEdge(BioXASXASScanConfiguration *configuration, const AMAbsorptionEdge &newEdge)
 {
 	if (configuration) {
-		QString edgeString = newEdge.toString();
+		QString edgeString;
+		QStringList edgeInfo = newEdge.toString().split(":");
+
+		if (!edgeInfo.isEmpty())
+			edgeString = edgeInfo.first();
+
 		setConfigurationEdge(configuration, edgeString);
 	}
 }
