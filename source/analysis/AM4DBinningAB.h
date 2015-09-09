@@ -24,8 +24,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "analysis/AMStandardAnalysisBlock.h"
 
-#define AM3DMAGICNUMBER -1.493920384020
-
 /// This analysis block accepts a single 4D data source as input and outputs a 3D data source by summing across a specified axis (within a region of interest).
 class AM4DBinningAB : public AMStandardAnalysisBlock
 {
@@ -145,10 +143,10 @@ protected:
 	/// Flag holding whether or not the data source can be analyzed.
 	bool canAnalyze_;
 
-    /// Flag for knowing whether we need to compute the values.
-    mutable bool cacheUpdateRequired_;
-    /// The vector holding the data.
-    mutable QVector<double> cachedData_;
+	/// Flag for knowing whether we need to compute the values.
+	mutable bool cacheUpdateRequired_;
+	/// The vector holding the data.
+	mutable QVector<double> cachedData_;
 };
 
 #endif // AM4DBINNINGAB_H

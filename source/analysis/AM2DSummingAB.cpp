@@ -31,10 +31,7 @@ AM2DSummingAB::AM2DSummingAB(const QString& outputName, QObject* parent)
 	sumRangeMax_ = 0;
 	analyzedName_ = "";
 	canAnalyze_ = false;
-
-	inputSource_ = 0;
-	cacheCompletelyInvalid_ = false;
-	// leave sources_ empty for now.
+	cacheUpdateRequired_ = true;
 
 	axes_ << AMAxisInfo("invalid", 0, "No input data");
 	setState(AMDataSource::InvalidFlag);
@@ -97,8 +94,10 @@ void AM2DSummingAB::setInputDataSourcesImplementation(const QList<AMDataSource*>
 		int otherAxis = (sumAxis_ == 0) ? 1 : 0;
 		axes_[0] = inputSource_->axisInfoAt(otherAxis);
 
-		// Have to call into AMDataStore directly to avoid setModified(true)
-		AMDataSource::setDescription(QString("%1 Summed (over %2)")
+		cacheUpdateRequired_ = true;
+		cachedData_ = QVector<double>(size().product());
+
+		setDescription(QString("%1 Summed (over %2)")
 						 .arg(inputSource_->name())
 						 .arg(inputSource_->axisInfoAt(sumAxis_).name));
 
@@ -114,12 +113,11 @@ void AM2DSummingAB::setInputDataSourcesImplementation(const QList<AMDataSource*>
 		setInputSource();
 	}
 
-	invalidateCache();
 	reviewState();
 
-	emitSizeChanged(0);
+	emitSizeChanged();
 	emitValuesChanged();
-	emitAxisInfoChanged(0);
+	emitAxisInfoChanged();
 	emitInfoChanged();
 }
 
@@ -131,14 +129,6 @@ void AM2DSummingAB::setAnalyzedName(const QString &name)
 	setModified(true);
 	canAnalyze_ = canAnalyze(name);
 	setInputSource();
-
-	invalidateCache();
-	reviewState();
-
-	emitSizeChanged(0);
-	emitValuesChanged();
-	emitAxisInfoChanged(0);
-	emitInfoChanged();
 }
 
 void AM2DSummingAB::setInputSource()
@@ -160,6 +150,10 @@ void AM2DSummingAB::setInputSource()
 
 		int otherAxis = (sumAxis_ == 0) ? 1 : 0;
 		axes_[0] = inputSource_->axisInfoAt(otherAxis);
+
+		cacheUpdateRequired_ = true;
+		cachedData_ = QVector<double>(size().product());
+
 		setDescription(QString("%1 Summed (over %2)")
 					   .arg(inputSource_->name())
 					   .arg(inputSource_->axisInfoAt(sumAxis_).name));
@@ -176,6 +170,68 @@ void AM2DSummingAB::setInputSource()
 		axes_[0] = AMAxisInfo("invalid", 0, "No input data");
 		setDescription("Sum");
 	}
+
+	reviewState();
+
+	emitSizeChanged();
+	emitValuesChanged();
+	emitAxisInfoChanged();
+	emitInfoChanged();
+}
+
+void AM2DSummingAB::reviewState()
+{
+	if(!canAnalyze_ || inputSource_ == 0 || !inputSource_->isValid()) {
+		setState(AMDataSource::InvalidFlag);
+		return;
+	}
+
+	int s = inputSource_->size(sumAxis_);
+
+	if(sumRangeMin_ >= s || sumRangeMax_ >= s) {
+		setState(AMDataSource::InvalidFlag);
+	}
+	else
+		setState(0);
+}
+
+void AM2DSummingAB::computeCachedValues() const
+{
+	if (sumAxis_ == 0){
+
+		AMnDIndex start = AMnDIndex(sumRangeMin_, 0);
+		AMnDIndex end = AMnDIndex(sumRangeMax_, inputSource_->size(0));
+		int totalPoints = start.totalPointsTo(end);
+		int sumRange = sumRangeMax_-sumRangeMin_+1;
+		QVector<double> data = QVector<double>(totalPoints);
+		inputSource_->values(start, end, data.data());
+		cachedData_.fill(0);
+
+		for (int i = 0; i < totalPoints; i++){
+
+		    int insertIndex = int(i/sumRange);
+		    cachedData_[insertIndex] += data.at(i);
+		}
+	}
+
+	else {
+
+		AMnDIndex start = AMnDIndex(0, sumRangeMin_);
+		AMnDIndex end = AMnDIndex(inputSource_->size(0), sumRangeMax_);
+		int totalPoints = start.totalPointsTo(end);
+		int sumRange = sumRangeMax_-sumRangeMin_+1;
+		QVector<double> data = QVector<double>(totalPoints);
+		inputSource_->values(start, end, data.data());
+		cachedData_.fill(0);
+
+		for (int i = 0; i < totalPoints; i++){
+
+		    int insertIndex = int(i/sumRange);
+		    cachedData_[insertIndex] += data.at(i);
+		}
+	}
+
+	cacheUpdateRequired_ = false;
 }
 
 bool AM2DSummingAB::canAnalyze(const QString &name) const
@@ -202,24 +258,10 @@ AMNumber AM2DSummingAB::value(const AMnDIndex& indexes) const {
 		return AMNumber(AMNumber::OutOfBoundsError);
 #endif
 
-	AMNumber rv = cachedValues_.at(indexes.i());
-	// if we haven't calculated this sum yet, the cached value will be invalid. Sum and store.
-		if(!rv.isValid() && sumRangeMin_ <= sumRangeMax_) {
-		double newVal = 0.0;	/// \todo preserve int/double nature of values
-		if(sumAxis_ == 0)
-			for(int i=sumRangeMin_; i<=sumRangeMax_; i++)
-				newVal += (double)inputSource_->value(AMnDIndex(i, indexes.i()));
-		else
-			for(int i=sumRangeMin_; i<=sumRangeMax_; i++)
-				newVal += (double)inputSource_->value(AMnDIndex(indexes.i(), i));
+	if (cacheUpdateRequired_)
+	    computeCachedValues();
 
-		cachedValues_[indexes.i()] = newVal;
-		cacheCompletelyInvalid_ = false;
-		return newVal;
-	}
-	// otherwise return the value we have.
-	else
-		return rv;
+	return cachedData_.at(indexes.i());
 }
 
 bool AM2DSummingAB::values(const AMnDIndex &indexStart, const AMnDIndex &indexEnd, double *outputValues) const
@@ -238,56 +280,14 @@ bool AM2DSummingAB::values(const AMnDIndex &indexStart, const AMnDIndex &indexEn
 		return false;
 #endif
 
-		if (sumRangeMin_ > sumRangeMax_)
-			return false;
+	if (sumRangeMin_ > sumRangeMax_)
+		return false;
+
+	if (cacheUpdateRequired_)
+		computeCachedValues();
 
 	int totalSize = indexStart.totalPointsTo(indexEnd);
-	int offset = indexStart.i();
-
-	if (sumAxis_ == 0){
-
-		double sum = 0;
-		AMnDIndex start = AMnDIndex(sumRangeMin_, indexStart.i());
-		AMnDIndex end = AMnDIndex(sumRangeMax_, indexEnd.i());
-		int axisLength = sumRangeMax_-sumRangeMin_+1;
-		QVector<double> data = QVector<double>(start.totalPointsTo(end));
-		inputSource_->values(start, end, data.data());
-
-		for (int i = 0; i < totalSize; i++){
-
-			sum = 0;
-
-			for (int j = 0; j < axisLength; j++)
-				sum += data[i+totalSize*j];
-
-			outputValues[i] = sum;
-		}
-	}
-
-	else {
-
-		double sum = 0;
-		AMnDIndex start = AMnDIndex(indexStart.i(), sumRangeMin_);
-		AMnDIndex end = AMnDIndex(indexEnd.i(), sumRangeMax_);
-		int axisLength = sumRangeMax_-sumRangeMin_+1;
-		QVector<double> data = QVector<double>(start.totalPointsTo(end));
-		inputSource_->values(start, end, data.data());
-
-		for (int i = 0; i < totalSize; i++){
-
-			sum = 0;
-
-			for (int j = 0; j < axisLength; j++)
-				sum += data[i*axisLength+j];
-
-			outputValues[i] = sum;
-		}
-	}
-
-	for (int i = 0; i < totalSize; i++)
-		cachedValues_[i+offset] = AMNumber(outputValues[i]);
-
-	cacheCompletelyInvalid_ = false;
+	memcpy(outputValues, cachedData_.constData()+indexStart.i(), totalSize*sizeof(double));
 
 	return true;
 }
@@ -321,34 +321,84 @@ bool AM2DSummingAB::axisValues(int axisNumber, int startIndex, int endIndex, dou
 	return inputSource_->axisValues(otherAxis, startIndex, endIndex, outputValues);
 }
 
+void AM2DSummingAB::setSumAxis(int sumAxis)
+{
+	if((unsigned)sumAxis >= 2)
+		return;
+
+	if(sumAxis == sumAxis_)
+		return;	// no change
+
+	sumAxis_ = sumAxis;
+	int otherAxis = (sumAxis_ == 0) ? 1 : 0;
+
+	// if we have a data source, set our output axisInfo to match the input source's other axis. This also changes our size.
+	if(inputSource_) {
+		axes_[0] = inputSource_->axisInfoAt(otherAxis);
+		setDescription(QString("%1 summed (over %2)")
+					   .arg(inputSource_->name())
+					   .arg(inputSource_->axisInfoAt(sumAxis_).name));
+	}
+
+	reviewState();
+
+	emitSizeChanged();
+	emitValuesChanged();
+	emitAxisInfoChanged();
+	emitInfoChanged();
+	setModified(true);
+}
+
+void AM2DSummingAB::setSumRangeMin(int sumRangeMin)
+{
+	// no change
+	if(sumRangeMin == sumRangeMin_)
+		return;
+
+	sumRangeMin_ = sumRangeMin;
+	reviewState();
+	emitValuesChanged();
+	setModified(true);
+}
+
+void AM2DSummingAB::setSumRangeMax(int sumRangeMax)
+{
+	if(sumRangeMax == sumRangeMax_)
+		return;
+
+	sumRangeMax_ = sumRangeMax;
+	reviewState();
+	emitValuesChanged();
+	setModified(true);
+}
+
 // Connected to be called when the values of the input data source change
 void AM2DSummingAB::onInputSourceValuesChanged(const AMnDIndex& start, const AMnDIndex& end) {
 
 	if(start.isValid() && end.isValid()) {
+
 		int otherAxis = (sumAxis_ == 0) ? 1 : 0;
 		int startIndex = start.at(otherAxis);
 		int endIndex = end.at(otherAxis);
-		for(int i=startIndex; i<=endIndex; i++)
-			cachedValues_[i] = AMNumber();	// invalidate the changed region
+
+		cacheUpdateRequired_ = true;
 		emitValuesChanged(startIndex, endIndex);
 	}
 	else {
-		invalidateCache();
+
+		cacheUpdateRequired_ = true;
 		emitValuesChanged();
 	}
-
-	/// \todo start an idle-time computation of the cached values?
 }
 
 /// Connected to be called when the size of the input source changes
 void AM2DSummingAB::onInputSourceSizeChanged() {
 
 	int otherAxis = (sumAxis_ == 0) ? 1 : 0;
-	if(axes_.at(0).size != inputSource_->size(otherAxis)) {
-		axes_[0].size = inputSource_->size(otherAxis);
-		cachedValues_.resize(axes_.at(0).size);	// resize() will fill in with default-constructed value for AMNumber(), which is AMNumber::Null. So this keeps cache invalid (if was previously invalid), and nulls the new values so they are calculated as required.
-		emitSizeChanged(0);
-	}
+	axes_[0].size = inputSource_->size(otherAxis);
+	cacheUpdateRequired_ = true;
+	cachedData_ = QVector<double>(size().product());
+	emitSizeChanged();
 }
 
 /// Connected to be called when the state() flags of any input source change
