@@ -31,6 +31,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "acquaman/AMGenericStepScanConfiguration.h"
 #include "ui/acquaman/AMGenericStepScanConfigurationView.h"
 #include "util/AMErrorMonitor.h"
+#include "beamline/SGM/SGMMonochromatorInfo.h"
 
 #include <stdlib.h> // Used for obtaining username to prevent users other than iain (for dev) or SGM-Upgrade (for commissioning). Remove for deploy.
 
@@ -71,6 +72,11 @@ bool SGMAppController::startup() {
 	setupExporterOptions();
 	setupUserInterface();
 	makeConnections();
+
+	// Testing energy Values
+	SGMMonochromatorInfo monoInfo;
+	monoInfo.testValues();
+	//
 
 	return true;
 }
