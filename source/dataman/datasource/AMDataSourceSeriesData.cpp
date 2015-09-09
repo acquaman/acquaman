@@ -20,8 +20,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 
 #include "AMDataSourceSeriesData.h"
-#include <QDebug>
-
 
 AMDataSourceSeriesData::~AMDataSourceSeriesData(){}
 
@@ -38,8 +36,6 @@ AMDataSourceSeriesData::AMDataSourceSeriesData(const AMDataSource* dataSource, Q
 }
 
 void AMDataSourceSeriesData::setDataSource(const AMDataSource* dataSource) {
-
-	qDebug() << "Setting new data source.";
 
 	// disconnect the old source, if there is a valid old source.
 	if(source_)
@@ -143,33 +139,12 @@ void  AMDataSourceSeriesData::onDataChanged(const AMnDIndex &start, const AMnDIn
 
 void AMDataSourceSeriesData::onAxisValuesChanged()
 {
-	qDebug() << "AMDataSourceSeriesData::onAxisValuesChanged()";
-
-	qDebug() << "Axis size:" << axisSize_;
-
 	QVector<double> axisData = QVector<double>(axisSize_, 0);
-
-	qDebug() << "New vector size:" << axisData.size();
-
-	if (source_)
-		qDebug() << "Source exists, and is named" << source_->name() << "and sized" << source_->size(0);
-	else
-		qDebug() << "Source does NOT exist.";
-
-	qDebug() << "Populating new vector with source's values...";
 
 	source_->axisValues(0, 0, axisSize_-1, axisData.data());
 
-	qDebug() << "New vector data complete.";
-
-	qDebug() << "Cached data size:" << axis_.size();
-
-	qDebug() << "Updating the cached data...";
-
 	for (int i = 0; i < axisSize_; i++)
 		axis_[i] = qreal(axisData.at(i));
-
-	qDebug() << "Cached data update complete.";
 
 	cachedDataRectUpdateRequired_ = true;
 	onDataChanged(AMnDIndex(0), AMnDIndex(axisSize_-1));
