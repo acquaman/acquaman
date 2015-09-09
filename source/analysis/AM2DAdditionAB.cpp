@@ -24,6 +24,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 AM2DAdditionAB::AM2DAdditionAB(const QString &outputName, QObject *parent)
 	: AMStandardAnalysisBlock(outputName, parent)
 {
+	cacheUpdateRequired_ = false;
 	axes_ << AMAxisInfo("invalid", 0, "No input data") << AMAxisInfo("invalid", 0, "No input data");
 	setState(AMDataSource::InvalidFlag);
 }
@@ -59,12 +60,10 @@ AMNumber AM2DAdditionAB::value(const AMnDIndex &indexes) const
 			return AMNumber(AMNumber::OutOfBoundsError);
 #endif
 
-	double val = 0;
+    if (cacheUpdateRequired_)
+        computeCachedValues();
 
-	for (int i = 0; i < sources_.size(); i++)
-		val += (double)sources_.at(i)->value(indexes);
-
-	return val;
+    return cachedData_.at(indexes.i()*size(1)+indexes.j());
 }
 
 bool AM2DAdditionAB::values(const AMnDIndex &indexStart, const AMnDIndex &indexEnd, double *outputValues) const
@@ -84,23 +83,11 @@ bool AM2DAdditionAB::values(const AMnDIndex &indexStart, const AMnDIndex &indexE
 		return false;
 #endif
 
+	if (cacheUpdateRequired_)
+		computeCachedValues();
+
 	int totalSize = indexStart.totalPointsTo(indexEnd);
-
-	QVector<double> data = QVector<double>(totalSize);
-	sources_.at(0)->values(indexStart, indexEnd, data.data());
-
-	// Do the first data source separately to initialize the values.
-	for (int i = 0; i < totalSize; i++)
-		outputValues[i] = data.at(i);
-
-	// Iterate through the rest of the sources.
-	for (int i = 1, count = sources_.size(); i < count; i++){
-
-		sources_.at(i)->values(indexStart, indexEnd, data.data());
-
-		for (int j = 0; j < totalSize; j++)
-			outputValues[j] += data.at(j);
-	}
+	memcpy(outputValues, cachedData_.constData()+indexStart.i()*size(1), totalSize*sizeof(double));
 
 	return true;
 }
@@ -136,23 +123,19 @@ bool AM2DAdditionAB::axisValues(int axisNumber, int startIndex, int endIndex, do
 // Connected to be called when the values of the input data source change
 void AM2DAdditionAB::onInputSourceValuesChanged(const AMnDIndex& start, const AMnDIndex& end)
 {
-	emitValuesChanged(start, end);
+    cacheUpdateRequired_ = true;
+    emitValuesChanged(start, end);
 }
 
 // Connected to be called when the size of the input source changes
 void AM2DAdditionAB::onInputSourceSizeChanged()
 {
-	if(axes_.at(0).size != sources_.at(0)->size(0)){
+	axes_[0].size = sources_.at(0)->size(0);
+	axes_[1].size = sources_.at(0)->size(1);
 
-		axes_[0].size = sources_.at(0)->size(0);
-		emitSizeChanged(0);
-	}
-
-	if(axes_.at(1).size != sources_.at(0)->size(1)){
-
-		axes_[1].size = sources_.at(0)->size(1);
-		emitSizeChanged(1);
-	}
+	cacheUpdateRequired_ = true;
+	cachedData_ = QVector<double>(size().product());
+	emitSizeChanged();
 }
 
 // Connected to be called when the state() flags of any input source change
@@ -194,6 +177,9 @@ void AM2DAdditionAB::setInputDataSourcesImplementation(const QList<AMDataSource*
 		axes_[0] = sources_.at(0)->axisInfoAt(0);
 		axes_[1] = sources_.at(0)->axisInfoAt(1);
 
+		cacheUpdateRequired_ = true;
+		cachedData_ = QVector<double>(size().product());
+
 		setDescription(QString("Sum of %1").arg(sources_.at(0)->description()));
 
 		for (int i = 0; i < sources_.size(); i++){
@@ -206,11 +192,9 @@ void AM2DAdditionAB::setInputDataSourcesImplementation(const QList<AMDataSource*
 
 	reviewState();
 
-	emitSizeChanged(0);
-	emitSizeChanged(1);
+	emitSizeChanged();
 	emitValuesChanged();
-	emitAxisInfoChanged(0);
-	emitAxisInfoChanged(1);
+	emitAxisInfoChanged();
 	emitInfoChanged();
 }
 
@@ -243,4 +227,28 @@ void AM2DAdditionAB::reviewState()
 		setState(0);
 	else
 		setState(AMDataSource::InvalidFlag);
+}
+
+void AM2DAdditionAB::computeCachedValues() const
+{
+    AMnDIndex start = AMnDIndex(0, 0);
+    AMnDIndex end = size()-1;
+    int totalSize = start.totalPointsTo(end);
+
+    QVector<double> data = QVector<double>(totalSize);
+    sources_.at(0)->values(start, end, data.data());
+
+    // Do the first data source separately to initialize the values.
+    cachedData_ = data;
+
+    // Iterate through the rest of the sources.
+    for (int i = 1, count = sources_.size(); i < count; i++){
+
+        sources_.at(i)->values(start, end, data.data());
+
+        for (int j = 0; j < totalSize; j++)
+            cachedData_[j] += data.at(j);
+    }
+
+    cacheUpdateRequired_ = false;
 }

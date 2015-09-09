@@ -145,6 +145,9 @@ AMControl::FailureExplanation AMPseudoMotorControl::move(double setpoint)
 		return AMControl::LimitFailure;
 	}
 
+	// Update the setpoint.
+	setSetpoint(setpoint);
+
 	// If the new setpoint is within tolerance, no need to proceed with move.
 	// Instead report a successful move to setpoint.
 
@@ -155,10 +158,6 @@ AMControl::FailureExplanation AMPseudoMotorControl::move(double setpoint)
 	}
 
 	// Otherwise, an actual move is needed.
-	// Update the setpoint.
-
-	setSetpoint(setpoint);
-
 	// Create new move action.
 
 	AMAction3 *moveAction = createMoveAction(setpoint_);

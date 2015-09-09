@@ -33,9 +33,8 @@ AMDataSourceSeriesData::AMDataSourceSeriesData(const AMDataSource* dataSource, Q
 	axisSize_ = 0;
 	axis_ = QVector<qreal>();
 	data_ = QVector<qreal>();
-	dirtyRange_ = AMRange();
-	dataRange_ = AMRange();
-	setDataSource(dataSource);
+    cachedDataRectUpdateRequired_ = false;
+    setDataSource(dataSource);
 }
 
 void AMDataSourceSeriesData::setDataSource(const AMDataSource* dataSource) {
@@ -54,8 +53,6 @@ void AMDataSourceSeriesData::setDataSource(const AMDataSource* dataSource) {
 		axisSize_ = 0;
 		axis_ = QVector<qreal>();
 		data_ = QVector<qreal>();
-		dirtyRange_ = AMRange();
-		dataRange_ = AMRange();
 	}
 
 	else {
@@ -119,7 +116,7 @@ QRectF AMDataSourceSeriesData::boundingRect() const
 				updateCachedValues();
 
 			cachedDataRect_ = QRectF(axis_.first(),
-									 dataRange_.minimum(),
+                                     dataRange_.minimum(),
 									 qMax(axis_.last()-axis_.first(), std::numeric_limits<qreal>::min()),
 									 qMax(dataRange_.maximum()-dataRange_.minimum(), std::numeric_limits<qreal>::min()));
 		}
@@ -137,24 +134,10 @@ void AMDataSourceSeriesData::onDataSourceDeleted()
 
 void  AMDataSourceSeriesData::onDataChanged(const AMnDIndex &start, const AMnDIndex &end)
 {
+    Q_UNUSED(start)
+    Q_UNUSED(end)
 	updateCacheRequired_ = true;
 	cachedDataRectUpdateRequired_ = true;
-
-	int dirtyStartIndex = start.isValid() ? start.i() : 0;
-	int dirtyEndIndex = end.isValid() ? end.i() : (axisSize_-1);
-
-	if (!dirtyRange_.isValid())
-		dirtyRange_ = AMRange(dirtyStartIndex, dirtyEndIndex);
-
-	else {
-
-		if (dirtyStartIndex < dirtyRange_.minimum())
-			dirtyRange_.setMinimum(dirtyStartIndex);
-
-		if (dirtyEndIndex > dirtyRange_.maximum())
-			dirtyRange_.setMaximum(dirtyEndIndex);
-	}
-
 	MPlotAbstractSeriesData::emitDataChanged();
 }
 
@@ -206,42 +189,23 @@ void AMDataSourceSeriesData::onSizeChanged()
 
 void AMDataSourceSeriesData::updateCachedValues() const
 {
-	int size = dirtyRange_.maximum()-dirtyRange_.minimum()+1;
-	QVector<double> newData = QVector<double>(size, 0);
+    if (source_->values(0, axisSize_-1, data_.data())){
 
-	if (source_->values(dirtyRange_.minimum(), dirtyRange_.maximum(), newData.data())){
+        double rangeMinimum = data_.first();
+        double rangeMaximum = data_.first();
 
-		int iOffset = dirtyRange_.minimum();
-		double rangeMinimum = newData.first();
-		double rangeMaximum = newData.first();
+        for (int i = 0; i < axisSize_; i++){
 
-		for (int i = 0; i < size; i++){
-
-			double newValue = newData.at(i);
+            double newValue = data_.at(i);
 
 			if (newValue > rangeMaximum)
 				rangeMaximum = newValue;
 
 			if (newValue < rangeMinimum)
 				rangeMinimum = newValue;
-
-			data_[i+iOffset] = qreal(newValue);
 		}
 
-		// The default range is invalid.
-		if (!dataRange_.isValid() || size == axisSize_)
-			dataRange_ = AMRange(rangeMinimum, rangeMaximum);
-
-		else {
-
-			if (rangeMinimum < dataRange_.minimum())
-				dataRange_.setMinimum(rangeMinimum);
-
-			if (rangeMaximum > dataRange_.maximum())
-				dataRange_.setMaximum(rangeMaximum);
-		}
-
-		dirtyRange_ = AMRange();
+        dataRange_ = AMRange(rangeMinimum, rangeMaximum);
 		updateCacheRequired_ = false;
 	}
 }

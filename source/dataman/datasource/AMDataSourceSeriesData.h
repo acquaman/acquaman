@@ -87,10 +87,8 @@ protected:
 	mutable QVector<qreal> data_;
 	/// Flag for when to update the cached data.
 	mutable bool updateCacheRequired_;
-	/// Holds the range of dirty values that need to be cached.
-	mutable AMRange dirtyRange_;
-	/// Holds the data range of the dependent values.
-	mutable AMRange dataRange_;
+    /// Holds the data range of the dependent values.
+    mutable AMRange dataRange_;
 };
 
 #endif // AMDATASOURCESERIESDATA_H
