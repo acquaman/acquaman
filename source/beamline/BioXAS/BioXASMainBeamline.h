@@ -46,6 +46,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/BioXAS/BioXASMainDBHRMirrors.h"
 #include "beamline/BioXAS/BioXASMainCarbonFilterFarm.h"
 #include "beamline/BioXAS/BioXASMainStandardsWheel.h"
+#include "beamline/BioXAS/BioXASEndstationTable.h"
 
 #include "util/AMErrorMonitor.h"
 #include "util/AMBiHash.h"
@@ -184,6 +185,7 @@ protected:
 	CLSKeithley428 *i0Keithley_;
 	CLSKeithley428 *i1Keithley_;
 	CLSKeithley428 *i2Keithley_;
+
 };
 
 #endif // BIOXASMAINBEAMLINE_H

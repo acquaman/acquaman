@@ -249,7 +249,7 @@ public:
 	/// Returns the four element Vortex detector.
 //	BioXASFourElementVortexDetector *fourElementVortexDetector() const { return fourElementVortexDetector_; }
 
-	// Endstation table
+	/// Endstation table
 	BioXASEndstationTable *endstationTable() const { return endstationTable_; }
 
 signals:
@@ -465,7 +465,7 @@ protected:
 
 	AMControlSet *temperatureSet_;
 
-	// endstation table
+	/// endstation table
 	BioXASEndstationTable *endstationTable_;
 
 	/// Cryostat motors.

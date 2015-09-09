@@ -11,9 +11,10 @@ SUBDIRS += \
 	AMCrashReporter.pro \
 	CLSNetworkDirectorySynchronizer.pro \
 	BioXASMainAcquaman.pro \
+	BioXASMainTableCoordinator.pro \
 	BioXASSideAcquaman.pro \
-	BioXASImagingAcquaman.pro \
 	BioXASSideTableCoordinator.pro \
+	BioXASImagingAcquaman.pro \
 	BioXASToolSuite.pro \
 	MidIRBPM.pro \
 	REIXSTest.pro \
