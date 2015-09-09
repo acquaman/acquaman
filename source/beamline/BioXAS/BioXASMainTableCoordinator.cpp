@@ -28,9 +28,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 BioXASMainTableCoordinator::BioXASMainTableCoordinator(QObject *parent) :
 	QObject(parent)
 {
-	tableVerticalMotorPosition_ = 619.125;
-	tableVerticalDownstreamMotorPosition_ = 619.125;
-	tableHorizontalMotorPosition_ = 543.725;
+	tableVerticalMotorPosition_ = 600;
+	tableVerticalDownstreamMotorPosition_ = 400;
+	tableHorizontalMotorPosition_ = 600;
 
 	initialized_ = false;
 	connectedOnce_ = false;
