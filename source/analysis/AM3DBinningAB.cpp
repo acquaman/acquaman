@@ -30,7 +30,7 @@ AM3DBinningAB::AM3DBinningAB(const QString &outputName, QObject *parent)
 	analyzedName_ = "";
 	canAnalyze_ = false;
 	inputSource_ = 0;
-    cacheUpdateRequired_ = true;
+	cacheUpdateRequired_ = true;
 
 	axes_ << AMAxisInfo("invalid", 0, "No input data") << AMAxisInfo("invalid", 0, "No input data");
 	setState(AMDataSource::InvalidFlag);
@@ -109,12 +109,12 @@ void AM3DBinningAB::setInputDataSourcesImplementation(const QList<AMDataSource*>
 			break;
 		}
 
-        cacheUpdateRequired_ = true;
-        cachedData_ = QVector<double>(size().product());
+		cacheUpdateRequired_ = true;
+		cachedData_ = QVector<double>(size().product());
 
-        setDescription(QString("%1 Summed (over %2)")
-                     .arg(inputSource_->name())
-                     .arg(inputSource_->axisInfoAt(sumAxis_).name));
+		setDescription(QString("%1 Summed (over %2)")
+			     .arg(inputSource_->name())
+			     .arg(inputSource_->axisInfoAt(sumAxis_).name));
 
 		connect(inputSource_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onInputSourceValuesChanged(AMnDIndex,AMnDIndex)));
 		connect(inputSource_->signalSource(), SIGNAL(sizeChanged(int)), this, SLOT(onInputSourceSizeChanged()));
@@ -181,8 +181,8 @@ void AM3DBinningAB::setInputSource()
 			break;
 		}
 
-        cacheUpdateRequired_ = true;
-        cachedData_ = QVector<double>(size().product());
+		cacheUpdateRequired_ = true;
+		cachedData_ = QVector<double>(size().product());
 
 		setDescription(QString("%1 Summed (over %2)")
 					   .arg(inputSource_->name())
@@ -204,26 +204,26 @@ void AM3DBinningAB::setInputSource()
 
 	reviewState();
 
-    emitSizeChanged();
+	emitSizeChanged();
 	emitValuesChanged();
-    emitAxisInfoChanged();
-    emitInfoChanged();
+	emitAxisInfoChanged();
+	emitInfoChanged();
 }
 
 void AM3DBinningAB::reviewState()
 {
     if(!canAnalyze_ || inputSource_ == 0 || !inputSource_->isValid()) {
-        setState(AMDataSource::InvalidFlag);
-        return;
+	setState(AMDataSource::InvalidFlag);
+	return;
     }
 
     int s = inputSource_->size(sumAxis_);
 
     if(sumRangeMin_ >= s || sumRangeMax_ >= s) {
-        setState(AMDataSource::InvalidFlag);
+	setState(AMDataSource::InvalidFlag);
     }
     else
-        setState(0);
+	setState(0);
 }
 
 void AM3DBinningAB::computeCachedValues() const
@@ -232,59 +232,59 @@ void AM3DBinningAB::computeCachedValues() const
 
     case 0:{
 
-        AMnDIndex start = AMnDIndex(sumRangeMin_, 0, 0);
-        AMnDIndex end = AMnDIndex(sumRangeMax_, inputSource_->size(1), inputSource_->size(2));
-        int totalPoints = start.totalPointsTo(end);
-        int sumRange = sumRangeMax_-sumRangeMin_+1;
-        QVector<double> data = QVector<double>(totalPoints);
-        inputSource_->values(start, end, data.data());
-        cachedData_.fill(0);
+	AMnDIndex start = AMnDIndex(sumRangeMin_, 0, 0);
+	AMnDIndex end = AMnDIndex(sumRangeMax_, inputSource_->size(1), inputSource_->size(2));
+	int totalPoints = start.totalPointsTo(end);
+	int sumRange = sumRangeMax_-sumRangeMin_+1;
+	QVector<double> data = QVector<double>(totalPoints);
+	inputSource_->values(start, end, data.data());
+	cachedData_.fill(0);
 
-        for (int i = 0; i < totalPoints; i++){
+	for (int i = 0; i < totalPoints; i++){
 
-            int insertIndex = int(i/sumRange);
-            cachedData_[insertIndex] += data.at(i);
-        }
+	    int insertIndex = int(i/sumRange);
+	    cachedData_[insertIndex] += data.at(i);
+	}
 
-        break;
+	break;
     }
 
     case 1: {
 
-        AMnDIndex start = AMnDIndex(0, sumRangeMin_, 0);
-        AMnDIndex end = AMnDIndex(inputSource_->size(0), sumRangeMax_, inputSource_->size(2));
-        int totalPoints = start.totalPointsTo(end);
-        int sumRange = sumRangeMax_-sumRangeMin_+1;
-        QVector<double> data = QVector<double>(totalPoints);
-        inputSource_->values(start, end, data.data());
-        cachedData_.fill(0);
+	AMnDIndex start = AMnDIndex(0, sumRangeMin_, 0);
+	AMnDIndex end = AMnDIndex(inputSource_->size(0), sumRangeMax_, inputSource_->size(2));
+	int totalPoints = start.totalPointsTo(end);
+	int sumRange = sumRangeMax_-sumRangeMin_+1;
+	QVector<double> data = QVector<double>(totalPoints);
+	inputSource_->values(start, end, data.data());
+	cachedData_.fill(0);
 
-        for (int i = 0; i < totalPoints; i++){
+	for (int i = 0; i < totalPoints; i++){
 
-            int insertIndex = int(i/sumRange);
-            cachedData_[insertIndex] += data.at(i);
-        }
+	    int insertIndex = int(i/sumRange);
+	    cachedData_[insertIndex] += data.at(i);
+	}
 
-        break;
+	break;
     }
 
     case 2: {
 
-        AMnDIndex start = AMnDIndex(0, 0, sumRangeMin_);
-        AMnDIndex end = AMnDIndex(inputSource_->size(0), inputSource_->size(1), sumRangeMax_);
-        int totalPoints = start.totalPointsTo(end);
-        int sumRange = sumRangeMax_-sumRangeMin_+1;
-        QVector<double> data = QVector<double>(totalPoints);
-        inputSource_->values(start, end, data.data());
-        cachedData_.fill(0);
+	AMnDIndex start = AMnDIndex(0, 0, sumRangeMin_);
+	AMnDIndex end = AMnDIndex(inputSource_->size(0), inputSource_->size(1), sumRangeMax_);
+	int totalPoints = start.totalPointsTo(end);
+	int sumRange = sumRangeMax_-sumRangeMin_+1;
+	QVector<double> data = QVector<double>(totalPoints);
+	inputSource_->values(start, end, data.data());
+	cachedData_.fill(0);
 
-        for (int i = 0; i < totalPoints; i++){
+	for (int i = 0; i < totalPoints; i++){
 
-            int insertIndex = int(i/sumRange);
-            cachedData_[insertIndex] += data.at(i);
-        }
+	    int insertIndex = int(i/sumRange);
+	    cachedData_[insertIndex] += data.at(i);
+	}
 
-        break;
+	break;
     }
     }
 
@@ -317,7 +317,7 @@ AMNumber AM3DBinningAB::value(const AMnDIndex& indexes) const {
 #endif
 
     if (cacheUpdateRequired_)
-        computeCachedValues();
+	computeCachedValues();
 
     return cachedData_.at(indexes.i()*size(1)+indexes.j());
 }
@@ -339,11 +339,11 @@ bool AM3DBinningAB::values(const AMnDIndex &indexStart, const AMnDIndex &indexEn
 		return false;
 #endif
 
-    if (cacheUpdateRequired_)
-        computeCachedValues();
+	if (cacheUpdateRequired_)
+		computeCachedValues();
 
-    int totalSize = indexStart.totalPointsTo(indexEnd);
-    memcpy(outputValues, cachedData_.constData()+indexStart.i()*size(1), totalSize*sizeof(double));
+	int totalSize = indexStart.totalPointsTo(indexEnd);
+	memcpy(outputValues, cachedData_.constData()+indexStart.i()*size(1), totalSize*sizeof(double));
 
 	return true;
 }
@@ -409,38 +409,38 @@ bool AM3DBinningAB::axisValues(int axisNumber, int startIndex, int endIndex, dou
 
 void AM3DBinningAB::setSumAxis(int sumAxis)
 {
-    if((unsigned)sumAxis >= 3)
-        return;
+    if((unsigned)sumAxis >= 2)
+	return;
 
     if(sumAxis == sumAxis_)
-        return;	// no change
+	return;	// no change
 
     sumAxis_ = sumAxis;
 
     // if we have a data source, set our output axisInfo to match the input source's other axis. This also changes our size.
     if(inputSource_) {
 
-        switch (sumAxis_){
+	switch (sumAxis_){
 
-        case 0:
-            axes_[0] = inputSource_->axisInfoAt(1);
-            axes_[1] = inputSource_->axisInfoAt(2);
-            break;
+	case 0:
+	    axes_[0] = inputSource_->axisInfoAt(1);
+	    axes_[1] = inputSource_->axisInfoAt(2);
+	    break;
 
-        case 1:
-            axes_[0] = inputSource_->axisInfoAt(0);
-            axes_[1] = inputSource_->axisInfoAt(2);
-            break;
+	case 1:
+	    axes_[0] = inputSource_->axisInfoAt(0);
+	    axes_[1] = inputSource_->axisInfoAt(2);
+	    break;
 
-        case 2:
-            axes_[0] = inputSource_->axisInfoAt(0);
-            axes_[1] = inputSource_->axisInfoAt(1);
-            break;
-        }
+	case 2:
+	    axes_[0] = inputSource_->axisInfoAt(0);
+	    axes_[1] = inputSource_->axisInfoAt(1);
+	    break;
+	}
 
-        setDescription(QString("%1 summed (over %2)")
-                       .arg(inputSource_->name())
-                       .arg(inputSource_->axisInfoAt(sumAxis_).name));
+	setDescription(QString("%1 summed (over %2)")
+		       .arg(inputSource_->name())
+		       .arg(inputSource_->axisInfoAt(sumAxis_).name));
     }
 
     reviewState();
@@ -456,7 +456,7 @@ void AM3DBinningAB::setSumRangeMin(int sumRangeMin)
 {
     // no change
     if(sumRangeMin == sumRangeMin_)
-        return;
+	return;
 
     sumRangeMin_ = sumRangeMin;
     reviewState();
@@ -467,7 +467,7 @@ void AM3DBinningAB::setSumRangeMin(int sumRangeMin)
 void AM3DBinningAB::setSumRangeMax(int sumRangeMax)
 {
     if(sumRangeMax == sumRangeMax_)
-        return;
+	return;
 
     sumRangeMax_ = sumRangeMax;
     reviewState();
@@ -513,14 +513,14 @@ void AM3DBinningAB::onInputSourceValuesChanged(const AMnDIndex& start, const AMn
 			break;
 		}
 
-        cacheUpdateRequired_ = true;
+		cacheUpdateRequired_ = true;
 		emitValuesChanged(startIndex, endIndex);
 	}
 
     else{
 
-        cacheUpdateRequired_ = true;
-        emitValuesChanged();
+	cacheUpdateRequired_ = true;
+	emitValuesChanged();
     }
 }
 
@@ -531,29 +531,29 @@ void AM3DBinningAB::onInputSourceSizeChanged()
 
 	case 0:
 
-        axes_[0].size = inputSource_->size(1);
-        axes_[1].size = inputSource_->size(2);
+	axes_[0].size = inputSource_->size(1);
+	axes_[1].size = inputSource_->size(2);
 
 		break;
 
 	case 1:
 
-        axes_[0].size = inputSource_->size(0);
-        axes_[1].size = inputSource_->size(2);
+	axes_[0].size = inputSource_->size(0);
+	axes_[1].size = inputSource_->size(2);
 
 		break;
 
 	case 2:
 
-        axes_[0].size = inputSource_->size(0);
-        axes_[1].size = inputSource_->size(1);
+	axes_[0].size = inputSource_->size(0);
+	axes_[1].size = inputSource_->size(1);
 
 		break;
 	}
 
-    cacheUpdateRequired_ = true;
-    cachedData_ = QVector<double>(size().product());
-    emitSizeChanged();
+	cacheUpdateRequired_ = true;
+	cachedData_ = QVector<double>(size().product());
+	emitSizeChanged();
 }
 
 void AM3DBinningAB::onInputSourceStateChanged() {

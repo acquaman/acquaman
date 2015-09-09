@@ -87,7 +87,7 @@ public:
 	/// When the independent values along an axis is not simply the axis index, this returns the independent value along an axis (specified by axis number and index)
 	virtual AMNumber axisValue(int axisNumber, int index) const;
 	/// Performance optimization of axisValue():  instead of a single value, copies a block of values from \c startIndex to \c endIndex in \c outputValues.  The provided pointer must contain enough space for all the requested values.
-    virtual bool axisValues(int axisNumber, int startIndex, int endIndex, double *outputValues) const;
+	virtual bool axisValues(int axisNumber, int startIndex, int endIndex, double *outputValues) const;
 
 	// Analysis parameters
 	///////////////////////////
@@ -98,11 +98,11 @@ public:
 	// Setting parameters
 	///////////////////////////
 	/// Specify the axis which is summed along. (The size() of the output thus becomes the size of the other axis.) This must be 0 or 1.
-    void setSumAxis(int sumAxis);
+	void setSumAxis(int sumAxis);
 	/// Set the minimum index in the region of interest.  If the sum range is beyond the size of the summed axis, the output goes invalid. The value remains as set, however.
-    void setSumRangeMin(int sumRangeMin);
+	void setSumRangeMin(int sumRangeMin);
 	/// Set the maximum index in the region of interest. If the sum range is beyond the size of the summed axis, the output goes invalid. However, the value remains as set.
-    void setSumRangeMax(int sumRangeMax);
+	void setSumRangeMax(int sumRangeMax);
 
 signals:
 
