@@ -726,8 +726,6 @@ MPlotItem* AMScanViewInternal::createPlotItemForDataSource(const AMDataSource* d
 		return 0;
 	}
 
-	qDebug() << "Creating plot item for data source" << dataSource->name();
-
 	switch(dataSource->rank()) {	// depending on the rank, we'll need an XY-series or an image to display it. 3D and 4D, etc. we don't handle for now.
 
 	case 1: {
@@ -1008,8 +1006,6 @@ void AMScanViewExclusiveView::refreshTitle() {
 // Helper function to handle adding a scan (at row scanIndex in the model)
 void AMScanViewExclusiveView::addScan(int scanIndex) {
 
-	qDebug() << "Adding scan...";
-
 	QString dataSourceName = model()->exclusiveDataSourceName();
 
 	int dataSourceIndex = model()->scanAt(scanIndex)->indexOfDataSource(dataSourceName);
@@ -1025,8 +1021,6 @@ void AMScanViewExclusiveView::addScan(int scanIndex) {
 	}
 	plotItems_.insert(scanIndex, newItem);
 	plotItemDataSources_.insert(scanIndex, dataSource);
-
-	qDebug() << "New scan added.";
 }
 
 
