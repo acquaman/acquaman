@@ -176,7 +176,7 @@ void BioXASMainBeamline::setupComponents()
 	connect( standardsWheel_, SIGNAL(connectedChanged(bool)), this, SLOT(updateConnected()) );
 
 	// Endstation table.
-	endstationTable_ = new BioXASEndstationTable("MainEndstationTable", "SMTR1607-7-I21-02");
+	endstationTable_ = new BioXASEndstationTable("MainEndstationTable", "BL1607-7-I21", true, this);
 	connect( endstationTable_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
 	// Scaler

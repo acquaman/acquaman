@@ -34,6 +34,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/BioXAS/BioXASMainDBHRMirrors.h"
 #include "beamline/BioXAS/BioXASMainCarbonFilterFarm.h"
 #include "beamline/BioXAS/BioXASMainStandardsWheel.h"
+#include "beamline/BioXAS/BioXASEndstationTable.h"
 
 #include "util/AMErrorMonitor.h"
 #include "util/AMBiHash.h"

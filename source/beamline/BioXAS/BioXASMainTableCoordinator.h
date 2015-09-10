@@ -18,8 +18,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#ifndef BioXASSideTableCoordinator_H
-#define BioXASSideTableCoordinator_H
+#ifndef BIOXASMAINTABLECOORDINATOR_H
+#define BIOXASMAINTABLECOORDINATOR_H
 
 #include "beamline/AMControlSet.h"
 
@@ -28,15 +28,15 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 /// The position of Height / lateral / pitch / yaw is based on the position of the center of the table
 ///
 
-class BioXASSideTableCoordinator : public QObject
+class BioXASMainTableCoordinator : public QObject
 {
 	Q_OBJECT
 public:
 	/// Simple constructor for class
-	BioXASSideTableCoordinator(QObject *parent = 0);
+	BioXASMainTableCoordinator(QObject *parent = 0);
 
 	/// Destructor
-	virtual ~BioXASSideTableCoordinator();
+	virtual ~BioXASMainTableCoordinator();
 
 protected slots:
 	/// Handles watching for when the controls actually connect
@@ -47,7 +47,6 @@ protected slots:
 	void onVerticalFeedbackControlValueChanged();
 	/// Handles Vertical Upstream/Downstream status control value changed
 	void onVerticalStatusControlValueChanged();
-
 
 	/// Handles Horizontal Upstream/Downstrea feedback control value changed
 	void onHorizontalFeedbackControlValueChanged();
@@ -63,6 +62,11 @@ protected slots:
 	void onPitchControlValueChanged(double angle);
 	/// Handles table Pitch stop control value changed
 	void onPitchStopControlValueChanged();
+	/// Handles table Roll control value changed
+	void onRollControlValueChanged(double angle);
+	/// Handles table Roll stop control value changed
+	void onRollStopControlValueChanged();
+
 	/// Handles table Lateral control value changed
 	void onLateralControlValueChanged(double value);
 	/// Handles table Lateral stop control value changed
@@ -87,22 +91,25 @@ protected:
 	void initializeSignalConnector();
 
 	/// get the current height of the tablle
-	double calculateTableHeight(const double upstreamHeight, const double downstreamHeight) const;
+	double calculateTableHeight(double upstreamHeight, double downstreamInboundHeight, double downstreamOutboundHeight) const;
 	/// get the current pitch of the tablle
-	double calculateTablePitch(const double upstreamHeight, const double downstreamHeight) const;
+	double calculateTablePitch(double upstreamHeight, double downstreamInboundHeight, double downstreamOutboundHeight) const;
+	/// get the current Roll of the tablle
+	double calculateTableRoll(double downstreamInboundHeight, double downstreamOutboundHeight) const;
 	/// get the current lateral of the tablle
 	double calculateTableLateral(const double upstreamLateral, const double downstreamLateral) const;
 	/// get the current yaw of the tablle
 	double calculateTableYaw(const double upstreamLateral, const double downstreamLateral) const;
 
-	/// Apply the value changes of the vertical (feedback) PVs to the softIOC height (feedback) PV and Pitch (feedback) PV
-	void manipulateVerticalPVChange(double upstreamHeight, double downstreamHeight, AMControl* heightPV, AMControl *pitchPV);
+	/// Apply the value changes of the vertical (feedback) PVs to the softIOC height (feedback) PV, Pitch (feedback) PV, Roll (feedback) PV
+	void manipulateVerticalPVChange(double upstreamHeight, double downstreamInboundHeight, double downstreamOutboundHeight, AMControl* heightPV, AMControl *pitchPV, AMControl *rollPV);
 	/// Apply the value changes of the horizontal (feedback) PVs to the softIOC lateral (feedback) PV and yaw (feedback) PV
 	void manipulateHorizontalPVChange(double upstreamOffset, double downstreamOffset, AMControl* lateralPV, AMControl* yawPV);
 
 protected:
 	/// const for motors
 	double tableVerticalMotorPosition_; // the distance between the upstream / downstream motor to the center of the table, which is fixed
+	double tableVerticalDownstreamMotorPosition_; // the distance between the downstream motors to the center of the table (central line), which is fixed
 	double tableHorizontalMotorPosition_; // the distance between the upstream / downstream motor to the center of the table, which is fixed
 
 	/// flag of whether the coordinator is initialized or not
@@ -113,75 +120,92 @@ protected:
 	AMControlSet *allControls_;
 
 	/// ============ Original PVs ==================
-	/// BioXAS Side table Vertical Upstream PV control
+	/// BioXAS Main table Vertical Upstream PV control
 	AMControl *verticalUpstreamControl_;
-	/// BioXAS Side table Vertical Upstream feedbak PV control
+	/// BioXAS Main table Vertical Upstream feedbak PV control
 	AMControl *verticalUpstreamFeedbackControl_;
-	/// BioXAS Side table Vertical Upstream status PV control
+	/// BioXAS Main table Vertical Upstream status PV control
 	AMControl *verticalUpstreamStatusControl_;
 	AMControl *verticalUpstreamStopControl_;
 
-	/// BioXAS Side table Vertical Downstream PV control
-	AMControl *verticalDownstreamControl_;
-	/// BioXAS Side table Vertical Downstream feedbak PV control
-	AMControl *verticalDownstreamFeedbackControl_;
-	/// BioXAS Side table Vertical Downstream status PV control
-	AMControl *verticalDownstreamStatusControl_;
-	AMControl *verticalDownstreamStopControl_;
+	/// BioXAS Main table Vertical Downstream Inbound PV control
+	AMControl *verticalDownstreamInboundControl_;
+	/// BioXAS Main table Vertical Downstream feedbak PV control
+	AMControl *verticalDownstreamInboundFeedbackControl_;
+	/// BioXAS Main table Vertical Downstream status PV control
+	AMControl *verticalDownstreamInboundStatusControl_;
+	AMControl *verticalDownstreamInboundStopControl_;
 
-	/// BioXAS Side table Horizontal Upstream PV control
+	/// BioXAS Main table Vertical Downstream Outbound PV control
+	AMControl *verticalDownstreamOutboundControl_;
+	/// BioXAS Main table Vertical Downstream feedbak PV control
+	AMControl *verticalDownstreamOutboundFeedbackControl_;
+	/// BioXAS Main table Vertical Downstream status PV control
+	AMControl *verticalDownstreamOutboundStatusControl_;
+	AMControl *verticalDownstreamOutboundStopControl_;
+
+	/// BioXAS Main table Horizontal Upstream PV control
 	AMControl *horizontalUpstreamControl_;
-	/// BioXAS Side table Horizontal Upstream feedbak PV control
+	/// BioXAS Main table Horizontal Upstream feedbak PV control
 	AMControl *horizontalUpstreamFeedbackControl_;
-	/// BioXAS Side table Horizontal Upstream status PV control
+	/// BioXAS Main table Horizontal Upstream status PV control
 	AMControl *horizontalUpstreamStatusControl_;
 	AMControl *horizontalUpstreamStopControl_;
 
-	/// BioXAS Side table horizonal Downstream PV control
+	/// BioXAS Main table horizonal Downstream PV control
 	AMControl *horizontalDownstreamControl_;
-	/// BioXAS Side table Horizontal Downstream feedbak PV control
+	/// BioXAS Main table Horizontal Downstream feedbak PV control
 	AMControl *horizontalDownstreamFeedbackControl_;
-	/// BioXAS Side table Horizontal Downstream status PV control
+	/// BioXAS Main table Horizontal Downstream status PV control
 	AMControl *horizontalDownstreamStatusControl_;
 	AMControl *horizontalDownstreamStopControl_;
 
 	/// ============ SoftIOC PVs ==================
-	/// BioXAS Side table softIOC height PV control
+	/// BioXAS Main table softIOC height PV control
 	AMControl *softIOCHeightControl_;
-	/// BioXAS Side table softIOC height feedbak PV control
+	/// BioXAS Main table softIOC height feedbak PV control
 	AMControl *softIOCHeightFeedbackControl_;
-	/// BioXAS Side table softIOC height status PV control
+	/// BioXAS Main table softIOC height status PV control
 	AMControl *softIOCHeightStatusControl_;
-	/// BioXAS Side table softIOC height stop PV control
+	/// BioXAS Main table softIOC height stop PV control
 	AMControl *softIOCHeightStopControl_;
 
-	/// BioXAS Side table softIOC pitch PV control
+	/// BioXAS Main table softIOC pitch PV control
 	AMControl *softIOCPitchControl_;
-	/// BioXAS Side table softIOC pitch feedbak PV control
+	/// BioXAS Main table softIOC pitch feedbak PV control
 	AMControl *softIOCPitchFeedbackControl_;
-	/// BioXAS Side table softIOC pitch status PV control
+	/// BioXAS Main table softIOC pitch status PV control
 	AMControl *softIOCPitchStatusControl_;
-	/// BioXAS Side table softIOC pitch stop PV control
+	/// BioXAS Main table softIOC pitch stop PV control
 	AMControl *softIOCPitchStopControl_;
 
-	/// BioXAS Side table softIOC Lateral PV control
+	/// BioXAS Main table softIOC Roll PV control
+	AMControl *softIOCRollControl_;
+	/// BioXAS Main table softIOC Roll feedbak PV control
+	AMControl *softIOCRollFeedbackControl_;
+	/// BioXAS Main table softIOC Roll status PV control
+	AMControl *softIOCRollStatusControl_;
+	/// BioXAS Main table softIOC Roll stop PV control
+	AMControl *softIOCRollStopControl_;
+
+	/// BioXAS Main table softIOC Lateral PV control
 	AMControl *softIOCLateralControl_;
-	/// BioXAS Side table softIOC Lateral feedbak PV control
+	/// BioXAS Main table softIOC Lateral feedbak PV control
 	AMControl *softIOCLateralFeedbackControl_;
-	/// BioXAS Side table softIOC Lateral status PV control
+	/// BioXAS Main table softIOC Lateral status PV control
 	AMControl *softIOCLateralStatusControl_;
-	/// BioXAS Side table softIOC Lateral stop PV control
+	/// BioXAS Main table softIOC Lateral stop PV control
 	AMControl *softIOCLateralStopControl_;
 
-	/// BioXAS Side table softIOC yaw PV control
+	/// BioXAS Main table softIOC yaw PV control
 	AMControl *softIOCYawControl_;
-	/// BioXAS Side table softIOC yaw feedbak PV control
+	/// BioXAS Main table softIOC yaw feedbak PV control
 	AMControl *softIOCYawFeedbackControl_;
-	/// BioXAS Side table softIOC yaw status PV control
+	/// BioXAS Main table softIOC yaw status PV control
 	AMControl *softIOCYawStatusControl_;
-	/// BioXAS Side table softIOC yaw stop PV control
+	/// BioXAS Main table softIOC yaw stop PV control
 	AMControl *softIOCYawStopControl_;
 
 };
 
-#endif // BioXASSideTableCoordinator_H
+#endif // BIOXASMAINTABLECOORDINATOR_H
