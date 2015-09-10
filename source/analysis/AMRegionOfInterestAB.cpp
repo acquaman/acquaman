@@ -295,7 +295,7 @@ void AMRegionOfInterestAB::computeCachedValues() const
 	for (int i = 0, rank = start.rank(); i < rank; i++){
 
 		start[i] = 0;
-		end[i] = size(i)-1;
+		end[i] = spectrum_->size(i)-1;
 	}
 
 	start[start.rank()-1] = minimum;
@@ -315,80 +315,6 @@ void AMRegionOfInterestAB::computeCachedValues() const
 
 		cachedData_[insertIndex] += data.at(i);
 	}
-
-//	QVector<double> data = QVector<double>(start.totalPointsTo(end));
-
-//	if (spectrum_->values(start, end, data.data())){
-
-//		switch(rank()){
-
-//		case 0:{
-
-//			double value = 0;
-
-//			for (int i = 0, size = data.size(); i < size; i++)
-//				value += data.at(i);
-
-//			*outputValues = (value < 0 ? -1 : value);
-
-//			break;
-//		}
-
-//		case 1:{
-
-//			for (int i = 0, size = indexStart.totalPointsTo(indexEnd); i < size; i++){
-
-//				double value = 0;
-
-//				for (int j = 0, jSize = maximum - minimum + 1; j < jSize; j++)
-//					value += data.at(i*axisLength+j);
-
-//				outputValues[i] = (value < 0 ? -1 : value);
-//			}
-
-//			break;
-//		}
-
-//		case 2:{
-
-//			for (int i = 0, iSize = end.i()-start.i()+1; i < iSize; i++){
-
-//				for (int j = 0, jSize = end.j()-start.j()+1; j < jSize; j++){
-
-//					double value = 0;
-
-//					for (int k = 0, kSize = maximum - minimum + 1; k < kSize; k++)
-//						value += data.at(i*jSize*axisLength+j*axisLength+k);
-
-//					outputValues[i*jSize+j] = (value < 0 ? -1 : value);
-//				}
-//			}
-
-//			break;
-//		}
-
-//		case 3:{
-
-//			for (int i = 0, iSize = end.i()-start.i()+1; i < iSize; i++){
-
-//				for (int j = 0, jSize = end.j()-start.j()+1; j < jSize; j++){
-
-//					for (int k = 0, kSize = end.k()-start.k()+1; k < kSize; k++){
-
-//						double value = 0;
-
-//						for (int l = 0, lSize = maximum - minimum + 1; l < lSize; l++)
-//							value += data.at(i*jSize*kSize*axisLength+j*kSize*axisLength+k*axisLength+l);
-
-//						outputValues[i*jSize*kSize+j*kSize+k] = (value < 0 ? -1 : value);
-//					}
-//				}
-//			}
-
-//			break;
-//		}
-//		}
-//	}
 
 	cacheUpdateRequired_ = false;
 }
