@@ -43,7 +43,7 @@ BioXASSideBeamline::~BioXASSideBeamline()
 bool BioXASSideBeamline::isConnected() const
 {
 	bool connected = (
-				// General BioXAS components.
+				// Front-end BioXAS components.
 				BioXASBeamline::isConnected() &&
 
 				safetyShutterES_->isConnected() &&
@@ -156,6 +156,7 @@ void BioXASSideBeamline::setupDetectors()
 	i2Detector_ = new CLSBasicScalerChannelDetector("I2Detector", "I2 Detector", scaler_, 18, this);
 
 	ge32ElementDetector_ = new BioXAS32ElementGeDetector("Ge32Element", "Ge 32 Element", this);
+	addSynchronizedXRFDetector(ge32ElementDetector_);
 }
 
 void BioXASSideBeamline::setupComponents()
@@ -222,7 +223,7 @@ void BioXASSideBeamline::setupComponents()
 	utilities_ = new BioXASSideBeamlineUtilities(this);
 	connect( utilities_, SIGNAL(connectedChanged(bool)), this, SLOT(updateConnected()) );
 
-	// Detectors
+	// Detectors. Must be called before the scaler channel detectors are set.
 	setupDetectors();
 
 	// I0 channel amplifier.

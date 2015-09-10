@@ -72,6 +72,7 @@ void BioXASXASScanConfigurationRegionsEditor::setConfiguration(BioXASXASScanConf
 			connect( configuration_, SIGNAL(totalTimeChanged(double)), this, SLOT(updateEstimatedTimeLabel()) );
 			connect( configuration_, SIGNAL(scanAxisAdded(AMScanAxis*)), this, SLOT(connectScanAxis(AMScanAxis*)) );
 			connect( configuration_, SIGNAL(scanAxisRemoved(AMScanAxis*)), this, SLOT(disconnectScanAxis(AMScanAxis*)) );
+			connect( configuration_->dbObject(), SIGNAL(energyChanged(double)), this, SLOT(updateRegionsView()) );
 
 			// Want to listen for any changes to existing scan axes, as region changes mean we must refresh this view.
 
@@ -102,6 +103,7 @@ void BioXASXASScanConfigurationRegionsEditor::clear()
 
 void BioXASXASScanConfigurationRegionsEditor::update()
 {
+	updateRegionsView();
 	updateEstimatedTimeLabel();
 	updateXANESButton();
 	updateEXAFSButton();
@@ -125,6 +127,13 @@ void BioXASXASScanConfigurationRegionsEditor::refresh()
 	// Update view.
 
 	update();
+}
+
+void BioXASXASScanConfigurationRegionsEditor::updateRegionsView()
+{
+	if (configuration_ && regionsView_) {
+		regionsView_->setEdgeEnergy(configuration_->energy());
+	}
 }
 
 void BioXASXASScanConfigurationRegionsEditor::updateEstimatedTimeLabel()
@@ -203,9 +212,9 @@ void BioXASXASScanConfigurationRegionsEditor::disconnectScanAxis(AMScanAxis *axi
 	}
 }
 
-QWidget* BioXASXASScanConfigurationRegionsEditor::createRegionsView(BioXASXASScanConfiguration *configuration)
+AMEXAFSScanAxisView* BioXASXASScanConfigurationRegionsEditor::createRegionsView(BioXASXASScanConfiguration *configuration)
 {
-	QWidget *view = 0;
+	AMEXAFSScanAxisView *view = 0;
 
 	if (configuration) {
 		QList<AMScanAxis*> axes = configuration->scanAxes();

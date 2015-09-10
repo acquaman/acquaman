@@ -32,6 +32,8 @@ public slots:
 	virtual void refresh();
 
 protected slots:
+	/// Updates the regions view.
+	void updateRegionsView();
 	/// Updates the estimated time label.
 	void updateEstimatedTimeLabel();
 	/// Updates the XANES button.
@@ -51,11 +53,11 @@ protected slots:
 
 protected:
 	/// Creates and returns a regions view for the given configuration.
-	static QWidget* createRegionsView(BioXASXASScanConfiguration *configuration);
+	static AMEXAFSScanAxisView* createRegionsView(BioXASXASScanConfiguration *configuration);
 
 protected:
 	/// The regions view.
-	QWidget *regionsView_;
+	AMEXAFSScanAxisView *regionsView_;
 	/// Button that sets the XANES regions.
 	QPushButton *xanesButton_;
 	/// Button that sets the EXAFS regions.

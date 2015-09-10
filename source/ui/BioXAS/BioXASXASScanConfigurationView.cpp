@@ -26,26 +26,26 @@ void BioXASXASScanConfigurationView::setConfigurationName(BioXASXASScanConfigura
 
 void BioXASXASScanConfigurationView::setConfigurationEdge(BioXASXASScanConfiguration *configuration, const AMAbsorptionEdge &newEdge)
 {
-	if (configuration) {
-		QString edgeString;
+	if (configuration && !newEdge.isNull()) {
+
 		QStringList edgeInfo = newEdge.toString().split(":");
+		if (!edgeInfo.isEmpty()) {
 
-		if (!edgeInfo.isEmpty())
-			edgeString = edgeInfo.first();
-
-		setConfigurationEdge(configuration, edgeString);
+			QString edgeString = edgeInfo.first();
+			setConfigurationEdge(configuration, edgeString);
+		}
 	}
 }
 
 void BioXASXASScanConfigurationView::setConfigurationEdge(BioXASXASScanConfiguration *configuration, const QString &newEdgeString)
 {
-	if (configuration && configuration->edge() != newEdgeString)
+	if (configuration)
 		configuration->setEdge(newEdgeString);
 }
 
 void BioXASXASScanConfigurationView::setConfigurationEnergy(BioXASXASScanConfiguration *configuration, double newEnergy)
 {
-	if (configuration && configuration->energy() != newEnergy)
+	if (configuration)
 		configuration->setEnergy(newEnergy);
 }
 
@@ -56,9 +56,10 @@ AMElement* BioXASXASScanConfigurationView::configurationElement(BioXASXASScanCon
 	if (configuration) {
 		QString elementSymbol;
 
-		QStringList configurationEdgeText = configuration->edge().split(" ");
-		if (configurationEdgeText.count() > 1)
-			elementSymbol = configurationEdgeText.first();
+		QString configurationEdgeText = configuration->edge();
+		QStringList configurationEdgeTextParts = configurationEdgeText.split(" ");
+		if (configurationEdgeTextParts.count() > 1)
+			elementSymbol = configurationEdgeTextParts.first();
 
 		if (!elementSymbol.isEmpty())
 			result = AMPeriodicTable::table()->elementBySymbol(elementSymbol);

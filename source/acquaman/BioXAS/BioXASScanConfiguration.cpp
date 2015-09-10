@@ -15,6 +15,17 @@ BioXASScanConfiguration::~BioXASScanConfiguration()
 
 }
 
+QString BioXASScanConfiguration::toString() const
+{
+	QString text;
+
+	text.append(QString("Edge: %1").arg(edge()));
+	text.append(QString("\nEnergy: %1").arg(energy()));
+	text.append(QString("\nRegions: %1").arg(regionsOfInterestHeaderString(regionsOfInterest())));
+
+	return text;
+}
+
 void BioXASScanConfiguration::dbWriteScanConfigurationDbObject(AMDbObject *object)
 {
 	BioXASScanConfigurationDbObject *dbo;

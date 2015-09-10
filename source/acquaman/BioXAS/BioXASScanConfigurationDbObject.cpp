@@ -1,4 +1,5 @@
 #include "BioXASScanConfigurationDbObject.h"
+#include <QDebug>
 
 BioXASScanConfigurationDbObject::BioXASScanConfigurationDbObject(QObject *parent)
 	: AMDbObject(parent)
@@ -25,7 +26,7 @@ BioXASScanConfigurationDbObject::~BioXASScanConfigurationDbObject()
 void BioXASScanConfigurationDbObject::setEnergy(double newEnergy)
 {
 	if (energy_ != newEnergy){
-
+		qDebug() << "BioXASScanConfigurationDbObject: setting energy - " << newEnergy;
 		energy_ = newEnergy;
 		emit energyChanged(energy_);
 		setModified(true);
@@ -35,7 +36,7 @@ void BioXASScanConfigurationDbObject::setEnergy(double newEnergy)
 void BioXASScanConfigurationDbObject::setEdge(const QString &newEdge)
 {
 	if (edge_ != newEdge){
-
+		qDebug() << "BioXASScanConfigurationDbObject: setting edge - " << newEdge;
 		edge_ = newEdge;
 		emit edgeChanged(edge_);
 		setModified(true);

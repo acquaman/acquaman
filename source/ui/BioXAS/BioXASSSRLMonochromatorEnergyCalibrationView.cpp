@@ -317,34 +317,43 @@ void BioXASSSRLMonochromatorEnergyCalibrationView::applyConfigurationSettings(Bi
 
 		qDebug() << "\nScan configuration edge:" << configuration->edge();
 
-		QString elementSymbol = configuration->edge().split(" ").first();
-		QString elementEdge = configuration->edge().split(" ").last();
+		QString edgeText = configuration->edge();
+		QStringList edgeTextParts = edgeText.split(" ");
 
-		qDebug() << "Element scanned:" << elementSymbol;
-		qDebug() << "Edge scanned:" << elementEdge;
+		if (edgeTextParts.count() > 0) {
+			QString elementSymbol = edgeTextParts.first();
+			QString elementEdge = edgeTextParts.last();
 
-		AMElement *element = AMPeriodicTable::table()->elementBySymbol(elementSymbol);
+			qDebug() << "Element scanned:" << elementSymbol;
+			qDebug() << "Edge scanned:" << elementEdge;
 
-		double edgeEnergy = 0;
+			AMElement *element = AMPeriodicTable::table()->elementBySymbol(elementSymbol);
 
-		if (elementEdge == "K")
-			edgeEnergy = element->KEdge().energy();
-		else if (elementEdge == "L1")
-			edgeEnergy = element->L1Edge().energy();
-		else if (elementEdge == "L2")
-			edgeEnergy = element->L2Edge().energy();
-		else if (elementEdge == "L3")
-			edgeEnergy = element->L3Edge().energy();
+			double edgeEnergy = 0;
 
-		qDebug() << "Edge energy: " << edgeEnergy;
+			if (elementEdge == "K")
+				edgeEnergy = element->KEdge().energy();
+			else if (elementEdge == "L1")
+				edgeEnergy = element->L1Edge().energy();
+			else if (elementEdge == "L2")
+				edgeEnergy = element->L2Edge().energy();
+			else if (elementEdge == "L3")
+				edgeEnergy = element->L3Edge().energy();
 
-		// If the edge energy is still zero, set it to be the same as the mono energy.
-		// Otherwise, set it to the edge energy.
+			qDebug() << "Edge energy: " << edgeEnergy;
 
-		if (edgeEnergy == 0)
+			// If the edge energy is still zero, set desired energy to be the same as the mono energy.
+			// Otherwise, set desired energy to the edge energy.
+
+			if (edgeEnergy == 0)
+				setDesiredEnergy(monoEnergy_);
+			else
+				setDesiredEnergy(edgeEnergy);
+
+		} else {
+			qDebug() << "Invalid configuration edge.";
 			setDesiredEnergy(monoEnergy_);
-		else
-			setDesiredEnergy(edgeEnergy);
+		}
 
 	} else {
 		qDebug() << "Invalid scan configuration.";

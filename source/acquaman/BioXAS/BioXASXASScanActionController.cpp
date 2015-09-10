@@ -54,6 +54,15 @@ QString BioXASXASScanActionController::beamlineSettings()
 
 AMAction3* BioXASXASScanActionController::createInitializationActions()
 {
+	qDebug() << "\nBioXASXASScanActionController::createInitializationActions().";
+
+	BioXASXASScanConfiguration *configuration = qobject_cast<BioXASXASScanConfiguration*>(configuration_);
+	if (configuration) {
+		qDebug() << configuration->toString();
+	}
+
+	qDebug() << "\n";
+
 	AMSequentialListAction3 *result = 0;
 
 	// Initialize the scaler.
@@ -336,7 +345,14 @@ void BioXASXASScanActionController::buildScanControllerImplementation()
 
 		if (ge32DetectorIndex != -1) {
 
+			// Clear any previous regions.
+
 			ge32Detector->removeAllRegionsOfInterest();
+
+			// Iterate through each region in the configuration.
+			// Create analysis block for each region, add ge32Detector spectra source as input source for each.
+			// Add analysis block to the scan and to the ge32Detector.
+			// Create normalized analysis block for each region, add to scan.
 
 			AMDataSource *spectraSource = scan_->dataSourceAt(ge32DetectorIndex);
 			QString edgeSymbol = bioXASConfiguration_->edge().split(" ").first();
@@ -344,6 +360,7 @@ void BioXASXASScanActionController::buildScanControllerImplementation()
 			foreach (AMRegionOfInterest *region, bioXASConfiguration_->regionsOfInterest()){
 
 				AMRegionOfInterestAB *regionAB = (AMRegionOfInterestAB *)region->valueSource();
+
 				AMRegionOfInterestAB *newRegion = new AMRegionOfInterestAB(regionAB->name().remove(' '));
 				newRegion->setBinningRange(regionAB->binningRange());
 				newRegion->setInputDataSources(QList<AMDataSource *>() << spectraSource);
