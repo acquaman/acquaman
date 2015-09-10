@@ -200,34 +200,42 @@ void AM2DSummingAB::computeCachedValues() const
 	if (sumAxis_ == 0){
 
 		AMnDIndex start = AMnDIndex(sumRangeMin_, 0);
-		AMnDIndex end = AMnDIndex(sumRangeMax_, inputSource_->size(0));
+		AMnDIndex end = AMnDIndex(sumRangeMax_, inputSource_->size(0)-1);
 		int totalPoints = start.totalPointsTo(end);
 		int sumRange = sumRangeMax_-sumRangeMin_+1;
 		QVector<double> data = QVector<double>(totalPoints);
 		inputSource_->values(start, end, data.data());
-		cachedData_.fill(0);
+		cachedData_.fill(-1);
 
 		for (int i = 0; i < totalPoints; i++){
 
-		    int insertIndex = int(i/sumRange);
-		    cachedData_[insertIndex] += data.at(i);
+			int insertIndex = int(i/sumRange);
+
+			if ((i%sumRange) == 0)
+			    cachedData_[insertIndex] = 0;
+
+			cachedData_[insertIndex] += data.at(i);
 		}
 	}
 
 	else {
 
 		AMnDIndex start = AMnDIndex(0, sumRangeMin_);
-		AMnDIndex end = AMnDIndex(inputSource_->size(0), sumRangeMax_);
+		AMnDIndex end = AMnDIndex(inputSource_->size(0)-1, sumRangeMax_);
 		int totalPoints = start.totalPointsTo(end);
 		int sumRange = sumRangeMax_-sumRangeMin_+1;
 		QVector<double> data = QVector<double>(totalPoints);
 		inputSource_->values(start, end, data.data());
-		cachedData_.fill(0);
+		cachedData_.fill(-1);
 
 		for (int i = 0; i < totalPoints; i++){
 
-		    int insertIndex = int(i/sumRange);
-		    cachedData_[insertIndex] += data.at(i);
+			int insertIndex = int(i/sumRange);
+
+			if ((i%sumRange) == 0)
+			    cachedData_[insertIndex] = 0;
+
+			cachedData_[insertIndex] += data.at(i);
 		}
 	}
 
@@ -315,7 +323,7 @@ bool AM2DSummingAB::axisValues(int axisNumber, int startIndex, int endIndex, dou
 
 	int otherAxis = (sumAxis_ == 0) ? 1 : 0;
 
-	if (startIndex >= inputSource_->axisInfoAt(otherAxis).size || endIndex >= inputSource_->axisInfoAt(otherAxis).size)
+	if (startIndex >= inputSource_->size(otherAxis) || endIndex >= inputSource_->size(otherAxis))
 		return false;
 
 	return inputSource_->axisValues(otherAxis, startIndex, endIndex, outputValues);
@@ -331,6 +339,8 @@ void AM2DSummingAB::setSumAxis(int sumAxis)
 
 	sumAxis_ = sumAxis;
 	int otherAxis = (sumAxis_ == 0) ? 1 : 0;
+	setSumRangeMin(0);
+	setSumRangeMax(inputSource_->size(otherAxis)-1);
 
 	// if we have a data source, set our output axisInfo to match the input source's other axis. This also changes our size.
 	if(inputSource_) {
