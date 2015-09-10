@@ -1381,6 +1381,7 @@ void REIXSXESImageInterpolationABEditor::onApplyToOtherScansChosen()
 				if(batchApplyCalibrationOffsets_->isChecked()) {
 					xesAB->setEnergyCalibrationOffset(analysisBlock_->energyCalibrationOffset());
 					xesAB->setTiltCalibrationOffset(analysisBlock_->tiltCalibrationOffset());
+					xesAB->setBinningLevel(analysisBlock_->binningLevel());
 				}
 				if(batchApplyCorrelationSettings_->isChecked()) {
 					xesAB->setCorrelation1CenterPixel(analysisBlock_->correlation1CenterPixel());

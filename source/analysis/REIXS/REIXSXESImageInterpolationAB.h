@@ -69,7 +69,7 @@ class REIXSXESImageInterpolationAB : public AMStandardAnalysisBlock
 
 	Q_CLASSINFO("AMDbObject_Attributes", "description=REIXS XES detector image analysis to 1D spectrum")
 	Q_CLASSINFO("correlationSmoothing", "upgradeDefault=1")
-	Q_CLASSINFO("binningLevel", "upgradeDefault=3")
+	Q_CLASSINFO("binningLevel", "upgradeDefault=2")
 
 public:
 	/// Enum describing the options for smoothing the auto-correlated shift curve.
