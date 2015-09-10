@@ -228,12 +228,27 @@ void AM3DBinningAB::reviewState()
 
 void AM3DBinningAB::computeCachedValues() const
 {
-    switch (sumAxis_){
+	AMnDIndex start = AMnDIndex();
+	AMnDIndex end = AMnDIndex();
 
-    case 0:{
+	switch (sumAxis_){
 
-	AMnDIndex start = AMnDIndex(sumRangeMin_, 0, 0);
-	AMnDIndex end = AMnDIndex(sumRangeMax_, inputSource_->size(1)-1, inputSource_->size(2)-1);
+	case 0:
+		start = AMnDIndex(sumRangeMin_, 0, 0);
+		end = AMnDIndex(sumRangeMax_, inputSource_->size(1)-1, inputSource_->size(2)-1);
+		break;
+
+	case 1:
+		start = AMnDIndex(0, sumRangeMin_, 0);
+		end = AMnDIndex(inputSource_->size(0)-1, sumRangeMax_, inputSource_->size(2)-1);
+		break;
+
+	case 2:
+		start = AMnDIndex(0, 0, sumRangeMin_);
+		end = AMnDIndex(inputSource_->size(0)-1, inputSource_->size(1)-1, sumRangeMax_);
+		break;
+	}
+
 	int totalPoints = start.totalPointsTo(end);
 	int sumRange = sumRangeMax_-sumRangeMin_+1;
 	QVector<double> data = QVector<double>(totalPoints);
@@ -245,60 +260,10 @@ void AM3DBinningAB::computeCachedValues() const
 		int insertIndex = int(i/sumRange);
 
 		if ((i%sumRange) == 0)
-		    cachedData_[insertIndex] = 0;
+			cachedData_[insertIndex] = 0;
 
 		cachedData_[insertIndex] += data.at(i);
 	}
-
-	break;
-    }
-
-    case 1: {
-
-	AMnDIndex start = AMnDIndex(0, sumRangeMin_, 0);
-	AMnDIndex end = AMnDIndex(inputSource_->size(0)-1, sumRangeMax_, inputSource_->size(2)-1);
-	int totalPoints = start.totalPointsTo(end);
-	int sumRange = sumRangeMax_-sumRangeMin_+1;
-	QVector<double> data = QVector<double>(totalPoints);
-	inputSource_->values(start, end, data.data());
-	cachedData_.fill(-1);
-
-	for (int i = 0; i < totalPoints; i++){
-
-		int insertIndex = int(i/sumRange);
-
-		if ((i%sumRange) == 0)
-		    cachedData_[insertIndex] = 0;
-
-		cachedData_[insertIndex] += data.at(i);
-	}
-
-	break;
-    }
-
-    case 2: {
-
-	AMnDIndex start = AMnDIndex(0, 0, sumRangeMin_);
-	AMnDIndex end = AMnDIndex(inputSource_->size(0)-1, inputSource_->size(1)-1, sumRangeMax_);
-	int totalPoints = start.totalPointsTo(end);
-	int sumRange = sumRangeMax_-sumRangeMin_+1;
-	QVector<double> data = QVector<double>(totalPoints);
-	inputSource_->values(start, end, data.data());
-	cachedData_.fill(-1);
-
-	for (int i = 0; i < totalPoints; i++){
-
-		int insertIndex = int(i/sumRange);
-
-		if ((i%sumRange) == 0)
-		    cachedData_[insertIndex] = 0;
-
-		cachedData_[insertIndex] += data.at(i);
-	}
-
-	break;
-    }
-    }
 
     cacheUpdateRequired_ = false;
 }
