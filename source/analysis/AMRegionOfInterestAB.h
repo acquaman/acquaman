@@ -97,10 +97,18 @@ protected:
 	/// Helper function to look at our overall situation and determine what the output state should be.
 	void reviewState();
 
+	/// Computes the cached data for access getters value() and values().
+	void computeCachedValues() const;
+
 	/// Holds the 1D spectrum data source.
 	AMDataSource *spectrum_;
 	/// Holds the range that should be binned down.
 	AMRange binningRange_;
+
+	/// Flag for knowing whether we need to compute the values.
+	mutable bool cacheUpdateRequired_;
+	/// The vector holding the data.
+	mutable QVector<double> cachedData_;
 };
 
 #endif // AMREGIONOFINTERESTAB_H
