@@ -1,7 +1,6 @@
 #include "BioXASXASScanConfigurationEdgeEditor.h"
 #include "ui/util/AMPeriodicTableDialog.h"
 #include "util/AMPeriodicTable.h"
-#include <QDebug>
 
 BioXASXASScanConfigurationEdgeEditor::BioXASXASScanConfigurationEdgeEditor(BioXASXASScanConfiguration *configuration, QWidget *parent) :
 	BioXASXASScanConfigurationView(parent)
@@ -161,10 +160,7 @@ void BioXASXASScanConfigurationEdgeEditor::onElementButtonClicked()
 
 		if (!edges.isEmpty()) {
 			AMAbsorptionEdge edge = edges.first();
-
-			qDebug() << "Updating configuration edge:" << edge.name();
 			setConfigurationEdge(configuration_, edge);
-			qDebug() << "Updating configuration energy:" << edge.energy();
 			setConfigurationEnergy(configuration_, edge.energy());
 		}
 	}
@@ -184,8 +180,6 @@ QString BioXASXASScanConfigurationEdgeEditor::edgeAt(int index) const
 		QStringList edgeText = edgeComboBox_->itemText(index).split(":");
 		if (edgeText.count() > 1)
 			result = edgeText.first();
-	} else {
-		qDebug() << "EdgeEditor: cannot find edge at the given index, index invalid.";
 	}
 
 	return result;
@@ -203,8 +197,6 @@ double BioXASXASScanConfigurationEdgeEditor::edgeEnergyAt(int index)
 
 	if (index > -1 && index < edgeComboBox_->count())
 		result = edgeComboBox_->itemData(index).toDouble();
-	else
-		qDebug() << "EdgeEditor: cannot find edge energy at the given index, index invalid.";
 
 	return result;
 }

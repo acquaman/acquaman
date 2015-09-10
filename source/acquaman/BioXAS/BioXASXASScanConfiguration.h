@@ -12,6 +12,9 @@ class BioXASXASScanConfiguration : public AMGenericStepScanConfiguration, public
 {
     Q_OBJECT
 
+	Q_PROPERTY(AMDbObject *configurationDbObject READ dbReadScanConfigurationDbObject WRITE dbWriteScanConfigurationDbObject)
+	Q_PROPERTY(QString header READ headerText WRITE setHeaderText)
+
 	Q_CLASSINFO("AMDbObject_Attributes", "description=BioXAS XAS Scan Configuration")
 
 public:
@@ -28,8 +31,6 @@ public:
 	virtual QString description() const { return "XAS Scan"; }
 	/// Returns a detailed description of this scan configuration.
 	virtual QString detailedDescription() const { return "BioXAS XAS Scan"; }
-	/// Returns the standard information for an XAS scan.  Used when exporting.
-	virtual QString headerText() const;
 
 	/// Returns a newly-created copy of this scan configuration.  (It takes the role of a copy constructor, but is virtual so that our high-level classes can copy a scan configuration without knowing exactly what kind it is.)
 	virtual AMScanConfiguration* createCopy() const;
@@ -70,6 +71,9 @@ protected:
 	AMScanAxisEXAFSRegion* createEXAFSRegion(double edgeEnergy, double regionStart, double regionStep, double regionEnd, double regionTime) const;
 	/// Creates and returns an EXAFS region with some values set for k space.
 	AMScanAxisEXAFSRegion* createEXAFSRegionInKSpace(double edgeEnergy, double regionStart, double regionStep, double regionEnd, double regionTime, double maximumTime) const;
+
+	/// Returns the standard information for an XAS scan.  Used when exporting.
+	virtual QString headerText() const;
 };
 
 #endif // BIOXASXASSCANCONFIGURATION_H

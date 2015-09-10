@@ -5,8 +5,6 @@
 
 #include "dataman/BioXAS/BioXASDbUpgrade1Pt1.h"
 
-#include <QDebug>
-
 BioXASAppController::BioXASAppController(QObject *parent) :
     AMAppController(parent)
 {	
@@ -151,39 +149,16 @@ void BioXASAppController::goToEnergyCalibrationView(AMScan *toView)
 
 void BioXASAppController::onCurrentScanActionStartedImplementation(AMScanAction *action)
 {
-	qDebug() << "\nScan started.";
+	Q_UNUSED(action)
 
 	// Save current configuration to the database.
 
 	if (userConfiguration_)
 		userConfiguration_->storeToDb(AMDatabase::database("user"));
-
-	// Testing.
-
-	if (action && action->controller() && action->controller()->scan()) {
-
-		qDebug() << "Scan has valid controller and scan object.";
-
-		BioXASXASScanConfiguration *configuration = qobject_cast<BioXASXASScanConfiguration*>(action->controller()->scan()->scanConfiguration());
-
-		if (configuration) {
-			qDebug() << "Scan has a BioXASXASScanConfiguration config.";
-			qDebug() << configuration->toString();
-
-		} else {
-			qDebug() << "Scan does not have a BioXASXASScanConfiguration config.";
-		}
-	} else {
-		qDebug() << "Scan does not have a valid controller and/or scan object.";
-	}
-
-	qDebug() << "\n";
 }
 
 void BioXASAppController::onCurrentScanActionFinishedImplementation(AMScanAction *action)
 {
-	qDebug() << "\nScan finished.";
-
 	// Save current user configuration to the database.
 
 	if (userConfiguration_)
@@ -192,21 +167,10 @@ void BioXASAppController::onCurrentScanActionFinishedImplementation(AMScanAction
 	// If the scan was an energy calibration scan, set the calibration view's scan and make it the current pane.
 
 	if (action && action->controller() && action->controller()->scan()) {
-
-		qDebug() << "Scan has valid controller and scan object.";
-
 		BioXASXASScanConfiguration *xasScanConfiguration = qobject_cast<BioXASXASScanConfiguration*>(action->controller()->scan()->scanConfiguration());
-
-		if (xasScanConfiguration) {
-			qDebug() << "Scan has a BioXASXASScanConfiguration config.";
-			qDebug() << xasScanConfiguration->toString();
-
-			if (xasScanConfiguration->name() == "Energy Calibration XAS Scan")
-				goToEnergyCalibrationView(action->controller()->scan());
-		}
+		if (xasScanConfiguration && xasScanConfiguration->name() == "Energy Calibration XAS Scan")
+			goToEnergyCalibrationView(action->controller()->scan());
 	}
-
-	qDebug() << "\n";
 }
 
 void BioXASAppController::registerClasses()
@@ -615,11 +579,6 @@ void BioXASAppController::setupXASScanConfiguration(BioXASXASScanConfiguration *
 {
 	if (configuration) {
 
-		qDebug() << "\nBioXASAppController: Setting up XAS scan configuration.";
-
-		qDebug() << "Initial settings:";
-		qDebug() << configuration->toString();
-
 		// Set the energy as the scanned control.
 
 		BioXASMonochromator *mono = BioXASBeamline::bioXAS()->mono();
@@ -667,10 +626,6 @@ void BioXASAppController::setupXASScanConfiguration(BioXASXASScanConfiguration *
 		AMDetector *ge32Detector = BioXASBeamline::bioXAS()->ge32ElementDetector();
 		if (ge32Detector)
 			configuration->addDetector(ge32Detector->toInfo());
-
-		qDebug() << "BioXASAppController: scan setup complete.";
-		qDebug() << configuration->toString();
-		qDebug() << "\n";
 	}
 }
 

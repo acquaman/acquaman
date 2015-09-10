@@ -26,7 +26,7 @@ public:
 
 protected:
 	/// Provides details for the beamline current settings.
-	virtual QString beamlineSettings();
+	virtual QString scanNotes();
 
 	/// Returns actions that will initialize one of the BioXAS XAS beamlines for an XAS scan.
 	virtual AMAction3* createInitializationActions();

@@ -25,6 +25,15 @@ BioXASXASScanActionController::BioXASXASScanActionController(BioXASXASScanConfig
 	bioXASConfiguration_ = configuration;
 
 	useFeedback_ = true;
+
+	scan_->setNotes(scanNotes());
+
+	if (bioXASConfiguration_) {
+		AMExporterOptionXDIFormat *bioXASDefaultXAS = BioXAS::buildStandardXDIFormatExporterOption("BioXAS XAS (XDI Format)", bioXASConfiguration_->edge().split(" ").first(), bioXASConfiguration_->edge().split(" ").last(), true);
+
+		if (bioXASDefaultXAS->id() > 0)
+			AMAppControllerSupport::registerClass<BioXASXASScanConfiguration, AMExporterXDIFormat, AMExporterOptionXDIFormat>(bioXASDefaultXAS->id());
+	}
 }
 
 BioXASXASScanActionController::~BioXASXASScanActionController()
@@ -32,7 +41,7 @@ BioXASXASScanActionController::~BioXASXASScanActionController()
 
 }
 
-QString BioXASXASScanActionController::beamlineSettings()
+QString BioXASXASScanActionController::scanNotes()
 {
 	QString notes;
 
@@ -54,15 +63,6 @@ QString BioXASXASScanActionController::beamlineSettings()
 
 AMAction3* BioXASXASScanActionController::createInitializationActions()
 {
-	qDebug() << "\nBioXASXASScanActionController::createInitializationActions().";
-
-	BioXASXASScanConfiguration *configuration = qobject_cast<BioXASXASScanConfiguration*>(configuration_);
-	if (configuration) {
-		qDebug() << configuration->toString();
-	}
-
-	qDebug() << "\n";
-
 	AMSequentialListAction3 *result = 0;
 
 	// Initialize the scaler.

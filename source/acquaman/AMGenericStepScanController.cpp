@@ -1,7 +1,6 @@
 #include "AMGenericStepScanController.h"
 
 #include "beamline/AMBeamline.h"
-#include <QDebug>
 
 AMGenericStepScanController::AMGenericStepScanController(AMGenericStepScanConfiguration *configuration, QObject *parent)
 	: AMStepScanActionController(configuration, parent)

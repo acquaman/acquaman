@@ -1,5 +1,4 @@
 #include "BioXASSSRLMonochromatorConfigurationView.h"
-#include <QDebug>
 
 BioXASSSRLMonochromatorConfigurationView::BioXASSSRLMonochromatorConfigurationView(BioXASSSRLMonochromator *mono, QWidget *parent) :
     QWidget(parent)

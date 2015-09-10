@@ -21,29 +21,13 @@ BioXASXASScanConfiguration::BioXASXASScanConfiguration(QObject *parent) :
 BioXASXASScanConfiguration::BioXASXASScanConfiguration(const BioXASXASScanConfiguration &original) :
 	AMGenericStepScanConfiguration(original), BioXASScanConfiguration()
 {
-
+	setEdge(original.edge());
+	setEnergy(original.energy());
 }
 
 BioXASXASScanConfiguration::~BioXASXASScanConfiguration()
 {
 
-}
-
-QString BioXASXASScanConfiguration::headerText() const
-{
-	QString header("Configuration of the Scan\n\n");
-
-	header.append("Scanned Edge:\t" + edge() + "\n");
-
-	header.append(regionsOfInterestHeaderString(regionsOfInterest()) % "\n");
-	header.append("\n");
-	header.append("Regions Scanned\n");
-
-	foreach (AMScanAxisRegion *region, scanAxisAt(0)->regions().toList()){
-		header.append(region->toString());
-	}
-
-	return header;
 }
 
 AMScanConfiguration* BioXASXASScanConfiguration::createCopy() const
@@ -208,4 +192,21 @@ AMScanAxisEXAFSRegion* BioXASXASScanConfiguration::createEXAFSRegionInKSpace(dou
 	region->setMaximumTime(maximumTime);
 
 	return region;
+}
+
+QString BioXASXASScanConfiguration::headerText() const
+{
+	QString header("Configuration of the Scan\n\n");
+
+	header.append("Scanned Edge:\t" + edge() + "\n");
+
+	header.append(regionsOfInterestHeaderString(regionsOfInterest()) % "\n");
+	header.append("\n");
+	header.append("Regions Scanned\n");
+
+	foreach (AMScanAxisRegion *region, scanAxisAt(0)->regions().toList()){
+		header.append(region->toString());
+	}
+
+	return header;
 }
