@@ -242,8 +242,12 @@ void AM3DBinningAB::computeCachedValues() const
 
 	for (int i = 0; i < totalPoints; i++){
 
-	    int insertIndex = int(i/sumRange);
-	    cachedData_[insertIndex] += data.at(i);
+		int insertIndex = int(i/sumRange);
+
+		if ((i%sumRange) == 0)
+		    cachedData_[insertIndex] = 0;
+
+		cachedData_[insertIndex] += data.at(i);
 	}
 
 	break;
@@ -261,8 +265,12 @@ void AM3DBinningAB::computeCachedValues() const
 
 	for (int i = 0; i < totalPoints; i++){
 
-	    int insertIndex = int(i/sumRange);
-	    cachedData_[insertIndex] += data.at(i);
+		int insertIndex = int(i/sumRange);
+
+		if ((i%sumRange) == 0)
+		    cachedData_[insertIndex] = 0;
+
+		cachedData_[insertIndex] += data.at(i);
 	}
 
 	break;
@@ -280,14 +288,11 @@ void AM3DBinningAB::computeCachedValues() const
 
 	for (int i = 0; i < totalPoints; i++){
 
-	    int insertIndex = int(i/sumRange);
+		int insertIndex = int(i/sumRange);
 
-	    if ((i%sumRange) == 0)
+		if ((i%sumRange) == 0)
 		    cachedData_[insertIndex] = 0;
 
-	    if (data.at(i) == -1)
-		    cachedData_[insertIndex] = -1;
-	    else
 		cachedData_[insertIndex] += data.at(i);
 	}
 
