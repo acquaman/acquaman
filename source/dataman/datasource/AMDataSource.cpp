@@ -153,6 +153,28 @@ bool AMDataSource::axisValues(int axisNumber, int startIndex, int endIndex, doub
 	return true;
 }
 
+AMRange AMDataSource::dataRange() const
+{
+	QVector<double> sourceData = QVector<double>(size().product());
+	values(AMnDIndex(rank(), AMnDIndex::DoInit), size()-1, sourceData.data());
+
+	double minimum = sourceData.at(0);
+	double maximum = minimum;
+
+	for (int i = 1, totalPoints = size().product(); i < totalPoints; i++){
+
+		double current = sourceData.at(i);
+
+		if (current < minimum)
+			minimum = current;
+
+		if (current > maximum)
+			maximum = current;
+	}
+
+	return AMRange(minimum, maximum);
+}
+
 void AMDataSource::setVisibleInPlots(bool isVisible)
 {
 	if(isVisible == visibleInPlots_) return;
