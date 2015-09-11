@@ -197,43 +197,37 @@ void AM2DSummingAB::reviewState()
 
 void AM2DSummingAB::computeCachedValues() const
 {
+	AMnDIndex start = AMnDIndex();
+	AMnDIndex end = AMnDIndex();
+
 	if (sumAxis_ == 0){
 
-		AMnDIndex start = AMnDIndex(sumRangeMin_, 0);
-		AMnDIndex end = AMnDIndex(sumRangeMax_, inputSource_->size(0)-1);
-		int totalPoints = start.totalPointsTo(end);
-		int sumRange = sumRangeMax_-sumRangeMin_+1;
-		QVector<double> data = QVector<double>(totalPoints);
-		inputSource_->values(start, end, data.data());
-		cachedData_.fill(-1);
-
-		for (int i = 0; i < totalPoints; i++){
-
-			int insertIndex = int(i/sumRange);
-
-			if ((i%sumRange) == 0)
-			    cachedData_[insertIndex] = 0;
-
-			cachedData_[insertIndex] += data.at(i);
-		}
+		start = AMnDIndex(sumRangeMin_, 0);
+		end = AMnDIndex(sumRangeMax_, inputSource_->size(0)-1);
 	}
 
 	else {
 
-		AMnDIndex start = AMnDIndex(0, sumRangeMin_);
-		AMnDIndex end = AMnDIndex(inputSource_->size(0)-1, sumRangeMax_);
-		int totalPoints = start.totalPointsTo(end);
-		int sumRange = sumRangeMax_-sumRangeMin_+1;
-		QVector<double> data = QVector<double>(totalPoints);
-		inputSource_->values(start, end, data.data());
-		cachedData_.fill(-1);
+		start = AMnDIndex(0, sumRangeMin_);
+		end = AMnDIndex(inputSource_->size(0)-1, sumRangeMax_);
+	}
 
-		for (int i = 0; i < totalPoints; i++){
+	int totalPoints = start.totalPointsTo(end);
+	int sumRange = sumRangeMax_-sumRangeMin_+1;
+	QVector<double> data = QVector<double>(totalPoints);
+	inputSource_->values(start, end, data.data());
+	cachedData_.fill(-1);
 
-			int insertIndex = int(i/sumRange);
+	for (int i = 0; i < totalPoints; i++){
 
+		int insertIndex = int(i/sumRange);
+
+		if (data.at(i) == -1)
+			cachedData_[insertIndex] = -1;
+
+		else {
 			if ((i%sumRange) == 0)
-			    cachedData_[insertIndex] = 0;
+				cachedData_[insertIndex] = 0;
 
 			cachedData_[insertIndex] += data.at(i);
 		}
