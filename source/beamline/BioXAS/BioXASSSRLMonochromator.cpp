@@ -1,4 +1,5 @@
 #include "BioXASSSRLMonochromator.h"
+#include <QDebug>
 
 BioXASSSRLMonochromator::BioXASSSRLMonochromator(const QString &name, QObject *parent) :
 	BioXASMonochromator(name, parent)
@@ -83,30 +84,6 @@ bool BioXASSSRLMonochromator::isConnected() const
 	);
 
 	return connected;
-}
-
-AMAction3* BioXASSSRLMonochromator::createEnergyCalibrationAction(double monoEnergy, double desiredEnergy)
-{
-	AMListAction3 *result = 0;
-
-	if (energyControl() && energyControl()->isConnected() && braggMotor_ && braggMotor_->isConnected()) {
-		result = new AMListAction3(new AMListActionInfo3("SSRL Monochromator Calibration Action", "SSRL Monochromator Calibration Action"), AMListAction3::Sequential);
-		result->addSubAction(AMActionSupport::buildControlMoveAction(energyControl(), monoEnergy));
-		result->addSubAction(createEnergyCalibrationAction(desiredEnergy));
-	}
-
-	return result;
-}
-
-AMAction3* BioXASSSRLMonochromator::createEnergyCalibrationAction(double desiredEnergy)
-{
-	AMAction3* result = 0;
-
-	if (braggMotor_ && braggMotor_->isConnected()) {
-		result = braggMotor_->createEGUSetPositionAction(desiredEnergy);
-	}
-
-	return result;
 }
 
 void BioXASSSRLMonochromator::setM1MirrorPitchControl(AMControl *newControl)

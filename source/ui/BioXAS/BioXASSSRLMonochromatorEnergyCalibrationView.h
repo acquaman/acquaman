@@ -103,21 +103,12 @@ protected slots:
 	/// Opens a set of scans from the database. Returns true if the list contains at least one valid scan that was added.
 	bool dropScanURLs(const QList<QUrl>& urls);
 
-	/// Handles notifying the user when the calibration has been cancelled, and action cleanup.
-	void onCalibrationCancelled(QObject *action);
-	void onCalibrationCancelled();
-	/// Handles notifying the user when the calibration has failed, and action cleanup.
-	void onCalibrationFailed(QObject *action);
+	/// Handles notifying the user when the calibration has started.
+	void onCalibrationStarted();
+	/// Handles notifying the user when the calibration has failed.
 	void onCalibrationFailed();
-	/// Handles notifying the user when the calibration has succeeded, and action cleanup.
-	void onCalibrationSucceeded(QObject *action);
+	/// Handles notifying the user when the calibration has succeeded.
 	void onCalibrationSucceeded();
-
-	/// Handles action cleanup once the calibration action is complete.
-	void actionCleanup(QObject *action);
-
-	/// Testing.
-	void onDesiredEnergyValueChanged();
 
 protected:
 	/// The current mono energy.
@@ -149,13 +140,6 @@ protected:
 	QPushButton *calibrateButton_;
 	/// The choose scan dialog.
 	AMChooseScanDialog *chooseScanDialog_;
-
-	/// The calibration cancelled mapper.
-	QSignalMapper *cancelledMapper_;
-	/// The calibration failed mapper.
-	QSignalMapper *failedMapper_;
-	/// The calibration succeeded mapper.
-	QSignalMapper *succeededMapper_;
 };
 
 #endif // BIOXASSSRLMONOCHROMATORENERGYCALIBRATIONVIEW_H

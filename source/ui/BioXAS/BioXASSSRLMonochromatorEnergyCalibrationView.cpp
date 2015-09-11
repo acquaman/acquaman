@@ -10,8 +10,6 @@
 #include "ui/dataman/AMChooseScanDialog.h"
 #include "util/AMPeriodicTable.h"
 
-#include <QDebug>
-
 BioXASSSRLMonochromatorEnergyCalibrationView::BioXASSSRLMonochromatorEnergyCalibrationView(BioXASSSRLMonochromator *mono, AMScan *scan, QWidget *parent) :
     QWidget(parent)
 {
@@ -24,15 +22,6 @@ BioXASSSRLMonochromatorEnergyCalibrationView::BioXASSSRLMonochromatorEnergyCalib
 	currentScan_ = 0;
 
 	scanViewModel_ = 0;
-
-	cancelledMapper_ = new QSignalMapper(this);
-	connect( cancelledMapper_, SIGNAL(mapped(QObject*)), this, SLOT(onCalibrationCancelled(QObject*)) );
-
-	failedMapper_ = new QSignalMapper(this);
-	connect( failedMapper_, SIGNAL(mapped(QObject*)), this, SLOT(onCalibrationFailed(QObject*)) );
-
-	succeededMapper_ = new QSignalMapper(this);
-	connect( succeededMapper_, SIGNAL(mapped(QObject*)), this, SLOT(onCalibrationSucceeded(QObject*)) );
 
 	// Create UI elements.
 
@@ -100,7 +89,7 @@ BioXASSSRLMonochromatorEnergyCalibrationView::BioXASSSRLMonochromatorEnergyCalib
 	connect( newDataButton_, SIGNAL(clicked()), this, SIGNAL(energyCalibrationScanRequested()) );
 	connect( scanView_, SIGNAL(dataPositionChanged(QPointF)), this, SLOT(onScanViewDataPositionChanged(QPointF)) );
 	connect( monoEnergySpinBox_, SIGNAL(valueChanged(double)), this, SLOT(setMonoEnergy(double)) );
-	connect( desiredEnergySpinBox_, SIGNAL(valueChanged(double)), this, SLOT(onDesiredEnergyValueChanged()) );
+	connect( desiredEnergySpinBox_, SIGNAL(valueChanged(double)), this, SLOT(setDesiredEnergy(double)) );
 	connect( calibrateButton_, SIGNAL(clicked()), this, SLOT(onCalibrateButtonClicked()) );
 
 	// Initial settings.
@@ -128,8 +117,11 @@ void BioXASSSRLMonochromatorEnergyCalibrationView::setMono(BioXASSSRLMonochromat
 
 		mono_ = newMono;
 
-		if (mono_) {
+		if (mono_ && mono_->energyControl()) {
 			connect( mono_->energyControl(), SIGNAL(movingChanged(bool)), this, SLOT(updateCalibrateButton()) );
+			connect( mono_->energyControl(), SIGNAL(calibrationStarted()), this, SLOT(onCalibrationStarted()) );
+			connect( mono_->energyControl(), SIGNAL(calibrationFailed(int)), this, SLOT(onCalibrationFailed()) );
+			connect( mono_->energyControl(), SIGNAL(calibrationSucceeded()), this, SLOT(onCalibrationSucceeded()) );
 		}
 
 		update();
@@ -237,13 +229,6 @@ void BioXASSSRLMonochromatorEnergyCalibrationView::applyScanSettings(AMScan *sca
 {
 	if (scan) {
 
-		QString energyUnits;
-
-		if (scan->rawData() && scan->rawData()->scanAxesCount() >= 1)
-			energyUnits = scan->rawData()->scanAxisAt(0).units;
-
-		qDebug() << "Scan raw data units:" << energyUnits;
-
 		// Set the mono energy to be the point midway through the scan data.
 		// This would be a handy place for a peak finding algorithm upgrade later.
 
@@ -257,9 +242,6 @@ void BioXASSSRLMonochromatorEnergyCalibrationView::applyScanSettings(AMScan *sca
 				double value = energySource->axisValue(0, valueIndex);
 				double valueMax = energySource->axisValue(0, energySource->size(0) - 1);
 				double valueMin = energySource->axisValue(0, 0);
-				QString units = energySource->units();
-
-				qDebug() << "Energy source units:" << units;
 
 				// Update min/max energy values.
 
@@ -268,13 +250,6 @@ void BioXASSSRLMonochromatorEnergyCalibrationView::applyScanSettings(AMScan *sca
 
 				desiredEnergySpinBox_->setMinimum(valueMin);
 				desiredEnergySpinBox_->setMaximum(valueMax);
-
-				// Update units.
-
-//				if (!units.isEmpty()) {
-//					monoEnergySpinBox_->setSuffix(" " + units);
-//					desiredEnergySpinBox_->setSuffix(" " + units);
-//				}
 
 				// Update mono energy.
 
@@ -307,15 +282,9 @@ void BioXASSSRLMonochromatorEnergyCalibrationView::applyScanSettings(AMScan *sca
 
 void BioXASSSRLMonochromatorEnergyCalibrationView::applyConfigurationSettings(BioXASXASScanConfiguration *configuration)
 {
-	qDebug() << "Applying configuration settings.";
-
 	if (configuration) {
 
-		qDebug() << "Configuration is valid.";
-
 		// The desired energy should initially be the edge scanned, energy from the Periodic Table.
-
-		qDebug() << "\nScan configuration edge:" << configuration->edge();
 
 		QString edgeText = configuration->edge();
 		QStringList edgeTextParts = edgeText.split(" ");
@@ -323,9 +292,6 @@ void BioXASSSRLMonochromatorEnergyCalibrationView::applyConfigurationSettings(Bi
 		if (edgeTextParts.count() > 0) {
 			QString elementSymbol = edgeTextParts.first();
 			QString elementEdge = edgeTextParts.last();
-
-			qDebug() << "Element scanned:" << elementSymbol;
-			qDebug() << "Edge scanned:" << elementEdge;
 
 			AMElement *element = AMPeriodicTable::table()->elementBySymbol(elementSymbol);
 
@@ -340,8 +306,6 @@ void BioXASSSRLMonochromatorEnergyCalibrationView::applyConfigurationSettings(Bi
 			else if (elementEdge == "L3")
 				edgeEnergy = element->L3Edge().energy();
 
-			qDebug() << "Edge energy: " << edgeEnergy;
-
 			// If the edge energy is still zero, set desired energy to be the same as the mono energy.
 			// Otherwise, set desired energy to the edge energy.
 
@@ -351,12 +315,9 @@ void BioXASSSRLMonochromatorEnergyCalibrationView::applyConfigurationSettings(Bi
 				setDesiredEnergy(edgeEnergy);
 
 		} else {
-			qDebug() << "Invalid configuration edge.";
 			setDesiredEnergy(monoEnergy_);
 		}
 
-	} else {
-		qDebug() << "Invalid scan configuration.";
 	}
 }
 
@@ -383,23 +344,10 @@ void BioXASSSRLMonochromatorEnergyCalibrationView::onScanViewDataPositionChanged
 
 void BioXASSSRLMonochromatorEnergyCalibrationView::onCalibrateButtonClicked()
 {
-	if (mono_) {
+	// Start calibration.
 
-		// Create and execute a mono calibration action.
-
-		AMAction3 *calibrationAction = mono_->createEnergyCalibrationAction(monoEnergy_, desiredEnergy_);
-
-		if (calibrationAction) {
-
-			cancelledMapper_->setMapping(calibrationAction, calibrationAction);
-			failedMapper_->setMapping(calibrationAction, calibrationAction);
-			succeededMapper_->setMapping(calibrationAction, calibrationAction);
-
-			calibrationAction->start();
-
-		} else {
-			onCalibrationFailed();
-		}
+	if (mono_ && mono_->energyControl()) {
+		mono_->energyControl()->calibrate(monoEnergy_, desiredEnergy_);
 	}
 }
 
@@ -503,7 +451,7 @@ bool BioXASSSRLMonochromatorEnergyCalibrationView::dropScanURLs(const QList<QUrl
 
 		if (scan && !isScanning) {
 
-			qDebug() << "Valid scan selected. Proceeding with loading data...";
+			qDebug() << "\nValid scan selected. Proceeding with loading data...";
 			setCurrentScan(scan);
 			result = true;
 		}
@@ -512,25 +460,14 @@ bool BioXASSSRLMonochromatorEnergyCalibrationView::dropScanURLs(const QList<QUrl
 	return result;
 }
 
-void BioXASSSRLMonochromatorEnergyCalibrationView::onCalibrationCancelled(QObject *action)
+void BioXASSSRLMonochromatorEnergyCalibrationView::onCalibrationStarted()
 {
-	onCalibrationCancelled();
-	actionCleanup(action);
-}
-
-void BioXASSSRLMonochromatorEnergyCalibrationView::onCalibrationCancelled()
-{
-	QMessageBox calibrationCancelled;
-	calibrationCancelled.setWindowTitle("Calibration Cancelled");
-	calibrationCancelled.setText(QString("The calibration procedure was cancelled."));
-	calibrationCancelled.setIcon(QMessageBox::Information);
-	calibrationCancelled.addButton(QMessageBox::Ok);
-}
-
-void BioXASSSRLMonochromatorEnergyCalibrationView::onCalibrationFailed(QObject *action)
-{
-	onCalibrationFailed();
-	actionCleanup(action);
+	QMessageBox calibrationStarted;
+	calibrationStarted.setWindowTitle("Calibration Started");
+	calibrationStarted.setText("The calibration procedure has started.");
+	calibrationStarted.setIcon(QMessageBox::Information);
+	calibrationStarted.addButton(QMessageBox::Ok);
+	calibrationStarted.exec();
 }
 
 void BioXASSSRLMonochromatorEnergyCalibrationView::onCalibrationFailed()
@@ -540,12 +477,7 @@ void BioXASSSRLMonochromatorEnergyCalibrationView::onCalibrationFailed()
 	calibrationFailed.setText("The calibration procedure failed.");
 	calibrationFailed.setIcon(QMessageBox::Information);
 	calibrationFailed.addButton(QMessageBox::Ok);
-}
-
-void BioXASSSRLMonochromatorEnergyCalibrationView::onCalibrationSucceeded(QObject *action)
-{
-	onCalibrationSucceeded();
-	actionCleanup(action);
+	calibrationFailed.exec();
 }
 
 void BioXASSSRLMonochromatorEnergyCalibrationView::onCalibrationSucceeded()
@@ -555,23 +487,5 @@ void BioXASSSRLMonochromatorEnergyCalibrationView::onCalibrationSucceeded()
 	calibrationSucceeded.setText("The calibration procedure completed successfully!");
 	calibrationSucceeded.setIcon(QMessageBox::Information);
 	calibrationSucceeded.addButton(QMessageBox::Ok);
-}
-
-void BioXASSSRLMonochromatorEnergyCalibrationView::actionCleanup(QObject *action)
-{
-	if (action) {
-		action->disconnect();
-
-		cancelledMapper_->removeMappings(action);
-		failedMapper_->removeMappings(action);
-		succeededMapper_->removeMappings(action);
-
-		action->deleteLater();
-	}
-}
-
-void BioXASSSRLMonochromatorEnergyCalibrationView::onDesiredEnergyValueChanged()
-{
-	double newEnergy = desiredEnergySpinBox_->value();
-	setDesiredEnergy(newEnergy);
+	calibrationSucceeded.exec();
 }

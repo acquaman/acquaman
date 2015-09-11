@@ -56,11 +56,6 @@ public:
 	/// Returns true if the given value is a valid setpoint for this control. False otherwise.
 	virtual bool validSetpoint(double value) const { return (value > 0); }
 
-	/// Creates and returns a new action that calibrates the energy control, sets the given bragg position to the given energy.
-	virtual AMAction3* createSetEnergyAction(double newEnergy);
-	/// Creates and returns a new action that calibrates the energy control, sets the given bragg position to the given energy.
-	virtual AMAction3* createSetEnergyAction(double braggPosition, double newEnergy);
-
 signals:
 	/// Notifier that the bragg control has changed.
 	void braggControlChanged(AMControl *newControl);
@@ -81,11 +76,6 @@ public slots:
 	/// Sets the m1 mirror control.
 	void setM1MirrorPitchControl(AMControl *newControl);
 
-	/// Calibrates the control such that the newEnergy is the current energy. Assumes the desired energy should match with the current bragg position.
-	virtual void setEnergy(double newEnergy);
-	/// Calibrates the control such that the newEnergy is the current energy.
-	virtual void setEnergy(double braggPosition, double newEnergy);
-
 protected slots:
 	/// Updates the connected state.
 	virtual void updateConnected();
@@ -97,6 +87,8 @@ protected slots:
 protected:
 	/// Creates and returns a move action.
 	virtual AMAction3* createMoveAction(double setpoint);
+	/// Creates and returns a calibration action.
+	virtual AMAction3* createCalibrateAction(double oldEnergy, double newEnergy);
 
 	/// Returns the bragg angle calculation result for region A, from the bragg motor position.
 	static double calculateBraggAngleFromPositionRegionA(double braggPosition, double m1Pitch, double thetaBraggOffset, double regionOffset);

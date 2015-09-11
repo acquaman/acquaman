@@ -68,6 +68,8 @@ public:
 	AMControl* stepBraggControl() const { return braggMotor_; }
 	/// Returns the encoder-based bragg position control.
 	AMControl* encoderBraggControl() const { return encoderBragg_; }
+	/// Returns the bragg's 'set current position' control.
+	AMControl* braggSetPositionControl() const { return braggSetPosition_; }
 	/// Returns the bragg motor at crystal change position status control.
 	AMControl* braggAtCrystalChangePositionStatusControl() const { return braggAtCrystalChangePositionStatus_; }
 	/// Returns the crystal change control.
@@ -106,10 +108,8 @@ public:
 	/// Returns the crystal 2 roll motor.
 	CLSMAXvMotor* crystal2RollMotor() const { return crystal2RollMotor_; }
 
-	/// Returns a newly created action that calibrates the given mono energy to the desired mono energy.
-	AMAction3* createEnergyCalibrationAction(double monoEnergy, double desiredEnergy);
-	/// Returns a newly created action that calibrates the mono's current energy to the desired energy.
-	AMAction3* createEnergyCalibrationAction(double desiredEnergy);
+	/// Creates and returns an energy calibration action.
+	AMAction3* createEnergyCalibrationAction(double oldEnergy, double newEnergy);
 
 signals:
 	/// Notifier that the m1 mirror pitch control has changed.
