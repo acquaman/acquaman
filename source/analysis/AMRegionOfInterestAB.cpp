@@ -117,7 +117,6 @@ bool AMRegionOfInterestAB::values(const AMnDIndex &indexStart, const AMnDIndex &
 		*outputValues = cachedData_.at(0);
 		break;
 
-
 	case 1:
 		memcpy(outputValues, cachedData_.constData()+indexStart.i(), totalSize*sizeof(double));
 		break;
