@@ -550,7 +550,7 @@ AMNumber AMCDFDataStore::axisValue(int axisId, long axisIndex) const
 	}
 }
 
-bool AMCDFDataStore::axisValues(int axisId, long axisStartIndex, long axisEndIndex, AMNumber *outputValues) const
+bool AMCDFDataStore::axisValues(int axisId, long axisStartIndex, long axisEndIndex, double *outputValues) const
 {
 	if((unsigned)axisId >= (unsigned)axes_.count())
 		return false;	// invalid axis specified.
@@ -568,7 +568,7 @@ bool AMCDFDataStore::axisValues(int axisId, long axisStartIndex, long axisEndInd
 	if (axisInfo.isUniform){
 
 		for (int i = 0, size = axisEndIndex-axisStartIndex+1; i < size; i++)
-			outputValues[i] = AMNumber(double(axisInfo.start) +(axisStartIndex+i)*double(axisInfo.increment));
+            outputValues[i] = double(axisInfo.start) +(axisStartIndex+i)*double(axisInfo.increment);
 	}
 
 	else {
@@ -577,15 +577,11 @@ bool AMCDFDataStore::axisValues(int axisId, long axisStartIndex, long axisEndInd
 		long varNum = axisValueVarNums_.at(axisId);
 		long axisOffset = 1L;
 		long size = axisEndIndex-axisStartIndex+1L;
-		QVector<double> axisData = QVector<double>(size, 0);
 
 		for (int i = scanSize_.rank()-1; i > axisId; i--)
 			axisOffset *= scanSize_.at(i);
 
-		CDFstatus s = CDFhyperGetzVarData(cdfId_, varNum, axisOffset*axisStartIndex, size, 1L, 0, 0, 0, axisData.data());
-
-		for (int i = 0; i < size; i++)
-			outputValues[i] = AMNumber(axisData.at(i));
+        CDFstatus s = CDFhyperGetzVarData(cdfId_, varNum, axisOffset*axisStartIndex, size, 1L, 0, 0, 0, outputValues);
 
 		return (s >= CDF_OK);
 	}

@@ -12,7 +12,7 @@ VESPERSTimedLineScanActionController::VESPERSTimedLineScanActionController(VESPE
 {
 	timedConfiguration_ = configuration;
 
-	int yPoints = int(round((double(configuration_->scanAxisAt(1)->regionAt(0)->regionEnd()) - double(configuration_->scanAxisAt(1)->regionAt(0)->regionStart()))/double(configuration_->scanAxisAt(1)->regionAt(0)->regionStep())));
+	int yPoints = configuration_->scanAxisAt(1)->numberOfPoints();
 	scan_->rawData()->addScanAxis(AMAxisInfo("Time", yPoints, "Time", "s"));
 
 	VESPERS::FluorescenceDetectors xrfDetector = configuration_->fluorescenceDetector();

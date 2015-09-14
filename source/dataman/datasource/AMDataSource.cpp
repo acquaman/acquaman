@@ -129,7 +129,7 @@ void AMDataSource::valuesImplementationRecursive(const AMnDIndex &indexStart, co
 	}
 }
 
-bool AMDataSource::axisValues(int axisNumber, int startIndex, int endIndex, AMNumber *outputValues) const
+bool AMDataSource::axisValues(int axisNumber, int startIndex, int endIndex, double *outputValues) const
 {
 	AMErrorMon::debug(0, AMDATASOURCE_AXISVALUES_BASE_IMPLEMENTATION_CALLED, QString("AMDataSource: Warning: Data source '%1' is using the base implementation of AMDataSource::axisValues(), which is very inefficient. Re-implement axisValues() to improve performance.  (This warning will only be given once.)").arg(name()));
 
@@ -148,7 +148,7 @@ bool AMDataSource::axisValues(int axisNumber, int startIndex, int endIndex, AMNu
 #endif
 
 	for (int i = 0, size = endIndex-startIndex+1; i < size; i++)
-		outputValues[i] = axisValue(axisNumber, i+startIndex);
+        outputValues[i] = double(axisValue(axisNumber, i+startIndex));
 
 	return true;
 }
