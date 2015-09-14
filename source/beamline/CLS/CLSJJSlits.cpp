@@ -23,7 +23,7 @@ CLSJJSlits::CLSJJSlits(const QString &name, const QString &upperBladePVName, con
 	horizontalGap_ = new CLSJJSlitGapControl(name_+"HorizontalGap", outboardBlade_, inboardBlade_, this);
 	horizontalCenter_ = new CLSJJSlitCenterControl(name_+"HorizontalCenter", outboardBlade_, inboardBlade_, this);
 
-	slitScanConfiguration_ = new CLSJJSlitScanConfiguration(this);
+	configuration_ = new AMGenericStepScanConfiguration(this);
 
 	// Listen for connected states.
 
@@ -161,23 +161,45 @@ AMAction3* CLSJJSlits::createMoveToMaxPositionAction(CLSJJSlits::Direction::Opti
 	return AMActionSupport::buildControlMoveAction(toMove, toMove->maximumValue());
 }
 
-AMAction3* CLSJJSlits::createOptimizationAction(CLSJJSlits::Direction::Option direction, CLSJJSlits::Property::Option property)
+AMAction3* CLSJJSlits::createOptimizationAction(CLSJJSlits::Direction::Option direction, CLSJJSlits::Property::Option value)
 {
-	CLSJJSlitOptimizationActionInfo *actionInfo = new CLSJJSlitOptimizationActionInfo(direction, property, verticalGap_->value(), verticalCenter_->value(), horizontalGap_->value(), horizontalCenter_->value(), slitScanConfiguration_);
-	CLSJJSlitOptimizationAction *action = new CLSJJSlitOptimizationAction(actionInfo);
+	AMAction3 *result = 0;
+	AMControl *control = control(direction, value);
 
-	return action;
+	if (control) {
+
+
+		CLSJJSlitOptimizationAction *action = new CLSJJSlitOptimizationAction(new CLSJJSlitOptimizationActionInfo(configuration, control->value()));
+
+		result = action;
+	}
+
+	return result;
 }
 
-AMAction3* CLSJJSlits::createOptimizationAction(CLSJJSlits::Property::Option property)
+AMAction3* CLSJJSlits::createOptimizationAction(CLSJJSlits::Property::Option value)
 {
-	Q_UNUSED(property)
-//	CLSJJSlitsOptimizationActionInfo *actionInfo = new CLSJJSlitsOptimizationActionInfo();
-//	CLSJJSlitsOptimizationAction *action = new CLSJJSlitsOptimizationAction(actionInfo);
+	AMAction3 *result = 0;
+	AMControl *control1 = control(CLSJJSlits::Direction::Vertical, value);
+	AMControl *control2 = control(CLSJJSlits::Direction::Horizontal, value);
 
-//	return action;
+	if (control1 && control2) {
+		AMGenericStepScanConfiguration *configuration = new AMGenericStepScanConfiguration();
 
-	return 0;
+		configuration->setControl(0, control1);
+		configuration->scanAxisAt(0)->regionAt(0)->setRegionStart(0);
+		configuration->scanAxisAt(0)->regionAt(0)->setRegionStep(1);
+		configuration->scanAxisAt(0)->regionAt(0)->setRegionEnd(11);
+		configuration->scanAxisAt(0)->regionAt(0)->setRegionTime(1);
+
+		configuration->setControl(1, control2);
+		configuration->scanAxisAt(1)->regionAt(0)->setRegionStart(0);
+		configuration->scanAxisAt(1)->regionAt(0)->setRegionStep(1);
+		configuration->scanAxisAt(1)->regionAt(0)->setRegionEnd(11);
+		configuration->scanAxisAt(1)->regionAt(0)->setRegionTime(1);
+
+		CLSJJSlitOptimizationAction *action = new CLSJJSlitOptimizationAction(new CLSJJSlitOptimizationActionInfo(configuration, control))
+	}
 }
 
 QString CLSJJSlits::directionToString(CLSJJSlits::Direction::Option direction)
@@ -252,4 +274,54 @@ void CLSJJSlits::updateConnected()
 {
 	bool newState = verticalGap_->isConnected() && verticalCenter_->isConnected() && horizontalGap_->isConnected() && horizontalCenter_->isConnected();
 	setConnected(newState);
+}
+
+void CLSJJSlits::clearConfiguration(AMGenericStepScanConfiguration *configuration)
+{
+	if (configuration) {
+
+		// Remove any previous scan configuration settings.
+
+		foreach (AMScanAxis *axis, configuration->scanAxes()) {
+			if (axis)
+				configuration->removeControl(axis->id());
+		}
+	}
+}
+
+void CLSJJSlits::setConfigurationControl(AMGenericStepScanConfiguration *configuration, int scanAxis, AMControl *control)
+{
+	if (configuration) {
+
+		// Add new control, plus default region settings.
+
+		configuration->setControl(scanAxis, control->toInfo());
+		configuration->scanAxisAt(scanAxis)->regionAt(0)->setRegionStart(control->minimumValue());
+		configuration->scanAxisAt(scanAxis)->regionAt(0)->setRegionStep(0.5);
+		configuration->scanAxisAt(scanAxis)->regionAt(0)->setRegionEnd(control->maximumValue());
+		configuration->scanAxisAt(scanAxis)->regionAt(0)->setRegionTime(1);
+	}
+}
+
+void CLSJJSlits::setupDefaultConfiguration(const QList<AMControl *> &controls, AMGenericStepScanConfiguration *configuration)
+{
+	if (configuration) {
+
+		// Clear any previous scan axes/controls.
+
+		clearConfiguration(configuration);
+
+		// Add new controls.
+
+		bool controlOK = true;
+
+		for (int controlIndex = 0, controlCount = controls.count(); controlIndex < controlCount && controlOK; controlIndex++) {
+			AMControl *control = controls.at(controlIndex);
+
+			if (control)
+				setConfigurationControl(configuration, controlIndex, control);
+			else
+				controlOK = false;
+		}
+	}
 }

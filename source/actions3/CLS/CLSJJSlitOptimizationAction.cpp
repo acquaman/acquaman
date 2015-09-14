@@ -14,31 +14,14 @@ CLSJJSlitOptimizationAction::CLSJJSlitOptimizationAction(CLSJJSlitOptimizationAc
 
 	if (jjSlits && jjSlits->isConnected()) {
 
-		// Pre-optimization settings.
+		AMControl *control = CLSBeamline::clsBeamline()->exposedControlByInfo(info->control());
+		AMGenericStepScanConfiguration *configuration = info->scanConfiguration();
 
-		double initialVerticalGap = jjSlits->verticalGapControl()->value();
-		double initialVerticalCenter = jjSlits->verticalCenterControl()->value();
-		double initialHorizontalGap = jjSlits->horizontalGapControl()->value();
-		double initialHorizontalCenter = jjSlits->horizontalCenterControl()->value();
-
-		double finalVerticalGap = 0;
-		double finalVerticalCenter = 0;
-		double finalHorizontalGap = 0;
-		double finalHorizontalCenter = 0;
-
-		if (info->direction() == CLSJJSlits::Direction::Vertical && info->property() == CLSJJSlits::Property::Center) {
-
-			// Move all controls to the origin.
-
-			addSubAction(jjSlits->createMoveToOriginAction());
-
-			// Move the control not being optimized to the max gap (out of the way).
-
-			addSubAction(AMActionSupport::buildControlMoveAction(jjSlits->horizontalGapControl(), jjSlits->horizontalGapControl()->maximumValue()));
+		if (control && configuration) {
 
 			// Create scan for the control being optimized.
 
-			AMScanAction *jjSlitsOptimizationScan = new AMScanAction(new AMScanActionInfo(info->scanConfiguration()));
+			AMScanAction *jjSlitsOptimizationScan = new AMScanAction(new AMScanActionInfo(configuration));
 			addSubAction(jjSlitsOptimizationScan);
 
 			// Analyze the step scan results, identify the optimal value.
@@ -49,19 +32,10 @@ CLSJJSlitOptimizationAction::CLSJJSlitOptimizationAction(CLSJJSlitOptimizationAc
 
 			double optimalValue = 0;
 
-			finalVerticalGap = initialVerticalGap;
-			finalVerticalCenter = optimalValue;
-			finalHorizontalGap = initialHorizontalGap;
-			finalHorizontalCenter = initialHorizontalCenter;
+			// Move control to optimal positions.
+
+			addSubAction(AMActionSupport::buildControlMoveAction(control, optimalValue));
 		}
-
-		// Move all controls to home position.
-
-		addSubAction(jjSlits->createMoveToOriginAction());
-
-		// Move controls to optimal positions.
-
-		addSubAction(jjSlits->createMoveAction(finalVerticalGap, finalHorizontalGap, finalVerticalCenter, finalVerticalCenter));
 	}
 }
 

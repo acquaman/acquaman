@@ -1,34 +1,30 @@
 #include "CLSJJSlitOptimizationActionInfo.h"
 
-CLSJJSlitOptimizationActionInfo::CLSJJSlitOptimizationActionInfo(CLSJJSlits::Direction::Option direction, CLSJJSlits::Property::Option property, double initialVerticalGap, double initialVerticalCenter, double initialHorizontalGap, double initialHorizontalCenter, CLSJJSlitScanConfiguration *scanConfiguration, QObject *parent) :
+CLSJJSlitOptimizationActionInfo::CLSJJSlitOptimizationActionInfo(AMGenericStepScanConfiguration *configuration, double initialGap, double initialCenter, QObject *parent) :
 	AMListActionInfo3(QString(), QString(), QString(), parent)
 {
-	direction_ = direction;
-	property_ = property;
+	// Initialize member variables.
 
-	initialVerticalGap_ = initialVerticalGap;
-	initialVerticalCenter_ = initialVerticalCenter;
-	initialHorizontalGap_ = initialHorizontalGap;
-	initialHorizontalCenter_ = initialHorizontalCenter;
+	configuration_ = 0;
 
-	scanConfiguration_ = scanConfiguration;
+	initialGap_ = initialGap;
+	initialCenter_ = initialCenter;
+
+	// Current settings.
 
 	setShortDescription(typeDescription());
 	setLongDescription(typeDescription());
+
+	setConfiguration(configuration);
 }
 
 CLSJJSlitOptimizationActionInfo::CLSJJSlitOptimizationActionInfo(const CLSJJSlitOptimizationActionInfo &original) :
 	AMListActionInfo3(original)
 {
-	direction_ = original.direction();
-	property_ = original.property();
+	configuration_ = original.configuration();
 
-	initialVerticalGap_ = original.initialVerticalGap();
-	initialVerticalCenter_ = original.initialVerticalCenter();
-	initialHorizontalGap_ = original.initialHorizontalGap();
-	initialHorizontalCenter_ = original.initialHorizontalCenter();
-
-	scanConfiguration_ = original.scanConfiguration();
+	initialGap_ = original.initialGap();
+	initialCenter_ = original.initialCenter();
 }
 
 CLSJJSlitOptimizationActionInfo::~CLSJJSlitOptimizationActionInfo()
@@ -41,4 +37,12 @@ AMActionInfo3* CLSJJSlitOptimizationActionInfo::createCopy() const
 	AMActionInfo3 *info = new CLSJJSlitOptimizationActionInfo(*this);
 	info->dissociateFromDb(true);
 	return info;
+}
+
+void CLSJJSlitOptimizationActionInfo::setConfiguration(AMGenericStepScanConfiguration *newConfiguration)
+{
+	if (configuration_ != newConfiguration) {
+		configuration_ = newConfiguration;
+		emit configurationChanged(configuration_);
+	}
 }

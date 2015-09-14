@@ -3,6 +3,7 @@
 
 #include <QObject>
 
+#include "acquaman/AMGenericStepScanConfiguration.h"
 #include "beamline/AMPVControl.h"
 #include "beamline/CLS/CLSJJSlitGapControl.h"
 #include "beamline/CLS/CLSJJSlitCenterControl.h"
@@ -86,7 +87,7 @@ public:
 
 	/// Returns a newly-created action that scans the given control for its optimal value, and applies the optimization.
 	AMAction3* createOptimizationAction(CLSJJSlits::Direction::Option direction, CLSJJSlits::Property::Option property);
-	/// Returns a newly-created action that scans the given controls for their optimal value, and applies the optimization.
+	/// Returns a newly-created action that scans the given controls for their optimal values, and applies the optimization.
 	AMAction3* createOptimizationAction(CLSJJSlits::Property::Option property);
 
 	/// Returns a string representation of the direction.
@@ -109,6 +110,13 @@ protected slots:
 
 	/// Handles updating the current connected state.
 	void updateConnected();
+
+	/// Clears the configuration of all scan axes/controls.
+	void clearConfiguration(AMGenericStepScanConfiguration *configuration);
+	/// Sets the configuration control at the given scan axis.
+	virtual void setConfigurationControl(AMGenericStepScanConfiguration *configuration, int scanAxis, AMControl *control);
+	/// Sets up a default configuration, clearing the configuration and setting the configuration controls.
+	virtual void setupDefaultConfiguration(const QList<AMControl*> &controls, AMGenericStepScanConfiguration *configuration);
 
 protected:
 	/// The name.
@@ -134,8 +142,8 @@ protected:
 	/// Horizontal blades center control.
 	CLSJJSlitCenterControl *horizontalCenter_;
 
-	/// The JJ slit scan configuration.
-	CLSJJSlitScanConfiguration *slitScanConfiguration_;
+	/// The JJ slits scan configuration.
+	AMGenericStepScanConfiguration *configuration_;
 };
 
 #endif // CLSJJSLITS_H

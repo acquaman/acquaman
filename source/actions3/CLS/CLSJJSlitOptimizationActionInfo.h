@@ -1,7 +1,7 @@
 #ifndef CLSJJSLITOPTIMIZATIONACTIONINFO_H
 #define CLSJJSLITOPTIMIZATIONACTIONINFO_H
 
-#include "acquaman/CLS/CLSJJSlitScanConfiguration.h"
+#include "acquaman/AMGenericStepScanConfiguration.h"
 #include "actions3/AMListActionInfo3.h"
 #include "beamline/CLS/CLSJJSlits.h"
 
@@ -11,7 +11,7 @@ class CLSJJSlitOptimizationActionInfo : public AMListActionInfo3
 
 public:
 	/// Constructor.
-	Q_INVOKABLE CLSJJSlitOptimizationActionInfo(CLSJJSlits::Direction::Option direction = CLSJJSlits::Direction::Invalid, CLSJJSlits::Property::Option property = CLSJJSlits::Property::Invalid, double initialVerticalGap = 0, double initialVerticalCenter = 0, double initialHorizontalGap = 0, double initialHorizontalCenter = 0, CLSJJSlitScanConfiguration *scanConfiguration = 0, QObject *parent = 0);
+	Q_INVOKABLE CLSJJSlitOptimizationActionInfo(AMGenericStepScanConfiguration *configuration, double initialGap = 0, double initialCenter = 0, QObject *parent = 0);
 	/// Copy constructor.
 	CLSJJSlitOptimizationActionInfo(const CLSJJSlitOptimizationActionInfo &original);
 	/// Destructor.
@@ -22,40 +22,30 @@ public:
 	/// Returns this action info's description.
 	virtual QString typeDescription() const { return "JJ Slit Optimization"; }
 
-	/// Returns the slit direction of interest.
-	CLSJJSlits::Direction::Option direction() const { return direction_; }
-	/// Returns the slit value of interest.
-	CLSJJSlits::Property::Option property() const { return property_; }
-
-	/// Returns the initial vertical gap.
-	double initialVerticalGap() const { return initialVerticalGap_; }
-	/// Returns the initial vertical center.
-	double initialVerticalCenter() const { return initialVerticalCenter_; }
-	/// Returns the initial horizontal gap.
-	double initialHorizontalGap() const { return initialHorizontalGap_; }
-	/// Returns the initial horizontal center.
-	double initialHorizontalCenter() const { return initialHorizontalCenter_; }
-
 	/// Returns the slit scan configuration.
-	CLSJJSlitScanConfiguration* scanConfiguration() const { return scanConfiguration_; }
+	AMGenericStepScanConfiguration* configuration() const { return configuration_; }
+
+	/// Returns the initial gap.
+	double initialGap() const { return initialGap_; }
+	/// Returns the initial center.
+	double initialCenter() const { return initialCenter_; }
+
+signals:
+	/// Notifier that the configuration has changed.
+	void configurationChanged(AMGenericStepScanConfiguration *newConfiguration);
+
+public slots:
+	/// Sets the scan configuration.
+	void setConfiguration(AMGenericStepScanConfiguration *newConfiguration);
 
 protected:
-	/// The slit direction of interest.
-	CLSJJSlits::Direction::Option direction_;
-	/// The slit property of interest.
-	CLSJJSlits::Property::Option property_;
-
-	/// The initial vertical gap.
-	double initialVerticalGap_;
-	/// The initial vertical center.
-	double initialVerticalCenter_;
-	/// The initial horizontal gap.
-	double initialHorizontalGap_;
-	/// The initial horizontal center.
-	double initialHorizontalCenter_;
-
 	/// The slit scan configuration.
-	CLSJJSlitScanConfiguration *scanConfiguration_;
+	AMGenericStepScanConfiguration *configuration_;
+
+	/// The initial gap.
+	double initialGap_;
+	/// The initial center.
+	double initialCenter_;
 };
 
 #endif // CLSJJSLITOPTIMIZATIONACTIONINFO_H
