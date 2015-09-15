@@ -2,40 +2,43 @@
 #include "acquaman/AMScanActionController.h"
 #include "actions3/AMActionSupport.h"
 #include "actions3/actions/AMScanAction.h"
+#include "analysis/AM1DMaximumAB.h"
 #include "beamline/CLS/CLSBeamline.h"
 #include "util/AMErrorMonitor.h"
 
 CLSJJSlitOptimizationAction::CLSJJSlitOptimizationAction(CLSJJSlitOptimizationActionInfo *info, QObject *parent) :
 	AMListAction3(info, AMListAction3::Sequential, parent)
 {
-	// Identify the JJ slits object to be optimized.
+	// Initialize local variables.
 
-	CLSJJSlits *jjSlits = CLSBeamline::clsBeamline()->jjSlits();
+	AMGenericStepScanConfiguration *configuration = info->configuration();
+	AMControl *control = CLSBeamline::clsBeamline()->exposedControlByInfo(jjSlitOptimizationActionInfo()->configuration()->axisControlInfos().at(0));
 
-	if (jjSlits && jjSlits->isConnected()) {
+	if (configuration && control) {
 
-		AMControl *control = CLSBeamline::clsBeamline()->exposedControlByInfo(info->control());
-		AMGenericStepScanConfiguration *configuration = info->scanConfiguration();
+		// Create scan action, add to list of subactions.
 
-		if (control && configuration) {
+		AMScanAction *scanAction = new AMScanAction(new AMScanActionInfo(configuration));
+		AMScan *scan = scanAction->controller()->scan();
+		AMDataSource *optimizationSource = scan->dataSourceAt(0); // find a way for this to be not hardcoded.
 
-			// Create scan for the control being optimized.
+		AM1DMaximumAB *maximumAB = new AM1DMaximumAB("Maximum", this);
+		maximumAB->setInputDataSources(QList<AMDataSource*>() << optimizationSource);
 
-			AMScanAction *jjSlitsOptimizationScan = new AMScanAction(new AMScanActionInfo(configuration));
-			addSubAction(jjSlitsOptimizationScan);
+		scan->addAnalyzedDataSource(maximumAB, true, false);
 
-			// Analyze the step scan results, identify the optimal value.
+		addSubAction(scanAction);
 
-			AMScan *results = jjSlitsOptimizationScan->controller()->scan();
+		// Once the scan is complete, we know the optimal position. Move control to optimal position.
 
-			// ...
+		double optimalPosition = double(maximumAB->axisValue(AMnDIndex()));
+		qDebug() << "Optimal position =" << optimalPosition;
 
-			double optimalValue = 0;
+		addSubAction(AMActionSupport::buildControlMoveAction(control, optimalPosition));
 
-			// Move control to optimal positions.
+	} else {
 
-			addSubAction(AMActionSupport::buildControlMoveAction(control, optimalValue));
-		}
+		setFailed();
 	}
 }
 

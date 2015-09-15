@@ -1,0 +1,35 @@
+#ifndef AMOPTIMIZECONTROLACTION_H
+#define AMOPTIMIZECONTROLACTION_H
+
+#include "actions3/AMListAction3.h"
+#include "actions3/actions/AMOptimizeControlActionInfo.h"
+
+
+class AMOptimizeControlAction : public AMListAction3
+{
+    Q_OBJECT
+
+public:
+	/// Constructor.
+	explicit AMOptimizeControlAction(AMOptimizeControlActionInfo *info, QObject *parent = 0);
+	/// Copy constructor.
+	AMOptimizeControlAction(const AMOptimizeControlAction &original);
+	/// Destructor.
+	virtual ~AMOptimizeControlAction();
+
+	/// Returns a new AMAction3 that's a copy of this one.
+	virtual AMAction3* createCopy() const { return new CLSJJSlitOptimizationAction(*this); }
+
+	/// Returns whether this action can be paused, false for this action.
+	virtual bool canPause() const { return false; }
+	/// Returns whether this action can be skipped, false for this action.
+	virtual bool canSkip() const { return false; }
+
+protected:
+	/// Returns the specific action info for this class.
+	const AMOptimizeControlActionInfo* optimizeControlActionInfo() const { return qobject_cast<const AMOptimizeControlActionInfo*>(info()); }
+	/// Returns the specific action info for this class.
+	const AMOptimizeControlActionInfo* optimizeControlActionInfo() { return qobject_cast<AMOptimizeControlActionInfo*>(info()); }
+};
+
+#endif // AMOPTIMIZECONTROLACTION_H

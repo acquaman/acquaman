@@ -427,7 +427,10 @@ HEADERS += \
     source/ui/dataman/AMScanViewPlotToolsButtonView.h \
     source/ui/dataman/AMScanViewPlotToolView.h \
     source/ui/dataman/AMScanViewPlotSelectedToolsView.h \
-    source/dataman/AMScanViewPlotTools.h
+    source/dataman/AMScanViewPlotTools.h \
+	source/analysis/AM1DMaximumAB.h \
+    source/actions3/actions/AMOptimizeControlActionInfo.h \
+    source/actions3/actions/AMOptimizeControlAction.h
 
 FORMS += \
 
@@ -816,7 +819,10 @@ SOURCES += \
     source/ui/dataman/AMScanViewPlotToolsButtonView.cpp \
     source/ui/dataman/AMScanViewPlotToolView.cpp \
     source/ui/dataman/AMScanViewPlotSelectedToolsView.cpp \
-    source/dataman/AMScanViewPlotTools.cpp
+    source/dataman/AMScanViewPlotTools.cpp \
+	source/analysis/AM1DMaximumAB.cpp \
+    source/actions3/actions/AMOptimizeControlActionInfo.cpp \
+    source/actions3/actions/AMOptimizeControlAction.cpp
 
 
 RESOURCES *= source/icons/icons.qrc \
@@ -834,6 +840,12 @@ contains(DEFINES, AM_BUILD_REPORTER_ENABLED){
 
 	SOURCES *= source/util/AMRunTimeBuildInfo.cpp
 }
+
+
+
+
+
+
 
 
 

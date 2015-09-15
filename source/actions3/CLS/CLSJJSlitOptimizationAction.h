@@ -3,6 +3,7 @@
 
 #include "actions3/AMListAction3.h"
 #include "actions3/CLS/CLSJJSlitOptimizationActionInfo.h"
+#include "dataman/AMScan.h"
 
 class CLSJJSlitOptimizationAction : public AMListAction3
 {
