@@ -30,10 +30,10 @@ public:
 	  *   validator.
 	  * \param failMessage ~ The failure message uniquely identified with a failure
 	  * to validate.
-	  * \param passesTest ~ Whether or not the object being validated fails the
-	  * validation test or not.
+      * \param failureCriteria ~ A boolean which indicates that the validity test
+      * has failed.
 	  */
-	void updateValidity(const QString& failMessage, bool passesTest);
+    void updateValidity(const QString& failMessage, bool failureCriteria);
 
 	/*!
 	  * Whether the validator currently has the object being validated in a valid

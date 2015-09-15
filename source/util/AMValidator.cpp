@@ -5,15 +5,15 @@ AMValidator::AMValidator(QObject *parent) :
 {
 }
 
-void AMValidator::updateValidity(const QString &failMessage, bool passesTest)
+void AMValidator::updateValidity(const QString &failMessage, bool failureCriteria)
 {
 	bool startValidState = isValid();
 	int startFailCount = failCount();
 
-	if(passesTest) {
-		failMessages_.remove(failMessage);
+    if(failureCriteria) {
+        failMessages_.insert(failMessage);
 	} else {
-		failMessages_.insert(failMessage);
+        failMessages_.remove(failMessage);
 	}
 
 	if(startValidState != isValid()) {

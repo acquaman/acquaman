@@ -125,5 +125,4 @@ void SGMAppController::setupUserInterface()
 
 void SGMAppController::makeConnections()
 {
-	SGMMonochromatorInfo::testValues();
 }

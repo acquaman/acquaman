@@ -62,6 +62,23 @@ inline static double undulatorPositionFromStep(double undulatorStep,
 	return UNDULATOR_STEP_TO_POSITION_SLOPE * undulatorStep + intercept;
 }
 
+/*!
+ * Checks whether a given energy is valid for the provided undulator harmonic.
+ * \param undulatorHarmonic ~ The undulator to check against.
+ * \param energy ~ The energy value to check the validity of for the given harmonic.
+ */
+inline static bool validEnergy(UndulatorHarmonic undulatorHarmonic, double energy)
+{
+    switch(undulatorHarmonic) {
+    case FirstHarmonic:
+        return (energy > 47 && energy < 1738);
+    case ThirdHarmonic:
+        return (energy > 141 && energy < 5213);
+    default:
+        return false;
+    }
+}
+
 }
 
 #endif // SGMUNDULATORSUPPORT_H

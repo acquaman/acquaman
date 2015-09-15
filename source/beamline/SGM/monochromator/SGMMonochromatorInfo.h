@@ -1,9 +1,13 @@
 #ifndef SGMMONOCHROMATORINFO_H
 #define SGMMONOCHROMATORINFO_H
 
-#define MONOCHROMATOR_UNKNOWN_MIRROR_STRIPE "Unknown mirror stripe"
-#define MONOCHROMATOR_UNKNOWN_UNDULATOR_HARMONIC "Unknown undulator harmonic"
-#define MONOCHROMATOR_UNKNOWN_GRATING_TRANSLATION "Unknown grating translation"
+// Error validation messages
+#define SGMMONO_UNKNOWN_UNDULATOR_HARMONIC "Unknown undulator harmonic"
+#define SGMMONO_UNKNOWN_GRATING_TRANSLATION "Unknown grating translation"
+#define SGMMONO_INVALID_ENERGY_FOR_GRATING "Invalid energy for grating. Valid Energies: Low: 9+eV Medium: 16+eV High: 25+eV"
+#define SGMMONO_INVALID_ENERGY_FOR_HARMONIC "Invalid energy for harmonic. Valid Energies: 1st: 47eV-1737eV 3rd: 141-5212eV"
+
+
 
 #include <QObject>
 #include <QStringList>
@@ -150,10 +154,6 @@ public:
 	  */
 	void requestEnergy(double requestedEnergy, GratingTranslationOptimizationMode optimizationMode = OptimizeMinimalMovement);
 
-	static void testValue(const QString &name, double requiredEnergy, SGMGratingSupport::GratingTranslation gratingTranslationSelection, double expectedAngleEncoderTarget, double expectedExitSlitPosition, double expectedUndulatorPosition, double expectedUndulatorStepValue);
-
-	static void testValues();
-
 signals:
 	/// Signal indicating the grating translation has been altered.
 	void gratingTranslationChanged(SGMGratingSupport::GratingTranslation gratingTranslation);
@@ -260,12 +260,18 @@ protected:
 	double optimizedExitSlitPosition(SGMGratingSupport::GratingTranslation gratingTranslationSelection,
 									 double energy) const;
 
+    /*!
+     * Helper method which checks the validity of the SGM Mono's state.
+     */
+    void performValidation();
+
 	SGMGratingSupport::GratingTranslation gratingTranslation_;
 	double gratingAngle_;
 	SGMUndulatorSupport::UndulatorHarmonic undulatorHarmonic_;
 	double undulatorPosition_;
 	double undulatorOffset_;
 	double exitSlitPosition_;
+    double requestedEnergy_;
 
 	AMValidator errorValidator_;
 	AMValidator warningValidator_;

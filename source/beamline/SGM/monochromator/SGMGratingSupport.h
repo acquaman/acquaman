@@ -116,6 +116,25 @@ namespace SGMGratingSupport {
 			return 0;
 		}
 	}
+
+    /*!
+     * Checks whether the given energy is valid for the provided grating translation.
+     * \param translationSelection ~ The grating translation to check against.
+     * \param energy ~ The energy value to check the validity of for the given grating translation.
+     */
+    inline static bool validEnergy(GratingTranslation translationSelection, double energy)
+    {
+        switch(translationSelection) {
+        case LowGrating:
+            return (energy > 9);
+        case MediumGrating:
+            return (energy > 16);
+        case HighGrating:
+            return (energy > 25);
+        default:
+            return false;
+        }
+    }
 }
 
 #endif // SGMGRATINGSUPPORT_H
