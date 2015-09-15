@@ -32,13 +32,14 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/acquaman/AMGenericStepScanConfigurationView.h"
 #include "util/AMErrorMonitor.h"
 #include "ui/SGM/SGMHexapodView.h"
+#include "beamline/CLS/CLSAmptekSDD123DetectorNew.h"
+#include "ui/CLS/CLSAmptekSDD123DetailedDetectorView.h"
 
 #include <stdlib.h> // Used for obtaining username to prevent users other than iain (for dev) or SGM-Upgrade (for commissioning). Remove for deploy.
 
 SGMAppController::SGMAppController(QObject *parent) :
 	AMAppController(parent)
 {
-
 }
 
 bool SGMAppController::startup() {
@@ -81,6 +82,32 @@ void SGMAppController::shutdown() {
 	// Make sure we release/clean-up the beamline interface
 	AMBeamline::releaseBl();
 	AMAppController::shutdown();
+}
+
+void SGMAppController::initializeAmptekView()
+{
+	if(!amptekDetectorView_) {
+
+		amptekDetectorView_ = new CLSAmptekDetailedDetectorView(SGMBeamline::sgm()->amptekSDD1());
+		amptekDetectorView_->buildDetectorView();
+		amptekDetectorView_->setEnergyRange(270,2000);
+		amptekDetectorView_->collapsePeriodTableViews();
+		mw_->addPane(amptekDetectorView_, "Amptek Detector", "Amptek Detector", ":/system-software-update.png");
+		connect(amptekDetectorView_, SIGNAL(resized()), this, SLOT(onAmptekDetectorViewResized()));
+	}
+}
+
+void SGMAppController::onAmptekDetectorViewResized()
+{
+	// Hack solution copied over from the old SGM App Controller.
+	// If this timer is not here it doesn't always resize properly.
+	QTimer::singleShot(100, this, SLOT(resizeToMinimum()));
+}
+
+
+void SGMAppController::resizeToMinimum()
+{
+	mw_->resize(mw_->minimumSizeHint());
 }
 
 void SGMAppController::onCurrentScanActionStartedImplementation(AMScanAction */*action*/)
@@ -126,8 +153,18 @@ void SGMAppController::setupUserInterface()
 	commissioningConfigurationView_ = new AMGenericStepScanConfigurationView(commissioningConfiguration_);
 	commissioningConfigurationViewHolder_ = new AMScanConfigurationViewHolder3("Commissioning Tool", false, true, commissioningConfigurationView_);
 	mw_->addPane(commissioningConfigurationViewHolder_, "Scans", "Commissioning Tool", ":/utilities-system-monitor.png");
+
+	amptekDetectorView_ = 0;
+	if(SGMBeamline::sgm()->amptekSDD1() && SGMBeamline::sgm()->amptekSDD1()->isConnected()) {
+		initializeAmptekView();
+	} else if(SGMBeamline::sgm()->amptekSDD1()) {
+		connect(SGMBeamline::sgm()->amptekSDD1(), SIGNAL(connected(bool)), this, SLOT(initializeAmptekView()));
+	}
 }
 
 void SGMAppController::makeConnections()
 {
 }
+
+
+

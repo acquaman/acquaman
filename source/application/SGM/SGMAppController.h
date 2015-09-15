@@ -28,6 +28,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 class AMGenericStepScanConfiguration;
 class AMGenericStepScanConfigurationView;
 class AMScanConfigurationViewHolder3;
+class CLSAmptekDetailedDetectorView;
 /*!
   * A class which acts as the central application for SGM Acquaman. Holds the
   * main window which is displayed to users, as well as performs the application
@@ -64,7 +65,22 @@ public:
 public slots:
 
 protected slots:
+	/*!
+	  * Initializes the ui file for the amptek. Will only run once either on initialization
+	  * of the app controller or, if not connected at app controller initialization,
+	  * the first time the amptek is connected.
+	  */
+	void initializeAmptekView();
 
+	/*!
+	  * Handles a resize of the amptek detector view.
+	  */
+	void onAmptekDetectorViewResized();
+
+	/*!
+	  * Resizes the main window to its minimum size hint
+	  */
+	void resizeToMinimum();
 protected:
 
 	/*!
@@ -109,6 +125,7 @@ protected:
 	AMGenericStepScanConfiguration* commissioningConfiguration_;
 	AMGenericStepScanConfigurationView* commissioningConfigurationView_;
 	AMScanConfigurationViewHolder3* commissioningConfigurationViewHolder_;
+	CLSAmptekDetailedDetectorView* amptekDetectorView_;
 };
 
 #endif // SGMAPPCONTROLLER_H
