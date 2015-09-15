@@ -171,7 +171,7 @@ void BioXASSideAppController::addXASScanConfigurationView(BioXASSideXASScanConfi
 void BioXASSideAppController::addJJSlitScanConfigurationView(CLSJJSlits *jjSlits)
 {
 	if (jjSlits) {
-		CLSJJSlitScanConfiguration *configuration = jjSlits->slitScanConfiguration();
+		CLSJJSlitScanConfiguration *configuration = jjSlits->configuration();
 		CLSJJSlitScanConfigurationView *configurationView = new CLSJJSlitScanConfigurationView(configuration);
 		AMScanConfigurationViewHolder3 *configurationViewHolder = new AMScanConfigurationViewHolder3("", true, true, configurationView);
 

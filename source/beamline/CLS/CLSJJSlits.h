@@ -8,8 +8,6 @@
 #include "beamline/CLS/CLSJJSlitGapControl.h"
 #include "beamline/CLS/CLSJJSlitCenterControl.h"
 
-class CLSJJSlitScanConfiguration;
-
 /// The class definition of CLSJJSlit, which contains a vertical CLSJJSlitsBladesControl and a horizontal CLSJJSlitsBladesControl
 class CLSJJSlits : public QObject
 {
@@ -17,9 +15,9 @@ class CLSJJSlits : public QObject
 
 public:
 	/// Enum describing different slit directions.
-	class Direction { public: enum Option { Invalid = 0, Vertical = 1, Horizontal = 2 }; };
+	class Direction { public: enum Option { Invalid = 0, Vertical, Horizontal, Upper, Lower, Inboard, Outboard}; };
 	/// Enum describing different slit properties.
-	class Property { public: enum Option { Invalid = 0, Gap = 1, Center = 2 }; };
+	class Control { public: enum Option { Invalid = 0, Gap, Center, Blade }; };
 
 	/// Constructor
 	explicit CLSJJSlits(const QString &name, const QString &upperBladePVName, const QString &lowerBladePVName, const QString &inboardBladePVName, const QString &outboardBladePVName, QObject*parent = 0);
@@ -29,6 +27,12 @@ public:
 	const QString name() const { return name_; }
 	/// Returns the current connected state.
 	bool isConnected() const { return connected_; }
+
+	/// Returns the control with the given properties.
+	AMControl* control(CLSJJSlits::Direction::Option directionOption, CLSJJSlits::Control::Option controlOption);
+
+	/// Returns the control optimization scan configuration.
+	AMGenericStepScanConfiguration* configuration() const { return configuration_; }
 
 	/// Returns the upper blade motor control.
 	AMControl* upperBladeControl() const { return upperBlade_; }
@@ -48,57 +52,10 @@ public:
 	/// Returns the horizontal blades center control.
 	AMControl* horizontalCenterControl() const { return horizontalCenter_; }
 
-	/// Returns the slit scan configuration.
-	CLSJJSlitScanConfiguration* slitScanConfiguration() const { return slitScanConfiguration_; }
-
-	/// Returns the control with the given direction and value.
-	AMControl* control(CLSJJSlits::Direction::Option direction, CLSJJSlits::Property::Option property);
-	/// Returns a list of controls with the given direction.
-	QList<AMControl*> controls(CLSJJSlits::Direction::Option direction);
-	/// Returns a list of controls with the given value.
-	QList<AMControl*> controls(CLSJJSlits::Property::Option property);
-
-	/// Returns a newly-created action that moves the specified control to the desired setpoint.
-	AMAction3* createMoveAction(CLSJJSlits::Direction::Option direction, CLSJJSlits::Property::Option property, double setpoint);
-	/// Returns a newly-created action that move all of the controls to the desired positions.
-	AMAction3* createMoveAction(double verticalGapSetpoint, double verticalCenterSetpoint, double horizontalGapSetpoint, double horizontalCenterSetpoint);
-
-	/// Returns a newly-created action that moves all controls to the origin (0, 0).
-	AMAction3* createMoveToOriginAction();
-	/// Returns a newly-created action that moves the desired controls to the origin.
-	AMAction3* createMoveToOriginAction(CLSJJSlits::Direction::Option direction);
-
-	/// Returns a newly-created action that moves the desired controls to the minimum gap.
-	AMAction3* createMoveToMinGapAction(CLSJJSlits::Direction::Option direction);
-	/// Returns a newly-created action that moves the desired controls to the maximum gap.
-	AMAction3* createMoveToMaxGapAction(CLSJJSlits::Direction::Option direction);
-
-	/// Returns a newly-created action that moves the desired controls so the gap is closed.
-	AMAction3* createCloseGapAction(CLSJJSlits::Direction::Option direction);
-	/// Returns a newly-created action that moves the desired controls to the widest possible gap.
-	AMAction3* createOpenGapAction(CLSJJSlits::Direction::Option direction);
-
-	/// Returns a newly-created action that moves the desired control to the min position.
-	AMAction3* createMoveToMinPositionAction(CLSJJSlits::Direction::Option direction, CLSJJSlits::Property::Option property);
-	/// Returns a newly-created action that moves the desired control to the max position.
-	AMAction3* createMoveToMaxPositionAction(CLSJJSlits::Direction::Option direction, CLSJJSlits::Property::Option property);
-	/// Returns a newly-created action that moves the desired controls to the max position.
-	AMAction3* createMoveToMaxPositionAction(CLSJJSlits::Property::Option property);
-
 	/// Returns a newly-created action that scans the given control for its optimal value, and applies the optimization.
-	AMAction3* createOptimizationAction(CLSJJSlits::Direction::Option direction, CLSJJSlits::Property::Option property);
+	AMAction3* createOptimizationAction(CLSJJSlits::Direction::Option direction, CLSJJSlits::Control::Option control);
 	/// Returns a newly-created action that scans the given controls for their optimal values, and applies the optimization.
-	AMAction3* createOptimizationAction(CLSJJSlits::Property::Option property);
-
-	/// Returns a string representation of the direction.
-	static QString directionToString(CLSJJSlits::Direction::Option direction);
-	/// Returns a string representation of the property.
-	static QString propertyToString(CLSJJSlits::Property::Option property);
-
-	/// Returns the direction corresponding to the given string, Invalid if no match is found.
-	static CLSJJSlits::Direction::Option stringToDirection(const QString &string);
-	/// Returns the property corresponding to the given string, Invalid if no match is found.
-	static CLSJJSlits::Property::Option stringToProperty(const QString &string);
+	AMAction3* createOptimizationAction(CLSJJSlits::Control::Option control);
 
 signals:
 	/// Notifier that the connected state has changed.
@@ -115,6 +72,8 @@ protected slots:
 	void clearConfiguration(AMGenericStepScanConfiguration *configuration);
 	/// Sets the configuration control at the given scan axis.
 	virtual void setConfigurationControl(AMGenericStepScanConfiguration *configuration, int scanAxis, AMControl *control);
+	/// Sets up a default configuration with the given control. Clears the configuration and sets the configuration control.
+	virtual void setupDefaultConfiguration(AMControl *control, AMGenericStepScanConfiguration *configuration);
 	/// Sets up a default configuration, clearing the configuration and setting the configuration controls.
 	virtual void setupDefaultConfiguration(const QList<AMControl*> &controls, AMGenericStepScanConfiguration *configuration);
 
@@ -142,7 +101,7 @@ protected:
 	/// Horizontal blades center control.
 	CLSJJSlitCenterControl *horizontalCenter_;
 
-	/// The JJ slits scan configuration.
+	/// Control optimization scan configuration.
 	AMGenericStepScanConfiguration *configuration_;
 };
 

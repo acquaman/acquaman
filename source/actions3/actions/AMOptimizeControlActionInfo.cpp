@@ -1,27 +1,25 @@
 #include "AMOptimizeControlActionInfo.h"
 
-AMOptimizeControlActionInfo::AMOptimizeControlActionInfo(const AMControlInfo &controlInfo, QObject *parent) :
+AMOptimizeControlActionInfo::AMOptimizeControlActionInfo(AMGenericStepScanConfiguration *configuration, QObject *parent) :
 	AMListActionInfo3(QString(), QString(), QString(), parent)
 {
 	// Initialize member variables.
 
 	option_ = Maximum;
-	controlInfo_ = controlInfo;
-	minimum_ = controlInfo_.minimum();
-	maximum_ = controlInfo_.maximum();
+	configuration_ = 0;
 
 	// Current settings.
 
 	setShortDescription(typeDescription());
 	setLongDescription(typeDescription());
+	setConfiguration(configuration);
 }
 
-AMOptimizeControlActionInfo::AMOptimizeControlActionInfo(const AMOptimizeControlActionInfo &original)
+AMOptimizeControlActionInfo::AMOptimizeControlActionInfo(const AMOptimizeControlActionInfo &original) :
+	AMListActionInfo3(original)
 {
 	option_ = original.option();
-	controlInfo_ = original.control();
-	minimum_ = original.minimum();
-	maximum_ = original.maximum();
+	configuration_ = original.configuration();
 }
 
 AMOptimizeControlActionInfo::~AMOptimizeControlActionInfo()
@@ -44,26 +42,10 @@ void AMOptimizeControlActionInfo::setOption(AMOptimizeControlActionInfo::Option 
 	}
 }
 
-void AMOptimizeControlActionInfo::setControl(const AMControlInfo &newInfo)
+void AMOptimizeControlActionInfo::setConfiguration(AMGenericStepScanConfiguration *newConfiguration)
 {
-	if (controlInfo_ != newInfo) {
-		controlInfo_ = newInfo;
-		emit controlChanged(controlInfo_);
-	}
-}
-
-void AMOptimizeControlActionInfo::setMinimum(double newMin)
-{
-	if (minimum_ != newMin) {
-		minimum_ = newMin;
-		emit minimumChanged(minimum_);
-	}
-}
-
-void AMOptimizeControlActionInfo::setMaximum(double newMax)
-{
-	if (maximum_ != newMax) {
-		maximum_ = newMax;
-		emit maximumChanged(maximum_);
+	if (configuration_ != newConfiguration) {
+		configuration_ = newConfiguration;
+		emit configurationChanged(configuration_);
 	}
 }

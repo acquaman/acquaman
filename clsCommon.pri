@@ -104,13 +104,13 @@ SOURCES *= \
 	source/beamline/CLS/CLSStandardsWheel.cpp \
 	source/ui/CLS/CLSStandardsWheelConfigurationView.cpp \
     source/beamline/CLS/CLSSIS3820ScalerModeControl.cpp \
-    source/actions3/CLS/CLSJJSlitsOptimizationAction.cpp \
     source/actions3/CLS/CLSJJSlitsOptimizationActionInfo.cpp \
     source/acquaman/CLS/CLSJJSlitScanConfiguration.cpp \
     source/ui/acquaman/CLS/CLSJJSlitScanConfigurationView.cpp \
-    source/actions3/CLS/CLSJJSlitOptimizationActionInfo.cpp \
-	source/actions3/CLS/CLSJJSlitOptimizationAction.cpp \
     source/beamline/CLS/CLSXIAFiltersControl.cpp \
     source/acquaman/CLS/CLSJJSlitScanController.cpp
+
+
+
 
 
