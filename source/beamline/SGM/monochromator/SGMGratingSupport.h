@@ -10,7 +10,7 @@ namespace SGMGratingSupport {
 	/*!
 	  * Enumerates the different selections for the grating translation.
 	  */
-	enum GratingTranslationSelection {
+	enum GratingTranslation {
 		UnknownGrating = -1,
 		LowGrating = 0,
 		MediumGrating = 1,
@@ -23,7 +23,7 @@ namespace SGMGratingSupport {
 	  * \param translationSelection ~ The grating whose spacing value is to be
 	  * returned.
 	  */
-	inline static double spacing(GratingTranslationSelection translationSelection)
+	inline static double spacing(GratingTranslation translationSelection)
 	{
 		switch(translationSelection) {
 		case LowGrating:
@@ -43,7 +43,7 @@ namespace SGMGratingSupport {
 	  * \param translationSelection ~ The grating whose correction value is to be
 	  * returned.
 	  */
-	inline static double c1(GratingTranslationSelection translationSelection)
+	inline static double c1(GratingTranslation translationSelection)
 	{
 		switch(translationSelection) {
 		case LowGrating:
@@ -63,7 +63,7 @@ namespace SGMGratingSupport {
 	  * \param translationSelection ~ The grating whose correction value is to be
 	  * returned.
 	  */
-	inline static double c2(GratingTranslationSelection translationSelection)
+	inline static double c2(GratingTranslation translationSelection)
 	{
 		switch(translationSelection) {
 		case LowGrating:
@@ -83,7 +83,7 @@ namespace SGMGratingSupport {
 	  * \param translationSelection ~ The grating whose correction value is to be
 	  * returned.
 	  */
-	inline static double thetaM(GratingTranslationSelection translationSelection)
+	inline static double thetaM(GratingTranslation translationSelection)
 	{
 		switch(translationSelection) {
 		case LowGrating:
@@ -103,7 +103,7 @@ namespace SGMGratingSupport {
 	  * \param translationSelection ~ The translation whose radius curvature correction
 	  * is to be returned.
 	  */
-	inline static double radiusCurvatureOffset(GratingTranslationSelection translationSelection)
+	inline static double radiusCurvatureOffset(GratingTranslation translationSelection)
 	{
 		switch(translationSelection) {
 		case LowGrating:

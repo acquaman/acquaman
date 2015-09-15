@@ -15,7 +15,7 @@ namespace SGMUndulatorSupport
   */
 enum UndulatorHarmonic {
 	UnknownUndulatorHarmonic = -1,
-	FirstHarmonic = 0,
+	FirstHarmonic = 1,
 	ThirdHarmonic = 3
 };
 
