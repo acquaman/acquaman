@@ -479,7 +479,7 @@ AMScanConfigurationView* BioXASAppController::createScanConfigurationView(AMScan
 
 		AMGenericStepScanConfiguration *commissioningConfiguration = qobject_cast<AMGenericStepScanConfiguration*>(configuration);
 		if (!configurationFound && commissioningConfiguration) {
-			configurationView = new AMGenericStepScanConfigurationView(commissioningConfiguration);
+			configurationView = new AMGenericStepScanConfigurationView(commissioningConfiguration, BioXASBeamline::bioXAS()->exposedControls(), BioXASBeamline::bioXAS()->exposedDetectors());
 			configurationFound = true;
 		}
 	}
