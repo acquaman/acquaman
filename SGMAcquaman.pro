@@ -5,4 +5,5 @@
 TEMPLATE = subdirs
 SUBDIRS += \
 	Initialize.pro \
-	SGMAcquaman_internal.pro
+	SGMAcquaman_internal.pro \
+	SGMTests_internal.pro
