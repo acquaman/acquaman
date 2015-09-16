@@ -115,15 +115,15 @@ AMAction3* BioXASXASScanActionController::createInitializationActions()
 	// Initialize the standards wheel.
 
 	AMAction3* standardsWheelInitialization = 0;
-//	CLSStandardsWheel *standardsWheel = BioXASBeamline::bioXAS()->standardsWheel();
+	CLSStandardsWheel *standardsWheel = BioXASBeamline::bioXAS()->standardsWheel();
 
-//	if (standardsWheel) {
-//		if (standardsWheel->indexFromName(bioXASConfiguration_->edge().split(" ").first()) != -1) {
-//			standardsWheelInitialization = standardsWheel->createMoveToNameAction(bioXASConfiguration_->edge().split(" ").first());
-//		} else {
-//			standardsWheelInitialization = standardsWheel->createMoveToNameAction("None");
-//		}
-//	}
+	if (standardsWheel) {
+		if (standardsWheel->indexFromName(bioXASConfiguration_->edge().split(" ").first()) != -1) {
+			standardsWheelInitialization = standardsWheel->createMoveToNameAction(bioXASConfiguration_->edge().split(" ").first());
+		} else {
+			standardsWheelInitialization = standardsWheel->createMoveToNameAction("None");
+		}
+	}
 
 	// Create complete initialization action.
 

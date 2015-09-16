@@ -195,19 +195,19 @@ void BioXASSideBeamline::setupComponents()
 	connect( dbhrMirrors_, SIGNAL(connectedChanged(bool)), this, SLOT(updateConnected()) );
 
 	// Standards wheel.
-	standardsWheel_ = new CLSStandardsWheel("StandardsWheel", "SMTR1607-6-I22-19", this);
-	standardsWheel_->setName(0, "Cr");
-	standardsWheel_->setName(1, "Mn");
-	standardsWheel_->setName(2, "Fe");
-	standardsWheel_->setName(3, "Co");
-	standardsWheel_->setName(4, "Ni");
-	standardsWheel_->setName(5, "Cu");
-	standardsWheel_->setName(6, "Zn");
-	standardsWheel_->setName(7, "As");
-	standardsWheel_->setName(8, "Se");
-	standardsWheel_->setName(9, "Hg");
-	standardsWheel_->setName(10, "Mo");
-	standardsWheel_->setName(11, "None");
+//	standardsWheel_ = new CLSStandardsWheel("StandardsWheel", "SMTR1607-6-I22-19", this);
+//	standardsWheel_->setName(0, "Cr");
+//	standardsWheel_->setName(1, "Mn");
+//	standardsWheel_->setName(2, "Fe");
+//	standardsWheel_->setName(3, "Co");
+//	standardsWheel_->setName(4, "Ni");
+//	standardsWheel_->setName(5, "Cu");
+//	standardsWheel_->setName(6, "Zn");
+//	standardsWheel_->setName(7, "As");
+//	standardsWheel_->setName(8, "Se");
+//	standardsWheel_->setName(9, "Hg");
+//	standardsWheel_->setName(10, "Mo");
+//	standardsWheel_->setName(11, "None");
 
 	// Endstation table.
 	endstationTable_ = new BioXASEndstationTable("SideBL endstation table", "BL1607-6-I22", false, this);
