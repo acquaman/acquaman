@@ -424,7 +424,7 @@ bool AM4DBinningAB::axisValues(int axisNumber, int startIndex, int endIndex, dou
 
 void AM4DBinningAB::setSumAxis(int sumAxis)
 {
-	if((unsigned)sumAxis >= 3)
+	if(sumAxis < 0 || sumAxis >= 4)
 		return;
 
 	if(sumAxis == sumAxis_)

@@ -331,7 +331,7 @@ bool AM2DSummingAB::axisValues(int axisNumber, int startIndex, int endIndex, dou
 
 void AM2DSummingAB::setSumAxis(int sumAxis)
 {
-	if((unsigned)sumAxis >= 2)
+	if(sumAxis < 0 || sumAxis >= 2)
 		return;
 
 	if(sumAxis == sumAxis_)

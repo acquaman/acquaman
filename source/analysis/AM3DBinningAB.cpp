@@ -386,7 +386,7 @@ bool AM3DBinningAB::axisValues(int axisNumber, int startIndex, int endIndex, dou
 
 void AM3DBinningAB::setSumAxis(int sumAxis)
 {
-    if((unsigned)sumAxis >= 2)
+    if(sumAxis < 0 || sumAxis >= 3)
 	return;
 
     if(sumAxis == sumAxis_)
