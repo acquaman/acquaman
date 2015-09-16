@@ -246,7 +246,6 @@ void AMScanView::setupUI() {
 	QVBoxLayout* vl = new QVBoxLayout();
 	vl->setMargin(6);
 	vl->setSpacing(0);
-	vl->addStretch();
 
 	toolsView_ = new AMScanViewPlotToolsView(0);
 
