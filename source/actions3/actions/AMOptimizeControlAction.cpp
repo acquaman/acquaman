@@ -79,7 +79,7 @@ void AMOptimizeControlAction::onConfigurationControlChanged()
 
 	if (configuration_) {
 
-		QList<AMControlInfo> controlInfos = configuration_->axisControlInfos();
+		QList<AMControlInfo> controlInfos = configuration_->axisControlInfos().toList();
 
 		if (controlInfos.count() > 0) {
 			AMControlInfo controlInfo = configuration_->axisControlInfos().at(0);
@@ -126,7 +126,7 @@ void AMOptimizeControlAction::onScanActionSucceeded()
 {
 	// Once the scan is complete, we know the optimal position.
 
-	double optimalPosition = double(optimalPositionAB_->axisValue(AMnDIndex()));
+	double optimalPosition = double(optimalPositionAB_->axisValue(0, 0));
 	qDebug() << "Optimal position =" << optimalPosition;
 
 	// Create and execute control move action.
@@ -159,7 +159,7 @@ bool AMOptimizeControlAction::canChangeConfiguration() const
 {
 	bool result = false;
 
-	if (state_ == Constructed)
+	if (state() == Constructed)
 		result = true;
 
 	return result;
@@ -169,7 +169,7 @@ bool AMOptimizeControlAction::canChangeControl() const
 {
 	bool result = false;
 
-	if (state_ == Constructed)
+	if (state() == Constructed)
 		result = true;
 
 	return result;
@@ -194,11 +194,38 @@ void AMOptimizeControlAction::startImplementation()
 	}
 }
 
+void AMOptimizeControlAction::pauseImplementation()
+{
+	if (scanAction_ && !scanAction_->inFinalState())
+		scanAction_->pause();
+
+	if (controlMoveAction_ && !controlMoveAction_->inFinalState())
+		controlMoveAction_->pause();
+}
+
+void AMOptimizeControlAction::resumeImplementation()
+{
+	if (scanAction_ && !scanAction_->inFinalState())
+		scanAction_->resume();
+
+	if (controlMoveAction_ && !controlMoveAction_->inFinalState())
+		controlMoveAction_->resume();
+}
+
 void AMOptimizeControlAction::cancelImplementation()
 {
 	if (scanAction_)
 		scanAction_->cancel();
 
-	if (controlMoveAction_)
+	if (controlMoveAction_ && !controlMoveAction_->inFinalState())
 		controlMoveAction_->cancel();
+}
+
+void AMOptimizeControlAction::skipImplementation(const QString &command)
+{
+	if (scanAction_ && !scanAction_->inFinalState())
+		scanAction_->skip(command);
+
+	if (controlMoveAction_ && !controlMoveAction_->inFinalState())
+		controlMoveAction_->skip(command);
 }
