@@ -165,13 +165,13 @@ void BioXASAppController::addCommissioningScanConfigurationView(AMGenericStepSca
 		QString scanName = "Commissioning Tool";
 		QString iconName = ":/utilities-system-monitor.png";
 
-		AMGenericStepScanConfigurationView *view = new AMGenericStepScanConfigurationView(configuration);
+		AMGenericStepScanConfigurationView *view = new AMGenericStepScanConfigurationView(configuration, AMBeamline::bl()->exposedControls(), AMBeamline::bl()->exposedDetectors());
 		AMScanConfigurationViewHolder3 *viewHolder = new AMScanConfigurationViewHolder3(scanName, true, true, view, iconName);
 
 		connect( configuration, SIGNAL(totalTimeChanged(double)), viewHolder, SLOT(updateOverallScanTime(double)) );
 		viewHolder->updateOverallScanTime(configuration->totalTime());
 
-		mw_->addPane(new AMScanConfigurationViewHolder3(scanName, true, true, new AMGenericStepScanConfigurationView(configuration), iconName), "Scans", scanName, iconName);
+		mw_->addPane(viewHolder, "Scans", scanName, iconName);
 	}
 }
 

@@ -2,6 +2,7 @@
 
 #include "ui/acquaman/AMGenericStepScanConfigurationView.h"
 #include "acquaman/AMGenericStepScanController.h"
+#include "beamline/AMBeamline.h"
 
 #include <math.h>
 
@@ -48,7 +49,7 @@ AMScanController *AMGenericStepScanConfiguration::createController()
 
 AMScanConfigurationView *AMGenericStepScanConfiguration::createView()
 {
-	return new AMGenericStepScanConfigurationView(this);
+	return new AMGenericStepScanConfigurationView(this, AMBeamline::bl()->exposedControls(), AMBeamline::bl()->exposedDetectors());
 }
 
 QString AMGenericStepScanConfiguration::technique() const
