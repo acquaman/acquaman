@@ -34,7 +34,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "ui/BioXAS/BioXASSidePersistentView.h"
 #include "ui/BioXAS/BioXASSideXASScanConfigurationView.h"
-#include "ui/acquaman/CLS/CLSJJSlitScanConfigurationView.h"
 
 BioXASSideAppController::BioXASSideAppController(QObject *parent)
 	: BioXASAppController(parent)
@@ -170,16 +169,17 @@ void BioXASSideAppController::addXASScanConfigurationView(BioXASSideXASScanConfi
 
 void BioXASSideAppController::addJJSlitScanConfigurationView(CLSJJSlits *jjSlits)
 {
-	if (jjSlits) {
-		CLSJJSlitScanConfiguration *configuration = jjSlits->configuration();
-		CLSJJSlitScanConfigurationView *configurationView = new CLSJJSlitScanConfigurationView(configuration);
-		AMScanConfigurationViewHolder3 *configurationViewHolder = new AMScanConfigurationViewHolder3("", true, true, configurationView);
+	Q_UNUSED(jjSlits)
+//	if (jjSlits) {
+//		CLSJJSlitScanConfiguration *configuration = jjSlits->configuration();
+//		CLSJJSlitScanConfigurationView *configurationView = new CLSJJSlitScanConfigurationView(configuration);
+//		AMScanConfigurationViewHolder3 *configurationViewHolder = new AMScanConfigurationViewHolder3("", true, true, configurationView);
 
-		connect( configuration, SIGNAL(totalTimeChanged(double)), configurationViewHolder, SLOT(updateOverallScanTime(double)) );
-		configurationViewHolder->updateOverallScanTime(configuration->totalTime());
+//		connect( configuration, SIGNAL(totalTimeChanged(double)), configurationViewHolder, SLOT(updateOverallScanTime(double)) );
+//		configurationViewHolder->updateOverallScanTime(configuration->totalTime());
 
-		mw_->addPane(configurationViewHolder, "Scans", "JJ Slit Scan", ":/utilities-system-monitor.png");
-	}
+//		mw_->addPane(configurationViewHolder, "Scans", "JJ Slit Scan", ":/utilities-system-monitor.png");
+//	}
 }
 
 void BioXASSideAppController::onCurrentScanActionStartedImplementation(AMScanAction *action)

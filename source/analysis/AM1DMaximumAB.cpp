@@ -147,3 +147,20 @@ void AM1DMaximumAB::reviewState()
 	else
 		setState(AMDataSource::InvalidFlag);
 }
+
+void AM1DMaximumAB::computeCachedValues() const
+{
+	AMnDIndex start = AMnDIndex(0);
+	AMnDIndex end = size() - 1;
+	int totalSize = size(0);
+
+	QVector<double> data = QVector<double>(totalSize);
+
+	data_->values(start, end, data.data());
+
+	for (int i = 0; i < totalSize; i++) {
+		cachedData_[i] = data.at(i);
+	}
+
+	cacheUpdateRequired_ = false;
+}

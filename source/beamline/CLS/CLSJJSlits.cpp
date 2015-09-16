@@ -68,10 +68,10 @@ AMAction3* CLSJJSlits::createOptimizationAction(CLSJJSlits::Direction::Option di
 {
 	AMAction3 *result = 0;
 
-	AMControl *control = control(directionOption, controlOption);
+	AMControl *controlToOptimize = control(directionOption, controlOption);
 
-	if (control) {
-		setupDefaultConfiguration(control, configuration_);
+	if (controlToOptimize) {
+		setupDefaultConfiguration(controlToOptimize, configuration_);
 		result = new AMOptimizeControlAction(new AMOptimizeControlActionInfo(configuration_));
 	}
 

@@ -47,8 +47,6 @@ protected:
 
 	/// Helper function to look at our overall situation and determine what the output state should be.
 	void reviewState();
-	/// Helper method that sets the data_ and normalizer_ pointer to the correct data source based on the current state of analyzedName_.
-	void setInputSources();
 
 	/// Computes the cached data for access getters value() and values().
 	void computeCachedValues() const;
