@@ -147,11 +147,11 @@ protected slots:
 protected:
 	// Pressure controls.
 	/// The upstream pressure monitor.
-	AMControl *ccg1_;
+	AMReadOnlyPVwStatusControl *ccg1_;
 	/// The middle pressure monitor.
-	AMControl *ccg2_;
+	AMReadOnlyPVwStatusControl *ccg2_;
 	/// The downstream pressure monitor.
-	AMControl *ccg3_;
+	AMReadOnlyPVwStatusControl *ccg3_;
 	/// The pressure set.
 	AMControlSet *pressureSet_;
 
@@ -171,55 +171,55 @@ protected:
 
 	// Ion pump controls.
 	/// The first front end ion pump control.
-	AMControl *iop1_;
+	AMReadOnlyPVControl *iop1_;
 	/// The second front end ion pump control.
-	AMControl *iop2_;
+	AMReadOnlyPVControl *iop2_;
 	/// The third front end ion pump control.
-	AMControl *iop3_;
+	AMReadOnlyPVControl *iop3_;
 	/// The fourth front end ion pump control.
-	AMControl *iop4_;
+	AMReadOnlyPVControl *iop4_;
 	/// The fifth front end ion pump control.
-	AMControl *iop5_;
+	AMReadOnlyPVControl *iop5_;
 	/// The ion pump set.
 	AMControlSet *ionPumpSet_;
 
 	// Flow transducer controls.
 	/// The first front end flow transducer control.
-	AMControl *flt1_;
+	AMReadOnlyPVwStatusControl *flt1_;
 	/// The second front end flow transducer control.
-	AMControl *flt2_;
+	AMReadOnlyPVwStatusControl *flt2_;
 	/// The third front end flow transducer control.
-	AMControl *flt3_;
+	AMReadOnlyPVwStatusControl *flt3_;
 	/// The fourth front end flow transducer control.
-	AMControl *flt4_;
+	AMReadOnlyPVwStatusControl *flt4_;
 	/// The flow transducer set.
 	AMControlSet *flowTransducerSet_;
 
 	// Flow switch controls.
 	/// The first front end flow switch control.
-	AMControl *swf1_;
+	AMReadOnlyPVControl *swf1_;
 	/// The second front end flow switch control.
-	AMControl *swf2_;
+	AMReadOnlyPVControl *swf2_;
 	/// The third front end flow switch control.
-	AMControl *swf3_;
+	AMReadOnlyPVControl *swf3_;
 	/// The fourth front end flow switch control.
-	AMControl *swf4_;
+	AMReadOnlyPVControl *swf4_;
 	/// The flow switch set.
 	AMControlSet *flowSwitchSet_;
 
 	// Temperature controls.
 	/// The first temperature monitor control.
-	AMControl *tm1_;
+	AMReadOnlyPVwStatusControl *tm1_;
 	/// The second temperature monitor control.
-	AMControl *tm2_;
+	AMReadOnlyPVwStatusControl *tm2_;
 	/// The third temperature monitor control.
-	AMControl *tm3_;
+	AMReadOnlyPVwStatusControl *tm3_;
 	/// The fourth temperature monitor control.
-	AMControl *tm4_;
+	AMReadOnlyPVwStatusControl *tm4_;
 	/// The fifth temperature monitor control.
-	AMControl *tm5_;
+	AMReadOnlyPVwStatusControl *tm5_;
 	/// The sixth temperature monitor control.
-	AMControl *tm6_;
+	AMReadOnlyPVwStatusControl *tm6_;
 	/// The temperature set.
 	AMControlSet *temperatureSet_;
 };

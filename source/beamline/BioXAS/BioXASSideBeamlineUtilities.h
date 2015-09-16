@@ -71,12 +71,12 @@ public:
 protected:
 	// Pressure controls
 
-	AMControl *ccgSide1_;
-	AMControl *ccgSide2_;
-	AMControl *ccgSide3_;
-	AMControl *ccgSide4_;
-	AMControl *ccgSide5_;
-	AMControl *ccgSide6_;
+	AMReadOnlyPVwStatusControl *ccgSide1_;
+	AMReadOnlyPVwStatusControl *ccgSide2_;
+	AMReadOnlyPVwStatusControl *ccgSide3_;
+	AMReadOnlyPVwStatusControl *ccgSide4_;
+	AMReadOnlyPVwStatusControl *ccgSide5_;
+	AMReadOnlyPVwStatusControl *ccgSide6_;
 
 	// Vacuum valve controls
 
@@ -89,32 +89,32 @@ protected:
 
 	// Ion pump controls
 
-	AMControl *iopSide1_;
-	AMControl *iopSide2_;
-	AMControl *iopSide3_;
-	AMControl *iopSide4_;
-	AMControl *iopSide5_;
-	AMControl *iopSide6_;
-	AMControl *iopSide7_;
+	AMReadOnlyPVControl *iopSide1_;
+	AMReadOnlyPVControl *iopSide2_;
+	AMReadOnlyPVControl *iopSide3_;
+	AMReadOnlyPVControl *iopSide4_;
+	AMReadOnlyPVControl *iopSide5_;
+	AMReadOnlyPVControl *iopSide6_;
+	AMReadOnlyPVControl *iopSide7_;
 
 	// Flow transducer controls
 
-	AMControl *flt5_;
-	AMControl *flt6_;
-	AMControl *flt7_;
-	AMControl *flt8_;
-	AMControl *flt9_;
-	AMControl *flt10_;
-	AMControl *flt11_;
-	AMControl *flt12_;
-	AMControl *flt13_;
-	AMControl *flt14_;
-	AMControl *flt15_;
-	AMControl *flt16_;
-	AMControl *flt17_;
-	AMControl *flt18_;
-	AMControl *flt19_;
-	AMControl *flt20_;
+	AMReadOnlyPVwStatusControl *flt5_;
+	AMReadOnlyPVwStatusControl *flt6_;
+	AMReadOnlyPVwStatusControl *flt7_;
+	AMReadOnlyPVwStatusControl *flt8_;
+	AMReadOnlyPVwStatusControl *flt9_;
+	AMReadOnlyPVwStatusControl *flt10_;
+	AMReadOnlyPVwStatusControl *flt11_;
+	AMReadOnlyPVwStatusControl *flt12_;
+	AMReadOnlyPVwStatusControl *flt13_;
+	AMReadOnlyPVwStatusControl *flt14_;
+	AMReadOnlyPVwStatusControl *flt15_;
+	AMReadOnlyPVwStatusControl *flt16_;
+	AMReadOnlyPVwStatusControl *flt17_;
+	AMReadOnlyPVwStatusControl *flt18_;
+	AMReadOnlyPVwStatusControl *flt19_;
+	AMReadOnlyPVwStatusControl *flt20_;
 
 	// Flow switch controls
 
