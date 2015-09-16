@@ -259,10 +259,15 @@ void AM3DBinningAB::computeCachedValues() const
 
 		int insertIndex = int(i/sumRange);
 
-		if ((i%sumRange) == 0)
-			cachedData_[insertIndex] = 0;
+		if (data.at(i) == -1)
+			cachedData_[insertIndex] = -1;
 
-		cachedData_[insertIndex] += data.at(i);
+		else {
+			if ((i%sumRange) == 0)
+				cachedData_[insertIndex] = 0;
+
+			cachedData_[insertIndex] += data.at(i);
+		}
 	}
 
     cacheUpdateRequired_ = false;

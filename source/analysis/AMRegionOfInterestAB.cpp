@@ -309,10 +309,15 @@ void AMRegionOfInterestAB::computeCachedValues() const
 
 		int insertIndex = int(i/axisLength);
 
-		if ((i%axisLength) == 0)
-		    cachedData_[insertIndex] = 0;
+		if (data.at(i) == -1)
+			cachedData_[insertIndex] = -1;
 
-		cachedData_[insertIndex] += data.at(i);
+		else {
+			if ((i%axisLength) == 0)
+				cachedData_[insertIndex] = 0;
+
+			cachedData_[insertIndex] += data.at(i);
+		}
 	}
 
 	cacheUpdateRequired_ = false;
