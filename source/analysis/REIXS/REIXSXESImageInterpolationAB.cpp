@@ -303,6 +303,7 @@ void REIXSXESImageInterpolationAB::setInputDataSourcesImplementation(const QList
 	cachedValues_ = QVector<double>(axes_.at(0).size);
 	axisValueCacheInvalid_ = true;
 	cachedAxisValues_ = QVector<double>(axes_.at(0).size);
+	onInputSourceSizeChanged();
 	reviewState();
 
 	emitSizeChanged(0);
