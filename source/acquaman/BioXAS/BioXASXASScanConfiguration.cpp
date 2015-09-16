@@ -110,47 +110,6 @@ void BioXASXASScanConfiguration::setupDefaultEXAFSRegions()
 	}
 }
 
-void BioXASXASScanConfiguration::addRegion(int scanAxisIndex, int regionIndex, AMScanAxisRegion *region)
-{
-	AMScanAxis *scanAxis = scanAxisAt(scanAxisIndex);
-
-	if (scanAxis && region) {
-		scanAxis->insertRegion(regionIndex, region);
-		connectRegion(region);
-	}
-
-	computeTotalTime();
-}
-
-void BioXASXASScanConfiguration::connectRegion(AMScanAxisRegion *region)
-{
-	if (region) {
-		connect( region, SIGNAL(regionStartChanged(AMNumber)), this, SLOT(computeTotalTime()) );
-		connect( region, SIGNAL(regionStepChanged(AMNumber)), this, SLOT(computeTotalTime()) );
-		connect( region, SIGNAL(regionEndChanged(AMNumber)), this, SLOT(computeTotalTime()) );
-		connect( region, SIGNAL(regionTimeChanged(AMNumber)), this, SLOT(computeTotalTime()) );
-	}
-}
-
-void BioXASXASScanConfiguration::removeRegion(int scanAxisIndex, AMScanAxisRegion *region)
-{
-	AMScanAxis *scanAxis = scanAxisAt(scanAxisIndex);
-
-	if (scanAxis && region) {
-		scanAxis->removeRegion(region);
-		disconnectRegion(region);
-	}
-
-	computeTotalTime();
-}
-
-void BioXASXASScanConfiguration::disconnectRegion(AMScanAxisRegion *region)
-{
-	if (region) {
-		disconnect( region, 0, this, 0 );
-	}
-}
-
 AMScanAxisEXAFSRegion* BioXASXASScanConfiguration::createDefaultXANESRegion(double edgeEnergy)
 {
 	return createXANESRegion(edgeEnergy, edgeEnergy - 30, 0.5, edgeEnergy + 40, 1.0);

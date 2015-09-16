@@ -67,6 +67,47 @@ QString AMGenericStepScanConfiguration::detailedDescription() const
 	return "Does a generic scan over one or two controls with a variety of detectors.";
 }
 
+void AMGenericStepScanConfiguration::addRegion(int scanAxisIndex, int regionIndex, AMScanAxisRegion *region)
+{
+	AMScanAxis *scanAxis = scanAxisAt(scanAxisIndex);
+
+	if (scanAxis && region) {
+		scanAxis->insertRegion(regionIndex, region);
+		connectRegion(region);
+	}
+
+	computeTotalTime();
+}
+
+void AMGenericStepScanConfiguration::connectRegion(AMScanAxisRegion *region)
+{
+	if (region) {
+		connect( region, SIGNAL(regionStartChanged(AMNumber)), this, SLOT(computeTotalTime()) );
+		connect( region, SIGNAL(regionStepChanged(AMNumber)), this, SLOT(computeTotalTime()) );
+		connect( region, SIGNAL(regionEndChanged(AMNumber)), this, SLOT(computeTotalTime()) );
+		connect( region, SIGNAL(regionTimeChanged(AMNumber)), this, SLOT(computeTotalTime()) );
+	}
+}
+
+void AMGenericStepScanConfiguration::removeRegion(int scanAxisIndex, AMScanAxisRegion *region)
+{
+	AMScanAxis *scanAxis = scanAxisAt(scanAxisIndex);
+
+	if (scanAxis && region) {
+		scanAxis->removeRegion(region);
+		disconnectRegion(region);
+	}
+
+	computeTotalTime();
+}
+
+void AMGenericStepScanConfiguration::disconnectRegion(AMScanAxisRegion *region)
+{
+	if (region) {
+		disconnect( region, 0, this, 0 );
+	}
+}
+
 void AMGenericStepScanConfiguration::computeTotalTime()
 {
 	totalTime_ = 0;

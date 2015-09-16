@@ -60,6 +60,15 @@ public slots:
 	void removeDetector(AMDetectorInfo info);
 
 protected slots:
+	/// Inserts the given region into the given scan axis index position, and makes the appropriate connections.
+	virtual void addRegion(int scanAxisIndex, int regionIndex, AMScanAxisRegion *region);
+	/// Sets up connections to the given region's signals.
+	virtual void connectRegion(AMScanAxisRegion *region);
+	/// Removes the given region from the scan axis at the given index position, and breaks the appropriate connections.
+	virtual void removeRegion(int scanAxisIndex, AMScanAxisRegion *region);
+	/// Removes connections to the given region's signals.
+	virtual void disconnectRegion(AMScanAxisRegion *region);
+
 	/// Computes the total time any time the regions list changes.
 	void computeTotalTime();
 

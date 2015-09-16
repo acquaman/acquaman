@@ -52,16 +52,6 @@ public slots:
 	/// Sets up the default EXAFS regions.
 	void setupDefaultEXAFSRegions();
 
-protected slots:
-	/// Inserts the given region into the given scan axis index position, and makes the appropriate connections.
-	void addRegion(int scanAxisIndex, int regionIndex, AMScanAxisRegion *region);
-	/// Sets up connections to the given region's signals.
-	void connectRegion(AMScanAxisRegion *region);
-	/// Removes the given region from the scan axis at the given index position, and breaks the appropriate connections.
-	void removeRegion(int scanAxisIndex, AMScanAxisRegion *region);
-	/// Removes connections to the given region's signals.
-	void disconnectRegion(AMScanAxisRegion *region);
-
 protected:
 	/// Creates and returns a default XANES region.
 	AMScanAxisEXAFSRegion* createDefaultXANESRegion(double edgeEnergy);
