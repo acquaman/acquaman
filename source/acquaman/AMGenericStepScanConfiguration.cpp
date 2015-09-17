@@ -67,44 +67,89 @@ QString AMGenericStepScanConfiguration::detailedDescription() const
 	return "Does a generic scan over one or two controls with a variety of detectors.";
 }
 
+void AMGenericStepScanConfiguration::addRegion(int scanAxisIndex, int regionIndex, AMScanAxisRegion *region)
+{
+	AMScanAxis *scanAxis = scanAxisAt(scanAxisIndex);
+
+	if (scanAxis && region) {
+		scanAxis->insertRegion(regionIndex, region);
+		connectRegion(region);
+	}
+
+	computeTotalTime();
+}
+
+void AMGenericStepScanConfiguration::connectRegion(AMScanAxisRegion *region)
+{
+	if (region) {
+		connect( region, SIGNAL(regionStartChanged(AMNumber)), this, SLOT(computeTotalTime()) );
+		connect( region, SIGNAL(regionStepChanged(AMNumber)), this, SLOT(computeTotalTime()) );
+		connect( region, SIGNAL(regionEndChanged(AMNumber)), this, SLOT(computeTotalTime()) );
+		connect( region, SIGNAL(regionTimeChanged(AMNumber)), this, SLOT(computeTotalTime()) );
+	}
+}
+
+void AMGenericStepScanConfiguration::removeRegion(int scanAxisIndex, AMScanAxisRegion *region)
+{
+	AMScanAxis *scanAxis = scanAxisAt(scanAxisIndex);
+
+	if (scanAxis && region) {
+		scanAxis->removeRegion(region);
+		disconnectRegion(region);
+	}
+
+	computeTotalTime();
+}
+
+void AMGenericStepScanConfiguration::disconnectRegion(AMScanAxisRegion *region)
+{
+	if (region) {
+		disconnect( region, 0, this, 0 );
+	}
+}
+
 void AMGenericStepScanConfiguration::computeTotalTime()
 {
-	if (scanAxes_.count() == 1){
+	totalTime_ = 0;
 
-		double size = fabs(double(scanAxes_.at(0)->regionAt(0)->regionEnd())-double(scanAxes_.at(0)->regionAt(0)->regionStart()));
-		int points = int((size)/double(scanAxes_.at(0)->regionAt(0)->regionStep()));
-
-		if ((size - (points + 0.01)*double(scanAxes_.at(0)->regionAt(0)->regionStep())) < 0)
-			points += 1;
-
-		else
-			points += 2;
-
-		totalTime_ = points*double(scanAxes_.at(0)->regionAt(0)->regionTime());
-	}
-
-	else if (scanAxes_.count() == 2){
-
-		double hSize = fabs(double(scanAxes_.at(0)->regionAt(0)->regionEnd())-double(scanAxes_.at(0)->regionAt(0)->regionStart()));
-		double vSize = fabs(double(scanAxes_.at(1)->regionAt(0)->regionEnd())-double(scanAxes_.at(1)->regionAt(0)->regionStart()));
-
-		int hPoints = int((hSize)/double(scanAxes_.at(0)->regionAt(0)->regionStep()));
-		if ((hSize - (hPoints + 0.01)*double(scanAxes_.at(0)->regionAt(0)->regionStep())) < 0)
-			hPoints += 1;
-		else
-			hPoints += 2;
-
-		int vPoints = int((vSize)/double(scanAxes_.at(1)->regionAt(0)->regionStep()));
-		if ((vSize - (vPoints + 0.01)*double(scanAxes_.at(1)->regionAt(0)->regionStep())) < 0)
-			vPoints += 1;
-		else
-			vPoints += 2;
-
-		totalTime_ = hPoints*vPoints*double(scanAxes_.at(0)->regionAt(0)->regionTime());
-	}
+	foreach (AMScanAxis *axis, scanAxes_.toList())
+		totalTime_ += calculateRegionsTotalTime(axis);
 
 	setExpectedDuration(totalTime_);
 	emit totalTimeChanged(totalTime_);
+}
+
+double AMGenericStepScanConfiguration::calculateRegionTotalTime(AMScanAxisRegion *region)
+{
+	double result = 0;
+
+	if (region) {
+
+		if (region->regionStart().isValid() && region->regionStep().isValid() && region->regionEnd().isValid() && region->regionTime().isValid()) {
+			double size = fabs( double(region->regionStart()) - double(region->regionEnd()) );
+			double points = int(size / double(region->regionStep()));
+
+			if ((size - (points + 0.01) * double(region->regionStep())) < 0)
+				points += 1;
+			else
+				points += 2;
+
+			result = points * double(region->regionTime());
+		}
+	}
+
+	return result;
+}
+
+double AMGenericStepScanConfiguration::calculateRegionsTotalTime(AMScanAxis *scanAxis)
+{
+	double result = 0;
+
+	if (scanAxis)
+		foreach (AMScanAxisRegion *region, scanAxis->regions().toList())
+			result += calculateRegionTotalTime(region);
+
+	return result;
 }
 
 void AMGenericStepScanConfiguration::setControl(int axisId, AMControlInfo newInfo)
@@ -150,6 +195,8 @@ void AMGenericStepScanConfiguration::setControl(int axisId, AMControlInfo newInf
 		axisControlInfos_.replace(1, newInfo);
 		setModified(true);
 	}
+
+	computeTotalTime();
 }
 
 void AMGenericStepScanConfiguration::removeControl(int axisId)
