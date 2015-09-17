@@ -2,8 +2,6 @@
 #include "actions3/AMListAction3.h"
 #include "actions3/AMActionSupport.h"
 
-#include <QDebug>
-
 BioXASMirrorPitchControl::BioXASMirrorPitchControl(const QString &name, const QString &units, QObject *parent, const QString &description) :
 	BioXASMirrorControl(name, units, parent, description)
 {

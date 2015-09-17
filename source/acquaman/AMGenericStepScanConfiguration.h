@@ -56,17 +56,32 @@ public slots:
 	virtual void merge(AMGenericStepScanConfiguration *configuration);
 
 	/// Sets a controlInfo to an axis.  If the axis has no control associated with it yet, then it will add it to the list, otherwise it will replace it.
-	void setControl(int axisId, AMControlInfo newInfo);
+	virtual void setControl(int axisId, AMControlInfo newInfo);
 	/// Removes a control from the given axis.  Also removes the axis.
-	void removeControl(int axisId);
+	virtual void removeControl(int axisId);
 	/// Adds a detector to the detector info list.
 	void addDetector(AMDetectorInfo newInfo);
 	/// Removes the detector from the detector info list.
 	void removeDetector(AMDetectorInfo info);
 
 protected slots:
+	/// Inserts the given region into the given scan axis index position, and makes the appropriate connections.
+	virtual void addRegion(int scanAxisIndex, int regionIndex, AMScanAxisRegion *region);
+	/// Sets up connections to the given region's signals.
+	virtual void connectRegion(AMScanAxisRegion *region);
+	/// Removes the given region from the scan axis at the given index position, and breaks the appropriate connections.
+	virtual void removeRegion(int scanAxisIndex, AMScanAxisRegion *region);
+	/// Removes connections to the given region's signals.
+	virtual void disconnectRegion(AMScanAxisRegion *region);
+
 	/// Computes the total time any time the regions list changes.
 	void computeTotalTime();
+
+protected:
+	/// Calculates and returns the time it would take to scan the given region, 0 if there are any issues with the given region.
+	double calculateRegionTotalTime(AMScanAxisRegion *region);
+	/// Calculates and returns the time it would take to scan the regions of a given scan axis, 0 if there are any issues with the given axis.
+	double calculateRegionsTotalTime(AMScanAxis *scanAxis);
 
 protected:
 	/// Holds the total time in seconds that the scan is estimated to take.

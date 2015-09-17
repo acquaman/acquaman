@@ -493,6 +493,13 @@ public slots:
 		}
 	}
 
+	/// This calibrates the control such that the old value becomes the new value. Fails if calibration has not been reimplemented.
+	virtual FailureExplanation calibrate(double oldValue, double newValue) {
+		Q_UNUSED(oldValue)
+		Q_UNUSED(newValue)
+		return OtherFailure;
+	}
+
 	/// This sets the tolerance level: the required level of accuracy for successful move()s.
 	void setTolerance(double newTolerance) { tolerance_ = newTolerance; }
 
@@ -561,6 +568,15 @@ signals:
 
 	/// Emitted when the control's alarm status or severity changes.  \c status is defined by the particular control implementation. \c severity is one of the levels in AMControl::AlarmLevel.
 	void alarmChanged(int status, int severity);
+
+	/// Notifier that the calibrating state has changed.
+	void calibratingChanged(bool isCalibrating);
+	/// Notifier that a calibration has started.
+	void calibrationStarted();
+	/// Notifier that a calibration has failed. Provides an integer failure explaination.
+	void calibrationFailed(int explaination);
+	/// Notifier that a calibration has succeeded.
+	void calibrationSucceeded();
 
 protected:
 	/// List of pointers to our subcontrols
