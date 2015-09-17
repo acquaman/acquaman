@@ -104,6 +104,13 @@ public:
 	explicit AMScanConfiguration(QObject *parent = 0);
 
 	/*!
+	  * Alternate constructor. Creates a new instance of a scan configuration with a blank
+	  * name and no expected duration, which will auto export. Additionally merges together
+	  * the detector infos and the axis control infos of each of the configurations listed.
+	  */
+	AMScanConfiguration(const QList<AMScanConfiguration*> &configurations, QObject *parent);
+
+	/*!
 	  * Base AMScanConfiguration copy contructor. Performs deep copy of the original
 	  * scan's name, export name, axis control infos, detector infos, expected duration
 	  * and whether the scan is set to auto export.
@@ -277,6 +284,13 @@ public slots:
 	  * with the axes of the scan.
 	  */
 	void setAxisControlInfos(const AMControlInfoList &axisControlInfos);
+
+	/*!
+	  * Merges the information for the given scan configuration into this one. Axis
+	  * control infos are appended to axisControlInfos_ and detector configurations
+	  * are added to detectorConfigurations_.
+	  */
+	virtual void merge(AMScanConfiguration *configuration);
 
 signals:
 	/*!

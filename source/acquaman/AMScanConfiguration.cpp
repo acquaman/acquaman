@@ -30,6 +30,18 @@ AMScanConfiguration::AMScanConfiguration(QObject *parent) :
 	expectedDuration_ = 0;
 }
 
+AMScanConfiguration::AMScanConfiguration(const QList<AMScanConfiguration *> &configurations, QObject *parent) :
+	AMDbObject(parent)
+{
+	userScanName_ = "";
+	userExportName_ = "$name.txt";
+	autoExportEnabled_ = true;
+	expectedDuration_ = 0;
+
+	foreach (AMScanConfiguration *configuration, configurations)
+		merge(configuration);
+}
+
 AMScanConfiguration::AMScanConfiguration(const AMScanConfiguration &original)
 	: AMDbObject(original)
 {
@@ -135,5 +147,17 @@ void AMScanConfiguration::setAxisControlInfos(const AMControlInfoList &axisContr
 		axisControlInfos_ = axisControlInfos;
 		setModified(true);
 		emit axisControlInfosChanged();
+	}
+}
+
+void AMScanConfiguration::merge(AMScanConfiguration *configuration)
+{
+	if (configuration) {
+
+		foreach (AMControlInfo controlInfo, configuration->axisControlInfos().toList())
+			axisControlInfos_.append(controlInfo);
+
+		foreach (AMDetectorInfo detectorInfo, configuration->detectorConfigurations().toList())
+			detectorConfigurations_.addDetectorInfo(detectorInfo);
 	}
 }
