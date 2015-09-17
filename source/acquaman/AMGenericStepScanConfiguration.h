@@ -21,6 +21,8 @@ class AMGenericStepScanConfiguration : public AMStepScanConfiguration
 public:
 	/// Constructor.
 	Q_INVOKABLE AMGenericStepScanConfiguration(QObject *parent = 0);
+	/// Alternate constructor. Merges together the information for each listed configuration, to create this configuration.
+	AMGenericStepScanConfiguration(const QList<AMGenericStepScanConfiguration*> &configurations, QObject *parent);
 	/// Copy constructor.
 	AMGenericStepScanConfiguration(const AMGenericStepScanConfiguration &original);
 	/// Destructor.
@@ -50,6 +52,9 @@ signals:
 	void totalTimeChanged(double);
 
 public slots:
+	/// Merges the information from another configuration into this one.
+	virtual void merge(AMGenericStepScanConfiguration *configuration);
+
 	/// Sets a controlInfo to an axis.  If the axis has no control associated with it yet, then it will add it to the list, otherwise it will replace it.
 	void setControl(int axisId, AMControlInfo newInfo);
 	/// Removes a control from the given axis.  Also removes the axis.

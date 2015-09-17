@@ -13,6 +13,16 @@ AMGenericStepScanConfiguration::AMGenericStepScanConfiguration(QObject *parent)
 	setUserScanName("Generic Scan");
 }
 
+AMGenericStepScanConfiguration::AMGenericStepScanConfiguration(const QList<AMGenericStepScanConfiguration *> &configurations, QObject *parent)
+	: AMStepScanConfiguration(configurations, parent)
+{
+	setName("Generic Scan");
+	setUserScanName("Generic Scan");
+
+	foreach (AMGenericStepScanConfiguration *configuration, configurations)
+		merge(configuration);
+}
+
 AMGenericStepScanConfiguration::AMGenericStepScanConfiguration(const AMGenericStepScanConfiguration &original)
 	: AMStepScanConfiguration(original)
 {
@@ -105,6 +115,26 @@ void AMGenericStepScanConfiguration::computeTotalTime()
 
 	setExpectedDuration(totalTime_);
 	emit totalTimeChanged(totalTime_);
+}
+
+void AMGenericStepScanConfiguration::merge(AMGenericStepScanConfiguration *configuration)
+{
+	if (configuration) {
+
+		int initialScanAxisCount = scanAxes_.count();
+
+		AMStepScanConfiguration::merge(configuration);
+
+		computeTotalTime();
+
+		for (int i = initialScanAxisCount, size = scanAxes_.count(); i < size; i++) {
+
+			connect(scanAxisAt(i)->regionAt(0), SIGNAL(regionStartChanged(AMNumber)), this, SLOT(computeTotalTime()));
+			connect(scanAxisAt(i)->regionAt(0), SIGNAL(regionStepChanged(AMNumber)), this, SLOT(computeTotalTime()));
+			connect(scanAxisAt(i)->regionAt(0), SIGNAL(regionEndChanged(AMNumber)), this, SLOT(computeTotalTime()));
+			connect(scanAxisAt(i)->regionAt(0), SIGNAL(regionTimeChanged(AMNumber)), this, SLOT(computeTotalTime()));
+		}
+	}
 }
 
 void AMGenericStepScanConfiguration::setControl(int axisId, AMControlInfo newInfo)
