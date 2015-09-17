@@ -7,9 +7,11 @@ SGMMonochromatorInfo::SGMMonochromatorInfo(QObject *parent) :
 
     gratingTranslation_ = SGMGratingSupport::UnknownGrating;
     gratingAngle_ = 0;
+    isUndulatorTracking_ = true;
     undulatorHarmonic_ = SGMUndulatorSupport::UnknownUndulatorHarmonic;
     undulatorPosition_ = 0;
     undulatorOffset_ = 0;
+    isExitSlitPositionTracking_ = true;
     exitSlitPosition_ = 0;
     requestedEnergy_ = 0;
 
@@ -75,7 +77,30 @@ void SGMMonochromatorInfo::setGratingAngle(double gratingAngle)
         performValidation();
 		emit gratingAngleChanged(gratingAngle_);
 		emit energyChanged(resultantEnergy());
-	}
+    }
+}
+
+bool SGMMonochromatorInfo::isUndulatorTracking() const
+{
+    return isUndulatorTracking_;
+}
+
+void SGMMonochromatorInfo::setUndulatorTracking(bool isTracking)
+{
+    if(isUndulatorTracking_ != isTracking) {
+
+        isUndulatorTracking_ = isTracking;
+
+        // If we've just turned on tracking make sure we're at the right position
+        // for the current energy.
+        if(isUndulatorTracking_) {
+            setUndulatorPosition(optimizedUndulatorPosition(resultantEnergy(), undulatorHarmonic_, undulatorOffset_));
+        } else {
+            performValidation();
+        }
+
+        emit undulatorTrackingChanged(isUndulatorTracking_);
+    }
 }
 
 SGMUndulatorSupport::UndulatorHarmonic SGMMonochromatorInfo::undulatorHarmonic() const
@@ -115,9 +140,33 @@ void SGMMonochromatorInfo::setUndulatorOffset(double undulatorOffset)
 {
 	if(undulatorOffset_ != undulatorOffset) {
 		undulatorOffset_ = undulatorOffset;
-        performValidation();
+        // Need to re-optimize the undulator taking into account the new offset
+        setUndulatorPosition(optimizedUndulatorPosition(resultantEnergy(), undulatorHarmonic_, undulatorOffset_));
 		emit undulatorOffsetChanged(undulatorOffset_);
-	}
+    }
+}
+
+bool SGMMonochromatorInfo::isExitSlitPositionTracking() const
+{
+    return isExitSlitPositionTracking_;
+}
+
+void SGMMonochromatorInfo::setExitSlitPositionTracking(bool isTracking)
+{
+    if(isExitSlitPositionTracking_ != isTracking) {
+
+        isExitSlitPositionTracking_ = isTracking;
+
+        // If we've just turned on tracking make sure we're at the right position
+        // for the current energy.
+        if(isExitSlitPositionTracking_) {
+            setExitSlitPosition(optimizedExitSlitPosition(gratingTranslation_, resultantEnergy()));
+        } else {
+            performValidation();
+        }
+
+        emit undulatorTrackingChanged(isExitSlitPositionTracking_);
+    }
 }
 
 double SGMMonochromatorInfo::exitSlitPosition() const
@@ -140,8 +189,13 @@ void SGMMonochromatorInfo::requestEnergy(double requestedEnergy, SGMGratingSuppo
 	setGratingTranslation(gratingTranslation);
 
     setGratingAngle(gratingAngleFromEnergy(gratingTranslation_, requestedEnergy));
-	setUndulatorPosition(optimizedUndulatorPosition(requestedEnergy, undulatorHarmonic_, undulatorOffset_));
-	setExitSlitPosition(optimizedExitSlitPosition(gratingTranslation_, requestedEnergy));
+    if(isUndulatorTracking_) {
+        setUndulatorPosition(optimizedUndulatorPosition(requestedEnergy, undulatorHarmonic_, undulatorOffset_));
+    }
+
+    if(isExitSlitPositionTracking_) {
+        setExitSlitPosition(optimizedExitSlitPosition(gratingTranslation_, requestedEnergy));
+    }
 }
 
 void SGMMonochromatorInfo::requestEnergy(double requestedEnergy, GratingTranslationOptimizationMode optimizationMode)
@@ -227,6 +281,9 @@ void SGMMonochromatorInfo::performValidation()
     errorValidator_.updateValidity(SGMMONO_UNKNOWN_GRATING_TRANSLATION, gratingTranslation_ == SGMGratingSupport::UnknownGrating);
     errorValidator_.updateValidity(SGMMONO_INVALID_ENERGY_FOR_HARMONIC, !SGMUndulatorSupport::validEnergy(undulatorHarmonic_, requestedEnergy_));
     errorValidator_.updateValidity(SGMMONO_INVALID_ENERGY_FOR_GRATING, !SGMGratingSupport::validEnergy(gratingTranslation_, requestedEnergy_));
+
+    warningValidator_.updateValidity(SGMMONO_UNDULATOR_TRACKING_OFF, !isUndulatorTracking_);
+    warningValidator_.updateValidity(SGMMONO_EXIT_SLIT_TRACKING_OFF, !isExitSlitPositionTracking_);
 }
 
 

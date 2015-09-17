@@ -7,7 +7,9 @@
 #define SGMMONO_INVALID_ENERGY_FOR_GRATING "Invalid energy for grating. Valid Energies: Low: 9+eV Medium: 16+eV High: 25+eV"
 #define SGMMONO_INVALID_ENERGY_FOR_HARMONIC "Invalid energy for harmonic. Valid Energies: 1st: 47eV-1737eV 3rd: 141-5212eV"
 
-
+// Warning validation messages
+#define SGMMONO_UNDULATOR_TRACKING_OFF "Undulator tracking off: Optimal flux for energy may not be being achieved"
+#define SGMMONO_EXIT_SLIT_TRACKING_OFF "Exit slit position tracking off: Optimal flux for energy may not be being achieved"
 
 #include <QObject>
 #include <QStringList>
@@ -93,6 +95,22 @@ public:
 	  */
 	void setGratingAngle(double gratingAngle);
 
+    /*!
+     * Whether the undulator position is to track the energy to produce optimal
+     * flux. If undulator tracking is on the undulator will move as the energy is
+     * altered, if not it will remain at its current position
+     */
+    bool isUndulatorTracking() const;
+
+    /*!
+     * Sets whether the undulator position is to track the energy to produce
+     * optimal flux. If the undulator tracking is set from off to on, and the
+     * undulator position is not currently optimal for the energy, it will move
+     * to its optimal position.
+     * \param isTracking ~ Whether the undulator is to track energy.
+     */
+    void setUndulatorTracking(bool isTracking);
+
 	/*!
 	  * The info's current undulator harmonic.
 	  */
@@ -122,6 +140,22 @@ public:
 	  * Sets the info's current undulator offset.
 	  */
 	void setUndulatorOffset(double undulatorOffset);
+
+    /*!
+     * Whether the exit slit position is to track the energy to produce optimal
+     * flux. If exit slit tracking is on the exit will move as the energy is
+     * altered, if not it will remain at its current position
+     */
+    bool isExitSlitPositionTracking() const;
+
+    /*!
+     * Sets whether the exit slit position is to track the energy to produce
+     * optimal flux. If the exit tracking is set from off to on, and the
+     * exit slit position is not currently optimal for the energy, it will move
+     * to its optimal position.
+     * \param isTracking ~ Whether the exit slit is to track energy.
+     */
+    void setExitSlitPositionTracking(bool isTracking);
 
 	/*!
 	  * The info's current exit slit position.
@@ -161,6 +195,9 @@ signals:
 	/// Signal indicating the grating angle has been altered.
 	void gratingAngleChanged(double gratingAngle);
 
+    /// Signal indicating the undulator tracking state has been altered.
+    void undulatorTrackingChanged(bool isUndulatorTracking);
+
 	/// Signal indicating the undulator harmonic has been altered.
 	void undulatorHarmonicChanged(SGMUndulatorSupport::UndulatorHarmonic undulatorHarmonic);
 
@@ -169,6 +206,9 @@ signals:
 
 	/// Signal indicating the undulator offset has been altered.
 	void undulatorOffsetChanged(double undulatorOffset);
+
+    /// Signal indicating the exit slit tracking state has been altered.
+    void exitSlitTrackingChanged(bool isExitSlitPositionTracking);
 
 	/// Signal indicating the exit slit position has been altered.
 	void exitSlitPositionChanged(double exitSlitPosition);
@@ -179,19 +219,13 @@ signals:
 	  */
 	void energyChanged(double energy);
 
-	/*!
-	  * Signal indicating that the valid state of the info has altered.
-	  */
+    /// Signal indicating that the valid state of the info has altered.
 	void errorStateChanged(bool errorState);
 
-	/*!
-	  * Signal indicating that the number of errors related to the info has altered.
-	  */
+    /// Signal indicating that the number of errors related to the info has altered.
 	void errorCountChanged();
 
-	/*!
-	  * Signal indicating that the warning state of the info has altered.
-	  */
+    /// Signal indicating that the warning state of the info has altered.
 	void warningStateChanged(bool warningState);
 
 	/*!
@@ -268,8 +302,10 @@ protected:
 	SGMGratingSupport::GratingTranslation gratingTranslation_;
 	double gratingAngle_;
 	SGMUndulatorSupport::UndulatorHarmonic undulatorHarmonic_;
-	double undulatorPosition_;
+    bool isUndulatorTracking_;
+    double undulatorPosition_;
 	double undulatorOffset_;
+    bool isExitSlitPositionTracking_;
 	double exitSlitPosition_;
     double requestedEnergy_;
 
