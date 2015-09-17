@@ -55,12 +55,23 @@ HEADERS += \
 	source/ui/BioXAS/BioXASPersistentView.h \
 	source/ui/BioXAS/BioXASMirrorBendView.h \
 	source/application/BioXAS/BioXAS.h \
+    source/beamline/BioXAS/BioXASMonochromatorEnergyControl.h \
+    source/acquaman/BioXAS/BioXASXASScanActionController.h \
+    source/acquaman/BioXAS/BioXASXASScanConfiguration.h \
+	source/ui/BioXAS/BioXASSSRLMonochromatorEnergyCalibrationView.h \
 	source/beamline/BioXAS/BioXASShutterControl.h \
 	source/ui/BioXAS/BioXASEndstationTableView.h \
 	source/ui/BioXAS/BioXAS32ElementGeDetectorView.h \
     source/beamline/BioXAS/BioXASXIAFiltersControl.h \
     source/beamline/BioXAS/BioXASDBHRMirrors.h \
-	source/ui/BioXAS/BioXASDBHRMirrorsView.h
+	source/ui/BioXAS/BioXASDBHRMirrorsView.h \
+    source/beamline/BioXAS/BioXASBeamlineUtilities.h \
+    source/beamline/BioXAS/BioXASCryostatStage.h \
+    source/ui/BioXAS/BioXASXASScanConfigurationRegionsEditor.h \
+    source/ui/BioXAS/BioXASXASScanConfigurationEdgeEditor.h \
+    source/ui/BioXAS/BioXASXASScanConfigurationEditor.h \
+    source/ui/BioXAS/BioXASXASScanConfigurationView.h \
+    source/dataman/BioXAS/BioXASDbUpgrade1Pt1.h
 
 SOURCES += \
 	source/acquaman/BioXAS/BioXASXRFScanConfiguration.cpp \
@@ -110,11 +121,20 @@ SOURCES += \
 	source/application/BioXAS/BioXASAppController.cpp \
 	source/ui/BioXAS/BioXASPersistentView.cpp \
 	source/ui/BioXAS/BioXASMirrorBendView.cpp \
+    source/beamline/BioXAS/BioXASMonochromatorEnergyControl.cpp \
+    source/acquaman/BioXAS/BioXASXASScanActionController.cpp \
+    source/acquaman/BioXAS/BioXASXASScanConfiguration.cpp \
+	source/ui/BioXAS/BioXASSSRLMonochromatorEnergyCalibrationView.cpp \
 	source/beamline/BioXAS/BioXASShutterControl.cpp \
 	source/ui/BioXAS/BioXASEndstationTableView.cpp \
 	source/ui/BioXAS/BioXAS32ElementGeDetectorView.cpp \
-    source/beamline/BioXAS/BioXASXIAFiltersControl.cpp \
+	source/beamline/BioXAS/BioXASXIAFiltersControl.cpp \
     source/beamline/BioXAS/BioXASDBHRMirrors.cpp \
-	source/ui/BioXAS/BioXASDBHRMirrorsView.cpp
-
-
+	source/ui/BioXAS/BioXASDBHRMirrorsView.cpp \
+    source/beamline/BioXAS/BioXASBeamlineUtilities.cpp \
+    source/beamline/BioXAS/BioXASCryostatStage.cpp \
+    source/ui/BioXAS/BioXASXASScanConfigurationRegionsEditor.cpp \
+    source/ui/BioXAS/BioXASXASScanConfigurationEdgeEditor.cpp \
+    source/ui/BioXAS/BioXASXASScanConfigurationEditor.cpp \
+    source/ui/BioXAS/BioXASXASScanConfigurationView.cpp \
+    source/dataman/BioXAS/BioXASDbUpgrade1Pt1.cpp

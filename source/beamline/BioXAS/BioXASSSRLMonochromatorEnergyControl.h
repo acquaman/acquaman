@@ -7,11 +7,9 @@
 #include "beamline/CLS/CLSMAXvMotor.h"
 #include "actions3/AMActionSupport.h"
 
-#include "beamline/AMPseudoMotorControl.h"
+#include "beamline/BioXAS/BioXASMonochromatorEnergyControl.h"
 
-#include <QDebug>
-
-class BioXASSSRLMonochromatorEnergyControl : public AMPseudoMotorControl
+class BioXASSSRLMonochromatorEnergyControl : public BioXASMonochromatorEnergyControl
 {
 	Q_OBJECT
 
@@ -78,9 +76,6 @@ public slots:
 	/// Sets the m1 mirror control.
 	void setM1MirrorPitchControl(AMControl *newControl);
 
-	/// Calibrates the control such that the newEnergy is the current energy.
-	void setEnergy(double newEnergy);
-
 protected slots:
 	/// Updates the connected state.
 	virtual void updateConnected();
@@ -92,6 +87,8 @@ protected slots:
 protected:
 	/// Creates and returns a move action.
 	virtual AMAction3* createMoveAction(double setpoint);
+	/// Creates and returns a calibration action.
+	virtual AMAction3* createCalibrateAction(double oldEnergy, double newEnergy);
 
 	/// Returns the bragg angle calculation result for region A, from the bragg motor position.
 	static double calculateBraggAngleFromPositionRegionA(double braggPosition, double m1Pitch, double thetaBraggOffset, double regionOffset);

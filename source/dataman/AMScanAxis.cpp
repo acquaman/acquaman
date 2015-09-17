@@ -184,11 +184,17 @@ bool AMScanAxis::overwriteRegion(int index, AMScanAxisRegion *region)
 
 bool AMScanAxis::removeRegion(AMScanAxisRegion *region)
 {
-	int index = regions_.toList().indexOf(region);
+	bool result = false;
 
-	if (index >= 0){
+	if (region) {
 
-		regions_.remove(index);
+		int index = regions_.toList().indexOf(region);
+
+		if (index >= 0) {
+			regions_.remove(index);
+			result = true;
+		}
+
 		emit regionRemoved(region);
 
 		disconnect(region, SIGNAL(regionStartChanged(AMNumber)), this, SIGNAL(regionsChanged()));
@@ -197,7 +203,28 @@ bool AMScanAxis::removeRegion(AMScanAxisRegion *region)
 		disconnect(region, SIGNAL(regionTimeChanged(AMNumber)), this, SIGNAL(regionsChanged()));
 	}
 
-	return (index >= 0);
+	return result;
+}
+
+bool AMScanAxis::clearRegions()
+{
+	bool result = false;
+
+	QList<AMScanAxisRegion*> regionsList = regions_.toList();
+
+	if (!regionsList.isEmpty()) {
+
+		// Remove all regions from the list.
+
+		bool removeOK = true;
+		foreach (AMScanAxisRegion *region, regionsList) {
+			removeOK = removeOK && removeRegion(region);
+		}
+
+		result = removeOK;
+	}
+
+	return result;
 }
 
 void AMScanAxis::setAxisType(AMScanAxis::AxisType axisType)
