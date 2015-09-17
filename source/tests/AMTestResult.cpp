@@ -1,5 +1,10 @@
 #include "AMTestResult.h"
 
+AMTestResult::AMTestResult()
+{
+
+}
+
 AMTestResult::AMTestResult(bool passed, const QString &failMessage)
 {
     passed_ = passed;

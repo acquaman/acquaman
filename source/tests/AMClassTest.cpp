@@ -1,6 +1,6 @@
 #include "AMClassTest.h"
 
-AMClassTest::AMClassTest(QObject *parent) : QObject(parent)
+AMClassTest::AMClassTest() : QObject(0)
 {
 
 }

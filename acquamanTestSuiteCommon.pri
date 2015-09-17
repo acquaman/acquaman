@@ -1,11 +1,11 @@
 # #####################################################################
-# QMake project file for AMTestSuite common files  	Sept. 2015 Iain Workman
+# QMake project file for acquamanTestSuiteCommon files  	Sept. 2015 Iain Workman
 # ####################################################################
 
 # Source Files (SGM Common)
 #######################
 
-FORMS += 
+FORMS += \
 
 HEADERS += \
 SOURCES += \

@@ -1,12 +1,10 @@
 #include "AMTestSuite.h"
-
-AMTestSuite *AMTestSuite::instance()
+#include "AMClassTest.h"
+AMTestSuite &AMTestSuite::instance()
 {
-    if(!instance_) {
-        instance_ = new AMTestSuite();
-    }
+    static AMTestSuite instance;
 
-    return instance_;
+    return instance;
 }
 
 void AMTestSuite::runTests()
@@ -15,14 +13,16 @@ void AMTestSuite::runTests()
     foreach(QString key, classTests_.keys()) {
 
         AMClassTest* currentTest = classTests_.value(key);
-        currentTest->runTests();
+        QVector<AMTestResult> results = currentTest->runTests();
+        testResults_ << results;
     }
 }
 
-AMTestSuite::AMTestSuite()
+QVector<AMTestResult> AMTestSuite::testResults() const
 {
-    instance_ = 0;
+    return testResults_;
 }
+
 
 
 

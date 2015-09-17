@@ -6,33 +6,13 @@
 
 #include "AMTestResult.h"
 #include "AMTestSuite.h"
-#define AM_TEST_EQUAL(expected, actual, message) \
-    testResults_.append(AMTestResult((actual == expected), message))
-
-#define AM_TEST_LESS_THAN(expected, actual, message) \
-    testResults_.append(AMTestResult((actual < expected), message))
-
-#define AM_TEST_LESS_THAN_OR_EQUAL(expected, actual, message) \
-    testResults_.append(AMTestResult((actual <= expected), message))
-
-#define AM_TEST_GREATER_THAN(expected, actual, message) \
-    testResults_.append(AMTestResult((expected > actual), message))
-
-#define AM_TEST_GREATER_THAN_OR_EQUAL(expected, actual, message) \
-    testResults_.append(AMTestResult((expected >= actual), message))
-
-#define AM_TEST_TRUE(value, message) \
-    testResults_.append(value, message)
-
-#define AM_TEST_FALSE(value, message) \
-    testResults_.append(!value, message)
-
-
-class AMClassTest
+class AMClassTest : public QObject
 {
     Q_OBJECT
 public:
-    explicit AMClassTest(QObject *parent = 0);
+    Q_INVOKABLE explicit AMClassTest();
+
+    virtual ~AMClassTest() {}
 
     QVector<AMTestResult> runTests();
 
@@ -41,12 +21,30 @@ protected:
 
     virtual void postTestsRun() {}
 
-    virtual void testRunImplementation() = 0;
+    virtual void testRunImplementation() {}
 
     QVector<AMTestResult> testResults_;
 signals:
 
 public slots:
+};
+
+#define AM_CLASS_TEST(className) \
+    static RegisterTest<className> regInSuite##className; \
+
+#include <QDebug>
+class example : public AMClassTest {
+
+    Q_OBJECT
+
+public:
+    AM_CLASS_TEST(example)
+    Q_INVOKABLE example() : AMClassTest() {}
+
+    void testRunImplementation()
+    {
+        qDebug() << "example test file";
+    }
 };
 
 #endif // AMCLASSTEST_H

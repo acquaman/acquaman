@@ -5,6 +5,7 @@
 class AMTestResult
 {
 public:
+    AMTestResult();
     AMTestResult(bool passed, const QString& failMessage);
 
     bool passed() const;
