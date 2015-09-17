@@ -26,6 +26,13 @@ AMStepScanConfiguration::AMStepScanConfiguration(QObject *parent)
 {
 }
 
+AMStepScanConfiguration::AMStepScanConfiguration(const QList<AMStepScanConfiguration *> &configurations, QObject *parent)
+	: AMScanConfiguration(configurations, parent)
+{
+	foreach (AMStepScanConfiguration *configuration, configurations)
+		merge(configuration);
+}
+
 AMStepScanConfiguration::AMStepScanConfiguration(const AMStepScanConfiguration &original)
 	: AMScanConfiguration(original)
 {
@@ -64,6 +71,17 @@ void AMStepScanConfiguration::dbLoadScanAxes(const AMDbObjectList &newScanAxes)
 
 		if (axis)
 			scanAxes_.append(axis);
+	}
+}
+
+void AMStepScanConfiguration::merge(AMStepScanConfiguration *configuration)
+{
+	if (configuration) {
+
+		AMScanConfiguration::merge(configuration);
+
+		foreach (AMScanAxis *axis, configuration->scanAxes())
+			scanAxes_.append(axis->createCopy());
 	}
 }
 

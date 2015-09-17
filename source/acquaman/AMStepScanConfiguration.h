@@ -39,6 +39,8 @@ class AMStepScanConfiguration : public AMScanConfiguration
 public:
 	/// Constructor.  Builds a generic scan configuration that handles all evenly spaced, n-dimensional step scans.
 	AMStepScanConfiguration(QObject *parent = 0);
+	/// Constructor. Builds a generic scan configuration by merging together the scan information for each configuration listed.
+	AMStepScanConfiguration(const QList<AMStepScanConfiguration*> &configurations, QObject *parent);
 	/// Copy constructor.
 	AMStepScanConfiguration(const AMStepScanConfiguration &original);
 	/// Destructor.
@@ -56,6 +58,9 @@ signals:
 	void scanAxisRemoved(AMScanAxis *);
 
 public slots:
+	/// Merges the scan information for the given configuration into this one.
+	virtual void merge(AMStepScanConfiguration *configuration);
+
 	/// Inserts a scan axis into the list.
 	void insertScanAxis(int index, AMScanAxis *newAxis);
 	/// Appends a scan axis to the end of the list.
