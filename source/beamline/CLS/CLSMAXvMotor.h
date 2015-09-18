@@ -208,6 +208,8 @@ public:
 	AMPVControl* EGUBaseVelocityControl() const { return EGUBaseVelocity_; }
 	/// Returns the EGU acceleration PV control.
 	AMPVControl* EGUAccelerationControl() const { return EGUAcceleration_; }
+	/// Returns the EGU set position PV control.
+	AMPVControl* EGUSetPositionControl() const { return EGUSetPosition_; }
 	/// Returns the pre-deadband PV control.
 	AMPVControl* preDeadBandControl() const { return preDeadBand_; }
 	/// Returns the post-deadband PV control.

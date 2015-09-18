@@ -139,7 +139,7 @@ void  AMDataSourceSeriesData::onDataChanged(const AMnDIndex &start, const AMnDIn
 
 void AMDataSourceSeriesData::onAxisValuesChanged()
 {
-    source_->axisValues(0, 0, axisSize_-1, axis_.data());
+	source_->axisValues(0, 0, axisSize_-1, axis_.data());
 	cachedDataRectUpdateRequired_ = true;
 	onDataChanged(AMnDIndex(0), AMnDIndex(axisSize_-1));
 }
