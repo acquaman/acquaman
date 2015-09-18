@@ -5,6 +5,7 @@
 
 #include "beamline/AMControl.h"
 #include "actions3/AMAction3.h"
+#include "beamline/AMDetectorSet.h"
 
 #define AMPSEUDOMOTORCONTROL_INVALID_VALUE 89327420
 #define AMPSEUDOMOTORCONTROL_INVALID_SETPOINT 89327421
@@ -17,6 +18,10 @@
 #define AMPSEUDOMOTORCONTROL_ALREADY_CALIBRATING 89327428
 #define AMPSEUDOMOTORCONTROL_INVALID_CALIBRATION_ACTION 89327429
 #define AMPSEUDOMOTORCONTROL_CALIBRATION_FAILED 89327430
+#define AMPSEUDOMOTORCONTROL_CANNOT_OPTIMIZE 89327431
+#define AMPSEUDOMOTORCONTROL_ALREADY_OPTIMIZING 89327432
+#define AMPSEUDOMOTORCONTROL_INVALID_OPTIMIZATION_ACTION 89327433
+#define AMPSEUDOMOTORCONTROL_OPTIMIZATION_FAILED 89327434
 
 class AMPseudoMotorControl : public AMControl
 {
@@ -24,7 +29,7 @@ class AMPseudoMotorControl : public AMControl
 
 public:
 	/// Constructor.
-	explicit AMPseudoMotorControl(const QString &name, const QString &units, QObject *parent = 0, const QString &description = "");
+	explicit AMPseudoMotorControl(const QString &name, const QString &units, QObject *parent = 0, const QString &description = "", AMDetectorSet *optimizationDetectors = 0);
 	/// Destructor.
 	virtual ~AMPseudoMotorControl();
 
@@ -45,6 +50,8 @@ public:
 	virtual bool moveInProgress() const { return moveInProgress_; }
 	/// Returns true if this control is calibrating, as a result of this control's action.
 	virtual bool calibrationInProgress() const { return calibrationInProgress_; }
+	/// Returns true if this control is optimizing, as a result of this control's action.
+	virtual bool optimizationInProgress() const { return optimizationInProgress_; }
 
 	/// Returns true if the given value is a valid value for this control. False otherwise.
 	virtual bool validValue(double value) const;
@@ -56,6 +63,13 @@ public:
 	/// Removes a given control from the list of child controls.
 	virtual void removeChildControl(AMControl *control);
 
+	/// Returns the minimum value to use for optimizing this control.
+	virtual double optimizationMinimumValue() const { return minimumValue(); }
+	/// Returns the maximum value to use for optimizing this control.
+	virtual double optimizationMaximumValue() const { return maximumValue(); }
+	/// Returns the step size to use for optimizing this control.
+	virtual double optimizationStepValue() const { return tolerance(); }
+
 	/// Returns a string representation of this control.
 	virtual QString toString() const;
 
@@ -64,14 +78,21 @@ signals:
 	void minimumValueChanged(double newValue);
 	/// Notifier that the maximum value has changed.
 	void maximumValueChanged(double newValue);
+	/// Notifier that the optimization detectors have changed.
+	void optimizationDetectorsChanged(AMDetectorSet *newDetectors);
 
 public slots:
+	/// Sets the detectors to be used in an optimization, if optimization has been implemented.
+	void setOptimizationDetectors(AMDetectorSet *newDetectors);
+
 	/// Sets the setpoint and moves the control, if necessary.
 	virtual FailureExplanation move(double setpoint);
 	/// Stops the control, by stopping all children.
 	virtual bool stop();
 	/// Calibrates the control such that the old value becomes the new value. Fails if calibration has not been implemented for this control.
 	virtual FailureExplanation calibrate(double oldValue, double newValue);
+	/// Optimizes the control. Fails if optimization has not been implemented for this control.
+	virtual FailureExplanation optimize();
 
 protected slots:
 	/// Sets the enum states.
@@ -92,19 +113,25 @@ protected slots:
 	void setMaximumValue(double newValue);
 	/// Sets the 'calibration in progress' state.
 	void setCalibrationInProgress(bool isCalibrating);
+	/// Sets the 'optimization in progress' state.
+	void setOptimizationInProgress(bool isOptimizing);
 
 	/// Updates states.
 	virtual void updateStates();
 	/// Updates the connected state.
 	virtual void updateConnected() = 0;
 	/// Updates the current value.
-	virtual void updateValue() = 0;
+	virtual void updateValue() { return; }
 	/// Updates the moving state.
-	virtual void updateMoving() = 0;
+	virtual void updateMoving();
 	/// Updates the minimum value.
 	virtual void updateMinimumValue() { return; }
 	/// Updates the maximum value.
 	virtual void updateMaximumValue() { return; }
+	/// Updates the calibrating state.
+	virtual void updateCalibrating();
+	/// Updates the optimizing state.
+	virtual void updateOptimizing();
 
 	/// Handles emitting the appropriate signals when a move action has started.
 	virtual void onMoveStarted(QObject *action);
@@ -127,16 +154,34 @@ protected slots:
 	virtual void onCalibrationSucceeded(QObject *action);
 	virtual void onCalibrationSucceeded();
 
+	/// Handles situation where the optimization has started.
+	virtual void onOptimizationStarted();
+	/// Handles situation where the optimization is cancelled.
+	virtual void onOptimizationCancelled(QObject *action);
+	virtual void onOptimizationCancelled();
+	/// Handles situation where the optimization fails.
+	virtual void onOptimizationFailed(QObject *action);
+	virtual void onOptimizationFailed();
+	/// Handles situation where the optimization succeeds.
+	virtual void onOptimizationSucceeded(QObject *action);
+	virtual void onOptimizationSucceeded();
+
 protected:
 	/// Creates and returns a move action. Subclasses are required to reimplement.
-	virtual AMAction3* createMoveAction(double setpoint) = 0;
-	/// Creates and returns a calibration action. Subclasses can optionally reimplement.
-	virtual AMAction3* createCalibrateAction(double oldValue, double newValue);
-
+	virtual AMAction3* createMoveAction(double setpoint) { Q_UNUSED(setpoint) return; }
 	/// Handles disconnecting from a move action and removing the signal mappings when the action is complete.
 	void moveActionCleanup(QObject *action);
+
+	/// Creates and returns a calibration action. Subclasses can optionally reimplement.
+	virtual AMAction3* createCalibrateAction(double oldValue, double newValue);
 	/// Handles cleaning up a calibration action, once the action is no longer needed.
 	void calibrationActionCleanup(QObject *action);
+
+	/// Creates and returns an optimization action. Subclasses can optionally reimplement.
+	virtual AMAction3* createOptimizationAction() { return 0; }
+	/// Handles cleaning up an optimization action, once the action is no longer needed.
+	void optimizationActionCleanup(QObject *action);
+
 	/// Handles disconnecting from and deleting an action after it has been executed.
 	void actionCleanup(QObject *action);
 
@@ -157,6 +202,11 @@ protected:
 	double maximumValue_;
 	/// The flag indicating whether the control is calibrating as a result of the calibrate() slot.
 	bool calibrationInProgress_;
+	/// The flag indicating whether the control is optimizing.
+	bool optimizationInProgress_;
+
+	/// The set of detectors to be used in an optimization.
+	AMDetectorSet *detectors_;
 
 	/// The signal mapper for move started.
 	QSignalMapper *startedMapper_;
@@ -175,6 +225,15 @@ protected:
 	QSignalMapper *calibrationFailedMapper_;
 	/// The calibration succeeded signal mapper.
 	QSignalMapper *calibrationSucceededMapper_;
+
+	/// The optimization started signal mapper.
+	QSignalMapper *optimizationStartedMapper_;
+	/// The optimization cancelled signal mapper.
+	QSignalMapper *optimizationCancelledMapper_;
+	/// The optimization failed signal mapper.
+	QSignalMapper *optimizationFailedMapper_;
+	/// The optimization succeeded signal mapper.
+	QSignalMapper *optimizationSucceededMapper_;
 };
 
 #endif // AMPSEUDOMOTORCONTROL_H

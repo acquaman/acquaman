@@ -151,9 +151,23 @@ void BioXASSideBeamline::setupDetectorStage()
 
 void BioXASSideBeamline::setupDetectors()
 {
+	// Scaler.
+
+	scaler_ = new CLSSIS3820Scaler("MCS1607-601:mcs", this);
+	connect( scaler_, SIGNAL(connectedChanged(bool)), this, SLOT(updateConnected()) );
+
+	// Ion chambers.
+
 	i0Detector_ = new CLSBasicScalerChannelDetector("I0Detector", "I0 Detector", scaler_, 16, this);
+	connect( i0Detector_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+
 	i1Detector_ = new CLSBasicScalerChannelDetector("I1Detector", "I1 Detector", scaler_, 17, this);
+	connect( i1Detector_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+
 	i2Detector_ = new CLSBasicScalerChannelDetector("I2Detector", "I2 Detector", scaler_, 18, this);
+	connect( i2Detector_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+
+	// 32 element Ge detector.
 
 	ge32ElementDetector_ = new BioXAS32ElementGeDetector("Ge32Element", "Ge 32 Element", this);
 	addSynchronizedXRFDetector(ge32ElementDetector_);
@@ -161,6 +175,9 @@ void BioXASSideBeamline::setupDetectors()
 
 void BioXASSideBeamline::setupComponents()
 {
+	// Detectors. Must be called before the scaler channel and the JJ slits detectors are set.
+	setupDetectors();
+
 	// Endstation safety shutter.
 	safetyShutterES_ = new  CLSBiStateControl("SideShutter", "SideShutter", "SSH1607-5-I22-01:state", "SSH1607-5-I22-01:opr:open", "SSH1607-5-I22-01:opr:close", new AMControlStatusCheckerDefault(2), this);
 	connect( safetyShutterES_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
@@ -183,7 +200,10 @@ void BioXASSideBeamline::setupComponents()
 	connect( carbonFilterFarm_, SIGNAL(connectedChanged(bool)), this, SLOT(updateConnected()) );
 
 	// JJ slits.
-	jjSlits_ = new CLSJJSlits("JJSlits", "SMTR1607-6-I22-10", "SMTR1607-6-I22-09", "SMTR1607-6-I22-11", "SMTR1607-6-I22-12", this);
+	AMDetectorSet *jjSlitDetector = new AMDetectorSet(this);
+	jjSlitDetector->addDetector(i0Detector_);
+
+	jjSlits_ = new CLSJJSlits("JJSlits", "SMTR1607-6-I22-10", "SMTR1607-6-I22-09", "SMTR1607-6-I22-11", "SMTR1607-6-I22-12", this, jjSlitDetector);
 	connect( jjSlits_, SIGNAL(connectedChanged(bool)), this, SLOT(updateConnected()) );
 
 	// XIA filters.
@@ -215,16 +235,9 @@ void BioXASSideBeamline::setupComponents()
 	// Cryostat stage.
 	cryostatStage_ = new BioXASSideCryostatStage(this);
 
-	// Scaler.
-	scaler_ = new CLSSIS3820Scaler("MCS1607-601:mcs", this);
-	connect( scaler_, SIGNAL(connectedChanged(bool)), this, SLOT(updateConnected()) );
-
 	// Utilities.
 	utilities_ = new BioXASSideBeamlineUtilities(this);
 	connect( utilities_, SIGNAL(connectedChanged(bool)), this, SLOT(updateConnected()) );
-
-	// Detectors. Must be called before the scaler channel detectors are set.
-	setupDetectors();
 
 	// I0 channel amplifier.
 	i0Keithley_ = new CLSKeithley428("I0 Channel", "AMP1607-601", this);

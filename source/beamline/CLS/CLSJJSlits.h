@@ -1,38 +1,106 @@
 #ifndef CLSJJSLITS_H
 #define CLSJJSLITS_H
 
-#include <QObject>
-
 #include "acquaman/AMGenericStepScanConfiguration.h"
+#include "beamline/AMPseudoMotorControl.h"
 #include "beamline/AMPVControl.h"
 #include "beamline/CLS/CLSJJSlitGapControl.h"
 #include "beamline/CLS/CLSJJSlitCenterControl.h"
+#include "dataman/AMAnalysisBlock.h"
 
-/// The class definition of CLSJJSlit, which contains a vertical CLSJJSlitsBladesControl and a horizontal CLSJJSlitsBladesControl
-class CLSJJSlits : public QObject
+class CLSJJSlits : public AMPseudoMotorControl
 {
 	Q_OBJECT
 
 public:
-	/// Enum describing different slit directions.
+	/// Enum describing different direction options.
 	class Direction { public: enum Option { Invalid = 0, Vertical, Horizontal, Upper, Lower, Inboard, Outboard}; };
-	/// Enum describing different slit properties.
+	/// Enum describing different control options.
 	class Control { public: enum Option { Invalid = 0, Gap, Center, Blade }; };
 
 	/// Constructor
-	explicit CLSJJSlits(const QString &name, const QString &upperBladePVName, const QString &lowerBladePVName, const QString &inboardBladePVName, const QString &outboardBladePVName, QObject*parent = 0);
+	explicit CLSJJSlits(const QString &name, const QString &upperBladePVName, const QString &lowerBladePVName, const QString &inboardBladePVName, const QString &outboardBladePVName, QObject*parent = 0, AMDetectorSet *optimizationDetectors = 0);
 	/// Destructor
 	virtual ~CLSJJSlits();
-	/// Returns the name.
-	const QString name() const { return name_; }
-	/// Returns the current connected state.
-	bool isConnected() const { return connected_; }
+
+	/// Returns the current value.
+	virtual double value(Direction::Option directionOption, Control::Option controlOption) const;
+	/// Returns the current setpoint.
+	virtual double setpoint(Direction::Option directionOption, Control::Option controlOption) const;
+	/// Returns the smallest value this control can take.
+	virtual double minimumValue(Direction::Option directionOption, Control::Option controlOption) const;
+	/// Returns the largest value this control can take.
+	virtual double maximumValue(Direction::Option directionOption, Control::Option controlOption) const;
+
+	/// Returns true if the control with the given options is always measurable, provided the control is connected.
+	virtual bool shouldMeasure(Direction::Option directionOption, Control::Option controlOption) const;
+	/// Returns true if a move for the control with the given options is always possible, provided control is connected.
+	virtual bool shouldMove(Direction::Option directionOption, Control::Option controlOption) const;
+	/// Returns true if the control with the given options can stop, provided it is connected.
+	virtual bool shouldStop(Direction::Option directionOption, Control::Option controlOption) const;
+
+	/// Returns true if the controls with the given options are always measurable, provided the controls are connected.
+	virtual bool shouldMeasure(Direction::Option directionOption) const;
+	/// Returns true if moves for the controls with the given options are always possible, provided controls are connected.
+	virtual bool shouldMove(Direction::Option directionOption) const;
+	/// Returns true if the controls with the given options can stop, provided controls are connected.
+	virtual bool shouldStop(Direction::Option directionOption) const;
+
+	/// Returns true if the controls with the given options are always measurable, provided the controls are connected.
+	virtual bool shouldMeasure(Control::Option controlOption) const;
+	/// Returns true if moves for the controls with the given options are always possible, provided controls are connected.
+	virtual bool shouldMove(Control::Option controlOption) const;
+	/// Returns true if the controls with the given options can stop, provided controls are connected.
+	virtual bool shouldStop(Control::Option controlOption) const;
+
+	/// Returns true if all controls are always measurable, provided the controls are connected.
+	virtual bool shouldMeasure() const;
+	/// Returns true if moves for all controls are always possible, provided controls are connected.
+	virtual bool shouldMove() const;
+	/// Returns true if all controls can stop, provided controls are connected.
+	virtual bool shouldStop() const;
+
+	/// Returns true if the control with the given options can take a measurement right now.
+	virtual bool canMeasure(Direction::Option directionOption, Control::Option controlOption) const;
+	/// Returns true if the control with the given options can move right now.
+	virtual bool canMove(Direction::Option directionOption, Control::Option controlOption) const;
+	/// Returns true if the control with the given options can stop a change to a new region right now.
+	virtual bool canStop(Direction::Option directionOption, Control::Option controlOption) const;
+
+	/// Returns true if the control with the given options can take a measurement right now.
+	virtual bool canMeasure(Direction::Option directionOption) const;
+	/// Returns true if the control with the given options can move right now.
+	virtual bool canMove(Direction::Option directionOption) const;
+	/// Returns true if the control with the given options can stop a change to a new region right now.
+	virtual bool canStop(Direction::Option directionOption) const;
+
+	/// Returns true if the control with the given options can take a measurement right now.
+	virtual bool canMeasure(Control::Option controlOption) const;
+	/// Returns true if the control with the given options can move right now.
+	virtual bool canMove(Control::Option controlOption) const;
+	/// Returns true if the control with the given options can stop a change to a new region right now.
+	virtual bool canStop(Control::Option controlOption) const;
+
+	/// Returns true if all controls can take a measurement right now.
+	virtual bool canMeasure() const;
+	/// Returns true if all controls can move right now.
+	virtual bool canMove() const;
+	/// Returns true if all controls can stop a change to a new region right now.
+	virtual bool canStop() const;
+
+	/// Returns true if the given value is a valid value for this control. False otherwise.
+	virtual bool validValue(Direction::Option directionOption, Control::Option controlOption, double value) const;
+	/// Returns true if the given value is a valid setpoint for this control. False otherwise.
+	virtual bool validSetpoint(Direction::Option directionOption, Control::Option controlOption, double setpoint) const;
 
 	/// Returns the control with the given properties.
-	AMControl* control(CLSJJSlits::Direction::Option directionOption, CLSJJSlits::Control::Option controlOption);
-
-	/// Returns the control optimization scan configuration.
-	AMGenericStepScanConfiguration* configuration() const { return configuration_; }
+	AMControl* control(CLSJJSlits::Direction::Option directionOption, CLSJJSlits::Control::Option controlOption) const;
+	/// Returns the controls with the given direction option.
+	QList<AMControl*> controls(CLSJJSlits::Direction::Option control) const;
+	/// Returns the controls with the given control option.
+	QList<AMControl*> controls(CLSJJSlits::Control::Option control) const;
+	/// Returns all controls.
+	QList<AMControl*> controls() const;
 
 	/// Returns the upper blade motor control.
 	AMControl* upperBladeControl() const { return upperBlade_; }
@@ -52,45 +120,75 @@ public:
 	/// Returns the horizontal blades center control.
 	AMControl* horizontalCenterControl() const { return horizontalCenter_; }
 
-	/// Returns a newly-created action that scans the given control for its optimal value, and applies the optimization.
-	AMAction3* createOptimizationAction(CLSJJSlits::Direction::Option direction, CLSJJSlits::Control::Option control);
-	/// Returns a newly-created action that scans the given controls for their optimal values, and applies the optimization.
-	AMAction3* createOptimizationAction(CLSJJSlits::Control::Option control);
+	/// Returns the optimization configuration.
+	AMGenericStepScanConfiguration* optimizationConfiguration() const { return optimizationConfiguration_; }
 
 signals:
-	/// Notifier that the connected state has changed.
-	void connectedChanged(bool isConnected);
+	/// Notifier that the upper blade control has changed.
+	void upperBladeControlChanged(AMControl *newControl);
+	/// Notifier that the lower blade control has changed.
+	void lowerBladeControlChanged(AMControl *newControl);
+	/// Notifier that the inboard blade control has changed.
+	void inboardBladeControlChanged(AMControl *newControl);
+	/// Notifier that the outboard blade control has changed.
+	void outboardBladeControlChanged(AMControl *newControl);
+
+public slots:
+	/// Sets the setpoint and moves the controls with the given options, if necessary.
+	virtual FailureExplanation move(Direction::Option direction, Control::Option control, double setpoint);
+
+	/// Sets the upper blade control.
+	void setUpperBladeControl(AMControl *upperBlade);
+	/// Sets the lower blade control.
+	void setLowerBladeControl(AMControl *lowerBlade);
+	/// Sets the inboard blade control.
+	void setInboardBladeControl(AMControl *inboardBlade);
+	/// Sets the outboard blade control.
+	void setOutboardBladeControl(AMControl *outboardBlade);
 
 protected slots:
-	/// Sets the current connected state.
-	void setConnected(bool isConnected);
-
-	/// Handles updating the current connected state.
-	void updateConnected();
-
-	/// Clears the configuration of all scan axes/controls.
-	void clearConfiguration(AMGenericStepScanConfiguration *configuration);
-	/// Sets the configuration control at the given scan axis.
-	virtual void setConfigurationControl(AMGenericStepScanConfiguration *configuration, int scanAxis, AMControl *control);
-	/// Sets up a default configuration with the given control. Clears the configuration and sets the configuration control.
-	virtual void setupDefaultConfiguration(AMControl *control, AMGenericStepScanConfiguration *configuration);
-	/// Sets up a default configuration, clearing the configuration and setting the configuration controls.
-	virtual void setupDefaultConfiguration(const QList<AMControl*> &controls, AMGenericStepScanConfiguration *configuration);
+	/// Updates the connected state.
+	virtual void updateConnected();
+	/// Updates the current value--not used for this control.
+	virtual void updateValue() { return; }
+	/// Updates the moving state.
+	virtual void updateMoving();
 
 protected:
-	/// The name.
-	QString name_;
-	/// Current connected state.
-	bool connected_;
+	/// Creates and returns a move action.
+	virtual AMAction3* createMoveAction(double setpoint) { Q_UNUSED(setpoint) return 0; }
+	/// Creates and returns an optimization action.
+	virtual AMAction3* createOptimizationAction() { return 0; }
 
+	/// Updates the vertical gap control with the latest blade controls.
+	void updateVerticalGapControl();
+	/// Updates the vertical center control with the latest blade controls.
+	void updateVerticalCenterControl();
+	/// Updates the horizontal gap control with the latest blade controls.
+	void updateHorizontalGapControl();
+	/// Updates the horizontal center control with the latest blade controls.
+	void updateHorizontalCenterControl();
+
+	/// Updates the vertical gap and center, and the horizontal gap and center controls.
+	void updatePseudoMotorControls();
+
+	/// Creates and returns a blade control, using the given pv name base.
+	virtual AMPVwStatusControl* createBladeControl(const QString &name, const QString &baseName);
+	/// Sets up the blade controls and updates the pseudomotor controls, using the given pv base names.
+	virtual void setupBladeControls(const QString &upperBladeBaseName, const QString &lowerBladeBaseName, const QString &inboardBladeBaseName, const QString &outboardBladeBaseName);
+
+	/// Sets up a default optimization configuration.
+	void setupDefaultOptimizationConfiguration(AMGenericStepScanConfiguration *configuration);
+
+protected:
 	/// Upper blade motor control.
-	AMPVwStatusControl *upperBlade_;
+	AMControl *upperBlade_;
 	/// Lower blade motor control.
-	AMPVwStatusControl *lowerBlade_;
+	AMControl *lowerBlade_;
 	/// Inboard blade motor control.
-	AMPVwStatusControl *inboardBlade_;
+	AMControl *inboardBlade_;
 	/// Outboard blade motor control.
-	AMPVwStatusControl *outboardBlade_;
+	AMControl *outboardBlade_;
 
 	/// Vertical blades gap control.
 	CLSJJSlitGapControl *verticalGap_;
@@ -101,8 +199,8 @@ protected:
 	/// Horizontal blades center control.
 	CLSJJSlitCenterControl *horizontalCenter_;
 
-	/// Control optimization scan configuration.
-	AMGenericStepScanConfiguration *configuration_;
+	/// The optimization scan configuration.
+	AMGenericStepScanConfiguration *optimizationConfiguration_;
 };
 
 #endif // CLSJJSLITS_H

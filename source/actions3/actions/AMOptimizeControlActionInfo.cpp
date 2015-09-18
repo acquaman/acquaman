@@ -1,25 +1,26 @@
 #include "AMOptimizeControlActionInfo.h"
 
-AMOptimizeControlActionInfo::AMOptimizeControlActionInfo(AMGenericStepScanConfiguration *configuration, QObject *parent) :
-	AMListActionInfo3(QString(), QString(), QString(), parent)
+AMOptimizeControlActionInfo::AMOptimizeControlActionInfo(AMGenericStepScanConfiguration *configuration, AMAnalysisBlock *optimizationAB, QObject *parent) :
+	AMActionInfo3(QString(), QString(), QString(), parent)
 {
 	// Initialize member variables.
 
-	option_ = Maximum;
 	configuration_ = 0;
+	optimizationAB_ = 0;
 
 	// Current settings.
 
 	setShortDescription(typeDescription());
 	setLongDescription(typeDescription());
 	setConfiguration(configuration);
+	setOptimizationAB(optimizationAB);
 }
 
 AMOptimizeControlActionInfo::AMOptimizeControlActionInfo(const AMOptimizeControlActionInfo &original) :
-	AMListActionInfo3(original)
+	AMActionInfo3(original)
 {
-	option_ = original.option();
 	configuration_ = original.configuration();
+	optimizationAB_ = original.optimizationAB();
 }
 
 AMOptimizeControlActionInfo::~AMOptimizeControlActionInfo()
@@ -34,18 +35,18 @@ AMActionInfo3* AMOptimizeControlActionInfo::createCopy() const
 	return info;
 }
 
-void AMOptimizeControlActionInfo::setOption(AMOptimizeControlActionInfo::Option newOption)
-{
-	if (option_ != newOption) {
-		option_ = newOption;
-		emit optionChanged(option_);
-	}
-}
-
 void AMOptimizeControlActionInfo::setConfiguration(AMGenericStepScanConfiguration *newConfiguration)
 {
 	if (configuration_ != newConfiguration) {
 		configuration_ = newConfiguration;
 		emit configurationChanged(configuration_);
+	}
+}
+
+void AMOptimizeControlActionInfo::setOptimizationAB(AMAnalysisBlock *newOptimizationAB)
+{
+	if (optimizationAB_ != newOptimizationAB) {
+		optimizationAB_ = newOptimizationAB;
+		emit optimizationABChanged(optimizationAB_);
 	}
 }

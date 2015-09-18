@@ -14,23 +14,15 @@ AMOptimizeControlAction::AMOptimizeControlAction(AMOptimizeControlActionInfo *in
 {
 	// Initialize local variables.
 
-	configuration_ = 0;
-	control_ = 0;
-
-	optimalPositionAB_ = 0;
-
 	scanAction_ = 0;
 	controlMoveAction_ = 0;
-
-	// Current settings.
-
-	setConfiguration(info->configuration());
 }
 
 AMOptimizeControlAction::AMOptimizeControlAction(const AMOptimizeControlAction &original) :
 	AMAction3(original)
 {
-
+	scanAction_ = 0;
+	controlMoveAction_ = 0;
 }
 
 AMOptimizeControlAction::~AMOptimizeControlAction()
@@ -38,169 +30,216 @@ AMOptimizeControlAction::~AMOptimizeControlAction()
 
 }
 
-void AMOptimizeControlAction::setConfiguration(AMGenericStepScanConfiguration *newConfiguration)
-{
-	if (configuration_ != newConfiguration && canChangeConfiguration()) {
-
-		if (configuration_) {
-			disconnect( configuration_, 0, this, 0 );
-		}
-
-		configuration_ = newConfiguration;
-
-		if (configuration_) {
-			connect( configuration_, SIGNAL(axisControlInfosChanged()), this, SLOT(onConfigurationControlChanged()) );
-		}
-
-		onConfigurationControlChanged();
-	}
-}
-
-void AMOptimizeControlAction::setControl(AMControl *newControl)
-{
-	if (control_ != newControl && canChangeControl()) {
-
-		if (control_) {
-			disconnect( control_, 0, this, 0 );
-		}
-
-		control_ = newControl;
-
-		if (control_) {
-			connect( control_, SIGNAL(moveFailed(int)), this, SLOT(onControlMoveFailed(int)) );
-			connect( control_, SIGNAL(moveSucceeded()), this, SLOT(onControlMoveSucceeded()) );
-		}
-	}
-}
-
-void AMOptimizeControlAction::onConfigurationControlChanged()
-{
-	// Identify the configuration's new control, and update our control.
-
-	if (configuration_) {
-
-		QList<AMControlInfo> controlInfos = configuration_->axisControlInfos().toList();
-
-		if (controlInfos.count() > 0) {
-			AMControlInfo controlInfo = configuration_->axisControlInfos().at(0);
-			AMControl *control = AMBeamline::bl()->exposedControlByInfo(controlInfo);
-
-			setControl(control);
-		}
-	}
-}
-
 void AMOptimizeControlAction::onScanActionStarted()
 {
-	// Set up the mechanism for finding the optimal control value.
+	const AMOptimizeControlActionInfo *info = optimizeControlActionInfo();
 
-	AMScan *scan = scanAction_->controller()->scan();
-	AMDataSource *optimizationSource = scan->dataSourceAt(0); // find a way for this to be not hardcoded.
+	if (info && scanAction_) {
 
-	if (optimizeControlActionInfo()->option() == AMOptimizeControlActionInfo::Maximum)
-		optimalPositionAB_ = new AM1DMaximumAB("Maximum");
+		// Set up the mechanism for finding the optimal control value.
 
-	if (optimalPositionAB_) {
-		optimalPositionAB_->setInputDataSources(QList<AMDataSource*>() << optimizationSource);
-
-		scan->addAnalyzedDataSource(optimalPositionAB_, true, false);
-
-		setStarted();
-
-	} else {
-		setFailed();
+		AMScan *scan = scanAction_->controller()->scan();
+		scan->addAnalyzedDataSource(info->optimizationAB(), true, false);
 	}
-}
-
-void AMOptimizeControlAction::onScanActionCancelled()
-{
-	setCancelled();
-}
-
-void AMOptimizeControlAction::onScanActionFailed()
-{
-	setFailed();
 }
 
 void AMOptimizeControlAction::onScanActionSucceeded()
 {
-	// Once the scan is complete, we know the optimal position.
+	double optimalPosition = 0;
+	bool optimalPositionFound = false;
+	const AMOptimizeControlActionInfo *info = optimizeControlActionInfo();
+	AMScanConfiguration *configuration = 0;
 
-	double optimalPosition = double(optimalPositionAB_->axisValue(0, 0));
-	qDebug() << "Optimal position =" << optimalPosition;
+	// Once the scan is complete, we can find the optimal position.
 
-	// Create and execute control move action.
+	if (info) {
+		configuration = info->configuration();
 
-	controlMoveAction_ = AMActionSupport::buildControlMoveAction(control_, optimalPosition);
+		AMAnalysisBlock *optimizationAB = info->optimizationAB();
 
-	connect( controlMoveAction_, SIGNAL(cancelled()), this, SLOT(onControlMoveActionCancelled()) );
-	connect( controlMoveAction_, SIGNAL(failed()), this, SLOT(onControlMoveActionFailed()) );
-	connect( controlMoveAction_, SIGNAL(succeeded()), this, SLOT(onControlMoveActionSucceeded()) );
+		if (optimizationAB) {
+			optimalPosition = double(optimizationAB->axisValue(0, 0));
+			optimalPositionFound = true;
+			qDebug() << "Optimal position =" << optimalPosition;
+		}
+	}
 
-	controlMoveAction_->start();
-}
+	// Create new control move action to the optimal position, the second of two components to this action.
 
-void AMOptimizeControlAction::onControlMoveActionCancelled()
-{
-	setCancelled();
-}
+	if (configuration && optimalPositionFound)
+		controlMoveAction_ = createControlMoveAction(configuration, optimalPosition);
 
-void AMOptimizeControlAction::onControlMoveActionFailed()
-{
-	setFailed();
+	// Start the move action.
+
+	if (controlMoveAction_)
+		controlMoveAction_->start();
+	else
+		setFailed();
 }
 
 void AMOptimizeControlAction::onControlMoveActionSucceeded()
 {
+	// Delete scan action.
+
+	if (scanAction_) {
+		scanAction_->disconnect();
+		scanAction_->deleteLater();
+		scanAction_ = 0;
+	}
+
+	// Delete control move action.
+
+	if (controlMoveAction_) {
+		controlMoveAction_->disconnect();
+		controlMoveAction_->deleteLater();
+		controlMoveAction_ = 0;
+	}
+
+	// Notify listeners that this action has succeeded.
+
 	setSucceeded();
 }
 
-bool AMOptimizeControlAction::canChangeConfiguration() const
+void AMOptimizeControlAction::onChildActionCancelled()
 {
-	bool result = false;
+	// Forward cancelled status.
 
-	if (state() == Constructed)
-		result = true;
+	if (scanAction_ && !scanAction_->inFinalState())
+		scanAction_->cancel();
 
-	return result;
+	if (controlMoveAction_ && !controlMoveAction_->inFinalState())
+		controlMoveAction_->cancel();
+
+	// Check status of both child actions.
+
+	bool scanActionOK = false;
+	bool controlMoveActionOK = false;
+
+	if (!scanAction_ || scanAction_ && scanAction_->inFinalState())
+		scanActionOK = true;
+
+	if (!controlMoveAction_ || controlMoveAction_ && controlMoveAction_->inFinalState())
+		controlMoveActionOK = true;
+
+	// Notify listeners that this action has been cancelled.
+
+	if (scanActionOK && controlMoveActionOK)
+		setCancelled();
 }
 
-bool AMOptimizeControlAction::canChangeControl() const
+void AMOptimizeControlAction::onChildActionFailed()
 {
-	bool result = false;
+	// Forward failed status.
 
-	if (state() == Constructed)
-		result = true;
+	if (scanAction_ && !scanAction_->inFinalState())
+		scanAction_->cancel();
 
-	return result;
-}
+	if (controlMoveAction_ && !controlMoveAction_->inFinalState())
+		controlMoveAction_->cancel();
 
-void AMOptimizeControlAction::startImplementation()
-{
-	if (configuration_ && control_) {
+	// Check status of both child actions.
 
-		// Create and execute scan action.
+	bool scanActionOK = false;
+	bool controlMoveActionOK = false;
 
-		scanAction_ = new AMScanAction(new AMScanActionInfo(configuration_));
+	if (!scanAction_ || scanAction_ && scanAction_->inFinalState())
+		scanActionOK = true;
 
-		connect( scanAction_, SIGNAL(started()), this, SLOT(onScanActionStarted()) );
-		connect( scanAction_, SIGNAL(cancelled()), this, SLOT(onScanActionCancelled()) );
-		connect( scanAction_, SIGNAL(failed()), this, SLOT(onScanActionFailed()) );
+	if (!controlMoveAction_ || controlMoveAction_ && controlMoveAction_->inFinalState())
+		controlMoveActionOK = true;
 
-		scanAction_->start();
+	// Notify listeners that this action has failed.
 
-	} else {
+	if (scanActionOK && controlMoveActionOK)
 		setFailed();
-	}
 }
 
-void AMOptimizeControlAction::pauseImplementation()
+void AMOptimizeControlAction::onChildActionPaused()
 {
+	// Forward paused status.
+
 	if (scanAction_ && !scanAction_->inFinalState())
 		scanAction_->pause();
 
 	if (controlMoveAction_ && !controlMoveAction_->inFinalState())
 		controlMoveAction_->pause();
+
+	// Check status of both child actions.
+
+	bool scanActionOK = false;
+	bool controlMoveActionOK = false;
+
+	if (!scanAction_ || scanAction_ && scanAction_->state() == Paused || scanAction_ && scanAction_->inFinalState())
+		scanActionOK = true;
+
+	if (!controlMoveAction_ || controlMoveAction_ && controlMoveAction_->state() == Paused || controlMoveAction_ && controlMoveAction_->inFinalState())
+		controlMoveActionOK = true;
+
+	// Notify listeners that this action has been paused.
+
+	if (scanActionOK && controlMoveActionOK)
+		setPaused();
+}
+
+void AMOptimizeControlAction::onChildActionResumed()
+{
+	// Forward resumed status.
+
+	if (scanAction_ && !scanAction_->inFinalState())
+		scanAction_->resume();
+
+	if (controlMoveAction_ && !controlMoveAction_->inFinalState())
+		controlMoveAction_->resume();
+
+	// Check status of both child actions.
+
+	bool scanActionOK = false;
+	bool controlMoveActionOK = false;
+
+	if (!scanAction_ || scanAction_ && scanAction_->state() == Running || scanAction_ && scanAction_->inFinalState())
+		scanActionOK = true;
+
+	if (!controlMoveAction_ || controlMoveAction_ && controlMoveAction_->state() == Running || controlMoveAction_ && controlMoveAction_->inFinalState())
+		controlMoveActionOK = true;
+
+	// Notify listeners that this action has resumed.
+
+	if (scanActionOK && controlMoveActionOK)
+		setResumed();
+}
+
+void AMOptimizeControlAction::startImplementation()
+{
+	// If there is an existing scanAction_, delete it.
+
+	if (scanAction_) {
+		scanAction_->disconnect();
+		scanAction_->deleteLater();
+		scanAction_ = 0;
+	}
+
+	// If there is an existing control move action, delete it.
+
+	if (controlMoveAction_) {
+		controlMoveAction_->disconnect();
+		controlMoveAction_->deleteLater();
+		controlMoveAction_ = 0;
+	}
+
+	// Create new scan action, the first of two components to this action.
+
+	const AMOptimizeControlActionInfo *info = optimizeControlActionInfo();
+
+	if (info)
+		scanAction_ = createScanAction(info->configuration());
+
+	// Start the scan action.
+	// If either the info or the configuration provided are invalid, this action fails.
+
+	if (scanAction_)
+		scanAction_->start();
+	else
+		setFailed();
 }
 
 void AMOptimizeControlAction::resumeImplementation()
@@ -214,18 +253,45 @@ void AMOptimizeControlAction::resumeImplementation()
 
 void AMOptimizeControlAction::cancelImplementation()
 {
-	if (scanAction_)
+	if (scanAction_ && !scanAction_->inFinalState())
 		scanAction_->cancel();
 
 	if (controlMoveAction_ && !controlMoveAction_->inFinalState())
 		controlMoveAction_->cancel();
 }
 
-void AMOptimizeControlAction::skipImplementation(const QString &command)
+AMScanAction* AMOptimizeControlAction::createScanAction(AMScanConfiguration *configuration)
 {
-	if (scanAction_ && !scanAction_->inFinalState())
-		scanAction_->skip(command);
+	AMScanAction *scanAction = 0;
 
-	if (controlMoveAction_ && !controlMoveAction_->inFinalState())
-		controlMoveAction_->skip(command);
+	if (configuration) {
+		scanAction = new AMScanAction(new AMScanActionInfo(configuration), this);
+
+		connect( scanAction, SIGNAL(started()), this, SLOT(onScanActionStarted()) );
+		connect( scanAction, SIGNAL(cancelled()), this, SLOT(onChildActionCancelled()) );
+		connect( scanAction, SIGNAL(failed()), this, SLOT(onChildActionFailed()) );
+		connect( scanAction, SIGNAL(paused()), this, SLOT(onChildActionPaused()) );
+		connect( scanAction, SIGNAL(resumed()), this, SLOT(onChildActionResumed()) );
+		connect( scanAction, SIGNAL(succeeded()), this, SLOT(onScanActionSucceeded()) );
+	}
+
+	return scanAction;
+}
+
+AMAction3* AMOptimizeControlAction::createControlMoveAction(AMScanConfiguration *configuration, double optimalPosition)
+{
+	AMAction3 *controlMoveAction = 0;
+
+	if (configuration && !configuration->axisControlInfos().isEmpty()) {
+		AMControl *control = AMBeamline::bl()->exposedControlByInfo(configuration->axisControlInfos().at(0));
+		controlMoveAction = AMActionSupport::buildControlMoveAction(control, optimalPosition);
+
+		connect( controlMoveAction, SIGNAL(cancelled()), this, SLOT(onChildActionCancelled()) );
+		connect( controlMoveAction, SIGNAL(failed()), this, SLOT(onChildActionFailed()) );
+		connect( controlMoveAction, SIGNAL(paused()), this, SLOT(onChildActionPaused()) );
+		connect( controlMoveAction, SIGNAL(resumed()), this, SLOT(onChildActionResumed()) );
+		connect( controlMoveAction, SIGNAL(succeeded()), this, SLOT(onControlMoveActionSucceeded()) );
+	}
+
+	return controlMoveAction;
 }

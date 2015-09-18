@@ -162,6 +162,8 @@ protected:
 	virtual void setupXASScanConfiguration(BioXASXASScanConfiguration *configuration);
 	/// Sets up a generic step scan configuration.
 	virtual void setupGenericStepScanConfiguration(AMGenericStepScanConfiguration *configuration);
+	/// Sets up a JJ slits optimization scan configuration.
+	virtual void setupJJSlitsOptimizationScanConfiguration(AMGenericStepScanConfiguration *configuration);
 
 protected:
 	/// Holds the user configuration used for automatically setting up some simple aspects of the user interface.
@@ -183,6 +185,9 @@ protected:
 	BioXASXASScanConfiguration *energyCalibrationConfiguration_;
 	/// The mono energy calibration configuration view.
 	QWidget *energyCalibrationConfigurationView_;
+
+	/// The JJ slits optimization configuration view.
+	QWidget *jjSlitsOptimizationConfigurationView_;
 
 	/// The energy calibration view.
 	BioXASSSRLMonochromatorEnergyCalibrationView *energyCalibrationView_;

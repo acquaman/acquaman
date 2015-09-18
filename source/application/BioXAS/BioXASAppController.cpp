@@ -642,3 +642,35 @@ void BioXASAppController::setupGenericStepScanConfiguration(AMGenericStepScanCon
 			configuration->addDetector(i0Detector->toInfo());
 	}
 }
+
+void BioXASAppController::setupJJSlitsOptimizationScanConfiguration(AMGenericStepScanConfiguration *configuration)
+{
+	if (configuration && configuration->name() == "JJ Slits Optimization Scan") {
+
+		configuration->setAutoExportEnabled(false);
+
+		// Set the default control and regions.
+
+		CLSJJSlits *jjSlits = BioXASBeamline::bioXAS()->jjSlits();
+
+		if (jjSlits) {
+			AMControl *control = jjSlits->verticalCenterControl();
+
+			if (control) {
+				configuration->setControl(0, control->toInfo());
+
+				AMScanAxis *scannedAxis = configuration->scanAxisAt(0);
+				scannedAxis->regionAt(0)->setRegionStart(control->minimumValue());
+				scannedAxis->regionAt(0)->setRegionStep(0.5);
+				scannedAxis->regionAt(0)->setRegionEnd(control->maximumValue());
+				scannedAxis->regionAt(0)->setRegionTime(1);
+			}
+		}
+
+		// Set default scan detectors.
+
+		AMDetector *i0Detector = BioXASBeamline::bioXAS()->i0Detector();
+		if (i0Detector)
+			configuration->addDetector(i0Detector->toInfo());
+	}
+}

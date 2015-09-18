@@ -400,6 +400,10 @@ The Control abstraction provides two different properties (and associated signal
 */
 	virtual bool moveInProgress() const { return false; }
 
+	virtual bool calibrationInProgress() const { return false; }
+
+	virtual bool optimizationInProgress() const { return false; }
+
 	/// Indicates the units associated with the value of this control.
 	QString units() const { return units_; }
 	/// Indicates the number of digits after the decimal point that are recommended for displaying this control's value.
@@ -500,6 +504,11 @@ public slots:
 		return OtherFailure;
 	}
 
+	/// The optimizes the control. Fails if optimization has not been reimplemented.
+	virtual FailureExplanation optimize() {
+		return OtherFailure;
+	}
+
 	/// This sets the tolerance level: the required level of accuracy for successful move()s.
 	void setTolerance(double newTolerance) { tolerance_ = newTolerance; }
 
@@ -577,6 +586,15 @@ signals:
 	void calibrationFailed(int explaination);
 	/// Notifier that a calibration has succeeded.
 	void calibrationSucceeded();
+
+	/// Notifier that the optimizing state has changed.
+	void optimizingChanged(bool isCalibrating);
+	/// Notifier that an optimization has started.
+	void optimizationStarted();
+	/// Notifier that an optimization has failed. Provides an integer failure explaination.
+	void optimizationFailed(int explaination);
+	/// Notifier that an optimization has succeeded.
+	void optimizationSucceeded();
 
 protected:
 	/// List of pointers to our subcontrols
