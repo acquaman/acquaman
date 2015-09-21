@@ -26,7 +26,6 @@ void SGMPersistentView::setupUi()
 	gratingSelectionControlEditor_ = new AMExtendedControlEditor(SGMBeamline::sgm()->grating());
 
 	hexapodVelocityControlEditor_ = new AMExtendedControlEditor(SGMBeamline::sgm()->hexapod()->systemVelocity());
-	hexapodTrajectoryView_ = new SGMHexapodTrajectoryView(SGMBeamline::sgm()->hexapod());
 
 	AMMotorGroupView* manipulatorsMotorGroupView =
 			new AMMotorGroupView(SGMBeamline::sgm()->sampleManipulatorsMotorGroup(), AMMotorGroupView::CompactView);
@@ -55,16 +54,8 @@ void SGMPersistentView::setupUi()
 
 	sgmControlsGroupBox->setLayout(controlsGroupLayout);
 
-	QGroupBox* hexapodTrajectoryGroupBox = new QGroupBox("Hexapod Trajectory Motions");
-	hexapodTrajectoryGroupBox->setFlat(true);
-
-	QVBoxLayout* trajectoryGroupLayout = new QVBoxLayout();
-	trajectoryGroupLayout->addWidget(hexapodTrajectoryView_);
-	hexapodTrajectoryGroupBox->setLayout(trajectoryGroupLayout);
-
 	QVBoxLayout* mainLayout = new QVBoxLayout();
 	mainLayout->addWidget(sgmControlsGroupBox);
-	mainLayout->addWidget(hexapodTrajectoryGroupBox);
 	mainLayout->addStretch();
 	setLayout(mainLayout);
 }

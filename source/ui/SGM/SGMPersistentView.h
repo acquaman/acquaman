@@ -43,7 +43,6 @@ protected:
 	AMExtendedControlEditor* hexapodVelocityControlEditor_;
 	AMExtendedControlEditor* endStationTranslationSetpointControlEditor_;
 	AMExtendedControlEditor* endStationTranslationFeedbackControlEditor_;
-	SGMHexapodTrajectoryView* hexapodTrajectoryView_;
 
 };
 

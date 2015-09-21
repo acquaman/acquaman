@@ -28,10 +28,6 @@ void SGMHexapodTrajectoryView::onInitialHexapodConnection(bool connectedState)
 void SGMHexapodTrajectoryView::onMoveButtonClicked()
 {
 	hexapod_->trajectoryStart()->move(1);
-	// Reset colours on move:
-	xSetpointSpinbox_->setStyleSheet("background-color: #ffffff;");
-	ySetpointSpinbox_->setStyleSheet("background-color: #ffffff;");
-	zSetpointSpinbox_->setStyleSheet("background-color: #ffffff;");
 }
 
 void SGMHexapodTrajectoryView::onResetButtonClicked()
@@ -72,8 +68,6 @@ void SGMHexapodTrajectoryView::onXSetpointPVValueChanged()
 {
 	if(hexapod_ && !hexapod_->xAxisPrimeTrajectoryControl()->withinTolerance(xSetpointSpinbox_->value())) {
 		xSetpointSpinbox_->setValue(hexapod_->xAxisPrimeTrajectoryControl()->value());
-		// Indicate a set back to PV value with white bg color
-		xSetpointSpinbox_->setStyleSheet("background-color: #ffffff;");
 	}
 }
 
@@ -81,8 +75,6 @@ void SGMHexapodTrajectoryView::onYSetpointPVValueChanged()
 {
 	if(hexapod_ && !hexapod_->yAxisPrimeTrajectoryControl()->withinTolerance(ySetpointSpinbox_->value())) {
 		ySetpointSpinbox_->setValue(hexapod_->yAxisPrimeTrajectoryControl()->value());
-		// Indicate a set back to PV value with white bg color
-		ySetpointSpinbox_->setStyleSheet("background-color: #ffffff;");
 	}
 }
 
@@ -90,8 +82,16 @@ void SGMHexapodTrajectoryView::onZSetpointPVValueChanged()
 {
 	if(hexapod_ && !hexapod_->zAxisPrimeTrajectoryControl()->withinTolerance(zSetpointSpinbox_->value())) {
 		zSetpointSpinbox_->setValue(hexapod_->zAxisPrimeTrajectoryControl()->value());
-		// Indicate a set back to PV value with white bg color
-		zSetpointSpinbox_->setStyleSheet("background-color: #ffffff;");
+	}
+}
+
+void SGMHexapodTrajectoryView::onStartMovePVChanged(double setpoint)
+{
+	// Check if value that it was set to was 1 (indicating a move start was pushed)
+	if(qAbs(1 - setpoint) > hexapod_->trajectoryStart()->tolerance()) {
+		xSetpointSpinbox_->setStyleSheet("background-color: #ffffff");
+		ySetpointSpinbox_->setStyleSheet("background-color: #ffffff");
+		zSetpointSpinbox_->setStyleSheet("background-color: #ffffff");
 	}
 }
 
@@ -155,5 +155,7 @@ void SGMHexapodTrajectoryView::setupConnections()
 		connect(hexapod_->xAxisPrimeTrajectoryControl(), SIGNAL(valueChanged(double)), this, SLOT(onXSetpointPVValueChanged()));
 		connect(hexapod_->yAxisPrimeTrajectoryControl(), SIGNAL(valueChanged(double)), this, SLOT(onYSetpointPVValueChanged()));
 		connect(hexapod_->zAxisPrimeTrajectoryControl(), SIGNAL(valueChanged(double)), this, SLOT(onZSetpointPVValueChanged()));
+
+		connect(hexapod_->trajectoryStart(), SIGNAL(setpointChanged(double)), this, SLOT(onStartMovePVChanged(double)));
 	}
 }

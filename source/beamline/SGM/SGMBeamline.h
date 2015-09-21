@@ -27,6 +27,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 class SGMMAXvMotor;
 class AMMotorGroup;
 class CLSAdvancedScalerChannelDetector;
+class CLSAmptekSDD123DetectorNew;
 class SGMHexapod;
 /*!
   * A singleton class which represents the SGM beamline. The beamline class can
@@ -114,6 +115,11 @@ public:
 	AMMotorGroup* sampleManipulatorsMotorGroup() const;
 
 	/*!
+	  * The Amptek detector
+	  */
+	CLSAmptekSDD123DetectorNew* amptekSDD1() const;
+
+	/*!
 	  * The scaler.
 	  */
 	virtual CLSSIS3820Scaler* scaler() const;
@@ -187,6 +193,8 @@ protected:
 	CLSAdvancedScalerChannelDetector *filteredPD3Detector_;
 	CLSAdvancedScalerChannelDetector *filteredPD4Detector_;
 	CLSAdvancedScalerChannelDetector *filteredPD5Detector_;
+
+	CLSAmptekSDD123DetectorNew* amptekSDD1_;
 
 	bool cachedConnectedState_;
 

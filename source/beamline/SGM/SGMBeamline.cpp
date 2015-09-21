@@ -26,6 +26,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/CLS/CLSSR570.h"
 #include "beamline/AMMotorGroup.h"
 #include "beamline/CLS/CLSAdvancedScalerChannelDetector.h"
+#include "beamline/CLS/CLSAmptekSDD123DetectorNew.h"
 #include "beamline/SGM/SGMHexapod.h"
 #include "beamline/AMBasicControlDetectorEmulator.h"
 
@@ -116,6 +117,12 @@ AMMotorGroup * SGMBeamline::sampleManipulatorsMotorGroup() const
 	return sampleManipulatorsMotorGroup_;
 }
 
+
+CLSAmptekSDD123DetectorNew * SGMBeamline::amptekSDD1() const
+{
+	return amptekSDD1_;
+}
+
 CLSSIS3820Scaler * SGMBeamline::scaler() const
 {
 	return scaler_;
@@ -160,6 +167,8 @@ void SGMBeamline::setupBeamlineComponents()
 
 	// Hexapod
 	hexapod_ = new SGMHexapod(this);
+	// Rotate the hexapod system to the plane of the sample plate.
+	hexapod_->rotateSystem(45, 0, 105);
 
 	// SSA Manipulators
 	ssaManipulatorX_ = new SGMMAXvMotor("ssaManipulatorX", "SMTR16114I1022", "SSA Inboard/Outboard", true, 0.2, 2.0, this);
@@ -219,7 +228,6 @@ void SGMBeamline::setupBeamlineComponents()
 	connect(ssaManipulatorRot_, SIGNAL(connected(bool)), this, SLOT(onConnectionStateChanged(bool)));
 	connect(scaler_, SIGNAL(connectedChanged(bool)), this, SLOT(onConnectionStateChanged(bool)));
 
-
 	// Ensure that the inital cached connected state is valid, and emit an initial
 	// connected signal:
 	cachedConnectedState_ = isConnected();
@@ -277,12 +285,15 @@ void SGMBeamline::setupDetectors()
 	i0Detector_ = new CLSAdvancedScalerChannelDetector("I0", "I0", scaler_, 1, this);
 	pdDetector_ = new CLSAdvancedScalerChannelDetector("PD", "PD", scaler_, 3, this);
 
-
 	filteredPD1Detector_ = new CLSAdvancedScalerChannelDetector("FilteredPD1", "FilteredPD1", scaler_, 6, this);
 	filteredPD2Detector_ = new CLSAdvancedScalerChannelDetector("FilteredPD2", "FilteredPD2", scaler_, 7, this);
 	filteredPD3Detector_ = new CLSAdvancedScalerChannelDetector("FilteredPD3", "FilteredPD3", scaler_, 8, this);
 	filteredPD4Detector_ = new CLSAdvancedScalerChannelDetector("FilteredPD4", "FilteredPD4", scaler_, 9, this);
 	filteredPD5Detector_ = new CLSAdvancedScalerChannelDetector("FilteredPD5", "FilteredPD5", scaler_, 10, this);
+
+	// Amptek
+	amptekSDD1_ = new CLSAmptekSDD123DetectorNew("AmptekSDD1", "Amptek SDD 1", "amptek:sdd1", this);
+	amptekSDD1_->setEVPerBin(2.25);
 }
 
 void SGMBeamline::setupExposedControls()
@@ -317,6 +328,7 @@ void SGMBeamline::setupExposedDetectors()
 	addExposedDetector(filteredPD3Detector_);
 	addExposedDetector(filteredPD4Detector_);
 	addExposedDetector(filteredPD5Detector_);
+	addExposedDetector(amptekSDD1_);
 
 }
 
@@ -329,5 +341,6 @@ SGMBeamline::SGMBeamline()
 	setupExposedControls();
 	setupExposedDetectors();
 }
+
 
 
