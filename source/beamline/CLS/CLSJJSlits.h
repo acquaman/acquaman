@@ -149,8 +149,6 @@ public slots:
 protected slots:
 	/// Updates the connected state.
 	virtual void updateConnected();
-	/// Updates the current value--not used for this control.
-	virtual void updateValue() { return; }
 	/// Updates the moving state.
 	virtual void updateMoving();
 

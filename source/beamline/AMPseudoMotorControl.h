@@ -167,8 +167,8 @@ protected slots:
 	virtual void onOptimizationSucceeded();
 
 protected:
-	/// Creates and returns a move action. Subclasses are required to reimplement.
-	virtual AMAction3* createMoveAction(double setpoint) { Q_UNUSED(setpoint) return; }
+	/// Creates and returns a move action. Subclasses that move are required to reimplement.
+	virtual AMAction3* createMoveAction(double setpoint) { Q_UNUSED(setpoint) return 0; }
 	/// Handles disconnecting from a move action and removing the signal mappings when the action is complete.
 	void moveActionCleanup(QObject *action);
 
