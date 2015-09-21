@@ -38,11 +38,46 @@ public:
 		OptimizeMinimalMovement		// Stick with the current grating.
 	};
 
-	/*!
-	  * Creates a new instance of an SGMMonochromatorInfo, which is in an invalid
-	  * state.
-	  */
-	explicit SGMMonochromatorInfo(QObject *parent = 0);
+    /*!
+     * Creates an instance of an SGMMonochromatorInfo which is in the state represented
+     * by the provided information. The created info is assumed to be tracking the
+     * exit slit and undulator.
+     * \param gratingTranslation ~ The grating translation.
+     * \param gratingAngle ~ The encoder step value of the grating angle.
+     * \param undulatorHarmonic ~ The undulator harmonic.
+     * \param undulatorPosition ~ The undulator postion.
+     * \param undulatorOffset ~ An offset value used to detune the undulator.
+     * \param exitSlitPosition ~ The exit slit position.
+     * \param parent ~ The QObject parent.
+     */
+    SGMMonochromatorInfo(SGMGratingSupport::GratingTranslation gratingTranslation,
+                         double gratingAngle,
+                         SGMUndulatorSupport::UndulatorHarmonic undulatorHarmonic,
+                         double undulatorPosition,
+                         double undulatorOffset,
+                         double exitSlitPosition,
+                         QObject* parent = 0);
+
+    /*!
+     * Creates an instance of an SGMMonochromatorInfo whose componenets are tuned
+     * to provide the specified energy on the provided grating translation.
+     * \param requestedEnergy ~ The energy to tune the produced info for.
+     * \param gratingTranslation ~ The grating translation specified which is to
+     * be used to calculate the component positions for the given energy.
+     */
+    SGMMonochromatorInfo(double requestedEnergy,
+                         SGMGratingSupport::GratingTranslation gratingTranslation);
+
+    /*!
+     * Creates an instance of an SGMMonochromatorInfo whose compoenents are tuned
+     * to provide the given energy, automatically determining the grating translation
+     * using the supplied optimization mode.
+     * \param requestedEnergy ~ The energy to tune the produced info for.
+     * \param gratingOptimizationMode ~ The means by which to determine the grating
+     * translation.
+     */
+    SGMMonochromatorInfo(double requestedEnergy,
+                         GratingTranslationOptimizationMode gratingOptimizationMode);
 
 	/*!
 	  * Virtual destructor for an SGMMonochromatorInfo
@@ -93,7 +128,7 @@ public:
 	/*!
 	  * Sets the info's current grating angle.
 	  */
-	void setGratingAngle(double gratingAngle);
+    void setGratingAngle(double gratingAngle);
 
     /*!
      * Whether the undulator position is to track the energy to produce optimal
@@ -119,7 +154,22 @@ public:
 	/*!
 	  * Sets the info's current undulator harmonic.
 	  */
-	void setUndulatorHarmonic(SGMUndulatorSupport::UndulatorHarmonic undulatorHarmonic);
+    void setUndulatorHarmonic(SGMUndulatorSupport::UndulatorHarmonic undulatorHarmonic);
+
+    /*!
+     * Whether the undulator harmonic is automatically set each time an energy is
+     * requested.
+     */
+    bool autoDetectUndulatorHarmonic() const;
+
+
+    /*!
+     * Sets whether the undulator harmonic should be automatically set each time
+     * an energy is requested.
+     * \param autoDetect ~ Whether to automatically determine the undulator harmonic
+     * each time a new energy is requested.
+     */
+    void setAutoDetectUndulatorHarmonic(bool autoDetect);
 
 	/*!
 	  * The info's current undulator position.
@@ -129,7 +179,7 @@ public:
 	/*!
 	  * Sets the info's current undulator position.
 	  */
-	void setUndulatorPosition(double undulatorPosition);
+    void setUndulatorPosition(double undulatorPosition);
 
 	/*!
 	  * The info's current undulator offset.
@@ -139,7 +189,7 @@ public:
 	/*!
 	  * Sets the info's current undulator offset.
 	  */
-	void setUndulatorOffset(double undulatorOffset);
+    void setUndulatorOffset(double undulatorOffset);
 
     /*!
      * Whether the exit slit position is to track the energy to produce optimal
@@ -223,7 +273,7 @@ signals:
 	void errorStateChanged(bool errorState);
 
     /// Signal indicating that the number of errors related to the info has altered.
-	void errorCountChanged();
+    void errorCountChanged(int errorCount);
 
     /// Signal indicating that the warning state of the info has altered.
 	void warningStateChanged(bool warningState);
@@ -232,7 +282,7 @@ signals:
 	  * Signal indicating that the number of warnings related to the info has
 	  * altered.
 	  */
-	void warningCountChanged();
+    void warningCountChanged(int warningCount);
 public slots:
 
 
@@ -269,6 +319,12 @@ protected:
 	double gratingAngleFromEnergy(SGMGratingSupport::GratingTranslation gratingTranslationSelection,
 											double energy) const;
 
+    /*!
+     * Optimizes the current undulator and exit slit position to produce optimal
+     * flux given the current energy produced by the grating.
+     */
+    void optimizeForEnergy();
+
 	/*!
 	  * Helper method used to calculate the undulator (step) postition required
 	  * to optimize flux for a given energy and harmonic taking into account the
@@ -280,8 +336,8 @@ protected:
 	  * \param undulatorOffset ~ A detune value offset for the produced undulator
 	  * position.
 	  */
-	double optimizedUndulatorPosition(double energy,
-									  SGMUndulatorSupport::UndulatorHarmonic undulatorHarmonic,
+    double optimizedUndulatorPosition(double energy,
+                                      SGMUndulatorSupport::UndulatorHarmonic undulatorHarmonic,
 									  double undulatorOffset) const;
 
 	/*!
@@ -295,6 +351,17 @@ protected:
 									 double energy) const;
 
     /*!
+     * Helper method used to calcualte the undulator position required to optimize
+     * flux for a given energy and grating translation.
+     * \param gratingTranslationSelection ~ The grating translation used in
+     * calculating the optimized undulator harmonic.
+     * \param energy ~ The energy to optimize the undulator harmonic for.
+     * \return
+     */
+    SGMUndulatorSupport::UndulatorHarmonic optimizedUndulatorHarmonic(SGMGratingSupport::GratingTranslation gratingTranslationSelection,
+                                                                      double energy) const;
+
+    /*!
      * Helper method which checks the validity of the SGM Mono's state.
      */
     void performValidation();
@@ -302,6 +369,7 @@ protected:
 	SGMGratingSupport::GratingTranslation gratingTranslation_;
 	double gratingAngle_;
 	SGMUndulatorSupport::UndulatorHarmonic undulatorHarmonic_;
+    bool autoDetectUndulatorHarmonic_;
     bool isUndulatorTracking_;
     double undulatorPosition_;
 	double undulatorOffset_;

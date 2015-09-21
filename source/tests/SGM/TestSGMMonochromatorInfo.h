@@ -14,7 +14,6 @@ public:
     void performTests();
 
 protected:
-    void testInitialization();
 
     void testIndividualRequestEnergy(const QString &name,
                                      double requiredEnergy,

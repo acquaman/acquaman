@@ -5,6 +5,7 @@
 #include <QTextEdit>
 #include <QGroupBox>
 #include <QHBoxLayout>
+#include <QPushButton>
 
 class SGMTestsWindow : public QMainWindow
 {
@@ -15,8 +16,11 @@ public:
 signals:
 
 public slots:
+protected slots:
+    void onShowMonoViewClicked();
 protected:
     QTextEdit* outputTextEdit_;
+    QPushButton* showMonoViewButton_;
 };
 
 #endif // SGMTESTSWINDOW_H

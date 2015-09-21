@@ -13,19 +13,8 @@ QStringList TestSGMMonochromatorInfo::testResults() const
 void TestSGMMonochromatorInfo::performTests()
 {
     testResults_.clear();
-    testInitialization();
     testRequestEnergy();
     testResultantEnergy();
-}
-
-void TestSGMMonochromatorInfo::testInitialization()
-{
-    SGMMonochromatorInfo testMonoInfo;
-
-    // Should be initialized with errors:
-    if(!testMonoInfo.hasErrors()) {
-        testResults_.append("SGMMonochromatorInfo Test failed: Not default initialized with invalid state.");
-    }
 }
 
 void TestSGMMonochromatorInfo::testIndividualRequestEnergy(const QString &name,
@@ -36,15 +25,7 @@ void TestSGMMonochromatorInfo::testIndividualRequestEnergy(const QString &name,
                                                            double expectedUndulatorPosition,
                                                            double expectedUndulatorStepValue)
 {
-    SGMMonochromatorInfo testMonoInfo;
-
-    if(gratingTranslationSelection == SGMGratingSupport::HighGrating && requiredEnergy >= 1400) {
-        testMonoInfo.setUndulatorHarmonic(SGMUndulatorSupport::ThirdHarmonic);
-    } else {
-        testMonoInfo.setUndulatorHarmonic(SGMUndulatorSupport::FirstHarmonic);
-    }
-    testMonoInfo.requestEnergy(requiredEnergy, gratingTranslationSelection);
-
+    SGMMonochromatorInfo testMonoInfo(requiredEnergy, gratingTranslationSelection);
 
     // Compute all the required values
     double angleEncoderTarget = testMonoInfo.gratingAngle();
@@ -179,9 +160,7 @@ void TestSGMMonochromatorInfo::testRequestEnergy()
 
 void TestSGMMonochromatorInfo::testResultantEnergy()
 {
-    SGMMonochromatorInfo testMonoInfo;
-
-    testMonoInfo.requestEnergy(240, SGMGratingSupport::LowGrating);
+    SGMMonochromatorInfo testMonoInfo(240, SGMGratingSupport::LowGrating);
 
     if(!qFuzzyCompare(testMonoInfo.resultantEnergy(), 240)) {
         testResults_.append(QString("Resultant energy test failed - Expected: %1 Actual %2").arg(240).arg(testMonoInfo.resultantEnergy()));
