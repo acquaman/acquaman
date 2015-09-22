@@ -304,24 +304,22 @@ SGMGratingSupport::GratingTranslation SGMMonochromatorInfo::optimizedGrating(dou
 
 double SGMMonochromatorInfo::energyFromGrating(SGMGratingSupport::GratingTranslation gratingTranslationSelection, double gratingAngleEncoderTarget) const
 {
-    double spacing = SGMGratingSupport::spacing(gratingTranslationSelection);
-    double c1 = SGMGratingSupport::c1(gratingTranslationSelection);
-    double c2 = SGMGratingSupport::c2(gratingTranslationSelection);
+    double gratingSpacing = SGMGratingSupport::gratingSpacing(gratingTranslationSelection);
+    double curveFitCorrection = SGMGratingSupport::curveFitCorrection(gratingTranslationSelection);
     double radiusCurvatureOffset = SGMGratingSupport::radiusCurvatureOffset(gratingTranslationSelection);
-    double thetaM = SGMGratingSupport::thetaM(gratingTranslationSelection);
+    double includedAngle = SGMGratingSupport::includedAngle(gratingTranslationSelection);
 
-    return 1e-9 * 1239.842 / ((2 * spacing * c1 * c2 * gratingAngleEncoderTarget) / radiusCurvatureOffset * cos(thetaM / 2));
+    return 1e-9 * 1239.842 / ((2 * gratingSpacing * curveFitCorrection * gratingAngleEncoderTarget) / radiusCurvatureOffset * cos(includedAngle / 2));
 }
 
 double SGMMonochromatorInfo::gratingAngleFromEnergy(SGMGratingSupport::GratingTranslation gratingTranslationSelection, double energy) const
 {
-    double spacing = SGMGratingSupport::spacing(gratingTranslationSelection);
-    double c1 = SGMGratingSupport::c1(gratingTranslationSelection);
-    double c2 = SGMGratingSupport::c2(gratingTranslationSelection);
+    double gratingSpacing = SGMGratingSupport::gratingSpacing(gratingTranslationSelection);
+    double curveFitCorrection = SGMGratingSupport::curveFitCorrection(gratingTranslationSelection);
     double radiusCurvatureOffset = SGMGratingSupport::radiusCurvatureOffset(gratingTranslationSelection);
-    double thetaM = SGMGratingSupport::thetaM(gratingTranslationSelection);
+    double includedAngle = SGMGratingSupport::includedAngle(gratingTranslationSelection);
 
-    return 1e-9 * 1239.842 / ((2 * spacing * c1 * c2 * energy) / radiusCurvatureOffset * cos(thetaM / 2));
+    return 1e-9 * 1239.842 / ((2 * gratingSpacing * curveFitCorrection * energy) / radiusCurvatureOffset * cos(includedAngle / 2));
 }
 
 void SGMMonochromatorInfo::optimizeForEnergy()
@@ -344,14 +342,14 @@ double SGMMonochromatorInfo::optimizedUndulatorPosition(double energy, SGMUndula
 
 double SGMMonochromatorInfo::optimizedExitSlitPosition(SGMGratingSupport::GratingTranslation gratingTranslationSelection, double energy) const
 {
-    double spacing = SGMGratingSupport::spacing(gratingTranslationSelection);
-    double thetaM = SGMGratingSupport::thetaM(gratingTranslationSelection);
-    double xOffset = 4546; // Need to research this value. Seems to have been altered over time.
-    double lambda = (1239.842 / energy) * 1.0e-9;
-    double thetaI = asin((lambda / (2*spacing)) / cos(thetaM/2)) + (thetaM/2);
-    double thetaD = -thetaM + thetaI;
+    double gratingSpacing = SGMGratingSupport::gratingSpacing(gratingTranslationSelection);
+    double includedAngle = SGMGratingSupport::includedAngle(gratingTranslationSelection);
+    double gratingEncoderOffset = 4546; // Distance between the grating and the zero position of the encoder
+    double wavelength = (1239.842 / energy) * 1.0e-9;
+    double angleOfIncidence = asin((wavelength / (2*gratingSpacing)) / cos(includedAngle/2)) + (includedAngle/2);
+    double angleOfDefraction = -includedAngle + angleOfIncidence;
 
-    return -xOffset + (pow(cos(thetaD),2)) / (((cos(thetaD + thetaM) + cos(thetaD)) / 70480) - (pow(cos(thetaD + thetaM),2))/1500);
+    return -gratingEncoderOffset + (pow(cos(angleOfDefraction),2)) / (((cos(angleOfDefraction + includedAngle) + cos(angleOfDefraction)) / 70480) - (pow(cos(angleOfDefraction + includedAngle),2))/1500);
 }
 
 SGMUndulatorSupport::UndulatorHarmonic SGMMonochromatorInfo::optimizedUndulatorHarmonic(SGMGratingSupport::GratingTranslation gratingTranslationSelection, double energy) const
