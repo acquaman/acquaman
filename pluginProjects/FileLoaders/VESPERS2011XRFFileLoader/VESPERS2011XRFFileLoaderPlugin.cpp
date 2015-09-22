@@ -60,6 +60,10 @@ bool VESPERS2011XRFFileLoaderPlugin::load(AMScan *scan, const QString &userDataF
 	}
 	else if (scan->rawDataSourceCount() == 12)
 		elements = 4;
+	else if (scan->rawDataSourceCount() == 20) {
+		elements = 20;
+		bioXASXRFDetector = true;
+	}
 	else if (scan->rawDataSourceCount() == 32){
 		elements = 32;
 		bioXASXRFDetector = true;

@@ -111,6 +111,8 @@ protected:
 	int inputAxisIndex(int axisId) const;
 	/// Helper method that returns an index of the rank of the analysis block by removing the reduced axis.
 	AMnDIndex outputIndex(const AMnDIndex &input) const;
+	/// Computes the cached data for access getters value() and values().
+	void computeCachedValues() const;
 
 	/// Pointer to the source that will be analyzed.
 	AMDataSource *source_;
@@ -118,6 +120,11 @@ protected:
 	QString selectedName_;
 	/// Holds the reduced axis id.
 	int reducedAxis_;
+
+	/// Flag for knowing whether we need to compute the values.
+	mutable bool cacheUpdateRequired_;
+	/// The vector holding the data.
+	mutable QVector<double> cachedData_;
 };
 
 #endif // AMORDERREDUCTIONAB_H

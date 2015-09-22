@@ -283,9 +283,6 @@ void IDEASAppController::onScanEditorCreated(AMGenericScanEditor *editor)
 {
 	connect(editor, SIGNAL(scanAdded(AMGenericScanEditor*,AMScan*)), this, SLOT(onScanAddedToEditor(AMGenericScanEditor*,AMScan*)));
 	editor->setPlotRange(AMPeriodicTable::table()->elementBySymbol("K")->Kalpha().energy(), 20480);
-
-	if (editor->using2DScanView())
-		connect(editor, SIGNAL(dataPositionChanged(AMGenericScanEditor*,QPoint)), this, SLOT(onDataPositionChanged(AMGenericScanEditor*,QPoint)));
 }
 
 void IDEASAppController::onScanAddedToEditor(AMGenericScanEditor *editor, AMScan *scan)
