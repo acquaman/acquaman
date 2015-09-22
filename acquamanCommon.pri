@@ -429,7 +429,8 @@ HEADERS += \
     source/ui/dataman/AMScanViewPlotSelectedToolsView.h \
     source/dataman/AMScanViewPlotTools.h \
     source/beamline/AM3DCoordinatedSystemControl.h \
-    source/beamline/AM3DRotatedSystemControl.h
+    source/beamline/AM3DRotatedSystemControl.h \
+    source/util/AMValidator.h
 
 FORMS += \
 
@@ -820,7 +821,8 @@ SOURCES += \
     source/ui/dataman/AMScanViewPlotSelectedToolsView.cpp \
     source/dataman/AMScanViewPlotTools.cpp \
     source/beamline/AM3DCoordinatedSystemControl.cpp \
-    source/beamline/AM3DRotatedSystemControl.cpp
+    source/beamline/AM3DRotatedSystemControl.cpp \
+    source/util/AMValidator.cpp
 
 
 RESOURCES *= source/icons/icons.qrc \
@@ -838,6 +840,8 @@ contains(DEFINES, AM_BUILD_REPORTER_ENABLED){
 
 	SOURCES *= source/util/AMRunTimeBuildInfo.cpp
 }
+
+
 
 
 
