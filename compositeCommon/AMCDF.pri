@@ -31,6 +31,7 @@ macx {
 	CDF_INCLUDE_DIR = $$PATH_TO_AM/contrib/cdf34_1-dist/include
 }
 
+# Special build paths and options for running on the Jenkins auto-build server (currently at http://srv-aci-01.clsi.ca)
 CONFIG(jenkins_build){
 
 	# CDFlib dependencies

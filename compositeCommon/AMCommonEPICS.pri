@@ -27,7 +27,7 @@ macx {
         }
 }
 
-# Special build paths and options for running on the Jenkins auto-build server (currently at http://beamteam.usask.ca:8080)
+# Special build paths and options for running on the Jenkins auto-build server (currently at http://srv-aci-01.clsi.ca)
 CONFIG(jenkins_build) {
         # EPICS Dependencies:
 	EPICS_INCLUDE_DIRS = /home/epics/src/R3.14.12/base/include \

@@ -34,7 +34,7 @@ linux-g++-64 {
 
 }
 
-# Special build paths and options for running on the Jenkins auto-build server (currently at http://srv-aci-04.clsi.ca)
+# Special build paths and options for running on the Jenkins auto-build server (currently at http://srv-aci-01.clsi.ca)
 CONFIG(jenkins_build) {
 
 	message("Detected Jenkins auto-build... Specifying dependency paths for the build server.")
