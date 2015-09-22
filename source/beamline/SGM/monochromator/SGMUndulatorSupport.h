@@ -14,9 +14,9 @@ namespace SGMUndulatorSupport
   * causes destructive interference, and is not used).
   */
 enum UndulatorHarmonic {
-	UnknownUndulatorHarmonic = -1,
-	FirstHarmonic = 1,
-	ThirdHarmonic = 3
+    UnknownUndulatorHarmonic = -1,
+    FirstHarmonic = 1,
+    ThirdHarmonic = 3
 };
 
 /*!
@@ -34,11 +34,11 @@ enum UndulatorHarmonic {
   * produce the above knownUndulatorPosition
   */
 inline static double undulatorStepFromPosition(double undulatorPosition,
-											   double knownUndulatorPosition,
-											   double correspondingUndulatorStep)
+                                               double knownUndulatorPosition,
+                                               double correspondingUndulatorStep)
 {
-	double intercept = knownUndulatorPosition - UNDULATOR_STEP_TO_POSITION_SLOPE * correspondingUndulatorStep;
-	return (undulatorPosition - intercept) / UNDULATOR_STEP_TO_POSITION_SLOPE;
+    double intercept = knownUndulatorPosition - UNDULATOR_STEP_TO_POSITION_SLOPE * correspondingUndulatorStep;
+    return (undulatorPosition - intercept) / UNDULATOR_STEP_TO_POSITION_SLOPE;
 }
 
 /*!
@@ -55,11 +55,11 @@ inline static double undulatorStepFromPosition(double undulatorPosition,
   * produce the above knownUndulatorPosition
   */
 inline static double undulatorPositionFromStep(double undulatorStep,
-											   double knownUndulatorPosition,
-											   double correspondingUndulatorStep)
+                                               double knownUndulatorPosition,
+                                               double correspondingUndulatorStep)
 {
-	double intercept = knownUndulatorPosition - UNDULATOR_STEP_TO_POSITION_SLOPE * correspondingUndulatorStep;
-	return UNDULATOR_STEP_TO_POSITION_SLOPE * undulatorStep + intercept;
+    double intercept = knownUndulatorPosition - UNDULATOR_STEP_TO_POSITION_SLOPE * correspondingUndulatorStep;
+    return UNDULATOR_STEP_TO_POSITION_SLOPE * undulatorStep + intercept;
 }
 
 /*!

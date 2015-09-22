@@ -10,7 +10,6 @@ SGMMonochromatorInfo::SGMMonochromatorInfo(SGMGratingSupport::GratingTranslation
                                            QObject *parent) :
     QObject(parent)
 {
-
     gratingTranslation_ = gratingTranslation;
     gratingAngle_ = gratingAngle;
     undulatorHarmonic_ = undulatorHarmonic;
@@ -68,64 +67,64 @@ SGMMonochromatorInfo::SGMMonochromatorInfo(double requestedEnergy, SGMMonochroma
 
 bool SGMMonochromatorInfo::hasErrors() const
 {
-	return !errorValidator_.isValid();
+    return !errorValidator_.isValid();
 }
 
 bool SGMMonochromatorInfo::hasWarnings() const
 {
-	return !warningValidator_.isValid();
+    return !warningValidator_.isValid();
 }
 
 QStringList SGMMonochromatorInfo::errorMessages() const
 {
-	return errorValidator_.failureMessages();
+    return errorValidator_.failureMessages();
 }
 
 QStringList SGMMonochromatorInfo::warningMessages() const
 {
-	return warningValidator_.failureMessages();
+    return warningValidator_.failureMessages();
 }
 
 double SGMMonochromatorInfo::resultantEnergy() const
 {
-	return energyFromGrating(gratingTranslation_, gratingAngle_);
+    return energyFromGrating(gratingTranslation_, gratingAngle_);
 }
 
 SGMGratingSupport::GratingTranslation SGMMonochromatorInfo::gratingTranslation() const
 {
-	return gratingTranslation_;
+    return gratingTranslation_;
 }
 
 void SGMMonochromatorInfo::setGratingTranslation(SGMGratingSupport::GratingTranslation gratingTranslation)
 {
-	if(gratingTranslation_ != gratingTranslation) {
+    if(gratingTranslation_ != gratingTranslation) {
         gratingTranslation_ = gratingTranslation;
         if(autoDetectUndulatorHarmonic_) {
             setUndulatorHarmonic(optimizedUndulatorHarmonic(gratingTranslation_, resultantEnergy()));
         }
         optimizeForEnergy();
         performValidation();
-		emit gratingTranslationChanged(gratingTranslation_);
-		emit energyChanged(resultantEnergy());
-	}
+        emit gratingTranslationChanged(gratingTranslation_);
+        emit energyChanged(resultantEnergy());
+    }
 }
 
 double SGMMonochromatorInfo::gratingAngle() const
 {
-	return gratingAngle_;
+    return gratingAngle_;
 }
 
 void SGMMonochromatorInfo::setGratingAngle(double gratingAngle)
 {
-	if(gratingAngle_ != gratingAngle) {
-		gratingAngle_ = gratingAngle;
+    if(gratingAngle_ != gratingAngle) {
+        gratingAngle_ = gratingAngle;
         if(autoDetectUndulatorHarmonic_) {
             setUndulatorHarmonic(optimizedUndulatorHarmonic(gratingTranslation_, resultantEnergy()));
         }
         optimizeForEnergy();
         performValidation();
-		emit gratingAngleChanged(gratingAngle_);
-		emit energyChanged(resultantEnergy());
+        emit gratingAngleChanged(gratingAngle_);
+        emit energyChanged(resultantEnergy());
     }
 }
 
@@ -153,16 +152,16 @@ void SGMMonochromatorInfo::setUndulatorTracking(bool isTracking)
 
 SGMUndulatorSupport::UndulatorHarmonic SGMMonochromatorInfo::undulatorHarmonic() const
 {
-	return undulatorHarmonic_;
+    return undulatorHarmonic_;
 }
 
 void SGMMonochromatorInfo::setUndulatorHarmonic(SGMUndulatorSupport::UndulatorHarmonic undulatorHarmonic)
 {
-	if(undulatorHarmonic_ != undulatorHarmonic) {
+    if(undulatorHarmonic_ != undulatorHarmonic) {
         undulatorHarmonic_ = undulatorHarmonic;
         setUndulatorPosition(optimizedUndulatorPosition(resultantEnergy(), undulatorHarmonic_, undulatorOffset_));
         performValidation();
-		emit undulatorHarmonicChanged(undulatorHarmonic_);
+        emit undulatorHarmonicChanged(undulatorHarmonic_);
     }
 }
 
@@ -189,30 +188,30 @@ void SGMMonochromatorInfo::setAutoDetectUndulatorHarmonic(bool autoDetect)
 
 double SGMMonochromatorInfo::undulatorPosition() const
 {
-	return undulatorPosition_;
+    return undulatorPosition_;
 }
 
 void SGMMonochromatorInfo::setUndulatorPosition(double undulatorPosition)
 {
-	if(undulatorPosition_ != undulatorPosition) {
-		undulatorPosition_ = undulatorPosition;
+    if(undulatorPosition_ != undulatorPosition) {
+        undulatorPosition_ = undulatorPosition;
         performValidation();
-		emit undulatorPositionChanged(undulatorPosition);
-	}
+        emit undulatorPositionChanged(undulatorPosition);
+    }
 }
 
 double SGMMonochromatorInfo::undulatorOffset() const
 {
-	return undulatorOffset_;
+    return undulatorOffset_;
 }
 
 void SGMMonochromatorInfo::setUndulatorOffset(double undulatorOffset)
 {
-	if(undulatorOffset_ != undulatorOffset) {
-		undulatorOffset_ = undulatorOffset;
+    if(undulatorOffset_ != undulatorOffset) {
+        undulatorOffset_ = undulatorOffset;
         // Need to re-optimize the undulator taking into account the new offset
         setUndulatorPosition(optimizedUndulatorPosition(resultantEnergy(), undulatorHarmonic_, undulatorOffset_));
-		emit undulatorOffsetChanged(undulatorOffset_);
+        emit undulatorOffsetChanged(undulatorOffset_);
     }
 }
 
@@ -240,22 +239,22 @@ void SGMMonochromatorInfo::setExitSlitPositionTracking(bool isTracking)
 
 double SGMMonochromatorInfo::exitSlitPosition() const
 {
-	return exitSlitPosition_;
+    return exitSlitPosition_;
 }
 
 void SGMMonochromatorInfo::setExitSlitPosition(double exitSlitPosition)
 {
-	if(exitSlitPosition_ != exitSlitPosition) {
-		exitSlitPosition_ = exitSlitPosition;
+    if(exitSlitPosition_ != exitSlitPosition) {
+        exitSlitPosition_ = exitSlitPosition;
         performValidation();
-		emit exitSlitPositionChanged(exitSlitPosition_);
-	}
+        emit exitSlitPositionChanged(exitSlitPosition_);
+    }
 }
 
 void SGMMonochromatorInfo::requestEnergy(double requestedEnergy, SGMGratingSupport::GratingTranslation gratingTranslation)
 {
     requestedEnergy_ = requestedEnergy;
-	setGratingTranslation(gratingTranslation);
+    setGratingTranslation(gratingTranslation);
 
     if(autoDetectUndulatorHarmonic_) {
 
@@ -267,60 +266,60 @@ void SGMMonochromatorInfo::requestEnergy(double requestedEnergy, SGMGratingSuppo
 
 void SGMMonochromatorInfo::requestEnergy(double requestedEnergy, GratingTranslationOptimizationMode optimizationMode)
 {
-	requestEnergy(requestedEnergy, optimizedGrating(requestedEnergy, optimizationMode));
+    requestEnergy(requestedEnergy, optimizedGrating(requestedEnergy, optimizationMode));
 }
 
 SGMGratingSupport::GratingTranslation SGMMonochromatorInfo::optimizedGrating(double requestedEnergy, SGMMonochromatorInfo::GratingTranslationOptimizationMode optimizationMode)
 {
-	// The grating which produces the largest flux at a given photon energy.
-	if(optimizationMode == OptimizeFlux) {
+    // The grating which produces the largest flux at a given photon energy.
+    if(optimizationMode == OptimizeFlux) {
 
-		if(requestedEnergy < 700) {
+        if(requestedEnergy < 700) {
 
-			return SGMGratingSupport::LowGrating;
-		} else if(requestedEnergy < 1300) {
+            return SGMGratingSupport::LowGrating;
+        } else if(requestedEnergy < 1300) {
 
-			return SGMGratingSupport::MediumGrating;
-		} else {
+            return SGMGratingSupport::MediumGrating;
+        } else {
 
-			return SGMGratingSupport::HighGrating;
-		}
-	} else if(optimizationMode == OptimizeResolution) {
+            return SGMGratingSupport::HighGrating;
+        }
+    } else if(optimizationMode == OptimizeResolution) {
 
-		if (requestedEnergy > 650) {
+        if (requestedEnergy > 650) {
 
-			return SGMGratingSupport::HighGrating;
-		} else if (requestedEnergy > 450) {
+            return SGMGratingSupport::HighGrating;
+        } else if (requestedEnergy > 450) {
 
-			return SGMGratingSupport::MediumGrating;
-		} else {
+            return SGMGratingSupport::MediumGrating;
+        } else {
 
-			return SGMGratingSupport::LowGrating;
-		}
-	} else {
+            return SGMGratingSupport::LowGrating;
+        }
+    } else {
 
-		return gratingTranslation_;
-	}
+        return gratingTranslation_;
+    }
 }
 
 double SGMMonochromatorInfo::energyFromGrating(SGMGratingSupport::GratingTranslation gratingTranslationSelection, double gratingAngleEncoderTarget) const
 {
-	double spacing = SGMGratingSupport::spacing(gratingTranslationSelection);
-	double c1 = SGMGratingSupport::c1(gratingTranslationSelection);
-	double c2 = SGMGratingSupport::c2(gratingTranslationSelection);
-	double radiusCurvatureOffset = SGMGratingSupport::radiusCurvatureOffset(gratingTranslationSelection);
-	double thetaM = SGMGratingSupport::thetaM(gratingTranslationSelection);
+    double spacing = SGMGratingSupport::spacing(gratingTranslationSelection);
+    double c1 = SGMGratingSupport::c1(gratingTranslationSelection);
+    double c2 = SGMGratingSupport::c2(gratingTranslationSelection);
+    double radiusCurvatureOffset = SGMGratingSupport::radiusCurvatureOffset(gratingTranslationSelection);
+    double thetaM = SGMGratingSupport::thetaM(gratingTranslationSelection);
 
-	return 1e-9 * 1239.842 / ((2 * spacing * c1 * c2 * gratingAngleEncoderTarget) / radiusCurvatureOffset * cos(thetaM / 2));
+    return 1e-9 * 1239.842 / ((2 * spacing * c1 * c2 * gratingAngleEncoderTarget) / radiusCurvatureOffset * cos(thetaM / 2));
 }
 
 double SGMMonochromatorInfo::gratingAngleFromEnergy(SGMGratingSupport::GratingTranslation gratingTranslationSelection, double energy) const
 {
-	double spacing = SGMGratingSupport::spacing(gratingTranslationSelection);
-	double c1 = SGMGratingSupport::c1(gratingTranslationSelection);
-	double c2 = SGMGratingSupport::c2(gratingTranslationSelection);
-	double radiusCurvatureOffset = SGMGratingSupport::radiusCurvatureOffset(gratingTranslationSelection);
-	double thetaM = SGMGratingSupport::thetaM(gratingTranslationSelection);
+    double spacing = SGMGratingSupport::spacing(gratingTranslationSelection);
+    double c1 = SGMGratingSupport::c1(gratingTranslationSelection);
+    double c2 = SGMGratingSupport::c2(gratingTranslationSelection);
+    double radiusCurvatureOffset = SGMGratingSupport::radiusCurvatureOffset(gratingTranslationSelection);
+    double thetaM = SGMGratingSupport::thetaM(gratingTranslationSelection);
 
     return 1e-9 * 1239.842 / ((2 * spacing * c1 * c2 * energy) / radiusCurvatureOffset * cos(thetaM / 2));
 }
@@ -345,12 +344,12 @@ double SGMMonochromatorInfo::optimizedUndulatorPosition(double energy, SGMUndula
 
 double SGMMonochromatorInfo::optimizedExitSlitPosition(SGMGratingSupport::GratingTranslation gratingTranslationSelection, double energy) const
 {
-	double spacing = SGMGratingSupport::spacing(gratingTranslationSelection);
-	double thetaM = SGMGratingSupport::thetaM(gratingTranslationSelection);
-	double xOffset = 4546; // Need to research this value. Seems to have been altered over time.
-	double lambda = (1239.842 / energy) * 1.0e-9;
-	double thetaI = asin((lambda / (2*spacing)) / cos(thetaM/2)) + (thetaM/2);
-	double thetaD = -thetaM + thetaI;
+    double spacing = SGMGratingSupport::spacing(gratingTranslationSelection);
+    double thetaM = SGMGratingSupport::thetaM(gratingTranslationSelection);
+    double xOffset = 4546; // Need to research this value. Seems to have been altered over time.
+    double lambda = (1239.842 / energy) * 1.0e-9;
+    double thetaI = asin((lambda / (2*spacing)) / cos(thetaM/2)) + (thetaM/2);
+    double thetaD = -thetaM + thetaI;
 
     return -xOffset + (pow(cos(thetaD),2)) / (((cos(thetaD + thetaM) + cos(thetaD)) / 70480) - (pow(cos(thetaD + thetaM),2))/1500);
 }
@@ -377,6 +376,3 @@ void SGMMonochromatorInfo::performValidation()
     warningValidator_.updateValidity(SGMMONO_UNDULATOR_TRACKING_OFF, !isUndulatorTracking_);
     warningValidator_.updateValidity(SGMMONO_EXIT_SLIT_TRACKING_OFF, !isExitSlitPositionTracking_);
 }
-
-
-

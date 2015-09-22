@@ -93,8 +93,7 @@ void SGMMonochromatorInfoTestView::onMonoErrorCountChanged(int errorCount)
 {
     if(errorCount == 0) {
         errorsTextEdit_->setVisible(false);
-    } else {
-
+            } else {
         errorsTextEdit_->setVisible(true);
         QString errorString;
 
@@ -186,8 +185,7 @@ void SGMMonochromatorInfoTestView::onUndulatorOffsetSpinBoxChanged()
     double value = undulatorDetuneOffsetSpinBox_->value();
     if(qAbs(sgmMonochromatorInfo_->undulatorOffset() - value) > 0.001 ||
             sgmMonochromatorInfo_->hasErrors()) {
-
-        sgmMonochromatorInfo_->setUndulatorOffset(value);
+                sgmMonochromatorInfo_->setUndulatorOffset(value);
     }
 }
 
@@ -384,11 +382,15 @@ void SGMMonochromatorInfoTestView::makeConnections()
 {
     // Mono to View
     connect(sgmMonochromatorInfo_, SIGNAL(gratingAngleChanged(double)), this, SLOT(onMonoGratingAngleChanged(double)));
-    connect(sgmMonochromatorInfo_, SIGNAL(gratingTranslationChanged(SGMGratingSupport::GratingTranslation)), this, SLOT(onMonoGratingTranslationChanged(SGMGratingSupport::GratingTranslation)));
+    connect(sgmMonochromatorInfo_, SIGNAL(gratingTranslationChanged(SGMGratingSupport::GratingTranslation)),
+            this, SLOT(onMonoGratingTranslationChanged(SGMGratingSupport::GratingTranslation)));
+
     connect(sgmMonochromatorInfo_, SIGNAL(undulatorTrackingChanged(bool)), this, SLOT(onMonoUndulatorTrackingChanged(bool)));
     connect(sgmMonochromatorInfo_, SIGNAL(undulatorPositionChanged(double)), this, SLOT(onMonoUndulatorPositionChanged(double)));
     connect(sgmMonochromatorInfo_, SIGNAL(undulatorOffsetChanged(double)), this, SLOT(onMonoUndulatorOffsetChanged(double)));
-    connect(sgmMonochromatorInfo_, SIGNAL(undulatorHarmonicChanged(SGMUndulatorSupport::UndulatorHarmonic)), this, SLOT(onMonoUndulatorHarmonicChanged(SGMUndulatorSupport::UndulatorHarmonic)));
+    connect(sgmMonochromatorInfo_, SIGNAL(undulatorHarmonicChanged(SGMUndulatorSupport::UndulatorHarmonic)),
+            this, SLOT(onMonoUndulatorHarmonicChanged(SGMUndulatorSupport::UndulatorHarmonic)));
+
     connect(sgmMonochromatorInfo_, SIGNAL(exitSlitTrackingChanged(bool)), this, SLOT(onMonoExitSlitTrackingChanged(bool)));
     connect(sgmMonochromatorInfo_, SIGNAL(exitSlitPositionChanged(double)), this, SLOT(onMonoExitSlitPositionChanged(double)));
     connect(sgmMonochromatorInfo_, SIGNAL(energyChanged(double)), this, SLOT(onMonoEnergyChanged(double)));
@@ -425,4 +427,3 @@ void SGMMonochromatorInfoTestView::setupData()
     autoDetectUndulatorHarmonicCheckBox_->setChecked(sgmMonochromatorInfo_->autoDetectUndulatorHarmonic());
     undulatorHarmonicComboBox_->setEnabled(!sgmMonochromatorInfo_->autoDetectUndulatorHarmonic());
 }
-

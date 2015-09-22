@@ -166,4 +166,3 @@ void TestSGMMonochromatorInfo::testResultantEnergy()
         testResults_.append(QString("Resultant energy test failed - Expected: %1 Actual %2").arg(240).arg(testMonoInfo.resultantEnergy()));
     }
 }
-
