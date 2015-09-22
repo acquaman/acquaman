@@ -160,6 +160,7 @@ void SGMMonochromatorInfo::setUndulatorHarmonic(SGMUndulatorSupport::UndulatorHa
 {
 	if(undulatorHarmonic_ != undulatorHarmonic) {
         undulatorHarmonic_ = undulatorHarmonic;
+        setUndulatorPosition(optimizedUndulatorPosition(resultantEnergy(), undulatorHarmonic_, undulatorOffset_));
         performValidation();
 		emit undulatorHarmonicChanged(undulatorHarmonic_);
     }
