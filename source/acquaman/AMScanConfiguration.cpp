@@ -96,6 +96,28 @@ QString AMScanConfiguration::enumConvert(const QString &enumName, int enumValue)
 	return "[??]";
 }
 
+bool AMScanConfiguration::hasDetectorInfo(const AMDetectorInfo &detectorInfo) const
+{
+	bool result = false;
+
+	QList<AMDetectorInfo> detectorInfos = detectorConfigurations_.toList();
+	if (detectorInfos.contains(detectorInfo))
+		result = true;
+
+	return result;
+}
+
+bool AMScanConfiguration::hasAxisControlInfo(const AMControlInfo &controlInfo) const
+{
+	bool result = false;
+
+	QList<AMControlInfo> controlInfos = axisControlInfos_.toList();
+	if (controlInfos.contains(controlInfo))
+		result = true;
+
+	return result;
+}
+
 void AMScanConfiguration::setUserScanName(const QString &userScanName){
 	if(userScanName_ != userScanName){
 		userScanName_ = userScanName;
@@ -154,10 +176,20 @@ void AMScanConfiguration::merge(AMScanConfiguration *configuration)
 {
 	if (configuration) {
 
-		foreach (AMControlInfo controlInfo, configuration->axisControlInfos().toList())
-			axisControlInfos_.append(controlInfo);
+		// Add the axis control infos of the new configuration to this one, provided this one
+		// doesn't have them already.
 
-		foreach (AMDetectorInfo detectorInfo, configuration->detectorConfigurations().toList())
-			detectorConfigurations_.addDetectorInfo(detectorInfo);
+		QList<AMControlInfo> newControlInfos = configuration->axisControlInfos().toList();
+		foreach (AMControlInfo controlInfo, newControlInfos)
+			if (!hasAxisControlInfo(controlInfo))
+				axisControlInfos_.append(controlInfo);
+
+		// Add the detector infos of the new configuration to this one, provided this one doesn't
+		// have them already.
+
+		QList<AMDetectorInfo> newDetectorInfos = configuration->detectorConfigurations().toList();
+		foreach (AMDetectorInfo detectorInfo, newDetectorInfos)
+			if (!hasDetectorInfo(detectorInfo))
+				detectorConfigurations_.addDetectorInfo(detectorInfo);
 	}
 }

@@ -231,9 +231,21 @@ public:
 	AMDetectorInfoSet detectorConfigurations() const { return detectorConfigurations_; }
 
 	/*!
+	  * Returns true if the detector configurations for this configuration contain
+	  * the given detector info, false otherwise.
+	  */
+	bool hasDetectorInfo(const AMDetectorInfo &detectorInfo) const;
+
+	/*!
 	  * The list of control infos which are associated with the axes of the scan.
 	  */
 	AMControlInfoList axisControlInfos() const { return axisControlInfos_; }
+
+	/*!
+	  * Returns true if this configuration contains the given axis control info,
+	  * false otherwise.
+	  */
+	bool hasAxisControlInfo(const AMControlInfo &controlInfo) const;
 
 	/*!
 	  * A warning string containing any messages created whilst loading the scan
