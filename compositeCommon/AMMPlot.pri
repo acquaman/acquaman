@@ -10,9 +10,11 @@ macx {
 
 # Special build paths and options for running on the Jenkins auto-build server (currently at http://srv-aci-01.clsi.ca)
 CONFIG(jenkins_build) {
+
+	message("Adding MPlot to jenkins build.")
 	# MPlot Source
-	MPLOT_INCLUDE_DIR = /jenkins/MPlot/include
-	MPLOT_LIB_DIR = /jenkins/MPlot/lib
+	MPLOT_INCLUDE_DIR = /var/lib/jenkins/jobs/MPlot/workspace/include
+	MPLOT_LIB_DIR = /var/lib/jenkins/jobs/MPlot/workspace/lib
 }
 contains( DEFINES, AM_PRAGMA_WARNING_CONTROLS){
 	DEFINES *= MPLOT_PRAGMA_WARNING_CONTROLS

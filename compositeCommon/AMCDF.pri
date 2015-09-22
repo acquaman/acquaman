@@ -34,6 +34,7 @@ macx {
 # Special build paths and options for running on the Jenkins auto-build server (currently at http://srv-aci-01.clsi.ca)
 CONFIG(jenkins_build){
 
+	message("Adding CDF to jenkins build.")
 	# CDFlib dependencies
 	CDF_LIB_DIR = /home/beamline/tools/cdf/lib
 	CDF_LIB = -L$$CDF_LIB_DIR -lcdf

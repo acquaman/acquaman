@@ -42,7 +42,7 @@ CONFIG(jenkins_build) {
 #	# Where you want to do your acquaman development (as a path from $HOME). You don't need to include leading or trailing slashes.
 #	DEV_PATH = /jobs/AcquamanOnLinux_MasterBranch/workspace
 
-#	# The full path to the acquaman folder.  This MUST point to the location where acquamanCommon.pri lives.
+	# The full path to the acquaman folder.  This MUST point to the location where acquamanCommon.pri lives.
 #	PATH_TO_AM = $$HOME_FOLDER/$$DEV_PATH
 }
 
