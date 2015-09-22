@@ -34,18 +34,6 @@ linux-g++-64 {
 
 }
 
-# Special build paths and options for running on the Jenkins auto-build server (currently at http://srv-aci-01.clsi.ca)
-CONFIG(jenkins_build) {
-
-	message("Detected Jenkins auto-build... Specifying dependency paths for the build server.")
-
-#	# Where you want to do your acquaman development (as a path from $HOME). You don't need to include leading or trailing slashes.
-#	DEV_PATH = /jobs/AcquamanOnLinux_MasterBranch/workspace
-
-	# The full path to the acquaman folder.  This MUST point to the location where acquamanCommon.pri lives.
-#	PATH_TO_AM = $$HOME_FOLDER/$$DEV_PATH
-}
-
 DEPENDPATH *= $$PATH_TO_AM $$PATH_TO_AM/source
 INCLUDEPATH *= $$PATH_TO_AM $$PATH_TO_AM/source
 VPATH *= $$PATH_TO_AM

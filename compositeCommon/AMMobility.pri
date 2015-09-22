@@ -31,9 +31,10 @@ CONFIG(jenkins_build) {
 	CONFIG -= mobility
 }
 
-QT *= opengl
 # add video using Multimedia module from QtMobility, if we have it
 CONFIG(mobility) {
+
+	QT *= opengl
 	MOBILITY *= multimedia
 
 	INCLUDEPATH *= $$MOBILITY_QT_INCLUDE_DIR
