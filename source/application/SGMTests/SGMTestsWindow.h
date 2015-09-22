@@ -3,10 +3,10 @@
 
 #include <QMainWindow>
 #include <QTextEdit>
-#include <QGroupBox>
-#include <QHBoxLayout>
 #include <QPushButton>
 
+class SGMEnergyTrajectoryTestView;
+class SGMMonochromatorInfoTestView;
 class SGMTestsWindow : public QMainWindow
 {
     Q_OBJECT
@@ -18,9 +18,17 @@ signals:
 public slots:
 protected slots:
     void onShowMonoViewClicked();
+
+    void onShowTrajectoryViewClicked();
 protected:
+
+    void setupUi();
     QTextEdit* outputTextEdit_;
     QPushButton* showMonoViewButton_;
+    QPushButton* showTrajectoryViewButton_;
+
+    SGMEnergyTrajectoryTestView* energyTestView_;
+    SGMMonochromatorInfoTestView* monoInfoTestView_;
 };
 
 #endif // SGMTESTSWINDOW_H

@@ -2,21 +2,19 @@
 
 #include "tests/SGM/TestSGMMonochromatorInfo.h"
 #include "tests/SGM/SGMMonochromatorInfoTestView.h"
+#include "tests/SGM/SGMEnergyTrajectoryTestView.h"
+
+
 #include "beamline/SGM/monochromator/SGMMonochromatorInfo.h"
+#include <QGroupBox>
+#include <QHBoxLayout>
+#include <QVBoxLayout>
+
 SGMTestsWindow::SGMTestsWindow(QWidget *parent) : QMainWindow(parent)
 {
-    outputTextEdit_ = new QTextEdit();
-
-    QGroupBox* mainGroupBox = new QGroupBox("Test Results");
-    QHBoxLayout* mainGroupBoxLayout = new QHBoxLayout();
-    showMonoViewButton_ = new QPushButton("Show Mono Test View");
-    connect(showMonoViewButton_, SIGNAL(clicked(bool)), this, SLOT(onShowMonoViewClicked()));
-    mainGroupBoxLayout->addWidget(showMonoViewButton_);
-    mainGroupBoxLayout->addWidget(outputTextEdit_);
-
-    mainGroupBox->setLayout(mainGroupBoxLayout);
-
-    setCentralWidget(mainGroupBox);
+    monoInfoTestView_ = 0;
+    energyTestView_ = 0;
+    setupUi();
 
     TestSGMMonochromatorInfo monoTests;
     monoTests.performTests();
@@ -27,11 +25,14 @@ SGMTestsWindow::SGMTestsWindow(QWidget *parent) : QMainWindow(parent)
     }
 
     outputTextEdit_->setText(resultString);
-    resize(640,480);
 }
 
 void SGMTestsWindow::onShowMonoViewClicked()
 {
+    if(monoInfoTestView_ != 0) {
+        monoInfoTestView_->deleteLater();
+    }
+
     SGMMonochromatorInfo* testMonoInfo = new SGMMonochromatorInfo(SGMGratingSupport::LowGrating,
                                                                   -412460.94,
                                                                   SGMUndulatorSupport::FirstHarmonic,
@@ -40,7 +41,52 @@ void SGMTestsWindow::onShowMonoViewClicked()
                                                                   358.199551,
                                                                   this);
 
-    SGMMonochromatorInfoTestView* testView = new SGMMonochromatorInfoTestView(testMonoInfo);
-    testView->show();
+    monoInfoTestView_ = new SGMMonochromatorInfoTestView(testMonoInfo);
+    monoInfoTestView_->show();
+}
+
+void SGMTestsWindow::onShowTrajectoryViewClicked()
+{
+    if(energyTestView_ != 0) {
+        energyTestView_->deleteLater();
+    }
+
+    energyTestView_ = new SGMEnergyTrajectoryTestView();
+    energyTestView_->resize(1024, 768);
+    energyTestView_->show();
+}
+
+void SGMTestsWindow::setupUi()
+{
+
+
+    QGroupBox* centralGroupBox = new QGroupBox();
+    QHBoxLayout* mainLayout = new QHBoxLayout();
+    QVBoxLayout* buttonsLayout = new QVBoxLayout();
+    QGroupBox* resultsGroupBox = new QGroupBox("Test Results");
+    QHBoxLayout* resultsLayout = new QHBoxLayout();
+
+    centralGroupBox->setLayout(mainLayout);
+    mainLayout->addWidget(resultsGroupBox);
+    mainLayout->addLayout(buttonsLayout);
+    resultsGroupBox->setLayout(resultsLayout);
+
+    setCentralWidget(centralGroupBox);
+
+    showMonoViewButton_ = new QPushButton("Show Mono Test View");
+    connect(showMonoViewButton_, SIGNAL(clicked(bool)), this, SLOT(onShowMonoViewClicked()));
+    buttonsLayout->addWidget(showMonoViewButton_);
+
+    showTrajectoryViewButton_ = new QPushButton("Show Trajectory Test View");
+    connect(showTrajectoryViewButton_, SIGNAL(clicked(bool)), this, SLOT(onShowTrajectoryViewClicked()));
+    buttonsLayout->addWidget(showTrajectoryViewButton_);
+    buttonsLayout->addStretch();
+
+    outputTextEdit_ = new QTextEdit();
+    outputTextEdit_->setEnabled(false);
+    resultsLayout->addWidget(outputTextEdit_);
+
+
+    resize(800, 600);
 }
 
