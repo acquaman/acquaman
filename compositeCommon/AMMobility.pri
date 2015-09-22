@@ -26,8 +26,9 @@ linux-g++-64 {
 
 # Special build paths and options for running on the Jenkins auto-build server (currently at http://beamteam.usask.ca:8080)
 CONFIG(jenkins_build) {
-		# Disable Qt Mobility Video until the Jenkins-machine supports that
-		CONFIG -= mobility
+	# Disable Qt Mobility Video until the Jenkins-machine supports that
+	message("Disabling Qt Mobility.")
+	CONFIG -= mobility
 }
 
 QT *= opengl

@@ -31,6 +31,17 @@ macx {
 	CDF_INCLUDE_DIR = $$PATH_TO_AM/contrib/cdf34_1-dist/include
 }
 
+CONFIG(jenkins_build){
+
+	# CDFlib dependencies
+	CDF_LIB_DIR = /home/beamline/tools/cdf/lib
+	CDF_LIB = -L$$CDF_LIB_DIR -lcdf
+	CDF_INCLUDE_DIR = /home/beamline/tools/cdf/include
+
+	QMAKE_LFLAGS_DEBUG *= "-Wl,-rpath,$$CDF_LIB_DIR"
+	QMAKE_LFLAGS_RELEASE *= "-Wl,-rpath,$$CDF_LIB_DIR"
+}
+
 !macx {
 	QMAKE_LFLAGS_DEBUG *= "-Wl,-rpath,$$CDF_LIB_DIR"
 	QMAKE_LFLAGS_RELEASE *= "-Wl,-rpath,$$CDF_LIB_DIR"
