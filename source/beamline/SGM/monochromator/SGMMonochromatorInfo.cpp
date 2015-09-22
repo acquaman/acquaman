@@ -269,7 +269,7 @@ void SGMMonochromatorInfo::requestEnergy(double requestedEnergy, GratingTranslat
     requestEnergy(requestedEnergy, optimizedGrating(requestedEnergy, optimizationMode));
 }
 
-SGMGratingSupport::GratingTranslation SGMMonochromatorInfo::optimizedGrating(double requestedEnergy, SGMMonochromatorInfo::GratingTranslationOptimizationMode optimizationMode)
+SGMGratingSupport::GratingTranslation SGMMonochromatorInfo::optimizedGrating(double requestedEnergy, SGMMonochromatorInfo::GratingTranslationOptimizationMode optimizationMode) const
 {
     // The grating which produces the largest flux at a given photon energy.
     if(optimizationMode == OptimizeFlux) {

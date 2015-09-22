@@ -295,7 +295,7 @@ protected:
       * translation.
       */
     SGMGratingSupport::GratingTranslation optimizedGrating(double requestedEnergy,
-                                                           GratingTranslationOptimizationMode optimizationMode);
+                                                           GratingTranslationOptimizationMode optimizationMode) const;
 
     /*!
       * Helper method used to determine the energy produced by a given grating
