@@ -11,8 +11,8 @@ macx {
 # Special build paths and options for running on the Jenkins auto-build server (currently at http://beamteam.usask.ca:8080)
 CONFIG(jenkins_build) {
 	# MPlot Source
-	MPLOT_INCLUDE_DIR = "/var/lib/jenkins/jobs/MPlotOnLinux_MasterBranch/workspace/include"
-		MPLOT_LIB_DIR = "/var/lib/jenkins/jobs/MPlotOnLinux_MasterBranch/workspace/lib"
+	MPLOT_INCLUDE_DIR = /jenkins/MPlot/include
+	MPLOT_LIB_DIR = /jenkins/MPlot/lib
 }
 contains( DEFINES, AM_PRAGMA_WARNING_CONTROLS){
 	DEFINES *= MPLOT_PRAGMA_WARNING_CONTROLS

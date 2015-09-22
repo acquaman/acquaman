@@ -30,9 +30,9 @@ macx {
 # Special build paths and options for running on the Jenkins auto-build server (currently at http://beamteam.usask.ca:8080)
 CONFIG(jenkins_build) {
         # EPICS Dependencies:
-        EPICS_INCLUDE_DIRS = /home/mark/dev/epics/base/include \
-                                /home/mark/dev/epics/base/include/os/Linux
-        EPICS_LIB_DIR = /home/mark/dev/epics/base/lib/linux-x86
+	EPICS_INCLUDE_DIRS = /home/epics/src/R3.14.12/base/include \
+				/home/epics/src/R3.14.12/base/include/os/Linux
+	EPICS_LIB_DIR = /home/epics/src/R3.14.12/base/lib/linux-x86_64
 }
 
 INCLUDEPATH *= $$EPICS_INCLUDE_DIRS
