@@ -109,8 +109,7 @@ void SGMMonochromatorInfoTestView::onMonoErrorCountChanged(int errorCount)
 void SGMMonochromatorInfoTestView::onGratingAngleSpinBoxChanged()
 {
     double value = gratingAngleSpinBox_->value();
-    if(qAbs(value - sgmMonochromatorInfo_->gratingAngle()) > 0.001 ||
-            sgmMonochromatorInfo_->hasErrors()) {
+    if(qAbs(value - sgmMonochromatorInfo_->gratingAngle()) > 0.001) {
         sgmMonochromatorInfo_->setGratingAngle(value);
     }
 }
@@ -173,8 +172,7 @@ void SGMMonochromatorInfoTestView::onUndulatorTrackingCheckBoxChanged(bool value
 void SGMMonochromatorInfoTestView::onUndulatorPositionSpinBoxChanged()
 {
     double value = undulatorPositionSpinBox_->value();
-    if(qAbs(sgmMonochromatorInfo_->undulatorPosition() - value) > 0.001 ||
-            sgmMonochromatorInfo_->hasErrors()) {
+    if(qAbs(sgmMonochromatorInfo_->undulatorPosition() - value) > 0.001) {
 
         sgmMonochromatorInfo_->setUndulatorPosition(value);
     }
@@ -183,8 +181,7 @@ void SGMMonochromatorInfoTestView::onUndulatorPositionSpinBoxChanged()
 void SGMMonochromatorInfoTestView::onUndulatorOffsetSpinBoxChanged()
 {
     double value = undulatorDetuneOffsetSpinBox_->value();
-    if(qAbs(sgmMonochromatorInfo_->undulatorOffset() - value) > 0.001 ||
-            sgmMonochromatorInfo_->hasErrors()) {
+    if(qAbs(sgmMonochromatorInfo_->undulatorOffset() - value) > 0.001) {
                 sgmMonochromatorInfo_->setUndulatorOffset(value);
     }
 }
@@ -229,8 +226,7 @@ void SGMMonochromatorInfoTestView::onExitSlitTrackingCheckBoxChanged(bool value)
 void SGMMonochromatorInfoTestView::onExitSlitPositionSpinBoxChanged()
 {
     double value = exitSlitPositionSpinBox_->value();
-    if(qAbs(sgmMonochromatorInfo_->exitSlitPosition() - value ) > 0.001 ||
-            sgmMonochromatorInfo_->hasErrors()) {
+    if(qAbs(sgmMonochromatorInfo_->exitSlitPosition() - value ) > 0.001) {
 
         sgmMonochromatorInfo_->setExitSlitPosition(value);
     }
@@ -239,8 +235,7 @@ void SGMMonochromatorInfoTestView::onExitSlitPositionSpinBoxChanged()
 void SGMMonochromatorInfoTestView::onEnergySpinBoxChanged()
 {
     double value = energySpinBox_->value();
-    if(qAbs(sgmMonochromatorInfo_->resultantEnergy() - value) > 0.001 ||
-            sgmMonochromatorInfo_->hasErrors()) {
+    if(qAbs(sgmMonochromatorInfo_->resultantEnergy() - value) > 0.001) {
 
         if(gratingSelectionModeComboBox_->currentIndex() == 3) {
             //Manual selection mode
