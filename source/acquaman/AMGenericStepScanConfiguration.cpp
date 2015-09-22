@@ -111,49 +111,52 @@ void AMGenericStepScanConfiguration::merge(AMGenericStepScanConfiguration *confi
 
 void AMGenericStepScanConfiguration::setControl(int axisId, AMControlInfo newInfo)
 {
-	if (axisId == 0 && axisControlInfos_.isEmpty()){
+	if (!hasAxisControlInfo(newInfo)) {
 
-		axisControlInfos_.append(newInfo);
-		setModified(true);
+		if (axisId == 0 && axisControlInfos_.isEmpty()){
 
-		AMScanAxisRegion *region = new AMScanAxisRegion;
-		AMScanAxis *axis = new AMScanAxis(AMScanAxis::StepAxis, region);
-		appendScanAxis(axis);
+			axisControlInfos_.append(newInfo);
+			setModified(true);
 
-		connect(scanAxisAt(0)->regionAt(0), SIGNAL(regionStartChanged(AMNumber)), this, SLOT(computeTotalTime()));
-		connect(scanAxisAt(0)->regionAt(0), SIGNAL(regionStepChanged(AMNumber)), this, SLOT(computeTotalTime()));
-		connect(scanAxisAt(0)->regionAt(0), SIGNAL(regionEndChanged(AMNumber)), this, SLOT(computeTotalTime()));
-		connect(scanAxisAt(0)->regionAt(0), SIGNAL(regionTimeChanged(AMNumber)), this, SLOT(computeTotalTime()));
+			AMScanAxisRegion *region = new AMScanAxisRegion;
+			AMScanAxis *axis = new AMScanAxis(AMScanAxis::StepAxis, region);
+			appendScanAxis(axis);
+
+			connect(scanAxisAt(0)->regionAt(0), SIGNAL(regionStartChanged(AMNumber)), this, SLOT(computeTotalTime()));
+			connect(scanAxisAt(0)->regionAt(0), SIGNAL(regionStepChanged(AMNumber)), this, SLOT(computeTotalTime()));
+			connect(scanAxisAt(0)->regionAt(0), SIGNAL(regionEndChanged(AMNumber)), this, SLOT(computeTotalTime()));
+			connect(scanAxisAt(0)->regionAt(0), SIGNAL(regionTimeChanged(AMNumber)), this, SLOT(computeTotalTime()));
+		}
+
+		else if (axisId == 0){
+
+			axisControlInfos_.replace(0, newInfo);
+			setModified(true);
+		}
+
+		else if (axisId == 1 && axisControlInfos_.count() == 1){
+
+			axisControlInfos_.append(newInfo);
+			setModified(true);
+
+			AMScanAxisRegion *region = new AMScanAxisRegion;
+			AMScanAxis *axis = new AMScanAxis(AMScanAxis::StepAxis, region);
+			appendScanAxis(axis);
+
+			connect(scanAxisAt(1)->regionAt(0), SIGNAL(regionStartChanged(AMNumber)), this, SLOT(computeTotalTime()));
+			connect(scanAxisAt(1)->regionAt(0), SIGNAL(regionStepChanged(AMNumber)), this, SLOT(computeTotalTime()));
+			connect(scanAxisAt(1)->regionAt(0), SIGNAL(regionEndChanged(AMNumber)), this, SLOT(computeTotalTime()));
+			connect(scanAxisAt(1)->regionAt(0), SIGNAL(regionTimeChanged(AMNumber)), this, SLOT(computeTotalTime()));
+		}
+
+		else if (axisId == 1){
+
+			axisControlInfos_.replace(1, newInfo);
+			setModified(true);
+		}
+
+		computeTotalTime();
 	}
-
-	else if (axisId == 0){
-
-		axisControlInfos_.replace(0, newInfo);
-		setModified(true);
-	}
-
-	else if (axisId == 1 && axisControlInfos_.count() == 1){
-
-		axisControlInfos_.append(newInfo);
-		setModified(true);
-
-		AMScanAxisRegion *region = new AMScanAxisRegion;
-		AMScanAxis *axis = new AMScanAxis(AMScanAxis::StepAxis, region);
-		appendScanAxis(axis);
-
-		connect(scanAxisAt(1)->regionAt(0), SIGNAL(regionStartChanged(AMNumber)), this, SLOT(computeTotalTime()));
-		connect(scanAxisAt(1)->regionAt(0), SIGNAL(regionStepChanged(AMNumber)), this, SLOT(computeTotalTime()));
-		connect(scanAxisAt(1)->regionAt(0), SIGNAL(regionEndChanged(AMNumber)), this, SLOT(computeTotalTime()));
-		connect(scanAxisAt(1)->regionAt(0), SIGNAL(regionTimeChanged(AMNumber)), this, SLOT(computeTotalTime()));
-	}
-
-	else if (axisId == 1){
-
-		axisControlInfos_.replace(1, newInfo);
-		setModified(true);
-	}
-
-	computeTotalTime();
 }
 
 void AMGenericStepScanConfiguration::removeControl(int axisId)
@@ -171,15 +174,7 @@ void AMGenericStepScanConfiguration::removeControl(int axisId)
 
 void AMGenericStepScanConfiguration::addDetector(AMDetectorInfo newInfo)
 {
-	bool containsDetector = false;
-
-	for (int i = 0, size = detectorConfigurations_.count(); i < size; i++){
-
-		if (newInfo.name() == detectorConfigurations_.at(i).name())
-			containsDetector = true;
-	}
-
-	if (!containsDetector){
+	if (!hasDetectorInfo(newInfo)){
 
 		detectorConfigurations_.append(newInfo, newInfo.name());
 		setModified(true);

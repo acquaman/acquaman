@@ -96,26 +96,30 @@ QString AMScanConfiguration::enumConvert(const QString &enumName, int enumValue)
 	return "[??]";
 }
 
-bool AMScanConfiguration::hasDetectorInfo(const AMDetectorInfo &detectorInfo) const
+bool AMScanConfiguration::hasDetectorInfo(const AMDetectorInfo &newDetectorInfo) const
 {
-	bool result = false;
+	bool detectorFound = false;
 
-	QList<AMDetectorInfo> detectorInfos = detectorConfigurations_.toList();
-	if (detectorInfos.contains(detectorInfo))
-		result = true;
+	for (int detectorIndex = 0, detectorCount = detectorConfigurations_.count(); detectorIndex < detectorCount && !detectorFound; detectorIndex++) {
+		AMDetectorInfo detectorInfo = detectorConfigurations_.at(detectorIndex);
+		if (detectorInfo.name() == newDetectorInfo.name())
+			detectorFound = true;
+	}
 
-	return result;
+	return detectorFound;
 }
 
-bool AMScanConfiguration::hasAxisControlInfo(const AMControlInfo &controlInfo) const
+bool AMScanConfiguration::hasAxisControlInfo(const AMControlInfo &newControlInfo) const
 {
-	bool result = false;
+	bool controlFound = false;
 
-	QList<AMControlInfo> controlInfos = axisControlInfos_.toList();
-	if (controlInfos.contains(controlInfo))
-		result = true;
+	for (int controlIndex = 0, controlCount = axisControlInfos_.count(); controlIndex < controlCount && !controlFound; controlIndex++) {
+		AMControlInfo controlInfo = axisControlInfos_.at(controlIndex);
+		if (controlInfo.name() == newControlInfo.name())
+			controlFound = true;
+	}
 
-	return result;
+	return controlFound;
 }
 
 void AMScanConfiguration::setUserScanName(const QString &userScanName){

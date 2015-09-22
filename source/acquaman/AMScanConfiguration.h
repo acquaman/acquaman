@@ -234,7 +234,7 @@ public:
 	  * Returns true if the detector configurations for this configuration contain
 	  * the given detector info, false otherwise.
 	  */
-	bool hasDetectorInfo(const AMDetectorInfo &detectorInfo) const;
+	bool hasDetectorInfo(const AMDetectorInfo &newDetectorInfo) const;
 
 	/*!
 	  * The list of control infos which are associated with the axes of the scan.
@@ -245,7 +245,7 @@ public:
 	  * Returns true if this configuration contains the given axis control info,
 	  * false otherwise.
 	  */
-	bool hasAxisControlInfo(const AMControlInfo &controlInfo) const;
+	bool hasAxisControlInfo(const AMControlInfo &newControlInfo) const;
 
 	/*!
 	  * A warning string containing any messages created whilst loading the scan
