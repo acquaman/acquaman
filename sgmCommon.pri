@@ -14,7 +14,8 @@ HEADERS += \
 	source/beamline/SGM/SGMHexapodTransformedAxis.h \
 	source/beamline/SGM/monochromator/SGMGratingSupport.h \
     source/beamline/SGM/monochromator/SGMUndulatorSupport.h \
-    source/beamline/SGM/monochromator/SGMMonochromatorInfo.h
+    source/beamline/SGM/monochromator/SGMMonochromatorInfo.h \
+    $$PWD/source/beamline/SGM/monochromator/SGMEnergyTrajectory.h
 
 
 SOURCES += \
@@ -22,7 +23,8 @@ SOURCES += \
     source/beamline/SGM/SGMBeamline.cpp \
 	source/beamline/SGM/SGMHexapod.cpp \
 	source/beamline/SGM/SGMHexapodTransformedAxis.cpp \
-    source/beamline/SGM/monochromator/SGMMonochromatorInfo.cpp
+    source/beamline/SGM/monochromator/SGMMonochromatorInfo.cpp \
+    $$PWD/source/beamline/SGM/monochromator/SGMEnergyTrajectory.cpp
 
 
 
