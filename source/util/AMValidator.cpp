@@ -3,39 +3,40 @@
 AMValidator::AMValidator(QObject *parent) :
     QObject(parent)
 {
+
 }
 
 void AMValidator::updateValidity(const QString &failMessage, bool failureCriteria)
 {
-	bool startValidState = isValid();
-	int startFailCount = failCount();
+    bool startValidState = isValid();
+    int startFailCount = failCount();
 
     if(failureCriteria) {
         failMessages_.insert(failMessage);
-	} else {
+    } else {
         failMessages_.remove(failMessage);
-	}
+    }
 
-	if(startValidState != isValid()) {
-		emit validStateChanged(isValid());
-	}
+    if(startValidState != isValid()) {
+        emit validStateChanged(isValid());
+    }
 
-	if(startFailCount != failCount()) {
-		emit failCountChanged(failCount());
-	}
+    if(startFailCount != failCount()) {
+        emit failCountChanged(failCount());
+    }
 }
 
 bool AMValidator::isValid() const
 {
-	return failMessages_.isEmpty();
+    return failMessages_.isEmpty();
 }
 
 int AMValidator::failCount() const
 {
-	return failMessages_.count();
+    return failMessages_.count();
 }
 
 QStringList AMValidator::failureMessages() const
 {
-	return failMessages_.toList();
+    return failMessages_.toList();
 }

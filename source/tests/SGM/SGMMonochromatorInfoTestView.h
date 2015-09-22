@@ -10,10 +10,18 @@
 #include "beamline/SGM/monochromator/SGMGratingSupport.h"
 #include "beamline/SGM/monochromator/SGMUndulatorSupport.h"
 class SGMMonochromatorInfo;
+/*!
+ * A widget class designed to visualize the data within an SGMMonochromatorInfo
+ * for testing purposes.
+ */
 class SGMMonochromatorInfoTestView : public QWidget
 {
     Q_OBJECT
 public:
+    /*!
+     * Creates an instance of an mono info test view which will visualize the
+     * provided mono.
+     */
     explicit SGMMonochromatorInfoTestView(SGMMonochromatorInfo* mono, QWidget *parent = 0);
 
 signals:
@@ -21,6 +29,11 @@ signals:
 public slots:
 
 protected slots:
+
+    /*
+     * Signals from the mono to update the view
+     */
+
     void onMonoGratingAngleChanged(double gratingAngleSteps);
     void onMonoGratingTranslationChanged(SGMGratingSupport::GratingTranslation gratingTranslation);
     void onMonoUndulatorTrackingChanged(bool isTracking);
@@ -33,6 +46,10 @@ protected slots:
     void onMonoWarningCountChanged(int warningCount);
     void onMonoErrorCountChanged(int errorCount);
 
+
+    /*
+     * Signals from the view widgets to update the mono
+     */
 
     void onGratingAngleSpinBoxChanged();
     void onGratingSelectionModeComboBoxChanged(int index);
@@ -48,10 +65,20 @@ protected slots:
 
 protected:
 
+    /*!
+     * Initializes the layout components, and perform the initial layout.
+     */
     void setupUi();
 
+    /*!
+     * Sets up the signal/slot connections between the widgets, this view and
+     * the mono info
+     */
     void makeConnections();
 
+    /*!
+     * Sets up the initial data for the view.
+     */
     void setupData();
 
     SGMMonochromatorInfo* sgmMonochromatorInfo_;

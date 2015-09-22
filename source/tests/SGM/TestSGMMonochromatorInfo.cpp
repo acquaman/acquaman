@@ -120,7 +120,7 @@ void TestSGMMonochromatorInfo::testRequestEnergy()
     // Titanium L Edge:
     testIndividualRequestEnergy("Titanium L Edge Start", 450.0, SGMGratingSupport::LowGrating, -247476.56, 34.56543835, 17.71524808, -95294.76);
     testIndividualRequestEnergy("Titanium L Edge Middle", 465.0, SGMGratingSupport::LowGrating, -239493.45, 53.21604579, 18.02659692, -91617.73);
-    testIndividualRequestEnergy("Titanium L Edge Start", 480.0, SGMGratingSupport::LowGrating, -232009.28, 75.02669983, 18.33163518, -88015.23);
+    testIndividualRequestEnergy("Titanium L Edge End", 480.0, SGMGratingSupport::LowGrating, -232009.28, 75.02669983, 18.33163518, -88015.23);
 
     // Chromium L Edge:
     testIndividualRequestEnergy("Chromium L Edge Start", 565.0, SGMGratingSupport::LowGrating, -197105.23, 243.7180414, 19.96171999, -68763.91);
