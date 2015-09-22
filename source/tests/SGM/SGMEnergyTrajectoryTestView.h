@@ -23,6 +23,8 @@ signals:
 public slots:
 
 protected slots:
+    void onCalculateButtonPushed();
+    void onGratingTranslationChanged(int);
 protected:
     void setupUi();
     void setTheoreticalPlotData(SGMGratingSupport::GratingTranslation gratingTranslation);
@@ -44,13 +46,11 @@ protected:
     QDoubleSpinBox* timeSpinBox_;
     QComboBox* gratingTranslationComboBox_;
     QPushButton* calculateButton_;
-    QPushButton* clearButton_;
     QStackedWidget* plotStackWidget_;
 
     QTextEdit* resultsTextEdit_;
 
     QComboBox* plotComboBox_;
-
 };
 
 #endif // SGMENERGYTRAJECTORYTESTVIEW_H
