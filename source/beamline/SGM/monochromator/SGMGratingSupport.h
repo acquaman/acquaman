@@ -18,12 +18,12 @@ enum GratingTranslation {
 };
 
 /*!
-  * Spacing value for each of the grating translations used in the calculation
+  * The space between two consecutive rulings on a grating. Used in the calculation
   * of the energy produced.
   * \param translationSelection ~ The grating whose spacing value is to be
   * returned.
   */
-inline static double spacing(GratingTranslation translationSelection)
+inline static double gratingSpacing(GratingTranslation translationSelection)
 {
     switch(translationSelection) {
     case LowGrating:
@@ -38,52 +38,34 @@ inline static double spacing(GratingTranslation translationSelection)
 }
 
 /*!
-  * Correction value used in the calculation of the energy produced by a given
-  * grating translation.
+  * Correction value used to fit the theoretical energy values at a given grating
+  * setting to the observed actual values.
   * \param translationSelection ~ The grating whose correction value is to be
   * returned.
   */
-inline static double c1(GratingTranslation translationSelection)
+inline static double curveFitCorrection(GratingTranslation translationSelection)
 {
     switch(translationSelection) {
     case LowGrating:
-        return 2.454768e-5;
+        return -3.912711175e-5;
     case MediumGrating:
-        return 2.462036e-5;
+        return -3.915784549e-5;
     case HighGrating:
-        return 2.456910e-5;
+        return -3.916344023e-5;
     default:
         return 0;
     }
 }
 
 /*!
-  * Correction value used in the calculation of the energy produced by a given
-  * grating translation.
-  * \param translationSelection ~ The grating whose correction value is to be
+  * The angle between the incident beam and the defracted beam. This value is
+  * used in the calculation of the energy produced by the grating, as well as in
+  * the calculation to determine the optimized exit slit position for a given
+  * energy.
+  * \param translationSelection ~ The grating whose included angle is to be
   * returned.
   */
-inline static double c2(GratingTranslation translationSelection)
-{
-    switch(translationSelection) {
-    case LowGrating:
-        return -1.593923;
-    case MediumGrating:
-        return -1.590466;
-    case HighGrating:
-        return -1.594012;
-    default:
-        return 0;
-    }
-}
-
-/*!
-  * Correction value used in the calculation of the energy produced by a given
-  * grating translation.
-  * \param translationSelection ~ The grating whose correction value is to be
-  * returned.
-  */
-inline static double thetaM(GratingTranslation translationSelection)
+inline static double includedAngle(GratingTranslation translationSelection)
 {
     switch(translationSelection) {
     case LowGrating:
