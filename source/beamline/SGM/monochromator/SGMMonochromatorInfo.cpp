@@ -36,6 +36,7 @@ SGMMonochromatorInfo::SGMMonochromatorInfo(double requestedEnergy, SGMGratingSup
     isUndulatorTracking_ = true;
     isExitSlitPositionTracking_ = true;
     autoDetectUndulatorHarmonic_ = true;
+    undulatorOffset_ = 0;
 
     requestEnergy(requestedEnergy, gratingTranslation);
 
@@ -53,6 +54,7 @@ SGMMonochromatorInfo::SGMMonochromatorInfo(double requestedEnergy, SGMMonochroma
     isUndulatorTracking_ = true;
     isExitSlitPositionTracking_ = true;
     autoDetectUndulatorHarmonic_ = true;
+    undulatorOffset_ = 0;
 
     requestEnergy(requestedEnergy, gratingOptimizationMode);
 

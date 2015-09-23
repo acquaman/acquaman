@@ -44,6 +44,7 @@ void SGMEnergyTrajectoryTestView::onCalculateButtonPushed()
 
     setTheoreticalPlotData(correspondingGratingTranslation);
     setTrajectoryPlotData(correspondingGratingTranslation);
+    setEnergyPlotData(correspondingGratingTranslation);
 }
 
 void SGMEnergyTrajectoryTestView::onGratingTranslationChanged(int)
@@ -112,6 +113,7 @@ void SGMEnergyTrajectoryTestView::setupUi()
     plotComboBox_->addItem("Grating Angle");
     plotComboBox_->addItem("Undulator Position");
     plotComboBox_->addItem("Exit Slit Position");
+    plotComboBox_->addItem("Energy Produced on Trajectory");
 
     plotLayout->addWidget(plotComboBox_);
     QPen theoreticalLinePen(QBrush(QColor(Qt::red)), 1);
@@ -217,6 +219,30 @@ void SGMEnergyTrajectoryTestView::setupUi()
     exitSlitPositionTrajectorySeries->setLinePen(trajectoryLinePen);
     exitSlitPositionTrajectorySeries->setMarker(MPlotMarkerShape::None);
     exitSlitPositionTrajectorySeries->setDescription("Trajectory exit slit position");
+
+    // Exit Slit Position
+    MPlotWidget* energyVsTimePlotWidget = new MPlotWidget();
+    plotStackWidget_->addWidget(energyVsTimePlotWidget);
+    energyVsTimePlotWidget->enableAntiAliasing(true);
+
+    MPlot* energyVsTimePlot = new MPlot(QRect(0,0,320, 480));
+    energyVsTimePlotWidget->setPlot(energyVsTimePlot);
+
+    energyVsTimePlot->axisBottom()->setAxisName("Delta T");
+    energyVsTimePlot->axisLeft()->setAxisName("Resultant Energy");
+
+    energyVsTimePlot->axisScaleLeft()->setAutoScaleEnabled(true);
+    energyVsTimePlot->axisScaleBottom()->setAutoScaleEnabled(true);
+
+    energyVsTimeData_ = new MPlotVectorSeriesData();
+    MPlotSeriesBasic* energyVsTimeSeries = new MPlotSeriesBasic();
+    energyVsTimeSeries->setModel(energyVsTimeData_);
+
+    energyVsTimePlot->addItem(energyVsTimeSeries);
+
+    energyVsTimeSeries->setLinePen(theoreticalLinePen);
+    energyVsTimeSeries->setMarker(MPlotMarkerShape::None);
+    energyVsTimeSeries->setDescription("Energy produced by constant velocity grating angle");
 }
 
 void SGMEnergyTrajectoryTestView::setTheoreticalPlotData(SGMGratingSupport::GratingTranslation gratingTranslation)
@@ -228,15 +254,15 @@ void SGMEnergyTrajectoryTestView::setTheoreticalPlotData(SGMGratingSupport::Grat
         switch(gratingTranslation) {
         case SGMGratingSupport::LowGrating:
             startValue = 200;
-            endValue = 700;
+            endValue = 800;
             break;
         case SGMGratingSupport::MediumGrating:
             startValue = 400;
-            endValue = 1200;
+            endValue = 1400;
             break;
         case SGMGratingSupport::HighGrating:
-            startValue = 800;
-            endValue = 2000;
+            startValue = 600;
+            endValue = 2500;
             break;
         default:
             startValue = 0;
@@ -273,6 +299,46 @@ void SGMEnergyTrajectoryTestView::setTheoreticalPlotData(SGMGratingSupport::Grat
     }
 }
 
+void SGMEnergyTrajectoryTestView::setEnergyPlotData(SGMGratingSupport::GratingTranslation gratingTranslation)
+{
+    if(qAbs(startEnergySpinBox_->value()) > 0.001 &&
+            qAbs(endEnergySpinBox_->value()) > 0.001 &&
+            qAbs(timeSpinBox_->value()) > 0.001 &&
+            gratingTranslation != SGMGratingSupport::UnknownGrating) {
+
+        SGMEnergyTrajectory trajectory(startEnergySpinBox_->value(),
+                                       endEnergySpinBox_->value(),
+                                       timeSpinBox_->value(),
+                                       gratingTranslation);
+
+        SGMMonochromatorInfo currentMonoStatus(gratingTranslation,
+                                               trajectory.startGratingAngleEncoderStep(),
+                                               trajectory.undulatorHarmonic(),
+                                               trajectory.startUndulatorPosition(),
+                                               0,
+                                               trajectory.startExitSlitPosition());
+
+        currentMonoStatus.setAutoDetectUndulatorHarmonic(false);
+
+        double angleEncoderValue = trajectory.startGratingAngleEncoderStep();
+        double angleEncoderVelocity = trajectory.gratingAngleVelocity();
+
+        QVector<qreal> timeXValues;
+        QVector<qreal> energyProducedYValues;
+
+        for(double currentTime = 0, endTime = trajectory.time(); currentTime < endTime; ++currentTime) {
+
+            timeXValues.append(currentTime);
+            energyProducedYValues.append(currentMonoStatus.resultantEnergy());
+            angleEncoderValue += angleEncoderVelocity;
+            currentMonoStatus.setGratingAngle(angleEncoderValue);
+        }
+
+
+        energyVsTimeData_->setValues(timeXValues, energyProducedYValues);
+    }
+}
+
 void SGMEnergyTrajectoryTestView::setTrajectoryPlotData(SGMGratingSupport::GratingTranslation gratingTranslation)
 {
 
@@ -281,10 +347,10 @@ void SGMEnergyTrajectoryTestView::setTrajectoryPlotData(SGMGratingSupport::Grati
             qAbs(timeSpinBox_->value()) > 0.001 &&
             gratingTranslation != SGMGratingSupport::UnknownGrating) {
 
-    SGMEnergyTrajectory trajectory(startEnergySpinBox_->value(),
-                                   endEnergySpinBox_->value(),
-                                   timeSpinBox_->value(),
-                                   gratingTranslation);
+        SGMEnergyTrajectory trajectory(startEnergySpinBox_->value(),
+                                       endEnergySpinBox_->value(),
+                                       timeSpinBox_->value(),
+                                       gratingTranslation);
 
         QVector<qreal> energyXValues;
         QVector<qreal> gratingAngleTrajectoryYValues;

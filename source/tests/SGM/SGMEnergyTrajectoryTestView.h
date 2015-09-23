@@ -28,6 +28,7 @@ protected slots:
 protected:
     void setupUi();
     void setTheoreticalPlotData(SGMGratingSupport::GratingTranslation gratingTranslation);
+    void setEnergyPlotData(SGMGratingSupport::GratingTranslation gratingTranslation);
     void setTrajectoryPlotData(SGMGratingSupport::GratingTranslation gratingTranslation);
     void setupConnections();
 
@@ -38,6 +39,8 @@ protected:
     MPlotVectorSeriesData* gratingAngleTrajectoryData_;
     MPlotVectorSeriesData* undulatorPositionTrajectoryData_;
     MPlotVectorSeriesData* exitSlitPositionTrajectoryData_;
+
+    MPlotVectorSeriesData* energyVsTimeData_;
 
     MPlotWidget* plotWidget_;
 
