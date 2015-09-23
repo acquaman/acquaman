@@ -141,7 +141,7 @@ double AMScanAxisRegion::size() const
 {
 	double result = 0;
 
-	if (isValid()) {
+	if (regionStart_.isValid() && regionEnd_.isValid()) {
 		result = fabs(regionEnd_ - regionStart_);
 	}
 
@@ -152,37 +152,39 @@ bool AMScanAxisRegion::canMerge(AMScanAxisRegion *otherRegion) const
 {
 	bool result = false;
 
-	// We only consider merges if both regions are valid, their times are the same, and they are going the same way.
+	// We only consider merges if both regions are valid.
+	// We can only merge two regions if they overlap or they share a border.
 
-	bool areValid = (isValid() && otherRegion->isValid());
-	bool sameTimes = (regionTime_ == otherRegion->regionTime());
-	bool sameDirection = ((ascending() && otherRegion->ascending()) || (descending() && otherRegion->descending()));
-
-	if (areValid && sameTimes && sameDirection) {
-		if (overlapsWith(otherRegion) || sharesLimitWith(otherRegion))
+	if (isValid() && otherRegion->isValid()) {
+		if (overlapsWith(otherRegion) || adjacentTo(otherRegion))
 			result = true;
 	}
 
 	return result;
 }
 
-bool AMScanAxisRegion::sharesLimitWith(AMScanAxisRegion *otherRegion) const
+bool AMScanAxisRegion::adjacentTo(AMScanAxisRegion *otherRegion) const
 {
 	bool result = false;
 
 	if (isValid() && otherRegion && otherRegion->isValid()) {
 
-		if (regionStart_ == otherRegion->regionStart())
-			result = true;
+		if ( (ascending() && otherRegion->ascending()) || (descending() && otherRegion->descending()) ) {
 
-		else if (regionStart_ == otherRegion->regionEnd())
-			result = true;
+			// If the two regions are going in the same direction, they are adjacent if the start of one
+			// matches the end of another.
 
-		else if (regionEnd_ == otherRegion->regionStart())
-			result = true;
+			if ( (regionStart_ == otherRegion->regionEnd()) || (regionEnd_ == otherRegion->regionStart()) )
+				result = true;
 
-		else if (regionEnd_ == otherRegion->regionEnd())
-			result = true;
+		} else if ( (ascending() && otherRegion->descending()) || (descending() && otherRegion->ascending()) ) {
+
+			// If the two regions are going in different directions, they are adjacent if the start of one
+			// matches the start of the other or if the end of one matches the end of another.
+
+			if ( (regionStart_ == otherRegion->start()) || (regionEnd_ == otherRegion->regionEnd()) )
+				result = true;
+		}
 	}
 
 	return result;
@@ -194,49 +196,23 @@ bool AMScanAxisRegion::overlapsWith(AMScanAxisRegion *otherRegion) const
 
 	if (isValid() && otherRegion && otherRegion->isValid()) {
 
-		if (ascending() && otherRegion->ascending()) {
+		// Adjacent regions do not overlap.
 
-			if (regionStart_ == otherRegion->regionStart() && regionEnd_ == otherRegion->regionEnd())
-				result = true;
+		if (!adjacentTo(otherRegion)) {
 
-			else if (regionStart_ < otherRegion->regionStart() && regionEnd_ > otherRegion->regionStart())
-				result = true;
+			// Compare the start and end positions of the regions to see if they overlap.
 
-			else if (regionStart_ > otherRegion->regionStart() && regionStart_ < otherRegion->regionEnd())
-				result = true;
+			if (ascending() && otherRegion->ascending())
+				result = (regionStart_ <= otherRegion->regionEnd() && regionEnd_ >= otherRegion->regionStart());
 
-		} else if (ascending() && otherRegion->descending()) {
+			else if (ascending() && otherRegion->descending())
+				result = (regionStart_ <= otherRegion->regionStart() && regionEnd_ >= otherRegion->regionEnd());
 
-			if (regionStart_ == otherRegion->regionEnd() && regionEnd_ == otherRegion->regionStart())
-				result = true;
+			else if (descending() && otherRegion->ascending())
+				result = (regionStart_ >= otherRegion->regionStart() && regionEnd_ <= otherRegion->regionEnd());
 
-			else if (regionStart_ < otherRegion->regionEnd() && regionEnd_ > otherRegion->regionEnd())
-				result = true;
-
-			else if (regionStart_ > otherRegion->regionEnd() && regionStart_ > otherRegion->regionStart())
-				result = true;
-
-		} else if (descending() && otherRegion->ascending()) {
-
-			if (regionStart_ == otherRegion->regionEnd() && regionEnd_ == otherRegion->regionStart())
-				result = true;
-
-			else if (regionEnd_ < otherRegion->regionStart() && regionStart_ > otherRegion->regionStart())
-				result = true;
-
-			else if (regionEnd_ > otherRegion->regionStart() && regionEnd_ < otherRegion->regionEnd())
-				result = true;
-
-		} else if (descending() && otherRegion->descending()) {
-
-			if (regionEnd_ == otherRegion->regionEnd() && regionStart_ == otherRegion->regionStart())
-				result = true;
-
-			else if (regionEnd_ < otherRegion->regionEnd() && regionStart_ > otherRegion->regionEnd())
-				result = true;
-
-			else if (regionEnd_ > otherRegion->regionEnd() && regionEnd_ < otherRegion->regionStart())
-				result = true;
+			else if (descending() && otherRegion->descending())
+				result = (regionStart_ >= otherRegion->regionEnd() && regionEnd_ <= otherRegion->regionStart());
 		}
 	}
 
@@ -249,22 +225,17 @@ bool AMScanAxisRegion::containedBy(AMScanAxisRegion *otherRegion) const
 
 	if (isValid() && otherRegion && otherRegion->isValid()) {
 
-		if (ascending() && otherRegion->ascending()) {
-			if (regionStart_ >= otherRegion->regionStart() && regionEnd_ <= otherRegion->regionEnd())
-				result = true;
+		if (ascending() && otherRegion->ascending())
+			result = (regionStart_ >= otherRegion->regionStart() && regionEnd_ <= otherRegion->regionEnd());
+;
+		else if (ascending() && otherRegion->descending())
+			result = (regionStart_ >= otherRegion->regionEnd() && regionEnd_ <= otherRegion->regionStart());
 
-		} else if (ascending() && otherRegion->descending()) {
-			if (regionStart_ >= otherRegion->regionEnd() && regionEnd_ <= otherRegion->regionStart())
-				result = true;
+		else if (descending() && otherRegion->ascending())
+			result = (regionStart_ <= otherRegion->regionEnd() && regionEnd_ >= otherRegion->regionStart());
 
-		} else if (descending() && otherRegion->ascending()) {
-			if (regionEnd_ >= otherRegion->regionStart() && regionStart_ <= otherRegion->regionEnd())
-				result = true;
-
-		} else if (descending() && otherRegion->descending()) {
-			if (regionEnd_ >= otherRegion->regionEnd() && regionStart_ <= otherRegion->regionStart())
-				result = true;
-		}
+		else if (descending() && otherRegion->descending())
+			result = (regionStart_ <= otherRegion->regionStart() && regionEnd_ >= otherRegion->regionEnd());
 	}
 
 	return result;
@@ -276,22 +247,17 @@ bool AMScanAxisRegion::contains(AMScanAxisRegion *otherRegion) const
 
 	if (isValid() && otherRegion && otherRegion->isValid()) {
 
-		if (ascending() && otherRegion->ascending()) {
-			if (regionStart_ <= otherRegion->regionStart() && regionEnd_ >= otherRegion->regionEnd())
-				result = true;
+		if (ascending() && otherRegion->ascending())
+			result = (regionStart_ <= otherRegion->regionStart() && regionEnd_ >= otherRegion->regionEnd());
 
-		} else if (ascending() && otherRegion->descending()) {
-			if (regionStart_ <= otherRegion->regionEnd() && regionEnd_ >= otherRegion->regionStart())
-				result = true;
+		else if (ascending() && otherRegion->descending())
+			result = (regionStart_ <= otherRegion->regionEnd() && regionEnd_ >= otherRegion->regionStart());
 
-		} else if (descending() && otherRegion->ascending()) {
-			if (regionEnd_ <= otherRegion->regionStart() && regionStart_ >= otherRegion->regionEnd())
-				result = true;
+		else if (descending() && otherRegion->ascending())
+			result = (regionStart_ >= otherRegion->regionEnd() && regionEnd_ <= otherRegion->regionStart());
 
-		} else if (descending() && otherRegion->descending()) {
-			if (regionEnd_ <= otherRegion->regionEnd() && regionStart_ >= otherRegion->regionStart())
-				result = true;
-		}
+		else if (descending() && otherRegion->descending())
+			result = (regionStart_ >= otherRegion->regionStart() && regionEnd_ <= otherRegion->regionEnd());
 	}
 
 	return result;

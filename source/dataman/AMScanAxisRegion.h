@@ -69,19 +69,19 @@ public:
 	/// Returns true if the region start, step, end, and time are all valid AMNumbers. Returns false otherwise.
 	virtual bool isValid() const;
 
-	/// Returns true if this region is ascending, such that the region start is less than the region end. Returns false otherwise.
+	/// Returns true if this region is ascending, such that the region start is less than the region end and the step is positive. Returns false otherwise.
 	bool ascending() const;
-	/// Returns true if this region is descending, such that the region start is greater than the region end. Returns false otherwise.
+	/// Returns true if this region is descending, such that the region start is greater than the region end and the step is negative. Returns false otherwise.
 	bool descending() const;
 
 	/// Returns the size covered by this region, a function of the start and end points. Returns 0 if the region is not valid.
 	int size() const;
 
-	/// Returns true if this region can merge with the given region.
-	bool canMerge(AMScanAxisRegion *otherRegion) const;
+	/// Returns true if the given regions can merge.
+	virtual bool canMerge(AMScanAxisRegion *otherRegion) const;
 
 	/// Returns true if this region shares a region limit with the given region, false otherwise.
-	bool sharesLimitWith(AMScanAxisRegion *otherRegion) const;
+	bool adjacentTo(AMScanAxisRegion *otherRegion) const;
 	/// Returns true if this region overlaps with the given region, false otherwise.
 	bool overlapsWith(AMScanAxisRegion *otherRegion) const;
 	/// Returns true if this region is contained completely within the given region, false otherwise.
