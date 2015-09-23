@@ -132,7 +132,7 @@ bool AMScanAxisRegion::canMerge(AMScanAxisRegion *otherRegion) const
 	// We can only merge two regions if they overlap or they share a border.
 
 	if (isValid() && otherRegion->isValid())
-		result = overlapsWith(otherRegion) || adjacentTo(otherRegion);
+		result = overlapsWith(otherRegion) || adjacentTo(otherRegion);	// these conditions might not be necessary
 
 	return result;
 }
