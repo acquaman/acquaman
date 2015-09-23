@@ -49,13 +49,13 @@ public:
 	virtual AMScanAxisRegion *createCopy() const;
 
 	/// Returns the start of the region as an AMNumber (which may be in the state AMNumber::Null)
-	AMNumber regionStart() const;
+	AMNumber regionStart() const { return regionStart_; }
 	/// Returns the step size for the region as an AMNumber (which may be in the state AMNumber::Null)
-	AMNumber regionStep() const;
+	AMNumber regionStep() const { return regionStep_; }
 	/// Returns the end of the region as an AMNumber (which may be in the state AMNumber::Null)
-	AMNumber regionEnd() const;
+	AMNumber regionEnd() const { return regionEnd_; }
 	/// Returns the time for the region as an AMNumber (which may be in the state AMNumber::Null)
-	AMNumber regionTime() const;
+	AMNumber regionTime() const { return regionTime_; }
 
 	/// Returns the number of points in a region.  Can be reimplemented if region is more sophisticated.
 	virtual int numberOfPoints() const;
@@ -69,9 +69,9 @@ public:
 	/// Returns true if the region start, step, end, and time are all valid AMNumbers. Returns false otherwise.
 	virtual bool isValid() const;
 
-	/// Returns true if this region is ascending, such that the region start is less than the region end and the step is positive. Returns false otherwise.
+	/// Returns true if this region is ascending, false otherwise.
 	bool ascending() const;
-	/// Returns true if this region is descending, such that the region start is greater than the region end and the step is negative. Returns false otherwise.
+	/// Returns true if this region is descending, false otherwise.
 	bool descending() const;
 
 	/// Returns true if the given regions can merge. At present, we only consider merges between two valid regions that are either overlapping or are adjacent.
