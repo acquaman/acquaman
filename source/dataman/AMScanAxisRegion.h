@@ -40,8 +40,6 @@ class AMScanAxisRegion : public AMDbObject
 public:
 	/// Constructor. Takes values for start, step, end, and time. Defaults are AMNumbers in the AMNumber::Null state
 	Q_INVOKABLE AMScanAxisRegion(const AMNumber &start = AMNumber(AMNumber::Null), const AMNumber &step = AMNumber(AMNumber::Null), const AMNumber &end = AMNumber(AMNumber::Null), const AMNumber &time = AMNumber(AMNumber::Null), QObject *parent = 0);
-	/// Alternate constructor. Creates new region by combining the provided list of regions.
-	AMScanAxisRegion(AMOrderedList<AMScanAxisRegion*> regions, QObject *parent = 0);
 	/// Copy constructor.
 	AMScanAxisRegion(const AMScanAxisRegion &original);
 	/// Destructor.
@@ -66,6 +64,8 @@ public:
 	/// Returns a string containing the information in a standard way.
 	virtual QString toString(const QString &units = "") const;
 
+	/// Returns true if the region time is valid, ie a valid AMNumber and positive. Returns false otherwise.
+	bool validTime() const;
 	/// Returns true if the region start, step, end, and time are all valid AMNumbers. Returns false otherwise.
 	virtual bool isValid() const;
 
@@ -74,10 +74,7 @@ public:
 	/// Returns true if this region is descending, such that the region start is greater than the region end and the step is negative. Returns false otherwise.
 	bool descending() const;
 
-	/// Returns the size covered by this region, a function of the start and end points. Returns 0 if the region is not valid.
-	int size() const;
-
-	/// Returns true if the given regions can merge.
+	/// Returns true if the given regions can merge. At present, we only consider merges between two valid regions that are either overlapping or are adjacent.
 	virtual bool canMerge(AMScanAxisRegion *otherRegion) const;
 
 	/// Returns true if this region shares a region limit with the given region, false otherwise.
