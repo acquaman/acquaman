@@ -70,6 +70,12 @@ bool BioXASSSRLMonochromatorEnergyControl::canStop() const
 	return false;
 }
 
+bool BioXASSSRLMonochromatorEnergyControl::canCalibrate() const
+{
+	bool result = (isConnected() && bragg_->canCalibrate());
+	return result;
+}
+
 void BioXASSSRLMonochromatorEnergyControl::setBraggControl(AMControl *newControl)
 {
 	if (bragg_ != newControl) {

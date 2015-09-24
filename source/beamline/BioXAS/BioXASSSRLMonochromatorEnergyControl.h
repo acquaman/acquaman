@@ -25,6 +25,8 @@ public:
 	virtual bool shouldMove() const { return true; }
 	/// Returns true if a control stop is always possible, provided it is connected. False otherwise.
 	virtual bool shouldStop() const { return true; }
+	/// Returns true if a calibration is always possible, provided this control is connected. False otherwise.
+	virtual bool shouldCalibrate() const { return true; }
 
 	/// Returns true if this control's value can be measured right now. False otherwise.
 	virtual bool canMeasure() const;
@@ -32,6 +34,8 @@ public:
 	virtual bool canMove() const;
 	/// Returns true if this control can stop right now. False otherwise.
 	virtual bool canStop() const;
+	/// Returns true if this control can be calibrated right now. False otherwise.
+	virtual bool canCalibrate() const;
 
 	/// Returns the hc constant.
 	double hc() const { return hc_; }
