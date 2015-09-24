@@ -303,12 +303,12 @@ void REIXSXESImageInterpolationAB::setInputDataSourcesImplementation(const QList
 	cachedValues_ = QVector<double>(axes_.at(0).size);
 	axisValueCacheInvalid_ = true;
 	cachedAxisValues_ = QVector<double>(axes_.at(0).size);
-	onInputSourceSizeChanged();
 	reviewState();
 
-	emitSizeChanged(0);
+	emitSizeChanged();
+	onInputSourceSizeChanged();
 	emitValuesChanged();
-	emitAxisInfoChanged(0);
+	emitAxisInfoChanged();
 }
 
 
@@ -610,6 +610,7 @@ void REIXSXESImageInterpolationAB::onInputSourceValuesChanged(const AMnDIndex &s
 
 void REIXSXESImageInterpolationAB::onInputSourceSizeChanged()
 {
+
 	cacheInvalid_ = true;
 	axisValueCacheInvalid_ = true;
 
@@ -628,8 +629,8 @@ void REIXSXESImageInterpolationAB::onInputSourceSizeChanged()
 
 	// If the sumRangeMin/sumRangeMax were out of range before, they might be valid now.
 	reviewState();
-	if(sizeChanged)
-		emitSizeChanged(0);
+//	if(sizeChanged)
+//		emitSizeChanged();
 	emitValuesChanged();
 }
 
@@ -1014,7 +1015,7 @@ void REIXSXESImageInterpolationAB::setEnergyCalibrationOffset(double energyCalib
 
 	energyCalibrationOffset_ = energyCalibrationOffset;
 	axisValueCacheInvalid_ = true;
-	emitSizeChanged(0);
+	emitSizeChanged();
 	emitValuesChanged();
 	setModified(true);
 }
@@ -1026,7 +1027,7 @@ void REIXSXESImageInterpolationAB::setTiltCalibrationOffset(double tiltCalibrati
 
 	tiltCalibrationOffset_ = tiltCalibrationOffset;
 	axisValueCacheInvalid_ = true;
-	emitSizeChanged(0);
+	emitSizeChanged();
 	emitValuesChanged();
 	setModified(true);
 }
