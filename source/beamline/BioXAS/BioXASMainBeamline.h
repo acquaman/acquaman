@@ -110,6 +110,8 @@ public:
 	AMBasicControlDetectorEmulator* braggDetector() const { return braggDetector_; }
 	/// Returns the bragg step setpoint detector.
 	AMBasicControlDetectorEmulator* braggStepSetpointDetector() const { return braggStepSetpointDetector_; }
+	/// Returns the bragg encoder feedback - step feedback difference detector (deg).
+	AMBasicControlDetectorEmulator* braggEncoderStepDegFeedbackDetector() const { return braggEncoderStepsDegFeedbackDetector_; }
 
 	/// Return the set of BioXAS Motors by given motor category.
 	QList<AMControl *> getMotorsByType(BioXASBeamlineDef::BioXASMotorType category);
@@ -184,6 +186,8 @@ protected:
 	AMBasicControlDetectorEmulator *braggDetector_;
 	/// The step-based bragg setpoint detector
 	AMBasicControlDetectorEmulator *braggStepSetpointDetector_;
+	/// The detector for the control that monitors the difference between the mono bragg encoder feedback and steps feedback (deg).
+	AMBasicControlDetectorEmulator *braggEncoderStepsDegFeedbackDetector_;
 };
 
 #endif // BIOXASMAINBEAMLINE_H

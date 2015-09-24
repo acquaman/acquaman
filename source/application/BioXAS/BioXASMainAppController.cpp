@@ -100,5 +100,9 @@ void BioXASMainAppController::setupXASScanConfiguration(BioXASXASScanConfigurati
 		AMDetector *goniometerStepSetpoint = BioXASMainBeamline::bioXAS()->braggStepSetpointDetector();
 		if (goniometerStepSetpoint)
 			configuration->addDetector(goniometerStepSetpoint->toInfo());
+
+		AMDetector *goniometerEncoderStepFeedback = BioXASMainBeamline::bioXAS()->braggEncoderStepDegFeedbackDetector();
+		if (goniometerEncoderStepFeedback)
+			configuration->addDetector(goniometerEncoderStepFeedback->toInfo());
 	}
 }

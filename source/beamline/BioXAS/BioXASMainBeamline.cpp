@@ -251,6 +251,7 @@ void BioXASMainBeamline::setupExposedControls()
 	addExposedControl(mono_->crystal1RollMotor());
 	addExposedControl(mono_->crystal2PitchMotor());
 	addExposedControl(mono_->crystal2RollMotor());
+	addExposedControl(mono_->encoderStepsDiffControl());
 
 	// M2 mirror controls.
 
@@ -314,6 +315,7 @@ void BioXASMainBeamline::setupExposedDetectors()
 	addExposedDetector(stepEnergyFeedbackDetector_);
 	addExposedDetector(braggDetector_);
 	addExposedDetector(braggStepSetpointDetector_);
+	addExposedDetector(braggEncoderStepsDegFeedbackDetector_);
 }
 
 void BioXASMainBeamline::setupControlsAsDetectors()
@@ -335,6 +337,10 @@ void BioXASMainBeamline::setupControlsAsDetectors()
 	braggStepSetpointDetector_ = new AMBasicControlDetectorEmulator("GoniometerMotorStepSetpoint", "Goniometer motor step setpoint", mono_->braggMotor()->stepSetpointControl(), 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
 	braggStepSetpointDetector_->setHiddenFromUsers(false);
 	braggStepSetpointDetector_->setIsVisible(true);
+
+	braggEncoderStepsDegFeedbackDetector_ = new AMBasicControlDetectorEmulator("GoniometerEncoderStepsDegFeedback", "Difference between the encoder and steps feedback (deg)", mono_->encoderStepsDiffControl(), 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	braggEncoderStepsDegFeedbackDetector_->setHiddenFromUsers(false);
+	braggEncoderStepsDegFeedbackDetector_->setIsVisible(true);
 }
 
 BioXASMainBeamline::BioXASMainBeamline()
