@@ -109,6 +109,11 @@ public slots:
 	/// Attempts to merge this region with another region. Returns true if merge performed successfully, false otherwise.
 	virtual bool merge(AMScanAxisRegion *otherRegion);
 
+	/// Updates this region's start and end positions and step size such that it is ascending.
+	void setAscending();
+	/// Updates this region's start and end positions and step size such that it is descending.
+	void setDescending();
+
 protected:
 	/// Returns true if the result of merging another region into this one should be ascending.
 	bool mergeAscending(AMScanAxisRegion *otherRegion);

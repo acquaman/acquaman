@@ -262,6 +262,32 @@ bool AMScanAxisRegion::merge(AMScanAxisRegion *otherRegion)
 	return result;
 }
 
+void AMScanAxisRegion::setAscending()
+{
+	if (isValid() && descending()) {
+		AMNumber newStart = regionEnd_;
+		AMNumber newStep = AMNumber(double(regionStep_) * -1);
+		AMNumber newEnd = regionStart_;
+
+		setRegionStart(newStart);
+		setRegionStep(newStep);
+		setRegionEnd(newEnd);
+	}
+}
+
+void AMScanAxisRegion::setDescending()
+{
+	if (isValid() && ascending()) {
+		AMNumber newStart = regionEnd_;
+		AMNumber newStep = AMNumber(double(regionStep_) * -1);
+		AMNumber newEnd = regionStart_;
+
+		setRegionStart(newStart);
+		setRegionStep(newStep);
+		setRegionEnd(newEnd);
+	}
+}
+
 bool AMScanAxisRegion::mergeAscending(AMScanAxisRegion *otherRegion)
 {
 	bool result = false;
