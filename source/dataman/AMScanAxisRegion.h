@@ -74,8 +74,11 @@ public:
 	/// Returns true if this region is descending, false otherwise.
 	bool descending() const;
 
-	/// Returns true if the given regions can merge. At present, we only consider merges between two valid regions that are either overlapping or are adjacent.
-	virtual bool canMerge(AMScanAxisRegion *otherRegion) const;
+	/// Returns true if this region can merge with the given region. At present, we only consider merges between two valid regions that are either overlapping or are adjacent.
+	bool canMerge(AMScanAxisRegion *otherRegion) const;
+
+	/// Returns true if this region can become adjacent to the given region.
+	bool canMakeAdjacentTo(AMScanAxisRegion *otherRegion) const;
 
 	/// Returns true if this region shares a region limit with the given region, false otherwise.
 	bool adjacentTo(AMScanAxisRegion *otherRegion) const;
@@ -107,12 +110,15 @@ public slots:
 	void setRegionTime(const AMNumber &regionTime);
 
 	/// Attempts to merge this region with another region. Returns true if merge performed successfully, false otherwise.
-	virtual bool merge(AMScanAxisRegion *otherRegion);
+	bool merge(AMScanAxisRegion *otherRegion);
 
 	/// Updates this region's start and end positions and step size such that it is ascending.
 	void setAscending();
 	/// Updates this region's start and end positions and step size such that it is descending.
 	void setDescending();
+
+	/// Attempts to modify this region to make it adjacent to the given region. Returns true if performed successfully, false otherwise.
+	bool makeAdjacentTo(AMScanAxisRegion *otherRegion);
 
 protected:
 	/// Returns true if the result of merging another region into this one should be ascending.
@@ -128,6 +134,11 @@ protected:
 	AMNumber mergeEnd(AMScanAxisRegion *otherRegion);
 	/// Returns the suggested time value for the region made by merging this region with the given region.
 	AMNumber mergeTime(AMScanAxisRegion *otherRegion);
+
+	/// Returns the suggested start value for this region to make it adjacent to the given region. It is assumed that canMakeAdjacentTo is true.
+	AMNumber makeAdjacentStart(AMScanAxisRegion *otherRegion);
+	/// Returns the suggested end value for this region to make it adjacent to the given region. It is assumed that canMakeAdjacentTo is true.
+	AMNumber makeAdjacentEnd(AMScanAxisRegion *otherRegion);
 
 protected:
 	/// Holds the start of the region

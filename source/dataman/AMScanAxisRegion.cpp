@@ -108,8 +108,14 @@ bool AMScanAxisRegion::canMerge(AMScanAxisRegion *otherRegion) const
 {
 	// We only consider merges if both regions are valid (for now).
 
-	bool result = (isValid() && otherRegion->isValid());
+	bool result = (isValid() && otherRegion && otherRegion->isValid());
 
+	return result;
+}
+
+bool AMScanAxisRegion::canMakeAdjacentTo(AMScanAxisRegion *otherRegion) const
+{
+	bool result = (isValid() && otherRegion && otherRegion->isValid() && !contains(otherRegion) && !containedBy(otherRegion));
 	return result;
 }
 
@@ -288,6 +294,21 @@ void AMScanAxisRegion::setDescending()
 	}
 }
 
+bool AMScanAxisRegion::makeAdjacentTo(AMScanAxisRegion *otherRegion)
+{
+	bool result = false;
+
+	if (canMakeAdjacentTo(otherRegion)) {
+		AMNumber newStart = makeAdjacentStart(otherRegion);
+		AMNumber newEnd = makeAdjacentEnd(otherRegion);
+
+		setRegionStart(newStart);
+		setRegionEnd(newEnd);
+	}
+
+	return result;
+}
+
 bool AMScanAxisRegion::mergeAscending(AMScanAxisRegion *otherRegion)
 {
 	bool result = false;
@@ -440,6 +461,56 @@ AMNumber AMScanAxisRegion::mergeTime(AMScanAxisRegion *otherRegion)
 		if (isValid() && otherRegion->isValid()) {
 			result = (double(regionTime_) >= double(otherRegion->regionTime())) ? regionTime_ : otherRegion->regionTime();
 		}
+	}
+
+	return result;
+}
+
+AMNumber AMScanAxisRegion::makeAdjacentStart(AMScanAxisRegion *otherRegion)
+{
+	// It is assumed that one region isn't contained inside the other region.
+	// This situation should be checked for in canMakeAdjacentTo.
+
+	AMNumber result = AMNumber::InvalidError;
+
+	if (isValid() && otherRegion && otherRegion->isValid()) {
+
+		if (ascending() && otherRegion->ascending())
+			result = (double(regionStart_) < double(otherRegion->regionStart())) ? regionStart_ : otherRegion->regionEnd();
+
+		else if (ascending() && otherRegion->descending())
+			result = (double(regionStart_) < double(otherRegion->regionEnd())) ? regionStart_ : otherRegion->regionStart();
+
+		else if (descending() && otherRegion->ascending())
+			result = (double(regionStart_) > double(otherRegion->regionEnd())) ? regionStart_ : otherRegion->regionStart();
+
+		else if (descending() && otherRegion->descending())
+			result = (double(regionStart_) > double(otherRegion->regionStart())) ? regionStart_ : otherRegion->regionEnd();
+	}
+
+	return result;
+}
+
+AMNumber AMScanAxisRegion::makeAdjacentEnd(AMScanAxisRegion *otherRegion)
+{
+	// It is assumed that one region isn't contained inside the other region.
+	// This situation should be checked for in canMakeAdjacentTo.
+
+	AMNumber result = AMNumber::InvalidError;
+
+	if (isValid() && otherRegion && otherRegion->isValid()) {
+
+		if (ascending() && otherRegion->ascending())
+			result = (double(regionEnd_) > double(otherRegion->regionEnd())) ? regionEnd_ : otherRegion->regionStart();
+
+		else if (ascending() && otherRegion->descending())
+			result = (double(regionEnd_) > double(otherRegion->regionStart())) ? regionEnd_ : otherRegion->regionEnd();
+
+		else if (descending() && otherRegion->ascending())
+			result = (double(regionEnd_) < double(otherRegion->regionStart())) ? regionEnd_ : otherRegion->regionEnd();
+
+		else if (descending() && otherRegion->descending())
+			result = (double(regionEnd_) < double(otherRegion->regionEnd())) ? regionEnd_ : otherRegion->regionStart();
 	}
 
 	return result;
