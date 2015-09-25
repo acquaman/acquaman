@@ -107,7 +107,7 @@ public:
 
 	/// Indicates that this motor \em can currently be calibrated.
 	virtual bool canCalibrate() const { return canMove(); }
-	/// Indicates that this motor \em should (assuming it's connected) be calibrated.
+	/// Indicates that this motor \em should (assuming it's connected) be able to be calibrated.
 	virtual bool shouldCalibrate() const { return true; }
 
 	/// Returns the basename of the MAXvMotor PVs
