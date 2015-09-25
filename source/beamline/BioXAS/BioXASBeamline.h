@@ -66,36 +66,37 @@ public:
 	virtual bool beamOn() const;
 
 	/// Returns the front end upstream photon shutter.
-	AMControl* photonShutterFEUpstream() const { return photonShutterFEUpstream_; }
+	CLSBiStateControl* photonShutterFEUpstream() const { return photonShutterFEUpstream_; }
 	/// Returns the front end downstream photon shutter.
-	AMControl* photonShutterFEDownstream() const { return photonShutterFEDownstream_; }
+	CLSBiStateControl* photonShutterFEDownstream() const { return photonShutterFEDownstream_; }
 	/// Returns the front end safety shutter.
-	AMControl* safetyShutterFE() const { return safetyShutterFE_; }
+	CLSBiStateControl* safetyShutterFE() const { return safetyShutterFE_; }
 	/// Returns the endstation safety shutter.
-	AMControl* safetyShutterES() const { return 0; }
+	virtual CLSBiStateControl* safetyShutterES() const { return 0; }
 
-	/// Returns the carbon filter farm.
-	virtual BioXASCarbonFilterFarm* carbonFilterFarm() const { return 0; }
-	/// Returns the XIA filters.
-	virtual BioXASXIAFilters* xiaFilters() const { return 0; }
 	/// Returns the m1 mirror.
 	virtual BioXASM1Mirror* m1Mirror() const { return 0; }
 	/// Returns the monochromator.
 	virtual BioXASSSRLMonochromator* mono() const { return 0; }
 	/// Returns the m2 mirror.
 	virtual BioXASM2Mirror* m2Mirror() const { return 0; }
+	/// Returns the carbon filter farm.
+	virtual BioXASCarbonFilterFarm* carbonFilterFarm() const { return 0; }
+	/// Returns the JJ slits.
+	virtual CLSJJSlits* jjSlits() const { return 0; }
+	/// Returns the XIA filters.
+	virtual BioXASXIAFilters* xiaFilters() const { return 0; }
 	/// Returns the DBHR mirrors.
 	virtual BioXASDBHRMirrors* dbhrMirrors() const { return 0; }
 	/// Returns the standards wheel.
 	virtual CLSStandardsWheel* standardsWheel() const { return 0; }
-	/// Returns the JJ slits.
-	virtual CLSJJSlits* jjSlits() const { return 0; }
-	/// Returns the endstation table.
-	virtual BioXASEndstationTable* endstationTable() const { return 0; }
-	/// Returns the scaler.
-	virtual CLSSIS3820Scaler* scaler() const { return 0; }
 	/// Returns the cryostat stage motor group.
 	virtual BioXASCryostatStage* cryostatStage() const { return 0; }
+	/// Returns the endstation table.
+	virtual BioXASEndstationTable* endstationTable() const { return 0; }
+
+	/// Returns the scaler.
+	virtual CLSSIS3820Scaler* scaler() const { return 0; }
 
 	/// Returns the beamline utilities.
 	virtual BioXASBeamlineUtilities* utilities() const { return 0; }
@@ -113,6 +114,9 @@ public:
 	/// Returns the scaler dwell time detector.
 	virtual AMBasicControlDetectorEmulator* scalerDwellTimeDetector() const { return 0; }
 
+	/// Returns the detector for the given control, if one has been created and added to the control/detector map.
+	AMBasicControlDetectorEmulator* detectorForControl(AMControl *control) const;
+
 signals:
 	/// Notifier that the current connected state has changed.
 	void connectedChanged(bool isConnected);
@@ -127,6 +131,11 @@ protected:
 	/// Sets up controls for front end beamline components.
 	virtual void setupComponents();
 
+	/// Creates and returns a control detector emulator for the given control.
+	AMBasicControlDetectorEmulator* createDetectorEmulator(const QString &name, const QString &description, AMControl *control, bool hiddenFromUsers = false, bool isVisible = true);
+	/// Creates a control detector emulator for the given control and adds the pair to the controlDetectorMap.
+	void addControlAsDetector(const QString &name, const QString &description, AMControl *control, bool hiddenFromUsers = false, bool isVisible = true);
+
 	/// Protected constructor.
 	BioXASBeamline(const QString &controlName);
 
@@ -140,6 +149,9 @@ protected:
 	CLSBiStateControl *photonShutterFEDownstream_;
 	/// The front end safety shutter.
 	CLSBiStateControl *safetyShutterFE_;
+
+	/// The control/detector map. Assumes a 1-1 correlation between controls and detector emulators.
+	QMap<AMControl*, AMBasicControlDetectorEmulator*> controlDetectorMap_;
 };
 
 #endif // BIOXASBEAMLINE_H

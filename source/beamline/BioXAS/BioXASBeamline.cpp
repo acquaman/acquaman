@@ -40,6 +40,11 @@ bool BioXASBeamline::beamOn() const
 	return result;
 }
 
+AMBasicControlDetectorEmulator* BioXASBeamline::detectorForControl(AMControl *control) const
+{
+	return controlDetectorMap_.value(control, 0);
+}
+
 void BioXASBeamline::setConnected(bool isConnected)
 {
 	if (connected_ != isConnected) {
@@ -66,6 +71,27 @@ void BioXASBeamline::setupComponents()
 	// The front end safety shutter.
 	safetyShutterFE_ = new CLSBiStateControl("SafetyShutterFE", "BioXAS front end safety shutter", "SSH1407-I00-01:state", "SSH1407-I00-01:opr:open", "SSH1407-I00-01:opr:close", new AMControlStatusCheckerDefault(2), this);
 	connect( safetyShutterFE_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+}
+
+AMBasicControlDetectorEmulator* BioXASBeamline::createDetectorEmulator(const QString &name, const QString &description, AMControl *control, bool hiddenFromUsers, bool isVisible)
+{
+	AMBasicControlDetectorEmulator *detector = 0;
+
+	if (control) {
+		detector = new AMBasicControlDetectorEmulator(name, description, control, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+		detector->setHiddenFromUsers(hiddenFromUsers);
+		detector->setIsVisible(isVisible);
+	}
+
+	return detector;
+}
+
+void BioXASBeamline::addControlAsDetector(const QString &name, const QString &description, AMControl *control, bool hiddenFromUsers, bool isVisible)
+{
+	if (control && !controlDetectorMap_.contains(control)) {
+		AMBasicControlDetectorEmulator *detector = createDetectorEmulator(name, description, control, hiddenFromUsers, isVisible);
+		controlDetectorMap_.insert(control, detector);
+	}
 }
 
 BioXASBeamline::BioXASBeamline(const QString &controlName) :
