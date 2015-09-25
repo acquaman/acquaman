@@ -100,31 +100,32 @@ public:
 	virtual CLSBasicScalerChannelDetector* i1Detector() const { return i1Detector_; }
 	/// Returns the I2 scaler channel detector.
 	virtual CLSBasicScalerChannelDetector* i2Detector() const { return i2Detector_; }
-	/// Returns the scaler dwell time detector.
-	virtual AMBasicControlDetectorEmulator* scalerDwellTimeDetector() const { return dwellTimeDetector_; }
-	/// Returns the bragg encoder-based energy feedback detector.
-	AMBasicControlDetectorEmulator* encoderEnergyFeedbackDetector() const { return encoderEnergyFeedbackDetector_; }
-	/// Returns the bragg step-based energy feedback detector.
-	AMBasicControlDetectorEmulator* stepEnergyFeedbackDetector() const { return stepEnergyFeedbackDetector_; }
-	/// Returns the bragg motor detector.
-	AMBasicControlDetectorEmulator* braggDetector() const { return braggDetector_; }
-	/// Returns the bragg step setpoint detector.
-	AMBasicControlDetectorEmulator* braggStepSetpointDetector() const { return braggStepSetpointDetector_; }
 
 	/// Return the set of BioXAS Motors by given motor category.
 	QList<AMControl *> getMotorsByType(BioXASBeamlineDef::BioXASMotorType category);
 
+	/// Returns the scaler dwell time detector.
+	virtual AMBasicControlDetectorEmulator* scalerDwellTimeDetector() const;
+	/// Returns the bragg encoder-based energy feedback detector.
+	AMBasicControlDetectorEmulator* encoderEnergyFeedbackDetector() const;
+	/// Returns the bragg step-based energy feedback detector.
+	AMBasicControlDetectorEmulator* stepEnergyFeedbackDetector() const;
+	/// Returns the bragg motor detector.
+	AMBasicControlDetectorEmulator* braggDetector() const;
+	/// Returns the bragg step setpoint detector.
+	AMBasicControlDetectorEmulator* braggStepSetpointDetector() const;
+	/// Returns the bragg encoder feedback - step feedback difference detector (deg).
+	AMBasicControlDetectorEmulator* braggEncoderStepDegFeedbackDetector() const;
+
 protected:
-	/// Sets up all the detectors.
-	void setupDetectors();
 	/// Sets up various beamline components.
 	virtual void setupComponents();
+	/// Sets up all of the detectors that need to be added to scans that aren't a part of typical detectors.  This may just be temporary, not sure.
+	void setupControlsAsDetectors();
 	/// Sets up the exposed controls.
 	void setupExposedControls();
 	/// Sets up the exposed detectors.
 	void setupExposedDetectors();
-	/// Sets up all of the detectors that need to be added to scans that aren't a part of typical detectors.  This may just be temporary, not sure.
-	void setupControlsAsDetectors();
 
 	/// Constructor. This is a singleton class, access it through BioXASMainBeamline::bioXAS().
 	BioXASMainBeamline();
@@ -174,16 +175,6 @@ protected:
 	CLSBasicScalerChannelDetector *i2Detector_;
 	/// Ge 32-el detector
 	BioXAS32ElementGeDetector *ge32ElementDetector_;
-	/// The scaler dwell time detector
-	AMBasicControlDetectorEmulator *dwellTimeDetector_;
-	/// The bragg encoder-based energy feedback detector
-	AMBasicControlDetectorEmulator *encoderEnergyFeedbackDetector_;
-	/// The bragg step-based energy feedback detector
-	AMBasicControlDetectorEmulator *stepEnergyFeedbackDetector_;
-	/// The bragg angle detector
-	AMBasicControlDetectorEmulator *braggDetector_;
-	/// The step-based bragg setpoint detector
-	AMBasicControlDetectorEmulator *braggStepSetpointDetector_;
 };
 
 #endif // BIOXASMAINBEAMLINE_H

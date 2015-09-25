@@ -57,6 +57,7 @@ public:
 
 	/// Returns the endstation safety shutter.
 	virtual CLSBiStateControl* safetyShutterES() const { return safetyShutterES_; }
+
 	/// Returns the m1 mirror.
 	virtual BioXASM1Mirror* m1Mirror() const { return m1Mirror_; }
 	/// Returns the mono.
@@ -104,33 +105,27 @@ public:
 	virtual AMDetector* i2Detector() const { return i2Detector_; }
 	/// Returns the 32 element Ge detector.
 	virtual BioXAS32ElementGeDetector *ge32ElementDetector() const { return ge32ElementDetector_; }
-	/// Returns the four element Vortex detector.
-	virtual BioXASFourElementVortexDetector *fourElementVortexDetector() const { return 0; }
 
 	/// Returns the scaler dwell time detector.
-	virtual AMBasicControlDetectorEmulator* scalerDwellTimeDetector() const { return dwellTimeDetector_; }
+	virtual AMBasicControlDetectorEmulator* scalerDwellTimeDetector() const;
 	/// Returns the bragg encoder-based energy feedback detector.
-	AMBasicControlDetectorEmulator* encoderEnergyFeedbackDetector() const { return encoderEnergyFeedbackDetector_; }
+	AMBasicControlDetectorEmulator* encoderEnergyFeedbackDetector() const;
 	/// Returns the bragg step-based energy feedback detector.
-	AMBasicControlDetectorEmulator* stepEnergyFeedbackDetector() const { return stepEnergyFeedbackDetector_; }
+	AMBasicControlDetectorEmulator* stepEnergyFeedbackDetector() const;
 	/// Returns the bragg motor detector.
-	AMBasicControlDetectorEmulator* braggDetector() const { return braggDetector_; }
+	AMBasicControlDetectorEmulator* braggDetector() const;
 	/// Returns the bragg step setpoint detector.
-	AMBasicControlDetectorEmulator* braggStepSetpointDetector() const { return braggStepSetpointDetector_; }
+	AMBasicControlDetectorEmulator* braggStepSetpointDetector() const;
 
 protected:
-	/// Sets up all the detectors.
-	void setupDetectors();
-	/// Sets up the detector stage motors.
-	void setupDetectorStage();
 	/// Sets up various beamline components.
 	virtual void setupComponents();
-	/// Sets up the exposed actions.
+	/// Sets up all of the detectors that need to be added to scans that aren't a part of typical detectors.  This may just be temporary, not sure.
+	void setupControlsAsDetectors();
+	/// Sets up the exposed controls.
 	void setupExposedControls();
 	/// Sets up the exposed detectors.
 	void setupExposedDetectors();
-	/// Sets up all of the detectors that need to be added to scans that aren't a part of typical detectors.  This may just be temporary, not sure.
-	void setupControlsAsDetectors();
 
 	/// Constructor. This is a singleton class, access it through BioXASSideBeamline::bioXAS().
 	BioXASSideBeamline();
@@ -185,18 +180,6 @@ protected:
 	CLSBasicScalerChannelDetector *i2Detector_;
 	/// Ge 32-el detector
 	BioXAS32ElementGeDetector *ge32ElementDetector_;
-	/// The bragg encoder-based energy feedback detector
-	AMBasicControlDetectorEmulator *encoderEnergyFeedbackDetector_;
-	/// The bragg step-based energy setpoint detector
-	AMBasicControlDetectorEmulator *stepEnergySetpointDetector_;
-	/// The bragg step-based energy feedback detector
-	AMBasicControlDetectorEmulator *stepEnergyFeedbackDetector_;
-	/// The scaler dwell time detector
-	AMBasicControlDetectorEmulator *dwellTimeDetector_;
-	/// The bragg angle detector
-	AMBasicControlDetectorEmulator *braggDetector_;
-	/// The step-based bragg setpoint detector
-	AMBasicControlDetectorEmulator *braggStepSetpointDetector_;
 };
 
 #endif // BIOXASSIDEBEAMLINE_H
