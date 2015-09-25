@@ -1,7 +1,7 @@
 #include "AMPseudoMotorControl.h"
 #include "util/AMErrorMonitor.h"
 
-AMPseudoMotorControl::AMPseudoMotorControl(const QString &name, const QString &units, QObject *parent, const QString &description) :
+AMPseudoMotorControl::AMPseudoMotorControl(const QString &name, const QString &units, QObject *parent, const QString &description, AMDetectorSet *optimizationDetectors) :
 	AMControl(name, units, parent, description)
 {
 	// Initialize local variables.
@@ -14,6 +14,11 @@ AMPseudoMotorControl::AMPseudoMotorControl(const QString &name, const QString &u
 	minimumValue_ = 0;
 	maximumValue_ = 0;
 	calibrationInProgress_ = false;
+	optimizationInProgress_ = false;
+
+	detectors_ = 0;
+
+	// Move action mappers.
 
 	startedMapper_ = new QSignalMapper(this);
 	connect( startedMapper_, SIGNAL(mapped(QObject*)), this, SLOT(onMoveStarted(QObject*)) );
@@ -27,6 +32,8 @@ AMPseudoMotorControl::AMPseudoMotorControl(const QString &name, const QString &u
 	succeededMapper_ = new QSignalMapper(this);
 	connect( succeededMapper_, SIGNAL(mapped(QObject*)), this, SLOT(onMoveSucceeded(QObject*)) );
 
+	// Calibration action mappers.
+
 	calibrationStartedMapper_ = new QSignalMapper(this);
 	connect( calibrationStartedMapper_, SIGNAL(mapped(QObject*)), this, SLOT(onCalibrationStarted()) );
 
@@ -39,6 +46,23 @@ AMPseudoMotorControl::AMPseudoMotorControl(const QString &name, const QString &u
 	calibrationSucceededMapper_ = new QSignalMapper(this);
 	connect( calibrationSucceededMapper_, SIGNAL(mapped(QObject*)), this, SLOT(onCalibrationSucceeded(QObject*)) );
 
+	// Optimization action mappers.
+
+	optimizationStartedMapper_ = new QSignalMapper(this);
+	connect( optimizationStartedMapper_, SIGNAL(mapped(QObject*)), this, SLOT(onOptimizationStarted()) );
+
+	optimizationCancelledMapper_ = new QSignalMapper(this);
+	connect( optimizationCancelledMapper_, SIGNAL(mapped(QObject*)), this, SLOT(onOptimizationCancelled(QObject*)) );
+
+	optimizationFailedMapper_ = new QSignalMapper(this);
+	connect( optimizationFailedMapper_, SIGNAL(mapped(QObject*)), this, SLOT(onOptimizationFailed(QObject*)) );
+
+	optimizationSucceededMapper_ = new QSignalMapper(this);
+	connect( optimizationSucceededMapper_, SIGNAL(mapped(QObject*)), this, SLOT(onOptimizationSucceeded(QObject*)) );
+
+	// Current settings.
+
+	setOptimizationDetectors(optimizationDetectors);
 }
 
 AMPseudoMotorControl::~AMPseudoMotorControl()
@@ -141,6 +165,14 @@ QString AMPseudoMotorControl::toString() const
 	QString result = controlName + "\n" + controlDescription + "\n" + controlConnected + "\n" + controlMoving + "\n" + controlCalibrating;
 
 	return result;
+}
+
+void AMPseudoMotorControl::setOptimizationDetectors(AMDetectorSet *newDetectors)
+{
+	if (detectors_ != newDetectors) {
+		detectors_ = newDetectors;
+		emit optimizationDetectorsChanged(detectors_);
+	}
 }
 
 AMControl::FailureExplanation AMPseudoMotorControl::move(double setpoint)
@@ -301,6 +333,61 @@ AMControl::FailureExplanation AMPseudoMotorControl::calibrate(double oldValue, d
 	return AMControl::NoFailure;
 }
 
+AMControl::FailureExplanation AMPseudoMotorControl::optimize()
+{
+	// Check that this control is connected and able to optimize before proceeding.
+
+	if (!isConnected()) {
+		AMErrorMon::alert(this, AMPSEUDOMOTORCONTROL_NOT_CONNECTED, QString("Failed to calibrate %1: control is not connected.").arg(name()));
+		return AMControl::NotConnectedFailure;
+	}
+
+	if (!canMove()) {
+		AMErrorMon::alert(this, AMPSEUDOMOTORCONTROL_CANNOT_MOVE, QString("Failed to calibrate %1: control cannot move.").arg(name()));
+		return AMControl::OtherFailure;
+	}
+
+	if (optimizationInProgress()) {
+		AMErrorMon::alert(this, AMPSEUDOMOTORCONTROL_ALREADY_OPTIMIZING, QString("Failed to optimize %1: control is already being optimized.").arg(name()));
+		return AMControl::AlreadyMovingFailure;
+	}
+
+	// Proceed with creating optimization action.
+
+	AMAction3 *optimizationAction = createOptimizationAction();
+
+	// Check that a valid optimization action was generated.
+	// If an invalid optimization action was generated, abort the optimization.
+
+	if (!optimizationAction) {
+		AMErrorMon::alert(this, AMPSEUDOMOTORCONTROL_INVALID_OPTIMIZATION_ACTION, QString("Did not optimize %1: invalid optimization action generated.").arg(name()));
+		onOptimizationStarted();
+		onOptimizationFailed();
+		return AMControl::LimitFailure;
+	}
+
+	// Otherwise, proceed with initializing and running the optimization action.
+	// Create optimization action signal mappings.
+
+	optimizationStartedMapper_->setMapping(optimizationAction, optimizationAction);
+	connect( optimizationAction, SIGNAL(started()), optimizationStartedMapper_, SLOT(map()) );
+
+	optimizationCancelledMapper_->setMapping(optimizationAction, optimizationAction);
+	connect( optimizationAction, SIGNAL(cancelled()), optimizationCancelledMapper_, SLOT(map()) );
+
+	optimizationFailedMapper_->setMapping(optimizationAction, optimizationAction);
+	connect( optimizationAction, SIGNAL(failed()), optimizationFailedMapper_, SLOT(map()) );
+
+	optimizationSucceededMapper_->setMapping(optimizationAction, optimizationAction);
+	connect( optimizationAction, SIGNAL(succeeded()), optimizationSucceededMapper_, SLOT(map()) );
+
+	// Run action.
+
+	optimizationAction->start();
+
+	return AMControl::NoFailure;
+}
+
 void AMPseudoMotorControl::setEnumStates(const QStringList &enumStateNames)
 {
 	AMControl::setEnumStates(enumStateNames);
@@ -381,11 +468,74 @@ void AMPseudoMotorControl::setCalibrationInProgress(bool isCalibrating)
 	}
 }
 
+void AMPseudoMotorControl::setOptimizationInProgress(bool isOptimizing)
+{
+	if (optimizationInProgress_ != isOptimizing) {
+		optimizationInProgress_ = isOptimizing;
+		emit optimizingChanged(isOptimizing);
+	}
+}
+
 void AMPseudoMotorControl::updateStates()
 {
 	updateConnected();
 	updateValue();
 	updateMoving();
+	updateMinimumValue();
+	updateMaximumValue();
+	updateCalibrating();
+	updateOptimizing();
+}
+
+void AMPseudoMotorControl::updateMoving()
+{
+	bool isMoving = false;
+
+	// Iterate through all children and check their moving states.
+
+	if (!children_.isEmpty()) {
+		isMoving = true;
+
+		foreach (AMControl *child, children_) {
+			isMoving && child && child->isMoving();
+		}
+	}
+
+	setIsMoving(isMoving);
+}
+
+void AMPseudoMotorControl::updateCalibrating()
+{
+	bool isCalibrating = false;
+
+	// Iterate through all children and check their calibrating states.
+
+	if (!children_.isEmpty()) {
+		isCalibrating = true;
+
+		foreach (AMControl *child, children_) {
+			isCalibrating && child && child->calibrationInProgress();
+		}
+	}
+
+	setCalibrationInProgress(isCalibrating);
+}
+
+void AMPseudoMotorControl::updateOptimizing()
+{
+	bool isOptimizing = false;
+
+	// Iterate through all children and check their optimizing states.
+
+	if (!children_.isEmpty()) {
+		isOptimizing = true;
+
+		foreach (AMControl *child, children_) {
+			isOptimizing && child && child->optimizationInProgress();
+		}
+	}
+
+	setCalibrationInProgress(isOptimizing);
 }
 
 void AMPseudoMotorControl::onMoveStarted(QObject *action)
@@ -452,12 +602,43 @@ void AMPseudoMotorControl::onCalibrationSucceeded()
 	emit calibrationSucceeded();
 }
 
-AMAction3* AMPseudoMotorControl::createCalibrateAction(double oldValue, double newValue)
+void AMPseudoMotorControl::onOptimizationStarted()
 {
-	Q_UNUSED(oldValue)
-	Q_UNUSED(newValue)
+	setOptimizationInProgress(true);
+	emit optimizationStarted();
+}
 
-	return 0;
+void AMPseudoMotorControl::onOptimizationCancelled(QObject *action)
+{
+	optimizationActionCleanup(action);
+	onOptimizationCancelled();
+}
+
+void AMPseudoMotorControl::onOptimizationCancelled()
+{
+	emit calibrationFailed(AMControl::WasStoppedFailure);
+}
+
+void AMPseudoMotorControl::onOptimizationFailed(QObject *action)
+{
+	optimizationActionCleanup(action);
+	onOptimizationFailed();
+}
+
+void AMPseudoMotorControl::onOptimizationFailed()
+{
+	emit calibrationFailed(AMControl::OtherFailure);
+}
+
+void AMPseudoMotorControl::onOptimizationSucceeded(QObject *action)
+{
+	optimizationActionCleanup(action);
+	onOptimizationSucceeded();
+}
+
+void AMPseudoMotorControl::onOptimizationSucceeded()
+{
+	emit optimizationSucceeded();
 }
 
 void AMPseudoMotorControl::moveActionCleanup(QObject *action)
@@ -475,6 +656,14 @@ void AMPseudoMotorControl::moveActionCleanup(QObject *action)
 	}
 }
 
+AMAction3* AMPseudoMotorControl::createCalibrateAction(double oldValue, double newValue)
+{
+	Q_UNUSED(oldValue)
+	Q_UNUSED(newValue)
+
+	return 0;
+}
+
 void AMPseudoMotorControl::calibrationActionCleanup(QObject *action)
 {
 	setCalibrationInProgress(false);
@@ -485,6 +674,20 @@ void AMPseudoMotorControl::calibrationActionCleanup(QObject *action)
 		calibrationCancelledMapper_->removeMappings(action);
 		calibrationFailedMapper_->removeMappings(action);
 		calibrationSucceededMapper_->removeMappings(action);
+
+		actionCleanup(action);
+	}
+}
+
+void AMPseudoMotorControl::optimizationActionCleanup(QObject *action)
+{
+	setOptimizationInProgress(false);
+
+	if (action) {
+		optimizationStartedMapper_->removeMappings(action);
+		optimizationCancelledMapper_->removeMappings(action);
+		optimizationFailedMapper_->removeMappings(action);
+		optimizationSucceededMapper_->removeMappings(action);
 
 		actionCleanup(action);
 	}
