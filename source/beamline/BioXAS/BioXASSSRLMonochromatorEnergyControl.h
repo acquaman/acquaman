@@ -48,17 +48,10 @@ public:
 
 	/// Returns the bragg motor control.
 	AMControl* braggControl() const { return bragg_; }
-	/// Returns the bragg motor set position control.
-	AMControl* braggSetPositionControl() const { return braggSetPosition_; }
 	/// Returns the region control.
 	AMControl* regionControl() const { return region_; }
 	/// Returns the m1 mirror pitch control.
 	AMControl* m1MirrorPitchControl() const { return m1MirrorPitch_; }
-
-	/// Returns true if the given value is a valid value for this control. False otherwise.
-	virtual bool validValue(double value) const { Q_UNUSED(value) return true; }
-	/// Returns true if the given value is a valid setpoint for this control. False otherwise.
-	virtual bool validSetpoint(double value) const { return (value > 0); }
 
 signals:
 	/// Notifier that the bragg control has changed.
@@ -72,9 +65,7 @@ signals:
 
 public slots:
 	/// Sets the bragg control.
-	void setBraggControl(AMControl *newControl);
-	/// Sets the bragg set position control.
-	void setBraggSetPositionControl(AMControl *newControl);
+	void setBraggControl(CLSMAXvMotor *newControl);
 	/// Sets the region control.
 	void setRegionControl(AMControl *newControl);
 	/// Sets the m1 mirror control.
@@ -124,10 +115,8 @@ protected:
 	/// The region offset (deg).
 	double regionOffset_;
 
-	/// The goniometer bragg motor control.
-	AMControl *bragg_;
-	/// The goniometer bragg motor, set position control.
-	AMControl *braggSetPosition_;
+	/// The goniometer motor control.
+	CLSMAXvMotor *bragg_;
 	/// The region control.
 	AMControl *region_;
 	/// The m1 mirror pitch control.
