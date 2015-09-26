@@ -83,6 +83,18 @@ public:
 	/// Returns a string containing the information in a standard way.
 	virtual QString toString(const QString &units = "") const;
 
+	/// Returns true if all of the regions in this scan axis are ascending.
+	bool ascending() const;
+	/// Returns true if all of the regions in this scan axis are descending.
+	bool descending() const;
+	/// Returns true if all of the regions in this scan axis are adjacent.
+	bool adjacent() const;
+
+	/// Returns true if the given axis can be merged into this one.
+	bool canMerge(AMScanAxis *otherAxis);
+	/// Returns true if this scan axis can be simplified.
+	bool canSimplify();
+
 signals:
 	/// Notifier that a scan axis region has been added to the axis.  Passes a pointer to the new region.
 	void regionAdded(AMScanAxisRegion *);
@@ -103,9 +115,18 @@ public slots:
 	bool overwriteRegion(int index, AMScanAxisRegion *region);
 	/// Removes a region.  Returns true if successful.
 	bool removeRegion(AMScanAxisRegion *region);
-
 	/// Clears all regions. Returns true if successful.
 	bool clearRegions();
+
+	/// Attempts to merge the given scan axis into this one. Returns true if successful, false otherwise.
+	bool merge(AMScanAxis *otherAxis);
+	/// Attempts to simplify this scan axis. Returns true if successful, false otherwise.
+	bool simplify();
+
+	/// Updates the direction of all regions such that they are ascending.
+	void setAscending();
+	/// Updates the direction of all regions such that they are descending.
+	void setDescending();
 
 protected slots:
 	/// Sets the axis type. If the new axis type doesn't support multiple regions, then all regions except the first are removed.
@@ -125,6 +146,17 @@ protected:
 	AMDbObjectList dbReadRegions() const;
 	/// For database loading (never called).
 	void dbLoadRegions(const AMDbObjectList &newAxisRegions);
+
+	/// Returns true if the two regions can be simplified.
+	bool canSimplify(AMScanAxisRegion *region, AMScanAxisRegion *otherRegion);
+	/// Attempts to simplify the two given regions into a list of non-overlapping regions, without losing information.
+	QList<AMScanAxisRegion*> simplify(AMScanAxisRegion *region, AMScanAxisRegion *otherRegion);
+
+	/// Attempts to modify the two regions such that they become adjacent. The two regions must be overlapping. Returns empty list if operation is not possible.
+	QList<AMScanAxisRegion*> makeAdjacent(AMScanAxisRegion *region, AMScanAxisRegion *otherRegion);
+
+	/// Returns a scan axis region that is the intersection of the two given regions.
+	AMScanAxisRegion* intersection(AMScanAxisRegion *region, AMScanAxisRegion *otherRegion);
 
 protected:
 	/// Holds the axis type for this axis

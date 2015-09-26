@@ -107,6 +107,135 @@ AMNumber AMScanAxis::axisEnd() const
 	return regions_.at(regionCount()-1)->regionEnd();
 }
 
+int AMScanAxis::numberOfPoints() const
+{
+	int points = 0;
+
+	foreach (AMScanAxisRegion *region, regions_.toList())
+		points += region->numberOfPoints();
+
+	return points;
+}
+
+double AMScanAxis::timePerAxis() const
+{
+	double time = 0;
+
+	foreach (AMScanAxisRegion *region, regions_.toList())
+		time += region->timePerRegion();
+
+	return time;
+}
+
+QString AMScanAxis::toString(const QString &units) const
+{
+	QString string = "";
+
+	foreach (AMScanAxisRegion *region, regions_.toList())
+		string.append(region->toString(units));
+
+	return string;
+}
+
+bool AMScanAxis::ascending() const
+{
+	bool result = false;
+	QList<AMScanAxisRegion*> regions = regions_.toList();
+
+	if (!regions.isEmpty()) {
+		bool areAscending = true;
+
+		for (int regionIndex = 0, regionCount = regions.count(); regionIndex < regionCount && areAscending; regionIndex++) {
+			AMScanAxisRegion *region = regions.at(regionIndex);
+
+			if (region)
+				areAscending = areAscending && region->ascending();
+			else
+				areAscending = false;
+		}
+
+		result = areAscending;
+	}
+
+	return result;
+}
+
+bool AMScanAxis::descending() const
+{
+	bool result = false;
+	QList<AMScanAxisRegion*> regions = regions_.toList();
+
+	if (!regions.isEmpty()) {
+		bool areDescending = true;
+
+		for (int regionIndex = 0, regionCount = regions.count(); regionIndex < regionCount && areDescending; regionIndex++) {
+			AMScanAxisRegion *region = regions.at(regionIndex);
+
+			if (region)
+				areDescending = areDescending && region->descending();
+			else
+				areDescending = false;
+		}
+
+		result = areDescending;
+	}
+
+	return result;
+}
+
+bool AMScanAxis::adjacent()
+{
+	bool result = false;
+	QList<AMScanAxisRegion*> regions = regions_.toList();
+
+	if (!regions.isEmpty()) {
+
+		// Identify first region.
+
+		AMScanAxisRegion *previousRegion = regions.first();
+
+		if (previousRegion) {
+			bool areAdjacent = true;
+
+			// Check that the next region is adjacent to the previous one, for all of the remaining regions.
+
+			for (int regionIndex = 1, regionCount = regions.count(); regionIndex < regionCount && areAdjacent; regionIndex++) {
+				AMScanAxisRegion *region = regions.at(regionIndex);
+
+				if (previousRegion && region)
+					areAdjacent = areAdjacent && previousRegion->adjacentTo(region);
+				else
+					areAdjacent = false;
+
+				previousRegion = region;
+			}
+		}
+	}
+
+	return result;
+}
+
+bool AMScanAxis::canMerge(AMScanAxis *otherAxis)
+{
+	bool result = false;
+
+	if (otherAxis)
+		result = (axisValid() && otherAxis->axisValid());
+
+	return result;
+}
+
+bool AMScanAxis::canSimplify()
+{
+	return false;
+}
+
+bool AMScanAxis::canSimplify(AMScanAxisRegion *region, AMScanAxisRegion *otherRegion)
+{
+	bool result = (region && region->isValid() && otherRegion && otherRegion->isValid());
+	return result;
+}
+
 bool AMScanAxis::insertRegion(int index, AMScanAxisRegion *region)
 {
 	if(axisType_ != AMScanAxis::StepAxis || index < 0 || index > regions_.count())
@@ -227,6 +356,40 @@ bool AMScanAxis::clearRegions()
 	return result;
 }
 
+bool AMScanAxis::merge(AMScanAxis *otherAxis)
+{
+	bool result = false;
+
+	if (otherAxis) {
+
+	}
+
+	return result;
+}
+
+bool AMScanAxis::simplify()
+{
+	bool result = false;
+
+	return result;
+}
+
+void AMScanAxis::setAscending()
+{
+	foreach (AMScanAxisRegion *region, regions.toList()) {
+		if (region)
+			region->setAscending();
+	}
+}
+
+void AMScanAxis::setDescending()
+{
+	foreach (AMScanAxisRegion *region, regions.toList()) {
+		if (region)
+			region->setDescending();
+	}
+}
+
 void AMScanAxis::setAxisType(AMScanAxis::AxisType axisType)
 {
 	if(axisType != AMScanAxis::StepAxis)
@@ -340,32 +503,106 @@ void AMScanAxis::dbLoadRegions(const AMDbObjectList &newAxisRegions)
 	}
 }
 
-int AMScanAxis::numberOfPoints() const
+QList<AMScanAxisRegion*> AMScanAxis::simplify(AMScanAxisRegion *region, AMScanAxisRegion *otherRegion)
 {
-	int points = 0;
+	QList<AMScanAxisRegion*> result << region << otherRegion;
 
-	foreach (AMScanAxisRegion *region, regions_.toList())
-		points += region->numberOfPoints();
+	if (canSimplify(region, otherRegion)) {
+		QList<AMScanAxisRegion*> simplifiedRegions;
 
-	return points;
+		result = simplifiedRegions;
+	}
+
+	return result;
 }
 
-double AMScanAxis::timePerAxis() const
+QList<AMScanAxisRegion*> AMScanAxis::makeAdjacent(AMScanAxisRegion *region, AMScanAxisRegion *otherRegion)
 {
-	double time = 0;
+	QList<AMScanAxisRegion*> result;
 
-	foreach (AMScanAxisRegion *region, regions_.toList())
-		time += region->timePerRegion();
+	if (region && region->canMakeAdjacentTo(otherRegion) && otherRegion && otherRegion->canMakeAdjacentTo(region)) {
+		bool success = false;
 
-	return time;
+		if (region->regionStep() == otherRegion->regionStep()) {
+			if (region->regionTime() == otherRegion->regionTime()) {
+
+				// If the step size and the dwell time are the same for both regions, arbitrarily select
+				// which one will move to accomodate the other.
+
+				success = otherRegion->makeAdjacentTo(region);
+
+			} else {
+
+				// If the step size is the same but the dwell time isn't, the one with the shorter dwell time
+				// will move to accomodate the one with the longer dwell time.
+
+				if (region->regionTime() < otherRegion->regionTime())
+					success = region->makeAdjacentTo(otherRegion);
+				else
+					success = otherRegion->makeAdjacentTo(region);
+			}
+
+		} else {
+			if (region->regionTime() == otherRegion->regionTime()) {
+
+				// If the step size is different and the dwell time is the same, the region with the larger
+				// step size will move to accomodate the one with the smaller step size.
+
+				if (region->regionStep() < otherRegion->regionStep())
+					success = region->makeAdjacentTo(otherRegion);
+				else
+					success = otherRegion->makeAdjacentTo(region);
+
+			} else {
+
+				// If the step size and the dwell time are different between the regions, a third region is
+				// introduced with properties that are a mix of the original two.
+
+				success = false;
+			}
+		}
+
+		if (success)
+			result << region << otherRegion;
+	}
+
+	return result;
 }
 
-QString AMScanAxis::toString(const QString &units) const
+AMScanAxisRegion* AMScanAxis::intersection(AMScanAxisRegion *region, AMScanAxisRegion *otherRegion)
 {
-	QString string = "";
+	AMScanAxisRegion *result = 0;
 
-	foreach (AMScanAxisRegion *region, regions_.toList())
-		string.append(region->toString(units));
+	if (region && region->isValid() && otherRegion && otherRegion->isValid() && region->overlapsWith(otherRegion)) {
 
-	return string;
+		if (region->contains(otherRegion)) {
+
+			// If one region is contained completely within the other, the intersection is the
+			// contained region.
+
+			result = otherRegion;
+
+		} else if (region->containedBy(otherRegion)) {
+
+			// Same here, but for the opposite region.
+
+			result = region;
+
+		} else {
+
+			// If the two regions overlap and one does not contain the other, the intersection is
+			// the area the two regions have in common.
+
+			AMNumber intersectionStart;
+			AMNumber intersectionEnd;
+
+			if (region->ascending() && otherRegion->ascending()) {
+				intersectionStart = (double(region->regionStart()) > double(otherRegion->regionStart())) ? region->regionStart() : otherRegion->regionStart();
+				intersectionEnd = (double(region->regionEnd()) < double(otherRegion->regionEnd())) ? region->regionEnd() : otherRegion->regionEnd();
+
+			} else if (region->ascending() && otherRegion->descending()) {
+				intersectionStart = (double(region->regionStart()))
+			}
+		}
+	}
 }
