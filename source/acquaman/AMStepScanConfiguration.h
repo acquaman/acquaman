@@ -39,8 +39,6 @@ class AMStepScanConfiguration : public AMScanConfiguration
 public:
 	/// Constructor.  Builds a generic scan configuration that handles all evenly spaced, n-dimensional step scans.
 	AMStepScanConfiguration(QObject *parent = 0);
-	/// Constructor. Builds a generic scan configuration by merging together the scan information for each configuration listed.
-	AMStepScanConfiguration(const QList<AMStepScanConfiguration*> &configurations, QObject *parent);
 	/// Copy constructor.
 	AMStepScanConfiguration(const AMStepScanConfiguration &original);
 	/// Destructor.

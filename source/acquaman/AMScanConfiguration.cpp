@@ -30,7 +30,7 @@ AMScanConfiguration::AMScanConfiguration(QObject *parent) :
 	expectedDuration_ = 0;
 }
 
-AMScanConfiguration::AMScanConfiguration(const QList<AMScanConfiguration *> &configurations, QObject *parent) :
+AMScanConfiguration::AMScanConfiguration(const QList<AMScanConfiguration*> &configurations, QObject *parent) :
 	AMDbObject(parent)
 {
 	userScanName_ = "";

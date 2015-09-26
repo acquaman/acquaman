@@ -24,13 +24,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 AMStepScanConfiguration::AMStepScanConfiguration(QObject *parent)
 	: AMScanConfiguration(parent)
 {
-}
 
-AMStepScanConfiguration::AMStepScanConfiguration(const QList<AMStepScanConfiguration *> &configurations, QObject *parent)
-	: AMScanConfiguration(configurations, parent)
-{
-	foreach (AMStepScanConfiguration *configuration, configurations)
-		merge(configuration);
 }
 
 AMStepScanConfiguration::AMStepScanConfiguration(const AMStepScanConfiguration &original)

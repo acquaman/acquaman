@@ -13,16 +13,6 @@ AMGenericStepScanConfiguration::AMGenericStepScanConfiguration(QObject *parent)
 	setUserScanName("Generic Scan");
 }
 
-AMGenericStepScanConfiguration::AMGenericStepScanConfiguration(const QList<AMGenericStepScanConfiguration *> &configurations, QObject *parent)
-	: AMStepScanConfiguration(configurations, parent)
-{
-	setName("Generic Scan");
-	setUserScanName("Generic Scan");
-
-	foreach (AMGenericStepScanConfiguration *configuration, configurations)
-		merge(configuration);
-}
-
 AMGenericStepScanConfiguration::AMGenericStepScanConfiguration(const AMGenericStepScanConfiguration &original)
 	: AMStepScanConfiguration(original)
 {

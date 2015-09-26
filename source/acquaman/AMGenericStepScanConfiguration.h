@@ -21,8 +21,6 @@ class AMGenericStepScanConfiguration : public AMStepScanConfiguration
 public:
 	/// Constructor.
 	Q_INVOKABLE AMGenericStepScanConfiguration(QObject *parent = 0);
-	/// Alternate constructor. Merges together the information for each listed configuration, to create this configuration.
-	AMGenericStepScanConfiguration(const QList<AMGenericStepScanConfiguration*> &configurations, QObject *parent);
 	/// Copy constructor.
 	AMGenericStepScanConfiguration(const AMGenericStepScanConfiguration &original);
 	/// Destructor.

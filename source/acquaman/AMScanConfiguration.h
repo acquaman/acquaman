@@ -108,7 +108,7 @@ public:
 	  * name and no expected duration, which will auto export. Additionally merges together
 	  * the detector infos and the axis control infos of each of the configurations listed.
 	  */
-	AMScanConfiguration(const QList<AMScanConfiguration*> &configurations, QObject *parent);
+	AMScanConfiguration(const QList<AMScanConfiguration*> &configurations, QObject *parent = 0);
 
 	/*!
 	  * Base AMScanConfiguration copy contructor. Performs deep copy of the original
