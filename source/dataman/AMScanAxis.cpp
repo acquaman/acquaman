@@ -607,22 +607,18 @@ bool AMScanAxis::intersect(AMScanAxisRegion *region, AMScanAxisRegion *otherRegi
 	return result;
 }
 
-QList<QPair<AMScanAxisRegion*, AMScanAxisRegion*>> AMScanAxis::intersectingRegions()
+QList<AMScanAxisRegion*> AMScanAxis::intersections(AMScanAxisRegion *region)
 {
-	QList<QPair<AMScanAxisRegion*, AMScanAxisRegion*>> results;
+	QList<AMScanAxisRegion*> results;
 	QList<AMScanAxisRegion*> regions = regions_.toList();
 
 	if (!regions.isEmpty() && regionsValid()) {
 
 		for (int i = 0, count = regions.count(); i < count; i++) {
-			AMScanAxisRegion *firstRegion = regions.at(i);
+			AMScanAxisRegion *otherRegion = regions.at(i);
 
-			for (int j = 0; j < count; j++) {
-				AMScanAxisRegion *secondRegion = regions.at(j);
-
-				if (firstRegion != secondRegion && firstRegion->intersects(secondRegion))
-					results.append(qMakePair(firstRegion, secondRegion));
-			}
+			if (region != otherRegion && intersect(region, otherRegion))
+				results.append(otherRegion);
 		}
 	}
 
@@ -855,17 +851,17 @@ AMScanAxisRegion* AMScanAxis::merge(AMScanAxisRegion *region, AMScanAxisRegion *
 	return region;
 }
 
-bool AMScanAxis::canMakeAdjacent(AMScanAxisRegion *region, AMScanAxisRegion *otherRegion) const
+bool AMScanAxis::canSimplifyIntersection(AMScanAxisRegion *region, AMScanAxisRegion *otherRegion) const
 {
-	bool result = (region && otherRegion && region->canMakeAdjacentTo(otherRegion) && otherRegion->canMakeAdjacentTo(region) && (sameStep(region, otherRegion) || sameTime(region, otherRegion)));
+	bool result = (region && region->isValid() && otherRegion && otherRegion->isValid() && intersect(region, otherRegion) && (sameStep(region, otherRegion) || sameTime(region, otherRegion)));
 	return result;
 }
 
-AMNumber AMScanAxis::makeAdjacentStart(AMScanAxisRegion *region, AMScanAxisRegion *otherRegion)
+AMNumber AMScanAxis::simplifyIntersectionStart(AMScanAxisRegion *region, AMScanAxisRegion *otherRegion)
 {
 	AMNumber result = AMNumber::InvalidError;
 
-	if (canMakeAdjacent(region, otherRegion)) {
+	if (canSimplifyIntersection(region, otherRegion)) {
 
 		if (region->ascending() && otherRegion->ascending())
 			result = (double(region->regionStart()) < double(otherRegion->regionStart())) ? region->regionStart() : otherRegion->regionEnd();
@@ -883,11 +879,11 @@ AMNumber AMScanAxis::makeAdjacentStart(AMScanAxisRegion *region, AMScanAxisRegio
 	return result;
 }
 
-AMNumber AMScanAxis::makeAdjacentEnd(AMScanAxisRegion *region, AMScanAxisRegion *otherRegion)
+AMNumber AMScanAxis::simplifyIntersectionEnd(AMScanAxisRegion *region, AMScanAxisRegion *otherRegion)
 {
 	AMNumber result = AMNumber::InvalidError;
 
-	if (canMakeAdjacent(region, otherRegion)) {
+	if (canSimplifyIntersection(region, otherRegion)) {
 
 		if (region->ascending() && otherRegion->ascending())
 			result = (double(region->regionEnd()) > double(otherRegion->regionEnd())) ? region->regionEnd() : otherRegion->regionStart();
@@ -905,11 +901,11 @@ AMNumber AMScanAxis::makeAdjacentEnd(AMScanAxisRegion *region, AMScanAxisRegion 
 	return result;
 }
 
-QList<AMScanAxisRegion*> AMScanAxis::makeAdjacent(AMScanAxisRegion *region, AMScanAxisRegion *otherRegion)
+QList<AMScanAxisRegion*> AMScanAxis::simplifyIntersection(AMScanAxisRegion *region, AMScanAxisRegion *otherRegion)
 {
 	QList<AMScanAxisRegion*> result;
 
-	if (canMakeAdjacent(region, otherRegion)) {
+	if (canSimplifyIntersection(region, otherRegion)) {
 
 		if (region->regionStep() == otherRegion->regionStep()) {
 			if (region->regionTime() == otherRegion->regionTime()) {
@@ -1021,48 +1017,20 @@ QList<AMScanAxisRegion*> AMScanAxis::makeAdjacent(AMScanAxisRegion *region, AMSc
 	return result;
 }
 
-bool AMScanAxis::canSimplifyIntersection(AMScanAxisRegion *region, AMScanAxisRegion *otherRegion)
+QList<AMScanAxisRegion*> AMScanAxis::simplifyIntersections(AMScanAxisRegion *region)
 {
-	return intersect(region, otherRegion);
-}
+	QList<AMScanAxisRegion*> results;
 
-QList<AMScanAxisRegion*> AMScanAxis::simplifyIntersection(AMScanAxisRegion *region, AMScanAxisRegion *otherRegion)
-{
-	QList<AMScanAxisRegion*> result;
+	if (!regions.isEmpty()) {
+		QList<AMScanAxisRegion*> intersectingRegions = intersections(region);
 
-	if (canSimplifyIntersection(region, otherRegion)) {
+		if (!intersectingRegions.isEmpty()) {
+			AMScanAxisRegion *first = intersectingRegions.at(0);
+			simplifyIntersection(region, first);
 
-		if (canMakeAdjacent(region, otherRegion)) {
-			result = makeAdjacent(region, otherRegion);
-
-		} else {
-
+			intersectingRegions = intersections(region);
 		}
-
 	}
 
-	return result;
-}
-
-bool AMScanAxis::canSimplify(AMScanAxisRegion *region, AMScanAxisRegion *otherRegion) const
-{
-	bool result = canSimplifyIntersection(region, otherRegion);
-	return result;
-}
-
-QList<AMScanAxisRegion*> AMScanAxis::simplify(AMScanAxisRegion *region, AMScanAxisRegion *otherRegion)
-{
-	QList<AMScanAxisRegion*> result;
-
-	if (canSimplify(region, otherRegion)) {
-
-		if (region->contains(otherRegion) || otherRegion->contains(region)) {
-			AMScanAxisRegion *mergedRegion = merge(region, otherRegion);
-			if (mergedRegion)
-				result << mergedRegion;
-
-		} else if ()
-	}
-
-	return result;
+	return results;
 }
