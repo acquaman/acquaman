@@ -431,7 +431,7 @@ HEADERS += \
     source/beamline/AM3DCoordinatedSystemControl.h \
     source/beamline/AM3DRotatedSystemControl.h \
     source/util/AMValidator.h \
-    $$PWD/source/util/AMTrapezoidVelocityProfile.h
+	source/util/AMTrapezoidVelocityProfile.h
 
 FORMS += \
 
@@ -824,7 +824,7 @@ SOURCES += \
     source/beamline/AM3DCoordinatedSystemControl.cpp \
     source/beamline/AM3DRotatedSystemControl.cpp \
     source/util/AMValidator.cpp \
-    $$PWD/source/util/AMTrapezoidVelocityProfile.cpp
+	source/util/AMTrapezoidVelocityProfile.cpp
 
 
 RESOURCES *= source/icons/icons.qrc \
