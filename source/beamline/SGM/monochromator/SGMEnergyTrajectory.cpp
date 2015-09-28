@@ -23,6 +23,21 @@ SGMEnergyTrajectory::SGMEnergyTrajectory(double startEnergy,
     }
 
     time_ = time;
+
+    /*
+     * The velocity profile class needs to be refines, as per Issue 1563.
+     * Some noted refinements:
+     *   - Should the general class be a motion profile rather than a velocity profile?
+     *   - Is there a need for a general class system for these (AMVelocityProfile/AMMotionProfile)?
+     *   - Do we need time based information (velocityProfile_.velocityAt(double time);)?
+     * My suspicion is that the answers will come into focus while working on
+     * Issue 1566.
+     *   - Also need to figure out what the acceleration values are for the controls
+     *     on the beamline.
+     */
+    gratingAngleVelocityProfile_ = AMTrapezoidVelocityProfile(0, 5.0, (endGratingAngleEncoderStep() - startGratingAngleEncoderStep()) / time_, -5.0);
+    undulatorVelocityProfile_ = AMTrapezoidVelocityProfile(0, 5.0, (endUndulatorPosition() - startUndulatorPosition()) / time_, -5.0);
+    exitSlitVelocityProfile_ = AMTrapezoidVelocityProfile(0, 5.0, (endExitSlitPosition() - startExitSlitPosition()) / time_, -5.0);
 }
 
 SGMEnergyTrajectory::~SGMEnergyTrajectory()
@@ -85,9 +100,9 @@ double SGMEnergyTrajectory::endGratingAngleEncoderStep() const
     return endMonoInfo_->gratingAngle();
 }
 
-double SGMEnergyTrajectory::gratingAngleVelocity() const
+AMTrapezoidVelocityProfile SGMEnergyTrajectory::gratingAngleVelocityProfile() const
 {
-    return (endGratingAngleEncoderStep() - startGratingAngleEncoderStep()) / time_;
+    return gratingAngleVelocityProfile_;
 }
 
 double SGMEnergyTrajectory::startUndulatorPosition() const
@@ -100,9 +115,9 @@ double SGMEnergyTrajectory::endUndulatorPosition() const
     return endMonoInfo_->undulatorPosition();
 }
 
-double SGMEnergyTrajectory::undulatorVelocity() const
+AMTrapezoidVelocityProfile SGMEnergyTrajectory::undulatorVelocityProfile() const
 {
-    return (endUndulatorPosition() - startUndulatorPosition()) / time_;
+    return undulatorVelocityProfile_;
 }
 
 SGMGratingSupport::GratingTranslation SGMEnergyTrajectory::gratingTranslation() const
@@ -127,9 +142,9 @@ double SGMEnergyTrajectory::endExitSlitPosition() const
     return endMonoInfo_->exitSlitPosition();
 }
 
-double SGMEnergyTrajectory::exitSlitVelocity() const
+AMTrapezoidVelocityProfile SGMEnergyTrajectory::exitSlitVelocityProfile() const
 {
-    return (endExitSlitPosition() - startExitSlitPosition()) / time_;
+    return exitSlitVelocityProfile_;
 }
 
 double SGMEnergyTrajectory::time() const
@@ -152,17 +167,17 @@ QString SGMEnergyTrajectory::toString() const
     QString returnString =  QString("Start Grating Angle: %1 End Grating Angle: %2 Grating Angle Velocity: %3 \n")
             .arg(startGratingAngleEncoderStep())
             .arg(endGratingAngleEncoderStep())
-            .arg(gratingAngleVelocity());
+            .arg(gratingAngleVelocityProfile().targetVelocity());
 
     returnString.append(QString("Start Undulator Position: %1 End Undulator Position: %2 Undulator Velocity: %3 \n")
                         .arg(startUndulatorPosition())
                         .arg(endUndulatorPosition())
-                        .arg(undulatorVelocity()));
+                        .arg(undulatorVelocityProfile().targetVelocity()));
 
     returnString.append(QString("Start Exit Slit Position: %1 End Exit Slit Position: %2 Exit Slit Velocity: %3\n")
                         .arg(startExitSlitPosition())
                         .arg(endExitSlitPosition())
-                        .arg(exitSlitVelocity()));
+                        .arg(exitSlitVelocityProfile().targetVelocity()));
 
     QString undulatorHarmonicString;
 

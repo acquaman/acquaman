@@ -321,7 +321,7 @@ void SGMEnergyTrajectoryTestView::setEnergyPlotData(SGMGratingSupport::GratingTr
         currentMonoStatus.setAutoDetectUndulatorHarmonic(false);
 
         double angleEncoderValue = trajectory.startGratingAngleEncoderStep();
-        double angleEncoderVelocity = trajectory.gratingAngleVelocity();
+        double angleEncoderVelocity = trajectory.gratingAngleVelocityProfile().targetVelocity();
 
         QVector<qreal> timeXValues;
         QVector<qreal> energyProducedYValues;

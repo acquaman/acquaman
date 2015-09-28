@@ -4,6 +4,7 @@
 #include "SGMGratingSupport.h"
 #include "SGMUndulatorSupport.h"
 #include "SGMMonochromatorInfo.h"
+#include "util/AMTrapezoidVelocityProfile.h"
 
 /*!
  * A class representing a trajectory of motion along the energy of the SGM monochromator
@@ -64,10 +65,10 @@ public:
     double endGratingAngleEncoderStep() const;
 
     /*!
-     * The velocity of the grating angle to achieve the trajectory in the specified
-     * time.
+     * The velocity profile of the grating angle to achieve the trajectory in the
+     * specified time.
      */
-    double gratingAngleVelocity() const;
+    AMTrapezoidVelocityProfile gratingAngleVelocityProfile() const;
 
     /*!
      * The position of the undulator at the start of the trajectory.
@@ -80,10 +81,10 @@ public:
     double endUndulatorPosition() const;
 
     /*!
-     * The velocity of the undulator to achieve the trajectory in the specified
-     * time.
+     * The velocity profile of the undulator to achieve the trajectory in the
+     * specified time.
      */
-    double undulatorVelocity() const;
+    AMTrapezoidVelocityProfile undulatorVelocityProfile() const;
 
     /*!
      * The position of the exit slit at the start of the trajectory.
@@ -96,10 +97,10 @@ public:
     double endExitSlitPosition() const;
 
     /*!
-     * The velocity of the exit slit to achieve the trajectory in the specified
-     * time.
+     * The velocity profile of the exit slit to achieve the trajectory in the
+     * specified time.
      */
-    double exitSlitVelocity() const;
+    AMTrapezoidVelocityProfile exitSlitVelocityProfile() const;
 
     /*!
      * The grating translation of the monochromator throughout the trajectory.
@@ -131,17 +132,6 @@ public:
      */
     QString toString() const;
 
-signals:
-    void errorStateChanged(bool errorState);
-
-    void errorCountChanged(int errorCount);
-
-    void warningStateChanged(bool warningState);
-
-    void warningCountChanged(int warningCount);
-
-protected slots:
-
 protected:
     double startEnergy_;
     double endEnergy_;
@@ -150,6 +140,10 @@ protected:
 
     SGMMonochromatorInfo* startMonoInfo_;
     SGMMonochromatorInfo* endMonoInfo_;
+
+    AMTrapezoidVelocityProfile gratingAngleVelocityProfile_;
+    AMTrapezoidVelocityProfile undulatorVelocityProfile_;
+    AMTrapezoidVelocityProfile exitSlitVelocityProfile_;
 };
 
 #endif // SGMENERGYTRAJECTORY_H
