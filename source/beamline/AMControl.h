@@ -356,6 +356,10 @@ public:
 	virtual bool canStop() const { return false; }
 	/// Indicates that this control \em shoule (assuming it's connected) be able to issue stop() commands while moves are in progress.
 	virtual bool shouldStop() const { return false; }
+	/// Indicates that this control \em can currently be calibrated.
+	virtual bool canCalibrate() const { return false; }
+	/// Indicates that this control \em should (assuming it's connected) be calibrated.
+	virtual bool shouldCalibrate() const { return false; }
 	/// Indicates that this control should accept move() requests while it is already isMoving(). Some hardware can handle this. If this is false, move() requests will be ignored when the control is already in motion.
 	bool allowsMovesWhileMoving() const { return allowsMovesWhileMoving_; }
 	//@}
