@@ -6,7 +6,6 @@
 
 
 #include "beamline/SGM/monochromator/SGMMonochromatorInfo.h"
-#include "tests/AMVelocityProfileTest.h"
 #include <QGroupBox>
 #include <QHBoxLayout>
 #include <QVBoxLayout>
@@ -18,12 +17,9 @@ SGMTestsWindow::SGMTestsWindow(QWidget *parent) : QMainWindow(parent)
     setupUi();
 
     SGMMonochromatorInfoTest monoTests;
-    AMVelocityProfileTest velocityProfileTest;
-    monoTests.performTests();
-    velocityProfileTest.performTests();
+    monoTests.performTests();    
 
     QStringList testResults = monoTests.testResults();
-    testResults << velocityProfileTest.testResults();
 
     QString resultString;
     foreach(QString result, testResults) {
