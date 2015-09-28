@@ -77,14 +77,14 @@ bool SGMMonochromatorInfo::hasWarnings() const
     return !warningValidator_.isValid();
 }
 
-QStringList SGMMonochromatorInfo::errorMessages() const
+QString SGMMonochromatorInfo::errorMessage() const
 {
-    return errorValidator_.failureMessages();
+    return errorValidator_.fullFailureMessage();
 }
 
-QStringList SGMMonochromatorInfo::warningMessages() const
+QString SGMMonochromatorInfo::warningMessage() const
 {
-    return warningValidator_.failureMessages();
+    return warningValidator_.fullFailureMessage();
 }
 
 double SGMMonochromatorInfo::resultantEnergy() const

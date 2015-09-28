@@ -1,23 +1,23 @@
-#include "TestSGMMonochromatorInfo.h"
+#include "SGMMonochromatorInfoTest.h"
 #include "beamline/SGM/monochromator/SGMMonochromatorInfo.h"
-TestSGMMonochromatorInfo::TestSGMMonochromatorInfo()
+SGMMonochromatorInfoTest::SGMMonochromatorInfoTest()
 {
 
 }
 
-QStringList TestSGMMonochromatorInfo::testResults() const
+QStringList SGMMonochromatorInfoTest::testResults() const
 {
     return testResults_;
 }
 
-void TestSGMMonochromatorInfo::performTests()
+void SGMMonochromatorInfoTest::performTests()
 {
     testResults_.clear();
     testRequestEnergy();
     testResultantEnergy();
 }
 
-void TestSGMMonochromatorInfo::testIndividualRequestEnergy(const QString &name,
+void SGMMonochromatorInfoTest::testIndividualRequestEnergy(const QString &name,
                                                            double requiredEnergy,
                                                            SGMGratingSupport::GratingTranslation gratingTranslationSelection,
                                                            double expectedAngleEncoderTarget,
@@ -52,13 +52,13 @@ void TestSGMMonochromatorInfo::testIndividualRequestEnergy(const QString &name,
 
     if(testMonoInfo.hasErrors()) {
         testResults_ << QString("%1 at %2ev has errors - Can't test").arg(name).arg(requiredEnergy);
-        testResults_.append(testMonoInfo.errorMessages());
+        testResults_.append(testMonoInfo.errorMessage());
         return;
     }
 
     if(testMonoInfo.hasWarnings()) {
         testResults_ << QString("%1 at %2eV has warnings - Tests continue").arg(name).arg(requiredEnergy);
-        testResults_ << testMonoInfo.warningMessages();
+        testResults_ << testMonoInfo.warningMessage();
     }
 
     // Do comparisons, outputting if the percentage difference from expected is > 1%
@@ -92,7 +92,7 @@ void TestSGMMonochromatorInfo::testIndividualRequestEnergy(const QString &name,
 
 }
 
-void TestSGMMonochromatorInfo::testRequestEnergy()
+void SGMMonochromatorInfoTest::testRequestEnergy()
 {
     // Values derived from Dave's Spreadsheet (See GoogleDrive SGMUpgrade/Energy Coordinator/SGMEnergy.xlsx)
     // Undulator step values are derived from Iain's Spreadsheet (See GoogleDrive SGMUpgrade/Energy Coordinator/UndulatorValues.xls)
@@ -158,7 +158,7 @@ void TestSGMMonochromatorInfo::testRequestEnergy()
     testIndividualRequestEnergy("Silicon K Edge End", 1890.0, SGMGratingSupport::HighGrating, -166359.19, 689.0727254, 21.12242885, -55055.93);
 }
 
-void TestSGMMonochromatorInfo::testResultantEnergy()
+void SGMMonochromatorInfoTest::testResultantEnergy()
 {
     SGMMonochromatorInfo testMonoInfo(240, SGMGratingSupport::LowGrating);
 

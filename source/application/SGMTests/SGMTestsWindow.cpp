@@ -1,11 +1,12 @@
 #include "SGMTestsWindow.h"
 
-#include "tests/SGM/TestSGMMonochromatorInfo.h"
+#include "tests/SGM/SGMMonochromatorInfoTest.h"
 #include "tests/SGM/SGMMonochromatorInfoTestView.h"
 #include "tests/SGM/SGMEnergyTrajectoryTestView.h"
 
 
 #include "beamline/SGM/monochromator/SGMMonochromatorInfo.h"
+#include "tests/AMVelocityProfileTest.h"
 #include <QGroupBox>
 #include <QHBoxLayout>
 #include <QVBoxLayout>
@@ -16,9 +17,14 @@ SGMTestsWindow::SGMTestsWindow(QWidget *parent) : QMainWindow(parent)
     energyTestView_ = 0;
     setupUi();
 
-    TestSGMMonochromatorInfo monoTests;
+    SGMMonochromatorInfoTest monoTests;
+    AMVelocityProfileTest velocityProfileTest;
     monoTests.performTests();
+    velocityProfileTest.performTests();
+
     QStringList testResults = monoTests.testResults();
+    testResults << velocityProfileTest.testResults();
+
     QString resultString;
     foreach(QString result, testResults) {
         resultString.append(QString("\n%1").arg(result));
@@ -83,7 +89,7 @@ void SGMTestsWindow::setupUi()
     buttonsLayout->addStretch();
 
     outputTextEdit_ = new QTextEdit();
-    outputTextEdit_->setEnabled(false);
+    outputTextEdit_->setReadOnly(true);
     resultsLayout->addWidget(outputTextEdit_);
 
 

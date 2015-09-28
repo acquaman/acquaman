@@ -23,6 +23,11 @@ void AMValidator::updateValidity(const QString &failMessage, bool failureCriteri
 
     if(startFailCount != failCount()) {
         emit failCountChanged(failCount());
+        if(failureCriteria) {
+            emit failureAdded(failMessage);
+        } else {
+            emit failureRemoved(failMessage);
+        }
     }
 }
 
@@ -39,4 +44,23 @@ int AMValidator::failCount() const
 QStringList AMValidator::failureMessages() const
 {
     return failMessages_.toList();
+}
+
+QString AMValidator::fullFailureMessage(const QString &delimiter) const
+{
+    QString fullMessage;
+    QStringList failMessagesList = failMessages_.toList();
+
+    for (int iMessage = 0, messageCount = failMessagesList.count();
+         iMessage < messageCount;
+         ++iMessage) {
+
+        fullMessage.append(failMessagesList.at(iMessage));
+
+        if(iMessage != (messageCount - 1)) {
+            fullMessage.append(delimiter);
+        }
+    }
+
+    return fullMessage;
 }

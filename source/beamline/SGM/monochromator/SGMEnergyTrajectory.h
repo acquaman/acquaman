@@ -22,12 +22,36 @@ public:
      * \param gratingTranslation ~ The grating translation on which the movement
      * will take place.
      */
-    SGMEnergyTrajectory(double startEnergy, double endEnergy, double time, SGMGratingSupport::GratingTranslation gratingTranslation);
+    SGMEnergyTrajectory(double startEnergy,
+                        double endEnergy,
+                        double time,
+                        SGMGratingSupport::GratingTranslation gratingTranslation);
 
     /*!
       * Frees resources associated with the trajectory.
       */
     ~SGMEnergyTrajectory();
+
+    /*!
+     * Whether the trajectory has errors associated with it.
+     */
+    bool hasErrors() const;
+
+    /*!
+     * Whether the trajectory has warnings associated with it.
+     */
+    bool hasWarnings() const;
+
+    /*!
+      * The error message related to the valid state of the trajectory. If the
+      * trajectory is valid the empty string will be returned.
+      */
+    QString errorMessage() const;
+
+    /*!
+      * The warning message related to the valid state of the trajectory.
+      */
+    QString warningMessage() const;
 
     /*!
      * The encoder step value of the grating angle at the start of the trajectory.
@@ -102,6 +126,22 @@ public:
      */
     double endEnergy() const;
 
+    /*!
+     * A string representation of the trajectory.
+     */
+    QString toString() const;
+
+signals:
+    void errorStateChanged(bool errorState);
+
+    void errorCountChanged(int errorCount);
+
+    void warningStateChanged(bool warningState);
+
+    void warningCountChanged(int warningCount);
+
+protected slots:
+
 protected:
     double startEnergy_;
     double endEnergy_;
@@ -110,7 +150,6 @@ protected:
 
     SGMMonochromatorInfo* startMonoInfo_;
     SGMMonochromatorInfo* endMonoInfo_;
-
 };
 
 #endif // SGMENERGYTRAJECTORY_H

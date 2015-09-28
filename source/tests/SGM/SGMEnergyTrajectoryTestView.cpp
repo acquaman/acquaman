@@ -352,26 +352,34 @@ void SGMEnergyTrajectoryTestView::setTrajectoryPlotData(SGMGratingSupport::Grati
                                        timeSpinBox_->value(),
                                        gratingTranslation);
 
-        QVector<qreal> energyXValues;
-        QVector<qreal> gratingAngleTrajectoryYValues;
-        QVector<qreal> undulatorPositionTrajectoryYValues;
-        QVector<qreal> exitSlitPositionTrajectoryYValues;
+        if(!trajectory.hasErrors()) {
 
-        energyXValues.append(trajectory.startEnergy());
-        energyXValues.append(trajectory.endEnergy());
+            QVector<qreal> energyXValues;
+            QVector<qreal> gratingAngleTrajectoryYValues;
+            QVector<qreal> undulatorPositionTrajectoryYValues;
+            QVector<qreal> exitSlitPositionTrajectoryYValues;
 
-        gratingAngleTrajectoryYValues.append(trajectory.startGratingAngleEncoderStep());
-        gratingAngleTrajectoryYValues.append(trajectory.endGratingAngleEncoderStep());
+            energyXValues.append(trajectory.startEnergy());
+            energyXValues.append(trajectory.endEnergy());
 
-        undulatorPositionTrajectoryYValues.append(trajectory.startUndulatorPosition());
-        undulatorPositionTrajectoryYValues.append(trajectory.endUndulatorPosition());
+            gratingAngleTrajectoryYValues.append(trajectory.startGratingAngleEncoderStep());
+            gratingAngleTrajectoryYValues.append(trajectory.endGratingAngleEncoderStep());
 
-        exitSlitPositionTrajectoryYValues.append(trajectory.startExitSlitPosition());
-        exitSlitPositionTrajectoryYValues.append(trajectory.endExitSlitPosition());
+            undulatorPositionTrajectoryYValues.append(trajectory.startUndulatorPosition());
+            undulatorPositionTrajectoryYValues.append(trajectory.endUndulatorPosition());
 
-        gratingAngleTrajectoryData_->setValues(energyXValues, gratingAngleTrajectoryYValues);
-        undulatorPositionTrajectoryData_->setValues(energyXValues, undulatorPositionTrajectoryYValues);
-        exitSlitPositionTrajectoryData_->setValues(energyXValues, exitSlitPositionTrajectoryYValues);
+            exitSlitPositionTrajectoryYValues.append(trajectory.startExitSlitPosition());
+            exitSlitPositionTrajectoryYValues.append(trajectory.endExitSlitPosition());
+
+            gratingAngleTrajectoryData_->setValues(energyXValues, gratingAngleTrajectoryYValues);
+            undulatorPositionTrajectoryData_->setValues(energyXValues, undulatorPositionTrajectoryYValues);
+            exitSlitPositionTrajectoryData_->setValues(energyXValues, exitSlitPositionTrajectoryYValues);
+
+            resultsTextEdit_->setText(trajectory.toString());
+        } else {
+
+            resultsTextEdit_->setText(trajectory.errorMessage());
+        }
     }
 }
 
