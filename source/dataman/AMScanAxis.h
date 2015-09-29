@@ -158,11 +158,11 @@ protected:
 	/// For database loading (never called).
 	void dbLoadRegions(const AMDbObjectList &newAxisRegions);
 
-	/// Returns true if the two regions have the same step size, false otherwise.
+	/// Returns true if the two regions are valid and have the same step size, false otherwise.
 	bool sameStep(AMScanAxisRegion *region, AMScanAxisRegion *otherRegion) const;
-	/// Returns true if the two regions have the same dwell time, false otherwise.
+	/// Returns true if the two regions are valid and have the same dwell time, false otherwise.
 	bool sameTime(AMScanAxisRegion *region, AMScanAxisRegion *otherRegion) const;
-	/// Returns true if the two regions have the same direction, false otherwise.
+	/// Returns true if the two regions are valid and have the same direction, false otherwise.
 	bool sameDirection(AMScanAxisRegion *region, AMScanAxisRegion *otherRegion) const;
 
 	/// Returns true if the two regions can be merged together into one, false otherwise.
@@ -191,7 +191,7 @@ protected:
 	/// Returns a new region that is the intersection of the two given regions.
 	AMScanAxisRegion* intersection(AMScanAxisRegion *region, AMScanAxisRegion *otherRegion);
 
-	/// Returns a list of regions that intersect with the given region.
+	/// Returns a list of regions for this scan axis that intersect with the given region.
 	QList<AMScanAxisRegion*> intersections(AMScanAxisRegion *region);
 	/// Returns true if the two regions can be made simpler by eliminating overlap.
 	bool canSimplifyIntersection(AMScanAxisRegion *region, AMScanAxisRegion *otherRegion);
