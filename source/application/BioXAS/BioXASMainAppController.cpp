@@ -86,23 +86,23 @@ void BioXASMainAppController::setupXASScanConfiguration(BioXASXASScanConfigurati
 		// Set the configuration detectors.
 
 		AMDetector *encoderEnergyFeedback = BioXASMainBeamline::bioXAS()->encoderEnergyFeedbackDetector();
-		if (encoderEnergyFeedback)
+		if (encoderEnergyFeedback && encoderEnergyFeedback->isConnected())
 			configuration->addDetector(encoderEnergyFeedback->toInfo());
 
 		AMDetector *stepEnergyFeedback = BioXASMainBeamline::bioXAS()->stepEnergyFeedbackDetector();
-		if (stepEnergyFeedback)
+		if (stepEnergyFeedback && stepEnergyFeedback->isConnected())
 			configuration->addDetector(stepEnergyFeedback->toInfo());
 
 		AMDetector *goniometerAngle = BioXASMainBeamline::bioXAS()->braggDetector();
-		if (goniometerAngle)
+		if (goniometerAngle && goniometerAngle->isConnected())
 			configuration->addDetector(goniometerAngle->toInfo());
 
 		AMDetector *goniometerStepSetpoint = BioXASMainBeamline::bioXAS()->braggStepSetpointDetector();
-		if (goniometerStepSetpoint)
+		if (goniometerStepSetpoint && goniometerStepSetpoint->isConnected())
 			configuration->addDetector(goniometerStepSetpoint->toInfo());
 
 		AMDetector *goniometerEncoderStepFeedback = BioXASMainBeamline::bioXAS()->braggEncoderStepDegFeedbackDetector();
-		if (goniometerEncoderStepFeedback)
+		if (goniometerEncoderStepFeedback && goniometerEncoderStepFeedback->isConnected())
 			configuration->addDetector(goniometerEncoderStepFeedback->toInfo());
 	}
 }
