@@ -304,7 +304,6 @@ HEADERS += \
 	source/util/AMSelectableElement.h \
 	source/util/AMCustomizablePeriodicTable.h \
 	source/ui/util/AMCustomizablePeriodicTableView.h \
-	source/util/AMRange.h \
 	source/ui/util/AMSelectableElementView.h \
 	source/ui/util/AMSelectableItemView.h \
 	source/ui/beamline/AMXRFDetailedDetectorView.h \
@@ -428,8 +427,7 @@ HEADERS += \
     source/ui/dataman/AMScanViewPlotToolView.h \
     source/ui/dataman/AMScanViewPlotSelectedToolsView.h \
     source/dataman/AMScanViewPlotTools.h \
-    source/ui/acquaman/AMGenericStepScanConfigurationDetectorsView.h \
-    $$PWD/source/util/AMUtility.h
+    source/ui/acquaman/AMGenericStepScanConfigurationDetectorsView.h
 
 FORMS += \
 
@@ -696,7 +694,6 @@ SOURCES += \
 	source/util/AMSelectableElement.cpp \
 	source/util/AMCustomizablePeriodicTable.cpp \
 	source/ui/util/AMCustomizablePeriodicTableView.cpp \
-	source/util/AMRange.cpp \
 	source/ui/util/AMSelectableElementView.cpp \
 	source/ui/util/AMSelectableItemView.cpp \
 	source/ui/beamline/AMXRFDetailedDetectorView.cpp \
@@ -819,9 +816,7 @@ SOURCES += \
     source/ui/dataman/AMScanViewPlotToolView.cpp \
     source/ui/dataman/AMScanViewPlotSelectedToolsView.cpp \
     source/dataman/AMScanViewPlotTools.cpp \
-    source/ui/acquaman/AMGenericStepScanConfigurationDetectorsView.cpp \
-    $$PWD/source/util/AMUtility.cpp
-
+    source/ui/acquaman/AMGenericStepScanConfigurationDetectorsView.cpp
 
 RESOURCES *= source/icons/icons.qrc \
 		source/configurationFiles/configurationFiles.qrc \
