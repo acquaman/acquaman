@@ -19,21 +19,20 @@ BioXASSSRLMonochromator::BioXASSSRLMonochromator(const QString &name, QObject *p
 	paddleStatus_ = 0;
 	keyStatus_ = 0;
 	brakeStatus_ = 0;
-	encoderBragg_ = 0;
 	braggAtCrystalChangePositionStatus_ = 0;
 	crystalChange_ = 0;
 	crystalChangeCWLimitStatus_ = 0;
 	crystalChangeCCWLimitStatus_ = 0;
 	regionAStatus_ = 0;
 	regionBStatus_ = 0;
-	m1Pitch_ = 0;
 
-	braggSetPosition_ = 0;
+	m1Pitch_ = 0;
 
 	upperSlitMotor_ = 0;
 	lowerSlitMotor_ = 0;
 	paddleMotor_ = 0;
-	braggMotor_ = 0;
+	stepsBraggMotor_ = 0;
+	encoderBraggMotor_ = 0;
 	verticalMotor_ = 0;
 	lateralMotor_ = 0;
 	crystalChangeMotor_ = 0;
@@ -62,7 +61,6 @@ bool BioXASSSRLMonochromator::isConnected() const
 		paddleStatus_ && paddleStatus_->isConnected() &&
 		keyStatus_ && keyStatus_->isConnected() &&
 		brakeStatus_ && brakeStatus_->isConnected() &&
-		encoderBragg_ && encoderBragg_->isConnected() &&
 		braggAtCrystalChangePositionStatus_ && braggAtCrystalChangePositionStatus_->isConnected() &&
 		crystalChange_ && crystalChange_->isConnected() &&
 		crystalChangeCWLimitStatus_ && crystalChangeCWLimitStatus_->isConnected() &&
@@ -70,10 +68,13 @@ bool BioXASSSRLMonochromator::isConnected() const
 		regionAStatus_ && regionAStatus_->isConnected() &&
 		regionBStatus_ && regionBStatus_->isConnected() &&
 
+		m1Pitch_ && m1Pitch_->isConnected() &&
+
 		upperSlitMotor_ && upperSlitMotor_->isConnected() &&
 		lowerSlitMotor_ && lowerSlitMotor_->isConnected() &&
 		paddleMotor_ && paddleMotor_->isConnected() &&
-		braggMotor_ && braggMotor_->isConnected() &&
+		encoderBraggMotor_ && encoderBraggMotor_->isConnected() &&
+		stepsBraggMotor_ && stepsBraggMotor_->isConnected() &&
 		verticalMotor_ && verticalMotor_->isConnected() &&
 		lateralMotor_ && lateralMotor_->isConnected() &&
 		crystalChangeMotor_ && crystalChangeMotor_->isConnected() &&
@@ -107,15 +108,11 @@ void BioXASSSRLMonochromator::setSettlingTime(double newTimeSeconds)
 	}
 }
 
-void BioXASSSRLMonochromator::calibrateBraggPosition(double newBraggPosition)
-{
-	if (braggMotor_ && braggMotor_->isConnected()) {
-		braggMotor_->setEGUSetPosition(newBraggPosition);
-	}
-}
-
 void BioXASSSRLMonochromator::updateMotorSettlingTime()
 {
-	if (braggMotor_)
-		braggMotor_->setSettlingTime(settlingTime_);
+	if (encoderBraggMotor_)
+		encoderBraggMotor_->setSettlingTime(settlingTime_);
+
+	if (stepsBraggMotor_)
+		stepsBraggMotor_->setSettlingTime(settlingTime_);
 }

@@ -85,6 +85,10 @@ void BioXASMainAppController::setupXASScanConfiguration(BioXASXASScanConfigurati
 
 		// Set the configuration detectors.
 
+		AMDetector *energySetpoint = BioXASMainBeamline::bioXAS()->energySetpointDetector();
+		if (energySetpoint)
+			configuration->addDetector(energySetpoint->toInfo());
+
 		AMDetector *encoderEnergyFeedback = BioXASMainBeamline::bioXAS()->encoderEnergyFeedbackDetector();
 		if (encoderEnergyFeedback && encoderEnergyFeedback->isConnected())
 			configuration->addDetector(encoderEnergyFeedback->toInfo());

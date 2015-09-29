@@ -47,6 +47,8 @@ REIXSXESImageInterpolationAB::REIXSXESImageInterpolationAB(const QString &output
 	energyCalibrationOffset_ = 0;
 	tiltCalibrationOffset_ = 0;
 
+	interpolationLevel_ = 10;
+	binningLevel_ = 2;
 
 	inputSource_ = 0;
 	cacheInvalid_ = true;
@@ -59,8 +61,6 @@ REIXSXESImageInterpolationAB::REIXSXESImageInterpolationAB(const QString &output
 	connect(&callCorrelation_, SIGNAL(executed()), this, SLOT(correlateNow()));
 	setDescription("XES Interpolated Spectrum");
 
-	interpolationLevel_ = 10;
-	binningLevel_ = 2;
 	// shift values can start out empty.
 	shiftValues1_ << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0;
 	shiftValues2_ << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0;
@@ -282,6 +282,12 @@ void REIXSXESImageInterpolationAB::setInputDataSourcesImplementation(const QList
 		axes_[0] = inputSource_->axisInfoAt(0);	// take the X axis info from the data source.
 		axes_[0].description = "Emission Energy";
 		axes_[0].units = "eV";
+		axes_[0].size /= binningLevel_;
+
+		cacheInvalid_ = true;
+		axisValueCacheInvalid_ = true;
+		cachedValues_ = QVector<double>(axes_.at(0).size);
+		cachedAxisValues_ = QVector<double>(axes_.at(0).size);
 
 		if(shiftValues1_.isEmpty()) {
 			for(int i=0,cc=inputSource_->size(1); i<cc; i++)
@@ -299,15 +305,12 @@ void REIXSXESImageInterpolationAB::setInputDataSourcesImplementation(const QList
 
 	}
 
-	cacheInvalid_ = true;
-	cachedValues_ = QVector<double>(axes_.at(0).size);
-	axisValueCacheInvalid_ = true;
-	cachedAxisValues_ = QVector<double>(axes_.at(0).size);
 	reviewState();
 
-	emitSizeChanged(0);
+	emitSizeChanged();
 	emitValuesChanged();
-	emitAxisInfoChanged(0);
+	emitAxisInfoChanged();
+	emitInfoChanged();
 }
 
 
@@ -612,13 +615,10 @@ void REIXSXESImageInterpolationAB::onInputSourceSizeChanged()
 	cacheInvalid_ = true;
 	axisValueCacheInvalid_ = true;
 
-	bool sizeChanged = false;
-	if(axes_.at(0).size != inputSource_->size(0) / binningLevel_) {
-		axes_[0].size = inputSource_->size(0) / binningLevel_;
-		cachedValues_.resize(axes_.at(0).size);
-		cachedAxisValues_.resize(axes_.at(0).size);
-		sizeChanged = true;
-	}
+	int axisSize = inputSource_->size(0)/binningLevel_;
+	axes_[0].size = axisSize;
+	cachedValues_ = QVector<double>(axisSize);
+	cachedAxisValues_ = QVector<double>(axisSize);
 
 	if(liveCorrelation())
 	{
@@ -627,9 +627,7 @@ void REIXSXESImageInterpolationAB::onInputSourceSizeChanged()
 
 	// If the sumRangeMin/sumRangeMax were out of range before, they might be valid now.
 	reviewState();
-	if(sizeChanged)
-		emitSizeChanged(0);
-	emitValuesChanged();
+	emitSizeChanged();
 }
 
 
@@ -984,7 +982,7 @@ void REIXSXESImageInterpolationAB::computeCachedAxisValues() const
 		//solving the grating equation for eV:
 		cachedAxisValues_[i] = 0.0012398417*grooveDensity / (sinAlpha - sinbp) + energyCalibrationOffset_;	// NOTE: we're adding in the user-specified energy offset here.
 	}
-
+	qDebug() << cachedAxisValues_.size();
 	// midpoint:
 	cachedAxisValues_[centerPixel] = 0.0012398417*grooveDensity / (sinAlpha - sinBeta) + energyCalibrationOffset_;	// NOTE: we're adding in the user-specified energy offset here.
 
@@ -1013,7 +1011,7 @@ void REIXSXESImageInterpolationAB::setEnergyCalibrationOffset(double energyCalib
 
 	energyCalibrationOffset_ = energyCalibrationOffset;
 	axisValueCacheInvalid_ = true;
-	emitSizeChanged(0);
+	emitSizeChanged();
 	emitValuesChanged();
 	setModified(true);
 }
@@ -1025,7 +1023,7 @@ void REIXSXESImageInterpolationAB::setTiltCalibrationOffset(double tiltCalibrati
 
 	tiltCalibrationOffset_ = tiltCalibrationOffset;
 	axisValueCacheInvalid_ = true;
-	emitSizeChanged(0);
+	emitSizeChanged();
 	emitValuesChanged();
 	setModified(true);
 }
@@ -1183,15 +1181,6 @@ void REIXSXESImageInterpolationAB::setCorrelation2Smoothing(QPair<int,int> cSmoo
 void REIXSXESImageInterpolationAB::setBinningLevel(int binningLevel)
 {
 	binningLevel_ = binningLevel;
-	if(inputSource_){
-		axes_[0].size = inputSource_->size(0) / binningLevel_;
-		cachedValues_ = QVector<double>(axes_.at(0).size);
-		cachedAxisValues_ = QVector<double>(axes_.at(0).size);
-	}
-
-	axisValueCacheInvalid_ = true;
-	cacheInvalid_ = true;
 	setModified(true);
-	emitSizeChanged(); //recompute all axis
-	emitValuesChanged();
+	onInputSourceSizeChanged();
 }

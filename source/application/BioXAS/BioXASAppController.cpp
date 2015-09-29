@@ -584,8 +584,11 @@ void BioXASAppController::setupXASScanConfiguration(BioXASXASScanConfiguration *
 		BioXASMonochromator *mono = BioXASBeamline::bioXAS()->mono();
 		if (mono) {
 			AMControl *energyControl = mono->energyControl();
-			if (energyControl)
-				configuration->setControl(energyControl->toInfo());
+			if (energyControl){
+
+				configuration->setControl(0, energyControl->toInfo());
+				configuration->setupDefaultXANESRegions();
+			}
 		}
 
 		// Sets the default edge, Cu.

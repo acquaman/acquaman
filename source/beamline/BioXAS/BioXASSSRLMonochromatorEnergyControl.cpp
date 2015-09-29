@@ -25,7 +25,6 @@ BioXASSSRLMonochromatorEnergyControl::BioXASSSRLMonochromatorEnergyControl(const
 	regionOffset_ = 180;
 
 	bragg_ = 0;
-	braggSetPosition_ = 0;
 	region_ = 0;
 	m1MirrorPitch_ = 0;
 
@@ -70,7 +69,13 @@ bool BioXASSSRLMonochromatorEnergyControl::canStop() const
 	return false;
 }
 
-void BioXASSSRLMonochromatorEnergyControl::setBraggControl(AMControl *newControl)
+bool BioXASSSRLMonochromatorEnergyControl::canCalibrate() const
+{
+	bool result = (isConnected() && bragg_->canCalibrate());
+	return result;
+}
+
+void BioXASSSRLMonochromatorEnergyControl::setBraggControl(CLSMAXvMotor *newControl)
 {
 	if (bragg_ != newControl) {
 
@@ -85,24 +90,6 @@ void BioXASSSRLMonochromatorEnergyControl::setBraggControl(AMControl *newControl
 		updateStates();
 
 		emit braggControlChanged(bragg_);
-	}
-}
-
-void BioXASSSRLMonochromatorEnergyControl::setBraggSetPositionControl(AMControl *newControl)
-{
-	if (braggSetPosition_ != newControl) {
-
-		if (braggSetPosition_)
-			removeChildControl(braggSetPosition_);
-
-		braggSetPosition_ = newControl;
-
-		if (braggSetPosition_)
-			addChildControl(braggSetPosition_);
-
-		updateStates();
-
-		emit braggSetPositionControlChanged(braggSetPosition_);
 	}
 }
 
@@ -146,7 +133,6 @@ void BioXASSSRLMonochromatorEnergyControl::updateConnected()
 {
 	bool isConnected = (
 				bragg_ && bragg_->isConnected() &&
-				braggSetPosition_ && braggSetPosition_->isConnected() &&
 				region_ && region_->isConnected() &&
 				m1MirrorPitch_ && m1MirrorPitch_->isConnected()
 				);
@@ -190,19 +176,14 @@ AMAction3* BioXASSSRLMonochromatorEnergyControl::createCalibrateAction(double ol
 
 	if (isConnected()) {
 
-		AMListAction3 *calibrationAction = new AMListAction3(new AMListActionInfo3("Energy Calibration Action", "Energy Calibration Action"), AMListAction3::Sequential);
-
 		// Calculate the corresponding old and new bragg positions.
+
 		double oldPosition = calculateBraggPositionFromEnergy(hc_, crystal2D_, oldEnergy, region_->value(), m1MirrorPitch_->value(), thetaBraggOffset_, regionOffset_);
 		double newPosition = calculateBraggPositionFromEnergy(hc_, crystal2D_, newEnergy, region_->value(), m1MirrorPitch_->value(), thetaBraggOffset_, regionOffset_);
 
-		// Move to the old energy position.
-		calibrationAction->addSubAction(AMActionSupport::buildControlMoveAction(bragg_, oldPosition));
+		// Create calibration action for the bragg motor.
 
-		// Set the bragg motor position to be the new position.
-		calibrationAction->addSubAction(AMActionSupport::buildControlMoveAction(braggSetPosition_, newPosition));
-
-		result = calibrationAction;
+		result = bragg_->createCalibrationAction(oldPosition, newPosition);
 	}
 
 	return result;
