@@ -1182,5 +1182,6 @@ void REIXSXESImageInterpolationAB::setBinningLevel(int binningLevel)
 {
 	binningLevel_ = binningLevel;
 	setModified(true);
-	onInputSourceSizeChanged();
+	if (inputSource_)
+		onInputSourceSizeChanged();
 }
