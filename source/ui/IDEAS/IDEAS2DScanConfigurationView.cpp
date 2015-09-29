@@ -15,6 +15,7 @@
 #include <QSpinBox>
 #include <QMenu>
 #include <QStringBuilder>
+#include <QApplication>
 
 IDEAS2DScanConfigurationView::IDEAS2DScanConfigurationView(IDEAS2DScanConfiguration *configuration, QWidget *parent)
 	: AMScanConfigurationView(parent)
@@ -435,7 +436,8 @@ QComboBox *IDEAS2DScanConfigurationView::createFluorescenceComboBox()
 	QComboBox *newComboBox = new QComboBox;
 	newComboBox->insertItem(0, "None");
 	newComboBox->insertItem(1, "Ketek");
-	newComboBox->insertItem(2, "13-el Ge");
+	if (QApplication::instance()->arguments().contains("--Ge13"))
+		newComboBox->insertItem(2, "13-el Ge");
 
 	return newComboBox;
 }

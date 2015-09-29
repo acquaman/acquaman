@@ -27,6 +27,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "beamline/AMAdvancedControlDetectorEmulator.h"
 
+#include <QApplication>
+
+
 
 
 IDEASBeamline::IDEASBeamline()
@@ -89,10 +92,15 @@ void IDEASBeamline::setupMotorGroup()
 void IDEASBeamline::setupDetectors()
 {
 	ketek_ = new IDEASKETEKDetector("KETEK", "Single Element XRF Detector", this);
-	ge13Element_ = new IDEAS13ElementGeDetector("13-el Ge", "The thirteen element Germanium Detector", this);
+	addSynchronizedXRFDetector(ketek_);
 
-    addSynchronizedXRFDetector(ketek_);
-    addSynchronizedXRFDetector(ge13Element_);
+	if (QApplication::instance()->arguments().contains("--Ge13"))
+	{
+	ge13Element_ = new IDEAS13ElementGeDetector("13-el Ge", "The thirteen element Germanium Detector", this);
+	addSynchronizedXRFDetector(ge13Element_);
+	ge13ElementRealTimeControl_ = new AMReadOnlyPVControl("13-el Ge Real Time", "dxp1608-B21-13:ElapsedReal", this);
+	ge13ElementRealTime_ = new AMBasicControlDetectorEmulator("13E_dwellTime", "13-element Ge dwell time", ge13ElementRealTimeControl_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	}
 
 	ketekPeakingTime_ = new AMPVControl("XRF1E Peaking Time","dxp1608-1002:dxp1:PeakingTime_RBV","dxp1608-1002:dxp1:PeakingTime", QString(), this, AMCONTROL_TOLERANCE_DONT_CARE);
 	ketekTriggerLevel_ = new AMPVControl("XRF1E Trigger Level","dxp1608-1002:dxp1:TriggerThreshold_RBV","dxp1608-1002:dxp1:TriggerThreshold", QString(), this, AMCONTROL_TOLERANCE_DONT_CARE);
@@ -103,8 +111,6 @@ void IDEASBeamline::setupDetectors()
 
 	ketekRealTime_ = new AMBasicControlDetectorEmulator("dwellTime", "Dwell Time", ketekRealTimeControl_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
 
-	ge13ElementRealTimeControl_ = new AMReadOnlyPVControl("13-el Ge Real Time", "dxp1608-B21-13:ElapsedReal", this);
-	ge13ElementRealTime_ = new AMBasicControlDetectorEmulator("13E_dwellTime", "13-element Ge dwell time", ge13ElementRealTimeControl_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
 
 
 	i0IonChamberScaler_ = new CLSBasicScalerChannelDetector("I_0","I_0 Ion Chamber", scaler_, 0, this);
@@ -185,7 +191,8 @@ void IDEASBeamline::setupExposedControls()
 	addExposedControl(monoCrystal_);
 	addExposedControl(monoAngleOffset_);
 
-	addExposedControl(ge13ElementRealTimeControl_);
+	if (QApplication::instance()->arguments().contains("--Ge13"))
+		addExposedControl(ge13ElementRealTimeControl_);
 
 	addExposedControl(ketekRealTimeControl_);
 	addExposedControl(ketekPeakingTime_);
@@ -212,8 +219,11 @@ void IDEASBeamline::setupExposedDetectors()
 	addExposedDetector(ketek_);
 	addExposedDetector(ketekRealTime_);
 
+	if (QApplication::instance()->arguments().contains("--Ge13"))
+	{
 	addExposedDetector(ge13Element_);
 	addExposedDetector(ge13ElementRealTime_);
+	}
 }
 
 
@@ -267,7 +277,7 @@ AMXRFDetector *IDEASBeamline::xrfDetector(IDEAS::FluorescenceDetectors detectorT
 	if (detectorType.testFlag(IDEAS::Ketek))
 		XRFDetector = IDEASBeamline::ideas()->ketek();
 
-	else if (detectorType.testFlag(IDEAS::Ge13Element))
+	else if (detectorType.testFlag(IDEAS::Ge13Element) && QApplication::instance()->arguments().contains("--Ge13"))
 		XRFDetector = IDEASBeamline::ideas()->ge13Element();
 
 	return XRFDetector;

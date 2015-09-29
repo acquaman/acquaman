@@ -67,6 +67,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/IDEAS/IDEASXRFDetailedDetectorView.h"
 #include "ui/IDEAS/IDEASSampleCameraPanel.h"
 
+#include <QApplication>
+
+
 IDEASAppController::IDEASAppController(QObject *parent)
 	: AMAppController(parent)
 {
@@ -192,6 +195,8 @@ void IDEASAppController::setupUserInterface()
 	ideasKETEKDetailedDetectorView_->addCombinationPileUpPeakNameFilter(QRegExp("(Ka1|La1|Ma1)"));
 	mw_->addPane(ideasKETEKDetailedDetectorView_, "XRF Detectors", "KETEK", ":/system-search.png");
 
+	if (QApplication::instance()->arguments().contains("--Ge13"))
+	{
 	ideas13ElementGeDetailedDetectorView_ = new IDEAS13ElementGeDetailedDetectorView(IDEASBeamline::ideas()->ge13Element());
 	ideas13ElementGeDetailedDetectorView_->buildDetectorView();
 	ideas13ElementGeDetailedDetectorView_->setEnergyRange(1000, 20480);
@@ -199,6 +204,7 @@ void IDEASAppController::setupUserInterface()
 	ideas13ElementGeDetailedDetectorView_->addPileUpPeakNameFilter(QRegExp("(K.1|L.1|Ma1)"));
 	ideas13ElementGeDetailedDetectorView_->addCombinationPileUpPeakNameFilter(QRegExp("(Ka1|La1|Ma1)"));
 	mw_->addPane(ideas13ElementGeDetailedDetectorView_, "XRF Detectors", "13-el Ge", ":/system-search.png");
+	}
 
 	mw_->insertHeading("Scans", 2);
 

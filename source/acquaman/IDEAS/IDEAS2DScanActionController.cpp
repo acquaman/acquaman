@@ -13,6 +13,9 @@
 #include "dataman/export/AMSMAKExporter.h"
 #include "dataman/export/AMExporterOptionSMAK.h"
 
+#include <QApplication>
+
+
 IDEAS2DScanActionController::IDEAS2DScanActionController(IDEAS2DScanConfiguration *configuration, QObject *parent)
 	: AMStepScanActionController(configuration, parent)
 {
@@ -67,7 +70,7 @@ IDEAS2DScanActionController::IDEAS2DScanActionController(IDEAS2DScanConfiguratio
 		detectors.addDetectorInfo(detector->toInfo());
 	}
 
-	else if (configuration_->fluorescenceDetector().testFlag(IDEAS::Ge13Element)){
+	else if (configuration_->fluorescenceDetector().testFlag(IDEAS::Ge13Element) && QApplication::instance()->arguments().contains("--Ge13")){
 
 		AMDetector *detector = AMBeamline::bl()->exposedDetectorByName("13-el Ge");
 		detector->setIsVisible(false);
@@ -109,7 +112,7 @@ void IDEAS2DScanActionController::buildScanControllerImplementation()
 	if (configuration_->fluorescenceDetector().testFlag(IDEAS::Ketek))
 		detector = qobject_cast<AMXRFDetector *>(AMBeamline::bl()->exposedDetectorByName("KETEK"));
 
-	else if (configuration_->fluorescenceDetector().testFlag(IDEAS::Ge13Element))
+	else if (configuration_->fluorescenceDetector().testFlag(IDEAS::Ge13Element) && QApplication::instance()->arguments().contains("--Ge13"))
 		detector = qobject_cast<AMXRFDetector *>(AMBeamline::bl()->exposedDetectorByName("13-el Ge"));
 
 	if (detector){

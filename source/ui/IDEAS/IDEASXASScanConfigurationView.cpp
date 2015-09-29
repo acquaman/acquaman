@@ -36,6 +36,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/dataman/AMEXAFSScanAxisView.h"
 #include "ui/util/AMPeriodicTableDialog.h"
 
+#include <QApplication>
+
+
 
 IDEASXASScanConfigurationView::IDEASXASScanConfigurationView(IDEASXASScanConfiguration *configuration, QWidget *parent) :
 	AMScanConfigurationView(parent)
@@ -386,7 +389,8 @@ QComboBox *IDEASXASScanConfigurationView::createFluorescenceComboBox()
 	QComboBox *newComboBox = new QComboBox;
 	newComboBox->insertItem(0, "None");
 	newComboBox->insertItem(1, "KETEK");
-	newComboBox->insertItem(2, "13-el Ge");
+	if (QApplication::instance()->arguments().contains("--Ge13"))
+		newComboBox->insertItem(2, "13-el Ge");
 
 	return newComboBox;
 }

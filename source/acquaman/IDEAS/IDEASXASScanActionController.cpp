@@ -86,7 +86,7 @@ IDEASXASScanActionController::IDEASXASScanActionController(IDEASXASScanConfigura
 		ideasDetectors.addDetectorInfo(AMBeamline::bl()->exposedDetectorByName("dwellTime")->toInfo());
 	}
 
-	else if (configuration_->fluorescenceDetector().testFlag(IDEAS::Ge13Element)){
+	else if (configuration_->fluorescenceDetector().testFlag(IDEAS::Ge13Element) && QApplication::instance()->arguments().contains("--Ge13")){
 
 		ideasDetectors.addDetectorInfo(AMBeamline::bl()->exposedDetectorByName("13-el Ge")->toInfo());
 		ideasDetectors.addDetectorInfo(AMBeamline::bl()->exposedDetectorByName("13E_dwellTime")->toInfo());
@@ -150,7 +150,7 @@ void IDEASXASScanActionController::buildScanControllerImplementation()
 	if (configuration_->fluorescenceDetector().testFlag(IDEAS::Ketek))
 		detector = qobject_cast<AMXRFDetector *>(AMBeamline::bl()->exposedDetectorByName("KETEK"));
 
-	else if (configuration_->fluorescenceDetector().testFlag(IDEAS::Ge13Element))
+	else if (configuration_->fluorescenceDetector().testFlag(IDEAS::Ge13Element) && QApplication::instance()->arguments().contains("--Ge13"))
 		detector = qobject_cast<AMXRFDetector *>(AMBeamline::bl()->exposedDetectorByName("13-el Ge"));
 
 	if (detector){
