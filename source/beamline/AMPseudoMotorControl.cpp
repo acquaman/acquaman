@@ -13,6 +13,7 @@ AMPseudoMotorControl::AMPseudoMotorControl(const QString &name, const QString &u
 	isMoving_ = false;
 	minimumValue_ = 0;
 	maximumValue_ = 0;
+	calibrationInProgress_ = false;
 
 	startedMapper_ = new QSignalMapper(this);
 	connect( startedMapper_, SIGNAL(mapped(QObject*)), this, SLOT(onMoveStarted(QObject*)) );
@@ -25,6 +26,19 @@ AMPseudoMotorControl::AMPseudoMotorControl(const QString &name, const QString &u
 
 	succeededMapper_ = new QSignalMapper(this);
 	connect( succeededMapper_, SIGNAL(mapped(QObject*)), this, SLOT(onMoveSucceeded(QObject*)) );
+
+	calibrationStartedMapper_ = new QSignalMapper(this);
+	connect( calibrationStartedMapper_, SIGNAL(mapped(QObject*)), this, SLOT(onCalibrationStarted()) );
+
+	calibrationCancelledMapper_ = new QSignalMapper(this);
+	connect( calibrationCancelledMapper_, SIGNAL(mapped(QObject*)), this, SLOT(onCalibrationCancelled(QObject*)) );
+
+	calibrationFailedMapper_ = new QSignalMapper(this);
+	connect( calibrationFailedMapper_, SIGNAL(mapped(QObject*)), this, SLOT(onCalibrationFailed(QObject*)) );
+
+	calibrationSucceededMapper_ = new QSignalMapper(this);
+	connect( calibrationSucceededMapper_, SIGNAL(mapped(QObject*)), this, SLOT(onCalibrationSucceeded(QObject*)) );
+
 }
 
 AMPseudoMotorControl::~AMPseudoMotorControl()
@@ -114,9 +128,17 @@ QString AMPseudoMotorControl::toString() const
 	else
 		controlMoving += "No";
 
+	// Note this control's calibrating state.
+
+	QString controlCalibrating = "Calibrating: ";
+	if (calibrationInProgress())
+		controlCalibrating += "Yes";
+	else
+		controlCalibrating += "No";
+
 	// Create and return complete info string.
 
-	QString result = controlName + "\n" + controlDescription + "\n" + controlConnected + "\n" + controlMoving;
+	QString result = controlName + "\n" + controlDescription + "\n" + controlConnected + "\n" + controlMoving + "\n" + controlCalibrating;
 
 	return result;
 }
@@ -214,6 +236,71 @@ bool AMPseudoMotorControl::stop()
 	return result;
 }
 
+AMControl::FailureExplanation AMPseudoMotorControl::calibrate(double oldValue, double newValue)
+{
+	// Check that this control is connected and able to be calibrated before proceeding.
+
+	if (!isConnected()) {
+		AMErrorMon::alert(this, AMPSEUDOMOTORCONTROL_NOT_CONNECTED, QString("Failed to calibrate %1: control is not connected.").arg(name()));
+		return AMControl::NotConnectedFailure;
+	}
+
+	if (!canCalibrate()) {
+		AMErrorMon::alert(this, AMPSEUDOMOTORCONTROL_CANNOT_MOVE, QString("Failed to calibrate %1: control cannot move.").arg(name()));
+		return AMControl::OtherFailure;
+	}
+
+	if (calibrationInProgress()) {
+		AMErrorMon::alert(this, AMPSEUDOMOTORCONTROL_ALREADY_CALIBRATING, QString("Failed to calibrate %1: control is already being calibrated.").arg(name()));
+		return AMControl::AlreadyMovingFailure;
+	}
+
+	if (!validValue(oldValue)) {
+		AMErrorMon::alert(this, AMPSEUDOMOTORCONTROL_INVALID_VALUE, QString("Failed to calibrate %1: provided starting value is invalid.").arg(name()));
+		return AMControl::LimitFailure;
+	}
+
+	if (!validValue(newValue)) {
+		AMErrorMon::alert(this, AMPSEUDOMOTORCONTROL_INVALID_VALUE, QString("Failed to calibrate %1: provided desired value is invalid.").arg(name()));
+		return AMControl::LimitFailure;
+	}
+
+	// Proceed with creating calibration action.
+
+	AMAction3 *calibrationAction = createCalibrateAction(oldValue, newValue);
+
+	// Check that a valid calibration action was generated.
+	// If an invalid calibration action was generated, abort the calibration.
+
+	if (!calibrationAction) {
+		AMErrorMon::alert(this, AMPSEUDOMOTORCONTROL_INVALID_CALIBRATION_ACTION, QString("Did not calibrate %1: invalid calibration action generated.").arg(name()));
+		onCalibrationStarted();
+		onCalibrationFailed();
+		return AMControl::LimitFailure;
+	}
+
+	// Otherwise, proceed with initializing and running the calibration action.
+	// Create calibration action signal mappings.
+
+	calibrationStartedMapper_->setMapping(calibrationAction, calibrationAction);
+	connect( calibrationAction, SIGNAL(started()), calibrationStartedMapper_, SLOT(map()) );
+
+	calibrationCancelledMapper_->setMapping(calibrationAction, calibrationAction);
+	connect( calibrationAction, SIGNAL(cancelled()), calibrationCancelledMapper_, SLOT(map()) );
+
+	calibrationFailedMapper_->setMapping(calibrationAction, calibrationAction);
+	connect( calibrationAction, SIGNAL(failed()), calibrationFailedMapper_, SLOT(map()) );
+
+	calibrationSucceededMapper_->setMapping(calibrationAction, calibrationAction);
+	connect( calibrationAction, SIGNAL(succeeded()), calibrationSucceededMapper_, SLOT(map()) );
+
+	// Run action.
+
+	calibrationAction->start();
+
+	return AMControl::NoFailure;
+}
+
 void AMPseudoMotorControl::setEnumStates(const QStringList &enumStateNames)
 {
 	AMControl::setEnumStates(enumStateNames);
@@ -286,6 +373,14 @@ void AMPseudoMotorControl::setMaximumValue(double newValue)
 	}
 }
 
+void AMPseudoMotorControl::setCalibrationInProgress(bool isCalibrating)
+{
+	if (calibrationInProgress_ != isCalibrating) {
+		calibrationInProgress_ = isCalibrating;
+		emit calibratingChanged(calibrationInProgress_);
+	}
+}
+
 void AMPseudoMotorControl::updateStates()
 {
 	updateConnected();
@@ -302,35 +397,103 @@ void AMPseudoMotorControl::onMoveStarted(QObject *action)
 
 void AMPseudoMotorControl::onMoveCancelled(QObject *action)
 {
-	moveCleanup(action);
+	moveActionCleanup(action);
 	emit moveFailed(AMControl::WasStoppedFailure);
 }
 
 void AMPseudoMotorControl::onMoveFailed(QObject *action)
 {
-	moveCleanup(action);
+	moveActionCleanup(action);
 	emit moveFailed(AMControl::OtherFailure);
 }
 
 void AMPseudoMotorControl::onMoveSucceeded(QObject *action)
 {
-	moveCleanup(action);
+	moveActionCleanup(action);
 	emit moveSucceeded();
 }
 
-void AMPseudoMotorControl::moveCleanup(QObject *action)
+void AMPseudoMotorControl::onCalibrationStarted()
+{
+	setCalibrationInProgress(true);
+	emit calibrationStarted();
+}
+
+void AMPseudoMotorControl::onCalibrationCancelled(QObject *action)
+{
+	calibrationActionCleanup(action);
+	onCalibrationCancelled();
+}
+
+void AMPseudoMotorControl::onCalibrationCancelled()
+{
+	emit calibrationFailed(AMControl::WasStoppedFailure);
+}
+
+void AMPseudoMotorControl::onCalibrationFailed(QObject *action)
+{
+	calibrationActionCleanup(action);
+	onCalibrationFailed();
+}
+
+void AMPseudoMotorControl::onCalibrationFailed()
+{
+	emit calibrationFailed(AMControl::OtherFailure);
+}
+
+void AMPseudoMotorControl::onCalibrationSucceeded(QObject *action)
+{
+	calibrationActionCleanup(action);
+	onCalibrationSucceeded();
+}
+
+void AMPseudoMotorControl::onCalibrationSucceeded()
+{
+	emit calibrationSucceeded();
+}
+
+AMAction3* AMPseudoMotorControl::createCalibrateAction(double oldValue, double newValue)
+{
+	Q_UNUSED(oldValue)
+	Q_UNUSED(newValue)
+
+	return 0;
+}
+
+void AMPseudoMotorControl::moveActionCleanup(QObject *action)
 {
 	setMoveInProgress(false);
 	updateMoving();
 
 	if (action) {
-		action->disconnect();
-
 		startedMapper_->removeMappings(action);
 		cancelledMapper_->removeMappings(action);
 		failedMapper_->removeMappings(action);
 		succeededMapper_->removeMappings(action);
 
+		actionCleanup(action);
+	}
+}
+
+void AMPseudoMotorControl::calibrationActionCleanup(QObject *action)
+{
+	setCalibrationInProgress(false);
+	updateValue();
+
+	if (action) {
+		calibrationStartedMapper_->removeMappings(action);
+		calibrationCancelledMapper_->removeMappings(action);
+		calibrationFailedMapper_->removeMappings(action);
+		calibrationSucceededMapper_->removeMappings(action);
+
+		actionCleanup(action);
+	}
+}
+
+void AMPseudoMotorControl::actionCleanup(QObject *action)
+{
+	if (action) {
+		action->disconnect();
 		action->deleteLater();
 	}
 }

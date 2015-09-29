@@ -57,13 +57,13 @@ void AMDataSourceImageData::setDataSource(const AMDataSource* dataSource) {
 
 		isValid_ = true;
 
-		connect(dataSource->signalSource(), SIGNAL(stateChanged(int)), this, SLOT(onSizeChanged(int)));
-		connect(dataSource->signalSource(), SIGNAL(sizeChanged(int)), this, SLOT(onSizeChanged(int)));
-		connect(dataSource->signalSource(), SIGNAL(axisInfoChanged(int)), this, SLOT(onAxisValuesChanged(int)));
+        connect(dataSource->signalSource(), SIGNAL(stateChanged(int)), this, SLOT(onSizeChanged()));
+        connect(dataSource->signalSource(), SIGNAL(sizeChanged(int)), this, SLOT(onSizeChanged()));
+        connect(dataSource->signalSource(), SIGNAL(axisInfoChanged(int)), this, SLOT(onAxisValuesChanged()));
 		connect(dataSource->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onDataChanged(AMnDIndex,AMnDIndex)));
 	}
 
-	onSizeChanged(-1);
+    onSizeChanged();
 	onDataChanged(AMnDIndex(0,0), AMnDIndex(xSize_-1, ySize_-1));
 }
 
@@ -119,24 +119,10 @@ QRectF AMDataSourceImageData::boundingRect() const
 	return boundingRect_;
 }
 
-void AMDataSourceImageData::onAxisValuesChanged(int axisId)
+void AMDataSourceImageData::onAxisValuesChanged()
 {
-	if (axisId == -1){
-
-		source_->axisValues(0, 0, xSize_-1, xAxis_.data());
-		source_->axisValues(1, 0, ySize_-1, yAxis_.data());
-	}
-
-	else if (axisId == 0){
-
-		source_->axisValues(0, 0, xSize_-1, xAxis_.data());
-	}
-
-	else if (axisId == 1) {
-
-		source_->axisValues(1, 0, ySize_-1, yAxis_.data());
-	}
-
+    source_->axisValues(0, 0, xSize_-1, xAxis_.data());
+    source_->axisValues(1, 0, ySize_-1, yAxis_.data());
     recomputeBoundingRect();
 	emitBoundsChanged();
 }
@@ -149,30 +135,14 @@ void AMDataSourceImageData::onDataChanged(const AMnDIndex &start, const AMnDInde
 	emitDataChanged();
 }
 
-void AMDataSourceImageData::onSizeChanged(int axisId)
+void AMDataSourceImageData::onSizeChanged()
 {
-	if (axisId == -1){
-
-		xSize_ = source_->size(0);
-		ySize_ = source_->size(1);
-		xAxis_ = QVector<double>(xSize_, 0);
-		yAxis_ = QVector<double>(ySize_, 0);
-	}
-
-	else if (axisId == 0){
-
-		xSize_ = source_->size(0);
-		xAxis_ = QVector<double>(xSize_, 0);
-	}
-
-	else if (axisId == 1){
-
-		ySize_ = source_->size(1);
-		yAxis_ = QVector<double>(ySize_);
-	}
-
+    xSize_ = source_->size(0);
+    ySize_ = source_->size(1);
+    xAxis_ = QVector<double>(xSize_, 0);
+    yAxis_ = QVector<double>(ySize_, 0);
 	data_ = QVector<double>(xSize_*ySize_, 0);
-	onAxisValuesChanged(axisId);
+    onAxisValuesChanged();
 	onDataChanged(AMnDIndex(0,0), AMnDIndex(xSize_-1, ySize_-1));
 }
 

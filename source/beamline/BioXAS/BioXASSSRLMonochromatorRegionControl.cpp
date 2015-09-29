@@ -1,8 +1,6 @@
 #include "BioXASSSRLMonochromatorRegionControl.h"
 #include "BioXASSSRLMonochromator.h"
 
-#include <QDebug>
-
 BioXASSSRLMonochromatorRegionControl::BioXASSSRLMonochromatorRegionControl(const QString &name, QObject *parent) :
 	AMPseudoMotorControl(name, "", parent)
 {
@@ -114,12 +112,6 @@ bool BioXASSSRLMonochromatorRegionControl::validSetpoint(double value) const
 
 	return isValid;
 }
-
-//void BioXASSSRLMonochromatorRegionControl::addChildControl(AMControl *control)
-//{
-//	qDebug() << "Adding child" << control->name();
-//	AMPseudoMotorControl::addChildControl(control);
-//}
 
 void BioXASSSRLMonochromatorRegionControl::setUpperSlitControl(AMControl *upperSlit)
 {
@@ -350,18 +342,6 @@ void BioXASSSRLMonochromatorRegionControl::updateConnected()
 				regionAStatusOK &&
 				regionBStatusOK
 				);
-
-	if (isConnected)
-		qDebug() << "\nRegion control is connected.\n";
-	else {
-		qDebug() << "\nRegion control is NOT connected.";
-
-		if (!regionAStatusOK)
-			qDebug() << "\nRegion A status NOT connected.";
-
-		if (!regionBStatusOK)
-			qDebug() << "\nRegion B status NOT connected.";
-	}
 
 	setConnected(isConnected);
 }

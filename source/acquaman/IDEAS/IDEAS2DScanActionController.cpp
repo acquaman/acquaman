@@ -124,7 +124,7 @@ void IDEAS2DScanActionController::buildScanControllerImplementation()
 			AMRegionOfInterestAB *newRegion = new AMRegionOfInterestAB(regionAB->name().remove(' '));
 			newRegion->setBinningRange(regionAB->binningRange());
 			newRegion->setInputDataSources(QList<AMDataSource *>() << spectraSource);
-			scan_->addAnalyzedDataSource(newRegion, false, true);
+			scan_->addAnalyzedDataSource(newRegion, true, false);
 			detector->addRegionOfInterest(region);
 
 			AM2DNormalizationAB *normalizedRegion = new AM2DNormalizationAB(QString("norm_%1").arg(newRegion->name()));
