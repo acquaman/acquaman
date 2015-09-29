@@ -59,16 +59,7 @@ void IDEASXRFDetailedDetectorView::buildScanSaveViews()
 {
 	deadTimeCheckButton = new QPushButton("Check Dead Time");
 
-	peakingTimeBox = new QComboBox();
-	peakingTimeBox->setObjectName(QString::fromUtf8("peakingTimeBox"));
-	peakingTimeBox->addItem("Setting Unknown");
-	peakingTimeBox->addItem("High Rate / Low Res");
-	peakingTimeBox->addItem("High Res / Low Rate");
-	peakingTimeBox->addItem("Ultra Res / Slow Rate");
-
 	rightLayout_->addWidget(deadTimeCheckButton);
-
-	rightLayout_->addWidget(peakingTimeBox);
 
 	rightLayout_->addStretch();
 
