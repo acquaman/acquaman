@@ -266,7 +266,7 @@ void BioXASSSRLMonochromatorConfigurationView::onCalibrateGoniometerButtonClicke
 		double newPosition = QInputDialog::getDouble(this, "Goniometer Calibration", "Enter calibrated goniometer position:", mono_->braggMotor()->value(), BRAGG_POSITION_MIN, BRAGG_POSITION_MAX, 2, &inputOK);
 
 		if (inputOK)
-			mono_->braggMotor()->setEGUSetPosition(newPosition);
+			mono_->braggMotor()->calibrate(mono_->braggMotor()->value(), newPosition);
 	}
 }
 
