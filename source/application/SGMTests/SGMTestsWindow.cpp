@@ -45,6 +45,7 @@ void SGMTestsWindow::onShowMonoViewClicked()
     }
 
     monoInfoTestView_->show();
+    monoInfoTestView_->raise();
 }
 
 void SGMTestsWindow::onShowTrajectoryViewClicked()
@@ -54,8 +55,10 @@ void SGMTestsWindow::onShowTrajectoryViewClicked()
 
         energyTestView_ = new SGMEnergyTrajectoryTestView();
         energyTestView_->resize(1024,768);
-        energyTestView_->show();
     }
+
+    energyTestView_->show();
+    energyTestView_->raise();
 }
 
 void SGMTestsWindow::setupUi()
