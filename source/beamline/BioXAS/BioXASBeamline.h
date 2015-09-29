@@ -27,6 +27,7 @@
 #include "beamline/BioXAS/BioXASPseudoMotorControl.h"
 #include "beamline/BioXAS/BioXASBeamlineUtilities.h"
 #include "beamline/BioXAS/BioXASCryostatStage.h"
+#include "beamline/BioXAS/BioXASShutters.h"
 
 #include "util/AMErrorMonitor.h"
 #include "util/AMBiHash.h"
@@ -56,7 +57,7 @@ public:
 	virtual ~BioXASBeamline();
 
 	/// Returns the current connected state.
-	virtual bool isConnected() const;
+	virtual bool isConnected() const { return false; }
 	/// Returns the (cached) current connected state.
 	virtual bool connected() const { return connected_; }
 
@@ -65,15 +66,8 @@ public:
 	/// Returns the current 'beam on' state, true if the front end photon and safety shutters are open. False otherwise.
 	virtual bool beamOn() const;
 
-	/// Returns the front end upstream photon shutter.
-	CLSBiStateControl* photonShutterFEUpstream() const { return photonShutterFEUpstream_; }
-	/// Returns the front end downstream photon shutter.
-	CLSBiStateControl* photonShutterFEDownstream() const { return photonShutterFEDownstream_; }
-	/// Returns the front end safety shutter.
-	CLSBiStateControl* safetyShutterFE() const { return safetyShutterFE_; }
-	/// Returns the endstation safety shutter.
-	virtual CLSBiStateControl* safetyShutterES() const { return 0; }
-
+	/// Returns the shutters.
+	virtual BioXASShutters* shutters() const { return 0; }
 	/// Returns the m1 mirror.
 	virtual BioXASM1Mirror* m1Mirror() const { return 0; }
 	/// Returns the monochromator.
@@ -142,13 +136,6 @@ protected:
 protected:
 	/// The current connected state.
 	bool connected_;
-
-	/// The front end upstream photon shutter.
-	CLSBiStateControl *photonShutterFEUpstream_;
-	/// The front end downstream photon shutter.
-	CLSBiStateControl *photonShutterFEDownstream_;
-	/// The front end safety shutter.
-	CLSBiStateControl *safetyShutterFE_;
 
 	/// The control/detector map. Assumes a 1-1 correlation between controls and detector emulators.
 	QMap<AMControl*, AMBasicControlDetectorEmulator*> controlDetectorMap_;

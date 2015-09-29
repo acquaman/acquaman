@@ -46,8 +46,12 @@ public:
 	AMControl* photonShutterDownstreamFE() const { return photonShutterDownstreamFE_; }
 	/// Returns the front-end safety shutter.
 	AMControl* safetyShutterFE() const { return safetyShutterFE_; }
-	/// Returns the endstation safety shutter.
-	AMControl* safetyShutterES() const { return safetyShutterES_; }
+	/// Returns the Side endstation safety shutter.
+	AMControl* safetyShutterSide() const { return safetyShutterSide_; }
+	/// Returns the Main endstation safety shutter.
+	AMControl* safetyShutterMain() const { return safetyShutterMain_; }
+	/// Returns the Imaging endstation safety shutter.
+	AMControl* safetyShutterImaging() const { return safetyShutterImaging_; }
 
 signals:
 	/// Notifier that the front-end upstream photon shutter changed.
@@ -88,8 +92,8 @@ protected:
 	CLSBiStateControl *photonShutterDownstreamFE_;
 	/// The front-end safety shutter.
 	CLSBiStateControl *safetyShutterFE_;
-	/// The endstation safety shutter.
-	CLSBiStateControl *safetyShutterES_;
+	/// The Side endstation safety shutter.
+	CLSBiStateControl *safetyShutter_;
 };
 
 #endif // BIOXASSHUTTERSCONTROL_H
