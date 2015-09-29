@@ -276,18 +276,17 @@ void SGMEnergyTrajectoryTestView::setTheoreticalPlotData(SGMGratingSupport::Grat
         QVector<qreal> undulatorPositionYValues = QVector<qreal>(numberOfItems);
         QVector<qreal> exitSlitPositionYValues = QVector<qreal>(numberOfItems);
 
-        xValues.clear();
-        gratingAngleYValues.clear();
-        undulatorPositionYValues.clear();
-        exitSlitPositionYValues.clear();
+        double currentEnergy = startValue;
+        for(int iDataPoint = 0; iDataPoint < numberOfItems; ++iDataPoint) {
 
-        for(double energy = startValue; energy <= endValue; energy+=increment) {
+            monoInfo.requestEnergy(currentEnergy);
 
-            monoInfo.requestEnergy(energy, gratingTranslation);
-            xValues.append(monoInfo.resultantEnergy());
-            gratingAngleYValues.append(monoInfo.gratingAngle());
-            undulatorPositionYValues.append(monoInfo.undulatorPosition());
-            exitSlitPositionYValues.append(monoInfo.exitSlitPosition());
+            xValues[iDataPoint] = monoInfo.resultantEnergy();
+            gratingAngleYValues[iDataPoint] = monoInfo.gratingAngle();
+            undulatorPositionYValues[iDataPoint] = monoInfo.undulatorPosition();
+            exitSlitPositionYValues[iDataPoint] = monoInfo.exitSlitPosition();
+
+            currentEnergy += increment;
         }
 
         gratingAngleTheoreticalData_->setValues(xValues, gratingAngleYValues);
@@ -320,15 +319,23 @@ void SGMEnergyTrajectoryTestView::setEnergyPlotData(SGMGratingSupport::GratingTr
         double angleEncoderValue = trajectory.startGratingAngleEncoderStep();
         double angleEncoderVelocity = trajectory.gratingAngleVelocityProfile().targetVelocity();
 
-        QVector<qreal> timeXValues;
-        QVector<qreal> energyProducedYValues;
+        double currentTime = 0;
+        double endTime = trajectory.time();
+        double increment = 1;
+        int numberOfTimeSlices = int((endTime - currentTime) / increment);
 
-        for(double currentTime = 0, endTime = trajectory.time(); currentTime < endTime; ++currentTime) {
+        QVector<qreal> timeXValues(numberOfTimeSlices);
+        QVector<qreal> energyProducedYValues(numberOfTimeSlices);
 
-            timeXValues.append(currentTime);
-            energyProducedYValues.append(currentMonoStatus.resultantEnergy());
+        for(int iTimeSlice = 0; iTimeSlice < numberOfTimeSlices; ++iTimeSlice) {
+
+            timeXValues[iTimeSlice] = currentTime;
+            energyProducedYValues[iTimeSlice] = currentMonoStatus.resultantEnergy();
+
             angleEncoderValue += angleEncoderVelocity;
             currentMonoStatus.setGratingAngle(angleEncoderValue);
+
+            ++currentTime;
         }
 
 
@@ -351,22 +358,22 @@ void SGMEnergyTrajectoryTestView::setTrajectoryPlotData(SGMGratingSupport::Grati
 
         if(!trajectory.hasErrors()) {
 
-            QVector<qreal> energyXValues;
-            QVector<qreal> gratingAngleTrajectoryYValues;
-            QVector<qreal> undulatorPositionTrajectoryYValues;
-            QVector<qreal> exitSlitPositionTrajectoryYValues;
+            QVector<qreal> energyXValues(2);
+            QVector<qreal> gratingAngleTrajectoryYValues(2);
+            QVector<qreal> undulatorPositionTrajectoryYValues(2);
+            QVector<qreal> exitSlitPositionTrajectoryYValues(2);
 
-            energyXValues.append(trajectory.startEnergy());
-            energyXValues.append(trajectory.endEnergy());
+            energyXValues[0] = trajectory.startEnergy();
+            energyXValues[1] = trajectory.endEnergy();
 
-            gratingAngleTrajectoryYValues.append(trajectory.startGratingAngleEncoderStep());
-            gratingAngleTrajectoryYValues.append(trajectory.endGratingAngleEncoderStep());
+            gratingAngleTrajectoryYValues[0] = trajectory.startGratingAngleEncoderStep();
+            gratingAngleTrajectoryYValues[1] = trajectory.endGratingAngleEncoderStep();
 
-            undulatorPositionTrajectoryYValues.append(trajectory.startUndulatorPosition());
-            undulatorPositionTrajectoryYValues.append(trajectory.endUndulatorPosition());
+            undulatorPositionTrajectoryYValues[0] = trajectory.startUndulatorPosition();
+            undulatorPositionTrajectoryYValues[1] = trajectory.endUndulatorPosition();
 
-            exitSlitPositionTrajectoryYValues.append(trajectory.startExitSlitPosition());
-            exitSlitPositionTrajectoryYValues.append(trajectory.endExitSlitPosition());
+            exitSlitPositionTrajectoryYValues[0] = trajectory.startExitSlitPosition();
+            exitSlitPositionTrajectoryYValues[1] = trajectory.endExitSlitPosition();
 
             gratingAngleTrajectoryData_->setValues(energyXValues, gratingAngleTrajectoryYValues);
             undulatorPositionTrajectoryData_->setValues(energyXValues, undulatorPositionTrajectoryYValues);
