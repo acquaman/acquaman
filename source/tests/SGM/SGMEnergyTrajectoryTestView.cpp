@@ -12,9 +12,6 @@
 #include <QGridLayout>
 #include <QLabel>
 
-#define GRATING_ANGLE_PLOT_INDEX 0
-#define UNDULATOR_POSITION_PLOT_INDEX 1
-#define EXIT_SLIT_PLOT_INDEX 2
 SGMEnergyTrajectoryTestView::SGMEnergyTrajectoryTestView(QWidget *parent) : QWidget(parent)
 {
     setupUi();

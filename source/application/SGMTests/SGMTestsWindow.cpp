@@ -31,31 +31,31 @@ SGMTestsWindow::SGMTestsWindow(QWidget *parent) : QMainWindow(parent)
 
 void SGMTestsWindow::onShowMonoViewClicked()
 {
-    if(monoInfoTestView_ != 0) {
-        monoInfoTestView_->deleteLater();
+    if(monoInfoTestView_ == 0) {
+
+        SGMMonochromatorInfo* testMonoInfo = new SGMMonochromatorInfo(SGMGratingSupport::LowGrating,
+                                                                      -412460.94,
+                                                                      SGMUndulatorSupport::FirstHarmonic,
+                                                                      13.2265442,
+                                                                      0,
+                                                                      358.199551,
+                                                                      this);
+
+        monoInfoTestView_ = new SGMMonochromatorInfoTestView(testMonoInfo);
     }
 
-    SGMMonochromatorInfo* testMonoInfo = new SGMMonochromatorInfo(SGMGratingSupport::LowGrating,
-                                                                  -412460.94,
-                                                                  SGMUndulatorSupport::FirstHarmonic,
-                                                                  13.2265442,
-                                                                  0,
-                                                                  358.199551,
-                                                                  this);
-
-    monoInfoTestView_ = new SGMMonochromatorInfoTestView(testMonoInfo);
     monoInfoTestView_->show();
 }
 
 void SGMTestsWindow::onShowTrajectoryViewClicked()
 {
-    if(energyTestView_ != 0) {
-        energyTestView_->deleteLater();
-    }
 
-    energyTestView_ = new SGMEnergyTrajectoryTestView();
-    energyTestView_->resize(1024, 768);
-    energyTestView_->show();
+    if(energyTestView_ == 0) {
+
+        energyTestView_ = new SGMEnergyTrajectoryTestView();
+        energyTestView_->resize(1024,768);
+        energyTestView_->show();
+    }
 }
 
 void SGMTestsWindow::setupUi()

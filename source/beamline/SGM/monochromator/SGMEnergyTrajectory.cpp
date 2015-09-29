@@ -19,7 +19,7 @@ SGMEnergyTrajectory::SGMEnergyTrajectory(double startEnergy,
         endMonoInfo_->setAutoDetectUndulatorHarmonic(false);
 
         startMonoInfo_->setUndulatorHarmonic(SGMUndulatorSupport::FirstHarmonic);
-        endMonoInfo_->setUndulatorHarmonic(SGMUndulatorSupport::ThirdHarmonic);
+        endMonoInfo_->setUndulatorHarmonic(SGMUndulatorSupport::FirstHarmonic);
     }
 
     time_ = time;
