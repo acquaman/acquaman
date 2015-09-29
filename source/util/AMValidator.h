@@ -53,6 +53,14 @@ public:
       */
     QStringList failureMessages() const;
 
+    /*!
+     * A string containing all the error messages associated with the object,
+     * sepearated by the optional delimiter.
+     * \param delimiter ~ An optional delimiter used to separate each message. If
+     * none is provided then a newline is used
+     * \return
+     */
+    QString fullFailureMessage(const QString& delimiter = "\n") const;
 signals:
 
     /*!
@@ -67,6 +75,20 @@ signals:
       * \param failCount ~ The new number of failures.
       */
     void failCountChanged(int failCount);
+
+    /*!
+     * Signal indicating that a failure has been removed.
+     * \param failureMessage ~ A string associated with the failure which was
+     * removed.
+     */
+    void failureRemoved(const QString& failureMessage);
+
+    /*!
+     * Signal indicating that a failure has been added to the validator.
+     * \param failureAdded ~ A string associated with the failure which was
+     * added.
+     */
+    void failureAdded(const QString& failureAdded);
 public slots:
 
 protected:

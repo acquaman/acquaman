@@ -1,5 +1,5 @@
-#ifndef TESTSGMMONOCHROMATORINFO_H
-#define TESTSGMMONOCHROMATORINFO_H
+#ifndef SGMMONOCHROMATORINFOTEST_H
+#define SGMMONOCHROMATORINFOTEST_H
 
 #include <QStringList>
 #include "beamline/SGM/monochromator/SGMGratingSupport.h"
@@ -7,10 +7,10 @@
 /*!
  * A class which performs basic tests on the SGMMonochromatorInfo class
  */
-class TestSGMMonochromatorInfo
+class SGMMonochromatorInfoTest
 {
 public:
-    TestSGMMonochromatorInfo();
+    SGMMonochromatorInfoTest();
 
     /*!
      * A list of the test results
@@ -51,4 +51,4 @@ protected:
     QStringList testResults_;
 };
 
-#endif // TESTSGMMONOCHROMATORINFO_H
+#endif // SGMMONOCHROMATORINFOTEST_H

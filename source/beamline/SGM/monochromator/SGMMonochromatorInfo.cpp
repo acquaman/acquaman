@@ -36,6 +36,7 @@ SGMMonochromatorInfo::SGMMonochromatorInfo(double requestedEnergy, SGMGratingSup
     isUndulatorTracking_ = true;
     isExitSlitPositionTracking_ = true;
     autoDetectUndulatorHarmonic_ = true;
+    undulatorOffset_ = 0;
 
     requestEnergy(requestedEnergy, gratingTranslation);
 
@@ -53,6 +54,7 @@ SGMMonochromatorInfo::SGMMonochromatorInfo(double requestedEnergy, SGMMonochroma
     isUndulatorTracking_ = true;
     isExitSlitPositionTracking_ = true;
     autoDetectUndulatorHarmonic_ = true;
+    undulatorOffset_ = 0;
 
     requestEnergy(requestedEnergy, gratingOptimizationMode);
 
@@ -75,14 +77,14 @@ bool SGMMonochromatorInfo::hasWarnings() const
     return !warningValidator_.isValid();
 }
 
-QStringList SGMMonochromatorInfo::errorMessages() const
+QString SGMMonochromatorInfo::errorMessage() const
 {
-    return errorValidator_.failureMessages();
+    return errorValidator_.fullFailureMessage();
 }
 
-QStringList SGMMonochromatorInfo::warningMessages() const
+QString SGMMonochromatorInfo::warningMessage() const
 {
-    return warningValidator_.failureMessages();
+    return warningValidator_.fullFailureMessage();
 }
 
 double SGMMonochromatorInfo::resultantEnergy() const

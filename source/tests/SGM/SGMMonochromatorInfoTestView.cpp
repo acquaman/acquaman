@@ -79,7 +79,7 @@ void SGMMonochromatorInfoTestView::onMonoWarningCountChanged(int warningCount)
         warningsTextEdit_->setVisible(true);
         QString warningString;
 
-        foreach(QString message, sgmMonochromatorInfo_->warningMessages()) {
+        foreach(QString message, sgmMonochromatorInfo_->warningMessage()) {
 
             warningString.append(QString("\n%1").arg(message));
         }
@@ -97,7 +97,7 @@ void SGMMonochromatorInfoTestView::onMonoErrorCountChanged(int errorCount)
         errorsTextEdit_->setVisible(true);
         QString errorString;
 
-        foreach(QString message, sgmMonochromatorInfo_->errorMessages()) {
+        foreach(QString message, sgmMonochromatorInfo_->errorMessage()) {
 
             errorString.append(QString("\n%1").arg(message));
         }
@@ -417,8 +417,8 @@ void SGMMonochromatorInfoTestView::setupData()
     onMonoExitSlitTrackingChanged(sgmMonochromatorInfo_->isExitSlitPositionTracking());
     onMonoExitSlitPositionChanged(sgmMonochromatorInfo_->exitSlitPosition());
     onMonoEnergyChanged(sgmMonochromatorInfo_->resultantEnergy());
-    onMonoWarningCountChanged(sgmMonochromatorInfo_->warningMessages().count());
-    onMonoErrorCountChanged(sgmMonochromatorInfo_->errorMessages().count());
+    onMonoWarningCountChanged(sgmMonochromatorInfo_->warningMessage().count());
+    onMonoErrorCountChanged(sgmMonochromatorInfo_->errorMessage().count());
     autoDetectUndulatorHarmonicCheckBox_->setChecked(sgmMonochromatorInfo_->autoDetectUndulatorHarmonic());
     undulatorHarmonicComboBox_->setEnabled(!sgmMonochromatorInfo_->autoDetectUndulatorHarmonic());
 }

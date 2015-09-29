@@ -95,15 +95,15 @@ public:
     bool hasWarnings() const;
 
     /*!
-      * The error messages related to the valid state of the info. If the info is
-      * valid the empty list will be returned.
+      * The error message related to the valid state of the info. If the info is
+      * valid the empty string will be returned.
       */
-    QStringList errorMessages() const;
+    QString errorMessage() const;
 
     /*!
-      * The warning messages related to the valid state of the info.
+      * The warning message related to the valid state of the info.
       */
-    QStringList warningMessages() const;
+    QString warningMessage() const;
 
     /*!
       * The energy produced by the info's Grating translation and angle.
