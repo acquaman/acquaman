@@ -50,17 +50,6 @@ AMScanConfigurationView* BioXASXASScanConfiguration::createView()
 	return new BioXASXASScanConfigurationEditor(this);
 }
 
-void BioXASXASScanConfiguration::setControl(AMControlInfo newInfo)
-{
-	AMGenericStepScanConfiguration::setControl(0, newInfo);
-	setupDefaultXANESRegions();
-}
-
-void BioXASXASScanConfiguration::removeControl()
-{
-	AMGenericStepScanConfiguration::removeControl(0);
-}
-
 void BioXASXASScanConfiguration::clearRegions()
 {
 	for (int axisIndex = 0, axisCount = scanAxes_.count(); axisIndex < axisCount; axisIndex++) {

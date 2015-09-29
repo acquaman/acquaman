@@ -40,11 +40,6 @@ public:
 	virtual AMScanConfigurationView* createView();
 
 public slots:
-	/// Adds the scanned control.
-	virtual void setControl(AMControlInfo newInfo);
-	/// Removes the scanned control.
-	virtual void removeControl();
-
 	/// Clears all regions.
 	void clearRegions();
 	/// Sets up the default XANES regions.
