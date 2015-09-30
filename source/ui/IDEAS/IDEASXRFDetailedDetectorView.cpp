@@ -39,6 +39,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 IDEASXRFDetailedDetectorView::IDEASXRFDetailedDetectorView(AMXRFDetector *detector, QWidget *parent)
 	: AMXRFDetailedDetectorView(detector, parent)
 {
+	chooseScanDialog_ = 0;
 	setMaximumHeight(885);
 }
 
