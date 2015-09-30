@@ -163,7 +163,7 @@ void AM2DNormalizationAB::computeCachedValues() const
             cachedData_[i] = data.at(i)/normalizer.at(i);
     }
 
-    cachedDataRange_ = AMUtility::rangeFinder(cachedData_);
+    cachedDataRange_ = AMUtility::rangeFinder(cachedData_, -1);
     cacheUpdateRequired_ = false;
 }
 

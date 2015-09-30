@@ -351,7 +351,7 @@ void AM1DCalibrationAB::computeCachedValues() const
         }
     }
 
-    cachedDataRange_ = AMUtility::rangeFinder(cachedData_);
+    cachedDataRange_ = AMUtility::rangeFinder(cachedData_, -1);
     cacheUpdateRequired_ = false;
 }
 
