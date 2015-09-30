@@ -3,9 +3,8 @@
 # ####################################################################
 
 CONFIG(jenkins_build) {
-	message("Jenkins test.")
+	message("Checking file loader plugins for building with Jenkins.")
 	message($$PATH_TO_AM)
-	message($$HOME_FOLDER)
 }
 
 include ( $$PATH_TO_AM/compositeCommon/AMCommon.pri )

@@ -64,12 +64,6 @@ public:
 	AMControl* keyStatusControl() const { return keyStatus_; }
 	/// Returns the brake status control.
 	AMControl* brakeStatusControl() const { return brakeStatus_; }
-	/// Returns the step-based bragg position control.
-	AMControl* stepBraggControl() const { return braggMotor_; }
-	/// Returns the encoder-based bragg position control.
-	AMControl* encoderBraggControl() const { return encoderBragg_; }
-	/// Returns the bragg's 'set current position' control.
-	AMControl* braggSetPositionControl() const { return braggSetPosition_; }
 	/// Returns the bragg motor at crystal change position status control.
 	AMControl* braggAtCrystalChangePositionStatusControl() const { return braggAtCrystalChangePositionStatus_; }
 	/// Returns the crystal change control.
@@ -91,8 +85,12 @@ public:
 	CLSMAXvMotor* lowerSlitBladeMotor() const { return lowerSlitMotor_; }
 	/// Returns the phosphor paddle motor.
 	CLSMAXvMotor* paddleMotor() const { return paddleMotor_; }
-	/// Returns the bragg motor.
-	CLSMAXvMotor* braggMotor() const { return braggMotor_; }
+	/// Returns the preferred bragg motor.
+	CLSMAXvMotor* braggMotor() const { return stepsBraggMotor_; }
+	/// Returns the step-based bragg position control.
+	CLSMAXvMotor* stepBraggControl() const { return stepsBraggMotor_; }
+	/// Returns the encoder-based bragg position control.
+	CLSMAXvMotor* encoderBraggControl() const { return encoderBraggMotor_; }
 	/// Returns the vertical motor.
 	CLSMAXvMotor* verticalMotor() const { return verticalMotor_; }
 	/// Returns the lateral motor.
@@ -108,9 +106,6 @@ public:
 	/// Returns the crystal 2 roll motor.
 	CLSMAXvMotor* crystal2RollMotor() const { return crystal2RollMotor_; }
 
-	/// Creates and returns an energy calibration action.
-	AMAction3* createEnergyCalibrationAction(double oldEnergy, double newEnergy);
-
 signals:
 	/// Notifier that the m1 mirror pitch control has changed.
 	void m1MirrorPitchControlChanged(AMControl *newControl);
@@ -122,9 +117,6 @@ public slots:
 	void setM1MirrorPitchControl(AMControl* newControl);
 	/// Sets the mono move settling time.
 	void setSettlingTime(double newTimeSeconds);
-
-	/// Sets the calibrated bragg position.
-	void calibrateBraggPosition(double newPosition);
 
 protected slots:
 	/// Handles updating the motors necessary to produce the desired mono move settling time.
@@ -153,8 +145,6 @@ protected:
 	AMControl *paddleStatus_;
 	/// The key status control.
 	AMControl *keyStatus_;
-	/// The bragg motor control.
-	AMControl *encoderBragg_;
 	/// The bragg motor at crystal change position status control.
 	AMControl *braggAtCrystalChangePositionStatus_;
 	/// The brake status control.
@@ -170,8 +160,6 @@ protected:
 	/// The region B status control.
 	AMControl *regionBStatus_;
 
-	/// The bragg motor set position control.
-	AMControl *braggSetPosition_;
 	/// The m1 mirror pitch control.
 	AMControl *m1Pitch_;
 
@@ -181,8 +169,10 @@ protected:
 	CLSMAXvMotor *lowerSlitMotor_;
 	/// Paddle motor.
 	CLSMAXvMotor *paddleMotor_;
-	/// Bragg motor.
-	CLSMAXvMotor *braggMotor_;
+	/// Bragg motor, not using encoder (using steps).
+	CLSMAXvMotor *stepsBraggMotor_;
+	/// Bragg motor, using the encoder.
+	CLSMAXvMotor *encoderBraggMotor_;
 	/// Vertical motor.
 	CLSMAXvMotor *verticalMotor_;
 	/// Lateral motor.
