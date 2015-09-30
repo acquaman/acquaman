@@ -21,6 +21,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMOrderReductionAB.h"
 
+#include "util/AMUtility.h"
+
  AMOrderReductionAB::~AMOrderReductionAB(){}
 AMOrderReductionAB::AMOrderReductionAB(const QString &outputName, QObject *parent)
 	: AMStandardAnalysisBlock(outputName, parent)
@@ -29,6 +31,7 @@ AMOrderReductionAB::AMOrderReductionAB(const QString &outputName, QObject *paren
 	selectedName_ = "";
 	reducedAxis_ = -1;
 	cacheUpdateRequired_ = true;
+	cachedDataRange_ = AMRange();
 
 	axes_.clear();
 	setState(AMDataSource::InvalidFlag);
@@ -207,6 +210,7 @@ void AMOrderReductionAB::computeCachedValues() const
 		}
 	}
 
+	cachedDataRange_ = AMUtility::rangeFinder(cachedData_);
 	cacheUpdateRequired_ = false;
 }
 
