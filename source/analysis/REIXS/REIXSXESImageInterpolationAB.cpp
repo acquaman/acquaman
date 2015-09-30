@@ -598,6 +598,34 @@ AMNumber REIXSXESImageInterpolationAB::axisValue(int axisNumber, int index) cons
 	return cachedAxisValues_.at(index);
 }
 
+bool REIXSXESImageInterpolationAB::axisValues(int axisNumber, int startIndex, int endIndex, double *outputValues) const
+{
+	if (axisNumber != 0)
+		return false;
+
+	if (!isValid())
+		return false;
+
+	if (startIndex >= axes_.at(axisNumber).size || endIndex >= axes_.at(axisNumber).size)
+		return false;
+
+	if(axisValueCacheInvalid_)
+		computeCachedAxisValues();
+
+	int totalSize = endIndex-startIndex+1;
+
+	if(axisValuesInvalid_){
+
+		for (int i = 0; i < totalSize; i++)
+			outputValues[i] = startIndex+i;
+	}
+
+	else
+		memcpy(outputValues, cachedAxisValues_.constData()+startIndex, (endIndex-startIndex+1)*sizeof(double));
+
+	return true;
+}
+
 void REIXSXESImageInterpolationAB::onInputSourceValuesChanged(const AMnDIndex &start, const AMnDIndex &end)
 {
 	Q_UNUSED(start)
