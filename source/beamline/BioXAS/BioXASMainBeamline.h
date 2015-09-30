@@ -102,10 +102,12 @@ public:
 	virtual CLSBasicScalerChannelDetector* i2Detector() const { return i2Detector_; }
 
 	/// Return the set of BioXAS Motors by given motor category.
-	QList<AMControl *> getMotorsByType(BioXASBeamlineDef::BioXASMotorType category);
+	QList<AMControl*> getMotorsByType(BioXASBeamlineDef::BioXASMotorType category);
 
 	/// Returns the scaler dwell time detector.
 	virtual AMBasicControlDetectorEmulator* scalerDwellTimeDetector() const;
+	/// Returns the energy setpoint detector.
+	AMBasicControlDetectorEmulator* energySetpointDetector() const;
 	/// Returns the bragg encoder-based energy feedback detector.
 	AMBasicControlDetectorEmulator* encoderEnergyFeedbackDetector() const;
 	/// Returns the bragg step-based energy feedback detector.
@@ -136,7 +138,7 @@ protected:
 
 	/// The M1 mirror.
 	BioXASMainM1Mirror *m1Mirror_;
-	// Monochromator
+	/// Monochromator
 	BioXASMainMonochromator *mono_;
 	/// The M2 mirror.
 	BioXASMainM2Mirror *m2Mirror_;
@@ -175,6 +177,8 @@ protected:
 	CLSBasicScalerChannelDetector *i2Detector_;
 	/// Ge 32-el detector
 	BioXAS32ElementGeDetector *ge32ElementDetector_;
+
+	AMBasicControlDetectorEmulator *energySetpointDetector_;
 };
 
 #endif // BIOXASMAINBEAMLINE_H

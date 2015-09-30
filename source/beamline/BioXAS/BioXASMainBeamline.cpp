@@ -141,6 +141,11 @@ AMBasicControlDetectorEmulator* BioXASMainBeamline::scalerDwellTimeDetector() co
 	return detectorForControl(scaler_->dwellTimeControl());
 }
 
+AMBasicControlDetectorEmulator* BioXASMainBeamline::energySetpointDetector() const
+{
+	return energySetpointDetector_;
+}
+
 AMBasicControlDetectorEmulator* BioXASMainBeamline::encoderEnergyFeedbackDetector() const
 {
 	return detectorForControl(mono_->encoderEnergyControl());
@@ -249,6 +254,9 @@ void BioXASMainBeamline::setupControlsAsDetectors()
 	addControlAsDetector("MonoStepAngleFeedback", "MonoStepAngleFeedback", mono_->stepBraggControl());
 	addControlAsDetector("MonoStepSetpoint", "MonoStepSetpoint", mono_->braggMotor()->stepSetpointControl());
 	addControlAsDetector("MonoEncoderStepsDegFeedback", "MonoEncoderStepsDegFeedback", mono_->encoderStepsDiffControl());
+
+	energySetpointDetector_ = new AMBasicControlDetectorEmulator("EnergySetpoint", "EnergySetpoint", mono_->energyControl(), 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	energySetpointDetector_->setControlProperty(AMBasicControlDetectorEmulator::Control::Setpoint);
 }
 
 void BioXASMainBeamline::setupExposedControls()
@@ -360,6 +368,10 @@ void BioXASMainBeamline::setupExposedDetectors()
 
 	foreach (AMDetector *detector, controlDetectorMap_.values())
 		addExposedDetector(detector);
+
+	// Add any remaining detectors.
+
+	addExposedDetector(energySetpointDetector_);
 }
 
 BioXASMainBeamline::BioXASMainBeamline()

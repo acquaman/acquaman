@@ -245,7 +245,7 @@ AMControl::FailureExplanation AMPseudoMotorControl::calibrate(double oldValue, d
 		return AMControl::NotConnectedFailure;
 	}
 
-	if (!canMove()) {
+	if (!canCalibrate()) {
 		AMErrorMon::alert(this, AMPSEUDOMOTORCONTROL_CANNOT_MOVE, QString("Failed to calibrate %1: control cannot move.").arg(name()));
 		return AMControl::OtherFailure;
 	}
