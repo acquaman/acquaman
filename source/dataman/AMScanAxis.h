@@ -90,6 +90,9 @@ public:
 	/// Returns true if all of the regions in this scan axis are adjacent.
 	bool adjacent() const;
 
+	/// Returns true if there are intersecting regions in this scan axis.
+	bool hasIntersectingRegions() const;
+
 	/// Returns true if the given axis can be merged into this one.
 	bool canMerge(AMScanAxis *otherAxis) const;
 	/// Returns true if there are regions that run in different directions.

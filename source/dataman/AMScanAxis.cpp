@@ -215,6 +215,23 @@ bool AMScanAxis::adjacent()
 	return result;
 }
 
+bool AMScanAxis::hasIntersectingRegions() const
+{
+	bool regionsIntersect = false;
+	QList<AMScanAxisRegion*> regions = regions_.toList();
+
+	for (int i = 0, count = regions.count(); i < count && !regionsIntersect; i++) {
+		AMScanAxisRegion *region = regions.at(i);
+
+		for (int j = 0; j < count && !regionsIntersect; j++) {
+			AMScanAxisRegion *anotherRegion = regions.at(j);
+			regionsIntersect = (region != anotherRegion && region->intersects(anotherRegion));
+		}
+	}
+
+	return regionsIntersect;
+}
+
 bool AMScanAxis::canMerge(AMScanAxis *otherAxis)
 {
 	bool result = false;
@@ -262,29 +279,32 @@ bool AMScanAxis::canSimplifyDirection() const
 
 bool AMScanAxis::canSimplifyIntersectingRegions() const
 {
-	return false;
+	return (axisValid() && hasIntersectingRegions());
 }
 
 bool AMScanAxis::canSimplify() const
 {
-	return (canSimplifyDirection() && canSimplifyIntersectingRegions());
+	return (canSimplifyDirection() || canSimplifyIntersectingRegions());
 }
 
 bool AMScanAxis::regionsValid() const
 {
-	bool areValid = true;
+	bool result = false;
 
 	QList<AMScanAxisRegion*> regions = regions_.toList();
 
 	if (!regions.isEmpty()) {
+		bool areValid = true;
 
 		for (int regionIndex = 0, regionCount = regions.count(); regionIndex < regionCount && areValid; regionIndex++) {
 			AMScanAxisRegion *region = regions.at(regionIndex);
-			areValid &= (region && region->isValid());
+			areValid = areValid && (region && region->isValid());
 		}
+
+		result = areValid;
 	}
 
-	return areValid;
+	return result;
 }
 
 bool AMScanAxis::insertRegion(int index, AMScanAxisRegion *region)
@@ -470,7 +490,28 @@ bool AMScanAxis::merge(AMScanAxis *otherAxis)
 	bool result = false;
 
 	if (otherAxis && otherAxis->axisValid()) {
-		otherAxis->simplifyIntersectingRegions();
+
+		// Create a copy of the other axis, and simplify it of any intersecting regions.
+
+		AMScanAxis *newAxis = new AMScanAxis(otherAxis);
+		newAxis->simplify();
+
+		// Simplify this axis of any intersecting regions.
+
+		simplify();
+
+		// Copy the regions from the new axis into this one.
+
+		foreach (AMScanAxisRegion *region, newAxis->regions().toList())
+			regions_.append(region);
+
+		// At most, there should be two overlapping regions. Simplify.
+
+		simplify();
+
+		// Merge complete.
+
+		result = true;
 
 	}
 
