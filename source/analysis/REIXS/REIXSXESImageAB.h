@@ -236,6 +236,9 @@ int outputSize = indexStart.totalPointsTo(indexEnd);
 	/// When the independent values along an axis is not simply the axis index, this returns the independent value along an axis (specified by axis number and index)
 	virtual AMNumber axisValue(int axisNumber, int index) const;
 
+	/// Returns the cached range of the data contained within the data source.  This is always valid because it is always recomputed when the data is recomputed.
+	virtual AMRange dataRange() const { return cachedDataRange_; }
+
 	// Analysis parameters
 	///////////////////////////
 	/// The minimum row to include in the sum
@@ -337,9 +340,11 @@ protected slots:
 protected:
 
 	/// Caches the shifted and summed values.  Access only if cacheInvalid_ is false.
-	mutable QVector<double> cachedValues_;
+	mutable QVector<double> cachedData_;
 	/// True if the cachedValues_ needs to be re-calculated.
-	mutable bool cacheInvalid_;
+	mutable bool cacheUpdateRequired_;
+	/// Holds the cached data range.
+	mutable AMRange cachedDataRange_;
 
 	/// Cache of axis values.
 	mutable QVector<double> cachedAxisValues_;
