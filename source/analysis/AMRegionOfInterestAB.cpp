@@ -21,12 +21,15 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMRegionOfInterestAB.h"
 
+#include "util/AMUtility.h"
+
 AMRegionOfInterestAB::AMRegionOfInterestAB(const QString &outputName, QObject *parent)
 	: AMStandardAnalysisBlock(outputName, parent)
 {
 	spectrum_ = 0;
 	binningRange_ = AMRange();
 	cacheUpdateRequired_ = false;
+	cachedDataRange_ = AMRange();
 
 	setState(AMDataSource::InvalidFlag);
 }
@@ -320,5 +323,6 @@ void AMRegionOfInterestAB::computeCachedValues() const
 		}
 	}
 
+	cachedDataRange_ = AMUtility::rangeFinder(cachedData_);
 	cacheUpdateRequired_ = false;
 }
