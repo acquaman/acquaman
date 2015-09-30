@@ -88,8 +88,10 @@ public:
 	/// When the independent values along an axis is not simply the axis index, this returns the independent value along an axis (specified by axis number and index)
 	virtual AMNumber axisValue(int axisNumber, int index) const;
 	/// Performance optimization of axisValue():  instead of a single value, copies a block of values from \c startIndex to \c endIndex in \c outputValues.  The provided pointer must contain enough space for all the requested values.
-    virtual bool axisValues(int axisNumber, int startIndex, int endIndex, double *outputValues) const;
+	virtual bool axisValues(int axisNumber, int startIndex, int endIndex, double *outputValues) const;
 
+	/// Returns the cached range of the data contained within the data source.  This is always valid because it is always recomputed when the data is recomputed.
+	virtual AMRange dataRange() const { return cachedDataRange_; }
 
 	// Analysis parameters
 	///////////////////////////
@@ -147,6 +149,8 @@ protected:
 	mutable bool cacheUpdateRequired_;
 	/// The vector holding the data.
 	mutable QVector<double> cachedData_;
+	/// Holds the cached data range.
+	mutable AMRange cachedDataRange_;
 };
 
 #endif // AM4DBINNINGAB_H

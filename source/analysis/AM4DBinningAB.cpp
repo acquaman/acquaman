@@ -23,6 +23,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AM4DBinningAB.h"
 
+#include "util/AMUtility.h"
+
  AM4DBinningAB::~AM4DBinningAB(){}
 AM4DBinningAB::AM4DBinningAB(const QString &outputName, QObject *parent)
 	: AMStandardAnalysisBlock(outputName, parent)
@@ -33,6 +35,7 @@ AM4DBinningAB::AM4DBinningAB(const QString &outputName, QObject *parent)
 	analyzedName_ = "";
 	canAnalyze_ = false;
 	cacheUpdateRequired_ = true;
+	cachedDataRange_ = AMRange();
 
 	axes_ << AMAxisInfo("invalid", 0, "No input data") << AMAxisInfo("invalid", 0, "No input data") << AMAxisInfo("invalid", 0, "No input data");
 	setState(AMDataSource::InvalidFlag);
@@ -298,6 +301,7 @@ void AM4DBinningAB::computeCachedValues() const
 		}
 	}
 
+	cachedDataRange_ = AMUtility::rangeFinder(cachedData_);
 	cacheUpdateRequired_ = false;
 }
 
