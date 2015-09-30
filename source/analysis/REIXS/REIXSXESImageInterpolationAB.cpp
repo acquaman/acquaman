@@ -21,6 +21,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "REIXSXESImageInterpolationAB.h"
 
 #include "util/AMErrorMonitor.h"
+#include "util/AMUtility.h"
 
 REIXSXESImageInterpolationAB::REIXSXESImageInterpolationAB(const QString &outputName, QObject *parent) :
 	AMStandardAnalysisBlock(outputName, parent)
@@ -51,7 +52,8 @@ REIXSXESImageInterpolationAB::REIXSXESImageInterpolationAB(const QString &output
 	binningLevel_ = 2;
 
 	inputSource_ = 0;
-	cacheInvalid_ = true;
+	cacheUpdateRequired_ = true;
+	cachedDataRange_ = AMRange();
 	axisValueCacheInvalid_ = true;
 	axisValuesInvalid_ = false;
 
@@ -73,7 +75,7 @@ REIXSXESImageInterpolationAB::~REIXSXESImageInterpolationAB() {
 
 AMDoubleList REIXSXESImageInterpolationAB::shiftValuesAt(int i)
 {
-	if(cacheInvalid_)
+	if(cacheUpdateRequired_)
 		computeCachedValues();
 
 	AMDoubleList shiftValuesAt;
@@ -106,7 +108,7 @@ void REIXSXESImageInterpolationAB::setSumRangeMinY(int sumRangeMinY)
 		callCorrelation_.schedule();
 	}
 
-	cacheInvalid_ = true;
+	cacheUpdateRequired_ = true;
 	reviewState();
 
 	emitValuesChanged();
@@ -124,7 +126,7 @@ void REIXSXESImageInterpolationAB::setSumRangeMaxY(int sumRangeMaxY)
 		callCorrelation_.schedule();
 	}
 
-	cacheInvalid_ = true;
+	cacheUpdateRequired_ = true;
 	reviewState();
 
 	emitValuesChanged();
@@ -143,7 +145,7 @@ void REIXSXESImageInterpolationAB::setSumRangeMinX(int sumRangeMinX)
 		callCorrelation_.schedule();
 	}
 
-	cacheInvalid_ = true;
+	cacheUpdateRequired_ = true;
 	reviewState();
 
 	emitValuesChanged();
@@ -161,7 +163,7 @@ void REIXSXESImageInterpolationAB::setSumRangeMaxX(int sumRangeMaxX)
 		callCorrelation_.schedule();
 	}
 
-	cacheInvalid_ = true;
+	cacheUpdateRequired_ = true;
 	reviewState();
 
 	emitValuesChanged();
@@ -176,7 +178,7 @@ void REIXSXESImageInterpolationAB::setShiftValues1(const AMIntList &shiftValues1
 		return;
 
 	shiftValues1_ = shiftValues1;
-	cacheInvalid_ = true;	// could change all our cached values
+	cacheUpdateRequired_ = true;	// could change all our cached values
 	reviewState();	// might change the state to valid, if we didn't have proper number of shift values before.
 
 	emitValuesChanged();
@@ -190,7 +192,7 @@ void REIXSXESImageInterpolationAB::setShiftValues2(const AMIntList &shiftValues2
 		return;
 	shiftValues2_ = shiftValues2;
 
-	cacheInvalid_ = true;	// could change all our cached values
+	cacheUpdateRequired_ = true;	// could change all our cached values
 	reviewState();	// might change the state to valid, if we didn't have proper number of shift values before.
 
 	emitValuesChanged();
@@ -210,7 +212,7 @@ void REIXSXESImageInterpolationAB::setRangeRound(double rangeRound)
 		callCorrelation_.schedule();
 	}
 
-	cacheInvalid_ = true;
+	cacheUpdateRequired_ = true;
 	reviewState();
 
 	emitValuesChanged();
@@ -284,9 +286,9 @@ void REIXSXESImageInterpolationAB::setInputDataSourcesImplementation(const QList
 		axes_[0].units = "eV";
 		axes_[0].size /= binningLevel_;
 
-		cacheInvalid_ = true;
+		cacheUpdateRequired_ = true;
 		axisValueCacheInvalid_ = true;
-		cachedValues_ = QVector<double>(axes_.at(0).size);
+		cachedData_ = QVector<double>(axes_.at(0).size);
 		cachedAxisValues_ = QVector<double>(axes_.at(0).size);
 
 		if(shiftValues1_.isEmpty()) {
@@ -328,10 +330,10 @@ AMNumber REIXSXESImageInterpolationAB::value(const AMnDIndex &indexes) const
 		return AMNumber(AMNumber::OutOfBoundsError);
 #endif
 
-	if(cacheInvalid_)
+	if(cacheUpdateRequired_)
 		computeCachedValues();
 
-	return AMNumber(cachedValues_.at(indexes.i()));
+	return AMNumber(cachedData_.at(indexes.i()));
 }
 
 bool REIXSXESImageInterpolationAB::values(const AMnDIndex &indexStart, const AMnDIndex &indexEnd, double *outputValues) const
@@ -353,10 +355,10 @@ bool REIXSXESImageInterpolationAB::values(const AMnDIndex &indexStart, const AMn
 #endif
 
 
-	if(cacheInvalid_)
+	if(cacheUpdateRequired_)
 		computeCachedValues();
 
-	memcpy(outputValues, (cachedValues_.constData()+indexStart.i()), (indexEnd.i()-indexStart.i()+1)*sizeof(double));
+	memcpy(outputValues, (cachedData_.constData()+indexStart.i()), (indexEnd.i()-indexStart.i()+1)*sizeof(double));
 
 	return true;
 }
@@ -370,7 +372,7 @@ void REIXSXESImageInterpolationAB::computeCachedValues() const
 	QVector<double> image(iSize*jSize);
 	if(!inputSource_->values(AMnDIndex(0,0), AMnDIndex(iSize-1, jSize-1), image.data())) {
 		AMErrorMon::report(this, AMErrorReport::Alert, -333, "Could not retrieve values from detector image. Please report this problem to the REIXS Acquaman developers.");
-		cacheInvalid_ = false;	// avoid repeating this error message for every single data point...
+		cacheUpdateRequired_ = false;	// avoid repeating this error message for every single data point...
 		return;
 	}
 
@@ -386,7 +388,7 @@ void REIXSXESImageInterpolationAB::computeCachedValues() const
 
 
 		for(int bin = 0; bin < iSize / binningLevel_; bin++) {
-			cachedValues_[bin] = 0;
+			cachedData_[bin] = 0;
 			for(int temp = 0; temp < binningLevel_; temp++ ) {
 				int i = bin * binningLevel_ + temp;
 				double newVal = 0.0;
@@ -421,7 +423,7 @@ void REIXSXESImageInterpolationAB::computeCachedValues() const
 				else
 					newVal = newVal * double(sumRangeMaxY_ - sumRangeMinY_ + 1) / double(contributingRows);
 
-				cachedValues_[bin] = cachedValues_[bin] + newVal;
+				cachedData_[bin] = cachedData_[bin] + newVal;
 			}
 		}
 	}
@@ -501,7 +503,7 @@ void REIXSXESImageInterpolationAB::computeCachedValues() const
 
 
 		for(int bin = 0; bin < iSize / binningLevel_; bin++) {
-			cachedValues_[bin] = 0;
+			cachedData_[bin] = 0;
 			for(int temp = 0; temp < binningLevel_; temp++ ) {
 				int i = bin * binningLevel_ + temp;
 				double newVal = 0.0;
@@ -539,12 +541,13 @@ void REIXSXESImageInterpolationAB::computeCachedValues() const
 				else
 					newVal = newVal * double(sumRangeMaxY_ - sumRangeMinY_ + 1) / double(contributingRows);
 
-				cachedValues_[bin] += newVal;
+				cachedData_[bin] += newVal;
 			}
 		}
 	}
 
-	cacheInvalid_ = false;
+	cachedDataRange_ = AMUtility::rangeFinder(cachedData_);
+	cacheUpdateRequired_ = false;
 }
 
 void REIXSXESImageInterpolationAB::computeShiftMap(int iSize, int jSize, double *shiftValues) const
@@ -606,18 +609,18 @@ void REIXSXESImageInterpolationAB::onInputSourceValuesChanged(const AMnDIndex &s
 	}
 
 	// invalidate the cache.
-	cacheInvalid_ = true;
+	cacheUpdateRequired_ = true;
 	emitValuesChanged();
 }
 
 void REIXSXESImageInterpolationAB::onInputSourceSizeChanged()
 {
-	cacheInvalid_ = true;
+	cacheUpdateRequired_ = true;
 	axisValueCacheInvalid_ = true;
 
 	int axisSize = inputSource_->size(0)/binningLevel_;
 	axes_[0].size = axisSize;
-	cachedValues_ = QVector<double>(axisSize);
+	cachedData_ = QVector<double>(axisSize);
 	cachedAxisValues_ = QVector<double>(axisSize);
 
 	if(liveCorrelation())
