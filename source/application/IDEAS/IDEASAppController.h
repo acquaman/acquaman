@@ -59,6 +59,8 @@ protected slots:
 
 	/// Wait until the energy is connected before making the scan views
 	void onEnergyConnected(bool connected);
+	/// Wait until the Ge13Element Detector is connected before creating it's UI elements
+	void onGe13Connected(bool connected);
 	/// Helper slot that connects generic scan editors that use the 2D scan view to the app controller so that it can enable quick configuration of scans.
 	void onScanEditorCreated(AMGenericScanEditor *editor);
 	/// Helper slot that handles checking out scans when they are added to a scan editor.  For now, all this does is choose which data source is visualized in AMSingleSpectrumView in AM2DScanView.

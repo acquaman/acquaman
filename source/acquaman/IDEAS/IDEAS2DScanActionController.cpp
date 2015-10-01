@@ -69,7 +69,7 @@ IDEAS2DScanActionController::IDEAS2DScanActionController(IDEAS2DScanConfiguratio
 		detectors.addDetectorInfo(detector->toInfo());
 	}
 
-	else if (configuration_->fluorescenceDetector().testFlag(IDEAS::Ge13Element) && IDEASBeamline::ideas()->ge13Element()){
+	else if (configuration_->fluorescenceDetector().testFlag(IDEAS::Ge13Element) && IDEASBeamline::ideas()->ge13Element()->isConnected()){
 
 		AMDetector *detector = AMBeamline::bl()->exposedDetectorByName("13-el Ge");
 		detector->setIsVisible(false);
@@ -111,7 +111,7 @@ void IDEAS2DScanActionController::buildScanControllerImplementation()
 	if (configuration_->fluorescenceDetector().testFlag(IDEAS::Ketek))
 		detector = qobject_cast<AMXRFDetector *>(AMBeamline::bl()->exposedDetectorByName("KETEK"));
 
-	else if (configuration_->fluorescenceDetector().testFlag(IDEAS::Ge13Element) && IDEASBeamline::ideas()->ge13Element())
+	else if (configuration_->fluorescenceDetector().testFlag(IDEAS::Ge13Element) && IDEASBeamline::ideas()->ge13Element()->isConnected())
 		detector = qobject_cast<AMXRFDetector *>(AMBeamline::bl()->exposedDetectorByName("13-el Ge"));
 
 	if (detector){
