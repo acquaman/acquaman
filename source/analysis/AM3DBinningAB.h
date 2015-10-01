@@ -89,6 +89,9 @@ public:
 	/// Performance optimization of axisValue():  instead of a single value, copies a block of values from \c startIndex to \c endIndex in \c outputValues.  The provided pointer must contain enough space for all the requested values.
 	virtual bool axisValues(int axisNumber, int startIndex, int endIndex, double *outputValues) const;
 
+	/// Returns the cached range of the data contained within the data source.  This is always valid because it is always recomputed when the data is recomputed.
+	virtual AMRange dataRange() const { return cachedDataRange_; }
+
 	// Analysis parameters
 	///////////////////////////
 	int sumAxis() const { return sumAxis_; }
@@ -121,30 +124,32 @@ protected:
 	/// Helper method that sets the inputSource_ pointer to the correct one based on the current state of analyzedName_.
 	void setInputSource();
 	/// Helper function to look at our overall situation and determine what the output state should be.
-    void reviewState();
+	void reviewState();
 
-    /// Computes the cached data for access getters value() and values().
-    void computeCachedValues() const;
+	/// Computes the cached data for access getters value() and values().
+	void computeCachedValues() const;
 
-    /// The input source.
+	/// The input source.
 	AMDataSource* inputSource_;	// our single input source, or 0 if we don't have one.
 
-    /// The axis to sum over.
+	/// The axis to sum over.
 	int sumAxis_;
-    /// The lower bound of the sum range.
-    int sumRangeMin_;
-    /// The upper bound of the sum range.
-    int sumRangeMax_;
+	/// The lower bound of the sum range.
+	int sumRangeMin_;
+	/// The upper bound of the sum range.
+	int sumRangeMax_;
 
 	/// The name of the data source that should be analyzed.
 	QString analyzedName_;
 	/// Flag holding whether or not the data source can be analyzed.
 	bool canAnalyze_;
 
-    /// Flag for knowing whether we need to compute the values.
-    mutable bool cacheUpdateRequired_;
-    /// The vector holding the data.
-    mutable QVector<double> cachedData_;
+	/// Flag for knowing whether we need to compute the values.
+	mutable bool cacheUpdateRequired_;
+	/// The vector holding the data.
+	mutable QVector<double> cachedData_;
+	/// Holds the cached data range.
+	mutable AMRange cachedDataRange_;
 };
 
 #endif // AM3DBINNINGAB_H

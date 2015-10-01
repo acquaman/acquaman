@@ -20,6 +20,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AM3DBinningAB.h"
 
+#include "util/AMUtility.h"
+
  AM3DBinningAB::~AM3DBinningAB(){}
 AM3DBinningAB::AM3DBinningAB(const QString &outputName, QObject *parent)
 	: AMStandardAnalysisBlock(outputName, parent)
@@ -30,7 +32,8 @@ AM3DBinningAB::AM3DBinningAB(const QString &outputName, QObject *parent)
 	analyzedName_ = "";
 	canAnalyze_ = false;
 	inputSource_ = 0;
-	cacheUpdateRequired_ = true;
+	cacheUpdateRequired_ = false;
+	cachedDataRange_ = AMRange();
 
 	axes_ << AMAxisInfo("invalid", 0, "No input data") << AMAxisInfo("invalid", 0, "No input data");
 	setState(AMDataSource::InvalidFlag);
@@ -270,7 +273,8 @@ void AM3DBinningAB::computeCachedValues() const
 		}
 	}
 
-    cacheUpdateRequired_ = false;
+	cachedDataRange_ = AMUtility::rangeFinder(cachedData_, -1);
+	cacheUpdateRequired_ = false;
 }
 
 bool AM3DBinningAB::canAnalyze(const QString &name) const
