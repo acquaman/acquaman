@@ -270,12 +270,16 @@ void IDEASAppController::onCurrentScanActionFinishedImplementation(AMScanAction 
 	// Being explicit due to the nature of how many casts were necessary.  I could probably explicitly check to ensure each cast is successful, but I'll risk it for now.
 	const AMScanActionInfo *actionInfo = qobject_cast<const AMScanActionInfo *>(action->info());
 	const IDEASScanConfiguration *ideasConfiguration = dynamic_cast<const IDEASScanConfiguration *>(actionInfo->configuration());
-	IDEASScanConfigurationDbObject *configuration = qobject_cast<IDEASScanConfigurationDbObject *>(ideasConfiguration->dbObject());
 
-	if (configuration){
+	if (ideasConfiguration){
 
-		userConfiguration_->setFluorescenceDetector(configuration->fluorescenceDetector());
-		userConfiguration_->storeToDb(AMDatabase::database("user"));
+		IDEASScanConfigurationDbObject *configuration = qobject_cast<IDEASScanConfigurationDbObject *>(ideasConfiguration->dbObject());
+
+		if (configuration){
+
+			userConfiguration_->setFluorescenceDetector(configuration->fluorescenceDetector());
+			userConfiguration_->storeToDb(AMDatabase::database("user"));
+		}
 	}
 }
 
