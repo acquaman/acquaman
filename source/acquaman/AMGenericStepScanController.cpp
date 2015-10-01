@@ -1,5 +1,6 @@
 #include "AMGenericStepScanController.h"
 
+#include "analysis/AMAdditionAB.h"
 #include "beamline/AMBeamline.h"
 
 AMGenericStepScanController::AMGenericStepScanController(AMGenericStepScanConfiguration *configuration, QObject *parent)
@@ -80,13 +81,17 @@ AMAction3 * AMGenericStepScanController::createCleanupActions()
 void AMGenericStepScanController::buildScanControllerImplementation()
 {
 	QList<AMXRFDetector *> xrfDetectors;
+	QList<AMDataSource *> spectrumSources;
 
 	for (int i = 0, size = configuration_->detectorConfigurations().count(); i < size; i++){
 
 		AMXRFDetector *xrfDetector = qobject_cast<AMXRFDetector *>(AMBeamline::bl()->exposedDetectorByInfo(configuration_->detectorConfigurations().at(i)));
 
-		if (xrfDetector)
+		if (xrfDetector){
+
 			xrfDetectors << xrfDetector;
+			spectrumSources << scan_->dataSourceAt(scan_->indexOfDataSource(xrfDetector->name()));
+		}
 	}
 
 	if (!xrfDetectors.isEmpty()){
@@ -99,10 +104,14 @@ void AMGenericStepScanController::buildScanControllerImplementation()
 
 		if (xrfDetectors.size() > 1){
 
+			AMAdditionAB *spectrumSum = new AMAdditionAB("SpectrumSum");
+			spectrumSum->setInputDataSources(spectrumSources);
+			scan_->addAnalyzedDataSource(spectrumSum, false, true);
+			spectrumSource = spectrumSum;
 		}
 
 		else
-			spectrumSource = scan_->dataSourceAt(scan_->indexOfDataSource(detector->name()));
+			spectrumSource = spectrumSources.first();
 
 		foreach (AMRegionOfInterest *region, configuration_->regionsOfInterest()){
 
