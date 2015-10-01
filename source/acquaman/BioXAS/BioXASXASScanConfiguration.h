@@ -57,6 +57,8 @@ protected:
 	/// Creates and returns an EXAFS region with some values set for k space.
 	AMScanAxisEXAFSRegion* createEXAFSRegionInKSpace(double edgeEnergy, double regionStart, double regionStep, double regionEnd, double regionTime, double maximumTime) const;
 
+	/// Returns a string that displays all the regions of interest.
+	QString regionsOfInterestHeaderString(const QList<AMRegionOfInterest *> &regions) const;
 	/// Returns the standard information for an XAS scan.  Used when exporting.
 	virtual QString headerText() const;
 };

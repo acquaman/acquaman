@@ -19,6 +19,9 @@ AMGenericStepScanConfiguration::AMGenericStepScanConfiguration(const AMGenericSt
 	setName(original.name());
 	setUserScanName(original.name());
 
+	foreach (AMRegionOfInterest *region, original.regionsOfInterest())
+		addRegionOfInterest(region->createCopy());
+
 	computeTotalTime();
 
 	for (int i = 0, size = scanAxes_.count(); i < size; i++){
@@ -241,5 +244,44 @@ void AMGenericStepScanConfiguration::removeDetector(AMDetectorInfo info)
 			detectorConfigurations_.remove(i);
 			setModified(true);
 		}
+	}
+}
+
+void AMGenericStepScanConfiguration::addRegionOfInterest(AMRegionOfInterest *region)
+{
+	regionsOfInterest_.append(region);
+	setModified(true);
+}
+
+void AMGenericStepScanConfiguration::removeRegionOfInterest(AMRegionOfInterest *region)
+{
+	foreach (AMRegionOfInterest *regionToBeRemoved, regionsOfInterest_)
+		if (regionToBeRemoved->name() == region->name()){
+
+			regionsOfInterest_.removeOne(regionToBeRemoved);
+			setModified(true);
+		}
+}
+
+AMDbObjectList AMGenericStepScanConfiguration::dbReadRegionsOfInterest()
+{
+	AMDbObjectList listToBeSaved;
+
+	foreach (AMRegionOfInterest *region, regionsOfInterest_)
+		listToBeSaved << region;
+
+	return listToBeSaved;
+}
+
+void AMGenericStepScanConfiguration::dbLoadRegionsOfInterest(const AMDbObjectList &newRegions)
+{
+	regionsOfInterest_.clear();
+
+	foreach (AMDbObject *newObject, newRegions){
+
+		AMRegionOfInterest *region = qobject_cast<AMRegionOfInterest *>(newObject);
+
+		if (region)
+			regionsOfInterest_.append(region);
 	}
 }
