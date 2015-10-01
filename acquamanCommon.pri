@@ -304,7 +304,6 @@ HEADERS += \
 	source/util/AMSelectableElement.h \
 	source/util/AMCustomizablePeriodicTable.h \
 	source/ui/util/AMCustomizablePeriodicTableView.h \
-	source/util/AMRange.h \
 	source/ui/util/AMSelectableElementView.h \
 	source/ui/util/AMSelectableItemView.h \
 	source/ui/beamline/AMXRFDetailedDetectorView.h \
@@ -695,7 +694,6 @@ SOURCES += \
 	source/util/AMSelectableElement.cpp \
 	source/util/AMCustomizablePeriodicTable.cpp \
 	source/ui/util/AMCustomizablePeriodicTableView.cpp \
-	source/util/AMRange.cpp \
 	source/ui/util/AMSelectableElementView.cpp \
 	source/ui/util/AMSelectableItemView.cpp \
 	source/ui/beamline/AMXRFDetailedDetectorView.cpp \
@@ -819,7 +817,6 @@ SOURCES += \
     source/ui/dataman/AMScanViewPlotSelectedToolsView.cpp \
     source/dataman/AMScanViewPlotTools.cpp \
     source/ui/acquaman/AMGenericStepScanConfigurationDetectorsView.cpp
-
 
 RESOURCES *= source/icons/icons.qrc \
 		source/configurationFiles/configurationFiles.qrc \
