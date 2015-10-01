@@ -79,4 +79,42 @@ AMAction3 * AMGenericStepScanController::createCleanupActions()
 
 void AMGenericStepScanController::buildScanControllerImplementation()
 {
+	QList<AMXRFDetector *> xrfDetectors;
+
+	for (int i = 0, size = configuration_->detectorConfigurations().count(); i < size; i++){
+
+		AMXRFDetector *xrfDetector = qobject_cast<AMXRFDetector *>(AMBeamline::bl()->exposedDetectorByInfo(configuration_->detectorConfigurations().at(i)));
+
+		if (xrfDetector)
+			xrfDetectors << xrfDetector;
+	}
+
+	if (!xrfDetectors.isEmpty()){
+
+		// This is sufficient to clear all regions of interest on all detectors as they should by synchronized via AMBeamline::synchronizeXRFDetectors.
+		AMXRFDetector *detector = xrfDetectors.first();
+		detector->removeAllRegionsOfInterest();
+
+		AMDataSource *spectrumSource = 0;
+
+		if (xrfDetectors.size() > 1){
+
+		}
+
+		else
+			spectrumSource = scan_->dataSourceAt(scan_->indexOfDataSource(detector->name()));
+
+		foreach (AMRegionOfInterest *region, configuration_->regionsOfInterest()){
+
+			AMRegionOfInterestAB *regionAB = (AMRegionOfInterestAB *)region->valueSource();
+
+			AMRegionOfInterestAB *newRegion = new AMRegionOfInterestAB(regionAB->name().remove(' '));
+			newRegion->setBinningRange(regionAB->binningRange());
+			newRegion->setInputDataSources(QList<AMDataSource *>() << spectrumSource);
+
+			scan_->addAnalyzedDataSource(newRegion, true, false);
+			// This is sufficient to add a region of interest on all detectors as they should by synchronized via AMBeamline::synchronizeXRFDetectors.
+			detector->addRegionOfInterest(region);
+		}
+	}
 }
