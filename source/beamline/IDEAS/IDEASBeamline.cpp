@@ -91,6 +91,10 @@ void IDEASBeamline::setupMotorGroup()
 
 void IDEASBeamline::setupDetectors()
 {
+	ge13Element_ = 0;
+	ge13ElementRealTimeControl_ = 0;
+	ge13ElementRealTime_ = 0;
+
 	ketek_ = new IDEASKETEKDetector("KETEK", "Single Element XRF Detector", this);
 	addSynchronizedXRFDetector(ketek_);
 
@@ -191,7 +195,7 @@ void IDEASBeamline::setupExposedControls()
 	addExposedControl(monoCrystal_);
 	addExposedControl(monoAngleOffset_);
 
-	if (QApplication::instance()->arguments().contains("--Ge13"))
+	if (ge13Element_)
 		addExposedControl(ge13ElementRealTimeControl_);
 
 	addExposedControl(ketekRealTimeControl_);
@@ -219,7 +223,7 @@ void IDEASBeamline::setupExposedDetectors()
 	addExposedDetector(ketek_);
 	addExposedDetector(ketekRealTime_);
 
-	if (QApplication::instance()->arguments().contains("--Ge13"))
+	if (ge13Element_)
 	{
 	addExposedDetector(ge13Element_);
 	addExposedDetector(ge13ElementRealTime_);

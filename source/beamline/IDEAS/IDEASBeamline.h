@@ -119,9 +119,9 @@ public:
 	AMDetector *ketekDwellTime() const {return ketekRealTime_; }
 
 	/// Returns the 13-element Ge detector pointer.
-	IDEAS13ElementGeDetector *ge13Element() const { if (QApplication::instance()->arguments().contains("--Ge13")) return ge13Element_; else return 0; }
+	IDEAS13ElementGeDetector *ge13Element() const {return ge13Element_;}
 	/// Returns the real time for the Ge detector.
-	AMDetector *ge13ElementDwellTime() const { if (QApplication::instance()->arguments().contains("--Ge13")) return ge13ElementRealTime_; else return 0; }
+	AMDetector *ge13ElementDwellTime() const {return ge13ElementRealTime_;}
 
 	/// Returns the default I0 ion chamber.
 	CLSBasicScalerChannelDetector *i0() const {return i0IonChamberScaler_;}

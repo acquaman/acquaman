@@ -436,7 +436,7 @@ QComboBox *IDEAS2DScanConfigurationView::createFluorescenceComboBox()
 	QComboBox *newComboBox = new QComboBox;
 	newComboBox->insertItem(0, "None");
 	newComboBox->insertItem(1, "Ketek");
-	if (QApplication::instance()->arguments().contains("--Ge13"))
+	if (IDEASBeamline::ideas()->ge13Element())
 		newComboBox->insertItem(2, "13-el Ge");
 
 	return newComboBox;
