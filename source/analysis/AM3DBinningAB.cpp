@@ -32,7 +32,7 @@ AM3DBinningAB::AM3DBinningAB(const QString &outputName, QObject *parent)
 	analyzedName_ = "";
 	canAnalyze_ = false;
 	inputSource_ = 0;
-	cacheUpdateRequired_ = true;
+	cacheUpdateRequired_ = false;
 	cachedDataRange_ = AMRange();
 
 	axes_ << AMAxisInfo("invalid", 0, "No input data") << AMAxisInfo("invalid", 0, "No input data");

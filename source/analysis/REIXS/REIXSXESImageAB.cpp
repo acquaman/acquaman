@@ -48,7 +48,7 @@ REIXSXESImageAB::REIXSXESImageAB(const QString &outputName, QObject *parent) :
 	// shift values can start out empty.
 
 	inputSource_ = 0;
-	cacheUpdateRequired_ = true;
+	cacheUpdateRequired_ = false;
 	cachedDataRange_ = AMRange();
 	axisValueCacheInvalid_ = true;
 	axisValuesInvalid_ = false;

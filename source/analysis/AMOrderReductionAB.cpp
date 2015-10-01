@@ -30,7 +30,7 @@ AMOrderReductionAB::AMOrderReductionAB(const QString &outputName, QObject *paren
 	source_ = 0;
 	selectedName_ = "";
 	reducedAxis_ = -1;
-	cacheUpdateRequired_ = true;
+	cacheUpdateRequired_ = false;
 	cachedDataRange_ = AMRange();
 
 	axes_.clear();

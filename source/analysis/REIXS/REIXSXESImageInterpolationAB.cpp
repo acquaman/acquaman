@@ -52,7 +52,7 @@ REIXSXESImageInterpolationAB::REIXSXESImageInterpolationAB(const QString &output
 	binningLevel_ = 2;
 
 	inputSource_ = 0;
-	cacheUpdateRequired_ = true;
+	cacheUpdateRequired_ = false;
 	cachedDataRange_ = AMRange();
 	axisValueCacheInvalid_ = true;
 	axisValuesInvalid_ = false;

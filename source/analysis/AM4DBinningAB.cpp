@@ -34,7 +34,7 @@ AM4DBinningAB::AM4DBinningAB(const QString &outputName, QObject *parent)
 	sumRangeMax_ = 0;
 	analyzedName_ = "";
 	canAnalyze_ = false;
-	cacheUpdateRequired_ = true;
+	cacheUpdateRequired_ = false;
 	cachedDataRange_ = AMRange();
 
 	axes_ << AMAxisInfo("invalid", 0, "No input data") << AMAxisInfo("invalid", 0, "No input data") << AMAxisInfo("invalid", 0, "No input data");
