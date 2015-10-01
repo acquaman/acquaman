@@ -356,6 +356,7 @@ void IDEASAppController::onUserConfigurationLoadedFromDb()
 		detector->addRegionOfInterest(newRegion);
 		mapScanConfiguration_->addRegionOfInterest(region);
 		xasScanConfiguration_->addRegionOfInterest(region);
+		genericConfiguration_->addRegionOfInterest(region);
 	}
 
 	// This is connected here because we want to listen to the detectors for updates, but don't want to double add regions on startup.
@@ -368,6 +369,7 @@ void IDEASAppController::onRegionOfInterestAdded(AMRegionOfInterest *region)
 	userConfiguration_->addRegionOfInterest(region);
 	mapScanConfiguration_->addRegionOfInterest(region);
 	xasScanConfiguration_->addRegionOfInterest(region);
+	genericConfiguration_->addRegionOfInterest(region);
 }
 
 void IDEASAppController::onRegionOfInterestRemoved(AMRegionOfInterest *region)
@@ -375,4 +377,5 @@ void IDEASAppController::onRegionOfInterestRemoved(AMRegionOfInterest *region)
 	userConfiguration_->removeRegionOfInterest(region);
 	mapScanConfiguration_->removeRegionOfInterest(region);
 	xasScanConfiguration_->removeRegionOfInterest(region);
+	genericConfiguration_->removeRegionOfInterest(region);
 }
