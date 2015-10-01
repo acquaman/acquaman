@@ -1,9 +1,9 @@
 #ifndef BIOXASVALVESCONTROL_H
 #define BIOXASVALVESCONTROL_H
 
+#include "application/BioXAS/BioXAS.h"
 #include "beamline/AMControlSet.h"
 #include "beamline/AMPseudoMotorControl.h"
-#include "beamline/CLS/CLSMAXvMotor.h"
 #include "beamline/CLS/CLSBiStateControl.h"
 
 class BioXASValvesControl : public AMPseudoMotorControl
@@ -15,7 +15,7 @@ public:
 	enum Value { None = 0, Open, Closed };
 
 	/// Constructor.
-    explicit BioXASValvesControl(QObject *parent = 0);
+	explicit BioXASValvesControl(const QString &name, QObject *parent = 0);
 	/// Destructor.
 	virtual ~BioXASValvesControl();
 
@@ -29,28 +29,21 @@ public:
 	/// Returns true if this control can move right now.
 	virtual bool canMove() const;
 
+	/// Returns the valve set for the named beamline.
+	AMControlSet* valveSet(BioXAS::Beamline beamline);
+	/// Returns the front-end valve set.
+	AMControlSet* frontEndValveSet() const { return frontEndValveSet_; }
+	/// Returns the Side valve set.
+	AMControlSet* sideValveSet() const { return sideValveSet_; }
+	/// Returns the Main valve set.
+	AMControlSet* mainValveSet() const { return mainValveSet_; }
+	/// Returns the Imaging valve set.
+	AMControlSet* imagingValveSet() const { return imagingValveSet_; }
+
 	/// Returns true if this control's value is Open, false otherwise.
-	bool isOpen();
+	bool isOpen() const;
 	/// Returns true if this control's value is Closed, false otherwise.
-	bool isClosed();
-
-	/// Returns the first front end vacuum valve control.
-	AMControl *vvr1() const { return vvr1_; }
-	/// Returns the second front end vacuum valve control.
-	AMControl *vvr2() const { return vvr2_; }
-	/// Returns the third front end vacuum valve control.
-	AMControl *vvr3() const { return vvr3_; }
-	/// Returns the fourth front end vacuum valve control.
-	AMControl *vvr4() const { return vvr4_; }
-	/// Returns the fifth front end vacuum valve control.
-	AMControl *vvr5() const { return vvr5_; }
-
-	AMControl *vvrSide1() const { return vvrSide1_; }
-	AMControl *vvrSide2() const { return vvrSide2_; }
-	AMControl *vvrSide3() const { return vvrSide3_; }
-	AMControl *vvrSide4() const { return vvrSide4_; }
-	AMControl *vvrSide5() const { return vvrSide5_; }
-	AMControl *vvrSide6() const { return vvrSide6_; }
+	bool isClosed() const;
 
 	/// Returns a string representation of the given value.
 	QString valueToString(BioXASValvesControl::Value value);
@@ -58,34 +51,60 @@ public:
 signals:
 
 public slots:
+	/// Sets the valves for the named beamline.
+	void setValves(BioXAS::Beamline beamline, AMControlSet *valveSet);
+	/// Sets the front-end valves.
+	void setFrontEndValves(AMControlSet *valveSet);
+	/// Sets the Side beamline valves.
+	void setSideValves(AMControlSet *valveSet);
+	/// Sets the Main beamline valves.
+	void setMainValves(AMControlSet *valveSet);
+	/// Sets the Imaging beamline valves.
+	void setImagingValves(AMControlSet *valveSet);
+
+	/// Adds a valve to the valve set for the named beamline.
+	void addValve(BioXAS::Beamline beamline, CLSBiStateControl *valveControl);
+	/// Adds a valve to the front-end valve set.
+	void addFrontEndValve(CLSBiStateControl *valveControl);
+	/// Adds a valve to the Side beamline valve set.
+	void addSideValve(CLSBiStateControl *valveControl);
+	/// Adds a valve to the Main beamline valve set.
+	void addMainValve(CLSBiStateControl *valveControl);
+	/// Adds a valve to the Imaging beamline valve set.
+	void addImagingValve(CLSBiStateControl *valveControl);
 
 protected slots:
 	/// Updates the current connected state.
 	virtual void updateConnected();
 	/// Updates the current value.
 	virtual void updateValue();
-	/// Updates the current moving state.
-	virtual void updateMoving();
+
+	/// Sets the valves for the given valve set.
+	void setValveSet(AMControlSet *toSet, AMControlSet *desiredControls);
 
 protected:
-	/// The first front end vacuum valve control.
-	CLSBiStateControl *vvr1_;
-	/// The second front end vacuum valve control.
-	CLSBiStateControl *vvr2_;
-	/// The third front end vacuum valve control.
-	CLSBiStateControl *vvr3_;
-	/// The fourth front end vacuum valve control.
-	CLSBiStateControl *vvr4_;
-	/// The fifth front end vacuum valve control.
-	CLSBiStateControl *vvr5_;
+	/// Adds all valves in the valve set as children of this control.
+	void addChildren(AMControlSet *valveSet);
+	/// Removes all valves in the valves set from the children of this control.
+	void removeChildren(AMControlSet *valveSet);
 
-	/// The Side beamline vacuum valve controls.
-	CLSBiStateControl *vvrSide1_;
-	CLSBiStateControl *vvrSide2_;
-	CLSBiStateControl *vvrSide3_;
-	CLSBiStateControl *vvrSide4_;
-	CLSBiStateControl *vvrSide5_;
-	CLSBiStateControl *vvrSide6_;
+	/// Adds the given valve to the given set, if both the valve and the set exist and the set doesn't already contain the valve. Returns true if valve added successfully, false otherwise.
+	bool addValveToSet(AMControlSet *controlSet, AMControl *valveControl);
+
+	/// Returns true if all of the valves in the given set are open, false otherwise.
+	bool valvesOpen(AMControlSet *valveSet);
+	/// Returns true if all of the valves in the given set are closed, false otherwise.
+	bool valvesClosed(AMControlSet *valveSet);
+
+protected:
+	/// The set of front-end valve controls.
+	AMControlSet *frontEndValveSet_;
+	/// The set of Side beamline valve controls.
+	AMControlSet *sideValveSet_;
+	/// The set of Main beamline valve controls.
+	AMControlSet *mainValveSet_;
+	/// The set of Imaging beamline valve controls.
+	AMControlSet *imagingValveSet_;
 };
 
 #endif // BIOXASVALVESCONTROL_H

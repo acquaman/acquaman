@@ -1,7 +1,7 @@
 #include "BioXASValvesControl.h"
 
-BioXASValvesControl::BioXASValvesControl(QObject *parent) :
-    AMPseudoMotorControl(parent)
+BioXASValvesControl::BioXASValvesControl(const QString &name, QObject *parent) :
+	AMPseudoMotorControl(name, "", parent)
 {
 	// Initialize inherited variables.
 
@@ -15,47 +15,12 @@ BioXASValvesControl::BioXASValvesControl(QObject *parent) :
 
 	setContextKnownDescription("ValvesControl");
 
-	// Create child controls.
-	// Front-end vacuum valves.
+	// Create member variables.
 
-	vvr1_ = new CLSBiStateControl("VVR1", "VVR1", "VVR1407-I00-01:state", "VVR1407-I00-01:opr:open", "VVR1407-I00-01:opr:close", new AMControlStatusCheckerDefault(4), this);
-	addChildControl(vvr1_);
-
-	vvr2_ = new CLSBiStateControl("VVR2", "VVR2", "VVR1607-5-I00-01:state", "VVR1607-5-I00-01:opr:open", "VVR1607-5-I00-01:opr:close", new AMControlStatusCheckerDefault(4), this);
-	addChildControl(vvr2_);
-
-	vvr3_ = new CLSBiStateControl("VVR3", "VVR3", "VVR1607-5-I22-01:state", "VVR1607-5-I22-01:opr:open", "VVR1607-5-I22-01:opr:close", new AMControlStatusCheckerDefault(4), this);
-	addChildControl(vvr3_);
-
-	vvr4_ = new CLSBiStateControl("VVR4", "VVR4", "VVR1607-5-I21-01:state", "VVR1607-5-I21-01:opr:open", "VVR1607-5-I21-01:opr:close", new AMControlStatusCheckerDefault(4), this);
-	addChildControl(vvr4_);
-
-	vvr5_ = new CLSBiStateControl("VVR5", "VVR5", "VVR1607-5-I10-01:state", "VVR1607-5-I10-01:opr:open", "VVR1607-5-I10-01:opr:close", new AMControlStatusCheckerDefault(4), this);
-	addChildControl(vvr5_);
-
-	// Side beamline vacuum valves.
-
-	vvrSide1_ = new CLSBiStateControl("Side valve control 1", "Side valve control 1", "VVR1607-5-I22-02:state", "VVR1607-5-I22-02:opr:open", "VVR1607-5-I22-02:opr:close", new AMControlStatusCheckerDefault(4), this);
-	addChildControl(vvrSide1_);
-
-	vvrSide2_ = new CLSBiStateControl("Side valve control 2", "Side valve control 2", "VVR1607-5-I22-03:state", "VVR1607-5-I22-03:opr:open", "VVR1607-5-I22-03:opr:close", new AMControlStatusCheckerDefault(4), this);
-	addChildControl(vvrSide2_);
-
-	vvrSide3_ = new CLSBiStateControl("Side valve control 3", "Side valve control 3", "VVR1607-5-I22-04:state", "VVR1607-5-I22-04:opr:open", "VVR1607-5-I22-04:opr:close", new AMControlStatusCheckerDefault(4), this);
-	addChildControl(vvrSide3_);
-
-	vvrSide4_ = new CLSBiStateControl("Side valve control 4", "Side valve control 4", "VVR1607-5-I22-05:state", "VVR1607-5-I22-05:opr:open", "VVR1607-5-I22-05:opr:close", new AMControlStatusCheckerDefault(4), this);
-	addChildControl(vvrSide4_);
-
-	vvrSide5_ = new CLSBiStateControl("Side valve control 5", "Side valve control 5", "VVR1607-5-I22-06:state", "VVR1607-5-I22-06:opr:open", "VVR1607-5-I22-06:opr:close", new AMControlStatusCheckerDefault(4), this);
-	addChildControl(vvrSide5_);
-
-	vvrSide6_ = new CLSBiStateControl("Side valve control 6", "Side valve control 6", "VVR1607-5-I22-07:state", "VVR1607-5-I22-07:opr:open", "VVR1607-5-I22-07:opr:close", new AMControlStatusCheckerDefault(4), this);
-	addChildControl(vvrSide6_);
-
-	// Main beamline vacuum valves.
-
-	// Imaging beamline vacuum valves.
+	frontEndValveSet_ = 0;
+	sideValveSet_ = 0;
+	mainValveSet_ = 0;
+	imagingValveSet_ = 0;
 
 	// Current settings.
 
@@ -77,50 +42,78 @@ bool BioXASValvesControl::canMove() const
 	return false;
 }
 
-bool BioXASValvesControl::isOpen() const
+AMControlSet* BioXASValvesControl::valveSet(BioXAS::Beamline beamline)
 {
-	bool open = false;
+	AMControlSet *result = 0;
 
-	if (isConnected()) {
-		open = (
-				vvr1_->isOpen() &&
-				vvr2_->isOpen() &&
-				vvr3_->isOpen() &&
-				vvr4_->isOpen() &&
-				vvr5_->isOpen() &&
-
-				vvrSide1_->isOpen() &&
-				vvrSide2_->isOpen() &&
-				vvrSide3_->isOpen() &&
-				vvrSide4_->isOpen() &&
-				vvrSide5_->isOpen() &&
-				vvrSide6_->isOpen()
-
-				);
+	switch (beamline) {
+	case BioXAS::FrontEnd:
+		result = frontEndValveSet_;
+		break;
+	case BioXAS::Side:
+		result = sideValveSet_;
+		break;
+	case BioXAS::Main:
+		result = mainValveSet_;
+		break;
+	case BioXAS::Imaging:
+		result = imagingValveSet_;
+		break;
+	default:
+		break;
 	}
 
-	return open;
+	return result;
+}
+
+bool BioXASValvesControl::isOpen() const
+{
+	bool result = false;
+
+	if (frontEndValveSet_ && sideValveSet_ && mainValveSet_ && imagingValveSet_) {
+		bool open = true;
+
+		if (open)
+			open &= valvesOpen(frontEndValveSet_);
+
+		if (open)
+			open &= valvesOpen(sideValveSet_);
+
+		if (open)
+			open &= valvesOpen(mainValveSet_);
+
+		if (open)
+			open &= valvesOpen(imagingValveSet_);
+
+		result = open;
+	}
+
+	return result;
 }
 
 bool BioXASValvesControl::isClosed() const
 {
-	bool closed = (
-				vvr1_->isClosed() &&
-				vvr2_->isClosed() &&
-				vvr3_->isClosed() &&
-				vvr4_->isClosed() &&
-				vvr5_->isClosed() &&
+	bool result = false;
 
-				vvrSide1_->isClosed() &&
-				vvrSide2_->isClosed() &&
-				vvrSide3_->isClosed() &&
-				vvrSide4_->isClosed() &&
-				vvrSide5_->isClosed() &&
-				vvrSide6_->isClosed()
+	if (frontEndValveSet_ && sideValveSet_ && mainValveSet_ && imagingValveSet_) {
+		bool closed = true;
 
-				);
+		if (closed)
+			closed &= valvesClosed(frontEndValveSet_);
 
-	return closed;
+		if (closed)
+			closed &= valvesClosed(sideValveSet_);
+
+		if (closed)
+			closed &= valvesClosed(mainValveSet_);
+
+		if (closed)
+			closed &= valvesClosed(imagingValveSet_);
+
+		result = closed;
+	}
+
+	return result;
 }
 
 QString BioXASValvesControl::valueToString(BioXASValvesControl::Value value)
@@ -144,22 +137,105 @@ QString BioXASValvesControl::valueToString(BioXASValvesControl::Value value)
 	return result;
 }
 
+void BioXASValvesControl::setValves(BioXAS::Beamline beamline, AMControlSet *valveSet)
+{
+	switch (beamline) {
+	case BioXAS::FrontEnd:
+		setFrontEndValves(valveSet);
+		break;
+	case BioXAS::Side:
+		setSideValves(valveSet);
+		break;
+	case BioXAS::Main:
+		setMainValves(valveSet);
+		break;
+	case BioXAS::Imaging:
+		setImagingValves(valveSet);
+		break;
+	default:
+		break;
+	}
+}
+
+void BioXASValvesControl::setFrontEndValves(AMControlSet *valveSet)
+{
+	setValveSet(frontEndValveSet_, valveSet);
+}
+
+void BioXASValvesControl::setSideValves(AMControlSet *valveSet)
+{
+	setValveSet(sideValveSet_, valveSet);
+}
+
+void BioXASValvesControl::setMainValves(AMControlSet *valveSet)
+{
+	setValveSet(mainValveSet_, valveSet);
+}
+
+void BioXASValvesControl::setImagingValves(AMControlSet *valveSet)
+{
+	setValveSet(imagingValveSet_, valveSet);
+}
+
+void BioXASValvesControl::addValve(BioXAS::Beamline beamline, CLSBiStateControl *valveControl)
+{
+	switch (beamline) {
+	case BioXAS::FrontEnd:
+		addFrontEndValve(valveControl);
+		break;
+	case BioXAS::Side:
+		addSideValve(valveControl);
+		break;
+	case BioXAS::Main:
+		addMainValve(valveControl);
+		break;
+	case BioXAS::Imaging:
+		addImagingValve(valveControl);
+		break;
+	default:
+		break;
+	}
+}
+
+void BioXASValvesControl::addFrontEndValve(CLSBiStateControl *valveControl)
+{
+	if (!frontEndValveSet_)
+		frontEndValveSet_ = new AMControlSet(this);
+
+	addValveToSet(frontEndValveSet_, valveControl);
+}
+
+void BioXASValvesControl::addSideValve(CLSBiStateControl *valveControl)
+{
+	if (!sideValveSet_)
+		sideValveSet_ = new AMControlSet(this);
+
+	addValveToSet(sideValveSet_, valveControl);
+}
+
+void BioXASValvesControl::addMainValve(CLSBiStateControl *valveControl)
+{
+	if (!mainValveSet_)
+		mainValveSet_ = new AMControlSet(this);
+
+	addValveToSet(mainValveSet_, valveControl);
+}
+
+void BioXASValvesControl::addImagingValve(CLSBiStateControl *valveControl)
+{
+	if (!imagingValveSet_)
+		imagingValveSet_ = new AMControlSet(this);
+
+	addValveToSet(imagingValveSet_, valveControl);
+}
+
 void BioXASValvesControl::updateConnected()
 {
 	bool connected = (
-				vvr1_ && vvr1_->isOpen() &&
-				vvr2_ && vvr2_->isOpen() &&
-				vvr3_ && vvr3_->isOpen() &&
-				vvr4_ && vvr4_->isOpen() &&
-				vvr5_ && vvr5_->isOpen() &&
-
-				vvrSide1_ && vvrSide1_->isOpen() &&
-				vvrSide2_ && vvrSide2_->isOpen() &&
-				vvrSide3_ && vvrSide3_->isOpen() &&
-				vvrSide4_ && vvrSide4_->isOpen() &&
-				vvrSide5_ && vvrSide5_->isOpen() &&
-				vvrSide6_ && vvrSide6_->isOpen()
-
+				frontEndValveSet_ && frontEndValveSet_->isConnected() &&
+				sideValveSet_ && sideValveSet_->isConnected() &&
+				mainValveSet_ && mainValveSet_->isConnected() &&
+				imagingValveSet_ && imagingValveSet_->isConnected()
 				);
 
 	setConnected(connected);
@@ -177,23 +253,96 @@ void BioXASValvesControl::updateValue()
 	setValue(newValue);
 }
 
-void BioXASValvesControl::updateMoving()
+void BioXASValvesControl::setValveSet(AMControlSet *toSet, AMControlSet *desiredControls)
 {
-	bool closed = (
-				vvr1_->isClosed() &&
-				vvr2_->isClosed() &&
-				vvr3_->isClosed() &&
-				vvr4_->isClosed() &&
-				vvr5_->isClosed() &&
+	if (toSet != desiredControls) {
 
-				vvrSide1_->isClosed() &&
-				vvrSide2_->isClosed() &&
-				vvrSide3_->isClosed() &&
-				vvrSide4_->isClosed() &&
-				vvrSide5_->isClosed() &&
-				vvrSide6_->isClosed()
+		if (toSet) {
+			removeChildren(toSet);
+			toSet->deleteLater();
+			toSet = 0;
+		}
 
-				);
+		toSet = valveSet;
 
-	return closed;
+		if (toSet)
+			addChildren(toSet);
+	}
+}
+
+void BioXASValvesControl::addChildren(AMControlSet *valveSet)
+{
+	if (valveSet) {
+		foreach (AMControl *valve, valveSet)
+			addChildControl(valve);
+	}
+}
+
+void BioXASValvesControl::removeChildren(AMControlSet *valveSet)
+{
+	if (valveSet) {
+		foreach (AMControl *valve, valveSet)
+			removeChildControl(valve);
+	}
+}
+
+bool BioXASValvesControl::addValveToSet(AMControlSet *controlSet, AMControl *valveControl)
+{
+	bool result = false;
+
+	if (controlSet && valveControl) {
+		if (!controlSet->contains(valveControl->name())) {
+			controlSet->addControl(valveControl);
+			addChildControl(valveControl);
+			result = true;
+		}
+	}
+
+	return result;
+}
+
+bool BioXASValvesControl::valvesOpen(AMControlSet *valveSet)
+{
+	bool result = false;
+
+	if (valveSet) {
+		bool valvesOpen = true;
+
+		for (int valveIndex = 0, valveCount = valveSet->count(); valveIndex < valveCount && valvesOpen; valveIndex++) {
+			CLSBiStateControl *valveControl = qobject_cast<CLSBiStateControl*>(valveSet->at(valveIndex));
+
+			if (valveControl) {
+				valvesOpen &= valveControl->isOpen();
+			} else {
+				valvesOpen = false;
+			}
+		}
+
+		result = valvesOpen;
+	}
+
+	return result;
+}
+
+bool BioXASValvesControl::valvesClosed(AMControlSet *valveSet)
+{
+	bool result = false;
+
+	if (valveSet) {
+		bool valvesClosed = true;
+
+		for (int valveIndex = 0, valveCount = valveSet->count(); valveIndex < valveCount && valvesClosed; valveIndex++) {
+			CLSBiStateControl *valveControl = qobject_cast<CLSBiStateControl*>(valveSet->at(valveIndex));
+
+			if (valveControl) {
+				valvesClosed &= valveControl->isClosed();
+			} else {
+				valvesClosed = false;
+			}
+		}
+
+		result = valvesClosed;
+	}
+
+	return result;
 }
