@@ -66,7 +66,15 @@ void AMDataSourceImageData::setDataSource(const AMDataSource* dataSource) {
 	}
 
     onSizeChanged();
-	onDataChanged(AMnDIndex(0,0), AMnDIndex(xSize_-1, ySize_-1));
+    onDataChanged(AMnDIndex(0,0), AMnDIndex(xSize_-1, ySize_-1));
+}
+
+MPlotRange AMDataSourceImageData::range() const
+{
+	if (cacheUpdateRequired_)
+		updateCachedValues();
+
+	return range_;
 }
 
 double AMDataSourceImageData::x(int index) const

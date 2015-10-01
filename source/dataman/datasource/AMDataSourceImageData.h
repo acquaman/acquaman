@@ -43,6 +43,9 @@ public:
 	/// Access the underlying data source
 	const inline AMDataSource* dataSource() const { return source_; }
 
+	/// Returns the range.  Reimplmented to use the caching scheme used in this class.
+	virtual MPlotRange range() const;
+
 	/// Return the x (data value) corresponding an (x,y) \c index.
 	virtual double x(int index) const;
 	/// Copy an entire block of x values from \c startIndex to \c endIndex into \c outputValues.
