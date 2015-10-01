@@ -72,7 +72,8 @@ HEADERS += \
     source/ui/BioXAS/BioXASXASScanConfigurationEditor.h \
     source/ui/BioXAS/BioXASXASScanConfigurationView.h \
     source/dataman/BioXAS/BioXASDbUpgrade1Pt1.h \
-    source/beamline/BioXAS/BioXASShutters.h
+    source/beamline/BioXAS/BioXASShutters.h \
+    source/beamline/BioXAS/BioXASValvesControl.h
 
 SOURCES += \
 	source/acquaman/BioXAS/BioXASXRFScanConfiguration.cpp \
@@ -139,7 +140,10 @@ SOURCES += \
     source/ui/BioXAS/BioXASXASScanConfigurationEditor.cpp \
     source/ui/BioXAS/BioXASXASScanConfigurationView.cpp \
     source/dataman/BioXAS/BioXASDbUpgrade1Pt1.cpp \
-    source/beamline/BioXAS/BioXASShutters.cpp
+    source/beamline/BioXAS/BioXASShutters.cpp \
+    source/beamline/BioXAS/BioXASValvesControl.cpp
+
+
 
 
 
