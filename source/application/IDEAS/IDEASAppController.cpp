@@ -48,6 +48,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "util/AMPeriodicTable.h"
 
+#include "acquaman/AMGenericStepScanConfiguration.h"
+#include "acquaman/AMGenericStepScanController.h"
 #include "acquaman/IDEAS/IDEASScanConfiguration.h"
 #include "acquaman/IDEAS/IDEASXASScanConfiguration.h"
 #include "acquaman/IDEAS/IDEASXRFScanConfiguration.h"
@@ -58,6 +60,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/dataman/AMGenericScanEditor.h"
 #include "ui/acquaman/AMScanConfigurationViewHolder3.h"
 
+#include "ui/acquaman/AMGenericStepScanConfigurationView.h"
 #include "ui/IDEAS/IDEASPersistentView.h"
 #include "ui/IDEAS/IDEASXASScanConfigurationView.h"
 #include "ui/IDEAS/IDEAS2DScanConfigurationView.h"
@@ -216,6 +219,12 @@ void IDEASAppController::setupUserInterface()
 	mapScanConfigurationHolder3_ = new AMScanConfigurationViewHolder3("IDEAS 2D Map Scan", false, true, mapScanConfigurationView_);
 
 	mw_->addPane(mapScanConfigurationHolder3_, "Scans", "IDEAS 2D Scan", ":/utilities-system-monitor.png");
+
+	genericConfiguration_ = new AMGenericStepScanConfiguration;
+	genericConfiguration_->addDetector(AMBeamline::bl()->exposedDetectorByName("I_0")->toInfo());
+	genericConfigurationView_ = new AMGenericStepScanConfigurationView(genericConfiguration_, AMBeamline::bl()->exposedControls(), AMBeamline::bl()->exposedDetectors());
+	genericConfigurationViewHolder_ = new AMScanConfigurationViewHolder3("Generic Scan", false, true, genericConfigurationView_);
+	mw_->addPane(genericConfigurationViewHolder_, "Scans", "Generic Scan", ":/utilities-system-monitor.png");
 
 	sampleCameraPanel_ = new IDEASSampleCameraPanel();
 	mw_->addPane(sampleCameraPanel_, "Experiment Tools", "Sample Alignment",":/22x22/gnome-display-properties.png");

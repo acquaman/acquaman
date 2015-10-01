@@ -35,6 +35,8 @@ class IDEAS2DScanConfiguration;
 class IDEAS2DScanConfigurationView;
 class IDEASUserConfiguration;
 class AMRegionOfInterest;
+class AMGenericStepScanConfiguration;
+class AMGenericStepScanConfigurationView;
 
 class IDEASAppController : public AMAppController
 {
@@ -102,6 +104,14 @@ protected:
 	IDEAS2DScanConfigurationView *mapScanConfigurationView_;
 	/// View holder for 2D scan configuration views.
 	AMScanConfigurationViewHolder3 *mapScanConfigurationHolder3_;
+
+	/// A generic scan configuration.
+	AMGenericStepScanConfiguration *genericConfiguration_;
+	/// A generic scan configuration view.
+	AMGenericStepScanConfigurationView *genericConfigurationView_;
+	/// The holder for the generic scan configuration view.
+	AMScanConfigurationViewHolder3 *genericConfigurationViewHolder_;
+
 
 	/// View for the IDEAS's Ketek XRF scan configurations
 	IDEASKETEKDetailedDetectorView *ideasKETEKDetailedDetectorView_;
