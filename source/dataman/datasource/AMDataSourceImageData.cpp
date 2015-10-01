@@ -21,11 +21,13 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMDataSourceImageData.h"
 
+#include "util/AMUtility.h"
+
 AMDataSourceImageData::AMDataSourceImageData(QObject* parent)
 	: QObject(parent), MPlotAbstractImageData()
 {
 	source_ = 0;
-	updateCacheRequired_ = true;
+	cacheUpdateRequired_ = true;
 }
 
 AMDataSourceImageData::~AMDataSourceImageData()
@@ -50,7 +52,7 @@ void AMDataSourceImageData::setDataSource(const AMDataSource* dataSource) {
 		boundingRect_ = QRect();
 		xAxis_ = QVector<double>();
 		yAxis_ = QVector<double>();
-		data_ = QVector<double>();
+		cachedData_ = QVector<double>();
 	}
 
 	else {
@@ -89,23 +91,23 @@ void AMDataSourceImageData::yValues(int startIndex, int endIndex, double *output
 
 double AMDataSourceImageData::z(int xIndex, int yIndex) const
 {
-	return data_.at(xIndex + yIndex*xSize_);
+	return cachedData_.at(xIndex + yIndex*xSize_);
 }
 
 void AMDataSourceImageData::zValues(int xStart, int yStart, int xEnd, int yEnd, double* outputValues) const
 {
-	if (updateCacheRequired_)
+	if (cacheUpdateRequired_)
 		updateCachedValues();
 
 	// If we want the whole array, just use memcpy.
 	if (xStart == 0 && yStart == 0 && xEnd == (xSize_-1) && yEnd == (ySize_-1))
-		memcpy(outputValues, data_.constData(), (xSize_*ySize_)*sizeof(double));
+		memcpy(outputValues, cachedData_.constData(), (xSize_*ySize_)*sizeof(double));
 
 	else{
 
 		for (int j = 0, jSize = yEnd-yStart+1; j < jSize; j++)
 			for (int i = 0, iSize = xEnd-xStart+1; i < iSize; i++)
-				outputValues[i+j*iSize] = data_.at(i+xStart + (j+yStart)*xSize_);
+				outputValues[i+j*iSize] = cachedData_.at(i+xStart + (j+yStart)*xSize_);
 	}
 }
 
@@ -131,7 +133,7 @@ void AMDataSourceImageData::onDataChanged(const AMnDIndex &start, const AMnDInde
 {
     Q_UNUSED(start)
     Q_UNUSED(end)
-	updateCacheRequired_ = true;
+	cacheUpdateRequired_ = true;
 	emitDataChanged();
 }
 
@@ -141,7 +143,7 @@ void AMDataSourceImageData::onSizeChanged()
     ySize_ = source_->size(1);
     xAxis_ = QVector<double>(xSize_, 0);
     yAxis_ = QVector<double>(ySize_, 0);
-	data_ = QVector<double>(xSize_*ySize_, 0);
+	cachedData_ = QVector<double>(xSize_*ySize_, 0);
     onAxisValuesChanged();
 	onDataChanged(AMnDIndex(0,0), AMnDIndex(xSize_-1, ySize_-1));
 }
@@ -176,36 +178,15 @@ void AMDataSourceImageData::onDataSourceDeleted()
 	setDataSource(0);
 }
 
-MPlotRange AMDataSourceImageData::range() const
-{
-	if (updateCacheRequired_)
-		updateCachedValues();
-
-	return range_;
-}
-
 void AMDataSourceImageData::updateCachedValues() const
 {
-    AMnDIndex start = AMnDIndex(0, 0);
-    AMnDIndex end = AMnDIndex(xSize_-1, ySize_-1);
+	AMnDIndex start = AMnDIndex(0, 0);
+	AMnDIndex end = AMnDIndex(xSize_-1, ySize_-1);
 
-    if (source_->values(start, end, data_.data())){
+	if (source_->values(start, end, cachedData_.data())){
 
-        double rangeMinimum = data_.first();
-        double rangeMaximum = data_.first();
-
-        for (int i = 0, size = data_.size(); i < size; i++){
-
-            double newValue = data_.at(i);
-
-            if (newValue > rangeMaximum)
-                rangeMaximum = newValue;
-
-            if (newValue < rangeMinimum)
-                rangeMinimum = newValue;
-        }
-
-        range_ = MPlotRange(rangeMinimum, rangeMaximum);
-		updateCacheRequired_ = false;
+		AMRange dataSourceRange = AMUtility::rangeFinder(cachedData_);
+		range_ = MPlotRange(dataSourceRange.minimum(), dataSourceRange.maximum());
+		cacheUpdateRequired_ = false;
 	}
 }
