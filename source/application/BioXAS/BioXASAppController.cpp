@@ -78,6 +78,37 @@ bool BioXASAppController::startup()
 		result = true;
 	}
 
+	// AMScanAxis testing.
+
+	AMScanAxisRegion *region = new AMScanAxisRegion(AMNumber(-5), AMNumber(1), AMNumber(5), AMNumber(1), this);
+
+	AMScanAxis *scanAxis = new AMScanAxis(AMScanAxis::StepAxis, region, this);
+
+	bool canMerge = scanAxis->canMerge(0);
+
+	if (canMerge)
+		qDebug() << "Scan axis can merge with null axis. (??)";
+	else
+		qDebug() << "Scan axis can't merge with null axis. :)";
+
+	bool canSimplify = scanAxis->canSimplify();
+
+	if (canSimplify)
+		qDebug() << "Scan axis with one region can be simplified. (??)";
+	else
+		qDebug() << "Scan axis with one region can't be simplified. :)";
+
+	AMScanAxisRegion *otherRegion = new AMScanAxisRegion(AMNumber(10), AMNumber(-1), AMNumber(-10), AMNumber(1), this);
+
+	scanAxis->insertRegion(1, otherRegion);
+
+	canSimplify = scanAxis->canSimplify();
+
+	if (canSimplify)
+		qDebug() << "Scan axis with two overlapping regions can be simplified. :)";
+	else
+		qDebug() << "Scan axis with two overlapping regions can't be simplified. (??)";
+
 	return result;
 }
 

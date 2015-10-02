@@ -84,6 +84,20 @@ bool AMScanAxisRegion::isValid() const
 	return result;
 }
 
+bool AMScanAxisRegion::within(const AMNumber &point) const
+{
+	bool result = false;
+
+	if (isValid() && point.isValid()) {
+		if (ascending())
+			result = ((double(regionStart_) <= double(point)) && (double(regionEnd_) >= double(point)));
+		else if (descending())
+			result = ((double(regionEnd_) <= double(point)) && (double(regionStart_) >= double(point)));
+	}
+
+	return result;
+}
+
 bool AMScanAxisRegion::ascending() const
 {
 	bool result = false;
@@ -100,6 +114,16 @@ bool AMScanAxisRegion::descending() const
 
 	if (regionStart_.isValid() && regionEnd_.isValid() && regionStep_.isValid())
 		result = ( (double(regionStart_) > double(regionEnd_)) && (double(regionStep_) < 0) );
+
+	return result;
+}
+
+bool AMScanAxisRegion::identicalTo(AMScanAxisRegion *otherRegion) const
+{
+	bool result = false;
+
+	if (otherRegion)
+		result = ((double(regionStart_) == double(otherRegion->regionStart())) && (double(regionStep_) == double(otherRegion->regionStart())) && (double(regionEnd_) == double(otherRegion->regionEnd())) && (double(regionTime_) == double(otherRegion->regionTime())));
 
 	return result;
 }
@@ -217,8 +241,85 @@ bool AMScanAxisRegion::canMerge(AMScanAxisRegion *otherRegion) const
 {
 	// We consider merges only if both regions are valid, for now.
 
-	bool result = (isValid() && otherRegion && otherRegion->isValid());
+	bool result = ( isValid() && otherRegion && otherRegion->isValid() && ((double(regionStep_) == double(otherRegion->regionStep())) || (double(regionTime_) == double(otherRegion->regionTime()))) );
 	return result;
+}
+
+bool AMScanAxisRegion::canMakeAdjacentTo(AMScanAxisRegion *otherRegion) const
+{
+	// We will consider moving only if both regions are valid, for now.
+
+	bool result = (isValid() && otherRegion && otherRegion->isValid() && !contains(otherRegion) && !containedBy(otherRegion));
+	return result;
+}
+
+bool AMScanAxisRegion::canSubtract(AMScanAxisRegion *otherRegion) const
+{
+	// We will consider subtractions involving valid regions only, for now.
+
+	bool result = (isValid() && otherRegion && otherRegion->isValid() && canDivide(otherRegion->regionStart()) && canDivide(otherRegion->regionEnd()));
+	return result;
+}
+
+bool AMScanAxisRegion::canDivide(const AMNumber &point) const
+{
+	bool result = (isValid() && point.isValid() && within(point) && (regionStart_ != point) && (regionEnd_ != point));
+	return result;
+}
+
+AMScanAxisRegion* AMScanAxisRegion::intersection(AMScanAxisRegion *otherRegion) const
+{
+	AMScanAxisRegion *result = 0;
+
+	if (intersects(otherRegion)) {
+
+		// If the two regions intersect, the intersection is the area the two regions have in common.
+
+		AMNumber start = intersectionStart(otherRegion);
+		AMNumber end = intersectionEnd(otherRegion);
+
+		result = new AMScanAxisRegion(start, AMNumber::InvalidError, end, AMNumber::InvalidError);
+	}
+
+	return result;
+}
+
+QList<AMScanAxisRegion*> AMScanAxisRegion::subtract(AMScanAxisRegion *otherRegion) const
+{
+	QList<AMScanAxisRegion*> results;
+
+	if (canSubtract(otherRegion)) {
+
+		// Subtracting another region is the same as dividing at that region's
+		// start and end points.
+
+		QList<AMScanAxisRegion*> firstResult = divide(otherRegion->regionStart());
+		QList<AMScanAxisRegion*> secondResult = divide(otherRegion->regionEnd());
+
+		// The final results are the regions that are not identical to otherRegion.
+
+		foreach (AMScanAxisRegion *region, firstResult)
+			if (!region->identicalTo(otherRegion))
+				results << region;
+
+		foreach (AMScanAxisRegion *region, secondResult)
+			if (!region->identicalTo(otherRegion))
+				results << region;
+	}
+
+	return results;
+}
+
+QList<AMScanAxisRegion*> AMScanAxisRegion::divide(const AMNumber &dividePoint) const
+{
+	QList<AMScanAxisRegion*> results;
+
+	if (canDivide(dividePoint)) {
+		results << new AMScanAxisRegion(regionStart_, regionStep_, dividePoint, regionTime_);
+		results << new AMScanAxisRegion(dividePoint, regionStep_, regionEnd_, regionTime_);
+	}
+
+	return results;
 }
 
 void AMScanAxisRegion::setRegionStart(const AMNumber &regionStart)
@@ -304,51 +405,24 @@ bool AMScanAxisRegion::merge(AMScanAxisRegion *otherRegion)
 	return result;
 }
 
-bool AMScanAxisRegion::mergeAscending(AMScanAxisRegion *otherRegion)
+bool AMScanAxisRegion::makeAdjacentTo(AMScanAxisRegion *otherRegion)
 {
 	bool result = false;
 
-	if (canMerge(otherRegion)) {
+	if (canMakeAdjacentTo(otherRegion)) {
+		AMNumber newStart = makeAdjacentStart(otherRegion);
+		AMNumber newEnd = makeAdjacentEnd(otherRegion);
 
-		if (ascending() && otherRegion->ascending())
-			result = true;
+		setRegionStart(newStart);
+		setRegionEnd(newEnd);
 
-		else if (ascending() && otherRegion->descending())
-			result = (rnumberOfPoints() >= otherRegion->numberOfPoints());
-
-		else if (descending() && otherRegion->ascending())
-			result = (numberOfPoints() <= otherRegion->numberOfPoints());
-
-		else if (descending() && otherRegion->descending())
-			result = false;
+		result = true;
 	}
 
 	return result;
 }
 
-bool AMScanAxisRegion::mergeDescending(AMScanAxisRegion *otherRegion)
-{
-	bool result = false;
-
-	if (canMerge(otherRegion)) {
-
-		if (ascending() && otherRegion->ascending())
-			result = false;
-
-		else if (ascending() && otherRegion->descending())
-			result = (numberOfPoints() <= otherRegion->numberOfPoints());
-
-		else if (descending() && otherRegion->ascending())
-			result = (numberOfPoints() >= otherRegion->numberOfPoints());
-
-		else if (descending() && otherRegion->descending())
-			result = true;
-	}
-
-	return result;
-}
-
-AMNumber AMScanAxisRegion::mergeStart(AMScanAxisRegion *otherRegion)
+AMNumber AMScanAxisRegion::mergeStart(AMScanAxisRegion *otherRegion) const
 {
 	AMNumber result = AMNumber::InvalidError;
 
@@ -357,17 +431,11 @@ AMNumber AMScanAxisRegion::mergeStart(AMScanAxisRegion *otherRegion)
 		if (ascending() && otherRegion->ascending())
 			result = (double(regionStart()) <= double(otherRegion->regionStart())) ? regionStart() : otherRegion->regionStart();
 
-		else if (ascending() && otherRegion->descending() && mergeRegionsAscending(region, otherRegion))
+		else if (ascending() && otherRegion->descending())
 			result = (double(regionStart()) <= double(otherRegion->regionEnd())) ? regionStart() : otherRegion->regionEnd();
 
-		else if (ascending() && otherRegion->descending() && mergeRegionsDescending(region, otherRegion))
-			result = (double(regionEnd()) >= double(otherRegion->regionStart())) ? regionEnd() : otherRegion->regionStart();
-
-		else if (descending() && otherRegion->ascending() && mergeRegionsDescending(region, otherRegion))
+		else if (descending() && otherRegion->ascending())
 			result = (double(regionStart()) >= double(otherRegion->regionEnd())) ? regionStart() : otherRegion->regionEnd();
-
-		else if (descending() && otherRegion->ascending() && mergeRegionsAscending(region, otherRegion))
-			result = (double(regionEnd()) <= double(otherRegion->regionStart())) ? regionEnd() : otherRegion->regionStart();
 
 		else if (descending() && otherRegion->descending())
 			result = (double(regionStart()) >= double(otherRegion->regionStart())) ? regionStart() : otherRegion->regionStart();
@@ -376,7 +444,7 @@ AMNumber AMScanAxisRegion::mergeStart(AMScanAxisRegion *otherRegion)
 	return result;
 }
 
-AMNumber AMScanAxisRegion::mergeStep(AMScanAxisRegion *otherRegion)
+AMNumber AMScanAxisRegion::mergeStep(AMScanAxisRegion *otherRegion) const
 {
 	AMNumber result = AMNumber::InvalidError;
 
@@ -385,17 +453,11 @@ AMNumber AMScanAxisRegion::mergeStep(AMScanAxisRegion *otherRegion)
 		if (ascending() && otherRegion->ascending())
 			result = (double(regionStep()) <= double(otherRegion->regionStep())) ? regionStep() : otherRegion->regionStep();
 
-		else if (ascending() && otherRegion->descending() && mergeRegionsAscending(region, otherRegion))
+		else if (ascending() && otherRegion->descending())
 			result = (double(regionStep()) <= fabs(double(otherRegion->regionStep()))) ? regionStep() : AMNumber(-1 * double(otherRegion->regionStep()));
 
-		else if (ascending() && otherRegion->descending() && mergeRegionsDescending(region, otherRegion))
-			result = (double(regionStep()) <= fabs(double(otherRegion->regionStep()))) ? AMNumber(-1 * double(regionStep())) : otherRegion->regionStep();
-
-		else if (descending() && otherRegion->ascending() && mergeRegionsDescending(region, otherRegion))
+		else if (descending() && otherRegion->ascending())
 			result = (fabs(double(regionStep())) <= double(otherRegion->regionStep())) ? regionStep() : AMNumber(-1 * double(otherRegion->regionStep()));
-
-		else if (descending() && otherRegion->ascending() && mergeRegionsAscending(region, otherRegion))
-			result = (fabs(double(regionStep())) <= double(otherRegion->regionStep())) ? AMNumber(-1 * double(regionStep())) : otherRegion->regionStep();
 
 		else if (descending() && otherRegion->descending())
 			result = (fabs(double(regionStep())) <= fabs(double(otherRegion->regionStep()))) ? regionStep() : otherRegion->regionStep();
@@ -404,7 +466,7 @@ AMNumber AMScanAxisRegion::mergeStep(AMScanAxisRegion *otherRegion)
 	return result;
 }
 
-AMNumber AMScanAxisRegion::mergeEnd(AMScanAxisRegion *otherRegion)
+AMNumber AMScanAxisRegion::mergeEnd(AMScanAxisRegion *otherRegion) const
 {
 	AMNumber result = AMNumber::InvalidError;
 
@@ -413,17 +475,11 @@ AMNumber AMScanAxisRegion::mergeEnd(AMScanAxisRegion *otherRegion)
 		if (ascending() && otherRegion->ascending())
 			result = (double(regionEnd()) >= double(otherRegion->regionEnd())) ? regionEnd() : otherRegion->regionEnd();
 
-		else if (ascending() && otherRegion->descending() && mergeRegionsAscending(region, otherRegion))
+		else if (ascending() && otherRegion->descending())
 			result = (double(regionEnd()) >= double(otherRegion->regionStart())) ? regionEnd() : otherRegion->regionStart();
 
-		else if (ascending() && otherRegion->descending() && mergeRegionsDescending(region, otherRegion))
-			result = (double(regionStart()) <= double(otherRegion->regionEnd())) ? regionStart() : otherRegion->regionEnd();
-
-		else if (descending() && otherRegion->ascending() && mergeRegionsDescending(region, otherRegion))
+		else if (descending() && otherRegion->ascending())
 			result = (double(regionEnd()) <= double(otherRegion->regionStart())) ? regionEnd() : otherRegion->regionStart();
-
-		else if (descending() && otherRegion->ascending() && mergeRegionsAscending(region, otherRegion))
-			result = (double(regionStart()) >= double(otherRegion->regionEnd())) ? regionStart() : otherRegion->regionEnd();
 
 		else if (descending() && otherRegion->descending())
 			result = (double(regionEnd()) <= double(otherRegion->regionEnd())) ? regionEnd() : otherRegion->regionEnd();
@@ -432,12 +488,100 @@ AMNumber AMScanAxisRegion::mergeEnd(AMScanAxisRegion *otherRegion)
 	return result;
 }
 
-AMNumber AMScanAxisRegion::mergeTime(AMScanAxisRegion *otherRegion)
+AMNumber AMScanAxisRegion::mergeTime(AMScanAxisRegion *otherRegion) const
 {
 	AMNumber result = AMNumber::InvalidError;
 
 	if (canMerge(otherRegion))
 		result = (double(regionTime()) >= double(otherRegion->regionTime())) ? regionTime() : otherRegion->regionTime();
+
+	return result;
+}
+
+AMNumber AMScanAxisRegion::intersectionStart(AMScanAxisRegion *otherRegion) const
+{
+	AMNumber result = AMNumber::InvalidError;
+
+	if (intersects(otherRegion)) {
+
+		if (ascending() && otherRegion->ascending())
+			result = (double(regionStart()) >= double(otherRegion->regionStart())) ? regionStart() : otherRegion->regionStart();
+
+		else if (ascending() && otherRegion->descending())
+			result = (double(regionStart()) >= double(otherRegion->regionEnd())) ? regionStart() : otherRegion->regionEnd();
+
+		else if (descending() && otherRegion->ascending())
+			result = (double(regionStart()) <= double(otherRegion->regionEnd())) ? regionStart() : otherRegion->regionEnd();
+
+		else if (descending() && otherRegion->descending())
+			result = (double(regionStart()) <= double(otherRegion->regionStart())) ? regionStart() : otherRegion->regionStart();
+	}
+
+	return result;
+}
+
+AMNumber AMScanAxisRegion::intersectionEnd(AMScanAxisRegion *otherRegion) const
+{
+	AMNumber result = AMNumber::InvalidError;
+
+	if (intersects(otherRegion)) {
+
+		if (ascending() && otherRegion->ascending())
+			result = (double(regionEnd()) <= double(otherRegion->regionEnd())) ? regionEnd() : otherRegion->regionEnd();
+
+		else if (ascending() && otherRegion->descending())
+			result = (double(regionEnd()) <= double(otherRegion->regionStart())) ? regionEnd() : otherRegion->regionStart();
+
+		else if (descending() && otherRegion->ascending())
+			result = (double(regionEnd()) >= double(otherRegion->regionStart())) ? regionEnd() : otherRegion->regionStart();
+
+		else if (descending() && otherRegion->descending())
+			result = (double(regionEnd()) >= double(otherRegion->regionEnd())) ? regionEnd() : otherRegion->regionEnd();
+	}
+
+	return result;
+}
+
+AMNumber AMScanAxisRegion::makeAdjacentStart(AMScanAxisRegion *otherRegion) const
+{
+	AMNumber result = AMNumber::InvalidError;
+
+	if (canMakeAdjacentTo(otherRegion)) {
+
+		if (ascending() && otherRegion->ascending())
+			result = (double(regionStart()) < double(otherRegion->regionStart())) ? regionStart() : otherRegion->regionEnd();
+
+		else if (ascending() && otherRegion->descending())
+			result = (double(regionStart()) < double(otherRegion->regionEnd())) ? regionStart() : otherRegion->regionStart();
+
+		else if (descending() && otherRegion->ascending())
+			result = (double(regionStart()) > double(otherRegion->regionEnd())) ? regionStart() : otherRegion->regionStart();
+
+		else if (descending() && otherRegion->descending())
+			result = (double(regionStart()) > double(otherRegion->regionStart())) ? regionStart() : otherRegion->regionEnd();
+	}
+
+	return result;
+}
+
+AMNumber AMScanAxisRegion::makeAdjacentEnd(AMScanAxisRegion *otherRegion) const
+{
+	AMNumber result = AMNumber::InvalidError;
+
+	if (canMakeAdjacentTo(otherRegion)) {
+
+		if (ascending() && otherRegion->ascending())
+			result = (double(regionEnd()) > double(otherRegion->regionEnd())) ? regionEnd() : otherRegion->regionStart();
+
+		else if (ascending() && otherRegion->descending())
+			result = (double(regionEnd()) > double(otherRegion->regionStart())) ? regionEnd() : otherRegion->regionEnd();
+
+		else if (descending() && otherRegion->ascending())
+			result = (double(regionEnd()) < double(otherRegion->regionStart())) ? regionEnd() : otherRegion->regionEnd();
+
+		else if (descending() && otherRegion->descending())
+			result = (double(regionEnd()) < double(otherRegion->regionEnd())) ? regionEnd() : otherRegion->regionStart();
+	}
 
 	return result;
 }

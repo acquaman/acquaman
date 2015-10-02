@@ -69,11 +69,16 @@ public:
 	/// Returns true if the region start, step, end, and time are all valid AMNumbers. Returns false otherwise.
 	virtual bool isValid() const;
 
+	/// Returns true if the given point is within the range of this region, false otherwise.
+	bool within(const AMNumber &point) const;
+
 	/// Returns true if this region is ascending, false otherwise.
 	bool ascending() const;
 	/// Returns true if this region is descending, false otherwise.
 	bool descending() const;
 
+	/// Returns true if this region shares all of the same properties as the given region, false otherwise.
+	bool identicalTo(AMScanAxisRegion *otherRegion) const;
 	/// Returns true if this region doesn't overlap with otherRegion, but does share a region limit. False otherwise.
 	bool adjacentTo(AMScanAxisRegion *otherRegion) const;
 	/// Returns true if this region overlaps with the given region, false otherwise.
@@ -87,10 +92,23 @@ public:
 	/// Returns true if this region has the same dwell time as the given region, false otherwise.
 	bool sameTime(AMScanAxisRegion *otherRegion) const;
 	/// Returns true if this region is ascending/descending the same way as the given region, false otherwise.
-	bool sameDirection(AMScanAxisRegion *region, AMScanAxisRegion *otherRegion) const;
+	bool sameDirection(AMScanAxisRegion *otherRegion) const;
 
-	/// Returns true if the given region can be merged together into this one, false otherwise.
+	/// Returns true if this region can be merged together into this one, false otherwise.
 	bool canMerge(AMScanAxisRegion *otherRegion) const;
+	/// Returns true if this region can be made adjacent to the given region, false otherwise.
+	bool canMakeAdjacentTo(AMScanAxisRegion *otherRegion) const;
+	/// Returns true if this region can subtract the given region, false otherwise.
+	bool canSubtract(AMScanAxisRegion *region) const;
+	/// Returns true if this region can be divided at the given point, false otherwise.
+	bool canDivide(const AMNumber &point) const;
+
+	/// Returns a new region that is the intersection of this region and the given region. Returns 0 if the two regions don't intersect.
+	AMScanAxisRegion* intersection(AMScanAxisRegion *otherRegion) const;
+	/// Returns a list of new regions that are the result of subtracting the given region from this one. Returns empty list if subtraction not possible.
+	QList<AMScanAxisRegion*> subtract(AMScanAxisRegion *otherRegion) const;
+	/// Returns a list of new regions that are the result of dividing this region at the given point. Returns empty list if division not possible.
+	QList<AMScanAxisRegion*> divide(const AMNumber &dividePoint) const;
 
 signals:
 	/// Notifier that the start value has changed.
@@ -120,20 +138,28 @@ public slots:
 	/// Attempts to merge the given region into this one. Returns true if successful, false otherwise.
 	bool merge(AMScanAxisRegion *otherRegion);
 
-protected slots:
-	/// Returns true if the result of merging region and otherRegion should be ascending.
-	bool mergeAscending(AMScanAxisRegion *region, AMScanAxisRegion *otherRegion);
-	/// Returns true if the result of merging region and otherRegion should be descending.
-	bool mergeDescending(AMScanAxisRegion *region, AMScanAxisRegion *otherRegion);
+	/// Attempts to make this region adjacent to the given region. Returns true if successful, false otherwise.
+	bool makeAdjacentTo(AMScanAxisRegion *otherRegion);
 
-	/// Returns the suggested start value for the region made by merging region and otherRegion.
-	AMNumber mergeStart(AMScanAxisRegion *region, AMScanAxisRegion *otherRegion);
-	/// Returns the suggested step value for the region made by merging region and otherRegion.
-	AMNumber mergeStep(AMScanAxisRegion *region, AMScanAxisRegion *otherRegion);
-	/// Returns the suggested end value for the region made by merging region and otherRegion.
-	AMNumber mergeEnd(AMScanAxisRegion *region, AMScanAxisRegion *otherRegion);
-	/// Returns the suggested time value for the region made by merging region and otherRegion.
-	AMNumber mergeTime(AMScanAxisRegion *region, AMScanAxisRegion *otherRegion);
+protected slots:
+	/// Returns the suggested start value for the region made by merging this region and otherRegion.
+	AMNumber mergeStart(AMScanAxisRegion *otherRegion) const;
+	/// Returns the suggested step value for the region made by merging this region and otherRegion.
+	AMNumber mergeStep(AMScanAxisRegion *otherRegion) const;
+	/// Returns the suggested end value for the region made by merging this region and otherRegion.
+	AMNumber mergeEnd(AMScanAxisRegion *otherRegion) const;
+	/// Returns the suggested time value for the region made by merging this region and otherRegion.
+	AMNumber mergeTime(AMScanAxisRegion *otherRegion) const;
+
+	/// Returns the intersection start for the intersection between this region and otherRegion.
+	AMNumber intersectionStart(AMScanAxisRegion *otherRegion) const;
+	/// Returns the intersection end for the intersection between this region and otherRegion.
+	AMNumber intersectionEnd(AMScanAxisRegion *otherRegion) const;
+
+	/// Returns the suggested start value to make this region adjacent to otherRegion.
+	AMNumber makeAdjacentStart(AMScanAxisRegion *otherRegion) const;
+	/// Returns the suggested end value to make this region adjacent to otherRegion.
+	AMNumber makeAdjacentEnd(AMScanAxisRegion *otherRegion) const;
 
 protected:
 	/// Holds the start of the region
