@@ -15,7 +15,6 @@
 #include <QSpinBox>
 #include <QMenu>
 #include <QStringBuilder>
-#include <QApplication>
 
 IDEAS2DScanConfigurationView::IDEAS2DScanConfigurationView(IDEAS2DScanConfiguration *configuration, QWidget *parent)
 	: AMScanConfigurationView(parent)
