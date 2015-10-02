@@ -195,6 +195,24 @@ bool AMScanAxisRegion::contains(AMScanAxisRegion *otherRegion) const
 	return result;
 }
 
+bool AMScanAxisRegion::sameStep(AMScanAxisRegion *otherRegion) const
+{
+	bool result = (otherRegion && (double(regionStep()) == double(otherRegion->regionStep())));
+	return result;
+}
+
+bool AMScanAxisRegion::sameTime(AMScanAxisRegion *otherRegion) const
+{
+	bool result = (otherRegion && (double(regionTime()) == double(otherRegion->regionTime())));
+	return result;
+}
+
+bool AMScanAxisRegion::sameDirection(AMScanAxisRegion *otherRegion) const
+{
+	bool result = (otherRegion && ((ascending() && otherRegion->ascending()) || (descending() && otherRegion->descending())));
+	return result;
+}
+
 bool AMScanAxisRegion::canMerge(AMScanAxisRegion *otherRegion) const
 {
 	// We consider merges only if both regions are valid, for now.

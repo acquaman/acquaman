@@ -82,6 +82,12 @@ public:
 	bool containedBy(AMScanAxisRegion *otherRegion) const;
 	/// Returns true if this region completely contains the given region, false otherwise.
 	bool contains(AMScanAxisRegion *otherRegion) const;
+	/// Returns true if this region has the same step size as the given region, false otherwise.
+	bool sameStep(AMScanAxisRegion *otherRegion) const;
+	/// Returns true if this region has the same dwell time as the given region, false otherwise.
+	bool sameTime(AMScanAxisRegion *otherRegion) const;
+	/// Returns true if this region is ascending/descending the same way as the given region, false otherwise.
+	bool sameDirection(AMScanAxisRegion *region, AMScanAxisRegion *otherRegion) const;
 
 	/// Returns true if the given region can be merged together into this one, false otherwise.
 	bool canMerge(AMScanAxisRegion *otherRegion) const;
