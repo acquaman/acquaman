@@ -52,7 +52,7 @@ AMNumber AMAdditionAB::value(const AMnDIndex &indexes) const
 
 bool AMAdditionAB::values(const AMnDIndex &indexStart, const AMnDIndex &indexEnd, double *outputValues) const
 {
-	if(indexStart.rank() != 3 || indexEnd.rank() != 3)
+	if(indexStart.rank() != rank() || indexEnd.rank() != rank())
 		return false;
 
 	if(!isValid())
@@ -190,7 +190,7 @@ void AMAdditionAB::reviewState()
 
 	for (int i = 0, size = firstSize.rank(); i < size; i++)
 		foreach (AMDataSource *dataSource, sources_)
-			if((unsigned)firstSize.at(i) >= (unsigned)dataSource->size(i)){
+			if(firstSize.at(i) != dataSource->size(i)){
 
 				setState(AMDataSource::InvalidFlag);
 				return;

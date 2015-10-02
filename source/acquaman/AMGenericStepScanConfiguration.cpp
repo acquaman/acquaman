@@ -285,3 +285,18 @@ void AMGenericStepScanConfiguration::dbLoadRegionsOfInterest(const AMDbObjectLis
 			regionsOfInterest_.append(region);
 	}
 }
+
+QString AMGenericStepScanConfiguration::regionsOfInterestHeaderString(const QList<AMRegionOfInterest *> &regions) const
+{
+	QString string = "";
+
+	if (!regions.isEmpty()){
+
+		string.append("\nRegions Of Interest\n");
+
+		foreach (AMRegionOfInterest *region, regions)
+			string.append(QString("%1\t%2 eV\t%3 eV\n").arg(region->name()).arg(region->lowerBound()).arg(region->upperBound()));
+	}
+
+	return string;
+}

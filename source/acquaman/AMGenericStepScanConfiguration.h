@@ -94,7 +94,9 @@ protected:
 	/// Called by the dtabase system on loadFromDb() to give us our new list of AMRegionOfInterest.
 	void dbLoadRegionsOfInterest(const AMDbObjectList &newRegions);
 
-protected:
+	/// Returns a string that displays all the regions of interest.
+	QString regionsOfInterestHeaderString(const QList<AMRegionOfInterest *> &regions) const;
+
 	/// Holds the total time in seconds that the scan is estimated to take.
 	double totalTime_;
 	/// The list of the regions of interest.
