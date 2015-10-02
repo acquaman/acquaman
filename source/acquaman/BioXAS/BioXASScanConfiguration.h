@@ -32,8 +32,6 @@ public:
 	double energy() const { return dbObject_->energy(); }
 	/// Returns the edge.
 	QString edge() const { return dbObject_->edge(); }
-	/// Returns the list of regions of interest.
-	QList<AMRegionOfInterest *> regionsOfInterest() const { return dbObject_->regionsOfInterest(); }
 	/// Returns a string representation of the scan configuration.
 	virtual QString toString() const;
 
@@ -44,10 +42,6 @@ public:
 	void setEnergy(double newEnergy) { dbObject_->setEnergy(newEnergy); }
 	/// Sets the edge.
 	void setEdge(const QString &newEdge) { dbObject_->setEdge(newEdge); }
-	/// Adds a region of interest to the list.
-	void addRegionOfInterest(AMRegionOfInterest *region) { dbObject_->addRegionOfInterest(region); }
-	/// Removes a region of interest from the list.
-	void removeRegionOfInterest(AMRegionOfInterest *region) { dbObject_->removeRegionOfInterest(region); }
 
 protected:
 	/// The database reading member function.
@@ -62,8 +56,6 @@ protected:
 	virtual QString headerText() const = 0;
 	/// This function does nothing.  It is there to preserve the fact that the database needs to be able to read and write.
 	void setHeaderText(QString) {}
-	/// Returns a string that displays all the regions of interest.
-	QString regionsOfInterestHeaderString(const QList<AMRegionOfInterest *> &regions) const;
 
 	/////////////////////////////////////////////
 
