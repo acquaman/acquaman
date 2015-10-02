@@ -74,7 +74,7 @@ public:
 	/// Returns true if this region is descending, false otherwise.
 	bool descending() const;
 
-	/// Returns true if this region shares a region limit with the given region, false otherwise.
+	/// Returns true if this region doesn't overlap with otherRegion, but does share a region limit. False otherwise.
 	bool adjacentTo(AMScanAxisRegion *otherRegion) const;
 	/// Returns true if this region overlaps with the given region, false otherwise.
 	bool intersects(AMScanAxisRegion *otherRegion) const;
@@ -82,6 +82,9 @@ public:
 	bool containedBy(AMScanAxisRegion *otherRegion) const;
 	/// Returns true if this region completely contains the given region, false otherwise.
 	bool contains(AMScanAxisRegion *otherRegion) const;
+
+	/// Returns true if the given region can be merged together into this one, false otherwise.
+	bool canMerge(AMScanAxisRegion *otherRegion) const;
 
 signals:
 	/// Notifier that the start value has changed.
@@ -107,6 +110,24 @@ public slots:
 	void setAscending();
 	/// Updates this region's start and end positions and step size such that it is descending.
 	void setDescending();
+
+	/// Attempts to merge the given region into this one. Returns true if successful, false otherwise.
+	bool merge(AMScanAxisRegion *otherRegion);
+
+protected slots:
+	/// Returns true if the result of merging region and otherRegion should be ascending.
+	bool mergeAscending(AMScanAxisRegion *region, AMScanAxisRegion *otherRegion);
+	/// Returns true if the result of merging region and otherRegion should be descending.
+	bool mergeDescending(AMScanAxisRegion *region, AMScanAxisRegion *otherRegion);
+
+	/// Returns the suggested start value for the region made by merging region and otherRegion.
+	AMNumber mergeStart(AMScanAxisRegion *region, AMScanAxisRegion *otherRegion);
+	/// Returns the suggested step value for the region made by merging region and otherRegion.
+	AMNumber mergeStep(AMScanAxisRegion *region, AMScanAxisRegion *otherRegion);
+	/// Returns the suggested end value for the region made by merging region and otherRegion.
+	AMNumber mergeEnd(AMScanAxisRegion *region, AMScanAxisRegion *otherRegion);
+	/// Returns the suggested time value for the region made by merging region and otherRegion.
+	AMNumber mergeTime(AMScanAxisRegion *region, AMScanAxisRegion *otherRegion);
 
 protected:
 	/// Holds the start of the region
