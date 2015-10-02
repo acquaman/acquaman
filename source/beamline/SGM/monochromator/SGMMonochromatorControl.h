@@ -23,7 +23,42 @@ public:
      */
     explicit SGMMonochromatorControl(QObject *parent = 0);
 
+    /*!
+     * Whether the undulator is currently tracking the energy of the monochromator
+     * in order to produce optimal flux.
+     */
+    bool isUndulatorTracking() const;
+
+    /*!
+     * Sets the tracking state of the undulator.
+     * \param isTracking ~ Whether the undulator is to track the energy as it moves.
+     */
+    void setUndulatorTracking(bool isTracking);
+
+    /*!
+     * Whether the exit slit is currently tracking the energy of the monochromator
+     * in order to produce optimal flux.
+     */
+    bool isExitSlitTracking() const;
+
+    /*!
+     * Sets the tracking state of the exit slit.
+     * \param isTracking ~ Whether the exit slit is to track the energy as it moves.
+     */
+    void setExitSlitTracking(bool isTracking);
 signals:
+
+    /*!
+     * Signal indicating a change in state of the undulator tracking.
+     * \param isTracking ~ The new tracking state of the undulator.
+     */
+    void undulatorTrackingChanged(bool isTracking);
+
+    /*!
+     * Signal indicating a change in state of the exit slit tracking.
+     * \param isTracking ~ The new tracking state of the exit slit.
+     */
+    void exitSlitTrackingChanged(bool isTracking);
 
 public slots:
 
@@ -32,10 +67,8 @@ protected slots:
     void onMonoInfoGratingAngleChanged(double gratingAngle);
     void onMonoInfoGratingTranslationChanged(SGMGratingSupport::GratingTranslation gratingTranslation);
     void onMonoInfoUndulatorHamonicChanged(SGMUndulatorSupport::UndulatorHarmonic undulatorHarmonic);
-    void onMonoInfoUndulatorTrackingChanged(bool isTracking);
     void onMonoInfoUndulatorPositionChanged(double undulatorPosition);
     void onMonoInfoUndulatorOffsetChanged(double undulatorOffset);
-    void onMonoInfoExitSlitTrackingChanged(bool exitSlitTracking);
     void onMonoInfoExitSlitPositionChanged(double exitSlitPosition);
 
     // Connectiong mono info energy readout to our pseudo motor value()
@@ -45,10 +78,8 @@ protected slots:
     void onGratingAnglePVValueChanged(double value);
     void onGratingTranslationPVValueChanged(double value);
     void onUndulatorHarmonicPVValueChanged(double value);
-    void onUndulatorTrackingPVValueChanged(double value);
     void onUndulatorPositionPVValueChanged(double value);
     void onUndulatorOffsetPVValueChanged(double value);
-    void onExitSlitTrackingPVValueChanged(double value);
     void onExitSlitPositionPVValueChanged(double value);
 
 
@@ -83,17 +114,15 @@ protected:
      */
     void initializeMonoInfoController();
 
-    /// Mono info controller performs all the calculations, and coordination.
+    /// Mono info controller which performs all the calculations, and coordination.
     SGMMonochromatorInfo* monoInfoController_;
 
     /// PVs for the mono components.
     AMControl* gratingAnglePV_;
     AMControl* gratingTranslationPV_;
     AMControl* undulatorHarmonicPV_;
-    AMControl* undulatorTrackingPV_;
     AMControl* undulatorPositionPV_;
     AMControl* undulatorOffsetPV_;
-    AMControl* exitSlitTrackingPV_;
     AMControl* exitSlitPositionPV_;
 };
 
