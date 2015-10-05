@@ -162,6 +162,8 @@ protected:
 	bool canMakeRegionsAdjacent(AMScanAxisRegion *region, AMScanAxisRegion *otherRegion) const;
 	/// Returns true if the two regions can be made simpler by eliminating overlap.
 	bool canSimplifyIntersection(AMScanAxisRegion *region, AMScanAxisRegion *otherRegion) const;
+	/// Returns true if the given region has intersecting regions that can be simplified, false otherwise.
+	bool hasSimplifyIntersection(AMScanAxisRegion *region) const;
 	/// Returns true if the two regions intersect.
 	bool intersect(AMScanAxisRegion *region, AMScanAxisRegion *otherRegion) const;
 
@@ -183,7 +185,7 @@ protected:
 	/// Attempts to modify one or all regions such that any overlap with the given region is eliminated. Returns true if successful, false otherwise.
 	bool simplifyIntersections(AMScanAxisRegion *region);
 	/// Returns a list of regions for this scan axis that intersect with the given region.
-	QList<AMScanAxisRegion*> intersections(AMScanAxisRegion *region);
+	QList<AMScanAxisRegion*> intersections(AMScanAxisRegion *region) const;
 	/// Attempts to modify one or both regions such that any overlap is eliminated. Returns the resulting list of regions.
 	QList<AMScanAxisRegion*> simplifyIntersection(AMScanAxisRegion *region, AMScanAxisRegion *otherRegion);
 

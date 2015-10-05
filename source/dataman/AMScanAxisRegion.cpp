@@ -225,6 +225,12 @@ bool AMScanAxisRegion::sameStep(AMScanAxisRegion *otherRegion) const
 	return result;
 }
 
+bool AMScanAxisRegion::sameStepSize(AMScanAxisRegion *otherRegion) const
+{
+	bool result = (otherRegion && (fabs(double(regionStep())) == fabs(double(otherRegion->regionStep()))));
+	return result;
+}
+
 bool AMScanAxisRegion::sameTime(AMScanAxisRegion *otherRegion) const
 {
 	bool result = (otherRegion && (double(regionTime()) == double(otherRegion->regionTime())));

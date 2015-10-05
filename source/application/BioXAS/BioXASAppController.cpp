@@ -80,34 +80,62 @@ bool BioXASAppController::startup()
 
 	// AMScanAxis testing.
 
-	AMScanAxisRegion *region = new AMScanAxisRegion(AMNumber(-5), AMNumber(1), AMNumber(5), AMNumber(1), this);
+	qDebug() << "\n\n";
 
-	AMScanAxis *scanAxis = new AMScanAxis(AMScanAxis::StepAxis, region, this);
+	AMScanAxisRegion *region = new AMScanAxisRegion(AMNumber(5), AMNumber(-1), AMNumber(-5), AMNumber(0.5), this);
 
-	bool canMerge = scanAxis->canMerge(0);
+	qDebug() << region->toString();
 
-	if (canMerge)
-		qDebug() << "Scan axis can merge with null axis. (??)";
-	else
-		qDebug() << "Scan axis can't merge with null axis. :)";
+	QList<AMScanAxisRegion*> dividedRegion = region->divide(AMNumber(-1));
 
-	bool canSimplify = scanAxis->canSimplify();
+	qDebug() << "Divided region at -1:";
 
-	if (canSimplify)
-		qDebug() << "Scan axis with one region can be simplified. (??)";
-	else
-		qDebug() << "Scan axis with one region can't be simplified. :)";
+	foreach (AMScanAxisRegion *r, dividedRegion)
+		qDebug() << r->toString();
 
-	AMScanAxisRegion *otherRegion = new AMScanAxisRegion(AMNumber(10), AMNumber(-1), AMNumber(-10), AMNumber(1), this);
+	qDebug() << "\n";
 
-	scanAxis->insertRegion(1, otherRegion);
+	AMScanAxisRegion *otherRegion = new AMScanAxisRegion(AMNumber(-3), AMNumber(0.5), AMNumber(3), AMNumber(1), this);
 
-	canSimplify = scanAxis->canSimplify();
+	qDebug() << otherRegion->toString();
 
-	if (canSimplify)
-		qDebug() << "Scan axis with two overlapping regions can be simplified. :)";
-	else
-		qDebug() << "Scan axis with two overlapping regions can't be simplified. (??)";
+	qDebug() << "Merging first region into second.";
+
+	otherRegion->merge(region);
+	qDebug() << otherRegion->toString();
+
+//	AMScanAxis *scanAxis = new AMScanAxis(AMScanAxis::StepAxis, region, this);
+//	qDebug() << scanAxis->toString();
+
+//	bool canMerge = scanAxis->canMerge(0);
+
+//	if (canMerge)
+//		qDebug() << "Scan axis can merge with null axis. (??)";
+//	else
+//		qDebug() << "Scan axis can't merge with null axis. :)";
+
+//	bool canSimplify = scanAxis->canSimplify();
+
+//	if (canSimplify)
+//		qDebug() << "Scan axis with one region can be simplified. (??)";
+//	else
+//		qDebug() << "Scan axis with one region can't be simplified. :)";
+
+//	scanAxis->insertRegion(1, otherRegion);
+
+//	qDebug() << scanAxis->toString();
+
+//	if (scanAxis->canSimplifyIntersectingRegions())
+//		qDebug() << "Scan axis with two overlapping regions can be simplified. :)";
+//	else
+//		qDebug() << "Scan axis with two overlapping regions can't be simplified. (??)";
+
+//	scanAxis->simplify();
+
+//	qDebug() << "Result:";
+//	qDebug() << scanAxis->toString();
+
+	qDebug() << "\n\n";
 
 	return result;
 }

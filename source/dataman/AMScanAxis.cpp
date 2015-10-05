@@ -21,6 +21,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMScanAxis.h"
 #include <math.h>
+#include <QDebug>
 
 AMScanAxis::~AMScanAxis(){}
 
@@ -131,9 +132,19 @@ double AMScanAxis::timePerAxis() const
 QString AMScanAxis::toString(const QString &units) const
 {
 	QString string = "";
+	QList<AMScanAxisRegion*> regions = regions_.toList();
 
-	foreach (AMScanAxisRegion *region, regions_.toList())
-		string.append(region->toString(units));
+	for (int i = 0, count = regions.count(); i < count; i++) {
+		AMScanAxisRegion *region = regions.at(i);
+
+		if (region)
+			string.append(region->toString(units));
+		else
+			string.append("--- null region ---");
+
+		if (i != count - 1)
+			string.append("\n");
+	}
 
 	return string;
 }
@@ -581,9 +592,45 @@ bool AMScanAxis::canSimplifyIntersection(AMScanAxisRegion *region, AMScanAxisReg
 	return result;
 }
 
+bool AMScanAxis::hasSimplifyIntersection(AMScanAxisRegion *region) const
+{
+	bool result = false;
+
+	if (region) {
+
+		// Identify intersecting regions.
+
+		QList<AMScanAxisRegion*> intersectingRegions = intersections(region);
+
+		if (!intersectingRegions.isEmpty()) {
+
+			// Identify at least one intersection that can be simplified.
+
+			bool simplificationFound = false;
+
+			for (int i = 0, count = intersectingRegions.count(); i < count && !simplificationFound; i++) {
+				AMScanAxisRegion *intersectingRegion = intersectingRegions.at(i);
+
+				if (canSimplifyIntersection(region, intersectingRegion))
+					simplificationFound = true;
+			}
+
+			result = simplificationFound;
+		}
+	}
+
+	return result;
+}
+
 bool AMScanAxis::intersect(AMScanAxisRegion *region, AMScanAxisRegion *otherRegion) const
 {
 	bool result = (region && otherRegion && region->intersects(otherRegion) && otherRegion->intersects(region));
+
+	if (result)
+		qDebug() << "Regions" << regions_.toList().indexOf(region) << "and" << regions_.toList().indexOf(otherRegion) << "intersect.";
+	else
+		qDebug() << "Regions do not intersect.";
+
 	return result;
 }
 
@@ -711,13 +758,23 @@ bool AMScanAxis::simplifyIntersectingRegions()
 {
 	bool result = false;
 
-	if (canSimplifyIntersectingRegions()) {
-		bool simplified = true;
+	while (canSimplifyIntersectingRegions()) {
 
-		foreach (AMScanAxisRegion *region, regions_.toList())
-			simplified &= simplifyIntersections(region);
+		// Identify a region with intersections that can be simplified.
 
-		result = simplified;
+		AMScanAxisRegion *toSimplify = 0;
+
+		for (int i = 0, count = regions_.count(); i < count && !toSimplify; i++) {
+			AMScanAxisRegion *region = regions_.at(i);
+
+			if (region && hasSimplifyIntersection(region))
+				toSimplify = region;
+		}
+
+		// Apply simplifications to that region.
+
+		if (toSimplify)
+			simplifyIntersections(toSimplify);
 	}
 
 	return result;
@@ -725,57 +782,68 @@ bool AMScanAxis::simplifyIntersectingRegions()
 
 bool AMScanAxis::simplifyIntersections(AMScanAxisRegion *region)
 {
+	bool result = true;	// if there are no intersections, we should succeed.
+
 	QList<AMScanAxisRegion*> regions = regions_.toList();
+	qDebug() << "Simplifying intersections for region" << regions.indexOf(region);
+
 	QList<AMScanAxisRegion*> intersectingRegions = intersections(region);
-	bool canSimplify = true;
 
-	while (!intersectingRegions.isEmpty() && canSimplify) {
+	if (!intersectingRegions.isEmpty()) {
 
-		// Identify the first intersecting region.
+		for (int i = 0, count = intersectingRegions.count(); i < count; i++) {
 
-		AMScanAxisRegion *firstRegion = intersectingRegions.first();
+			// Identify the intersecting region.
 
-		// Figure out if a simplification can be applied.
+			AMScanAxisRegion *intersectingRegion = intersectingRegions.first();
 
-		canSimplify = canSimplifyIntersection(region, firstRegion);
+			// Figure out if a simplification can be applied.
 
-		if (canSimplify) {
+			if (canSimplifyIntersection(region, intersectingRegion)) {
 
-			// Remove region and the intersecting region from the list of scan axis regions.
+				qDebug() << "Can simplify intersection.";
 
-			regions.removeOne(region);
-			regions.removeOne(firstRegion);
+				// Remove region and the intersecting region from the list of scan axis regions.
 
-			// Apply intersection simplification.
+				regions_.remove(regions.indexOf(region));
+				regions_.remove(regions.indexOf(intersectingRegion));
 
-			QList<AMScanAxisRegion*> results = simplifyIntersection(region, firstRegion);
+				// Apply intersection simplification.
 
-			// Add results to the list of scan axis regions.
+				QList<AMScanAxisRegion*> results = simplifyIntersection(region, intersectingRegion);
 
-			foreach (AMScanAxisRegion *result, results)
-				regions_.append(result);
+				// Add results to the list of scan axis regions.
 
-			// Update the list of intersecting regions.
+				foreach (AMScanAxisRegion *result, results)
+					regions_.append(result);
 
-			intersectingRegions = intersections(region);
+				result &= true;
+
+			} else {
+				result = false;
+			}
 		}
 	}
 
-	return canSimplify;
+	return result;
 }
 
-QList<AMScanAxisRegion*> AMScanAxis::intersections(AMScanAxisRegion *region)
+QList<AMScanAxisRegion*> AMScanAxis::intersections(AMScanAxisRegion *region) const
 {
 	QList<AMScanAxisRegion*> results;
 	QList<AMScanAxisRegion*> regions = regions_.toList();
+
+	qDebug() << "Intersections for region" << regions.indexOf(region);
 
 	if (!regions.isEmpty() && region) {
 
 		for (int i = 0, count = regions.count(); i < count; i++) {
 			AMScanAxisRegion *otherRegion = regions.at(i);
 
-			if (region != otherRegion && intersect(region, otherRegion))
+			if (region != otherRegion && intersect(region, otherRegion)) {
 				results.append(otherRegion);
+				qDebug() << otherRegion->toString();
+			}
 		}
 	}
 
@@ -788,17 +856,22 @@ QList<AMScanAxisRegion*> AMScanAxis::simplifyIntersection(AMScanAxisRegion *regi
 
 	if (canSimplifyIntersection(region, otherRegion)) {
 
-		if (region->regionStep() == otherRegion->regionStep()) {
-			if (region->regionTime() == otherRegion->regionTime()) {
+		bool sameStepSize = region->sameStepSize(otherRegion);
+		bool sameTime = region->sameTime(otherRegion);
+		bool canMerge = canMergeRegions(region, otherRegion);
+		bool canMakeAdjacent = canMakeRegionsAdjacent(region, otherRegion);
 
-				if (canMakeRegionsAdjacent(region, otherRegion)) {
+		if (sameStepSize) {
+			if (sameTime) {
+
+				if (canMakeAdjacent) {
 					// If the step size and the dwell time are the same for both regions, arbitrarily select
 					// which one will move to accomodate the other.
 
 					otherRegion->makeAdjacentTo(region);
 					result << region << otherRegion;
 
-				} else if (canMergeRegions(region, otherRegion)) {
+				} else if (canMerge) {
 					// If the two regions can't become adjacent, it's because one is nested inside the other.
 					// The regions can be merged, in this instance.
 
@@ -809,7 +882,7 @@ QList<AMScanAxisRegion*> AMScanAxis::simplifyIntersection(AMScanAxisRegion *regi
 
 			} else {
 
-				if (canMakeRegionsAdjacent(region, otherRegion)) {
+				if (canMakeAdjacent) {
 					// If the step size is the same but the dwell time isn't, the one with the shorter dwell time
 					// will move to accomodate the one with the longer dwell time.
 
@@ -820,7 +893,7 @@ QList<AMScanAxisRegion*> AMScanAxis::simplifyIntersection(AMScanAxisRegion *regi
 
 					result << region << otherRegion;
 
-				} else if (canMergeRegions(region, otherRegion)) {
+				} else if (canMerge) {
 					// If the two regions can't become adjacent, it's because one is nested inside the other.
 					// The regions can be merged, in this instance.
 
@@ -831,9 +904,9 @@ QList<AMScanAxisRegion*> AMScanAxis::simplifyIntersection(AMScanAxisRegion *regi
 
 		} else {
 
-			if (region->regionTime() == otherRegion->regionTime()) {
+			if (sameTime) {
 
-				if (canMakeRegionsAdjacent(region, otherRegion)) {
+				if (canMakeAdjacent) {
 					// If the step size is different and the dwell time is the same, the region with the larger
 					// step size will move to accomodate the one with the smaller step size.
 
@@ -844,7 +917,7 @@ QList<AMScanAxisRegion*> AMScanAxis::simplifyIntersection(AMScanAxisRegion *regi
 
 					result << region << otherRegion;
 
-				} else if (canMergeRegions(region, otherRegion)) {
+				} else if (canMerge) {
 					// If the two regions can't become adjacent, it's because one is nested inside the other.
 					// The regions can be merged, in this instance.
 
@@ -854,7 +927,7 @@ QList<AMScanAxisRegion*> AMScanAxis::simplifyIntersection(AMScanAxisRegion *regi
 
 			} else {
 
-				if (canMakeRegionsAdjacent(region, otherRegion)) {
+				if (canMakeAdjacent) {
 					// If the step size and the dwell time are different, a third region is generated to
 					// act as a bridge between the two and the two shift to become adjacent to it.
 
@@ -893,7 +966,7 @@ QList<AMScanAxisRegion*> AMScanAxis::simplifyIntersection(AMScanAxisRegion *regi
 						result << region << regionIntersection << otherRegion;
 					}
 
-				} else if (!canMergeRegions(region, otherRegion)) {
+				} else if (!canMerge) {
 					// If the two regions can't become adjacent or be merged, it's because one is nested inside
 					// the other, but they have different step and time. The containing region is broken up into
 					// fragments that flank the contained region.
