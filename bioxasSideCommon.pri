@@ -19,8 +19,7 @@ HEADERS += \
 	source/beamline/BioXAS/BioXASSideM2MirrorBendControl.h \
     source/beamline/BioXAS/BioXASSideDBHRMirrors.h \
     source/beamline/BioXAS/BioXASSideBeamlineUtilities.h \
-    source/beamline/BioXAS/BioXASSideCryostatStage.h \
-    source/beamline/BioXAS/BioXASSideShutters.h
+    source/beamline/BioXAS/BioXASSideCryostatStage.h
 
 SOURCES += \
     source/application/BioXAS/BioXASSideAppController.cpp \
@@ -36,8 +35,9 @@ SOURCES += \
 	source/beamline/BioXAS/BioXASSideM2MirrorBendControl.cpp \
     source/beamline/BioXAS/BioXASSideDBHRMirrors.cpp \
     source/beamline/BioXAS/BioXASSideBeamlineUtilities.cpp \
-    source/beamline/BioXAS/BioXASSideCryostatStage.cpp \
-    source/beamline/BioXAS/BioXASSideShutters.cpp
+    source/beamline/BioXAS/BioXASSideCryostatStage.cpp
+
+
 
 
 
