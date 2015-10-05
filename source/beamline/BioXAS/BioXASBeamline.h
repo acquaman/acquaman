@@ -61,11 +61,6 @@ public:
 	/// Returns the (cached) current connected state.
 	virtual bool connected() const { return connected_; }
 
-	/// Returns the current 'beam off' state, true if all front end photon and safety shutters are closed. False otherwise.
-	virtual bool beamOff() const;
-	/// Returns the current 'beam on' state, true if the front end photon and safety shutters are open. False otherwise.
-	virtual bool beamOn() const;
-
 	/// Returns the shutters.
 	virtual BioXASShutters* shutters() const { return 0; }
 	/// Returns the m1 mirror.

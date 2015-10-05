@@ -9,7 +9,7 @@ class BioXASSideShutters : public BioXASShutters
 
 public:
 	/// Constructor.
-	explicit BioXASSideShutters(const QString &name, QObject *parent = 0);
+	explicit BioXASSideShutters(QObject *parent = 0);
 	/// Destructor.
 	virtual ~BioXASSideShutters();
 
@@ -25,7 +25,7 @@ public:
 
 protected:
 	/// The Side endstation safety shutter.
-	AMReadOnlyPVControl *safetyShutterSide_;
+	CLSBiStateControl *safetyShutterSide_;
 	/// The Main endstation safety shutter.
 	AMReadOnlyPVControl *safetyShutterMain_;
 	/// The Imaging endstation safety shutter.
