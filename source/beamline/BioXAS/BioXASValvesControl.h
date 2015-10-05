@@ -29,6 +29,11 @@ public:
 	/// Returns true if this control can move right now.
 	virtual bool canMove() const;
 
+	/// Returns true if the given value is a valid value for this control. False otherwise.
+	virtual bool validValue(double value) const;
+	/// Returns true if the given value is a valid setpoint for this control. False otherwise.
+	virtual bool validSetpoint(double value) const;
+
 	/// Returns the valve set for the named beamline.
 	AMControlSet* valveSet(BioXAS::Beamline beamline);
 	/// Returns the front-end valve set.
@@ -83,6 +88,12 @@ protected slots:
 	void setValveSet(AMControlSet *toSet, AMControlSet *desiredControls);
 
 protected:
+	/// Creates and returns a move action to the given setpoint.
+	virtual AMAction3* createMoveAction(double setpoint);
+
+	/// Creates and returns an action that opens the valves in the given control set.
+	AMAction3* createOpenValvesAction(AMControlSet *valves);
+
 	/// Adds all valves in the valve set as children of this control.
 	void addChildren(AMControlSet *valveSet);
 	/// Removes all valves in the valves set from the children of this control.
@@ -92,9 +103,9 @@ protected:
 	bool addValveToSet(AMControlSet *controlSet, AMControl *valveControl);
 
 	/// Returns true if all of the valves in the given set are open, false otherwise.
-	bool valvesOpen(AMControlSet *valveSet);
+	bool valvesOpen(AMControlSet *valveSet) const;
 	/// Returns true if all of the valves in the given set are closed, false otherwise.
-	bool valvesClosed(AMControlSet *valveSet);
+	bool valvesClosed(AMControlSet *valveSet) const;
 
 protected:
 	/// The set of front-end valve controls.

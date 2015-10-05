@@ -11,7 +11,7 @@ class BioXASValves : public BioXASBeamlineComponent
 
 public:
 	/// Constructor.
-	explicit BioXASValves(const QString &name, QObject *parent = 0);
+	explicit BioXASValves(QObject *parent = 0);
 	/// Destructor.
 	virtual ~BioXASValves();
 

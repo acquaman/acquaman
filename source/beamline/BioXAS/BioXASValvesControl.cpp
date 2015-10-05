@@ -1,4 +1,6 @@
 #include "BioXASValvesControl.h"
+#include "actions3/AMListAction3.h"
+#include "actions3/AMActionSupport.h"
 
 BioXASValvesControl::BioXASValvesControl(const QString &name, QObject *parent) :
 	AMPseudoMotorControl(name, "", parent)
@@ -40,6 +42,40 @@ bool BioXASValvesControl::canMeasure() const
 bool BioXASValvesControl::canMove() const
 {
 	return false;
+}
+
+bool BioXASValvesControl::validValue(double value) const
+{
+	bool result = false;
+
+	switch (int(value)) {
+	case None:
+		result = true;
+		break;
+	case Open:
+		result = true;
+		break;
+	case Closed:
+		result = true;
+		break;
+	default:
+		break;
+	}
+
+	return result;
+}
+
+bool BioXASValvesControl::validSetpoint(double value) const
+{
+	bool result = false;
+
+	// Only want to be able to use this control to view current
+	// state, and to open valves (not close them).
+
+	if (value == BioXASValvesControl::Open)
+		result = true;
+
+	return result;
 }
 
 AMControlSet* BioXASValvesControl::valveSet(BioXAS::Beamline beamline)
@@ -263,17 +299,54 @@ void BioXASValvesControl::setValveSet(AMControlSet *toSet, AMControlSet *desired
 			toSet = 0;
 		}
 
-		toSet = valveSet;
+		toSet = desiredControls;
 
 		if (toSet)
 			addChildren(toSet);
 	}
 }
 
+AMAction3* BioXASValvesControl::createMoveAction(double setpoint)
+{
+	AMAction3 *result = 0;
+
+	if (setpoint == Open) {
+		AMListAction3 *actionList = new AMListAction3(new AMListActionInfo3("Opening all BioXAS valves", "Opening all BioXAS valves"), AMListAction3::Parallel);
+		actionList->addSubAction(createOpenValvesAction(frontEndValveSet_));
+		actionList->addSubAction(createOpenValvesAction(sideValveSet_));
+		actionList->addSubAction(createOpenValvesAction(mainValveSet_));
+		actionList->addSubAction(createOpenValvesAction(imagingValveSet_));
+
+		result = actionList;
+	}
+
+	return result;
+}
+
+AMAction3* BioXASValvesControl::createOpenValvesAction(AMControlSet *valves)
+{
+	AMAction3 *result = 0;
+
+	if (valves && !valves->isEmpty()) {
+		AMListAction3 *actionList = new AMListAction3(new AMListActionInfo3("Open valves", "Open valves"), AMListAction3::Parallel);
+
+		foreach (AMControl *control, valves->toList()) {
+			CLSBiStateControl *valve = qobject_cast<CLSBiStateControl*>(control);
+
+			if (valve)
+				actionList->addSubAction(AMActionSupport::buildControlMoveAction(valve, CLSBiStateControl::Open));
+		}
+
+		result = actionList;
+	}
+
+	return result;
+}
+
 void BioXASValvesControl::addChildren(AMControlSet *valveSet)
 {
 	if (valveSet) {
-		foreach (AMControl *valve, valveSet)
+		foreach (AMControl *valve, valveSet->toList())
 			addChildControl(valve);
 	}
 }
@@ -281,7 +354,7 @@ void BioXASValvesControl::addChildren(AMControlSet *valveSet)
 void BioXASValvesControl::removeChildren(AMControlSet *valveSet)
 {
 	if (valveSet) {
-		foreach (AMControl *valve, valveSet)
+		foreach (AMControl *valve, valveSet->toList())
 			removeChildControl(valve);
 	}
 }
@@ -301,7 +374,7 @@ bool BioXASValvesControl::addValveToSet(AMControlSet *controlSet, AMControl *val
 	return result;
 }
 
-bool BioXASValvesControl::valvesOpen(AMControlSet *valveSet)
+bool BioXASValvesControl::valvesOpen(AMControlSet *valveSet) const
 {
 	bool result = false;
 
@@ -324,7 +397,7 @@ bool BioXASValvesControl::valvesOpen(AMControlSet *valveSet)
 	return result;
 }
 
-bool BioXASValvesControl::valvesClosed(AMControlSet *valveSet)
+bool BioXASValvesControl::valvesClosed(AMControlSet *valveSet) const
 {
 	bool result = false;
 

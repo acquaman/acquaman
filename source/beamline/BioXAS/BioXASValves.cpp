@@ -1,7 +1,7 @@
 #include "BioXASValves.h"
 
 BioXASValves::BioXASValves(QObject *parent) :
-    BioXASBeamlineComponent(parent)
+	BioXASBeamlineComponent("BioXASValves", parent)
 {
 	// Create valves control.
 
