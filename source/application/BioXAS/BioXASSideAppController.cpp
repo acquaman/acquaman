@@ -69,6 +69,31 @@ void BioXASSideAppController::setupUserInterface()
 	mw_->setWindowTitle("Acquaman - BioXAS Side");
 
 	addPersistentView(new BioXASSidePersistentView());
+
+	// Testing for AMControl::hasChildControl().
+
+	if (BioXASSideBeamline::bioXAS()->jjSlits()->verticalGapControl()->hasChildControl(0))
+		qDebug() << "\n\nThe JJ slit vertical gap has null child control. :(";
+	else
+		qDebug() << "\n\nThe JJ slit vertical gap does NOT have null child control. :)";
+
+
+	if (BioXASSideBeamline::bioXAS()->jjSlits()->verticalGapControl()->hasChildControl(BioXASSideBeamline::bioXAS()->jjSlits()->upperBladeControl()))
+		qDebug() << "\n\nThe JJ slit vertical gap has upper blade as child control. :)";
+	else
+		qDebug() << "\n\nThe JJ slit vertical gap does NOT have the upper blade as child control. :(";
+
+
+	if (BioXASSideBeamline::bioXAS()->jjSlits()->verticalGapControl()->hasChildControl(BioXASSideBeamline::bioXAS()->carbonFilterFarm()->filterControl()))
+		qDebug() << "\n\nThe JJ slit vertical gap control has the carbon filter farm control as a child. :(";
+	else
+		qDebug() << "\n\nThe JJ slit vertical gap control does NOT have the carbon filter farm control as child. :)";
+
+
+	if (BioXASSideBeamline::bioXAS()->carbonFilterFarm()->filterControl()->hasChildControl(BioXASSideBeamline::bioXAS()->carbonFilterFarm()->upstreamPositionControl()))
+		qDebug() <<  "\n\nThe carbon filter farm filter control has the upstream position control as a child. :)";
+	else
+		qDebug() << "\n\nThe carbon filter farm filter control does NOT have the upstream position control as a child. :(";
 }
 
 bool BioXASSideAppController::setupDataFolder()

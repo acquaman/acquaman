@@ -308,6 +308,8 @@ public:
 			return children_.at(index);
 		return NULL;
 	}
+	/// Returns true if this control has children and if one of them (or one of their children) matches the given control. Returns false otherwise.
+	bool hasChildControl(AMControl *control);
 	/// Add a subcontrol to the control group. Subclasses can reimplement this if they need to connect to the child's signals, etc.
 	virtual void addChildControl(AMControl* control) { children_ << control; }
 	//@}
