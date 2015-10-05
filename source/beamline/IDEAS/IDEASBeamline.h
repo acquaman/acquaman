@@ -40,7 +40,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/IDEAS/IDEASKETEKDetector.h"
 #include "beamline/IDEAS/IDEAS13ElementGeDetector.h"
 
-#include <QApplication>
 
 
 /// This class is the master class that holds EVERY control inside the VESPERS beamline.
