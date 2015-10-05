@@ -5,21 +5,21 @@ BioXASShutters::BioXASShutters(const QString &name, QObject *parent) :
 {
 	// Set up shutter controls.
 
-	photonShutterFEUpstream_ = new CLSBiStateControl("PhotonShutterFE1", "BioXAS front end photon shutter 1", "IPSH1407-I00-01:state", "IPSH1407-I00-01:opr:open", "IPSH1407-I00-01:opr:close", new AMControlStatusCheckerDefault(2), this);
-	connect( photonShutterFEUpstream_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+	photonShutterUpstream_ = new CLSBiStateControl("PhotonShutterFE1", "BioXAS front end photon shutter 1", "IPSH1407-I00-01:state", "IPSH1407-I00-01:opr:open", "IPSH1407-I00-01:opr:close", new AMControlStatusCheckerDefault(2), this);
+	connect( photonShutterUpstream_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
-	photonShutterFEDownstream_ = new CLSBiStateControl("PhotonShutterFE2", "BioXAS front end photon shutter 2", "IPSH1407-I00-02:state", "IPSH1407-I00-02:opr:open", "IPSH1407-I00-02:opr:close", new AMControlStatusCheckerDefault(2), this);
-	connect( photonShutterFEDownstream_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+	photonShutterDownstream_ = new CLSBiStateControl("PhotonShutterFE2", "BioXAS front end photon shutter 2", "IPSH1407-I00-02:state", "IPSH1407-I00-02:opr:open", "IPSH1407-I00-02:opr:close", new AMControlStatusCheckerDefault(2), this);
+	connect( photonShutterDownstream_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
-	safetyShutterFE_ = new CLSBiStateControl("SafetyShutterFE", "BioXAS front end safety shutter", "SSH1407-I00-01:state", "SSH1407-I00-01:opr:open", "SSH1407-I00-01:opr:close", new AMControlStatusCheckerDefault(2), this);
-	connect( safetyShutterFE_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+	safetyShutter_ = new CLSBiStateControl("SafetyShutterFE", "BioXAS front end safety shutter", "SSH1407-I00-01:state", "SSH1407-I00-01:opr:open", "SSH1407-I00-01:opr:close", new AMControlStatusCheckerDefault(2), this);
+	connect( safetyShutter_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
 	// Set up the shutters control.
 
 	shuttersControl_ = new BioXASShuttersControl("BioXASShuttersControl", this);
-	shuttersControl_->setPhotonShutterUpstreamFE(photonShutterFEUpstream_);
-	shuttersControl_->setPhotonShutterDownstreamFE(photonShutterFEDownstream_);
-	shuttersControl_->setSafetyShutterFE(safetyShutterFE_);
+	shuttersControl_->setPhotonShutterUpstream(photonShutterUpstream_);
+	shuttersControl_->setPhotonShutterDownstream(photonShutterDownstream_);
+	shuttersControl_->setSafetyShutter(safetyShutter_);
 }
 
 BioXASShutters::~BioXASShutters()
@@ -30,9 +30,9 @@ BioXASShutters::~BioXASShutters()
 bool BioXASShutters::isConnected() const
 {
 	bool connected = (
-				photonShutterFEUpstream_ && photonShutterFEUpstream_->isConnected() &&
-				photonShutterFEDownstream_ && photonShutterFEDownstream_->isConnected() &&
-				safetyShutterFE_ && safetyShutterFE_->isConnected() &&
+				photonShutterUpstream_ && photonShutterUpstream_->isConnected() &&
+				photonShutterDownstream_ && photonShutterDownstream_->isConnected() &&
+				safetyShutter_ && safetyShutter_->isConnected() &&
 				shuttersControl_ && shuttersControl_->isConnected()
 				);
 

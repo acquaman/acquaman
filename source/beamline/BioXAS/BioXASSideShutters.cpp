@@ -1,7 +1,7 @@
 #include "BioXASSideShutters.h"
 
 BioXASSideShutters::BioXASSideShutters(QObject *parent) :
-    BioXASShutters(parent)
+	BioXASShutters("SideShutters", parent)
 {
 	// Set up endstation shutters.
 

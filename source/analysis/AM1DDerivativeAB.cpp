@@ -22,6 +22,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "AM1DDerivativeAB.h"
 
 #include "analysis/AM1DBasicDerivativeABEditor.h"
+#include "util/AMUtility.h"
 
 AM1DDerivativeAB::~AM1DDerivativeAB(){}
 
@@ -31,7 +32,8 @@ AM1DDerivativeAB::AM1DDerivativeAB(const QString &outputName, QObject *parent)
 	inputSource_ = 0;
 	analyzedName_ = "";
 	canAnalyze_ = false;
-    cacheUpdateRequired_ = false;
+	cacheUpdateRequired_ = false;
+	cachedDataRange_ = AMRange();
 
 	axes_ << AMAxisInfo("invalid", 0, "No input data");
 	setState(AMDataSource::InvalidFlag);
@@ -227,6 +229,7 @@ void AM1DDerivativeAB::computeCachedValues() const
             cachedData_[badIndices.at(i)] = 0;
     }
 
+    cachedDataRange_ = AMUtility::rangeFinder(cachedData_);
     cacheUpdateRequired_ = false;
 }
 

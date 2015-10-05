@@ -9,26 +9,6 @@ BioXASBeamline::~BioXASBeamline()
 
 }
 
-bool BioXASBeamline::beamOff() const
-{
-	bool result = false;
-
-	if (isConnected())
-		result = (photonShutterFEUpstream_->isClosed() && photonShutterFEDownstream_->isClosed() && safetyShutterFE_->isClosed());
-
-	return result;
-}
-
-bool BioXASBeamline::beamOn() const
-{
-	bool result = false;
-
-	if (isConnected())
-		result = (photonShutterFEUpstream_->isOpen() && photonShutterFEDownstream_->isOpen() && safetyShutterFE_->isOpen());
-
-	return result;
-}
-
 AMBasicControlDetectorEmulator* BioXASBeamline::detectorForControl(AMControl *control) const
 {
 	return controlDetectorMap_.value(control, 0);
@@ -79,10 +59,6 @@ BioXASBeamline::BioXASBeamline(const QString &controlName) :
 	// Initialize member variables.
 
 	connected_ = false;
-
-	photonShutterFEUpstream_ = 0;
-	photonShutterFEDownstream_ = 0;
-	safetyShutterFE_ = 0;
 
 	// Setup procedures.
 

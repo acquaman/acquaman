@@ -5,10 +5,9 @@ BioXASShuttersControl::BioXASShuttersControl(const QString &name, QObject *paren
 {
 	// Initialize local variables.
 
-	photonShutterUpstreamFE_ = 0;
-	photonShutterDownstreamFE_ = 0;
-	safetyShutterFE_ = 0;
-	safetyShutterES_ = 0;
+	photonShutterUpstream_ = 0;
+	photonShutterDownstream_ = 0;
+	safetyShutter_ = 0;
 
 	// Initialize inherited variables.
 
@@ -37,7 +36,7 @@ bool BioXASShuttersControl::isOpen() const
 	bool result = false;
 
 	if (isConnected())
-		result = photonShutterUpstreamFE_->isOpen() && photonShutterDownstreamFE_->isOpen() && safetyShutterFE_->isOpen() && safetyShutterES_->isOpen();
+		result = (photonShutterUpstream_->isOpen() && photonShutterDownstream_->isOpen() && safetyShutter_->isOpen());
 
 	return result;
 }
@@ -47,7 +46,7 @@ bool BioXASShuttersControl::isClosed() const
 	bool result = false;
 
 	if (isConnected())
-		result = safetyShutterES_->isClosed();
+		result = (photonShutterUpstream_->isClosed() || photonShutterDownstream_->isClosed() || safetyShutter_->isClosed());
 
 	return result;
 }
@@ -109,77 +108,60 @@ bool BioXASShuttersControl::validSetpoint(double value) const
 	return result;
 }
 
-void BioXASShuttersControl::setPhotonShutterUpstreamFE(CLSBiStateControl *newControl)
+void BioXASShuttersControl::setPhotonShutterUpstream(CLSBiStateControl *newControl)
 {
-	if (photonShutterUpstreamFE_ != newControl) {
+	if (photonShutterUpstream_ != newControl) {
 
-		if (photonShutterUpstreamFE_)
-			removeChildControl(photonShutterUpstreamFE_);
+		if (photonShutterUpstream_)
+			removeChildControl(photonShutterUpstream_);
 
-		photonShutterUpstreamFE_ = newControl;
+		photonShutterUpstream_ = newControl;
 
-		if (photonShutterUpstreamFE_)
-			addChildControl(photonShutterUpstreamFE_);
+		if (photonShutterUpstream_)
+			addChildControl(photonShutterUpstream_);
 
-		emit photonShutterUpstreamFEChanged(photonShutterUpstreamFE_);
+		emit photonShutterUpstreamChanged(photonShutterUpstream_);
 	}
 }
 
-void BioXASShuttersControl::setPhotonShutterDownstreamFE(CLSBiStateControl *newControl)
+void BioXASShuttersControl::setPhotonShutterDownstream(CLSBiStateControl *newControl)
 {
-	if (photonShutterDownstreamFE_ != newControl) {
+	if (photonShutterDownstream_ != newControl) {
 
-		if (photonShutterDownstreamFE_)
-			removeChildControl(photonShutterDownstreamFE_);
+		if (photonShutterDownstream_)
+			removeChildControl(photonShutterDownstream_);
 
-		photonShutterDownstreamFE_ = newControl;
+		photonShutterDownstream_ = newControl;
 
-		if (photonShutterDownstreamFE_)
-			addChildControl(photonShutterDownstreamFE_);
+		if (photonShutterDownstream_)
+			addChildControl(photonShutterDownstream_);
 
-		emit photonShutterDownstreamFEChanged(photonShutterDownstreamFE_);
+		emit photonShutterDownstreamChanged(photonShutterDownstream_);
 	}
 }
 
-void BioXASShuttersControl::setSafetyShutterFE(CLSBiStateControl *newControl)
+void BioXASShuttersControl::setSafetyShutter(CLSBiStateControl *newControl)
 {
-	if (safetyShutterFE_ != newControl) {
+	if (safetyShutter_ != newControl) {
 
-		if (safetyShutterFE_)
-			removeChildControl(safetyShutterFE_);
+		if (safetyShutter_)
+			removeChildControl(safetyShutter_);
 
-		safetyShutterFE_ = newControl;
+		safetyShutter_ = newControl;
 
-		if (safetyShutterFE_)
-			addChildControl(safetyShutterFE_);
+		if (safetyShutter_)
+			addChildControl(safetyShutter_);
 
-		emit safetyShutterFEChanged(safetyShutterFE_);
-	}
-}
-
-void BioXASShuttersControl::setSafetyShutterES(CLSBiStateControl *newControl)
-{
-	if (safetyShutterES_ != newControl) {
-
-		if (safetyShutterES_)
-			removeChildControl(safetyShutterES_);
-
-		safetyShutterES_ = newControl;
-
-		if (safetyShutterES_)
-			addChildControl(safetyShutterES_);
-
-		emit safetyShutterESChanged(safetyShutterES_);
+		emit safetyShutterChanged(safetyShutter_);
 	}
 }
 
 void BioXASShuttersControl::updateConnected()
 {
 	bool isConnected = (
-				photonShutterUpstreamFE_ && photonShutterUpstreamFE_->isConnected() &&
-				photonShutterDownstreamFE_ && photonShutterDownstreamFE_->isConnected() &&
-				safetyShutterFE_ && safetyShutterFE_->isConnected() &&
-				safetyShutterES_ && safetyShutterES_->isConnected()
+				photonShutterUpstream_ && photonShutterUpstream_->isConnected() &&
+				photonShutterDownstream_ && photonShutterDownstream_->isConnected() &&
+				safetyShutter_ && safetyShutter_->isConnected()
 				);
 
 	setConnected(isConnected);
@@ -208,10 +190,9 @@ void BioXASShuttersControl::updateMoving()
 {
 	if (isConnected()) {
 		bool isMoving = (
-					photonShutterUpstreamFE_->isMoving() ||
-					photonShutterDownstreamFE_->isMoving() ||
-					safetyShutterFE_->isMoving() ||
-					safetyShutterES_->isMoving()
+					photonShutterUpstream_->isMoving() ||
+					photonShutterDownstream_->isMoving() ||
+					safetyShutter_->isMoving()
 					);
 
 		setIsMoving(isMoving);

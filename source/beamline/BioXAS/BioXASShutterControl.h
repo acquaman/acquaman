@@ -41,37 +41,27 @@ public:
 	virtual bool validSetpoint(double value) const;
 
 	/// Returns the front-end upstream photon shutter.
-	AMControl* photonShutterUpstreamFE() const { return photonShutterUpstreamFE_; }
+	AMControl* photonShutterUpstream() const { return photonShutterUpstream_; }
 	/// Returns the front-end downstream photon shutter.
-	AMControl* photonShutterDownstreamFE() const { return photonShutterDownstreamFE_; }
+	AMControl* photonShutterDownstream() const { return photonShutterDownstream_; }
 	/// Returns the front-end safety shutter.
-	AMControl* safetyShutterFE() const { return safetyShutterFE_; }
-	/// Returns the Side endstation safety shutter.
-	AMControl* safetyShutterSide() const { return safetyShutterSide_; }
-	/// Returns the Main endstation safety shutter.
-	AMControl* safetyShutterMain() const { return safetyShutterMain_; }
-	/// Returns the Imaging endstation safety shutter.
-	AMControl* safetyShutterImaging() const { return safetyShutterImaging_; }
+	AMControl* safetyShutter() const { return safetyShutter_; }
 
 signals:
 	/// Notifier that the front-end upstream photon shutter changed.
-	void photonShutterUpstreamFEChanged(AMControl *newControl);
+	void photonShutterUpstreamChanged(AMControl *newControl);
 	/// Notifier that the front-end downstream photon shutter changed.
-	void photonShutterDownstreamFEChanged(AMControl *newControl);
+	void photonShutterDownstreamChanged(AMControl *newControl);
 	/// Notifier that the front-end safety shutter changed.
-	void safetyShutterFEChanged(AMControl *newControl);
-	/// Notifier that the endstation safety shutter changed.
-	void safetyShutterESChanged(AMControl *newControl);
+	void safetyShutterChanged(AMControl *newControl);
 
 public slots:
 	/// Sets the front-end upstream photon shutter.
-	void setPhotonShutterUpstreamFE(CLSBiStateControl *newControl);
+	void setPhotonShutterUpstream(CLSBiStateControl *newControl);
 	/// Sets the front-end downstream photon shutter.
-	void setPhotonShutterDownstreamFE(CLSBiStateControl *newControl);
+	void setPhotonShutterDownstream(CLSBiStateControl *newControl);
 	/// Sets the front-end safety shutter.
-	void setSafetyShutterFE(CLSBiStateControl *newControl);
-	/// Sets the endstation safety shutter.
-	void setSafetyShutterES(CLSBiStateControl *newControl);
+	void setSafetyShutter(CLSBiStateControl *newControl);
 
 protected slots:
 	/// Updates the connected state.
@@ -87,12 +77,10 @@ protected:
 
 protected:
 	/// The front-end upstream photon shutter.
-	CLSBiStateControl *photonShutterUpstreamFE_;
+	CLSBiStateControl *photonShutterUpstream_;
 	/// The front-end downstream photon shutter.
-	CLSBiStateControl *photonShutterDownstreamFE_;
+	CLSBiStateControl *photonShutterDownstream_;
 	/// The front-end safety shutter.
-	CLSBiStateControl *safetyShutterFE_;
-	/// The Side endstation safety shutter.
 	CLSBiStateControl *safetyShutter_;
 };
 

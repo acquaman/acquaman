@@ -19,11 +19,11 @@ public:
 	virtual bool isConnected() const;
 
 	/// Returns the front end upstream photon shutter.
-	CLSBiStateControl* photonShutterFEUpstream() const { return photonShutterFEUpstream_; }
+	CLSBiStateControl* photonShutterUpstream() const { return photonShutterUpstream_; }
 	/// Returns the front end downstream photon shutter.
-	CLSBiStateControl* photonShutterFEDownstream() const { return photonShutterFEDownstream_; }
+	CLSBiStateControl* photonShutterDownstream() const { return photonShutterDownstream_; }
 	/// Returns the front end safety shutter.
-	CLSBiStateControl* safetyShutterFE() const { return safetyShutterFE_; }
+	CLSBiStateControl* safetyShutter() const { return safetyShutter_; }
 	/// Returns the Side endstation safety shutter.
 	virtual AMControl* safetyShutterSide() const { return 0; }
 	/// Returns the Main endstation safety shutter.
@@ -36,11 +36,11 @@ public:
 
 protected:
 	/// The front end upstream photon shutter.
-	CLSBiStateControl *photonShutterFEUpstream_;
+	CLSBiStateControl *photonShutterUpstream_;
 	/// The front end downstream photon shutter.
-	CLSBiStateControl *photonShutterFEDownstream_;
+	CLSBiStateControl *photonShutterDownstream_;
 	/// The front end safety shutter.
-	CLSBiStateControl *safetyShutterFE_;
+	CLSBiStateControl *safetyShutter_;
 
 	/// The shutters control.
 	BioXASShuttersControl *shuttersControl_;

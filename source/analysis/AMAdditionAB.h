@@ -1,53 +1,32 @@
-/*
-Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
-Copyright 2013-2014 David Chevrier and Darren Hunter.
-
-This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
-Acquaman is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-Acquaman is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
-*/
-
-
-#ifndef AM3DADDITIONAB_H
-#define AM3DADDITIONAB_H
-
+#ifndef AMADDITIONAB_H
+#define AMADDITIONAB_H
 
 #include "analysis/AMStandardAnalysisBlock.h"
 
-/// This analysis block accepts any number of 3D input data sources and sums them together.  The output data source is also a 3D data source.
-class AM3DAdditionAB : public AMStandardAnalysisBlock
+/// This analysis block accepts any number of identically ranked data sources and sums them together.  The output rank is the same as the input ranks.
+class AMAdditionAB : public AMStandardAnalysisBlock
 {
 	Q_OBJECT
 
-	Q_CLASSINFO("AMDbObject_Attributes", "description=3D Addition Block")
+	Q_CLASSINFO("AMDbObject_Attributes", "description=Addition Analysis Block")
 
 public:
 	/// Constructor.
-	Q_INVOKABLE AM3DAdditionAB(const QString &outputName = "InvalidInput", QObject *parent = 0);
+	Q_INVOKABLE AMAdditionAB(const QString &outputName = "InvalidInput", QObject *parent = 0);
 	/// Destructor.
-	virtual ~AM3DAdditionAB();
+	virtual ~AMAdditionAB();
 
 	/// Description.
 	QString infoDescription() const { return QString(); }
 
 	/// Check if a set of inputs is valid. The empty list (no inputs) must always be valid. For non-empty lists, our specific requirements are...
-	/*! - there must be a single input source
-	- the rank() of that input source must be 2 (two-dimensiona)
+	/*!
+	- the rank() of all sources are the same.
 	*/
 	virtual bool areInputDataSourcesAcceptable(const QList<AMDataSource*>& dataSources) const;
 
-	/// Returns the desired rank for input sources.
-	virtual int desiredInputRank() const { return 3; }
+	/// Returns the desired rank for input sources.  There is no preferred input rank.
+	virtual int desiredInputRank() const { return -1; }
 
 	/// Returns the dependent value at a (complete) set of axis indexes. Returns an invalid AMNumber if the indexes are insuffient or any are out of range, or if the data is not ready.
 	virtual AMNumber value(const AMnDIndex &indexes) const;
@@ -92,4 +71,4 @@ protected:
 	mutable AMRange cachedDataRange_;
 };
 
-#endif // AM3DADDITIONAB_H
+#endif // AMADDITIONAB_H
