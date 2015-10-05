@@ -48,6 +48,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "util/AMPeriodicTable.h"
 
+#include "acquaman/AMGenericStepScanConfiguration.h"
+#include "acquaman/AMGenericStepScanController.h"
 #include "acquaman/IDEAS/IDEASScanConfiguration.h"
 #include "acquaman/IDEAS/IDEASXASScanConfiguration.h"
 #include "acquaman/IDEAS/IDEASXRFScanConfiguration.h"
@@ -58,6 +60,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/dataman/AMGenericScanEditor.h"
 #include "ui/acquaman/AMScanConfigurationViewHolder3.h"
 
+#include "ui/acquaman/AMGenericStepScanConfigurationView.h"
 #include "ui/IDEAS/IDEASPersistentView.h"
 #include "ui/IDEAS/IDEASXASScanConfigurationView.h"
 #include "ui/IDEAS/IDEAS2DScanConfigurationView.h"
@@ -66,6 +69,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/IDEAS/IDEAS13ElementGeDetailedDetectorView.h"
 #include "ui/IDEAS/IDEASXRFDetailedDetectorView.h"
 #include "ui/IDEAS/IDEASSampleCameraPanel.h"
+
 
 IDEASAppController::IDEASAppController(QObject *parent)
 	: AMAppController(parent)
@@ -192,13 +196,7 @@ void IDEASAppController::setupUserInterface()
 	ideasKETEKDetailedDetectorView_->addCombinationPileUpPeakNameFilter(QRegExp("(Ka1|La1|Ma1)"));
 	mw_->addPane(ideasKETEKDetailedDetectorView_, "XRF Detectors", "KETEK", ":/system-search.png");
 
-	ideas13ElementGeDetailedDetectorView_ = new IDEAS13ElementGeDetailedDetectorView(IDEASBeamline::ideas()->ge13Element());
-	ideas13ElementGeDetailedDetectorView_->buildDetectorView();
-	ideas13ElementGeDetailedDetectorView_->setEnergyRange(1000, 20480);
-	ideas13ElementGeDetailedDetectorView_->addEmissionLineNameFilter(QRegExp("1"));
-	ideas13ElementGeDetailedDetectorView_->addPileUpPeakNameFilter(QRegExp("(K.1|L.1|Ma1)"));
-	ideas13ElementGeDetailedDetectorView_->addCombinationPileUpPeakNameFilter(QRegExp("(Ka1|La1|Ma1)"));
-	mw_->addPane(ideas13ElementGeDetailedDetectorView_, "XRF Detectors", "13-el Ge", ":/system-search.png");
+	onGe13Connected(false);
 
 	mw_->insertHeading("Scans", 2);
 
@@ -217,11 +215,33 @@ void IDEASAppController::setupUserInterface()
 
 	mw_->addPane(mapScanConfigurationHolder3_, "Scans", "IDEAS 2D Scan", ":/utilities-system-monitor.png");
 
+	genericConfiguration_ = new AMGenericStepScanConfiguration;
+	genericConfiguration_->addDetector(AMBeamline::bl()->exposedDetectorByName("I_0")->toInfo());
+	genericConfigurationView_ = new AMGenericStepScanConfigurationView(genericConfiguration_, AMBeamline::bl()->exposedControls(), AMBeamline::bl()->exposedDetectors());
+	genericConfigurationViewHolder_ = new AMScanConfigurationViewHolder3("Generic Scan", false, true, genericConfigurationView_);
+	mw_->addPane(genericConfigurationViewHolder_, "Scans", "Generic Scan", ":/utilities-system-monitor.png");
+
 	sampleCameraPanel_ = new IDEASSampleCameraPanel();
 	mw_->addPane(sampleCameraPanel_, "Experiment Tools", "Sample Alignment",":/22x22/gnome-display-properties.png");
 
 	connect(IDEASBeamline::ideas()->monoEnergyControl(), SIGNAL(connected(bool)), this, SLOT(onEnergyConnected(bool)));
+	connect(IDEASBeamline::ideas()->ge13Element(), SIGNAL(connected(bool)), this, SLOT(onGe13Connected(bool)));
 	onEnergyConnected(false);
+}
+
+void IDEASAppController::onGe13Connected(bool connected)
+{
+	Q_UNUSED(connected)
+	if(IDEASBeamline::ideas()->ge13Element()->isConnected())
+	{
+		ideas13ElementGeDetailedDetectorView_ = new IDEAS13ElementGeDetailedDetectorView(IDEASBeamline::ideas()->ge13Element());
+		ideas13ElementGeDetailedDetectorView_->buildDetectorView();
+		ideas13ElementGeDetailedDetectorView_->setEnergyRange(1000, 20480);
+		ideas13ElementGeDetailedDetectorView_->addEmissionLineNameFilter(QRegExp("1"));
+		ideas13ElementGeDetailedDetectorView_->addPileUpPeakNameFilter(QRegExp("(K.1|L.1|Ma1)"));
+		ideas13ElementGeDetailedDetectorView_->addCombinationPileUpPeakNameFilter(QRegExp("(Ka1|La1|Ma1)"));
+		mw_->addPane(ideas13ElementGeDetailedDetectorView_, "XRF Detectors", "13-el Ge", ":/system-search.png");
+	}
 }
 
 void IDEASAppController::makeConnections()
@@ -261,12 +281,16 @@ void IDEASAppController::onCurrentScanActionFinishedImplementation(AMScanAction 
 	// Being explicit due to the nature of how many casts were necessary.  I could probably explicitly check to ensure each cast is successful, but I'll risk it for now.
 	const AMScanActionInfo *actionInfo = qobject_cast<const AMScanActionInfo *>(action->info());
 	const IDEASScanConfiguration *ideasConfiguration = dynamic_cast<const IDEASScanConfiguration *>(actionInfo->configuration());
-	IDEASScanConfigurationDbObject *configuration = qobject_cast<IDEASScanConfigurationDbObject *>(ideasConfiguration->dbObject());
 
-	if (configuration){
+	if (ideasConfiguration){
 
-		userConfiguration_->setFluorescenceDetector(configuration->fluorescenceDetector());
-		userConfiguration_->storeToDb(AMDatabase::database("user"));
+		IDEASScanConfigurationDbObject *configuration = qobject_cast<IDEASScanConfigurationDbObject *>(ideasConfiguration->dbObject());
+
+		if (configuration){
+
+			userConfiguration_->setFluorescenceDetector(configuration->fluorescenceDetector());
+			userConfiguration_->storeToDb(AMDatabase::database("user"));
+		}
 	}
 }
 
@@ -347,6 +371,7 @@ void IDEASAppController::onUserConfigurationLoadedFromDb()
 		detector->addRegionOfInterest(newRegion);
 		mapScanConfiguration_->addRegionOfInterest(region);
 		xasScanConfiguration_->addRegionOfInterest(region);
+		genericConfiguration_->addRegionOfInterest(region);
 	}
 
 	// This is connected here because we want to listen to the detectors for updates, but don't want to double add regions on startup.
@@ -359,6 +384,7 @@ void IDEASAppController::onRegionOfInterestAdded(AMRegionOfInterest *region)
 	userConfiguration_->addRegionOfInterest(region);
 	mapScanConfiguration_->addRegionOfInterest(region);
 	xasScanConfiguration_->addRegionOfInterest(region);
+	genericConfiguration_->addRegionOfInterest(region);
 }
 
 void IDEASAppController::onRegionOfInterestRemoved(AMRegionOfInterest *region)
@@ -366,4 +392,5 @@ void IDEASAppController::onRegionOfInterestRemoved(AMRegionOfInterest *region)
 	userConfiguration_->removeRegionOfInterest(region);
 	mapScanConfiguration_->removeRegionOfInterest(region);
 	xasScanConfiguration_->removeRegionOfInterest(region);
+	genericConfiguration_->removeRegionOfInterest(region);
 }

@@ -28,8 +28,6 @@ public:
 	double energy() const { return energy_; }
 	/// Returns the edge.
 	QString edge() const { return edge_; }
-	/// Returns the regions of interest.
-	QList<AMRegionOfInterest *> regionsOfInterest() const { return regionsOfInterest_; }
 
 signals:
 	/// Notifier that the energy has changed.
@@ -42,23 +40,12 @@ public slots:
 	void setEnergy(double newEnergy);
 	/// Sets the edge.
 	void setEdge(const QString &newEdge);
-	/// Adds a region of interest to the list.
-	void addRegionOfInterest(AMRegionOfInterest *region);
-	/// Removes a region of interest from the list.
-	void removeRegionOfInterest(AMRegionOfInterest *region);
 
 protected:
-	/// Returns the regions of interest list.
-	AMDbObjectList dbReadRegionsOfInterest();
-	/// Called by the dtabase system on loadFromDb() to give us our new list of AMRegionOfInterest.
-	void dbLoadRegionsOfInterest(const AMDbObjectList &newRegions);
-
 	/// The energy used for this scan.
 	double energy_;
 	/// The edge associated with this scan.
 	QString edge_;
-	/// The list of the regions of interest.
-	QList<AMRegionOfInterest *> regionsOfInterest_;
 };
 
 #endif // BIOXASSCANCONFIGURATIONDBOBJECT_H

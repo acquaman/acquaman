@@ -21,7 +21,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QtCore/qmath.h>
 
 #include "AM1DCalibrationAB.h"
-
+#include "util/AMUtility.h"
 
 AM1DCalibrationAB::AM1DCalibrationAB(const QString &outputName, QObject *parent)
 	: AMStandardAnalysisBlock(outputName, parent)
@@ -31,8 +31,9 @@ AM1DCalibrationAB::AM1DCalibrationAB(const QString &outputName, QObject *parent)
 	canAnalyze_ = false;
 	dataName_ = "";
 	normalizationName_ = "";
-    cacheUpdateRequired_ = false;
-    axes_ << AMAxisInfo("invalid", 0, "No input data");
+	cacheUpdateRequired_ = false;
+	cachedDataRange_ = AMRange();
+	axes_ << AMAxisInfo("invalid", 0, "No input data");
 	setState(AMDataSource::InvalidFlag);
 
 	energyCalibrationOffset_ = 0;
@@ -350,6 +351,7 @@ void AM1DCalibrationAB::computeCachedValues() const
         }
     }
 
+    cachedDataRange_ = AMUtility::rangeFinder(cachedData_, -1);
     cacheUpdateRequired_ = false;
 }
 

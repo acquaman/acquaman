@@ -397,6 +397,18 @@ void IDEAS2DScanConfigurationView::onFluorescenceDetectorChanged(int detector)
 	configuration_->setFluorescenceDetector((IDEAS::FluorescenceDetectors)detector);
 }
 
+void IDEAS2DScanConfigurationView::updateFluorescenceDetectorComboBoxGe13Element(bool connected)
+{
+	int currentIndex = fluorescenceDetectorComboBox_->currentIndex();
+	fluorescenceDetectorComboBox_->removeItem((int)IDEAS::Ge13Element);
+
+	if (connected)
+		fluorescenceDetectorComboBox_->insertItem((int)IDEAS::Ge13Element, "13-el Ge");
+
+	updateFluorescenceDetectorComboBox((IDEAS::FluorescenceDetectors)currentIndex);
+}
+
+
 void IDEAS2DScanConfigurationView::checkScanAxisValidity()
 {
 	QString errorString = "";
@@ -435,9 +447,11 @@ QComboBox *IDEAS2DScanConfigurationView::createFluorescenceComboBox()
 	QComboBox *newComboBox = new QComboBox;
 	newComboBox->insertItem(0, "None");
 	newComboBox->insertItem(1, "Ketek");
-	newComboBox->insertItem(2, "13-el Ge");
+	if (IDEASBeamline::ideas()->ge13Element()->isConnected())
+		newComboBox->insertItem(2, "13-el Ge");
 
 	return newComboBox;
+
 }
 
 QGroupBox *IDEAS2DScanConfigurationView::createAndLayoutDetectorSettings(IDEASScanConfiguration *configuration)
@@ -455,6 +469,7 @@ QGroupBox *IDEAS2DScanConfigurationView::createAndLayoutDetectorSettings(IDEASSc
 	detectorSettingGroupBox->setLayout(detectorBoxLayout);
 
 	connect(fluorescenceDetectorComboBox_, SIGNAL(currentIndexChanged(int)), this, SLOT(onFluorescenceDetectorChanged(int)));
+	connect(IDEASBeamline::ideas()->ge13Element(), SIGNAL(connected(bool)), this, SLOT(updateFluorescenceDetectorComboBoxGe13Element(bool)));
 	connect(configuration->dbObject(), SIGNAL(fluorescenceDetectorChanged(IDEAS::FluorescenceDetectors)), this, SLOT(updateFluorescenceDetectorComboBox(IDEAS::FluorescenceDetectors)));
 
 	// default using bruker
