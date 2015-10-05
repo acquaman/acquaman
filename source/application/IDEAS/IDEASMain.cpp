@@ -22,7 +22,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 
 
-#include <QApplication>
 #include <QFile>
 #include "application/IDEAS/IDEASAppController.h"
 #include "application/AMCrashMonitorSupport.h"
