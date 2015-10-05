@@ -9,6 +9,15 @@ BioXASBeamline::~BioXASBeamline()
 
 }
 
+bool BioXASBeamline::isConnected() const
+{
+	bool connected = (
+				frontEndShutters_ && frontEndShutters_->isConnected()
+				);
+
+	return connected;
+}
+
 AMBasicControlDetectorEmulator* BioXASBeamline::detectorForControl(AMControl *control) const
 {
 	return controlDetectorMap_.value(control, 0);
@@ -29,6 +38,10 @@ void BioXASBeamline::updateConnected()
 
 void BioXASBeamline::setupComponents()
 {
+	// Front end shutters.
+
+	frontEndShutters_ = new BioXASFrontEndShutters(this);
+	connect( frontEndShutters_, SIGNAL(connectedChanged(bool)), this, SLOT(updateConnected()) );
 
 }
 
