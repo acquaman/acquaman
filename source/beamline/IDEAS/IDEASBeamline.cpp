@@ -27,10 +27,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "beamline/AMAdvancedControlDetectorEmulator.h"
 
-#include <QApplication>
-
-
-
 
 IDEASBeamline::IDEASBeamline()
 	: CLSBeamline("IDEAS Beamline")
