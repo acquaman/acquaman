@@ -31,7 +31,7 @@ AMControl::AMControl(const QString& name, const QString& units, QObject* parent,
 	displayPrecision_ = 3;
 }
 
-bool AMControl::hasChildControl(AMControl *control)
+bool AMControl::hasChildControl(AMControl *control) const
 {
 	bool result = false;
 
