@@ -5,7 +5,7 @@ BioXASValves::BioXASValves(QObject *parent) :
 {
 	// Create valves control.
 
-	valvesControl_ = new BioXASValvesControl("ValvesControl", this);
+	valvesControl_ = new BioXASValvesControl("BioXASValvesControl", this);
 
 	// Create valves and sets, and add them to the valves control.
 	// Front end vacuum valves.
@@ -71,9 +71,9 @@ BioXASValves::BioXASValves(QObject *parent) :
 	vvrImaging4_ = new CLSBiStateControl("ImagingVVR4", "ImagingVVR4", "VVR1607-5-I10-05:state", "VVR1607-5-I10-05:opr:open", "VVR1607-5-I10-05:opr:close", new AMControlStatusCheckerDefault(4), this);
 	vvrImaging5_ = new CLSBiStateControl("ImagingVVR5", "ImagingVVR5", "VVR1607-5-I10-06:state", "VVR1607-5-I10-06:opr:open", "VVR1607-5-I10-06:opr:close", new AMControlStatusCheckerDefault(4), this);
 	vvrImaging6_ = new CLSBiStateControl("ImagingVVR6", "ImagingVVR6", "VVR1607-5-I10-07:state", "VVR1607-5-I10-07:opr:open", "VVR1607-5-I10-07:opr:close", new AMControlStatusCheckerDefault(4), this);
-	vvrImaging7_ = new CLSBiStateControl("ImagingVVR7", "ImagingVVR7", "VVR1607-5-I10-02:state", "VVR1607-5-I10-02:opr:open", "VVR1607-5-I10-02:opr:close", new AMControlStatusCheckerDefault(4), this);
-	vvrImaging8_ = new CLSBiStateControl("ImagingVVR8", "ImagingVVR8", "VVR1607-5-I10-03:state", "VVR1607-5-I10-03:opr:open", "VVR1607-5-I10-03:opr:close", new AMControlStatusCheckerDefault(4), this);
-	vvrImaging9_ = new CLSBiStateControl("ImagingVVR9", "ImagingVVR9", "VVR1607-5-I10-04:state", "VVR1607-5-I10-04:opr:open", "VVR1607-5-I10-04:opr:close", new AMControlStatusCheckerDefault(4), this);
+	vvrImaging7_ = new CLSBiStateControl("ImagingVVR7", "ImagingVVR7", "VVR1607-5-I10-08:state", "VVR1607-5-I10-08:opr:open", "VVR1607-5-I10-08:opr:close", new AMControlStatusCheckerDefault(4), this);
+	vvrImaging8_ = new CLSBiStateControl("ImagingVVR8", "ImagingVVR8", "VVR1607-5-I10-09:state", "VVR1607-5-I10-09:opr:open", "VVR1607-5-I10-09:opr:close", new AMControlStatusCheckerDefault(4), this);
+	vvrImaging9_ = new CLSBiStateControl("ImagingVVR9", "ImagingVVR9", "VVR1607-5-I10-10:state", "VVR1607-5-I10-10:opr:open", "VVR1607-5-I10-10:opr:close", new AMControlStatusCheckerDefault(4), this);
 
 	imagingValves_ = new AMControlSet(this);
 	imagingValves_->addControl(vvrImaging1_);
