@@ -6,20 +6,20 @@ SGMEnergyTrajectory::SGMEnergyTrajectory(double startEnergy,
                                          SGMGratingSupport::GratingTranslation gratingTranslation)
 {
 
-    startMonoInfo_ = new SGMMonochromatorInfo(startEnergy, gratingTranslation);
+    startEnergyPosition_ = new SGMEnergyPosition(startEnergy, gratingTranslation);
     startEnergy_ = startEnergy;
-    endMonoInfo_ = new SGMMonochromatorInfo(endEnergy, gratingTranslation);
+    endEnergyPosition_ = new SGMEnergyPosition(endEnergy, gratingTranslation);
     endEnergy_ = endEnergy;
 
     // ensure both undulator harmonics are the same.
-    if(startMonoInfo_->undulatorHarmonic() != endMonoInfo_->undulatorHarmonic()) {
+    if(startEnergyPosition_->undulatorHarmonic() != endEnergyPosition_->undulatorHarmonic()) {
 
         // If there is a conflict, just use the first harmonic.
-        startMonoInfo_->setAutoDetectUndulatorHarmonic(false);
-        endMonoInfo_->setAutoDetectUndulatorHarmonic(false);
+        startEnergyPosition_->setAutoDetectUndulatorHarmonic(false);
+        endEnergyPosition_->setAutoDetectUndulatorHarmonic(false);
 
-        startMonoInfo_->setUndulatorHarmonic(SGMUndulatorSupport::FirstHarmonic);
-        endMonoInfo_->setUndulatorHarmonic(SGMUndulatorSupport::FirstHarmonic);
+        startEnergyPosition_->setUndulatorHarmonic(SGMUndulatorSupport::FirstHarmonic);
+        endEnergyPosition_->setUndulatorHarmonic(SGMUndulatorSupport::FirstHarmonic);
     }
 
     time_ = time;
@@ -42,34 +42,34 @@ SGMEnergyTrajectory::SGMEnergyTrajectory(double startEnergy,
 
 SGMEnergyTrajectory::~SGMEnergyTrajectory()
 {
-    startMonoInfo_->deleteLater();
-    endMonoInfo_->deleteLater();
+    startEnergyPosition_->deleteLater();
+    endEnergyPosition_->deleteLater();
 }
 
 bool SGMEnergyTrajectory::hasErrors() const
 {
-    return startMonoInfo_->hasErrors() ||
-            endMonoInfo_->hasErrors() ||
+    return startEnergyPosition_->hasErrors() ||
+            endEnergyPosition_->hasErrors() ||
             time_ <= 0;
 }
 
 bool SGMEnergyTrajectory::hasWarnings() const
 {
-    return startMonoInfo_->hasWarnings() ||
-            endMonoInfo_->hasWarnings();
+    return startEnergyPosition_->hasWarnings() ||
+            endEnergyPosition_->hasWarnings();
 }
 
 QString SGMEnergyTrajectory::errorMessage() const
 {
-    QString infoErrorMessage = startMonoInfo_->errorMessage();
-    if(startMonoInfo_->hasErrors() && endMonoInfo_->hasErrors()) {
+    QString infoErrorMessage = startEnergyPosition_->errorMessage();
+    if(startEnergyPosition_->hasErrors() && endEnergyPosition_->hasErrors()) {
         infoErrorMessage.append("\n");
     }
 
-    infoErrorMessage.append(endMonoInfo_->errorMessage());
+    infoErrorMessage.append(endEnergyPosition_->errorMessage());
 
     if(time_ <= 0) {
-        if(!infoErrorMessage.isEmpty() && endMonoInfo_->hasErrors()) {
+        if(!infoErrorMessage.isEmpty() && endEnergyPosition_->hasErrors()) {
             infoErrorMessage.append("\n");
         }
         infoErrorMessage.append("Invalid time for trajectory: Must be greater than zero");
@@ -81,23 +81,23 @@ QString SGMEnergyTrajectory::errorMessage() const
 QString SGMEnergyTrajectory::warningMessage() const
 {
     QString infoWarningMessage;
-    infoWarningMessage.append(startMonoInfo_->warningMessage());
-    if(startMonoInfo_->hasWarnings() && endMonoInfo_->hasErrors()) {
+    infoWarningMessage.append(startEnergyPosition_->warningMessage());
+    if(startEnergyPosition_->hasWarnings() && endEnergyPosition_->hasErrors()) {
         infoWarningMessage.append("\n");
     }
-    infoWarningMessage.append(endMonoInfo_->warningMessage());
+    infoWarningMessage.append(endEnergyPosition_->warningMessage());
 
     return infoWarningMessage;
 }
 
 double SGMEnergyTrajectory::startGratingAngleEncoderStep() const
 {
-    return startMonoInfo_->gratingAngle();
+    return startEnergyPosition_->gratingAngle();
 }
 
 double SGMEnergyTrajectory::endGratingAngleEncoderStep() const
 {
-    return endMonoInfo_->gratingAngle();
+    return endEnergyPosition_->gratingAngle();
 }
 
 AMTrapezoidVelocityProfile SGMEnergyTrajectory::gratingAngleVelocityProfile() const
@@ -107,12 +107,12 @@ AMTrapezoidVelocityProfile SGMEnergyTrajectory::gratingAngleVelocityProfile() co
 
 double SGMEnergyTrajectory::startUndulatorPosition() const
 {
-    return startMonoInfo_->undulatorPosition();
+    return startEnergyPosition_->undulatorPosition();
 }
 
 double SGMEnergyTrajectory::endUndulatorPosition() const
 {
-    return endMonoInfo_->undulatorPosition();
+    return endEnergyPosition_->undulatorPosition();
 }
 
 AMTrapezoidVelocityProfile SGMEnergyTrajectory::undulatorVelocityProfile() const
@@ -129,17 +129,17 @@ SGMUndulatorSupport::UndulatorHarmonic SGMEnergyTrajectory::undulatorHarmonic() 
 {
     // Constructor should have done the job of synching harmonics between start & end
     // so we can return either.
-    return startMonoInfo_->undulatorHarmonic();
+    return startEnergyPosition_->undulatorHarmonic();
 }
 
 double SGMEnergyTrajectory::startExitSlitPosition() const
 {
-    return startMonoInfo_->exitSlitPosition();
+    return startEnergyPosition_->exitSlitPosition();
 }
 
 double SGMEnergyTrajectory::endExitSlitPosition() const
 {
-    return endMonoInfo_->exitSlitPosition();
+    return endEnergyPosition_->exitSlitPosition();
 }
 
 AMTrapezoidVelocityProfile SGMEnergyTrajectory::exitSlitVelocityProfile() const

@@ -1,23 +1,23 @@
-#include "SGMMonochromatorInfoTest.h"
-#include "beamline/SGM/monochromator/SGMMonochromatorInfo.h"
-SGMMonochromatorInfoTest::SGMMonochromatorInfoTest()
+#include "SGMEnergyPositionTest.h"
+#include "beamline/SGM/monochromator/SGMEnergyPosition.h"
+SGMEnergyPositionTest::SGMEnergyPositionTest()
 {
 
 }
 
-QStringList SGMMonochromatorInfoTest::testResults() const
+QStringList SGMEnergyPositionTest::testResults() const
 {
     return testResults_;
 }
 
-void SGMMonochromatorInfoTest::performTests()
+void SGMEnergyPositionTest::performTests()
 {
     testResults_.clear();
     testRequestEnergy();
     testResultantEnergy();
 }
 
-void SGMMonochromatorInfoTest::testIndividualRequestEnergy(const QString &name,
+void SGMEnergyPositionTest::testIndividualRequestEnergy(const QString &name,
                                                            double requiredEnergy,
                                                            SGMGratingSupport::GratingTranslation gratingTranslationSelection,
                                                            double expectedAngleEncoderTarget,
@@ -25,13 +25,13 @@ void SGMMonochromatorInfoTest::testIndividualRequestEnergy(const QString &name,
                                                            double expectedUndulatorPosition,
                                                            double expectedUndulatorStepValue)
 {
-    SGMMonochromatorInfo testMonoInfo(requiredEnergy, gratingTranslationSelection);
+    SGMEnergyPosition testEnergyPosition(requiredEnergy, gratingTranslationSelection);
 
     // Compute all the required values
-    double angleEncoderTarget = testMonoInfo.gratingAngle();
-    double requestedUndulatorPosition = testMonoInfo.undulatorPosition();
+    double angleEncoderTarget = testEnergyPosition.gratingAngle();
+    double requestedUndulatorPosition = testEnergyPosition.undulatorPosition();
     double requestedUndulatorStepValue = SGMUndulatorSupport::undulatorStepFromPosition(requestedUndulatorPosition, 12.7806, -153573);
-    double requestedExitSlitPosition = testMonoInfo.exitSlitPosition();
+    double requestedExitSlitPosition = testEnergyPosition.exitSlitPosition();
     double absDifference;
     double average;
     double percentageDifference;
@@ -50,15 +50,15 @@ void SGMMonochromatorInfoTest::testIndividualRequestEnergy(const QString &name,
         gratingString = "Unknown Grating";
     }
 
-    if(testMonoInfo.hasErrors()) {
+    if(testEnergyPosition.hasErrors()) {
         testResults_ << QString("%1 at %2ev has errors - Can't test").arg(name).arg(requiredEnergy);
-        testResults_.append(testMonoInfo.errorMessage());
+        testResults_.append(testEnergyPosition.errorMessage());
         return;
     }
 
-    if(testMonoInfo.hasWarnings()) {
+    if(testEnergyPosition.hasWarnings()) {
         testResults_ << QString("%1 at %2eV has warnings - Tests continue").arg(name).arg(requiredEnergy);
-        testResults_ << testMonoInfo.warningMessage();
+        testResults_ << testEnergyPosition.warningMessage();
     }
 
     // Do comparisons, outputting if the percentage difference from expected is > 1%
@@ -92,7 +92,7 @@ void SGMMonochromatorInfoTest::testIndividualRequestEnergy(const QString &name,
 
 }
 
-void SGMMonochromatorInfoTest::testRequestEnergy()
+void SGMEnergyPositionTest::testRequestEnergy()
 {
     // Values derived from Dave's Spreadsheet (See GoogleDrive SGMUpgrade/Energy Coordinator/SGMEnergy.xlsx)
     // Undulator step values are derived from Iain's Spreadsheet (See GoogleDrive SGMUpgrade/Energy Coordinator/UndulatorValues.xls)
@@ -158,11 +158,11 @@ void SGMMonochromatorInfoTest::testRequestEnergy()
     testIndividualRequestEnergy("Silicon K Edge End", 1890.0, SGMGratingSupport::HighGrating, -166359.19, 689.0727254, 21.12242885, -55055.93);
 }
 
-void SGMMonochromatorInfoTest::testResultantEnergy()
+void SGMEnergyPositionTest::testResultantEnergy()
 {
-    SGMMonochromatorInfo testMonoInfo(240, SGMGratingSupport::LowGrating);
+    SGMEnergyPosition testEnergyPosition(240, SGMGratingSupport::LowGrating);
 
-    if(!qFuzzyCompare(testMonoInfo.resultantEnergy(), 240)) {
-        testResults_.append(QString("Resultant energy test failed - Expected: %1 Actual %2").arg(240).arg(testMonoInfo.resultantEnergy()));
+    if(!qFuzzyCompare(testEnergyPosition.resultantEnergy(), 240)) {
+        testResults_.append(QString("Resultant energy test failed - Expected: %1 Actual %2").arg(240).arg(testEnergyPosition.resultantEnergy()));
     }
 }

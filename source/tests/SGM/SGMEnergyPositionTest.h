@@ -1,16 +1,16 @@
-#ifndef SGMMONOCHROMATORINFOTEST_H
-#define SGMMONOCHROMATORINFOTEST_H
+#ifndef SGMENERGYPOSITIONTEST_H
+#define SGMENERGYPOSITIONTEST_H
 
 #include <QStringList>
 #include "beamline/SGM/monochromator/SGMGratingSupport.h"
 
 /*!
- * A class which performs basic tests on the SGMMonochromatorInfo class
+ * A class which performs basic tests on the SGNEnergyPosition class
  */
-class SGMMonochromatorInfoTest
+class SGMEnergyPositionTest
 {
 public:
-    SGMMonochromatorInfoTest();
+    SGMEnergyPositionTest();
 
     /*!
      * A list of the test results
@@ -51,4 +51,4 @@ protected:
     QStringList testResults_;
 };
 
-#endif // SGMMONOCHROMATORINFOTEST_H
+#endif // SGMENERGYPOSITIONTEST_H

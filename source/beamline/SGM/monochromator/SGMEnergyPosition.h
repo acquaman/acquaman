@@ -1,5 +1,5 @@
-#ifndef SGMMONOCHROMATORINFO_H
-#define SGMMONOCHROMATORINFO_H
+#ifndef SGMENERGYPOSITION_H
+#define SGMENERGYPOSITION_H
 
 // Error validation messages
 #define SGMMONO_UNKNOWN_UNDULATOR_HARMONIC "Unknown undulator harmonic"
@@ -18,12 +18,12 @@
 #include "util/AMValidator.h"
 
 /*!
-  * A class which represents a state in which a monochromater on the SGM beamline
+  * A class which represents a a state which the energy controls on the SGM beamline
   * can be in.
-  * Note this class does not represent the actual monochromator itself, merely a
-  * possible mono state.
+  * Note this class does not represent the actual energy controls, merely a possible
+  * set of states.
   */
-class SGMMonochromatorInfo : public QObject
+class SGMEnergyPosition : public QObject
 {
     Q_OBJECT
 public:
@@ -39,7 +39,7 @@ public:
     };
 
     /*!
-     * Creates an instance of an SGMMonochromatorInfo which is in the state represented
+     * Creates an instance of an SGMEnergyPosition which is in the state represented
      * by the provided information. The created info is assumed to be tracking the
      * exit slit and undulator.
      * \param gratingTranslation ~ The grating translation.
@@ -50,39 +50,39 @@ public:
      * \param exitSlitPosition ~ The exit slit position.
      * \param parent ~ The QObject parent.
      */
-    SGMMonochromatorInfo(SGMGratingSupport::GratingTranslation gratingTranslation,
-                         double gratingAngle,
-                         SGMUndulatorSupport::UndulatorHarmonic undulatorHarmonic,
-                         double undulatorPosition,
-                         double undulatorOffset,
-                         double exitSlitPosition,
-                         QObject* parent = 0);
+    SGMEnergyPosition(SGMGratingSupport::GratingTranslation gratingTranslation,
+                      double gratingAngle,
+                      SGMUndulatorSupport::UndulatorHarmonic undulatorHarmonic,
+                      double undulatorPosition,
+                      double undulatorOffset,
+                      double exitSlitPosition,
+                      QObject* parent = 0);
 
     /*!
-     * Creates an instance of an SGMMonochromatorInfo whose componenets are tuned
+     * Creates an instance of an SGMEnergyPosition whose componenets are tuned
      * to provide the specified energy on the provided grating translation.
      * \param requestedEnergy ~ The energy to tune the produced info for.
      * \param gratingTranslation ~ The grating translation specified which is to
      * be used to calculate the component positions for the given energy.
      */
-    SGMMonochromatorInfo(double requestedEnergy,
-                         SGMGratingSupport::GratingTranslation gratingTranslation);
+    SGMEnergyPosition(double requestedEnergy,
+                      SGMGratingSupport::GratingTranslation gratingTranslation);
 
     /*!
-     * Creates an instance of an SGMMonochromatorInfo whose compoenents are tuned
+     * Creates an instance of an SGMEnergyPosition whose components are tuned
      * to provide the given energy, automatically determining the grating translation
      * using the supplied optimization mode.
      * \param requestedEnergy ~ The energy to tune the produced info for.
      * \param gratingOptimizationMode ~ The means by which to determine the grating
      * translation.
      */
-    SGMMonochromatorInfo(double requestedEnergy,
+    SGMEnergyPosition(double requestedEnergy,
                          GratingTranslationOptimizationMode gratingOptimizationMode);
 
     /*!
       * Virtual destructor for an SGMMonochromatorInfo
       */
-    virtual ~SGMMonochromatorInfo() {}
+    virtual ~SGMEnergyPosition() {}
 
     /*!
       * Whether the info has errors with its current settings.
@@ -316,7 +316,7 @@ protected:
       * \param energy ~ The energy for which the grating angle encoder target is
       * required.
       */
-    double gratingAngleFromEnergy(SGMGratingSupport::GratingTranslation gratingTranslationSelection,
+    double gratingAngleFromEnerSGMMONOCHROMATORINFO_Hgy(SGMGratingSupport::GratingTranslation gratingTranslationSelection,
                                   double energy) const;
 
     /*!
@@ -381,4 +381,4 @@ protected:
     AMValidator warningValidator_;
 };
 
-#endif // SGMMONOCHROMATORINFO_H
+#endif // SGMENERGYPOSITION_H

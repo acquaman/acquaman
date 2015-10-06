@@ -1,5 +1,5 @@
-#ifndef SGMMONOCHROMATORINFOTESTVIEW_H
-#define SGMMONOCHROMATORINFOTESTVIEW_H
+#ifndef SGMENERGYPOSITIONTESTVIEW_H
+#define SGMENERGYPOSITIONTESTVIEW_H
 
 #include <QWidget>
 #include <QTextEdit>
@@ -9,20 +9,20 @@
 #include <QCheckBox>
 #include "beamline/SGM/monochromator/SGMGratingSupport.h"
 #include "beamline/SGM/monochromator/SGMUndulatorSupport.h"
-class SGMMonochromatorInfo;
+class SGMEnergyPosition;
 /*!
  * A widget class designed to visualize the data within an SGMMonochromatorInfo
  * for testing purposes.
  */
-class SGMMonochromatorInfoTestView : public QWidget
+class SGMEnergyPositionTestView : public QWidget
 {
     Q_OBJECT
 public:
     /*!
      * Creates an instance of an mono info test view which will visualize the
-     * provided mono.
+     * provided Energy Position.
      */
-    explicit SGMMonochromatorInfoTestView(SGMMonochromatorInfo* mono, QWidget *parent = 0);
+    explicit SGMEnergyPositionTestView(SGMEnergyPosition* energyPosition, QWidget *parent = 0);
 
 signals:
 
@@ -31,20 +31,20 @@ public slots:
 protected slots:
 
     /*
-     * Signals from the mono to update the view
+     * Signals from the energy position to update the view
      */
 
-    void onMonoGratingAngleChanged(double gratingAngleSteps);
-    void onMonoGratingTranslationChanged(SGMGratingSupport::GratingTranslation gratingTranslation);
-    void onMonoUndulatorTrackingChanged(bool isTracking);
-    void onMonoUndulatorPositionChanged(double undulatorPosition);
-    void onMonoUndulatorOffsetChanged(double undulatorOffset);
-    void onMonoUndulatorHarmonicChanged(SGMUndulatorSupport::UndulatorHarmonic undulatorHarmonic);
-    void onMonoExitSlitTrackingChanged(bool isTracking);
-    void onMonoExitSlitPositionChanged(double exitSlitPosition);
-    void onMonoEnergyChanged(double energy);
-    void onMonoWarningCountChanged(int warningCount);
-    void onMonoErrorCountChanged(int errorCount);
+    void onEnergyPositionGratingAngleChanged(double gratingAngleSteps);
+    void onEnergyPositionGratingTranslationChanged(SGMGratingSupport::GratingTranslation gratingTranslation);
+    void onEnergyPositionUndulatorTrackingChanged(bool isTracking);
+    void onEnergyUndulatorPositionChanged(double undulatorPosition);
+    void onEnergyPositionUndulatorOffsetChanged(double undulatorOffset);
+    void onEnergyPositionUndulatorHarmonicChanged(SGMUndulatorSupport::UndulatorHarmonic undulatorHarmonic);
+    void onEnergyPositionExitSlitTrackingChanged(bool isTracking);
+    void onEnergyPositionExitSlitPositionChanged(double exitSlitPosition);
+    void onEnergyPositionEnergyChanged(double energy);
+    void onEnergyPositionWarningCountChanged(int warningCount);
+    void onEnergyPositionErrorCountChanged(int errorCount);
 
 
     /*
@@ -81,7 +81,7 @@ protected:
      */
     void setupData();
 
-    SGMMonochromatorInfo* sgmMonochromatorInfo_;
+    SGMEnergyPosition* energyPosition_;
 
     QDoubleSpinBox* energySpinBox_;
     QComboBox* gratingSelectionModeComboBox_;
@@ -99,4 +99,4 @@ protected:
 
 };
 
-#endif // SGMMONOCHROMATORINFOTESTVIEW_H
+#endif // SGMENERGYPOSITIONTESTVIEW_H

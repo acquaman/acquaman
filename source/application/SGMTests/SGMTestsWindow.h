@@ -6,7 +6,7 @@
 #include <QPushButton>
 
 class SGMEnergyTrajectoryTestView;
-class SGMMonochromatorInfoTestView;
+class SGMEnergyPositionTestView;
 class SGMTestsWindow : public QMainWindow
 {
     Q_OBJECT
@@ -28,7 +28,7 @@ protected:
     QPushButton* showTrajectoryViewButton_;
 
     SGMEnergyTrajectoryTestView* energyTestView_;
-    SGMMonochromatorInfoTestView* monoInfoTestView_;
+    SGMEnergyPositionTestView* monoInfoTestView_;
 };
 
 #endif // SGMTESTSWINDOW_H

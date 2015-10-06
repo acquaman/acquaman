@@ -3,7 +3,7 @@
 
 #include "SGMGratingSupport.h"
 #include "SGMUndulatorSupport.h"
-#include "SGMMonochromatorInfo.h"
+#include "SGMEnergyPosition.h"
 #include "util/AMTrapezoidVelocityProfile.h"
 
 /*!
@@ -138,8 +138,8 @@ protected:
     double time_;
     SGMGratingSupport::GratingTranslation gratingTranslation_;
 
-    SGMMonochromatorInfo* startMonoInfo_;
-    SGMMonochromatorInfo* endMonoInfo_;
+    SGMEnergyPosition* startEnergyPosition_;
+    SGMEnergyPosition* endEnergyPosition_;
 
     AMTrapezoidVelocityProfile gratingAngleVelocityProfile_;
     AMTrapezoidVelocityProfile undulatorVelocityProfile_;

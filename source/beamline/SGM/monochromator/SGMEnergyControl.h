@@ -1,27 +1,26 @@
-#ifndef SGMMONOCHROMATORCONTROL_H
-#define SGMMONOCHROMATORCONTROL_H
+#ifndef SGMENERGYCONTROL_H
+#define SGMENERGYCONTROL_H
 
 #include "beamline/AMPseudoMotorControl.h"
 #include "SGMGratingSupport.h"
 #include "SGMUndulatorSupport.h"
 
-class SGMMonochromatorInfo;
+class SGMEnergyPosition;
 /*!
- * A class which represents a coordinated motor for setting the SGM beamline's
- * monochromator energy.
+ * A class which represents a coordinated motor for setting the SGM beamline's energy.
  * This class is used in the coordinator application in order to leverage the
- * logic within the SGMMonochromatorInfo and AMPseudoMotorControl classes, making
+ * logic within the SGMEnergyPosition and AMPseudoMotorControl classes, making
  * the coordination task simpler.
  */
-class SGMMonochromatorControl : public AMPseudoMotorControl
+class SGMEnergyControl : public AMPseudoMotorControl
 {
     Q_OBJECT
 public:
     /*!
-     * Creates an instance of an SGMMonochromatorControl, tracking changes in
-     * the mono component PVs, and coordinating them into a single energy readout.
+     * Creates an instance of an SGMEnergyControl, tracking changes in
+     * the energy component PVs, and coordinating them into a single energy readout.
      */
-    explicit SGMMonochromatorControl(QObject *parent = 0);
+    explicit SGMEnergyControl(QObject *parent = 0);
 
     /*!
      * Whether the undulator is currently tracking the energy of the monochromator
@@ -63,16 +62,16 @@ signals:
 public slots:
 
 protected slots:
-    // Connecting mono info controller to PVs
-    void onMonoInfoGratingAngleChanged(double gratingAngle);
-    void onMonoInfoGratingTranslationChanged(SGMGratingSupport::GratingTranslation gratingTranslation);
-    void onMonoInfoUndulatorHamonicChanged(SGMUndulatorSupport::UndulatorHarmonic undulatorHarmonic);
-    void onMonoInfoUndulatorPositionChanged(double undulatorPosition);
-    void onMonoInfoUndulatorOffsetChanged(double undulatorOffset);
-    void onMonoInfoExitSlitPositionChanged(double exitSlitPosition);
+    // Connecting energy position controller to PVs
+    void onEnergyPositionGratingAngleChanged(double gratingAngle);
+    void onEnergyPositionGratingTranslationChanged(SGMGratingSupport::GratingTranslation gratingTranslation);
+    void onEnergyPositionUndulatorHamonicChanged(SGMUndulatorSupport::UndulatorHarmonic undulatorHarmonic);
+    void onEnergyPositionUndulatorPositionChanged(double undulatorPosition);
+    void onEnergyPositionUndulatorOffsetChanged(double undulatorOffset);
+    void onEnergyPositionExitSlitPositionChanged(double exitSlitPosition);
 
     // Connectiong mono info energy readout to our pseudo motor value()
-    void onMonoInfoEnergyChanged(double energy);
+    void onEnergyPositionResultantEnergyChanged(double energy);
 
     // Connecting PVs to mono info controller
     void onGratingAnglePVValueChanged(double value);
@@ -109,13 +108,13 @@ protected:
     AMAction3* createMoveAction(double setpoint);
 
     /*!
-     * Helper method to perform the initialization of the mono info controller
+     * Helper method to perform the initialization of the energy position controller
      * values once all the PVs have been connected.
      */
-    void initializeMonoInfoController();
+    void initializeEnergyPosition();
 
-    /// Mono info controller which performs all the calculations, and coordination.
-    SGMMonochromatorInfo* monoInfoController_;
+    /// Energy position which performs all the calculations, and coordination.
+    SGMEnergyPosition* energyPositionController_;
 
     /// PVs for the mono components.
     AMControl* gratingAnglePV_;
@@ -126,4 +125,4 @@ protected:
     AMControl* exitSlitPositionPV_;
 };
 
-#endif // SGMMONOCHROMATORCONTROL_H
+#endif // SGMENERGYCONTROL_H

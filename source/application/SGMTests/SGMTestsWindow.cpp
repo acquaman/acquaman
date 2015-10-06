@@ -1,11 +1,11 @@
 #include "SGMTestsWindow.h"
 
-#include "tests/SGM/SGMMonochromatorInfoTest.h"
-#include "tests/SGM/SGMMonochromatorInfoTestView.h"
+#include "tests/SGM/SGMEnergyPositionTest.h"
+#include "tests/SGM/SGMEnergyPositionTestView.h"
 #include "tests/SGM/SGMEnergyTrajectoryTestView.h"
 
 
-#include "beamline/SGM/monochromator/SGMMonochromatorInfo.h"
+#include "beamline/SGM/monochromator/SGMEnergyPosition.h"
 #include <QGroupBox>
 #include <QHBoxLayout>
 #include <QVBoxLayout>
@@ -16,7 +16,7 @@ SGMTestsWindow::SGMTestsWindow(QWidget *parent) : QMainWindow(parent)
     energyTestView_ = 0;
     setupUi();
 
-    SGMMonochromatorInfoTest monoTests;
+    SGMEnergyPositionTest monoTests;
     monoTests.performTests();    
 
     QStringList testResults = monoTests.testResults();
@@ -33,7 +33,7 @@ void SGMTestsWindow::onShowMonoViewClicked()
 {
     if(monoInfoTestView_ == 0) {
 
-        SGMMonochromatorInfo* testMonoInfo = new SGMMonochromatorInfo(SGMGratingSupport::LowGrating,
+        SGMEnergyPosition* testEnergyPosition = new SGMEnergyPosition(SGMGratingSupport::LowGrating,
                                                                       -412460.94,
                                                                       SGMUndulatorSupport::FirstHarmonic,
                                                                       13.2265442,
@@ -41,7 +41,7 @@ void SGMTestsWindow::onShowMonoViewClicked()
                                                                       358.199551,
                                                                       this);
 
-        monoInfoTestView_ = new SGMMonochromatorInfoTestView(testMonoInfo);
+        monoInfoTestView_ = new SGMEnergyPositionTestView(testEnergyPosition);
     }
 
     monoInfoTestView_->show();

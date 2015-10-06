@@ -1,10 +1,10 @@
-#include "SGMMonochromatorControl.h"
-#include "SGMMonochromatorInfo.h"
+#include "SGMEnergyControl.h"
+#include "SGMEnergyPosition.h"
 
 #include "beamline/AMPVControl.h"
 #include "actions3/AMListAction3.h"
 #include "actions3/AMActionSupport.h"
-SGMMonochromatorControl::SGMMonochromatorControl(QObject *parent)
+SGMEnergyControl::SGMEnergyControl(QObject *parent)
     : AMPseudoMotorControl("Energy", "eV", parent, "SGM Monochromator Energy")
 {
     gratingAnglePV_ = new AMPVwStatusControl("Grating Angle", "READ", "WRITE", "STATUS", "STOP", this);
@@ -29,42 +29,42 @@ SGMMonochromatorControl::SGMMonochromatorControl(QObject *parent)
     connect(exitSlitPositionPV_, SIGNAL(valueChanged(double)), this, SLOT(onExitSlitPositionPVValueChanged(double)));
 
 
-    monoInfoController_ = 0;
+    energyPositionController_ = 0;
 }
 
-bool SGMMonochromatorControl::isUndulatorTracking() const
+bool SGMEnergyControl::isUndulatorTracking() const
 {
-    if(monoInfoController_) {
-        return monoInfoController_->isUndulatorTracking();
+    if(energyPositionController_) {
+        return energyPositionController_->isUndulatorTracking();
     }
 
     return false;
 }
 
-void SGMMonochromatorControl::setUndulatorTracking(bool isTracking)
+void SGMEnergyControl::setUndulatorTracking(bool isTracking)
 {
-    if(monoInfoController_) {
-        monoInfoController_->setUndulatorTracking(isTracking);
+    if(energyPositionController_) {
+        energyPositionController_->setUndulatorTracking(isTracking);
     }
 }
 
-bool SGMMonochromatorControl::isExitSlitTracking() const
+bool SGMEnergyControl::isExitSlitTracking() const
 {
-    if(monoInfoController_) {
-        return monoInfoController_->isExitSlitPositionTracking();
+    if(energyPositionController_) {
+        return energyPositionController_->isExitSlitPositionTracking();
     }
 
     return false;
 }
 
-void SGMMonochromatorControl::setExitSlitTracking(bool isTracking)
+void SGMEnergyControl::setExitSlitTracking(bool isTracking)
 {
-    if(monoInfoController_) {
-        monoInfoController_->setExitSlitPositionTracking(isTracking);
+    if(energyPositionController_) {
+        energyPositionController_->setExitSlitPositionTracking(isTracking);
     }
 }
 
-void SGMMonochromatorControl::onMonoInfoGratingAngleChanged(double gratingAngle)
+void SGMEnergyControl::onEnergyPositionGratingAngleChanged(double gratingAngle)
 {
     if(!gratingAnglePV_->withinTolerance(gratingAngle)) {
 
@@ -72,7 +72,7 @@ void SGMMonochromatorControl::onMonoInfoGratingAngleChanged(double gratingAngle)
     }
 }
 
-void SGMMonochromatorControl::onMonoInfoGratingTranslationChanged(SGMGratingSupport::GratingTranslation gratingTranslation)
+void SGMEnergyControl::onEnergyPositionGratingTranslationChanged(SGMGratingSupport::GratingTranslation gratingTranslation)
 {
     if(gratingTranslation != SGMGratingSupport::UnknownGrating) {
 
@@ -85,7 +85,7 @@ void SGMMonochromatorControl::onMonoInfoGratingTranslationChanged(SGMGratingSupp
     }
 }
 
-void SGMMonochromatorControl::onMonoInfoUndulatorHamonicChanged(SGMUndulatorSupport::UndulatorHarmonic undulatorHarmonic)
+void SGMEnergyControl::onEnergyPositionUndulatorHamonicChanged(SGMUndulatorSupport::UndulatorHarmonic undulatorHarmonic)
 {
 
     if(undulatorHarmonic != SGMUndulatorSupport::UnknownUndulatorHarmonic) {
@@ -99,7 +99,7 @@ void SGMMonochromatorControl::onMonoInfoUndulatorHamonicChanged(SGMUndulatorSupp
     }
 }
 
-void SGMMonochromatorControl::onMonoInfoUndulatorPositionChanged(double undulatorPosition)
+void SGMEnergyControl::onEnergyPositionUndulatorPositionChanged(double undulatorPosition)
 {
     if(!undulatorPositionPV_->withinTolerance(undulatorPosition)) {
 
@@ -107,7 +107,7 @@ void SGMMonochromatorControl::onMonoInfoUndulatorPositionChanged(double undulato
     }
 }
 
-void SGMMonochromatorControl::onMonoInfoUndulatorOffsetChanged(double undulatorOffset)
+void SGMEnergyControl::onEnergyPositionUndulatorOffsetChanged(double undulatorOffset)
 {
     if(!undulatorOffsetPV_->withinTolerance(undulatorOffset)) {
 
@@ -115,7 +115,7 @@ void SGMMonochromatorControl::onMonoInfoUndulatorOffsetChanged(double undulatorO
     }
 }
 
-void SGMMonochromatorControl::onMonoInfoExitSlitPositionChanged(double exitSlitPosition)
+void SGMEnergyControl::onEnergyPositionExitSlitPositionChanged(double exitSlitPosition)
 {
 
     if(!exitSlitPositionPV_->withinTolerance(exitSlitPosition)) {
@@ -124,19 +124,19 @@ void SGMMonochromatorControl::onMonoInfoExitSlitPositionChanged(double exitSlitP
     }
 }
 
-void SGMMonochromatorControl::onMonoInfoEnergyChanged(double energy)
+void SGMEnergyControl::onEnergyPositionResultantEnergyChanged(double energy)
 {
     setValue(energy);
 }
 
-void SGMMonochromatorControl::onGratingAnglePVValueChanged(double value)
+void SGMEnergyControl::onGratingAnglePVValueChanged(double value)
 {
-    if(monoInfoController_) {
-        monoInfoController_->setGratingAngle(value);
+    if(energyPositionController_) {
+        energyPositionController_->setGratingAngle(value);
     }
 }
 
-void SGMMonochromatorControl::onGratingTranslationPVValueChanged(double value)
+void SGMEnergyControl::onGratingTranslationPVValueChanged(double value)
 {
     SGMGratingSupport::GratingTranslation gratingTranslation = SGMGratingSupport::UnknownGrating;
 
@@ -152,16 +152,16 @@ void SGMMonochromatorControl::onGratingTranslationPVValueChanged(double value)
     }
 
     if(gratingTranslation != SGMGratingSupport::UnknownGrating &&
-            monoInfoController_) {
+            energyPositionController_) {
 
-        monoInfoController_->setGratingTranslation(gratingTranslation);
+        energyPositionController_->setGratingTranslation(gratingTranslation);
     }
 }
 
-void SGMMonochromatorControl::onUndulatorHarmonicPVValueChanged(double value)
+void SGMEnergyControl::onUndulatorHarmonicPVValueChanged(double value)
 {
 
-    if(monoInfoController_) {
+    if(energyPositionController_) {
         SGMUndulatorSupport::UndulatorHarmonic undulatorHarmonic = SGMUndulatorSupport::UnknownUndulatorHarmonic;
 
         if(qAbs(value - 1) < undulatorHarmonicPV_->tolerance()) {
@@ -174,33 +174,33 @@ void SGMMonochromatorControl::onUndulatorHarmonicPVValueChanged(double value)
 
         if(undulatorHarmonic != SGMUndulatorSupport::UnknownUndulatorHarmonic) {
 
-            monoInfoController_->setUndulatorHarmonic(undulatorHarmonic);
+            energyPositionController_->setUndulatorHarmonic(undulatorHarmonic);
         }
     }
 }
 
-void SGMMonochromatorControl::onUndulatorPositionPVValueChanged(double value)
+void SGMEnergyControl::onUndulatorPositionPVValueChanged(double value)
 {
-    if(monoInfoController_) {
-        monoInfoController_->setUndulatorPosition(value);
+    if(energyPositionController_) {
+        energyPositionController_->setUndulatorPosition(value);
     }
 }
 
-void SGMMonochromatorControl::onUndulatorOffsetPVValueChanged(double value)
+void SGMEnergyControl::onUndulatorOffsetPVValueChanged(double value)
 {
-    if(monoInfoController_) {
-        monoInfoController_->setUndulatorOffset(value);
+    if(energyPositionController_) {
+        energyPositionController_->setUndulatorOffset(value);
     }
 }
 
-void SGMMonochromatorControl::onExitSlitPositionPVValueChanged(double value)
+void SGMEnergyControl::onExitSlitPositionPVValueChanged(double value)
 {
-    if(monoInfoController_) {
-        monoInfoController_->setExitSlitPosition(value);
+    if(energyPositionController_) {
+        energyPositionController_->setExitSlitPosition(value);
     }
 }
 
-void SGMMonochromatorControl::updateConnected()
+void SGMEnergyControl::updateConnected()
 {
     setConnected(gratingAnglePV_->isConnected() &&
                  gratingTranslationPV_->isConnected() &&
@@ -209,20 +209,20 @@ void SGMMonochromatorControl::updateConnected()
                  undulatorOffsetPV_->isConnected() &&
                  exitSlitPositionPV_->isConnected());
 
-    if(monoInfoController_ == 0 && isConnected()) {
-        initializeMonoInfoController();
+    if(energyPositionController_ == 0 && isConnected()) {
+        initializeEnergyPosition();
     }
 }
 
-void SGMMonochromatorControl::updateValue()
+void SGMEnergyControl::updateValue()
 {
     /*
-     * Not Used. Our value (which represents the energy) is updated when the mono
-     * info class emits the energyChanged signal (see onMonoInfoEnergyChanged)
+     * Not Used. Our value (which represents the energy) is updated when the energy
+     * position class emits the energyChanged signal (see onMonoInfoEnergyChanged)
      */
 }
 
-void SGMMonochromatorControl::updateMoving()
+void SGMEnergyControl::updateMoving()
 {
     setIsMoving(gratingAnglePV_->isMoving() ||
                 gratingTranslationPV_->isMoving() ||
@@ -232,16 +232,16 @@ void SGMMonochromatorControl::updateMoving()
                 exitSlitPositionPV_->isMoving());
 }
 
-AMAction3 *SGMMonochromatorControl::createMoveAction(double setpoint)
+AMAction3 *SGMEnergyControl::createMoveAction(double setpoint)
 {
     AMListAction3* moveAction = 0;
 
-    if(monoInfoController_) {
+    if(energyPositionController_) {
         // Create a cloned mono info to use in the calculation for our new component
         // positions:
-        SGMMonochromatorInfo newMonochromatorEnergyInfo(value(), monoInfoController_->gratingTranslation());
-        newMonochromatorEnergyInfo.setUndulatorTracking(monoInfoController_->isUndulatorTracking());
-        newMonochromatorEnergyInfo.setExitSlitPositionTracking(monoInfoController_->isExitSlitPositionTracking());
+        SGMEnergyPosition newMonochromatorEnergyInfo(value(), energyPositionController_->gratingTranslation());
+        newMonochromatorEnergyInfo.setUndulatorTracking(energyPositionController_->isUndulatorTracking());
+        newMonochromatorEnergyInfo.setExitSlitPositionTracking(energyPositionController_->isExitSlitPositionTracking());
 
         // Move our new mono info to the setpoint energy position:
         newMonochromatorEnergyInfo.requestEnergy(setpoint);
@@ -301,7 +301,7 @@ AMAction3 *SGMMonochromatorControl::createMoveAction(double setpoint)
     return moveAction;
 }
 
-void SGMMonochromatorControl::initializeMonoInfoController()
+void SGMEnergyControl::initializeEnergyPosition()
 {
     // Initialize the mono info controller's data
     SGMGratingSupport::GratingTranslation gratingTranslation = SGMGratingSupport::UnknownGrating;
@@ -326,28 +326,28 @@ void SGMMonochromatorControl::initializeMonoInfoController()
         undulatorHarmonic = SGMUndulatorSupport::ThirdHarmonic;
     }
 
-    monoInfoController_ = new SGMMonochromatorInfo(gratingTranslation,
+    energyPositionController_ = new SGMEnergyPosition(gratingTranslation,
                                                    gratingAnglePV_->value(),
                                                    undulatorHarmonic,
                                                    undulatorPositionPV_->value(),
                                                    undulatorOffsetPV_->value(),
                                                    exitSlitPositionPV_->value());
 
-    monoInfoController_->setUndulatorTracking(undulatorTrackingPV_->withinTolerance(1));
-    monoInfoController_->setExitSlitPositionTracking(exitSlitTrackingPV_->withinTolerance(1));
+    energyPositionController_->setUndulatorTracking(undulatorTrackingPV_->withinTolerance(1));
+    energyPositionController_->setExitSlitPositionTracking(exitSlitTrackingPV_->withinTolerance(1));
 
-    setValue(monoInfoController_->resultantEnergy());
+    setValue(energyPositionController_->resultantEnergy());
 
     // Connect the mono info controller's signals
-    connect(monoInfoController_, SIGNAL(gratingAngleChanged(double)), this, SLOT(onMonoInfoGratingAngleChanged(double)));
-    connect(monoInfoController_, SIGNAL(gratingTranslationChanged(SGMGratingSupport::GratingTranslation)), this, SLOT(onMonoInfoGratingTranslationChanged(SGMGratingSupport::GratingTranslation)));
-    connect(monoInfoController_, SIGNAL(undulatorHarmonicChanged(SGMUndulatorSupport::UndulatorHarmonic)), this, SLOT(onMonoInfoUndulatorHamonicChanged(SGMUndulatorSupport::UndulatorHarmonic)));
-    connect(monoInfoController_, SIGNAL(undulatorTrackingChanged(bool)), this, SIGNAL(undulatorTrackingChanged(bool)));
-    connect(monoInfoController_, SIGNAL(undulatorPositionChanged(double)), this, SLOT(onMonoInfoUndulatorPositionChanged(double)));
-    connect(monoInfoController_, SIGNAL(undulatorOffsetChanged(double)), this, SLOT(onMonoInfoUndulatorOffsetChanged(double)));
-    connect(monoInfoController_, SIGNAL(exitSlitPositionChanged(double)), this, SLOT(onMonoInfoExitSlitPositionChanged(double)));
-    connect(monoInfoController_, SIGNAL(exitSlitTrackingChanged(bool)), this, SIGNAL(exitSlitTrackingChanged(bool)));
+    connect(energyPositionController_, SIGNAL(gratingAngleChanged(double)), this, SLOT(onEnergyPositionGratingAngleChanged(double)));
+    connect(energyPositionController_, SIGNAL(gratingTranslationChanged(SGMGratingSupport::GratingTranslation)), this, SLOT(onEnergyPositionGratingTranslationChanged(SGMGratingSupport::GratingTranslation)));
+    connect(energyPositionController_, SIGNAL(undulatorHarmonicChanged(SGMUndulatorSupport::UndulatorHarmonic)), this, SLOT(onEnergyPositionUndulatorHamonicChanged(SGMUndulatorSupport::UndulatorHarmonic)));
+    connect(energyPositionController_, SIGNAL(undulatorTrackingChanged(bool)), this, SIGNAL(undulatorTrackingChanged(bool)));
+    connect(energyPositionController_, SIGNAL(undulatorPositionChanged(double)), this, SLOT(onEnergyPositionUndulatorPositionChanged(double)));
+    connect(energyPositionController_, SIGNAL(undulatorOffsetChanged(double)), this, SLOT(onEnergyPositionUndulatorOffsetChanged(double)));
+    connect(energyPositionController_, SIGNAL(exitSlitPositionChanged(double)), this, SLOT(onEnergyPositionExitSlitPositionChanged(double)));
+    connect(energyPositionController_, SIGNAL(exitSlitTrackingChanged(bool)), this, SIGNAL(exitSlitTrackingChanged(bool)));
 
-    connect(monoInfoController_, SIGNAL(energyChanged(double)), this, SLOT(onMonoInfoEnergyChanged(double)));
+    connect(energyPositionController_, SIGNAL(energyChanged(double)), this, SLOT(onEnergyPositionResultantEnergyChanged(double)));
 }
 

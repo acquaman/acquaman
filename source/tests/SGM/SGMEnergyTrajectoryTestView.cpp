@@ -4,7 +4,7 @@
 #include "MPlot/MPlot.h"
 #include "MPlot/MPlotSeries.h"
 
-#include "beamline/SGM/monochromator/SGMMonochromatorInfo.h"
+#include "beamline/SGM/monochromator/SGMEnergyPosition.h"
 #include "beamline/SGM/monochromator/SGMEnergyTrajectory.h"
 
 #include <QHBoxLayout>
@@ -269,7 +269,7 @@ void SGMEnergyTrajectoryTestView::setTheoreticalPlotData(SGMGratingSupport::Grat
         double increment = 1;
 
         int numberOfItems = int((endValue - startValue) / increment);
-        SGMMonochromatorInfo monoInfo(200, gratingTranslation);
+        SGMEnergyPosition energyPosition(200, gratingTranslation);
 
         QVector<qreal> xValues = QVector<qreal>(numberOfItems);
         QVector<qreal> gratingAngleYValues = QVector<qreal>(numberOfItems);
@@ -283,11 +283,11 @@ void SGMEnergyTrajectoryTestView::setTheoreticalPlotData(SGMGratingSupport::Grat
 
         for(double energy = startValue; energy <= endValue; energy+=increment) {
 
-            monoInfo.requestEnergy(energy, gratingTranslation);
-            xValues.append(monoInfo.resultantEnergy());
-            gratingAngleYValues.append(monoInfo.gratingAngle());
-            undulatorPositionYValues.append(monoInfo.undulatorPosition());
-            exitSlitPositionYValues.append(monoInfo.exitSlitPosition());
+            energyPosition.requestEnergy(energy, gratingTranslation);
+            xValues.append(energyPosition.resultantEnergy());
+            gratingAngleYValues.append(energyPosition.gratingAngle());
+            undulatorPositionYValues.append(energyPosition.undulatorPosition());
+            exitSlitPositionYValues.append(energyPosition.exitSlitPosition());
         }
 
         gratingAngleTheoreticalData_->setValues(xValues, gratingAngleYValues);
@@ -308,14 +308,14 @@ void SGMEnergyTrajectoryTestView::setEnergyPlotData(SGMGratingSupport::GratingTr
                                        timeSpinBox_->value(),
                                        gratingTranslation);
 
-        SGMMonochromatorInfo currentMonoStatus(gratingTranslation,
-                                               trajectory.startGratingAngleEncoderStep(),
-                                               trajectory.undulatorHarmonic(),
-                                               trajectory.startUndulatorPosition(),
-                                               0,
-                                               trajectory.startExitSlitPosition());
+        SGMEnergyPosition currentEnergyStatus(gratingTranslation,
+                                              trajectory.startGratingAngleEncoderStep(),
+                                              trajectory.undulatorHarmonic(),
+                                              trajectory.startUndulatorPosition(),
+                                              0,
+                                              trajectory.startExitSlitPosition());
 
-        currentMonoStatus.setAutoDetectUndulatorHarmonic(false);
+        currentEnergyStatus.setAutoDetectUndulatorHarmonic(false);
 
         double angleEncoderValue = trajectory.startGratingAngleEncoderStep();
         double angleEncoderVelocity = trajectory.gratingAngleVelocityProfile().targetVelocity();
@@ -326,9 +326,9 @@ void SGMEnergyTrajectoryTestView::setEnergyPlotData(SGMGratingSupport::GratingTr
         for(double currentTime = 0, endTime = trajectory.time(); currentTime < endTime; ++currentTime) {
 
             timeXValues.append(currentTime);
-            energyProducedYValues.append(currentMonoStatus.resultantEnergy());
+            energyProducedYValues.append(currentEnergyStatus.resultantEnergy());
             angleEncoderValue += angleEncoderVelocity;
-            currentMonoStatus.setGratingAngle(angleEncoderValue);
+            currentEnergyStatus.setGratingAngle(angleEncoderValue);
         }
 
 

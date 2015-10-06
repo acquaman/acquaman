@@ -1,47 +1,47 @@
-#include "SGMMonochromatorInfoTestView.h"
+#include "SGMEnergyPositionTestView.h"
 
 #include <QGridLayout>
 #include <QVBoxLayout>
 #include <QGroupBox>
 
-#include "beamline/SGM/monochromator/SGMMonochromatorInfo.h"
+#include "beamline/SGM/monochromator/SGMEnergyPosition.h"
 
-SGMMonochromatorInfoTestView::SGMMonochromatorInfoTestView(SGMMonochromatorInfo *mono, QWidget *parent) : QWidget(parent)
+SGMEnergyPositionTestView::SGMEnergyPositionTestView(SGMEnergyPosition *energyPosition, QWidget *parent) : QWidget(parent)
 {
-    sgmMonochromatorInfo_ = mono;
+    energyPosition_ = energyPosition;
     setupUi();
     setupData();
     makeConnections();
 }
 
-void SGMMonochromatorInfoTestView::onMonoGratingAngleChanged(double gratingAngleSteps)
+void SGMEnergyPositionTestView::onEnergyPositionGratingAngleChanged(double gratingAngleSteps)
 {
     gratingAngleSpinBox_->setValue(gratingAngleSteps);
 }
 
-void SGMMonochromatorInfoTestView::onMonoGratingTranslationChanged(SGMGratingSupport::GratingTranslation gratingTranslation)
+void SGMEnergyPositionTestView::onEnergyPositionGratingTranslationChanged(SGMGratingSupport::GratingTranslation gratingTranslation)
 {
     int gratingInteger = int(gratingTranslation);
 
     gratingTranslationComboBox_->setCurrentIndex(gratingInteger);
 }
 
-void SGMMonochromatorInfoTestView::onMonoUndulatorTrackingChanged(bool isTracking)
+void SGMEnergyPositionTestView::onEnergyPositionUndulatorTrackingChanged(bool isTracking)
 {
     undulatorTrackingCheckBox_->setChecked(isTracking);
 }
 
-void SGMMonochromatorInfoTestView::onMonoUndulatorPositionChanged(double undulatorPosition)
+void SGMEnergyPositionTestView::onEnergyUndulatorPositionChanged(double undulatorPosition)
 {
     undulatorPositionSpinBox_->setValue(undulatorPosition);
 }
 
-void SGMMonochromatorInfoTestView::onMonoUndulatorOffsetChanged(double undulatorOffset)
+void SGMEnergyPositionTestView::onEnergyPositionUndulatorOffsetChanged(double undulatorOffset)
 {
     undulatorDetuneOffsetSpinBox_->setValue(undulatorOffset);
 }
 
-void SGMMonochromatorInfoTestView::onMonoUndulatorHarmonicChanged(SGMUndulatorSupport::UndulatorHarmonic undulatorHarmonic)
+void SGMEnergyPositionTestView::onEnergyPositionUndulatorHarmonicChanged(SGMUndulatorSupport::UndulatorHarmonic undulatorHarmonic)
 {
     switch(undulatorHarmonic) {
     case SGMUndulatorSupport::FirstHarmonic:
@@ -55,22 +55,22 @@ void SGMMonochromatorInfoTestView::onMonoUndulatorHarmonicChanged(SGMUndulatorSu
     }
 }
 
-void SGMMonochromatorInfoTestView::onMonoExitSlitTrackingChanged(bool isTracking)
+void SGMEnergyPositionTestView::onEnergyPositionExitSlitTrackingChanged(bool isTracking)
 {
     exitSlitTrackingCheckBox_->setChecked(isTracking);
 }
 
-void SGMMonochromatorInfoTestView::onMonoExitSlitPositionChanged(double exitSlitPosition)
+void SGMEnergyPositionTestView::onEnergyPositionExitSlitPositionChanged(double exitSlitPosition)
 {
     exitSlitPositionSpinBox_->setValue(exitSlitPosition);
 }
 
-void SGMMonochromatorInfoTestView::onMonoEnergyChanged(double energy)
+void SGMEnergyPositionTestView::onEnergyPositionEnergyChanged(double energy)
 {
     energySpinBox_->setValue(energy);
 }
 
-void SGMMonochromatorInfoTestView::onMonoWarningCountChanged(int warningCount)
+void SGMEnergyPositionTestView::onEnergyPositionWarningCountChanged(int warningCount)
 {
     if(warningCount == 0) {
         warningsTextEdit_->setVisible(false);
@@ -79,7 +79,7 @@ void SGMMonochromatorInfoTestView::onMonoWarningCountChanged(int warningCount)
         warningsTextEdit_->setVisible(true);
         QString warningString;
 
-        foreach(QString message, sgmMonochromatorInfo_->warningMessage()) {
+        foreach(QString message, energyPosition_->warningMessage()) {
 
             warningString.append(QString("\n%1").arg(message));
         }
@@ -89,7 +89,7 @@ void SGMMonochromatorInfoTestView::onMonoWarningCountChanged(int warningCount)
 
 }
 
-void SGMMonochromatorInfoTestView::onMonoErrorCountChanged(int errorCount)
+void SGMEnergyPositionTestView::onEnergyPositionErrorCountChanged(int errorCount)
 {
     if(errorCount == 0) {
         errorsTextEdit_->setVisible(false);
@@ -97,7 +97,7 @@ void SGMMonochromatorInfoTestView::onMonoErrorCountChanged(int errorCount)
         errorsTextEdit_->setVisible(true);
         QString errorString;
 
-        foreach(QString message, sgmMonochromatorInfo_->errorMessage()) {
+        foreach(QString message, energyPosition_->errorMessage()) {
 
             errorString.append(QString("\n%1").arg(message));
         }
@@ -106,39 +106,39 @@ void SGMMonochromatorInfoTestView::onMonoErrorCountChanged(int errorCount)
     }
 }
 
-void SGMMonochromatorInfoTestView::onGratingAngleSpinBoxChanged()
+void SGMEnergyPositionTestView::onGratingAngleSpinBoxChanged()
 {
     double value = gratingAngleSpinBox_->value();
-    if(qAbs(value - sgmMonochromatorInfo_->gratingAngle()) > 0.001) {
-        sgmMonochromatorInfo_->setGratingAngle(value);
+    if(qAbs(value - energyPosition_->gratingAngle()) > 0.001) {
+        energyPosition_->setGratingAngle(value);
     }
 }
 
-void SGMMonochromatorInfoTestView::onGratingSelectionModeComboBoxChanged(int index)
+void SGMEnergyPositionTestView::onGratingSelectionModeComboBoxChanged(int index)
 {
     gratingTranslationComboBox_->setEnabled(index == 3);
     if(index != 3) {
 
-        SGMMonochromatorInfo::GratingTranslationOptimizationMode correspondingOptimizeMode;
+        SGMEnergyPosition::GratingTranslationOptimizationMode correspondingOptimizeMode;
         switch(index) {
         case 0:
-            correspondingOptimizeMode = SGMMonochromatorInfo::OptimizeFlux;
+            correspondingOptimizeMode = SGMEnergyPosition::OptimizeFlux;
             break;
         case 1:
-            correspondingOptimizeMode = SGMMonochromatorInfo::OptimizeResolution;
+            correspondingOptimizeMode = SGMEnergyPosition::OptimizeResolution;
             break;
         case 2:
         default:
-            correspondingOptimizeMode = SGMMonochromatorInfo::OptimizeMinimalMovement;
+            correspondingOptimizeMode = SGMEnergyPosition::OptimizeMinimalMovement;
             break;
         }
 
 
-        sgmMonochromatorInfo_->requestEnergy(this->energySpinBox_->value(), correspondingOptimizeMode);
+        energyPosition_->requestEnergy(this->energySpinBox_->value(), correspondingOptimizeMode);
     }
 }
 
-void SGMMonochromatorInfoTestView::onGratingTranslationComboBoxChanged(int index)
+void SGMEnergyPositionTestView::onGratingTranslationComboBoxChanged(int index)
 {
     SGMGratingSupport::GratingTranslation correspondingGrating;
     switch(index) {
@@ -156,43 +156,43 @@ void SGMMonochromatorInfoTestView::onGratingTranslationComboBoxChanged(int index
     }
 
     if(correspondingGrating != SGMGratingSupport::UnknownGrating &&
-            correspondingGrating != sgmMonochromatorInfo_->gratingTranslation()) {
+            correspondingGrating != energyPosition_->gratingTranslation()) {
 
-        sgmMonochromatorInfo_->setGratingTranslation(correspondingGrating);
+        energyPosition_->setGratingTranslation(correspondingGrating);
     }
 }
 
-void SGMMonochromatorInfoTestView::onUndulatorTrackingCheckBoxChanged(bool value)
+void SGMEnergyPositionTestView::onUndulatorTrackingCheckBoxChanged(bool value)
 {
-    if(sgmMonochromatorInfo_->isUndulatorTracking() != value) {
-        sgmMonochromatorInfo_->setUndulatorTracking(value);
+    if(energyPosition_->isUndulatorTracking() != value) {
+        energyPosition_->setUndulatorTracking(value);
     }
 }
 
-void SGMMonochromatorInfoTestView::onUndulatorPositionSpinBoxChanged()
+void SGMEnergyPositionTestView::onUndulatorPositionSpinBoxChanged()
 {
     double value = undulatorPositionSpinBox_->value();
-    if(qAbs(sgmMonochromatorInfo_->undulatorPosition() - value) > 0.001) {
+    if(qAbs(energyPosition_->undulatorPosition() - value) > 0.001) {
 
-        sgmMonochromatorInfo_->setUndulatorPosition(value);
+        energyPosition_->setUndulatorPosition(value);
     }
 }
 
-void SGMMonochromatorInfoTestView::onUndulatorOffsetSpinBoxChanged()
+void SGMEnergyPositionTestView::onUndulatorOffsetSpinBoxChanged()
 {
     double value = undulatorDetuneOffsetSpinBox_->value();
-    if(qAbs(sgmMonochromatorInfo_->undulatorOffset() - value) > 0.001) {
-                sgmMonochromatorInfo_->setUndulatorOffset(value);
+    if(qAbs(energyPosition_->undulatorOffset() - value) > 0.001) {
+                energyPosition_->setUndulatorOffset(value);
     }
 }
 
-void SGMMonochromatorInfoTestView::onAutoDetectUndulatorHarmonicCheckBoxChanged(bool value)
+void SGMEnergyPositionTestView::onAutoDetectUndulatorHarmonicCheckBoxChanged(bool value)
 {
-    sgmMonochromatorInfo_->setAutoDetectUndulatorHarmonic(value);
+    energyPosition_->setAutoDetectUndulatorHarmonic(value);
     undulatorHarmonicComboBox_->setEnabled(!value);
 }
 
-void SGMMonochromatorInfoTestView::onUndulatorHarmonicComboBoxChanged(int index)
+void SGMEnergyPositionTestView::onUndulatorHarmonicComboBoxChanged(int index)
 {
     SGMUndulatorSupport::UndulatorHarmonic correspondingUndulatorHarmonic;
 
@@ -209,33 +209,33 @@ void SGMMonochromatorInfoTestView::onUndulatorHarmonicComboBoxChanged(int index)
     }
 
     if(correspondingUndulatorHarmonic != SGMUndulatorSupport::UnknownUndulatorHarmonic &&
-            correspondingUndulatorHarmonic != sgmMonochromatorInfo_->undulatorHarmonic()) {
+            correspondingUndulatorHarmonic != energyPosition_->undulatorHarmonic()) {
 
-        sgmMonochromatorInfo_->setUndulatorHarmonic(correspondingUndulatorHarmonic);
+        energyPosition_->setUndulatorHarmonic(correspondingUndulatorHarmonic);
     }
 }
 
-void SGMMonochromatorInfoTestView::onExitSlitTrackingCheckBoxChanged(bool value)
+void SGMEnergyPositionTestView::onExitSlitTrackingCheckBoxChanged(bool value)
 {
-    if(sgmMonochromatorInfo_->isExitSlitPositionTracking() != value) {
+    if(energyPosition_->isExitSlitPositionTracking() != value) {
 
-        sgmMonochromatorInfo_->setExitSlitPositionTracking(value);
+        energyPosition_->setExitSlitPositionTracking(value);
     }
 }
 
-void SGMMonochromatorInfoTestView::onExitSlitPositionSpinBoxChanged()
+void SGMEnergyPositionTestView::onExitSlitPositionSpinBoxChanged()
 {
     double value = exitSlitPositionSpinBox_->value();
-    if(qAbs(sgmMonochromatorInfo_->exitSlitPosition() - value ) > 0.001) {
+    if(qAbs(energyPosition_->exitSlitPosition() - value ) > 0.001) {
 
-        sgmMonochromatorInfo_->setExitSlitPosition(value);
+        energyPosition_->setExitSlitPosition(value);
     }
 }
 
-void SGMMonochromatorInfoTestView::onEnergySpinBoxChanged()
+void SGMEnergyPositionTestView::onEnergySpinBoxChanged()
 {
     double value = energySpinBox_->value();
-    if(qAbs(sgmMonochromatorInfo_->resultantEnergy() - value) > 0.001) {
+    if(qAbs(energyPosition_->resultantEnergy() - value) > 0.001) {
 
         if(gratingSelectionModeComboBox_->currentIndex() == 3) {
             //Manual selection mode
@@ -255,32 +255,32 @@ void SGMMonochromatorInfoTestView::onEnergySpinBoxChanged()
                 correspondingGrating = SGMGratingSupport::UnknownGrating;
             }
 
-            sgmMonochromatorInfo_->requestEnergy(value, correspondingGrating);
+            energyPosition_->requestEnergy(value, correspondingGrating);
 
         } else {
             // Auto selection mode
 
-            SGMMonochromatorInfo::GratingTranslationOptimizationMode optimizationMode;
+            SGMEnergyPosition::GratingTranslationOptimizationMode optimizationMode;
             switch(gratingSelectionModeComboBox_->currentIndex()) {
 
             case 0:
-                optimizationMode = SGMMonochromatorInfo::OptimizeFlux;
+                optimizationMode = SGMEnergyPosition::OptimizeFlux;
                 break;
             case 1:
-                optimizationMode = SGMMonochromatorInfo::OptimizeResolution;
+                optimizationMode = SGMEnergyPosition::OptimizeResolution;
                 break;
             case 2:
             default:
-                optimizationMode = SGMMonochromatorInfo::OptimizeMinimalMovement;
+                optimizationMode = SGMEnergyPosition::OptimizeMinimalMovement;
             }
 
-            sgmMonochromatorInfo_->requestEnergy(value, optimizationMode);
+            energyPosition_->requestEnergy(value, optimizationMode);
         }
 
     }
 }
 
-void SGMMonochromatorInfoTestView::setupUi()
+void SGMEnergyPositionTestView::setupUi()
 {
     QVBoxLayout* mainLayout = new QVBoxLayout();
 
@@ -373,24 +373,24 @@ void SGMMonochromatorInfoTestView::setupUi()
 
 }
 
-void SGMMonochromatorInfoTestView::makeConnections()
+void SGMEnergyPositionTestView::makeConnections()
 {
     // Mono to View
-    connect(sgmMonochromatorInfo_, SIGNAL(gratingAngleChanged(double)), this, SLOT(onMonoGratingAngleChanged(double)));
-    connect(sgmMonochromatorInfo_, SIGNAL(gratingTranslationChanged(SGMGratingSupport::GratingTranslation)),
-            this, SLOT(onMonoGratingTranslationChanged(SGMGratingSupport::GratingTranslation)));
+    connect(energyPosition_, SIGNAL(gratingAngleChanged(double)), this, SLOT(onEnergyPositionGratingAngleChanged(double)));
+    connect(energyPosition_, SIGNAL(gratingTranslationChanged(SGMGratingSupport::GratingTranslation)),
+            this, SLOT(onEnergyPositionGratingTranslationChanged(SGMGratingSupport::GratingTranslation)));
 
-    connect(sgmMonochromatorInfo_, SIGNAL(undulatorTrackingChanged(bool)), this, SLOT(onMonoUndulatorTrackingChanged(bool)));
-    connect(sgmMonochromatorInfo_, SIGNAL(undulatorPositionChanged(double)), this, SLOT(onMonoUndulatorPositionChanged(double)));
-    connect(sgmMonochromatorInfo_, SIGNAL(undulatorOffsetChanged(double)), this, SLOT(onMonoUndulatorOffsetChanged(double)));
-    connect(sgmMonochromatorInfo_, SIGNAL(undulatorHarmonicChanged(SGMUndulatorSupport::UndulatorHarmonic)),
-            this, SLOT(onMonoUndulatorHarmonicChanged(SGMUndulatorSupport::UndulatorHarmonic)));
+    connect(energyPosition_, SIGNAL(undulatorTrackingChanged(bool)), this, SLOT(onEnergyPositionUndulatorTrackingChanged(bool)));
+    connect(energyPosition_, SIGNAL(undulatorPositionChanged(double)), this, SLOT(onEnergyUndulatorPositionChanged(double)));
+    connect(energyPosition_, SIGNAL(undulatorOffsetChanged(double)), this, SLOT(onEnergyPositionUndulatorOffsetChanged(double)));
+    connect(energyPosition_, SIGNAL(undulatorHarmonicChanged(SGMUndulatorSupport::UndulatorHarmonic)),
+            this, SLOT(onEnergyPositionUndulatorHarmonicChanged(SGMUndulatorSupport::UndulatorHarmonic)));
 
-    connect(sgmMonochromatorInfo_, SIGNAL(exitSlitTrackingChanged(bool)), this, SLOT(onMonoExitSlitTrackingChanged(bool)));
-    connect(sgmMonochromatorInfo_, SIGNAL(exitSlitPositionChanged(double)), this, SLOT(onMonoExitSlitPositionChanged(double)));
-    connect(sgmMonochromatorInfo_, SIGNAL(energyChanged(double)), this, SLOT(onMonoEnergyChanged(double)));
-    connect(sgmMonochromatorInfo_, SIGNAL(errorCountChanged(int)), this, SLOT(onMonoErrorCountChanged(int)));
-    connect(sgmMonochromatorInfo_, SIGNAL(warningCountChanged(int)), this, SLOT(onMonoWarningCountChanged(int)));
+    connect(energyPosition_, SIGNAL(exitSlitTrackingChanged(bool)), this, SLOT(onEnergyPositionExitSlitTrackingChanged(bool)));
+    connect(energyPosition_, SIGNAL(exitSlitPositionChanged(double)), this, SLOT(onEnergyPositionExitSlitPositionChanged(double)));
+    connect(energyPosition_, SIGNAL(energyChanged(double)), this, SLOT(onEnergyPositionEnergyChanged(double)));
+    connect(energyPosition_, SIGNAL(errorCountChanged(int)), this, SLOT(onEnergyPositionErrorCountChanged(int)));
+    connect(energyPosition_, SIGNAL(warningCountChanged(int)), this, SLOT(onEnergyPositionWarningCountChanged(int)));
 
     // View to Mono
     connect(gratingAngleSpinBox_, SIGNAL(editingFinished()), this, SLOT(onGratingAngleSpinBoxChanged()));
@@ -406,19 +406,19 @@ void SGMMonochromatorInfoTestView::makeConnections()
     connect(energySpinBox_, SIGNAL(editingFinished()), this, SLOT(onEnergySpinBoxChanged()));
 }
 
-void SGMMonochromatorInfoTestView::setupData()
+void SGMEnergyPositionTestView::setupData()
 {
-    onMonoGratingAngleChanged(sgmMonochromatorInfo_->gratingAngle());
-    onMonoGratingTranslationChanged(sgmMonochromatorInfo_->gratingTranslation());
-    onMonoUndulatorTrackingChanged(sgmMonochromatorInfo_->isUndulatorTracking());
-    onMonoUndulatorPositionChanged(sgmMonochromatorInfo_->undulatorPosition());
-    onMonoUndulatorOffsetChanged(sgmMonochromatorInfo_->undulatorOffset());
-    onMonoUndulatorHarmonicChanged(sgmMonochromatorInfo_->undulatorHarmonic());
-    onMonoExitSlitTrackingChanged(sgmMonochromatorInfo_->isExitSlitPositionTracking());
-    onMonoExitSlitPositionChanged(sgmMonochromatorInfo_->exitSlitPosition());
-    onMonoEnergyChanged(sgmMonochromatorInfo_->resultantEnergy());
-    onMonoWarningCountChanged(sgmMonochromatorInfo_->warningMessage().count());
-    onMonoErrorCountChanged(sgmMonochromatorInfo_->errorMessage().count());
-    autoDetectUndulatorHarmonicCheckBox_->setChecked(sgmMonochromatorInfo_->autoDetectUndulatorHarmonic());
-    undulatorHarmonicComboBox_->setEnabled(!sgmMonochromatorInfo_->autoDetectUndulatorHarmonic());
+    onEnergyPositionGratingAngleChanged(energyPosition_->gratingAngle());
+    onEnergyPositionGratingTranslationChanged(energyPosition_->gratingTranslation());
+    onEnergyPositionUndulatorTrackingChanged(energyPosition_->isUndulatorTracking());
+    onEnergyUndulatorPositionChanged(energyPosition_->undulatorPosition());
+    onEnergyPositionUndulatorOffsetChanged(energyPosition_->undulatorOffset());
+    onEnergyPositionUndulatorHarmonicChanged(energyPosition_->undulatorHarmonic());
+    onEnergyPositionExitSlitTrackingChanged(energyPosition_->isExitSlitPositionTracking());
+    onEnergyPositionExitSlitPositionChanged(energyPosition_->exitSlitPosition());
+    onEnergyPositionEnergyChanged(energyPosition_->resultantEnergy());
+    onEnergyPositionWarningCountChanged(energyPosition_->warningMessage().count());
+    onEnergyPositionErrorCountChanged(energyPosition_->errorMessage().count());
+    autoDetectUndulatorHarmonicCheckBox_->setChecked(energyPosition_->autoDetectUndulatorHarmonic());
+    undulatorHarmonicComboBox_->setEnabled(!energyPosition_->autoDetectUndulatorHarmonic());
 }
