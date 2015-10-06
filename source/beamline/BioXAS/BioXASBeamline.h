@@ -28,6 +28,7 @@
 #include "beamline/BioXAS/BioXASBeamlineUtilities.h"
 #include "beamline/BioXAS/BioXASCryostatStage.h"
 #include "beamline/BioXAS/BioXASShutters.h"
+#include "beamline/BioXAS/BioXASValves.h"
 
 #include "util/AMErrorMonitor.h"
 #include "util/AMBiHash.h"
@@ -57,12 +58,14 @@ public:
 	virtual ~BioXASBeamline();
 
 	/// Returns the current connected state.
-	virtual bool isConnected() const { return false; }
+	virtual bool isConnected() const;
 	/// Returns the (cached) current connected state.
 	virtual bool connected() const { return connected_; }
 
 	/// Returns the shutters.
 	virtual BioXASShutters* shutters() const { return 0; }
+	/// Returns the valves.
+	virtual BioXASValves* valves() const { return valves_; }
 	/// Returns the m1 mirror.
 	virtual BioXASM1Mirror* m1Mirror() const { return 0; }
 	/// Returns the monochromator.
@@ -131,6 +134,9 @@ protected:
 protected:
 	/// The current connected state.
 	bool connected_;
+
+	/// The valves for all three beamlines.
+	BioXASValves *valves_;
 
 	/// The control/detector map. Assumes a 1-1 correlation between controls and detector emulators.
 	QMap<AMControl*, AMBasicControlDetectorEmulator*> controlDetectorMap_;

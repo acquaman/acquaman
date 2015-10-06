@@ -9,6 +9,15 @@ BioXASBeamline::~BioXASBeamline()
 
 }
 
+bool BioXASBeamline::isConnected() const
+{
+	bool connected = (
+				valves_ && valves_->isConnected()
+				);
+
+	return connected;
+}
+
 AMBasicControlDetectorEmulator* BioXASBeamline::detectorForControl(AMControl *control) const
 {
 	return controlDetectorMap_.value(control, 0);
@@ -29,7 +38,10 @@ void BioXASBeamline::updateConnected()
 
 void BioXASBeamline::setupComponents()
 {
+	// Valves.
 
+	valves_ = new BioXASValves(this);
+	connect( valves_, SIGNAL(connectedChanged(bool)), this, SLOT(updateConnected()) );
 }
 
 AMBasicControlDetectorEmulator* BioXASBeamline::createDetectorEmulator(const QString &name, const QString &description, AMControl *control, bool hiddenFromUsers, bool isVisible)

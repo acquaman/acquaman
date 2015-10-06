@@ -100,11 +100,11 @@ protected slots:
 	/// Updates the current value.
 	virtual void updateValue() = 0;
 	/// Updates the moving state.
-	virtual void updateMoving() = 0;
+	virtual void updateMoving();
 	/// Updates the minimum value.
-	virtual void updateMinimumValue() { return; }
+	virtual void updateMinimumValue();
 	/// Updates the maximum value.
-	virtual void updateMaximumValue() { return; }
+	virtual void updateMaximumValue();
 
 	/// Handles emitting the appropriate signals when a move action has started.
 	virtual void onMoveStarted(QObject *action);
