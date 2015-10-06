@@ -1,5 +1,4 @@
 #include "BioXASSSRLMonochromatorConfigurationView.h"
-#include <QDebug>
 
 BioXASSSRLMonochromatorConfigurationView::BioXASSSRLMonochromatorConfigurationView(BioXASSSRLMonochromator *mono, QWidget *parent) :
     QWidget(parent)
@@ -252,8 +251,10 @@ void BioXASSSRLMonochromatorConfigurationView::onCalibrateEnergyButtonClicked()
 
 		double newEnergy = QInputDialog::getDouble(this, "Energy Calibration", "Enter calibrated energy:", mono_->energyControl()->value(), ENERGY_MIN, ENERGY_MAX, 2, &inputOK);
 
-		if (inputOK)
-			mono_->energyControl()->setEnergy(newEnergy);
+		if (inputOK) {
+			AMControl *energy = mono_->energyControl();
+			energy->calibrate(energy->value(), newEnergy);
+		}
 	}
 }
 
@@ -265,7 +266,7 @@ void BioXASSSRLMonochromatorConfigurationView::onCalibrateGoniometerButtonClicke
 		double newPosition = QInputDialog::getDouble(this, "Goniometer Calibration", "Enter calibrated goniometer position:", mono_->braggMotor()->value(), BRAGG_POSITION_MIN, BRAGG_POSITION_MAX, 2, &inputOK);
 
 		if (inputOK)
-			mono_->calibrateBraggPosition(newPosition);
+			mono_->braggMotor()->calibrate(mono_->braggMotor()->value(), newPosition);
 	}
 }
 

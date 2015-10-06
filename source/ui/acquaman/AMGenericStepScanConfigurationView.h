@@ -3,11 +3,15 @@
 
 #include "ui/acquaman/AMScanConfigurationView.h"
 #include "acquaman/AMGenericStepScanConfiguration.h"
+#include "beamline/AMControlSet.h"
+#include "beamline/AMDetectorSet.h"
 
 #include <QLabel>
 #include <QLineEdit>
 #include <QComboBox>
 #include <QDoubleSpinBox>
+#include <QButtonGroup>
+#include <QLayout>
 
 class QAbstractButton;
 
@@ -17,12 +21,23 @@ class AMGenericStepScanConfigurationView : public AMScanConfigurationView
 
 public:
 	/// Constructor.
-	AMGenericStepScanConfigurationView(AMGenericStepScanConfiguration *configuration, QWidget *parent = 0);
+	AMGenericStepScanConfigurationView(AMGenericStepScanConfiguration *configuration, AMControlSet *controls, AMDetectorSet *detectors, QWidget *parent = 0);
 	/// Destructor.
 	~AMGenericStepScanConfigurationView(){}
 
 	/// Getter for the configuration.
 	const AMScanConfiguration *configuration() const { return configuration_; }
+
+	/// Returns the list of displayed controls.
+	AMControlSet* controls() const { return controls_; }
+	/// Returns the list of displayed detectors.
+	AMDetectorSet* detectors() const { return detectors_; }
+
+public slots:
+	/// Sets the list of displayed controls.
+	void setControls(AMControlSet *newControls);
+	/// Sets the list of displayed detectors.
+	void setDetectors(AMDetectorSet *newDetectors);
 
 protected slots:
 	/// Sets the axis 1 start position.
@@ -102,6 +117,20 @@ protected:
 	QLabel *scanInformation_;
 	/// Label holding the current estimated time for the scan to complete.  Takes into account extra time per point based on experience on the beamline.
 	QLabel *estimatedTime_;
+
+	/// The controls being displayed.
+	AMControlSet *controls_;
+	/// The mapping between control and control name.
+	QMap<QString, AMControl*> controlNameMap_;
+
+	/// The detectors being displayed.
+	AMDetectorSet *detectors_;
+	/// The detectors button group.
+	QButtonGroup *detectorGroup_;
+	/// The detectors widget layout.
+	QVBoxLayout *detectorLayout_;
+	/// The mapping between detector and detector button.
+	QMap<AMDetector*, QAbstractButton*> detectorButtonMap_;
 };
 
 #endif // AMGENERICSTEPSCANCONFIGURATIONVIEW_H

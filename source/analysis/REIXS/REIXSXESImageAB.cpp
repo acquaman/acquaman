@@ -21,6 +21,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "REIXSXESImageAB.h"
 
 #include "util/AMErrorMonitor.h"
+#include "util/AMUtility.h"
 
 REIXSXESImageAB::REIXSXESImageAB(const QString &outputName, QObject *parent) :
 	AMStandardAnalysisBlock(outputName, parent)
@@ -47,7 +48,8 @@ REIXSXESImageAB::REIXSXESImageAB(const QString &outputName, QObject *parent) :
 	// shift values can start out empty.
 
 	inputSource_ = 0;
-	cacheInvalid_ = true;
+	cacheUpdateRequired_ = false;
+	cachedDataRange_ = AMRange();
 	axisValueCacheInvalid_ = true;
 	axisValuesInvalid_ = false;
 
@@ -72,7 +74,7 @@ void REIXSXESImageAB::setSumRangeMinY(int sumRangeMinY)
 	if(liveCorrelation())
 		callCorrelation_.schedule();
 
-	cacheInvalid_ = true;
+	cacheUpdateRequired_ = true;
 	reviewState();
 
 	emitValuesChanged();
@@ -88,7 +90,7 @@ void REIXSXESImageAB::setSumRangeMaxY(int sumRangeMaxY)
 	if(liveCorrelation())
 		callCorrelation_.schedule();
 
-	cacheInvalid_ = true;
+	cacheUpdateRequired_ = true;
 	reviewState();
 
 	emitValuesChanged();
@@ -105,7 +107,7 @@ void REIXSXESImageAB::setSumRangeMinX(int sumRangeMinX)
 	if(liveCorrelation())
 		callCorrelation_.schedule();
 
-	cacheInvalid_ = true;
+	cacheUpdateRequired_ = true;
 	reviewState();
 
 	emitValuesChanged();
@@ -121,7 +123,7 @@ void REIXSXESImageAB::setSumRangeMaxX(int sumRangeMaxX)
 	if(liveCorrelation())
 		callCorrelation_.schedule();
 
-	cacheInvalid_ = true;
+	cacheUpdateRequired_ = true;
 	reviewState();
 
 	emitValuesChanged();
@@ -134,7 +136,7 @@ void REIXSXESImageAB::setShiftValues(const AMIntList &shiftValues)
 		return;
 
 	shiftValues_ = shiftValues;
-	cacheInvalid_ = true;	// could change all our cached values
+	cacheUpdateRequired_ = true;	// could change all our cached values
 	reviewState();	// might change the state to valid, if we didn't have proper number of shift values before.
 
 	emitValuesChanged();
@@ -151,7 +153,7 @@ void REIXSXESImageAB::setRangeRound(double rangeRound)
 	if(liveCorrelation())
 		callCorrelation_.schedule();
 
-	cacheInvalid_ = true;
+	cacheUpdateRequired_ = true;
 	reviewState();
 
 	emitValuesChanged();
@@ -235,8 +237,8 @@ void REIXSXESImageAB::setInputDataSourcesImplementation(const QList<AMDataSource
 
 	}
 
-	cacheInvalid_ = true;
-	cachedValues_ = QVector<double>(axes_.at(0).size);
+	cacheUpdateRequired_ = true;
+	cachedData_ = QVector<double>(axes_.at(0).size);
 	axisValueCacheInvalid_ = true;
 	cachedAxisValues_ = QVector<double>(axes_.at(0).size);
 	reviewState();
@@ -261,10 +263,10 @@ AMNumber REIXSXESImageAB::value(const AMnDIndex &indexes) const
 		return AMNumber(AMNumber::OutOfBoundsError);
 #endif
 
-	if(cacheInvalid_)
+	if(cacheUpdateRequired_)
 		computeCachedValues();
 
-	return AMNumber(cachedValues_.at(indexes.i()));
+	return AMNumber(cachedData_.at(indexes.i()));
 }
 
 bool REIXSXESImageAB::values(const AMnDIndex &indexStart, const AMnDIndex &indexEnd, double *outputValues) const
@@ -286,10 +288,10 @@ bool REIXSXESImageAB::values(const AMnDIndex &indexStart, const AMnDIndex &index
 #endif
 
 
-	if(cacheInvalid_)
+	if(cacheUpdateRequired_)
 		computeCachedValues();
 
-	memcpy(outputValues, (cachedValues_.constData()+indexStart.i()), (indexEnd.i()-indexStart.i()+1)*sizeof(double));
+	memcpy(outputValues, (cachedData_.constData()+indexStart.i()), (indexEnd.i()-indexStart.i()+1)*sizeof(double));
 
 	return true;
 }
@@ -304,7 +306,7 @@ void REIXSXESImageAB::computeCachedValues() const
 	QVector<double> image(maxI*maxJ);
 	if(!inputSource_->values(AMnDIndex(0,0), AMnDIndex(maxI-1, maxJ-1), image.data())) {
 		AMErrorMon::report(this, AMErrorReport::Alert, -333, "Could not retrieve values from detector image. Please report this problem to the REIXS Acquaman developers.");
-		cacheInvalid_ = false;	// avoid repeating this error message for every single data point...
+		cacheUpdateRequired_ = false;	// avoid repeating this error message for every single data point...
 		return;
 	}
 
@@ -349,9 +351,11 @@ void REIXSXESImageAB::computeCachedValues() const
 		else
 			newVal = newVal * double(sumRangeMaxY_ - sumRangeMinY_ + 1) / double(contributingRows);
 
-		cachedValues_[i] = newVal;
+		cachedData_[i] = newVal;
 	}
-	cacheInvalid_ = false;
+
+	cachedDataRange_ = AMUtility::rangeFinder(cachedData_);
+	cacheUpdateRequired_ = false;
 }
 
 
@@ -374,6 +378,34 @@ AMNumber REIXSXESImageAB::axisValue(int axisNumber, int index) const
 	return cachedAxisValues_.at(index);
 }
 
+bool REIXSXESImageAB::axisValues(int axisNumber, int startIndex, int endIndex, double *outputValues) const
+{
+	if (axisNumber != 0)
+		return false;
+
+	if (!isValid())
+		return false;
+
+	if (startIndex >= axes_.at(axisNumber).size || endIndex >= axes_.at(axisNumber).size)
+		return false;
+
+	if(axisValueCacheInvalid_)
+		computeCachedAxisValues();
+
+	int totalSize = endIndex-startIndex+1;
+
+	if(axisValuesInvalid_){
+
+		for (int i = 0; i < totalSize; i++)
+			outputValues[i] = startIndex+i;
+	}
+
+	else
+		memcpy(outputValues, cachedAxisValues_.constData()+startIndex, (endIndex-startIndex+1)*sizeof(double));
+
+	return true;
+}
+
 void REIXSXESImageAB::onInputSourceValuesChanged(const AMnDIndex &start, const AMnDIndex &end)
 {
 	Q_UNUSED(start)
@@ -383,19 +415,19 @@ void REIXSXESImageAB::onInputSourceValuesChanged(const AMnDIndex &start, const A
 		callCorrelation_.schedule();
 
 	// invalidate the cache.
-	cacheInvalid_ = true;
+	cacheUpdateRequired_ = true;
 	emitValuesChanged();
 }
 
 void REIXSXESImageAB::onInputSourceSizeChanged()
 {
-	cacheInvalid_ = true;
+	cacheUpdateRequired_ = true;
 	axisValueCacheInvalid_ = true;
 
 	bool sizeChanged = false;
 	if(axes_.at(0).size != inputSource_->size(0)) {
 		axes_[0].size = inputSource_->size(0);
-		cachedValues_.resize(axes_.at(0).size);
+		cachedData_.resize(axes_.at(0).size);
 		cachedAxisValues_.resize(axes_.at(0).size);
 		sizeChanged = true;
 	}

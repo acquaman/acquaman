@@ -83,8 +83,6 @@ protected:
 	/// button to trigger a 0.1s XRF acquitisition to check to too-high count rates.
 	QPushButton *deadTimeCheckButton;
 
-	QComboBox *peakingTimeBox;
-
 };
 
 #endif // IDEASXRFDETAILEDDETECTORVIEW_H
