@@ -73,7 +73,8 @@ HEADERS += \
     source/dataman/BioXAS/BioXASDbUpgrade1Pt1.h \
     source/beamline/BioXAS/BioXASShutters.h \
     source/beamline/BioXAS/BioXASValvesControl.h \
-    source/beamline/BioXAS/BioXASValves.h
+	source/beamline/BioXAS/BioXASValves.h \
+    source/ui/BioXAS/BioXASBeamStatusView.h
 
 SOURCES += \
 	source/acquaman/BioXAS/BioXASXRFScanConfiguration.cpp \
@@ -141,26 +142,5 @@ SOURCES += \
     source/dataman/BioXAS/BioXASDbUpgrade1Pt1.cpp \
     source/beamline/BioXAS/BioXASShutters.cpp \
     source/beamline/BioXAS/BioXASValvesControl.cpp \
-    source/beamline/BioXAS/BioXASValves.cpp
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+	source/beamline/BioXAS/BioXASValves.cpp \
+    source/ui/BioXAS/BioXASBeamStatusView.cpp

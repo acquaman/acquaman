@@ -135,16 +135,16 @@ bool BioXASValvesControl::isClosed() const
 		bool closed = true;
 
 		if (closed)
-			closed &= valvesClosed(frontEndValveSet_);
+			closed |= valvesClosed(frontEndValveSet_);
 
 		if (closed)
-			closed &= valvesClosed(sideValveSet_);
+			closed |= valvesClosed(sideValveSet_);
 
 		if (closed)
-			closed &= valvesClosed(mainValveSet_);
+			closed |= valvesClosed(mainValveSet_);
 
 		if (closed)
-			closed &= valvesClosed(imagingValveSet_);
+			closed |= valvesClosed(imagingValveSet_);
 
 		result = closed;
 	}
