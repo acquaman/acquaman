@@ -104,51 +104,13 @@ AMControlSet* BioXASValvesControl::valveSet(BioXAS::Beamline beamline)
 
 bool BioXASValvesControl::isOpen() const
 {
-	bool result = false;
-
-	if (frontEndValveSet_ && sideValveSet_ && mainValveSet_ && imagingValveSet_) {
-		bool open = true;
-
-		if (open)
-			open &= valvesOpen(frontEndValveSet_);
-
-		if (open)
-			open &= valvesOpen(sideValveSet_);
-
-		if (open)
-			open &= valvesOpen(mainValveSet_);
-
-		if (open)
-			open &= valvesOpen(imagingValveSet_);
-
-		result = open;
-	}
-
+	bool result = valvesOpen(frontEndValveSet_) && valvesOpen(sideValveSet_) && valvesOpen(mainValveSet_) && valvesOpen(imagingValveSet_);
 	return result;
 }
 
 bool BioXASValvesControl::isClosed() const
 {
-	bool result = false;
-
-	if (frontEndValveSet_ && sideValveSet_ && mainValveSet_ && imagingValveSet_) {
-		bool closed = true;
-
-		if (closed)
-			closed |= valvesClosed(frontEndValveSet_);
-
-		if (closed)
-			closed |= valvesClosed(sideValveSet_);
-
-		if (closed)
-			closed |= valvesClosed(mainValveSet_);
-
-		if (closed)
-			closed |= valvesClosed(imagingValveSet_);
-
-		result = closed;
-	}
-
+	bool result = valvesClosed(frontEndValveSet_) || valvesClosed(sideValveSet_) || valvesClosed(mainValveSet_) || valvesClosed(imagingValveSet_);
 	return result;
 }
 
