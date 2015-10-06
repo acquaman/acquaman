@@ -24,66 +24,66 @@ public:
 	/// Returns the set of front end vacuum valves.
 	AMControlSet* frontEndValves() const { return frontEndValves_; }
 	/// Returns the first front end vacuum valve control.
-	AMControl *vvr1() const { return vvr1_; }
+	CLSBiStateControl *vvr1() const { return vvr1_; }
 	/// Returns the second front end vacuum valve control.
-	AMControl *vvr2() const { return vvr2_; }
+	CLSBiStateControl *vvr2() const { return vvr2_; }
 	/// Returns the third front end vacuum valve control.
-	AMControl *vvr3() const { return vvr3_; }
+	CLSBiStateControl *vvr3() const { return vvr3_; }
 	/// Returns the fourth front end vacuum valve control.
-	AMControl *vvr4() const { return vvr4_; }
+	CLSBiStateControl *vvr4() const { return vvr4_; }
 	/// Returns the fifth front end vacuum valve control.
-	AMControl *vvr5() const { return vvr5_; }
+	CLSBiStateControl *vvr5() const { return vvr5_; }
 
 	/// Returns the set of Side beamline vacuum valves.
 	AMControlSet* sideValves() const { return sideValves_; }
 	/// The first Side beamline vacuum valve.
-	AMControl *vvrSide1() const { return vvrSide1_; }
+	CLSBiStateControl *vvrSide1() const { return vvrSide1_; }
 	/// The second Side beamline vacuum valve.
-	AMControl *vvrSide2() const { return vvrSide2_; }
+	CLSBiStateControl *vvrSide2() const { return vvrSide2_; }
 	/// The third Side beamline vacuum valve.
-	AMControl *vvrSide3() const { return vvrSide3_; }
+	CLSBiStateControl *vvrSide3() const { return vvrSide3_; }
 	/// The fourth Side beamline vacuum valve.
-	AMControl *vvrSide4() const { return vvrSide4_; }
+	CLSBiStateControl *vvrSide4() const { return vvrSide4_; }
 	/// The fifth Side beamline vacuum valve.
-	AMControl *vvrSide5() const { return vvrSide5_; }
+	CLSBiStateControl *vvrSide5() const { return vvrSide5_; }
 	/// The sixth Side beamline vacuum valve.
-	AMControl *vvrSide6() const { return vvrSide6_; }
+	CLSBiStateControl *vvrSide6() const { return vvrSide6_; }
 
 	/// Returns the set of Main beamline vacuum valves.
 	AMControlSet* mainValves() const { return mainValves_; }
 	/// The first Main beamline vacuum valve.
-	AMControl *vvrMain1() const { return vvrMain1_; }
+	CLSBiStateControl *vvrMain1() const { return vvrMain1_; }
 	/// The second Main beamline vacuum valve.
-	AMControl *vvrMain2() const { return vvrMain2_; }
+	CLSBiStateControl *vvrMain2() const { return vvrMain2_; }
 	/// The third Main beamline vacuum valve.
-	AMControl *vvrMain3() const { return vvrMain3_; }
+	CLSBiStateControl *vvrMain3() const { return vvrMain3_; }
 	/// The fourth Main beamline vacuum valve.
-	AMControl *vvrMain4() const { return vvrMain4_; }
+	CLSBiStateControl *vvrMain4() const { return vvrMain4_; }
 	/// The fifth Main beamline vacuum valve.
-	AMControl *vvrMain5() const { return vvrMain5_; }
+	CLSBiStateControl *vvrMain5() const { return vvrMain5_; }
 	/// The sixth Main beamline vacuum valve.
-	AMControl *vvrMain6() const { return vvrMain6_; }
+	CLSBiStateControl *vvrMain6() const { return vvrMain6_; }
 
 	/// Returns the set of Imaging beamline vacuum valves.
 	AMControlSet* imagingValves() const { return imagingValves_; }
 	/// The first Imaging beamline vacuum valve.
-	AMControl *vvrImaging1() const { return vvrImaging1_; }
+	CLSBiStateControl *vvrImaging1() const { return vvrImaging1_; }
 	/// The second Imaging beamline vacuum valve.
-	AMControl *vvrImaging2() const { return vvrImaging2_; }
+	CLSBiStateControl *vvrImaging2() const { return vvrImaging2_; }
 	/// The third Imaging beamline vacuum valve.
-	AMControl *vvrImaging3() const { return vvrImaging3_; }
+	CLSBiStateControl *vvrImaging3() const { return vvrImaging3_; }
 	/// The fourth Imaging beamline vacuum valve.
-	AMControl *vvrImaging4() const { return vvrImaging4_; }
+	CLSBiStateControl *vvrImaging4() const { return vvrImaging4_; }
 	/// The fifth Imaging beamline vacuum valve.
-	AMControl *vvrImaging5() const { return vvrImaging5_; }
+	CLSBiStateControl *vvrImaging5() const { return vvrImaging5_; }
 	/// The sixth Imaging beamline vacuum valve.
-	AMControl *vvrImaging6() const { return vvrImaging6_; }
+	CLSBiStateControl *vvrImaging6() const { return vvrImaging6_; }
 	/// The seventh Imaging beamline vacuum valve.
-	AMControl *vvrImaging7() const { return vvrImaging7_; }
+	CLSBiStateControl *vvrImaging7() const { return vvrImaging7_; }
 	/// The eighth Imaging beamline vacuum valve.
-	AMControl *vvrImaging8() const { return vvrImaging8_; }
+	CLSBiStateControl *vvrImaging8() const { return vvrImaging8_; }
 	/// The ninth Imaging beamline vacuum valve.
-	AMControl *vvrImaging9() const { return vvrImaging9_; }
+	CLSBiStateControl *vvrImaging9() const { return vvrImaging9_; }
 
 protected:
 	/// The set of front end vacuum valves.
@@ -102,53 +102,53 @@ protected:
 	/// The set of Side beamline vacuum valves.
 	AMControlSet *sideValves_;
 	/// The first Side beamline vacuum valve.
-	AMControl *vvrSide1_;
+	CLSBiStateControl *vvrSide1_;
 	/// The second Side beamline vacuum valve.
-	AMControl *vvrSide2_;
+	CLSBiStateControl *vvrSide2_;
 	/// The third Side beamline vacuum valve.
-	AMControl *vvrSide3_;
+	CLSBiStateControl *vvrSide3_;
 	/// The fourth Side beamline vacuum valve.
-	AMControl *vvrSide4_;
+	CLSBiStateControl *vvrSide4_;
 	/// The fifth Side beamline vacuum valve.
-	AMControl *vvrSide5_;
+	CLSBiStateControl *vvrSide5_;
 	/// The sixth Side beamline vacuum valve.
-	AMControl *vvrSide6_;
+	CLSBiStateControl *vvrSide6_;
 
 	/// The set of Main beamline vacuum valves.
 	AMControlSet *mainValves_;
 	/// The first Main beamline vacuum valve.
-	AMControl *vvrMain1_;
+	CLSBiStateControl *vvrMain1_;
 	/// The second Main beamline vacuum valve.
-	AMControl *vvrMain2_;
+	CLSBiStateControl *vvrMain2_;
 	/// The third Main beamline vacuum valve.
-	AMControl *vvrMain3_;
+	CLSBiStateControl *vvrMain3_;
 	/// The fourth Main beamline vacuum valve.
-	AMControl *vvrMain4_;
+	CLSBiStateControl *vvrMain4_;
 	/// The fifth Main beamline vacuum valve.
-	AMControl *vvrMain5_;
+	CLSBiStateControl *vvrMain5_;
 	/// The sixth Main beamline vacuum valve.
-	AMControl *vvrMain6_;
+	CLSBiStateControl *vvrMain6_;
 
 	/// The set of Imaging beamline vacuum valves.
 	AMControlSet *imagingValves_;
 	/// The first Imaging beamline vacuum valve.
-	AMControl *vvrImaging1_;
+	CLSBiStateControl *vvrImaging1_;
 	/// The second Imaging beamline vacuum valve.
-	AMControl *vvrImaging2_;
+	CLSBiStateControl *vvrImaging2_;
 	/// The third Imaging beamline vacuum valve.
-	AMControl *vvrImaging3_;
+	CLSBiStateControl *vvrImaging3_;
 	/// The fourth Imaging beamline vacuum valve.
-	AMControl *vvrImaging4_;
+	CLSBiStateControl *vvrImaging4_;
 	/// The fifth Imaging beamline vacuum valve.
-	AMControl *vvrImaging5_;
+	CLSBiStateControl *vvrImaging5_;
 	/// The sixth Imaging beamline vacuum valve.
-	AMControl *vvrImaging6_;
+	CLSBiStateControl *vvrImaging6_;
 	/// The seventh Imaging beamline vacuum valve.
-	AMControl *vvrImaging7_;
+	CLSBiStateControl *vvrImaging7_;
 	/// The eighth Imaging beamline vacuum valve.
-	AMControl *vvrImaging8_;
+	CLSBiStateControl *vvrImaging8_;
 	/// The ninth Imaging beamline vacuum valve.
-	AMControl *vvrImaging9_;
+	CLSBiStateControl *vvrImaging9_;
 
 	/// The valves control.
 	BioXASValvesControl *valvesControl_;
