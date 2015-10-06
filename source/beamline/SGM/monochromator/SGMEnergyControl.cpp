@@ -249,7 +249,7 @@ AMAction3 *SGMEnergyControl::createMoveAction(double setpoint)
 
         if(!newMonochromatorEnergyInfo.hasErrors()) {
 
-            moveAction = new AMListAction3(new AMListActionInfo("Moving to Energy",
+            moveAction = new AMListAction3(new AMListActionInfo3("Moving to Energy",
                                                                 "Performing coordinated move to energy"),
                                            AMListAction3::Sequential);
 
@@ -332,9 +332,6 @@ void SGMEnergyControl::initializeEnergyPosition()
                                                    undulatorPositionPV_->value(),
                                                    undulatorOffsetPV_->value(),
                                                    exitSlitPositionPV_->value());
-
-    energyPositionController_->setUndulatorTracking(undulatorTrackingPV_->withinTolerance(1));
-    energyPositionController_->setExitSlitPositionTracking(exitSlitTrackingPV_->withinTolerance(1));
 
     setValue(energyPositionController_->resultantEnergy());
 

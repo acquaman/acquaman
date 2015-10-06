@@ -316,7 +316,7 @@ protected:
       * \param energy ~ The energy for which the grating angle encoder target is
       * required.
       */
-    double gratingAngleFromEnerSGMMONOCHROMATORINFO_Hgy(SGMGratingSupport::GratingTranslation gratingTranslationSelection,
+    double gratingAngleFromEnergy(SGMGratingSupport::GratingTranslation gratingTranslationSelection,
                                   double energy) const;
 
     /*!
