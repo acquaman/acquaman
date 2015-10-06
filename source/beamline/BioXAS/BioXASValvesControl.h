@@ -35,7 +35,7 @@ public:
 	virtual bool validSetpoint(double value) const;
 
 	/// Returns the valve set for the named beamline.
-	AMControlSet* valveSet(BioXAS::Beamline beamline);
+	AMControlSet* valveSet(BioXAS::Beamline beamline) const;
 	/// Returns the front-end valve set.
 	AMControlSet* frontEndValveSet() const { return frontEndValveSet_; }
 	/// Returns the Side valve set.
@@ -51,7 +51,7 @@ public:
 	bool isClosed() const;
 
 	/// Returns a string representation of the given value.
-	QString valueToString(BioXASValvesControl::Value value);
+	QString valueToString(BioXASValvesControl::Value value) const;
 
 signals:
 
