@@ -23,3 +23,51 @@ BioXASFilterFlipper::BioXASFilterFlipper(QObject *parent) :
 	slide9CartridgeStatus_ = new AMReadOnlyPVControl(name()+"Slide9Status", "BFF2023-01:Slide:9", this);
 	slide10CartridgeStatus_ = new AMReadOnlyPVControl(name()+"Slide10Status", "BFF2023-01:Slide:10", this);
 }
+
+BioXASFilterFlipper::~BioXASFilterFlipper()
+{
+
+}
+
+bool BioXASFilterFlipper::isConnected() const
+{
+	bool connected = (
+				status_ && status_->isConnected() &&
+				runMode_ && runMode_->isConnected() &&
+				goToNextStep_ && goToNextStep_->isConnected() &&
+				currentSlide_ && currentSlide_->isConnected() &&
+				currentSlideStatus_ && currentSlideStatus_->isConnected() &&
+				slide1CartridgeStatus_ && slide1CartridgeStatus_->isConnected() &&
+				slide2CartridgeStatus_ && slide2CartridgeStatus_->isConnected() &&
+				slide3CartridgeStatus_ && slide3CartridgeStatus_->isConnected() &&
+				slide4CartridgeStatus_ && slide4CartridgeStatus_->isConnected() &&
+				slide5CartridgeStatus_ && slide5CartridgeStatus_->isConnected() &&
+				slide6CartridgeStatus_ && slide6CartridgeStatus_->isConnected() &&
+				slide7CartridgeStatus_ && slide7CartridgeStatus_->isConnected() &&
+				slide8CartridgeStatus_ && slide8CartridgeStatus_->isConnected() &&
+				slide9CartridgeStatus_ && slide9CartridgeStatus_->isConnected() &&
+				slide10CartridgeStatus_ && slide10CartridgeStatus_->isConnected() &&
+				);
+
+	return connected;
+}
+
+QString BioXASFilterFlipper::slideName(int slideIndex) const
+{
+	return slideNameMap_.value(slideIndex, "");
+}
+
+int BioXASFilterFlipper::slideIndex(const QString &slideName) const
+{
+	return slideNameMap_.key(slideName, -1);
+}
+
+void BioXASFilterFlipper::setSlideName(int slideIndex, const QString &newName)
+{
+	QString currentSlideName = slideName(slideIndex);
+
+	if (currentSlideName != newName) {
+		slideNameMap_.insert(slideIndex, newName);
+		emit slideNameChanged(slideIndex, newName);
+	}
+}

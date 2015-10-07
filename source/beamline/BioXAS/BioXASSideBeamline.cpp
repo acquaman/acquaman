@@ -237,6 +237,18 @@ void BioXASSideBeamline::setupComponents()
 	filterFlipper_ = new BioXASFilterFlipper(this);
 	connect( filterFlipper_, SIGNAL(connectedChanged(bool)), this, SLOT(updateConnected()) );
 
+	filterFlipper_->setSlideName(0, "None");
+	filterFlipper_->setSlideName(1, "Cr - 3");
+	filterFlipper_->setSlideName(2, "Cr - 6");
+	filterFlipper_->setSlideName(3, "Ni - 3");
+	filterFlipper_->setSlideName(4, "Ni - 6");
+	filterFlipper_->setSlideName(5, "Cu - 3");
+	filterFlipper_->setSlideName(6, "Cu - 6");
+	filterFlipper_->setSlideName(7, "Zr - 3");
+	filterFlipper_->setSlideName(8, "Zr - 6");
+	filterFlipper_->setSlideName(9, "Ag - 3");
+	filterFlipper_->setSlideName(10, "Ag - 6");
+
 	// Scaler.
 	scaler_ = new CLSSIS3820Scaler("MCS1607-601:mcs", this);
 	connect( scaler_, SIGNAL(connectedChanged(bool)), this, SLOT(updateConnected()) );

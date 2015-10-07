@@ -48,9 +48,18 @@ public:
 	/// Returns the 'in cartridge' status control for slide 10.
 	AMReadOnlyPVControl *slide10CartridgeStatus() const { return slide10CartridgeStatus_; }
 
+	/// Returns the slide name of the slide at the given index. Returns empty string if no slide at that index found.
+	QString slideName(int slideIndex) const;
+	/// Returns the slide index of the slide with the given name. Returns -1 if no slide with that name found.
+	int slideIndex(const QString &slideName) const;
+
 signals:
+	/// Notifier that the name of the slide at the given index has changed.
+	void slideNameChanged(int slideIndex, const QString &newName);
 
 public slots:
+	/// Sets the name of the slide at the given index.
+	void setSlideName(int slideIndex, const QString &newName);
 
 protected:
 	/// The status control.
@@ -64,7 +73,7 @@ protected:
 	/// The current slide control.
 	AMPVControl *currentSlide_;
 	/// The current slide status control--whether there is a current slide in the receiver.
-	AMPVControl *currentSlideStatus_;
+	AMReadOnlyPVControl *currentSlideStatus_;
 
 	/// The 'in cartridge' status control for slide 1.
 	AMReadOnlyPVControl *slide1CartridgeStatus_;
@@ -86,6 +95,9 @@ protected:
 	AMReadOnlyPVControl *slide9CartridgeStatus_;
 	/// The 'in cartridge' status control for slide 10.
 	AMReadOnlyPVControl *slide10CartridgeStatus_;
+
+	/// The mapping between slide index and slide contents.
+	QMap<int, QString> slideNameMap_;
 };
 
 #endif // BIOXASFILTERFLIPPER_H
