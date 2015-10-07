@@ -26,6 +26,16 @@ BioXASFrontEndBeamStatusControl::~BioXASFrontEndBeamStatusControl()
 
 }
 
+bool BioXASFrontEndBeamStatusControl::shouldStop() const
+{
+	bool result = false;
+
+	if (isConnected())
+		result = (photonShutterUpstream_->shouldStop() && photonShutterDownstream_->shouldStop() && safetyShutter_->shouldStop() && valves_->shouldStop());
+
+	return result;
+}
+
 bool BioXASFrontEndBeamStatusControl::canMeasure() const
 {
 	bool result = false;

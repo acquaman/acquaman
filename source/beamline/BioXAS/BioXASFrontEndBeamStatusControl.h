@@ -19,7 +19,7 @@ public:
 	/// Returns true if a move is always possible, provided this control is connected.
 	virtual bool shouldMove() const { return true; }
 	/// Returns true if this control can stop a move in progress, provided it is connected.
-	virtual bool shouldStop() const { return false; }
+	virtual bool shouldStop() const;
 
 	/// Returns true if this control can take a measurement right now.
 	virtual bool canMeasure() const;
