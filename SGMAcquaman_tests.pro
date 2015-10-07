@@ -9,14 +9,16 @@ HEADERS += \
     source/application/SGMTests/SGMTestsWindow.h \
     source/tests/SGM/SGMEnergyTrajectoryTestView.h \
     source/tests/SGM/SGMEnergyPositionTestView.h \
-    source/tests/SGM/SGMEnergyPositionTest.h
+    source/tests/SGM/SGMEnergyPositionTest.h \
+    source/tests/SGM/SGMEnergyControlTestView.h
 
 SOURCES += \
+	source/application/SGMTests/SGMTestsMain.cpp \
     source/application/SGMTests/SGMTestsWindow.cpp \
-    source/application/SGMTests/SGMTestsMain.cpp \
     source/tests/SGM/SGMEnergyTrajectoryTestView.cpp \
     source/tests/SGM/SGMEnergyPositionTestView.cpp \
-    source/tests/SGM/SGMEnergyPositionTest.cpp
+    source/tests/SGM/SGMEnergyPositionTest.cpp \
+    source/tests/SGM/SGMEnergyControlTestView.cpp
 
 
 

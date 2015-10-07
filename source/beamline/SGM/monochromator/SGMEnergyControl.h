@@ -1,127 +1,214 @@
 #ifndef SGMENERGYCONTROL_H
 #define SGMENERGYCONTROL_H
 
+#include <QObject>
 #include "beamline/AMPseudoMotorControl.h"
-#include "SGMGratingSupport.h"
-#include "SGMUndulatorSupport.h"
+#include "SGMEnergyPosition.h"
 
-class SGMEnergyPosition;
 /*!
- * A class which represents a coordinated motor for setting the SGM beamline's energy.
- * This class is used in the coordinator application in order to leverage the
- * logic within the SGMEnergyPosition and AMPseudoMotorControl classes, making
- * the coordination task simpler.
+ * A class for controlling the energy of the SGM beamline, with coordinated movement
+ * of the undulator position, exit slit position, grating angle and grating translation.
  */
 class SGMEnergyControl : public AMPseudoMotorControl
 {
     Q_OBJECT
 public:
     /*!
-     * Creates an instance of an SGMEnergyControl, tracking changes in
-     * the energy component PVs, and coordinating them into a single energy readout.
+     * Creates a new energy control which is initialized with the provided undulator
+     * harmonic.
+     * \param undulatorHarmonic ~ The undulator harmonic to initialize the control
+     * with.
      */
-    explicit SGMEnergyControl(QObject *parent = 0);
+    SGMEnergyControl(SGMUndulatorSupport::UndulatorHarmonic undulatorHarmonic,
+                     QObject* parent = 0);
 
     /*!
-     * Whether the undulator is currently tracking the energy of the monochromator
-     * in order to produce optimal flux.
+     * The undulator harmonic which the control is currently using.
+     */
+    SGMUndulatorSupport::UndulatorHarmonic undulatorHarmonic() const;
+
+    /*!
+     * Sets the undulator harmonic to use in calculating the control positions.
+     * \param undulatorHarmonic ~ The undulator harmonic to use in calculating
+     * the control positions.
+     */
+    void setUndulatorHarmonic(SGMUndulatorSupport::UndulatorHarmonic undulatorHarmonic);
+
+    /*!
+     * The undulator offset to use detuning the undulator position.
+     */
+    double undulatorOffset() const;
+
+    /*!
+     * Set the undulator detune offset.
+     * \param undulatorOffset ~ The new undulator detune offset.
+     */
+    void setUndulatorOffset(double undulatorOffset);
+
+    /*!
+     * Whether the control should automatically update the undulator position as
+     * the energy moves.
      */
     bool isUndulatorTracking() const;
 
     /*!
-     * Sets the tracking state of the undulator.
-     * \param isTracking ~ Whether the undulator is to track the energy as it moves.
+     * Sets whether the undulator position should update as the energy moves.
+     * \param isTracking ~ The new undulator tracking state.
      */
     void setUndulatorTracking(bool isTracking);
 
     /*!
-     * Whether the exit slit is currently tracking the energy of the monochromator
-     * in order to produce optimal flux.
+     * The method to use in determining the grating translation to use for an
+     * energy.
      */
-    bool isExitSlitTracking() const;
+    SGMEnergyPosition::GratingTranslationOptimizationMode gratingTranslationOptimizationMode() const;
 
     /*!
-     * Sets the tracking state of the exit slit.
-     * \param isTracking ~ Whether the exit slit is to track the energy as it moves.
+     * Sete the method to use in automatically determining the grating translation
+     * to use when setting an energy
+     * \param gratingTranslationOptimizationMode ~ The method used in determining
+     * the grating translation.
      */
-    void setExitSlitTracking(bool isTracking);
+    void setGratingTranslationOptimizationMode(SGMEnergyPosition::GratingTranslationOptimizationMode gratingTranslationOptimizationMode);
+
+    /*!
+     * Whether the exit slit position should update as the energy moves.
+     */
+    bool isExitSlitPositionTracking() const;
+
+    /*!
+     * Sets whether the exit slit position should update as the energy moves.
+     * \param isTracking ~ The new exit slit tracking state.
+     */
+    void setExitSlitPositionTracking(bool isTracking);
+
 signals:
 
     /*!
-     * Signal indicating a change in state of the undulator tracking.
-     * \param isTracking ~ The new tracking state of the undulator.
+     * Signal indicating that the undulator harmonic which the control is using
+     * has been altered.
+     * \param undulatorHarmonic ~ The new undulator harmonic.
+     */
+    void undulatorHarmonicChanged(SGMUndulatorSupport::UndulatorHarmonic undulatorHarmonic);
+
+    /*!
+     * Signal indicating that the undulator offset which the control is using has
+     * been altered.
+     * \param undulatorOffset ~ The new undulator detune offset.
+     */
+    void undulatorOffsetChanged(double undulatorOffset);
+
+    /*!
+     * Signal indicating that the undulator tracking state which the control is
+     * using has been altered.
+     * \param isTracking ~ The new undulator tracking state.
      */
     void undulatorTrackingChanged(bool isTracking);
 
     /*!
-     * Signal indicating a change in state of the exit slit tracking.
-     * \param isTracking ~ The new tracking state of the exit slit.
+     * Signal indicating that the grating translation optimization mode used by
+     * the control has been altered.
+     * \param gratingTranslationOptimizationMode ~ The new grating translation
+     * optimization mode.
+     */
+    void gratingTranslationOptimizationModeChanged(SGMEnergyPosition::GratingTranslationOptimizationMode gratingTranslationOptimizationMode);
+
+    /*!
+     * Signal indicating that the exit slit tracking state which the control is
+     * using has been altered.
+     * \param isTracking ~ The new exit slit tracking state.
      */
     void exitSlitTrackingChanged(bool isTracking);
 
-public slots:
-
 protected slots:
-    // Connecting energy position controller to PVs
-    void onEnergyPositionGratingAngleChanged(double gratingAngle);
-    void onEnergyPositionGratingTranslationChanged(SGMGratingSupport::GratingTranslation gratingTranslation);
-    void onEnergyPositionUndulatorHamonicChanged(SGMUndulatorSupport::UndulatorHarmonic undulatorHarmonic);
-    void onEnergyPositionUndulatorPositionChanged(double undulatorPosition);
-    void onEnergyPositionUndulatorOffsetChanged(double undulatorOffset);
-    void onEnergyPositionExitSlitPositionChanged(double exitSlitPosition);
 
-    // Connectiong mono info energy readout to our pseudo motor value()
-    void onEnergyPositionResultantEnergyChanged(double energy);
-
-    // Connecting PVs to mono info controller
-    void onGratingAnglePVValueChanged(double value);
-    void onGratingTranslationPVValueChanged(double value);
-    void onUndulatorHarmonicPVValueChanged(double value);
-    void onUndulatorPositionPVValueChanged(double value);
-    void onUndulatorOffsetPVValueChanged(double value);
-    void onExitSlitPositionPVValueChanged(double value);
-
-
-protected slots:
     /*!
-     * Slot which handles connection changes to our component PVs
+     * Slot which updates the connected state of the control.
      */
     void updateConnected();
 
     /*!
-     * Slot which handles value changes to our component PVs (does nothing)
+     * Slot which updates the moving state of the control.
+     */
+    void updateMoving();
+
+    /*!
+     * Slot which updates the value of the control.
      */
     void updateValue();
 
     /*!
-     * Slot which handles changes to the moving state of our component PVs
+     * Slot which updates the grating angle of the energy position controller as
+     * the grating angle PV changes.
+     * \param value ~ The value of the grating angle PV.
      */
-    void updateMoving();
+    void onGratingAnglePVValueChanged(double value);
+
+    /*!
+     * Slot which updates the grating translation of the energy position controller
+     * as the grating translation PV changes.
+     * \param value ~ The value of the grating translation PV.
+     */
+    void onGratingTranslationPVValueChanged(double value);
+
+    /*!
+     * Slot which updates the undulator position of the energy position controller
+     * as the undulator position PV changes.
+     * \param value ~ The value of undulator position PV.
+     */
+    void onUndulatorPositionPVValueChanged(double value);
+
+    /*!
+     * Slot which updates the exit slit position of the energy position controller
+     * as the exit slit position PV changes.
+     * \param value ~ The value of the exit slit position PV.
+     */
+    void onExitSlitPositionPVValueChanged(double value);
+
+    /*!
+     * Slot which updates the value of this control as the calculated energy position
+     * controller's energy value changes
+     * \param value ~ The energy value calculated by the energy position controller.
+     */
+    void onEnergyPositionControllerEnergyChanged(double value);
 
 protected:
-    /*!
-     * Creates a list of actions which coordinate the components of the monochromator
-     * such that it will produce the provided energy setpoint.
-     * \param setpoint ~ The energy value which the move action will move the energy
-     * towards.
-     */
-    AMAction3* createMoveAction(double setpoint);
 
     /*!
-     * Helper method to perform the initialization of the energy position controller
-     * values once all the PVs have been connected.
+     * Helper function which converts the grating translation enum to the double
+     * value used by the grating translation PV value.
+     * \param gratingTranslationEnum ~ The grating translation enum value whose
+     * double equivalent is to be returned.
      */
-    void initializeEnergyPosition();
+    double gratingTranslationEnumToDouble(SGMGratingSupport::GratingTranslation gratingTranslationEnum);
 
-    /// Energy position which performs all the calculations, and coordination.
+    /*!
+     * Helper function which converts the grating translation PV value to the
+     * equivalent enum value.
+     * \param gratingTranslationValue ~ The PV value whose enum equivalent is to
+     * be returned.
+     */
+    SGMGratingSupport::GratingTranslation gratingTranslationDoubleToEnum(double gratingTranslationValue);
+
+    /*!
+     * Helper function which initializes the energy position controller once the
+     * PV's it derives its values from are connected.
+     */
+    void initializeEnergyPositionController();
+
+    /*!
+     * Creates a move action which will perform a coordinated motion of the
+     * energy beamline components.
+     * \param setpoint ~ The energy value to move the controls to.
+     */
+    virtual AMAction3* createMoveAction(double setpoint);
+
     SGMEnergyPosition* energyPositionController_;
+    SGMUndulatorSupport::UndulatorHarmonic startingUndulatorHarmonic_;
 
-    /// PVs for the mono components.
     AMControl* gratingAnglePV_;
     AMControl* gratingTranslationPV_;
-    AMControl* undulatorHarmonicPV_;
     AMControl* undulatorPositionPV_;
-    AMControl* undulatorOffsetPV_;
     AMControl* exitSlitPositionPV_;
 };
 

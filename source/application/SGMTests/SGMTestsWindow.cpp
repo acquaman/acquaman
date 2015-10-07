@@ -3,17 +3,20 @@
 #include "tests/SGM/SGMEnergyPositionTest.h"
 #include "tests/SGM/SGMEnergyPositionTestView.h"
 #include "tests/SGM/SGMEnergyTrajectoryTestView.h"
-
+#include "tests/SGM/SGMEnergyControlTestView.h"
+#include "qjson/serializer.h"
 
 #include "beamline/SGM/monochromator/SGMEnergyPosition.h"
+#include <QDebug>
 #include <QGroupBox>
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 
 SGMTestsWindow::SGMTestsWindow(QWidget *parent) : QMainWindow(parent)
 {
-    monoInfoTestView_ = 0;
     energyTestView_ = 0;
+    energyTrajectoryTestView_ = 0;
+    energyControlTestView_ = 0;
     setupUi();
 
     SGMEnergyPositionTest monoTests;
@@ -27,11 +30,12 @@ SGMTestsWindow::SGMTestsWindow(QWidget *parent) : QMainWindow(parent)
     }
 
     outputTextEdit_->setText(resultString);
+    produceTestUndulatorValues();
 }
 
-void SGMTestsWindow::onShowMonoViewClicked()
+void SGMTestsWindow::onShowEnergyViewClicked()
 {
-    if(monoInfoTestView_ == 0) {
+    if(energyTestView_ == 0) {
 
         SGMEnergyPosition* testEnergyPosition = new SGMEnergyPosition(SGMGratingSupport::LowGrating,
                                                                       -412460.94,
@@ -41,21 +45,81 @@ void SGMTestsWindow::onShowMonoViewClicked()
                                                                       358.199551,
                                                                       this);
 
-        monoInfoTestView_ = new SGMEnergyPositionTestView(testEnergyPosition);
+        energyTestView_ = new SGMEnergyPositionTestView(testEnergyPosition);
     }
 
-    monoInfoTestView_->show();
+    energyTestView_->show();
+    energyTestView_->raise();
 }
 
 void SGMTestsWindow::onShowTrajectoryViewClicked()
 {
 
-    if(energyTestView_ == 0) {
+    if(energyTrajectoryTestView_ == 0) {
 
-        energyTestView_ = new SGMEnergyTrajectoryTestView();
-        energyTestView_->resize(1024,768);
-        energyTestView_->show();
+        energyTrajectoryTestView_ = new SGMEnergyTrajectoryTestView();
+        energyTrajectoryTestView_->resize(1024,768);
     }
+    energyTrajectoryTestView_->show();
+    energyTrajectoryTestView_->raise();
+}
+
+void SGMTestsWindow::onShowEnergyControlViewClicked()
+{
+    if(energyControlTestView_ == 0) {
+
+        energyControlTestView_ = new SGMEnergyControlTestView();
+    }
+    energyControlTestView_->show();
+    energyControlTestView_->raise();
+}
+
+void SGMTestsWindow::produceTestUndulatorValues()
+{
+    QVariantMap testData;
+    QVariantMap metaData;
+
+    double energy = 250;
+    double targetEnergy = 300;
+    double timeTaken = 20;
+
+
+    double energyVelocity = (targetEnergy - energy) / timeTaken;
+    metaData["Start_Energy(eV)"] = QVariant(energy);
+    metaData["Target_Energy(eV)"] = QVariant(targetEnergy);
+    metaData["Time_Taken(s)"] = QVariant(timeTaken);
+    metaData["Energy_Velocity(eV/s)"] = QVariant(energyVelocity);
+    metaData["Grating_Translation"] = QVariant(QString("Low"));
+    metaData["Unudlator_Harmonic"] = QVariant(QString("First"));
+
+    testData["Meta_Data"] = QVariant(metaData);
+
+    QVariantMap resultData;
+    SGMEnergyPosition energyPosition(energy, SGMGratingSupport::LowGrating);
+    energyPosition.setAutoDetectUndulatorHarmonic(false);
+    energyPosition.setUndulatorHarmonic(SGMUndulatorSupport::FirstHarmonic);
+
+    int currentTime = 0;
+    while (energy <= targetEnergy) {
+
+        QVariantMap timeData;
+        timeData["Energy"] = QVariant(energyPosition.resultantEnergy());
+        timeData["Grating_Angle"] = QVariant(energyPosition.gratingAngle());
+        timeData["Undulator_Position"] = QVariant(energyPosition.undulatorPosition());
+        timeData["ExitSlit_Position"] = QVariant(energyPosition.exitSlitPosition());
+
+        resultData.insert(QString("Time_%1s").arg(currentTime), QVariant(timeData));
+
+        energy = energy + (energyVelocity);
+        energyPosition.requestEnergy(energy);
+        ++currentTime;
+    }
+
+    testData["Move_Results"] = QVariant(resultData);
+    QJson::Serializer serializer;
+    QByteArray serialized = serializer.serialize(testData);
+
+    qDebug() << serialized;
 }
 
 void SGMTestsWindow::setupUi()
@@ -75,13 +139,18 @@ void SGMTestsWindow::setupUi()
 
     setCentralWidget(centralGroupBox);
 
-    showMonoViewButton_ = new QPushButton("Show Mono Test View");
-    connect(showMonoViewButton_, SIGNAL(clicked(bool)), this, SLOT(onShowMonoViewClicked()));
-    buttonsLayout->addWidget(showMonoViewButton_);
+    showEnergyViewButton_ = new QPushButton("Show Energy Test View");
+    connect(showEnergyViewButton_, SIGNAL(clicked(bool)), this, SLOT(onShowEnergyViewClicked()));
+    buttonsLayout->addWidget(showEnergyViewButton_);
 
-    showTrajectoryViewButton_ = new QPushButton("Show Trajectory Test View");
+    showTrajectoryViewButton_ = new QPushButton("Show Energy Trajectory Test View");
     connect(showTrajectoryViewButton_, SIGNAL(clicked(bool)), this, SLOT(onShowTrajectoryViewClicked()));
     buttonsLayout->addWidget(showTrajectoryViewButton_);
+
+    showEnergyControlViewButton_ = new QPushButton("Show Energy Control Test View");
+    connect(showEnergyControlViewButton_, SIGNAL(clicked(bool)), this, SLOT(onShowEnergyControlViewClicked()));
+    buttonsLayout->addWidget(showEnergyControlViewButton_);
+
     buttonsLayout->addStretch();
 
     outputTextEdit_ = new QTextEdit();

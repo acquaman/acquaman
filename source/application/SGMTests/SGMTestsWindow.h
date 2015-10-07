@@ -7,6 +7,7 @@
 
 class SGMEnergyTrajectoryTestView;
 class SGMEnergyPositionTestView;
+class SGMEnergyControlTestView;
 class SGMTestsWindow : public QMainWindow
 {
     Q_OBJECT
@@ -17,18 +18,24 @@ signals:
 
 public slots:
 protected slots:
-    void onShowMonoViewClicked();
+    void onShowEnergyViewClicked();
 
     void onShowTrajectoryViewClicked();
+
+    void onShowEnergyControlViewClicked();
 protected:
+
+    void produceTestUndulatorValues();
 
     void setupUi();
     QTextEdit* outputTextEdit_;
-    QPushButton* showMonoViewButton_;
+    QPushButton* showEnergyViewButton_;
     QPushButton* showTrajectoryViewButton_;
+    QPushButton* showEnergyControlViewButton_;
 
-    SGMEnergyTrajectoryTestView* energyTestView_;
-    SGMEnergyPositionTestView* monoInfoTestView_;
+    SGMEnergyTrajectoryTestView* energyTrajectoryTestView_;
+    SGMEnergyPositionTestView* energyTestView_;
+    SGMEnergyControlTestView* energyControlTestView_;
 };
 
 #endif // SGMTESTSWINDOW_H

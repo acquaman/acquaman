@@ -116,26 +116,23 @@ void SGMEnergyPositionTestView::onGratingAngleSpinBoxChanged()
 
 void SGMEnergyPositionTestView::onGratingSelectionModeComboBoxChanged(int index)
 {
-    gratingTranslationComboBox_->setEnabled(index == 3);
-    if(index != 3) {
+    gratingTranslationComboBox_->setEnabled(index == 2);
 
-        SGMEnergyPosition::GratingTranslationOptimizationMode correspondingOptimizeMode;
-        switch(index) {
-        case 0:
-            correspondingOptimizeMode = SGMEnergyPosition::OptimizeFlux;
-            break;
-        case 1:
-            correspondingOptimizeMode = SGMEnergyPosition::OptimizeResolution;
-            break;
-        case 2:
-        default:
-            correspondingOptimizeMode = SGMEnergyPosition::OptimizeMinimalMovement;
-            break;
-        }
-
-
-        energyPosition_->requestEnergy(this->energySpinBox_->value(), correspondingOptimizeMode);
+    SGMEnergyPosition::GratingTranslationOptimizationMode correspondingOptimizeMode;
+    switch(index) {
+    case 0:
+        correspondingOptimizeMode = SGMEnergyPosition::OptimizeFlux;
+        break;
+    case 1:
+        correspondingOptimizeMode = SGMEnergyPosition::OptimizeResolution;
+        break;
+    default:
+        correspondingOptimizeMode = SGMEnergyPosition::ManualMode;
+        break;
     }
+
+    energyPosition_->setGratingTranslationOptimizationMode(correspondingOptimizeMode);
+
 }
 
 void SGMEnergyPositionTestView::onGratingTranslationComboBoxChanged(int index)
@@ -237,7 +234,7 @@ void SGMEnergyPositionTestView::onEnergySpinBoxChanged()
     double value = energySpinBox_->value();
     if(qAbs(energyPosition_->resultantEnergy() - value) > 0.001) {
 
-        if(gratingSelectionModeComboBox_->currentIndex() == 3) {
+        if(gratingSelectionModeComboBox_->currentIndex() == 2) {
             //Manual selection mode
 
             SGMGratingSupport::GratingTranslation correspondingGrating;
@@ -260,21 +257,7 @@ void SGMEnergyPositionTestView::onEnergySpinBoxChanged()
         } else {
             // Auto selection mode
 
-            SGMEnergyPosition::GratingTranslationOptimizationMode optimizationMode;
-            switch(gratingSelectionModeComboBox_->currentIndex()) {
-
-            case 0:
-                optimizationMode = SGMEnergyPosition::OptimizeFlux;
-                break;
-            case 1:
-                optimizationMode = SGMEnergyPosition::OptimizeResolution;
-                break;
-            case 2:
-            default:
-                optimizationMode = SGMEnergyPosition::OptimizeMinimalMovement;
-            }
-
-            energyPosition_->requestEnergy(value, optimizationMode);
+            energyPosition_->requestEnergy(value);
         }
 
     }
@@ -308,7 +291,6 @@ void SGMEnergyPositionTestView::setupUi()
     gratingSelectionModeComboBox_ = new QComboBox();
     gratingSelectionModeComboBox_->addItem("Optimize Flux");
     gratingSelectionModeComboBox_->addItem("Optimize Resolution");
-    gratingSelectionModeComboBox_->addItem("Minimize Movement");
     gratingSelectionModeComboBox_->addItem("Manual");
     gratingSelectionModeComboBox_->setCurrentIndex(2);
     gratingLayout->addWidget(new QLabel("Grating Selection Mode"), 0, 0);
@@ -319,7 +301,6 @@ void SGMEnergyPositionTestView::setupUi()
     gratingTranslationComboBox_->addItem("Low");
     gratingTranslationComboBox_->addItem("Medium");
     gratingTranslationComboBox_->addItem("High");
-    gratingTranslationComboBox_->setEnabled(false);
     gratingLayout->addWidget(new QLabel("Grating Selection"), 1, 0);
     gratingLayout->addWidget(gratingTranslationComboBox_, 1, 1);
 

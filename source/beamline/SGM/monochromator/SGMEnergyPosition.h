@@ -35,7 +35,7 @@ public:
 
         OptimizeFlux,				// Select grating which produces maximum flux for a given energy.
         OptimizeResolution,			// Select highest grating which will produce reasonable flux at a given energy.
-        OptimizeMinimalMovement		// Stick with the current grating.
+        ManualMode                  // Stick with the current grating.
     };
 
     /*!
@@ -119,6 +119,20 @@ public:
       * Sets the info's grating translation selection.
       */
     void setGratingTranslation(SGMGratingSupport::GratingTranslation gratingTranslation);
+
+    /*!
+     * The method to use to determine which grating translation to use to achieve
+     * an energy.
+     */
+    GratingTranslationOptimizationMode gratingTranslationOptimizationMode() const;
+
+    /*!
+     * Sets the method used to determine which grating translation to use to achieve
+     * an energy.
+     * \param gratingTranslationOptimizationMode ~ The new grating translation optimization
+     * mode.
+     */
+    void setGratingTranslationOptimizationMode(GratingTranslationOptimizationMode gratingTranslationOptimizationMode);
 
     /*!
       * The info's current grating angle.
@@ -233,14 +247,16 @@ public:
       * the provided optimization mode.
       * \param requestedEnergy ~ The energy (eVs) which the info is aiming for.
       * \param optimizationMode ~ Optional method to use to automatically select
-      * the grating translation. If none is selected OptimizeMinimalMovement will
-      * be used.
+      * the grating translation. If none is selected ManualMode will be used.
       */
-    void requestEnergy(double requestedEnergy, GratingTranslationOptimizationMode optimizationMode = OptimizeMinimalMovement);
+    void requestEnergy(double requestedEnergy);
 
 signals:
     /// Signal indicating the grating translation has been altered.
 	void gratingTranslationChanged(SGMGratingSupport::GratingTranslation gratingTranslation);
+
+    /// Signal indicating tha the grating translation optimization mode has been altered.
+    void gratingTranslationOptimizationModeChanged(GratingTranslationOptimizationMode gratingTranslationOptimizationMode);
 
     /// Signal indicating the grating angle has been altered.
 	void gratingAngleChanged(double gratingAngle);
@@ -290,12 +306,8 @@ protected:
     /*!
       * Helper method which returns the best fit grating translation for a given
       * energy and optimization mode.
-      * \param requestedEnergy ~ The energy to optimize the grating translation for.
-      * \param optimizationMode ~ The optimization criteria for selecting a grating
-      * translation.
       */
-    SGMGratingSupport::GratingTranslation optimizedGrating(double requestedEnergy,
-                                                           GratingTranslationOptimizationMode optimizationMode) const;
+    SGMGratingSupport::GratingTranslation optimizedGrating(double requestedEnergy) const;
 
     /*!
       * Helper method used to determine the energy produced by a given grating
@@ -367,6 +379,7 @@ protected:
     void performValidation();
 
     SGMGratingSupport::GratingTranslation gratingTranslation_;
+    GratingTranslationOptimizationMode gratingTranslationOptimizationMode_;
     double gratingAngle_;
     SGMUndulatorSupport::UndulatorHarmonic undulatorHarmonic_;
     bool autoDetectUndulatorHarmonic_;
