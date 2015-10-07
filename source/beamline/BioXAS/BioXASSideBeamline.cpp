@@ -238,7 +238,6 @@ void BioXASSideBeamline::setupComponents()
 	filterFlipper_ = new BioXASFilterFlipper(this);
 	connect( filterFlipper_, SIGNAL(connectedChanged(bool)), this, SLOT(updateConnected()) );
 
-	filterFlipper_->setFilter(0, 0, 0);
 	filterFlipper_->setFilter(1, AMPeriodicTable::table()->elementBySymbol("Cr"), 3);
 	filterFlipper_->setFilter(2, AMPeriodicTable::table()->elementBySymbol("Cr"), 6);
 	filterFlipper_->setFilter(3, AMPeriodicTable::table()->elementBySymbol("Ni"), 3);
