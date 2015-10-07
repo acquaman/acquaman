@@ -3,25 +3,18 @@
 #include "actions3/AMActionSupport.h"
 
 BioXASFrontEndBeamStatusControl::BioXASFrontEndBeamStatusControl(QObject *parent) :
-	AMPseudoMotorControl("BioXASFrontEndBeamStatus", "", parent)
+	BioXASBeamStatusControl("BioXASFrontEndBeamStatus", parent)
 {
 	// Initialize local variables.
 
 	photonShutterUpstream_ = 0;
 	photonShutterDownstream_ = 0;
 	safetyShutter_ = 0;
+	valves_ = 0;
 
-	// Initialize inherited variables.
+	// Set inherited settings.
 
-	value_ = None;
-	setpoint_ = None;
-	minimumValue_ = None;
-	maximumValue_ = Off;
-
-	setEnumStates(QStringList() << "On" << "Off" << "None");
-	setMoveEnumStates(QStringList() << "On" << "Off");
-	setAllowsMovesWhileMoving(false);
-	setContextKnownDescription("Shutters Control");
+	setContextKnownDescription("FrontEndBeamStatus");
 
 	// Current settings.
 
@@ -48,51 +41,12 @@ bool BioXASFrontEndBeamStatusControl::canStop() const
 	return false;
 }
 
-bool BioXASFrontEndBeamStatusControl::validValue(double value) const
-{
-	bool result = false;
-
-	switch (int(value)) {
-	case On:
-		result = true;
-		break;
-	case Off:
-		result = true;
-		break;
-	case None:
-		result = true;
-		break;
-	default:
-		break;
-	}
-
-	return result;
-}
-
-bool BioXASFrontEndBeamStatusControl::validSetpoint(double value) const
-{
-	bool result = false;
-
-	switch (int(value)) {
-	case On:
-		result = true;
-		break;
-	case Off:
-		result = true;
-		break;
-	default:
-		break;
-	}
-
-	return result;
-}
-
 bool BioXASFrontEndBeamStatusControl::isOn() const
 {
 	bool result = false;
 
 	if (isConnected()) {
-		//result = (valves_->isOpen() && safetyShutter_->isOpen() && photonShutterDownstream_->isOpen() && photonShutterUpstream_->isOpen());
+		result = (valves_->isOpen() && safetyShutter_->isOpen() && photonShutterDownstream_->isOpen() && photonShutterUpstream_->isOpen());
 	}
 
 	return result;
@@ -103,7 +57,7 @@ bool BioXASFrontEndBeamStatusControl::isOff() const
 	bool result = false;
 
 	if (isConnected()) {
-		//result = (!valves_->isOpen() || !safetyShutter_->isOpen() || !photonShutterDownstream_->isOpen() || !photonShutterUpstream_->isOpen());
+		result = (!valves_->isOpen() || !safetyShutter_->isOpen() || !photonShutterDownstream_->isOpen() || !photonShutterUpstream_->isOpen());
 	}
 
 	return result;
@@ -157,13 +111,27 @@ void BioXASFrontEndBeamStatusControl::setSafetyShutter(CLSBiStateControl *newCon
 	}
 }
 
+void BioXASFrontEndBeamStatusControl::setValves(BioXASValvesControl *newControl)
+{
+	if (valves_ != newControl) {
+
+		if (valves_)
+			removeChildControl(valves_);
+
+		valves_ = newControl;
+
+		if (valves_)
+			addChildControl(valves_);
+	}
+}
+
 void BioXASFrontEndBeamStatusControl::updateConnected()
 {
 	bool isConnected = (
-				//valves_ && valves_->isConnected() &&
 				photonShutterUpstream_ && photonShutterUpstream_->isConnected() &&
 				photonShutterDownstream_ && photonShutterDownstream_->isConnected() &&
-				safetyShutter_ && safetyShutter_->isConnected()
+				safetyShutter_ && safetyShutter_->isConnected() &&
+				valves_ && valves_->isConnected()
 				);
 
 	setConnected(isConnected);
@@ -190,10 +158,10 @@ void BioXASFrontEndBeamStatusControl::updateMoving()
 {
 	if (isConnected()) {
 		bool isMoving = (
-					//valves_->isMoving() ||
 					photonShutterUpstream_->isMoving() ||
 					photonShutterDownstream_->isMoving() ||
-					safetyShutter_->isMoving()
+					safetyShutter_->isMoving() ||
+					valves_->isMoving()
 					);
 
 		setIsMoving(isMoving);
@@ -221,7 +189,7 @@ AMAction3* BioXASFrontEndBeamStatusControl::createMoveAction(double newState)
 AMAction3* BioXASFrontEndBeamStatusControl::createBeamOnAction()
 {
 	AMListAction3 *beamOn = new AMListAction3(new AMListActionInfo3("Turn beam on", "Turn beam on"), AMListAction3::Sequential);
-//	beamOn->addSubAction(AMActionSupport::buildControlMoveAction(valves_, BioXASValvesControl::Open));
+	beamOn->addSubAction(AMActionSupport::buildControlMoveAction(valves_, BioXASValvesControl::Open));
 	beamOn->addSubAction(AMActionSupport::buildControlMoveAction(safetyShutter_, CLSBiStateControl::Open));
 	beamOn->addSubAction(AMActionSupport::buildControlMoveAction(photonShutterDownstream_, CLSBiStateControl::Open));
 	beamOn->addSubAction(AMActionSupport::buildControlMoveAction(photonShutterUpstream_, CLSBiStateControl::Open));

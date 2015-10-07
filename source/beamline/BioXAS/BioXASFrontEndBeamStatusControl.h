@@ -1,17 +1,14 @@
 #ifndef BIOXASFRONTENDBEAMSTATUSCONTROL_H
 #define BIOXASFRONTENDBEAMSTATUSCONTROL_H
 
-#include "beamline/AMPseudoMotorControl.h"
-#include "beamline/CLS/CLSBiStateControl.h"
+#include "beamline/BioXAS/BioXASBeamStatusControl.h"
+#include "beamline/BioXAS/BioXASValvesControl.h"
 
-class BioXASFrontEndBeamStatusControl : public AMPseudoMotorControl
+class BioXASFrontEndBeamStatusControl : public BioXASBeamStatusControl
 {
     Q_OBJECT
 
 public:
-	/// Enum providing the different possible value options.
-	enum Value { On = 0, Off = 1, None = 2 };
-
 	/// Constructor.
     explicit BioXASFrontEndBeamStatusControl(QObject *parent = 0);
 	/// Destructor.
@@ -31,15 +28,10 @@ public:
 	/// Returns true if this control can stop a move right now.
 	virtual bool canStop() const;
 
-	/// Returns true if the given value is a valid value for this control, false otherwise.
-	virtual bool validValue(double value) const;
-	/// Returns true if the given value is a valid setpoint for this control, false otherwise.
-	virtual bool validSetpoint(double value) const;
-
 	/// Returns true if the front end beam is on, false otherwise.
-	bool isOn() const;
+	virtual bool isOn() const;
 	/// Returns false if the front and beam is off, false otherwise.
-	bool isOff() const;
+	virtual bool isOff() const;
 
 	/// Returns the front-end upstream photon shutter.
 	AMControl* photonShutterUpstream() const { return photonShutterUpstream_; }
@@ -47,6 +39,8 @@ public:
 	AMControl* photonShutterDownstream() const { return photonShutterDownstream_; }
 	/// Returns the front-end safety shutter.
 	AMControl* safetyShutter() const { return safetyShutter_; }
+	/// Returns the valves.
+	AMControl* valves() const { return valves_; }
 
 signals:
 	/// Notifier that the front-end upstream photon shutter changed.
@@ -65,6 +59,8 @@ public slots:
 	void setPhotonShutterDownstream(CLSBiStateControl *newControl);
 	/// Sets the front-end safety shutter.
 	void setSafetyShutter(CLSBiStateControl *newControl);
+	/// Sets the valves.
+	void setValves(BioXASValvesControl *newControl);
 
 protected slots:
 	/// Updates the connected state.
@@ -90,8 +86,8 @@ protected:
 	CLSBiStateControl *photonShutterDownstream_;
 	/// The front-end safety shutter.
 	CLSBiStateControl *safetyShutter_;
-//	/// The front-end and beamline valves.
-//	BioXASValvesControl *valves_;
+	/// The front-end and beamline valves.
+	BioXASValvesControl *valves_;
 };
 
 #endif // BIOXASFRONTENDBEAMSTATUSCONTROL_H
