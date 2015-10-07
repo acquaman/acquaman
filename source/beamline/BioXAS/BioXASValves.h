@@ -19,7 +19,7 @@ public:
 	virtual bool isConnected() const;
 
 	/// Returns the valves control.
-	AMControl* valvesControl() const { return valvesControl_; }
+	BioXASValvesControl* valvesControl() const { return valvesControl_; }
 
 	/// Returns the set of front end vacuum valves.
 	AMControlSet* frontEndValves() const { return frontEndValves_; }
