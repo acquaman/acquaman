@@ -72,7 +72,11 @@ HEADERS += \
     source/ui/BioXAS/BioXASXASScanConfigurationEditor.h \
     source/ui/BioXAS/BioXASXASScanConfigurationView.h \
     source/dataman/BioXAS/BioXASDbUpgrade1Pt1.h \
-    source/beamline/BioXAS/BioXASFilterFlipper.h
+    source/beamline/BioXAS/BioXASFilterFlipper.h \
+    source/ui/BioXAS/BioXASFilterFlipperView.h \
+    source/beamline/BioXAS/BioXASFilterFlipperFilter.h \
+    source/ui/BioXAS/BioXASFilterFlipperFilterView.h \
+    source/ui/BioXAS/BioXASFilterFlipperConfigurationView.h
 
 SOURCES += \
 	source/acquaman/BioXAS/BioXASXRFScanConfiguration.cpp \
@@ -139,7 +143,23 @@ SOURCES += \
     source/ui/BioXAS/BioXASXASScanConfigurationEditor.cpp \
     source/ui/BioXAS/BioXASXASScanConfigurationView.cpp \
     source/dataman/BioXAS/BioXASDbUpgrade1Pt1.cpp \
-    source/beamline/BioXAS/BioXASFilterFlipper.cpp
+    source/beamline/BioXAS/BioXASFilterFlipper.cpp \
+    source/ui/BioXAS/BioXASFilterFlipperView.cpp \
+    source/beamline/BioXAS/BioXASFilterFlipperFilter.cpp \
+    source/ui/BioXAS/BioXASFilterFlipperFilterView.cpp \
+    source/ui/BioXAS/BioXASFilterFlipperConfigurationView.cpp
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

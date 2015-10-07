@@ -24,6 +24,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/AMDetector.h"
 #include "beamline/AMPVControl.h"
 #include "beamline/AMBasicControlDetectorEmulator.h"
+#include "util/AMPeriodicTable.h"
 
 BioXASSideBeamline::~BioXASSideBeamline()
 {
@@ -237,17 +238,17 @@ void BioXASSideBeamline::setupComponents()
 	filterFlipper_ = new BioXASFilterFlipper(this);
 	connect( filterFlipper_, SIGNAL(connectedChanged(bool)), this, SLOT(updateConnected()) );
 
-	filterFlipper_->setSlideName(0, "None");
-	filterFlipper_->setSlideName(1, "Cr - 3");
-	filterFlipper_->setSlideName(2, "Cr - 6");
-	filterFlipper_->setSlideName(3, "Ni - 3");
-	filterFlipper_->setSlideName(4, "Ni - 6");
-	filterFlipper_->setSlideName(5, "Cu - 3");
-	filterFlipper_->setSlideName(6, "Cu - 6");
-	filterFlipper_->setSlideName(7, "Zr - 3");
-	filterFlipper_->setSlideName(8, "Zr - 6");
-	filterFlipper_->setSlideName(9, "Ag - 3");
-	filterFlipper_->setSlideName(10, "Ag - 6");
+	filterFlipper_->setFilter(0, 0, 0);
+	filterFlipper_->setFilter(1, AMPeriodicTable::table()->elementBySymbol("Cr"), 3);
+	filterFlipper_->setFilter(2, AMPeriodicTable::table()->elementBySymbol("Cr"), 6);
+	filterFlipper_->setFilter(3, AMPeriodicTable::table()->elementBySymbol("Ni"), 3);
+	filterFlipper_->setFilter(4, AMPeriodicTable::table()->elementBySymbol("Ni"), 6);
+	filterFlipper_->setFilter(5, AMPeriodicTable::table()->elementBySymbol("Cu"), 3);
+	filterFlipper_->setFilter(6, AMPeriodicTable::table()->elementBySymbol("Cu"), 6);
+	filterFlipper_->setFilter(7, AMPeriodicTable::table()->elementBySymbol("Zr"), 3);
+	filterFlipper_->setFilter(8, AMPeriodicTable::table()->elementBySymbol("Zr"), 6);
+	filterFlipper_->setFilter(9, AMPeriodicTable::table()->elementBySymbol("Ag"), 3);
+	filterFlipper_->setFilter(10, AMPeriodicTable::table()->elementBySymbol("Ag"), 6);
 
 	// Scaler.
 	scaler_ = new CLSSIS3820Scaler("MCS1607-601:mcs", this);

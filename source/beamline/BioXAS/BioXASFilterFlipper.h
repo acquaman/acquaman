@@ -1,14 +1,18 @@
 #ifndef BIOXASFILTERFLIPPER_H
 #define BIOXASFILTERFLIPPER_H
 
-#include "beamline/BioXAS/BioXASBeamlineComponent.h"
 #include "beamline/AMPVControl.h"
+#include "beamline/BioXAS/BioXASBeamlineComponent.h"
+#include "beamline/BioXAS/BioXASFilterFlipperFilter.h"
 
 class BioXASFilterFlipper : public BioXASBeamlineComponent
 {
     Q_OBJECT
 
 public:
+	/// Enum providing different flipper statuses.
+	enum Status { Done = 0, Changing, Error };
+
 	/// Constructor.
     explicit BioXASFilterFlipper(QObject *parent = 0);
 	/// Destructor.
@@ -48,18 +52,27 @@ public:
 	/// Returns the 'in cartridge' status control for slide 10.
 	AMReadOnlyPVControl *slide10CartridgeStatus() const { return slide10CartridgeStatus_; }
 
-	/// Returns the slide name of the slide at the given index. Returns empty string if no slide at that index found.
-	QString slideName(int slideIndex) const;
-	/// Returns the slide index of the slide with the given name. Returns -1 if no slide with that name found.
-	int slideIndex(const QString &slideName) const;
+	/// Returns the list of filters.
+	QList<BioXASFilterFlipperFilter*> filters() const { return filters_; }
+
+	/// Returns a string representation of the given status.
+	QString statusToString(int status) const;
 
 signals:
-	/// Notifier that the name of the slide at the given index has changed.
-	void slideNameChanged(int slideIndex, const QString &newName);
+	/// Notifier that the filter at a given index has changed.
+	void filterChanged(int index, BioXASFilterFlipperFilter *newFilter);
 
 public slots:
-	/// Sets the name of the slide at the given index.
-	void setSlideName(int slideIndex, const QString &newName);
+	/// Sets the filter at the given index, a new filter with the given characteristics.
+	void setFilter(int index, AMElement *element, double thickness);
+
+protected slots:
+	/// Sets the filter at the given index. Deletes the filter being replaced, if the filter flipper is the parent.
+	void setFilter(int index, BioXASFilterFlipperFilter *newFilter);
+
+protected:
+	/// Creates and returns a filter with the given characteristics.
+	BioXASFilterFlipperFilter* createFilter(AMElement *element, double thickness);
 
 protected:
 	/// The status control.
@@ -96,8 +109,8 @@ protected:
 	/// The 'in cartridge' status control for slide 10.
 	AMReadOnlyPVControl *slide10CartridgeStatus_;
 
-	/// The mapping between slide index and slide contents.
-	QMap<int, QString> slideNameMap_;
+	/// The list of filters.
+	QList<BioXASFilterFlipperFilter*> filters_;
 };
 
 #endif // BIOXASFILTERFLIPPER_H

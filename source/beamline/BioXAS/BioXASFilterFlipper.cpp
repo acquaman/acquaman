@@ -46,28 +46,50 @@ bool BioXASFilterFlipper::isConnected() const
 				slide7CartridgeStatus_ && slide7CartridgeStatus_->isConnected() &&
 				slide8CartridgeStatus_ && slide8CartridgeStatus_->isConnected() &&
 				slide9CartridgeStatus_ && slide9CartridgeStatus_->isConnected() &&
-				slide10CartridgeStatus_ && slide10CartridgeStatus_->isConnected() &&
+				slide10CartridgeStatus_ && slide10CartridgeStatus_->isConnected()
 				);
 
 	return connected;
 }
 
-QString BioXASFilterFlipper::slideName(int slideIndex) const
+QString BioXASFilterFlipper::statusToString(int status) const
 {
-	return slideNameMap_.value(slideIndex, "");
-}
+	QString result = "Unknown";
 
-int BioXASFilterFlipper::slideIndex(const QString &slideName) const
-{
-	return slideNameMap_.key(slideName, -1);
-}
-
-void BioXASFilterFlipper::setSlideName(int slideIndex, const QString &newName)
-{
-	QString currentSlideName = slideName(slideIndex);
-
-	if (currentSlideName != newName) {
-		slideNameMap_.insert(slideIndex, newName);
-		emit slideNameChanged(slideIndex, newName);
+	switch (status) {
+	case Done:
+		result = "Done";
+		break;
+	case Changing:
+		result = "Changing";
+		break;
+	case Error:
+		result = "Error";
+		break;
+	default:
+		break;
 	}
+
+	return result;
+}
+
+void BioXASFilterFlipper::setFilter(int index, AMElement *element, double thickness)
+{
+	setFilter(index, createFilter(element, thickness));
+}
+
+void BioXASFilterFlipper::setFilter(int index, BioXASFilterFlipperFilter *newFilter)
+{
+	BioXASFilterFlipperFilter *existingFilter = filters_.at(index);
+
+	if (existingFilter != newFilter) {
+		filters_.insert(index, newFilter);
+
+		emit filterChanged(index, newFilter);
+	}
+}
+
+BioXASFilterFlipperFilter* BioXASFilterFlipper::createFilter(AMElement *element, double thickness)
+{
+	return new BioXASFilterFlipperFilter(element, thickness, this);
 }
