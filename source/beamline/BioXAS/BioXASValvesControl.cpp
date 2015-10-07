@@ -78,7 +78,7 @@ bool BioXASValvesControl::validSetpoint(double value) const
 	return result;
 }
 
-AMControlSet* BioXASValvesControl::valveSet(BioXAS::Beamline beamline)
+AMControlSet* BioXASValvesControl::valveSet(BioXAS::Beamline beamline) const
 {
 	AMControlSet *result = 0;
 
@@ -114,7 +114,7 @@ bool BioXASValvesControl::isClosed() const
 	return result;
 }
 
-QString BioXASValvesControl::valueToString(BioXASValvesControl::Value value)
+QString BioXASValvesControl::valueToString(BioXASValvesControl::Value value) const
 {
 	QString result;
 
