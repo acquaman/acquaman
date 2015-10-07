@@ -28,17 +28,32 @@ BioXASFrontEndBeamStatusControl::~BioXASFrontEndBeamStatusControl()
 
 bool BioXASFrontEndBeamStatusControl::canMeasure() const
 {
-	return false;
+	bool result = false;
+
+	if (isConnected())
+		result = (photonShutterUpstream_->canMeasure() && photonShutterDownstream_->canMeasure() && safetyShutter_->canMeasure() && valves_->canMeasure());
+
+	return result;
 }
 
 bool BioXASFrontEndBeamStatusControl::canMove() const
 {
-	return false;
+	bool result = false;
+
+	if (isConnected())
+		result = (photonShutterUpstream_->canMove() && photonShutterDownstream_->canMove() && safetyShutter_->canMove() && valves_->canMove());
+
+	return result;
 }
 
 bool BioXASFrontEndBeamStatusControl::canStop() const
 {
-	return false;
+	bool result = false;
+
+	if (isConnected())
+		result = (photonShutterUpstream_->canStop() && photonShutterDownstream_->canStop() && safetyShutter_->canStop() && valves_->canStop());
+
+	return result;
 }
 
 bool BioXASFrontEndBeamStatusControl::isOn() const
