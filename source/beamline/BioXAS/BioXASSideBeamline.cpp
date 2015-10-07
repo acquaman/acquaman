@@ -47,6 +47,7 @@ bool BioXASSideBeamline::isConnected() const
 				standardsWheel_ && standardsWheel_->isConnected() &&
 				cryostatStage_ && cryostatStage_->isConnected() &&
 				endstationTable_ && endstationTable_->isConnected() &&
+				filterFlipper_ && filterFlipper_->isConnected() &&
 
 				scaler_ && scaler_->isConnected() &&
 				i0Keithley_ && i0Keithley_->isConnected() &&
@@ -231,6 +232,10 @@ void BioXASSideBeamline::setupComponents()
 	// Cryostat stage.
 	cryostatStage_ = new BioXASSideCryostatStage(this);
 	connect( cryostatStage_, SIGNAL(connectedChanged(bool)), this, SLOT(updateConnected()) );
+
+	// Filter flipper.
+	filterFlipper_ = new BioXASFilterFlipper(this);
+	connect( filterFlipper_, SIGNAL(connectedChanged(bool)), this, SLOT(updateConnected()) );
 
 	// Scaler.
 	scaler_ = new CLSSIS3820Scaler("MCS1607-601:mcs", this);

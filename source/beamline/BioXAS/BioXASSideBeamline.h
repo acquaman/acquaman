@@ -77,7 +77,9 @@ public:
 	/// Returns the cryostat stage motors group.
 	virtual BioXASSideCryostatStage* cryostatStage() const { return cryostatStage_; }
 	/// Returns the endstation table.
-	virtual BioXASEndstationTable *endstationTable() const { return endstationTable_; }
+	virtual BioXASEndstationTable* endstationTable() const { return endstationTable_; }
+	/// Returns the filter flipper.
+	virtual BioXASFilterFlipper* filterFlipper() const { return filterFlipper_; }
 
 	/// Returns the scaler.
 	virtual CLSSIS3820Scaler* scaler() const { return scaler_; }
@@ -154,6 +156,8 @@ protected:
 	BioXASSideCryostatStage *cryostatStage_;
 	/// Endstation table
 	BioXASEndstationTable *endstationTable_;
+	/// Filter flipper
+	BioXASFilterFlipper *filterFlipper_;
 
 	/// Detector stage lateral motor.
 	CLSMAXvMotor *detectorStageLateral_;
