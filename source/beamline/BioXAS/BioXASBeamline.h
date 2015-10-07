@@ -28,6 +28,7 @@
 #include "beamline/BioXAS/BioXASBeamlineUtilities.h"
 #include "beamline/BioXAS/BioXASCryostatStage.h"
 #include "beamline/BioXAS/BioXASFrontEndShutters.h"
+#include "beamline/BioXAS/BioXASValves.h"
 
 #include "util/AMErrorMonitor.h"
 #include "util/AMBiHash.h"
@@ -58,6 +59,9 @@ public:
 
 	/// Returns the front end shutters.
 	virtual BioXASFrontEndShutters* shutters() const { return frontEndShutters_; }
+	/// Returns the valves.
+	virtual BioXASValves* valves() const { return valves_; }
+
 	/// Returns the m1 mirror.
 	virtual BioXASM1Mirror* m1Mirror() const { return 0; }
 	/// Returns the monochromator.
@@ -129,6 +133,8 @@ protected:
 
 	/// The front end shutters.
 	BioXASFrontEndShutters *frontEndShutters_;
+	/// The valves for all three beamlines.
+	BioXASValves *valves_;
 
 	/// The control/detector map. Assumes a 1-1 correlation between controls and detector emulators.
 	QMap<AMControl*, AMBasicControlDetectorEmulator*> controlDetectorMap_;

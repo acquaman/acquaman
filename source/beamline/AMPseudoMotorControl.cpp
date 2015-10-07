@@ -386,6 +386,8 @@ void AMPseudoMotorControl::updateStates()
 	updateConnected();
 	updateValue();
 	updateMoving();
+	updateMinimumValue();
+	updateMaximumValue();
 }
 
 void AMPseudoMotorControl::onMoveStarted(QObject *action)
