@@ -16,7 +16,8 @@ HEADERS += \
     source/beamline/SGM/energy/SGMUndulatorSupport.h \
     source/beamline/SGM/energy/SGMEnergyTrajectory.h \
     source/beamline/SGM/energy/SGMEnergyPosition.h \
-    source/beamline/SGM/energy/SGMEnergyControl.h
+    $$PWD/source/beamline/SGM/energy/SGMOldEnergyControl.h \
+    $$PWD/source/beamline/SGM/energy/SGMEnergyControl.h
 
 
 SOURCES += \
@@ -26,7 +27,8 @@ SOURCES += \
     source/beamline/SGM/SGMHexapodTransformedAxis.cpp \
     source/beamline/SGM/energy/SGMEnergyTrajectory.cpp \
     source/beamline/SGM/energy/SGMEnergyPosition.cpp \
-    source/beamline/SGM/energy/SGMEnergyControl.cpp
+    $$PWD/source/beamline/SGM/energy/SGMOldEnergyControl.cpp \
+    $$PWD/source/beamline/SGM/energy/SGMEnergyControl.cpp
 
 
 

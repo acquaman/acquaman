@@ -27,13 +27,10 @@ protected slots:
     void onUndulatorOffsetValueChanged(double value);
     void onUndulatorTrackingCheckBoxChanged(bool isChecked);
     void onGratingOptimizationSelectionChanged(int index);
-	void onExitSlitTrackingCheckBoxChanged(bool isChecked);
+    void onExitSlitTrackingCheckBoxChanged(bool isChecked);
 
-	void onControllerGratingAngleChanged(double gratingAngle);
-	void onControllerGratingTranslationChanged(SGMGratingSupport::GratingTranslation gratingTranslation);
-	void onControllerGratingOptimizationChanged(SGMEnergyPosition::GratingTranslationOptimizationMode optimizationMode);
-	void onControllerExitSlitChanged(double exitSlitPosition);
-	void onControllerUndulatorChanged(double undulatorPosition);
+    void onControlGratingOptimizationChanged(SGMEnergyPosition::GratingTranslationOptimizationMode optimizationMode);
+
 protected:
     void setupUi();
     void setupData();
@@ -49,9 +46,10 @@ protected:
 	QComboBox* gratingTranslationComboBox_;
     QCheckBox* exitSlitTrackingCheckBox_;
 
-	QLineEdit* gratingAngleValueLineEdit_;
-	QLineEdit* undulatorValueLineEdit_;
-	QLineEdit* exitSlitValueLineEdit_;
+    AMExtendedControlEditor* gratingAngleValueControlEditor_;
+    AMExtendedControlEditor* gratingTranslationControlEditor_;
+    AMExtendedControlEditor* undulatorValueControlEditor_;
+    AMExtendedControlEditor* exitSlitValueControlEditor_;
     bool isInitialized_;
 };
 

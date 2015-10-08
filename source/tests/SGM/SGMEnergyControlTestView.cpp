@@ -6,7 +6,7 @@
 SGMEnergyControlTestView::SGMEnergyControlTestView(QWidget *parent) : QWidget(parent)
 {
     isInitialized_ = false;
-    energyControl_ = new SGMEnergyControl(SGMUndulatorSupport::FirstHarmonic,this);
+    energyControl_ = new SGMEnergyControl(SGMUndulatorSupport::FirstHarmonic, this);
 
     setupUi();
     if(energyControl_->isConnected()) {
@@ -78,41 +78,9 @@ void SGMEnergyControlTestView::onExitSlitTrackingCheckBoxChanged(bool isChecked)
     energyControl_->setExitSlitPositionTracking(isChecked);
 }
 
-void SGMEnergyControlTestView::onControllerGratingAngleChanged(double gratingAngle)
-{
-	gratingAngleValueLineEdit_->setText(QString("%1").arg(gratingAngle));
-}
-
-void SGMEnergyControlTestView::onControllerGratingTranslationChanged(SGMGratingSupport::GratingTranslation gratingTranslation)
-{
-	int correspondingTranslationComboIndex;
-	switch(gratingTranslation) {
-	case SGMGratingSupport::LowGrating:
-		correspondingTranslationComboIndex = 0;
-		break;
-	case SGMGratingSupport::MediumGrating:
-		correspondingTranslationComboIndex = 1;
-		break;
-	default:
-		correspondingTranslationComboIndex = 2;
-	}
-
-	gratingTranslationComboBox_->setCurrentIndex(correspondingTranslationComboIndex);
-}
-
-void SGMEnergyControlTestView::onControllerGratingOptimizationChanged(SGMEnergyPosition::GratingTranslationOptimizationMode optimizationMode)
+void SGMEnergyControlTestView::onControlGratingOptimizationChanged(SGMEnergyPosition::GratingTranslationOptimizationMode optimizationMode)
 {
 	gratingTranslationComboBox_->setEnabled(optimizationMode == SGMEnergyPosition::ManualMode);
-}
-
-void SGMEnergyControlTestView::onControllerExitSlitChanged(double exitSlitPosition)
-{
-	exitSlitValueLineEdit_->setText(QString("%1").arg(exitSlitPosition));
-}
-
-void SGMEnergyControlTestView::onControllerUndulatorChanged(double undulatorPosition)
-{
-	undulatorValueLineEdit_->setText(QString("%1").arg(undulatorPosition));
 }
 
 void SGMEnergyControlTestView::setupUi()
@@ -122,8 +90,7 @@ void SGMEnergyControlTestView::setupUi()
 
     energyControlEditor_ = new AMExtendedControlEditor(energyControl_);
 
-    mainLayout->addWidget(new QLabel("Energy"), 0, 0);
-    mainLayout->addWidget(energyControlEditor_, 0, 1);
+    mainLayout->addWidget(energyControlEditor_, 0, 0, 1, 2);
 
     undulatorHarmonic_ = new QComboBox();
     undulatorHarmonic_->addItem("First");
@@ -156,20 +123,17 @@ void SGMEnergyControlTestView::setupUi()
     exitSlitTrackingCheckBox_ = new QCheckBox("Exit Slit Tracking");
 	mainLayout->addWidget(exitSlitTrackingCheckBox_,6,0,1,2);
 
-	gratingAngleValueLineEdit_ = new QLineEdit();
-	gratingAngleValueLineEdit_->setReadOnly(true);
-	mainLayout->addWidget(new QLabel("Grating Angle"), 7, 0);
-	mainLayout->addWidget(gratingAngleValueLineEdit_, 7, 1);
+    gratingAngleValueControlEditor_ = new AMExtendedControlEditor(0, 0, true);
+    mainLayout->addWidget(gratingAngleValueControlEditor_, 7, 0, 1, 2);
 
-	undulatorValueLineEdit_ = new QLineEdit();
-	undulatorValueLineEdit_->setReadOnly(true);
-	mainLayout->addWidget(new QLabel("Undulator Position"), 8, 0);
-	mainLayout->addWidget(undulatorValueLineEdit_, 8, 1);
+    gratingTranslationControlEditor_ = new AMExtendedControlEditor(0, 0, true);
+    mainLayout->addWidget(gratingTranslationControlEditor_, 8, 0, 1, 2);
 
-	exitSlitValueLineEdit_ = new QLineEdit();
-	exitSlitValueLineEdit_->setReadOnly(true);
-	mainLayout->addWidget(new QLabel("Exit Slit Position"), 9, 0);
-	mainLayout->addWidget(exitSlitValueLineEdit_, 9, 1);
+    undulatorValueControlEditor_ = new AMExtendedControlEditor(0, 0, true);
+    mainLayout->addWidget(undulatorValueControlEditor_, 9, 0, 1, 2);
+
+    exitSlitValueControlEditor_ = new AMExtendedControlEditor(0, 0, true);
+    mainLayout->addWidget(exitSlitValueControlEditor_, 10, 0, 1, 2);
 
     setLayout(mainLayout);
 }
@@ -208,7 +172,7 @@ void SGMEnergyControlTestView::setupData()
     gratingOptimizationComboBox_->setCurrentIndex(correspondingOptimizationComboIndex);
 
 	int correspondingTranslationComboIndex;
-	switch(energyControl_->gratingTranslation()) {
+    switch(SGMGratingSupport::encoderStepsToEnum(energyControl_->gratingTranslationControl()->value())) {
 	case SGMGratingSupport::LowGrating:
 		correspondingTranslationComboIndex = 0;
 		break;
@@ -224,24 +188,17 @@ void SGMEnergyControlTestView::setupData()
 
     exitSlitTrackingCheckBox_->setChecked(energyControl_->isExitSlitPositionTracking());
 
-	gratingAngleValueLineEdit_->setText(QString("%1").arg(energyControl_->gratingAngle()));
-	exitSlitValueLineEdit_->setText(QString("%1").arg(energyControl_->exitSlitPosition()));
-	undulatorValueLineEdit_->setText(QString("%1").arg(energyControl_->undulatorPosition()));
+    gratingAngleValueControlEditor_->setControl(energyControl_->gratingAngleControl());
+    gratingTranslationControlEditor_->setControl(energyControl_->gratingTranslationControl());
+    exitSlitValueControlEditor_->setControl(energyControl_->exitSlitPositionControl());
+    undulatorValueControlEditor_->setControl(energyControl_->undulatorPositionControl());
+
 }
 
 void SGMEnergyControlTestView::setupConnections()
 {
-	connect(energyControl_, SIGNAL(gratingAngleChanged(double)),
-			this, SLOT(onControllerGratingAngleChanged(double)));
-
-	connect(energyControl_, SIGNAL(gratingTranslationChanged(SGMGratingSupport::GratingTranslation)),
-			this, SLOT(onControllerGratingTranslationChanged(SGMGratingSupport::GratingTranslation)));
-
-	connect(energyControl_, SIGNAL(undulatorPositionChanged(double)),
-			this, SLOT(onControllerUndulatorChanged(double)));
-
-	connect(energyControl_, SIGNAL(exitSlitPositionChanged(double)),
-			this, SLOT(onControllerExitSlitChanged(double)));
+    connect(energyControl_, SIGNAL(gratingTranslationOptimizationModeChanged(SGMEnergyPosition::GratingTranslationOptimizationMode)),
+            this, SLOT(onControlGratingOptimizationChanged(SGMEnergyPosition::GratingTranslationOptimizationMode)));
 }
 
 

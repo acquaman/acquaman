@@ -1,6 +1,7 @@
 #ifndef SGMGRATINGSUPPORT_H
 #define SGMGRATINGSUPPORT_H
 
+#include <qglobal.h>
 /*!
   * Namespace containing enumerators and functions relating to the grating translation
   * on the SGM Beamline
@@ -97,6 +98,52 @@ inline static double radiusCurvatureOffset(GratingTranslation translationSelecti
     default:
         return 0;
     }
+}
+
+/*!
+ * The encoder steps target to apply in order to reach the provided grating translation
+ * \param translationSelection ~ The grating translation whose encoder steps target
+ * is to be returned.
+ */
+inline static double enumToEncoderSteps(GratingTranslation translationSelection)
+{
+    switch(translationSelection) {
+    case LowGrating:
+        return 61300;
+    case MediumGrating:
+
+    case HighGrating:
+
+    default:
+        return 0;
+    }
+}
+
+/*!
+ * The grating translation enum value which the provided encoder steps refers to.
+ * \param encoderSteps ~ The encoder steps value whose grating translation enum
+ * is to be returned.
+ */
+inline static GratingTranslation encoderStepsToEnum(double encoderSteps)
+{
+    // Todo: Verify this value?
+    double tolerance = 10;
+    if(qAbs(encoderSteps - 61300) < tolerance) {
+
+        return LowGrating;
+    }
+
+    if(qAbs(encoderSteps - 0000) < tolerance) {
+
+        return MediumGrating;
+    }
+
+    if(qAbs(encoderSteps - 0000) < tolerance) {
+
+        return HighGrating;
+    }
+
+    return UnknownGrating;
 }
 
 /*!
