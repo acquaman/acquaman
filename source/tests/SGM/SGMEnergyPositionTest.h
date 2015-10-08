@@ -2,7 +2,7 @@
 #define SGMENERGYPOSITIONTEST_H
 
 #include <QStringList>
-#include "beamline/SGM/monochromator/SGMGratingSupport.h"
+#include "beamline/SGM/energy/SGMGratingSupport.h"
 
 /*!
  * A class which performs basic tests on the SGNEnergyPosition class

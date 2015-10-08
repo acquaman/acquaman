@@ -7,8 +7,8 @@
 #include <QLabel>
 #include <QComboBox>
 #include <QCheckBox>
-#include "beamline/SGM/monochromator/SGMGratingSupport.h"
-#include "beamline/SGM/monochromator/SGMUndulatorSupport.h"
+#include "beamline/SGM/energy/SGMGratingSupport.h"
+#include "beamline/SGM/energy/SGMUndulatorSupport.h"
 class SGMEnergyPosition;
 /*!
  * A widget class designed to visualize the data within an SGMMonochromatorInfo

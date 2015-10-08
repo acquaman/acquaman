@@ -1,5 +1,5 @@
 #include "SGMEnergyPositionTest.h"
-#include "beamline/SGM/monochromator/SGMEnergyPosition.h"
+#include "beamline/SGM/energy/SGMEnergyPosition.h"
 SGMEnergyPositionTest::SGMEnergyPositionTest()
 {
 

@@ -6,7 +6,7 @@
 #include "tests/SGM/SGMEnergyControlTestView.h"
 #include "qjson/serializer.h"
 
-#include "beamline/SGM/monochromator/SGMEnergyPosition.h"
+#include "beamline/SGM/energy/SGMEnergyPosition.h"
 #include <QDebug>
 #include <QGroupBox>
 #include <QHBoxLayout>

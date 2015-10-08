@@ -4,7 +4,7 @@
 #include <QVBoxLayout>
 #include <QGroupBox>
 
-#include "beamline/SGM/monochromator/SGMEnergyPosition.h"
+#include "beamline/SGM/energy/SGMEnergyPosition.h"
 
 SGMEnergyPositionTestView::SGMEnergyPositionTestView(SGMEnergyPosition *energyPosition, QWidget *parent) : QWidget(parent)
 {

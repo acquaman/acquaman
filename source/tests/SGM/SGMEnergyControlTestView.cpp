@@ -1,5 +1,5 @@
 #include "SGMEnergyControlTestView.h"
-#include "beamline/SGM/monochromator/SGMEnergyControl.h"
+#include "beamline/SGM/energy/SGMEnergyControl.h"
 
 #include <QGridLayout>
 #include <QLabel>

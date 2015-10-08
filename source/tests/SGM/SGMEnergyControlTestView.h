@@ -7,9 +7,9 @@
 #include <QCheckBox>
 #include <QLineEdit>
 #include "ui/beamline/AMExtendedControlEditor.h"
-#include "beamline/SGM/monochromator/SGMUndulatorSupport.h"
-#include "beamline/SGM/monochromator/SGMGratingSupport.h"
-#include "beamline/SGM/monochromator/SGMEnergyPosition.h"
+#include "beamline/SGM/energy/SGMUndulatorSupport.h"
+#include "beamline/SGM/energy/SGMGratingSupport.h"
+#include "beamline/SGM/energy/SGMEnergyPosition.h"
 class SGMEnergyControl;
 class SGMEnergyControlTestView : public QWidget
 {

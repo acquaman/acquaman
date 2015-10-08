@@ -4,8 +4,8 @@
 #include "MPlot/MPlot.h"
 #include "MPlot/MPlotSeries.h"
 
-#include "beamline/SGM/monochromator/SGMEnergyPosition.h"
-#include "beamline/SGM/monochromator/SGMEnergyTrajectory.h"
+#include "beamline/SGM/energy/SGMEnergyPosition.h"
+#include "beamline/SGM/energy/SGMEnergyTrajectory.h"
 
 #include <QHBoxLayout>
 #include <QVBoxLayout>
