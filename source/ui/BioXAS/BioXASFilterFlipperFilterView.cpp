@@ -64,6 +64,8 @@ void BioXASFilterFlipperFilterView::refresh()
 
 	defaultLabel_->setText("None");
 
+	elementButton_->setMinimumWidth(30);
+
 	thicknessBox_->setMinimum(0);
 	thicknessBox_->setMaximum(10);
 	thicknessBox_->setValue(0);
