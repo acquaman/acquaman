@@ -3,6 +3,8 @@
 
 #include "acquaman/AMStepScanConfiguration.h"
 
+#include "dataman/AMRegionOfInterest.h"
+
 /// This class implements a generic scanning tool for 1D and 2D scans.
 /*!
 	This class uses all the exposed controls and detectors of a beamline
@@ -15,6 +17,8 @@
 class AMGenericStepScanConfiguration : public AMStepScanConfiguration
 {
 	Q_OBJECT
+
+	Q_PROPERTY(AMDbObjectList regionsOfInterest READ dbReadRegionsOfInterest WRITE dbLoadRegionsOfInterest)
 
 	Q_CLASSINFO("AMDbObject_Attributes", "description=Generic Step Configuration")
 
@@ -45,6 +49,9 @@ public:
 	/// Returns the current total estimated time for a scan to complete.
 	double totalTime() const { return totalTime_; }
 
+	/// Returns the regions of interest.
+	QList<AMRegionOfInterest *> regionsOfInterest() const { return regionsOfInterest_; }
+
 signals:
 	/// Notifier that the total time estimate has changed.
 	void totalTimeChanged(double);
@@ -61,6 +68,10 @@ public slots:
 	void addDetector(AMDetectorInfo newInfo);
 	/// Removes the detector from the detector info list.
 	void removeDetector(AMDetectorInfo info);
+	/// Adds a region of interest to the list.
+	void addRegionOfInterest(AMRegionOfInterest *region);
+	/// Removes a region of interest from the list.
+	void removeRegionOfInterest(AMRegionOfInterest *region);
 
 protected slots:
 	/// Inserts the given region into the given scan axis index position, and makes the appropriate connections.
@@ -81,9 +92,18 @@ protected:
 	/// Calculates and returns the time it would take to scan the regions of a given scan axis, 0 if there are any issues with the given axis.
 	double calculateRegionsTotalTime(AMScanAxis *scanAxis);
 
-protected:
+	/// Returns the regions of interest list.
+	AMDbObjectList dbReadRegionsOfInterest();
+	/// Called by the dtabase system on loadFromDb() to give us our new list of AMRegionOfInterest.
+	void dbLoadRegionsOfInterest(const AMDbObjectList &newRegions);
+
+	/// Returns a string that displays all the regions of interest.
+	QString regionsOfInterestHeaderString(const QList<AMRegionOfInterest *> &regions) const;
+
 	/// Holds the total time in seconds that the scan is estimated to take.
 	double totalTime_;
+	/// The list of the regions of interest.
+	QList<AMRegionOfInterest *> regionsOfInterest_;
 };
 
 #endif // AMGENERICSTEPSCANCONFIGURATION_H

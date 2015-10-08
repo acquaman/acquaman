@@ -19,6 +19,9 @@ AMGenericStepScanConfiguration::AMGenericStepScanConfiguration(const AMGenericSt
 	setName(original.name());
 	setUserScanName(original.name());
 
+	foreach (AMRegionOfInterest *region, original.regionsOfInterest())
+		addRegionOfInterest(region->createCopy());
+
 	computeTotalTime();
 
 	for (int i = 0, size = scanAxes_.count(); i < size; i++){
@@ -257,4 +260,150 @@ double AMGenericStepScanConfiguration::calculateRegionsTotalTime(AMScanAxis *sca
 			result += calculateRegionTotalTime(region);
 
 	return result;
+}
+
+void AMGenericStepScanConfiguration::setControl(int axisId, AMControlInfo newInfo)
+{
+	if (axisId == 0 && axisControlInfos_.isEmpty()){
+
+		axisControlInfos_.append(newInfo);
+		setModified(true);
+
+		AMScanAxisRegion *region = new AMScanAxisRegion;
+		AMScanAxis *axis = new AMScanAxis(AMScanAxis::StepAxis, region);
+		appendScanAxis(axis);
+
+		connect(scanAxisAt(0)->regionAt(0), SIGNAL(regionStartChanged(AMNumber)), this, SLOT(computeTotalTime()));
+		connect(scanAxisAt(0)->regionAt(0), SIGNAL(regionStepChanged(AMNumber)), this, SLOT(computeTotalTime()));
+		connect(scanAxisAt(0)->regionAt(0), SIGNAL(regionEndChanged(AMNumber)), this, SLOT(computeTotalTime()));
+		connect(scanAxisAt(0)->regionAt(0), SIGNAL(regionTimeChanged(AMNumber)), this, SLOT(computeTotalTime()));
+	}
+
+	else if (axisId == 0){
+
+		axisControlInfos_.replace(0, newInfo);
+		setModified(true);
+	}
+
+	else if (axisId == 1 && axisControlInfos_.count() == 1){
+
+		axisControlInfos_.append(newInfo);
+		setModified(true);
+
+		AMScanAxisRegion *region = new AMScanAxisRegion;
+		AMScanAxis *axis = new AMScanAxis(AMScanAxis::StepAxis, region);
+		appendScanAxis(axis);
+
+		connect(scanAxisAt(1)->regionAt(0), SIGNAL(regionStartChanged(AMNumber)), this, SLOT(computeTotalTime()));
+		connect(scanAxisAt(1)->regionAt(0), SIGNAL(regionStepChanged(AMNumber)), this, SLOT(computeTotalTime()));
+		connect(scanAxisAt(1)->regionAt(0), SIGNAL(regionEndChanged(AMNumber)), this, SLOT(computeTotalTime()));
+		connect(scanAxisAt(1)->regionAt(0), SIGNAL(regionTimeChanged(AMNumber)), this, SLOT(computeTotalTime()));
+	}
+
+	else if (axisId == 1){
+
+		axisControlInfos_.replace(1, newInfo);
+		setModified(true);
+	}
+
+	computeTotalTime();
+}
+
+void AMGenericStepScanConfiguration::removeControl(int axisId)
+{
+	if (axisId < axisControlInfos_.count() && axisId >= 0){
+
+		AMScanAxis *axis = removeScanAxis(axisId);
+		axis->regionAt(0)->disconnect();
+		axis->regionAt(0)->deleteLater();
+		axis->deleteLater();
+		axisControlInfos_.remove(axisId);
+		setModified(true);
+	}
+}
+
+void AMGenericStepScanConfiguration::addDetector(AMDetectorInfo newInfo)
+{
+	bool containsDetector = false;
+
+	for (int i = 0, size = detectorConfigurations_.count(); i < size; i++){
+
+		if (newInfo.name() == detectorConfigurations_.at(i).name())
+			containsDetector = true;
+	}
+
+	if (!containsDetector){
+
+		detectorConfigurations_.append(newInfo, newInfo.name());
+		setModified(true);
+	}
+}
+
+void AMGenericStepScanConfiguration::removeDetector(AMDetectorInfo info)
+{
+	bool detectorRemoved = false;
+
+	for (int i = 0, size = detectorConfigurations_.count(); i < size && !detectorRemoved; i++){
+
+		if (info.name() == detectorConfigurations_.at(i).name()){
+
+			detectorRemoved = true;
+			detectorConfigurations_.remove(i);
+			setModified(true);
+		}
+	}
+}
+
+void AMGenericStepScanConfiguration::addRegionOfInterest(AMRegionOfInterest *region)
+{
+	regionsOfInterest_.append(region);
+	setModified(true);
+}
+
+void AMGenericStepScanConfiguration::removeRegionOfInterest(AMRegionOfInterest *region)
+{
+	foreach (AMRegionOfInterest *regionToBeRemoved, regionsOfInterest_)
+		if (regionToBeRemoved->name() == region->name()){
+
+			regionsOfInterest_.removeOne(regionToBeRemoved);
+			setModified(true);
+		}
+}
+
+AMDbObjectList AMGenericStepScanConfiguration::dbReadRegionsOfInterest()
+{
+	AMDbObjectList listToBeSaved;
+
+	foreach (AMRegionOfInterest *region, regionsOfInterest_)
+		listToBeSaved << region;
+
+	return listToBeSaved;
+}
+
+void AMGenericStepScanConfiguration::dbLoadRegionsOfInterest(const AMDbObjectList &newRegions)
+{
+	regionsOfInterest_.clear();
+
+	foreach (AMDbObject *newObject, newRegions){
+
+		AMRegionOfInterest *region = qobject_cast<AMRegionOfInterest *>(newObject);
+
+		if (region)
+			regionsOfInterest_.append(region);
+	}
+}
+
+QString AMGenericStepScanConfiguration::regionsOfInterestHeaderString(const QList<AMRegionOfInterest *> &regions) const
+{
+	QString string = "";
+
+	if (!regions.isEmpty()){
+
+		string.append("\nRegions Of Interest\n");
+
+		foreach (AMRegionOfInterest *region, regions)
+			string.append(QString("%1\t%2 eV\t%3 eV\n").arg(region->name()).arg(region->lowerBound()).arg(region->upperBound()));
+	}
+
+	return string;
 }
