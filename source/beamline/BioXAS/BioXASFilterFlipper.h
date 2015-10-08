@@ -3,7 +3,7 @@
 
 #include "beamline/AMPVControl.h"
 #include "beamline/BioXAS/BioXASBeamlineComponent.h"
-#include "beamline/BioXAS/BioXASFilterFlipperFilter.h"
+#include "beamline/BioXAS/BioXASFilterFlipperSlide.h"
 
 class BioXASFilterFlipper : public BioXASBeamlineComponent
 {
@@ -31,46 +31,27 @@ public:
 	AMPVControl* currentSlideControl() const { return currentSlide_; }
 	/// Returns the current slide status control--whether there is a current slide in the receiver.
 	AMReadOnlyPVControl *currentSlideStatusControl() const { return currentSlideStatus_; }
-	/// Returns the 'in cartridge' status control for slide 1.
-	AMReadOnlyPVControl *slide1CartridgeStatusControl() const { return slide1CartridgeStatus_; }
-	/// Returns the 'in cartridge' status control for slide 2.
-	AMReadOnlyPVControl *slide2CartridgeStatus() const { return slide2CartridgeStatus_; }
-	/// Returns the 'in cartridge' status control for slide 3.
-	AMReadOnlyPVControl *slide3CartridgeStatus() const { return slide3CartridgeStatus_; }
-	/// Returns the 'in cartridge' status control for slide 4.
-	AMReadOnlyPVControl *slide4CartridgeStatus() const { return slide4CartridgeStatus_; }
-	/// Returns the 'in cartridge' status control for slide 5.
-	AMReadOnlyPVControl *slide5CartridgeStatus() const { return slide5CartridgeStatus_; }
-	/// Returns the 'in cartridge' status control for slide 6.
-	AMReadOnlyPVControl *slide6CartridgeStatus() const { return slide6CartridgeStatus_; }
-	/// Returns the 'in cartridge' status control for slide 7.
-	AMReadOnlyPVControl *slide7CartridgeStatus() const { return slide7CartridgeStatus_; }
-	/// Returns the 'in cartridge' status control for slide 8.
-	AMReadOnlyPVControl *slide8CartridgeStatus() const { return slide8CartridgeStatus_; }
-	/// Returns the 'in cartridge' status control for slide 9.
-	AMReadOnlyPVControl *slide9CartridgeStatus() const { return slide9CartridgeStatus_; }
-	/// Returns the 'in cartridge' status control for slide 10.
-	AMReadOnlyPVControl *slide10CartridgeStatus() const { return slide10CartridgeStatus_; }
 
-	/// Returns the list of filters.
-	QList<BioXASFilterFlipperFilter*> filters() const { return filters_; }
+	/// Returns the list of slides.
+	QList<BioXASFilterFlipperSlide*> slides() const { return slides_; }
 
 	/// Returns a string representation of the given status.
 	QString statusToString(int status) const;
 
-signals:
-	/// Notifier that the filter at a given index has changed.
-	void filterChanged(int index, BioXASFilterFlipperFilter *newFilter);
-
 public slots:
-	/// Sets the filter at the given index, a new filter with the given characteristics.
-	void setFilter(int index, AMElement *element, double thickness);
+	/// Sets the filter for the slide at the given index, a new filter with the given characteristics.
+	void setSlideFilter(int index, AMElement *element, double thickness);
 
 protected slots:
-	/// Sets the filter at the given index. Deletes the filter being replaced, if the filter flipper is the parent.
-	void setFilter(int index, BioXASFilterFlipperFilter *newFilter);
+	/// Sets the filter for the slide at the given index, deletes any previous filters.
+	void setSlideFilter(int index, BioXASFilterFlipperFilter *newFilter);
 
 protected:
+	/// Creates and returns a list of the given number of slides.
+	QList<BioXASFilterFlipperSlide*> createSlides(int slideCount);
+	/// Returns true if the slides are connected, false otherwise.
+	bool slidesConnected() const;
+
 	/// Creates and returns a filter with the given characteristics.
 	BioXASFilterFlipperFilter* createFilter(AMElement *element, double thickness);
 
@@ -110,7 +91,7 @@ protected:
 	AMReadOnlyPVControl *slide10CartridgeStatus_;
 
 	/// The list of filters.
-	QList<BioXASFilterFlipperFilter*> filters_;
+	QList<BioXASFilterFlipperSlide*> slides_;
 };
 
 #endif // BIOXASFILTERFLIPPER_H

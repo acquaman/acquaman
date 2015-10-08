@@ -4,6 +4,7 @@
 #include <QWidget>
 #include <QToolButton>
 #include <QSpinBox>
+#include <QCheckBox>
 #include <QLayout>
 #include <QLabel>
 
@@ -44,6 +45,13 @@ protected slots:
 	void updateElementButton();
 	/// Updates the thickness box.
 	void updateThicknessBox();
+	/// Updates the enabled box.
+	void updateEnabledBox();
+
+	/// Opens the periodic table dialog, updates the filter element with the user's selection.
+	void onElementButtonClicked();
+	/// Updates the filter thickness with the user's selection.
+	void onThicknessBoxValueChanged();
 
 protected:
 	/// The filter being viewed.
@@ -55,6 +63,8 @@ protected:
 	QToolButton *elementButton_;
 	/// The thickness spinbox.
 	QSpinBox *thicknessBox_;
+	/// The checkbox that indicates whether this filter is used.
+	QCheckBox *enabledBox_;
 };
 
 #endif // BIOXASFILTERFLIPPERFILTERVIEW_H

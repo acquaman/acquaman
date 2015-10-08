@@ -1,4 +1,5 @@
 #include "BioXASFilterFlipperFilterView.h"
+#include "ui/util/AMPeriodicTableDialog.h"
 
 BioXASFilterFlipperFilterView::BioXASFilterFlipperFilterView(BioXASFilterFlipperFilter *filter, QWidget *parent) :
     QWidget(parent)
@@ -16,11 +17,17 @@ BioXASFilterFlipperFilterView::BioXASFilterFlipperFilterView(BioXASFilterFlipper
 	// Create and set layouts.
 
 	QHBoxLayout *layout = new QHBoxLayout();
+	layout->setMargin(0);
 	layout->addWidget(defaultLabel_);
 	layout->addWidget(elementButton_);
 	layout->addWidget(thicknessBox_);
 
 	setLayout(layout);
+
+	// Make connections.
+
+	connect( elementButton_, SIGNAL(clicked()), this, SLOT(onElementButtonClicked()) );
+	connect( thicknessBox_, SIGNAL(valueChanged(int)), this, SLOT(onThicknessBoxValueChanged()) );
 
 	// Current settings.
 
@@ -131,5 +138,41 @@ void BioXASFilterFlipperFilterView::updateThicknessBox()
 		// If there is no filter, the box should be hidden.
 
 		thicknessBox_->hide();
+	}
+}
+
+void BioXASFilterFlipperFilterView::updateEnabledBox()
+{
+	if (filter_) {
+
+		// If there is a filter, the box should be checked.
+
+		enabledBox_->setChecked(true);
+
+	} else {
+
+		// If there is no filter, the box should be unchecked.
+
+		enabledBox_->setChecked(false);
+	}
+}
+
+void BioXASFilterFlipperFilterView::onElementButtonClicked()
+{
+	if (filter_) {
+		// Identify the user's new element selection.
+
+		AMElement *newElement = AMPeriodicTableDialog::getElement(this);
+
+		// Set the filter's element.
+
+		filter_->setElement(newElement);
+	}
+}
+
+void BioXASFilterFlipperFilterView::onThicknessBoxValueChanged()
+{
+	if (filter_) {
+		filter_->setThickness(thicknessBox_->value());
 	}
 }

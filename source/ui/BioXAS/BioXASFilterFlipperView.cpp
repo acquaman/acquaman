@@ -9,7 +9,7 @@ BioXASFilterFlipperView::BioXASFilterFlipperView(BioXASFilterFlipper *filterFlip
 
 	// Create UI elements.
 
-	configurationView_ = new BioXASFilterFlipperConfigurationView(this);
+	configurationView_ = new BioXASFilterFlipperConfigurationView(0, this);
 
 	QLabel *currentFilterPrompt = new QLabel("Current filter: ");
 	currentFilterBox_ = new QComboBox(this);
@@ -20,7 +20,9 @@ BioXASFilterFlipperView::BioXASFilterFlipperView(BioXASFilterFlipper *filterFlip
 	// Create and set layouts.
 
 	QVBoxLayout *leftLayout = new QVBoxLayout();
+	leftLayout->addStretch();
 	leftLayout->addWidget(configurationView_);
+	leftLayout->addStretch();
 
 	QGridLayout *propertiesLayout = new QGridLayout();
 	propertiesLayout->addWidget(currentFilterPrompt, 0, 0, 1, 1, Qt::AlignRight);
@@ -73,13 +75,13 @@ void BioXASFilterFlipperView::refresh()
 	currentFilterBox_->addItem("None");
 
 	if (filterFlipper_) {
-		QList<BioXASFilterFlipperFilter*> filters = filterFlipper_->filters();
+		QList<BioXASFilterFlipperSlide*> slides = filterFlipper_->slides();
 
-		for (int i = 0; i < filters.count(); i++) {
-			BioXASFilterFlipperFilter *filter = filters.at(i);
+		for (int i = 0; i < slides.count(); i++) {
+			BioXASFilterFlipperSlide *slide = slides.at(i);
 
-			if (filter)
-				currentFilterBox_->addItem(filter->name(), QVariant(i));
+			if (slide && slide->hasFilter() && slide->enabled())
+				currentFilterBox_->addItem(slide->filter()->name(), QVariant(i));
 		}
 	}
 
@@ -97,6 +99,8 @@ void BioXASFilterFlipperView::setFilterFlipper(BioXASFilterFlipper *newFlipper)
 		}
 
 		filterFlipper_ = newFlipper;
+
+		configurationView_->setFilterFlipper(filterFlipper_);
 
 		if (filterFlipper_ && filterFlipper_->currentSlideControl()) {
 			connect( filterFlipper_->currentSlideControl(), SIGNAL(valueChanged(double)), this, SLOT(updateCurrentFilterBox()) );
