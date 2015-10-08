@@ -31,7 +31,7 @@ public:
 	/// Returns true if the front end beam is on, false otherwise.
 	virtual bool isOn() const;
 	/// Returns false if the front and beam is off, false otherwise.
-	virtual bool isOff() const;
+	virtual bool isOff() const { return !isOn(); }
 
 	/// Returns the front-end upstream photon shutter.
 	AMControl* photonShutterUpstream() const { return photonShutterUpstream_; }

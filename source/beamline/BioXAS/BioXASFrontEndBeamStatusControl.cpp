@@ -77,17 +77,6 @@ bool BioXASFrontEndBeamStatusControl::isOn() const
 	return result;
 }
 
-bool BioXASFrontEndBeamStatusControl::isOff() const
-{
-	bool result = false;
-
-	if (isConnected()) {
-		result = (!valves_->isOpen() || !safetyShutter_->isOpen() || !photonShutterDownstream_->isOpen() || !photonShutterUpstream_->isOpen());
-	}
-
-	return result;
-}
-
 void BioXASFrontEndBeamStatusControl::setPhotonShutterUpstream(CLSBiStateControl *newControl)
 {
 	if (photonShutterUpstream_ != newControl) {
