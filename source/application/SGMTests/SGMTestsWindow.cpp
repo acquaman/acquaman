@@ -76,50 +76,24 @@ void SGMTestsWindow::onShowEnergyControlViewClicked()
 
 void SGMTestsWindow::produceTestUndulatorValues()
 {
-    QVariantMap testData;
-    QVariantMap metaData;
+	QString allValues;
 
-    double energy = 250;
-    double targetEnergy = 300;
-    double timeTaken = 20;
+	allValues.append("Time\tUndulatorPosition\n");
 
+	SGMEnergyPosition testEnergyPosition(1200, SGMGratingSupport::HighGrating);
 
-    double energyVelocity = (targetEnergy - energy) / timeTaken;
-    metaData["Start_Energy(eV)"] = QVariant(energy);
-    metaData["Target_Energy(eV)"] = QVariant(targetEnergy);
-    metaData["Time_Taken(s)"] = QVariant(timeTaken);
-    metaData["Energy_Velocity(eV/s)"] = QVariant(energyVelocity);
-    metaData["Grating_Translation"] = QVariant(QString("Low"));
-    metaData["Unudlator_Harmonic"] = QVariant(QString("First"));
+	int time = 1;
 
-    testData["Meta_Data"] = QVariant(metaData);
+	while(testEnergyPosition.resultantEnergy() < 2000) {
 
-    QVariantMap resultData;
-    SGMEnergyPosition energyPosition(energy, SGMGratingSupport::LowGrating);
-    energyPosition.setAutoDetectUndulatorHarmonic(false);
-    energyPosition.setUndulatorHarmonic(SGMUndulatorSupport::FirstHarmonic);
+		allValues.append(QString("%1\t\t%2\n").arg(time).arg(testEnergyPosition.undulatorPosition()));
 
-    int currentTime = 0;
-    while (energy <= targetEnergy) {
+		testEnergyPosition.requestEnergy(testEnergyPosition.resultantEnergy() + 10);
+		++time;
+	}
 
-        QVariantMap timeData;
-        timeData["Energy"] = QVariant(energyPosition.resultantEnergy());
-        timeData["Grating_Angle"] = QVariant(energyPosition.gratingAngle());
-        timeData["Undulator_Position"] = QVariant(energyPosition.undulatorPosition());
-        timeData["ExitSlit_Position"] = QVariant(energyPosition.exitSlitPosition());
+	qDebug() << allValues;
 
-        resultData.insert(QString("Time_%1s").arg(currentTime), QVariant(timeData));
-
-        energy = energy + (energyVelocity);
-        energyPosition.requestEnergy(energy);
-        ++currentTime;
-    }
-
-    testData["Move_Results"] = QVariant(resultData);
-    QJson::Serializer serializer;
-    QByteArray serialized = serializer.serialize(testData);
-
-    qDebug() << serialized;
 }
 
 void SGMTestsWindow::setupUi()

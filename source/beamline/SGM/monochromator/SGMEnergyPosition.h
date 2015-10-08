@@ -79,6 +79,15 @@ public:
     SGMEnergyPosition(double requestedEnergy,
                          GratingTranslationOptimizationMode gratingOptimizationMode);
 
+
+	/*!
+	  * Creates a new SGMEnergyPosition which is a clone of the object is is
+	  * called on, except that it represents a new item in the QObject sense.
+	  * The created object has no QObject parent, and its resources are the
+	  * responsibility of the caller.
+	  */
+	SGMEnergyPosition* clone() const;
+
     /*!
       * Virtual destructor for an SGMMonochromatorInfo
       */
@@ -115,10 +124,6 @@ public:
       */
     SGMGratingSupport::GratingTranslation gratingTranslation() const;
 
-    /*!
-      * Sets the info's grating translation selection.
-      */
-    void setGratingTranslation(SGMGratingSupport::GratingTranslation gratingTranslation);
 
     /*!
      * The method to use to determine which grating translation to use to achieve
@@ -127,22 +132,10 @@ public:
     GratingTranslationOptimizationMode gratingTranslationOptimizationMode() const;
 
     /*!
-     * Sets the method used to determine which grating translation to use to achieve
-     * an energy.
-     * \param gratingTranslationOptimizationMode ~ The new grating translation optimization
-     * mode.
-     */
-    void setGratingTranslationOptimizationMode(GratingTranslationOptimizationMode gratingTranslationOptimizationMode);
-
-    /*!
       * The info's current grating angle.
       */
     double gratingAngle() const;
 
-    /*!
-      * Sets the info's current grating angle.
-      */
-    void setGratingAngle(double gratingAngle);
 
     /*!
      * Whether the undulator position is to track the energy to produce optimal
@@ -152,23 +145,9 @@ public:
     bool isUndulatorTracking() const;
 
     /*!
-     * Sets whether the undulator position is to track the energy to produce
-     * optimal flux. If the undulator tracking is set from off to on, and the
-     * undulator position is not currently optimal for the energy, it will move
-     * to its optimal position.
-     * \param isTracking ~ Whether the undulator is to track energy.
-     */
-    void setUndulatorTracking(bool isTracking);
-
-    /*!
       * The info's current undulator harmonic.
       */
     SGMUndulatorSupport::UndulatorHarmonic undulatorHarmonic() const;
-
-    /*!
-      * Sets the info's current undulator harmonic.
-      */
-    void setUndulatorHarmonic(SGMUndulatorSupport::UndulatorHarmonic undulatorHarmonic);
 
     /*!
      * Whether the undulator harmonic is automatically set each time an energy is
@@ -178,32 +157,14 @@ public:
 
 
     /*!
-     * Sets whether the undulator harmonic should be automatically set each time
-     * an energy is requested.
-     * \param autoDetect ~ Whether to automatically determine the undulator harmonic
-     * each time a new energy is requested.
-     */
-    void setAutoDetectUndulatorHarmonic(bool autoDetect);
-
-    /*!
       * The info's current undulator position.
       */
     double undulatorPosition() const;
 
     /*!
-      * Sets the info's current undulator position.
-      */
-    void setUndulatorPosition(double undulatorPosition);
-
-    /*!
       * The info's current undulator offset.
       */
     double undulatorOffset() const;
-
-    /*!
-      * Sets the info's current undulator offset.
-      */
-    void setUndulatorOffset(double undulatorOffset);
 
     /*!
      * Whether the exit slit position is to track the energy to produce optimal
@@ -213,43 +174,9 @@ public:
     bool isExitSlitPositionTracking() const;
 
     /*!
-     * Sets whether the exit slit position is to track the energy to produce
-     * optimal flux. If the exit tracking is set from off to on, and the
-     * exit slit position is not currently optimal for the energy, it will move
-     * to its optimal position.
-     * \param isTracking ~ Whether the exit slit is to track energy.
-     */
-    void setExitSlitPositionTracking(bool isTracking);
-
-    /*!
       * The info's current exit slit position.
       */
     double exitSlitPosition() const;
-
-    /*!
-      * Sets the info's current exit slit position.
-      */
-    void setExitSlitPosition(double exitSlitPosition);
-
-    /*!
-      * Requests the info set its component values to those which will produce the
-      * requested energy on the manually set grating translation selection.
-      * \param requestedEnergy ~ The energy (eVs) which the info is aiming for.
-      * \param gratingTranslation ~ The manually set grating translation to use
-      * to achieve the desired energy.
-      *
-      */
-    void requestEnergy(double requestedEnergy, SGMGratingSupport::GratingTranslation gratingTranslation);
-
-    /*!
-      * Requests the info set its comonent values to those which will produce the
-      * requested energy, automatically selecting a grating translation based on
-      * the provided optimization mode.
-      * \param requestedEnergy ~ The energy (eVs) which the info is aiming for.
-      * \param optimizationMode ~ Optional method to use to automatically select
-      * the grating translation. If none is selected ManualMode will be used.
-      */
-    void requestEnergy(double requestedEnergy);
 
 signals:
     /// Signal indicating the grating translation has been altered.
@@ -301,7 +228,89 @@ signals:
     void warningCountChanged(int warningCount);
 public slots:
 
+	/*!
+	  * Sets the info's grating translation selection.
+	  */
+	void setGratingTranslation(SGMGratingSupport::GratingTranslation gratingTranslation);
 
+	/*!
+	 * Sets the method used to determine which grating translation to use to achieve
+	 * an energy.
+	 * \param gratingTranslationOptimizationMode ~ The new grating translation optimization
+	 * mode.
+	 */
+
+	void setGratingTranslationOptimizationMode(GratingTranslationOptimizationMode gratingTranslationOptimizationMode);
+	/*!
+	  * Sets the info's current grating angle.
+	  */
+	void setGratingAngle(double gratingAngle);
+
+	/*!
+	 * Sets whether the undulator position is to track the energy to produce
+	 * optimal flux. If the undulator tracking is set from off to on, and the
+	 * undulator position is not currently optimal for the energy, it will move
+	 * to its optimal position.
+	 * \param isTracking ~ Whether the undulator is to track energy.
+	 */
+	void setUndulatorTracking(bool isTracking);
+
+	/*!
+	  * Sets the info's current undulator harmonic.
+	  */
+	void setUndulatorHarmonic(SGMUndulatorSupport::UndulatorHarmonic undulatorHarmonic);
+
+	/*!
+	 * Sets whether the undulator harmonic should be automatically set each time
+	 * an energy is requested.
+	 * \param autoDetect ~ Whether to automatically determine the undulator harmonic
+	 * each time a new energy is requested.
+	 */
+	void setAutoDetectUndulatorHarmonic(bool autoDetect);
+
+	/*!
+	  * Sets the info's current undulator position.
+	  */
+	void setUndulatorPosition(double undulatorPosition);
+
+	/*!
+	  * Sets the info's current undulator offset.
+	  */
+	void setUndulatorOffset(double undulatorOffset);
+
+	/*!
+	 * Sets whether the exit slit position is to track the energy to produce
+	 * optimal flux. If the exit tracking is set from off to on, and the
+	 * exit slit position is not currently optimal for the energy, it will move
+	 * to its optimal position.
+	 * \param isTracking ~ Whether the exit slit is to track energy.
+	 */
+	void setExitSlitPositionTracking(bool isTracking);
+
+	/*!
+	  * Sets the info's current exit slit position.
+	  */
+	void setExitSlitPosition(double exitSlitPosition);
+
+	/*!
+	  * Requests the info set its component values to those which will produce the
+	  * requested energy on the manually set grating translation selection.
+	  * \param requestedEnergy ~ The energy (eVs) which the info is aiming for.
+	  * \param gratingTranslation ~ The manually set grating translation to use
+	  * to achieve the desired energy.
+	  *
+	  */
+	void requestEnergy(double requestedEnergy, SGMGratingSupport::GratingTranslation gratingTranslation);
+
+	/*!
+	  * Requests the info set its comonent values to those which will produce the
+	  * requested energy, automatically selecting a grating translation based on
+	  * the provided optimization mode.
+	  * \param requestedEnergy ~ The energy (eVs) which the info is aiming for.
+	  * \param optimizationMode ~ Optional method to use to automatically select
+	  * the grating translation. If none is selected ManualMode will be used.
+	  */
+	void requestEnergy(double requestedEnergy);
 protected:
     /*!
       * Helper method which returns the best fit grating translation for a given

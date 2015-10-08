@@ -70,6 +70,25 @@ SGMEnergyPosition::SGMEnergyPosition(double requestedEnergy, SGMEnergyPosition::
     connect(&warningValidator_, SIGNAL(failCountChanged(int)), this, SIGNAL(warningCountChanged(int)));
 }
 
+
+SGMEnergyPosition* SGMEnergyPosition::clone() const
+{
+	SGMEnergyPosition* cloneEnergyPosition = new SGMEnergyPosition(gratingTranslation_,
+																   gratingAngle_,
+																   undulatorHarmonic_,
+																   undulatorPosition_,
+																   undulatorOffset_,
+																   exitSlitPosition_,
+																   0);
+
+	cloneEnergyPosition->setAutoDetectUndulatorHarmonic(autoDetectUndulatorHarmonic_);
+	cloneEnergyPosition->setGratingTranslationOptimizationMode(gratingTranslationOptimizationMode_);
+	cloneEnergyPosition->setExitSlitPositionTracking(isExitSlitPositionTracking_);
+	cloneEnergyPosition->setUndulatorTracking(isUndulatorTracking_);
+
+	return cloneEnergyPosition;
+}
+
 bool SGMEnergyPosition::hasErrors() const
 {
     return !errorValidator_.isValid();
@@ -100,36 +119,10 @@ SGMGratingSupport::GratingTranslation SGMEnergyPosition::gratingTranslation() co
     return gratingTranslation_;
 }
 
-void SGMEnergyPosition::setGratingTranslation(SGMGratingSupport::GratingTranslation gratingTranslation)
-{
-    if(gratingTranslation_ != gratingTranslation &&
-            gratingTranslationOptimizationMode_ == ManualMode) {
-
-        gratingTranslation_ = gratingTranslation;
-        if(autoDetectUndulatorHarmonic_) {
-            setUndulatorHarmonic(optimizedUndulatorHarmonic(gratingTranslation_, resultantEnergy()));
-        }
-        optimizeForEnergy();
-        performValidation();
-        emit gratingTranslationChanged(gratingTranslation_);
-        emit energyChanged(resultantEnergy());
-    }
-}
 
 SGMEnergyPosition::GratingTranslationOptimizationMode SGMEnergyPosition::gratingTranslationOptimizationMode() const
 {
     return gratingTranslationOptimizationMode_;
-}
-
-void SGMEnergyPosition::setGratingTranslationOptimizationMode(SGMEnergyPosition::GratingTranslationOptimizationMode gratingTranslationOptimizationMode)
-{
-    if(gratingTranslationOptimizationMode_ != gratingTranslationOptimizationMode) {
-
-        gratingTranslationOptimizationMode_ = gratingTranslationOptimizationMode;
-        emit gratingTranslationOptimizationModeChanged(gratingTranslationOptimizationMode_);
-
-        // Should changing this mode cause the components to reposition?
-    }
 }
 
 double SGMEnergyPosition::gratingAngle() const
@@ -137,40 +130,9 @@ double SGMEnergyPosition::gratingAngle() const
     return gratingAngle_;
 }
 
-void SGMEnergyPosition::setGratingAngle(double gratingAngle)
-{
-    if(gratingAngle_ != gratingAngle) {
-        gratingAngle_ = gratingAngle;
-        if(autoDetectUndulatorHarmonic_) {
-            setUndulatorHarmonic(optimizedUndulatorHarmonic(gratingTranslation_, resultantEnergy()));
-        }
-        optimizeForEnergy();
-        performValidation();
-        emit gratingAngleChanged(gratingAngle_);
-        emit energyChanged(resultantEnergy());
-    }
-}
-
 bool SGMEnergyPosition::isUndulatorTracking() const
 {
     return isUndulatorTracking_;
-}
-
-void SGMEnergyPosition::setUndulatorTracking(bool isTracking)
-{
-    if(isUndulatorTracking_ != isTracking) {
-
-        isUndulatorTracking_ = isTracking;
-
-        // If we've just turned on tracking make sure we're at the right position
-        // for the current energy.
-        if(isUndulatorTracking_) {
-            setUndulatorPosition(optimizedUndulatorPosition(resultantEnergy(), undulatorHarmonic_, undulatorOffset_));
-        }
-
-        performValidation();
-        emit undulatorTrackingChanged(isUndulatorTracking_);
-    }
 }
 
 SGMUndulatorSupport::UndulatorHarmonic SGMEnergyPosition::undulatorHarmonic() const
@@ -178,35 +140,9 @@ SGMUndulatorSupport::UndulatorHarmonic SGMEnergyPosition::undulatorHarmonic() co
     return undulatorHarmonic_;
 }
 
-void SGMEnergyPosition::setUndulatorHarmonic(SGMUndulatorSupport::UndulatorHarmonic undulatorHarmonic)
-{
-    if(undulatorHarmonic_ != undulatorHarmonic) {
-        undulatorHarmonic_ = undulatorHarmonic;
-        setUndulatorPosition(optimizedUndulatorPosition(resultantEnergy(), undulatorHarmonic_, undulatorOffset_));
-        performValidation();
-        emit undulatorHarmonicChanged(undulatorHarmonic_);
-    }
-}
-
 bool SGMEnergyPosition::autoDetectUndulatorHarmonic() const
 {
     return autoDetectUndulatorHarmonic_;
-}
-
-void SGMEnergyPosition::setAutoDetectUndulatorHarmonic(bool autoDetect)
-{
-    if(autoDetectUndulatorHarmonic_ != autoDetect) {
-
-        autoDetectUndulatorHarmonic_ = autoDetect;
-
-        if(autoDetectUndulatorHarmonic_) {
-
-            setUndulatorHarmonic(optimizedUndulatorHarmonic(gratingTranslation_, resultantEnergy()));
-        } else {
-
-            performValidation();
-        }
-    }
 }
 
 double SGMEnergyPosition::undulatorPosition() const
@@ -214,28 +150,9 @@ double SGMEnergyPosition::undulatorPosition() const
     return undulatorPosition_;
 }
 
-void SGMEnergyPosition::setUndulatorPosition(double undulatorPosition)
-{
-    if(undulatorPosition_ != undulatorPosition) {
-        undulatorPosition_ = undulatorPosition;
-        performValidation();
-        emit undulatorPositionChanged(undulatorPosition);
-    }
-}
-
 double SGMEnergyPosition::undulatorOffset() const
 {
     return undulatorOffset_;
-}
-
-void SGMEnergyPosition::setUndulatorOffset(double undulatorOffset)
-{
-    if(undulatorOffset_ != undulatorOffset) {
-        undulatorOffset_ = undulatorOffset;
-        // Need to re-optimize the undulator taking into account the new offset
-        setUndulatorPosition(optimizedUndulatorPosition(resultantEnergy(), undulatorHarmonic_, undulatorOffset_));
-        emit undulatorOffsetChanged(undulatorOffset_);
-    }
 }
 
 bool SGMEnergyPosition::isExitSlitPositionTracking() const
@@ -243,26 +160,129 @@ bool SGMEnergyPosition::isExitSlitPositionTracking() const
     return isExitSlitPositionTracking_;
 }
 
-void SGMEnergyPosition::setExitSlitPositionTracking(bool isTracking)
-{
-    if(isExitSlitPositionTracking_ != isTracking) {
-
-        isExitSlitPositionTracking_ = isTracking;
-
-        // If we've just turned on tracking make sure we're at the right position
-        // for the current energy.
-        if(isExitSlitPositionTracking_) {
-            setExitSlitPosition(optimizedExitSlitPosition(gratingTranslation_, resultantEnergy()));
-        }
-
-        performValidation();
-        emit exitSlitTrackingChanged(isExitSlitPositionTracking_);
-    }
-}
-
 double SGMEnergyPosition::exitSlitPosition() const
 {
     return exitSlitPosition_;
+}
+
+void SGMEnergyPosition::setGratingTranslation(SGMGratingSupport::GratingTranslation gratingTranslation)
+{
+	if(gratingTranslation_ != gratingTranslation &&
+			gratingTranslationOptimizationMode_ == ManualMode) {
+
+		gratingTranslation_ = gratingTranslation;
+		if(autoDetectUndulatorHarmonic_) {
+			setUndulatorHarmonic(optimizedUndulatorHarmonic(gratingTranslation_, resultantEnergy()));
+		}
+		optimizeForEnergy();
+		performValidation();
+		emit gratingTranslationChanged(gratingTranslation_);
+		emit energyChanged(resultantEnergy());
+	}
+}
+
+void SGMEnergyPosition::setGratingTranslationOptimizationMode(SGMEnergyPosition::GratingTranslationOptimizationMode gratingTranslationOptimizationMode)
+{
+	if(gratingTranslationOptimizationMode_ != gratingTranslationOptimizationMode) {
+
+		gratingTranslationOptimizationMode_ = gratingTranslationOptimizationMode;
+		emit gratingTranslationOptimizationModeChanged(gratingTranslationOptimizationMode_);
+
+		// Should changing this mode cause the components to reposition?
+	}
+}
+
+void SGMEnergyPosition::setGratingAngle(double gratingAngle)
+{
+	if(gratingAngle_ != gratingAngle) {
+		gratingAngle_ = gratingAngle;
+		if(autoDetectUndulatorHarmonic_) {
+			setUndulatorHarmonic(optimizedUndulatorHarmonic(gratingTranslation_, resultantEnergy()));
+		}
+		optimizeForEnergy();
+		performValidation();
+		emit gratingAngleChanged(gratingAngle_);
+		emit energyChanged(resultantEnergy());
+	}
+}
+
+void SGMEnergyPosition::setUndulatorTracking(bool isTracking)
+{
+	if(isUndulatorTracking_ != isTracking) {
+
+		isUndulatorTracking_ = isTracking;
+
+		// If we've just turned on tracking make sure we're at the right position
+		// for the current energy.
+		if(isUndulatorTracking_) {
+			setUndulatorPosition(optimizedUndulatorPosition(resultantEnergy(), undulatorHarmonic_, undulatorOffset_));
+		}
+
+		performValidation();
+		emit undulatorTrackingChanged(isUndulatorTracking_);
+	}
+}
+
+void SGMEnergyPosition::setUndulatorHarmonic(SGMUndulatorSupport::UndulatorHarmonic undulatorHarmonic)
+{
+	if(undulatorHarmonic_ != undulatorHarmonic) {
+		undulatorHarmonic_ = undulatorHarmonic;
+		setUndulatorPosition(optimizedUndulatorPosition(resultantEnergy(), undulatorHarmonic_, undulatorOffset_));
+		performValidation();
+		emit undulatorHarmonicChanged(undulatorHarmonic_);
+	}
+}
+
+void SGMEnergyPosition::setAutoDetectUndulatorHarmonic(bool autoDetect)
+{
+	if(autoDetectUndulatorHarmonic_ != autoDetect) {
+
+		autoDetectUndulatorHarmonic_ = autoDetect;
+
+		if(autoDetectUndulatorHarmonic_) {
+
+			setUndulatorHarmonic(optimizedUndulatorHarmonic(gratingTranslation_, resultantEnergy()));
+		} else {
+
+			performValidation();
+		}
+	}
+}
+
+void SGMEnergyPosition::setUndulatorPosition(double undulatorPosition)
+{
+	if(undulatorPosition_ != undulatorPosition) {
+		undulatorPosition_ = undulatorPosition;
+		performValidation();
+		emit undulatorPositionChanged(undulatorPosition);
+	}
+}
+
+void SGMEnergyPosition::setUndulatorOffset(double undulatorOffset)
+{
+	if(undulatorOffset_ != undulatorOffset) {
+		undulatorOffset_ = undulatorOffset;
+		// Need to re-optimize the undulator taking into account the new offset
+		setUndulatorPosition(optimizedUndulatorPosition(resultantEnergy(), undulatorHarmonic_, undulatorOffset_));
+		emit undulatorOffsetChanged(undulatorOffset_);
+	}
+}
+
+void SGMEnergyPosition::setExitSlitPositionTracking(bool isTracking)
+{
+	if(isExitSlitPositionTracking_ != isTracking) {
+
+		isExitSlitPositionTracking_ = isTracking;
+
+		// If we've just turned on tracking make sure we're at the right position
+		// for the current energy.
+		if(isExitSlitPositionTracking_) {
+			setExitSlitPosition(optimizedExitSlitPosition(gratingTranslation_, resultantEnergy()));
+		}
+
+		performValidation();
+		emit exitSlitTrackingChanged(isExitSlitPositionTracking_);
+	}
 }
 
 void SGMEnergyPosition::setExitSlitPosition(double exitSlitPosition)
@@ -390,7 +410,7 @@ double SGMEnergyPosition::optimizedExitSlitPosition(SGMGratingSupport::GratingTr
 {
     double gratingSpacing = SGMGratingSupport::gratingSpacing(gratingTranslationSelection);
     double includedAngle = SGMGratingSupport::includedAngle(gratingTranslationSelection);
-    double gratingEncoderOffset = 4546; // Distance between the grating and the zero position of the encoder
+	double gratingEncoderOffset = 4600; // Distance between the grating and the zero position of the encoder
     double wavelength = (1239.842 / energy) * 1.0e-9;
     double angleOfIncidence = asin((wavelength / (2*gratingSpacing)) / cos(includedAngle/2)) + (includedAngle/2);
     double angleOfDefraction = -includedAngle + angleOfIncidence;
@@ -418,5 +438,5 @@ void SGMEnergyPosition::performValidation()
     errorValidator_.updateValidity(SGMMONO_INVALID_ENERGY_FOR_GRATING, !SGMGratingSupport::validEnergy(gratingTranslation_, requestedEnergy_));
 
     warningValidator_.updateValidity(SGMMONO_UNDULATOR_TRACKING_OFF, !isUndulatorTracking_);
-    warningValidator_.updateValidity(SGMMONO_EXIT_SLIT_TRACKING_OFF, !isExitSlitPositionTracking_);
+	warningValidator_.updateValidity(SGMMONO_EXIT_SLIT_TRACKING_OFF, !isExitSlitPositionTracking_);
 }
