@@ -7,7 +7,6 @@
 #include "qjson/serializer.h"
 
 #include "beamline/SGM/energy/SGMEnergyPosition.h"
-#include <QDebug>
 #include <QGroupBox>
 #include <QHBoxLayout>
 #include <QVBoxLayout>
