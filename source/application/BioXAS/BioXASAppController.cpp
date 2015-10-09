@@ -117,7 +117,7 @@ bool BioXASAppController::startup()
 
 	qDebug() << "Dividing region at -50.";
 
-	QList<AMScanAxisRegion*> dividedRegion = region->divide(AMNumber(-50));
+	QList<AMScanAxisRegion*> dividedRegion = AMScanAxisRegion::divide(region, AMNumber(-50));
 
 	if (dividedRegion.size() > 0)
 		qDebug() << "Valid regions are the result. :(";
@@ -126,7 +126,7 @@ bool BioXASAppController::startup()
 
 	qDebug() << "Dividing region at -1.";
 
-	dividedRegion = region->divide(AMNumber(-1));
+	dividedRegion = AMScanAxisRegion::divide(region, AMNumber(-1));
 
 	qDebug() << "Divided region at -1:";
 

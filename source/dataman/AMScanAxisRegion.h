@@ -89,6 +89,7 @@ public:
 	static bool sameTime(const AMScanAxisRegion *region, const AMScanAxisRegion *otherRegion);
 	/// Returns true if the two regions have the same direction (ascending/descending), false otherwise.
 	static bool sameDirection(const AMScanAxisRegion *region, const AMScanAxisRegion *otherRegion);
+
 	/// Returns true if the two regions have the same properties, false otherwise.
 	static bool identical(const AMScanAxisRegion *region, const AMScanAxisRegion *otherRegion);
 
@@ -101,21 +102,22 @@ public:
 	/// Returns true if both regions are valid and intersect, some portion of the first region is contained within the second region. Returns false otherwise.
 	static bool intersect(const AMScanAxisRegion *region, const AMScanAxisRegion *otherRegion);
 
+	/// Returns a new region that is the intersection of the two given regions, provided the two regions are valid and intersect. Returns 0 otherwise.
+	static AMScanAxisRegion* intersection(const AMScanAxisRegion *region, const AMScanAxisRegion *otherRegion);
+
 	/// Returns true if the two regions are valid and can be merged together, false otherwise.
 	static bool canMerge(const AMScanAxisRegion *region, const AMScanAxisRegion *otherRegion);
 	/// Returns true if the two regions are valid and can be made adjacent to each other, false otherwise.
 	static bool canMakeAdjacent(const AMScanAxisRegion *region, const AMScanAxisRegion *otherRegion);
-	/// Returns true if the two regions are valid and the second region can be subtracted from the first, false otherwise.
-	static bool canSubtract(const AMScanAxisRegion *region, const AMScanAxisRegion *otherRegion);
 	/// Returns true if the region and the point are valid and the region can be divided at the point, false otherwise.
 	static bool canDivide(const AMScanAxisRegion *region, const AMNumber &point);
+	/// Returns true if the two regions are valid and the second region can be subtracted from the first, false otherwise.
+	static bool canSubtract(const AMScanAxisRegion *region, const AMScanAxisRegion *otherRegion);
 
-	/// Returns a new region that is the intersection of this region and the given region. Returns 0 if the two regions don't intersect.
-	AMScanAxisRegion* intersection(AMScanAxisRegion *otherRegion) const;
-	/// Returns a list of new regions that are the result of subtracting the given region from this one. Returns empty list if subtraction not possible.
-	QList<AMScanAxisRegion*> subtract(AMScanAxisRegion *otherRegion) const;
-	/// Returns a list of new regions that are the result of dividing this region at the given point. Returns empty list if division not possible.
-	QList<AMScanAxisRegion*> divide(const AMNumber &dividePoint) const;
+	/// Returns a list of new regions that are the result of dividing the given region at the given point, provided both region and point are valid and the region contains the point. Returns empty list otherwise.
+	static QList<AMScanAxisRegion*> divide(const AMScanAxisRegion *region, const AMNumber &point);
+	/// Returns a list of new regions that are the result of subtracting the second region from the first, provided both regions are valid and the first region contains the second. Returns empty list otherwise.
+	static QList<AMScanAxisRegion*> subtract(const AMScanAxisRegion *region, const AMScanAxisRegion *otherRegion);
 
 signals:
 	/// Notifier that the start value has changed.
@@ -159,9 +161,9 @@ protected slots:
 	AMNumber mergeTime(AMScanAxisRegion *otherRegion) const;
 
 	/// Returns the intersection start for the intersection between this region and otherRegion.
-	AMNumber intersectionStart(AMScanAxisRegion *otherRegion) const;
+	AMNumber intersectionStart(const AMScanAxisRegion *otherRegion) const;
 	/// Returns the intersection end for the intersection between this region and otherRegion.
-	AMNumber intersectionEnd(AMScanAxisRegion *otherRegion) const;
+	AMNumber intersectionEnd(const AMScanAxisRegion *otherRegion) const;
 
 	/// Returns the suggested start value to make this region adjacent to otherRegion.
 	AMNumber makeAdjacentStart(AMScanAxisRegion *otherRegion) const;

@@ -231,6 +231,23 @@ bool AMScanAxisRegion::intersect(const AMScanAxisRegion *region, const AMScanAxi
 	return result;
 }
 
+AMScanAxisRegion* AMScanAxisRegion::intersection(const AMScanAxisRegion *region, const AMScanAxisRegion *otherRegion)
+{
+	AMScanAxisRegion *result = 0;
+
+	if (intersect(region, otherRegion)) {
+
+		// If the two regions intersect, the intersection is the area the two regions have in common.
+
+		AMNumber start = region->intersectionStart(otherRegion);
+		AMNumber end = region->intersectionEnd(otherRegion);
+
+		result = new AMScanAxisRegion(start, AMNumber::InvalidError, end, AMNumber::InvalidError);
+	}
+
+	return result;
+}
+
 bool AMScanAxisRegion::canMerge(const AMScanAxisRegion *region, const AMScanAxisRegion *otherRegion)
 {
 	// We consider merges only if both regions are valid, for now.
@@ -247,6 +264,12 @@ bool AMScanAxisRegion::canMakeAdjacent(const AMScanAxisRegion *region, const AMS
 	return result;
 }
 
+bool AMScanAxisRegion::canDivide(const AMScanAxisRegion *region, const AMNumber &point)
+{
+	bool result = (region && region->isValid() && point.isValid() && contains(region, point));
+	return result;
+}
+
 bool AMScanAxisRegion::canSubtract(const AMScanAxisRegion *region, const AMScanAxisRegion *otherRegion)
 {
 	// We will consider subtractions involving valid regions only, for now.
@@ -255,62 +278,56 @@ bool AMScanAxisRegion::canSubtract(const AMScanAxisRegion *region, const AMScanA
 	return result;
 }
 
-bool AMScanAxisRegion::canDivide(const AMScanAxisRegion *region, const AMNumber &point)
-{
-	bool result = (region && region->isValid() && point.isValid() && contains(region, point));
-	return result;
-}
-
-AMScanAxisRegion* AMScanAxisRegion::intersection(AMScanAxisRegion *otherRegion) const
-{
-	AMScanAxisRegion *result = 0;
-
-	if (intersect(this, otherRegion)) {
-
-		// If the two regions intersect, the intersection is the area the two regions have in common.
-
-		AMNumber start = intersectionStart(otherRegion);
-		AMNumber end = intersectionEnd(otherRegion);
-
-		result = new AMScanAxisRegion(start, AMNumber::InvalidError, end, AMNumber::InvalidError);
-	}
-
-	return result;
-}
-
-QList<AMScanAxisRegion*> AMScanAxisRegion::subtract(AMScanAxisRegion *otherRegion) const
+QList<AMScanAxisRegion*> AMScanAxisRegion::divide(const AMScanAxisRegion *region, const AMNumber &dividePoint)
 {
 	QList<AMScanAxisRegion*> results;
 
-	if (canSubtract(this, otherRegion)) {
-
-		// Subtracting another region is the same as dividing at that region's
-		// start and end points.
-
-		QList<AMScanAxisRegion*> firstResult = divide(otherRegion->regionStart());
-		QList<AMScanAxisRegion*> secondResult = divide(otherRegion->regionEnd());
-
-		// The final results are the regions that are not identical to otherRegion.
-
-		foreach (AMScanAxisRegion *region, firstResult)
-			if (!AMScanAxisRegion::identical(region, otherRegion))
-				results << region;
-
-		foreach (AMScanAxisRegion *region, secondResult)
-			if (!AMScanAxisRegion::identical(region, otherRegion))
-				results << region;
+	if (canDivide(region, dividePoint)) {
+		results << new AMScanAxisRegion(region->regionStart(), region->regionStep(), dividePoint, region->regionTime());
+		results << new AMScanAxisRegion(dividePoint, region->regionStep(), region->regionEnd(), region->regionTime());
 	}
 
 	return results;
 }
 
-QList<AMScanAxisRegion*> AMScanAxisRegion::divide(const AMNumber &dividePoint) const
+QList<AMScanAxisRegion*> AMScanAxisRegion::subtract(const AMScanAxisRegion *region, const AMScanAxisRegion *otherRegion)
 {
 	QList<AMScanAxisRegion*> results;
 
-	if (canDivide(this, dividePoint)) {
-		results << new AMScanAxisRegion(regionStart_, regionStep_, dividePoint, regionTime_);
-		results << new AMScanAxisRegion(dividePoint, regionStep_, regionEnd_, regionTime_);
+	if (canSubtract(region, otherRegion)) {
+
+		// Keep track of the regions that we DONT want, so we can handle deleting them later.
+
+		QList<AMScanAxisRegion*> toDelete;
+
+		// Subtracting another region is (almost) the same as dividing at that region's
+		// start and end points.
+
+		QList<AMScanAxisRegion*> firstResult = divide(region, otherRegion->regionStart());
+		QList<AMScanAxisRegion*> secondResult = divide(region, otherRegion->regionEnd());
+
+		// The final results are the regions that are not identical to otherRegion.
+
+		foreach (AMScanAxisRegion *result, firstResult) {
+			if (!AMScanAxisRegion::identical(result, otherRegion))
+				results << result;
+			else
+				toDelete << result;
+		}
+
+		foreach (AMScanAxisRegion *result, secondResult) {
+			if (!AMScanAxisRegion::identical(result, otherRegion))
+				results << result;
+			else
+				toDelete << result;
+		}
+
+		// Delete the undesired results.
+
+		foreach (AMScanAxisRegion *result, toDelete) {
+			if (result)
+				result->deleteLater();
+		}
 	}
 
 	return results;
@@ -492,7 +509,7 @@ AMNumber AMScanAxisRegion::mergeTime(AMScanAxisRegion *otherRegion) const
 	return result;
 }
 
-AMNumber AMScanAxisRegion::intersectionStart(AMScanAxisRegion *otherRegion) const
+AMNumber AMScanAxisRegion::intersectionStart(const AMScanAxisRegion *otherRegion) const
 {
 	AMNumber result = AMNumber::InvalidError;
 
@@ -514,7 +531,7 @@ AMNumber AMScanAxisRegion::intersectionStart(AMScanAxisRegion *otherRegion) cons
 	return result;
 }
 
-AMNumber AMScanAxisRegion::intersectionEnd(AMScanAxisRegion *otherRegion) const
+AMNumber AMScanAxisRegion::intersectionEnd(const AMScanAxisRegion *otherRegion) const
 {
 	AMNumber result = AMNumber::InvalidError;
 

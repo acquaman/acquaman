@@ -919,7 +919,7 @@ QList<AMScanAxisRegion*> AMScanAxis::simplifyIntersection(AMScanAxisRegion *regi
 					// If the step size and the dwell time are different, a third region is generated to
 					// act as a bridge between the two and the two shift to become adjacent to it.
 
-					AMScanAxisRegion *regionIntersection = region->intersection(otherRegion);
+					AMScanAxisRegion *regionIntersection = AMScanAxisRegion::intersection(region, otherRegion);
 					regionIntersection->setParent(this);
 
 					if (regionIntersection) {
@@ -959,10 +959,10 @@ QList<AMScanAxisRegion*> AMScanAxis::simplifyIntersection(AMScanAxisRegion *regi
 					// the other, but they have different step and time. The containing region is broken up into
 					// fragments that flank the contained region.
 
-					if (AMScanAxisRegion::contains(region, otherRegion))
-						result << region->subtract(otherRegion) << otherRegion;
-					else if (AMScanAxisRegion::contains(otherRegion, region))
-						result << otherRegion->subtract(otherRegion) << region;
+//					if (AMScanAxisRegion::contains(region, otherRegion))
+//						result << region->subtract(otherRegion) << otherRegion;
+//					else if (AMScanAxisRegion::contains(otherRegion, region))
+//						result << otherRegion->subtract(otherRegion) << region;
 				}
 			}
 		}
