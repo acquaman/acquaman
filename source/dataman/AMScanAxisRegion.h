@@ -78,28 +78,27 @@ public:
 	bool descending() const;
 
 	/// Returns true if the two regions have the same start, false otherwise.
-	static bool sameStart(AMScanAxisRegion *region, AMScanAxisRegion *otherRegion);
+	static bool sameStart(const AMScanAxisRegion *region, const AMScanAxisRegion *otherRegion);
 	/// Returns true if the two regions have the same step, false otherwise.
-	static bool sameStep(AMScanAxisRegion *region, AMScanAxisRegion *otherRegion);
+	static bool sameStep(const AMScanAxisRegion *region, const AMScanAxisRegion *otherRegion);
 	/// Returns true if the two regions have the same step size (sign may be different), false otherwise.
-	static bool sameStepSize(AMScanAxisRegion *region, AMScanAxisRegion *otherRegion);
+	static bool sameStepSize(const AMScanAxisRegion *region, const AMScanAxisRegion *otherRegion);
 	/// Returns true if the two regions have the same end, false otherwise.
-	static bool sameEnd(AMScanAxisRegion *region, AMScanAxisRegion *otherRegion);
+	static bool sameEnd(const AMScanAxisRegion *region, const AMScanAxisRegion *otherRegion);
 	/// Returns true if the two regions have the same time, false otherwise.
-	static bool sameTime(AMScanAxisRegion *region, AMScanAxisRegion *otherRegion);
+	static bool sameTime(const AMScanAxisRegion *region, const AMScanAxisRegion *otherRegion);
 	/// Returns true if the two regions have the same direction (ascending/descending), false otherwise.
-	static bool sameDirection(AMScanAxisRegion *region, AMScanAxisRegion *otherRegion);
+	static bool sameDirection(const AMScanAxisRegion *region, const AMScanAxisRegion *otherRegion);
 	/// Returns true if the two regions have the same properties, false otherwise.
-	static bool identical(AMScanAxisRegion *region, AMScanAxisRegion *otherRegion);
+	static bool identical(const AMScanAxisRegion *region, const AMScanAxisRegion *otherRegion);
+
+	/// Returns true if both regions are valid and the first region completely contains the second region within its range, false otherwise.
+	static bool contains(const AMScanAxisRegion *region, const AMScanAxisRegion *otherRegion);
 
 	/// Returns true if this region doesn't overlap with otherRegion, but does share a region limit. False otherwise.
 	bool adjacentTo(AMScanAxisRegion *otherRegion) const;
 	/// Returns true if this region overlaps with the given region, false otherwise.
 	bool intersects(AMScanAxisRegion *otherRegion) const;
-	/// Returns true if this region is contained completely within the given region, false otherwise.
-	bool containedBy(AMScanAxisRegion *otherRegion) const;
-	/// Returns true if this region completely contains the given region, false otherwise.
-	bool contains(AMScanAxisRegion *otherRegion) const;
 
 	/// Returns true if this region can be merged together into this one, false otherwise.
 	bool canMerge(AMScanAxisRegion *otherRegion) const;

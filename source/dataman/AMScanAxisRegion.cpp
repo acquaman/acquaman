@@ -118,45 +118,67 @@ bool AMScanAxisRegion::descending() const
 	return result;
 }
 
-bool AMScanAxisRegion::sameStart(AMScanAxisRegion *region, AMScanAxisRegion *otherRegion)
+bool AMScanAxisRegion::sameStart(const AMScanAxisRegion *region, const AMScanAxisRegion *otherRegion)
 {
 	bool result = (region && otherRegion && (double(region->regionStart()) == double(otherRegion->regionStart())));
 	return result;
 }
 
-bool AMScanAxisRegion::sameStep(AMScanAxisRegion *region, AMScanAxisRegion *otherRegion)
+bool AMScanAxisRegion::sameStep(const AMScanAxisRegion *region, const AMScanAxisRegion *otherRegion)
 {
 	bool result = (region && otherRegion && (double(region->regionStep()) == double(otherRegion->regionStep())));
 	return result;
 }
 
-bool AMScanAxisRegion::sameStepSize(AMScanAxisRegion *region, AMScanAxisRegion *otherRegion)
+bool AMScanAxisRegion::sameStepSize(const AMScanAxisRegion *region, const AMScanAxisRegion *otherRegion)
 {
 	bool result = (region && otherRegion && (fabs(double(region->regionStep())) == fabs(double(otherRegion->regionStep()))));
 	return result;
 }
 
-bool AMScanAxisRegion::sameEnd(AMScanAxisRegion *region, AMScanAxisRegion *otherRegion)
+bool AMScanAxisRegion::sameEnd(const AMScanAxisRegion *region, const AMScanAxisRegion *otherRegion)
 {
 	bool result = (region && otherRegion && (double(region->regionEnd()) == double(otherRegion->regionEnd())));
 	return result;
 }
 
-bool AMScanAxisRegion::sameTime(AMScanAxisRegion *region, AMScanAxisRegion *otherRegion)
+bool AMScanAxisRegion::sameTime(const AMScanAxisRegion *region, const AMScanAxisRegion *otherRegion)
 {
 	bool result = (region && otherRegion && (double(region->regionTime()) == double(otherRegion->regionTime())));
 	return result;
 }
 
-bool AMScanAxisRegion::sameDirection(AMScanAxisRegion *region, AMScanAxisRegion *otherRegion)
+bool AMScanAxisRegion::sameDirection(const AMScanAxisRegion *region, const AMScanAxisRegion *otherRegion)
 {
 	bool result = (region && otherRegion && ((region->ascending() && otherRegion->ascending()) || (region->descending() && otherRegion->descending())));
 	return result;
 }
 
-bool AMScanAxisRegion::identical(AMScanAxisRegion *region, AMScanAxisRegion *otherRegion)
+bool AMScanAxisRegion::identical(const AMScanAxisRegion *region, const AMScanAxisRegion *otherRegion)
 {
 	bool result = sameStart(region, otherRegion) && sameStep(region, otherRegion) && sameEnd(region, otherRegion) && sameTime(region, otherRegion);
+	return result;
+}
+
+bool AMScanAxisRegion::contains(const AMScanAxisRegion *region, const AMScanAxisRegion *otherRegion)
+{
+	bool result = false;
+
+	if (region && region->isValid() && otherRegion && otherRegion->isValid()) {
+
+		if (region->ascending() && otherRegion->ascending())
+			result = ( (double(region->regionStart()) <= double(otherRegion->regionStart())) && (double(region->regionEnd()) >= double(otherRegion->regionEnd())) );
+
+		else if (region->ascending() && otherRegion->descending())
+			result = ( (double(region->regionStart()) <= double(otherRegion->regionEnd())) && (double(region->regionEnd()) >= double(otherRegion->regionStart())) );
+
+		else if (region->descending() && otherRegion->ascending())
+			result = ( (double(region->regionStart()) >= double(otherRegion->regionEnd())) && (double(region->regionEnd()) <= double(otherRegion->regionStart())) );
+
+		else if (region->descending() && otherRegion->descending())
+			result = ( (double(region->regionStart()) >= double(otherRegion->regionStart())) && (double(region->regionEnd()) <= double(otherRegion->regionEnd())) );
+	}
+
 	return result;
 }
 
@@ -207,50 +229,6 @@ bool AMScanAxisRegion::intersects(AMScanAxisRegion *otherRegion) const
 	return result;
 }
 
-bool AMScanAxisRegion::containedBy(AMScanAxisRegion *otherRegion) const
-{
-	bool result = false;
-
-	if (isValid() && otherRegion && otherRegion->isValid()) {
-
-		if (ascending() && otherRegion->ascending())
-			result = ( (double(regionStart_) >= double(otherRegion->regionStart())) && (double(regionEnd_) <= double(otherRegion->regionEnd())) );
-
-		else if (ascending() && otherRegion->descending())
-			result = ( (double(regionStart_) >= double(otherRegion->regionEnd())) && (double(regionEnd_) <= double(otherRegion->regionStart())) );
-
-		else if (descending() && otherRegion->ascending())
-			result = ( (double(regionStart_) <= double(otherRegion->regionEnd())) && (double(regionEnd_) >= double(otherRegion->regionStart())) );
-
-		else if (descending() && otherRegion->descending())
-			result = ( (double(regionStart_) <= double(otherRegion->regionStart())) && (double(regionEnd_) >= double(otherRegion->regionEnd())) );
-	}
-
-	return result;
-}
-
-bool AMScanAxisRegion::contains(AMScanAxisRegion *otherRegion) const
-{
-	bool result = true;
-
-	if (isValid() && otherRegion && otherRegion->isValid()) {
-
-		if (ascending() && otherRegion->ascending())
-			result = ( (double(regionStart_) <= double(otherRegion->regionStart())) && (double(regionEnd_) >= double(otherRegion->regionEnd())) );
-
-		else if (ascending() && otherRegion->descending())
-			result = ( (double(regionStart_) <= double(otherRegion->regionEnd())) && (double(regionEnd_) >= double(otherRegion->regionStart())) );
-
-		else if (descending() && otherRegion->ascending())
-			result = ( (double(regionStart_) >= double(otherRegion->regionEnd())) && (double(regionEnd_) <= double(otherRegion->regionStart())) );
-
-		else if (descending() && otherRegion->descending())
-			result = ( (double(regionStart_) >= double(otherRegion->regionStart())) && (double(regionEnd_) <= double(otherRegion->regionEnd())) );
-	}
-
-	return result;
-}
-
 bool AMScanAxisRegion::canMerge(AMScanAxisRegion *otherRegion) const
 {
 	// We consider merges only if both regions are valid, for now.
@@ -263,7 +241,7 @@ bool AMScanAxisRegion::canMakeAdjacentTo(AMScanAxisRegion *otherRegion) const
 {
 	// We will consider moving only if both regions are valid, for now.
 
-	bool result = (isValid() && otherRegion && otherRegion->isValid() && !contains(otherRegion) && !containedBy(otherRegion));
+	bool result = (isValid() && otherRegion && otherRegion->isValid() && !contains(this, otherRegion) && !contains(otherRegion, this));
 	return result;
 }
 

@@ -971,9 +971,9 @@ QList<AMScanAxisRegion*> AMScanAxis::simplifyIntersection(AMScanAxisRegion *regi
 					// the other, but they have different step and time. The containing region is broken up into
 					// fragments that flank the contained region.
 
-					if (region->contains(otherRegion))
+					if (AMScanAxisRegion::contains(region, otherRegion))
 						result << region->subtract(otherRegion) << otherRegion;
-					else if (region->containedBy(otherRegion))
+					else if (AMScanAxisRegion::contains(otherRegion, region))
 						result << otherRegion->subtract(otherRegion) << region;
 				}
 			}
