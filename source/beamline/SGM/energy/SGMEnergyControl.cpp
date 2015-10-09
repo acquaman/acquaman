@@ -1,10 +1,10 @@
 #include "SGMEnergyControl.h"
 
-#include <QDebug>
-
 #include "beamline/CLS/CLSMAXvMotor.h"
 #include "actions3/AMListAction3.h"
 #include "actions3/AMActionSupport.h"
+#include "SGMGratingTranslationStepControl.h"
+#include "util/AMErrorMonitor.h"
 
 SGMEnergyControl::SGMEnergyControl(SGMUndulatorSupport::UndulatorHarmonic startingUndulatorHarmonic,
                                    QObject *parent) :
@@ -24,15 +24,7 @@ SGMEnergyControl::SGMEnergyControl(SGMUndulatorSupport::UndulatorHarmonic starti
                                                   new CLSMAXvControlStatusChecker(),
                                                   1);
 
-    gratingTranslationControl_ = new AMPVwStatusControl("Grating Translation",
-                                                        "SMTR16114I1016:step:fbk",
-                                                        "SMTR16114I1016:step",
-                                                        "SMTR16114I1016:state",
-                                                        "SMTR16114I1016:emergStop",
-                                                        this,
-                                                        0.1,
-                                                        2.0,
-                                                        new AMControlStatusCheckerStopped(0));
+	gratingTranslationControl_ = new SGMGratingTranslationStepControl(this);
 
     undulatorPositionControl_ = new AMPVwStatusControl("Undulator Position",
                                                        "UND1411-01:gap:mm:fbk",
@@ -240,7 +232,18 @@ void SGMEnergyControl::onGratingTranslationPVValueChanged(double value)
 
     if(newGratingTranslation != SGMGratingSupport::UnknownGrating) {
 
+		SGMEnergyPosition::GratingTranslationOptimizationMode savedMode =
+				energyPositionController_->gratingTranslationOptimizationMode();
+
+		energyPositionController_->blockSignals(true);
+		energyPositionController_->setGratingTranslationOptimizationMode(SGMEnergyPosition::ManualMode);
+		energyPositionController_->blockSignals(false);
+
         energyPositionController_->setGratingTranslation(newGratingTranslation);
+
+		energyPositionController_->blockSignals(true);
+		energyPositionController_->setGratingTranslationOptimizationMode(savedMode);
+		energyPositionController_->blockSignals(false);
     }
 }
 
@@ -275,6 +278,9 @@ void SGMEnergyControl::initializeEnergyPositionController()
 
     connect(energyPositionController_, SIGNAL(undulatorTrackingChanged(bool)),
             this, SIGNAL(undulatorTrackingChanged(bool)));
+
+	connect(energyPositionController_, SIGNAL(gratingTranslationOptimizationModeChanged(SGMEnergyPosition::GratingTranslationOptimizationMode)),
+			this, SIGNAL(gratingTranslationOptimizationModeChanged(SGMEnergyPosition::GratingTranslationOptimizationMode)));
 
     connect(energyPositionController_, SIGNAL(exitSlitTrackingChanged(bool)),
             this, SIGNAL(exitSlitTrackingChanged(bool)));
@@ -345,23 +351,13 @@ AMAction3 *SGMEnergyControl::createMoveAction(double setpoint)
             coordinatedMoveAction->addSubAction(componentMoveAction);
             coordinatedMoveAction->addSubAction(componentWaitAction);
 
-            // while testing just output the returned action, don't return it. Don't want
-            // to move anything quite yet.
-            qDebug() << QString("Request to move to energy %1eV").arg(setpoint);
-            qDebug() << QString("Actually targetted %1eV").arg(helperEnergyPosition->resultantEnergy());
-            qDebug() << QString("Grating Translation moved to %1").arg(gratingTranslationNewValue);
-            qDebug() << QString("Grating Angle moved to %1").arg(gratingAngleNewValue);
-            qDebug() << QString("Undulator Position moved to %1").arg(undulatorPositionNewValue);
-            qDebug() << QString("Exit Slit Position moved to %1").arg(exitSlitPositionNewValue);
-        }
-
-        if(!coordinatedMoveAction) {
-            qDebug() << QString("No move action created due to errors: %1").arg(helperEnergyPosition->errorMessage());
-        }
+		} else {
+			AMErrorMon::alert(this, SGMENERGYCONTROL_INVALID_STATE, QString("Move would put energy in invalid state: %1").arg(helperEnergyPosition->errorMessage()));
+		}
 
         helperEnergyPosition->deleteLater();
     }
 
-    return 0;
+	return coordinatedMoveAction;
 }
 

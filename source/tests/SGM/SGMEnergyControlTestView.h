@@ -11,29 +11,45 @@
 #include "beamline/SGM/energy/SGMGratingSupport.h"
 #include "beamline/SGM/energy/SGMEnergyPosition.h"
 class SGMEnergyControl;
+/*!
+  * A view class for visualizing interactions with the sgm energy control
+  */
 class SGMEnergyControlTestView : public QWidget
 {
     Q_OBJECT
 public:
+	/*!
+	  * Creates an instance of an sgm energy control test view, which will
+	  * visualize the energy controls of the sgm beamline.
+	  */
     explicit SGMEnergyControlTestView(QWidget *parent = 0);
 
 signals:
 
 public slots:
 protected slots:
+	/// Initializes the child widgets when the energy control is first connected.
     void initializeOnConnection();
 
+	// Slots which handle changes to the widgets, pushing values on the control.
     void onUndulatorHarmonicSelectionChanged(int index);
     void onUndulatorOffsetValueChanged(double value);
     void onUndulatorTrackingCheckBoxChanged(bool isChecked);
     void onGratingOptimizationSelectionChanged(int index);
+	void onGratingTranslationSelectionChanged(int index);
     void onExitSlitTrackingCheckBoxChanged(bool isChecked);
 
+	// Slots which handle changes in the control, updating the widgets
     void onControlGratingOptimizationChanged(SGMEnergyPosition::GratingTranslationOptimizationMode optimizationMode);
-
+	void onControlGratingTranslationChanged(double value);
 protected:
+
+	// Setup helper functions
+	/// Helper funciton to initialize the child widgets and perform layout
     void setupUi();
+	/// Helper function which initializes the child widget values.
     void setupData();
+	/// Helper function which connects the child widgets to the energy control.
     void setupConnections();
 
     SGMEnergyControl* energyControl_;

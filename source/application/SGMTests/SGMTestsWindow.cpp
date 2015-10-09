@@ -29,8 +29,7 @@ SGMTestsWindow::SGMTestsWindow(QWidget *parent) : QMainWindow(parent)
         resultString.append(QString("\n%1").arg(result));
     }
 
-    outputTextEdit_->setText(resultString);
-    produceTestUndulatorValues();
+	outputTextEdit_->setText(resultString);;
 }
 
 void SGMTestsWindow::onShowEnergyViewClicked()
@@ -72,28 +71,6 @@ void SGMTestsWindow::onShowEnergyControlViewClicked()
     }
     energyControlTestView_->show();
     energyControlTestView_->raise();
-}
-
-void SGMTestsWindow::produceTestUndulatorValues()
-{
-	QString allValues;
-
-	allValues.append("Time\tUndulatorPosition\n");
-
-	SGMEnergyPosition testEnergyPosition(1200, SGMGratingSupport::HighGrating);
-
-	int time = 1;
-
-	while(testEnergyPosition.resultantEnergy() < 2000) {
-
-		allValues.append(QString("%1\t\t%2\n").arg(time).arg(testEnergyPosition.undulatorPosition()));
-
-		testEnergyPosition.requestEnergy(testEnergyPosition.resultantEnergy() + 10);
-		++time;
-	}
-
-	qDebug() << allValues;
-
 }
 
 void SGMTestsWindow::setupUi()

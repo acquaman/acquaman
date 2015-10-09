@@ -328,7 +328,7 @@ void SGMEnergyPosition::requestEnergy(double requestedEnergy)
         if(undulatorHarmonic_ != newUndulatorHarmonic) {
 
             undulatorHarmonic_ = newUndulatorHarmonic;
-            emit undulatorHarmonic_;
+			emit undulatorHarmonicChanged(undulatorHarmonic_);
         }
     }
 
@@ -415,7 +415,9 @@ double SGMEnergyPosition::optimizedExitSlitPosition(SGMGratingSupport::GratingTr
     double angleOfIncidence = asin((wavelength / (2*gratingSpacing)) / cos(includedAngle/2)) + (includedAngle/2);
     double angleOfDefraction = -includedAngle + angleOfIncidence;
 
-    return -gratingEncoderOffset + (pow(cos(angleOfDefraction),2)) / (((cos(angleOfDefraction + includedAngle) + cos(angleOfDefraction)) / 70480) - (pow(cos(angleOfDefraction + includedAngle),2))/1500);
+	double idealExitSlitPosition = -gratingEncoderOffset + (pow(cos(angleOfDefraction),2)) / (((cos(angleOfDefraction + includedAngle) + cos(angleOfDefraction)) / 70480) - (pow(cos(angleOfDefraction + includedAngle),2))/1500);
+
+	return qMax(idealExitSlitPosition, 1.0);
 }
 
 SGMUndulatorSupport::UndulatorHarmonic SGMEnergyPosition::optimizedUndulatorHarmonic(SGMGratingSupport::GratingTranslation gratingTranslationSelection, double energy) const

@@ -76,8 +76,8 @@ public:
      * \param gratingOptimizationMode ~ The means by which to determine the grating
      * translation.
      */
-    SGMEnergyPosition(double requestedEnergy,
-                         GratingTranslationOptimizationMode gratingOptimizationMode);
+	SGMEnergyPosition(double requestedEnergy,
+					  GratingTranslationOptimizationMode gratingOptimizationMode);
 
 
 	/*!
@@ -183,7 +183,7 @@ signals:
 	void gratingTranslationChanged(SGMGratingSupport::GratingTranslation gratingTranslation);
 
     /// Signal indicating tha the grating translation optimization mode has been altered.
-    void gratingTranslationOptimizationModeChanged(GratingTranslationOptimizationMode gratingTranslationOptimizationMode);
+	void gratingTranslationOptimizationModeChanged(SGMEnergyPosition::GratingTranslationOptimizationMode gratingTranslationOptimizationMode);
 
     /// Signal indicating the grating angle has been altered.
 	void gratingAngleChanged(double gratingAngle);

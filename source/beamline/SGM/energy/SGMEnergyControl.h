@@ -5,6 +5,12 @@
 #include "SGMUndulatorSupport.h"
 #include "SGMEnergyPosition.h"
 
+#define SGMENERGYCONTROL_INVALID_STATE 851142
+
+/*!
+  * A class which presents a standard AMControl interface for performing coordinated
+  * motions of the SGM beamline energy components.
+  */
 class SGMEnergyControl : public AMPseudoMotorControl
 {
     Q_OBJECT

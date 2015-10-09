@@ -24,9 +24,6 @@ protected slots:
 
     void onShowEnergyControlViewClicked();
 protected:
-
-    void produceTestUndulatorValues();
-
     void setupUi();
     QTextEdit* outputTextEdit_;
     QPushButton* showEnergyViewButton_;

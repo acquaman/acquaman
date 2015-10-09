@@ -111,9 +111,9 @@ inline static double enumToEncoderSteps(GratingTranslation translationSelection)
     case LowGrating:
         return 61300;
     case MediumGrating:
-
+		return 35100;
     case HighGrating:
-
+		return 8807;
     default:
         return 0;
     }
@@ -133,12 +133,12 @@ inline static GratingTranslation encoderStepsToEnum(double encoderSteps)
         return LowGrating;
     }
 
-    if(qAbs(encoderSteps - 0000) < tolerance) {
+	if(qAbs(encoderSteps - 35100) < tolerance) {
 
         return MediumGrating;
     }
 
-    if(qAbs(encoderSteps - 0000) < tolerance) {
+	if(qAbs(encoderSteps - 8807) < tolerance) {
 
         return HighGrating;
     }

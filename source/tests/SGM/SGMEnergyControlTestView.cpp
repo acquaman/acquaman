@@ -3,6 +3,7 @@
 
 #include <QGridLayout>
 #include <QLabel>
+#include <QDebug>
 SGMEnergyControlTestView::SGMEnergyControlTestView(QWidget *parent) : QWidget(parent)
 {
     isInitialized_ = false;
@@ -73,6 +74,28 @@ void SGMEnergyControlTestView::onGratingOptimizationSelectionChanged(int index)
     energyControl_->setGratingTranslationOptimizationMode(correspondingMode);
 }
 
+void SGMEnergyControlTestView::onGratingTranslationSelectionChanged(int index)
+{
+	if(index != -1) {
+		double correspondingGratingTranslationStepValue;
+
+		switch(index) {
+
+		case 0:
+			correspondingGratingTranslationStepValue = SGMGratingSupport::enumToEncoderSteps(SGMGratingSupport::LowGrating);
+			break;
+		case 1:
+			correspondingGratingTranslationStepValue = SGMGratingSupport::enumToEncoderSteps(SGMGratingSupport::MediumGrating);
+			break;
+		default:
+			correspondingGratingTranslationStepValue = SGMGratingSupport::enumToEncoderSteps(SGMGratingSupport::HighGrating);
+		}
+
+		//qDebug() << "Move grating translation control to" << correspondingGratingTranslationStepValue << "steps";
+		energyControl_->gratingTranslationControl()->move(correspondingGratingTranslationStepValue);
+	}
+}
+
 void SGMEnergyControlTestView::onExitSlitTrackingCheckBoxChanged(bool isChecked)
 {
     energyControl_->setExitSlitPositionTracking(isChecked);
@@ -80,7 +103,30 @@ void SGMEnergyControlTestView::onExitSlitTrackingCheckBoxChanged(bool isChecked)
 
 void SGMEnergyControlTestView::onControlGratingOptimizationChanged(SGMEnergyPosition::GratingTranslationOptimizationMode optimizationMode)
 {
+
 	gratingTranslationComboBox_->setEnabled(optimizationMode == SGMEnergyPosition::ManualMode);
+}
+
+void SGMEnergyControlTestView::onControlGratingTranslationChanged(double value)
+{
+	int correspondingGratingTranslationIndex;
+
+	switch(SGMGratingSupport::encoderStepsToEnum(value)) {
+
+	case SGMGratingSupport::LowGrating:
+		correspondingGratingTranslationIndex = 0;
+		break;
+	case SGMGratingSupport::MediumGrating:
+		correspondingGratingTranslationIndex = 1;
+		break;
+	case SGMGratingSupport::HighGrating:
+		correspondingGratingTranslationIndex = 2;
+		break;
+	default:
+		correspondingGratingTranslationIndex = -1;
+	}
+
+	gratingTranslationComboBox_->setCurrentIndex(correspondingGratingTranslationIndex);
 }
 
 void SGMEnergyControlTestView::setupUi()
@@ -189,9 +235,13 @@ void SGMEnergyControlTestView::setupData()
     exitSlitTrackingCheckBox_->setChecked(energyControl_->isExitSlitPositionTracking());
 
     gratingAngleValueControlEditor_->setControl(energyControl_->gratingAngleControl());
+	gratingAngleValueControlEditor_->setPrecision(12);
     gratingTranslationControlEditor_->setControl(energyControl_->gratingTranslationControl());
+	gratingTranslationControlEditor_->setPrecision(12);
     exitSlitValueControlEditor_->setControl(energyControl_->exitSlitPositionControl());
+	exitSlitValueControlEditor_->setPrecision(6);
     undulatorValueControlEditor_->setControl(energyControl_->undulatorPositionControl());
+	undulatorValueControlEditor_->setPrecision(6);
 
 }
 
@@ -199,6 +249,18 @@ void SGMEnergyControlTestView::setupConnections()
 {
     connect(energyControl_, SIGNAL(gratingTranslationOptimizationModeChanged(SGMEnergyPosition::GratingTranslationOptimizationMode)),
             this, SLOT(onControlGratingOptimizationChanged(SGMEnergyPosition::GratingTranslationOptimizationMode)));
+	connect(energyControl_->gratingTranslationControl(), SIGNAL(valueChanged(double)),
+			this, SLOT(onControlGratingTranslationChanged(double)));
+
+
+	connect(undulatorHarmonic_, SIGNAL(currentIndexChanged(int)),
+			this, SLOT(onUndulatorHarmonicSelectionChanged(int)));
+	connect(undulatorOffset_, SIGNAL(valueChanged(double)),
+			this, SLOT(onUndulatorOffsetValueChanged(double)));
+	connect(undulatorTrackingCheckBox_, SIGNAL(toggled(bool)),
+			this, SLOT(onUndulatorTrackingCheckBoxChanged(bool)));
+	connect(gratingOptimizationComboBox_, SIGNAL(currentIndexChanged(int)),
+			this, SLOT(onGratingOptimizationSelectionChanged(int)));
+	connect(gratingTranslationComboBox_, SIGNAL(currentIndexChanged(int)),
+			this, SLOT(onGratingTranslationSelectionChanged(int)));
 }
-
-
