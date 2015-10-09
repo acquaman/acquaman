@@ -162,16 +162,78 @@ bool BioXASAppController::startup()
 
 	qDebug() << "\n";
 
-	qDebug() << "Creating another region.";
+	qDebug() << "Creating other region.";
 
 	AMScanAxisRegion *otherRegion = new AMScanAxisRegion(AMNumber(-3), AMNumber(0.5), AMNumber(3), AMNumber(1), this);
 
 	qDebug() << otherRegion->toString();
 
-	qDebug() << "Merging first region into second.";
+	if (AMScanAxisRegion::intersect(region, otherRegion))
+		qDebug() << "The two regions intersect. :)";
+	else
+		qDebug() << "The two regions do NOT intersect. :(";
 
-	otherRegion->merge(region);
-	qDebug() << otherRegion->toString();
+	if (AMScanAxisRegion::contains(region, otherRegion))
+		qDebug() << "The first region contains the second one. :)";
+	else
+		qDebug() << "The first region does NOT contain the second one. :(";
+
+	if (AMScanAxisRegion::contains(otherRegion, region))
+		qDebug() << "The second region contains the first one. :(";
+	else
+		qDebug() << "The second region does NOT contain the first one. :)";
+
+	AMScanAxisRegion *intersectionResult = AMScanAxisRegion::intersection(region, otherRegion);
+	if (intersectionResult) {
+		intersectionResult->setParent(this);
+		qDebug() << "The first and second regions intersect, with valid result. :)";
+		qDebug() << intersectionResult->toString();
+	} else {
+		qDebug() << "No valid intersection result. :(";
+	}
+
+	QList<AMScanAxisRegion*> subtractionResults = AMScanAxisRegion::subtract(region, otherRegion);
+	if (!subtractionResults.isEmpty()) {
+		qDebug() << "The subtraction of the second region from the first yields some results. :)";
+
+		foreach (AMScanAxisRegion *result, subtractionResults) {
+			if (result) {
+				result->setParent(this);
+				qDebug() << result->toString();
+			} else {
+				qDebug() << "One of the results was invalid. :(";
+			}
+		}
+	} else {
+		qDebug() << "Can't subtract the second region from the first. :(";
+	}
+
+	qDebug() << "\n";
+
+	qDebug() << "Creating another region.";
+
+	AMScanAxisRegion *anotherRegion = new AMScanAxisRegion(AMNumber(-10), AMNumber(-5), AMNumber(-30), AMNumber(2), this);
+
+	qDebug() << anotherRegion->toString();
+
+	if (AMScanAxisRegion::intersect(region, anotherRegion))
+		qDebug() << "The first and third regions intersect. :(";
+	else
+		qDebug() << "The first and third regions do NOT intersect. :)";
+
+	if (AMScanAxisRegion::contains(region, anotherRegion))
+		qDebug() << "The first region contains the third one. :(";
+	else
+		qDebug() << "The first region does NOT contain the third one. :)";
+
+	AMScanAxisRegion *otherIntersectionResult = AMScanAxisRegion::intersection(region, anotherRegion);
+	if (otherIntersectionResult) {
+		otherIntersectionResult->setParent(this);
+		qDebug() << "The first and third regions intersect, with valid result. :(";
+		qDebug() << otherIntersectionResult->toString();
+	} else {
+		qDebug() << "No valid intersection result. :)";
+	}
 
 	qDebug() << "\n\n";
 

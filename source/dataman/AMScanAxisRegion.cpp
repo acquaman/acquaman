@@ -21,6 +21,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMScanAxisRegion.h"
 #include "math.h"
+#include <QDebug>
 
 AMScanAxisRegion::AMScanAxisRegion(const AMNumber &start, const AMNumber &step, const AMNumber &end, const AMNumber &time, QObject *parent)
 	: AMDbObject(parent)
@@ -65,11 +66,11 @@ double AMScanAxisRegion::timePerRegion() const
 QString AMScanAxisRegion::toString(const QString &units) const
 {
 	return QString("Start: %1 %4\tStep: %2 %4\tEnd: %3 %4\tTime: %5 s\n")
-			.arg(double(regionStart()))
-			.arg(double(regionStep()))
-			.arg(double(regionEnd()))
+			.arg(regionStart().toString())
+			.arg(regionStep().toString())
+			.arg(regionEnd().toString())
 			.arg(units)
-			.arg(double(regionTime()));
+			.arg(regionTime().toString());
 }
 
 bool AMScanAxisRegion::validTime() const
@@ -81,20 +82,6 @@ bool AMScanAxisRegion::validTime() const
 bool AMScanAxisRegion::isValid() const
 {
 	bool result = (regionStart_.isValid() && regionStep_.isValid() && regionEnd_.isValid() && regionTime_.isValid());
-	return result;
-}
-
-bool AMScanAxisRegion::within(const AMNumber &point) const
-{
-	bool result = false;
-
-	if (isValid() && point.isValid()) {
-		if (ascending())
-			result = ((double(regionStart_) <= double(point)) && (double(regionEnd_) >= double(point)));
-		else if (descending())
-			result = ((double(regionEnd_) <= double(point)) && (double(regionStart_) >= double(point)));
-	}
-
 	return result;
 }
 
@@ -214,18 +201,7 @@ bool AMScanAxisRegion::intersect(const AMScanAxisRegion *region, const AMScanAxi
 	bool result = false;
 
 	if (region && region->isValid() && otherRegion && otherRegion->isValid()) {
-
-		if (region->ascending() && otherRegion->ascending())
-			result = ( (double(region->regionStart()) <= double(otherRegion->regionEnd())) && (double(region->regionEnd()) >= double(otherRegion->regionStart())) );
-
-		else if (region->ascending() && otherRegion->descending())
-			result = ( (double(region->regionStart()) <= double(otherRegion->regionStart())) && (double(region->regionEnd()) >= double(otherRegion->regionEnd())) );
-
-		else if (region->descending() && otherRegion->ascending())
-			result = ( (double(region->regionStart()) >= double(otherRegion->regionStart())) && (double(region->regionEnd()) <= double(otherRegion->regionEnd())) );
-
-		else if (region->descending() && otherRegion->descending())
-			result = ( (double(region->regionStart()) >= double(otherRegion->regionEnd())) && (double(region->regionEnd()) <= double(otherRegion->regionStart())) );
+		result = (AMScanAxisRegion::contains(region, otherRegion->regionStart()) || AMScanAxisRegion::contains(region, otherRegion->regionEnd()));
 	}
 
 	return result;
@@ -274,7 +250,7 @@ bool AMScanAxisRegion::canSubtract(const AMScanAxisRegion *region, const AMScanA
 {
 	// We will consider subtractions involving valid regions only, for now.
 
-	bool result = ( region && region->isValid() && otherRegion && otherRegion->isValid() && canDivide(region, otherRegion->regionStart()) && canDivide(region, otherRegion->regionEnd()));
+	bool result = ( region && region->isValid() && otherRegion && otherRegion->isValid() && contains(region, otherRegion));
 	return result;
 }
 
@@ -303,26 +279,37 @@ QList<AMScanAxisRegion*> AMScanAxisRegion::subtract(const AMScanAxisRegion *regi
 		// Subtracting another region is (almost) the same as dividing at that region's
 		// start and end points.
 
-		QList<AMScanAxisRegion*> firstResult = divide(region, otherRegion->regionStart());
-		QList<AMScanAxisRegion*> secondResult = divide(region, otherRegion->regionEnd());
+		// Begin with dividing the original region at the otherRegion's start point.
 
-		// The final results are the regions that are not identical to otherRegion.
+		qDebug() << "\n";
+		qDebug() << "Dividing at the otherRegion's startpoint...";
 
-		foreach (AMScanAxisRegion *result, firstResult) {
-			if (!AMScanAxisRegion::identical(result, otherRegion))
-				results << result;
-			else
-				toDelete << result;
+		QList<AMScanAxisRegion*> firstDivisionResults = divide(region, otherRegion->regionStart());
+		QList<AMScanAxisRegion*> secondDivisionResults;
+
+		foreach (AMScanAxisRegion *firstDivisionResult, firstDivisionResults) {
+
+			qDebug() << firstDivisionResult->toString();
+
+			// Iterate through the list of results from the first division, and divide again by
+			// the otherRegion's endpoint.
+
+			QList<AMScanAxisRegion*> secondDivision = divide(firstDivisionResult, otherRegion->regionEnd());
+
+			foreach (AMScanAxisRegion *secondDivisionResult, secondDivision) {
+
+				// Iterate through the results of both divisions. We want to keep the ones that
+				// are not identical to the otherRegion, eventually discarding the ones that are.
+
+				if (secondDivisionResult && !identical(secondDivisionResult, otherRegion))
+					secondDivisionResults << secondDivisionResult;
+
+				else if (secondDivisionResult)
+					toDelete << secondDivisionResult;
+			}
 		}
 
-		foreach (AMScanAxisRegion *result, secondResult) {
-			if (!AMScanAxisRegion::identical(result, otherRegion))
-				results << result;
-			else
-				toDelete << result;
-		}
-
-		// Delete the undesired results.
+		// Delete the undesired results, the ones that are identical to the subtracted region.
 
 		foreach (AMScanAxisRegion *result, toDelete) {
 			if (result)

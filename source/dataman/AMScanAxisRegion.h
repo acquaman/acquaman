@@ -69,9 +69,6 @@ public:
 	/// Returns true if the region start, step, end, and time are all valid AMNumbers. Returns false otherwise.
 	virtual bool isValid() const;
 
-	/// Returns true if the given point is within the range of this region, false otherwise.
-	bool within(const AMNumber &point) const;
-
 	/// Returns true if this region is ascending, false otherwise.
 	bool ascending() const;
 	/// Returns true if this region is descending, false otherwise.
@@ -111,7 +108,7 @@ public:
 	static bool canMakeAdjacent(const AMScanAxisRegion *region, const AMScanAxisRegion *otherRegion);
 	/// Returns true if the region and the point are valid and the region can be divided at the point, false otherwise.
 	static bool canDivide(const AMScanAxisRegion *region, const AMNumber &point);
-	/// Returns true if the two regions are valid and the second region can be subtracted from the first, false otherwise.
+	/// Returns true if the two regions are valid and the first region contains the second region, false otherwise.
 	static bool canSubtract(const AMScanAxisRegion *region, const AMScanAxisRegion *otherRegion);
 
 	/// Returns a list of new regions that are the result of dividing the given region at the given point, provided both region and point are valid and the region contains the point. Returns empty list otherwise.
@@ -150,7 +147,7 @@ public slots:
 	/// Attempts to make this region adjacent to the given region. Returns true if successful, false otherwise.
 	bool makeAdjacentTo(AMScanAxisRegion *otherRegion);
 
-protected slots:
+protected:
 	/// Returns the suggested start value for the region made by merging this region and otherRegion.
 	AMNumber mergeStart(AMScanAxisRegion *otherRegion) const;
 	/// Returns the suggested step value for the region made by merging this region and otherRegion.
