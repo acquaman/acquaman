@@ -6,6 +6,7 @@
 #include <QDoubleSpinBox>
 #include <QCheckBox>
 #include <QLineEdit>
+#include <QPushButton>
 #include "ui/beamline/AMExtendedControlEditor.h"
 #include "beamline/SGM/energy/SGMUndulatorSupport.h"
 #include "beamline/SGM/energy/SGMGratingSupport.h"
@@ -39,6 +40,7 @@ protected slots:
 	void onGratingTranslationSelectionChanged(int index);
     void onExitSlitTrackingCheckBoxChanged(bool isChecked);
 
+	void onStartTrajectoryButtonPushed();
 	// Slots which handle changes in the control, updating the widgets
     void onControlGratingOptimizationChanged(SGMEnergyPosition::GratingTranslationOptimizationMode optimizationMode);
 	void onControlGratingTranslationChanged(double value);
@@ -66,6 +68,11 @@ protected:
     AMExtendedControlEditor* gratingTranslationControlEditor_;
     AMExtendedControlEditor* undulatorValueControlEditor_;
     AMExtendedControlEditor* exitSlitValueControlEditor_;
+
+	QDoubleSpinBox* startEnergySpinBox_;
+	QDoubleSpinBox* endEnergySpinBox_;
+	QDoubleSpinBox* timeTakenSpinBox_;
+	QPushButton* startTrajectoryButton_;
     bool isInitialized_;
 };
 

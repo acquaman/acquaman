@@ -195,5 +195,5 @@ QString SGMEnergyTrajectory::toString() const
 
     returnString.append(QString("Undulator Harmonic: %1").arg(undulatorHarmonicString));
 
-    return returnString;
+	return returnString;
 }

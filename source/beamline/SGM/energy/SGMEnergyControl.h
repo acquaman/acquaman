@@ -5,8 +5,8 @@
 #include "SGMUndulatorSupport.h"
 #include "SGMEnergyPosition.h"
 
-#define SGMENERGYCONTROL_INVALID_STATE 851142
-
+#define SGMENERGYCONTROL_INVALID_STATE				851142
+#define SGMENERGYCONTROL_ZERO_ENERGY_VELOCITY		851143
 /*!
   * A class which presents a standard AMControl interface for performing coordinated
   * motions of the SGM beamline energy components.
@@ -137,7 +137,17 @@ signals:
     void exitSlitTrackingChanged(bool isTracking);
 
 public slots:
-    /*!
+
+	/*!
+	  * Moves the controls in a coordinated manner in order to arrive at the
+	  * setpoint energy at the target velocity.
+	  * \param finalSetpoint ~ The final position which the energy will move to.
+	  * \param targetVelocity ~ The velocity (in eV/s) which the move will take
+	  * place in.
+	  */
+	virtual FailureExplanation move(double startSetpoint, double finalSetpoint, double targetVelocity);
+
+	/*!
      * Sets the undulator harmonic to use in calculating the control positions.
      * \param undulatorHarmonic ~ The undulator harmonic to use in calculating
      * the control positions.
@@ -213,16 +223,37 @@ protected:
      * energy beamline components.
      * \param setpoint ~ The energy value to move the controls to.
      */
-    virtual AMAction3* createMoveAction(double setpoint);
+	AMAction3* createMoveAction(double setpoint);
+
+	/*!
+	 * Creates a move action which will perform a coordinated motion of the
+	 * energy beamline components such that they all arrive at their destination
+	 * at the same time.
+	 * \param startSetpoint ~ The energy value to move to at the beginning of the
+	 * motion.
+	 * \param finalSetpoint ~ The energy value to move to by the end of the motion.
+	 * \param velocity ~ The velocity (in eV/s) which the motion will take place
+	 * at.
+	 */
+	virtual AMAction3* createMoveAction(double startSetpoint,
+										double finalSetpoint,
+										double velocity);
 
     SGMEnergyPosition* energyPositionController_;
     SGMUndulatorSupport::UndulatorHarmonic startingUndulatorHarmonic_;
 
-    // Child Controls
+	// Child Controls for simply motions
     AMControl* gratingAngleControl_;
     AMControl* gratingTranslationControl_;
     AMControl* undulatorPositionControl_;
     AMControl* exitSlitPositionControl_;
+
+	// Child Controls used for trajectory motions
+	AMControl* gratingAngleBaseVelocityControl_;
+	AMControl* gratingAngleTargetVelocityControl_;
+	AMControl* gratingAngleAccelerationControl_;
+	AMControl* undulatorStepControl_;
+	AMControl* undulatorStepVelocityControl_;
 
 
 };

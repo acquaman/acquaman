@@ -101,6 +101,17 @@ void SGMEnergyControlTestView::onExitSlitTrackingCheckBoxChanged(bool isChecked)
     energyControl_->setExitSlitPositionTracking(isChecked);
 }
 
+void SGMEnergyControlTestView::onStartTrajectoryButtonPushed()
+{
+	if(timeTakenSpinBox_->value() > 0) {
+		double startEnergy = startEnergySpinBox_->value();
+		double endEnergy = endEnergySpinBox_->value();
+
+		double velocity = qAbs(endEnergy - startEnergy) / timeTakenSpinBox_->value();
+		energyControl_->move(startEnergy, endEnergy, velocity);
+	}
+}
+
 void SGMEnergyControlTestView::onControlGratingOptimizationChanged(SGMEnergyPosition::GratingTranslationOptimizationMode optimizationMode)
 {
 
@@ -181,6 +192,26 @@ void SGMEnergyControlTestView::setupUi()
     exitSlitValueControlEditor_ = new AMExtendedControlEditor(0, 0, true);
     mainLayout->addWidget(exitSlitValueControlEditor_, 10, 0, 1, 2);
 
+	startEnergySpinBox_ = new QDoubleSpinBox();
+	startEnergySpinBox_->setRange(200, 2500);
+	mainLayout->addWidget(new QLabel("Start Energy"), 11, 0);
+	mainLayout->addWidget(startEnergySpinBox_, 11, 1);
+
+	endEnergySpinBox_ = new QDoubleSpinBox();
+	endEnergySpinBox_->setRange(200, 2500);
+	mainLayout->addWidget(new QLabel("End Energy"), 12, 0);
+	mainLayout->addWidget(endEnergySpinBox_, 12, 1);
+
+	timeTakenSpinBox_ = new QDoubleSpinBox();
+	timeTakenSpinBox_->setRange(0, 120);
+	mainLayout->addWidget(new QLabel("Time"), 13, 0);
+	mainLayout->addWidget(timeTakenSpinBox_, 13, 1);
+
+	startTrajectoryButton_ = new QPushButton("Start");
+	mainLayout->addWidget(startTrajectoryButton_, 14, 0, 1, 2);
+
+
+
     setLayout(mainLayout);
 }
 
@@ -253,6 +284,7 @@ void SGMEnergyControlTestView::setupConnections()
 			this, SLOT(onControlGratingTranslationChanged(double)));
 
 
+	connect(startTrajectoryButton_, SIGNAL(clicked()), this, SLOT(onStartTrajectoryButtonPushed()));
 	connect(undulatorHarmonic_, SIGNAL(currentIndexChanged(int)),
 			this, SLOT(onUndulatorHarmonicSelectionChanged(int)));
 	connect(undulatorOffset_, SIGNAL(valueChanged(double)),
@@ -264,3 +296,4 @@ void SGMEnergyControlTestView::setupConnections()
 	connect(gratingTranslationComboBox_, SIGNAL(currentIndexChanged(int)),
 			this, SLOT(onGratingTranslationSelectionChanged(int)));
 }
+
