@@ -141,9 +141,27 @@ bool AMScanAxisRegion::sameDirection(const AMScanAxisRegion *region, const AMSca
 	return result;
 }
 
+bool AMScanAxisRegion::identicalPositions(const AMScanAxisRegion *region, const AMScanAxisRegion *otherRegion)
+{
+	bool result = (sameStart(region, otherRegion) && sameEnd(region, otherRegion));
+	return result;
+}
+
 bool AMScanAxisRegion::identical(const AMScanAxisRegion *region, const AMScanAxisRegion *otherRegion)
 {
 	bool result = sameStart(region, otherRegion) && sameStep(region, otherRegion) && sameEnd(region, otherRegion) && sameTime(region, otherRegion);
+	return result;
+}
+
+bool AMScanAxisRegion::reversedPositions(const AMScanAxisRegion *region, const AMScanAxisRegion *otherRegion)
+{
+	bool result = ( (double(region->regionStart()) == double(otherRegion->regionEnd())) && (double(region->regionEnd()) == double(otherRegion->regionStart())) );
+	return result;
+}
+
+bool AMScanAxisRegion::reversed(const AMScanAxisRegion *region, const AMScanAxisRegion *otherRegion)
+{
+	bool result = ( (double(region->regionStart()) == double(otherRegion->regionEnd())) && sameStepSize(region, otherRegion) && (double(region->regionEnd()) == double(otherRegion->regionStart())) && sameTime(region, otherRegion) );
 	return result;
 }
 
@@ -281,31 +299,45 @@ QList<AMScanAxisRegion*> AMScanAxisRegion::subtract(const AMScanAxisRegion *regi
 
 		// Begin with dividing the original region at the otherRegion's start point.
 
-		qDebug() << "\n";
-		qDebug() << "Dividing at the otherRegion's startpoint...";
-
 		QList<AMScanAxisRegion*> firstDivisionResults = divide(region, otherRegion->regionStart());
-		QList<AMScanAxisRegion*> secondDivisionResults;
 
 		foreach (AMScanAxisRegion *firstDivisionResult, firstDivisionResults) {
 
-			qDebug() << firstDivisionResult->toString();
+			// Iterate through the results of the first division, and find out if each
+			// one is a final result or can be divided again.
 
-			// Iterate through the list of results from the first division, and divide again by
-			// the otherRegion's endpoint.
+			if (firstDivisionResult) {
 
-			QList<AMScanAxisRegion*> secondDivision = divide(firstDivisionResult, otherRegion->regionEnd());
+				if (!contains(firstDivisionResult, otherRegion->regionEnd())) {
 
-			foreach (AMScanAxisRegion *secondDivisionResult, secondDivision) {
+					// If the result does NOT contain the otherRegion's end point, it is
+					// one of the results.
 
-				// Iterate through the results of both divisions. We want to keep the ones that
-				// are not identical to the otherRegion, eventually discarding the ones that are.
+					results << firstDivisionResult;
 
-				if (secondDivisionResult && !identical(secondDivisionResult, otherRegion))
-					secondDivisionResults << secondDivisionResult;
+				} else {
 
-				else if (secondDivisionResult)
-					toDelete << secondDivisionResult;
+					// If the result does contain the otherRegion's end point, it can be
+					// divided again.
+
+					QList<AMScanAxisRegion*> secondDivisionResults = divide(firstDivisionResult, otherRegion->regionEnd());
+
+					foreach (AMScanAxisRegion *secondDivisionResult, secondDivisionResults) {
+
+						if (secondDivisionResult) {
+
+							// If the result of the second division is does not have the same positions
+							// to the otherRegion, then it is one of the results. Otherwise, it will be
+							// deleted.
+
+							if (!identicalPositions(secondDivisionResult, otherRegion) && !reversedPositions(secondDivisionResult, otherRegion))
+								results << secondDivisionResult;
+
+							else
+								toDelete << secondDivisionResult;
+						}
+					}
+				}
 			}
 		}
 

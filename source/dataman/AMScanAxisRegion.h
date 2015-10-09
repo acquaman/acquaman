@@ -87,8 +87,15 @@ public:
 	/// Returns true if the two regions have the same direction (ascending/descending), false otherwise.
 	static bool sameDirection(const AMScanAxisRegion *region, const AMScanAxisRegion *otherRegion);
 
-	/// Returns true if the two regions have the same properties, false otherwise.
+	/// Returns true if the two regions have the same start and end positions. Returns false otherwise.
+	static bool identicalPositions(const AMScanAxisRegion *region, const AMScanAxisRegion *otherRegion);
+	/// Returns true if the two regions have the same start, step, end, and time, false otherwise.
 	static bool identical(const AMScanAxisRegion *region, const AMScanAxisRegion *otherRegion);
+
+	/// Returns true if the two regions have the same start and end positions but are going in the reverse direction. Returns false otherwise.
+	static bool reversedPositions(const AMScanAxisRegion *region, const AMScanAxisRegion *otherRegion);
+	/// Returns true if the two regions have the same start, step, end, and time except they are going in the opposite direction, false otherwise.
+	static bool reversed(const AMScanAxisRegion *region, const AMScanAxisRegion *otherRegion);
 
 	/// Returns true if the region and the point are valid and the point falls within the region's range, false otherwise.
 	static bool contains(const AMScanAxisRegion *region, const AMNumber &point);
