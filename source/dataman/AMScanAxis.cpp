@@ -207,7 +207,7 @@ bool AMScanAxis::hasIntersectingRegions() const
 
 			for (int j = 0; j < count && !regionsIntersect; j++) {
 				AMScanAxisRegion *anotherRegion = regions.at(j);
-				regionsIntersect = (region != anotherRegion && region->intersects(anotherRegion));
+				regionsIntersect = (region != anotherRegion && AMScanAxisRegion::intersect(region, anotherRegion));
 			}
 		}
 	}
@@ -588,7 +588,7 @@ bool AMScanAxis::canMakeRegionsAdjacent(AMScanAxisRegion *region, AMScanAxisRegi
 
 bool AMScanAxis::canSimplifyIntersection(AMScanAxisRegion *region, AMScanAxisRegion *otherRegion) const
 {
-	bool result = intersect(region, otherRegion) && (canMergeRegions(region, otherRegion) || canMakeRegionsAdjacent(region, otherRegion));
+	bool result = AMScanAxisRegion::intersect(region, otherRegion) && (canMergeRegions(region, otherRegion) || canMakeRegionsAdjacent(region, otherRegion));
 	return result;
 }
 
@@ -618,18 +618,6 @@ bool AMScanAxis::hasSimplifyIntersection(AMScanAxisRegion *region) const
 			result = simplificationFound;
 		}
 	}
-
-	return result;
-}
-
-bool AMScanAxis::intersect(AMScanAxisRegion *region, AMScanAxisRegion *otherRegion) const
-{
-	bool result = (region && otherRegion && region->intersects(otherRegion) && otherRegion->intersects(region));
-
-	if (result)
-		qDebug() << "Regions" << regions_.toList().indexOf(region) << "and" << regions_.toList().indexOf(otherRegion) << "intersect.";
-	else
-		qDebug() << "Regions do not intersect.";
 
 	return result;
 }
@@ -678,11 +666,11 @@ bool AMScanAxis::mergeRegionsDescending(AMScanAxisRegion *region, AMScanAxisRegi
 	return result;
 }
 
-bool AMScanAxis::intersectionAscending(AMScanAxisRegion *region, AMScanAxisRegion *otherRegion) const
+bool AMScanAxis::intersectionAscending(const AMScanAxisRegion *region, const AMScanAxisRegion *otherRegion) const
 {
 	bool result = false;
 
-	if (intersect(region, otherRegion)) {
+	if (AMScanAxisRegion::intersect(region, otherRegion)) {
 		if (region->ascending() && otherRegion->ascending())
 			result = true;
 		else if (region->ascending() && otherRegion->descending())
@@ -696,11 +684,11 @@ bool AMScanAxis::intersectionAscending(AMScanAxisRegion *region, AMScanAxisRegio
 	return result;
 }
 
-bool AMScanAxis::intersectionDescending(AMScanAxisRegion *region, AMScanAxisRegion *otherRegion) const
+bool AMScanAxis::intersectionDescending(const AMScanAxisRegion *region, const AMScanAxisRegion *otherRegion) const
 {
 	bool result = false;
 
-	if (intersect(region, otherRegion)) {
+	if (AMScanAxisRegion::intersect(region, otherRegion)) {
 		if (region->ascending() && otherRegion->ascending())
 			result = false;
 		else if (region->ascending() && otherRegion->descending())
@@ -840,7 +828,7 @@ QList<AMScanAxisRegion*> AMScanAxis::intersections(AMScanAxisRegion *region) con
 		for (int i = 0, count = regions.count(); i < count; i++) {
 			AMScanAxisRegion *otherRegion = regions.at(i);
 
-			if (region != otherRegion && intersect(region, otherRegion)) {
+			if (region != otherRegion && AMScanAxisRegion::intersect((const AMScanAxisRegion*)region, (const AMScanAxisRegion*)otherRegion)) {
 				results.append(otherRegion);
 				qDebug() << otherRegion->toString();
 			}

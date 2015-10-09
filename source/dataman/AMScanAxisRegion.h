@@ -94,11 +94,10 @@ public:
 
 	/// Returns true if both regions are valid and the first region completely contains the second region within its range, false otherwise.
 	static bool contains(const AMScanAxisRegion *region, const AMScanAxisRegion *otherRegion);
-
-	/// Returns true if this region doesn't overlap with otherRegion, but does share a region limit. False otherwise.
-	bool adjacentTo(AMScanAxisRegion *otherRegion) const;
-	/// Returns true if this region overlaps with the given region, false otherwise.
-	bool intersects(AMScanAxisRegion *otherRegion) const;
+	/// Returns true if both regions are valid and adjacent, sharing a start/end position but non-overlapping. Returns false otherwise.
+	static bool adjacent(const AMScanAxisRegion *region, const AMScanAxisRegion *otherRegion);
+	/// Returns true if both regions are valid and intersect, some portion of the first region is contained within the second region. Returns false otherwise.
+	static bool intersect(const AMScanAxisRegion *region, const AMScanAxisRegion *otherRegion);
 
 	/// Returns true if this region can be merged together into this one, false otherwise.
 	bool canMerge(AMScanAxisRegion *otherRegion) const;

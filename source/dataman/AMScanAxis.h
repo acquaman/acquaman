@@ -164,8 +164,6 @@ protected:
 	bool canSimplifyIntersection(AMScanAxisRegion *region, AMScanAxisRegion *otherRegion) const;
 	/// Returns true if the given region has intersecting regions that can be simplified, false otherwise.
 	bool hasSimplifyIntersection(AMScanAxisRegion *region) const;
-	/// Returns true if the two regions intersect.
-	bool intersect(AMScanAxisRegion *region, AMScanAxisRegion *otherRegion) const;
 
 	/// Returns true if the result of merging the two regions together should be ascending, false otherwise.
 	bool mergeRegionsAscending(AMScanAxisRegion *region, AMScanAxisRegion *otherRegion);
@@ -173,9 +171,9 @@ protected:
 	bool mergeRegionsDescending(AMScanAxisRegion *region, AMScanAxisRegion *otherRegion);
 
 	/// Returns true if the intersection of the two regions should be ascending, false otherwise.
-	bool intersectionAscending(AMScanAxisRegion *region, AMScanAxisRegion *otherRegion) const;
+	bool intersectionAscending(const AMScanAxisRegion *region, const AMScanAxisRegion *otherRegion) const;
 	/// Returns true if the intersection of the two regions should be descending, false otherwise.
-	bool intersectionDescending(AMScanAxisRegion *region, AMScanAxisRegion *otherRegion) const;
+	bool intersectionDescending(const AMScanAxisRegion *region, const AMScanAxisRegion *otherRegion) const;
 
 	/// Attempts to simplify this scan axis' direction by making all regions run in the same direction.
 	bool simplifyDirection();

@@ -182,48 +182,48 @@ bool AMScanAxisRegion::contains(const AMScanAxisRegion *region, const AMScanAxis
 	return result;
 }
 
-bool AMScanAxisRegion::adjacentTo(AMScanAxisRegion *otherRegion) const
+bool AMScanAxisRegion::adjacent(const AMScanAxisRegion *region, const AMScanAxisRegion *otherRegion)
 {
 	bool result = false;
 
-	if (isValid() && otherRegion && otherRegion->isValid()) {
+	if (region && region->isValid() && otherRegion && otherRegion->isValid()) {
 
-		if ( (ascending() && otherRegion->ascending()) || (descending() && otherRegion->descending()) ) {
+		if ( (region->ascending() && otherRegion->ascending()) || (region->descending() && otherRegion->descending()) ) {
 
 			// If the two regions are going in the same direction, they are adjacent if the start of one
 			// matches the end of another.
 
-			result = ( (double(regionStart_) == double(otherRegion->regionEnd())) || (double(regionEnd_) == double(otherRegion->regionStart())) );
+			result = ( (double(region->regionStart()) == double(otherRegion->regionEnd())) || (double(region->regionEnd()) == double(otherRegion->regionStart())) );
 
-		} else if ( (ascending() && otherRegion->descending()) || (descending() && otherRegion->ascending()) ) {
+		} else if ( (region->ascending() && otherRegion->descending()) || (region->descending() && otherRegion->ascending()) ) {
 
 			// If the two regions are going in different directions, they are adjacent if the start of one
 			// matches the start of the other or if the end of one matches the end of another.
 
-			result = ( (double(regionStart_) == double(otherRegion->regionStart())) || (double(regionEnd_) == double(otherRegion->regionEnd())) );
+			result = ( (double(region->regionStart()) == double(otherRegion->regionStart())) || (double(region->regionEnd()) == double(otherRegion->regionEnd())) );
 		}
 	}
 
 	return result;
 }
 
-bool AMScanAxisRegion::intersects(AMScanAxisRegion *otherRegion) const
+bool AMScanAxisRegion::intersect(const AMScanAxisRegion *region, const AMScanAxisRegion *otherRegion)
 {
 	bool result = false;
 
-	if (isValid() && otherRegion && otherRegion->isValid()) {
+	if (region && region->isValid() && otherRegion && otherRegion->isValid()) {
 
-		if (ascending() && otherRegion->ascending())
-			result = ( (double(regionStart_) <= double(otherRegion->regionEnd())) && (double(regionEnd_) >= double(otherRegion->regionStart())) );
+		if (region->ascending() && otherRegion->ascending())
+			result = ( (double(region->regionStart()) <= double(otherRegion->regionEnd())) && (double(region->regionEnd()) >= double(otherRegion->regionStart())) );
 
-		else if (ascending() && otherRegion->descending())
-			result = ( (double(regionStart_) <= double(otherRegion->regionStart())) && (double(regionEnd_) >= double(otherRegion->regionEnd())) );
+		else if (region->ascending() && otherRegion->descending())
+			result = ( (double(region->regionStart()) <= double(otherRegion->regionStart())) && (double(region->regionEnd()) >= double(otherRegion->regionEnd())) );
 
-		else if (descending() && otherRegion->ascending())
-			result = ( (double(regionStart_) >= double(otherRegion->regionStart())) && (double(regionEnd_) <= double(otherRegion->regionEnd())) );
+		else if (region->descending() && otherRegion->ascending())
+			result = ( (double(region->regionStart()) >= double(otherRegion->regionStart())) && (double(region->regionEnd()) <= double(otherRegion->regionEnd())) );
 
-		else if (descending() && otherRegion->descending())
-			result = ( (double(regionStart_) >= double(otherRegion->regionEnd())) && (double(regionEnd_) <= double(otherRegion->regionStart())) );
+		else if (region->descending() && otherRegion->descending())
+			result = ( (double(region->regionStart()) >= double(otherRegion->regionEnd())) && (double(region->regionEnd()) <= double(otherRegion->regionStart())) );
 	}
 
 	return result;
@@ -263,7 +263,7 @@ AMScanAxisRegion* AMScanAxisRegion::intersection(AMScanAxisRegion *otherRegion) 
 {
 	AMScanAxisRegion *result = 0;
 
-	if (intersects(otherRegion)) {
+	if (intersect(this, otherRegion)) {
 
 		// If the two regions intersect, the intersection is the area the two regions have in common.
 
@@ -494,7 +494,7 @@ AMNumber AMScanAxisRegion::intersectionStart(AMScanAxisRegion *otherRegion) cons
 {
 	AMNumber result = AMNumber::InvalidError;
 
-	if (intersects(otherRegion)) {
+	if (intersect(this, otherRegion)) {
 
 		if (ascending() && otherRegion->ascending())
 			result = (double(regionStart()) >= double(otherRegion->regionStart())) ? regionStart() : otherRegion->regionStart();
@@ -516,7 +516,7 @@ AMNumber AMScanAxisRegion::intersectionEnd(AMScanAxisRegion *otherRegion) const
 {
 	AMNumber result = AMNumber::InvalidError;
 
-	if (intersects(otherRegion)) {
+	if (intersect(this, otherRegion)) {
 
 		if (ascending() && otherRegion->ascending())
 			result = (double(regionEnd()) <= double(otherRegion->regionEnd())) ? regionEnd() : otherRegion->regionEnd();

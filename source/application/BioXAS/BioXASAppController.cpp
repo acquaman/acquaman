@@ -138,7 +138,7 @@ bool BioXASAppController::startup()
 	foreach (AMScanAxisRegion *r, dividedRegion)
 		qDebug() << r->toString();
 
-	if (dividedRegion.at(0)->adjacentTo(dividedRegion.at(1)))
+	if (AMScanAxisRegion::adjacent(dividedRegion.at(0), dividedRegion.at(1)))
 		qDebug() << "The two regions are adjacent. :)";
 	else
 		qDebug() << "The two regions are NOT adjacent. :(";
