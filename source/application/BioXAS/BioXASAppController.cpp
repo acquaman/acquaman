@@ -82,18 +82,87 @@ bool BioXASAppController::startup()
 
 	qDebug() << "\n\n";
 
+	qDebug() << "Creating basic region.";
+
 	AMScanAxisRegion *region = new AMScanAxisRegion(AMNumber(5), AMNumber(-1), AMNumber(-5), AMNumber(0.5), this);
 
 	qDebug() << region->toString();
 
-	QList<AMScanAxisRegion*> dividedRegion = region->divide(AMNumber(-1));
+	if (region->ascending())
+		qDebug() << "The region is ascending. :(";
+	else
+		qDebug() << "The region is descending. :)";
+
+	qDebug() << "Making ascending.";
+
+	region->setAscending();
+	qDebug() << region->toString();
+
+	if (region->ascending())
+		qDebug() << "The region is ascending. :)";
+	else
+		qDebug() << "The region is descending. :(";
+
+	qDebug() << "Returning region to descending.";
+
+	region->setDescending();
+	qDebug() << region->toString();
+
+	if (region->ascending())
+		qDebug() << "The region is ascending. :(";
+	else
+		qDebug() << "The region is descending. :)";
+
+	qDebug() << "\n";
+
+	qDebug() << "Dividing region at -50.";
+
+	QList<AMScanAxisRegion*> dividedRegion = region->divide(AMNumber(-50));
+
+	if (dividedRegion.size() > 0)
+		qDebug() << "Valid regions are the result. :(";
+	else
+		qDebug() << "No valid regions are the result. :)";
+
+	qDebug() << "Dividing region at -1.";
+
+	dividedRegion = region->divide(AMNumber(-1));
 
 	qDebug() << "Divided region at -1:";
+
+	if (dividedRegion.size() != 2)
+		qDebug() << "We expected 2 regions, but actually" << dividedRegion.size() << "were created. :(";
+	else
+		qDebug() << "Two regions were the result. :)";
 
 	foreach (AMScanAxisRegion *r, dividedRegion)
 		qDebug() << r->toString();
 
+	if (dividedRegion.at(0)->adjacentTo(dividedRegion.at(1)))
+		qDebug() << "The two regions are adjacent. :)";
+	else
+		qDebug() << "The two regions are NOT adjacent. :(";
+
+	qDebug() << "Merging divided regions back together.";
+
+	dividedRegion.at(0)->merge(dividedRegion.at(1));
+	AMScanAxisRegion *reassembledRegion = dividedRegion.at(0);
+
+	qDebug() << reassembledRegion->toString();
+
+	if (AMScanAxisRegion::identical(region, reassembledRegion))
+		qDebug() << "The original region and the reassembled region are identical. :)";
+	else
+		qDebug() << "The original region and the reassembled region are NOT identical. :(";
+
+	if (AMScanAxisRegion::identical(reassembledRegion, dividedRegion.at(1)))
+		qDebug() << "The reassembled region and the second divided region are identical. :(";
+	else
+		qDebug() << "The reassembled region and the second divided region are NOT identical. :)";
+
 	qDebug() << "\n";
+
+	qDebug() << "Creating another region.";
 
 	AMScanAxisRegion *otherRegion = new AMScanAxisRegion(AMNumber(-3), AMNumber(0.5), AMNumber(3), AMNumber(1), this);
 
@@ -103,37 +172,6 @@ bool BioXASAppController::startup()
 
 	otherRegion->merge(region);
 	qDebug() << otherRegion->toString();
-
-//	AMScanAxis *scanAxis = new AMScanAxis(AMScanAxis::StepAxis, region, this);
-//	qDebug() << scanAxis->toString();
-
-//	bool canMerge = scanAxis->canMerge(0);
-
-//	if (canMerge)
-//		qDebug() << "Scan axis can merge with null axis. (??)";
-//	else
-//		qDebug() << "Scan axis can't merge with null axis. :)";
-
-//	bool canSimplify = scanAxis->canSimplify();
-
-//	if (canSimplify)
-//		qDebug() << "Scan axis with one region can be simplified. (??)";
-//	else
-//		qDebug() << "Scan axis with one region can't be simplified. :)";
-
-//	scanAxis->insertRegion(1, otherRegion);
-
-//	qDebug() << scanAxis->toString();
-
-//	if (scanAxis->canSimplifyIntersectingRegions())
-//		qDebug() << "Scan axis with two overlapping regions can be simplified. :)";
-//	else
-//		qDebug() << "Scan axis with two overlapping regions can't be simplified. (??)";
-
-//	scanAxis->simplify();
-
-//	qDebug() << "Result:";
-//	qDebug() << scanAxis->toString();
 
 	qDebug() << "\n\n";
 

@@ -118,13 +118,45 @@ bool AMScanAxisRegion::descending() const
 	return result;
 }
 
-bool AMScanAxisRegion::identicalTo(AMScanAxisRegion *otherRegion) const
+bool AMScanAxisRegion::sameStart(AMScanAxisRegion *region, AMScanAxisRegion *otherRegion)
 {
-	bool result = false;
+	bool result = (region && otherRegion && (double(region->regionStart()) == double(otherRegion->regionStart())));
+	return result;
+}
 
-	if (otherRegion)
-		result = ((double(regionStart_) == double(otherRegion->regionStart())) && (double(regionStep_) == double(otherRegion->regionStart())) && (double(regionEnd_) == double(otherRegion->regionEnd())) && (double(regionTime_) == double(otherRegion->regionTime())));
+bool AMScanAxisRegion::sameStep(AMScanAxisRegion *region, AMScanAxisRegion *otherRegion)
+{
+	bool result = (region && otherRegion && (double(region->regionStep()) == double(otherRegion->regionStep())));
+	return result;
+}
 
+bool AMScanAxisRegion::sameStepSize(AMScanAxisRegion *region, AMScanAxisRegion *otherRegion)
+{
+	bool result = (region && otherRegion && (fabs(double(region->regionStep())) == fabs(double(otherRegion->regionStep()))));
+	return result;
+}
+
+bool AMScanAxisRegion::sameEnd(AMScanAxisRegion *region, AMScanAxisRegion *otherRegion)
+{
+	bool result = (region && otherRegion && (double(region->regionEnd()) == double(otherRegion->regionEnd())));
+	return result;
+}
+
+bool AMScanAxisRegion::sameTime(AMScanAxisRegion *region, AMScanAxisRegion *otherRegion)
+{
+	bool result = (region && otherRegion && (double(region->regionTime()) == double(otherRegion->regionTime())));
+	return result;
+}
+
+bool AMScanAxisRegion::sameDirection(AMScanAxisRegion *region, AMScanAxisRegion *otherRegion)
+{
+	bool result = (region && otherRegion && ((region->ascending() && otherRegion->ascending()) || (region->descending() && otherRegion->descending())));
+	return result;
+}
+
+bool AMScanAxisRegion::identical(AMScanAxisRegion *region, AMScanAxisRegion *otherRegion)
+{
+	bool result = sameStart(region, otherRegion) && sameStep(region, otherRegion) && sameEnd(region, otherRegion) && sameTime(region, otherRegion);
 	return result;
 }
 
@@ -219,30 +251,6 @@ bool AMScanAxisRegion::contains(AMScanAxisRegion *otherRegion) const
 	return result;
 }
 
-bool AMScanAxisRegion::sameStep(AMScanAxisRegion *otherRegion) const
-{
-	bool result = (otherRegion && (double(regionStep()) == double(otherRegion->regionStep())));
-	return result;
-}
-
-bool AMScanAxisRegion::sameStepSize(AMScanAxisRegion *otherRegion) const
-{
-	bool result = (otherRegion && (fabs(double(regionStep())) == fabs(double(otherRegion->regionStep()))));
-	return result;
-}
-
-bool AMScanAxisRegion::sameTime(AMScanAxisRegion *otherRegion) const
-{
-	bool result = (otherRegion && (double(regionTime()) == double(otherRegion->regionTime())));
-	return result;
-}
-
-bool AMScanAxisRegion::sameDirection(AMScanAxisRegion *otherRegion) const
-{
-	bool result = (otherRegion && ((ascending() && otherRegion->ascending()) || (descending() && otherRegion->descending())));
-	return result;
-}
-
 bool AMScanAxisRegion::canMerge(AMScanAxisRegion *otherRegion) const
 {
 	// We consider merges only if both regions are valid, for now.
@@ -305,11 +313,11 @@ QList<AMScanAxisRegion*> AMScanAxisRegion::subtract(AMScanAxisRegion *otherRegio
 		// The final results are the regions that are not identical to otherRegion.
 
 		foreach (AMScanAxisRegion *region, firstResult)
-			if (!region->identicalTo(otherRegion))
+			if (!AMScanAxisRegion::identical(region, otherRegion))
 				results << region;
 
 		foreach (AMScanAxisRegion *region, secondResult)
-			if (!region->identicalTo(otherRegion))
+			if (!AMScanAxisRegion::identical(region, otherRegion))
 				results << region;
 	}
 

@@ -77,8 +77,21 @@ public:
 	/// Returns true if this region is descending, false otherwise.
 	bool descending() const;
 
-	/// Returns true if this region shares all of the same properties as the given region, false otherwise.
-	bool identicalTo(AMScanAxisRegion *otherRegion) const;
+	/// Returns true if the two regions have the same start, false otherwise.
+	static bool sameStart(AMScanAxisRegion *region, AMScanAxisRegion *otherRegion);
+	/// Returns true if the two regions have the same step, false otherwise.
+	static bool sameStep(AMScanAxisRegion *region, AMScanAxisRegion *otherRegion);
+	/// Returns true if the two regions have the same step size (sign may be different), false otherwise.
+	static bool sameStepSize(AMScanAxisRegion *region, AMScanAxisRegion *otherRegion);
+	/// Returns true if the two regions have the same end, false otherwise.
+	static bool sameEnd(AMScanAxisRegion *region, AMScanAxisRegion *otherRegion);
+	/// Returns true if the two regions have the same time, false otherwise.
+	static bool sameTime(AMScanAxisRegion *region, AMScanAxisRegion *otherRegion);
+	/// Returns true if the two regions have the same direction (ascending/descending), false otherwise.
+	static bool sameDirection(AMScanAxisRegion *region, AMScanAxisRegion *otherRegion);
+	/// Returns true if the two regions have the same properties, false otherwise.
+	static bool identical(AMScanAxisRegion *region, AMScanAxisRegion *otherRegion);
+
 	/// Returns true if this region doesn't overlap with otherRegion, but does share a region limit. False otherwise.
 	bool adjacentTo(AMScanAxisRegion *otherRegion) const;
 	/// Returns true if this region overlaps with the given region, false otherwise.
@@ -87,14 +100,6 @@ public:
 	bool containedBy(AMScanAxisRegion *otherRegion) const;
 	/// Returns true if this region completely contains the given region, false otherwise.
 	bool contains(AMScanAxisRegion *otherRegion) const;
-	/// Returns true if this region has the same step as the given region, false otherwise.
-	bool sameStep(AMScanAxisRegion *otherRegion) const;
-	/// Returns true if this region has the same step size as the given region, false otherwise.
-	bool sameStepSize(AMScanAxisRegion *otherRegion) const;
-	/// Returns true if this region has the same dwell time as the given region, false otherwise.
-	bool sameTime(AMScanAxisRegion *otherRegion) const;
-	/// Returns true if this region is ascending/descending the same way as the given region, false otherwise.
-	bool sameDirection(AMScanAxisRegion *otherRegion) const;
 
 	/// Returns true if this region can be merged together into this one, false otherwise.
 	bool canMerge(AMScanAxisRegion *otherRegion) const;

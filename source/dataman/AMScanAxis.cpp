@@ -856,8 +856,8 @@ QList<AMScanAxisRegion*> AMScanAxis::simplifyIntersection(AMScanAxisRegion *regi
 
 	if (canSimplifyIntersection(region, otherRegion)) {
 
-		bool sameStepSize = region->sameStepSize(otherRegion);
-		bool sameTime = region->sameTime(otherRegion);
+		bool sameStepSize = AMScanAxisRegion::sameStepSize(region, otherRegion);
+		bool sameTime = AMScanAxisRegion::sameTime(region, otherRegion);
 		bool canMerge = canMergeRegions(region, otherRegion);
 		bool canMakeAdjacent = canMakeRegionsAdjacent(region, otherRegion);
 
