@@ -52,7 +52,33 @@ AMGitHubRepositoryView::AMGitHubRepositoryView(AMGitHubRepository *repository, Q
 	for(int x = 0, size = allIssueMapTypeViews_.count(); x < size; x++)
 		mainFL_->addRow(allIssueMapTypeViews_.at(x)->issuesMapTypeString(), allIssueMapTypeViews_.at(x));
 
+	issuesForReviewButton_ = new QPushButton("Issues to Review");
+	connect(issuesForReviewButton_, SIGNAL(clicked()), this, SLOT(onIssuesForReviewButtonClicked()));
+	mainFL_->addRow("Review", issuesForReviewButton_);
+
 	setLayout(mainFL_);
+}
+
+#include <QDebug>
+void AMGitHubRepositoryView::onIssuesForReviewButtonClicked()
+{
+	QList<int> issueForReview;
+	issueForReview.append(repository_->missingEstimateClosedIssues()->keys());
+	issueForReview.append(repository_->missingActualClosedIssues()->keys());
+	issueForReview.append(repository_->missingTimeClosedIssues()->keys());
+	issueForReview.append(repository_->missingEstimateOpenIssues()->keys());
+
+	QList<int> printedIssues;
+
+	QString outputString;
+	for(int x = 0, size = issueForReview.count(); x < size; x++){
+		if(!printedIssues.contains(issueForReview.at(x))){
+			printedIssues.append(issueForReview.at(x));
+			outputString.append(QString("github.com/acquaman/acquaman/issues/%1 ").arg(issueForReview.at(x)));
+		}
+	}
+
+	qDebug() << outputString;
 }
 
 AMGitHubIssueMapView::AMGitHubIssueMapView(const QMap<int, AMGitHubIssue *> *issueMap, QWidget *parent) :

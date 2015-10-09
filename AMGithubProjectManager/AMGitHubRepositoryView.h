@@ -18,6 +18,9 @@ Q_OBJECT
 public:
 	AMGitHubRepositoryView(AMGitHubRepository *repository, QWidget *parent = 0);
 
+protected slots:
+	void onIssuesForReviewButtonClicked();
+
 protected:
 	AMGitHubRepository *repository_;
 
@@ -39,6 +42,8 @@ protected:
 	AMGitHubRepositoryIssueMapTypeView *closedSpecifiedMapTypeView_;
 
 	QList<AMGitHubRepositoryIssueMapTypeView*> allIssueMapTypeViews_;
+
+	QPushButton *issuesForReviewButton_;
 };
 
 class AMGitHubIssueMapView : public QGroupBox

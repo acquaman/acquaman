@@ -52,14 +52,57 @@ AMGithubProjectManagerMainView::AMGithubProjectManagerMainView(QWidget *parent)
 
 	setLayout(vl);
 
+	QFile tokenFile("tokenFile.txt");
+	if (!tokenFile.open(QIODevice::ReadOnly | QIODevice::Text))
+		return;
+
+	QTextStream tokenFileStream(&tokenFile);
+	QString tokenString = tokenFileStream.readLine();
+
 	manager_ = new QNetworkAccessManager(this);
-	repository_ = new AMGitHubRepository("acquaman", "acquaman", manager_, "token 2f8e7e362e5c0a5ea065255ccfdc369e70f4327b");
+	repository_ = new AMGitHubRepository("acquaman", "acquaman", manager_, tokenString);
 
 	allIssues_ = repository_->allIssues();
 	allMilestones_ = repository_->allMilestones();
 	allIssueFamilies_ = repository_->allIssueFamilies();
 
 	connect(repository_, SIGNAL(repositoryStatusMessageChanged(QString)), statusMessageLabel_, SLOT(setText(QString)));
+
+
+	QFile githubFile("/Users/chevrid/Desktop/addresses.txt");
+	if (!githubFile.open(QIODevice::ReadOnly | QIODevice::Text))
+		return;
+
+	QTextStream githubStream(&githubFile);
+	QString oneLine = githubStream.readLine();
+//	qDebug() << "The one line:\n" << oneLine;
+
+//	QStringList parsedAddresses;
+//	QStringList allAddresses = oneLine.split(';');
+//	for(int x = 0, size = allAddresses.count(); x < size; x++){
+////		qDebug() << x << allAddresses.at(x).simplified();
+//		QString oneAddressLine = allAddresses.at(x).simplified();
+//		if(oneAddressLine.contains('<') && oneAddressLine.contains('>')){
+//			QString oneParsedAddress = oneAddressLine.mid(oneAddressLine.indexOf('<')+1, oneAddressLine.indexOf('>') - oneAddressLine.indexOf('<') -1);
+//			QString namePortion = oneParsedAddress;
+//			namePortion = namePortion.remove("@lightsource.ca");
+//			if(oneParsedAddress.contains("@lightsource.ca") && namePortion.contains('.') && !parsedAddresses.contains(oneParsedAddress))
+//				parsedAddresses.append(oneParsedAddress);
+//		}
+//	}
+
+//	QString outputString;
+//	for(int x = 0, size = parsedAddresses.count(); x < size; x++){
+////		qDebug() << x << parsedAddresses.at(x);
+//		QString oneFullyParsedAddress = parsedAddresses.at(x);
+//		QString oneProperNamePortion = oneFullyParsedAddress;
+//		oneProperNamePortion = oneProperNamePortion.remove("@lightsource.ca");
+//		QString oneFirstName = oneProperNamePortion.section('.', 0, 0);
+//		QString oneLastName = oneProperNamePortion.section('.', 1, 1);
+//		outputString.append(QString("%1\t%2\t%3\n").arg(oneFullyParsedAddress).arg(oneFirstName).arg(oneLastName));
+//	}
+
+//	qDebug() << outputString;
 }
 
 AMGithubProjectManagerMainView::~AMGithubProjectManagerMainView()
@@ -67,13 +110,136 @@ AMGithubProjectManagerMainView::~AMGithubProjectManagerMainView()
 
 }
 
+#include "actions3/actions/AMRestAction.h"
 void AMGithubProjectManagerMainView::onInitiateButtonClicked()
 {
+	/*
+//	AMRestActionInfo *mailChimpListInfo = new AMRestActionInfo("https://us2.api.mailchimp.com/3.0/lists", AMRestActionInfo::GetRequest);
+//	AMRestActionInfo *mailChimpListInfo = new AMRestActionInfo("https://us2.api.mailchimp.com/3.0/lists/2be4e752d6/members", AMRestActionInfo::GetRequest); //All CLSI Personnel - 25
+	AMRestActionInfo *mailChimpListInfo = new AMRestActionInfo("https://us2.api.mailchimp.com/3.0/lists/a6f2d9cf37/members?count=100&offset=0", AMRestActionInfo::GetRequest); //E-News Recipients - 777
+	QByteArray usernameKeyByteArray = usernameKeyString.toLocal8Bit().toBase64();
+	QString authorizationHeader = "Basic " + usernameKeyByteArray;
+	mailChimpListInfo->setRawHeader("Authorization", authorizationHeader.toLocal8Bit());
+	AMRestAction *mailChimpListAction = new AMRestAction(mailChimpListInfo, manager_);
+	connect(mailChimpListAction, SIGNAL(fullResponseReady(QVariant,QList<QNetworkReply::RawHeaderPair>)), this, SLOT(tempMailChimp(QVariant,QList<QNetworkReply::RawHeaderPair>)));
+	mailChimpListAction->start();
+	*/
+
+	/*
+	mailChimpListInfo = new AMRestActionInfo("https://us2.api.mailchimp.com/3.0/lists/a6f2d9cf37/members?count=100&offset=100", AMRestActionInfo::GetRequest); //E-News Recipients - 777
+	mailChimpListInfo->setRawHeader("Authorization", authorizationHeader.toLocal8Bit());
+	mailChimpListAction = new AMRestAction(mailChimpListInfo, manager_);
+	connect(mailChimpListAction, SIGNAL(fullResponseReady(QVariant,QList<QNetworkReply::RawHeaderPair>)), this, SLOT(tempMailChimp(QVariant,QList<QNetworkReply::RawHeaderPair>)));
+	mailChimpListAction->start();
+
+	mailChimpListInfo = new AMRestActionInfo("https://us2.api.mailchimp.com/3.0/lists/a6f2d9cf37/members?count=100&offset=200", AMRestActionInfo::GetRequest); //E-News Recipients - 777
+	mailChimpListInfo->setRawHeader("Authorization", authorizationHeader.toLocal8Bit());
+	mailChimpListAction = new AMRestAction(mailChimpListInfo, manager_);
+	connect(mailChimpListAction, SIGNAL(fullResponseReady(QVariant,QList<QNetworkReply::RawHeaderPair>)), this, SLOT(tempMailChimp(QVariant,QList<QNetworkReply::RawHeaderPair>)));
+	mailChimpListAction->start();
+
+	mailChimpListInfo = new AMRestActionInfo("https://us2.api.mailchimp.com/3.0/lists/a6f2d9cf37/members?count=100&offset=300", AMRestActionInfo::GetRequest); //E-News Recipients - 777
+	mailChimpListInfo->setRawHeader("Authorization", authorizationHeader.toLocal8Bit());
+	mailChimpListAction = new AMRestAction(mailChimpListInfo, manager_);
+	connect(mailChimpListAction, SIGNAL(fullResponseReady(QVariant,QList<QNetworkReply::RawHeaderPair>)), this, SLOT(tempMailChimp(QVariant,QList<QNetworkReply::RawHeaderPair>)));
+	mailChimpListAction->start();
+
+	mailChimpListInfo = new AMRestActionInfo("https://us2.api.mailchimp.com/3.0/lists/a6f2d9cf37/members?count=100&offset=400", AMRestActionInfo::GetRequest); //E-News Recipients - 777
+	mailChimpListInfo->setRawHeader("Authorization", authorizationHeader.toLocal8Bit());
+	mailChimpListAction = new AMRestAction(mailChimpListInfo, manager_);
+	connect(mailChimpListAction, SIGNAL(fullResponseReady(QVariant,QList<QNetworkReply::RawHeaderPair>)), this, SLOT(tempMailChimp(QVariant,QList<QNetworkReply::RawHeaderPair>)));
+	mailChimpListAction->start();
+
+	mailChimpListInfo = new AMRestActionInfo("https://us2.api.mailchimp.com/3.0/lists/a6f2d9cf37/members?count=100&offset=500", AMRestActionInfo::GetRequest); //E-News Recipients - 777
+	mailChimpListInfo->setRawHeader("Authorization", authorizationHeader.toLocal8Bit());
+	mailChimpListAction = new AMRestAction(mailChimpListInfo, manager_);
+	connect(mailChimpListAction, SIGNAL(fullResponseReady(QVariant,QList<QNetworkReply::RawHeaderPair>)), this, SLOT(tempMailChimp(QVariant,QList<QNetworkReply::RawHeaderPair>)));
+	mailChimpListAction->start();
+
+	mailChimpListInfo = new AMRestActionInfo("https://us2.api.mailchimp.com/3.0/lists/a6f2d9cf37/members?count=100&offset=600", AMRestActionInfo::GetRequest); //E-News Recipients - 777
+	mailChimpListInfo->setRawHeader("Authorization", authorizationHeader.toLocal8Bit());
+	mailChimpListAction = new AMRestAction(mailChimpListInfo, manager_);
+	connect(mailChimpListAction, SIGNAL(fullResponseReady(QVariant,QList<QNetworkReply::RawHeaderPair>)), this, SLOT(tempMailChimp(QVariant,QList<QNetworkReply::RawHeaderPair>)));
+	mailChimpListAction->start();
+
+	mailChimpListInfo = new AMRestActionInfo("https://us2.api.mailchimp.com/3.0/lists/a6f2d9cf37/members?count=100&offset=700", AMRestActionInfo::GetRequest); //E-News Recipients - 777
+	mailChimpListInfo->setRawHeader("Authorization", authorizationHeader.toLocal8Bit());
+	mailChimpListAction = new AMRestAction(mailChimpListInfo, manager_);
+	connect(mailChimpListAction, SIGNAL(fullResponseReady(QVariant,QList<QNetworkReply::RawHeaderPair>)), this, SLOT(tempMailChimp(QVariant,QList<QNetworkReply::RawHeaderPair>)));
+	mailChimpListAction->start();
+
+	mailChimpListInfo = new AMRestActionInfo("https://us2.api.mailchimp.com/3.0/lists/a6f2d9cf37/members?count=100&offset=800", AMRestActionInfo::GetRequest); //E-News Recipients - 777
+	mailChimpListInfo->setRawHeader("Authorization", authorizationHeader.toLocal8Bit());
+	mailChimpListAction = new AMRestAction(mailChimpListInfo, manager_);
+	connect(mailChimpListAction, SIGNAL(fullResponseReady(QVariant,QList<QNetworkReply::RawHeaderPair>)), this, SLOT(tempMailChimp(QVariant,QList<QNetworkReply::RawHeaderPair>)));
+	mailChimpListAction->start();
+	*/
+
+	/*
+	return;
+	*/
+
 	connect(repository_, SIGNAL(repositorySubItemProgressUpdated(int)), this, SLOT(onRepositorySubItemProgressUpdated(int)));
 	connect(repository_, SIGNAL(repositoryOverallProgressUpdated(int)), this, SLOT(onRepositoryOverallProgressUpdated(int)));
 
 	connect(repository_, SIGNAL(repositoryLoaded()), this, SLOT(onRepositoryLoaded()));
 	repository_->initiateRepositoryLoading();
+}
+
+void AMGithubProjectManagerMainView::tempMailChimp(QVariant response, QList<QNetworkReply::RawHeaderPair> responseHeaders)
+{
+	qDebug() << "Mail Chimp says";
+
+	/*
+	qDebug() << response;
+	*/
+
+	/*
+	QVariantMap responseMap = response.toMap();
+
+	QVariantMap::const_iterator i = responseMap.constBegin();
+	while(i != responseMap.constEnd()){
+		if(i.key() == "members"){
+			QVariantList membersList = i.value().toList();
+			for(int x = 0, size = membersList.count(); x < size; x++){
+				QVariantMap memberMap = membersList.at(x).toMap();
+//				qDebug() << memberMap.value("email_address").toString() << "\n";
+				mailChimpEmails_.append(memberMap.value("email_address").toString());
+//				qDebug() << "=====================================";
+//				QVariantMap::const_iterator j = memberMap.constBegin();
+//				while(j != memberMap.constEnd()){
+//					qDebug() << j.key() << j.value() << "\n";
+//					j++;
+//				}
+//				qDebug() << "-------------------------------------";
+			}
+		}
+		else{
+			qDebug() << i.key() << i.value();
+		}
+		qDebug() << "\n";
+		i++;
+	}
+
+	if(mailChimpEmails_.count() > 800)
+		for(int x = 0, size = mailChimpEmails_.count(); x < size; x++)
+			qDebug() << mailChimpEmails_.at(x);
+	*/
+
+	/**/
+	QVariantList responseList = response.toMap().value("lists").toList();
+	for(int x = 0, size = responseList.count(); x < size; x++){
+//		qDebug() << responseList.at(x) << "\n\n";
+		QVariantMap listMap = responseList.at(x).toMap();
+		QVariantMap::const_iterator i = listMap.constBegin();
+		while(i != listMap.constEnd()){
+			qDebug() << i.key() << i.value();
+			qDebug() << "\n";
+			i++;
+		}
+		qDebug() << "\n\n";
+	}
+	/**/
 }
 
 void AMGithubProjectManagerMainView::onReloadButtonClicked()
@@ -166,8 +332,6 @@ void AMGithubProjectManagerMainView::repositoryReadyToProceed()
 	}
 
 	for(int x = 0, size = workingIssues.count(); x < size; x++){
-		if((x%10 == 0) || (x == size-1))
-			qDebug() << "Maps " << x << " of " << size;
 		AMGitHubIssue *oneIssue = workingIssues.at(x);
 		AMGitHubIssue::EstimatedComplexityValue oneEstimatedComplexity = oneIssue->estimatedComplexityValue();
 		AMGitHubIssue::ActualComplexityValue oneActualComplexity = oneIssue->actualComplexityValue();
@@ -193,10 +357,10 @@ void AMGithubProjectManagerMainView::repositoryReadyToProceed()
 			normalizedCurrentMap.insertMapping(oneIssue, complexityManager->probableTimeForEstimatedComplexity(oneEstimatedComplexity));
 	}
 
-	qDebug() << QString("Normalized Estimates [%1] Total: %2").arg(normalizedEstimateMap.valueMap()->count()).arg(normalizedEstimateMap.total());
-	qDebug() << QString("Normalized Current   [%1] Total: %2").arg(normalizedCurrentMap.valueMap()->count()).arg(normalizedCurrentMap.total());
-	qDebug() << QString("Normalized Completed [%1] Total: %2").arg(normalizedCompletedMap.valueMap()->count()).arg(normalizedCompletedMap.total());
-	qDebug() << QString("Normalized Times     [%1] Total: %2").arg(normalizedTimeReportingMap.valueMap()->count()).arg(normalizedTimeReportingMap.total());
+	qDebug() << QString("Normalized Estimates [%1] Total: %2   [All issues with valid estimates, Sum of P(E)s]").arg(normalizedEstimateMap.valueMap()->count()).arg(normalizedEstimateMap.total());
+	qDebug() << QString("Normalized Current   [%1] Total: %2   [All issues ]").arg(normalizedCurrentMap.valueMap()->count()).arg(normalizedCurrentMap.total());
+	qDebug() << QString("Normalized Completed [%1] Total: %2   []").arg(normalizedCompletedMap.valueMap()->count()).arg(normalizedCompletedMap.total());
+	qDebug() << QString("Normalized Times     [%1] Total: %2   []").arg(normalizedTimeReportingMap.valueMap()->count()).arg(normalizedTimeReportingMap.total());
 
 	qDebug() << "\n\n";
 	qDebug() << QString("Normalized Open      [%1] Total: %2").arg(normalizedOpenMap.valueMap()->count()).arg(normalizedOpenMap.total());
@@ -205,7 +369,7 @@ void AMGithubProjectManagerMainView::repositoryReadyToProceed()
 	qDebug() << "\n\n\n\n";
 
 	/**/
-	/*
+	/**/
 
 	// Generate date list
 	QList<QDateTime> dateList;
@@ -267,7 +431,7 @@ void AMGithubProjectManagerMainView::repositoryReadyToProceed()
 		qDebug() << "Reported Completed Work:          " << reportedCompletedWorkProgression->totalForDate(dateList.at(x));
 		qDebug() << "\n\n";
 	}
-	*/
+	/**/
 
 
 	return;

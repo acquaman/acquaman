@@ -25,6 +25,8 @@ public:
 	~AMGithubProjectManagerMainView();
 
 protected slots:
+	void tempMailChimp(QVariant response, QList<QNetworkReply::RawHeaderPair> responseHeaders);
+
 	void onInitiateButtonClicked();
 	void onReloadButtonClicked();
 
@@ -54,6 +56,8 @@ protected:
 	const QMap<int, AMGitHubIssue*> *allIssues_;
 	const QMap<int, AMGitHubMilestone*> *allMilestones_;
 	const QMap<int, AMGitHubIssueFamily*> *allIssueFamilies_;
+
+	QList<QString> mailChimpEmails_;
 };
 
 #endif // AMGITHUBPROJECTMANAGERMAINVIEW_H
