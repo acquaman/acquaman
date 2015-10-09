@@ -83,6 +83,27 @@ public:
 	/// Returns a string containing the information in a standard way.
 	virtual QString toString(const QString &units = "") const;
 
+	/// Returns true if all of the regions in this scan axis are ascending.
+	bool ascending() const;
+	/// Returns true if all of the regions in this scan axis are descending.
+	bool descending() const;
+
+	/// Returns true if there are intersecting regions in this scan axis.
+	bool hasIntersectingRegions() const;
+
+	/// Returns true if the given axis can be merged into this one.
+	bool canMerge(AMScanAxis *otherAxis) const;
+
+	/// Returns true if there are regions that run in different directions, false otherwise.
+	bool canSimplifyDirection() const;
+	/// Returns true if there are intersecting regions that can be simplified, false otherwise.
+	bool canSimplifyIntersectingRegions() const;
+	/// Returns true if this scan axis can be simplified.
+	bool canSimplify() const;
+
+	/// Returns true if all regions are valid, false otherwise.
+	bool regionsValid() const;
+
 signals:
 	/// Notifier that a scan axis region has been added to the axis.  Passes a pointer to the new region.
 	void regionAdded(AMScanAxisRegion *);
@@ -90,7 +111,6 @@ signals:
 	void regionRemoved(AMScanAxisRegion *);
 	/// Notifier that a region has been overwritten.  Passes a pointer to the new region.
 	void regionOverwritten(AMScanAxisRegion *);
-
 	/// Notifier that one of the regions has changed in some way (start, step, end, or time has changed)
 	void regionsChanged();
 
@@ -103,9 +123,19 @@ public slots:
 	bool overwriteRegion(int index, AMScanAxisRegion *region);
 	/// Removes a region.  Returns true if successful.
 	bool removeRegion(AMScanAxisRegion *region);
-
 	/// Clears all regions. Returns true if successful.
 	bool clearRegions();
+
+	/// Updates the direction of all regions such that they are ascending.
+	void setAscending();
+	/// Updates the direction of all regions such that they are descending.
+	void setDescending();
+
+	/// Attempts to merge the given scan axis into this one. Returns true if successful, false otherwise.
+	bool merge(AMScanAxis *otherAxis);
+
+	/// Attempts to simplify this scan axis by making all regions run in the same direction and eliminating any overlapping regions. Returns true if successful, false otherwise.
+	bool simplify();
 
 protected slots:
 	/// Sets the axis type. If the new axis type doesn't support multiple regions, then all regions except the first are removed.
@@ -125,6 +155,37 @@ protected:
 	AMDbObjectList dbReadRegions() const;
 	/// For database loading (never called).
 	void dbLoadRegions(const AMDbObjectList &newAxisRegions);
+
+	/// Returns true if the two regions can be merged, false otherwise.
+	bool canMergeRegions(AMScanAxisRegion *region, AMScanAxisRegion *otherRegion) const;
+	/// Returns true if the two regions can be made adjacent to each other, false otherwise.
+	bool canMakeRegionsAdjacent(AMScanAxisRegion *region, AMScanAxisRegion *otherRegion) const;
+	/// Returns true if the two regions can be made simpler by eliminating overlap.
+	bool canSimplifyIntersection(AMScanAxisRegion *region, AMScanAxisRegion *otherRegion) const;
+	/// Returns true if the given region has intersecting regions that can be simplified, false otherwise.
+	bool hasSimplifyIntersection(AMScanAxisRegion *region) const;
+
+	/// Returns true if the result of merging the two regions together should be ascending, false otherwise.
+	bool mergeRegionsAscending(AMScanAxisRegion *region, AMScanAxisRegion *otherRegion);
+	/// Returns true if the result of merging the two regions together should be descending, false otherwise.
+	bool mergeRegionsDescending(AMScanAxisRegion *region, AMScanAxisRegion *otherRegion);
+
+	/// Returns true if the intersection of the two regions should be ascending, false otherwise.
+	bool intersectionAscending(const AMScanAxisRegion *region, const AMScanAxisRegion *otherRegion) const;
+	/// Returns true if the intersection of the two regions should be descending, false otherwise.
+	bool intersectionDescending(const AMScanAxisRegion *region, const AMScanAxisRegion *otherRegion) const;
+
+	/// Attempts to simplify this scan axis' direction by making all regions run in the same direction.
+	bool simplifyDirection();
+
+	/// Attempts to simplify this scan axis' regions by eliminating all areas of overlap.
+	bool simplifyIntersectingRegions();
+	/// Attempts to modify one or all regions such that any overlap with the given region is eliminated. Returns true if successful, false otherwise.
+	bool simplifyIntersections(AMScanAxisRegion *region);
+	/// Returns a list of regions for this scan axis that intersect with the given region.
+	QList<AMScanAxisRegion*> intersections(AMScanAxisRegion *region) const;
+	/// Attempts to modify one or both regions such that any overlap is eliminated. Returns the resulting list of regions.
+	QList<AMScanAxisRegion*> simplifyIntersection(AMScanAxisRegion *region, AMScanAxisRegion *otherRegion);
 
 protected:
 	/// Holds the axis type for this axis

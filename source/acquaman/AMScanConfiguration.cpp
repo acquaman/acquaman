@@ -30,6 +30,18 @@ AMScanConfiguration::AMScanConfiguration(QObject *parent) :
 	expectedDuration_ = 0;
 }
 
+AMScanConfiguration::AMScanConfiguration(const QList<AMScanConfiguration*> &configurations, QObject *parent) :
+	AMDbObject(parent)
+{
+	userScanName_ = "";
+	userExportName_ = "$name.txt";
+	autoExportEnabled_ = true;
+	expectedDuration_ = 0;
+
+	foreach (AMScanConfiguration *configuration, configurations)
+		merge(configuration);
+}
+
 AMScanConfiguration::AMScanConfiguration(const AMScanConfiguration &original)
 	: AMDbObject(original)
 {
@@ -84,6 +96,32 @@ QString AMScanConfiguration::enumConvert(const QString &enumName, int enumValue)
 	return "[??]";
 }
 
+bool AMScanConfiguration::hasDetectorInfo(const AMDetectorInfo &newDetectorInfo) const
+{
+	bool detectorFound = false;
+
+	for (int detectorIndex = 0, detectorCount = detectorConfigurations_.count(); detectorIndex < detectorCount && !detectorFound; detectorIndex++) {
+		AMDetectorInfo detectorInfo = detectorConfigurations_.at(detectorIndex);
+		if (detectorInfo.name() == newDetectorInfo.name())
+			detectorFound = true;
+	}
+
+	return detectorFound;
+}
+
+bool AMScanConfiguration::hasAxisControlInfo(const AMControlInfo &newControlInfo) const
+{
+	bool controlFound = false;
+
+	for (int controlIndex = 0, controlCount = axisControlInfos_.count(); controlIndex < controlCount && !controlFound; controlIndex++) {
+		AMControlInfo controlInfo = axisControlInfos_.at(controlIndex);
+		if (controlInfo.name() == newControlInfo.name())
+			controlFound = true;
+	}
+
+	return controlFound;
+}
+
 void AMScanConfiguration::setUserScanName(const QString &userScanName){
 	if(userScanName_ != userScanName){
 		userScanName_ = userScanName;
@@ -135,5 +173,27 @@ void AMScanConfiguration::setAxisControlInfos(const AMControlInfoList &axisContr
 		axisControlInfos_ = axisControlInfos;
 		setModified(true);
 		emit axisControlInfosChanged();
+	}
+}
+
+void AMScanConfiguration::merge(AMScanConfiguration *configuration)
+{
+	if (configuration) {
+
+		// Add the axis control infos of the new configuration to this one, provided this one
+		// doesn't have them already.
+
+		QList<AMControlInfo> newControlInfos = configuration->axisControlInfos().toList();
+		foreach (AMControlInfo controlInfo, newControlInfos)
+			if (!hasAxisControlInfo(controlInfo))
+				axisControlInfos_.append(controlInfo);
+
+		// Add the detector infos of the new configuration to this one, provided this one doesn't
+		// have them already.
+
+		QList<AMDetectorInfo> newDetectorInfos = configuration->detectorConfigurations().toList();
+		foreach (AMDetectorInfo detectorInfo, newDetectorInfos)
+			if (!hasDetectorInfo(detectorInfo))
+				detectorConfigurations_.addDetectorInfo(detectorInfo);
 	}
 }

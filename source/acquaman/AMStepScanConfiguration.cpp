@@ -24,6 +24,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 AMStepScanConfiguration::AMStepScanConfiguration(QObject *parent)
 	: AMScanConfiguration(parent)
 {
+
 }
 
 AMStepScanConfiguration::AMStepScanConfiguration(const AMStepScanConfiguration &original)
@@ -64,6 +65,17 @@ void AMStepScanConfiguration::dbLoadScanAxes(const AMDbObjectList &newScanAxes)
 
 		if (axis)
 			scanAxes_.append(axis);
+	}
+}
+
+void AMStepScanConfiguration::merge(AMStepScanConfiguration *configuration)
+{
+	if (configuration) {
+
+		AMScanConfiguration::merge(configuration);
+
+		foreach (AMScanAxis *axis, configuration->scanAxes())
+			scanAxes_.append(axis->createCopy());
 	}
 }
 

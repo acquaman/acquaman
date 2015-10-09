@@ -56,6 +56,9 @@ signals:
 	void scanAxisRemoved(AMScanAxis *);
 
 public slots:
+	/// Merges the scan information for the given configuration into this one.
+	virtual void merge(AMStepScanConfiguration *configuration);
+
 	/// Inserts a scan axis into the list.
 	void insertScanAxis(int index, AMScanAxis *newAxis);
 	/// Appends a scan axis to the end of the list.

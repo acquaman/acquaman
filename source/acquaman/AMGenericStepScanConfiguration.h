@@ -70,6 +70,9 @@ public slots:
 	/// Removes a region of interest from the list.
 	void removeRegionOfInterest(AMRegionOfInterest *region);
 
+	/// Merges the information from another configuration into this one.
+	virtual void merge(AMGenericStepScanConfiguration *configuration);
+
 protected slots:
 	/// Inserts the given region into the given scan axis index position, and makes the appropriate connections.
 	virtual void addRegion(int scanAxisIndex, int regionIndex, AMScanAxisRegion *region);
