@@ -57,9 +57,6 @@ signals:
 	void totalTimeChanged(double);
 
 public slots:
-	/// Merges the information from another configuration into this one.
-	virtual void merge(AMGenericStepScanConfiguration *configuration);
-
 	/// Sets a controlInfo to an axis.  If the axis has no control associated with it yet, then it will add it to the list, otherwise it will replace it.
 	virtual void setControl(int axisId, AMControlInfo newInfo);
 	/// Removes a control from the given axis.  Also removes the axis.
@@ -72,6 +69,9 @@ public slots:
 	void addRegionOfInterest(AMRegionOfInterest *region);
 	/// Removes a region of interest from the list.
 	void removeRegionOfInterest(AMRegionOfInterest *region);
+
+	/// Merges the information from another configuration into this one.
+	virtual void merge(AMGenericStepScanConfiguration *configuration);
 
 protected slots:
 	/// Inserts the given region into the given scan axis index position, and makes the appropriate connections.

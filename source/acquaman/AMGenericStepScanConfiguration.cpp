@@ -70,198 +70,6 @@ QString AMGenericStepScanConfiguration::detailedDescription() const
 	return "Does a generic scan over one or two controls with a variety of detectors.";
 }
 
-void AMGenericStepScanConfiguration::addRegion(int scanAxisIndex, int regionIndex, AMScanAxisRegion *region)
-{
-	AMScanAxis *scanAxis = scanAxisAt(scanAxisIndex);
-
-	if (scanAxis && region) {
-		scanAxis->insertRegion(regionIndex, region);
-		connectRegion(region);
-	}
-
-	computeTotalTime();
-}
-
-void AMGenericStepScanConfiguration::merge(AMGenericStepScanConfiguration *configuration)
-{
-	if (configuration) {
-
-		int initialScanAxisCount = scanAxes_.count();
-
-		AMStepScanConfiguration::merge(configuration);
-
-		computeTotalTime();
-
-		for (int i = initialScanAxisCount, size = scanAxes_.count(); i < size; i++) {
-
-			connect(scanAxisAt(i)->regionAt(0), SIGNAL(regionStartChanged(AMNumber)), this, SLOT(computeTotalTime()));
-			connect(scanAxisAt(i)->regionAt(0), SIGNAL(regionStepChanged(AMNumber)), this, SLOT(computeTotalTime()));
-			connect(scanAxisAt(i)->regionAt(0), SIGNAL(regionEndChanged(AMNumber)), this, SLOT(computeTotalTime()));
-			connect(scanAxisAt(i)->regionAt(0), SIGNAL(regionTimeChanged(AMNumber)), this, SLOT(computeTotalTime()));
-		}
-	}
-}
-
-void AMGenericStepScanConfiguration::setControl(int axisId, AMControlInfo newInfo)
-{
-	if (!hasAxisControlInfo(newInfo)) {
-
-		if (axisId == 0 && axisControlInfos_.isEmpty()){
-
-			axisControlInfos_.append(newInfo);
-			setModified(true);
-
-			AMScanAxisRegion *region = new AMScanAxisRegion;
-			AMScanAxis *axis = new AMScanAxis(AMScanAxis::StepAxis, region);
-			appendScanAxis(axis);
-
-			connect(scanAxisAt(0)->regionAt(0), SIGNAL(regionStartChanged(AMNumber)), this, SLOT(computeTotalTime()));
-			connect(scanAxisAt(0)->regionAt(0), SIGNAL(regionStepChanged(AMNumber)), this, SLOT(computeTotalTime()));
-			connect(scanAxisAt(0)->regionAt(0), SIGNAL(regionEndChanged(AMNumber)), this, SLOT(computeTotalTime()));
-			connect(scanAxisAt(0)->regionAt(0), SIGNAL(regionTimeChanged(AMNumber)), this, SLOT(computeTotalTime()));
-		}
-
-		else if (axisId == 0){
-
-			axisControlInfos_.replace(0, newInfo);
-			setModified(true);
-		}
-
-		else if (axisId == 1 && axisControlInfos_.count() == 1){
-
-			axisControlInfos_.append(newInfo);
-			setModified(true);
-
-			AMScanAxisRegion *region = new AMScanAxisRegion;
-			AMScanAxis *axis = new AMScanAxis(AMScanAxis::StepAxis, region);
-			appendScanAxis(axis);
-
-			connect(scanAxisAt(1)->regionAt(0), SIGNAL(regionStartChanged(AMNumber)), this, SLOT(computeTotalTime()));
-			connect(scanAxisAt(1)->regionAt(0), SIGNAL(regionStepChanged(AMNumber)), this, SLOT(computeTotalTime()));
-			connect(scanAxisAt(1)->regionAt(0), SIGNAL(regionEndChanged(AMNumber)), this, SLOT(computeTotalTime()));
-			connect(scanAxisAt(1)->regionAt(0), SIGNAL(regionTimeChanged(AMNumber)), this, SLOT(computeTotalTime()));
-		}
-
-		else if (axisId == 1){
-
-			axisControlInfos_.replace(1, newInfo);
-			setModified(true);
-		}
-
-		computeTotalTime();
-	}
-}
-
-void AMGenericStepScanConfiguration::removeControl(int axisId)
-{
-	if (axisId < axisControlInfos_.count() && axisId >= 0){
-
-		AMScanAxis *axis = removeScanAxis(axisId);
-		axis->regionAt(0)->disconnect();
-		axis->regionAt(0)->deleteLater();
-		axis->deleteLater();
-		axisControlInfos_.remove(axisId);
-		setModified(true);
-	}
-}
-
-void AMGenericStepScanConfiguration::addDetector(AMDetectorInfo newInfo)
-{
-	if (!hasDetectorInfo(newInfo)){
-
-		detectorConfigurations_.append(newInfo, newInfo.name());
-		setModified(true);
-	}
-}
-
-void AMGenericStepScanConfiguration::removeDetector(AMDetectorInfo info)
-{
-	bool detectorRemoved = false;
-
-	for (int i = 0, size = detectorConfigurations_.count(); i < size && !detectorRemoved; i++){
-
-		if (info.name() == detectorConfigurations_.at(i).name()){
-
-			detectorRemoved = true;
-			detectorConfigurations_.remove(i);
-			setModified(true);
-		}
-	}
-}
-
-void AMGenericStepScanConfiguration::connectRegion(AMScanAxisRegion *region)
-{
-	if (region) {
-		connect( region, SIGNAL(regionStartChanged(AMNumber)), this, SLOT(computeTotalTime()) );
-		connect( region, SIGNAL(regionStepChanged(AMNumber)), this, SLOT(computeTotalTime()) );
-		connect( region, SIGNAL(regionEndChanged(AMNumber)), this, SLOT(computeTotalTime()) );
-		connect( region, SIGNAL(regionTimeChanged(AMNumber)), this, SLOT(computeTotalTime()) );
-	}
-}
-
-void AMGenericStepScanConfiguration::removeRegion(int scanAxisIndex, AMScanAxisRegion *region)
-{
-	AMScanAxis *scanAxis = scanAxisAt(scanAxisIndex);
-
-	if (scanAxis && region) {
-		scanAxis->removeRegion(region);
-		disconnectRegion(region);
-	}
-
-	computeTotalTime();
-}
-
-void AMGenericStepScanConfiguration::disconnectRegion(AMScanAxisRegion *region)
-{
-	if (region) {
-		disconnect( region, 0, this, 0 );
-	}
-}
-
-void AMGenericStepScanConfiguration::computeTotalTime()
-{
-	totalTime_ = 0;
-
-	foreach (AMScanAxis *axis, scanAxes_.toList())
-		totalTime_ += calculateRegionsTotalTime(axis);
-
-	setExpectedDuration(totalTime_);
-	emit totalTimeChanged(totalTime_);
-}
-
-double AMGenericStepScanConfiguration::calculateRegionTotalTime(AMScanAxisRegion *region)
-{
-	double result = 0;
-
-	if (region) {
-
-		if (region->regionStart().isValid() && region->regionStep().isValid() && region->regionEnd().isValid() && region->regionTime().isValid()) {
-			double size = fabs( double(region->regionStart()) - double(region->regionEnd()) );
-			double points = int(size / double(region->regionStep()));
-
-			if ((size - (points + 0.01) * double(region->regionStep())) < 0)
-				points += 1;
-			else
-				points += 2;
-
-			result = points * double(region->regionTime());
-		}
-	}
-
-	return result;
-}
-
-double AMGenericStepScanConfiguration::calculateRegionsTotalTime(AMScanAxis *scanAxis)
-{
-	double result = 0;
-
-	if (scanAxis)
-		foreach (AMScanAxisRegion *region, scanAxis->regions().toList())
-			result += calculateRegionTotalTime(region);
-
-	return result;
-}
-
 void AMGenericStepScanConfiguration::setControl(int axisId, AMControlInfo newInfo)
 {
 	if (axisId == 0 && axisControlInfos_.isEmpty()){
@@ -368,6 +176,111 @@ void AMGenericStepScanConfiguration::removeRegionOfInterest(AMRegionOfInterest *
 			regionsOfInterest_.removeOne(regionToBeRemoved);
 			setModified(true);
 		}
+}
+
+void AMGenericStepScanConfiguration::merge(AMGenericStepScanConfiguration *configuration)
+{
+	if (configuration) {
+
+		int initialScanAxisCount = scanAxes_.count();
+
+		AMStepScanConfiguration::merge(configuration);
+
+		computeTotalTime();
+
+		for (int i = initialScanAxisCount, size = scanAxes_.count(); i < size; i++) {
+
+			connect(scanAxisAt(i)->regionAt(0), SIGNAL(regionStartChanged(AMNumber)), this, SLOT(computeTotalTime()));
+			connect(scanAxisAt(i)->regionAt(0), SIGNAL(regionStepChanged(AMNumber)), this, SLOT(computeTotalTime()));
+			connect(scanAxisAt(i)->regionAt(0), SIGNAL(regionEndChanged(AMNumber)), this, SLOT(computeTotalTime()));
+			connect(scanAxisAt(i)->regionAt(0), SIGNAL(regionTimeChanged(AMNumber)), this, SLOT(computeTotalTime()));
+		}
+	}
+}
+
+void AMGenericStepScanConfiguration::addRegion(int scanAxisIndex, int regionIndex, AMScanAxisRegion *region)
+{
+	AMScanAxis *scanAxis = scanAxisAt(scanAxisIndex);
+
+	if (scanAxis && region) {
+		scanAxis->insertRegion(regionIndex, region);
+		connectRegion(region);
+	}
+
+	computeTotalTime();
+}
+
+void AMGenericStepScanConfiguration::connectRegion(AMScanAxisRegion *region)
+{
+	if (region) {
+		connect( region, SIGNAL(regionStartChanged(AMNumber)), this, SLOT(computeTotalTime()) );
+		connect( region, SIGNAL(regionStepChanged(AMNumber)), this, SLOT(computeTotalTime()) );
+		connect( region, SIGNAL(regionEndChanged(AMNumber)), this, SLOT(computeTotalTime()) );
+		connect( region, SIGNAL(regionTimeChanged(AMNumber)), this, SLOT(computeTotalTime()) );
+	}
+}
+
+void AMGenericStepScanConfiguration::removeRegion(int scanAxisIndex, AMScanAxisRegion *region)
+{
+	AMScanAxis *scanAxis = scanAxisAt(scanAxisIndex);
+
+	if (scanAxis && region) {
+		scanAxis->removeRegion(region);
+		disconnectRegion(region);
+	}
+
+	computeTotalTime();
+}
+
+void AMGenericStepScanConfiguration::disconnectRegion(AMScanAxisRegion *region)
+{
+	if (region) {
+		disconnect( region, 0, this, 0 );
+	}
+}
+
+void AMGenericStepScanConfiguration::computeTotalTime()
+{
+	totalTime_ = 0;
+
+	foreach (AMScanAxis *axis, scanAxes_.toList())
+		totalTime_ += calculateRegionsTotalTime(axis);
+
+	setExpectedDuration(totalTime_);
+	emit totalTimeChanged(totalTime_);
+}
+
+double AMGenericStepScanConfiguration::calculateRegionTotalTime(AMScanAxisRegion *region)
+{
+	double result = 0;
+
+	if (region) {
+
+		if (region->regionStart().isValid() && region->regionStep().isValid() && region->regionEnd().isValid() && region->regionTime().isValid()) {
+			double size = fabs( double(region->regionStart()) - double(region->regionEnd()) );
+			double points = int(size / double(region->regionStep()));
+
+			if ((size - (points + 0.01) * double(region->regionStep())) < 0)
+				points += 1;
+			else
+				points += 2;
+
+			result = points * double(region->regionTime());
+		}
+	}
+
+	return result;
+}
+
+double AMGenericStepScanConfiguration::calculateRegionsTotalTime(AMScanAxis *scanAxis)
+{
+	double result = 0;
+
+	if (scanAxis)
+		foreach (AMScanAxisRegion *region, scanAxis->regions().toList())
+			result += calculateRegionTotalTime(region);
+
+	return result;
 }
 
 AMDbObjectList AMGenericStepScanConfiguration::dbReadRegionsOfInterest()
