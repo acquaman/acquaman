@@ -47,7 +47,7 @@ bool SGMAppController::startup() {
 
 	QString currentUser = getenv("USER");
 
-	if(currentUser != "workmai" && currentUser != "sgm-upgrade") {
+    if(currentUser != "workmai" && currentUser != "sgm-upgrade" && currentUser != "iain") {
 		AMErrorMon::error(this, SGMAPPCONTROLLER_WRONG_USER, "This user account is not permitted to run the SGM Upgrade version of Acquaman.");
 		return false;
 	}
@@ -151,7 +151,7 @@ void SGMAppController::setupUserInterface()
 	commissioningConfiguration_ = new AMGenericStepScanConfiguration;
 	commissioningConfiguration_->setAutoExportEnabled(false);
 	commissioningConfiguration_->addDetector(SGMBeamline::sgm()->exposedDetectorByName("I0")->toInfo());
-	commissioningConfigurationView_ = new AMGenericStepScanConfigurationView(commissioningConfiguration_);
+    commissioningConfigurationView_ = new AMGenericStepScanConfigurationView(commissioningConfiguration_, SGMBeamline::sgm()->exposedControls(), SGMBeamline::sgm()->exposedDetectors());
 	commissioningConfigurationViewHolder_ = new AMScanConfigurationViewHolder3("Commissioning Tool", false, true, commissioningConfigurationView_);
 	mw_->addPane(commissioningConfigurationViewHolder_, "Scans", "Commissioning Tool", ":/utilities-system-monitor.png");
 

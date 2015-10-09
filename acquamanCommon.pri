@@ -304,7 +304,6 @@ HEADERS += \
 	source/util/AMSelectableElement.h \
 	source/util/AMCustomizablePeriodicTable.h \
 	source/ui/util/AMCustomizablePeriodicTableView.h \
-	source/util/AMRange.h \
 	source/ui/util/AMSelectableElementView.h \
 	source/ui/util/AMSelectableItemView.h \
 	source/ui/beamline/AMXRFDetailedDetectorView.h \
@@ -431,7 +430,9 @@ HEADERS += \
     source/beamline/AM3DCoordinatedSystemControl.h \
     source/beamline/AM3DRotatedSystemControl.h \
     source/util/AMValidator.h \
-	source/util/AMTrapezoidVelocityProfile.h
+	source/util/AMTrapezoidVelocityProfile.h \
+    source/ui/acquaman/AMGenericStepScanConfigurationDetectorsView.h \
+	source/analysis/AMAdditionAB.h
 
 FORMS += \
 
@@ -698,7 +699,6 @@ SOURCES += \
 	source/util/AMSelectableElement.cpp \
 	source/util/AMCustomizablePeriodicTable.cpp \
 	source/ui/util/AMCustomizablePeriodicTableView.cpp \
-	source/util/AMRange.cpp \
 	source/ui/util/AMSelectableElementView.cpp \
 	source/ui/util/AMSelectableItemView.cpp \
 	source/ui/beamline/AMXRFDetailedDetectorView.cpp \
@@ -820,12 +820,13 @@ SOURCES += \
     source/ui/dataman/AMScanViewPlotToolsButtonView.cpp \
     source/ui/dataman/AMScanViewPlotToolView.cpp \
     source/ui/dataman/AMScanViewPlotSelectedToolsView.cpp \
-    source/dataman/AMScanViewPlotTools.cpp \
+	source/dataman/AMScanViewPlotTools.cpp \
     source/beamline/AM3DCoordinatedSystemControl.cpp \
     source/beamline/AM3DRotatedSystemControl.cpp \
     source/util/AMValidator.cpp \
-	source/util/AMTrapezoidVelocityProfile.cpp
-
+	source/util/AMTrapezoidVelocityProfile.cpp \
+    source/ui/acquaman/AMGenericStepScanConfigurationDetectorsView.cpp \
+	source/analysis/AMAdditionAB.cpp
 
 RESOURCES *= source/icons/icons.qrc \
 		source/configurationFiles/configurationFiles.qrc \
@@ -842,55 +843,3 @@ contains(DEFINES, AM_BUILD_REPORTER_ENABLED){
 
 	SOURCES *= source/util/AMRunTimeBuildInfo.cpp
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

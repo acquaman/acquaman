@@ -19,10 +19,10 @@ SGMTestsWindow::SGMTestsWindow(QWidget *parent) : QMainWindow(parent)
     energyControlTestView_ = 0;
     setupUi();
 
-    SGMEnergyPositionTest monoTests;
-    monoTests.performTests();    
+	SGMEnergyPositionTest energyPositionTests;
+	energyPositionTests.performTests();
 
-    QStringList testResults = monoTests.testResults();
+	QStringList testResults = energyPositionTests.testResults();
 
     QString resultString;
     foreach(QString result, testResults) {
@@ -49,6 +49,7 @@ void SGMTestsWindow::onShowEnergyViewClicked()
 
     energyTestView_->show();
     energyTestView_->raise();
+
 }
 
 void SGMTestsWindow::onShowTrajectoryViewClicked()
@@ -69,8 +70,10 @@ void SGMTestsWindow::onShowEnergyControlViewClicked()
 
         energyControlTestView_ = new SGMEnergyControlTestView();
     }
+
     energyControlTestView_->show();
     energyControlTestView_->raise();
+
 }
 
 void SGMTestsWindow::setupUi()
