@@ -8,6 +8,8 @@ BioXASFrontEndBeamStatusControl::BioXASFrontEndBeamStatusControl(QObject *parent
 	// Initialize local variables.
 
 	photonShutterUpstream_ = 0;
+	vacuumValve_ = 0;
+	fastValve_ = 0;
 	photonShutterDownstream_ = 0;
 	safetyShutter_ = 0;
 	valves_ = 0;
@@ -31,7 +33,7 @@ bool BioXASFrontEndBeamStatusControl::shouldStop() const
 	bool result = false;
 
 	if (isConnected())
-		result = (photonShutterUpstream_->shouldStop() && photonShutterDownstream_->shouldStop() && safetyShutter_->shouldStop() && valves_->shouldStop());
+		result = (photonShutterDownstream_->shouldStop() && safetyShutter_->shouldStop() && valves_->shouldStop());
 
 	return result;
 }
@@ -41,7 +43,7 @@ bool BioXASFrontEndBeamStatusControl::canMeasure() const
 	bool result = false;
 
 	if (isConnected())
-		result = (photonShutterUpstream_->canMeasure() && photonShutterDownstream_->canMeasure() && safetyShutter_->canMeasure() && valves_->canMeasure());
+		result = (photonShutterUpstream_->canMeasure() && vacuumValve_->canMeasure() && fastValve_->canMeasure() && photonShutterDownstream_->canMeasure() && safetyShutter_->canMeasure() && valves_->canMeasure());
 
 	return result;
 }
@@ -51,7 +53,7 @@ bool BioXASFrontEndBeamStatusControl::canMove() const
 	bool result = false;
 
 	if (isConnected())
-		result = (photonShutterUpstream_->canMove() && photonShutterDownstream_->canMove() && safetyShutter_->canMove() && valves_->canMove());
+		result = (photonShutterDownstream_->canMove() && safetyShutter_->canMove() && valves_->canMove());
 
 	return result;
 }
@@ -61,7 +63,7 @@ bool BioXASFrontEndBeamStatusControl::canStop() const
 	bool result = false;
 
 	if (isConnected())
-		result = (photonShutterUpstream_->canStop() && photonShutterDownstream_->canStop() && safetyShutter_->canStop() && valves_->canStop());
+		result = (photonShutterDownstream_->canStop() && safetyShutter_->canStop() && valves_->canStop());
 
 	return result;
 }
@@ -71,7 +73,7 @@ bool BioXASFrontEndBeamStatusControl::isOn() const
 	bool result = false;
 
 	if (isConnected()) {
-		result = (valves_->isOpen() && safetyShutter_->isOpen() && photonShutterDownstream_->isOpen() && photonShutterUpstream_->isOpen());
+		result = (valves_->isOpen() && safetyShutter_->isOpen() && photonShutterDownstream_->isOpen() && fastValve_->isOpen() && vacuumValve_->isOpen() && photonShutterUpstream_->isOpen());
 	}
 
 	return result;
@@ -90,6 +92,38 @@ void BioXASFrontEndBeamStatusControl::setPhotonShutterUpstream(CLSBiStateControl
 			addChildControl(photonShutterUpstream_);
 
 		emit photonShutterUpstreamChanged(photonShutterUpstream_);
+	}
+}
+
+void BioXASFrontEndBeamStatusControl::setVacuumValve(CLSBiStateControl *newControl)
+{
+	if (vacuumValve_ != newControl) {
+
+		if (vacuumValve_)
+			removeChildControl(vacuumValve_);
+
+		vacuumValve_ = newControl;
+
+		if (vacuumValve_)
+			addChildControl(vacuumValve_);
+
+		emit vacuumValveChanged(vacuumValve_);
+	}
+}
+
+void BioXASFrontEndBeamStatusControl::setFastValve(CLSBiStateControl *newControl)
+{
+	if (fastValve_ != newControl) {
+
+		if (fastValve_)
+			removeChildControl(fastValve_);
+
+		fastValve_ = newControl;
+
+		if (fastValve_)
+			addChildControl(fastValve_);
+
+		emit fastValveChanged(fastValve_);
 	}
 }
 
@@ -143,6 +177,8 @@ void BioXASFrontEndBeamStatusControl::updateConnected()
 {
 	bool isConnected = (
 				photonShutterUpstream_ && photonShutterUpstream_->isConnected() &&
+				vacuumValve_ && vacuumValve_->isConnected() &&
+				fastValve_ && fastValve_->isConnected() &&
 				photonShutterDownstream_ && photonShutterDownstream_->isConnected() &&
 				safetyShutter_ && safetyShutter_->isConnected() &&
 				valves_ && valves_->isConnected()
@@ -173,6 +209,8 @@ void BioXASFrontEndBeamStatusControl::updateMoving()
 	if (isConnected()) {
 		bool isMoving = (
 					photonShutterUpstream_->isMoving() ||
+					vacuumValve_->isMoving() ||
+					fastValve_->isMoving() ||
 					photonShutterDownstream_->isMoving() ||
 					safetyShutter_->isMoving() ||
 					valves_->isMoving()
@@ -203,16 +241,30 @@ AMAction3* BioXASFrontEndBeamStatusControl::createMoveAction(double newState)
 AMAction3* BioXASFrontEndBeamStatusControl::createBeamOnAction()
 {
 	AMListAction3 *beamOn = new AMListAction3(new AMListActionInfo3("Turn beam on", "Turn beam on"), AMListAction3::Sequential);
+
+	// The first actions are to check the front-most shutters and valves.
+	// We don't actually have control over these.
+
+	beamOn->addSubAction(AMActionSupport::buildControlMoveAction(fastValve_, CLSBiStateControl::Open));
+	beamOn->addSubAction(AMActionSupport::buildControlMoveAction(vacuumValve_, CLSBiStateControl::Open));
+	beamOn->addSubAction(AMActionSupport::buildControlMoveAction(photonShutterUpstream_, CLSBiStateControl::Open));
+
+	// The next steps are for shutters and valves that we do have control over.
+	// All valves and safety shutters need to be open in order to open the downstream photon shutter.
+
 	beamOn->addSubAction(AMActionSupport::buildControlMoveAction(valves_, BioXASValvesControl::Open));
 	beamOn->addSubAction(AMActionSupport::buildControlMoveAction(safetyShutter_, CLSBiStateControl::Open));
 	beamOn->addSubAction(AMActionSupport::buildControlMoveAction(photonShutterDownstream_, CLSBiStateControl::Open));
-	beamOn->addSubAction(AMActionSupport::buildControlMoveAction(photonShutterUpstream_, CLSBiStateControl::Open));
+
 
 	return beamOn;
 }
 
 AMAction3* BioXASFrontEndBeamStatusControl::createBeamOffAction()
 {
-	AMAction3 *beamOff = AMActionSupport::buildControlMoveAction(photonShutterDownstream_, CLSBiStateControl::Closed);
+	AMListAction3 *beamOff = new AMListAction3(new AMListActionInfo3("Turn beam off", "Turn beam off"), AMListAction3::Sequential);
+	beamOff->addSubAction(AMActionSupport::buildControlMoveAction(photonShutterDownstream_, CLSBiStateControl::Closed));
+	beamOff->addSubAction(AMActionSupport::buildControlMoveAction(safetyShutter_, CLSBiStateControl::Closed));
+
 	return beamOff;
 }
