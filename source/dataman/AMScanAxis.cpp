@@ -576,13 +576,13 @@ void AMScanAxis::dbLoadRegions(const AMDbObjectList &newAxisRegions)
 
 bool AMScanAxis::canMergeRegions(AMScanAxisRegion *region, AMScanAxisRegion *otherRegion) const
 {
-	bool result = (region && otherRegion && region->canMerge(otherRegion) && otherRegion->canMerge(region));
+	bool result = (region && otherRegion && AMScanAxisRegion::canMerge(region, otherRegion));
 	return result;
 }
 
 bool AMScanAxis::canMakeRegionsAdjacent(AMScanAxisRegion *region, AMScanAxisRegion *otherRegion) const
 {
-	bool result = (region && otherRegion && region->canMakeAdjacentTo(otherRegion) && otherRegion->canMakeAdjacentTo(region));
+	bool result = (region && otherRegion && AMScanAxisRegion::canMakeAdjacent(region, otherRegion));
 	return result;
 }
 

@@ -92,6 +92,8 @@ public:
 	/// Returns true if the two regions have the same properties, false otherwise.
 	static bool identical(const AMScanAxisRegion *region, const AMScanAxisRegion *otherRegion);
 
+	/// Returns true if the region and the point are valid and the point falls within the region's range, false otherwise.
+	static bool contains(const AMScanAxisRegion *region, const AMNumber &point);
 	/// Returns true if both regions are valid and the first region completely contains the second region within its range, false otherwise.
 	static bool contains(const AMScanAxisRegion *region, const AMScanAxisRegion *otherRegion);
 	/// Returns true if both regions are valid and adjacent, sharing a start/end position but non-overlapping. Returns false otherwise.
@@ -99,14 +101,14 @@ public:
 	/// Returns true if both regions are valid and intersect, some portion of the first region is contained within the second region. Returns false otherwise.
 	static bool intersect(const AMScanAxisRegion *region, const AMScanAxisRegion *otherRegion);
 
-	/// Returns true if this region can be merged together into this one, false otherwise.
-	bool canMerge(AMScanAxisRegion *otherRegion) const;
-	/// Returns true if this region can be made adjacent to the given region, false otherwise.
-	bool canMakeAdjacentTo(AMScanAxisRegion *otherRegion) const;
-	/// Returns true if this region can subtract the given region, false otherwise.
-	bool canSubtract(AMScanAxisRegion *region) const;
-	/// Returns true if this region can be divided at the given point, false otherwise.
-	bool canDivide(const AMNumber &point) const;
+	/// Returns true if the two regions are valid and can be merged together, false otherwise.
+	static bool canMerge(const AMScanAxisRegion *region, const AMScanAxisRegion *otherRegion);
+	/// Returns true if the two regions are valid and can be made adjacent to each other, false otherwise.
+	static bool canMakeAdjacent(const AMScanAxisRegion *region, const AMScanAxisRegion *otherRegion);
+	/// Returns true if the two regions are valid and the second region can be subtracted from the first, false otherwise.
+	static bool canSubtract(const AMScanAxisRegion *region, const AMScanAxisRegion *otherRegion);
+	/// Returns true if the region and the point are valid and the region can be divided at the point, false otherwise.
+	static bool canDivide(const AMScanAxisRegion *region, const AMNumber &point);
 
 	/// Returns a new region that is the intersection of this region and the given region. Returns 0 if the two regions don't intersect.
 	AMScanAxisRegion* intersection(AMScanAxisRegion *otherRegion) const;
