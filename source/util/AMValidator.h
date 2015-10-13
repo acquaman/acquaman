@@ -5,6 +5,7 @@
 #include <QSet>
 #include <QString>
 #include <QStringList>
+#include <QList>
 /*!
   * A simple class for recording the valid state of an object.
   */
@@ -45,7 +46,7 @@ public:
       * The number of failures the validator has recorded for the object being
       * validatated.
       */
-    int failCount() const;
+	int failureCount() const;
 
     /*!
       * A list containing all the messages which are preventing the object being
@@ -61,6 +62,13 @@ public:
      * \return
      */
     QString fullFailureMessage(const QString& delimiter = "\n") const;
+
+	/*!
+	  * Adds a validator which this validator will track. Any failures which are
+	  * added to the child validator will be counted as failures of this validator.
+	  * \param validator ~ The validator which is to be tracked.
+	  */
+	void addChildValidator(AMValidator* validator);
 signals:
 
     /*!
@@ -74,7 +82,7 @@ signals:
       * Signal indicating that the number of validation failures has altered.
       * \param failCount ~ The new number of failures.
       */
-    void failCountChanged(int failCount);
+	void failureCountChanged(int failureCount);
 
     /*!
      * Signal indicating that a failure has been removed.
@@ -90,9 +98,23 @@ signals:
      */
     void failureAdded(const QString& failureAdded);
 public slots:
+protected slots:
+	/*!
+	  * Slot which handles one of the child validators being destroyed. Removes
+	  * the child validator from the list of validators to be tracked.
+	  * \param qObject ~ The QObject which has been destroyed. Should always be
+	  * of AMValidator type.
+	  */
+	void onChildValidatorDestroyed(QObject* qObject);
 
+	/*!
+	  * Slot which handles one of the child validator's failure count changing.
+	  * Updates the failure count of this parent validator.
+	  */
+	void onChildFailureCountChanged(int);
 protected:
-    QSet<QString> failMessages_;
+	QSet<QString> failureMessages_;
+	QList<AMValidator*> childValidators_;
 };
 
 #endif // AMVALIDATOR_H

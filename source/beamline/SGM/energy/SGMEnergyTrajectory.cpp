@@ -6,10 +6,18 @@ SGMEnergyTrajectory::SGMEnergyTrajectory(double startEnergy,
                                          SGMGratingSupport::GratingTranslation gratingTranslation)
 {
 
-    startEnergyPosition_ = new SGMEnergyPosition(startEnergy, gratingTranslation);
+	startEnergyPosition_ = new SGMEnergyPosition(startEnergy, gratingTranslation);
     startEnergy_ = startEnergy;
-    endEnergyPosition_ = new SGMEnergyPosition(endEnergy, gratingTranslation);
+	endEnergyPosition_ = new SGMEnergyPosition(endEnergy, gratingTranslation);
     endEnergy_ = endEnergy;
+
+	errorValidator_ = new AMValidator();
+	errorValidator_->addChildValidator(startEnergyPosition_->errorValidator());
+	errorValidator_->addChildValidator(endEnergyPosition_->errorValidator());
+
+	warningValidator_ = new AMValidator();
+	warningValidator_->addChildValidator(startEnergyPosition_->warningValidator());
+	warningValidator_->addChildValidator(endEnergyPosition_->warningValidator());
 
     // ensure both undulator harmonics are the same.
     if(startEnergyPosition_->undulatorHarmonic() != endEnergyPosition_->undulatorHarmonic()) {
@@ -35,59 +43,37 @@ SGMEnergyTrajectory::SGMEnergyTrajectory(double startEnergy,
      *   - Also need to figure out what the acceleration values are for the controls
      *     on the beamline.
      */
-	gratingAngleVelocityProfile_ = AMTrapezoidVelocityProfile(0, 5.0, qAbs(endGratingAngleEncoderStep() - startGratingAngleEncoderStep()) / time_, -5.0);
-	undulatorVelocityProfile_ = AMTrapezoidVelocityProfile(0, 5.0, qAbs(endUndulatorPosition() - startUndulatorPosition()) / time_, -5.0);
-	exitSlitVelocityProfile_ = AMTrapezoidVelocityProfile(0, 5.0, qAbs(endExitSlitPosition() - startExitSlitPosition()) / time_, -5.0);
+	gratingAngleVelocityProfile_ = AMTrapezoidVelocityProfile(0, 5000.0, qAbs(endGratingAngleEncoderStep() - startGratingAngleEncoderStep()) / time_, 5000.0);
+	undulatorVelocityProfile_ = AMTrapezoidVelocityProfile(0, 5000.0, qAbs(endUndulatorPosition() - startUndulatorPosition()) / time_, 5000.0);
+	exitSlitVelocityProfile_ = AMTrapezoidVelocityProfile(0, 5000.0, qAbs(endExitSlitPosition() - startExitSlitPosition()) / time_, 5000.0);
 }
 
 SGMEnergyTrajectory::~SGMEnergyTrajectory()
 {
     startEnergyPosition_->deleteLater();
     endEnergyPosition_->deleteLater();
+	errorValidator_->deleteLater();
+	warningValidator_->deleteLater();
 }
 
 bool SGMEnergyTrajectory::hasErrors() const
 {
-    return startEnergyPosition_->hasErrors() ||
-            endEnergyPosition_->hasErrors() ||
-            time_ <= 0;
+	return !errorValidator_->isValid();
 }
 
 bool SGMEnergyTrajectory::hasWarnings() const
 {
-    return startEnergyPosition_->hasWarnings() ||
-            endEnergyPosition_->hasWarnings();
+	return !warningValidator_->isValid();
 }
 
-QString SGMEnergyTrajectory::errorMessage() const
+AMValidator * SGMEnergyTrajectory::errorValidator() const
 {
-    QString infoErrorMessage = startEnergyPosition_->errorMessage();
-    if(startEnergyPosition_->hasErrors() && endEnergyPosition_->hasErrors()) {
-        infoErrorMessage.append("\n");
-    }
-
-    infoErrorMessage.append(endEnergyPosition_->errorMessage());
-
-    if(time_ <= 0) {
-        if(!infoErrorMessage.isEmpty() && endEnergyPosition_->hasErrors()) {
-            infoErrorMessage.append("\n");
-        }
-        infoErrorMessage.append("Invalid time for trajectory: Must be greater than zero");
-    }
-
-    return infoErrorMessage;
+	return errorValidator_;
 }
 
-QString SGMEnergyTrajectory::warningMessage() const
+AMValidator * SGMEnergyTrajectory::warningValidator() const
 {
-    QString infoWarningMessage;
-    infoWarningMessage.append(startEnergyPosition_->warningMessage());
-    if(startEnergyPosition_->hasWarnings() && endEnergyPosition_->hasErrors()) {
-        infoWarningMessage.append("\n");
-    }
-    infoWarningMessage.append(endEnergyPosition_->warningMessage());
-
-    return infoWarningMessage;
+	return warningValidator_;
 }
 
 double SGMEnergyTrajectory::startGratingAngleEncoderStep() const
@@ -162,6 +148,15 @@ double SGMEnergyTrajectory::endEnergy() const
     return endEnergy_;
 }
 
+double SGMEnergyTrajectory::energyVelocity() const
+{
+	if(time_ != 0) {
+		return qAbs(endEnergy_ - startEnergy_) / time_;
+	} else {
+		return 0;
+	}
+}
+
 QString SGMEnergyTrajectory::toString() const
 {
     QString returnString =  QString("Start Grating Angle: %1 End Grating Angle: %2 Grating Angle Velocity: %3 \n")
@@ -197,3 +192,11 @@ QString SGMEnergyTrajectory::toString() const
 
 	return returnString;
 }
+
+void SGMEnergyTrajectory::performValidation()
+{
+	errorValidator_->updateValidity(SGMENERGYTRAJECTORY_INVALID_TIME, time_ <= 0);
+}
+
+
+

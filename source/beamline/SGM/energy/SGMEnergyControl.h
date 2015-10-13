@@ -7,6 +7,8 @@
 
 #define SGMENERGYCONTROL_INVALID_STATE				851142
 #define SGMENERGYCONTROL_ZERO_ENERGY_VELOCITY		851143
+
+class SGMEnergyTrajectory;
 /*!
   * A class which presents a standard AMControl interface for performing coordinated
   * motions of the SGM beamline energy components.
@@ -17,7 +19,6 @@ class SGMEnergyControl : public AMPseudoMotorControl
 public:
     SGMEnergyControl(SGMUndulatorSupport::UndulatorHarmonic startingUndulatorHarmonic,
                      QObject* parent = 0);
-
 
     /*!
       * Whether the control is designed to be able to measure values.
@@ -229,15 +230,9 @@ protected:
 	 * Creates a move action which will perform a coordinated motion of the
 	 * energy beamline components such that they all arrive at their destination
 	 * at the same time.
-	 * \param startSetpoint ~ The energy value to move to at the beginning of the
-	 * motion.
-	 * \param finalSetpoint ~ The energy value to move to by the end of the motion.
-	 * \param velocity ~ The velocity (in eV/s) which the motion will take place
-	 * at.
+	 * \param energyTrajectory ~ The energy trajectory for the move action.
 	 */
-	virtual AMAction3* createMoveAction(double startSetpoint,
-										double finalSetpoint,
-										double velocity);
+	virtual AMAction3* createMoveAction(SGMEnergyTrajectory* energyTrajectory);
 
     SGMEnergyPosition* energyPositionController_;
     SGMUndulatorSupport::UndulatorHarmonic startingUndulatorHarmonic_;

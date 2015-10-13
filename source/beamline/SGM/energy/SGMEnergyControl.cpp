@@ -217,8 +217,25 @@ AMControl::FailureExplanation SGMEnergyControl::move(double startSetpoint, doubl
 		return AMControl::AlreadyMovingFailure;
 	}
 
+	SGMEnergyPosition* energyPositionHelper = energyPositionController_->clone();
+	energyPositionHelper->requestEnergy(startSetpoint);
+
+	double timeTaken = qAbs(finalSetpoint - startSetpoint) / targetVelocity;
+
+	SGMEnergyTrajectory trajectoryHelper(startSetpoint,
+										 finalSetpoint,
+										 timeTaken,
+										 energyPositionHelper->gratingTranslation());
+
+	if(trajectoryHelper.hasErrors()) {
+		AMErrorMon::alert(this, SGMENERGYCONTROL_INVALID_STATE, QString("Failed to move %1: \n%2").arg(name()).arg(trajectoryHelper.errorValidator()->fullFailureMessage()));
+		energyPositionHelper->deleteLater();
+		return AMControl::OtherFailure;
+	}
+
 	if (!validSetpoint(startSetpoint) || !validSetpoint(finalSetpoint)) {
 		AMErrorMon::alert(this, AMPSEUDOMOTORCONTROL_INVALID_SETPOINT, QString("Failed to move %1: one of the provided setpoints is invalid.").arg(name()));
+		energyPositionHelper->deleteLater();
 		return AMControl::LimitFailure;
 	}
 
@@ -231,12 +248,13 @@ AMControl::FailureExplanation SGMEnergyControl::move(double startSetpoint, doubl
 	if (withinTolerance(startSetpoint) && withinTolerance(finalSetpoint)) {
 		onMoveStarted(0);
 		onMoveSucceeded(0);
+		energyPositionHelper->deleteLater();
 		return AMControl::NoFailure;
 	}
 
 	// Otherwise, an actual move is needed.
 	// Create new move action.
-	AMAction3 *moveAction = createMoveAction(startSetpoint, finalSetpoint, targetVelocity);
+	AMAction3 *moveAction = createMoveAction(&trajectoryHelper);
 
 	// Check that a valid move action was generated.
 	// If an invalid move action was created, abort the move.
@@ -245,6 +263,7 @@ AMControl::FailureExplanation SGMEnergyControl::move(double startSetpoint, doubl
 		AMErrorMon::alert(this, AMPSEUDOMOTORCONTROL_INVALID_MOVE_ACTION, QString("Did not move %1: invalid move action generated.").arg(name()));
 		onMoveStarted(0);
 		onMoveFailed(0);
+		energyPositionHelper->deleteLater();
 		return AMControl::LimitFailure;
 	}
 
@@ -472,7 +491,7 @@ AMAction3 *SGMEnergyControl::createMoveAction(double setpoint)
             coordinatedMoveAction->addSubAction(componentWaitAction);
 
 		} else {
-			AMErrorMon::alert(this, SGMENERGYCONTROL_INVALID_STATE, QString("Move would put energy in invalid state: %1").arg(helperEnergyPosition->errorMessage()));
+			AMErrorMon::alert(this, SGMENERGYCONTROL_INVALID_STATE, QString("Move would put energy in invalid state: %1").arg(helperEnergyPosition->errorValidator()->fullFailureMessage()));
 		}
 
         helperEnergyPosition->deleteLater();
@@ -482,159 +501,144 @@ AMAction3 *SGMEnergyControl::createMoveAction(double setpoint)
 }
 
 #include <QDebug>
-AMAction3 *SGMEnergyControl::createMoveAction(double startSetpoint,
-											  double finalSetpoint,
-											  double velocity)
+AMAction3 *SGMEnergyControl::createMoveAction(SGMEnergyTrajectory* energyTrajectory)
 {
 	AMListAction3* continuousMoveAction = 0;
+
+	double startSetpoint = energyTrajectory->startEnergy();
+	double velocity = energyTrajectory->energyVelocity();
 
 	if(velocity != 0) {
 		if(energyPositionController_) {
 
-			if(qAbs(startSetpoint - finalSetpoint) > tolerance()) {
-				// If our start is outside of tolerance of our end, then we do the
-				// trajectory move (otherwise we just do the first portion to put us
-				// at the start)
-				double timeTaken = qAbs(finalSetpoint - startSetpoint) / velocity;
+			if(!energyTrajectory->hasErrors()) {
 
-				SGMEnergyPosition* gratingTranslationHelper = energyPositionController_->clone();
-				gratingTranslationHelper->requestEnergy(startSetpoint);
+				// Move to start using simple fast method
+				qDebug() << "\t#1 Move to initial position at" << startSetpoint;
+				AMAction3* initialMoveToStart = createMoveAction(startSetpoint);
 
-				SGMEnergyTrajectory energyTrajectoryHelper(startSetpoint,
-														   finalSetpoint,
-														   timeTaken,
-														   gratingTranslationHelper->gratingTranslation());
+				// Set velocities
+				double gratingAngleBaseVelocity = energyTrajectory->gratingAngleVelocityProfile().baseVelocity();
+				double gratingAngleTargetVelocity = energyTrajectory->gratingAngleVelocityProfile().targetVelocity();
+				double gratingAngleAcceleration = energyTrajectory->gratingAngleVelocityProfile().initialAcceleration();
 
-				if(!energyTrajectoryHelper.hasErrors()) {
+				double undulatorStepStart = SGMUndulatorSupport::undulatorStepFromPosition(energyTrajectory->startUndulatorPosition(),
+																						   undulatorPositionControl_->value(),
+																						   undulatorStepControl_->value());
 
-					// Move to start using simple fast method
-					qDebug() << "\t#1 Move to initial position at" << startSetpoint;
-					AMAction3* initialMoveToStart = createMoveAction(startSetpoint);
+				double undulatorStepEnd = SGMUndulatorSupport::undulatorStepFromPosition(energyTrajectory->endUndulatorPosition(),
+																						 undulatorPositionControl_->value(),
+																						 undulatorStepControl_->value());
 
-					// Set velocities
-					double gratingAngleBaseVelocity = energyTrajectoryHelper.gratingAngleVelocityProfile().baseVelocity();
-					double gratingAngleTargetVelocity = energyTrajectoryHelper.gratingAngleVelocityProfile().targetVelocity();
-					double gratingAngleAcceleration = energyTrajectoryHelper.gratingAngleVelocityProfile().initialAcceleration();
+				double undulatorStepVelocity = qAbs(undulatorStepEnd - undulatorStepStart) / energyTrajectory->time();
 
-					double undulatorStepStart = SGMUndulatorSupport::undulatorStepFromPosition(energyTrajectoryHelper.startUndulatorPosition(),
-																							   undulatorPositionControl_->value(),
-																							   undulatorStepControl_->value());
+				qDebug() << "\t#2 Set Velocities:";
+				qDebug() << "\t\t#2a Set grating angle base velocity to" << gratingAngleBaseVelocity;
+				qDebug() << "\t\t#2b Set grating angle target velocity to" << gratingAngleTargetVelocity;
+				qDebug() << "\t\t#2c Set grating angle acceleration to" << gratingAngleAcceleration;
+				qDebug() << "\t\t#2d Set undulator step velocity to" << undulatorStepVelocity;
+				AMListAction3* setVelocitiesAction = new AMListAction3(new AMListActionInfo3("Set Velocities",
+																							 "Set Energy Control Velocities"),
+																	   AMListAction3::Parallel);
 
-					double undulatorStepEnd = SGMUndulatorSupport::undulatorStepFromPosition(energyTrajectoryHelper.endUndulatorPosition(),
-																							 undulatorPositionControl_->value(),
-																							 undulatorStepControl_->value());
+				setVelocitiesAction->addSubAction(AMActionSupport::buildControlMoveAction(gratingAngleBaseVelocityControl_,
+																						  gratingAngleBaseVelocity,
+																						  false));
 
-					double undulatorStepVelocity = qAbs(undulatorStepEnd - undulatorStepStart) / timeTaken;
+				setVelocitiesAction->addSubAction(AMActionSupport::buildControlMoveAction(gratingAngleTargetVelocityControl_,
+																						  gratingAngleTargetVelocity,
+																						  false));
 
-					qDebug() << "\t#2 Set Velocities:";
-					qDebug() << "\t\t#2a Set grating angle base velocity to" << gratingAngleBaseVelocity;
-					qDebug() << "\t\t#2b Set grating angle target velocity to" << gratingAngleTargetVelocity;
-					qDebug() << "\t\t#2c Set grating angle acceleration to" << gratingAngleAcceleration;
-					qDebug() << "\t\t#2d Set undulator step velocity to" << undulatorStepVelocity;
-					AMListAction3* setVelocitiesAction = new AMListAction3(new AMListActionInfo3("Set Velocities",
-																								 "Set Energy Control Velocities"),
+				setVelocitiesAction->addSubAction(AMActionSupport::buildControlMoveAction(gratingAngleAccelerationControl_,
+																						  gratingAngleAcceleration,
+																						  false));
+
+				setVelocitiesAction->addSubAction(AMActionSupport::buildControlMoveAction(undulatorStepVelocityControl_,
+																						  undulatorStepVelocity,
+																						  false));
+
+
+				AMListAction3* waitForVelocitiesAction = new AMListAction3(new AMListActionInfo3("Wait for Velocities",
+																								 "Wait for energy control velocities to be set"),
 																		   AMListAction3::Parallel);
 
-					setVelocitiesAction->addSubAction(AMActionSupport::buildControlMoveAction(gratingAngleBaseVelocityControl_,
+				waitForVelocitiesAction->addSubAction(AMActionSupport::buildControlWaitAction(gratingAngleBaseVelocityControl_,
 																							  gratingAngleBaseVelocity,
-																							  false));
-
-					setVelocitiesAction->addSubAction(AMActionSupport::buildControlMoveAction(gratingAngleTargetVelocityControl_,
-																							  gratingAngleTargetVelocity,
-																							  false));
-
-					setVelocitiesAction->addSubAction(AMActionSupport::buildControlMoveAction(gratingAngleAccelerationControl_,
-																							  gratingAngleAcceleration,
-																							  false));
-
-					setVelocitiesAction->addSubAction(AMActionSupport::buildControlMoveAction(undulatorStepVelocityControl_,
-																							  undulatorStepVelocity,
-																							  false));
-
-
-					AMListAction3* waitForVelocitiesAction = new AMListAction3(new AMListActionInfo3("Wait for Velocities",
-																									 "Wait for energy control velocities to be set"),
-																			   AMListAction3::Parallel);
-
-					waitForVelocitiesAction->addSubAction(AMActionSupport::buildControlWaitAction(gratingAngleBaseVelocityControl_,
-																								  gratingAngleBaseVelocity,
-																								  10,
-																								  AMControlWaitActionInfo::MatchWithinTolerance));
-
-					waitForVelocitiesAction->addSubAction(AMActionSupport::buildControlWaitAction(gratingAngleTargetVelocityControl_,
-																								  gratingAngleTargetVelocity,
-																								  10,
-																								  AMControlWaitActionInfo::MatchWithinTolerance));
-
-					waitForVelocitiesAction->addSubAction(AMActionSupport::buildControlWaitAction(gratingAngleAccelerationControl_,
-																								  gratingAngleAcceleration,
-																								  10,
-																								  AMControlWaitActionInfo::MatchWithinTolerance));
-
-					waitForVelocitiesAction->addSubAction(AMActionSupport::buildControlWaitAction(undulatorStepVelocityControl_,
-																								  undulatorStepVelocity,
-																								  10,
-																								  AMControlWaitActionInfo::MatchWithinTolerance));
-					double meanExitSlitPosition = (energyTrajectoryHelper.startExitSlitPosition() + energyTrajectoryHelper.endExitSlitPosition()) / 2;
-					qDebug() << "\t#3 Set Exit Slit position to mean position at" << meanExitSlitPosition;
-					AMAction3* positionExitSlitAction = AMActionSupport::buildControlMoveAction(exitSlitPositionControl_,
-																								meanExitSlitPosition,
-																								false);
-					AMAction3* waitForExitSlitAction = AMActionSupport::buildControlWaitAction(exitSlitPositionControl_,
-																							  meanExitSlitPosition,
 																							  10,
-																							  AMControlWaitActionInfo::MatchWithinTolerance);
+																							  AMControlWaitActionInfo::MatchWithinTolerance));
 
-					AMListAction3* trajectoryMove = new AMListAction3(new AMListActionInfo3("Energy Trajectory",
-																							"Energy Trajectory"),
-																	  AMListAction3::Parallel);
+				waitForVelocitiesAction->addSubAction(AMActionSupport::buildControlWaitAction(gratingAngleTargetVelocityControl_,
+																							  gratingAngleTargetVelocity,
+																							  10,
+																							  AMControlWaitActionInfo::MatchWithinTolerance));
 
-					double undulatorStepTarget = SGMUndulatorSupport::undulatorStepFromPosition(energyTrajectoryHelper.endUndulatorPosition(),
-																								undulatorPositionControl_->value(),
-																								undulatorStepControl_->value());
-					double gratingAngleTarget = energyTrajectoryHelper.endGratingAngleEncoderStep();
-					qDebug() << "\t#3 Performing move:";
-					qDebug() << "\t\t#3a Moving undulator step to" << undulatorStepTarget;
-					qDebug() << "\t\t#3b Moving grating angle to" << gratingAngleTarget;
-					trajectoryMove->addSubAction(AMActionSupport::buildControlMoveAction(undulatorStepControl_,
-																						 undulatorStepTarget,
-																						 false));
-					trajectoryMove->addSubAction(AMActionSupport::buildControlMoveAction(gratingAngleControl_,
-																						 gratingAngleTarget,
-																						 false));
+				waitForVelocitiesAction->addSubAction(AMActionSupport::buildControlWaitAction(gratingAngleAccelerationControl_,
+																							  gratingAngleAcceleration,
+																							  10,
+																							  AMControlWaitActionInfo::MatchWithinTolerance));
 
-					AMListAction3* trajectoryWait = new AMListAction3(new AMListActionInfo3("Energy Trajectory Wait",
-																							"Energy Trajectory Wait"),
-																	  AMListAction3::Parallel);
-					trajectoryWait->addSubAction(AMActionSupport::buildControlWaitAction(undulatorStepControl_,
-																						 undulatorStepTarget,
-																						 10,
-																						 AMControlWaitActionInfo::MatchWithinTolerance));
+				waitForVelocitiesAction->addSubAction(AMActionSupport::buildControlWaitAction(undulatorStepVelocityControl_,
+																							  undulatorStepVelocity,
+																							  10,
+																							  AMControlWaitActionInfo::MatchWithinTolerance));
+				double meanExitSlitPosition = (energyTrajectory->startExitSlitPosition() + energyTrajectory->endExitSlitPosition()) / 2;
+				qDebug() << "\t#3 Set Exit Slit position to mean position at" << meanExitSlitPosition;
+				AMAction3* positionExitSlitAction = AMActionSupport::buildControlMoveAction(exitSlitPositionControl_,
+																							meanExitSlitPosition,
+																							false);
+				AMAction3* waitForExitSlitAction = AMActionSupport::buildControlWaitAction(exitSlitPositionControl_,
+																						  meanExitSlitPosition,
+																						  10,
+																						  AMControlWaitActionInfo::MatchWithinTolerance);
 
-					trajectoryWait->addSubAction(AMActionSupport::buildControlWaitAction(gratingAngleControl_,
-																						 gratingAngleTarget,
-																						 10,
-																						 AMControlWaitActionInfo::MatchWithinTolerance));
+				AMListAction3* trajectoryMove = new AMListAction3(new AMListActionInfo3("Energy Trajectory",
+																						"Energy Trajectory"),
+																  AMListAction3::Parallel);
+
+				double undulatorStepTarget = SGMUndulatorSupport::undulatorStepFromPosition(energyTrajectory->endUndulatorPosition(),
+																							undulatorPositionControl_->value(),
+																							undulatorStepControl_->value());
+				double gratingAngleTarget = energyTrajectory->endGratingAngleEncoderStep();
+				qDebug() << "\t#3 Performing move:";
+				qDebug() << "\t\t#3a Moving undulator step to" << undulatorStepTarget;
+				qDebug() << "\t\t#3b Moving grating angle to" << gratingAngleTarget;
+				trajectoryMove->addSubAction(AMActionSupport::buildControlMoveAction(undulatorStepControl_,
+																					 undulatorStepTarget,
+																					 false));
+				trajectoryMove->addSubAction(AMActionSupport::buildControlMoveAction(gratingAngleControl_,
+																					 gratingAngleTarget,
+																					 false));
+
+				AMListAction3* trajectoryWait = new AMListAction3(new AMListActionInfo3("Energy Trajectory Wait",
+																						"Energy Trajectory Wait"),
+																  AMListAction3::Parallel);
+				trajectoryWait->addSubAction(AMActionSupport::buildControlWaitAction(undulatorStepControl_,
+																					 undulatorStepTarget,
+																					 10,
+																					 AMControlWaitActionInfo::MatchWithinTolerance));
+
+				trajectoryWait->addSubAction(AMActionSupport::buildControlWaitAction(gratingAngleControl_,
+																					 gratingAngleTarget,
+																					 10,
+																					 AMControlWaitActionInfo::MatchWithinTolerance));
 
 
-					continuousMoveAction = new AMListAction3(new AMListActionInfo3("Moving Energy",
-																				   "Moving Energy"),
-															 AMListAction3::Sequential);
+				continuousMoveAction = new AMListAction3(new AMListActionInfo3("Moving Energy",
+																			   "Moving Energy"),
+														 AMListAction3::Sequential);
 
-					continuousMoveAction->addSubAction(initialMoveToStart);
-					continuousMoveAction->addSubAction(setVelocitiesAction);
-					continuousMoveAction->addSubAction(waitForVelocitiesAction);
-					continuousMoveAction->addSubAction(positionExitSlitAction);
-					continuousMoveAction->addSubAction(waitForExitSlitAction);
-					continuousMoveAction->addSubAction(trajectoryMove);
-					continuousMoveAction->addSubAction(trajectoryWait);
+				continuousMoveAction->addSubAction(initialMoveToStart);
+				continuousMoveAction->addSubAction(setVelocitiesAction);
+				continuousMoveAction->addSubAction(waitForVelocitiesAction);
+				continuousMoveAction->addSubAction(positionExitSlitAction);
+				continuousMoveAction->addSubAction(waitForExitSlitAction);
+				continuousMoveAction->addSubAction(trajectoryMove);
+				continuousMoveAction->addSubAction(trajectoryWait);
 
-				} else {
-					AMErrorMon::alert(this, SGMENERGYCONTROL_INVALID_STATE, QString("Move would put energy in invalid state: %1").arg(energyTrajectoryHelper.errorMessage()));
-				}
-
-				gratingTranslationHelper->deleteLater();
+			} else {
+				AMErrorMon::alert(this, SGMENERGYCONTROL_INVALID_STATE, QString("Move would put energy in invalid state: %1").arg(energyTrajectory->errorValidator()->fullFailureMessage()));
 			}
+
 		}
 	} else {
 

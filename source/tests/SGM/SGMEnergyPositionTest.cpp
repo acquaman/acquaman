@@ -52,13 +52,13 @@ void SGMEnergyPositionTest::testIndividualRequestEnergy(const QString &name,
 
     if(testEnergyPosition.hasErrors()) {
         testResults_ << QString("%1 at %2ev has errors - Can't test").arg(name).arg(requiredEnergy);
-        testResults_.append(testEnergyPosition.errorMessage());
+		testResults_ << testEnergyPosition.errorValidator()->fullFailureMessage();
         return;
     }
 
     if(testEnergyPosition.hasWarnings()) {
         testResults_ << QString("%1 at %2eV has warnings - Tests continue").arg(name).arg(requiredEnergy);
-        testResults_ << testEnergyPosition.warningMessage();
+		testResults_ << testEnergyPosition.warningValidator()->fullFailureMessage();
     }
 
     // Do comparisons, outputting if the percentage difference from expected is > 1%

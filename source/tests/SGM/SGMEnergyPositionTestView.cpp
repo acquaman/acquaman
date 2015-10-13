@@ -77,12 +77,7 @@ void SGMEnergyPositionTestView::onEnergyPositionWarningCountChanged(int warningC
     } else {
 
         warningsTextEdit_->setVisible(true);
-        QString warningString;
-
-        foreach(QString message, energyPosition_->warningMessage()) {
-
-            warningString.append(QString("\n%1").arg(message));
-        }
+		QString warningString = energyPosition_->warningValidator()->fullFailureMessage();
 
         warningsTextEdit_->setText(warningString);
     }
@@ -93,14 +88,10 @@ void SGMEnergyPositionTestView::onEnergyPositionErrorCountChanged(int errorCount
 {
     if(errorCount == 0) {
         errorsTextEdit_->setVisible(false);
-            } else {
-        errorsTextEdit_->setVisible(true);
-        QString errorString;
+	} else {
 
-        foreach(QString message, energyPosition_->errorMessage()) {
-
-            errorString.append(QString("\n%1").arg(message));
-        }
+		errorsTextEdit_->setVisible(true);
+		QString errorString = energyPosition_->errorValidator()->fullFailureMessage();
 
         errorsTextEdit_->setText(errorString);
     }
@@ -370,8 +361,8 @@ void SGMEnergyPositionTestView::makeConnections()
     connect(energyPosition_, SIGNAL(exitSlitTrackingChanged(bool)), this, SLOT(onEnergyPositionExitSlitTrackingChanged(bool)));
     connect(energyPosition_, SIGNAL(exitSlitPositionChanged(double)), this, SLOT(onEnergyPositionExitSlitPositionChanged(double)));
     connect(energyPosition_, SIGNAL(energyChanged(double)), this, SLOT(onEnergyPositionEnergyChanged(double)));
-    connect(energyPosition_, SIGNAL(errorCountChanged(int)), this, SLOT(onEnergyPositionErrorCountChanged(int)));
-    connect(energyPosition_, SIGNAL(warningCountChanged(int)), this, SLOT(onEnergyPositionWarningCountChanged(int)));
+	connect(energyPosition_->errorValidator(), SIGNAL(failureCountChanged(int)), this, SLOT(onEnergyPositionErrorCountChanged(int)));
+	connect(energyPosition_->warningValidator(), SIGNAL(failureCountChanged(int)), this, SLOT(onEnergyPositionWarningCountChanged(int)));
 
     // View to Mono
     connect(gratingAngleSpinBox_, SIGNAL(editingFinished()), this, SLOT(onGratingAngleSpinBoxChanged()));
@@ -398,8 +389,8 @@ void SGMEnergyPositionTestView::setupData()
     onEnergyPositionExitSlitTrackingChanged(energyPosition_->isExitSlitPositionTracking());
     onEnergyPositionExitSlitPositionChanged(energyPosition_->exitSlitPosition());
     onEnergyPositionEnergyChanged(energyPosition_->resultantEnergy());
-    onEnergyPositionWarningCountChanged(energyPosition_->warningMessage().count());
-    onEnergyPositionErrorCountChanged(energyPosition_->errorMessage().count());
+	onEnergyPositionWarningCountChanged(energyPosition_->warningValidator()->failureCount());
+	onEnergyPositionErrorCountChanged(energyPosition_->errorValidator()->failureCount());
     autoDetectUndulatorHarmonicCheckBox_->setChecked(energyPosition_->autoDetectUndulatorHarmonic());
     undulatorHarmonicComboBox_->setEnabled(!energyPosition_->autoDetectUndulatorHarmonic());
 }

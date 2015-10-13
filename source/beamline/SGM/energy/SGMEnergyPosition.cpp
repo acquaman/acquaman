@@ -10,6 +10,9 @@ SGMEnergyPosition::SGMEnergyPosition(SGMGratingSupport::GratingTranslation grati
                                            QObject *parent) :
     QObject(parent)
 {
+	errorValidator_ = new AMValidator(this);
+	warningValidator_ = new AMValidator(this);
+
     gratingTranslation_ = gratingTranslation;
     gratingTranslationOptimizationMode_ = ManualMode;
     gratingAngle_ = gratingAngle;
@@ -24,16 +27,16 @@ SGMEnergyPosition::SGMEnergyPosition(SGMGratingSupport::GratingTranslation grati
 
     requestedEnergy_ = resultantEnergy();
     performValidation();
-
-    connect(&errorValidator_, SIGNAL(validStateChanged(bool)), this, SIGNAL(errorStateChanged(bool)));
-    connect(&errorValidator_, SIGNAL(failCountChanged(int)), this, SIGNAL(errorCountChanged(int)));
-
-    connect(&warningValidator_, SIGNAL(validStateChanged(bool)), this, SIGNAL(warningStateChanged(bool)));
-    connect(&warningValidator_, SIGNAL(failCountChanged(int)), this, SIGNAL(warningCountChanged(int)));
 }
 
-SGMEnergyPosition::SGMEnergyPosition(double requestedEnergy, SGMGratingSupport::GratingTranslation gratingTranslation)
+SGMEnergyPosition::SGMEnergyPosition(double requestedEnergy,
+									 SGMGratingSupport::GratingTranslation gratingTranslation,
+									 QObject* parent) :
+	QObject(parent)
 {
+	errorValidator_ = new AMValidator(this);
+	warningValidator_ = new AMValidator(this);
+
     gratingTranslationOptimizationMode_ = ManualMode;
     isUndulatorTracking_ = true;
     isExitSlitPositionTracking_ = true;
@@ -43,15 +46,12 @@ SGMEnergyPosition::SGMEnergyPosition(double requestedEnergy, SGMGratingSupport::
     requestEnergy(requestedEnergy, gratingTranslation);
 
     performValidation();
-
-    connect(&errorValidator_, SIGNAL(validStateChanged(bool)), this, SIGNAL(errorStateChanged(bool)));
-    connect(&errorValidator_, SIGNAL(failCountChanged(int)), this, SIGNAL(errorCountChanged(int)));
-
-    connect(&warningValidator_, SIGNAL(validStateChanged(bool)), this, SIGNAL(warningStateChanged(bool)));
-    connect(&warningValidator_, SIGNAL(failCountChanged(int)), this, SIGNAL(warningCountChanged(int)));
 }
 
-SGMEnergyPosition::SGMEnergyPosition(double requestedEnergy, SGMEnergyPosition::GratingTranslationOptimizationMode gratingOptimizationMode)
+SGMEnergyPosition::SGMEnergyPosition(double requestedEnergy,
+									 SGMEnergyPosition::GratingTranslationOptimizationMode gratingOptimizationMode,
+									 QObject* parent) :
+	QObject(parent)
 {
     gratingTranslationOptimizationMode_ = gratingOptimizationMode;
     isUndulatorTracking_ = true;
@@ -62,12 +62,6 @@ SGMEnergyPosition::SGMEnergyPosition(double requestedEnergy, SGMEnergyPosition::
     requestEnergy(requestedEnergy);
 
     performValidation();
-
-    connect(&errorValidator_, SIGNAL(validStateChanged(bool)), this, SIGNAL(errorStateChanged(bool)));
-    connect(&errorValidator_, SIGNAL(failCountChanged(int)), this, SIGNAL(errorCountChanged(int)));
-
-    connect(&warningValidator_, SIGNAL(validStateChanged(bool)), this, SIGNAL(warningStateChanged(bool)));
-    connect(&warningValidator_, SIGNAL(failCountChanged(int)), this, SIGNAL(warningCountChanged(int)));
 }
 
 
@@ -87,26 +81,6 @@ SGMEnergyPosition* SGMEnergyPosition::clone() const
 	cloneEnergyPosition->setUndulatorTracking(isUndulatorTracking_);
 
 	return cloneEnergyPosition;
-}
-
-bool SGMEnergyPosition::hasErrors() const
-{
-    return !errorValidator_.isValid();
-}
-
-bool SGMEnergyPosition::hasWarnings() const
-{
-    return !warningValidator_.isValid();
-}
-
-QString SGMEnergyPosition::errorMessage() const
-{
-    return errorValidator_.fullFailureMessage();
-}
-
-QString SGMEnergyPosition::warningMessage() const
-{
-    return warningValidator_.fullFailureMessage();
 }
 
 double SGMEnergyPosition::resultantEnergy() const
@@ -163,6 +137,26 @@ bool SGMEnergyPosition::isExitSlitPositionTracking() const
 double SGMEnergyPosition::exitSlitPosition() const
 {
     return exitSlitPosition_;
+}
+
+bool SGMEnergyPosition::hasErrors() const
+{
+	return !errorValidator_->isValid();
+}
+
+bool SGMEnergyPosition::hasWarnings() const
+{
+	return !warningValidator_->isValid();
+}
+
+AMValidator * SGMEnergyPosition::errorValidator() const
+{
+	return errorValidator_;
+}
+
+AMValidator * SGMEnergyPosition::warningValidator() const
+{
+	return warningValidator_;
 }
 
 void SGMEnergyPosition::setGratingTranslation(SGMGratingSupport::GratingTranslation gratingTranslation)
@@ -312,6 +306,7 @@ void SGMEnergyPosition::requestEnergy(double requestedEnergy, SGMGratingSupport:
 
 void SGMEnergyPosition::requestEnergy(double requestedEnergy)
 {
+	requestedEnergy_ = requestedEnergy;
     SGMGratingSupport::GratingTranslation newGratingTranslation = optimizedGrating(requestedEnergy);
 
     // Manually set the grating translation
@@ -434,11 +429,11 @@ SGMUndulatorSupport::UndulatorHarmonic SGMEnergyPosition::optimizedUndulatorHarm
 
 void SGMEnergyPosition::performValidation()
 {
-    errorValidator_.updateValidity(SGMMONO_UNKNOWN_UNDULATOR_HARMONIC, undulatorHarmonic_ == SGMUndulatorSupport::UnknownUndulatorHarmonic);
-    errorValidator_.updateValidity(SGMMONO_UNKNOWN_GRATING_TRANSLATION, gratingTranslation_ == SGMGratingSupport::UnknownGrating);
-    errorValidator_.updateValidity(SGMMONO_INVALID_ENERGY_FOR_HARMONIC, !SGMUndulatorSupport::validEnergy(undulatorHarmonic_, requestedEnergy_));
-    errorValidator_.updateValidity(SGMMONO_INVALID_ENERGY_FOR_GRATING, !SGMGratingSupport::validEnergy(gratingTranslation_, requestedEnergy_));
+	errorValidator_->updateValidity(SGMENERGY_UNKNOWN_UNDULATOR_HARMONIC, undulatorHarmonic_ == SGMUndulatorSupport::UnknownUndulatorHarmonic);
+	errorValidator_->updateValidity(SGMENERGY_UNKNOWN_GRATING_TRANSLATION, gratingTranslation_ == SGMGratingSupport::UnknownGrating);
+	errorValidator_->updateValidity(SGMENERGY_INVALID_ENERGY_FOR_HARMONIC, !SGMUndulatorSupport::validEnergy(undulatorHarmonic_, requestedEnergy_));
+	errorValidator_->updateValidity(SGMENERGY_INVALID_ENERGY_FOR_GRATING, !SGMGratingSupport::validEnergy(gratingTranslation_, requestedEnergy_));
 
-    warningValidator_.updateValidity(SGMMONO_UNDULATOR_TRACKING_OFF, !isUndulatorTracking_);
-	warningValidator_.updateValidity(SGMMONO_EXIT_SLIT_TRACKING_OFF, !isExitSlitPositionTracking_);
+	warningValidator_->updateValidity(SGMENERGY_UNDULATOR_TRACKING_OFF, !isUndulatorTracking_);
+	warningValidator_->updateValidity(SGMENERGY_EXIT_SLIT_TRACKING_OFF, !isExitSlitPositionTracking_);
 }

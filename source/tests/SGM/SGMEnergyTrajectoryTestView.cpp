@@ -384,7 +384,7 @@ void SGMEnergyTrajectoryTestView::setTrajectoryPlotData(SGMGratingSupport::Grati
             resultsTextEdit_->setText(trajectory.toString());
         } else {
 
-            resultsTextEdit_->setText(trajectory.errorMessage());
+			resultsTextEdit_->setText(trajectory.errorValidator()->fullFailureMessage());
         }
     }
 }

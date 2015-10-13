@@ -6,6 +6,8 @@
 #include "SGMEnergyPosition.h"
 #include "util/AMTrapezoidVelocityProfile.h"
 
+#define SGMENERGYTRAJECTORY_INVALID_TIME "Invalid time for motion: Must be greater than 0"
+
 /*!
  * A class representing a trajectory of motion along the energy of the SGM monochromator
  * over a length of time.
@@ -33,26 +35,26 @@ public:
       */
     ~SGMEnergyTrajectory();
 
-    /*!
-     * Whether the trajectory has errors associated with it.
-     */
-    bool hasErrors() const;
+	/*!
+	  * Convenience function for obtaining the error state of the energy trajectory.
+	  */
+	bool hasErrors() const;
 
-    /*!
-     * Whether the trajectory has warnings associated with it.
-     */
-    bool hasWarnings() const;
+	/*!
+	  * Convenience funciton for obtaining the warning state of the energy
+	  * trajectory.
+	  */
+	bool hasWarnings() const;
 
-    /*!
-      * The error message related to the valid state of the trajectory. If the
-      * trajectory is valid the empty string will be returned.
-      */
-    QString errorMessage() const;
+	/*!
+	  * The error validator for the energy trajectory.
+	  */
+	AMValidator* errorValidator() const;
 
-    /*!
-      * The warning message related to the valid state of the trajectory.
-      */
-    QString warningMessage() const;
+	/*!
+	  * The warning validator for the energy trajectory.
+	  */
+	AMValidator* warningValidator() const;
 
     /*!
      * The encoder step value of the grating angle at the start of the trajectory.
@@ -127,12 +129,23 @@ public:
      */
     double endEnergy() const;
 
-    /*!
+	/*!
+	  * The velocity (in eV/s) which the trajectory will move at.
+	  */
+	double energyVelocity() const;
+
+	/*!
      * A string representation of the trajectory.
      */
     QString toString() const;
 
 protected:
+
+	/*!
+	  * Function which ensures all the error and warning checks are met.
+	  */
+	void performValidation();
+
     double startEnergy_;
     double endEnergy_;
     double time_;
@@ -140,6 +153,9 @@ protected:
 
     SGMEnergyPosition* startEnergyPosition_;
     SGMEnergyPosition* endEnergyPosition_;
+
+	AMValidator* errorValidator_;
+	AMValidator* warningValidator_;
 
     AMTrapezoidVelocityProfile gratingAngleVelocityProfile_;
     AMTrapezoidVelocityProfile undulatorVelocityProfile_;

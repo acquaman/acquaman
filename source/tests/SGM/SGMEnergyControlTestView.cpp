@@ -193,12 +193,12 @@ void SGMEnergyControlTestView::setupUi()
     mainLayout->addWidget(exitSlitValueControlEditor_, 10, 0, 1, 2);
 
 	startEnergySpinBox_ = new QDoubleSpinBox();
-	startEnergySpinBox_->setRange(200, 2500);
+	startEnergySpinBox_->setRange(0, 2500);
 	mainLayout->addWidget(new QLabel("Start Energy"), 11, 0);
 	mainLayout->addWidget(startEnergySpinBox_, 11, 1);
 
 	endEnergySpinBox_ = new QDoubleSpinBox();
-	endEnergySpinBox_->setRange(200, 2500);
+	endEnergySpinBox_->setRange(0, 2500);
 	mainLayout->addWidget(new QLabel("End Energy"), 12, 0);
 	mainLayout->addWidget(endEnergySpinBox_, 12, 1);
 

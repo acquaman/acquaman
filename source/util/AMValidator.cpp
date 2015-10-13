@@ -9,20 +9,20 @@ AMValidator::AMValidator(QObject *parent) :
 void AMValidator::updateValidity(const QString &failMessage, bool failureCriteria)
 {
     bool startValidState = isValid();
-    int startFailCount = failCount();
+	int startFailCount = failureCount();
 
     if(failureCriteria) {
-        failMessages_.insert(failMessage);
+		failureMessages_.insert(failMessage);
     } else {
-        failMessages_.remove(failMessage);
+		failureMessages_.remove(failMessage);
     }
 
     if(startValidState != isValid()) {
         emit validStateChanged(isValid());
     }
 
-    if(startFailCount != failCount()) {
-        emit failCountChanged(failCount());
+	if(startFailCount != failureCount()) {
+		emit failureCountChanged(failureCount());
         if(failureCriteria) {
             emit failureAdded(failMessage);
         } else {
@@ -33,23 +33,37 @@ void AMValidator::updateValidity(const QString &failMessage, bool failureCriteri
 
 bool AMValidator::isValid() const
 {
-    return failMessages_.isEmpty();
+	return failureCount() == 0;
 }
 
-int AMValidator::failCount() const
+int AMValidator::failureCount() const
 {
-    return failMessages_.count();
+	int totalFailureCount = failureMessages_.count();
+
+	foreach(AMValidator* childValidator, childValidators_) {
+
+		totalFailureCount += childValidator->failureCount();
+	}
+
+	return totalFailureCount;
 }
 
 QStringList AMValidator::failureMessages() const
 {
-    return failMessages_.toList();
+	QStringList totalFailureMessages = failureMessages_.toList();
+
+	foreach(AMValidator* childValidator, childValidators_) {
+
+		totalFailureMessages.append(childValidator->failureMessages());
+	}
+
+	return totalFailureMessages;
 }
 
 QString AMValidator::fullFailureMessage(const QString &delimiter) const
 {
     QString fullMessage;
-    QStringList failMessagesList = failMessages_.toList();
+	QStringList failMessagesList = failureMessages();
 
     for (int iMessage = 0, messageCount = failMessagesList.count();
          iMessage < messageCount;
@@ -62,5 +76,57 @@ QString AMValidator::fullFailureMessage(const QString &delimiter) const
         }
     }
 
-    return fullMessage;
+	return fullMessage;
+}
+
+void AMValidator::addChildValidator(AMValidator *validator)
+{
+	if(validator) {
+
+		bool startValidState = isValid();
+		int startFailCount = failureCount();
+
+		childValidators_.append(validator);
+		connect(validator, SIGNAL(destroyed(QObject*)), this, SLOT(onChildValidatorDestroyed(QObject*)));
+		connect(validator, SIGNAL(failureCountChanged(int)), this, SLOT(onChildFailureCountChanged(int)));
+
+		if(startValidState != isValid()) {
+
+			emit validStateChanged(isValid());
+		}
+
+		if(startFailCount != failureCount()) {
+
+			emit failureCountChanged(failureCount());
+		}
+	}
+}
+
+void AMValidator::onChildValidatorDestroyed(QObject *qObject)
+{
+	AMValidator* childValidator = qobject_cast<AMValidator*>(qObject);
+	if(childValidator) {
+		bool startValidState = isValid();
+		int startFailCount = failureCount();
+
+		disconnect(childValidator, SIGNAL(destroyed()), this, SLOT(onChildValidatorDestroyed(QObject*)));
+		disconnect(childValidator, SIGNAL(failureCountChanged(int)), this, SLOT(onChildFailureCountChanged(int)));
+		childValidators_.removeOne(childValidator);
+
+		if(startValidState != isValid()) {
+
+			emit validStateChanged(isValid());
+		}
+
+		if(startFailCount != failureCount()) {
+
+			emit failureCountChanged(failureCount());
+		}
+	}
+}
+
+void AMValidator::onChildFailureCountChanged(int)
+{
+
+	emit failureCountChanged(failureCount());
 }

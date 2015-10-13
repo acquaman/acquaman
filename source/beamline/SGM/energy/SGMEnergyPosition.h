@@ -2,14 +2,14 @@
 #define SGMENERGYPOSITION_H
 
 // Error validation messages
-#define SGMMONO_UNKNOWN_UNDULATOR_HARMONIC "Unknown undulator harmonic"
-#define SGMMONO_UNKNOWN_GRATING_TRANSLATION "Unknown grating translation"
-#define SGMMONO_INVALID_ENERGY_FOR_GRATING "Invalid energy for grating. Valid Energies: Low: 9+eV Medium: 16+eV High: 25+eV"
-#define SGMMONO_INVALID_ENERGY_FOR_HARMONIC "Invalid energy for harmonic. Valid Energies: 1st: 47eV-1737eV 3rd: 141-5212eV"
+#define SGMENERGY_UNKNOWN_UNDULATOR_HARMONIC "Unknown undulator harmonic"
+#define SGMENERGY_UNKNOWN_GRATING_TRANSLATION "Unknown grating translation"
+#define SGMENERGY_INVALID_ENERGY_FOR_GRATING "Invalid energy for grating. Valid Energies: Low:9+eV Medium:16+eV High:25+eV"
+#define SGMENERGY_INVALID_ENERGY_FOR_HARMONIC "Invalid energy for harmonic. Valid Energies: 1st:47eV-1737eV 3rd:141-5212eV"
 
 // Warning validation messages
-#define SGMMONO_UNDULATOR_TRACKING_OFF "Undulator tracking off: Optimal flux for energy may not be being achieved"
-#define SGMMONO_EXIT_SLIT_TRACKING_OFF "Exit slit position tracking off: Optimal flux for energy may not be being achieved"
+#define SGMENERGY_UNDULATOR_TRACKING_OFF "Undulator tracking off: Optimal flux for energy may not be being achieved"
+#define SGMENERGY_EXIT_SLIT_TRACKING_OFF "Exit slit position tracking off: Optimal flux for energy may not be being achieved"
 
 #include <QObject>
 #include <QStringList>
@@ -66,7 +66,8 @@ public:
      * be used to calculate the component positions for the given energy.
      */
     SGMEnergyPosition(double requestedEnergy,
-                      SGMGratingSupport::GratingTranslation gratingTranslation);
+					  SGMGratingSupport::GratingTranslation gratingTranslation,
+					  QObject* parent = 0);
 
     /*!
      * Creates an instance of an SGMEnergyPosition whose components are tuned
@@ -77,7 +78,8 @@ public:
      * translation.
      */
 	SGMEnergyPosition(double requestedEnergy,
-					  GratingTranslationOptimizationMode gratingOptimizationMode);
+					  GratingTranslationOptimizationMode gratingOptimizationMode,
+					  QObject* parent = 0);
 
 
 	/*!
@@ -93,28 +95,7 @@ public:
       */
     virtual ~SGMEnergyPosition() {}
 
-    /*!
-      * Whether the info has errors with its current settings.
-      */
-    bool hasErrors() const;
-
-    /*!
-      * Whether the info has warnings with its current settings.
-      */
-    bool hasWarnings() const;
-
-    /*!
-      * The error message related to the valid state of the info. If the info is
-      * valid the empty string will be returned.
-      */
-    QString errorMessage() const;
-
-    /*!
-      * The warning message related to the valid state of the info.
-      */
-    QString warningMessage() const;
-
-    /*!
+	/*!
       * The energy produced by the info's Grating translation and angle.
       */
     double resultantEnergy() const;
@@ -178,6 +159,28 @@ public:
       */
     double exitSlitPosition() const;
 
+	/*!
+	  * Convenience function for asking if the energy position currently has any
+	  * errors. Equivalent to !errorValidator()->isValid()
+	  */
+	bool hasErrors() const;
+
+	/*!
+	  * Convenience function for asking if the energy position currently has any
+	  * warnings. Equivalent to !warningValidator()->isValid()
+	  */
+	bool hasWarnings() const;
+
+	/*!
+	  * The error validator for the energy position.
+	  */
+	AMValidator* errorValidator() const;
+
+	/*!
+	  * The warning validator for the energy position.
+	  */
+	AMValidator* warningValidator() const;
+
 signals:
     /// Signal indicating the grating translation has been altered.
 	void gratingTranslationChanged(SGMGratingSupport::GratingTranslation gratingTranslation);
@@ -212,20 +215,6 @@ signals:
       */
     void energyChanged(double energy);
 
-    /// Signal indicating that the valid state of the info has altered.
-    void errorStateChanged(bool errorState);
-
-    /// Signal indicating that the number of errors related to the info has altered.
-    void errorCountChanged(int errorCount);
-
-    /// Signal indicating that the warning state of the info has altered.
-    void warningStateChanged(bool warningState);
-
-    /*!
-      * Signal indicating that the number of warnings related to the info has
-      * altered.
-      */
-    void warningCountChanged(int warningCount);
 public slots:
 
 	/*!
@@ -399,8 +388,8 @@ protected:
     double exitSlitPosition_;
     double requestedEnergy_;
 
-    AMValidator errorValidator_;
-    AMValidator warningValidator_;
+	AMValidator* errorValidator_;
+	AMValidator* warningValidator_;
 };
 
 #endif // SGMENERGYPOSITION_H
