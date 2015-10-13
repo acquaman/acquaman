@@ -25,6 +25,19 @@ public:
 	virtual bool isOn() const { return false; }
 	/// Returns false if beam is off, false otherwise.
 	virtual bool isOff() const { return false; }
+
+protected slots:
+	/// Updates the current value.
+	virtual void updateValue();
+
+protected:
+	/// Returns a new action that changes the beam state.
+	virtual AMAction3* createMoveAction(double newState);
+
+	/// Returns a new action that changes the control to 'beam on.'
+	virtual AMAction3* createBeamOnAction() { return 0; }
+	/// Returns a new action that changes the control to 'beam off.'
+	virtual AMAction3* createBeamOffAction() { return 0; }
 };
 
 #endif // BIOXASBEAMSTATUSCONTROL_H

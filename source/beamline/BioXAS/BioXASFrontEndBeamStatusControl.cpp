@@ -187,23 +187,6 @@ void BioXASFrontEndBeamStatusControl::updateConnected()
 	setConnected(isConnected);
 }
 
-void BioXASFrontEndBeamStatusControl::updateValue()
-{
-	double value = None;
-
-	if (isConnected()) {
-
-		if (isOn())
-			value = On;
-		else if (isOff())
-			value = Off;
-		else
-			value = None;
-	}
-
-	setValue(value);
-}
-
 void BioXASFrontEndBeamStatusControl::updateMoving()
 {
 	if (isConnected()) {
@@ -218,24 +201,6 @@ void BioXASFrontEndBeamStatusControl::updateMoving()
 
 		setIsMoving(isMoving);
 	}
-}
-
-AMAction3* BioXASFrontEndBeamStatusControl::createMoveAction(double newState)
-{
-	AMAction3 *result = 0;
-
-	switch(int(newState)) {
-	case On:
-		result = createBeamOnAction();
-		break;
-	case Off:
-		result = createBeamOffAction();
-		break;
-	default:
-		break;
-	}
-
-	return result;
 }
 
 AMAction3* BioXASFrontEndBeamStatusControl::createBeamOnAction()

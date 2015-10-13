@@ -77,15 +77,10 @@ public slots:
 protected slots:
 	/// Updates the connected state.
 	virtual void updateConnected();
-	/// Updates the current value.
-	virtual void updateValue();
 	/// Updates the 'is moving' state.
 	virtual void updateMoving();
 
 protected:
-	/// Returns a new action that changes the beam state.
-	AMAction3* createMoveAction(double newState);
-
 	/// Returns a new action that changes the control to 'beam on.'
 	AMAction3* createBeamOnAction();
 	/// Returns a new action that changes the control to 'beam off.'

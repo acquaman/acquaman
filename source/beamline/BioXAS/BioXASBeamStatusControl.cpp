@@ -59,3 +59,38 @@ bool BioXASBeamStatusControl::validSetpoint(double value) const
 
 	return result;
 }
+
+void BioXASBeamStatusControl::updateValue()
+{
+	double value = None;
+
+	if (isConnected()) {
+
+		if (isOn())
+			value = On;
+		else if (isOff())
+			value = Off;
+		else
+			value = None;
+	}
+
+	setValue(value);
+}
+
+AMAction3* BioXASBeamStatusControl::createMoveAction(double newState)
+{
+	AMAction3 *result = 0;
+
+	switch(int(newState)) {
+	case On:
+		result = createBeamOnAction();
+		break;
+	case Off:
+		result = createBeamOffAction();
+		break;
+	default:
+		break;
+	}
+
+	return result;
+}
