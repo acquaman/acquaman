@@ -19,6 +19,10 @@ public:
 
 	/// Returns the front end upstream photon shutter.
 	CLSBiStateControl* photonShutterUpstream() const { return photonShutterUpstream_; }
+	/// Returns the front end vacuum valve.
+	CLSBiStateControl* vacuumValve() const { return vacuumValve_; }
+	/// Returns the front end fast valve.
+	CLSBiStateControl* fastValve() const { return fastValve_; }
 	/// Returns the front end downstream photon shutter.
 	CLSBiStateControl* photonShutterDownstream() const { return photonShutterDownstream_; }
 	/// Returns the front end safety shutter.
@@ -27,6 +31,10 @@ public:
 protected:
 	/// The front end upstream photon shutter.
 	CLSBiStateControl *photonShutterUpstream_;
+	/// The front end vacuum valve.
+	CLSBiStateControl *vacuumValve_;
+	/// The front end fast valve.
+	CLSBiStateControl *fastValve_;
 	/// The front end downstream photon shutter.
 	CLSBiStateControl *photonShutterDownstream_;
 	/// The front end safety shutter.

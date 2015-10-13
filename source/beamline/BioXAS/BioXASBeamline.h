@@ -27,8 +27,10 @@
 #include "beamline/BioXAS/BioXASPseudoMotorControl.h"
 #include "beamline/BioXAS/BioXASBeamlineUtilities.h"
 #include "beamline/BioXAS/BioXASCryostatStage.h"
-#include "beamline/BioXAS/BioXASShutters.h"
+#include "beamline/BioXAS/BioXASFrontEndShutters.h"
 #include "beamline/BioXAS/BioXASValves.h"
+#include "beamline/BioXAS/BioXASBeamStatusControl.h"
+#include "beamline/BioXAS/BioXASFrontEndBeamStatusControl.h"
 
 #include "util/AMErrorMonitor.h"
 #include "util/AMBiHash.h"
@@ -38,11 +40,6 @@ class BioXASBeamline : public CLSBeamline
     Q_OBJECT
 
 public:
-	/// Enum indicating different shutter states.
-	class Shutters { public: enum State { Open = 1, Between = 2, Closed = 4 }; };
-	/// Enum indicating different beam on/off states.
-	class Beam { public: enum State { Off = 0, On = 1 }; };
-
 	/// Singleton accessor.
 	static BioXASBeamline *bioXAS()
 	{
@@ -62,10 +59,13 @@ public:
 	/// Returns the (cached) current connected state.
 	virtual bool connected() const { return connected_; }
 
-	/// Returns the shutters.
-	virtual BioXASShutters* shutters() const { return 0; }
-	/// Returns the valves.
+	/// Returns the front end shutters.
+	virtual BioXASFrontEndShutters* shutters() const { return frontEndShutters_; }
+	/// Returns the valves for Side, Main, Imaging.
 	virtual BioXASValves* valves() const { return valves_; }
+	/// Returns the front end beam status control.
+	virtual BioXASBeamStatusControl* frontEndBeamStatus() const { return frontEndBeamStatus_; }
+
 	/// Returns the m1 mirror.
 	virtual BioXASM1Mirror* m1Mirror() const { return 0; }
 	/// Returns the monochromator.
@@ -135,8 +135,12 @@ protected:
 	/// The current connected state.
 	bool connected_;
 
+	/// The front end shutters.
+	BioXASFrontEndShutters *frontEndShutters_;
 	/// The valves for all three beamlines.
 	BioXASValves *valves_;
+	/// The front end beam status.
+	BioXASFrontEndBeamStatusControl *frontEndBeamStatus_;
 
 	/// The control/detector map. Assumes a 1-1 correlation between controls and detector emulators.
 	QMap<AMControl*, AMBasicControlDetectorEmulator*> controlDetectorMap_;
