@@ -125,5 +125,10 @@ void AMGenericStepScanController::buildScanControllerImplementation()
 			// This is sufficient to add a region of interest on all detectors as they should by synchronized via AMBeamline::synchronizeXRFDetectors.
 			detector->addRegionOfInterest(region);
 		}
+
+		if (configuration_->hasI0()){
+
+
+		}
 	}
 }
