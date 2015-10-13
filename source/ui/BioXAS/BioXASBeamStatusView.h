@@ -3,7 +3,10 @@
 
 #include <QWidget>
 
+#include "beamline/BioXAS/BioXASBeamStatus.h"
 #include "ui/beamline/AMExtendedControlEditor.h"
+#include "ui/BioXAS/BioXASFrontEndBeamStatusView.h"
+
 
 class BioXASBeamStatusView : public QWidget
 {
@@ -11,25 +14,34 @@ class BioXASBeamStatusView : public QWidget
 
 public:
 	/// Constructor.
-    explicit BioXASBeamStatusView(QWidget *parent = 0);
+	explicit BioXASBeamStatusView(BioXASBeamStatus *beamStatus, QWidget *parent = 0);
 	/// Destructor.
 	virtual ~BioXASBeamStatusView();
 
+	/// Returns the beam status being viewed.
+	BioXASBeamStatus* beamStatus() const { return beamStatus_; }
+
 signals:
+	/// Notifier that the beam status being viewed has changed.
+	void beamStatusChanged(BioXASBeamStatus *beamStatus);
 
 public slots:
+	/// Clears the view.
+	void clear();
+	/// Updates the view.
+	void update();
+	/// Refreshes the view.
+	void refresh();
+
+	/// Sets the front-end beam status control.
+	void setBeamStatus(BioXASBeamStatus *newStatus);
 
 protected:
-//	/// The editor for the front-end beam status.
-//	AMExtendedControlEditor *frontEndStatus_;
-//	/// The label holding the valves status LED.
-//	QLabel *valvesStatus_;
-//	/// The label holding the safety shutter status LED.
-//	QLabel *safetyShutterStatus_;
-//	/// The label holding the downstream photon shutter status LED.
-//	QLabel *downstreamPhotonShutterStatus_;
-//	/// The label holding the upstream photon shutter status LED.
-//	QLabel *upstreamPhotonShutterStatus_;
+	/// The beam status being viewed.
+	BioXASBeamStatus *beamStatus_;
+
+	/// The front-end beam status view.
+	BioXASFrontEndBeamStatusView *frontEndBeamStatusView_;
 };
 
 #endif // BIOXASBEAMSTATUSVIEW_H

@@ -220,6 +220,7 @@ void BioXASAppController::setupUserInterface()
 	// Create beamline component views:
 	////////////////////////////////////
 
+	addComponentView(BioXASBeamline::bioXAS()->beamStatus(), "Beam status");
 	addComponentView(BioXASBeamline::bioXAS()->m1Mirror(), "M1 Mirror");
 	addComponentView(BioXASBeamline::bioXAS()->mono(), "Monochromator");
 	addComponentView(BioXASBeamline::bioXAS()->m2Mirror(), "M2 Mirror");
@@ -370,6 +371,12 @@ QWidget* BioXASAppController::createComponentView(QObject *component)
 
 		// Try to match up given component with known component types.
 		// If match found, create appropriate view.
+
+		BioXASBeamStatus *beamStatus = qobject_cast<BioXASBeamStatus*>(component);
+		if (!componentFound && beamStatus) {
+			componentView = new BioXASBeamStatusView(beamStatus);
+			componentFound = true;
+		}
 
 		BioXASM1Mirror *m1Mirror = qobject_cast<BioXASM1Mirror*>(component);
 		if (!componentFound && m1Mirror) {

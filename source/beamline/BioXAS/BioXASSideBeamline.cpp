@@ -36,6 +36,7 @@ bool BioXASSideBeamline::isConnected() const
 				// Front-end BioXAS components.
 				BioXASBeamline::isConnected() &&
 
+				beamStatus_ && beamStatus_->isConnected() &&
 				safetyShutterES_ && safetyShutterES_->isConnected() &&
 				m1Mirror_ && m1Mirror_->isConnected() &&
 				mono_ && mono_->isConnected() &&
@@ -171,6 +172,17 @@ AMBasicControlDetectorEmulator* BioXASSideBeamline::braggStepSetpointDetector() 
 
 void BioXASSideBeamline::setupComponents()
 {
+	// Beam status.
+	beamStatus_ = new BioXASBeamStatus("BioXASSideBeamStatus", this);
+	connect( beamStatus_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+
+	beamStatus_->frontEndBeamStatusControl()->setPhotonShutterUpstream(shutters()->photonShutterUpstream());
+	beamStatus_->frontEndBeamStatusControl()->setVacuumValve(shutters()->vacuumValve());
+	beamStatus_->frontEndBeamStatusControl()->setFastValve(shutters()->fastValve());
+	beamStatus_->frontEndBeamStatusControl()->setPhotonShutterDownstream(shutters()->photonShutterDownstream());
+	beamStatus_->frontEndBeamStatusControl()->setSafetyShutter(shutters()->safetyShutter());
+	beamStatus_->frontEndBeamStatusControl()->setValves(beamlineValves()->valvesControl());
+
 	// Endstation safety shutter.
 	safetyShutterES_ = new  CLSBiStateControl("SideShutter", "SideShutter", "SSH1607-5-I22-01:state", "SSH1607-5-I22-01:opr:open", "SSH1607-5-I22-01:opr:close", new AMControlStatusCheckerDefault(2), this);
 	connect( safetyShutterES_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
