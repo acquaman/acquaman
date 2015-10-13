@@ -7,7 +7,8 @@ BioXASSideBeamStatusControl::BioXASSideBeamStatusControl(QObject *parent) :
 
 	frontEndBeamStatus_ = 0;
 	preMirrorMask_ = 0;
-	preMonoMask_ = 0;
+	preMonoMaskUpperBlade_ = 0;
+	preMonoMaskLowerBlade_ = 0;
 
 	// Set inherited settings.
 
@@ -28,7 +29,7 @@ bool BioXASSideBeamStatusControl::shouldStop() const
 	bool result = false;
 
 	if (isConnected())
-		result = (frontEndBeamStatus_->shouldStop() && preMirrorMask_->shouldStop() && preMonoMask_->shouldStop());
+		result = (frontEndBeamStatus_->shouldStop() && preMirrorMask_->shouldStop() && preMonoMaskUpperBlade_->shouldStop() && preMonoMaskLowerBlade_->shouldStop());
 
 	return result;
 }
@@ -38,7 +39,7 @@ bool BioXASSideBeamStatusControl::canMeasure() const
 	bool result = false;
 
 	if (isConnected())
-		result = (frontEndBeamStatus_->canMeasure() && preMirrorMask_->canMeasure() && preMonoMask_->canMeasure());
+		result = (frontEndBeamStatus_->canMeasure() && preMirrorMask_->canMeasure() && preMonoMaskUpperBlade_->canMeasure() && preMonoMaskLowerBlade_->canMeasure());
 
 	return result;
 }
@@ -58,7 +59,7 @@ bool BioXASSideBeamStatusControl::canStop() const
 	bool result = false;
 
 	if (isConnected())
-		result = (frontEndBeamStatus_->canStop() && preMirrorMask_->canStop() && preMonoMask_->canStop());
+		result = (frontEndBeamStatus_->canStop() && preMirrorMask_->canStop() && preMonoMaskUpperBlade_->canStop() && preMonoMaskLowerBlade_->canStop());
 
 	return result;
 }
@@ -68,7 +69,7 @@ bool BioXASSideBeamStatusControl::isOn() const
 	bool result = false;
 
 	if (isConnected())
-		result = (frontEndBeamStatus_->isOn() && (preMirrorMask_->value() > 0) && (preMonoMask_->value() > 0));
+		result = (frontEndBeamStatus_->isOn() && (preMirrorMask_->value() > 0) && (preMonoMaskUpperBlade_->value() != preMonoMaskLowerBlade_->value()));
 
 	return result;
 }
@@ -105,19 +106,35 @@ void BioXASSideBeamStatusControl::setPreMirrorMaskControl(AMControl *newControl)
 	}
 }
 
-void BioXASSideBeamStatusControl::setPreMonoMaskControl(AMControl *newControl)
+void BioXASSideBeamStatusControl::setPreMonoMaskUpperBladeControl(AMControl *newControl)
 {
-	if (preMonoMask_ != newControl) {
+	if (preMonoMaskUpperBlade_ != newControl) {
 
-		if (preMonoMask_)
-			removeChildControl(preMirrorMask_);
+		if (preMonoMaskUpperBlade_)
+			removeChildControl(preMonoMaskUpperBlade_);
 
-		preMirrorMask_ = newControl;
+		preMonoMaskUpperBlade_ = newControl;
 
-		if (preMirrorMask_)
-			addChildControl(preMirrorMask_);
+		if (preMonoMaskUpperBlade_)
+			addChildControl(preMonoMaskUpperBlade_);
 
-		emit preMirrorMaskControlChanged(preMirrorMask_);
+		emit preMonoMaskUpperBladeControlChanged(preMonoMaskUpperBlade_);
+	}
+}
+
+void BioXASSideBeamStatusControl::setPreMonoMaskLowerBladeControl(AMControl *newControl)
+{
+	if (preMonoMaskLowerBlade_ != newControl) {
+
+		if (preMonoMaskLowerBlade_)
+			removeChildControl(preMonoMaskLowerBlade_);
+
+		preMonoMaskLowerBlade_ = newControl;
+
+		if (preMonoMaskLowerBlade_)
+			addChildControl(preMonoMaskLowerBlade_);
+
+		emit preMonoMaskLowerBladeControlChanged(preMonoMaskLowerBlade_);
 	}
 }
 
@@ -126,7 +143,8 @@ void BioXASSideBeamStatusControl::updateConnected()
 	bool isConnected = (
 				frontEndBeamStatus_ && frontEndBeamStatus_->isConnected() &&
 				preMirrorMask_ && preMirrorMask_->isConnected() &&
-				preMonoMask_ && preMonoMask_->isConnected()
+				preMonoMaskUpperBlade_ && preMonoMaskUpperBlade_->isConnected() &&
+				preMonoMaskLowerBlade_ && preMonoMaskLowerBlade_->isConnected()
 				);
 
 	setConnected(isConnected);
@@ -138,7 +156,8 @@ void BioXASSideBeamStatusControl::updateMoving()
 		bool isMoving = (
 					frontEndBeamStatus_->isMoving() ||
 					preMirrorMask_->isMoving() ||
-					preMonoMask_->isMoving()
+					preMonoMaskUpperBlade_->isMoving() ||
+					preMonoMaskLowerBlade_->isMoving()
 					);
 
 		setIsMoving(isMoving);

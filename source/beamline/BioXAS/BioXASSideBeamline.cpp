@@ -39,6 +39,7 @@ bool BioXASSideBeamline::isConnected() const
 				safetyShutterES_ && safetyShutterES_->isConnected() &&
 				m1Mirror_ && m1Mirror_->isConnected() &&
 				mono_ && mono_->isConnected() &&
+				beamStatus_ && beamStatus_->isConnected() &&
 				m2Mirror_ && m2Mirror_->isConnected() &&
 				carbonFilterFarm_ && carbonFilterFarm_->isConnected() &&
 				jjSlits_ && jjSlits_->isConnected() &&
@@ -180,14 +181,18 @@ void BioXASSideBeamline::setupComponents()
 
 	// Mono.
 	mono_ = new BioXASSideMonochromator(this);
-	mono_->setM1MirrorPitchControl(m1Mirror_->pitchControl());
 	connect( mono_, SIGNAL(connectedChanged(bool)), this, SLOT(updateConnected()) );
+
+	mono_->setM1MirrorPitchControl(m1Mirror_->pitchControl());
 
 	// Beam status.
 	beamStatus_ = new BioXASSideBeamStatusControl(this);
+	connect( beamStatus_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+
 	beamStatus_->setFrontEndBeamStatusControl(frontEndBeamStatus());
 	beamStatus_->setPreMirrorMaskControl(m1Mirror_->upperSlitBladeMotorControl());
-	beamStatus_->setPreMonoMaskControl(0);
+	beamStatus_->setPreMonoMaskUpperBladeControl(mono_->upperSlitBladeMotor());
+	beamStatus_->setPreMonoMaskLowerBladeControl(mono_->lowerSlitBladeMotor());
 
 	// M2 mirror.
 	m2Mirror_ = new BioXASSideM2Mirror(this);
@@ -281,8 +286,9 @@ void BioXASSideBeamline::setupComponents()
 
 	// The germanium detector.
 	ge32ElementDetector_ = new BioXAS32ElementGeDetector("Ge32Element", "Ge 32 Element", this);
-	addSynchronizedXRFDetector(ge32ElementDetector_);
 	connect( ge32ElementDetector_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+
+	addSynchronizedXRFDetector(ge32ElementDetector_);
 
 	// Utilities.
 	utilities_ = new BioXASSideBeamlineUtilities(this);
