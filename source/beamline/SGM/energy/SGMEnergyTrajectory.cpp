@@ -25,7 +25,7 @@ SGMEnergyTrajectory::SGMEnergyTrajectory(double startEnergy,
     time_ = time;
 
     /*
-     * The velocity profile class needs to be refines, as per Issue 1563.
+	 * The velocity profile class needs to be refined, as per Issue 1563.
      * Some noted refinements:
      *   - Should the general class be a motion profile rather than a velocity profile?
      *   - Is there a need for a general class system for these (AMVelocityProfile/AMMotionProfile)?
@@ -35,9 +35,9 @@ SGMEnergyTrajectory::SGMEnergyTrajectory(double startEnergy,
      *   - Also need to figure out what the acceleration values are for the controls
      *     on the beamline.
      */
-    gratingAngleVelocityProfile_ = AMTrapezoidVelocityProfile(0, 5.0, (endGratingAngleEncoderStep() - startGratingAngleEncoderStep()) / time_, -5.0);
-    undulatorVelocityProfile_ = AMTrapezoidVelocityProfile(0, 5.0, (endUndulatorPosition() - startUndulatorPosition()) / time_, -5.0);
-    exitSlitVelocityProfile_ = AMTrapezoidVelocityProfile(0, 5.0, (endExitSlitPosition() - startExitSlitPosition()) / time_, -5.0);
+	gratingAngleVelocityProfile_ = AMTrapezoidVelocityProfile(0, 5.0, qAbs(endGratingAngleEncoderStep() - startGratingAngleEncoderStep()) / time_, -5.0);
+	undulatorVelocityProfile_ = AMTrapezoidVelocityProfile(0, 5.0, qAbs(endUndulatorPosition() - startUndulatorPosition()) / time_, -5.0);
+	exitSlitVelocityProfile_ = AMTrapezoidVelocityProfile(0, 5.0, qAbs(endExitSlitPosition() - startExitSlitPosition()) / time_, -5.0);
 }
 
 SGMEnergyTrajectory::~SGMEnergyTrajectory()

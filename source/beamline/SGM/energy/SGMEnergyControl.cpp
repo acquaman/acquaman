@@ -508,7 +508,7 @@ AMAction3 *SGMEnergyControl::createMoveAction(double startSetpoint,
 				if(!energyTrajectoryHelper.hasErrors()) {
 
 					// Move to start using simple fast method
-					qDebug() << "\t#1 Move to start at" << startSetpoint;
+					qDebug() << "\t#1 Move to initial position at" << startSetpoint;
 					AMAction3* initialMoveToStart = createMoveAction(startSetpoint);
 
 					// Set velocities
@@ -576,7 +576,7 @@ AMAction3 *SGMEnergyControl::createMoveAction(double startSetpoint,
 																								  10,
 																								  AMControlWaitActionInfo::MatchWithinTolerance));
 					double meanExitSlitPosition = (energyTrajectoryHelper.startExitSlitPosition() + energyTrajectoryHelper.endExitSlitPosition()) / 2;
-					qDebug() << "\t#3 Set Exit Slit potiion to" << meanExitSlitPosition;
+					qDebug() << "\t#3 Set Exit Slit position to mean position at" << meanExitSlitPosition;
 					AMAction3* positionExitSlitAction = AMActionSupport::buildControlMoveAction(exitSlitPositionControl_,
 																								meanExitSlitPosition,
 																								false);
