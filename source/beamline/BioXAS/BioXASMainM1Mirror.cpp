@@ -18,34 +18,34 @@ BioXASMainM1Mirror::BioXASMainM1Mirror(QObject *parent) :
 	benderDownstreamMotor_ = new CLSMAXvMotor(QString("SMTR1607-5-I21-07 BENDER (DOWNSTREAM)"), QString("SMTR1607-5-I21-07"), QString("SMTR1607-5-I21-07 BENDER (DOWNSTREAM)"), true, 0.1, 2.0, this, QString(":lbs"));
 	upperSlitBladeMotor_ = new CLSMAXvMotor(QString("SMTR1607-5-I21-08 UPPER SLIT"), QString("SMTR1607-5-I21-08"), QString("SMTR1607-5-I21-08 UPPER SLIT"), true, 0.1, 2.0, this, QString(":mm"));
 
-	pitch_ = new BioXASMirrorPitchControl(name_+"PitchControl", "deg", this);
+	pitch_ = new BioXASMirrorPitchControl(name()+"PitchControl", "deg", this);
 	pitch_->setUpstreamInboardMotor(upstreamInboardMotor_);
 	pitch_->setUpstreamOutboardMotor(upstreamOutboardMotor_);
 	pitch_->setDownstreamMotor(downstreamMotor_);
 
-	roll_ = new BioXASMirrorRollControl(name_+"RollControl", "deg", this);
+	roll_ = new BioXASMirrorRollControl(name()+"RollControl", "deg", this);
 	roll_->setUpstreamInboardMotor(upstreamInboardMotor_);
 	roll_->setUpstreamOutboardMotor(upstreamOutboardMotor_);
 	roll_->setDownstreamMotor(downstreamMotor_);
 
-	height_ = new BioXASMirrorHeightControl(name_+"HeightControl", "mm", this);
+	height_ = new BioXASMirrorHeightControl(name()+"HeightControl", "mm", this);
 	height_->setUpstreamInboardMotor(upstreamInboardMotor_);
 	height_->setUpstreamOutboardMotor(upstreamOutboardMotor_);
 	height_->setDownstreamMotor(downstreamMotor_);
 
-	lateral_ = new BioXASMirrorLateralControl(name_+"LateralControl", "mm", this);
+	lateral_ = new BioXASMirrorLateralControl(name()+"LateralControl", "mm", this);
 	lateral_->setStripeSelectionMotor(stripeSelectMotor_);
 	lateral_->setYawMotor(yawMotor_);
 	lateral_->setUpstreamLength(upstreamLength_);
 	lateral_->setDownstreamLength(downstreamLength_);
 
-	yaw_ = new BioXASMirrorYawControl(name_+"YawControl", "deg", this);
+	yaw_ = new BioXASMirrorYawControl(name()+"YawControl", "deg", this);
 	yaw_->setYawMotor(yawMotor_);
 	yaw_->setStripeSelectionMotor(stripeSelectMotor_);
 	yaw_->setUpstreamLength(upstreamLength_);
 	yaw_->setDownstreamLength(downstreamLength_);
 
-	bend_ = new BioXASMainM1MirrorBendControl(name_+"BendControl", "m", this);
+	bend_ = new BioXASMainM1MirrorBendControl(name()+"BendControl", "m", this);
 	bend_->setUpstreamBenderMotor(benderUpstreamMotor_);
 	bend_->setDownstreamBenderMotor(benderDownstreamMotor_);
 

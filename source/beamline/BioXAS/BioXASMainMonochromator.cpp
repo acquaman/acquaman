@@ -32,11 +32,11 @@ BioXASMainMonochromator::BioXASMainMonochromator(QObject *parent) :
 	crystal2PitchMotor_ = new CLSMAXvMotor(QString("SMTR1607-5-I21-25 XTAL 2 PITCH"), QString("SMTR1607-5-I21-25"), QString("SMTR1607-5-I21-25 XTAL 2 PITCH"), true, 0.05, 2.0, this, QString(":V"));
 	crystal2RollMotor_ = new CLSMAXvMotor(QString("SMTR1607-5-I21-26 XTAL 2 ROLL"), QString("SMTR1607-5-I21-26"), QString("SMTR1607-5-I21-26 XTAL 2 ROLL"), true, 0.05, 2.0, this, QString(":V"));
 
-	encoderStepsDiff_ = new AMReadOnlyPVControl(name_+"EncoderStepsDiffControlDeg", "BL1607-7-I21:Mono:fbk:diff", this);
+	encoderStepsDiff_ = new AMReadOnlyPVControl(name()+"EncoderStepsDiffControlDeg", "BL1607-7-I21:Mono:fbk:diff", this);
 
 	// Create region control.
 
-	region_ = new BioXASSSRLMonochromatorRegionControl(name_+"RegionControl", this);
+	region_ = new BioXASSSRLMonochromatorRegionControl(name()+"RegionControl", this);
 	region_->setUpperSlitControl(upperSlit_);
 	region_->setLowerSlitControl(lowerSlit_);
 	region_->setSlitsStatusControl(slitsStatus_);
@@ -54,12 +54,12 @@ BioXASMainMonochromator::BioXASMainMonochromator(QObject *parent) :
 
 	// Create energy control.
 
-	encoderEnergy_ = new BioXASSSRLMonochromatorEnergyControl(name_+"EncoderEnergyControl", this);
+	encoderEnergy_ = new BioXASSSRLMonochromatorEnergyControl(name()+"EncoderEnergyControl", this);
 	encoderEnergy_->setBraggControl(encoderBraggMotor_);
 	encoderEnergy_->setRegionControl(region_);
 	encoderEnergy_->setM1MirrorPitchControl(m1Pitch_);
 
-	stepEnergy_ = new BioXASSSRLMonochromatorEnergyControl(name_+"StepEnergyControl", this);
+	stepEnergy_ = new BioXASSSRLMonochromatorEnergyControl(name()+"StepEnergyControl", this);
 	stepEnergy_->setBraggControl(stepsBraggMotor_);
 	stepEnergy_->setRegionControl(region_);
 	stepEnergy_->setM1MirrorPitchControl(m1Pitch_);
