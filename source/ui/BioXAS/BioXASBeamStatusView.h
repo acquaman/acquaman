@@ -3,6 +3,7 @@
 
 #include <QWidget>
 
+#include "beamline/BioXAS/BioXASBeamStatus.h"
 #include "ui/beamline/AMExtendedControlEditor.h"
 #include "ui/BioXAS/BioXASFrontEndBeamStatusView.h"
 
@@ -13,9 +14,16 @@ class BioXASBeamStatusView : public QWidget
 
 public:
 	/// Constructor.
-	explicit BioXASBeamStatusView(BioXASFrontEndBeamStatusControl *frontEndBeamStatus, QWidget *parent = 0);
+	explicit BioXASBeamStatusView(BioXASBeamStatus *beamStatus, QWidget *parent = 0);
 	/// Destructor.
 	virtual ~BioXASBeamStatusView();
+
+	/// Returns the beam status being viewed.
+	BioXASBeamStatus* beamStatus() const { return beamStatus_; }
+
+signals:
+	/// Notifier that the beam status being viewed has changed.
+	void beamStatusChanged(BioXASBeamStatus *beamStatus);
 
 public slots:
 	/// Clears the view.
@@ -26,9 +34,12 @@ public slots:
 	void refresh();
 
 	/// Sets the front-end beam status control.
-	void setFrontEndBeamStatusControl(BioXASFrontEndBeamStatusControl *newControl);
+	void setBeamStatus(BioXASBeamStatus *newStatus);
 
 protected:
+	/// The beam status being viewed.
+	BioXASBeamStatus *beamStatus_;
+
 	/// The front-end beam status view.
 	BioXASFrontEndBeamStatusView *frontEndBeamStatusView_;
 };

@@ -1,6 +1,6 @@
 #include "BioXASBeamStatusView.h"
 
-BioXASBeamStatusView::BioXASBeamStatusView(BioXASFrontEndBeamStatusControl *frontEndBeamStatus, QWidget *parent) :
+BioXASBeamStatusView::BioXASBeamStatusView(BioXASBeamStatus *beamStatus, QWidget *parent) :
     QWidget(parent)
 {
 	// Create UI elements.
@@ -18,7 +18,7 @@ BioXASBeamStatusView::BioXASBeamStatusView(BioXASFrontEndBeamStatusControl *fron
 
 	// Current settings.
 
-	setFrontEndBeamStatusControl(frontEndBeamStatus);
+	setBeamStatus(beamStatus);
 	refresh();
 }
 
@@ -39,10 +39,30 @@ void BioXASBeamStatusView::update()
 
 void BioXASBeamStatusView::refresh()
 {
-	frontEndBeamStatusView_->refresh();
+	// Clear the view.
+
+	clear();
+
+	// Setup.
+
+	if (beamStatus_) {
+		frontEndBeamStatusView_->setBeamStatusControl(beamStatus_->frontEndBeamStatusControl());
+	}
+
+	// Update the view.
+
+	update();
 }
 
-void BioXASBeamStatusView::setFrontEndBeamStatusControl(BioXASFrontEndBeamStatusControl *newControl)
+void BioXASBeamStatusView::setBeamStatus(BioXASBeamStatus *newStatus)
 {
-	frontEndBeamStatusView_->setBeamStatusControl(newControl);
+	if (beamStatus_ != newStatus) {
+
+		beamStatus_ = newStatus;
+
+		refresh();
+
+		emit beamStatusChanged(beamStatus_);
+
+	}
 }
