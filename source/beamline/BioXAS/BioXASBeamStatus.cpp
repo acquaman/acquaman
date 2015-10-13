@@ -7,6 +7,9 @@ BioXASBeamStatus::BioXASBeamStatus(const QString &name, QObject *parent) :
 
 	frontEndBeamStatus_ = new BioXASFrontEndBeamStatusControl(this);
 
+	sideBeamStatus_ = new BioXASSideBeamStatusControl(this);
+	sideBeamStatus_->setFrontEndBeamStatusControl(frontEndBeamStatus_);
+
 }
 
 BioXASBeamStatus::~BioXASBeamStatus()

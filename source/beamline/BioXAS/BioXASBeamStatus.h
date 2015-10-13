@@ -3,6 +3,7 @@
 
 #include "beamline/BioXAS/BioXASBeamlineComponent.h"
 #include "beamline/BioXAS/BioXASFrontEndBeamStatusControl.h"
+#include "beamline/BioXAS/BioXASSideBeamStatusControl.h"
 
 class BioXASBeamStatus : public BioXASBeamlineComponent
 {
@@ -19,10 +20,14 @@ public:
 
 	/// Returns the front-end beam status control.
 	BioXASFrontEndBeamStatusControl* frontEndBeamStatusControl() const { return frontEndBeamStatus_; }
+	/// Returns the Side beam status control.
+	BioXASSideBeamStatusControl* sideBeamStatusControl() const { return sideBeamStatus_; }
 
 protected:
 	/// The front-end beam status control.
 	BioXASFrontEndBeamStatusControl* frontEndBeamStatus_;
+	/// The Side beam status control.
+	BioXASSideBeamStatusControl *sideBeamStatus_;
 };
 
 #endif // BIOXASBEAMSTATUS_H
