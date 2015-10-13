@@ -32,6 +32,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/BioXAS/BioXASSideDBHRMirrors.h"
 #include "beamline/BioXAS/BioXASSideBeamlineUtilities.h"
 #include "beamline/BioXAS/BioXASSideCryostatStage.h"
+#include "beamline/BioXAS/BioXASSideBeamStatusControl.h"
 
 class BioXASSideBeamline : public BioXASBeamline
 {
@@ -62,6 +63,8 @@ public:
 	virtual BioXASM1Mirror* m1Mirror() const { return m1Mirror_; }
 	/// Returns the mono.
 	virtual BioXASSSRLMonochromator* mono() const { return mono_; }
+	/// Returns the beam status control.
+	BioXASSideBeamStatusControl* beamStatusControl() const { return beamStatus_; }
 	/// Returns the m2 mirror.
 	virtual BioXASM2Mirror* m2Mirror() const { return m2Mirror_; }
 	/// Returns the carbon filter farm.
@@ -138,6 +141,8 @@ protected:
 	BioXASSideM1Mirror *m1Mirror_;
 	// The mono.
 	BioXASSSRLMonochromator *mono_;
+	/// The beam status control.
+	BioXASSideBeamStatusControl *beamStatus_;
 	/// The M2 mirror.
 	BioXASSideM2Mirror *m2Mirror_;
 	/// The carbon filter farm

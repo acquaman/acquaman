@@ -64,7 +64,7 @@ public:
 	/// Returns the valves for Side, Main, Imaging.
 	virtual BioXASValves* valves() const { return valves_; }
 	/// Returns the front end beam status control.
-	virtual BioXASBeamStatusControl* frontEndBeamStatus() const { return frontEndBeamStatus_; }
+	virtual BioXASFrontEndBeamStatusControl* frontEndBeamStatus() const { return frontEndBeamStatus_; }
 
 	/// Returns the m1 mirror.
 	virtual BioXASM1Mirror* m1Mirror() const { return 0; }

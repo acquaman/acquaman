@@ -183,6 +183,12 @@ void BioXASSideBeamline::setupComponents()
 	mono_->setM1MirrorPitchControl(m1Mirror_->pitchControl());
 	connect( mono_, SIGNAL(connectedChanged(bool)), this, SLOT(updateConnected()) );
 
+	// Beam status.
+	beamStatus_ = new BioXASSideBeamStatusControl(this);
+	beamStatus_->setFrontEndBeamStatusControl(frontEndBeamStatus());
+	beamStatus_->setPreMirrorMaskControl(m1Mirror_->upperSlitBladeMotorControl());
+	beamStatus_->setPreMonoMaskControl(0);
+
 	// M2 mirror.
 	m2Mirror_ = new BioXASSideM2Mirror(this);
 	connect( m2Mirror_, SIGNAL(connectedChanged(bool)), this, SLOT(updateConnected()) );
