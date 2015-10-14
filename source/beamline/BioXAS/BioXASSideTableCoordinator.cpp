@@ -34,105 +34,10 @@ BioXASSideTableCoordinator::BioXASSideTableCoordinator(QObject *parent) :
 	initialized_ = false;
 	connectedOnce_ = false;
 
-	// ============ Original PVs ==================
-	verticalUpstreamControl_ = new AMSinglePVControl("Side Vertical Upstream", "SMTR1607-6-I22-02:mm", this, 0.001);
-	verticalUpstreamFeedbackControl_ = new AMReadOnlyPVControl("Side Vertical Upstream Feedback", "SMTR1607-6-I22-02:mm:fbk", this);
-	verticalUpstreamStatusControl_ = new AMReadOnlyPVControl("Side Vertical Upstream Status", "SMTR1607-6-I22-02:status", this);
-	verticalUpstreamStopControl_ = new AMSinglePVControl("Side Vertical Upstream Stop", "SMTR1607-6-I22-02:stop", this);
-
-	verticalDownstreamControl_ = new AMSinglePVControl("Side Vertical Downstream", "SMTR1607-6-I22-03:mm", this, 0.001);
-	verticalDownstreamFeedbackControl_ = new AMReadOnlyPVControl("Side Vertical Downstream Feedback", "SMTR1607-6-I22-03:mm:fbk", this);
-	verticalDownstreamStatusControl_ = new AMReadOnlyPVControl("Side Vertical Downstream Status", "SMTR1607-6-I22-03:status", this);
-	verticalDownstreamStopControl_ = new AMSinglePVControl("Side Vertical Downstream Stop", "SMTR1607-6-I22-03:stop", this);
-
-
-	horizontalUpstreamControl_ = new AMSinglePVControl("Side Horizonal Upstream", "SMTR1607-6-I22-04:mm", this, 0.001);
-	horizontalUpstreamFeedbackControl_ = new AMReadOnlyPVControl("Side Horizonal Upstream Feedback", "SMTR1607-6-I22-04:mm:fbk", this);
-	horizontalUpstreamStatusControl_ = new AMReadOnlyPVControl("Side Horizonal Upstream Status", "SMTR1607-6-I22-04:status", this);
-	horizontalUpstreamStopControl_ = new AMSinglePVControl("Side Horizonal Upstream Stop", "SMTR1607-6-I22-04:stop", this);
-
-	horizontalDownstreamControl_ = new AMSinglePVControl("Side Horizonal Downstream", "SMTR1607-6-I22-05:mm", this, 0.001);
-	horizontalDownstreamFeedbackControl_ = new AMReadOnlyPVControl("Side Horizonal Downstream Feedback", "SMTR1607-6-I22-05:mm:fbk", this);
-	horizontalDownstreamStatusControl_ = new AMReadOnlyPVControl("Side Horizonal Downstream Status", "SMTR1607-6-I22-05:status", this);
-	horizontalDownstreamStopControl_ = new AMSinglePVControl("Side Horizonal Downstream Stop", "SMTR1607-6-I22-05:stop", this);
-
-	// ============ SoftIOC PVs ==================
-	softIOCHeightControl_ = new AMSinglePVControl("Side softIOC Height", "BL1607-6-I22:Height:mm", this, 0.001);
-	softIOCHeightFeedbackControl_ = new AMSinglePVControl("Side softIOC Height Feedback", "BL1607-6-I22:Height:mm:fbk", this, 0.001);
-	softIOCHeightStatusControl_ = new AMSinglePVControl("Side softIOC Height Status", "BL1607-6-I22:Height:status", this, 0.5);
-	softIOCHeightStopControl_ = new AMSinglePVControl("Side softIOC Height Stop", "BL1607-6-I22:Height:stop", this, 0.5);
-
-	softIOCPitchControl_ = new AMSinglePVControl("Side softIOC Pitch", "BL1607-6-I22:Pitch:deg", this, 0.001);
-	softIOCPitchFeedbackControl_ = new AMSinglePVControl("Side softIOC Pitch Feedback", "BL1607-6-I22:Pitch:deg:fbk", this, 0.001);
-	softIOCPitchStatusControl_ = new AMSinglePVControl("Side softIOC Pitch Status", "BL1607-6-I22:Pitch:status", this, 0.5);
-	softIOCPitchStopControl_ = new AMSinglePVControl("Side softIOC Pitch Stop", "BL1607-6-I22:Pitch:stop", this, 0.5);
-
-	softIOCLateralControl_ = new AMSinglePVControl("Side softIOC Lateral", "BL1607-6-I22:Lateral:mm", this, 0.001);
-	softIOCLateralFeedbackControl_ = new AMSinglePVControl("Side softIOC Lateral Feedback", "BL1607-6-I22:Lateral:mm:fbk", this, 0.001);
-	softIOCLateralStatusControl_ = new AMSinglePVControl("Side softIOC Lateral Status", "BL1607-6-I22:Lateral:status", this, 0.5);
-	softIOCLateralStopControl_ = new AMSinglePVControl("Side softIOC Lateral Stop", "BL1607-6-I22:Lateral:stop", this, 0.5);
-
-	softIOCYawControl_ = new AMSinglePVControl("Side softIOC Yaw", "BL1607-6-I22:Yaw:deg", this, 0.001);
-	softIOCYawFeedbackControl_ = new AMSinglePVControl("Side softIOC Yaw Feedback", "BL1607-6-I22:Yaw:deg:fbk", this, 0.001);
-	softIOCYawStatusControl_ = new AMSinglePVControl("Side softIOC Yaw Status", "BL1607-6-I22:Yaw:status", this, 0.5);
-	softIOCYawStopControl_ = new AMSinglePVControl("Side softIOC Yaw Stop", "BL1607-6-I22:Yaw:stop", this, 0.5);
-
-	allControls_ = new AMControlSet(this);
-	allControls_->addControl(verticalUpstreamControl_);
-	allControls_->addControl(verticalUpstreamFeedbackControl_);
-	allControls_->addControl(verticalUpstreamStatusControl_);
-	allControls_->addControl(verticalUpstreamStopControl_);
-	allControls_->addControl(verticalDownstreamControl_);
-	allControls_->addControl(verticalDownstreamFeedbackControl_);
-	allControls_->addControl(verticalDownstreamStatusControl_);
-	allControls_->addControl(verticalDownstreamStopControl_);
-	allControls_->addControl(horizontalUpstreamControl_);
-	allControls_->addControl(horizontalUpstreamFeedbackControl_);
-	allControls_->addControl(horizontalUpstreamStatusControl_);
-	allControls_->addControl(horizontalUpstreamStopControl_);
-	allControls_->addControl(horizontalDownstreamControl_);
-	allControls_->addControl(horizontalDownstreamFeedbackControl_);
-	allControls_->addControl(horizontalDownstreamStatusControl_);
-	allControls_->addControl(horizontalDownstreamStopControl_);
-	allControls_->addControl(softIOCHeightControl_);
-	allControls_->addControl(softIOCHeightFeedbackControl_);
-	allControls_->addControl(softIOCHeightStatusControl_);
-	allControls_->addControl(softIOCHeightStopControl_);
-	allControls_->addControl(softIOCPitchControl_);
-	allControls_->addControl(softIOCPitchFeedbackControl_);
-	allControls_->addControl(softIOCPitchStatusControl_);
-	allControls_->addControl(softIOCPitchStopControl_);
-	allControls_->addControl(softIOCLateralControl_);
-	allControls_->addControl(softIOCLateralFeedbackControl_);
-	allControls_->addControl(softIOCLateralStatusControl_);
-	allControls_->addControl(softIOCLateralStopControl_);
-	allControls_->addControl(softIOCYawControl_);
-	allControls_->addControl(softIOCYawFeedbackControl_);
-	allControls_->addControl(softIOCYawStatusControl_);
-	allControls_->addControl(softIOCYawStopControl_);
-
-	connect(allControls_, SIGNAL(connected(bool)), this, SLOT(onAllControlsConnected(bool)));
-
-	connect(verticalUpstreamFeedbackControl_, SIGNAL(valueChanged(double)), this, SLOT(onVerticalFeedbackControlValueChanged()));
-	connect(verticalUpstreamStatusControl_, SIGNAL(valueChanged(double)), this, SLOT(onVerticalStatusControlValueChanged()));
-
-	connect(verticalDownstreamFeedbackControl_, SIGNAL(valueChanged(double)), this, SLOT(onVerticalFeedbackControlValueChanged()));
-	connect(verticalDownstreamStatusControl_, SIGNAL(valueChanged(double)), this, SLOT(onVerticalStatusControlValueChanged()));
-
-	connect(horizontalUpstreamFeedbackControl_, SIGNAL(valueChanged(double)), this, SLOT(onHorizontalFeedbackControlValueChanged()));
-	connect(horizontalUpstreamStatusControl_, SIGNAL(valueChanged(double)), this, SLOT(onHorizontalStatusControlValueChanged()));
-
-	connect(horizontalDownstreamFeedbackControl_, SIGNAL(valueChanged(double)), this, SLOT(onHorizontalFeedbackControlValueChanged()));
-	connect(horizontalDownstreamStatusControl_, SIGNAL(valueChanged(double)), this, SLOT(onHorizontalStatusControlValueChanged()));
-
-	connect(softIOCHeightControl_, SIGNAL(valueChanged(double)), this, SLOT(onHeightControlValueChanged(double)));
-	connect(softIOCHeightStopControl_, SIGNAL(valueChanged(double)), this, SLOT(onHeightStopControlValueChanged()));
-	connect(softIOCPitchControl_, SIGNAL(valueChanged(double)), this, SLOT(onPitchControlValueChanged(double)));
-	connect(softIOCPitchStopControl_, SIGNAL(valueChanged(double)), this, SLOT(onPitchStopControlValueChanged()));
-	connect(softIOCLateralControl_, SIGNAL(valueChanged(double)), this, SLOT(onLateralControlValueChanged(double)));
-	connect(softIOCLateralStopControl_, SIGNAL(valueChanged(double)), this, SLOT(onLateralStopControlValueChanged()));
-	connect(softIOCYawControl_, SIGNAL(valueChanged(double)), this, SLOT(onYawControlValueChanged(double)));
-	connect(softIOCYawStopControl_, SIGNAL(valueChanged(double)), this, SLOT(onYawStopControlValueChanged()));
+	initializePhysicalMotorControls();
+	initializeSoftIOCMotorControls();
+	initializePVControlSet();
+	initializeSignalConnector();
 }
 
 BioXASSideTableCoordinator::~BioXASSideTableCoordinator(){}
@@ -326,6 +231,125 @@ void BioXASSideTableCoordinator::onYawStopControlValueChanged()
 
 		softIOCYawStopControl_->move(0); // restore the value to 0
 	}
+}
+
+void BioXASSideTableCoordinator::initializePhysicalMotorControls()
+{
+	// ============ Physical PVs ==================
+	verticalUpstreamControl_ = new AMSinglePVControl("Side Vertical Upstream", "SMTR1607-6-I22-02:mm", this, 0.001);
+	verticalUpstreamFeedbackControl_ = new AMReadOnlyPVControl("Side Vertical Upstream Feedback", "SMTR1607-6-I22-02:mm:fbk", this);
+	verticalUpstreamStatusControl_ = new AMReadOnlyPVControl("Side Vertical Upstream Status", "SMTR1607-6-I22-02:status", this);
+	verticalUpstreamStopControl_ = new AMSinglePVControl("Side Vertical Upstream Stop", "SMTR1607-6-I22-02:stop", this);
+
+	verticalDownstreamControl_ = new AMSinglePVControl("Side Vertical Downstream", "SMTR1607-6-I22-03:mm", this, 0.001);
+	verticalDownstreamFeedbackControl_ = new AMReadOnlyPVControl("Side Vertical Downstream Feedback", "SMTR1607-6-I22-03:mm:fbk", this);
+	verticalDownstreamStatusControl_ = new AMReadOnlyPVControl("Side Vertical Downstream Status", "SMTR1607-6-I22-03:status", this);
+	verticalDownstreamStopControl_ = new AMSinglePVControl("Side Vertical Downstream Stop", "SMTR1607-6-I22-03:stop", this);
+
+
+	horizontalUpstreamControl_ = new AMSinglePVControl("Side Horizonal Upstream", "SMTR1607-6-I22-04:mm", this, 0.001);
+	horizontalUpstreamFeedbackControl_ = new AMReadOnlyPVControl("Side Horizonal Upstream Feedback", "SMTR1607-6-I22-04:mm:fbk", this);
+	horizontalUpstreamStatusControl_ = new AMReadOnlyPVControl("Side Horizonal Upstream Status", "SMTR1607-6-I22-04:status", this);
+	horizontalUpstreamStopControl_ = new AMSinglePVControl("Side Horizonal Upstream Stop", "SMTR1607-6-I22-04:stop", this);
+
+	horizontalDownstreamControl_ = new AMSinglePVControl("Side Horizonal Downstream", "SMTR1607-6-I22-05:mm", this, 0.001);
+	horizontalDownstreamFeedbackControl_ = new AMReadOnlyPVControl("Side Horizonal Downstream Feedback", "SMTR1607-6-I22-05:mm:fbk", this);
+	horizontalDownstreamStatusControl_ = new AMReadOnlyPVControl("Side Horizonal Downstream Status", "SMTR1607-6-I22-05:status", this);
+	horizontalDownstreamStopControl_ = new AMSinglePVControl("Side Horizonal Downstream Stop", "SMTR1607-6-I22-05:stop", this);
+}
+
+void BioXASSideTableCoordinator::initializeSoftIOCMotorControls()
+{
+	// ============ SoftIOC PVs ==================
+	softIOCHeightControl_ = new AMSinglePVControl("Side softIOC Height", "BL1607-6-I22:Height:mm", this, 0.001);
+	softIOCHeightFeedbackControl_ = new AMSinglePVControl("Side softIOC Height Feedback", "BL1607-6-I22:Height:mm:fbk", this, 0.001);
+	softIOCHeightStatusControl_ = new AMSinglePVControl("Side softIOC Height Status", "BL1607-6-I22:Height:status", this, 0.5);
+	softIOCHeightStopControl_ = new AMSinglePVControl("Side softIOC Height Stop", "BL1607-6-I22:Height:stop", this, 0.5);
+
+	softIOCPitchControl_ = new AMSinglePVControl("Side softIOC Pitch", "BL1607-6-I22:Pitch:deg", this, 0.001);
+	softIOCPitchFeedbackControl_ = new AMSinglePVControl("Side softIOC Pitch Feedback", "BL1607-6-I22:Pitch:deg:fbk", this, 0.001);
+	softIOCPitchStatusControl_ = new AMSinglePVControl("Side softIOC Pitch Status", "BL1607-6-I22:Pitch:status", this, 0.5);
+	softIOCPitchStopControl_ = new AMSinglePVControl("Side softIOC Pitch Stop", "BL1607-6-I22:Pitch:stop", this, 0.5);
+
+	softIOCLateralControl_ = new AMSinglePVControl("Side softIOC Lateral", "BL1607-6-I22:Lateral:mm", this, 0.001);
+	softIOCLateralFeedbackControl_ = new AMSinglePVControl("Side softIOC Lateral Feedback", "BL1607-6-I22:Lateral:mm:fbk", this, 0.001);
+	softIOCLateralStatusControl_ = new AMSinglePVControl("Side softIOC Lateral Status", "BL1607-6-I22:Lateral:status", this, 0.5);
+	softIOCLateralStopControl_ = new AMSinglePVControl("Side softIOC Lateral Stop", "BL1607-6-I22:Lateral:stop", this, 0.5);
+
+	softIOCYawControl_ = new AMSinglePVControl("Side softIOC Yaw", "BL1607-6-I22:Yaw:deg", this, 0.001);
+	softIOCYawFeedbackControl_ = new AMSinglePVControl("Side softIOC Yaw Feedback", "BL1607-6-I22:Yaw:deg:fbk", this, 0.001);
+	softIOCYawStatusControl_ = new AMSinglePVControl("Side softIOC Yaw Status", "BL1607-6-I22:Yaw:status", this, 0.5);
+	softIOCYawStopControl_ = new AMSinglePVControl("Side softIOC Yaw Stop", "BL1607-6-I22:Yaw:stop", this, 0.5);
+}
+
+void BioXASSideTableCoordinator::initializePVControlSet()
+{
+	allControls_ = new AMControlSet(this);
+
+	// ============ Physical PVs ==================
+	allControls_->addControl(verticalUpstreamControl_);
+	allControls_->addControl(verticalUpstreamFeedbackControl_);
+	allControls_->addControl(verticalUpstreamStatusControl_);
+	allControls_->addControl(verticalUpstreamStopControl_);
+	allControls_->addControl(verticalDownstreamControl_);
+	allControls_->addControl(verticalDownstreamFeedbackControl_);
+	allControls_->addControl(verticalDownstreamStatusControl_);
+	allControls_->addControl(verticalDownstreamStopControl_);
+	allControls_->addControl(horizontalUpstreamControl_);
+	allControls_->addControl(horizontalUpstreamFeedbackControl_);
+	allControls_->addControl(horizontalUpstreamStatusControl_);
+	allControls_->addControl(horizontalUpstreamStopControl_);
+	allControls_->addControl(horizontalDownstreamControl_);
+	allControls_->addControl(horizontalDownstreamFeedbackControl_);
+	allControls_->addControl(horizontalDownstreamStatusControl_);
+	allControls_->addControl(horizontalDownstreamStopControl_);
+
+
+	// ============ SoftIOC PVs ==================
+	allControls_->addControl(softIOCHeightControl_);
+	allControls_->addControl(softIOCHeightFeedbackControl_);
+	allControls_->addControl(softIOCHeightStatusControl_);
+	allControls_->addControl(softIOCHeightStopControl_);
+	allControls_->addControl(softIOCPitchControl_);
+	allControls_->addControl(softIOCPitchFeedbackControl_);
+	allControls_->addControl(softIOCPitchStatusControl_);
+	allControls_->addControl(softIOCPitchStopControl_);
+	allControls_->addControl(softIOCLateralControl_);
+	allControls_->addControl(softIOCLateralFeedbackControl_);
+	allControls_->addControl(softIOCLateralStatusControl_);
+	allControls_->addControl(softIOCLateralStopControl_);
+	allControls_->addControl(softIOCYawControl_);
+	allControls_->addControl(softIOCYawFeedbackControl_);
+	allControls_->addControl(softIOCYawStatusControl_);
+	allControls_->addControl(softIOCYawStopControl_);
+}
+
+void BioXASSideTableCoordinator::initializeSignalConnector()
+{
+	connect(allControls_, SIGNAL(connected(bool)), this, SLOT(onAllControlsConnected(bool)));
+
+	// ============ Physical PVs ==================
+	connect(verticalUpstreamFeedbackControl_, SIGNAL(valueChanged(double)), this, SLOT(onVerticalFeedbackControlValueChanged()));
+	connect(verticalUpstreamStatusControl_, SIGNAL(valueChanged(double)), this, SLOT(onVerticalStatusControlValueChanged()));
+
+	connect(verticalDownstreamFeedbackControl_, SIGNAL(valueChanged(double)), this, SLOT(onVerticalFeedbackControlValueChanged()));
+	connect(verticalDownstreamStatusControl_, SIGNAL(valueChanged(double)), this, SLOT(onVerticalStatusControlValueChanged()));
+
+	connect(horizontalUpstreamFeedbackControl_, SIGNAL(valueChanged(double)), this, SLOT(onHorizontalFeedbackControlValueChanged()));
+	connect(horizontalUpstreamStatusControl_, SIGNAL(valueChanged(double)), this, SLOT(onHorizontalStatusControlValueChanged()));
+
+	connect(horizontalDownstreamFeedbackControl_, SIGNAL(valueChanged(double)), this, SLOT(onHorizontalFeedbackControlValueChanged()));
+	connect(horizontalDownstreamStatusControl_, SIGNAL(valueChanged(double)), this, SLOT(onHorizontalStatusControlValueChanged()));
+
+	// ============ SoftIOC PVs ==================
+	connect(softIOCHeightControl_, SIGNAL(valueChanged(double)), this, SLOT(onHeightControlValueChanged(double)));
+	connect(softIOCHeightStopControl_, SIGNAL(valueChanged(double)), this, SLOT(onHeightStopControlValueChanged()));
+	connect(softIOCPitchControl_, SIGNAL(valueChanged(double)), this, SLOT(onPitchControlValueChanged(double)));
+	connect(softIOCPitchStopControl_, SIGNAL(valueChanged(double)), this, SLOT(onPitchStopControlValueChanged()));
+	connect(softIOCLateralControl_, SIGNAL(valueChanged(double)), this, SLOT(onLateralControlValueChanged(double)));
+	connect(softIOCLateralStopControl_, SIGNAL(valueChanged(double)), this, SLOT(onLateralStopControlValueChanged()));
+	connect(softIOCYawControl_, SIGNAL(valueChanged(double)), this, SLOT(onYawControlValueChanged(double)));
+	connect(softIOCYawStopControl_, SIGNAL(valueChanged(double)), this, SLOT(onYawStopControlValueChanged()));
 }
 
 double BioXASSideTableCoordinator::calculateTableHeight(const double upstreamHeight, const double downstreamHeight) const

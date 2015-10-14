@@ -84,13 +84,11 @@ protected:
 	/// The cached independent axis data.
 	QVector<qreal> axis_;
 	/// The cached dependent data.
-	mutable QVector<qreal> data_;
+	mutable QVector<qreal> cachedData_;
 	/// Flag for when to update the cached data.
-	mutable bool updateCacheRequired_;
-	/// Holds the range of dirty values that need to be cached.
-	mutable AMRange dirtyRange_;
+	mutable bool cacheUpdateRequired_;
 	/// Holds the data range of the dependent values.
-	mutable AMRange dataRange_;
+	mutable AMRange range_;
 };
 
 #endif // AMDATASOURCESERIESDATA_H

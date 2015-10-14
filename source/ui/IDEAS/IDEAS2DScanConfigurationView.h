@@ -80,6 +80,9 @@ protected slots:
 	void onFluorescenceDetectorChanged(int detector);
 	/// Slot that updates the fluorescence detector buttons.
 	void updateFluorescenceDetectorComboBox(IDEAS::FluorescenceDetectors detector);
+	/// Slot that updates the fluorescence detector comboBox items when the Ge13Elemet connects.
+	void updateFluorescenceDetectorComboBoxGe13Element(bool connected);
+
 
 	/// Helper slot that handles the setting the estimated time label.
 	void onEstimatedTimeChanged();

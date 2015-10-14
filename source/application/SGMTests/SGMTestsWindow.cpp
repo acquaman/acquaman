@@ -1,39 +1,41 @@
 #include "SGMTestsWindow.h"
 
-#include "tests/SGM/SGMMonochromatorInfoTest.h"
-#include "tests/SGM/SGMMonochromatorInfoTestView.h"
+#include "tests/SGM/SGMEnergyPositionTest.h"
+#include "tests/SGM/SGMEnergyPositionTestView.h"
 #include "tests/SGM/SGMEnergyTrajectoryTestView.h"
+#include "tests/SGM/SGMEnergyControlTestView.h"
+#include "qjson/serializer.h"
 
-
-#include "beamline/SGM/monochromator/SGMMonochromatorInfo.h"
+#include "beamline/SGM/energy/SGMEnergyPosition.h"
 #include <QGroupBox>
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 
 SGMTestsWindow::SGMTestsWindow(QWidget *parent) : QMainWindow(parent)
 {
-    monoInfoTestView_ = 0;
     energyTestView_ = 0;
+    energyTrajectoryTestView_ = 0;
+    energyControlTestView_ = 0;
     setupUi();
 
-    SGMMonochromatorInfoTest monoTests;
-    monoTests.performTests();    
+	SGMEnergyPositionTest energyPositionTests;
+	energyPositionTests.performTests();
 
-    QStringList testResults = monoTests.testResults();
+	QStringList testResults = energyPositionTests.testResults();
 
     QString resultString;
     foreach(QString result, testResults) {
         resultString.append(QString("\n%1").arg(result));
     }
 
-    outputTextEdit_->setText(resultString);
+	outputTextEdit_->setText(resultString);;
 }
 
-void SGMTestsWindow::onShowMonoViewClicked()
+void SGMTestsWindow::onShowEnergyViewClicked()
 {
-    if(monoInfoTestView_ == 0) {
+    if(energyTestView_ == 0) {
 
-        SGMMonochromatorInfo* testMonoInfo = new SGMMonochromatorInfo(SGMGratingSupport::LowGrating,
+        SGMEnergyPosition* testEnergyPosition = new SGMEnergyPosition(SGMGratingSupport::LowGrating,
                                                                       -412460.94,
                                                                       SGMUndulatorSupport::FirstHarmonic,
                                                                       13.2265442,
@@ -41,24 +43,36 @@ void SGMTestsWindow::onShowMonoViewClicked()
                                                                       358.199551,
                                                                       this);
 
-        monoInfoTestView_ = new SGMMonochromatorInfoTestView(testMonoInfo);
+        energyTestView_ = new SGMEnergyPositionTestView(testEnergyPosition);
     }
 
-    monoInfoTestView_->show();
-    monoInfoTestView_->raise();
+    energyTestView_->show();
+    energyTestView_->raise();
+
 }
 
 void SGMTestsWindow::onShowTrajectoryViewClicked()
 {
 
-    if(energyTestView_ == 0) {
+    if(energyTrajectoryTestView_ == 0) {
 
-        energyTestView_ = new SGMEnergyTrajectoryTestView();
-        energyTestView_->resize(1024,768);
+        energyTrajectoryTestView_ = new SGMEnergyTrajectoryTestView();
+        energyTrajectoryTestView_->resize(1024,768);
+    }
+    energyTrajectoryTestView_->show();
+    energyTrajectoryTestView_->raise();
+}
+
+void SGMTestsWindow::onShowEnergyControlViewClicked()
+{
+    if(energyControlTestView_ == 0) {
+
+        energyControlTestView_ = new SGMEnergyControlTestView();
     }
 
-    energyTestView_->show();
-    energyTestView_->raise();
+    energyControlTestView_->show();
+    energyControlTestView_->raise();
+
 }
 
 void SGMTestsWindow::setupUi()
@@ -78,13 +92,18 @@ void SGMTestsWindow::setupUi()
 
     setCentralWidget(centralGroupBox);
 
-    showMonoViewButton_ = new QPushButton("Show Mono Test View");
-    connect(showMonoViewButton_, SIGNAL(clicked(bool)), this, SLOT(onShowMonoViewClicked()));
-    buttonsLayout->addWidget(showMonoViewButton_);
+    showEnergyViewButton_ = new QPushButton("Show Energy Test View");
+    connect(showEnergyViewButton_, SIGNAL(clicked(bool)), this, SLOT(onShowEnergyViewClicked()));
+    buttonsLayout->addWidget(showEnergyViewButton_);
 
-    showTrajectoryViewButton_ = new QPushButton("Show Trajectory Test View");
+    showTrajectoryViewButton_ = new QPushButton("Show Energy Trajectory Test View");
     connect(showTrajectoryViewButton_, SIGNAL(clicked(bool)), this, SLOT(onShowTrajectoryViewClicked()));
     buttonsLayout->addWidget(showTrajectoryViewButton_);
+
+    showEnergyControlViewButton_ = new QPushButton("Show Energy Control Test View");
+    connect(showEnergyControlViewButton_, SIGNAL(clicked(bool)), this, SLOT(onShowEnergyControlViewClicked()));
+    buttonsLayout->addWidget(showEnergyControlViewButton_);
+
     buttonsLayout->addStretch();
 
     outputTextEdit_ = new QTextEdit();

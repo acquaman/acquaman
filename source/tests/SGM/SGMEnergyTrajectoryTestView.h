@@ -8,7 +8,7 @@
 #include <QTextEdit>
 #include <QStackedWidget>
 
-#include "beamline/SGM/monochromator/SGMGratingSupport.h"
+#include "beamline/SGM/energy/SGMGratingSupport.h"
 
 class MPlotWidget;
 class MPlotVectorSeriesData;

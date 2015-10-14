@@ -20,11 +20,15 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AM3DAdditionAB.h"
 
+#include "util/AMUtility.h"
+
  AM3DAdditionAB::~AM3DAdditionAB(){}
 AM3DAdditionAB::AM3DAdditionAB(const QString &outputName, QObject *parent)
 	: AMStandardAnalysisBlock(outputName, parent)
 {
-    cacheUpdateRequired_ = false;
+	cacheUpdateRequired_ = false;
+	cachedDataRange_ = AMRange();
+
 	axes_ << AMAxisInfo("invalid", 0, "No input data") << AMAxisInfo("invalid", 0, "No input data") << AMAxisInfo("invalid", 0, "No input data");
 	setState(AMDataSource::InvalidFlag);
 }
@@ -253,5 +257,6 @@ void AM3DAdditionAB::computeCachedValues() const
             cachedData_[j] += data.at(j);
     }
 
+    cachedDataRange_ = AMUtility::rangeFinder(cachedData_);
     cacheUpdateRequired_ = false;
 }

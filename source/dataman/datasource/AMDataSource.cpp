@@ -22,6 +22,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "AMDataSource.h"
 
 #include "util/AMErrorMonitor.h"
+#include "util/AMUtility.h"
 
 AMDataSourceSignalSource::AMDataSourceSignalSource(AMDataSource *parent)
 	: QObject() {
@@ -151,6 +152,14 @@ bool AMDataSource::axisValues(int axisNumber, int startIndex, int endIndex, doub
         outputValues[i] = double(axisValue(axisNumber, i+startIndex));
 
 	return true;
+}
+
+AMRange AMDataSource::dataRange() const
+{
+	QVector<double> sourceData = QVector<double>(size().product());
+	values(AMnDIndex(rank(), AMnDIndex::DoInit), size()-1, sourceData.data());
+
+	return AMUtility::rangeFinder(sourceData);
 }
 
 void AMDataSource::setVisibleInPlots(bool isVisible)

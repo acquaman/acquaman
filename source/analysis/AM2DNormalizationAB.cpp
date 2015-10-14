@@ -20,6 +20,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AM2DNormalizationAB.h"
 
+#include "util/AMUtility.h"
+
 AM2DNormalizationAB::~AM2DNormalizationAB(){}
 
 AM2DNormalizationAB::AM2DNormalizationAB(const QString &outputName, QObject *parent)
@@ -30,7 +32,9 @@ AM2DNormalizationAB::AM2DNormalizationAB(const QString &outputName, QObject *par
 	canAnalyze_ = false;
 	dataName_ = "";
 	normalizationName_ = "";
-    cacheUpdateRequired_ = false;
+	cacheUpdateRequired_ = false;
+	cachedDataRange_ = AMRange();
+
 	axes_ << AMAxisInfo("invalid", 0, "No input data") << AMAxisInfo("invalid", 0, "No input data");
 	setState(AMDataSource::InvalidFlag);
 }
@@ -159,6 +163,7 @@ void AM2DNormalizationAB::computeCachedValues() const
             cachedData_[i] = data.at(i)/normalizer.at(i);
     }
 
+    cachedDataRange_ = AMUtility::rangeFinder(cachedData_, -1);
     cacheUpdateRequired_ = false;
 }
 

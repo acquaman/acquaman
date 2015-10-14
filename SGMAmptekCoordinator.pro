@@ -5,4 +5,4 @@
 TEMPLATE = subdirs
 SUBDIRS += \
 	Initialize.pro \
-	SGMAmptekCoordinator_internal.pro
+	SGMAmptekCoordinator_internal.pro \
