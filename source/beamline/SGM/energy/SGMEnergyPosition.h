@@ -33,9 +33,9 @@ public:
       */
     enum GratingTranslationOptimizationMode {
 
-        OptimizeFlux,				// Select grating which produces maximum flux for a given energy.
-        OptimizeResolution,			// Select highest grating which will produce reasonable flux at a given energy.
-        ManualMode                  // Stick with the current grating.
+		ManualMode = 0,         // Stick with the current grating.
+		OptimizeFlux = 1,		// Select grating which produces maximum flux for a given energy.
+		OptimizeResolution = 2	// Select highest grating which will produce reasonable flux at a given energy.
     };
 
     /*!

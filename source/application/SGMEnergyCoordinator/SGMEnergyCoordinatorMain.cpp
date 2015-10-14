@@ -20,16 +20,16 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 
 #include <QCoreApplication>
-#include "beamline/SGM/SGMAddOnsCoordinator.h"
+#include "beamline/SGM/SGMEnergyCoordinator.h"
 
 int main(int argc, char *argv[])
 {
 
 	// =================================
 	QCoreApplication app(argc, argv);
-	app.setApplicationName("SGM AddOns Coordinator");
+	app.setApplicationName("SGM Energy Coordinator");
 
-	SGMAddOnsCoordinator *coordinator = new SGMAddOnsCoordinator();
+	SGMEnergyCoordinator *coordinator = new SGMEnergyCoordinator();
 
 	Q_UNUSED(coordinator)
 
