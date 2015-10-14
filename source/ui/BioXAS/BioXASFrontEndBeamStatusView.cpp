@@ -10,6 +10,7 @@ BioXASFrontEndBeamStatusView::BioXASFrontEndBeamStatusView(BioXASFrontEndBeamSta
 	// Create UI elements.
 
 	beamStatusEditor_ = new AMExtendedControlEditor(0);
+	beamStatusEditor_->setNoUnitsBox(true);
 
 	photonShutterUpstreamLED_ = new AMControlValueLEDView(0, AMNumber(1), AMNumber(0));
 	photonShutterUpstreamLED_->setToolTip("PSH1");

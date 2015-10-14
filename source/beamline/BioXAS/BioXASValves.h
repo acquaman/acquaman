@@ -31,8 +31,6 @@ public:
 	CLSBiStateControl *vvr3() const { return vvr3_; }
 	/// Returns the fourth front end vacuum valve control.
 	CLSBiStateControl *vvr4() const { return vvr4_; }
-	/// Returns the fifth front end vacuum valve control.
-	CLSBiStateControl *vvr5() const { return vvr5_; }
 
 	/// Returns the set of Side beamline vacuum valves.
 	AMControlSet* sideValves() const { return sideValves_; }

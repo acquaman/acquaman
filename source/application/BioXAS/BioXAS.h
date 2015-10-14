@@ -15,7 +15,7 @@ namespace BioXAS
 
 	/// Enum to describe each of the three BioXAS beamlines.
 	enum Beamline {
-		FrontEnd = 0, Side, Main, Imaging
+		Side = 0, Main, Imaging
 	};
 
 	/// Builds the standard exporter option used for all exported scans.

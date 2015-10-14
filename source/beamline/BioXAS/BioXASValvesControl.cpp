@@ -78,30 +78,6 @@ bool BioXASValvesControl::validSetpoint(double value) const
 	return result;
 }
 
-AMControlSet* BioXASValvesControl::valveSet(BioXAS::Beamline beamline) const
-{
-	AMControlSet *result = 0;
-
-	switch (beamline) {
-	case BioXAS::FrontEnd:
-		result = frontEndValveSet_;
-		break;
-	case BioXAS::Side:
-		result = sideValveSet_;
-		break;
-	case BioXAS::Main:
-		result = mainValveSet_;
-		break;
-	case BioXAS::Imaging:
-		result = imagingValveSet_;
-		break;
-	default:
-		break;
-	}
-
-	return result;
-}
-
 bool BioXASValvesControl::isOpen() const
 {
 	bool result = valvesOpen(frontEndValveSet_) && valvesOpen(sideValveSet_) && valvesOpen(mainValveSet_) && valvesOpen(imagingValveSet_);
@@ -135,96 +111,76 @@ QString BioXASValvesControl::valueToString(BioXASValvesControl::Value value) con
 	return result;
 }
 
-void BioXASValvesControl::setValves(BioXAS::Beamline beamline, AMControlSet *valveSet)
-{
-	switch (beamline) {
-	case BioXAS::FrontEnd:
-		setFrontEndValves(valveSet);
-		break;
-	case BioXAS::Side:
-		setSideValves(valveSet);
-		break;
-	case BioXAS::Main:
-		setMainValves(valveSet);
-		break;
-	case BioXAS::Imaging:
-		setImagingValves(valveSet);
-		break;
-	default:
-		break;
-	}
-}
-
 void BioXASValvesControl::setFrontEndValves(AMControlSet *valveSet)
 {
-	setValveSet(frontEndValveSet_, valveSet);
+	if (frontEndValveSet_ != valveSet) {
+
+		if (frontEndValveSet_)
+			disconnect( frontEndValveSet_, 0, this, 0 );
+
+		frontEndValveSet_ = valveSet;
+
+		if (frontEndValveSet_)
+			connect( frontEndValveSet_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+
+		updateStates();
+
+		emit frontEndValveSetChanged(frontEndValveSet_);
+	}
 }
 
 void BioXASValvesControl::setSideValves(AMControlSet *valveSet)
 {
-	setValveSet(sideValveSet_, valveSet);
+	if (sideValveSet_ != valveSet) {
+
+		if (sideValveSet_)
+			disconnect( sideValveSet_, 0, this, 0 );
+
+		sideValveSet_ = valveSet;
+
+		if (sideValveSet_)
+			connect( sideValveSet_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+
+		updateStates();
+
+		emit sideValvesSetChanged(sideValveSet_);
+	}
 }
 
 void BioXASValvesControl::setMainValves(AMControlSet *valveSet)
 {
-	setValveSet(mainValveSet_, valveSet);
+	if (mainValveSet_ != valveSet) {
+
+		if (mainValveSet_)
+			disconnect( mainValveSet_, 0, this, 0 );
+
+		mainValveSet_ = valveSet;
+
+		if (mainValveSet_)
+			connect( mainValveSet_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+
+		updateStates();
+
+		emit mainValvesSetChanged(mainValveSet_);
+	}
 }
 
 void BioXASValvesControl::setImagingValves(AMControlSet *valveSet)
 {
-	setValveSet(imagingValveSet_, valveSet);
-}
+	if (imagingValveSet_ != valveSet) {
 
-void BioXASValvesControl::addValve(BioXAS::Beamline beamline, CLSBiStateControl *valveControl)
-{
-	switch (beamline) {
-	case BioXAS::FrontEnd:
-		addFrontEndValve(valveControl);
-		break;
-	case BioXAS::Side:
-		addSideValve(valveControl);
-		break;
-	case BioXAS::Main:
-		addMainValve(valveControl);
-		break;
-	case BioXAS::Imaging:
-		addImagingValve(valveControl);
-		break;
-	default:
-		break;
+		if (imagingValveSet_)
+			disconnect( imagingValveSet_, 0, this, 0 );
+
+		imagingValveSet_ = valveSet;
+
+		if (imagingValveSet_)
+			connect( imagingValveSet_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+
+		updateStates();
+
+		emit imagingValvesSetChanged(imagingValveSet_);
 	}
-}
-
-void BioXASValvesControl::addFrontEndValve(CLSBiStateControl *valveControl)
-{
-	if (!frontEndValveSet_)
-		frontEndValveSet_ = new AMControlSet(this);
-
-	addValveToSet(frontEndValveSet_, valveControl);
-}
-
-void BioXASValvesControl::addSideValve(CLSBiStateControl *valveControl)
-{
-	if (!sideValveSet_)
-		sideValveSet_ = new AMControlSet(this);
-
-	addValveToSet(sideValveSet_, valveControl);
-}
-
-void BioXASValvesControl::addMainValve(CLSBiStateControl *valveControl)
-{
-	if (!mainValveSet_)
-		mainValveSet_ = new AMControlSet(this);
-
-	addValveToSet(mainValveSet_, valveControl);
-}
-
-void BioXASValvesControl::addImagingValve(CLSBiStateControl *valveControl)
-{
-	if (!imagingValveSet_)
-		imagingValveSet_ = new AMControlSet(this);
-
-	addValveToSet(imagingValveSet_, valveControl);
 }
 
 void BioXASValvesControl::updateConnected()
@@ -249,23 +205,6 @@ void BioXASValvesControl::updateValue()
 		newValue = Closed;
 
 	setValue(newValue);
-}
-
-void BioXASValvesControl::setValveSet(AMControlSet *toSet, AMControlSet *desiredControls)
-{
-	if (toSet != desiredControls) {
-
-		if (toSet) {
-			removeChildren(toSet);
-			toSet->deleteLater();
-			toSet = 0;
-		}
-
-		toSet = desiredControls;
-
-		if (toSet)
-			addChildren(toSet);
-	}
 }
 
 AMAction3* BioXASValvesControl::createMoveAction(double setpoint)
@@ -300,37 +239,6 @@ AMAction3* BioXASValvesControl::createOpenValvesAction(AMControlSet *valves)
 		}
 
 		result = actionList;
-	}
-
-	return result;
-}
-
-void BioXASValvesControl::addChildren(AMControlSet *valveSet)
-{
-	if (valveSet) {
-		foreach (AMControl *valve, valveSet->toList())
-			addChildControl(valve);
-	}
-}
-
-void BioXASValvesControl::removeChildren(AMControlSet *valveSet)
-{
-	if (valveSet) {
-		foreach (AMControl *valve, valveSet->toList())
-			removeChildControl(valve);
-	}
-}
-
-bool BioXASValvesControl::addValveToSet(AMControlSet *controlSet, AMControl *valveControl)
-{
-	bool result = false;
-
-	if (controlSet && valveControl) {
-		if (!controlSet->contains(valveControl->name())) {
-			controlSet->addControl(valveControl);
-			addChildControl(valveControl);
-			result = true;
-		}
 	}
 
 	return result;

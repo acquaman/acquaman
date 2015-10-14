@@ -81,11 +81,7 @@ bool BioXASFrontEndBeamStatusControl::isOn() const
 
 void BioXASFrontEndBeamStatusControl::setPhotonShutterUpstream(AMReadOnlyPVControl *newControl)
 {
-	qDebug() << "\n\nBioXASFrontEndBeamStatusControl: setting photon shutter upstream control.";
-
 	if (photonShutterUpstream_ != newControl) {
-
-		qDebug() << "Control is a new control.";
 
 		if (photonShutterUpstream_)
 			removeChildControl(photonShutterUpstream_);
@@ -187,11 +183,6 @@ void BioXASFrontEndBeamStatusControl::updateConnected()
 				safetyShutter_ && safetyShutter_->isConnected() &&
 				valves_ && valves_->isConnected()
 				);
-
-	if (isConnected)
-		qDebug() << "\n\nFront end beam status control is connected.";
-	else
-		qDebug() << "\n\nFront end beam status control is NOT connected:\n" << toString();
 
 	setConnected(isConnected);
 }
