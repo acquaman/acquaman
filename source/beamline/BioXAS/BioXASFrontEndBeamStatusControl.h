@@ -34,11 +34,11 @@ public:
 	virtual bool isOff() const { return !isOn(); }
 
 	/// Returns the front-end upstream photon shutter.
-	CLSBiStateControl* photonShutterUpstream() const { return photonShutterUpstream_; }
+	AMReadOnlyPVControl* photonShutterUpstream() const { return photonShutterUpstream_; }
 	/// Returns the front end vacuum valve.
-	CLSBiStateControl* vacuumValve() const { return vacuumValve_; }
+	AMReadOnlyPVControl* vacuumValve() const { return vacuumValve_; }
 	/// Returns the front end fast valve.
-	CLSBiStateControl* fastValve() const { return fastValve_; }
+	AMReadOnlyPVControl* fastValve() const { return fastValve_; }
 	/// Returns the front-end downstream photon shutter.
 	CLSBiStateControl* photonShutterDownstream() const { return photonShutterDownstream_; }
 	/// Returns the front-end safety shutter.
@@ -48,11 +48,11 @@ public:
 
 signals:
 	/// Notifier that the front-end upstream photon shutter changed.
-	void photonShutterUpstreamChanged(CLSBiStateControl *newControl);
+	void photonShutterUpstreamChanged(AMReadOnlyPVControl *newControl);
 	/// Notifier that the front-end vacuum valve changed.
-	void vacuumValveChanged(CLSBiStateControl *newControl);
+	void vacuumValveChanged(AMReadOnlyPVControl *newControl);
 	/// Notifier that the front-end fast valve changed.
-	void fastValveChanged(CLSBiStateControl *newControl);
+	void fastValveChanged(AMReadOnlyPVControl *newControl);
 	/// Notifier that the front-end downstream photon shutter changed.
 	void photonShutterDownstreamChanged(CLSBiStateControl *newControl);
 	/// Notifier that the front-end safety shutter changed.
@@ -62,11 +62,11 @@ signals:
 
 public slots:
 	/// Sets the front-end upstream photon shutter.
-	void setPhotonShutterUpstream(CLSBiStateControl *newControl);
+	void setPhotonShutterUpstream(AMReadOnlyPVControl *newControl);
 	/// Sets the front-end vacuum valve.
-	void setVacuumValve(CLSBiStateControl *newControl);
+	void setVacuumValve(AMReadOnlyPVControl *newControl);
 	/// Sets the front-end fast valve.
-	void setFastValve(CLSBiStateControl *newControl);
+	void setFastValve(AMReadOnlyPVControl *newControl);
 	/// Sets the front-end downstream photon shutter.
 	void setPhotonShutterDownstream(CLSBiStateControl *newControl);
 	/// Sets the front-end safety shutter.
@@ -93,11 +93,11 @@ protected:
 
 protected:
 	/// The front-end upstream photon shutter.
-	CLSBiStateControl *photonShutterUpstream_;
+	AMReadOnlyPVControl *photonShutterUpstream_;
 	/// The front end vacuum valve.
-	CLSBiStateControl *vacuumValve_;
+	AMReadOnlyPVControl *vacuumValve_;
 	/// The front end fast valve.
-	CLSBiStateControl *fastValve_;
+	AMReadOnlyPVControl *fastValve_;
 	/// The front-end downstream photon shutter.
 	CLSBiStateControl *photonShutterDownstream_;
 	/// The front-end safety shutter.

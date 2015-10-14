@@ -73,13 +73,13 @@ bool BioXASFrontEndBeamStatusControl::isOn() const
 	bool result = false;
 
 	if (isConnected()) {
-		result = (valves_->isOpen() && safetyShutter_->isOpen() && photonShutterDownstream_->isOpen() && fastValve_->isOpen() && vacuumValve_->isOpen() && photonShutterUpstream_->isOpen());
+		result = (valves_->isOpen() && safetyShutter_->isOpen() && photonShutterDownstream_->isOpen() && (fastValve_->value() == 1) && (vacuumValve_->value() == 1) && (photonShutterUpstream_->value() == 1));
 	}
 
 	return result;
 }
 
-void BioXASFrontEndBeamStatusControl::setPhotonShutterUpstream(CLSBiStateControl *newControl)
+void BioXASFrontEndBeamStatusControl::setPhotonShutterUpstream(AMReadOnlyPVControl *newControl)
 {
 	if (photonShutterUpstream_ != newControl) {
 
@@ -95,7 +95,7 @@ void BioXASFrontEndBeamStatusControl::setPhotonShutterUpstream(CLSBiStateControl
 	}
 }
 
-void BioXASFrontEndBeamStatusControl::setVacuumValve(CLSBiStateControl *newControl)
+void BioXASFrontEndBeamStatusControl::setVacuumValve(AMReadOnlyPVControl *newControl)
 {
 	if (vacuumValve_ != newControl) {
 
@@ -111,7 +111,7 @@ void BioXASFrontEndBeamStatusControl::setVacuumValve(CLSBiStateControl *newContr
 	}
 }
 
-void BioXASFrontEndBeamStatusControl::setFastValve(CLSBiStateControl *newControl)
+void BioXASFrontEndBeamStatusControl::setFastValve(AMReadOnlyPVControl *newControl)
 {
 	if (fastValve_ != newControl) {
 
@@ -184,6 +184,11 @@ void BioXASFrontEndBeamStatusControl::updateConnected()
 				valves_ && valves_->isConnected()
 				);
 
+	if (isConnected)
+		qDebug() << "\n\nFront end beam status control is connected.";
+	else
+		qDebug() << "\n\nFront end beam status control is NOT connected:\n" << toString();
+
 	setConnected(isConnected);
 }
 
@@ -245,9 +250,9 @@ AMAction3* BioXASFrontEndBeamStatusControl::createBeamOnAction()
 	// The first actions are to check the front-most shutters and valves.
 	// We don't actually have control over these.
 
-	beamOn->addSubAction(AMActionSupport::buildControlMoveAction(fastValve_, CLSBiStateControl::Open));
-	beamOn->addSubAction(AMActionSupport::buildControlMoveAction(vacuumValve_, CLSBiStateControl::Open));
-	beamOn->addSubAction(AMActionSupport::buildControlMoveAction(photonShutterUpstream_, CLSBiStateControl::Open));
+	beamOn->addSubAction(AMActionSupport::buildControlMoveAction(fastValve_, 1));
+	beamOn->addSubAction(AMActionSupport::buildControlMoveAction(vacuumValve_, 1));
+	beamOn->addSubAction(AMActionSupport::buildControlMoveAction(photonShutterUpstream_, 1));
 
 	// The next steps are for shutters and valves that we do have control over.
 	// All valves and safety shutters need to be open in order to open the downstream photon shutter.
