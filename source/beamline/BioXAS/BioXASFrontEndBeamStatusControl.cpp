@@ -81,7 +81,11 @@ bool BioXASFrontEndBeamStatusControl::isOn() const
 
 void BioXASFrontEndBeamStatusControl::setPhotonShutterUpstream(AMReadOnlyPVControl *newControl)
 {
+	qDebug() << "\n\nBioXASFrontEndBeamStatusControl: setting photon shutter upstream control.";
+
 	if (photonShutterUpstream_ != newControl) {
+
+		qDebug() << "Control is a new control.";
 
 		if (photonShutterUpstream_)
 			removeChildControl(photonShutterUpstream_);

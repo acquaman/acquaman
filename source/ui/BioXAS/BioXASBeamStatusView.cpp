@@ -45,9 +45,9 @@ void BioXASBeamStatusView::refresh()
 
 	// Setup.
 
-	if (beamStatus_) {
-		frontEndBeamStatusView_->setBeamStatusControl(beamStatus_->frontEndBeamStatusControl());
-	}
+//	if (beamStatus_) {
+//		frontEndBeamStatusView_->setBeamStatusControl(beamStatus_->frontEndBeamStatusControl());
+//	}
 
 	// Update the view.
 

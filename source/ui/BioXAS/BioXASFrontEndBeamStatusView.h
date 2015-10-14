@@ -5,8 +5,9 @@
 #include <QLabel>
 #include <QLayout>
 
-#include "beamline/BioXAS/BioXASFrontEndBeamStatusControl.h"
+#include "beamline/BioXAS/BioXASFrontEndBeamStatus.h"
 #include "ui/beamline/AMExtendedControlEditor.h"
+#include "ui/beamline/AMControlLEDView.h"
 
 class BioXASFrontEndBeamStatusView : public QWidget
 {
@@ -14,16 +15,19 @@ class BioXASFrontEndBeamStatusView : public QWidget
 
 public:
 	/// Constructor.
-	explicit BioXASFrontEndBeamStatusView(BioXASFrontEndBeamStatusControl *beamStatus, QWidget *parent = 0);
+	explicit BioXASFrontEndBeamStatusView(BioXASFrontEndBeamStatus *beamStatus, QWidget *parent = 0);
 	/// Destructor.
 	virtual ~BioXASFrontEndBeamStatusView();
 
-	/// Returns the beam status control being viewed.
-	BioXASFrontEndBeamStatusControl* beamStatusControl() const { return beamStatus_; }
+	/// Returns the beam status being viewed.
+	BioXASFrontEndBeamStatus* beamStatus() const { return beamStatus_; }
+
+	/// Returns the beam status editor.
+	AMExtendedControlEditor* beamStatusEditor() const { return beamStatusEditor_; }
 
 signals:
-	/// Notifier that the beam status control being viewed has changed.
-	void beamStatusControlChanged(BioXASFrontEndBeamStatusControl *newControl);
+	/// Notifier that the beam status being viewed has changed.
+	void beamStatusControlChanged(BioXASFrontEndBeamStatus *newControl);
 
 public slots:
 	/// Clears the view.
@@ -34,51 +38,26 @@ public slots:
 	void refresh();
 
 	/// Sets the beam status control being viewed.
-	void setBeamStatusControl(BioXASFrontEndBeamStatusControl *newControl);
-	/// Sets the beam status editor's minimum width.
-	void setBeamStatusEditorMinimumWidth(int newWidth);
-	/// Sets the beam status editor's title.
-	void setBeamStatusEditorTitle(const QString &newTitle);
-
-protected slots:
-	/// Updates the upstream photon shutter LED.
-	void updatePhotonShutterUpstreamLED();
-	/// Updates the vacuum valve LED.
-	void updateVacuumValveLED();
-	/// Updates the fast valve LED.
-	void updateFastValveLED();
-	/// Updates the downstream photon shutter LED.
-	void updatePhotonShutterDownstreamLED();
-	/// Updates the safety shutter LED.
-	void updateSafetyShutterLED();
-	/// Updates the beamline valves LED.
-	void updateBeamlineValvesLED();
-
-	/// Updates the given LED using the given control's information.
-	void updateLED(QLabel *led, AMControl *control);
-	/// Updates the given LED using the given bi-state control's information.
-	void updateBiStateControlLED(QLabel *led, CLSBiStateControl *control);
-	/// Updates the given LED using the given BioXAS-specific beamline valves control's information.
-	void updateBioXASBeamlineValvesLED(QLabel *led, BioXASValvesControl *control);
+	void setBeamStatus(BioXASFrontEndBeamStatus *newControl);
 
 protected:
-	/// The beam status control being viewed.
-	BioXASFrontEndBeamStatusControl *beamStatus_;
+	/// The beam status being viewed.
+	BioXASFrontEndBeamStatus *beamStatus_;
 
 	/// The beam status control editor.
 	AMExtendedControlEditor *beamStatusEditor_;
 	/// The upstream photon shutter LED.
-	QLabel *photonShutterUpstreamLED_;
+	AMControlLEDView *photonShutterUpstreamLED_;
 	/// The vacuum valve LED.
-	QLabel *vacuumValveLED_;
+	AMControlLEDView *vacuumValveLED_;
 	/// The fast valve LED.
-	QLabel *fastValveLED_;
+	AMControlLEDView *fastValveLED_;
 	/// The downstream photon shutter LED.
-	QLabel *photonShutterDownstreamLED_;
+	AMControlLEDView *photonShutterDownstreamLED_;
 	/// The safety shutter LED.
-	QLabel *safetyShutterLED_;
+	AMControlLEDView *safetyShutterLED_;
 	/// The beamline valves LED.
-	QLabel *beamlineValvesLED_;
+	AMControlLEDView *beamlineValvesLED_;
 };
 
 #endif // BIOXASFRONTENDBEAMSTATUSVIEW_H

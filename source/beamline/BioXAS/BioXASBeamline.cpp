@@ -13,7 +13,8 @@ bool BioXASBeamline::isConnected() const
 {
 	bool connected = (
 				frontEndShutters_ && frontEndShutters_->isConnected() &&
-				valves_ && valves_->isConnected()
+				valves_ && valves_->isConnected() &&
+				beamStatus_ && beamStatus_->isConnected()
 				);
 
 	return connected;
@@ -48,6 +49,11 @@ void BioXASBeamline::setupComponents()
 
 	valves_ = new BioXASValves(this);
 	connect( valves_, SIGNAL(connectedChanged(bool)), this, SLOT(updateConnected()) );
+
+	// Beam status.
+
+	beamStatus_ = new BioXASFrontEndBeamStatus(frontEndShutters_, valves_, this);
+	connect( beamStatus_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 }
 
 AMBasicControlDetectorEmulator* BioXASBeamline::createDetectorEmulator(const QString &name, const QString &description, AMControl *control, bool hiddenFromUsers, bool isVisible)

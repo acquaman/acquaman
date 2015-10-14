@@ -22,7 +22,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "BioXASSidePersistentView.h"
 #include "ui/BioXAS/BioXASSIS3820ScalerChannelsView.h"
 #include "beamline/BioXAS/BioXASSideBeamline.h"
-#include "ui/beamline/AMControlEditor.h"
+#include "ui/beamline/AMExtendedControlEditor.h"
+#include "ui/beamline/AMControlLEDView.h"
 
 #include <QComboBox>
 

@@ -428,7 +428,8 @@ HEADERS += \
     source/ui/dataman/AMScanViewPlotSelectedToolsView.h \
     source/dataman/AMScanViewPlotTools.h \
     source/ui/acquaman/AMGenericStepScanConfigurationDetectorsView.h \
-    $$PWD/source/analysis/AMAdditionAB.h
+    $$PWD/source/analysis/AMAdditionAB.h \
+    source/ui/beamline/AMControlLEDView.h
 
 FORMS += \
 
@@ -818,7 +819,8 @@ SOURCES += \
     source/ui/dataman/AMScanViewPlotSelectedToolsView.cpp \
     source/dataman/AMScanViewPlotTools.cpp \
     source/ui/acquaman/AMGenericStepScanConfigurationDetectorsView.cpp \
-    $$PWD/source/analysis/AMAdditionAB.cpp
+    $$PWD/source/analysis/AMAdditionAB.cpp \
+    source/ui/beamline/AMControlLEDView.cpp
 
 RESOURCES *= source/icons/icons.qrc \
 		source/configurationFiles/configurationFiles.qrc \
@@ -835,6 +837,8 @@ contains(DEFINES, AM_BUILD_REPORTER_ENABLED){
 
 	SOURCES *= source/util/AMRunTimeBuildInfo.cpp
 }
+
+
 
 
 

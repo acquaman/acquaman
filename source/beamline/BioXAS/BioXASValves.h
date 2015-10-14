@@ -46,8 +46,6 @@ public:
 	CLSBiStateControl *vvrSide4() const { return vvrSide4_; }
 	/// The fifth Side beamline vacuum valve.
 	CLSBiStateControl *vvrSide5() const { return vvrSide5_; }
-	/// The sixth Side beamline vacuum valve.
-	CLSBiStateControl *vvrSide6() const { return vvrSide6_; }
 
 	/// Returns the set of Main beamline vacuum valves.
 	AMControlSet* mainValves() const { return mainValves_; }
@@ -61,8 +59,6 @@ public:
 	CLSBiStateControl *vvrMain4() const { return vvrMain4_; }
 	/// The fifth Main beamline vacuum valve.
 	CLSBiStateControl *vvrMain5() const { return vvrMain5_; }
-	/// The sixth Main beamline vacuum valve.
-	CLSBiStateControl *vvrMain6() const { return vvrMain6_; }
 
 	/// Returns the set of Imaging beamline vacuum valves.
 	AMControlSet* imagingValves() const { return imagingValves_; }
@@ -82,8 +78,6 @@ public:
 	CLSBiStateControl *vvrImaging7() const { return vvrImaging7_; }
 	/// The eighth Imaging beamline vacuum valve.
 	CLSBiStateControl *vvrImaging8() const { return vvrImaging8_; }
-	/// The ninth Imaging beamline vacuum valve.
-	CLSBiStateControl *vvrImaging9() const { return vvrImaging9_; }
 
 protected:
 	/// The set of front end vacuum valves.
@@ -111,8 +105,6 @@ protected:
 	CLSBiStateControl *vvrSide4_;
 	/// The fifth Side beamline vacuum valve.
 	CLSBiStateControl *vvrSide5_;
-	/// The sixth Side beamline vacuum valve.
-	CLSBiStateControl *vvrSide6_;
 
 	/// The set of Main beamline vacuum valves.
 	AMControlSet *mainValves_;
@@ -126,8 +118,6 @@ protected:
 	CLSBiStateControl *vvrMain4_;
 	/// The fifth Main beamline vacuum valve.
 	CLSBiStateControl *vvrMain5_;
-	/// The sixth Main beamline vacuum valve.
-	CLSBiStateControl *vvrMain6_;
 
 	/// The set of Imaging beamline vacuum valves.
 	AMControlSet *imagingValves_;
@@ -147,8 +137,6 @@ protected:
 	CLSBiStateControl *vvrImaging7_;
 	/// The eighth Imaging beamline vacuum valve.
 	CLSBiStateControl *vvrImaging8_;
-	/// The ninth Imaging beamline vacuum valve.
-	CLSBiStateControl *vvrImaging9_;
 
 	/// The valves control.
 	BioXASValvesControl *valvesControl_;

@@ -55,9 +55,6 @@ public:
 	/// Returns the current connected state.
 	virtual bool isConnected() const;
 
-	/// Returns the beam status.
-	virtual BioXASBeamStatus* beamStatus() const { return beamStatus_; }
-
 	/// Returns the endstation safety shutter.
 	virtual CLSBiStateControl* safetyShutterES() const { return safetyShutterES_; }
 
@@ -134,9 +131,6 @@ protected:
 	BioXASSideBeamline();
 
 protected:
-	/// The beam status.
-	BioXASBeamStatus *beamStatus_;
-
 	/// The endstation safety shutter.
 	CLSBiStateControl *safetyShutterES_;
 
