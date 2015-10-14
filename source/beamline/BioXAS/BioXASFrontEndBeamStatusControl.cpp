@@ -248,11 +248,11 @@ AMAction3* BioXASFrontEndBeamStatusControl::createBeamOnAction()
 	AMListAction3 *beamOn = new AMListAction3(new AMListActionInfo3("Turn beam on", "Turn beam on"), AMListAction3::Sequential);
 
 	// The first actions are to check the front-most shutters and valves.
-	// We don't actually have control over these.
+	// We don't actually have control over these, so these are wait actions to achieve a desired value.
 
-	beamOn->addSubAction(AMActionSupport::buildControlMoveAction(fastValve_, 1));
-	beamOn->addSubAction(AMActionSupport::buildControlMoveAction(vacuumValve_, 1));
-	beamOn->addSubAction(AMActionSupport::buildControlMoveAction(photonShutterUpstream_, 1));
+	beamOn->addSubAction(AMActionSupport::buildControlWaitAction(fastValve_, 1));
+	beamOn->addSubAction(AMActionSupport::buildControlWaitAction(vacuumValve_, 1));
+	beamOn->addSubAction(AMActionSupport::buildControlWaitAction(photonShutterUpstream_, 1));
 
 	// The next steps are for shutters and valves that we do have control over.
 	// All valves and safety shutters need to be open in order to open the downstream photon shutter.
