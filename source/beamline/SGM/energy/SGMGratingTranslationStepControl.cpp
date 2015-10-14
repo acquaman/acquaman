@@ -43,17 +43,17 @@ bool SGMGratingTranslationStepControl::shouldStop() const
 
 bool SGMGratingTranslationStepControl::canMeasure() const
 {
-	return shouldMeasure() && isConnected();
+	return gratingTranslationStepPV_->canMove();
 }
 
 bool SGMGratingTranslationStepControl::canMove() const
 {
-	return shouldMove() && isConnected();
+	return gratingTranslationStepPV_->canMove();
 }
 
 bool SGMGratingTranslationStepControl::canStop() const
 {
-	return shouldStop() && isConnected();
+	return gratingTranslationStepPV_->canMove();
 }
 
 void SGMGratingTranslationStepControl::updateConnected()

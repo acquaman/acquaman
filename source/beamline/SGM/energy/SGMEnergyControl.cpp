@@ -73,17 +73,26 @@ bool SGMEnergyControl::shouldStop() const
 
 bool SGMEnergyControl::canMeasure() const
 {
-    return isConnected() && shouldMeasure();
+	return (gratingAngleControl_->canMeasure() &&
+			gratingTranslationControl_->canMeasure() &&
+			undulatorPositionControl_->canMeasure() &&
+			exitSlitPositionControl_->canMeasure());
 }
 
 bool SGMEnergyControl::canMove() const
 {
-    return isConnected() && shouldMove();
+	return (gratingAngleControl_->canMove() &&
+			gratingTranslationControl_->canMove() &&
+			undulatorPositionControl_->canMove() &&
+			exitSlitPositionControl_->canMove());
 }
 
 bool SGMEnergyControl::canStop() const
 {
-    return isConnected() && shouldStop();
+	return (gratingAngleControl_->canStop() &&
+			gratingTranslationControl_->canStop() &&
+			undulatorPositionControl_->canStop() &&
+			exitSlitPositionControl_->canStop());
 }
 
 SGMUndulatorSupport::UndulatorHarmonic SGMEnergyControl::undulatorHarmonic() const
