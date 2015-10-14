@@ -31,7 +31,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "acquaman/AMGenericStepScanConfiguration.h"
 #include "ui/acquaman/AMGenericStepScanConfigurationView.h"
 #include "util/AMErrorMonitor.h"
-#include "beamline/SGM/monochromator/SGMMonochromatorInfo.h"
+#include "beamline/SGM/energy/SGMEnergyPosition.h"
 #include "ui/SGM/SGMHexapodView.h"
 #include "beamline/CLS/CLSAmptekSDD123DetectorNew.h"
 #include "ui/CLS/CLSAmptekSDD123DetailedDetectorView.h"

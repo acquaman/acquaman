@@ -22,6 +22,9 @@ linux-g++-64 {
 	contains(USERNAME, david){
 		CONFIG -= mobility
 	}
+	contains(USERNAME, workmai){
+		CONFIG -= mobility
+	}
 }
 
 # Special build paths and options for running on the Jenkins auto-build server (currently at http://srv-aci-01.clsi.ca)

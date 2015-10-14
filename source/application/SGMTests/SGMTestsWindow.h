@@ -6,10 +6,12 @@
 #include <QPushButton>
 
 class SGMEnergyTrajectoryTestView;
-class SGMMonochromatorInfoTestView;
+class SGMEnergyPositionTestView;
+class SGMEnergyControlTestView;
 /*!
  * A class which represents the main window of the SGM tests application.
  */
+
 class SGMTestsWindow : public QMainWindow
 {
     Q_OBJECT
@@ -23,27 +25,35 @@ signals:
 
 public slots:
 protected slots:
-    /*!
-     * Handles the show mono view button being clicked.
-     */
-    void onShowMonoViewClicked();
+
+	/*!
+	  * Handles the show energy view button being clicked.
+	  */
+    void onShowEnergyViewClicked();
 
     /*!
      * Handles the show trajectory view button being clicked.
      */
     void onShowTrajectoryViewClicked();
+
+	/*!
+	  * Handles the show energy control view being clicked.
+	  */
+    void onShowEnergyControlViewClicked();
 protected:
 
     /*!
      * Helper function which initializes the child widget components.
-     */
+	 */
     void setupUi();
     QTextEdit* outputTextEdit_;
-    QPushButton* showMonoViewButton_;
+    QPushButton* showEnergyViewButton_;
     QPushButton* showTrajectoryViewButton_;
+    QPushButton* showEnergyControlViewButton_;
 
-    SGMEnergyTrajectoryTestView* energyTestView_;
-    SGMMonochromatorInfoTestView* monoInfoTestView_;
+    SGMEnergyTrajectoryTestView* energyTrajectoryTestView_;
+    SGMEnergyPositionTestView* energyTestView_;
+    SGMEnergyControlTestView* energyControlTestView_;
 };
 
 #endif // SGMTESTSWINDOW_H
