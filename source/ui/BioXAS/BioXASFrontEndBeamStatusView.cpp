@@ -11,22 +11,22 @@ BioXASFrontEndBeamStatusView::BioXASFrontEndBeamStatusView(BioXASFrontEndBeamSta
 
 	beamStatusEditor_ = new AMExtendedControlEditor(0);
 
-	photonShutterUpstreamLED_ = new AMControlLEDView(0);
+	photonShutterUpstreamLED_ = new AMControlValueLEDView(0, AMNumber(1), AMNumber(0));
 	photonShutterUpstreamLED_->setToolTip("PSH1");
 
-	vacuumValveLED_ = new AMControlLEDView(0);
+	vacuumValveLED_ = new AMControlValueLEDView(0, AMNumber(1), AMNumber(0));
 	vacuumValveLED_->setToolTip("VVR");
 
-	fastValveLED_ = new AMControlLEDView(0);
+	fastValveLED_ = new AMControlValueLEDView(0, AMNumber(1), AMNumber(0));
 	fastValveLED_->setToolTip("VVF");
 
-	photonShutterDownstreamLED_ = new AMControlLEDView(0);
+	photonShutterDownstreamLED_ = new AMControlValueLEDView(0, AMNumber(CLSBiStateControl::Open), AMNumber(CLSBiStateControl::Closed));
 	photonShutterDownstreamLED_->setToolTip("PSH2");
 
-	safetyShutterLED_ = new AMControlLEDView(0);
+	safetyShutterLED_ = new AMControlValueLEDView(0, AMNumber(CLSBiStateControl::Open), AMNumber(CLSBiStateControl::Closed));
 	safetyShutterLED_->setToolTip("SSH");
 
-	beamlineValvesLED_ = new AMControlLEDView(0);
+	beamlineValvesLED_ = new AMControlValueLEDView(0, AMNumber(BioXASValvesControl::Open), AMNumber(BioXASValvesControl::Closed));
 	beamlineValvesLED_->setToolTip("Beamline valves");
 
 	// Create and set layouts.

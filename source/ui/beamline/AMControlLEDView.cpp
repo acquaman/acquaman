@@ -32,20 +32,12 @@ AMControlLEDView::~AMControlLEDView()
 
 void AMControlLEDView::clear()
 {
-	led_->setPixmap(QPixmap(":/22x22/greenLEDOff.png"));
+	setAsGreenOff();
 }
 
 void AMControlLEDView::update()
 {
-	if (control_) {
-		if (control_->isConnected())
-			led_->setPixmap(QPixmap(":/22x22/greenLEDOn.png"));
-		else
-			led_->setPixmap(QPixmap(":/22x22/redLEDOn.png"));
-
-	} else {
-		clear();
-	}
+	setAsGreenOff();
 }
 
 void AMControlLEDView::refresh()
@@ -68,9 +60,41 @@ void AMControlLEDView::setControl(AMControl *newControl)
 
 		control_ = newControl;
 
-		if (control_)
+		if (control_) {
 			connect( control_, SIGNAL(connected(bool)), this, SLOT(update()) );
+			connect( control_, SIGNAL(valueChanged(double)), this, SLOT(update()) );
+		}
 
 		refresh();
 	}
+}
+
+void AMControlLEDView::setAsGreenOff()
+{
+	led_->setPixmap(QPixmap(":/22x22/greenLEDOff.png"));
+}
+
+void AMControlLEDView::setAsGreenOn()
+{
+	led_->setPixmap(QPixmap(":/22x22/greenLEDOn.png"));
+}
+
+void AMControlLEDView::setAsRedOff()
+{
+	led_->setPixmap(QPixmap(":/22x22/redLEDOff.png"));
+}
+
+void AMControlLEDView::setAsRedOn()
+{
+	led_->setPixmap(QPixmap(":/22x22/redLEDOn.png"));
+}
+
+void AMControlLEDView::setAsYellowOff()
+{
+	led_->setPixmap(QPixmap(":/22x22/yellowLEDOff.png"));
+}
+
+void AMControlLEDView::setAsYellowOn()
+{
+	led_->setPixmap(QPixmap(":/22x22/yellowLEDOn.png"));
 }

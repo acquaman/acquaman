@@ -429,7 +429,9 @@ HEADERS += \
     source/dataman/AMScanViewPlotTools.h \
     source/ui/acquaman/AMGenericStepScanConfigurationDetectorsView.h \
     $$PWD/source/analysis/AMAdditionAB.h \
-    source/ui/beamline/AMControlLEDView.h
+    source/ui/beamline/AMControlLEDView.h \
+	source/ui/beamline/AMControlConnectedLEDView.h \
+    source/ui/beamline/AMControlValueLEDView.h
 
 FORMS += \
 
@@ -820,7 +822,9 @@ SOURCES += \
     source/dataman/AMScanViewPlotTools.cpp \
     source/ui/acquaman/AMGenericStepScanConfigurationDetectorsView.cpp \
     $$PWD/source/analysis/AMAdditionAB.cpp \
-    source/ui/beamline/AMControlLEDView.cpp
+    source/ui/beamline/AMControlLEDView.cpp \
+	source/ui/beamline/AMControlConnectedLEDView.cpp \
+    source/ui/beamline/AMControlValueLEDView.cpp
 
 RESOURCES *= source/icons/icons.qrc \
 		source/configurationFiles/configurationFiles.qrc \
@@ -837,6 +841,10 @@ contains(DEFINES, AM_BUILD_REPORTER_ENABLED){
 
 	SOURCES *= source/util/AMRunTimeBuildInfo.cpp
 }
+
+
+
+
 
 
 

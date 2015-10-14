@@ -27,14 +27,28 @@ signals:
 
 public slots:
 	/// Clears the view.
-	void clear();
-	/// Updates the view.
-	void update();
-	/// Refreshes the view.
-	void refresh();
+	virtual void clear();
+	/// Updates the view. Subclasses should reimplement for their desired behavior.
+	virtual void update();
+	/// Refreshes the view, clears it then updates it.
+	virtual void refresh();
 
 	/// Sets the control being viewed.
 	void setControl(AMControl *newControl);
+
+protected slots:
+	/// Sets the led as green, unlit.
+	void setAsGreenOff();
+	/// Sets the led as green, lit.
+	void setAsGreenOn();
+	/// Sets the led as red, unlit.
+	void setAsRedOff();
+	/// Sets the led as red, lit.
+	void setAsRedOn();
+	/// Sets the led as yellow, unlit.
+	void setAsYellowOff();
+	/// Sets the led as yellow, lit.
+	void setAsYellowOn();
 
 protected:
 	/// The control being viewed.

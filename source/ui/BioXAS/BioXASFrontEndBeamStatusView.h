@@ -7,7 +7,7 @@
 
 #include "beamline/BioXAS/BioXASFrontEndBeamStatus.h"
 #include "ui/beamline/AMExtendedControlEditor.h"
-#include "ui/beamline/AMControlLEDView.h"
+#include "ui/beamline/AMControlValueLEDView.h"
 
 class BioXASFrontEndBeamStatusView : public QWidget
 {
@@ -47,17 +47,17 @@ protected:
 	/// The beam status control editor.
 	AMExtendedControlEditor *beamStatusEditor_;
 	/// The upstream photon shutter LED.
-	AMControlLEDView *photonShutterUpstreamLED_;
+	AMControlValueLEDView *photonShutterUpstreamLED_;
 	/// The vacuum valve LED.
-	AMControlLEDView *vacuumValveLED_;
+	AMControlValueLEDView *vacuumValveLED_;
 	/// The fast valve LED.
-	AMControlLEDView *fastValveLED_;
+	AMControlValueLEDView *fastValveLED_;
 	/// The downstream photon shutter LED.
-	AMControlLEDView *photonShutterDownstreamLED_;
+	AMControlValueLEDView *photonShutterDownstreamLED_;
 	/// The safety shutter LED.
-	AMControlLEDView *safetyShutterLED_;
+	AMControlValueLEDView *safetyShutterLED_;
 	/// The beamline valves LED.
-	AMControlLEDView *beamlineValvesLED_;
+	AMControlValueLEDView *beamlineValvesLED_;
 };
 
 #endif // BIOXASFRONTENDBEAMSTATUSVIEW_H
