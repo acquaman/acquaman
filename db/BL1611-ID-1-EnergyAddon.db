@@ -1,4 +1,6 @@
-record( ao, "AM1611-4-I10:Energy:eV")
+# Energy
+######################################
+record( ao, "AM1611-4-I10:energy:eV")
 {
 	field( VAL, "0" )
 	field( DRVH, "2000.0001" )
@@ -7,19 +9,19 @@ record( ao, "AM1611-4-I10:Energy:eV")
 	field( MDEL, "-1" )
 }
 
-record( ao, "AM1611-4-I10:Energy:eV:fbk")
-{
-	field( VAL, "0" )
-	field( MDEL, "-1" )
-}
-
-record( ao, "AM1611-4-I10:Energy:stop")
+record( ao, "AM1611-4-I10:energy:eV:fbk")
 {
 	field( VAL, "0" )
 	field( EGU, "eV" )
 }
 
-record( mbbi, "AM1611-4-I10:Energy:status" )
+record( ao, "AM1611-4-I10:energy:stop")
+{
+	field( VAL, "0" )
+	field( MDEL, "-1" )
+}
+
+record( mbbi, "AM1611-4-I10:energy:status" )
 {
 	field( VAL, "0" )
 	field( ZRST, "MOVE DONE" )
@@ -33,3 +35,5 @@ record( mbbi, "AM1611-4-I10:Energy:status" )
 	field( FRST, "ERROR" )
 	field( FRVL, "0x04" )
 }
+
+
