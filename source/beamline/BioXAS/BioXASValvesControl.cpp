@@ -232,10 +232,13 @@ AMAction3* BioXASValvesControl::createOpenValvesAction(AMControlSet *valves)
 		AMListAction3 *actionList = new AMListAction3(new AMListActionInfo3("Open valves", "Open valves"), AMListAction3::Parallel);
 
 		foreach (AMControl *control, valves->toList()) {
-			CLSBiStateControl *valve = qobject_cast<CLSBiStateControl*>(control);
+			CLSBiStateControl *biStateValve = qobject_cast<CLSBiStateControl*>(control);
+			if (biStateValve)
+				actionList->addSubAction(AMActionSupport::buildControlMoveAction(biStateValve, CLSBiStateControl::Open));
 
-			if (valve)
-				actionList->addSubAction(AMActionSupport::buildControlMoveAction(valve, CLSBiStateControl::Open));
+			AMReadOnlyPVControl *readOnlyValve = qobject_cast<AMReadOnlyPVControl*>(control);
+			if (!biStateValve && readOnlyValve)
+				actionList->addSubAction(AMActionSupport::buildControlWaitAction(readOnlyValve, 1));
 		}
 
 		result = actionList;

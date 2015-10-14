@@ -38,8 +38,6 @@ void BioXASFrontEndBeamStatus::setFrontEndShutters(BioXASFrontEndShutters *newSh
 
 		if (frontEndShutters_) {
 			beamStatus_->setPhotonShutterUpstream(0);
-			beamStatus_->setVacuumValve(0);
-			beamStatus_->setFastValve(0);
 			beamStatus_->setPhotonShutterDownstream(0);
 			beamStatus_->setSafetyShutter(0);
 		}
@@ -48,8 +46,6 @@ void BioXASFrontEndBeamStatus::setFrontEndShutters(BioXASFrontEndShutters *newSh
 
 		if (frontEndShutters_) {
 			beamStatus_->setPhotonShutterUpstream(frontEndShutters_->photonShutterUpstream());
-			beamStatus_->setVacuumValve(frontEndShutters_->vacuumValve());
-			beamStatus_->setFastValve(frontEndShutters_->fastValve());
 			beamStatus_->setPhotonShutterDownstream(frontEndShutters_->photonShutterDownstream());
 			beamStatus_->setSafetyShutter(frontEndShutters_->safetyShutter());
 		}

@@ -10,16 +10,20 @@ BioXASValves::BioXASValves(QObject *parent) :
 	// Create valves and sets, and add them to the valves control.
 	// Front end vacuum valves.
 
-	vvr1_ = new CLSBiStateControl("VVR1", "VVR1", "VVR1607-5-I00-01:state", "VVR1607-5-I00-01:opr:open", "VVR1607-5-I00-01:opr:close", new AMControlStatusCheckerDefault(4), this);
-	vvr2_ = new CLSBiStateControl("VVR2", "VVR2", "VVR1607-5-I22-01:state", "VVR1607-5-I22-01:opr:open", "VVR1607-5-I22-01:opr:close", new AMControlStatusCheckerDefault(4), this);
-	vvr3_ = new CLSBiStateControl("VVR3", "VVR3", "VVR1607-5-I21-01:state", "VVR1607-5-I21-01:opr:open", "VVR1607-5-I21-01:opr:close", new AMControlStatusCheckerDefault(4), this);
-	vvr4_ = new CLSBiStateControl("VVR4", "VVR4", "VVR1607-5-I10-01:state", "VVR1607-5-I10-01:opr:open", "VVR1607-5-I10-01:opr:close", new AMControlStatusCheckerDefault(4), this);
+	vvr1_ = new AMReadOnlyPVControl("VVR1 - VacuumValve", "VVR1407-I00-01:state", this);
+	vvr2_ = new AMReadOnlyPVControl("VVR2 - FastValve", "VVF1407-I00-01:state", this);
+	vvr3_ = new CLSBiStateControl("VVR3", "VVR3", "VVR1607-5-I00-01:state", "VVR1607-5-I00-01:opr:open", "VVR1607-5-I00-01:opr:close", new AMControlStatusCheckerDefault(4), this);
+	vvr4_ = new CLSBiStateControl("VVR4", "VVR4", "VVR1607-5-I22-01:state", "VVR1607-5-I22-01:opr:open", "VVR1607-5-I22-01:opr:close", new AMControlStatusCheckerDefault(4), this);
+	vvr5_ = new CLSBiStateControl("VVR5", "VVR5", "VVR1607-5-I21-01:state", "VVR1607-5-I21-01:opr:open", "VVR1607-5-I21-01:opr:close", new AMControlStatusCheckerDefault(4), this);
+	vvr6_ = new CLSBiStateControl("VVR6", "VVR6", "VVR1607-5-I10-01:state", "VVR1607-5-I10-01:opr:open", "VVR1607-5-I10-01:opr:close", new AMControlStatusCheckerDefault(4), this);
 
 	frontEndValves_ = new AMControlSet(this);
 	frontEndValves_->addControl(vvr1_);
 	frontEndValves_->addControl(vvr2_);
 	frontEndValves_->addControl(vvr3_);
 	frontEndValves_->addControl(vvr4_);
+	frontEndValves_->addControl(vvr5_);
+	frontEndValves_->addControl(vvr6_);
 
 	valvesControl_->setFrontEndValves(frontEndValves_);
 

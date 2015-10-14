@@ -24,9 +24,9 @@ AMControlValueLEDView::~AMControlValueLEDView()
 void AMControlValueLEDView::update()
 {
 	if (control_) {
-		if (control_->isConnected() && greenValue_.isValid() && (control_->value() == double(greenValue_)))
+		if (control_->isConnected() && greenValue_.isValid() && qFuzzyCompare(control_->value(), double(greenValue_)))
 			setAsGreenOn();
-		else if (control_->isConnected() && redValue_.isValid() && (control_->value() == double(redValue_)))
+		else if (control_->isConnected() && redValue_.isValid() && qFuzzyCompare(control_->value(), double(redValue_)))
 			setAsRedOn();
 		else if (control_->isConnected())
 			setAsYellowOn();

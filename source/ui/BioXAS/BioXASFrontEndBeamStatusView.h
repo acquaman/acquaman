@@ -48,10 +48,6 @@ protected:
 	AMExtendedControlEditor *beamStatusEditor_;
 	/// The upstream photon shutter LED.
 	AMControlValueLEDView *photonShutterUpstreamLED_;
-	/// The vacuum valve LED.
-	AMControlValueLEDView *vacuumValveLED_;
-	/// The fast valve LED.
-	AMControlValueLEDView *fastValveLED_;
 	/// The downstream photon shutter LED.
 	AMControlValueLEDView *photonShutterDownstreamLED_;
 	/// The safety shutter LED.

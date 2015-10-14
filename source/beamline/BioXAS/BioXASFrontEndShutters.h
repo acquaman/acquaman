@@ -19,10 +19,6 @@ public:
 
 	/// Returns the front end upstream photon shutter.
 	AMReadOnlyPVControl* photonShutterUpstream() const { return photonShutterUpstream_; }
-	/// Returns the front end vacuum valve.
-	AMReadOnlyPVControl* vacuumValve() const { return vacuumValve_; }
-	/// Returns the front end fast valve.
-	AMReadOnlyPVControl* fastValve() const { return fastValve_; }
 	/// Returns the front end downstream photon shutter.
 	CLSBiStateControl* photonShutterDownstream() const { return photonShutterDownstream_; }
 	/// Returns the front end safety shutter.
@@ -31,10 +27,6 @@ public:
 protected:
 	/// The front end upstream photon shutter.
 	AMReadOnlyPVControl *photonShutterUpstream_;
-	/// The front end vacuum valve.
-	AMReadOnlyPVControl *vacuumValve_;
-	/// The front end fast valve.
-	AMReadOnlyPVControl *fastValve_;
 	/// The front end downstream photon shutter.
 	CLSBiStateControl *photonShutterDownstream_;
 	/// The front end safety shutter.

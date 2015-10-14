@@ -24,13 +24,17 @@ public:
 	/// Returns the set of front end vacuum valves.
 	AMControlSet* frontEndValves() const { return frontEndValves_; }
 	/// Returns the first front end vacuum valve control.
-	CLSBiStateControl *vvr1() const { return vvr1_; }
+	AMReadOnlyPVControl *vvr1() const { return vvr1_; }
 	/// Returns the second front end vacuum valve control.
-	CLSBiStateControl *vvr2() const { return vvr2_; }
+	AMReadOnlyPVControl *vvr2() const { return vvr2_; }
 	/// Returns the third front end vacuum valve control.
 	CLSBiStateControl *vvr3() const { return vvr3_; }
 	/// Returns the fourth front end vacuum valve control.
 	CLSBiStateControl *vvr4() const { return vvr4_; }
+	/// Returns the fifth front end vacuum valve control.
+	CLSBiStateControl *vvr5() const { return vvr5_; }
+	/// Returns the sixth front end vacuum valve control.
+	CLSBiStateControl *vvr6() const { return vvr6_; }
 
 	/// Returns the set of Side beamline vacuum valves.
 	AMControlSet* sideValves() const { return sideValves_; }
@@ -81,15 +85,17 @@ protected:
 	/// The set of front end vacuum valves.
 	AMControlSet *frontEndValves_;
 	/// The first front end vacuum valve control.
-	CLSBiStateControl *vvr1_;
+	AMReadOnlyPVControl *vvr1_;
 	/// The second front end vacuum valve control.
-	CLSBiStateControl *vvr2_;
+	AMReadOnlyPVControl *vvr2_;
 	/// The third front end vacuum valve control.
 	CLSBiStateControl *vvr3_;
 	/// The fourth front end vacuum valve control.
 	CLSBiStateControl *vvr4_;
 	/// The fifth front end vacuum valve control.
 	CLSBiStateControl *vvr5_;
+	/// The sixth front end vacuum valve control.
+	CLSBiStateControl *vvr6_;
 
 	/// The set of Side beamline vacuum valves.
 	AMControlSet *sideValves_;
