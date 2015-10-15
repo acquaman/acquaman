@@ -29,15 +29,75 @@ SGMNewEnergyPVSet::SGMNewEnergyPVSet(QObject *parent) :
 												  this,
 												  0.5));
 
+	controlSet_->addControl(new AMSinglePVControl("GratingAngleFeedback",
+												  "AM1611-4-I10:energy:grating:angle:steps:fbk",
+												  this,
+												  0.01));
+
+	controlSet_->addControl(new AMSinglePVControl("GratingAngleSetpoint",
+												  "AM1611-4-I10:energy:grating:angle:steps",
+												  this,
+												  0.01));
+
+	controlSet_->addControl(new AMSinglePVControl("GratingAngleStatus",
+												  "AM1611-4-I10:energy:grating:angle:status",
+												  this,
+												  0.01));
+
+	controlSet_->addControl(new AMSinglePVControl("GratingAngleStop",
+												  "AM1611-4-I10:energy:grating:angle:stop",
+												  this,
+												  0.01));
+
+	controlSet_->addControl(new AMSinglePVControl("GratingTranslationFeedback",
+												  "AM1611-4-I10:energy:grating:translation:fbk",
+												  this,
+												  0.5));
+
+	controlSet_->addControl(new AMSinglePVControl("GratingTranslationSetpoint",
+												  "AM1611-4-I10:energy:grating:translation",
+												  this,
+												  0.5));
+
+	controlSet_->addControl(new AMSinglePVControl("GratingTranslationStatus",
+												  "AM1611-4-I10:energy:grating:translation:status",
+												  this,
+												  0.5));
+
+	controlSet_->addControl(new AMSinglePVControl("GratingTranslationStop",
+												  "AM1611-4-I10:energy:translation:stop",
+												  this,
+												  0.5));
+
 	controlSet_->addControl(new AMSinglePVControl("GratingTranslationOptimizationModeFeedback",
-												   "AM1611-4-I10:energy:grating:translation:optimization:mode:fbk",
+												   "AM1611-4-I10:energy:grating:translation:optimization:fbk",
 												   this,
 												   0.5));
 
 	controlSet_->addControl(new AMSinglePVControl("GratingTranslationOptimizationModeSetpoint",
-												   "AM1611-4-I10:energy:grating:translation:optimization:mode",
+												   "AM1611-4-I10:energy:grating:translation:optimization",
 												   this,
 												   0.5));
+
+	controlSet_->addControl(new AMSinglePVControl("UndulatorPositionFeedback",
+												  "AM1611-4-I10:energy:undulator:mm:fbk",
+												  this,
+												  0.01));
+
+	controlSet_->addControl(new AMSinglePVControl("UndulatorPositionSetpoint",
+												  "AM1611-4-I10:energy:undulator:mm",
+												  this,
+												  0.01));
+
+	controlSet_->addControl(new AMSinglePVControl("UndulatorPositionStatus",
+												  "AM1611-4-I10:energy:undulator:status",
+												  this,
+												  0.5));
+
+	controlSet_->addControl(new AMSinglePVControl("UndulatorPositionStop",
+												  "AM1611-4-I10:energy:undulator:stop",
+												  this,
+												  0.5));
 
 	controlSet_->addControl(new AMSinglePVControl("UndulatorOffset",
 												  "AM1611-4-I10:energy:undulator:offset:mm",
@@ -52,30 +112,30 @@ SGMNewEnergyPVSet::SGMNewEnergyPVSet(QObject *parent) :
 	controlSet_->addControl(new AMSinglePVControl("UndulatorHarmonicSetpoint",
 												  "AM1611-4-I10:energy:undulator:harmonic",
 												  this,
-												  0.5));
-
-	controlSet_->addControl(new AMSinglePVControl("GratingTranslationFeedback",
-												  "AM1611-4-I10:energy:grating:translation:feedback",
-												  this,
-												  0.01));
-
-	controlSet_->addControl(new AMSinglePVControl("GratingTranslationSetpoint",
-												  "AM1611-4-I10:energy:grating:translation",
-												  this,
-												  0.01));
-
-	controlSet_->addControl(new AMSinglePVControl("GratingTranslationStatus",
-												  "AM1611-4-I10:energy:grating:translation:status",
-												  this,
-												  0.5));
-
-	controlSet_->addControl(new AMSinglePVControl("GratingTranslationStop",
-												  "AM1611-4-I10:energy:translation:stop",
-												  this,
-												  0.5));
+												  0.5));	
 
 	controlSet_->addControl(new AMSinglePVControl("UndulatorTracking",
 												  "AM1611-4-I10:energy:undulator:tracking",
+												  this,
+												  0.5));
+
+	controlSet_->addControl(new AMSinglePVControl("ExitSlitPositionFeedback",
+												  "AM1611-4-I10:energy:exitslit:position:mm:fbk",
+												  this,
+												  0.01));
+
+	controlSet_->addControl(new AMSinglePVControl("ExitSlitPositionSetpoint",
+												  "AM1611-4-I10:energy:exitslit:position:mm",
+												  this,
+												  0.01));
+
+	controlSet_->addControl(new AMSinglePVControl("ExitSlitPositionStatus",
+												  "AM1611-4-I10:energy:exitslit:position:status",
+												  this,
+												  0.5));
+
+	controlSet_->addControl(new AMSinglePVControl("ExitSlitPositionStop",
+												  "AM1611-4-I10:energy:exitslit:position:stop",
 												  this,
 												  0.5));
 
@@ -112,29 +172,24 @@ AMControl * SGMNewEnergyPVSet::energyStatus() const
 	return controlSet_->controlNamed("EnergyStatus");
 }
 
-AMControl * SGMNewEnergyPVSet::gratingTranslationOptimizationModeFeedback() const
+AMControl * SGMNewEnergyPVSet::gratingAngleFeedback() const
 {
-	return controlSet_->controlNamed("GratingTranslationOptimizationModeFeedback");
+	return controlSet_->controlNamed("GratingAngleFeedback");
 }
 
-AMControl * SGMNewEnergyPVSet::gratingTranslationOptimizationModeSetpoint() const
+AMControl * SGMNewEnergyPVSet::gratingAngleSetpoint() const
 {
-	return controlSet_->controlNamed("GratingTranslationOptimizationModeSetpoint");
+	return controlSet_->controlNamed("GratingAngleSetpoint");
 }
 
-AMControl * SGMNewEnergyPVSet::undulatorOffset() const
+AMControl * SGMNewEnergyPVSet::gratingAngleStatus() const
 {
-	return controlSet_->controlNamed("UndulatorOffset");
+	return controlSet_->controlNamed("GratingAngleStatus");
 }
 
-AMControl * SGMNewEnergyPVSet::undulatorHarmonicFeedback() const
+AMControl * SGMNewEnergyPVSet::gratingAngleStop() const
 {
-	return controlSet_->controlNamed("UndulatorHarmonicFeedback");
-}
-
-AMControl * SGMNewEnergyPVSet::undulatorHarmonicSetpoint() const
-{
-	return controlSet_->controlNamed("UndulatorHarmonicSetpoint");
+	return controlSet_->controlNamed("GratingAngleStop");
 }
 
 AMControl * SGMNewEnergyPVSet::gratingTranslationFeedback() const
@@ -157,15 +212,77 @@ AMControl * SGMNewEnergyPVSet::gratingTranslationStop() const
 	return controlSet_->controlNamed("GratingTranslationStop");
 }
 
+AMControl * SGMNewEnergyPVSet::gratingTranslationOptimizationModeFeedback() const
+{
+	return controlSet_->controlNamed("GratingTranslationOptimizationModeFeedback");
+}
+
+AMControl * SGMNewEnergyPVSet::gratingTranslationOptimizationModeSetpoint() const
+{
+	return controlSet_->controlNamed("GratingTranslationOptimizationModeSetpoint");
+}
+
+AMControl * SGMNewEnergyPVSet::undulatorPositionFeedback() const
+{
+	return controlSet_->controlNamed("UndulatorPositionFeedback");
+}
+
+AMControl * SGMNewEnergyPVSet::undulatorPositionSetpoint() const
+{
+	return controlSet_->controlNamed("UndulatorPositionSetpoint");
+}
+
+AMControl * SGMNewEnergyPVSet::undulatorPositionStatus() const
+{
+	return controlSet_->controlNamed("UndulatorPositionStatus");
+}
+
+AMControl * SGMNewEnergyPVSet::undulatorPositionStop() const
+{
+	return controlSet_->controlNamed("UndulatorPositionStop");
+}
+
+AMControl * SGMNewEnergyPVSet::undulatorOffset() const
+{
+	return controlSet_->controlNamed("UndulatorOffset");
+}
+
+AMControl * SGMNewEnergyPVSet::undulatorHarmonicFeedback() const
+{
+	return controlSet_->controlNamed("UndulatorHarmonicFeedback");
+}
+
+AMControl * SGMNewEnergyPVSet::undulatorHarmonicSetpoint() const
+{
+	return controlSet_->controlNamed("UndulatorHarmonicSetpoint");
+}
+
 AMControl * SGMNewEnergyPVSet::undulatorTracking() const
 {
 	return controlSet_->controlNamed("UndulatorTracking");
 }
 
-AMControl * SGMNewEnergyPVSet::exitSlitTracking() const
+AMControl * SGMNewEnergyPVSet::exitSlitPositionFeedback() const
+{
+	return controlSet_->controlNamed("ExitSlitPositionFeedback");
+}
+
+AMControl * SGMNewEnergyPVSet::exitSlitPositionSetpoint() const
+{
+	return controlSet_->controlNamed("ExitSlitPositionSetpoint");
+}
+
+AMControl * SGMNewEnergyPVSet::exitSlitPositionStatus() const
+{
+	return controlSet_->controlNamed("ExitSlitPositionStatus");
+}
+
+AMControl * SGMNewEnergyPVSet::exitSlitPositionStop() const
+{
+	return controlSet_->controlNamed("ExitSlitPositionStop");
+}
+
+AMControl * SGMNewEnergyPVSet::exitSlitPositionTracking() const
 {
 	return controlSet_->controlNamed("ExitSlitTracking");
 }
-
-
-

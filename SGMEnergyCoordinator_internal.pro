@@ -3,7 +3,8 @@ include ( sgmCommon.pri )
 
 TARGET = SGMAddOnsCoordinator
 
-FORMS +=
+RESOURCES += \
+    db/BL1611-ID-1-EnergyAddon.db
 
 HEADERS += \
     source/beamline/SGM/SGMEnergyCoordinator.h \

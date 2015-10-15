@@ -43,7 +43,13 @@ protected slots:
 	void onEnergyControlUndulatorTrackingChanged(bool);
 
 	/// Handles the energy control signalling that its exit slit tracking has changed
-	void onEnergyControlExitSlitTrackingChanged(bool);
+	void onEnergyControlExitSlitPositionTrackingChanged(bool);
+
+	/// Handles the old grating angle PV signalling that its value has changed.
+	void onOldGratingAnglePVChanged(double);
+
+	/// Handles the old grating angle PV signalling that its moving status has changed.
+	void onOldGratingAnglePVMovingChanged(bool);
 
 	/// Handles the old grating translation step PV signalling that its value has changed.
 	void onOldGratingTranslationStepPVChanged(double);
@@ -51,17 +57,44 @@ protected slots:
 	/// Handles the old grating translation step PV signalling that its moving state has changed.
 	void onOldGratingTranslationStepPVMovingChanged(bool);
 
+	/// Handles the old undulator position PV signalling that its value has changed.
+	void onOldUndulatorPositionPVChanged(double);
+
+	/// Handles the old undulator position PV signalling that its moving state has changed.
+	void onOldUndulatorPositionPVMovingChanged(bool);
+
+	/// Handles the old exit slit position PV signalling that its value has changed.
+	void onOldExitSlitPositionPVChanged(double);
+
+	/// Handles the old exit slit position PV signalling that its moving state has changed.
+	void onOldExitSlitPositionPVMovingChanged(bool);
+
 	// Slots which connect the new setpoint PVs to the energy control pseudo motor
 	////////////////////////////////////////////////////////////////////////////
 
 	/// Handles the new energy stop PV being altered.
 	void onEnergyStopPVChanged(double);
 
-	/// Handles the new grating optimization PV being altered.
-	void onGratingTranslationOptimizationModeSetpointPVChanged(double);
+	/// Handles the new grating angle PV being altered.
+	void onGratingAngleSetpointPVChanged(double);
+
+	/// Handles the new grating angle stop PV being altered.
+	void onGratingAngleStopPVChanged(double);
+
+	/// Handles the new grating translaiton setpoint PV being altered.
+	void onGratingTranslationSetpointPVChanged(double);
 
 	/// Handles the new grating translation stop PV being altered.
 	void onGratingTranslationStopPVChanged(double);
+
+	/// Handles the new grating optimization PV being altered.
+	void onGratingTranslationOptimizationModeSetpointPVChanged(double);
+
+	/// Handles the new undulator position setpoint PV being altered.
+	void onUndulatorSetpointPVChanged(double);
+
+	/// Handles the new undulator stop setpoint being altered.
+	void onUndulatorStopPVChanged(double);
 
 	/// Handles the new undulator offset PV being altered.
 	void onUndulatorOffsetPVChanged(double);
@@ -72,8 +105,14 @@ protected slots:
 	/// Handles the new undulator tracking PV being altered.
 	void onUndulatorTrackingPVChanged(double);
 
+	/// Handles the new exit slit position setpoint PV being altered.
+	void onExitSlitPositionSetpointPVChanged(double);
+
+	/// Handles the new exit slit position stop PV being altered.
+	void onExitSlitPositionStopPVChanged(double);
+
 	/// Handles the new exit slit position tracking PV being altered.
-	void onExitSlitTrackingPVChanged(double);
+	void onExitSlitPositionTrackingPVChanged(double);
 protected:
 
 	SGMEnergyControl* energyControlCoordinator_;
