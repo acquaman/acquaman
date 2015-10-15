@@ -832,6 +832,8 @@ bool AMDatamanAppController::startupPopulateNewDatabase()
 	bioXASMain.storeToDb(db);
 	AMFacility bioXASImaging("BioXASImaging", "CLS BioXAS Beamline - Imaging endstation", ":/clsIcon.png");
 	bioXASImaging.storeToDb(db);
+	AMFacility sxrmb("SXRMB", "CLS SXRMB Beamline", ":/clsIcon.png");
+	sxrmb.storeToDb(db);
 
 	return true;
 }
