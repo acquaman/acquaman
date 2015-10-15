@@ -23,8 +23,16 @@ BioXASAppController::BioXASAppController(QObject *parent) :
 	// Initialize member variables.
 
 	xasConfiguration_ = 0;
+	xasConfigurationView_ = 0;
+
 	commissioningConfiguration_ = 0;
+	commissioningConfigurationView_ = 0;
+
 	energyCalibrationConfiguration_ = 0;
+	energyCalibrationConfigurationView_ = 0;
+
+	jjSlitsOptimizationConfiguration_ = 0;
+	jjSlitsOptimizationConfigurationView_ = 0;
 
 	energyCalibrationView_ = 0;
 
@@ -164,12 +172,20 @@ void BioXASAppController::onCurrentScanActionFinishedImplementation(AMScanAction
 	if (userConfiguration_)
 		userConfiguration_->storeToDb(AMDatabase::database("user"));
 
-	// If the scan was an energy calibration scan, set the calibration view's scan and make it the current pane.
-
 	if (action && action->controller() && action->controller()->scan()) {
+
+		// If the scan was an energy calibration scan, set the calibration view's scan and make it the current pane.
+
 		BioXASXASScanConfiguration *xasScanConfiguration = qobject_cast<BioXASXASScanConfiguration*>(action->controller()->scan()->scanConfiguration());
 		if (xasScanConfiguration && xasScanConfiguration->name() == "Energy Calibration XAS Scan")
 			goToEnergyCalibrationView(action->controller()->scan());
+
+		// If the scan was a jj slits optimization scan, identify the optimal position for the scanned controls and move them there.
+
+		AMGenericStepScanConfiguration *jjSlitsScan = qobject_cast<AMGenericStepScanConfiguration*>(action->controller()->scan()->scanConfiguration());
+		if (jjSlitsScan && jjSlitsScan->name() == "JJ Slits Optimization Scan") {
+
+		}
 	}
 }
 
@@ -247,6 +263,9 @@ void BioXASAppController::setupUserInterface()
 	energyCalibrationConfigurationView_ = createScanConfigurationViewWithHolder(energyCalibrationConfiguration_);
 	addViewToScansPane(energyCalibrationConfigurationView_, "Energy Calibration");
 
+	jjSlitsOptimizationConfigurationView_ = createScanConfigurationViewWithHolder(jjSlitsOptimizationConfiguration_);
+	addViewToScansPane(jjSlitsOptimizationConfigurationView_, "JJ Slits Optimization");
+
 	// Create calibration views:
 	////////////////////////////////////
 
@@ -265,6 +284,11 @@ void BioXASAppController::setupScanConfigurations()
 	energyCalibrationConfiguration_->setName("Energy Calibration XAS Scan");
 	energyCalibrationConfiguration_->setUserScanName("Energy Calibration XAS Scan");
 	setupXASScanConfiguration(energyCalibrationConfiguration_);
+
+	jjSlitsOptimizationConfiguration_ = new AMGenericStepScanConfiguration();
+	jjSlitsOptimizationConfiguration_->setName("JJ Slits Optimization Scan");
+	jjSlitsOptimizationConfiguration_->setUserScanName("JJ Slits Optimization Scan");
+	setupGenericStepScanConfiguration(jjSlitsOptimizationConfiguration_);
 }
 
 QWidget* BioXASAppController::createGeneralPane(QWidget *view, const QString &viewName)
@@ -479,8 +503,17 @@ AMScanConfigurationView* BioXASAppController::createScanConfigurationView(AMScan
 
 		AMGenericStepScanConfiguration *commissioningConfiguration = qobject_cast<AMGenericStepScanConfiguration*>(configuration);
 		if (!configurationFound && commissioningConfiguration) {
-			configurationView = new AMGenericStepScanConfigurationView(commissioningConfiguration, BioXASBeamline::bioXAS()->exposedControls(), BioXASBeamline::bioXAS()->exposedDetectors());
-			configurationFound = true;
+
+			if (BioXASBeamline::bioXAS()->jjSlits() && commissioningConfiguration->name() == "JJ Slits Optimization Scan") {
+				AMControlSet *jjSlitsSet = new AMControlSet(this);
+				jjSlitsSet->addControl(BioXASBeamline::bioXAS()->jjSlits()->verticalCenterControl());
+				jjSlitsSet->addControl(BioXASBeamline::bioXAS()->jjSlits()->horizontalCenterControl());
+				configurationView = new AMGenericStepScanConfigurationView(commissioningConfiguration, jjSlitsSet, BioXASBeamline::bioXAS()->exposedDetectors());
+				configurationFound = true;
+			} else {
+				configurationView = new AMGenericStepScanConfigurationView(commissioningConfiguration, BioXASBeamline::bioXAS()->exposedControls(), BioXASBeamline::bioXAS()->exposedDetectors());
+				configurationFound = true;
+			}
 		}
 	}
 

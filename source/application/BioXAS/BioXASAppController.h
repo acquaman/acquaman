@@ -184,6 +184,11 @@ protected:
 	/// The mono energy calibration configuration view.
 	QWidget *energyCalibrationConfigurationView_;
 
+	/// The JJ slits optimization configuration.
+	AMGenericStepScanConfiguration *jjSlitsOptimizationConfiguration_;
+	/// The JJ slits optimization configuration view.
+	QWidget *jjSlitsOptimizationConfigurationView_;
+
 	/// The energy calibration view.
 	BioXASSSRLMonochromatorEnergyCalibrationView *energyCalibrationView_;
 
