@@ -12,7 +12,7 @@ BioXASFrontEndBeamStatusView::BioXASFrontEndBeamStatusView(BioXASFrontEndBeamSta
 	beamStatusEditor_ = new AMExtendedControlEditor(0);
 	beamStatusEditor_->setNoUnitsBox(true);
 
-	photonShutterUpstreamLED_ = new AMControlValueLEDView(0, AMNumber(1), AMNumber(0));
+	photonShutterUpstreamLED_ = new AMControlValueLEDView(0, AMNumber(1), AMNumber(4));
 	photonShutterUpstreamLED_->setToolTip("PSH1");
 
 	photonShutterDownstreamLED_ = new AMControlValueLEDView(0, AMNumber(CLSBiStateControl::Open), AMNumber(CLSBiStateControl::Closed));

@@ -99,5 +99,25 @@ bool BioXASValves::isConnected() const
 				imagingValves_ && imagingValves_->isConnected()
 				);
 
+	if (frontEndValves_ && frontEndValves_->isConnected())
+		qDebug() << "Front end valves are connected.";
+	else
+		qDebug() << "Front end valves are NOT connected.";
+
+	if (sideValves_ && sideValves_->isConnected())
+		qDebug() << "Side valves are connected.";
+	else
+		qDebug() << "Side valves are NOT connected.";
+
+	if (mainValves_ && mainValves_->isConnected())
+		qDebug() << "Main valves are connected.";
+	else
+		qDebug() << "Main valves are NOT connected.";
+
+	if (imagingValves_ && imagingValves_->isConnected())
+		qDebug() << "Imaging valves are connected.";
+	else
+		qDebug() << "Imaging valves are NOT connected.";
+
 	return connected;
 }
