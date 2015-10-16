@@ -428,7 +428,8 @@ HEADERS += \
     source/ui/dataman/AMScanViewPlotSelectedToolsView.h \
     source/dataman/AMScanViewPlotTools.h \
     source/ui/acquaman/AMGenericStepScanConfigurationDetectorsView.h \
-    $$PWD/source/analysis/AMAdditionAB.h
+	$$PWD/source/analysis/AMAdditionAB.h \
+	source/analysis/AM1DMaximumAB.h
 
 FORMS += \
 
@@ -818,7 +819,8 @@ SOURCES += \
     source/ui/dataman/AMScanViewPlotSelectedToolsView.cpp \
     source/dataman/AMScanViewPlotTools.cpp \
     source/ui/acquaman/AMGenericStepScanConfigurationDetectorsView.cpp \
-    $$PWD/source/analysis/AMAdditionAB.cpp
+	$$PWD/source/analysis/AMAdditionAB.cpp \
+	source/analysis/AM1DMaximumAB.cpp
 
 RESOURCES *= source/icons/icons.qrc \
 		source/configurationFiles/configurationFiles.qrc \
