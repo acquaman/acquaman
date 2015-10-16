@@ -8,11 +8,11 @@ BioXASCarbonFilterFarmView::BioXASCarbonFilterFarmView(BioXASCarbonFilterFarm *f
 
 	filterFarm_ = 0;
 
-	filterEditor_ = new AMExtendedControlEditor(0);
-	filterEditor_->setTitle("Active filter thickness");
+//	filterEditor_ = new AMExtendedControlEditor(0);
+//	filterEditor_->setTitle("Active filter thickness");
 
-	upstreamEditor_ = new AMExtendedControlEditor(0);
-	upstreamEditor_->setTitle("Actuator control");
+//	upstreamEditor_ = new AMExtendedControlEditor(0);
+//	upstreamEditor_->setTitle("Actuator control");
 
 	upstreamPositionEditor_ = new AMExtendedControlEditor(0);
 	upstreamPositionEditor_->setTitle("Position");
@@ -20,8 +20,8 @@ BioXASCarbonFilterFarmView::BioXASCarbonFilterFarmView(BioXASCarbonFilterFarm *f
 	upstreamPositionStatusEditor_ = new AMExtendedControlEditor(0);
 	upstreamPositionStatusEditor_->setTitle("Position status");
 
-	downstreamEditor_ = new AMExtendedControlEditor(0);
-	downstreamEditor_->setTitle("Actuator control");
+//	downstreamEditor_ = new AMExtendedControlEditor(0);
+//	downstreamEditor_->setTitle("Actuator control");
 
 	downstreamPositionEditor_ = new AMExtendedControlEditor(0);
 	downstreamPositionEditor_->setTitle("Position");
@@ -32,23 +32,23 @@ BioXASCarbonFilterFarmView::BioXASCarbonFilterFarmView(BioXASCarbonFilterFarm *f
 	// Create and set layouts.
 
 	QVBoxLayout *upstreamTestingLayout = new QVBoxLayout();
-	upstreamTestingLayout->addWidget(upstreamEditor_);
+//	upstreamTestingLayout->addWidget(upstreamEditor_);
 	upstreamTestingLayout->addWidget(upstreamPositionEditor_);
 	upstreamTestingLayout->addWidget(upstreamPositionStatusEditor_);
 
-	QGroupBox *upstreamTesting = new QGroupBox("Testing - upstream sub-controls");
+	QGroupBox *upstreamTesting = new QGroupBox("Upstream controls");
 	upstreamTesting->setLayout(upstreamTestingLayout);
 
 	QVBoxLayout *downstreamTestingLayout = new QVBoxLayout();
-	downstreamTestingLayout->addWidget(downstreamEditor_);
+//	downstreamTestingLayout->addWidget(downstreamEditor_);
 	downstreamTestingLayout->addWidget(downstreamPositionEditor_);
 	downstreamTestingLayout->addWidget(downstreamPositionStatusEditor_);
 
-	QGroupBox *downstreamTesting = new QGroupBox("Testing - downstream sub-controls");
+	QGroupBox *downstreamTesting = new QGroupBox("Downstream controls");
 	downstreamTesting->setLayout(downstreamTestingLayout);
 
 	QVBoxLayout *layout = new QVBoxLayout();
-	layout->addWidget(filterEditor_);
+//	layout->addWidget(filterEditor_);
 	layout->addWidget(upstreamTesting);
 	layout->addWidget(downstreamTesting);
 
@@ -72,13 +72,13 @@ void BioXASCarbonFilterFarmView::setFilterFarm(BioXASCarbonFilterFarm *newFilter
 
 			// Clear UI elements.
 
-			filterEditor_->setControl(0);
+//			filterEditor_->setControl(0);
 
-			upstreamEditor_->setControl(0);
+//			upstreamEditor_->setControl(0);
 			upstreamPositionEditor_->setControl(0);
 			upstreamPositionStatusEditor_->setControl(0);
 
-			downstreamEditor_->setControl(0);
+//			downstreamEditor_->setControl(0);
 			downstreamPositionEditor_->setControl(0);
 			downstreamPositionStatusEditor_->setControl(0);
 		}
@@ -89,13 +89,13 @@ void BioXASCarbonFilterFarmView::setFilterFarm(BioXASCarbonFilterFarm *newFilter
 
 			// Update UI elements.
 
-			filterEditor_->setControl(filterFarm_->filterControl());
+//			filterEditor_->setControl(filterFarm_->filterControl());
 
-			upstreamEditor_->setControl(filterFarm_->upstreamActuatorControl());
+//			upstreamEditor_->setControl(filterFarm_->upstreamActuatorControl());
 			upstreamPositionEditor_->setControl(filterFarm_->upstreamPositionControl());
 			upstreamPositionStatusEditor_->setControl(filterFarm_->upstreamStatusControl());
 
-			downstreamEditor_->setControl(filterFarm_->downstreamActuatorControl());
+//			downstreamEditor_->setControl(filterFarm_->downstreamActuatorControl());
 			downstreamPositionEditor_->setControl(filterFarm_->downstreamPositionControl());
 			downstreamPositionStatusEditor_->setControl(filterFarm_->downstreamStatusControl());
 		}
