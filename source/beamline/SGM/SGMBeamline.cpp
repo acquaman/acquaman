@@ -29,7 +29,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/CLS/CLSAmptekSDD123DetectorNew.h"
 #include "beamline/SGM/SGMHexapod.h"
 #include "beamline/AMBasicControlDetectorEmulator.h"
-
+#include "beamline/SGM/energy/SGMEnergyControlSet.h"
 SGMBeamline* SGMBeamline::sgm() {
 
 	if(instance_ == 0){
@@ -65,6 +65,11 @@ AMControl * SGMBeamline::endStationTranslationSetpoint() const
 AMControl * SGMBeamline::endStationTranslationFeedback() const
 {
 	return endStationTranslationFeedback_;
+}
+
+SGMEnergyControlSet * SGMBeamline::energyControlSet() const
+{
+	return energyControlSet_;
 }
 
 AMControl * SGMBeamline::energy() const
@@ -140,6 +145,8 @@ void SGMBeamline::onConnectionStateChanged(bool)
 
 void SGMBeamline::setupBeamlineComponents()
 {
+	energyControlSet_ = new SGMEnergyControlSet(this);
+
 	// Energy
 	energy_ = new AMPVwStatusControl("energy", "BL1611-ID-1:Energy:fbk", "BL1611-ID-1:Energy", "BL1611-ID-1:ready", "SMTR16114I1002:stop", this, 0.25);
 	energy_->setDescription("Energy");
@@ -341,6 +348,8 @@ SGMBeamline::SGMBeamline()
 	setupExposedControls();
 	setupExposedDetectors();
 }
+
+
 
 
 

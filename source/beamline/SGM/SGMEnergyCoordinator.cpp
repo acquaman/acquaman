@@ -274,7 +274,7 @@ void SGMEnergyCoordinator::onOldGratingAnglePVChanged(double value)
 	}
 }
 
-void SGMEnergyCoordinator::onOldGratingAnglePVMovingChanged(bool)
+void SGMEnergyCoordinator::onOldGratingAnglePVMovingChanged(bool isMoving)
 {
 	double movingValue;
 	if(isMoving) {
@@ -347,7 +347,7 @@ void SGMEnergyCoordinator::onOldUndulatorPositionPVChanged(double value)
 	}
 }
 
-void SGMEnergyCoordinator::onOldUndulatorPositionPVMovingChanged(bool)
+void SGMEnergyCoordinator::onOldUndulatorPositionPVMovingChanged(bool isMoving)
 {
 	double movingValue;
 	if(isMoving) {
@@ -374,7 +374,7 @@ void SGMEnergyCoordinator::onOldExitSlitPositionPVChanged(double value)
 	}
 }
 
-void SGMEnergyCoordinator::onOldExitSlitPositionPVMovingChanged(bool)
+void SGMEnergyCoordinator::onOldExitSlitPositionPVMovingChanged(bool isMoving)
 {
 	double movingValue;
 	if(isMoving) {

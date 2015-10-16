@@ -78,7 +78,7 @@ public:
 	  * The control which determines whether the exit slit position  is to be moved
 	  * to a position which will optimize flux each time a new energy is targeted.
 	  */
-	AMControl* exitSlitTracking() const;
+	AMControl* exitSlitPositionTracking() const;
 
 	/*!
 	  * The validator for the error state of the energy controls.
@@ -90,7 +90,8 @@ public:
 	  */
 	AMValidator* warningValidator() const;
 signals:
-
+	/// Signal indicating that the control set is fully initialized.
+	void initialized();
 public slots:
 protected slots:
 	void onAllConnected(bool);

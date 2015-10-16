@@ -103,7 +103,7 @@ AMControl * SGMEnergyControlSet::gratingAngle() const
 
 AMControl * SGMEnergyControlSet::gratingTranslation() const
 {
-	return controlName("Grating Translation");
+	return controlNamed("Grating Translation");
 }
 
 AMControl * SGMEnergyControlSet::gratingTranslationOptimization() const
@@ -136,7 +136,7 @@ AMControl * SGMEnergyControlSet::exitSlitPosition() const
 	return controlNamed("Exit Slit Position");
 }
 
-AMControl * SGMEnergyControlSet::exitSlitTracking() const
+AMControl * SGMEnergyControlSet::exitSlitPositionTracking() const
 {
 	return controlNamed("Exit Slit Position Tracking");
 }
@@ -193,7 +193,9 @@ void SGMEnergyControlSet::onAllConnected(bool isConnected)
 		onUndulatorHarmonicPVValueChanged(undulatorHarmonic()->value());
 		onUndulatorTrackingPVValueChanged(undulatorTracking()->value());
 		onExitSlitPositionPVValueChanged(exitSlitPosition()->value());
-		onExitSlitTrackingPVValueChanged(exitSlitTracking()->value());
+		onExitSlitTrackingPVValueChanged(exitSlitPositionTracking()->value());
+
+		emit initialized();
 	}
 }
 

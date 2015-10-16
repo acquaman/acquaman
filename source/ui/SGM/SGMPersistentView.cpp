@@ -7,6 +7,7 @@
 #include "beamline/SGM/SGMHexapod.h"
 #include "ui/AMMotorGroupView.h"
 #include "ui/SGM/SGMHexapodTrajectoryView.h"
+#include "ui/SGM/SGMEnergyView.h"
 
 SGMPersistentView::SGMPersistentView(QWidget *parent) :
     QWidget(parent)
@@ -18,12 +19,11 @@ SGMPersistentView::SGMPersistentView(QWidget *parent) :
 
 void SGMPersistentView::setupUi()
 {
-	energyControlEditor_ = new AMExtendedControlEditor(SGMBeamline::sgm()->energy());
+
+	energyView_ = new SGMEnergyView(SGMBeamline::sgm()->energyControlSet());
 	exitSlitGapControlEditor_ = new AMExtendedControlEditor(SGMBeamline::sgm()->exitSlitGap());
-	exitSlitPositionControlEditor_ = new AMExtendedControlEditor(SGMBeamline::sgm()->exitSlitPosition());
 	endStationTranslationSetpointControlEditor_ = new AMExtendedControlEditor(SGMBeamline::sgm()->endStationTranslationSetpoint());
 	endStationTranslationFeedbackControlEditor_ = new AMExtendedControlEditor(SGMBeamline::sgm()->endStationTranslationFeedback());
-	gratingSelectionControlEditor_ = new AMExtendedControlEditor(SGMBeamline::sgm()->grating());
 
 	hexapodVelocityControlEditor_ = new AMExtendedControlEditor(SGMBeamline::sgm()->hexapod()->systemVelocity());
 
@@ -37,10 +37,8 @@ void SGMPersistentView::setupUi()
 
 	QVBoxLayout* controlsGroupLayout = new QVBoxLayout();
 
-	controlsGroupLayout->addWidget(energyControlEditor_);
+	controlsGroupLayout->addWidget(energyView_);
 	controlsGroupLayout->addWidget(exitSlitGapControlEditor_);
-	controlsGroupLayout->addWidget(exitSlitPositionControlEditor_);
-	controlsGroupLayout->addWidget(gratingSelectionControlEditor_);
 	controlsGroupLayout->addWidget(hexapodVelocityControlEditor_);
 	QHBoxLayout* endStationTranslationLayout = new QHBoxLayout();
 

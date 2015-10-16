@@ -3,9 +3,6 @@ include ( sgmCommon.pri )
 
 TARGET = SGMAddOnsCoordinator
 
-RESOURCES += \
-    db/BL1611-ID-1-EnergyAddon.db
-
 HEADERS += \
     source/beamline/SGM/SGMEnergyCoordinator.h \
     source/beamline/SGM/SGMNewEnergyPVSet.h \
@@ -16,6 +13,10 @@ SOURCES += \
     source/beamline/SGM/SGMEnergyCoordinator.cpp \
     source/beamline/SGM/SGMNewEnergyPVSet.cpp \
     source/beamline/SGM/SGMOldEnergyPVSet.cpp
+
+OTHER_FILES += \
+	db/BL1611-ID-1-EnergyAddon.db
+
 
 
 
