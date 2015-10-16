@@ -41,14 +41,11 @@ public:
 	/// Performance optimization of axisValue():  instead of a single value, copies a block of values from \c startIndex to \c endIndex in \c outputValues.  The provided pointer must contain enough space for all the requested values.
 	virtual bool axisValues(int axisNumber, int startIndex, int endIndex, double *outputValues) const;
 
-	/// Returns the cached range of the data contained within the data source.  This is always valid because it is always recomputed when the data is recomputed.
-	virtual AMRange dataRange() const { return cachedDataRange_; }
-
 protected slots:
 	/// Connected to be called when the values of the input data source change
 	void onInputSourceValuesChanged(const AMnDIndex& start, const AMnDIndex& end);
 	/// Connected to be called when the size of the input source changes
-	void onInputSourceSizeChanged();
+//	void onInputSourceSizeChanged();
 	/// Connected to be called when the state() flags of any input source change
 	void onInputSourceStateChanged();
 
@@ -64,17 +61,18 @@ protected:
 
 protected:
 	/// The data source to be analyzed.
-	AMDataSource *data_;
+	AMDataSource *inputSource_;
 
 	/// Flag holding whether or not the data source can be analyzed.
 	bool canAnalyze_;
 
 	/// Flag for knowing whether we need to compute the values.
 	mutable bool cacheUpdateRequired_;
-	/// The vector holding the data.
-	mutable QVector<double> cachedData_;
-	/// Holds the cached data range.
-	mutable AMRange cachedDataRange_;
+
+	/// The maximum value.
+	mutable double maxValue_;
+	/// The axis value for the maximum value.
+	mutable double maxAxisValue_;
 };
 
 #endif // AM1DMAXIMUMAB_H
