@@ -18,6 +18,7 @@ BioXASCarbonFilterFarmView::BioXASCarbonFilterFarmView(BioXASCarbonFilterFarm *f
 	upstreamPositionEditor_->setTitle("Position");
 
 	upstreamPositionStatusEditor_ = new AMExtendedControlEditor(0);
+	upstreamPositionStatusEditor_->setNoUnitsBox(true);
 	upstreamPositionStatusEditor_->setTitle("Position status");
 
 //	downstreamEditor_ = new AMExtendedControlEditor(0);
@@ -27,6 +28,7 @@ BioXASCarbonFilterFarmView::BioXASCarbonFilterFarmView(BioXASCarbonFilterFarm *f
 	downstreamPositionEditor_->setTitle("Position");
 
 	downstreamPositionStatusEditor_ = new AMExtendedControlEditor(0);
+	downstreamPositionStatusEditor_->setNoUnitsBox(true);
 	downstreamPositionStatusEditor_->setTitle("Position status");
 
 	// Create and set layouts.
