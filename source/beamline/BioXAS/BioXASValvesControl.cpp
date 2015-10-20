@@ -9,15 +9,15 @@ BioXASValvesControl::BioXASValvesControl(const QString &name, QObject *parent) :
 
 	value_ = None;
 	setpoint_ = None;
-	minimumValue_ = None;
-	maximumValue_ = Closed;
+	minimumValue_ = Open;
+	maximumValue_ = None;
 
-	setEnumStates(QStringList() << valueToString(None) << valueToString(Open) << valueToString(Closed));
+	setEnumStates(QStringList() << valueToString(Open) << valueToString(Closed) << valueToString(None));
 	setMoveEnumStates(QStringList() << valueToString(Open));
 
 	setContextKnownDescription("ValvesControl");
 
-	// Create member variables.
+	// Initialize class variables.
 
 	frontEndValveSet_ = 0;
 	sideValveSet_ = 0;
@@ -36,12 +36,22 @@ BioXASValvesControl::~BioXASValvesControl()
 
 bool BioXASValvesControl::canMeasure() const
 {
-	return false;
+	bool result = false;
+
+	if (isConnected())
+		result = (valvesCanMeasure(frontEndValveSet_) && valvesCanMeasure(sideValveSet_) && valvesCanMeasure(mainValveSet_) && valvesCanMeasure(imagingValveSet_));
+
+	return result;
 }
 
 bool BioXASValvesControl::canMove() const
 {
-	return false;
+	bool result = false;
+
+	if (isConnected())
+		result = (valvesCanMove(frontEndValveSet_) && valvesCanMove(sideValveSet_) && valvesCanMove(mainValveSet_) && valvesCanMove(imagingValveSet_));
+
+	return result;
 }
 
 bool BioXASValvesControl::validValue(double value) const
@@ -95,14 +105,14 @@ QString BioXASValvesControl::valueToString(BioXASValvesControl::Value value) con
 	QString result;
 
 	switch (value) {
-	case None:
-		result = "None";
-		break;
 	case Open:
 		result = "Open";
 		break;
 	case Closed:
 		result = "Closed";
+		break;
+	case None:
+		result = "None";
 		break;
 	default:
 		break;
@@ -242,6 +252,42 @@ AMAction3* BioXASValvesControl::createOpenValvesAction(AMControlSet *valves)
 		}
 
 		result = actionList;
+	}
+
+	return result;
+}
+
+bool BioXASValvesControl::valvesCanMeasure(AMControlSet *valveSet) const
+{
+	bool result = false;
+
+	if (valveSet) {
+		bool canMeasure = true;
+
+		for (int valveIndex = 0, valveCount = valveSet->count(); valveIndex < valveCount && canMeasure; valveIndex++) {
+			AMControl *valve = valveSet->at(valveIndex);
+			canMeasure &= (valve && valve->canMeasure());
+		}
+
+		result = canMeasure;
+	}
+
+	return result;
+}
+
+bool BioXASValvesControl::valvesCanMove(AMControlSet *valveSet) const
+{
+	bool result = false;
+
+	if (valveSet) {
+		bool canMove = true;
+
+		for (int valveIndex = 0, valveCount = valveSet->count(); valveIndex < valveCount && canMove; valveIndex++) {
+			AMControl *valve = valveSet->at(valveIndex);
+			canMove &= (valve && valve->canMove());
+		}
+
+		result = canMove;
 	}
 
 	return result;

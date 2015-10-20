@@ -29,7 +29,6 @@
 #include "beamline/BioXAS/BioXASCryostatStage.h"
 #include "beamline/BioXAS/BioXASFrontEndShutters.h"
 #include "beamline/BioXAS/BioXASValves.h"
-#include "beamline/BioXAS/BioXASBeamStatusControl.h"
 #include "beamline/BioXAS/BioXASFrontEndBeamStatus.h"
 
 #include "util/AMErrorMonitor.h"
@@ -62,7 +61,7 @@ public:
 	/// Returns the front end shutters.
 	virtual BioXASFrontEndShutters* shutters() const { return frontEndShutters_; }
 	/// Returns the valves for Side, Main, Imaging.
-	virtual BioXASValves* beamlineValves() const { return valves_; }
+	virtual BioXASValves* valves() const { return valves_; }
 	/// Returns the front-end beam status.
 	virtual BioXASFrontEndBeamStatus* beamStatus() const { return beamStatus_; }
 

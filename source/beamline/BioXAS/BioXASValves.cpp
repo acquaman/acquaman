@@ -1,13 +1,9 @@
 #include "BioXASValves.h"
 
 BioXASValves::BioXASValves(QObject *parent) :
-	BioXASBeamlineComponent("BioXASValves", parent)
+	BioXASValvesControl("BioXASValves", parent)
 {
-	// Create valves control.
-
-	valvesControl_ = new BioXASValvesControl("BioXASValvesControl", this);
-
-	// Create valves and sets, and add them to the valves control.
+	// Create valves and sets.
 	// Front end vacuum valves.
 
 	vvr1_ = new AMReadOnlyPVControl("VVR1 - VacuumValve", "VVR1407-I00-01:state", this);
@@ -17,15 +13,15 @@ BioXASValves::BioXASValves(QObject *parent) :
 	vvr5_ = new CLSBiStateControl("VVR5", "VVR5", "VVR1607-5-I21-01:state", "VVR1607-5-I21-01:opr:open", "VVR1607-5-I21-01:opr:close", new AMControlStatusCheckerDefault(4), this);
 	vvr6_ = new CLSBiStateControl("VVR6", "VVR6", "VVR1607-5-I10-01:state", "VVR1607-5-I10-01:opr:open", "VVR1607-5-I10-01:opr:close", new AMControlStatusCheckerDefault(4), this);
 
-	frontEndValves_ = new AMControlSet(this);
-	frontEndValves_->addControl(vvr1_);
-	frontEndValves_->addControl(vvr2_);
-	frontEndValves_->addControl(vvr3_);
-	frontEndValves_->addControl(vvr4_);
-	frontEndValves_->addControl(vvr5_);
-	frontEndValves_->addControl(vvr6_);
+	AMControlSet *frontEndValves = new AMControlSet(this);
+	frontEndValves->addControl(vvr1_);
+	frontEndValves->addControl(vvr2_);
+	frontEndValves->addControl(vvr3_);
+	frontEndValves->addControl(vvr4_);
+	frontEndValves->addControl(vvr5_);
+	frontEndValves->addControl(vvr6_);
 
-	valvesControl_->setFrontEndValves(frontEndValves_);
+	setFrontEndValves(frontEndValves);
 
 	// Side beamline vacuum valves.
 
@@ -35,14 +31,14 @@ BioXASValves::BioXASValves(QObject *parent) :
 	vvrSide4_ = new CLSBiStateControl("SideVVR4", "SideVVR4", "VVR1607-5-I22-06:state", "VVR1607-5-I22-06:opr:open", "VVR1607-5-I22-06:opr:close", new AMControlStatusCheckerDefault(4), this);
 	vvrSide5_ = new CLSBiStateControl("SideVVR5", "SideVVR5", "VVR1607-5-I22-07:state", "VVR1607-5-I22-07:opr:open", "VVR1607-5-I22-07:opr:close", new AMControlStatusCheckerDefault(4), this);
 
-	sideValves_ = new AMControlSet(this);
-	sideValves_->addControl(vvrSide1_);
-	sideValves_->addControl(vvrSide2_);
-	sideValves_->addControl(vvrSide3_);
-	sideValves_->addControl(vvrSide4_);
-	sideValves_->addControl(vvrSide5_);
+	AMControlSet *sideValves = new AMControlSet(this);
+	sideValves->addControl(vvrSide1_);
+	sideValves->addControl(vvrSide2_);
+	sideValves->addControl(vvrSide3_);
+	sideValves->addControl(vvrSide4_);
+	sideValves->addControl(vvrSide5_);
 
-	valvesControl_->setSideValves(sideValves_);
+	setSideValves(sideValves);
 
 	// Main beamline vacuum valves.
 
@@ -52,14 +48,14 @@ BioXASValves::BioXASValves(QObject *parent) :
 	vvrMain4_ = new CLSBiStateControl("MainVVR4", "MainVVR4", "VVR1607-5-I21-06:state", "VVR1607-5-I21-06:opr:open", "VVR1607-5-I21-06:opr:close", new AMControlStatusCheckerDefault(4), this);
 	vvrMain5_ = new CLSBiStateControl("MainVVR5", "MainVVR5", "VVR1607-5-I21-07:state", "VVR1607-5-I21-07:opr:open", "VVR1607-5-I21-07:opr:close", new AMControlStatusCheckerDefault(4), this);
 
-	mainValves_ = new AMControlSet(this);
-	mainValves_->addControl(vvrMain1_);
-	mainValves_->addControl(vvrMain2_);
-	mainValves_->addControl(vvrMain3_);
-	mainValves_->addControl(vvrMain4_);
-	mainValves_->addControl(vvrMain5_);
+	AMControlSet *mainValves = new AMControlSet(this);
+	mainValves->addControl(vvrMain1_);
+	mainValves->addControl(vvrMain2_);
+	mainValves->addControl(vvrMain3_);
+	mainValves->addControl(vvrMain4_);
+	mainValves->addControl(vvrMain5_);
 
-	valvesControl_->setMainValves(mainValves_);
+	setMainValves(mainValves);
 
 	// Imaging beamline vacuum valves.
 
@@ -72,52 +68,20 @@ BioXASValves::BioXASValves(QObject *parent) :
 	vvrImaging7_ = new CLSBiStateControl("ImagingVVR7", "ImagingVVR7", "VVR1607-5-I10-09:state", "VVR1607-5-I10-09:opr:open", "VVR1607-5-I10-09:opr:close", new AMControlStatusCheckerDefault(4), this);
 	vvrImaging8_ = new CLSBiStateControl("ImagingVVR8", "ImagingVVR8", "VVR1607-5-I10-10:state", "VVR1607-5-I10-10:opr:open", "VVR1607-5-I10-10:opr:close", new AMControlStatusCheckerDefault(4), this);
 
-	imagingValves_ = new AMControlSet(this);
-	imagingValves_->addControl(vvrImaging1_);
-	imagingValves_->addControl(vvrImaging2_);
-	imagingValves_->addControl(vvrImaging3_);
-	imagingValves_->addControl(vvrImaging4_);
-	imagingValves_->addControl(vvrImaging5_);
-	imagingValves_->addControl(vvrImaging6_);
-	imagingValves_->addControl(vvrImaging7_);
-	imagingValves_->addControl(vvrImaging8_);
+	AMControlSet *imagingValves = new AMControlSet(this);
+	imagingValves->addControl(vvrImaging1_);
+	imagingValves->addControl(vvrImaging2_);
+	imagingValves->addControl(vvrImaging3_);
+	imagingValves->addControl(vvrImaging4_);
+	imagingValves->addControl(vvrImaging5_);
+	imagingValves->addControl(vvrImaging6_);
+	imagingValves->addControl(vvrImaging7_);
+	imagingValves->addControl(vvrImaging8_);
 
-	valvesControl_->setImagingValves(imagingValves_);
+	setImagingValves(imagingValves);
 }
 
 BioXASValves::~BioXASValves()
 {
 
-}
-
-bool BioXASValves::isConnected() const
-{
-	bool connected = (
-				frontEndValves_ && frontEndValves_->isConnected() &&
-				sideValves_ && sideValves_->isConnected() &&
-				mainValves_ && mainValves_->isConnected() &&
-				imagingValves_ && imagingValves_->isConnected()
-				);
-
-	if (frontEndValves_ && frontEndValves_->isConnected())
-		qDebug() << "Front end valves are connected.";
-	else
-		qDebug() << "Front end valves are NOT connected.";
-
-	if (sideValves_ && sideValves_->isConnected())
-		qDebug() << "Side valves are connected.";
-	else
-		qDebug() << "Side valves are NOT connected.";
-
-	if (mainValves_ && mainValves_->isConnected())
-		qDebug() << "Main valves are connected.";
-	else
-		qDebug() << "Main valves are NOT connected.";
-
-	if (imagingValves_ && imagingValves_->isConnected())
-		qDebug() << "Imaging valves are connected.";
-	else
-		qDebug() << "Imaging valves are NOT connected.";
-
-	return connected;
 }

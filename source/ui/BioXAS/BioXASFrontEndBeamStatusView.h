@@ -1,33 +1,34 @@
-#ifndef BIOXASFRONTENDBEAMSTATUSVIEW_H
-#define BIOXASFRONTENDBEAMSTATUSVIEW_H
+#ifndef BIOXASFRONTENDBEAMSTATUSCONTROLVIEW_H
+#define BIOXASFRONTENDBEAMSTATUSCONTROLVIEW_H
 
 #include <QWidget>
 #include <QLabel>
 #include <QLayout>
 
-#include "beamline/BioXAS/BioXASFrontEndBeamStatus.h"
+#include "beamline/BioXAS/BioXASFrontEndBeamStatusControl.h"
 #include "ui/beamline/AMExtendedControlEditor.h"
 #include "ui/beamline/AMControlValueLEDView.h"
+#include "ui/BioXAS/BioXASFrontEndBeamStatusControlLEDView.h"
 
-class BioXASFrontEndBeamStatusView : public QWidget
+class BioXASFrontEndBeamStatusControlView : public QWidget
 {
     Q_OBJECT
 
 public:
 	/// Constructor.
-	explicit BioXASFrontEndBeamStatusView(BioXASFrontEndBeamStatus *beamStatus, QWidget *parent = 0);
+	explicit BioXASFrontEndBeamStatusControlView(BioXASFrontEndBeamStatusControl *beamStatus, QWidget *parent = 0);
 	/// Destructor.
-	virtual ~BioXASFrontEndBeamStatusView();
+	virtual ~BioXASFrontEndBeamStatusControlView();
 
-	/// Returns the beam status being viewed.
-	BioXASFrontEndBeamStatus* beamStatus() const { return beamStatus_; }
+	/// Returns the beam status control being viewed.
+	BioXASFrontEndBeamStatusControl* control() const { return control_; }
 
-	/// Returns the beam status editor.
-	AMExtendedControlEditor* beamStatusEditor() const { return beamStatusEditor_; }
+	/// Returns the beam status control editor.
+	AMExtendedControlEditor* controlEditor() const { return editor_; }
 
 signals:
-	/// Notifier that the beam status being viewed has changed.
-	void beamStatusControlChanged(BioXASFrontEndBeamStatus *newControl);
+	/// Notifier that the beam status control being viewed has changed.
+	void controlChanged(AMControl *newControl);
 
 public slots:
 	/// Clears the view.
@@ -38,22 +39,16 @@ public slots:
 	void refresh();
 
 	/// Sets the beam status control being viewed.
-	void setBeamStatus(BioXASFrontEndBeamStatus *newControl);
+	void setControl(BioXASFrontEndBeamStatusControl *newControl);
 
 protected:
 	/// The beam status being viewed.
-	BioXASFrontEndBeamStatus *beamStatus_;
+	BioXASFrontEndBeamStatusControl *control_;
 
 	/// The beam status control editor.
-	AMExtendedControlEditor *beamStatusEditor_;
-	/// The upstream photon shutter LED.
-	AMControlValueLEDView *photonShutterUpstreamLED_;
-	/// The downstream photon shutter LED.
-	AMControlValueLEDView *photonShutterDownstreamLED_;
-	/// The safety shutter LED.
-	AMControlValueLEDView *safetyShutterLED_;
-	/// The beamline valves LED.
-	AMControlValueLEDView *beamlineValvesLED_;
+	AMExtendedControlEditor *editor_;
+	/// The beam status control LED view.
+	BioXASFrontEndBeamStatusControlLEDView *ledView_;
 };
 
-#endif // BIOXASFRONTENDBEAMSTATUSVIEW_H
+#endif // BIOXASFRONTENDBEAMSTATUSCONTROLVIEW_H

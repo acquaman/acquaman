@@ -22,6 +22,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "BioXASMainPersistentView.h"
 
 #include "beamline/BioXAS/BioXASMainBeamline.h"
+#include "ui/beamline/AMExtendedControlEditor.h"
+#include "ui/beamline/AMControlConnectedLEDView.h"
+#include "ui/BioXAS/BioXASFrontEndBeamStatusControlLEDView.h"
+#include "ui/BioXAS/BioXASFrontEndBeamStatusView.h"
 
 BioXASMainPersistentView::BioXASMainPersistentView(QWidget *parent) :
     QWidget(parent)
@@ -30,10 +34,21 @@ BioXASMainPersistentView::BioXASMainPersistentView(QWidget *parent) :
 
 	generalView_ = new BioXASPersistentView(BioXASMainBeamline::bioXAS()->mono(), BioXASMainBeamline::bioXAS()->scaler());
 
+	AMExtendedControlEditor *psh1 = new AMExtendedControlEditor(BioXASMainBeamline::bioXAS()->shutters()->photonShutterUpstream());
+	AMExtendedControlEditor *psh2 = new AMExtendedControlEditor(BioXASMainBeamline::bioXAS()->shutters()->photonShutterDownstream());
+	AMExtendedControlEditor *ssh = new AMExtendedControlEditor(BioXASMainBeamline::bioXAS()->shutters()->safetyShutter());
+	AMExtendedControlEditor *shutters = new AMExtendedControlEditor(BioXASMainBeamline::bioXAS()->shutters());
+	AMExtendedControlEditor *valves = new AMExtendedControlEditor(BioXASMainBeamline::bioXAS()->valves());
+
 	// Create and set layouts.
 
 	QVBoxLayout *layout = new QVBoxLayout();
 	layout->addWidget(generalView_);
+	layout->addWidget(psh1);
+	layout->addWidget(psh2);
+	layout->addWidget(ssh);
+	layout->addWidget(shutters);
+	layout->addWidget(valves);
 	layout->addStretch();
 
 	setLayout(layout);

@@ -1,71 +1,51 @@
 #include "BioXASFrontEndBeamStatusView.h"
 
-BioXASFrontEndBeamStatusView::BioXASFrontEndBeamStatusView(BioXASFrontEndBeamStatus *beamStatus, QWidget *parent) :
+BioXASFrontEndBeamStatusControlView::BioXASFrontEndBeamStatusControlView(BioXASFrontEndBeamStatusControl *beamStatus, QWidget *parent) :
     QWidget(parent)
 {
 	// Initialize class variables.
 
-	beamStatus_ = 0;
+	control_ = 0;
 
 	// Create UI elements.
 
-	beamStatusEditor_ = new AMExtendedControlEditor(0);
-	beamStatusEditor_->setNoUnitsBox(true);
+	editor_ = new AMExtendedControlEditor(0);
+	editor_->setNoUnitsBox(true);
 
-	photonShutterUpstreamLED_ = new AMControlValueLEDView(0, AMNumber(1), AMNumber(4));
-	photonShutterUpstreamLED_->setToolTip("PSH1");
-
-	photonShutterDownstreamLED_ = new AMControlValueLEDView(0, AMNumber(CLSBiStateControl::Open), AMNumber(CLSBiStateControl::Closed));
-	photonShutterDownstreamLED_->setToolTip("PSH2");
-
-	safetyShutterLED_ = new AMControlValueLEDView(0, AMNumber(CLSBiStateControl::Open), AMNumber(CLSBiStateControl::Closed));
-	safetyShutterLED_->setToolTip("SSH");
-
-	beamlineValvesLED_ = new AMControlValueLEDView(0, AMNumber(BioXASValvesControl::Open), AMNumber(BioXASValvesControl::Closed));
-	beamlineValvesLED_->setToolTip("Beamline valves");
+	ledView_ = new BioXASFrontEndBeamStatusControlLEDView(0);
 
 	// Create and set layouts.
 
 	QHBoxLayout *layout = new QHBoxLayout();
 	layout->setMargin(0);
-	layout->addWidget(beamStatusEditor_);
-	layout->addWidget(photonShutterUpstreamLED_);
-	layout->addWidget(photonShutterDownstreamLED_);
-	layout->addWidget(safetyShutterLED_);
-	layout->addWidget(beamlineValvesLED_);
+	layout->addWidget(editor_);
+	layout->addWidget(ledView_);
 
 	setLayout(layout);
 
 	// Current settings.
 
-	setBeamStatus(beamStatus);
+	setControl(beamStatus);
 	refresh();
 }
 
-BioXASFrontEndBeamStatusView::~BioXASFrontEndBeamStatusView()
+BioXASFrontEndBeamStatusControlView::~BioXASFrontEndBeamStatusControlView()
 {
 
 }
 
-void BioXASFrontEndBeamStatusView::clear()
+void BioXASFrontEndBeamStatusControlView::clear()
 {
-	beamStatusEditor_->setControl(0);
-
-	photonShutterUpstreamLED_->setControl(0);
-	photonShutterDownstreamLED_->setControl(0);
-	safetyShutterLED_->setControl(0);
-	beamlineValvesLED_->setControl(0);
+	editor_->setControl(0);
+	ledView_->setControl(0);
 }
 
-void BioXASFrontEndBeamStatusView::update()
+void BioXASFrontEndBeamStatusControlView::update()
 {
-	photonShutterUpstreamLED_->update();
-	photonShutterDownstreamLED_->update();
-	safetyShutterLED_->update();
-	beamlineValvesLED_->update();
+	ledView_->update();
 }
 
-void BioXASFrontEndBeamStatusView::refresh()
+void BioXASFrontEndBeamStatusControlView::refresh()
 {
 	// Clear the view.
 
@@ -73,13 +53,9 @@ void BioXASFrontEndBeamStatusView::refresh()
 
 	// Setup.
 
-	if (beamStatus_) {
-		beamStatusEditor_->setControl(beamStatus_->beamStatusControl());
-
-		photonShutterUpstreamLED_->setControl(beamStatus_->beamStatusControl()->photonShutterUpstream());
-		photonShutterDownstreamLED_->setControl(beamStatus_->beamStatusControl()->photonShutterDownstream());
-		safetyShutterLED_->setControl(beamStatus_->beamStatusControl()->safetyShutter());
-		beamlineValvesLED_->setControl(beamStatus_->beamStatusControl()->valves());
+	if (control_) {
+		editor_->setControl(control_);
+		ledView_->setControl(control_);
 	}
 
 	// Update the view.
@@ -87,24 +63,12 @@ void BioXASFrontEndBeamStatusView::refresh()
 	update();
 }
 
-void BioXASFrontEndBeamStatusView::setBeamStatus(BioXASFrontEndBeamStatus *newControl)
+void BioXASFrontEndBeamStatusControlView::setControl(BioXASFrontEndBeamStatusControl *newControl)
 {
-	if (beamStatus_ != newControl) {
-
-		if (beamStatus_)
-			disconnect( beamStatus_, 0, this, 0 );
-
-		beamStatus_ = newControl;
-
-		if (beamStatus_) {
-			connect( beamStatus_->beamStatusControl(), SIGNAL(photonShutterUpstreamChanged(AMReadOnlyPVControl*)), photonShutterUpstreamLED_, SLOT(setControl(AMControl*)) );
-			connect( beamStatus_->beamStatusControl(), SIGNAL(photonShutterDownstreamChanged(CLSBiStateControl*)), photonShutterDownstreamLED_, SLOT(setControl(AMControl*)) );
-			connect( beamStatus_->beamStatusControl(), SIGNAL(safetyShutterChanged(CLSBiStateControl*)), safetyShutterLED_, SLOT(setControl(AMControl*)) );
-			connect( beamStatus_->beamStatusControl(), SIGNAL(valvesChanged(BioXASValvesControl*)), beamlineValvesLED_, SLOT(setControl(AMControl*)) );
-		}
-
+	if (control_ != newControl) {
+		control_ = newControl;
 		refresh();
 
-		emit beamStatusControlChanged(beamStatus_);
+		emit controlChanged(control_);
 	}
 }

@@ -5,7 +5,7 @@
 #include "beamline/BioXAS/BioXASValvesControl.h"
 #include "beamline/CLS/CLSBiStateControl.h"
 
-class BioXASValves : public BioXASBeamlineComponent
+class BioXASValves : public BioXASValvesControl
 {
     Q_OBJECT
 
@@ -15,14 +15,6 @@ public:
 	/// Destructor.
 	virtual ~BioXASValves();
 
-	/// Returns true if all subcontrols are presently connected, false otherwise.
-	virtual bool isConnected() const;
-
-	/// Returns the valves control.
-	BioXASValvesControl* valvesControl() const { return valvesControl_; }
-
-	/// Returns the set of front end vacuum valves.
-	AMControlSet* frontEndValves() const { return frontEndValves_; }
 	/// Returns the first front end vacuum valve control.
 	AMReadOnlyPVControl *vvr1() const { return vvr1_; }
 	/// Returns the second front end vacuum valve control.
@@ -36,8 +28,6 @@ public:
 	/// Returns the sixth front end vacuum valve control.
 	CLSBiStateControl *vvr6() const { return vvr6_; }
 
-	/// Returns the set of Side beamline vacuum valves.
-	AMControlSet* sideValves() const { return sideValves_; }
 	/// The first Side beamline vacuum valve.
 	CLSBiStateControl *vvrSide1() const { return vvrSide1_; }
 	/// The second Side beamline vacuum valve.
@@ -49,8 +39,6 @@ public:
 	/// The fifth Side beamline vacuum valve.
 	CLSBiStateControl *vvrSide5() const { return vvrSide5_; }
 
-	/// Returns the set of Main beamline vacuum valves.
-	AMControlSet* mainValves() const { return mainValves_; }
 	/// The first Main beamline vacuum valve.
 	CLSBiStateControl *vvrMain1() const { return vvrMain1_; }
 	/// The second Main beamline vacuum valve.
@@ -62,8 +50,6 @@ public:
 	/// The fifth Main beamline vacuum valve.
 	CLSBiStateControl *vvrMain5() const { return vvrMain5_; }
 
-	/// Returns the set of Imaging beamline vacuum valves.
-	AMControlSet* imagingValves() const { return imagingValves_; }
 	/// The first Imaging beamline vacuum valve.
 	CLSBiStateControl *vvrImaging1() const { return vvrImaging1_; }
 	/// The second Imaging beamline vacuum valve.
@@ -82,8 +68,6 @@ public:
 	CLSBiStateControl *vvrImaging8() const { return vvrImaging8_; }
 
 protected:
-	/// The set of front end vacuum valves.
-	AMControlSet *frontEndValves_;
 	/// The first front end vacuum valve control.
 	AMReadOnlyPVControl *vvr1_;
 	/// The second front end vacuum valve control.
@@ -97,8 +81,6 @@ protected:
 	/// The sixth front end vacuum valve control.
 	CLSBiStateControl *vvr6_;
 
-	/// The set of Side beamline vacuum valves.
-	AMControlSet *sideValves_;
 	/// The first Side beamline vacuum valve.
 	CLSBiStateControl *vvrSide1_;
 	/// The second Side beamline vacuum valve.
@@ -110,8 +92,6 @@ protected:
 	/// The fifth Side beamline vacuum valve.
 	CLSBiStateControl *vvrSide5_;
 
-	/// The set of Main beamline vacuum valves.
-	AMControlSet *mainValves_;
 	/// The first Main beamline vacuum valve.
 	CLSBiStateControl *vvrMain1_;
 	/// The second Main beamline vacuum valve.
@@ -123,8 +103,6 @@ protected:
 	/// The fifth Main beamline vacuum valve.
 	CLSBiStateControl *vvrMain5_;
 
-	/// The set of Imaging beamline vacuum valves.
-	AMControlSet *imagingValves_;
 	/// The first Imaging beamline vacuum valve.
 	CLSBiStateControl *vvrImaging1_;
 	/// The second Imaging beamline vacuum valve.
@@ -141,9 +119,6 @@ protected:
 	CLSBiStateControl *vvrImaging7_;
 	/// The eighth Imaging beamline vacuum valve.
 	CLSBiStateControl *vvrImaging8_;
-
-	/// The valves control.
-	BioXASValvesControl *valvesControl_;
 };
 
 #endif // BIOXASVALVES_H

@@ -12,7 +12,7 @@ class BioXASValvesControl : public AMPseudoMotorControl
 
 public:
 	/// Enum providing the values this control can have.
-	enum Value { None = 0, Open, Closed };
+	enum Value { Open = 0, Closed = 1, None = 2 };
 
 	/// Constructor.
 	explicit BioXASValvesControl(const QString &name, QObject *parent = 0);
@@ -84,6 +84,10 @@ protected:
 	/// Creates and returns an action that opens the valves in the given control set.
 	AMAction3* createOpenValvesAction(AMControlSet *valves);
 
+	/// Returns true if all of the valves in the given set can be measured, false otherwise.
+	bool valvesCanMeasure(AMControlSet *valveSet) const;
+	/// Returns true if all of the valves in the given set can be moved, false otherwise.
+	bool valvesCanMove(AMControlSet *valveSet) const;
 	/// Returns true if all of the valves in the given set are open, false otherwise.
 	bool valvesOpen(AMControlSet *valveSet) const;
 	/// Returns true if all of the valves in the given set are closed, false otherwise.

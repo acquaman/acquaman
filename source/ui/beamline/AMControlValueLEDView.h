@@ -9,7 +9,7 @@ class AMControlValueLEDView : public AMControlLEDView
 
 public:
 	/// Constructor.
-	explicit AMControlValueLEDView(AMControl *control, const AMNumber &greenValue = AMNumber::InvalidError, const AMNumber &redValue = AMNumber::InvalidError, QWidget *parent = 0);
+	explicit AMControlValueLEDView(AMControl *control, QWidget *parent = 0);
 	/// Destructor.
 	virtual ~AMControlValueLEDView();
 
@@ -27,12 +27,23 @@ public slots:
 	void setGreenValue(const AMNumber &newValue);
 	/// Sets the red value.
 	void setRedValue(const AMNumber &newValue);
+	/// Sets the flag that indicates the LED should be lit and red when the control is valid and not at the green value.
+	void setRedWhenNotGreen(bool setRed);
+
+protected:
+	/// Returns true if the control is valid, the green value is valid, and the control is at the green value. False otherwise.
+	bool atGreenValue() const;
+	/// Returns true if the control is valid, the red value is valid, and the control is at the red value. False otherwise.
+	bool atRedValue() const;
 
 protected:
 	/// The green value.
 	AMNumber greenValue_;
 	/// The red value.
 	AMNumber redValue_;
+
+	/// A flag indicating that the LED should be lit and red when the control is valid and not at the green value.
+	bool redWhenNotGreen_;
 };
 
 #endif // AMCONTROLVALUELEDVIEW_H
