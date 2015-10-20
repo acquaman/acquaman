@@ -1,6 +1,4 @@
 #include "BioXASValvesControl.h"
-#include "actions3/AMListAction3.h"
-#include "actions3/AMActionSupport.h"
 
 BioXASValvesControl::BioXASValvesControl(const QString &name, QObject *parent) :
 	AMPseudoMotorControl(name, "", parent)
@@ -16,42 +14,11 @@ BioXASValvesControl::BioXASValvesControl(const QString &name, QObject *parent) :
 	setMoveEnumStates(QStringList() << valueToString(Open));
 
 	setContextKnownDescription("ValvesControl");
-
-	// Initialize class variables.
-
-	frontEndValveSet_ = 0;
-	sideValveSet_ = 0;
-	mainValveSet_ = 0;
-	imagingValveSet_ = 0;
-
-	// Current settings.
-
-	updateStates();
 }
 
 BioXASValvesControl::~BioXASValvesControl()
 {
 
-}
-
-bool BioXASValvesControl::canMeasure() const
-{
-	bool result = false;
-
-	if (isConnected())
-		result = (valvesCanMeasure(frontEndValveSet_) && valvesCanMeasure(sideValveSet_) && valvesCanMeasure(mainValveSet_) && valvesCanMeasure(imagingValveSet_));
-
-	return result;
-}
-
-bool BioXASValvesControl::canMove() const
-{
-	bool result = false;
-
-	if (isConnected())
-		result = (valvesCanMove(frontEndValveSet_) && valvesCanMove(sideValveSet_) && valvesCanMove(mainValveSet_) && valvesCanMove(imagingValveSet_));
-
-	return result;
 }
 
 bool BioXASValvesControl::validValue(double value) const
@@ -88,18 +55,6 @@ bool BioXASValvesControl::validSetpoint(double value) const
 	return result;
 }
 
-bool BioXASValvesControl::isOpen() const
-{
-	bool result = valvesOpen(frontEndValveSet_) && valvesOpen(sideValveSet_) && valvesOpen(mainValveSet_) && valvesOpen(imagingValveSet_);
-	return result;
-}
-
-bool BioXASValvesControl::isClosed() const
-{
-	bool result = valvesClosed(frontEndValveSet_) || valvesClosed(sideValveSet_) || valvesClosed(mainValveSet_) || valvesClosed(imagingValveSet_);
-	return result;
-}
-
 QString BioXASValvesControl::valueToString(BioXASValvesControl::Value value) const
 {
 	QString result;
@@ -121,90 +76,6 @@ QString BioXASValvesControl::valueToString(BioXASValvesControl::Value value) con
 	return result;
 }
 
-void BioXASValvesControl::setFrontEndValves(AMControlSet *valveSet)
-{
-	if (frontEndValveSet_ != valveSet) {
-
-		if (frontEndValveSet_)
-			disconnect( frontEndValveSet_, 0, this, 0 );
-
-		frontEndValveSet_ = valveSet;
-
-		if (frontEndValveSet_)
-			connect( frontEndValveSet_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
-
-		updateStates();
-
-		emit frontEndValveSetChanged(frontEndValveSet_);
-	}
-}
-
-void BioXASValvesControl::setSideValves(AMControlSet *valveSet)
-{
-	if (sideValveSet_ != valveSet) {
-
-		if (sideValveSet_)
-			disconnect( sideValveSet_, 0, this, 0 );
-
-		sideValveSet_ = valveSet;
-
-		if (sideValveSet_)
-			connect( sideValveSet_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
-
-		updateStates();
-
-		emit sideValvesSetChanged(sideValveSet_);
-	}
-}
-
-void BioXASValvesControl::setMainValves(AMControlSet *valveSet)
-{
-	if (mainValveSet_ != valveSet) {
-
-		if (mainValveSet_)
-			disconnect( mainValveSet_, 0, this, 0 );
-
-		mainValveSet_ = valveSet;
-
-		if (mainValveSet_)
-			connect( mainValveSet_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
-
-		updateStates();
-
-		emit mainValvesSetChanged(mainValveSet_);
-	}
-}
-
-void BioXASValvesControl::setImagingValves(AMControlSet *valveSet)
-{
-	if (imagingValveSet_ != valveSet) {
-
-		if (imagingValveSet_)
-			disconnect( imagingValveSet_, 0, this, 0 );
-
-		imagingValveSet_ = valveSet;
-
-		if (imagingValveSet_)
-			connect( imagingValveSet_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
-
-		updateStates();
-
-		emit imagingValvesSetChanged(imagingValveSet_);
-	}
-}
-
-void BioXASValvesControl::updateConnected()
-{
-	bool connected = (
-				frontEndValveSet_ && frontEndValveSet_->isConnected() &&
-				sideValveSet_ && sideValveSet_->isConnected() &&
-				mainValveSet_ && mainValveSet_->isConnected() &&
-				imagingValveSet_ && imagingValveSet_->isConnected()
-				);
-
-	setConnected(connected);
-}
-
 void BioXASValvesControl::updateValue()
 {
 	Value newValue = None;
@@ -221,38 +92,8 @@ AMAction3* BioXASValvesControl::createMoveAction(double setpoint)
 {
 	AMAction3 *result = 0;
 
-	if (setpoint == Open) {
-		AMListAction3 *actionList = new AMListAction3(new AMListActionInfo3("Opening all BioXAS valves", "Opening all BioXAS valves"), AMListAction3::Parallel);
-		actionList->addSubAction(createOpenValvesAction(frontEndValveSet_));
-		actionList->addSubAction(createOpenValvesAction(sideValveSet_));
-		actionList->addSubAction(createOpenValvesAction(mainValveSet_));
-		actionList->addSubAction(createOpenValvesAction(imagingValveSet_));
-
-		result = actionList;
-	}
-
-	return result;
-}
-
-AMAction3* BioXASValvesControl::createOpenValvesAction(AMControlSet *valves)
-{
-	AMAction3 *result = 0;
-
-	if (valves && !valves->isEmpty()) {
-		AMListAction3 *actionList = new AMListAction3(new AMListActionInfo3("Open valves", "Open valves"), AMListAction3::Parallel);
-
-		foreach (AMControl *control, valves->toList()) {
-			CLSBiStateControl *biStateValve = qobject_cast<CLSBiStateControl*>(control);
-			if (biStateValve)
-				actionList->addSubAction(AMActionSupport::buildControlMoveAction(biStateValve, CLSBiStateControl::Open));
-
-			AMReadOnlyPVControl *readOnlyValve = qobject_cast<AMReadOnlyPVControl*>(control);
-			if (!biStateValve && readOnlyValve)
-				actionList->addSubAction(AMActionSupport::buildControlWaitAction(readOnlyValve, 1));
-		}
-
-		result = actionList;
-	}
+	if ((int)setpoint == Open)
+		result = createOpenValvesAction(valveSet_);
 
 	return result;
 }
