@@ -16,9 +16,11 @@ SGMEnergyView::SGMEnergyView(SGMEnergyControlSet* energyControlSet,
 	setupUi(viewType);
 }
 
+
 void SGMEnergyView::onUndulatorTrackingButtonToggled(bool isToggled)
 {
 	double toggledPVValue;
+
 	if(isToggled) {
 
 		toggledPVValue = 1.0;
@@ -27,63 +29,94 @@ void SGMEnergyView::onUndulatorTrackingButtonToggled(bool isToggled)
 		toggledPVValue = 0.0;
 	}
 
-	if(energyControlSet_->undulatorTracking()->withinTolerance(toggledPVValue)) {
+
+	if(!energyControlSet_->undulatorTracking()->withinTolerance(toggledPVValue)) {
 
 		energyControlSet_->undulatorTracking()->move(toggledPVValue);
 	}
+
+	if(isToggled) {
+		undulatorTrackingButton_->setText("Undulator Tracking (on)");
+	} else {
+		undulatorTrackingButton_->setText("Undulator Tracking (off)");
+	}
 }
 
-void SGMEnergyView::onExitSlitTrackingButtonToggled(bool isToggled)
+void SGMEnergyView::onExitSlitPositionTrackingButtonToggled(bool isToggled)
 {
 	double toggledPVValue;
+
 	if(isToggled) {
 
-		toggledPVValue = 1.0;
+		toggledPVValue = 1.0;		
 	} else {
 
 		toggledPVValue = 0.0;
 	}
 
-	if(energyControlSet_->exitSlitPositionTracking()->withinTolerance(toggledPVValue)) {
+	if(!energyControlSet_->exitSlitPositionTracking()->withinTolerance(toggledPVValue)) {
 
 		energyControlSet_->exitSlitPositionTracking()->move(toggledPVValue);
+	}
+
+	if(isToggled) {
+		exitSlitTrackingButton_->setText("Exit Slit Position Tracking (on)");
+	} else {
+		exitSlitTrackingButton_->setText("Exit Slit Position Tracking (off)");
 	}
 }
 
 void SGMEnergyView::onEnergyControlUndulatorTrackingChanged(double)
 {
-	undulatorTrackingToggleButton_->setChecked(!energyControlSet_->undulatorTracking()->withinTolerance(0.0));
+	undulatorTrackingButton_->setChecked(!energyControlSet_->undulatorTracking()->withinTolerance(0.0));
 }
 
 void SGMEnergyView::onEnergyControlExitSlitTrackingChanged(double)
 {
-	exitSlitTrackingToggleButton_->setChecked(!energyControlSet_->exitSlitPositionTracking()->withinTolerance(0.0));
+	exitSlitTrackingButton_->setChecked(!energyControlSet_->exitSlitPositionTracking()->withinTolerance(0.0));
 }
-
+#include <QDebug>
 void SGMEnergyView::onEnergyControlGratingTrackingOptimizationModeChanged(double)
 {
 	// Set the grating translation selection control to read only if the optimization
 	// mode is not set to manual (0x00).
-	gratingTranslationEditor_->setReadOnlyPreference(!energyControlSet_->gratingTranslationOptimization()->withinTolerance(0));
+	qDebug() << "Disabling grating translation editor";
+	gratingTranslationEditor_->setEnabled(!energyControlSet_->gratingTranslationOptimization()->withinTolerance(0));
+	//gratingTranslationEditor_->setReadOnlyPreference(!energyControlSet_->gratingTranslationOptimization()->withinTolerance(0));
 }
 
 void SGMEnergyView::setupUi(SGMEnergyView::EnergyViewType viewType)
 {
 
 	energyEditor_ = new AMExtendedControlEditor(energyControlSet_->energy());
+	energyEditor_->setPrecision(6);
 	gratingTranslationModeEditor_ = new AMExtendedControlEditor(energyControlSet_->gratingTranslationOptimization());
 	gratingTranslationEditor_ = new AMExtendedControlEditor(energyControlSet_->gratingTranslation());
 	undulatorHarmonicEditor_ = new AMExtendedControlEditor(energyControlSet_->undulatorHarmonic());
 
 	if(viewType == Advanced) {
 		gratingAngleEditor_ = new AMExtendedControlEditor(energyControlSet_->gratingAngle());
+		gratingAngleEditor_->setPrecision(12);
 		undulatorPositionEditor_ = new AMExtendedControlEditor(energyControlSet_->undulatorPosition());
+		undulatorPositionEditor_->setPrecision(6);
 		exitSlitPositionEditor_ = new AMExtendedControlEditor(energyControlSet_->exitSlitPosition());
+		exitSlitPositionEditor_->setPrecision(6);
 
-		undulatorTrackingToggleButton_ = new QPushButton("Undulator Tracking");
-		undulatorTrackingToggleButton_->setCheckable(true);
-		exitSlitTrackingToggleButton_ = new QPushButton("Exit Slit Tracking");
-		exitSlitTrackingToggleButton_->setCheckable(true);
+		undulatorTrackingButton_ = new QPushButton();
+		undulatorTrackingButton_->setCheckable(true);
+		if(!energyControlSet_->undulatorTracking()->withinTolerance(0)) {
+			undulatorTrackingButton_->setText("Undulator Tracking (on)");
+		} else {
+			undulatorTrackingButton_->setText("Undulator Tracking (off)");
+		}
+
+		exitSlitTrackingButton_ = new QPushButton();
+		exitSlitTrackingButton_->setCheckable(true);
+		if(!energyControlSet_->exitSlitPositionTracking()->withinTolerance(0)) {
+			exitSlitTrackingButton_->setText("Exit Slit Position Tracking (on)");
+		} else {
+			exitSlitTrackingButton_->setText("Exit Slit Position Tracking (off)");
+		}
 
 		QGridLayout* mainLayout = new QGridLayout();
 		mainLayout->addWidget(energyEditor_, 0, 0, 1, 2);
@@ -99,16 +132,16 @@ void SGMEnergyView::setupUi(SGMEnergyView::EnergyViewType viewType)
 		mainLayout->addWidget(exitSlitPositionEditor_, 4, 0, 1, 2);
 
 		QHBoxLayout* buttonLayout = new QHBoxLayout();
-		buttonLayout->addWidget(undulatorTrackingToggleButton_);
-		buttonLayout->addWidget(exitSlitTrackingToggleButton_);
+		buttonLayout->addWidget(undulatorTrackingButton_);
+		buttonLayout->addWidget(exitSlitTrackingButton_);
 		mainLayout->addLayout(buttonLayout, 5, 0, 1, 2);
 
 		setLayout(mainLayout);
 
-		connect(undulatorTrackingToggleButton_, SIGNAL(toggled(bool)),
+		connect(undulatorTrackingButton_, SIGNAL(toggled(bool)),
 				this, SLOT(onUndulatorTrackingButtonToggled(bool)));
-		connect(exitSlitTrackingToggleButton_, SIGNAL(toggled(bool)),
-				this, SLOT(onExitSlitTrackingButtonToggled(bool)));
+		connect(exitSlitTrackingButton_, SIGNAL(toggled(bool)),
+				this, SLOT(onExitSlitPositionTrackingButtonToggled(bool)));
 
 		connect(energyControlSet_->undulatorTracking(), SIGNAL(valueChanged(double)),
 				this, SLOT(onEnergyControlUndulatorTrackingChanged(double)));
@@ -120,8 +153,8 @@ void SGMEnergyView::setupUi(SGMEnergyView::EnergyViewType viewType)
 		undulatorPositionEditor_ = 0;
 		exitSlitPositionEditor_ = 0;
 
-		undulatorTrackingToggleButton_ = 0;
-		exitSlitTrackingToggleButton_ = 0;
+		undulatorTrackingButton_ = 0;
+		exitSlitTrackingButton_ = 0;
 
 		QVBoxLayout* mainLayout = new QVBoxLayout();
 		mainLayout->addWidget(energyEditor_);

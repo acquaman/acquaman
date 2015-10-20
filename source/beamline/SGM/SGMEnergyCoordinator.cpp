@@ -17,7 +17,8 @@ SGMEnergyCoordinator::SGMEnergyCoordinator(QObject *parent) :
 	  * 3: Constructing the energy control coordinator pseudo-motor
 	  * 4: Waiting for the energy control to respond that it is connected.
 	  */
-	connectedOnce_ = false;
+	pvsConnectedOnce_ = false;
+	energyControlConnectedOnce_ = false;
 
 	oldControls_ = new SGMOldEnergyPVSet(this);
 	newControls_ = new SGMNewEnergyPVSet(this);
@@ -35,12 +36,12 @@ SGMEnergyCoordinator::SGMEnergyCoordinator(QObject *parent) :
 
 void SGMEnergyCoordinator::onPVSetsConnected()
 {
-	qDebug() << "PVs connected";
 	if(oldControls_->isConnected() &&
 			newControls_->isConnected() &&
-			!connectedOnce_) {
+			!pvsConnectedOnce_) {
 
-		connectedOnce_ = true;
+		qDebug() << "PVs connected.";
+		pvsConnectedOnce_ = true;
 
 		AMControl* oldUndulatorHarmonicControl = oldControls_->undulatorHarmonic();
 		SGMUndulatorSupport::UndulatorHarmonic correspondingUndulatorHarmonic =
@@ -59,93 +60,222 @@ void SGMEnergyCoordinator::onPVSetsConnected()
 		qDebug() << "Waiting for energy control to be connected...";
 		if(energyControlCoordinator_->isConnected()) {
 
-			onEnergyControlConnected();
+			onEnergyControlConnected(true);
 		} else {
 
-			connect(energyControlCoordinator_, SIGNAL(connected(bool)), this, SLOT(onEnergyControlConnected()));
+			connect(energyControlCoordinator_, SIGNAL(connected(bool)), this, SLOT(onEnergyControlConnected(bool)));
 		}
 	}
 }
 
 // Connecting the energy control coordinator output to the new PVs
 
-void SGMEnergyCoordinator::onEnergyControlConnected()
+void SGMEnergyCoordinator::onEnergyControlConnected(bool isConnected)
 {
-	qDebug() << "Energy Control connected";
+	if(isConnected && !energyControlConnectedOnce_) {
 
-	// Initialize values now the energy control coordinator is connected
-	onEnergyControlValueChanged(energyControlCoordinator_->value());
-	onEnergyControlIsMovingChanged(energyControlCoordinator_->isMoving());
-	onEnergyControlGratingTranslationOptimizationModeChanged(energyControlCoordinator_->gratingTranslationOptimizationMode());
-	onEnergyControlUndulatorOffsetChanged(energyControlCoordinator_->undulatorOffset());
-	onEnergyControlUndulatorHarmonicChanged(energyControlCoordinator_->undulatorHarmonic());
-	onEnergyControlUndulatorTrackingChanged(energyControlCoordinator_->isUndulatorTracking());
-	onEnergyControlExitSlitPositionTrackingChanged(energyControlCoordinator_->isExitSlitPositionTracking());
+		qDebug() << "Energy control connected.";
+		energyControlConnectedOnce_ = true;
 
-	// Connect signals from energy control coordinator
-	connect(energyControlCoordinator_, SIGNAL(valueChanged(double)),
-			this, SLOT(onEnergyControlValueChanged(double)));
-	connect(energyControlCoordinator_, SIGNAL(movingChanged(bool)),
-			this, SLOT(onEnergyControlIsMovingChanged(bool)));
-	connect(energyControlCoordinator_, SIGNAL(gratingTranslationOptimizationModeChanged(SGMEnergyPosition::GratingTranslationOptimizationMode)),
-			this, SLOT(onEnergyControlGratingTranslationOptimizationModeChanged(SGMEnergyPosition::GratingTranslationOptimizationMode)));
-	connect(energyControlCoordinator_, SIGNAL(undulatorOffsetChanged(double)),
-			this, SLOT(onEnergyControlUndulatorOffsetChanged(double)));
-	connect(energyControlCoordinator_, SIGNAL(undulatorHarmonicChanged(SGMUndulatorSupport::UndulatorHarmonic)),
-			this, SLOT(onEnergyControlUndulatorHarmonicChanged(SGMUndulatorSupport::UndulatorHarmonic)));
-	connect(energyControlCoordinator_, SIGNAL(undulatorTrackingChanged(bool)),
-			this, SLOT(onEnergyControlUndulatorTrackingChanged(bool)));
-	connect(energyControlCoordinator_, SIGNAL(exitSlitTrackingChanged(bool)),
-			this, SLOT(onEnergyControlExitSlitPositionTrackingChanged(bool)));
-	connect(energyControlCoordinator_->gratingAngleControl(), SIGNAL(valueChanged(double)),
-			this, SLOT(onOldGratingAnglePVChanged(double)));
-	connect(energyControlCoordinator_->gratingAngleControl(), SIGNAL(movingChanged(bool)),
-			this, SLOT(onOldGratingAnglePVMovingChanged(bool)));
-	connect(energyControlCoordinator_->gratingTranslationControl(), SIGNAL(valueChanged(double)),
-			this, SLOT(onOldGratingTranslationStepPVChanged(double)));
-	connect(energyControlCoordinator_->gratingTranslationControl(), SIGNAL(movingChanged(bool)),
-			this, SLOT(onOldGratingTranslationStepPVMovingChanged(bool)));
-	connect(energyControlCoordinator_->undulatorPositionControl(), SIGNAL(valueChanged(double)),
-			this, SLOT(onOldUndulatorPositionPVChanged(double)));
-	connect(energyControlCoordinator_->undulatorPositionControl(), SIGNAL(movingChanged(bool)),
-			this, SLOT(onOldUndulatorPositionPVMovingChanged(bool)));
-	connect(energyControlCoordinator_->exitSlitPositionControl(), SIGNAL(valueChanged(double)),
-			this, SLOT(onOldExitSlitPositionPVChanged(double)));
-	connect(energyControlCoordinator_->exitSlitPositionControl(), SIGNAL(movingChanged(bool)),
-			this, SLOT(onOldExitSlitPositionPVMovingChanged(bool)));
+		// Initialize values now the energy control coordinator is connected
+		// Initialize feedback values
+		onEnergyControlValueChanged(energyControlCoordinator_->value());
+		onEnergyControlIsMovingChanged(energyControlCoordinator_->isMoving());
+		onEnergyControlGratingTranslationOptimizationModeChanged(energyControlCoordinator_->gratingTranslationOptimizationMode());
 
-	// Connect signals from the new PVs
-	connect(newControls_->energySetpoint(), SIGNAL(valueChanged(double)),
-			energyControlCoordinator_, SLOT(move(double)));
-	connect(newControls_->energyStop(), SIGNAL(valueChanged(double)),
-			this, SLOT(onEnergyStopPVChanged(double)));
-	connect(newControls_->gratingAngleSetpoint(), SIGNAL(valueChanged(double)),
-			this, SLOT(onGratingAngleSetpointPVChanged(double)));
-	connect(newControls_->gratingAngleStop(), SIGNAL(valueChanged(double)),
-			this, SLOT(onGratingAngleStopPVChanged(double)));
-	connect(newControls_->gratingTranslationOptimizationModeSetpoint(), SIGNAL(valueChanged(double)),
-			this, SLOT(onGratingTranslationOptimizationModeSetpointPVChanged(double)));
-	connect(newControls_->gratingTranslationStop(), SIGNAL(valueChanged(double)),
-			this, SLOT(onGratingTranslationStopPVChanged(double)));
-	connect(newControls_->undulatorPositionSetpoint(), SIGNAL(valueChanged(double)),
-			this, SLOT(onUndulatorSetpointPVChanged(double)));
-	connect(newControls_->undulatorPositionStop(), SIGNAL(valueChanged(double)),
-			this, SLOT(onUndulatorStopPVChanged(double)));
-	connect(newControls_->undulatorHarmonicSetpoint(), SIGNAL(valueChanged(double)),
-			this, SLOT(onUndulatorHarmonicSetpointPVChanged(double)));
-	connect(newControls_->exitSlitPositionSetpoint(), SIGNAL(valueChanged(double)),
-			this, SLOT(onExitSlitPositionSetpointPVChanged(double)));
-	connect(newControls_->exitSlitPositionStop(), SIGNAL(valueChanged(double)),
-			this, SLOT(onExitSlitPositionStopPVChanged(double)));
+		onEnergyControlUndulatorOffsetChanged(energyControlCoordinator_->undulatorOffset());
+		onEnergyControlUndulatorHarmonicChanged(energyControlCoordinator_->undulatorHarmonic());
+		onEnergyControlUndulatorTrackingChanged(energyControlCoordinator_->isUndulatorTracking());
+		onEnergyControlExitSlitPositionTrackingChanged(energyControlCoordinator_->isExitSlitPositionTracking());
+
+		//onOldGratingTranslationStepPVChanged(energyControlCoordinator_->gratingTranslationControl()->value());
+
+		// Initialize setpoint values
+		// Grating angle setpoint
+		if(newControls_->gratingAngleSetpoint()->withinTolerance(energyControlCoordinator_->gratingAngleControl()->setpoint())) {
+
+			qDebug() << QString("Initializing new grating angle setpoint PV to %1").arg(energyControlCoordinator_->gratingAngleControl()->setpoint());
+			newControls_->gratingAngleSetpoint()->move(energyControlCoordinator_->gratingAngleControl()->setpoint());
+		}
+
+		// Grating translation setpoint
+		SGMGratingSupport::GratingTranslation initialGratingTranslation =
+				SGMGratingSupport::encoderStepsToEnum(energyControlCoordinator_->gratingTranslationControl()->setpoint());
+
+		double initialGratingTranslationValue;
+		switch(initialGratingTranslation) {
+		case SGMGratingSupport::LowGrating:
+			initialGratingTranslationValue = 0;
+			break;
+		case SGMGratingSupport::MediumGrating:
+			initialGratingTranslationValue = 1;
+			break;
+		case SGMGratingSupport::HighGrating:
+			initialGratingTranslationValue = 2;
+			break;
+		case SGMGratingSupport::UnknownGrating:
+			initialGratingTranslationValue = 3;
+		}
+
+		if(!newControls_->gratingTranslationSetpoint()->withinTolerance(initialGratingTranslationValue)) {
+
+			qDebug() << QString("Initializing new grating translation setpoint PV to %1").arg(initialGratingTranslationValue);
+			newControls_->gratingTranslationSetpoint()->move(initialGratingTranslationValue);
+		}
+
+		// Grating translation optimization setpoint
+		SGMEnergyPosition::GratingTranslationOptimizationMode initialOptimizationMode =
+				energyControlCoordinator_->gratingTranslationOptimizationMode();
+
+		double initialOptimizationModeValue;
+		switch(initialOptimizationMode) {
+		case SGMEnergyPosition::ManualMode:
+			initialOptimizationModeValue = 0;
+			break;
+		case SGMEnergyPosition::OptimizeFlux:
+			initialOptimizationModeValue = 1;
+			break;
+		default:
+			initialOptimizationModeValue = 2;
+		}
+
+		if(!newControls_->gratingTranslationOptimizationModeSetpoint()->withinTolerance(initialOptimizationModeValue)) {
+
+			qDebug() << QString("Initializing new grating optimization mode setpoint PV to %1").arg(initialOptimizationModeValue);
+			newControls_->gratingTranslationOptimizationModeSetpoint()->move(initialOptimizationModeValue);
+		}
+
+		// Undulator position
+		if(!newControls_->undulatorPositionSetpoint()->withinTolerance(energyControlCoordinator_->undulatorPositionControl()->setpoint())) {
+
+			qDebug() << QString("Initializing new undulator position setpoint PV to %1").arg(energyControlCoordinator_->undulatorPositionControl()->setpoint());
+			newControls_->undulatorPositionSetpoint()->move(energyControlCoordinator_->undulatorPositionControl()->setpoint());
+		}
+
+		// Undulator harmonic
+		SGMUndulatorSupport::UndulatorHarmonic initialUndulatorHarmonic = energyControlCoordinator_->undulatorHarmonic();
+		double initialUndulatorHarmonicValue;
+		switch(initialUndulatorHarmonic) {
+		case SGMUndulatorSupport::FirstHarmonic:
+			initialUndulatorHarmonicValue = 0;
+			break;
+		default:
+			initialUndulatorHarmonicValue = 1;
+		}
+
+		if(!newControls_->undulatorHarmonicSetpoint()->withinTolerance(initialUndulatorHarmonicValue)) {
+
+			qDebug() << QString("Initializing new undulator harmonic setpoint PV to %1").arg(initialUndulatorHarmonicValue);
+			newControls_->undulatorPositionSetpoint()->move(initialUndulatorHarmonicValue);
+		}
+
+		// Exit slit position
+		if(!newControls_->exitSlitPositionSetpoint()->withinTolerance(energyControlCoordinator_->exitSlitPositionControl()->setpoint())) {
+
+			qDebug() << QString("Initializing new exit slit position setpoint PV to %1").arg(energyControlCoordinator_->exitSlitPositionControl()->setpoint());
+			newControls_->exitSlitPositionSetpoint()->move(energyControlCoordinator_->exitSlitPositionControl()->setpoint());
+		}
 
 
+		// Connect signals from energy control coordinator
+		connect(energyControlCoordinator_, SIGNAL(valueChanged(double)),
+				this, SLOT(onEnergyControlValueChanged(double)));
+
+		connect(energyControlCoordinator_, SIGNAL(movingChanged(bool)),
+				this, SLOT(onEnergyControlIsMovingChanged(bool)));
+
+		connect(energyControlCoordinator_, SIGNAL(gratingTranslationOptimizationModeChanged(SGMEnergyPosition::GratingTranslationOptimizationMode)),
+				this, SLOT(onEnergyControlGratingTranslationOptimizationModeChanged(SGMEnergyPosition::GratingTranslationOptimizationMode)));
+
+		connect(energyControlCoordinator_, SIGNAL(undulatorOffsetChanged(double)),
+				this, SLOT(onEnergyControlUndulatorOffsetChanged(double)));
+
+		connect(energyControlCoordinator_, SIGNAL(undulatorHarmonicChanged(SGMUndulatorSupport::UndulatorHarmonic)),
+				this, SLOT(onEnergyControlUndulatorHarmonicChanged(SGMUndulatorSupport::UndulatorHarmonic)));
+
+		connect(energyControlCoordinator_, SIGNAL(undulatorTrackingChanged(bool)),
+				this, SLOT(onEnergyControlUndulatorTrackingChanged(bool)));
+
+		connect(energyControlCoordinator_, SIGNAL(exitSlitTrackingChanged(bool)),
+				this, SLOT(onEnergyControlExitSlitPositionTrackingChanged(bool)));
+
+		connect(energyControlCoordinator_->gratingAngleControl(), SIGNAL(valueChanged(double)),
+				this, SLOT(onOldGratingAnglePVChanged(double)));
+
+		connect(energyControlCoordinator_->gratingAngleControl(), SIGNAL(movingChanged(bool)),
+				this, SLOT(onOldGratingAnglePVMovingChanged(bool)));
+
+		connect(energyControlCoordinator_->gratingTranslationControl(), SIGNAL(valueChanged(double)),
+				this, SLOT(onOldGratingTranslationStepPVChanged(double)));
+
+		connect(energyControlCoordinator_->gratingTranslationControl(), SIGNAL(movingChanged(bool)),
+				this, SLOT(onOldGratingTranslationStepPVMovingChanged(bool)));
+
+		connect(energyControlCoordinator_->undulatorPositionControl(), SIGNAL(valueChanged(double)),
+				this, SLOT(onOldUndulatorPositionPVChanged(double)));
+
+		connect(energyControlCoordinator_->undulatorPositionControl(), SIGNAL(movingChanged(bool)),
+				this, SLOT(onOldUndulatorPositionPVMovingChanged(bool)));
+
+		connect(energyControlCoordinator_->exitSlitPositionControl(), SIGNAL(valueChanged(double)),
+				this, SLOT(onOldExitSlitPositionPVChanged(double)));
+
+		connect(energyControlCoordinator_->exitSlitPositionControl(), SIGNAL(movingChanged(bool)),
+				this, SLOT(onOldExitSlitPositionPVMovingChanged(bool)));
+
+		// Connect signals from the new PVs
+		connect(newControls_->energySetpoint(), SIGNAL(valueChanged(double)),
+				this, SLOT(onEnergySetpointPVChanged(double)));
+
+		connect(newControls_->energyStop(), SIGNAL(valueChanged(double)),
+				this, SLOT(onEnergyStopPVChanged(double)));
+
+		connect(newControls_->gratingAngleSetpoint(), SIGNAL(valueChanged(double)),
+				this, SLOT(onGratingAngleSetpointPVChanged(double)));
+
+		connect(newControls_->gratingAngleStop(), SIGNAL(valueChanged(double)),
+				this, SLOT(onGratingAngleStopPVChanged(double)));
+
+		connect(newControls_->gratingTranslationOptimizationModeSetpoint(), SIGNAL(valueChanged(double)),
+				this, SLOT(onGratingTranslationOptimizationModeSetpointPVChanged(double)));
+
+		connect(newControls_->gratingTranslationSetpoint(), SIGNAL(valueChanged(double)),
+				this, SLOT(onGratingTranslationSetpointPVChanged(double)));
+
+		connect(newControls_->gratingTranslationStop(), SIGNAL(valueChanged(double)),
+				this, SLOT(onGratingTranslationStopPVChanged(double)));
+
+		connect(newControls_->undulatorPositionSetpoint(), SIGNAL(valueChanged(double)),
+				this, SLOT(onUndulatorSetpointPVChanged(double)));
+
+		connect(newControls_->undulatorPositionStop(), SIGNAL(valueChanged(double)),
+				this, SLOT(onUndulatorStopPVChanged(double)));
+
+		connect(newControls_->undulatorOffset(), SIGNAL(valueChanged(double)),
+				this, SLOT(onUndulatorOffsetPVChanged(double)));
+
+		connect(newControls_->undulatorHarmonicSetpoint(), SIGNAL(valueChanged(double)),
+				this, SLOT(onUndulatorHarmonicSetpointPVChanged(double)));
+
+		connect(newControls_->undulatorTracking(), SIGNAL(valueChanged(double)),
+				this, SLOT(onUndulatorTrackingPVChanged(double)));
+
+		connect(newControls_->exitSlitPositionSetpoint(), SIGNAL(valueChanged(double)),
+				this, SLOT(onExitSlitPositionSetpointPVChanged(double)));
+
+		connect(newControls_->exitSlitPositionStop(), SIGNAL(valueChanged(double)),
+				this, SLOT(onExitSlitPositionStopPVChanged(double)));
+
+		connect(newControls_->exitSlitPositionTracking(), SIGNAL(valueChanged(double)),
+				this, SLOT(onExitSlitPositionTrackingPVChanged(double)));
+
+	}
 }
 
 void SGMEnergyCoordinator::onEnergyControlValueChanged(double energy)
 {
 	if(!newControls_->energyFeedback()->withinTolerance(energy)) {
 
-		qDebug() << QString("New Energy Feedback set to %1").arg(energy);
 		newControls_->energyFeedback()->move(energy);
 	}
 }
@@ -161,11 +291,8 @@ void SGMEnergyCoordinator::onEnergyControlIsMovingChanged(bool isMoving)
 		movingValue = 0;
 	}
 
-	if(!newControls_->energyStatus()->withinTolerance(movingValue)) {
-
-		qDebug() << QString("New Energy Status set to %1").arg(movingValue);
-		newControls_->energyStatus()->move(movingValue);
-	}
+	qDebug() << QString("Setting new energy status PV to %1").arg(movingValue);
+	newControls_->energyStatus()->move(movingValue);
 }
 
 void SGMEnergyCoordinator::onEnergyControlGratingTranslationOptimizationModeChanged(SGMEnergyPosition::GratingTranslationOptimizationMode gratingTranslationOptimizationMode)
@@ -186,7 +313,7 @@ void SGMEnergyCoordinator::onEnergyControlGratingTranslationOptimizationModeChan
 
 	if(!newControls_->gratingTranslationOptimizationModeFeedback()->withinTolerance(gratingOptimizationModeValue)) {
 
-		qDebug() << QString("New Grating Translation set to %1").arg(gratingOptimizationModeValue);
+		qDebug() << QString("Setting new grating translation optimization mode fbk PV to %1").arg(gratingOptimizationModeValue);
 		newControls_->gratingTranslationOptimizationModeFeedback()->move(gratingOptimizationModeValue);
 	}
 }
@@ -195,7 +322,7 @@ void SGMEnergyCoordinator::onEnergyControlUndulatorOffsetChanged(double undulato
 {
 	if(!newControls_->undulatorOffset()->withinTolerance(undulatorOffset)) {
 
-		qDebug() << QString("New Undulator Offset set to %1").arg(undulatorOffset);
+		qDebug() << QString("Setting new undulator offset PV to %1").arg(undulatorOffset);
 		newControls_->undulatorOffset()->move(undulatorOffset);
 	}
 }
@@ -218,7 +345,7 @@ void SGMEnergyCoordinator::onEnergyControlUndulatorHarmonicChanged(SGMUndulatorS
 
 		if(!newControls_->undulatorHarmonicFeedback()->withinTolerance(undulatorHarmonicValue)) {
 
-			qDebug() << QString("New Undulator Harmonic value set to %1").arg(undulatorHarmonicValue);
+			qDebug() << QString("Setting new undulator harmonic fbk PV to").arg(undulatorHarmonicValue);
 			newControls_->undulatorHarmonicFeedback()->move(undulatorHarmonicValue);
 		}
 
@@ -241,14 +368,13 @@ void SGMEnergyCoordinator::onEnergyControlUndulatorTrackingChanged(bool isTracki
 
 	if(!newControls_->undulatorTracking()->withinTolerance(isTrackingValue)) {
 
-		qDebug() << QString("New Undulator Tracking set to %1").arg(isTracking);
+		qDebug() << QString("Setting new undulator tracking PV to %1").arg(isTracking);
 		newControls_->undulatorTracking()->move(isTrackingValue);
 	}
 }
 
 void SGMEnergyCoordinator::onEnergyControlExitSlitPositionTrackingChanged(bool isTracking)
 {
-
 	double isTrackingValue;
 	if(isTracking) {
 
@@ -260,7 +386,7 @@ void SGMEnergyCoordinator::onEnergyControlExitSlitPositionTrackingChanged(bool i
 
 	if(!newControls_->exitSlitPositionTracking()->withinTolerance(isTrackingValue)) {
 
-		qDebug() << QString("New Exit Slit Tracking set to %1").arg(isTracking);
+		qDebug() << QString("Setting new exit slit tracking PV to %1").arg(isTracking);
 		newControls_->exitSlitPositionTracking()->move(isTrackingValue);
 	}
 }
@@ -269,7 +395,6 @@ void SGMEnergyCoordinator::onOldGratingAnglePVChanged(double value)
 {
 	if(!newControls_->gratingAngleFeedback()->withinTolerance(value)) {
 
-		qDebug() << QString("New grating angle set to %1").arg(value);
 		newControls_->gratingAngleFeedback()->move(value);
 	}
 }
@@ -285,11 +410,8 @@ void SGMEnergyCoordinator::onOldGratingAnglePVMovingChanged(bool isMoving)
 		movingValue = 0;
 	}
 
-	if(!newControls_->gratingAngleStatus()->withinTolerance(movingValue)) {
-
-		qDebug() << QString("New Grating Angle set to %1").arg(movingValue);
-		newControls_->gratingAngleStatus()->move(movingValue);
-	}
+	qDebug() << QString("Setting new grating angle status PV to %1").arg(movingValue);
+	newControls_->gratingAngleStatus()->move(movingValue);
 }
 
 void SGMEnergyCoordinator::onOldGratingTranslationStepPVChanged(double value)
@@ -315,7 +437,7 @@ void SGMEnergyCoordinator::onOldGratingTranslationStepPVChanged(double value)
 
 	if(!newControls_->gratingTranslationFeedback()->withinTolerance(newGratingTranslationPVValue)) {
 
-		qDebug() << QString("New Grating Translation set to %1").arg(newGratingTranslationPVValue);
+		qDebug() << QString("Setting new grating translation fbk PV to %1").arg(newGratingTranslationPVValue);
 		newControls_->gratingTranslationFeedback()->move(newGratingTranslationPVValue);
 	}
 }
@@ -331,18 +453,14 @@ void SGMEnergyCoordinator::onOldGratingTranslationStepPVMovingChanged(bool isMov
 		movingValue = 0;
 	}
 
-	if(!newControls_->gratingTranslationStatus()->withinTolerance(movingValue)) {
-
-		qDebug() << QString("New Grating Translation Status set to %1").arg(movingValue);
-		newControls_->gratingTranslationStatus()->move(movingValue);
-	}
+	qDebug() << QString("Setting new grating translation status PV to %1").arg(movingValue);
+	newControls_->gratingTranslationStatus()->move(movingValue);
 }
 
 void SGMEnergyCoordinator::onOldUndulatorPositionPVChanged(double value)
 {
 	if(!newControls_->undulatorPositionFeedback()->withinTolerance(value)) {
 
-		qDebug() << QString("New Undulator Position set to %1").arg(value);
 		newControls_->undulatorPositionFeedback()->move(value);
 	}
 }
@@ -358,18 +476,14 @@ void SGMEnergyCoordinator::onOldUndulatorPositionPVMovingChanged(bool isMoving)
 		movingValue = 0;
 	}
 
-	if(!newControls_->undulatorPositionStatus()->withinTolerance(movingValue)) {
-
-		qDebug() << QString("New Undulator Position Status set to %1").arg(movingValue);
-		newControls_->undulatorPositionStatus()->move(movingValue);
-	}
+	qDebug() << QString("Setting new undulator position status PV to %1").arg(movingValue);
+	newControls_->undulatorPositionStatus()->move(movingValue);
 }
 
 void SGMEnergyCoordinator::onOldExitSlitPositionPVChanged(double value)
 {
 	if(!newControls_->exitSlitPositionFeedback()->withinTolerance(value)) {
 
-		qDebug() << QString("New Exit Slit Position set to %1").arg(value);
 		newControls_->exitSlitPositionFeedback()->move(value);
 	}
 }
@@ -385,18 +499,22 @@ void SGMEnergyCoordinator::onOldExitSlitPositionPVMovingChanged(bool isMoving)
 		movingValue = 0;
 	}
 
-	if(!newControls_->exitSlitPositionStatus()->withinTolerance(movingValue)) {
+	qDebug() << QString("Setting new exit slit position status PV to %1").arg(movingValue);
+	newControls_->exitSlitPositionStatus()->move(movingValue);
 
-		qDebug() << QString("New Exit Slit Position Status set to %1").arg(movingValue);
-		newControls_->exitSlitPositionStatus()->move(movingValue);
-	}
+}
+
+void SGMEnergyCoordinator::onEnergySetpointPVChanged(double value)
+{
+	qDebug() << QString("Forwarding energy setpoint value of %1 to energy control").arg(value);
+	energyControlCoordinator_->move(value);
 }
 
 void SGMEnergyCoordinator::onEnergyStopPVChanged(double)
 {
 	if(newControls_->energyStop()->withinTolerance(1.0)) {
 
-		qDebug() << "Stopping coordinated energy motion";
+		qDebug() <<"Forwarding stop energy command to energy control";
 		energyControlCoordinator_->stop();
 		newControls_->energyStop()->move(0);
 	}
@@ -408,7 +526,7 @@ void SGMEnergyCoordinator::onEnergyStopPVChanged(double)
 
 void SGMEnergyCoordinator::onGratingAngleSetpointPVChanged(double value)
 {
-	qDebug() << QString("Moving grating angle to %1").arg(value);
+	qDebug() << QString("Forwarding grating angle setpoint value of %1 to energy control").arg(value);
 	energyControlCoordinator_->gratingAngleControl()->move(value);
 }
 
@@ -416,7 +534,7 @@ void SGMEnergyCoordinator::onGratingAngleStopPVChanged(double)
 {
 	if(newControls_->gratingAngleStop()->withinTolerance(1.0)) {
 
-		qDebug() << "Stopping grating angle motion";
+		qDebug() << "Forwarding stop grating angle command to energy control";
 		energyControlCoordinator_->gratingAngleControl()->stop();
 		newControls_->gratingAngleStop()->move(0);
 	}
@@ -428,31 +546,30 @@ void SGMEnergyCoordinator::onGratingAngleStopPVChanged(double)
 
 void SGMEnergyCoordinator::onGratingTranslationSetpointPVChanged(double)
 {
+	qDebug() << "Grating translation changed";
 	if(energyControlCoordinator_->gratingTranslationOptimizationMode() == SGMEnergyPosition::ManualMode) {
 
-		SGMGratingSupport::GratingTranslation enumValue;
+		SGMGratingSupport::GratingTranslation enumValue = SGMGratingSupport::UnknownGrating;
 
-		if(energyControlCoordinator_->gratingTranslationControl()->withinTolerance(0.0)) {
+		if(newControls_->gratingTranslationSetpoint()->withinTolerance(0.0)) {
 
 			enumValue = SGMGratingSupport::LowGrating;
-		} else if (energyControlCoordinator_->gratingTranslationControl()->withinTolerance(1.0)) {
+		} else if (newControls_->gratingTranslationSetpoint()->withinTolerance(1.0)) {
 
 			enumValue = SGMGratingSupport::MediumGrating;
-		} else if (energyControlCoordinator_->gratingTranslationControl()->withinTolerance(2.0)) {
+		} else if (newControls_->gratingTranslationSetpoint()->withinTolerance(2.0)) {
 
 			enumValue = SGMGratingSupport::HighGrating;
 		} else {
 
 			qDebug() << "Unknown grating translation set - ignoring value.";
+			return;
 		}
 
 		double gratingTranslationStepValue = SGMGratingSupport::enumToEncoderSteps(enumValue);
 
-		if(!energyControlCoordinator_->gratingTranslationControl()->withinTolerance(gratingTranslationStepValue)) {
-
-			qDebug() << QString("Setting grating translation step to %1").arg(gratingTranslationStepValue);
-			energyControlCoordinator_->gratingTranslationControl()->move(gratingTranslationStepValue);
-		}
+		qDebug() << QString("Forwarding grating translation setpoint value of %1 to energy control").arg(gratingTranslationStepValue);
+		energyControlCoordinator_->gratingTranslationControl()->move(gratingTranslationStepValue);
 	}
 
 }
@@ -461,7 +578,7 @@ void SGMEnergyCoordinator::onGratingTranslationStopPVChanged(double)
 {
 	if(newControls_->gratingTranslationStop()->withinTolerance(1.0)) {
 
-		qDebug() << "Stopping grating translation motion";
+		qDebug() << "Forwarding stop grating translation command to energy control";
 		energyControlCoordinator_->gratingTranslationControl()->stop();
 		newControls_->gratingTranslationStop()->move(0);
 	}
@@ -490,13 +607,13 @@ void SGMEnergyCoordinator::onGratingTranslationOptimizationModeSetpointPVChanged
 		return;
 	}
 
-	qDebug() << QString("Setting grating translation optimization mode to %1").arg(optimizationMode);
+	qDebug() << QString("Forwarding grating translation optimization mode setpoint value of %1 to energy control").arg(optimizationMode);
 	energyControlCoordinator_->setGratingTranslationOptimizationMode(optimizationMode);
 }
 
 void SGMEnergyCoordinator::onUndulatorSetpointPVChanged(double value)
 {
-	qDebug() << QString("Setting undulator position to %1").arg(value);
+	qDebug() << QString("Forwarding grating undulator position setpoint value of %1 to energy control").arg(value);
 	energyControlCoordinator_->undulatorPositionControl()->move(value);
 }
 
@@ -504,7 +621,7 @@ void SGMEnergyCoordinator::onUndulatorStopPVChanged(double)
 {
 	if(newControls_->undulatorPositionStop()->withinTolerance(1.0)) {
 
-		qDebug() << "Stopping undulator motion";
+		qDebug() << "Forwarding stop undulator position command to energy control";
 		energyControlCoordinator_->undulatorPositionControl()->stop();
 		newControls_->undulatorPositionStop()->move(0);
 	}
@@ -516,7 +633,7 @@ void SGMEnergyCoordinator::onUndulatorStopPVChanged(double)
 
 void SGMEnergyCoordinator::onUndulatorOffsetPVChanged(double value)
 {
-	qDebug() << QString("Setting undulator offset to %1").arg(value);
+	qDebug() << QString("Forwarding undulator offset setpoint value of %1 to energy control").arg(value);
 	energyControlCoordinator_->setUndulatorOffset(value);
 }
 
@@ -536,26 +653,34 @@ void SGMEnergyCoordinator::onUndulatorHarmonicSetpointPVChanged(double)
 		return;
 	}
 
-	qDebug() << QString("Setting undulator harmonic to %1").arg(undulatorHarmonic);
-	energyControlCoordinator_->setUndulatorHarmonic(undulatorHarmonic);
+	if(energyControlCoordinator_->undulatorHarmonic() != undulatorHarmonic) {
+		qDebug() << QString("Forwarding undulator harmonic setpoint value of %1 to energy control").arg(undulatorHarmonic);
+		energyControlCoordinator_->setUndulatorHarmonic(undulatorHarmonic);
+	}
 }
 
 void SGMEnergyCoordinator::onUndulatorTrackingPVChanged(double)
 {
+	bool isTracking;
+
 	if(newControls_->undulatorTracking()->withinTolerance(0)) {
 
-		qDebug() << "Switching off undulator tracking";
-		energyControlCoordinator_->setUndulatorTracking(false);
+		isTracking = false;
 	} else {
 
-		qDebug() << "Switching on undulator tracking";
-		energyControlCoordinator_->setUndulatorTracking(true);
+		isTracking = true;
+	}
+
+	if(energyControlCoordinator_->isUndulatorTracking() != isTracking) {
+
+		qDebug() << QString("Forwarding undulator tracking setpoint value of %1 to energy control").arg(isTracking);
+		energyControlCoordinator_->setUndulatorTracking(isTracking);
 	}
 }
 
 void SGMEnergyCoordinator::onExitSlitPositionSetpointPVChanged(double value)
 {
-	qDebug() << QString("Setting exit slit position to %1").arg(value);
+	qDebug() << QString("Forwarding exit slit position setpoint value of %1 to energy control").arg(value);
 	energyControlCoordinator_->exitSlitPositionControl()->move(value);
 }
 
@@ -563,7 +688,7 @@ void SGMEnergyCoordinator::onExitSlitPositionStopPVChanged(double)
 {
 	if(newControls_->exitSlitPositionStop()->withinTolerance(1.0)) {
 
-		qDebug() << "Stopping exit slit position motion";
+		qDebug() << "Forwarding stop exit slit position command to energy control";
 		energyControlCoordinator_->exitSlitPositionControl()->stop();
 		newControls_->exitSlitPositionStop()->move(0);
 	}
@@ -575,13 +700,20 @@ void SGMEnergyCoordinator::onExitSlitPositionStopPVChanged(double)
 
 void SGMEnergyCoordinator::onExitSlitPositionTrackingPVChanged(double)
 {
+	bool isTracking;
+
 	if(newControls_->exitSlitPositionTracking()->withinTolerance(0)) {
 
-		qDebug() << "Switching off exit slit tracking";
-		energyControlCoordinator_->setExitSlitPositionTracking(false);
+		isTracking = false;
 	} else {
 
-		qDebug() << "Switching on exit slit tracking";
-		energyControlCoordinator_->setExitSlitPositionTracking(true);
+		isTracking = true;
+	}
+
+	if(energyControlCoordinator_->isExitSlitPositionTracking() != isTracking) {
+
+		qDebug() << QString("Forwarding exit slit position tracking setpoint value of %1 to energy control").arg(isTracking);
+		energyControlCoordinator_->setExitSlitPositionTracking(isTracking);
 	}
 }
+

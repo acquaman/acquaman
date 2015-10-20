@@ -1,7 +1,7 @@
 include ( clsCommon.pri )
 include ( sgmCommon.pri )
 
-TARGET = SGMAddOnsCoordinator
+TARGET = SGMEnergyCoordinator
 
 HEADERS += \
     source/beamline/SGM/SGMEnergyCoordinator.h \

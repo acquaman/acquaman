@@ -65,7 +65,7 @@ SGMNewEnergyPVSet::SGMNewEnergyPVSet(QObject *parent) :
 												  0.5));
 
 	controlSet_->addControl(new AMSinglePVControl("GratingTranslationStop",
-												  "AM1611-4-I10:energy:translation:stop",
+												  "AM1611-4-I10:energy:grating:translation:stop",
 												  this,
 												  0.5));
 

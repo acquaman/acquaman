@@ -316,6 +316,16 @@ void SGMBeamline::setupExposedControls()
 	addExposedControl(hexapod_->xAxisPrimeControl());
 	addExposedControl(hexapod_->yAxisPrimeControl());
 	addExposedControl(hexapod_->zAxisPrimeControl());
+	addExposedControl(energyControlSet_->energy());
+	addExposedControl(energyControlSet_->gratingAngle());
+	addExposedControl(energyControlSet_->gratingTranslation());
+	addExposedControl(energyControlSet_->gratingTranslationOptimization());
+	addExposedControl(energyControlSet_->undulatorDetuneOffset());
+	addExposedControl(energyControlSet_->undulatorHarmonic());
+	addExposedControl(energyControlSet_->undulatorPosition());
+	addExposedControl(energyControlSet_->undulatorTracking());
+	addExposedControl(energyControlSet_->exitSlitPosition());
+	addExposedControl(energyControlSet_->exitSlitPositionTracking());
 }
 
 void SGMBeamline::setupExposedDetectors()

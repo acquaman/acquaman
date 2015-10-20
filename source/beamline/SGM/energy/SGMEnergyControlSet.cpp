@@ -15,9 +15,10 @@ SGMEnergyControlSet::SGMEnergyControlSet(QObject *parent) :
 									  baseGroupPV + ":status",
 									  baseGroupPV + ":stop",
 									  this,
-									  0.01,
+									  0.5,
 									  2.0,
 									  new CLSMAXvControlStatusChecker()));
+	controlNamed("Energy")->setAttemptMoveWhenWithinTolerance(true);
 
 	addControl(new AMPVwStatusControl("Grating Angle",
 									 baseGroupPV + ":grating:angle:steps:fbk",
@@ -25,9 +26,11 @@ SGMEnergyControlSet::SGMEnergyControlSet(QObject *parent) :
 									 baseGroupPV + ":grating:angle:status",
 									 baseGroupPV + ":grating:angle:stop",
 									 this,
-									 0.01,
+									 5,
 									 2.0,
 									 new CLSMAXvControlStatusChecker()));
+
+	controlNamed("Grating Angle")->setAttemptMoveWhenWithinTolerance(true);
 
 	addControl(new AMPVwStatusControl("Grating Translation",
 									  baseGroupPV + ":grating:translation:fbk",
@@ -39,6 +42,8 @@ SGMEnergyControlSet::SGMEnergyControlSet(QObject *parent) :
 									  2.0,
 									  new CLSMAXvControlStatusChecker()));
 
+	controlNamed("Grating Translation")->setAttemptMoveWhenWithinTolerance(true);
+
 	addControl(new AMPVControl("Grating Translation Optimization",
 							   baseGroupPV + ":grating:translation:optimization:fbk",
 							   baseGroupPV + ":grating:translation:optimization",
@@ -46,20 +51,26 @@ SGMEnergyControlSet::SGMEnergyControlSet(QObject *parent) :
 							   this,
 							   0.5));
 
+	controlNamed("Grating Translation Optimization")->setAttemptMoveWhenWithinTolerance(true);
+
 	addControl(new AMPVwStatusControl("Undulator Position",
 									  baseGroupPV + ":undulator:mm:fbk",
 									  baseGroupPV + ":undulator:mm",
 									  baseGroupPV + ":undulator:status",
 									  baseGroupPV + ":undulator:stop",
 									  this,
-									  0.01,
+									  0.1,
 									  2.0,
 									  new CLSMAXvControlStatusChecker()));
+
+	controlNamed("Undulator Position")->setAttemptMoveWhenWithinTolerance(true);
 
 	addControl(new AMSinglePVControl("Undulator Detune Offset",
 									 baseGroupPV + "undulator:offset:mm",
 									 this,
-									 0.01));
+									 0.1));
+
+	controlNamed("Undulator Detune Offset")->setAttemptMoveWhenWithinTolerance(true);
 
 	addControl(new AMPVControl("Undulator Harmonic",
 							   baseGroupPV + ":undulator:harmonic:fbk",
@@ -68,10 +79,14 @@ SGMEnergyControlSet::SGMEnergyControlSet(QObject *parent) :
 							   this,
 							   0.5));
 
+	controlNamed("Undulator Harmonic")->setAttemptMoveWhenWithinTolerance(true);
+
 	addControl(new AMSinglePVControl("Undulator Tracking",
 									 baseGroupPV + ":undulator:tracking",
 									 this,
 									 0.5));
+
+	controlNamed("Undulator Tracking")->setAttemptMoveWhenWithinTolerance(true);
 
 	addControl(new AMPVwStatusControl("Exit Slit Position",
 									  baseGroupPV + ":exitslit:position:mm:fbk",
@@ -79,14 +94,18 @@ SGMEnergyControlSet::SGMEnergyControlSet(QObject *parent) :
 									  baseGroupPV + ":exitslit:position:status",
 									  baseGroupPV + ":exitslit:position:stop",
 									  this,
-									  0.01,
+									  0.1,
 									  2.0,
 									  new CLSMAXvControlStatusChecker()));
+
+	controlNamed("Exit Slit Position")->setAttemptMoveWhenWithinTolerance(true);
 
 	addControl(new AMSinglePVControl("Exit Slit Position Tracking",
 									 baseGroupPV + ":exitslit:position:tracking",
 									 this,
 									 0.5));
+
+	controlNamed("Exit Slit Position Tracking")->setAttemptMoveWhenWithinTolerance(true);
 
 	connect(this, SIGNAL(connected(bool)), this, SLOT(onAllConnected(bool)));
 }

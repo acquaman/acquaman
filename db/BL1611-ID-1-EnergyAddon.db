@@ -80,27 +80,25 @@ record( ao, "AM1611-4-I10:energy:grating:angle:stop" )
 record( mbbi, "AM1611-4-I10:energy:grating:translation:fbk" )
 {
     field( VAL, "3" )
-    field( ZRST, "LOW ENERGY" )
+	field( ZRST, "Low Energy" )
     field( ZRVL, "0x00" )
-    field( ONST, "MEDIUM ENERGY" )
+	field( ONST, "Medium Energy" )
     field( ONVL, "0x01" )
-    field( TWST, "HIGH ENERGY" )
+	field( TWST, "High Energy" )
     field( TWVL, "0x02" )
-    field( THST, "UNKNOWN" )
+	field( THST, "Unknown" )
     field( THVL, "0x03" )
 }
 
 record( mbbi, "AM1611-4-I10:energy:grating:translation" )
 {
-    field( VAL, "3" )
-    field( ZRST, "LOW ENERGY" )
+	field( VAL, "0" )
+	field( ZRST, "Low Energy" )
     field( ZRVL, "0x00" )
-    field( ONST, "MEDIUM ENERGY" )
+	field( ONST, "Medium Energy" )
     field( ONVL, "0x01" )
-    field( TWST, "HIGH ENERGY" )
-    field( TWVL, "0x02" )
-    field( THST, "UNKNOWN" )
-    field( THVL, "0x03" )
+	field( TWST, "High Energy" )
+	field( TWVL, "0x02" )
 }
 
 record( mbbi, "AM1611-4-I10:energy:grating:translation:status" )
@@ -129,22 +127,22 @@ record( ao, "AM1611-4-I10:energy:grating:translation:stop" )
 record( mbbi, "AM1611-4-I10:energy:grating:translation:optimization:fbk" )
 {
     field( VAL, "0")
-    field( ZRST, "MANUAL MODE" )
+	field( ZRST, "Manual" )
     field( ZRVL, "0x00" )
-    field( ONST, "OPT FLUX" )
+	field( ONST, "Flux" )
     field( ONVL, "0x01" )
-    field( TWST, "OPT RESOLUTION" )
+	field( TWST, "Resolution" )
     field( TWVL, "0x02" )
 }
 
 record( mbbi, "AM1611-4-I10:energy:grating:translation:optimization" )
 {
     field( VAL, "0")
-    field( ZRST, "MANUAL MODE" )
+	field( ZRST, "Manual" )
     field( ZRVL, "0x00" )
-    field( ONST, "OPT FLUX" )
+	field( ONST, "Flux" )
     field( ONVL, "0x01" )
-    field( TWST, "OPT RESOLUTION" )
+	field( TWST, "Resolution" )
     field( TWVL, "0x02" )
 }
 
@@ -156,7 +154,7 @@ record( ao, "AM1611-4-I10:energy:undulator:mm:fbk" )
     field( EGU, "mm" )
 }
 
-record( ao, "AM1611-4-I0:energy:undulator:mm" )
+record( ao, "AM1611-4-I10:energy:undulator:mm" )
 {
     field( VAL, "0" )
     field( EGU, "mm" )
@@ -198,18 +196,18 @@ record( ao, "AM1611-4-I10:energy:undulator:offset:mm" )
 record( mbbi, "AM1611-4-I10:energy:undulator:harmonic:fbk" )
 {
     field( VAL, "0" )
-    field( ZRST, "FIRST HARMONIC" )
+	field( ZRST, "First Harmonic" )
     field( ZRVL, "0x00" )
-    field( ONST, "THIRD HARMONIC" )
+	field( ONST, "Third Harmonic" )
     field( ONVL, "0x01" )
 }
 
 record( mbbi, "AM1611-4-I10:energy:undulator:harmonic" )
 {
     field( VAL, "0" )
-    field( ZRST, "FIRST HARMONIC" )
+	field( ZRST, "First Harmonic" )
     field( ZRVL, "0x00" )
-    field( ONST, "THIRD HARMONIC" )
+	field( ONST, "Third Harmonic" )
     field( ONVL, "0x01" )
 }
 
@@ -218,9 +216,9 @@ record( mbbi, "AM1611-4-I10:energy:undulator:harmonic" )
 record( mbbi, "AM1611-4-I10:energy:undulator:tracking" )
 {
     field( VAL, "1" )
-    field( ZRST, "TRACKING OFF" )
+	field( ZRST, "Tracking Off" )
     field( ZRVL, "0x00" )
-    field( ONST, "TRACKING ON" )
+	field( ONST, "Tracking On" )
     field( ONVL, "0x01" )
 }
 
@@ -232,7 +230,7 @@ record( ao, "AM1611-4-I10:energy:exitslit:position:mm:fbk" )
     field( EGU, "mm" )
 }
 
-record( ao, "AM1611-4-I0:energy:exitslit:position:mm" )
+record( ao, "AM1611-4-I10:energy:exitslit:position:mm" )
 {
     field( VAL, "0" )
     field( EGU, "mm" )
@@ -265,8 +263,8 @@ record( ao, "AM1611-4-I10:energy:exitslit:position:stop" )
 record( mbbi, "AM1611-4-I10:energy:exitslit:position:tracking" )
 {
     field( VAL, "1" )
-    field( ZRST, "TRACKING OFF" )
+	field( ZRST, "Tracking Off" )
     field( ZRVL, "0x00" )
-    field( ONST, "TRACKING ON" )
+	field( ONST, "Tracking On" )
     field( ONVL, "0x01" )
 }

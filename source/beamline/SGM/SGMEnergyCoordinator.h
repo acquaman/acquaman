@@ -18,7 +18,7 @@ public slots:
 protected slots:
 	void onPVSetsConnected();
 
-	void onEnergyControlConnected();
+	void onEnergyControlConnected(bool isConnected);
 
 protected slots:
 	// Slots which connect the energy control pseudo motor output to the new PVs
@@ -72,6 +72,9 @@ protected slots:
 	// Slots which connect the new setpoint PVs to the energy control pseudo motor
 	////////////////////////////////////////////////////////////////////////////
 
+	/// Handles the new energy setpoint PV being altered.
+	void onEnergySetpointPVChanged(double);
+
 	/// Handles the new energy stop PV being altered.
 	void onEnergyStopPVChanged(double);
 
@@ -117,7 +120,8 @@ protected:
 
 	SGMEnergyControl* energyControlCoordinator_;
 
-	bool connectedOnce_;
+	bool pvsConnectedOnce_;
+	bool energyControlConnectedOnce_;
 	SGMNewEnergyPVSet* newControls_;
 	SGMOldEnergyPVSet* oldControls_;
 };

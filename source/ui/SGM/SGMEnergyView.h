@@ -38,16 +38,16 @@ signals:
 public slots:
 protected slots:
 	/*!
-	  * Slot which handles the button for controlling the undulator tracking being
+	  * Slot which handles the checkbox for controlling the undulator tracking being
 	  * toggled.
 	  */
 	void onUndulatorTrackingButtonToggled(bool isToggled);
 
 	/*!
-	  * Slot which handles the button for controlling the exit slit tracking being
+	  * Slot which handles the checkbox for controlling the exit slit tracking being
 	  * toggled.
 	  */
-	void onExitSlitTrackingButtonToggled(bool isToggled);
+	void onExitSlitPositionTrackingButtonToggled(bool isToggled);
 
 	/*!
 	  * Slot which handles the undulator tracking being altered at the PV level.
@@ -82,8 +82,8 @@ protected:
 	AMExtendedControlEditor* undulatorPositionEditor_;
 	AMExtendedControlEditor* exitSlitPositionEditor_;
 
-	QPushButton* undulatorTrackingToggleButton_;
-	QPushButton* exitSlitTrackingToggleButton_;
+	QPushButton* undulatorTrackingButton_;
+	QPushButton* exitSlitTrackingButton_;
 
 	SGMEnergyControlSet* energyControlSet_;
 };
