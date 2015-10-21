@@ -59,6 +59,7 @@
 #include "ui/BioXAS/BioXASSSRLMonochromatorEnergyCalibrationView.h"
 #include "ui/BioXAS/BioXASFrontEndBeamStatusView.h"
 #include "ui/BioXAS/BioXASValvesView.h"
+#include "ui/BioXAS/BioXASFrontEndShuttersView.h"
 #include "ui/CLS/CLSJJSlitsView.h"
 #include "ui/CLS/CLSStandardsWheelConfigurationView.h"
 #include "ui/util/AMChooseDataFolderDialog.h"

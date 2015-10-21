@@ -104,6 +104,8 @@ void BioXASValvesControl::updateValue()
 		newValue = Between;
 
 	setValue(newValue);
+
+	qDebug() << toString();
 }
 
 AMAction3* BioXASValvesControl::createMoveAction(double setpoint)

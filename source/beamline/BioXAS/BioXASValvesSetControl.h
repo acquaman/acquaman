@@ -21,7 +21,7 @@ public:
 	/// Returns true if this control's value is Open, false otherwise.
 	virtual bool isOpen() const;
 	/// Returns true if this control's value is Closed, false otherwise.
-	virtual bool isClosed() const;
+	virtual bool isClosed() const { return !isOpen(); }
 
 	/// Returns the valve set.
 	AMControlSet* valveSet() const { return valveSet_; }

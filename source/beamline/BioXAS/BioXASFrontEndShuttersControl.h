@@ -36,7 +36,7 @@ public:
 	/// Returns true if this control's value is Open, false otherwise.
 	bool isOpen() const;
 	/// Returns true if this control's value is Closed, false otherwise.
-	bool isClosed() const;
+	bool isClosed() const { return !isOpen(); }
 
 	/// Returns a string representation of the given value.
 	QString valueToString(BioXASFrontEndShuttersControl::Value value) const;

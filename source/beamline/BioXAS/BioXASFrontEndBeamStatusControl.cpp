@@ -148,17 +148,12 @@ void BioXASFrontEndBeamStatusControl::setShutters(BioXASFrontEndShuttersControl 
 	if (shutters_ != newControl) {
 
 		if (shutters_)
-			removeChildControl(shutters_); // handles disconnecting from all signals.
+			removeChildControl(shutters_);
 
 		shutters_ = newControl;
 
-		if (shutters_) {
+		if (shutters_)
 			addChildControl(shutters_);
-
-			connect( shutters_, SIGNAL(photonShutterUpstreamChanged(AMControl*)), this, SIGNAL(shuttersUpstreamPhotonShutterChanged(AMControl*)) );
-			connect( shutters_, SIGNAL(photonShutterDownstreamChanged(AMControl*)), this, SIGNAL(shuttersDownstreamPhotonShutterChanged(AMControl*)) );
-			connect( shutters_, SIGNAL(safetyShutterChanged(AMControl*)), this, SIGNAL(shuttersSafetyShutterChanged(AMControl*)) );
-		}
 
 		updateStates();
 

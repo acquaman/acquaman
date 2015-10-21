@@ -49,12 +49,6 @@ public:
 signals:
 	/// Notifier that the front-end shutters control has changed.
 	void shuttersChanged(AMControl *newControl);
-	/// Notifier that the front-end shutters upstream photon shutter has changed.
-	void shuttersUpstreamPhotonShutterChanged(AMControl *newControl);
-	/// Notifier that the front-end shutters downstream photon shutter has changed.
-	void shuttersDownstreamPhotonShutterChanged(AMControl *newControl);
-	/// Notifier that the front-end shutters safety shutter has changed.
-	void shuttersSafetyShutterChanged(AMControl *newControl);
 	/// Notifier that the front-end and beamline valves control has changed.
 	void valvesChanged(AMControl *newControl);
 

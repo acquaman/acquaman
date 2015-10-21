@@ -38,13 +38,9 @@ protected:
 	/// The beam status control being viewed.
 	BioXASFrontEndBeamStatusControl *control_;
 
-	/// The upstream photon shutter LED.
-	AMControlValueLEDView *photonShutterUpstreamLED_;
-	/// The downstream photon shutter LED.
-	AMControlValueLEDView *photonShutterDownstreamLED_;
-	/// The safety shutter LED.
-	AMControlValueLEDView *safetyShutterLED_;
-	/// The beamline valves LED.
+	/// The shutters LED.
+	AMControlValueLEDView *shuttersLED_;
+	/// The valves LED.
 	AMControlValueLEDView *valvesLED_;
 };
 

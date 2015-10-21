@@ -105,16 +105,6 @@ bool BioXASFrontEndShuttersControl::isOpen() const
 	return result;
 }
 
-bool BioXASFrontEndShuttersControl::isClosed() const
-{
-	bool result = false;
-
-	if (isConnected())
-		result = ((photonShutterUpstream_->value() == 4) && photonShutterDownstream_->isClosed() && safetyShutter_->isClosed());
-
-	return result;
-}
-
 QString BioXASFrontEndShuttersControl::valueToString(BioXASFrontEndShuttersControl::Value value) const
 {
 	QString result;

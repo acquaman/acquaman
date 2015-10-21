@@ -45,12 +45,6 @@ bool BioXASValvesSetControl::isOpen() const
 	return result;
 }
 
-bool BioXASValvesSetControl::isClosed() const
-{
-	bool result = valvesClosed(valveSet_);
-	return result;
-}
-
 void BioXASValvesSetControl::setValveSet(AMControlSet *newSet)
 {
 	if (valveSet_ != newSet) {
