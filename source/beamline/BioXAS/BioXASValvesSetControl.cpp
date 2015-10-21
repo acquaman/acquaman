@@ -100,3 +100,86 @@ AMAction3* BioXASValvesSetControl::createOpenValvesAction()
 
 	return result;
 }
+
+bool BioXASValvesSetControl::valvesCanMeasure(AMControlSet *valveSet)
+{
+	bool result = false;
+
+	if (valveSet) {
+		bool canMeasure = true;
+
+		for (int valveIndex = 0, valveCount = valveSet->count(); valveIndex < valveCount && canMeasure; valveIndex++) {
+			AMControl *valve = valveSet->at(valveIndex);
+			canMeasure &= (valve && valve->canMeasure());
+		}
+
+		result = canMeasure;
+	}
+
+	return result;
+}
+
+bool BioXASValvesSetControl::valvesCanMove(AMControlSet *valveSet)
+{
+	bool result = false;
+
+	if (valveSet) {
+		bool canMove = true;
+
+		for (int valveIndex = 0, valveCount = valveSet->count(); valveIndex < valveCount && canMove; valveIndex++) {
+			AMControl *valve = valveSet->at(valveIndex);
+			canMove &= (valve && valve->canMove());
+		}
+
+		result = canMove;
+	}
+
+	return result;
+}
+
+bool BioXASValvesSetControl::valvesOpen(AMControlSet *valveSet)
+{
+	bool result = false;
+
+	if (valveSet) {
+		bool valvesOpen = true;
+
+		for (int valveIndex = 0, valveCount = valveSet->count(); valveIndex < valveCount && valvesOpen; valveIndex++) {
+			CLSBiStateControl *valveControl = qobject_cast<CLSBiStateControl*>(valveSet->at(valveIndex));
+
+			if (valveControl) {
+				valvesOpen &= valveControl->isOpen();
+			} else {
+				valvesOpen = false;
+			}
+		}
+
+		result = valvesOpen;
+	}
+
+	return result;
+}
+
+bool BioXASValvesSetControl::valvesClosed(AMControlSet *valveSet)
+{
+	bool result = false;
+
+	if (valveSet) {
+		bool valvesClosed = true;
+
+		for (int valveIndex = 0, valveCount = valveSet->count(); valveIndex < valveCount && valvesClosed; valveIndex++) {
+			CLSBiStateControl *valveControl = qobject_cast<CLSBiStateControl*>(valveSet->at(valveIndex));
+
+			if (valveControl) {
+				valvesClosed &= valveControl->isClosed();
+			} else {
+				valvesClosed = false;
+			}
+		}
+
+		result = valvesClosed;
+	}
+
+	return result;
+}
+

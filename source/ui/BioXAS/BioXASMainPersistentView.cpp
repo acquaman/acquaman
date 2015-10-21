@@ -39,6 +39,11 @@ BioXASMainPersistentView::BioXASMainPersistentView(QWidget *parent) :
 	AMExtendedControlEditor *ssh = new AMExtendedControlEditor(BioXASMainBeamline::bioXAS()->shutters()->safetyShutter());
 	AMExtendedControlEditor *shutters = new AMExtendedControlEditor(BioXASMainBeamline::bioXAS()->shutters());
 	AMExtendedControlEditor *valves = new AMExtendedControlEditor(BioXASMainBeamline::bioXAS()->valves());
+	AMExtendedControlEditor *frontEndValves = new AMExtendedControlEditor(BioXASMainBeamline::bioXAS()->valves()->frontEndValves());
+	AMExtendedControlEditor *sideValves = new AMExtendedControlEditor(BioXASMainBeamline::bioXAS()->valves()->sideValves());
+	AMExtendedControlEditor *mainValves = new AMExtendedControlEditor(BioXASMainBeamline::bioXAS()->valves()->mainValves());
+	AMExtendedControlEditor *imagingValves = new AMExtendedControlEditor(BioXASMainBeamline::bioXAS()->valves()->imagingValves());
+
 
 	// Create and set layouts.
 
@@ -49,6 +54,10 @@ BioXASMainPersistentView::BioXASMainPersistentView(QWidget *parent) :
 	layout->addWidget(ssh);
 	layout->addWidget(shutters);
 	layout->addWidget(valves);
+	layout->addWidget(frontEndValves);
+	layout->addWidget(sideValves);
+	layout->addWidget(mainValves);
+	layout->addWidget(imagingValves);
 	layout->addStretch();
 
 	setLayout(layout);

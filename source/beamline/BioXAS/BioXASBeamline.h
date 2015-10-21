@@ -60,11 +60,11 @@ public:
 
 	/// Returns the front end shutters.
 	virtual BioXASFrontEndShutters* shutters() const { return frontEndShutters_; }
-	/// Returns the valves for Side, Main, Imaging.
-	virtual BioXASValves* valves() const { return valves_; }
+
 	/// Returns the front-end beam status.
 	virtual BioXASFrontEndBeamStatus* beamStatus() const { return beamStatus_; }
-
+	/// Returns the valves.
+	virtual BioXASValves* valves() const { return valves_; }
 	/// Returns the m1 mirror.
 	virtual BioXASM1Mirror* m1Mirror() const { return 0; }
 	/// Returns the monochromator.
@@ -136,7 +136,7 @@ protected:
 
 	/// The front end shutters.
 	BioXASFrontEndShutters *frontEndShutters_;
-	/// The valves for all three beamlines.
+	/// The valves.
 	BioXASValves *valves_;
 	/// The beam status.
 	BioXASFrontEndBeamStatus *beamStatus_;

@@ -55,7 +55,7 @@ bool BioXASValvesControl::validSetpoint(double value) const
 	return result;
 }
 
-QString BioXASValvesControl::valueToString(BioXASValvesControl::Value value) const
+QString BioXASValvesControl::valueToString(BioXASValvesControl::Value value)
 {
 	QString result;
 
@@ -93,89 +93,7 @@ AMAction3* BioXASValvesControl::createMoveAction(double setpoint)
 	AMAction3 *result = 0;
 
 	if ((int)setpoint == Open)
-		result = createOpenValvesAction(valveSet_);
-
-	return result;
-}
-
-bool BioXASValvesControl::valvesCanMeasure(AMControlSet *valveSet) const
-{
-	bool result = false;
-
-	if (valveSet) {
-		bool canMeasure = true;
-
-		for (int valveIndex = 0, valveCount = valveSet->count(); valveIndex < valveCount && canMeasure; valveIndex++) {
-			AMControl *valve = valveSet->at(valveIndex);
-			canMeasure &= (valve && valve->canMeasure());
-		}
-
-		result = canMeasure;
-	}
-
-	return result;
-}
-
-bool BioXASValvesControl::valvesCanMove(AMControlSet *valveSet) const
-{
-	bool result = false;
-
-	if (valveSet) {
-		bool canMove = true;
-
-		for (int valveIndex = 0, valveCount = valveSet->count(); valveIndex < valveCount && canMove; valveIndex++) {
-			AMControl *valve = valveSet->at(valveIndex);
-			canMove &= (valve && valve->canMove());
-		}
-
-		result = canMove;
-	}
-
-	return result;
-}
-
-bool BioXASValvesControl::valvesOpen(AMControlSet *valveSet) const
-{
-	bool result = false;
-
-	if (valveSet) {
-		bool valvesOpen = true;
-
-		for (int valveIndex = 0, valveCount = valveSet->count(); valveIndex < valveCount && valvesOpen; valveIndex++) {
-			CLSBiStateControl *valveControl = qobject_cast<CLSBiStateControl*>(valveSet->at(valveIndex));
-
-			if (valveControl) {
-				valvesOpen &= valveControl->isOpen();
-			} else {
-				valvesOpen = false;
-			}
-		}
-
-		result = valvesOpen;
-	}
-
-	return result;
-}
-
-bool BioXASValvesControl::valvesClosed(AMControlSet *valveSet) const
-{
-	bool result = false;
-
-	if (valveSet) {
-		bool valvesClosed = true;
-
-		for (int valveIndex = 0, valveCount = valveSet->count(); valveIndex < valveCount && valvesClosed; valveIndex++) {
-			CLSBiStateControl *valveControl = qobject_cast<CLSBiStateControl*>(valveSet->at(valveIndex));
-
-			if (valveControl) {
-				valvesClosed &= valveControl->isClosed();
-			} else {
-				valvesClosed = false;
-			}
-		}
-
-		result = valvesClosed;
-	}
+		result = createOpenValvesAction();
 
 	return result;
 }

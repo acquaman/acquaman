@@ -42,6 +42,15 @@ protected:
 	/// Creates and returns an action that opens the valves in the given control set.
 	virtual AMAction3* createOpenValvesAction();
 
+	/// Returns true if all of the valves in the given set can be measured, false otherwise.
+	static bool valvesCanMeasure(AMControlSet *valveSet);
+	/// Returns true if all of the valves in the given set can be moved, false otherwise.
+	static bool valvesCanMove(AMControlSet *valveSet);
+	/// Returns true if all of the valves in the given set are open, false otherwise.
+	static bool valvesOpen(AMControlSet *valveSet);
+	/// Returns true if all of the valves in the given set are closed, false otherwise.
+	static bool valvesClosed(AMControlSet *valveSet);
+
 protected:
 	/// The set of front-end valves.
 	AMControlSet *valveSet_;

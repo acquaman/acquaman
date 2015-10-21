@@ -48,7 +48,7 @@ void BioXASBeamline::setupComponents()
 	// Valves.
 
 	valves_ = new BioXASValves(this);
-	connect( valves_, SIGNAL(connectedChanged(bool)), this, SLOT(updateConnected()) );
+	connect( valves_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
 	// Beam status.
 
