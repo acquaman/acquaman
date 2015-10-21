@@ -216,8 +216,8 @@ void BioXASSideBeamline::setupComponents()
 	standardsWheel_->setName(6, "Zn");
 	standardsWheel_->setName(7, "As");
 	standardsWheel_->setName(8, "Se");
-	standardsWheel_->setName(9, "Hg");
-	standardsWheel_->setName(10, "Mo");
+	standardsWheel_->setName(9, "Mo");
+	standardsWheel_->setName(10, "Cd");
 	standardsWheel_->setName(11, "None");
 
 	// Endstation table.
