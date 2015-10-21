@@ -3,18 +3,10 @@
 #include "actions3/AMActionSupport.h"
 
 BioXASFrontEndBeamStatusControl::BioXASFrontEndBeamStatusControl(const QString &name, QObject *parent) :
-	AMPseudoMotorControl(name, "", parent)
+	BioXASBeamStatusControl(name, parent)
 {
 	// Initialize inherited variables.
 
-	value_ = BioXAS::Beam::None;
-	setpoint_ = BioXAS::Beam::None;
-	minimumValue_ = BioXAS::Beam::Off;
-	maximumValue_ = BioXAS::Beam::None;
-
-	setEnumStates(QStringList() << valueToString(BioXAS::Beam::Off) << valueToString(BioXAS::Beam::On) << valueToString(BioXAS::Beam::None));
-	setMoveEnumStates(QStringList() << valueToString(BioXAS::Beam::Off) << valueToString(BioXAS::Beam::On));
-	setAllowsMovesWhileMoving(false);
 	setContextKnownDescription("FrontEndBeamStatus");
 
 	// Initialize local variables.
@@ -72,72 +64,12 @@ bool BioXASFrontEndBeamStatusControl::canStop() const
 	return result;
 }
 
-bool BioXASFrontEndBeamStatusControl::validValue(double value) const
-{
-	bool result = false;
-
-	switch (int(value)) {
-	case BioXAS::Beam::Off:
-		result = true;
-		break;
-	case BioXAS::Beam::On:
-		result = true;
-		break;
-	case BioXAS::Beam::None:
-		result = true;
-		break;
-	default:
-		break;
-	}
-
-	return result;
-}
-
-bool BioXASFrontEndBeamStatusControl::validSetpoint(double value) const
-{
-	bool result = false;
-
-	switch (int(value)) {
-	case BioXAS::Beam::Off:
-		result = true;
-		break;
-	case BioXAS::Beam::On:
-		result = true;
-		break;
-	default:
-		break;
-	}
-
-	return result;
-}
-
 bool BioXASFrontEndBeamStatusControl::isOn() const
 {
 	bool result = false;
 
 	if (isConnected()) {
 		result = (shutters_->isOpen() && valves_->isOpen());
-	}
-
-	return result;
-}
-
-QString BioXASFrontEndBeamStatusControl::valueToString(BioXAS::Beam::Status value) const
-{
-	QString result;
-
-	switch (value) {
-	case BioXAS::Beam::None:
-		result = "None";
-		break;
-	case BioXAS::Beam::On:
-		result = "On";
-		break;
-	case BioXAS::Beam::Off:
-		result = "Off";
-		break;
-	default:
-		break;
 	}
 
 	return result;
@@ -216,24 +148,6 @@ void BioXASFrontEndBeamStatusControl::updateMoving()
 
 		setIsMoving(isMoving);
 	}
-}
-
-AMAction3* BioXASFrontEndBeamStatusControl::createMoveAction(double newState)
-{
-	AMAction3 *result = 0;
-
-	switch(int(newState)) {
-	case BioXAS::Beam::On:
-		result = createBeamOnAction();
-		break;
-	case BioXAS::Beam::Off:
-		result = createBeamOffAction();
-		break;
-	default:
-		break;
-	}
-
-	return result;
 }
 
 AMAction3* BioXASFrontEndBeamStatusControl::createBeamOnAction()

@@ -8,6 +8,7 @@
 #include "beamline/CLS/CLSMAXvMotor.h"
 #include "beamline/BioXAS/BioXASSSRLMonochromatorEnergyControl.h"
 #include "beamline/BioXAS/BioXASSSRLMonochromatorRegionControl.h"
+#include "beamline/BioXAS/BioXASSSRLMonochromatorMaskControl.h"
 #include "beamline/BioXAS/BioXASMonochromator.h"
 
 class BioXASSSRLMonochromator : public BioXASMonochromator
@@ -49,6 +50,8 @@ public:
 	BioXASSSRLMonochromatorEnergyControl *stepEnergyControl() const { return stepEnergy_; }
 	/// Returns the region control.
 	virtual BioXASSSRLMonochromatorRegionControl* regionControl() const { return region_; }
+	/// Returns the mask control.
+	virtual BioXASSSRLMonochromatorMaskControl* maskControl() const { return mask_; }
 
 	/// Returns the upper slit control.
 	AMControl* upperSlitControl() const { return upperSlit_; }
@@ -132,6 +135,8 @@ protected:
 	BioXASSSRLMonochromatorEnergyControl *stepEnergy_;
 	/// The region control.
 	BioXASSSRLMonochromatorRegionControl *region_;
+	/// The mask control.
+	BioXASSSRLMonochromatorMaskControl *mask_;
 
 	/// The upper slit motor control.
 	AMControl *upperSlit_;

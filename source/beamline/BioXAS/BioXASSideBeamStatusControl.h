@@ -24,7 +24,7 @@ public:
 	/// Returns true if this control can take a measurement right now.
 	virtual bool canMeasure() const;
 	/// Returns true if this control can move right now.
-	virtual bool canMove() const { return false; }
+	virtual bool canMove() const;
 	/// Returns true if this control can stop a move right now.
 	virtual bool canStop() const;
 

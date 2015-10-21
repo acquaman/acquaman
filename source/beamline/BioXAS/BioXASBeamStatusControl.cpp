@@ -5,13 +5,13 @@ BioXASBeamStatusControl::BioXASBeamStatusControl(const QString &name, QObject *p
 {
 	// Initialize inherited variables.
 
-	value_ = None;
-	setpoint_ = None;
-	minimumValue_ = None;
-	maximumValue_ = Off;
+	value_ = BioXAS::Beam::None;
+	setpoint_ = BioXAS::Beam::None;
+	minimumValue_ = BioXAS::Beam::Off;
+	maximumValue_ = BioXAS::Beam::None;
 
-	setEnumStates(QStringList() << "On" << "Off" << "None");
-	setMoveEnumStates(QStringList() << "On" << "Off");
+	setEnumStates(QStringList() << valueToString(BioXAS::Beam::Off) << valueToString(BioXAS::Beam::On) << valueToString(BioXAS::Beam::None));
+	setMoveEnumStates(QStringList() << valueToString(BioXAS::Beam::Off) << valueToString(BioXAS::Beam::On));
 	setAllowsMovesWhileMoving(false);
 	setContextKnownDescription("BeamStatus");
 }
@@ -26,13 +26,13 @@ bool BioXASBeamStatusControl::validValue(double value) const
 	bool result = false;
 
 	switch (int(value)) {
-	case On:
+	case BioXAS::Beam::Off:
 		result = true;
 		break;
-	case Off:
+	case BioXAS::Beam::On:
 		result = true;
 		break;
-	case None:
+	case BioXAS::Beam::None:
 		result = true;
 		break;
 	default:
@@ -47,10 +47,10 @@ bool BioXASBeamStatusControl::validSetpoint(double value) const
 	bool result = false;
 
 	switch (int(value)) {
-	case On:
+	case BioXAS::Beam::Off:
 		result = true;
 		break;
-	case Off:
+	case BioXAS::Beam::On:
 		result = true;
 		break;
 	default:
@@ -60,21 +60,25 @@ bool BioXASBeamStatusControl::validSetpoint(double value) const
 	return result;
 }
 
-void BioXASBeamStatusControl::updateValue()
+QString BioXASBeamStatusControl::valueToString(BioXAS::Beam::Status value) const
 {
-	double value = None;
+	QString result;
 
-	if (isConnected()) {
-
-		if (isOn())
-			value = On;
-		else if (isOff())
-			value = Off;
-		else
-			value = None;
+	switch (value) {
+	case BioXAS::Beam::None:
+		result = "None";
+		break;
+	case BioXAS::Beam::On:
+		result = "On";
+		break;
+	case BioXAS::Beam::Off:
+		result = "Off";
+		break;
+	default:
+		break;
 	}
 
-	setValue(value);
+	return result;
 }
 
 AMAction3* BioXASBeamStatusControl::createMoveAction(double newState)
@@ -82,10 +86,10 @@ AMAction3* BioXASBeamStatusControl::createMoveAction(double newState)
 	AMAction3 *result = 0;
 
 	switch(int(newState)) {
-	case On:
+	case BioXAS::Beam::On:
 		result = createBeamOnAction();
 		break;
-	case Off:
+	case BioXAS::Beam::Off:
 		result = createBeamOffAction();
 		break;
 	default:

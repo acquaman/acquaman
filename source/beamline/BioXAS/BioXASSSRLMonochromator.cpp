@@ -11,6 +11,7 @@ BioXASSSRLMonochromator::BioXASSSRLMonochromator(const QString &name, QObject *p
 	encoderEnergy_ = 0;
 	stepEnergy_ = 0;
 	region_ = 0;
+	mask_ = 0;
 
 	upperSlit_ = 0;
 	lowerSlit_ = 0;
@@ -53,6 +54,7 @@ bool BioXASSSRLMonochromator::isConnected() const
 		encoderEnergy_ && encoderEnergy_->isConnected() &&
 		stepEnergy_ && stepEnergy_->isConnected() &&
 		region_ && region_->isConnected() &&
+		mask_ && mask_->isConnected() &&
 
 		upperSlit_ && upperSlit_->isConnected() &&
 		lowerSlit_ && lowerSlit_->isConnected() &&

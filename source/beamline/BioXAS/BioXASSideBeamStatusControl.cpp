@@ -3,16 +3,16 @@
 BioXASSideBeamStatusControl::BioXASSideBeamStatusControl(QObject *parent) :
 	BioXASBeamStatusControl("BioXASSideBeamStatus", parent)
 {
+	// Initialize inherited settings.
+
+	setContextKnownDescription("SideBeamStatus");
+
 	// Initialize class variables.
 
 	frontEndBeamStatus_ = 0;
 	preMirrorMask_ = 0;
 	preMonoMaskUpperBlade_ = 0;
 	preMonoMaskLowerBlade_ = 0;
-
-	// Set inherited settings.
-
-	setContextKnownDescription("SideBeamStatus");
 
 	// Current settings.
 
@@ -44,15 +44,15 @@ bool BioXASSideBeamStatusControl::canMeasure() const
 	return result;
 }
 
-//bool BioXASSideBeamStatusControl::canMove() const
-//{
-//	bool result = false;
+bool BioXASSideBeamStatusControl::canMove() const
+{
+	bool result = false;
 
-//	if (isConnected())
-//		result = (frontEndBeamStatus_->canMove() && preMirrorMask_->canMove() && preMonoMask_->canMove());
+	if (isConnected())
+		result = (frontEndBeamStatus_->canMove() && preMirrorMask_->canMove() && preMonoMask_->canMove());
 
-//	return result;
-//}
+	return result;
+}
 
 bool BioXASSideBeamStatusControl::canStop() const
 {
