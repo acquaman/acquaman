@@ -20,7 +20,7 @@ HEADERS += \
     source/beamline/BioXAS/BioXASSideDBHRMirrors.h \
     source/beamline/BioXAS/BioXASSideBeamlineUtilities.h \
     source/beamline/BioXAS/BioXASSideCryostatStage.h \
-    source/beamline/BioXAS/BioXASSideBeamStatusControl.h
+    source/beamline/BioXAS/BioXASSidePOEBeamStatusControl.h
 
 SOURCES += \
     source/application/BioXAS/BioXASSideAppController.cpp \
@@ -37,7 +37,11 @@ SOURCES += \
     source/beamline/BioXAS/BioXASSideDBHRMirrors.cpp \
     source/beamline/BioXAS/BioXASSideBeamlineUtilities.cpp \
     source/beamline/BioXAS/BioXASSideCryostatStage.cpp \
-    source/beamline/BioXAS/BioXASSideBeamStatusControl.cpp
+    source/beamline/BioXAS/BioXASSidePOEBeamStatusControl.cpp
+
+
+
+
 
 
 

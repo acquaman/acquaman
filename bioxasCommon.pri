@@ -87,7 +87,9 @@ HEADERS += \
     source/beamline/BioXAS/BioXASMasterValvesControl.h \
     source/ui/BioXAS/BioXASFrontEndShuttersView.h \
     source/beamline/BioXAS/BioXASBeamStatusControl.h \
-    source/beamline/BioXAS/BioXASSSRLMonochromatorMaskControl.h
+    source/beamline/BioXAS/BioXASSSRLMonochromatorMaskControl.h \
+    source/ui/BioXAS/BioXASSidePOEBeamStatusControlView.h \
+    source/ui/BioXAS/BioXASSidePOEBeamStatusControlLEDView.h
 
 SOURCES += \
 	source/acquaman/BioXAS/BioXASXRFScanConfiguration.cpp \
@@ -169,7 +171,21 @@ SOURCES += \
     source/beamline/BioXAS/BioXASMasterValvesControl.cpp \
     source/ui/BioXAS/BioXASFrontEndShuttersView.cpp \
     source/beamline/BioXAS/BioXASBeamStatusControl.cpp \
-    source/beamline/BioXAS/BioXASSSRLMonochromatorMaskControl.cpp
+    source/beamline/BioXAS/BioXASSSRLMonochromatorMaskControl.cpp \
+    source/ui/BioXAS/BioXASSidePOEBeamStatusControlView.cpp \
+    source/ui/BioXAS/BioXASSidePOEBeamStatusControlLEDView.cpp
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
