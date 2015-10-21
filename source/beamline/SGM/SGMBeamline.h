@@ -71,24 +71,9 @@ public:
 	SGMEnergyControlSet* energyControlSet() const;
 
 	/*!
-	  * The energy control.
-	  */
-	AMControl* energy() const;
-
-	/*!
 	  * The exit slit gap control.
 	  */
 	AMControl* exitSlitGap() const;
-
-	/*!
-	  * The exit slit position control.
-	  */
-	AMControl* exitSlitPosition() const;
-
-	/*!
-	  * The grating control.
-	  */
-	AMControl* grating() const;
 
 	/*!
 	  * The control set for the hexapod
@@ -176,10 +161,8 @@ protected:
 	SGMEnergyControlSet* energyControlSet_;
 
 	// Old Energy Controls
-	AMControl *energy_;
+
 	AMControl *exitSlitGap_;
-	AMControl *exitSlitPosition_;
-	AMControl *grating_;
 	AMControl *endStationTranslationSetpont_;
 	AMControl *endStationTranslationFeedback_;
 

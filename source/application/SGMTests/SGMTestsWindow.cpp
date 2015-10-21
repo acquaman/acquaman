@@ -4,6 +4,7 @@
 #include "tests/SGM/SGMEnergyPositionTestView.h"
 #include "tests/SGM/SGMEnergyTrajectoryTestView.h"
 #include "tests/SGM/SGMEnergyControlTestView.h"
+#include "tests/SGM/SGMVelocityTests.h"
 #include "qjson/serializer.h"
 
 #include "beamline/SGM/energy/SGMEnergyPosition.h"
@@ -75,6 +76,14 @@ void SGMTestsWindow::onShowEnergyControlViewClicked()
 
 }
 
+void SGMTestsWindow::onRunVelocityTestClicked()
+{
+	SGMVelocityTests* velocityTest = new SGMVelocityTests();
+
+	velocityTest->testGratingAngle();
+
+}
+
 void SGMTestsWindow::setupUi()
 {
 
@@ -104,6 +113,10 @@ void SGMTestsWindow::setupUi()
     connect(showEnergyControlViewButton_, SIGNAL(clicked(bool)), this, SLOT(onShowEnergyControlViewClicked()));
     buttonsLayout->addWidget(showEnergyControlViewButton_);
 
+	runVelocityTest_ = new QPushButton("Run Velocity Tests");
+	connect(runVelocityTest_, SIGNAL(clicked(bool)), this, SLOT(onRunVelocityTestClicked()));
+	buttonsLayout->addWidget(runVelocityTest_);
+
     buttonsLayout->addStretch();
 
     outputTextEdit_ = new QTextEdit();
@@ -111,6 +124,8 @@ void SGMTestsWindow::setupUi()
     resultsLayout->addWidget(outputTextEdit_);
 
 
-    resize(800, 600);
+	resize(800, 600);
 }
+
+
 

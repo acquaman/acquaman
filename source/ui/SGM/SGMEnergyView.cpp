@@ -75,14 +75,12 @@ void SGMEnergyView::onEnergyControlExitSlitTrackingChanged(double)
 {
 	exitSlitTrackingButton_->setChecked(!energyControlSet_->exitSlitPositionTracking()->withinTolerance(0.0));
 }
-#include <QDebug>
+
 void SGMEnergyView::onEnergyControlGratingTrackingOptimizationModeChanged(double)
 {
 	// Set the grating translation selection control to read only if the optimization
 	// mode is not set to manual (0x00).
-	qDebug() << "Disabling grating translation editor";
-	gratingTranslationEditor_->setEnabled(!energyControlSet_->gratingTranslationOptimization()->withinTolerance(0));
-	//gratingTranslationEditor_->setReadOnlyPreference(!energyControlSet_->gratingTranslationOptimization()->withinTolerance(0));
+	gratingTranslationEditor_->setReadOnlyPreference(!energyControlSet_->gratingTranslationOptimization()->withinTolerance(0));
 }
 
 void SGMEnergyView::setupUi(SGMEnergyView::EnergyViewType viewType)
@@ -91,12 +89,15 @@ void SGMEnergyView::setupUi(SGMEnergyView::EnergyViewType viewType)
 	energyEditor_ = new AMExtendedControlEditor(energyControlSet_->energy());
 	energyEditor_->setPrecision(6);
 	gratingTranslationModeEditor_ = new AMExtendedControlEditor(energyControlSet_->gratingTranslationOptimization());
-	gratingTranslationEditor_ = new AMExtendedControlEditor(energyControlSet_->gratingTranslation());
+	gratingTranslationEditor_ = new AMExtendedControlEditor(energyControlSet_->gratingTranslation(), 0, !energyControlSet_->gratingTranslationOptimization()->withinTolerance(0));
 	undulatorHarmonicEditor_ = new AMExtendedControlEditor(energyControlSet_->undulatorHarmonic());
 
+	connect(energyControlSet_->gratingTranslationOptimization(), SIGNAL(valueChanged(double)),
+			this, SLOT(onEnergyControlGratingTrackingOptimizationModeChanged(double)));
 	if(viewType == Advanced) {
 		gratingAngleEditor_ = new AMExtendedControlEditor(energyControlSet_->gratingAngle());
 		gratingAngleEditor_->setPrecision(12);
+		undulatorDetuneOffsetEditor_ = new AMExtendedControlEditor(energyControlSet_->undulatorDetuneOffset());
 		undulatorPositionEditor_ = new AMExtendedControlEditor(energyControlSet_->undulatorPosition());
 		undulatorPositionEditor_->setPrecision(6);
 		exitSlitPositionEditor_ = new AMExtendedControlEditor(energyControlSet_->exitSlitPosition());
@@ -126,15 +127,16 @@ void SGMEnergyView::setupUi(SGMEnergyView::EnergyViewType viewType)
 
 		mainLayout->addWidget(gratingAngleEditor_, 2, 0, 1, 2);
 
-		mainLayout->addWidget(undulatorPositionEditor_, 3, 0);
-		mainLayout->addWidget(undulatorHarmonicEditor_, 3, 1);
+		mainLayout->addWidget(undulatorPositionEditor_, 3, 0, 1, 2);
+		mainLayout->addWidget(undulatorDetuneOffsetEditor_, 4, 0);
+		mainLayout->addWidget(undulatorHarmonicEditor_, 4, 1);
 
-		mainLayout->addWidget(exitSlitPositionEditor_, 4, 0, 1, 2);
+		mainLayout->addWidget(exitSlitPositionEditor_, 5, 0, 1, 2);
 
 		QHBoxLayout* buttonLayout = new QHBoxLayout();
 		buttonLayout->addWidget(undulatorTrackingButton_);
 		buttonLayout->addWidget(exitSlitTrackingButton_);
-		mainLayout->addLayout(buttonLayout, 5, 0, 1, 2);
+		mainLayout->addLayout(buttonLayout, 6, 0, 1, 2);
 
 		setLayout(mainLayout);
 
@@ -147,6 +149,7 @@ void SGMEnergyView::setupUi(SGMEnergyView::EnergyViewType viewType)
 				this, SLOT(onEnergyControlUndulatorTrackingChanged(double)));
 		connect(energyControlSet_->exitSlitPositionTracking(), SIGNAL(valueChanged(double)),
 				this, SLOT(onEnergyControlExitSlitTrackingChanged(double)));
+
 
 	} else {
 		gratingAngleEditor_ = 0;

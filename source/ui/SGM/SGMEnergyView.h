@@ -74,11 +74,12 @@ protected:
 	void setupUi(EnergyViewType viewType);
 
 	AMExtendedControlEditor* energyEditor_;
+	AMExtendedControlEditor* gratingAngleEditor_;
 	AMExtendedControlEditor* gratingTranslationModeEditor_;
 	AMExtendedControlEditor* gratingTranslationEditor_;
-	AMExtendedControlEditor* undulatorHarmonicEditor_;
 
-	AMExtendedControlEditor* gratingAngleEditor_;
+	AMExtendedControlEditor* undulatorDetuneOffsetEditor_;
+	AMExtendedControlEditor* undulatorHarmonicEditor_;
 	AMExtendedControlEditor* undulatorPositionEditor_;
 	AMExtendedControlEditor* exitSlitPositionEditor_;
 

@@ -40,6 +40,8 @@ protected slots:
 	  * Handles the show energy control view being clicked.
 	  */
     void onShowEnergyControlViewClicked();
+
+	void onRunVelocityTestClicked();
 protected:
 
     /*!
@@ -50,6 +52,7 @@ protected:
     QPushButton* showEnergyViewButton_;
     QPushButton* showTrajectoryViewButton_;
     QPushButton* showEnergyControlViewButton_;
+	QPushButton* runVelocityTest_;
 
     SGMEnergyTrajectoryTestView* energyTrajectoryTestView_;
     SGMEnergyPositionTestView* energyTestView_;
