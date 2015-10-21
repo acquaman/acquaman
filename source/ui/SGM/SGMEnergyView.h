@@ -5,6 +5,7 @@
 #include <QPushButton>
 
 class AMExtendedControlEditor;
+class AMValidatorIcon;
 class SGMEnergyControlSet;
 /*!
   * A ui class representing a view for visualizing the energy controls of the
@@ -87,6 +88,8 @@ protected:
 	QPushButton* exitSlitTrackingButton_;
 
 	SGMEnergyControlSet* energyControlSet_;
+	AMValidatorIcon* errorValidatorIcon_;
+	AMValidatorIcon* warningValidatorIcon_;
 };
 
 #endif // SGMENERGYVIEW_H

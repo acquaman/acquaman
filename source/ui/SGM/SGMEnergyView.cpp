@@ -1,6 +1,7 @@
 #include "SGMEnergyView.h"
 
 #include "ui/beamline/AMExtendedControlEditor.h"
+#include "ui/AMValidatorIcon.h"
 #include "beamline/SGM/energy/SGMEnergyControlSet.h"
 
 #include <QVBoxLayout>
@@ -92,6 +93,12 @@ void SGMEnergyView::setupUi(SGMEnergyView::EnergyViewType viewType)
 	gratingTranslationEditor_ = new AMExtendedControlEditor(energyControlSet_->gratingTranslation(), 0, !energyControlSet_->gratingTranslationOptimization()->withinTolerance(0));
 	undulatorHarmonicEditor_ = new AMExtendedControlEditor(energyControlSet_->undulatorHarmonic());
 
+	errorValidatorIcon_ = new AMValidatorIcon(energyControlSet_->errorValidator(),
+											  ":/dialog-error.png");
+	warningValidatorIcon_ = new AMValidatorIcon(energyControlSet_->warningValidator(),
+												":/dialog-information.png");
+
+
 	connect(energyControlSet_->gratingTranslationOptimization(), SIGNAL(valueChanged(double)),
 			this, SLOT(onEnergyControlGratingTrackingOptimizationModeChanged(double)));
 	if(viewType == Advanced) {
@@ -138,6 +145,12 @@ void SGMEnergyView::setupUi(SGMEnergyView::EnergyViewType viewType)
 		buttonLayout->addWidget(exitSlitTrackingButton_);
 		mainLayout->addLayout(buttonLayout, 6, 0, 1, 2);
 
+
+		QHBoxLayout* validatorsLayout = new QHBoxLayout();
+		validatorsLayout->addWidget(errorValidatorIcon_);
+		validatorsLayout->addWidget(warningValidatorIcon_);
+		mainLayout->addLayout(validatorsLayout, 7, 0, 1, 2);
+
 		setLayout(mainLayout);
 
 		connect(undulatorTrackingButton_, SIGNAL(toggled(bool)),
@@ -164,6 +177,11 @@ void SGMEnergyView::setupUi(SGMEnergyView::EnergyViewType viewType)
 		mainLayout->addWidget(gratingTranslationModeEditor_);
 		mainLayout->addWidget(gratingTranslationEditor_);
 		mainLayout->addWidget(undulatorHarmonicEditor_);
+
+		QHBoxLayout* validatorsLayout = new QHBoxLayout();
+		validatorsLayout->addWidget(errorValidatorIcon_);
+		validatorsLayout->addWidget(warningValidatorIcon_);
+		mainLayout->addLayout(validatorsLayout);
 
 		setLayout(mainLayout);
 	}

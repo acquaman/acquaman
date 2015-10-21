@@ -432,7 +432,8 @@ HEADERS += \
     source/util/AMValidator.h \
 	source/util/AMTrapezoidVelocityProfile.h \
     source/ui/acquaman/AMGenericStepScanConfigurationDetectorsView.h \
-	source/analysis/AMAdditionAB.h
+	source/analysis/AMAdditionAB.h \
+    source/ui/AMValidatorIcon.h
 
 FORMS += \
 
@@ -826,7 +827,8 @@ SOURCES += \
     source/util/AMValidator.cpp \
 	source/util/AMTrapezoidVelocityProfile.cpp \
     source/ui/acquaman/AMGenericStepScanConfigurationDetectorsView.cpp \
-	source/analysis/AMAdditionAB.cpp
+	source/analysis/AMAdditionAB.cpp \
+    source/ui/AMValidatorIcon.cpp
 
 RESOURCES *= source/icons/icons.qrc \
 		source/configurationFiles/configurationFiles.qrc \
@@ -843,3 +845,5 @@ contains(DEFINES, AM_BUILD_REPORTER_ENABLED){
 
 	SOURCES *= source/util/AMRunTimeBuildInfo.cpp
 }
+
+
