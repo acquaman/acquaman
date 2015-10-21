@@ -22,6 +22,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "BioXASMainPersistentView.h"
 
 #include "beamline/BioXAS/BioXASMainBeamline.h"
+#include "ui/beamline/AMExtendedControlEditor.h"
+#include "ui/beamline/AMControlConnectedLEDView.h"
+#include "ui/BioXAS/BioXASFrontEndBeamStatusControlLEDView.h"
+#include "ui/BioXAS/BioXASFrontEndBeamStatusView.h"
 
 BioXASMainPersistentView::BioXASMainPersistentView(QWidget *parent) :
     QWidget(parent)
@@ -29,6 +33,7 @@ BioXASMainPersistentView::BioXASMainPersistentView(QWidget *parent) :
 	// Create UI elements.
 
 	generalView_ = new BioXASPersistentView(BioXASMainBeamline::bioXAS()->mono(), BioXASMainBeamline::bioXAS()->scaler());
+
 
 	// Create and set layouts.
 

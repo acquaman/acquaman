@@ -69,6 +69,8 @@ void AMPseudoMotorControl::addChildControl(AMControl *control)
 		connect( control, SIGNAL(connected(bool)), this, SLOT(updateStates()) );
 		connect( control, SIGNAL(valueChanged(double)), this, SLOT(updateValue()) );
 		connect( control, SIGNAL(movingChanged(bool)), this, SLOT(updateMoving()) );
+
+		updateStates();
 	}
 }
 
@@ -90,6 +92,10 @@ QString AMPseudoMotorControl::toString() const
 
 	QString controlDescription = "Description: " + description();
 
+	// Note this control's value.
+
+	QString controlValue = "Value: " + QString::number(value());
+
 	// Note this control's general connected state.
 
 	QString controlConnected = "Connected: ";
@@ -100,24 +106,27 @@ QString AMPseudoMotorControl::toString() const
 
 	// Note the connected state of each of the child controls.
 
-	controlConnected += "\n";
-
 	int childCount = childControlCount();
 
-	for (int childIndex = 0; childIndex < childCount; childIndex++) {
-		AMControl *child = childControlAt(childIndex);
+	if (childCount > 0) {
 
-		if (child) {
-			controlConnected += "\t" + child->objectName() + " connected: ";
+		controlConnected += "\n";
 
-			if (child->isConnected())
-				controlConnected += "Yes";
-			else
-				controlConnected += "No";
+		for (int childIndex = 0; childIndex < childCount; childIndex++) {
+			AMControl *child = childControlAt(childIndex);
+
+			if (child) {
+				controlConnected += "\t" + child->objectName() + " connected: ";
+
+				if (child->isConnected())
+					controlConnected += "Yes";
+				else
+					controlConnected += "No";
+			}
+
+			if (childIndex < childCount - 1)
+				controlConnected += "\n";
 		}
-
-		if (childIndex < childCount - 1)
-			controlConnected += "\n";
 	}
 
 	// Note this control's moving state.
@@ -138,7 +147,7 @@ QString AMPseudoMotorControl::toString() const
 
 	// Create and return complete info string.
 
-	QString result = controlName + "\n" + controlDescription + "\n" + controlConnected + "\n" + controlMoving + "\n" + controlCalibrating;
+	QString result = controlName + "\n" + controlDescription + "\n" + controlValue + "\n" + controlConnected + "\n" + controlMoving + "\n" + controlCalibrating;
 
 	return result;
 }

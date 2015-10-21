@@ -14,9 +14,10 @@ namespace BioXAS
 	};
 
 	/// Enum to describe each of the three BioXAS beamlines.
-	enum Beamline {
-		FrontEnd = 0, Side, Main, Imaging
-	};
+	enum Beamline { Side = 0, Main = 1, Imaging = 2 };
+
+	/// Enum describing the different beam status states.
+	class Beam { public: enum Status { Off = 0, On = 1, None = 2 }; };
 
 	/// Builds the standard exporter option used for all exported scans.
 	inline AMExporterOptionXDIFormat *buildStandardXDIFormatExporterOption(const QString &name, const QString &elementSymbol, const QString &elementEdge, bool includeHigherOrderSources)

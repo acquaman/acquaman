@@ -58,7 +58,6 @@ HEADERS += \
     source/acquaman/BioXAS/BioXASXASScanActionController.h \
     source/acquaman/BioXAS/BioXASXASScanConfiguration.h \
 	source/ui/BioXAS/BioXASSSRLMonochromatorEnergyCalibrationView.h \
-	source/beamline/BioXAS/BioXASShutterControl.h \
 	source/ui/BioXAS/BioXASEndstationTableView.h \
 	source/ui/BioXAS/BioXAS32ElementGeDetectorView.h \
     source/beamline/BioXAS/BioXASXIAFiltersControl.h \
@@ -75,10 +74,18 @@ HEADERS += \
 	source/beamline/BioXAS/BioXASFrontEndBeamStatusControl.h \
     source/beamline/BioXAS/BioXASValvesControl.h \
 	source/beamline/BioXAS/BioXASValves.h \
-    source/ui/BioXAS/BioXASBeamStatusView.h \
-    source/beamline/BioXAS/BioXASBeamStatusControl.h \
     source/ui/BioXAS/BioXASFrontEndBeamStatusView.h \
-    source/beamline/BioXAS/BioXASBeamStatus.h
+    source/beamline/BioXAS/BioXASFrontEndBeamStatus.h \
+    source/ui/BioXAS/BioXASValvesView.h \
+    source/ui/BioXAS/BioXASFrontEndBeamStatusControlLEDView.h \
+    source/beamline/BioXAS/BioXASFrontEndShuttersControl.h \
+    source/beamline/BioXAS/BioXASFrontEndValves.h \
+    source/beamline/BioXAS/BioXASValvesSetControl.h \
+    source/beamline/BioXAS/BioXASSideValves.h \
+    source/beamline/BioXAS/BioXASMainValves.h \
+    source/beamline/BioXAS/BioXASImagingValves.h \
+    source/beamline/BioXAS/BioXASMasterValvesControl.h \
+    source/ui/BioXAS/BioXASFrontEndShuttersView.h
 
 SOURCES += \
 	source/acquaman/BioXAS/BioXASXRFScanConfiguration.cpp \
@@ -131,7 +138,6 @@ SOURCES += \
     source/acquaman/BioXAS/BioXASXASScanActionController.cpp \
     source/acquaman/BioXAS/BioXASXASScanConfiguration.cpp \
 	source/ui/BioXAS/BioXASSSRLMonochromatorEnergyCalibrationView.cpp \
-	source/beamline/BioXAS/BioXASShutterControl.cpp \
 	source/ui/BioXAS/BioXASEndstationTableView.cpp \
 	source/ui/BioXAS/BioXAS32ElementGeDetectorView.cpp \
 	source/beamline/BioXAS/BioXASXIAFiltersControl.cpp \
@@ -148,10 +154,52 @@ SOURCES += \
 	source/beamline/BioXAS/BioXASFrontEndBeamStatusControl.cpp \
     source/beamline/BioXAS/BioXASValvesControl.cpp \
 	source/beamline/BioXAS/BioXASValves.cpp \
-    source/ui/BioXAS/BioXASBeamStatusView.cpp \
-    source/beamline/BioXAS/BioXASBeamStatusControl.cpp \
     source/ui/BioXAS/BioXASFrontEndBeamStatusView.cpp \
-    source/beamline/BioXAS/BioXASBeamStatus.cpp
+    source/beamline/BioXAS/BioXASFrontEndBeamStatus.cpp \
+    source/ui/BioXAS/BioXASValvesView.cpp \
+    source/ui/BioXAS/BioXASFrontEndBeamStatusControlLEDView.cpp \
+    source/beamline/BioXAS/BioXASFrontEndShuttersControl.cpp \
+    source/beamline/BioXAS/BioXASFrontEndValves.cpp \
+    source/beamline/BioXAS/BioXASValvesSetControl.cpp \
+    source/beamline/BioXAS/BioXASSideValves.cpp \
+    source/beamline/BioXAS/BioXASMainValves.cpp \
+    source/beamline/BioXAS/BioXASImagingValves.cpp \
+    source/beamline/BioXAS/BioXASMasterValvesControl.cpp \
+    source/ui/BioXAS/BioXASFrontEndShuttersView.cpp
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

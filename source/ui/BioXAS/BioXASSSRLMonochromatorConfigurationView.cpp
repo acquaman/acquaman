@@ -246,27 +246,33 @@ void BioXASSSRLMonochromatorConfigurationView::setMono(BioXASSSRLMonochromator *
 
 void BioXASSSRLMonochromatorConfigurationView::onCalibrateEnergyButtonClicked()
 {
-	if (mono_ && mono_->energyControl()) {
-		bool inputOK = false;
+	if (mono_) {
+		AMControl *energyControl = mono_->energyControl();
 
-		double newEnergy = QInputDialog::getDouble(this, "Energy Calibration", "Enter calibrated energy:", mono_->energyControl()->value(), ENERGY_MIN, ENERGY_MAX, 2, &inputOK);
+		if (energyControl) {
+			bool inputOK = false;
+			double oldEnergy = energyControl->value();
+			double newEnergy = QInputDialog::getDouble(this, "Energy Calibration", "Enter calibrated energy:", oldEnergy, ENERGY_MIN, ENERGY_MAX, 2, &inputOK);
 
-		if (inputOK) {
-			AMControl *energy = mono_->energyControl();
-			energy->calibrate(energy->value(), newEnergy);
+			if (inputOK)
+				energyControl->calibrate(oldEnergy, newEnergy);
 		}
 	}
 }
 
 void BioXASSSRLMonochromatorConfigurationView::onCalibrateGoniometerButtonClicked()
 {
-	if (mono_ && mono_->braggMotor()) {
-		bool inputOK = false;
+	if (mono_) {
+		AMControl *braggMotor = mono_->braggMotor();
 
-		double newPosition = QInputDialog::getDouble(this, "Goniometer Calibration", "Enter calibrated goniometer position:", mono_->braggMotor()->value(), BRAGG_POSITION_MIN, BRAGG_POSITION_MAX, 2, &inputOK);
+		if (braggMotor) {
+			bool inputOK = false;
+			double oldPosition = braggMotor->value();
+			double newPosition = QInputDialog::getDouble(this, "Goniometer Calibration", "Enter calibrated goniometer position:", oldPosition, BRAGG_POSITION_MIN, BRAGG_POSITION_MAX, 2, &inputOK);
 
-		if (inputOK)
-			mono_->braggMotor()->calibrate(mono_->braggMotor()->value(), newPosition);
+			if (inputOK)
+				braggMotor->calibrate(oldPosition, newPosition);
+		}
 	}
 }
 

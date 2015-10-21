@@ -1,16 +1,16 @@
 #ifndef BIOXASFRONTENDBEAMSTATUSCONTROL_H
 #define BIOXASFRONTENDBEAMSTATUSCONTROL_H
 
-#include "beamline/BioXAS/BioXASBeamStatusControl.h"
+#include "beamline/BioXAS/BioXASFrontEndShuttersControl.h"
 #include "beamline/BioXAS/BioXASValvesControl.h"
 
-class BioXASFrontEndBeamStatusControl : public BioXASBeamStatusControl
+class BioXASFrontEndBeamStatusControl : public AMPseudoMotorControl
 {
     Q_OBJECT
 
 public:
 	/// Constructor.
-    explicit BioXASFrontEndBeamStatusControl(QObject *parent = 0);
+	explicit BioXASFrontEndBeamStatusControl(const QString &name, QObject *parent = 0);
 	/// Destructor.
 	virtual ~BioXASFrontEndBeamStatusControl();
 
@@ -28,49 +28,33 @@ public:
 	/// Returns true if this control can stop a move right now.
 	virtual bool canStop() const;
 
+	/// Returns true if the given value is a valid value for this control, false otherwise.
+	virtual bool validValue(double value) const;
+	/// Returns true if the given value is a valid setpoint for this control, false otherwise.
+	virtual bool validSetpoint(double value) const;
+
 	/// Returns true if the front end beam is on, false otherwise.
 	virtual bool isOn() const;
 	/// Returns false if the front and beam is off, false otherwise.
 	virtual bool isOff() const { return !isOn(); }
 
-	/// Returns the front-end upstream photon shutter.
-	CLSBiStateControl* photonShutterUpstream() const { return photonShutterUpstream_; }
-	/// Returns the front end vacuum valve.
-	CLSBiStateControl* vacuumValve() const { return vacuumValve_; }
-	/// Returns the front end fast valve.
-	CLSBiStateControl* fastValve() const { return fastValve_; }
-	/// Returns the front-end downstream photon shutter.
-	CLSBiStateControl* photonShutterDownstream() const { return photonShutterDownstream_; }
-	/// Returns the front-end safety shutter.
-	CLSBiStateControl* safetyShutter() const { return safetyShutter_; }
-	/// Returns the valves.
+	/// Returns a string representation of the given value.
+	QString valueToString(BioXAS::Beam::Status value) const;
+
+	/// Returns the front-end shutters.
+	BioXASFrontEndShuttersControl* shutters() const { return shutters_; }
+	/// Returns the front-end and beamline valves.
 	BioXASValvesControl* valves() const { return valves_; }
 
 signals:
-	/// Notifier that the front-end upstream photon shutter changed.
-	void photonShutterUpstreamChanged(CLSBiStateControl *newControl);
-	/// Notifier that the front-end vacuum valve changed.
-	void vacuumValveChanged(CLSBiStateControl *newControl);
-	/// Notifier that the front-end fast valve changed.
-	void fastValveChanged(CLSBiStateControl *newControl);
-	/// Notifier that the front-end downstream photon shutter changed.
-	void photonShutterDownstreamChanged(CLSBiStateControl *newControl);
-	/// Notifier that the front-end safety shutter changed.
-	void safetyShutterChanged(CLSBiStateControl *newControl);
+	/// Notifier that the front-end shutters control has changed.
+	void shuttersChanged(AMControl *newControl);
 	/// Notifier that the front-end and beamline valves control has changed.
-	void valvesChanged(BioXASValvesControl *valves);
+	void valvesChanged(AMControl *newControl);
 
 public slots:
-	/// Sets the front-end upstream photon shutter.
-	void setPhotonShutterUpstream(CLSBiStateControl *newControl);
-	/// Sets the front-end vacuum valve.
-	void setVacuumValve(CLSBiStateControl *newControl);
-	/// Sets the front-end fast valve.
-	void setFastValve(CLSBiStateControl *newControl);
-	/// Sets the front-end downstream photon shutter.
-	void setPhotonShutterDownstream(CLSBiStateControl *newControl);
-	/// Sets the front-end safety shutter.
-	void setSafetyShutter(CLSBiStateControl *newControl);
+	/// Sets the shutters.
+	void setShutters(BioXASFrontEndShuttersControl *newControl);
 	/// Sets the valves.
 	void setValves(BioXASValvesControl *newControl);
 
@@ -87,16 +71,8 @@ protected:
 	AMAction3* createBeamOffAction();
 
 protected:
-	/// The front-end upstream photon shutter.
-	CLSBiStateControl *photonShutterUpstream_;
-	/// The front end vacuum valve.
-	CLSBiStateControl *vacuumValve_;
-	/// The front end fast valve.
-	CLSBiStateControl *fastValve_;
-	/// The front-end downstream photon shutter.
-	CLSBiStateControl *photonShutterDownstream_;
-	/// The front-end safety shutter.
-	CLSBiStateControl *safetyShutter_;
+	/// The front-end shutters.
+	BioXASFrontEndShuttersControl *shutters_;
 	/// The front-end and beamline valves.
 	BioXASValvesControl *valves_;
 };
