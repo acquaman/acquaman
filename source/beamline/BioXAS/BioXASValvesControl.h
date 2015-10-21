@@ -12,7 +12,7 @@ class BioXASValvesControl : public AMPseudoMotorControl
 
 public:
 	/// Enum providing the values this control can have.
-	enum Value { Open = 0, Closed = 1, None = 2 };
+	enum Value { Open = 0, Closed = 1, Between = 2, None = 3 };
 
 	/// Constructor.
 	explicit BioXASValvesControl(const QString &name, QObject *parent = 0);
@@ -30,9 +30,11 @@ public:
 	virtual bool validSetpoint(double value) const;
 
 	/// Returns true if this control's value is Open, false otherwise.
-	virtual bool isOpen() const { return false; }
+	virtual bool isOpen() const = 0;
 	/// Returns true if this control's value is Closed, false otherwise.
-	virtual bool isClosed() const { return false; }
+	virtual bool isClosed() const = 0;
+	/// Returns true if this control is connected, but is neither completely open nor completely closed. Whether or not this state is used depends on the subclass's implementations of isOpen() and isClosed().
+	virtual bool isBetween() const;
 
 	/// Returns a string representation of the given value.
 	static QString valueToString(BioXASValvesControl::Value value);

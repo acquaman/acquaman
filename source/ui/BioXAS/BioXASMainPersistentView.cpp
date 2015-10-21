@@ -34,32 +34,11 @@ BioXASMainPersistentView::BioXASMainPersistentView(QWidget *parent) :
 
 	generalView_ = new BioXASPersistentView(BioXASMainBeamline::bioXAS()->mono(), BioXASMainBeamline::bioXAS()->scaler());
 
-	AMExtendedControlEditor *psh1 = new AMExtendedControlEditor(BioXASMainBeamline::bioXAS()->shutters()->photonShutterUpstream());
-	AMExtendedControlEditor *psh2 = new AMExtendedControlEditor(BioXASMainBeamline::bioXAS()->shutters()->photonShutterDownstream());
-	AMExtendedControlEditor *ssh = new AMExtendedControlEditor(BioXASMainBeamline::bioXAS()->shutters()->safetyShutter());
-	AMExtendedControlEditor *shutters = new AMExtendedControlEditor(BioXASMainBeamline::bioXAS()->shutters());
-	AMExtendedControlEditor *valves = new AMExtendedControlEditor(BioXASMainBeamline::bioXAS()->valves());
-	AMExtendedControlEditor *frontEndValves = new AMExtendedControlEditor(BioXASMainBeamline::bioXAS()->valves()->frontEndValves());
-	AMExtendedControlEditor *frontEndValve = new AMExtendedControlEditor(BioXASMainBeamline::bioXAS()->valves()->frontEndValves()->vvr2());
-	AMExtendedControlEditor *sideValves = new AMExtendedControlEditor(BioXASMainBeamline::bioXAS()->valves()->sideValves());
-	AMExtendedControlEditor *mainValves = new AMExtendedControlEditor(BioXASMainBeamline::bioXAS()->valves()->mainValves());
-	AMExtendedControlEditor *imagingValves = new AMExtendedControlEditor(BioXASMainBeamline::bioXAS()->valves()->imagingValves());
-
 
 	// Create and set layouts.
 
 	QVBoxLayout *layout = new QVBoxLayout();
 	layout->addWidget(generalView_);
-	layout->addWidget(psh1);
-	layout->addWidget(psh2);
-	layout->addWidget(ssh);
-	layout->addWidget(shutters);
-	layout->addWidget(valves);
-	layout->addWidget(frontEndValves);
-	layout->addWidget(frontEndValve);
-	layout->addWidget(sideValves);
-	layout->addWidget(mainValves);
-	layout->addWidget(imagingValves);
 	layout->addStretch();
 
 	setLayout(layout);

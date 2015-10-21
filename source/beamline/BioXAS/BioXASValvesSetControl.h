@@ -52,7 +52,7 @@ protected:
 	static bool valvesClosed(AMControlSet *valveSet);
 
 protected:
-	/// The set of front-end valves.
+	/// The set of valve controls.
 	AMControlSet *valveSet_;
 };
 

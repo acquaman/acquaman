@@ -10,7 +10,7 @@ BioXASValvesControl::BioXASValvesControl(const QString &name, QObject *parent) :
 	minimumValue_ = Open;
 	maximumValue_ = None;
 
-	setEnumStates(QStringList() << valueToString(Open) << valueToString(Closed) << valueToString(None));
+	setEnumStates(QStringList() << valueToString(Open) << valueToString(Closed) << valueToString(Between) << valueToString(None));
 	setMoveEnumStates(QStringList() << valueToString(Open));
 
 	setContextKnownDescription("ValvesControl");
@@ -26,13 +26,16 @@ bool BioXASValvesControl::validValue(double value) const
 	bool result = false;
 
 	switch (int(value)) {
-	case None:
-		result = true;
-		break;
 	case Open:
 		result = true;
 		break;
 	case Closed:
+		result = true;
+		break;
+	case Between:
+		result = true;
+		break;
+	case None:
 		result = true;
 		break;
 	default:
@@ -55,6 +58,16 @@ bool BioXASValvesControl::validSetpoint(double value) const
 	return result;
 }
 
+bool BioXASValvesControl::isBetween() const
+{
+	bool result = false;
+
+	if (isConnected())
+		result = (!isOpen() && !isClosed());
+
+	return result;
+}
+
 QString BioXASValvesControl::valueToString(BioXASValvesControl::Value value)
 {
 	QString result;
@@ -65,6 +78,9 @@ QString BioXASValvesControl::valueToString(BioXASValvesControl::Value value)
 		break;
 	case Closed:
 		result = "Closed";
+		break;
+	case Between:
+		result = "Between";
 		break;
 	case None:
 		result = "None";
@@ -84,6 +100,8 @@ void BioXASValvesControl::updateValue()
 		newValue = Open;
 	else if (isClosed())
 		newValue = Closed;
+	else if (isBetween())
+		newValue = Between;
 
 	setValue(newValue);
 }

@@ -41,14 +41,43 @@ protected:
 	BioXASValves *valves_;
 
 	/// The master valves editor.
-	AMExtendedControlEditor *allValvesEditor_;
+	AMExtendedControlEditor *allValves_;
+
 	/// The front end valves editors.
+	AMExtendedControlEditor *frontEndValves_;
 	AMExtendedControlEditor *frontEnd1_;
 	AMExtendedControlEditor *frontEnd2_;
 	AMExtendedControlEditor *frontEnd3_;
 	AMExtendedControlEditor *frontEnd4_;
 	AMExtendedControlEditor *frontEnd5_;
 	AMExtendedControlEditor *frontEnd6_;
+
+	/// The Side valves editors.
+	AMExtendedControlEditor *sideValves_;
+	AMExtendedControlEditor *side1_;
+	AMExtendedControlEditor *side2_;
+	AMExtendedControlEditor *side3_;
+	AMExtendedControlEditor *side4_;
+	AMExtendedControlEditor *side5_;
+
+	/// The Main valves editors.
+	AMExtendedControlEditor *mainValves_;
+	AMExtendedControlEditor *main1_;
+	AMExtendedControlEditor *main2_;
+	AMExtendedControlEditor *main3_;
+	AMExtendedControlEditor *main4_;
+	AMExtendedControlEditor *main5_;
+
+	/// The Imaging valves editors.
+	AMExtendedControlEditor *imagingValves_;
+	AMExtendedControlEditor *imaging1_;
+	AMExtendedControlEditor *imaging2_;
+	AMExtendedControlEditor *imaging3_;
+	AMExtendedControlEditor *imaging4_;
+	AMExtendedControlEditor *imaging5_;
+	AMExtendedControlEditor *imaging6_;
+	AMExtendedControlEditor *imaging7_;
+	AMExtendedControlEditor *imaging8_;
 };
 
 #endif // BIOXASVALVESVIEW_H

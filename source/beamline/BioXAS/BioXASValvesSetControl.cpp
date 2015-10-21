@@ -60,8 +60,10 @@ void BioXASValvesSetControl::setValveSet(AMControlSet *newSet)
 
 		valveSet_ = newSet;
 
-		if (valveSet_)
-			connect( valveSet_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+		if (valveSet_) {
+			connect( valveSet_, SIGNAL(controlConnectedChanged(bool,AMControl*)), this, SLOT(updateConnected()) );
+			connect( valveSet_, SIGNAL(controlSetValuesChanged()), this, SLOT(updateValue()) );
+		}
 
 		updateStates();
 
@@ -71,12 +73,7 @@ void BioXASValvesSetControl::setValveSet(AMControlSet *newSet)
 
 void BioXASValvesSetControl::updateConnected()
 {
-	bool connected = (
-				valveSet_ && valveSet_->isConnected()
-				);
-
-	qDebug() << toString();
-
+	bool connected = ( valveSet_ && valveSet_->isConnected() );
 	setConnected(connected);
 }
 

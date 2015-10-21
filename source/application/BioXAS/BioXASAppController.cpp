@@ -221,6 +221,7 @@ void BioXASAppController::setupUserInterface()
 	////////////////////////////////////
 
 	addComponentView(BioXASBeamline::bioXAS()->beamStatus(), "Beam status");
+	addComponentView(BioXASBeamline::bioXAS()->valves(), "Valves");
 	addComponentView(BioXASBeamline::bioXAS()->m1Mirror(), "M1 Mirror");
 	addComponentView(BioXASBeamline::bioXAS()->mono(), "Monochromator");
 	addComponentView(BioXASBeamline::bioXAS()->m2Mirror(), "M2 Mirror");
@@ -375,6 +376,12 @@ QWidget* BioXASAppController::createComponentView(QObject *component)
 		BioXASFrontEndBeamStatusControl *beamStatus = qobject_cast<BioXASFrontEndBeamStatusControl*>(component);
 		if (!componentFound && beamStatus) {
 			componentView = new BioXASFrontEndBeamStatusControlView(beamStatus);
+			componentFound = true;
+		}
+
+		BioXASValves *valves = qobject_cast<BioXASValves*>(component);
+		if (!componentFound && valves) {
+			componentView = new BioXASValvesView(valves);
 			componentFound = true;
 		}
 
