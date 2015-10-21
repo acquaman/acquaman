@@ -75,6 +75,8 @@ void BioXASValvesSetControl::updateConnected()
 				valveSet_ && valveSet_->isConnected()
 				);
 
+	qDebug() << toString();
+
 	setConnected(connected);
 }
 

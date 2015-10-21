@@ -40,6 +40,7 @@ BioXASMainPersistentView::BioXASMainPersistentView(QWidget *parent) :
 	AMExtendedControlEditor *shutters = new AMExtendedControlEditor(BioXASMainBeamline::bioXAS()->shutters());
 	AMExtendedControlEditor *valves = new AMExtendedControlEditor(BioXASMainBeamline::bioXAS()->valves());
 	AMExtendedControlEditor *frontEndValves = new AMExtendedControlEditor(BioXASMainBeamline::bioXAS()->valves()->frontEndValves());
+	AMExtendedControlEditor *frontEndValve = new AMExtendedControlEditor(BioXASMainBeamline::bioXAS()->valves()->frontEndValves()->vvr2());
 	AMExtendedControlEditor *sideValves = new AMExtendedControlEditor(BioXASMainBeamline::bioXAS()->valves()->sideValves());
 	AMExtendedControlEditor *mainValves = new AMExtendedControlEditor(BioXASMainBeamline::bioXAS()->valves()->mainValves());
 	AMExtendedControlEditor *imagingValves = new AMExtendedControlEditor(BioXASMainBeamline::bioXAS()->valves()->imagingValves());
@@ -55,6 +56,7 @@ BioXASMainPersistentView::BioXASMainPersistentView(QWidget *parent) :
 	layout->addWidget(shutters);
 	layout->addWidget(valves);
 	layout->addWidget(frontEndValves);
+	layout->addWidget(frontEndValve);
 	layout->addWidget(sideValves);
 	layout->addWidget(mainValves);
 	layout->addWidget(imagingValves);

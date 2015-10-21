@@ -6,6 +6,7 @@
 #include <QGroupBox>
 
 #include "beamline/BioXAS/BioXASValves.h"
+#include "ui/beamline/AMExtendedControlEditor.h"
 
 class BioXASValvesView : public QWidget
 {
@@ -39,14 +40,15 @@ protected:
 	/// The valves being viewed.
 	BioXASValves *valves_;
 
-	/// The front-end valves box.
-	QGroupBox *frontEndValvesBox_;
-	/// The Side valves box.
-	QGroupBox *sideValvesBox_;
-	/// The Main valves box.
-	QGroupBox *mainValvesBox_;
-	/// The Imaging valves box.
-	QGroupBox *imagingValvesBox_;
+	/// The master valves editor.
+	AMExtendedControlEditor *allValvesEditor_;
+	/// The front end valves editors.
+	AMExtendedControlEditor *frontEnd1_;
+	AMExtendedControlEditor *frontEnd2_;
+	AMExtendedControlEditor *frontEnd3_;
+	AMExtendedControlEditor *frontEnd4_;
+	AMExtendedControlEditor *frontEnd5_;
+	AMExtendedControlEditor *frontEnd6_;
 };
 
 #endif // BIOXASVALVESVIEW_H
