@@ -66,9 +66,11 @@ void SGMGratingTranslationStepControl::updateConnected()
 	setConnected(gratingTranslationStepPV_->isConnected());
 }
 
+#include <QDebug>
 void SGMGratingTranslationStepControl::updateMoving()
 {
 	if(isConnected()) {
+		qDebug() << "Setting grating translation step moving status to " << gratingTranslationStepPV_->isMoving();
 		setIsMoving(gratingTranslationStepPV_->isMoving());
 	}
 }

@@ -66,7 +66,7 @@ SGMEnergyControlSet::SGMEnergyControlSet(QObject *parent) :
 	controlNamed("Undulator Position")->setAttemptMoveWhenWithinTolerance(true);
 
 	addControl(new AMSinglePVControl("Undulator Detune Offset",
-									 baseGroupPV + "undulator:offset:mm",
+									 baseGroupPV + ":undulator:offset:mm",
 									 this,
 									 0.1));
 

@@ -124,6 +124,15 @@ protected:
 	bool energyControlConnectedOnce_;
 	SGMNewEnergyPVSet* newControls_;
 	SGMOldEnergyPVSet* oldControls_;
+
+	bool energySetpointInitialized_;
+	bool gratingAngleSetpointInitialized_;
+	bool gratingTranslationSetpointInitialized_;
+	bool gratingTranslationOptimizationModeSetpointInitialized_;
+	bool undulatorPositionSetpointInitialized_;
+	bool undulatorHarmonicSetpointInitialized_;
+	bool undulatorOffsetSetpointInitialized_;
+	bool exitSlitPositionSetpointInitialized_;
 };
 
 #endif // SGMENERGYCOORDINATOR_H

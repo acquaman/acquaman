@@ -29,7 +29,7 @@ SGMEnergyControl::SGMEnergyControl(SGMUndulatorSupport::UndulatorHarmonic starti
                                                   new CLSMAXvControlStatusChecker(),
                                                   1);
 
-	gratingTranslationControl_ = new SGMGratingTranslationStepControl(this);
+	gratingTranslationStepControl_ = new SGMGratingTranslationStepControl(this);
 
     undulatorPositionControl_ = new AMPVwStatusControl("Undulator Position",
                                                        "UND1411-01:gap:mm:fbk",
@@ -50,7 +50,7 @@ SGMEnergyControl::SGMEnergyControl(SGMUndulatorSupport::UndulatorHarmonic starti
                                                       new AMControlStatusCheckerDefault(1));
 
     addChildControl(gratingAngleControl_);
-    addChildControl(gratingTranslationControl_);
+	addChildControl(gratingTranslationStepControl_);
     addChildControl(undulatorPositionControl_);
     addChildControl(exitSlitPositionControl_);
 
@@ -79,7 +79,7 @@ bool SGMEnergyControl::shouldStop() const
 bool SGMEnergyControl::canMeasure() const
 {
 	return (gratingAngleControl_->canMeasure() &&
-			gratingTranslationControl_->canMeasure() &&
+			gratingTranslationStepControl_->canMeasure() &&
 			undulatorPositionControl_->canMeasure() &&
 			exitSlitPositionControl_->canMeasure());
 }
@@ -87,7 +87,7 @@ bool SGMEnergyControl::canMeasure() const
 bool SGMEnergyControl::canMove() const
 {
 	return (gratingAngleControl_->canMove() &&
-			gratingTranslationControl_->canMove() &&
+			gratingTranslationStepControl_->canMove() &&
 			undulatorPositionControl_->canMove() &&
 			exitSlitPositionControl_->canMove());
 }
@@ -95,7 +95,7 @@ bool SGMEnergyControl::canMove() const
 bool SGMEnergyControl::canStop() const
 {
 	return (gratingAngleControl_->canStop() &&
-			gratingTranslationControl_->canStop() &&
+			gratingTranslationStepControl_->canStop() &&
 			undulatorPositionControl_->canStop() &&
 			exitSlitPositionControl_->canStop());
 }
@@ -157,7 +157,7 @@ AMControl *SGMEnergyControl::gratingAngleControl() const
 
 AMControl *SGMEnergyControl::gratingTranslationControl() const
 {
-    return gratingTranslationControl_;
+	return gratingTranslationStepControl_;
 }
 
 AMControl *SGMEnergyControl::undulatorPositionControl() const
@@ -213,7 +213,7 @@ void SGMEnergyControl::setExitSlitPositionTracking(bool isTracking)
 void SGMEnergyControl::updateConnected()
 {
     bool nowConnected = gratingAngleControl_->isConnected() &&
-            gratingTranslationControl_->isConnected() &&
+			gratingTranslationStepControl_->isConnected() &&
             undulatorPositionControl_->isConnected() &&
             exitSlitPositionControl_->isConnected();
 
@@ -229,7 +229,7 @@ void SGMEnergyControl::updateMoving()
 {
 	if(isConnected()) {
 		setIsMoving(gratingAngleControl_->isMoving() ||
-					gratingTranslationControl_->isMoving() ||
+					gratingTranslationStepControl_->isMoving() ||
 					undulatorPositionControl_->isMoving() ||
 					exitSlitPositionControl_->isMoving());
 	}
@@ -268,13 +268,36 @@ void SGMEnergyControl::onEnergyPositionControllerEnergyChanged(double value)
 	setValue(value);
 }
 
+void SGMEnergyControl::onEnergyPositionUndulatorHarmonicChanged(SGMUndulatorSupport::UndulatorHarmonic undulatorHarmonic)
+{
+	double newUndulatorPosition = energyPositionController_->undulatorPosition();
+	if(!undulatorPositionControl_->withinTolerance(newUndulatorPosition)) {
+
+		undulatorPositionControl_->move(newUndulatorPosition);
+	}
+	emit undulatorHarmonicChanged(undulatorHarmonic);
+}
+
+void SGMEnergyControl::onEnergyPositionGratingTranslationOptimizationModeChanged(SGMEnergyPosition::GratingTranslationOptimizationMode optimizationMode)
+{
+	if(energyPositionController_->gratingTranslation() != SGMGratingSupport::UnknownGrating) {
+
+		double newGratingTranslationPosition = SGMGratingSupport::enumToEncoderSteps(energyPositionController_->gratingTranslation());
+		if(!gratingTranslationControl()->withinTolerance(newGratingTranslationPosition)) {
+
+			gratingTranslationControl()->move(newGratingTranslationPosition);
+		}
+	}
+	emit gratingTranslationOptimizationModeChanged(optimizationMode);
+}
+
 void SGMEnergyControl::initializeEnergyPositionController()
 {
     double startingGratingAngle = gratingAngleControl_->value();
     double startingUndulatorPosition = undulatorPositionControl_->value();
     double startingExitSlitPosition = exitSlitPositionControl_->value();
     SGMGratingSupport::GratingTranslation startingGratingTranslation =
-            SGMGratingSupport::encoderStepsToEnum(gratingTranslationControl_->value());
+			SGMGratingSupport::encoderStepsToEnum(gratingTranslationStepControl_->value());
 
 	energyPositionController_ = new SGMEnergyPosition(startingGratingTranslation,
                                                       startingGratingAngle,
@@ -287,7 +310,7 @@ void SGMEnergyControl::initializeEnergyPositionController()
     energyPositionController_->setAutoDetectUndulatorHarmonic(false);
 
     connect(energyPositionController_, SIGNAL(undulatorHarmonicChanged(SGMUndulatorSupport::UndulatorHarmonic)),
-            this, SIGNAL(undulatorHarmonicChanged(SGMUndulatorSupport::UndulatorHarmonic)));
+			this, SLOT(onEnergyPositionUndulatorHarmonicChanged(SGMUndulatorSupport::UndulatorHarmonic)));
 
     connect(energyPositionController_, SIGNAL(undulatorOffsetChanged(double)),
             this, SIGNAL(undulatorOffsetChanged(double)));
@@ -296,7 +319,7 @@ void SGMEnergyControl::initializeEnergyPositionController()
             this, SIGNAL(undulatorTrackingChanged(bool)));
 
 	connect(energyPositionController_, SIGNAL(gratingTranslationOptimizationModeChanged(SGMEnergyPosition::GratingTranslationOptimizationMode)),
-			this, SIGNAL(gratingTranslationOptimizationModeChanged(SGMEnergyPosition::GratingTranslationOptimizationMode)));
+			this, SLOT(onEnergyPositionGratingTranslationOptimizationModeChanged(SGMEnergyPosition::GratingTranslationOptimizationMode)));
 
     connect(energyPositionController_, SIGNAL(exitSlitTrackingChanged(bool)),
             this, SIGNAL(exitSlitTrackingChanged(bool)));
@@ -307,7 +330,7 @@ void SGMEnergyControl::initializeEnergyPositionController()
     connect(gratingAngleControl_, SIGNAL(valueChanged(double)),
             energyPositionController_, SLOT(setGratingAngle(double)));
 
-    connect(gratingTranslationControl_, SIGNAL(valueChanged(double)),
+	connect(gratingTranslationStepControl_, SIGNAL(valueChanged(double)),
             this, SLOT(onGratingTranslationPVValueChanged(double)));
 
     connect(undulatorPositionControl_, SIGNAL(valueChanged(double)),
@@ -322,8 +345,7 @@ void SGMEnergyControl::initializeEnergyPositionController()
 
 AMAction3 *SGMEnergyControl::createMoveAction(double setpoint)
 {
-    AMListAction3* coordinatedMoveAction = 0;
-
+	AMListAction3* coordinatedMoveAction = 0;
     if(energyPositionController_) {
 
         AMListAction3* componentMoveAction = new AMListAction3(new AMListActionInfo3("Moving energy components",
@@ -334,8 +356,7 @@ AMAction3 *SGMEnergyControl::createMoveAction(double setpoint)
         SGMEnergyPosition* helperEnergyPosition = energyPositionController_->clone();
 
         // Move helper energy position to the new energy.
-        helperEnergyPosition->requestEnergy(setpoint);
-
+		helperEnergyPosition->requestEnergy(setpoint);
         if(!helperEnergyPosition->hasErrors()) {
 
             // Create list action to move all components.
@@ -344,8 +365,7 @@ AMAction3 *SGMEnergyControl::createMoveAction(double setpoint)
             double undulatorPositionNewValue = helperEnergyPosition->undulatorPosition();
             double exitSlitPositionNewValue = helperEnergyPosition->exitSlitPosition();
 
-
-			componentMoveAction->addSubAction(AMActionSupport::buildControlMoveAction(gratingTranslationControl_, gratingTranslationNewValue, false));
+			componentMoveAction->addSubAction(AMActionSupport::buildControlMoveAction(gratingTranslationStepControl_, gratingTranslationNewValue, false));
 			componentMoveAction->addSubAction(AMActionSupport::buildControlMoveAction(gratingAngleControl_, gratingAngleNewValue, false));
 			componentMoveAction->addSubAction(AMActionSupport::buildControlMoveAction(undulatorPositionControl_, undulatorPositionNewValue, false));
 			componentMoveAction->addSubAction(AMActionSupport::buildControlMoveAction(exitSlitPositionControl_, exitSlitPositionNewValue, false));
@@ -355,7 +375,7 @@ AMAction3 *SGMEnergyControl::createMoveAction(double setpoint)
                                                                                          "Waiting for energy components to complete motions"),
                                                                    AMListAction3::Parallel);
 
-			componentWaitAction->addSubAction(AMActionSupport::buildControlWaitAction(gratingTranslationControl_, gratingTranslationNewValue, 60, AMControlWaitActionInfo::MatchWithinTolerance));
+			componentWaitAction->addSubAction(AMActionSupport::buildControlWaitAction(gratingTranslationStepControl_, gratingTranslationNewValue, 60, AMControlWaitActionInfo::MatchWithinTolerance));
 			componentWaitAction->addSubAction(AMActionSupport::buildControlWaitAction(gratingAngleControl_, gratingAngleNewValue, 60, AMControlWaitActionInfo::MatchWithinTolerance));
 			componentWaitAction->addSubAction(AMActionSupport::buildControlWaitAction(undulatorPositionControl_, undulatorPositionNewValue, 60, AMControlWaitActionInfo::MatchWithinTolerance));
 			componentWaitAction->addSubAction(AMActionSupport::buildControlWaitAction(exitSlitPositionControl_, exitSlitPositionNewValue, 60, AMControlWaitActionInfo::MatchWithinTolerance));
@@ -369,12 +389,16 @@ AMAction3 *SGMEnergyControl::createMoveAction(double setpoint)
             coordinatedMoveAction->addSubAction(componentWaitAction);
 
 		} else {
+
 			AMErrorMon::alert(this, SGMENERGYCONTROL_INVALID_STATE, QString("Move would put energy in invalid state: %1").arg(helperEnergyPosition->errorMessage()));
 		}
 
         helperEnergyPosition->deleteLater();
     }
-
 	return coordinatedMoveAction;
 }
+
+
+
+
 
