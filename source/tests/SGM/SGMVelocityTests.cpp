@@ -10,16 +10,16 @@ SGMVelocityTests::SGMVelocityTests(QObject* parent) :
 void SGMVelocityTests::testGratingAngle()
 {
 
-	AMSinglePVControl* gratingAngleVelocityFeedback =
-			new AMSinglePVControl("Grating angle velocity feedback",
-								  "SMTR16114I1002:velo:fbk",
-								  this);
+    AMSinglePVControl* gratingAngleVelocityFeedback =
+            new AMSinglePVControl("Grating angle velocity feedback",
+                                  "SMTR16114I1002:velo:fbk",
+                                  this);
 
 
-	AMSinglePVControl* gratingAngleStepSetpoint =
-			new AMSinglePVControl("Grating angle step setpoint",
-								  "SMTR16114I1002:encTarget",
-								  this);
+    AMSinglePVControl* gratingAngleStepSetpoint =
+            new AMSinglePVControl("Grating angle step setpoint",
+                                  "SMTR16114I1002:encTarget",
+                                  this);
 
 
 	connect(gratingAngleVelocityFeedback, SIGNAL(valueChanged(double)),
