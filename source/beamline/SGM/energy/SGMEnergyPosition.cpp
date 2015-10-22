@@ -367,7 +367,7 @@ SGMGratingSupport::GratingTranslation SGMEnergyPosition::optimizedGrating(double
         return gratingTranslation_;
     }
 }
-#include <QDebug>
+
 double SGMEnergyPosition::energyFromGrating(SGMGratingSupport::GratingTranslation gratingTranslationSelection, double gratingAngleEncoderTarget) const
 {
     double gratingSpacing = SGMGratingSupport::gratingSpacing(gratingTranslationSelection);

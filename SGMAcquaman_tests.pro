@@ -21,19 +21,3 @@ SOURCES += \
     source/tests/SGM/SGMEnergyPositionTest.cpp \
     source/tests/SGM/SGMEnergyControlTestView.cpp \
     source/tests/SGM/SGMVelocityTests.cpp
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
