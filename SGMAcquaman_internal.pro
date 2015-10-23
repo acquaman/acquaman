@@ -21,23 +21,3 @@ SOURCES += \
     source/ui/SGM/SGMHexapodSystemRotationView.cpp \
     source/ui/SGM/SGMHexapodView.cpp \
     source/ui/SGM/SGMEnergyView.cpp
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

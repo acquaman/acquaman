@@ -35,7 +35,7 @@ SGMEnergyControl::SGMEnergyControl(SGMUndulatorSupport::UndulatorHarmonic starti
                                                        "UND1411-01:gap:mm:fbk",
                                                        "UND1411-01:gap:mm",
                                                        "UND1411-01:moveStatus",
-													   "UND1411-01:stop",
+                                                       "UND1411-01:stop",
                                                        this,
                                                        0.1);
 
@@ -365,20 +365,20 @@ AMAction3 *SGMEnergyControl::createMoveAction(double setpoint)
             double undulatorPositionNewValue = helperEnergyPosition->undulatorPosition();
             double exitSlitPositionNewValue = helperEnergyPosition->exitSlitPosition();
 
-			componentMoveAction->addSubAction(AMActionSupport::buildControlMoveAction(gratingTranslationStepControl_, gratingTranslationNewValue, false));
-			componentMoveAction->addSubAction(AMActionSupport::buildControlMoveAction(gratingAngleControl_, gratingAngleNewValue, false));
-			componentMoveAction->addSubAction(AMActionSupport::buildControlMoveAction(undulatorPositionControl_, undulatorPositionNewValue, false));
-			componentMoveAction->addSubAction(AMActionSupport::buildControlMoveAction(exitSlitPositionControl_, exitSlitPositionNewValue, false));
+            componentMoveAction->addSubAction(AMActionSupport::buildControlMoveAction(gratingTranslationStepControl_, gratingTranslationNewValue, false));
+            componentMoveAction->addSubAction(AMActionSupport::buildControlMoveAction(gratingAngleControl_, gratingAngleNewValue, false));
+            componentMoveAction->addSubAction(AMActionSupport::buildControlMoveAction(undulatorPositionControl_, undulatorPositionNewValue, false));
+            componentMoveAction->addSubAction(AMActionSupport::buildControlMoveAction(exitSlitPositionControl_, exitSlitPositionNewValue, false));
 
             // Create list action to wait for component motions to complete.
             AMListAction3* componentWaitAction = new AMListAction3(new AMListActionInfo3("Waiting for energy components",
                                                                                          "Waiting for energy components to complete motions"),
                                                                    AMListAction3::Parallel);
 
-			componentWaitAction->addSubAction(AMActionSupport::buildControlWaitAction(gratingTranslationStepControl_, gratingTranslationNewValue, 60, AMControlWaitActionInfo::MatchWithinTolerance));
-			componentWaitAction->addSubAction(AMActionSupport::buildControlWaitAction(gratingAngleControl_, gratingAngleNewValue, 60, AMControlWaitActionInfo::MatchWithinTolerance));
-			componentWaitAction->addSubAction(AMActionSupport::buildControlWaitAction(undulatorPositionControl_, undulatorPositionNewValue, 60, AMControlWaitActionInfo::MatchWithinTolerance));
-			componentWaitAction->addSubAction(AMActionSupport::buildControlWaitAction(exitSlitPositionControl_, exitSlitPositionNewValue, 60, AMControlWaitActionInfo::MatchWithinTolerance));
+            componentWaitAction->addSubAction(AMActionSupport::buildControlWaitAction(gratingTranslationStepControl_, gratingTranslationNewValue, 60, AMControlWaitActionInfo::MatchWithinTolerance));
+            componentWaitAction->addSubAction(AMActionSupport::buildControlWaitAction(gratingAngleControl_, gratingAngleNewValue, 60, AMControlWaitActionInfo::MatchWithinTolerance));
+            componentWaitAction->addSubAction(AMActionSupport::buildControlWaitAction(undulatorPositionControl_, undulatorPositionNewValue, 60, AMControlWaitActionInfo::MatchWithinTolerance));
+            componentWaitAction->addSubAction(AMActionSupport::buildControlWaitAction(exitSlitPositionControl_, exitSlitPositionNewValue, 60, AMControlWaitActionInfo::MatchWithinTolerance));
 
             QString moveActionName = QString("Moving to energy %1eV").arg(setpoint);
             coordinatedMoveAction = new AMListAction3(new AMListActionInfo3(moveActionName,

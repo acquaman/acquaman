@@ -179,6 +179,7 @@ void SGMVelocityTests::runNextTest()
 {
 	if(!currentTestAction_) {
 
+
 		// Ensure is not the first test before attempting to delete the previous
 		currentTestAction_->deleteLater();
 	}

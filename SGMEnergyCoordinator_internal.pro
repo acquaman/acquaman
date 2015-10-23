@@ -16,18 +16,3 @@ SOURCES += \
 
 OTHER_FILES += \
 	db/BL1611-ID-1-EnergyAddon.db
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

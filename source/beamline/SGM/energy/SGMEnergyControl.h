@@ -234,7 +234,7 @@ protected:
 
     // Child Controls
     AMControl* gratingAngleControl_;
-	AMControl* gratingTranslationStepControl_;
+    AMControl* gratingTranslationStepControl_;
     AMControl* undulatorPositionControl_;
     AMControl* exitSlitPositionControl_;
 
