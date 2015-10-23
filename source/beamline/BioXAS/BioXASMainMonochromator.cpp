@@ -64,12 +64,6 @@ BioXASMainMonochromator::BioXASMainMonochromator(QObject *parent) :
 	stepEnergy_->setRegionControl(region_);
 	stepEnergy_->setM1MirrorPitchControl(m1Pitch_);
 
-	// Create mask control.
-
-	mask_ = new BioXASSSRLMonochromatorMaskControl(name()+"MaskControl", this);
-	mask_->setUpperBlade(upperSlitMotor_);
-	mask_->setLowerBlade(lowerSlitMotor_);
-
 	// Listen to connection states.
 
 	connect( upperSlit_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
@@ -102,7 +96,6 @@ BioXASMainMonochromator::BioXASMainMonochromator(QObject *parent) :
 	connect( region_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 	connect( encoderEnergy_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 	connect( stepEnergy_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
-	connect( mask_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
 	// Current settings.
 

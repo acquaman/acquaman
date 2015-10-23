@@ -35,18 +35,22 @@ BioXASSideBeamStatusControlView::BioXASSideBeamStatusControlView(BioXASSideBeamS
 	// Create and set layouts.
 
 	QVBoxLayout *frontEndLayout = new QVBoxLayout();
+	frontEndLayout->setMargin(0);
 	frontEndLayout->addWidget(frontEndView_);
 	frontEndLayout->addStretch();
 
 	QVBoxLayout *poeLayout = new QVBoxLayout();
+	poeLayout->setMargin(0);
 	poeLayout->addWidget(poeView_);
 	poeLayout->addStretch();
 
 	QVBoxLayout *soeLayout = new QVBoxLayout();
+	soeLayout->setMargin(0);
 	soeLayout->addWidget(soeView_);
 	soeLayout->addStretch();
 
 	QHBoxLayout *componentsLayout = new QHBoxLayout();
+	componentsLayout->setMargin(0);
 	componentsLayout->addLayout(frontEndLayout);
 	componentsLayout->addLayout(poeLayout);
 	componentsLayout->addLayout(soeLayout);
