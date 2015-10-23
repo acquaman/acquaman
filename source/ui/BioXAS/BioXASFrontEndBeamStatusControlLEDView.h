@@ -3,10 +3,10 @@
 
 #include <QWidget>
 
-#include "beamline/BioXAS/BioXASFrontEndBeamStatusControl.h"
+#include "ui/BioXAS/BioXASFrontEndBeamStatusControlView.h"
 #include "ui/beamline/AMControlValueLEDView.h"
 
-class BioXASFrontEndBeamStatusControlLEDView : public QWidget
+class BioXASFrontEndBeamStatusControlLEDView : public BioXASFrontEndBeamStatusControlView
 {
     Q_OBJECT
 
@@ -16,13 +16,6 @@ public:
 	/// Destructor.
 	virtual ~BioXASFrontEndBeamStatusControlLEDView();
 
-	/// Returns the front end beam status control being viewed.
-	BioXASFrontEndBeamStatusControl* control() const { return control_; }
-
-signals:
-	/// Notifier that the front end beam status control being viewed has changed.
-	void controlChanged(AMControl *newControl);
-
 public slots:
 	/// Clears the view.
 	void clear();
@@ -31,13 +24,7 @@ public slots:
 	/// Refreshes the view.
 	void refresh();
 
-	/// Sets the beam status control being viewed.
-	void setControl(BioXASFrontEndBeamStatusControl *newControl);
-
 protected:
-	/// The beam status control being viewed.
-	BioXASFrontEndBeamStatusControl *control_;
-
 	/// The shutters LED.
 	AMControlValueLEDView *shuttersLED_;
 	/// The valves LED.

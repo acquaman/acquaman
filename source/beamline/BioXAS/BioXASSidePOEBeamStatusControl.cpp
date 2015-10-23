@@ -105,7 +105,7 @@ void BioXASSidePOEBeamStatusControl::setMirrorMask(AMControl *newControl)
 	}
 }
 
-void BioXASSidePOEBeamStatusControl::setMonoMask(AMControl *newControl)
+void BioXASSidePOEBeamStatusControl::setMonoMask(BioXASSSRLMonochromatorMaskControl *newControl)
 {
 	if (monoMask_ != newControl) {
 

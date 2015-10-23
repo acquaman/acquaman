@@ -50,8 +50,6 @@ public slots:
 protected slots:
 	/// Updates the connected state.
 	virtual void updateConnected();
-	/// Updates the value.
-	virtual void updateValue();
 	/// Updates the 'is moving' state.
 	virtual void updateMoving();
 

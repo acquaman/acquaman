@@ -19,13 +19,15 @@ public:
 
 	/// Returns true if this control is always measurable, provided it is connected.
 	virtual bool shouldMeasure() const { return true; }
-	/// Returns true if a move is always possible, provided this control is connected.
+	/// Returns true if a move is always possible, provided this control is connected. Always false, as moving the mask blades hasn't been implemented for this interface.
 	virtual bool shouldMove() const { return false; }
 	/// Returns true if this control can stop a move in progress, provided it is connected.
 	virtual bool shouldStop() const { return false; }
 
 	/// Returns true if this control can take a measurement right now.
 	virtual bool canMeasure() const;
+	/// Returns true if this control can move right now. This status is a reflection of the canMove statuses for each of the blade controls.
+	virtual bool canMove() const { return false; }
 
 	/// Returns true if the given value is a valid value for this control, false otherwise.
 	virtual bool validValue(double value) const;
@@ -33,7 +35,7 @@ public:
 	virtual bool validSetpoint(double value) const { Q_UNUSED(value) return false; }
 
 	/// Returns true if this control is open, false otherwise.
-	bool isOpen() const { return !isClosed(); }
+	bool isOpen() const;
 	/// Returns true if this control is closed, false otherwise.
 	bool isClosed() const;
 
@@ -44,18 +46,24 @@ public:
 	AMPVwStatusControl* upperBlade() const { return upperBlade_; }
 	/// Returns the mask lower blade control.
 	AMPVwStatusControl* lowerBlade() const { return lowerBlade_; }
+	/// Returns the mask status control.
+	AMReadOnlyPVControl* status() const { return status_; }
 
 signals:
 	/// Notifier that the mask upper blade control has changed.
 	void upperBladeChanged(AMControl *newControl);
 	/// Notifier that the mask lower blade control has changed.
 	void lowerBladeChanged(AMControl *newControl);
+	/// Notifier that the mask status control has changed.
+	void statusChanged(AMControl *newControl);
 
 public slots:
 	/// Sets the mask upper blade control.
 	void setUpperBlade(AMPVwStatusControl *newControl);
 	/// Sets the mask lower blade control.
 	void setLowerBlade(AMPVwStatusControl *newControl);
+	/// Sets the mask status control.
+	void setStatus(AMReadOnlyPVControl *newControl);
 
 protected slots:
 	/// Updates the connected state.
@@ -74,6 +82,8 @@ protected:
 	AMPVwStatusControl *upperBlade_;
 	/// The mask lower blade control.
 	AMPVwStatusControl *lowerBlade_;
+	/// The mask status control.
+	AMReadOnlyPVControl *status_;
 };
 
 #endif // BIOXASSSRLMONOCHROMATORMASKCONTROL_H

@@ -6,6 +6,7 @@
 #include "actions3/actions/AMWaitAction.h"
 #include "actions3/AMListAction3.h"
 #include "beamline/AMPseudoMotorControl.h"
+#include "beamline/BioXAS/BioXASSSRLMonochromatorMaskControl.h"
 #include "util/AMErrorMonitor.h"
 
 // {setpoint}_{motor}_{property} VALUE
@@ -83,12 +84,8 @@ public:
 	/// Returns true if the given value is a valid setpoint for this control, false otherwise.
 	virtual bool validSetpoint(double value) const;
 
-	/// Returns the upper slit control.
-	AMControl* upperSlitControl() const { return upperSlit_; }
-	/// Returns the lower slit control.
-	AMControl* lowerSlitControl() const { return lowerSlit_; }
-	/// Returns the slits status control.
-	AMControl* slitsStatusControl() const { return slitsStatus_; }
+	/// Returns the mask.
+	BioXASSSRLMonochromatorMaskControl* mask() const { return mask_; }
 	/// Returns the paddle control.
 	AMControl* paddleControl() const { return paddle_; }
 	/// Returns the paddle status control.
@@ -113,18 +110,17 @@ public:
 	AMControl* regionBStatusControl() const { return regionBStatus_; }
 
 signals:
+	/// Notifier that the mask has changed.
+	void maskChanged(AMControl *newControl);
+
 	/// Notifier that there has been progress in completing a crystal change.
 	void moveProgressChanged(double numerator, double denominator);
 	/// Notifier that the current step in a move has changed.
 	void moveStepChanged(const QString &newDescription, const QString &newInstruction, const QString &newNotes);
 
 public slots:
-	// Sets the upper slit motor control.
-	void setUpperSlitControl(AMControl *upperSlit);
-	/// Sets the lower slit motor control.
-	void setLowerSlitControl(AMControl *lowerSlit);
-	/// Sets the slits status control.
-	void setSlitsStatusControl(AMControl *slitsStatus);
+	/// Sets the mask.
+	void setMask(BioXASSSRLMonochromatorMaskControl *newControl);
 	/// Sets the paddle motor control.
 	void setPaddleControl(AMControl *paddle);
 	/// Sets the paddle status control.
@@ -232,12 +228,8 @@ protected:
 	static QString stepNotes(int stepIndex);
 
 protected:
-	/// The upper slit motor control.
-	AMControl *upperSlit_;
-	/// The lower slit motor control.
-	AMControl *lowerSlit_;
-	/// The slits status control.
-	AMControl *slitsStatus_;
+	/// The mask.
+	BioXASSSRLMonochromatorMaskControl *mask_;
 	/// The paddle motor control.
 	AMControl *paddle_;
 	/// The paddle status control.

@@ -13,9 +13,6 @@ BioXASSSRLMonochromator::BioXASSSRLMonochromator(const QString &name, QObject *p
 	region_ = 0;
 	mask_ = 0;
 
-	upperSlit_ = 0;
-	lowerSlit_ = 0;
-	slitsStatus_ = 0;
 	paddle_ = 0;
 	paddleStatus_ = 0;
 	keyStatus_ = 0;
@@ -29,8 +26,6 @@ BioXASSSRLMonochromator::BioXASSSRLMonochromator(const QString &name, QObject *p
 
 	m1Pitch_ = 0;
 
-	upperSlitMotor_ = 0;
-	lowerSlitMotor_ = 0;
 	paddleMotor_ = 0;
 	stepsBraggMotor_ = 0;
 	encoderBraggMotor_ = 0;
@@ -56,9 +51,6 @@ bool BioXASSSRLMonochromator::isConnected() const
 		region_ && region_->isConnected() &&
 		mask_ && mask_->isConnected() &&
 
-		upperSlit_ && upperSlit_->isConnected() &&
-		lowerSlit_ && lowerSlit_->isConnected() &&
-		slitsStatus_ && slitsStatus_->isConnected() &&
 		paddle_ && paddle_->isConnected() &&
 		paddleStatus_ && paddleStatus_->isConnected() &&
 		keyStatus_ && keyStatus_->isConnected() &&
@@ -72,8 +64,6 @@ bool BioXASSSRLMonochromator::isConnected() const
 
 		m1Pitch_ && m1Pitch_->isConnected() &&
 
-		upperSlitMotor_ && upperSlitMotor_->isConnected() &&
-		lowerSlitMotor_ && lowerSlitMotor_->isConnected() &&
 		paddleMotor_ && paddleMotor_->isConnected() &&
 		encoderBraggMotor_ && encoderBraggMotor_->isConnected() &&
 		stepsBraggMotor_ && stepsBraggMotor_->isConnected() &&

@@ -7,9 +7,6 @@ AMControlValueLEDView::AMControlValueLEDView(AMControl *control, QWidget *parent
 	// Initialize class variables.
 
 	greenValue_ = AMNumber::InvalidError;
-	redValue_ = AMNumber::InvalidError;
-
-	redWhenNotGreen_ = false;
 
 	// Current settings.
 
@@ -19,22 +16,6 @@ AMControlValueLEDView::AMControlValueLEDView(AMControl *control, QWidget *parent
 AMControlValueLEDView::~AMControlValueLEDView()
 {
 
-}
-
-void AMControlValueLEDView::update()
-{
-	if (control_ && control_->isConnected()) {
-		if (atGreenValue())
-			setAsGreenOn();
-		else if (atRedValue())
-			setAsRedOn();
-		else if (redWhenNotGreen_)
-			setAsRedOn();
-		else
-			setAsGreenOff();
-	} else {
-		setAsGreenOff();
-	}
 }
 
 void AMControlValueLEDView::setGreenValue(const AMNumber &newValue)
@@ -47,41 +28,39 @@ void AMControlValueLEDView::setGreenValue(const AMNumber &newValue)
 	}
 }
 
-void AMControlValueLEDView::setRedValue(const AMNumber &newValue)
+bool AMControlValueLEDView::shouldBeGreenOn() const
 {
-	if (double(redValue_) != double(newValue)) {
-		redValue_ = newValue;
-		refresh();
+	bool result = false;
 
-		emit redValueChanged(redValue_);
-	}
+	if (control_ && control_->canMeasure())
+		result = atGreenValue();
+
+	return result;
 }
 
-void AMControlValueLEDView::setRedWhenNotGreen(bool setRed)
+bool AMControlValueLEDView::shouldBeGreenOff() const
 {
-	if (redWhenNotGreen_ != setRed) {
-		redWhenNotGreen_ = setRed;
+	bool result = (!control_ || !control_->canMeasure());
 
-		update();
-	}
+	return result;
+}
+
+bool AMControlValueLEDView::shouldBeRedOn() const
+{
+	bool result = false;
+
+	if (control_ && control_->canMeasure())
+		result = (!atGreenValue());
+
+	return result;
 }
 
 bool AMControlValueLEDView::atGreenValue() const
 {
 	bool result = false;
 
-	if (control_ && greenValue_.isValid())
+	if (control_ && control_->canMeasure() && greenValue_.isValid())
 		result = qFuzzyCompare(control_->value(), double(greenValue_));
-
-	return result;
-}
-
-bool AMControlValueLEDView::atRedValue() const
-{
-	bool result = false;
-
-	if (control_ && redValue_.isValid())
-		result = qFuzzyCompare(control_->value(), double(redValue_));
 
 	return result;
 }

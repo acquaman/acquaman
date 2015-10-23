@@ -32,6 +32,10 @@ public:
 	/// Returns a string representation of the given value.
 	QString valueToString(BioXAS::Beam::Status value) const;
 
+protected slots:
+	/// Updates the value.
+	virtual void updateValue();
+
 protected:
 	/// Returns a move action that moves this control to the given setpoint.
 	AMAction3* createMoveAction(double setpoint);

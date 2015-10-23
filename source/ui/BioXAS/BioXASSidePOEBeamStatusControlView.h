@@ -4,8 +4,6 @@
 #include <QWidget>
 
 #include "beamline/BioXAS/BioXASSidePOEBeamStatusControl.h"
-#include "ui/beamline/AMExtendedControlEditor.h"
-#include "ui/BioXAS/BioXASSidePOEBeamStatusControlLEDView.h"
 
 class BioXASSidePOEBeamStatusControlView : public QWidget
 {
@@ -13,7 +11,7 @@ class BioXASSidePOEBeamStatusControlView : public QWidget
 
 public:
 	/// Constructor.
-	explicit BioXASSidePOEBeamStatusControlView(BioXASSidePOEBeamStatusControl *control, QWidget *parent = 0);
+	explicit BioXASSidePOEBeamStatusControlView(QWidget *parent = 0);
 	/// Destructor.
 	virtual ~BioXASSidePOEBeamStatusControlView();
 
@@ -26,23 +24,18 @@ signals:
 
 public slots:
 	/// Clears the view.
-	void clear();
+	virtual void clear() = 0;
 	/// Updates the view.
-	void update();
+	virtual void update() = 0;
 	/// Refreshes the view, clears and updates it.
-	void refresh();
+	virtual void refresh() = 0;
 
 	/// Sets the beam status control being viewed.
-	void setControl(BioXASSidePOEBeamStatusControl *newControl);
+	virtual void setControl(BioXASSidePOEBeamStatusControl *newControl);
 
 protected:
 	/// The beam status control being viewed.
 	BioXASSidePOEBeamStatusControl *control_;
-
-	/// The beam status control editor.
-	AMExtendedControlEditor *editor_;
-	/// The beam status LED view.
-	BioXASSidePOEBeamStatusControlLEDView *ledView_;
 };
 
 #endif // BIOXASSIDEPOEBEAMSTATUSCONTROLVIEW_H

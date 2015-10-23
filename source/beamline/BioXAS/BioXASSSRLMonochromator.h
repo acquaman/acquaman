@@ -51,14 +51,8 @@ public:
 	/// Returns the region control.
 	virtual BioXASSSRLMonochromatorRegionControl* regionControl() const { return region_; }
 	/// Returns the mask control.
-	virtual BioXASSSRLMonochromatorMaskControl* maskControl() const { return mask_; }
+	virtual BioXASSSRLMonochromatorMaskControl* mask() const { return mask_; }
 
-	/// Returns the upper slit control.
-	AMControl* upperSlitControl() const { return upperSlit_; }
-	/// Returns the lower slit control.
-	AMControl* lowerSlitControl() const { return lowerSlit_; }
-	/// Returns the slits status control.
-	AMControl* slitsStatusControl() const { return slitsStatus_; }
 	/// Returns the paddle control.
 	AMControl* paddleControl() const { return paddle_; }
 	/// Returns the paddle status control.
@@ -82,10 +76,6 @@ public:
 	/// Returns the m1 mirror pitch control.
 	AMControl* m1MirrorPitchControl() const { return m1Pitch_; }
 
-	/// Returns the upper slit blade motor.
-	CLSMAXvMotor* upperSlitBladeMotor() const { return upperSlitMotor_; }
-	/// Returns the lower slit blade motor.
-	CLSMAXvMotor* lowerSlitBladeMotor() const { return lowerSlitMotor_; }
 	/// Returns the phosphor paddle motor.
 	CLSMAXvMotor* paddleMotor() const { return paddleMotor_; }
 	/// Returns the preferred bragg motor.

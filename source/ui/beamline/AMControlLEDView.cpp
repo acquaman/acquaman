@@ -37,7 +37,20 @@ void AMControlLEDView::clear()
 
 void AMControlLEDView::update()
 {
-	setAsGreenOff();
+	if (shouldBeGreenOff())
+		setAsGreenOff();
+	else if (shouldBeGreenOn())
+		setAsGreenOn();
+	else if (shouldBeRedOff())
+		setAsRedOff();
+	else if (shouldBeRedOn())
+		setAsRedOn();
+	else if (shouldBeYellowOff())
+		setAsYellowOff();
+	else if (shouldBeYellowOn())
+		setAsYellowOn();
+	else
+		setAsGreenOff();
 }
 
 void AMControlLEDView::refresh()

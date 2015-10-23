@@ -121,33 +121,14 @@ void BioXASFrontEndBeamStatusControl::updateConnected()
 	setConnected(isConnected);
 }
 
-void BioXASFrontEndBeamStatusControl::updateValue()
-{
-	double value = BioXAS::Beam::None;
-
-	if (isConnected()) {
-
-		if (isOn())
-			value = BioXAS::Beam::On;
-		else if (isOff())
-			value = BioXAS::Beam::Off;
-		else
-			value = BioXAS::Beam::None;
-	}
-
-	setValue(value);
-}
-
 void BioXASFrontEndBeamStatusControl::updateMoving()
 {
-	if (isConnected()) {
-		bool isMoving = (
-					shutters_->isMoving() ||
-					valves_->isMoving()
-					);
+	bool isMoving = false;
 
-		setIsMoving(isMoving);
-	}
+	if (isConnected())
+		isMoving = ( shutters_->isMoving() || valves_->isMoving() );
+
+	setIsMoving(isMoving);
 }
 
 AMAction3* BioXASFrontEndBeamStatusControl::createBeamOnAction()

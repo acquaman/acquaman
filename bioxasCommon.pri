@@ -74,8 +74,6 @@ HEADERS += \
 	source/beamline/BioXAS/BioXASFrontEndBeamStatusControl.h \
     source/beamline/BioXAS/BioXASValvesControl.h \
 	source/beamline/BioXAS/BioXASValves.h \
-    source/ui/BioXAS/BioXASFrontEndBeamStatusView.h \
-    source/beamline/BioXAS/BioXASFrontEndBeamStatus.h \
     source/ui/BioXAS/BioXASValvesView.h \
     source/ui/BioXAS/BioXASFrontEndBeamStatusControlLEDView.h \
     source/beamline/BioXAS/BioXASFrontEndShuttersControl.h \
@@ -89,7 +87,10 @@ HEADERS += \
     source/beamline/BioXAS/BioXASBeamStatusControl.h \
     source/beamline/BioXAS/BioXASSSRLMonochromatorMaskControl.h \
     source/ui/BioXAS/BioXASSidePOEBeamStatusControlView.h \
-    source/ui/BioXAS/BioXASSidePOEBeamStatusControlLEDView.h
+    source/ui/BioXAS/BioXASSidePOEBeamStatusControlLEDView.h \
+    source/ui/BioXAS/BioXASFrontEndBeamStatusControlView.h \
+    source/ui/BioXAS/BioXASFrontEndBeamStatusControlEditorView.h \
+    source/ui/BioXAS/BioXASFrontEndBeamStatusControlEditorsView.h
 
 SOURCES += \
 	source/acquaman/BioXAS/BioXASXRFScanConfiguration.cpp \
@@ -158,8 +159,6 @@ SOURCES += \
 	source/beamline/BioXAS/BioXASFrontEndBeamStatusControl.cpp \
     source/beamline/BioXAS/BioXASValvesControl.cpp \
 	source/beamline/BioXAS/BioXASValves.cpp \
-    source/ui/BioXAS/BioXASFrontEndBeamStatusView.cpp \
-    source/beamline/BioXAS/BioXASFrontEndBeamStatus.cpp \
     source/ui/BioXAS/BioXASValvesView.cpp \
     source/ui/BioXAS/BioXASFrontEndBeamStatusControlLEDView.cpp \
     source/beamline/BioXAS/BioXASFrontEndShuttersControl.cpp \
@@ -173,7 +172,28 @@ SOURCES += \
     source/beamline/BioXAS/BioXASBeamStatusControl.cpp \
     source/beamline/BioXAS/BioXASSSRLMonochromatorMaskControl.cpp \
     source/ui/BioXAS/BioXASSidePOEBeamStatusControlView.cpp \
-    source/ui/BioXAS/BioXASSidePOEBeamStatusControlLEDView.cpp
+    source/ui/BioXAS/BioXASSidePOEBeamStatusControlLEDView.cpp \
+    source/ui/BioXAS/BioXASFrontEndBeamStatusControlView.cpp \
+    source/ui/BioXAS/BioXASFrontEndBeamStatusControlEditorView.cpp \
+    source/ui/BioXAS/BioXASFrontEndBeamStatusControlEditorsView.cpp
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

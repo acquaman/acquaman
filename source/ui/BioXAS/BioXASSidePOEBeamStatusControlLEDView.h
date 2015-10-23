@@ -3,10 +3,10 @@
 
 #include <QWidget>
 
-#include "beamline/BioXAS/BioXASSidePOEBeamStatusControl.h"
+#include "ui/BioXAS/BioXASSidePOEBeamStatusControlView.h"
 #include "ui/beamline/AMControlValueLEDView.h"
 
-class BioXASSidePOEBeamStatusControlLEDView : public QWidget
+class BioXASSidePOEBeamStatusControlLEDView : public BioXASSidePOEBeamStatusControlView
 {
     Q_OBJECT
 
@@ -16,30 +16,15 @@ public:
 	/// Destructor.
 	virtual ~BioXASSidePOEBeamStatusControlLEDView();
 
-	/// Returns the beam status control being viewed.
-	BioXASSidePOEBeamStatusControl* control() const { return control_; }
-
-signals:
-	/// Notifier that the beam status control being viewed has changed.
-	void controlChanged(AMControl *newControl);
-
 public slots:
 	/// Clears the view.
-	void clear();
+	virtual void clear();
 	/// Updates the view.
-	void update();
+	virtual void update();
 	/// Refreshes the view, clears and updates it.
-	void refresh();
-
-	/// Sets the beam status control being viewed.
-	void setControl(BioXASSidePOEBeamStatusControl *newControl);
+	virtual void refresh();
 
 protected:
-	/// The beam status control being viewed.
-	BioXASSidePOEBeamStatusControl *control_;
-
-	/// The front-end beam status LED.
-	AMControlValueLEDView *frontEndLED_;
 	/// The mirror mask LED.
 	AMControlValueLEDView *mirrorLED_;
 	/// The mono mask LED.

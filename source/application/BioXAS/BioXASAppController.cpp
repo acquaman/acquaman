@@ -376,7 +376,7 @@ QWidget* BioXASAppController::createComponentView(QObject *component)
 
 		BioXASFrontEndBeamStatusControl *beamStatus = qobject_cast<BioXASFrontEndBeamStatusControl*>(component);
 		if (!componentFound && beamStatus) {
-			componentView = new BioXASFrontEndBeamStatusControlView(beamStatus);
+			componentView = new BioXASFrontEndBeamStatusControlEditorView(beamStatus);
 			componentFound = true;
 		}
 

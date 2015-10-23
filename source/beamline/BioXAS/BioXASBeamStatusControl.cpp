@@ -81,6 +81,20 @@ QString BioXASBeamStatusControl::valueToString(BioXAS::Beam::Status value) const
 	return result;
 }
 
+void BioXASBeamStatusControl::updateValue()
+{
+	double value = BioXAS::Beam::None;
+
+	if (isConnected()) {
+		if (isOn())
+			value = BioXAS::Beam::On;
+		else
+			value = BioXAS::Beam::Off;
+	}
+
+	setValue(value);
+}
+
 AMAction3* BioXASBeamStatusControl::createMoveAction(double newState)
 {
 	AMAction3 *result = 0;

@@ -1,13 +1,11 @@
 #include "BioXASSideMonochromator.h"
+#include "beamline/BioXAS/BioXASSideMonochromatorMask.h"
 
 BioXASSideMonochromator::BioXASSideMonochromator(QObject *parent) :
 	BioXASSSRLMonochromator("SideMono", parent)
 {
 	// Create components.
 
-	upperSlit_ = new AMPVwStatusControl("UpperSlitBlade", "SMTR1607-5-I22-09:mm:fbk", "SMTR1607-5-I22-09:mm", "SMTR1607-5-I22-09:status", "SMTR1607-5-I22-09:stop", this);
-	lowerSlit_ = new AMPVwStatusControl("LowerSlitBlade", "SMTR1607-5-I22-10:mm:fbk", "SMTR1607-5-I22-10:mm", "SMTR1607-5-I22-10:status", "SMTR1607-5-I22-10:stop", this);
-	slitsStatus_ = new AMReadOnlyPVControl("SlitsStatus", "BL1607-5-I22:Mono:SlitsClosed", this);
 	paddle_ = new AMPVwStatusControl("Paddle", "SMTR1607-5-I22-11:mm:fbk", "SMTR1607-5-I22-11:mm", "SMTR1607-5-I22-11:status", "SMTR1607-5-I22-11:stop", this);
 	paddleStatus_ = new AMReadOnlyPVControl("PaddleStatus", "BL1607-5-I22:Mono:PaddleExtracted", this);
 	keyStatus_ = new AMReadOnlyPVControl("KeyStatus", "BL1607-5-I22:Mono:KeyStatus", this);
@@ -19,8 +17,6 @@ BioXASSideMonochromator::BioXASSideMonochromator(QObject *parent) :
 	regionAStatus_ = new AMReadOnlyPVControl("RegionAStatus", "BL1607-5-I22:Mono:Region:A", this);
 	regionBStatus_ = new AMReadOnlyPVControl("RegionBStatus", "BL1607-5-I22:Mono:Region:B", this);
 
-	upperSlitMotor_ = new CLSMAXvMotor(QString("SMTR1607-5-I22-09 VERT UPPER BLADE"), QString("SMTR1607-5-I22-09"), QString("SMTR1607-5-I22-09 VERT UPPER BLADE"), true, 0.1, 2.0, this);
-	lowerSlitMotor_ = new CLSMAXvMotor(QString("SMTR1607-5-I22-10 VERT LOWER BLADE"), QString("SMTR1607-5-I22-10"), QString("SMTR1607-5-I22-10 VERT LOWER BLADE"), true, 0.1, 2.0, this);
 	paddleMotor_ = new CLSMAXvMotor(QString("SMTR1607-5-I22-11 PHOSPHOR PADDLE"), QString("SMTR1607-5-I22-11"), QString("SMTR1607-5-I22-11 PHOSPHOR PADDLE"), true, 0.05, 2.0, this);
 	encoderBraggMotor_ = new CLSMAXvMotor(QString("SMTR1607-5-I22-12 BRAGG"), QString("SMTR1607-5-I22-12"), QString("SMTR1607-5-I22-12 BRAGG"), true, 0.001, 2.0, this, QString(":deg"));
 	stepsBraggMotor_ = new CLSMAXvMotor(QString("SMTR1607-5-I22-12 BRAGG"), QString("SMTR1607-5-I22-12"), QString("SMTR1607-5-I22-12 BRAGG"), false, 0.001, 2.0, this, QString(":deg"));
@@ -32,12 +28,14 @@ BioXASSideMonochromator::BioXASSideMonochromator(QObject *parent) :
 	crystal2PitchMotor_ = new CLSMAXvMotor(QString("SMTR1607-5-I22-25 XTAL 2 PITCH"), QString("SMTR1607-5-I22-25"), QString("SMTR1607-5-I22-25 XTAL 2 PITCH"), true, 0.05, 2.0, this, QString(":V"));
 	crystal2RollMotor_ = new CLSMAXvMotor(QString("SMTR1607-5-I22-26 XTAL 2 ROLL"), QString("SMTR1607-5-I22-26"), QString("SMTR1607-5-I22-26 XTAL 2 ROLL"), true, 0.05, 2.0, this, QString(":V"));
 
+	// Create mask control.
+
+	mask_ = new BioXASSideMonochromatorMask(this);
+
 	// Create region control.
 
 	region_ = new BioXASSSRLMonochromatorRegionControl(name()+"RegionControl", this);
-	region_->setUpperSlitControl(upperSlit_);
-	region_->setLowerSlitControl(lowerSlit_);
-	region_->setSlitsStatusControl(slitsStatus_);
+	region_->setMask(mask_);
 	region_->setPaddleControl(paddle_);
 	region_->setPaddleStatusControl(paddleStatus_);
 	region_->setKeyStatusControl(keyStatus_);
@@ -62,17 +60,8 @@ BioXASSideMonochromator::BioXASSideMonochromator(QObject *parent) :
 	stepEnergy_->setRegionControl(region_);
 	stepEnergy_->setM1MirrorPitchControl(m1Pitch_);
 
-	// Create mask control.
-
-	mask_ = new BioXASSSRLMonochromatorMaskControl(name()+"MaskControl", this);
-	mask_->setUpperBlade(upperSlitMotor_);
-	mask_->setLowerBlade(lowerSlitMotor_);
-
 	// Listen to connection states.
 
-	connect( upperSlit_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
-	connect( lowerSlit_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
-	connect( slitsStatus_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 	connect( paddle_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 	connect( paddleStatus_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 	connect( keyStatus_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
@@ -84,8 +73,6 @@ BioXASSideMonochromator::BioXASSideMonochromator(QObject *parent) :
 	connect( regionAStatus_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 	connect( regionBStatus_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
-	connect( upperSlitMotor_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
-	connect( lowerSlitMotor_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 	connect( paddleMotor_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 	connect( encoderBraggMotor_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 	connect( stepsBraggMotor_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );

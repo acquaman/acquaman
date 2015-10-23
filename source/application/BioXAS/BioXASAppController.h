@@ -57,7 +57,7 @@
 #include "ui/BioXAS/BioXASEndstationTableView.h"
 #include "ui/BioXAS/BioXASXASScanConfigurationEditor.h"
 #include "ui/BioXAS/BioXASSSRLMonochromatorEnergyCalibrationView.h"
-#include "ui/BioXAS/BioXASFrontEndBeamStatusView.h"
+#include "ui/BioXAS/BioXASFrontEndBeamStatusControlEditorView.h"
 #include "ui/BioXAS/BioXASValvesView.h"
 #include "ui/BioXAS/BioXASFrontEndShuttersView.h"
 #include "ui/CLS/CLSJJSlitsView.h"

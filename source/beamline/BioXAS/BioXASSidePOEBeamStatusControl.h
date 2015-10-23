@@ -15,10 +15,6 @@ public:
 	/// Destructor.
 	virtual ~BioXASSidePOEBeamStatusControl();
 
-	/// Returns true if this control is always measurable, provided it is connected.
-	virtual bool shouldMeasure() const { return true; }
-	/// Returns true if a move is always possible, provided this control is connected.
-	virtual bool shouldMove() const { return true; }
 	/// Returns true if this control can stop a move in progress, provided it is connected.
 	virtual bool shouldStop() const;
 
@@ -43,7 +39,7 @@ public:
 
 signals:
 	/// Notifier that the front-end beam status control has changed.
-	void frontEndBeamStatusChanged(AMControl *newControl);
+	void frontEndBeamStatusChanged(BioXASFrontEndBeamStatusControl *newControl);
 	/// Notifier that the pre-mirror mask control has changed.
 	void mirrorMaskChanged(AMControl *newControl);
 	/// Notifier that the pre-mono mask control has changed.
@@ -55,13 +51,19 @@ public slots:
 	/// Sets the pre-mirror mask control.
 	void setMirrorMask(AMControl *newControl);
 	/// Sets the pre-mono mask control.
-	void setMonoMask(AMControl *newControl);
+	void setMonoMask(BioXASSSRLMonochromatorMaskControl *newControl);
 
 protected slots:
 	/// Updates the connected state.
 	virtual void updateConnected();
 	/// Updates the 'is moving' state.
 	virtual void updateMoving();
+
+protected:
+	/// Creates and returns an action that turns beam on.
+	virtual AMAction3* createBeamOnAction() { return 0; }
+	/// Creates and returns an action that turns beam off.
+	virtual AMAction3* createBeamOffAction() { return 0; }
 
 protected:
 	/// The front-end beam status control
