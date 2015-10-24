@@ -89,7 +89,7 @@ namespace AMActionSupport
 	inline AMAction3 *buildControlCalibrateAction(AMControl *control, double oldValue, double newValue)
 	{
 		AMControlInfo info = control->toInfo();
-		AMControlCalibrateActionInfo *actionInfo = new AMControlCalibrateActionInfo(info, oldValue, newValue);
+		AMControlCalibrateActionInfo *actionInfo = new AMControlCalibrateActionInfo(info, AMNumber(oldValue), AMNumber(newValue));
 		AMControlCalibrateAction *action = new AMControlCalibrateAction(actionInfo, control);
 		return action;
 	}

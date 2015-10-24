@@ -1,6 +1,6 @@
 #include "AMControlCalibrateActionInfo.h"
 
-AMControlCalibrateActionInfo::AMControlCalibrateActionInfo(const AMControlInfo &controlInfo, double oldValue, double newValue, QObject *parent) :
+AMControlCalibrateActionInfo::AMControlCalibrateActionInfo(const AMControlInfo &controlInfo, AMNumber oldValue, AMNumber newValue, QObject *parent) :
 	AMActionInfo3(QString(), QString(), QString(), parent)
 {
 	controlInfo_.setValuesFrom(controlInfo);
@@ -36,7 +36,7 @@ void AMControlCalibrateActionInfo::setControlInfo(const AMControlInfo &newInfo)
 	updateDescriptionText();
 }
 
-void AMControlCalibrateActionInfo::setOldValue(double newValue)
+void AMControlCalibrateActionInfo::setOldValue(AMNumber newValue)
 {
 	oldValue_ = newValue;
 	setModified(true);
@@ -44,7 +44,7 @@ void AMControlCalibrateActionInfo::setOldValue(double newValue)
 	updateDescriptionText();
 }
 
-void AMControlCalibrateActionInfo::setNewValue(double newValue)
+void AMControlCalibrateActionInfo::setNewValue(AMNumber newValue)
 {
 	newValue_ = newValue;
 	setModified(true);
@@ -55,8 +55,8 @@ void AMControlCalibrateActionInfo::setNewValue(double newValue)
 void AMControlCalibrateActionInfo::updateDescriptionText()
 {
 	QString controlName = (controlInfo_.description().isEmpty() ? controlInfo_.name() : controlInfo_.description());
-	QString oldValue = QString::number(oldValue_);
-	QString newValue = QString::number(newValue_);
+	QString oldValue = QString::number(double(oldValue_));
+	QString newValue = QString::number(double(newValue_));
 
 	QString newText = QString("Calibrating %1 such that %2 becomes %3").arg(controlName).arg(oldValue).arg(newValue);
 
