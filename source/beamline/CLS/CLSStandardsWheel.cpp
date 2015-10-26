@@ -1,6 +1,7 @@
 #include "CLSStandardsWheel.h"
 
 #include "actions3/AMActionSupport.h"
+#include <QDebug>
 
 // CLSStandardsWheelElement
 ///////////////////////////////////////////////
@@ -42,7 +43,7 @@ void CLSStandardsWheelElement::setPosition(double newPosition)
 CLSStandardsWheel::CLSStandardsWheel(const QString &name, const QString &basePVName, QObject *parent)
 	: QObject(parent)
 {
-	wheel_ = new CLSMAXvMotor(name, basePVName, name, false, 5.0, 2.0, this, ":deg");
+	wheel_ = new AMPVwStatusControl(name, basePVName+":deg:sp", basePVName+":deg", basePVName+":status", basePVName+":stop", this, 5.0, 2.0);
 	elementMapper_ = new QSignalMapper;
 
 	for (int i = 0; i < 12; i++){
@@ -65,8 +66,10 @@ CLSStandardsWheel::~CLSStandardsWheel()
 
 void CLSStandardsWheel::moveToIndex(int index)
 {
-	if (index < 12 && index >= 0)
-		wheel_->move(wheelElements_.at(index)->position());
+	if (index < 12 && index >= 0) {
+		double position = wheelElements_.at(index)->position();
+		wheel_->move(position);
+	}
 }
 
 void CLSStandardsWheel::setName(int index, const QString &newName)
