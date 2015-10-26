@@ -1,6 +1,6 @@
 #include "AMControlCalibrateActionInfo.h"
 
-AMControlCalibrateActionInfo::AMControlCalibrateActionInfo(const AMControlInfo &controlInfo, AMNumber oldValue, AMNumber newValue, QObject *parent) :
+AMControlCalibrateActionInfo::AMControlCalibrateActionInfo(const AMControlInfo &controlInfo, const AMNumber &oldValue, const AMNumber &newValue, QObject *parent) :
 	AMActionInfo3(QString(), QString(), QString(), parent)
 {
 	controlInfo_.setValuesFrom(controlInfo);
@@ -36,7 +36,7 @@ void AMControlCalibrateActionInfo::setControlInfo(const AMControlInfo &newInfo)
 	updateDescriptionText();
 }
 
-void AMControlCalibrateActionInfo::setOldValue(AMNumber newValue)
+void AMControlCalibrateActionInfo::setOldValue(const AMNumber &newValue)
 {
 	oldValue_ = newValue;
 	setModified(true);
@@ -44,7 +44,7 @@ void AMControlCalibrateActionInfo::setOldValue(AMNumber newValue)
 	updateDescriptionText();
 }
 
-void AMControlCalibrateActionInfo::setNewValue(AMNumber newValue)
+void AMControlCalibrateActionInfo::setNewValue(const AMNumber &newValue)
 {
 	newValue_ = newValue;
 	setModified(true);

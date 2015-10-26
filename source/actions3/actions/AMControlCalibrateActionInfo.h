@@ -11,7 +11,7 @@ class AMControlCalibrateActionInfo : public AMActionInfo3
 
 public:
 	/// Constructor.
-	explicit AMControlCalibrateActionInfo(const AMControlInfo &control = AMControlInfo(), AMNumber oldValue = AMNumber::InvalidError, AMNumber newValue = AMNumber::InvalidError, QObject *parent = 0);
+	explicit AMControlCalibrateActionInfo(const AMControlInfo &control = AMControlInfo(), const AMNumber &oldValue = AMNumber::InvalidError, const AMNumber &newValue = AMNumber::InvalidError, QObject *parent = 0);
 	/// Copy constructor.
 	AMControlCalibrateActionInfo(const AMControlCalibrateActionInfo &original);
 	/// Destructor.
@@ -42,9 +42,9 @@ public slots:
 	/// Sets the control info.
 	void setControlInfo(const AMControlInfo &newInfo);
 	/// Sets the control's old value.
-	void setOldValue(AMNumber newValue);
+	void setOldValue(const AMNumber &newValue);
 	/// Sets the control's new value.
-	void setNewValue(AMNumber newValue);
+	void setNewValue(const AMNumber &newValue);
 
 protected:
 	/// Updates the description.

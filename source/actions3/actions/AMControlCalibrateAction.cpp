@@ -118,7 +118,7 @@ void AMControlCalibrateAction::startImplementation()
 
 	if (controlCalibrateInfo()->oldValue() == controlCalibrateInfo()->newValue()) {
 		QString fundamentalMessage = QString("Calibration for the control '%1' did not take place, because the old calibration value and the new calibration value are identical.").arg(control_->name());
-		AMErrorMon::alert(this, AMCONTROLCALIBRATEACTION_VALUES_IDENTICAL, fundamentalMessage);
+		AMErrorMon::information(this, AMCONTROLCALIBRATEACTION_VALUES_IDENTICAL, fundamentalMessage);
 		setSucceeded();
 		return;
 	}
