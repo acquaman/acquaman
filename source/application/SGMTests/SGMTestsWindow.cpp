@@ -78,10 +78,7 @@ void SGMTestsWindow::onShowEnergyControlViewClicked()
 
 void SGMTestsWindow::onRunVelocityTestClicked()
 {
-	SGMVelocityTests* velocityTest = new SGMVelocityTests();
-
-	velocityTest->testGratingAngle();
-
+	SGMGratingVelocityTests* velocityTest = new SGMGratingVelocityTests();
 }
 
 void SGMTestsWindow::setupUi()

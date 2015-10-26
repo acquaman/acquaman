@@ -141,7 +141,7 @@ bool AMControlWaitAction::checkCurrentControlValue()
 {
     const AMControlInfo& setpoint = controlWaitInfo()->controlInfo();
 
-    qDebug() << control_->name() << " Current: " << control_->value() << " New: " << setpoint.value();
+	 //qDebug() << control_->name() << " Current: " << control_->value() << " New: " << setpoint.value();
 
     if (controlWaitInfo()->matchType() == AMControlWaitActionInfo::MatchEqual) {
         if (control_->value() == setpoint.value())
