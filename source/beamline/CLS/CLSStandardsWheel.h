@@ -3,7 +3,8 @@
 
 #include <QObject>
 
-#include "beamline/CLS/CLSMAXvMotor.h"
+#include "beamline/AMPVControl.h"
+#include "actions3/AMActionSupport.h"
 
 #include <QSignalMapper>
 
@@ -65,7 +66,7 @@ public:
 	int currentPosition() const;
 
 	/// Returns the wheel control.
-	CLSMAXvMotor* wheelControl() const { return wheel_; }
+	AMPVwStatusControl* wheelControl() const { return wheel_; }
 
 	/// Returns the list of elements.
 	QList<CLSStandardsWheelElement *> wheelElements() const { return wheelElements_; }
@@ -98,7 +99,7 @@ protected slots:
 
 protected:
 	/// The control that moves the motor.
-	CLSMAXvMotor *wheel_;
+	AMPVwStatusControl *wheel_;
 
 	/// The list of elements for this wheel.
 	QList<CLSStandardsWheelElement *> wheelElements_;
