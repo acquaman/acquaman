@@ -21,30 +21,31 @@ UndulatorVelocityTestConditions::UndulatorVelocityTestConditions(double encStart
 SGMUndulatorVelocityTests::SGMUndulatorVelocityTests(QObject *parent) :
     QObject(parent)
 {
+	connectedOnce_ = false;
 	undulatorEncoder_ = new AMPVwStatusControl("Undulator encoder step",
-											   "SMTR1411-01:step:enc:fbk",
+											   "SMTR1411-01:step:sp",		// Yep, seriously. The feedback pv is called :sp
 											   "SMTR1411-01:step",
 											   "SMTR1411-01:status",
 											   QString(),
 											   this,
 											   0.01);
 
-	undulatorVelocitySetpoint_ = AMSinglePVControl("Undulator velocity setpoint",
+	undulatorVelocitySetpoint_ = new AMSinglePVControl("Undulator velocity setpoint",
 												   "SMTR1411-01:velo",
 												   this,
 												   0.1);
 
-	undulatorVelocityFeedback_ = AMSinglePVControl("Undulator velocity feedback",
+	undulatorVelocityFeedback_ = new AMSinglePVControl("Undulator velocity feedback",
 												   "SMTR1411-01:velo:fbk",
 												   this,
 												   0.1);
 
-	undulatorVelocityBase_ = AMSinglePVControl("Undulator velocity base",
+	undulatorVelocityBase_ = new AMSinglePVControl("Undulator velocity base",
 											   "SMTR1411-01:veloBase",
 											   this,
 											   0.1);
 
-	undulatorAcceleration_ = AMSinglePVControl("Undulator acceleration",
+	undulatorAcceleration_ = new AMSinglePVControl("Undulator acceleration",
 											   "SMTR1411-01:accel",
 											   this,
 											   0.1);
@@ -73,6 +74,31 @@ SGMUndulatorVelocityTests::SGMUndulatorVelocityTests(QObject *parent) :
 
 void SGMUndulatorVelocityTests::testUndulator()
 {
+	testQueue_.push_back(UndulatorVelocityTestConditions(-148679, -131784, 12000, 0, 5000));
+	testQueue_.push_back(UndulatorVelocityTestConditions(-148679, -131784, 12000, 0, 5000));
+
+	testQueue_.push_back(UndulatorVelocityTestConditions(-148679, -131784, 12000, 1000, 5000));
+	testQueue_.push_back(UndulatorVelocityTestConditions(-148679, -131784, 12000, 1000, 5000));
+
+	testQueue_.push_back(UndulatorVelocityTestConditions(-148679, -131784, 12000, 3000, 5000));
+	testQueue_.push_back(UndulatorVelocityTestConditions(-148679, -131784, 12000, 3000, 5000));
+
+//	testQueue_.push_back(UndulatorVelocityTestConditions(-148679, -131784, 12000, 0, 2500));
+//	testQueue_.push_back(UndulatorVelocityTestConditions(-148679, -131784, 12000, 0, 2500));
+
+//	testQueue_.push_back(UndulatorVelocityTestConditions(-148679, -131784, 12000, 1000, 2500));
+//	testQueue_.push_back(UndulatorVelocityTestConditions(-148679, -131784, 12000, 1000, 2500));
+
+//	testQueue_.push_back(UndulatorVelocityTestConditions(-148679, -131784, 12000, 3000, 2500));
+//	testQueue_.push_back(UndulatorVelocityTestConditions(-148679, -131784, 12000, 3000, 2500));
+
+//	testQueue_.push_back(UndulatorVelocityTestConditions(-148679, -131784, 12000, 0, 1000));
+//	testQueue_.push_back(UndulatorVelocityTestConditions(-148679, -131784, 12000, 0, 1000));
+
+//	testQueue_.push_back(UndulatorVelocityTestConditions(-148679, -131784, 12000, 500, 1000));
+//	testQueue_.push_back(UndulatorVelocityTestConditions(-148679, -131784, 12000, 500, 1000));
+
+	runNextTest();
 }
 
 void SGMUndulatorVelocityTests::onTimerTimeout()

@@ -80,8 +80,8 @@ SGMGratingVelocityTests::SGMGratingVelocityTests(QObject* parent) :
 void SGMGratingVelocityTests::testGratingAngle()
 {
 	// From 270ev (-412450) to 320eV (-348005)
-//	testQueue_.push_back(VelocityTestConditions(-412450, -348005, 61300, 12000, 0, 5000));
-//	testQueue_.push_back(VelocityTestConditions(-412450, -348005, 61300, 12000, 0, 5000));
+	testQueue_.push_back(GratingVelocityTestConditions(-412450, -310000, 61300, 6000, 0, 5000));
+//	testQueue_.push_back(GratingVelocityTestConditions(-412450, -313205, 61300, 3276, 0, 5000));
 
 //	testQueue_.push_back(VelocityTestConditions(-412450, -348005, 61300, 12000, 1000, 5000));
 //	testQueue_.push_back(VelocityTestConditions(-412450, -348005, 61300, 12000, 1000, 5000));
@@ -130,29 +130,29 @@ void SGMGratingVelocityTests::testGratingAngle()
 //	testQueue_.push_back(VelocityTestConditions(-412450, -397720, 61300, 12000, 500, 1000));
 
 //	// From 690eV (-295012) to 750eV (-271411)
-	testQueue_.push_back(GratingVelocityTestConditions(-295015, -271411, 35100, 12000, 0, 5000));
-	testQueue_.push_back(GratingVelocityTestConditions(-295015, -271411, 35100, 12000, 0, 5000));
+//	testQueue_.push_back(GratingVelocityTestConditions(-295015, -271411, 35100, 12000, 0, 5000));
+//	testQueue_.push_back(GratingVelocityTestConditions(-295015, -271411, 35100, 12000, 0, 5000));
 
-	testQueue_.push_back(GratingVelocityTestConditions(-295015, -271411, 35100, 12000, 1000, 5000));
-	testQueue_.push_back(GratingVelocityTestConditions(-295015, -271411, 35100, 12000, 1000, 5000));
+//	testQueue_.push_back(GratingVelocityTestConditions(-295015, -271411, 35100, 12000, 1000, 5000));
+//	testQueue_.push_back(GratingVelocityTestConditions(-295015, -271411, 35100, 12000, 1000, 5000));
 
-	testQueue_.push_back(GratingVelocityTestConditions(-295015, -271411, 35100, 12000, 3000, 5000));
-	testQueue_.push_back(GratingVelocityTestConditions(-295015, -271411, 35100, 12000, 3000, 5000));
+//	testQueue_.push_back(GratingVelocityTestConditions(-295015, -271411, 35100, 12000, 3000, 5000));
+//	testQueue_.push_back(GratingVelocityTestConditions(-295015, -271411, 35100, 12000, 3000, 5000));
 
-	testQueue_.push_back(GratingVelocityTestConditions(-295015, -271411, 35100, 12000, 0, 2500));
-	testQueue_.push_back(GratingVelocityTestConditions(-295015, -271411, 35100, 12000, 0, 2500));
+//	testQueue_.push_back(GratingVelocityTestConditions(-295015, -271411, 35100, 12000, 0, 2500));
+//	testQueue_.push_back(GratingVelocityTestConditions(-295015, -271411, 35100, 12000, 0, 2500));
 
-	testQueue_.push_back(GratingVelocityTestConditions(-295015, -271411, 35100, 12000, 1000, 2500));
-	testQueue_.push_back(GratingVelocityTestConditions(-295015, -271411, 35100, 12000, 1000, 2500));
+//	testQueue_.push_back(GratingVelocityTestConditions(-295015, -271411, 35100, 12000, 1000, 2500));
+//	testQueue_.push_back(GratingVelocityTestConditions(-295015, -271411, 35100, 12000, 1000, 2500));
 
-	testQueue_.push_back(GratingVelocityTestConditions(-295015, -271411, 35100, 12000, 3000, 2500));
-	testQueue_.push_back(GratingVelocityTestConditions(-295015, -271411, 35100, 12000, 3000, 2500));
+//	testQueue_.push_back(GratingVelocityTestConditions(-295015, -271411, 35100, 12000, 3000, 2500));
+//	testQueue_.push_back(GratingVelocityTestConditions(-295015, -271411, 35100, 12000, 3000, 2500));
 
-	testQueue_.push_back(GratingVelocityTestConditions(-295015, -271411, 35100, 12000, 0, 1000));
-	testQueue_.push_back(GratingVelocityTestConditions(-295015, -271411, 35100, 12000, 0, 1000));
+//	testQueue_.push_back(GratingVelocityTestConditions(-295015, -271411, 35100, 12000, 0, 1000));
+//	testQueue_.push_back(GratingVelocityTestConditions(-295015, -271411, 35100, 12000, 0, 1000));
 
-	testQueue_.push_back(GratingVelocityTestConditions(-295015, -271411, 35100, 12000, 500, 1000));
-	testQueue_.push_back(GratingVelocityTestConditions(-295015, -271411, 35100, 12000, 500, 1000));
+//	testQueue_.push_back(GratingVelocityTestConditions(-295015, -271411, 35100, 12000, 500, 1000));
+//	testQueue_.push_back(GratingVelocityTestConditions(-295015, -271411, 35100, 12000, 500, 1000));
 
 	runNextTest();
 }
