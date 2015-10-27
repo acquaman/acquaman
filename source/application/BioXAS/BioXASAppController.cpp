@@ -228,6 +228,14 @@ void BioXASAppController::onCurrentScanActionFinishedImplementation(AMScanAction
 			}
 
 			qDebug() << "The maximum axis value is " << double(maxAxisValue);
+
+			AMControl *control = 0;
+
+			if (maxAxisValue.isValid() && !jjSlitsScan->axisControlInfos().isEmpty())
+				control = BioXASBeamline::bioXAS()->exposedControlByInfo(jjSlitsScan->axisControlInfos().at(0));
+
+			if (control)
+				control->move(double(maxAxisValue));
 		}
 	}
 }
