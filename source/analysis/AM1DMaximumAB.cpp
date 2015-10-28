@@ -1,6 +1,4 @@
 #include "AM1DMaximumAB.h"
-#include "util/AMUtility.h"
-#include <QDebug>
 
 AM1DMaximumAB::AM1DMaximumAB(const QString &outputName, QObject *parent) :
 	AMStandardAnalysisBlock(outputName, parent)
@@ -39,21 +37,24 @@ bool AM1DMaximumAB::areInputDataSourcesAcceptable(const QList<AMDataSource *> &d
 
 AMNumber AM1DMaximumAB::value(const AMnDIndex &indexes) const
 {
-	if (indexes.rank() != 0)
+	if (indexes.rank() != 1)
 		return AMNumber(AMNumber::DimensionError);
 
 	if (!isValid())
 		return AMNumber(AMNumber::InvalidError);
 
+	if (indexes.i() < 0 || indexes.i() >= cachedData_.size())
+		return AMNumber(AMNumber::InvalidError);
+
 	if (cacheUpdateRequired_)
 		computeCachedValues();
 
-	return AMNumber(maxValue_);
+	return cachedData_.at(indexes.i());
 }
 
 bool AM1DMaximumAB::values(const AMnDIndex &indexStart, const AMnDIndex &indexEnd, double *outputValues) const
 {
-	if(indexStart.rank() != 0 || indexEnd.rank() != 0)
+	if(indexStart.rank() != 1 || indexEnd.rank() != 1)
 		return false;
 
 	if(!isValid())
@@ -62,15 +63,16 @@ bool AM1DMaximumAB::values(const AMnDIndex &indexStart, const AMnDIndex &indexEn
 	if (!canAnalyze())
 		return false;
 
-	int totalSize = indexStart.totalPointsTo(indexEnd);
-
-	if (totalSize != 1)
+#ifdef AM_ENABLE_BOUNDS_CHECKING
+	if((unsigned)indexEnd.i() >= (unsigned)axes_.at(0).size || (unsigned)indexStart.i() > (unsigned)indexEnd.i())
 		return false;
+#endif
 
 	if (cacheUpdateRequired_)
 		computeCachedValues();
 
-	outputValues[0] = maxValue_;
+	int totalSize = indexStart.totalPointsTo(indexEnd);
+	memcpy(outputValues, cachedData_.constData() + indexStart.i(), totalSize * sizeof(double));
 
 	return true;
 }
@@ -83,10 +85,10 @@ AMNumber AM1DMaximumAB::axisValue(int axisNumber, int index) const
 	if (axisNumber != 0)
 		return AMNumber(AMNumber::DimensionError);
 
-	if (index != 0)
-		return AMNumber(AMNumber::OutOfBoundsError);
+	if (index >= axes_.at(axisNumber).size)
+		return AMNumber(AMNumber::DimensionError);
 
-	return AMNumber(maxAxisValue_);
+	return inputSource_->axisValue(axisNumber, index);
 }
 
 bool AM1DMaximumAB::axisValues(int axisNumber, int startIndex, int endIndex, double *outputValues) const
@@ -97,25 +99,31 @@ bool AM1DMaximumAB::axisValues(int axisNumber, int startIndex, int endIndex, dou
 	if (axisNumber != 0)
 		return false;
 
-	if (startIndex != 0 || endIndex != 0)
+	if (startIndex >= axes_.at(axisNumber).size || endIndex >= axes_.at(axisNumber).size)
 		return false;
 
-	outputValues[0] = maxAxisValue_;
-
-	return true;
+	return inputSource_->axisValues(axisNumber, startIndex, endIndex, outputValues);
 }
 
 void AM1DMaximumAB::onInputSourceValuesChanged(const AMnDIndex& start, const AMnDIndex& end)
 {
-	Q_UNUSED(start)
-	Q_UNUSED(end)
-
 	cacheUpdateRequired_ = true;
-	emitValuesChanged(AMnDIndex(), AMnDIndex());
+	emitValuesChanged(start, end);
 }
 
-void AM1DMaximumAB::onInputSourceStateChanged()
+void AM1DMaximumAB::onInputSourceSizeChanged()
 {
+	axes_[0].size = inputSource_->size(0);
+	cacheUpdateRequired_ = true;
+	cachedData_ = QVector<double>(axes_.at(0).size);
+	emitSizeChanged();
+}
+
+void AM1DMaximumAB::onInputSourceStateChanged() {
+
+	// Check the size, just in case the size has changed while the input source was invalid, and now it's going valid.
+	onInputSourceSizeChanged();
+
 	reviewState();
 }
 
@@ -131,7 +139,7 @@ void AM1DMaximumAB::setInputDataSourcesImplementation(const QList<AMDataSource *
 		canAnalyze_ = false;
 		sources_.clear();
 		axes_[0] = AMAxisInfo("invalid", 0, "No input data");
-		setDescription("Source Maximum");
+		setDescription("1D Maximum Data Source");
 
 	} else if (dataSources.count() == 1) {
 		inputSource_ = dataSources.at(0);
@@ -142,6 +150,7 @@ void AM1DMaximumAB::setInputDataSourcesImplementation(const QList<AMDataSource *
 		setDescription(QString("Maximum of %1").arg(inputSource_->name()));
 
 		connect( inputSource_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onInputSourceValuesChanged(AMnDIndex, AMnDIndex)) );
+		connect( inputSource_->signalSource(), SIGNAL(sizeChanged(int)), this, SLOT(onInputSourceSizeChanged()) );
 		connect( inputSource_->signalSource(), SIGNAL(stateChanged(int)), this, SLOT(onInputSourceStateChanged()) );
 	}
 
@@ -157,7 +166,7 @@ void AM1DMaximumAB::setInputDataSourcesImplementation(const QList<AMDataSource *
 
 void AM1DMaximumAB::reviewState()
 {
-	if (inputSource_ && inputSource_->isValid())
+	if (canAnalyze_ && inputSource_ && inputSource_->isValid())
 		setState(0);
 	else
 		setState(AMDataSource::InvalidFlag);
@@ -166,32 +175,29 @@ void AM1DMaximumAB::reviewState()
 void AM1DMaximumAB::computeCachedValues() const
 {
 	AMnDIndex start = AMnDIndex(0);
-	AMnDIndex end = inputSource_->size() - 1;
-	int totalSize = inputSource_->size(0);
+	AMnDIndex end = size() - 1;
+	int totalSize = size(0);
 
 	// Copy the input source's data.
 
 	QVector<double> data = QVector<double>(totalSize);
 	inputSource_->values(start, end, data.data());
 
-	QVector<double> axisData = QVector<double>(totalSize);
-	inputSource_->axisValues(0, start.i(), end.i(), axisData.data());
+	// Initialize max value with first data source value.
 
-	// Initialize max value and max axis value.
+	double maxValue = data.at(0);
 
-	maxValue_ = data.at(0);
-	maxAxisValue_ = axisData.at(0);
+	// Iterate through the source's data, comparing values.
 
-	// Iterate through the data to find the largest value.
+	for (int i = 1; i < totalSize; i++) {
+		double sourceValue = data.at(i);
 
-	for (int i = 1, count = data.count(); i < count; i++) {
-		double value = data.at(i);
+		if (sourceValue > maxValue)
+			maxValue = sourceValue;
 
-		if (value > maxValue_) {
-			maxValue_ = value;
-			maxAxisValue_ = axisData.at(i);
-		}
+		cachedData_[i] = maxValue;
 	}
 
 	cacheUpdateRequired_ = false;
 }
+

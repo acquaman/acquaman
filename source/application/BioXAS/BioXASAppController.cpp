@@ -3,6 +3,7 @@
 #include "beamline/BioXAS/BioXASBeamline.h"
 #include "beamline/CLS/CLSStorageRing.h"
 #include "analysis/AM1DMaximumAB.h"
+#include "analysis/AM0DMaximumAB.h"
 
 #include "dataman/BioXAS/BioXASDbUpgrade1Pt1.h"
 
@@ -190,14 +191,18 @@ void BioXASAppController::onCurrentScanActionFinishedImplementation(AMScanAction
 		AMGenericStepScanConfiguration *jjSlitsScan = qobject_cast<AMGenericStepScanConfiguration*>(scan->scanConfiguration());
 		if (jjSlitsScan && jjSlitsScan->name() == "JJ Slits Optimization Scan") {
 
-			// Compute the maximum.
+			// Find the maximum I0 detector value achieved in the scan.
 
 			AMDataSource *dataSource = scan->dataSourceAt(0);
-			AM1DMaximumAB *max = new AM1DMaximumAB("Maximum");
-			max->setInputDataSources(QList<AMDataSource*>() << dataSource);
-			scan->addAnalyzedDataSource(max);
 
-			AMNumber maxValue = max->value(AMnDIndex());
+			AM1DMaximumAB *maxima = new AM1DMaximumAB("SourceMaxima", this);
+			maxima->setInputDataSources(QList<AMDataSource*>() << dataSource);
+			scan->addAnalyzedDataSource(maxima);
+
+			AM0DMaximumAB *maximum = new AM0DMaximumAB("SourceMaximum", this);
+			maximum->setInputDataSources(QList<AMDataSource*>() << dataSource);
+
+			AMNumber maxValue = maximum->value(AMnDIndex());
 
 			if (!maxValue.isValid()) {
 				qDebug() << "The maximum value found is invalid.";
@@ -212,7 +217,9 @@ void BioXASAppController::onCurrentScanActionFinishedImplementation(AMScanAction
 					qDebug() << "There was a dimension error in the value request.";
 			}
 
-			AMNumber maxAxisValue = max->axisValue(0, 0);
+			// Identify corresponding control values.
+
+			AMNumber maxAxisValue = maximum->axisValue(0, 0);
 
 			if (!maxAxisValue.isValid()) {
 				qDebug() << "The maximum value found is invalid.";
@@ -228,6 +235,19 @@ void BioXASAppController::onCurrentScanActionFinishedImplementation(AMScanAction
 			}
 
 			qDebug() << "The maximum axis value is " << double(maxAxisValue);
+
+			// Note the value and axis value results in the scan notes.
+
+			QString notes = "No max info.";
+
+			if (dataSource && maxValue.isValid() && maxAxisValue.isValid()) {
+				notes = dataSource->name() + " max: " + QString::number(double(maxValue));
+				notes += "\nAxis value: " + QString::number(double(maxAxisValue));
+			}
+
+			scan->setNotes(notes);
+
+			// Move controls to the optimal positions.
 
 			AMControl *control = 0;
 
@@ -558,6 +578,7 @@ AMScanConfigurationView* BioXASAppController::createScanConfigurationView(AMScan
 			if (BioXASBeamline::bioXAS()->jjSlits() && commissioningConfiguration->name() == "JJ Slits Optimization Scan") {
 				AMControlSet *jjSlitsSet = new AMControlSet(this);
 				jjSlitsSet->addControl(BioXASBeamline::bioXAS()->jjSlits()->verticalCenterControl());
+				jjSlitsSet->addControl(BioXASBeamline::bioXAS()->jjSlits()->horizontalCenterControl());
 				configurationView = new AMGenericStepScanConfigurationView(commissioningConfiguration, jjSlitsSet, BioXASBeamline::bioXAS()->exposedDetectors());
 				configurationFound = true;
 			} else {
@@ -718,8 +739,6 @@ void BioXASAppController::setupXASScanConfiguration(BioXASXASScanConfiguration *
 void BioXASAppController::setupGenericStepScanConfiguration(AMGenericStepScanConfiguration *configuration)
 {
 	if (configuration) {
-
-		configuration->setAutoExportEnabled(false);
 
 		// Set scan detectors.
 
