@@ -2,13 +2,16 @@
 #define AM0DMAXIMUMAB_H
 
 #include "analysis/AMStandardAnalysisBlock.h"
-#include "analysis/AM1DMaximumAB.h"
 
+/*!
+  This analysis block accepts one 1D data source and provides a single value for the data
+  source's maximum value, and the corresponding axis value.
+  */
 class AM0DMaximumAB : public AMStandardAnalysisBlock
 {
     Q_OBJECT
 
-	Q_CLASSINFO("AMDbObject_Attributes", "description=1D Maximum Block")
+	Q_CLASSINFO("AMDbObject_Attributes", "description=0D Maximum Block")
 
 public:
 	/// Constructor.
@@ -25,7 +28,7 @@ public:
 	virtual int desiredInputRank() const { return 1; }
 
 	/// Returns whether the data source can be evaluated.  Checks against the current analyzed name.
-	bool canAnalyze() const;
+	bool canAnalyze() const { return canAnalyze_; }
 
 	/// Returns the dependent value at a (complete) set of axis indexes. Returns an invalid AMNumber if the indexes are insuffient or any are out of range, or if the data is not ready.
 	virtual AMNumber value(const AMnDIndex& indexes) const;
@@ -39,8 +42,6 @@ public:
 protected slots:
 	/// Connected to be called when the values of the input data source change
 	void onInputSourceValuesChanged(const AMnDIndex& start, const AMnDIndex& end);
-	/// Connected to be called when the size of the input source changes
-//	void onInputSourceSizeChanged();
 	/// Connected to be called when the state() flags of any input source change
 	void onInputSourceStateChanged();
 
@@ -55,8 +56,8 @@ protected:
 	void computeCachedValues() const;
 
 protected:
-	/// The 1D maximum source that helps with analysis.
-	AM1DMaximumAB *maximumAB_;
+	/// The input data source to be analyzed.
+	AMDataSource *inputSource_;
 
 	/// Flag holding whether or not the data source can be analyzed.
 	bool canAnalyze_;

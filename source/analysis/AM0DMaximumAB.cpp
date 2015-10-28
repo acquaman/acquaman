@@ -7,11 +7,9 @@ AM0DMaximumAB::AM0DMaximumAB(const QString &outputName, QObject *parent) :
 {
 	// Initialize member variables.
 
-	maximumAB_ = new AM1DMaximumAB("InvalidInput", this);
+	inputSource_ = 0;
 
-	connect( maximumAB_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onInputSourceValuesChanged(AMnDIndex,AMnDIndex)) );
-	connect( maximumAB_->signalSource(), SIGNAL(stateChanged(int)), this, SLOT(onInputSourceStateChanged()) );
-
+	canAnalyze_ = false;
 	cacheUpdateRequired_ = false;
 
 	// Initialize inherited variables.
@@ -27,12 +25,17 @@ AM0DMaximumAB::~AM0DMaximumAB()
 
 bool AM0DMaximumAB::areInputDataSourcesAcceptable(const QList<AMDataSource *> &dataSources) const
 {
-	return maximumAB_->areInputDataSourcesAcceptable(dataSources);
-}
+	bool result = false;
 
-bool AM0DMaximumAB::canAnalyze() const
-{
-	return maximumAB_->canAnalyze();
+	// The null input is always acceptable.
+	// Otherwise, we expect a single input source with rank 1.
+
+	if (dataSources.isEmpty())
+		result = true;
+	else if (dataSources.count() == 1 && dataSources.at(0)->rank() == 1)
+		result = true;
+
+	return result;
 }
 
 AMNumber AM0DMaximumAB::value(const AMnDIndex &indexes) const
@@ -119,7 +122,29 @@ void AM0DMaximumAB::onInputSourceStateChanged()
 
 void AM0DMaximumAB::setInputDataSourcesImplementation(const QList<AMDataSource *> &dataSources)
 {
-	maximumAB_->setInputDataSources(dataSources);
+	if (inputSource_) {
+		disconnect( inputSource_->signalSource(), 0, this, 0 );
+		inputSource_ = 0;
+	}
+
+	if (dataSources.isEmpty()) {
+		inputSource_ = 0;
+		canAnalyze_ = false;
+		sources_.clear();
+		axes_[0] = AMAxisInfo("invalid", 0, "No input data");
+		setDescription("0D Maximum Data Source");
+
+	} else if (dataSources.count() == 1) {
+		inputSource_ = dataSources.at(0);
+		canAnalyze_ = true;
+		cacheUpdateRequired_ = true;
+		sources_ = dataSources;
+		axes_[0] = AMAxisInfo("valid", 1, "Maximum value");
+		setDescription(QString("Maximum of %1").arg(inputSource_->name()));
+
+		connect( inputSource_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onInputSourceValuesChanged(AMnDIndex, AMnDIndex)) );
+		connect( inputSource_->signalSource(), SIGNAL(stateChanged(int)), this, SLOT(onInputSourceStateChanged()) );
+	}
 
 	reviewState();
 
@@ -133,22 +158,25 @@ void AM0DMaximumAB::setInputDataSourcesImplementation(const QList<AMDataSource *
 
 void AM0DMaximumAB::reviewState()
 {
-	setState(maximumAB_->state());
+	if (canAnalyze_ && inputSource_ && inputSource_->isValid())
+		setState(0);
+	else
+		setState(AMDataSource::InvalidFlag);
 }
 
 void AM0DMaximumAB::computeCachedValues() const
 {
 	AMnDIndex start = AMnDIndex(0);
-	AMnDIndex end = maximumAB_->size() - 1;
-	int totalSize = maximumAB_->size(0);
+	AMnDIndex end = inputSource_->size() - 1;
+	int totalSize = inputSource_->size(0);
 
 	// Copy the input source's data.
 
 	QVector<double> data = QVector<double>(totalSize);
-	maximumAB_->values(start, end, data.data());
+	inputSource_->values(start, end, data.data());
 
 	QVector<double> axisData = QVector<double>(totalSize);
-	maximumAB_->axisValues(0, start.i(), end.i(), axisData.data());
+	inputSource_->axisValues(0, start.i(), end.i(), axisData.data());
 
 	// Initialize max value and max axis value.
 
