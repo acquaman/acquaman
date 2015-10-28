@@ -88,8 +88,8 @@ QList<AMControl *> BioXASSideBeamline::getMotorsByType(BioXASBeamlineDef::BioXAS
 		break;
 
 	case BioXASBeamlineDef::MaskMotor:	// BioXAS Variable Mask motors
-		matchedMotors.append(mono_->upperSlitBladeMotor());
-		matchedMotors.append(mono_->lowerSlitBladeMotor());
+		matchedMotors.append(mono_->mask()->upperBlade());
+		matchedMotors.append(mono_->mask()->lowerBlade());
 		break;
 
 	case BioXASBeamlineDef::MonoMotor:	// Mono motors
@@ -170,18 +170,15 @@ AMBasicControlDetectorEmulator* BioXASSideBeamline::braggStepSetpointDetector() 
 
 void BioXASSideBeamline::setupComponents()
 {
-	// Endstation safety shutter.
-	safetyShutterES_ = new  CLSBiStateControl("SideShutter", "SideShutter", "SSH1607-5-I22-01:state", "SSH1607-5-I22-01:opr:open", "SSH1607-5-I22-01:opr:close", new AMControlStatusCheckerDefault(2), this);
-	connect( safetyShutterES_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
-
 	// M1 mirror.
 	m1Mirror_ = new BioXASSideM1Mirror(this);
 	connect( m1Mirror_, SIGNAL(connectedChanged(bool)), this, SLOT(updateConnected()) );
 
 	// Mono.
 	mono_ = new BioXASSideMonochromator(this);
-	mono_->setM1MirrorPitchControl(m1Mirror_->pitchControl());
 	connect( mono_, SIGNAL(connectedChanged(bool)), this, SLOT(updateConnected()) );
+
+	mono_->setM1MirrorPitchControl(m1Mirror_->pitchControl());
 
 	// M2 mirror.
 	m2Mirror_ = new BioXASSideM2Mirror(this);
@@ -190,6 +187,14 @@ void BioXASSideBeamline::setupComponents()
 	// Carbon filter farm.
 	carbonFilterFarm_ = new BioXASSideCarbonFilterFarm(this);
 	connect( carbonFilterFarm_, SIGNAL(connectedChanged(bool)), this, SLOT(updateConnected()) );
+
+	// Endstation safety shutter.
+	safetyShutterES_ = new  CLSBiStateControl("SideShutter", "SideShutter", "SSH1607-5-I22-01:state", "SSH1607-5-I22-01:opr:open", "SSH1607-5-I22-01:opr:close", new AMControlStatusCheckerDefault(2), this);
+	connect( safetyShutterES_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+
+	// Beam status.
+
+	beamStatus_ = new BioXASSideBeamStatus(shutters(), valves(), m1Mirror_->upperSlitBladeMotorControl(), mono_->mask(), safetyShutterES_, this);
 
 	// JJ slits.
 	jjSlits_ = new CLSJJSlits("JJSlits", "SMTR1607-6-I22-10", "SMTR1607-6-I22-09", "SMTR1607-6-I22-11", "SMTR1607-6-I22-12", this);
@@ -275,8 +280,9 @@ void BioXASSideBeamline::setupComponents()
 
 	// The germanium detector.
 	ge32ElementDetector_ = new BioXAS32ElementGeDetector("Ge32Element", "Ge 32 Element", this);
-	addSynchronizedXRFDetector(ge32ElementDetector_);
 	connect( ge32ElementDetector_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+
+	addSynchronizedXRFDetector(ge32ElementDetector_);
 
 	// Utilities.
 	utilities_ = new BioXASSideBeamlineUtilities(this);

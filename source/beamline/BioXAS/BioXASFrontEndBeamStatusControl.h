@@ -1,10 +1,11 @@
 #ifndef BIOXASFRONTENDBEAMSTATUSCONTROL_H
 #define BIOXASFRONTENDBEAMSTATUSCONTROL_H
 
+#include "beamline/BioXAS/BioXASBeamStatusControl.h"
 #include "beamline/BioXAS/BioXASFrontEndShuttersControl.h"
 #include "beamline/BioXAS/BioXASValvesControl.h"
 
-class BioXASFrontEndBeamStatusControl : public AMPseudoMotorControl
+class BioXASFrontEndBeamStatusControl : public BioXASBeamStatusControl
 {
     Q_OBJECT
 
@@ -14,10 +15,6 @@ public:
 	/// Destructor.
 	virtual ~BioXASFrontEndBeamStatusControl();
 
-	/// Returns true if this control is always measurable, provided it is connected.
-	virtual bool shouldMeasure() const { return true; }
-	/// Returns true if a move is always possible, provided this control is connected.
-	virtual bool shouldMove() const { return true; }
 	/// Returns true if this control can stop a move in progress, provided it is connected.
 	virtual bool shouldStop() const;
 
@@ -28,18 +25,10 @@ public:
 	/// Returns true if this control can stop a move right now.
 	virtual bool canStop() const;
 
-	/// Returns true if the given value is a valid value for this control, false otherwise.
-	virtual bool validValue(double value) const;
-	/// Returns true if the given value is a valid setpoint for this control, false otherwise.
-	virtual bool validSetpoint(double value) const;
-
 	/// Returns true if the front end beam is on, false otherwise.
 	virtual bool isOn() const;
 	/// Returns false if the front and beam is off, false otherwise.
 	virtual bool isOff() const { return !isOn(); }
-
-	/// Returns a string representation of the given value.
-	QString valueToString(BioXAS::Beam::Status value) const;
 
 	/// Returns the front-end shutters.
 	BioXASFrontEndShuttersControl* shutters() const { return shutters_; }
@@ -61,15 +50,10 @@ public slots:
 protected slots:
 	/// Updates the connected state.
 	virtual void updateConnected();
-	/// Updates the current value.
-	virtual void updateValue();
 	/// Updates the 'is moving' state.
 	virtual void updateMoving();
 
 protected:
-	/// Returns a new action that changes the beam state.
-	AMAction3* createMoveAction(double newState);
-
 	/// Returns a new action that changes the control to 'beam on.'
 	AMAction3* createBeamOnAction();
 	/// Returns a new action that changes the control to 'beam off.'

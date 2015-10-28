@@ -29,7 +29,7 @@
 #include "beamline/BioXAS/BioXASCryostatStage.h"
 #include "beamline/BioXAS/BioXASFrontEndShutters.h"
 #include "beamline/BioXAS/BioXASValves.h"
-#include "beamline/BioXAS/BioXASFrontEndBeamStatus.h"
+#include "beamline/BioXAS/BioXASFrontEndBeamStatusControl.h"
 
 #include "util/AMErrorMonitor.h"
 #include "util/AMBiHash.h"
@@ -60,11 +60,12 @@ public:
 
 	/// Returns the front end shutters.
 	virtual BioXASFrontEndShutters* shutters() const { return frontEndShutters_; }
-
-	/// Returns the front-end beam status.
-	virtual BioXASFrontEndBeamStatus* beamStatus() const { return beamStatus_; }
 	/// Returns the valves.
 	virtual BioXASValves* valves() const { return valves_; }
+	/// Returns the beam status.
+	virtual BioXASBeamStatusControl* beamStatus() const { return frontEndBeamStatus_; }
+	/// Returns the front-end beam status.
+	virtual BioXASFrontEndBeamStatusControl* frontEndBeamStatus() const { return frontEndBeamStatus_; }
 	/// Returns the m1 mirror.
 	virtual BioXASM1Mirror* m1Mirror() const { return 0; }
 	/// Returns the monochromator.
@@ -139,7 +140,7 @@ protected:
 	/// The valves.
 	BioXASValves *valves_;
 	/// The beam status.
-	BioXASFrontEndBeamStatus *beamStatus_;
+	BioXASFrontEndBeamStatusControl *frontEndBeamStatus_;
 
 	/// The control/detector map. Assumes a 1-1 correlation between controls and detector emulators.
 	QMap<AMControl*, AMBasicControlDetectorEmulator*> controlDetectorMap_;

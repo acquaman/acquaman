@@ -6,9 +6,7 @@ BioXASSSRLMonochromatorRegionControl::BioXASSSRLMonochromatorRegionControl(const
 {
 	// Initialize local variables.
 
-	upperSlit_ = 0;
-	lowerSlit_ = 0;
-	slitsStatus_ = 0;
+	mask_ = 0;
 	paddle_ = 0;
 	paddleStatus_ = 0;
 	keyStatus_ = 0;
@@ -63,7 +61,7 @@ bool BioXASSSRLMonochromatorRegionControl::canMove() const
 
 	if (isConnected() && !isMoving()) {
 		result = (
-			slitsStatus_->canMeasure() &&
+			mask_->canMeasure() &&
 			paddleStatus_->canMeasure() &&
 			keyStatus_->canMeasure() &&
 			brakeStatus_->canMeasure() &&
@@ -71,8 +69,7 @@ bool BioXASSSRLMonochromatorRegionControl::canMove() const
 			crystalChangeCWLimitStatus_->canMeasure() &&
 			crystalChangeCCWLimitStatus_->canMeasure() &&
 
-			upperSlit_->canMove() &&
-			lowerSlit_->canMove() &&
+			mask_->canMove() &&
 			paddle_->canMove() &&
 			bragg_->canMove() &&
 			crystalChange_->canMove()
@@ -113,45 +110,21 @@ bool BioXASSSRLMonochromatorRegionControl::validSetpoint(double value) const
 	return isValid;
 }
 
-void BioXASSSRLMonochromatorRegionControl::setUpperSlitControl(AMControl *upperSlit)
+void BioXASSSRLMonochromatorRegionControl::setMask(BioXASSSRLMonochromatorMaskControl *newControl)
 {
-	if (upperSlit_ != upperSlit) {
+	if (mask_ != newControl) {
 
-		if (upperSlit_)
-			removeChildControl(upperSlit_);
+		if (mask_)
+			removeChildControl(mask_);
 
-		upperSlit_ = upperSlit;
+		mask_ = newControl;
 
-		if (upperSlit_)
-			addChildControl(upperSlit_);
-	}
-}
+		if (mask_)
+			addChildControl(mask_);
 
-void BioXASSSRLMonochromatorRegionControl::setLowerSlitControl(AMControl *lowerSlit)
-{
-	if (lowerSlit_ != lowerSlit) {
+		updateStates();
 
-		if (lowerSlit_)
-			removeChildControl(lowerSlit_);
-
-		lowerSlit_ = lowerSlit;
-
-		if (lowerSlit_)
-			addChildControl(lowerSlit_);
-	}
-}
-
-void BioXASSSRLMonochromatorRegionControl::setSlitsStatusControl(AMControl *slitsStatus)
-{
-	if (slitsStatus_ != slitsStatus) {
-
-		if (slitsStatus_)
-			removeChildControl(slitsStatus_);
-
-		slitsStatus_ = slitsStatus;
-
-		if (slitsStatus_)
-			addChildControl(slitsStatus_);
+		emit maskChanged(mask_);
 	}
 }
 
@@ -311,9 +284,7 @@ void BioXASSSRLMonochromatorRegionControl::setRegionBStatusControl(AMControl *re
 
 void BioXASSSRLMonochromatorRegionControl::updateConnected()
 {
-	bool upperSlitOK = (upperSlit_ && upperSlit_->isConnected());
-	bool lowerSlitOK = (lowerSlit_ && lowerSlit_->isConnected());
-	bool slitsStatusOK = (slitsStatus_ && slitsStatus_->isConnected());
+	bool maskOK = (mask_ && mask_->isConnected());
 	bool paddleOK = (paddle_ && paddle_->isConnected());
 	bool paddleStatusOK = (paddleStatus_ && paddleStatus_->isConnected());
 	bool keyStatusOK = (keyStatus_ && keyStatus_->isConnected());
@@ -327,9 +298,7 @@ void BioXASSSRLMonochromatorRegionControl::updateConnected()
 	bool regionBStatusOK = (regionBStatus_ && regionBStatus_->isConnected());
 
 	bool isConnected = (
-				upperSlitOK &&
-				lowerSlitOK &&
-				slitsStatusOK &&
+				maskOK &&
 				paddleOK &&
 				paddleStatusOK &&
 				keyStatusOK &&
@@ -367,8 +336,7 @@ void BioXASSSRLMonochromatorRegionControl::updateMoving()
 {
 	if (isConnected()) {
 		setIsMoving(
-					upperSlit_->isMoving() ||
-					lowerSlit_->isMoving() ||
+					mask_->isMoving() ||
 					paddle_->isMoving() ||
 					bragg_->isMoving() ||
 					crystalChange_->isMoving()
@@ -409,11 +377,10 @@ AMAction3* BioXASSSRLMonochromatorRegionControl::createMoveAction(double newRegi
 
 AMAction3* BioXASSSRLMonochromatorRegionControl::createCloseUpperSlitAction()
 {
-	AMControl *control = upperSlit_;
 	AMAction3 *action = 0;
 
-	if (control && control->isConnected())
-		action = AMActionSupport::buildControlMoveAction(control, SETPOINT_SLIT_CLOSED);
+	if (mask_ && mask_->upperBlade() && mask_->upperBlade()->isConnected())
+		action = AMActionSupport::buildControlMoveAction(mask_->upperBlade(), SETPOINT_SLIT_CLOSED);
 
 	if (!action)
 		AMErrorMon::error(this, BioXAS_MONO_REGION_CLOSE_UPPER_SLIT_FAILED, "Failed to create action to close mono upper slit.");
@@ -423,11 +390,10 @@ AMAction3* BioXASSSRLMonochromatorRegionControl::createCloseUpperSlitAction()
 
 AMAction3* BioXASSSRLMonochromatorRegionControl::createCloseLowerSlitAction()
 {
-	AMControl *control = lowerSlit_;
 	AMAction3 *action = 0;
 
-	if (control && control->isConnected())
-		action = AMActionSupport::buildControlMoveAction(control, SETPOINT_SLIT_CLOSED);
+	if (mask_ && mask_->lowerBlade() && mask_->lowerBlade()->isConnected())
+		action = AMActionSupport::buildControlMoveAction(mask_->lowerBlade(), SETPOINT_SLIT_CLOSED);
 
 	if (!action)
 		AMErrorMon::error(this, BioXAS_MONO_REGION_CLOSE_LOWER_SLIT_FAILED, "Failed to create action to close mono lower slit.");
@@ -437,15 +403,10 @@ AMAction3* BioXASSSRLMonochromatorRegionControl::createCloseLowerSlitAction()
 
 AMAction3* BioXASSSRLMonochromatorRegionControl::createWaitForSlitsClosedAction()
 {
-	AMControl *control = slitsStatus_;
 	AMAction3 *action = 0;
 
-	if (control && control->isConnected()) {
-		AMControlInfo setpoint = control->toInfo();
-		setpoint.setValue(BioXASSSRLMonochromator::Slits::Closed);
-
-		action = new AMControlWaitAction(new AMControlWaitActionInfo(setpoint, TIMEOUT_SLITS_CLOSED, AMControlWaitActionInfo::MatchEqual), control);
-	}
+	if (mask_ && mask_->status() && mask_->status()->isConnected())
+		action = AMActionSupport::buildControlWaitAction(mask_->status(), BioXASSSRLMonochromator::Slits::Closed, TIMEOUT_SLITS_CLOSED);
 
 	if (!action)
 		AMErrorMon::error(this, BioXAS_MONO_REGION_CLOSE_SLITS_FAILED, "Failed to create action to wait for both mono slits to be closed.");

@@ -18,37 +18,41 @@ You should have received a copy of the GNU General Public License
 along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-
 #include "BioXASSidePersistentView.h"
-#include "ui/BioXAS/BioXASSIS3820ScalerChannelsView.h"
-#include "beamline/BioXAS/BioXASSideBeamline.h"
-#include "ui/beamline/AMExtendedControlEditor.h"
-#include "ui/beamline/AMControlLEDView.h"
 
-#include <QComboBox>
+#include "beamline/BioXAS/BioXASSideBeamline.h"
+
+#include "ui/BioXAS/BioXASFrontEndBeamStatusControlEditorView.h"
+#include "ui/BioXAS/BioXASSidePOEBeamStatusControlEditorView.h"
+#include "ui/BioXAS/BioXASSideSOEBeamStatusControlEditorView.h"
+#include "ui/BioXAS/BioXASPersistentView.h"
 
 BioXASSidePersistentView::BioXASSidePersistentView(QWidget *parent) :
 	QWidget(parent)
 {
 	// Create UI elements.
 
-	generalView_ = new BioXASPersistentView(BioXASSideBeamline::bioXAS()->mono(), BioXASSideBeamline::bioXAS()->scaler());
+	BioXASFrontEndBeamStatusControlEditorView *frontEndBeamStatusView = new BioXASFrontEndBeamStatusControlEditorView(BioXASSideBeamline::bioXAS()->frontEndBeamStatus());
+	frontEndBeamStatusView->editor()->setTitle("Front-end Beam Status");
+
+	BioXASSidePOEBeamStatusControlEditorView *poeBeamStatusView = new BioXASSidePOEBeamStatusControlEditorView(BioXASSideBeamline::bioXAS()->beamStatus()->poeBeamStatus());
+	poeBeamStatusView->editor()->setTitle("POE Beam Status");
+
+	BioXASSideSOEBeamStatusControlEditorView *beamStatusView = new BioXASSideSOEBeamStatusControlEditorView(BioXASSideBeamline::bioXAS()->beamStatus()->soeBeamStatus());
+	beamStatusView->editor()->setTitle("SOE Beam Status");
+
+	BioXASPersistentView *generalView = new BioXASPersistentView();
 
 	// Create and set main layout.
 
 	QVBoxLayout *layout = new QVBoxLayout();
-	layout->addWidget(generalView_);
+	layout->addWidget(frontEndBeamStatusView);
+	layout->addWidget(poeBeamStatusView);
+	layout->addWidget(beamStatusView);
+	layout->addWidget(generalView);
 	layout->addStretch();
 
 	setLayout(layout);
-
-	// Make connections.
-
-	connect( BioXASSideBeamline::bioXAS()->scaler(), SIGNAL(connectedChanged(bool)), generalView_, SLOT(setScalerChannelsVisible(bool)) );
-
-	// Current settings.
-
-	generalView_->setScalerChannelsVisible(BioXASSideBeamline::bioXAS()->scaler()->isConnected());
 }
 
 BioXASSidePersistentView::~BioXASSidePersistentView()

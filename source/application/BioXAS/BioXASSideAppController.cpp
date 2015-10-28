@@ -23,6 +23,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "beamline/BioXAS/BioXASSideBeamline.h"
 #include "ui/BioXAS/BioXASSidePersistentView.h"
+#include "ui/BioXAS/BioXASSideBeamStatusControlView.h"
 
 BioXASSideAppController::BioXASSideAppController(QObject *parent)
 	: BioXASAppController(parent)
@@ -74,6 +75,24 @@ void BioXASSideAppController::setupUserInterface()
 bool BioXASSideAppController::setupDataFolder()
 {
 	return AMChooseDataFolderDialog::getDataFolder("/AcquamanLocalData/bioxas-s/AcquamanSideData", "/home/bioxas-s/AcquamanSideData", "users", QStringList());
+}
+
+QWidget* BioXASSideAppController::createComponentView(QObject *component)
+{
+	QWidget *componentView = 0;
+
+	if (component) {
+		componentView = BioXASAppController::createComponentView(component);
+
+		if (!componentView) {
+
+			BioXASSideBeamStatusControl *beamStatus = qobject_cast<BioXASSideBeamStatusControl*>(component);
+			if (beamStatus)
+				componentView = new BioXASSideBeamStatusControlView(beamStatus);
+		}
+	}
+
+	return componentView;
 }
 
 void BioXASSideAppController::setupXASScanConfiguration(BioXASXASScanConfiguration *configuration)

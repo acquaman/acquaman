@@ -201,7 +201,7 @@ void BioXASSSRLMonochromatorConfigurationView::setMono(BioXASSSRLMonochromator *
 			crystal2RollEditor_->setControl(0);
 
 			regionEditor_->setControl(0);
-			regionStatusWidget_->setRegionControl(0);
+			regionStatusWidget_->setControl(0);
 
 			stepEnergyEditor_->setControl(0);
 			encoderEnergyEditor_->setControl(0);
@@ -218,8 +218,8 @@ void BioXASSSRLMonochromatorConfigurationView::setMono(BioXASSSRLMonochromator *
 
 			// Update UI elements.
 
-			upperSlitEditor_->setControl(mono_->upperSlitControl());
-			lowerSlitEditor_->setControl(mono_->lowerSlitControl());
+			upperSlitEditor_->setControl(mono_->mask()->upperBlade());
+			lowerSlitEditor_->setControl(mono_->mask()->lowerBlade());
 			heightEditor_->setControl(mono_->verticalMotor());
 			lateralEditor_->setControl(mono_->lateralMotor());
 			paddleEditor_->setControl(mono_->paddleControl());
@@ -229,7 +229,7 @@ void BioXASSSRLMonochromatorConfigurationView::setMono(BioXASSSRLMonochromator *
 			crystal2RollEditor_->setControl(mono_->crystal2RollMotor());
 
 			regionEditor_->setControl(mono_->regionControl());
-			regionStatusWidget_->setRegionControl(mono_->regionControl());
+			regionStatusWidget_->setControl(mono_->regionControl());
 
 			stepEnergyEditor_->setControl(mono_->stepEnergyControl());
 			encoderEnergyEditor_->setControl(mono_->encoderEnergyControl());

@@ -6,9 +6,6 @@
 #include <QLayout>
 
 #include "beamline/BioXAS/BioXASFrontEndBeamStatusControl.h"
-#include "ui/beamline/AMExtendedControlEditor.h"
-#include "ui/beamline/AMControlValueLEDView.h"
-#include "ui/BioXAS/BioXASFrontEndBeamStatusControlLEDView.h"
 
 class BioXASFrontEndBeamStatusControlView : public QWidget
 {
@@ -16,15 +13,12 @@ class BioXASFrontEndBeamStatusControlView : public QWidget
 
 public:
 	/// Constructor.
-	explicit BioXASFrontEndBeamStatusControlView(BioXASFrontEndBeamStatusControl *beamStatus, QWidget *parent = 0);
+	explicit BioXASFrontEndBeamStatusControlView(QWidget *parent = 0);
 	/// Destructor.
 	virtual ~BioXASFrontEndBeamStatusControlView();
 
 	/// Returns the beam status control being viewed.
 	BioXASFrontEndBeamStatusControl* control() const { return control_; }
-
-	/// Returns the beam status control editor.
-	AMExtendedControlEditor* controlEditor() const { return editor_; }
 
 signals:
 	/// Notifier that the beam status control being viewed has changed.
@@ -32,23 +26,18 @@ signals:
 
 public slots:
 	/// Clears the view.
-	void clear();
+	virtual void clear() = 0;
 	/// Updates the view with the latest beam status control information.
-	void update();
+	virtual void update() = 0;
 	/// Refreshes the view.
-	void refresh();
+	virtual void refresh() = 0;
 
 	/// Sets the beam status control being viewed.
-	void setControl(BioXASFrontEndBeamStatusControl *newControl);
+	virtual void setControl(BioXASFrontEndBeamStatusControl *newControl);
 
 protected:
 	/// The beam status being viewed.
 	BioXASFrontEndBeamStatusControl *control_;
-
-	/// The beam status control editor.
-	AMExtendedControlEditor *editor_;
-	/// The beam status control LED view.
-	BioXASFrontEndBeamStatusControlLEDView *ledView_;
 };
 
 #endif // BIOXASFRONTENDBEAMSTATUSCONTROLVIEW_H

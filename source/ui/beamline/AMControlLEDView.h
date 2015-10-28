@@ -28,7 +28,7 @@ signals:
 public slots:
 	/// Clears the view.
 	virtual void clear();
-	/// Updates the view. Subclasses should reimplement for their desired behavior.
+	/// Updates the view.
 	virtual void update();
 	/// Refreshes the view, clears it then updates it.
 	virtual void refresh();
@@ -41,14 +41,32 @@ protected slots:
 	void setAsGreenOff();
 	/// Sets the led as green, lit.
 	void setAsGreenOn();
+
 	/// Sets the led as red, unlit.
 	void setAsRedOff();
 	/// Sets the led as red, lit.
 	void setAsRedOn();
+
 	/// Sets the led as yellow, unlit.
 	void setAsYellowOff();
 	/// Sets the led as yellow, lit.
 	void setAsYellowOn();
+
+protected:
+	/// Returns true if the LED should currently be unlit and green.
+	virtual bool shouldBeGreenOff() const { return false; }
+	/// Returns true if the LED should currently be lit and green.
+	virtual bool shouldBeGreenOn() const { return false; }
+
+	/// Returns true if the LED should currently be unlit and red.
+	virtual bool shouldBeRedOff() const { return false; }
+	/// Returns true if the LED should currently be lit and red.
+	virtual bool shouldBeRedOn() const { return false; }
+
+	/// Returns true if the LED should currently be unlit and yellow.
+	virtual bool shouldBeYellowOff() const { return false; }
+	/// Returns true if the LED should currently be lit and yellow.
+	virtual bool shouldBeYellowOn() const { return false; }
 
 protected:
 	/// The control being viewed.

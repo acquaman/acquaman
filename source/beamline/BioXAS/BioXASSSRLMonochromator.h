@@ -8,6 +8,7 @@
 #include "beamline/CLS/CLSMAXvMotor.h"
 #include "beamline/BioXAS/BioXASSSRLMonochromatorEnergyControl.h"
 #include "beamline/BioXAS/BioXASSSRLMonochromatorRegionControl.h"
+#include "beamline/BioXAS/BioXASSSRLMonochromatorMaskControl.h"
 #include "beamline/BioXAS/BioXASMonochromator.h"
 
 class BioXASSSRLMonochromator : public BioXASMonochromator
@@ -49,13 +50,9 @@ public:
 	BioXASSSRLMonochromatorEnergyControl *stepEnergyControl() const { return stepEnergy_; }
 	/// Returns the region control.
 	virtual BioXASSSRLMonochromatorRegionControl* regionControl() const { return region_; }
+	/// Returns the mask control.
+	virtual BioXASSSRLMonochromatorMaskControl* mask() const { return mask_; }
 
-	/// Returns the upper slit control.
-	AMControl* upperSlitControl() const { return upperSlit_; }
-	/// Returns the lower slit control.
-	AMControl* lowerSlitControl() const { return lowerSlit_; }
-	/// Returns the slits status control.
-	AMControl* slitsStatusControl() const { return slitsStatus_; }
 	/// Returns the paddle control.
 	AMControl* paddleControl() const { return paddle_; }
 	/// Returns the paddle status control.
@@ -79,10 +76,6 @@ public:
 	/// Returns the m1 mirror pitch control.
 	AMControl* m1MirrorPitchControl() const { return m1Pitch_; }
 
-	/// Returns the upper slit blade motor.
-	CLSMAXvMotor* upperSlitBladeMotor() const { return upperSlitMotor_; }
-	/// Returns the lower slit blade motor.
-	CLSMAXvMotor* lowerSlitBladeMotor() const { return lowerSlitMotor_; }
 	/// Returns the phosphor paddle motor.
 	CLSMAXvMotor* paddleMotor() const { return paddleMotor_; }
 	/// Returns the preferred bragg motor.
@@ -132,6 +125,8 @@ protected:
 	BioXASSSRLMonochromatorEnergyControl *stepEnergy_;
 	/// The region control.
 	BioXASSSRLMonochromatorRegionControl *region_;
+	/// The mask control.
+	BioXASSSRLMonochromatorMaskControl *mask_;
 
 	/// The upper slit motor control.
 	AMControl *upperSlit_;
