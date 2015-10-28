@@ -305,10 +305,12 @@ void SGMEnergyTrajectoryTestView::setEnergyPlotData(SGMGratingSupport::GratingTr
         SGMEnergyTrajectory trajectory(startEnergySpinBox_->value(),
                                        endEnergySpinBox_->value(),
                                        timeSpinBox_->value(),
-                                       gratingTranslation);
+									   gratingTranslation,
+									   5000,
+									   -1.53);
 
         SGMEnergyPosition currentEnergyStatus(gratingTranslation,
-                                              trajectory.startGratingAngleEncoderStep(),
+                                              trajectory.startGratingAngleEncoderCount(),
                                               trajectory.undulatorHarmonic(),
                                               trajectory.startUndulatorPosition(),
                                               0,
@@ -316,7 +318,7 @@ void SGMEnergyTrajectoryTestView::setEnergyPlotData(SGMGratingSupport::GratingTr
 
         currentEnergyStatus.setAutoDetectUndulatorHarmonic(false);
 
-        double angleEncoderValue = trajectory.startGratingAngleEncoderStep();
+        double angleEncoderValue = trajectory.startGratingAngleEncoderCount();
         double angleEncoderVelocity = trajectory.gratingAngleVelocityProfile().targetVelocity();
 
         double currentTime = 0;
@@ -356,7 +358,9 @@ void SGMEnergyTrajectoryTestView::setTrajectoryPlotData(SGMGratingSupport::Grati
         SGMEnergyTrajectory trajectory(startEnergySpinBox_->value(),
                                        endEnergySpinBox_->value(),
                                        timeSpinBox_->value(),
-                                       gratingTranslation);
+									   gratingTranslation,
+									   5000,
+									   -1.53);
 
         if(!trajectory.hasErrors()) {
 
@@ -368,8 +372,8 @@ void SGMEnergyTrajectoryTestView::setTrajectoryPlotData(SGMGratingSupport::Grati
             energyXValues[0] = trajectory.startEnergy();
             energyXValues[1] = trajectory.endEnergy();
 
-            gratingAngleTrajectoryYValues[0] = trajectory.startGratingAngleEncoderStep();
-            gratingAngleTrajectoryYValues[1] = trajectory.endGratingAngleEncoderStep();
+            gratingAngleTrajectoryYValues[0] = trajectory.startGratingAngleEncoderCount();
+            gratingAngleTrajectoryYValues[1] = trajectory.endGratingAngleEncoderCount();
 
             undulatorPositionTrajectoryYValues[0] = trajectory.startUndulatorPosition();
             undulatorPositionTrajectoryYValues[1] = trajectory.endUndulatorPosition();

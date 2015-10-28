@@ -82,13 +82,13 @@ void SGMEnergyControlTestView::onGratingTranslationSelectionChanged(int index)
 		switch(index) {
 
 		case 0:
-			correspondingGratingTranslationStepValue = SGMGratingSupport::enumToEncoderSteps(SGMGratingSupport::LowGrating);
+			correspondingGratingTranslationStepValue = SGMGratingSupport::enumToEncoderCount(SGMGratingSupport::LowGrating);
 			break;
 		case 1:
-			correspondingGratingTranslationStepValue = SGMGratingSupport::enumToEncoderSteps(SGMGratingSupport::MediumGrating);
+			correspondingGratingTranslationStepValue = SGMGratingSupport::enumToEncoderCount(SGMGratingSupport::MediumGrating);
 			break;
 		default:
-			correspondingGratingTranslationStepValue = SGMGratingSupport::enumToEncoderSteps(SGMGratingSupport::HighGrating);
+			correspondingGratingTranslationStepValue = SGMGratingSupport::enumToEncoderCount(SGMGratingSupport::HighGrating);
 		}
 
 		//qDebug() << "Move grating translation control to" << correspondingGratingTranslationStepValue << "steps";
@@ -122,7 +122,7 @@ void SGMEnergyControlTestView::onControlGratingTranslationChanged(double value)
 {
 	int correspondingGratingTranslationIndex;
 
-	switch(SGMGratingSupport::encoderStepsToEnum(value)) {
+	switch(SGMGratingSupport::encoderCountToEnum(value)) {
 
 	case SGMGratingSupport::LowGrating:
 		correspondingGratingTranslationIndex = 0;
@@ -249,7 +249,7 @@ void SGMEnergyControlTestView::setupData()
     gratingOptimizationComboBox_->setCurrentIndex(correspondingOptimizationComboIndex);
 
 	int correspondingTranslationComboIndex;
-    switch(SGMGratingSupport::encoderStepsToEnum(energyControl_->gratingTranslationControl()->value())) {
+    switch(SGMGratingSupport::encoderCountToEnum(energyControl_->gratingTranslationControl()->value())) {
 	case SGMGratingSupport::LowGrating:
 		correspondingTranslationComboIndex = 0;
 		break;

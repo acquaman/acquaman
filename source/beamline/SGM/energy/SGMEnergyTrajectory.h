@@ -23,12 +23,18 @@ public:
      * \param endEnergy ~ The end energy of the trajectory.
      * \param time ~ The time the move between energies will take.
      * \param gratingTranslation ~ The grating translation on which the movement
-     * will take place.
+	 * will take place.
+	 * \param gratingAngleAcceleration ~ The acceleration value for the grating
+	 * angle (in steps)
+	 * \param gratingAngleStepsPerEncoderCount ~ The conversion rate between encoder
+	 * counts and steps.
      */
     SGMEnergyTrajectory(double startEnergy,
                         double endEnergy,
                         double time,
-                        SGMGratingSupport::GratingTranslation gratingTranslation);
+						SGMGratingSupport::GratingTranslation gratingTranslation,
+						double gratingAngleAcceleration,
+						double gratingAngleStepsPerEncoderCount);
 
     /*!
       * Frees resources associated with the trajectory.
@@ -59,12 +65,12 @@ public:
     /*!
      * The encoder step value of the grating angle at the start of the trajectory.
      */
-    double startGratingAngleEncoderStep() const;
+	double startGratingAngleEncoderCount() const;
 
     /*!
      * The encoder step value of the grating angle at the end of the trajectory.
      */
-    double endGratingAngleEncoderStep() const;
+	double endGratingAngleEncoderCount() const;
 
     /*!
      * The velocity profile of the grating angle to achieve the trajectory in the
@@ -142,6 +148,12 @@ public:
 protected:
 
 	/*!
+	  * Calculates the grating angle velocity in order to obtain the necessary
+	  * motion in time.
+	  */
+	double calculateGratingAngleVelocity() const;
+
+	/*!
 	  * Function which ensures all the error and warning checks are met.
 	  */
 	void performValidation();
@@ -149,6 +161,9 @@ protected:
     double startEnergy_;
     double endEnergy_;
     double time_;
+	double gratingAngleStepsPerEncoderCount_;
+	double gratingAngleAcceleration_;
+
     SGMGratingSupport::GratingTranslation gratingTranslation_;
 
     SGMEnergyPosition* startEnergyPosition_;

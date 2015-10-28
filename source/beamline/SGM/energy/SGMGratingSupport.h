@@ -101,11 +101,11 @@ inline static double radiusCurvatureOffset(GratingTranslation translationSelecti
 }
 
 /*!
- * The encoder steps target to apply in order to reach the provided grating translation
- * \param translationSelection ~ The grating translation whose encoder steps target
+ * The encoder count target to apply in order to reach the provided grating translation
+ * \param translationSelection ~ The grating translation whose encoder count target
  * is to be returned.
  */
-inline static double enumToEncoderSteps(GratingTranslation translationSelection)
+inline static double enumToEncoderCount(GratingTranslation translationSelection)
 {
     switch(translationSelection) {
     case LowGrating:
@@ -121,10 +121,10 @@ inline static double enumToEncoderSteps(GratingTranslation translationSelection)
 
 /*!
  * The grating translation enum value which the provided encoder steps refers to.
- * \param encoderSteps ~ The encoder steps value whose grating translation enum
+ * \param encoderCount ~ The encoder count value whose grating translation enum
  * is to be returned.
  */
-inline static GratingTranslation encoderStepsToEnum(double encoderSteps)
+inline static GratingTranslation encoderCountToEnum(double encoderSteps)
 {
     // Todo: Verify this value?
     double tolerance = 10;

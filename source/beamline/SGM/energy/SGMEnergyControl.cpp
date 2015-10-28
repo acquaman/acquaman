@@ -367,7 +367,7 @@ void SGMEnergyControl::updateValue()
 void SGMEnergyControl::onGratingTranslationPVValueChanged(double value)
 {
     SGMGratingSupport::GratingTranslation newGratingTranslation =
-            SGMGratingSupport::encoderStepsToEnum(value);
+			SGMGratingSupport::encoderCountToEnum(value);
 
     if(newGratingTranslation != SGMGratingSupport::UnknownGrating) {
 
@@ -397,7 +397,7 @@ void SGMEnergyControl::initializeEnergyPositionController()
     double startingUndulatorPosition = undulatorPositionControl_->value();
     double startingExitSlitPosition = exitSlitPositionControl_->value();
     SGMGratingSupport::GratingTranslation startingGratingTranslation =
-            SGMGratingSupport::encoderStepsToEnum(gratingTranslationControl_->value());
+			SGMGratingSupport::encoderCountToEnum(gratingTranslationControl_->value());
 
     energyPositionController_ = new SGMEnergyPosition(startingGratingTranslation,
                                                       startingGratingAngle,
@@ -462,7 +462,7 @@ AMAction3 *SGMEnergyControl::createMoveAction(double setpoint)
         if(!helperEnergyPosition->hasErrors()) {
 
             // Create list action to move all components.
-            double gratingTranslationNewValue = SGMGratingSupport::enumToEncoderSteps(helperEnergyPosition->gratingTranslation());
+			double gratingTranslationNewValue = SGMGratingSupport::enumToEncoderCount(helperEnergyPosition->gratingTranslation());
             double gratingAngleNewValue = helperEnergyPosition->gratingAngle();
             double undulatorPositionNewValue = helperEnergyPosition->undulatorPosition();
             double exitSlitPositionNewValue = helperEnergyPosition->exitSlitPosition();
@@ -598,7 +598,7 @@ AMAction3 *SGMEnergyControl::createMoveAction(SGMEnergyTrajectory* energyTraject
 				double undulatorStepTarget = SGMUndulatorSupport::undulatorStepFromPosition(energyTrajectory->endUndulatorPosition(),
 																							undulatorPositionControl_->value(),
 																							undulatorStepControl_->value());
-				double gratingAngleTarget = energyTrajectory->endGratingAngleEncoderStep();
+				double gratingAngleTarget = energyTrajectory->endGratingAngleEncoderCount();
 				qDebug() << "\t#3 Performing move:";
 				qDebug() << "\t\t#3a Moving undulator step to" << undulatorStepTarget;
 				qDebug() << "\t\t#3b Moving grating angle to" << gratingAngleTarget;

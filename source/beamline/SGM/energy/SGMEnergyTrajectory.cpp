@@ -1,11 +1,15 @@
 #include "SGMEnergyTrajectory.h"
-
+#include <math.h>
 SGMEnergyTrajectory::SGMEnergyTrajectory(double startEnergy,
                                          double endEnergy,
                                          double time,
-                                         SGMGratingSupport::GratingTranslation gratingTranslation)
+										 SGMGratingSupport::GratingTranslation gratingTranslation,
+										 double gratingAngleAcceleration,
+										 double gratingAngleStepsPerEncoderCount)
 {
 
+	gratingAngleAcceleration_ = gratingAngleAcceleration;
+	gratingAngleStepsPerEncoderCount_ = gratingAngleStepsPerEncoderCount;
 	startEnergyPosition_ = new SGMEnergyPosition(startEnergy, gratingTranslation);
     startEnergy_ = startEnergy;
 	endEnergyPosition_ = new SGMEnergyPosition(endEnergy, gratingTranslation);
@@ -32,18 +36,7 @@ SGMEnergyTrajectory::SGMEnergyTrajectory(double startEnergy,
 
     time_ = time;
 
-    /*
-	 * The velocity profile class needs to be refined, as per Issue 1563.
-     * Some noted refinements:
-     *   - Should the general class be a motion profile rather than a velocity profile?
-     *   - Is there a need for a general class system for these (AMVelocityProfile/AMMotionProfile)?
-     *   - Do we need time based information (velocityProfile_.velocityAt(double time);)?
-     * My suspicion is that the answers will come into focus while working on
-     * Issue 1566.
-     *   - Also need to figure out what the acceleration values are for the controls
-     *     on the beamline.
-     */
-	gratingAngleVelocityProfile_ = AMTrapezoidVelocityProfile(0, 5000.0, qAbs(endGratingAngleEncoderStep() - startGratingAngleEncoderStep()) / time_, 5000.0);
+	gratingAngleVelocityProfile_ = AMTrapezoidVelocityProfile(0, gratingAngleAcceleration_, calculateGratingAngleVelocity(), 5000.0);
 	undulatorVelocityProfile_ = AMTrapezoidVelocityProfile(0, 5000.0, qAbs(endUndulatorPosition() - startUndulatorPosition()) / time_, 5000.0);
 	exitSlitVelocityProfile_ = AMTrapezoidVelocityProfile(0, 5000.0, qAbs(endExitSlitPosition() - startExitSlitPosition()) / time_, 5000.0);
 }
@@ -76,12 +69,12 @@ AMValidator * SGMEnergyTrajectory::warningValidator() const
 	return warningValidator_;
 }
 
-double SGMEnergyTrajectory::startGratingAngleEncoderStep() const
+double SGMEnergyTrajectory::startGratingAngleEncoderCount() const
 {
     return startEnergyPosition_->gratingAngle();
 }
 
-double SGMEnergyTrajectory::endGratingAngleEncoderStep() const
+double SGMEnergyTrajectory::endGratingAngleEncoderCount() const
 {
     return endEnergyPosition_->gratingAngle();
 }
@@ -160,8 +153,8 @@ double SGMEnergyTrajectory::energyVelocity() const
 QString SGMEnergyTrajectory::toString() const
 {
     QString returnString =  QString("Start Grating Angle: %1 End Grating Angle: %2 Grating Angle Velocity: %3 \n")
-            .arg(startGratingAngleEncoderStep())
-            .arg(endGratingAngleEncoderStep())
+			.arg(startGratingAngleEncoderCount())
+			.arg(endGratingAngleEncoderCount())
             .arg(gratingAngleVelocityProfile().targetVelocity());
 
     returnString.append(QString("Start Undulator Position: %1 End Undulator Position: %2 Undulator Velocity: %3 \n")
@@ -193,10 +186,25 @@ QString SGMEnergyTrajectory::toString() const
 	return returnString;
 }
 
+double SGMEnergyTrajectory::calculateGratingAngleVelocity() const
+{
+	double halfAccelByTime = (gratingAngleAcceleration_*time_) / 2;
+	double toRoot = halfAccelByTime * halfAccelByTime - gratingAngleAcceleration_ * qAbs(endGratingAngleEncoderCount() - startGratingAngleEncoderCount());
+
+	if(toRoot < 0) {
+
+		return halfAccelByTime + sqrt(qAbs(toRoot));
+	} else {
+
+		return halfAccelByTime - sqrt(toRoot);
+	}
+}
+
 void SGMEnergyTrajectory::performValidation()
 {
 	errorValidator_->updateValidity(SGMENERGYTRAJECTORY_INVALID_TIME, time_ <= 0);
 }
+
 
 
 
