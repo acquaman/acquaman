@@ -66,6 +66,92 @@ double AMUtility::maximumFinder(const QVector<double> &data)
 	return maximum;
 }
 
+int AMUtility::indexOfMinimum(const QVector<double> &data)
+{
+	int result = -1;
+
+	if (data.count() > 0) {
+
+		double minValue = data.at(0);
+		int minIndex = -1;
+
+		// Iterate through the entries in data to find the smallest
+		// value and the corresponding index.
+
+		for (int i = 1, count = data.count(); i < count; i++) {
+			double value = data.at(i);
+
+			if (value < minValue) {
+				minValue = value;
+				minIndex = i;
+			}
+		}
+
+		result = minIndex;
+	}
+
+	return result;
+}
+
+int AMUtility::indexOfMaximum(const QVector<double> &data)
+{
+	int result = -1;
+
+	if (data.count() > 0) {
+
+		double maxValue = data.at(0);
+		int maxIndex = -1;
+
+		// Iterate through the entries in data to find the largest
+		// value and the corresponding index.
+
+		for (int i = 1, count = data.count(); i < count; i++) {
+			double value = data.at(i);
+
+			if (value > maxValue) {
+				maxValue = value;
+				maxIndex = i;
+			}
+		}
+
+		result = maxIndex;
+	}
+
+	return result;
+}
+
+AMnDIndex AMUtility::indexOfMinimum(const QVector<double> &data, AMnDIndex size)
+{
+	AMnDIndex result = AMnDIndex();
+
+	// Identify the flat index for the minimum value.
+
+	int minIndex = indexOfMinimum(data);
+
+	// Find the corresponding AMnDIndex, given the size.
+
+	if (minIndex > -1 && size.isValid())
+		result = AMnDIndex::fromFlatIndexInArrayOfSize(size, minIndex);
+
+	return result;
+}
+
+AMnDIndex AMUtility::indexOfMaximum(const QVector<double> &data, AMnDIndex size)
+{
+	AMnDIndex result = AMnDIndex();
+
+	// Identify the flat index for the minimum value.
+
+	int maxIndex = indexOfMinimum(data);
+
+	// Find the corresponding AMnDIndex, given the size.
+
+	if (maxIndex > -1 && size.isValid())
+		result = AMnDIndex::fromFlatIndexInArrayOfSize(size, maxIndex);
+
+	return result;
+}
+
 AMRange AMUtility::rangeFinder(const QVector<double> &data, double valueToIgnore)
 {
 	AMRange range = AMRange();
