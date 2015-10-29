@@ -2,10 +2,8 @@
 
 #include "beamline/BioXAS/BioXASBeamline.h"
 #include "beamline/CLS/CLSStorageRing.h"
-#include "analysis/AM1DMaximumAB.h"
-#include "analysis/AM0DMaximumAB.h"
-
 #include "dataman/BioXAS/BioXASDbUpgrade1Pt1.h"
+#include "util/AMUtility.h"
 
 #include <QDebug>
 
@@ -194,17 +192,15 @@ void BioXASAppController::onCurrentScanActionFinishedImplementation(AMScanAction
 			// Find the maximum I0 detector value achieved in the scan.
 
 			AMDataSource *dataSource = scan->dataSourceAt(0);
+			AMnDIndex start = AMnDIndex(0);
+			AMnDIndex end = AMnDIndex(dataSource->size() - 1);
 
-			AM1DMaximumAB *maxima = new AM1DMaximumAB("SourceMaxima", this);
-			maxima->setInputDataSources(QList<AMDataSource*>() << dataSource);
-			scan->addAnalyzedDataSource(maxima);
+			QVector<double> data = QVector<double>(start.totalPointsTo(end));
+			dataSource->values(start, end, data.data());
 
-			AM0DMaximumAB *maximum = new AM0DMaximumAB("SourceMaximum", this);
-			maximum->setInputDataSources(QList<AMDataSource*>() << dataSource);
+			double maxValue = dataSource->value(AMUtility::indexOfMaximum(data, dataSource->size()));
 
-			AMNumber maxValue = maximum->value(AMnDIndex());
-
-			if (!maxValue.isValid()) {
+			if (maxValue <= -1) {
 				qDebug() << "The maximum value found is invalid.";
 
 				if (maxValue == AMNumber(AMNumber::OutOfBoundsError))
