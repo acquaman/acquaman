@@ -83,20 +83,20 @@ void SGMUndulatorVelocityTests::testUndulator()
 	testQueue_.push_back(UndulatorVelocityTestConditions(-148679, -131784, 12000, 3000, 5000));
 	testQueue_.push_back(UndulatorVelocityTestConditions(-148679, -131784, 12000, 3000, 5000));
 
-//	testQueue_.push_back(UndulatorVelocityTestConditions(-148679, -131784, 12000, 0, 2500));
-//	testQueue_.push_back(UndulatorVelocityTestConditions(-148679, -131784, 12000, 0, 2500));
+	testQueue_.push_back(UndulatorVelocityTestConditions(-148679, -131784, 12000, 0, 2500));
+	testQueue_.push_back(UndulatorVelocityTestConditions(-148679, -131784, 12000, 0, 2500));
 
-//	testQueue_.push_back(UndulatorVelocityTestConditions(-148679, -131784, 12000, 1000, 2500));
-//	testQueue_.push_back(UndulatorVelocityTestConditions(-148679, -131784, 12000, 1000, 2500));
+	testQueue_.push_back(UndulatorVelocityTestConditions(-148679, -131784, 12000, 1000, 2500));
+	testQueue_.push_back(UndulatorVelocityTestConditions(-148679, -131784, 12000, 1000, 2500));
 
-//	testQueue_.push_back(UndulatorVelocityTestConditions(-148679, -131784, 12000, 3000, 2500));
-//	testQueue_.push_back(UndulatorVelocityTestConditions(-148679, -131784, 12000, 3000, 2500));
+	testQueue_.push_back(UndulatorVelocityTestConditions(-148679, -131784, 12000, 3000, 2500));
+	testQueue_.push_back(UndulatorVelocityTestConditions(-148679, -131784, 12000, 3000, 2500));
 
-//	testQueue_.push_back(UndulatorVelocityTestConditions(-148679, -131784, 12000, 0, 1000));
-//	testQueue_.push_back(UndulatorVelocityTestConditions(-148679, -131784, 12000, 0, 1000));
+	testQueue_.push_back(UndulatorVelocityTestConditions(-148679, -131784, 12000, 0, 1000));
+	testQueue_.push_back(UndulatorVelocityTestConditions(-148679, -131784, 12000, 0, 1000));
 
-//	testQueue_.push_back(UndulatorVelocityTestConditions(-148679, -131784, 12000, 500, 1000));
-//	testQueue_.push_back(UndulatorVelocityTestConditions(-148679, -131784, 12000, 500, 1000));
+	testQueue_.push_back(UndulatorVelocityTestConditions(-148679, -131784, 12000, 500, 1000));
+	testQueue_.push_back(UndulatorVelocityTestConditions(-148679, -131784, 12000, 500, 1000));
 
 	runNextTest();
 }

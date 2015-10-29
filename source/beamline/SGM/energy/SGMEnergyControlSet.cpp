@@ -300,17 +300,7 @@ void SGMEnergyControlSet::onUndulatorHarmonicPVValueChanged(double)
 
 void SGMEnergyControlSet::onUndulatorTrackingPVValueChanged(double)
 {
-	bool isTracking;
-
-	if(undulatorTracking()->withinTolerance(0)) {
-
-		isTracking = false;
-	} else {
-
-		isTracking = true;
-	}
-
-	energyPositionValidator_->setUndulatorTracking(isTracking);
+	energyPositionValidator_->setUndulatorTracking(undulatorTracking()->withinTolerance(0));
 }
 
 void SGMEnergyControlSet::onExitSlitPositionPVValueChanged(double value)
@@ -320,17 +310,7 @@ void SGMEnergyControlSet::onExitSlitPositionPVValueChanged(double value)
 
 void SGMEnergyControlSet::onExitSlitTrackingPVValueChanged(double)
 {
-	bool isTracking;
-
-	if(undulatorTracking()->withinTolerance(0)) {
-
-		isTracking = false;
-	} else {
-
-		isTracking = true;
-	}
-
-	energyPositionValidator_->setExitSlitPositionTracking(isTracking);
+	energyPositionValidator_->setExitSlitPositionTracking(exitSlitPositionTracking()->withinTolerance(0));
 }
 
 
