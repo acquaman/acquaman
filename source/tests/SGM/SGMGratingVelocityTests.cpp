@@ -21,38 +21,38 @@ GratingVelocityTestConditions::GratingVelocityTestConditions(double encStart, do
 SGMGratingVelocityTests::SGMGratingVelocityTests(QObject* parent) :
 	QObject(parent)
 {
-	gratingAngleEncoder_ =  new AMPVwStatusControl("Grating Angle",
-												   "SMTR16114I1002:enc:fbk",
-												   "SMTR16114I1002:encTarget",
-												   "SMTR16114I1002:status",
-												   "SMTR16114I1002:stop",
-												   this,
-												   5,
-												   2.0,
-												   new CLSMAXvControlStatusChecker(),
-												   1);
+    gratingAngleEncoder_ =  new AMPVwStatusControl("Grating Angle",
+                                                   "SMTR16114I1002:enc:fbk",
+                                                   "SMTR16114I1002:encTarget",
+                                                   "SMTR16114I1002:status",
+                                                   "SMTR16114I1002:stop",
+                                                   this,
+                                                   5,
+                                                   2.0,
+                                                   new CLSMAXvControlStatusChecker(),
+                                                   1);
 
-	gratingTranslation_ = new SGMGratingTranslationStepControl(this);
+    gratingTranslation_ = new SGMGratingTranslationStepControl(this);
 
-	gratingAngleVelocitySetpoint_ = new AMSinglePVControl("Grating Angle Velocity Setpoint",
-														  "SMTR16114I1002:velo",
-														  this,
-														  0.1);
+    gratingAngleVelocitySetpoint_ = new AMSinglePVControl("Grating Angle Velocity Setpoint",
+                                                          "SMTR16114I1002:velo",
+                                                          this,
+                                                          0.1);
 
-	gratingAngleVelocityFeedback_ = new AMSinglePVControl("Grating angle velocity feedback",
-														  "SMTR16114I1002:velo:fbk",
-														  this,
-														  0.1);
+    gratingAngleVelocityFeedback_ = new AMSinglePVControl("Grating angle velocity feedback",
+                                                          "SMTR16114I1002:velo:fbk",
+                                                          this,
+                                                          0.1);
 
-	gratingAngleVelocityBase_ = new AMSinglePVControl("Grating angle velocity base",
-													  "SMTR16114I1002:veloBase",
-													  this,
-													  0.1);
+    gratingAngleVelocityBase_ = new AMSinglePVControl("Grating angle velocity base",
+                                                      "SMTR16114I1002:veloBase",
+                                                      this,
+                                                      0.1);
 
-	gratingAngleAcceleration_ = new AMSinglePVControl("Grating angle acceleration",
-													  "SMTR16114I1002:accel",
-													  this,
-													  0.1);
+    gratingAngleAcceleration_ = new AMSinglePVControl("Grating angle acceleration",
+                                                      "SMTR16114I1002:accel",
+                                                      this,
+                                                      0.1);
 
 	allControls_ = new AMControlSet(this);
 	connectedOnce_ = false;

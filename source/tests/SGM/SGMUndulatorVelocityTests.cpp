@@ -22,33 +22,33 @@ SGMUndulatorVelocityTests::SGMUndulatorVelocityTests(QObject *parent) :
     QObject(parent)
 {
 	connectedOnce_ = false;
-	undulatorEncoder_ = new AMPVwStatusControl("Undulator encoder step",
-											   "SMTR1411-01:step:sp",		// Yep, seriously. The feedback pv is called :sp
-											   "SMTR1411-01:step",
-											   "SMTR1411-01:status",
-											   QString(),
-											   this,
-											   0.01);
+    undulatorEncoder_ = new AMPVwStatusControl("Undulator encoder step",
+                                               "SMTR1411-01:step:sp",		// Yep, seriously. The feedback pv is called :sp
+                                               "SMTR1411-01:step",
+                                               "SMTR1411-01:status",
+                                               QString(),
+                                               this,
+                                               0.01);
 
-	undulatorVelocitySetpoint_ = new AMSinglePVControl("Undulator velocity setpoint",
-													   "SMTR1411-01:velo",
-													   this,
-													   0.1);
+    undulatorVelocitySetpoint_ = new AMSinglePVControl("Undulator velocity setpoint",
+                                                       "SMTR1411-01:velo",
+                                                       this,
+                                                       0.1);
 
-	undulatorVelocityFeedback_ = new AMSinglePVControl("Undulator velocity feedback",
-													   "SMTR1411-01:velo:fbk",
-													   this,
-													   0.1);
+    undulatorVelocityFeedback_ = new AMSinglePVControl("Undulator velocity feedback",
+                                                       "SMTR1411-01:velo:fbk",
+                                                       this,
+                                                       0.1);
 
-	undulatorVelocityBase_ = new AMSinglePVControl("Undulator velocity base",
-												   "SMTR1411-01:veloBase",
-												   this,
-												   0.1);
+    undulatorVelocityBase_ = new AMSinglePVControl("Undulator velocity base",
+                                                   "SMTR1411-01:veloBase",
+                                                   this,
+                                                   0.1);
 
-	undulatorAcceleration_ = new AMSinglePVControl("Undulator acceleration",
-												   "SMTR1411-01:accel",
-												   this,
-												   0.1);
+    undulatorAcceleration_ = new AMSinglePVControl("Undulator acceleration",
+                                                   "SMTR1411-01:accel",
+                                                   this,
+                                                   0.1);
 
 	allControls_ = new AMControlSet(this);
 	allControls_->addControl(undulatorEncoder_);
