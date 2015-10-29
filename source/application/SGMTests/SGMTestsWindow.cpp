@@ -4,6 +4,8 @@
 #include "tests/SGM/SGMEnergyPositionTestView.h"
 #include "tests/SGM/SGMEnergyTrajectoryTestView.h"
 #include "tests/SGM/SGMEnergyControlTestView.h"
+#include "tests/SGM/SGMGratingVelocityTests.h"
+#include "tests/SGM/SGMUndulatorVelocityTests.h"
 #include "qjson/serializer.h"
 
 #include "beamline/SGM/energy/SGMEnergyPosition.h"
@@ -75,6 +77,16 @@ void SGMTestsWindow::onShowEnergyControlViewClicked()
 
 }
 
+void SGMTestsWindow::onRunGratingVelocityTestClicked()
+{
+	SGMGratingVelocityTests* velocityTest = new SGMGratingVelocityTests();
+}
+
+void SGMTestsWindow::onRunUndulatorVelocityTestClicked()
+{
+	SGMUndulatorVelocityTests* undulatorTest = new SGMUndulatorVelocityTests();
+}
+
 void SGMTestsWindow::setupUi()
 {
 
@@ -104,6 +116,14 @@ void SGMTestsWindow::setupUi()
     connect(showEnergyControlViewButton_, SIGNAL(clicked(bool)), this, SLOT(onShowEnergyControlViewClicked()));
     buttonsLayout->addWidget(showEnergyControlViewButton_);
 
+	runGratingVelocityTest_ = new QPushButton("Run Grating Velocity Tests");
+	connect(runGratingVelocityTest_, SIGNAL(clicked(bool)), this, SLOT(onRunGratingVelocityTestClicked()));
+	buttonsLayout->addWidget(runGratingVelocityTest_);
+
+	runUndulatorVelocityTest_ = new QPushButton("Run Undulator Velocity Tests");
+	connect(runUndulatorVelocityTest_, SIGNAL(clicked(bool)), this, SLOT(onRunUndulatorVelocityTestClicked()));
+	buttonsLayout->addWidget(runUndulatorVelocityTest_);
+
     buttonsLayout->addStretch();
 
     outputTextEdit_ = new QTextEdit();
@@ -111,6 +131,10 @@ void SGMTestsWindow::setupUi()
     resultsLayout->addWidget(outputTextEdit_);
 
 
-    resize(800, 600);
+	resize(800, 600);
 }
+
+
+
+
 

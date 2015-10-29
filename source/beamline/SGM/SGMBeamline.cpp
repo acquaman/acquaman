@@ -29,7 +29,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/CLS/CLSAmptekSDD123DetectorNew.h"
 #include "beamline/SGM/SGMHexapod.h"
 #include "beamline/AMBasicControlDetectorEmulator.h"
-
+#include "beamline/SGM/energy/SGMEnergyControlSet.h"
 SGMBeamline* SGMBeamline::sgm() {
 
 	if(instance_ == 0){
@@ -47,9 +47,8 @@ SGMBeamline::~SGMBeamline()
 
 bool SGMBeamline::isConnected() const
 {
-	return energy_->isConnected() &&
-			exitSlitGap_->isConnected() &&
-			grating_->isConnected() &&
+	return 	exitSlitGap_->isConnected() &&
+			energyControlSet_->isConnected() &&
 			ssaManipulatorX_->isConnected() &&
 			ssaManipulatorY_->isConnected() &&
 			ssaManipulatorZ_->isConnected() &&
@@ -67,24 +66,14 @@ AMControl * SGMBeamline::endStationTranslationFeedback() const
 	return endStationTranslationFeedback_;
 }
 
-AMControl * SGMBeamline::energy() const
+SGMEnergyControlSet * SGMBeamline::energyControlSet() const
 {
-	return energy_;
+	return energyControlSet_;
 }
 
 AMControl * SGMBeamline::exitSlitGap() const
 {
 	return exitSlitGap_;
-}
-
-AMControl * SGMBeamline::exitSlitPosition() const
-{
-	return exitSlitPosition_;
-}
-
-AMControl * SGMBeamline::grating() const
-{
-	return grating_;
 }
 
 SGMHexapod* SGMBeamline::hexapod() const
@@ -140,18 +129,11 @@ void SGMBeamline::onConnectionStateChanged(bool)
 
 void SGMBeamline::setupBeamlineComponents()
 {
-	// Energy
-	energy_ = new AMPVwStatusControl("energy", "BL1611-ID-1:Energy:fbk", "BL1611-ID-1:Energy", "BL1611-ID-1:ready", "SMTR16114I1002:stop", this, 0.25);
-	energy_->setDescription("Energy");
+	energyControlSet_ = new SGMEnergyControlSet(this);
 
 	// Exit Slit Gap
 	exitSlitGap_ = new AMPVwStatusControl("exitSlitGap", "PSL16114I1004:Y:mm:fbk", "BL1611-ID-1:AddOns:ExitSlitGap:Y:mm", "BL1611-ID-1:AddOns:ExitSlitGap:Y:status", "SMTR16114I1017:stop", this, 0.5);
 	exitSlitGap_->setDescription("Exit Slit Gap");
-
-	// Exit Slit Position
-	exitSlitPosition_ = new AMPVwStatusControl("exitSlitPosition", "PSL16114I1003:Y:mm:fbk", "PSL16114I1003:Y:mm:encsp", "SMTR16114I1003:status", "SMTR16114I1003:stop", this, 0.1, 2.0, new AMControlStatusCheckerDefault(1));
-	exitSlitPosition_->setDescription("Exit Slit Position");
-	exitSlitPosition_->setContextKnownDescription("Exit Slit");
 
 	// End Station Translation
 	endStationTranslationSetpont_ = new AMSinglePVControl("endStationStep", "SMTR16114I1038:step", this, 1.0, 2.0);
@@ -159,11 +141,6 @@ void SGMBeamline::setupBeamlineComponents()
 	endStationTranslationFeedback_ = new AMReadOnlyPVControl("endStationFeedback", "ENC16114I1029:raw:cnt:fbk", this);
 	endStationTranslationFeedback_->setDescription("Position");
 	endStationTranslationFeedback_->setTolerance(1e15);
-
-	// Grating
-	grating_ = new AMPVwStatusControl("grating", "BL1611-ID-1:AddOns:grating", "BL1611-ID-1:AddOns:grating", "SMTR16114I1016:state", "SMTR16114I1016:emergStop", this, 0.1, 2.0, new AMControlStatusCheckerStopped(0));
-	grating_->setDescription("Grating Selection");
-	grating_->setAttemptMoveWhenWithinTolerance(false);
 
 	// Hexapod
 	hexapod_ = new SGMHexapod(this);
@@ -216,12 +193,10 @@ void SGMBeamline::setupBeamlineComponents()
 	scaler_->channelAt(9)->setCustomChannelName("FPD4");
 	scaler_->channelAt(10)->setCustomChannelName("FPD5");
 
-	connect(energy_, SIGNAL(connected(bool)), this, SLOT(onConnectionStateChanged(bool)));
+	connect(energyControlSet_, SIGNAL(connected(bool)), this, SLOT(onConnectionStateChanged(bool)));
 	connect(exitSlitGap_ ,SIGNAL(connected(bool)),this, SLOT(onConnectionStateChanged(bool)));
-	connect(exitSlitPosition_, SIGNAL(connected(bool)), this, SLOT(onConnectionStateChanged(bool)));
 	connect(endStationTranslationSetpont_, SIGNAL(connected(bool)), this, SLOT(onConnectionStateChanged(bool)));
 	connect(endStationTranslationFeedback_, SIGNAL(connected(bool)), this, SLOT(onConnectionStateChanged(bool)));
-	connect(grating_, SIGNAL(connected(bool)), this, SLOT(onConnectionStateChanged(bool)));
 	connect(ssaManipulatorX_, SIGNAL(connected(bool)), this, SLOT(onConnectionStateChanged(bool)));
 	connect(ssaManipulatorY_, SIGNAL(connected(bool)), this, SLOT(onConnectionStateChanged(bool)));
 	connect(ssaManipulatorZ_, SIGNAL(connected(bool)), this, SLOT(onConnectionStateChanged(bool)));
@@ -299,9 +274,7 @@ void SGMBeamline::setupDetectors()
 void SGMBeamline::setupExposedControls()
 {
 	addExposedControl(endStationTranslationSetpont_);
-	addExposedControl(energy_);
 	addExposedControl(exitSlitGap_);
-	addExposedControl(exitSlitPosition_);
 	addExposedControl(ssaManipulatorX_);
 	addExposedControl(ssaManipulatorY_);
 	addExposedControl(ssaManipulatorZ_);
@@ -309,6 +282,7 @@ void SGMBeamline::setupExposedControls()
 	addExposedControl(hexapod_->xAxisPrimeControl());
 	addExposedControl(hexapod_->yAxisPrimeControl());
 	addExposedControl(hexapod_->zAxisPrimeControl());
+	addExposedControl(energyControlSet_->energy());
 }
 
 void SGMBeamline::setupExposedDetectors()
@@ -341,6 +315,8 @@ SGMBeamline::SGMBeamline()
 	setupExposedControls();
 	setupExposedDetectors();
 }
+
+
 
 
 

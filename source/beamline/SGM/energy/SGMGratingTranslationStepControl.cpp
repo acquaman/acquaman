@@ -16,11 +16,16 @@ SGMGratingTranslationStepControl::SGMGratingTranslationStepControl(QObject *pare
 													   2.0,
 													   new AMControlStatusCheckerStopped(0));
 
+	value_ = 0;
+	setpoint_ = 0;
+	connected_ = false;
+	isMoving_ = false;
+
 	addChildControl(gratingTranslationStepPV_);
 
 	setMinimumValue(8500);
 	setMaximumValue(62000);
-	setTolerance(10);
+	setTolerance(0.1);
 	setDisplayPrecision(12);
 
 	updateStates();
@@ -63,7 +68,10 @@ void SGMGratingTranslationStepControl::updateConnected()
 
 void SGMGratingTranslationStepControl::updateMoving()
 {
-	setIsMoving(gratingTranslationStepPV_->isMoving());
+    if(isConnected()) {
+
+		setIsMoving(gratingTranslationStepPV_->isMoving());
+	}
 }
 
 void SGMGratingTranslationStepControl::updateValue()

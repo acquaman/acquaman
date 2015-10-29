@@ -436,8 +436,7 @@ void SGMEnergyPosition::performValidation()
 {
     errorValidator_.updateValidity(SGMMONO_UNKNOWN_UNDULATOR_HARMONIC, undulatorHarmonic_ == SGMUndulatorSupport::UnknownUndulatorHarmonic);
     errorValidator_.updateValidity(SGMMONO_UNKNOWN_GRATING_TRANSLATION, gratingTranslation_ == SGMGratingSupport::UnknownGrating);
-    errorValidator_.updateValidity(SGMMONO_INVALID_ENERGY_FOR_HARMONIC, !SGMUndulatorSupport::validEnergy(undulatorHarmonic_, requestedEnergy_));
-    errorValidator_.updateValidity(SGMMONO_INVALID_ENERGY_FOR_GRATING, !SGMGratingSupport::validEnergy(gratingTranslation_, requestedEnergy_));
+	errorValidator_.updateValidity(SGMMONO_INVALID_ENERGY_FOR_GRATING, gratingAngle_ < -556800);
 
     warningValidator_.updateValidity(SGMMONO_UNDULATOR_TRACKING_OFF, !isUndulatorTracking_);
 	warningValidator_.updateValidity(SGMMONO_EXIT_SLIT_TRACKING_OFF, !isExitSlitPositionTracking_);
