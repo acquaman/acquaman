@@ -38,23 +38,12 @@ void BioXASFrontEndBeamStatusControlEditorView::clear()
 
 void BioXASFrontEndBeamStatusControlEditorView::update()
 {
-	ledView_->update();
-}
-
-void BioXASFrontEndBeamStatusControlEditorView::refresh()
-{
-	// Clear the view.
-
-	clear();
-
-	// Setup.
-
 	if (control_) {
 		editor_->setControl(control_);
 		ledView_->setControl(control_);
+
+	} else {
+		editor_->setControl(0);
+		ledView_->setControl(0);
 	}
-
-	// Update the view.
-
-	update();
 }

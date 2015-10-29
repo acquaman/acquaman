@@ -13,6 +13,17 @@ BioXASFrontEndBeamStatusControlView::~BioXASFrontEndBeamStatusControlView()
 
 }
 
+void BioXASFrontEndBeamStatusControlView::refresh()
+{
+	// Clears the view.
+
+	clear();
+
+	// Updates the view.
+
+	update();
+}
+
 void BioXASFrontEndBeamStatusControlView::setControl(BioXASFrontEndBeamStatusControl *newControl)
 {
 	if (control_ != newControl) {

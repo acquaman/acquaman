@@ -54,16 +54,9 @@ void BioXASSidePOEBeamStatusControlEditorsView::update()
 	if (control_) {
 		mirrorMaskEditor_->setControl(control_->mirrorMask());
 		monoMaskEditor_->setControl(control_->monoMask());
+
+	} else {
+		mirrorMaskEditor_->setControl(0);
+		monoMaskEditor_->setControl(0);
 	}
-}
-
-void BioXASSidePOEBeamStatusControlEditorsView::refresh()
-{
-	// Clears the view.
-
-	clear();
-
-	// Updates the view.
-
-	update();
 }

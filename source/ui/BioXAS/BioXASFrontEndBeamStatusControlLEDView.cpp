@@ -45,24 +45,12 @@ void BioXASFrontEndBeamStatusControlLEDView::clear()
 
 void BioXASFrontEndBeamStatusControlLEDView::update()
 {
-	shuttersLED_->update();
-	valvesLED_->update();
-}
-
-void BioXASFrontEndBeamStatusControlLEDView::refresh()
-{
-	// Clear the view.
-
-	clear();
-
-	// Setup.
-
 	if (control_) {
 		shuttersLED_->setControl(control_->shutters());
 		valvesLED_->setControl(control_->valves());
+
+	} else {
+		shuttersLED_->setControl(0);
+		valvesLED_->setControl(0);
 	}
-
-	// Update the view.
-
-	update();
 }

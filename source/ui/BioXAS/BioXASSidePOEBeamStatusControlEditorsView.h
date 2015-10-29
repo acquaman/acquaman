@@ -29,8 +29,6 @@ public slots:
 	virtual void clear();
 	/// Updates the view.
 	virtual void update();
-	/// Refreshes the view, clears and updates it.
-	virtual void refresh();
 
 protected:
 	/// The beam status editor.

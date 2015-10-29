@@ -38,23 +38,6 @@ void BioXASSidePOEBeamStatusControlEditorView::clear()
 
 void BioXASSidePOEBeamStatusControlEditorView::update()
 {
-	ledView_->update();
-}
-
-void BioXASSidePOEBeamStatusControlEditorView::refresh()
-{
-	// Clear the view.
-
-	clear();
-
-	// Setup.
-
-	if (control_) {
-		editor_->setControl(control_);
-		ledView_->setControl(control_);
-	}
-
-	// Update the view.
-
-	update();
+	editor_->setControl(control_);
+	ledView_->setControl(control_);
 }

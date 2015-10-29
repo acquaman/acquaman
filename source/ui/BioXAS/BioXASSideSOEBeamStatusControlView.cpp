@@ -13,6 +13,17 @@ BioXASSideSOEBeamStatusControlView::~BioXASSideSOEBeamStatusControlView()
 
 }
 
+void BioXASSideSOEBeamStatusControlView::refresh()
+{
+	// Clears the view.
+
+	clear();
+
+	// Updates the view.
+
+	update();
+}
+
 void BioXASSideSOEBeamStatusControlView::setControl(BioXASSideSOEBeamStatusControl *newControl)
 {
 	if (control_ != newControl) {

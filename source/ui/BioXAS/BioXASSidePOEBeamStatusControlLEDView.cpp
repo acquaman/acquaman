@@ -42,24 +42,12 @@ void BioXASSidePOEBeamStatusControlLEDView::clear()
 
 void BioXASSidePOEBeamStatusControlLEDView::update()
 {
-	mirrorLED_->update();
-	monoLED_->update();
-}
-
-void BioXASSidePOEBeamStatusControlLEDView::refresh()
-{
-	// Clear the view.
-
-	clear();
-
-	// Apply current settings.
-
 	if (control_) {
 		mirrorLED_->setControl(control_->mirrorMask());
 		monoLED_->setControl(control_->monoMask());
+
+	} else {
+		mirrorLED_->setControl(0);
+		monoLED_->setControl(0);
 	}
-
-	// Update the view.
-
-	update();
 }

@@ -44,15 +44,6 @@ void BioXASSideSOEBeamStatusControlEditorView::update()
 
 	if (control_)
 		ledView_->setControl(control_->endstationShutter());
-}
-
-void BioXASSideSOEBeamStatusControlEditorView::refresh()
-{
-	// Clear the view.
-
-	clear();
-
-	// Update the view.
-
-	update();
+	else
+		ledView_->setControl(0);
 }

@@ -81,9 +81,18 @@ void BioXASSideBeamStatusControlView::clear()
 
 void BioXASSideBeamStatusControlView::update()
 {
-	frontEndView_->update();
-	poeView_->update();
-	soeView_->update();
+	beamStatusEditor_->setControl(control_);
+
+	if (control_) {
+		frontEndView_->setControl(control_->frontEndBeamStatus());
+		poeView_->setControl(control_->poeBeamStatus());
+		soeView_->setControl(control_->soeBeamStatus());
+
+	} else {
+		frontEndView_->setControl(0);
+		poeView_->setControl(0);
+		soeView_->setControl(0);
+	}
 }
 
 void BioXASSideBeamStatusControlView::refresh()
@@ -91,20 +100,6 @@ void BioXASSideBeamStatusControlView::refresh()
 	// Clear the view.
 
 	clear();
-
-	// Apply current control settings.
-
-	beamStatusEditor_->setControl(control_);
-
-	if (control_) {
-
-		if (control_->poeBeamStatus())
-			frontEndView_->setControl(control_->poeBeamStatus()->frontEndBeamStatus());
-
-		poeView_->setControl(control_->poeBeamStatus());
-
-		soeView_->setControl(control_->soeBeamStatus());
-	}
 
 	// Update the view.
 

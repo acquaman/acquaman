@@ -28,7 +28,7 @@ public slots:
 	/// Updates the view.
 	virtual void update() = 0;
 	/// Refreshes the view, clears and updates it.
-	virtual void refresh() = 0;
+	virtual void refresh();
 
 	/// Sets the beam status control being viewed.
 	virtual void setControl(BioXASSidePOEBeamStatusControl *newControl);

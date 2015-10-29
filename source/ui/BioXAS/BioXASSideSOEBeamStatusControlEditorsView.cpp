@@ -49,15 +49,6 @@ void BioXASSideSOEBeamStatusControlEditorsView::update()
 
 	if (control_)
 		shutterEditor_->setControl(control_->endstationShutter());
-}
-
-void BioXASSideSOEBeamStatusControlEditorsView::refresh()
-{
-	// Clears the view.
-
-	clear();
-
-	// Updates the view.
-
-	update();
+	else
+		shutterEditor_->setControl(0);
 }

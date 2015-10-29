@@ -21,8 +21,6 @@ public slots:
 	void clear();
 	/// Updates the view with the latest beam status control information.
 	void update();
-	/// Refreshes the view.
-	void refresh();
 
 protected:
 	/// The shutters LED.

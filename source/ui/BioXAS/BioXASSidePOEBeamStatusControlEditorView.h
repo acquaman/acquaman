@@ -23,8 +23,6 @@ public slots:
 	void clear();
 	/// Updates the view.
 	void update();
-	/// Refreshes the view, clears and updates it.
-	void refresh();
 
 protected:
 	/// The beam status control editor.
