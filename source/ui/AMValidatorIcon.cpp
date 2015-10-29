@@ -7,7 +7,7 @@
 AMValidatorIcon::AMValidatorIcon(AMValidator* validator,
 								 const QString& iconPath,
 								 QWidget *parent) :
-    QWidget(parent)
+	QWidget(parent)
 {
 
 	validator_ = validator;

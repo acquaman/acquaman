@@ -31,24 +31,24 @@ SGMUndulatorVelocityTests::SGMUndulatorVelocityTests(QObject *parent) :
 											   0.01);
 
 	undulatorVelocitySetpoint_ = new AMSinglePVControl("Undulator velocity setpoint",
-												   "SMTR1411-01:velo",
-												   this,
-												   0.1);
+													   "SMTR1411-01:velo",
+													   this,
+													   0.1);
 
 	undulatorVelocityFeedback_ = new AMSinglePVControl("Undulator velocity feedback",
-												   "SMTR1411-01:velo:fbk",
+													   "SMTR1411-01:velo:fbk",
+													   this,
+													   0.1);
+
+	undulatorVelocityBase_ = new AMSinglePVControl("Undulator velocity base",
+												   "SMTR1411-01:veloBase",
 												   this,
 												   0.1);
 
-	undulatorVelocityBase_ = new AMSinglePVControl("Undulator velocity base",
-											   "SMTR1411-01:veloBase",
-											   this,
-											   0.1);
-
 	undulatorAcceleration_ = new AMSinglePVControl("Undulator acceleration",
-											   "SMTR1411-01:accel",
-											   this,
-											   0.1);
+												   "SMTR1411-01:accel",
+												   this,
+												   0.1);
 
 	allControls_ = new AMControlSet(this);
 	allControls_->addControl(undulatorEncoder_);
@@ -167,7 +167,7 @@ void SGMUndulatorVelocityTests::buildTest(const UndulatorVelocityTestConditions 
 	qDebug() << "Time(ms), Velocity, Encoder Feedback";
 
 	currentTestAction_ = new AMListAction3(new AMListActionInfo3("Test", "Test"),
-														 AMListAction3::Sequential);
+										   AMListAction3::Sequential);
 
 	if(!undulatorEncoder_->withinTolerance(testConditions.encoderStart)) {
 

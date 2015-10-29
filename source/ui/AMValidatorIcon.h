@@ -16,9 +16,9 @@ public:
 	/*!
 	  * Creates a validator icon which will visualize the provided validator.
 	  */
-	explicit AMValidatorIcon(AMValidator* validator,
-							 const QString& iconPath,
-							 QWidget *parent = 0);
+	AMValidatorIcon(AMValidator* validator,
+					const QString& iconPath,
+					QWidget *parent = 0);
 
 signals:
 

@@ -9,7 +9,7 @@
 SGMEnergyView::SGMEnergyView(SGMEnergyControlSet* energyControlSet,
 							 EnergyViewType viewType,
 							 QWidget *parent) :
-    QWidget(parent)
+	QWidget(parent)
 {
 
 	energyControlSet_ = energyControlSet;
