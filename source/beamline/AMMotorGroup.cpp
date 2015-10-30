@@ -241,8 +241,8 @@ bool AMMotorGroupAxis::isRotating() const
 bool AMMotorGroupAxis::canTranslate() const
 {
 	return translationalMotion_ &&
-			translationalMotion_->motor() /*&&
-			translationalMotion_->motor()->isConnected()*/;
+			translationalMotion_->motor() &&
+			translationalMotion_->motor()->isConnected();
 }
 
 bool AMMotorGroupAxis::canRotate() const
