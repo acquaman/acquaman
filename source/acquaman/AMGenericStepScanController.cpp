@@ -1,6 +1,7 @@
 #include "AMGenericStepScanController.h"
 
 #include "analysis/AMAdditionAB.h"
+#include "analysis/AMNormalizationAB.h"
 #include "beamline/AMBeamline.h"
 
 AMGenericStepScanController::AMGenericStepScanController(AMGenericStepScanConfiguration *configuration, QObject *parent)
@@ -113,6 +114,8 @@ void AMGenericStepScanController::buildScanControllerImplementation()
 		else
 			spectrumSource = spectrumSources.first();
 
+		QList <AMRegionOfInterestAB *> newRegions;
+
 		foreach (AMRegionOfInterest *region, configuration_->regionsOfInterest()){
 
 			AMRegionOfInterestAB *regionAB = (AMRegionOfInterestAB *)region->valueSource();
@@ -122,13 +125,23 @@ void AMGenericStepScanController::buildScanControllerImplementation()
 			newRegion->setInputDataSources(QList<AMDataSource *>() << spectrumSource);
 
 			scan_->addAnalyzedDataSource(newRegion, true, false);
+			newRegions << newRegion;
 			// This is sufficient to add a region of interest on all detectors as they should by synchronized via AMBeamline::synchronizeXRFDetectors.
 			detector->addRegionOfInterest(region);
 		}
 
 		if (configuration_->hasI0()){
 
+			QList<AMDataSource *> i0Sources = QList<AMDataSource *>() << scan_->dataSourceAt(scan_->indexOfDataSource(configuration_->i0().name()));
 
+			foreach (AMRegionOfInterestAB *newRegion, newRegions){
+
+				AMNormalizationAB *normalizedRegion = new AMNormalizationAB(QString("norm_%1").arg(newRegion->name()));
+				normalizedRegion->setInputDataSources(QList<AMDataSource *>() << newRegion << i0Sources);
+				normalizedRegion->setDataName(newRegion->name());
+				normalizedRegion->setNormalizationName(i0Sources.first()->name());
+				scan_->addAnalyzedDataSource(normalizedRegion, true, false);
+			}
 		}
 	}
 }
