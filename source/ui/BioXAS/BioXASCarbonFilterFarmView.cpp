@@ -26,14 +26,14 @@ BioXASCarbonFilterFarmView::BioXASCarbonFilterFarmView(BioXASCarbonFilterFarm *f
 
 	QVBoxLayout *upstreamTestingLayout = new QVBoxLayout();
 	upstreamTestingLayout->addWidget(upstreamPositionEditor_);
-	upstreamTestingLayout->addWidget(upstreamPositionStatusEditor_);
+	upstreamTestingLayout->addWidget(upstreamStatusEditor_);
 
 	QGroupBox *upstreamTesting = new QGroupBox("Upstream controls");
 	upstreamTesting->setLayout(upstreamTestingLayout);
 
 	QVBoxLayout *downstreamTestingLayout = new QVBoxLayout();
 	downstreamTestingLayout->addWidget(downstreamPositionEditor_);
-	downstreamTestingLayout->addWidget(downstreamPositionStatusEditor_);
+	downstreamTestingLayout->addWidget(downstreamStatusEditor_);
 
 	QGroupBox *downstreamTesting = new QGroupBox("Downstream controls");
 	downstreamTesting->setLayout(downstreamTestingLayout);
@@ -54,33 +54,42 @@ BioXASCarbonFilterFarmView::~BioXASCarbonFilterFarmView()
 
 }
 
+void BioXASCarbonFilterFarmView::clear()
+{
+	upstreamPositionEditor_->setControl(0);
+	upstreamStatusEditor_->setControl(0);
+
+	downstreamPositionEditor_->setControl(0);
+	downstreamStatusEditor_->setControl(0);
+}
+
+void BioXASCarbonFilterFarmView::refresh()
+{
+	// Clear the view.
+
+	clear();
+
+	// Update the view.
+
+	if (filterFarm_) {
+
+		if (filterFarm_->upstreamActuator() && filterFarm_->upstreamActuator()->position()) {
+			upstreamPositionEditor_->setControl(filterFarm_->upstreamActuator()->position()->positionControl());
+			upstreamStatusEditor_->setControl(filterFarm_->upstreamActuator()->position()->statusControl());
+		}
+
+		if (filterFarm_->downstreamActuator() && filterFarm_->downstreamActuator()->position()) {
+			downstreamPositionEditor_->setControl(filterFarm_->downstreamActuator()->position()->positionControl());
+			downstreamStatusEditor_->setControl(filterFarm_->downstreamActuator()->position()->statusControl());
+		}
+	}
+}
+
 void BioXASCarbonFilterFarmView::setFilterFarm(BioXASCarbonFilterFarm *newFilterFarm)
 {
 	if (filterFarm_ != newFilterFarm) {
-
-		if (filterFarm_) {
-
-			// Clear UI elements.
-
-			upstreamPositionEditor_->setControl(0);
-			upstreamPositionStatusEditor_->setControl(0);
-
-			downstreamPositionEditor_->setControl(0);
-			downstreamStatusEditor_->setControl(0);
-		}
-
 		filterFarm_ = newFilterFarm;
-
-		if (filterFarm_) {
-
-			// Update UI elements.
-
-			upstreamPositionEditor_->setControl(filterFarm_->upstreamPositionControl());
-			upstreamPositionStatusEditor_->setControl(filterFarm_->upstreamStatusControl());
-
-			downstreamPositionEditor_->setControl(filterFarm_->downstreamPositionControl());
-			downstreamStatusEditor_->setControl(filterFarm_->downstreamStatusControl());
-		}
+		refresh();
 
 		emit filterFarmChanged(filterFarm_);
 	}

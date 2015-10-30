@@ -72,8 +72,8 @@ QList<AMControl *> BioXASSideBeamline::getMotorsByType(BioXASBeamlineDef::BioXAS
 
 	switch (category) {
 	case BioXASBeamlineDef::FilterMotor: // BioXAS Filter motors
-		matchedMotors.append(carbonFilterFarm_->upstreamPositionControl());
-		matchedMotors.append(carbonFilterFarm_->downstreamPositionControl());
+		matchedMotors.append(carbonFilterFarm_->upstreamActuator()->position());
+		matchedMotors.append(carbonFilterFarm_->downstreamActuator()->position());
 		break;
 
 	case BioXASBeamlineDef::M1Motor:	// BioXAS M1 motors
@@ -355,12 +355,6 @@ void BioXASSideBeamline::setupExposedControls()
 	addExposedControl(m2Mirror_->lateralControl());
 	addExposedControl(m2Mirror_->bendControl());
 
-	// Carbon filter farm control.
-
-	addExposedControl(carbonFilterFarm_->filterControl());
-	addExposedControl(carbonFilterFarm_->upstreamActuatorControl());
-	addExposedControl(carbonFilterFarm_->downstreamActuatorControl());
-
 	// JJ slit controls.
 
 	addExposedControl(jjSlits_->verticalCenterControl());
@@ -370,15 +364,15 @@ void BioXASSideBeamline::setupExposedControls()
 
 	// Carbon filter farm controls.
 
-	addExposedControl(carbonFilterFarm_->upstreamActuatorControl());
-	addExposedControl(carbonFilterFarm_->upstreamActuatorWindowControl());
-	addExposedControl(carbonFilterFarm_->upstreamActuatorFilterThicknessControl());
+	addExposedControl(carbonFilterFarm_->upstreamActuator()->position());
+	addExposedControl(carbonFilterFarm_->upstreamActuator()->window());
+	addExposedControl(carbonFilterFarm_->upstreamActuator()->filter());
 
-	addExposedControl(carbonFilterFarm_->downstreamActuatorControl());
-	addExposedControl(carbonFilterFarm_->downstreamActuatorWindowControl());
-	addExposedControl(carbonFilterFarm_->downstreamActuatorFilterThicknessControl());
+	addExposedControl(carbonFilterFarm_->downstreamActuator()->position());
+	addExposedControl(carbonFilterFarm_->downstreamActuator()->window());
+	addExposedControl(carbonFilterFarm_->downstreamActuator()->filter());
 
-	addExposedControl(carbonFilterFarm_->filterThicknessControl());
+	addExposedControl(carbonFilterFarm_->filter());
 
 	// DBHR controls.
 

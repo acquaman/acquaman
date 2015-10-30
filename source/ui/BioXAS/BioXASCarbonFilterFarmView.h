@@ -27,6 +27,11 @@ signals:
 	void filterFarmChanged(BioXASCarbonFilterFarm *newFilterFarm);
 
 public slots:
+	/// Clears the view.
+	void clear();
+	/// Refreshes the view, clears and updates it.
+	void refresh();
+
 	/// Sets the carbon filter farm being viewed.
 	void setFilterFarm(BioXASCarbonFilterFarm *newFilterFarm);
 
@@ -37,7 +42,7 @@ protected:
 	/// The upstream actuator position control editor.
 	AMExtendedControlEditor *upstreamPositionEditor_;
 	/// The upstream actuator position status control editor.
-	AMExtendedControlEditor *upstreamPositionStatusEditor_;
+	AMExtendedControlEditor *upstreamStatusEditor_;
 	/// The downstream actuator position control editor.
 	AMExtendedControlEditor *downstreamPositionEditor_;
 	/// The downstream actuator status.

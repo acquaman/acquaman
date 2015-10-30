@@ -1,18 +1,25 @@
-#ifndef BIOXASCARBONFILTERFARMACTUATORWINDOWFILTERTHICKNESSCONTROL_H
-#define BIOXASCARBONFILTERFARMACTUATORWINDOWFILTERTHICKNESSCONTROL_H
+#ifndef BIOXASCARBONFILTERFARMACTUATORFILTERCONTROL_H
+#define BIOXASCARBONFILTERFARMACTUATORFILTERCONTROL_H
 
-#include "beamline/BioXAS/BioXASCarbonFilterFarmControl.h"
+#include "beamline/AMPseudoMotorControl.h"
 #include "beamline/BioXAS/BioXASCarbonFilterFarmActuatorWindowControl.h"
 
-class BioXASCarbonFilterFarmActuatorWindowFilterThicknessControl : public BioXASCarbonFilterFarmControl
+class BioXASCarbonFilterFarmActuatorFilterControl : public AMPseudoMotorControl
 {
     Q_OBJECT
 
 public:
 	/// Constructor.
-	explicit BioXASCarbonFilterFarmActuatorWindowFilterThicknessControl(const QString &name, const QString &units, BioXASCarbonFilterFarmActuatorWindowControl *windowControl,  QObject *parent = 0);
+	explicit BioXASCarbonFilterFarmActuatorFilterControl(const QString &name, const QString &units, QObject *parent = 0);
 	/// Destructor.
-	virtual ~BioXASCarbonFilterFarmActuatorWindowFilterThicknessControl();
+	virtual ~BioXASCarbonFilterFarmActuatorFilterControl();
+
+	/// Returns true if the total filter thickness is always measurable, if connected. False otherwise.
+	virtual bool shouldMeasure() const { return true; }
+	/// Returns true if a move to a new total filter thickness is always possible, if connected. False otherwise.
+	virtual bool shouldMove() const { return true; }
+	/// Returns true if this control can stop a move in progress, if connected. False otherwise.
+	virtual bool shouldStop() const { return true; }
 
 	/// Returns true if this control can measure its value right now. False otherwise.
 	virtual bool canMeasure() const;
@@ -27,25 +34,25 @@ public:
 	virtual bool validSetpoint(double value) const { return validValue(value); }
 
 	/// Returns the window control.
-	AMControl* windowControl() { return window_; }
+	AMControl* window() { return window_; }
 
 	/// Returns a string representation of the given filter thickness.
 	static QString filterThicknessToString(double filterThickness);
 
 	/// Returns the filter thickness at the given window.
-	double filterThicknessAtWindow(BioXASCarbonFilterFarm::Actuator::Window window);
+	double filterThicknessAtWindow(double window);
 	/// Returns a list of windows with the given filter thickness.
-	QList<BioXASCarbonFilterFarm::Actuator::Window> windowsWithFilterThickness(double filterThickness);
+	QList<double> windowsWithFilterThickness(double filterThickness);
 
 signals:
 	/// Notifier that the window control has changed.
-	void windowControlChanged(AMControl *newControl);
+	void windowChanged(AMControl *newControl);
 
 public slots:
 	/// Sets the actuator window control.
-	void setWindowControl(BioXASCarbonFilterFarmActuatorWindowControl *newControl);
+	void setWindow(BioXASCarbonFilterFarmActuatorWindowControl *newControl);
 	/// Sets a window to filter thickness mapping.
-	void setWindowFilterThickness(BioXASCarbonFilterFarm::Actuator::Window window, double filterThickness);
+	void setWindowFilter(BioXASCarbonFilterFarmActuatorWindowControl::Value window, double filterThickness);
 
 protected slots:
 	/// Updates the connected state.
@@ -59,15 +66,14 @@ protected:
 	/// Returns a new action that moves the actuator to the desired window setpoint.
 	virtual AMAction3* createMoveAction(double windowSetpoint);
 
-	/// Generates this control's enum states from the filter thickness map.
+	/// Sets up the enum states for this control.
 	void setupEnumStates();
 
 protected:
 	/// The mapping between window enum and filter thickness.
-	QMap<BioXASCarbonFilterFarm::Actuator::Window, double> windowFilterMap_;
+	QMap<double, double> windowFilterMap_;
 	/// The window control.
 	BioXASCarbonFilterFarmActuatorWindowControl *window_;
-
 };
 
-#endif // BIOXASCARBONFILTERFARMACTUATORWINDOWFILTERTHICKNESSCONTROL_H
+#endif // BIOXASCARBONFILTERFARMACTUATORFILTERCONTROL_H

@@ -34,7 +34,6 @@ HEADERS += \
 	source/beamline/BioXAS/BioXASEndstationTable.h \
 	source/beamline/BioXAS/BioXASM1Mirror.h \
 	source/beamline/BioXAS/BioXASBeamlineComponent.h \
-	source/beamline/BioXAS/BioXASCarbonFilterFarmControl.h \
 	source/ui/BioXAS/BioXASBeamlineBeamView.h \
 	source/beamline/BioXAS/BioXASMirrorMotor.h \
 	source/beamline/BioXAS/BioXASMirror.h \
@@ -65,16 +64,19 @@ HEADERS += \
     source/beamline/BioXAS/BioXASDBHRMirrors.h \
 	source/ui/BioXAS/BioXASDBHRMirrorsView.h \
     source/beamline/BioXAS/BioXASCarbonFilterFarmActuatorWindowControl.h \
-    source/beamline/BioXAS/BioXASCarbonFilterFarmFilterThicknessControl.h \
-    source/beamline/BioXAS/BioXASCarbonFilterFarmActuatorControl.h \
-	source/beamline/BioXAS/BioXASCarbonFilterFarmActuatorWindowFilterThicknessControl.h \
     source/beamline/BioXAS/BioXASBeamlineUtilities.h \
     source/beamline/BioXAS/BioXASCryostatStage.h \
     source/ui/BioXAS/BioXASXASScanConfigurationRegionsEditor.h \
     source/ui/BioXAS/BioXASXASScanConfigurationEdgeEditor.h \
     source/ui/BioXAS/BioXASXASScanConfigurationEditor.h \
     source/ui/BioXAS/BioXASXASScanConfigurationView.h \
-    source/dataman/BioXAS/BioXASDbUpgrade1Pt1.h
+    source/dataman/BioXAS/BioXASDbUpgrade1Pt1.h \
+    source/beamline/BioXAS/BioXASCarbonFilterFarmActuatorPositionControl.h \
+    source/beamline/BioXAS/BioXASCarbonFilterFarmActuatorControl.h \
+    source/beamline/BioXAS/BioXASCarbonFilterFarmActuatorFilterControl.h \
+    source/beamline/BioXAS/BioXASCarbonFilterFarmActuator.h \
+    source/beamline/BioXAS/BioXASCarbonFilterFarmControl.h \
+    source/beamline/BioXAS/BioXASCarbonFilterFarmFilterControl.h
 
 SOURCES += \
 	source/acquaman/BioXAS/BioXASXRFScanConfiguration.cpp \
@@ -104,7 +106,6 @@ SOURCES += \
 	source/beamline/BioXAS/BioXASEndstationTable.cpp \
 	source/beamline/BioXAS/BioXASM1Mirror.cpp \
 	source/beamline/BioXAS/BioXASBeamlineComponent.cpp \
-	source/beamline/BioXAS/BioXASCarbonFilterFarmControl.cpp \
 	source/ui/BioXAS/BioXASBeamlineBeamView.cpp \
 	source/beamline/BioXAS/BioXASMirrorMotor.cpp \
 	source/beamline/BioXAS/BioXASMirror.cpp \
@@ -134,13 +135,36 @@ SOURCES += \
     source/beamline/BioXAS/BioXASDBHRMirrors.cpp \
 	source/ui/BioXAS/BioXASDBHRMirrorsView.cpp \
     source/beamline/BioXAS/BioXASCarbonFilterFarmActuatorWindowControl.cpp \
-    source/beamline/BioXAS/BioXASCarbonFilterFarmFilterThicknessControl.cpp \
-    source/beamline/BioXAS/BioXASCarbonFilterFarmActuatorFilterThicknessControl.cpp \
-	source/beamline/BioXAS/BioXASCarbonFilterFarmActuatorControl.cpp \
     source/beamline/BioXAS/BioXASBeamlineUtilities.cpp \
     source/beamline/BioXAS/BioXASCryostatStage.cpp \
     source/ui/BioXAS/BioXASXASScanConfigurationRegionsEditor.cpp \
     source/ui/BioXAS/BioXASXASScanConfigurationEdgeEditor.cpp \
     source/ui/BioXAS/BioXASXASScanConfigurationEditor.cpp \
     source/ui/BioXAS/BioXASXASScanConfigurationView.cpp \
-    source/dataman/BioXAS/BioXASDbUpgrade1Pt1.cpp
+    source/dataman/BioXAS/BioXASDbUpgrade1Pt1.cpp \
+    source/beamline/BioXAS/BioXASCarbonFilterFarmActuatorPositionControl.cpp \
+    source/beamline/BioXAS/BioXASCarbonFilterFarmActuatorControl.cpp \
+    source/beamline/BioXAS/BioXASCarbonFilterFarmActuatorFilterControl.cpp \
+    source/beamline/BioXAS/BioXASCarbonFilterFarmActuator.cpp \
+    source/beamline/BioXAS/BioXASCarbonFilterFarmControl.cpp \
+    source/beamline/BioXAS/BioXASCarbonFilterFarmFilterControl.cpp
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

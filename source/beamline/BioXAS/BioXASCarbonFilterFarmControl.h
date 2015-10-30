@@ -1,32 +1,53 @@
 #ifndef BIOXASCARBONFILTERFARMCONTROL_H
 #define BIOXASCARBONFILTERFARMCONTROL_H
 
-#include "beamline/AMPseudoMotorControl.h"
-#include "beamline/BioXAS/BioXASCarbonFilterFarm.h"
+#include "beamline/BioXAS/BioXASBeamlineComponent.h"
+#include "beamline/BioXAS/BioXASCarbonFilterFarmActuatorControl.h"
+#include "beamline/BioXAS/BioXASCarbonFilterFarmFilterControl.h"
 
-// error codes.
-
-#define BIOXAS_FILTER_FARM_NOT_CONNECTED 23048701
-#define BIOXAS_FILTER_FARM_ALREADY_MOVING 23048702
-#define BIOXAS_FILTER_FARM_INVALID_SETPOINT 23048703
-#define BIOXAS_FILTER_FARM_MOVE_FAILED 23048704
-
-class BioXASCarbonFilterFarmControl : public AMPseudoMotorControl
+class BioXASCarbonFilterFarmControl : public BioXASBeamlineComponent
 {
-	Q_OBJECT
+    Q_OBJECT
 
 public:
 	/// Constructor.
-	explicit BioXASCarbonFilterFarmControl(const QString &name, const QString &units, QObject *parent = 0);
+	explicit BioXASCarbonFilterFarmControl(const QString &name, QObject *parent = 0);
 	/// Destructor.
 	virtual ~BioXASCarbonFilterFarmControl();
 
-	/// Returns true if the total filter thickness is always measurable, if connected. False otherwise.
-	virtual bool shouldMeasure() const { return true; }
-	/// Returns true if a move to a new total filter thickness is always possible, if connected. False otherwise.
-	virtual bool shouldMove() const { return true; }
-	/// Returns true if this control can stop a move in progress, if connected. False otherwise.
-	virtual bool shouldStop() const { return true; }
+	/// Returns the current connected state.
+	virtual bool isConnected() const;
+
+	/// Returns the upstream actuator control.
+	BioXASCarbonFilterFarmActuatorControl* upstreamActuator() const { return upstreamActuator_; }
+	/// Returns the downstream actuator control.
+	BioXASCarbonFilterFarmActuatorControl* downstreamActuator() const { return downstreamActuator_; }
+	/// Returns the filter control.
+	BioXASCarbonFilterFarmFilterControl* filter() const { return filter_; }
+
+signals:
+	/// Notifier that the upstream actuator control has changed.
+	void upstreamActuatorChanged(AMControl *newControl);
+	/// Notifier that the downstream actuator control has changed.
+	void downstreamActuatorChanged(AMControl *newControl);
+	/// Notifier that the filter control has changed.
+	void filterChanged(AMControl *filter);
+
+public slots:
+	/// Sets the upstream actuator control.
+	void setUpstreamActuator(BioXASCarbonFilterFarmActuatorControl *newControl);
+	/// Sets the downstream actuator control.
+	void setDownstreamActuator(BioXASCarbonFilterFarmActuatorControl *newControl);
+	/// Sets the filter control.
+	void setFilter(BioXASCarbonFilterFarmFilterControl *newControl);
+
+protected:
+	/// The upstream actuator control.
+	BioXASCarbonFilterFarmActuatorControl *upstreamActuator_;
+	/// The downstream actuator control.
+	BioXASCarbonFilterFarmActuatorControl *downstreamActuator_;
+	/// The filter control.
+	BioXASCarbonFilterFarmFilterControl *filter_;
 };
 
 #endif // BIOXASCARBONFILTERFARMCONTROL_H

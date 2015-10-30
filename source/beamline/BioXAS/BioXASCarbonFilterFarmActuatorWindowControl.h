@@ -1,16 +1,18 @@
 #ifndef BIOXASCARBONFILTERFARMACTUATORWINDOWCONTROL_H
 #define BIOXASCARBONFILTERFARMACTUATORWINDOWCONTROL_H
 
-#include "beamline/BioXAS/BioXASCarbonFilterFarmControl.h"
-#include "beamline/BioXAS/BioXASCarbonFilterFarmActuatorControl.h"
+#include "beamline/AMPseudoMotorControl.h"
 
-class BioXASCarbonFilterFarmActuatorWindowControl : public BioXASCarbonFilterFarmControl
+class BioXASCarbonFilterFarmActuatorWindowControl : public AMPseudoMotorControl
 {
 	Q_OBJECT
 
 public:
+	/// Enum describing the actuator windows.
+	enum Value { Top = 0, Bottom = 1, None = 2, Invalid = 3 };
+
 	/// Constructor.
-	explicit BioXASCarbonFilterFarmActuatorWindowControl(const QString &name, const QString &units, BioXASCarbonFilterFarmActuatorControl *actuatorControl, QObject *parent = 0);
+	explicit BioXASCarbonFilterFarmActuatorWindowControl(const QString &name, QObject *parent = 0);
 	/// Destructor.
 	virtual ~BioXASCarbonFilterFarmActuatorWindowControl();
 
@@ -26,26 +28,26 @@ public:
 	/// Returns true if the given value corresponds to a valid window setpoint, false otherwise.
 	virtual bool validSetpoint(double value) const;
 
-	/// Returns the actuator control.
-	AMControl* actuatorControl() { return actuator_; }
+	/// Returns the actuator position control.
+	AMControl* positionControl() { return actuatorPosition_; }
 
 	/// Returns a string representation of the given window value.
-	static QString windowToString(BioXASCarbonFilterFarm::Actuator::Window window);
+	static QString windowToString(double window);
 
 	/// Returns the window corresponding to the given position. Returns Window::None if no window found.
-	BioXASCarbonFilterFarm::Actuator::Window windowAtPosition(double position) const;
+	double windowAtPosition(double position) const;
 	/// Returns the position of the given window. Returns 0 if no position was found.
-	double positionOfWindow(BioXASCarbonFilterFarm::Actuator::Window window) const;
+	double positionOfWindow(double window) const;
 
 signals:
 	/// Notifier that the actuator control has changed.
-	void actuatorControlChanged(AMControl *newControl);
+	void actuatorPositionChanged(AMControl *newControl);
 
 public slots:
 	/// Sets the actuator control.
-	void setActuatorControl(BioXASCarbonFilterFarmActuatorControl *newControl);
+	void setActuatorPosition(AMControl *newControl);
 	/// Sets a window to position mapping.
-	void setWindowPosition(BioXASCarbonFilterFarm::Actuator::Window window, double position);
+	void setWindowPosition(double window, double position);
 
 protected slots:
 	/// Updates the connected state.
@@ -60,10 +62,10 @@ protected:
 	virtual AMAction3* createMoveAction(double windowSetpoint);
 
 protected:
-	/// The actuator control.
-	BioXASCarbonFilterFarmActuatorControl *actuator_;
+	/// The actuator position control.
+	AMControl *actuatorPosition_;
 	/// The mapping between window enum and physical window position.
-	QMap<BioXASCarbonFilterFarm::Actuator::Window, double> positionMap_;
+	QMap<double, double> windowPositionMap_;
 };
 
 #endif // BIOXASCARBONFILTERFARMACTUATORWINDOWCONTROL_H
