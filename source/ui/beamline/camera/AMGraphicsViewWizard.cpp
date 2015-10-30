@@ -223,6 +223,7 @@ QString AMGraphicsViewWizard::message(int type)
 /// get a point in relative coordinates, so that it may be mapped correctly in the coordinate space
 QPointF AMGraphicsViewWizard::mapPointToVideo(QPointF point) const
 {
+    Q_UNUSED(point)
 	#ifdef AM_MOBILITY_VIDEO_ENABLED
 	QList<QGraphicsItem*> list = view()->items();
 	QGraphicsVideoItem* videoItem;

@@ -12,7 +12,7 @@ BioXASMirrorControl::BioXASMirrorControl(const QString &name, const QString &uni
 	maximumValue_ = 1000000;
 
 	setAllowsMovesWhileMoving(false);
-	setTolerance(0.05);
+	setTolerance(0.0005);
 
 	// Initialize member variables.
 

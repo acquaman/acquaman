@@ -113,7 +113,7 @@ void AMDetectorDwellTimeAction::onDwellSetStarted(double dwellTime){
 	if(dwellTimeSource_)
 		disconnect(dwellTimeSource_, SIGNAL(setDwellTime(double)), this, SLOT(onDwellSetStarted(double)));
 
-	if(fabs(dwellTime - detectorDwellTimeInfo()->dwellSeconds()) < detector_->acquisitionTimeTolerance())
+    if(fabs(dwellTime - detectorDwellTimeInfo()->dwellSeconds()) < detector_->acquisitionTimeTolerance())
 		setSucceeded();
 	else{
 

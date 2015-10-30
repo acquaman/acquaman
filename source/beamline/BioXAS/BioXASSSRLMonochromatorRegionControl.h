@@ -51,8 +51,6 @@
 #define BioXAS_MONO_REGION_REGION_B_WAIT_FAILED 1407719
 #define BioXAS_MONO_REGION_KEY_DISABLED_WAIT_FAILED 1407720
 
-#include <QDebug>
-
 class BioXASSSRLMonochromatorRegionControl : public AMPseudoMotorControl
 {
 	Q_OBJECT
@@ -113,8 +111,6 @@ public:
 	AMControl* regionAStatusControl() const { return regionAStatus_; }
 	/// Returns the region B status control.
 	AMControl* regionBStatusControl() const { return regionBStatus_; }
-
-//	virtual void addChildControl(AMControl *control);
 
 signals:
 	/// Notifier that there has been progress in completing a crystal change.

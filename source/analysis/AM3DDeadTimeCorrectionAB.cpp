@@ -130,7 +130,7 @@ AMNumber AM3DDeadTimeCorrectionAB::axisValue(int axisNumber, int index) const
 	return spectra_->axisValue(axisNumber, index);
 }
 
-bool AM3DDeadTimeCorrectionAB::axisValues(int axisNumber, int startIndex, int endIndex, AMNumber *outputValues) const
+bool AM3DDeadTimeCorrectionAB::axisValues(int axisNumber, int startIndex, int endIndex, double *outputValues) const
 {
 	if (!isValid())
 		return false;

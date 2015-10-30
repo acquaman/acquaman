@@ -159,6 +159,22 @@ bool REIXSXESMCPDetector::setAcquisitionTime(double seconds){
 	return true;
 }
 
+bool REIXSXESMCPDetector::addAcquisitionTime(double addSeconds){
+	if(addSeconds < 0.1)
+		return false;
+	if (!dwellTimeTimer_->isActive())
+		return false;
+
+	dwellTime_+= addSeconds;
+
+	dwellTimeTimer_->blockSignals(true);
+	dwellTimeTimer_->setInterval(dwellTime_*1000);
+	dwellTimeTimer_->blockSignals(false);
+
+	return true;
+}
+
+
 AMControl* REIXSXESMCPDetector::averagingPeriodControl(){
 	return averagingPeriodSecsControl_;
 }

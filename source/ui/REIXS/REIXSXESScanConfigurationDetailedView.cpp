@@ -23,7 +23,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QGroupBox>
 #include <QBoxLayout>
-#include "ui/AMTopFrame2.h"
+#include "ui/AMTopFrame.h"
 
  REIXSXESScanConfigurationDetailedView::~REIXSXESScanConfigurationDetailedView(){}
 //REIXSXESScanConfigurationDetailedView::REIXSXESScanConfigurationDetailedView(REIXSXESMCPDetectorPre2013* detector, QWidget *parent) :
@@ -39,7 +39,7 @@ REIXSXESScanConfigurationDetailedView::REIXSXESScanConfigurationDetailedView(REI
 	QVBoxLayout* outerVLayout = new QVBoxLayout();
 	outerVLayout->setContentsMargins(0,0,0,0);
 	outerVLayout->setSpacing(0);
-	outerVLayout->addWidget(new AMTopFrame2("Setup XES Scan", QIcon(":/utilities-system-monitor.png")));
+	outerVLayout->addWidget(new AMTopFrame("Setup XES Scan", QIcon(":/utilities-system-monitor.png")));
 
 	QHBoxLayout* hl = new QHBoxLayout();
 	hl->setContentsMargins(12,12,12,12);

@@ -144,7 +144,7 @@ void AMExtendedControlEditor::setPrecision(int precision)
 void AMExtendedControlEditor::setRange(double maxValue, double minValue)
 {
 	maxValue_ = maxValue;
-	minValue = minValue;
+	minValue_ = minValue;
 }
 
 void AMExtendedControlEditor::hideBorder()

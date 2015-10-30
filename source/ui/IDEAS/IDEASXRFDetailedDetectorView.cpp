@@ -39,6 +39,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 IDEASXRFDetailedDetectorView::IDEASXRFDetailedDetectorView(AMXRFDetector *detector, QWidget *parent)
 	: AMXRFDetailedDetectorView(detector, parent)
 {
+	chooseScanDialog_ = 0;
 	setMaximumHeight(885);
 }
 
@@ -59,20 +60,7 @@ void IDEASXRFDetailedDetectorView::buildScanSaveViews()
 {
 	deadTimeCheckButton = new QPushButton("Check Dead Time");
 
-	peakingTimeBox = new QComboBox();
-	peakingTimeBox->setObjectName(QString::fromUtf8("peakingTimeBox"));
-	peakingTimeBox->addItem("Setting Unknown");
-	peakingTimeBox->addItem("High Rate / Low Res");
-	peakingTimeBox->addItem("High Res / Low Rate");
-	peakingTimeBox->addItem("Ultra Res / Slow Rate");
-
-	connect(IDEASBeamline::ideas()->ketekPeakingTime(), SIGNAL(connected(bool)), this, SLOT(onKETEKPeakingTimeChanged()));
-	connect(IDEASBeamline::ideas()->ketekPeakingTime(), SIGNAL(valueChanged(double)), this, SLOT(onKETEKPeakingTimeChanged()));
-
-
 	rightLayout_->addWidget(deadTimeCheckButton);
-
-	rightLayout_->addWidget(peakingTimeBox);
 
 	rightLayout_->addStretch();
 
@@ -82,7 +70,6 @@ void IDEASXRFDetailedDetectorView::buildScanSaveViews()
 
 
 	connect(saveScanButton_, SIGNAL(clicked()), this, SLOT(onSaveScanButtonClicked()));
-	connect(peakingTimeBox, SIGNAL(currentIndexChanged(QString)), this, SLOT(onPeakingTimeBoxChanged(QString)));
 	connect(deadTimeCheckButton, SIGNAL(clicked()), this, SLOT(onDeadTimeCheckButtonClicked()));
 
 }
@@ -149,7 +136,7 @@ void IDEASXRFDetailedDetectorView::exportScan()
 	exportDir.cd("exportData");
 	exportController_->setDestinationFolderPath(exportDir.absolutePath());
 	exportController_->chooseExporter("AMExporterGeneralAscii");
-	exportController_->setOption(IDEAS::buildStandardExporterOption("IDEASDefault", true, false, false, true));
+	exportController_->setOption(IDEAS::buildStandardExporterOption("IDEASXRFDefault", true, true, false));
 	exportController_->option()->setFileName("$name_$number.dat");
 	exportController_->start(true);
 }
@@ -175,46 +162,6 @@ void IDEASXRFDetailedDetectorView::startAcquisition()
 	connect(scanAction, SIGNAL(succeeded()), scanAction, SLOT(scheduleForDeletion()));
 
 	scanAction->start();
-}
-
-void IDEASXRFDetailedDetectorView::onPeakingTimeBoxChanged(const QString &arg1)
-{
-
-	if (arg1 == "High Rate / Low Res")
-	{
-		IDEASBeamline::ideas()->ketekPeakingTime()->move(0.300);
-		IDEASBeamline::ideas()->ketekPreampGain()->move(1.2600);
-	}
-	else if (arg1 == "High Res / Low Rate")
-	{
-		IDEASBeamline::ideas()->ketekPeakingTime()->move(2.00);
-		IDEASBeamline::ideas()->ketekPreampGain()->move(1.2375);
-	}
-	else if (arg1 == "Ultra Res / Slow Rate")
-	{
-		IDEASBeamline::ideas()->ketekPeakingTime()->move(4.00);
-		IDEASBeamline::ideas()->ketekPreampGain()->move(1.2375);
-
-	}
-}
-
-void IDEASXRFDetailedDetectorView::onKETEKPeakingTimeChanged()
-{
-
-	// HACK ugly hard coded magic numbers...   Works for now.
-	peakingTimeBox->blockSignals(true);
-
-	if (IDEASBeamline::ideas()->ketekPeakingTime()->value() == 0.3)
-	peakingTimeBox->setCurrentIndex(1);
-	else if (IDEASBeamline::ideas()->ketekPeakingTime()->value() == 2.0)
-	peakingTimeBox->setCurrentIndex(2);
-	else if (IDEASBeamline::ideas()->ketekPeakingTime()->value() == 4.0)
-	peakingTimeBox->setCurrentIndex(3);
-	else
-	peakingTimeBox->setCurrentIndex(0);
-
-	peakingTimeBox->blockSignals(false);
-
 }
 
 void IDEASXRFDetailedDetectorView::onDeadTimeCheckButtonClicked()

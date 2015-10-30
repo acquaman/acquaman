@@ -40,6 +40,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/IDEAS/IDEASKETEKDetector.h"
 #include "beamline/IDEAS/IDEAS13ElementGeDetector.h"
 
+
+
 /// This class is the master class that holds EVERY control inside the VESPERS beamline.
 class IDEASBeamline : public CLSBeamline
 {
@@ -78,7 +80,7 @@ public:
 	AMControl *monoHighEV() const { return monoHighEV_; }
 	AMControl *monoLowEV() const { return monoLowEV_; }
 	AMControl *ringCurrent() const { return ringCurrent_; }
-	AMControl *I0Current() const { return I0Current_; }
+	AMControl *I0Current() const { return i0Current_; }
 	AMControl *sampleTemp() const { return sampleTemp_; }
 
 	AMControl *monoBraggAngle() const { return monoBraggAngle_; }
@@ -108,7 +110,7 @@ public:
 	AMControl *vacuumSampleStage() const { return vacuumSampleStage_ ; }
 
 	/// Returns the XRF detector
-	AMXRFDetector *XRFDetector(IDEAS::FluorescenceDetector detectorType);
+	AMXRFDetector *xrfDetector(IDEAS::FluorescenceDetectors detectorType);
 
 	/// Returns the KETEK detector pointer.
 	IDEASKETEKDetector *ketek() const { return ketek_; }
@@ -116,13 +118,16 @@ public:
 	AMDetector *ketekDwellTime() const {return ketekRealTime_; }
 
 	/// Returns the 13-element Ge detector pointer.
-	IDEAS13ElementGeDetector *ge13Element() const { return ge13Element_; }
+	IDEAS13ElementGeDetector *ge13Element() const {return ge13Element_;}
 	/// Returns the real time for the Ge detector.
-	AMDetector *ge13ElementDwellTime() const { return ge13ElementRealTime_; }
+	AMDetector *ge13ElementDwellTime() const {return ge13ElementRealTime_;}
 
-	CLSBasicScalerChannelDetector *I_0() const {return I0IonChamberScaler_;}
-	CLSBasicScalerChannelDetector *Sample() const {return SampleIonChamberScaler_;}
-	CLSBasicScalerChannelDetector *Reference() const {return ReferenceIonChamberScaler_;}
+	/// Returns the default I0 ion chamber.
+	CLSBasicScalerChannelDetector *i0() const {return i0IonChamberScaler_;}
+	/// Returns the sample ion chamber.
+	CLSBasicScalerChannelDetector *sampleIonChamber() const {return sampleIonChamberScaler_;}
+	/// Returns the ion chamber for reference samples.
+	CLSBasicScalerChannelDetector *referenceIonChamber() const {return referenceIonChamberScaler_;}
 
 	// The scaler.
 	/// Returns the scaler.
@@ -200,9 +205,9 @@ protected:
 	/// Control for the mode of the IDEAS Ammeter Group
 	AMPVControl *ammeterGroupMode_;
 
-	CLSBasicScalerChannelDetector *I0IonChamberScaler_;
-	CLSBasicScalerChannelDetector *SampleIonChamberScaler_;
-	CLSBasicScalerChannelDetector *ReferenceIonChamberScaler_;
+	CLSBasicScalerChannelDetector *i0IonChamberScaler_;
+	CLSBasicScalerChannelDetector *sampleIonChamberScaler_;
+	CLSBasicScalerChannelDetector *referenceIonChamberScaler_;
 
 	// Scaler.
 	CLSSIS3820Scaler *scaler_;
@@ -222,7 +227,7 @@ protected:
 	AMReadOnlyPVControl *ge13ElementRealTimeControl_;
 
 
-	AMControl *monoCrystal_, *monoLowEV_, *monoHighEV_, *ringCurrent_, *I0Current_, *sampleTemp_, *monoBraggAngle_, *mono2d_, *monoAngleOffset_;
+	AMControl *monoCrystal_, *monoLowEV_, *monoHighEV_, *ringCurrent_, *i0Current_, *sampleTemp_, *monoBraggAngle_, *mono2d_, *monoAngleOffset_;
 
 	//Sample Stage motors
 	/////////////////////

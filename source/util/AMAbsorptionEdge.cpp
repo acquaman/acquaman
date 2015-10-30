@@ -82,6 +82,16 @@ AMAbsorptionEdge::AMAbsorptionEdge()
 	edge_ = QString();
 }
 
+QString AMAbsorptionEdge::toString() const
+{
+	QString result;
+
+	if (!isNull())
+		result = name_ + ": " + energyString() + " eV";
+
+	return result;
+}
+
 AMAbsorptionEdge &AMAbsorptionEdge::operator =(const AMAbsorptionEdge &other)
 {
 	if (this != &other){

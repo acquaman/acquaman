@@ -30,3 +30,27 @@ AMControl::AMControl(const QString& name, const QString& units, QObject* parent,
 	allowsMovesWhileMoving_ = false;
 	displayPrecision_ = 3;
 }
+
+bool AMControl::hasChildControl(AMControl *control) const
+{
+	bool result = false;
+
+	if (control && !children_.isEmpty()) {
+		bool controlFound = false;
+
+		for (int i = 0, count = children_.count(); i < count && !controlFound; i++) {
+			AMControl *child = children_.at(i);
+
+			if (child) {
+				if (child == control)
+					controlFound = true;
+				else
+					controlFound = child->hasChildControl(control);
+			}
+		}
+
+		result = controlFound;
+	}
+
+	return result;
+}

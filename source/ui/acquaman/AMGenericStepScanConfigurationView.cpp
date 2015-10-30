@@ -1,20 +1,17 @@
 #include "AMGenericStepScanConfigurationView.h"
 
-#include <QVBoxLayout>
-#include <QHBoxLayout>
-#include <QGroupBox>
 #include <QScrollArea>
+#include <QGroupBox>
 #include <QCheckBox>
-#include <QButtonGroup>
 
 #include "util/AMDateTimeUtils.h"
-#include "beamline/AMBeamline.h"
 
-AMGenericStepScanConfigurationView::AMGenericStepScanConfigurationView(AMGenericStepScanConfiguration *configuration, QWidget *parent)
+AMGenericStepScanConfigurationView::AMGenericStepScanConfigurationView(AMGenericStepScanConfiguration *configuration, AMControlSet *controls, AMDetectorSet *detectors, QWidget *parent)
 	: AMScanConfigurationView(parent)
 {
 	configuration_ = configuration;
-
+	controls_ = 0;
+	detectors_ = 0;
 
 	scanName_ = new QLineEdit;
 	scanName_->setText(configuration_->name());
@@ -54,24 +51,8 @@ AMGenericStepScanConfigurationView::AMGenericStepScanConfigurationView(AMGeneric
 
 	axisControlChoice1_ = new QComboBox;
 	axisControlChoice2_ = new QComboBox;
-	AMControlSet *exposedControls = AMBeamline::bl()->exposedControls();
 
-	axisControlChoice1_->addItem("None");
-	axisControlChoice2_->addItem("None");
-
-	for (int i = 0, size = exposedControls->count(); i < size; i++){
-
-		axisControlChoice1_->addItem(exposedControls->at(i)->name());
-		axisControlChoice2_->addItem(exposedControls->at(i)->name());
-	}
-
-	if (configuration_->axisControlInfos().count() > 0){
-
-		axisControlChoice1_->setCurrentIndex(axisControlChoice1_->findText(configuration_->axisControlInfos().at(0).name()));
-
-		if (configuration_->axisControlInfos().count() == 2)
-			axisControlChoice2_->setCurrentIndex(axisControlChoice2_->findText(configuration_->axisControlInfos().at(1).name()));
-	}
+	setControls(controls);
 
 	connect(axisControlChoice1_, SIGNAL(currentIndexChanged(int)), this, SLOT(onAxisControlChoice1Changed()));
 	connect(axisControlChoice2_, SIGNAL(currentIndexChanged(int)), this, SLOT(onAxisControlChoice2Changed()));
@@ -118,25 +99,16 @@ AMGenericStepScanConfigurationView::AMGenericStepScanConfigurationView(AMGeneric
 
 	QScrollArea *detectorScrollArea = new QScrollArea;
 	QGroupBox *detectorGroupBox = new QGroupBox("Detectors");
-	QVBoxLayout *detectorLayout = new QVBoxLayout;
-	QButtonGroup *detectorGroup = new QButtonGroup;
-	detectorGroup->setExclusive(false);
-	AMDetectorSet *detectors = AMBeamline::bl()->exposedDetectors();
-
-	for (int i = 0, size = detectors->count(); i < size; i++){
-
-		QCheckBox *checkBox = new QCheckBox(detectors->at(i)->name());
-		detectorGroup->addButton(checkBox);
-		detectorLayout->addWidget(checkBox);
-
-		if (configuration_->detectorConfigurations().contains(detectors->at(i)->name()))
-			checkBox->setChecked(true);
-	}
-
-	connect(detectorGroup, SIGNAL(buttonClicked(QAbstractButton*)), this, SLOT(onDetectorSelectionChanged(QAbstractButton*)));
-
-	detectorGroupBox->setLayout(detectorLayout);
 	detectorGroupBox->setFlat(true);
+	detectorGroup_ = new QButtonGroup;
+	detectorGroup_->setExclusive(false);
+	detectorLayout_ = new QVBoxLayout;
+
+	setDetectors(detectors);
+
+	connect(detectorGroup_, SIGNAL(buttonClicked(QAbstractButton*)), this, SLOT(onDetectorSelectionChanged(QAbstractButton*)));
+
+	detectorGroupBox->setLayout(detectorLayout_);
 	detectorScrollArea->setWidget(detectorGroupBox);
 	detectorScrollArea->setFrameStyle(QFrame::NoFrame);
 
@@ -157,6 +129,94 @@ AMGenericStepScanConfigurationView::AMGenericStepScanConfigurationView(AMGeneric
 	configViewLayout->addStretch();
 
 	setLayout(configViewLayout);
+}
+
+void AMGenericStepScanConfigurationView::setControls(AMControlSet *newControls)
+{
+	if (controls_ != newControls) {
+
+		// Clear previously dislayed controls.
+
+		axisControlChoice1_->clear();
+		axisControlChoice2_->clear();
+
+		controlNameMap_.clear();
+
+		// Set new controls.
+
+		controls_ = newControls;
+
+		// Add new controls.
+
+		axisControlChoice1_->addItem("None");
+		axisControlChoice2_->addItem("None");
+
+		for (int controlIndex = 0, controlCount = controls_->count(); controlIndex < controlCount; controlIndex++) {
+			AMControl *control = controls_->at(controlIndex);
+
+			if (control) {
+				QString name = control->name();
+
+				axisControlChoice1_->addItem(name);
+				axisControlChoice2_->addItem(name);
+
+				controlNameMap_.insert(name, control);
+			}
+		}
+
+		// Update current indexes.
+
+		if (configuration_ && configuration_->axisControlInfos().count() > 0) {
+
+			axisControlChoice1_->setCurrentIndex(axisControlChoice1_->findText(configuration_->axisControlInfos().at(0).name()));
+
+			if (configuration_->axisControlInfos().count() == 2)
+				axisControlChoice2_->setCurrentIndex(axisControlChoice2_->findText(configuration_->axisControlInfos().at(1).name()));
+		}
+	}
+}
+
+void AMGenericStepScanConfigurationView::setDetectors(AMDetectorSet *newDetectors)
+{
+	if (detectors_ != newDetectors) {
+
+		// Clear previously displayed detectors.
+
+		for (int buttonIndex = 0, buttonCount = detectorGroup_->buttons().count(); buttonIndex < buttonCount; buttonIndex++) {
+			QAbstractButton *button = detectorGroup_->button(buttonIndex);
+			detectorLayout_->removeWidget(button);
+			detectorGroup_->removeButton(button);
+			button->deleteLater();
+		}
+
+		detectorButtonMap_.clear();
+
+		// Set new detectors.
+
+		detectors_ = newDetectors;
+
+		// Add new detectors.
+
+		for (int detectorIndex = 0, detectorCount = detectors_->count(); detectorIndex < detectorCount; detectorIndex++) {
+			AMDetector *detector = detectors_->at(detectorIndex);
+
+			if (detector) {
+				QCheckBox *checkBox = new QCheckBox(detector->name());
+				detectorGroup_->addButton(checkBox);
+				detectorLayout_->addWidget(checkBox);
+
+				detectorButtonMap_.insert(detector, checkBox);
+
+				// Update current selection.
+
+				if (configuration_ && configuration_->detectorConfigurations().contains(detector->name())) {
+					checkBox->blockSignals(true);
+					checkBox->setChecked(true);
+					checkBox->blockSignals(false);
+				}
+			}
+		}
+	}
 }
 
 void AMGenericStepScanConfigurationView::onScanNameEdited()
@@ -207,11 +267,15 @@ void AMGenericStepScanConfigurationView::onAxisControlChoice1Changed()
 		axisEnd1_->setEnabled(true);
 		axisControlChoice2_->setEnabled(true);
 
-		AMControl *control = AMBeamline::bl()->exposedControlByName(axisControlChoice1_->itemText(axisControlChoice1_->currentIndex()));
-		configuration_->setControl(0, control->toInfo());
-		setStart1(control->value());
-		setStep1(1.0);
-		setEnd1(control->value()+10);
+		AMControl *control = controlNameMap_.value( axisControlChoice1_->itemText(axisControlChoice1_->currentIndex()), 0 );
+
+		if (control) {
+			configuration_->setControl(0, control->toInfo());
+			setStart1(control->value());
+			setStep1(1.0);
+			setEnd1(control->value()+10);
+		}
+
 		onStart1Changed();
 		onStep1Changed();
 		onEnd1Changed();
@@ -249,11 +313,15 @@ void AMGenericStepScanConfigurationView::onAxisControlChoice2Changed()
 		axisStep2_->setEnabled(true);
 		axisEnd2_->setEnabled(true);
 
-		AMControl *control = AMBeamline::bl()->exposedControlByName(axisControlChoice2_->itemText(axisControlChoice2_->currentIndex()));
-		configuration_->setControl(1, control->toInfo());
-		setStart2(control->value());
-		setStep2(1.0);
-		setEnd2(control->value()+10);
+		AMControl *control = controlNameMap_.value(axisControlChoice2_->itemText(axisControlChoice2_->currentIndex()), 0);
+
+		if (control) {
+			configuration_->setControl(1, control->toInfo());
+			setStart2(control->value());
+			setStep2(1.0);
+			setEnd2(control->value()+10);
+		}
+
 		onStart2Changed();
 		onStep2Changed();
 		onEnd2Changed();
@@ -411,9 +479,14 @@ void AMGenericStepScanConfigurationView::onScanAxisAdded(AMScanAxis *axis)
 
 void AMGenericStepScanConfigurationView::onDetectorSelectionChanged(QAbstractButton *button)
 {
-	if (button->isChecked())
-		configuration_->addDetector(AMBeamline::bl()->exposedDetectorByName(button->text())->toInfo());
+	if (button) {
+		AMDetector *detector = detectorButtonMap_.key(button, 0);
 
-	else
-		configuration_->removeDetector(AMBeamline::bl()->exposedDetectorByName(button->text())->toInfo());
+		if (detector) {
+			if (button->isChecked())
+				configuration_->addDetector(detector->toInfo());
+			else
+				configuration_->removeDetector(detector->toInfo());
+		}
+	}
 }

@@ -35,7 +35,6 @@ class QComboBox;
 class QTabWidget;
 class QWidget;
 
-
 class MPlotWidget;
 class MPlot;
 class MPlotImageBasic;
@@ -222,7 +221,8 @@ public slots:
 	void onShiftValuesChanged();
 	/// sets shift 2 line edit string
 	void setShift2LineEdit(QString shifts) {shift2LineEdit_->setText(shifts);}
-
+	/// When a user changes the binning level
+	void onBinningLevelBoxChanged(int index);
 
 	/// signals from analysis block: if the block's input data source changes (to either null, or one with a different size.)
 	void onAnalysisBlockInputDataSourcesChanged();
@@ -240,6 +240,7 @@ protected:
 	QPushButton* correlateNowButton_;
 	QComboBox* correlation1SmoothingBox_;
 	QComboBox* correlation2SmoothingBox_;
+	QSpinBox* binningLevelBox_;
 	QCheckBox* liveCorrelationCheckBox_;
 	QDoubleSpinBox* energyCalibrationOffsetBox_, *tiltCalibrationOffsetBox_, *rangeRoundControl_;
 	QTabWidget* tabWidget_;
