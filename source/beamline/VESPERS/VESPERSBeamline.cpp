@@ -315,6 +315,7 @@ void VESPERSBeamline::setupMotorGroup()
 	motorObject->setDirectionAxis(AMMotorGroupObject::VerticalMotion,
 						 "V", wireStageVertical_,
 						 "", 0);
+
 	motorObject->setDirectionAxis(AMMotorGroupObject::NormalMotion,
 						 "N", wireStageNormal_,
 						 "", 0);
