@@ -7,7 +7,7 @@ BioXASSideCarbonFilterFarm::BioXASSideCarbonFilterFarm(QObject *parent) :
 	// Setup the upstream actuator control.
 
 	CLSMAXvMotor *upstreamMotor = new CLSMAXvMotor("SMTR1607-5-I00-01", "SMTR1607-5-I00-01", "SMTR1607-5-I00-01", true, 0.05, 2.0, this);
-	AMReadOnlyPVControl *upstreamStatus = new AMReadOnlyPVControl(name()+"UpstreamActuatorStatus", "SMTR1607-5-I00-01:InPosition", this);
+	AMReadOnlyPVControl *upstreamStatus = new AMReadOnlyPVControl(name()+"UpstreamActuatorStatus", "PFIL1607-5-I22-01:InPosition", this);
 
 	upstreamActuator_->position()->setPositionControl(upstreamMotor);
 	upstreamActuator_->position()->setStatusControl(upstreamStatus);
@@ -22,7 +22,7 @@ BioXASSideCarbonFilterFarm::BioXASSideCarbonFilterFarm(QObject *parent) :
 	// Setup the downstream actuator control.
 
 	CLSMAXvMotor *downstreamMotor = new CLSMAXvMotor("SMTR1607-5-I00-02", "SMTR1607-5-I00-02", "SMTR1607-5-I00-02", true, 0.05, 2.0, this);
-	AMReadOnlyPVControl *downstreamStatus = new AMReadOnlyPVControl(name()+"DownstreamActuatorStatus", "SMTR1607-5-I00-02:InPosition", this);
+	AMReadOnlyPVControl *downstreamStatus = new AMReadOnlyPVControl(name()+"DownstreamActuatorStatus", "PFIL1607-5-I22-02:InPosition", this);
 
 	downstreamActuator_->position()->setPositionControl(downstreamMotor);
 	downstreamActuator_->position()->setStatusControl(downstreamStatus);

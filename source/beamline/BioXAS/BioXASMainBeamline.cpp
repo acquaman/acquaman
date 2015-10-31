@@ -65,8 +65,8 @@ QList<AMControl *> BioXASMainBeamline::getMotorsByType(BioXASBeamlineDef::BioXAS
 
 	switch (category) {
 	case BioXASBeamlineDef::FilterMotor: // BioXAS Filter motors
-		matchedMotors.append(carbonFilterFarm_->upstreamActuatorControl());
-		matchedMotors.append(carbonFilterFarm_->downstreamActuatorControl());
+		matchedMotors.append(carbonFilterFarm_->upstreamActuator()->position());
+		matchedMotors.append(carbonFilterFarm_->downstreamActuator()->position());
 		break;
 
 	case BioXASBeamlineDef::M1Motor:	// BioXAS M1 motors
@@ -323,16 +323,15 @@ void BioXASMainBeamline::setupExposedControls()
 
 	// Carbon filter farm controls.
 
-	addExposedControl(carbonFilterFarm_->filterControl());
-	addExposedControl(carbonFilterFarm_->upstreamActuatorControl());
-	addExposedControl(carbonFilterFarm_->upstreamActuatorWindowControl());
-	addExposedControl(carbonFilterFarm_->upstreamActuatorFilterThicknessControl());
+	addExposedControl(carbonFilterFarm_->filter());
 
-	addExposedControl(carbonFilterFarm_->downstreamActuatorControl());
-	addExposedControl(carbonFilterFarm_->downstreamActuatorWindowControl());
-	addExposedControl(carbonFilterFarm_->downstreamActuatorFilterThicknessControl());
+	addExposedControl(carbonFilterFarm_->upstreamActuator()->position());
+	addExposedControl(carbonFilterFarm_->upstreamActuator()->window());
+	addExposedControl(carbonFilterFarm_->upstreamActuator()->filter());
 
-	addExposedControl(carbonFilterFarm_->filterThicknessControl());
+	addExposedControl(carbonFilterFarm_->downstreamActuator()->position());
+	addExposedControl(carbonFilterFarm_->downstreamActuator()->window());
+	addExposedControl(carbonFilterFarm_->downstreamActuator()->filter());
 
 	// JJ slits controls.
 
