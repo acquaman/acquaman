@@ -39,6 +39,7 @@ AMPIC887Controller::AMPIC887Controller(const QString& name, const QString& hostn
 	isBusy_ = false;
 	currentPositionRefreshRequired_ = false;
 	controllerState_ = new AMPIC887ControllerState();
+	recordedPositionData_ = QVector<AMPIC887HexapodPosition>(1024, AMPIC887HexapodPosition());
 	xMotions_ = 0;
 	yMotions_ = 0;
 	zMotions_ = 0;
@@ -791,7 +792,7 @@ void AMPIC887Controller::onAsyncMoveStarted(AMGCS2AsyncCommand *command)
 
 
 		AMPIC887AxisCollection axesMoving = moveCommand->targetPositions().axes();
-		recordedPositionData_.clear();
+
 		foreach(AMGCS2::Axis currentAxis, axesMoving) {
 
 			controllerState_->hexapodState()->setTargetPosition(currentAxis, moveCommand->targetPositions().value(currentAxis));
@@ -915,7 +916,7 @@ void AMPIC887Controller::onAsyncMoveRelativeStarted(AMGCS2AsyncCommand *command)
 
 
 		AMPIC887AxisCollection axesMoving = moveRelativeCommand->relativeTargetPositions().axes();
-		recordedPositionData_.clear();
+
 		foreach(AMGCS2::Axis currentAxis, axesMoving) {
 
 			double currentTarget = controllerState_->hexapodState()->targetPosition(currentAxis);
@@ -1038,7 +1039,6 @@ void AMPIC887Controller::onAsyncMoveRelativeFailed(AMGCS2AsyncCommand *command)
 void AMPIC887Controller::onAsyncReferenceMoveStarted(AMGCS2AsyncCommand *)
 {
 	currentPositionRefreshRequired_ = true;
-	recordedPositionData_.clear();
 	++xMotions_;
 	++yMotions_;
 	++zMotions_;
@@ -1104,15 +1104,9 @@ void AMPIC887Controller::onAsyncReferenceMoveFailed(AMGCS2AsyncCommand *command)
 
 	command->deleteLater();
 }
-#include <QDebug>
+
 void AMPIC887Controller::onAsyncDataRetrievalSucceeded(AMGCS2AsyncCommand *command)
 {
-	qDebug() << "Data retrieval completed in " << testTimer_.elapsed() << " ms";
-	foreach(AMPIC887HexapodPosition position, recordedPositionData_) {
-
-		qDebug() << position.toString();
-	}
-
 	command->deleteLater();
 }
 
@@ -1184,7 +1178,7 @@ void AMPIC887Controller::setError(const QString &errorMessage)
 void AMPIC887Controller::startAsyncDataRetrieval()
 {
 	AMGCS2AsyncGetRecordedDataValuesCommand* recordedPositionDataCommand =
-			new AMGCS2AsyncGetRecordedDataValuesCommand(&recordedPositionData_);
+			new AMGCS2AsyncGetRecordedDataValuesCommand(recordedPositionData_);
 
 	connect(recordedPositionDataCommand, SIGNAL(succeeded(AMGCS2AsyncCommand*)),
 			this, SLOT(onAsyncDataRetrievalSucceeded(AMGCS2AsyncCommand*)));

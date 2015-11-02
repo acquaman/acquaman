@@ -8,6 +8,7 @@ AMPIC887HexapodPosition::AMPIC887HexapodPosition()
 	uAxisPosition_ = 0.0;
 	vAxisPosition_ = 0.0;
 	wAxisPosition_ = 0.0;
+	time_ = 0.0;
 }
 
 AMPIC887HexapodPosition::AMPIC887HexapodPosition(double xAxisPosition,
