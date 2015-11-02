@@ -12,9 +12,9 @@ BioXASSideCarbonFilterFarm::BioXASSideCarbonFilterFarm(QObject *parent) :
 	upstreamActuator_->position()->setPositionControl(upstreamMotor);
 	upstreamActuator_->position()->setStatusControl(upstreamStatus);
 
-	upstreamActuator_->window()->setWindowPosition(BioXASCarbonFilterFarmActuatorWindowControl::Top, BIOXASSIDECARBONFILTERFARM_UPSTREAM_TOP);
-	upstreamActuator_->window()->setWindowPosition(BioXASCarbonFilterFarmActuatorWindowControl::Bottom, BIOXASSIDECARBONFILTERFARM_UPSTREAM_BOTTOM);
-	upstreamActuator_->window()->setWindowPosition(BioXASCarbonFilterFarmActuatorWindowControl::None, BIOXASSIDECARBONFILTERFARM_UPSTREAM_OUT);
+	upstreamActuator_->window()->setWindowPosition(BioXASCarbonFilterFarmActuatorWindowControl::Top, BIOXASSIDECARBONFILTERFARM_UPSTREAM_TOP - 0.25, BIOXASSIDECARBONFILTERFARM_UPSTREAM_TOP + 0.25);
+	upstreamActuator_->window()->setWindowPosition(BioXASCarbonFilterFarmActuatorWindowControl::Bottom, BIOXASSIDECARBONFILTERFARM_UPSTREAM_BOTTOM - 0.25, BIOXASSIDECARBONFILTERFARM_UPSTREAM_BOTTOM + 0.25);
+	upstreamActuator_->window()->setWindowPosition(BioXASCarbonFilterFarmActuatorWindowControl::None, BIOXASSIDECARBONFILTERFARM_UPSTREAM_OUT - 0.25, BIOXASSIDECARBONFILTERFARM_UPSTREAM_OUT + 0.25);
 
 	upstreamActuator_->filter()->setWindowFilter(BioXASCarbonFilterFarmActuatorWindowControl::Top, 50);
 	upstreamActuator_->filter()->setWindowFilter(BioXASCarbonFilterFarmActuatorWindowControl::Bottom, 50);
@@ -27,9 +27,9 @@ BioXASSideCarbonFilterFarm::BioXASSideCarbonFilterFarm(QObject *parent) :
 	downstreamActuator_->position()->setPositionControl(downstreamMotor);
 	downstreamActuator_->position()->setStatusControl(downstreamStatus);
 
-	downstreamActuator_->window()->setWindowPosition(BioXASCarbonFilterFarmActuatorWindowControl::Top, BIOXASSIDECARBONFILTERFARM_DOWNSTREAM_TOP);
-	downstreamActuator_->window()->setWindowPosition(BioXASCarbonFilterFarmActuatorWindowControl::Bottom, BIOXASSIDECARBONFILTERFARM_DOWNSTREAM_BOTTOM);
-	downstreamActuator_->window()->setWindowPosition(BioXASCarbonFilterFarmActuatorWindowControl::None, BIOXASSIDECARBONFILTERFARM_DOWNSTREAM_OUT);
+	downstreamActuator_->window()->setWindowPosition(BioXASCarbonFilterFarmActuatorWindowControl::Top, BIOXASSIDECARBONFILTERFARM_DOWNSTREAM_TOP - 0.25, BIOXASSIDECARBONFILTERFARM_DOWNSTREAM_TOP + 0.25);
+	downstreamActuator_->window()->setWindowPosition(BioXASCarbonFilterFarmActuatorWindowControl::Bottom, BIOXASSIDECARBONFILTERFARM_DOWNSTREAM_BOTTOM - 0.25, BIOXASSIDECARBONFILTERFARM_DOWNSTREAM_BOTTOM + 0.25);
+	downstreamActuator_->window()->setWindowPosition(BioXASCarbonFilterFarmActuatorWindowControl::None, BIOXASSIDECARBONFILTERFARM_DOWNSTREAM_OUT - 0.25, BIOXASSIDECARBONFILTERFARM_DOWNSTREAM_OUT + 0.25);
 
 	downstreamActuator_->filter()->setWindowFilter(BioXASCarbonFilterFarmActuatorWindowControl::Top, 0);
 	downstreamActuator_->filter()->setWindowFilter(BioXASCarbonFilterFarmActuatorWindowControl::Bottom, 700);

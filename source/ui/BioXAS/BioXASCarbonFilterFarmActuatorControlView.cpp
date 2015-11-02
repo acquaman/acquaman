@@ -14,13 +14,16 @@ BioXASCarbonFilterFarmActuatorControlView::BioXASCarbonFilterFarmActuatorControl
 
 	windowEditor_ = new AMExtendedControlEditor(0);
 	windowEditor_->setTitle("Window");
+	windowEditor_->setNoUnitsBox(true);
 
 	positionEditor_ = new AMExtendedControlEditor(0);
 	positionEditor_->setTitle("Position");
+	positionEditor_->setMinimumWidth(200);
 
 	positionStatusEditor_ = new AMExtendedControlEditor(0);
-	positionStatusEditor_->setTitle("Position status");
+	positionStatusEditor_->setTitle("Status");
 	positionStatusEditor_->setNoUnitsBox(true);
+	positionStatusEditor_->setMinimumWidth(200);
 
 	// Create and set layouts.
 

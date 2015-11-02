@@ -47,7 +47,7 @@ public slots:
 	/// Sets the actuator control.
 	void setActuatorPosition(AMControl *newControl);
 	/// Sets a window to position mapping.
-	void setWindowPosition(double window, double position);
+	void setWindowPosition(double window, double minPosition, double maxPosition);
 
 protected slots:
 	/// Updates the connected state.
@@ -64,8 +64,11 @@ protected:
 protected:
 	/// The actuator position control.
 	AMControl *actuatorPosition_;
-	/// The mapping between window enum and physical window position.
-	QMap<double, double> windowPositionMap_;
+
+	/// The mapping between window enum and physical window position (min value).
+	QMap<double, double> windowMinPositionMap_;
+	/// The mapping between window enum and physical window position (max value).
+	QMap<double, double> windowMaxPositionMap_;
 };
 
 #endif // BIOXASCARBONFILTERFARMACTUATORWINDOWCONTROL_H

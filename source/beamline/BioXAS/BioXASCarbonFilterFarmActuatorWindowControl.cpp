@@ -128,12 +128,28 @@ QString BioXASCarbonFilterFarmActuatorWindowControl::windowToString(double windo
 
 double BioXASCarbonFilterFarmActuatorWindowControl::windowAtPosition(double position) const
 {
-	return windowPositionMap_.key(position, BioXASCarbonFilterFarmActuatorWindowControl::Invalid);
+	double result = -1;
+
+	if (position >= windowMinPositionMap_.value(Top) && position <= windowMaxPositionMap_.value(Top))
+		result = Top;
+	else if (position >= windowMinPositionMap_.value(Bottom) && position <= windowMaxPositionMap_.value(Bottom))
+		result = Bottom;
+	else if (position >= windowMinPositionMap_.value(None) && position <= windowMaxPositionMap_.value(None))
+		result = None;
+	else
+		result = Invalid;
+
+	return result;
 }
 
 double BioXASCarbonFilterFarmActuatorWindowControl::positionOfWindow(double window) const
 {
-	return windowPositionMap_.value(window, 0);
+	double positionMin = windowMinPositionMap_.value(window);
+	double positionMax = windowMaxPositionMap_.value(window);
+
+	double position = (positionMin + positionMax) / 2.0;
+
+	return position;
 }
 
 void BioXASCarbonFilterFarmActuatorWindowControl::setActuatorPosition(AMControl *newControl)
@@ -148,15 +164,18 @@ void BioXASCarbonFilterFarmActuatorWindowControl::setActuatorPosition(AMControl 
 		if (actuatorPosition_)
 			addChildControl(actuatorPosition_);
 
-		emit actuatorPositionChanged(actuatorPosition_);
-
 		updateStates();
+
+		emit actuatorPositionChanged(actuatorPosition_);
 	}
 }
 
-void BioXASCarbonFilterFarmActuatorWindowControl::setWindowPosition(double window, double position)
+void BioXASCarbonFilterFarmActuatorWindowControl::setWindowPosition(double window, double minPosition, double maxPosition)
 {
-	windowPositionMap_.insert(window, position);
+	if (validSetpoint(window) && minPosition <= maxPosition) {
+		windowMinPositionMap_.insert(window, minPosition);
+		windowMaxPositionMap_.insert(window, maxPosition);
+	}
 }
 
 void BioXASCarbonFilterFarmActuatorWindowControl::updateConnected()
@@ -188,12 +207,6 @@ void BioXASCarbonFilterFarmActuatorWindowControl::updateMoving()
 
 AMAction3* BioXASCarbonFilterFarmActuatorWindowControl::createMoveAction(double windowSetpoint)
 {
-	AMAction3 *action = 0;
-
-	int window = int(windowSetpoint);
-
-	if (windowPositionMap_.contains(window))
-		action = AMActionSupport::buildControlMoveAction(actuatorPosition_, positionOfWindow(window));
-
+	AMAction3 *action = AMActionSupport::buildControlMoveAction(actuatorPosition_, positionOfWindow(windowSetpoint));
 	return action;
 }
