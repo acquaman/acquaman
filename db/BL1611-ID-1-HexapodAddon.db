@@ -188,3 +188,45 @@ record( mbbi, "HXPD1611-4-I10-01:W:status" )
 	field( FRST, "ERROR" )
 	field( FRVL, "0x04" )
 }
+record( waveform, "HXPD1611-4-I10-01:recorder:X:mm" )
+{
+	field( DTYP, "DTYP")
+	field( FTVL, "DOUBLE" )
+	field( NELM, "1025" )
+}
+record( waveform, "HXPD1611-4-I10-01:recorder:Y:mm" )
+{
+	field( DTYP, "DTYP")
+	field( FTVL, "DOUBLE" )
+	field( NELM, "1025" )
+}
+record( waveform, "HXPD1611-4-I10-01:recorder:Z:mm" )
+{
+	field( DTYP, "DTYP")
+	field( FTVL, "DOUBLE" )
+	field( NELM, "1025" )
+}
+record( waveform, "HXPD1611-4-I10-01:recorder:U:deg" )
+{
+	field( DTYP, "DTYP")
+	field( FTVL, "DOUBLE" )
+	field( NELM, "1025" )
+}
+record( waveform, "HXPD1611-4-I10-01:recorder:V:deg" )
+{
+	field( DTYP, "DTYP")
+	field( FTVL, "DOUBLE" )
+	field( NELM, "1025" )
+}
+record( waveform, "HXPD1611-4-I10-01:recorder:W:deg" )
+{
+	field( DTYP, "DTYP")
+	field( FTVL, "DOUBLE" )
+	field( NELM, "1025" )
+}
+record( waveform, "HXPD1611-4-I10-01:recorder:time:s" )
+{
+	field( DTYP, "DTYP")
+	field( FTVL, "DOUBLE" )
+	field( NELM, "1025" )
+}

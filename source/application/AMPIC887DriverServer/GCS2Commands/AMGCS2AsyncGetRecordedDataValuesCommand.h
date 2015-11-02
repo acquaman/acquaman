@@ -47,9 +47,6 @@ protected:
 	  */
 	double* rawPositionData_;
 
-	/// The number of values to obtain from each record table.
-	int numberOfValuesToRead_;
-
 	/// The parsed position data read
 	QVector<AMPIC887HexapodPosition> positionData_;
 

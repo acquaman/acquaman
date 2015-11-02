@@ -9,6 +9,7 @@ AMPIC887HexapodPosition::AMPIC887HexapodPosition()
 	vAxisPosition_ = 0.0;
 	wAxisPosition_ = 0.0;
 	time_ = 0.0;
+	isValid_ = false;
 }
 
 AMPIC887HexapodPosition::AMPIC887HexapodPosition(double xAxisPosition,
@@ -26,6 +27,7 @@ AMPIC887HexapodPosition::AMPIC887HexapodPosition(double xAxisPosition,
 	vAxisPosition_ = vAxisPosition;
 	wAxisPosition_ = wAxisPosition;
 	time_ = time;
+	isValid_ = true;
 }
 
 double AMPIC887HexapodPosition::xAxisPosition() const
@@ -73,4 +75,9 @@ QString AMPIC887HexapodPosition::toString() const
 			.arg(uAxisPosition_)
 			.arg(vAxisPosition_)
 			.arg(wAxisPosition_);
+}
+
+bool AMPIC887HexapodPosition::isValid() const
+{
+	return isValid_;
 }

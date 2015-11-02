@@ -139,6 +139,13 @@ public:
 	bool setRecordConfigs(const QHash<int, AMPIC887DataRecorderConfiguration>& recordConfigs);
 
 	/*!
+	  * The recorded positional data for all axes during the last movement. This
+	  * vector is of a constant size of 1024, but may not be entirely filled with
+	  * each move.
+	  */
+	QVector<AMPIC887HexapodPosition> lastRecordedPositionData() const;
+
+	/*!
 	  * The current movement status of the controller's hexapod.
 	  */
 	AMGCS2::AxisMovementStatuses movementStatuses() const;
@@ -668,6 +675,11 @@ protected slots:
 	  * error message to be cleared is complete.
 	  */
 	void onErrorClearingTimerTimedOut();
+
+	/*!
+	  * Method which starts asynchronous data retrieval from the data recorder.
+	  */
+	void startAsyncDataRetrieval();
 protected:
 
 	/*!
@@ -697,11 +709,12 @@ protected:
 	  */
 	void setError(const QString& errorMessage);
 
-protected slots:
 	/*!
-	  * Method which starts asynchronous data retrieval from the data recorder.
+	  * Helper function which calculates the required delay, in ms, after a move
+	  * from the current position to the target position at the current
+	  * system velocity before the data retrieval should commence.
 	  */
-	void startAsyncDataRetrieval();
+	int calculateDataRetrievalDelay();
 
 protected:
 	AMPIC887ControllerState* controllerState_;
@@ -713,7 +726,7 @@ protected:
 	QString lastError_;
 	QTimer positionUpdateTimer_;
 	mutable bool currentPositionRefreshRequired_;
-	QVector<AMPIC887HexapodPosition> recordedPositionData_;
+	QVector<AMPIC887HexapodPosition> lastRecordedPositionData_;
 	//State data
 	////////////
 	int xMotions_;

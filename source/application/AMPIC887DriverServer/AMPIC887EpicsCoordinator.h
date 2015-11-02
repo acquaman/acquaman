@@ -107,28 +107,42 @@ protected slots:
 	  * move has been requested.
 	  */
 	void onTrajectoryMove();
+
 protected:
+
+	/*!
+	  * Helper function which parses the recorded position data from the hexapod
+	  * controller, and pushes this data to the waveform PV.
+	  */
+	void parseRecordedPositionData();
 
 	AMControlSet* allControls_;
 
 	AMControl* xAxisFeedback_;
 	AMControl* xAxisStatus_;
+	AMControl* xAxisRecorderFeedback_;
 
 	AMControl* yAxisFeedback_;
 	AMControl* yAxisStatus_;
+	AMControl* yAxisRecorderFeedback_;
 
 	AMControl* zAxisFeedback_;
 	AMControl* zAxisStatus_;
+	AMControl* zAxisRecorderFeedback_;
 
 	AMControl* uAxisFeedback_;
 	AMControl* uAxisStatus_;
+	AMControl* uAxisRecorderFeedback_;
 
 	AMControl* vAxisFeedback_;
 	AMControl* vAxisStatus_;
+	AMControl* vAxisRecorderFeedback_;
 
 	AMControl* wAxisFeedback_;
 	AMControl* wAxisStatus_;
+	AMControl* wAxisRecorderFeedback_;
 
+	AMControl* timeRecorderFeedback_;
 	AMControl* systemVelocityFeedback_;
 	AMControl* systemVelocitySetpoint_;
 

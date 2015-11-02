@@ -13,44 +13,58 @@ AMPIC887EpicsCoordinator::AMPIC887EpicsCoordinator(AMPIC887Controller* controlle
 
 	xAxisFeedback_ = new AMSinglePVControl("HexapodXAxisValue", "HXPD1611-4-I10-01:X:mm:fbk", this, AXIS_POSITION_TOLERANCE);
 	xAxisStatus_ = new AMSinglePVControl("HexapodXAxisStatus", "HXPD1611-4-I10-01:X:status", this, 0.5);
+	//xAxisRecorderFeedback_ = new AMWaveformBinningSinglePVControl("HexapodXAxisRecordedPositions", "HXPD1611-4-I10-01:recorder:X:mm", 0, 1025, this);
 
 	yAxisFeedback_ = new AMSinglePVControl("HexapodYAxisValue", "HXPD1611-4-I10-01:Y:mm:fbk", this, AXIS_POSITION_TOLERANCE);
 	yAxisStatus_ = new AMSinglePVControl("HexapodYAxisStatus", "HXPD1611-4-I10-01:Y:status", this, 0.5);
+	//yAxisRecorderFeedback_ = new AMWaveformBinningSinglePVControl("HexapodXAxisRecordedPositions", "HXPD1611-4-I10-01:recorder:Y:mm", 0, 1025, this);
 
 	zAxisFeedback_ = new AMSinglePVControl("HexapodZAxisValue", "HXPD1611-4-I10-01:Z:mm:fbk", this, AXIS_POSITION_TOLERANCE);
 	zAxisStatus_ = new AMSinglePVControl("HexapodZAxisStatus", "HXPD1611-4-I10-01:Z:status", this, 0.5);
+	//zAxisRecorderFeedback_ = new AMWaveformBinningSinglePVControl("HexapodXAxisRecordedPositions", "HXPD1611-4-I10-01:recorder:Z:mm", 0, 1025, this);
 
 	uAxisFeedback_ = new AMSinglePVControl("HexapodUAxisValue", "HXPD1611-4-I10-01:U:deg:fbk", this, AXIS_POSITION_TOLERANCE);
 	uAxisStatus_ = new AMSinglePVControl("HexapodUAxisStatus", "HXPD1611-4-I10-01:U:status", this, 0.5);
+	//uAxisRecorderFeedback_ = new AMWaveformBinningSinglePVControl("HexapodXAxisRecordedPositions", "HXPD1611-4-I10-01:recorder:U:deg", 0, 1025, this);
 
 	vAxisFeedback_ = new AMSinglePVControl("HexapodVAxisValue", "HXPD1611-4-I10-01:V:deg:fbk", this, AXIS_POSITION_TOLERANCE);
 	vAxisStatus_ = new AMSinglePVControl("HexapodVAxisStatus", "HXPD1611-4-I10-01:V:status", this, 0.5);
+	//vAxisRecorderFeedback_ = new AMWaveformBinningSinglePVControl("HexapodXAxisRecordedPositions", "HXPD1611-4-I10-01:recorder:V:deg", 0, 1025, this);
 
 	wAxisFeedback_ = new AMSinglePVControl("HexapodWAxisValue", "HXPD1611-4-I10-01:W:deg:fbk", this, AXIS_POSITION_TOLERANCE);
 	wAxisStatus_ = new AMSinglePVControl("HexapodWAxisStatus", "HXPD1611-4-I10-01:W:status", this, 0.5);
+	//wAxisRecorderFeedback_ = new AMWaveformBinningSinglePVControl("HexapodXAxisRecordedPositions", "HXPD1611-4-I10-01:recorder:W:deg", 0, 1025, this);
 
+	//timeRecorderFeedback_ = new AMWaveformBinningSinglePVControl("HexapodXAxisRecordedPositions", "HXPD1611-4-I10-01:recorder:time:s", 0, 1025, this);
 	systemVelocityFeedback_ = new AMSinglePVControl("HexapodSystemVelocityValue", "HXPD1611-4-I10-01:velocity:fbk", this, 0.001);
 	systemVelocitySetpoint_ = new AMSinglePVControl("HexapodSystemVelocityValue", "HXPD1611-4-I10-01:velocity", this, 0.001);
 	stopAll_ = new AMSinglePVControl("HexapodStopAll", "HXPD1611-4-I10-01:stop", this, 0.5);
 
 	allControls_->addControl(xAxisFeedback_);
 	allControls_->addControl(xAxisStatus_);
+	allControls_->addControl(xAxisRecorderFeedback_);
 
 	allControls_->addControl(yAxisFeedback_);
 	allControls_->addControl(yAxisStatus_);
+	allControls_->addControl(yAxisRecorderFeedback_);
 
 	allControls_->addControl(zAxisFeedback_);
 	allControls_->addControl(zAxisStatus_);
+	allControls_->addControl(zAxisRecorderFeedback_);
 
 	allControls_->addControl(uAxisFeedback_);
 	allControls_->addControl(uAxisStatus_);
+	allControls_->addControl(uAxisRecorderFeedback_);
 
 	allControls_->addControl(vAxisFeedback_);
 	allControls_->addControl(vAxisStatus_);
+	allControls_->addControl(vAxisRecorderFeedback_);
 
 	allControls_->addControl(wAxisFeedback_);
 	allControls_->addControl(wAxisStatus_);
+	allControls_->addControl(wAxisRecorderFeedback_);
 
+	allControls_->addControl(timeRecorderFeedback_);
 	allControls_->addControl(systemVelocityFeedback_);
 	allControls_->addControl(systemVelocitySetpoint_);
 	allControls_->addControl(stopAll_);
@@ -129,29 +143,33 @@ void AMPIC887EpicsCoordinator::onMotionStartedChanged(AMGCS2::AxisMovementStatus
 
 void AMPIC887EpicsCoordinator::onMotionCompleted()
 {
-	qDebug() << "All motions completed";
-	if(!xAxisStatus_->withinTolerance(0)) {
-		xAxisStatus_->move(0);
-	}
+	if(controller_->movementStatuses() == 0) {
+		qDebug() << "All motions completed";
+		parseRecordedPositionData();
 
-	if(!yAxisStatus_->withinTolerance(0)) {
-		yAxisStatus_->move(0);
-	}
+		if(!xAxisStatus_->withinTolerance(0)) {
+			xAxisStatus_->move(0);
+		}
 
-	if(!zAxisStatus_->withinTolerance(0)) {
-		zAxisStatus_->move(0);
-	}
+		if(!yAxisStatus_->withinTolerance(0)) {
+			yAxisStatus_->move(0);
+		}
 
-	if(!uAxisStatus_->withinTolerance(0)) {
-		uAxisStatus_->move(0);
-	}
+		if(!zAxisStatus_->withinTolerance(0)) {
+			zAxisStatus_->move(0);
+		}
 
-	if(!vAxisStatus_->withinTolerance(0)) {
-		vAxisStatus_->move(0);
-	}
+		if(!uAxisStatus_->withinTolerance(0)) {
+			uAxisStatus_->move(0);
+		}
 
-	if(!wAxisStatus_->withinTolerance(0)) {
-		wAxisStatus_->move(0);
+		if(!vAxisStatus_->withinTolerance(0)) {
+			vAxisStatus_->move(0);
+		}
+
+		if(!wAxisStatus_->withinTolerance(0)) {
+			wAxisStatus_->move(0);
+		}
 	}
 }
 
@@ -338,6 +356,55 @@ void AMPIC887EpicsCoordinator::onTrajectoryMove()
 	if(!targetPositions.isEmpty()) {
 		controller_->move(targetPositions);
 	}
+}
+
+void AMPIC887EpicsCoordinator::parseRecordedPositionData()
+{
+	QVector<AMPIC887HexapodPosition> recordedData = controller_->lastRecordedPositionData();
+
+	// The structure of each PV is for each waveform to contain 1025 records. The
+	// first will be the number of element recorded in the previous move, followed
+	// by up to 1024 elements of data.
+	QVector<double> waveformXData = QVector<double>(1025, 0);
+	QVector<double> waveformYData = QVector<double>(1025, 0);
+	QVector<double> waveformZData = QVector<double>(1025, 0);
+	QVector<double> waveformUData = QVector<double>(1025, 0);
+	QVector<double> waveformVData = QVector<double>(1025, 0);
+	QVector<double> waveformWData = QVector<double>(1025, 0);
+	QVector<double> waveformTimeData = QVector<double>(1025, 0);
+
+	bool atEndOfData = false;
+
+	for(int iPositionData = 0; iPositionData < 1024 && !atEndOfData; ++iPositionData) {
+
+		AMPIC887HexapodPosition currentPosition = recordedData[iPositionData];
+		if(currentPosition.isValid()) {
+
+			waveformXData[iPositionData + 1] = currentPosition.xAxisPosition();
+			waveformYData[iPositionData + 1] = currentPosition.yAxisPosition();
+			waveformZData[iPositionData + 1] = currentPosition.zAxisPosition();
+			waveformUData[iPositionData + 1] = currentPosition.uAxisPosition();
+			waveformVData[iPositionData + 1] = currentPosition.vAxisPosition();
+			waveformWData[iPositionData + 1] = currentPosition.wAxisPosition();
+			waveformTimeData[iPositionData + 1] = currentPosition.time();
+		} else {
+
+			waveformXData[0] = iPositionData;
+			waveformYData[0] = iPositionData;
+			waveformZData[0] = iPositionData;
+			waveformUData[0] = iPositionData;
+			waveformVData[0] = iPositionData;
+			waveformWData[0] = iPositionData;
+			atEndOfData = true;
+		}
+	}
+
+//	xAxisFeedback_->setValues(waveformXData);
+//	yAxisFeedback_->setValues(waveformYData);
+//	zAxisFeedback_->setValues(waveformZData);
+//	uAxisFeedback_->setValues(waveformUData);
+//	vAxisFeedback_->setValues(waveformVData);
+//	wAxisFeedback_->setValues(waveformWData);
 }
 
 

@@ -28,7 +28,7 @@
 #include "AMPIC887DataRecorderConfiguration.h"
 
 #include "AMGCS2Support.h"
-
+#include <math.h>
 
 AMPIC887Controller::AMPIC887Controller(const QString& name, const QString& hostname)
 	:QObject(0)
@@ -39,7 +39,7 @@ AMPIC887Controller::AMPIC887Controller(const QString& name, const QString& hostn
 	isBusy_ = false;
 	currentPositionRefreshRequired_ = false;
 	controllerState_ = new AMPIC887ControllerState();
-	recordedPositionData_ = QVector<AMPIC887HexapodPosition>(1024, AMPIC887HexapodPosition());
+	lastRecordedPositionData_ = QVector<AMPIC887HexapodPosition>(1024, AMPIC887HexapodPosition());
 	xMotions_ = 0;
 	yMotions_ = 0;
 	zMotions_ = 0;
@@ -171,6 +171,11 @@ bool AMPIC887Controller::setRecordConfigs(const QHash<int, AMPIC887DataRecorderC
 	controllerState_->dataRecorderState()->setRecordConfigs(recordConfigs);
 
 	return true;
+}
+
+QVector<AMPIC887HexapodPosition> AMPIC887Controller::lastRecordedPositionData() const
+{
+	return lastRecordedPositionData_;
 }
 
 AMGCS2::AxisMovementStatuses AMPIC887Controller::movementStatuses() const
@@ -824,7 +829,7 @@ void AMPIC887Controller::onAsyncMoveStarted(AMGCS2AsyncCommand *command)
 
 		emit moveStarted(movementStatuses());
 		positionUpdateTimer_.start();
-		QTimer::singleShot(1500, this, SLOT(startAsyncDataRetrieval()));
+		QTimer::singleShot(calculateDataRetrievalDelay(), this, SLOT(startAsyncDataRetrieval()));
 	}
 }
 
@@ -837,7 +842,7 @@ void AMPIC887Controller::onAsyncMoveSucceeded(AMGCS2AsyncCommand *command)
 		positionUpdateTimer_.stop();
 		// update position one last time
 		onPositionUpdateTimerInterval();
-		emit moveComplete();
+		//emit moveComplete(); #1462 - Stall emitting this signal till the data retrieval is done.
 		AMPIC887AxisCollection axesMoving = moveCommand->targetPositions().axes();
 		foreach(AMGCS2::Axis currentAxis, axesMoving) {
 			switch (currentAxis) {
@@ -950,6 +955,7 @@ void AMPIC887Controller::onAsyncMoveRelativeStarted(AMGCS2AsyncCommand *command)
 
 		emit moveStarted(movementStatuses());
 		positionUpdateTimer_.start();
+		QTimer::singleShot(calculateDataRetrievalDelay(), this, SLOT(startAsyncDataRetrieval()));
 	}
 }
 
@@ -962,7 +968,7 @@ void AMPIC887Controller::onAsyncMoveRelativeSucceeded(AMGCS2AsyncCommand *comman
 		positionUpdateTimer_.stop();		
 		// update position one last time
 		onPositionUpdateTimerInterval();
-		emit moveComplete();
+		//emit moveComplete(); #1462 - Stall emitting this signal till the data retrieval is done.
 		AMPIC887AxisCollection axesMoving = moveRelativeCommand->relativeTargetPositions().axes();
 		foreach(AMGCS2::Axis currentAxis, axesMoving) {
 			switch (currentAxis) {
@@ -1062,6 +1068,7 @@ void AMPIC887Controller::onAsyncReferenceMoveStarted(AMGCS2AsyncCommand *)
 
 	emit moveStarted(movementStatuses());
 	positionUpdateTimer_.start();
+	QTimer::singleShot(calculateDataRetrievalDelay(), this, SLOT(startAsyncDataRetrieval()));
 }
 
 void AMPIC887Controller::onAsyncReferenceMoveSucceeded(AMGCS2AsyncCommand *command)
@@ -1069,7 +1076,7 @@ void AMPIC887Controller::onAsyncReferenceMoveSucceeded(AMGCS2AsyncCommand *comma
 	positionUpdateTimer_.stop();	
 	// update position one last time
 	onPositionUpdateTimerInterval();
-	emit moveComplete();
+	//emit moveComplete(); #1462 - Stall emitting this signal till the data retrieval is done.
 	--xMotions_;
 	--yMotions_;
 	--zMotions_;
@@ -1107,11 +1114,13 @@ void AMPIC887Controller::onAsyncReferenceMoveFailed(AMGCS2AsyncCommand *command)
 
 void AMPIC887Controller::onAsyncDataRetrievalSucceeded(AMGCS2AsyncCommand *command)
 {
+	emit moveComplete();
 	command->deleteLater();
 }
 
 void AMPIC887Controller::onAsyncDataRetrievalFailed(AMGCS2AsyncCommand *command)
 {
+	emit moveComplete();
 	command->deleteLater();
 }
 
@@ -1121,6 +1130,20 @@ void AMPIC887Controller::onErrorClearingTimerTimedOut()
 	PI_qERR(id_, &dummyValue);
 	isBusy_ = false;
 	updateStateOnStop();
+}
+
+void AMPIC887Controller::startAsyncDataRetrieval()
+{
+	AMGCS2AsyncGetRecordedDataValuesCommand* recordedPositionDataCommand =
+			new AMGCS2AsyncGetRecordedDataValuesCommand(lastRecordedPositionData_);
+
+	connect(recordedPositionDataCommand, SIGNAL(succeeded(AMGCS2AsyncCommand*)),
+			this, SLOT(onAsyncDataRetrievalSucceeded(AMGCS2AsyncCommand*)));
+	connect(recordedPositionDataCommand, SIGNAL(failed(AMGCS2AsyncCommand*)),
+			this, SLOT(onAsyncDataRetrievalFailed(AMGCS2AsyncCommand*)));
+
+	testTimer_.start();
+	runCommand(recordedPositionDataCommand);
 }
 
 void AMPIC887Controller::runCommand(AMGCS2Command *command)
@@ -1175,23 +1198,18 @@ void AMPIC887Controller::setError(const QString &errorMessage)
 	emit errorEncountered(errorMessage);
 }
 
-void AMPIC887Controller::startAsyncDataRetrieval()
+int AMPIC887Controller::calculateDataRetrievalDelay()
 {
-	AMGCS2AsyncGetRecordedDataValuesCommand* recordedPositionDataCommand =
-			new AMGCS2AsyncGetRecordedDataValuesCommand(recordedPositionData_);
+	// For now we just assume that only X, Y and Z are moving.
+	AMPIC887AxisMap<double> current = currentPositions(AMPIC887AxisCollection());
+	AMPIC887AxisMap<double> target = targetPositions(AMPIC887AxisCollection());
+	double deltaX = target.value(AMGCS2::XAxis) - current.value(AMGCS2::XAxis);
+	double deltaY = target.value(AMGCS2::YAxis) - current.value(AMGCS2::YAxis);
+	double deltaZ = target.value(AMGCS2::ZAxis) - current.value(AMGCS2::ZAxis);
 
-	connect(recordedPositionDataCommand, SIGNAL(succeeded(AMGCS2AsyncCommand*)),
-			this, SLOT(onAsyncDataRetrievalSucceeded(AMGCS2AsyncCommand*)));
-	connect(recordedPositionDataCommand, SIGNAL(failed(AMGCS2AsyncCommand*)),
-			this, SLOT(onAsyncDataRetrievalFailed(AMGCS2AsyncCommand*)));
+	double distance = sqrt((deltaX * deltaX) + (deltaY * deltaY) + (deltaZ * deltaZ));
 
-	testTimer_.start();
-	runCommand(recordedPositionDataCommand);
+	// multiply by 750 to convert to ms and make the value 75% of the total time expected
+	return int((distance/ systemVelocity()) * 750);
+
 }
-
-
-
-
-
-
-

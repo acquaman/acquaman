@@ -3,12 +3,10 @@
 #include "PI_GCS2_DLL.h"
 
 #include "../AMPIC887Controller.h"
-#include <QDebug>
 AMGCS2AsyncGetRecordedDataValuesCommand::AMGCS2AsyncGetRecordedDataValuesCommand(QVector<AMPIC887HexapodPosition> &positionData) :
 	AMGCS2AsyncCommand()
 {
 	positionData_ = positionData;
-	numberOfValuesToRead_ = 100;
 	rawPositionData_ = 0;
 	lastReadDataIndex_ = -2;
 	matchCounter_ = 0;
@@ -51,7 +49,7 @@ bool AMGCS2AsyncGetRecordedDataValuesCommand::runImplementation()
 void AMGCS2AsyncGetRecordedDataValuesCommand::checkRunningState()
 {
 	int lastReadIndex = PI_GetAsyncBufferIndex(controller_->id());
-	numberOfValuesToRead_ = lastReadIndex;
+
 	if(lastReadIndex == -1) {
 
 		lastError_ = "Failed to retrieve any data";
@@ -65,8 +63,8 @@ void AMGCS2AsyncGetRecordedDataValuesCommand::checkRunningState()
 		matchCounter_++;
 	} else {
 		matchCounter_ = 0;
-		lastReadDataIndex_ = lastReadIndex;
 	}
+	lastReadDataIndex_ = lastReadIndex;
 }
 
 void AMGCS2AsyncGetRecordedDataValuesCommand::parseReadData()
@@ -75,7 +73,7 @@ void AMGCS2AsyncGetRecordedDataValuesCommand::parseReadData()
 	if(runningState_ == Succeeded && rawPositionData_ != 0) {
 
 		for(int parsedIndex = 0, xPos = 0, yPos = 1, zPos = 2, uPos = 3, vPos = 4, wPos = 5, time = 6;
-			parsedIndex < numberOfValuesToRead_/7;
+			parsedIndex < lastReadDataIndex_/7;
 			++parsedIndex, xPos+=7, yPos+=7, zPos+=7, uPos+=7, vPos+=7, wPos+=7, time+=7) {
 
 
@@ -86,9 +84,6 @@ void AMGCS2AsyncGetRecordedDataValuesCommand::parseReadData()
 																 rawPositionData_[vPos],
 																 rawPositionData_[wPos],
 																 rawPositionData_[time]);
-
-			qDebug() << positionData_[parsedIndex].toString();
-
 		}
 	}
 }
