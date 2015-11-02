@@ -7,11 +7,14 @@
 #include <QObject>
 #include <QString>
 #include <QTimer>
+#include <QElapsedTimer>
 #include <QHash>
+#include <QVector>
 #include "GCS2Commands/AMGCS2Command.h"
 #include "GCS2Commands/AMGCS2AsyncCommand.h"
 #include "AMPIC887AxisCollection.h"
 #include "AMPIC887AxisMap.h"
+#include "AMPIC887HexapodPosition.h"
 
 #include "AMPIC887ControllerState.h"
 /*!
@@ -394,14 +397,9 @@ public:
 	AMPIC887AxisMap<AMGCS2::PositionUnits> positionUnits(const AMPIC887AxisCollection& axes) const;
 
 	/*!
-	  * The data recorded in the data table with the provided tableId during the
-	  * last recording instance.
-	  * \param tableId ~ The table from which to return the data.
-	  * \returns The data stored in the data table with the provided id, if the
-	  * controller has been initialized and the provided tableId is valid, an
-	  * empty list otherwise.
+	  * The positional data recorded for the hexapod during the last move.
 	  */
-	QList<int> recordedData(int tableId) const;
+	QList<double> recordedData(int offset, int numberOfDataPoints, int tableId);
 
 	/*!
 	  * A string containing all the recorder options which the controller can have
@@ -657,6 +655,15 @@ protected slots:
 	void onAsyncReferenceMoveFailed(AMGCS2AsyncCommand*);
 
 	/*!
+	  * Handles signals indcating that an asynchronous data retrieval has succeeded.
+	  */
+	void onAsyncDataRetrievalSucceeded(AMGCS2AsyncCommand*);
+
+	/*!
+	  * Handles signals indcating that an asynchronous data retrieval has failed.
+	  */
+	void onAsyncDataRetrievalFailed(AMGCS2AsyncCommand*);
+	/*!
 	  * Handles the error clearning timer indicating that its delay time for the
 	  * error message to be cleared is complete.
 	  */
@@ -690,6 +697,13 @@ protected:
 	  */
 	void setError(const QString& errorMessage);
 
+protected slots:
+	/*!
+	  * Method which starts asynchronous data retrieval from the data recorder.
+	  */
+	void startAsyncDataRetrieval();
+
+protected:
 	AMPIC887ControllerState* controllerState_;
 	QString name_;
 	QString hostname_;
@@ -699,6 +713,7 @@ protected:
 	QString lastError_;
 	QTimer positionUpdateTimer_;
 	mutable bool currentPositionRefreshRequired_;
+	QVector<AMPIC887HexapodPosition> recordedPositionData_;
 	//State data
 	////////////
 	int xMotions_;
@@ -707,6 +722,8 @@ protected:
 	int uMotions_;
 	int vMotions_;
 	int wMotions_;
+
+	QElapsedTimer testTimer_;
 };
 
 #endif // AMPIC887CONTROLLER_H

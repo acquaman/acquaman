@@ -167,6 +167,10 @@ void AMPIC887ConsoleCommandParser::interpretCommandImplementation(const QString 
 
 		emit recordTriggerCommandIssued();
 
+	} else if (command.startsWith("DRR?")) {
+
+		handleDataRecordValuesInput(command);
+
 	} else if (command.startsWith("DRC?")) {
 
 		handleRecordConfigInput(command);
@@ -593,4 +597,26 @@ void AMPIC887ConsoleCommandParser::handleSetRecordConfigInput(const QString &com
 	}
 
 	emit setRecordConfigCommandIssued(recordConfigurations);
+}
+
+void AMPIC887ConsoleCommandParser::handleDataRecordValuesInput(const QString &commandString)
+{
+	//offset, number, tableId
+	QStringList argumentList = commandArguments(commandString);
+	if(argumentList.length() == 3) {
+
+		bool parseDataOffset = false;
+		int dataOffset = argumentList.at(0).toInt(&parseDataOffset);
+
+		bool parseNumberOfElements = false;
+		int numberOfElements = argumentList.at(1).toInt(&parseNumberOfElements);
+
+		bool parseTableId = false;
+		int tableId = argumentList.at(2).toInt(&parseTableId);
+
+		if(parseDataOffset && parseNumberOfElements && parseTableId) {
+
+			emit dataRecorderValuesCommandIssued(dataOffset, numberOfElements, tableId);
+		}
+	}
 }

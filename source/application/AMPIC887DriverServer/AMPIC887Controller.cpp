@@ -16,6 +16,7 @@
 #include "GCS2Commands/AMGCS2SetServoModeCommand.h"
 
 #include "GCS2Commands/AMGCS2GetCurrentPositionCommand.h"
+#include "GCS2Commands/AMGCS2AsyncGetRecordedDataValuesCommand.h"
 #include "GCS2Commands/AMGCS2AsyncMoveCommand.h"
 #include "GCS2Commands/AMGCS2AsyncMoveRelativeCommand.h"
 #include "GCS2Commands/AMGCS2AsyncReferenceMoveCommand.h"
@@ -23,9 +24,11 @@
 #include "GCS2Commands/AMGCS2StopCommand.h"
 #include "GCS2Commands/AMGCS2HaltSmoothlyCommand.h"
 
+#include "GCS2Commands/AMGCS2GetRecordedDataValuesCommand.h"
 #include "AMPIC887DataRecorderConfiguration.h"
 
 #include "AMGCS2Support.h"
+
 
 AMPIC887Controller::AMPIC887Controller(const QString& name, const QString& hostname)
 	:QObject(0)
@@ -511,11 +514,17 @@ AMPIC887AxisMap<AMGCS2::PositionUnits> AMPIC887Controller::positionUnits(const A
 	return controllerState_->hexapodState()->positionUnits().matchingValues(axes);
 }
 
-QList<int> AMPIC887Controller::recordedData(int tableId) const
+QList<double> AMPIC887Controller::recordedData(int offset, int numberOfDataPoints, int tableId)
 {
-	Q_UNUSED(tableId)
-	// To be done in #1462
-	return QList<int>();
+	AMGCS2GetRecordedDataValuesCommand recordedDataCommand(tableId, numberOfDataPoints, offset);
+	runCommand(&recordedDataCommand);
+
+	if(recordedDataCommand.runningState() == AMGCS2Command::Succeeded) {
+
+		return recordedDataCommand.dataValues();
+	}
+
+	return QList<double>();
 }
 
 QString AMPIC887Controller::recorderOptionsString() const
@@ -782,6 +791,7 @@ void AMPIC887Controller::onAsyncMoveStarted(AMGCS2AsyncCommand *command)
 
 
 		AMPIC887AxisCollection axesMoving = moveCommand->targetPositions().axes();
+		recordedPositionData_.clear();
 		foreach(AMGCS2::Axis currentAxis, axesMoving) {
 
 			controllerState_->hexapodState()->setTargetPosition(currentAxis, moveCommand->targetPositions().value(currentAxis));
@@ -813,6 +823,7 @@ void AMPIC887Controller::onAsyncMoveStarted(AMGCS2AsyncCommand *command)
 
 		emit moveStarted(movementStatuses());
 		positionUpdateTimer_.start();
+		QTimer::singleShot(1500, this, SLOT(startAsyncDataRetrieval()));
 	}
 }
 
@@ -904,6 +915,7 @@ void AMPIC887Controller::onAsyncMoveRelativeStarted(AMGCS2AsyncCommand *command)
 
 
 		AMPIC887AxisCollection axesMoving = moveRelativeCommand->relativeTargetPositions().axes();
+		recordedPositionData_.clear();
 		foreach(AMGCS2::Axis currentAxis, axesMoving) {
 
 			double currentTarget = controllerState_->hexapodState()->targetPosition(currentAxis);
@@ -946,7 +958,7 @@ void AMPIC887Controller::onAsyncMoveRelativeSucceeded(AMGCS2AsyncCommand *comman
 
 	if(moveRelativeCommand) {
 
-		positionUpdateTimer_.stop();
+		positionUpdateTimer_.stop();		
 		// update position one last time
 		onPositionUpdateTimerInterval();
 		emit moveComplete();
@@ -1026,6 +1038,7 @@ void AMPIC887Controller::onAsyncMoveRelativeFailed(AMGCS2AsyncCommand *command)
 void AMPIC887Controller::onAsyncReferenceMoveStarted(AMGCS2AsyncCommand *)
 {
 	currentPositionRefreshRequired_ = true;
+	recordedPositionData_.clear();
 	++xMotions_;
 	++yMotions_;
 	++zMotions_;
@@ -1053,7 +1066,7 @@ void AMPIC887Controller::onAsyncReferenceMoveStarted(AMGCS2AsyncCommand *)
 
 void AMPIC887Controller::onAsyncReferenceMoveSucceeded(AMGCS2AsyncCommand *command)
 {
-	positionUpdateTimer_.stop();
+	positionUpdateTimer_.stop();	
 	// update position one last time
 	onPositionUpdateTimerInterval();
 	emit moveComplete();
@@ -1091,7 +1104,22 @@ void AMPIC887Controller::onAsyncReferenceMoveFailed(AMGCS2AsyncCommand *command)
 
 	command->deleteLater();
 }
+#include <QDebug>
+void AMPIC887Controller::onAsyncDataRetrievalSucceeded(AMGCS2AsyncCommand *command)
+{
+	qDebug() << "Data retrieval completed in " << testTimer_.elapsed() << " ms";
+	foreach(AMPIC887HexapodPosition position, recordedPositionData_) {
 
+		qDebug() << position.toString();
+	}
+
+	command->deleteLater();
+}
+
+void AMPIC887Controller::onAsyncDataRetrievalFailed(AMGCS2AsyncCommand *command)
+{
+	command->deleteLater();
+}
 
 void AMPIC887Controller::onErrorClearingTimerTimedOut()
 {
@@ -1124,6 +1152,7 @@ void AMPIC887Controller::refreshCurrentPositions()
 
 	AMPIC887AxisCollection allAxes = currentPositions.axes();
 
+
 	foreach(AMGCS2::Axis currentAxis, allAxes) {
 		controllerState_->hexapodState()->setCurrentPosition(currentAxis, currentPositions.value(currentAxis));
 	}
@@ -1151,6 +1180,23 @@ void AMPIC887Controller::setError(const QString &errorMessage)
 	lastError_ = errorMessage;
 	emit errorEncountered(errorMessage);
 }
+
+void AMPIC887Controller::startAsyncDataRetrieval()
+{
+	AMGCS2AsyncGetRecordedDataValuesCommand* recordedPositionDataCommand =
+			new AMGCS2AsyncGetRecordedDataValuesCommand(&recordedPositionData_);
+
+	connect(recordedPositionDataCommand, SIGNAL(succeeded(AMGCS2AsyncCommand*)),
+			this, SLOT(onAsyncDataRetrievalSucceeded(AMGCS2AsyncCommand*)));
+	connect(recordedPositionDataCommand, SIGNAL(failed(AMGCS2AsyncCommand*)),
+			this, SLOT(onAsyncDataRetrievalFailed(AMGCS2AsyncCommand*)));
+
+	testTimer_.start();
+	runCommand(recordedPositionDataCommand);
+}
+
+
+
 
 
 

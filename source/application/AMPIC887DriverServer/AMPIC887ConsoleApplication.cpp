@@ -713,6 +713,29 @@ void AMPIC887ConsoleApplication::onHaltCommandIssued(const AMPIC887AxisCollectio
 	}
 }
 
+void AMPIC887ConsoleApplication::onDataRecordValuesIssues(int offset, int numberOfElements, int tableId)
+{
+	AMPIC887Controller* activeController = controllerCollection_.activeController();
+
+	if(!activeController) {
+		consoleInputHandler_->writeLineToStandardError("No active controller.");
+	} else if(!activeController->isInValidState()) {
+		consoleInputHandler_->writeLineToStandardError("Active controller not in a valid state. Reinitialize the controller with an init command..");
+	} else {
+		QList<double> dataValues = activeController->recordedData(offset, numberOfElements, tableId);
+
+		QString output = "[";
+		foreach (double value, dataValues) {
+
+			output.append(QString("%1, ").arg(value));
+		}
+
+		output.append("]");
+
+		consoleInputHandler_->writeLineToStandardOutput(output);
+	}
+}
+
 bool AMPIC887ConsoleApplication::startup()
 {
 	bool successfulLoad = true;
@@ -769,6 +792,8 @@ void AMPIC887ConsoleApplication::makeConnections()
 	connect(commandParser_, SIGNAL(stopCommandIssued()), this, SLOT(onStopCommandIssued()));
 	connect(commandParser_, SIGNAL(haltCommandIssued(AMPIC887AxisCollection)), this, SLOT(onHaltCommandIssued(AMPIC887AxisCollection)));
 
+	connect(commandParser_, SIGNAL(dataRecorderValuesCommandIssued(int,int,int)), this, SLOT(onDataRecordValuesIssues(int,int,int)));
+
 	connect(commandParser_, SIGNAL(setCommandLevelCommandIssued(AMGCS2::ControllerCommandLevel,QString)),
 			this, SLOT(onSetCommandLevelCommandIssued(AMGCS2::ControllerCommandLevel,QString)));
 	connect(commandParser_, SIGNAL(setCycleTimeCommandIssued(double)),
@@ -794,8 +819,9 @@ void AMPIC887ConsoleApplication::makeConnections()
 			this, SLOT(onRecordConfigCommandIssued(QList<int>)));
 
 	connect(commandParser_,SIGNAL(setRecordConfigCommandIssued(QHash<int,AMPIC887DataRecorderConfiguration>)),
-			this, SLOT(onSetRecordConfigCommandIssued(QHash<int,AMPIC887DataRecorderConfiguration>)));	
+			this, SLOT(onSetRecordConfigCommandIssued(QHash<int,AMPIC887DataRecorderConfiguration>)));
 }
+
 
 
 

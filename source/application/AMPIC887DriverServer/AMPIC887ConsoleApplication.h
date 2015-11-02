@@ -290,6 +290,11 @@ protected slots:
 	  */
 	void onHaltCommandIssued(const AMPIC887AxisCollection& axes);
 
+	/*!
+	  * Handles signals indicating that a data record values command has been
+	  * issued.
+	  */
+	void onDataRecordValuesIssues(int offset, int numberOfElements, int tableId);
 protected:
 	/*!
 	  * Runs the initialization procedure for the application.

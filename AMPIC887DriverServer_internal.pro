@@ -81,7 +81,9 @@ SOURCES *= \
     source/application/AMPIC887DriverServer/AMPIC887AxisCollection.cpp \
     source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2GetRecordConfigurationCommand.cpp \
     source/application/AMPIC887DriverServer/AMPIC887EpicsCoordinator.cpp \
-    source/application/AMPIC887DriverServer/AMPIC887TrajectoryCoordinator.cpp
+    source/application/AMPIC887DriverServer/AMPIC887TrajectoryCoordinator.cpp \
+    source/application/AMPIC887DriverServer/AMPIC887HexapodPosition.cpp \
+    source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2AsyncGetRecordedDataValuesCommand.cpp
 
 HEADERS *= \
 	source/application/AMPIC887DriverServer/AMPIC887ControllerCollection.h \	
@@ -152,7 +154,14 @@ HEADERS *= \
     source/application/AMPIC887DriverServer/AMPIC887AxisMap.h \
     source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2GetRecordConfigurationCommand.h \
     source/application/AMPIC887DriverServer/AMPIC887EpicsCoordinator.h \
-    source/application/AMPIC887DriverServer/AMPIC887TrajectoryCoordinator.h
+    source/application/AMPIC887DriverServer/AMPIC887TrajectoryCoordinator.h \
+    source/application/AMPIC887DriverServer/AMPIC887HexapodPosition.h \
+    source/application/AMPIC887DriverServer/GCS2Commands/AMGCS2AsyncGetRecordedDataValuesCommand.h
+
+OTHER_FILES *= \
+	db/BL1611-ID-1-HexapodAddon.db
+
+
 
 
 

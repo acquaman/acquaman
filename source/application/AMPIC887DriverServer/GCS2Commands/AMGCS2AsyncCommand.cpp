@@ -56,7 +56,7 @@ void AMGCS2AsyncCommand::timerEvent(QTimerEvent *)
 		lastError_ = "Async command timer timed out";
 		killTimer(timerId_);
 		emit failed(this);
-	} else {
+	} else if(runningState_ == Running) {
 		checkRunningState();
 		switch (runningState_) {
 		case NotStarted:

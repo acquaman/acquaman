@@ -11,6 +11,11 @@ AMGCS2GetRecordedDataValuesCommand::AMGCS2GetRecordedDataValuesCommand(int recor
 	offsetPoint_ = offsetPoint;
 }
 
+QList<double> AMGCS2GetRecordedDataValuesCommand::dataValues() const
+{
+	return dataValues_;
+}
+
 bool AMGCS2GetRecordedDataValuesCommand::validateArguments()
 {
 	if(recordTableId_ < 1 || recordTableId_ > 16) {
@@ -59,5 +64,7 @@ bool AMGCS2GetRecordedDataValuesCommand::runImplementation()
 
 	return success;
 }
+
+
 
 
