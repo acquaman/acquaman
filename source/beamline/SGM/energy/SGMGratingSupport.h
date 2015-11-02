@@ -12,10 +12,10 @@ namespace SGMGratingSupport {
   * Enumerates the different selections for the grating translation.
   */
 enum GratingTranslation {
-    UnknownGrating = -1,
-    LowGrating = 0,
+	LowGrating = 0,
     MediumGrating = 1,
-    HighGrating = 2
+	HighGrating = 2,
+	UnknownGrating = 3
 };
 
 /*!

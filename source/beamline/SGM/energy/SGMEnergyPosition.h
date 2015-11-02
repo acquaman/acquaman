@@ -2,10 +2,11 @@
 #define SGMENERGYPOSITION_H
 
 // Error validation messages
+
 #define SGMENERGY_UNKNOWN_UNDULATOR_HARMONIC "Unknown undulator harmonic"
 #define SGMENERGY_UNKNOWN_GRATING_TRANSLATION "Unknown grating translation"
-#define SGMENERGY_INVALID_ENERGY_FOR_GRATING "Invalid energy for grating. Valid Energies: Low:9+eV Medium:16+eV High:25+eV"
-#define SGMENERGY_INVALID_ENERGY_FOR_HARMONIC "Invalid energy for harmonic. Valid Energies: 1st:47eV-1737eV 3rd:141-5212eV"
+#define SGMENERGY_INVALID_ENERGY_FOR_GRATING "Energy value is too small for current grating translation"
+
 
 // Warning validation messages
 #define SGMENERGY_UNDULATOR_TRACKING_OFF "Undulator tracking off: Optimal flux for energy may not be being achieved"
@@ -33,9 +34,9 @@ public:
       */
     enum GratingTranslationOptimizationMode {
 
-        OptimizeFlux,				// Select grating which produces maximum flux for a given energy.
-        OptimizeResolution,			// Select highest grating which will produce reasonable flux at a given energy.
-        ManualMode                  // Stick with the current grating.
+        ManualMode = 0,         // Stick with the current grating.
+        OptimizeFlux = 1,		// Select grating which produces maximum flux for a given energy.
+        OptimizeResolution = 2	// Select highest grating which will produce reasonable flux at a given energy.
     };
 
     /*!

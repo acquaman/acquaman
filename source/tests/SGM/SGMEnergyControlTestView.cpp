@@ -180,16 +180,16 @@ void SGMEnergyControlTestView::setupUi()
     exitSlitTrackingCheckBox_ = new QCheckBox("Exit Slit Tracking");
 	mainLayout->addWidget(exitSlitTrackingCheckBox_,6,0,1,2);
 
-    gratingAngleValueControlEditor_ = new AMExtendedControlEditor(0, 0, true);
+	gratingAngleValueControlEditor_ = new AMExtendedControlEditor(0);
     mainLayout->addWidget(gratingAngleValueControlEditor_, 7, 0, 1, 2);
 
-    gratingTranslationControlEditor_ = new AMExtendedControlEditor(0, 0, true);
+	gratingTranslationControlEditor_ = new AMExtendedControlEditor(0);
     mainLayout->addWidget(gratingTranslationControlEditor_, 8, 0, 1, 2);
 
-    undulatorValueControlEditor_ = new AMExtendedControlEditor(0, 0, true);
+	undulatorValueControlEditor_ = new AMExtendedControlEditor(0);
     mainLayout->addWidget(undulatorValueControlEditor_, 9, 0, 1, 2);
 
-    exitSlitValueControlEditor_ = new AMExtendedControlEditor(0, 0, true);
+	exitSlitValueControlEditor_ = new AMExtendedControlEditor(0);
     mainLayout->addWidget(exitSlitValueControlEditor_, 10, 0, 1, 2);
 
 	startEnergySpinBox_ = new QDoubleSpinBox();

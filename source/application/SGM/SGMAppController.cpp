@@ -35,7 +35,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/SGM/SGMHexapodView.h"
 #include "beamline/CLS/CLSAmptekSDD123DetectorNew.h"
 #include "ui/CLS/CLSAmptekSDD123DetailedDetectorView.h"
-
+#include "ui/SGM/SGMEnergyView.h"
 #include <stdlib.h> // Used for obtaining username to prevent users other than iain (for dev) or SGM-Upgrade (for commissioning). Remove for deploy.
 
 SGMAppController::SGMAppController(QObject *parent) :
@@ -145,6 +145,12 @@ void SGMAppController::setupUserInterface()
 			new SGMHexapodView(SGMBeamline::sgm()->hexapod());
 
 	mw_->addPane(AMMainWindow::buildMainWindowPane("Hexapod", ":/system-software-update.png", hexapodView), "Components", "Hexapod", ":/system-software-update.png");
+
+	SGMEnergyView* energyView =
+			new SGMEnergyView(SGMBeamline::sgm()->energyControlSet(),
+							  SGMEnergyView::Advanced);
+
+	mw_->addPane(AMMainWindow::buildMainWindowPane("Energy", ":/system-software-update.png", energyView), "Components", "Energy", ":/system-software-update.png");
 
 	mw_->insertHeading("Scans", 1);
 

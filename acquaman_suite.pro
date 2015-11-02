@@ -22,7 +22,7 @@ SUBDIRS += \
 	REIXSAcquaman.pro \
 	IDEASAcquaman.pro \
 	SGMAcquaman.pro \
-	SGMAddOnsCoordinator.pro \
+	SGMEnergyCoordinator.pro \
 	SGMAmptekCoordinator.pro \
 	SGMLookupTableCoordinator.pro \
 	SXRMBAcquaman.pro \

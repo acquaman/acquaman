@@ -211,6 +211,20 @@ protected slots:
      */
     void onEnergyPositionControllerEnergyChanged(double value);
 
+	/*!
+	  * Slot which updates the undulator position whenever the undulator harmonic
+	  * changes.
+	  * \param undulatorHarmonic ~ The new undulator harmonic.
+	  */
+	void onEnergyPositionUndulatorHarmonicChanged(SGMUndulatorSupport::UndulatorHarmonic undulatorHarmonic);
+
+	/*!
+	  * Slot which handes updating the grating translation position each time the
+	  * grating optimization mode changes.
+	  * \param optimizationMode ~ The new grating optimization mode.
+	  */
+	void onEnergyPositionGratingTranslationOptimizationModeChanged(SGMEnergyPosition::GratingTranslationOptimizationMode optimizationMode);
+
 protected:
 
     /*!
@@ -239,7 +253,7 @@ protected:
 
 	// Child Controls for simply motions
     AMControl* gratingAngleControl_;
-    AMControl* gratingTranslationControl_;
+    AMControl* gratingTranslationStepControl_;
     AMControl* undulatorPositionControl_;
     AMControl* exitSlitPositionControl_;
 
