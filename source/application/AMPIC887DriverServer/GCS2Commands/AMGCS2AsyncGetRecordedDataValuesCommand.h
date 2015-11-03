@@ -48,7 +48,7 @@ protected:
 	double* rawPositionData_;
 
 	/// The parsed position data read
-	QVector<AMPIC887HexapodPosition> positionData_;
+	QVector<AMPIC887HexapodPosition>* positionData_;
 
 	/// The index of the previously read data index from the controller.
 	int lastReadDataIndex_;

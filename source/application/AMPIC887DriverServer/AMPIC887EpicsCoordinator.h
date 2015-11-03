@@ -15,6 +15,7 @@
   * a means of generalizing this for more controllers per driver, that aren't tied
   * to SGM's PVs
   */
+class AMWaveformBinningSinglePVControl;
 class AMPIC887EpicsCoordinator : public QObject
 {
     Q_OBJECT
@@ -133,31 +134,31 @@ protected:
 
 	AMControl* xAxisFeedback_;
 	AMControl* xAxisStatus_;
-	AMControl* xAxisRecorderFeedback_;
+	AMWaveformBinningSinglePVControl* xAxisRecorderFeedback_;
 
 	AMControl* yAxisFeedback_;
 	AMControl* yAxisStatus_;
-	AMControl* yAxisRecorderFeedback_;
+	AMWaveformBinningSinglePVControl* yAxisRecorderFeedback_;
 
 	AMControl* zAxisFeedback_;
 	AMControl* zAxisStatus_;
-	AMControl* zAxisRecorderFeedback_;
+	AMWaveformBinningSinglePVControl* zAxisRecorderFeedback_;
 
 	AMControl* uAxisFeedback_;
 	AMControl* uAxisStatus_;
-	AMControl* uAxisRecorderFeedback_;
+	AMWaveformBinningSinglePVControl* uAxisRecorderFeedback_;
 
 	AMControl* vAxisFeedback_;
 	AMControl* vAxisStatus_;
-	AMControl* vAxisRecorderFeedback_;
+	AMWaveformBinningSinglePVControl* vAxisRecorderFeedback_;
 
 	AMControl* wAxisFeedback_;
 	AMControl* wAxisStatus_;
-	AMControl* wAxisRecorderFeedback_;
+	AMWaveformBinningSinglePVControl* wAxisRecorderFeedback_;
 
 	AMControl* recordRateSetpoint_;
 	AMControl* recordRateFeedback_;
-	AMControl* timeRecorderFeedback_;
+	AMWaveformBinningSinglePVControl* timeRecorderFeedback_;
 	AMControl* systemVelocityFeedback_;
 	AMControl* systemVelocitySetpoint_;
 

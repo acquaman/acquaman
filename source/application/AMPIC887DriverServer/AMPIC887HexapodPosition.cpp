@@ -67,14 +67,19 @@ double AMPIC887HexapodPosition::time() const
 
 QString AMPIC887HexapodPosition::toString() const
 {
-	return QString("[%1 ms] X:%2mm Y:%3mm Z:%4mm U:%5mm V:%6mm W:%7mm")
-			.arg(time_)
-			.arg(xAxisPosition_)
-			.arg(yAxisPosition_)
-			.arg(zAxisPosition_)
-			.arg(uAxisPosition_)
-			.arg(vAxisPosition_)
-			.arg(wAxisPosition_);
+	if(isValid_) {
+		return QString("[%1 ms] X:%2mm Y:%3mm Z:%4mm U:%5mm V:%6mm W:%7mm")
+				.arg(time_)
+				.arg(xAxisPosition_)
+				.arg(yAxisPosition_)
+				.arg(zAxisPosition_)
+				.arg(uAxisPosition_)
+				.arg(vAxisPosition_)
+				.arg(wAxisPosition_);
+	} else {
+
+		return "Invalid";
+	}
 }
 
 bool AMPIC887HexapodPosition::isValid() const

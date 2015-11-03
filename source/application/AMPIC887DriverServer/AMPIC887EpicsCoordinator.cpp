@@ -13,30 +13,37 @@ AMPIC887EpicsCoordinator::AMPIC887EpicsCoordinator(AMPIC887Controller* controlle
 
 	xAxisFeedback_ = new AMSinglePVControl("HexapodXAxisValue", "HXPD1611-4-I10-01:X:mm:fbk", this, AXIS_POSITION_TOLERANCE);
 	xAxisStatus_ = new AMSinglePVControl("HexapodXAxisStatus", "HXPD1611-4-I10-01:X:status", this, 0.5);
-	//xAxisRecorderFeedback_ = new AMWaveformBinningSinglePVControl("HexapodXAxisRecordedPositions", "HXPD1611-4-I10-01:recorder:X:mm", 0, 1025, this);
+	xAxisRecorderFeedback_ = new AMWaveformBinningSinglePVControl("HexapodXAxisRecordedPositions", "HXPD1611-4-I10-01:recorder:X:mm", 0, 1024, this);
+	xAxisRecorderFeedback_->setAttemptDouble(true);
 
 	yAxisFeedback_ = new AMSinglePVControl("HexapodYAxisValue", "HXPD1611-4-I10-01:Y:mm:fbk", this, AXIS_POSITION_TOLERANCE);
 	yAxisStatus_ = new AMSinglePVControl("HexapodYAxisStatus", "HXPD1611-4-I10-01:Y:status", this, 0.5);
-	//yAxisRecorderFeedback_ = new AMWaveformBinningSinglePVControl("HexapodXAxisRecordedPositions", "HXPD1611-4-I10-01:recorder:Y:mm", 0, 1025, this);
+	yAxisRecorderFeedback_ = new AMWaveformBinningSinglePVControl("HexapodXAxisRecordedPositions", "HXPD1611-4-I10-01:recorder:Y:mm", 0, 1024, this);
+	yAxisRecorderFeedback_->setAttemptDouble(true);
 
 	zAxisFeedback_ = new AMSinglePVControl("HexapodZAxisValue", "HXPD1611-4-I10-01:Z:mm:fbk", this, AXIS_POSITION_TOLERANCE);
 	zAxisStatus_ = new AMSinglePVControl("HexapodZAxisStatus", "HXPD1611-4-I10-01:Z:status", this, 0.5);
-	//zAxisRecorderFeedback_ = new AMWaveformBinningSinglePVControl("HexapodXAxisRecordedPositions", "HXPD1611-4-I10-01:recorder:Z:mm", 0, 1025, this);
+	zAxisRecorderFeedback_ = new AMWaveformBinningSinglePVControl("HexapodXAxisRecordedPositions", "HXPD1611-4-I10-01:recorder:Z:mm", 0, 1024, this);
+	zAxisRecorderFeedback_->setAttemptDouble(true);
 
 	uAxisFeedback_ = new AMSinglePVControl("HexapodUAxisValue", "HXPD1611-4-I10-01:U:deg:fbk", this, AXIS_POSITION_TOLERANCE);
 	uAxisStatus_ = new AMSinglePVControl("HexapodUAxisStatus", "HXPD1611-4-I10-01:U:status", this, 0.5);
-	//uAxisRecorderFeedback_ = new AMWaveformBinningSinglePVControl("HexapodXAxisRecordedPositions", "HXPD1611-4-I10-01:recorder:U:deg", 0, 1025, this);
+	uAxisRecorderFeedback_ = new AMWaveformBinningSinglePVControl("HexapodXAxisRecordedPositions", "HXPD1611-4-I10-01:recorder:U:deg", 0, 1024, this);
+	uAxisRecorderFeedback_->setAttemptDouble(true);
 
 	vAxisFeedback_ = new AMSinglePVControl("HexapodVAxisValue", "HXPD1611-4-I10-01:V:deg:fbk", this, AXIS_POSITION_TOLERANCE);
 	vAxisStatus_ = new AMSinglePVControl("HexapodVAxisStatus", "HXPD1611-4-I10-01:V:status", this, 0.5);
-	//vAxisRecorderFeedback_ = new AMWaveformBinningSinglePVControl("HexapodXAxisRecordedPositions", "HXPD1611-4-I10-01:recorder:V:deg", 0, 1025, this);
+	vAxisRecorderFeedback_ = new AMWaveformBinningSinglePVControl("HexapodXAxisRecordedPositions", "HXPD1611-4-I10-01:recorder:V:deg", 0, 1024, this);
+	vAxisRecorderFeedback_->setAttemptDouble(true);
 
 	wAxisFeedback_ = new AMSinglePVControl("HexapodWAxisValue", "HXPD1611-4-I10-01:W:deg:fbk", this, AXIS_POSITION_TOLERANCE);
 	wAxisStatus_ = new AMSinglePVControl("HexapodWAxisStatus", "HXPD1611-4-I10-01:W:status", this, 0.5);
-	//wAxisRecorderFeedback_ = new AMWaveformBinningSinglePVControl("HexapodXAxisRecordedPositions", "HXPD1611-4-I10-01:recorder:W:deg", 0, 1025, this);
+	wAxisRecorderFeedback_ = new AMWaveformBinningSinglePVControl("HexapodXAxisRecordedPositions", "HXPD1611-4-I10-01:recorder:W:deg", 0, 1024, this);
+	wAxisRecorderFeedback_->setAttemptDouble(true);
 
+	timeRecorderFeedback_ = new AMWaveformBinningSinglePVControl("HexapodXAxisRecordedPositions", "HXPD1611-4-I10-01:recorder:time:s", 0, 1024, this);
+	timeRecorderFeedback_->setAttemptDouble(true);
 
-	//timeRecorderFeedback_ = new AMWaveformBinningSinglePVControl("HexapodXAxisRecordedPositions", "HXPD1611-4-I10-01:recorder:time:s", 0, 1025, this);
 	recordRateSetpoint_ = new AMSinglePVControl("HexapodRecordRateSetpoint", "HXPD1611-4-I10-01:recorder:rate:hz", this, 0.01);
 	recordRateFeedback_ = new AMSinglePVControl("HexapodRecordRateFeedback", "HXPD1611-4-I10-01:recorder:rate:hz:fbk", this, 0.01);
 	systemVelocityFeedback_ = new AMSinglePVControl("HexapodSystemVelocityValue", "HXPD1611-4-I10-01:velocity:fbk", this, 0.001);
@@ -45,29 +52,29 @@ AMPIC887EpicsCoordinator::AMPIC887EpicsCoordinator(AMPIC887Controller* controlle
 
 	allControls_->addControl(xAxisFeedback_);
 	allControls_->addControl(xAxisStatus_);
-	//allControls_->addControl(xAxisRecorderFeedback_);
+	allControls_->addControl(xAxisRecorderFeedback_);
 
 	allControls_->addControl(yAxisFeedback_);
 	allControls_->addControl(yAxisStatus_);
-	//allControls_->addControl(yAxisRecorderFeedback_);
+	allControls_->addControl(yAxisRecorderFeedback_);
 
 	allControls_->addControl(zAxisFeedback_);
 	allControls_->addControl(zAxisStatus_);
-	//allControls_->addControl(zAxisRecorderFeedback_);
+	allControls_->addControl(zAxisRecorderFeedback_);
 
 	allControls_->addControl(uAxisFeedback_);
 	allControls_->addControl(uAxisStatus_);
-	//allControls_->addControl(uAxisRecorderFeedback_);
+	allControls_->addControl(uAxisRecorderFeedback_);
 
 	allControls_->addControl(vAxisFeedback_);
 	allControls_->addControl(vAxisStatus_);
-	//allControls_->addControl(vAxisRecorderFeedback_);
+	allControls_->addControl(vAxisRecorderFeedback_);
 
 	allControls_->addControl(wAxisFeedback_);
 	allControls_->addControl(wAxisStatus_);
-	//allControls_->addControl(wAxisRecorderFeedback_);
+	allControls_->addControl(wAxisRecorderFeedback_);
 
-	//allControls_->addControl(timeRecorderFeedback_);
+	allControls_->addControl(timeRecorderFeedback_);
 	allControls_->addControl(recordRateFeedback_);
 	allControls_->addControl(recordRateSetpoint_);
 	allControls_->addControl(systemVelocityFeedback_);
@@ -414,6 +421,7 @@ void AMPIC887EpicsCoordinator::parseRecordedPositionData()
 	for(int iPositionData = 0; iPositionData < 1024 && !atEndOfData; ++iPositionData) {
 
 		AMPIC887HexapodPosition currentPosition = recordedData[iPositionData];
+
 		if(currentPosition.isValid()) {
 
 			waveformXData[iPositionData + 1] = currentPosition.xAxisPosition();
@@ -431,16 +439,18 @@ void AMPIC887EpicsCoordinator::parseRecordedPositionData()
 			waveformUData[0] = iPositionData;
 			waveformVData[0] = iPositionData;
 			waveformWData[0] = iPositionData;
+			waveformTimeData[0] = iPositionData;
 			atEndOfData = true;
 		}
 	}
 
-//	xAxisFeedback_->setValues(waveformXData);
-//	yAxisFeedback_->setValues(waveformYData);
-//	zAxisFeedback_->setValues(waveformZData);
-//	uAxisFeedback_->setValues(waveformUData);
-//	vAxisFeedback_->setValues(waveformVData);
-	//	wAxisFeedback_->setValues(waveformWData);
+	xAxisRecorderFeedback_->setValues(waveformXData);
+	yAxisRecorderFeedback_->setValues(waveformYData);
+	zAxisRecorderFeedback_->setValues(waveformZData);
+	uAxisRecorderFeedback_->setValues(waveformUData);
+	vAxisRecorderFeedback_->setValues(waveformVData);
+	wAxisRecorderFeedback_->setValues(waveformWData);
+	timeRecorderFeedback_->setValues(waveformTimeData);
 }
 
 

@@ -6,7 +6,7 @@
 AMGCS2AsyncGetRecordedDataValuesCommand::AMGCS2AsyncGetRecordedDataValuesCommand(QVector<AMPIC887HexapodPosition> &positionData) :
 	AMGCS2AsyncCommand()
 {
-	positionData_ = positionData;
+	positionData_ = &positionData;
 	rawPositionData_ = 0;
 	lastReadDataIndex_ = -2;
 	matchCounter_ = 0;
@@ -15,7 +15,7 @@ AMGCS2AsyncGetRecordedDataValuesCommand::AMGCS2AsyncGetRecordedDataValuesCommand
 
 bool AMGCS2AsyncGetRecordedDataValuesCommand::runImplementation()
 {
-	positionData_.fill(AMPIC887HexapodPosition());
+	positionData_->fill(AMPIC887HexapodPosition());
 	int numberOfRecordTables = 7;
 	AMCArrayHandler<int> tableIdsArray = AMCArrayHandler<int>(numberOfRecordTables);
 	AMCArrayHandler<char> header = AMCArrayHandler<char>(BUFFER_SIZE + 1);
@@ -69,7 +69,6 @@ void AMGCS2AsyncGetRecordedDataValuesCommand::checkRunningState()
 
 void AMGCS2AsyncGetRecordedDataValuesCommand::parseReadData()
 {
-
 	if(runningState_ == Succeeded && rawPositionData_ != 0) {
 
 		for(int parsedIndex = 0, xPos = 0, yPos = 1, zPos = 2, uPos = 3, vPos = 4, wPos = 5, time = 6;
@@ -77,13 +76,13 @@ void AMGCS2AsyncGetRecordedDataValuesCommand::parseReadData()
 			++parsedIndex, xPos+=7, yPos+=7, zPos+=7, uPos+=7, vPos+=7, wPos+=7, time+=7) {
 
 
-			positionData_[parsedIndex] = AMPIC887HexapodPosition(rawPositionData_[xPos],
-																 rawPositionData_[yPos],
-																 rawPositionData_[zPos],
-																 rawPositionData_[uPos],
-																 rawPositionData_[vPos],
-																 rawPositionData_[wPos],
-																 rawPositionData_[time]);
+			(*positionData_)[parsedIndex] = AMPIC887HexapodPosition(rawPositionData_[xPos],
+																	rawPositionData_[yPos],
+																	rawPositionData_[zPos],
+																	rawPositionData_[uPos],
+																	rawPositionData_[vPos],
+																	rawPositionData_[wPos],
+																	rawPositionData_[time]);
 		}
 	}
 }
