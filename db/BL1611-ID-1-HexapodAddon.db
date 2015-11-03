@@ -230,3 +230,8 @@ record( waveform, "HXPD1611-4-I10-01:recorder:time:s" )
 	field( FTVL, "DOUBLE" )
 	field( NELM, "1025" )
 }
+record( ao, "HXPD1611-4-I10-01:recorder:rate:ms" )
+{
+	field( VAL, "0" )
+	field( EGU, "ms" )
+}
