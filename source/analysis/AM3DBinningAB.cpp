@@ -329,7 +329,7 @@ bool AM3DBinningAB::values(const AMnDIndex &indexStart, const AMnDIndex &indexEn
 		computeCachedValues();
 
 	int totalSize = indexStart.totalPointsTo(indexEnd);
-	memcpy(outputValues, cachedData_.constData()+indexStart.i()*size(1), totalSize*sizeof(double));
+	memcpy(outputValues, cachedData_.constData()+indexStart.flatIndexInArrayOfSize(size()), totalSize*sizeof(double));
 
 	return true;
 }

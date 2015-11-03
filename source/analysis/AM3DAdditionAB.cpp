@@ -91,7 +91,7 @@ bool AM3DAdditionAB::values(const AMnDIndex &indexStart, const AMnDIndex &indexE
         computeCachedValues();
 
     int totalSize = indexStart.totalPointsTo(indexEnd);
-    memcpy(outputValues, cachedData_.constData()+indexStart.i()*size(1)*size(2)+indexStart.j()*size(2), totalSize*sizeof(double));
+    memcpy(outputValues, cachedData_.constData()+indexStart.flatIndexInArrayOfSize(size()), totalSize*sizeof(double));
 
 	return true;
 }
