@@ -107,8 +107,9 @@ void AM2DNormalizationAB::setInputSources()
 		axes_[0] = data_->axisInfoAt(0);
 		axes_[1] = data_->axisInfoAt(1);
 
-        cacheUpdateRequired_ = true;
-        cachedData_ = QVector<double>(size().product());
+		cacheUpdateRequired_ = true;
+		dirtyIndices_.clear();
+		cachedData_ = QVector<double>(size().product());
 
 		setDescription(QString("Normalized %1 map").arg(data_->name()));
 
@@ -133,10 +134,10 @@ void AM2DNormalizationAB::setInputSources()
 
 	reviewState();
 
-    emitSizeChanged();
+	emitSizeChanged();
 	emitValuesChanged();
-    emitAxisInfoChanged();
-    emitInfoChanged();
+	emitAxisInfoChanged();
+	emitInfoChanged();
 }
 
 void AM2DNormalizationAB::computeCachedValues() const
@@ -296,6 +297,7 @@ void AM2DNormalizationAB::onInputSourceSizeChanged()
     axes_[1].size = data_->size(1);
 
     cacheUpdateRequired_ = true;
+    dirtyIndices_.clear();
     cachedData_ = QVector<double>(size().product());
     emitSizeChanged();
 }
@@ -347,8 +349,9 @@ void AM2DNormalizationAB::setInputDataSourcesImplementation(const QList<AMDataSo
 		axes_[0] = data_->axisInfoAt(0);
 		axes_[1] = data_->axisInfoAt(1);
 
-        cacheUpdateRequired_ = true;
-        cachedData_ = QVector<double>(size().product());
+		cacheUpdateRequired_ = true;
+		dirtyIndices_.clear();
+		cachedData_ = QVector<double>(size().product());
 
 		setDescription(QString("Normalized %1 map").arg(data_->name()));
 
