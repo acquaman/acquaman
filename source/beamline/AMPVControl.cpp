@@ -728,7 +728,7 @@ void AMWaveformBinningSinglePVControl::setAttemptDouble(bool attemptDouble){
 	attemptDouble_ = attemptDouble;
 }
 
-void AMWaveformBinningSinglePVControl::setValues(const QVector<int> values){
+void AMWaveformBinningSinglePVControl::setValues(const QVector<int> &values){
 //	qDebug() << "Attempting QVector<int>";
 	if(attemptDouble_)
 		return;
@@ -738,7 +738,7 @@ void AMWaveformBinningSinglePVControl::setValues(const QVector<int> values){
 	writePV_->setValues(((dbr_long_t*)(values.data())), values.count());
 }
 
-void AMWaveformBinningSinglePVControl::setValues(const QVector<double> values){
+void AMWaveformBinningSinglePVControl::setValues(const QVector<double> &values){
 //	qDebug() << "Attempting QVector<double>";
 	if(!attemptDouble_)
 		return;

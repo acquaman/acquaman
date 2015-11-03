@@ -899,8 +899,8 @@ public:
 public slots:
 	void setAttemptDouble(bool attemptDouble);
 
-	void setValues(const QVector<int> values);
-	void setValues(const QVector<double> values);
+	void setValues(const QVector<int> &values);
+	void setValues(const QVector<double> &values);
 
 protected slots:
 	/// This is called when the read PV has new values
