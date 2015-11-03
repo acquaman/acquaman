@@ -814,6 +814,8 @@ bool AMDatamanAppController::startupPopulateNewDatabase()
 	AMUser::user()->storeToDb(db);
 
 	// Also on first time only: create facilities.
+	// NOTE:
+	//     The order of AMFacility creation should be matching the facility NO defined in CLSFacilityID 
 	AMFacility blank("", "[Other Facility]", ":/128x128/contents.png");
 	blank.storeToDb(db);
 	AMFacility als801("8.0.1", "Advanced Light Source Beamline 8.0.1", ":/alsIcon.png");
