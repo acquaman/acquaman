@@ -42,29 +42,29 @@ AMPIC887EpicsCoordinator::AMPIC887EpicsCoordinator(AMPIC887Controller* controlle
 
 	allControls_->addControl(xAxisFeedback_);
 	allControls_->addControl(xAxisStatus_);
-	allControls_->addControl(xAxisRecorderFeedback_);
+	//allControls_->addControl(xAxisRecorderFeedback_);
 
 	allControls_->addControl(yAxisFeedback_);
 	allControls_->addControl(yAxisStatus_);
-	allControls_->addControl(yAxisRecorderFeedback_);
+	//allControls_->addControl(yAxisRecorderFeedback_);
 
 	allControls_->addControl(zAxisFeedback_);
 	allControls_->addControl(zAxisStatus_);
-	allControls_->addControl(zAxisRecorderFeedback_);
+	//allControls_->addControl(zAxisRecorderFeedback_);
 
 	allControls_->addControl(uAxisFeedback_);
 	allControls_->addControl(uAxisStatus_);
-	allControls_->addControl(uAxisRecorderFeedback_);
+	//allControls_->addControl(uAxisRecorderFeedback_);
 
 	allControls_->addControl(vAxisFeedback_);
 	allControls_->addControl(vAxisStatus_);
-	allControls_->addControl(vAxisRecorderFeedback_);
+	//allControls_->addControl(vAxisRecorderFeedback_);
 
 	allControls_->addControl(wAxisFeedback_);
 	allControls_->addControl(wAxisStatus_);
-	allControls_->addControl(wAxisRecorderFeedback_);
+	//allControls_->addControl(wAxisRecorderFeedback_);
 
-	allControls_->addControl(timeRecorderFeedback_);
+	//allControls_->addControl(timeRecorderFeedback_);
 	allControls_->addControl(systemVelocityFeedback_);
 	allControls_->addControl(systemVelocitySetpoint_);
 	allControls_->addControl(stopAll_);

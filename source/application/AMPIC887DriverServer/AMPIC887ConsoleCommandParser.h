@@ -65,6 +65,11 @@ signals:
 	void setRecordTriggerCommandIssued(AMGCS2::DataRecordTrigger recordTrigger);
 
 	/*!
+	  * Signa indicating that a set record rate command has been issued.
+	  */
+	void setRecordRateCommandIssued(int recordRate);
+
+	/*!
 	  * Signal indicating that a set record config command has been issued.
 	  */
 	void setRecordConfigCommandIssued(const QHash<int, AMPIC887DataRecorderConfiguration>& recordConfigs);
@@ -189,6 +194,11 @@ signals:
 	  * Signal indicating that a get record trigger command has been issued.
 	  */
 	void recordTriggerCommandIssued();
+
+	/*!
+	  * Signal indicating that a get data record rate command has been issued.
+	  */
+	void recordRateCommandIssued();
 
 	/*!
 	  * Signal indicating that a get referenced state command has been issued.
@@ -326,6 +336,16 @@ protected:
 	  * parse success state will be set.
 	  */
 	bool boolValueFromCommandString(const QString& commandString, bool* parseSuccess = 0);
+
+	/*!
+	  * Helper method for converting an command string into an integer value.
+	  * \param commandString ~ The full command issued to the parser, whose
+	  * arguments are to be parsed into an integer value.
+	  * \param parseSuccess ~ An optional out parameter which will be set to true
+	  * if the parse succeeded, or false if it failed. If non is provide no parse
+	  * success state will be set.
+	  */
+	int intValueFromCommandString(const QString& commandString, bool* parseSuccess = 0);
 
 	/*!
 	  * Helper method for parsing the command string passed along with the

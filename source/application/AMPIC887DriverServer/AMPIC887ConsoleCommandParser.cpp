@@ -45,6 +45,8 @@ QString AMPIC887ConsoleCommandParser::commandList()
 	commandList.append("POS? <axis1> <axis2> ... : Queries the current position of the provided axes. If none are provided all axes positions are displayed.\n");
 	commandList.append("PUN? <axis1> <axis2> ... : Queries the position units of the provided axes. If none are provided all axes position units are queried.\n");
 	commandList.append("RDY? : Queries the ready status of the controller.\n");
+	commandList.append("RTR <integer> : Sets the record rate for the controller's data recorder.\n");
+	commandList.append("RTR? : Queries the record rate for the controller's data recorder.\n");
 	commandList.append("SCT <value> : Sets the cycle time for running a defined motion profile.\n");
 	commandList.append("SCT? : Queries the cycle time for running a defined motion profile.\n");
 	commandList.append("SPI <axis1> <position1> <axis2> <position2> ... : Sets the pivot point of rotation to the values provided. Only X, Y and Z axes can be specified.\n");
@@ -179,6 +181,10 @@ void AMPIC887ConsoleCommandParser::interpretCommandImplementation(const QString 
 
 		emit referencedStateCommandIssued(axesFromCommandString(command));
 
+	} else if (command.startsWith("RTR?")) {
+
+		emit recordRateCommandIssued();
+
 	} else if (command.startsWith("SVO?")) {
 
 		emit servoModeCommandIssued();
@@ -258,6 +264,14 @@ void AMPIC887ConsoleCommandParser::interpretCommandImplementation(const QString 
 	} else if (command.startsWith("DRC")) {
 
 		handleSetRecordConfigInput(command);
+
+	} else if(command.startsWith("RTR")) {
+
+		bool parseSuccess = false;
+		int value = intValueFromCommandString(command, &parseSuccess);
+		if(parseSuccess) {
+			emit setRecordRateCommandIssued(value);
+		}
 
 	} else if (command.startsWith("SVO")) {
 
@@ -436,6 +450,24 @@ bool AMPIC887ConsoleCommandParser::boolValueFromCommandString(const QString &com
 	}
 
 	return false;
+}
+
+int AMPIC887ConsoleCommandParser::intValueFromCommandString(const QString &commandString, bool *parseSuccess)
+{
+	QStringList arguments = commandArguments(commandString);
+
+	if(arguments.isEmpty()) {
+		if(parseSuccess) {
+			(*parseSuccess) = false;
+		}
+		return -1;
+	}
+
+	QString stringValue = arguments.at(0);
+	int parsedValue = stringValue.toInt(parseSuccess);
+
+	return parsedValue;
+
 }
 
 void AMPIC887ConsoleCommandParser::handleSetCommandLevelInput(const QString &commandString)
@@ -620,3 +652,5 @@ void AMPIC887ConsoleCommandParser::handleDataRecordValuesInput(const QString &co
 		}
 	}
 }
+
+
