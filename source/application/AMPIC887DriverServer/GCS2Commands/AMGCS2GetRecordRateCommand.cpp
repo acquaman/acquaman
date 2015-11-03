@@ -6,7 +6,7 @@ AMGCS2GetRecordRateCommand::AMGCS2GetRecordRateCommand()
 	recordRate_ = 0;
 }
 
-double AMGCS2GetRecordRateCommand::recordRate() const
+int AMGCS2GetRecordRateCommand::recordRate() const
 {
 	return recordRate_;
 }
@@ -23,5 +23,5 @@ bool AMGCS2GetRecordRateCommand::runImplementation()
 		lastError_ = controllerErrorMessage();
 	}
 
-	return success_;
+	return success;
 }

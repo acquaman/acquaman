@@ -21,6 +21,7 @@
 #include "AMGCS2GetAvailableParametersCommand.h"
 #include "AMGCS2GetRecorderOptionsCommand.h"
 #include "AMGCS2GetDeviceIdentificationCommand.h"
+#include "AMGCS2GetRecordRateCommand.h"
 
 
 AMGCS2InitializeControllerStateCommand::AMGCS2InitializeControllerStateCommand(AMPIC887ControllerState* controllerState)
@@ -291,6 +292,17 @@ bool AMGCS2InitializeControllerStateCommand::runImplementation()
 		return false;
 	}
 
+	// Record rate
+
+	AMGCS2GetRecordRateCommand recordRateCommand;
+	recordRateCommand.setController(controller_);
+	recordRateCommand.run();
+
+	if(recordRateCommand.runningState() != Succeeded) {
+		lastError_ = "Could not obtain record rate";
+		return false;
+	}
+
 
 	// Data Recorder Table Statuses
 	////////////////////////////////
@@ -332,6 +344,7 @@ bool AMGCS2InitializeControllerStateCommand::runImplementation()
 
 	controllerState_->dataRecorderState()->initialize(triggerSourceCommand.recordTrigger(),
 													  recorderOptionsCommand.recordOptions(),
+													  recordRateCommand.recordRate(),
 													  recordConfigurationsCommand.recordConfigs());
 
 

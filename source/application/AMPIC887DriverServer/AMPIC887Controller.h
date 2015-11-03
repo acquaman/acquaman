@@ -416,6 +416,17 @@ public:
 	QString recorderOptionsString() const;
 
 	/*!
+	  * The current record rate of the controller (in controller cycles).
+	  */
+	int recordRate() const;
+
+	/*!
+	  * Sets the record rate of the controller to the provided value (in controller cycles).
+	  * \param recordRate ~ The record rate of the controller to set (in controller cycles)
+	  */
+	bool setRecordRate(int recordRate);
+
+	/*!
 	  * The current trigger event which beings a recording in the controller's
 	  * data tables.
 	  * \returns The controller's data record trigger if the controller has been

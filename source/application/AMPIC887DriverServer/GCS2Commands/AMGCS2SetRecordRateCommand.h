@@ -16,7 +16,7 @@ public:
 	  * rate to the provided value.
 	  * \param recordRate ~ The record rate to set the controller to.
 	  */
-	AMGCS2SetRecordRateCommand(double recordRate);
+	AMGCS2SetRecordRateCommand(int recordRate);
 
 	/*!
 	  * Virtual destructor for an set record rate command.
@@ -26,11 +26,18 @@ public:
 protected:
 
 	/*!
+	  * Ensures that the arguments passed to the command are valid:
+	  *  - Ensures that the record rate is > 1
+	  *  - Ensures that the record rate is < 1000000
+	  */
+	virtual bool validateArguments();
+
+	/*!
 	  * Defines the steps taken to set the record rate on a controller.
 	  */
 	virtual bool runImplementation();
 
-	double recordRate_;
+	int recordRate_;
 };
 
 #endif // AMGCS2SETRECORDRATECOMMAND_H

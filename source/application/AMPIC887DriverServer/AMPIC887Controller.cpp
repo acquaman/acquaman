@@ -14,16 +14,15 @@
 #include "GCS2Commands/AMGCS2SetStepSizeCommand.h"
 #include "GCS2Commands/AMGCS2SetSystemVelocityCommand.h"
 #include "GCS2Commands/AMGCS2SetServoModeCommand.h"
+#include "GCS2Commands/AMGCS2SetRecordRateCommand.h"
 
 #include "GCS2Commands/AMGCS2GetCurrentPositionCommand.h"
 #include "GCS2Commands/AMGCS2AsyncGetRecordedDataValuesCommand.h"
 #include "GCS2Commands/AMGCS2AsyncMoveCommand.h"
 #include "GCS2Commands/AMGCS2AsyncMoveRelativeCommand.h"
 #include "GCS2Commands/AMGCS2AsyncReferenceMoveCommand.h"
-
 #include "GCS2Commands/AMGCS2StopCommand.h"
 #include "GCS2Commands/AMGCS2HaltSmoothlyCommand.h"
-
 #include "GCS2Commands/AMGCS2GetRecordedDataValuesCommand.h"
 #include "AMPIC887DataRecorderConfiguration.h"
 
@@ -536,6 +535,30 @@ QList<double> AMPIC887Controller::recordedData(int offset, int numberOfDataPoint
 QString AMPIC887Controller::recorderOptionsString() const
 {
 	return controllerState_->dataRecorderState()->availableParameters();
+}
+
+int AMPIC887Controller::recordRate() const
+{
+	return controllerState_->dataRecorderState()->recordRate();
+}
+
+bool AMPIC887Controller::setRecordRate(int recordRate)
+{
+	if(controllerState_->dataRecorderState()->recordRate() ==  recordRate) {
+		return true;
+	}
+
+	AMGCS2SetRecordRateCommand setRecordRateCommand(recordRate);
+
+	runCommand(&setRecordRateCommand);
+
+	if(setRecordRateCommand.runningState() != AMGCS2Command::Succeeded) {
+		setError(setRecordRateCommand.lastError());
+		return false;
+	}
+
+	controllerState_->dataRecorderState()->setRecordRate(recordRate);
+	return true;
 }
 
 AMGCS2::DataRecordTrigger AMPIC887Controller::recordTrigger() const
@@ -1213,3 +1236,5 @@ int AMPIC887Controller::calculateDataRetrievalDelay()
 	return int((distance/ systemVelocity()) * 750);
 
 }
+
+

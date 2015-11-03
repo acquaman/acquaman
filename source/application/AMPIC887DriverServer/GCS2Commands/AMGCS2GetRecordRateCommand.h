@@ -25,7 +25,7 @@ public:
 	  * The retrieved record rate for the controller, in controller cycles (20us).
 	  * If the command has not yet been run successfully this will return 0.
 	  */
-	double recordRate() const;
+	int recordRate() const;
 
 protected:
 
@@ -34,7 +34,7 @@ protected:
 	  */
 	virtual bool runImplementation();
 
-	double recordRate_;
+	int recordRate_;
 };
 
 #endif // AMGCS2GETRECORDRATECOMMAND_H
