@@ -268,7 +268,7 @@ void AMPIC887ConsoleCommandParser::interpretCommandImplementation(const QString 
 	} else if(command.startsWith("RTR")) {
 
 		bool parseSuccess = false;
-		int value = intValueFromCommandString(command, &parseSuccess);
+		double value = doubleValueFromCommandString(command, &parseSuccess);
 		if(parseSuccess) {
 			emit setRecordRateCommandIssued(value);
 		}
@@ -450,24 +450,6 @@ bool AMPIC887ConsoleCommandParser::boolValueFromCommandString(const QString &com
 	}
 
 	return false;
-}
-
-int AMPIC887ConsoleCommandParser::intValueFromCommandString(const QString &commandString, bool *parseSuccess)
-{
-	QStringList arguments = commandArguments(commandString);
-
-	if(arguments.isEmpty()) {
-		if(parseSuccess) {
-			(*parseSuccess) = false;
-		}
-		return -1;
-	}
-
-	QString stringValue = arguments.at(0);
-	int parsedValue = stringValue.toInt(parseSuccess);
-
-	return parsedValue;
-
 }
 
 void AMPIC887ConsoleCommandParser::handleSetCommandLevelInput(const QString &commandString)

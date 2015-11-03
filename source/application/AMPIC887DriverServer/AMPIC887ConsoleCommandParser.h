@@ -67,7 +67,7 @@ signals:
 	/*!
 	  * Signa indicating that a set record rate command has been issued.
 	  */
-	void setRecordRateCommandIssued(int recordRate);
+	void setRecordRateCommandIssued(double recordRate);
 
 	/*!
 	  * Signal indicating that a set record config command has been issued.
@@ -336,16 +336,6 @@ protected:
 	  * parse success state will be set.
 	  */
 	bool boolValueFromCommandString(const QString& commandString, bool* parseSuccess = 0);
-
-	/*!
-	  * Helper method for converting an command string into an integer value.
-	  * \param commandString ~ The full command issued to the parser, whose
-	  * arguments are to be parsed into an integer value.
-	  * \param parseSuccess ~ An optional out parameter which will be set to true
-	  * if the parse succeeded, or false if it failed. If non is provide no parse
-	  * success state will be set.
-	  */
-	int intValueFromCommandString(const QString& commandString, bool* parseSuccess = 0);
 
 	/*!
 	  * Helper method for parsing the command string passed along with the

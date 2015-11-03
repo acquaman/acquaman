@@ -537,12 +537,12 @@ QString AMPIC887Controller::recorderOptionsString() const
 	return controllerState_->dataRecorderState()->availableParameters();
 }
 
-int AMPIC887Controller::recordRate() const
+double AMPIC887Controller::recordRate() const
 {
 	return controllerState_->dataRecorderState()->recordRate();
 }
 
-bool AMPIC887Controller::setRecordRate(int recordRate)
+bool AMPIC887Controller::setRecordRate(double recordRate)
 {
 	if(controllerState_->dataRecorderState()->recordRate() ==  recordRate) {
 		return true;

@@ -304,7 +304,7 @@ protected slots:
 	/*!
 	  * Handles signals indicating that a set record rate command has been issued.
 	  */
-	void onSetRecordRateCommandIssued(int recordRate);
+	void onSetRecordRateCommandIssued(double recordRate);
 protected:
 	/*!
 	  * Runs the initialization procedure for the application.

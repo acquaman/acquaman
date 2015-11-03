@@ -416,15 +416,15 @@ public:
 	QString recorderOptionsString() const;
 
 	/*!
-	  * The current record rate of the controller (in controller cycles).
+	  * The current record rate of the controller (in hertz).
 	  */
-	int recordRate() const;
+	double recordRate() const;
 
 	/*!
-	  * Sets the record rate of the controller to the provided value (in controller cycles).
-	  * \param recordRate ~ The record rate of the controller to set (in controller cycles)
+	  * Sets the record rate of the controller to the provided value (in hertz).
+	  * \param recordRate ~ The record rate of the controller to set (in hertz)
 	  */
-	bool setRecordRate(int recordRate);
+	bool setRecordRate(double recordRate);
 
 	/*!
 	  * The current trigger event which beings a recording in the controller's
