@@ -558,6 +558,7 @@ bool AMPIC887Controller::setRecordRate(double recordRate)
 	}
 
 	controllerState_->dataRecorderState()->setRecordRate(recordRate);
+	emit recordRateChanged(recordRate);
 	return true;
 }
 

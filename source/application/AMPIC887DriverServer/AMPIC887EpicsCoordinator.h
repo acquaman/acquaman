@@ -108,6 +108,19 @@ protected slots:
 	  */
 	void onTrajectoryMove();
 
+	/*!
+	  * Slot which handles the record rate setpoint PV value being changed
+	  * \param value ~ The new value to which the PV was set.
+	  */
+	void onRecordRateSetpointPVChanged(double value);
+
+	/*!
+	  * Slot which handles the controller signalling that its record rate has
+	  * been altered.
+	  * \param value ~ The new record rate of the controller.
+	  */
+	void onControllerRecordRateChanged(double value);
+
 protected:
 
 	/*!
@@ -142,6 +155,8 @@ protected:
 	AMControl* wAxisStatus_;
 	AMControl* wAxisRecorderFeedback_;
 
+	AMControl* recordRateSetpoint_;
+	AMControl* recordRateFeedback_;
 	AMControl* timeRecorderFeedback_;
 	AMControl* systemVelocityFeedback_;
 	AMControl* systemVelocitySetpoint_;

@@ -35,7 +35,10 @@ AMPIC887EpicsCoordinator::AMPIC887EpicsCoordinator(AMPIC887Controller* controlle
 	wAxisStatus_ = new AMSinglePVControl("HexapodWAxisStatus", "HXPD1611-4-I10-01:W:status", this, 0.5);
 	//wAxisRecorderFeedback_ = new AMWaveformBinningSinglePVControl("HexapodXAxisRecordedPositions", "HXPD1611-4-I10-01:recorder:W:deg", 0, 1025, this);
 
+
 	//timeRecorderFeedback_ = new AMWaveformBinningSinglePVControl("HexapodXAxisRecordedPositions", "HXPD1611-4-I10-01:recorder:time:s", 0, 1025, this);
+	recordRateSetpoint_ = new AMSinglePVControl("HexapodRecordRateSetpoint", "HXPD1611-4-I10-01:recorder:rate:hz", this, 0.01);
+	recordRateFeedback_ = new AMSinglePVControl("HexapodRecordRateFeedback", "HXPD1611-4-I10-01:recorder:rate:hz:fbk", this, 0.01);
 	systemVelocityFeedback_ = new AMSinglePVControl("HexapodSystemVelocityValue", "HXPD1611-4-I10-01:velocity:fbk", this, 0.001);
 	systemVelocitySetpoint_ = new AMSinglePVControl("HexapodSystemVelocityValue", "HXPD1611-4-I10-01:velocity", this, 0.001);
 	stopAll_ = new AMSinglePVControl("HexapodStopAll", "HXPD1611-4-I10-01:stop", this, 0.5);
@@ -65,6 +68,8 @@ AMPIC887EpicsCoordinator::AMPIC887EpicsCoordinator(AMPIC887Controller* controlle
 	//allControls_->addControl(wAxisRecorderFeedback_);
 
 	//allControls_->addControl(timeRecorderFeedback_);
+	allControls_->addControl(recordRateFeedback_);
+	allControls_->addControl(recordRateSetpoint_);
 	allControls_->addControl(systemVelocityFeedback_);
 	allControls_->addControl(systemVelocitySetpoint_);
 	allControls_->addControl(stopAll_);
@@ -334,9 +339,21 @@ void AMPIC887EpicsCoordinator::onAllConnected(bool connectedState)
 				qDebug() << "Initialization: Setting system velocity setpoint to " << controller_->systemVelocity();
 				systemVelocitySetpoint_->move(controller_->systemVelocity());
 			}
+
+			// Initialize the record rate.
+			if(!recordRateFeedback_->withinTolerance(controller_->recordRate())) {
+				qDebug() << "Initialization: Setting record rate to " << controller_->recordRate();
+				recordRateFeedback_->move(controller_->recordRate());
+			}
+
+			if(!recordRateSetpoint_->withinTolerance(controller_->recordRate())) {
+				qDebug() << "Initialization: Setting record rate setpoint to " << controller_->recordRate();
+				recordRateSetpoint_->move(controller_->recordRate());
+			}
 		}
 
 		connect(systemVelocitySetpoint_, SIGNAL(valueChanged(double)), this, SLOT(onSystemVelocitySetpointChanged(double)));
+		connect(recordRateSetpoint_, SIGNAL(valueChanged(double)), this, SLOT(onRecordRateSetpointPVChanged(double)));
 		connect(stopAll_, SIGNAL(valueChanged(double)), this, SLOT(onStopAll(double)));
 
 		connect(controller_, SIGNAL(moveStarted(AMGCS2::AxisMovementStatuses)), this, SLOT(onMotionStartedChanged(AMGCS2::AxisMovementStatuses)));
@@ -344,6 +361,7 @@ void AMPIC887EpicsCoordinator::onAllConnected(bool connectedState)
 		connect(controller_, SIGNAL(moveComplete()), this, SLOT(onMotionCompleted()));
 		connect(controller_, SIGNAL(positionUpdate(AMPIC887AxisMap<double>)), this, SLOT(onPositionUpdate(AMPIC887AxisMap<double>)));
 		connect(controller_, SIGNAL(systemVelocityChanged(double)), this, SLOT(onSystemVelocityChanged(double)));
+		connect(controller_, SIGNAL(recordRateChanged(double)), this, SLOT(onControllerRecordRateChanged(double)));
 	}
 }
 
@@ -355,6 +373,24 @@ void AMPIC887EpicsCoordinator::onTrajectoryMove()
 
 	if(!targetPositions.isEmpty()) {
 		controller_->move(targetPositions);
+	}
+}
+
+void AMPIC887EpicsCoordinator::onRecordRateSetpointPVChanged(double value)
+{
+	if(qAbs(value - controller_->recordRate()) > recordRateSetpoint_->tolerance()) {
+
+		qDebug() << "Setting controller record rate to " << value;
+		controller_->setRecordRate(value);
+	}
+}
+
+void AMPIC887EpicsCoordinator::onControllerRecordRateChanged(double value)
+{
+	if(!recordRateFeedback_->withinTolerance(value)) {
+
+		qDebug() << "Setting record rate feedback to " << value;
+		recordRateFeedback_->move(value);
 	}
 }
 
@@ -404,8 +440,10 @@ void AMPIC887EpicsCoordinator::parseRecordedPositionData()
 //	zAxisFeedback_->setValues(waveformZData);
 //	uAxisFeedback_->setValues(waveformUData);
 //	vAxisFeedback_->setValues(waveformVData);
-//	wAxisFeedback_->setValues(waveformWData);
+	//	wAxisFeedback_->setValues(waveformWData);
 }
+
+
 
 
 

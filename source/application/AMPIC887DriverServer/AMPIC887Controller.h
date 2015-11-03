@@ -610,6 +610,14 @@ signals:
 	  * \param newTarget ~ The new target positions of all the axes of the hexapod.
 	  */
 	void targetPositionChanged(const AMPIC887AxisMap<double>& newTarget);
+
+	/*!
+	  * Signal indicating that the record rate of the controller's data recorder
+	  * has been altered.
+	  * \param recordRate ~ The new record rate (in Hz) of the controller's data
+	  * recorder.
+	  */
+	void recordRateChanged(double recordRate);
 protected slots:
 
 	/*!
