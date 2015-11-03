@@ -141,30 +141,57 @@ void AM2DNormalizationAB::setInputSources()
 
 void AM2DNormalizationAB::computeCachedValues() const
 {
-    AMnDIndex start = AMnDIndex(0, 0);
-    AMnDIndex end = size()-1;
-    int totalSize = start.totalPointsTo(end);
+	AMnDIndex start;
+	AMnDIndex end;
 
-    QVector<double> data = QVector<double>(totalSize);
-    QVector<double> normalizer = QVector<double>(totalSize);
+	if (dirtyIndices_.isEmpty()){
 
-    data_->values(start, end, data.data());
-    normalizer_->values(start, end, normalizer.data());
+		start = AMnDIndex(0, 0);
+		end = size()-1;
+	}
 
-    for (int i = 0; i < totalSize; i++){
+	else {
 
-        if (normalizer.at(i) == 0)
-            cachedData_[i] = 0;
+		AMnDIndex start = dirtyIndices_.first();
+		AMnDIndex end = dirtyIndices_.last();
+	}
 
-        else if (normalizer.at(i) < 0 || data.at(i) == -1)
-            cachedData_[i] = -1;
+	int totalSize = start.totalPointsTo(end);
+	int flatStartIndex = start.flatIndexInArrayOfSize(size());
 
-        else
-            cachedData_[i] = data.at(i)/normalizer.at(i);
-    }
+	QVector<double> data = QVector<double>(totalSize);
+	QVector<double> normalizer = QVector<double>(totalSize);
 
-    cachedDataRange_ = AMUtility::rangeFinder(cachedData_, -1);
-    cacheUpdateRequired_ = false;
+	data_->values(start, end, data.data());
+	normalizer_->values(start, end, normalizer.data());
+
+	for (int i = flatStartIndex; i < totalSize; i++){
+
+		if (normalizer.at(i) == 0)
+			cachedData_[i] = 0;
+
+		else if (normalizer.at(i) < 0 || data.at(i) == -1)
+			cachedData_[i] = -1;
+
+		else
+			cachedData_[i] = data.at(i)/normalizer.at(i);
+	}
+
+	if (dirtyIndices_.isEmpty())
+		cachedDataRange_ = AMUtility::rangeFinder(cachedData_, -1);
+
+	else{
+		AMRange cachedRange = AMUtility::rangeFinder(cachedData_.mid(flatStartIndex, totalSize), -1);
+
+		if (cachedDataRange_.minimum() > cachedRange.minimum())
+			cachedDataRange_.setMinimum(cachedRange.minimum());
+
+		if (cachedDataRange_.maximum() < cachedRange.maximum())
+			cachedDataRange_.setMaximum(cachedRange.maximum());
+	}
+
+	cacheUpdateRequired_ = false;
+	dirtyIndices_.clear();
 }
 
 bool AM2DNormalizationAB::canAnalyze(const QString &dataName, const QString &normalizationName) const
@@ -199,7 +226,8 @@ AMNumber AM2DNormalizationAB::value(const AMnDIndex &indexes) const
 
     return cachedData_.at(indexes.i()*size(1)+indexes.j());
 }
-
+#include <QDebug>
+#include <QElapsedTimer>
 bool AM2DNormalizationAB::values(const AMnDIndex &indexStart, const AMnDIndex &indexEnd, double *outputValues) const
 {
 	if (indexStart.rank() != 2 || indexEnd.rank() != 2)
@@ -213,14 +241,15 @@ bool AM2DNormalizationAB::values(const AMnDIndex &indexStart, const AMnDIndex &i
 			|| (unsigned)indexEnd.j() >= (unsigned)axes_.at(1).size || (unsigned)indexStart.j() > (unsigned)indexEnd.j())
 		return false;
 #endif
+	QElapsedTimer time;
+	time.start();
+	if (cacheUpdateRequired_)
+		computeCachedValues();
+	qDebug() << name() << " AM2DNormalizationAB: " << time.elapsed() << " ms";
+	int totalSize = indexStart.totalPointsTo(indexEnd);
+	memcpy(outputValues, cachedData_.constData()+indexStart.flatIndexInArrayOfSize(size()), totalSize*sizeof(double));
 
-    if (cacheUpdateRequired_)
-        computeCachedValues();
-
-    int totalSize = indexStart.totalPointsTo(indexEnd);
-    memcpy(outputValues, cachedData_.constData()+indexStart.i()*size(1), totalSize*sizeof(double));
-
-    return true;
+	return true;
 }
 
 AMNumber AM2DNormalizationAB::axisValue(int axisNumber, int index) const
@@ -253,7 +282,11 @@ bool AM2DNormalizationAB::axisValues(int axisNumber, int startIndex, int endInde
 
 void AM2DNormalizationAB::onInputSourceValuesChanged(const AMnDIndex& start, const AMnDIndex& end)
 {
-    cacheUpdateRequired_ = true;
+	cacheUpdateRequired_ = true;
+
+	if (start == end)
+		dirtyIndices_ << start;
+
 	emitValuesChanged(start, end);
 }
 

@@ -91,7 +91,8 @@ AMNumber AMRegionOfInterestAB::value(const AMnDIndex &indexes) const
 
 	return cachedData_.at(index);
 }
-
+#include <QElapsedTimer>
+#include <QDebug>
 bool AMRegionOfInterestAB::values(const AMnDIndex &indexStart, const AMnDIndex &indexEnd, double *outputValues) const
 {
 	if(indexStart.rank() != rank() || indexEnd.rank() != indexStart.rank())
@@ -109,29 +110,14 @@ bool AMRegionOfInterestAB::values(const AMnDIndex &indexStart, const AMnDIndex &
 	if (!binningRange_.isValid())
 		return false;
 
+	QElapsedTimer time;
+	time.start();
 	if (cacheUpdateRequired_)
 		computeCachedValues();
+	qDebug() << name() << " AMRegionOfInterestAB: " << time.elapsed() << " ms";
 
 	int totalSize = indexStart.totalPointsTo(indexEnd);
-
-	switch(rank()){
-
-	case 0:
-		*outputValues = cachedData_.at(0);
-		break;
-
-	case 1:
-		memcpy(outputValues, cachedData_.constData()+indexStart.i(), totalSize*sizeof(double));
-		break;
-
-	case 2:
-		memcpy(outputValues, cachedData_.constData()+indexStart.i()*size(1)+indexStart.j(), totalSize*sizeof(double));
-		break;
-
-	case 3:
-		memcpy(outputValues, cachedData_.constData()+indexStart.i()*size(1)*size(2)+indexStart.j()*size(2), totalSize*sizeof(double));
-		break;
-	}
+	memcpy(outputValues, cachedData_.constData()+indexStart.flatIndexInArrayOfSize(size()), totalSize*sizeof(double));
 
 	return true;
 }
@@ -140,6 +126,7 @@ void AMRegionOfInterestAB::setBinningRange(const AMRange &newRange)
 {
 	binningRange_ = newRange;
 	cacheUpdateRequired_ = true;
+	dirtyIndices_.clear();
 	emitValuesChanged();
 }
 
@@ -147,6 +134,7 @@ void AMRegionOfInterestAB::setBinningRangeLowerBound(double lowerBound)
 {
 	binningRange_.setMinimum(lowerBound);
 	cacheUpdateRequired_ = true;
+	dirtyIndices_.clear();
 	emitValuesChanged();
 }
 
@@ -154,6 +142,7 @@ void AMRegionOfInterestAB::setBinningRangeUpperBound(double upperBound)
 {
 	binningRange_.setMaximum(upperBound);
 	cacheUpdateRequired_ = true;
+	dirtyIndices_.clear();
 	emitValuesChanged();
 }
 
@@ -203,6 +192,10 @@ void AMRegionOfInterestAB::onInputSourceValuesChanged(const AMnDIndex& start, co
 	newStart.setRank(rank());
 	newEnd.setRank(rank());
 	cacheUpdateRequired_ = true;
+
+	if (start == end)
+		dirtyIndices_ << start;
+
 	emitValuesChanged(start, end);
 }
 
@@ -290,9 +283,20 @@ void AMRegionOfInterestAB::computeCachedValues() const
 	int minimum = int((binningRange_.minimum() - double(axisInfoOfInterest.start))/double(axisInfoOfInterest.increment));
 	int maximum = int((binningRange_.maximum() - double(axisInfoOfInterest.start))/double(axisInfoOfInterest.increment));
 	int axisLength = maximum - minimum + 1;
+	AMnDIndex start;
+	AMnDIndex end;
 
-	AMnDIndex start = AMnDIndex(spectrum_->rank(), AMnDIndex::DoNotInit);
-	AMnDIndex end = AMnDIndex(spectrum_->rank(), AMnDIndex::DoNotInit);
+	if (dirtyIndices_.isEmpty()){
+
+		start = AMnDIndex(spectrum_->rank(), AMnDIndex::DoNotInit);
+		end = AMnDIndex(spectrum_->rank(), AMnDIndex::DoNotInit);
+	}
+
+	else {
+
+		start = dirtyIndices_.first();
+		end = dirtyIndices_.last();
+	}
 
 	for (int i = 0, rank = start.rank(); i < rank; i++){
 
@@ -304,11 +308,15 @@ void AMRegionOfInterestAB::computeCachedValues() const
 	end[end.rank()-1] = maximum;
 
 	int totalPoints = start.totalPointsTo(end);
+	int flatStartIndex = start.flatIndexInArrayOfSize(size());
 	QVector<double> data = QVector<double>(totalPoints);
+	QElapsedTimer time;
+	time.start();
 	spectrum_->values(start, end, data.data());
+	qDebug() << name() << " grabbing spectra data: " << time.elapsed() << " ms";
 	cachedData_.fill(-1);
 
-	for (int i = 0; i < totalPoints; i++){
+	for (int i = flatStartIndex; i < totalPoints; i++){
 
 		int insertIndex = int(i/axisLength);
 
@@ -323,6 +331,19 @@ void AMRegionOfInterestAB::computeCachedValues() const
 		}
 	}
 
-	cachedDataRange_ = AMUtility::rangeFinder(cachedData_, -1);
+	if (dirtyIndices_.isEmpty())
+		cachedDataRange_ = AMUtility::rangeFinder(cachedData_, -1);
+
+	else{
+		AMRange cachedRange = AMUtility::rangeFinder(cachedData_.mid(flatStartIndex, totalPoints), -1);
+
+		if (cachedDataRange_.minimum() > cachedRange.minimum())
+			cachedDataRange_.setMinimum(cachedRange.minimum());
+
+		if (cachedDataRange_.maximum() < cachedRange.maximum())
+			cachedDataRange_.setMaximum(cachedRange.maximum());
+	}
+
+	cachedDataRange_ = AMUtility::rangeFinder(cachedData_.mid(flatStartIndex, totalPoints), -1);
 	cacheUpdateRequired_ = false;
 }
