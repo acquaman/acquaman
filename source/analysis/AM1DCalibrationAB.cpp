@@ -203,6 +203,7 @@ void AM1DCalibrationAB::setInputSources()
 		axes_[0] = data_->axisInfoAt(0);
 
 		cacheUpdateRequired_ = true;
+		dirtyIndices_.clear();
 		cachedData_ = QVector<double>(size().product());
 
 		setDescription(QString("Normalized %1").arg(data_->name()));
@@ -487,7 +488,11 @@ bool AM1DCalibrationAB::axisValues(int axisNumber, int startIndex, int endIndex,
 
 void AM1DCalibrationAB::onInputSourceValuesChanged(const AMnDIndex& start, const AMnDIndex& end)
 {
-    cacheUpdateRequired_ = true;
+	cacheUpdateRequired_ = true;
+
+	if (start == end)
+		dirtyIndices_ << start;
+
 	emitValuesChanged(start, end);
 }
 
@@ -495,6 +500,7 @@ void AM1DCalibrationAB::onInputSourceSizeChanged()
 {
     axes_[0].size = data_->size(0);
     cacheUpdateRequired_ = true;
+    dirtyIndices_.clear();
     cachedData_ = QVector<double>(axes_.at(0).size);
     emitSizeChanged();
 }
@@ -544,8 +550,9 @@ void AM1DCalibrationAB::setInputDataSourcesImplementation(const QList<AMDataSour
 
 		axes_[0] = data_->axisInfoAt(0);
 
-        cacheUpdateRequired_ = true;
-        cachedData_ = QVector<double>(size().product());
+		cacheUpdateRequired_ = true;
+		dirtyIndices_.clear();
+		cachedData_ = QVector<double>(size().product());
 
 		setDescription(QString("Normalized %1").arg(data_->name()));
 
