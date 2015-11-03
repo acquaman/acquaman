@@ -342,6 +342,6 @@ void AMRegionOfInterestAB::computeCachedValues() const
 			cachedDataRange_.setMaximum(cachedRange.maximum());
 	}
 
-	cachedDataRange_ = AMUtility::rangeFinder(cachedData_.mid(flatStartIndex, totalPoints), -1);
 	cacheUpdateRequired_ = false;
+	dirtyIndices_.clear();
 }
