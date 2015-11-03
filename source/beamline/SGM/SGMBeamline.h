@@ -28,6 +28,7 @@ class SGMMAXvMotor;
 class AMMotorGroup;
 class CLSAdvancedScalerChannelDetector;
 class CLSAmptekSDD123DetectorNew;
+class SGMEnergyControlSet;
 class SGMHexapod;
 /*!
   * A singleton class which represents the SGM beamline. The beamline class can
@@ -65,24 +66,14 @@ public:
 	AMControl* endStationTranslationFeedback() const;
 
 	/*!
-	  * The energy control.
+	  * The set of energy controls
 	  */
-	AMControl* energy() const;
+	SGMEnergyControlSet* energyControlSet() const;
 
 	/*!
 	  * The exit slit gap control.
 	  */
 	AMControl* exitSlitGap() const;
-
-	/*!
-	  * The exit slit position control.
-	  */
-	AMControl* exitSlitPosition() const;
-
-	/*!
-	  * The grating control.
-	  */
-	AMControl* grating() const;
 
 	/*!
 	  * The control set for the hexapod
@@ -166,10 +157,12 @@ protected:
 	  */
 	SGMBeamline();
 
-	AMControl *energy_;
+	// New Energy Controls
+	SGMEnergyControlSet* energyControlSet_;
+
+	// Old Energy Controls
+
 	AMControl *exitSlitGap_;
-	AMControl *exitSlitPosition_;
-	AMControl *grating_;
 	AMControl *endStationTranslationSetpont_;
 	AMControl *endStationTranslationFeedback_;
 

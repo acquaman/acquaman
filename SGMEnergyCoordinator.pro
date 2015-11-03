@@ -5,4 +5,4 @@
 TEMPLATE = subdirs
 SUBDIRS += \
 	Initialize.pro \
-	SGMAddOnsCoordinator_internal.pro
+	SGMEnergyCoordinator_internal.pro

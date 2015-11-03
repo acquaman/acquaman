@@ -4,7 +4,7 @@
 #include <QWidget>
 #include "ui/beamline/AMExtendedControlEditor.h"
 
-class SGMHexapodTrajectoryView;
+class SGMEnergyView;
 /*!
   * A user interface class for providing users access to the core controls on
   * the SGM beamline. Contains control editors for the:
@@ -36,14 +36,11 @@ protected:
 	  */
 	void setupUi();
 
-	AMExtendedControlEditor* energyControlEditor_;
 	AMExtendedControlEditor* exitSlitGapControlEditor_;
-	AMExtendedControlEditor* exitSlitPositionControlEditor_;
-	AMExtendedControlEditor* gratingSelectionControlEditor_;
 	AMExtendedControlEditor* hexapodVelocityControlEditor_;
 	AMExtendedControlEditor* endStationTranslationSetpointControlEditor_;
 	AMExtendedControlEditor* endStationTranslationFeedbackControlEditor_;
-
+	SGMEnergyView* energyView_;
 };
 
 #endif // SGMPERSISTENTVIEW_H
