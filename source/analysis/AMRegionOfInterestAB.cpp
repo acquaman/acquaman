@@ -193,10 +193,10 @@ void AMRegionOfInterestAB::onInputSourceValuesChanged(const AMnDIndex& start, co
 	newEnd.setRank(rank());
 	cacheUpdateRequired_ = true;
 
-	if (start == end)
+	if (newStart == newEnd)
 		dirtyIndices_ << start;
 
-	emitValuesChanged(start, end);
+	emitValuesChanged(newStart, newEnd);
 }
 
 void AMRegionOfInterestAB::onInputSourceSizeChanged()
@@ -283,42 +283,40 @@ void AMRegionOfInterestAB::computeCachedValues() const
 	int minimum = int((binningRange_.minimum() - double(axisInfoOfInterest.start))/double(axisInfoOfInterest.increment));
 	int maximum = int((binningRange_.maximum() - double(axisInfoOfInterest.start))/double(axisInfoOfInterest.increment));
 	int axisLength = maximum - minimum + 1;
-	AMnDIndex start;
-	AMnDIndex end;
-
-	if (dirtyIndices_.isEmpty()){
-
-		start = AMnDIndex(spectrum_->rank(), AMnDIndex::DoNotInit);
-		end = AMnDIndex(spectrum_->rank(), AMnDIndex::DoNotInit);
-	}
-
-	else {
-
-		start = dirtyIndices_.first();
-		end = dirtyIndices_.last();
-	}
+	AMnDIndex start = AMnDIndex(spectrum_->rank(), AMnDIndex::DoNotInit);
+	AMnDIndex end = AMnDIndex(spectrum_->rank(), AMnDIndex::DoNotInit);
 
 	for (int i = 0, rank = start.rank(); i < rank; i++){
 
-		start[i] = 0;
-		end[i] = spectrum_->size(i)-1;
+		if (dirtyIndices_.isEmpty()){
+			start[i] = 0;
+			end[i] = spectrum_->size(i)-1;
+		}
+
+		else{
+			start[i] = dirtyIndices_.first().at(i);
+			end[i] = dirtyIndices_.last().at(i);
+		}
 	}
 
 	start[start.rank()-1] = minimum;
 	end[end.rank()-1] = maximum;
+	AMnDIndex flatIndexStart = start;
+	flatIndexStart.setRank(rank());
 
 	int totalPoints = start.totalPointsTo(end);
-	int flatStartIndex = start.flatIndexInArrayOfSize(size());
+	int flatStartIndex = flatIndexStart.flatIndexInArrayOfSize(size());
 	QVector<double> data = QVector<double>(totalPoints);
 	QElapsedTimer time;
 	time.start();
 	spectrum_->values(start, end, data.data());
 	qDebug() << name() << " grabbing spectra data: " << time.elapsed() << " ms";
+
 	cachedData_.fill(-1);
 
-	for (int i = flatStartIndex; i < totalPoints; i++){
+	for (int i = 0; i < totalPoints; i++){
 
-		int insertIndex = int(i/axisLength);
+		int insertIndex = int((flatStartIndex+i)/axisLength);
 
 		if (data.at(i) == -1)
 			cachedData_[insertIndex] = -1;

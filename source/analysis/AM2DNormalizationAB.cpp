@@ -152,8 +152,8 @@ void AM2DNormalizationAB::computeCachedValues() const
 
 	else {
 
-		AMnDIndex start = dirtyIndices_.first();
-		AMnDIndex end = dirtyIndices_.last();
+		start = dirtyIndices_.first();
+		end = dirtyIndices_.last();
 	}
 
 	int totalSize = start.totalPointsTo(end);
@@ -165,16 +165,16 @@ void AM2DNormalizationAB::computeCachedValues() const
 	data_->values(start, end, data.data());
 	normalizer_->values(start, end, normalizer.data());
 
-	for (int i = flatStartIndex; i < totalSize; i++){
+	for (int i = 0; i < totalSize; i++){
 
 		if (normalizer.at(i) == 0)
-			cachedData_[i] = 0;
+			cachedData_[flatStartIndex+i] = 0;
 
 		else if (normalizer.at(i) < 0 || data.at(i) == -1)
-			cachedData_[i] = -1;
+			cachedData_[flatStartIndex+i] = -1;
 
 		else
-			cachedData_[i] = data.at(i)/normalizer.at(i);
+			cachedData_[flatStartIndex+i] = data.at(i)/normalizer.at(i);
 	}
 
 	if (dirtyIndices_.isEmpty())
