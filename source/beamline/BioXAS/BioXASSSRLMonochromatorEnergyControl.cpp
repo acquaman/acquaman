@@ -183,7 +183,7 @@ AMAction3* BioXASSSRLMonochromatorEnergyControl::createCalibrateAction(double ol
 
 		// Create calibration action for the bragg motor.
 
-		result = bragg_->createCalibrationAction(oldPosition, newPosition);
+		result = AMActionSupport::buildControlCalibrateAction(bragg_, oldPosition, newPosition);
 	}
 
 	return result;
