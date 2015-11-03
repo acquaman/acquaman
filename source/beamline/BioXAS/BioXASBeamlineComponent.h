@@ -1,9 +1,9 @@
 #ifndef BIOXASBEAMLINECOMPONENT_H
 #define BIOXASBEAMLINECOMPONENT_H
 
-#include <QObject>
+#include "beamline/AMControl.h"
 
-class BioXASBeamlineComponent : public QObject
+class BioXASBeamlineComponent : public AMControl
 {
     Q_OBJECT
 
@@ -12,18 +12,6 @@ public:
 	explicit BioXASBeamlineComponent(const QString &name, QObject *parent = 0);
 	/// Destructor.
 	virtual ~BioXASBeamlineComponent();
-
-	/// Returns the current connected state.
-	virtual bool isConnected() const = 0;
-	/// Returns the current (cached) connected state.
-	virtual bool connected() const { return connected_; }
-
-	/// Returns the name.
-	virtual QString name() const { return name_; }
-
-signals:
-	/// Notifier that the current connected state has changed.
-	void connectedChanged(bool isConnected);
 
 protected slots:
 	/// Sets the current connected state.
@@ -34,8 +22,6 @@ protected slots:
 protected:
 	/// The current connected state.
 	bool connected_;
-	/// The name.
-	QString name_;
 
 };
 

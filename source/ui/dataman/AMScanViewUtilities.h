@@ -218,6 +218,8 @@ public:
  	virtual ~AMScanViewSingleSpectrumView();
 	AMScanViewSingleSpectrumView(QWidget *parent = 0);
 
+	/// Sets the title for the view.
+	void setTitle(const QString &title);
 	/// Sets the scale for each point along the x-axis. This also calls setPlotRange to make the ranges match. Set \param propogateToPlotRange to false if you don't want the information to propogate.
 	void setAxisInfo(AMAxisInfo info, bool propogateToPlotRange);
 	/// This method looks for a data source named \param name and sets it as the only spectrum currently to be viewed.
@@ -286,6 +288,8 @@ protected:
 	/// The export button.
 	QPushButton *exportButton_;
 
+	/// The title label.
+	QLabel *title_;
 	/// The periodic table model that holds all of the selected elements.
 	AMSelectablePeriodicTable *table_;
 	/// The view that looks at the selectable periodic table model.

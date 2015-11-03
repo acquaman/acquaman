@@ -176,20 +176,20 @@ void BioXASSideBeamline::setupComponents()
 
 	// M1 mirror.
 	m1Mirror_ = new BioXASSideM1Mirror(this);
-	connect( m1Mirror_, SIGNAL(connectedChanged(bool)), this, SLOT(updateConnected()) );
+	connect( m1Mirror_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
 	// Mono.
 	mono_ = new BioXASSideMonochromator(this);
 	mono_->setM1MirrorPitchControl(m1Mirror_->pitchControl());
-	connect( mono_, SIGNAL(connectedChanged(bool)), this, SLOT(updateConnected()) );
+	connect( mono_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
 	// M2 mirror.
 	m2Mirror_ = new BioXASSideM2Mirror(this);
-	connect( m2Mirror_, SIGNAL(connectedChanged(bool)), this, SLOT(updateConnected()) );
+	connect( m2Mirror_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
 	// Carbon filter farm.
 	carbonFilterFarm_ = new BioXASSideCarbonFilterFarm(this);
-	connect( carbonFilterFarm_, SIGNAL(connectedChanged(bool)), this, SLOT(updateConnected()) );
+	connect( carbonFilterFarm_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
 	// JJ slits.
 	jjSlits_ = new CLSJJSlits("JJSlits", "SMTR1607-6-I22-10", "SMTR1607-6-I22-09", "SMTR1607-6-I22-11", "SMTR1607-6-I22-12", this);
@@ -197,11 +197,11 @@ void BioXASSideBeamline::setupComponents()
 
 	// XIA filters.
 	xiaFilters_ = new BioXASSideXIAFilters(this);
-	connect( xiaFilters_, SIGNAL(connectedChanged(bool)), this, SLOT(updateConnected()) );
+	connect( xiaFilters_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
 	// DBHR mirrors.
 	dbhrMirrors_ = new BioXASSideDBHRMirrors(this);
-	connect( dbhrMirrors_, SIGNAL(connectedChanged(bool)), this, SLOT(updateConnected()) );
+	connect( dbhrMirrors_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
 	// Standards wheel.
 	standardsWheel_ = new CLSStandardsWheel("StandardsWheel", "SMTR1607-6-I22-19", this);
@@ -216,8 +216,8 @@ void BioXASSideBeamline::setupComponents()
 	standardsWheel_->setName(6, "Zn");
 	standardsWheel_->setName(7, "As");
 	standardsWheel_->setName(8, "Se");
-	standardsWheel_->setName(9, "Hg");
-	standardsWheel_->setName(10, "Mo");
+	standardsWheel_->setName(9, "Mo");
+	standardsWheel_->setName(10, "Cd");
 	standardsWheel_->setName(11, "None");
 
 	// Endstation table.
@@ -230,7 +230,7 @@ void BioXASSideBeamline::setupComponents()
 
 	// Cryostat stage.
 	cryostatStage_ = new BioXASSideCryostatStage(this);
-	connect( cryostatStage_, SIGNAL(connectedChanged(bool)), this, SLOT(updateConnected()) );
+	connect( cryostatStage_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
 	// Scaler.
 	scaler_ = new CLSSIS3820Scaler("MCS1607-601:mcs", this);
@@ -280,7 +280,7 @@ void BioXASSideBeamline::setupComponents()
 
 	// Utilities.
 	utilities_ = new BioXASSideBeamlineUtilities(this);
-	connect( utilities_, SIGNAL(connectedChanged(bool)), this, SLOT(updateConnected()) );
+	connect( utilities_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 }
 
 void BioXASSideBeamline::setupControlsAsDetectors()
