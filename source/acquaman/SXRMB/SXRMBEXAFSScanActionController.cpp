@@ -228,7 +228,7 @@ void SXRMBEXAFSScanActionController::buildScanControllerImplementation()
 
 	if (configuration_->endstation() == SXRMB::SolidState) {
 		AMDetector* teyDetector = SXRMBBeamline::sxrmb()->teyDetector();
-		AMDataSource *spectraSource = scan_->dataSourceAt(scan_->indexOfDataSource("TEYDector"));
+		AMDataSource *spectraSource = scan_->dataSourceAt(scan_->indexOfDataSource("TEYDetector"));
 
 		AM1DNormalizationAB *normalizedTEY = new AM1DNormalizationAB(QString("norm_%1").arg(teyDetector->name()));
 		normalizedTEY->setDataName(teyDetector->name());
