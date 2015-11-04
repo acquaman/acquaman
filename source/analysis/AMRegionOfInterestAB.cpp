@@ -91,8 +91,7 @@ AMNumber AMRegionOfInterestAB::value(const AMnDIndex &indexes) const
 
 	return cachedData_.at(index);
 }
-#include <QElapsedTimer>
-#include <QDebug>
+
 bool AMRegionOfInterestAB::values(const AMnDIndex &indexStart, const AMnDIndex &indexEnd, double *outputValues) const
 {
 	if(indexStart.rank() != rank() || indexEnd.rank() != indexStart.rank())
@@ -110,11 +109,8 @@ bool AMRegionOfInterestAB::values(const AMnDIndex &indexStart, const AMnDIndex &
 	if (!binningRange_.isValid())
 		return false;
 
-	QElapsedTimer time;
-	time.start();
 	if (cacheUpdateRequired_)
 		computeCachedValues();
-	qDebug() << name() << " AMRegionOfInterestAB: " << time.elapsed() << " ms";
 
 	int totalSize = indexStart.totalPointsTo(indexEnd);
 	memcpy(outputValues, cachedData_.constData()+indexStart.flatIndexInArrayOfSize(size()), totalSize*sizeof(double));
@@ -306,10 +302,7 @@ void AMRegionOfInterestAB::computeCachedValues() const
 	int totalPoints = start.totalPointsTo(end);
 	int flatStartIndex = flatIndexStart.flatIndexInArrayOfSize(size());
 	QVector<double> data = QVector<double>(totalPoints);
-	QElapsedTimer time;
-	time.start();
 	spectrum_->values(start, end, data.data());
-	qDebug() << name() << " grabbing spectra data: " << time.elapsed() << " ms";
 
 	cachedData_.fill(-1);
 

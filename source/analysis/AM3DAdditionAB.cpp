@@ -123,7 +123,6 @@ bool AM3DAdditionAB::axisValues(int axisNumber, int startIndex, int endIndex, do
 
 	return sources_.at(0)->axisValues(axisNumber, startIndex, endIndex, outputValues);
 }
-#include <QDebug>
 
 // Connected to be called when the values of the input data source change
 void AM3DAdditionAB::onInputSourceValuesChanged(const AMnDIndex& start, const AMnDIndex& end)
@@ -245,14 +244,11 @@ void AM3DAdditionAB::reviewState()
 	if (valid)
 		setState(0);
 	else
-        setState(AMDataSource::InvalidFlag);
+		setState(AMDataSource::InvalidFlag);
 }
 
-#include <QElapsedTimer>
 void AM3DAdditionAB::computeCachedValues() const
 {
-	QElapsedTimer time;
-	time.start();
 	AMnDIndex start = AMnDIndex();
 	AMnDIndex end = AMnDIndex();
 
@@ -302,5 +298,4 @@ void AM3DAdditionAB::computeCachedValues() const
 
 	cacheUpdateRequired_ = false;
 	dirtyIndices_.clear();
-    qDebug() << name() << "AM3DAdditionAB:" << time.elapsed() << "ms";
 }
