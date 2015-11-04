@@ -51,7 +51,7 @@ class VESPERSTimeScanConfiguration;
 class VESPERSTimeScanConfigurationView;
 class VESPERSTimedLineScanConfiguration;
 class VESPERSTimedLineScanConfigurationView;
-class AMGenericStepScanConfiguration;
+
 #define VESPERSAPPCONTROLLER_COULD_NOT_CREATE_VESPERS_FOLDER 999000
 #define VESPERSAPPCONTROLLER_AURORA_PATH_NOT_FOUND 999001
 #define VESPERSAPPCONTROLLER_PILATUS_PATH_NOT_FOUND 999002
@@ -213,7 +213,7 @@ protected:
 
 	/// Pointer to the list action that is used to move the sample stage.
 	AMListAction3 *moveImmediatelyAction_;
-	AMGenericStepScanConfiguration *test_;
+
 	/// Pointer to the persistent view.
 	VESPERSPersistentView *persistentView_;
 	/// Pointer to the endstation view.
