@@ -15,7 +15,7 @@ public:
 	  * return the positional data of the hexapod from the data recorder.
 	  * \param positionData ~ The inplace vector to fill with the recorded data
 	  */
-	AMGCS2AsyncGetRecordedDataValuesCommand(QVector<AMPIC887HexapodPosition> &positionData);
+	AMGCS2AsyncGetRecordedDataValuesCommand(AMPIC887HexapodPosition* positionData);
 
 	/// Virtual destructor
 	virtual ~AMGCS2AsyncGetRecordedDataValuesCommand() {}
@@ -48,7 +48,7 @@ protected:
 	double* rawPositionData_;
 
 	/// The parsed position data read
-	QVector<AMPIC887HexapodPosition>* positionData_;
+	AMPIC887HexapodPosition* positionData_;
 
 	/// The index of the previously read data index from the controller.
 	int lastReadDataIndex_;

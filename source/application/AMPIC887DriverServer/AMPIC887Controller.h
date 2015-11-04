@@ -7,7 +7,6 @@
 #include <QObject>
 #include <QString>
 #include <QTimer>
-#include <QElapsedTimer>
 #include <QHash>
 #include <QVector>
 #include "GCS2Commands/AMGCS2Command.h"
@@ -143,7 +142,7 @@ public:
 	  * vector is of a constant size of 1024, but may not be entirely filled with
 	  * each move.
 	  */
-	QVector<AMPIC887HexapodPosition> lastRecordedPositionData() const;
+	const QVector<AMPIC887HexapodPosition>& lastRecordedPositionData() const;
 
 	/*!
 	  * The current movement status of the controller's hexapod.
@@ -754,8 +753,6 @@ protected:
 	int uMotions_;
 	int vMotions_;
 	int wMotions_;
-
-	QElapsedTimer testTimer_;
 };
 
 #endif // AMPIC887CONTROLLER_H

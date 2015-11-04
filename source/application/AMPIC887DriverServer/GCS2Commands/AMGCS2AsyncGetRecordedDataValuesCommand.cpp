@@ -3,10 +3,10 @@
 #include "PI_GCS2_DLL.h"
 
 #include "../AMPIC887Controller.h"
-AMGCS2AsyncGetRecordedDataValuesCommand::AMGCS2AsyncGetRecordedDataValuesCommand(QVector<AMPIC887HexapodPosition> &positionData) :
+AMGCS2AsyncGetRecordedDataValuesCommand::AMGCS2AsyncGetRecordedDataValuesCommand(AMPIC887HexapodPosition *positionData) :
 	AMGCS2AsyncCommand()
 {
-	positionData_ = &positionData;
+	positionData_ = positionData;
 	rawPositionData_ = 0;
 	lastReadDataIndex_ = -2;
 	matchCounter_ = 0;
@@ -15,7 +15,10 @@ AMGCS2AsyncGetRecordedDataValuesCommand::AMGCS2AsyncGetRecordedDataValuesCommand
 
 bool AMGCS2AsyncGetRecordedDataValuesCommand::runImplementation()
 {
-	positionData_->fill(AMPIC887HexapodPosition());
+	for(int iPosition = 0; iPosition < 1024; ++iPosition) {
+
+		positionData_[iPosition] = AMPIC887HexapodPosition();
+	}
 	int numberOfRecordTables = 7;
 	AMCArrayHandler<int> tableIdsArray = AMCArrayHandler<int>(numberOfRecordTables);
 	AMCArrayHandler<char> header = AMCArrayHandler<char>(BUFFER_SIZE + 1);
@@ -54,6 +57,9 @@ void AMGCS2AsyncGetRecordedDataValuesCommand::checkRunningState()
 
 		lastError_ = "Failed to retrieve any data";
 		runningState_ = Failed;
+	// We wait for 10 consecutive calls to lastReadIndex to return the same value,
+	// indicating that the controller has finished writing its data to the recorder.
+	// 10 was obtained through repeat testing of values.
 	} else if(matchCounter_ > 10 && controller_->movementStatuses() == 0) {
 
 		runningState_ = Succeeded;
@@ -76,13 +82,13 @@ void AMGCS2AsyncGetRecordedDataValuesCommand::parseReadData()
 			++parsedIndex, xPos+=7, yPos+=7, zPos+=7, uPos+=7, vPos+=7, wPos+=7, time+=7) {
 
 
-			(*positionData_)[parsedIndex] = AMPIC887HexapodPosition(rawPositionData_[xPos],
-																	rawPositionData_[yPos],
-																	rawPositionData_[zPos],
-																	rawPositionData_[uPos],
-																	rawPositionData_[vPos],
-																	rawPositionData_[wPos],
-																	rawPositionData_[time]);
+			positionData_[parsedIndex] = AMPIC887HexapodPosition(rawPositionData_[xPos],
+																 rawPositionData_[yPos],
+																 rawPositionData_[zPos],
+																 rawPositionData_[uPos],
+																 rawPositionData_[vPos],
+																 rawPositionData_[wPos],
+																 rawPositionData_[time]);
 		}
 	}
 }
