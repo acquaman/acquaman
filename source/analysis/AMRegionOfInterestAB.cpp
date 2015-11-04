@@ -283,24 +283,23 @@ void AMRegionOfInterestAB::computeCachedValues() const
 	int minimum = int((binningRange_.minimum() - double(axisInfoOfInterest.start))/double(axisInfoOfInterest.increment));
 	int maximum = int((binningRange_.maximum() - double(axisInfoOfInterest.start))/double(axisInfoOfInterest.increment));
 	int axisLength = maximum - minimum + 1;
-	AMnDIndex start = AMnDIndex(spectrum_->rank(), AMnDIndex::DoNotInit);
-	AMnDIndex end = AMnDIndex(spectrum_->rank(), AMnDIndex::DoNotInit);
+	AMnDIndex start = AMnDIndex(spectrum_->rank(), AMnDIndex::DoInit);
+	AMnDIndex end = spectrum_->size()-1;
 
-	for (int i = 0, rank = start.rank(); i < rank; i++){
+	if (dirtyIndices_.isEmpty()){
 
-		if (dirtyIndices_.isEmpty()){
-			start[i] = 0;
-			end[i] = spectrum_->size(i)-1;
-		}
-
-		else{
-			start[i] = dirtyIndices_.first().at(i);
-			end[i] = dirtyIndices_.last().at(i);
-		}
+		start = AMnDIndex(spectrum_->rank(), AMnDIndex::DoInit);
+		end = spectrum_->size()-1;
 	}
 
-	start[start.rank()-1] = minimum;
-	end[end.rank()-1] = maximum;
+	else{
+
+		start = dirtyIndices_.first();
+		end = dirtyIndices_.last();
+	}
+
+	start[rank()] = minimum;
+	end[rank()] = maximum;
 	AMnDIndex flatIndexStart = start;
 	flatIndexStart.setRank(rank());
 
