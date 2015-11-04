@@ -34,10 +34,12 @@ public:
 	  * \param recordTrigger ~ The trigger to initialize the state with.
 	  * \param availableRecordParameters ~ Text describing each of the parameters
 	  * available for recording on the controller.
+	  * \param recordRate ~ The record Rate of the controller in hertz.
 	  * \param recordConfigs ~ The record configs to initialize the state with.
 	  */
 	void initialize(AMGCS2::DataRecordTrigger recordTrigger,
 					const QString& availableRecordParameters,
+					double recordRate,
 					const QHash<int, AMPIC887DataRecorderConfiguration>& recordConfigs);
 
 	/*!
@@ -66,6 +68,17 @@ public:
 	void setRecordConfig(int tableId, AMPIC887DataRecorderConfiguration recordConfig);
 
 	/*!
+	  * The current data recorder record rate, in hertz.
+	  */
+	double recordRate() const;
+
+	/*!
+	  * Sets the controller record rate to the provided value
+	  * \param recordRate ~ The new record rate to set (in hertz).
+	  */
+	void setRecordRate(double recordRate);
+
+	/*!
 	  * The record configs for all the data tables of the controller.
 	  */
 	QHash<int, AMPIC887DataRecorderConfiguration> recordConfigs() const;
@@ -92,6 +105,7 @@ protected:
 	AMGCS2::DataRecordTrigger recordTrigger_;
 	QString availableRecordParameters_;
 	QHash<int, AMPIC887DataRecorderConfiguration> recordConfigs_;
+	double recordRate_;
 
 };
 

@@ -23,10 +23,12 @@ bool AMPIC887DataRecorderState::isDataValid() const
 
 void AMPIC887DataRecorderState::initialize(AMGCS2::DataRecordTrigger recordTrigger,
 										   const QString& availableRecordParameters,
+										   double recordRate,
 										   const QHash<int, AMPIC887DataRecorderConfiguration>& recordConfigs)
 {
 	recordTrigger_ = recordTrigger;
 	availableRecordParameters_ = availableRecordParameters;
+	recordRate_ = recordRate;
 	recordConfigs_ = recordConfigs;
 }
 
@@ -54,6 +56,16 @@ void AMPIC887DataRecorderState::setRecordConfig(int tableId, AMPIC887DataRecorde
 	}
 
 	recordConfigs_.insert(tableId, recordConfig);
+}
+
+double AMPIC887DataRecorderState::recordRate() const
+{
+	return recordRate_;
+}
+
+void AMPIC887DataRecorderState::setRecordRate(double recordRate)
+{
+	recordRate_ = recordRate;
 }
 
 QHash<int, AMPIC887DataRecorderConfiguration> AMPIC887DataRecorderState::recordConfigs() const
@@ -90,6 +102,8 @@ QString AMPIC887DataRecorderState::statusString() const
 
 	return stateString;
 }
+
+
 
 
 

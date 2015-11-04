@@ -65,6 +65,11 @@ signals:
 	void setRecordTriggerCommandIssued(AMGCS2::DataRecordTrigger recordTrigger);
 
 	/*!
+	  * Signa indicating that a set record rate command has been issued.
+	  */
+	void setRecordRateCommandIssued(double recordRate);
+
+	/*!
 	  * Signal indicating that a set record config command has been issued.
 	  */
 	void setRecordConfigCommandIssued(const QHash<int, AMPIC887DataRecorderConfiguration>& recordConfigs);
@@ -191,6 +196,11 @@ signals:
 	void recordTriggerCommandIssued();
 
 	/*!
+	  * Signal indicating that a get data record rate command has been issued.
+	  */
+	void recordRateCommandIssued();
+
+	/*!
 	  * Signal indicating that a get referenced state command has been issued.
 	  */
 	void referencedStateCommandIssued(const AMPIC887AxisCollection& axes);
@@ -235,6 +245,16 @@ signals:
 	  * controller has been issued.
 	  */
 	void initializeControllerCommandIssued();
+
+	/*!
+	  * Signal indicating that a command to obtain the recorded data vales from
+	  * the controller's data recorder has been issued.
+	  * \param offset ~ The starting index of the values to be retrieved from the
+	  * data recorder.
+	  * \param numberOfDataPoints ~ The number of values to be retrieved.
+	  * \param tableId ~ The table from which to retrieve the values.
+	  */
+	void dataRecorderValuesCommandIssued(int offset, int numberOfDataPoints, int tableId);
 
 	/*!
 	  * Signals that the quit command has been issued.
@@ -356,6 +376,14 @@ protected:
 	  * parsed.
 	  */
 	void handleSetRecordConfigInput(const QString& commandString);
+
+	/*!
+	  * Helper method for parsing the command string passed along with the get
+	  * data record values command (DRR?)
+	  * \param commandString ~ The command string which was entered, and must be
+	  * parsed.
+	  */
+	void handleDataRecordValuesInput(const QString& commandString);
 };
 
 #endif // AMPIC887CONSOLECOMMANDSET_H

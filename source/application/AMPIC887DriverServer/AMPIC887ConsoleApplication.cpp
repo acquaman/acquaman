@@ -687,6 +687,20 @@ void AMPIC887ConsoleApplication::onSystemVelocityCommandIssued()
 	}
 }
 
+void AMPIC887ConsoleApplication::onRecordRateCommandIssued()
+{
+	AMPIC887Controller* activeController = controllerCollection_.activeController();
+
+	if(!activeController) {
+		consoleInputHandler_->writeLineToStandardError("No active controller.");
+	} else if(!activeController->isInValidState()) {
+		consoleInputHandler_->writeLineToStandardError("Active controller not in a valid state. Reinitialize the controller with an init command..");
+	} else {
+		consoleInputHandler_->writeLineToStandardOutput(
+					QString("Record Rate: %1 Hz").arg(activeController->recordRate()));
+	}
+}
+
 void AMPIC887ConsoleApplication::onStopCommandIssued()
 {
 	AMPIC887Controller* activeController = controllerCollection_.activeController();
@@ -711,6 +725,44 @@ void AMPIC887ConsoleApplication::onHaltCommandIssued(const AMPIC887AxisCollectio
 	} else {
 		activeController->haltSmoothly(axes);
 	}
+}
+
+void AMPIC887ConsoleApplication::onDataRecordValuesIssues(int offset, int numberOfElements, int tableId)
+{
+	AMPIC887Controller* activeController = controllerCollection_.activeController();
+
+	if(!activeController) {
+		consoleInputHandler_->writeLineToStandardError("No active controller.");
+	} else if(!activeController->isInValidState()) {
+		consoleInputHandler_->writeLineToStandardError("Active controller not in a valid state. Reinitialize the controller with an init command..");
+	} else {
+		QList<double> dataValues = activeController->recordedData(offset, numberOfElements, tableId);
+
+		QString output = "[";
+		foreach (double value, dataValues) {
+
+			output.append(QString("%1, ").arg(value));
+		}
+
+		output.append("]");
+
+		consoleInputHandler_->writeLineToStandardOutput(output);
+	}
+}
+
+void AMPIC887ConsoleApplication::onSetRecordRateCommandIssued(double recordRate)
+{
+	AMPIC887Controller* activeController = controllerCollection_.activeController();
+
+	if(!activeController) {
+		consoleInputHandler_->writeLineToStandardError("No active controller.");
+	} else if(!activeController->isInValidState()) {
+		consoleInputHandler_->writeLineToStandardError("Active controller not in a valid state. Reinitialize the controller with an init command..");
+	} else {
+
+		activeController->setRecordRate(recordRate);
+	}
+
 }
 
 bool AMPIC887ConsoleApplication::startup()
@@ -765,9 +817,12 @@ void AMPIC887ConsoleApplication::makeConnections()
 	connect(commandParser_, SIGNAL(servoModeCommandIssued()), this, SLOT(onServoModeStateCommandIssued()));
 	connect(commandParser_, SIGNAL(stepSizeCommandIssued(AMPIC887AxisCollection)), this, SLOT(onStepSizeCommandIssued(AMPIC887AxisCollection)));
 	connect(commandParser_, SIGNAL(systemVelocityCommandIssued()), this, SLOT(onSystemVelocityCommandIssued()));
+	connect(commandParser_, SIGNAL(recordRateCommandIssued()), this, SLOT(onRecordRateCommandIssued()));
 
 	connect(commandParser_, SIGNAL(stopCommandIssued()), this, SLOT(onStopCommandIssued()));
 	connect(commandParser_, SIGNAL(haltCommandIssued(AMPIC887AxisCollection)), this, SLOT(onHaltCommandIssued(AMPIC887AxisCollection)));
+
+	connect(commandParser_, SIGNAL(dataRecorderValuesCommandIssued(int,int,int)), this, SLOT(onDataRecordValuesIssues(int,int,int)));
 
 	connect(commandParser_, SIGNAL(setCommandLevelCommandIssued(AMGCS2::ControllerCommandLevel,QString)),
 			this, SLOT(onSetCommandLevelCommandIssued(AMGCS2::ControllerCommandLevel,QString)));
@@ -789,13 +844,18 @@ void AMPIC887ConsoleApplication::makeConnections()
 			this, SLOT(onSetStepSizeCommandIssued(AMPIC887AxisMap<double>)));
 	connect(commandParser_, SIGNAL(setSystemVelocityCommandIssued(double)),
 			this, SLOT(onSetSystemVelocityCommandIssued(double)));
+	connect(commandParser_, SIGNAL(setRecordRateCommandIssued(double)),
+			this, SLOT(onSetRecordRateCommandIssued(double)));
 
 	connect(commandParser_, SIGNAL(recordConfigCommandIssued(QList<int>)),
 			this, SLOT(onRecordConfigCommandIssued(QList<int>)));
 
 	connect(commandParser_,SIGNAL(setRecordConfigCommandIssued(QHash<int,AMPIC887DataRecorderConfiguration>)),
-			this, SLOT(onSetRecordConfigCommandIssued(QHash<int,AMPIC887DataRecorderConfiguration>)));	
+			this, SLOT(onSetRecordConfigCommandIssued(QHash<int,AMPIC887DataRecorderConfiguration>)));
 }
+
+
+
 
 
 

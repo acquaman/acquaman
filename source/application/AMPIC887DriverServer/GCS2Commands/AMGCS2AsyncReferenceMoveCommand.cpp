@@ -5,6 +5,7 @@
 #include "AMGCS2GetReferenceResultCommand.h"
 
 AMGCS2AsyncReferenceMoveCommand::AMGCS2AsyncReferenceMoveCommand(const AMPIC887AxisCollection& axesToReference)
+	: AMGCS2AsyncCommand()
 {
 	axesToReference_ = axesToReference;
 }

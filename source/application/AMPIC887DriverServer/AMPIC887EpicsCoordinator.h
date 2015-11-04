@@ -15,6 +15,7 @@
   * a means of generalizing this for more controllers per driver, that aren't tied
   * to SGM's PVs
   */
+class AMWaveformBinningSinglePVControl;
 class AMPIC887EpicsCoordinator : public QObject
 {
     Q_OBJECT
@@ -107,28 +108,71 @@ protected slots:
 	  * move has been requested.
 	  */
 	void onTrajectoryMove();
+
+	/*!
+	  * Slot which handles the record rate setpoint PV value being changed
+	  * \param value ~ The new value to which the PV was set.
+	  */
+	void onRecordRateSetpointPVChanged(double value);
+
+	/*!
+	  * Slot which handles the controller signalling that its record rate has
+	  * been altered.
+	  * \param value ~ The new record rate of the controller.
+	  */
+	void onControllerRecordRateChanged(double value);
+
+	/*!
+	  * Slot which handles the data recorder active PV being changed.
+	  * \param value ~ The value written to the data recorder active PV
+	  */
+	void onDataRecorderActivePVChanged(double value);
+
+	/*!
+	  * Slot which handles the data recorder active state being altered on the
+	  * controller.
+	  * \param isActive ~ The new active state of the controller's data recorder.
+	  */
+	void onControllerDataRecorderActiveChanged(bool isActive);
+
 protected:
+
+	/*!
+	  * Helper function which parses the recorded position data from the hexapod
+	  * controller, and pushes this data to the waveform PV.
+	  */
+	void parseRecordedPositionData();
 
 	AMControlSet* allControls_;
 
 	AMControl* xAxisFeedback_;
 	AMControl* xAxisStatus_;
+	AMWaveformBinningSinglePVControl* xAxisRecorderFeedback_;
 
 	AMControl* yAxisFeedback_;
 	AMControl* yAxisStatus_;
+	AMWaveformBinningSinglePVControl* yAxisRecorderFeedback_;
 
 	AMControl* zAxisFeedback_;
 	AMControl* zAxisStatus_;
+	AMWaveformBinningSinglePVControl* zAxisRecorderFeedback_;
 
 	AMControl* uAxisFeedback_;
 	AMControl* uAxisStatus_;
+	AMWaveformBinningSinglePVControl* uAxisRecorderFeedback_;
 
 	AMControl* vAxisFeedback_;
 	AMControl* vAxisStatus_;
+	AMWaveformBinningSinglePVControl* vAxisRecorderFeedback_;
 
 	AMControl* wAxisFeedback_;
 	AMControl* wAxisStatus_;
+	AMWaveformBinningSinglePVControl* wAxisRecorderFeedback_;
 
+	AMControl* recordRateSetpoint_;
+	AMControl* recordRateFeedback_;
+	AMControl* dataRecorderActive_;
+	AMWaveformBinningSinglePVControl* timeRecorderFeedback_;
 	AMControl* systemVelocityFeedback_;
 	AMControl* systemVelocitySetpoint_;
 
