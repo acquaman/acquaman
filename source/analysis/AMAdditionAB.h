@@ -65,6 +65,8 @@ protected:
 
 	/// Flag for knowing whether we need to compute the values.
 	mutable bool cacheUpdateRequired_;
+	/// A list of indices of values that need to be updated.  These are meant for when scans are running and data is coming in a pixel at a time.
+	mutable QList<AMnDIndex> dirtyIndices_;
 	/// The vector holding the data.
 	mutable QVector<double> cachedData_;
 	/// Holds the cached data range.
