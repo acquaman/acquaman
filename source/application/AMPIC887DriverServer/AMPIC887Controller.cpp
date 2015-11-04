@@ -45,6 +45,7 @@ AMPIC887Controller::AMPIC887Controller(const QString& name, const QString& hostn
 	uMotions_ = 0;
 	vMotions_ = 0;
 	wMotions_ = 0;
+	isDataRecorderActive_ = false;
 	if(connectionEstablished()) {
 		initializeControllerStateData();
 	} else {
@@ -136,6 +137,20 @@ void AMPIC887Controller::clearErrorMessage()
 	isBusy_ = true;
 
 	errorClearingTimer_.singleShot(30, this, SLOT(onErrorClearingTimerTimedOut()));
+}
+
+bool AMPIC887Controller::isDataRecorderActive() const
+{
+	return isDataRecorderActive_;
+}
+
+void AMPIC887Controller::setDataRecorderActive(bool isActive)
+{
+	if(isDataRecorderActive_ != isActive) {
+
+		isDataRecorderActive_ = isActive;
+		emit dataRecorderActiveStateChanged(isActive);
+	}
 }
 
 AMPIC887DataRecorderConfiguration AMPIC887Controller::recordConfig(int tableId) const
@@ -853,7 +868,10 @@ void AMPIC887Controller::onAsyncMoveStarted(AMGCS2AsyncCommand *command)
 
 		emit moveStarted(movementStatuses());
 		positionUpdateTimer_.start();
-		QTimer::singleShot(calculateDataRetrievalDelay(), this, SLOT(startAsyncDataRetrieval()));
+
+		if(isDataRecorderActive_) {
+			QTimer::singleShot(calculateDataRetrievalDelay(), this, SLOT(startAsyncDataRetrieval()));
+		}
 	}
 }
 
@@ -867,6 +885,7 @@ void AMPIC887Controller::onAsyncMoveSucceeded(AMGCS2AsyncCommand *command)
 		// update position one last time
 		onPositionUpdateTimerInterval();
 		AMPIC887AxisCollection axesMoving = moveCommand->targetPositions().axes();
+
 		foreach(AMGCS2::Axis currentAxis, axesMoving) {
 			switch (currentAxis) {
 			case AMGCS2::XAxis:
@@ -890,6 +909,9 @@ void AMPIC887Controller::onAsyncMoveSucceeded(AMGCS2AsyncCommand *command)
 			default:
 				break;
 			}
+		}
+		if(!isDataRecorderActive_) {
+			emit moveComplete();
 		}
 		emit targetPositionChanged(controllerState_->hexapodState()->targetPositions());
 	}
@@ -978,7 +1000,9 @@ void AMPIC887Controller::onAsyncMoveRelativeStarted(AMGCS2AsyncCommand *command)
 
 		emit moveStarted(movementStatuses());
 		positionUpdateTimer_.start();
-		QTimer::singleShot(calculateDataRetrievalDelay(), this, SLOT(startAsyncDataRetrieval()));
+		if(isDataRecorderActive_) {
+			QTimer::singleShot(calculateDataRetrievalDelay(), this, SLOT(startAsyncDataRetrieval()));
+		}
 	}
 }
 
@@ -991,6 +1015,7 @@ void AMPIC887Controller::onAsyncMoveRelativeSucceeded(AMGCS2AsyncCommand *comman
 		positionUpdateTimer_.stop();		
 		// update position one last time
 		onPositionUpdateTimerInterval();
+
 		AMPIC887AxisCollection axesMoving = moveRelativeCommand->relativeTargetPositions().axes();
 		foreach(AMGCS2::Axis currentAxis, axesMoving) {
 			switch (currentAxis) {
@@ -1015,6 +1040,9 @@ void AMPIC887Controller::onAsyncMoveRelativeSucceeded(AMGCS2AsyncCommand *comman
 			default:
 				break;
 			}
+		}
+		if(!isDataRecorderActive_) {
+			emit moveComplete();
 		}
 		emit targetPositionChanged(controllerState_->hexapodState()->targetPositions());
 	}
@@ -1090,7 +1118,9 @@ void AMPIC887Controller::onAsyncReferenceMoveStarted(AMGCS2AsyncCommand *)
 
 	emit moveStarted(movementStatuses());
 	positionUpdateTimer_.start();
-	QTimer::singleShot(calculateDataRetrievalDelay(), this, SLOT(startAsyncDataRetrieval()));
+	if(isDataRecorderActive_) {
+		QTimer::singleShot(calculateDataRetrievalDelay(), this, SLOT(startAsyncDataRetrieval()));
+	}
 }
 
 void AMPIC887Controller::onAsyncReferenceMoveSucceeded(AMGCS2AsyncCommand *command)
@@ -1098,6 +1128,7 @@ void AMPIC887Controller::onAsyncReferenceMoveSucceeded(AMGCS2AsyncCommand *comma
 	positionUpdateTimer_.stop();	
 	// update position one last time
 	onPositionUpdateTimerInterval();
+
 	--xMotions_;
 	--yMotions_;
 	--zMotions_;
@@ -1112,6 +1143,9 @@ void AMPIC887Controller::onAsyncReferenceMoveSucceeded(AMGCS2AsyncCommand *comma
 	controllerState_->hexapodState()->setReferencedState(AMGCS2::VAxis, true);
 	controllerState_->hexapodState()->setReferencedState(AMGCS2::WAxis, true);
 
+	if(!isDataRecorderActive_) {
+		emit moveComplete();
+	}
 	emit targetPositionChanged(controllerState_->hexapodState()->targetPositions());
 
 	command->deleteLater();
@@ -1235,5 +1269,6 @@ int AMPIC887Controller::calculateDataRetrievalDelay()
 	return int((distance/ systemVelocity()) * 1000) + 150;
 
 }
+
 
 

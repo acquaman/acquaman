@@ -44,6 +44,7 @@ AMPIC887EpicsCoordinator::AMPIC887EpicsCoordinator(AMPIC887Controller* controlle
 	timeRecorderFeedback_ = new AMWaveformBinningSinglePVControl("HexapodXAxisRecordedPositions", "HXPD1611-4-I10-01:recorder:time:s", 0, 1024, this);
 	timeRecorderFeedback_->setAttemptDouble(true);
 
+	dataRecorderActive_ = new AMSinglePVControl("HexapodRecorderActive", "HXPD1611-4-I10-01:recorder:active", this, 0.5);
 	recordRateSetpoint_ = new AMSinglePVControl("HexapodRecordRateSetpoint", "HXPD1611-4-I10-01:recorder:rate:hz", this, 0.01);
 	recordRateFeedback_ = new AMSinglePVControl("HexapodRecordRateFeedback", "HXPD1611-4-I10-01:recorder:rate:hz:fbk", this, 0.01);
 	systemVelocityFeedback_ = new AMSinglePVControl("HexapodSystemVelocityValue", "HXPD1611-4-I10-01:velocity:fbk", this, 0.001);
@@ -74,6 +75,7 @@ AMPIC887EpicsCoordinator::AMPIC887EpicsCoordinator(AMPIC887Controller* controlle
 	allControls_->addControl(wAxisStatus_);
 	allControls_->addControl(wAxisRecorderFeedback_);
 
+	allControls_->addControl(dataRecorderActive_);
 	allControls_->addControl(timeRecorderFeedback_);
 	allControls_->addControl(recordRateFeedback_);
 	allControls_->addControl(recordRateSetpoint_);
@@ -157,7 +159,9 @@ void AMPIC887EpicsCoordinator::onMotionCompleted()
 {
 	if(controller_->movementStatuses() == 0) {
 		qDebug() << "All motions completed";
-		parseRecordedPositionData();
+		if(controller_->isDataRecorderActive()) {
+			parseRecordedPositionData();
+		}
 
 		if(!xAxisStatus_->withinTolerance(0)) {
 			xAxisStatus_->move(0);
@@ -357,10 +361,18 @@ void AMPIC887EpicsCoordinator::onAllConnected(bool connectedState)
 				qDebug() << "Initialization: Setting record rate setpoint to " << controller_->recordRate();
 				recordRateSetpoint_->move(controller_->recordRate());
 			}
+
+			// Initialize data recorder active state
+			double dataRecorderActiveValue = controller_->isDataRecorderActive() ? 1.0 : 0.0;
+			if(dataRecorderActive_->withinTolerance(dataRecorderActiveValue)) {
+				qDebug() << "Initialization: Setting data recorder active status to " << dataRecorderActiveValue;
+				dataRecorderActive_->move(dataRecorderActiveValue);
+			}
 		}
 
 		connect(systemVelocitySetpoint_, SIGNAL(valueChanged(double)), this, SLOT(onSystemVelocitySetpointChanged(double)));
 		connect(recordRateSetpoint_, SIGNAL(valueChanged(double)), this, SLOT(onRecordRateSetpointPVChanged(double)));
+		connect(dataRecorderActive_, SIGNAL(valueChanged(double)), this, SLOT(onDataRecorderActivePVChanged(double)));
 		connect(stopAll_, SIGNAL(valueChanged(double)), this, SLOT(onStopAll(double)));
 
 		connect(controller_, SIGNAL(moveStarted(AMGCS2::AxisMovementStatuses)), this, SLOT(onMotionStartedChanged(AMGCS2::AxisMovementStatuses)));
@@ -369,6 +381,7 @@ void AMPIC887EpicsCoordinator::onAllConnected(bool connectedState)
 		connect(controller_, SIGNAL(positionUpdate(AMPIC887AxisMap<double>)), this, SLOT(onPositionUpdate(AMPIC887AxisMap<double>)));
 		connect(controller_, SIGNAL(systemVelocityChanged(double)), this, SLOT(onSystemVelocityChanged(double)));
 		connect(controller_, SIGNAL(recordRateChanged(double)), this, SLOT(onControllerRecordRateChanged(double)));
+		connect(controller_, SIGNAL(dataRecorderActiveStateChanged(bool)), this, SLOT(onControllerDataRecorderActiveChanged(bool)));
 	}
 }
 
@@ -398,6 +411,35 @@ void AMPIC887EpicsCoordinator::onControllerRecordRateChanged(double value)
 
 		qDebug() << "Setting record rate feedback to " << value;
 		recordRateFeedback_->move(value);
+	}
+}
+
+void AMPIC887EpicsCoordinator::onDataRecorderActivePVChanged(double value)
+{
+	bool isActive;
+	if(qAbs(value - 1.0) < 0.5) {
+
+		isActive = true;
+	} else {
+
+		isActive = false;
+	}
+
+	if(controller_->isDataRecorderActive() != isActive) {
+
+		qDebug() << "Setting the controller data recorder active state to " << isActive;
+		controller_->setDataRecorderActive(isActive);
+	}
+}
+
+void AMPIC887EpicsCoordinator::onControllerDataRecorderActiveChanged(bool isActive)
+{
+	double isActiveValue = isActive ? 1.0 : 0.0;
+
+	if(!dataRecorderActive_->withinTolerance(isActiveValue)) {
+
+		qDebug() << "Setting the data recorder active PV value to " << isActiveValue;
+		dataRecorderActive_->move(isActiveValue);
 	}
 }
 
@@ -452,6 +494,10 @@ void AMPIC887EpicsCoordinator::parseRecordedPositionData()
 	wAxisRecorderFeedback_->setValues(waveformWData);
 	timeRecorderFeedback_->setValues(waveformTimeData);
 }
+
+
+
+
 
 
 

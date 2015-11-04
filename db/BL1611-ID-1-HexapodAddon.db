@@ -236,3 +236,11 @@ record( ao, "HXPD1611-4-I10-01:recorder:rate:hz:fbk" )
 	field( VAL, "20" )
 	field( EGU, "Hz" )
 }
+record( mbbi, "HXPD1611-4-I10-01:recorder:active" )
+{
+	field( VAL, "1" )
+	field( ZRST, "INACTIVE" )
+	field( ZRVL, "0x00" )
+	field( ONST, "ACTIVE" )
+	field( ONVL, "0x01" )
+}

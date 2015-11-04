@@ -122,6 +122,19 @@ protected slots:
 	  */
 	void onControllerRecordRateChanged(double value);
 
+	/*!
+	  * Slot which handles the data recorder active PV being changed.
+	  * \param value ~ The value written to the data recorder active PV
+	  */
+	void onDataRecorderActivePVChanged(double value);
+
+	/*!
+	  * Slot which handles the data recorder active state being altered on the
+	  * controller.
+	  * \param isActive ~ The new active state of the controller's data recorder.
+	  */
+	void onControllerDataRecorderActiveChanged(bool isActive);
+
 protected:
 
 	/*!
@@ -158,6 +171,7 @@ protected:
 
 	AMControl* recordRateSetpoint_;
 	AMControl* recordRateFeedback_;
+	AMControl* dataRecorderActive_;
 	AMWaveformBinningSinglePVControl* timeRecorderFeedback_;
 	AMControl* systemVelocityFeedback_;
 	AMControl* systemVelocitySetpoint_;

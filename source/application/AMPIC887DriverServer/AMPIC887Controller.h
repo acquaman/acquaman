@@ -107,6 +107,18 @@ public:
 	void clearErrorMessage();
 
 	/*!
+	  * Whether the data recorder is set to retrieve the data after a motion.
+	  */
+	bool isDataRecorderActive() const;
+
+	/*!
+	  * Sets whether the data recorder is currently set to retrieve data after a
+	  * motion.
+	  * \param isActive ~ The new active state of the data recorder.
+	  */
+	void setDataRecorderActive(bool isActive);
+
+	/*!
 	  * The record config of the data table with the provided table Id.
 	  * \param tableId ~ The id of the table whose data recorder configuration
 	  * will be returned.
@@ -617,6 +629,13 @@ signals:
 	  * recorder.
 	  */
 	void recordRateChanged(double recordRate);
+
+	/*!
+	  * Signal indicating that the active state of the data recorder has been
+	  * altered.
+	  * \param isActive ~ The new active state of the data recorder.
+	  */
+	void dataRecorderActiveStateChanged(bool isActive);
 protected slots:
 
 	/*!
@@ -745,6 +764,7 @@ protected:
 	QTimer positionUpdateTimer_;
 	mutable bool currentPositionRefreshRequired_;
 	QVector<AMPIC887HexapodPosition> lastRecordedPositionData_;
+	bool isDataRecorderActive_;
 	//State data
 	////////////
 	int xMotions_;
