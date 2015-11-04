@@ -182,6 +182,7 @@ void AMNormalizationAB::setInputDataSourcesImplementation(const QList<AMDataSour
 	else {
 
 		sources_ = dataSources;
+		axes_.clear();
 
 		for (int i = 0, size = rank(); i < size; i++)
 			axes_.append(sources_.at(0)->axisInfoAt(i));
