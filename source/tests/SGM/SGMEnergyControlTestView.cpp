@@ -265,7 +265,7 @@ void SGMEnergyControlTestView::setupData()
 
     exitSlitTrackingCheckBox_->setChecked(energyControl_->isExitSlitPositionTracking());
 
-    gratingAngleValueControlEditor_->setControl(energyControl_->gratingAngleControl());
+	gratingAngleValueControlEditor_->setControl(energyControl_->gratingAngleControl());
 	gratingAngleValueControlEditor_->setPrecision(12);
     gratingTranslationControlEditor_->setControl(energyControl_->gratingTranslationControl());
 	gratingTranslationControlEditor_->setPrecision(12);

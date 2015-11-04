@@ -9,6 +9,7 @@
 #define SGMENERGYCONTROL_ZERO_ENERGY_VELOCITY		851143
 
 class SGMEnergyTrajectory;
+class SGMGratingAngleControl;
 /*!
   * A class which presents a standard AMControl interface for performing coordinated
   * motions of the SGM beamline energy components.
@@ -82,12 +83,12 @@ public:
     /*!
      * The control for the grating angle encoder steps.
      */
-    AMControl* gratingAngleControl() const;
+	AMControl* gratingAngleControl() const;
 
     /*!
      * The control for the grating translation encoder steps.
      */
-    AMControl* gratingTranslationControl() const;
+	AMControl* gratingTranslationControl() const;
 
     /*!
      * The control for the undulator position.
@@ -252,15 +253,12 @@ protected:
     SGMUndulatorSupport::UndulatorHarmonic startingUndulatorHarmonic_;
 
 	// Child Controls for simply motions
-    AMControl* gratingAngleControl_;
+	SGMGratingAngleControl* gratingAngleControl_;
     AMControl* gratingTranslationStepControl_;
     AMControl* undulatorPositionControl_;
     AMControl* exitSlitPositionControl_;
 
 	// Child Controls used for trajectory motions
-	AMControl* gratingAngleBaseVelocityControl_;
-	AMControl* gratingAngleTargetVelocityControl_;
-	AMControl* gratingAngleAccelerationControl_;
 	AMControl* undulatorStepControl_;
 	AMControl* undulatorStepVelocityControl_;
 
