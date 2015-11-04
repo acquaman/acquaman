@@ -124,6 +124,7 @@ void AM4DBinningAB::setInputDataSourcesImplementation(const QList<AMDataSource*>
 		}
 
 		cacheUpdateRequired_ = true;
+		dirtyIndices_.clear();
 		cachedData_ = QVector<double>(size().product());
 
 		setDescription(QString("%1 Summed (over %2)")
@@ -204,6 +205,7 @@ void AM4DBinningAB::setInputSource()
 		}
 
 		cacheUpdateRequired_ = true;
+		dirtyIndices_.clear();
 		cachedData_ = QVector<double>(size().product());
 
 		setDescription(QString("%1 Summed (over %2)")
@@ -254,33 +256,25 @@ void AM4DBinningAB::computeCachedValues() const
 	AMnDIndex start = AMnDIndex();
 	AMnDIndex end = AMnDIndex();
 
-	switch (sumAxis_){
+	if (dirtyIndices_.isEmpty()){
 
-	case 0:
-
-	    start = AMnDIndex(sumRangeMin_, 0, 0, 0);
-	    end = AMnDIndex(sumRangeMax_, inputSource_->size(1)-1, inputSource_->size(2)-1, inputSource_->size(3)-1);
-	    break;
-
-	case 1:
-	    start = AMnDIndex(0, sumRangeMin_, 0, 0);
-	    end = AMnDIndex(inputSource_->size(0)-1, sumRangeMax_, inputSource_->size(2)-1, inputSource_->size(3)-1);
-	    break;
-
-	case 2:
-
-	    start = AMnDIndex(0, 0, sumRangeMin_, 0);
-	    end = AMnDIndex(inputSource_->size(0)-1, inputSource_->size(1)-1, sumRangeMax_, inputSource_->size(3)-1);
-	    break;
-
-	case 3:
-
-	    start = AMnDIndex(0, 0, 0, sumRangeMin_);
-	    end = AMnDIndex(inputSource_->size(0)-1, inputSource_->size(1)-1, inputSource_->size(2)-1, sumRangeMax_);
-	    break;
+		start = AMnDIndex(inputSource_->rank(), AMnDIndex::DoInit);
+		end = inputSource_->size()-1;
 	}
 
+	else {
+
+		start = dirtyIndices_.first();
+		end = dirtyIndices_.last();
+	}
+
+	start[sumAxis_] = sumRangeMin_;
+	end[sumAxis_] = sumRangeMax_;
+	AMnDIndex flatIndexStart = start;
+	flatIndexStart.setRank(rank());
+
 	int totalPoints = start.totalPointsTo(end);
+	int flatStartIndex = flatIndexStart.flatIndexInArrayOfSize(size());
 	int sumRange = sumRangeMax_-sumRangeMin_+1;
 	QVector<double> data = QVector<double>(totalPoints);
 	inputSource_->values(start, end, data.data());
@@ -288,7 +282,7 @@ void AM4DBinningAB::computeCachedValues() const
 
 	for (int i = 0; i < totalPoints; i++){
 
-		int insertIndex = int(i/sumRange);
+		int insertIndex = int((flatStartIndex+i)/sumRange);
 
 		if (data.at(i) == -1)
 			cachedData_[insertIndex] = -1;
@@ -301,8 +295,21 @@ void AM4DBinningAB::computeCachedValues() const
 		}
 	}
 
-	cachedDataRange_ = AMUtility::rangeFinder(cachedData_, -1);
+	if (dirtyIndices_.isEmpty())
+		cachedDataRange_ = AMUtility::rangeFinder(cachedData_, -1);
+
+	else{
+		AMRange cachedRange = AMUtility::rangeFinder(cachedData_.mid(flatStartIndex, totalPoints), -1);
+
+		if (cachedDataRange_.minimum() > cachedRange.minimum())
+			cachedDataRange_.setMinimum(cachedRange.minimum());
+
+		if (cachedDataRange_.maximum() < cachedRange.maximum())
+			cachedDataRange_.setMaximum(cachedRange.maximum());
+	}
+
 	cacheUpdateRequired_ = false;
+	dirtyIndices_.clear();
 }
 
 bool AM4DBinningAB::canAnalyze(const QString &name) const
@@ -486,11 +493,14 @@ void AM4DBinningAB::setSumAxis(int sumAxis)
 
 	reviewState();
 
+	cacheUpdateRequired_ = true;
+	dirtyIndices_.clear();
+	setModified(true);
+
 	emitSizeChanged();
 	emitValuesChanged();
 	emitAxisInfoChanged();
 	emitInfoChanged();
-	setModified(true);
 }
 
 void AM4DBinningAB::setSumRangeMin(int sumRangeMin)
@@ -500,6 +510,8 @@ void AM4DBinningAB::setSumRangeMin(int sumRangeMin)
 		return;
 
 	sumRangeMin_ = sumRangeMin;
+	cacheUpdateRequired_ = true;
+	dirtyIndices_.clear();
 	reviewState();
 	emitValuesChanged();
 	setModified(true);
@@ -511,64 +523,61 @@ void AM4DBinningAB::setSumRangeMax(int sumRangeMax)
 		return;
 
 	sumRangeMax_ = sumRangeMax;
+	cacheUpdateRequired_ = true;
+	dirtyIndices_.clear();
 	reviewState();
 	emitValuesChanged();
 	setModified(true);
 }
 
 // Connected to be called when the values of the input data source change
-void AM4DBinningAB::onInputSourceValuesChanged(const AMnDIndex& start, const AMnDIndex& end) {
+void AM4DBinningAB::onInputSourceValuesChanged(const AMnDIndex& start, const AMnDIndex& end)
+{
+	AMnDIndex startIndex = AMnDIndex(3, AMnDIndex::DoInit, 0);
+	AMnDIndex endIndex = AMnDIndex(3, AMnDIndex::DoInit, 0);
 
-	if(start.isValid() && end.isValid()) {
+	switch (sumAxis_){
 
-		AMnDIndex startIndex = AMnDIndex(3, AMnDIndex::DoInit, 0);
-		AMnDIndex endIndex = AMnDIndex(3, AMnDIndex::DoInit, 0);
+	case 0:
 
-		switch (sumAxis_){
+		startIndex[0] = start.at(1);
+		startIndex[1] = start.at(2);
+		startIndex[2] = start.at(3);
+		endIndex[0] = end.at(1);
+		endIndex[1] = end.at(2);
+		endIndex[2] = end.at(3);
 
-		case 0:
+		break;
 
-			startIndex[0] = start.at(1);
-			startIndex[1] = start.at(2);
-			startIndex[2] = start.at(3);
-			endIndex[0] = end.at(1);
-			endIndex[1] = end.at(2);
-			endIndex[2] = end.at(3);
+	case 1:
 
-			break;
+		startIndex[0] = start.at(0);
+		startIndex[1] = start.at(2);
+		startIndex[2] = start.at(3);
+		endIndex[0] = end.at(0);
+		endIndex[1] = end.at(2);
+		endIndex[2] = end.at(3);
 
-		case 1:
+		break;
 
-			startIndex[0] = start.at(0);
-			startIndex[1] = start.at(2);
-			startIndex[2] = start.at(3);
-			endIndex[0] = end.at(0);
-			endIndex[1] = end.at(2);
-			endIndex[2] = end.at(3);
+	case 2:
 
-			break;
+		startIndex[0] = start.at(0);
+		startIndex[1] = start.at(1);
+		startIndex[2] = start.at(2);
+		endIndex[0] = end.at(0);
+		endIndex[1] = end.at(1);
+		endIndex[2] = end.at(2);
 
-		case 2:
-
-			startIndex[0] = start.at(0);
-			startIndex[1] = start.at(1);
-			startIndex[2] = start.at(2);
-			endIndex[0] = end.at(0);
-			endIndex[1] = end.at(1);
-			endIndex[2] = end.at(2);
-
-			break;
-		}
-
-		cacheUpdateRequired_ = true;
-		emitValuesChanged(startIndex, endIndex);
+		break;
 	}
 
-    else{
-
 	cacheUpdateRequired_ = true;
-	emitValuesChanged();
-    }
+
+	if (startIndex == endIndex)
+		dirtyIndices_ << start;
+
+	emitValuesChanged(startIndex, endIndex);
 }
 
 // Connected to be called when the size of the input source changes
@@ -610,6 +619,7 @@ void AM4DBinningAB::onInputSourceSizeChanged()
 	}
 
 	cacheUpdateRequired_ = true;
+	dirtyIndices_.clear();
 	cachedData_ = QVector<double>(size().product());
 	emitSizeChanged();
 }
