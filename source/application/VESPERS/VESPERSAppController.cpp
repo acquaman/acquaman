@@ -95,6 +95,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/VESPERS/VESPERSTimeScanConfigurationView.h"
 #include "acquaman/VESPERS/VESPERSTimedLineScanConfiguration.h"
 #include "ui/VESPERS/VESPERSTimedLineScanConfigurationView.h"
+#include "ui/acquaman/AMGenericStepScanConfigurationView.h"
 
 VESPERSAppController::VESPERSAppController(QObject *parent) :
 	AMAppController(parent)
@@ -390,6 +391,10 @@ void VESPERSAppController::setupUserInterface()
 	timedLineScanConfigurationView_ = new VESPERSTimedLineScanConfigurationView(timedLineScanConfiguration_);
 	timedLineScanConfigurationViewHolder3_ = new AMScanConfigurationViewHolder3(timedLineScanConfigurationView_);
 
+	test_ = new AMGenericStepScanConfiguration;
+	AMGenericStepScanConfigurationView *testView = new AMGenericStepScanConfigurationView(test_, AMBeamline::bl()->exposedControls(), AMBeamline::bl()->exposedDetectors());
+	AMScanConfigurationViewHolder3 *testHolder = new AMScanConfigurationViewHolder3(testView);
+
 	mw_->insertHeading("Scans", 2);
 	mw_->addPane(exafsConfigurationViewHolder3_, "Scans", "XAS", ":/utilities-system-monitor.png");
 	mw_->addPane(mapScanConfigurationViewHolder3_, "Scans", "2D Maps", ":/utilities-system-monitor.png");
@@ -398,6 +403,7 @@ void VESPERSAppController::setupUserInterface()
 	mw_->addPane(map3DScanConfigurationViewHolder3_, "Scans", "3D Maps", ":/utilities-system-monitor.png");
 	mw_->addPane(timeScanConfigurationViewHolder3_, "Scans", "Timed Scan", ":/utilities-system-monitor.png");
 	mw_->addPane(timedLineScanConfigurationViewHolder3_, "Scans", "Timed Line Scan", ":/utilities-system-monitor.png");
+	mw_->addPane(testHolder, "Scans", "Test", ":/utilities-system-monitor.png");
 
 	// This is the right hand panel that is always visible.  Has important information such as shutter status and overall controls status.  Also controls the sample stage.
 	persistentView_ = new VESPERSPersistentView;
@@ -469,19 +475,19 @@ void VESPERSAppController::onCurrentScanActionFinishedImplementation(AMScanActio
 
 	// Save the current configuration to the database.
 	// Being explicit due to the nature of how many casts were necessary.  I could probably explicitly check to ensure each cast is successful, but I'll risk it for now.
-	const AMScanActionInfo *actionInfo = qobject_cast<const AMScanActionInfo *>(action->info());
-	const VESPERSScanConfiguration *vespersConfig = dynamic_cast<const VESPERSScanConfiguration *>(actionInfo->configuration());
-	VESPERSScanConfigurationDbObject *config = qobject_cast<VESPERSScanConfigurationDbObject *>(vespersConfig->dbObject());
+//	const AMScanActionInfo *actionInfo = qobject_cast<const AMScanActionInfo *>(action->info());
+//	const VESPERSScanConfiguration *vespersConfig = dynamic_cast<const VESPERSScanConfiguration *>(actionInfo->configuration());
+//	VESPERSScanConfigurationDbObject *config = qobject_cast<VESPERSScanConfigurationDbObject *>(vespersConfig->dbObject());
 
-	if (config){
+//	if (config){
 
-		userConfiguration_->setIncomingChoice(config->incomingChoice());
-		userConfiguration_->setTransmissionChoice(config->transmissionChoice());
-		userConfiguration_->setFluorescenceDetector(config->fluorescenceDetector());
-		userConfiguration_->setCCDDetector(config->ccdDetector());
-		userConfiguration_->setMotor(config->motor());
-		userConfiguration_->storeToDb(AMDatabase::database("user"));
-	}
+//		userConfiguration_->setIncomingChoice(config->incomingChoice());
+//		userConfiguration_->setTransmissionChoice(config->transmissionChoice());
+//		userConfiguration_->setFluorescenceDetector(config->fluorescenceDetector());
+//		userConfiguration_->setCCDDetector(config->ccdDetector());
+//		userConfiguration_->setMotor(config->motor());
+//		userConfiguration_->storeToDb(AMDatabase::database("user"));
+//	}
 }
 
 void VESPERSAppController::onBeamAvailabilityChanged(bool beamAvailable)
@@ -1049,6 +1055,7 @@ void VESPERSAppController::onRegionOfInterestAdded(AMRegionOfInterest *region)
 	lineScanConfiguration_->addRegionOfInterest(region);
 	timeScanConfiguration_->addRegionOfInterest(region);
 	timedLineScanConfiguration_->addRegionOfInterest(region);
+	test_->addRegionOfInterest(region);
 }
 
 void VESPERSAppController::onRegionOfInterestRemoved(AMRegionOfInterest *region)
@@ -1060,4 +1067,5 @@ void VESPERSAppController::onRegionOfInterestRemoved(AMRegionOfInterest *region)
 	lineScanConfiguration_->removeRegionOfInterest(region);
 	timeScanConfiguration_->removeRegionOfInterest(region);
 	timedLineScanConfiguration_->removeRegionOfInterest(region);
+	test_->removeRegionOfInterest(region);
 }
