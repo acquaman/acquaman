@@ -8,10 +8,12 @@
 #include <QString>
 #include <QTimer>
 #include <QHash>
+#include <QVector>
 #include "GCS2Commands/AMGCS2Command.h"
 #include "GCS2Commands/AMGCS2AsyncCommand.h"
 #include "AMPIC887AxisCollection.h"
 #include "AMPIC887AxisMap.h"
+#include "AMPIC887HexapodPosition.h"
 
 #include "AMPIC887ControllerState.h"
 /*!
@@ -105,6 +107,18 @@ public:
 	void clearErrorMessage();
 
 	/*!
+	  * Whether the data recorder is set to retrieve the data after a motion.
+	  */
+	bool isDataRecorderActive() const;
+
+	/*!
+	  * Sets whether the data recorder is currently set to retrieve data after a
+	  * motion.
+	  * \param isActive ~ The new active state of the data recorder.
+	  */
+	void setDataRecorderActive(bool isActive);
+
+	/*!
 	  * The record config of the data table with the provided table Id.
 	  * \param tableId ~ The id of the table whose data recorder configuration
 	  * will be returned.
@@ -134,6 +148,13 @@ public:
 	  * to which it will be set.
 	  */
 	bool setRecordConfigs(const QHash<int, AMPIC887DataRecorderConfiguration>& recordConfigs);
+
+	/*!
+	  * The recorded positional data for all axes during the last movement. This
+	  * vector is of a constant size of 1024, but may not be entirely filled with
+	  * each move.
+	  */
+	const QVector<AMPIC887HexapodPosition>& lastRecordedPositionData() const;
 
 	/*!
 	  * The current movement status of the controller's hexapod.
@@ -394,14 +415,9 @@ public:
 	AMPIC887AxisMap<AMGCS2::PositionUnits> positionUnits(const AMPIC887AxisCollection& axes) const;
 
 	/*!
-	  * The data recorded in the data table with the provided tableId during the
-	  * last recording instance.
-	  * \param tableId ~ The table from which to return the data.
-	  * \returns The data stored in the data table with the provided id, if the
-	  * controller has been initialized and the provided tableId is valid, an
-	  * empty list otherwise.
+	  * The positional data recorded for the hexapod during the last move.
 	  */
-	QList<int> recordedData(int tableId) const;
+	QList<double> recordedData(int offset, int numberOfDataPoints, int tableId);
 
 	/*!
 	  * A string containing all the recorder options which the controller can have
@@ -409,6 +425,17 @@ public:
 	  * has been initialized, the empty string otherwise.
 	  */
 	QString recorderOptionsString() const;
+
+	/*!
+	  * The current record rate of the controller (in hertz).
+	  */
+	double recordRate() const;
+
+	/*!
+	  * Sets the record rate of the controller to the provided value (in hertz).
+	  * \param recordRate ~ The record rate of the controller to set (in hertz)
+	  */
+	bool setRecordRate(double recordRate);
 
 	/*!
 	  * The current trigger event which beings a recording in the controller's
@@ -594,6 +621,21 @@ signals:
 	  * \param newTarget ~ The new target positions of all the axes of the hexapod.
 	  */
 	void targetPositionChanged(const AMPIC887AxisMap<double>& newTarget);
+
+	/*!
+	  * Signal indicating that the record rate of the controller's data recorder
+	  * has been altered.
+	  * \param recordRate ~ The new record rate (in Hz) of the controller's data
+	  * recorder.
+	  */
+	void recordRateChanged(double recordRate);
+
+	/*!
+	  * Signal indicating that the active state of the data recorder has been
+	  * altered.
+	  * \param isActive ~ The new active state of the data recorder.
+	  */
+	void dataRecorderActiveStateChanged(bool isActive);
 protected slots:
 
 	/*!
@@ -657,10 +699,24 @@ protected slots:
 	void onAsyncReferenceMoveFailed(AMGCS2AsyncCommand*);
 
 	/*!
+	  * Handles signals indcating that an asynchronous data retrieval has succeeded.
+	  */
+	void onAsyncDataRetrievalSucceeded(AMGCS2AsyncCommand*);
+
+	/*!
+	  * Handles signals indcating that an asynchronous data retrieval has failed.
+	  */
+	void onAsyncDataRetrievalFailed(AMGCS2AsyncCommand*);
+	/*!
 	  * Handles the error clearning timer indicating that its delay time for the
 	  * error message to be cleared is complete.
 	  */
 	void onErrorClearingTimerTimedOut();
+
+	/*!
+	  * Method which starts asynchronous data retrieval from the data recorder.
+	  */
+	void startAsyncDataRetrieval();
 protected:
 
 	/*!
@@ -690,6 +746,14 @@ protected:
 	  */
 	void setError(const QString& errorMessage);
 
+	/*!
+	  * Helper function which calculates the required delay, in ms, after a move
+	  * from the current position to the target position at the current
+	  * system velocity before the data retrieval should commence.
+	  */
+	int calculateDataRetrievalDelay();
+
+protected:
 	AMPIC887ControllerState* controllerState_;
 	QString name_;
 	QString hostname_;
@@ -699,6 +763,8 @@ protected:
 	QString lastError_;
 	QTimer positionUpdateTimer_;
 	mutable bool currentPositionRefreshRequired_;
+	QVector<AMPIC887HexapodPosition> lastRecordedPositionData_;
+	bool isDataRecorderActive_;
 	//State data
 	////////////
 	int xMotions_;

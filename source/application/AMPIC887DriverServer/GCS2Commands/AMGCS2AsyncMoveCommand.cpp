@@ -5,6 +5,7 @@
 #include "../AMGCS2Support.h"
 #include "../AMPIC887Controller.h"
 AMGCS2AsyncMoveCommand::AMGCS2AsyncMoveCommand(const AMPIC887AxisMap<double>& targetPositions)
+	: AMGCS2AsyncCommand()
 {
 	command_ = new AMGCS2MoveCommand(targetPositions);
 	targetPositions_ = targetPositions;

@@ -188,3 +188,59 @@ record( mbbi, "HXPD1611-4-I10-01:W:status" )
 	field( FRST, "ERROR" )
 	field( FRVL, "0x04" )
 }
+record( waveform, "HXPD1611-4-I10-01:recorder:X:mm" )
+{
+	field( FTVL, "DOUBLE" )
+	field( NELM, "1025" )
+}
+record( waveform, "HXPD1611-4-I10-01:recorder:Y:mm" )
+{
+	field( FTVL, "DOUBLE" )
+	field( NELM, "1025" )
+}
+record( waveform, "HXPD1611-4-I10-01:recorder:Z:mm" )
+{
+	field( FTVL, "DOUBLE" )
+	field( NELM, "1025" )
+}
+record( waveform, "HXPD1611-4-I10-01:recorder:U:deg" )
+{
+	field( FTVL, "DOUBLE" )
+	field( NELM, "1025" )
+}
+record( waveform, "HXPD1611-4-I10-01:recorder:V:deg" )
+{
+	field( FTVL, "DOUBLE" )
+	field( NELM, "1025" )
+}
+record( waveform, "HXPD1611-4-I10-01:recorder:W:deg" )
+{
+	field( FTVL, "DOUBLE" )
+	field( NELM, "1025" )
+}
+record( waveform, "HXPD1611-4-I10-01:recorder:time:s" )
+{
+	field( FTVL, "DOUBLE" )
+	field( NELM, "1025" )
+}
+record( ao, "HXPD1611-4-I10-01:recorder:rate:hz" )
+{
+	field( VAL, "20" )
+	field( EGU, "Hz" )
+	field( DRVH, "50000" )
+	field( DRVL, "0.05" )
+	field( MDEL, "-1" )
+}
+record( ao, "HXPD1611-4-I10-01:recorder:rate:hz:fbk" )
+{
+	field( VAL, "20" )
+	field( EGU, "Hz" )
+}
+record( mbbi, "HXPD1611-4-I10-01:recorder:active" )
+{
+	field( VAL, "1" )
+	field( ZRST, "INACTIVE" )
+	field( ZRVL, "0x00" )
+	field( ONST, "ACTIVE" )
+	field( ONVL, "0x01" )
+}

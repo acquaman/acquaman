@@ -17,7 +17,7 @@ bool AMGCS2GetServoModeCommand::runImplementation()
 {
 	/*
 	Syntax for the servo mode suggests it can be set per axis, however for
-	out controller setting it for one axis sets it for them all. As such this
+	our controller setting it for one axis sets it for them all. As such this
 	command only queries the servo mode of one axis, and uses that value. It
 	also performs a validation check which ensures all these values are the
 	same, just in case this driver is attempted to be used on another controller.

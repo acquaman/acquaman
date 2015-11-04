@@ -29,6 +29,11 @@ public:
 	  */
 	virtual ~AMGCS2GetRecordedDataValuesCommand() {}
 
+	/*!
+	  * The values retrieved from the data recorder.
+	  */
+	QList<double> dataValues() const;
+
 protected:
 	/*!
 	  * Ensures that the command arguments are valid:

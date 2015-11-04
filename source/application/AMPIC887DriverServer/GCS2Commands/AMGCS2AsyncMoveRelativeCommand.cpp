@@ -5,6 +5,7 @@
 #include "../AMGCS2Support.h"
 #include "../AMPIC887Controller.h"
 AMGCS2AsyncMoveRelativeCommand::AMGCS2AsyncMoveRelativeCommand(const AMPIC887AxisMap<double>& relativeAxisPositions)
+	: AMGCS2AsyncCommand()
 {
 	relativeAxisPositions_ = relativeAxisPositions;
 	moveRelativeCommand_ = new AMGCS2MoveRelativeCommand(relativeAxisPositions);

@@ -45,6 +45,8 @@ QString AMPIC887ConsoleCommandParser::commandList()
 	commandList.append("POS? <axis1> <axis2> ... : Queries the current position of the provided axes. If none are provided all axes positions are displayed.\n");
 	commandList.append("PUN? <axis1> <axis2> ... : Queries the position units of the provided axes. If none are provided all axes position units are queried.\n");
 	commandList.append("RDY? : Queries the ready status of the controller.\n");
+	commandList.append("RTR <integer> : Sets the record rate for the controller's data recorder.\n");
+	commandList.append("RTR? : Queries the record rate for the controller's data recorder.\n");
 	commandList.append("SCT <value> : Sets the cycle time for running a defined motion profile.\n");
 	commandList.append("SCT? : Queries the cycle time for running a defined motion profile.\n");
 	commandList.append("SPI <axis1> <position1> <axis2> <position2> ... : Sets the pivot point of rotation to the values provided. Only X, Y and Z axes can be specified.\n");
@@ -167,6 +169,10 @@ void AMPIC887ConsoleCommandParser::interpretCommandImplementation(const QString 
 
 		emit recordTriggerCommandIssued();
 
+	} else if (command.startsWith("DRR?")) {
+
+		handleDataRecordValuesInput(command);
+
 	} else if (command.startsWith("DRC?")) {
 
 		handleRecordConfigInput(command);
@@ -174,6 +180,10 @@ void AMPIC887ConsoleCommandParser::interpretCommandImplementation(const QString 
 	} else if (command.startsWith("FRF?")) {
 
 		emit referencedStateCommandIssued(axesFromCommandString(command));
+
+	} else if (command.startsWith("RTR?")) {
+
+		emit recordRateCommandIssued();
 
 	} else if (command.startsWith("SVO?")) {
 
@@ -254,6 +264,14 @@ void AMPIC887ConsoleCommandParser::interpretCommandImplementation(const QString 
 	} else if (command.startsWith("DRC")) {
 
 		handleSetRecordConfigInput(command);
+
+	} else if(command.startsWith("RTR")) {
+
+		bool parseSuccess = false;
+		double value = doubleValueFromCommandString(command, &parseSuccess);
+		if(parseSuccess) {
+			emit setRecordRateCommandIssued(value);
+		}
 
 	} else if (command.startsWith("SVO")) {
 
@@ -594,3 +612,27 @@ void AMPIC887ConsoleCommandParser::handleSetRecordConfigInput(const QString &com
 
 	emit setRecordConfigCommandIssued(recordConfigurations);
 }
+
+void AMPIC887ConsoleCommandParser::handleDataRecordValuesInput(const QString &commandString)
+{
+	//offset, number, tableId
+	QStringList argumentList = commandArguments(commandString);
+	if(argumentList.length() == 3) {
+
+		bool parseDataOffset = false;
+		int dataOffset = argumentList.at(0).toInt(&parseDataOffset);
+
+		bool parseNumberOfElements = false;
+		int numberOfElements = argumentList.at(1).toInt(&parseNumberOfElements);
+
+		bool parseTableId = false;
+		int tableId = argumentList.at(2).toInt(&parseTableId);
+
+		if(parseDataOffset && parseNumberOfElements && parseTableId) {
+
+			emit dataRecorderValuesCommandIssued(dataOffset, numberOfElements, tableId);
+		}
+	}
+}
+
+
