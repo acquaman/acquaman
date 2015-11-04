@@ -605,22 +605,22 @@ void SXRMBBeamline::setupComponents()
 
 	tempSR570 = new CLSSR570("BeamlineI0", "Amp1606-5-B10-01", this);
 	scaler_->channelAt(16)->setCurrentAmplifier(tempSR570);
-	scaler_->channelAt(16)->setVoltagRange(AMRange(1.0, 6.5));
+	scaler_->channelAt(16)->setVoltagRange(AMRange(0.1, 2.0));
 	scaler_->channelAt(16)->setCustomChannelName("Beamline I0");
 
 	tempSR570 = new CLSSR570("I0", "Amp1606-5-B10-02", this);
 	scaler_->channelAt(17)->setCurrentAmplifier(tempSR570);
-	scaler_->channelAt(17)->setVoltagRange(AMRange(1.0, 6.5));
+	scaler_->channelAt(17)->setVoltagRange(AMRange(0.1, 2.0));
 	scaler_->channelAt(17)->setCustomChannelName("I0");
 
 	tempSR570 = new CLSSR570("TEY", "Amp1606-5-B10-03", this);
 	scaler_->channelAt(18)->setCurrentAmplifier(tempSR570);
-	scaler_->channelAt(18)->setVoltagRange(AMRange(1.0, 6.5));
+	scaler_->channelAt(18)->setVoltagRange(AMRange(0.1, 2.0));
 	scaler_->channelAt(18)->setCustomChannelName("TEY");
 
 	tempSR570 = new CLSSR570("Transmission", "Amp1606-5-B10-04", this);
 	scaler_->channelAt(19)->setCurrentAmplifier(tempSR570);
-	scaler_->channelAt(19)->setVoltagRange(AMRange(1.0, 6.5));
+	scaler_->channelAt(19)->setVoltagRange(AMRange(0.1, 2.0));
 	scaler_->channelAt(19)->setCustomChannelName("Transmission");
 }
 

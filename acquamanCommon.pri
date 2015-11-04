@@ -429,7 +429,9 @@ HEADERS += \
     source/dataman/AMScanViewPlotTools.h \
     source/ui/acquaman/AMGenericStepScanConfigurationDetectorsView.h \
     $$PWD/source/analysis/AMAdditionAB.h \
-    $$PWD/source/analysis/AMNormalizationAB.h
+    $$PWD/source/analysis/AMNormalizationAB.h \
+    source/actions3/actions/AMControlCalibrateActionInfo.h \
+    source/actions3/actions/AMControlCalibrateAction.h
 
 FORMS += \
 
@@ -820,7 +822,9 @@ SOURCES += \
     source/dataman/AMScanViewPlotTools.cpp \
     source/ui/acquaman/AMGenericStepScanConfigurationDetectorsView.cpp \
     $$PWD/source/analysis/AMAdditionAB.cpp \
-    $$PWD/source/analysis/AMNormalizationAB.cpp
+    $$PWD/source/analysis/AMNormalizationAB.cpp \
+    source/actions3/actions/AMControlCalibrateActionInfo.cpp \
+    source/actions3/actions/AMControlCalibrateAction.cpp
 
 RESOURCES *= source/icons/icons.qrc \
 		source/configurationFiles/configurationFiles.qrc \

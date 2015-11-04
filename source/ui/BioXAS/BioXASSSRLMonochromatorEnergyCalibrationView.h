@@ -89,6 +89,8 @@ protected slots:
 	/// Handles calibrating the mono when the calibrate button is clicked.
 	void onCalibrateButtonClicked();
 
+	/// Handles updating the 'load data' button.
+	void updateLoadDataButton();
 	/// Handles updating the scan view.
 	void updateScanView();
 	/// Handles updating the data sources editor.

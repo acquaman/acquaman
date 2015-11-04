@@ -164,6 +164,7 @@ void BioXASSSRLMonochromatorEnergyCalibrationView::clear()
 
 void BioXASSSRLMonochromatorEnergyCalibrationView::update()
 {
+	updateLoadDataButton();
 	updateScanView();
 	updateScanSourcesEditor();
 	updateMonoEnergySpinbox();
@@ -349,6 +350,14 @@ void BioXASSSRLMonochromatorEnergyCalibrationView::onCalibrateButtonClicked()
 	if (mono_ && mono_->energyControl()) {
 		mono_->energyControl()->calibrate(monoEnergy_, desiredEnergy_);
 	}
+}
+
+void BioXASSSRLMonochromatorEnergyCalibrationView::updateLoadDataButton()
+{
+	if (!currentScan_)
+		loadDataButton_->setDefault(true);
+	else
+		loadDataButton_->setDefault(false);
 }
 
 void BioXASSSRLMonochromatorEnergyCalibrationView::updateScanView()

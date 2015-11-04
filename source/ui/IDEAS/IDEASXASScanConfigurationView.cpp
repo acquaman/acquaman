@@ -37,6 +37,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/util/AMPeriodicTableDialog.h"
 
 
+
 IDEASXASScanConfigurationView::IDEASXASScanConfigurationView(IDEASXASScanConfiguration *configuration, QWidget *parent) :
 	AMScanConfigurationView(parent)
 {
@@ -69,7 +70,9 @@ IDEASXASScanConfigurationView::IDEASXASScanConfigurationView(IDEASXASScanConfigu
 	// The fluorescence detector setup
 	fluorescenceDetectorComboBox_  = createFluorescenceComboBox();
 	connect(fluorescenceDetectorComboBox_, SIGNAL(currentIndexChanged(int)), this, SLOT(onFluorescenceChoiceChanged(int)));
+	connect(IDEASBeamline::ideas()->ge13Element(), SIGNAL(connected(bool)), this, SLOT(updateFluorescenceDetectorComboBoxGe13Element(bool)));
 	connect(configuration_->dbObject(), SIGNAL(fluorescenceDetectorChanged(int)), this, SLOT(updateFluorescenceDetectorComboBox(int)));
+
 
 	// Energy (Eo) selection
 	energy_ = new QDoubleSpinBox;
@@ -360,7 +363,7 @@ void IDEASXASScanConfigurationView::onROIChange()
 	else if (configuration_->fluorescenceDetector().testFlag(IDEAS::Ketek))
 		detector = IDEASBeamline::ideas()->ketek();
 
-	else if (configuration_->fluorescenceDetector().testFlag(IDEAS::Ge13Element))
+	else if (configuration_->fluorescenceDetector().testFlag(IDEAS::Ge13Element) && IDEASBeamline::ideas()->ge13Element()->isConnected())
 		detector = IDEASBeamline::ideas()->ge13Element();
 
 	if (detector){
@@ -384,17 +387,29 @@ void IDEASXASScanConfigurationView::onROIChange()
 QComboBox *IDEASXASScanConfigurationView::createFluorescenceComboBox()
 {
 	QComboBox *newComboBox = new QComboBox;
-	newComboBox->insertItem(0, "None");
-	newComboBox->insertItem(1, "KETEK");
-	newComboBox->insertItem(2, "13-el Ge");
-
+	newComboBox->insertItem((int)IDEAS::NoXRF, "None");
+	newComboBox->insertItem((int)IDEAS::Ketek, "KETEK");
+	if (IDEASBeamline::ideas()->ge13Element()->isConnected())
+		newComboBox->insertItem((int)IDEAS::Ge13Element, "13-el Ge");
 	return newComboBox;
 }
 
-void IDEASXASScanConfigurationView::updateFluorescenceDetectorComboBox(int detector)
+void IDEASXASScanConfigurationView::updateFluorescenceDetectorComboBox(IDEAS::FluorescenceDetectors detector)
 {
 	fluorescenceDetectorComboBox_->setCurrentIndex(detector);
 }
+
+void IDEASXASScanConfigurationView::updateFluorescenceDetectorComboBoxGe13Element(bool connected)
+{
+	int currentIndex = fluorescenceDetectorComboBox_->currentIndex();
+	fluorescenceDetectorComboBox_->removeItem((int)IDEAS::Ge13Element);
+
+	if (connected)
+		fluorescenceDetectorComboBox_->insertItem((int)IDEAS::Ge13Element, "13-el Ge");
+
+	updateFluorescenceDetectorComboBox((IDEAS::FluorescenceDetector)currentIndex);
+}
+
 
 void IDEASXASScanConfigurationView::onFluorescenceChoiceChanged(int id)
 {
