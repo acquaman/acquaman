@@ -174,10 +174,7 @@ void AMNormalizationAB::setInputDataSourcesImplementation(const QList<AMDataSour
 	if(dataSources.isEmpty()) {
 
 		sources_.clear();
-
-		for (int i = 0, size = rank(); i < size; i++)
-			axes_[i] = AMAxisInfo("invalid", 0, "No input data");
-
+		axes_.clear();
 		setDescription("-- No input data --");
 	}
 
@@ -187,7 +184,7 @@ void AMNormalizationAB::setInputDataSourcesImplementation(const QList<AMDataSour
 		sources_ = dataSources;
 
 		for (int i = 0, size = rank(); i < size; i++)
-			axes_[i] = sources_.at(0)->axisInfoAt(i);
+			axes_.append(sources_.at(0)->axisInfoAt(i));
 
 		cacheUpdateRequired_ = true;
 		cachedData_ = QVector<double>(size().product());
@@ -291,8 +288,6 @@ void AMNormalizationAB::setInputSources()
 		normalizer_ = 0;
 		canAnalyze_ = false;
 
-		axes_[0] = AMAxisInfo("invalid", 0, "No input data");
-		axes_[1] = AMAxisInfo("invalid", 0, "No input data");
 		setDescription("Normalized 2D Data Source");
 	}
 
