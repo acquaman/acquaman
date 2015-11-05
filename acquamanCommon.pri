@@ -430,7 +430,8 @@ HEADERS += \
     source/ui/acquaman/AMGenericStepScanConfigurationDetectorsView.h \
     $$PWD/source/analysis/AMAdditionAB.h \
     source/actions3/actions/AMControlCalibrateActionInfo.h \
-    source/actions3/actions/AMControlCalibrateAction.h
+    source/actions3/actions/AMControlCalibrateAction.h \
+    source/beamline/AMPseudoMotorLadderControl.h
 
 FORMS += \
 
@@ -822,7 +823,8 @@ SOURCES += \
     source/ui/acquaman/AMGenericStepScanConfigurationDetectorsView.cpp \
     $$PWD/source/analysis/AMAdditionAB.cpp \
     source/actions3/actions/AMControlCalibrateActionInfo.cpp \
-    source/actions3/actions/AMControlCalibrateAction.cpp
+    source/actions3/actions/AMControlCalibrateAction.cpp \
+    source/beamline/AMPseudoMotorLadderControl.cpp
 
 RESOURCES *= source/icons/icons.qrc \
 		source/configurationFiles/configurationFiles.qrc \
@@ -839,6 +841,8 @@ contains(DEFINES, AM_BUILD_REPORTER_ENABLED){
 
 	SOURCES *= source/util/AMRunTimeBuildInfo.cpp
 }
+
+
 
 
 
