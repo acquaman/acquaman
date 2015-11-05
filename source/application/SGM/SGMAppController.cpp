@@ -23,19 +23,21 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/SGM/SGMBeamline.h"
 #include "beamline/CLS/CLSStorageRing.h"
 
-#include "dataman/AMRun.h"
-#include "beamline/CLS/CLSFacilityID.h"
-#include "ui/SGM/SGMPersistentView.h"
-#include "ui/AMMainWindow.h"
-#include "ui/CLS/CLSSIS3820ScalerView.h"
 #include "acquaman/AMGenericStepScanConfiguration.h"
-#include "ui/acquaman/AMGenericStepScanConfigurationView.h"
-#include "util/AMErrorMonitor.h"
-#include "beamline/SGM/energy/SGMEnergyPosition.h"
-#include "ui/SGM/SGMHexapodView.h"
+#include "acquaman/AMGenericContinuousScanConfiguration.h"
 #include "beamline/CLS/CLSAmptekSDD123DetectorNew.h"
+#include "beamline/CLS/CLSFacilityID.h"
+#include "beamline/SGM/energy/SGMEnergyPosition.h"
+#include "dataman/AMRun.h"
+#include "ui/AMMainWindow.h"
+#include "ui/acquaman/AMGenericStepScanConfigurationView.h"
+#include "ui/acquaman/AMGenericContinuousScanConfigurationView.h"
+#include "ui/CLS/CLSSIS3820ScalerView.h"
 #include "ui/CLS/CLSAmptekSDD123DetailedDetectorView.h"
+#include "ui/SGM/SGMHexapodView.h"
+#include "ui/SGM/SGMPersistentView.h"
 #include "ui/SGM/SGMEnergyView.h"
+#include "util/AMErrorMonitor.h"
 #include <stdlib.h> // Used for obtaining username to prevent users other than iain (for dev) or SGM-Upgrade (for commissioning). Remove for deploy.
 
 SGMAppController::SGMAppController(QObject *parent) :
@@ -47,7 +49,7 @@ bool SGMAppController::startup() {
 
 	QString currentUser = getenv("USER");
 
-    if(currentUser != "workmai" && currentUser != "sgm-upgrade" && currentUser != "iain") {
+    if(currentUser != "workmai" && currentUser != "sgm-upgrade" && currentUser != "iain" && currentUser != "hunterd") {
 		AMErrorMon::error(this, SGMAPPCONTROLLER_WRONG_USER, "This user account is not permitted to run the SGM Upgrade version of Acquaman.");
 		return false;
 	}
@@ -154,12 +156,20 @@ void SGMAppController::setupUserInterface()
 
 	mw_->insertHeading("Scans", 1);
 
-	commissioningConfiguration_ = new AMGenericStepScanConfiguration;
-	commissioningConfiguration_->setAutoExportEnabled(false);
-	commissioningConfiguration_->addDetector(SGMBeamline::sgm()->exposedDetectorByName("I0")->toInfo());
-    commissioningConfigurationView_ = new AMGenericStepScanConfigurationView(commissioningConfiguration_, SGMBeamline::sgm()->exposedControls(), SGMBeamline::sgm()->exposedDetectors());
-	commissioningConfigurationViewHolder_ = new AMScanConfigurationViewHolder3("Commissioning Tool", false, true, commissioningConfigurationView_);
-	mw_->addPane(commissioningConfigurationViewHolder_, "Scans", "Commissioning Tool", ":/utilities-system-monitor.png");
+	commissioningStepConfiguration_ = new AMGenericStepScanConfiguration;
+	commissioningStepConfiguration_->setAutoExportEnabled(false);
+	commissioningStepConfiguration_->addDetector(SGMBeamline::sgm()->exposedDetectorByName("I0")->toInfo());
+	commissioningStepConfigurationView_ = new AMGenericStepScanConfigurationView(commissioningStepConfiguration_, SGMBeamline::sgm()->exposedControls(), SGMBeamline::sgm()->exposedDetectors());
+	commissioningStepConfigurationViewHolder_ = new AMScanConfigurationViewHolder3("Commissioning Tool", false, true, commissioningStepConfigurationView_);
+
+	commissioningContinuousConfiguration_ = new AMGenericContinuousScanConfiguration;
+	commissioningContinuousConfiguration_->setAutoExportEnabled(false);
+	commissioningContinuousConfiguration_->addDetector(SGMBeamline::sgm()->exposedDetectorByName("I0")->toInfo());
+	commissioningContinuousConfigurationView_ = new AMGenericContinuousScanConfigurationView(commissioningContinuousConfiguration_, SGMBeamline::sgm()->exposedControls(), SGMBeamline::sgm()->exposedDetectors());
+	commissioningContinuousConfigurationViewHolder_ = new AMScanConfigurationViewHolder3("Continuous Tool", false, true, commissioningContinuousConfigurationView_);
+
+	mw_->addPane(commissioningStepConfigurationViewHolder_, "Scans", "Commissioning Tool", ":/utilities-system-monitor.png");
+	mw_->addPane(commissioningContinuousConfigurationViewHolder_, "Scans", "Continuous Tool", ":/utilities-system-monitor.png");
 
 	amptekDetectorView_ = 0;
 	if(SGMBeamline::sgm()->amptekSDD1() && SGMBeamline::sgm()->amptekSDD1()->isConnected()) {
