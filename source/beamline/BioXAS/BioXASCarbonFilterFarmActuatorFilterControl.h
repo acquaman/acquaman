@@ -31,49 +31,75 @@ public:
 	/// Returns true if the given value corresponds to a valid window, false otherwise.
 	virtual bool validValue(double value) const;
 	/// Returns true if the given value corresponds to a valid window setpoint, false otherwise.
-	virtual bool validSetpoint(double value) const { return validValue(value); }
+	virtual bool validSetpoint(double value) const;
 
-	/// Returns the window control.
-	AMControl* window() { return window_; }
+	/// Returns the list of filters.
+	QList<double> filters() const { return filters_; }
+	/// Returns the filter at the given (enum) index. Returns -1 if there isn't a valid filter associated with the given index.
+	double filterAt(int index) const;
 
-	/// Returns a string representation of the given filter thickness.
-	static QString filterThicknessToString(double filterThickness);
+	/// Returns the index of the given filter. Returns -1 if the given filter isn't valid or no match found.
+	int indexOf(double filter) const;
+	/// Returns the index of the given filter (string), handles all enum states (including "Unknown"). Returns -1 if no match found.
+	int indexOf(const QString filterString) const;
 
-	/// Returns the filter thickness at the given window.
-	double filterThicknessAtWindow(double window);
-	/// Returns a list of windows with the given filter thickness.
-	QList<double> windowsWithFilterThickness(double filterThickness);
+	/// Returns the current window control.
+	AMControl* currentWindow() { return currentWindow_; }
 
 signals:
 	/// Notifier that the window control has changed.
-	void windowChanged(AMControl *newControl);
+	void currentWindowChanged(AMControl *newControl);
+	/// Notifier that the filters have changed.
+	void filtersChanged();
 
 public slots:
-	/// Sets the actuator window control.
-	void setWindow(BioXASCarbonFilterFarmActuatorWindowControl *newControl);
-	/// Sets a window to filter thickness mapping.
-	void setWindowFilter(BioXASCarbonFilterFarmActuatorWindowControl::Value window, double filterThickness);
+	/// Sets the current window control.
+	void setCurrentWindow(BioXASCarbonFilterFarmActuatorWindowControl *newControl);
+	/// Sets the mapping between filter and mapping. This is used to set a 'preference' when many windows may have the same filter.
+	void setFilterWindow(double filter, BioXASCarbonFilterFarmWindowOption *window);
 
 protected slots:
+	/// Updates the current states. Reimplemented to make sure the filters list and enum states are updated before the current value.
+	virtual void updateStates();
 	/// Updates the connected state.
 	virtual void updateConnected();
 	/// Updates the current value.
 	virtual void updateValue();
 	/// Updates the moving state.
 	virtual void updateMoving();
+	/// Updates the maximum value.
+	virtual void updateMaximumValue();
+
+	/// Adds a filter to the filters list.
+	void addFilter(double filter);
+	/// Clears the existing filters list.
+	void clearFilters();
+	/// Updates the filters list with the filters that are available from the window control.
+	void updateFilters();
+
+	/// Updates the control's enumerated states.
+	void updateEnumStates();
 
 protected:
-	/// Returns a new action that moves the actuator to the desired window setpoint.
-	virtual AMAction3* createMoveAction(double windowSetpoint);
+	/// Returns a new action that moves the actuator to the desired filter index setpoint.
+	virtual AMAction3* createMoveAction(double setpoint);
 
-	/// Sets up the enum states for this control.
-	void setupEnumStates();
+	/// Generates a list of the enum states with the given list of filter options.
+	QStringList generateEnumStates(QList<double> filterOptions);
+	/// Generates a list of the move enum states with the given list of filter options.
+	QStringList generateMoveEnumStates(QList<double> filterOptions);
+
+	/// Returns a string representation of the given filter.
+	QString filterToString(double filter) const;
 
 protected:
-	/// The mapping between window enum and filter thickness.
-	QMap<double, double> windowFilterMap_;
 	/// The window control.
-	BioXASCarbonFilterFarmActuatorWindowControl *window_;
+	BioXASCarbonFilterFarmActuatorWindowControl *currentWindow_;
+
+	/// The list of valid filter values. Indexed by enum index.
+	QList<double> filters_;
+	/// The mapping between filter and window.
+	QMap<double, BioXASCarbonFilterFarmWindowOption*> filterWindowMap_;
 };
 
 #endif // BIOXASCARBONFILTERFARMACTUATORFILTERCONTROL_H

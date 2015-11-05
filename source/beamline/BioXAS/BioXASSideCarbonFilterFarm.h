@@ -17,7 +17,7 @@ class BioXASSideCarbonFilterFarm : public BioXASCarbonFilterFarm
 
 public:
 	/// Constructor.
-	explicit BioXASSideCarbonFilterFarm(QObject *parent = 0);
+	explicit  BioXASSideCarbonFilterFarm(QObject *parent = 0);
 	/// Destructor.
 	virtual ~BioXASSideCarbonFilterFarm();
 };

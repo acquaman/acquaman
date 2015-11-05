@@ -10,14 +10,14 @@ BioXASCarbonFilterFarmFilterControl::BioXASCarbonFilterFarmFilterControl(const Q
 	value_ = -1;
 	setpoint_ = -1;
 	minimumValue_ = 0;
-	maximumValue_ = 1000;
+	maximumValue_ = 0;
 
 	setContextKnownDescription("Filter Control");
 
 	// Initialize local variables.
 
-	upstreamActuator_ = 0;
-	downstreamActuator_ = 0;
+	upstreamFilter_ = 0;
+	downstreamFilter_ = 0;
 }
 
 BioXASCarbonFilterFarmFilterControl::~BioXASCarbonFilterFarmFilterControl()
@@ -30,7 +30,7 @@ bool BioXASCarbonFilterFarmFilterControl::canMeasure() const
 	bool result = false;
 
 	if (isConnected())
-		result = ( upstreamActuator_->filter()->canMeasure() && downstreamActuator_->filter()->canMeasure() );
+		result = ( upstreamFilter_->canMeasure() && downstreamFilter_->canMeasure() );
 
 	return result;
 }
@@ -40,7 +40,7 @@ bool BioXASCarbonFilterFarmFilterControl::canMove() const
 	bool result = false;
 
 	if (isConnected())
-		result = ( upstreamActuator_->filter()->canMove() && downstreamActuator_->filter()->canMove() );
+		result = ( upstreamFilter_->canMove() && downstreamFilter_->canMove() );
 
 	return result;
 }
@@ -50,79 +50,100 @@ bool BioXASCarbonFilterFarmFilterControl::canStop() const
 	bool result = false;
 
 	if (isConnected())
-		result = ( upstreamActuator_->filter()->canStop() && downstreamActuator_->filter()->canStop() );
+		result = ( upstreamFilter_->canStop() && downstreamFilter_->canStop() );
 
 	return result;
 }
 
 bool BioXASCarbonFilterFarmFilterControl::validValue(double value) const
 {
-	bool result = (upstreamFilterThicknessesMap_.contains(value) && downstreamFilterThicknessesMap_.contains(value));
+	bool result = (value >= 0 && value < enumNames().count());
+	return result;
+}
+
+bool BioXASCarbonFilterFarmFilterControl::validSetpoint(double value) const
+{
+	bool result = (value >= 0 && value < moveEnumNames().count());
+	return result;
+}
+
+double BioXASCarbonFilterFarmFilterControl::filterAt(int index) const
+{
+	double result = -1;
+
+	if (index >= 0 && index < filters_.count())
+		result = filters_.at(index);
 
 	return result;
 }
 
-//double BioXASCarbonFilterFarmFilterControl::upstreamFilterThickness(double totalFilterThickness)
-//{
-//	double result = upstreamFilterThicknessesMap_.value(totalFilterThickness, -1);
-
-//	return result;
-//}
-
-//double BioXASCarbonFilterFarmFilterControl::downstreamFilterThickness(double totalFilterThickness)
-//{
-//	double result = downstreamFilterThicknessesMap_.value(totalFilterThickness, -1);
-
-//	return result;
-//}
-
-void BioXASCarbonFilterFarmFilterControl::setUpstreamActuator(BioXASCarbonFilterFarmActuatorControl *newControl)
+int BioXASCarbonFilterFarmFilterControl::indexOf(double filter) const
 {
-	if (upstreamActuator_ != newControl) {
+	return filters_.indexOf(filter);
+}
 
-		if (upstreamActuator_)
-			removeChildControl(upstreamActuator_);
+int BioXASCarbonFilterFarmFilterControl::indexOf(const QString filterString) const
+{
+	return enumNames().indexOf(filterString);
+}
 
-		upstreamActuator_ = newControl;
+void BioXASCarbonFilterFarmFilterControl::setUpstreamFilter(BioXASCarbonFilterFarmActuatorFilterControl *newControl)
+{
+	if (upstreamFilter_ != newControl) {
 
-		if (upstreamActuator_)
-			addChildControl(upstreamActuator_);
+		if (upstreamFilter_)
+			removeChildControl(upstreamFilter_);
+
+		upstreamFilter_ = newControl;
+
+		if (upstreamFilter_) {
+			addChildControl(upstreamFilter_);
+
+			connect( upstreamFilter_, SIGNAL(filtersChanged()), this, SLOT(updateFilters()) );
+		}
 
 		updateStates();
 
-		emit upstreamActuatorChanged(upstreamActuator_);
+		emit upstreamFilterChanged(upstreamFilter_);
 	}
 }
 
-void BioXASCarbonFilterFarmFilterControl::setDownstreamActuator(BioXASCarbonFilterFarmActuatorControl *newControl)
+void BioXASCarbonFilterFarmFilterControl::setDownstreamFilter(BioXASCarbonFilterFarmActuatorFilterControl *newControl)
 {
-	if (downstreamActuator_ != newControl) {
+	if (downstreamFilter_ != newControl) {
 
-		if (downstreamActuator_)
-			removeChildControl(downstreamActuator_);
+		if (downstreamFilter_)
+			removeChildControl(downstreamFilter_);
 
-		downstreamActuator_ = newControl;
+		downstreamFilter_ = newControl;
 
-		if (downstreamActuator_)
-			addChildControl(downstreamActuator_);
+		if (downstreamFilter_) {
+			addChildControl(downstreamFilter_);
+
+			connect( downstreamFilter_, SIGNAL(filtersChanged()), this, SLOT(updateFilters()) );
+		}
 
 		updateStates();
 
-		emit downstreamActuatorChanged(downstreamActuator_);
+		emit downstreamFilterChanged(downstreamFilter_);
 	}
 }
 
-//void BioXASCarbonFilterFarmFilterControl::setFilterThickness(double totalFilterThickness, double upstreamFilterThickness, double downstreamFilterThickness)
-//{
-//	upstreamFilterThicknessesMap_.insert(totalFilterThickness, upstreamFilterThickness);
-//	downstreamFilterThicknessesMap_.insert(totalFilterThickness, downstreamFilterThickness);
-//}
+void BioXASCarbonFilterFarmFilterControl::updateStates()
+{
+	updateConnected();
+	updateFilters();
+	updateEnumStates();
+	updateMaximumValue();
+	updateValue();
+	updateMoving();
+}
 
 void BioXASCarbonFilterFarmFilterControl::updateConnected()
 {
 	bool isConnected = (
-				upstreamActuator_ && upstreamActuator_->isConnected() &&
-				downstreamActuator_ && downstreamActuator_->isConnected()
+				upstreamFilter_ && upstreamFilter_->isConnected() &&
+				downstreamFilter_ && downstreamFilter_->isConnected()
 				);
 
 	setConnected(isConnected);
@@ -130,13 +151,13 @@ void BioXASCarbonFilterFarmFilterControl::updateConnected()
 
 void BioXASCarbonFilterFarmFilterControl::updateValue()
 {
-	double newValue = -1;
+	double newValue = enumNames().indexOf("Unknown");
 
 	if (isConnected()) {
-		double totalFilter = upstreamActuator_->filter()->value() + downstreamActuator_->filter()->value();
+		int newIndex = totalFilterIndex(upstreamFilter_->filterAt(int(upstreamFilter_->value())), downstreamFilter_->filterAt(int(downstreamFilter_->value())));
 
-		if (validValue(totalFilter))
-			newValue = totalFilter;
+		if (newIndex > -1)
+			newValue = newIndex;
 	}
 
 	setValue(newValue);
@@ -147,22 +168,146 @@ void BioXASCarbonFilterFarmFilterControl::updateMoving()
 	bool isMoving = false;
 
 	if (isConnected())
-		isMoving = ( upstreamActuator_->filter()->isMoving() || downstreamActuator_->filter()->isMoving() );
+		isMoving = ( upstreamFilter_->isMoving() || downstreamFilter_->isMoving() );
 
 	setIsMoving(isMoving);
 }
 
+void BioXASCarbonFilterFarmFilterControl::updateMaximumValue()
+{
+	setMaximumValue(enumNames().count() - 1);
+}
+
+void BioXASCarbonFilterFarmFilterControl::addFilter(double filter, double upstreamContribution, double downstreamContribution)
+{
+	if (filter >= 0 && !filters_.contains(filter)) {
+		filters_.append(filter);
+		setFilter(filter, upstreamContribution, downstreamContribution);
+		updateEnumStates();
+
+		emit filtersChanged();
+	}
+}
+
+void BioXASCarbonFilterFarmFilterControl::setFilter(double filter, double upstreamContribution, double downstreamContribution)
+{
+	if (filters_.contains(filter)) {
+		upstreamFilterMap_.insert(filter, upstreamContribution);
+		downstreamFilterMap_.insert(filter, downstreamContribution);
+	}
+}
+
+void BioXASCarbonFilterFarmFilterControl::clearFilters()
+{
+	filters_.clear();
+	upstreamFilterMap_.clear();
+	downstreamFilterMap_.clear();
+
+	updateEnumStates();
+
+	emit filtersChanged();
+}
+
+void BioXASCarbonFilterFarmFilterControl::updateFilters()
+{
+	// Clear filters.
+
+	clearFilters();
+
+	// Identify new list of possible filter options, found by iterating
+	// through all options for each of the actuator filter controls.
+
+	QList<double> upstreamFilters;
+	QList<double> downstreamFilters;
+
+	if (upstreamFilter_)
+		upstreamFilters = upstreamFilter_->filters();
+
+	if (downstreamFilter_)
+		downstreamFilters = downstreamFilter_->filters();
+
+	if (!upstreamFilters.isEmpty() && !downstreamFilters.isEmpty()) {
+
+		foreach (double downstreamFilter, downstreamFilters) {
+			foreach (double upstreamFilter, upstreamFilters) {
+
+				double newFilter = totalFilter(upstreamFilter, downstreamFilter);
+				addFilter(newFilter, upstreamFilter, downstreamFilter);
+			}
+		}
+	}
+}
+
+void BioXASCarbonFilterFarmFilterControl::updateEnumStates()
+{
+	setEnumStates(generateEnumStates(filters_));
+	setMoveEnumStates(generateMoveEnumStates(filters_));
+}
+
 AMAction3* BioXASCarbonFilterFarmFilterControl::createMoveAction(double setpoint)
 {
-//	AMListAction3 *action = new AMListAction3(new AMListActionInfo3("Move BioXAS Carbon Filter Farm Actuators", "Move BioXAS Carbon Filter Farm Actuators"), AMListAction3::Parallel);
+	AMAction3 *action = 0;
 
-//	AMAction3 *upstreamMove = AMActionSupport::buildControlMoveAction(upstreamActuator_->filter(), upstreamFilterThicknessesMap_.value(setpoint));
-//	action->addSubAction(upstreamMove);
+	double filterSetpoint = filterAt(int(setpoint));
+	double upstreamSetpoint = upstreamFilter_->indexOf(upstreamFilterMap_.value(setpoint, -1));
+	double downstreamSetpoint = downstreamFilter_->indexOf(downstreamFilterMap_.value(setpoint, -1));
 
-//	AMAction3 *downstreamMove = AMActionSupport::buildControlMoveAction(downstreamActuator_->filter(), downstreamFilterThicknessesMap_.value(setpoint));
-//	action->addSubAction(downstreamMove);
+	if (upstreamFilter_->validSetpoint(upstreamSetpoint) && downstreamFilter_->validSetpoint(downstreamSetpoint)) {
+		AMListAction3 *moveAction = new AMListAction3(new AMListActionInfo3(QString("Moving to effective filter %1mm").arg(filterSetpoint), QString("Moving to effective filter %1mm").arg(filterSetpoint)), AMListAction3::Parallel);
+		moveAction->addSubAction(AMActionSupport::buildControlMoveAction(upstreamFilter_, upstreamSetpoint));
+		moveAction->addSubAction(AMActionSupport::buildControlMoveAction(downstreamFilter_, downstreamSetpoint));
 
-//	return action;
+		action = moveAction;
+	}
 
-	return 0;
+	return action;
+}
+
+QStringList BioXASCarbonFilterFarmFilterControl::generateEnumStates(QList<double> filterOptions)
+{
+	QStringList enumOptions = generateMoveEnumStates(filterOptions);
+
+	// We always want to have an "Unknown" option--it's the default value.
+	// Because it isn't a 'move enum' (we don't ever want to move to "Unknown")
+	// it must be at the end of the enum list, after all of the move enums.
+
+	enumOptions << "Unknown";
+
+	return enumOptions;
+}
+
+QStringList BioXASCarbonFilterFarmFilterControl::generateMoveEnumStates(QList<double> filterOptions)
+{
+	QStringList moveOptions;
+
+	foreach (double option, filterOptions)
+		moveOptions << filterToString(option);
+
+	return moveOptions;
+}
+
+int BioXASCarbonFilterFarmFilterControl::totalFilterIndex(double upstreamFilter, double downstreamFilter) const
+{
+	int result = indexOf( totalFilter(upstreamFilter, downstreamFilter) );
+	return result;
+}
+
+double BioXASCarbonFilterFarmFilterControl::totalFilter(double upstreamFilter, double downstreamFilter) const
+{
+	double result = -1;
+
+	if (upstreamFilter >= 0 && downstreamFilter >= 0)
+		result = upstreamFilter + downstreamFilter;
+
+	return result;
+}
+
+QString BioXASCarbonFilterFarmFilterControl::filterToString(double filter) const
+{
+	QString result = "Unknown";
+
+	if (filters_.contains(filter))
+		result = QString::number(filter, 'f', 0);
+
+	return result;
 }

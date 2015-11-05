@@ -33,6 +33,16 @@ public slots:
 	/// Sets the actuator control being viewed.
 	void setActuator(BioXASCarbonFilterFarmActuatorControl *newControl);
 
+protected slots:
+	/// Refreshes the filter editor.
+	void refreshFilterEditor();
+	/// Refreshes the window editor.
+	void refreshWindowEditor();
+	/// Refreshes the position editor.
+	void refreshPositionEditor();
+	/// Refreshes the status control editor.
+	void refreshPositionStatusEditor();
+
 protected:
 	/// The actuator control being viewed.
 	BioXASCarbonFilterFarmActuatorControl *actuator_;

@@ -7,17 +7,14 @@ BioXASCarbonFilterFarmActuatorWindowControl::BioXASCarbonFilterFarmActuatorWindo
 {
 	// Initialize local variables.
 
-	actuatorPosition_ = 0;
+	currentPosition_ = 0;
 
 	// Initialize inherited variables.
 
-	value_ = Invalid;
-	setpoint_ = Invalid;
-	minimumValue_ = Top;
-	maximumValue_ = Invalid;
-
-	setEnumStates(QStringList() << windowToString(Top) << windowToString(Bottom) << windowToString(None) << windowToString(Invalid));
-	setMoveEnumStates(QStringList() << windowToString(Top) << windowToString(Bottom) << windowToString(None));
+	value_ = -1;
+	setpoint_ = -1;
+	minimumValue_ = 0;
+	maximumValue_ = 0;
 
 	setContextKnownDescription("Actuator Window Control");
 }
@@ -32,7 +29,7 @@ bool BioXASCarbonFilterFarmActuatorWindowControl::canMeasure() const
 	bool result = false;
 
 	if (isConnected())
-		result = actuatorPosition_->canMeasure();
+		result = currentPosition_->canMeasure();
 
 	return result;
 }
@@ -42,7 +39,7 @@ bool BioXASCarbonFilterFarmActuatorWindowControl::canMove() const
 	bool result = false;
 
 	if (isConnected())
-		result = actuatorPosition_->canMove();
+		result = currentPosition_->canMove();
 
 	return result;
 }
@@ -52,145 +49,114 @@ bool BioXASCarbonFilterFarmActuatorWindowControl::canStop() const
 	bool result = false;
 
 	if (isConnected())
-		result = actuatorPosition_->canStop();
+		result = currentPosition_->canStop();
 
 	return result;
 }
 
 bool BioXASCarbonFilterFarmActuatorWindowControl::validValue(double value) const
 {
-	bool result = false;
-
-	switch ((int)value) {
-	case Top:
-		result = true;
-		break;
-	case Bottom:
-		result = true;
-		break;
-	case None:
-		result = true;
-		break;
-	case Invalid:
-		result = true;
-		break;
-	default:
-		break;
-	}
-
-	return result;
+	return (value >= 0 && value < enumNames().count());
 }
 
 bool BioXASCarbonFilterFarmActuatorWindowControl::validSetpoint(double value) const
 {
-	bool result = false;
+	return (value >= 0 && value < moveEnumNames().count());
+}
 
-	switch ((int)value) {
-	case Top:
-		result = true;
-		break;
-	case Bottom:
-		result = true;
-		break;
-	case None:
-		result = true;
-		break;
-	default:
-		break;
-	}
+BioXASCarbonFilterFarmWindowOption* BioXASCarbonFilterFarmActuatorWindowControl::windowAt(int index) const
+{
+	BioXASCarbonFilterFarmWindowOption *result = 0;
+
+	if (index >= 0 && index < windows_.count())
+		result = windows_.at(index);
 
 	return result;
 }
 
-QString BioXASCarbonFilterFarmActuatorWindowControl::windowToString(double window)
+int BioXASCarbonFilterFarmActuatorWindowControl::indexOf(BioXASCarbonFilterFarmWindowOption *window) const
 {
-	QString result = "Unknown";
-
-	switch (int(window)) {
-	case Top:
-		result = "Top";
-		break;
-	case Bottom:
-		result = "Bottom";
-		break;
-	case None:
-		result = "None";
-		break;
-	case Invalid:
-		result = "Invalid";
-		break;
-	default:
-		break;
-	}
-
-	return result;
+	return windows_.indexOf(window);
 }
 
-double BioXASCarbonFilterFarmActuatorWindowControl::windowAtPosition(double position) const
+int BioXASCarbonFilterFarmActuatorWindowControl::indexOf(const QString windowString) const
 {
-	double result = -1;
-
-	if (position >= windowMinPositionMap_.value(Top) && position <= windowMaxPositionMap_.value(Top))
-		result = Top;
-	else if (position >= windowMinPositionMap_.value(Bottom) && position <= windowMaxPositionMap_.value(Bottom))
-		result = Bottom;
-	else if (position >= windowMinPositionMap_.value(None) && position <= windowMaxPositionMap_.value(None))
-		result = None;
-	else
-		result = Invalid;
-
-	return result;
+	return enumNames().indexOf(windowString);
 }
 
-double BioXASCarbonFilterFarmActuatorWindowControl::positionOfWindow(double window) const
+void BioXASCarbonFilterFarmActuatorWindowControl::setCurrentPosition(AMControl *newControl)
 {
-	double positionMin = windowMinPositionMap_.value(window);
-	double positionMax = windowMaxPositionMap_.value(window);
+	if (currentPosition_ != newControl) {
 
-	double position = (positionMin + positionMax) / 2.0;
+		if (currentPosition_)
+			removeChildControl(currentPosition_);
 
-	return position;
-}
+		currentPosition_ = newControl;
 
-void BioXASCarbonFilterFarmActuatorWindowControl::setActuatorPosition(AMControl *newControl)
-{
-	if (actuatorPosition_ != newControl) {
-
-		if (actuatorPosition_)
-			removeChildControl(actuatorPosition_);
-
-		actuatorPosition_ = newControl;
-
-		if (actuatorPosition_)
-			addChildControl(actuatorPosition_);
+		if (currentPosition_)
+			addChildControl(currentPosition_);
 
 		updateStates();
 
-		emit actuatorPositionChanged(actuatorPosition_);
+		emit currentPositionChanged(currentPosition_);
 	}
 }
 
-void BioXASCarbonFilterFarmActuatorWindowControl::setWindowPosition(double window, double minPosition, double maxPosition)
+void BioXASCarbonFilterFarmActuatorWindowControl::addWindow(BioXASCarbonFilterFarmWindowOption *newControl)
 {
-	if (validSetpoint(window) && minPosition <= maxPosition) {
-		windowMinPositionMap_.insert(window, minPosition);
-		windowMaxPositionMap_.insert(window, maxPosition);
+	if (!windows_.contains(newControl) && newControl && newControl->isValid()) {
+		windows_.append(newControl);
+		updateEnumStates();
+
+		connect( newControl, SIGNAL(windowNameChanged(QString)), this, SLOT(updateEnumStates()) );
+
+		emit windowsChanged();
 	}
+}
+
+void BioXASCarbonFilterFarmActuatorWindowControl::removeWindow(BioXASCarbonFilterFarmWindowOption *control)
+{
+	if (windows_.contains(control)) {
+
+		disconnect( control, 0, this, 0 );
+
+		windows_.removeOne(control);
+		updateEnumStates();
+
+		emit windowsChanged();
+	}
+}
+
+void BioXASCarbonFilterFarmActuatorWindowControl::clearWindows()
+{
+	foreach (BioXASCarbonFilterFarmWindowOption *window, windows_)
+		removeWindow(window);
+}
+
+void BioXASCarbonFilterFarmActuatorWindowControl::updateStates()
+{
+	updateConnected();
+	updateEnumStates();
+	updateMaximumValue();
+	updateValue();
+	updateMoving();
 }
 
 void BioXASCarbonFilterFarmActuatorWindowControl::updateConnected()
 {
-	bool isConnected = ( actuatorPosition_ && actuatorPosition_->isConnected() );
-
+	bool isConnected = ( currentPosition_ && currentPosition_->isConnected() );
 	setConnected(isConnected);
 }
 
 void BioXASCarbonFilterFarmActuatorWindowControl::updateValue()
 {
-	double newValue = BioXASCarbonFilterFarmActuatorWindowControl::Invalid;
+	double newValue = enumNames().indexOf("Unknown");
 
-	if (isConnected())
-		newValue = windowAtPosition(actuatorPosition_->value());
+	if (isConnected()) {
+		QList<BioXASCarbonFilterFarmWindowOption*> windows = windowsAtPosition(currentPosition_->value());
+		if (!windows.isEmpty())
+			newValue = windows_.indexOf(windows.first());
+	}
 
 	setValue(newValue);
 }
@@ -200,13 +166,67 @@ void BioXASCarbonFilterFarmActuatorWindowControl::updateMoving()
 	bool isMoving = false;
 
 	if (isConnected())
-		isMoving = actuatorPosition_->isMoving();
+		isMoving = currentPosition_->isMoving();
 
 	setIsMoving(isMoving);
 }
 
-AMAction3* BioXASCarbonFilterFarmActuatorWindowControl::createMoveAction(double windowSetpoint)
+void BioXASCarbonFilterFarmActuatorWindowControl::updateMaximumValue()
 {
-	AMAction3 *action = AMActionSupport::buildControlMoveAction(actuatorPosition_, positionOfWindow(windowSetpoint));
+	setMaximumValue(enumNames().count() - 1);
+}
+
+void BioXASCarbonFilterFarmActuatorWindowControl::updateEnumStates()
+{
+	setEnumStates(generateEnumStates(windows_));
+	setMoveEnumStates(generateMoveEnumStates(windows_));
+}
+
+AMAction3* BioXASCarbonFilterFarmActuatorWindowControl::createMoveAction(double setpoint)
+{
+	AMAction3 *action = 0;
+
+	BioXASCarbonFilterFarmWindowOption *window = windows_.at(int(setpoint));
+
+	if (window && window->isValid())
+		action = AMActionSupport::buildControlMoveAction(currentPosition_, window->setpointPosition() );
+
 	return action;
+}
+
+QStringList BioXASCarbonFilterFarmActuatorWindowControl::generateEnumStates(QList<BioXASCarbonFilterFarmWindowOption*> windowOptions)
+{
+	QStringList enumOptions = generateMoveEnumStates(windowOptions);
+
+	// We always want to have an "Unknown" option--it's the default value.
+	// Because it isn't a 'move enum' (we don't ever want to move to "Unknown")
+	// it must be at the end of the enum list, after all of the move enums.
+
+	enumOptions << "Unknown";
+
+	return enumOptions;
+}
+
+QStringList BioXASCarbonFilterFarmActuatorWindowControl::generateMoveEnumStates(QList<BioXASCarbonFilterFarmWindowOption*> windowOptions)
+{
+	QStringList moveOptions;
+
+	foreach (BioXASCarbonFilterFarmWindowOption *window, windowOptions) {
+		if (window)
+			moveOptions << window->name();
+	}
+
+	return moveOptions;
+}
+
+QList<BioXASCarbonFilterFarmWindowOption*> BioXASCarbonFilterFarmActuatorWindowControl::windowsAtPosition(double position) const
+{
+	QList<BioXASCarbonFilterFarmWindowOption*> result;
+
+	foreach (BioXASCarbonFilterFarmWindowOption *window, windows_) {
+		if (window && window->containsPosition(position))
+			result << window;
+	}
+
+	return result;
 }

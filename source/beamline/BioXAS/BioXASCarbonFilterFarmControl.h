@@ -41,6 +41,12 @@ public slots:
 	/// Sets the filter control.
 	void setFilter(BioXASCarbonFilterFarmFilterControl *newControl);
 
+protected slots:
+	/// Handles updating the filter control with the latest upstream filter information.
+	void onUpstreamActuatorFilterChanged();
+	/// Handles updating the filter control with the latest downstream filter information.
+	void onDownstreamActuatorFilterChanged();
+
 protected:
 	/// The upstream actuator control.
 	BioXASCarbonFilterFarmActuatorControl *upstreamActuator_;
