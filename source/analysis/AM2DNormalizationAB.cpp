@@ -291,13 +291,13 @@ void AM2DNormalizationAB::onInputSourceValuesChanged(const AMnDIndex& start, con
 
 void AM2DNormalizationAB::onInputSourceSizeChanged()
 {
-    axes_[0].size = data_->size(0);
-    axes_[1].size = data_->size(1);
+	axes_[0].size = data_->size(0);
+	axes_[1].size = data_->size(1);
 
-    cacheUpdateRequired_ = true;
-    dirtyIndices_.clear();
-    cachedData_ = QVector<double>(size().product());
-    emitSizeChanged();
+	cacheUpdateRequired_ = true;
+	dirtyIndices_.clear();
+	cachedData_ = QVector<double>(size().product());
+	emitSizeChanged();
 }
 
 void AM2DNormalizationAB::onInputSourceStateChanged() {
@@ -369,9 +369,9 @@ void AM2DNormalizationAB::setInputDataSourcesImplementation(const QList<AMDataSo
 
 	reviewState();
 
-    emitSizeChanged();
+	emitSizeChanged();
 	emitValuesChanged();
-    emitAxisInfoChanged();
+	emitAxisInfoChanged();
 	emitInfoChanged();
 }
 

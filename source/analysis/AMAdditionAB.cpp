@@ -32,7 +32,7 @@ bool AMAdditionAB::areInputDataSourcesAcceptable(const QList<AMDataSource*>& dat
 
 AMNumber AMAdditionAB::value(const AMnDIndex &indexes) const
 {
-	if(indexes.rank() != 3)
+	if(indexes.rank() != rank())
 		return AMNumber(AMNumber::DimensionError);
 
 	if(!isValid())
@@ -121,10 +121,10 @@ void AMAdditionAB::onInputSourceSizeChanged()
 	for (int i = 0, size = rank(); i < size; i++)
 		axes_[i].size = sources_.at(0)->size(i);
 
-    cacheUpdateRequired_ = true;
-    dirtyIndices_.clear();
-    cachedData_ = QVector<double>(size().product());
-    emitSizeChanged();
+	cacheUpdateRequired_ = true;
+	dirtyIndices_.clear();
+	cachedData_ = QVector<double>(size().product());
+	emitSizeChanged();
 }
 
 void AMAdditionAB::onInputSourceStateChanged()
