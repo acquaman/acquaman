@@ -92,8 +92,11 @@ void BioXASCarbonFilterFarmFilterControl::setUpstreamFilter(BioXASCarbonFilterFa
 {
 	if (upstreamFilter_ != newControl) {
 
-		if (upstreamFilter_)
+		if (upstreamFilter_) {
 			removeChildControl(upstreamFilter_);
+
+			disconnect( upstreamFilter_, 0, this, 0 );
+		}
 
 		upstreamFilter_ = newControl;
 
@@ -113,8 +116,11 @@ void BioXASCarbonFilterFarmFilterControl::setDownstreamFilter(BioXASCarbonFilter
 {
 	if (downstreamFilter_ != newControl) {
 
-		if (downstreamFilter_)
+		if (downstreamFilter_) {
 			removeChildControl(downstreamFilter_);
+
+			disconnect( downstreamFilter_, 0, this, 0 );
+		}
 
 		downstreamFilter_ = newControl;
 
