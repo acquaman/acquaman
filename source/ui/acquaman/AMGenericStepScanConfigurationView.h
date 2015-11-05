@@ -80,6 +80,8 @@ protected slots:
 	void onAxisControlChoice2Changed();
 	/// Handles updating the configurations detector infos.
 	void onDetectorSelectionChanged(QAbstractButton *button);
+	/// Handles updating the I0 for the configuration.
+	void onI0ChoiceChanged(int index);
 
 	/// Handles doing some connections when an scan axis has been added or removed.
 	void onScanAxisAdded(AMScanAxis *axis);
@@ -131,6 +133,8 @@ protected:
 	QVBoxLayout *detectorLayout_;
 	/// The mapping between detector and detector button.
 	QMap<AMDetector*, QAbstractButton*> detectorButtonMap_;
+	/// The combo box holding the detector that should be I0.
+	QComboBox *i0ComboBox_;
 };
 
 #endif // AMGENERICSTEPSCANCONFIGURATIONVIEW_H
