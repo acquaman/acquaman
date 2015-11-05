@@ -10,7 +10,7 @@ class BioXASCarbonFilterFarm : public BioXASCarbonFilterFarmControl
 
 public:
 	/// Constructor.
-	explicit BioXASCarbonFilterFarm(const QString &name, QObject *parent = 0);
+	explicit BioXASCarbonFilterFarm(const QString &deviceName, QObject *parent = 0);
 	/// Destructor.
 	virtual ~BioXASCarbonFilterFarm();
 };

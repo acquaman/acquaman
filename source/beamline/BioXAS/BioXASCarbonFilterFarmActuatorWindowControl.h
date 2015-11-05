@@ -43,7 +43,7 @@ public:
 	/// Returns the index of the given filter. Returns -1 if the given filter isn't valid or no match found.
 	int indexOf(BioXASCarbonFilterFarmWindowOption *window) const;
 	/// Returns the index of the given filter (string), handles all enum states (including "Unknown"). Returns -1 if no match found.
-	int indexOf(const QString windowString) const;
+	int indexOf(const QString &windowString) const;
 
 	/// Returns the current position control.
 	AMControl* currentPosition() { return currentPosition_; }

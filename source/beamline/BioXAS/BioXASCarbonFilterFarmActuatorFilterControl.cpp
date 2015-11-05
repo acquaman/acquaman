@@ -81,7 +81,7 @@ int BioXASCarbonFilterFarmActuatorFilterControl::indexOf(double filter) const
 	return filters_.indexOf(filter);
 }
 
-int BioXASCarbonFilterFarmActuatorFilterControl::indexOf(const QString filterString) const
+int BioXASCarbonFilterFarmActuatorFilterControl::indexOf(const QString &filterString) const
 {
 	return enumNames().indexOf(filterString);
 }

@@ -92,7 +92,7 @@ int BioXASCarbonFilterFarmActuatorWindowControl::indexOf(BioXASCarbonFilterFarmW
 	return windows_.indexOf(window);
 }
 
-int BioXASCarbonFilterFarmActuatorWindowControl::indexOf(const QString windowString) const
+int BioXASCarbonFilterFarmActuatorWindowControl::indexOf(const QString &windowString) const
 {
 	return enumNames().indexOf(windowString);
 }

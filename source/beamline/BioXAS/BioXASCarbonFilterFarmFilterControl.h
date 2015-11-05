@@ -42,7 +42,7 @@ public:
 	/// Returns the index of the given filter. Returns -1 if the given filter isn't valid or no match found.
 	int indexOf(double filter) const;
 	/// Returns the index of the given filter (string), handles all enum states (including "Unknown"). Returns -1 if no match found.
-	int indexOf(const QString filterString) const;
+	int indexOf(const QString &filterString) const;
 
 	/// Returns the upstream actuator filter control.
 	BioXASCarbonFilterFarmActuatorFilterControl* upstreamFilter() const { return upstreamFilter_; }

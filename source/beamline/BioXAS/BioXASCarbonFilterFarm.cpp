@@ -1,12 +1,12 @@
 #include "BioXASCarbonFilterFarm.h"
 
-BioXASCarbonFilterFarm::BioXASCarbonFilterFarm(const QString &name, QObject *parent) :
-	BioXASCarbonFilterFarmControl(name, parent)
+BioXASCarbonFilterFarm::BioXASCarbonFilterFarm(const QString &deviceName, QObject *parent) :
+	BioXASCarbonFilterFarmControl(deviceName, parent)
 {
-	setUpstreamActuator(new BioXASCarbonFilterFarmActuatorControl(objectName()+"UpstreamActuator", this));
-	setDownstreamActuator(new BioXASCarbonFilterFarmActuatorControl(objectName()+"DownstreamActuator", this));
+	setUpstreamActuator(new BioXASCarbonFilterFarmActuatorControl(name()+"UpstreamActuator", this));
+	setDownstreamActuator(new BioXASCarbonFilterFarmActuatorControl(name()+"DownstreamActuator", this));
 
-	setFilter(new BioXASCarbonFilterFarmFilterControl(objectName()+"Filter", "mm", this));
+	setFilter(new BioXASCarbonFilterFarmFilterControl(name()+"Filter", "mm", this));
 }
 
 BioXASCarbonFilterFarm::~BioXASCarbonFilterFarm()
