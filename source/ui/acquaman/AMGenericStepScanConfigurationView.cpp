@@ -512,6 +512,10 @@ void AMGenericStepScanConfigurationView::onDetectorSelectionChanged(QAbstractBut
 			else {
 
 				configuration_->removeDetector(detector->toInfo());
+
+				if (i0ComboBox_->currentText() == detector->name())
+					i0ComboBox_->setCurrentIndex(i0ComboBox_->findText("None"));
+
 				i0ComboBox_->removeItem(i0ComboBox_->findText(detector->name()));
 			}
 		}
@@ -520,5 +524,9 @@ void AMGenericStepScanConfigurationView::onDetectorSelectionChanged(QAbstractBut
 
 void AMGenericStepScanConfigurationView::onI0ChoiceChanged(int index)
 {
-	configuration_->setI0(configuration_->detectorConfigurations().at(configuration_->detectorConfigurations().indexOf(i0ComboBox_->itemText(index))));
+	if (i0ComboBox_->currentText() == "None")
+		configuration_->setI0(AMDetectorInfo());
+
+	else
+		configuration_->setI0(configuration_->detectorConfigurations().at(configuration_->detectorConfigurations().indexOf(i0ComboBox_->itemText(index))));
 }
