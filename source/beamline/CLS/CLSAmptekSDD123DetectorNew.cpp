@@ -25,7 +25,14 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "ui/CLS/CLSAmptekSDD123DetailedDetectorView.h"
 
- CLSAmptekSDD123DetectorNew::~CLSAmptekSDD123DetectorNew(){}
+
+
+#include "source/ClientRequest/AMDSClientRequestSupport.h"
+#include "source/DataElement/AMDSEventDataSupport.h"
+#include "source/DataHolder/AMDSDataHolderSupport.h"
+#include "source/appController/AMDSClientAppController.h"
+#include "source/Connection/AMDSServer.h"
+
 CLSAmptekSDD123DetectorNew::CLSAmptekSDD123DetectorNew(const QString &name, const QString &description, const QString &baseName, QObject *parent) :
 	AMXRFDetector(name, description, parent)
 {	
@@ -106,6 +113,27 @@ CLSAmptekSDD123DetectorNew::CLSAmptekSDD123DetectorNew(const QString &name, cons
 
 	((AM1DProcessVariableDataSource *)rawSpectraSources_.first())->setScale(ai.increment);
 	primarySpectrumDataSource_ = rawSpectraSources_.first();
+
+
+
+	AMDSClientRequestSupport::registerClientRequestClass();
+	AMDSDataHolderSupport::registerDataHolderClass();
+	AMDSEventDataSupport::registerEventDataObjectClass();
+
+	/// ==== initialize the app controller ==============
+	clientAppController_ = new AMDSClientAppController();
+	connect(clientAppController_, SIGNAL(networkSessionOpening()), this, SLOT(onNetworkSessionOpening()));
+	connect(clientAppController_, SIGNAL(networkSessionOpened()), this, SLOT(onNetworkSessionOpened()));
+	connect(clientAppController_, SIGNAL(newServerConnected(QString)), this, SLOT(onNewServerConnected(QString)));
+	connect(clientAppController_, SIGNAL(serverError(int,bool,QString,QString)), this, SLOT(onServerError(int,bool,QString,QString)));
+	connect(clientAppController_, SIGNAL(requestDataReady(AMDSClientRequest*)), this, SLOT(onRequestDataReady(AMDSClientRequest*)));
+
+	qDebug() << "Amptek about to attempt to Open Network Session";
+	clientAppController_->openNetworkSession();
+}
+
+CLSAmptekSDD123DetectorNew::~CLSAmptekSDD123DetectorNew()
+{
 }
 
 QString CLSAmptekSDD123DetectorNew::synchronizedDwellKey() const{
@@ -393,6 +421,144 @@ void CLSAmptekSDD123DetectorNew::onLowIndexValueChanged(int index){
 void CLSAmptekSDD123DetectorNew::onHighIndexValueChanged(int index){
 	emit highIndexValueChanged(index);
 }
+
+
+
+
+
+/// ============= SLOTs to handle AMDSClientAppController signals =========
+void CLSAmptekSDD123DetectorNew::onNetworkSessionOpening()
+{
+//	requestDataButton_->setEnabled(false);
+//	statusLabel_->setText("Opening network session.");
+
+	qDebug() << "Amptek Opening Network Session";
+}
+
+void CLSAmptekSDD123DetectorNew::onNetworkSessionOpened()
+{
+//	statusLabel_->setText("This examples requires that you run the Acquaman Data Server example as well.");
+//	enableRequestDataButton();
+	qDebug() << "Amptek Network Session Opened";
+
+	qDebug() << "Amptek Connecting to Server";
+	clientAppController_->connectToServer("10.52.48.40", 28044);
+}
+
+void CLSAmptekSDD123DetectorNew::onNewServerConnected(const QString &serverIdentifier)
+{
+//	if (activeServerComboBox_->findText(serverIdentifier) == -1) {
+//		activeServerComboBox_->addItem(serverIdentifier);
+//	}
+
+//	activeServerComboBox_->setCurrentIndex(activeServerComboBox_->findText(serverIdentifier));
+
+//	QStringList bufferNames = clientAppController_->getBufferNamesByServer(serverIdentifier);
+//	resetBufferListView(bufferNames);
+//	resetActiveContinuousConnection(serverIdentifier);
+
+	qDebug() << "Amptek Successfully Connected to Server";
+	QStringList bufferNames = clientAppController_->getBufferNamesByServer(serverIdentifier);
+	qDebug() << "Buffer Names:";
+	qDebug() << bufferNames;
+}
+
+void CLSAmptekSDD123DetectorNew::onRequestDataReady(AMDSClientRequest* clientRequest)
+{
+	qDebug() << "Received some request data";
+//	if (clientRequest->isContinuousMessage()) {
+//		resetActiveContinuousConnection(activeServerComboBox_->currentText());
+//	} else {
+//		if (clientRequest->isIntrospectionMessage()) {
+//			AMDSClientIntrospectionRequest *introspectionRequest = qobject_cast<AMDSClientIntrospectionRequest*>(clientRequest);
+//			if (introspectionRequest){
+//				if (introspectionRequest->readReady()){
+//					const QStandardItemModel* model = qobject_cast<const QStandardItemModel*>(requestTypeComboBox_->model());
+//					for(int x = 1; x < AMDSClientRequestDefinitions::InvalidRequest; x++){
+//						QStandardItem* item = model->item(x);
+//						item->setFlags(Qt::ItemIsSelectable|Qt::ItemIsEnabled);
+//						// visually disable by greying out - works only if combobox has been painted already and palette returns the wanted color
+//						item->setData(QVariant(), Qt::TextColorRole);
+//					}
+//				}
+
+//				if (introspectionRequest->checkAllBuffer() ){
+//					QStringList bufferNames = clientAppController_->getBufferNamesByServer(activeServerComboBox_->currentText());
+//					resetBufferListView(bufferNames);
+//				}
+//			}
+//		}
+//	}
+}
+
+void CLSAmptekSDD123DetectorNew::onServerError(int errorCode, bool removeServer, const QString &serverIdentifier, const QString &errorMessage)
+{
+//	if (serverIdentifier.length() > 0) {
+//		if (removeServer)
+//			activeServerComboBox_->removeItem(activeServerComboBox_->findText(serverIdentifier));
+//		resetActiveContinuousConnection(activeServerComboBox_->currentText());
+//	}
+
+//	if (errorCode != QAbstractSocket::RemoteHostClosedError) {
+//		QString message = QString("%1 (%2): %3").arg(errorCode).arg(serverIdentifier).arg(errorMessage);
+//		QMessageBox::information(this, "AMDS Client Example", message);
+//	}
+
+
+	qDebug() << "Amptek Detected a Server Error: " << errorCode << serverIdentifier << errorMessage;
+}
+
+
+bool CLSAmptekSDD123DetectorNew::acquireImplementation(AMDetectorDefinitions::ReadMode readMode)
+{
+	qDebug() << "In CLSAmptekSDD123DetectorNew::acquireImplementation";
+	if(readMode == AMDetectorDefinitions::ContinuousRead){
+		qDebug() << "Detected ContinuousRead";
+		AMDSServer * server = clientAppController_->getServerByServerIdentifier("10.52.48.40:28044");
+		if (!server) {
+			qDebug() << "Server does not exist";
+			return false;
+		}
+		QString bufferName = "Amptek SDD 240";
+		clientAppController_->requestClientData(server->hostName(), server->portNumber(), bufferName, 400, 400, true, false);
+	}
+	else{
+		bool retVal = AMXRFDetector::acquireImplementation(readMode);
+		qDebug() << "Called parent AMXRFDetector::acquireImplementation";
+
+
+		AMDSServer * server = clientAppController_->getServerByServerIdentifier("10.52.48.40:28044");
+		if (!server) {
+			qDebug() << "Server does not exist";
+			return false;
+		}
+
+		QString hostName = server->hostName();
+		quint16 portNumber = server->portNumber();
+		//	quint8 requestTypeId = AMDSClientRequestDefinitions::StartTimePlusCount;
+		QString bufferName = "Amptek SDD 240";
+		QDateTime time1 = QDateTime::currentDateTime();
+		time1 = time1.addSecs(-2);
+		int value1 = 1;
+
+		bool includeStatus = true;
+		bool enableFlattening = false;
+
+		qDebug() << hostName << portNumber << bufferName << time1.toString("hh:mm:ss.zzz") << value1;
+
+
+		//	AMDSClientRequestDefinitions::RequestType clientRequestType = (AMDSClientRequestDefinitions::RequestType)requestTypeId;
+		//	clientAppController_->requestClientData(hostName, portNumber, bufferName, time1, value1, includeStatus, enableFlattening);
+
+		clientAppController_->requestClientData(hostName, portNumber, bufferName, 50, 50, includeStatus, enableFlattening);
+		return retVal;
+	}
+}
+
+
+
+
+
 
 bool CLSAmptekSDD123DetectorNew::isPrivelegedType(const QObject *privelegedCaller) const{
 	const CLSAmptekDetailedDetectorView *detectorViewCaller = qobject_cast<const CLSAmptekDetailedDetectorView*>(privelegedCaller);

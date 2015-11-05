@@ -28,6 +28,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/AMPVControl.h"
 #include "dataman/datasource/AMProcessVariableDataSource.h"
 
+class AMDSClientAppController;
+class AMDSClientRequest;
+
 class QSignalMapper;
 
 class CLSAmptekSDD123DetectorNew : public AMXRFDetector
@@ -46,8 +49,8 @@ public:
 	/// Clearing is not currently supported for the Amptek detectors
 	virtual bool canClear() const { return false; }
 
-	/// Ampteks are not currently capable of continuous acquisition
-	virtual bool canContinuousAcquire() const { return false; }
+	/// Ampteks are capable of continuous acquisition
+	virtual bool canContinuousAcquire() const { return true; }
 
 	/// The ampteks can be configured to work with synchronized dwell time systems
 	virtual bool supportsSynchronizedDwell() const { return true; }
@@ -197,7 +200,24 @@ protected slots:
 	/// Handles changes from the low index controls
 	void onHighIndexValueChanged(int index);
 
+
+	/// ============= SLOTs to handle AMDSClientAppController signals =========
+	/// slot to handle the signal of networkSessionOpening
+	void onNetworkSessionOpening();
+	/// slot to handle the signal of networkSessionOpened
+	void onNetworkSessionOpened();
+
+	/// slot to handle the signal of newServerConnected (add the serverIdentifier to the combox and update the ui displays -- buffernames and active connections)
+	void onNewServerConnected(const QString &serverIdentifier);
+	/// slot to handle the signal of request data ready
+	void onRequestDataReady(AMDSClientRequest* clientRequest);
+	/// slot to handle the signal of socketEror
+	void onServerError(int errorCode, bool removeServer, const QString &serverIdentifier, const QString &errorMessage);
+
 protected:
+	/// Basic initialization implementation for an XRF detector.  Subclass for more specific behaviour.
+	virtual bool acquireImplementation(AMDetectorDefinitions::ReadMode readMode);
+
 	/// Returns true if the QObject type casts to the priveleged type of CLSAmptekDetailedDetectorView or CLSAmptekDetectorConfigurationView
 	bool isPrivelegedType(const QObject *privelegedCaller) const;
 
@@ -269,6 +289,12 @@ protected:
 
 	/// The eV/bin ratio for this detector
 	double eVPerBin_;
+
+
+
+
+	/// the handler of the clientAppController
+	AMDSClientAppController *clientAppController_;
 };
 
 #endif // CLSAMPTEKSDD123DETECTORNEW_H

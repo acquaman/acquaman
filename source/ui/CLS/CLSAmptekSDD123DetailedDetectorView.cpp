@@ -47,6 +47,10 @@ void CLSAmptekDetailedDetectorView::buildDetectorView(){
 	editAmptekConfigurationButton_ = new QPushButton("Edit Amptek Configuration");
 	rightLayout_->addWidget(editAmptekConfigurationButton_);
 
+	continuousTestButton_ = new QPushButton("Continuous Test");
+	rightLayout_->addWidget(continuousTestButton_);
+	connect(continuousTestButton_, SIGNAL(clicked()), this, SLOT(onContinuousTestButtonClicked()));
+
 	QHBoxLayout *tempHBox;
 
 	eVPerBinDoubleSpinBox_ = new QDoubleSpinBox();
@@ -127,6 +131,12 @@ void CLSAmptekDetailedDetectorView::onEditAmptekConfigurationButtonClicked(){
 
 void CLSAmptekDetailedDetectorView::onDetectorTemperatureChanged(double temperature){
 	temperatureLabel_->setText(QString("%1").arg(temperature));
+}
+
+void CLSAmptekDetailedDetectorView::onContinuousTestButtonClicked(){
+	qDebug() << "Detected continuous test requested";
+
+	detector_->acquire(AMDetectorDefinitions::ContinuousRead);
 }
 
 
