@@ -438,7 +438,9 @@ HEADERS += \
     source/actions3/actions/AMControlCalibrateAction.h \
     $$PWD/source/acquaman/AMContinuousScanActionController.h \
     $$PWD/source/acquaman/AMContinuousScanConfiguration.h \
-    $$PWD/source/ui/acquaman/AMContinuousScanConfigurationView.h
+    $$PWD/source/ui/acquaman/AMGenericContinuousScanConfigurationView.h \
+    $$PWD/source/acquaman/AMGenericContinuousScanConfiguration.h \
+    $$PWD/source/acquaman/AMGenericContinuousScanController.h
 
 FORMS += \
 
@@ -838,7 +840,9 @@ SOURCES += \
     source/actions3/actions/AMControlCalibrateAction.cpp \
     $$PWD/source/acquaman/AMContinuousScanActionController.cpp \
     $$PWD/source/acquaman/AMContinuousScanConfiguration.cpp \
-    $$PWD/source/ui/acquaman/AMContinuousScanConfigurationView.cpp
+    $$PWD/source/ui/acquaman/AMGenericContinuousScanConfigurationView.cpp \
+    $$PWD/source/acquaman/AMGenericContinuousScanConfiguration.cpp \
+    $$PWD/source/acquaman/AMGenericContinuousScanController.cpp
 
 RESOURCES *= source/icons/icons.qrc \
 		source/configurationFiles/configurationFiles.qrc \
