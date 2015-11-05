@@ -138,13 +138,18 @@ void AMGenericStepScanController::buildScanControllerImplementation()
 
 				AMDataSource *i0Source = scan_->dataSourceAt(index);
 
-				foreach (AMRegionOfInterestAB *newRegion, newRegions){
+				foreach (int index, scan_->nonHiddenDataSourceIndexes()){
 
-					AMNormalizationAB *normalizedRegion = new AMNormalizationAB(QString("norm_%1").arg(newRegion->name()));
-					normalizedRegion->setInputDataSources(QList<AMDataSource *>() << newRegion << i0Source);
-					normalizedRegion->setDataName(newRegion->name());
-					normalizedRegion->setNormalizationName(i0Source->name());
-					scan_->addAnalyzedDataSource(normalizedRegion, true, false);
+					AMDataSource *source = scan_->dataSourceAt(index);
+
+					if (source->name() != i0Source->name() && source->rank() == i0Source->rank()){
+
+						AMNormalizationAB *normalizedSource = new AMNormalizationAB(QString("norm_%1").arg(source->name()));
+						normalizedSource->setInputDataSources(QList<AMDataSource *>() << source << i0Source);
+						normalizedSource->setDataName(source->name());
+						normalizedSource->setNormalizationName(i0Source->name());
+						scan_->addAnalyzedDataSource(normalizedSource, true, false);
+					}
 				}
 			}
 		}
