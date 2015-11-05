@@ -3,6 +3,14 @@
 
 #include "beamline/AMPseudoMotorControl.h"
 
+/*
+  This is a control that is meant to map a single control's 'continuous' values into
+  discrete enumerated value options.
+
+  Subclasses are responsible for providing a means of tracking value option info
+  (eg a list of options) and are required to provide a way of updating this control's
+  current value, creating move actions, and generating enum states.
+  */
 class AMPseudoMotorLadderControl : public AMPseudoMotorControl
 {
     Q_OBJECT

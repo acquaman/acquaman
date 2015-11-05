@@ -36,7 +36,7 @@ void BioXASCarbonFilterFarmActuatorControl::setCurrentPosition(AMControl *newCon
 		if (currentPosition_) {
 			disconnect( currentPosition_, 0, this, 0 );
 
-			currentWindow_->setCurrentPosition(0);
+			currentWindow_->setControl(0);
 		}
 
 		currentPosition_ = newControl;
@@ -44,7 +44,7 @@ void BioXASCarbonFilterFarmActuatorControl::setCurrentPosition(AMControl *newCon
 		if (currentPosition_) {
 			connect( currentPosition_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
-			currentWindow_->setCurrentPosition(currentPosition_);
+			currentWindow_->setControl(currentPosition_);
 		}
 
 		updateConnected();
