@@ -79,8 +79,6 @@ void BioXASCarbonFilterFarmActuatorControlView::setActuator(BioXASCarbonFilterFa
 		if (actuator_) {
 			connect( actuator_, SIGNAL(currentPositionChanged(AMControl*)), this, SLOT(refreshPositionEditor()) );
 			connect( actuator_, SIGNAL(currentPositionChanged(AMControl*)), this, SLOT(refreshPositionStatusEditor()) );
-			connect( actuator_, SIGNAL(currentWindowChanged(AMControl*)), this, SLOT(refreshWindowEditor()) );
-			connect( actuator_, SIGNAL(currentFilterChanged(AMControl*)), this, SLOT(refreshFilterEditor()) );
 		}
 
 		refresh();

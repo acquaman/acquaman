@@ -15,8 +15,8 @@ BioXASCarbonFilterFarmActuatorFilterControl::BioXASCarbonFilterFarmActuatorFilte
 	minimumValue_ = 0;
 	maximumValue_ = 0;
 
-	setAllowsMovesWhileMoving(false);
 	setContextKnownDescription("Actuator Filter Control");
+	setAllowsMovesWhileMoving(false);
 }
 
 BioXASCarbonFilterFarmActuatorFilterControl::~BioXASCarbonFilterFarmActuatorFilterControl()
@@ -95,8 +95,11 @@ void BioXASCarbonFilterFarmActuatorFilterControl::setCurrentWindow(BioXASCarbonF
 
 		currentWindow_ = newControl;
 
-		if (currentWindow_)
+		if (currentWindow_) {
 			addChildControl(currentWindow_);
+
+			connect( currentWindow_, SIGNAL(windowsChanged()), this, SLOT(updateFilters()) );
+		}
 
 		updateStates();
 
@@ -104,10 +107,31 @@ void BioXASCarbonFilterFarmActuatorFilterControl::setCurrentWindow(BioXASCarbonF
 	}
 }
 
-void BioXASCarbonFilterFarmActuatorFilterControl::setFilterWindow(double filter, BioXASCarbonFilterFarmWindowOption *window)
+void BioXASCarbonFilterFarmActuatorFilterControl::setFilterWindowPreference(double filter, BioXASCarbonFilterFarmWindowOption *window)
 {
-	if (filters_.contains(filter) && window && window->isValid() && window->filter() == filter)
-		filterWindowMap_.insert(filter, window);
+	if (filters_.contains(filter) && window && window->isValid() && currentWindow_->indexOf(window) != -1 && double(window->filter()) == filter)
+		filterWindowPreferenceMap_.insert(filter, window);
+}
+
+void BioXASCarbonFilterFarmActuatorFilterControl::clearFilterWindowPreference(double filter)
+{
+	if (filterWindowPreferenceMap_.keys().contains(filter))
+		filterWindowPreferenceMap_.remove(filter);
+}
+
+void BioXASCarbonFilterFarmActuatorFilterControl::clearFilterWindowPreference(BioXASCarbonFilterFarmWindowOption *window)
+{
+	if (filterWindowPreferenceMap_.values().contains(window)) {
+		QList<double> filters = filterWindowPreferenceMap_.keys(window);
+
+		foreach (double filter, filters)
+			filterWindowPreferenceMap_.remove(filter);
+	}
+}
+
+void BioXASCarbonFilterFarmActuatorFilterControl::clearFilterWindowPreferences()
+{
+	filterWindowPreferenceMap_.clear();
 }
 
 void BioXASCarbonFilterFarmActuatorFilterControl::updateStates()
@@ -160,10 +184,12 @@ void BioXASCarbonFilterFarmActuatorFilterControl::updateMaximumValue()
 	setMaximumValue(enumNames().count() - 1);
 }
 
-void BioXASCarbonFilterFarmActuatorFilterControl::addFilter(double filter)
+void BioXASCarbonFilterFarmActuatorFilterControl::addFilter(BioXASCarbonFilterFarmWindowOption *newOption)
 {
-	if (!filters_.contains(filter)) {
-		filters_.append(filter);
+	if (newOption && newOption->isValid() && !filters_.contains(newOption->filter())) {
+		filters_.append(newOption->filter());
+		filterWindowMap_.insert(double(newOption->filter()), newOption);
+
 		updateEnumStates();
 
 		emit filtersChanged();
@@ -174,6 +200,9 @@ void BioXASCarbonFilterFarmActuatorFilterControl::clearFilters()
 {
 	filters_.clear();
 	filterWindowMap_.clear();
+
+	// The preferences map is not cleared here, because preferences would be lost
+	// every time the filters list needs to be refreshed. See updateFilters().
 
 	updateEnumStates();
 
@@ -190,10 +219,8 @@ void BioXASCarbonFilterFarmActuatorFilterControl::updateFilters()
 
 	if (currentWindow_) {
 		foreach (BioXASCarbonFilterFarmWindowOption *window, currentWindow_->windows()) {
-			if (window && window->isValid()) {
-				addFilter(window->filter());
-				setFilterWindow(window->filter(), window);
-			}
+			if (window && window->isValid())
+				addFilter(window);
 		}
 	}
 }
@@ -206,14 +233,33 @@ void BioXASCarbonFilterFarmActuatorFilterControl::updateEnumStates()
 
 AMAction3* BioXASCarbonFilterFarmActuatorFilterControl::createMoveAction(double setpoint)
 {
-	AMAction3 *action = 0;
+	// Convert the given setpoint index into an actual filter value.
+	// Identify the corresponding window.
 
 	double filter = filterAt(int(setpoint));
-	BioXASCarbonFilterFarmWindowOption *window = filterWindowMap_.value(filter, 0);
 
-	if (currentWindow_)
-		action = AMActionSupport::buildControlMoveAction(currentWindow_, currentWindow_->indexOf(window));
+	int windowSetpoint = -1;
 
+	if (filterWindowPreferenceMap_.keys().contains(filter) && currentWindow_->indexOf(filterWindowPreferenceMap_.value(filter)) != -1) {
+
+		// First check to see if there is a window preference set for this particular filter,
+		// and that the window is a valid window option according to the current window control.
+
+		windowSetpoint = currentWindow_->indexOf(filterWindowPreferenceMap_.value(filter));
+
+	} else {
+
+		// If there is no valid preference, identify the window setpoint by looking at the filter-window
+		// map. If there are multiple entries, pick the first.
+
+		QList<BioXASCarbonFilterFarmWindowOption*> windowOptions = filterWindowMap_.values(filter);
+		if (!windowOptions.isEmpty())
+			windowSetpoint = currentWindow_->indexOf(windowOptions.first());
+	}
+
+	// Create and return action that moves the window control to the given window setpoint.
+
+	AMAction3 *action = AMActionSupport::buildControlMoveAction(currentWindow_, windowSetpoint);
 	return action;
 }
 

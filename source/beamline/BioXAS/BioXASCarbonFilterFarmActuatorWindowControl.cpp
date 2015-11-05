@@ -17,6 +17,7 @@ BioXASCarbonFilterFarmActuatorWindowControl::BioXASCarbonFilterFarmActuatorWindo
 	maximumValue_ = 0;
 
 	setContextKnownDescription("Actuator Window Control");
+	setAllowsMovesWhileMoving(false);
 }
 
 BioXASCarbonFilterFarmActuatorWindowControl::~BioXASCarbonFilterFarmActuatorWindowControl()
@@ -74,6 +75,18 @@ BioXASCarbonFilterFarmWindowOption* BioXASCarbonFilterFarmActuatorWindowControl:
 	return result;
 }
 
+QList<BioXASCarbonFilterFarmWindowOption*> BioXASCarbonFilterFarmActuatorWindowControl::windowsWithFilter(double filter) const
+{
+	QList<BioXASCarbonFilterFarmWindowOption*> result;
+
+	foreach (BioXASCarbonFilterFarmWindowOption *option, windows_) {
+		if (option && option->isValid() && double(option->filter()) == filter)
+			result << option;
+	}
+
+	return result;
+}
+
 int BioXASCarbonFilterFarmActuatorWindowControl::indexOf(BioXASCarbonFilterFarmWindowOption *window) const
 {
 	return windows_.indexOf(window);
@@ -102,25 +115,25 @@ void BioXASCarbonFilterFarmActuatorWindowControl::setCurrentPosition(AMControl *
 	}
 }
 
-void BioXASCarbonFilterFarmActuatorWindowControl::addWindow(BioXASCarbonFilterFarmWindowOption *newControl)
+void BioXASCarbonFilterFarmActuatorWindowControl::addWindow(BioXASCarbonFilterFarmWindowOption *newOption)
 {
-	if (!windows_.contains(newControl) && newControl && newControl->isValid()) {
-		windows_.append(newControl);
+	if (!windows_.contains(newOption) && newOption && newOption->isValid()) {
+		windows_.append(newOption);
 		updateEnumStates();
 
-		connect( newControl, SIGNAL(windowNameChanged(QString)), this, SLOT(updateEnumStates()) );
+		connect( newOption, SIGNAL(nameChanged(QString)), this, SLOT(updateEnumStates()) );
 
 		emit windowsChanged();
 	}
 }
 
-void BioXASCarbonFilterFarmActuatorWindowControl::removeWindow(BioXASCarbonFilterFarmWindowOption *control)
+void BioXASCarbonFilterFarmActuatorWindowControl::removeWindow(BioXASCarbonFilterFarmWindowOption *option)
 {
-	if (windows_.contains(control)) {
+	if (windows_.contains(option)) {
 
-		disconnect( control, 0, this, 0 );
+		disconnect( option, 0, this, 0 );
 
-		windows_.removeOne(control);
+		windows_.removeOne(option);
 		updateEnumStates();
 
 		emit windowsChanged();

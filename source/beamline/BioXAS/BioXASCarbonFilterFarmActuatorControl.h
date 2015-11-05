@@ -35,26 +35,14 @@ public:
 	BioXASCarbonFilterFarmActuatorFilterControl* currentFilter() const { return currentFilter_; }
 
 signals:
-	/// Notifier that the list of window options has changed.
-	void windowOptionsChanged();
 	/// Notifier that the position control has changed.
 	void currentPositionChanged(AMControl *newControl);
 
 public slots:
-	/// Adds a window option to the list of options.
-	void addWindowOption(BioXASCarbonFilterFarmWindowOption *newOption);
-	/// Removes a window option from the list of options.
-	void removeWindowOption(BioXASCarbonFilterFarmWindowOption *option);
-	/// Clears the list of window options.
-	void clearWindowOptions();
-
 	/// Sets the current position control.
 	void setCurrentPosition(AMControl *newControl);
 
 protected:
-	/// The list of window options.
-	QList<BioXASCarbonFilterFarmWindowOption*> windowOptions_;
-
 	/// The current position control.
 	AMControl *currentPosition_;
 	/// The current window control.

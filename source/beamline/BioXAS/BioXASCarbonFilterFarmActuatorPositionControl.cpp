@@ -19,6 +19,7 @@ BioXASCarbonFilterFarmActuatorPositionControl::BioXASCarbonFilterFarmActuatorPos
 
 	setTolerance(0.05);
 	setContextKnownDescription("Actuator Control");
+	setAllowsMovesWhileMoving(false);
 }
 
 BioXASCarbonFilterFarmActuatorPositionControl::~BioXASCarbonFilterFarmActuatorPositionControl()

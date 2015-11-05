@@ -37,6 +37,8 @@ public:
 	QList<BioXASCarbonFilterFarmWindowOption*> windows() const { return windows_; }
 	/// Returns the window at the given index. Returns -1 if there is no window for that index.
 	BioXASCarbonFilterFarmWindowOption* windowAt(int index) const;
+	/// Returns the list of window options that have the given filter.
+	QList<BioXASCarbonFilterFarmWindowOption*> windowsWithFilter(double filter) const;
 
 	/// Returns the index of the given filter. Returns -1 if the given filter isn't valid or no match found.
 	int indexOf(BioXASCarbonFilterFarmWindowOption *window) const;
@@ -56,10 +58,10 @@ public slots:
 	/// Sets the current position control.
 	void setCurrentPosition(AMControl *newControl);
 
-	/// Adds a window control. The window control must be valid and not already in the list of windows to be added successfully.
-	void addWindow(BioXASCarbonFilterFarmWindowOption *newControl);
-	/// Removes a window control.
-	void removeWindow(BioXASCarbonFilterFarmWindowOption *control);
+	/// Adds a window option. The window option must be valid and not already in the list of windows to be added successfully.
+	void addWindow(BioXASCarbonFilterFarmWindowOption *newOption);
+	/// Removes a window option.
+	void removeWindow(BioXASCarbonFilterFarmWindowOption *option);
 	/// Clears all window controls.
 	void clearWindows();
 

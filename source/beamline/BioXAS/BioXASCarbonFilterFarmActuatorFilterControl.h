@@ -55,8 +55,14 @@ signals:
 public slots:
 	/// Sets the current window control.
 	void setCurrentWindow(BioXASCarbonFilterFarmActuatorWindowControl *newControl);
-	/// Sets the mapping between filter and mapping. This is used to set a 'preference' when many windows may have the same filter.
-	void setFilterWindow(double filter, BioXASCarbonFilterFarmWindowOption *window);
+	/// Sets the filter window combination preference for a filter already added. This is used to set a preference when many windows may have the same filter.
+	void setFilterWindowPreference(double filter, BioXASCarbonFilterFarmWindowOption *window);
+	/// Clears the filter window combination preference for the given filter.
+	void clearFilterWindowPreference(double filter);
+	/// Clears the filter window preference for the given window option.
+	void clearFilterWindowPreference(BioXASCarbonFilterFarmWindowOption *option);
+	/// Clears the filter window preferences.
+	void clearFilterWindowPreferences();
 
 protected slots:
 	/// Updates the current states. Reimplemented to make sure the filters list and enum states are updated before the current value.
@@ -71,7 +77,7 @@ protected slots:
 	virtual void updateMaximumValue();
 
 	/// Adds a filter to the filters list.
-	void addFilter(double filter);
+	void addFilter(BioXASCarbonFilterFarmWindowOption *newOption);
 	/// Clears the existing filters list.
 	void clearFilters();
 	/// Updates the filters list with the filters that are available from the window control.
@@ -98,8 +104,10 @@ protected:
 
 	/// The list of valid filter values. Indexed by enum index.
 	QList<double> filters_;
-	/// The mapping between filter and window.
-	QMap<double, BioXASCarbonFilterFarmWindowOption*> filterWindowMap_;
+	/// The mapping between filters and windows. All filters have at least one entry in this map.
+	QMultiMap<double, BioXASCarbonFilterFarmWindowOption*> filterWindowMap_;
+	/// The preferred mapping between filter and window. A filter will only have an entry in this map if a preference has been set.
+	QMap<double, BioXASCarbonFilterFarmWindowOption*> filterWindowPreferenceMap_;
 };
 
 #endif // BIOXASCARBONFILTERFARMACTUATORFILTERCONTROL_H

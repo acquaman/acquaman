@@ -76,9 +76,7 @@ protected slots:
 	virtual void updateMaximumValue();
 
 	/// Adds a filter to the internal list of filter options.
-	void addFilter(double filter, double upstreamContribution, double downstreamContribution);
-	/// Sets a filter combination preference for a filter already added. This is useful when there are multiple upstream and downstream filter combinations that yield the same total filter.
-	void setFilter(double filter, double upstreamContribution, double downstreamContribution);
+	void addFilter(double filter);
 	/// Clears the existing filters.
 	void clearFilters();
 	/// Updates the list of filter options.

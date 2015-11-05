@@ -13,6 +13,7 @@ BioXASCarbonFilterFarmFilterControl::BioXASCarbonFilterFarmFilterControl(const Q
 	maximumValue_ = 0;
 
 	setContextKnownDescription("Filter Control");
+	setAllowsMovesWhileMoving(false);
 
 	// Initialize local variables.
 
@@ -178,22 +179,13 @@ void BioXASCarbonFilterFarmFilterControl::updateMaximumValue()
 	setMaximumValue(enumNames().count() - 1);
 }
 
-void BioXASCarbonFilterFarmFilterControl::addFilter(double filter, double upstreamContribution, double downstreamContribution)
+void BioXASCarbonFilterFarmFilterControl::addFilter(double filter)
 {
 	if (filter >= 0 && !filters_.contains(filter)) {
 		filters_.append(filter);
-		setFilter(filter, upstreamContribution, downstreamContribution);
 		updateEnumStates();
 
 		emit filtersChanged();
-	}
-}
-
-void BioXASCarbonFilterFarmFilterControl::setFilter(double filter, double upstreamContribution, double downstreamContribution)
-{
-	if (filters_.contains(filter)) {
-		upstreamFilterMap_.insert(filter, upstreamContribution);
-		downstreamFilterMap_.insert(filter, downstreamContribution);
 	}
 }
 
@@ -232,7 +224,10 @@ void BioXASCarbonFilterFarmFilterControl::updateFilters()
 			foreach (double upstreamFilter, upstreamFilters) {
 
 				double newFilter = totalFilter(upstreamFilter, downstreamFilter);
-				addFilter(newFilter, upstreamFilter, downstreamFilter);
+				addFilter(newFilter);
+
+				upstreamFilterMap_.insert(newFilter, upstreamFilter);
+				downstreamFilterMap_.insert(newFilter, downstreamFilter);
 			}
 		}
 	}
@@ -248,12 +243,12 @@ AMAction3* BioXASCarbonFilterFarmFilterControl::createMoveAction(double setpoint
 {
 	AMAction3 *action = 0;
 
-	double filterSetpoint = filterAt(int(setpoint));
-	double upstreamSetpoint = upstreamFilter_->indexOf(upstreamFilterMap_.value(setpoint, -1));
-	double downstreamSetpoint = downstreamFilter_->indexOf(downstreamFilterMap_.value(setpoint, -1));
+	double filter = filterAt(int(setpoint));
+	double upstreamSetpoint = upstreamFilter_->indexOf(upstreamFilterMap_.value(filter, -1));
+	double downstreamSetpoint = downstreamFilter_->indexOf(downstreamFilterMap_.value(filter, -1));
 
 	if (upstreamFilter_->validSetpoint(upstreamSetpoint) && downstreamFilter_->validSetpoint(downstreamSetpoint)) {
-		AMListAction3 *moveAction = new AMListAction3(new AMListActionInfo3(QString("Moving to effective filter %1mm").arg(filterSetpoint), QString("Moving to effective filter %1mm").arg(filterSetpoint)), AMListAction3::Parallel);
+		AMListAction3 *moveAction = new AMListAction3(new AMListActionInfo3(QString("Moving to effective filter %1%2").arg(filter).arg(units()), QString("Moving to effective filter %1%2").arg(filter).arg(units())), AMListAction3::Parallel);
 		moveAction->addSubAction(AMActionSupport::buildControlMoveAction(upstreamFilter_, upstreamSetpoint));
 		moveAction->addSubAction(AMActionSupport::buildControlMoveAction(downstreamFilter_, downstreamSetpoint));
 
