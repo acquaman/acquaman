@@ -85,9 +85,9 @@ protected:
 	virtual AMAction3* createMoveAction(double setpoint);
 
 	/// Generates a list of the enum states with the given list of filter options.
-	QStringList generateEnumStates(QList<BioXASCarbonFilterFarmWindowOption*> filterOptions);
+	QStringList generateEnumStates(const QList<BioXASCarbonFilterFarmWindowOption*> &filterOptions) const;
 	/// Generates a list of the move enum states with the given list of filter options.
-	QStringList generateMoveEnumStates(QList<BioXASCarbonFilterFarmWindowOption*> filterOptions);
+	QStringList generateMoveEnumStates(const QList<BioXASCarbonFilterFarmWindowOption*> &filterOptions) const;
 
 	/// Returns the window(s) that are at the given position.
 	QList<BioXASCarbonFilterFarmWindowOption*> windowsAtPosition(double position) const;

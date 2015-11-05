@@ -263,7 +263,7 @@ AMAction3* BioXASCarbonFilterFarmActuatorFilterControl::createMoveAction(double 
 	return action;
 }
 
-QStringList BioXASCarbonFilterFarmActuatorFilterControl::generateEnumStates(QList<double> filterOptions)
+QStringList BioXASCarbonFilterFarmActuatorFilterControl::generateEnumStates(const QList<double> &filterOptions) const
 {
 	QStringList enumOptions = generateMoveEnumStates(filterOptions);
 
@@ -276,7 +276,7 @@ QStringList BioXASCarbonFilterFarmActuatorFilterControl::generateEnumStates(QLis
 	return enumOptions;
 }
 
-QStringList BioXASCarbonFilterFarmActuatorFilterControl::generateMoveEnumStates(QList<double> filterOptions)
+QStringList BioXASCarbonFilterFarmActuatorFilterControl::generateMoveEnumStates(const QList<double> &filterOptions) const
 {
 	QStringList moveOptions;
 

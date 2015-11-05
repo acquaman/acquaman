@@ -91,9 +91,9 @@ protected:
 	virtual AMAction3* createMoveAction(double setpoint);
 
 	/// Generates a list of the enum states with the given list of filter options.
-	QStringList generateEnumStates(QList<double> filterOptions);
+	QStringList generateEnumStates(const QList<double> &filterOptions) const;
 	/// Generates a list of the move enum states with the given list of filter options.
-	QStringList generateMoveEnumStates(QList<double> filterOptions);
+	QStringList generateMoveEnumStates(const QList<double> &filterOptions) const;
 
 	/// Returns a string representation of the given filter.
 	QString filterToString(double filter) const;
