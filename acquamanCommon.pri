@@ -436,11 +436,11 @@ HEADERS += \
 	source/ui/AMValidatorIcon.h \
     source/actions3/actions/AMControlCalibrateActionInfo.h \
     source/actions3/actions/AMControlCalibrateAction.h \
-    $$PWD/source/acquaman/AMContinuousScanActionController.h \
-    $$PWD/source/acquaman/AMContinuousScanConfiguration.h \
-    $$PWD/source/ui/acquaman/AMGenericContinuousScanConfigurationView.h \
-    $$PWD/source/acquaman/AMGenericContinuousScanConfiguration.h \
-    $$PWD/source/acquaman/AMGenericContinuousScanController.h
+    source/acquaman/AMContinuousScanActionController.h \
+    source/acquaman/AMContinuousScanConfiguration.h \
+    source/ui/acquaman/AMGenericContinuousScanConfigurationView.h \
+    source/acquaman/AMGenericContinuousScanConfiguration.h \
+    source/acquaman/AMGenericContinuousScanController.h
 
 FORMS += \
 
@@ -838,11 +838,11 @@ SOURCES += \
 	source/ui/AMValidatorIcon.cpp \
     source/actions3/actions/AMControlCalibrateActionInfo.cpp \
     source/actions3/actions/AMControlCalibrateAction.cpp \
-    $$PWD/source/acquaman/AMContinuousScanActionController.cpp \
-    $$PWD/source/acquaman/AMContinuousScanConfiguration.cpp \
-    $$PWD/source/ui/acquaman/AMGenericContinuousScanConfigurationView.cpp \
-    $$PWD/source/acquaman/AMGenericContinuousScanConfiguration.cpp \
-    $$PWD/source/acquaman/AMGenericContinuousScanController.cpp
+    source/acquaman/AMContinuousScanActionController.cpp \
+    source/acquaman/AMContinuousScanConfiguration.cpp \
+    source/ui/acquaman/AMGenericContinuousScanConfigurationView.cpp \
+    source/acquaman/AMGenericContinuousScanConfiguration.cpp \
+    source/acquaman/AMGenericContinuousScanController.cpp
 
 RESOURCES *= source/icons/icons.qrc \
 		source/configurationFiles/configurationFiles.qrc \

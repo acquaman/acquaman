@@ -11,7 +11,7 @@
 class AMScanActionControllerScanAssembler;
 class AMListAction3;
 
-#define AMCONTINUOUSSCANACTIONCONTROLLER_COULD_NOT_ADD_DETECTOR 265000
+#define AMCONTINUOUSSCANACTIONCONTROLLER_COULD_NOT_ADD_DETECTOR 285000
 
 /// This class is the base class for all continuous based scan controllers.
 class AMContinuousScanActionController : public AMScanActionController
