@@ -38,8 +38,8 @@ VESPERSTimedLineScanConfigurationView::VESPERSTimedLineScanConfigurationView(VES
 	QGroupBox *timeBox = new QGroupBox("Time Attributes");
 	timeBox->setLayout(timeLayout);
 
-	contentsLayout_->addWidget(timeBox, 3, 3, 2, 1);
-	contentsLayout_->addWidget(helpMessage_, 5, 0, 1, 5);
+	contentsLayout_->addWidget(timeBox, 4, 3, 2, 1);
+	contentsLayout_->addWidget(helpMessage_, 6, 0, 1, 5);
 
 	connect(configuration_, SIGNAL(timeChanged(double)), this, SLOT(onTimesChanged()));
 	connect(configuration_, SIGNAL(totalTimeChanged(double)), this, SLOT(onTimesChanged()));

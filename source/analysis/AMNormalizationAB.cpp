@@ -1,21 +1,26 @@
-#include "AMAdditionAB.h"
+#include "AMNormalizationAB.h"
 
 #include "util/AMUtility.h"
 
-AMAdditionAB::AMAdditionAB(const QString &outputName, QObject *parent)
+AMNormalizationAB::AMNormalizationAB(const QString &outputName, QObject *parent)
 	: AMStandardAnalysisBlock(outputName, parent)
 {
+	data_ = 0;
+	normalizer_ = 0;
+	canAnalyze_ = false;
+	dataName_ = "";
+	normalizationName_ = "";
 	cacheUpdateRequired_ = false;
 	cachedDataRange_ = AMRange();
 	setState(AMDataSource::InvalidFlag);
 }
 
-AMAdditionAB::~AMAdditionAB()
+AMNormalizationAB::~AMNormalizationAB()
 {
 
 }
 
-bool AMAdditionAB::areInputDataSourcesAcceptable(const QList<AMDataSource*>& dataSources) const
+bool AMNormalizationAB::areInputDataSourcesAcceptable(const QList<AMDataSource *> &dataSources) const
 {
 	if(dataSources.isEmpty())
 		return true; // always acceptable, the null input.
@@ -30,7 +35,36 @@ bool AMAdditionAB::areInputDataSourcesAcceptable(const QList<AMDataSource*>& dat
 	return true;
 }
 
-AMNumber AMAdditionAB::value(const AMnDIndex &indexes) const
+void AMNormalizationAB::setDataName(const QString &name)
+{
+	dataName_ = name;
+	setModified(true);
+	canAnalyze_ = canAnalyze(dataName_, normalizationName_);
+	setInputSources();
+}
+
+void AMNormalizationAB::setNormalizationName(const QString &name)
+{
+	normalizationName_ = name;
+	setModified(true);
+	canAnalyze_ = canAnalyze(dataName_, normalizationName_);
+	setInputSources();
+}
+
+bool AMNormalizationAB::canAnalyze(const QString &dataName, const QString &normalizationName) const
+{
+	// Can always analyze two 2D data sources.
+	if (sources_.count() == 2)
+		return true;
+
+	// The first data source is reserved for the data.
+	if (indexOfInputSource(dataName) >= 0 && indexOfInputSource(normalizationName))
+		return true;
+
+	return false;
+}
+
+AMNumber AMNormalizationAB::value(const AMnDIndex &indexes) const
 {
 	if(indexes.rank() != rank())
 		return AMNumber(AMNumber::DimensionError);
@@ -50,7 +84,7 @@ AMNumber AMAdditionAB::value(const AMnDIndex &indexes) const
     return cachedData_.at(indexes.flatIndexInArrayOfSize(size()));
 }
 
-bool AMAdditionAB::values(const AMnDIndex &indexStart, const AMnDIndex &indexEnd, double *outputValues) const
+bool AMNormalizationAB::values(const AMnDIndex &indexStart, const AMnDIndex &indexEnd, double *outputValues) const
 {
 	if(indexStart.rank() != rank() || indexEnd.rank() != rank())
 		return false;
@@ -73,7 +107,7 @@ bool AMAdditionAB::values(const AMnDIndex &indexStart, const AMnDIndex &indexEnd
 	return true;
 }
 
-AMNumber AMAdditionAB::axisValue(int axisNumber, int index) const
+AMNumber AMNormalizationAB::axisValue(int axisNumber, int index) const
 {
 	if (!isValid())
 		return AMNumber(AMNumber::InvalidError);
@@ -87,7 +121,7 @@ AMNumber AMAdditionAB::axisValue(int axisNumber, int index) const
 	return sources_.at(0)->axisValue(axisNumber, index);
 }
 
-bool AMAdditionAB::axisValues(int axisNumber, int startIndex, int endIndex, double *outputValues) const
+bool AMNormalizationAB::axisValues(int axisNumber, int startIndex, int endIndex, double *outputValues) const
 {
 	if (!isValid())
 		return false;
@@ -101,13 +135,13 @@ bool AMAdditionAB::axisValues(int axisNumber, int startIndex, int endIndex, doub
 	return sources_.at(0)->axisValues(axisNumber, startIndex, endIndex, outputValues);
 }
 
-void AMAdditionAB::onInputSourceValuesChanged(const AMnDIndex& start, const AMnDIndex& end)
+void AMNormalizationAB::onInputSourceValuesChanged(const AMnDIndex &start, const AMnDIndex &end)
 {
 	cacheUpdateRequired_ = true;
 	emitValuesChanged(start, end);
 }
 
-void AMAdditionAB::onInputSourceSizeChanged()
+void AMNormalizationAB::onInputSourceSizeChanged()
 {
 	for (int i = 0, size = rank(); i < size; i++)
 		axes_[i].size = sources_.at(0)->size(i);
@@ -117,14 +151,14 @@ void AMAdditionAB::onInputSourceSizeChanged()
 	emitSizeChanged();
 }
 
-void AMAdditionAB::onInputSourceStateChanged()
+void AMNormalizationAB::onInputSourceStateChanged()
 {
 	// just in case the size has changed while the input source was invalid, and now it's going valid. Do we need this? probably not, if the input source is well behaved. But it's pretty inexpensive to do it twice... and we know we'll get the size right everytime it goes valid.
 	onInputSourceSizeChanged();
 	reviewState();
 }
 
-void AMAdditionAB::setInputDataSourcesImplementation(const QList<AMDataSource*>& dataSources)
+void AMNormalizationAB::setInputDataSourcesImplementation(const QList<AMDataSource *> &dataSources)
 {
 	// disconnect connections from old sources, if they exist.
 	if(!sources_.isEmpty()) {
@@ -140,10 +174,7 @@ void AMAdditionAB::setInputDataSourcesImplementation(const QList<AMDataSource*>&
 	if(dataSources.isEmpty()) {
 
 		sources_.clear();
-
-		for (int i = 0, size = rank(); i < size; i++)
-			axes_[i] = AMAxisInfo("invalid", 0, "No input data");
-
+		axes_.clear();
 		setDescription("-- No input data --");
 	}
 
@@ -151,9 +182,10 @@ void AMAdditionAB::setInputDataSourcesImplementation(const QList<AMDataSource*>&
 	else {
 
 		sources_ = dataSources;
+		axes_.clear();
 
-		for (int i = 0, size = rank(); i < size; i++)
-			axes_[i] = sources_.at(0)->axisInfoAt(i);
+		for (int i = 0, size = sources_.at(0)->rank(); i < size; i++)
+			axes_.append(sources_.at(0)->axisInfoAt(i));
 
 		cacheUpdateRequired_ = true;
 		cachedData_ = QVector<double>(size().product());
@@ -176,7 +208,7 @@ void AMAdditionAB::setInputDataSourcesImplementation(const QList<AMDataSource*>&
 	emitInfoChanged();
 }
 
-void AMAdditionAB::reviewState()
+void AMNormalizationAB::reviewState()
 {
 	// Are there data sources?
 	if(sources_.isEmpty()){
@@ -208,27 +240,91 @@ void AMAdditionAB::reviewState()
 		setState(AMDataSource::InvalidFlag);
 }
 
-void AMAdditionAB::computeCachedValues() const
+void AMNormalizationAB::setInputSources()
+{
+	if (data_){
+
+		disconnect(data_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onInputSourceValuesChanged(AMnDIndex,AMnDIndex)));
+		disconnect(data_->signalSource(), SIGNAL(sizeChanged(int)), this, SLOT(onInputSourceSizeChanged()));
+		disconnect(data_->signalSource(), SIGNAL(stateChanged(int)), this, SLOT(onInputSourceStateChanged()));
+		data_ = 0;
+	}
+
+	if (normalizer_){
+
+		disconnect(normalizer_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onInputSourceValuesChanged(AMnDIndex,AMnDIndex)));
+		disconnect(normalizer_->signalSource(), SIGNAL(sizeChanged(int)), this, SLOT(onInputSourceSizeChanged()));
+		disconnect(normalizer_->signalSource(), SIGNAL(stateChanged(int)), this, SLOT(onInputSourceStateChanged()));
+		normalizer_ = 0;
+	}
+
+	int dataIndex = indexOfInputSource(dataName_);
+	int normalizationIndex = indexOfInputSource(normalizationName_);
+
+	if (dataIndex >= 0 && normalizationIndex >= 0){
+
+		data_ = inputDataSourceAt(dataIndex);
+		normalizer_ = inputDataSourceAt(normalizationIndex);
+		canAnalyze_ = true;
+
+		for (int i = 0, size = rank(); i < size; i++)
+			axes_[i] = sources_.at(0)->axisInfoAt(i);
+
+		cacheUpdateRequired_ = true;
+		cachedData_ = QVector<double>(size().product());
+
+		setDescription(QString("Normalized %1").arg(data_->name()));
+
+		connect(data_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onInputSourceValuesChanged(AMnDIndex,AMnDIndex)));
+		connect(data_->signalSource(), SIGNAL(sizeChanged(int)), this, SLOT(onInputSourceSizeChanged()));
+		connect(data_->signalSource(), SIGNAL(stateChanged(int)), this, SLOT(onInputSourceStateChanged()));
+		connect(normalizer_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onInputSourceValuesChanged(AMnDIndex,AMnDIndex)));
+		connect(normalizer_->signalSource(), SIGNAL(sizeChanged(int)), this, SLOT(onInputSourceSizeChanged()));
+		connect(normalizer_->signalSource(), SIGNAL(stateChanged(int)), this, SLOT(onInputSourceStateChanged()));
+	}
+
+	else{
+
+		data_ = 0;
+		normalizer_ = 0;
+		canAnalyze_ = false;
+
+		setDescription("Normalized 2D Data Source");
+	}
+
+	reviewState();
+
+	emitSizeChanged();
+	emitValuesChanged();
+	emitAxisInfoChanged();
+	emitInfoChanged();
+}
+
+void AMNormalizationAB::computeCachedValues() const
 {
 	AMnDIndex start = AMnDIndex(rank(), AMnDIndex::DoInit, 0);
 	AMnDIndex end = size()-1;
 	int totalSize = start.totalPointsTo(end);
 
 	QVector<double> data = QVector<double>(totalSize);
-	sources_.at(0)->values(start, end, data.data());
+	QVector<double> normalizer = QVector<double>(totalSize);
 
-	// Do the first data source separately to initialize the values.
-	cachedData_ = data;
+	data_->values(start, end, data.data());
+	normalizer_->values(start, end, normalizer.data());
 
-	// Iterate through the rest of the sources.
-	for (int i = 1, count = sources_.size(); i < count; i++){
+	for (int i = 0; i < totalSize; i++){
 
-		sources_.at(i)->values(start, end, data.data());
+	    if (normalizer.at(i) == 0)
+		cachedData_[i] = 0;
 
-		for (int j = 0; j < totalSize; j++)
-			cachedData_[j] += data.at(j);
+	    else if (normalizer.at(i) < 0 || data.at(i) == -1)
+		cachedData_[i] = -1;
+
+	    else
+		cachedData_[i] = data.at(i)/normalizer.at(i);
 	}
 
-	cachedDataRange_ = AMUtility::rangeFinder(cachedData_);
+	cachedDataRange_ = AMUtility::rangeFinder(cachedData_, -1);
 	cacheUpdateRequired_ = false;
 }
+
