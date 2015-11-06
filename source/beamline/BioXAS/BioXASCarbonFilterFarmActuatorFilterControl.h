@@ -4,6 +4,12 @@
 #include "beamline/AMPseudoMotorControl.h"
 #include "beamline/BioXAS/BioXASCarbonFilterFarmActuatorWindowControl.h"
 
+/*
+  This is a control that's meant to control a carbon filter farm actuator by filter,
+  through mapping window control values to filters. Also manages a filter preference,
+  which is useful for consistently using the same filter when there may be multiple
+  windows with the same filter.
+  */
 class BioXASCarbonFilterFarmActuatorFilterControl : public AMPseudoMotorControl
 {
     Q_OBJECT
