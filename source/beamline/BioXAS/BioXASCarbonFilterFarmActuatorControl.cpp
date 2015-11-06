@@ -1,15 +1,15 @@
 #include "BioXASCarbonFilterFarmActuatorControl.h"
 
-BioXASCarbonFilterFarmActuatorControl::BioXASCarbonFilterFarmActuatorControl(const QString &name, QObject *parent) :
-	BioXASBeamlineComponent(name, parent)
+BioXASCarbonFilterFarmActuatorControl::BioXASCarbonFilterFarmActuatorControl(const QString &actuatorName, QObject *parent) :
+	BioXASBeamlineComponent(actuatorName, parent)
 {
 	// Initialize class varibles.
 
 	currentPosition_ = 0;
 
-	currentWindow_ = new BioXASCarbonFilterFarmActuatorWindowControl(objectName()+"Window", this);
+	currentWindow_ = new BioXASCarbonFilterFarmActuatorWindowControl(name()+"Window", this);
 
-	currentFilter_ = new BioXASCarbonFilterFarmActuatorFilterControl(objectName()+"Filter", "mm", this);
+	currentFilter_ = new BioXASCarbonFilterFarmActuatorFilterControl(name()+"Filter", "mm", this);
 	currentFilter_->setCurrentWindow(currentWindow_);
 }
 

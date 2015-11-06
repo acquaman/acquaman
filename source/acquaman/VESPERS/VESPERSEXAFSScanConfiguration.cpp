@@ -191,7 +191,7 @@ void VESPERSEXAFSScanConfiguration::computeTotalTimeImplementation()
 	foreach (AMScanAxisRegion *region, scanAxisAt(0)->regions().toList()){
 
 		AMScanAxisEXAFSRegion *exafsRegion = qobject_cast<AMScanAxisEXAFSRegion *>(region);
-		int numberOfPoints = int((double(exafsRegion->regionEnd()) - double(exafsRegion->regionStart()))/double(exafsRegion->regionStep()) + 1);
+		int numberOfPoints = exafsRegion->numberOfPoints();
 
 		if (exafsRegion->inKSpace() && exafsRegion->maximumTime().isValid()){
 

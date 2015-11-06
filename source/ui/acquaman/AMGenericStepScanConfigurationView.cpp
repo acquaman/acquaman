@@ -104,13 +104,24 @@ AMGenericStepScanConfigurationView::AMGenericStepScanConfigurationView(AMGeneric
 	detectorGroup_->setExclusive(false);
 	detectorLayout_ = new QVBoxLayout;
 
+	i0ComboBox_ = new QComboBox;
+
+	QHBoxLayout *i0Layout = new QHBoxLayout;
+	i0Layout->addWidget(new QLabel("I0:"));
+	i0Layout->addWidget(i0ComboBox_);
+
 	setDetectors(detectors);
 
 	connect(detectorGroup_, SIGNAL(buttonClicked(QAbstractButton*)), this, SLOT(onDetectorSelectionChanged(QAbstractButton*)));
+	connect(i0ComboBox_, SIGNAL(currentIndexChanged(int)), this, SLOT(onI0ChoiceChanged(int)));
 
 	detectorGroupBox->setLayout(detectorLayout_);
 	detectorScrollArea->setWidget(detectorGroupBox);
 	detectorScrollArea->setFrameStyle(QFrame::NoFrame);
+
+	QVBoxLayout *detectorsAndI0Layout = new QVBoxLayout;
+	detectorsAndI0Layout->addLayout(i0Layout);
+	detectorsAndI0Layout->addWidget(detectorScrollArea);
 
 	QVBoxLayout *layout = new QVBoxLayout;
 	layout->addWidget(positionsBox);
@@ -120,7 +131,8 @@ AMGenericStepScanConfigurationView::AMGenericStepScanConfigurationView(AMGeneric
 	QHBoxLayout *moreLayout = new QHBoxLayout;
 	moreLayout->addStretch();
 	moreLayout->addLayout(layout);
-	moreLayout->addWidget(detectorScrollArea);
+	moreLayout->addLayout(detectorsAndI0Layout);
+	moreLayout->addWidget(i0ComboBox_);
 	moreLayout->addStretch();
 
 	QVBoxLayout *configViewLayout = new QVBoxLayout;
@@ -190,12 +202,15 @@ void AMGenericStepScanConfigurationView::setDetectors(AMDetectorSet *newDetector
 		}
 
 		detectorButtonMap_.clear();
+		i0ComboBox_->clear();
 
 		// Set new detectors.
 
 		detectors_ = newDetectors;
 
 		// Add new detectors.
+
+		i0ComboBox_->addItem("None");
 
 		for (int detectorIndex = 0, detectorCount = detectors_->count(); detectorIndex < detectorCount; detectorIndex++) {
 			AMDetector *detector = detectors_->at(detectorIndex);
@@ -212,10 +227,15 @@ void AMGenericStepScanConfigurationView::setDetectors(AMDetectorSet *newDetector
 				if (configuration_ && configuration_->detectorConfigurations().contains(detector->name())) {
 					checkBox->blockSignals(true);
 					checkBox->setChecked(true);
+					i0ComboBox_->addItem(detector->name());
 					checkBox->blockSignals(false);
 				}
+
 			}
 		}
+
+		if (configuration_ && configuration_->i0().name() != "Invalid Detector")
+			i0ComboBox_->setCurrentIndex(i0ComboBox_->findText(configuration_->i0().name()));
 	}
 }
 
@@ -483,10 +503,30 @@ void AMGenericStepScanConfigurationView::onDetectorSelectionChanged(QAbstractBut
 		AMDetector *detector = detectorButtonMap_.key(button, 0);
 
 		if (detector) {
-			if (button->isChecked())
+			if (button->isChecked()){
+
 				configuration_->addDetector(detector->toInfo());
-			else
+				i0ComboBox_->addItem(detector->name());
+			}
+
+			else {
+
 				configuration_->removeDetector(detector->toInfo());
+
+				if (i0ComboBox_->currentText() == detector->name())
+					i0ComboBox_->setCurrentIndex(i0ComboBox_->findText("None"));
+
+				i0ComboBox_->removeItem(i0ComboBox_->findText(detector->name()));
+			}
 		}
 	}
+}
+
+void AMGenericStepScanConfigurationView::onI0ChoiceChanged(int index)
+{
+	if (i0ComboBox_->currentText() == "None")
+		configuration_->setI0(AMDetectorInfo());
+
+	else
+		configuration_->setI0(configuration_->detectorConfigurations().at(configuration_->detectorConfigurations().indexOf(i0ComboBox_->itemText(index))));
 }

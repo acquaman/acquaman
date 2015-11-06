@@ -48,7 +48,7 @@ REIXSXASScanActionController::REIXSXASScanActionController(REIXSXASScanConfigura
 	configuration_ = cfg;
 
 	scan_ = new AMXASScan();
-	scan_->setFileFormat("amRegionAscii2013");
+	scan_->setFileFormat("amCDFv1");
 	scan_->setScanConfiguration(cfg);
 	scan_->setName("REIXS XAS Scan");
 	scan_->setSampleId(REIXSBeamline::bl()->currentSampleId());

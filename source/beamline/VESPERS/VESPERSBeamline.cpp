@@ -265,14 +265,8 @@ void VESPERSBeamline::setupMotorGroup()
 	AMMotorGroupObject *motorObject = 0;
 
 	// Add Sample stage Horizontal, Vertical and Normal
-	motorObject = new CLSPseudoMotorGroupObject("Sample Stage - H, V, N",
-												pseudoSampleStageResetControl_);
-
+	motorObject = new CLSPseudoMotorGroupObject("Sample Stage - H, V, N", pseudoSampleStageResetControl_);
 	motorObject->setDirectionAxis(AMMotorGroupObject::HorizontalMotion,
-						 "N", sampleStageNormal_,
-						 "", 0);
-
-	motorObject->setDirectionAxis(AMMotorGroupObject::NormalMotion,
 						 "H", sampleStageHorizontal_,
 						 "", 0);
 
@@ -280,12 +274,18 @@ void VESPERSBeamline::setupMotorGroup()
 						 "V", sampleStageVertical_,
 						 "", 0);
 
+	motorObject->setDirectionAxis(AMMotorGroupObject::NormalMotion,
+						 "N", sampleStageNormal_,
+						 "", 0);
+
+	motorObject->horizontalAxis()->setTranslationPositionUnits("mm");
+	motorObject->verticalAxis()->setTranslationPositionUnits("mm");
+	motorObject->normalAxis()->setTranslationPositionUnits("mm");
 
 	motorGroup_->addMotorGroupObject(motorObject);
 
 	// Add Sample stage X, Y, Z
-	motorObject = new CLSPseudoMotorGroupObject("Sample Stage - X, Z, Y",
-												realSampleStageResetControl_);
+	motorObject = new CLSPseudoMotorGroupObject("Sample Stage - X, Z, Y", realSampleStageResetControl_);
 
 	motorObject->setDirectionAxis(AMMotorGroupObject::HorizontalMotion,
 						 "X", sampleStageX_,
@@ -299,17 +299,16 @@ void VESPERSBeamline::setupMotorGroup()
 						 "Z", sampleStageZ_,
 						 "", 0);
 
+	motorObject->horizontalAxis()->setTranslationPositionUnits("mm");
+	motorObject->verticalAxis()->setTranslationPositionUnits("mm");
+	motorObject->normalAxis()->setTranslationPositionUnits("mm");
+
 	motorGroup_->addMotorGroupObject(motorObject);
 
 	// Add Wire stage Horizontal, Vertical and Normal
-	motorObject = new CLSPseudoMotorGroupObject("Wire Stage - H, V, N",
-												pseudoWireStageResetControl_);
+	motorObject = new CLSPseudoMotorGroupObject("Wire Stage - H, V, N", pseudoWireStageResetControl_);
 
 	motorObject->setDirectionAxis(AMMotorGroupObject::HorizontalMotion,
-						 "N", wireStageNormal_,
-						 "", 0);
-
-	motorObject->setDirectionAxis(AMMotorGroupObject::NormalMotion,
 						 "H", wireStageHorizontal_,
 						 "", 0);
 
@@ -317,17 +316,20 @@ void VESPERSBeamline::setupMotorGroup()
 						 "V", wireStageVertical_,
 						 "", 0);
 
+	motorObject->setDirectionAxis(AMMotorGroupObject::NormalMotion,
+						 "N", wireStageNormal_,
+						 "", 0);
+
+	motorObject->horizontalAxis()->setTranslationPositionUnits("mm");
+	motorObject->verticalAxis()->setTranslationPositionUnits("mm");
+	motorObject->normalAxis()->setTranslationPositionUnits("mm");
+
 	motorGroup_->addMotorGroupObject(motorObject);
 
 	// Add Attocube stage Horizontal, Vertical and Normal
-	motorObject = new CLSPseudoMotorGroupObject("Attocube Stage - H, V, N",
-												pseudoAttoStageResetControl_);
+	motorObject = new CLSPseudoMotorGroupObject("Attocube Stage - H, V, N", pseudoAttoStageResetControl_);
 
 	motorObject->setDirectionAxis(AMMotorGroupObject::HorizontalMotion,
-						 "N", attoStageNormal_,
-						 "", 0);
-
-	motorObject->setDirectionAxis(AMMotorGroupObject::NormalMotion,
 						 "H", attoStageHorizontal_,
 						 "", 0);
 
@@ -335,23 +337,34 @@ void VESPERSBeamline::setupMotorGroup()
 						 "V", attoStageVertical_,
 						 "", 0);
 
+	motorObject->setDirectionAxis(AMMotorGroupObject::NormalMotion,
+						 "N", attoStageNormal_,
+						 "", 0);
+
+	motorObject->horizontalAxis()->setTranslationPositionUnits("mm");
+	motorObject->verticalAxis()->setTranslationPositionUnits("mm");
+	motorObject->normalAxis()->setTranslationPositionUnits("mm");
+
 	motorGroup_->addMotorGroupObject(motorObject);
 
 	// Add Attocube stage X, Y, Z
-	motorObject = new CLSPseudoMotorGroupObject("Attocube Stage - X, Z, Y",
-												realAttoStageResetControl_);
+	motorObject = new CLSPseudoMotorGroupObject("Attocube Stage - X, Z, Y", realAttoStageResetControl_);
 
 	motorObject->setDirectionAxis(AMMotorGroupObject::HorizontalMotion,
 						 "X", attoStageX_,
 						 "", 0);
 
 	motorObject->setDirectionAxis(AMMotorGroupObject::NormalMotion,
-						 "Y", attoStageX_,
+						 "Y", attoStageY_,
 						 "", 0);
 
 	motorObject->setDirectionAxis(AMMotorGroupObject::VerticalMotion,
 						 "Z", attoStageZ_,
 						 "", 0);
+
+	motorObject->horizontalAxis()->setTranslationPositionUnits("mm");
+	motorObject->verticalAxis()->setTranslationPositionUnits("mm");
+	motorObject->normalAxis()->setTranslationPositionUnits("mm");
 
 	motorGroup_->addMotorGroupObject(motorObject);
 
@@ -360,18 +373,25 @@ void VESPERSBeamline::setupMotorGroup()
 	motorObject->setDirectionAxis(AMMotorGroupObject::HorizontalMotion,
 						 "", 0,
 						 "Rx", attoStageRx_);
+	motorObject->horizontalAxis()->setRotationPositionUnits("deg");
+
 	motorGroup_->addMotorGroupObject(motorObject);
 
 	motorObject = new AMMotorGroupObject("Attocube Stage - Ry", this);
 	motorObject->setDirectionAxis(AMMotorGroupObject::NormalMotion,
 						 "", 0,
 						 "Ry", attoStageRy_);
+
+	motorObject->normalAxis()->setRotationPositionUnits("deg");
+
 	motorGroup_->addMotorGroupObject(motorObject);
 
 	motorObject = new AMMotorGroupObject("Attocube Stage - Rz", this);
 	motorObject->setDirectionAxis(AMMotorGroupObject::VerticalMotion,
 						 "", 0,
 						 "Rx", attoStageRz_);
+	motorObject->verticalAxis()->setRotationPositionUnits("deg");
+
 	motorGroup_->addMotorGroupObject(motorObject);
 
 	// Add Big beam
@@ -384,6 +404,9 @@ void VESPERSBeamline::setupMotorGroup()
 	motorObject->setDirectionAxis(AMMotorGroupObject::VerticalMotion,
 						 "Z", bigBeamZ_,
 						 "", 0);
+
+	motorObject->horizontalAxis()->setTranslationPositionUnits("mm");
+	motorObject->verticalAxis()->setTranslationPositionUnits("mm");
 
 	motorGroup_->addMotorGroupObject(motorObject);
 }
