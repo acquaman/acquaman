@@ -45,6 +45,7 @@ protected slots:
 	void onDetectorTemperatureChanged(double temperature);
 
 	void onContinuousTestButtonClicked();
+	void onGetLastContinuousTestButtonClicked();
 
 protected:
 	CLSAmptekSDD123DetectorNew *amptekDetector_;
@@ -64,6 +65,7 @@ protected:
 	CLSAmptekDetectorConfigurationView *configurationView_;
 
 	QPushButton *continuousTestButton_;
+	QPushButton *getLastContinuousTestButton_;
 };
 
 class CLSAmptekDetectorROIView : public QWidget

@@ -32,6 +32,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "source/DataHolder/AMDSDataHolderSupport.h"
 #include "source/appController/AMDSClientAppController.h"
 #include "source/Connection/AMDSServer.h"
+#include "source/ClientRequest/AMDSClientDataRequest.h"
+#include "source/ClientRequest/AMDSClientRelativeCountPlusCountDataRequest.h"
+
 
 CLSAmptekSDD123DetectorNew::CLSAmptekSDD123DetectorNew(const QString &name, const QString &description, const QString &baseName, QObject *parent) :
 	AMXRFDetector(name, description, parent)
@@ -120,6 +123,8 @@ CLSAmptekSDD123DetectorNew::CLSAmptekSDD123DetectorNew(const QString &name, cons
 	AMDSDataHolderSupport::registerDataHolderClass();
 	AMDSEventDataSupport::registerEventDataObjectClass();
 
+	lastContinuousDataRequest_ = 0;
+
 	/// ==== initialize the app controller ==============
 	clientAppController_ = new AMDSClientAppController();
 	connect(clientAppController_, SIGNAL(networkSessionOpening()), this, SLOT(onNetworkSessionOpening()));
@@ -157,10 +162,17 @@ AMDetectorDwellTimeSource* CLSAmptekSDD123DetectorNew::detectorDwellTimeSource()
 	return 0;
 }
 
-bool CLSAmptekSDD123DetectorNew::lastContinuousReading(double *outputValues) const{
-	Q_UNUSED(outputValues)
+//bool CLSAmptekSDD123DetectorNew::lastContinuousReading(double *outputValues) const{
 
-	return false;
+//}
+
+//bool CLSAmptekSDD123DetectorNew::lastContinuousReading(double *outputValues, double seconds) const{
+
+//}
+
+AMDSClientDataRequest* CLSAmptekSDD123DetectorNew::lastContinuousData(double seconds){
+	qDebug() << "Calling continuous data with return as AMDSClientDataRequest";
+	return lastContinuousDataRequest_;
 }
 
 #include "actions3/AMActionSupport.h"
@@ -465,7 +477,15 @@ void CLSAmptekSDD123DetectorNew::onNewServerConnected(const QString &serverIdent
 
 void CLSAmptekSDD123DetectorNew::onRequestDataReady(AMDSClientRequest* clientRequest)
 {
-	qDebug() << "Received some request data";
+	qDebug() << "Received some request data as " << clientRequest->requestType();
+
+	AMDSClientRelativeCountPlusCountDataRequest *relativeCountPlusCountDataRequst = qobject_cast<AMDSClientRelativeCountPlusCountDataRequest*>(clientRequest);
+	if(relativeCountPlusCountDataRequst){
+		qDebug() << "Received request as relative count plus count";
+		qDebug() << relativeCountPlusCountDataRequst->data().count();
+		lastContinuousDataRequest_ = relativeCountPlusCountDataRequst;
+	}
+
 //	if (clientRequest->isContinuousMessage()) {
 //		resetActiveContinuousConnection(activeServerComboBox_->currentText());
 //	} else {
@@ -555,7 +575,13 @@ bool CLSAmptekSDD123DetectorNew::acquireImplementation(AMDetectorDefinitions::Re
 	}
 }
 
+bool CLSAmptekSDD123DetectorNew::lastContinuousReadingImplementation(double *outputValues) const{
+	qDebug() << "Calling lastContinuousReadingImplementation(double*)";
+}
 
+bool CLSAmptekSDD123DetectorNew::lastContinuousReadingImplementation(double *outputValues, double seconds) const{
+	qDebug() << "Calling lastContinuousReadingImplementation(double*, seconds)";
+}
 
 
 

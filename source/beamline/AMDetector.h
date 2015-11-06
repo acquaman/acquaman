@@ -106,6 +106,8 @@ class AMDetectorDwellTimeSource;
 
 #define AMDETECTOR_DEFAULT_TIMEOUT_MS 5000
 
+class AMDSClientDataRequest;
+
 class AMDetector : public QObject
 {
 Q_OBJECT
@@ -279,7 +281,10 @@ int outputSize = indexStart.totalPointsTo(indexEnd);
 	// FLESH THIS ONE OUT
 	/// Returns the data from the last continuous reading in the outputValues
 	virtual bool lastContinuousReading(double *outputValues) const;
+	virtual bool lastContinuousReading(double *outputValues, double seconds) const;
 	virtual int lastContinuousSize() const;
+
+	virtual AMDSClientDataRequest* lastContinuousData(double seconds);
 
 	/// Fills the given double pointer with the current detector data in row-major order (first axis varies slowest).  Memory must be preallocated to the size of the detector data.
 	virtual bool data(double *outputValues) const = 0;
@@ -479,6 +484,7 @@ protected:
 
 	/// This function is called by lastContinuousReading(). It should place the values in the data pointer and return success/failure if your detector supports continuous reads.
 	virtual bool lastContinuousReadingImplementation(double *outputValues) const;
+	virtual bool lastContinuousReadingImplementation(double *outputValues, double seconds) const;
 	/// This function is called by clear(), it should internally clear the data. If the detector cannot support clearing, then it will fail before calling this function.
 	virtual bool clearImplementation();
 

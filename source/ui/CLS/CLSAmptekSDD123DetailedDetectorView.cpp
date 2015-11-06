@@ -51,6 +51,10 @@ void CLSAmptekDetailedDetectorView::buildDetectorView(){
 	rightLayout_->addWidget(continuousTestButton_);
 	connect(continuousTestButton_, SIGNAL(clicked()), this, SLOT(onContinuousTestButtonClicked()));
 
+	getLastContinuousTestButton_ = new QPushButton("Last Continuous Data Test");
+	rightLayout_->addWidget(getLastContinuousTestButton_);
+	connect(getLastContinuousTestButton_, SIGNAL(clicked()), this, SLOT(onGetLastContinuousTestButtonClicked()));
+
 	QHBoxLayout *tempHBox;
 
 	eVPerBinDoubleSpinBox_ = new QDoubleSpinBox();
@@ -137,6 +141,18 @@ void CLSAmptekDetailedDetectorView::onContinuousTestButtonClicked(){
 	qDebug() << "Detected continuous test requested";
 
 	detector_->acquire(AMDetectorDefinitions::ContinuousRead);
+}
+
+#include "source/ClientRequest/AMDSClientDataRequest.h"
+void CLSAmptekDetailedDetectorView::onGetLastContinuousTestButtonClicked(){
+	qDebug() << "Detector getLastContinuous test requested";
+
+//	QVector<double> lastContinuousData = QVector<double>(1024);
+//	detector_->lastContinuousReading(lastContinuousData.data());
+	AMDSClientDataRequest *lastContinuousData = detector_->lastContinuousData(1);
+
+	qDebug() << "Last continuous data was " << lastContinuousData->data().count();
+	lastContinuousData->printData();
 }
 
 
@@ -415,3 +431,4 @@ CLSAmptekDetectorConfigurationView::CLSAmptekDetectorConfigurationView(CLSAmptek
 }
 
 CLSAmptekDetectorConfigurationView::~CLSAmptekDetectorConfigurationView(){}
+

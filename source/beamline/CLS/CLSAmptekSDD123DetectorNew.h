@@ -30,6 +30,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 class AMDSClientAppController;
 class AMDSClientRequest;
+class AMDSClientDataRequest;
+class AMDSClientRelativeCountPlusCountDataRequest;
 
 class QSignalMapper;
 
@@ -69,8 +71,11 @@ public:
 	/// Returns SingleRead as the type
 	virtual AMDetectorDefinitions::ReadMode readMode() const { return AMDetectorDefinitions::SingleRead; }
 
-	/// Returns false, because the Amptek detectors do not support continuous reads
-	virtual bool lastContinuousReading(double *outputValues) const;
+//	///
+//	virtual bool lastContinuousReading(double *outputValues) const;
+//	virtual bool lastContinuousReading(double *outputValues, double seconds) const;
+
+	virtual AMDSClientDataRequest* lastContinuousData(double seconds);
 
 	/// Creates an action to enable or disable this amptek for in the array.
 	AMAction3* createEnableAction3(bool setEnabled);
@@ -218,6 +223,9 @@ protected:
 	/// Basic initialization implementation for an XRF detector.  Subclass for more specific behaviour.
 	virtual bool acquireImplementation(AMDetectorDefinitions::ReadMode readMode);
 
+	virtual bool lastContinuousReadingImplementation(double *outputValues) const;
+	virtual bool lastContinuousReadingImplementation(double *outputValues, double seconds) const;
+
 	/// Returns true if the QObject type casts to the priveleged type of CLSAmptekDetailedDetectorView or CLSAmptekDetectorConfigurationView
 	bool isPrivelegedType(const QObject *privelegedCaller) const;
 
@@ -295,6 +303,7 @@ protected:
 
 	/// the handler of the clientAppController
 	AMDSClientAppController *clientAppController_;
+	AMDSClientRelativeCountPlusCountDataRequest *lastContinuousDataRequest_;
 };
 
 #endif // CLSAMPTEKSDD123DETECTORNEW_H
