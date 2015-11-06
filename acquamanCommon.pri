@@ -431,7 +431,7 @@ HEADERS += \
     $$PWD/source/analysis/AMAdditionAB.h \
     source/actions3/actions/AMControlCalibrateActionInfo.h \
     source/actions3/actions/AMControlCalibrateAction.h \
-    source/beamline/AMPseudoMotorLadderControl.h
+    source/beamline/AMPseudoMotorEnumeratedControl.h
 
 FORMS += \
 
@@ -824,7 +824,7 @@ SOURCES += \
     $$PWD/source/analysis/AMAdditionAB.cpp \
     source/actions3/actions/AMControlCalibrateActionInfo.cpp \
     source/actions3/actions/AMControlCalibrateAction.cpp \
-    source/beamline/AMPseudoMotorLadderControl.cpp
+    source/beamline/AMPseudoMotorEnumeratedControl.cpp
 
 RESOURCES *= source/icons/icons.qrc \
 		source/configurationFiles/configurationFiles.qrc \

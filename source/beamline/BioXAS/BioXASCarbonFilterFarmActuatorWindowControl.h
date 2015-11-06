@@ -1,10 +1,10 @@
 #ifndef BIOXASCARBONFILTERFARMACTUATORWINDOWCONTROL_H
 #define BIOXASCARBONFILTERFARMACTUATORWINDOWCONTROL_H
 
-#include "beamline/AMPseudoMotorLadderControl.h"
+#include "beamline/AMPseudoMotorEnumeratedControl.h"
 #include "beamline/BioXAS/BioXASCarbonFilterFarmWindowOption.h"
 
-class BioXASCarbonFilterFarmActuatorWindowControl : public AMPseudoMotorLadderControl
+class BioXASCarbonFilterFarmActuatorWindowControl : public AMPseudoMotorEnumeratedControl
 {
 	Q_OBJECT
 

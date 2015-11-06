@@ -3,7 +3,7 @@
 #include "actions3/AMListAction3.h"
 
 BioXASCarbonFilterFarmActuatorWindowControl::BioXASCarbonFilterFarmActuatorWindowControl(const QString &name, QObject *parent) :
-	AMPseudoMotorLadderControl(name, "", parent)
+	AMPseudoMotorEnumeratedControl(name, "", parent)
 {
 	// Initialize inherited variables.
 

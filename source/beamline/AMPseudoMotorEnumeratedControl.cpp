@@ -1,7 +1,7 @@
-#include "AMPseudoMotorLadderControl.h"
+#include "AMPseudoMotorEnumeratedControl.h"
 #include "actions3/AMActionSupport.h"
 
-AMPseudoMotorLadderControl::AMPseudoMotorLadderControl(const QString &name, const QString &units, QObject *parent) :
+AMPseudoMotorEnumeratedControl::AMPseudoMotorEnumeratedControl(const QString &name, const QString &units, QObject *parent) :
 	AMPseudoMotorControl(name, units, parent)
 {
 	// Initialize local variables.
@@ -16,12 +16,12 @@ AMPseudoMotorLadderControl::AMPseudoMotorLadderControl(const QString &name, cons
 	maximumValue_ = 0;
 }
 
-AMPseudoMotorLadderControl::~AMPseudoMotorLadderControl()
+AMPseudoMotorEnumeratedControl::~AMPseudoMotorEnumeratedControl()
 {
 
 }
 
-bool AMPseudoMotorLadderControl::canMeasure() const
+bool AMPseudoMotorEnumeratedControl::canMeasure() const
 {
 	bool result = false;
 
@@ -31,7 +31,7 @@ bool AMPseudoMotorLadderControl::canMeasure() const
 	return result;
 }
 
-bool AMPseudoMotorLadderControl::canMove() const
+bool AMPseudoMotorEnumeratedControl::canMove() const
 {
 	bool result = false;
 
@@ -41,7 +41,7 @@ bool AMPseudoMotorLadderControl::canMove() const
 	return result;
 }
 
-bool AMPseudoMotorLadderControl::canStop() const
+bool AMPseudoMotorEnumeratedControl::canStop() const
 {
 	bool result = false;
 
@@ -51,22 +51,22 @@ bool AMPseudoMotorLadderControl::canStop() const
 	return result;
 }
 
-bool AMPseudoMotorLadderControl::validValue(double value) const
+bool AMPseudoMotorEnumeratedControl::validValue(double value) const
 {
 	return (value >= 0 && value < enumNames().count());
 }
 
-bool AMPseudoMotorLadderControl::validSetpoint(double value) const
+bool AMPseudoMotorEnumeratedControl::validSetpoint(double value) const
 {
 	return (value >= 0 && value < moveEnumNames().count());
 }
 
-int AMPseudoMotorLadderControl::indexOf(const QString &name) const
+int AMPseudoMotorEnumeratedControl::indexOf(const QString &name) const
 {
 	return enumNames().indexOf(name);
 }
 
-void AMPseudoMotorLadderControl::setControl(AMControl *newControl)
+void AMPseudoMotorEnumeratedControl::setControl(AMControl *newControl)
 {
 	if (control_ != newControl) {
 
@@ -84,7 +84,7 @@ void AMPseudoMotorLadderControl::setControl(AMControl *newControl)
 	}
 }
 
-void AMPseudoMotorLadderControl::updateStates()
+void AMPseudoMotorEnumeratedControl::updateStates()
 {
 	updateConnected();
 	updateEnumStates();
@@ -93,24 +93,24 @@ void AMPseudoMotorLadderControl::updateStates()
 	updateMoving();
 }
 
-void AMPseudoMotorLadderControl::updateConnected()
+void AMPseudoMotorEnumeratedControl::updateConnected()
 {
 	bool isConnected = ( control_ && control_->isConnected() );
 	setConnected(isConnected);
 }
 
-void AMPseudoMotorLadderControl::updateEnumStates()
+void AMPseudoMotorEnumeratedControl::updateEnumStates()
 {
 	setEnumStates(generateEnumStates());
 	setMoveEnumStates(generateMoveEnumStates());
 }
 
-void AMPseudoMotorLadderControl::updateMaximumValue()
+void AMPseudoMotorEnumeratedControl::updateMaximumValue()
 {
 	setMaximumValue(enumNames().count() - 1);
 }
 
-void AMPseudoMotorLadderControl::updateMoving()
+void AMPseudoMotorEnumeratedControl::updateMoving()
 {
 	bool isMoving = ( control_ && control_->isMoving());
 	setIsMoving(isMoving);
