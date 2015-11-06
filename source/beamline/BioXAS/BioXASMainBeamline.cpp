@@ -65,8 +65,8 @@ QList<AMControl *> BioXASMainBeamline::getMotorsByType(BioXASBeamlineDef::BioXAS
 
 	switch (category) {
 	case BioXASBeamlineDef::FilterMotor: // BioXAS Filter motors
-		matchedMotors.append(carbonFilterFarm_->upstreamActuatorControl());
-		matchedMotors.append(carbonFilterFarm_->downstreamActuatorControl());
+		matchedMotors.append(carbonFilterFarm_->upstreamActuator()->currentPosition());
+		matchedMotors.append(carbonFilterFarm_->downstreamActuator()->currentPosition());
 		break;
 
 	case BioXASBeamlineDef::M1Motor:	// BioXAS M1 motors
@@ -323,9 +323,15 @@ void BioXASMainBeamline::setupExposedControls()
 
 	// Carbon filter farm controls.
 
-	addExposedControl(carbonFilterFarm_->filterControl());
-	addExposedControl(carbonFilterFarm_->upstreamActuatorControl());
-	addExposedControl(carbonFilterFarm_->downstreamActuatorControl());
+	addExposedControl(carbonFilterFarm_->upstreamActuator()->currentPosition());
+	addExposedControl(carbonFilterFarm_->upstreamActuator()->currentWindow());
+	addExposedControl(carbonFilterFarm_->upstreamActuator()->currentFilter());
+
+	addExposedControl(carbonFilterFarm_->downstreamActuator()->currentPosition());
+	addExposedControl(carbonFilterFarm_->downstreamActuator()->currentWindow());
+	addExposedControl(carbonFilterFarm_->downstreamActuator()->currentFilter());
+
+	addExposedControl(carbonFilterFarm_->filter());
 
 	// JJ slits controls.
 
