@@ -1,5 +1,5 @@
-#ifndef AMPSEUDOMOTORENUMERATEDCONTROL_H
-#define AMPSEUDOMOTORENUMERATEDCONTROL_H
+#ifndef AMENUMERATEDCONTROL_H
+#define AMENUMERATEDCONTROL_H
 
 #include "beamline/AMPseudoMotorControl.h"
 
@@ -11,15 +11,15 @@
   (eg a list of options) and are required to provide a way of updating this control's
   current value, creating move actions, and generating enum states.
   */
-class AMPseudoMotorEnumeratedControl : public AMPseudoMotorControl
+class AMEnumeratedControl : public AMPseudoMotorControl
 {
     Q_OBJECT
 
 public:
 	/// Constructor.
-	explicit AMPseudoMotorEnumeratedControl(const QString &name, const QString &units, QObject *parent = 0);
+	explicit AMEnumeratedControl(const QString &name, const QString &units, QObject *parent = 0);
 	/// Destructor.
-	virtual ~AMPseudoMotorEnumeratedControl();
+	virtual ~AMEnumeratedControl();
 
 	/// Returns true if this control is always measurable, if connected. False otherwise.
 	virtual bool shouldMeasure() const { return true; }
@@ -106,4 +106,4 @@ protected:
 	QMap<int, double> indexMaximumMap_;
 };
 
-#endif // AMPSEUDOMOTORENUMERATEDCONTROL_H
+#endif // AMENUMERATEDCONTROL_H

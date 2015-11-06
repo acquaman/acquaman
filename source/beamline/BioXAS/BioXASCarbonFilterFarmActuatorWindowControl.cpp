@@ -1,7 +1,7 @@
 #include "BioXASCarbonFilterFarmActuatorWindowControl.h"
 
 BioXASCarbonFilterFarmActuatorWindowControl::BioXASCarbonFilterFarmActuatorWindowControl(const QString &name, QObject *parent) :
-	AMPseudoMotorEnumeratedControl(name, "", parent)
+	AMEnumeratedControl(name, "", parent)
 {
 	// Initialize inherited variables.
 
