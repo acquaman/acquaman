@@ -4,10 +4,6 @@
 AMEnumeratedControl::AMEnumeratedControl(const QString &name, const QString &units, QObject *parent) :
 	AMPseudoMotorControl(name, units, parent)
 {
-	// Initialize local variables.
-
-	control_ = 0;
-
 	// Initialize inherited variables.
 
 	value_ = -1;
@@ -19,36 +15,6 @@ AMEnumeratedControl::AMEnumeratedControl(const QString &name, const QString &uni
 AMEnumeratedControl::~AMEnumeratedControl()
 {
 
-}
-
-bool AMEnumeratedControl::canMeasure() const
-{
-	bool result = false;
-
-	if (isConnected())
-		result = control_->canMeasure();
-
-	return result;
-}
-
-bool AMEnumeratedControl::canMove() const
-{
-	bool result = false;
-
-	if (isConnected())
-		result = control_->canMove();
-
-	return result;
-}
-
-bool AMEnumeratedControl::canStop() const
-{
-	bool result = false;
-
-	if (isConnected())
-		result = control_->canStop();
-
-	return result;
 }
 
 bool AMEnumeratedControl::validValue(double value) const
@@ -66,96 +32,14 @@ QList<int> AMEnumeratedControl::indicesNamed(const QString &name) const
 	return indexStringMap_.keys(name);
 }
 
-QList<int> AMEnumeratedControl::indicesContaining(double setpoint) const
-{
-	QList<int> results;
-
-	foreach (int index, indices_) {
-		double optionMin = indexMinimumMap_.value(index);
-		double optionMax = indexMaximumMap_.value(index);
-
-		if (setpoint >= optionMin && setpoint <= optionMax)
-			results << index;
-	}
-}
-
-void AMEnumeratedControl::setControl(AMControl *newControl)
-{
-	if (control_ != newControl) {
-
-		if (control_)
-			removeChildControl(control_);
-
-		control_ = newControl;
-
-		if (control_)
-			addChildControl(control_);
-
-		updateStates();
-
-		emit controlChanged(control_);
-	}
-}
-
-void AMEnumeratedControl::addOption(int index, const QString &optionString, double optionSetpoint, double optionMin, double optionMax)
-{
-	if (!indices_.contains(index))
-		indices_.append(index);
-
-	indexStringMap_.insert(index, optionString);
-	indexSetpointMap_.insert(index, optionSetpoint);
-	indexMinimumMap_.insert(index, optionMin);
-	indexMaximumMap_.insert(index, optionMax);
-
-	updateEnumStates();
-
-	emit optionsChanged();
-}
-
-void AMEnumeratedControl::addOption(int index, const QString &optionString, double optionSetpoint)
-{
-	addOption(index, optionString, optionSetpoint, optionSetpoint, optionSetpoint);
-}
-
-void AMEnumeratedControl::removeOption(int index)
-{
-	indices_.removeOne(index);
-	indexStringMap_.remove(index);
-	indexSetpointMap_.remove(index);
-	indexMinimumMap_.remove(index);
-	indexMaximumMap_.remove(index);
-
-	updateEnumStates();
-
-	emit optionsChanged();
-}
-
-void AMEnumeratedControl::clearOptions()
-{
-	indices_.clear();
-	indexStringMap_.clear();
-	indexSetpointMap_.clear();
-	indexMinimumMap_.clear();
-	indexMaximumMap_.clear();
-
-	updateEnumStates();
-
-	emit optionsChanged();
-}
-
 void AMEnumeratedControl::updateStates()
 {
 	updateConnected();
+	updateOptions();
 	updateEnumStates();
 	updateMaximumValue();
 	updateValue();
 	updateMoving();
-}
-
-void AMEnumeratedControl::updateConnected()
-{
-	bool isConnected = ( control_ && control_->isConnected() );
-	setConnected(isConnected);
 }
 
 void AMEnumeratedControl::updateEnumStates()
@@ -175,38 +59,46 @@ void AMEnumeratedControl::updateValue()
 
 	double newValue = enumNames().indexOf("Unknown");
 
-	// Identify the index corresponding to the control's current value.
-	// If there are multiple indices, pick the first.
+	// Identify the current index.
 
-	if (isConnected()) {
-		QList<int> indices = indicesContaining(control_->value());
-
-		if (!indices.isEmpty())
-			newValue = indices_.first();
-	}
+	if (isConnected())
+		newValue = currentIndex();
 
 	// Set the new value.
 
 	setValue(newValue);
 }
 
-void AMEnumeratedControl::updateMoving()
+void AMEnumeratedControl::addOption(int index, const QString &optionString)
 {
-	bool isMoving = ( control_ && control_->isMoving());
-	setIsMoving(isMoving);
+	if (!indices_.contains(index))
+		indices_.append(index);
+
+	indexStringMap_.insert(index, optionString);
+
+	updateEnumStates();
+
+	emit optionsChanged();
 }
 
-AMAction3* AMEnumeratedControl::createMoveAction(double indexSetpoint)
+void AMEnumeratedControl::removeOption(int index)
 {
-	// Match the given index setpoint with the corresponding control setpoint.
-	// Create and return action that moves the control to the control setpoint.
-	// We can assume that the indexSetpoint given is valid, according to the
-	// validSetpoint() provided.
+	indices_.removeOne(index);
+	indexStringMap_.remove(index);
 
-	double controlSetpoint = indexSetpointMap_.value(int(indexSetpoint));
-	AMAction3 *action = AMActionSupport::buildControlMoveAction(control_, controlSetpoint);
+	updateEnumStates();
 
-	return action;
+	emit optionsChanged();
+}
+
+void AMEnumeratedControl::clearOptions()
+{
+	indices_.clear();
+	indexStringMap_.clear();
+
+	updateEnumStates();
+
+	emit optionsChanged();
 }
 
 QStringList AMEnumeratedControl::generateEnumStates() const

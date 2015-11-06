@@ -1,16 +1,14 @@
 #ifndef BIOXASCARBONFILTERFARMACTUATORFILTERCONTROL_H
 #define BIOXASCARBONFILTERFARMACTUATORFILTERCONTROL_H
 
-#include "beamline/AMPseudoMotorControl.h"
+#include "beamline/AMSingleEnumeratedControl.h"
 #include "beamline/BioXAS/BioXASCarbonFilterFarmActuatorWindowControl.h"
 
 /*
   This is a control that's meant to control a carbon filter farm actuator by filter,
-  through mapping window control values to filters. Also manages a filter preference,
-  which is useful for consistently using the same filter when there may be multiple
-  windows with the same filter.
+  through mapping window control values to filters.
   */
-class BioXASCarbonFilterFarmActuatorFilterControl : public AMPseudoMotorControl
+class BioXASCarbonFilterFarmActuatorFilterControl : public AMSingleEnumeratedControl
 {
     Q_OBJECT
 
@@ -20,100 +18,48 @@ public:
 	/// Destructor.
 	virtual ~BioXASCarbonFilterFarmActuatorFilterControl();
 
-	/// Returns true if the total filter thickness is always measurable, if connected. False otherwise.
-	virtual bool shouldMeasure() const { return true; }
-	/// Returns true if a move to a new total filter thickness is always possible, if connected. False otherwise.
-	virtual bool shouldMove() const { return true; }
-	/// Returns true if this control can stop a move in progress, if connected. False otherwise.
-	virtual bool shouldStop() const { return true; }
-
-	/// Returns true if this control can measure its value right now. False otherwise.
-	virtual bool canMeasure() const;
-	/// Returns true if this control can move right now. False otherwise.
-	virtual bool canMove() const;
-	/// Returns true if this control can stop a move right now. False otherwise.
-	virtual bool canStop() const;
-
-	/// Returns true if the given value corresponds to a valid window, false otherwise.
-	virtual bool validValue(double value) const;
-	/// Returns true if the given value corresponds to a valid window setpoint, false otherwise.
-	virtual bool validSetpoint(double value) const;
-
-	/// Returns the list of filters.
-	QList<double> filters() const { return filters_; }
-	/// Returns the filter at the given (enum) index. Returns -1 if there isn't a valid filter associated with the given index.
+	/// Returns the filter value at the given index.
 	double filterAt(int index) const;
 
-	/// Returns the index of the given filter. Returns -1 if the given filter isn't valid or no match found.
-	int indexOf(double filter) const;
-	/// Returns the index of the given filter (string), handles all enum states (including "Unknown"). Returns -1 if no match found.
-	int indexOf(const QString &filterString) const;
-
-	/// Returns the current window control.
-	AMControl* currentWindow() { return currentWindow_; }
-
-signals:
-	/// Notifier that the window control has changed.
-	void currentWindowChanged(AMControl *newControl);
-	/// Notifier that the filters have changed.
-	void filtersChanged();
+	/// Returns the window control.
+	BioXASCarbonFilterFarmActuatorWindowControl* windowControl() const { return qobject_cast<BioXASCarbonFilterFarmActuatorWindowControl*>(control_); }
 
 public slots:
-	/// Sets the current window control.
-	void setCurrentWindow(BioXASCarbonFilterFarmActuatorWindowControl *newControl);
-	/// Sets the filter window combination preference for a filter already added. This is used to set a preference when many windows may have the same filter.
-	void setFilterWindowPreference(double filter, BioXASCarbonFilterFarmWindowOption *window);
-	/// Clears the filter window combination preference for the given filter.
-	void clearFilterWindowPreference(double filter);
-	/// Clears the filter window preference for the given window option.
-	void clearFilterWindowPreference(BioXASCarbonFilterFarmWindowOption *option);
-	/// Clears the filter window preferences.
-	void clearFilterWindowPreferences();
+	/// Sets the control used as the base for this control's values.
+	void setWindowControl(BioXASCarbonFilterFarmActuatorWindowControl *newControl);
+
+	/// Adds a filter option, using the given actuator window index and its filter.
+	void addFilter(int windowIndex, double filter);
+	/// Removes a filter option.
+	void removeFilter(int windowIndex);
+
+	/// Sets a filter option preference. Useful when there may be multiple windows with the same filter, and a 'favorite' filter should be specified.
+	void setWindowPreference(double filter, int windowIndex);
+	/// Removes a filter option preference.
+	void removeWindowPreference(double filter);
+	/// Clears all filter option preferences.
+	void clearWindowPreferences();
 
 protected slots:
-	/// Updates the current states. Reimplemented to make sure the filters list and enum states are updated before the current value.
-	virtual void updateStates();
-	/// Updates the connected state.
-	virtual void updateConnected();
-	/// Updates the current value.
-	virtual void updateValue();
-	/// Updates the moving state.
-	virtual void updateMoving();
-	/// Updates the maximum value.
-	virtual void updateMaximumValue();
-
-	/// Adds a filter to the filters list.
-	void addFilter(BioXASCarbonFilterFarmWindowOption *newOption);
-	/// Clears the existing filters list.
-	void clearFilters();
-	/// Updates the filters list with the filters that are available from the window control.
-	void updateFilters();
-
-	/// Updates the control's enumerated states.
-	void updateEnumStates();
+	/// Adds an enum value option. Options added with duplicate indices will overwrite previous options.
+	virtual void addOption(int index, const QString &optionString, int windowIndex, double filter);
+	/// Removes an enum value option.
+	virtual void removeOption(int index);
+	/// Clears all value options.
+	virtual void clearOptions();
 
 protected:
-	/// Returns a new action that moves the actuator to the desired filter index setpoint.
-	virtual AMAction3* createMoveAction(double setpoint);
+	/// Returns a new action that moves the control to the setpoint that corresponds to the given index setpoint. Reimplemented to check if there is a preferred window for the desired filter.
+	virtual AMAction3* createMoveAction(double indexSetpoint);
 
-	/// Generates a list of the enum states with the given list of filter options.
-	QStringList generateEnumStates(const QList<double> &filterOptions) const;
-	/// Generates a list of the move enum states with the given list of filter options.
-	QStringList generateMoveEnumStates(const QList<double> &filterOptions) const;
-
-	/// Returns a string representation of the given filter.
-	QString filterToString(double filter) const;
+	/// Returns the current filter index.
+	virtual int currentIndex() const;
 
 protected:
-	/// The window control.
-	BioXASCarbonFilterFarmActuatorWindowControl *currentWindow_;
-
-	/// The list of valid filter values. Indexed by enum index.
-	QList<double> filters_;
-	/// The mapping between filters and windows. All filters have at least one entry in this map.
-	QMultiMap<double, BioXASCarbonFilterFarmWindowOption*> filterWindowMap_;
-	/// The preferred mapping between filter and window. A filter will only have an entry in this map if a preference has been set.
-	QMap<double, BioXASCarbonFilterFarmWindowOption*> filterWindowPreferenceMap_;
+	/// The mapping between a filter option's index and its filter value.
+	QMap<int, double> indexFilterMap_;
+	/// The mapping between the filter value and a corresponding window index. Used to specify a preference.
+	QMap<double, int> filterWindowPreferenceMap_;
 };
 
 #endif // BIOXASCARBONFILTERFARMACTUATORFILTERCONTROL_H

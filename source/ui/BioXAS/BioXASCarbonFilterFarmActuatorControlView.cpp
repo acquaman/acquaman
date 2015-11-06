@@ -92,7 +92,7 @@ void BioXASCarbonFilterFarmActuatorControlView::refreshFilterEditor()
 	filterEditor_->setControl(0);
 
 	if (actuator_)
-		filterEditor_->setControl(actuator_->currentFilter());
+		filterEditor_->setControl(actuator_->filter());
 }
 
 void BioXASCarbonFilterFarmActuatorControlView::refreshWindowEditor()
@@ -100,7 +100,7 @@ void BioXASCarbonFilterFarmActuatorControlView::refreshWindowEditor()
 	windowEditor_->setControl(0);
 
 	if (actuator_)
-		windowEditor_->setControl(actuator_->currentWindow());
+		windowEditor_->setControl(actuator_->window());
 }
 
 void BioXASCarbonFilterFarmActuatorControlView::refreshPositionEditor()
@@ -108,21 +108,13 @@ void BioXASCarbonFilterFarmActuatorControlView::refreshPositionEditor()
 	positionEditor_->setControl(0);
 
 	if (actuator_)
-		positionEditor_->setControl(actuator_->currentPosition());
+		positionEditor_->setControl(actuator_->position());
 }
 
 void BioXASCarbonFilterFarmActuatorControlView::refreshPositionStatusEditor()
 {
 	positionStatusEditor_->setControl(0);
 
-	if (actuator_) {
-		BioXASCarbonFilterFarmActuatorPositionControl *actuatorPosition = qobject_cast<BioXASCarbonFilterFarmActuatorPositionControl*>(actuator_->currentPosition());
-
-		if (actuatorPosition) {
-			positionStatusEditor_->setControl(actuatorPosition->statusControl());
-			positionStatusEditor_->show();
-		} else {
-			positionStatusEditor_->hide();
-		}
-	}
+	if (actuator_ && actuator_->position())
+		positionStatusEditor_->setControl(actuator_->position()->statusControl());
 }

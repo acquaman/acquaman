@@ -2,7 +2,6 @@
 #define BIOXASCARBONFILTERFARMACTUATORCONTROL_H
 
 #include "beamline/BioXAS/BioXASBeamlineComponent.h"
-#include "beamline/BioXAS/BioXASCarbonFilterFarmWindowOption.h"
 #include "beamline/BioXAS/BioXASCarbonFilterFarmActuatorPositionControl.h"
 #include "beamline/BioXAS/BioXASCarbonFilterFarmActuatorWindowControl.h"
 #include "beamline/BioXAS/BioXASCarbonFilterFarmActuatorFilterControl.h"
@@ -19,6 +18,9 @@ class BioXASCarbonFilterFarmActuatorControl : public BioXASBeamlineComponent
 	Q_OBJECT
 
 public:
+	/// Enum describing the different actuator location options.
+	enum Option { Upstream = 0, Downstream = 1 };
+
 	/// Constructor.
 	explicit BioXASCarbonFilterFarmActuatorControl(const QString &actuatorName, QObject *parent = 0);
 	/// Destructor.
@@ -28,27 +30,43 @@ public:
 	virtual bool isConnected() const;
 
 	/// Returns the current position control.
-	AMControl* currentPosition() const { return currentPosition_; }
+	BioXASCarbonFilterFarmActuatorPositionControl* position() const { return position_; }
 	/// Returns the current window control.
-	BioXASCarbonFilterFarmActuatorWindowControl* currentWindow() const { return currentWindow_; }
+	BioXASCarbonFilterFarmActuatorWindowControl* window() const { return window_; }
 	/// Returns the current filter control.
-	BioXASCarbonFilterFarmActuatorFilterControl* currentFilter() const { return currentFilter_; }
+	BioXASCarbonFilterFarmActuatorFilterControl* filter() const { return filter_; }
 
 signals:
 	/// Notifier that the position control has changed.
-	void currentPositionChanged(AMControl *newControl);
+	void positionChanged(AMControl *newControl);
+	/// Notifier that the window control has changed.
+	void windowChanged(AMControl *newControl);
+	/// Notifier that the filter control has changed.
+	void filterChanged(AMControl *newControl);
 
 public slots:
-	/// Sets the current position control.
-	void setCurrentPosition(AMControl *newControl);
+	/// Sets the position control.
+	void setPosition(BioXASCarbonFilterFarmActuatorPositionControl *newControl);
+	/// Sets the window control.
+	void setWindow(BioXASCarbonFilterFarmActuatorWindowControl *newControl);
+	/// Sets the filter control.
+	void setFilter(BioXASCarbonFilterFarmActuatorFilterControl *newControl);
+
+protected slots:
+	/// Updates the position control.
+	void updatePosition();
+	/// Updates the window control.
+	void updateWindow();
+	/// Updates the filter control.
+	void updateFilter();
 
 protected:
 	/// The current position control.
-	AMControl *currentPosition_;
+	BioXASCarbonFilterFarmActuatorPositionControl *position_;
 	/// The current window control.
-	BioXASCarbonFilterFarmActuatorWindowControl *currentWindow_;
+	BioXASCarbonFilterFarmActuatorWindowControl *window_;
 	/// The current filter control.
-	BioXASCarbonFilterFarmActuatorFilterControl *currentFilter_;
+	BioXASCarbonFilterFarmActuatorFilterControl *filter_;
 };
 
 #endif // BIOXASCARBONFILTERFARMACTUATORCONTROL_H
