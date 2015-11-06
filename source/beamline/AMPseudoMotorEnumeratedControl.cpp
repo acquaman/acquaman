@@ -1,7 +1,7 @@
-#include "AMPseudoMotorLadderControl.h"
+#include "AMPseudoMotorEnumeratedControl.h"
 #include "actions3/AMActionSupport.h"
 
-AMPseudoMotorLadderControl::AMPseudoMotorLadderControl(const QString &name, const QString &units, QObject *parent) :
+AMPseudoMotorEnumeratedControl::AMPseudoMotorEnumeratedControl(const QString &name, const QString &units, QObject *parent) :
 	AMPseudoMotorControl(name, units, parent)
 {
 	// Initialize local variables.
@@ -16,12 +16,12 @@ AMPseudoMotorLadderControl::AMPseudoMotorLadderControl(const QString &name, cons
 	maximumValue_ = 0;
 }
 
-AMPseudoMotorLadderControl::~AMPseudoMotorLadderControl()
+AMPseudoMotorEnumeratedControl::~AMPseudoMotorEnumeratedControl()
 {
 
 }
 
-bool AMPseudoMotorLadderControl::canMeasure() const
+bool AMPseudoMotorEnumeratedControl::canMeasure() const
 {
 	bool result = false;
 
@@ -31,7 +31,7 @@ bool AMPseudoMotorLadderControl::canMeasure() const
 	return result;
 }
 
-bool AMPseudoMotorLadderControl::canMove() const
+bool AMPseudoMotorEnumeratedControl::canMove() const
 {
 	bool result = false;
 
@@ -41,7 +41,7 @@ bool AMPseudoMotorLadderControl::canMove() const
 	return result;
 }
 
-bool AMPseudoMotorLadderControl::canStop() const
+bool AMPseudoMotorEnumeratedControl::canStop() const
 {
 	bool result = false;
 
@@ -51,17 +51,17 @@ bool AMPseudoMotorLadderControl::canStop() const
 	return result;
 }
 
-bool AMPseudoMotorLadderControl::validValue(double value) const
+bool AMPseudoMotorEnumeratedControl::validValue(double value) const
 {
 	return (value >= 0 && value < enumNames().count());
 }
 
-bool AMPseudoMotorLadderControl::validSetpoint(double value) const
+bool AMPseudoMotorEnumeratedControl::validSetpoint(double value) const
 {
 	return (value >= 0 && value < moveEnumNames().count());
 }
 
-QList<int> AMPseudoMotorLadderControl::indicesNamed(const QString &name) const
+QList<int> AMPseudoMotorEnumeratedControl::indicesNamed(const QString &name) const
 {
 	return indexStringMap_.keys(name);
 }
@@ -79,7 +79,7 @@ QList<int> AMPseudoMotorLadderControl::indicesContaining(double setpoint) const
 	}
 }
 
-void AMPseudoMotorLadderControl::setControl(AMControl *newControl)
+void AMPseudoMotorEnumeratedControl::setControl(AMControl *newControl)
 {
 	if (control_ != newControl) {
 
@@ -97,7 +97,7 @@ void AMPseudoMotorLadderControl::setControl(AMControl *newControl)
 	}
 }
 
-void AMPseudoMotorLadderControl::addOption(int index, const QString &optionString, double optionSetpoint, double optionMin, double optionMax)
+void AMPseudoMotorEnumeratedControl::addOption(int index, const QString &optionString, double optionSetpoint, double optionMin, double optionMax)
 {
 	if (!indices_.contains(index))
 		indices_.append(index);
@@ -112,12 +112,12 @@ void AMPseudoMotorLadderControl::addOption(int index, const QString &optionStrin
 	emit optionsChanged();
 }
 
-void AMPseudoMotorLadderControl::addOption(int index, const QString &optionString, double optionSetpoint)
+void AMPseudoMotorEnumeratedControl::addOption(int index, const QString &optionString, double optionSetpoint)
 {
 	addOption(index, optionString, optionSetpoint, optionSetpoint, optionSetpoint);
 }
 
-void AMPseudoMotorLadderControl::removeOption(int index)
+void AMPseudoMotorEnumeratedControl::removeOption(int index)
 {
 	indices_.removeOne(index);
 	indexStringMap_.remove(index);
@@ -130,7 +130,7 @@ void AMPseudoMotorLadderControl::removeOption(int index)
 	emit optionsChanged();
 }
 
-void AMPseudoMotorLadderControl::clearOptions()
+void AMPseudoMotorEnumeratedControl::clearOptions()
 {
 	indices_.clear();
 	indexStringMap_.clear();
@@ -143,7 +143,7 @@ void AMPseudoMotorLadderControl::clearOptions()
 	emit optionsChanged();
 }
 
-void AMPseudoMotorLadderControl::updateStates()
+void AMPseudoMotorEnumeratedControl::updateStates()
 {
 	updateConnected();
 	updateEnumStates();
@@ -152,24 +152,24 @@ void AMPseudoMotorLadderControl::updateStates()
 	updateMoving();
 }
 
-void AMPseudoMotorLadderControl::updateConnected()
+void AMPseudoMotorEnumeratedControl::updateConnected()
 {
 	bool isConnected = ( control_ && control_->isConnected() );
 	setConnected(isConnected);
 }
 
-void AMPseudoMotorLadderControl::updateEnumStates()
+void AMPseudoMotorEnumeratedControl::updateEnumStates()
 {
 	setEnumStates(generateEnumStates());
 	setMoveEnumStates(generateMoveEnumStates());
 }
 
-void AMPseudoMotorLadderControl::updateMaximumValue()
+void AMPseudoMotorEnumeratedControl::updateMaximumValue()
 {
 	setMaximumValue(enumNames().count() - 1);
 }
 
-void AMPseudoMotorLadderControl::updateValue()
+void AMPseudoMotorEnumeratedControl::updateValue()
 {
 	// Initialize the new value to "Unknown".
 
@@ -190,13 +190,13 @@ void AMPseudoMotorLadderControl::updateValue()
 	setValue(newValue);
 }
 
-void AMPseudoMotorLadderControl::updateMoving()
+void AMPseudoMotorEnumeratedControl::updateMoving()
 {
 	bool isMoving = ( control_ && control_->isMoving());
 	setIsMoving(isMoving);
 }
 
-AMAction3* AMPseudoMotorLadderControl::createMoveAction(double indexSetpoint)
+AMAction3* AMPseudoMotorEnumeratedControl::createMoveAction(double indexSetpoint)
 {
 	// Match the given index setpoint with the corresponding control setpoint.
 	// Create and return action that moves the control to the control setpoint.
@@ -209,7 +209,7 @@ AMAction3* AMPseudoMotorLadderControl::createMoveAction(double indexSetpoint)
 	return action;
 }
 
-QStringList AMPseudoMotorLadderControl::generateEnumStates() const
+QStringList AMPseudoMotorEnumeratedControl::generateEnumStates() const
 {
 	QStringList enumOptions = generateMoveEnumStates();
 
@@ -222,7 +222,7 @@ QStringList AMPseudoMotorLadderControl::generateEnumStates() const
 	return enumOptions;
 }
 
-QStringList AMPseudoMotorLadderControl::generateMoveEnumStates() const
+QStringList AMPseudoMotorEnumeratedControl::generateMoveEnumStates() const
 {
 	QStringList moveOptions;
 

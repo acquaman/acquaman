@@ -1,13 +1,13 @@
 #ifndef BIOXASCARBONFILTERFARMACTUATORWINDOWCONTROL_H
 #define BIOXASCARBONFILTERFARMACTUATORWINDOWCONTROL_H
 
-#include "beamline/AMPseudoMotorLadderControl.h"
+#include "beamline/AMPseudoMotorEnumeratedControl.h"
 
 /*
   This is a control that's meant to control a carbon filter farm actuator by window,
   through mapping the actuator's positions to enumerated window values.
   */
-class BioXASCarbonFilterFarmActuatorWindowControl : public AMPseudoMotorLadderControl
+class BioXASCarbonFilterFarmActuatorWindowControl : public AMPseudoMotorEnumeratedControl
 {
 	Q_OBJECT
 

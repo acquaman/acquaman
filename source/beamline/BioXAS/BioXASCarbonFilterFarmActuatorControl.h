@@ -20,7 +20,7 @@ class BioXASCarbonFilterFarmActuatorControl : public BioXASBeamlineComponent
 
 public:
 	/// Constructor.
-	explicit BioXASCarbonFilterFarmActuatorControl(const QString &name, QObject *parent = 0);
+	explicit BioXASCarbonFilterFarmActuatorControl(const QString &actuatorName, QObject *parent = 0);
 	/// Destructor.
 	virtual ~BioXASCarbonFilterFarmActuatorControl();
 
