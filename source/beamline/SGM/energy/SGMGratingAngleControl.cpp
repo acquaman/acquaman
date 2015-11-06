@@ -67,7 +67,7 @@ SGMGratingAngleControl::SGMGratingAngleControl(QObject *parent) :
 	addChildControl(stepMotorControl_);
 	setMinimumValue(encoderControl_->minimumValue());
 	setMaximumValue(encoderControl_->maximumValue());
-	setTolerance(encoderControl_->tolerance());
+	setTolerance(500);
 
 	updateStates();
 }
@@ -196,24 +196,39 @@ AMAction3 * SGMGratingAngleControl::createMoveAction(double setpoint)
 
 
 	if(isClosedLoop()) {
-		qDebug() <<"Closed Loop: ON";
+		qDebug() <<"\tClosed Loop: ON";
+		qDebug() <<"\tEncoder Target:" << setpoint;
 		moveAction->addSubAction(AMActionSupport::buildControlMoveAction(encoderControl_, setpoint));
 		moveAction->addSubAction(AMActionSupport::buildControlWaitAction(encoderControl_, setpoint, 20, AMControlWaitActionInfo::MatchWithinTolerance));
 	} else {
 		qDebug() << "\t\t\tClosed Loop: OFF";
 		// Get distance to move in terms of the encoder
 		double deltaDistanceEncoder = setpoint - value();
+		qDebug() << "\t\t\tEncoder Distance:" << deltaDistanceEncoder;
+		// The grating angle always under targets by approx 3.4% when targetting
+		// steps in non closed loop mode, add a correction value depending on whether
+		// we're moving forwards or backwards.
+		if(deltaDistanceEncoder > 0) {
+			deltaDistanceEncoder += deltaDistanceEncoder * 0.035;
+		} else {
+			deltaDistanceEncoder -= deltaDistanceEncoder * 0.035;
+		}
+
+		qDebug() << "\t\t\tCorrected Encoder Distance:" << deltaDistanceEncoder;
+
 		// Convert into steps
 		double deltaDistanceSteps = deltaDistanceEncoder * stepsPerEncoderCount();
+
 		// Get current step position
 		double currentStepPosition = stepMotorControl_->value();
+		qDebug() << "\t\t\tCurrent Step Position:" << currentStepPosition;
 		// Get the setpoint in terms of steps
-		double stepSetpoint = currentStepPosition + deltaDistanceSteps;
+		double stepSetpoint = currentStepPosition + deltaDistanceSteps;		
 
 		// Do the move
-		qDebug() << "\t\t\tMove grating angle to" << stepSetpoint;
-		//moveAction->addSubAction(AMActionSupport::buildControlMoveAction(stepMotorControl_, stepSetpoint));
-		//moveAction->addSubAction(AMActionSupport::buildControlWaitAction(stepMotorControl_, stepSetpoint, 60, AMControlWaitActionInfo::MatchWithinTolerance));
+		qDebug() << "\t\t\tMove grating angle to" << stepSetpoint << "steps";
+		moveAction->addSubAction(AMActionSupport::buildControlMoveAction(stepMotorControl_, stepSetpoint));
+		moveAction->addSubAction(AMActionSupport::buildControlWaitAction(stepMotorControl_, stepSetpoint, 60, AMControlWaitActionInfo::MatchWithinTolerance));
 	}
 
 	return moveAction;

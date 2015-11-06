@@ -189,7 +189,7 @@ QString SGMEnergyTrajectory::toString() const
 double SGMEnergyTrajectory::calculateGratingAngleVelocity() const
 {
 	double halfAccelByTime = (gratingAngleAcceleration_*time_) / 2;
-	double toRoot = halfAccelByTime * halfAccelByTime - gratingAngleAcceleration_ * qAbs(endGratingAngleEncoderCount() - startGratingAngleEncoderCount());
+	double toRoot = pow(halfAccelByTime, 2) - gratingAngleAcceleration_ * qAbs(endGratingAngleEncoderCount() - startGratingAngleEncoderCount());
 
 	if(toRoot < 0) {
 
