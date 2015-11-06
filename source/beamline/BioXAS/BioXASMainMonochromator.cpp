@@ -37,9 +37,7 @@ BioXASMainMonochromator::BioXASMainMonochromator(QObject *parent) :
 	// Create region control.
 
 	region_ = new BioXASSSRLMonochromatorRegionControl(name()+"RegionControl", this);
-	region_->setUpperSlitControl(upperSlit_);
-	region_->setLowerSlitControl(lowerSlit_);
-	region_->setSlitsStatusControl(slitsStatus_);
+	region_->setMask(mask_);
 	region_->setPaddleControl(paddle_);
 	region_->setPaddleStatusControl(paddleStatus_);
 	region_->setKeyStatusControl(keyStatus_);
