@@ -37,6 +37,7 @@ void AMEnumeratedControl::updateStates()
 	updateConnected();
 	updateOptions();
 	updateEnumStates();
+	updateMinimumValue();
 	updateMaximumValue();
 	updateValue();
 	updateMoving();
