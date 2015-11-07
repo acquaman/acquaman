@@ -57,9 +57,9 @@ protected slots:
 	virtual void updateMoving();
 
 	/// Adds an enum value option, assumes that the index will be the next available value (incrementing from zero).
-	virtual void addOption(const QString &optionString, double filter, int upstreamFilterIndex, int downstreamFilterIndex);
+	virtual void addFilterOption(const QString &optionString, double filter, int upstreamFilterIndex, int downstreamFilterIndex);
 	/// Adds an enum value option. Options added with duplicate indices will overwrite previous options.
-	virtual void addOption(int index, const QString &optionString, double filter, int upstreamFilterIndex, int downstreamFilterIndex);
+	virtual void addFilterOption(int index, const QString &optionString, double filter, int upstreamFilterIndex, int downstreamFilterIndex);
 	/// Removes an enum value option.
 	virtual void removeOption(int index);
 	/// Clears all value options.

@@ -28,16 +28,9 @@ public:
 	/// Returns a list of the indices for options with value ranges that contain the given setpoint.
 	QList<int> indicesContaining(double setpoint) const;
 
-	/// Returns the 'continuous' control, the control being used as the base for this control's values.
-	AMControl* control() const { return control_; }
-
-signals:
-	/// Notifier that the 'continuous' control has changed.
-	void controlChanged(AMControl *newControl);
-
 protected slots:
-	/// Sets the control used as the base for this control's values.
-	void setBaseControl(AMControl *newControl);
+	/// Sets the control used as the base for this control's values. Returns true if the control was set successfully, false otherwise.
+	bool setBaseControl(AMControl *newControl);
 
 	/// Updates the connected state.
 	virtual void updateConnected();
@@ -45,9 +38,9 @@ protected slots:
 	virtual void updateMoving();
 
 	/// Adds an enum value option. Options added with duplicate indices will overwrite previous options.
-	virtual void addOption(int index, const QString &optionString, double optionSetpoint, double optionMin, double optionMax);
+	virtual void addValueOption(int index, const QString &optionString, double optionSetpoint, double optionMin, double optionMax);
 	/// Adds an enum value option, assumes that the given setpoint is identical to the option min and max values.
-	virtual void addOption(int index, const QString &optionString, double optionSetpoint);
+	virtual void addValueOption(int index, const QString &optionString, double optionSetpoint);
 	/// Removes an enum value option.
 	virtual void removeOption(int index);
 	/// Clears all value options.

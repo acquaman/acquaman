@@ -69,7 +69,7 @@ void BioXASCarbonFilterFarmFilterControl::setUpstreamFilter(BioXASCarbonFilterFa
 		if (upstreamFilter_) {
 			addChildControl(upstreamFilter_);
 
-			connect( upstreamFilter_, SIGNAL(filtersChanged()), this, SLOT(updateFilters()) );
+			connect( upstreamFilter_, SIGNAL(optionsChanged()), this, SLOT(updateOptions()) );
 		}
 
 		updateStates();
@@ -91,7 +91,7 @@ void BioXASCarbonFilterFarmFilterControl::setDownstreamFilter(BioXASCarbonFilter
 		if (downstreamFilter_) {
 			addChildControl(downstreamFilter_);
 
-			connect( downstreamFilter_, SIGNAL(filtersChanged()), this, SLOT(updateFilters()) );
+			connect( downstreamFilter_, SIGNAL(optionsChanged()), this, SLOT(updateOptions()) );
 		}
 
 		updateStates();
@@ -132,7 +132,7 @@ void BioXASCarbonFilterFarmFilterControl::updateOptions()
 		foreach (int upstreamIndex, upstreamIndices) {
 
 			double newFilter = totalFilterByIndices(upstreamIndex, downstreamIndex);
-			addOption(QString::number(newFilter, 'f', 0), newFilter, upstreamIndex, downstreamIndex);
+			addFilterOption(QString::number(newFilter, 'f', 0), newFilter, upstreamIndex, downstreamIndex);
 		}
 	}
 }
@@ -147,50 +147,36 @@ void BioXASCarbonFilterFarmFilterControl::updateMoving()
 	setIsMoving(isMoving);
 }
 
-void BioXASCarbonFilterFarmFilterControl::addOption(const QString &optionString, double filter, int upstreamFilterIndex, int downstreamFilterIndex)
+void BioXASCarbonFilterFarmFilterControl::addFilterOption(const QString &optionString, double filter, int upstreamFilterIndex, int downstreamFilterIndex)
 {
-	addOption(indices_.count(), optionString, filter, upstreamFilterIndex, downstreamFilterIndex);
+	addFilterOption(indices_.count(), optionString, filter, upstreamFilterIndex, downstreamFilterIndex);
 }
 
-void BioXASCarbonFilterFarmFilterControl::addOption(int index, const QString &optionString, double filter, int upstreamFilterIndex, int downstreamFilterIndex)
+void BioXASCarbonFilterFarmFilterControl::addFilterOption(int index, const QString &optionString, double filter, int upstreamFilterIndex, int downstreamFilterIndex)
 {
-	if (!indices_.contains(index))
-		indices_.append(index);
-
-	indexStringMap_.insert(index, optionString);
 	indexFilterMap_.insert(index, filter);
 	indexUpstreamFilterIndexMap_.insert(index, upstreamFilterIndex);
 	indexDownstreamFilterIndexMap_.insert(index, downstreamFilterIndex);
 
-	updateEnumStates();
-
-	emit optionsChanged();
+	AMEnumeratedControl::addOption(index, optionString);
 }
 
 void BioXASCarbonFilterFarmFilterControl::removeOption(int index)
 {
-	indices_.removeOne(index);
-	indexStringMap_.remove(index);
 	indexFilterMap_.remove(index);
 	indexUpstreamFilterIndexMap_.remove(index);
 	indexDownstreamFilterIndexMap_.remove(index);
 
-	updateEnumStates();
-
-	emit optionsChanged();
+	AMEnumeratedControl::removeOption(index);
 }
 
 void BioXASCarbonFilterFarmFilterControl::clearOptions()
 {
-	indices_.clear();
-	indexStringMap_.clear();
 	indexFilterMap_.clear();
 	indexUpstreamFilterIndexMap_.clear();
 	indexDownstreamFilterIndexMap_.clear();
 
-	updateEnumStates();
-
-	emit optionsChanged();
+	AMEnumeratedControl::clearOptions();
 }
 
 AMAction3* BioXASCarbonFilterFarmFilterControl::createMoveAction(double setpoint)

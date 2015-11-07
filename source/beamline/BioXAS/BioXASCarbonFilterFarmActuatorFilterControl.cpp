@@ -22,18 +22,29 @@ double BioXASCarbonFilterFarmActuatorFilterControl::filterAt(int index) const
 
 void BioXASCarbonFilterFarmActuatorFilterControl::setWindowControl(BioXASCarbonFilterFarmActuatorWindowControl *newControl)
 {
-	setBaseControl(newControl);
+	if (setBaseControl(newControl))
+		emit windowChanged(newControl);
 }
 
 void BioXASCarbonFilterFarmActuatorFilterControl::addFilter(int windowIndex, double filter)
 {
 	// Because each window will only ever have one filter, we can use the window index as the filter index.
-	addOption(windowIndex, QString::number(filter, 'f', 0), windowIndex, filter);
+
+	indexFilterMap_.insert(windowIndex, filter);
+	addValueOption(windowIndex, QString::number(filter, 'f', 0), windowIndex);
 }
 
 void BioXASCarbonFilterFarmActuatorFilterControl::removeFilter(int windowIndex)
 {
+	indexFilterMap_.remove(windowIndex);
 	removeOption(windowIndex);
+}
+
+void BioXASCarbonFilterFarmActuatorFilterControl::clearFilters()
+{
+	indexFilterMap_.clear();
+	filterWindowPreferenceMap_.clear();
+	clearOptions();
 }
 
 void BioXASCarbonFilterFarmActuatorFilterControl::setWindowPreference(double filter, int windowIndex)
@@ -49,50 +60,6 @@ void BioXASCarbonFilterFarmActuatorFilterControl::removeWindowPreference(double 
 void BioXASCarbonFilterFarmActuatorFilterControl::clearWindowPreferences()
 {
 	filterWindowPreferenceMap_.clear();
-}
-
-void BioXASCarbonFilterFarmActuatorFilterControl::addOption(int index, const QString &optionString, int windowIndex, double filter)
-{
-	if (!indices_.contains(index))
-		indices_.append(index);
-
-	indexStringMap_.insert(index, optionString);
-	indexSetpointMap_.insert(index, windowIndex);
-	indexMinimumMap_.insert(index, windowIndex);
-	indexMaximumMap_.insert(index, windowIndex);
-	indexFilterMap_.insert(index, filter);
-
-	updateEnumStates();
-
-	emit optionsChanged();
-}
-
-void BioXASCarbonFilterFarmActuatorFilterControl::removeOption(int index)
-{
-	indices_.removeOne(index);
-	indexStringMap_.remove(index);
-	indexSetpointMap_.remove(index);
-	indexMinimumMap_.remove(index);
-	indexMaximumMap_.remove(index);
-	indexFilterMap_.remove(index);
-
-	updateEnumStates();
-
-	emit optionsChanged();
-}
-
-void BioXASCarbonFilterFarmActuatorFilterControl::clearOptions()
-{
-	indices_.clear();
-	indexStringMap_.clear();
-	indexSetpointMap_.clear();
-	indexMinimumMap_.clear();
-	indexMaximumMap_.clear();
-	indexFilterMap_.clear();
-
-	updateEnumStates();
-
-	emit optionsChanged();
 }
 
 AMAction3* BioXASCarbonFilterFarmActuatorFilterControl::createMoveAction(double indexSetpoint)

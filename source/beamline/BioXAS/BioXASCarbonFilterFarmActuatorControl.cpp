@@ -61,7 +61,7 @@ void BioXASCarbonFilterFarmActuatorControl::setWindow(BioXASCarbonFilterFarmActu
 		if (window_) {
 			addChildControl(window_);
 
-			connect( window_, SIGNAL(controlChanged(AMControl*)), this, SLOT(updatePosition()) );
+			connect( window_, SIGNAL(positionChanged(BioXASCarbonFilterFarmActuatorPositionControl*)), this, SLOT(updatePosition()) );
 		}
 
 		updateFilter();
@@ -83,7 +83,7 @@ void BioXASCarbonFilterFarmActuatorControl::setFilter(BioXASCarbonFilterFarmActu
 		if (filter_) {
 			addChildControl(filter_);
 
-			connect( filter_, SIGNAL(controlChanged(AMControl*)), this, SLOT(updateWindow()) );
+			connect( filter_, SIGNAL(windowChanged(BioXASCarbonFilterFarmActuatorWindowControl*)), this, SLOT(updateWindow()) );
 		}
 
 		updateFilter();

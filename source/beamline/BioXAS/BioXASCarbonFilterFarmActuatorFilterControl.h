@@ -24,6 +24,10 @@ public:
 	/// Returns the window control.
 	BioXASCarbonFilterFarmActuatorWindowControl* windowControl() const { return qobject_cast<BioXASCarbonFilterFarmActuatorWindowControl*>(control_); }
 
+signals:
+	/// Notifier that the window control has changed.
+	void windowChanged(BioXASCarbonFilterFarmActuatorWindowControl *newControl);
+
 public slots:
 	/// Sets the control used as the base for this control's values.
 	void setWindowControl(BioXASCarbonFilterFarmActuatorWindowControl *newControl);
@@ -32,6 +36,8 @@ public slots:
 	void addFilter(int windowIndex, double filter);
 	/// Removes a filter option.
 	void removeFilter(int windowIndex);
+	/// Clears all filter options.
+	void clearFilters();
 
 	/// Sets a filter option preference. Useful when there may be multiple windows with the same filter, and a 'favorite' filter should be specified.
 	void setWindowPreference(double filter, int windowIndex);
@@ -39,14 +45,6 @@ public slots:
 	void removeWindowPreference(double filter);
 	/// Clears all filter option preferences.
 	void clearWindowPreferences();
-
-protected slots:
-	/// Adds an enum value option. Options added with duplicate indices will overwrite previous options.
-	virtual void addOption(int index, const QString &optionString, int windowIndex, double filter);
-	/// Removes an enum value option.
-	virtual void removeOption(int index);
-	/// Clears all value options.
-	virtual void clearOptions();
 
 protected:
 	/// Returns a new action that moves the control to the setpoint that corresponds to the given index setpoint. Reimplemented to check if there is a preferred window for the desired filter.

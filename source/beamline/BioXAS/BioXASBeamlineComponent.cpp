@@ -16,7 +16,7 @@ void BioXASBeamlineComponent::addChildControl(AMControl *control)
 	if (control) {
 		children_ << control;
 
-		connect( control, SIGNAL(connected(bool)), this, SLOT(updateStates()) );
+		connect( control, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 	}
 }
 

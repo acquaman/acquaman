@@ -55,10 +55,14 @@ QList<int> AMSingleEnumeratedControl::indicesContaining(double setpoint) const
 		if (setpoint >= optionMin && setpoint <= optionMax)
 			results << index;
 	}
+
+	return results;
 }
 
-void AMSingleEnumeratedControl::setBaseControl(AMControl *newControl)
+bool AMSingleEnumeratedControl::setBaseControl(AMControl *newControl)
 {
+	bool result = false;
+
 	if (control_ != newControl) {
 
 		if (control_)
@@ -71,8 +75,10 @@ void AMSingleEnumeratedControl::setBaseControl(AMControl *newControl)
 
 		updateStates();
 
-		emit controlChanged(control_);
+		result = true;
 	}
+
+	return result;
 }
 
 void AMSingleEnumeratedControl::updateConnected()
@@ -87,50 +93,36 @@ void AMSingleEnumeratedControl::updateMoving()
 	setIsMoving(isMoving);
 }
 
-void AMSingleEnumeratedControl::addOption(int index, const QString &optionString, double optionSetpoint, double optionMin, double optionMax)
+void AMSingleEnumeratedControl::addValueOption(int index, const QString &optionString, double optionSetpoint, double optionMin, double optionMax)
 {
-	if (!indices_.contains(index))
-		indices_.append(index);
-
-	indexStringMap_.insert(index, optionString);
 	indexSetpointMap_.insert(index, optionSetpoint);
 	indexMinimumMap_.insert(index, optionMin);
 	indexMaximumMap_.insert(index, optionMax);
 
-	updateEnumStates();
-
-	emit optionsChanged();
+	AMEnumeratedControl::addOption(index, optionString);
 }
 
-void AMSingleEnumeratedControl::addOption(int index, const QString &optionString, double optionSetpoint)
+void AMSingleEnumeratedControl::addValueOption(int index, const QString &optionString, double optionSetpoint)
 {
-	addOption(index, optionString, optionSetpoint, optionSetpoint, optionSetpoint);
+	addValueOption(index, optionString, optionSetpoint, optionSetpoint, optionSetpoint);
 }
 
 void AMSingleEnumeratedControl::removeOption(int index)
 {
-	indices_.removeOne(index);
-	indexStringMap_.remove(index);
 	indexSetpointMap_.remove(index);
 	indexMinimumMap_.remove(index);
 	indexMaximumMap_.remove(index);
 
-	updateEnumStates();
-
-	emit optionsChanged();
+	AMEnumeratedControl::removeOption(index);
 }
 
 void AMSingleEnumeratedControl::clearOptions()
 {
-	indices_.clear();
-	indexStringMap_.clear();
 	indexSetpointMap_.clear();
 	indexMinimumMap_.clear();
 	indexMaximumMap_.clear();
 
-	updateEnumStates();
-
-	emit optionsChanged();
+	AMEnumeratedControl::clearOptions();
 }
 
 int AMSingleEnumeratedControl::currentIndex() const

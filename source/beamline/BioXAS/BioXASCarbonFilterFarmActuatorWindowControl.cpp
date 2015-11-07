@@ -14,33 +14,23 @@ BioXASCarbonFilterFarmActuatorWindowControl::~BioXASCarbonFilterFarmActuatorWind
 
 }
 
-QString BioXASCarbonFilterFarmActuatorWindowControl::windowToString(double window)
-{
-	QString result;
-
-	switch (int(window)) {
-	case None:
-		result = "None";
-		break;
-	case Bottom:
-		result = "Bottom";
-		break;
-	case Top:
-		result = "Top";
-		break;
-	default:
-		break;
-	}
-
-	return result;
-}
-
 void BioXASCarbonFilterFarmActuatorWindowControl::setPositionControl(BioXASCarbonFilterFarmActuatorPositionControl *newControl)
 {
-	setBaseControl(newControl);
+	if (setBaseControl(newControl))
+		emit positionChanged(newControl);
 }
 
-void BioXASCarbonFilterFarmActuatorWindowControl::addWindow(Option window, double windowSetpoint, double windowMin, double windowMax)
+void BioXASCarbonFilterFarmActuatorWindowControl::addWindow(int windowIndex, const QString &windowString, double positionSetpoint, double positionMin, double positionMax)
 {
-	addOption(window, windowToString(window), windowSetpoint, windowMin, windowMax);
+	addValueOption(windowIndex, windowString, positionSetpoint, positionMin, positionMax);
+}
+
+void BioXASCarbonFilterFarmActuatorWindowControl::removeWindow(int windowIndex)
+{
+	removeOption(windowIndex);
+}
+
+void BioXASCarbonFilterFarmActuatorWindowControl::clearWindows()
+{
+	clearOptions();
 }

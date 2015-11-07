@@ -38,11 +38,11 @@ public:
 
 signals:
 	/// Notifier that the position control has changed.
-	void positionChanged(AMControl *newControl);
+	void positionChanged(BioXASCarbonFilterFarmActuatorPositionControl *newControl);
 	/// Notifier that the window control has changed.
-	void windowChanged(AMControl *newControl);
+	void windowChanged(BioXASCarbonFilterFarmActuatorWindowControl *newControl);
 	/// Notifier that the filter control has changed.
-	void filterChanged(AMControl *newControl);
+	void filterChanged(BioXASCarbonFilterFarmActuatorFilterControl *newControl);
 
 public slots:
 	/// Sets the position control.

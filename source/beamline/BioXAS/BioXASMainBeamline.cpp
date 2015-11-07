@@ -179,36 +179,36 @@ void BioXASMainBeamline::setupComponents()
 
 	// M1 Mirror.
 	m1Mirror_ = new BioXASMainM1Mirror(this);
-	connect( m1Mirror_, SIGNAL(connectedChanged(bool)), this, SLOT(updateConnected()) );
+	connect( m1Mirror_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
 	// Mono.
 	mono_ = new BioXASMainMonochromator(this);
 	mono_->setM1MirrorPitchControl(m1Mirror_->pitchControl());
-	connect( mono_, SIGNAL(connectedChanged(bool)), this, SLOT(updateConnected()) );
+	connect( mono_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
 	// M2 Mirror.
 	m2Mirror_ = new BioXASMainM2Mirror(this);
-	connect( m2Mirror_, SIGNAL(connectedChanged(bool)), this, SLOT(updateConnected()) );
+	connect( m2Mirror_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
 	// Carbon filter farm.
 	carbonFilterFarm_ = new BioXASMainCarbonFilterFarm(this);
-	connect( carbonFilterFarm_, SIGNAL(connectedChanged(bool)), this, SLOT(updateConnected()) );
+	connect( carbonFilterFarm_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
 	// JJ slits.
 	jjSlits_ = new CLSJJSlits("JJSlits", "SMTR1607-7-I21-11", "SMTR1607-7-I21-10", "SMTR1607-7-I21-12", "SMTR1607-7-I21-13", this);
-	connect( jjSlits_, SIGNAL(connectedChanged(bool)), this, SLOT(updateConnected()) );
+	connect( jjSlits_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
 	// XIA filters.
 	xiaFilters_ = new BioXASMainXIAFilters(this);
-	connect( xiaFilters_, SIGNAL(connectedChanged(bool)), this, SLOT(updateConnected()) );
+	connect( xiaFilters_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
 	// DBHR mirrors.
 	dbhrMirrors_ = new BioXASMainDBHRMirrors(this);
-	connect( dbhrMirrors_, SIGNAL(connectedChanged(bool)), this, SLOT(updateConnected()) );
+	connect( dbhrMirrors_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
 	// Standards wheel.
 	standardsWheel_ = new BioXASMainStandardsWheel(this);
-	connect( standardsWheel_, SIGNAL(connectedChanged(bool)), this, SLOT(updateConnected()) );
+	connect( standardsWheel_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
 	// Endstation table.
 	endstationTable_ = new BioXASEndstationTable("MainEndstationTable", "BL1607-7-I21", true, this);
@@ -243,7 +243,7 @@ void BioXASMainBeamline::setupComponents()
 
 	// Utilities
 	utilities_ = new BioXASBeamlineUtilities(this);
-	connect( utilities_, SIGNAL(connectedChanged(bool)), this, SLOT(updateConnected()) );
+	connect( utilities_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 }
 
 void BioXASMainBeamline::setupControlsAsDetectors()
