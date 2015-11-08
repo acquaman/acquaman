@@ -22,7 +22,7 @@ SOURCES += \
     source/ui/SGM/SGMHexapodView.cpp \
     source/ui/SGM/SGMEnergyView.cpp
 
-PATH_TO_AMDS = /BuildAcquaman/DavidAcquaman/AcquamanDataServer
+PATH_TO_AMDS = $$PATH_TO_AM/../AcquamanDataServer
 
 DEPENDPATH *= $$PATH_TO_AMDS $$PATH_TO_AMDS/source
 INCLUDEPATH *= $$PATH_TO_AMDS $$PATH_TO_AMDS/source
