@@ -35,7 +35,6 @@ AMDetectorReadAction::AMDetectorReadAction(AMDetectorReadActionInfo *info, AMDet
 		detector_ = detector;
 	else if(AMBeamlineSupport::beamlineDetectorAPI())
 		detector_ = AMBeamlineSupport::beamlineDetectorAPI()->exposedDetectorByInfo(*(info->detectorInfo()));
-		//detector_ = AMBeamline::bl()->exposedDetectorByInfo(*(info->detectorInfo()));
 	else
 		detector_ = 0; //NULL
 }
@@ -45,8 +44,6 @@ AMDetectorReadAction::AMDetectorReadAction(const AMDetectorReadAction &other) :
 {
 	const AMDetectorReadActionInfo *info = qobject_cast<const AMDetectorReadActionInfo*>(other.info());
 
-	//if(info)
-	//	detector_ = AMBeamline::bl()->exposedDetectorByInfo(*(detectorReadInfo()->detectorInfo()));
 	if(info && AMBeamlineSupport::beamlineDetectorAPI())
 		detector_ = AMBeamlineSupport::beamlineDetectorAPI()->exposedDetectorByInfo(*(detectorReadInfo()->detectorInfo()));
 	else
@@ -55,8 +52,6 @@ AMDetectorReadAction::AMDetectorReadAction(const AMDetectorReadAction &other) :
 
 void AMDetectorReadAction::startImplementation(){
 	// If you still don't have a detector, check the exposed detectors one last time.
-	//if(!detector_)
-	//	detector_ = AMBeamline::bl()->exposedDetectorByInfo(*(detectorReadInfo()->detectorInfo()));
 	if(!detector_ && AMBeamlineSupport::beamlineDetectorAPI())
 		detector_ = AMBeamlineSupport::beamlineDetectorAPI()->exposedDetectorByInfo(*(detectorReadInfo()->detectorInfo()));
 
@@ -90,10 +85,33 @@ void AMDetectorReadAction::onDetectorNewValuesAvailable(){
 	internalSetSucceeded();
 }
 
+#include <QDebug>
 void AMDetectorReadAction::internalSetSucceeded(){
 	disconnect(detector_, 0, this, 0);
 
 	if(generateScanActionMessages_){
+
+		if(AMAgnosticDataAPISupport::handlerFromLookupKey("AmptekTest")){
+			QList<double> detectorData;
+			detectorData.append(27);
+			QList<int> dimensionSizes;
+			dimensionSizes.append(1);
+			QStringList dimensionNames;
+			dimensionNames.append("Anything");
+			QStringList dimensionUnits;
+			dimensionUnits.append("Whatever");
+			AMAgnosticDataAPIDataAvailableMessage dataAvailableMessage(detector_->name(), detectorData, dimensionSizes, dimensionNames, dimensionUnits, true);
+			intptr_t continuousDataPointer = (intptr_t)(detector_->lastContinuousData(1));
+			quint64 continuousDataPointer64 = continuousDataPointer;
+			qDebug() << "Pointer value was " << continuousDataPointer << " 64 as " << continuousDataPointer64;
+//			dataAvailableMessage.setDetectorDataAsAMDS(detector_->lastContinuousData(1));
+			dataAvailableMessage.setDetectorDataAsAMDS(continuousDataPointer64);
+//			qDebug() << "Placing pointer with value " << (intptr_t)(dataAvailableMessage.detectorDataAsAMDS());
+			AMAgnosticDataAPISupport::handlerFromLookupKey("AmptekTest")->postMessage(dataAvailableMessage);
+
+			qDebug() << "About to postMessage to AmptekTest";
+			return;
+		}
 
 		QList<int> dimensionSizes;
 		QStringList dimensionNames;
