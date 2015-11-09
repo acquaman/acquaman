@@ -50,7 +50,7 @@ protected:
 	/// Returns a new action that moves the control to the setpoint that corresponds to the given index setpoint.
 	virtual AMAction3* createMoveAction(double indexSetpoint);
 
-	/// Returns the current index. Subclasses must reimplement for their specific behavior/interaction.
+	/// Returns the current index.
 	virtual int currentIndex() const;
 
 protected:

@@ -127,7 +127,9 @@ void AMSingleEnumeratedControl::clearOptions()
 
 int AMSingleEnumeratedControl::currentIndex() const
 {
-	int currentIndex = -1;
+	// Initialize the new index to "Unknown".
+
+	int currentIndex = enumNames().indexOf("Unknown");
 
 	if (control_) {
 
