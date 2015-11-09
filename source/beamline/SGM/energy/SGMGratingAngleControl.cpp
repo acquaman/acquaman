@@ -187,7 +187,7 @@ void SGMGratingAngleControl::onControlSetConnectionChanged(bool)
 {
 	updateConnected();
 }
-#include <QDebug>
+
 AMAction3 * SGMGratingAngleControl::createMoveAction(double setpoint)
 {
 	AMListAction3* moveAction = new AMListAction3(new AMListActionInfo3("Moving Grating Angle",
@@ -196,27 +196,23 @@ AMAction3 * SGMGratingAngleControl::createMoveAction(double setpoint)
 
 
 	if(isClosedLoop()) {
-		qDebug() <<"\tClosed Loop: ON";
-		qDebug() <<"\tEncoder Target:" << setpoint;
+
 		moveAction->addSubAction(AMActionSupport::buildControlMoveAction(encoderControl_, setpoint));
 		moveAction->addSubAction(AMActionSupport::buildControlWaitAction(encoderControl_, setpoint, 20, AMControlWaitActionInfo::MatchWithinTolerance));
 	} else {
-		qDebug() << "\t\t\tClosed Loop: OFF";
+;
 		// Get distance to move in terms of the encoder
 		double deltaDistanceEncoder = setpoint - value();
-		qDebug() << "\t\t\tEncoder Distance:" << deltaDistanceEncoder;
 
 		// Convert into steps
 		double deltaDistanceSteps = deltaDistanceEncoder * stepsPerEncoderCount();
 
 		// Get current step position
 		double currentStepPosition = stepMotorControl_->value();
-		qDebug() << "\t\t\tCurrent Step Position:" << currentStepPosition;
 		// Get the setpoint in terms of steps
 		double stepSetpoint = currentStepPosition + deltaDistanceSteps;		
 
 		// Do the move
-		qDebug() << "\t\t\tMove grating angle to" << stepSetpoint << "steps";
 		moveAction->addSubAction(AMActionSupport::buildControlMoveAction(stepMotorControl_, stepSetpoint));
 		moveAction->addSubAction(AMActionSupport::buildControlWaitAction(stepMotorControl_, stepSetpoint, 60, AMControlWaitActionInfo::MatchWithinTolerance));
 	}

@@ -10,6 +10,7 @@
 
 class SGMEnergyTrajectory;
 class SGMGratingAngleControl;
+class SGMUndulatorControl;
 /*!
   * A class which presents a standard AMControl interface for performing coordinated
   * motions of the SGM beamline energy components.
@@ -255,15 +256,8 @@ protected:
 	// Child Controls for simply motions
 	SGMGratingAngleControl* gratingAngleControl_;
     AMControl* gratingTranslationStepControl_;
-    AMControl* undulatorPositionControl_;
+	SGMUndulatorControl* undulatorControl_;
     AMControl* exitSlitPositionControl_;
-
-	// Child Controls used for trajectory motions
-	AMControl* undulatorStepControl_;
-	AMControl* undulatorStepVelocityControl_;
-	AMControl* undulatorStepAccelerationControl_;
-
-
 };
 
 #endif // SGMENERGYCONTROL_H
