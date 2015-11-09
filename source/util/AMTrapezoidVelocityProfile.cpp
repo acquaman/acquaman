@@ -1,49 +1,65 @@
 #include "AMTrapezoidVelocityProfile.h"
-
+#include <math.h>
 AMTrapezoidVelocityProfile::AMTrapezoidVelocityProfile()
 {
-
-    baseVelocity_ = 0;
-    initialAcceleration_ = 0;
-    targetVelocity_ = 0;
-    returnAcceleration_ = 0;
+	startPosition_ = 0;
+	endPosition_ = 0;
+	acceleration_ = 0;
+	time_ = 0;
+	isValid_ = false;
 }
 
-AMTrapezoidVelocityProfile::AMTrapezoidVelocityProfile(double baseVelocity,
-                                                       double initialAcceleration,
-                                                       double targetVelocity,
-                                                       double returnAcceleration)
+AMTrapezoidVelocityProfile::AMTrapezoidVelocityProfile(double startPosition,
+													   double endPosition,
+													   double acceleration,
+													   double time)
 {
-
-    baseVelocity_ = baseVelocity;
-    initialAcceleration_ = initialAcceleration;
-    targetVelocity_ = targetVelocity;
-    returnAcceleration_ = returnAcceleration;
+	startPosition_ = startPosition;
+	endPosition_ = endPosition;
+	acceleration_ = acceleration;
+	time_ = time;
+	isValid_ = true;
 }
 
-double AMTrapezoidVelocityProfile::baseVelocity() const
+double AMTrapezoidVelocityProfile::startPosition() const
 {
-    return baseVelocity_;
+	return startPosition_;
 }
 
-double AMTrapezoidVelocityProfile::initialAcceleration() const
+double AMTrapezoidVelocityProfile::endPosition() const
 {
-    return initialAcceleration_;
+	return endPosition_;
 }
 
+double AMTrapezoidVelocityProfile::acceleration() const
+{
+	return acceleration_;
+}
+
+double AMTrapezoidVelocityProfile::time() const
+{
+	return time_;
+}
+#include <QDebug>
 double AMTrapezoidVelocityProfile::targetVelocity() const
 {
-    return targetVelocity_;
-}
+	double halfAccelByTime = (acceleration_*time_) / 2;
+	double toRoot = pow(halfAccelByTime, 2) - acceleration_ * qAbs(endPosition_ - startPosition_);
 
-double AMTrapezoidVelocityProfile::returnAcceleration() const
-{
-    return returnAcceleration_;
+	qDebug() << "deltaP" << qAbs(endPosition_ - startPosition_);
+	qDebug() << "a.deltaT / 2" << halfAccelByTime;
+	qDebug() << "toRoot" << toRoot;
+	if(toRoot < 0) {
+		return halfAccelByTime + sqrt(qAbs(toRoot));
+	} else {
+		return halfAccelByTime - sqrt(toRoot);
+	}
 }
 
 bool AMTrapezoidVelocityProfile::isValid() const
 {
-    return (baseVelocity_ < targetVelocity_ && initialAcceleration_ >0 && returnAcceleration_ <0) ||
-            (baseVelocity_ > targetVelocity_ && initialAcceleration_ <0 && returnAcceleration_ >0);
+	return isValid_;
 }
+
+
 

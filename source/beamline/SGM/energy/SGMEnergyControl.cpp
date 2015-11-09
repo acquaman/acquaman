@@ -68,7 +68,7 @@ SGMEnergyControl::SGMEnergyControl(SGMUndulatorSupport::UndulatorHarmonic starti
 
     setMinimumValue(200);
     setMaximumValue(3000);
-	setTolerance(0.5);
+	setTolerance(0.03);
     setDisplayPrecision(5);
 
 }
@@ -554,10 +554,10 @@ AMAction3 *SGMEnergyControl::createMoveAction(SGMEnergyTrajectory* energyTraject
 																			 AMListAction3::Parallel);
 
 				qDebug() << "\t\t#3.1 Setting grating angle velocity to " << energyTrajectory->gratingAngleVelocityProfile().targetVelocity();
-				qDebug() << "\t\t#3.2 Setting grating angle acceleration to " << energyTrajectory->gratingAngleVelocityProfile().initialAcceleration();
+				qDebug() << "\t\t#3.2 Setting grating angle acceleration to " << energyTrajectory->gratingAngleVelocityProfile().acceleration();
 				qDebug() << "\t\t#3.3 Setting grating angle movement type to 0 (None)";
 				double gratingAngleVelocity = energyTrajectory->gratingAngleVelocityProfile().targetVelocity();
-				double gratingAngleAcceleration = energyTrajectory->gratingAngleVelocityProfile().initialAcceleration();
+				double gratingAngleAcceleration = energyTrajectory->gratingAngleVelocityProfile().acceleration();
 
 				setMotionPropertiesAction->addSubAction(AMActionSupport::buildControlMoveAction(gratingAngleControl_->stepVelocityControl(),
 																								gratingAngleVelocity));

@@ -148,12 +148,6 @@ public:
 protected:
 
 	/*!
-	  * Calculates the grating angle velocity in order to obtain the necessary
-	  * motion in time.
-	  */
-	double calculateGratingAngleVelocity() const;
-
-	/*!
 	  * Function which ensures all the error and warning checks are met.
 	  */
 	void performValidation();

@@ -1,5 +1,7 @@
 #include "SGMEnergyTrajectory.h"
 #include <math.h>
+
+#include <QDebug>
 SGMEnergyTrajectory::SGMEnergyTrajectory(double startEnergy,
                                          double endEnergy,
                                          double time,
@@ -36,9 +38,22 @@ SGMEnergyTrajectory::SGMEnergyTrajectory(double startEnergy,
 
     time_ = time;
 
-	gratingAngleVelocityProfile_ = AMTrapezoidVelocityProfile(0, gratingAngleAcceleration_, calculateGratingAngleVelocity(), 5000.0);
-	undulatorVelocityProfile_ = AMTrapezoidVelocityProfile(0, 5000.0, qAbs(endUndulatorPosition() - startUndulatorPosition()) / time_, 5000.0);
-	exitSlitVelocityProfile_ = AMTrapezoidVelocityProfile(0, 5000.0, qAbs(endExitSlitPosition() - startExitSlitPosition()) / time_, 5000.0);
+	qDebug() << "Start:" << startEnergyPosition_->gratingAngle() * gratingAngleStepsPerEncoderCount;
+	qDebug() << "End:" << endEnergyPosition_->gratingAngle() * gratingAngleStepsPerEncoderCount;
+	gratingAngleVelocityProfile_ = AMTrapezoidVelocityProfile(startEnergyPosition_->gratingAngle() * gratingAngleStepsPerEncoderCount,
+															  endEnergyPosition_->gratingAngle() * gratingAngleStepsPerEncoderCount,
+															  gratingAngleAcceleration,
+															  time);
+
+	undulatorVelocityProfile_ = AMTrapezoidVelocityProfile(startEnergyPosition_->undulatorPosition(),
+														   endEnergyPosition_->undulatorPosition(),
+														   5000,
+														   time);
+
+	exitSlitVelocityProfile_ = AMTrapezoidVelocityProfile(startEnergyPosition_->exitSlitPosition(),
+														  endEnergyPosition_->exitSlitPosition(),
+														  5000,
+														  time);
 }
 
 SGMEnergyTrajectory::~SGMEnergyTrajectory()
@@ -184,20 +199,6 @@ QString SGMEnergyTrajectory::toString() const
     returnString.append(QString("Undulator Harmonic: %1").arg(undulatorHarmonicString));
 
 	return returnString;
-}
-
-double SGMEnergyTrajectory::calculateGratingAngleVelocity() const
-{
-	double halfAccelByTime = (gratingAngleAcceleration_*time_) / 2;
-	double toRoot = pow(halfAccelByTime, 2) - gratingAngleAcceleration_ * qAbs(endGratingAngleEncoderCount() - startGratingAngleEncoderCount());
-
-	if(toRoot < 0) {
-
-		return halfAccelByTime + sqrt(qAbs(toRoot));
-	} else {
-
-		return halfAccelByTime - sqrt(toRoot);
-	}
 }
 
 void SGMEnergyTrajectory::performValidation()

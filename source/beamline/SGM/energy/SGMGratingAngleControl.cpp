@@ -205,16 +205,6 @@ AMAction3 * SGMGratingAngleControl::createMoveAction(double setpoint)
 		// Get distance to move in terms of the encoder
 		double deltaDistanceEncoder = setpoint - value();
 		qDebug() << "\t\t\tEncoder Distance:" << deltaDistanceEncoder;
-		// The grating angle always under targets by approx 3.4% when targetting
-		// steps in non closed loop mode, add a correction value depending on whether
-		// we're moving forwards or backwards.
-		if(deltaDistanceEncoder > 0) {
-			deltaDistanceEncoder += deltaDistanceEncoder * 0.035;
-		} else {
-			deltaDistanceEncoder -= deltaDistanceEncoder * 0.035;
-		}
-
-		qDebug() << "\t\t\tCorrected Encoder Distance:" << deltaDistanceEncoder;
 
 		// Convert into steps
 		double deltaDistanceSteps = deltaDistanceEncoder * stepsPerEncoderCount();
