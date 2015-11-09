@@ -198,9 +198,9 @@ void BioXASAppController::onCurrentScanActionFinishedImplementation(AMScanAction
 			QVector<double> data = QVector<double>(start.totalPointsTo(end));
 			dataSource->values(start, end, data.data());
 
-			double maxValue = dataSource->value(AMUtility::indexOfMaximum(data, dataSource->size()));
+			AMNumber maxValue = dataSource->value(AMUtility::indexOfMaximum(data, dataSource->size()));
 
-			if (maxValue <= -1) {
+			if (!maxValue.isValid()) {
 				qDebug() << "The maximum value found is invalid.";
 
 				if (maxValue == AMNumber(AMNumber::OutOfBoundsError))

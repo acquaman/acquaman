@@ -24,9 +24,9 @@ public:
 	static double maximumFinder(const QVector<double> &data, double valueToIgnore);
 
 	/// This is a helper static method that goes through the provided data and returns the index for the minimum value found. If data is empty or null then returns -1.
-	static int indexOfMinimum(const QVector<double> &data);
+	static int flatIndexOfMinimum(const QVector<double> &data);
 	/// This is a helper static method that goes through the provided data and returns the index for the maximum value found. If data is empty or null then returns -1.
-	static int indexOfMaximum(const QVector<double> &data);
+	static int flatIndexOfMaximum(const QVector<double> &data);
 
 	/// This is a helper static method that goes through the provided data and returns the AMnDIndex for the minimum value found. If data is empty or null then a null AMnDIndex is returned.
 	static AMnDIndex indexOfMinimum(const QVector<double> &data, AMnDIndex size);

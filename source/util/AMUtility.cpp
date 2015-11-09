@@ -66,7 +66,7 @@ double AMUtility::maximumFinder(const QVector<double> &data)
 	return maximum;
 }
 
-int AMUtility::indexOfMinimum(const QVector<double> &data)
+int AMUtility::flatIndexOfMinimum(const QVector<double> &data)
 {
 	int result = -1;
 
@@ -93,7 +93,7 @@ int AMUtility::indexOfMinimum(const QVector<double> &data)
 	return result;
 }
 
-int AMUtility::indexOfMaximum(const QVector<double> &data)
+int AMUtility::flatIndexOfMaximum(const QVector<double> &data)
 {
 	int result = -1;
 
@@ -126,7 +126,7 @@ AMnDIndex AMUtility::indexOfMinimum(const QVector<double> &data, AMnDIndex size)
 
 	// Identify the flat index for the minimum value.
 
-	int minIndex = indexOfMinimum(data);
+	int minIndex = flatIndexOfMinimum(data);
 
 	// Find the corresponding AMnDIndex, given the size.
 
@@ -142,7 +142,7 @@ AMnDIndex AMUtility::indexOfMaximum(const QVector<double> &data, AMnDIndex size)
 
 	// Identify the flat index for the minimum value.
 
-	int maxIndex = indexOfMinimum(data);
+	int maxIndex = flatIndexOfMaximum(data);
 
 	// Find the corresponding AMnDIndex, given the size.
 
