@@ -5,7 +5,7 @@
 BioXASSideCarbonFilterFarm::BioXASSideCarbonFilterFarm(QObject *parent) :
 	BioXASCarbonFilterFarm("SideCarbonFilterFarm", parent)
 {
-	// Setup the upstream actuator control.
+	// Setup the upstream actuator.
 
 	BioXASCarbonFilterFarmActuator *actuator = new BioXASCarbonFilterFarmActuator(name()+"UpstreamActuator", this);
 
@@ -23,7 +23,7 @@ BioXASSideCarbonFilterFarm::BioXASSideCarbonFilterFarm(QObject *parent) :
 
 	setUpstreamActuator(actuator);
 
-	// Setup the downstream actuator control.
+	// Setup the downstream actuator.
 
 	actuator = new BioXASCarbonFilterFarmActuator(name()+"DownstreamActuator", this);
 
@@ -40,10 +40,6 @@ BioXASSideCarbonFilterFarm::BioXASSideCarbonFilterFarm(QObject *parent) :
 	actuator->setWindowPreference(0, BioXASCarbonFilterFarmActuator::Window::None); // There are multiple ways we can achieve a 0mm filter with this actuator--we set the window preference here.
 
 	setDownstreamActuator(actuator);
-
-	// Setup the total/effective filter control.
-
-	setFilter(new BioXASCarbonFilterFarmFilterControl(name()+"Filter", "mm", this));
 }
 
 BioXASSideCarbonFilterFarm::~BioXASSideCarbonFilterFarm()
