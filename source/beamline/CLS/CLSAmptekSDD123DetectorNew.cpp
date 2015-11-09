@@ -440,34 +440,17 @@ void CLSAmptekSDD123DetectorNew::onHighIndexValueChanged(int index){
 /// ============= SLOTs to handle AMDSClientAppController signals =========
 void CLSAmptekSDD123DetectorNew::onNetworkSessionOpening()
 {
-//	requestDataButton_->setEnabled(false);
-//	statusLabel_->setText("Opening network session.");
-
 	qDebug() << "Amptek Opening Network Session";
 }
 
 void CLSAmptekSDD123DetectorNew::onNetworkSessionOpened()
 {
-//	statusLabel_->setText("This examples requires that you run the Acquaman Data Server example as well.");
-//	enableRequestDataButton();
-	qDebug() << "Amptek Network Session Opened";
-
 	qDebug() << "Amptek Connecting to Server";
 	clientAppController_->connectToServer("10.52.48.40", 28044);
 }
 
 void CLSAmptekSDD123DetectorNew::onNewServerConnected(const QString &serverIdentifier)
 {
-//	if (activeServerComboBox_->findText(serverIdentifier) == -1) {
-//		activeServerComboBox_->addItem(serverIdentifier);
-//	}
-
-//	activeServerComboBox_->setCurrentIndex(activeServerComboBox_->findText(serverIdentifier));
-
-//	QStringList bufferNames = clientAppController_->getBufferNamesByServer(serverIdentifier);
-//	resetBufferListView(bufferNames);
-//	resetActiveContinuousConnection(serverIdentifier);
-
 	qDebug() << "Amptek Successfully Connected to Server";
 	QStringList bufferNames = clientAppController_->getBufferNamesByServer(serverIdentifier);
 	qDebug() << "Buffer Names:";
@@ -484,30 +467,6 @@ void CLSAmptekSDD123DetectorNew::onRequestDataReady(AMDSClientRequest* clientReq
 		qDebug() << relativeCountPlusCountDataRequst->data().count();
 		lastContinuousDataRequest_ = relativeCountPlusCountDataRequst;
 	}
-
-//	if (clientRequest->isContinuousMessage()) {
-//		resetActiveContinuousConnection(activeServerComboBox_->currentText());
-//	} else {
-//		if (clientRequest->isIntrospectionMessage()) {
-//			AMDSClientIntrospectionRequest *introspectionRequest = qobject_cast<AMDSClientIntrospectionRequest*>(clientRequest);
-//			if (introspectionRequest){
-//				if (introspectionRequest->readReady()){
-//					const QStandardItemModel* model = qobject_cast<const QStandardItemModel*>(requestTypeComboBox_->model());
-//					for(int x = 1; x < AMDSClientRequestDefinitions::InvalidRequest; x++){
-//						QStandardItem* item = model->item(x);
-//						item->setFlags(Qt::ItemIsSelectable|Qt::ItemIsEnabled);
-//						// visually disable by greying out - works only if combobox has been painted already and palette returns the wanted color
-//						item->setData(QVariant(), Qt::TextColorRole);
-//					}
-//				}
-
-//				if (introspectionRequest->checkAllBuffer() ){
-//					QStringList bufferNames = clientAppController_->getBufferNamesByServer(activeServerComboBox_->currentText());
-//					resetBufferListView(bufferNames);
-//				}
-//			}
-//		}
-//	}
 }
 
 void CLSAmptekSDD123DetectorNew::onServerError(int errorCode, bool removeServer, const QString &serverIdentifier, const QString &errorMessage)
@@ -544,35 +503,7 @@ bool CLSAmptekSDD123DetectorNew::acquireImplementation(AMDetectorDefinitions::Re
 	}
 	else{
 		lastReadMode_ = AMDetectorDefinitions::SingleRead;
-		bool retVal = AMXRFDetector::acquireImplementation(readMode);
-		qDebug() << "Called parent AMXRFDetector::acquireImplementation";
-
-
-		AMDSServer * server = clientAppController_->getServerByServerIdentifier("10.52.48.40:28044");
-		if (!server) {
-			qDebug() << "Server does not exist";
-			return false;
-		}
-
-		QString hostName = server->hostName();
-		quint16 portNumber = server->portNumber();
-		//	quint8 requestTypeId = AMDSClientRequestDefinitions::StartTimePlusCount;
-		QString bufferName = "Amptek SDD 240";
-		QDateTime time1 = QDateTime::currentDateTime();
-		time1 = time1.addSecs(-2);
-		int value1 = 1;
-
-		bool includeStatus = true;
-		bool enableFlattening = false;
-
-		qDebug() << hostName << portNumber << bufferName << time1.toString("hh:mm:ss.zzz") << value1;
-
-
-		//	AMDSClientRequestDefinitions::RequestType clientRequestType = (AMDSClientRequestDefinitions::RequestType)requestTypeId;
-		//	clientAppController_->requestClientData(hostName, portNumber, bufferName, time1, value1, includeStatus, enableFlattening);
-
-		clientAppController_->requestClientData(hostName, portNumber, bufferName, 50, 50, includeStatus, enableFlattening);
-		return retVal;
+		return AMXRFDetector::acquireImplementation(readMode);
 	}
 }
 
