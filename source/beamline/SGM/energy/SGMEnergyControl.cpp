@@ -530,7 +530,6 @@ AMAction3 *SGMEnergyControl::createMoveAction(double setpoint)
 	return coordinatedMoveAction;
 }
 
-#include <QDebug>
 AMAction3 *SGMEnergyControl::createMoveAction(SGMEnergyTrajectory* energyTrajectory)
 {
 	AMListAction3* continuousMoveAction = 0;
@@ -550,24 +549,40 @@ AMAction3 *SGMEnergyControl::createMoveAction(SGMEnergyTrajectory* energyTraject
 				continuousMoveAction = new AMListAction3(new AMListActionInfo3(actionTitle, actionTitle),
 														 AMListAction3::Sequential);
 
-				// Moving to start position:
-				qDebug() << "\t#1 Setting Defaults";
 				continuousMoveAction->addSubAction(gratingAngleControl_->setDefaultsAction());
-				qDebug() << "\t#2 Moving to start position at " << startSetpoint;
-				continuousMoveAction->addSubAction(createMoveAction(startSetpoint));
+				// Moving to start position and set exit slit position:
+				AMListAction3* initializationActions = new AMListAction3(new AMListActionInfo3("Setting up movement",
+																							   "Setting up movement"),
+																		 AMListAction3::Parallel);
+
+				bool savedExitSlitTracking = energyPositionController_->isExitSlitPositionTracking();
+
+				energyPositionController_->setExitSlitPositionTracking(false);
+				initializationActions->addSubAction(createMoveAction(startSetpoint));
+				energyPositionController_->setExitSlitPositionTracking(savedExitSlitTracking);
+				continuousMoveAction->addSubAction(initializationActions);
+
+				if(energyPositionController_->isExitSlitPositionTracking()) {
+					// Move Exit Slit to mean position
+					double meanExitSlitPosition = (energyTrajectory->startExitSlitPosition() + energyTrajectory->endExitSlitPosition()) / 2;
+					initializationActions->addSubAction(AMActionSupport::buildControlMoveAction(exitSlitPositionControl_,
+																							   meanExitSlitPosition));
+
+					continuousMoveAction->addSubAction(AMActionSupport::buildControlWaitAction(exitSlitPositionControl_,
+																							   meanExitSlitPosition,
+																							   10,
+																							   AMControlWaitActionInfo::MatchWithinTolerance));
+				}
+
 				continuousMoveAction->addSubAction(AMActionSupport::buildControlWaitAction(this, startSetpoint, 60, AMControlWaitActionInfo::MatchWithinTolerance));
 
 				// Set motion properties (velocities, accelerations etc)
-				qDebug() << "\t#3 Setting motion properties (velocities, accelerations etc)";
 				AMListAction3* setMotionPropertiesAction = new AMListAction3(new AMListActionInfo3("Set motion properties",
 																								   "Set motion properties"),
 																			 AMListAction3::Parallel);
 
 				double gratingAngleVelocity = energyTrajectory->gratingAngleVelocityProfile().targetVelocity();
 				double gratingAngleAcceleration = energyTrajectory->gratingAngleVelocityProfile().acceleration();
-				qDebug() << "\t\t#3.1 Setting grating angle velocity to " << gratingAngleVelocity;
-				qDebug() << "\t\t#3.2 Setting grating angle acceleration to " << gratingAngleAcceleration;
-				qDebug() << "\t\t#3.3 Setting grating angle movement type to 0 (None)";
 
 				setMotionPropertiesAction->addSubAction(AMActionSupport::buildControlMoveAction(gratingAngleControl_->stepVelocityControl(),
 																								gratingAngleVelocity));
@@ -581,10 +596,7 @@ AMAction3 *SGMEnergyControl::createMoveAction(SGMEnergyTrajectory* energyTraject
 				double undulatorStepVelocity = energyTrajectory->undulatorVelocityProfile().targetVelocity();
 				double undulatorStepAcceleration = energyTrajectory->undulatorVelocityProfile().acceleration();
 
-				qDebug() << "\t\t#3.4 Setting undulator velocity to" << undulatorStepVelocity;
-				qDebug() << "\t\t#3.5 Setting undulator acceleration to" << undulatorStepAcceleration;
 				if(energyPositionController_->isUndulatorTracking()) {
-
 
 					setMotionPropertiesAction->addSubAction(AMActionSupport::buildControlMoveAction(undulatorStepAccelerationControl_,
 																									undulatorStepAcceleration));
@@ -630,20 +642,6 @@ AMAction3 *SGMEnergyControl::createMoveAction(SGMEnergyTrajectory* energyTraject
 
 				continuousMoveAction->addSubAction(waitForMotionPropertiesAction);
 
-				if(energyPositionController_->isExitSlitPositionTracking()) {
-					// Move Exit Slit to mean position
-					double meanExitSlitPosition = (energyTrajectory->startExitSlitPosition() + energyTrajectory->endExitSlitPosition()) / 2;
-					qDebug() << "\t#4 Set Exit Slit position to mean position at" << meanExitSlitPosition;
-					continuousMoveAction->addSubAction(AMActionSupport::buildControlMoveAction(exitSlitPositionControl_,
-																							   meanExitSlitPosition));
-
-					continuousMoveAction->addSubAction(AMActionSupport::buildControlWaitAction(exitSlitPositionControl_,
-																							   meanExitSlitPosition,
-																							   10,
-																							   AMControlWaitActionInfo::MatchWithinTolerance));
-
-				}
-
 				// Build the trajectory move
 				AMListAction3* trajectoryMove = new AMListAction3(new AMListActionInfo3("Energy Trajectory",
 																						"Energy Trajectory"),
@@ -652,13 +650,6 @@ AMAction3 *SGMEnergyControl::createMoveAction(SGMEnergyTrajectory* energyTraject
 
 				double gratingAngleTarget = energyTrajectory->endGratingAngleEncoderCount();
 				double undulatorStepsTarget = energyTrajectory->undulatorVelocityProfile().endPosition();
-
-				qDebug() << "\t#5 Performing move:";
-				qDebug() << "\t\t#5a Moving grating angle to" << gratingAngleTarget;
-				if(energyPositionController_->isUndulatorTracking()) {
-					qDebug() << "\t\t#5b Moving undulator to " << undulatorStepsTarget;
-				}
-
 
 				trajectoryMove->addSubAction(AMActionSupport::buildControlMoveAction(gratingAngleControl_,
 																					 gratingAngleTarget));

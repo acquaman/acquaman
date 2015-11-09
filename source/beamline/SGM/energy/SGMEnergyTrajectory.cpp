@@ -1,7 +1,6 @@
 #include "SGMEnergyTrajectory.h"
 #include <math.h>
 
-#include <QDebug>
 SGMEnergyTrajectory::SGMEnergyTrajectory(double startEnergy,
                                          double endEnergy,
                                          double time,
@@ -39,8 +38,6 @@ SGMEnergyTrajectory::SGMEnergyTrajectory(double startEnergy,
 
     time_ = time;
 
-	qDebug() << "Start:" << startEnergyPosition_->gratingAngle() * gratingAngleStepsPerEncoderCount;
-	qDebug() << "End:" << endEnergyPosition_->gratingAngle() * gratingAngleStepsPerEncoderCount;
 	gratingAngleVelocityProfile_ = AMTrapezoidVelocityProfile(startEnergyPosition_->gratingAngle() * gratingAngleStepsPerEncoderCount,
 															  endEnergyPosition_->gratingAngle() * gratingAngleStepsPerEncoderCount,
 															  gratingAngleAcceleration,
@@ -64,11 +61,6 @@ SGMEnergyTrajectory::SGMEnergyTrajectory(double startEnergy,
 														  5000,
 														  time);
 
-	qDebug() << "$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$";
-	qDebug() << "$$\t undulator start" << undulatorVelocityProfile_.startPosition();
-	qDebug() << "$$\t undulator end" << undulatorVelocityProfile_.endPosition();
-	qDebug() << "$$\t undulatorVelocity" << undulatorVelocityProfile_.targetVelocity();
-	qDebug() << "$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$";
 }
 
 SGMEnergyTrajectory::~SGMEnergyTrajectory()

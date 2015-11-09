@@ -291,6 +291,8 @@ void SGMEnergyControlTestView::setupConnections()
 			this, SLOT(onUndulatorOffsetValueChanged(double)));
 	connect(undulatorTrackingCheckBox_, SIGNAL(toggled(bool)),
 			this, SLOT(onUndulatorTrackingCheckBoxChanged(bool)));
+	connect(exitSlitTrackingCheckBox_, SIGNAL(toggled(bool)),
+			this, SLOT(onExitSlitTrackingCheckBoxChanged(bool)));
 	connect(gratingOptimizationComboBox_, SIGNAL(currentIndexChanged(int)),
 			this, SLOT(onGratingOptimizationSelectionChanged(int)));
 	connect(gratingTranslationComboBox_, SIGNAL(currentIndexChanged(int)),
