@@ -7,6 +7,7 @@ BioXASCarbonFilterFarmActuatorWindowControl::BioXASCarbonFilterFarmActuatorWindo
 
 	setContextKnownDescription("Actuator Window Control");
 	setAllowsMovesWhileMoving(false);
+	setAllowsDuplicateOptions(false);
 }
 
 BioXASCarbonFilterFarmActuatorWindowControl::~BioXASCarbonFilterFarmActuatorWindowControl()
@@ -22,7 +23,8 @@ void BioXASCarbonFilterFarmActuatorWindowControl::setPositionControl(BioXASCarbo
 
 void BioXASCarbonFilterFarmActuatorWindowControl::addWindow(int windowIndex, const QString &windowString, double positionSetpoint, double positionMin, double positionMax)
 {
-	addValueOption(windowIndex, windowString, positionSetpoint, positionMin, positionMax);
+	if (!hasIndexNamed(windowString)) // We only want unique-looking options available for this control.
+		addValueOption(windowIndex, windowString, positionSetpoint, positionMin, positionMax);
 }
 
 void BioXASCarbonFilterFarmActuatorWindowControl::removeWindow(int windowIndex)

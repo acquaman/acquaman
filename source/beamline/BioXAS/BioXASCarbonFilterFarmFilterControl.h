@@ -74,7 +74,7 @@ protected:
 
 	/// Returns the total filter value, given the upstream and downstream filter indices.
 	double totalFilterByIndices(int upstreamIndex, int downstreamIndex) const;
-	/// Returns the total filter value, given the upstream and downstream filter values.
+	/// Returns the total filter value, given the upstream and downstream filter values. Returns -1 if invalid filter values are provided.
 	double totalFilter(double upstreamFilter, double downstreamFilter) const;
 
 protected:

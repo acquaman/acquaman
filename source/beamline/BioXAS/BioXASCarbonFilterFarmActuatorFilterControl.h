@@ -18,6 +18,11 @@ public:
 	/// Destructor.
 	virtual ~BioXASCarbonFilterFarmActuatorFilterControl();
 
+	/// Returns the list of indices that have the given filter.
+	QList<int> indicesWithFilter(double filter) const;
+
+	/// Returns true if the given filter is one of the value options, false otherwise.
+	bool hasFilter(double filter) const;
 	/// Returns the filter value at the given index.
 	double filterAt(int index) const;
 

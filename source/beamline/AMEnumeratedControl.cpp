@@ -10,6 +10,10 @@ AMEnumeratedControl::AMEnumeratedControl(const QString &name, const QString &uni
 	setpoint_ = -1;
 	minimumValue_ = 0;
 	maximumValue_ = 0;
+
+	// Initialize class variables.
+
+	allowsDuplicateOptions_ = false;
 }
 
 AMEnumeratedControl::~AMEnumeratedControl()
@@ -30,6 +34,19 @@ bool AMEnumeratedControl::validSetpoint(double value) const
 QList<int> AMEnumeratedControl::indicesNamed(const QString &name) const
 {
 	return indexStringMap_.keys(name);
+}
+
+bool AMEnumeratedControl::hasIndexNamed(const QString &name) const
+{
+	return (!indicesNamed(name).isEmpty());
+}
+
+void AMEnumeratedControl::setAllowsDuplicateOptions(bool newStatus)
+{
+	if (allowsDuplicateOptions_ != newStatus) {
+		allowsDuplicateOptions_ = newStatus;
+		emit allowsDuplicationOptionsChanged(allowsDuplicateOptions_);
+	}
 }
 
 void AMEnumeratedControl::updateStates()
@@ -72,14 +89,28 @@ void AMEnumeratedControl::updateValue()
 
 void AMEnumeratedControl::addOption(int index, const QString &optionString)
 {
-	if (!indices_.contains(index))
-		indices_.append(index);
+	bool proceed = false;
 
-	indexStringMap_.insert(index, optionString);
+	// First check whether we are in a situation where duplicate value options
+	// may be an issue.
 
-	updateEnumStates();
+	if (!hasIndexNamed(optionString))
+		proceed = true;
+	else if (hasIndexNamed(optionString) && allowsDuplicateOptions_)
+		proceed = true;
 
-	emit optionsChanged();
+	// Proceed with adding the option if duplication isn't an issue.
+
+	if (proceed) {
+		if (!indices_.contains(index))
+			indices_.append(index);
+
+		indexStringMap_.insert(index, optionString);
+
+		updateEnumStates();
+
+		emit optionsChanged();
+	}
 }
 
 void AMEnumeratedControl::removeOption(int index)
@@ -110,7 +141,8 @@ QStringList AMEnumeratedControl::generateEnumStates() const
 	// Because it isn't a 'move enum' (we don't ever want to move to "Unknown")
 	// it must be at the end of the enum list, after all of the move enums.
 
-	enumOptions << "Unknown";
+	if (!enumOptions.contains("Unknown"))
+		enumOptions << "Unknown";
 
 	return enumOptions;
 }

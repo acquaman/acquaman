@@ -95,11 +95,25 @@ void AMSingleEnumeratedControl::updateMoving()
 
 void AMSingleEnumeratedControl::addValueOption(int index, const QString &optionString, double optionSetpoint, double optionMin, double optionMax)
 {
-	indexSetpointMap_.insert(index, optionSetpoint);
-	indexMinimumMap_.insert(index, optionMin);
-	indexMaximumMap_.insert(index, optionMax);
+	bool proceed = false;
 
-	AMEnumeratedControl::addOption(index, optionString);
+	// First check whether we are in a situation where duplicate value options
+	// may be an issue.
+
+	if (!hasIndexNamed(optionString))
+		proceed = true;
+	else if (hasIndexNamed(optionString) && allowsDuplicateOptions_)
+		proceed = true;
+
+	// Proceed with adding the option if duplication isn't an issue.
+
+	if (proceed) {
+		indexSetpointMap_.insert(index, optionSetpoint);
+		indexMinimumMap_.insert(index, optionMin);
+		indexMaximumMap_.insert(index, optionMax);
+
+		AMEnumeratedControl::addOption(index, optionString);
+	}
 }
 
 void AMSingleEnumeratedControl::addValueOption(int index, const QString &optionString, double optionSetpoint)

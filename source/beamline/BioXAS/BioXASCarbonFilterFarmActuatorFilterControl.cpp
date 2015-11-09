@@ -1,5 +1,6 @@
 #include "BioXASCarbonFilterFarmActuatorFilterControl.h"
 #include "actions3/AMActionSupport.h"
+#include <QDebug>
 
 BioXASCarbonFilterFarmActuatorFilterControl::BioXASCarbonFilterFarmActuatorFilterControl(const QString &name, const QString &units, QObject *parent) :
 	AMSingleEnumeratedControl(name, units, parent)
@@ -8,11 +9,30 @@ BioXASCarbonFilterFarmActuatorFilterControl::BioXASCarbonFilterFarmActuatorFilte
 
 	setContextKnownDescription("Actuator Filter Control");
 	setAllowsMovesWhileMoving(false);
+	setAllowsDuplicateOptions(false);
 }
 
 BioXASCarbonFilterFarmActuatorFilterControl::~BioXASCarbonFilterFarmActuatorFilterControl()
 {
 
+}
+
+QList<int> BioXASCarbonFilterFarmActuatorFilterControl::indicesWithFilter(double filter) const
+{
+	QList<int> results;
+
+	foreach (int index, indices_) {
+		if (indexFilterMap_.value(index) == filter)
+			results << index;
+	}
+
+	return results;
+}
+
+bool BioXASCarbonFilterFarmActuatorFilterControl::hasFilter(double filter) const
+{
+	bool result = (!indicesWithFilter(filter).isEmpty());
+	return result;
 }
 
 double BioXASCarbonFilterFarmActuatorFilterControl::filterAt(int index) const
@@ -28,10 +48,13 @@ void BioXASCarbonFilterFarmActuatorFilterControl::setWindowControl(BioXASCarbonF
 
 void BioXASCarbonFilterFarmActuatorFilterControl::addFilter(int windowIndex, double filter)
 {
-	// Because each window will only ever have one filter, we can use the window index as the filter index.
+	QString filterString = QString::number(filter, 'f', 0);
 
-	indexFilterMap_.insert(windowIndex, filter);
-	addValueOption(windowIndex, QString::number(filter, 'f', 0), windowIndex);
+	if (!hasIndexNamed(filterString)) { // We only want unique-looking options available for this control.
+
+		indexFilterMap_.insert(windowIndex, filter); // Because each window will only ever have one filter, we can use the window index as the filter index.
+		addValueOption(windowIndex, filterString, windowIndex);
+	}
 }
 
 void BioXASCarbonFilterFarmActuatorFilterControl::removeFilter(int windowIndex)
@@ -90,21 +113,10 @@ AMAction3* BioXASCarbonFilterFarmActuatorFilterControl::createMoveAction(double 
 
 int BioXASCarbonFilterFarmActuatorFilterControl::currentIndex() const
 {
-	int currentIndex = -1;
+	int index = AMSingleEnumeratedControl::currentIndex();
 
-	if (isConnected()) {
+	qDebug() << name() << "current index:" << index << ", name:" << indexStringMap_.value(index) << ", filter:" << filterAt(index);
 
-		// Because each window will only have one filter, the filter
-		// index is identical to the current window index.
-
-		int windowIndex = int(control_->value());
-
-		// Check that there is a filter value associated with this index.
-
-		if (indexFilterMap_.keys().contains(windowIndex))
-			currentIndex = windowIndex;
-	}
-
-	return currentIndex;
+	return index;
 }
 

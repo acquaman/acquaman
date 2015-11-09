@@ -28,16 +28,26 @@ public:
 	/// Returns true if the given value corresponds to a valid window setpoint, false otherwise.
 	virtual bool validSetpoint(double value) const;
 
+	/// Returns true if this control allows duplicate value option entries.
+	bool allowsDuplicateOptions() const { return allowsDuplicateOptions_; }
+
 	/// Returns a list of the current indices.
 	QList<int> indices() const { return indices_; }
 	/// Returns a list of the indices for options with the given name.
 	QList<int> indicesNamed(const QString &name) const;
+	/// Returns true if there is an existing option index with the given name.
+	bool hasIndexNamed(const QString &name) const;
 
 signals:
 	/// Notifier that the value options have changed.
 	void optionsChanged();
+	/// Notifier that whether this control allows duplicate value option entries has changed.
+	void allowsDuplicationOptionsChanged(bool newStatus);
 
 protected slots:
+	/// Sets whether this control allows duplicate value option entries.
+	void setAllowsDuplicateOptions(bool newStatus);
+
 	/// Updates the states. Reimplemented to make sure the control min/max and the enumerated states are updated before the current value.
 	virtual void updateStates();
 	/// Updates the available options.
@@ -66,6 +76,9 @@ protected:
 	virtual int currentIndex() const = 0;
 
 protected:
+	/// The flag indicating whether this control will allow value options with the same string representation.
+	bool allowsDuplicateOptions_;
+
 	/// The list of option indices.
 	QList<int> indices_;
 	/// The mapping between an option's index value and its string representation.

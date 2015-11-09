@@ -1,6 +1,7 @@
 #include "BioXASCarbonFilterFarmFilterControl.h"
 #include "actions3/AMActionSupport.h"
 #include "actions3/AMListAction3.h"
+#include <QDebug>
 
 BioXASCarbonFilterFarmFilterControl::BioXASCarbonFilterFarmFilterControl(const QString &name, const QString &units, QObject *parent) :
 	AMEnumeratedControl(name, units, parent)
@@ -9,6 +10,7 @@ BioXASCarbonFilterFarmFilterControl::BioXASCarbonFilterFarmFilterControl(const Q
 
 	setContextKnownDescription("Filter Control");
 	setAllowsMovesWhileMoving(false);
+	setAllowsDuplicateOptions(false);
 
 	// Initialize local variables.
 
@@ -128,7 +130,7 @@ void BioXASCarbonFilterFarmFilterControl::updateOptions()
 	if (downstreamFilter_)
 		downstreamIndices = downstreamFilter_->indices();
 
-	foreach (int downstreamIndex, downstreamIndices) {
+	foreach (int downstreamIndex, downstreamIndices) { // Aesthetics, we want the lower filters (upstream) listed first.
 		foreach (int upstreamIndex, upstreamIndices) {
 
 			double newFilter = totalFilterByIndices(upstreamIndex, downstreamIndex);
@@ -154,11 +156,13 @@ void BioXASCarbonFilterFarmFilterControl::addFilterOption(const QString &optionS
 
 void BioXASCarbonFilterFarmFilterControl::addFilterOption(int index, const QString &optionString, double filter, int upstreamFilterIndex, int downstreamFilterIndex)
 {
-	indexFilterMap_.insert(index, filter);
-	indexUpstreamFilterIndexMap_.insert(index, upstreamFilterIndex);
-	indexDownstreamFilterIndexMap_.insert(index, downstreamFilterIndex);
+	if (!hasIndexNamed(optionString)) { // We only want unique-looking options available for this control.
+		indexFilterMap_.insert(index, filter);
+		indexUpstreamFilterIndexMap_.insert(index, upstreamFilterIndex);
+		indexDownstreamFilterIndexMap_.insert(index, downstreamFilterIndex);
 
-	AMEnumeratedControl::addOption(index, optionString);
+		AMEnumeratedControl::addOption(index, optionString);
+	}
 }
 
 void BioXASCarbonFilterFarmFilterControl::removeOption(int index)
@@ -183,6 +187,8 @@ AMAction3* BioXASCarbonFilterFarmFilterControl::createMoveAction(double setpoint
 {
 	AMAction3 *action = 0;
 
+	qDebug() << "Moving" << name() << "to index:" << setpoint << ", filter:" << filterAt(setpoint);
+
 	int filterIndex = int(setpoint);
 	int upstreamIndex = indexUpstreamFilterIndexMap_.value(filterIndex, -1);
 	int downstreamIndex = indexDownstreamFilterIndexMap_.value(filterIndex, -1);
@@ -200,14 +206,22 @@ AMAction3* BioXASCarbonFilterFarmFilterControl::createMoveAction(double setpoint
 
 int BioXASCarbonFilterFarmFilterControl::currentIndex() const
 {
+	// Initialize the new index to "Unknown."
+
 	int index = enumNames().indexOf("Unknown");
 
 	if (isConnected()) {
-		double currentFilter = totalFilterByIndices(int(upstreamFilter_->value()), int(downstreamFilter_->value()));
-		QList<int> possibleIndices = indexFilterMap_.keys(currentFilter);
 
-		if (!possibleIndices.isEmpty())
-			index = possibleIndices.first();
+		// Identify the index corresponding to the current values for the upstream and downstream filters.
+
+		double currentFilter = totalFilterByIndices(int(upstreamFilter_->value()), int(downstreamFilter_->value()));
+
+		if (currentFilter >= 0) {
+			QList<int> possibleIndices = indexFilterMap_.keys(currentFilter);
+
+			if (!possibleIndices.isEmpty())
+				index = possibleIndices.first();
+		}
 	}
 
 	return index;
@@ -223,6 +237,8 @@ double BioXASCarbonFilterFarmFilterControl::totalFilterByIndices(int upstreamInd
 
 		result = totalFilter(upstreamFilter, downstreamFilter);
 	}
+
+	qDebug() << name() << "total filter:" << result;
 
 	return result;
 }

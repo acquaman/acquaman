@@ -38,7 +38,7 @@ void BioXASCarbonFilterFarmControl::setUpstreamActuator(BioXASCarbonFilterFarmAc
 		if (upstreamActuator_) {
 			addChildControl(upstreamActuator_);
 
-			connect( upstreamActuator_, SIGNAL(filterChanged(BioXASCarbonFilterFarmActuatorFilterControl*)), this, SLOT(updateFilter()) );
+			connect( upstreamActuator_, SIGNAL(filterChanged(AMControl*)), this, SLOT(updateFilter()) );
 		}
 
 		updateFilter();
@@ -60,7 +60,7 @@ void BioXASCarbonFilterFarmControl::setDownstreamActuator(BioXASCarbonFilterFarm
 		if (downstreamActuator_) {
 			addChildControl(downstreamActuator_);
 
-			connect( downstreamActuator_, SIGNAL(filterChanged(BioXASCarbonFilterFarmActuatorFilterControl*)), this, SLOT(updateFilter()) );
+			connect( downstreamActuator_, SIGNAL(filterChanged(AMControl*)), this, SLOT(updateFilter()) );
 		}
 
 		updateFilter();

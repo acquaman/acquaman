@@ -58,10 +58,8 @@ void BioXASCarbonFilterFarmActuatorControl::setPositionStatusControl(AMControl *
 		position_->setStatusControl(newControl);
 }
 
-bool BioXASCarbonFilterFarmActuatorControl::setWindow(BioXASCarbonFilterFarmActuatorWindowControl *newControl)
+void BioXASCarbonFilterFarmActuatorControl::setWindow(BioXASCarbonFilterFarmActuatorWindowControl *newControl)
 {
-	bool result = false;
-
 	if (window_ != newControl) {
 
 		if (window_)
@@ -78,16 +76,12 @@ bool BioXASCarbonFilterFarmActuatorControl::setWindow(BioXASCarbonFilterFarmActu
 		updateFilter();
 		updateConnected();
 
-		result = true;
+		emit windowChanged(window_);
 	}
-
-	return result;
 }
 
-bool BioXASCarbonFilterFarmActuatorControl::setFilter(BioXASCarbonFilterFarmActuatorFilterControl *newControl)
+void BioXASCarbonFilterFarmActuatorControl::setFilter(BioXASCarbonFilterFarmActuatorFilterControl *newControl)
 {
-	bool result = false;
-
 	if (filter_ != newControl) {
 
 		if (filter_)
@@ -104,10 +98,8 @@ bool BioXASCarbonFilterFarmActuatorControl::setFilter(BioXASCarbonFilterFarmActu
 		updateFilter();
 		updateConnected();
 
-		result = true;
+		emit filterChanged(filter_);
 	}
-
-	return result;
 }
 
 bool BioXASCarbonFilterFarmActuatorControl::setPosition(BioXASCarbonFilterFarmActuatorPositionControl *newControl)
@@ -124,8 +116,8 @@ bool BioXASCarbonFilterFarmActuatorControl::setPosition(BioXASCarbonFilterFarmAc
 		if (position_) {
 			addChildControl(position_);
 
-			connect( position_, SIGNAL(positionControlChanged(AMPVControl*)), this, SIGNAL(positionChanged(AMPVControl*)) );
-			connect( position_, SIGNAL(statusControlChanged(AMReadOnlyPVControl*)), this, SIGNAL(positionStatusChanged(AMReadOnlyPVControl*)) );
+			connect( position_, SIGNAL(positionControlChanged(AMControl*)), this, SIGNAL(positionChanged(AMControl*)) );
+			connect( position_, SIGNAL(statusControlChanged(AMControl*)), this, SIGNAL(positionStatusChanged(AMControl*)) );
 		}
 
 		updateWindow();

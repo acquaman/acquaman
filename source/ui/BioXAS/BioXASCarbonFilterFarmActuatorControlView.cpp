@@ -19,10 +19,12 @@ BioXASCarbonFilterFarmActuatorControlView::BioXASCarbonFilterFarmActuatorControl
 
 	positionEditor_ = new AMExtendedControlEditor(0);
 	positionEditor_->setTitle("Position");
+	positionEditor_->setMinimumWidth(150);
 
 	positionStatusEditor_ = new AMExtendedControlEditor(0);
 	positionStatusEditor_->setTitle("Status");
 	positionStatusEditor_->setNoUnitsBox(true);
+	positionStatusEditor_->setMinimumWidth(100);
 
 	// Create and set layouts.
 
@@ -76,10 +78,10 @@ void BioXASCarbonFilterFarmActuatorControlView::setActuator(BioXASCarbonFilterFa
 		actuator_ = newControl;
 
 		if (actuator_) {
-			connect( actuator_, SIGNAL(filterChanged(BioXASCarbonFilterFarmActuatorFilterControl*)), this, SLOT(refreshFilterEditor()) );
-			connect( actuator_, SIGNAL(windowChanged(BioXASCarbonFilterFarmActuatorWindowControl*)), this, SLOT(refreshWindowEditor()) );
-			connect( actuator_, SIGNAL(positionChanged(AMPVControl*)), this, SLOT(refreshPositionEditor()) );
-			connect( actuator_, SIGNAL(positionStatusChanged(AMReadOnlyPVControl*)), this, SLOT(refreshPositionStatusEditor()) );
+			connect( actuator_, SIGNAL(filterChanged(AMControl*)), this, SLOT(refreshFilterEditor()) );
+			connect( actuator_, SIGNAL(windowChanged(AMControl*)), this, SLOT(refreshWindowEditor()) );
+			connect( actuator_, SIGNAL(positionChanged(AMControl*)), this, SLOT(refreshPositionEditor()) );
+			connect( actuator_, SIGNAL(positionStatusChanged(AMControl*)), this, SLOT(refreshPositionStatusEditor()) );
 		}
 
 		refresh();

@@ -41,6 +41,10 @@ signals:
 	void positionChanged(AMControl *newControl);
 	/// Notifier that the position status control has changed.
 	void positionStatusChanged(AMControl *newControl);
+	/// Notifier that the window control has changed.
+	void windowChanged(AMControl *window);
+	/// Notifier that the filter control has changed.
+	void filterChanged(AMControl *filter);
 
 public slots:
 	/// Sets the position control.
@@ -49,9 +53,9 @@ public slots:
 	void setPositionStatusControl(AMControl *newControl);
 
 	/// Sets the window control.
-	bool setWindow(BioXASCarbonFilterFarmActuatorWindowControl *newControl);
+	void setWindow(BioXASCarbonFilterFarmActuatorWindowControl *newControl);
 	/// Sets the filter control.
-	bool setFilter(BioXASCarbonFilterFarmActuatorFilterControl *newControl);
+	void setFilter(BioXASCarbonFilterFarmActuatorFilterControl *newControl);
 
 protected slots:
 	/// Sets the position control.
