@@ -3,6 +3,7 @@
 #include "ui/beamline/AMExtendedControlEditor.h"
 #include "ui/AMValidatorIcon.h"
 #include "beamline/SGM/energy/SGMEnergyControlSet.h"
+#include "ui/SGM/SGMEnergyTrajectoryView.h"
 
 #include <QVBoxLayout>
 #include <QGridLayout>
@@ -126,6 +127,8 @@ void SGMEnergyView::setupUi(SGMEnergyView::EnergyViewType viewType)
 			exitSlitTrackingButton_->setText("Exit Slit Position Tracking (off)");
 		}
 
+		energyTrajectoryView_ = new SGMEnergyTrajectoryView(energyControlSet_);
+
 		QGridLayout* mainLayout = new QGridLayout();
 		mainLayout->addWidget(energyEditor_, 0, 0, 1, 2);
 
@@ -145,11 +148,12 @@ void SGMEnergyView::setupUi(SGMEnergyView::EnergyViewType viewType)
 		buttonLayout->addWidget(exitSlitTrackingButton_);
 		mainLayout->addLayout(buttonLayout, 6, 0, 1, 2);
 
+		mainLayout->addWidget(energyTrajectoryView_, 7, 0, 1, 2);
 
 		QHBoxLayout* validatorsLayout = new QHBoxLayout();
 		validatorsLayout->addWidget(errorValidatorIcon_);
 		validatorsLayout->addWidget(warningValidatorIcon_);
-		mainLayout->addLayout(validatorsLayout, 7, 0, 1, 2);
+		mainLayout->addLayout(validatorsLayout, 8, 0, 1, 2);
 
 		setLayout(mainLayout);
 
@@ -165,12 +169,14 @@ void SGMEnergyView::setupUi(SGMEnergyView::EnergyViewType viewType)
 
 
 	} else {
+
 		gratingAngleEditor_ = 0;
 		undulatorPositionEditor_ = 0;
 		exitSlitPositionEditor_ = 0;
 
 		undulatorTrackingButton_ = 0;
 		exitSlitTrackingButton_ = 0;
+		energyTrajectoryView_ = 0;
 
 		QVBoxLayout* mainLayout = new QVBoxLayout();
 		mainLayout->addWidget(energyEditor_);

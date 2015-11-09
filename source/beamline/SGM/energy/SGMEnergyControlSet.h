@@ -25,6 +25,26 @@ public:
 	AMControl* energy() const;
 
 	/*!
+	  * The control for the start energy of a continuous energy motion.
+	  */
+	AMControl* energyTrajectoryStartpoint() const;
+
+	/*!
+	  * The control for the end energy of a continuous energy motion.
+	  */
+	AMControl* energyTrajectoryEndpoint() const;
+
+	/*!
+	  * The control for the time a continuous motion should take.
+	  */
+	AMControl* energyTrajectoryTime() const;
+
+	/*!
+	  * The control which commences a continous motion.
+	  */
+	AMControl* energyTrajectoryStart() const;
+
+	/*!
 	  * The grating angle control. The grating angle determines (along with the
 	  * grating translation) the energy the beamline produces. This control can
 	  * be moved to manually produce different energies, without the coordinated

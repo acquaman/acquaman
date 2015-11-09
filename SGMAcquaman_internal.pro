@@ -11,7 +11,8 @@ HEADERS += \
     source/ui/SGM/SGMHexapodTrajectoryView.h \
     source/ui/SGM/SGMHexapodSystemRotationView.h \
     source/ui/SGM/SGMHexapodView.h \
-    source/ui/SGM/SGMEnergyView.h
+    source/ui/SGM/SGMEnergyView.h \
+    source/ui/SGM/SGMEnergyTrajectoryView.h
 
 SOURCES += \
     source/application/SGM/SGMMain.cpp \
@@ -20,4 +21,7 @@ SOURCES += \
     source/ui/SGM/SGMHexapodTrajectoryView.cpp \
     source/ui/SGM/SGMHexapodSystemRotationView.cpp \
     source/ui/SGM/SGMHexapodView.cpp \
-    source/ui/SGM/SGMEnergyView.cpp
+    source/ui/SGM/SGMEnergyView.cpp \
+    source/ui/SGM/SGMEnergyTrajectoryView.cpp
+
+

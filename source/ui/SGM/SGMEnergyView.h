@@ -7,6 +7,7 @@
 class AMExtendedControlEditor;
 class AMValidatorIcon;
 class SGMEnergyControlSet;
+class SGMEnergyTrajectoryView;
 /*!
   * A ui class representing a view for visualizing the energy controls of the
   * SGM beamline.
@@ -83,6 +84,8 @@ protected:
 	AMExtendedControlEditor* undulatorHarmonicEditor_;
 	AMExtendedControlEditor* undulatorPositionEditor_;
 	AMExtendedControlEditor* exitSlitPositionEditor_;
+
+	SGMEnergyTrajectoryView* energyTrajectoryView_;
 
 	QPushButton* undulatorTrackingButton_;
 	QPushButton* exitSlitTrackingButton_;

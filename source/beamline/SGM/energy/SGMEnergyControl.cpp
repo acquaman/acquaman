@@ -531,7 +531,9 @@ AMAction3 *SGMEnergyControl::createMoveAction(SGMEnergyTrajectory* energyTraject
 
 				bool savedExitSlitTracking = energyPositionController_->isExitSlitPositionTracking();
 
+				energyPositionController_->blockSignals(true);
 				energyPositionController_->setExitSlitPositionTracking(false);
+				energyPositionController_->blockSignals(false);
 				initializationActions->addSubAction(createMoveAction(startSetpoint));
 				energyPositionController_->setExitSlitPositionTracking(savedExitSlitTracking);
 				continuousMoveAction->addSubAction(initializationActions);

@@ -20,7 +20,31 @@ SGMEnergyControlSet::SGMEnergyControlSet(QObject *parent) :
                                       new CLSMAXvControlStatusChecker()));
     controlNamed("Energy")->setAttemptMoveWhenWithinTolerance(true);
 
-    addControl(new AMPVwStatusControl("Grating Angle",
+	addControl(new AMSinglePVControl("Energy Trajectory Startpoint",
+									 baseGroupPV + ":trajectory:startpoint:eV",
+									 this,
+									 0.5,
+									 2));
+
+	addControl(new AMSinglePVControl("Energy Trajectory Endpoint",
+									 baseGroupPV + ":trajectory:endpoint:eV",
+									 this,
+									 0.5,
+									 2));
+
+	addControl(new AMSinglePVControl("Energy Trajectory Time",
+									 baseGroupPV + ":trajectory:time:s",
+									 this,
+									 0.5,
+									 2));
+
+	addControl(new AMSinglePVControl("Energy Trajectory Start",
+									 baseGroupPV + ":trajectory:start",
+									 this,
+									 0.5,
+									 2));
+
+	addControl(new AMPVwStatusControl("Grating Angle",
                                       baseGroupPV + ":grating:angle:steps:fbk",
                                       baseGroupPV + ":grating:angle:steps",
                                       baseGroupPV + ":grating:angle:status",
@@ -113,6 +137,27 @@ SGMEnergyControlSet::SGMEnergyControlSet(QObject *parent) :
 AMControl * SGMEnergyControlSet::energy() const
 {
     return controlNamed("Energy");
+}
+
+
+AMControl * SGMEnergyControlSet::energyTrajectoryStartpoint() const
+{
+	return controlNamed("Energy Trajectory Startpoint");
+}
+
+AMControl * SGMEnergyControlSet::energyTrajectoryEndpoint() const
+{
+	return controlNamed("Energy Trajectory Endpoint");
+}
+
+AMControl * SGMEnergyControlSet::energyTrajectoryTime() const
+{
+	return controlNamed("Energy Trajectory Time");
+}
+
+AMControl * SGMEnergyControlSet::energyTrajectoryStart() const
+{
+	return controlNamed("Energy Trajectory Start");
 }
 
 AMControl * SGMEnergyControlSet::gratingAngle() const
@@ -310,7 +355,8 @@ void SGMEnergyControlSet::onExitSlitPositionPVValueChanged(double value)
 
 void SGMEnergyControlSet::onExitSlitTrackingPVValueChanged(double)
 {
-    energyPositionValidator_->setExitSlitPositionTracking(!exitSlitPositionTracking()->withinTolerance(0));
+	energyPositionValidator_->setExitSlitPositionTracking(!exitSlitPositionTracking()->withinTolerance(0));
 }
+
 
 
