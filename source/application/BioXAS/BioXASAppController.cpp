@@ -198,7 +198,9 @@ void BioXASAppController::onCurrentScanActionFinishedImplementation(AMScanAction
 			QVector<double> data = QVector<double>(start.totalPointsTo(end));
 			dataSource->values(start, end, data.data());
 
-			AMNumber maxValue = dataSource->value(AMUtility::indexOfMaximum(data, dataSource->size()));
+			int maxIndex = AMUtility::flatIndexOfMaximum(data);
+
+			AMNumber maxValue = dataSource->value(AMnDIndex(maxIndex));
 
 			if (!maxValue.isValid()) {
 				qDebug() << "The maximum value found is invalid.";
@@ -215,7 +217,7 @@ void BioXASAppController::onCurrentScanActionFinishedImplementation(AMScanAction
 
 			// Identify corresponding control values.
 
-			AMNumber maxAxisValue = maximum->axisValue(0, 0);
+			AMNumber maxAxisValue = dataSource->axisValue(0, maxIndex);
 
 			if (!maxAxisValue.isValid()) {
 				qDebug() << "The maximum value found is invalid.";
@@ -241,7 +243,7 @@ void BioXASAppController::onCurrentScanActionFinishedImplementation(AMScanAction
 				notes += "\nAxis value: " + QString::number(double(maxAxisValue));
 			}
 
-			scan->setNotes(notes);
+			scan->setNotes(scan->notes() + "\n" + notes);
 
 			// Move controls to the optimal positions.
 
