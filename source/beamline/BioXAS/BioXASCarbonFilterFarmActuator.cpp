@@ -34,18 +34,6 @@ QString BioXASCarbonFilterFarmActuator::windowToString(double window)
 	return result;
 }
 
-void BioXASCarbonFilterFarmActuator::setPositionControl(AMPVwStatusControl *newControl)
-{
-	if (position_)
-		position_->setPositionControl(newControl);
-}
-
-void BioXASCarbonFilterFarmActuator::setPositionStatusControl(AMReadOnlyPVControl *newControl)
-{
-	if (position_)
-		position_->setStatusControl(newControl);
-}
-
 void BioXASCarbonFilterFarmActuator::addWindow(Window::Option window, double positionSetpoint, double positionMin, double positionMax, double filter)
 {
 	if (window_)
@@ -77,4 +65,16 @@ void BioXASCarbonFilterFarmActuator::setWindowPreference(double filter, Window::
 {
 	if (filter_)
 		filter_->setWindowPreference(filter, window);
+}
+
+void BioXASCarbonFilterFarmActuator::removeWindowPreference(double filter)
+{
+	if (filter_)
+		filter_->removeWindowPreference(filter);
+}
+
+void BioXASCarbonFilterFarmActuator::clearWindowPreferences()
+{
+	if (filter_)
+		filter_->clearWindowPreferences();
 }

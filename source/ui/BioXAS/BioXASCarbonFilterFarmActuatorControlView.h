@@ -6,7 +6,6 @@
 
 #include "beamline/BioXAS/BioXASCarbonFilterFarmActuatorControl.h"
 #include "ui/beamline/AMExtendedControlEditor.h"
-#include "ui/BioXAS/BioXASCarbonFilterFarmActuatorPositionControlView.h"
 
 class BioXASCarbonFilterFarmActuatorControlView : public QWidget
 {
@@ -40,7 +39,9 @@ protected slots:
 	/// Refreshes the window editor.
 	void refreshWindowEditor();
 	/// Refreshes the position editor.
-	void refreshPositionView();
+	void refreshPositionEditor();
+	/// Refreshes the position status editor.
+	void refreshPositionStatusEditor();
 
 protected:
 	/// The actuator control being viewed.
@@ -50,8 +51,10 @@ protected:
 	AMExtendedControlEditor *filterEditor_;
 	/// The window editor.
 	AMExtendedControlEditor *windowEditor_;
-	/// The position view.
-	BioXASCarbonFilterFarmActuatorPositionControlView *positionView_;
+	/// The position editor.
+	AMExtendedControlEditor *positionEditor_;
+	/// The position status editor.
+	AMExtendedControlEditor *positionStatusEditor_;
 };
 
 #endif // BIOXASCARBONFILTERFARMACTUATORCONTROLVIEW_H

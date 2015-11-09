@@ -69,9 +69,9 @@ void BioXASCarbonFilterFarmActuatorPositionControl::setPositionControl(AMControl
 		if (position_)
 			addChildControl(position_);
 
-		emit positionControlChanged(position_);
-
 		updateStates();
+
+		emit positionControlChanged(position_);
 	}
 }
 
@@ -87,9 +87,9 @@ void BioXASCarbonFilterFarmActuatorPositionControl::setStatusControl(AMControl *
 		if (status_)
 			addChildControl(status_);
 
-		emit statusControlChanged(status_);
-
 		updateStates();
+
+		emit statusControlChanged(status_);
 	}
 }
 

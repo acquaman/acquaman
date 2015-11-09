@@ -2,6 +2,7 @@
 #define BIOXASCARBONFILTERFARMACTUATORPOSITIONCONTROL_H
 
 #include "beamline/AMPseudoMotorControl.h"
+#include "beamline/AMPVControl.h"
 
 #define TIMEOUT_MOVE 10
 

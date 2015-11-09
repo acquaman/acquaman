@@ -15,6 +15,26 @@ BioXASCarbonFilterFarmActuatorControl::~BioXASCarbonFilterFarmActuatorControl()
 
 }
 
+AMControl* BioXASCarbonFilterFarmActuatorControl::position() const
+{
+	AMControl *result = 0;
+
+	if (position_)
+		result = position_->positionControl();
+
+	return result;
+}
+
+AMControl* BioXASCarbonFilterFarmActuatorControl::positionStatus() const
+{
+	AMControl *result = 0;
+
+	if (position_)
+		result = position_->statusControl();
+
+	return result;
+}
+
 bool BioXASCarbonFilterFarmActuatorControl::isConnected() const
 {
 	bool connected = (
@@ -26,31 +46,22 @@ bool BioXASCarbonFilterFarmActuatorControl::isConnected() const
 	return connected;
 }
 
-void BioXASCarbonFilterFarmActuatorControl::setPosition(BioXASCarbonFilterFarmActuatorPositionControl *newControl)
+void BioXASCarbonFilterFarmActuatorControl::setPositionControl(AMControl *newControl)
 {
-	if (position_ != newControl) {
-
-		if (position_) {
-			removeChildControl(position_); // disconnects from all signals.
-
-			if (window_)
-				window_->setPositionControl(0);
-		}
-
-		position_ = newControl;
-
-		if (position_)
-			addChildControl(position_);
-
-		updateWindow();
-		updateConnected();
-
-		emit positionChanged(position_);
-	}
+	if (position_)
+		position_->setPositionControl(newControl);
 }
 
-void BioXASCarbonFilterFarmActuatorControl::setWindow(BioXASCarbonFilterFarmActuatorWindowControl *newControl)
+void BioXASCarbonFilterFarmActuatorControl::setPositionStatusControl(AMControl *newControl)
 {
+	if (position_)
+		position_->setStatusControl(newControl);
+}
+
+bool BioXASCarbonFilterFarmActuatorControl::setWindow(BioXASCarbonFilterFarmActuatorWindowControl *newControl)
+{
+	bool result = false;
+
 	if (window_ != newControl) {
 
 		if (window_)
@@ -67,12 +78,16 @@ void BioXASCarbonFilterFarmActuatorControl::setWindow(BioXASCarbonFilterFarmActu
 		updateFilter();
 		updateConnected();
 
-		emit windowChanged(window_);
+		result = true;
 	}
+
+	return result;
 }
 
-void BioXASCarbonFilterFarmActuatorControl::setFilter(BioXASCarbonFilterFarmActuatorFilterControl *newControl)
+bool BioXASCarbonFilterFarmActuatorControl::setFilter(BioXASCarbonFilterFarmActuatorFilterControl *newControl)
 {
+	bool result = false;
+
 	if (filter_ != newControl) {
 
 		if (filter_)
@@ -89,27 +104,56 @@ void BioXASCarbonFilterFarmActuatorControl::setFilter(BioXASCarbonFilterFarmActu
 		updateFilter();
 		updateConnected();
 
-		emit filterChanged(filter_);
+		result = true;
 	}
+
+	return result;
+}
+
+bool BioXASCarbonFilterFarmActuatorControl::setPosition(BioXASCarbonFilterFarmActuatorPositionControl *newControl)
+{
+	bool result = false;
+
+	if (position_ != newControl) {
+
+		if (position_)
+			removeChildControl(position_); // disconnects from all signals.
+
+		position_ = newControl;
+
+		if (position_) {
+			addChildControl(position_);
+
+			connect( position_, SIGNAL(positionControlChanged(AMPVControl*)), this, SIGNAL(positionChanged(AMPVControl*)) );
+			connect( position_, SIGNAL(statusControlChanged(AMReadOnlyPVControl*)), this, SIGNAL(positionStatusChanged(AMReadOnlyPVControl*)) );
+		}
+
+		updateWindow();
+		updateConnected();
+
+		result = true;
+	}
+
+	return result;
 }
 
 void BioXASCarbonFilterFarmActuatorControl::updatePosition()
 {
-	if (window_ && window_->positionControl() != position_)
+	if (window_)
 		setPosition(window_->positionControl());
 }
 
 void BioXASCarbonFilterFarmActuatorControl::updateWindow()
 {
-	if (filter_ && filter_->windowControl() != window_)
+	if (filter_)
 		setWindow(filter_->windowControl());
 
-	if (window_ && window_->positionControl() != position_)
+	if (window_)
 		window_->setPositionControl(position_);
 }
 
 void BioXASCarbonFilterFarmActuatorControl::updateFilter()
 {
-	if (filter_ && filter_->windowControl() != window_)
+	if (filter_)
 		filter_->setWindowControl(window_);
 }

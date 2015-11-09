@@ -2,7 +2,6 @@
 #define BIOXASCARBONFILTERFARMACTUATOR_H
 
 #include "beamline/BioXAS/BioXASCarbonFilterFarmActuatorControl.h"
-#include "beamline/AMPVControl.h"
 
 class BioXASCarbonFilterFarmActuator : public BioXASCarbonFilterFarmActuatorControl
 {
@@ -21,11 +20,6 @@ public:
 	static QString windowToString(double window);
 
 public slots:
-	/// Sets the position control.
-	void setPositionControl(AMPVwStatusControl *newControl);
-	/// Sets the position status control.
-	void setPositionStatusControl(AMReadOnlyPVControl *newControl);
-
 	/// Adds a window option.
 	void addWindow(Window::Option window, double positionSetpoint, double positionMin, double positionMax, double filter);
 	/// Removes a window option.
@@ -35,6 +29,10 @@ public slots:
 
 	/// Sets a filter window preference.
 	void setWindowPreference(double filter, Window::Option window);
+	/// Removes a filter window preference.
+	void removeWindowPreference(double filter);
+	/// Clears all filter window preferences.
+	void clearWindowPreferences();
 };
 
 #endif // BIOXASCARBONFILTERFARMACTUATOR_H
