@@ -69,10 +69,10 @@ public:
 	/// Returns RequestRead as the type
 	virtual AMDetectorDefinitions::ReadMethod readMethod() const { return AMDetectorDefinitions::RequestRead; }
 
-	/// Returns SingleRead as the type
-//	virtual AMDetectorDefinitions::ReadMode readMode() const { return AMDetectorDefinitions::SingleRead; }
+	/// Returns the type of the last acquisition
 	virtual AMDetectorDefinitions::ReadMode readMode() const { return lastReadMode_; }
 
+	/// Implemented to support returning data from the last acquire(AMDetectorDefinitions::ContinuousMode) call
 	virtual AMDSClientDataRequest* lastContinuousData(double seconds);
 
 	/// Creates an action to enable or disable this amptek for in the array.
@@ -230,7 +230,7 @@ protected:
 	/// Helper function to convert eV value to bin value using current evPerBin value
 	int convertEvToBin(double eVValue);
 
-	///
+	/// TESTING on AMDSClientDataRequest and AMAgnositicDataAPI
 	bool event(QEvent *e);
 
 protected:
@@ -299,9 +299,11 @@ protected:
 
 
 
-	/// the handler of the clientAppController
+	/// The handler of the clientAppController
 	AMDSClientAppController *clientAppController_;
+	/// The data returned from the last acquire(AMDetectorDefinitions::ContinuousMode) call
 	AMDSClientRelativeCountPlusCountDataRequest *lastContinuousDataRequest_;
+	/// The read mode type of the last acquire call
 	AMDetectorDefinitions::ReadMode lastReadMode_;
 };
 
