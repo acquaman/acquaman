@@ -28,13 +28,19 @@ public:
 	 * angle (in steps)
 	 * \param gratingAngleStepsPerEncoderCount ~ The conversion rate between encoder
 	 * counts and steps.
+	 * \param undulatorAcceleration ~ The acceleration of the undulator (in steps)
+	 * \param undulatorCurrentGap ~ The current undualtor gap
+	 * \param undulatorCurrentStep ~ The current undulator steps
      */
-    SGMEnergyTrajectory(double startEnergy,
-                        double endEnergy,
-                        double time,
+	SGMEnergyTrajectory(double startEnergy,
+						double endEnergy,
+						double time,
 						SGMGratingSupport::GratingTranslation gratingTranslation,
 						double gratingAngleAcceleration,
-						double gratingAngleStepsPerEncoderCount);
+						double gratingAngleStepsPerEncoderCount,
+						double undulatorAcceleration,
+						double undulatorCurrentGap,
+						double undulatorCurrentStep);
 
     /*!
       * Frees resources associated with the trajectory.
@@ -155,8 +161,6 @@ protected:
     double startEnergy_;
     double endEnergy_;
     double time_;
-	double gratingAngleStepsPerEncoderCount_;
-	double gratingAngleAcceleration_;
 
     SGMGratingSupport::GratingTranslation gratingTranslation_;
 

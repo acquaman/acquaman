@@ -261,6 +261,7 @@ protected:
 	// Child Controls used for trajectory motions
 	AMControl* undulatorStepControl_;
 	AMControl* undulatorStepVelocityControl_;
+	AMControl* undulatorStepAccelerationControl_;
 
 
 };

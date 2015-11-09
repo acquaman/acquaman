@@ -307,7 +307,10 @@ void SGMEnergyTrajectoryTestView::setEnergyPlotData(SGMGratingSupport::GratingTr
                                        timeSpinBox_->value(),
 									   gratingTranslation,
 									   5000,
-									   -1.53);
+									   -1.53,
+									   1000,
+									   -5598,
+									   25.07);
 
         SGMEnergyPosition currentEnergyStatus(gratingTranslation,
                                               trajectory.startGratingAngleEncoderCount(),
@@ -360,7 +363,10 @@ void SGMEnergyTrajectoryTestView::setTrajectoryPlotData(SGMGratingSupport::Grati
                                        timeSpinBox_->value(),
 									   gratingTranslation,
 									   5000,
-									   -1.53);
+									   -1.53,
+									   1000,
+									   -5598,
+									   25.07);
 
         if(!trajectory.hasErrors()) {
 

@@ -7,11 +7,12 @@ SGMEnergyTrajectory::SGMEnergyTrajectory(double startEnergy,
                                          double time,
 										 SGMGratingSupport::GratingTranslation gratingTranslation,
 										 double gratingAngleAcceleration,
-										 double gratingAngleStepsPerEncoderCount)
+										 double gratingAngleStepsPerEncoderCount,
+										 double undulatorAcceleration,
+										 double undulatorCurrentGap,
+										 double undulatorCurrentStep)
 {
 
-	gratingAngleAcceleration_ = gratingAngleAcceleration;
-	gratingAngleStepsPerEncoderCount_ = gratingAngleStepsPerEncoderCount;
 	startEnergyPosition_ = new SGMEnergyPosition(startEnergy, gratingTranslation);
     startEnergy_ = startEnergy;
 	endEnergyPosition_ = new SGMEnergyPosition(endEnergy, gratingTranslation);
@@ -45,15 +46,29 @@ SGMEnergyTrajectory::SGMEnergyTrajectory(double startEnergy,
 															  gratingAngleAcceleration,
 															  time);
 
-	undulatorVelocityProfile_ = AMTrapezoidVelocityProfile(startEnergyPosition_->undulatorPosition(),
-														   endEnergyPosition_->undulatorPosition(),
-														   5000,
+	double startUndulatorSteps = SGMUndulatorSupport::undulatorStepFromPosition(startEnergyPosition_->undulatorPosition(),
+																				undulatorCurrentGap,
+																				undulatorCurrentStep);
+
+	double endUndulatorSteps = SGMUndulatorSupport::undulatorStepFromPosition(endEnergyPosition_->undulatorPosition(),
+																			  undulatorCurrentGap,
+																			  undulatorCurrentStep);
+
+	undulatorVelocityProfile_ = AMTrapezoidVelocityProfile(startUndulatorSteps,
+														   endUndulatorSteps,
+														   undulatorAcceleration,
 														   time);
 
 	exitSlitVelocityProfile_ = AMTrapezoidVelocityProfile(startEnergyPosition_->exitSlitPosition(),
 														  endEnergyPosition_->exitSlitPosition(),
 														  5000,
 														  time);
+
+	qDebug() << "$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$";
+	qDebug() << "$$\t undulator start" << undulatorVelocityProfile_.startPosition();
+	qDebug() << "$$\t undulator end" << undulatorVelocityProfile_.endPosition();
+	qDebug() << "$$\t undulatorVelocity" << undulatorVelocityProfile_.targetVelocity();
+	qDebug() << "$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$";
 }
 
 SGMEnergyTrajectory::~SGMEnergyTrajectory()

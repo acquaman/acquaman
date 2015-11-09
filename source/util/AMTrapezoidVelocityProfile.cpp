@@ -40,15 +40,12 @@ double AMTrapezoidVelocityProfile::time() const
 {
 	return time_;
 }
-#include <QDebug>
+
 double AMTrapezoidVelocityProfile::targetVelocity() const
 {
 	double halfAccelByTime = (acceleration_*time_) / 2;
 	double toRoot = pow(halfAccelByTime, 2) - acceleration_ * qAbs(endPosition_ - startPosition_);
 
-	qDebug() << "deltaP" << qAbs(endPosition_ - startPosition_);
-	qDebug() << "a.deltaT / 2" << halfAccelByTime;
-	qDebug() << "toRoot" << toRoot;
 	if(toRoot < 0) {
 		return halfAccelByTime + sqrt(qAbs(toRoot));
 	} else {

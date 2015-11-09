@@ -67,7 +67,7 @@ SGMGratingAngleControl::SGMGratingAngleControl(QObject *parent) :
 	addChildControl(stepMotorControl_);
 	setMinimumValue(encoderControl_->minimumValue());
 	setMaximumValue(encoderControl_->maximumValue());
-	setTolerance(500);
+	setTolerance(400);
 
 	updateStates();
 }
