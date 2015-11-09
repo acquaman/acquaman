@@ -134,7 +134,7 @@ void SGMEnergyCoordinator::onEnergyControlConnected(bool isConnected)
 
 		// Grating translation setpoint
 		SGMGratingSupport::GratingTranslation initialGratingTranslation =
-				SGMGratingSupport::encoderStepsToEnum(energyControlCoordinator_->gratingTranslationControl()->value());
+				SGMGratingSupport::encoderCountToEnum(energyControlCoordinator_->gratingTranslationControl()->value());
 
 		double initialGratingTranslationValue;
 		switch(initialGratingTranslation) {
@@ -276,6 +276,9 @@ void SGMEnergyCoordinator::onEnergyControlConnected(bool isConnected)
 
 		connect(newControls_->energyStop(), SIGNAL(valueChanged(double)),
 				this, SLOT(onEnergyStopPVChanged(double)));
+
+		connect(newControls_->energyTrajectoryStart(), SIGNAL(valueChanged(double)),
+				this, SLOT(onEnergyTrajectoryStartPVChanged(double)));
 
 		connect(newControls_->gratingAngleSetpoint(), SIGNAL(valueChanged(double)),
 				this, SLOT(onGratingAngleSetpointPVChanged(double)));
@@ -464,7 +467,7 @@ void SGMEnergyCoordinator::onOldGratingAnglePVMovingChanged(bool isMoving)
 void SGMEnergyCoordinator::onOldGratingTranslationStepPVChanged(double value)
 {
 	SGMGratingSupport::GratingTranslation gratingTranslation =
-			SGMGratingSupport::encoderStepsToEnum(value);
+			SGMGratingSupport::encoderCountToEnum(value);
 
 	double newGratingTranslationPVValue;
 	switch(gratingTranslation) {
@@ -556,7 +559,8 @@ void SGMEnergyCoordinator::onEnergySetpointPVChanged(double value)
 	if(energySetpointInitialized_)  {
 
 		qDebug() << QString("Forwarding energy setpoint value of %1 to energy control").arg(value);
-		energyControlCoordinator_->move(value);
+		AMControl* controlVersion = energyControlCoordinator_;
+		controlVersion->move(value);
 	} else {
 		energySetpointInitialized_ = true;
 	}
@@ -574,6 +578,27 @@ void SGMEnergyCoordinator::onEnergyStopPVChanged(double)
 	if(!newControls_->energyStop()->withinTolerance(0.0)) {
 		newControls_->energyStop()->move(0.0);
 	}
+}
+
+void SGMEnergyCoordinator::onEnergyTrajectoryStartPVChanged(double value)
+{
+	qDebug() << "\tTrajectory start value of" << value << "received";
+	if(newControls_->energyTrajectoryStart()->withinTolerance(1.0)) {
+
+		double startpoint = newControls_->energyTrajectoryStartpoint()->value();
+		double endpoint = newControls_->energyTrajectoryEndpoint()->value();
+		double time = newControls_->energyTrajectoryTime()->value();
+		double velocity = (endpoint - startpoint) / time;
+
+		if(energyControlCoordinator_->move(startpoint, endpoint, velocity) == AMControl::NoFailure) {
+			qDebug() << "Moving energy from" << startpoint << "to" << endpoint << "at" << velocity << "eV/s";
+		}
+	}
+
+	if(!newControls_->gratingAngleStop()->withinTolerance(0.0)) {
+		newControls_->gratingAngleStop()->move(0.0);
+	}
+
 }
 
 void SGMEnergyCoordinator::onGratingAngleSetpointPVChanged(double value)
@@ -625,7 +650,7 @@ void SGMEnergyCoordinator::onGratingTranslationSetpointPVChanged(double value)
 				return;
 			}
 
-			double gratingTranslationStepValue = SGMGratingSupport::enumToEncoderSteps(enumValue);
+			double gratingTranslationStepValue = SGMGratingSupport::enumToEncoderCount(enumValue);
 
 			qDebug() << QString("Forwarding grating translation setpoint value of %1 to energy control").arg(gratingTranslationStepValue);
 			energyControlCoordinator_->gratingTranslationControl()->move(gratingTranslationStepValue);
@@ -803,4 +828,6 @@ void SGMEnergyCoordinator::onExitSlitPositionTrackingPVChanged(double)
 		energyControlCoordinator_->setExitSlitPositionTracking(isTracking);
 	}
 }
+
+
 

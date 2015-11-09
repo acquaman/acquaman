@@ -12,7 +12,7 @@ SGMNewEnergyPVSet::SGMNewEnergyPVSet(QObject *parent) :
     controlSet_->addControl(new AMSinglePVControl("EnergyFeedback",
                                                   "AM1611-4-I10:energy:eV:fbk",
                                                   this,
-                                                  0.01));
+												  0.1));
 
     controlSet_->addControl(new AMSinglePVControl("EnergySetpoint",
                                                   "AM1611-4-I10:energy:eV",
@@ -22,12 +22,32 @@ SGMNewEnergyPVSet::SGMNewEnergyPVSet(QObject *parent) :
     controlSet_->addControl(new AMSinglePVControl("EnergyStop",
                                                   "AM1611-4-I10:energy:stop",
                                                   this,
-                                                  0.01));
+												  0.5));
 
     controlSet_->addControl(new AMSinglePVControl("EnergyStatus",
                                                   "AM1611-4-I10:energy:status",
                                                   this,
                                                   0.5));
+
+	controlSet_->addControl(new AMSinglePVControl("EnergyTrajectoryStartpoint",
+												  "AM1611-4-I10:energy:trajectory:startpoint:eV",
+												  this,
+												  0.1));
+
+	controlSet_->addControl(new AMSinglePVControl("EnergyTrajectoryEndpoint",
+												  "AM1611-4-I10:energy:trajectory:endpoint:eV",
+												  this,
+												  0.1));
+
+	controlSet_->addControl(new AMSinglePVControl("EnergyTrajectoryTime",
+												  "AM1611-4-I10:energy:trajectory:time:s",
+												  this,
+												  0.1));
+
+	controlSet_->addControl(new AMSinglePVControl("EnergyTrajectoryStart",
+												  "AM1611-4-I10:energy:trajectory:start",
+												  this,
+												  0.5));
 
     controlSet_->addControl(new AMSinglePVControl("GratingAngleFeedback",
                                                   "AM1611-4-I10:energy:grating:angle:steps:fbk",
@@ -172,6 +192,26 @@ AMControl * SGMNewEnergyPVSet::energyStatus() const
 	return controlSet_->controlNamed("EnergyStatus");
 }
 
+AMControl * SGMNewEnergyPVSet::energyTrajectoryStartpoint() const
+{
+	return controlSet_->controlNamed("EnergyTrajectoryStartpoint");
+}
+
+AMControl * SGMNewEnergyPVSet::energyTrajectoryEndpoint() const
+{
+	return controlSet_->controlNamed("EnergyTrajectoryEndpoint");
+}
+
+AMControl * SGMNewEnergyPVSet::energyTrajectoryTime() const
+{
+	return controlSet_->controlNamed("EnergyTrajectoryTime");
+}
+
+AMControl * SGMNewEnergyPVSet::energyTrajectoryStart() const
+{
+	return controlSet_->controlNamed("EnergyTrajectoryStart");
+}
+
 AMControl * SGMNewEnergyPVSet::gratingAngleFeedback() const
 {
 	return controlSet_->controlNamed("GratingAngleFeedback");
@@ -286,3 +326,7 @@ AMControl * SGMNewEnergyPVSet::exitSlitPositionTracking() const
 {
 	return controlSet_->controlNamed("ExitSlitTracking");
 }
+
+
+
+

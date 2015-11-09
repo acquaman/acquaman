@@ -35,6 +35,18 @@ public:
 	/// The energy status PV ~ AM1611-4-I10:energy:status
 	AMControl* energyStatus() const;
 
+	/// The energy trajectory start PV ~ AM1611-4-I10:energy:trajectory:startpoint:eV
+	AMControl* energyTrajectoryStartpoint() const;
+
+	/// The energy trajectory end PV ~ AM1611-4-I10:energy:trajectory:endpoint:eV
+	AMControl* energyTrajectoryEndpoint() const;
+
+	/// The energy trajectory time PV ~ AM1611-4-I10:energy:trajectory:time:s"
+	AMControl* energyTrajectoryTime() const;
+
+	/// The energy trajectory start PV ~ AM1611-4-I10:energy:trajectory:start
+	AMControl* energyTrajectoryStart() const;
+
 	// Grating - Angle
 	/////////////////////////////////////////
 	/// The grating angle feedback PV ~ AM1611-4-I10:energy:grating:angle:steps:fbk

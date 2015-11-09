@@ -78,6 +78,9 @@ protected slots:
 	/// Handles the new energy stop PV being altered.
 	void onEnergyStopPVChanged(double);
 
+	/// Handles the new start trajectory motion PV being altered.
+	void onEnergyTrajectoryStartPVChanged(double);
+
 	/// Handles the new grating angle PV being altered.
 	void onGratingAngleSetpointPVChanged(double);
 
