@@ -7,6 +7,7 @@
 class AMExtendedControlEditor;
 class AMValidatorIcon;
 class SGMEnergyControlSet;
+class SGMEnergyTrajectoryView;
 /*!
   * A ui class representing a view for visualizing the energy controls of the
   * SGM beamline.
@@ -15,7 +16,7 @@ class SGMEnergyControlSet;
   */
 class SGMEnergyView : public QWidget
 {
-    Q_OBJECT
+	Q_OBJECT
 public:
 	/// Enumerates the different levels of detail that an energy view is to display
 	enum EnergyViewType {
@@ -31,8 +32,8 @@ public:
 	  * to display in the view. Defaults to simple.
 	  */
 	explicit SGMEnergyView(SGMEnergyControlSet* energyControlSet,
-						   EnergyViewType viewType = Simple,
-						   QWidget *parent = 0);
+	                       EnergyViewType viewType = Simple,
+	                       QWidget *parent = 0);
 
 signals:
 
@@ -83,6 +84,8 @@ protected:
 	AMExtendedControlEditor* undulatorHarmonicEditor_;
 	AMExtendedControlEditor* undulatorPositionEditor_;
 	AMExtendedControlEditor* exitSlitPositionEditor_;
+
+	SGMEnergyTrajectoryView* energyTrajectoryView_;
 
 	QPushButton* undulatorTrackingButton_;
 	QPushButton* exitSlitTrackingButton_;

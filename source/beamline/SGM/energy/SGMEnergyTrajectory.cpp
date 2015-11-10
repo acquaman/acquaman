@@ -1,199 +1,218 @@
 #include "SGMEnergyTrajectory.h"
+#include <math.h>
 
 SGMEnergyTrajectory::SGMEnergyTrajectory(double startEnergy,
                                          double endEnergy,
                                          double time,
-                                         SGMGratingSupport::GratingTranslation gratingTranslation)
+                                         SGMGratingSupport::GratingTranslation gratingTranslation,
+                                         double gratingAngleAcceleration,
+                                         double gratingAngleStepsPerEncoderCount,
+                                         double undulatorAcceleration,
+                                         double undulatorCurrentGap,
+                                         double undulatorCurrentStep)
 {
 
-    startEnergyPosition_ = new SGMEnergyPosition(startEnergy, gratingTranslation);
-    startEnergy_ = startEnergy;
-    endEnergyPosition_ = new SGMEnergyPosition(endEnergy, gratingTranslation);
-    endEnergy_ = endEnergy;
+	startEnergyPosition_ = new SGMEnergyPosition(startEnergy, gratingTranslation);
+	startEnergy_ = startEnergy;
+	endEnergyPosition_ = new SGMEnergyPosition(endEnergy, gratingTranslation);
+	endEnergy_ = endEnergy;
 
-    // ensure both undulator harmonics are the same.
-    if(startEnergyPosition_->undulatorHarmonic() != endEnergyPosition_->undulatorHarmonic()) {
+	errorValidator_ = new AMValidator();
+	errorValidator_->addChildValidator(startEnergyPosition_->errorValidator());
+	errorValidator_->addChildValidator(endEnergyPosition_->errorValidator());
 
-        // If there is a conflict, just use the first harmonic.
-        startEnergyPosition_->setAutoDetectUndulatorHarmonic(false);
-        endEnergyPosition_->setAutoDetectUndulatorHarmonic(false);
+	warningValidator_ = new AMValidator();
+	warningValidator_->addChildValidator(startEnergyPosition_->warningValidator());
+	warningValidator_->addChildValidator(endEnergyPosition_->warningValidator());
 
-        startEnergyPosition_->setUndulatorHarmonic(SGMUndulatorSupport::FirstHarmonic);
-        endEnergyPosition_->setUndulatorHarmonic(SGMUndulatorSupport::FirstHarmonic);
-    }
+	// ensure both undulator harmonics are the same.
+	if(startEnergyPosition_->undulatorHarmonic() != endEnergyPosition_->undulatorHarmonic()) {
 
-    time_ = time;
+		// If there is a conflict, just use the first harmonic.
+		startEnergyPosition_->setAutoDetectUndulatorHarmonic(false);
+		endEnergyPosition_->setAutoDetectUndulatorHarmonic(false);
 
-    /*
-     * The velocity profile class needs to be refines, as per Issue 1563.
-     * Some noted refinements:
-     *   - Should the general class be a motion profile rather than a velocity profile?
-     *   - Is there a need for a general class system for these (AMVelocityProfile/AMMotionProfile)?
-     *   - Do we need time based information (velocityProfile_.velocityAt(double time);)?
-     * My suspicion is that the answers will come into focus while working on
-     * Issue 1566.
-     *   - Also need to figure out what the acceleration values are for the controls
-     *     on the beamline.
-     */
-    gratingAngleVelocityProfile_ = AMTrapezoidVelocityProfile(0, 5.0, (endGratingAngleEncoderStep() - startGratingAngleEncoderStep()) / time_, -5.0);
-    undulatorVelocityProfile_ = AMTrapezoidVelocityProfile(0, 5.0, (endUndulatorPosition() - startUndulatorPosition()) / time_, -5.0);
-    exitSlitVelocityProfile_ = AMTrapezoidVelocityProfile(0, 5.0, (endExitSlitPosition() - startExitSlitPosition()) / time_, -5.0);
+		startEnergyPosition_->setUndulatorHarmonic(SGMUndulatorSupport::FirstHarmonic);
+		endEnergyPosition_->setUndulatorHarmonic(SGMUndulatorSupport::FirstHarmonic);
+	}
+
+	time_ = time;
+
+	gratingAngleVelocityProfile_ = AMTrapezoidVelocityProfile(startEnergyPosition_->gratingAngle() * gratingAngleStepsPerEncoderCount,
+	                                                          endEnergyPosition_->gratingAngle() * gratingAngleStepsPerEncoderCount,
+	                                                          gratingAngleAcceleration,
+	                                                          time);
+
+	double startUndulatorSteps = SGMUndulatorSupport::undulatorStepFromPosition(startEnergyPosition_->undulatorPosition(),
+	                                                                            undulatorCurrentGap,
+	                                                                            undulatorCurrentStep);
+
+	double endUndulatorSteps = SGMUndulatorSupport::undulatorStepFromPosition(endEnergyPosition_->undulatorPosition(),
+	                                                                          undulatorCurrentGap,
+	                                                                          undulatorCurrentStep);
+
+	undulatorVelocityProfile_ = AMTrapezoidVelocityProfile(startUndulatorSteps,
+	                                                       endUndulatorSteps,
+	                                                       undulatorAcceleration,
+	                                                       time);
+
+	exitSlitVelocityProfile_ = AMTrapezoidVelocityProfile(startEnergyPosition_->exitSlitPosition(),
+	                                                      endEnergyPosition_->exitSlitPosition(),
+	                                                      5000,
+	                                                      time);
+
 }
 
 SGMEnergyTrajectory::~SGMEnergyTrajectory()
 {
-    startEnergyPosition_->deleteLater();
-    endEnergyPosition_->deleteLater();
+	startEnergyPosition_->deleteLater();
+	endEnergyPosition_->deleteLater();
+	errorValidator_->deleteLater();
+	warningValidator_->deleteLater();
 }
 
 bool SGMEnergyTrajectory::hasErrors() const
 {
-    return startEnergyPosition_->hasErrors() ||
-            endEnergyPosition_->hasErrors() ||
-            time_ <= 0;
+	return !errorValidator_->isValid();
 }
 
 bool SGMEnergyTrajectory::hasWarnings() const
 {
-    return startEnergyPosition_->hasWarnings() ||
-            endEnergyPosition_->hasWarnings();
+	return !warningValidator_->isValid();
 }
 
-QString SGMEnergyTrajectory::errorMessage() const
+AMValidator * SGMEnergyTrajectory::errorValidator() const
 {
-    QString infoErrorMessage = startEnergyPosition_->errorMessage();
-    if(startEnergyPosition_->hasErrors() && endEnergyPosition_->hasErrors()) {
-        infoErrorMessage.append("\n");
-    }
-
-    infoErrorMessage.append(endEnergyPosition_->errorMessage());
-
-    if(time_ <= 0) {
-        if(!infoErrorMessage.isEmpty() && endEnergyPosition_->hasErrors()) {
-            infoErrorMessage.append("\n");
-        }
-        infoErrorMessage.append("Invalid time for trajectory: Must be greater than zero");
-    }
-
-    return infoErrorMessage;
+	return errorValidator_;
 }
 
-QString SGMEnergyTrajectory::warningMessage() const
+AMValidator * SGMEnergyTrajectory::warningValidator() const
 {
-    QString infoWarningMessage;
-    infoWarningMessage.append(startEnergyPosition_->warningMessage());
-    if(startEnergyPosition_->hasWarnings() && endEnergyPosition_->hasErrors()) {
-        infoWarningMessage.append("\n");
-    }
-    infoWarningMessage.append(endEnergyPosition_->warningMessage());
-
-    return infoWarningMessage;
+	return warningValidator_;
 }
 
-double SGMEnergyTrajectory::startGratingAngleEncoderStep() const
+double SGMEnergyTrajectory::startGratingAngleEncoderCount() const
 {
-    return startEnergyPosition_->gratingAngle();
+	return startEnergyPosition_->gratingAngle();
 }
 
-double SGMEnergyTrajectory::endGratingAngleEncoderStep() const
+double SGMEnergyTrajectory::endGratingAngleEncoderCount() const
 {
-    return endEnergyPosition_->gratingAngle();
+	return endEnergyPosition_->gratingAngle();
 }
 
 AMTrapezoidVelocityProfile SGMEnergyTrajectory::gratingAngleVelocityProfile() const
 {
-    return gratingAngleVelocityProfile_;
+	return gratingAngleVelocityProfile_;
 }
 
 double SGMEnergyTrajectory::startUndulatorPosition() const
 {
-    return startEnergyPosition_->undulatorPosition();
+	return startEnergyPosition_->undulatorPosition();
 }
 
 double SGMEnergyTrajectory::endUndulatorPosition() const
 {
-    return endEnergyPosition_->undulatorPosition();
+	return endEnergyPosition_->undulatorPosition();
 }
 
 AMTrapezoidVelocityProfile SGMEnergyTrajectory::undulatorVelocityProfile() const
 {
-    return undulatorVelocityProfile_;
+	return undulatorVelocityProfile_;
 }
 
 SGMGratingSupport::GratingTranslation SGMEnergyTrajectory::gratingTranslation() const
 {
-    return gratingTranslation_;
+	return gratingTranslation_;
 }
 
 SGMUndulatorSupport::UndulatorHarmonic SGMEnergyTrajectory::undulatorHarmonic() const
 {
-    // Constructor should have done the job of synching harmonics between start & end
-    // so we can return either.
-    return startEnergyPosition_->undulatorHarmonic();
+	// Constructor should have done the job of synching harmonics between start & end
+	// so we can return either.
+	return startEnergyPosition_->undulatorHarmonic();
 }
 
 double SGMEnergyTrajectory::startExitSlitPosition() const
 {
-    return startEnergyPosition_->exitSlitPosition();
+	return startEnergyPosition_->exitSlitPosition();
 }
 
 double SGMEnergyTrajectory::endExitSlitPosition() const
 {
-    return endEnergyPosition_->exitSlitPosition();
+	return endEnergyPosition_->exitSlitPosition();
 }
 
 AMTrapezoidVelocityProfile SGMEnergyTrajectory::exitSlitVelocityProfile() const
 {
-    return exitSlitVelocityProfile_;
+	return exitSlitVelocityProfile_;
 }
 
 double SGMEnergyTrajectory::time() const
 {
-    return time_;
+	return time_;
 }
 
 double SGMEnergyTrajectory::startEnergy() const
 {
-    return startEnergy_;
+	return startEnergy_;
 }
 
 double SGMEnergyTrajectory::endEnergy() const
 {
-    return endEnergy_;
+	return endEnergy_;
+}
+
+double SGMEnergyTrajectory::energyVelocity() const
+{
+	if(time_ != 0) {
+		return qAbs(endEnergy_ - startEnergy_) / time_;
+	} else {
+		return 0;
+	}
 }
 
 QString SGMEnergyTrajectory::toString() const
 {
-    QString returnString =  QString("Start Grating Angle: %1 End Grating Angle: %2 Grating Angle Velocity: %3 \n")
-            .arg(startGratingAngleEncoderStep())
-            .arg(endGratingAngleEncoderStep())
-            .arg(gratingAngleVelocityProfile().targetVelocity());
+	QString returnString =  QString("Start Grating Angle: %1 End Grating Angle: %2 Grating Angle Velocity: %3 \n")
+	        .arg(startGratingAngleEncoderCount())
+	        .arg(endGratingAngleEncoderCount())
+	        .arg(gratingAngleVelocityProfile().targetVelocity());
 
-    returnString.append(QString("Start Undulator Position: %1 End Undulator Position: %2 Undulator Velocity: %3 \n")
-                        .arg(startUndulatorPosition())
-                        .arg(endUndulatorPosition())
-                        .arg(undulatorVelocityProfile().targetVelocity()));
+	returnString.append(QString("Start Undulator Position: %1 End Undulator Position: %2 Undulator Velocity: %3 \n")
+	                    .arg(startUndulatorPosition())
+	                    .arg(endUndulatorPosition())
+	                    .arg(undulatorVelocityProfile().targetVelocity()));
 
-    returnString.append(QString("Start Exit Slit Position: %1 End Exit Slit Position: %2 Exit Slit Velocity: %3\n")
-                        .arg(startExitSlitPosition())
-                        .arg(endExitSlitPosition())
-                        .arg(exitSlitVelocityProfile().targetVelocity()));
+	returnString.append(QString("Start Exit Slit Position: %1 End Exit Slit Position: %2 Exit Slit Velocity: %3\n")
+	                    .arg(startExitSlitPosition())
+	                    .arg(endExitSlitPosition())
+	                    .arg(exitSlitVelocityProfile().targetVelocity()));
 
-    QString undulatorHarmonicString;
+	QString undulatorHarmonicString;
 
-    switch(undulatorHarmonic()) {
-    case SGMUndulatorSupport::FirstHarmonic:
-        undulatorHarmonicString = "First Harmonic";
-        break;
-    case SGMUndulatorSupport::ThirdHarmonic:
-        undulatorHarmonicString = "Third Harmonic";
-        break;
-    default:
-        undulatorHarmonicString = "Unknown Harmonic";
-        break;
-    }
+	switch(undulatorHarmonic()) {
+	case SGMUndulatorSupport::FirstHarmonic:
+		undulatorHarmonicString = "First Harmonic";
+		break;
+	case SGMUndulatorSupport::ThirdHarmonic:
+		undulatorHarmonicString = "Third Harmonic";
+		break;
+	default:
+		undulatorHarmonicString = "Unknown Harmonic";
+		break;
+	}
 
-    returnString.append(QString("Undulator Harmonic: %1").arg(undulatorHarmonicString));
+	returnString.append(QString("Undulator Harmonic: %1").arg(undulatorHarmonicString));
 
-    return returnString;
+	return returnString;
 }
+
+void SGMEnergyTrajectory::performValidation()
+{
+	errorValidator_->updateValidity(SGMENERGYTRAJECTORY_INVALID_TIME, time_ <= 0);
+}
+
+
+
+

@@ -12,17 +12,37 @@ class AMValidator;
   */
 class SGMEnergyControlSet : public AMControlSet
 {
-    Q_OBJECT
+	Q_OBJECT
 public:
 	/*!
 	  * Creates a new instance of an SGMEnergyControlSet.
 	  */
-    explicit SGMEnergyControlSet(QObject *parent = 0);
+	explicit SGMEnergyControlSet(QObject *parent = 0);
 
 	/*!
 	  * The Energy master control for the beamline.
 	  */
 	AMControl* energy() const;
+
+	/*!
+	  * The control for the start energy of a continuous energy motion.
+	  */
+	AMControl* energyTrajectoryStartpoint() const;
+
+	/*!
+	  * The control for the end energy of a continuous energy motion.
+	  */
+	AMControl* energyTrajectoryEndpoint() const;
+
+	/*!
+	  * The control for the time a continuous motion should take.
+	  */
+	AMControl* energyTrajectoryTime() const;
+
+	/*!
+	  * The control which commences a continous motion.
+	  */
+	AMControl* energyTrajectoryStart() const;
 
 	/*!
 	  * The grating angle control. The grating angle determines (along with the
