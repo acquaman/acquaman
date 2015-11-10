@@ -821,7 +821,7 @@ SOURCES += \
     source/ui/dataman/AMScanViewPlotSelectedToolsView.cpp \
     source/dataman/AMScanViewPlotTools.cpp \
     source/ui/acquaman/AMGenericStepScanConfigurationDetectorsView.cpp \
-    $$PWD/source/analysis/AMAdditionAB.cpp \
+	$$PWD/source/analysis/AMAdditionAB.cpp \
     $$PWD/source/analysis/AMNormalizationAB.cpp \
     source/actions3/actions/AMControlCalibrateActionInfo.cpp \
     source/actions3/actions/AMControlCalibrateAction.cpp
@@ -841,43 +841,3 @@ contains(DEFINES, AM_BUILD_REPORTER_ENABLED){
 
 	SOURCES *= source/util/AMRunTimeBuildInfo.cpp
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

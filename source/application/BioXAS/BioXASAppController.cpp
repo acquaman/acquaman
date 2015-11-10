@@ -2,8 +2,10 @@
 
 #include "beamline/BioXAS/BioXASBeamline.h"
 #include "beamline/CLS/CLSStorageRing.h"
-
 #include "dataman/BioXAS/BioXASDbUpgrade1Pt1.h"
+#include "util/AMUtility.h"
+
+#include <QDebug>
 
 BioXASAppController::BioXASAppController(QObject *parent) :
     AMAppController(parent)
@@ -23,8 +25,16 @@ BioXASAppController::BioXASAppController(QObject *parent) :
 	// Initialize member variables.
 
 	xasConfiguration_ = 0;
+	xasConfigurationView_ = 0;
+
 	commissioningConfiguration_ = 0;
+	commissioningConfigurationView_ = 0;
+
 	energyCalibrationConfiguration_ = 0;
+	energyCalibrationConfigurationView_ = 0;
+
+	jjSlitsOptimizationConfiguration_ = 0;
+	jjSlitsOptimizationConfigurationView_ = 0;
 
 	energyCalibrationView_ = 0;
 
@@ -164,12 +174,87 @@ void BioXASAppController::onCurrentScanActionFinishedImplementation(AMScanAction
 	if (userConfiguration_)
 		userConfiguration_->storeToDb(AMDatabase::database("user"));
 
-	// If the scan was an energy calibration scan, set the calibration view's scan and make it the current pane.
-
 	if (action && action->controller() && action->controller()->scan()) {
-		BioXASXASScanConfiguration *xasScanConfiguration = qobject_cast<BioXASXASScanConfiguration*>(action->controller()->scan()->scanConfiguration());
+
+		AMScan *scan = action->controller()->scan();
+
+		// If the scan was an energy calibration scan, set the calibration view's scan and make it the current pane.
+
+		BioXASXASScanConfiguration *xasScanConfiguration = qobject_cast<BioXASXASScanConfiguration*>(scan->scanConfiguration());
 		if (xasScanConfiguration && xasScanConfiguration->name() == "Energy Calibration XAS Scan")
-			goToEnergyCalibrationView(action->controller()->scan());
+			goToEnergyCalibrationView(scan);
+
+		// If the scan was a jj slits optimization scan, identify the optimal position for the scanned controls and move them there.
+
+		AMGenericStepScanConfiguration *jjSlitsScan = qobject_cast<AMGenericStepScanConfiguration*>(scan->scanConfiguration());
+		if (jjSlitsScan && jjSlitsScan->name() == "JJ Slits Optimization Scan") {
+
+			// Find the maximum I0 detector value achieved in the scan.
+
+			AMDataSource *dataSource = scan->dataSourceAt(0);
+			AMnDIndex start = AMnDIndex(0);
+			AMnDIndex end = AMnDIndex(dataSource->size() - 1);
+
+			QVector<double> data = QVector<double>(start.totalPointsTo(end));
+			dataSource->values(start, end, data.data());
+
+			int maxIndex = AMUtility::flatIndexOfMaximum(data);
+
+			AMNumber maxValue = dataSource->value(AMnDIndex(maxIndex));
+
+			if (!maxValue.isValid()) {
+				qDebug() << "The maximum value found is invalid.";
+
+				if (maxValue == AMNumber(AMNumber::OutOfBoundsError))
+					qDebug() << "There was an 'out of bounds' error.";
+
+				else if (maxValue == AMNumber(AMNumber::InvalidError))
+					qDebug() << "The analysis block is invalid.";
+
+				else if (maxValue == AMNumber(AMNumber::DimensionError))
+					qDebug() << "There was a dimension error in the value request.";
+			}
+
+			// Identify corresponding control values.
+
+			AMNumber maxAxisValue = dataSource->axisValue(0, maxIndex);
+
+			if (!maxAxisValue.isValid()) {
+				qDebug() << "The maximum value found is invalid.";
+
+				if (maxAxisValue == AMNumber(AMNumber::OutOfBoundsError))
+					qDebug() << "There was an 'out of bounds' error.";
+
+				else if (maxAxisValue == AMNumber(AMNumber::InvalidError))
+					qDebug() << "The analysis block is invalid.";
+
+				else if (maxAxisValue == AMNumber(AMNumber::DimensionError))
+					qDebug() << "There was a dimension error in the value request.";
+			}
+
+			qDebug() << "The maximum axis value is " << double(maxAxisValue);
+
+			// Note the value and axis value results in the scan notes.
+
+			QString notes = "No max info.";
+
+			if (dataSource && maxValue.isValid() && maxAxisValue.isValid()) {
+				notes = dataSource->name() + " max: " + QString::number(double(maxValue));
+				notes += "\nAxis value: " + QString::number(double(maxAxisValue));
+			}
+
+			scan->setNotes(scan->notes() + "\n" + notes);
+
+			// Move controls to the optimal positions.
+
+			AMControl *control = 0;
+
+			if (maxAxisValue.isValid() && !jjSlitsScan->axisControlInfos().isEmpty())
+				control = BioXASBeamline::bioXAS()->exposedControlByInfo(jjSlitsScan->axisControlInfos().at(0));
+
+			if (control)
+				control->move(double(maxAxisValue));
+		}
 	}
 }
 
@@ -247,6 +332,9 @@ void BioXASAppController::setupUserInterface()
 	energyCalibrationConfigurationView_ = createScanConfigurationViewWithHolder(energyCalibrationConfiguration_);
 	addViewToScansPane(energyCalibrationConfigurationView_, "Energy Calibration");
 
+	jjSlitsOptimizationConfigurationView_ = createScanConfigurationViewWithHolder(jjSlitsOptimizationConfiguration_);
+	addViewToScansPane(jjSlitsOptimizationConfigurationView_, "JJ Slits Optimization");
+
 	// Create calibration views:
 	////////////////////////////////////
 
@@ -265,6 +353,11 @@ void BioXASAppController::setupScanConfigurations()
 	energyCalibrationConfiguration_->setName("Energy Calibration XAS Scan");
 	energyCalibrationConfiguration_->setUserScanName("Energy Calibration XAS Scan");
 	setupXASScanConfiguration(energyCalibrationConfiguration_);
+
+	jjSlitsOptimizationConfiguration_ = new AMGenericStepScanConfiguration();
+	jjSlitsOptimizationConfiguration_->setName("JJ Slits Optimization Scan");
+	jjSlitsOptimizationConfiguration_->setUserScanName("JJ Slits Optimization Scan");
+	setupGenericStepScanConfiguration(jjSlitsOptimizationConfiguration_);
 }
 
 QWidget* BioXASAppController::createGeneralPane(QWidget *view, const QString &viewName)
@@ -479,8 +572,17 @@ AMScanConfigurationView* BioXASAppController::createScanConfigurationView(AMScan
 
 		AMGenericStepScanConfiguration *commissioningConfiguration = qobject_cast<AMGenericStepScanConfiguration*>(configuration);
 		if (!configurationFound && commissioningConfiguration) {
-			configurationView = new AMGenericStepScanConfigurationView(commissioningConfiguration, BioXASBeamline::bioXAS()->exposedControls(), BioXASBeamline::bioXAS()->exposedDetectors());
-			configurationFound = true;
+
+			if (BioXASBeamline::bioXAS()->jjSlits() && commissioningConfiguration->name() == "JJ Slits Optimization Scan") {
+				AMControlSet *jjSlitsSet = new AMControlSet(this);
+				jjSlitsSet->addControl(BioXASBeamline::bioXAS()->jjSlits()->verticalCenterControl());
+				jjSlitsSet->addControl(BioXASBeamline::bioXAS()->jjSlits()->horizontalCenterControl());
+				configurationView = new AMGenericStepScanConfigurationView(commissioningConfiguration, jjSlitsSet, BioXASBeamline::bioXAS()->exposedDetectors());
+				configurationFound = true;
+			} else {
+				configurationView = new AMGenericStepScanConfigurationView(commissioningConfiguration, BioXASBeamline::bioXAS()->exposedControls(), BioXASBeamline::bioXAS()->exposedDetectors());
+				configurationFound = true;
+			}
 		}
 	}
 
@@ -635,8 +737,6 @@ void BioXASAppController::setupXASScanConfiguration(BioXASXASScanConfiguration *
 void BioXASAppController::setupGenericStepScanConfiguration(AMGenericStepScanConfiguration *configuration)
 {
 	if (configuration) {
-
-		configuration->setAutoExportEnabled(false);
 
 		// Set scan detectors.
 
