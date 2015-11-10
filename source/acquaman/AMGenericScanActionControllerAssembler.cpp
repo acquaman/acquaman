@@ -204,10 +204,56 @@ AMAction3* AMGenericScanActionControllerAssembler::generateActionTreeForStepAxis
 	return regionList;
 }
 
-AMAction3* AMGenericScanActionControllerAssembler::generateActionTreeForContinuousMoveAxis(AMControl *axisControl, AMScanAxis *continuiousMoveScanAxis){
-	Q_UNUSED(axisControl)
-	Q_UNUSED(continuiousMoveScanAxis)
-	return 0; //NULL
+AMAction3* AMGenericScanActionControllerAssembler::generateActionTreeForContinuousMoveAxis(AMControl *axisControl, AMScanAxis *continuousMoveScanAxis)
+{
+	AMListAction3 *axisActions = new AMSequentialListAction3(
+				new AMSequentialListActionInfo3(QString("Axis %1").arg(continuousMoveScanAxis->name()),
+								QString("Axis %1").arg(continuousMoveScanAxis->name())));
+
+	AMAxisStartedAction *axisStartAction = new AMAxisStartedAction(
+				new AMAxisStartedActionInfo(QString("%1 Axis").arg(continuousMoveScanAxis->name()),
+							    AMScanAxis::ContinuousMoveAxis));
+	axisActions->addSubAction(axisStartAction);
+
+	if (axisControl){
+
+		// Generate axis initialization list //////////////
+		AMListAction3 *initializationActions = new AMSequentialListAction3(
+					new AMSequentialListActionInfo3(QString("Initializing %1").arg(axisControl->name()),
+									QString("Initializing Axis with Control %1").arg(axisControl->name())));
+
+		// Go to the start position.
+		AMAction3 *initializeControlPosition = AMActionSupport::buildControlMoveAction(axisControl, continuousMoveScanAxis->axisStart());
+		initializeControlPosition->setGenerateScanActionMessage(true);
+		initializationActions->addSubAction(initializeControlPosition);
+		axisActions->addSubAction(initializationActions);
+
+		// This should probably contain the control velocity initializations.
+
+		// End Initialization /////////////////////////////
+
+		// This is where the control is told to go and detectors to acquire.
+
+		AMAction3 *continuousMoveActions = AMActionSupport::buildControlMoveAction(axisControl, continuousMoveScanAxis->axisEnd(), false, false);
+		continuousMoveActions->setGenerateScanActionMessage(true);
+		axisActions->addSubAction(continuousMoveActions);
+
+		// The move should auto-trigger the detectors, but if there is more stuff, it will probably go here somewhere.
+
+		// End control actions ////////////////////////////
+
+		// Generate axis cleanup list /////////////////////
+		AMListAction3 *cleanupActions = new AMSequentialListAction3(
+					new AMSequentialListActionInfo3(QString("Cleaning Up %1").arg(axisControl->name()),
+									QString("Cleaning Up Axis with Control %1").arg(axisControl->name())));
+		axisActions->addSubAction(cleanupActions);
+		// End Cleanup /////////////////////////////////////
+	}
+
+	AMAxisFinishedAction *axisFinishAction = new AMAxisFinishedAction(new AMAxisFinishedActionInfo(QString("%1 Axis").arg(continuousMoveScanAxis->name())));
+	axisActions->addSubAction(axisFinishAction);
+
+	return axisActions;
 }
 
 AMAction3* AMGenericScanActionControllerAssembler::generateActionTreeForContinuousDwellAxis(AMControl *axisControl, AMScanAxis *continuousDwellScanAxis){
