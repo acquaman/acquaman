@@ -47,6 +47,7 @@ void CLSAmptekDetailedDetectorView::buildDetectorView(){
 	editAmptekConfigurationButton_ = new QPushButton("Edit Amptek Configuration");
 	rightLayout_->addWidget(editAmptekConfigurationButton_);
 
+	// FLAGGED FOR REMOVAL: Continuous Data API testing November 9, 2015
 	continuousTestButton_ = new QPushButton("Continuous Test");
 	rightLayout_->addWidget(continuousTestButton_);
 	connect(continuousTestButton_, SIGNAL(clicked()), this, SLOT(onContinuousTestButtonClicked()));
@@ -54,6 +55,7 @@ void CLSAmptekDetailedDetectorView::buildDetectorView(){
 	getLastContinuousTestButton_ = new QPushButton("Last Continuous Data Test");
 	rightLayout_->addWidget(getLastContinuousTestButton_);
 	connect(getLastContinuousTestButton_, SIGNAL(clicked()), this, SLOT(onGetLastContinuousTestButtonClicked()));
+	// END OF FLAG
 
 	QHBoxLayout *tempHBox;
 
@@ -137,6 +139,7 @@ void CLSAmptekDetailedDetectorView::onDetectorTemperatureChanged(double temperat
 	temperatureLabel_->setText(QString("%1").arg(temperature));
 }
 
+// FLAGGED FOR REMOVAL: Continuous Data API testing November 9, 2015
 void CLSAmptekDetailedDetectorView::onContinuousTestButtonClicked(){
 	qDebug() << "Detected continuous test requested";
 
@@ -146,19 +149,12 @@ void CLSAmptekDetailedDetectorView::onContinuousTestButtonClicked(){
 #include "source/ClientRequest/AMDSClientDataRequest.h"
 void CLSAmptekDetailedDetectorView::onGetLastContinuousTestButtonClicked(){
 	qDebug() << "Detector getLastContinuous test requested";
-	qDebug() << "Read mode is currently " << detector_->readMode();
-
-//	QVector<double> lastContinuousData = QVector<double>(1024);
-//	detector_->lastContinuousReading(lastContinuousData.data());
 
 	AMAction3 *readAction = detector_->createReadAction();
 	readAction->setGenerateScanActionMessage(true);
 	readAction->start();
-
-//	AMDSClientDataRequest *lastContinuousData = detector_->lastContinuousData(1);
-//	qDebug() << "Last continuous data was " << lastContinuousData->data().count();
-//	lastContinuousData->printData();
 }
+// END OF FLAG
 
 
 CLSAmptekDetectorROIView::CLSAmptekDetectorROIView(CLSAmptekSDD123DetectorNew *detector, QWidget *parent) :
