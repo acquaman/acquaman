@@ -51,8 +51,8 @@ namespace AMAgnosticDataAPIDefinitions
 		ControlMovementType = 5,			///< Which type of control was moved.
 		ControlMovementValue = 6,			///< The value of the control, regardless of what type of control it is.
 		ControlMovementFeedback = 7,		///< The feedback value of the control, regardless of what type of control it is.
-		DetectorUsesAMDS = 8,		///< Initial attempt to attempt moving to AMDS style
-		DetectorDataAsAMDS = 9,		///< Initial attempt to attempt moving to AMDS style
+		DetectorUsesAMDS = 8,		///< Initial attempt to attempt moving to AMDS style, this is a flag to say whether it's being used or not
+		DetectorDataAsAMDS = 9,		///< Initial attempt to attempt moving to AMDS style, this is an actual pointer (memory location) if we are using AMDS
 		InvalidType = 10						///< Catch all error type.
 	};
 
@@ -166,7 +166,9 @@ public:
 	/// Returns the detector's list of dimension units as a list of string. Returns an empty list if the value is somehow invalid.
 	QStringList detectorDimensionalityUnits() const;
 
+	/// Returns whether or not the detector is using the AMDSClientDataRequest messages
 	bool detectorUsesAMDS() const;
+	/// Returns a pointer (actually memory location) to the AMDSClientDataRequest if being used
 	quint64 detectorDataAsAMDS() const;
 
 	/// Sets the detector data from a list of doubles.
@@ -181,7 +183,9 @@ public:
 	/// Sets the detector's list of dimension units from a list of strings.
 	void setDetectorDimensionalityUnits(QStringList detectorDimensionalityUnits);
 
+	/// Sets whether or not the detector is using the AMDSClientDataRequest messages
 	void setDetectorUsesAMDS(bool usesAMDS);
+	/// Sets a pointer (actually memory location) to the AMDSClientDataRequest if being used
 	void setDetectorDataAsAMDS(quint64 dataAsAMDS);
 };
 
