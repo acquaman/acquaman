@@ -38,10 +38,6 @@ public:
 	/// Returns SingleRead or ContinuousRead depending on the current mode
 	virtual AMDetectorDefinitions::ReadMode readMode() const { return readMode_; }
 
-	/// Returns true if the last continuous reading was valid and the outputValues are passed back in \c outputValues.
-	virtual bool lastContinuousReading(double *outputValues) const;
-	virtual int lastContinuousSize() const;
-
 	/// Fills the (hopefully) valid pointer to a single double with our current value
 	virtual bool data(double *outputValues) const;
 

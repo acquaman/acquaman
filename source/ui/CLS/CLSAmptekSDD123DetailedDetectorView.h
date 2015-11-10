@@ -44,6 +44,11 @@ protected slots:
 
 	void onDetectorTemperatureChanged(double temperature);
 
+	// FLAGGED FOR REMOVAL: Continuous Data API testing November 9, 2015
+	void onContinuousTestButtonClicked();
+	void onGetLastContinuousTestButtonClicked();
+	// END OF FLAG
+
 protected:
 	CLSAmptekSDD123DetectorNew *amptekDetector_;
 
@@ -60,6 +65,11 @@ protected:
 
 	CLSAmptekDetectorROIView *roiView_;
 	CLSAmptekDetectorConfigurationView *configurationView_;
+
+	// FLAGGED FOR REMOVAL: Continuous Data API testing November 9, 2015
+	QPushButton *continuousTestButton_;
+	QPushButton *getLastContinuousTestButton_;
+	// END OF FLAG
 };
 
 class CLSAmptekDetectorROIView : public QWidget

@@ -47,7 +47,7 @@ bool SGMAppController::startup() {
 
 	QString currentUser = getenv("USER");
 
-    if(currentUser != "workmai" && currentUser != "sgm-upgrade" && currentUser != "iain") {
+	if(currentUser != "workmai" && currentUser != "sgm-upgrade" && currentUser != "iain" && currentUser != "chevrid") {
 		AMErrorMon::error(this, SGMAPPCONTROLLER_WRONG_USER, "This user account is not permitted to run the SGM Upgrade version of Acquaman.");
 		return false;
 	}

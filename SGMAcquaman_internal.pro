@@ -24,4 +24,4 @@ SOURCES += \
     source/ui/SGM/SGMEnergyView.cpp \
     source/ui/SGM/SGMEnergyTrajectoryView.cpp
 
-
+include( $$PATH_TO_AM/compositeCommon/AMAcquamanDataServer.pri )

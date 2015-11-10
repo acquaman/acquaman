@@ -18,6 +18,7 @@ class AMGenericStepScanConfiguration : public AMStepScanConfiguration
 {
 	Q_OBJECT
 
+	Q_PROPERTY(AMDbObject *i0 READ dbReadI0 WRITE dbLoadI0)
 	Q_PROPERTY(AMDbObjectList regionsOfInterest READ dbReadRegionsOfInterest WRITE dbLoadRegionsOfInterest)
 
 	Q_CLASSINFO("AMDbObject_Attributes", "description=Generic Step Configuration")
@@ -49,6 +50,10 @@ public:
 	/// Returns the current total estimated time for a scan to complete.
 	double totalTime() const { return totalTime_; }
 
+	/// Returns whether or not there is a valid I0 detector.
+	bool hasI0() const;
+	/// Returns the detector name for I0.
+	AMDetectorInfo i0() const { return i0_; }
 	/// Returns the regions of interest.
 	QList<AMRegionOfInterest *> regionsOfInterest() const { return regionsOfInterest_; }
 
@@ -69,6 +74,8 @@ public slots:
 	void addRegionOfInterest(AMRegionOfInterest *region);
 	/// Removes a region of interest from the list.
 	void removeRegionOfInterest(AMRegionOfInterest *region);
+	/// Sets I0 name.  Must a valid name inside the detector list.
+	void setI0(const AMDetectorInfo &info);
 
 protected slots:
 	/// Inserts the given region into the given scan axis index position, and makes the appropriate connections.
@@ -89,6 +96,10 @@ protected:
 	/// Calculates and returns the time it would take to scan the regions of a given scan axis, 0 if there are any issues with the given axis.
 	double calculateRegionsTotalTime(AMScanAxis *scanAxis);
 
+	/// Returns the I0 detector info.
+	AMDbObject *dbReadI0() { return &i0_; }
+	/// For database loading (never called).
+	void dbLoadI0(AMDbObject *) {}
 	/// Returns the regions of interest list.
 	AMDbObjectList dbReadRegionsOfInterest();
 	/// Called by the dtabase system on loadFromDb() to give us our new list of AMRegionOfInterest.
@@ -99,6 +110,8 @@ protected:
 
 	/// Holds the total time in seconds that the scan is estimated to take.
 	double totalTime_;
+	/// The name of the detector that will be I0.
+	AMDetectorInfo i0_;
 	/// The list of the regions of interest.
 	QList<AMRegionOfInterest *> regionsOfInterest_;
 };

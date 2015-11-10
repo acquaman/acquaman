@@ -11,7 +11,6 @@ CLSXIAFiltersControl::CLSXIAFiltersControl(const QString &name, const QString &u
 	maximumValue_ = 100;
 
 	setAllowsMovesWhileMoving(false);
-	setTolerance(0.05);
 }
 
 CLSXIAFiltersControl::~CLSXIAFiltersControl()
