@@ -53,7 +53,10 @@ bool SGMBeamline::isConnected() const
 			ssaManipulatorY_->isConnected() &&
 			ssaManipulatorZ_->isConnected() &&
 			ssaManipulatorRot_->isConnected() &&
-			scaler_->isConnected();
+			scaler_->isConnected() &&
+			xpsLadderMotor_->isConnected() &&
+			bypassLadderMotor_->isConnected() &&
+			xasLadderMotor_->isConnected();
 }
 
 AMControl * SGMBeamline::endStationTranslationSetpoint() const
@@ -193,6 +196,13 @@ void SGMBeamline::setupBeamlineComponents()
 	scaler_->channelAt(9)->setCustomChannelName("FPD4");
 	scaler_->channelAt(10)->setCustomChannelName("FPD5");
 
+	// Set up the diagnostic ladder controls.
+
+	xpsLadderMotor_ = new AMPVControl("XPSDiagnosticLadderMotor", "SMTR16114I1012:step:fbk", "SMTR16114I1012:step", "SMTR16114I1012:emergStop", this);
+	bypassLadderMotor_ = new AMPVControl("BypassLadderMotor", "SMTR16114I1013:step:fbk", "SMTR16114I1013:step", "SMTR16114I1013:emergStop", this);
+	xasLadderMotor_ = new AMPVControl("XASLadderMotor", "SMTR16114I1014:step:fbk", "SMTR16114I1014:step", "SMTR16114I1014:emergStop", this);
+
+
 	connect(energyControlSet_, SIGNAL(connected(bool)), this, SLOT(onConnectionStateChanged(bool)));
 	connect(exitSlitGap_ ,SIGNAL(connected(bool)),this, SLOT(onConnectionStateChanged(bool)));
 	connect(endStationTranslationSetpont_, SIGNAL(connected(bool)), this, SLOT(onConnectionStateChanged(bool)));
@@ -202,6 +212,9 @@ void SGMBeamline::setupBeamlineComponents()
 	connect(ssaManipulatorZ_, SIGNAL(connected(bool)), this, SLOT(onConnectionStateChanged(bool)));
 	connect(ssaManipulatorRot_, SIGNAL(connected(bool)), this, SLOT(onConnectionStateChanged(bool)));
 	connect(scaler_, SIGNAL(connectedChanged(bool)), this, SLOT(onConnectionStateChanged(bool)));
+	connect(xpsLadderMotor_, SIGNAL(connected(bool)), this, SLOT(onConnectionStateChanged(bool)));
+	connect(bypassLadderMotor_, SIGNAL(connected(bool)), this, SLOT(onConnectionStateChanged(bool)));
+	connect(xasLadderMotor_, SIGNAL(connected(bool)), this, SLOT(onConnectionStateChanged(bool)) );
 
 	// Ensure that the inital cached connected state is valid, and emit an initial
 	// connected signal:

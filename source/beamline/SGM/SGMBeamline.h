@@ -191,6 +191,12 @@ protected:
 
 	bool cachedConnectedState_;
 
+	/// The XPS diagnostic ladder motor control.
+	AMPVControl *xpsLadderMotor_;
+	/// The bypass diagnostic ladder motor control.
+	AMPVControl *bypassLadderMotor_;
+	/// The XAS diagnostic ladder motor control.
+	AMPVControl *xasLadderMotor_;
 };
 
 
