@@ -262,7 +262,7 @@ bool AMDetector::readingND(const AMnDIndex &startIndex, const AMnDIndex &endInde
 	}
 }
 
-AMDSClientDataRequest* AMDetector::lastContinuousData(double seconds){
+AMDSClientDataRequest* AMDetector::lastContinuousData(double seconds) const{
 	Q_UNUSED(seconds)
 
 	return 0;

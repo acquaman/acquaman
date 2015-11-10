@@ -278,7 +278,7 @@ int outputSize = indexStart.totalPointsTo(indexEnd);
 	bool readingND(const AMnDIndex &startIndex, const AMnDIndex &endIndex, double *outputValues) const;
 
 	/// If the detector supports the AMDSClientDataRequest, this will return an AMDSClientDataRequest pointer for the specified period of time
-	virtual AMDSClientDataRequest* lastContinuousData(double seconds);
+	virtual AMDSClientDataRequest* lastContinuousData(double seconds) const;
 
 	/// Fills the given double pointer with the current detector data in row-major order (first axis varies slowest).  Memory must be preallocated to the size of the detector data.
 	virtual bool data(double *outputValues) const = 0;

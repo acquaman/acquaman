@@ -73,7 +73,7 @@ public:
 	virtual AMDetectorDefinitions::ReadMode readMode() const { return lastReadMode_; }
 
 	/// Implemented to support returning data from the last acquire(AMDetectorDefinitions::ContinuousMode) call
-	virtual AMDSClientDataRequest* lastContinuousData(double seconds);
+	virtual AMDSClientDataRequest* lastContinuousData(double seconds) const;
 
 	/// Creates an action to enable or disable this amptek for in the array.
 	AMAction3* createEnableAction3(bool setEnabled);
