@@ -268,9 +268,7 @@ QStringList AMAgnosticDataAPIDataAvailableMessage::detectorDimensionalityUnits()
 
 bool AMAgnosticDataAPIDataAvailableMessage::detectorUsesAMDS() const{
 	QVariant detectorUsesAMDSVariant = jsonData_.value(AMAgnosticDataAPIDefinitions::nameFromInputType(AMAgnosticDataAPIDefinitions::DetectorUsesAMDS));
-	double retVal;
-	retVal = detectorUsesAMDSVariant.toBool();
-	return retVal;
+	return detectorUsesAMDSVariant.toBool();
 }
 
 quint64 AMAgnosticDataAPIDataAvailableMessage::detectorDataAsAMDS() const{
