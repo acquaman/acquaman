@@ -84,9 +84,6 @@ public:
 	/// Returns the total count (sum of all bins) as the single reading
 	virtual AMNumber singleReading() const;
 
-	/// Returns false, because the PGT detector does not support continuous reads
-	virtual bool lastContinuousReading(double *outputValues) const;
-
 	/// Fills a (hopefully) valid pointer to a block of detector data in row-major order (first axis varies slowest)
 	virtual bool data(double *outputValues) const;
 

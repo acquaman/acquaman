@@ -10,13 +10,13 @@ class AMControl;
   */
 class SGMNewEnergyPVSet : public QObject
 {
-    Q_OBJECT
+	Q_OBJECT
 public:
 	/*!
 	  * Creates a new energy pv set which contains references to all the new energy
 	  * PVs
 	  */
-    explicit SGMNewEnergyPVSet(QObject *parent = 0);
+	explicit SGMNewEnergyPVSet(QObject *parent = 0);
 
 	/// Whether all the controls contained within the set are connected.
 	bool isConnected() const;
@@ -34,6 +34,18 @@ public:
 
 	/// The energy status PV ~ AM1611-4-I10:energy:status
 	AMControl* energyStatus() const;
+
+	/// The energy trajectory start PV ~ AM1611-4-I10:energy:trajectory:startpoint:eV
+	AMControl* energyTrajectoryStartpoint() const;
+
+	/// The energy trajectory end PV ~ AM1611-4-I10:energy:trajectory:endpoint:eV
+	AMControl* energyTrajectoryEndpoint() const;
+
+	/// The energy trajectory time PV ~ AM1611-4-I10:energy:trajectory:time:s"
+	AMControl* energyTrajectoryTime() const;
+
+	/// The energy trajectory start PV ~ AM1611-4-I10:energy:trajectory:start
+	AMControl* energyTrajectoryStart() const;
 
 	// Grating - Angle
 	/////////////////////////////////////////

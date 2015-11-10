@@ -91,9 +91,10 @@ void AM1DCalibrationAB::setEnergyCalibrationOffset(double offset)
 	if(offset == energyCalibrationOffset_)
 		return;
 	energyCalibrationOffset_ = offset;
-    cacheUpdateRequired_ = true;
-    setModified(true);
-    emitSizeChanged();
+	cacheUpdateRequired_ = true;
+	dirtyIndices_.clear();
+	setModified(true);
+	emitSizeChanged();
 	emitValuesChanged();
 }
 
@@ -103,9 +104,10 @@ void AM1DCalibrationAB::setEnergyCalibrationScaling(double scaling)
 		return;
 
 	energyCalibrationScaling_ = scaling;
-    cacheUpdateRequired_ = true;
-    setModified(true);
-    emitSizeChanged();
+	cacheUpdateRequired_ = true;
+	dirtyIndices_.clear();
+	setModified(true);
+	emitSizeChanged();
 	emitValuesChanged();
 }
 
@@ -115,9 +117,10 @@ void AM1DCalibrationAB::setEnergyCalibrationReference(double reference)
 		return;
 
 	energyCalibrationReference_ = reference;
-    cacheUpdateRequired_ = true;
-    setModified(true);
-    emitSizeChanged();
+	cacheUpdateRequired_ = true;
+	dirtyIndices_.clear();
+	setModified(true);
+	emitSizeChanged();
 	emitValuesChanged();
 }
 
@@ -127,7 +130,8 @@ void AM1DCalibrationAB::setIsTransmission(bool isTransmission)
 		return;
 
 	isTransmission_ = isTransmission;
-    cacheUpdateRequired_ = true;
+	cacheUpdateRequired_ = true;
+	dirtyIndices_.clear();
 	setModified(true);
 	emitValuesChanged();
 }
@@ -139,7 +143,8 @@ void AM1DCalibrationAB::setToEdgeJump(bool toEdgeJump)
 		return;
 
 	toEdgeJump_ = toEdgeJump;
-    cacheUpdateRequired_ = true;
+	cacheUpdateRequired_ = true;
+	dirtyIndices_.clear();
 	setModified(true);
 	emitValuesChanged();
 }
@@ -150,7 +155,8 @@ void AM1DCalibrationAB::setPreEdgePoint(int preEdgePoint)
 		return;
 
 	preEdgePoint_ = preEdgePoint;
-    cacheUpdateRequired_ = true;
+	cacheUpdateRequired_ = true;
+	dirtyIndices_.clear();
 	setModified(true);
 	emitValuesChanged();
 }
@@ -161,7 +167,8 @@ void AM1DCalibrationAB::setPostEdgePoint(int postEdgePoint)
 		return;
 
 	postEdgePoint_ = postEdgePoint;
-    cacheUpdateRequired_ = true;
+	cacheUpdateRequired_ = true;
+	dirtyIndices_.clear();
 	setModified(true);
 	emitValuesChanged();
 }
@@ -195,8 +202,9 @@ void AM1DCalibrationAB::setInputSources()
 
 		axes_[0] = data_->axisInfoAt(0);
 
-        cacheUpdateRequired_ = true;
-        cachedData_ = QVector<double>(size().product());
+		cacheUpdateRequired_ = true;
+		dirtyIndices_.clear();
+		cachedData_ = QVector<double>(size().product());
 
 		setDescription(QString("Normalized %1").arg(data_->name()));
 
@@ -220,139 +228,169 @@ void AM1DCalibrationAB::setInputSources()
 
 	reviewState();
 
-    emitSizeChanged();
+	emitSizeChanged();
 	emitValuesChanged();
-    emitAxisInfoChanged();
+	emitAxisInfoChanged();
 	emitInfoChanged();
 }
 
 void AM1DCalibrationAB::computeCachedValues() const
 {
-    AMnDIndex start = AMnDIndex(0);
-    AMnDIndex end = size()-1;
-    int totalSize = start.totalPointsTo(end);
-    int totalPoints = size(0);
+	AMnDIndex start;
+	AMnDIndex end;
 
-    QVector<double> data = QVector<double>(totalSize);
-    QVector<double> normalizer = QVector<double>(totalSize);
+	if (dirtyIndices_.isEmpty()){
 
-    data_->values(start, end, data.data());
-    normalizer_->values(start, end, normalizer.data());
+		start = AMnDIndex(0, 0);
+		end = size()-1;
+	}
 
-    cachedData_ = QVector<double>(totalSize);
+	else {
 
-    for (int i = 0; i < totalSize; i++){
+		start = dirtyIndices_.first();
+		end = dirtyIndices_.last();
+	}
 
-        if(isTransmission()){
+	int totalSize = start.totalPointsTo(end);
+	int flatStartIndex = start.flatIndexInArrayOfSize(size());
+	int totalPoints = size(0);
 
-            if (data.at(i) == 0) // don't divide by zero
-                cachedData_[i] = 0;
+	QVector<double> data = QVector<double>(totalSize);
+	QVector<double> normalizer = QVector<double>(totalSize);
 
-            else if (normalizer.at(i) * data.at(i) < 0)  //Don't take the log of a negative number
-                cachedData_[i] = 0;
+	data_->values(start, end, data.data());
+	normalizer_->values(start, end, normalizer.data());
 
-            else
-                cachedData_[i] = qLn(normalizer.at(i)/data.at(i));
-        }
-        else{
+	cachedData_ = QVector<double>(totalSize);
 
-            if (normalizer.at(i) == 0)  // don't divide by zero
-                cachedData_[i] = 0;
+	for (int i = 0; i < totalSize; i++){
 
-            else if (normalizer.at(i) < 0) // Not sure, I didn't put it here (DM)
-                cachedData_[i] = -1;
+		if(isTransmission()){
 
-            else
-                cachedData_[i] = data.at(i)/normalizer.at(i);
-        }
-    }
+		    if (data.at(i) == 0) // don't divide by zero
+			cachedData_[flatStartIndex+i] = 0;
 
-    if (toEdgeJump_){
+		    else if (normalizer.at(i) * data.at(i) < 0)  //Don't take the log of a negative number
+			cachedData_[flatStartIndex+i] = 0;
 
-        int preEdgePointValue = 0;
-        int postEdgePointValue = 0;
+		    else
+			cachedData_[flatStartIndex+i] = qLn(normalizer.at(i)/data.at(i));
+		}
+		else{
 
-        // Determine a safe preEdgePoint
-        if ((preEdgePoint_ < 0) || (preEdgePoint_ > (totalPoints-1))){
+		    if (normalizer.at(i) == 0)  // don't divide by zero
+			cachedData_[flatStartIndex+i] = 0;
 
-            preEdgePointValue = 0;
+		    else if (normalizer.at(i) < 0) // Not sure, I didn't put it here (DM)
+			cachedData_[flatStartIndex+i] = -1;
 
-            if(totalPoints > 1)
-                preEdgePointValue = 1; // Don't use the first point by default, because it's too-often bad.
-        }
+		    else
+			cachedData_[flatStartIndex+i] = data.at(i)/normalizer.at(i);
+		}
+	}
 
-        else
-            preEdgePointValue = preEdgePoint_;
+	if (toEdgeJump_){
 
-        // Determine a safe postEdgePoint
-        if ((postEdgePoint() < 0) || (postEdgePoint() > (totalPoints-1)))
-            postEdgePointValue = totalPoints - 1;
+		int preEdgePointValue = 0;
+		int postEdgePointValue = 0;
 
-        else
-            postEdgePointValue = postEdgePoint_;
+		// Determine a safe preEdgePoint
+		if ((preEdgePoint_ < 0) || (preEdgePoint_ > (totalPoints-1))){
 
-        // determine value of desired offset reference point, this is ugly because it must handle the case that the reference point is outside the requested index range for all modes...
-        double offset = 0;
+		    preEdgePointValue = 0;
 
-        if (isTransmission()){
+		    if(totalPoints > 1)
+			preEdgePointValue = 1; // Don't use the first point by default, because it's too-often bad.
+		}
 
-            if (data.at(preEdgePointValue) == 0) // don't divide by zero
-                offset = 0;
+		else
+		    preEdgePointValue = preEdgePoint_;
 
-            else if (normalizer.at(preEdgePointValue) * data.at(preEdgePointValue) < 0)  //Don't take the log of a negative number
-                offset = 0;
+		// Determine a safe postEdgePoint
+		if ((postEdgePoint() < 0) || (postEdgePoint() > (totalPoints-1)))
+		    postEdgePointValue = totalPoints - 1;
 
-            else
-                offset = qLn(normalizer.at(preEdgePointValue)/data.at(preEdgePointValue));
-        }
+		else
+		    postEdgePointValue = postEdgePoint_;
 
-        else{
+		// determine value of desired offset reference point, this is ugly because it must handle the case that the reference point is outside the requested index range for all modes...
+		double offset = 0;
 
-            if (normalizer.at(preEdgePointValue) == 0)  // don't divide by zero
-                offset = 0;
+		if (isTransmission()){
 
-            else
-                offset = data.at(preEdgePointValue)/normalizer.at(preEdgePointValue);
-        }
+		    if (data.at(preEdgePointValue) == 0) // don't divide by zero
+			offset = 0;
 
-        // shift spectra so that pre edge reference point is 0
-        for (int i = 0; i < totalSize; i++)
-            cachedData_[i] -= offset;
+		    else if (normalizer.at(preEdgePointValue) * data.at(preEdgePointValue) < 0)  //Don't take the log of a negative number
+			offset = 0;
 
-        // determine value of post edge scaling reference point, this is ugly because it must handle the case that the reference point is outside the requested index range for all modes...
-        double scale = 1;
+		    else
+			offset = qLn(normalizer.at(preEdgePointValue)/data.at(preEdgePointValue));
+		}
 
-        if (isTransmission()){
+		else{
 
-            if (data.at(postEdgePointValue) == 0) // don't divide by zero
-                scale = 1;
+		    if (normalizer.at(preEdgePointValue) == 0)  // don't divide by zero
+			offset = 0;
 
-            else if (normalizer.at(postEdgePointValue) * data.at(postEdgePointValue) < 0)  //Don't take the log of a negative number
-                scale = 1;
+		    else
+			offset = data.at(preEdgePointValue)/normalizer.at(preEdgePointValue);
+		}
 
-            else
-                scale = qLn(normalizer.at(postEdgePointValue)/data.at(postEdgePointValue)) - offset;
-        }
+		// determine value of post edge scaling reference point, this is ugly because it must handle the case that the reference point is outside the requested index range for all modes...
+		double scale = 1;
 
-        else{
+		if (isTransmission()){
 
-            if (normalizer.at(postEdgePointValue) == 0)  // don't divide by zero
-                scale = 1;
+		    if (data.at(postEdgePointValue) == 0) // don't divide by zero
+			scale = 1;
 
-            else
-                scale = (data.at(postEdgePointValue)/normalizer.at(postEdgePointValue)) - offset;
-        }
+		    else if (normalizer.at(postEdgePointValue) * data.at(postEdgePointValue) < 0)  //Don't take the log of a negative number
+			scale = 1;
 
-        // scale spectra so that post edge reference point is 1
-        if (scale != 0){ // if the postEdgePoint is zero, do nothing, otherwise scale and shift the output values
+		    else
+			scale = qLn(normalizer.at(postEdgePointValue)/data.at(postEdgePointValue)) - offset;
+		}
 
-            for (int i = 0; i < totalSize; i++)
-                cachedData_[i] /= scale;
-        }
-    }
+		else{
 
-    cachedDataRange_ = AMUtility::rangeFinder(cachedData_, -1);
-    cacheUpdateRequired_ = false;
+		    if (normalizer.at(postEdgePointValue) == 0)  // don't divide by zero
+			scale = 1;
+
+		    else
+			scale = (data.at(postEdgePointValue)/normalizer.at(postEdgePointValue)) - offset;
+		}
+
+		// scale spectra so that post edge reference point is 1
+		if (scale != 0){ // if the postEdgePoint is zero, do nothing, otherwise scale and shift the output values
+
+			for (int i = 0; i < totalSize; i++)
+				cachedData_[flatStartIndex+i] = (cachedData_.at(flatStartIndex+i)-offset)/scale;
+		}
+
+		else if (offset != 0){
+
+			// shift spectra so that pre edge reference point is 0
+			for (int i = 0; i < totalSize; i++)
+				cachedData_[flatStartIndex+i] -= offset;
+		}
+	}
+
+	if (dirtyIndices_.isEmpty())
+		cachedDataRange_ = AMUtility::rangeFinder(cachedData_, -1);
+
+	else{
+		AMRange cachedRange = AMUtility::rangeFinder(cachedData_.mid(flatStartIndex, totalSize), -1);
+
+		if (cachedDataRange_.minimum() > cachedRange.minimum())
+			cachedDataRange_.setMinimum(cachedRange.minimum());
+
+		if (cachedDataRange_.maximum() < cachedRange.maximum())
+			cachedDataRange_.setMaximum(cachedRange.maximum());
+	}
+
+	cacheUpdateRequired_ = false;
+	dirtyIndices_.clear();
 }
 
 bool AM1DCalibrationAB::canAnalyze(const QString &dataName, const QString &normalizationName) const
@@ -450,7 +488,11 @@ bool AM1DCalibrationAB::axisValues(int axisNumber, int startIndex, int endIndex,
 
 void AM1DCalibrationAB::onInputSourceValuesChanged(const AMnDIndex& start, const AMnDIndex& end)
 {
-    cacheUpdateRequired_ = true;
+	cacheUpdateRequired_ = true;
+
+	if (start == end)
+		dirtyIndices_ << start;
+
 	emitValuesChanged(start, end);
 }
 
@@ -458,6 +500,7 @@ void AM1DCalibrationAB::onInputSourceSizeChanged()
 {
     axes_[0].size = data_->size(0);
     cacheUpdateRequired_ = true;
+    dirtyIndices_.clear();
     cachedData_ = QVector<double>(axes_.at(0).size);
     emitSizeChanged();
 }
@@ -507,8 +550,9 @@ void AM1DCalibrationAB::setInputDataSourcesImplementation(const QList<AMDataSour
 
 		axes_[0] = data_->axisInfoAt(0);
 
-        cacheUpdateRequired_ = true;
-        cachedData_ = QVector<double>(size().product());
+		cacheUpdateRequired_ = true;
+		dirtyIndices_.clear();
+		cachedData_ = QVector<double>(size().product());
 
 		setDescription(QString("Normalized %1").arg(data_->name()));
 

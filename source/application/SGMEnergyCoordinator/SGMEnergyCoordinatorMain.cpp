@@ -21,7 +21,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QCoreApplication>
 #include "beamline/SGM/SGMEnergyCoordinator.h"
-
+#include "util/AMErrorMonitor.h"
 int main(int argc, char *argv[])
 {
 
@@ -30,7 +30,7 @@ int main(int argc, char *argv[])
 	app.setApplicationName("SGM Energy Coordinator");
 
 	SGMEnergyCoordinator *coordinator = new SGMEnergyCoordinator();
-
+	AMErrorMon::enableDebugNotifications(false);
 	Q_UNUSED(coordinator)
 
 	return app.exec();

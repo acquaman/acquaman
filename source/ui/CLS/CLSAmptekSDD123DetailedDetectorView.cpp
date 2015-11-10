@@ -47,6 +47,16 @@ void CLSAmptekDetailedDetectorView::buildDetectorView(){
 	editAmptekConfigurationButton_ = new QPushButton("Edit Amptek Configuration");
 	rightLayout_->addWidget(editAmptekConfigurationButton_);
 
+	// FLAGGED FOR REMOVAL: Continuous Data API testing November 9, 2015
+	continuousTestButton_ = new QPushButton("Continuous Test");
+	rightLayout_->addWidget(continuousTestButton_);
+	connect(continuousTestButton_, SIGNAL(clicked()), this, SLOT(onContinuousTestButtonClicked()));
+
+	getLastContinuousTestButton_ = new QPushButton("Last Continuous Data Test");
+	rightLayout_->addWidget(getLastContinuousTestButton_);
+	connect(getLastContinuousTestButton_, SIGNAL(clicked()), this, SLOT(onGetLastContinuousTestButtonClicked()));
+	// END OF FLAG
+
 	QHBoxLayout *tempHBox;
 
 	eVPerBinDoubleSpinBox_ = new QDoubleSpinBox();
@@ -128,6 +138,23 @@ void CLSAmptekDetailedDetectorView::onEditAmptekConfigurationButtonClicked(){
 void CLSAmptekDetailedDetectorView::onDetectorTemperatureChanged(double temperature){
 	temperatureLabel_->setText(QString("%1").arg(temperature));
 }
+
+// FLAGGED FOR REMOVAL: Continuous Data API testing November 9, 2015
+void CLSAmptekDetailedDetectorView::onContinuousTestButtonClicked(){
+	qDebug() << "Detected continuous test requested";
+
+	detector_->acquire(AMDetectorDefinitions::ContinuousRead);
+}
+
+#include "source/ClientRequest/AMDSClientDataRequest.h"
+void CLSAmptekDetailedDetectorView::onGetLastContinuousTestButtonClicked(){
+	qDebug() << "Detector getLastContinuous test requested";
+
+	AMAction3 *readAction = detector_->createReadAction();
+	readAction->setGenerateScanActionMessage(true);
+	readAction->start();
+}
+// END OF FLAG
 
 
 CLSAmptekDetectorROIView::CLSAmptekDetectorROIView(CLSAmptekSDD123DetectorNew *detector, QWidget *parent) :
@@ -405,3 +432,4 @@ CLSAmptekDetectorConfigurationView::CLSAmptekDetectorConfigurationView(CLSAmptek
 }
 
 CLSAmptekDetectorConfigurationView::~CLSAmptekDetectorConfigurationView(){}
+

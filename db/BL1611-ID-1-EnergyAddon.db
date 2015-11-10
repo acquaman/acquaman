@@ -36,7 +36,40 @@ record( ao, "AM1611-4-I10:energy:stop")
 	field( MDEL, "-1" )
 }
 
+# ENERGY TRAJECTORY
+#####################################
+record( ao, "AM1611-4-I10:energy:trajectory:startpoint:eV" )
+{
+	field( VAL, "0" )
+	field( DRVH, "2000.0001" )
+	field( DRVL, "200.0000" )
+	field( EGU, "eV" )
+	field( MDEL, "-1" )
+}
 
+record( ao, "AM1611-4-I10:energy:trajectory:endpoint:eV" )
+{
+	field( VAL, "0" )
+	field( DRVH, "2000.0001" )
+	field( DRVL, "200.0000" )
+	field( EGU, "eV" )
+	field( MDEL, "-1" )
+}
+
+record( ao, "AM1611-4-I10:energy:trajectory:time:s" )
+{
+	field( VAL, "0" )
+	field( DRVH, "0" )
+	field( DRVL, "120" )
+	field( EGU, "s" )
+	field( MDEL, "-1" )
+}
+
+record( ao, "AM1611-4-I10:energy:trajectory:start" )
+{
+	field( VAL, "0")
+	field( MDEL, "-1" )
+}
 
 # GRATING - ANGLE
 #####################################

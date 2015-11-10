@@ -8,7 +8,7 @@
   */
 class SGMGratingTranslationStepControl : public AMPseudoMotorControl
 {
-    Q_OBJECT
+	Q_OBJECT
 public:
 	/*!
 	  * Creates an instance of an SGM grating translation step control.

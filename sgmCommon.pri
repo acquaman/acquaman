@@ -18,7 +18,9 @@ HEADERS += \
 	source/beamline/SGM/energy/SGMEnergyPosition.h \
 	source/beamline/SGM/energy/SGMEnergyControl.h \
     source/beamline/SGM/energy/SGMGratingTranslationStepControl.h \
-    source/beamline/SGM/energy/SGMEnergyControlSet.h
+	source/beamline/SGM/energy/SGMGratingAngleControl.h \
+    source/beamline/SGM/energy/SGMEnergyControlSet.h \
+    source/beamline/SGM/energy/SGMUndulatorControl.h
 
 
 SOURCES += \
@@ -30,4 +32,8 @@ SOURCES += \
 	source/beamline/SGM/energy/SGMEnergyPosition.cpp \
 	source/beamline/SGM/energy/SGMEnergyControl.cpp \
     source/beamline/SGM/energy/SGMGratingTranslationStepControl.cpp \
-    source/beamline/SGM/energy/SGMEnergyControlSet.cpp
+	source/beamline/SGM/energy/SGMGratingAngleControl.cpp \
+	source/beamline/SGM/energy/SGMEnergyControlSet.cpp \
+    source/beamline/SGM/energy/SGMUndulatorControl.cpp
+
+
