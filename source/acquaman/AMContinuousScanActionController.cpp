@@ -129,11 +129,17 @@ bool AMContinuousScanActionController::event(QEvent *e)
 
 		case AMAgnosticDataAPIDefinitions::AxisStarted:{
 
+			// Double check this!
+			scan_->rawData()->beginInsertRows(continuousConfiguration_->scanAxisAt(0)->numberOfPoints(), -1);
+
 			break;}
 
 		case AMAgnosticDataAPIDefinitions::AxisFinished:{
 
 			// An argument could be made to put the control axis value stuff here.
+
+			scan_->rawData()->endInsertRows();
+
 			break;}
 
 		case AMAgnosticDataAPIDefinitions::AxisValueFinished:
@@ -143,20 +149,31 @@ bool AMContinuousScanActionController::event(QEvent *e)
 
 		case AMAgnosticDataAPIDefinitions::DataAvailable:{
 
-			scan_->rawData()->beginInsertRows(1, -1);	// <------- Double check this!
+			// Step 1:
+			// This will need a transform where:
+			// QList<QVector<double>>(rawAxes)  -> QVector<double>(continuousAxis)
+			// Where this implies that some set of raw axis values are
+			// mapped to a single set of axis values that can be set via setAxisValue()
 
+			// Step 2:
+			// for each control value element of the list of data passed in the event
+			// fill the AMDataStore::setAxisValue();
+			// Can unfortunately only be done by iterating and calling setAxisValue().
+
+			// Step 3:
+			// This will need a data align transform where the data is assigned to an
+			// axis value (insertion index) based on the time stamp.
+
+			// Step 4:
 			// for each data element of the list of data passed in the event
 			// fill the AMDataStore::setValue();
 			// Can unfortunately only be done by iterating and calling setAxisValue().
 
-			scan_->rawData()->endInsertRows();
 			break;}
 
 		case AMAgnosticDataAPIDefinitions::ControlMoved:
 
-			// for each control value element of the list of data passed in the event
-			// fill the AMDataStore::setAxisValue();
-			// Can unfortunately only be done by iterating and calling setAxisValue().
+			// Not relevant for continuous scans.
 			break;
 
 		case AMAgnosticDataAPIDefinitions::InvalidMessage:
