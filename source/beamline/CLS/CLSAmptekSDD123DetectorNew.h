@@ -230,8 +230,10 @@ protected:
 	/// Helper function to convert eV value to bin value using current evPerBin value
 	int convertEvToBin(double eVValue);
 
+	// FLAGGED FOR REMOVAL: Continuous Data API testing November 9, 2015
 	/// TESTING on AMDSClientDataRequest and AMAgnositicDataAPI
 	bool event(QEvent *e);
+	// END OF FLAG
 
 protected:
 	/// Control for the fast counts
