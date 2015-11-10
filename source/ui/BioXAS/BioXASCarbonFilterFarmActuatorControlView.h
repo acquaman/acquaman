@@ -40,21 +40,21 @@ protected slots:
 	void refreshWindowEditor();
 	/// Refreshes the position editor.
 	void refreshPositionEditor();
-	/// Refreshes the status control editor.
+	/// Refreshes the position status editor.
 	void refreshPositionStatusEditor();
 
 protected:
 	/// The actuator control being viewed.
 	BioXASCarbonFilterFarmActuatorControl *actuator_;
 
+	/// The filter editor.
+	AMExtendedControlEditor *filterEditor_;
+	/// The window editor.
+	AMExtendedControlEditor *windowEditor_;
 	/// The position editor.
 	AMExtendedControlEditor *positionEditor_;
 	/// The position status editor.
 	AMExtendedControlEditor *positionStatusEditor_;
-	/// The window editor.
-	AMExtendedControlEditor *windowEditor_;
-	/// The filter editor.
-	AMExtendedControlEditor *filterEditor_;
 };
 
 #endif // BIOXASCARBONFILTERFARMACTUATORCONTROLVIEW_H

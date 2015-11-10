@@ -3,17 +3,13 @@
 #include "actions3/AMListAction3.h"
 
 BioXASCarbonFilterFarmFilterControl::BioXASCarbonFilterFarmFilterControl(const QString &name, const QString &units, QObject *parent) :
-	AMPseudoMotorControl(name, units, parent)
+	AMEnumeratedControl(name, units, parent)
 {
 	// Initialize inherited variables.
 
-	value_ = -1;
-	setpoint_ = -1;
-	minimumValue_ = 0;
-	maximumValue_ = 0;
-
 	setContextKnownDescription("Filter Control");
 	setAllowsMovesWhileMoving(false);
+	setAllowsDuplicateOptions(false);
 
 	// Initialize local variables.
 
@@ -56,54 +52,25 @@ bool BioXASCarbonFilterFarmFilterControl::canStop() const
 	return result;
 }
 
-bool BioXASCarbonFilterFarmFilterControl::validValue(double value) const
-{
-	bool result = (value >= 0 && value < enumNames().count());
-	return result;
-}
-
-bool BioXASCarbonFilterFarmFilterControl::validSetpoint(double value) const
-{
-	bool result = (value >= 0 && value < moveEnumNames().count());
-	return result;
-}
-
 double BioXASCarbonFilterFarmFilterControl::filterAt(int index) const
 {
-	double result = -1;
-
-	if (index >= 0 && index < filters_.count())
-		result = filters_.at(index);
-
-	return result;
-}
-
-int BioXASCarbonFilterFarmFilterControl::indexOf(double filter) const
-{
-	return filters_.indexOf(filter);
-}
-
-int BioXASCarbonFilterFarmFilterControl::indexOf(const QString &filterString) const
-{
-	return enumNames().indexOf(filterString);
+	return indexFilterMap_.value(index, -1);
 }
 
 void BioXASCarbonFilterFarmFilterControl::setUpstreamFilter(BioXASCarbonFilterFarmActuatorFilterControl *newControl)
 {
 	if (upstreamFilter_ != newControl) {
 
-		if (upstreamFilter_) {
-			removeChildControl(upstreamFilter_);
+		if (upstreamFilter_)
+			removeChildControl(upstreamFilter_); // disconnects from all signals.
 
-			disconnect( upstreamFilter_, 0, this, 0 );
-		}
 
 		upstreamFilter_ = newControl;
 
 		if (upstreamFilter_) {
 			addChildControl(upstreamFilter_);
 
-			connect( upstreamFilter_, SIGNAL(filtersChanged()), this, SLOT(updateFilters()) );
+			connect( upstreamFilter_, SIGNAL(optionsChanged()), this, SLOT(updateOptions()) );
 		}
 
 		updateStates();
@@ -116,34 +83,22 @@ void BioXASCarbonFilterFarmFilterControl::setDownstreamFilter(BioXASCarbonFilter
 {
 	if (downstreamFilter_ != newControl) {
 
-		if (downstreamFilter_) {
-			removeChildControl(downstreamFilter_);
+		if (downstreamFilter_)
+			removeChildControl(downstreamFilter_); // disconnects from all signals.
 
-			disconnect( downstreamFilter_, 0, this, 0 );
-		}
 
 		downstreamFilter_ = newControl;
 
 		if (downstreamFilter_) {
 			addChildControl(downstreamFilter_);
 
-			connect( downstreamFilter_, SIGNAL(filtersChanged()), this, SLOT(updateFilters()) );
+			connect( downstreamFilter_, SIGNAL(optionsChanged()), this, SLOT(updateOptions()) );
 		}
 
 		updateStates();
 
 		emit downstreamFilterChanged(downstreamFilter_);
 	}
-}
-
-void BioXASCarbonFilterFarmFilterControl::updateStates()
-{
-	updateConnected();
-	updateFilters();
-	updateEnumStates();
-	updateMaximumValue();
-	updateValue();
-	updateMoving();
 }
 
 void BioXASCarbonFilterFarmFilterControl::updateConnected()
@@ -156,18 +111,31 @@ void BioXASCarbonFilterFarmFilterControl::updateConnected()
 	setConnected(isConnected);
 }
 
-void BioXASCarbonFilterFarmFilterControl::updateValue()
+void BioXASCarbonFilterFarmFilterControl::updateOptions()
 {
-	double newValue = enumNames().indexOf("Unknown");
+	// Clear filters.
 
-	if (isConnected()) {
-		int newIndex = totalFilterIndex(upstreamFilter_->filterAt(int(upstreamFilter_->value())), downstreamFilter_->filterAt(int(downstreamFilter_->value())));
+	clearOptions();
 
-		if (newIndex > -1)
-			newValue = newIndex;
+	// Identify new list of possible filter options, found by iterating
+	// through all options for each of the actuator filter controls.
+
+	QList<int> upstreamIndices;
+	QList<int> downstreamIndices;
+
+	if (upstreamFilter_)
+		upstreamIndices = upstreamFilter_->indices();
+
+	if (downstreamFilter_)
+		downstreamIndices = downstreamFilter_->indices();
+
+	foreach (int downstreamIndex, downstreamIndices) { // Aesthetics, we want the lower filters (upstream) listed first.
+		foreach (int upstreamIndex, upstreamIndices) {
+
+			double newFilter = totalFilterByIndices(upstreamIndex, downstreamIndex);
+			addFilterOption(QString::number(newFilter, 'f', 0), newFilter, upstreamIndex, downstreamIndex);
+		}
 	}
-
-	setValue(newValue);
 }
 
 void BioXASCarbonFilterFarmFilterControl::updateMoving()
@@ -180,83 +148,52 @@ void BioXASCarbonFilterFarmFilterControl::updateMoving()
 	setIsMoving(isMoving);
 }
 
-void BioXASCarbonFilterFarmFilterControl::updateMaximumValue()
+void BioXASCarbonFilterFarmFilterControl::addFilterOption(const QString &optionString, double filter, int upstreamFilterIndex, int downstreamFilterIndex)
 {
-	setMaximumValue(enumNames().count() - 1);
+	addFilterOption(indices_.count(), optionString, filter, upstreamFilterIndex, downstreamFilterIndex);
 }
 
-void BioXASCarbonFilterFarmFilterControl::addFilter(double filter)
+void BioXASCarbonFilterFarmFilterControl::addFilterOption(int index, const QString &optionString, double filter, int upstreamFilterIndex, int downstreamFilterIndex)
 {
-	if (filter >= 0 && !filters_.contains(filter)) {
-		filters_.append(filter);
-		updateEnumStates();
+	if (!hasIndexNamed(optionString)) { // We only want unique-looking options available for this control.
+		indexFilterMap_.insert(index, filter);
+		indexUpstreamFilterIndexMap_.insert(index, upstreamFilterIndex);
+		indexDownstreamFilterIndexMap_.insert(index, downstreamFilterIndex);
 
-		emit filtersChanged();
+		AMEnumeratedControl::addOption(index, optionString);
 	}
 }
 
-void BioXASCarbonFilterFarmFilterControl::clearFilters()
+void BioXASCarbonFilterFarmFilterControl::removeOption(int index)
 {
-	filters_.clear();
-	upstreamFilterMap_.clear();
-	downstreamFilterMap_.clear();
+	indexFilterMap_.remove(index);
+	indexUpstreamFilterIndexMap_.remove(index);
+	indexDownstreamFilterIndexMap_.remove(index);
 
-	updateEnumStates();
-
-	emit filtersChanged();
+	AMEnumeratedControl::removeOption(index);
 }
 
-void BioXASCarbonFilterFarmFilterControl::updateFilters()
+void BioXASCarbonFilterFarmFilterControl::clearOptions()
 {
-	// Clear filters.
+	indexFilterMap_.clear();
+	indexUpstreamFilterIndexMap_.clear();
+	indexDownstreamFilterIndexMap_.clear();
 
-	clearFilters();
-
-	// Identify new list of possible filter options, found by iterating
-	// through all options for each of the actuator filter controls.
-
-	QList<double> upstreamFilters;
-	QList<double> downstreamFilters;
-
-	if (upstreamFilter_)
-		upstreamFilters = upstreamFilter_->filters();
-
-	if (downstreamFilter_)
-		downstreamFilters = downstreamFilter_->filters();
-
-	if (!upstreamFilters.isEmpty() && !downstreamFilters.isEmpty()) {
-
-		foreach (double downstreamFilter, downstreamFilters) {
-			foreach (double upstreamFilter, upstreamFilters) {
-
-				double newFilter = totalFilter(upstreamFilter, downstreamFilter);
-				addFilter(newFilter);
-
-				upstreamFilterMap_.insert(newFilter, upstreamFilter);
-				downstreamFilterMap_.insert(newFilter, downstreamFilter);
-			}
-		}
-	}
-}
-
-void BioXASCarbonFilterFarmFilterControl::updateEnumStates()
-{
-	setEnumStates(generateEnumStates(filters_));
-	setMoveEnumStates(generateMoveEnumStates(filters_));
+	AMEnumeratedControl::clearOptions();
 }
 
 AMAction3* BioXASCarbonFilterFarmFilterControl::createMoveAction(double setpoint)
 {
 	AMAction3 *action = 0;
 
-	double filter = filterAt(int(setpoint));
-	double upstreamSetpoint = upstreamFilter_->indexOf(upstreamFilterMap_.value(filter, -1));
-	double downstreamSetpoint = downstreamFilter_->indexOf(downstreamFilterMap_.value(filter, -1));
+	int filterIndex = int(setpoint);
+	int upstreamIndex = indexUpstreamFilterIndexMap_.value(filterIndex, -1);
+	int downstreamIndex = indexDownstreamFilterIndexMap_.value(filterIndex, -1);
 
-	if (upstreamFilter_->validSetpoint(upstreamSetpoint) && downstreamFilter_->validSetpoint(downstreamSetpoint)) {
-		AMListAction3 *moveAction = new AMListAction3(new AMListActionInfo3(QString("Moving to effective filter %1%2").arg(filter).arg(units()), QString("Moving to effective filter %1%2").arg(filter).arg(units())), AMListAction3::Parallel);
-		moveAction->addSubAction(AMActionSupport::buildControlMoveAction(upstreamFilter_, upstreamSetpoint));
-		moveAction->addSubAction(AMActionSupport::buildControlMoveAction(downstreamFilter_, downstreamSetpoint));
+	if (upstreamFilter_->validSetpoint(upstreamIndex) && downstreamFilter_->validSetpoint(downstreamIndex)) {
+		AMListAction3 *moveAction = new AMListAction3(new AMListActionInfo3(QString("Moving to effective filter %1%2").arg(filterAt(filterIndex)).arg(units()), QString("Moving to effective filter %1%2").arg(filterAt(filterIndex)).arg(units())), AMListAction3::Parallel);
+		moveAction->addSubAction(AMActionSupport::buildControlMoveAction(upstreamFilter_, upstreamIndex));
+		moveAction->addSubAction(AMActionSupport::buildControlMoveAction(downstreamFilter_, downstreamIndex));
 
 		action = moveAction;
 	}
@@ -264,32 +201,40 @@ AMAction3* BioXASCarbonFilterFarmFilterControl::createMoveAction(double setpoint
 	return action;
 }
 
-QStringList BioXASCarbonFilterFarmFilterControl::generateEnumStates(const QList<double> &filterOptions) const
+int BioXASCarbonFilterFarmFilterControl::currentIndex() const
 {
-	QStringList enumOptions = generateMoveEnumStates(filterOptions);
+	// Initialize the new index to "Unknown."
 
-	// We always want to have an "Unknown" option--it's the default value.
-	// Because it isn't a 'move enum' (we don't ever want to move to "Unknown")
-	// it must be at the end of the enum list, after all of the move enums.
+	int index = enumNames().indexOf("Unknown");
 
-	enumOptions << "Unknown";
+	if (isConnected()) {
 
-	return enumOptions;
+		// Identify the index corresponding to the current values for the upstream and downstream filters.
+
+		double currentFilter = totalFilterByIndices(int(upstreamFilter_->value()), int(downstreamFilter_->value()));
+
+		if (currentFilter >= 0) {
+			QList<int> possibleIndices = indexFilterMap_.keys(currentFilter);
+
+			if (!possibleIndices.isEmpty())
+				index = possibleIndices.first();
+		}
+	}
+
+	return index;
 }
 
-QStringList BioXASCarbonFilterFarmFilterControl::generateMoveEnumStates(const QList<double> &filterOptions) const
+double BioXASCarbonFilterFarmFilterControl::totalFilterByIndices(int upstreamIndex, int downstreamIndex) const
 {
-	QStringList moveOptions;
+	double result = -1;
 
-	foreach (double option, filterOptions)
-		moveOptions << filterToString(option);
+	if (isConnected()) {
+		double upstreamFilter = upstreamFilter_->filterAt(upstreamIndex);
+		double downstreamFilter = downstreamFilter_->filterAt(downstreamIndex);
 
-	return moveOptions;
-}
+		result = totalFilter(upstreamFilter, downstreamFilter);
+	}
 
-int BioXASCarbonFilterFarmFilterControl::totalFilterIndex(double upstreamFilter, double downstreamFilter) const
-{
-	int result = indexOf( totalFilter(upstreamFilter, downstreamFilter) );
 	return result;
 }
 
@@ -299,16 +244,6 @@ double BioXASCarbonFilterFarmFilterControl::totalFilter(double upstreamFilter, d
 
 	if (upstreamFilter >= 0 && downstreamFilter >= 0)
 		result = upstreamFilter + downstreamFilter;
-
-	return result;
-}
-
-QString BioXASCarbonFilterFarmFilterControl::filterToString(double filter) const
-{
-	QString result = "Unknown";
-
-	if (filters_.contains(filter))
-		result = QString::number(filter, 'f', 0);
 
 	return result;
 }

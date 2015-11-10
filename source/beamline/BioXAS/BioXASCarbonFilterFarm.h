@@ -3,6 +3,8 @@
 
 #include "beamline/BioXAS/BioXASCarbonFilterFarmControl.h"
 #include "beamline/BioXAS/BioXASCarbonFilterFarmFilterControl.h"
+#include "beamline/BioXAS/BioXASCarbonFilterFarmActuator.h"
+
 
 class BioXASCarbonFilterFarm : public BioXASCarbonFilterFarmControl
 {

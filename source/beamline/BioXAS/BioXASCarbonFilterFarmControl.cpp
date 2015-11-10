@@ -31,15 +31,18 @@ void BioXASCarbonFilterFarmControl::setUpstreamActuator(BioXASCarbonFilterFarmAc
 	if (upstreamActuator_ != newControl) {
 
 		if (upstreamActuator_)
-			disconnect( upstreamActuator_, 0, this, 0 );
+			removeChildControl(upstreamActuator_); // disconnects from all signals.
 
 		upstreamActuator_ = newControl;
 
-		if (upstreamActuator_)
-			connect( upstreamActuator_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+		if (upstreamActuator_) {
+			addChildControl(upstreamActuator_);
 
+			connect( upstreamActuator_, SIGNAL(filterChanged(AMControl*)), this, SLOT(updateFilter()) );
+		}
+
+		updateFilter();
 		updateConnected();
-		onUpstreamActuatorFilterChanged();
 
 		emit upstreamActuatorChanged(upstreamActuator_);
 	}
@@ -50,15 +53,18 @@ void BioXASCarbonFilterFarmControl::setDownstreamActuator(BioXASCarbonFilterFarm
 	if (downstreamActuator_ != newControl) {
 
 		if (downstreamActuator_)
-			disconnect( downstreamActuator_, 0, this, 0 );
+			removeChildControl(downstreamActuator_); // disconnects from all signals.
 
 		downstreamActuator_ = newControl;
 
-		if (downstreamActuator_)
-			connect( downstreamActuator_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+		if (downstreamActuator_) {
+			addChildControl(downstreamActuator_);
 
+			connect( downstreamActuator_, SIGNAL(filterChanged(AMControl*)), this, SLOT(updateFilter()) );
+		}
+
+		updateFilter();
 		updateConnected();
-		onDownstreamActuatorFilterChanged();
 
 		emit downstreamActuatorChanged(downstreamActuator_);
 	}
@@ -69,44 +75,58 @@ void BioXASCarbonFilterFarmControl::setFilter(BioXASCarbonFilterFarmFilterContro
 	if (filter_ != newControl) {
 
 		if (filter_)
-			disconnect( filter_, 0, this, 0 );
+			removeChildControl(filter_); // disconnects from all signals.
 
 		filter_ = newControl;
 
 		if (filter_) {
-			connect( filter_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
+			addChildControl(filter_);
 
-			// Update the filter control with the latest upstream and downstream actuator
-			// filter information.
-
-			onUpstreamActuatorFilterChanged();
-			onDownstreamActuatorFilterChanged();
+			connect( filter_, SIGNAL(upstreamFilterChanged(BioXASCarbonFilterFarmActuatorFilterControl*)), this, SLOT(updateUpstreamFilter()) );
+			connect( filter_, SIGNAL(downstreamFilterChanged(BioXASCarbonFilterFarmActuatorFilterControl*)), this, SLOT(updateDownstreamFilter()) );
 		}
 
+		updateFilter();
 		updateConnected();
 
 		emit filterChanged(filter_);
 	}
 }
 
-void BioXASCarbonFilterFarmControl::onUpstreamActuatorFilterChanged()
+void BioXASCarbonFilterFarmControl::updateUpstreamFilter()
 {
-	BioXASCarbonFilterFarmActuatorFilterControl *newControl = 0;
-
-	if (upstreamActuator_)
-		newControl = upstreamActuator_->currentFilter();
-
-	if (filter_)
-		filter_->setUpstreamFilter(newControl);
+	if (upstreamActuator_) {
+		if (filter_)
+			upstreamActuator_->setFilter(filter_->upstreamFilter());
+		else
+			upstreamActuator_->setFilter(0);
+	}
 }
 
-void BioXASCarbonFilterFarmControl::onDownstreamActuatorFilterChanged()
+void BioXASCarbonFilterFarmControl::updateDownstreamFilter()
 {
-	BioXASCarbonFilterFarmActuatorFilterControl *newControl = 0;
+	if (downstreamActuator_) {
+		if (filter_)
+			downstreamActuator_->setFilter(filter_->downstreamFilter());
+		else
+			downstreamActuator_->setFilter(0);
+	}
+}
+
+void BioXASCarbonFilterFarmControl::updateFilter()
+{
+	BioXASCarbonFilterFarmActuatorFilterControl *upstreamFilter = 0;
+
+	if (upstreamActuator_)
+		upstreamFilter = upstreamActuator_->filter();
+
+	BioXASCarbonFilterFarmActuatorFilterControl *downstreamFilter = 0;
 
 	if (downstreamActuator_)
-		newControl = downstreamActuator_->currentFilter();
+		downstreamFilter = downstreamActuator_->filter();
 
-	if (filter_)
-		filter_->setDownstreamFilter(newControl);
+	if (filter_) {
+		filter_->setUpstreamFilter(upstreamFilter);
+		filter_->setDownstreamFilter(downstreamFilter);
+	}
 }

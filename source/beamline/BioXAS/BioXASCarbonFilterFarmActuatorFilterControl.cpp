@@ -2,21 +2,13 @@
 #include "actions3/AMActionSupport.h"
 
 BioXASCarbonFilterFarmActuatorFilterControl::BioXASCarbonFilterFarmActuatorFilterControl(const QString &name, const QString &units, QObject *parent) :
-	AMPseudoMotorControl(name, units, parent)
+	AMSingleEnumeratedControl(name, units, parent)
 {
-	// Initialize local variables.
-
-	currentWindow_ = 0;
-
 	// Initialize inherited variables.
-
-	value_ = -1;
-	setpoint_ = -1;
-	minimumValue_ = 0;
-	maximumValue_ = 0;
 
 	setContextKnownDescription("Actuator Filter Control");
 	setAllowsMovesWhileMoving(false);
+	setAllowsDuplicateOptions(false);
 }
 
 BioXASCarbonFilterFarmActuatorFilterControl::~BioXASCarbonFilterFarmActuatorFilterControl()
@@ -24,275 +16,97 @@ BioXASCarbonFilterFarmActuatorFilterControl::~BioXASCarbonFilterFarmActuatorFilt
 
 }
 
-bool BioXASCarbonFilterFarmActuatorFilterControl::canMeasure() const
+QList<int> BioXASCarbonFilterFarmActuatorFilterControl::indicesWithFilter(double filter) const
 {
-	bool result = false;
+	QList<int> results;
 
-	if (isConnected())
-		result = currentWindow_->canMeasure();
+	foreach (int index, indices_) {
+		if (indexFilterMap_.value(index) == filter)
+			results << index;
+	}
 
-	return result;
+	return results;
 }
 
-bool BioXASCarbonFilterFarmActuatorFilterControl::canMove() const
+bool BioXASCarbonFilterFarmActuatorFilterControl::hasFilter(double filter) const
 {
-	bool result = false;
-
-	if (isConnected())
-		result = currentWindow_->canMove();
-
-	return result;
-}
-
-bool BioXASCarbonFilterFarmActuatorFilterControl::canStop() const
-{
-	bool result = false;
-
-	if (isConnected())
-		result = currentWindow_->canStop();
-
-	return result;
-}
-
-bool BioXASCarbonFilterFarmActuatorFilterControl::validValue(double value) const
-{
-	bool result = (value >= 0 && value < enumNames().count());
-	return result;
-}
-
-bool BioXASCarbonFilterFarmActuatorFilterControl::validSetpoint(double value) const
-{
-	bool result = (value >= 0 && value < filters_.count());
+	bool result = (!indicesWithFilter(filter).isEmpty());
 	return result;
 }
 
 double BioXASCarbonFilterFarmActuatorFilterControl::filterAt(int index) const
 {
-	double result = -1;
-
-	if (index >= 0 && index < filters_.count())
-		result = filters_.at(index);
-
-	return result;
+	return indexFilterMap_.value(index, -1);
 }
 
-int BioXASCarbonFilterFarmActuatorFilterControl::indexOf(double filter) const
+void BioXASCarbonFilterFarmActuatorFilterControl::setWindowControl(BioXASCarbonFilterFarmActuatorWindowControl *newControl)
 {
-	return filters_.indexOf(filter);
+	if (setBaseControl(newControl))
+		emit windowChanged(newControl);
 }
 
-int BioXASCarbonFilterFarmActuatorFilterControl::indexOf(const QString &filterString) const
+void BioXASCarbonFilterFarmActuatorFilterControl::addFilter(int windowIndex, double filter)
 {
-	return enumNames().indexOf(filterString);
-}
+	QString filterString = QString::number(filter, 'f', 0);
 
-void BioXASCarbonFilterFarmActuatorFilterControl::setCurrentWindow(BioXASCarbonFilterFarmActuatorWindowControl *newControl)
-{
-	if (currentWindow_ != newControl) {
+	if (!hasIndexNamed(filterString)) { // We only want unique-looking options available for this control.
 
-		if (currentWindow_)
-			removeChildControl(currentWindow_);
-
-		currentWindow_ = newControl;
-
-		if (currentWindow_) {
-			addChildControl(currentWindow_);
-
-			connect( currentWindow_, SIGNAL(windowsChanged()), this, SLOT(updateFilters()) );
-		}
-
-		updateStates();
-
-		emit currentWindowChanged(currentWindow_);
+		indexFilterMap_.insert(windowIndex, filter); // Because each window will only ever have one filter, we can use the window index as the filter index.
+		addValueOption(windowIndex, filterString, windowIndex);
 	}
 }
 
-void BioXASCarbonFilterFarmActuatorFilterControl::setFilterWindowPreference(double filter, BioXASCarbonFilterFarmWindowOption *window)
+void BioXASCarbonFilterFarmActuatorFilterControl::removeFilter(int windowIndex)
 {
-	if (filters_.contains(filter) && window && window->isValid() && currentWindow_->indexOf(window) != -1 && double(window->filter()) == filter)
-		filterWindowPreferenceMap_.insert(filter, window);
-}
-
-void BioXASCarbonFilterFarmActuatorFilterControl::clearFilterWindowPreference(double filter)
-{
-	if (filterWindowPreferenceMap_.keys().contains(filter))
-		filterWindowPreferenceMap_.remove(filter);
-}
-
-void BioXASCarbonFilterFarmActuatorFilterControl::clearFilterWindowPreference(BioXASCarbonFilterFarmWindowOption *window)
-{
-	if (filterWindowPreferenceMap_.values().contains(window)) {
-		QList<double> filters = filterWindowPreferenceMap_.keys(window);
-
-		foreach (double filter, filters)
-			filterWindowPreferenceMap_.remove(filter);
-	}
-}
-
-void BioXASCarbonFilterFarmActuatorFilterControl::clearFilterWindowPreferences()
-{
-	filterWindowPreferenceMap_.clear();
-}
-
-void BioXASCarbonFilterFarmActuatorFilterControl::updateStates()
-{
-	updateConnected();
-	updateFilters();
-	updateEnumStates();
-	updateMaximumValue();
-	updateValue();
-	updateMoving();
-}
-
-void BioXASCarbonFilterFarmActuatorFilterControl::updateConnected()
-{
-	bool connected = ( currentWindow_ && currentWindow_->isConnected() );
-	setConnected(connected);
-}
-
-void BioXASCarbonFilterFarmActuatorFilterControl::updateValue()
-{
-	double newValue = enumNames().indexOf("Unknown");
-
-	if (isConnected()) {
-		BioXASCarbonFilterFarmWindowOption *currentWindow = currentWindow_->windowAt(int(currentWindow_->value()));
-
-		if (currentWindow && currentWindow->isValid()) {
-			double currentFilter = currentWindow->filter();
-			int currentIndex = indexOf(currentFilter);
-
-			if (currentIndex >= 0)
-				newValue = currentIndex;
-		}
-	}
-
-	setValue(newValue);
-}
-
-void BioXASCarbonFilterFarmActuatorFilterControl::updateMoving()
-{
-	bool isMoving = false;
-
-	if (isConnected())
-		isMoving = (currentWindow_->isMoving());
-
-	setIsMoving(isMoving);
-}
-
-void BioXASCarbonFilterFarmActuatorFilterControl::updateMaximumValue()
-{
-	setMaximumValue(enumNames().count() - 1);
-}
-
-void BioXASCarbonFilterFarmActuatorFilterControl::addFilter(BioXASCarbonFilterFarmWindowOption *newOption)
-{
-	if (newOption && newOption->isValid() && !filters_.contains(newOption->filter())) {
-		filters_.append(newOption->filter());
-		filterWindowMap_.insert(double(newOption->filter()), newOption);
-
-		updateEnumStates();
-
-		emit filtersChanged();
-	}
+	indexFilterMap_.remove(windowIndex);
+	removeOption(windowIndex);
 }
 
 void BioXASCarbonFilterFarmActuatorFilterControl::clearFilters()
 {
-	filters_.clear();
-	filterWindowMap_.clear();
-
-	// The preferences map is not cleared here, because preferences would be lost
-	// every time the filters list needs to be refreshed. See updateFilters().
-
-	updateEnumStates();
-
-	emit filtersChanged();
+	indexFilterMap_.clear();
+	filterWindowPreferenceMap_.clear();
+	clearOptions();
 }
 
-void BioXASCarbonFilterFarmActuatorFilterControl::updateFilters()
+void BioXASCarbonFilterFarmActuatorFilterControl::setWindowPreference(double filter, int windowIndex)
 {
-	// Clear the existing list of filters.
-
-	clearFilters();
-
-	// Update filters list based on window contents.
-
-	if (currentWindow_) {
-		foreach (BioXASCarbonFilterFarmWindowOption *window, currentWindow_->windows()) {
-			if (window && window->isValid())
-				addFilter(window);
-		}
-	}
+	filterWindowPreferenceMap_.insert(filter, windowIndex);
 }
 
-void BioXASCarbonFilterFarmActuatorFilterControl::updateEnumStates()
+void BioXASCarbonFilterFarmActuatorFilterControl::removeWindowPreference(double filter)
 {
-	setEnumStates(generateEnumStates(filters_));
-	setMoveEnumStates(generateMoveEnumStates(filters_));
+	filterWindowPreferenceMap_.remove(filter);
 }
 
-AMAction3* BioXASCarbonFilterFarmActuatorFilterControl::createMoveAction(double setpoint)
+void BioXASCarbonFilterFarmActuatorFilterControl::clearWindowPreferences()
 {
-	// Convert the given setpoint index into an actual filter value.
-	// Identify the corresponding window.
+	filterWindowPreferenceMap_.clear();
+}
 
-	double filter = filterAt(int(setpoint));
+AMAction3* BioXASCarbonFilterFarmActuatorFilterControl::createMoveAction(double indexSetpoint)
+{
+	AMAction3 *action = 0;
 
-	int windowSetpoint = -1;
+	// Convert the desired indexSetpoint to a corresponding filter value.
 
-	if (filterWindowPreferenceMap_.keys().contains(filter) && currentWindow_->indexOf(filterWindowPreferenceMap_.value(filter)) != -1) {
+	double filter = indexFilterMap_.value(int(indexSetpoint));
 
-		// First check to see if there is a window preference set for this particular filter,
-		// and that the window is a valid window option according to the current window control.
+	// Check to see if there is a preferred window to use to achieve the given
+	// filter value. If there is no preference, the move action is identical
+	// to AMSingleEnumeratedControl::createMoveAction.
 
-		windowSetpoint = currentWindow_->indexOf(filterWindowPreferenceMap_.value(filter));
+	if (filterWindowPreferenceMap_.keys().contains(filter)) {
+		int windowIndex = filterWindowPreferenceMap_.value(filter);
+
+		// Need to check that the window index is a valid setpoint for this control.
+
+		action = AMActionSupport::buildControlMoveAction(control_, windowIndex);
 
 	} else {
-
-		// If there is no valid preference, identify the window setpoint by looking at the filter-window
-		// map. If there are multiple entries, pick the first.
-
-		QList<BioXASCarbonFilterFarmWindowOption*> windowOptions = filterWindowMap_.values(filter);
-		if (!windowOptions.isEmpty())
-			windowSetpoint = currentWindow_->indexOf(windowOptions.first());
+		action = AMSingleEnumeratedControl::createMoveAction(indexSetpoint);
 	}
 
-	// Create and return action that moves the window control to the given window setpoint.
-
-	AMAction3 *action = AMActionSupport::buildControlMoveAction(currentWindow_, windowSetpoint);
 	return action;
-}
-
-QStringList BioXASCarbonFilterFarmActuatorFilterControl::generateEnumStates(const QList<double> &filterOptions) const
-{
-	QStringList enumOptions = generateMoveEnumStates(filterOptions);
-
-	// We always want to have an "Unknown" option--it's the default value.
-	// Because it isn't a 'move enum' (we don't ever want to move to "Unknown")
-	// it must be at the end of the enum list, after all of the move enums.
-
-	enumOptions << "Unknown";
-
-	return enumOptions;
-}
-
-QStringList BioXASCarbonFilterFarmActuatorFilterControl::generateMoveEnumStates(const QList<double> &filterOptions) const
-{
-	QStringList moveOptions;
-
-	foreach (double option, filterOptions)
-		moveOptions << filterToString(option);
-
-	return moveOptions;
-}
-
-QString BioXASCarbonFilterFarmActuatorFilterControl::filterToString(double filter) const
-{
-	QString result = "Unknown";
-
-	if (filters_.contains(filter))
-		result = QString::number(filter, 'f', 0);
-
-	return result;
 }
 
