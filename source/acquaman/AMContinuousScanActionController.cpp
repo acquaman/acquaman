@@ -133,19 +133,30 @@ bool AMContinuousScanActionController::event(QEvent *e)
 
 		case AMAgnosticDataAPIDefinitions::AxisFinished:{
 
+			// An argument could be made to put the control axis value stuff here.
 			break;}
 
 		case AMAgnosticDataAPIDefinitions::AxisValueFinished:
 
+			// Not relevant for continuous scans.
 			break;
 
 		case AMAgnosticDataAPIDefinitions::DataAvailable:{
 
+			scan_->rawData()->beginInsertRows(1, -1);	// <------- Double check this!
 
+			// for each data element of the list of data passed in the event
+			// fill the AMDataStore::setValue();
+			// Can unfortunately only be done by iterating and calling setAxisValue().
+
+			scan_->rawData()->endInsertRows();
 			break;}
 
 		case AMAgnosticDataAPIDefinitions::ControlMoved:
 
+			// for each control value element of the list of data passed in the event
+			// fill the AMDataStore::setAxisValue();
+			// Can unfortunately only be done by iterating and calling setAxisValue().
 			break;
 
 		case AMAgnosticDataAPIDefinitions::InvalidMessage:
