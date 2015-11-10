@@ -705,7 +705,7 @@ bool AMWaveformBinningSinglePVControl::values(int size, int *outputValues) const
 	QVector<int> integerValues = readPV_->lastIntegerValues();
 	if(integerValues.count() < size)
 		return false;
-	memcpy(outputValues, integerValues.constData(), size);
+	memcpy(outputValues, integerValues.constData(), size*sizeof(int));
 	return true;
 }
 
@@ -715,7 +715,7 @@ bool AMWaveformBinningSinglePVControl::values(int size, double *outputValues) co
 	QVector<double> doubleValues = readPV_->lastFloatingPointValues();
 	if(doubleValues.count() < size)
 		return false;
-	memcpy(outputValues, doubleValues.constData(), size);
+	memcpy(outputValues, doubleValues.constData(), size*sizeof(double));
 	return true;
 }
 
