@@ -18,12 +18,12 @@ void SGMEnergyPositionTest::performTests()
 }
 
 void SGMEnergyPositionTest::testIndividualRequestEnergy(const QString &name,
-														double requiredEnergy,
-														SGMGratingSupport::GratingTranslation gratingTranslationSelection,
-														double expectedAngleEncoderTarget,
-														double expectedExitSlitPosition,
-														double expectedUndulatorPosition,
-														double expectedUndulatorStepValue)
+                                                        double requiredEnergy,
+                                                        SGMGratingSupport::GratingTranslation gratingTranslationSelection,
+                                                        double expectedAngleEncoderTarget,
+                                                        double expectedExitSlitPosition,
+                                                        double expectedUndulatorPosition,
+                                                        double expectedUndulatorStepValue)
 {
 	SGMEnergyPosition testEnergyPosition(requiredEnergy, gratingTranslationSelection);
 

@@ -4,17 +4,17 @@
 #include "actions3/AMListAction3.h"
 #include "actions3/AMActionSupport.h"
 SGMGratingTranslationStepControl::SGMGratingTranslationStepControl(QObject *parent) :
-	AMPseudoMotorControl("Grating Translation Steps", "Steps", parent, "SGM Monochromator Grating Translation Steps")
+    AMPseudoMotorControl("Grating Translation Steps", "Steps", parent, "SGM Monochromator Grating Translation Steps")
 {
 	gratingTranslationStepPV_ = new AMPVwStatusControl("Grating Translation",
-													   "SMTR16114I1016:step:fbk",
-													   "SMTR16114I1016:step",
-													   "SMTR16114I1016:state",
-													   "SMTR16114I1016:emergStop",
-													   this,
-													   0.1,
-													   2.0,
-													   new AMControlStatusCheckerStopped(0));
+	                                                   "SMTR16114I1016:step:fbk",
+	                                                   "SMTR16114I1016:step",
+	                                                   "SMTR16114I1016:state",
+	                                                   "SMTR16114I1016:emergStop",
+	                                                   this,
+	                                                   0.1,
+	                                                   2.0,
+	                                                   new AMControlStatusCheckerStopped(0));
 
 	value_ = 0;
 	setpoint_ = 0;
@@ -82,17 +82,17 @@ void SGMGratingTranslationStepControl::updateValue()
 AMAction3 * SGMGratingTranslationStepControl::createMoveAction(double setpoint)
 {
 	AMListAction3* moveAction = new AMListAction3(new AMListActionInfo3("Moving Grating Translation",
-																		"Moving Grating Translation"),
-												  AMListAction3::Sequential);
+	                                                                    "Moving Grating Translation"),
+	                                              AMListAction3::Sequential);
 
 	moveAction->addSubAction(AMActionSupport::buildControlMoveAction(gratingTranslationStepPV_,
-																	 setpoint,
-																	 false));
+	                                                                 setpoint,
+	                                                                 false));
 
 	moveAction->addSubAction(AMActionSupport::buildControlWaitAction(gratingTranslationStepPV_,
-																	 setpoint,
-																	 60,
-																	 AMControlWaitActionInfo::MatchWithinTolerance));
+	                                                                 setpoint,
+	                                                                 60,
+	                                                                 AMControlWaitActionInfo::MatchWithinTolerance));
 
 	return moveAction;
 }

@@ -4,130 +4,130 @@
 #include "beamline/AMPVControl.h"
 #include "beamline/CLS/CLSMAXvMotor.h"
 SGMEnergyControlSet::SGMEnergyControlSet(QObject *parent) :
-	AMControlSet(parent)
+    AMControlSet(parent)
 {
 	energyPositionValidator_ = 0;
 
 	QString baseGroupPV = "AM1611-4-I10:energy";
 	addControl(new AMPVwStatusControl("Energy",
-									  baseGroupPV + ":eV:fbk",
-									  baseGroupPV + ":eV",
-									  baseGroupPV + ":status",
-									  baseGroupPV + ":stop",
-									  this,
-									  0.5,
-									  2.0,
-									  new CLSMAXvControlStatusChecker()));
+	                                  baseGroupPV + ":eV:fbk",
+	                                  baseGroupPV + ":eV",
+	                                  baseGroupPV + ":status",
+	                                  baseGroupPV + ":stop",
+	                                  this,
+	                                  0.5,
+	                                  2.0,
+	                                  new CLSMAXvControlStatusChecker()));
 	controlNamed("Energy")->setAttemptMoveWhenWithinTolerance(true);
 
 	addControl(new AMSinglePVControl("Energy Trajectory Startpoint",
-									 baseGroupPV + ":trajectory:startpoint:eV",
-									 this,
-									 0.5,
-									 2));
+	                                 baseGroupPV + ":trajectory:startpoint:eV",
+	                                 this,
+	                                 0.5,
+	                                 2));
 
 	addControl(new AMSinglePVControl("Energy Trajectory Endpoint",
-									 baseGroupPV + ":trajectory:endpoint:eV",
-									 this,
-									 0.5,
-									 2));
+	                                 baseGroupPV + ":trajectory:endpoint:eV",
+	                                 this,
+	                                 0.5,
+	                                 2));
 
 	addControl(new AMSinglePVControl("Energy Trajectory Time",
-									 baseGroupPV + ":trajectory:time:s",
-									 this,
-									 0.5,
-									 2));
+	                                 baseGroupPV + ":trajectory:time:s",
+	                                 this,
+	                                 0.5,
+	                                 2));
 
 	addControl(new AMSinglePVControl("Energy Trajectory Start",
-									 baseGroupPV + ":trajectory:start",
-									 this,
-									 0.5,
-									 2));
+	                                 baseGroupPV + ":trajectory:start",
+	                                 this,
+	                                 0.5,
+	                                 2));
 
 	addControl(new AMPVwStatusControl("Grating Angle",
-									  baseGroupPV + ":grating:angle:steps:fbk",
-									  baseGroupPV + ":grating:angle:steps",
-									  baseGroupPV + ":grating:angle:status",
-									  baseGroupPV + ":grating:angle:stop",
-									  this,
-									  5,
-									  2.0,
-									  new CLSMAXvControlStatusChecker()));
+	                                  baseGroupPV + ":grating:angle:steps:fbk",
+	                                  baseGroupPV + ":grating:angle:steps",
+	                                  baseGroupPV + ":grating:angle:status",
+	                                  baseGroupPV + ":grating:angle:stop",
+	                                  this,
+	                                  5,
+	                                  2.0,
+	                                  new CLSMAXvControlStatusChecker()));
 
 	controlNamed("Grating Angle")->setAttemptMoveWhenWithinTolerance(true);
 
 	addControl(new AMPVwStatusControl("Grating Translation",
-									  baseGroupPV + ":grating:translation:fbk",
-									  baseGroupPV + ":grating:translation",
-									  baseGroupPV + ":grating:translation:status",
-									  baseGroupPV + ":grating:translation:stop",
-									  this,
-									  0.5,
-									  2.0,
-									  new CLSMAXvControlStatusChecker()));
+	                                  baseGroupPV + ":grating:translation:fbk",
+	                                  baseGroupPV + ":grating:translation",
+	                                  baseGroupPV + ":grating:translation:status",
+	                                  baseGroupPV + ":grating:translation:stop",
+	                                  this,
+	                                  0.5,
+	                                  2.0,
+	                                  new CLSMAXvControlStatusChecker()));
 
 	controlNamed("Grating Translation")->setAttemptMoveWhenWithinTolerance(true);
 
 	addControl(new AMPVControl("Grating Translation Optimization",
-							   baseGroupPV + ":grating:translation:optimization:fbk",
-							   baseGroupPV + ":grating:translation:optimization",
-							   QString(),
-							   this,
-							   0.5));
+	                           baseGroupPV + ":grating:translation:optimization:fbk",
+	                           baseGroupPV + ":grating:translation:optimization",
+	                           QString(),
+	                           this,
+	                           0.5));
 
 	controlNamed("Grating Translation Optimization")->setAttemptMoveWhenWithinTolerance(true);
 
 	addControl(new AMPVwStatusControl("Undulator Position",
-									  baseGroupPV + ":undulator:mm:fbk",
-									  baseGroupPV + ":undulator:mm",
-									  baseGroupPV + ":undulator:status",
-									  baseGroupPV + ":undulator:stop",
-									  this,
-									  0.1,
-									  2.0,
-									  new CLSMAXvControlStatusChecker()));
+	                                  baseGroupPV + ":undulator:mm:fbk",
+	                                  baseGroupPV + ":undulator:mm",
+	                                  baseGroupPV + ":undulator:status",
+	                                  baseGroupPV + ":undulator:stop",
+	                                  this,
+	                                  0.1,
+	                                  2.0,
+	                                  new CLSMAXvControlStatusChecker()));
 
 	controlNamed("Undulator Position")->setAttemptMoveWhenWithinTolerance(true);
 
 	addControl(new AMSinglePVControl("Undulator Detune Offset",
-									 baseGroupPV + ":undulator:offset:mm",
-									 this,
-									 0.1));
+	                                 baseGroupPV + ":undulator:offset:mm",
+	                                 this,
+	                                 0.1));
 
 	controlNamed("Undulator Detune Offset")->setAttemptMoveWhenWithinTolerance(true);
 
 	addControl(new AMPVControl("Undulator Harmonic",
-							   baseGroupPV + ":undulator:harmonic:fbk",
-							   baseGroupPV + ":undulator:harmonic",
-							   QString(),
-							   this,
-							   0.5));
+	                           baseGroupPV + ":undulator:harmonic:fbk",
+	                           baseGroupPV + ":undulator:harmonic",
+	                           QString(),
+	                           this,
+	                           0.5));
 
 	controlNamed("Undulator Harmonic")->setAttemptMoveWhenWithinTolerance(true);
 
 	addControl(new AMSinglePVControl("Undulator Tracking",
-									 baseGroupPV + ":undulator:tracking",
-									 this,
-									 0.5));
+	                                 baseGroupPV + ":undulator:tracking",
+	                                 this,
+	                                 0.5));
 
 	controlNamed("Undulator Tracking")->setAttemptMoveWhenWithinTolerance(true);
 
 	addControl(new AMPVwStatusControl("Exit Slit Position",
-									  baseGroupPV + ":exitslit:position:mm:fbk",
-									  baseGroupPV + ":exitslit:position:mm",
-									  baseGroupPV + ":exitslit:position:status",
-									  baseGroupPV + ":exitslit:position:stop",
-									  this,
-									  0.1,
-									  2.0,
-									  new CLSMAXvControlStatusChecker()));
+	                                  baseGroupPV + ":exitslit:position:mm:fbk",
+	                                  baseGroupPV + ":exitslit:position:mm",
+	                                  baseGroupPV + ":exitslit:position:status",
+	                                  baseGroupPV + ":exitslit:position:stop",
+	                                  this,
+	                                  0.1,
+	                                  2.0,
+	                                  new CLSMAXvControlStatusChecker()));
 
 	controlNamed("Exit Slit Position")->setAttemptMoveWhenWithinTolerance(true);
 
 	addControl(new AMSinglePVControl("Exit Slit Position Tracking",
-									 baseGroupPV + ":exitslit:position:tracking",
-									 this,
-									 0.5));
+	                                 baseGroupPV + ":exitslit:position:tracking",
+	                                 this,
+	                                 0.5));
 
 	controlNamed("Exit Slit Position Tracking")->setAttemptMoveWhenWithinTolerance(true);
 
@@ -247,7 +247,7 @@ void SGMEnergyControlSet::onAllConnected(bool isConnected)
 		}
 
 		energyPositionValidator_ = new SGMEnergyPosition(currentEnergy,
-														 currentGratingTranslation);
+		                                                 currentGratingTranslation);
 
 		onGratingAnglePVValueChanged(gratingAngle()->value());
 		onGratingTranslationPVValueChanged(gratingTranslation()->value());

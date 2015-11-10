@@ -8,9 +8,9 @@
 #include <QVBoxLayout>
 #include <QGridLayout>
 SGMEnergyView::SGMEnergyView(SGMEnergyControlSet* energyControlSet,
-							 EnergyViewType viewType,
-							 QWidget *parent) :
-	QWidget(parent)
+                             EnergyViewType viewType,
+                             QWidget *parent) :
+    QWidget(parent)
 {
 
 	energyControlSet_ = energyControlSet;
@@ -95,13 +95,13 @@ void SGMEnergyView::setupUi(SGMEnergyView::EnergyViewType viewType)
 	undulatorHarmonicEditor_ = new AMExtendedControlEditor(energyControlSet_->undulatorHarmonic());
 
 	errorValidatorIcon_ = new AMValidatorIcon(energyControlSet_->errorValidator(),
-											  ":/dialog-error.png");
+	                                          ":/dialog-error.png");
 	warningValidatorIcon_ = new AMValidatorIcon(energyControlSet_->warningValidator(),
-												":/dialog-information.png");
+	                                            ":/dialog-information.png");
 
 
 	connect(energyControlSet_->gratingTranslationOptimization(), SIGNAL(valueChanged(double)),
-			this, SLOT(onEnergyControlGratingTrackingOptimizationModeChanged(double)));
+	        this, SLOT(onEnergyControlGratingTrackingOptimizationModeChanged(double)));
 	if(viewType == Advanced) {
 		gratingAngleEditor_ = new AMExtendedControlEditor(energyControlSet_->gratingAngle());
 		gratingAngleEditor_->setPrecision(12);
@@ -158,14 +158,14 @@ void SGMEnergyView::setupUi(SGMEnergyView::EnergyViewType viewType)
 		setLayout(mainLayout);
 
 		connect(undulatorTrackingButton_, SIGNAL(toggled(bool)),
-				this, SLOT(onUndulatorTrackingButtonToggled(bool)));
+		        this, SLOT(onUndulatorTrackingButtonToggled(bool)));
 		connect(exitSlitTrackingButton_, SIGNAL(toggled(bool)),
-				this, SLOT(onExitSlitPositionTrackingButtonToggled(bool)));
+		        this, SLOT(onExitSlitPositionTrackingButtonToggled(bool)));
 
 		connect(energyControlSet_->undulatorTracking(), SIGNAL(valueChanged(double)),
-				this, SLOT(onEnergyControlUndulatorTrackingChanged(double)));
+		        this, SLOT(onEnergyControlUndulatorTrackingChanged(double)));
 		connect(energyControlSet_->exitSlitPositionTracking(), SIGNAL(valueChanged(double)),
-				this, SLOT(onEnergyControlExitSlitTrackingChanged(double)));
+		        this, SLOT(onEnergyControlExitSlitTrackingChanged(double)));
 
 
 	} else {

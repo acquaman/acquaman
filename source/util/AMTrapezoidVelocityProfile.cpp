@@ -10,9 +10,9 @@ AMTrapezoidVelocityProfile::AMTrapezoidVelocityProfile()
 }
 
 AMTrapezoidVelocityProfile::AMTrapezoidVelocityProfile(double startPosition,
-													   double endPosition,
-													   double acceleration,
-													   double time)
+                                                       double endPosition,
+                                                       double acceleration,
+                                                       double time)
 {
 	startPosition_ = startPosition;
 	endPosition_ = endPosition;

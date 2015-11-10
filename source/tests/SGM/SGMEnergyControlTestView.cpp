@@ -279,23 +279,23 @@ void SGMEnergyControlTestView::setupData()
 void SGMEnergyControlTestView::setupConnections()
 {
 	connect(energyControl_, SIGNAL(gratingTranslationOptimizationModeChanged(SGMEnergyPosition::GratingTranslationOptimizationMode)),
-			this, SLOT(onControlGratingOptimizationChanged(SGMEnergyPosition::GratingTranslationOptimizationMode)));
+	        this, SLOT(onControlGratingOptimizationChanged(SGMEnergyPosition::GratingTranslationOptimizationMode)));
 	connect(energyControl_->gratingTranslationControl(), SIGNAL(valueChanged(double)),
-			this, SLOT(onControlGratingTranslationChanged(double)));
+	        this, SLOT(onControlGratingTranslationChanged(double)));
 
 
 	connect(startTrajectoryButton_, SIGNAL(clicked()), this, SLOT(onStartTrajectoryButtonPushed()));
 	connect(undulatorHarmonic_, SIGNAL(currentIndexChanged(int)),
-			this, SLOT(onUndulatorHarmonicSelectionChanged(int)));
+	        this, SLOT(onUndulatorHarmonicSelectionChanged(int)));
 	connect(undulatorOffset_, SIGNAL(valueChanged(double)),
-			this, SLOT(onUndulatorOffsetValueChanged(double)));
+	        this, SLOT(onUndulatorOffsetValueChanged(double)));
 	connect(undulatorTrackingCheckBox_, SIGNAL(toggled(bool)),
-			this, SLOT(onUndulatorTrackingCheckBoxChanged(bool)));
+	        this, SLOT(onUndulatorTrackingCheckBoxChanged(bool)));
 	connect(exitSlitTrackingCheckBox_, SIGNAL(toggled(bool)),
-			this, SLOT(onExitSlitTrackingCheckBoxChanged(bool)));
+	        this, SLOT(onExitSlitTrackingCheckBoxChanged(bool)));
 	connect(gratingOptimizationComboBox_, SIGNAL(currentIndexChanged(int)),
-			this, SLOT(onGratingOptimizationSelectionChanged(int)));
+	        this, SLOT(onGratingOptimizationSelectionChanged(int)));
 	connect(gratingTranslationComboBox_, SIGNAL(currentIndexChanged(int)),
-			this, SLOT(onGratingTranslationSelectionChanged(int)));
+	        this, SLOT(onGratingTranslationSelectionChanged(int)));
 }
 

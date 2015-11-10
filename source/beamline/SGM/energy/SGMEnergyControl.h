@@ -20,7 +20,7 @@ class SGMEnergyControl : public AMPseudoMotorControl
 	Q_OBJECT
 public:
 	SGMEnergyControl(SGMUndulatorSupport::UndulatorHarmonic startingUndulatorHarmonic,
-					 QObject* parent = 0);
+	                 QObject* parent = 0);
 
 	/*!
 	  * Whether the control is designed to be able to measure values.

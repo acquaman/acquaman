@@ -2,14 +2,14 @@
 #include <math.h>
 
 SGMEnergyTrajectory::SGMEnergyTrajectory(double startEnergy,
-										 double endEnergy,
-										 double time,
-										 SGMGratingSupport::GratingTranslation gratingTranslation,
-										 double gratingAngleAcceleration,
-										 double gratingAngleStepsPerEncoderCount,
-										 double undulatorAcceleration,
-										 double undulatorCurrentGap,
-										 double undulatorCurrentStep)
+                                         double endEnergy,
+                                         double time,
+                                         SGMGratingSupport::GratingTranslation gratingTranslation,
+                                         double gratingAngleAcceleration,
+                                         double gratingAngleStepsPerEncoderCount,
+                                         double undulatorAcceleration,
+                                         double undulatorCurrentGap,
+                                         double undulatorCurrentStep)
 {
 
 	startEnergyPosition_ = new SGMEnergyPosition(startEnergy, gratingTranslation);
@@ -39,27 +39,27 @@ SGMEnergyTrajectory::SGMEnergyTrajectory(double startEnergy,
 	time_ = time;
 
 	gratingAngleVelocityProfile_ = AMTrapezoidVelocityProfile(startEnergyPosition_->gratingAngle() * gratingAngleStepsPerEncoderCount,
-															  endEnergyPosition_->gratingAngle() * gratingAngleStepsPerEncoderCount,
-															  gratingAngleAcceleration,
-															  time);
+	                                                          endEnergyPosition_->gratingAngle() * gratingAngleStepsPerEncoderCount,
+	                                                          gratingAngleAcceleration,
+	                                                          time);
 
 	double startUndulatorSteps = SGMUndulatorSupport::undulatorStepFromPosition(startEnergyPosition_->undulatorPosition(),
-																				undulatorCurrentGap,
-																				undulatorCurrentStep);
+	                                                                            undulatorCurrentGap,
+	                                                                            undulatorCurrentStep);
 
 	double endUndulatorSteps = SGMUndulatorSupport::undulatorStepFromPosition(endEnergyPosition_->undulatorPosition(),
-																			  undulatorCurrentGap,
-																			  undulatorCurrentStep);
+	                                                                          undulatorCurrentGap,
+	                                                                          undulatorCurrentStep);
 
 	undulatorVelocityProfile_ = AMTrapezoidVelocityProfile(startUndulatorSteps,
-														   endUndulatorSteps,
-														   undulatorAcceleration,
-														   time);
+	                                                       endUndulatorSteps,
+	                                                       undulatorAcceleration,
+	                                                       time);
 
 	exitSlitVelocityProfile_ = AMTrapezoidVelocityProfile(startEnergyPosition_->exitSlitPosition(),
-														  endEnergyPosition_->exitSlitPosition(),
-														  5000,
-														  time);
+	                                                      endEnergyPosition_->exitSlitPosition(),
+	                                                      5000,
+	                                                      time);
 
 }
 
@@ -175,19 +175,19 @@ double SGMEnergyTrajectory::energyVelocity() const
 QString SGMEnergyTrajectory::toString() const
 {
 	QString returnString =  QString("Start Grating Angle: %1 End Grating Angle: %2 Grating Angle Velocity: %3 \n")
-			.arg(startGratingAngleEncoderCount())
-			.arg(endGratingAngleEncoderCount())
-			.arg(gratingAngleVelocityProfile().targetVelocity());
+	        .arg(startGratingAngleEncoderCount())
+	        .arg(endGratingAngleEncoderCount())
+	        .arg(gratingAngleVelocityProfile().targetVelocity());
 
 	returnString.append(QString("Start Undulator Position: %1 End Undulator Position: %2 Undulator Velocity: %3 \n")
-						.arg(startUndulatorPosition())
-						.arg(endUndulatorPosition())
-						.arg(undulatorVelocityProfile().targetVelocity()));
+	                    .arg(startUndulatorPosition())
+	                    .arg(endUndulatorPosition())
+	                    .arg(undulatorVelocityProfile().targetVelocity()));
 
 	returnString.append(QString("Start Exit Slit Position: %1 End Exit Slit Position: %2 Exit Slit Velocity: %3\n")
-						.arg(startExitSlitPosition())
-						.arg(endExitSlitPosition())
-						.arg(exitSlitVelocityProfile().targetVelocity()));
+	                    .arg(startExitSlitPosition())
+	                    .arg(endExitSlitPosition())
+	                    .arg(exitSlitVelocityProfile().targetVelocity()));
 
 	QString undulatorHarmonicString;
 

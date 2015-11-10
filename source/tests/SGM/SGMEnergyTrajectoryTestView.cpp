@@ -298,26 +298,26 @@ void SGMEnergyTrajectoryTestView::setTheoreticalPlotData(SGMGratingSupport::Grat
 void SGMEnergyTrajectoryTestView::setEnergyPlotData(SGMGratingSupport::GratingTranslation gratingTranslation)
 {
 	if(qAbs(startEnergySpinBox_->value()) > 0.001 &&
-			qAbs(endEnergySpinBox_->value()) > 0.001 &&
-			qAbs(timeSpinBox_->value()) > 0.001 &&
-			gratingTranslation != SGMGratingSupport::UnknownGrating) {
+	        qAbs(endEnergySpinBox_->value()) > 0.001 &&
+	        qAbs(timeSpinBox_->value()) > 0.001 &&
+	        gratingTranslation != SGMGratingSupport::UnknownGrating) {
 
 		SGMEnergyTrajectory trajectory(startEnergySpinBox_->value(),
-									   endEnergySpinBox_->value(),
-									   timeSpinBox_->value(),
-									   gratingTranslation,
-									   5000,
-									   -1.53,
-									   1000,
-									   -5598,
-									   25.07);
+		                               endEnergySpinBox_->value(),
+		                               timeSpinBox_->value(),
+		                               gratingTranslation,
+		                               5000,
+		                               -1.53,
+		                               1000,
+		                               -5598,
+		                               25.07);
 
 		SGMEnergyPosition currentEnergyStatus(gratingTranslation,
-											  trajectory.startGratingAngleEncoderCount(),
-											  trajectory.undulatorHarmonic(),
-											  trajectory.startUndulatorPosition(),
-											  0,
-											  trajectory.startExitSlitPosition());
+		                                      trajectory.startGratingAngleEncoderCount(),
+		                                      trajectory.undulatorHarmonic(),
+		                                      trajectory.startUndulatorPosition(),
+		                                      0,
+		                                      trajectory.startExitSlitPosition());
 
 		currentEnergyStatus.setAutoDetectUndulatorHarmonic(false);
 
@@ -354,19 +354,19 @@ void SGMEnergyTrajectoryTestView::setTrajectoryPlotData(SGMGratingSupport::Grati
 {
 
 	if(qAbs(startEnergySpinBox_->value()) > 0.001 &&
-			qAbs(endEnergySpinBox_->value()) > 0.001 &&
-			qAbs(timeSpinBox_->value()) > 0.001 &&
-			gratingTranslation != SGMGratingSupport::UnknownGrating) {
+	        qAbs(endEnergySpinBox_->value()) > 0.001 &&
+	        qAbs(timeSpinBox_->value()) > 0.001 &&
+	        gratingTranslation != SGMGratingSupport::UnknownGrating) {
 
 		SGMEnergyTrajectory trajectory(startEnergySpinBox_->value(),
-									   endEnergySpinBox_->value(),
-									   timeSpinBox_->value(),
-									   gratingTranslation,
-									   5000,
-									   -1.53,
-									   1000,
-									   -5598,
-									   25.07);
+		                               endEnergySpinBox_->value(),
+		                               timeSpinBox_->value(),
+		                               gratingTranslation,
+		                               5000,
+		                               -1.53,
+		                               1000,
+		                               -5598,
+		                               25.07);
 
 		if(!trajectory.hasErrors()) {
 

@@ -8,10 +8,10 @@
 class SGMEnergyControlSet;
 class SGMEnergyTrajectoryView : public QWidget
 {
-    Q_OBJECT
+	Q_OBJECT
 public:
 	explicit SGMEnergyTrajectoryView(SGMEnergyControlSet* controlSet,
-									 QWidget *parent = 0);
+	                                 QWidget *parent = 0);
 
 signals:
 

@@ -28,9 +28,9 @@ public:
 	 * \param time ~ The time the motion should take
 	 */
 	AMTrapezoidVelocityProfile(double startPosition,
-							   double endPosition,
-							   double acceleration,
-							   double time);
+	                           double endPosition,
+	                           double acceleration,
+	                           double time);
 
 	/*!
 	  * The start position of the motion

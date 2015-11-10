@@ -7,52 +7,52 @@
 #include "actions3/AMActionSupport.h"
 #include "beamline/AMControlSet.h"
 SGMGratingAngleControl::SGMGratingAngleControl(QObject *parent) :
-	AMPseudoMotorControl("Grating Angle Encoder", "Count", parent, "SGM Monochromator Grating Angle")
+    AMPseudoMotorControl("Grating Angle Encoder", "Count", parent, "SGM Monochromator Grating Angle")
 {
 	encoderControl_ = new AMPVwStatusControl("Grating Angle Encoder",
-											 "SMTR16114I1002:enc:fbk",
-											 "SMTR16114I1002:encTarget",
-											 "SMTR16114I1002:status",
-											 "SMTR16114I1002:stop",
-											 this,
-											 5,
-											 2.0,
-											 new CLSMAXvControlStatusChecker(),
-											 1);
+	                                         "SMTR16114I1002:enc:fbk",
+	                                         "SMTR16114I1002:encTarget",
+	                                         "SMTR16114I1002:status",
+	                                         "SMTR16114I1002:stop",
+	                                         this,
+	                                         5,
+	                                         2.0,
+	                                         new CLSMAXvControlStatusChecker(),
+	                                         1);
 
 	stepMotorControl_ = new AMPVwStatusControl("Grating Angle Step",
-											   "SMTR16114I1002:step:sp",
-											   "SMTR16114I1002:step",
-											   "SMTR16114I1002:status",
-											   "SMTR16114I1002:stop",
-											   this,
-											   5,
-											   2.0,
-											   new CLSMAXvControlStatusChecker());
+	                                           "SMTR16114I1002:step:sp",
+	                                           "SMTR16114I1002:step",
+	                                           "SMTR16114I1002:status",
+	                                           "SMTR16114I1002:stop",
+	                                           this,
+	                                           5,
+	                                           2.0,
+	                                           new CLSMAXvControlStatusChecker());
 
 	stepVelocityControl_ = new AMPVControl("Grating Angle Step Velocity",
-										   "SMTR16114I1002:velo:sp",
-										   "SMTR16114I1002:velo",
-										   QString(),
-										   this,
-										   1);
+	                                       "SMTR16114I1002:velo:sp",
+	                                       "SMTR16114I1002:velo",
+	                                       QString(),
+	                                       this,
+	                                       1);
 
 	stepAccelerationControl_ = new AMPVControl("Grating Angle Step Acceleration",
-											   "SMTR16114I1002:accel:sp",
-											   "SMTR16114I1002:accel",
-											   QString(),
-											   this,
-											   0.1);
+	                                           "SMTR16114I1002:accel:sp",
+	                                           "SMTR16114I1002:accel",
+	                                           QString(),
+	                                           this,
+	                                           0.1);
 
 	stepsPerEncoderCountControl_ = new AMSinglePVControl("Grating Angle Steps Per Encoder Pulse",
-														 "SMTR16114I1002:softRatio",
-														 this,
-														 0.1);
+	                                                     "SMTR16114I1002:softRatio",
+	                                                     this,
+	                                                     0.1);
 
 	movementTypeControl_ = new AMSinglePVControl("Grating Angle Move Type",
-												 "SMTR16114I1002:encMoveType",
-												 this,
-												 0.5);
+	                                             "SMTR16114I1002:encMoveType",
+	                                             this,
+	                                             0.5);
 
 	AMControlSet* allControls = new AMControlSet(this);
 	allControls->addControl(encoderControl_);
@@ -75,37 +75,37 @@ SGMGratingAngleControl::SGMGratingAngleControl(QObject *parent) :
 bool SGMGratingAngleControl::shouldMeasure() const
 {
 	return encoderControl_->canMeasure() &&
-			stepMotorControl_->canMeasure();
+	        stepMotorControl_->canMeasure();
 }
 
 bool SGMGratingAngleControl::shouldMove() const
 {
 	return encoderControl_->shouldMove() &&
-			stepMotorControl_->shouldMove();
+	        stepMotorControl_->shouldMove();
 }
 
 bool SGMGratingAngleControl::shouldStop() const
 {
 	return encoderControl_->shouldStop() &&
-			stepMotorControl_->shouldStop();
+	        stepMotorControl_->shouldStop();
 }
 
 bool SGMGratingAngleControl::canMeasure() const
 {
 	return encoderControl_->canMeasure() &&
-			stepMotorControl_->canMeasure();
+	        stepMotorControl_->canMeasure();
 }
 
 bool SGMGratingAngleControl::canMove() const
 {
 	return encoderControl_->canMove() &&
-			stepMotorControl_->canMove();
+	        stepMotorControl_->canMove();
 }
 
 bool SGMGratingAngleControl::canStop() const
 {
 	return encoderControl_->canStop() &&
-			stepMotorControl_->canStop();
+	        stepMotorControl_->canStop();
 }
 
 bool SGMGratingAngleControl::isClosedLoop() const
@@ -137,20 +137,20 @@ double SGMGratingAngleControl::stepsPerEncoderCount() const
 AMAction3 * SGMGratingAngleControl::setDefaultsAction() const
 {
 	AMListAction3* returnAction = new AMListAction3(new AMListActionInfo3("Set Grating Angle Defaults",
-																		  "Set Grating Angle Defaults"),
-													AMListAction3::Sequential);
+	                                                                      "Set Grating Angle Defaults"),
+	                                                AMListAction3::Sequential);
 
 	AMListAction3* moveAction = new AMListAction3(new AMListActionInfo3("Set Values",
-																		"Set Values"),
-												  AMListAction3::Parallel);
+	                                                                    "Set Values"),
+	                                              AMListAction3::Parallel);
 
 	moveAction->addSubAction(AMActionSupport::buildControlMoveAction(stepVelocityControl_, DEFAULT_GRATING_ANGLE_VELOCITY));
 	moveAction->addSubAction(AMActionSupport::buildControlMoveAction(stepAccelerationControl_, DEFAULT_GRATING_ANGLE_ACCELERATION));
 	moveAction->addSubAction(AMActionSupport::buildControlMoveAction(movementTypeControl_, DEFAULT_GRATING_ANGLE_MOVE_TYPE));
 
 	AMListAction3* waitAction = new AMListAction3(new AMListActionInfo3("Wait for Values",
-																		"Wait for Values"),
-												  AMListAction3::Parallel);
+	                                                                    "Wait for Values"),
+	                                              AMListAction3::Parallel);
 
 	waitAction->addSubAction(AMActionSupport::buildControlWaitAction(stepVelocityControl_, DEFAULT_GRATING_ANGLE_VELOCITY, 10, AMControlWaitActionInfo::MatchWithinTolerance));
 	waitAction->addSubAction(AMActionSupport::buildControlWaitAction(stepAccelerationControl_, DEFAULT_GRATING_ANGLE_ACCELERATION, 10, AMControlWaitActionInfo::MatchWithinTolerance));
@@ -166,11 +166,11 @@ AMAction3 * SGMGratingAngleControl::setDefaultsAction() const
 void SGMGratingAngleControl::updateConnected()
 {
 	setConnected(encoderControl_->isConnected() &&
-				 stepMotorControl_->isConnected() &&
-				 stepVelocityControl_->isConnected() &&
-				 stepAccelerationControl_->isConnected() &&
-				 stepsPerEncoderCountControl_->isConnected() &&
-				 movementTypeControl_->isConnected());
+	             stepMotorControl_->isConnected() &&
+	             stepVelocityControl_->isConnected() &&
+	             stepAccelerationControl_->isConnected() &&
+	             stepsPerEncoderCountControl_->isConnected() &&
+	             movementTypeControl_->isConnected());
 }
 
 void SGMGratingAngleControl::updateValue()
@@ -191,8 +191,8 @@ void SGMGratingAngleControl::onControlSetConnectionChanged(bool)
 AMAction3 * SGMGratingAngleControl::createMoveAction(double setpoint)
 {
 	AMListAction3* moveAction = new AMListAction3(new AMListActionInfo3("Moving Grating Angle",
-																		"Moving Grating Angle"),
-												  AMListAction3::Sequential);
+	                                                                    "Moving Grating Angle"),
+	                                              AMListAction3::Sequential);
 
 
 	if(isClosedLoop()) {

@@ -1,7 +1,7 @@
 #include "AMValidator.h"
 
 AMValidator::AMValidator(QObject *parent) :
-	QObject(parent)
+    QObject(parent)
 {
 
 }
@@ -66,8 +66,8 @@ QString AMValidator::fullFailureMessage(const QString &delimiter) const
 	QStringList failMessagesList = failureMessages();
 
 	for (int iMessage = 0, messageCount = failMessagesList.count();
-		 iMessage < messageCount;
-		 ++iMessage) {
+	     iMessage < messageCount;
+	     ++iMessage) {
 
 		fullMessage.append(failMessagesList.at(iMessage));
 

@@ -4,7 +4,7 @@
 #include <QGridLayout>
 #include <QLabel>
 SGMEnergyTrajectoryView::SGMEnergyTrajectoryView(SGMEnergyControlSet* controlSet,
-												 QWidget *parent) :
+                                                 QWidget *parent) :
     QWidget(parent)
 {
 	controlSet_ = controlSet;
@@ -15,7 +15,7 @@ SGMEnergyTrajectoryView::SGMEnergyTrajectoryView(SGMEnergyControlSet* controlSet
 	} else {
 
 		connect(controlSet_, SIGNAL(connected(bool)),
-				this, SLOT(onControlsConnected(bool)));
+		        this, SLOT(onControlsConnected(bool)));
 	}
 }
 
@@ -64,15 +64,15 @@ void SGMEnergyTrajectoryView::setupUi()
 void SGMEnergyTrajectoryView::setupData()
 {
 	startpointSpinBox_->setRange(controlSet_->energyTrajectoryStartpoint()->minimumValue(),
-								 controlSet_->energyTrajectoryStartpoint()->maximumValue());
+	                             controlSet_->energyTrajectoryStartpoint()->maximumValue());
 	startpointSpinBox_->setSuffix(controlSet_->energyTrajectoryStartpoint()->units());
 
 	endpointSpinBox_->setRange(controlSet_->energyTrajectoryEndpoint()->minimumValue(),
-							   controlSet_->energyTrajectoryEndpoint()->maximumValue());
+	                           controlSet_->energyTrajectoryEndpoint()->maximumValue());
 	endpointSpinBox_->setSuffix(controlSet_->energyTrajectoryEndpoint()->units());
 
 	timeSpinBox_->setRange(controlSet_->energyTrajectoryTime()->minimumValue(),
-						   controlSet_->energyTrajectoryTime()->maximumValue());
+	                       controlSet_->energyTrajectoryTime()->maximumValue());
 	timeSpinBox_->setSuffix(controlSet_->energyTrajectoryTime()->units());
 
 
@@ -82,7 +82,7 @@ void SGMEnergyTrajectoryView::setupData()
 void SGMEnergyTrajectoryView::setupConnections()
 {
 	connect(startButton_, SIGNAL(clicked()),
-			this, SLOT(onStartPushButtonClicked()));
+	        this, SLOT(onStartPushButtonClicked()));
 }
 
 

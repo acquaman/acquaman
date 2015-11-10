@@ -52,12 +52,12 @@ public:
 	 * \param parent ~ The QObject parent.
 	 */
 	SGMEnergyPosition(SGMGratingSupport::GratingTranslation gratingTranslation,
-					  double gratingAngle,
-					  SGMUndulatorSupport::UndulatorHarmonic undulatorHarmonic,
-					  double undulatorPosition,
-					  double undulatorOffset,
-					  double exitSlitPosition,
-					  QObject* parent = 0);
+	                  double gratingAngle,
+	                  SGMUndulatorSupport::UndulatorHarmonic undulatorHarmonic,
+	                  double undulatorPosition,
+	                  double undulatorOffset,
+	                  double exitSlitPosition,
+	                  QObject* parent = 0);
 
 	/*!
 	 * Creates an instance of an SGMEnergyPosition whose componenets are tuned
@@ -67,8 +67,8 @@ public:
 	 * be used to calculate the component positions for the given energy.
 	 */
 	SGMEnergyPosition(double requestedEnergy,
-					  SGMGratingSupport::GratingTranslation gratingTranslation,
-					  QObject* parent = 0);
+	                  SGMGratingSupport::GratingTranslation gratingTranslation,
+	                  QObject* parent = 0);
 
 	/*!
 	 * Creates an instance of an SGMEnergyPosition whose components are tuned
@@ -79,8 +79,8 @@ public:
 	 * translation.
 	 */
 	SGMEnergyPosition(double requestedEnergy,
-					  GratingTranslationOptimizationMode gratingOptimizationMode,
-					  QObject* parent = 0);
+	                  GratingTranslationOptimizationMode gratingOptimizationMode,
+	                  QObject* parent = 0);
 
 
 	/*!
@@ -317,7 +317,7 @@ protected:
 	  * to use in calculating the energy produced.
 	  */
 	double energyFromGrating(SGMGratingSupport::GratingTranslation gratingTranslationSelection,
-							 double gratingAngleEncoderTarget) const;
+	                         double gratingAngleEncoderTarget) const;
 
 	/*!
 	  * Helper method which calculates the grating angle encoder target required
@@ -328,7 +328,7 @@ protected:
 	  * required.
 	  */
 	double gratingAngleFromEnergy(SGMGratingSupport::GratingTranslation gratingTranslationSelection,
-								  double energy) const;
+	                              double energy) const;
 
 	/*!
 	 * Optimizes the current undulator and exit slit position to produce optimal
@@ -348,8 +348,8 @@ protected:
 	  * position.
 	  */
 	double optimizedUndulatorPosition(double energy,
-									  SGMUndulatorSupport::UndulatorHarmonic undulatorHarmonic,
-									  double undulatorOffset) const;
+	                                  SGMUndulatorSupport::UndulatorHarmonic undulatorHarmonic,
+	                                  double undulatorOffset) const;
 
 	/*!
 	  * Helper method used to calculate the exit slit position required to optimize
@@ -359,7 +359,7 @@ protected:
 	  * \param energy ~ The energy to optimize the exit slit for.
 	  */
 	double optimizedExitSlitPosition(SGMGratingSupport::GratingTranslation gratingTranslationSelection,
-									 double energy) const;
+	                                 double energy) const;
 
 	/*!
 	 * Helper method used to calcualte the undulator position required to optimize
@@ -370,7 +370,7 @@ protected:
 	 * \return
 	 */
 	SGMUndulatorSupport::UndulatorHarmonic optimizedUndulatorHarmonic(SGMGratingSupport::GratingTranslation gratingTranslationSelection,
-																	  double energy) const;
+	                                                                  double energy) const;
 
 	/*!
 	 * Helper method which checks the validity of the SGM Mono's state.

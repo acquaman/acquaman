@@ -144,7 +144,7 @@ void SGMEnergyPositionTestView::onGratingTranslationComboBoxChanged(int index)
 	}
 
 	if(correspondingGrating != SGMGratingSupport::UnknownGrating &&
-			correspondingGrating != energyPosition_->gratingTranslation()) {
+	        correspondingGrating != energyPosition_->gratingTranslation()) {
 
 		energyPosition_->setGratingTranslation(correspondingGrating);
 	}
@@ -197,7 +197,7 @@ void SGMEnergyPositionTestView::onUndulatorHarmonicComboBoxChanged(int index)
 	}
 
 	if(correspondingUndulatorHarmonic != SGMUndulatorSupport::UnknownUndulatorHarmonic &&
-			correspondingUndulatorHarmonic != energyPosition_->undulatorHarmonic()) {
+	        correspondingUndulatorHarmonic != energyPosition_->undulatorHarmonic()) {
 
 		energyPosition_->setUndulatorHarmonic(correspondingUndulatorHarmonic);
 	}
@@ -350,13 +350,13 @@ void SGMEnergyPositionTestView::makeConnections()
 	// Mono to View
 	connect(energyPosition_, SIGNAL(gratingAngleChanged(double)), this, SLOT(onEnergyPositionGratingAngleChanged(double)));
 	connect(energyPosition_, SIGNAL(gratingTranslationChanged(SGMGratingSupport::GratingTranslation)),
-			this, SLOT(onEnergyPositionGratingTranslationChanged(SGMGratingSupport::GratingTranslation)));
+	        this, SLOT(onEnergyPositionGratingTranslationChanged(SGMGratingSupport::GratingTranslation)));
 
 	connect(energyPosition_, SIGNAL(undulatorTrackingChanged(bool)), this, SLOT(onEnergyPositionUndulatorTrackingChanged(bool)));
 	connect(energyPosition_, SIGNAL(undulatorPositionChanged(double)), this, SLOT(onEnergyUndulatorPositionChanged(double)));
 	connect(energyPosition_, SIGNAL(undulatorOffsetChanged(double)), this, SLOT(onEnergyPositionUndulatorOffsetChanged(double)));
 	connect(energyPosition_, SIGNAL(undulatorHarmonicChanged(SGMUndulatorSupport::UndulatorHarmonic)),
-			this, SLOT(onEnergyPositionUndulatorHarmonicChanged(SGMUndulatorSupport::UndulatorHarmonic)));
+	        this, SLOT(onEnergyPositionUndulatorHarmonicChanged(SGMUndulatorSupport::UndulatorHarmonic)));
 
 	connect(energyPosition_, SIGNAL(exitSlitTrackingChanged(bool)), this, SLOT(onEnergyPositionExitSlitTrackingChanged(bool)));
 	connect(energyPosition_, SIGNAL(exitSlitPositionChanged(double)), this, SLOT(onEnergyPositionExitSlitPositionChanged(double)));

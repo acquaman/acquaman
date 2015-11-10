@@ -32,8 +32,8 @@ public:
 	  * to display in the view. Defaults to simple.
 	  */
 	explicit SGMEnergyView(SGMEnergyControlSet* energyControlSet,
-						   EnergyViewType viewType = Simple,
-						   QWidget *parent = 0);
+	                       EnergyViewType viewType = Simple,
+	                       QWidget *parent = 0);
 
 signals:
 

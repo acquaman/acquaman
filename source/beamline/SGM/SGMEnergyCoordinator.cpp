@@ -8,7 +8,7 @@
 
 #include <QDebug>
 SGMEnergyCoordinator::SGMEnergyCoordinator(QObject *parent) :
-	QObject(parent)
+    QObject(parent)
 {
 	/*
 	  * Initialization for the coordinator happens in 4 stages:
@@ -46,15 +46,15 @@ SGMEnergyCoordinator::SGMEnergyCoordinator(QObject *parent) :
 void SGMEnergyCoordinator::onPVSetsConnected()
 {
 	if(oldControls_->isConnected() &&
-			newControls_->isConnected() &&
-			!pvsConnectedOnce_) {
+	        newControls_->isConnected() &&
+	        !pvsConnectedOnce_) {
 
 		qDebug() << "PVs connected.";
 		pvsConnectedOnce_ = true;
 
 		AMControl* oldUndulatorHarmonicControl = oldControls_->undulatorHarmonic();
 		SGMUndulatorSupport::UndulatorHarmonic correspondingUndulatorHarmonic =
-				SGMUndulatorSupport::UnknownUndulatorHarmonic;
+		        SGMUndulatorSupport::UnknownUndulatorHarmonic;
 
 		if(oldUndulatorHarmonicControl->withinTolerance(1)) {
 
@@ -134,7 +134,7 @@ void SGMEnergyCoordinator::onEnergyControlConnected(bool isConnected)
 
 		// Grating translation setpoint
 		SGMGratingSupport::GratingTranslation initialGratingTranslation =
-				SGMGratingSupport::encoderCountToEnum(energyControlCoordinator_->gratingTranslationControl()->value());
+		        SGMGratingSupport::encoderCountToEnum(energyControlCoordinator_->gratingTranslationControl()->value());
 
 		double initialGratingTranslationValue;
 		switch(initialGratingTranslation) {
@@ -152,7 +152,7 @@ void SGMEnergyCoordinator::onEnergyControlConnected(bool isConnected)
 		}
 
 		if(!newControls_->gratingTranslationSetpoint()->withinTolerance(initialGratingTranslationValue)
-				&& initialGratingTranslation != SGMGratingSupport::UnknownGrating) {
+		        && initialGratingTranslation != SGMGratingSupport::UnknownGrating) {
 
 			qDebug() << QString("Initializing new grating translation setpoint PV to %1").arg(initialGratingTranslationValue);
 			newControls_->gratingTranslationSetpoint()->move(initialGratingTranslationValue);
@@ -162,7 +162,7 @@ void SGMEnergyCoordinator::onEnergyControlConnected(bool isConnected)
 
 		// Grating translation optimization setpoint
 		SGMEnergyPosition::GratingTranslationOptimizationMode initialOptimizationMode =
-				energyControlCoordinator_->gratingTranslationOptimizationMode();
+		        energyControlCoordinator_->gratingTranslationOptimizationMode();
 
 		double initialOptimizationModeValue;
 		switch(initialOptimizationMode) {
@@ -226,98 +226,98 @@ void SGMEnergyCoordinator::onEnergyControlConnected(bool isConnected)
 
 		// Connect signals from energy control coordinator
 		connect(energyControlCoordinator_, SIGNAL(valueChanged(double)),
-				this, SLOT(onEnergyControlValueChanged(double)));
+		        this, SLOT(onEnergyControlValueChanged(double)));
 
 		connect(energyControlCoordinator_, SIGNAL(movingChanged(bool)),
-				this, SLOT(onEnergyControlIsMovingChanged(bool)));
+		        this, SLOT(onEnergyControlIsMovingChanged(bool)));
 
 		connect(energyControlCoordinator_, SIGNAL(gratingTranslationOptimizationModeChanged(SGMEnergyPosition::GratingTranslationOptimizationMode)),
-				this, SLOT(onEnergyControlGratingTranslationOptimizationModeChanged(SGMEnergyPosition::GratingTranslationOptimizationMode)));
+		        this, SLOT(onEnergyControlGratingTranslationOptimizationModeChanged(SGMEnergyPosition::GratingTranslationOptimizationMode)));
 
 		connect(energyControlCoordinator_, SIGNAL(undulatorOffsetChanged(double)),
-				this, SLOT(onEnergyControlUndulatorOffsetChanged(double)));
+		        this, SLOT(onEnergyControlUndulatorOffsetChanged(double)));
 
 		connect(energyControlCoordinator_, SIGNAL(undulatorHarmonicChanged(SGMUndulatorSupport::UndulatorHarmonic)),
-				this, SLOT(onEnergyControlUndulatorHarmonicChanged(SGMUndulatorSupport::UndulatorHarmonic)));
+		        this, SLOT(onEnergyControlUndulatorHarmonicChanged(SGMUndulatorSupport::UndulatorHarmonic)));
 
 		connect(energyControlCoordinator_, SIGNAL(undulatorTrackingChanged(bool)),
-				this, SLOT(onEnergyControlUndulatorTrackingChanged(bool)));
+		        this, SLOT(onEnergyControlUndulatorTrackingChanged(bool)));
 
 		connect(energyControlCoordinator_, SIGNAL(exitSlitTrackingChanged(bool)),
-				this, SLOT(onEnergyControlExitSlitPositionTrackingChanged(bool)));
+		        this, SLOT(onEnergyControlExitSlitPositionTrackingChanged(bool)));
 
 		connect(energyControlCoordinator_->gratingAngleControl(), SIGNAL(valueChanged(double)),
-				this, SLOT(onOldGratingAnglePVChanged(double)));
+		        this, SLOT(onOldGratingAnglePVChanged(double)));
 
 		connect(energyControlCoordinator_->gratingAngleControl(), SIGNAL(movingChanged(bool)),
-				this, SLOT(onOldGratingAnglePVMovingChanged(bool)));
+		        this, SLOT(onOldGratingAnglePVMovingChanged(bool)));
 
 		connect(energyControlCoordinator_->gratingTranslationControl(), SIGNAL(valueChanged(double)),
-				this, SLOT(onOldGratingTranslationStepPVChanged(double)));
+		        this, SLOT(onOldGratingTranslationStepPVChanged(double)));
 
 		connect(energyControlCoordinator_->gratingTranslationControl(), SIGNAL(movingChanged(bool)),
-				this, SLOT(onOldGratingTranslationStepPVMovingChanged(bool)));
+		        this, SLOT(onOldGratingTranslationStepPVMovingChanged(bool)));
 
 		connect(energyControlCoordinator_->undulatorPositionControl(), SIGNAL(valueChanged(double)),
-				this, SLOT(onOldUndulatorPositionPVChanged(double)));
+		        this, SLOT(onOldUndulatorPositionPVChanged(double)));
 
 		connect(energyControlCoordinator_->undulatorPositionControl(), SIGNAL(movingChanged(bool)),
-				this, SLOT(onOldUndulatorPositionPVMovingChanged(bool)));
+		        this, SLOT(onOldUndulatorPositionPVMovingChanged(bool)));
 
 		connect(energyControlCoordinator_->exitSlitPositionControl(), SIGNAL(valueChanged(double)),
-				this, SLOT(onOldExitSlitPositionPVChanged(double)));
+		        this, SLOT(onOldExitSlitPositionPVChanged(double)));
 
 		connect(energyControlCoordinator_->exitSlitPositionControl(), SIGNAL(movingChanged(bool)),
-				this, SLOT(onOldExitSlitPositionPVMovingChanged(bool)));
+		        this, SLOT(onOldExitSlitPositionPVMovingChanged(bool)));
 
 		// Connect signals from the new PVs
 		connect(newControls_->energySetpoint(), SIGNAL(valueChanged(double)),
-				this, SLOT(onEnergySetpointPVChanged(double)));
+		        this, SLOT(onEnergySetpointPVChanged(double)));
 
 		connect(newControls_->energyStop(), SIGNAL(valueChanged(double)),
-				this, SLOT(onEnergyStopPVChanged(double)));
+		        this, SLOT(onEnergyStopPVChanged(double)));
 
 		connect(newControls_->energyTrajectoryStart(), SIGNAL(valueChanged(double)),
-				this, SLOT(onEnergyTrajectoryStartPVChanged(double)));
+		        this, SLOT(onEnergyTrajectoryStartPVChanged(double)));
 
 		connect(newControls_->gratingAngleSetpoint(), SIGNAL(valueChanged(double)),
-				this, SLOT(onGratingAngleSetpointPVChanged(double)));
+		        this, SLOT(onGratingAngleSetpointPVChanged(double)));
 
 		connect(newControls_->gratingAngleStop(), SIGNAL(valueChanged(double)),
-				this, SLOT(onGratingAngleStopPVChanged(double)));
+		        this, SLOT(onGratingAngleStopPVChanged(double)));
 
 		connect(newControls_->gratingTranslationOptimizationModeSetpoint(), SIGNAL(valueChanged(double)),
-				this, SLOT(onGratingTranslationOptimizationModeSetpointPVChanged(double)));
+		        this, SLOT(onGratingTranslationOptimizationModeSetpointPVChanged(double)));
 
 		connect(newControls_->gratingTranslationSetpoint(), SIGNAL(valueChanged(double)),
-				this, SLOT(onGratingTranslationSetpointPVChanged(double)));
+		        this, SLOT(onGratingTranslationSetpointPVChanged(double)));
 
 		connect(newControls_->gratingTranslationStop(), SIGNAL(valueChanged(double)),
-				this, SLOT(onGratingTranslationStopPVChanged(double)));
+		        this, SLOT(onGratingTranslationStopPVChanged(double)));
 
 		connect(newControls_->undulatorPositionSetpoint(), SIGNAL(valueChanged(double)),
-				this, SLOT(onUndulatorSetpointPVChanged(double)));
+		        this, SLOT(onUndulatorSetpointPVChanged(double)));
 
 		connect(newControls_->undulatorPositionStop(), SIGNAL(valueChanged(double)),
-				this, SLOT(onUndulatorStopPVChanged(double)));
+		        this, SLOT(onUndulatorStopPVChanged(double)));
 
 		connect(newControls_->undulatorOffset(), SIGNAL(valueChanged(double)),
-				this, SLOT(onUndulatorOffsetPVChanged(double)));
+		        this, SLOT(onUndulatorOffsetPVChanged(double)));
 
 		connect(newControls_->undulatorHarmonicSetpoint(), SIGNAL(valueChanged(double)),
-				this, SLOT(onUndulatorHarmonicSetpointPVChanged(double)));
+		        this, SLOT(onUndulatorHarmonicSetpointPVChanged(double)));
 
 		connect(newControls_->undulatorTracking(), SIGNAL(valueChanged(double)),
-				this, SLOT(onUndulatorTrackingPVChanged(double)));
+		        this, SLOT(onUndulatorTrackingPVChanged(double)));
 
 		connect(newControls_->exitSlitPositionSetpoint(), SIGNAL(valueChanged(double)),
-				this, SLOT(onExitSlitPositionSetpointPVChanged(double)));
+		        this, SLOT(onExitSlitPositionSetpointPVChanged(double)));
 
 		connect(newControls_->exitSlitPositionStop(), SIGNAL(valueChanged(double)),
-				this, SLOT(onExitSlitPositionStopPVChanged(double)));
+		        this, SLOT(onExitSlitPositionStopPVChanged(double)));
 
 		connect(newControls_->exitSlitPositionTracking(), SIGNAL(valueChanged(double)),
-				this, SLOT(onExitSlitPositionTrackingPVChanged(double)));
+		        this, SLOT(onExitSlitPositionTrackingPVChanged(double)));
 
 	}
 }
@@ -467,7 +467,7 @@ void SGMEnergyCoordinator::onOldGratingAnglePVMovingChanged(bool isMoving)
 void SGMEnergyCoordinator::onOldGratingTranslationStepPVChanged(double value)
 {
 	SGMGratingSupport::GratingTranslation gratingTranslation =
-			SGMGratingSupport::encoderCountToEnum(value);
+	        SGMGratingSupport::encoderCountToEnum(value);
 
 	double newGratingTranslationPVValue;
 	switch(gratingTranslation) {

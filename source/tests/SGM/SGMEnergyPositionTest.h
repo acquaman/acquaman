@@ -29,12 +29,12 @@ protected:
 	 * meet those of the passed expected values
 	 */
 	void testIndividualRequestEnergy(const QString &name,
-									 double requiredEnergy,
-									 SGMGratingSupport::GratingTranslation gratingTranslationSelection,
-									 double expectedAngleEncoderTarget,
-									 double expectedExitSlitPosition,
-									 double expectedUndulatorPosition,
-									 double expectedUndulatorStepValue);
+	                                 double requiredEnergy,
+	                                 SGMGratingSupport::GratingTranslation gratingTranslationSelection,
+	                                 double expectedAngleEncoderTarget,
+	                                 double expectedExitSlitPosition,
+	                                 double expectedUndulatorPosition,
+	                                 double expectedUndulatorStepValue);
 
 	/*!
 	 * Tests the requestEnergy() function by making a series of calls to

@@ -33,14 +33,14 @@ public:
 	 * \param undulatorCurrentStep ~ The current undulator steps
 	 */
 	SGMEnergyTrajectory(double startEnergy,
-						double endEnergy,
-						double time,
-						SGMGratingSupport::GratingTranslation gratingTranslation,
-						double gratingAngleAcceleration,
-						double gratingAngleStepsPerEncoderCount,
-						double undulatorAcceleration,
-						double undulatorCurrentGap,
-						double undulatorCurrentStep);
+	                    double endEnergy,
+	                    double time,
+	                    SGMGratingSupport::GratingTranslation gratingTranslation,
+	                    double gratingAngleAcceleration,
+	                    double gratingAngleStepsPerEncoderCount,
+	                    double undulatorAcceleration,
+	                    double undulatorCurrentGap,
+	                    double undulatorCurrentStep);
 
 	/*!
 	  * Frees resources associated with the trajectory.
