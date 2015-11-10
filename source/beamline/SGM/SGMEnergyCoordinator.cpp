@@ -582,7 +582,6 @@ void SGMEnergyCoordinator::onEnergyStopPVChanged(double)
 
 void SGMEnergyCoordinator::onEnergyTrajectoryStartPVChanged(double value)
 {
-	qDebug() << "\tTrajectory start value of" << value << "received";
 	if(newControls_->energyTrajectoryStart()->withinTolerance(1.0)) {
 
 		double startpoint = newControls_->energyTrajectoryStartpoint()->value();

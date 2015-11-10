@@ -200,7 +200,7 @@ AMAction3 * SGMGratingAngleControl::createMoveAction(double setpoint)
 		moveAction->addSubAction(AMActionSupport::buildControlMoveAction(encoderControl_, setpoint));
 		moveAction->addSubAction(AMActionSupport::buildControlWaitAction(encoderControl_, setpoint, 20, AMControlWaitActionInfo::MatchWithinTolerance));
 	} else {
-		;
+
 		// Get distance to move in terms of the encoder
 		double deltaDistanceEncoder = setpoint - value();
 
