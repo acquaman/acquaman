@@ -8,7 +8,7 @@
 
 #include <QDebug>
 SGMEnergyCoordinator::SGMEnergyCoordinator(QObject *parent) :
-    QObject(parent)
+	QObject(parent)
 {
 	/*
 	  * Initialization for the coordinator happens in 4 stages:
