@@ -1,7 +1,6 @@
 #include "BioXASCarbonFilterFarmFilterControl.h"
 #include "actions3/AMActionSupport.h"
 #include "actions3/AMListAction3.h"
-#include <QDebug>
 
 BioXASCarbonFilterFarmFilterControl::BioXASCarbonFilterFarmFilterControl(const QString &name, const QString &units, QObject *parent) :
 	AMEnumeratedControl(name, units, parent)
@@ -187,8 +186,6 @@ AMAction3* BioXASCarbonFilterFarmFilterControl::createMoveAction(double setpoint
 {
 	AMAction3 *action = 0;
 
-	qDebug() << "Moving" << name() << "to index:" << setpoint << ", filter:" << filterAt(setpoint);
-
 	int filterIndex = int(setpoint);
 	int upstreamIndex = indexUpstreamFilterIndexMap_.value(filterIndex, -1);
 	int downstreamIndex = indexDownstreamFilterIndexMap_.value(filterIndex, -1);
@@ -237,8 +234,6 @@ double BioXASCarbonFilterFarmFilterControl::totalFilterByIndices(int upstreamInd
 
 		result = totalFilter(upstreamFilter, downstreamFilter);
 	}
-
-	qDebug() << name() << "total filter:" << result;
 
 	return result;
 }

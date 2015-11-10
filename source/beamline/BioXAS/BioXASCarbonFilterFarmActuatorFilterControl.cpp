@@ -1,6 +1,5 @@
 #include "BioXASCarbonFilterFarmActuatorFilterControl.h"
 #include "actions3/AMActionSupport.h"
-#include <QDebug>
 
 BioXASCarbonFilterFarmActuatorFilterControl::BioXASCarbonFilterFarmActuatorFilterControl(const QString &name, const QString &units, QObject *parent) :
 	AMSingleEnumeratedControl(name, units, parent)
@@ -109,14 +108,5 @@ AMAction3* BioXASCarbonFilterFarmActuatorFilterControl::createMoveAction(double 
 	}
 
 	return action;
-}
-
-int BioXASCarbonFilterFarmActuatorFilterControl::currentIndex() const
-{
-	int index = AMSingleEnumeratedControl::currentIndex();
-
-	qDebug() << name() << "current index:" << index << ", name:" << indexStringMap_.value(index) << ", filter:" << filterAt(index);
-
-	return index;
 }
 

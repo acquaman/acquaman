@@ -55,9 +55,6 @@ protected:
 	/// Returns a new action that moves the control to the setpoint that corresponds to the given index setpoint. Reimplemented to check if there is a preferred window for the desired filter.
 	virtual AMAction3* createMoveAction(double indexSetpoint);
 
-	/// Returns the current filter index.
-	virtual int currentIndex() const;
-
 protected:
 	/// The mapping between a filter option's index and its filter value.
 	QMap<int, double> indexFilterMap_;
