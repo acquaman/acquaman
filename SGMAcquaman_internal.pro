@@ -21,3 +21,5 @@ SOURCES += \
     source/ui/SGM/SGMHexapodSystemRotationView.cpp \
     source/ui/SGM/SGMHexapodView.cpp \
     source/ui/SGM/SGMEnergyView.cpp
+
+include( $$PATH_TO_AM/compositeCommon/AMAcquamanDataServer.pri )
