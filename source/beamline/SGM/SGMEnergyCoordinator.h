@@ -8,7 +8,7 @@ class SGMNewEnergyPVSet;
 class SGMOldEnergyPVSet;
 class SGMEnergyCoordinator : public QObject
 {
-    Q_OBJECT
+	Q_OBJECT
 public:
 	explicit SGMEnergyCoordinator(QObject *parent = 0);
 

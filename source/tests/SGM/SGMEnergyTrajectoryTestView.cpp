@@ -14,270 +14,270 @@
 
 SGMEnergyTrajectoryTestView::SGMEnergyTrajectoryTestView(QWidget *parent) : QWidget(parent)
 {
-    setupUi();
-    setTheoreticalPlotData(SGMGratingSupport::LowGrating);
-    setupConnections();
+	setupUi();
+	setTheoreticalPlotData(SGMGratingSupport::LowGrating);
+	setupConnections();
 }
 
 void SGMEnergyTrajectoryTestView::onCalculateButtonPushed()
 {
 
-    SGMGratingSupport::GratingTranslation correspondingGratingTranslation;
+	SGMGratingSupport::GratingTranslation correspondingGratingTranslation;
 
-    switch(gratingTranslationComboBox_->currentIndex()) {
-    case 0:
-        correspondingGratingTranslation = SGMGratingSupport::LowGrating;
-        break;
-    case 1:
-        correspondingGratingTranslation = SGMGratingSupport::MediumGrating;
-        break;
-    case 2:
-        correspondingGratingTranslation = SGMGratingSupport::HighGrating;
-        break;
-    default:
-        correspondingGratingTranslation = SGMGratingSupport::UnknownGrating;
-        break;
-    }
+	switch(gratingTranslationComboBox_->currentIndex()) {
+	case 0:
+		correspondingGratingTranslation = SGMGratingSupport::LowGrating;
+		break;
+	case 1:
+		correspondingGratingTranslation = SGMGratingSupport::MediumGrating;
+		break;
+	case 2:
+		correspondingGratingTranslation = SGMGratingSupport::HighGrating;
+		break;
+	default:
+		correspondingGratingTranslation = SGMGratingSupport::UnknownGrating;
+		break;
+	}
 
-    setTheoreticalPlotData(correspondingGratingTranslation);
-    setTrajectoryPlotData(correspondingGratingTranslation);
-    setEnergyPlotData(correspondingGratingTranslation);
+	setTheoreticalPlotData(correspondingGratingTranslation);
+	setTrajectoryPlotData(correspondingGratingTranslation);
+	setEnergyPlotData(correspondingGratingTranslation);
 }
 
 void SGMEnergyTrajectoryTestView::onGratingTranslationChanged(int)
 {
-    onCalculateButtonPushed();
+	onCalculateButtonPushed();
 }
 
 void SGMEnergyTrajectoryTestView::setupUi()
 {
-    QVBoxLayout* mainLayout = new QVBoxLayout();
+	QVBoxLayout* mainLayout = new QVBoxLayout();
 
-    QHBoxLayout* plotAndControlsLayout = new QHBoxLayout();
-    QVBoxLayout* controlSpacingLayout = new QVBoxLayout();
-    QGridLayout* controlsLayout = new QGridLayout();
+	QHBoxLayout* plotAndControlsLayout = new QHBoxLayout();
+	QVBoxLayout* controlSpacingLayout = new QVBoxLayout();
+	QGridLayout* controlsLayout = new QGridLayout();
 
-    QVBoxLayout* plotLayout = new QVBoxLayout();
+	QVBoxLayout* plotLayout = new QVBoxLayout();
 
-    resultsTextEdit_ = new QTextEdit();
+	resultsTextEdit_ = new QTextEdit();
 
-    mainLayout->addLayout(plotAndControlsLayout);
-    controlSpacingLayout->addLayout(controlsLayout);
-    plotAndControlsLayout->addLayout(controlSpacingLayout);
-    plotAndControlsLayout->addLayout(plotLayout);
-    mainLayout->addWidget(resultsTextEdit_);
+	mainLayout->addLayout(plotAndControlsLayout);
+	controlSpacingLayout->addLayout(controlsLayout);
+	plotAndControlsLayout->addLayout(controlSpacingLayout);
+	plotAndControlsLayout->addLayout(plotLayout);
+	mainLayout->addWidget(resultsTextEdit_);
 
-    setLayout(mainLayout);
+	setLayout(mainLayout);
 
-    startEnergySpinBox_ = new QDoubleSpinBox();
-    startEnergySpinBox_->setRange(0, 5000);
-    startEnergySpinBox_->setSuffix(" eV");
+	startEnergySpinBox_ = new QDoubleSpinBox();
+	startEnergySpinBox_->setRange(0, 5000);
+	startEnergySpinBox_->setSuffix(" eV");
 
-    controlsLayout->addWidget(new QLabel("Start Energy"), 0, 0);
-    controlsLayout->addWidget(startEnergySpinBox_,0,1);
-
-
-    endEnergySpinBox_ = new QDoubleSpinBox();
-    endEnergySpinBox_->setRange(0, 5000);
-    endEnergySpinBox_->setSuffix(" eV");
-
-    controlsLayout->addWidget(new QLabel("End Energy"),1,0);
-    controlsLayout->addWidget(endEnergySpinBox_, 1,1);
+	controlsLayout->addWidget(new QLabel("Start Energy"), 0, 0);
+	controlsLayout->addWidget(startEnergySpinBox_,0,1);
 
 
-    timeSpinBox_ = new QDoubleSpinBox();
-    timeSpinBox_->setRange(0, 10000);
-    timeSpinBox_->setSuffix(" s");
+	endEnergySpinBox_ = new QDoubleSpinBox();
+	endEnergySpinBox_->setRange(0, 5000);
+	endEnergySpinBox_->setSuffix(" eV");
 
-    controlsLayout->addWidget(new QLabel("Time"), 2, 0);
-    controlsLayout->addWidget(timeSpinBox_, 2,1);
+	controlsLayout->addWidget(new QLabel("End Energy"),1,0);
+	controlsLayout->addWidget(endEnergySpinBox_, 1,1);
 
 
-    gratingTranslationComboBox_ = new QComboBox();
-    gratingTranslationComboBox_->addItem("Low");
-    gratingTranslationComboBox_->addItem("Medium");
-    gratingTranslationComboBox_->addItem("High");
+	timeSpinBox_ = new QDoubleSpinBox();
+	timeSpinBox_->setRange(0, 10000);
+	timeSpinBox_->setSuffix(" s");
 
-    controlsLayout->addWidget(new QLabel("Grating Translation"), 3, 0, 1, 2);
-    controlsLayout->addWidget(gratingTranslationComboBox_, 4, 0, 1, 2);
+	controlsLayout->addWidget(new QLabel("Time"), 2, 0);
+	controlsLayout->addWidget(timeSpinBox_, 2,1);
 
-    calculateButton_ = new QPushButton("Calculate");
-    controlsLayout->addWidget(calculateButton_, 5, 0);
-    controlSpacingLayout->addStretch();
-    // Setup plot widgets
 
-    plotComboBox_ = new QComboBox();
-    plotComboBox_->addItem("Grating Angle");
-    plotComboBox_->addItem("Undulator Position");
-    plotComboBox_->addItem("Exit Slit Position");
-    plotComboBox_->addItem("Energy Produced on Trajectory");
+	gratingTranslationComboBox_ = new QComboBox();
+	gratingTranslationComboBox_->addItem("Low");
+	gratingTranslationComboBox_->addItem("Medium");
+	gratingTranslationComboBox_->addItem("High");
 
-    plotLayout->addWidget(plotComboBox_);
-    QPen theoreticalLinePen(QBrush(QColor(Qt::red)), 1);
-    QPen trajectoryLinePen(QBrush(QColor(Qt::green)), 1);
-    plotStackWidget_ = new QStackedWidget();
-    plotLayout->addWidget(plotStackWidget_);
+	controlsLayout->addWidget(new QLabel("Grating Translation"), 3, 0, 1, 2);
+	controlsLayout->addWidget(gratingTranslationComboBox_, 4, 0, 1, 2);
 
-    // Grating Angle Plot
-    MPlotWidget* gratingAnglePlotWidget = new MPlotWidget();
-    plotStackWidget_->addWidget(gratingAnglePlotWidget);
-    gratingAnglePlotWidget->enableAntiAliasing(true);
+	calculateButton_ = new QPushButton("Calculate");
+	controlsLayout->addWidget(calculateButton_, 5, 0);
+	controlSpacingLayout->addStretch();
+	// Setup plot widgets
 
-    MPlot* gratingAnglePlot = new MPlot(QRect(0,0,320, 480));
-    gratingAnglePlotWidget->setPlot(gratingAnglePlot);
+	plotComboBox_ = new QComboBox();
+	plotComboBox_->addItem("Grating Angle");
+	plotComboBox_->addItem("Undulator Position");
+	plotComboBox_->addItem("Exit Slit Position");
+	plotComboBox_->addItem("Energy Produced on Trajectory");
 
-    gratingAnglePlot->axisBottom()->setAxisName("Target Energy (eV)");
-    gratingAnglePlot->axisLeft()->setAxisName("Position (Encoder Steps)");
+	plotLayout->addWidget(plotComboBox_);
+	QPen theoreticalLinePen(QBrush(QColor(Qt::red)), 1);
+	QPen trajectoryLinePen(QBrush(QColor(Qt::green)), 1);
+	plotStackWidget_ = new QStackedWidget();
+	plotLayout->addWidget(plotStackWidget_);
 
-    gratingAnglePlot->axisScaleLeft()->setAutoScaleEnabled(true);
-    gratingAnglePlot->axisScaleBottom()->setAutoScaleEnabled(true);
+	// Grating Angle Plot
+	MPlotWidget* gratingAnglePlotWidget = new MPlotWidget();
+	plotStackWidget_->addWidget(gratingAnglePlotWidget);
+	gratingAnglePlotWidget->enableAntiAliasing(true);
 
-    gratingAngleTheoreticalData_ = new MPlotVectorSeriesData();
-    MPlotSeriesBasic* gratingAngleTheoreticalSeries = new MPlotSeriesBasic();
-    gratingAngleTheoreticalSeries->setModel(gratingAngleTheoreticalData_);
+	MPlot* gratingAnglePlot = new MPlot(QRect(0,0,320, 480));
+	gratingAnglePlotWidget->setPlot(gratingAnglePlot);
 
-    gratingAngleTrajectoryData_ = new MPlotVectorSeriesData();
-    MPlotSeriesBasic* gratingAngleTrajectorySeries = new MPlotSeriesBasic();
-    gratingAngleTrajectorySeries->setModel(gratingAngleTrajectoryData_);
+	gratingAnglePlot->axisBottom()->setAxisName("Target Energy (eV)");
+	gratingAnglePlot->axisLeft()->setAxisName("Position (Encoder Steps)");
 
-    gratingAnglePlot->addItem(gratingAngleTheoreticalSeries);
-    gratingAnglePlot->addItem(gratingAngleTrajectorySeries);
+	gratingAnglePlot->axisScaleLeft()->setAutoScaleEnabled(true);
+	gratingAnglePlot->axisScaleBottom()->setAutoScaleEnabled(true);
 
-    gratingAngleTheoreticalSeries->setLinePen(theoreticalLinePen);
-    gratingAngleTheoreticalSeries->setMarker(MPlotMarkerShape::None);
-    gratingAngleTheoreticalSeries->setDescription("Theoretical grating angle");
+	gratingAngleTheoreticalData_ = new MPlotVectorSeriesData();
+	MPlotSeriesBasic* gratingAngleTheoreticalSeries = new MPlotSeriesBasic();
+	gratingAngleTheoreticalSeries->setModel(gratingAngleTheoreticalData_);
 
-    gratingAngleTrajectorySeries->setLinePen(trajectoryLinePen);
-    gratingAngleTrajectorySeries->setMarker(MPlotMarkerShape::None);
-    gratingAngleTrajectorySeries->setDescription("Trajectory grating angle");
+	gratingAngleTrajectoryData_ = new MPlotVectorSeriesData();
+	MPlotSeriesBasic* gratingAngleTrajectorySeries = new MPlotSeriesBasic();
+	gratingAngleTrajectorySeries->setModel(gratingAngleTrajectoryData_);
 
-    // Undulator Position
-    MPlotWidget* undulatorPositionPlotWidget = new MPlotWidget();
-    plotStackWidget_->addWidget(undulatorPositionPlotWidget);
-    undulatorPositionPlotWidget->enableAntiAliasing(true);
+	gratingAnglePlot->addItem(gratingAngleTheoreticalSeries);
+	gratingAnglePlot->addItem(gratingAngleTrajectorySeries);
 
-    MPlot* undulatorPositionPlot = new MPlot(QRect(0,0,320, 480));
-    undulatorPositionPlotWidget->setPlot(undulatorPositionPlot);
+	gratingAngleTheoreticalSeries->setLinePen(theoreticalLinePen);
+	gratingAngleTheoreticalSeries->setMarker(MPlotMarkerShape::None);
+	gratingAngleTheoreticalSeries->setDescription("Theoretical grating angle");
 
-    undulatorPositionPlot->axisBottom()->setAxisName("Target Energy (eV)");
-    undulatorPositionPlot->axisLeft()->setAxisName("Position (mm)");
+	gratingAngleTrajectorySeries->setLinePen(trajectoryLinePen);
+	gratingAngleTrajectorySeries->setMarker(MPlotMarkerShape::None);
+	gratingAngleTrajectorySeries->setDescription("Trajectory grating angle");
 
-    undulatorPositionPlot->axisScaleLeft()->setAutoScaleEnabled(true);
-    undulatorPositionPlot->axisScaleBottom()->setAutoScaleEnabled(true);
+	// Undulator Position
+	MPlotWidget* undulatorPositionPlotWidget = new MPlotWidget();
+	plotStackWidget_->addWidget(undulatorPositionPlotWidget);
+	undulatorPositionPlotWidget->enableAntiAliasing(true);
 
-    undulatorPositionTheoreticalData_ = new MPlotVectorSeriesData();
-    MPlotSeriesBasic* undulatorPositionTheoreticalSeries = new MPlotSeriesBasic();
-    undulatorPositionTheoreticalSeries->setModel(undulatorPositionTheoreticalData_);
+	MPlot* undulatorPositionPlot = new MPlot(QRect(0,0,320, 480));
+	undulatorPositionPlotWidget->setPlot(undulatorPositionPlot);
 
-    undulatorPositionTrajectoryData_ = new MPlotVectorSeriesData();
-    MPlotSeriesBasic* undulatorPositionTrajectorySeries = new MPlotSeriesBasic();
-    undulatorPositionTrajectorySeries->setModel(undulatorPositionTrajectoryData_);
+	undulatorPositionPlot->axisBottom()->setAxisName("Target Energy (eV)");
+	undulatorPositionPlot->axisLeft()->setAxisName("Position (mm)");
 
-    undulatorPositionPlot->addItem(undulatorPositionTheoreticalSeries);
-    undulatorPositionPlot->addItem(undulatorPositionTrajectorySeries);
+	undulatorPositionPlot->axisScaleLeft()->setAutoScaleEnabled(true);
+	undulatorPositionPlot->axisScaleBottom()->setAutoScaleEnabled(true);
 
-    undulatorPositionTheoreticalSeries->setLinePen(theoreticalLinePen);
-    undulatorPositionTheoreticalSeries->setMarker(MPlotMarkerShape::None);
-    undulatorPositionTheoreticalSeries->setDescription("Theoretical undulator position");
+	undulatorPositionTheoreticalData_ = new MPlotVectorSeriesData();
+	MPlotSeriesBasic* undulatorPositionTheoreticalSeries = new MPlotSeriesBasic();
+	undulatorPositionTheoreticalSeries->setModel(undulatorPositionTheoreticalData_);
 
-    undulatorPositionTrajectorySeries->setLinePen(trajectoryLinePen);
-    undulatorPositionTrajectorySeries->setMarker(MPlotMarkerShape::None);
-    undulatorPositionTrajectorySeries->setDescription("Trajectory undulator position");
+	undulatorPositionTrajectoryData_ = new MPlotVectorSeriesData();
+	MPlotSeriesBasic* undulatorPositionTrajectorySeries = new MPlotSeriesBasic();
+	undulatorPositionTrajectorySeries->setModel(undulatorPositionTrajectoryData_);
 
-    // Exit Slit Position
-    MPlotWidget* exitSlitPositionPlotWidget = new MPlotWidget();
-    plotStackWidget_->addWidget(exitSlitPositionPlotWidget);
-    exitSlitPositionPlotWidget->enableAntiAliasing(true);
+	undulatorPositionPlot->addItem(undulatorPositionTheoreticalSeries);
+	undulatorPositionPlot->addItem(undulatorPositionTrajectorySeries);
 
-    MPlot* exitSlitPositionPlot = new MPlot(QRect(0,0,320, 480));
-    exitSlitPositionPlotWidget->setPlot(exitSlitPositionPlot);
+	undulatorPositionTheoreticalSeries->setLinePen(theoreticalLinePen);
+	undulatorPositionTheoreticalSeries->setMarker(MPlotMarkerShape::None);
+	undulatorPositionTheoreticalSeries->setDescription("Theoretical undulator position");
 
-    exitSlitPositionPlot->axisBottom()->setAxisName("Target Energy (eV)");
-    exitSlitPositionPlot->axisLeft()->setAxisName("Position (mm)");
+	undulatorPositionTrajectorySeries->setLinePen(trajectoryLinePen);
+	undulatorPositionTrajectorySeries->setMarker(MPlotMarkerShape::None);
+	undulatorPositionTrajectorySeries->setDescription("Trajectory undulator position");
 
-    exitSlitPositionPlot->axisScaleLeft()->setAutoScaleEnabled(true);
-    exitSlitPositionPlot->axisScaleBottom()->setAutoScaleEnabled(true);
+	// Exit Slit Position
+	MPlotWidget* exitSlitPositionPlotWidget = new MPlotWidget();
+	plotStackWidget_->addWidget(exitSlitPositionPlotWidget);
+	exitSlitPositionPlotWidget->enableAntiAliasing(true);
 
-    exitSlitPositionTheoreticalData_ = new MPlotVectorSeriesData();
-    MPlotSeriesBasic* exitSlitPositionTheoreticalSeries = new MPlotSeriesBasic();
-    exitSlitPositionTheoreticalSeries->setModel(exitSlitPositionTheoreticalData_);
+	MPlot* exitSlitPositionPlot = new MPlot(QRect(0,0,320, 480));
+	exitSlitPositionPlotWidget->setPlot(exitSlitPositionPlot);
 
-    exitSlitPositionTrajectoryData_ = new MPlotVectorSeriesData();
-    MPlotSeriesBasic* exitSlitPositionTrajectorySeries = new MPlotSeriesBasic();
-    exitSlitPositionTrajectorySeries->setModel(exitSlitPositionTrajectoryData_);
+	exitSlitPositionPlot->axisBottom()->setAxisName("Target Energy (eV)");
+	exitSlitPositionPlot->axisLeft()->setAxisName("Position (mm)");
 
-    exitSlitPositionPlot->addItem(exitSlitPositionTheoreticalSeries);
-    exitSlitPositionPlot->addItem(exitSlitPositionTrajectorySeries);
+	exitSlitPositionPlot->axisScaleLeft()->setAutoScaleEnabled(true);
+	exitSlitPositionPlot->axisScaleBottom()->setAutoScaleEnabled(true);
 
-    exitSlitPositionTheoreticalSeries->setLinePen(theoreticalLinePen);
-    exitSlitPositionTheoreticalSeries->setMarker(MPlotMarkerShape::None);
-    exitSlitPositionTheoreticalSeries->setDescription("Theoretical exit slit position");
+	exitSlitPositionTheoreticalData_ = new MPlotVectorSeriesData();
+	MPlotSeriesBasic* exitSlitPositionTheoreticalSeries = new MPlotSeriesBasic();
+	exitSlitPositionTheoreticalSeries->setModel(exitSlitPositionTheoreticalData_);
 
-    exitSlitPositionTrajectorySeries->setLinePen(trajectoryLinePen);
-    exitSlitPositionTrajectorySeries->setMarker(MPlotMarkerShape::None);
-    exitSlitPositionTrajectorySeries->setDescription("Trajectory exit slit position");
+	exitSlitPositionTrajectoryData_ = new MPlotVectorSeriesData();
+	MPlotSeriesBasic* exitSlitPositionTrajectorySeries = new MPlotSeriesBasic();
+	exitSlitPositionTrajectorySeries->setModel(exitSlitPositionTrajectoryData_);
 
-    // Exit Slit Position
-    MPlotWidget* energyVsTimePlotWidget = new MPlotWidget();
-    plotStackWidget_->addWidget(energyVsTimePlotWidget);
-    energyVsTimePlotWidget->enableAntiAliasing(true);
+	exitSlitPositionPlot->addItem(exitSlitPositionTheoreticalSeries);
+	exitSlitPositionPlot->addItem(exitSlitPositionTrajectorySeries);
 
-    MPlot* energyVsTimePlot = new MPlot(QRect(0,0,320, 480));
-    energyVsTimePlotWidget->setPlot(energyVsTimePlot);
+	exitSlitPositionTheoreticalSeries->setLinePen(theoreticalLinePen);
+	exitSlitPositionTheoreticalSeries->setMarker(MPlotMarkerShape::None);
+	exitSlitPositionTheoreticalSeries->setDescription("Theoretical exit slit position");
 
-    energyVsTimePlot->axisBottom()->setAxisName("Delta T");
-    energyVsTimePlot->axisLeft()->setAxisName("Resultant Energy");
+	exitSlitPositionTrajectorySeries->setLinePen(trajectoryLinePen);
+	exitSlitPositionTrajectorySeries->setMarker(MPlotMarkerShape::None);
+	exitSlitPositionTrajectorySeries->setDescription("Trajectory exit slit position");
 
-    energyVsTimePlot->axisScaleLeft()->setAutoScaleEnabled(true);
-    energyVsTimePlot->axisScaleBottom()->setAutoScaleEnabled(true);
+	// Exit Slit Position
+	MPlotWidget* energyVsTimePlotWidget = new MPlotWidget();
+	plotStackWidget_->addWidget(energyVsTimePlotWidget);
+	energyVsTimePlotWidget->enableAntiAliasing(true);
 
-    energyVsTimeData_ = new MPlotVectorSeriesData();
-    MPlotSeriesBasic* energyVsTimeSeries = new MPlotSeriesBasic();
-    energyVsTimeSeries->setModel(energyVsTimeData_);
+	MPlot* energyVsTimePlot = new MPlot(QRect(0,0,320, 480));
+	energyVsTimePlotWidget->setPlot(energyVsTimePlot);
 
-    energyVsTimePlot->addItem(energyVsTimeSeries);
+	energyVsTimePlot->axisBottom()->setAxisName("Delta T");
+	energyVsTimePlot->axisLeft()->setAxisName("Resultant Energy");
 
-    energyVsTimeSeries->setLinePen(theoreticalLinePen);
-    energyVsTimeSeries->setMarker(MPlotMarkerShape::None);
-    energyVsTimeSeries->setDescription("Energy produced by constant velocity grating angle");
+	energyVsTimePlot->axisScaleLeft()->setAutoScaleEnabled(true);
+	energyVsTimePlot->axisScaleBottom()->setAutoScaleEnabled(true);
+
+	energyVsTimeData_ = new MPlotVectorSeriesData();
+	MPlotSeriesBasic* energyVsTimeSeries = new MPlotSeriesBasic();
+	energyVsTimeSeries->setModel(energyVsTimeData_);
+
+	energyVsTimePlot->addItem(energyVsTimeSeries);
+
+	energyVsTimeSeries->setLinePen(theoreticalLinePen);
+	energyVsTimeSeries->setMarker(MPlotMarkerShape::None);
+	energyVsTimeSeries->setDescription("Energy produced by constant velocity grating angle");
 }
 
 void SGMEnergyTrajectoryTestView::setTheoreticalPlotData(SGMGratingSupport::GratingTranslation gratingTranslation)
 {
-    if(gratingTranslation != SGMGratingSupport::UnknownGrating) {
-        double startValue;
-        double endValue;
+	if(gratingTranslation != SGMGratingSupport::UnknownGrating) {
+		double startValue;
+		double endValue;
 
-        switch(gratingTranslation) {
-        case SGMGratingSupport::LowGrating:
-            startValue = 200;
-            endValue = 800;
-            break;
-        case SGMGratingSupport::MediumGrating:
-            startValue = 400;
-            endValue = 1400;
-            break;
-        case SGMGratingSupport::HighGrating:
-            startValue = 600;
-            endValue = 2500;
-            break;
-        default:
-            startValue = 0;
-            endValue = 0;
-        }
+		switch(gratingTranslation) {
+		case SGMGratingSupport::LowGrating:
+			startValue = 200;
+			endValue = 800;
+			break;
+		case SGMGratingSupport::MediumGrating:
+			startValue = 400;
+			endValue = 1400;
+			break;
+		case SGMGratingSupport::HighGrating:
+			startValue = 600;
+			endValue = 2500;
+			break;
+		default:
+			startValue = 0;
+			endValue = 0;
+		}
 
-        double increment = 1;
+		double increment = 1;
 
-        int numberOfItems = int((endValue - startValue) / increment);
-        SGMEnergyPosition energyPosition(200, gratingTranslation);
+		int numberOfItems = int((endValue - startValue) / increment);
+		SGMEnergyPosition energyPosition(200, gratingTranslation);
 
-        QVector<qreal> xValues = QVector<qreal>(numberOfItems);
-        QVector<qreal> gratingAngleYValues = QVector<qreal>(numberOfItems);
-        QVector<qreal> undulatorPositionYValues = QVector<qreal>(numberOfItems);
-        QVector<qreal> exitSlitPositionYValues = QVector<qreal>(numberOfItems);
+		QVector<qreal> xValues = QVector<qreal>(numberOfItems);
+		QVector<qreal> gratingAngleYValues = QVector<qreal>(numberOfItems);
+		QVector<qreal> undulatorPositionYValues = QVector<qreal>(numberOfItems);
+		QVector<qreal> exitSlitPositionYValues = QVector<qreal>(numberOfItems);
 
-        double currentEnergy = startValue;
-        for(int iDataPoint = 0; iDataPoint < numberOfItems; ++iDataPoint) {
+		double currentEnergy = startValue;
+		for(int iDataPoint = 0; iDataPoint < numberOfItems; ++iDataPoint) {
 
 			energyPosition.requestEnergy(currentEnergy);
 
@@ -286,25 +286,25 @@ void SGMEnergyTrajectoryTestView::setTheoreticalPlotData(SGMGratingSupport::Grat
 			undulatorPositionYValues[iDataPoint] = energyPosition.undulatorPosition();
 			exitSlitPositionYValues[iDataPoint] = energyPosition.exitSlitPosition();
 
-            currentEnergy += increment;
-        }
+			currentEnergy += increment;
+		}
 
-        gratingAngleTheoreticalData_->setValues(xValues, gratingAngleYValues);
-        undulatorPositionTheoreticalData_->setValues(xValues, undulatorPositionYValues);
-        exitSlitPositionTheoreticalData_->setValues(xValues, exitSlitPositionYValues);
-    }
+		gratingAngleTheoreticalData_->setValues(xValues, gratingAngleYValues);
+		undulatorPositionTheoreticalData_->setValues(xValues, undulatorPositionYValues);
+		exitSlitPositionTheoreticalData_->setValues(xValues, exitSlitPositionYValues);
+	}
 }
 
 void SGMEnergyTrajectoryTestView::setEnergyPlotData(SGMGratingSupport::GratingTranslation gratingTranslation)
 {
-    if(qAbs(startEnergySpinBox_->value()) > 0.001 &&
-            qAbs(endEnergySpinBox_->value()) > 0.001 &&
-            qAbs(timeSpinBox_->value()) > 0.001 &&
-            gratingTranslation != SGMGratingSupport::UnknownGrating) {
+	if(qAbs(startEnergySpinBox_->value()) > 0.001 &&
+			qAbs(endEnergySpinBox_->value()) > 0.001 &&
+			qAbs(timeSpinBox_->value()) > 0.001 &&
+			gratingTranslation != SGMGratingSupport::UnknownGrating) {
 
-        SGMEnergyTrajectory trajectory(startEnergySpinBox_->value(),
-                                       endEnergySpinBox_->value(),
-                                       timeSpinBox_->value(),
+		SGMEnergyTrajectory trajectory(startEnergySpinBox_->value(),
+									   endEnergySpinBox_->value(),
+									   timeSpinBox_->value(),
 									   gratingTranslation,
 									   5000,
 									   -1.53,
@@ -312,55 +312,55 @@ void SGMEnergyTrajectoryTestView::setEnergyPlotData(SGMGratingSupport::GratingTr
 									   -5598,
 									   25.07);
 
-        SGMEnergyPosition currentEnergyStatus(gratingTranslation,
-                                              trajectory.startGratingAngleEncoderCount(),
-                                              trajectory.undulatorHarmonic(),
-                                              trajectory.startUndulatorPosition(),
-                                              0,
-                                              trajectory.startExitSlitPosition());
+		SGMEnergyPosition currentEnergyStatus(gratingTranslation,
+											  trajectory.startGratingAngleEncoderCount(),
+											  trajectory.undulatorHarmonic(),
+											  trajectory.startUndulatorPosition(),
+											  0,
+											  trajectory.startExitSlitPosition());
 
-        currentEnergyStatus.setAutoDetectUndulatorHarmonic(false);
+		currentEnergyStatus.setAutoDetectUndulatorHarmonic(false);
 
-        double angleEncoderValue = trajectory.startGratingAngleEncoderCount();
-        double angleEncoderVelocity = trajectory.gratingAngleVelocityProfile().targetVelocity();
+		double angleEncoderValue = trajectory.startGratingAngleEncoderCount();
+		double angleEncoderVelocity = trajectory.gratingAngleVelocityProfile().targetVelocity();
 
-        double currentTime = 0;
-        double endTime = trajectory.time();
-        double increment = 1;
-        int numberOfTimeSlices = int((endTime - currentTime) / increment);
+		double currentTime = 0;
+		double endTime = trajectory.time();
+		double increment = 1;
+		int numberOfTimeSlices = int((endTime - currentTime) / increment);
 
-        QVector<qreal> timeXValues(numberOfTimeSlices);
-        QVector<qreal> energyProducedYValues(numberOfTimeSlices);
+		QVector<qreal> timeXValues(numberOfTimeSlices);
+		QVector<qreal> energyProducedYValues(numberOfTimeSlices);
 
-        for(int iTimeSlice = 0; iTimeSlice < numberOfTimeSlices; ++iTimeSlice) {
+		for(int iTimeSlice = 0; iTimeSlice < numberOfTimeSlices; ++iTimeSlice) {
 
-            timeXValues[iTimeSlice] = currentTime;
+			timeXValues[iTimeSlice] = currentTime;
 			energyProducedYValues[iTimeSlice] = currentEnergyStatus.resultantEnergy();
 
 
-            angleEncoderValue += angleEncoderVelocity;
+			angleEncoderValue += angleEncoderVelocity;
 			currentEnergyStatus.setGratingAngle(angleEncoderValue);
 
-            ++currentTime;
+			++currentTime;
 
-        }
+		}
 
 
-        energyVsTimeData_->setValues(timeXValues, energyProducedYValues);
-    }
+		energyVsTimeData_->setValues(timeXValues, energyProducedYValues);
+	}
 }
 
 void SGMEnergyTrajectoryTestView::setTrajectoryPlotData(SGMGratingSupport::GratingTranslation gratingTranslation)
 {
 
-    if(qAbs(startEnergySpinBox_->value()) > 0.001 &&
-            qAbs(endEnergySpinBox_->value()) > 0.001 &&
-            qAbs(timeSpinBox_->value()) > 0.001 &&
-            gratingTranslation != SGMGratingSupport::UnknownGrating) {
+	if(qAbs(startEnergySpinBox_->value()) > 0.001 &&
+			qAbs(endEnergySpinBox_->value()) > 0.001 &&
+			qAbs(timeSpinBox_->value()) > 0.001 &&
+			gratingTranslation != SGMGratingSupport::UnknownGrating) {
 
-        SGMEnergyTrajectory trajectory(startEnergySpinBox_->value(),
-                                       endEnergySpinBox_->value(),
-                                       timeSpinBox_->value(),
+		SGMEnergyTrajectory trajectory(startEnergySpinBox_->value(),
+									   endEnergySpinBox_->value(),
+									   timeSpinBox_->value(),
 									   gratingTranslation,
 									   5000,
 									   -1.53,
@@ -368,41 +368,41 @@ void SGMEnergyTrajectoryTestView::setTrajectoryPlotData(SGMGratingSupport::Grati
 									   -5598,
 									   25.07);
 
-        if(!trajectory.hasErrors()) {
+		if(!trajectory.hasErrors()) {
 
-            QVector<qreal> energyXValues(2);
-            QVector<qreal> gratingAngleTrajectoryYValues(2);
-            QVector<qreal> undulatorPositionTrajectoryYValues(2);
-            QVector<qreal> exitSlitPositionTrajectoryYValues(2);
+			QVector<qreal> energyXValues(2);
+			QVector<qreal> gratingAngleTrajectoryYValues(2);
+			QVector<qreal> undulatorPositionTrajectoryYValues(2);
+			QVector<qreal> exitSlitPositionTrajectoryYValues(2);
 
-            energyXValues[0] = trajectory.startEnergy();
-            energyXValues[1] = trajectory.endEnergy();
+			energyXValues[0] = trajectory.startEnergy();
+			energyXValues[1] = trajectory.endEnergy();
 
-            gratingAngleTrajectoryYValues[0] = trajectory.startGratingAngleEncoderCount();
-            gratingAngleTrajectoryYValues[1] = trajectory.endGratingAngleEncoderCount();
+			gratingAngleTrajectoryYValues[0] = trajectory.startGratingAngleEncoderCount();
+			gratingAngleTrajectoryYValues[1] = trajectory.endGratingAngleEncoderCount();
 
-            undulatorPositionTrajectoryYValues[0] = trajectory.startUndulatorPosition();
-            undulatorPositionTrajectoryYValues[1] = trajectory.endUndulatorPosition();
+			undulatorPositionTrajectoryYValues[0] = trajectory.startUndulatorPosition();
+			undulatorPositionTrajectoryYValues[1] = trajectory.endUndulatorPosition();
 
-            exitSlitPositionTrajectoryYValues[0] = trajectory.startExitSlitPosition();
-            exitSlitPositionTrajectoryYValues[1] = trajectory.endExitSlitPosition();
+			exitSlitPositionTrajectoryYValues[0] = trajectory.startExitSlitPosition();
+			exitSlitPositionTrajectoryYValues[1] = trajectory.endExitSlitPosition();
 
-            gratingAngleTrajectoryData_->setValues(energyXValues, gratingAngleTrajectoryYValues);
-            undulatorPositionTrajectoryData_->setValues(energyXValues, undulatorPositionTrajectoryYValues);
-            exitSlitPositionTrajectoryData_->setValues(energyXValues, exitSlitPositionTrajectoryYValues);
+			gratingAngleTrajectoryData_->setValues(energyXValues, gratingAngleTrajectoryYValues);
+			undulatorPositionTrajectoryData_->setValues(energyXValues, undulatorPositionTrajectoryYValues);
+			exitSlitPositionTrajectoryData_->setValues(energyXValues, exitSlitPositionTrajectoryYValues);
 
-            resultsTextEdit_->setText(trajectory.toString());
-        } else {
+			resultsTextEdit_->setText(trajectory.toString());
+		} else {
 
 			resultsTextEdit_->setText(trajectory.errorValidator()->fullFailureMessage());
-        }
-    }
+		}
+	}
 }
 
 void SGMEnergyTrajectoryTestView::setupConnections()
 {
-    connect(plotComboBox_, SIGNAL(currentIndexChanged(int)), plotStackWidget_, SLOT(setCurrentIndex(int)));
-    connect(gratingTranslationComboBox_, SIGNAL(currentIndexChanged(int)), this, SLOT(onGratingTranslationChanged(int)));
-    connect(calculateButton_, SIGNAL(clicked(bool)), this, SLOT(onCalculateButtonPushed()));
+	connect(plotComboBox_, SIGNAL(currentIndexChanged(int)), plotStackWidget_, SLOT(setCurrentIndex(int)));
+	connect(gratingTranslationComboBox_, SIGNAL(currentIndexChanged(int)), this, SLOT(onGratingTranslationChanged(int)));
+	connect(calculateButton_, SIGNAL(clicked(bool)), this, SLOT(onCalculateButtonPushed()));
 }
 

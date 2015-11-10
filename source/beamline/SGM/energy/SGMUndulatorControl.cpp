@@ -116,8 +116,8 @@ AMControl * SGMUndulatorControl::stepControl() const
 AMAction3 * SGMUndulatorControl::setDefaultsAction() const
 {
 	AMListAction3* defaultsAction = new AMListAction3(new AMListActionInfo3("Setting Undulator defaults",
-																		   "Setting Undulator defaults"),
-													 AMListAction3::Sequential);
+																			"Setting Undulator defaults"),
+													  AMListAction3::Sequential);
 
 	AMListAction3* moveActions = new AMListAction3(new AMListActionInfo3("Moving Values",
 																		 "Moving Values"),
@@ -176,7 +176,7 @@ void SGMUndulatorControl::onControlSetConnectionChanged(bool)
 AMAction3 * SGMUndulatorControl::createMoveAction(double setpoint)
 {
 	AMListAction3* moveAction = new AMListAction3(new AMListActionInfo3("Moving Undulator",
-																	   "Moving Undulator"),
+																		"Moving Undulator"),
 												  AMListAction3::Sequential);
 
 	moveAction->addSubAction(AMActionSupport::buildControlMoveAction(encoderControl_,

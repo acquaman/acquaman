@@ -4,30 +4,30 @@
 #include "beamline/AMPVControl.h"
 
 SGMNewEnergyPVSet::SGMNewEnergyPVSet(QObject *parent) :
-    QObject(parent)
+	QObject(parent)
 {
 	controlSet_ = new AMControlSet(this);
 	connect(controlSet_, SIGNAL(connected(bool)), this, SIGNAL(connected(bool)));
 
-    controlSet_->addControl(new AMSinglePVControl("EnergyFeedback",
-                                                  "AM1611-4-I10:energy:eV:fbk",
-                                                  this,
+	controlSet_->addControl(new AMSinglePVControl("EnergyFeedback",
+												  "AM1611-4-I10:energy:eV:fbk",
+												  this,
 												  0.1));
 
-    controlSet_->addControl(new AMSinglePVControl("EnergySetpoint",
-                                                  "AM1611-4-I10:energy:eV",
-                                                  this,
-                                                  0.1));
+	controlSet_->addControl(new AMSinglePVControl("EnergySetpoint",
+												  "AM1611-4-I10:energy:eV",
+												  this,
+												  0.1));
 
-    controlSet_->addControl(new AMSinglePVControl("EnergyStop",
-                                                  "AM1611-4-I10:energy:stop",
-                                                  this,
+	controlSet_->addControl(new AMSinglePVControl("EnergyStop",
+												  "AM1611-4-I10:energy:stop",
+												  this,
 												  0.5));
 
-    controlSet_->addControl(new AMSinglePVControl("EnergyStatus",
-                                                  "AM1611-4-I10:energy:status",
-                                                  this,
-                                                  0.5));
+	controlSet_->addControl(new AMSinglePVControl("EnergyStatus",
+												  "AM1611-4-I10:energy:status",
+												  this,
+												  0.5));
 
 	controlSet_->addControl(new AMSinglePVControl("EnergyTrajectoryStartpoint",
 												  "AM1611-4-I10:energy:trajectory:startpoint:eV",
@@ -49,127 +49,127 @@ SGMNewEnergyPVSet::SGMNewEnergyPVSet(QObject *parent) :
 												  this,
 												  0.5));
 
-    controlSet_->addControl(new AMSinglePVControl("GratingAngleFeedback",
-                                                  "AM1611-4-I10:energy:grating:angle:steps:fbk",
-                                                  this,
-                                                  0.01));
+	controlSet_->addControl(new AMSinglePVControl("GratingAngleFeedback",
+												  "AM1611-4-I10:energy:grating:angle:steps:fbk",
+												  this,
+												  0.01));
 
-    controlSet_->addControl(new AMSinglePVControl("GratingAngleSetpoint",
-                                                  "AM1611-4-I10:energy:grating:angle:steps",
-                                                  this,
-                                                  0.01));
+	controlSet_->addControl(new AMSinglePVControl("GratingAngleSetpoint",
+												  "AM1611-4-I10:energy:grating:angle:steps",
+												  this,
+												  0.01));
 
-    controlSet_->addControl(new AMSinglePVControl("GratingAngleStatus",
-                                                  "AM1611-4-I10:energy:grating:angle:status",
-                                                  this,
-                                                  0.01));
+	controlSet_->addControl(new AMSinglePVControl("GratingAngleStatus",
+												  "AM1611-4-I10:energy:grating:angle:status",
+												  this,
+												  0.01));
 
-    controlSet_->addControl(new AMSinglePVControl("GratingAngleStop",
-                                                  "AM1611-4-I10:energy:grating:angle:stop",
-                                                  this,
-                                                  0.01));
+	controlSet_->addControl(new AMSinglePVControl("GratingAngleStop",
+												  "AM1611-4-I10:energy:grating:angle:stop",
+												  this,
+												  0.01));
 
-    controlSet_->addControl(new AMSinglePVControl("GratingTranslationFeedback",
-                                                  "AM1611-4-I10:energy:grating:translation:fbk",
-                                                  this,
-                                                  0.5));
+	controlSet_->addControl(new AMSinglePVControl("GratingTranslationFeedback",
+												  "AM1611-4-I10:energy:grating:translation:fbk",
+												  this,
+												  0.5));
 
-    controlSet_->addControl(new AMSinglePVControl("GratingTranslationSetpoint",
-                                                  "AM1611-4-I10:energy:grating:translation",
-                                                  this,
-                                                  0.5));
+	controlSet_->addControl(new AMSinglePVControl("GratingTranslationSetpoint",
+												  "AM1611-4-I10:energy:grating:translation",
+												  this,
+												  0.5));
 
-    controlSet_->addControl(new AMSinglePVControl("GratingTranslationStatus",
-                                                  "AM1611-4-I10:energy:grating:translation:status",
-                                                  this,
-                                                  0.5));
+	controlSet_->addControl(new AMSinglePVControl("GratingTranslationStatus",
+												  "AM1611-4-I10:energy:grating:translation:status",
+												  this,
+												  0.5));
 
-    controlSet_->addControl(new AMSinglePVControl("GratingTranslationStop",
-                                                  "AM1611-4-I10:energy:grating:translation:stop",
-                                                  this,
-                                                  0.5));
+	controlSet_->addControl(new AMSinglePVControl("GratingTranslationStop",
+												  "AM1611-4-I10:energy:grating:translation:stop",
+												  this,
+												  0.5));
 
-    controlSet_->addControl(new AMSinglePVControl("GratingTranslationOptimizationModeFeedback",
-                                                  "AM1611-4-I10:energy:grating:translation:optimization:fbk",
-                                                  this,
-                                                  0.5));
+	controlSet_->addControl(new AMSinglePVControl("GratingTranslationOptimizationModeFeedback",
+												  "AM1611-4-I10:energy:grating:translation:optimization:fbk",
+												  this,
+												  0.5));
 
-    controlSet_->addControl(new AMSinglePVControl("GratingTranslationOptimizationModeSetpoint",
-                                                  "AM1611-4-I10:energy:grating:translation:optimization",
-                                                  this,
-                                                  0.5));
+	controlSet_->addControl(new AMSinglePVControl("GratingTranslationOptimizationModeSetpoint",
+												  "AM1611-4-I10:energy:grating:translation:optimization",
+												  this,
+												  0.5));
 
-    controlSet_->addControl(new AMSinglePVControl("UndulatorPositionFeedback",
-                                                  "AM1611-4-I10:energy:undulator:mm:fbk",
-                                                  this,
-                                                  0.01));
+	controlSet_->addControl(new AMSinglePVControl("UndulatorPositionFeedback",
+												  "AM1611-4-I10:energy:undulator:mm:fbk",
+												  this,
+												  0.01));
 
-    controlSet_->addControl(new AMSinglePVControl("UndulatorPositionSetpoint",
-                                                  "AM1611-4-I10:energy:undulator:mm",
-                                                  this,
-                                                  0.01));
+	controlSet_->addControl(new AMSinglePVControl("UndulatorPositionSetpoint",
+												  "AM1611-4-I10:energy:undulator:mm",
+												  this,
+												  0.01));
 
-    controlSet_->addControl(new AMSinglePVControl("UndulatorPositionStatus",
-                                                  "AM1611-4-I10:energy:undulator:status",
-                                                  this,
-                                                  0.5));
+	controlSet_->addControl(new AMSinglePVControl("UndulatorPositionStatus",
+												  "AM1611-4-I10:energy:undulator:status",
+												  this,
+												  0.5));
 
-    controlSet_->addControl(new AMSinglePVControl("UndulatorPositionStop",
-                                                  "AM1611-4-I10:energy:undulator:stop",
-                                                  this,
-                                                  0.5));
+	controlSet_->addControl(new AMSinglePVControl("UndulatorPositionStop",
+												  "AM1611-4-I10:energy:undulator:stop",
+												  this,
+												  0.5));
 
-    controlSet_->addControl(new AMSinglePVControl("UndulatorOffset",
-                                                  "AM1611-4-I10:energy:undulator:offset:mm",
-                                                  this,
-                                                  0.01));
+	controlSet_->addControl(new AMSinglePVControl("UndulatorOffset",
+												  "AM1611-4-I10:energy:undulator:offset:mm",
+												  this,
+												  0.01));
 
-    controlSet_->addControl(new AMSinglePVControl("UndulatorHarmonicFeedback",
-                                                  "AM1611-4-I10:energy:undulator:harmonic:fbk",
-                                                  this,
-                                                  0.5));
+	controlSet_->addControl(new AMSinglePVControl("UndulatorHarmonicFeedback",
+												  "AM1611-4-I10:energy:undulator:harmonic:fbk",
+												  this,
+												  0.5));
 
-    controlSet_->addControl(new AMSinglePVControl("UndulatorHarmonicSetpoint",
-                                                  "AM1611-4-I10:energy:undulator:harmonic",
-                                                  this,
-                                                  0.5));
+	controlSet_->addControl(new AMSinglePVControl("UndulatorHarmonicSetpoint",
+												  "AM1611-4-I10:energy:undulator:harmonic",
+												  this,
+												  0.5));
 
-    controlSet_->addControl(new AMSinglePVControl("UndulatorTracking",
-                                                  "AM1611-4-I10:energy:undulator:tracking",
-                                                  this,
-                                                  0.5));
+	controlSet_->addControl(new AMSinglePVControl("UndulatorTracking",
+												  "AM1611-4-I10:energy:undulator:tracking",
+												  this,
+												  0.5));
 
-    controlSet_->addControl(new AMSinglePVControl("ExitSlitPositionFeedback",
-                                                  "AM1611-4-I10:energy:exitslit:position:mm:fbk",
-                                                  this,
-                                                  0.01));
+	controlSet_->addControl(new AMSinglePVControl("ExitSlitPositionFeedback",
+												  "AM1611-4-I10:energy:exitslit:position:mm:fbk",
+												  this,
+												  0.01));
 
-    controlSet_->addControl(new AMSinglePVControl("ExitSlitPositionSetpoint",
-                                                  "AM1611-4-I10:energy:exitslit:position:mm",
-                                                  this,
-                                                  0.01));
+	controlSet_->addControl(new AMSinglePVControl("ExitSlitPositionSetpoint",
+												  "AM1611-4-I10:energy:exitslit:position:mm",
+												  this,
+												  0.01));
 
-    controlSet_->addControl(new AMSinglePVControl("ExitSlitPositionStatus",
-                                                  "AM1611-4-I10:energy:exitslit:position:status",
-                                                  this,
-                                                  0.5));
+	controlSet_->addControl(new AMSinglePVControl("ExitSlitPositionStatus",
+												  "AM1611-4-I10:energy:exitslit:position:status",
+												  this,
+												  0.5));
 
-    controlSet_->addControl(new AMSinglePVControl("ExitSlitPositionStop",
-                                                  "AM1611-4-I10:energy:exitslit:position:stop",
-                                                  this,
-                                                  0.5));
+	controlSet_->addControl(new AMSinglePVControl("ExitSlitPositionStop",
+												  "AM1611-4-I10:energy:exitslit:position:stop",
+												  this,
+												  0.5));
 
-    controlSet_->addControl(new AMSinglePVControl("ExitSlitTracking",
-                                                  "AM1611-4-I10:energy:exitslit:position:tracking",
-                                                  this,
-                                                  0.5));
+	controlSet_->addControl(new AMSinglePVControl("ExitSlitTracking",
+												  "AM1611-4-I10:energy:exitslit:position:tracking",
+												  this,
+												  0.5));
 
 
 }
 
 bool SGMNewEnergyPVSet::isConnected() const
 {
-    return controlSet_->isConnected();
+	return controlSet_->isConnected();
 }
 
 AMControl * SGMNewEnergyPVSet::energyFeedback() const

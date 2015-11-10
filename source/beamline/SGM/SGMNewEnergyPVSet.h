@@ -10,13 +10,13 @@ class AMControl;
   */
 class SGMNewEnergyPVSet : public QObject
 {
-    Q_OBJECT
+	Q_OBJECT
 public:
 	/*!
 	  * Creates a new energy pv set which contains references to all the new energy
 	  * PVs
 	  */
-    explicit SGMNewEnergyPVSet(QObject *parent = 0);
+	explicit SGMNewEnergyPVSet(QObject *parent = 0);
 
 	/// Whether all the controls contained within the set are connected.
 	bool isConnected() const;

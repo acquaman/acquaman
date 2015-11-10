@@ -16,7 +16,7 @@ class SGMEnergyTrajectoryView;
   */
 class SGMEnergyView : public QWidget
 {
-    Q_OBJECT
+	Q_OBJECT
 public:
 	/// Enumerates the different levels of detail that an energy view is to display
 	enum EnergyViewType {

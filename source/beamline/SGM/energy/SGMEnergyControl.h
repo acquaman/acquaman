@@ -17,127 +17,127 @@ class SGMUndulatorControl;
   */
 class SGMEnergyControl : public AMPseudoMotorControl
 {
-    Q_OBJECT
+	Q_OBJECT
 public:
-    SGMEnergyControl(SGMUndulatorSupport::UndulatorHarmonic startingUndulatorHarmonic,
-                     QObject* parent = 0);
+	SGMEnergyControl(SGMUndulatorSupport::UndulatorHarmonic startingUndulatorHarmonic,
+					 QObject* parent = 0);
 
-    /*!
-      * Whether the control is designed to be able to measure values.
-      */
-    bool shouldMeasure() const;
+	/*!
+	  * Whether the control is designed to be able to measure values.
+	  */
+	bool shouldMeasure() const;
 
-    /*!
-      * Whether the control is designed to be able to move.
-      */
-    bool shouldMove() const;
+	/*!
+	  * Whether the control is designed to be able to move.
+	  */
+	bool shouldMove() const;
 
-    /*!
-      * Whether the control is designed to be able to stop.
-      */
-    bool shouldStop() const;
+	/*!
+	  * Whether the control is designed to be able to stop.
+	  */
+	bool shouldStop() const;
 
-    /*!
-      * Whether the control can measure values in its current state.
-      */
-    bool canMeasure() const;
+	/*!
+	  * Whether the control can measure values in its current state.
+	  */
+	bool canMeasure() const;
 
-    /*!
-      * Whether the control can move in its current state.
-      */
-    bool canMove() const;
+	/*!
+	  * Whether the control can move in its current state.
+	  */
+	bool canMove() const;
 
-    /*!
-      * Whether the control can stop in its current state.
-      */
-    bool canStop() const;
+	/*!
+	  * Whether the control can stop in its current state.
+	  */
+	bool canStop() const;
 
-    /*!
-     * The undulator harmonic which the control is currently using.
-     */
-    SGMUndulatorSupport::UndulatorHarmonic undulatorHarmonic() const;
+	/*!
+	 * The undulator harmonic which the control is currently using.
+	 */
+	SGMUndulatorSupport::UndulatorHarmonic undulatorHarmonic() const;
 
-    /*!
-     * The undulator offset to use detuning the undulator position.
-     */
-    double undulatorOffset() const;
+	/*!
+	 * The undulator offset to use detuning the undulator position.
+	 */
+	double undulatorOffset() const;
 
-    /*!
-     * Whether the control should automatically update the undulator position as
-     * the energy moves.
-     */
-    bool isUndulatorTracking() const;
+	/*!
+	 * Whether the control should automatically update the undulator position as
+	 * the energy moves.
+	 */
+	bool isUndulatorTracking() const;
 
-    /*!
-     * The method to use in determining the grating translation to use for an
-     * energy.
-     */
-    SGMEnergyPosition::GratingTranslationOptimizationMode gratingTranslationOptimizationMode() const;
+	/*!
+	 * The method to use in determining the grating translation to use for an
+	 * energy.
+	 */
+	SGMEnergyPosition::GratingTranslationOptimizationMode gratingTranslationOptimizationMode() const;
 
-    /*!
-     * Whether the exit slit position should update as the energy moves.
-     */
-    bool isExitSlitPositionTracking() const;
+	/*!
+	 * Whether the exit slit position should update as the energy moves.
+	 */
+	bool isExitSlitPositionTracking() const;
 
-    // Child Controls
+	// Child Controls
 
-    /*!
-     * The control for the grating angle encoder steps.
-     */
+	/*!
+	 * The control for the grating angle encoder steps.
+	 */
 	AMControl* gratingAngleControl() const;
 
-    /*!
-     * The control for the grating translation encoder steps.
-     */
+	/*!
+	 * The control for the grating translation encoder steps.
+	 */
 	AMControl* gratingTranslationControl() const;
 
-    /*!
-     * The control for the undulator position.
-     */
-    AMControl* undulatorPositionControl() const;
+	/*!
+	 * The control for the undulator position.
+	 */
+	AMControl* undulatorPositionControl() const;
 
-    /*!
-     * The control for the exit slit position.
-     */
-    AMControl* exitSlitPositionControl() const;
+	/*!
+	 * The control for the exit slit position.
+	 */
+	AMControl* exitSlitPositionControl() const;
 
 signals:
 
-    /*!
-     * Signal indicating that the undulator harmonic which the control is using
-     * has been altered.
-     * \param undulatorHarmonic ~ The new undulator harmonic.
-     */
-    void undulatorHarmonicChanged(SGMUndulatorSupport::UndulatorHarmonic undulatorHarmonic);
+	/*!
+	 * Signal indicating that the undulator harmonic which the control is using
+	 * has been altered.
+	 * \param undulatorHarmonic ~ The new undulator harmonic.
+	 */
+	void undulatorHarmonicChanged(SGMUndulatorSupport::UndulatorHarmonic undulatorHarmonic);
 
-    /*!
-     * Signal indicating that the undulator offset which the control is using has
-     * been altered.
-     * \param undulatorOffset ~ The new undulator detune offset.
-     */
-    void undulatorOffsetChanged(double undulatorOffset);
+	/*!
+	 * Signal indicating that the undulator offset which the control is using has
+	 * been altered.
+	 * \param undulatorOffset ~ The new undulator detune offset.
+	 */
+	void undulatorOffsetChanged(double undulatorOffset);
 
-    /*!
-     * Signal indicating that the undulator tracking state which the control is
-     * using has been altered.
-     * \param isTracking ~ The new undulator tracking state.
-     */
-    void undulatorTrackingChanged(bool isTracking);
+	/*!
+	 * Signal indicating that the undulator tracking state which the control is
+	 * using has been altered.
+	 * \param isTracking ~ The new undulator tracking state.
+	 */
+	void undulatorTrackingChanged(bool isTracking);
 
-    /*!
-     * Signal indicating that the grating translation optimization mode used by
-     * the control has been altered.
-     * \param gratingTranslationOptimizationMode ~ The new grating translation
-     * optimization mode.
-     */
-    void gratingTranslationOptimizationModeChanged(SGMEnergyPosition::GratingTranslationOptimizationMode gratingTranslationOptimizationMode);
+	/*!
+	 * Signal indicating that the grating translation optimization mode used by
+	 * the control has been altered.
+	 * \param gratingTranslationOptimizationMode ~ The new grating translation
+	 * optimization mode.
+	 */
+	void gratingTranslationOptimizationModeChanged(SGMEnergyPosition::GratingTranslationOptimizationMode gratingTranslationOptimizationMode);
 
-    /*!
-     * Signal indicating that the exit slit tracking state which the control is
-     * using has been altered.
-     * \param isTracking ~ The new exit slit tracking state.
-     */
-    void exitSlitTrackingChanged(bool isTracking);
+	/*!
+	 * Signal indicating that the exit slit tracking state which the control is
+	 * using has been altered.
+	 * \param isTracking ~ The new exit slit tracking state.
+	 */
+	void exitSlitTrackingChanged(bool isTracking);
 
 public slots:
 
@@ -151,67 +151,67 @@ public slots:
 	virtual FailureExplanation move(double startSetpoint, double finalSetpoint, double targetVelocity);
 
 	/*!
-     * Sets the undulator harmonic to use in calculating the control positions.
-     * \param undulatorHarmonic ~ The undulator harmonic to use in calculating
-     * the control positions.
-     */
-    void setUndulatorHarmonic(SGMUndulatorSupport::UndulatorHarmonic undulatorHarmonic);
+	 * Sets the undulator harmonic to use in calculating the control positions.
+	 * \param undulatorHarmonic ~ The undulator harmonic to use in calculating
+	 * the control positions.
+	 */
+	void setUndulatorHarmonic(SGMUndulatorSupport::UndulatorHarmonic undulatorHarmonic);
 
-    /*!
-     * Set the undulator detune offset.
-     * \param undulatorOffset ~ The new undulator detune offset.
-     */
-    void setUndulatorOffset(double undulatorOffset);
+	/*!
+	 * Set the undulator detune offset.
+	 * \param undulatorOffset ~ The new undulator detune offset.
+	 */
+	void setUndulatorOffset(double undulatorOffset);
 
-    /*!
-     * Sets whether the undulator position should update as the energy moves.
-     * \param isTracking ~ The new undulator tracking state.
-     */
-    void setUndulatorTracking(bool isTracking);
+	/*!
+	 * Sets whether the undulator position should update as the energy moves.
+	 * \param isTracking ~ The new undulator tracking state.
+	 */
+	void setUndulatorTracking(bool isTracking);
 
-    /*!
-     * Sete the method to use in automatically determining the grating translation
-     * to use when setting an energy
-     * \param gratingTranslationOptimizationMode ~ The method used in determining
-     * the grating translation.
-     */
-    void setGratingTranslationOptimizationMode(SGMEnergyPosition::GratingTranslationOptimizationMode gratingTranslationOptimizationMode);
+	/*!
+	 * Sete the method to use in automatically determining the grating translation
+	 * to use when setting an energy
+	 * \param gratingTranslationOptimizationMode ~ The method used in determining
+	 * the grating translation.
+	 */
+	void setGratingTranslationOptimizationMode(SGMEnergyPosition::GratingTranslationOptimizationMode gratingTranslationOptimizationMode);
 
-    /*!
-     * Sets whether the exit slit position should update as the energy moves.
-     * \param isTracking ~ The new exit slit tracking state.
-     */
-    void setExitSlitPositionTracking(bool isTracking);
+	/*!
+	 * Sets whether the exit slit position should update as the energy moves.
+	 * \param isTracking ~ The new exit slit tracking state.
+	 */
+	void setExitSlitPositionTracking(bool isTracking);
 protected slots:
 
-    /*!
-     * Slot which updates the connected state of the control.
-     */
-    void updateConnected();
+	/*!
+	 * Slot which updates the connected state of the control.
+	 */
+	void updateConnected();
 
-    /*!
-     * Slot which updates the moving state of the control.
-     */
-    void updateMoving();
+	/*!
+	 * Slot which updates the moving state of the control.
+	 */
+	void updateMoving();
 
-    /*!
-     * Slot which updates the value of the control.
-     */
-    void updateValue();
+	/*!
+	 * Slot which updates the value of the control.
+	 */
+	void updateValue();
 
-    /*!
-     * Slot which updates the grating translation of the energy position controller
-     * as the grating translation PV changes.
-     * \param value ~ The value of the grating translation PV.
-     */
-    void onGratingTranslationPVValueChanged(double value);
+	/*!
+	 * Slot which updates the grating translation of the energy position controller
+	 * as the grating translation PV changes.
+	 * \param value ~ The value of the grating translation PV.
+	 */
+	void onGratingTranslationPVValueChanged(double value);
 
-    /*!
-     * Slot which updates the value of this control as the calculated energy position
-     * controller's energy value changes
-     * \param value ~ The energy value calculated by the energy position controller.
-     */
-    void onEnergyPositionControllerEnergyChanged(double value);
+	/*!
+	 * Slot which updates the value of this control as the calculated energy position
+	 * controller's energy value changes
+	 * \param value ~ The energy value calculated by the energy position controller.
+	 */
+	void onEnergyPositionControllerEnergyChanged(double value);
 
 	/*!
 	  * Slot which updates the undulator position whenever the undulator harmonic
@@ -229,17 +229,17 @@ protected slots:
 
 protected:
 
-    /*!
-     * Helper function which initializes the energy position controller once the
-     * PV's it derives its values from are connected.
-     */
-    void initializeEnergyPositionController();
+	/*!
+	 * Helper function which initializes the energy position controller once the
+	 * PV's it derives its values from are connected.
+	 */
+	void initializeEnergyPositionController();
 
-    /*!
-     * Creates a move action which will perform a coordinated motion of the
-     * energy beamline components.
-     * \param setpoint ~ The energy value to move the controls to.
-     */
+	/*!
+	 * Creates a move action which will perform a coordinated motion of the
+	 * energy beamline components.
+	 * \param setpoint ~ The energy value to move the controls to.
+	 */
 	AMAction3* createMoveAction(double setpoint);
 
 	/*!
@@ -250,14 +250,14 @@ protected:
 	 */
 	virtual AMAction3* createMoveAction(SGMEnergyTrajectory* energyTrajectory);
 
-    SGMEnergyPosition* energyPositionController_;
-    SGMUndulatorSupport::UndulatorHarmonic startingUndulatorHarmonic_;
+	SGMEnergyPosition* energyPositionController_;
+	SGMUndulatorSupport::UndulatorHarmonic startingUndulatorHarmonic_;
 
 	// Child Controls for simply motions
 	SGMGratingAngleControl* gratingAngleControl_;
-    AMControl* gratingTranslationStepControl_;
+	AMControl* gratingTranslationStepControl_;
 	SGMUndulatorControl* undulatorControl_;
-    AMControl* exitSlitPositionControl_;
+	AMControl* exitSlitPositionControl_;
 };
 
 #endif // SGMENERGYCONTROL_H

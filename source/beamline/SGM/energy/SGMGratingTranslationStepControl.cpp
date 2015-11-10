@@ -68,7 +68,7 @@ void SGMGratingTranslationStepControl::updateConnected()
 
 void SGMGratingTranslationStepControl::updateMoving()
 {
-    if(isConnected()) {
+	if(isConnected()) {
 
 		setIsMoving(gratingTranslationStepPV_->isMoving());
 	}

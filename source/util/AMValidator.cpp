@@ -1,34 +1,34 @@
 #include "AMValidator.h"
 
 AMValidator::AMValidator(QObject *parent) :
-    QObject(parent)
+	QObject(parent)
 {
 
 }
 
 void AMValidator::updateValidity(const QString &failMessage, bool failureCriteria)
 {
-    bool startValidState = isValid();
+	bool startValidState = isValid();
 	int startFailCount = failureCount();
 
-    if(failureCriteria) {
+	if(failureCriteria) {
 		failureMessages_.insert(failMessage);
-    } else {
+	} else {
 		failureMessages_.remove(failMessage);
-    }
+	}
 
-    if(startValidState != isValid()) {
-        emit validStateChanged(isValid());
-    }
+	if(startValidState != isValid()) {
+		emit validStateChanged(isValid());
+	}
 
 	if(startFailCount != failureCount()) {
 		emit failureCountChanged(failureCount());
-        if(failureCriteria) {
-            emit failureAdded(failMessage);
-        } else {
-            emit failureRemoved(failMessage);
-        }
-    }
+		if(failureCriteria) {
+			emit failureAdded(failMessage);
+		} else {
+			emit failureRemoved(failMessage);
+		}
+	}
 }
 
 bool AMValidator::isValid() const
@@ -62,19 +62,19 @@ QStringList AMValidator::failureMessages() const
 
 QString AMValidator::fullFailureMessage(const QString &delimiter) const
 {
-    QString fullMessage;
+	QString fullMessage;
 	QStringList failMessagesList = failureMessages();
 
-    for (int iMessage = 0, messageCount = failMessagesList.count();
-         iMessage < messageCount;
-         ++iMessage) {
+	for (int iMessage = 0, messageCount = failMessagesList.count();
+		 iMessage < messageCount;
+		 ++iMessage) {
 
-        fullMessage.append(failMessagesList.at(iMessage));
+		fullMessage.append(failMessagesList.at(iMessage));
 
-        if(iMessage != (messageCount - 1)) {
-            fullMessage.append(delimiter);
-        }
-    }
+		if(iMessage != (messageCount - 1)) {
+			fullMessage.append(delimiter);
+		}
+	}
 
 	return fullMessage;
 }

@@ -12,12 +12,12 @@ class AMValidator;
   */
 class SGMEnergyControlSet : public AMControlSet
 {
-    Q_OBJECT
+	Q_OBJECT
 public:
 	/*!
 	  * Creates a new instance of an SGMEnergyControlSet.
 	  */
-    explicit SGMEnergyControlSet(QObject *parent = 0);
+	explicit SGMEnergyControlSet(QObject *parent = 0);
 
 	/*!
 	  * The Energy master control for the beamline.

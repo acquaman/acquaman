@@ -15,14 +15,14 @@
 class SGMEnergyTrajectory
 {
 public:
-    /*!
-     * Creates an instance of an SGMEnergyTrajectory which is to coordinate movement
-     * from the start energy, to the end energy, on the provided grating translation
-     * for the specified time period.
-     * \param startEnergy ~ The start energy of the trajectory.
-     * \param endEnergy ~ The end energy of the trajectory.
-     * \param time ~ The time the move between energies will take.
-     * \param gratingTranslation ~ The grating translation on which the movement
+	/*!
+	 * Creates an instance of an SGMEnergyTrajectory which is to coordinate movement
+	 * from the start energy, to the end energy, on the provided grating translation
+	 * for the specified time period.
+	 * \param startEnergy ~ The start energy of the trajectory.
+	 * \param endEnergy ~ The end energy of the trajectory.
+	 * \param time ~ The time the move between energies will take.
+	 * \param gratingTranslation ~ The grating translation on which the movement
 	 * will take place.
 	 * \param gratingAngleAcceleration ~ The acceleration value for the grating
 	 * angle (in steps)
@@ -31,7 +31,7 @@ public:
 	 * \param undulatorAcceleration ~ The acceleration of the undulator (in steps)
 	 * \param undulatorCurrentGap ~ The current undualtor gap
 	 * \param undulatorCurrentStep ~ The current undulator steps
-     */
+	 */
 	SGMEnergyTrajectory(double startEnergy,
 						double endEnergy,
 						double time,
@@ -42,10 +42,10 @@ public:
 						double undulatorCurrentGap,
 						double undulatorCurrentStep);
 
-    /*!
-      * Frees resources associated with the trajectory.
-      */
-    ~SGMEnergyTrajectory();
+	/*!
+	  * Frees resources associated with the trajectory.
+	  */
+	~SGMEnergyTrajectory();
 
 	/*!
 	  * Convenience function for obtaining the error state of the energy trajectory.
@@ -68,78 +68,78 @@ public:
 	  */
 	AMValidator* warningValidator() const;
 
-    /*!
-     * The encoder step value of the grating angle at the start of the trajectory.
-     */
+	/*!
+	 * The encoder step value of the grating angle at the start of the trajectory.
+	 */
 	double startGratingAngleEncoderCount() const;
 
-    /*!
-     * The encoder step value of the grating angle at the end of the trajectory.
-     */
+	/*!
+	 * The encoder step value of the grating angle at the end of the trajectory.
+	 */
 	double endGratingAngleEncoderCount() const;
 
-    /*!
-     * The velocity profile of the grating angle to achieve the trajectory in the
-     * specified time.
-     */
-    AMTrapezoidVelocityProfile gratingAngleVelocityProfile() const;
+	/*!
+	 * The velocity profile of the grating angle to achieve the trajectory in the
+	 * specified time.
+	 */
+	AMTrapezoidVelocityProfile gratingAngleVelocityProfile() const;
 
-    /*!
-     * The position of the undulator at the start of the trajectory.
-     */
-    double startUndulatorPosition() const;
+	/*!
+	 * The position of the undulator at the start of the trajectory.
+	 */
+	double startUndulatorPosition() const;
 
-    /*!
-     * The position of the undulator at the end of the trajectory.
-     */
-    double endUndulatorPosition() const;
+	/*!
+	 * The position of the undulator at the end of the trajectory.
+	 */
+	double endUndulatorPosition() const;
 
-    /*!
-     * The velocity profile of the undulator to achieve the trajectory in the
-     * specified time.
-     */
-    AMTrapezoidVelocityProfile undulatorVelocityProfile() const;
+	/*!
+	 * The velocity profile of the undulator to achieve the trajectory in the
+	 * specified time.
+	 */
+	AMTrapezoidVelocityProfile undulatorVelocityProfile() const;
 
-    /*!
-     * The position of the exit slit at the start of the trajectory.
-     */
-    double startExitSlitPosition() const;
+	/*!
+	 * The position of the exit slit at the start of the trajectory.
+	 */
+	double startExitSlitPosition() const;
 
-    /*!
-     * The position of the exit slit at the end of the trajectory.
-     */
-    double endExitSlitPosition() const;
+	/*!
+	 * The position of the exit slit at the end of the trajectory.
+	 */
+	double endExitSlitPosition() const;
 
-    /*!
-     * The velocity profile of the exit slit to achieve the trajectory in the
-     * specified time.
-     */
-    AMTrapezoidVelocityProfile exitSlitVelocityProfile() const;
+	/*!
+	 * The velocity profile of the exit slit to achieve the trajectory in the
+	 * specified time.
+	 */
+	AMTrapezoidVelocityProfile exitSlitVelocityProfile() const;
 
-    /*!
-     * The grating translation of the monochromator throughout the trajectory.
-     */
-    SGMGratingSupport::GratingTranslation gratingTranslation() const;
+	/*!
+	 * The grating translation of the monochromator throughout the trajectory.
+	 */
+	SGMGratingSupport::GratingTranslation gratingTranslation() const;
 
-    /*!
-     * The harmonic of the undulator throughout the trajectory.
-     */
-    SGMUndulatorSupport::UndulatorHarmonic undulatorHarmonic() const;
+	/*!
+	 * The harmonic of the undulator throughout the trajectory.
+	 */
+	SGMUndulatorSupport::UndulatorHarmonic undulatorHarmonic() const;
 
-    /*!
-     * The time specified for the trajectory to take.
-     */
-    double time() const;
+	/*!
+	 * The time specified for the trajectory to take.
+	 */
+	double time() const;
 
-    /*!
-     * The start target energy.
-     */
-    double startEnergy()  const;
+	/*!
+	 * The start target energy.
+	 */
+	double startEnergy()  const;
 
-    /*!
-     * The end target energy.
-     */
-    double endEnergy() const;
+	/*!
+	 * The end target energy.
+	 */
+	double endEnergy() const;
 
 	/*!
 	  * The velocity (in eV/s) which the trajectory will move at.
@@ -147,9 +147,9 @@ public:
 	double energyVelocity() const;
 
 	/*!
-     * A string representation of the trajectory.
-     */
-    QString toString() const;
+	 * A string representation of the trajectory.
+	 */
+	QString toString() const;
 
 protected:
 
@@ -158,21 +158,21 @@ protected:
 	  */
 	void performValidation();
 
-    double startEnergy_;
-    double endEnergy_;
-    double time_;
+	double startEnergy_;
+	double endEnergy_;
+	double time_;
 
-    SGMGratingSupport::GratingTranslation gratingTranslation_;
+	SGMGratingSupport::GratingTranslation gratingTranslation_;
 
-    SGMEnergyPosition* startEnergyPosition_;
-    SGMEnergyPosition* endEnergyPosition_;
+	SGMEnergyPosition* startEnergyPosition_;
+	SGMEnergyPosition* endEnergyPosition_;
 
 	AMValidator* errorValidator_;
 	AMValidator* warningValidator_;
 
-    AMTrapezoidVelocityProfile gratingAngleVelocityProfile_;
-    AMTrapezoidVelocityProfile undulatorVelocityProfile_;
-    AMTrapezoidVelocityProfile exitSlitVelocityProfile_;
+	AMTrapezoidVelocityProfile gratingAngleVelocityProfile_;
+	AMTrapezoidVelocityProfile undulatorVelocityProfile_;
+	AMTrapezoidVelocityProfile exitSlitVelocityProfile_;
 };
 
 #endif // SGMENERGYTRAJECTORY_H

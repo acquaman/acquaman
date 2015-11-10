@@ -21,38 +21,38 @@ SGMGratingAngleControl::SGMGratingAngleControl(QObject *parent) :
 											 1);
 
 	stepMotorControl_ = new AMPVwStatusControl("Grating Angle Step",
-													  "SMTR16114I1002:step:sp",
-													  "SMTR16114I1002:step",
-													  "SMTR16114I1002:status",
-													  "SMTR16114I1002:stop",
-													  this,
-													  5,
-													  2.0,
-													  new CLSMAXvControlStatusChecker());
+											   "SMTR16114I1002:step:sp",
+											   "SMTR16114I1002:step",
+											   "SMTR16114I1002:status",
+											   "SMTR16114I1002:stop",
+											   this,
+											   5,
+											   2.0,
+											   new CLSMAXvControlStatusChecker());
 
 	stepVelocityControl_ = new AMPVControl("Grating Angle Step Velocity",
-													   "SMTR16114I1002:velo:sp",
-													   "SMTR16114I1002:velo",
-													   QString(),
-													   this,
-													   1);
+										   "SMTR16114I1002:velo:sp",
+										   "SMTR16114I1002:velo",
+										   QString(),
+										   this,
+										   1);
 
 	stepAccelerationControl_ = new AMPVControl("Grating Angle Step Acceleration",
-														   "SMTR16114I1002:accel:sp",
-														   "SMTR16114I1002:accel",
-														   QString(),
-														   this,
-														   0.1);
+											   "SMTR16114I1002:accel:sp",
+											   "SMTR16114I1002:accel",
+											   QString(),
+											   this,
+											   0.1);
 
 	stepsPerEncoderCountControl_ = new AMSinglePVControl("Grating Angle Steps Per Encoder Pulse",
-																	 "SMTR16114I1002:softRatio",
-																	 this,
-																	 0.1);
+														 "SMTR16114I1002:softRatio",
+														 this,
+														 0.1);
 
 	movementTypeControl_ = new AMSinglePVControl("Grating Angle Move Type",
-												  "SMTR16114I1002:encMoveType",
-												  this,
-												  0.5);
+												 "SMTR16114I1002:encMoveType",
+												 this,
+												 0.5);
 
 	AMControlSet* allControls = new AMControlSet(this);
 	allControls->addControl(encoderControl_);
@@ -141,8 +141,8 @@ AMAction3 * SGMGratingAngleControl::setDefaultsAction() const
 													AMListAction3::Sequential);
 
 	AMListAction3* moveAction = new AMListAction3(new AMListActionInfo3("Set Values",
-																	   "Set Values"),
-												 AMListAction3::Parallel);
+																		"Set Values"),
+												  AMListAction3::Parallel);
 
 	moveAction->addSubAction(AMActionSupport::buildControlMoveAction(stepVelocityControl_, DEFAULT_GRATING_ANGLE_VELOCITY));
 	moveAction->addSubAction(AMActionSupport::buildControlMoveAction(stepAccelerationControl_, DEFAULT_GRATING_ANGLE_ACCELERATION));
@@ -200,7 +200,7 @@ AMAction3 * SGMGratingAngleControl::createMoveAction(double setpoint)
 		moveAction->addSubAction(AMActionSupport::buildControlMoveAction(encoderControl_, setpoint));
 		moveAction->addSubAction(AMActionSupport::buildControlWaitAction(encoderControl_, setpoint, 20, AMControlWaitActionInfo::MatchWithinTolerance));
 	} else {
-;
+		;
 		// Get distance to move in terms of the encoder
 		double deltaDistanceEncoder = setpoint - value();
 
@@ -210,7 +210,7 @@ AMAction3 * SGMGratingAngleControl::createMoveAction(double setpoint)
 		// Get current step position
 		double currentStepPosition = stepMotorControl_->value();
 		// Get the setpoint in terms of steps
-		double stepSetpoint = currentStepPosition + deltaDistanceSteps;		
+		double stepSetpoint = currentStepPosition + deltaDistanceSteps;
 
 		// Do the move
 		moveAction->addSubAction(AMActionSupport::buildControlMoveAction(stepMotorControl_, stepSetpoint));

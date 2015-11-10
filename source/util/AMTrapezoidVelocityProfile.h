@@ -14,19 +14,19 @@
 class AMTrapezoidVelocityProfile
 {
 public:
-    /*!
+	/*!
 	 * Creates an invalid velocity profile, whose values are all zero.
-     */
-    AMTrapezoidVelocityProfile();
+	 */
+	AMTrapezoidVelocityProfile();
 
-    /*!
-     * Creates a velocity profile which will follow a motion according to the
-     * provided details.
+	/*!
+	 * Creates a velocity profile which will follow a motion according to the
+	 * provided details.
 	 * \param startPosition ~ The starting position of the motion
 	 * \param endPosition ~ The target position of the motion
 	 * \param acceleration ~ The acceleration used during the motion
 	 * \param time ~ The time the motion should take
-     */
+	 */
 	AMTrapezoidVelocityProfile(double startPosition,
 							   double endPosition,
 							   double acceleration,
@@ -58,14 +58,14 @@ public:
 	  */
 	double targetVelocity() const;
 
-    /*!
-     * Whether the motion profile is valid. Ensures that:
-     *   - If the base velocity is less than the target velocity, the initial acceleration
-     *     must be >0 and the return acceleration must be <0.
-     *   - If the base velocity is greater than the target velocity, the initial
-     *     acceleration must be <0 and the return accleration must be >0.
-     */
-    bool isValid() const;
+	/*!
+	 * Whether the motion profile is valid. Ensures that:
+	 *   - If the base velocity is less than the target velocity, the initial acceleration
+	 *     must be >0 and the return acceleration must be <0.
+	 *   - If the base velocity is greater than the target velocity, the initial
+	 *     acceleration must be <0 and the return accleration must be >0.
+	 */
+	bool isValid() const;
 protected:
 	double startPosition_;
 	double endPosition_;

@@ -50,7 +50,7 @@ void SGMEnergyView::onExitSlitPositionTrackingButtonToggled(bool isToggled)
 
 	if(isToggled) {
 
-		toggledPVValue = 1.0;		
+		toggledPVValue = 1.0;
 	} else {
 
 		toggledPVValue = 0.0;

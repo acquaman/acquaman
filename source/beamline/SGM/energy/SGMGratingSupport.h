@@ -13,7 +13,7 @@ namespace SGMGratingSupport {
   */
 enum GratingTranslation {
 	LowGrating = 0,
-    MediumGrating = 1,
+	MediumGrating = 1,
 	HighGrating = 2,
 	UnknownGrating = 3
 };
@@ -26,16 +26,16 @@ enum GratingTranslation {
   */
 inline static double gratingSpacing(GratingTranslation translationSelection)
 {
-    switch(translationSelection) {
-    case LowGrating:
-        return 1.689233e-6;
-    case MediumGrating:
-        return 9.163583e-7;
-    case HighGrating:
-        return 5.903703e-7;
-    default:
-        return 0;
-    }
+	switch(translationSelection) {
+	case LowGrating:
+		return 1.689233e-6;
+	case MediumGrating:
+		return 9.163583e-7;
+	case HighGrating:
+		return 5.903703e-7;
+	default:
+		return 0;
+	}
 }
 
 /*!
@@ -46,16 +46,16 @@ inline static double gratingSpacing(GratingTranslation translationSelection)
   */
 inline static double curveFitCorrection(GratingTranslation translationSelection)
 {
-    switch(translationSelection) {
-    case LowGrating:
-        return -3.912711175e-5;
-    case MediumGrating:
-        return -3.915784549e-5;
-    case HighGrating:
-        return -3.916344023e-5;
-    default:
-        return 0;
-    }
+	switch(translationSelection) {
+	case LowGrating:
+		return -3.912711175e-5;
+	case MediumGrating:
+		return -3.915784549e-5;
+	case HighGrating:
+		return -3.916344023e-5;
+	default:
+		return 0;
+	}
 }
 
 /*!
@@ -68,16 +68,16 @@ inline static double curveFitCorrection(GratingTranslation translationSelection)
   */
 inline static double includedAngle(GratingTranslation translationSelection)
 {
-    switch(translationSelection) {
-    case LowGrating:
-        return 3.055748;
-    case MediumGrating:
-        return 3.054777;
-    case HighGrating:
-        return 3.054579;
-    default:
-        return 0;
-    }
+	switch(translationSelection) {
+	case LowGrating:
+		return 3.055748;
+	case MediumGrating:
+		return 3.054777;
+	case HighGrating:
+		return 3.054579;
+	default:
+		return 0;
+	}
 }
 
 /*!
@@ -88,16 +88,16 @@ inline static double includedAngle(GratingTranslation translationSelection)
   */
 inline static double radiusCurvatureOffset(GratingTranslation translationSelection)
 {
-    switch(translationSelection) {
-    case LowGrating:
-        return 5.0946788e2;
-    case MediumGrating:
-        return 5.112918e2;
-    case HighGrating:
-        return 5.104646e2;
-    default:
-        return 0;
-    }
+	switch(translationSelection) {
+	case LowGrating:
+		return 5.0946788e2;
+	case MediumGrating:
+		return 5.112918e2;
+	case HighGrating:
+		return 5.104646e2;
+	default:
+		return 0;
+	}
 }
 
 /*!
@@ -107,16 +107,16 @@ inline static double radiusCurvatureOffset(GratingTranslation translationSelecti
  */
 inline static double enumToEncoderCount(GratingTranslation translationSelection)
 {
-    switch(translationSelection) {
-    case LowGrating:
-        return 61300;
-    case MediumGrating:
+	switch(translationSelection) {
+	case LowGrating:
+		return 61300;
+	case MediumGrating:
 		return 35100;
-    case HighGrating:
+	case HighGrating:
 		return 8807;
-    default:
-        return 0;
-    }
+	default:
+		return 0;
+	}
 }
 
 /*!
@@ -126,24 +126,24 @@ inline static double enumToEncoderCount(GratingTranslation translationSelection)
  */
 inline static GratingTranslation encoderCountToEnum(double encoderSteps)
 {
-    // Todo: Verify this value?
-    double tolerance = 10;
-    if(qAbs(encoderSteps - 61300) < tolerance) {
+	// Todo: Verify this value?
+	double tolerance = 10;
+	if(qAbs(encoderSteps - 61300) < tolerance) {
 
-        return LowGrating;
-    }
+		return LowGrating;
+	}
 
 	if(qAbs(encoderSteps - 35100) < tolerance) {
 
-        return MediumGrating;
-    }
+		return MediumGrating;
+	}
 
 	if(qAbs(encoderSteps - 8807) < tolerance) {
 
-        return HighGrating;
-    }
+		return HighGrating;
+	}
 
-    return UnknownGrating;
+	return UnknownGrating;
 }
 
 /*!
@@ -153,16 +153,16 @@ inline static GratingTranslation encoderCountToEnum(double encoderSteps)
  */
 inline static bool validEnergy(GratingTranslation translationSelection, double energy)
 {
-    switch(translationSelection) {
-    case LowGrating:
-        return (energy > 9);
-    case MediumGrating:
-        return (energy > 16);
-    case HighGrating:
-        return (energy > 25);
-    default:
-        return false;
-    }
+	switch(translationSelection) {
+	case LowGrating:
+		return (energy > 9);
+	case MediumGrating:
+		return (energy > 16);
+	case HighGrating:
+		return (energy > 25);
+	default:
+		return false;
+	}
 }
 
 }

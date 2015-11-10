@@ -8,9 +8,9 @@
 
 class SGMUndulatorControl : public AMPseudoMotorControl
 {
-    Q_OBJECT
+	Q_OBJECT
 public:
-    explicit SGMUndulatorControl(QObject *parent = 0);
+	explicit SGMUndulatorControl(QObject *parent = 0);
 
 	/*!
 	  * Whether the control is designed to be able to measure values.

@@ -10,10 +10,10 @@
 #include "beamline/AMPseudoMotorControl.h"
 class SGMGratingAngleControl : public AMPseudoMotorControl
 {
-    Q_OBJECT
+	Q_OBJECT
 public:
 
-    explicit SGMGratingAngleControl(QObject *parent = 0);
+	explicit SGMGratingAngleControl(QObject *parent = 0);
 
 	/*!
 	  * Whether the control is designed to be able to measure values.
