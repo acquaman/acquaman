@@ -69,7 +69,7 @@ public:
     virtual AMDetectorDefinitions::ReadMode readMode() const { return AMDetectorDefinitions::SingleRead; }
 
     /// Returns false, because the KETEK detectors do not support continuous reads
-    virtual bool lastContinuousReading(double *outputValues) const;
+//    virtual bool lastContinuousReading(double *outputValues) const;
 
     /// The KETEK detectors support elapsed time.
     virtual bool supportsElapsedTime() const { return true; }

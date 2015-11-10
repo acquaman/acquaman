@@ -40,24 +40,24 @@ CLSAdvancedScalerChannelDetector::CLSAdvancedScalerChannelDetector(const QString
 	connect(scaler_, SIGNAL(totalScansChanged(int)), this, SLOT(onTotalScansChanged(int)));
 }
 
-bool CLSAdvancedScalerChannelDetector::lastContinuousReading(double *outputValues) const{
-	if(continuousData_.count() == 0)
-		return false;
+//bool CLSAdvancedScalerChannelDetector::lastContinuousReading(double *outputValues) const{
+//	if(continuousData_.count() == 0)
+//		return false;
 
-	for(int x = 0; x < continuousData_.count(); x++)
-		outputValues[x] = continuousData_.at(x);
+//	for(int x = 0; x < continuousData_.count(); x++)
+//		outputValues[x] = continuousData_.at(x);
 
-	return true;
-}
+//	return true;
+//}
 
-int CLSAdvancedScalerChannelDetector::lastContinuousSize() const{
-	return continuousSize_;
-}
+//int CLSAdvancedScalerChannelDetector::lastContinuousSize() const{
+//	return continuousSize_;
+//}
 
 bool CLSAdvancedScalerChannelDetector::data(double *outputValues) const
 {
-	if(readMode_ == AMDetectorDefinitions::ContinuousRead)
-		return lastContinuousReading(outputValues);
+//	if(readMode_ == AMDetectorDefinitions::ContinuousRead)
+//		return lastContinuousReading(outputValues);
 
 	outputValues[0] = singleReading();
 

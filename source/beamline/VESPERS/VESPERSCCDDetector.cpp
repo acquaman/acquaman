@@ -117,12 +117,12 @@ AMAction3 *VESPERSCCDDetector::createFileNumberAction(int number)
 
 }
 
-bool VESPERSCCDDetector::lastContinuousReading(double *outputValues) const
-{
-	Q_UNUSED(outputValues)
+//bool VESPERSCCDDetector::lastContinuousReading(double *outputValues) const
+//{
+//	Q_UNUSED(outputValues)
 
-	return false;
-}
+//	return false;
+//}
 
 bool VESPERSCCDDetector::setReadMode(AMDetectorDefinitions::ReadMode readMode)
 {

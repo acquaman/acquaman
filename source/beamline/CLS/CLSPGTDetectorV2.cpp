@@ -141,11 +141,11 @@ AMNumber CLSPGTDetectorV2::singleReading() const{
 
 }
 
-bool CLSPGTDetectorV2::lastContinuousReading(double *outputValues) const{
-	Q_UNUSED(outputValues)
+//bool CLSPGTDetectorV2::lastContinuousReading(double *outputValues) const{
+//	Q_UNUSED(outputValues)
 
-	return false;
-}
+//	return false;
+//}
 
 bool CLSPGTDetectorV2::data(double *outputValues) const
 {

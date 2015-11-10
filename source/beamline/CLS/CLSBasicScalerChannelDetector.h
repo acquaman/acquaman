@@ -82,7 +82,7 @@ public:
 	virtual AMNumber singleReading() const;
 
 	/// Returns false, because the scaler channels do not support continuous reads (in this class)
-	virtual bool lastContinuousReading(double *outputValues) const;
+//	virtual bool lastContinuousReading(double *outputValues) const;
 
 	/// Fills a (hopefully) valid pointer to a single double with our current value
 	virtual bool data(double *outputValues) const;

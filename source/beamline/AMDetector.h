@@ -280,9 +280,9 @@ int outputSize = indexStart.totalPointsTo(indexEnd);
 
 	// FLESH THIS ONE OUT
 	/// Returns the data from the last continuous reading in the outputValues
-	virtual bool lastContinuousReading(double *outputValues) const;
-	virtual bool lastContinuousReading(double *outputValues, double seconds) const;
-	virtual int lastContinuousSize() const;
+//	virtual bool lastContinuousReading(double *outputValues) const;
+//	virtual bool lastContinuousReading(double *outputValues, double seconds) const;
+//	virtual int lastContinuousSize() const;
 
 	/// If the detector supports the AMDSClientDataRequest, this will return an AMDSClientDataRequest pointer for the specified period of time
 	virtual AMDSClientDataRequest* lastContinuousData(double seconds);
@@ -484,8 +484,8 @@ protected:
 	virtual bool cleanupImplementation() = 0;
 
 	/// This function is called by lastContinuousReading(). It should place the values in the data pointer and return success/failure if your detector supports continuous reads.
-	virtual bool lastContinuousReadingImplementation(double *outputValues) const;
-	virtual bool lastContinuousReadingImplementation(double *outputValues, double seconds) const;
+//	virtual bool lastContinuousReadingImplementation(double *outputValues) const;
+//	virtual bool lastContinuousReadingImplementation(double *outputValues, double seconds) const;
 	/// This function is called by clear(), it should internally clear the data. If the detector cannot support clearing, then it will fail before calling this function.
 	virtual bool clearImplementation();
 

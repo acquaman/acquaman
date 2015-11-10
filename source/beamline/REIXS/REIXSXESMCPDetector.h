@@ -94,7 +94,7 @@ public:
 	virtual AMNumber singleReading() const;
 
 	/// Returns false, because the XES MCP detectors do not support continuous reads
-	virtual bool lastContinuousReading(double *outputValues) const;
+//	virtual bool lastContinuousReading(double *outputValues) const;
 
 	/// Fills a (hopefully) valid pointer to a block of detector data in row-major order (first axis varies slowest)
 	virtual bool data(double *outputValues) const;

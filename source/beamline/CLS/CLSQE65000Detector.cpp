@@ -132,11 +132,11 @@ AMNumber CLSQE65000Detector::singleReading() const{
 
 }
 
-bool CLSQE65000Detector::lastContinuousReading(double *outputValues) const{
-	Q_UNUSED(outputValues)
+//bool CLSQE65000Detector::lastContinuousReading(double *outputValues) const{
+//	Q_UNUSED(outputValues)
 
-	return false;
-}
+//	return false;
+//}
 
 bool CLSQE65000Detector::data(double *outputValues) const
 {

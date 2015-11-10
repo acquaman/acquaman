@@ -54,12 +54,12 @@ QString SXRMBBrukerDetector::synchronizedDwellKey() const
 	return "mca1606-B10-03:mca1EraseStart NPP NMS";
 }
 
-bool SXRMBBrukerDetector::lastContinuousReading(double *outputValues) const
-{
-	Q_UNUSED(outputValues)
+//bool SXRMBBrukerDetector::lastContinuousReading(double *outputValues) const
+//{
+//	Q_UNUSED(outputValues)
 
-	return false;
-}
+//	return false;
+//}
 
 bool SXRMBBrukerDetector::setReadMode(AMDetectorDefinitions::ReadMode readMode)
 {

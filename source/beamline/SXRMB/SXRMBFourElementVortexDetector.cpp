@@ -44,12 +44,12 @@ QString SXRMBFourElementVortexDetector::synchronizedDwellKey() const
 	return "dxp1606-B10-02:EraseStart NPP NMS";
 }
 
-bool SXRMBFourElementVortexDetector::lastContinuousReading(double *outputValues) const
-{
-	Q_UNUSED(outputValues)
+//bool SXRMBFourElementVortexDetector::lastContinuousReading(double *outputValues) const
+//{
+//	Q_UNUSED(outputValues)
 
-	return false;
-}
+//	return false;
+//}
 
 bool SXRMBFourElementVortexDetector::setReadMode(AMDetectorDefinitions::ReadMode readMode)
 {

@@ -102,10 +102,10 @@ AMNumber REIXSXESMCPDetector::singleReading() const{
 	return totalCountsControl_->value();
 }
 
-bool REIXSXESMCPDetector::lastContinuousReading(double *outputValues) const{
-	Q_UNUSED(outputValues)
-	return false;
-}
+//bool REIXSXESMCPDetector::lastContinuousReading(double *outputValues) const{
+//	Q_UNUSED(outputValues)
+//	return false;
+//}
 
 bool REIXSXESMCPDetector::data(double *outputValues) const
 {

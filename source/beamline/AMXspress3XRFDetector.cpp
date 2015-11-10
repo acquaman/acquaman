@@ -52,12 +52,12 @@ QString AMXspress3XRFDetector::synchronizedDwellKey() const
 	return "";
 }
 
-bool AMXspress3XRFDetector::lastContinuousReading(double *outputValues) const
-{
-	Q_UNUSED(outputValues)
+//bool AMXspress3XRFDetector::lastContinuousReading(double *outputValues) const
+//{
+//	Q_UNUSED(outputValues)
 
-	return false;
-}
+//	return false;
+//}
 
 bool AMXspress3XRFDetector::setReadMode(AMDetectorDefinitions::ReadMode readMode)
 {

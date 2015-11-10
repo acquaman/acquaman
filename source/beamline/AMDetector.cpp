@@ -262,23 +262,23 @@ bool AMDetector::readingND(const AMnDIndex &startIndex, const AMnDIndex &endInde
 	}
 }
 
-bool AMDetector::lastContinuousReading(double *outputValues) const{
-	if(!canContinuousAcquire())
-		return false;
-	return lastContinuousReadingImplementation(outputValues);
-}
+//bool AMDetector::lastContinuousReading(double *outputValues) const{
+//	if(!canContinuousAcquire())
+//		return false;
+//	return lastContinuousReadingImplementation(outputValues);
+//}
 
-bool AMDetector::lastContinuousReading(double *outputValues, double seconds) const{
-	if(!canContinuousAcquire())
-		return false;
-	return lastContinuousReadingImplementation(outputValues, seconds);
-}
+//bool AMDetector::lastContinuousReading(double *outputValues, double seconds) const{
+//	if(!canContinuousAcquire())
+//		return false;
+//	return lastContinuousReadingImplementation(outputValues, seconds);
+//}
 
-int AMDetector::lastContinuousSize() const{
-	if(!canContinuousAcquire())
-		return -1;
-	return 0;
-}
+//int AMDetector::lastContinuousSize() const{
+//	if(!canContinuousAcquire())
+//		return -1;
+//	return 0;
+//}
 
 AMDSClientDataRequest* AMDetector::lastContinuousData(double seconds){
 	Q_UNUSED(seconds)
@@ -506,18 +506,18 @@ bool AMDetector::cancelAcquisitionImplementation(){
 	return false;
 }
 
-bool AMDetector::lastContinuousReadingImplementation(double *outputValues) const{
-	Q_UNUSED(outputValues)
+//bool AMDetector::lastContinuousReadingImplementation(double *outputValues) const{
+//	Q_UNUSED(outputValues)
 
-	return false;
-}
+//	return false;
+//}
 
-bool AMDetector::lastContinuousReadingImplementation(double *outputValues, double seconds) const{
-	Q_UNUSED(outputValues)
-	Q_UNUSED(seconds)
+//bool AMDetector::lastContinuousReadingImplementation(double *outputValues, double seconds) const{
+//	Q_UNUSED(outputValues)
+//	Q_UNUSED(seconds)
 
-	return false;
-}
+//	return false;
+//}
 
 bool AMDetector::clearImplementation(){
 	return false;

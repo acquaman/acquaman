@@ -128,20 +128,20 @@ void AMDetectorReadAction::internalSetSucceeded(){
 		int detectorDataPointerSize;
 		if(detector_->readMode() == AMDetectorDefinitions::SingleRead)
 			detectorDataPointerSize = detector_->size().product();
-		else
-			detectorDataPointerSize = detector_->lastContinuousSize();
+//		else
+//			detectorDataPointerSize = detector_->lastContinuousSize();
 		QVector<double> detectorDataPointer = QVector<double>(detectorDataPointerSize);
 		detector_->data(detectorDataPointer.data());
 
 		if(detector_->rank() == 0 && detector_->readMode() == AMDetectorDefinitions::SingleRead)
 			detectorData.append(detectorDataPointer[0]);
-		else if(detector_->rank() == 0 && detector_->readMode() == AMDetectorDefinitions::ContinuousRead){
-			int totalPoints = detector_->lastContinuousSize();
-			if(totalPoints < 0)
-				totalPoints = 0;
-			for(int x = 0; x < totalPoints; x++)
-				detectorData.append(detectorDataPointer[x]);
-		}
+//		else if(detector_->rank() == 0 && detector_->readMode() == AMDetectorDefinitions::ContinuousRead){
+//			int totalPoints = detector_->lastContinuousSize();
+//			if(totalPoints < 0)
+//				totalPoints = 0;
+//			for(int x = 0; x < totalPoints; x++)
+//				detectorData.append(detectorDataPointer[x]);
+//		}
 		else{
 			int totalPoints = AMnDIndex(detector_->rank(), AMnDIndex::DoInit, 0).totalPointsTo(detector_->size())-1;
 			for(int x = 0; x < totalPoints; x++)
