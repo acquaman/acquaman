@@ -148,9 +148,6 @@ void CLSAmptekDetailedDetectorView::onGetLastContinuousTestButtonClicked(){
 	qDebug() << "Detector getLastContinuous test requested";
 	qDebug() << "Read mode is currently " << detector_->readMode();
 
-//	QVector<double> lastContinuousData = QVector<double>(1024);
-//	detector_->lastContinuousReading(lastContinuousData.data());
-
 	AMAction3 *readAction = detector_->createReadAction();
 	readAction->setGenerateScanActionMessage(true);
 	readAction->start();
