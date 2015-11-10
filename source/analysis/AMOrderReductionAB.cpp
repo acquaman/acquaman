@@ -273,29 +273,7 @@ bool AMOrderReductionAB::values(const AMnDIndex &indexStart, const AMnDIndex &in
 		computeCachedValues();
 
 	int totalSize = indexStart.totalPointsTo(indexEnd);
-
-	switch(rank()){
-
-	case 0:
-		*outputValues = cachedData_.at(0);
-		break;
-
-	case 1:
-		memcpy(outputValues, cachedData_.constData()+indexStart.i(), totalSize*sizeof(double));
-		break;
-
-	case 2:
-		memcpy(outputValues, cachedData_.constData()+indexStart.i()*size(1)+indexStart.j(), totalSize*sizeof(double));
-		break;
-
-	case 3:
-		memcpy(outputValues, cachedData_.constData()+indexStart.i()*size(1)*size(2)+indexStart.j()*size(2), totalSize*sizeof(double));
-		break;
-
-	default:
-		// Maybe make a more general one for higher orders?  Maybe recursive?
-		return false;
-	}
+	memcpy(outputValues, cachedData_.constData()+indexStart.flatIndexInArrayOfSize(size()), totalSize*sizeof(double));
 
 	return true;
 }
