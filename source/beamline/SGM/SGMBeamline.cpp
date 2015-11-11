@@ -123,6 +123,21 @@ CLSSIS3820Scaler * SGMBeamline::scaler() const
 	return scaler_;
 }
 
+SGMXPSLadder* SGMBeamline::xpsLadder() const
+{
+	return xpsLadder_;
+}
+
+SGMBypassLadder* SGMBeamline::bypassLadder() const
+{
+	return bypassLadder_;
+}
+
+SGMXASLadder* SGMBeamline::xasLadder() const
+{
+	return xasLadder_;
+}
+
 void SGMBeamline::onConnectionStateChanged(bool)
 {
 	bool actualConnectedState = isConnected();

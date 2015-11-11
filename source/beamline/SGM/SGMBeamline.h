@@ -117,6 +117,22 @@ public:
 	  * The scaler.
 	  */
 	virtual CLSSIS3820Scaler* scaler() const;
+
+	/*!
+	 * The XPS ladder.
+	 */
+	virtual SGMXPSLadder* xpsLadder() const;
+
+	/*!
+	 * The bypass ladder.
+	 */
+	virtual SGMBypassLadder* bypassLadder() const;
+
+	/*!
+	 * The XAS ladder.
+	 */
+	virtual SGMXASLadder* xasLadder() const;
+
 public slots:
 
 signals:

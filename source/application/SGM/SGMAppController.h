@@ -29,6 +29,7 @@ class AMGenericStepScanConfiguration;
 class AMGenericStepScanConfigurationView;
 class AMScanConfigurationViewHolder3;
 class CLSAmptekDetailedDetectorView;
+class SGMLaddersView;
 /*!
   * A class which acts as the central application for SGM Acquaman. Holds the
   * main window which is displayed to users, as well as performs the application

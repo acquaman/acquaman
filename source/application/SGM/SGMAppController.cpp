@@ -36,6 +36,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/CLS/CLSAmptekSDD123DetectorNew.h"
 #include "ui/CLS/CLSAmptekSDD123DetailedDetectorView.h"
 #include "ui/SGM/SGMEnergyView.h"
+#include "ui/SGM/SGMLaddersView.h"
 #include <stdlib.h> // Used for obtaining username to prevent users other than iain (for dev) or SGM-Upgrade (for commissioning). Remove for deploy.
 
 SGMAppController::SGMAppController(QObject *parent) :
@@ -151,6 +152,11 @@ void SGMAppController::setupUserInterface()
 							  SGMEnergyView::Advanced);
 
 	mw_->addPane(AMMainWindow::buildMainWindowPane("Energy", ":/system-software-update.png", energyView), "Components", "Energy", ":/system-software-update.png");
+
+	SGMLaddersView *laddersView =
+			new SGMLaddersView(SGMBeamline::sgm()->xpsLadder(), SGMBeamline::sgm()->bypassLadder(), SGMBeamline::sgm()->xasLadder());
+
+	mw_->addPane(AMMainWindow::buildMainWindowPane("Ladders", ":/system-software-update.png", laddersView), "Ladders", "Ladders", ":/system-software-update.png");
 
 	mw_->insertHeading("Scans", 1);
 
