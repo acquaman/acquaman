@@ -267,22 +267,19 @@ AMAction3* AMGenericScanActionControllerAssembler::generateActionTreeForContinuo
 		// End Initialization /////////////////////////////
 
 		// This is where the control is told to go and detectors to acquire.
-
-		//AMAction3 *continuousMoveActions = AMActionSupport::buildControlMoveAction(axisControl, continuousMoveScanAxis->axisEnd(), false, false);
-
-		AMAction3 *continuousMoveActions = AMActionSupport::buildControlMoveAction(SGMBeamline::sgm()->energyControlSet()->energyTrajectoryStart(),
-											   1);
+		AMAction3 *continuousMoveActions = AMActionSupport::buildControlMoveAction(SGMBeamline::sgm()->energyControlSet()->energyTrajectoryStart(),									   1);
 		continuousMoveActions->setGenerateScanActionMessage(true);
 		axisActions->addSubAction(continuousMoveActions);
 
 		// The move should auto-trigger the detectors, but if there is more stuff, it will probably go here somewhere.
 
 		// End control actions ////////////////////////////
+		// Wait for the energy control to arrive within tolerance of the destination
 		axisActions->addSubAction(AMActionSupport::buildControlWaitAction(SGMBeamline::sgm()->energyControlSet()->energy(),
 										  endPosition,
 										  time*1.25,
 										  AMControlWaitActionInfo::MatchWithinTolerance));
-
+		// Then wait for it to actually report status stopped
 		axisActions->addSubAction(AMActionSupport::buildControlWaitAction(SGMBeamline::sgm()->energyControlSet()->energyStatus(), 0));
 
 		// Triggering the detector is just asking it to go and request the correct data from the server, it should success once the data packets are returned and processed on our side

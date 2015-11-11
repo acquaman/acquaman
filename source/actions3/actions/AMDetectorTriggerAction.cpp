@@ -56,7 +56,6 @@ AMDetectorTriggerAction::AMDetectorTriggerAction(const AMDetectorTriggerAction &
 
 #include "beamline/AMDetectorTriggerSource.h"
 void AMDetectorTriggerAction::startImplementation(){
-	qDebug() << "Going to try to startImplementation for AMDetectorTriggerAction";
 	// If you still don't have a detector, check the exposed detectors one last time.
 	//if(!detector_)
 	//	detector_ = AMBeamline::bl()->exposedDetectorByInfo(*(detectorTriggerInfo()->detectorInfo()));
