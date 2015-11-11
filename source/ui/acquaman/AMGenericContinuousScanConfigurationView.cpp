@@ -250,7 +250,7 @@ void AMGenericContinuousScanConfigurationView::onAxisControlChoice1Changed()
 		AMControl *control = controlNameMap_.value( axisControlChoice1_->itemText(axisControlChoice1_->currentIndex()), 0 );
 
 		if (control) {
-			configuration_->setControl(0, control->toInfo());
+			configuration_->setControl(0, control->toInfo());			
 			setStart1(control->value());
 			setStep1(1.0);
 			setEnd1(control->value()+10);

@@ -129,7 +129,7 @@ void SGMAppController::registerClasses()
 void SGMAppController::setupExporterOptions()
 {
 }
-
+#include "beamline/SGM/energy/SGMEnergyControlSet.h"
 void SGMAppController::setupUserInterface()
 {
 	SGMPersistentView* persistentView =

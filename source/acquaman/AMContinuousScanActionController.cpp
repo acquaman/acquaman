@@ -24,7 +24,7 @@ AMContinuousScanActionController::~AMContinuousScanActionController()
 {
 
 }
-
+#include <QDebug>
 void AMContinuousScanActionController::buildScanController()
 {
 	// Build the scan assembler.
@@ -40,9 +40,12 @@ void AMContinuousScanActionController::buildScanController()
 	}
 
 	// Configure the scan assemblers axes.
+	qDebug() << "Scan axes count = " << scan_->rawData()->scanAxesCount();
 	for (int i = 0, axisCount = scan_->rawData()->scanAxesCount(); i < axisCount; i++){
 
 		scanAssembler_->insertAxis(i, AMBeamline::bl()->exposedControlByInfo(continuousConfiguration_->axisControlInfos().at(i)), continuousConfiguration_->scanAxisAt(i));
+		qDebug() << "Adding axis " << continuousConfiguration_->axisControlInfos().at(i).name();
+		qDebug() << "Start: " << double(continuousConfiguration_->scanAxisAt(0)->axisStart());
 	}
 
 	// Add all the detectors.

@@ -20,6 +20,11 @@ SGMEnergyControlSet::SGMEnergyControlSet(QObject *parent) :
 	                                  new CLSMAXvControlStatusChecker()));
 	controlNamed("Energy")->setAttemptMoveWhenWithinTolerance(true);
 
+	addControl(new AMReadOnlyPVControl("Energy Status",
+					   baseGroupPV + ":status",
+					   this));
+	controlNamed("Energy Status")->setTolerance(0.5);
+
 	addControl(new AMSinglePVControl("Energy Trajectory Startpoint",
 	                                 baseGroupPV + ":trajectory:startpoint:eV",
 	                                 this,
@@ -158,6 +163,11 @@ AMControl * SGMEnergyControlSet::energyTrajectoryTime() const
 AMControl * SGMEnergyControlSet::energyTrajectoryStart() const
 {
 	return controlNamed("Energy Trajectory Start");
+}
+
+AMControl * SGMEnergyControlSet::energyStatus() const
+{
+	return controlNamed("Energy Status");
 }
 
 AMControl * SGMEnergyControlSet::gratingAngle() const
@@ -357,6 +367,7 @@ void SGMEnergyControlSet::onExitSlitTrackingPVValueChanged(double)
 {
 	energyPositionValidator_->setExitSlitPositionTracking(!exitSlitPositionTracking()->withinTolerance(0));
 }
+
 
 
 

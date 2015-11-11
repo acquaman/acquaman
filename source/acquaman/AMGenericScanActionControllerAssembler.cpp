@@ -203,7 +203,9 @@ AMAction3* AMGenericScanActionControllerAssembler::generateActionTreeForStepAxis
 
 	return regionList;
 }
-
+#include "beamline/SGM/energy/SGMEnergyControlSet.h"
+#include "beamline/SGM/SGMBeamline.h"
+#include <QDebug>
 AMAction3* AMGenericScanActionControllerAssembler::generateActionTreeForContinuousMoveAxis(AMControl *axisControl, AMScanAxis *continuousMoveScanAxis)
 {
 	AMListAction3 *axisActions = new AMSequentialListAction3(
@@ -226,21 +228,44 @@ AMAction3* AMGenericScanActionControllerAssembler::generateActionTreeForContinuo
 		AMAction3 *initializeControlPosition = AMActionSupport::buildControlMoveAction(axisControl, continuousMoveScanAxis->axisStart());
 		initializeControlPosition->setGenerateScanActionMessage(true);
 		initializationActions->addSubAction(initializeControlPosition);
-		axisActions->addSubAction(initializationActions);
+
 
 		// This should probably contain the control velocity initializations.
+		double time = double(continuousMoveScanAxis->regionAt(0)->regionTime());
+		double startPosition = double(continuousMoveScanAxis->axisStart());
+		double endPosition = double(continuousMoveScanAxis->axisEnd());
 
+		qDebug() << "Time = " << time;
+		qDebug() << "Start = " << startPosition;
+		qDebug() << "End = " << endPosition;
+		initializationActions->addSubAction(AMActionSupport::buildControlMoveAction(SGMBeamline::sgm()->energyControlSet()->energyTrajectoryTime(),
+											    time));
+
+		initializationActions->addSubAction(AMActionSupport::buildControlMoveAction(SGMBeamline::sgm()->energyControlSet()->energyTrajectoryStartpoint(),
+											    startPosition));
+
+		initializationActions->addSubAction(AMActionSupport::buildControlMoveAction(SGMBeamline::sgm()->energyControlSet()->energyTrajectoryEndpoint(),
+											    endPosition));
+
+		axisActions->addSubAction(initializationActions);
 		// End Initialization /////////////////////////////
 
 		// This is where the control is told to go and detectors to acquire.
 
-		AMAction3 *continuousMoveActions = AMActionSupport::buildControlMoveAction(axisControl, continuousMoveScanAxis->axisEnd(), false, false);
+		//AMAction3 *continuousMoveActions = AMActionSupport::buildControlMoveAction(axisControl, continuousMoveScanAxis->axisEnd(), false, false);
+
+		AMAction3* continuousMoveActions = AMActionSupport::buildControlMoveAction(SGMBeamline::sgm()->energyControlSet()->energyTrajectoryStart(),
+											   1);
 		continuousMoveActions->setGenerateScanActionMessage(true);
 		axisActions->addSubAction(continuousMoveActions);
 
 		// The move should auto-trigger the detectors, but if there is more stuff, it will probably go here somewhere.
 
 		// End control actions ////////////////////////////
+		axisActions->addSubAction(AMActionSupport::buildControlWaitAction(SGMBeamline::sgm()->energyControlSet()->energy(),
+										  endPosition,
+										  time*5,
+										  AMControlWaitActionInfo::MatchWithinTolerance));
 
 		// Generate axis cleanup list /////////////////////
 		AMListAction3 *cleanupActions = new AMSequentialListAction3(

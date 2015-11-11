@@ -141,6 +141,7 @@ AMGenericStepScanConfigurationView::AMGenericStepScanConfigurationView(AMGeneric
 	configViewLayout->addStretch();
 
 	setLayout(configViewLayout);
+
 }
 
 void AMGenericStepScanConfigurationView::setControls(AMControlSet *newControls)
@@ -469,15 +470,16 @@ void AMGenericStepScanConfigurationView::setDwellTime(const AMNumber &value)
 {
 	dwellTime_->setValue(double(value));
 }
-
+#include <QDebug>
 void AMGenericStepScanConfigurationView::onScanAxisAdded(AMScanAxis *axis)
 {
+	qDebug() << configuration_->scanAxes().size();
 	if (configuration_->scanAxes().size() == 1){
 
-		connect(axisStart1_, SIGNAL(editingFinished()), this, SLOT(onStart1Changed()));
-		connect(axisStep1_, SIGNAL(editingFinished()), this, SLOT(onStep1Changed()));
-		connect(axisEnd1_, SIGNAL(editingFinished()), this, SLOT(onEnd1Changed()));
-		connect(dwellTime_, SIGNAL(editingFinished()), this, SLOT(onDwellTimeChanged()));
+		connect(axisStart1_, SIGNAL(valueChanged(double)), this, SLOT(onStart1Changed()));
+		connect(axisStep1_, SIGNAL(valueChanged(double)), this, SLOT(onStep1Changed()));
+		connect(axisEnd1_, SIGNAL(valueChanged(double)), this, SLOT(onEnd1Changed()));
+		connect(dwellTime_, SIGNAL(valueChanged(double)), this, SLOT(onDwellTimeChanged()));
 
 		connect(axis->regionAt(0), SIGNAL(regionStartChanged(AMNumber)), this, SLOT(setStart1(AMNumber)));
 		connect(axis->regionAt(0), SIGNAL(regionStepChanged(AMNumber)), this, SLOT(setStep1(AMNumber)));
