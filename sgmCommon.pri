@@ -24,7 +24,8 @@ HEADERS += \
     source/beamline/SGM/SGMXPSLadder.h \
     source/beamline/SGM/SGMLadderControl.h \
     source/beamline/SGM/SGMBypassLadder.h \
-    source/beamline/SGM/SGMXASLadder.h
+    source/beamline/SGM/SGMXASLadder.h \
+    source/ui/SGM/SGMLaddersView.h
 
 
 SOURCES += \
@@ -42,6 +43,7 @@ SOURCES += \
     source/beamline/SGM/SGMXPSLadder.cpp \
     source/beamline/SGM/SGMLadderControl.cpp \
     source/beamline/SGM/SGMBypassLadder.cpp \
-    source/beamline/SGM/SGMXASLadder.cpp
+    source/beamline/SGM/SGMXASLadder.cpp \
+    source/ui/SGM/SGMLaddersView.cpp
 
 
