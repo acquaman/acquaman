@@ -149,7 +149,7 @@ void AMDataSourceSeriesData::onAxisValuesChanged()
 void AMDataSourceSeriesData::onSizeChanged()
 {
 	if (source_ && source_->isValid()){
-		qDebug() << source_->name();
+//		qDebug() << source_->name();
 		axisSize_ = source_->size(0);
 		axis_ = QVector<qreal>(axisSize_, 0);
 		cachedData_ = QVector<qreal>(axisSize_, 0);

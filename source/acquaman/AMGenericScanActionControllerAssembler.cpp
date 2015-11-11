@@ -205,6 +205,7 @@ AMAction3* AMGenericScanActionControllerAssembler::generateActionTreeForStepAxis
 }
 #include "beamline/SGM/energy/SGMEnergyControlSet.h"
 #include "beamline/SGM/SGMBeamline.h"
+#include "beamline/SGM/energy/SGMEnergyTrajectory.h"
 #include <QDebug>
 AMAction3* AMGenericScanActionControllerAssembler::generateActionTreeForContinuousMoveAxis(AMControl *axisControl, AMScanAxis *continuousMoveScanAxis)
 {
@@ -224,13 +225,6 @@ AMAction3* AMGenericScanActionControllerAssembler::generateActionTreeForContinuo
 					new AMSequentialListActionInfo3(QString("Initializing %1").arg(axisControl->name()),
 									QString("Initializing Axis with Control %1").arg(axisControl->name())));
 
-		// Go to the start position.
-		AMAction3 *initializeControlPosition = AMActionSupport::buildControlMoveAction(axisControl, continuousMoveScanAxis->axisStart());
-		initializeControlPosition->setGenerateScanActionMessage(true);
-		initializationActions->addSubAction(initializeControlPosition);
-
-
-		// This should probably contain the control velocity initializations.
 		double time = double(continuousMoveScanAxis->regionAt(0)->regionTime());
 		double startPosition = double(continuousMoveScanAxis->axisStart());
 		double endPosition = double(continuousMoveScanAxis->axisEnd());
@@ -238,6 +232,26 @@ AMAction3* AMGenericScanActionControllerAssembler::generateActionTreeForContinuo
 		qDebug() << "Time = " << time;
 		qDebug() << "Start = " << startPosition;
 		qDebug() << "End = " << endPosition;
+
+		SGMEnergyTrajectory tempTrajectory(startPosition, endPosition, time, SGMGratingSupport::LowGrating, 5000, -1.53, 2500, 14.6571, -128623);
+		double meanExitSlitPosition = (tempTrajectory.startExitSlitPosition() + tempTrajectory.endExitSlitPosition()) / 2;
+		qDebug() << "Exit slit position start " << tempTrajectory.startExitSlitPosition() << "end " << tempTrajectory.endExitSlitPosition() << " mean " << meanExitSlitPosition;
+
+		// Go to the mean exit slit position as part of initialization
+		AMAction3 *initialExitSlitPosition = AMActionSupport::buildControlMoveAction(SGMBeamline::sgm()->energyControlSet()->exitSlitPosition(), meanExitSlitPosition);
+		initializationActions->addSubAction(initialExitSlitPosition);
+
+		// Turn the exit slit tracking off
+		AMAction3 *exitSlitTrackingOff = AMActionSupport::buildControlMoveAction(SGMBeamline::sgm()->energyControlSet()->exitSlitPositionTracking(), 0);
+		initializationActions->addSubAction(exitSlitTrackingOff);
+
+		// Go to the start position.
+		AMAction3 *initializeControlPosition = AMActionSupport::buildControlMoveAction(axisControl, continuousMoveScanAxis->axisStart());
+		initializeControlPosition->setGenerateScanActionMessage(true);
+		initializationActions->addSubAction(initializeControlPosition);
+
+
+		// This should probably contain the control velocity initializations.
 		initializationActions->addSubAction(AMActionSupport::buildControlMoveAction(SGMBeamline::sgm()->energyControlSet()->energyTrajectoryTime(),
 											    time));
 
@@ -254,7 +268,7 @@ AMAction3* AMGenericScanActionControllerAssembler::generateActionTreeForContinuo
 
 		//AMAction3 *continuousMoveActions = AMActionSupport::buildControlMoveAction(axisControl, continuousMoveScanAxis->axisEnd(), false, false);
 
-		AMAction3* continuousMoveActions = AMActionSupport::buildControlMoveAction(SGMBeamline::sgm()->energyControlSet()->energyTrajectoryStart(),
+		AMAction3 *continuousMoveActions = AMActionSupport::buildControlMoveAction(SGMBeamline::sgm()->energyControlSet()->energyTrajectoryStart(),
 											   1);
 		continuousMoveActions->setGenerateScanActionMessage(true);
 		axisActions->addSubAction(continuousMoveActions);
@@ -262,15 +276,35 @@ AMAction3* AMGenericScanActionControllerAssembler::generateActionTreeForContinuo
 		// The move should auto-trigger the detectors, but if there is more stuff, it will probably go here somewhere.
 
 		// End control actions ////////////////////////////
+//		axisActions->addSubAction(AMActionSupport::buildControlWaitAction(SGMBeamline::sgm()->energyControlSet()->energy(),
+//										  endPosition,
+//										  time*5,
+//										  AMControlWaitActionInfo::MatchWithinTolerance));
 		axisActions->addSubAction(AMActionSupport::buildControlWaitAction(SGMBeamline::sgm()->energyControlSet()->energy(),
 										  endPosition,
-										  time*5,
+										  time*1.25,
 										  AMControlWaitActionInfo::MatchWithinTolerance));
+
+		axisActions->addSubAction(AMActionSupport::buildControlWaitAction(SGMBeamline::sgm()->energyControlSet()->energyStatus(), 0));
+
+		// Triggering the detector is just asking it to go and request the correct data from the server, it should success once the data packets are returned and processed on our side
+		AMAction3 *amptekContinuousTrigger = SGMBeamline::sgm()->exposedDetectorByName("AmptekSDD1")->createTriggerAction(AMDetectorDefinitions::ContinuousRead);
+		axisActions->addSubAction(amptekContinuousTrigger);
+
+		// Reading the detector will cause it to pass the AMDSClientDataRequest through the even system using AMAgnosticDataAPI
+		AMAction3 *amptekContinuousRead = SGMBeamline::sgm()->exposedDetectorByName("AmptekSDD1")->createReadAction();
+		amptekContinuousRead->setGenerateScanActionMessage(true);
+		axisActions->addSubAction(amptekContinuousRead);
 
 		// Generate axis cleanup list /////////////////////
 		AMListAction3 *cleanupActions = new AMSequentialListAction3(
 					new AMSequentialListActionInfo3(QString("Cleaning Up %1").arg(axisControl->name()),
 									QString("Cleaning Up Axis with Control %1").arg(axisControl->name())));
+
+		// Turn the exit slit tracking back on
+		AMAction3 *exitSlitTrackingOn = AMActionSupport::buildControlMoveAction(SGMBeamline::sgm()->energyControlSet()->exitSlitPositionTracking(), 1);
+		cleanupActions->addSubAction(exitSlitTrackingOn);
+
 		axisActions->addSubAction(cleanupActions);
 		// End Cleanup /////////////////////////////////////
 	}

@@ -11,6 +11,10 @@
 class AMScanActionControllerScanAssembler;
 class AMListAction3;
 
+class AMDSClientDataRequest;
+
+#include "beamline/SGM/energy/SGMGratingSupport.h"
+
 #define AMCONTINUOUSSCANACTIONCONTROLLER_COULD_NOT_ADD_DETECTOR 285000
 
 /// This class is the base class for all continuous based scan controllers.
@@ -41,6 +45,8 @@ protected:
 	/// Creates the scan assembler that builds all the actions used to run the scan.
 	virtual void createScanAssembler();
 
+	double energyFromGrating(SGMGratingSupport::GratingTranslation gratingTranslationSelection, double gratingAngleEncoderTarget) const;
+
 	/// The assembler that takes in the region scan configuration and turns it into a tree of scanning actions.
 	AMScanActionControllerScanAssembler *scanAssembler_;
 	/// The pointer to the region scan configuration to provide the subclass information.
@@ -48,6 +54,9 @@ protected:
 
 	/// A timer used when using AMCDFDataStore.  After a timeout it flushes the contents to disk.
 	QTimer flushToDiskTimer_;
+
+	AMDSClientDataRequest *oneClientDataRequest_;
+	AMnDIndex insertionIndex_;
 };
 
 #endif // AMCONTINUOUSSCANACTIONCONTROLLER_H

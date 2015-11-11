@@ -115,6 +115,9 @@ void AMDetectorReadAction::internalSetSucceeded(){
 				for(int x = 0; x < totalPoints; x++)
 					detectorData.append(detectorDataPointer[x]);
 			}
+
+			AMAgnosticDataAPIDataAvailableMessage dataAvailableMessage(detector_->name(), detectorData, dimensionSizes, dimensionNames, dimensionUnits);
+			AMAgnosticDataAPISupport::handlerFromLookupKey("ScanActions")->postMessage(dataAvailableMessage);
 		}
 		else if(detector_->readMode() == AMDetectorDefinitions::ContinuousRead){
 			dimensionSizes.append(0);
@@ -129,15 +132,16 @@ void AMDetectorReadAction::internalSetSucceeded(){
 			qDebug() << "Pointer value was " << continuousDataPointer << " 64 as " << continuousDataPointer64;
 			dataAvailableMessage.setDetectorDataAsAMDS(continuousDataPointer64);
 
-			if(AMAgnosticDataAPISupport::handlerFromLookupKey("AmptekTest")){
-				AMAgnosticDataAPISupport::handlerFromLookupKey("AmptekTest")->postMessage(dataAvailableMessage);
-				qDebug() << "About to postMessage to AmptekTest";
-				return;
-			}
+//			if(AMAgnosticDataAPISupport::handlerFromLookupKey("AmptekTest")){
+//				AMAgnosticDataAPISupport::handlerFromLookupKey("AmptekTest")->postMessage(dataAvailableMessage);
+//				qDebug() << "About to postMessage to AmptekTest";
+//				return;
+//			}
+			AMAgnosticDataAPISupport::handlerFromLookupKey("ScanActions")->postMessage(dataAvailableMessage);
 		}
 
-		AMAgnosticDataAPIDataAvailableMessage dataAvailableMessage(detector_->name(), detectorData, dimensionSizes, dimensionNames, dimensionUnits);
-		AMAgnosticDataAPISupport::handlerFromLookupKey("ScanActions")->postMessage(dataAvailableMessage);
+//		AMAgnosticDataAPIDataAvailableMessage dataAvailableMessage(detector_->name(), detectorData, dimensionSizes, dimensionNames, dimensionUnits);
+//		AMAgnosticDataAPISupport::handlerFromLookupKey("ScanActions")->postMessage(dataAvailableMessage);
 	}
 
 	setSucceeded();

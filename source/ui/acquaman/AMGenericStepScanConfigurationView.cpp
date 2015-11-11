@@ -470,10 +470,9 @@ void AMGenericStepScanConfigurationView::setDwellTime(const AMNumber &value)
 {
 	dwellTime_->setValue(double(value));
 }
-#include <QDebug>
+
 void AMGenericStepScanConfigurationView::onScanAxisAdded(AMScanAxis *axis)
 {
-	qDebug() << configuration_->scanAxes().size();
 	if (configuration_->scanAxes().size() == 1){
 
 		connect(axisStart1_, SIGNAL(valueChanged(double)), this, SLOT(onStart1Changed()));

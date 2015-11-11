@@ -56,7 +56,6 @@ bool AMDataStore::beginInsertRows(long numRows, long atRowIndex) {
 	}
 }
 
-
 void AMDataStore::endInsertRows() {
 	if(!isInsertingRows_)
 		return;
