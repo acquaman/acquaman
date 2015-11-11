@@ -30,6 +30,9 @@ class CLSAdvancedScalerChannelDetector;
 class CLSAmptekSDD123DetectorNew;
 class SGMEnergyControlSet;
 class SGMHexapod;
+class SGMXPSLadder;
+class SGMBypassLadder;
+class SGMXASLadder;
 /*!
   * A singleton class which represents the SGM beamline. The beamline class can
   * be accessed through the SGMBeamline::sgm() function.
@@ -191,12 +194,12 @@ protected:
 
 	bool cachedConnectedState_;
 
-	/// The XPS diagnostic ladder motor control.
-	AMPVControl *xpsLadderMotor_;
-	/// The bypass diagnostic ladder motor control.
-	AMPVControl *bypassLadderMotor_;
-	/// The XAS diagnostic ladder motor control.
-	AMPVControl *xasLadderMotor_;
+	/// The XPS diagnostic ladder control.
+	SGMXPSLadder *xpsLadder_;
+	/// The bypass diagnostic ladder control.
+	SGMBypassLadder *bypassLadder_;
+	/// The XAS diagnostic ladder control.
+	SGMXASLadder *xasLadder_;
 };
 
 

@@ -30,6 +30,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/SGM/SGMHexapod.h"
 #include "beamline/AMBasicControlDetectorEmulator.h"
 #include "beamline/SGM/energy/SGMEnergyControlSet.h"
+#include "beamline/SGM/SGMXPSLadder.h"
+#include "beamline/SGM/SGMBypassLadder.h"
+#include "beamline/SGM/SGMXASLadder.h"
 SGMBeamline* SGMBeamline::sgm() {
 
 	if(instance_ == 0){
@@ -54,9 +57,9 @@ bool SGMBeamline::isConnected() const
 			ssaManipulatorZ_->isConnected() &&
 			ssaManipulatorRot_->isConnected() &&
 			scaler_->isConnected() &&
-			xpsLadderMotor_->isConnected() &&
-			bypassLadderMotor_->isConnected() &&
-			xasLadderMotor_->isConnected();
+			xpsLadder_->isConnected() &&
+			bypassLadder_->isConnected() &&
+			xasLadder_->isConnected();
 }
 
 AMControl * SGMBeamline::endStationTranslationSetpoint() const
@@ -198,9 +201,9 @@ void SGMBeamline::setupBeamlineComponents()
 
 	// Set up the diagnostic ladder controls.
 
-	xpsLadderMotor_ = new AMPVControl("XPSDiagnosticLadderMotor", "SMTR16114I1012:step:fbk", "SMTR16114I1012:step", "SMTR16114I1012:emergStop", this);
-	bypassLadderMotor_ = new AMPVControl("BypassLadderMotor", "SMTR16114I1013:step:fbk", "SMTR16114I1013:step", "SMTR16114I1013:emergStop", this);
-	xasLadderMotor_ = new AMPVControl("XASLadderMotor", "SMTR16114I1014:step:fbk", "SMTR16114I1014:step", "SMTR16114I1014:emergStop", this);
+	xpsLadder_ = new SGMXPSLadder("XPSDiagnosticLadderMotor", "SMTR16114I1012", this);
+	bypassLadder_ = new SGMBypassLadder("BypassLadderMotor", "SMTR16114I1013", this);
+	xasLadder_ = new SGMXASLadder("XASLadderMotor", "SMTR16114I1014", this);
 
 
 	connect(energyControlSet_, SIGNAL(connected(bool)), this, SLOT(onConnectionStateChanged(bool)));
@@ -212,9 +215,9 @@ void SGMBeamline::setupBeamlineComponents()
 	connect(ssaManipulatorZ_, SIGNAL(connected(bool)), this, SLOT(onConnectionStateChanged(bool)));
 	connect(ssaManipulatorRot_, SIGNAL(connected(bool)), this, SLOT(onConnectionStateChanged(bool)));
 	connect(scaler_, SIGNAL(connectedChanged(bool)), this, SLOT(onConnectionStateChanged(bool)));
-	connect(xpsLadderMotor_, SIGNAL(connected(bool)), this, SLOT(onConnectionStateChanged(bool)));
-	connect(bypassLadderMotor_, SIGNAL(connected(bool)), this, SLOT(onConnectionStateChanged(bool)));
-	connect(xasLadderMotor_, SIGNAL(connected(bool)), this, SLOT(onConnectionStateChanged(bool)) );
+	connect(xpsLadder_, SIGNAL(connected(bool)), this, SLOT(onConnectionStateChanged(bool)));
+	connect(bypassLadder_, SIGNAL(connected(bool)), this, SLOT(onConnectionStateChanged(bool)));
+	connect(xasLadder_, SIGNAL(connected(bool)), this, SLOT(onConnectionStateChanged(bool)) );
 
 	// Ensure that the inital cached connected state is valid, and emit an initial
 	// connected signal:
