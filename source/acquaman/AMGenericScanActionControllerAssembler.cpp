@@ -29,6 +29,12 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "actions3/actions/AMAxisValueFinishedAction.h"
 #include "beamline/AMDetectorTriggerSource.h"
 
+#include "beamline/SGM/energy/SGMEnergyControlSet.h"
+#include "beamline/SGM/SGMBeamline.h"
+#include "beamline/SGM/energy/SGMEnergyTrajectory.h"
+
+#include <QDebug>
+
 AMGenericScanActionControllerAssembler::AMGenericScanActionControllerAssembler(QObject *parent)
 	: AMScanActionControllerScanAssembler(parent)
 {
@@ -203,10 +209,7 @@ AMAction3* AMGenericScanActionControllerAssembler::generateActionTreeForStepAxis
 
 	return regionList;
 }
-#include "beamline/SGM/energy/SGMEnergyControlSet.h"
-#include "beamline/SGM/SGMBeamline.h"
-#include "beamline/SGM/energy/SGMEnergyTrajectory.h"
-#include <QDebug>
+
 AMAction3* AMGenericScanActionControllerAssembler::generateActionTreeForContinuousMoveAxis(AMControl *axisControl, AMScanAxis *continuousMoveScanAxis)
 {
 	AMListAction3 *axisActions = new AMSequentialListAction3(
@@ -235,7 +238,6 @@ AMAction3* AMGenericScanActionControllerAssembler::generateActionTreeForContinuo
 
 		SGMEnergyTrajectory tempTrajectory(startPosition, endPosition, time, SGMGratingSupport::LowGrating, 5000, -1.53, 2500, 14.6571, -128623);
 		double meanExitSlitPosition = (tempTrajectory.startExitSlitPosition() + tempTrajectory.endExitSlitPosition()) / 2;
-		qDebug() << "Exit slit position start " << tempTrajectory.startExitSlitPosition() << "end " << tempTrajectory.endExitSlitPosition() << " mean " << meanExitSlitPosition;
 
 		// Go to the mean exit slit position as part of initialization
 		AMAction3 *initialExitSlitPosition = AMActionSupport::buildControlMoveAction(SGMBeamline::sgm()->energyControlSet()->exitSlitPosition(), meanExitSlitPosition);
@@ -276,10 +278,6 @@ AMAction3* AMGenericScanActionControllerAssembler::generateActionTreeForContinuo
 		// The move should auto-trigger the detectors, but if there is more stuff, it will probably go here somewhere.
 
 		// End control actions ////////////////////////////
-//		axisActions->addSubAction(AMActionSupport::buildControlWaitAction(SGMBeamline::sgm()->energyControlSet()->energy(),
-//										  endPosition,
-//										  time*5,
-//										  AMControlWaitActionInfo::MatchWithinTolerance));
 		axisActions->addSubAction(AMActionSupport::buildControlWaitAction(SGMBeamline::sgm()->energyControlSet()->energy(),
 										  endPosition,
 										  time*1.25,

@@ -55,7 +55,6 @@ AMDetectorTriggerAction::AMDetectorTriggerAction(const AMDetectorTriggerAction &
 }
 
 #include "beamline/AMDetectorTriggerSource.h"
-#include <QDebug>
 void AMDetectorTriggerAction::startImplementation(){
 	qDebug() << "Going to try to startImplementation for AMDetectorTriggerAction";
 	// If you still don't have a detector, check the exposed detectors one last time.
@@ -81,9 +80,7 @@ void AMDetectorTriggerAction::startImplementation(){
 	}
 
 
-	qDebug() << "Passed init tests, check trigger source type";
 	if(detector_->detectorTriggerSource()){
-		qDebug() << "Has a trigger source, do that";
 		triggerSource_ = detector_->detectorTriggerSource();
 		connect(triggerSource_, SIGNAL(triggered(AMDetectorDefinitions::ReadMode)), this, SLOT(onAcquisitionStarted()));
 		connect(triggerSource_, SIGNAL(succeeded()), this, SLOT(onAcquisitionSucceeded()));
@@ -94,7 +91,6 @@ void AMDetectorTriggerAction::startImplementation(){
 		triggerSource_->trigger(detectorTriggerInfo()->readMode());
 	}
 	else{
-		qDebug() << "No trigger source, acquire directly";
 		// connect to detector initialization signals
 		connect(detector_, SIGNAL(acquiring()), this, SLOT(onAcquisitionStarted()));
 		connect(detector_, SIGNAL(acquisitionSucceeded()), this, SLOT(onAcquisitionSucceeded()));

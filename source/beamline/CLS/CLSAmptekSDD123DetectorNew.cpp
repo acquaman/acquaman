@@ -459,11 +459,8 @@ void CLSAmptekSDD123DetectorNew::onRequestDataReady(AMDSClientRequest* clientReq
 {
 	AMDSClientRelativeCountPlusCountDataRequest *relativeCountPlusCountDataRequst = qobject_cast<AMDSClientRelativeCountPlusCountDataRequest*>(clientRequest);
 	if(relativeCountPlusCountDataRequst){
-		qDebug() << "Received request as relative count plus count";
-		qDebug() << relativeCountPlusCountDataRequst->data().count();
 		lastContinuousDataRequest_ = relativeCountPlusCountDataRequst;
 
-		qDebug() << "Also setAcquisitionSucceeded() in CLSAmptekSDD123DetectorNew [and readyForAcquisition()]";
 		setAcquisitionSucceeded();
 		setReadyForAcquisition();
 	}
@@ -493,7 +490,6 @@ bool CLSAmptekSDD123DetectorNew::acquireImplementation(AMDetectorDefinitions::Re
 			return false;
 		QString bufferName = "Amptek SDD 240";
 
-		qDebug() << "About to setAcquiring() in CLSAmptekSDD123DetectorNew";
 		setAcquiring();
 
 		clientAppController_->requestClientData(server->hostName(), server->portNumber(), bufferName, 400, 400, true, false);

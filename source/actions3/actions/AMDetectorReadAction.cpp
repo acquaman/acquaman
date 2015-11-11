@@ -139,9 +139,6 @@ void AMDetectorReadAction::internalSetSucceeded(){
 //			}
 			AMAgnosticDataAPISupport::handlerFromLookupKey("ScanActions")->postMessage(dataAvailableMessage);
 		}
-
-//		AMAgnosticDataAPIDataAvailableMessage dataAvailableMessage(detector_->name(), detectorData, dimensionSizes, dimensionNames, dimensionUnits);
-//		AMAgnosticDataAPISupport::handlerFromLookupKey("ScanActions")->postMessage(dataAvailableMessage);
 	}
 
 	setSucceeded();

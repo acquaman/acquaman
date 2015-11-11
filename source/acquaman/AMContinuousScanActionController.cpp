@@ -14,6 +14,13 @@
 #include "beamline/AMBeamline.h"
 #include "dataman/datastore/AMCDFDataStore.h"
 
+#include "source/ClientRequest/AMDSClientDataRequest.h"
+#include "source/ClientRequest/AMDSClientRelativeCountPlusCountDataRequest.h"
+#include "source/DataHolder/AMDSGenericFlatArrayDataHolder.h"
+#include "source/DataHolder/AMDSSpectralDataHolder.h"
+
+#include <QDebug>
+
 AMContinuousScanActionController::AMContinuousScanActionController(AMContinuousScanConfiguration *configuration, QObject *parent)
 	: AMScanActionController(configuration, parent)
 {
@@ -27,7 +34,7 @@ AMContinuousScanActionController::~AMContinuousScanActionController()
 {
 
 }
-#include <QDebug>
+
 void AMContinuousScanActionController::buildScanController()
 {
 	// Build the scan assembler.
@@ -125,10 +132,6 @@ void AMContinuousScanActionController::flushCDFDataStoreToDisk()
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Serious, 38, "Error saving the currently-running scan's raw data file to disk. Watch out... your data may not be saved! Please report this bug to your beamline's software developers."));
 }
 
-#include "source/ClientRequest/AMDSClientDataRequest.h"
-#include "source/ClientRequest/AMDSClientRelativeCountPlusCountDataRequest.h"
-#include "source/DataHolder/AMDSGenericFlatArrayDataHolder.h"
-#include "source/DataHolder/AMDSSpectralDataHolder.h"
 bool AMContinuousScanActionController::event(QEvent *e)
 {
 	if (e->type() == (QEvent::Type)AMAgnosticDataAPIDefinitions::MessageEvent){
@@ -148,12 +151,7 @@ bool AMContinuousScanActionController::event(QEvent *e)
 
 			// An argument could be made to put the control axis value stuff here.
 
-//			scan_->rawData()->endInsertRows();
-
-			qDebug() << "Got the axis finished event";
 			if(oneClientDataRequest_){
-				qDebug() << "We have our oneClientDataRequest";
-
 				bool castToGenericFlatArrayHolder = false;
 				AMDSLightWeightGenericFlatArrayDataHolder *dataHolderAsGenericFlatArrayDataHolder = qobject_cast<AMDSLightWeightGenericFlatArrayDataHolder*>(oneClientDataRequest_->data().at(0));
 				if(dataHolderAsGenericFlatArrayDataHolder){
@@ -172,6 +170,7 @@ bool AMContinuousScanActionController::event(QEvent *e)
 				bool foundMovementStart = false;
 				bool foundMovementEnd = false;
 
+				// Loop backwards from the end to find the start of the movement we're interested in
 				for(int x = oneClientDataRequest_->data().count()-1; (x > 0) && !foundMovementStart; x--){
 					if(castToDwellSpectralHolder){
 						dataHolderAsDwellSpectral = qobject_cast<AMDSDwellSpectralDataHolder*>(oneClientDataRequest_->data().at(x));
@@ -183,7 +182,6 @@ bool AMContinuousScanActionController::event(QEvent *e)
 					}
 
 					int encoderPulsesInPeriod = dataHolderAsDwellSpectral->dwellStatusData().generalPurposeCounter();
-					qDebug() << "Encoder pulses in period: " << encoderPulsesInPeriod;
 					if(!foundMovementEnd && encoderPulsesInPeriod > 20){
 						qDebug() << "Found movement end at index " << x;
 						foundMovementEnd = true;
@@ -201,6 +199,8 @@ bool AMContinuousScanActionController::event(QEvent *e)
 				int currentEncoderValue = startEncoderValue;
 				QVector<double> energyFeedbacks = QVector<double>(oneClientDataRequest_->data().count()-initiateMovementIndex);
 				energyFeedbacks[0] = energyFromGrating(SGMGratingSupport::LowGrating, startEncoderValue);
+
+				// Loop from the start of the movement to the end and recreate the axis values (energy in this case) from the encoder pulse changes
 				for(int x = initiateMovementIndex, size = oneClientDataRequest_->data().count(); x < size; x++){
 					if(castToDwellSpectralHolder){
 						dataHolderAsDwellSpectral = qobject_cast<AMDSDwellSpectralDataHolder*>(oneClientDataRequest_->data().at(x));
@@ -216,10 +216,7 @@ bool AMContinuousScanActionController::event(QEvent *e)
 					energyFeedbacks[x-initiateMovementIndex+1] = energyFromGrating(SGMGratingSupport::LowGrating, currentEncoderValue);
 				}
 
-				qDebug() << "The list of energies we think we were at with size : " << energyFeedbacks.count();
-				qDebug() << energyFeedbacks;
-
-//				for(int x = 0, size = oneClientDataRequest_->data().count(); x < size; x++){
+				// Loop from the start of the movement to the end and place any data that we have into the actual rawData()
 				for(int x = initiateMovementIndex, size = oneClientDataRequest_->data().count(); x < size; x++){
 					if(castToDwellSpectralHolder){
 						dataHolderAsDwellSpectral = qobject_cast<AMDSDwellSpectralDataHolder*>(oneClientDataRequest_->data().at(x));
@@ -247,21 +244,14 @@ bool AMContinuousScanActionController::event(QEvent *e)
 			break;
 
 		case AMAgnosticDataAPIDefinitions::DataAvailable:{
-
-			qDebug() << "DataAvailable message received by the scan controller";
-
 			AMAgnosticDataAPIDataAvailableMessage *dataAvailableMessage = static_cast<AMAgnosticDataAPIDataAvailableMessage*>(&message);
-			qDebug() << "Is there a valid clientDataRequest pointer? " << dataAvailableMessage->detectorDataAsAMDS();
 
 			intptr_t dataRequestPointer = dataAvailableMessage->detectorDataAsAMDS();
-			qDebug() << "And it thinks it's located at " << dataRequestPointer;
 			void *dataRequestVoidPointer = (void*)dataRequestPointer;
 			AMDSClientDataRequest *dataRequest = static_cast<AMDSClientDataRequest*>(dataRequestVoidPointer);
 			oneClientDataRequest_ = dataRequest;
 
-//			dataRequest->printData();
-			qDebug() << "Number of points delivered: " << dataRequest->data().count();
-
+			/*
 			bool castToGenericFlatArrayHolder = false;
 			AMDSLightWeightGenericFlatArrayDataHolder *dataHolderAsGenericFlatArrayDataHolder = qobject_cast<AMDSLightWeightGenericFlatArrayDataHolder*>(dataRequest->data().at(0));
 			if(dataHolderAsGenericFlatArrayDataHolder){
@@ -300,7 +290,7 @@ bool AMContinuousScanActionController::event(QEvent *e)
 
 				qDebug() << outputString;
 			}
-
+			*/
 
 			// Step 1:
 			// This will need a transform where:
@@ -349,6 +339,7 @@ void AMContinuousScanActionController::createScanAssembler()
 	scanAssembler_ = new AMGenericScanActionControllerAssembler(this);
 }
 
+// FLAGGED FOR REMOVAL: Continuous Scan testing November 11, 2015
 double AMContinuousScanActionController::energyFromGrating(SGMGratingSupport::GratingTranslation gratingTranslationSelection, double gratingAngleEncoderTarget) const
 {
 	double gratingSpacing = SGMGratingSupport::gratingSpacing(gratingTranslationSelection);
@@ -358,3 +349,4 @@ double AMContinuousScanActionController::energyFromGrating(SGMGratingSupport::Gr
 
 	return 1e-9 * 1239.842 / ((2 * gratingSpacing * curveFitCorrection * gratingAngleEncoderTarget) / radiusCurvatureOffset * cos(includedAngle / 2));
 }
+// END OF FLAG
