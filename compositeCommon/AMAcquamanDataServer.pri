@@ -36,6 +36,7 @@ HEADERS *= \
 	$$PATH_TO_AMDS/source/Connection/AMDSServer.h \
 	$$PATH_TO_AMDS/source/Connection/AMDSClientTCPSocket.h \
 	$$PATH_TO_AMDS/source/DataElement/AMDSDataTypeDefinitions.h \
+	$$PATH_TO_AMDS/source/DataElement/AMDSConfigurationDef.h \
 	$$PATH_TO_AMDS/source/DataElement/AMDSAxisInfo.h \
 	$$PATH_TO_AMDS/source/DataElement/AMDSnDIndex.h \
 	$$PATH_TO_AMDS/source/DataElement/AMDSEventData.h \
