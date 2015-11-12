@@ -14,7 +14,7 @@ SGMEnergyPosition::SGMEnergyPosition(SGMGratingSupport::GratingTranslation grati
 	warningValidator_ = new AMValidator(this);
 
 	gratingTranslation_ = gratingTranslation;
-	gratingTranslationOptimizationMode_ = ManualMode;
+	gratingTranslationOptimizationMode_ = SGMGratingSupport::ManualMode;
 	gratingAngle_ = gratingAngle;
 	undulatorHarmonic_ = undulatorHarmonic;
 	undulatorPosition_ = undulatorPosition;
@@ -37,7 +37,7 @@ SGMEnergyPosition::SGMEnergyPosition(double requestedEnergy,
 	errorValidator_ = new AMValidator(this);
 	warningValidator_ = new AMValidator(this);
 
-	gratingTranslationOptimizationMode_ = ManualMode;
+	gratingTranslationOptimizationMode_ = SGMGratingSupport::ManualMode;
 	isUndulatorTracking_ = true;
 	isExitSlitPositionTracking_ = true;
 	autoDetectUndulatorHarmonic_ = true;
@@ -49,7 +49,7 @@ SGMEnergyPosition::SGMEnergyPosition(double requestedEnergy,
 }
 
 SGMEnergyPosition::SGMEnergyPosition(double requestedEnergy,
-                                     SGMEnergyPosition::GratingTranslationOptimizationMode gratingOptimizationMode,
+				     SGMGratingSupport::GratingTranslationOptimizationMode gratingOptimizationMode,
                                      QObject* parent) :
     QObject(parent)
 {
@@ -85,7 +85,7 @@ SGMEnergyPosition* SGMEnergyPosition::clone() const
 
 double SGMEnergyPosition::resultantEnergy() const
 {
-	return energyFromGrating(gratingTranslation_, gratingAngle_);
+	return SGMGratingSupport::energyFromGrating(gratingTranslation_, gratingAngle_);
 }
 
 SGMGratingSupport::GratingTranslation SGMEnergyPosition::gratingTranslation() const
@@ -94,7 +94,7 @@ SGMGratingSupport::GratingTranslation SGMEnergyPosition::gratingTranslation() co
 }
 
 
-SGMEnergyPosition::GratingTranslationOptimizationMode SGMEnergyPosition::gratingTranslationOptimizationMode() const
+SGMGratingSupport::GratingTranslationOptimizationMode SGMEnergyPosition::gratingTranslationOptimizationMode() const
 {
 	return gratingTranslationOptimizationMode_;
 }
@@ -162,7 +162,7 @@ AMValidator * SGMEnergyPosition::warningValidator() const
 void SGMEnergyPosition::setGratingTranslation(SGMGratingSupport::GratingTranslation gratingTranslation)
 {
 	if(gratingTranslation_ != gratingTranslation &&
-	        gratingTranslationOptimizationMode_ == ManualMode) {
+		gratingTranslationOptimizationMode_ == SGMGratingSupport::ManualMode) {
 
 		gratingTranslation_ = gratingTranslation;
 		if(autoDetectUndulatorHarmonic_) {
@@ -175,7 +175,7 @@ void SGMEnergyPosition::setGratingTranslation(SGMGratingSupport::GratingTranslat
 	}
 }
 
-void SGMEnergyPosition::setGratingTranslationOptimizationMode(SGMEnergyPosition::GratingTranslationOptimizationMode gratingTranslationOptimizationMode)
+void SGMEnergyPosition::setGratingTranslationOptimizationMode(SGMGratingSupport::GratingTranslationOptimizationMode gratingTranslationOptimizationMode)
 {
 	if(gratingTranslationOptimizationMode_ != gratingTranslationOptimizationMode) {
 
@@ -292,7 +292,7 @@ void SGMEnergyPosition::requestEnergy(double requestedEnergy, SGMGratingSupport:
 {
 	requestedEnergy_ = requestedEnergy;
 
-	if(gratingTranslationOptimizationMode_ == ManualMode) {
+	if(gratingTranslationOptimizationMode_ == SGMGratingSupport::ManualMode) {
 		setGratingTranslation(gratingTranslation);
 	}
 
@@ -301,19 +301,22 @@ void SGMEnergyPosition::requestEnergy(double requestedEnergy, SGMGratingSupport:
 		setUndulatorHarmonic(optimizedUndulatorHarmonic(gratingTranslation, requestedEnergy));
 	}
 
-	setGratingAngle(gratingAngleFromEnergy(gratingTranslation_, requestedEnergy));
+	setGratingAngle(SGMGratingSupport::gratingAngleFromEnergy(gratingTranslation_, requestedEnergy));
 }
 
 void SGMEnergyPosition::requestEnergy(double requestedEnergy)
 {
 	requestedEnergy_ = requestedEnergy;
-	SGMGratingSupport::GratingTranslation newGratingTranslation = optimizedGrating(requestedEnergy);
 
-	// Manually set the grating translation
-	if(gratingTranslation_ != newGratingTranslation) {
+	if(gratingTranslationOptimizationMode_ != SGMGratingSupport::ManualMode) {
+		SGMGratingSupport::GratingTranslation newGratingTranslation = SGMGratingSupport::optimizedGratingTranslation(requestedEnergy, gratingTranslationOptimizationMode_);
 
-		gratingTranslation_ = newGratingTranslation;
-		emit gratingTranslationChanged(gratingTranslation_);
+		// Set the new grating translation if it's different.
+		if(gratingTranslation_ != newGratingTranslation) {
+
+			gratingTranslation_ = newGratingTranslation;
+			emit gratingTranslationChanged(gratingTranslation_);
+		}
 	}
 
 	if(autoDetectUndulatorHarmonic_) {
@@ -327,60 +330,7 @@ void SGMEnergyPosition::requestEnergy(double requestedEnergy)
 		}
 	}
 
-	setGratingAngle(gratingAngleFromEnergy(gratingTranslation_, requestedEnergy));
-}
-
-SGMGratingSupport::GratingTranslation SGMEnergyPosition::optimizedGrating(double requestedEnergy) const
-{
-	// The grating which produces the largest flux at a given photon energy.
-	if(gratingTranslationOptimizationMode_ == OptimizeFlux) {
-
-		if(requestedEnergy < 700) {
-
-			return SGMGratingSupport::LowGrating;
-		} else if(requestedEnergy < 1300) {
-
-			return SGMGratingSupport::MediumGrating;
-		} else {
-
-			return SGMGratingSupport::HighGrating;
-		}
-	} else if(gratingTranslationOptimizationMode_ == OptimizeResolution) {
-
-		if (requestedEnergy > 650) {
-
-			return SGMGratingSupport::HighGrating;
-		} else if (requestedEnergy > 450) {
-
-			return SGMGratingSupport::MediumGrating;
-		} else {
-
-			return SGMGratingSupport::LowGrating;
-		}
-	} else /*Manual Mode */ {
-
-		return gratingTranslation_;
-	}
-}
-
-double SGMEnergyPosition::energyFromGrating(SGMGratingSupport::GratingTranslation gratingTranslationSelection, double gratingAngleEncoderTarget) const
-{
-	double gratingSpacing = SGMGratingSupport::gratingSpacing(gratingTranslationSelection);
-	double curveFitCorrection = SGMGratingSupport::curveFitCorrection(gratingTranslationSelection);
-	double radiusCurvatureOffset = SGMGratingSupport::radiusCurvatureOffset(gratingTranslationSelection);
-	double includedAngle = SGMGratingSupport::includedAngle(gratingTranslationSelection);
-
-	return 1e-9 * 1239.842 / ((2 * gratingSpacing * curveFitCorrection * gratingAngleEncoderTarget) / radiusCurvatureOffset * cos(includedAngle / 2));
-}
-
-double SGMEnergyPosition::gratingAngleFromEnergy(SGMGratingSupport::GratingTranslation gratingTranslationSelection, double energy) const
-{
-	double gratingSpacing = SGMGratingSupport::gratingSpacing(gratingTranslationSelection);
-	double curveFitCorrection = SGMGratingSupport::curveFitCorrection(gratingTranslationSelection);
-	double radiusCurvatureOffset = SGMGratingSupport::radiusCurvatureOffset(gratingTranslationSelection);
-	double includedAngle = SGMGratingSupport::includedAngle(gratingTranslationSelection);
-
-	return 1e-9 * 1239.842 / ((2 * gratingSpacing * curveFitCorrection * energy) / radiusCurvatureOffset * cos(includedAngle / 2));
+	setGratingAngle(SGMGratingSupport::gratingAngleFromEnergy(gratingTranslation_, requestedEnergy));
 }
 
 void SGMEnergyPosition::optimizeForEnergy()

@@ -30,16 +30,6 @@ class SGMEnergyPosition : public QObject
 public:
 
 	/*!
-	  * Enumerates the different means of automatically selecting a Grating Translation.
-	  */
-	enum GratingTranslationOptimizationMode {
-
-		ManualMode = 0,         // Stick with the current grating.
-		OptimizeFlux = 1,		// Select grating which produces maximum flux for a given energy.
-		OptimizeResolution = 2	// Select highest grating which will produce reasonable flux at a given energy.
-	};
-
-	/*!
 	 * Creates an instance of an SGMEnergyPosition which is in the state represented
 	 * by the provided information. The created info is assumed to be tracking the
 	 * exit slit and undulator.
@@ -79,7 +69,7 @@ public:
 	 * translation.
 	 */
 	SGMEnergyPosition(double requestedEnergy,
-	                  GratingTranslationOptimizationMode gratingOptimizationMode,
+			  SGMGratingSupport::GratingTranslationOptimizationMode gratingOptimizationMode,
 	                  QObject* parent = 0);
 
 
@@ -111,7 +101,7 @@ public:
 	 * The method to use to determine which grating translation to use to achieve
 	 * an energy.
 	 */
-	GratingTranslationOptimizationMode gratingTranslationOptimizationMode() const;
+	SGMGratingSupport::GratingTranslationOptimizationMode gratingTranslationOptimizationMode() const;
 
 	/*!
 	  * The info's current grating angle.
@@ -187,7 +177,7 @@ signals:
 	void gratingTranslationChanged(SGMGratingSupport::GratingTranslation gratingTranslation);
 
 	/// Signal indicating tha the grating translation optimization mode has been altered.
-	void gratingTranslationOptimizationModeChanged(SGMEnergyPosition::GratingTranslationOptimizationMode gratingTranslationOptimizationMode);
+	void gratingTranslationOptimizationModeChanged(SGMGratingSupport::GratingTranslationOptimizationMode gratingTranslationOptimizationMode);
 
 	/// Signal indicating the grating angle has been altered.
 	void gratingAngleChanged(double gratingAngle);
@@ -230,7 +220,7 @@ public slots:
 	 * mode.
 	 */
 
-	void setGratingTranslationOptimizationMode(GratingTranslationOptimizationMode gratingTranslationOptimizationMode);
+	void setGratingTranslationOptimizationMode(SGMGratingSupport::GratingTranslationOptimizationMode gratingTranslationOptimizationMode);
 	/*!
 	  * Sets the info's current grating angle.
 	  */
@@ -302,33 +292,6 @@ public slots:
 	  */
 	void requestEnergy(double requestedEnergy);
 protected:
-	/*!
-	  * Helper method which returns the best fit grating translation for a given
-	  * energy and optimization mode.
-	  */
-	SGMGratingSupport::GratingTranslation optimizedGrating(double requestedEnergy) const;
-
-	/*!
-	  * Helper method used to determine the energy produced by a given grating
-	  * translation and angle encoder target.
-	  * \param gratingTranslationSelection ~ The grating translation to use in
-	  * calculating the produced energy.
-	  * \param gratingAngleEncoderTarget ~ The encoder target of the grating angle
-	  * to use in calculating the energy produced.
-	  */
-	double energyFromGrating(SGMGratingSupport::GratingTranslation gratingTranslationSelection,
-	                         double gratingAngleEncoderTarget) const;
-
-	/*!
-	  * Helper method which calculates the grating angle encoder target required
-	  * to produce the provided energy when using the provided grating translation.
-	  * \param gratingTranslationSelection ~ The grating translation under which
-	  * the energy is required.
-	  * \param energy ~ The energy for which the grating angle encoder target is
-	  * required.
-	  */
-	double gratingAngleFromEnergy(SGMGratingSupport::GratingTranslation gratingTranslationSelection,
-	                              double energy) const;
 
 	/*!
 	 * Optimizes the current undulator and exit slit position to produce optimal
@@ -378,7 +341,7 @@ protected:
 	void performValidation();
 
 	SGMGratingSupport::GratingTranslation gratingTranslation_;
-	GratingTranslationOptimizationMode gratingTranslationOptimizationMode_;
+	SGMGratingSupport::GratingTranslationOptimizationMode gratingTranslationOptimizationMode_;
 	double gratingAngle_;
 	SGMUndulatorSupport::UndulatorHarmonic undulatorHarmonic_;
 	bool autoDetectUndulatorHarmonic_;

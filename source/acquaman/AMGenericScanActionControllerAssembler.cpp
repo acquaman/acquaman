@@ -277,7 +277,7 @@ AMAction3* AMGenericScanActionControllerAssembler::generateActionTreeForContinuo
 		// Wait for the energy control to arrive within tolerance of the destination
 		axisActions->addSubAction(AMActionSupport::buildControlWaitAction(SGMBeamline::sgm()->energyControlSet()->energy(),
 										  endPosition,
-										  time*1.25,
+										  time*1.5,
 										  AMControlWaitActionInfo::MatchWithinTolerance));
 		// Then wait for it to actually report status stopped
 		axisActions->addSubAction(AMActionSupport::buildControlWaitAction(SGMBeamline::sgm()->energyControlSet()->energyStatus(), 0));

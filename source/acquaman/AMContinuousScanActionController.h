@@ -45,11 +45,6 @@ protected:
 	/// Creates the scan assembler that builds all the actions used to run the scan.
 	virtual void createScanAssembler();
 
-	// FLAGGED FOR REMOVAL: Continuous Scan testing November 11, 2015
-	// We need to expose this somehow ... I copied it from SGMEnergyPosition where it's a protected helper
-	double energyFromGrating(SGMGratingSupport::GratingTranslation gratingTranslationSelection, double gratingAngleEncoderTarget) const;
-	// END OF FLAG
-
 	/// The assembler that takes in the region scan configuration and turns it into a tree of scanning actions.
 	AMScanActionControllerScanAssembler *scanAssembler_;
 	/// The pointer to the region scan configuration to provide the subclass information.

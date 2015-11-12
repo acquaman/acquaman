@@ -306,17 +306,17 @@ void SGMEnergyControlSet::onGratingTranslationPVValueChanged(double)
 
 void SGMEnergyControlSet::onGratingtranslationOptimizationPVValueChanged(double)
 {
-	SGMEnergyPosition::GratingTranslationOptimizationMode newOptimizationMode;
+	SGMGratingSupport::GratingTranslationOptimizationMode newOptimizationMode;
 
 	if(gratingTranslationOptimization()->withinTolerance(0)) {
 
-		newOptimizationMode = SGMEnergyPosition::ManualMode;
+		newOptimizationMode = SGMGratingSupport::ManualMode;
 	} else if(gratingTranslationOptimization()->withinTolerance(1)) {
 
-		newOptimizationMode = SGMEnergyPosition::OptimizeFlux;
+		newOptimizationMode = SGMGratingSupport::OptimizeFlux;
 	} else if(gratingTranslationOptimization()->withinTolerance(2)) {
 
-		newOptimizationMode = SGMEnergyPosition::OptimizeResolution;
+		newOptimizationMode = SGMGratingSupport::OptimizeResolution;
 	} else {
 
 		return;

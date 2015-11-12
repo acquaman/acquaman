@@ -198,7 +198,7 @@ bool AMContinuousScanActionController::event(QEvent *e)
 				int startEncoderValue = -412449;
 				int currentEncoderValue = startEncoderValue;
 				QVector<double> energyFeedbacks = QVector<double>(oneClientDataRequest_->data().count()-initiateMovementIndex);
-				energyFeedbacks[0] = energyFromGrating(SGMGratingSupport::LowGrating, startEncoderValue);
+				energyFeedbacks[0] = SGMGratingSupport::energyFromGrating(SGMGratingSupport::LowGrating, startEncoderValue);
 
 				// Loop from the start of the movement to the end and recreate the axis values (energy in this case) from the encoder pulse changes
 				for(int x = initiateMovementIndex, size = oneClientDataRequest_->data().count(); x < size; x++){
@@ -213,7 +213,7 @@ bool AMContinuousScanActionController::event(QEvent *e)
 
 					currentEncoderValue += dataHolderAsDwellSpectral->dwellStatusData().generalPurposeCounter();
 
-					energyFeedbacks[x-initiateMovementIndex+1] = energyFromGrating(SGMGratingSupport::LowGrating, currentEncoderValue);
+					energyFeedbacks[x-initiateMovementIndex+1] = SGMGratingSupport::energyFromGrating(SGMGratingSupport::LowGrating, currentEncoderValue);
 				}
 
 				// Loop from the start of the movement to the end and place any data that we have into the actual rawData()
@@ -338,15 +338,3 @@ void AMContinuousScanActionController::createScanAssembler()
 {
 	scanAssembler_ = new AMGenericScanActionControllerAssembler(this);
 }
-
-// FLAGGED FOR REMOVAL: Continuous Scan testing November 11, 2015
-double AMContinuousScanActionController::energyFromGrating(SGMGratingSupport::GratingTranslation gratingTranslationSelection, double gratingAngleEncoderTarget) const
-{
-	double gratingSpacing = SGMGratingSupport::gratingSpacing(gratingTranslationSelection);
-	double curveFitCorrection = SGMGratingSupport::curveFitCorrection(gratingTranslationSelection);
-	double radiusCurvatureOffset = SGMGratingSupport::radiusCurvatureOffset(gratingTranslationSelection);
-	double includedAngle = SGMGratingSupport::includedAngle(gratingTranslationSelection);
-
-	return 1e-9 * 1239.842 / ((2 * gratingSpacing * curveFitCorrection * gratingAngleEncoderTarget) / radiusCurvatureOffset * cos(includedAngle / 2));
-}
-// END OF FLAG

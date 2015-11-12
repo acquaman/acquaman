@@ -72,7 +72,7 @@ public:
 	 * The method to use in determining the grating translation to use for an
 	 * energy.
 	 */
-	SGMEnergyPosition::GratingTranslationOptimizationMode gratingTranslationOptimizationMode() const;
+	SGMGratingSupport::GratingTranslationOptimizationMode gratingTranslationOptimizationMode() const;
 
 	/*!
 	 * Whether the exit slit position should update as the energy moves.
@@ -130,7 +130,7 @@ signals:
 	 * \param gratingTranslationOptimizationMode ~ The new grating translation
 	 * optimization mode.
 	 */
-	void gratingTranslationOptimizationModeChanged(SGMEnergyPosition::GratingTranslationOptimizationMode gratingTranslationOptimizationMode);
+	void gratingTranslationOptimizationModeChanged(SGMGratingSupport::GratingTranslationOptimizationMode gratingTranslationOptimizationMode);
 
 	/*!
 	 * Signal indicating that the exit slit tracking state which the control is
@@ -174,7 +174,7 @@ public slots:
 	 * \param gratingTranslationOptimizationMode ~ The method used in determining
 	 * the grating translation.
 	 */
-	void setGratingTranslationOptimizationMode(SGMEnergyPosition::GratingTranslationOptimizationMode gratingTranslationOptimizationMode);
+	void setGratingTranslationOptimizationMode(SGMGratingSupport::GratingTranslationOptimizationMode gratingTranslationOptimizationMode);
 
 	/*!
 	 * Sets whether the exit slit position should update as the energy moves.
@@ -224,7 +224,7 @@ protected slots:
 	  * grating optimization mode changes.
 	  * \param optimizationMode ~ The new grating optimization mode.
 	  */
-	void onEnergyPositionGratingTranslationOptimizationModeChanged(SGMEnergyPosition::GratingTranslationOptimizationMode optimizationMode);
+	void onEnergyPositionGratingTranslationOptimizationModeChanged(SGMGratingSupport::GratingTranslationOptimizationMode optimizationMode);
 
 protected:
 
