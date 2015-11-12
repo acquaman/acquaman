@@ -32,6 +32,9 @@ class SGMXASLadder : public SGMLadderControl
 	Q_OBJECT
 
 public:
+	/// Enum defining the different value options.
+	enum Option { Vanadium = 0, Photodiode = 1, AuMesh = 2, Pinhole = 3, Passthrough = 4, Phosphor = 5 };
+
 	/// Constructor.
 	explicit SGMXASLadder(const QString &name, const QString &baseName, QObject *parent = 0);
 	/// Destructor.

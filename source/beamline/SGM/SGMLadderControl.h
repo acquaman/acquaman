@@ -16,14 +16,6 @@ public:
 
 	/// Returns the motor control.
 	AMPVControl* motor() const { return qobject_cast<AMPVControl*>(control_); }
-
-protected slots:
-	/// Adds a ladder option.
-	void addLadderOption(const QString &optionName, double setpoint, double min, double max);
-	/// Removes a ladder option.
-	void removeLadderOption(const QString &optionName);
-	/// Clears all ladder options.
-	void clearLadderOptions();
 };
 
 #endif // SGMLADDERCONTROL_H

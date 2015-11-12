@@ -105,7 +105,16 @@ void AMSingleEnumeratedControl::addValueOption(int index, const QString &optionS
 	else if (hasIndexNamed(optionString) && allowsDuplicateOptions_)
 		proceed = true;
 
-	// Proceed with adding the option if duplication isn't an issue.
+	// Also, check that the setpoint, min, and max values make sense.
+
+	if (proceed) {
+		if (optionMin <= optionMax && optionSetpoint >= optionMin && optionSetpoint <= optionMax)
+			proceed = true;
+		else
+			proceed = false;
+	}
+
+	// Proceed with adding the option if there aren't any issues.
 
 	if (proceed) {
 		indexSetpointMap_.insert(index, optionSetpoint);

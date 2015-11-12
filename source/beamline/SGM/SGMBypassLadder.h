@@ -20,6 +20,9 @@ class SGMBypassLadder : public SGMLadderControl
 	Q_OBJECT
 
 public:
+	/// Enum defining the different value options.
+	enum Option { Slit = 0, Passthrough = 1, Phosphor = 2 };
+
 	/// Constructor.
 	explicit SGMBypassLadder(const QString &name, const QString &baseName, QObject *parent = 0);
 	/// Destructor.

@@ -24,6 +24,9 @@ class SGMXPSLadder : public SGMLadderControl
 	Q_OBJECT
 
 public:
+	/// Enum defining the different available filter options.
+	enum Option { Photodiode = 0, Vanadium = 1, AuMesh = 2, Retracted = 3 };
+
 	/// Constructor.
 	explicit SGMXPSLadder(const QString &name, const QString &baseName, QObject *parent = 0);
 	/// Destructor.

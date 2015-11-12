@@ -13,21 +13,3 @@ SGMLadderControl::~SGMLadderControl()
 {
 
 }
-
-void SGMLadderControl::addLadderOption(const QString &optionName, double setpoint, double min, dobule max)
-{
-	addValueOption(indices_.count(), optionName, setpoint, min, max);
-}
-
-void SGMLadderControl::removeLadderOption(const QString &optionName)
-{
-	QList<int> indices = indicesNamed(optionName);
-
-	foreach (int index, indices)
-		removeOption(index);
-}
-
-void SGMLadderControl::clearLadderOptions()
-{
-	clearOptions();
-}
