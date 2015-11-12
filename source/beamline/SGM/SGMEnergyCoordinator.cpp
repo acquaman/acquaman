@@ -587,10 +587,9 @@ void SGMEnergyCoordinator::onEnergyTrajectoryStartPVChanged(double value)
 		double startpoint = newControls_->energyTrajectoryStartpoint()->value();
 		double endpoint = newControls_->energyTrajectoryEndpoint()->value();
 		double time = newControls_->energyTrajectoryTime()->value();
-		double velocity = (endpoint - startpoint) / time;
 
-		if(energyControlCoordinator_->move(startpoint, endpoint, velocity) == AMControl::NoFailure) {
-			qDebug() << "Moving energy from" << startpoint << "to" << endpoint << "at" << velocity << "eV/s";
+		if(energyControlCoordinator_->move(startpoint, endpoint, time) == AMControl::NoFailure) {
+			qDebug() << "Moving energy from" << startpoint << "to" << endpoint << "in" << time << "s";
 		}
 	}
 

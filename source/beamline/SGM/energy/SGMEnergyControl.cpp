@@ -160,7 +160,7 @@ AMControl *SGMEnergyControl::exitSlitPositionControl() const
 	return exitSlitPositionControl_;
 }
 
-AMControl::FailureExplanation SGMEnergyControl::move(double startSetpoint, double finalSetpoint, double targetVelocity)
+AMControl::FailureExplanation SGMEnergyControl::move(double startSetpoint, double finalSetpoint, double time)
 {
 	// Check that this control is connected and able to move before proceeding.
 
@@ -182,11 +182,10 @@ AMControl::FailureExplanation SGMEnergyControl::move(double startSetpoint, doubl
 	SGMEnergyPosition* energyPositionHelper = energyPositionController_->clone();
 	energyPositionHelper->requestEnergy(startSetpoint);
 
-	double timeTaken = qAbs(finalSetpoint - startSetpoint) / targetVelocity;
 
 	SGMEnergyTrajectory trajectoryHelper(startSetpoint,
 	                                     finalSetpoint,
-	                                     timeTaken,
+	                                     time,
 	                                     energyPositionHelper->gratingTranslation(),
 	                                     gratingAngleControl_->stepAccelerationControl()->value(),
 	                                     gratingAngleControl_->stepsPerEncoderCount(),
@@ -557,7 +556,7 @@ AMAction3 *SGMEnergyControl::createMoveAction(SGMEnergyTrajectory* energyTraject
 				                                                                                   "Set motion properties"),
 				                                                             AMListAction3::Parallel);
 
-				double gratingAngleVelocity = energyTrajectory->gratingAngleVelocityProfile().targetVelocity();
+				double gratingAngleVelocity = qAbs(energyTrajectory->gratingAngleVelocityProfile().targetVelocity());
 				double gratingAngleAcceleration = energyTrajectory->gratingAngleVelocityProfile().acceleration();
 
 				setMotionPropertiesAction->addSubAction(AMActionSupport::buildControlMoveAction(gratingAngleControl_->stepVelocityControl(),
@@ -569,7 +568,7 @@ AMAction3 *SGMEnergyControl::createMoveAction(SGMEnergyTrajectory* energyTraject
 				setMotionPropertiesAction->addSubAction(AMActionSupport::buildControlMoveAction(gratingAngleControl_->movementTypeControl(),
 				                                                                                0));
 
-				double undulatorStepVelocity = energyTrajectory->undulatorVelocityProfile().targetVelocity();
+				double undulatorStepVelocity = qAbs(energyTrajectory->undulatorVelocityProfile().targetVelocity());
 				double undulatorStepAcceleration = energyTrajectory->undulatorVelocityProfile().acceleration();
 
 				if(energyPositionController_->isUndulatorTracking()) {

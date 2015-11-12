@@ -145,8 +145,7 @@ public slots:
 	  * Moves the controls in a coordinated manner in order to arrive at the
 	  * setpoint energy at the target velocity.
 	  * \param finalSetpoint ~ The final position which the energy will move to.
-	  * \param targetVelocity ~ The velocity (in eV/s) which the move will take
-	  * place in.
+	  * \param time ~ The time for the motion to take
 	  */
 	virtual FailureExplanation move(double startSetpoint, double finalSetpoint, double targetVelocity);
 
