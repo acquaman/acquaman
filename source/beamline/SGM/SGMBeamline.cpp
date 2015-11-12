@@ -49,7 +49,7 @@ SGMBeamline* SGMBeamline::sgm() {
 
 SGMBeamline::~SGMBeamline()
 {
-	AMDSClientAppController::release();
+	AMDSClientAppController::releaseAppController();
 }
 
 bool SGMBeamline::isConnected() const
