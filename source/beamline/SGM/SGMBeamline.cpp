@@ -216,9 +216,9 @@ void SGMBeamline::setupBeamlineComponents()
 
 	// Set up the diagnostic ladder controls.
 
-	xpsLadder_ = new SGMXPSLadder("XPSDiagnosticLadderMotor", "SMTR16114I1012", this);
-	bypassLadder_ = new SGMBypassLadder("BypassLadderMotor", "SMTR16114I1013", this);
-	xasLadder_ = new SGMXASLadder("XASLadderMotor", "SMTR16114I1014", this);
+	xpsLadder_ = new SGMXPSLadder("XPSLadder", "SMTR16114I1012", this);
+	bypassLadder_ = new SGMBypassLadder("BypassLadder", "SMTR16114I1013", this);
+	xasLadder_ = new SGMXASLadder("XASLadder", "SMTR16114I1014", this);
 
 
 	connect(energyControlSet_, SIGNAL(connected(bool)), this, SLOT(onConnectionStateChanged(bool)));
