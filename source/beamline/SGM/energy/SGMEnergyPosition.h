@@ -16,6 +16,7 @@
 #include <QStringList>
 #include "SGMUndulatorSupport.h"
 #include "SGMGratingSupport.h"
+#include "SGMExitSlitSupport.h"
 #include "util/AMValidator.h"
 
 /*!
@@ -298,42 +299,6 @@ protected:
 	 * flux given the current energy produced by the grating.
 	 */
 	void optimizeForEnergy();
-
-	/*!
-	  * Helper method used to calculate the undulator (step) postition required
-	  * to optimize flux for a given energy and harmonic taking into account the
-	  * provided undulator detune offset.
-	  * \param energy ~ The energy which the calculated undulator step position
-	  * is to be optimized for.
-	  * \param undulatorHarmonic ~ The undulator harmonic to use in calculating
-	  * the optimized undulator position.
-	  * \param undulatorOffset ~ A detune value offset for the produced undulator
-	  * position.
-	  */
-	double optimizedUndulatorPosition(double energy,
-	                                  SGMUndulatorSupport::UndulatorHarmonic undulatorHarmonic,
-	                                  double undulatorOffset) const;
-
-	/*!
-	  * Helper method used to calculate the exit slit position required to optimize
-	  * flux for a given energy and grating translation.
-	  * \param gratingTranslationSelection ~ The grating translation used in
-	  * calculating the optimized exit slit position.
-	  * \param energy ~ The energy to optimize the exit slit for.
-	  */
-	double optimizedExitSlitPosition(SGMGratingSupport::GratingTranslation gratingTranslationSelection,
-	                                 double energy) const;
-
-	/*!
-	 * Helper method used to calcualte the undulator position required to optimize
-	 * flux for a given energy and grating translation.
-	 * \param gratingTranslationSelection ~ The grating translation used in
-	 * calculating the optimized undulator harmonic.
-	 * \param energy ~ The energy to optimize the undulator harmonic for.
-	 * \return
-	 */
-	SGMUndulatorSupport::UndulatorHarmonic optimizedUndulatorHarmonic(SGMGratingSupport::GratingTranslation gratingTranslationSelection,
-	                                                                  double energy) const;
 
 	/*!
 	 * Helper method which checks the validity of the SGM Mono's state.

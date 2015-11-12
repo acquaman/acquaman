@@ -31,7 +31,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "beamline/SGM/energy/SGMEnergyControlSet.h"
 #include "beamline/SGM/SGMBeamline.h"
-#include "beamline/SGM/energy/SGMEnergyTrajectory.h"
+#include "beamline/SGM/energy/SGMGratingSupport.h"
+#include "beamline/SGM/energy/SGMExitSlitSupport.h"
 
 #include <QDebug>
 
@@ -236,8 +237,8 @@ AMAction3* AMGenericScanActionControllerAssembler::generateActionTreeForContinuo
 		qDebug() << "Start = " << startPosition;
 		qDebug() << "End = " << endPosition;
 
-		SGMEnergyTrajectory tempTrajectory(startPosition, endPosition, time, SGMGratingSupport::LowGrating, 5000, -1.53, 2500, 14.6571, -128623);
-		double meanExitSlitPosition = (tempTrajectory.startExitSlitPosition() + tempTrajectory.endExitSlitPosition()) / 2;
+		SGMGratingSupport::GratingTranslation currentGratingTranslation = SGMGratingSupport::GratingTranslation(int(SGMBeamline::sgm()->energyControlSet()->gratingTranslation()->value()));
+		double meanExitSlitPosition = SGMExitSlitSupport::exitSlitPositionForScan(startPosition, endPosition, currentGratingTranslation);
 
 		// Go to the mean exit slit position as part of initialization
 		AMAction3 *initialExitSlitPosition = AMActionSupport::buildControlMoveAction(SGMBeamline::sgm()->energyControlSet()->exitSlitPosition(), meanExitSlitPosition);
