@@ -6,6 +6,7 @@
 #include "tests/SGM/SGMEnergyControlTestView.h"
 #include "tests/SGM/SGMGratingVelocityTests.h"
 #include "tests/SGM/SGMUndulatorVelocityTests.h"
+#include "tests/SGM/AMScalerAnalysisTest.h"
 #include "qjson/serializer.h"
 
 #include "beamline/SGM/energy/SGMEnergyPosition.h"
@@ -30,7 +31,9 @@ SGMTestsWindow::SGMTestsWindow(QWidget *parent) : QMainWindow(parent)
         resultString.append(QString("\n%1").arg(result));
     }
 
-	outputTextEdit_->setText(resultString);;
+	outputTextEdit_->setText(resultString);
+
+	AMScalerAnalysisTest();
 }
 
 void SGMTestsWindow::onShowEnergyViewClicked()

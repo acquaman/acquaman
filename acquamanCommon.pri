@@ -443,7 +443,8 @@ HEADERS += \
     source/acquaman/AMGenericContinuousScanConfiguration.h \
     source/acquaman/AMGenericContinuousScanController.h \
     source/beamline/AMEnumeratedControl.h \
-    source/beamline/AMSingleEnumeratedControl.h
+    source/beamline/AMSingleEnumeratedControl.h \
+    source/util/AMScalerCountAnalyser.h
 
 FORMS += \
 
@@ -848,7 +849,8 @@ SOURCES += \
     source/acquaman/AMGenericContinuousScanConfiguration.cpp \
     source/acquaman/AMGenericContinuousScanController.cpp \
     source/beamline/AMEnumeratedControl.cpp \
-    source/beamline/AMSingleEnumeratedControl.cpp
+    source/beamline/AMSingleEnumeratedControl.cpp \
+    source/util/AMScalerCountAnalyser.cpp
 
 RESOURCES *= source/icons/icons.qrc \
 		source/configurationFiles/configurationFiles.qrc \
@@ -865,4 +867,6 @@ contains(DEFINES, AM_BUILD_REPORTER_ENABLED){
 
 	SOURCES *= source/util/AMRunTimeBuildInfo.cpp
 }
+
+
 
