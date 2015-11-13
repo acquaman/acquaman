@@ -6,8 +6,7 @@
 
 #include "beamline/BioXAS/BioXASBeamlineComponent.h"
 #include "beamline/BioXAS/BioXASXIAFiltersControl.h"
-
-#include "beamline/CLS/CLSBiStateControl.h"
+#include "beamline/BioXAS/BioXASXIAFiltersActuator.h"
 
 // Setpoints.
 #define BIOXAS_XIA_FILTERS_POSITION_OUT -50
@@ -25,9 +24,6 @@ class BioXASXIAFilters : public BioXASBeamlineComponent
     Q_OBJECT
 
 public:
-	/// Enum class for different filter properties.
-	class Filter { public: enum Position { Out = 0, In }; };
-
 	/// Constructor.
 	explicit BioXASXIAFilters(const QString &name, QObject *parent = 0);
 	/// Destructor.
@@ -40,26 +36,26 @@ public:
 	BioXASXIAFiltersControl *filtersControl() const { return filtersControl_; }
 
 	/// Returns the first filter control.
-	AMControl* filter1() const { return filter1_; }
+	BioXASXIAFiltersActuatorControl* filter1() const { return filter1_; }
 	/// Returns the second filter control.
-	AMControl* filter2() const { return filter2_; }
+	BioXASXIAFiltersActuatorControl* filter2() const { return filter2_; }
 	/// Returns the third filter control.
-	AMControl* filter3() const { return filter3_; }
+	BioXASXIAFiltersActuatorControl* filter3() const { return filter3_; }
 	/// Returns the fourth filter control.
-	AMControl* filter4() const { return filter4_; }
+	BioXASXIAFiltersActuatorControl* filter4() const { return filter4_; }
 
 protected:
 	/// The filters control.
 	BioXASXIAFiltersControl *filtersControl_;
 
-	/// Controls for the first filter.
-	CLSBiStateControl *filter1_;
+	/// Control for the first filter.
+	BioXASXIAFiltersActuatorControl *filter1_;
 	/// Control for the second filter.
-	CLSBiStateControl *filter2_;
+	BioXASXIAFiltersActuatorControl *filter2_;
 	/// Control for the third filter.
-	CLSBiStateControl *filter3_;
+	BioXASXIAFiltersActuatorControl *filter3_;
 	/// Control for the fourth filter.
-	CLSBiStateControl *filter4_;
+	BioXASXIAFiltersActuatorControl *filter4_;
 };
 
 #endif // BIOXASXIAFILTERS_H
