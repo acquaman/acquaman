@@ -20,6 +20,7 @@ INCLUDEPATH *= $$PATH_TO_AMDS $$PATH_TO_AMDS/source
 VPATH *= $$PATH_TO_AMDS
 
 HEADERS *= \
+	$$PATH_TO_AMDS/source/appController/AMDSAppController.h \
 	$$PATH_TO_AMDS/source/appController/AMDSClientAppController.h \
 	$$PATH_TO_AMDS/source/ClientRequest/AMDSClientRequest.h \
 	$$PATH_TO_AMDS/source/ClientRequest/AMDSClientRequestSupport.h \
@@ -36,6 +37,7 @@ HEADERS *= \
 	$$PATH_TO_AMDS/source/Connection/AMDSServer.h \
 	$$PATH_TO_AMDS/source/Connection/AMDSClientTCPSocket.h \
 	$$PATH_TO_AMDS/source/DataElement/AMDSDataTypeDefinitions.h \
+	$$PATH_TO_AMDS/source/DataElement/AMDSConfigurationDef.h \
 	$$PATH_TO_AMDS/source/DataElement/AMDSAxisInfo.h \
 	$$PATH_TO_AMDS/source/DataElement/AMDSnDIndex.h \
 	$$PATH_TO_AMDS/source/DataElement/AMDSEventData.h \
@@ -51,6 +53,7 @@ HEADERS *= \
 	$$PATH_TO_AMDS/source/util/AMDSMetaObjectSupport.h
 
 SOURCES *= \
+	$$PATH_TO_AMDS/source/appController/AMDSAppController.cpp \
 	$$PATH_TO_AMDS/source/appController/AMDSClientAppController.cpp \
 	$$PATH_TO_AMDS/source/ClientRequest/AMDSClientRequest.cpp \
 	$$PATH_TO_AMDS/source/ClientRequest/AMDSClientRequestSupport.cpp \

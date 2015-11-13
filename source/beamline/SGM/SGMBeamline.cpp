@@ -21,15 +21,21 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "SGMBeamline.h"
 
-#include "beamline/SGM/SGMMAXvMotor.h"
 #include "util/AMErrorMonitor.h"
-#include "beamline/CLS/CLSSR570.h"
 #include "beamline/AMMotorGroup.h"
+#include "beamline/AMBasicControlDetectorEmulator.h"
+#include "beamline/CLS/CLSSR570.h"
 #include "beamline/CLS/CLSAdvancedScalerChannelDetector.h"
 #include "beamline/CLS/CLSAmptekSDD123DetectorNew.h"
+#include "beamline/SGM/SGMMAXvMotor.h"
 #include "beamline/SGM/SGMHexapod.h"
-#include "beamline/AMBasicControlDetectorEmulator.h"
 #include "beamline/SGM/energy/SGMEnergyControlSet.h"
+
+/// acquaman data server
+#include "source/appController/AMDSClientAppController.h"
+#include "source/Connection/AMDSServer.h"
+#include "source/DataElement/AMDSConfigurationDef.h"
+
 SGMBeamline* SGMBeamline::sgm() {
 
 	if(instance_ == 0){
@@ -43,6 +49,7 @@ SGMBeamline* SGMBeamline::sgm() {
 
 SGMBeamline::~SGMBeamline()
 {
+	AMDSClientAppController::releaseAppController();
 }
 
 bool SGMBeamline::isConnected() const
@@ -124,6 +131,35 @@ void SGMBeamline::onConnectionStateChanged(bool)
 	if(actualConnectedState != cachedConnectedState_) {
 		cachedConnectedState_ = actualConnectedState;
 		emit connected(actualConnectedState);
+	}
+}
+
+void SGMBeamline::connectAMDSServers()
+{
+	qDebug() << "Going to try to connect to servers";
+	AMDSClientAppController *clientAppController = AMDSClientAppController::clientAppController();
+	foreach (AMDSServerConfiguration serverConfiguration, AMDSServerDefs_.values())
+		clientAppController->connectToServer(serverConfiguration);
+}
+
+void SGMBeamline::onAMDSServerConnected(const QString &hostIdentifier)
+{
+	qDebug() << "Let's try it my way, the new server connected is " << hostIdentifier;
+	if(hostIdentifier == AMDSServerDefs_.value("AmptekServer").serverIdentifier() && amptekSDD1_)
+		amptekSDD1_->configAMDSServer(AMDSServerDefs_.value("AmptekServer").serverIdentifier());
+}
+
+void SGMBeamline::setupAMDSClientAppController()
+{
+	qDebug() << "Doing setup for AMDSClientAppController in SGMBeamline";
+	AMDSServerDefs_.insert(QString("AmptekServer"), AMDSServerConfiguration(QString("AmptekServer"), QString("10.52.48.40"), 28044));
+
+	// NOTE: it will be better to move this to CLSBeamline, when
+	AMDSClientAppController *AMDSClientController = AMDSClientAppController::clientAppController();
+	connect(AMDSClientController, SIGNAL(networkSessionOpened()), this, SLOT(connectAMDSServers()));
+	connect(AMDSClientController, SIGNAL(newServerConnected(QString)), this, SLOT(onAMDSServerConnected(QString)));
+	if (AMDSClientController->isSessionOpen()) {
+		connectAMDSServers();
 	}
 }
 
@@ -270,6 +306,7 @@ void SGMBeamline::setupDetectors()
 //	amptekSDD1_ = new CLSAmptekSDD123DetectorNew("AmptekSDD1", "Amptek SDD 1", "amptek:sdd1", this);
 	amptekSDD1_ = new CLSAmptekSDD123DetectorNew("AmptekSDD1", "Amptek SDD 1", "amptek:sdd2", this);
 	amptekSDD1_->setEVPerBin(2.25);
+//	amptekSDD1_->configAMDSServer(AMDSServerDefs_.value("AmptekServer").serverIdentifier());
 }
 
 void SGMBeamline::setupExposedControls()
@@ -310,6 +347,7 @@ void SGMBeamline::setupExposedDetectors()
 SGMBeamline::SGMBeamline()
 	: CLSBeamline("SGMBeamline")
 {
+	setupAMDSClientAppController();
 	setupBeamlineComponents();
 	setupMotorGroups();
 	setupDetectors();

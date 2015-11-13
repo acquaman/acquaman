@@ -25,12 +25,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "ui/CLS/CLSAmptekSDD123DetailedDetectorView.h"
 
-
-
+#include "source/appController/AMDSClientAppController.h"
 #include "source/ClientRequest/AMDSClientRequestSupport.h"
 #include "source/DataElement/AMDSEventDataSupport.h"
 #include "source/DataHolder/AMDSDataHolderSupport.h"
-#include "source/appController/AMDSClientAppController.h"
 #include "source/Connection/AMDSServer.h"
 #include "source/ClientRequest/AMDSClientDataRequest.h"
 #include "source/ClientRequest/AMDSClientRelativeCountPlusCountDataRequest.h"
@@ -133,20 +131,23 @@ CLSAmptekSDD123DetectorNew::CLSAmptekSDD123DetectorNew(const QString &name, cons
 
 	lastContinuousDataRequest_ = 0;
 	lastReadMode_ = AMDetectorDefinitions::SingleRead;
-
-	/// ==== initialize the app controller ==============
-	clientAppController_ = new AMDSClientAppController();
-	connect(clientAppController_, SIGNAL(networkSessionOpening()), this, SLOT(onNetworkSessionOpening()));
-	connect(clientAppController_, SIGNAL(networkSessionOpened()), this, SLOT(onNetworkSessionOpened()));
-	connect(clientAppController_, SIGNAL(newServerConnected(QString)), this, SLOT(onNewServerConnected(QString)));
-	connect(clientAppController_, SIGNAL(serverError(int,bool,QString,QString)), this, SLOT(onServerError(int,bool,QString,QString)));
-	connect(clientAppController_, SIGNAL(requestDataReady(AMDSClientRequest*)), this, SLOT(onRequestDataReady(AMDSClientRequest*)));
-
-	clientAppController_->openNetworkSession();
 }
 
 CLSAmptekSDD123DetectorNew::~CLSAmptekSDD123DetectorNew()
 {
+}
+
+void CLSAmptekSDD123DetectorNew::configAMDSServer(const QString &amptekAMDSServerIdentifier)
+{
+	qDebug() << "Trying to configAMDSServer for Amptek with identifier " << amptekAMDSServerIdentifier;
+	amptekAMDSServerIdentifier_ = amptekAMDSServerIdentifier;
+
+	AMDSServer *amptekAMDSServer = AMDSClientAppController::clientAppController()->getServerByServerIdentifier(amptekAMDSServerIdentifier);
+	if (amptekAMDSServer) {
+		qDebug() << "Looks like we found it";
+		connect(amptekAMDSServer, SIGNAL(requestDataReady(AMDSClientRequest*)), this, SLOT(onRequestDataReady(AMDSClientRequest*)));
+		connect(amptekAMDSServer, SIGNAL(serverError(int,bool,QString,QString)), this, SLOT(onServerError(int,bool,QString,QString)));
+	}
 }
 
 QString CLSAmptekSDD123DetectorNew::synchronizedDwellKey() const{
@@ -438,25 +439,9 @@ void CLSAmptekSDD123DetectorNew::onHighIndexValueChanged(int index){
 
 
 /// ============= SLOTs to handle AMDSClientAppController signals =========
-void CLSAmptekSDD123DetectorNew::onNetworkSessionOpening()
-{
-}
-
-void CLSAmptekSDD123DetectorNew::onNetworkSessionOpened()
-{
-	clientAppController_->connectToServer("10.52.48.40", 28044);
-}
-
-void CLSAmptekSDD123DetectorNew::onNewServerConnected(const QString &serverIdentifier)
-{
-	qDebug() << "Amptek Successfully Connected to Server";
-	QStringList bufferNames = clientAppController_->getBufferNamesByServer(serverIdentifier);
-	qDebug() << "Buffer Names:";
-	qDebug() << bufferNames;
-}
-
 void CLSAmptekSDD123DetectorNew::onRequestDataReady(AMDSClientRequest* clientRequest)
 {
+	qDebug() << "In CLSAmptekSDD123DetectorNew::onRequestDataReady and we've received some sort of client request";
 	AMDSClientRelativeCountPlusCountDataRequest *relativeCountPlusCountDataRequst = qobject_cast<AMDSClientRelativeCountPlusCountDataRequest*>(clientRequest);
 	if(relativeCountPlusCountDataRequst){
 		lastContinuousDataRequest_ = relativeCountPlusCountDataRequst;
@@ -468,6 +453,8 @@ void CLSAmptekSDD123DetectorNew::onRequestDataReady(AMDSClientRequest* clientReq
 
 void CLSAmptekSDD123DetectorNew::onServerError(int errorCode, bool removeServer, const QString &serverIdentifier, const QString &errorMessage)
 {
+	Q_UNUSED(errorCode) 	Q_UNUSED(removeServer)	Q_UNUSED(serverIdentifier)	Q_UNUSED(errorMessage)
+
 //	if (serverIdentifier.length() > 0) {
 //		if (removeServer)
 //			activeServerComboBox_->removeItem(activeServerComboBox_->findText(serverIdentifier));
@@ -485,14 +472,24 @@ bool CLSAmptekSDD123DetectorNew::acquireImplementation(AMDetectorDefinitions::Re
 {
 	if(readMode == AMDetectorDefinitions::ContinuousRead){
 		lastReadMode_ = AMDetectorDefinitions::ContinuousRead;
-		AMDSServer * server = clientAppController_->getServerByServerIdentifier("10.52.48.40:28044");
-		if (!server)
+
+		AMDSClientAppController *clientAppController = AMDSClientAppController::clientAppController();
+		AMDSServer *amptekAMDSServer = clientAppController->getServerByServerIdentifier(amptekAMDSServerIdentifier_);
+		if (amptekAMDSServer) {
+			QString bufferName = "Amptek SDD 240";
+			setAcquiring();
+			return clientAppController->requestClientData(amptekAMDSServer->hostName(), amptekAMDSServer->portNumber(), bufferName, 400, 400, true, false);
+		} else {
 			return false;
-		QString bufferName = "Amptek SDD 240";
+//<<<<<<< HEAD
+//		QString bufferName = "Amptek SDD 240";
 
-		setAcquiring();
+//		setAcquiring();
 
-		clientAppController_->requestClientData(server->hostName(), server->portNumber(), bufferName, 400, 400, true, false);
+//		clientAppController_->requestClientData(server->hostName(), server->portNumber(), bufferName, 400, 400, true, false);
+//=======
+		}
+//>>>>>>> SGMUpgrade
 	}
 	else{
 		lastReadMode_ = AMDetectorDefinitions::SingleRead;

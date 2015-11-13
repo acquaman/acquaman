@@ -197,7 +197,7 @@ bool AMContinuousScanActionController::event(QEvent *e)
 
 				int startEncoderValue = -412449;
 				int currentEncoderValue = startEncoderValue;
-				QVector<double> energyFeedbacks = QVector<double>(oneClientDataRequest_->data().count()-initiateMovementIndex);
+				QVector<double> energyFeedbacks = QVector<double>(oneClientDataRequest_->data().count()-initiateMovementIndex+1);
 				energyFeedbacks[0] = SGMGratingSupport::energyFromGrating(SGMGratingSupport::LowGrating, startEncoderValue);
 
 				// Loop from the start of the movement to the end and recreate the axis values (energy in this case) from the encoder pulse changes
@@ -212,7 +212,6 @@ bool AMContinuousScanActionController::event(QEvent *e)
 					}
 
 					currentEncoderValue += dataHolderAsDwellSpectral->dwellStatusData().generalPurposeCounter();
-
 					energyFeedbacks[x-initiateMovementIndex+1] = SGMGratingSupport::energyFromGrating(SGMGratingSupport::LowGrating, currentEncoderValue);
 				}
 
