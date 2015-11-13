@@ -1,7 +1,7 @@
 #include "CLSJJSlits.h"
 
 CLSJJSlits::CLSJJSlits(const QString &name, const QString &upperBladePVName, const QString &lowerBladePVName, const QString &inboardBladePVName, const QString &outboardBladePVName, QObject *parent) :
-	QObject(parent)
+	AMControl(name, "", parent)
 {
 	// Initialize member variables.
 

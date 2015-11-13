@@ -1,14 +1,13 @@
 #ifndef CLSJJSLITS_H
 #define CLSJJSLITS_H
 
-#include <QObject>
-
+#include "beamline/AMControl.h"
 #include "beamline/AMPVControl.h"
 #include "beamline/CLS/CLSJJSlitGapControl.h"
 #include "beamline/CLS/CLSJJSlitCenterControl.h"
 
 /// The class definition of CLSJJSlit, which contains a vertical CLSJJSlitsBladesControl and a horizontal CLSJJSlitsBladesControl
-class CLSJJSlits : public QObject
+class CLSJJSlits : public AMControl
 {
 	Q_OBJECT
 
