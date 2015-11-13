@@ -33,18 +33,21 @@ QString AMScalerCountAnalyser::toString()
 
 			if(motionPeriods_.at(nextMotionPeriodIndex).first == iRawScalerIndex) {
 
-				outputString.append(QString("%1\t%2\tStart").arg(iRawScalerIndex).arg(scalerCounts_.at(iRawScalerIndex));
+				outputString.append(QString("%1\t%2\tStart\n").arg(iRawScalerIndex).arg(scalerCounts_.at(iRawScalerIndex)));
 			} else if(motionPeriods_.at(nextMotionPeriodIndex).second == iRawScalerIndex) {
 
-				outputString.append(QString("%1\t%2\tEnd").arg(iRawScalerIndex).arg(scalerCounts_.at(iRawScalerIndex));
+				outputString.append(QString("%1\t%2\tEnd\n").arg(iRawScalerIndex).arg(scalerCounts_.at(iRawScalerIndex)));
 				++nextMotionPeriodIndex;
+			} else {
+
+				outputString.append(QString("%1\t%2\tError\n").arg(iRawScalerIndex).arg(scalerCounts_.at(iRawScalerIndex)));
 			}
 
 
 			++nextTransitionIndex;
 		} else {
 
-			outputString.append(QString("%1\t%2").arg(iRawScalerIndex).arg(scalerCounts_.at(iRawScalerIndex)));
+			outputString.append(QString("%1\t%2\n").arg(iRawScalerIndex).arg(scalerCounts_.at(iRawScalerIndex)));
 		}
 	}
 

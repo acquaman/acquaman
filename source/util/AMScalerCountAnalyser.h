@@ -1,8 +1,8 @@
 #ifndef AMSCALERCOUNTANALYSER_H
 #define AMSCALERCOUNTANALYSER_H
 
-#define SCALER_COUNT_NOISE_THRESHOLD 20 // The value below which is considered a non moving state
-#define SCALER_COUNT_NOISE_CHANGE_THRESHOLD 20 // The value below which the difference between two counts makes them steady
+#define SCALER_COUNT_NOISE_THRESHOLD 2 // The value below which is considered a non moving state
+#define SCALER_COUNT_NOISE_CHANGE_THRESHOLD 2 // The value below which the difference between two counts makes them steady
 #include <QVector>
 #include <QPair>
 /*!
