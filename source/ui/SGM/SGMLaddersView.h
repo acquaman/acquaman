@@ -56,13 +56,6 @@ protected:
 	AMExtendedControlEditor *bypassLadderEditor_;
 	/// The XAS ladder control editor.
 	AMExtendedControlEditor *xasLadderEditor_;
-
-	/// The XPS ladder motor control editor.
-	AMExtendedControlEditor *xpsLadderMotorEditor_;
-	/// The bypass ladder motor control editor.
-	AMExtendedControlEditor *bypassLadderMotorEditor_;
-	/// The XAS ladder motor control editor.
-	AMExtendedControlEditor *xasLadderMotorEditor_;
 };
 
 #endif // SGMLADDERSVIEW_H
