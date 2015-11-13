@@ -33,6 +33,9 @@ class SGMHexapod;
 class SGMXPSLadder;
 class SGMBypassLadder;
 class SGMXASLadder;
+
+class AMDSServerConfiguration;
+
 /*!
   * A singleton class which represents the SGM beamline. The beamline class can
   * be accessed through the SGMBeamline::sgm() function.
@@ -143,7 +146,17 @@ protected slots:
 	  * beamline components has been altered.
 	  */
 	void onConnectionStateChanged(bool);
+
+	/// helper function to initialize the AcquamanDataServer
+	/// ideally, this should be called in super class when Acquaman Data server is a generalized feature for all BLs using Acquaman
+	void connectAMDSServers();
+
 protected:
+
+	/*!
+	  * Initializes the Acquaman Data Server client app scontroller.
+	  */
+	void setupAMDSClientAppController();
 
 	/*!
 	  * Initializes the beamline controls (energy, exit slit etc.).
@@ -175,6 +188,9 @@ protected:
 	  * Protected constructor for the SGMBeamline to ensure singleton structure.
 	  */
 	SGMBeamline();
+
+protected:
+	QMap<QString, AMDSServerConfiguration> AMDSServerDefs_;
 
 	// New Energy Controls
 	SGMEnergyControlSet* energyControlSet_;
