@@ -23,12 +23,12 @@ AMEnumeratedControl::~AMEnumeratedControl()
 
 bool AMEnumeratedControl::validValue(double value) const
 {
-	return (value >= 0 && value < enumNames().count());
+	return ( indices_.contains(int(value)) );
 }
 
 bool AMEnumeratedControl::validSetpoint(double value) const
 {
-	return (value >= 0 && value < moveEnumNames().count());
+	return ( indices_.contains(int(value)) );
 }
 
 QList<int> AMEnumeratedControl::indicesNamed(const QString &name) const
