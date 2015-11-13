@@ -9,7 +9,8 @@ class CLSJJSlitOptimizationActionInfo : public AMActionInfo3
     Q_OBJECT
 
 public:
-	Q_INVOKABLE CLSJJSlitOptimizationActionInfo(AMGenericStepScanConfiguration *configuration = 0, const AMDetectorInfo &detectorInfo = AMDetectorInfo(), QObject *parent = 0);
+	/// Constructor.
+	Q_INVOKABLE CLSJJSlitOptimizationActionInfo(AMGenericStepScanConfiguration *configuration = 0, const AMControlInfo &controlInfo = AMControlInfo(), const AMDetectorInfo &detectorInfo = AMDetectorInfo(), QObject *parent = 0);
 	/// Copy constructor.
 	CLSJJSlitOptimizationActionInfo(const CLSJJSlitOptimizationActionInfo &original);
 	/// Destructor.
@@ -22,6 +23,8 @@ public:
 
 	/// Returns the scan configuration.
 	AMGenericStepScanConfiguration* configuration() const { return configuration_; }
+	/// Returns the control being optimized.
+	AMControlInfo controlInfo() const { return controlInfo_; }
 	/// Returns the analysis detector info.
 	AMDetectorInfo detectorInfo() const { return detectorInfo_; }
 
@@ -39,9 +42,10 @@ protected:
 protected:
 	/// The list of scan configurations to be run.
 	AMGenericStepScanConfiguration* configuration_;
+	/// The control being optimized.
+	AMControlInfo controlInfo_;
 	/// The detector info to use for the optimization analysis.
 	AMDetectorInfo detectorInfo_;
-
 };
 
 #endif // CLSJJSLITOPTIMIZATIONACTIONINFO_H

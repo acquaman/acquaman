@@ -4,6 +4,7 @@
 #include "actions3/AMAction3.h"
 #include "actions3/CLS/CLSJJSlitOptimizationActionInfo.h"
 #include "actions3/actions/AMScanAction.h"
+#include "beamline/AMControl.h"
 
 class CLSJJSlitOptimizationAction : public AMAction3
 {
@@ -31,9 +32,20 @@ public:
 	virtual int numberOfChildren() const { return 0; }
 
 protected slots:
-	/// Handles
+	void onScanActionStarted();
+	void onScanActionCancelled();
+	void onScanActionFailed();
+	void onScanActionSucceeded();
+	void onScanActionFinished();
+
+	void onMoveActionCancelled();
+	void onMoveActionFailed();
+	void onMoveActionSucceeded();
+	void onMoveActionFinished();
 
 protected:
+	/// Finds the control setpoint for the maximum value achieved by the given detector in the given scan. Returns an invalid AMNumber if there was a problem in analysis.
+	AMNumber findOptimalPosition(AMDataSource *detectorSource) const;
 
 	// The following functions are used to define the unique behaviour of the action.  We set them up in this way so that subclasses don't need to worry about (and cannot) break the state machine logic, they only need to fill in their pieces.
 
@@ -55,6 +67,18 @@ protected:
 	/// Since this action does not support skipping, the method is empty.
 	virtual void skipImplementation(const QString &command) { Q_UNUSED(command); }
 
+protected:
+	/// The JJ slits.
+	AMControl *jjSlits_;
+	/// The JJ slits control being optimized.
+	AMControl *control_;
+	/// The optimization scan configuration.
+	AMGenericStepScanConfiguration *configuration_;
+
+	/// The scan action.
+	AMScanAction *scanAction_;
+	/// The move action, moves control to optimal position.
+	AMAction3 *moveAction_;
 };
 
 #endif // CLSJJSLITOPTIMIZATIONACTION_H
