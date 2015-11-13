@@ -6,8 +6,8 @@ BioXASXIAFiltersActuator::BioXASXIAFiltersActuator(const QString &deviceName, co
 	// Setup actuator controls.
 
 	setStatus(new AMReadOnlyPVControl(name()+"Status", baseName+":control", this));
-	addFilterState(In, stateToString(In), new AMSinglePVControl(name()+"In", baseName+":OprInsert", this));
 	addFilterState(Out, stateToString(Out), new AMSinglePVControl(name()+"Out", baseName+":OprExtract", this));
+	addFilterState(In, stateToString(In), new AMSinglePVControl(name()+"In", baseName+":OprInsert", this));
 }
 
 BioXASXIAFiltersActuator::~BioXASXIAFiltersActuator()
