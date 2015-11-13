@@ -1,5 +1,6 @@
 #include "AMEnumeratedControl.h"
 #include "actions3/AMActionSupport.h"
+#include "util/AMErrorMonitor.h"
 
 AMEnumeratedControl::AMEnumeratedControl(const QString &name, const QString &units, QObject *parent) :
 	AMPseudoMotorControl(name, units, parent)
@@ -47,6 +48,38 @@ void AMEnumeratedControl::setAllowsDuplicateOptions(bool newStatus)
 		allowsDuplicateOptions_ = newStatus;
 		emit allowsDuplicationOptionsChanged(allowsDuplicateOptions_);
 	}
+}
+#include <QDebug>
+AMControl::FailureExplanation AMEnumeratedControl::move(double setpoint)
+{
+	qDebug() << "\n\nAMEnumeratedControl setpoint:" << setpoint;
+
+	// Check to see whether the given setpoint converts to a valid option index.
+	// The two may not be the same, as in the case where valid options don't start with 0.
+	// In all cases where the name is unique, however, the enum setpoint and the option
+	// setpoint are related by the enum name.
+
+	if (setpoint < 0 || setpoint >= enumNames().count()) {
+		AMErrorMon::alert(this, AMENUMERATEDCONTROL_INVALID_ENUM_SETPOINT, QString("Failed to move %1: the enum setpoint %2 given is outside the range of valid enum indices.").arg(name()).arg(QString::number(setpoint)));
+		return AMControl::OtherFailure;
+	}
+
+	QList<int> optionIndices;
+	QString enumName = enumNames().at(int(setpoint));
+
+	if (indexStringMap_.values().contains(enumName))
+		optionIndices = indexStringMap_.keys(enumName);
+
+	if (optionIndices.isEmpty()) {
+		AMErrorMon::alert(this, AMENUMERATEDCONTROL_INVALID_OPTION_SETPOINT, QString("Failed to move %1: control has no valid option index corresponding to setpoint %2.").arg(name()).arg(QString::number(setpoint)));
+		return AMControl::OtherFailure;
+	}
+
+	// A valid option index has been found. Proceed with normal move to option index.
+
+	int option = optionIndices.first();
+
+	return AMPseudoMotorControl::move(option);
 }
 
 void AMEnumeratedControl::updateStates()
