@@ -131,6 +131,7 @@ void AMContinuousScanActionController::flushCDFDataStoreToDisk()
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Serious, 38, "Error saving the currently-running scan's raw data file to disk. Watch out... your data may not be saved! Please report this bug to your beamline's software developers."));
 }
 
+#include "source/DataHolder/AMDSScalarDataHolder.h"
 bool AMContinuousScanActionController::event(QEvent *e)
 {
 	if (e->type() == (QEvent::Type)AMAgnosticDataAPIDefinitions::MessageEvent){
@@ -259,6 +260,29 @@ bool AMContinuousScanActionController::event(QEvent *e)
 			AMDSClientDataRequest *dataRequest = static_cast<AMDSClientDataRequest*>(dataRequestVoidPointer);
 			clientDataRequestMap_.insert(dataRequest->bufferName(), dataRequest);
 
+			if(dataRequest->bufferName() == "Scaler (BL1611-ID-1)"){
+				qDebug() << "DataAvailable for the scaler, what's in here?";
+
+				qDebug() << dataRequest->metaObject()->className();
+
+				AMDSClientRelativeCountPlusCountDataRequest *asRelativeRequesst = qobject_cast<AMDSClientRelativeCountPlusCountDataRequest*>(dataRequest);
+				if(asRelativeRequesst){
+					qDebug() << asRelativeRequesst->data().at(0)->metaObject()->className();
+
+					qDebug() << "Data count is " << asRelativeRequesst->data().count();
+
+					QString outputString;
+					for(int x = 0, size = asRelativeRequesst->data().count(); x < size; x++){
+						AMDSLightWeightScalarDataHolder *asScalarDataHolder = qobject_cast<AMDSLightWeightScalarDataHolder*>(asRelativeRequesst->data().at(x));
+//						qDebug() << "At " << x << asScalarDataHolder->dataArray().constVectorQint32();
+						QVector<qint32> oneVector = asScalarDataHolder->dataArray().constVectorQint32();
+						outputString.append(QString("[%1] ").arg(x));
+						for(int y = 0, ySize = oneVector.count(); y < ySize; y++)
+							outputString.append(QString("%1 ").arg(oneVector.at(y)));
+					}
+					qDebug() << outputString;
+				}
+			}
 			/*
 			bool castToGenericFlatArrayHolder = false;
 			AMDSLightWeightGenericFlatArrayDataHolder *dataHolderAsGenericFlatArrayDataHolder = qobject_cast<AMDSLightWeightGenericFlatArrayDataHolder*>(dataRequest->data().at(0));

@@ -43,9 +43,11 @@ public:
 	CLSAmptekSDD123DetectorNew(const QString &name, const QString &description, const QString &baseName, const QString &amdsBufferName, QObject *parent = 0);
 	virtual ~CLSAmptekSDD123DetectorNew();
 
+	/// Returns the buffer name for this detector
 	QString amdsBufferName() const;
-
+	/// Configures the server with the given identifier
 	void configAMDSServer(const QString &amptekAMDSServerIdentifier);
+
 	/// The Ampteks don't explicitly require powering on
 	virtual bool requiresPower() const { return false; }
 
@@ -208,13 +210,6 @@ protected slots:
 
 
 	/// ============= SLOTs to handle AMDSClientAppController signals =========
-	/// slot to handle the signal of networkSessionOpening
-//	void onNetworkSessionOpening();
-	/// slot to handle the signal of networkSessionOpened
-//	void onNetworkSessionOpened();
-
-	/// slot to handle the signal of newServerConnected (add the serverIdentifier to the combox and update the ui displays -- buffernames and active connections)
-//	void onNewServerConnected(const QString &serverIdentifier);
 	/// slot to handle the signal of request data ready
 	void onRequestDataReady(AMDSClientRequest* clientRequest);
 	/// slot to handle the signal of socketEror
@@ -239,8 +234,6 @@ protected:
 	// END OF FLAG
 
 protected:
-	QString amdsBufferName_;
-
 	/// Control for the fast counts
 	AMReadOnlyPVControl *fastCountsControl_;
 	/// Control for the average fast counts
@@ -306,6 +299,8 @@ protected:
 
 	/// the AMDS Amptek Server identifier
 	QString amptekAMDSServerIdentifier_;
+	/// The AMDS buffer name for this instance
+	QString amdsBufferName_;
 
 	/// The data returned from the last acquire(AMDetectorDefinitions::ContinuousMode) call
 	AMDSClientRelativeCountPlusCountDataRequest *lastContinuousDataRequest_;

@@ -23,6 +23,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "beamline/CLS/CLSSIS3820Scaler.h"
 
+#include "source/ClientRequest/AMDSClientRelativeCountPlusCountDataRequest.h"
+
  CLSAdvancedScalerChannelDetector::~CLSAdvancedScalerChannelDetector(){}
 CLSAdvancedScalerChannelDetector::CLSAdvancedScalerChannelDetector(const QString &name, const QString &description, CLSSIS3820Scaler *scaler, int channelIndex, QObject *parent) :
 	CLSBasicScalerChannelDetector(name, description, scaler, channelIndex, parent)
@@ -48,6 +50,11 @@ bool CLSAdvancedScalerChannelDetector::data(double *outputValues) const
 	outputValues[0] = singleReading();
 
 	return true;
+}
+
+AMDSClientDataRequest* CLSAdvancedScalerChannelDetector::lastContinuousData(double seconds) const
+{
+	return scaler_->lastContinuousDataRequest();
 }
 
 bool CLSAdvancedScalerChannelDetector::setReadMode(AMDetectorDefinitions::ReadMode readMode){
@@ -159,9 +166,28 @@ void CLSAdvancedScalerChannelDetector::onScalerConnectedConfirmReadMode(bool con
 	}
 }
 
-bool CLSAdvancedScalerChannelDetector::acquireImplementation(AMDetectorDefinitions::ReadMode readMode){
+void CLSAdvancedScalerChannelDetector::onScalerAMDSDataReady()
+{
+	qDebug() << "ScalerAMDSDataReady in CLSAdvancedScalerChannelDetector";
+	disconnect(scaler_, SIGNAL(amdsDataReady()), this, SLOT(onScalerAMDSDataReady()));
+	setAcquisitionSucceeded();
+	setReadyForAcquisition();
+}
+
+bool CLSAdvancedScalerChannelDetector::acquireImplementation(AMDetectorDefinitions::ReadMode readMode)
+{
+	qDebug() << "CLSAdvancedScalerChannelDetector asked for acquireImplementation with read mode " << readMode;
 	if(!isConnected())
 		return false;
+
+	if(readMode == AMDetectorDefinitions::ContinuousRead){
+		qDebug() << "ContinuousRead in CLSAdvancedScalerChannelDetector";
+		readMode_ = AMDetectorDefinitions::ContinuousRead;
+
+		connect(scaler_, SIGNAL(amdsDataReady()), this, SLOT(onScalerAMDSDataReady()));
+		setAcquiring();
+		scaler_->retrieveBufferedData(1);
+	}
 
 	if(readMode_ != readMode){
 		connect(this, SIGNAL(readModeChanged(AMDetectorDefinitions::ReadMode)), this, SLOT(triggerChannelAcquisition()));
@@ -172,3 +198,9 @@ bool CLSAdvancedScalerChannelDetector::acquireImplementation(AMDetectorDefinitio
 		return triggerChannelAcquisition();
 }
 
+void CLSAdvancedScalerChannelDetector::checkReadyForAcquisition(){
+	if(isConnected()){
+		if(!isReadyForAcquisition())
+			setReadyForAcquisition();
+	}
+}

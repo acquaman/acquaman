@@ -31,11 +31,19 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "actions3/actions/CLSSIS3820ScalerDarkCurrentMeasurementAction.h"
 
+#include "source/appController/AMDSClientAppController.h"
+#include "source/ClientRequest/AMDSClientRequestSupport.h"
+#include "source/DataElement/AMDSEventDataSupport.h"
+#include "source/DataHolder/AMDSDataHolderSupport.h"
+#include "source/Connection/AMDSServer.h"
+#include "source/ClientRequest/AMDSClientDataRequest.h"
+#include "source/ClientRequest/AMDSClientRelativeCountPlusCountDataRequest.h"
+
 
 // CLSSIS3820Scalar
 /////////////////////////////////////////////
 
-CLSSIS3820Scaler::CLSSIS3820Scaler(const QString &baseName, QObject *parent) :
+CLSSIS3820Scaler::CLSSIS3820Scaler(const QString &baseName, const QString &amdsBufferName, QObject *parent) :
 	QObject(parent)
 {
 	connectedOnce_ = false;
@@ -83,6 +91,12 @@ CLSSIS3820Scaler::CLSSIS3820Scaler(const QString &baseName, QObject *parent) :
 	allControls_->addControl(totalScans_);
 	allControls_->addControl(reading_);
 
+	amdsBufferName_ = amdsBufferName;
+	AMDSClientRequestSupport::registerClientRequestClass();
+	AMDSDataHolderSupport::registerDataHolderClass();
+	AMDSEventDataSupport::registerEventDataObjectClass();
+	lastContinuousDataRequest_ = 0;
+
 	connect(startToggle_, SIGNAL(valueChanged(double)), this, SLOT(onScanningToggleChanged()));
 	connect(continuousToggle_, SIGNAL(valueChanged(double)), this, SLOT(onContinuousToggleChanged()));
 	connect(dwellTime_, SIGNAL(valueChanged(double)), this, SLOT(onDwellTimeChanged(double)));
@@ -105,6 +119,38 @@ bool CLSSIS3820Scaler::isConnected() const{
 		retVal &= scalerChannels_.at(x)->isConnected();
 
 	return retVal && allControls_->isConnected();
+}
+
+QString CLSSIS3820Scaler::amdsBufferName() const
+{
+	return amdsBufferName_;
+}
+
+void CLSSIS3820Scaler::configAMDSServer(const QString &amdsServerIdentifier)
+{
+	amdsServerIdentifier_ = amdsServerIdentifier;
+
+	AMDSServer *scalerAMDSServer = AMDSClientAppController::clientAppController()->getServerByServerIdentifier(amdsServerIdentifier_);
+	if (scalerAMDSServer) {
+		connect(scalerAMDSServer, SIGNAL(requestDataReady(AMDSClientRequest*)), this, SLOT(onRequestDataReady(AMDSClientRequest*)));
+		connect(AMDSClientAppController::clientAppController(), SIGNAL(serverError(int,bool,QString,QString)), this, SLOT(onServerError(int,bool,QString,QString)));
+	}
+}
+
+bool CLSSIS3820Scaler::retrieveBufferedData(double seconds)
+{
+	AMDSClientAppController *clientAppController = AMDSClientAppController::clientAppController();
+	AMDSServer *scalerAMDSServer = clientAppController->getServerByServerIdentifier(amdsServerIdentifier_);
+	qDebug() << "Trying to retrieve scaler AMDS data " << amdsBufferName_ << scalerAMDSServer->bufferNames();
+	if (scalerAMDSServer && !amdsBufferName_.isEmpty() && scalerAMDSServer->bufferNames().contains(amdsBufferName_))
+		return clientAppController->requestClientData(scalerAMDSServer->hostName(), scalerAMDSServer->portNumber(), amdsBufferName_, 12000, 12000, true, false);
+	else
+		return false;
+}
+
+AMDSClientRelativeCountPlusCountDataRequest* CLSSIS3820Scaler::lastContinuousDataRequest() const
+{
+	return lastContinuousDataRequest_;
 }
 
 bool CLSSIS3820Scaler::isScanning() const{
@@ -376,6 +422,7 @@ void CLSSIS3820Scaler::onTriggerSourceTriggered(AMDetectorDefinitions::ReadMode 
 		return;
 
 	readModeForTriggerSource_ = readMode;
+
 	if(isContinuous()){
 		if(readModeForTriggerSource_ == readModeFromSettings())
 			connect(this, SIGNAL(continuousChanged(bool)), this, SLOT(triggerScalerAcquisition(bool)));
@@ -498,6 +545,32 @@ void CLSSIS3820Scaler::onDwellTimeSourceSetDwellTime(double dwellSeconds){
 		setDwellTime(dwellSeconds);
 	else
 		dwellTimeSource_->setSucceeded();
+}
+
+#include "source/ClientRequest/AMDSClientIntrospectionRequest.h"
+/// ============= SLOTs to handle AMDSClientAppController signals =========
+void CLSSIS3820Scaler::onRequestDataReady(AMDSClientRequest* clientRequest)
+{
+	AMDSClientIntrospectionRequest *introspectionRequest = qobject_cast<AMDSClientIntrospectionRequest*>(clientRequest);
+	if(introspectionRequest){
+		qDebug() << "Got an introspection request response";
+
+		qDebug() << "All buffer names: " << introspectionRequest->getAllBufferNames();
+	}
+
+	AMDSClientRelativeCountPlusCountDataRequest *relativeCountPlusCountDataRequst = qobject_cast<AMDSClientRelativeCountPlusCountDataRequest*>(clientRequest);
+	if(relativeCountPlusCountDataRequst){
+
+		if(relativeCountPlusCountDataRequst->bufferName() == amdsBufferName_){
+			lastContinuousDataRequest_ = relativeCountPlusCountDataRequst;
+			emit amdsDataReady();
+		}
+	}
+}
+
+void CLSSIS3820Scaler::onServerError(int errorCode, bool removeServer, const QString &serverIdentifier, const QString &errorMessage)
+{
+	Q_UNUSED(errorCode) 	Q_UNUSED(removeServer)	Q_UNUSED(serverIdentifier)	Q_UNUSED(errorMessage)
 }
 
 AMDetectorDefinitions::ReadMode CLSSIS3820Scaler::readModeFromSettings(){

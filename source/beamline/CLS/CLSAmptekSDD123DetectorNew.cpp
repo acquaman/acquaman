@@ -441,10 +441,17 @@ void CLSAmptekSDD123DetectorNew::onHighIndexValueChanged(int index){
 
 
 
-
+#include "source/ClientRequest/AMDSClientIntrospectionRequest.h"
 /// ============= SLOTs to handle AMDSClientAppController signals =========
 void CLSAmptekSDD123DetectorNew::onRequestDataReady(AMDSClientRequest* clientRequest)
 {
+	AMDSClientIntrospectionRequest *introspectionRequest = qobject_cast<AMDSClientIntrospectionRequest*>(clientRequest);
+	if(introspectionRequest){
+		qDebug() << "Got an introspection request response";
+
+		qDebug() << "All buffer names: " << introspectionRequest->getAllBufferNames();
+	}
+
 	AMDSClientRelativeCountPlusCountDataRequest *relativeCountPlusCountDataRequst = qobject_cast<AMDSClientRelativeCountPlusCountDataRequest*>(clientRequest);
 	if(relativeCountPlusCountDataRequst){
 

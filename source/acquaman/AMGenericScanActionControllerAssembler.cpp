@@ -291,6 +291,9 @@ AMAction3* AMGenericScanActionControllerAssembler::generateActionTreeForContinuo
 		}
 		axisActions->addSubAction(amptekContinuousTriggerList);
 
+		AMAction3 *scalerContinuousTriggerTest = SGMBeamline::sgm()->exposedDetectorByName("TEY")->createTriggerAction(AMDetectorDefinitions::ContinuousRead);
+		axisActions->addSubAction(scalerContinuousTriggerTest);
+
 		// Reading the detector will cause it to pass the AMDSClientDataRequest through the even system using AMAgnosticDataAPI
 		AMListAction3 *amptekContinuousReadList = new AMParallelListAction3(new AMParallelListActionInfo3(QString("Reading detectors"), QString("Reading detectors")));
 		for(int x = 0; x < 4; x++){
@@ -299,6 +302,10 @@ AMAction3* AMGenericScanActionControllerAssembler::generateActionTreeForContinuo
 			amptekContinuousReadList->addSubAction(amptekContinuousRead);
 		}
 		axisActions->addSubAction(amptekContinuousReadList);
+
+		AMAction3 *scalerContinuousReadTest = SGMBeamline::sgm()->exposedDetectorByName("TEY")->createReadAction();
+		scalerContinuousReadTest->setGenerateScanActionMessage(true);
+		axisActions->addSubAction(scalerContinuousReadTest);
 
 
 		// Generate axis cleanup list /////////////////////

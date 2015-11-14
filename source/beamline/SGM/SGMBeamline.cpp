@@ -164,6 +164,9 @@ void SGMBeamline::onAMDSServerConnected(const QString &hostIdentifier)
 		amptekSDD3_->configAMDSServer(AMDSServerDefs_.value("AmptekServer").serverIdentifier());
 		amptekSDD4_->configAMDSServer(AMDSServerDefs_.value("AmptekServer").serverIdentifier());
 	}
+	if(hostIdentifier == AMDSServerDefs_.value("AmptekServer").serverIdentifier() && scaler_){
+		scaler_->configAMDSServer(AMDSServerDefs_.value("AmptekServer").serverIdentifier());
+	}
 }
 
 void SGMBeamline::setupAMDSClientAppController()
@@ -215,7 +218,7 @@ void SGMBeamline::setupBeamlineComponents()
 	// Setup Scaler and SR570
 	CLSSR570 *tempSR570;
 
-	scaler_ = new CLSSIS3820Scaler("BL1611-ID-1:mcs", this);
+	scaler_ = new CLSSIS3820Scaler("BL1611-ID-1:mcs",  "Scaler (BL1611-ID-1)", this);
 
 	tempSR570 = new CLSSR570("TEY", "Amp1611-4-21", this);
 	scaler_->channelAt(0)->setCurrentAmplifier(tempSR570);

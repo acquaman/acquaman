@@ -85,6 +85,8 @@ void AMDetectorReadAction::onDetectorNewValuesAvailable(){
 	internalSetSucceeded();
 }
 
+#include <QDebug>
+#include "source/ClientRequest/AMDSClientDataRequest.h"
 void AMDetectorReadAction::internalSetSucceeded(){
 	disconnect(detector_, 0, this, 0);
 
@@ -124,6 +126,8 @@ void AMDetectorReadAction::internalSetSucceeded(){
 			dimensionUnits.append("0");
 
 			detectorData.append(0);
+
+			qDebug() << "Continuous data buffer name " << detector_->lastContinuousData(1)->bufferName();
 
 			AMAgnosticDataAPIDataAvailableMessage dataAvailableMessage(detector_->name(), detectorData, dimensionSizes, dimensionNames, dimensionUnits, true);
 			intptr_t continuousDataPointer = (intptr_t)(detector_->lastContinuousData(1));
