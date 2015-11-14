@@ -90,14 +90,41 @@ void SGMAppController::shutdown() {
 
 void SGMAppController::initializeAmptekView()
 {
-	if(!amptekDetectorView_) {
+	if(!amptek1DetectorView_) {
 
-		amptekDetectorView_ = new CLSAmptekDetailedDetectorView(SGMBeamline::sgm()->amptekSDD1());
-		amptekDetectorView_->buildDetectorView();
-		amptekDetectorView_->setEnergyRange(270,2000);
-		amptekDetectorView_->collapsePeriodTableViews();
-		mw_->addPane(amptekDetectorView_, "Amptek Detector", "Amptek Detector", ":/system-software-update.png");
-		connect(amptekDetectorView_, SIGNAL(resized()), this, SLOT(onAmptekDetectorViewResized()));
+		amptek1DetectorView_ = new CLSAmptekDetailedDetectorView(SGMBeamline::sgm()->amptekSDD1());
+		amptek1DetectorView_->buildDetectorView();
+		amptek1DetectorView_->setEnergyRange(270,2000);
+		amptek1DetectorView_->collapsePeriodTableViews();
+		mw_->addPane(amptek1DetectorView_, "Amptek Detectors", "Amptek Detector 1", ":/system-software-update.png");
+		connect(amptek1DetectorView_, SIGNAL(resized()), this, SLOT(onAmptekDetectorViewResized()));
+	}
+	if(!amptek2DetectorView_) {
+
+		amptek2DetectorView_ = new CLSAmptekDetailedDetectorView(SGMBeamline::sgm()->amptekSDD2());
+		amptek2DetectorView_->buildDetectorView();
+		amptek2DetectorView_->setEnergyRange(270,2000);
+		amptek2DetectorView_->collapsePeriodTableViews();
+		mw_->addPane(amptek2DetectorView_, "Amptek Detectors", "Amptek Detector 2", ":/system-software-update.png");
+		connect(amptek2DetectorView_, SIGNAL(resized()), this, SLOT(onAmptekDetectorViewResized()));
+	}
+	if(!amptek3DetectorView_) {
+
+		amptek3DetectorView_ = new CLSAmptekDetailedDetectorView(SGMBeamline::sgm()->amptekSDD3());
+		amptek3DetectorView_->buildDetectorView();
+		amptek3DetectorView_->setEnergyRange(270,2000);
+		amptek3DetectorView_->collapsePeriodTableViews();
+		mw_->addPane(amptek3DetectorView_, "Amptek Detectors", "Amptek Detector 3", ":/system-software-update.png");
+		connect(amptek3DetectorView_, SIGNAL(resized()), this, SLOT(onAmptekDetectorViewResized()));
+	}
+	if(!amptek4DetectorView_) {
+
+		amptek4DetectorView_ = new CLSAmptekDetailedDetectorView(SGMBeamline::sgm()->amptekSDD4());
+		amptek4DetectorView_->buildDetectorView();
+		amptek4DetectorView_->setEnergyRange(270,2000);
+		amptek4DetectorView_->collapsePeriodTableViews();
+		mw_->addPane(amptek4DetectorView_, "Amptek Detectors", "Amptek Detector 4", ":/system-software-update.png");
+		connect(amptek4DetectorView_, SIGNAL(resized()), this, SLOT(onAmptekDetectorViewResized()));
 	}
 }
 
@@ -172,7 +199,10 @@ void SGMAppController::setupUserInterface()
 	mw_->addPane(commissioningStepConfigurationViewHolder_, "Scans", "Commissioning Tool", ":/utilities-system-monitor.png");
 	mw_->addPane(commissioningContinuousConfigurationViewHolder_, "Scans", "Continuous Tool", ":/utilities-system-monitor.png");
 
-	amptekDetectorView_ = 0;
+	amptek1DetectorView_ = 0;
+	amptek2DetectorView_ = 0;
+	amptek3DetectorView_ = 0;
+	amptek4DetectorView_ = 0;
 	if(SGMBeamline::sgm()->amptekSDD1() && SGMBeamline::sgm()->amptekSDD1()->isConnected()) {
 		initializeAmptekView();
 	} else if(SGMBeamline::sgm()->amptekSDD1()) {

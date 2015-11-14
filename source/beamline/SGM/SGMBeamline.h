@@ -112,6 +112,9 @@ public:
 	  * The Amptek detector
 	  */
 	CLSAmptekSDD123DetectorNew* amptekSDD1() const;
+	CLSAmptekSDD123DetectorNew* amptekSDD2() const;
+	CLSAmptekSDD123DetectorNew* amptekSDD3() const;
+	CLSAmptekSDD123DetectorNew* amptekSDD4() const;
 
 	/*!
 	  * The scaler.
@@ -206,6 +209,9 @@ protected:
 	CLSAdvancedScalerChannelDetector *filteredPD5Detector_;
 
 	CLSAmptekSDD123DetectorNew* amptekSDD1_;
+	CLSAmptekSDD123DetectorNew* amptekSDD2_;
+	CLSAmptekSDD123DetectorNew* amptekSDD3_;
+	CLSAmptekSDD123DetectorNew* amptekSDD4_;
 
 	bool cachedConnectedState_;
 

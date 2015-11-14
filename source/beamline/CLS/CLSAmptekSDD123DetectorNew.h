@@ -40,8 +40,10 @@ class CLSAmptekSDD123DetectorNew : public AMXRFDetector
 Q_OBJECT
 public:
 	/// Default constructor. Requires the name and base PV of the detector. It builds all the PV's and connects them accordingly.
- 	virtual ~CLSAmptekSDD123DetectorNew();
-	CLSAmptekSDD123DetectorNew(const QString &name, const QString &description, const QString &baseName, QObject *parent = 0);
+	CLSAmptekSDD123DetectorNew(const QString &name, const QString &description, const QString &baseName, const QString &amdsBufferName, QObject *parent = 0);
+	virtual ~CLSAmptekSDD123DetectorNew();
+
+	QString amdsBufferName() const;
 
 	void configAMDSServer(const QString &amptekAMDSServerIdentifier);
 	/// The Ampteks don't explicitly require powering on
@@ -237,6 +239,8 @@ protected:
 	// END OF FLAG
 
 protected:
+	QString amdsBufferName_;
+
 	/// Control for the fast counts
 	AMReadOnlyPVControl *fastCountsControl_;
 	/// Control for the average fast counts

@@ -26,7 +26,6 @@ AMContinuousScanActionController::AMContinuousScanActionController(AMContinuousS
 {
 	continuousConfiguration_ = configuration;
 
-	oneClientDataRequest_ = 0;
 	insertionIndex_ = AMnDIndex(0);
 }
 
@@ -151,16 +150,19 @@ bool AMContinuousScanActionController::event(QEvent *e)
 
 			// An argument could be made to put the control axis value stuff here.
 
-			if(oneClientDataRequest_){
+			AMDSClientDataRequest *oneClientDataRequest = clientDataRequestMap_.value("Amptek SDD 240");
+
+			if(oneClientDataRequest){
+
 				bool castToGenericFlatArrayHolder = false;
-				AMDSLightWeightGenericFlatArrayDataHolder *dataHolderAsGenericFlatArrayDataHolder = qobject_cast<AMDSLightWeightGenericFlatArrayDataHolder*>(oneClientDataRequest_->data().at(0));
+				AMDSLightWeightGenericFlatArrayDataHolder *dataHolderAsGenericFlatArrayDataHolder = qobject_cast<AMDSLightWeightGenericFlatArrayDataHolder*>(oneClientDataRequest->data().at(0));
 				if(dataHolderAsGenericFlatArrayDataHolder){
 					qDebug() << "Can cast to generic flat array holder";
 					castToGenericFlatArrayHolder = true;
 				}
 
 				bool castToDwellSpectralHolder = false;
-				AMDSDwellSpectralDataHolder *dataHolderAsDwellSpectral = qobject_cast<AMDSDwellSpectralDataHolder*>(oneClientDataRequest_->data().at(0));
+				AMDSDwellSpectralDataHolder *dataHolderAsDwellSpectral = qobject_cast<AMDSDwellSpectralDataHolder*>(oneClientDataRequest->data().at(0));
 				if(dataHolderAsDwellSpectral){
 					qDebug() << "Can cast to dwell spectral data holder";
 					castToDwellSpectralHolder = true;
@@ -171,14 +173,14 @@ bool AMContinuousScanActionController::event(QEvent *e)
 				bool foundMovementEnd = false;
 
 				// Loop backwards from the end to find the start of the movement we're interested in
-				for(int x = oneClientDataRequest_->data().count()-1; (x > 0) && !foundMovementStart; x--){
+				for(int x = oneClientDataRequest->data().count()-1; (x > 0) && !foundMovementStart; x--){
 					if(castToDwellSpectralHolder){
-						dataHolderAsDwellSpectral = qobject_cast<AMDSDwellSpectralDataHolder*>(oneClientDataRequest_->data().at(x));
+						dataHolderAsDwellSpectral = qobject_cast<AMDSDwellSpectralDataHolder*>(oneClientDataRequest->data().at(x));
 						dataHolderAsGenericFlatArrayDataHolder = dataHolderAsDwellSpectral;
 					}
 					else if(castToGenericFlatArrayHolder){
 						dataHolderAsDwellSpectral = 0;
-						dataHolderAsGenericFlatArrayDataHolder = qobject_cast<AMDSLightWeightGenericFlatArrayDataHolder*>(oneClientDataRequest_->data().at(x));
+						dataHolderAsGenericFlatArrayDataHolder = qobject_cast<AMDSLightWeightGenericFlatArrayDataHolder*>(oneClientDataRequest->data().at(x));
 					}
 
 					int encoderPulsesInPeriod = dataHolderAsDwellSpectral->dwellStatusData().generalPurposeCounter();
@@ -197,18 +199,18 @@ bool AMContinuousScanActionController::event(QEvent *e)
 
 				int startEncoderValue = -412449;
 				int currentEncoderValue = startEncoderValue;
-				QVector<double> energyFeedbacks = QVector<double>(oneClientDataRequest_->data().count()-initiateMovementIndex+1);
+				QVector<double> energyFeedbacks = QVector<double>(oneClientDataRequest->data().count()-initiateMovementIndex+1);
 				energyFeedbacks[0] = SGMGratingSupport::energyFromGrating(SGMGratingSupport::LowGrating, startEncoderValue);
 
 				// Loop from the start of the movement to the end and recreate the axis values (energy in this case) from the encoder pulse changes
-				for(int x = initiateMovementIndex, size = oneClientDataRequest_->data().count(); x < size; x++){
+				for(int x = initiateMovementIndex, size = oneClientDataRequest->data().count(); x < size; x++){
 					if(castToDwellSpectralHolder){
-						dataHolderAsDwellSpectral = qobject_cast<AMDSDwellSpectralDataHolder*>(oneClientDataRequest_->data().at(x));
+						dataHolderAsDwellSpectral = qobject_cast<AMDSDwellSpectralDataHolder*>(oneClientDataRequest->data().at(x));
 						dataHolderAsGenericFlatArrayDataHolder = dataHolderAsDwellSpectral;
 					}
 					else if(castToGenericFlatArrayHolder){
 						dataHolderAsDwellSpectral = 0;
-						dataHolderAsGenericFlatArrayDataHolder = qobject_cast<AMDSLightWeightGenericFlatArrayDataHolder*>(oneClientDataRequest_->data().at(x));
+						dataHolderAsGenericFlatArrayDataHolder = qobject_cast<AMDSLightWeightGenericFlatArrayDataHolder*>(oneClientDataRequest->data().at(x));
 					}
 
 					currentEncoderValue += dataHolderAsDwellSpectral->dwellStatusData().generalPurposeCounter();
@@ -216,20 +218,31 @@ bool AMContinuousScanActionController::event(QEvent *e)
 				}
 
 				// Loop from the start of the movement to the end and place any data that we have into the actual rawData()
-				for(int x = initiateMovementIndex, size = oneClientDataRequest_->data().count(); x < size; x++){
+				for(int x = initiateMovementIndex, size = oneClientDataRequest->data().count(); x < size; x++){
 					if(castToDwellSpectralHolder){
-						dataHolderAsDwellSpectral = qobject_cast<AMDSDwellSpectralDataHolder*>(oneClientDataRequest_->data().at(x));
+						dataHolderAsDwellSpectral = qobject_cast<AMDSDwellSpectralDataHolder*>(oneClientDataRequest->data().at(x));
 						dataHolderAsGenericFlatArrayDataHolder = dataHolderAsDwellSpectral;
 					}
 					else if(castToGenericFlatArrayHolder){
 						dataHolderAsDwellSpectral = 0;
-						dataHolderAsGenericFlatArrayDataHolder = qobject_cast<AMDSLightWeightGenericFlatArrayDataHolder*>(oneClientDataRequest_->data().at(x));
+						dataHolderAsGenericFlatArrayDataHolder = qobject_cast<AMDSLightWeightGenericFlatArrayDataHolder*>(oneClientDataRequest->data().at(x));
 					}
 
 					scan_->rawData()->beginInsertRows(1, -1);
 					scan_->rawData()->setAxisValue(0, insertionIndex_.i(), energyFeedbacks.at(x-initiateMovementIndex+1));
 					scan_->rawData()->setValue(insertionIndex_, scan_->rawData()->idOfMeasurement("I0"), AMnDIndex(), dataHolderAsDwellSpectral->dwellStatusData().generalPurposeCounter());
 					scan_->rawData()->setValue(insertionIndex_, scan_->rawData()->idOfMeasurement("AmptekSDD1"), dataHolderAsGenericFlatArrayDataHolder->dataArray().constVectorDouble().constData());
+
+					dataHolderAsGenericFlatArrayDataHolder = qobject_cast<AMDSLightWeightGenericFlatArrayDataHolder*>(clientDataRequestMap_.value("Amptek SDD 241")->data().at(x));
+					if(dataHolderAsGenericFlatArrayDataHolder)
+						scan_->rawData()->setValue(insertionIndex_, scan_->rawData()->idOfMeasurement("AmptekSDD2"), dataHolderAsGenericFlatArrayDataHolder->dataArray().constVectorDouble().constData());
+					dataHolderAsGenericFlatArrayDataHolder = qobject_cast<AMDSLightWeightGenericFlatArrayDataHolder*>(clientDataRequestMap_.value("Amptek SDD 242")->data().at(x));
+					if(dataHolderAsGenericFlatArrayDataHolder)
+						scan_->rawData()->setValue(insertionIndex_, scan_->rawData()->idOfMeasurement("AmptekSDD3"), dataHolderAsGenericFlatArrayDataHolder->dataArray().constVectorDouble().constData());
+					dataHolderAsGenericFlatArrayDataHolder = qobject_cast<AMDSLightWeightGenericFlatArrayDataHolder*>(clientDataRequestMap_.value("Amptek SDD 243")->data().at(x));
+					if(dataHolderAsGenericFlatArrayDataHolder)
+						scan_->rawData()->setValue(insertionIndex_, scan_->rawData()->idOfMeasurement("AmptekSDD4"), dataHolderAsGenericFlatArrayDataHolder->dataArray().constVectorDouble().constData());
+
 					scan_->rawData()->endInsertRows();
 					insertionIndex_[0] = insertionIndex_.i()+1;
 				}
@@ -248,7 +261,8 @@ bool AMContinuousScanActionController::event(QEvent *e)
 			intptr_t dataRequestPointer = dataAvailableMessage->detectorDataAsAMDS();
 			void *dataRequestVoidPointer = (void*)dataRequestPointer;
 			AMDSClientDataRequest *dataRequest = static_cast<AMDSClientDataRequest*>(dataRequestVoidPointer);
-			oneClientDataRequest_ = dataRequest;
+			qDebug() << "Inserting " << dataRequest->bufferName() << " into map";
+			clientDataRequestMap_.insert(dataRequest->bufferName(), dataRequest);
 
 			/*
 			bool castToGenericFlatArrayHolder = false;

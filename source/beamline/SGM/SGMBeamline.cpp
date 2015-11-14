@@ -119,6 +119,21 @@ CLSAmptekSDD123DetectorNew * SGMBeamline::amptekSDD1() const
 	return amptekSDD1_;
 }
 
+CLSAmptekSDD123DetectorNew * SGMBeamline::amptekSDD2() const
+{
+	return amptekSDD2_;
+}
+
+CLSAmptekSDD123DetectorNew * SGMBeamline::amptekSDD3() const
+{
+	return amptekSDD3_;
+}
+
+CLSAmptekSDD123DetectorNew * SGMBeamline::amptekSDD4() const
+{
+	return amptekSDD4_;
+}
+
 CLSSIS3820Scaler * SGMBeamline::scaler() const
 {
 	return scaler_;
@@ -145,8 +160,12 @@ void SGMBeamline::connectAMDSServers()
 void SGMBeamline::onAMDSServerConnected(const QString &hostIdentifier)
 {
 	qDebug() << "Let's try it my way, the new server connected is " << hostIdentifier;
-	if(hostIdentifier == AMDSServerDefs_.value("AmptekServer").serverIdentifier() && amptekSDD1_)
+	if(hostIdentifier == AMDSServerDefs_.value("AmptekServer").serverIdentifier() && amptekSDD1_ && amptekSDD2_ && amptekSDD3_ && amptekSDD4_){
 		amptekSDD1_->configAMDSServer(AMDSServerDefs_.value("AmptekServer").serverIdentifier());
+		amptekSDD2_->configAMDSServer(AMDSServerDefs_.value("AmptekServer").serverIdentifier());
+		amptekSDD3_->configAMDSServer(AMDSServerDefs_.value("AmptekServer").serverIdentifier());
+		amptekSDD4_->configAMDSServer(AMDSServerDefs_.value("AmptekServer").serverIdentifier());
+	}
 }
 
 void SGMBeamline::setupAMDSClientAppController()
@@ -304,8 +323,14 @@ void SGMBeamline::setupDetectors()
 
 	// Amptek
 //	amptekSDD1_ = new CLSAmptekSDD123DetectorNew("AmptekSDD1", "Amptek SDD 1", "amptek:sdd1", this);
-	amptekSDD1_ = new CLSAmptekSDD123DetectorNew("AmptekSDD1", "Amptek SDD 1", "amptek:sdd2", this);
+	amptekSDD1_ = new CLSAmptekSDD123DetectorNew("AmptekSDD1", "Amptek SDD 1", "amptek:sdd2", "Amptek SDD 240", this);
+	amptekSDD2_ = new CLSAmptekSDD123DetectorNew("AmptekSDD2", "Amptek SDD 2", "amptek:sdd3", "Amptek SDD 241", this);
+	amptekSDD3_ = new CLSAmptekSDD123DetectorNew("AmptekSDD3", "Amptek SDD 3", "amptek:sdd4", "Amptek SDD 242", this);
+	amptekSDD4_ = new CLSAmptekSDD123DetectorNew("AmptekSDD4", "Amptek SDD 4", "amptek:sdd5", "Amptek SDD 243", this);
 	amptekSDD1_->setEVPerBin(2.25);
+	amptekSDD2_->setEVPerBin(2.25);
+	amptekSDD3_->setEVPerBin(2.25);
+	amptekSDD4_->setEVPerBin(2.25);
 //	amptekSDD1_->configAMDSServer(AMDSServerDefs_.value("AmptekServer").serverIdentifier());
 }
 
@@ -341,6 +366,9 @@ void SGMBeamline::setupExposedDetectors()
 	addExposedDetector(filteredPD4Detector_);
 	addExposedDetector(filteredPD5Detector_);
 	addExposedDetector(amptekSDD1_);
+	addExposedDetector(amptekSDD2_);
+	addExposedDetector(amptekSDD3_);
+	addExposedDetector(amptekSDD4_);
 
 }
 

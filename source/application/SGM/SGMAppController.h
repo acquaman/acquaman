@@ -141,7 +141,10 @@ protected:
 	/// Commissioning continuous scan configuration view holder.
 	AMScanConfigurationViewHolder3 *commissioningContinuousConfigurationViewHolder_;
 
-	CLSAmptekDetailedDetectorView* amptekDetectorView_;
+	CLSAmptekDetailedDetectorView* amptek1DetectorView_;
+	CLSAmptekDetailedDetectorView* amptek2DetectorView_;
+	CLSAmptekDetailedDetectorView* amptek3DetectorView_;
+	CLSAmptekDetailedDetectorView* amptek4DetectorView_;
 };
 
 #endif // SGMAPPCONTROLLER_H

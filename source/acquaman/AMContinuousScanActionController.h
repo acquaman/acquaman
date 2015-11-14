@@ -53,8 +53,8 @@ protected:
 	/// A timer used when using AMCDFDataStore.  After a timeout it flushes the contents to disk.
 	QTimer flushToDiskTimer_;
 
-	/// Temporary holder for a single AMDSClientDataRequest. We'll need a map in all likelihood
-	AMDSClientDataRequest *oneClientDataRequest_;
+	/// Map of bufferNames to client data requests
+	QMap<QString, AMDSClientDataRequest*> clientDataRequestMap_;
 
 	/// The insertion index for placing data
 	AMnDIndex insertionIndex_;
