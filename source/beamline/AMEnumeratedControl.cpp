@@ -55,9 +55,9 @@ AMControl::FailureExplanation AMEnumeratedControl::move(double setpoint)
 	qDebug() << "\n\nAMEnumeratedControl setpoint:" << setpoint;
 
 	// Check to see whether the given setpoint converts to a valid option index.
-	// The two may not be the same, as in the case where valid options don't start with 0.
-	// In all cases where the name is unique, however, the enum setpoint and the option
-	// setpoint are related by the enum name.
+	// The two may not be the same, as in the case where valid options don't start with 0,
+	// or the options are added in a different order. In all cases where the name is unique,
+	// however, the enum setpoint and the option setpoint are related by the enum name.
 
 	if (setpoint < 0 || setpoint >= enumNames().count()) {
 		AMErrorMon::alert(this, AMENUMERATEDCONTROL_INVALID_ENUM_SETPOINT, QString("Failed to move %1: the enum setpoint %2 given is outside the range of valid enum indices.").arg(name()).arg(QString::number(setpoint)));
@@ -120,8 +120,9 @@ void AMEnumeratedControl::updateValue()
 	setValue(newValue);
 }
 
-void AMEnumeratedControl::addOption(int index, const QString &optionString)
+bool AMEnumeratedControl::addOption(int index, const QString &optionString)
 {
+	bool result = false;
 	bool proceed = false;
 
 	// First check whether we are in a situation where duplicate value options
@@ -142,28 +143,42 @@ void AMEnumeratedControl::addOption(int index, const QString &optionString)
 
 		updateEnumStates();
 
-		emit optionsChanged();
+		result = true;
 	}
+
+	return result;
 }
 
-void AMEnumeratedControl::removeOption(int index)
+bool AMEnumeratedControl::removeOption(int index)
 {
-	indices_.removeOne(index);
-	indexStringMap_.remove(index);
+	bool result = false;
 
-	updateEnumStates();
+	if (indices_.contains(index)) {
+		indices_.removeOne(index);
+		indexStringMap_.remove(index);
 
-	emit optionsChanged();
+		updateEnumStates();
+
+		result = true;
+	}
+
+	return result;
 }
 
-void AMEnumeratedControl::clearOptions()
+bool AMEnumeratedControl::clearOptions()
 {
-	indices_.clear();
-	indexStringMap_.clear();
+	bool result = false;
 
-	updateEnumStates();
+	if (!indices_.isEmpty()) {
+		indices_.clear();
+		indexStringMap_.clear();
 
-	emit optionsChanged();
+		updateEnumStates();
+
+		result = true;
+	}
+
+	return result;
 }
 
 QStringList AMEnumeratedControl::generateEnumStates() const
