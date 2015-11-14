@@ -284,17 +284,21 @@ AMAction3* AMGenericScanActionControllerAssembler::generateActionTreeForContinuo
 		axisActions->addSubAction(AMActionSupport::buildControlWaitAction(SGMBeamline::sgm()->energyControlSet()->energyStatus(), 0));
 
 		// Triggering the detector is just asking it to go and request the correct data from the server, it should success once the data packets are returned and processed on our side
+		AMListAction3 *amptekContinuousTriggerList = new AMParallelListAction3(new AMParallelListActionInfo3(QString("Triggering detectors"), QString("Triggering detectors")));
 		for(int x = 0; x < 4; x++){
 			AMAction3 *amptekContinuousTrigger = SGMBeamline::sgm()->exposedDetectorByName(QString("AmptekSDD%1").arg(x+1))->createTriggerAction(AMDetectorDefinitions::ContinuousRead);
-			axisActions->addSubAction(amptekContinuousTrigger);
+			amptekContinuousTriggerList->addSubAction(amptekContinuousTrigger);
 		}
+		axisActions->addSubAction(amptekContinuousTriggerList);
 
 		// Reading the detector will cause it to pass the AMDSClientDataRequest through the even system using AMAgnosticDataAPI
+		AMListAction3 *amptekContinuousReadList = new AMParallelListAction3(new AMParallelListActionInfo3(QString("Reading detectors"), QString("Reading detectors")));
 		for(int x = 0; x < 4; x++){
 			AMAction3 *amptekContinuousRead = SGMBeamline::sgm()->exposedDetectorByName(QString("AmptekSDD%1").arg(x+1))->createReadAction();
 			amptekContinuousRead->setGenerateScanActionMessage(true);
-			axisActions->addSubAction(amptekContinuousRead);
+			amptekContinuousReadList->addSubAction(amptekContinuousRead);
 		}
+		axisActions->addSubAction(amptekContinuousReadList);
 
 
 		// Generate axis cleanup list /////////////////////
