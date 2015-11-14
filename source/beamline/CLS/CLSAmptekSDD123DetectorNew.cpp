@@ -145,14 +145,12 @@ QString CLSAmptekSDD123DetectorNew::amdsBufferName() const
 
 void CLSAmptekSDD123DetectorNew::configAMDSServer(const QString &amptekAMDSServerIdentifier)
 {
-	qDebug() << "Trying to configAMDSServer for Amptek with identifier " << amptekAMDSServerIdentifier;
 	amptekAMDSServerIdentifier_ = amptekAMDSServerIdentifier;
 
 	AMDSServer *amptekAMDSServer = AMDSClientAppController::clientAppController()->getServerByServerIdentifier(amptekAMDSServerIdentifier);
 	if (amptekAMDSServer) {
-		qDebug() << "Looks like we found it";
 		connect(amptekAMDSServer, SIGNAL(requestDataReady(AMDSClientRequest*)), this, SLOT(onRequestDataReady(AMDSClientRequest*)));
-		connect(amptekAMDSServer, SIGNAL(serverError(int,bool,QString,QString)), this, SLOT(onServerError(int,bool,QString,QString)));
+		connect(AMDSClientAppController::clientAppController(), SIGNAL(serverError(int,bool,QString,QString)), this, SLOT(onServerError(int,bool,QString,QString)));
 	}
 }
 
@@ -447,10 +445,8 @@ void CLSAmptekSDD123DetectorNew::onHighIndexValueChanged(int index){
 /// ============= SLOTs to handle AMDSClientAppController signals =========
 void CLSAmptekSDD123DetectorNew::onRequestDataReady(AMDSClientRequest* clientRequest)
 {
-	qDebug() << "In CLSAmptekSDD123DetectorNew::onRequestDataReady and we've received some sort of client request";
 	AMDSClientRelativeCountPlusCountDataRequest *relativeCountPlusCountDataRequst = qobject_cast<AMDSClientRelativeCountPlusCountDataRequest*>(clientRequest);
 	if(relativeCountPlusCountDataRequst){
-		qDebug() << "It was a data requet, so it was for a particular buffer. In this case " << relativeCountPlusCountDataRequst->bufferName() << " and we are " << amdsBufferName_;
 
 		if(relativeCountPlusCountDataRequst->bufferName() == amdsBufferName_){
 			lastContinuousDataRequest_ = relativeCountPlusCountDataRequst;
@@ -486,21 +482,11 @@ bool CLSAmptekSDD123DetectorNew::acquireImplementation(AMDetectorDefinitions::Re
 		AMDSClientAppController *clientAppController = AMDSClientAppController::clientAppController();
 		AMDSServer *amptekAMDSServer = clientAppController->getServerByServerIdentifier(amptekAMDSServerIdentifier_);
 		if (amptekAMDSServer) {
-//			QString bufferName = "Amptek SDD 240";
-			qDebug() << "Going to continuousAcquire, setAcquiring and call for buffer " << amdsBufferName_;
 			setAcquiring();
 			return clientAppController->requestClientData(amptekAMDSServer->hostName(), amptekAMDSServer->portNumber(), amdsBufferName_, 400, 400, true, false);
-		} else {
-			return false;
-//<<<<<<< HEAD
-//		QString bufferName = "Amptek SDD 240";
-
-//		setAcquiring();
-
-//		clientAppController_->requestClientData(server->hostName(), server->portNumber(), bufferName, 400, 400, true, false);
-//=======
 		}
-//>>>>>>> SGMUpgrade
+		else
+			return false;
 	}
 	else{
 		lastReadMode_ = AMDetectorDefinitions::SingleRead;

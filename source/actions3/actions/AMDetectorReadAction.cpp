@@ -85,7 +85,6 @@ void AMDetectorReadAction::onDetectorNewValuesAvailable(){
 	internalSetSucceeded();
 }
 
-#include <QDebug>
 void AMDetectorReadAction::internalSetSucceeded(){
 	disconnect(detector_, 0, this, 0);
 
@@ -129,14 +128,15 @@ void AMDetectorReadAction::internalSetSucceeded(){
 			AMAgnosticDataAPIDataAvailableMessage dataAvailableMessage(detector_->name(), detectorData, dimensionSizes, dimensionNames, dimensionUnits, true);
 			intptr_t continuousDataPointer = (intptr_t)(detector_->lastContinuousData(1));
 			quint64 continuousDataPointer64 = continuousDataPointer;
-			qDebug() << "Pointer value was " << continuousDataPointer << " 64 as " << continuousDataPointer64;
 			dataAvailableMessage.setDetectorDataAsAMDS(continuousDataPointer64);
 
+			// FLAGGED FOR REMOVAL: Continuous Data API testing November 9, 2015
 //			if(AMAgnosticDataAPISupport::handlerFromLookupKey("AmptekTest")){
 //				AMAgnosticDataAPISupport::handlerFromLookupKey("AmptekTest")->postMessage(dataAvailableMessage);
 //				qDebug() << "About to postMessage to AmptekTest";
 //				return;
 //			}
+			// END OF FLAG
 			AMAgnosticDataAPISupport::handlerFromLookupKey("ScanActions")->postMessage(dataAvailableMessage);
 		}
 	}

@@ -151,7 +151,6 @@ void SGMBeamline::onConnectionStateChanged(bool)
 
 void SGMBeamline::connectAMDSServers()
 {
-	qDebug() << "Going to try to connect to servers";
 	AMDSClientAppController *clientAppController = AMDSClientAppController::clientAppController();
 	foreach (AMDSServerConfiguration serverConfiguration, AMDSServerDefs_.values())
 		clientAppController->connectToServer(serverConfiguration);
@@ -159,7 +158,6 @@ void SGMBeamline::connectAMDSServers()
 
 void SGMBeamline::onAMDSServerConnected(const QString &hostIdentifier)
 {
-	qDebug() << "Let's try it my way, the new server connected is " << hostIdentifier;
 	if(hostIdentifier == AMDSServerDefs_.value("AmptekServer").serverIdentifier() && amptekSDD1_ && amptekSDD2_ && amptekSDD3_ && amptekSDD4_){
 		amptekSDD1_->configAMDSServer(AMDSServerDefs_.value("AmptekServer").serverIdentifier());
 		amptekSDD2_->configAMDSServer(AMDSServerDefs_.value("AmptekServer").serverIdentifier());
@@ -170,7 +168,6 @@ void SGMBeamline::onAMDSServerConnected(const QString &hostIdentifier)
 
 void SGMBeamline::setupAMDSClientAppController()
 {
-	qDebug() << "Doing setup for AMDSClientAppController in SGMBeamline";
 	AMDSServerDefs_.insert(QString("AmptekServer"), AMDSServerConfiguration(QString("AmptekServer"), QString("10.52.48.40"), 28044));
 
 	// NOTE: it will be better to move this to CLSBeamline, when

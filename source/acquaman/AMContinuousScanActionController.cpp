@@ -156,17 +156,13 @@ bool AMContinuousScanActionController::event(QEvent *e)
 
 				bool castToGenericFlatArrayHolder = false;
 				AMDSLightWeightGenericFlatArrayDataHolder *dataHolderAsGenericFlatArrayDataHolder = qobject_cast<AMDSLightWeightGenericFlatArrayDataHolder*>(oneClientDataRequest->data().at(0));
-				if(dataHolderAsGenericFlatArrayDataHolder){
-					qDebug() << "Can cast to generic flat array holder";
+				if(dataHolderAsGenericFlatArrayDataHolder)
 					castToGenericFlatArrayHolder = true;
-				}
 
 				bool castToDwellSpectralHolder = false;
 				AMDSDwellSpectralDataHolder *dataHolderAsDwellSpectral = qobject_cast<AMDSDwellSpectralDataHolder*>(oneClientDataRequest->data().at(0));
-				if(dataHolderAsDwellSpectral){
-					qDebug() << "Can cast to dwell spectral data holder";
+				if(dataHolderAsDwellSpectral)
 					castToDwellSpectralHolder = true;
-				}
 
 				int initiateMovementIndex = 0;
 				bool foundMovementStart = false;
@@ -261,7 +257,6 @@ bool AMContinuousScanActionController::event(QEvent *e)
 			intptr_t dataRequestPointer = dataAvailableMessage->detectorDataAsAMDS();
 			void *dataRequestVoidPointer = (void*)dataRequestPointer;
 			AMDSClientDataRequest *dataRequest = static_cast<AMDSClientDataRequest*>(dataRequestVoidPointer);
-			qDebug() << "Inserting " << dataRequest->bufferName() << " into map";
 			clientDataRequestMap_.insert(dataRequest->bufferName(), dataRequest);
 
 			/*
