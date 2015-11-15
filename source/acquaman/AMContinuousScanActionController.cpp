@@ -264,6 +264,40 @@ bool AMContinuousScanActionController::event(QEvent *e)
 				}
 
 
+				int scalerInitiateMovementIndex = 0;
+				bool foundScalerMovementStart = false;
+				bool foundScalerMovementEnd = false;
+
+				for(int x = encoderUpVector.count()-6; (x > 5) && !foundScalerMovementStart; x--){
+
+					double runningAverage = (encoderUpVector.at(x+5)+encoderUpVector.at(x+4)+encoderUpVector.at(x+3)+encoderUpVector.at(x+2)+encoderUpVector.at(x+1)
+								 +encoderUpVector.at(x)+encoderUpVector.at(x-1)+encoderUpVector.at(x-2)+encoderUpVector.at(x-3)+encoderUpVector.at(x-4))/10;
+
+					if(!foundScalerMovementEnd && runningAverage > 1){
+						qDebug() << "Found scaler movement end at index " << x;
+						foundScalerMovementEnd = true;
+					}
+					else if(foundScalerMovementEnd && runningAverage < 0.1){
+						foundScalerMovementStart = true;
+						scalerInitiateMovementIndex = x;
+						qDebug() << "Found scaler movement start index " << scalerInitiateMovementIndex;
+					}
+
+//					if(!foundScalerMovementEnd && encoderUpVector.at(x) > 1){
+//						qDebug() << "Found scaler movement end at index " << x;
+//						foundScalerMovementEnd = true;
+//					}
+//					else if(foundScalerMovementEnd && encoderUpVector.at(x) < 1){
+//						foundScalerMovementStart = true;
+//						scalerInitiateMovementIndex = x;
+//						qDebug() << "Found scaler movement start index " << scalerInitiateMovementIndex;
+//					}
+				}
+
+				qDebug() << "Amptek: " << initiateMovementIndex;
+				qDebug() << "Scaler: " << scalerInitiateMovementIndex;
+				qDebug() << "Apples to apples: " << initiateMovementIndex*50 << scalerInitiateMovementIndex;
+
 
 				int startEncoderValue = -412449;
 				int currentEncoderValue = startEncoderValue;
@@ -283,6 +317,18 @@ bool AMContinuousScanActionController::event(QEvent *e)
 
 					currentEncoderValue += dataHolderAsDwellSpectral->dwellStatusData().generalPurposeCounter();
 					energyFeedbacks[x-initiateMovementIndex+1] = SGMGratingSupport::energyFromGrating(SGMGratingSupport::LowGrating, currentEncoderValue);
+				}
+
+
+				QVector<double> scalerEnergyFeedbacks = QVector<double>(encoderUpVector.count()-scalerInitiateMovementIndex+1);
+				currentEncoderValue = startEncoderValue;
+				scalerEnergyFeedbacks[0] = SGMGratingSupport::energyFromGrating(SGMGratingSupport::LowGrating, startEncoderValue);
+
+				// Loop from the start of the movement to the end and recreate the axis values (energy in this case) from the encoder pulse changes
+				for(int x = scalerInitiateMovementIndex, size = encoderUpVector.count(); x < size; x++){
+					currentEncoderValue += encoderUpVector.at(x) - encoderDownVector.at(x);
+					qDebug() << "Inserting " << x-scalerInitiateMovementIndex+1 << " of " << scalerEnergyFeedbacks.count() << " as " << currentEncoderValue << SGMGratingSupport::energyFromGrating(SGMGratingSupport::LowGrating, currentEncoderValue);
+					scalerEnergyFeedbacks[x-scalerInitiateMovementIndex+1] = SGMGratingSupport::energyFromGrating(SGMGratingSupport::LowGrating, currentEncoderValue);
 				}
 
 				// Loop from the start of the movement to the end and place any data that we have into the actual rawData()
@@ -311,7 +357,13 @@ bool AMContinuousScanActionController::event(QEvent *e)
 					if(dataHolderAsGenericFlatArrayDataHolder)
 						scan_->rawData()->setValue(insertionIndex_, scan_->rawData()->idOfMeasurement("AmptekSDD4"), dataHolderAsGenericFlatArrayDataHolder->dataArray().constVectorDouble().constData());
 
-					scan_->rawData()->setValue(insertionIndex_, scan_->rawData()->idOfMeasurement("TEY"), AMnDIndex(), teyVector.at(x*50));
+//					scan_->rawData()->setValue(insertionIndex_, scan_->rawData()->idOfMeasurement("TEY"), AMnDIndex(), teyVector.at(x*50));
+					int energyLookupIndex = (x-initiateMovementIndex)*50;
+					qDebug() << energyLookupIndex << scalerEnergyFeedbacks.count();
+					if(energyLookupIndex < scalerEnergyFeedbacks.count())
+						scan_->rawData()->setValue(insertionIndex_, scan_->rawData()->idOfMeasurement("TEY"), AMnDIndex(), scalerEnergyFeedbacks.at(energyLookupIndex));
+					else
+						scan_->rawData()->setValue(insertionIndex_, scan_->rawData()->idOfMeasurement("TEY"), AMnDIndex(), scalerEnergyFeedbacks.at(scalerEnergyFeedbacks.count()-1));
 					scan_->rawData()->setValue(insertionIndex_, scan_->rawData()->idOfMeasurement("TFY"), AMnDIndex(), tfyVector.at(x*50));
 					scan_->rawData()->setValue(insertionIndex_, scan_->rawData()->idOfMeasurement("PD"), AMnDIndex(), pdVector.at(x*50));
 
