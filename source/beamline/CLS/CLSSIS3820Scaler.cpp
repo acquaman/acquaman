@@ -562,6 +562,7 @@ void CLSSIS3820Scaler::onRequestDataReady(AMDSClientRequest* clientRequest)
 	if(relativeCountPlusCountDataRequst){
 
 		if(relativeCountPlusCountDataRequst->bufferName() == amdsBufferName_){
+			qDebug() << "Scaler thinks it has its clientDataRequest";
 			lastContinuousDataRequest_ = relativeCountPlusCountDataRequst;
 			emit amdsDataReady();
 		}

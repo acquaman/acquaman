@@ -120,6 +120,7 @@ void AMDetectorTriggerAction::onAcquisitionSucceeded(){
 		disconnect(triggerSource_, 0, this, 0);
 	disconnect(detector_, 0, this, 0);
 
+	qDebug() << "Trigger action saw acquisition succeeded, setSucceeded";
 	setSucceeded();
 }
 
@@ -127,6 +128,7 @@ void AMDetectorTriggerAction::onAcquisitionFailed(){
 	if(triggerSource_)
 		disconnect(triggerSource_, 0, this, 0);
 	disconnect(detector_, 0, this, 0);
+	qDebug() << "Trigger action saw acquisition failed, setFailed";
 	setFailed();
 }
 
