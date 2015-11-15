@@ -54,6 +54,9 @@ public:
 	/// A HACK, NEED TO FIX THIS
 	virtual AMDetectorDwellTimeSource* detectorDwellTimeSource() { return 0; }
 
+	int channelIndex() const { return channelIndex_; }
+	int enabledChannelIndex() const;
+
 public slots:
 	/// Note that this will change the read mode for the entire scaler, not just this channel. The read mode can be changed to either SingleRead or ContinuousRead. Requesting to change to the same readMode returns true and the readModeChanged() signal is immediately emitted
 	virtual bool setReadMode(AMDetectorDefinitions::ReadMode readMode);

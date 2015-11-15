@@ -57,6 +57,16 @@ AMDSClientDataRequest* CLSAdvancedScalerChannelDetector::lastContinuousData(doub
 	return scaler_->lastContinuousDataRequest();
 }
 
+int CLSAdvancedScalerChannelDetector::enabledChannelIndex() const
+{
+	int disabledLowerChannels = 0;
+	for(int x = 0, size = channelIndex_; x < size; x++){
+		if(!scaler_->channelAt(x)->isEnabled())
+			disabledLowerChannels++;
+	}
+	return channelIndex_ - disabledLowerChannels;
+}
+
 bool CLSAdvancedScalerChannelDetector::setReadMode(AMDetectorDefinitions::ReadMode readMode){
 
 	if(readMode_ == readMode){

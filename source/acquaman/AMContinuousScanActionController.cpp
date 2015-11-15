@@ -132,6 +132,7 @@ void AMContinuousScanActionController::flushCDFDataStoreToDisk()
 }
 
 #include "source/DataHolder/AMDSScalarDataHolder.h"
+#include "source/beamline/CLS/CLSAdvancedScalerChannelDetector.h"
 bool AMContinuousScanActionController::event(QEvent *e)
 {
 	if (e->type() == (QEvent::Type)AMAgnosticDataAPIDefinitions::MessageEvent){
@@ -151,6 +152,16 @@ bool AMContinuousScanActionController::event(QEvent *e)
 
 			// An argument could be made to put the control axis value stuff here.
 
+			if(!clientDataRequestMap_.contains("Scaler (BL1611-ID-1)") ||
+					!clientDataRequestMap_.contains("Amptek SDD 240") ||
+					!clientDataRequestMap_.contains("Amptek SDD 241") ||
+					!clientDataRequestMap_.contains("Amptek SDD 242") ||
+					!clientDataRequestMap_.contains("Amptek SDD 243")){
+				qDebug() << "FATAL ERROR, data missing";
+				break;
+			}
+
+
 			int baseScalerTimeScale = 1; //timescale in ms
 			int baseAmptekTimeScale = 50; //timescale in ms
 			int largestBaseTimeScale;
@@ -159,6 +170,31 @@ bool AMContinuousScanActionController::event(QEvent *e)
 			else
 				largestBaseTimeScale = baseScalerTimeScale;
 
+
+			AMDSClientDataRequest *scalerClientDataRequst = clientDataRequestMap_.value("Scaler (BL1611-ID-1)");
+			int totalCount = scalerClientDataRequst->data().count();
+			int rebasedTotalCount = (totalCount*baseScalerTimeScale)/largestBaseTimeScale;
+			qDebug() << "Original totalCount " << totalCount << " rebasedTotalCount " << rebasedTotalCount;
+
+
+			qDebug() << "I have " << generalConfig_->detectorConfigurations().count() << " detectors";
+			QMap<QString, QVector<qint32> > scalerChannelVectors;
+			QMap<QString, qint32> scalerChannelRunningSums;
+			QMap<int, QString> scalerChannelIndexMap;
+			CLSAdvancedScalerChannelDetector *asAdvancedScalerChannelDetector = 0;
+			for(int x = 0, size = generalConfig_->detectorConfigurations().count(); x < size; x++){
+				asAdvancedScalerChannelDetector = qobject_cast<CLSAdvancedScalerChannelDetector*>(AMBeamline::bl()->exposedDetectorByInfo(generalConfig_->detectorConfigurations().at(x)));
+				if(asAdvancedScalerChannelDetector){
+					qDebug() << "Inserting " << generalConfig_->detectorConfigurations().at(x).name() << " into scaler channel maps with index " << asAdvancedScalerChannelDetector->channelIndex() << " as " << asAdvancedScalerChannelDetector->enabledChannelIndex();
+					scalerChannelIndexMap.insert(asAdvancedScalerChannelDetector->enabledChannelIndex(), generalConfig_->detectorConfigurations().at(x).name());
+					scalerChannelVectors.insert(generalConfig_->detectorConfigurations().at(x).name(), QVector<qint32>(rebasedTotalCount, 0));
+					scalerChannelRunningSums.insert(generalConfig_->detectorConfigurations().at(x).name(), 0);
+				}
+			}
+			qDebug() << "And " << scalerChannelVectors.count() << " are advanced scaler channels";
+
+
+			/*
 			QVector<qint32> teyVector;
 			QVector<qint32> tfyVector;
 			QVector<qint32> i0Vector;
@@ -171,89 +207,122 @@ bool AMContinuousScanActionController::event(QEvent *e)
 			QVector<qint32> hexapodBlackVector;
 			QVector<qint32> encoderUpVector;
 			QVector<qint32> encoderDownVector;
+			*/
 
-			if(clientDataRequestMap_.contains("Scaler (BL1611-ID-1)")){
-				AMDSClientDataRequest *scalerClientDataRequst = clientDataRequestMap_.value("Scaler (BL1611-ID-1)");
-				int totalCount = scalerClientDataRequst->data().count();
-				int rebasedTotalCount = (totalCount*baseScalerTimeScale)/largestBaseTimeScale;
+//			if(clientDataRequestMap_.contains("Scaler (BL1611-ID-1)")){
+//				AMDSClientDataRequest *scalerClientDataRequst = clientDataRequestMap_.value("Scaler (BL1611-ID-1)");
+//				int totalCount = scalerClientDataRequst->data().count();
+//				int rebasedTotalCount = (totalCount*baseScalerTimeScale)/largestBaseTimeScale;
 
-				qDebug() << "Original totalCount " << totalCount << " rebasedTotalCount " << rebasedTotalCount;
+//				qDebug() << "Original totalCount " << totalCount << " rebasedTotalCount " << rebasedTotalCount;
 
-				teyVector = QVector<qint32>(rebasedTotalCount);
-				tfyVector = QVector<qint32>(rebasedTotalCount);
-				i0Vector = QVector<qint32>(rebasedTotalCount);
-				pdVector = QVector<qint32>(rebasedTotalCount);
-				fpd1Vector = QVector<qint32>(rebasedTotalCount);
-				fpd2Vector = QVector<qint32>(rebasedTotalCount);
-				fpd3Vector = QVector<qint32>(rebasedTotalCount);
-				fpd4Vector = QVector<qint32>(rebasedTotalCount);
-				hexapodRedVector = QVector<qint32>(rebasedTotalCount);
-				hexapodBlackVector = QVector<qint32>(rebasedTotalCount);
-				encoderUpVector = QVector<qint32>(rebasedTotalCount);
-				encoderDownVector = QVector<qint32>(rebasedTotalCount);
+			/*
+			teyVector = QVector<qint32>(rebasedTotalCount);
+			tfyVector = QVector<qint32>(rebasedTotalCount);
+			i0Vector = QVector<qint32>(rebasedTotalCount);
+			pdVector = QVector<qint32>(rebasedTotalCount);
+			fpd1Vector = QVector<qint32>(rebasedTotalCount);
+			fpd2Vector = QVector<qint32>(rebasedTotalCount);
+			fpd3Vector = QVector<qint32>(rebasedTotalCount);
+			fpd4Vector = QVector<qint32>(rebasedTotalCount);
+			hexapodRedVector = QVector<qint32>(rebasedTotalCount);
+			hexapodBlackVector = QVector<qint32>(rebasedTotalCount);
+			encoderUpVector = QVector<qint32>(rebasedTotalCount);
+			encoderDownVector = QVector<qint32>(rebasedTotalCount);
 
-				qint32 tfyRunningSum = 0;
-				qint32 pdRunningSum = 0;
-				qint32 teyRunningSum = 0;
-				qint32 i0RunningSum = 0;
-				qint32 fpd2RunningSum = 0;
-				qint32 fpd3RunningSum = 0;
-				qint32 fpd4RunningSum = 0;
-				qint32 fpd1RunningSum = 0;
-				qint32 hexapodRedRunningSum = 0;
-				qint32 hexapodBlackRunningSum = 0;
-				qint32 encoderUpRunningSum = 0;
-				qint32 encoderDownRunningSum = 0;
+			qint32 tfyRunningSum = 0;
+			qint32 pdRunningSum = 0;
+			qint32 teyRunningSum = 0;
+			qint32 i0RunningSum = 0;
+			qint32 fpd2RunningSum = 0;
+			qint32 fpd3RunningSum = 0;
+			qint32 fpd4RunningSum = 0;
+			qint32 fpd1RunningSum = 0;
+			qint32 hexapodRedRunningSum = 0;
+			qint32 hexapodBlackRunningSum = 0;
+			qint32 encoderUpRunningSum = 0;
+			qint32 encoderDownRunningSum = 0;
+			*/
 
-				for(int x = 0; x < totalCount; x++){
-					AMDSLightWeightScalarDataHolder *asScalarDataHolder = qobject_cast<AMDSLightWeightScalarDataHolder*>(scalerClientDataRequst->data().at(x));
-					QVector<qint32> oneVector = asScalarDataHolder->dataArray().constVectorQint32();
+			for(int x = 0; x < totalCount; x++){
+				AMDSLightWeightScalarDataHolder *asScalarDataHolder = qobject_cast<AMDSLightWeightScalarDataHolder*>(scalerClientDataRequst->data().at(x));
+				QVector<qint32> oneVector = asScalarDataHolder->dataArray().constVectorQint32();
 
-					tfyRunningSum += oneVector.at(0);
-					pdRunningSum += oneVector.at(1);
-					teyRunningSum += oneVector.at(2);
-					i0RunningSum += oneVector.at(3);
-					fpd2RunningSum += oneVector.at(4);
-					fpd3RunningSum += oneVector.at(5);
-					fpd4RunningSum += oneVector.at(6);
-					fpd1RunningSum += oneVector.at(7);
-					hexapodRedRunningSum += oneVector.at(8);
-					hexapodBlackRunningSum += oneVector.at(9);
-					encoderUpRunningSum += oneVector.at(10);
-					encoderDownRunningSum += oneVector.at(11);
+				int tempRunningSum;
+				QString channelString;
+				for(int y = 0, ySize = oneVector.count(); y < ySize; y++){
+					channelString = scalerChannelIndexMap.value(y);
+					tempRunningSum = scalerChannelRunningSums.value(channelString);
+					tempRunningSum += oneVector.at(y);
+					scalerChannelRunningSums[channelString] = tempRunningSum;
 
 					if( (((x+1)*baseScalerTimeScale) % largestBaseTimeScale) == 0){
 						int rebaseIndex = (x*baseScalerTimeScale)/largestBaseTimeScale;
-						qDebug() << "Revector index at " << x << " as " << rebaseIndex;
-
-						tfyVector[rebaseIndex] = tfyRunningSum;
-						pdVector[rebaseIndex] = pdRunningSum;
-						teyVector[rebaseIndex] = teyRunningSum;
-						i0Vector[rebaseIndex] = i0RunningSum;
-						fpd2Vector[rebaseIndex] = fpd2RunningSum;
-						fpd3Vector[rebaseIndex] = fpd3RunningSum;
-						fpd4Vector[rebaseIndex] = fpd4RunningSum;
-						fpd1Vector[rebaseIndex] = fpd1RunningSum;
-						hexapodRedVector[rebaseIndex] = hexapodRedRunningSum;
-						hexapodBlackVector[rebaseIndex] = hexapodBlackRunningSum;
-						encoderUpVector[rebaseIndex] = encoderUpRunningSum;
-						encoderDownVector[rebaseIndex] = encoderDownRunningSum;
-
-						tfyRunningSum = 0;
-						pdRunningSum = 0;
-						teyRunningSum = 0;
-						i0RunningSum = 0;
-						fpd2RunningSum = 0;
-						fpd3RunningSum = 0;
-						fpd4RunningSum = 0;
-						fpd1RunningSum = 0;
-						hexapodRedRunningSum = 0;
-						hexapodBlackRunningSum = 0;
-						encoderUpRunningSum = 0;
-						encoderDownRunningSum = 0;
+						qDebug() << y << " is " << channelString << " has " << scalerChannelRunningSums.value(channelString);
+						(scalerChannelVectors[channelString])[rebaseIndex] = scalerChannelRunningSums.value(channelString);
+						scalerChannelRunningSums[channelString] = 0;
+						qDebug() << "Does it " << scalerChannelVectors.value(channelString).at(rebaseIndex) << scalerChannelRunningSums.value(channelString);
 					}
 				}
+
+				/*
+				tfyRunningSum += oneVector.at(0);
+				pdRunningSum += oneVector.at(1);
+				teyRunningSum += oneVector.at(2);
+				i0RunningSum += oneVector.at(3);
+				fpd2RunningSum += oneVector.at(4);
+				fpd3RunningSum += oneVector.at(5);
+				fpd4RunningSum += oneVector.at(6);
+				fpd1RunningSum += oneVector.at(7);
+				hexapodRedRunningSum += oneVector.at(8);
+				hexapodBlackRunningSum += oneVector.at(9);
+				encoderUpRunningSum += oneVector.at(10);
+				encoderDownRunningSum += oneVector.at(11);
+				*/
+
+//				if( (((x+1)*baseScalerTimeScale) % largestBaseTimeScale) == 0){
+//					int rebaseIndex = (x*baseScalerTimeScale)/largestBaseTimeScale;
+//					qDebug() << "Revector index at " << x << " as " << rebaseIndex;
+
+//					QString channelString;
+//					for(int y = 0, ySize = oneVector.count(); y < ySize; y++){
+//						channelString = scalerChannelIndexMap.value(y);
+//						qDebug() << y << " is " << channelString << " has " << scalerChannelRunningSums.value(channelString);
+//						(scalerChannelVectors[channelString])[rebaseIndex] = scalerChannelRunningSums.value(channelString);
+//						scalerChannelRunningSums[channelString] = 0;
+//						qDebug() << "Does it " << scalerChannelVectors.value(channelString).at(rebaseIndex);
+//					}
+
+//					/*
+//					tfyVector[rebaseIndex] = tfyRunningSum;
+//					pdVector[rebaseIndex] = pdRunningSum;
+//					teyVector[rebaseIndex] = teyRunningSum;
+//					i0Vector[rebaseIndex] = i0RunningSum;
+//					fpd2Vector[rebaseIndex] = fpd2RunningSum;
+//					fpd3Vector[rebaseIndex] = fpd3RunningSum;
+//					fpd4Vector[rebaseIndex] = fpd4RunningSum;
+//					fpd1Vector[rebaseIndex] = fpd1RunningSum;
+//					hexapodRedVector[rebaseIndex] = hexapodRedRunningSum;
+//					hexapodBlackVector[rebaseIndex] = hexapodBlackRunningSum;
+//					encoderUpVector[rebaseIndex] = encoderUpRunningSum;
+//					encoderDownVector[rebaseIndex] = encoderDownRunningSum;
+
+//					tfyRunningSum = 0;
+//					pdRunningSum = 0;
+//					teyRunningSum = 0;
+//					i0RunningSum = 0;
+//					fpd2RunningSum = 0;
+//					fpd3RunningSum = 0;
+//					fpd4RunningSum = 0;
+//					fpd1RunningSum = 0;
+//					hexapodRedRunningSum = 0;
+//					hexapodBlackRunningSum = 0;
+//					encoderUpRunningSum = 0;
+//					encoderDownRunningSum = 0;
+//					*/
+//				}
 			}
+//			}
 
 			AMDSClientDataRequest *oneAmptekDataRequest = clientDataRequestMap_.value("Amptek SDD 240");
 
@@ -298,6 +367,9 @@ bool AMContinuousScanActionController::event(QEvent *e)
 			int scalerInitiateMovementIndex = 0;
 			bool foundScalerMovementStart = false;
 			bool foundScalerMovementEnd = false;
+
+			QVector<qint32> encoderUpVector = scalerChannelVectors.value("EncoderUp");
+			QVector<qint32> encoderDownVector = scalerChannelVectors.value("EncoderDown");
 
 			for(int x = encoderUpVector.count()-1; (x > 0) && !foundScalerMovementStart; x--){
 				if(!foundScalerMovementEnd && encoderUpVector.at(x) > 20){
@@ -363,33 +435,40 @@ bool AMContinuousScanActionController::event(QEvent *e)
 			// Loop from the start of the movement to the end and recreate the axis values (energy in this case) from the encoder pulse changes
 			for(int x = scalerInitiateMovementIndex, size = encoderUpVector.count(); x < size; x++){
 				currentEncoderValue += encoderUpVector.at(x) - encoderDownVector.at(x);
-				qDebug() << "Inserting " << x-scalerInitiateMovementIndex+1 << " of " << scalerEnergyFeedbacks.count() << " as " << currentEncoderValue << SGMGratingSupport::energyFromGrating(SGMGratingSupport::LowGrating, currentEncoderValue);
 				scalerEnergyFeedbacks[x-scalerInitiateMovementIndex+1] = SGMGratingSupport::energyFromGrating(SGMGratingSupport::LowGrating, currentEncoderValue);
 			}
 
-			int amptekMapIndex;
-			int lastAmptekMapIndex = 0;
 			for(int x = scalerInitiateMovementIndex, size = encoderUpVector.count(); x < size; x++){
-//				amptekMapIndex = floor(((double)x)/((double)50.0));
-//				qDebug() << "Map index from " << x << " to " << amptekMapIndex;
 
 				scan_->rawData()->beginInsertRows(1, -1);
 				scan_->rawData()->setAxisValue(0, insertionIndex_.i(), scalerEnergyFeedbacks.at(x-scalerInitiateMovementIndex+1));
 
 				scan_->rawData()->setValue(insertionIndex_, scan_->rawData()->idOfMeasurement("I0"), AMnDIndex(), encoderUpVector.at(x) - encoderDownVector.at(x));
 
-//				if(amptekMapIndex != lastAmptekMapIndex){
-					lastAmptekMapIndex = amptekMapIndex;
-					dataHolderAsGenericFlatArrayDataHolder = qobject_cast<AMDSLightWeightGenericFlatArrayDataHolder*>(clientDataRequestMap_.value("Amptek SDD 240")->data().at(x));
-					scan_->rawData()->setValue(insertionIndex_, scan_->rawData()->idOfMeasurement("AmptekSDD1"), dataHolderAsGenericFlatArrayDataHolder->dataArray().constVectorDouble().constData());
-					dataHolderAsGenericFlatArrayDataHolder = qobject_cast<AMDSLightWeightGenericFlatArrayDataHolder*>(clientDataRequestMap_.value("Amptek SDD 241")->data().at(x));
-					scan_->rawData()->setValue(insertionIndex_, scan_->rawData()->idOfMeasurement("AmptekSDD2"), dataHolderAsGenericFlatArrayDataHolder->dataArray().constVectorDouble().constData());
-					dataHolderAsGenericFlatArrayDataHolder = qobject_cast<AMDSLightWeightGenericFlatArrayDataHolder*>(clientDataRequestMap_.value("Amptek SDD 242")->data().at(x));
-					scan_->rawData()->setValue(insertionIndex_, scan_->rawData()->idOfMeasurement("AmptekSDD3"), dataHolderAsGenericFlatArrayDataHolder->dataArray().constVectorDouble().constData());
-					dataHolderAsGenericFlatArrayDataHolder = qobject_cast<AMDSLightWeightGenericFlatArrayDataHolder*>(clientDataRequestMap_.value("Amptek SDD 243")->data().at(x));
-					scan_->rawData()->setValue(insertionIndex_, scan_->rawData()->idOfMeasurement("AmptekSDD4"), dataHolderAsGenericFlatArrayDataHolder->dataArray().constVectorDouble().constData());
-//				}
+				dataHolderAsGenericFlatArrayDataHolder = qobject_cast<AMDSLightWeightGenericFlatArrayDataHolder*>(clientDataRequestMap_.value("Amptek SDD 240")->data().at(x));
+				scan_->rawData()->setValue(insertionIndex_, scan_->rawData()->idOfMeasurement("AmptekSDD1"), dataHolderAsGenericFlatArrayDataHolder->dataArray().constVectorDouble().constData());
+				dataHolderAsGenericFlatArrayDataHolder = qobject_cast<AMDSLightWeightGenericFlatArrayDataHolder*>(clientDataRequestMap_.value("Amptek SDD 241")->data().at(x));
+				scan_->rawData()->setValue(insertionIndex_, scan_->rawData()->idOfMeasurement("AmptekSDD2"), dataHolderAsGenericFlatArrayDataHolder->dataArray().constVectorDouble().constData());
+				dataHolderAsGenericFlatArrayDataHolder = qobject_cast<AMDSLightWeightGenericFlatArrayDataHolder*>(clientDataRequestMap_.value("Amptek SDD 242")->data().at(x));
+				scan_->rawData()->setValue(insertionIndex_, scan_->rawData()->idOfMeasurement("AmptekSDD3"), dataHolderAsGenericFlatArrayDataHolder->dataArray().constVectorDouble().constData());
+				dataHolderAsGenericFlatArrayDataHolder = qobject_cast<AMDSLightWeightGenericFlatArrayDataHolder*>(clientDataRequestMap_.value("Amptek SDD 243")->data().at(x));
+				scan_->rawData()->setValue(insertionIndex_, scan_->rawData()->idOfMeasurement("AmptekSDD4"), dataHolderAsGenericFlatArrayDataHolder->dataArray().constVectorDouble().constData());
 
+				scan_->rawData()->setValue(insertionIndex_, scan_->rawData()->idOfMeasurement("TEY"), AMnDIndex(), scalerChannelVectors.value("TEY").at(x));
+				scan_->rawData()->setValue(insertionIndex_, scan_->rawData()->idOfMeasurement("TFY"), AMnDIndex(), scalerChannelVectors.value("TFY").at(x));
+				scan_->rawData()->setValue(insertionIndex_, scan_->rawData()->idOfMeasurement("PD"), AMnDIndex(), scalerChannelVectors.value("PD").at(x));
+
+				scan_->rawData()->setValue(insertionIndex_, scan_->rawData()->idOfMeasurement("FilteredPD1"), AMnDIndex(), scalerChannelVectors.value("FilteredPD1").at(x));
+				scan_->rawData()->setValue(insertionIndex_, scan_->rawData()->idOfMeasurement("FilteredPD2"), AMnDIndex(), scalerChannelVectors.value("FilteredPD2").at(x));
+				scan_->rawData()->setValue(insertionIndex_, scan_->rawData()->idOfMeasurement("FilteredPD3"), AMnDIndex(), scalerChannelVectors.value("FilteredPD3").at(x));
+				scan_->rawData()->setValue(insertionIndex_, scan_->rawData()->idOfMeasurement("FilteredPD4"), AMnDIndex(), scalerChannelVectors.value("FilteredPD4").at(x));
+
+				scan_->rawData()->setValue(insertionIndex_, scan_->rawData()->idOfMeasurement("HexapodRed"), AMnDIndex(), scalerChannelVectors.value("HexapodRed").at(x));
+				scan_->rawData()->setValue(insertionIndex_, scan_->rawData()->idOfMeasurement("HexapodBlack"), AMnDIndex(), scalerChannelVectors.value("HexapodBlack").at(x));
+				scan_->rawData()->setValue(insertionIndex_, scan_->rawData()->idOfMeasurement("EncoderUp"), AMnDIndex(), scalerChannelVectors.value("EncoderUp").at(x));
+				scan_->rawData()->setValue(insertionIndex_, scan_->rawData()->idOfMeasurement("EncoderDown"), AMnDIndex(), scalerChannelVectors.value("EncoderDown").at(x));
+
+				/*
 				scan_->rawData()->setValue(insertionIndex_, scan_->rawData()->idOfMeasurement("TEY"), AMnDIndex(), teyVector.at(x));
 				scan_->rawData()->setValue(insertionIndex_, scan_->rawData()->idOfMeasurement("TFY"), AMnDIndex(), tfyVector.at(x));
 				scan_->rawData()->setValue(insertionIndex_, scan_->rawData()->idOfMeasurement("PD"), AMnDIndex(), pdVector.at(x));
@@ -403,7 +482,7 @@ bool AMContinuousScanActionController::event(QEvent *e)
 				scan_->rawData()->setValue(insertionIndex_, scan_->rawData()->idOfMeasurement("HexapodBlack"), AMnDIndex(), hexapodBlackVector.at(x));
 				scan_->rawData()->setValue(insertionIndex_, scan_->rawData()->idOfMeasurement("EncoderUp"), AMnDIndex(), encoderUpVector.at(x));
 				scan_->rawData()->setValue(insertionIndex_, scan_->rawData()->idOfMeasurement("EncoderDown"), AMnDIndex(), encoderDownVector.at(x));
-
+				*/
 
 				scan_->rawData()->endInsertRows();
 				insertionIndex_[0] = insertionIndex_.i()+1;
