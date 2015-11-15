@@ -143,7 +143,7 @@ bool CLSSIS3820Scaler::retrieveBufferedData(double seconds)
 	AMDSServer *scalerAMDSServer = clientAppController->getServerByServerIdentifier(amdsServerIdentifier_);
 	qDebug() << "Trying to retrieve scaler AMDS data " << amdsBufferName_ << scalerAMDSServer->bufferNames();
 	if (scalerAMDSServer && !amdsBufferName_.isEmpty() && scalerAMDSServer->bufferNames().contains(amdsBufferName_))
-		return clientAppController->requestClientData(scalerAMDSServer->hostName(), scalerAMDSServer->portNumber(), amdsBufferName_, 12000, 12000, true, false);
+		return clientAppController->requestClientData(scalerAMDSServer->hostName(), scalerAMDSServer->portNumber(), amdsBufferName_, 20000, 20000, true, false);
 	else
 		return false;
 }

@@ -202,11 +202,18 @@ protected:
 	CLSAdvancedScalerChannelDetector *tfyDetector_;
 	CLSAdvancedScalerChannelDetector *i0Detector_;
 	CLSAdvancedScalerChannelDetector *pdDetector_;
+
 	CLSAdvancedScalerChannelDetector *filteredPD1Detector_;
 	CLSAdvancedScalerChannelDetector *filteredPD2Detector_;
 	CLSAdvancedScalerChannelDetector *filteredPD3Detector_;
 	CLSAdvancedScalerChannelDetector *filteredPD4Detector_;
-	CLSAdvancedScalerChannelDetector *filteredPD5Detector_;
+//	CLSAdvancedScalerChannelDetector *filteredPD5Detector_;
+
+	CLSAdvancedScalerChannelDetector *hexapodRedDetector_;
+	CLSAdvancedScalerChannelDetector *hexapodBlackDetector_;
+	CLSAdvancedScalerChannelDetector *encoderUpDetector_;
+	CLSAdvancedScalerChannelDetector *encoderDownDetector_;
+
 
 	CLSAmptekSDD123DetectorNew* amptekSDD1_;
 	CLSAmptekSDD123DetectorNew* amptekSDD2_;

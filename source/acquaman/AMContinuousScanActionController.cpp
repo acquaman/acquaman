@@ -151,6 +151,77 @@ bool AMContinuousScanActionController::event(QEvent *e)
 
 			// An argument could be made to put the control axis value stuff here.
 
+			QVector<qint32> teyVector;
+			QVector<qint32> tfyVector;
+			QVector<qint32> i0Vector;
+			QVector<qint32> pdVector;
+
+			QVector<qint32> fpd1Vector;
+			QVector<qint32> fpd2Vector;
+			QVector<qint32> fpd3Vector;
+			QVector<qint32> fpd4Vector;
+
+			QVector<qint32> hexapodRedVector;
+			QVector<qint32> hexapodBlackVector;
+			QVector<qint32> encoderUpVector;
+			QVector<qint32> encoderDownVector;
+
+			if(clientDataRequestMap_.contains("Scaler (BL1611-ID-1)")){
+				qDebug() << "Found the scaler client data request";
+				AMDSClientDataRequest *scalerClientDataRequst = clientDataRequestMap_.value("Scaler (BL1611-ID-1)");
+
+				int totalCount = scalerClientDataRequst->data().count();
+				teyVector = QVector<qint32>(totalCount);
+				tfyVector = QVector<qint32>(totalCount);
+				i0Vector = QVector<qint32>(totalCount);
+				pdVector = QVector<qint32>(totalCount);
+
+				fpd1Vector = QVector<qint32>(totalCount);
+				fpd2Vector = QVector<qint32>(totalCount);
+				fpd3Vector = QVector<qint32>(totalCount);
+				fpd4Vector = QVector<qint32>(totalCount);
+
+				hexapodRedVector = QVector<qint32>(totalCount);
+				hexapodBlackVector = QVector<qint32>(totalCount);
+				encoderUpVector = QVector<qint32>(totalCount);
+				encoderDownVector = QVector<qint32>(totalCount);
+
+				for(int x = 0; x < totalCount; x++){
+					AMDSLightWeightScalarDataHolder *asScalarDataHolder = qobject_cast<AMDSLightWeightScalarDataHolder*>(scalerClientDataRequst->data().at(x));
+					QVector<qint32> oneVector = asScalarDataHolder->dataArray().constVectorQint32();
+
+					tfyVector[x] = oneVector.at(0);
+					pdVector[x] = oneVector.at(1);
+					teyVector[x] = oneVector.at(2);
+					i0Vector[x] = oneVector.at(3);
+
+					fpd2Vector[x] = oneVector.at(4);
+					fpd3Vector[x] = oneVector.at(5);
+					fpd4Vector[x] = oneVector.at(6);
+					fpd1Vector[x] = oneVector.at(7);
+
+					hexapodRedVector[x] = oneVector.at(8);
+					hexapodBlackVector[x] = oneVector.at(9);
+					encoderUpVector[x] = oneVector.at(10);
+					encoderDownVector[x] = oneVector.at(11);
+				}
+
+//				qDebug() << "TEY: " << teyVector;
+//				qDebug() << "TFY: " << tfyVector;
+//				qDebug() << "I0: " << i0Vector;
+//				qDebug() << "PD: " << pdVector;
+
+//				qDebug() << "FPD1: " << fpd1Vector;
+//				qDebug() << "FPD2: " << fpd2Vector;
+//				qDebug() << "FPD3: " << fpd3Vector;
+//				qDebug() << "FPD4: " << fpd4Vector;
+
+//				qDebug() << "HexapodRed: " << hexapodRedVector;
+//				qDebug() << "HexapodBlack: " << hexapodBlackVector;
+//				qDebug() << "EncoderUp: " << encoderUpVector;
+//				qDebug() << "EncoderDown: " << encoderDownVector;
+			}
+
 			AMDSClientDataRequest *oneClientDataRequest = clientDataRequestMap_.value("Amptek SDD 240");
 
 			if(oneClientDataRequest){
@@ -240,6 +311,21 @@ bool AMContinuousScanActionController::event(QEvent *e)
 					if(dataHolderAsGenericFlatArrayDataHolder)
 						scan_->rawData()->setValue(insertionIndex_, scan_->rawData()->idOfMeasurement("AmptekSDD4"), dataHolderAsGenericFlatArrayDataHolder->dataArray().constVectorDouble().constData());
 
+					scan_->rawData()->setValue(insertionIndex_, scan_->rawData()->idOfMeasurement("TEY"), AMnDIndex(), teyVector.at(x*50));
+					scan_->rawData()->setValue(insertionIndex_, scan_->rawData()->idOfMeasurement("TFY"), AMnDIndex(), tfyVector.at(x*50));
+					scan_->rawData()->setValue(insertionIndex_, scan_->rawData()->idOfMeasurement("PD"), AMnDIndex(), pdVector.at(x*50));
+
+					scan_->rawData()->setValue(insertionIndex_, scan_->rawData()->idOfMeasurement("FilteredPD1"), AMnDIndex(), fpd1Vector.at(x*50));
+					scan_->rawData()->setValue(insertionIndex_, scan_->rawData()->idOfMeasurement("FilteredPD2"), AMnDIndex(), fpd2Vector.at(x*50));
+					scan_->rawData()->setValue(insertionIndex_, scan_->rawData()->idOfMeasurement("FilteredPD3"), AMnDIndex(), fpd3Vector.at(x*50));
+					scan_->rawData()->setValue(insertionIndex_, scan_->rawData()->idOfMeasurement("FilteredPD4"), AMnDIndex(), fpd4Vector.at(x*50));
+
+					scan_->rawData()->setValue(insertionIndex_, scan_->rawData()->idOfMeasurement("HexapodRed"), AMnDIndex(), hexapodRedVector.at(x*50));
+					scan_->rawData()->setValue(insertionIndex_, scan_->rawData()->idOfMeasurement("HexapodBlack"), AMnDIndex(), hexapodBlackVector.at(x*50));
+					scan_->rawData()->setValue(insertionIndex_, scan_->rawData()->idOfMeasurement("EncoderUp"), AMnDIndex(), encoderUpVector.at(x*50));
+					scan_->rawData()->setValue(insertionIndex_, scan_->rawData()->idOfMeasurement("EncoderDown"), AMnDIndex(), encoderDownVector.at(x*50));
+
+
 					scan_->rawData()->endInsertRows();
 					insertionIndex_[0] = insertionIndex_.i()+1;
 				}
@@ -260,29 +346,29 @@ bool AMContinuousScanActionController::event(QEvent *e)
 			AMDSClientDataRequest *dataRequest = static_cast<AMDSClientDataRequest*>(dataRequestVoidPointer);
 			clientDataRequestMap_.insert(dataRequest->bufferName(), dataRequest);
 
-			if(dataRequest->bufferName() == "Scaler (BL1611-ID-1)"){
-				qDebug() << "DataAvailable for the scaler, what's in here?";
+//			if(dataRequest->bufferName() == "Scaler (BL1611-ID-1)"){
+//				qDebug() << "DataAvailable for the scaler, what's in here?";
 
-				qDebug() << dataRequest->metaObject()->className();
+//				qDebug() << dataRequest->metaObject()->className() << dataRequest->data().count();
 
-				AMDSClientRelativeCountPlusCountDataRequest *asRelativeRequesst = qobject_cast<AMDSClientRelativeCountPlusCountDataRequest*>(dataRequest);
-				if(asRelativeRequesst){
-					qDebug() << asRelativeRequesst->data().at(0)->metaObject()->className();
+//				AMDSClientRelativeCountPlusCountDataRequest *asRelativeRequesst = qobject_cast<AMDSClientRelativeCountPlusCountDataRequest*>(dataRequest);
+//				if(asRelativeRequesst){
+//					qDebug() << asRelativeRequesst->data().at(0)->metaObject()->className();
 
-					qDebug() << "Data count is " << asRelativeRequesst->data().count();
+//					qDebug() << "Data count is " << asRelativeRequesst->data().count();
 
-					QString outputString;
-					for(int x = 0, size = asRelativeRequesst->data().count(); x < size; x++){
-						AMDSLightWeightScalarDataHolder *asScalarDataHolder = qobject_cast<AMDSLightWeightScalarDataHolder*>(asRelativeRequesst->data().at(x));
-//						qDebug() << "At " << x << asScalarDataHolder->dataArray().constVectorQint32();
-						QVector<qint32> oneVector = asScalarDataHolder->dataArray().constVectorQint32();
-						outputString.append(QString("[%1] ").arg(x));
-						for(int y = 0, ySize = oneVector.count(); y < ySize; y++)
-							outputString.append(QString("%1 ").arg(oneVector.at(y)));
-					}
-					qDebug() << outputString;
-				}
-			}
+//					QString outputString;
+//					for(int x = 0, size = asRelativeRequesst->data().count(); x < size; x++){
+//						AMDSLightWeightScalarDataHolder *asScalarDataHolder = qobject_cast<AMDSLightWeightScalarDataHolder*>(asRelativeRequesst->data().at(x));
+////						qDebug() << "At " << x << asScalarDataHolder->dataArray().constVectorQint32();
+//						QVector<qint32> oneVector = asScalarDataHolder->dataArray().constVectorQint32();
+//						outputString.append(QString("[%1] ").arg(x));
+//						for(int y = 0, ySize = oneVector.count(); y < ySize; y++)
+//							outputString.append(QString("%1 ").arg(oneVector.at(y)));
+//					}
+//					qDebug() << outputString;
+//				}
+//			}
 			/*
 			bool castToGenericFlatArrayHolder = false;
 			AMDSLightWeightGenericFlatArrayDataHolder *dataHolderAsGenericFlatArrayDataHolder = qobject_cast<AMDSLightWeightGenericFlatArrayDataHolder*>(dataRequest->data().at(0));

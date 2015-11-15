@@ -310,16 +310,21 @@ void SGMBeamline::setupMotorGroups()
 
 void SGMBeamline::setupDetectors()
 {
-	teyDetector_ = new CLSAdvancedScalerChannelDetector("TEY", "TEY", scaler_, 0, this);
-	tfyDetector_ = new CLSAdvancedScalerChannelDetector("TFY", "TFY", scaler_, 2, this);
-	i0Detector_ = new CLSAdvancedScalerChannelDetector("I0", "I0", scaler_, 1, this);
-	pdDetector_ = new CLSAdvancedScalerChannelDetector("PD", "PD", scaler_, 3, this);
+	teyDetector_ = new CLSAdvancedScalerChannelDetector("TEY", "TEY", scaler_, 2, this);
+	tfyDetector_ = new CLSAdvancedScalerChannelDetector("TFY", "TFY", scaler_, 0, this);
+	i0Detector_ = new CLSAdvancedScalerChannelDetector("I0", "I0", scaler_, 3, this);
+	pdDetector_ = new CLSAdvancedScalerChannelDetector("PD", "PD", scaler_, 1, this);
 
-	filteredPD1Detector_ = new CLSAdvancedScalerChannelDetector("FilteredPD1", "FilteredPD1", scaler_, 6, this);
-	filteredPD2Detector_ = new CLSAdvancedScalerChannelDetector("FilteredPD2", "FilteredPD2", scaler_, 7, this);
-	filteredPD3Detector_ = new CLSAdvancedScalerChannelDetector("FilteredPD3", "FilteredPD3", scaler_, 8, this);
-	filteredPD4Detector_ = new CLSAdvancedScalerChannelDetector("FilteredPD4", "FilteredPD4", scaler_, 9, this);
-	filteredPD5Detector_ = new CLSAdvancedScalerChannelDetector("FilteredPD5", "FilteredPD5", scaler_, 10, this);
+	filteredPD1Detector_ = new CLSAdvancedScalerChannelDetector("FilteredPD1", "FilteredPD1", scaler_, 9, this);
+	filteredPD2Detector_ = new CLSAdvancedScalerChannelDetector("FilteredPD2", "FilteredPD2", scaler_, 6, this);
+	filteredPD3Detector_ = new CLSAdvancedScalerChannelDetector("FilteredPD3", "FilteredPD3", scaler_, 7, this);
+	filteredPD4Detector_ = new CLSAdvancedScalerChannelDetector("FilteredPD4", "FilteredPD4", scaler_, 8, this);
+//	filteredPD5Detector_ = new CLSAdvancedScalerChannelDetector("FilteredPD5", "FilteredPD5", scaler_, 10, this);
+
+	hexapodRedDetector_ = new CLSAdvancedScalerChannelDetector("HexapodRed", "HexpodRed", scaler_, 10, this);
+	hexapodBlackDetector_ = new CLSAdvancedScalerChannelDetector("HexapodBlack", "HexapodBlack", scaler_, 11, this);
+	encoderUpDetector_ = new CLSAdvancedScalerChannelDetector("EncoderUp", "EncoderUp", scaler_, 14, this);
+	encoderDownDetector_ = new CLSAdvancedScalerChannelDetector("EncoderDown", "EncoderDown", scaler_, 15, this);
 
 	// Amptek
 //	amptekSDD1_ = new CLSAmptekSDD123DetectorNew("AmptekSDD1", "Amptek SDD 1", "amptek:sdd1", this);
@@ -364,7 +369,11 @@ void SGMBeamline::setupExposedDetectors()
 	addExposedDetector(filteredPD2Detector_);
 	addExposedDetector(filteredPD3Detector_);
 	addExposedDetector(filteredPD4Detector_);
-	addExposedDetector(filteredPD5Detector_);
+//	addExposedDetector(filteredPD5Detector_);
+	addExposedDetector(hexapodRedDetector_);
+	addExposedDetector(hexapodBlackDetector_);
+	addExposedDetector(encoderUpDetector_);
+	addExposedDetector(encoderDownDetector_);
 	addExposedDetector(amptekSDD1_);
 	addExposedDetector(amptekSDD2_);
 	addExposedDetector(amptekSDD3_);
@@ -382,8 +391,3 @@ SGMBeamline::SGMBeamline()
 	setupExposedControls();
 	setupExposedDetectors();
 }
-
-
-
-
-
