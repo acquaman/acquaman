@@ -122,17 +122,17 @@ void CLSAdvancedScalerChannelDetector::onScalerScanningChanged(bool isScanning){
 void CLSAdvancedScalerChannelDetector::onReadingChanged(){
 
 	if(readMode_ == AMDetectorDefinitions::ContinuousRead){
-		QVector<int> allIntReadings = scaler_->reading();
-		int enabledChannelCount = scaler_->enabledChannelCount();
-		int totalDataCount = allIntReadings.at(0)/enabledChannelCount;
+//		QVector<int> allIntReadings = scaler_->reading();
+//		int enabledChannelCount = scaler_->enabledChannelCount();
+//		int totalDataCount = allIntReadings.at(0)/enabledChannelCount;
 
-		continuousData_.clear();
-		continuousSize_ = totalDataCount;
-		for(int x = 0; x < totalDataCount; x++)
-			continuousData_.append(allIntReadings.at(x*enabledChannelCount + channelIndex_ + 1));
+//		continuousData_.clear();
+//		continuousSize_ = totalDataCount;
+//		for(int x = 0; x < totalDataCount; x++)
+//			continuousData_.append(allIntReadings.at(x*enabledChannelCount + channelIndex_ + 1));
 	}
 
-	if(isAcquiring())
+	if(isAcquiring() && readMode_ == AMDetectorDefinitions::SingleRead)
 		setAcquisitionSucceeded();
 
 	checkReadyForAcquisition();
