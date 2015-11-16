@@ -156,7 +156,7 @@ void SGMAppController::setupUserInterface()
 	SGMLaddersView *laddersView =
 			new SGMLaddersView(SGMBeamline::sgm()->xpsLadder(), SGMBeamline::sgm()->bypassLadder(), SGMBeamline::sgm()->xasLadder());
 
-	mw_->addPane(AMMainWindow::buildMainWindowPane("Ladders", ":/system-software-update.png", laddersView), "Components", "Ladders", ":/system-software-update.png");
+	mw_->addPane(AMMainWindow::buildMainWindowPane("Diagnostics", ":/system-software-update.png", laddersView), "Components", "Diagnostics", ":/system-software-update.png");
 
 	mw_->insertHeading("Scans", 1);
 
