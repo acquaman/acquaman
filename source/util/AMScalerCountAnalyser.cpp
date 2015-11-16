@@ -40,7 +40,7 @@ QString AMScalerCountAnalyser::toString()
 				++nextMotionPeriodIndex;
 			} else {
 
-				outputString.append(QString("%1\t%2\tError\n").arg(iRawScalerIndex).arg(scalerCounts_.at(iRawScalerIndex)));
+				outputString.append(QString("%1\t%2\tTransition\n").arg(iRawScalerIndex).arg(scalerCounts_.at(iRawScalerIndex)));
 			}
 
 
@@ -63,10 +63,20 @@ void AMScalerCountAnalyser::locateTransitions()
 
 		int currentCountDifference = scalerCounts_.at(iScalerCount - 1) - scalerCounts_.at(iScalerCount);
 
-		if(qAbs(currentCountDifference) > SCALER_COUNT_NOISE_CHANGE_THRESHOLD) {
+		if(iScalerCount == 1 && scalerCounts_.at(0) > 0 ) {
+			// The first element is non zero, mark it as a transition
+
+			transitionIndices_.append(0);
+
+		} else if(qAbs(currentCountDifference) > SCALER_COUNT_NOISE_CHANGE_THRESHOLD) {
 			// We are not in a steady state.
 
-			if(previousCountDifference == 0) {
+			if(scalerCounts_.at(iScalerCount) == 0) {
+				// We've just hit a stop point.
+
+				transitionIndices_.append(iScalerCount);
+
+			} else if(previousCountDifference == 0) {
 				// The non steady state is new
 
 				transitionIndices_.append(iScalerCount);
@@ -81,7 +91,7 @@ void AMScalerCountAnalyser::locateTransitions()
 				}
 			}
 
-			previousCountDifference = currentCountDifference;
+
 		} else {
 			// We are in a steady state
 
@@ -91,8 +101,9 @@ void AMScalerCountAnalyser::locateTransitions()
 				transitionIndices_.append(iScalerCount);
 			}
 
-			previousCountDifference = 0;
 		}
+
+		previousCountDifference = currentCountDifference;
 	}
 }
 
@@ -107,32 +118,29 @@ void AMScalerCountAnalyser::locateMotionPeriods()
 		int currentTransitionIndex = transitionIndices_.at(iTransition);
 
 		if(currentTransitionIndex == 0) {
-			// This is the first index. It must, therefore, be a start point
+			// The frist index is a transition. It must, therefore, be a start point
 
 			currentMotionStart = currentTransitionIndex;
+
+		} else if(scalerCounts_.at(currentTransitionIndex - 1) < SCALER_COUNT_NOISE_THRESHOLD) {
+			// Our previous point was below the noise threshold. We might be a start or end at
+			// this point
+
+			if(currentMotionStart == -1) {
+				// Looking for a start, this must be it.
+
+				currentMotionStart = currentTransitionIndex;
+			} else {
+
+				// Looking for an end, this must be it.
+				currentMotionEnd = currentTransitionIndex -1;
+			}
 		} else if(currentTransitionIndex == scalerCounts_.count() - 1) {
 
 			if(currentMotionStart != -1) {
-				// We're at the end, and we're waiting for an end point. This must be it
+				// We're at the end, and we're still waiting for an end point. This must be it
 
 				currentMotionEnd = currentTransitionIndex;
-			}
-
-		} else {
-
-			if(scalerCounts_.at(currentTransitionIndex - 1) < SCALER_COUNT_NOISE_THRESHOLD) {
-				// Our previous point was below the noise threshold. We might be a start or end at
-				// this point
-
-				if(currentMotionStart == -1) {
-					// Looking for a start, this must be it.
-
-					currentMotionStart = currentTransitionIndex;
-				} else {
-
-					// Looking for an end, this must be it.
-					currentMotionEnd = currentTransitionIndex;
-				}
 			}
 		}
 
