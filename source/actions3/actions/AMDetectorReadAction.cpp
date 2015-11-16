@@ -90,6 +90,7 @@ void AMDetectorReadAction::onDetectorNewValuesAvailable(){
 void AMDetectorReadAction::internalSetSucceeded(){
 	disconnect(detector_, 0, this, 0);
 
+	qDebug() << "In read action for detector " << detector_->name() << " with readMode " << detector_->readMode();
 	if(generateScanActionMessages_){
 		QList<int> dimensionSizes;
 		QStringList dimensionNames;
@@ -127,7 +128,10 @@ void AMDetectorReadAction::internalSetSucceeded(){
 
 			detectorData.append(0);
 
-			qDebug() << "Continuous data buffer name " << detector_->lastContinuousData(1)->bufferName();
+			qDebug() << "In read action, about to call for lastContinuousData";
+			AMDSClientDataRequest *lastContinuousData = detector_->lastContinuousData(1);
+//			qDebug() << "Continuous data buffer name " << detector_->lastContinuousData(1)->bufferName();
+			qDebug() << "Continuous data buffer name " << lastContinuousData->bufferName();
 
 			AMAgnosticDataAPIDataAvailableMessage dataAvailableMessage(detector_->name(), detectorData, dimensionSizes, dimensionNames, dimensionUnits, true);
 			intptr_t continuousDataPointer = (intptr_t)(detector_->lastContinuousData(1));

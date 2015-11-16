@@ -27,6 +27,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 class SGMMAXvMotor;
 class AMMotorGroup;
 class CLSAdvancedScalerChannelDetector;
+class CLSScalerChannelDetector;
 class CLSAmptekSDD123DetectorNew;
 class SGMEnergyControlSet;
 class SGMHexapod;
@@ -198,21 +199,21 @@ protected:
 
 	CLSSIS3820Scaler *scaler_;
 
-	CLSAdvancedScalerChannelDetector *teyDetector_;
-	CLSAdvancedScalerChannelDetector *tfyDetector_;
-	CLSAdvancedScalerChannelDetector *i0Detector_;
-	CLSAdvancedScalerChannelDetector *pdDetector_;
+	CLSScalerChannelDetector *teyDetector_;
+	CLSScalerChannelDetector *tfyDetector_;
+	CLSScalerChannelDetector *i0Detector_;
+	CLSScalerChannelDetector *pdDetector_;
 
-	CLSAdvancedScalerChannelDetector *filteredPD1Detector_;
-	CLSAdvancedScalerChannelDetector *filteredPD2Detector_;
-	CLSAdvancedScalerChannelDetector *filteredPD3Detector_;
-	CLSAdvancedScalerChannelDetector *filteredPD4Detector_;
-//	CLSAdvancedScalerChannelDetector *filteredPD5Detector_;
+	CLSScalerChannelDetector *filteredPD1Detector_;
+	CLSScalerChannelDetector *filteredPD2Detector_;
+	CLSScalerChannelDetector *filteredPD3Detector_;
+	CLSScalerChannelDetector *filteredPD4Detector_;
+//	CLSScalerChannelDetector *filteredPD5Detector_;
 
-	CLSAdvancedScalerChannelDetector *hexapodRedDetector_;
-	CLSAdvancedScalerChannelDetector *hexapodBlackDetector_;
-	CLSAdvancedScalerChannelDetector *encoderUpDetector_;
-	CLSAdvancedScalerChannelDetector *encoderDownDetector_;
+	CLSScalerChannelDetector *hexapodRedDetector_;
+	CLSScalerChannelDetector *hexapodBlackDetector_;
+	CLSScalerChannelDetector *encoderUpDetector_;
+	CLSScalerChannelDetector *encoderDownDetector_;
 
 
 	CLSAmptekSDD123DetectorNew* amptekSDD1_;

@@ -179,11 +179,13 @@ bool AMContinuousScanActionController::event(QEvent *e)
 			QMap<QString, QVector<qint32> > scalerChannelVectors;
 			QMap<QString, qint32> scalerChannelRunningSums;
 			QMap<int, QString> scalerChannelIndexMap;
-			CLSAdvancedScalerChannelDetector *asAdvancedScalerChannelDetector = 0;
+//			CLSAdvancedScalerChannelDetector *asAdvancedScalerChannelDetector = 0;
+			CLSScalerChannelDetector *asScalerChannelDetector = 0;
 			for(int x = 0, size = generalConfig_->detectorConfigurations().count(); x < size; x++){
-				asAdvancedScalerChannelDetector = qobject_cast<CLSAdvancedScalerChannelDetector*>(AMBeamline::bl()->exposedDetectorByInfo(generalConfig_->detectorConfigurations().at(x)));
-				if(asAdvancedScalerChannelDetector){
-					scalerChannelIndexMap.insert(asAdvancedScalerChannelDetector->enabledChannelIndex(), generalConfig_->detectorConfigurations().at(x).name());
+//				asScalerChannelDetector = qobject_cast<CLSAdvancedScalerChannelDetector*>(AMBeamline::bl()->exposedDetectorByInfo(generalConfig_->detectorConfigurations().at(x)));
+				asScalerChannelDetector = qobject_cast<CLSScalerChannelDetector*>(AMBeamline::bl()->exposedDetectorByInfo(generalConfig_->detectorConfigurations().at(x)));
+				if(asScalerChannelDetector){
+					scalerChannelIndexMap.insert(asScalerChannelDetector->enabledChannelIndex(), generalConfig_->detectorConfigurations().at(x).name());
 					scalerChannelVectors.insert(generalConfig_->detectorConfigurations().at(x).name(), QVector<qint32>(rebasedTotalCount, 0));
 					scalerChannelRunningSums.insert(generalConfig_->detectorConfigurations().at(x).name(), 0);
 				}

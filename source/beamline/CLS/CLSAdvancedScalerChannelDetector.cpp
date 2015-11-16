@@ -25,7 +25,195 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "source/ClientRequest/AMDSClientRelativeCountPlusCountDataRequest.h"
 
- CLSAdvancedScalerChannelDetector::~CLSAdvancedScalerChannelDetector(){}
+
+CLSScalerChannelDetector::CLSScalerChannelDetector(const QString &name, const QString &description, CLSSIS3820Scaler *scaler, int channelIndex, QObject *parent) :
+	AMDetector(name, description, parent)
+{
+	scaler_ = scaler;
+	channelIndex_ = channelIndex;
+
+	connect(scaler_, SIGNAL(connectedChanged(bool)), this, SLOT(onScalerConnected(bool)));
+}
+
+CLSScalerChannelDetector::~CLSScalerChannelDetector()
+{
+}
+
+int CLSScalerChannelDetector::size(int axisNumber) const
+{
+	Q_UNUSED(axisNumber)
+	return 0;
+}
+
+double CLSScalerChannelDetector::acquisitionTime() const
+{
+	if(isConnected())
+		return scaler_->dwellTime();
+	return -1;
+}
+
+double CLSScalerChannelDetector::acquisitionTimeTolerance() const
+{
+	if(isConnected())
+		return scaler_->dwellTimeTolerance();
+	return -1;
+}
+
+QString CLSScalerChannelDetector::synchronizedDwellKey() const
+{
+	return QString();
+}
+
+AMDetectorTriggerSource* CLSScalerChannelDetector::detectorTriggerSource()
+{
+	return 0;
+}
+
+AMDetectorDwellTimeSource* CLSScalerChannelDetector::detectorDwellTimeSource()
+{
+	return 0;
+}
+
+AMDetectorDefinitions::ReadMode CLSScalerChannelDetector::readMode() const
+{
+	return readMode_;
+}
+
+AMNumber CLSScalerChannelDetector::reading(const AMnDIndex& indexes) const
+{
+	if(!isConnected())
+		return AMNumber(AMNumber::Null);
+	// We want an "invalid" AMnDIndex for this 0D detector
+	if(indexes.isValid())
+		return AMNumber(AMNumber::DimensionError);
+
+	return scaler_->channelAt(channelIndex_)->reading();
+}
+
+AMNumber CLSScalerChannelDetector::singleReading() const
+{
+	return reading(AMnDIndex());
+}
+
+bool CLSScalerChannelDetector::data(double *outputValues) const
+{
+	outputValues[0] = singleReading();
+	return true;
+}
+
+AMDSClientDataRequest* CLSScalerChannelDetector::lastContinuousData(double seconds) const
+{
+	if(isConnected())
+		return scaler_->lastContinuousDataRequest();
+	return 0;
+}
+
+int CLSScalerChannelDetector::channelIndex() const
+{
+	if(isConnected())
+		return channelIndex_;
+	return -1;
+}
+
+int CLSScalerChannelDetector::enabledChannelIndex() const
+{
+	if(!isConnected())
+		return -1;
+
+	int disabledLowerChannels = 0;
+	for(int x = 0, size = channelIndex_; x < size; x++){
+		if(!scaler_->channelAt(x)->isEnabled())
+			disabledLowerChannels++;
+	}
+	return channelIndex_ - disabledLowerChannels;
+}
+
+bool CLSScalerChannelDetector::setAcquisitionTime(double seconds)
+{
+	if(!isConnected())
+		return false;
+
+	scaler_->setDwellTime(seconds);
+	emit acquisitionTimeChanged(seconds);
+	return true;
+}
+
+bool CLSScalerChannelDetector::setReadMode(AMDetectorDefinitions::ReadMode readMode)
+{
+	readMode_ = readMode;
+	emit readModeChanged(readMode_);
+
+	return true;
+}
+
+void CLSScalerChannelDetector::onScalerConnected(bool connected)
+{
+	setConnected(connected);
+
+	checkReadyForAcquisition();
+}
+
+void CLSScalerChannelDetector::onScalerScanningChanged(bool isScanning)
+{
+	// REQUIRES IMPLEMENTATION WHEN WE HAVE THE DWELL/TRIGGER GOING FOR THE AMDS-SCALER
+}
+
+void CLSScalerChannelDetector::onScalerAMDSDataReady()
+{
+	qDebug() << "ScalerAMDSDataReady in CLSScalerChannelDetector";
+	disconnect(scaler_, SIGNAL(amdsDataReady()), this, SLOT(onScalerAMDSDataReady()));
+	setAcquisitionSucceeded();
+	setReadyForAcquisition();
+}
+
+bool CLSScalerChannelDetector::initializeImplementation()
+{
+	setInitialized();
+	return true;
+}
+
+bool CLSScalerChannelDetector::acquireImplementation(AMDetectorDefinitions::ReadMode readMode)
+{
+	qDebug() << "CLSScalerChannelDetector asked for acquireImplementation with read mode " << readMode;
+	if(!isConnected())
+		return false;
+
+	if(readMode == AMDetectorDefinitions::ContinuousRead){
+		qDebug() << "ContinuousRead in CLSScalerChannelDetector";
+		readMode_ = AMDetectorDefinitions::ContinuousRead;
+
+		connect(scaler_, SIGNAL(amdsDataReady()), this, SLOT(onScalerAMDSDataReady()));
+		setAcquiring();
+		scaler_->retrieveBufferedData(1);
+	}
+	else{
+		// REQUIRES IMPLEMENTATION WHEN WE HAVE THE DWELL/TRIGGER GOING FOR THE AMDS-SCALER
+//		if(readMode_ != readMode){
+//			connect(this, SIGNAL(readModeChanged(AMDetectorDefinitions::ReadMode)), this, SLOT(triggerChannelAcquisition()));
+//			setReadMode(readMode_);
+//			return true;
+//		}
+//		else
+//			return triggerChannelAcquisition();
+	}
+}
+
+bool CLSScalerChannelDetector::cleanupImplementation()
+{
+	setCleanedUp();
+	return true;
+}
+
+void CLSScalerChannelDetector::checkReadyForAcquisition()
+{
+	if(isConnected())
+		if(!isReadyForAcquisition())
+			setReadyForAcquisition();
+}
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 CLSAdvancedScalerChannelDetector::CLSAdvancedScalerChannelDetector(const QString &name, const QString &description, CLSSIS3820Scaler *scaler, int channelIndex, QObject *parent) :
 	CLSBasicScalerChannelDetector(name, description, scaler, channelIndex, parent)
 {
@@ -41,6 +229,8 @@ CLSAdvancedScalerChannelDetector::CLSAdvancedScalerChannelDetector(const QString
 	connect(scaler_, SIGNAL(scansPerBufferChanged(int)), this, SLOT(onScansPerBufferChanged(int)));
 	connect(scaler_, SIGNAL(totalScansChanged(int)), this, SLOT(onTotalScansChanged(int)));
 }
+
+CLSAdvancedScalerChannelDetector::~CLSAdvancedScalerChannelDetector(){}
 
 bool CLSAdvancedScalerChannelDetector::data(double *outputValues) const
 {

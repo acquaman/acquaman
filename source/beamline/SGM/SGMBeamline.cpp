@@ -310,21 +310,21 @@ void SGMBeamline::setupMotorGroups()
 
 void SGMBeamline::setupDetectors()
 {
-	teyDetector_ = new CLSAdvancedScalerChannelDetector("TEY", "TEY", scaler_, 2, this);
-	tfyDetector_ = new CLSAdvancedScalerChannelDetector("TFY", "TFY", scaler_, 0, this);
-	i0Detector_ = new CLSAdvancedScalerChannelDetector("I0", "I0", scaler_, 3, this);
-	pdDetector_ = new CLSAdvancedScalerChannelDetector("PD", "PD", scaler_, 1, this);
+	teyDetector_ = new CLSScalerChannelDetector("TEY", "TEY", scaler_, 2, this);
+	tfyDetector_ = new CLSScalerChannelDetector("TFY", "TFY", scaler_, 0, this);
+	i0Detector_ = new CLSScalerChannelDetector("I0", "I0", scaler_, 3, this);
+	pdDetector_ = new CLSScalerChannelDetector("PD", "PD", scaler_, 1, this);
 
-	filteredPD1Detector_ = new CLSAdvancedScalerChannelDetector("FilteredPD1", "FilteredPD1", scaler_, 9, this);
-	filteredPD2Detector_ = new CLSAdvancedScalerChannelDetector("FilteredPD2", "FilteredPD2", scaler_, 6, this);
-	filteredPD3Detector_ = new CLSAdvancedScalerChannelDetector("FilteredPD3", "FilteredPD3", scaler_, 7, this);
-	filteredPD4Detector_ = new CLSAdvancedScalerChannelDetector("FilteredPD4", "FilteredPD4", scaler_, 8, this);
-//	filteredPD5Detector_ = new CLSAdvancedScalerChannelDetector("FilteredPD5", "FilteredPD5", scaler_, 10, this);
+	filteredPD1Detector_ = new CLSScalerChannelDetector("FilteredPD1", "FilteredPD1", scaler_, 9, this);
+	filteredPD2Detector_ = new CLSScalerChannelDetector("FilteredPD2", "FilteredPD2", scaler_, 6, this);
+	filteredPD3Detector_ = new CLSScalerChannelDetector("FilteredPD3", "FilteredPD3", scaler_, 7, this);
+	filteredPD4Detector_ = new CLSScalerChannelDetector("FilteredPD4", "FilteredPD4", scaler_, 8, this);
+//	filteredPD5Detector_ = new CLSScalerChannelDetector("FilteredPD5", "FilteredPD5", scaler_, 10, this);
 
-	hexapodRedDetector_ = new CLSAdvancedScalerChannelDetector("HexapodRed", "HexpodRed", scaler_, 10, this);
-	hexapodBlackDetector_ = new CLSAdvancedScalerChannelDetector("HexapodBlack", "HexapodBlack", scaler_, 11, this);
-	encoderUpDetector_ = new CLSAdvancedScalerChannelDetector("EncoderUp", "EncoderUp", scaler_, 14, this);
-	encoderDownDetector_ = new CLSAdvancedScalerChannelDetector("EncoderDown", "EncoderDown", scaler_, 15, this);
+	hexapodRedDetector_ = new CLSScalerChannelDetector("HexapodRed", "HexpodRed", scaler_, 10, this);
+	hexapodBlackDetector_ = new CLSScalerChannelDetector("HexapodBlack", "HexapodBlack", scaler_, 11, this);
+	encoderUpDetector_ = new CLSScalerChannelDetector("EncoderUp", "EncoderUp", scaler_, 14, this);
+	encoderDownDetector_ = new CLSScalerChannelDetector("EncoderDown", "EncoderDown", scaler_, 15, this);
 
 	// Amptek
 //	amptekSDD1_ = new CLSAmptekSDD123DetectorNew("AmptekSDD1", "Amptek SDD 1", "amptek:sdd1", this);
