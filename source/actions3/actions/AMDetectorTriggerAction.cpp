@@ -21,11 +21,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMDetectorTriggerAction.h"
 
-//#include "beamline/AMBeamline.h"
 #include "beamline/AMBeamlineSupport.h"
 #include "util/AMErrorMonitor.h"
 
- AMDetectorTriggerAction::~AMDetectorTriggerAction(){}
 AMDetectorTriggerAction::AMDetectorTriggerAction(AMDetectorTriggerActionInfo *info, AMDetector *detector, QObject *parent) :
 	AMAction3(info, parent)
 {
@@ -34,9 +32,12 @@ AMDetectorTriggerAction::AMDetectorTriggerAction(AMDetectorTriggerActionInfo *in
 		detector_ = detector;
 	else if(AMBeamlineSupport::beamlineDetectorAPI())
 		detector_ = AMBeamlineSupport::beamlineDetectorAPI()->exposedDetectorByInfo(*(info->detectorInfo()));
-	//detector_ = AMBeamline::bl()->exposedDetectorByInfo(*(info->detectorInfo()));
 	else
 		detector_ = 0; //NULL
+}
+
+AMDetectorTriggerAction::~AMDetectorTriggerAction()
+{
 }
 
 AMDetectorTriggerAction::AMDetectorTriggerAction(const AMDetectorTriggerAction &other) :
@@ -44,8 +45,6 @@ AMDetectorTriggerAction::AMDetectorTriggerAction(const AMDetectorTriggerAction &
 {
 	const AMDetectorTriggerActionInfo *info = qobject_cast<const AMDetectorTriggerActionInfo*>(other.info());
 
-	//if(info)
-	//	detector_ = AMBeamline::bl()->exposedDetectorByInfo(*(detectorTriggerInfo()->detectorInfo()));
 	if(info && AMBeamlineSupport::beamlineDetectorAPI())
 		detector_ = AMBeamlineSupport::beamlineDetectorAPI()->exposedDetectorByInfo(*(detectorTriggerInfo()->detectorInfo()));
 	else
@@ -55,11 +54,8 @@ AMDetectorTriggerAction::AMDetectorTriggerAction(const AMDetectorTriggerAction &
 }
 
 #include "beamline/AMDetectorTriggerSource.h"
-#include <QDebug>
 void AMDetectorTriggerAction::startImplementation(){
 	// If you still don't have a detector, check the exposed detectors one last time.
-	//if(!detector_)
-	//	detector_ = AMBeamline::bl()->exposedDetectorByInfo(*(detectorTriggerInfo()->detectorInfo()));
 	if(!detector_ && AMBeamlineSupport::beamlineDetectorAPI())
 		detector_ = AMBeamlineSupport::beamlineDetectorAPI()->exposedDetectorByInfo(*(detectorTriggerInfo()->detectorInfo()));
 
@@ -91,22 +87,14 @@ void AMDetectorTriggerAction::startImplementation(){
 		triggerSource_->trigger(detectorTriggerInfo()->readMode());
 	}
 	else{
-		qDebug() << "Triggering " << detector_->name() << " based on non-trigger source method";
 		// connect to detector initialization signals
 		connect(detector_, SIGNAL(acquiring()), this, SLOT(onAcquisitionStarted()));
 		connect(detector_, SIGNAL(acquisitionSucceeded()), this, SLOT(onAcquisitionSucceeded()));
 		connect(detector_, SIGNAL(acquisitionFailed()), this, SLOT(onAcquisitionFailed()));
 
-		qDebug() << "Is it ready for acquisition " << detector_->isReadyForAcquisition();
 		if (detector_->isReadyForAcquisition()){
-			qDebug() << "Read mode is " << detectorTriggerInfo()->readMode();
-			if(detectorTriggerInfo()->readMode() == AMDetectorDefinitions::ContinuousRead){
-				qDebug() << "Continous readMode detector, try the window " << detectorTriggerInfo()->continousWindowSeconds();
-				if(detectorTriggerInfo()->continousWindowSeconds() > 0){
-					qDebug() << "There's a good value in there, so use it";
-					detector_->setContinuousDataWindow(detectorTriggerInfo()->continousWindowSeconds());
-				}
-			}
+			if((detectorTriggerInfo()->readMode() == AMDetectorDefinitions::ContinuousRead) && (detectorTriggerInfo()->continousWindowSeconds() > 0))
+				detector_->setContinuousDataWindow(detectorTriggerInfo()->continousWindowSeconds());
 			detector_->acquire(detectorTriggerInfo()->readMode());
 		}
 
@@ -129,7 +117,6 @@ void AMDetectorTriggerAction::onAcquisitionSucceeded(){
 		disconnect(triggerSource_, 0, this, 0);
 	disconnect(detector_, 0, this, 0);
 
-	qDebug() << "Trigger action saw acquisition succeeded, setSucceeded";
 	setSucceeded();
 }
 
@@ -137,7 +124,6 @@ void AMDetectorTriggerAction::onAcquisitionFailed(){
 	if(triggerSource_)
 		disconnect(triggerSource_, 0, this, 0);
 	disconnect(detector_, 0, this, 0);
-	qDebug() << "Trigger action saw acquisition failed, setFailed";
 	setFailed();
 }
 

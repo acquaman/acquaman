@@ -124,12 +124,6 @@ CLSAmptekSDD123DetectorNew::CLSAmptekSDD123DetectorNew(const QString &name, cons
 	AMDSDataHolderSupport::registerDataHolderClass();
 	AMDSEventDataSupport::registerEventDataObjectClass();
 
-	// FLAGGED FOR REMOVAL: Continuous Data API testing November 9, 2015
-	AMAgnosticDataMessageQEventHandler *amptekTestMessager = new AMAgnosticDataMessageQEventHandler();
-	AMAgnosticDataAPISupport::registerHandler("AmptekTest", amptekTestMessager);
-	amptekTestMessager->addReceiver(this);
-	// END OF FLAG
-
 	lastContinuousDataRequest_ = 0;
 	lastReadMode_ = AMDetectorDefinitions::SingleRead;
 
@@ -537,44 +531,6 @@ int CLSAmptekSDD123DetectorNew::convertEvToBin(double eVValue){
 	return (int)(eVValue / eVPerBin());
 }
 
-// FLAGGED FOR REMOVAL: Continuous Data API testing November 9, 2015
-bool CLSAmptekSDD123DetectorNew::event(QEvent *e){
-	if(e->type() == (QEvent::Type)AMAgnosticDataAPIDefinitions::MessageEvent){
-		AMAgnosticDataAPIMessage message = ((AMAgnositicDataEvent*)e)->message_;
-
-		switch(message.messageType()){
-		case AMAgnosticDataAPIDefinitions::DataAvailable:{
-
-			AMAgnosticDataAPIDataAvailableMessage *dataAvailableMessage = static_cast<AMAgnosticDataAPIDataAvailableMessage*>(&message);
-			qDebug() << "Is there a valid clientDataRequest pointer? " << dataAvailableMessage->detectorDataAsAMDS();
-
-			intptr_t dataRequestPointer = dataAvailableMessage->detectorDataAsAMDS();
-			void *dataRequestVoidPointer = (void*)dataRequestPointer;
-			AMDSClientDataRequest *dataRequest = static_cast<AMDSClientDataRequest*>(dataRequestVoidPointer);
-
-			dataRequest->printData();
-
-			break;}
-		case AMAgnosticDataAPIDefinitions::AxisStarted:
-		case AMAgnosticDataAPIDefinitions::AxisFinished:
-		case AMAgnosticDataAPIDefinitions::AxisValueFinished:
-		case AMAgnosticDataAPIDefinitions::ControlMoved:
-		case AMAgnosticDataAPIDefinitions::InvalidMessage:
-			qDebug() << "Should not be dealing with any of these AMAgnosticDataAPI message types";
-			break;
-		default:
-			qDebug() << "Definitely should not be dealing with any default cases";
-			break;
-		}
-
-		e->accept();
-		return true;
-	}
-	else{
-		return AMXRFDetector::event(e);
-	}
-}
-// END OF FLAG
 
 bool CLSAmptekSDD123DetectorNew::setReadMode(AMDetectorDefinitions::ReadMode readMode){
 	Q_UNUSED(readMode)

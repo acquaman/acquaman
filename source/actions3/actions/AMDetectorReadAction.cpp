@@ -21,7 +21,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMDetectorReadAction.h"
 
-//#include "beamline/AMBeamline.h"
 #include "beamline/AMBeamlineSupport.h"
 #include "util/AMErrorMonitor.h"
 #include "acquaman/AMAgnosticDataAPI.h"
@@ -63,6 +62,7 @@ void AMDetectorReadAction::startImplementation(){
 		return;
 	}
 
+	setStarted();
 	if(detector_->readMethod() == AMDetectorDefinitions::WaitRead){
 		// connect to detector initialization signals
 		connect(detector_, SIGNAL(newValuesAvailable()), this, SLOT(onDetectorNewValuesAvailable()));
@@ -85,12 +85,10 @@ void AMDetectorReadAction::onDetectorNewValuesAvailable(){
 	internalSetSucceeded();
 }
 
-#include <QDebug>
 #include "source/ClientRequest/AMDSClientDataRequest.h"
 void AMDetectorReadAction::internalSetSucceeded(){
 	disconnect(detector_, 0, this, 0);
 
-	qDebug() << "In read action for detector " << detector_->name() << " with readMode " << detector_->readMode();
 	if(generateScanActionMessages_){
 		QList<int> dimensionSizes;
 		QStringList dimensionNames;
@@ -128,23 +126,11 @@ void AMDetectorReadAction::internalSetSucceeded(){
 
 			detectorData.append(0);
 
-			qDebug() << "In read action, about to call for lastContinuousData";
-			AMDSClientDataRequest *lastContinuousData = detector_->lastContinuousData(1);
-//			qDebug() << "Continuous data buffer name " << detector_->lastContinuousData(1)->bufferName();
-			qDebug() << "Continuous data buffer name " << lastContinuousData->bufferName();
-
 			AMAgnosticDataAPIDataAvailableMessage dataAvailableMessage(detector_->name(), detectorData, dimensionSizes, dimensionNames, dimensionUnits, true);
 			intptr_t continuousDataPointer = (intptr_t)(detector_->lastContinuousData(1));
 			quint64 continuousDataPointer64 = continuousDataPointer;
 			dataAvailableMessage.setDetectorDataAsAMDS(continuousDataPointer64);
 
-			// FLAGGED FOR REMOVAL: Continuous Data API testing November 9, 2015
-//			if(AMAgnosticDataAPISupport::handlerFromLookupKey("AmptekTest")){
-//				AMAgnosticDataAPISupport::handlerFromLookupKey("AmptekTest")->postMessage(dataAvailableMessage);
-//				qDebug() << "About to postMessage to AmptekTest";
-//				return;
-//			}
-			// END OF FLAG
 			AMAgnosticDataAPISupport::handlerFromLookupKey("ScanActions")->postMessage(dataAvailableMessage);
 		}
 	}
