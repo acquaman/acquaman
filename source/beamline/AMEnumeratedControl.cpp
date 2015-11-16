@@ -88,8 +88,9 @@ void AMEnumeratedControl::updateValue()
 	setValue(newValue);
 }
 
-void AMEnumeratedControl::addOption(int index, const QString &optionString)
+bool AMEnumeratedControl::addOption(int index, const QString &optionString)
 {
+	bool result = false;
 	bool proceed = false;
 
 	// First check whether we are in a situation where duplicate value options
@@ -110,28 +111,42 @@ void AMEnumeratedControl::addOption(int index, const QString &optionString)
 
 		updateEnumStates();
 
-		emit optionsChanged();
+		result = true;
 	}
+
+	return result;
 }
 
-void AMEnumeratedControl::removeOption(int index)
+bool AMEnumeratedControl::removeOption(int index)
 {
-	indices_.removeOne(index);
-	indexStringMap_.remove(index);
+	bool result = false;
 
-	updateEnumStates();
+	if (indices_.contains(index)) {
+		indices_.removeOne(index);
+		indexStringMap_.remove(index);
 
-	emit optionsChanged();
+		updateEnumStates();
+
+		result = true;
+	}
+
+	return result;
 }
 
-void AMEnumeratedControl::clearOptions()
+bool AMEnumeratedControl::clearOptions()
 {
-	indices_.clear();
-	indexStringMap_.clear();
+	bool result = false;
 
-	updateEnumStates();
+	if (!indices_.isEmpty()) {
+		indices_.clear();
+		indexStringMap_.clear();
 
-	emit optionsChanged();
+		updateEnumStates();
+
+		result = true;
+	}
+
+	return result;
 }
 
 QStringList AMEnumeratedControl::generateEnumStates() const

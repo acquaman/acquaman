@@ -41,6 +41,8 @@ signals:
 	void upstreamFilterChanged(BioXASCarbonFilterFarmActuatorFilterControl *newControl);
 	/// Notifier that the downstream actuator filter control has changed.
 	void downstreamFilterChanged(BioXASCarbonFilterFarmActuatorFilterControl *newControl);
+	/// Notifier that the filter options have changed.
+	void filtersChanged();
 
 public slots:
 	/// Sets the upstream actuator filter control.
@@ -57,13 +59,13 @@ protected slots:
 	virtual void updateMoving();
 
 	/// Adds an enum value option, assumes that the index will be the next available value (incrementing from zero).
-	virtual void addFilterOption(const QString &optionString, double filter, int upstreamFilterIndex, int downstreamFilterIndex);
+	void addFilterOption(const QString &optionString, double filter, int upstreamFilterIndex, int downstreamFilterIndex);
 	/// Adds an enum value option. Options added with duplicate indices will overwrite previous options.
-	virtual void addFilterOption(int index, const QString &optionString, double filter, int upstreamFilterIndex, int downstreamFilterIndex);
+	void addFilterOption(int index, const QString &optionString, double filter, int upstreamFilterIndex, int downstreamFilterIndex);
 	/// Removes an enum value option.
-	virtual void removeOption(int index);
+	virtual bool removeOption(int index);
 	/// Clears all value options.
-	virtual void clearOptions();
+	virtual bool clearOptions();
 
 protected:
 	/// Returns a new action that moves both actuators to the desired filter.

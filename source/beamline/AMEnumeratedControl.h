@@ -3,9 +3,6 @@
 
 #include "beamline/AMPseudoMotorControl.h"
 
-#define AMENUMERATEDCONTROL_INVALID_ENUM_SETPOINT 237184
-#define AMENUMERATEDCONTROL_INVALID_OPTION_SETPOINT 237185
-
 /*
   This is a control that manages different enumerated value options.
   */
@@ -42,8 +39,6 @@ public:
 	bool hasIndexNamed(const QString &name) const;
 
 signals:
-	/// Notifier that the value options have changed.
-	void optionsChanged();
 	/// Notifier that whether this control allows duplicate value option entries has changed.
 	void allowsDuplicationOptionsChanged(bool newStatus);
 
@@ -63,11 +58,11 @@ protected slots:
 	virtual void updateValue();
 
 	/// Adds an enum value option. Options added with duplicate indices will overwrite previous options.
-	virtual void addOption(int index, const QString &optionString);
+	virtual bool addOption(int index, const QString &optionString);
 	/// Removes an enum value option.
-	virtual void removeOption(int index);
+	virtual bool removeOption(int index);
 	/// Clears all value options.
-	virtual void clearOptions();
+	virtual bool clearOptions();
 
 protected:
 	/// Creates and returns a list of enum states, includes an "Unknown" state by default. Subclasses may reimplement if they need additional 'extra' states (ie not move states).

@@ -42,11 +42,11 @@ protected slots:
 	virtual void updateConnected();
 
 	/// Adds a new state to the control.
-	virtual void addState(int index, const QString &stateName, double statusValue, AMControl *control, double controlTriggerValue);
+	virtual bool addState(int index, const QString &stateName, double statusValue, AMControl *control, double controlTriggerValue);
 	/// Removes a state.
-	virtual void removeState(int index);
+	virtual bool removeState(int index);
 	/// Clears all states.
-	virtual void clearStates();
+	virtual bool clearStates();
 
 protected:
 	/// Returns a new action that moves the control to the setpoint that corresponds to the given index setpoint.

@@ -32,6 +32,8 @@ public:
 signals:
 	/// Notifier that the window control has changed.
 	void windowChanged(BioXASCarbonFilterFarmActuatorWindowControl *newControl);
+	/// Notifier that the filter options have changed.
+	void filtersChanged();
 
 public slots:
 	/// Sets the control used as the base for this control's values.

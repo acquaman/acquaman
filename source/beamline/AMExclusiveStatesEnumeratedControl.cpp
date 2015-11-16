@@ -112,45 +112,49 @@ void AMExclusiveStatesEnumeratedControl::updateConnected()
 	setConnected(isConnected);
 }
 
-void AMExclusiveStatesEnumeratedControl::addState(int index, const QString &stateName, double statusValue, AMControl *control, double controlTriggerValue)
+bool AMExclusiveStatesEnumeratedControl::addState(int index, const QString &stateName, double statusValue, AMControl *control, double controlTriggerValue)
 {
-	bool proceed = false;
+	bool result = false;
 
-	// First check whether we are in a situation where duplicate value options
-	// may be an issue.
-
-	if (!hasIndexNamed(stateName))
-		proceed = true;
-	else if (hasIndexNamed(stateName) && allowsDuplicateOptions_)
-		proceed = true;
-
-	// Proceed with adding the option if duplication isn't an issue.
-
-	if (proceed) {
+	if (AMEnumeratedControl::addOption(index, stateName)) {
 		indexStatusMap_.insert(index, statusValue);
 		setControl(index, control);
 		indexTriggerMap_.insert(index, controlTriggerValue);
 
-		AMEnumeratedControl::addOption(index, stateName);
+		result = true;
 	}
+
+	return result;
 }
 
-void AMExclusiveStatesEnumeratedControl::removeState(int index)
+bool AMExclusiveStatesEnumeratedControl::removeState(int index)
 {
-	indexStatusMap_.remove(index);
-	removeControl(index);
-	indexTriggerMap_.remove(index);
+	bool result = false;
 
-	AMEnumeratedControl::removeOption(index);
+	if (AMEnumeratedControl::removeOption(index)) {
+		indexStatusMap_.remove(index);
+		removeControl(index);
+		indexTriggerMap_.remove(index);
+
+		result = true;
+	}
+
+	return result;
 }
 
-void AMExclusiveStatesEnumeratedControl::clearStates()
+bool AMExclusiveStatesEnumeratedControl::clearStates()
 {
-	indexStatusMap_.clear();
-	clearControls();
-	indexTriggerMap_.clear();
+	bool result = false;
 
-	AMEnumeratedControl::clearOptions();
+	if (AMEnumeratedControl::clearOptions()) {
+		indexStatusMap_.clear();
+		clearControls();
+		indexTriggerMap_.clear();
+
+		result = true;
+	}
+
+	return result;
 }
 
 AMAction3* AMExclusiveStatesEnumeratedControl::createMoveAction(double optionIndex)

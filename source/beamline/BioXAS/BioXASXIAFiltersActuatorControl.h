@@ -17,12 +17,14 @@ public:
 signals:
 	/// Notifier that the actuator status control has changed.
 	void statusChanged(AMReadOnlyPVControl *newControl);
+	/// Notifier that the state options have changed.
+	void statesChanged();
 
 public slots:
 	/// Sets the actuator status control.
 	void setStatus(AMReadOnlyPVControl *newControl);
 	/// Adds a filter state.
-	virtual void addFilterState(int index, const QString &stateName, AMControl *control);
+	void addFilterState(int index, const QString &stateName, AMControl *control);
 };
 
 #endif // BIOXASXIAFILTERSACTUATORCONTROL_H
