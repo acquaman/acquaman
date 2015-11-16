@@ -45,6 +45,12 @@ protected:
 	/// Creates the scan assembler that builds all the actions used to run the scan.
 	virtual void createScanAssembler();
 
+	/// Helper function to place all of the code for the 1D case in one location out of the event (which becomes unreadable otherwise)
+	void axisFinished1DHelper();
+	/// Helper function to place all of the code for the 2D case in one location out of the event (which becomes unreadable otherwise)
+	void axisFinished2DHelper();
+
+protected:
 	/// The assembler that takes in the region scan configuration and turns it into a tree of scanning actions.
 	AMScanActionControllerScanAssembler *scanAssembler_;
 	/// The pointer to the region scan configuration to provide the subclass information.
