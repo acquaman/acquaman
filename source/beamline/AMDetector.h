@@ -279,7 +279,10 @@ int outputSize = indexStart.totalPointsTo(indexEnd);
 
 	/// If the detector supports the AMDSClientDataRequest, this will return an AMDSClientDataRequest pointer for the specified period of time
 	virtual AMDSClientDataRequest* lastContinuousData(double seconds) const;
+	/// Sets the continuous data window for ContinuousMode reads. This will be how much data is requested on the next trigger/acquire
 	virtual bool setContinuousDataWindow(double continuousDataWindowSeconds);
+	/// Returns the AMDS Buffer Name of this detector if there is one. A null string should be returned if there isn't one.
+	virtual QString amdsBufferName() const;
 
 	/// Fills the given double pointer with the current detector data in row-major order (first axis varies slowest).  Memory must be preallocated to the size of the detector data.
 	virtual bool data(double *outputValues) const = 0;

@@ -274,6 +274,11 @@ bool AMDetector::setContinuousDataWindow(double continuousDataWindowSeconds){
 	return false;
 }
 
+QString AMDetector::amdsBufferName() const
+{
+	return QString();
+}
+
 AMAction3* AMDetector::createInitializationActions(){
 	return new AMDetectorInitializeAction(new AMDetectorInitializeActionInfo(toInfo()), this);
 }

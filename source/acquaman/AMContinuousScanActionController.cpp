@@ -221,13 +221,19 @@ void AMContinuousScanActionController::createScanAssembler()
 
 void AMContinuousScanActionController::axisFinished1DHelper()
 {
-	if(!clientDataRequestMap_.contains("Scaler (BL1611-ID-1)") ||
-			!clientDataRequestMap_.contains("Amptek SDD 240") ||
-			!clientDataRequestMap_.contains("Amptek SDD 241") ||
-			!clientDataRequestMap_.contains("Amptek SDD 242") ||
-			!clientDataRequestMap_.contains("Amptek SDD 243")){
-		qDebug() << "FATAL ERROR, data missing";
-		return;
+	QList<QString> requiredBufferNames;
+	for(int x = 0, size = generalConfig_->detectorConfigurations().count(); x < size; x++){
+		AMDetector *oneDetector = AMBeamline::bl()->exposedDetectorByInfo(generalConfig_->detectorConfigurations().at(x));
+
+		if(!oneDetector->amdsBufferName().isEmpty() && !requiredBufferNames.contains(oneDetector->amdsBufferName()))
+			requiredBufferNames.append(oneDetector->amdsBufferName());
+	}
+
+	for(int x = 0, size = requiredBufferNames.count(); x < size; x++){
+		if(!clientDataRequestMap_.contains(requiredBufferNames.at(x))){
+			qDebug() << "FATAL ERROR, MISSING DATA " << requiredBufferNames.at(x);
+			return;
+		}
 	}
 
 
@@ -250,11 +256,12 @@ void AMContinuousScanActionController::axisFinished1DHelper()
 	QMap<int, QString> scalerChannelIndexMap;
 	CLSScalerChannelDetector *asScalerChannelDetector = 0;
 	for(int x = 0, size = generalConfig_->detectorConfigurations().count(); x < size; x++){
-		asScalerChannelDetector = qobject_cast<CLSScalerChannelDetector*>(AMBeamline::bl()->exposedDetectorByInfo(generalConfig_->detectorConfigurations().at(x)));
+		AMDetector *oneDetector = AMBeamline::bl()->exposedDetectorByInfo(generalConfig_->detectorConfigurations().at(x));
+		asScalerChannelDetector = qobject_cast<CLSScalerChannelDetector*>(oneDetector);
 		if(asScalerChannelDetector){
-			scalerChannelIndexMap.insert(asScalerChannelDetector->enabledChannelIndex(), generalConfig_->detectorConfigurations().at(x).name());
-			scalerChannelVectors.insert(generalConfig_->detectorConfigurations().at(x).name(), QVector<qint32>(rebasedTotalCount, 0));
-			scalerChannelRunningSums.insert(generalConfig_->detectorConfigurations().at(x).name(), 0);
+			scalerChannelIndexMap.insert(asScalerChannelDetector->enabledChannelIndex(), oneDetector->name());
+			scalerChannelVectors.insert(oneDetector->name(), QVector<qint32>(rebasedTotalCount, 0));
+			scalerChannelRunningSums.insert(oneDetector->name(), 0);
 		}
 	}
 
@@ -358,14 +365,14 @@ void AMContinuousScanActionController::axisFinished1DHelper()
 		scan_->rawData()->beginInsertRows(1, -1);
 		scan_->rawData()->setAxisValue(0, insertionIndex_.i(), scalerEnergyFeedbacks.at(x-scalerInitiateMovementIndex+1));
 
-		dataHolderAsGenericFlatArrayDataHolder = qobject_cast<AMDSLightWeightGenericFlatArrayDataHolder*>(clientDataRequestMap_.value("Amptek SDD 240")->data().at(x));
-		scan_->rawData()->setValue(insertionIndex_, scan_->rawData()->idOfMeasurement("AmptekSDD1"), dataHolderAsGenericFlatArrayDataHolder->dataArray().constVectorDouble().constData());
-		dataHolderAsGenericFlatArrayDataHolder = qobject_cast<AMDSLightWeightGenericFlatArrayDataHolder*>(clientDataRequestMap_.value("Amptek SDD 241")->data().at(x));
-		scan_->rawData()->setValue(insertionIndex_, scan_->rawData()->idOfMeasurement("AmptekSDD2"), dataHolderAsGenericFlatArrayDataHolder->dataArray().constVectorDouble().constData());
-		dataHolderAsGenericFlatArrayDataHolder = qobject_cast<AMDSLightWeightGenericFlatArrayDataHolder*>(clientDataRequestMap_.value("Amptek SDD 242")->data().at(x));
-		scan_->rawData()->setValue(insertionIndex_, scan_->rawData()->idOfMeasurement("AmptekSDD3"), dataHolderAsGenericFlatArrayDataHolder->dataArray().constVectorDouble().constData());
-		dataHolderAsGenericFlatArrayDataHolder = qobject_cast<AMDSLightWeightGenericFlatArrayDataHolder*>(clientDataRequestMap_.value("Amptek SDD 243")->data().at(x));
-		scan_->rawData()->setValue(insertionIndex_, scan_->rawData()->idOfMeasurement("AmptekSDD4"), dataHolderAsGenericFlatArrayDataHolder->dataArray().constVectorDouble().constData());
+		for(int y = 0, ySize = generalConfig_->detectorConfigurations().count(); y < ySize; y++){
+			AMDetector *oneDetector = AMBeamline::bl()->exposedDetectorByInfo(generalConfig_->detectorConfigurations().at(y));
+			asScalerChannelDetector = qobject_cast<CLSScalerChannelDetector*>(oneDetector);
+			if(!asScalerChannelDetector){
+				dataHolderAsGenericFlatArrayDataHolder = qobject_cast<AMDSLightWeightGenericFlatArrayDataHolder*>(clientDataRequestMap_.value(oneDetector->amdsBufferName())->data().at(x));
+				scan_->rawData()->setValue(insertionIndex_, scan_->rawData()->idOfMeasurement(oneDetector->name()), dataHolderAsGenericFlatArrayDataHolder->dataArray().constVectorDouble().constData());
+			}
+		}
 
 		QMap<int, QString>::const_iterator i = scalerChannelIndexMap.constBegin();
 		while(i != scalerChannelIndexMap.constEnd()){

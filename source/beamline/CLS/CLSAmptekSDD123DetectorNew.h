@@ -44,7 +44,7 @@ public:
 	virtual ~CLSAmptekSDD123DetectorNew();
 
 	/// Returns the buffer name for this detector
-	QString amdsBufferName() const;
+	virtual QString amdsBufferName() const;
 	/// Configures the server with the given identifier
 	void configAMDSServer(const QString &amptekAMDSServerIdentifier);
 

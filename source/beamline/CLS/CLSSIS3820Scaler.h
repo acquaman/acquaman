@@ -70,6 +70,7 @@ public:
 	bool retrieveBufferedData(double seconds);
 	/// Returns the last continuous data request
 	AMDSClientRelativeCountPlusCountDataRequest* lastContinuousDataRequest() const;
+	/// Sets the continuous data window for the next AMDSClientDataRequest
 	bool setContinuousDataWindow(double continuousDataWindowSeconds);
 
 	/// Returns whether the scaler is currently scanning.

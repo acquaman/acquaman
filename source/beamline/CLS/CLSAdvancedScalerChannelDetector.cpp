@@ -115,6 +115,13 @@ bool CLSScalerChannelDetector::setContinuousDataWindow(double continuousDataWind
 	return false;
 }
 
+QString CLSScalerChannelDetector::amdsBufferName() const
+{
+	if(isConnected())
+		return scaler_->amdsBufferName();
+	return QString();
+}
+
 int CLSScalerChannelDetector::channelIndex() const
 {
 	if(isConnected())

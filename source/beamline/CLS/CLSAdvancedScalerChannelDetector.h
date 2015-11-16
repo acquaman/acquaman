@@ -83,7 +83,10 @@ public:
 
 	/// Implemented to support returning data from the last acquire(AMDetectorDefinitions::ContinuousMode) call
 	virtual AMDSClientDataRequest* lastContinuousData(double seconds) const;
+	/// Sets the continuous data window for the next AMDSClientDataRequest
 	virtual bool setContinuousDataWindow(double continuousDataWindowSeconds);
+	/// Returns the AMDS Buffer Name of this detector if there is one, should not be empty.
+	virtual QString amdsBufferName() const;
 
 	/// Returns a AM1DProcessVariableDataSource suitable for viewing
 	virtual AMDataSource* dataSource() const { return 0; }
