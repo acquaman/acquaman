@@ -122,6 +122,13 @@ QString CLSScalerChannelDetector::amdsBufferName() const
 	return QString();
 }
 
+int CLSScalerChannelDetector::amdsPollingBaseTimeMilliseconds() const
+{
+	if(isConnected())
+		return scaler_->amdsPollingBaseTimeMilliseconds();
+	return -1;
+}
+
 int CLSScalerChannelDetector::channelIndex() const
 {
 	if(isConnected())

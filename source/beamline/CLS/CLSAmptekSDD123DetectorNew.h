@@ -80,6 +80,7 @@ public:
 	/// Implemented to support returning data from the last acquire(AMDetectorDefinitions::ContinuousMode) call
 	virtual AMDSClientDataRequest* lastContinuousData(double seconds) const;
 	virtual bool setContinuousDataWindow(double continuousDataWindowSeconds);
+	virtual int amdsPollingBaseTimeMilliseconds() const;
 
 	/// Creates an action to enable or disable this amptek for in the array.
 	AMAction3* createEnableAction3(bool setEnabled);

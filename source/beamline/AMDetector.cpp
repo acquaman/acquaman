@@ -279,6 +279,11 @@ QString AMDetector::amdsBufferName() const
 	return QString();
 }
 
+int AMDetector::amdsPollingBaseTimeMilliseconds() const
+{
+	return -1;
+}
+
 AMAction3* AMDetector::createInitializationActions(){
 	return new AMDetectorInitializeAction(new AMDetectorInitializeActionInfo(toInfo()), this);
 }

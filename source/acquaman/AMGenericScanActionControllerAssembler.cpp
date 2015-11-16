@@ -285,6 +285,7 @@ AMAction3* AMGenericScanActionControllerAssembler::generateActionTreeForContinuo
 		axisActions->addSubAction(AMActionSupport::buildControlWaitAction(SGMBeamline::sgm()->energyControlSet()->energyStatus(), 0));
 
 		// Triggering the detector is just asking it to go and request the correct data from the server, it should success once the data packets are returned and processed on our side
+		// RENAME THIS ACTION LIST AND ACTUALLY ITERATE DETECTORS FROM CONFIGURATION
 		AMListAction3 *amptekContinuousTriggerList = new AMParallelListAction3(new AMParallelListActionInfo3(QString("Triggering detectors"), QString("Triggering detectors")));
 		for(int x = 0; x < 4; x++){
 			AMAction3 *amptekContinuousTrigger = SGMBeamline::sgm()->exposedDetectorByName(QString("AmptekSDD%1").arg(x+1))->createTriggerAction(AMDetectorDefinitions::ContinuousRead);
@@ -293,26 +294,30 @@ AMAction3* AMGenericScanActionControllerAssembler::generateActionTreeForContinuo
 				asTriggerActionInfo->setContinuousWindowSeconds(time*1.2);
 			amptekContinuousTriggerList->addSubAction(amptekContinuousTrigger);
 		}
-		axisActions->addSubAction(amptekContinuousTriggerList);
 
 		AMAction3 *scalerContinuousTriggerTest = SGMBeamline::sgm()->exposedDetectorByName("TEY")->createTriggerAction(AMDetectorDefinitions::ContinuousRead);
 		AMDetectorTriggerActionInfo *asTriggerActionInfo = qobject_cast<AMDetectorTriggerActionInfo*>(scalerContinuousTriggerTest->info());
 		if(asTriggerActionInfo)
 			asTriggerActionInfo->setContinuousWindowSeconds(time*1.2);
-		axisActions->addSubAction(scalerContinuousTriggerTest);
+		amptekContinuousTriggerList->addSubAction(scalerContinuousTriggerTest);
+		axisActions->addSubAction(amptekContinuousTriggerList);
+		//End of triggering bloack
 
 		// Reading the detector will cause it to pass the AMDSClientDataRequest through the even system using AMAgnosticDataAPI
+		// RENAME THIS ACTION LIST AND ACTUALLY ITERATE DETECTORS FROM CONFIGURATION
 		AMListAction3 *amptekContinuousReadList = new AMParallelListAction3(new AMParallelListActionInfo3(QString("Reading detectors"), QString("Reading detectors")));
 		for(int x = 0; x < 4; x++){
 			AMAction3 *amptekContinuousRead = SGMBeamline::sgm()->exposedDetectorByName(QString("AmptekSDD%1").arg(x+1))->createReadAction();
 			amptekContinuousRead->setGenerateScanActionMessage(true);
 			amptekContinuousReadList->addSubAction(amptekContinuousRead);
 		}
-		axisActions->addSubAction(amptekContinuousReadList);
 
 		AMAction3 *scalerContinuousReadTest = SGMBeamline::sgm()->exposedDetectorByName("TEY")->createReadAction();
 		scalerContinuousReadTest->setGenerateScanActionMessage(true);
-		axisActions->addSubAction(scalerContinuousReadTest);
+		amptekContinuousReadList->addSubAction(scalerContinuousReadTest);
+
+		axisActions->addSubAction(amptekContinuousReadList);
+		// End of reading block
 
 
 		// Generate axis cleanup list /////////////////////

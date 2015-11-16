@@ -237,8 +237,14 @@ void AMContinuousScanActionController::axisFinished1DHelper()
 	}
 
 
-	int baseScalerTimeScale = 1; //timescale in ms
-	int baseAmptekTimeScale = 50; //timescale in ms
+	int baseScalerTimeScale = -1; //timescale in ms
+	int baseAmptekTimeScale = -1; //timescale in ms
+
+	if(requiredBufferNames.contains("Amptek SDD 240"))
+		baseAmptekTimeScale = AMBeamline::bl()->exposedDetectorByName("AmptekSDD1")->amdsPollingBaseTimeMilliseconds();
+	if(requiredBufferNames.contains("Scaler (BL1611-ID-1)"))
+		baseScalerTimeScale = AMBeamline::bl()->exposedDetectorByName("TEY")->amdsPollingBaseTimeMilliseconds();
+
 	int largestBaseTimeScale;
 	if(baseScalerTimeScale < baseAmptekTimeScale)
 		largestBaseTimeScale = baseAmptekTimeScale;

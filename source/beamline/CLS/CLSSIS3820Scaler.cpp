@@ -165,6 +165,11 @@ bool CLSSIS3820Scaler::setContinuousDataWindow(double continuousDataWindowSecond
 	return true;
 }
 
+int CLSSIS3820Scaler::amdsPollingBaseTimeMilliseconds() const
+{
+	return pollingRateMilliSeconds_;
+}
+
 bool CLSSIS3820Scaler::isScanning() const{
 
 	return isConnected() && startToggle_->withinTolerance(1);

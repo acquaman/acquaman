@@ -72,6 +72,7 @@ public:
 	AMDSClientRelativeCountPlusCountDataRequest* lastContinuousDataRequest() const;
 	/// Sets the continuous data window for the next AMDSClientDataRequest
 	bool setContinuousDataWindow(double continuousDataWindowSeconds);
+	int amdsPollingBaseTimeMilliseconds() const;
 
 	/// Returns whether the scaler is currently scanning.
 	bool isScanning() const;

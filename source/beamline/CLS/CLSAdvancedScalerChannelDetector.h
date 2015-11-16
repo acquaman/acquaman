@@ -87,6 +87,7 @@ public:
 	virtual bool setContinuousDataWindow(double continuousDataWindowSeconds);
 	/// Returns the AMDS Buffer Name of this detector if there is one, should not be empty.
 	virtual QString amdsBufferName() const;
+	virtual int amdsPollingBaseTimeMilliseconds() const;
 
 	/// Returns a AM1DProcessVariableDataSource suitable for viewing
 	virtual AMDataSource* dataSource() const { return 0; }

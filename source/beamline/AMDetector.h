@@ -283,6 +283,8 @@ int outputSize = indexStart.totalPointsTo(indexEnd);
 	virtual bool setContinuousDataWindow(double continuousDataWindowSeconds);
 	/// Returns the AMDS Buffer Name of this detector if there is one. A null string should be returned if there isn't one.
 	virtual QString amdsBufferName() const;
+	/// If the detector supports AMDS server AND it's a polled detector, this returns the base polling rate. Otherwise returns -1
+	virtual int amdsPollingBaseTimeMilliseconds() const;
 
 	/// Fills the given double pointer with the current detector data in row-major order (first axis varies slowest).  Memory must be preallocated to the size of the detector data.
 	virtual bool data(double *outputValues) const = 0;

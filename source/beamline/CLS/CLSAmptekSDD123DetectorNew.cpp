@@ -181,6 +181,11 @@ bool CLSAmptekSDD123DetectorNew::setContinuousDataWindow(double continuousDataWi
 	return true;
 }
 
+int CLSAmptekSDD123DetectorNew::amdsPollingBaseTimeMilliseconds() const
+{
+	return pollingRateMilliSeconds_;
+}
+
 #include "actions3/AMActionSupport.h"
 AMAction3* CLSAmptekSDD123DetectorNew::createEnableAction3(bool setEnabled){
 	if(!isConnected())
