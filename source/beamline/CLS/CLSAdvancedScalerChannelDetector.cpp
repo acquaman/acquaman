@@ -108,6 +108,13 @@ AMDSClientDataRequest* CLSScalerChannelDetector::lastContinuousData(double secon
 	return 0;
 }
 
+bool CLSScalerChannelDetector::setContinuousDataWindow(double continuousDataWindowSeconds)
+{
+	if(isConnected())
+		return scaler_->setContinuousDataWindow(continuousDataWindowSeconds);
+	return false;
+}
+
 int CLSScalerChannelDetector::channelIndex() const
 {
 	if(isConnected())

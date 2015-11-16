@@ -83,6 +83,7 @@ public:
 
 	/// Implemented to support returning data from the last acquire(AMDetectorDefinitions::ContinuousMode) call
 	virtual AMDSClientDataRequest* lastContinuousData(double seconds) const;
+	virtual bool setContinuousDataWindow(double continuousDataWindowSeconds);
 
 	/// Returns a AM1DProcessVariableDataSource suitable for viewing
 	virtual AMDataSource* dataSource() const { return 0; }

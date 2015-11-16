@@ -279,6 +279,7 @@ int outputSize = indexStart.totalPointsTo(indexEnd);
 
 	/// If the detector supports the AMDSClientDataRequest, this will return an AMDSClientDataRequest pointer for the specified period of time
 	virtual AMDSClientDataRequest* lastContinuousData(double seconds) const;
+	virtual bool setContinuousDataWindow(double continuousDataWindowSeconds);
 
 	/// Fills the given double pointer with the current detector data in row-major order (first axis varies slowest).  Memory must be preallocated to the size of the detector data.
 	virtual bool data(double *outputValues) const = 0;

@@ -96,6 +96,8 @@ CLSSIS3820Scaler::CLSSIS3820Scaler(const QString &baseName, const QString &amdsB
 	AMDSDataHolderSupport::registerDataHolderClass();
 	AMDSEventDataSupport::registerEventDataObjectClass();
 	lastContinuousDataRequest_ = 0;
+	continuousDataWindowSeconds_ = 20;
+	pollingRateMilliSeconds_ = 1;
 
 	connect(startToggle_, SIGNAL(valueChanged(double)), this, SLOT(onScanningToggleChanged()));
 	connect(continuousToggle_, SIGNAL(valueChanged(double)), this, SLOT(onContinuousToggleChanged()));
@@ -142,8 +144,12 @@ bool CLSSIS3820Scaler::retrieveBufferedData(double seconds)
 	AMDSClientAppController *clientAppController = AMDSClientAppController::clientAppController();
 	AMDSServer *scalerAMDSServer = clientAppController->getServerByServerIdentifier(amdsServerIdentifier_);
 	qDebug() << "Trying to retrieve scaler AMDS data " << amdsBufferName_ << scalerAMDSServer->bufferNames();
-	if (scalerAMDSServer && !amdsBufferName_.isEmpty() && scalerAMDSServer->bufferNames().contains(amdsBufferName_))
-		return clientAppController->requestClientData(scalerAMDSServer->hostName(), scalerAMDSServer->portNumber(), amdsBufferName_, 20000, 20000, true, false);
+	if (scalerAMDSServer && !amdsBufferName_.isEmpty() && scalerAMDSServer->bufferNames().contains(amdsBufferName_)){
+		double dataRequestSize = continuousDataWindowSeconds_*1000/((double)pollingRateMilliSeconds_);
+		qDebug() << "Scaler calculated data request of size " << dataRequestSize;
+
+		return clientAppController->requestClientData(scalerAMDSServer->hostName(), scalerAMDSServer->portNumber(), amdsBufferName_, dataRequestSize, dataRequestSize, true, false);
+	}
 	else
 		return false;
 }
@@ -151,6 +157,12 @@ bool CLSSIS3820Scaler::retrieveBufferedData(double seconds)
 AMDSClientRelativeCountPlusCountDataRequest* CLSSIS3820Scaler::lastContinuousDataRequest() const
 {
 	return lastContinuousDataRequest_;
+}
+
+bool CLSSIS3820Scaler::setContinuousDataWindow(double continuousDataWindowSeconds)
+{
+	continuousDataWindowSeconds_ = continuousDataWindowSeconds;
+	return true;
 }
 
 bool CLSSIS3820Scaler::isScanning() const{

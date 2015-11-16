@@ -70,6 +70,7 @@ public:
 	bool retrieveBufferedData(double seconds);
 	/// Returns the last continuous data request
 	AMDSClientRelativeCountPlusCountDataRequest* lastContinuousDataRequest() const;
+	bool setContinuousDataWindow(double continuousDataWindowSeconds);
 
 	/// Returns whether the scaler is currently scanning.
 	bool isScanning() const;
@@ -238,6 +239,8 @@ protected:
 
 	/// The data returned from the last acquire(AMDetectorDefinitions::ContinuousMode) call
 	AMDSClientRelativeCountPlusCountDataRequest *lastContinuousDataRequest_;
+	double continuousDataWindowSeconds_;
+	int pollingRateMilliSeconds_;
 };
 
 /// This class is an abstraction of an individual channel for the scaler class.

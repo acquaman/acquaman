@@ -98,8 +98,17 @@ void AMDetectorTriggerAction::startImplementation(){
 		connect(detector_, SIGNAL(acquisitionFailed()), this, SLOT(onAcquisitionFailed()));
 
 		qDebug() << "Is it ready for acquisition " << detector_->isReadyForAcquisition();
-		if (detector_->isReadyForAcquisition())
+		if (detector_->isReadyForAcquisition()){
+			qDebug() << "Read mode is " << detectorTriggerInfo()->readMode();
+			if(detectorTriggerInfo()->readMode() == AMDetectorDefinitions::ContinuousRead){
+				qDebug() << "Continous readMode detector, try the window " << detectorTriggerInfo()->continousWindowSeconds();
+				if(detectorTriggerInfo()->continousWindowSeconds() > 0){
+					qDebug() << "There's a good value in there, so use it";
+					detector_->setContinuousDataWindow(detectorTriggerInfo()->continousWindowSeconds());
+				}
+			}
 			detector_->acquire(detectorTriggerInfo()->readMode());
+		}
 
 		else
 			connect(detector_, SIGNAL(readyForAcquisition()), this, SLOT(onDetectorReadyForAcquisition()));

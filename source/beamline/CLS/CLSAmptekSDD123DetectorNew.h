@@ -79,6 +79,7 @@ public:
 
 	/// Implemented to support returning data from the last acquire(AMDetectorDefinitions::ContinuousMode) call
 	virtual AMDSClientDataRequest* lastContinuousData(double seconds) const;
+	virtual bool setContinuousDataWindow(double continuousDataWindowSeconds);
 
 	/// Creates an action to enable or disable this amptek for in the array.
 	AMAction3* createEnableAction3(bool setEnabled);
@@ -306,6 +307,9 @@ protected:
 	AMDSClientRelativeCountPlusCountDataRequest *lastContinuousDataRequest_;
 	/// The read mode type of the last acquire call
 	AMDetectorDefinitions::ReadMode lastReadMode_;
+
+	double continuousDataWindowSeconds_;
+	int pollingRateMilliSeconds_;
 };
 
 #endif // CLSAMPTEKSDD123DETECTORNEW_H

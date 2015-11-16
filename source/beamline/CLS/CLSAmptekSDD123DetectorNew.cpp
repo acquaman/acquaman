@@ -132,6 +132,9 @@ CLSAmptekSDD123DetectorNew::CLSAmptekSDD123DetectorNew(const QString &name, cons
 
 	lastContinuousDataRequest_ = 0;
 	lastReadMode_ = AMDetectorDefinitions::SingleRead;
+
+	continuousDataWindowSeconds_ = 20;
+	pollingRateMilliSeconds_ = 50;
 }
 
 CLSAmptekSDD123DetectorNew::~CLSAmptekSDD123DetectorNew()
@@ -177,6 +180,11 @@ AMDetectorDwellTimeSource* CLSAmptekSDD123DetectorNew::detectorDwellTimeSource()
 
 AMDSClientDataRequest* CLSAmptekSDD123DetectorNew::lastContinuousData(double seconds) const{
 	return lastContinuousDataRequest_;
+}
+
+bool CLSAmptekSDD123DetectorNew::setContinuousDataWindow(double continuousDataWindowSeconds){
+	continuousDataWindowSeconds_ = continuousDataWindowSeconds;
+	return true;
 }
 
 #include "actions3/AMActionSupport.h"
@@ -490,7 +498,12 @@ bool CLSAmptekSDD123DetectorNew::acquireImplementation(AMDetectorDefinitions::Re
 		AMDSServer *amptekAMDSServer = clientAppController->getServerByServerIdentifier(amptekAMDSServerIdentifier_);
 		if (amptekAMDSServer) {
 			setAcquiring();
-			return clientAppController->requestClientData(amptekAMDSServer->hostName(), amptekAMDSServer->portNumber(), amdsBufferName_, 400, 400, true, false);
+
+			double dataRequestSize = continuousDataWindowSeconds_*1000/((double)pollingRateMilliSeconds_);
+			qDebug() << "Calculated data request of size " << dataRequestSize;
+
+//			return clientAppController->requestClientData(amptekAMDSServer->hostName(), amptekAMDSServer->portNumber(), amdsBufferName_, 400, 400, true, false);
+			return clientAppController->requestClientData(amptekAMDSServer->hostName(), amptekAMDSServer->portNumber(), amdsBufferName_, dataRequestSize, dataRequestSize, true, false);
 		}
 		else
 			return false;

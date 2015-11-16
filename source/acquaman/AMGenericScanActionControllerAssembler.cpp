@@ -211,6 +211,7 @@ AMAction3* AMGenericScanActionControllerAssembler::generateActionTreeForStepAxis
 	return regionList;
 }
 
+#include "actions3/actions/AMDetectorTriggerAction.h"
 AMAction3* AMGenericScanActionControllerAssembler::generateActionTreeForContinuousMoveAxis(AMControl *axisControl, AMScanAxis *continuousMoveScanAxis)
 {
 	AMListAction3 *axisActions = new AMSequentialListAction3(
@@ -287,11 +288,17 @@ AMAction3* AMGenericScanActionControllerAssembler::generateActionTreeForContinuo
 		AMListAction3 *amptekContinuousTriggerList = new AMParallelListAction3(new AMParallelListActionInfo3(QString("Triggering detectors"), QString("Triggering detectors")));
 		for(int x = 0; x < 4; x++){
 			AMAction3 *amptekContinuousTrigger = SGMBeamline::sgm()->exposedDetectorByName(QString("AmptekSDD%1").arg(x+1))->createTriggerAction(AMDetectorDefinitions::ContinuousRead);
+			AMDetectorTriggerActionInfo *asTriggerActionInfo = qobject_cast<AMDetectorTriggerActionInfo*>(amptekContinuousTrigger->info());
+			if(asTriggerActionInfo)
+				asTriggerActionInfo->setContinuousWindowSeconds(time*1.2);
 			amptekContinuousTriggerList->addSubAction(amptekContinuousTrigger);
 		}
 		axisActions->addSubAction(amptekContinuousTriggerList);
 
 		AMAction3 *scalerContinuousTriggerTest = SGMBeamline::sgm()->exposedDetectorByName("TEY")->createTriggerAction(AMDetectorDefinitions::ContinuousRead);
+		AMDetectorTriggerActionInfo *asTriggerActionInfo = qobject_cast<AMDetectorTriggerActionInfo*>(scalerContinuousTriggerTest->info());
+		if(asTriggerActionInfo)
+			asTriggerActionInfo->setContinuousWindowSeconds(time*1.2);
 		axisActions->addSubAction(scalerContinuousTriggerTest);
 
 		// Reading the detector will cause it to pass the AMDSClientDataRequest through the even system using AMAgnosticDataAPI
