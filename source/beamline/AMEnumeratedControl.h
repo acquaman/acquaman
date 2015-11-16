@@ -47,10 +47,6 @@ signals:
 	/// Notifier that whether this control allows duplicate value option entries has changed.
 	void allowsDuplicationOptionsChanged(bool newStatus);
 
-public slots:
-	/// Sets the setpoint and moves the control, if necessary. Reimplemented to handle possible differences between the enum name index and the option index (the set of values available for this control).
-	virtual FailureExplanation move(double setpoint);
-
 protected slots:
 	/// Sets whether this control allows duplicate value option entries.
 	void setAllowsDuplicateOptions(bool newStatus);
