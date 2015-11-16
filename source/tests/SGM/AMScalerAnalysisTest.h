@@ -14,7 +14,7 @@ signals:
 public slots:
 protected:
 
-	void AnalyseVector(const QVector<int>& counts);
+	void AnalyseVector(const QVector<double>& counts);
 
 };
 
