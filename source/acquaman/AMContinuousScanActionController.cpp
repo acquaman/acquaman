@@ -398,7 +398,7 @@ void AMContinuousScanActionController::axisFinished1DHelper()
 	}
 
 	bool upScan = false;
-	if(scalerEnergyFeedbacks.at(0) < scalerEnergyFeedbacks.at(scalerEnergyFeedbacks.count()-1))
+	if(scalerEnergyFeedbacks.first() < scalerEnergyFeedbacks.last())
 		upScan = true;
 
 	AMDSLightWeightGenericFlatArrayDataHolder *dataHolderAsGenericFlatArrayDataHolder = 0;
