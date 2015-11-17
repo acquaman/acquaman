@@ -167,10 +167,10 @@ AMAction3* AMExclusiveStatesEnumeratedControl::createMoveAction(double optionInd
 	// validSetpoint() provided.
 
 	AMControl *control = indexControlMap_.value(optionIndex, 0);
-	double trigger = indexTriggerMap_.value(optionIndex, -1);
+	QList<double> triggerOptions = indexTriggerMap_.values(optionIndex);
 
-	if (control)
-		result = AMActionSupport::buildControlMoveAction(control, trigger);
+	if (control && !triggerOptions.isEmpty())
+		result = AMActionSupport::buildControlMoveAction(control, triggerOptions.first());
 
 	return result;
 }
