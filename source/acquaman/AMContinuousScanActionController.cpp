@@ -257,6 +257,7 @@ void AMContinuousScanActionController::axisFinished1DHelper()
 	int rebasedTotalCount = (totalCount*baseScalerTimeScale)/largestBaseTimeScale;
 	qDebug() << "Original totalCount " << totalCount << " rebasedTotalCount " << rebasedTotalCount;
 
+	qDebug() << "About to iterate detector configurations to check for scaler channels";
 	QMap<QString, QVector<qint32> > scalerChannelVectors;
 	QMap<QString, qint32> scalerChannelRunningSums;
 	QMap<int, QString> scalerChannelIndexMap;
@@ -271,25 +272,28 @@ void AMContinuousScanActionController::axisFinished1DHelper()
 		}
 	}
 
+	qDebug() << "About to iterate scaler channels to rebase";
+	qDebug() << "Total counts to rebase " << totalCount << " as " << rebasedTotalCount << " with " << scalerClientDataRequst->data().at(0)->metaObject()->className();
 	for(int x = 0; x < totalCount; x++){
 		AMDSLightWeightScalarDataHolder *asScalarDataHolder = qobject_cast<AMDSLightWeightScalarDataHolder*>(scalerClientDataRequst->data().at(x));
-		QVector<qint32> oneVector = asScalarDataHolder->dataArray().constVectorQint32();
+		if(asScalarDataHolder){
+			QVector<qint32> oneVector = asScalarDataHolder->dataArray().constVectorQint32();
 
-		int tempRunningSum;
-		QString channelString;
-		for(int y = 0, ySize = oneVector.count(); y < ySize; y++){
-			channelString = scalerChannelIndexMap.value(y);
-			tempRunningSum = scalerChannelRunningSums.value(channelString);
-			tempRunningSum += oneVector.at(y);
-			scalerChannelRunningSums[channelString] = tempRunningSum;
+			int tempRunningSum;
+			QString channelString;
+			for(int y = 0, ySize = oneVector.count(); y < ySize; y++){
+				channelString = scalerChannelIndexMap.value(y);
+				tempRunningSum = scalerChannelRunningSums.value(channelString);
+				tempRunningSum += oneVector.at(y);
+				scalerChannelRunningSums[channelString] = tempRunningSum;
 
-			if( (((x+1)*baseScalerTimeScale) % largestBaseTimeScale) == 0){
-				int rebaseIndex = (x*baseScalerTimeScale)/largestBaseTimeScale;
-				(scalerChannelVectors[channelString])[rebaseIndex] = scalerChannelRunningSums.value(channelString);
-				scalerChannelRunningSums[channelString] = 0;
+				if( (((x+1)*baseScalerTimeScale) % largestBaseTimeScale) == 0){
+					int rebaseIndex = (x*baseScalerTimeScale)/largestBaseTimeScale;
+					(scalerChannelVectors[channelString])[rebaseIndex] = scalerChannelRunningSums.value(channelString);
+					scalerChannelRunningSums[channelString] = 0;
+				}
 			}
 		}
-
 	}
 
 	AMDSClientDataRequest *oneAmptekDataRequest = clientDataRequestMap_.value("Amptek SDD 240");
@@ -298,6 +302,7 @@ void AMContinuousScanActionController::axisFinished1DHelper()
 	bool foundMovementStart = false;
 	bool foundMovementEnd = false;
 
+	qDebug() << "About to iterate backwards to find amptek movement period";
 	// Loop backwards from the end to find the start of the movement we're interested in
 	for(int x = oneAmptekDataRequest->data().count()-1; (x > 0) && !foundMovementStart; x--){
 		AMDSDwellSpectralDataHolder *dataHolderAsDwellSpectral = qobject_cast<AMDSDwellSpectralDataHolder*>(oneAmptekDataRequest->data().at(x));
@@ -321,6 +326,7 @@ void AMContinuousScanActionController::axisFinished1DHelper()
 	QVector<qint32> encoderUpVector = scalerChannelVectors.value("EncoderUp");
 	QVector<qint32> encoderDownVector = scalerChannelVectors.value("EncoderDown");
 
+	qDebug() << "About to iterate backwards to find scaler movement period";
 	for(int x = encoderUpVector.count()-1; (x > 0) && !foundScalerMovementStart; x--){
 		if(!foundScalerMovementEnd && encoderUpVector.at(x) > 20){
 			qDebug() << "Found scaler movement end at index " << x;

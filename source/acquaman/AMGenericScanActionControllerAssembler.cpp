@@ -211,6 +211,7 @@ AMAction3* AMGenericScanActionControllerAssembler::generateActionTreeForStepAxis
 	return regionList;
 }
 
+#include "beamline/CLS/CLSAdvancedScalerChannelDetector.h"
 #include "actions3/actions/AMDetectorTriggerAction.h"
 AMAction3* AMGenericScanActionControllerAssembler::generateActionTreeForContinuousMoveAxis(AMControl *axisControl, AMScanAxis *continuousMoveScanAxis)
 {
@@ -284,6 +285,41 @@ AMAction3* AMGenericScanActionControllerAssembler::generateActionTreeForContinuo
 		// Then wait for it to actually report status stopped
 		axisActions->addSubAction(AMActionSupport::buildControlWaitAction(SGMBeamline::sgm()->energyControlSet()->energyStatus(), 0));
 
+		QList<AMDetector*> detectorsToConfigure;
+		bool foundOneScaler = false;
+		for(int x = 0, size = detectors_->count(); x < size; x++){
+			CLSScalerChannelDetector *asScalerChannelDetector = qobject_cast<CLSScalerChannelDetector*>(detectors_->at(x));
+			if(asScalerChannelDetector && !foundOneScaler){
+				foundOneScaler = true;
+				detectorsToConfigure.append(detectors_->at(x));
+			}
+			else if(!asScalerChannelDetector)
+				detectorsToConfigure.append(detectors_->at(x));
+		}
+
+		// Generate two lists - one parallel for triggering the other parallel for reading
+		AMListAction3 *continuousDetectorTriggerList = new AMParallelListAction3(new AMParallelListActionInfo3(QString("Triggering Continuous Detectors"), QString("Triggering Continuous Detectors")));
+		AMListAction3 *continuousDetectorReadList = new AMParallelListAction3(new AMParallelListActionInfo3(QString("Reading Continuous Detectors"), QString("Reading Continuous Detectors")));
+		for(int x = 0, size = detectorsToConfigure.count(); x < size; x++){
+			// Get each detector to give us a trigger action and set the continuousWindowSeconds parameter
+			AMAction3 *continuousDetectorTrigger = detectorsToConfigure.at(x)->createTriggerAction(AMDetectorDefinitions::ContinuousRead);
+			AMDetectorTriggerActionInfo *asTriggerActionInfo = qobject_cast<AMDetectorTriggerActionInfo*>(continuousDetectorTrigger->info());
+			if(asTriggerActionInfo)
+				asTriggerActionInfo->setContinuousWindowSeconds(time+4.0);
+			continuousDetectorTriggerList->addSubAction(continuousDetectorTrigger);
+
+			// Get each detector to give us a read action
+			AMAction3 *continuousDetectorRead = detectorsToConfigure.at(x)->createReadAction();
+			continuousDetectorRead->setGenerateScanActionMessage(true);
+			continuousDetectorReadList->addSubAction(continuousDetectorRead);
+		}
+		// First add the parallel list of triggers
+		axisActions->addSubAction(continuousDetectorTriggerList);
+		// Once all triggers are confirmed (ie, data is back and ready) do all of the reads in parallel
+		axisActions->addSubAction(continuousDetectorReadList);
+
+
+		/*
 		// Triggering the detector is just asking it to go and request the correct data from the server, it should success once the data packets are returned and processed on our side
 		// RENAME THIS ACTION LIST AND ACTUALLY ITERATE DETECTORS FROM CONFIGURATION
 		AMListAction3 *amptekContinuousTriggerList = new AMParallelListAction3(new AMParallelListActionInfo3(QString("Triggering detectors"), QString("Triggering detectors")));
@@ -302,7 +338,9 @@ AMAction3* AMGenericScanActionControllerAssembler::generateActionTreeForContinuo
 		amptekContinuousTriggerList->addSubAction(scalerContinuousTriggerTest);
 		axisActions->addSubAction(amptekContinuousTriggerList);
 		//End of triggering bloack
+		*/
 
+		/*
 		// Reading the detector will cause it to pass the AMDSClientDataRequest through the even system using AMAgnosticDataAPI
 		// RENAME THIS ACTION LIST AND ACTUALLY ITERATE DETECTORS FROM CONFIGURATION
 		AMListAction3 *amptekContinuousReadList = new AMParallelListAction3(new AMParallelListActionInfo3(QString("Reading detectors"), QString("Reading detectors")));
@@ -318,6 +356,7 @@ AMAction3* AMGenericScanActionControllerAssembler::generateActionTreeForContinuo
 
 		axisActions->addSubAction(amptekContinuousReadList);
 		// End of reading block
+		*/
 
 
 		// Generate axis cleanup list /////////////////////

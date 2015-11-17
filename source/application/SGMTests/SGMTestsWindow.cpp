@@ -33,7 +33,7 @@ SGMTestsWindow::SGMTestsWindow(QWidget *parent) : QMainWindow(parent)
 
 	outputTextEdit_->setText(resultString);
 
-	AMScalerAnalysisTest();
+	//AMScalerAnalysisTest();
 }
 
 void SGMTestsWindow::onShowEnergyViewClicked()
