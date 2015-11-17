@@ -12,7 +12,7 @@ AMScalerCountAnalyser::AMScalerCountAnalyser(const QVector<double>& scalerCounts
 	locateMotionPeriods();
 }
 
-QString AMScalerCountAnalyser::toString()
+QString AMScalerCountAnalyser::toString() const
 {
 	QStringList elementsList;
 
