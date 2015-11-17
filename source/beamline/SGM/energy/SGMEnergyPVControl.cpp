@@ -56,6 +56,9 @@ bool SGMEnergyPVControl::canPerformCoordinatedMovement() const
 
 AMAction3 * SGMEnergyPVControl::createSetParametersActions(double startPoint, double endPoint, double deltaTime)
 {
+	savedStartpoint_ = startPoint;
+	savedEndpoint_ = endPoint;
+	savedDeltaTime_ = deltaTime;
 	AMListAction3* setParameterActions = new AMListAction3(new AMListActionInfo3("Set energy trajectory parameters",
 	                                                                             "Set energy trajectory parameters"),
 	                                                       AMListAction3::Sequential);
@@ -94,28 +97,22 @@ AMAction3 * SGMEnergyPVControl::createInitializeCoordinatedMovementActions()
 	AMControl* exitSlitPositionControl = SGMBeamline::sgm()->energyControlSet()->exitSlitPosition();
 	AMControl* exitSlitTrackingControl = SGMBeamline::sgm()->energyControlSet()->exitSlitPositionTracking();
 	double savedExitSlitTrackingStateValue = exitSlitTrackingControl->value();
-	bool savedExitSlitTrackingState = exitSlitPositionControl->withinTolerance(1.0);
-	double startPoint = coordinatedStartPoint_->value();
-	double endPoint = coordinatedEndPoint_->value();
+	bool savedExitSlitTrackingState = exitSlitTrackingControl->withinTolerance(1.0);
 
-	// #1 Turn off tracking exit slit if it is enabled.
-	if(!exitSlitTrackingControl->withinTolerance(0)) {
-
-		initializeActions->addSubAction(AMActionSupport::buildControlMoveAction(exitSlitTrackingControl, 0));
-		initializeActions->addSubAction(AMActionSupport::buildControlWaitAction(exitSlitTrackingControl, 0, 2, AMControlWaitActionInfo::MatchWithinTolerance));
-
-	}
+	// #1 Turn off tracking exit slit.
+	initializeActions->addSubAction(AMActionSupport::buildControlMoveAction(exitSlitTrackingControl, 0));
+	initializeActions->addSubAction(AMActionSupport::buildControlWaitAction(exitSlitTrackingControl, 0, 2, AMControlWaitActionInfo::MatchWithinTolerance));
 
 	// #2 Move controls to their starting positions.
 	AMListAction3* controlMoveActions = new AMListAction3(new AMListActionInfo3("Moving energy controls to starting positions",
 	                                                                            "Moving energy controls to starting positions"),
 	                                                      AMListAction3::Parallel);
 
-	// #2a Move exit slit to its static position for the motion (if tracking was set to on).
+	// #2a Move exit slit to its static position for the motion (if tracking was set to on at the start).
 	SGMGratingSupport::GratingTranslation currentGratingTranslation =
 	        SGMGratingSupport::GratingTranslation(int(SGMBeamline::sgm()->energyControlSet()->gratingTranslation()->value()));
 
-	double meanExitSlitPosition = SGMExitSlitSupport::exitSlitPositionForScan(startPoint, endPoint, currentGratingTranslation);
+	double meanExitSlitPosition = SGMExitSlitSupport::exitSlitPositionForScan(savedStartpoint_, savedEndpoint_, currentGratingTranslation);
 	if(savedExitSlitTrackingState) {
 		if(!exitSlitPositionControl->withinTolerance(meanExitSlitPosition)) {
 
@@ -124,9 +121,10 @@ AMAction3 * SGMEnergyPVControl::createInitializeCoordinatedMovementActions()
 	}
 
 	// #2b Move energy to the start point for the coodinated motion
-	controlMoveActions->addSubAction(AMActionSupport::buildControlMoveAction(this, startPoint));
 
+	controlMoveActions->addSubAction(AMActionSupport::buildControlMoveAction(this, savedStartpoint_));
 	initializeActions->addSubAction(controlMoveActions);
+
 
 	// #3 Wait for controls to reach their starting positions
 	AMListAction3* controlWaitActions = new AMListAction3(new AMListActionInfo3("Waiting for controls to reach starting positions",
@@ -140,16 +138,14 @@ AMAction3 * SGMEnergyPVControl::createInitializeCoordinatedMovementActions()
 	}
 
 	// #3b Wait for energy to reach its starting position
-	controlWaitActions->addSubAction(AMActionSupport::buildControlWaitAction(this, startPoint, 60, AMControlWaitActionInfo::MatchWithinTolerance));
+	controlWaitActions->addSubAction(AMActionSupport::buildControlWaitAction(this, savedStartpoint_, 60, AMControlWaitActionInfo::MatchWithinTolerance));
 
 	initializeActions->addSubAction(controlWaitActions);
 
-	// #4 Re-enable exit slit tracking if required.
-	if(!exitSlitTrackingControl->withinTolerance(savedExitSlitTrackingStateValue)) {
+	// #4 Re-enable exit slit tracking.
+	initializeActions->addSubAction(AMActionSupport::buildControlMoveAction(exitSlitTrackingControl, savedExitSlitTrackingStateValue));
+	initializeActions->addSubAction(AMActionSupport::buildControlWaitAction(exitSlitTrackingControl, savedExitSlitTrackingStateValue, 2, AMControlWaitActionInfo::MatchWithinTolerance));
 
-		initializeActions->addSubAction(AMActionSupport::buildControlMoveAction(exitSlitTrackingControl, savedExitSlitTrackingStateValue));
-		initializeActions->addSubAction(AMActionSupport::buildControlWaitAction(exitSlitTrackingControl, savedExitSlitTrackingStateValue, 2, AMControlWaitActionInfo::MatchWithinTolerance));
-	}
 
 	// #5 Read the detector emulator for the grating encoder. This will give us a start position that's accurate for this scan.
 	AMAction3 *gratingEncoderDetectorReadAction = SGMBeamline::sgm()->exposedDetectorByName("GratingEncoderFeedback")->createReadAction();
@@ -174,7 +170,12 @@ AMAction3 * SGMEnergyPVControl::createStartCoordinatedMovementActions()
 
 AMAction3 * SGMEnergyPVControl::createWaitForCompletionActions()
 {
-	double endpoint = coordinatedEndPoint_->value();
-	double deltaTime = coordinatedDeltaTime_->value();
-	return AMActionSupport::buildControlWaitAction(this, endpoint, deltaTime*1.25, AMControlWaitActionInfo::MatchWithinTolerance);
+	AMListAction3* completionWaitAction = new AMListAction3(new AMListActionInfo3("Wait for coordinated energy motion",
+	                                                                              "Wait for coordinated energy motion"),
+	                                                        AMListAction3::Sequential);
+
+	completionWaitAction->addSubAction(AMActionSupport::buildControlWaitAction(this, savedEndpoint_, savedDeltaTime_*1.5, AMControlWaitActionInfo::MatchWithinTolerance));
+	completionWaitAction->addSubAction(AMActionSupport::buildControlWaitAction(SGMBeamline::sgm()->energyControlSet()->energyStatus(), 0, savedDeltaTime_*1.5, AMControlWaitActionInfo::MatchWithinTolerance));
+
+	return completionWaitAction;
 }

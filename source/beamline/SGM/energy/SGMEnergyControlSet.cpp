@@ -1,6 +1,7 @@
 #include "SGMEnergyControlSet.h"
 
 #include "beamline/SGM/energy/SGMEnergyPosition.h"
+#include "beamline/SGM/energy/SGMEnergyPVControl.h"
 #include "beamline/AMPVControl.h"
 #include "beamline/CLS/CLSMAXvMotor.h"
 SGMEnergyControlSet::SGMEnergyControlSet(QObject *parent) :
@@ -9,15 +10,7 @@ SGMEnergyControlSet::SGMEnergyControlSet(QObject *parent) :
 	energyPositionValidator_ = 0;
 
 	QString baseGroupPV = "AM1611-4-I10:energy";
-	addControl(new AMPVwStatusControl("Energy",
-	                                  baseGroupPV + ":eV:fbk",
-	                                  baseGroupPV + ":eV",
-	                                  baseGroupPV + ":status",
-	                                  baseGroupPV + ":stop",
-	                                  this,
-	                                  0.5,
-	                                  2.0,
-	                                  new CLSMAXvControlStatusChecker()));
+	addControl(new SGMEnergyPVControl(this));
 	controlNamed("Energy")->setAttemptMoveWhenWithinTolerance(true);
 
 	addControl(new AMReadOnlyPVControl("Energy Status",
@@ -33,6 +26,18 @@ SGMEnergyControlSet::SGMEnergyControlSet(QObject *parent) :
 
 	addControl(new AMSinglePVControl("Energy Trajectory Endpoint",
 	                                 baseGroupPV + ":trajectory:endpoint:eV",
+	                                 this,
+	                                 0.5,
+	                                 2));
+
+	addControl(new AMSinglePVControl("Energy Trajectory Time",
+	                                 baseGroupPV + ":trajectory:time:s",
+	                                 this,
+	                                 0.1,
+	                                 2));
+
+	addControl(new AMSinglePVControl("Energy Trajectory Start",
+	                                 baseGroupPV + ":trajectory:start",
 	                                 this,
 	                                 0.5,
 	                                 2));

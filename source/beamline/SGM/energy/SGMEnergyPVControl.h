@@ -26,6 +26,10 @@ signals:
 
 public slots:
 protected:
+	double savedStartpoint_;
+	double savedEndpoint_;
+	double savedDeltaTime_;
+
 	AMControl* coordinatedStartPoint_;
 	AMControl* coordinatedEndPoint_;
 	AMControl* coordinatedDeltaTime_;
