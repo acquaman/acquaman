@@ -21,7 +21,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMDetectorReadAction.h"
 
-//#include "beamline/AMBeamline.h"
 #include "beamline/AMBeamlineSupport.h"
 #include "util/AMErrorMonitor.h"
 #include "acquaman/AMAgnosticDataAPI.h"
@@ -63,6 +62,7 @@ void AMDetectorReadAction::startImplementation(){
 		return;
 	}
 
+	setStarted();
 	if(detector_->readMethod() == AMDetectorDefinitions::WaitRead){
 		// connect to detector initialization signals
 		connect(detector_, SIGNAL(newValuesAvailable()), this, SLOT(onDetectorNewValuesAvailable()));
@@ -85,7 +85,7 @@ void AMDetectorReadAction::onDetectorNewValuesAvailable(){
 	internalSetSucceeded();
 }
 
-#include <QDebug>
+#include "source/ClientRequest/AMDSClientDataRequest.h"
 void AMDetectorReadAction::internalSetSucceeded(){
 	disconnect(detector_, 0, this, 0);
 
@@ -115,6 +115,9 @@ void AMDetectorReadAction::internalSetSucceeded(){
 				for(int x = 0; x < totalPoints; x++)
 					detectorData.append(detectorDataPointer[x]);
 			}
+
+			AMAgnosticDataAPIDataAvailableMessage dataAvailableMessage(detector_->name(), detectorData, dimensionSizes, dimensionNames, dimensionUnits);
+			AMAgnosticDataAPISupport::handlerFromLookupKey("ScanActions")->postMessage(dataAvailableMessage);
 		}
 		else if(detector_->readMode() == AMDetectorDefinitions::ContinuousRead){
 			dimensionSizes.append(0);
@@ -126,18 +129,10 @@ void AMDetectorReadAction::internalSetSucceeded(){
 			AMAgnosticDataAPIDataAvailableMessage dataAvailableMessage(detector_->name(), detectorData, dimensionSizes, dimensionNames, dimensionUnits, true);
 			intptr_t continuousDataPointer = (intptr_t)(detector_->lastContinuousData(1));
 			quint64 continuousDataPointer64 = continuousDataPointer;
-			qDebug() << "Pointer value was " << continuousDataPointer << " 64 as " << continuousDataPointer64;
 			dataAvailableMessage.setDetectorDataAsAMDS(continuousDataPointer64);
 
-			if(AMAgnosticDataAPISupport::handlerFromLookupKey("AmptekTest")){
-				AMAgnosticDataAPISupport::handlerFromLookupKey("AmptekTest")->postMessage(dataAvailableMessage);
-				qDebug() << "About to postMessage to AmptekTest";
-				return;
-			}
+			AMAgnosticDataAPISupport::handlerFromLookupKey("ScanActions")->postMessage(dataAvailableMessage);
 		}
-
-		AMAgnosticDataAPIDataAvailableMessage dataAvailableMessage(detector_->name(), detectorData, dimensionSizes, dimensionNames, dimensionUnits);
-		AMAgnosticDataAPISupport::handlerFromLookupKey("ScanActions")->postMessage(dataAvailableMessage);
 	}
 
 	setSucceeded();

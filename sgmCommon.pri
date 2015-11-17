@@ -21,8 +21,8 @@ HEADERS += \
     source/beamline/SGM/energy/SGMEnergyControlSet.h \
     source/beamline/SGM/energy/SGMUndulatorControl.h \
     source/beamline/SGM/energy/SGMEnergyCoordinatorControl.h \
-    source/beamline/SGM/energy/SGMEnergyPVControl.h
-
+    source/beamline/SGM/energy/SGMEnergyPVControl.h \
+    source/beamline/SGM/energy/SGMExitSlitSupport.h
 
 SOURCES += \
     source/beamline/SGM/SGMMAXvMotor.cpp \
@@ -37,11 +37,3 @@ SOURCES += \
     source/beamline/SGM/energy/SGMUndulatorControl.cpp \
     source/beamline/SGM/energy/SGMEnergyCoordinatorControl.cpp \
     source/beamline/SGM/energy/SGMEnergyPVControl.cpp
-
-
-
-
-
-
-
-

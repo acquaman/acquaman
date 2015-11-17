@@ -20,7 +20,22 @@ SGMEnergyControlSet::SGMEnergyControlSet(QObject *parent) :
 	                                  new CLSMAXvControlStatusChecker()));
 	controlNamed("Energy")->setAttemptMoveWhenWithinTolerance(true);
 
+	addControl(new AMReadOnlyPVControl("Energy Status",
+					   baseGroupPV + ":status",
+					   this));
+	controlNamed("Energy Status")->setTolerance(0.5);
 
+	addControl(new AMSinglePVControl("Energy Trajectory Startpoint",
+	                                 baseGroupPV + ":trajectory:startpoint:eV",
+	                                 this,
+	                                 0.5,
+	                                 2));
+
+	addControl(new AMSinglePVControl("Energy Trajectory Endpoint",
+	                                 baseGroupPV + ":trajectory:endpoint:eV",
+	                                 this,
+	                                 0.5,
+	                                 2));
 
 	addControl(new AMPVwStatusControl("Grating Angle",
 	                                  baseGroupPV + ":grating:angle:steps:fbk",
@@ -136,6 +151,11 @@ AMControl * SGMEnergyControlSet::energyTrajectoryTime() const
 AMControl * SGMEnergyControlSet::energyTrajectoryStart() const
 {
 	return controlNamed("Energy Trajectory Start");
+}
+
+AMControl * SGMEnergyControlSet::energyStatus() const
+{
+	return controlNamed("Energy Status");
 }
 
 AMControl * SGMEnergyControlSet::gratingAngle() const
@@ -274,17 +294,17 @@ void SGMEnergyControlSet::onGratingTranslationPVValueChanged(double)
 
 void SGMEnergyControlSet::onGratingtranslationOptimizationPVValueChanged(double)
 {
-	SGMEnergyPosition::GratingTranslationOptimizationMode newOptimizationMode;
+	SGMGratingSupport::GratingTranslationOptimizationMode newOptimizationMode;
 
 	if(gratingTranslationOptimization()->withinTolerance(0)) {
 
-		newOptimizationMode = SGMEnergyPosition::ManualMode;
+		newOptimizationMode = SGMGratingSupport::ManualMode;
 	} else if(gratingTranslationOptimization()->withinTolerance(1)) {
 
-		newOptimizationMode = SGMEnergyPosition::OptimizeFlux;
+		newOptimizationMode = SGMGratingSupport::OptimizeFlux;
 	} else if(gratingTranslationOptimization()->withinTolerance(2)) {
 
-		newOptimizationMode = SGMEnergyPosition::OptimizeResolution;
+		newOptimizationMode = SGMGratingSupport::OptimizeResolution;
 	} else {
 
 		return;
@@ -335,6 +355,7 @@ void SGMEnergyControlSet::onExitSlitTrackingPVValueChanged(double)
 {
 	energyPositionValidator_->setExitSlitPositionTracking(!exitSlitPositionTracking()->withinTolerance(0));
 }
+
 
 
 

@@ -44,7 +44,7 @@ double AMTrapezoidVelocityProfile::time() const
 double AMTrapezoidVelocityProfile::targetVelocity() const
 {
 	double halfAccelByTime = (acceleration_*time_) / 2;
-	double toRoot = pow(halfAccelByTime, 2) - acceleration_ * (endPosition_ - startPosition_);
+	double toRoot = pow(halfAccelByTime, 2) - acceleration_ * qAbs(endPosition_ - startPosition_);
 
 	if(toRoot < 0) {
 		return halfAccelByTime + sqrt(qAbs(toRoot));

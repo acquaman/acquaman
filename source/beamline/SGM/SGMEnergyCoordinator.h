@@ -31,7 +31,7 @@ protected slots:
 	void onEnergyControlIsMovingChanged(bool);
 
 	/// Handles the energy control signalling that its grating optimization mode has changed.
-	void onEnergyControlGratingTranslationOptimizationModeChanged(SGMEnergyPosition::GratingTranslationOptimizationMode gratingTranslationOptimizationMode);
+	void onEnergyControlGratingTranslationOptimizationModeChanged(SGMGratingSupport::GratingTranslationOptimizationMode gratingTranslationOptimizationMode);
 
 	/// Handles the energy control signalling that its undulator offset has changed
 	void onEnergyControlUndulatorOffsetChanged(double);

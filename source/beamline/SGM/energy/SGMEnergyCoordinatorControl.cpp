@@ -127,7 +127,7 @@ SGMEnergyPosition::GratingTranslationOptimizationMode SGMEnergyCoordinatorContro
 		return energyPositionController_->gratingTranslationOptimizationMode();
 	}
 
-	return SGMEnergyPosition::ManualMode;
+	return SGMGratingSupport::ManualMode;
 }
 
 bool SGMEnergyCoordinatorControl::isExitSlitPositionTracking() const
@@ -182,11 +182,10 @@ AMControl::FailureExplanation SGMEnergyCoordinatorControl::move(double startSetp
 	SGMEnergyPosition* energyPositionHelper = energyPositionController_->clone();
 	energyPositionHelper->requestEnergy(startSetpoint);
 
-	double timeTaken = qAbs(finalSetpoint - startSetpoint) / targetVelocity;
 
 	SGMEnergyTrajectory trajectoryHelper(startSetpoint,
 	                                     finalSetpoint,
-	                                     timeTaken,
+	                                     time,
 	                                     energyPositionHelper->gratingTranslation(),
 	                                     gratingAngleControl_->stepAccelerationControl()->value(),
 	                                     gratingAngleControl_->stepsPerEncoderCount(),
@@ -335,11 +334,11 @@ void SGMEnergyCoordinatorControl::onGratingTranslationPVValueChanged(double valu
 
 	if(newGratingTranslation != SGMGratingSupport::UnknownGrating) {
 
-		SGMEnergyPosition::GratingTranslationOptimizationMode savedMode =
+		SGMGratingSupport::GratingTranslationOptimizationMode savedMode =
 		        energyPositionController_->gratingTranslationOptimizationMode();
 
 		energyPositionController_->blockSignals(true);
-		energyPositionController_->setGratingTranslationOptimizationMode(SGMEnergyPosition::ManualMode);
+		energyPositionController_->setGratingTranslationOptimizationMode(SGMGratingSupport::ManualMode);
 		energyPositionController_->blockSignals(false);
 
 		energyPositionController_->setGratingTranslation(newGratingTranslation);
@@ -405,8 +404,8 @@ void SGMEnergyCoordinatorControl::initializeEnergyPositionController()
 	connect(energyPositionController_, SIGNAL(undulatorTrackingChanged(bool)),
 	        this, SIGNAL(undulatorTrackingChanged(bool)));
 
-	connect(energyPositionController_, SIGNAL(gratingTranslationOptimizationModeChanged(SGMEnergyPosition::GratingTranslationOptimizationMode)),
-	        this, SLOT(onEnergyPositionGratingTranslationOptimizationModeChanged(SGMEnergyPosition::GratingTranslationOptimizationMode)));
+	connect(energyPositionController_, SIGNAL(gratingTranslationOptimizationModeChanged(SGMGratingSupport::GratingTranslationOptimizationMode)),
+	        this, SLOT(onEnergyPositionGratingTranslationOptimizationModeChanged(SGMGratingSupport::GratingTranslationOptimizationMode)));
 
 	connect(energyPositionController_, SIGNAL(exitSlitTrackingChanged(bool)),
 	        this, SIGNAL(exitSlitTrackingChanged(bool)));
@@ -557,7 +556,7 @@ AMAction3 *SGMEnergyCoordinatorControl::createMoveAction(SGMEnergyTrajectory* en
 				                                                                                   "Set motion properties"),
 				                                                             AMListAction3::Parallel);
 
-				double gratingAngleVelocity = energyTrajectory->gratingAngleVelocityProfile().targetVelocity();
+				double gratingAngleVelocity = qAbs(energyTrajectory->gratingAngleVelocityProfile().targetVelocity());
 				double gratingAngleAcceleration = energyTrajectory->gratingAngleVelocityProfile().acceleration();
 
 				setMotionPropertiesAction->addSubAction(AMActionSupport::buildControlMoveAction(gratingAngleControl_->stepVelocityControl(),
@@ -569,7 +568,7 @@ AMAction3 *SGMEnergyCoordinatorControl::createMoveAction(SGMEnergyTrajectory* en
 				setMotionPropertiesAction->addSubAction(AMActionSupport::buildControlMoveAction(gratingAngleControl_->movementTypeControl(),
 				                                                                                0));
 
-				double undulatorStepVelocity = energyTrajectory->undulatorVelocityProfile().targetVelocity();
+				double undulatorStepVelocity = qAbs(energyTrajectory->undulatorVelocityProfile().targetVelocity());
 				double undulatorStepAcceleration = energyTrajectory->undulatorVelocityProfile().acceleration();
 
 				if(energyPositionController_->isUndulatorTracking()) {
