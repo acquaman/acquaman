@@ -20,29 +20,7 @@ SGMEnergyControlSet::SGMEnergyControlSet(QObject *parent) :
 	                                  new CLSMAXvControlStatusChecker()));
 	controlNamed("Energy")->setAttemptMoveWhenWithinTolerance(true);
 
-	addControl(new AMSinglePVControl("Energy Trajectory Startpoint",
-	                                 baseGroupPV + ":trajectory:startpoint:eV",
-	                                 this,
-	                                 0.5,
-	                                 2));
 
-	addControl(new AMSinglePVControl("Energy Trajectory Endpoint",
-	                                 baseGroupPV + ":trajectory:endpoint:eV",
-	                                 this,
-	                                 0.5,
-	                                 2));
-
-	addControl(new AMSinglePVControl("Energy Trajectory Time",
-	                                 baseGroupPV + ":trajectory:time:s",
-	                                 this,
-	                                 0.5,
-	                                 2));
-
-	addControl(new AMSinglePVControl("Energy Trajectory Start",
-	                                 baseGroupPV + ":trajectory:start",
-	                                 this,
-	                                 0.5,
-	                                 2));
 
 	addControl(new AMPVwStatusControl("Grating Angle",
 	                                  baseGroupPV + ":grating:angle:steps:fbk",

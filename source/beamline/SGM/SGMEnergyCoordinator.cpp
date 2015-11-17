@@ -1,5 +1,5 @@
 #include "SGMEnergyCoordinator.h"
-#include "beamline/SGM/energy/SGMEnergyControl.h"
+#include "beamline/SGM/energy/SGMEnergyCoordinatorControl.h"
 
 #include "beamline/AMControlSet.h"
 #include "beamline/AMPVControl.h"
@@ -64,7 +64,7 @@ void SGMEnergyCoordinator::onPVSetsConnected()
 			correspondingUndulatorHarmonic = SGMUndulatorSupport::ThirdHarmonic;
 		}
 
-		energyControlCoordinator_ = new SGMEnergyControl(correspondingUndulatorHarmonic, this);
+		energyControlCoordinator_ = new SGMEnergyCoordinatorControl(correspondingUndulatorHarmonic, this);
 
 		qDebug() << "Waiting for energy control to be connected...";
 		if(energyControlCoordinator_->isConnected()) {
