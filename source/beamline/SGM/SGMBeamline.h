@@ -28,6 +28,7 @@ class SGMMAXvMotor;
 class AMMotorGroup;
 class CLSAdvancedScalerChannelDetector;
 class CLSScalerChannelDetector;
+class AMBasicControlDetectorEmulator;
 class CLSAmptekSDD123DetectorNew;
 class SGMEnergyControlSet;
 class SGMHexapod;
@@ -215,11 +216,12 @@ protected:
 	CLSScalerChannelDetector *encoderUpDetector_;
 	CLSScalerChannelDetector *encoderDownDetector_;
 
-
 	CLSAmptekSDD123DetectorNew* amptekSDD1_;
 	CLSAmptekSDD123DetectorNew* amptekSDD2_;
 	CLSAmptekSDD123DetectorNew* amptekSDD3_;
 	CLSAmptekSDD123DetectorNew* amptekSDD4_;
+
+	AMBasicControlDetectorEmulator *gratingEncoderDetector_;
 
 	bool cachedConnectedState_;
 

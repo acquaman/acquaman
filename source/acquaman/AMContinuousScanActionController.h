@@ -61,6 +61,8 @@ protected:
 
 	/// Map of bufferNames to client data requests
 	QMap<QString, AMDSClientDataRequest*> clientDataRequestMap_;
+	/// Map of other meta data collected at run time by request
+	QMap<QString, double> metaDataMap_;
 
 	/// The insertion index for placing data
 	AMnDIndex insertionIndex_;

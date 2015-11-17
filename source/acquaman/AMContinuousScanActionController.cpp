@@ -167,10 +167,14 @@ bool AMContinuousScanActionController::event(QEvent *e)
 		case AMAgnosticDataAPIDefinitions::DataAvailable:{
 			AMAgnosticDataAPIDataAvailableMessage *dataAvailableMessage = static_cast<AMAgnosticDataAPIDataAvailableMessage*>(&message);
 
-			intptr_t dataRequestPointer = dataAvailableMessage->detectorDataAsAMDS();
-			void *dataRequestVoidPointer = (void*)dataRequestPointer;
-			AMDSClientDataRequest *dataRequest = static_cast<AMDSClientDataRequest*>(dataRequestVoidPointer);
-			clientDataRequestMap_.insert(dataRequest->bufferName(), dataRequest);
+			if(message.uniqueID() == "GratingEncoderFeedback")
+				metaDataMap_.insert(message.uniqueID(), message.value("DetectorData").toList().at(0).toDouble());
+			else{
+				intptr_t dataRequestPointer = dataAvailableMessage->detectorDataAsAMDS();
+				void *dataRequestVoidPointer = (void*)dataRequestPointer;
+				AMDSClientDataRequest *dataRequest = static_cast<AMDSClientDataRequest*>(dataRequestVoidPointer);
+				clientDataRequestMap_.insert(dataRequest->bufferName(), dataRequest);
+			}
 
 			// Step 1:
 			// This will need a transform where:
@@ -360,11 +364,18 @@ void AMContinuousScanActionController::axisFinished1DHelper()
 	qDebug() << "Amptek: " << initiateMovementIndex;
 	qDebug() << "Scaler: " << scalerInitiateMovementIndex;
 
-	int startEncoderValue = -412449;
+	if(!metaDataMap_.contains("GratingEncoderFeedback")){
+		qDebug() << "FATAL ERROR, MISSING READBACK VALUE FOR INITIAL ENCODER POSITION";
+		return;
+	}
+
+//	int startEncoderValue = -412449;
+	int startEncoderValue = (int)(metaDataMap_.value("GratingEncoderFeedback"));
 	int currentEncoderValue = startEncoderValue;
 	QVector<double> scalerEnergyFeedbacks = QVector<double>(encoderUpVector.count()-scalerInitiateMovementIndex+1);
 	scalerEnergyFeedbacks[0] = SGMGratingSupport::energyFromGrating(SGMGratingSupport::LowGrating, startEncoderValue);
 
+	qDebug() << "Encoder start value is " << startEncoderValue << scalerEnergyFeedbacks.at(0);
 	// Loop from the start of the movement to the end and recreate the axis values (energy in this case) from the encoder pulse changes
 	for(int x = scalerInitiateMovementIndex, size = encoderUpVector.count(); x < size; x++){
 		currentEncoderValue += encoderUpVector.at(x) - encoderDownVector.at(x);
@@ -455,3 +466,4 @@ void AMContinuousScanActionController::axisFinished2DHelper()
 {
 
 }
+

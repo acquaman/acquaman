@@ -239,6 +239,7 @@ AMAction3* AMGenericScanActionControllerAssembler::generateActionTreeForContinuo
 		qDebug() << "Start = " << startPosition;
 		qDebug() << "End = " << endPosition;
 
+		// ACTION GENERATION: Initialization Positions & Values
 		SGMGratingSupport::GratingTranslation currentGratingTranslation = SGMGratingSupport::GratingTranslation(int(SGMBeamline::sgm()->energyControlSet()->gratingTranslation()->value()));
 		double meanExitSlitPosition = SGMExitSlitSupport::exitSlitPositionForScan(startPosition, endPosition, currentGratingTranslation);
 
@@ -255,7 +256,14 @@ AMAction3* AMGenericScanActionControllerAssembler::generateActionTreeForContinuo
 		initializeControlPosition->setGenerateScanActionMessage(true);
 		initializationActions->addSubAction(initializeControlPosition);
 
+		// Read the detector emulator for the grating encoder. This will give us a start position that's accurate for this scan.
+		AMAction3 *gratingEncoderDetectorReadAction = SGMBeamline::sgm()->exposedDetectorByName("GratingEncoderFeedback")->createReadAction();
+		gratingEncoderDetectorReadAction->setGenerateScanActionMessage(true);
+		initializationActions->addSubAction(gratingEncoderDetectorReadAction);
+		// END OF ACTION GENERATION: Initialization Positions & Values
 
+
+		// ACTION GENERATION: Coordinated Movement Parameter Setting
 		// This should probably contain the control velocity initializations.
 		initializationActions->addSubAction(AMActionSupport::buildControlMoveAction(SGMBeamline::sgm()->energyControlSet()->energyTrajectoryTime(),
 											    time));
@@ -265,10 +273,13 @@ AMAction3* AMGenericScanActionControllerAssembler::generateActionTreeForContinuo
 
 		initializationActions->addSubAction(AMActionSupport::buildControlMoveAction(SGMBeamline::sgm()->energyControlSet()->energyTrajectoryEndpoint(),
 											    endPosition));
+		// END OF ACTION GENERATION: Coordinated Movement Parameter Setting
 
 		axisActions->addSubAction(initializationActions);
 		// End Initialization /////////////////////////////
 
+
+		// ACTION GENERATION: Coordinated Movement and Wait to Finish
 		// This is where the control is told to go and detectors to acquire.
 		AMAction3 *continuousMoveActions = AMActionSupport::buildControlMoveAction(SGMBeamline::sgm()->energyControlSet()->energyTrajectoryStart(),									   1);
 		continuousMoveActions->setGenerateScanActionMessage(true);
@@ -284,7 +295,10 @@ AMAction3* AMGenericScanActionControllerAssembler::generateActionTreeForContinuo
 										  AMControlWaitActionInfo::MatchWithinTolerance));
 		// Then wait for it to actually report status stopped
 		axisActions->addSubAction(AMActionSupport::buildControlWaitAction(SGMBeamline::sgm()->energyControlSet()->energyStatus(), 0));
+		// END OF ACTION GENERATION: Coordinated Movement and Wait to Finish
 
+
+		// ACTION GENERATION: Detectors
 		QList<AMDetector*> detectorsToConfigure;
 		bool foundOneScaler = false;
 		for(int x = 0, size = detectors_->count(); x < size; x++){
@@ -317,47 +331,7 @@ AMAction3* AMGenericScanActionControllerAssembler::generateActionTreeForContinuo
 		axisActions->addSubAction(continuousDetectorTriggerList);
 		// Once all triggers are confirmed (ie, data is back and ready) do all of the reads in parallel
 		axisActions->addSubAction(continuousDetectorReadList);
-
-
-		/*
-		// Triggering the detector is just asking it to go and request the correct data from the server, it should success once the data packets are returned and processed on our side
-		// RENAME THIS ACTION LIST AND ACTUALLY ITERATE DETECTORS FROM CONFIGURATION
-		AMListAction3 *amptekContinuousTriggerList = new AMParallelListAction3(new AMParallelListActionInfo3(QString("Triggering detectors"), QString("Triggering detectors")));
-		for(int x = 0; x < 4; x++){
-			AMAction3 *amptekContinuousTrigger = SGMBeamline::sgm()->exposedDetectorByName(QString("AmptekSDD%1").arg(x+1))->createTriggerAction(AMDetectorDefinitions::ContinuousRead);
-			AMDetectorTriggerActionInfo *asTriggerActionInfo = qobject_cast<AMDetectorTriggerActionInfo*>(amptekContinuousTrigger->info());
-			if(asTriggerActionInfo)
-				asTriggerActionInfo->setContinuousWindowSeconds(time*1.2);
-			amptekContinuousTriggerList->addSubAction(amptekContinuousTrigger);
-		}
-
-		AMAction3 *scalerContinuousTriggerTest = SGMBeamline::sgm()->exposedDetectorByName("TEY")->createTriggerAction(AMDetectorDefinitions::ContinuousRead);
-		AMDetectorTriggerActionInfo *asTriggerActionInfo = qobject_cast<AMDetectorTriggerActionInfo*>(scalerContinuousTriggerTest->info());
-		if(asTriggerActionInfo)
-			asTriggerActionInfo->setContinuousWindowSeconds(time*1.2);
-		amptekContinuousTriggerList->addSubAction(scalerContinuousTriggerTest);
-		axisActions->addSubAction(amptekContinuousTriggerList);
-		//End of triggering bloack
-		*/
-
-		/*
-		// Reading the detector will cause it to pass the AMDSClientDataRequest through the even system using AMAgnosticDataAPI
-		// RENAME THIS ACTION LIST AND ACTUALLY ITERATE DETECTORS FROM CONFIGURATION
-		AMListAction3 *amptekContinuousReadList = new AMParallelListAction3(new AMParallelListActionInfo3(QString("Reading detectors"), QString("Reading detectors")));
-		for(int x = 0; x < 4; x++){
-			AMAction3 *amptekContinuousRead = SGMBeamline::sgm()->exposedDetectorByName(QString("AmptekSDD%1").arg(x+1))->createReadAction();
-			amptekContinuousRead->setGenerateScanActionMessage(true);
-			amptekContinuousReadList->addSubAction(amptekContinuousRead);
-		}
-
-		AMAction3 *scalerContinuousReadTest = SGMBeamline::sgm()->exposedDetectorByName("TEY")->createReadAction();
-		scalerContinuousReadTest->setGenerateScanActionMessage(true);
-		amptekContinuousReadList->addSubAction(scalerContinuousReadTest);
-
-		axisActions->addSubAction(amptekContinuousReadList);
-		// End of reading block
-		*/
-
+		// END OF ACTION GENERATION: Detectors
 
 		// Generate axis cleanup list /////////////////////
 		AMListAction3 *cleanupActions = new AMSequentialListAction3(

@@ -26,6 +26,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/AMBasicControlDetectorEmulator.h"
 #include "beamline/CLS/CLSSR570.h"
 #include "beamline/CLS/CLSAdvancedScalerChannelDetector.h"
+#include "beamline/AMBasicControlDetectorEmulator.h"
 #include "beamline/CLS/CLSAmptekSDD123DetectorNew.h"
 #include "beamline/SGM/SGMMAXvMotor.h"
 #include "beamline/SGM/SGMHexapod.h"
@@ -337,6 +338,8 @@ void SGMBeamline::setupDetectors()
 	amptekSDD3_->setEVPerBin(2.25);
 	amptekSDD4_->setEVPerBin(2.25);
 //	amptekSDD1_->configAMDSServer(AMDSServerDefs_.value("AmptekServer").serverIdentifier());
+
+	gratingEncoderDetector_ = new AMBasicControlDetectorEmulator("GratingEncoderFeedback", "Grating Encoder Feedback", energyControlSet()->gratingAngle(), 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
 }
 
 void SGMBeamline::setupExposedControls()
@@ -378,7 +381,7 @@ void SGMBeamline::setupExposedDetectors()
 	addExposedDetector(amptekSDD2_);
 	addExposedDetector(amptekSDD3_);
 	addExposedDetector(amptekSDD4_);
-
+	addExposedDetector(gratingEncoderDetector_);
 }
 
 SGMBeamline::SGMBeamline()
