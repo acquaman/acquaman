@@ -235,13 +235,10 @@ void SGMEnergyControlTestView::setupData()
 	undulatorTrackingCheckBox_->setChecked(energyCoordinatorControl_->isUndulatorTracking());
 
 	int correspondingOptimizationComboIndex;
-<<<<<<< HEAD
+
 	switch(energyCoordinatorControl_->gratingTranslationOptimizationMode()) {
-	case SGMEnergyPosition::OptimizeFlux:
-=======
-	switch(energyControl_->gratingTranslationOptimizationMode()) {
+
 	case SGMGratingSupport::OptimizeFlux:
->>>>>>> Issue1684
 		correspondingOptimizationComboIndex = 0;
 		break;
 	case SGMGratingSupport::OptimizeResolution:
@@ -266,11 +263,8 @@ void SGMEnergyControlTestView::setupData()
 	}
 
 	gratingTranslationComboBox_->setCurrentIndex(correspondingTranslationComboIndex);
-<<<<<<< HEAD
-	gratingTranslationComboBox_->setEnabled(energyCoordinatorControl_->gratingTranslationOptimizationMode() == SGMEnergyPosition::ManualMode);
-=======
-	gratingTranslationComboBox_->setEnabled(energyControl_->gratingTranslationOptimizationMode() == SGMGratingSupport::ManualMode);
->>>>>>> Issue1684
+	gratingTranslationComboBox_->setEnabled(energyCoordinatorControl_->gratingTranslationOptimizationMode() == SGMGratingSupport::ManualMode);
+
 
 	exitSlitTrackingCheckBox_->setChecked(energyCoordinatorControl_->isExitSlitPositionTracking());
 
@@ -287,15 +281,11 @@ void SGMEnergyControlTestView::setupData()
 
 void SGMEnergyControlTestView::setupConnections()
 {
-<<<<<<< HEAD
-	connect(energyCoordinatorControl_, SIGNAL(gratingTranslationOptimizationModeChanged(SGMEnergyPosition::GratingTranslationOptimizationMode)),
-	        this, SLOT(onControlGratingOptimizationChanged(SGMEnergyPosition::GratingTranslationOptimizationMode)));
-	connect(energyCoordinatorControl_->gratingTranslationControl(), SIGNAL(valueChanged(double)),
-=======
-	connect(energyControl_, SIGNAL(gratingTranslationOptimizationModeChanged(SGMGratingSupport::GratingTranslationOptimizationMode)),
+
+	connect(energyCoordinatorControl_, SIGNAL(gratingTranslationOptimizationModeChanged(SGMGratingSupport::GratingTranslationOptimizationMode)),
 	        this, SLOT(onControlGratingOptimizationChanged(SGMGratingSupport::GratingTranslationOptimizationMode)));
-	connect(energyControl_->gratingTranslationControl(), SIGNAL(valueChanged(double)),
->>>>>>> Issue1684
+	connect(energyCoordinatorControl_->gratingTranslationControl(), SIGNAL(valueChanged(double)),
+
 	        this, SLOT(onControlGratingTranslationChanged(double)));
 
 

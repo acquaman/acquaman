@@ -64,11 +64,12 @@ AMAction3 * SGMEnergyPVControl::createSetParametersActions(double startPoint, do
 	                                                                        "Move energy trajectory parameter controls"),
 	                                                  AMListAction3::Parallel);
 
-	setParameterActions->addSubAction(moveParameterActions);
 
 	moveParametersActions->addSubAction(AMActionSupport::buildControlMoveAction(coordinatedStartPoint_, startPoint));
 	moveParametersActions->addSubAction(AMActionSupport::buildControlMoveAction(coordinatedEndPoint_, endPoint));
 	moveParametersActions->addSubAction(AMActionSupport::buildControlMoveAction(coordinatedDeltaTime_, deltaTime));
+
+	setParameterActions->addSubAction(moveParametersActions);
 
 	AMListAction3* waitParametersActions = new AMListAction3(new AMListActionInfo3("Wait for energy trajectory parameter controls",
 	                                                                               "Wait for energy trajectory parameter controls"),
@@ -150,6 +151,11 @@ AMAction3 * SGMEnergyPVControl::createInitializeCoordinatedMovementActions()
 		initializeActions->addSubAction(AMActionSupport::buildControlWaitAction(exitSlitTrackingControl, savedExitSlitTrackingStateValue, 2, AMControlWaitActionInfo::MatchWithinTolerance));
 	}
 
+	// #5 Read the detector emulator for the grating encoder. This will give us a start position that's accurate for this scan.
+	AMAction3 *gratingEncoderDetectorReadAction = SGMBeamline::sgm()->exposedDetectorByName("GratingEncoderFeedback")->createReadAction();
+	gratingEncoderDetectorReadAction->setGenerateScanActionMessage(true);
+	initializeActions->addSubAction(gratingEncoderDetectorReadAction);
+
 	return initializeActions;
 }
 
@@ -161,6 +167,7 @@ AMAction3 * SGMEnergyPVControl::createStartCoordinatedMovementActions()
 
 	startAction->addSubAction(AMActionSupport::buildControlMoveAction(coordinatedStart_, 1));
 	startAction->addSubAction(AMActionSupport::buildControlWaitAction(coordinatedStart_, 1, 2, AMControlWaitActionInfo::MatchWithinTolerance));
+	startAction->setGenerateScanActionMessage(true);
 
 	return startAction;
 }

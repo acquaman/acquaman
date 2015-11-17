@@ -147,7 +147,7 @@ public slots:
 	  * \param finalSetpoint ~ The final position which the energy will move to.
 	  * \param time ~ The time for the motion to take
 	  */
-	virtual FailureExplanation move(double startSetpoint, double finalSetpoint, double targetVelocity);
+	virtual FailureExplanation move(double startSetpoint, double finalSetpoint, double time);
 
 	/*!
 	 * Sets the undulator harmonic to use in calculating the control positions.
