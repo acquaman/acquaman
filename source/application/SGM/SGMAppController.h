@@ -25,16 +25,21 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define SGMAPPCONTROLLER_WRONG_USER 563321
 
 #include "application/AMAppController.h"
+
 class AMGenericStepScanConfiguration;
 class AMGenericStepScanConfigurationView;
+class AMGenericContinuousScanConfiguration;
+class AMGenericContinuousScanConfigurationView;
 class AMScanConfigurationViewHolder3;
 class CLSAmptekDetailedDetectorView;
+
 /*!
   * A class which acts as the central application for SGM Acquaman. Holds the
   * main window which is displayed to users, as well as performs the application
   * startup procedures.
   */
-class SGMAppController : public AMAppController {
+class SGMAppController : public AMAppController
+{
 	Q_OBJECT
 
 public:
@@ -122,10 +127,24 @@ protected:
 	  */
 	void makeConnections();
 
-	AMGenericStepScanConfiguration* commissioningConfiguration_;
-	AMGenericStepScanConfigurationView* commissioningConfigurationView_;
-	AMScanConfigurationViewHolder3* commissioningConfigurationViewHolder_;
-	CLSAmptekDetailedDetectorView* amptekDetectorView_;
+	/// Commissioning step scan configuration.
+	AMGenericStepScanConfiguration* commissioningStepConfiguration_;
+	/// Commissioning step scan configuration view.
+	AMGenericStepScanConfigurationView* commissioningStepConfigurationView_;
+	/// Commissioning step scan configuration view holder.
+	AMScanConfigurationViewHolder3* commissioningStepConfigurationViewHolder_;
+
+	/// Commissioning continuous scan configuration.
+	AMGenericContinuousScanConfiguration *commissioningContinuousConfiguration_;
+	/// Commissioning continuous scan configuration view.
+	AMGenericContinuousScanConfigurationView *commissioningContinuousConfigurationView_;
+	/// Commissioning continuous scan configuration view holder.
+	AMScanConfigurationViewHolder3 *commissioningContinuousConfigurationViewHolder_;
+
+	CLSAmptekDetailedDetectorView* amptek1DetectorView_;
+	CLSAmptekDetailedDetectorView* amptek2DetectorView_;
+	CLSAmptekDetailedDetectorView* amptek3DetectorView_;
+	CLSAmptekDetailedDetectorView* amptek4DetectorView_;
 };
 
 #endif // SGMAPPCONTROLLER_H

@@ -72,7 +72,7 @@ public:
 	 * The method to use in determining the grating translation to use for an
 	 * energy.
 	 */
-	SGMEnergyPosition::GratingTranslationOptimizationMode gratingTranslationOptimizationMode() const;
+	SGMGratingSupport::GratingTranslationOptimizationMode gratingTranslationOptimizationMode() const;
 
 	/*!
 	 * Whether the exit slit position should update as the energy moves.
@@ -130,7 +130,7 @@ signals:
 	 * \param gratingTranslationOptimizationMode ~ The new grating translation
 	 * optimization mode.
 	 */
-	void gratingTranslationOptimizationModeChanged(SGMEnergyPosition::GratingTranslationOptimizationMode gratingTranslationOptimizationMode);
+	void gratingTranslationOptimizationModeChanged(SGMGratingSupport::GratingTranslationOptimizationMode gratingTranslationOptimizationMode);
 
 	/*!
 	 * Signal indicating that the exit slit tracking state which the control is
@@ -145,8 +145,7 @@ public slots:
 	  * Moves the controls in a coordinated manner in order to arrive at the
 	  * setpoint energy at the target velocity.
 	  * \param finalSetpoint ~ The final position which the energy will move to.
-	  * \param targetVelocity ~ The velocity (in eV/s) which the move will take
-	  * place in.
+	  * \param time ~ The time for the motion to take
 	  */
 	virtual FailureExplanation move(double startSetpoint, double finalSetpoint, double targetVelocity);
 
@@ -175,7 +174,7 @@ public slots:
 	 * \param gratingTranslationOptimizationMode ~ The method used in determining
 	 * the grating translation.
 	 */
-	void setGratingTranslationOptimizationMode(SGMEnergyPosition::GratingTranslationOptimizationMode gratingTranslationOptimizationMode);
+	void setGratingTranslationOptimizationMode(SGMGratingSupport::GratingTranslationOptimizationMode gratingTranslationOptimizationMode);
 
 	/*!
 	 * Sets whether the exit slit position should update as the energy moves.
@@ -225,7 +224,7 @@ protected slots:
 	  * grating optimization mode changes.
 	  * \param optimizationMode ~ The new grating optimization mode.
 	  */
-	void onEnergyPositionGratingTranslationOptimizationModeChanged(SGMEnergyPosition::GratingTranslationOptimizationMode optimizationMode);
+	void onEnergyPositionGratingTranslationOptimizationModeChanged(SGMGratingSupport::GratingTranslationOptimizationMode optimizationMode);
 
 protected:
 

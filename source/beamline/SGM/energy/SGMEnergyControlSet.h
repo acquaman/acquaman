@@ -45,6 +45,11 @@ public:
 	AMControl* energyTrajectoryStart() const;
 
 	/*!
+	  * The status control of the energy.
+	  */
+	AMControl* energyStatus() const;
+
+	/*!
 	  * The grating angle control. The grating angle determines (along with the
 	  * grating translation) the energy the beamline produces. This control can
 	  * be moved to manually produce different energies, without the coordinated

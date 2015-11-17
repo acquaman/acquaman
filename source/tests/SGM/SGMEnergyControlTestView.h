@@ -42,7 +42,7 @@ protected slots:
 
 	void onStartTrajectoryButtonPushed();
 	// Slots which handle changes in the control, updating the widgets
-	void onControlGratingOptimizationChanged(SGMEnergyPosition::GratingTranslationOptimizationMode optimizationMode);
+	void onControlGratingOptimizationChanged(SGMGratingSupport::GratingTranslationOptimizationMode optimizationMode);
 	void onControlGratingTranslationChanged(double value);
 protected:
 

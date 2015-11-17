@@ -29,6 +29,13 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "actions3/actions/AMAxisValueFinishedAction.h"
 #include "beamline/AMDetectorTriggerSource.h"
 
+#include "beamline/SGM/energy/SGMEnergyControlSet.h"
+#include "beamline/SGM/SGMBeamline.h"
+#include "beamline/SGM/energy/SGMGratingSupport.h"
+#include "beamline/SGM/energy/SGMExitSlitSupport.h"
+
+#include <QDebug>
+
 AMGenericScanActionControllerAssembler::AMGenericScanActionControllerAssembler(QObject *parent)
 	: AMScanActionControllerScanAssembler(parent)
 {
@@ -204,10 +211,145 @@ AMAction3* AMGenericScanActionControllerAssembler::generateActionTreeForStepAxis
 	return regionList;
 }
 
-AMAction3* AMGenericScanActionControllerAssembler::generateActionTreeForContinuousMoveAxis(AMControl *axisControl, AMScanAxis *continuiousMoveScanAxis){
-	Q_UNUSED(axisControl)
-	Q_UNUSED(continuiousMoveScanAxis)
-	return 0; //NULL
+#include "beamline/CLS/CLSAdvancedScalerChannelDetector.h"
+#include "actions3/actions/AMDetectorTriggerAction.h"
+AMAction3* AMGenericScanActionControllerAssembler::generateActionTreeForContinuousMoveAxis(AMControl *axisControl, AMScanAxis *continuousMoveScanAxis)
+{
+	AMListAction3 *axisActions = new AMSequentialListAction3(
+				new AMSequentialListActionInfo3(QString("Axis %1").arg(continuousMoveScanAxis->name()),
+								QString("Axis %1").arg(continuousMoveScanAxis->name())));
+
+	AMAxisStartedAction *axisStartAction = new AMAxisStartedAction(
+				new AMAxisStartedActionInfo(QString("%1 Axis").arg(continuousMoveScanAxis->name()),
+							    AMScanAxis::ContinuousMoveAxis));
+	axisActions->addSubAction(axisStartAction);
+
+	if (axisControl){
+
+		// Generate axis initialization list //////////////
+		AMListAction3 *initializationActions = new AMSequentialListAction3(
+					new AMSequentialListActionInfo3(QString("Initializing %1").arg(axisControl->name()),
+									QString("Initializing Axis with Control %1").arg(axisControl->name())));
+
+		double time = double(continuousMoveScanAxis->regionAt(0)->regionTime());
+		double startPosition = double(continuousMoveScanAxis->axisStart());
+		double endPosition = double(continuousMoveScanAxis->axisEnd());
+
+		qDebug() << "Time = " << time;
+		qDebug() << "Start = " << startPosition;
+		qDebug() << "End = " << endPosition;
+
+		// ACTION GENERATION: Initialization Positions & Values
+		SGMGratingSupport::GratingTranslation currentGratingTranslation = SGMGratingSupport::GratingTranslation(int(SGMBeamline::sgm()->energyControlSet()->gratingTranslation()->value()));
+		double meanExitSlitPosition = SGMExitSlitSupport::exitSlitPositionForScan(startPosition, endPosition, currentGratingTranslation);
+
+		// Go to the mean exit slit position as part of initialization
+		AMAction3 *initialExitSlitPosition = AMActionSupport::buildControlMoveAction(SGMBeamline::sgm()->energyControlSet()->exitSlitPosition(), meanExitSlitPosition);
+		initializationActions->addSubAction(initialExitSlitPosition);
+
+		// Turn the exit slit tracking off
+		AMAction3 *exitSlitTrackingOff = AMActionSupport::buildControlMoveAction(SGMBeamline::sgm()->energyControlSet()->exitSlitPositionTracking(), 0);
+		initializationActions->addSubAction(exitSlitTrackingOff);
+
+		// Go to the start position.
+		AMAction3 *initializeControlPosition = AMActionSupport::buildControlMoveAction(axisControl, continuousMoveScanAxis->axisStart());
+		initializeControlPosition->setGenerateScanActionMessage(true);
+		initializationActions->addSubAction(initializeControlPosition);
+
+		// Read the detector emulator for the grating encoder. This will give us a start position that's accurate for this scan.
+		AMAction3 *gratingEncoderDetectorReadAction = SGMBeamline::sgm()->exposedDetectorByName("GratingEncoderFeedback")->createReadAction();
+		gratingEncoderDetectorReadAction->setGenerateScanActionMessage(true);
+		initializationActions->addSubAction(gratingEncoderDetectorReadAction);
+		// END OF ACTION GENERATION: Initialization Positions & Values
+
+
+		// ACTION GENERATION: Coordinated Movement Parameter Setting
+		// This should probably contain the control velocity initializations.
+		initializationActions->addSubAction(AMActionSupport::buildControlMoveAction(SGMBeamline::sgm()->energyControlSet()->energyTrajectoryTime(),
+											    time));
+
+		initializationActions->addSubAction(AMActionSupport::buildControlMoveAction(SGMBeamline::sgm()->energyControlSet()->energyTrajectoryStartpoint(),
+											    startPosition));
+
+		initializationActions->addSubAction(AMActionSupport::buildControlMoveAction(SGMBeamline::sgm()->energyControlSet()->energyTrajectoryEndpoint(),
+											    endPosition));
+		// END OF ACTION GENERATION: Coordinated Movement Parameter Setting
+
+		axisActions->addSubAction(initializationActions);
+		// End Initialization /////////////////////////////
+
+
+		// ACTION GENERATION: Coordinated Movement and Wait to Finish
+		// This is where the control is told to go and detectors to acquire.
+		AMAction3 *continuousMoveActions = AMActionSupport::buildControlMoveAction(SGMBeamline::sgm()->energyControlSet()->energyTrajectoryStart(),									   1);
+		continuousMoveActions->setGenerateScanActionMessage(true);
+		axisActions->addSubAction(continuousMoveActions);
+
+		// The move should auto-trigger the detectors, but if there is more stuff, it will probably go here somewhere.
+
+		// End control actions ////////////////////////////
+		// Wait for the energy control to arrive within tolerance of the destination
+		axisActions->addSubAction(AMActionSupport::buildControlWaitAction(SGMBeamline::sgm()->energyControlSet()->energy(),
+										  endPosition,
+										  time*1.5,
+										  AMControlWaitActionInfo::MatchWithinTolerance));
+		// Then wait for it to actually report status stopped
+		axisActions->addSubAction(AMActionSupport::buildControlWaitAction(SGMBeamline::sgm()->energyControlSet()->energyStatus(), 0));
+		// END OF ACTION GENERATION: Coordinated Movement and Wait to Finish
+
+
+		// ACTION GENERATION: Detectors
+		QList<AMDetector*> detectorsToConfigure;
+		bool foundOneScaler = false;
+		for(int x = 0, size = detectors_->count(); x < size; x++){
+			CLSScalerChannelDetector *asScalerChannelDetector = qobject_cast<CLSScalerChannelDetector*>(detectors_->at(x));
+			if(asScalerChannelDetector && !foundOneScaler){
+				foundOneScaler = true;
+				detectorsToConfigure.append(detectors_->at(x));
+			}
+			else if(!asScalerChannelDetector)
+				detectorsToConfigure.append(detectors_->at(x));
+		}
+
+		// Generate two lists - one parallel for triggering the other parallel for reading
+		AMListAction3 *continuousDetectorTriggerList = new AMParallelListAction3(new AMParallelListActionInfo3(QString("Triggering Continuous Detectors"), QString("Triggering Continuous Detectors")));
+		AMListAction3 *continuousDetectorReadList = new AMParallelListAction3(new AMParallelListActionInfo3(QString("Reading Continuous Detectors"), QString("Reading Continuous Detectors")));
+		for(int x = 0, size = detectorsToConfigure.count(); x < size; x++){
+			// Get each detector to give us a trigger action and set the continuousWindowSeconds parameter
+			AMAction3 *continuousDetectorTrigger = detectorsToConfigure.at(x)->createTriggerAction(AMDetectorDefinitions::ContinuousRead);
+			AMDetectorTriggerActionInfo *asTriggerActionInfo = qobject_cast<AMDetectorTriggerActionInfo*>(continuousDetectorTrigger->info());
+			if(asTriggerActionInfo)
+				asTriggerActionInfo->setContinuousWindowSeconds(time+4.0);
+			continuousDetectorTriggerList->addSubAction(continuousDetectorTrigger);
+
+			// Get each detector to give us a read action
+			AMAction3 *continuousDetectorRead = detectorsToConfigure.at(x)->createReadAction();
+			continuousDetectorRead->setGenerateScanActionMessage(true);
+			continuousDetectorReadList->addSubAction(continuousDetectorRead);
+		}
+		// First add the parallel list of triggers
+		axisActions->addSubAction(continuousDetectorTriggerList);
+		// Once all triggers are confirmed (ie, data is back and ready) do all of the reads in parallel
+		axisActions->addSubAction(continuousDetectorReadList);
+		// END OF ACTION GENERATION: Detectors
+
+		// Generate axis cleanup list /////////////////////
+		AMListAction3 *cleanupActions = new AMSequentialListAction3(
+					new AMSequentialListActionInfo3(QString("Cleaning Up %1").arg(axisControl->name()),
+									QString("Cleaning Up Axis with Control %1").arg(axisControl->name())));
+
+		// Turn the exit slit tracking back on
+		AMAction3 *exitSlitTrackingOn = AMActionSupport::buildControlMoveAction(SGMBeamline::sgm()->energyControlSet()->exitSlitPositionTracking(), 1);
+		cleanupActions->addSubAction(exitSlitTrackingOn);
+
+		axisActions->addSubAction(cleanupActions);
+		// End Cleanup /////////////////////////////////////
+	}
+
+	AMAxisFinishedAction *axisFinishAction = new AMAxisFinishedAction(new AMAxisFinishedActionInfo(QString("%1 Axis").arg(continuousMoveScanAxis->name())));
+	axisActions->addSubAction(axisFinishAction);
+
+	return axisActions;
 }
 
 AMAction3* AMGenericScanActionControllerAssembler::generateActionTreeForContinuousDwellAxis(AMControl *axisControl, AMScanAxis *continuousDwellScanAxis){
