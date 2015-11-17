@@ -38,6 +38,7 @@ SGMHexapod::SGMHexapod(QObject *parent) :
 													   globalZAxisFeedback,
 													   globalZAxisStatus,
 													   trajectoryStart_,
+	                                                   systemVelocity_,
 													   "Hexapod X Axis Prime",
 													   "mm",
 													   this);
@@ -53,6 +54,7 @@ SGMHexapod::SGMHexapod(QObject *parent) :
 													   globalZAxisFeedback,
 													   globalZAxisStatus,
 													   trajectoryStart_,
+	                                                   systemVelocity_,
 													   "Hexapod Y Axis Prime",
 													   "mm",
 													   this);
@@ -68,6 +70,7 @@ SGMHexapod::SGMHexapod(QObject *parent) :
 													   globalZAxisFeedback,
 													   globalZAxisStatus,
 													   trajectoryStart_,
+	                                                   systemVelocity_,
 													   "Hexapod Z Axis Prime",
 													   "mm",
 													   this);
