@@ -60,7 +60,8 @@ bool SGMBeamline::isConnected() const
 			ssaManipulatorY_->isConnected() &&
 			ssaManipulatorZ_->isConnected() &&
 			ssaManipulatorRot_->isConnected() &&
-			scaler_->isConnected();
+			scaler_->isConnected() &&
+			sampleChamberPressure_->isConnected();
 }
 
 AMControl * SGMBeamline::endStationTranslationSetpoint() const
@@ -122,6 +123,11 @@ CLSAmptekSDD123DetectorNew * SGMBeamline::amptekSDD1() const
 CLSSIS3820Scaler * SGMBeamline::scaler() const
 {
 	return scaler_;
+}
+
+AMReadOnlyPVControl* SGMBeamline::sampleChamberPressure() const
+{
+	return sampleChamberPressure_;
 }
 
 void SGMBeamline::onConnectionStateChanged(bool)
@@ -219,6 +225,11 @@ void SGMBeamline::setupBeamlineComponents()
 	scaler_->channelAt(9)->setCustomChannelName("FPD4");
 	scaler_->channelAt(10)->setCustomChannelName("FPD5");
 
+	// Setup the sample chamber pressure gauge.
+
+	sampleChamberPressure_ = new AMReadOnlyPVControl("sampleChamberPressure", "FRG1611-4-I10-01:pressure:fbk", this);
+
+
 	connect(energyControlSet_, SIGNAL(connected(bool)), this, SLOT(onConnectionStateChanged(bool)));
 	connect(exitSlitGap_ ,SIGNAL(connected(bool)),this, SLOT(onConnectionStateChanged(bool)));
 	connect(endStationTranslationSetpont_, SIGNAL(connected(bool)), this, SLOT(onConnectionStateChanged(bool)));
@@ -228,6 +239,7 @@ void SGMBeamline::setupBeamlineComponents()
 	connect(ssaManipulatorZ_, SIGNAL(connected(bool)), this, SLOT(onConnectionStateChanged(bool)));
 	connect(ssaManipulatorRot_, SIGNAL(connected(bool)), this, SLOT(onConnectionStateChanged(bool)));
 	connect(scaler_, SIGNAL(connectedChanged(bool)), this, SLOT(onConnectionStateChanged(bool)));
+	connect(sampleChamberPressure_, SIGNAL(connected(bool)), this, SLOT(onConnectionStateChanged(bool)) );
 
 	// Ensure that the inital cached connected state is valid, and emit an initial
 	// connected signal:

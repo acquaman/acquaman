@@ -117,6 +117,12 @@ public:
 	  * The scaler.
 	  */
 	virtual CLSSIS3820Scaler* scaler() const;
+
+	/*!
+	 * The sample chamber pressure.
+	 */
+	AMReadOnlyPVControl* sampleChamberPressure() const;
+
 public slots:
 
 signals:
@@ -204,6 +210,8 @@ protected:
 	CLSAdvancedScalerChannelDetector *filteredPD5Detector_;
 
 	CLSAmptekSDD123DetectorNew* amptekSDD1_;
+
+	AMReadOnlyPVControl *sampleChamberPressure_;
 
 	bool cachedConnectedState_;
 
