@@ -235,7 +235,7 @@ void AMContinuousScanActionController::axisFinished1DHelper()
 
 	for(int x = 0, size = requiredBufferNames.count(); x < size; x++){
 		if(!clientDataRequestMap_.contains(requiredBufferNames.at(x))){
-			qDebug() << "FATAL ERROR, MISSING DATA " << requiredBufferNames.at(x);
+			AMErrorMon::alert(this, AMCONTINUOUSSCANACTIONCONTROLLER_REQUIRED_DATA_MISSING, QString("Missing data %1").arg(requiredBufferNames.at(x)));
 			return;
 		}
 	}
@@ -382,7 +382,7 @@ void AMContinuousScanActionController::axisFinished1DHelper()
 	qDebug() << "Scaler: " << scalerInitiateMovementIndex;
 
 	if(!metaDataMap_.contains("GratingEncoderFeedback")){
-		qDebug() << "FATAL ERROR, MISSING READBACK VALUE FOR INITIAL ENCODER POSITION";
+		AMErrorMon::debug(this, AMCONTINUOUSSCANACTIONCONTROLLER_INITIAL_ENCODER_POSITION_MISSING, "Missing initial encoder position");
 		return;
 	}
 
