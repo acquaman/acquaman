@@ -8,7 +8,6 @@ BioXASCarbonFilterFarmActuatorFilterControl::BioXASCarbonFilterFarmActuatorFilte
 
 	setContextKnownDescription("Actuator Filter Control");
 	setAllowsMovesWhileMoving(false);
-	setAllowsDuplicateOptions(false);
 }
 
 BioXASCarbonFilterFarmActuatorFilterControl::~BioXASCarbonFilterFarmActuatorFilterControl()
@@ -49,24 +48,30 @@ void BioXASCarbonFilterFarmActuatorFilterControl::addFilter(int windowIndex, dou
 {
 	QString filterString = QString::number(filter, 'f', 0);
 
-	if (!hasIndexNamed(filterString)) { // We only want unique-looking options available for this control.
-
+	if (AMSingleEnumeratedControl::addValueOption(windowIndex, filterString, windowIndex)) {
 		indexFilterMap_.insert(windowIndex, filter); // Because each window will only ever have one filter, we can use the window index as the filter index.
-		addValueOption(windowIndex, filterString, windowIndex);
+
+		emit filtersChanged();
 	}
 }
 
 void BioXASCarbonFilterFarmActuatorFilterControl::removeFilter(int windowIndex)
 {
-	indexFilterMap_.remove(windowIndex);
-	removeOption(windowIndex);
+	if (AMSingleEnumeratedControl::removeOption(windowIndex)) {
+		indexFilterMap_.remove(windowIndex);
+
+		emit filtersChanged();
+	}
 }
 
 void BioXASCarbonFilterFarmActuatorFilterControl::clearFilters()
 {
-	indexFilterMap_.clear();
-	filterWindowPreferenceMap_.clear();
-	clearOptions();
+	if (AMSingleEnumeratedControl::clearOptions()) {
+		indexFilterMap_.clear();
+		filterWindowPreferenceMap_.clear();
+
+		emit filtersChanged();
+	}
 }
 
 void BioXASCarbonFilterFarmActuatorFilterControl::setWindowPreference(double filter, int windowIndex)
