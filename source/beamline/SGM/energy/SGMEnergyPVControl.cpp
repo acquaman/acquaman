@@ -6,6 +6,7 @@
 
 #include "beamline/SGM/SGMBeamline.h"
 #include "beamline/SGM/energy/SGMEnergyControlSet.h"
+#include "beamline/SGM/energy/SGMExitSlitSupport.h"
 SGMEnergyPVControl::SGMEnergyPVControl(QObject *parent) :
     AMPVwStatusControl("Energy",
                        "AM1611-4-I10:energy:eV:fbk",
@@ -94,6 +95,7 @@ AMAction3 * SGMEnergyPVControl::createInitializeCoordinatedMovementActions()
 	double savedExitSlitTrackingStateValue = exitSlitTrackingControl->value();
 	bool savedExitSlitTrackingState = exitSlitPositionControl->withinTolerance(1.0);
 	double startPoint = coordinatedStartPoint_->value();
+	double endPoint = coordinatedEndPoint_->value();
 
 	// #1 Turn off tracking exit slit if it is enabled.
 	if(!exitSlitTrackingControl->withinTolerance(0)) {
@@ -109,8 +111,10 @@ AMAction3 * SGMEnergyPVControl::createInitializeCoordinatedMovementActions()
 	                                                      AMListAction3::Parallel);
 
 	// #2a Move exit slit to its static position for the motion (if tracking was set to on).
-	// Needs #1684 to perform this calculation
-	double meanExitSlitPosition = 0.00;
+	SGMGratingSupport::GratingTranslation currentGratingTranslation =
+	        SGMGratingSupport::GratingTranslation(int(SGMBeamline::sgm()->energyControlSet()->gratingTranslation()->value()));
+
+	double meanExitSlitPosition = SGMExitSlitSupport::exitSlitPositionForScan(startPoint, endPoint, currentGratingTranslation);
 	if(savedExitSlitTrackingState) {
 		if(!exitSlitPositionControl->withinTolerance(meanExitSlitPosition)) {
 
