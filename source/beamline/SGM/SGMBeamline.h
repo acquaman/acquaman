@@ -27,6 +27,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 class SGMMAXvMotor;
 class AMMotorGroup;
 class CLSAdvancedScalerChannelDetector;
+class CLSScalerChannelDetector;
+class AMBasicControlDetectorEmulator;
 class CLSAmptekSDD123DetectorNew;
 class SGMEnergyControlSet;
 class SGMHexapod;
@@ -112,6 +114,9 @@ public:
 	  * The Amptek detector
 	  */
 	CLSAmptekSDD123DetectorNew* amptekSDD1() const;
+	CLSAmptekSDD123DetectorNew* amptekSDD2() const;
+	CLSAmptekSDD123DetectorNew* amptekSDD3() const;
+	CLSAmptekSDD123DetectorNew* amptekSDD4() const;
 
 	/*!
 	  * The scaler.
@@ -131,6 +136,8 @@ protected slots:
 	/// helper function to initialize the AcquamanDataServer
 	/// ideally, this should be called in super class when Acquaman Data server is a generalized feature for all BLs using Acquaman
 	void connectAMDSServers();
+
+	void onAMDSServerConnected(const QString &hostIdentifier);
 
 protected:
 
@@ -193,17 +200,28 @@ protected:
 
 	CLSSIS3820Scaler *scaler_;
 
-	CLSAdvancedScalerChannelDetector *teyDetector_;
-	CLSAdvancedScalerChannelDetector *tfyDetector_;
-	CLSAdvancedScalerChannelDetector *i0Detector_;
-	CLSAdvancedScalerChannelDetector *pdDetector_;
-	CLSAdvancedScalerChannelDetector *filteredPD1Detector_;
-	CLSAdvancedScalerChannelDetector *filteredPD2Detector_;
-	CLSAdvancedScalerChannelDetector *filteredPD3Detector_;
-	CLSAdvancedScalerChannelDetector *filteredPD4Detector_;
-	CLSAdvancedScalerChannelDetector *filteredPD5Detector_;
+	CLSScalerChannelDetector *teyDetector_;
+	CLSScalerChannelDetector *tfyDetector_;
+	CLSScalerChannelDetector *i0Detector_;
+	CLSScalerChannelDetector *pdDetector_;
+
+	CLSScalerChannelDetector *filteredPD1Detector_;
+	CLSScalerChannelDetector *filteredPD2Detector_;
+	CLSScalerChannelDetector *filteredPD3Detector_;
+	CLSScalerChannelDetector *filteredPD4Detector_;
+//	CLSScalerChannelDetector *filteredPD5Detector_;
+
+	CLSScalerChannelDetector *hexapodRedDetector_;
+	CLSScalerChannelDetector *hexapodBlackDetector_;
+	CLSScalerChannelDetector *encoderUpDetector_;
+	CLSScalerChannelDetector *encoderDownDetector_;
 
 	CLSAmptekSDD123DetectorNew* amptekSDD1_;
+	CLSAmptekSDD123DetectorNew* amptekSDD2_;
+	CLSAmptekSDD123DetectorNew* amptekSDD3_;
+	CLSAmptekSDD123DetectorNew* amptekSDD4_;
+
+	AMBasicControlDetectorEmulator *gratingEncoderDetector_;
 
 	bool cachedConnectedState_;
 

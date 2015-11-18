@@ -2,6 +2,7 @@
 #define SGMUNDULATORSUPPORT_H
 
 #define UNDULATOR_STEP_TO_POSITION_SLOPE 8.467394369e-5
+#include "SGMGratingSupport.h"
 /*!
   * Namespace containing enumerators and functions related to the undulator on the
   * SMG Beamline
@@ -77,6 +78,45 @@ inline static bool validEnergy(UndulatorHarmonic undulatorHarmonic, double energ
     default:
         return false;
     }
+}
+
+/*!
+  * Helper method used to calculate the undulator (step) postition required
+  * to optimize flux for a given energy and harmonic taking into account the
+  * provided undulator detune offset.
+  * \param energy ~ The energy which the calculated undulator step position
+  * is to be optimized for.
+  * \param undulatorHarmonic ~ The undulator harmonic to use in calculating
+  * the optimized undulator position.
+  * \param undulatorOffset ~ A detune value offset for the produced undulator
+  * position.
+  */
+inline static double optimizedUndulatorPosition(double energy,
+				  SGMUndulatorSupport::UndulatorHarmonic undulatorHarmonic,
+				  double undulatorOffset)
+{
+	return (-1/0.14295709668) * log( (1/36.00511212946)*((1737.41045746644/(energy/int(undulatorHarmonic))) -1)) + undulatorOffset;
+}
+
+/*!
+ * Helper method used to calcualte the undulator harmonic required to optimize
+ * flux for a given energy and grating translation.
+ * \param gratingTranslationSelection ~ The grating translation used in
+ * calculating the optimized undulator harmonic.
+ * \param energy ~ The energy to optimize the undulator harmonic for.
+ * \return
+ */
+inline static UndulatorHarmonic optimizedUndulatorHarmonic(SGMGratingSupport::GratingTranslation gratingTranslationSelection,
+							   double energy)
+{
+	if(gratingTranslationSelection == SGMGratingSupport::HighGrating &&
+		energy >= 1400) {
+
+		return ThirdHarmonic;
+	} else {
+
+		return FirstHarmonic;
+	}
 }
 
 }

@@ -27,6 +27,7 @@ AMDetectorTriggerActionInfo::AMDetectorTriggerActionInfo(const AMDetectorInfo &d
 {
 	detectorInfo_.setValuesFrom(detectorInfo);
 	readMode_ = readMode;
+	continousWindowSeconds_ = -1;
 
 	QString description = QString("Trigger %1").arg(detectorInfo_.description());
 	setShortDescription(description);
