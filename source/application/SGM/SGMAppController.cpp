@@ -75,6 +75,7 @@ bool SGMAppController::startup() {
 	}
 
 	registerClasses();
+	setupAMDSClientAppController();
 	setupExporterOptions();
 	setupUserInterface();
 	makeConnections();
@@ -87,6 +88,7 @@ void SGMAppController::shutdown() {
 	// Make sure we release/clean-up the beamline interface
 	AMBeamline::releaseBl();
 	AMAppController::shutdown();
+	AMDSClientAppController::releaseAppController();
 }
 
 void SGMAppController::initializeAmptekView()
@@ -140,6 +142,31 @@ void SGMAppController::onAmptekDetectorViewResized()
 void SGMAppController::resizeToMinimum()
 {
 	mw_->resize(mw_->minimumSizeHint());
+}
+
+void SGMAppController::connectAMDSServers()
+{
+	AMDSClientAppController *clientAppController = AMDSClientAppController::clientAppController();
+	foreach (AMDSServerConfiguration serverConfiguration, AMDSServerDefs_.values())
+		clientAppController->connectToServer(serverConfiguration);
+}
+
+void SGMAppController::onAMDSServerConnected(const QString &hostIdentifier)
+{
+	SGMBeamline::sgm()->configAMDSServer(hostIdentifier);
+}
+
+void SGMAppController::setupAMDSClientAppController()
+{
+	AMDSServerDefs_.insert(QString("AmptekServer"), AMDSServerConfiguration(QString("AmptekServer"), QString("10.52.48.40"), 28044));
+
+	// NOTE: it will be better to move this to CLSBeamline, when
+	AMDSClientAppController *AMDSClientController = AMDSClientAppController::clientAppController();
+	connect(AMDSClientController, SIGNAL(networkSessionOpened()), this, SLOT(connectAMDSServers()));
+	connect(AMDSClientController, SIGNAL(newServerConnected(QString)), this, SLOT(onAMDSServerConnected(QString)));
+	if (AMDSClientController->isSessionOpen()) {
+		connectAMDSServers();
+	}
 }
 
 void SGMAppController::onCurrentScanActionStartedImplementation(AMScanAction */*action*/)
@@ -234,6 +261,9 @@ void SGMAppController::setupUserInterface()
 void SGMAppController::makeConnections()
 {
 }
+
+
+
 
 
 
