@@ -156,6 +156,16 @@ public:
 	 */
 	virtual SGMXASLadder* xasLadder() const;
 
+	/*!
+	 * The VAT valve position.
+	 */
+	AMSinglePVControl* vatValvePosition() const;
+
+	/*!
+	 * The VAT valve speed.
+	 */
+	AMSinglePVControl* vatValveSpeed() const;
+
 public slots:
 
 signals:
@@ -263,6 +273,10 @@ protected:
 	AMSinglePVControl *turboPump5Running_;
 	/// The sixth beamline turbo pump running status, located at the sample chamber.
 	AMSinglePVControl *turboPump6Running_;
+	/// The sample chamber VAT valve position.
+	AMSinglePVControl *vatValvePosition_;
+	/// The sample chamber VAT valve speed.
+	AMSinglePVControl *vatValveSpeed_;
 
 	/// The XPS diagnostic ladder control.
 	SGMXPSLadder *xpsLadder_;

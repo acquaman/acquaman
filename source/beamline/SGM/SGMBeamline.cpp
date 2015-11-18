@@ -70,7 +70,9 @@ bool SGMBeamline::isConnected() const
 			turboPump6Running_->isConnected() &&
 			xpsLadder_->isConnected() &&
 			bypassLadder_->isConnected() &&
-			xasLadder_->isConnected();
+			xasLadder_->isConnected() &&
+			vatValvePosition_->isConnected() &&
+			vatValveSpeed_->isConnected();
 }
 
 AMControl * SGMBeamline::endStationTranslationSetpoint() const
@@ -177,6 +179,16 @@ SGMBypassLadder* SGMBeamline::bypassLadder() const
 SGMXASLadder* SGMBeamline::xasLadder() const
 {
 	return xasLadder_;
+}
+
+AMSinglePVControl* SGMBeamline::vatValvePosition() const
+{
+	return vatValvePosition_;
+}
+
+AMSinglePVControl* SGMBeamline::vatValveSpeed() const
+{
+	return vatValveSpeed_;
 }
 
 void SGMBeamline::onConnectionStateChanged(bool)
@@ -295,8 +307,12 @@ void SGMBeamline::setupBeamlineComponents()
 	// Setup the sample chamber turbo pumps.
 
 	turboPump5Running_ = new AMSinglePVControl("turboPump5", "TMP1611-4-I10-05:start", this);
-
 	turboPump6Running_ = new AMSinglePVControl("turboPump6", "TMP1611-4-I10-06:start", this);
+
+	// Setup the sample chamber VAT valve.
+
+	vatValvePosition_ = new AMSinglePVControl("vatValvePosition", "VVR1611-4-I10-11:ctrl:posn", this);
+	vatValveSpeed_ = new AMSinglePVControl("vatValveSpeed", "VVR1611-4-I10-11:valveSpeed", this);
 
 	// Set up the diagnostic ladder controls.
 
@@ -320,6 +336,9 @@ void SGMBeamline::setupBeamlineComponents()
 	connect(xasLadder_, SIGNAL(connected(bool)), this, SLOT(onConnectionStateChanged(bool)) );
 	connect(turboPump5Running_, SIGNAL(connected(bool)), this, SLOT(onConnectionStateChanged(bool)) );
 	connect(turboPump6Running_, SIGNAL(connected(bool)), this, SLOT(onConnectionStateChanged(bool)) );
+	connect(vatValvePosition_, SIGNAL(connected(bool)), this, SLOT(onConnectionStateChanged(bool)) );
+	connect(vatValveSpeed_, SIGNAL(connected(bool)), this, SLOT(onConnectionStateChanged(bool)) );
+
 
 	// Ensure that the inital cached connected state is valid, and emit an initial
 	// connected signal:
