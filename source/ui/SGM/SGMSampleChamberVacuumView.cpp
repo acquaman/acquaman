@@ -1,6 +1,7 @@
 #include "SGMSampleChamberVacuumView.h"
 
-SGMSampleChamberVacuumView::SGMSampleChamberVacuumView(QWidget *parent) :
+SGMSampleChamberVacuumView::SGMSampleChamberVacuumView(SGMSampleChamberVacuum *vacuumControl, QWidget *parent) :
 	QWidget(parent)
 {
+
 }
