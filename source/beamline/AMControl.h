@@ -486,7 +486,7 @@ The Control abstraction provides two different properties (and associated signal
 	virtual int alarmStatus() const { return 0; }
 
 	/// A list of actions which sets the parameters for a coordinated movement.
-	virtual AMAction3* createSetParameterActions(double /*startPoint*/, double /*endPoint*/, double /*deltaTime*/) { return 0; }
+	virtual AMAction3* createSetParametersActions(double /*startPoint*/, double /*endPoint*/, double /*deltaTime*/) { return 0; }
 	/// A list of actions which defines the steps required to initialize a coordinated movement.
 	virtual AMAction3* createInitializeCoordinatedMovementActions() { return 0; }
 	/// A list of actions which defines the steps required to trigger an initialized coordinated movement.

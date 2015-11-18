@@ -1,5 +1,5 @@
-#ifndef SGMENERGYCONTROL_H
-#define SGMENERGYCONTROL_H
+#ifndef SGMENERGYCOORDINATORCONTROL_H
+#define SGMENERGYCOORDINATORCONTROL_H
 
 #include "beamline/AMPseudoMotorControl.h"
 #include "SGMUndulatorSupport.h"
@@ -15,11 +15,11 @@ class SGMUndulatorControl;
   * A class which presents a standard AMControl interface for performing coordinated
   * motions of the SGM beamline energy components.
   */
-class SGMEnergyControl : public AMPseudoMotorControl
+class SGMEnergyCoordinatorControl : public AMPseudoMotorControl
 {
 	Q_OBJECT
 public:
-	SGMEnergyControl(SGMUndulatorSupport::UndulatorHarmonic startingUndulatorHarmonic,
+	SGMEnergyCoordinatorControl(SGMUndulatorSupport::UndulatorHarmonic startingUndulatorHarmonic,
 	                 QObject* parent = 0);
 
 	/*!
@@ -147,7 +147,7 @@ public slots:
 	  * \param finalSetpoint ~ The final position which the energy will move to.
 	  * \param time ~ The time for the motion to take
 	  */
-	virtual FailureExplanation move(double startSetpoint, double finalSetpoint, double targetVelocity);
+	virtual FailureExplanation move(double startSetpoint, double finalSetpoint, double time);
 
 	/*!
 	 * Sets the undulator harmonic to use in calculating the control positions.
@@ -259,4 +259,4 @@ protected:
 	AMControl* exitSlitPositionControl_;
 };
 
-#endif // SGMENERGYCONTROL_H
+#endif // SGMENERGYCOORDINATORCONTROL_H
