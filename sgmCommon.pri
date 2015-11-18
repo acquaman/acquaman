@@ -22,6 +22,11 @@ HEADERS += \
     source/beamline/SGM/energy/SGMUndulatorControl.h \
     source/beamline/SGM/energy/SGMEnergyCoordinatorControl.h \
     source/beamline/SGM/energy/SGMEnergyPVControl.h \
+    source/beamline/SGM/SGMXPSLadder.h \
+    source/beamline/SGM/SGMLadderControl.h \
+    source/beamline/SGM/SGMBypassLadder.h \
+    source/beamline/SGM/SGMXASLadder.h \
+	source/ui/SGM/SGMLaddersView.h \
     source/beamline/SGM/energy/SGMExitSlitSupport.h
 
 SOURCES += \
@@ -36,4 +41,9 @@ SOURCES += \
 	source/beamline/SGM/energy/SGMEnergyControlSet.cpp \
     source/beamline/SGM/energy/SGMUndulatorControl.cpp \
     source/beamline/SGM/energy/SGMEnergyCoordinatorControl.cpp \
-    source/beamline/SGM/energy/SGMEnergyPVControl.cpp
+    source/beamline/SGM/energy/SGMEnergyPVControl.cpp \
+    source/beamline/SGM/SGMXPSLadder.cpp \
+    source/beamline/SGM/SGMLadderControl.cpp \
+    source/beamline/SGM/SGMBypassLadder.cpp \
+    source/beamline/SGM/SGMXASLadder.cpp \
+    source/ui/SGM/SGMLaddersView.cpp

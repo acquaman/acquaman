@@ -31,7 +31,7 @@ public:
 	/*!
 	  * A string representation of the analysed results
 	  */
-	QString toString();
+	QString toString() const;
 
 	/*!
 	  * A vector containg the motion periods identified by the analyser. Each

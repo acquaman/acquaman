@@ -32,6 +32,9 @@ class AMBasicControlDetectorEmulator;
 class CLSAmptekSDD123DetectorNew;
 class SGMEnergyControlSet;
 class SGMHexapod;
+class SGMXPSLadder;
+class SGMBypassLadder;
+class SGMXASLadder;
 
 class AMDSServerConfiguration;
 
@@ -122,6 +125,22 @@ public:
 	  * The scaler.
 	  */
 	virtual CLSSIS3820Scaler* scaler() const;
+
+	/*!
+	 * The XPS ladder.
+	 */
+	virtual SGMXPSLadder* xpsLadder() const;
+
+	/*!
+	 * The bypass ladder.
+	 */
+	virtual SGMBypassLadder* bypassLadder() const;
+
+	/*!
+	 * The XAS ladder.
+	 */
+	virtual SGMXASLadder* xasLadder() const;
+
 public slots:
 
 signals:
@@ -225,6 +244,12 @@ protected:
 
 	bool cachedConnectedState_;
 
+	/// The XPS diagnostic ladder control.
+	SGMXPSLadder *xpsLadder_;
+	/// The bypass diagnostic ladder control.
+	SGMBypassLadder *bypassLadder_;
+	/// The XAS diagnostic ladder control.
+	SGMXASLadder *xasLadder_;
 };
 
 

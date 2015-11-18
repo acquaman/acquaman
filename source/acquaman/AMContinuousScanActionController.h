@@ -16,6 +16,8 @@ class AMDSClientDataRequest;
 #include "beamline/SGM/energy/SGMGratingSupport.h"
 
 #define AMCONTINUOUSSCANACTIONCONTROLLER_COULD_NOT_ADD_DETECTOR 285000
+#define AMCONTINUOUSSCANACTIONCONTROLLER_REQUIRED_DATA_MISSING  285001
+#define AMCONTINUOUSSCANACTIONCONTROLLER_INITIAL_ENCODER_POSITION_MISSING  285002
 
 /// This class is the base class for all continuous based scan controllers.
 class AMContinuousScanActionController : public AMScanActionController
