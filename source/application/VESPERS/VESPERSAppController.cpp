@@ -886,9 +886,8 @@ void VESPERSAppController::fixCDF(const QUrl &url)
 		VESPERSEXAFSScanConfiguration *exafsConfig = qobject_cast<VESPERSEXAFSScanConfiguration *>(config);
 		if (exafsConfig->fluorescenceDetector() > 0){
 
-			QString additionalFilename = filename;
-			additionalFilename.replace(".dat", "_spectra.dat");
-			scan->setAdditionalFilePaths(QStringList() << additionalFilename);
+			QString spectraFilePath = filename.remove(".dat");
+			scan->addSpectraFilePath(spectraFilePath);
 		}
 	}
 
@@ -901,8 +900,7 @@ void VESPERSAppController::fixCDF(const QUrl &url)
 
 		QString filename = scan->filePath();
 		filename.replace(".cdf", ".dat");
-		QString additionalFilename = filename;
-		additionalFilename.replace(".dat", "_spectra.dat");
+		QString spectraFilePath = filename.remove(".dat");
 
 		if (usingSingleElement && usingFourElement)
 			scan->setFileFormat(QString("vespers2012XRF1Eln4El%1").arg(usingCcd ? "XRD" : ""));
@@ -914,7 +912,7 @@ void VESPERSAppController::fixCDF(const QUrl &url)
 			scan->setFileFormat(QString("vespers2012XRF4El%1").arg(usingCcd ? "XRD" : ""));
 
 		scan->setFilePath(filename);
-		scan->setAdditionalFilePaths(QStringList() << additionalFilename);
+		scan->addSpectraFilePath(spectraFilePath);
 	}
 
 	else if (qobject_cast<VESPERSSpatialLineScanConfiguration *>(config)){
@@ -926,8 +924,7 @@ void VESPERSAppController::fixCDF(const QUrl &url)
 
 		QString filename = scan->filePath();
 		filename.replace(".cdf", ".dat");
-		QString additionalFilename = filename;
-		additionalFilename.replace(".dat", "_spectra.dat");
+		QString spectraFilePath= filename.remove(".dat");
 
 		if (usingSingleElement && usingFourElement)
 			scan->setFileFormat(QString("vespers2012LineScanXRF1Eln4El%1").arg(usingCcd ? "XRD" : ""));
@@ -939,7 +936,7 @@ void VESPERSAppController::fixCDF(const QUrl &url)
 			scan->setFileFormat(QString("vespers2012LineScanXRF4El%1").arg(usingCcd ? "XRD" : ""));
 
 		scan->setFilePath(filename);
-		scan->setAdditionalFilePaths(QStringList() << additionalFilename);
+		scan->addSpectraFilePath(spectraFilePath);
 	}
 
 	else if (qobject_cast<VESPERSEnergyScanConfiguration *>(config)){

@@ -136,9 +136,7 @@ bool SGM2004XASFileLoaderPlugin::load(AMScan *scan, const QString &userDataFolde
 	foreach(QString colName, colNames1) {
 		if(colName != "eV" && colName != "Event-ID") {
 			if(colName == "SDDFileOffset"){
-				foreach(QString afp, scan->additionalFilePaths())
-					if(afp.contains("_spectra.dat"))
-						spectraFile = afp;
+				spectraFile = scan->spectraFilePath();
 				if(spectraFile != ""){
 					postSddFileOffset = true;
 					AMAxisInfo sddEVAxisInfo("energy", 1024, "SDD Energy", "eV");

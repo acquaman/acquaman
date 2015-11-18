@@ -139,14 +139,12 @@ bool SGM2010FastFileLoaderPlugin::load(AMScan *scan, const QString &userDataFold
 	QString scalerFile = "";
 	QFileInfo scalerFileInfo;
 	if(colNames1.contains("scaler_fileOffset")){
-		foreach(QString afp, scan->additionalFilePaths())
-			if(afp.contains("_spectra.dat")){
-				scalerFile = afp;
-				scalerFileInfo.setFile(scalerFile);
-				if(scalerFileInfo.isRelative())
-					scalerFileInfo.setFile(userDataFolder + "/" + scalerFile);
-			}
+		scalerFile = scan->spectraFilePath();
 		if(scalerFile != ""){
+			scalerFileInfo.setFile(scalerFile);
+			if(scalerFileInfo.isRelative())
+				scalerFileInfo.setFile(userDataFolder + "/" + scalerFile);
+
 			QFile sf(scalerFileInfo.filePath());
 			if(!sf.open(QIODevice::ReadOnly)) {
 				errorMonitor->exteriorReport(AMErrorReport(0, AMErrorReport::Serious, SGM2010FASTFILELOADERPLUGIN_CANNOT_OPEN_SPECTRA_FILE, "SGM2010FastFileLoader parse error while loading scan data from file. Could not open spectra.dat file."));

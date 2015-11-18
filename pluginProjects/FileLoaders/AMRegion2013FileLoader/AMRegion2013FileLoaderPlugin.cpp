@@ -115,15 +115,13 @@ bool AMRegion2013FileLoaderPlugin::load(AMScan *scan, const QString &userDataFol
 	}
 
 	if(!scan->additionalFilePaths().isEmpty()){
-		QString spectraFile = "";
-		QFileInfo spectraFileInfo;
-		foreach(QString afp, scan->additionalFilePaths())
-			if(afp.contains("_spectra.dat"))
-				spectraFile = afp;
+		QString spectraFile = scan->spectraFilePath();
 		if(spectraFile == ""){
 			errorMonitor->exteriorReport(AMErrorReport(0, AMErrorReport::Serious, AMREGION2013FILELOADERPLUGIN_NO_SPECTRA_FILE, "SGM2013XASFileLoader parse error while loading scan data from file. I couldn't find the the spectra.dat file when I need one."));
 			return false;	// bad format. No spectra.dat file in the additional files paths
 		}
+
+		QFileInfo spectraFileInfo;
 		spectraFileInfo.setFile(spectraFile);
 		if(spectraFileInfo.isRelative())
 			spectraFileInfo.setFile(userDataFolder + "/" + spectraFile);

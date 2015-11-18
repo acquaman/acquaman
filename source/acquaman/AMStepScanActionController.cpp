@@ -124,7 +124,7 @@ void AMStepScanActionController::buildScanController()
 		scan_->setFilePath(fullPath.filePath() % ".dat");	// relative path and extension (is what the database wants)
 
 		if(has1DDetectors)
-			scan_->setAdditionalFilePaths( QStringList() << fullPath.filePath() % "_spectra.dat" );
+			scan_->addSpectraFilePath(fullPath.filePath());
 	}
 
 	// If you want to use the CDF data file format.

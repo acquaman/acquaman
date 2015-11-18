@@ -180,9 +180,7 @@ bool SGM2004FileLoader::loadFromFile(const QString& filepath, bool setMetaData, 
 	foreach(QString colName, colNames1) {
 		if(colName != "eV" && colName != "Event-ID") {
 			if(colName == "sdd_fileOffset"){
-				foreach(QString afp, scan->additionalFilePaths())
-					if(afp.contains("_spectra.dat"))
-						spectraFile = afp;
+				spectraFile = scan->spectraFilePath();
 				if(spectraFile != ""){
 					postSddFileOffset = true;
 					AMAxisInfo sddEVAxisInfo("energy", 1024, "SDD Energy", "eV");
