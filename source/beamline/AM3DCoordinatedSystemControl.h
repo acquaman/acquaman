@@ -100,6 +100,22 @@ public:
 	  * Adds the provided control to the list of child controls.
 	  */
 	virtual void addChildControl(AMControl *control);
+
+	/*!
+	  * Virtual function which performs the calculation required to transform a
+	  * vector movement from the global system to the arbitrary transformed one.
+	  * \param globalVector ~ A vector in the global coordinate system which will
+	  * be tranformed into the arbitrary transformed system.
+	  */
+	virtual QVector3D globalAxisToPrime(const QVector3D& globalVector) const {return globalVector;}
+
+	/*!
+	  * Virtual function which performs the calculation required to transform a
+	  * vector movement from the arbitrary tranformed system to the global one.
+	  * \param primeVector ~ A vector in the arbitrary coordinate system which
+	  * will be transformed into the global system.
+	  */
+	virtual QVector3D primeAxisToGlobal(const QVector3D& primeVector) const { return primeVector;}
 signals:
 
 public slots:
@@ -178,22 +194,6 @@ protected:
 	  * the position from the current value to the new setpoint.
 	  */
 	AMAction3* createMoveAction(double setpoint);
-
-	/*!
-	  * Virtual function which performs the calculation required to transform a
-	  * vector movement from the global system to the arbitrary transformed one.
-	  * \param globalVector ~ A vector in the global coordinate system which will
-	  * be tranformed into the arbitrary transformed system.
-	  */
-	virtual QVector3D globalAxisToPrime(const QVector3D& globalVector) const {return globalVector;}
-
-	/*!
-	  * Virtual function which performs the calculation required to transform a
-	  * vector movement from the arbitrary tranformed system to the global one.
-	  * \param primeVector ~ A vector in the arbitrary coordinate system which
-	  * will be transformed into the global system.
-	  */
-	virtual QVector3D primeAxisToGlobal(const QVector3D& primeVector) const { return primeVector;}
 
 	/*!
 	  * Helper function which extracts the value from a vector which relates to

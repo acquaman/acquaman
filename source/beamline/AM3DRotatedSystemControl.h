@@ -50,10 +50,7 @@ public:
 	  * system used natively by the motors.
 	  */
 	void resetRotationsToGlobal();
-signals:
 
-public slots:
-protected:
 	/*!
 	  * Helper method which converts the provided vector from the global system
 	  * to the rotated system in which this motor operates.
@@ -69,6 +66,11 @@ protected:
 	  * is to be converted.
 	  */
 	QVector3D primeAxisToGlobal(const QVector3D &primeVector) const;
+signals:
+
+public slots:
+protected:
+
 
 	QQuaternion globalToPrimeTransform_;
 	QQuaternion primeToGlobalTransform_;

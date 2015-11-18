@@ -18,9 +18,6 @@ signals:
 public slots:
 
 protected slots:
-	// Test
-	void onTestMoveButtonPushed();
-	// end test
 protected:
 
 	void setupUi();
@@ -29,9 +26,6 @@ protected:
 	SGMHexapodTrajectoryView* hexapodTrajectoryView_;
 	SGMHexapodSystemRotationView* hexapodSystemRotationView_;
 
-	// Test
-	QPushButton* testCoordinatedMoveButton_;
-	// End Test
 };
 
 #endif // SGMHEXAPODVIEW_H

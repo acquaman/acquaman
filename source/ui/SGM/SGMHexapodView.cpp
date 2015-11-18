@@ -11,8 +11,6 @@
 #include "beamline/AMMotorGroup.h"
 #include "ui/AMMotorGroupView.h"
 #include "beamline/SGM/SGMBeamline.h"
-
-#include "beamline/SGM/SGMHexapod.h"
 SGMHexapodView::SGMHexapodView(SGMHexapod* hexapod, QWidget *parent) :
     QWidget(parent)
 {
@@ -50,24 +48,4 @@ void SGMHexapodView::setupUi()
 	mainLayout->addStretch();
 	setLayout(mainLayout);
 
-	// Test
-	testCoordinatedMoveButton_ = new QPushButton("Test Move");
-	mainLayout->addWidget(testCoordinatedMoveButton_);
-	connect(testCoordinatedMoveButton_, SIGNAL(clicked()), this, SLOT(onTestMoveButtonPushed()));
-	// End Test
-
-
 }
-// TEst
-#include "actions3/AMActionRunner3.h"
-void SGMHexapodView::onTestMoveButtonPushed()
-{
-	AMListAction3* testMovement = new AMListAction3(new AMListActionInfo3("",""), AMListAction3::Sequential);
-	testMovement->addSubAction(hexapod_->xAxisPrimeControl()->createSetParameterActions(0, 2, 10));
-	testMovement->addSubAction(hexapod_->xAxisPrimeControl()->createStartCoordinatedMovementActions());
-	testMovement->addSubAction(hexapod_->xAxisPrimeControl()->createWaitForCompletionActions());
-
-	AMActionRunner3::workflow()->addActionToQueue(testMovement);
-
-}
-// End Test
