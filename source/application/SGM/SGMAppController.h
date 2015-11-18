@@ -34,6 +34,10 @@ class AMScanConfigurationViewHolder3;
 class CLSAmptekDetailedDetectorView;
 class SGMLaddersView;
 
+/// acquaman data server
+#include "source/appController/AMDSClientAppController.h"
+#include "source/Connection/AMDSServer.h"
+#include "source/DataElement/AMDSConfigurationDef.h"
 /*!
   * A class which acts as the central application for SGM Acquaman. Holds the
   * main window which is displayed to users, as well as performs the application
@@ -87,7 +91,18 @@ protected slots:
 	  * Resizes the main window to its minimum size hint
 	  */
 	void resizeToMinimum();
+
+	/// helper function to initialize the AcquamanDataServer
+	/// ideally, this should be called in super class when Acquaman Data server is a generalized feature for all BLs using Acquaman
+	void connectAMDSServers();
+
+	void onAMDSServerConnected(const QString &hostIdentifier);
 protected:
+
+	/*!
+	  * Initializes the Acquaman Data Server client app scontroller.
+	  */
+	void setupAMDSClientAppController();
 
 	/*!
 	  * Handles cases where a scan action has started in the Workflow3 system.
@@ -127,6 +142,9 @@ protected:
 	  * SGMAppController.
 	  */
 	void makeConnections();
+
+
+	QMap<QString, AMDSServerConfiguration> AMDSServerDefs_;
 
 	/// Commissioning step scan configuration.
 	AMGenericStepScanConfiguration* commissioningStepConfiguration_;

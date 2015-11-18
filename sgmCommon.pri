@@ -16,11 +16,12 @@ HEADERS += \
     source/beamline/SGM/energy/SGMUndulatorSupport.h \
     source/beamline/SGM/energy/SGMEnergyTrajectory.h \
 	source/beamline/SGM/energy/SGMEnergyPosition.h \
-	source/beamline/SGM/energy/SGMEnergyControl.h \
     source/beamline/SGM/energy/SGMGratingTranslationStepControl.h \
 	source/beamline/SGM/energy/SGMGratingAngleControl.h \
     source/beamline/SGM/energy/SGMEnergyControlSet.h \
     source/beamline/SGM/energy/SGMUndulatorControl.h \
+    source/beamline/SGM/energy/SGMEnergyCoordinatorControl.h \
+    source/beamline/SGM/energy/SGMEnergyPVControl.h \
     source/beamline/SGM/SGMXPSLadder.h \
     source/beamline/SGM/SGMLadderControl.h \
     source/beamline/SGM/SGMBypassLadder.h \
@@ -38,11 +39,12 @@ SOURCES += \
     source/beamline/SGM/SGMHexapodTransformedAxis.cpp \
     source/beamline/SGM/energy/SGMEnergyTrajectory.cpp \
 	source/beamline/SGM/energy/SGMEnergyPosition.cpp \
-	source/beamline/SGM/energy/SGMEnergyControl.cpp \
     source/beamline/SGM/energy/SGMGratingTranslationStepControl.cpp \
 	source/beamline/SGM/energy/SGMGratingAngleControl.cpp \
 	source/beamline/SGM/energy/SGMEnergyControlSet.cpp \
     source/beamline/SGM/energy/SGMUndulatorControl.cpp \
+    source/beamline/SGM/energy/SGMEnergyCoordinatorControl.cpp \
+    source/beamline/SGM/energy/SGMEnergyPVControl.cpp \
     source/beamline/SGM/SGMXPSLadder.cpp \
     source/beamline/SGM/SGMLadderControl.cpp \
     source/beamline/SGM/SGMBypassLadder.cpp \

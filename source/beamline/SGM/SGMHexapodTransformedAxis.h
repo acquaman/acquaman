@@ -1,6 +1,8 @@
 #ifndef SGMHEXAPODTRANSFORMEDAXIS_H
 #define SGMHEXAPODTRANSFORMEDAXIS_H
 
+#define HEXAPOD_RECORDER_POINTS_PER_MOVE 125
+
 #include "beamline/AM3DRotatedSystemControl.h"
 /*!
   * A class which represents an interface with the Hexapod used to perform 'regular'
@@ -26,6 +28,9 @@ public:
 	  * \param globalZAxisStatus ~ The status PV for the Z Axis
 	  * \param trajectoryStartControl ~ The PV control which starts a trajectory
 	  * motion of the hexapod.
+	  * \param systemVelocityControl ~ The PV for the system velocity.
+	  * \param dataRecorderRateControl ~ The PV for the sample rate of the recorder.
+	  * \param dataRecorderStatusControl ~ The PV for the data recorder status.
 	  * \param name ~ The name of this axis motor.
 	  * \param units ~ The units of this axis motor.
 	  * \param parent ~ The QObject parent.
@@ -42,11 +47,34 @@ public:
 									   AMControl* globalZAxisFeedback,
 									   AMControl* globalZAxisStatus,
 									   AMControl* trajectoryStartControl,
+	                                   AMControl* systemVelocityControl,
+	                                   AMControl* dataRecorderRateControl,
+	                                   AMControl* dataRecorderStatusControl,
 									   const QString &name,
 									   const QString &units,
 									   QObject *parent = 0,
 									   const QString &description = "");
 
+	/// Whether the hexapod axis is designed to perform coordinated movements
+	bool shouldPerformCoordinatedMovement();
+
+	/*!
+	  * Whether the hexapod axis is cabable of performing coordinated movements
+	  * when this funciton is called.
+	  */
+	bool canPerformCoordinatedMovement();
+
+	/// A list of actions which sets the parameters for a coordinated movement.
+	AMAction3* createSetParameterActions(double startPoint, double endPoint, double deltaTime);
+
+	/// A list of actions which defines the steps required to initialize a coordinated movement.
+	AMAction3* createInitializeCoordinatedMovementActions();
+
+	/// A list of actions which defines the steps required to trigger an initialized coordinated movement.
+	AMAction3* createStartCoordinatedMovementActions();
+
+	/// A list of wait actions which, when complete, signify that a coordinated movement has been completed.
+	AMAction3* createWaitForCompletionActions();
 signals:
 
 public slots:
@@ -87,6 +115,16 @@ protected:
 	AMControl* globalXAxisStatus_;
 	AMControl* globalYAxisStatus_;
 	AMControl* globalZAxisStatus_;
+
+	AMControl* systemVelocity_;
+
+	AMControl* dataRecorderRate_;
+	AMControl* dataRecorderStatus_;
+
+	double lastStartPoint_;
+	double lastEndPoint_;
+	double lastDeltaTime_;
+	double lastSavedVelocity_;
 };
 
 #endif // SGMHEXAPODTRANSFORMEDAXIS_H

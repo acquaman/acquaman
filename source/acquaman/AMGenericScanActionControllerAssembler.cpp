@@ -224,56 +224,23 @@ AMAction3* AMGenericScanActionControllerAssembler::generateActionTreeForContinuo
 							    AMScanAxis::ContinuousMoveAxis));
 	axisActions->addSubAction(axisStartAction);
 
-	if (axisControl){
+	if (axisControl && axisControl->canPerformCoordinatedMovement()){
 
 		// Generate axis initialization list //////////////
 		AMListAction3 *initializationActions = new AMSequentialListAction3(
 					new AMSequentialListActionInfo3(QString("Initializing %1").arg(axisControl->name()),
 									QString("Initializing Axis with Control %1").arg(axisControl->name())));
 
-		double time = double(continuousMoveScanAxis->regionAt(0)->regionTime());
 		double startPosition = double(continuousMoveScanAxis->axisStart());
 		double endPosition = double(continuousMoveScanAxis->axisEnd());
+		double time = double(continuousMoveScanAxis->regionAt(0)->regionTime());
 
 		qDebug() << "Time = " << time;
 		qDebug() << "Start = " << startPosition;
 		qDebug() << "End = " << endPosition;
 
-		// ACTION GENERATION: Initialization Positions & Values
-		SGMGratingSupport::GratingTranslation currentGratingTranslation = SGMGratingSupport::GratingTranslation(int(SGMBeamline::sgm()->energyControlSet()->gratingTranslation()->value()));
-		double meanExitSlitPosition = SGMExitSlitSupport::exitSlitPositionForScan(startPosition, endPosition, currentGratingTranslation);
-
-		// Go to the mean exit slit position as part of initialization
-		AMAction3 *initialExitSlitPosition = AMActionSupport::buildControlMoveAction(SGMBeamline::sgm()->energyControlSet()->exitSlitPosition(), meanExitSlitPosition);
-		initializationActions->addSubAction(initialExitSlitPosition);
-
-		// Turn the exit slit tracking off
-		AMAction3 *exitSlitTrackingOff = AMActionSupport::buildControlMoveAction(SGMBeamline::sgm()->energyControlSet()->exitSlitPositionTracking(), 0);
-		initializationActions->addSubAction(exitSlitTrackingOff);
-
-		// Go to the start position.
-		AMAction3 *initializeControlPosition = AMActionSupport::buildControlMoveAction(axisControl, continuousMoveScanAxis->axisStart());
-		initializeControlPosition->setGenerateScanActionMessage(true);
-		initializationActions->addSubAction(initializeControlPosition);
-
-		// Read the detector emulator for the grating encoder. This will give us a start position that's accurate for this scan.
-		AMAction3 *gratingEncoderDetectorReadAction = SGMBeamline::sgm()->exposedDetectorByName("GratingEncoderFeedback")->createReadAction();
-		gratingEncoderDetectorReadAction->setGenerateScanActionMessage(true);
-		initializationActions->addSubAction(gratingEncoderDetectorReadAction);
-		// END OF ACTION GENERATION: Initialization Positions & Values
-
-
-		// ACTION GENERATION: Coordinated Movement Parameter Setting
-		// This should probably contain the control velocity initializations.
-		initializationActions->addSubAction(AMActionSupport::buildControlMoveAction(SGMBeamline::sgm()->energyControlSet()->energyTrajectoryTime(),
-											    time));
-
-		initializationActions->addSubAction(AMActionSupport::buildControlMoveAction(SGMBeamline::sgm()->energyControlSet()->energyTrajectoryStartpoint(),
-											    startPosition));
-
-		initializationActions->addSubAction(AMActionSupport::buildControlMoveAction(SGMBeamline::sgm()->energyControlSet()->energyTrajectoryEndpoint(),
-											    endPosition));
-		// END OF ACTION GENERATION: Coordinated Movement Parameter Setting
+		initializationActions->addSubAction(axisControl->createSetParametersActions(startPosition, endPosition, time));
+		initializationActions->addSubAction(axisControl->createInitializeCoordinatedMovementActions());
 
 		axisActions->addSubAction(initializationActions);
 		// End Initialization /////////////////////////////
@@ -281,20 +248,14 @@ AMAction3* AMGenericScanActionControllerAssembler::generateActionTreeForContinuo
 
 		// ACTION GENERATION: Coordinated Movement and Wait to Finish
 		// This is where the control is told to go and detectors to acquire.
-		AMAction3 *continuousMoveActions = AMActionSupport::buildControlMoveAction(SGMBeamline::sgm()->energyControlSet()->energyTrajectoryStart(),									   1);
-		continuousMoveActions->setGenerateScanActionMessage(true);
-		axisActions->addSubAction(continuousMoveActions);
+		axisActions->addSubAction(axisControl->createStartCoordinatedMovementActions());
 
 		// The move should auto-trigger the detectors, but if there is more stuff, it will probably go here somewhere.
 
 		// End control actions ////////////////////////////
 		// Wait for the energy control to arrive within tolerance of the destination
-		axisActions->addSubAction(AMActionSupport::buildControlWaitAction(SGMBeamline::sgm()->energyControlSet()->energy(),
-										  endPosition,
-										  time*1.5,
-										  AMControlWaitActionInfo::MatchWithinTolerance));
-		// Then wait for it to actually report status stopped
-		axisActions->addSubAction(AMActionSupport::buildControlWaitAction(SGMBeamline::sgm()->energyControlSet()->energyStatus(), 0));
+		axisActions->addSubAction(axisControl->createWaitForCompletionActions());
+
 		// END OF ACTION GENERATION: Coordinated Movement and Wait to Finish
 
 
@@ -332,18 +293,6 @@ AMAction3* AMGenericScanActionControllerAssembler::generateActionTreeForContinuo
 		// Once all triggers are confirmed (ie, data is back and ready) do all of the reads in parallel
 		axisActions->addSubAction(continuousDetectorReadList);
 		// END OF ACTION GENERATION: Detectors
-
-		// Generate axis cleanup list /////////////////////
-		AMListAction3 *cleanupActions = new AMSequentialListAction3(
-					new AMSequentialListActionInfo3(QString("Cleaning Up %1").arg(axisControl->name()),
-									QString("Cleaning Up Axis with Control %1").arg(axisControl->name())));
-
-		// Turn the exit slit tracking back on
-		AMAction3 *exitSlitTrackingOn = AMActionSupport::buildControlMoveAction(SGMBeamline::sgm()->energyControlSet()->exitSlitPositionTracking(), 1);
-		cleanupActions->addSubAction(exitSlitTrackingOn);
-
-		axisActions->addSubAction(cleanupActions);
-		// End Cleanup /////////////////////////////////////
 	}
 
 	AMAxisFinishedAction *axisFinishAction = new AMAxisFinishedAction(new AMAxisFinishedActionInfo(QString("%1 Axis").arg(continuousMoveScanAxis->name())));
