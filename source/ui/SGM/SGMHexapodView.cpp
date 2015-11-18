@@ -52,12 +52,14 @@ void SGMHexapodView::setupUi()
 
 	// Test
 	testCoordinatedMoveButton_ = new QPushButton("Test Move");
+	mainLayout->addWidget(testCoordinatedMoveButton_);
 	connect(testCoordinatedMoveButton_, SIGNAL(clicked()), this, SLOT(onTestMoveButtonPushed()));
 	// End Test
 
 
 }
 // TEst
+#include "actions3/AMActionRunner3.h"
 void SGMHexapodView::onTestMoveButtonPushed()
 {
 	AMListAction3* testMovement = new AMListAction3(new AMListActionInfo3("",""), AMListAction3::Sequential);
@@ -65,6 +67,7 @@ void SGMHexapodView::onTestMoveButtonPushed()
 	testMovement->addSubAction(hexapod_->xAxisPrimeControl()->createStartCoordinatedMovementActions());
 	testMovement->addSubAction(hexapod_->xAxisPrimeControl()->createWaitForCompletionActions());
 
-	testMovement->start();
+	AMActionRunner3::workflow()->addActionToQueue(testMovement);
+
 }
 // End Test

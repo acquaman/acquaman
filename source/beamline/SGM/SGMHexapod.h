@@ -83,6 +83,19 @@ public:
 	AMControl* trajectoryReset() const;
 
 	/*!
+	  * The control for the active status of the data recorder. NOTE: When active
+	  * the data recorder will cause motions to pause at their final position
+	  * for a noticable period of time before setting their status to MOVE DONE.
+	  */
+	AMControl* dataRecorderStatus() const;
+
+	/*!
+	  * The control for the sample rate (in Hz) which the data recorder samples
+	  * the axis positions at.
+	  */
+	AMControl* dataRecorderRate() const;
+
+	/*!
 	  * Rotates the coordinate system used by the hexapod by the provided values,
 	  * applied as Euler angles in order rX, rY, rZ.
 	  * \param rX ~ The amount to rotate the system about the X Axis (1st)
@@ -121,6 +134,9 @@ protected:
 
 	AMControl* trajectoryStart_;
 	AMControl* trajectoryReset_;
+
+	AMControl* dataRecorderRate_;
+	AMControl* dataRecorderStatus_;
 
 	AMControlSet* allControls_;
 

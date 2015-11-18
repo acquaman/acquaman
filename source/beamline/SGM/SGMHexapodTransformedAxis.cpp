@@ -15,6 +15,8 @@ SGMHexapodTransformedAxis::SGMHexapodTransformedAxis(AxisDesignation axis,
 													 AMControl* globalZAxisStatus,
 													 AMControl* trajectoryStartControl,
                                                      AMControl* systemVelocityControl,
+                                                     AMControl* dataRecorderRateControl,
+				                                     AMControl* dataRecorderStatusControl,
 													 const QString &name,
 													 const QString &units,
 													 QObject *parent,
@@ -31,6 +33,9 @@ SGMHexapodTransformedAxis::SGMHexapodTransformedAxis(AxisDesignation axis,
 	globalZAxisStatus_ = globalZAxisStatus;
 
 	systemVelocity_ = systemVelocityControl;
+
+	dataRecorderRate_ = dataRecorderRateControl;
+	dataRecorderStatus_ = dataRecorderStatusControl;
 
 	addChildControl(globalXAxisFeedback_);
 	addChildControl(globalYAxisFeedback_);
@@ -88,8 +93,8 @@ AMAction3 * SGMHexapodTransformedAxis::createSetParameterActions(double startPoi
 		QVector3D newGlobalStartSetpoints = primeAxisToGlobal(primeSetpoints);
 
 		// Create the required move actions in the global system:
-		AMListAction3* startMoveActions = new AMListAction3(new AMListActionInfo3("Moving parameter controls",
-		                                                                     "Moving parameter controls"),
+		AMListAction3* startMoveActions = new AMListAction3(new AMListActionInfo3("Moving parameter controls for start",
+		                                                                     "Moving parameter controls for end"),
 													   AMListAction3::Parallel);
 
 		startMoveActions->addSubAction(AMActionSupport::buildControlMoveAction(globalXAxis_, newGlobalStartSetpoints.x()));
@@ -100,8 +105,8 @@ AMAction3 * SGMHexapodTransformedAxis::createSetParameterActions(double startPoi
 		action->addSubAction(startMoveActions);
 
 		// Wait for the parameters to take
-		AMListAction3* startWaitActions = new AMListAction3(new AMListActionInfo3("Waiting for parameter controls",
-		                                                                     "Waiting for parameter controls"),
+		AMListAction3* startWaitActions = new AMListAction3(new AMListActionInfo3("Waiting for parameter controls for start",
+		                                                                     "Waiting for parameter controls for start"),
 		                                               AMListAction3::Parallel);
 
 		startWaitActions->addSubAction(AMActionSupport::buildControlWaitAction(globalXAxis_, newGlobalStartSetpoints.x(), 2, AMControlWaitActionInfo::MatchWithinTolerance));
@@ -138,8 +143,8 @@ AMAction3 * SGMHexapodTransformedAxis::createSetParameterActions(double startPoi
 		QVector3D newGlobalEndSetpoints = primeAxisToGlobal(primeSetpoints);
 
 		// Create the required move actions in the global system:
-		AMListAction3* endMoveActions = new AMListAction3(new AMListActionInfo3("Moving parameter controls",
-		                                                                     "Moving parameter controls"),
+		AMListAction3* endMoveActions = new AMListAction3(new AMListActionInfo3("Moving parameter controls for end",
+		                                                                     "Moving parameter controls for end"),
 													   AMListAction3::Parallel);
 
 		endMoveActions->addSubAction(AMActionSupport::buildControlMoveAction(globalXAxis_, newGlobalEndSetpoints.x()));
@@ -150,20 +155,30 @@ AMAction3 * SGMHexapodTransformedAxis::createSetParameterActions(double startPoi
 		action->addSubAction(endMoveActions);
 
 		// Wait for the parameters to take
-		AMListAction3* endWaitActions = new AMListAction3(new AMListActionInfo3("Waiting for parameter controls",
-		                                                                     "Waiting for parameter controls"),
+		AMListAction3* endWaitActions = new AMListAction3(new AMListActionInfo3("Waiting for parameter controls for end",
+		                                                                     "Waiting for parameter controls for end"),
 		                                               AMListAction3::Parallel);
 
 		endWaitActions->addSubAction(AMActionSupport::buildControlWaitAction(globalXAxis_, newGlobalEndSetpoints.x(), 2, AMControlWaitActionInfo::MatchWithinTolerance));
 		endWaitActions->addSubAction(AMActionSupport::buildControlWaitAction(globalYAxis_, newGlobalEndSetpoints.y(), 2, AMControlWaitActionInfo::MatchWithinTolerance));
 		endWaitActions->addSubAction(AMActionSupport::buildControlWaitAction(globalZAxis_, newGlobalEndSetpoints.z(), 2, AMControlWaitActionInfo::MatchWithinTolerance));
 
-		action->addSubAction(startWaitActions);
+		action->addSubAction(endWaitActions);
+		// Save the previous velocity before we alter it
+		lastSavedVelocity_ = systemVelocity_->value();
 
 		// Setting the system velocity
 		double velocity = qAbs(endPoint - startPoint) / deltaTime;
 		action->addSubAction(AMActionSupport::buildControlMoveAction(systemVelocity_, velocity));
 		action->addSubAction(AMActionSupport::buildControlWaitAction(systemVelocity_, velocity, 2, AMControlWaitActionInfo::MatchWithinTolerance));
+
+		// Setting up the data recorder
+		double requiredRate = HEXAPOD_RECORDER_POINTS_PER_MOVE / deltaTime;
+		action->addSubAction(AMActionSupport::buildControlMoveAction(dataRecorderRate_, requiredRate));
+		action->addSubAction(AMActionSupport::buildControlWaitAction(dataRecorderRate_, requiredRate, 2.0, AMControlWaitActionInfo::MatchWithinTolerance));
+
+		action->addSubAction(AMActionSupport::buildControlMoveAction(dataRecorderStatus_, 1));
+		action->addSubAction(AMActionSupport::buildControlWaitAction(dataRecorderStatus_, 1, 2.0, AMControlWaitActionInfo::MatchWithinTolerance));
 
 	}
 
@@ -186,16 +201,23 @@ AMAction3 * SGMHexapodTransformedAxis::createWaitForCompletionActions()
 	                                                                     "Waiting for coordinated move"),
 	                                               AMListAction3::Sequential);
 
-	AMAction3* positionWaitAction = AMActionSupport::buildControlWaitAction(this, lastEndPoint_, lastDeltaTime_*1.5, AMControlWaitActionInfo::MatchWithinTolerance);
+	// We need to add 1.5 seconds to the delta time, as the data recorder is slow
+	AMAction3* positionWaitAction = AMActionSupport::buildControlWaitAction(this, lastEndPoint_, lastDeltaTime_+1.5, AMControlWaitActionInfo::MatchWithinTolerance);
 
-	AMAction3* statusXWaitAction = AMActionSupport::buildControlWaitAction(globalXAxisStatus_, 0, lastDeltaTime_*1.5, AMControlWaitActionInfo::MatchWithinTolerance);
-	AMAction3* statusYWaitAction = AMActionSupport::buildControlWaitAction(globalYAxisStatus_, 0, lastDeltaTime_*1.5, AMControlWaitActionInfo::MatchWithinTolerance);
-	AMAction3* statusZWaitAction = AMActionSupport::buildControlWaitAction(globalZAxisStatus_, 0, lastDeltaTime_*1.5, AMControlWaitActionInfo::MatchWithinTolerance);
+	AMAction3* statusXWaitAction = AMActionSupport::buildControlWaitAction(globalXAxisStatus_, 0, lastDeltaTime_+1.5, AMControlWaitActionInfo::MatchWithinTolerance);
+	AMAction3* statusYWaitAction = AMActionSupport::buildControlWaitAction(globalYAxisStatus_, 0, lastDeltaTime_+1.5, AMControlWaitActionInfo::MatchWithinTolerance);
+	AMAction3* statusZWaitAction = AMActionSupport::buildControlWaitAction(globalZAxisStatus_, 0, lastDeltaTime_+1.5, AMControlWaitActionInfo::MatchWithinTolerance);
 
 	waitActions->addSubAction(positionWaitAction);
 	waitActions->addSubAction(statusXWaitAction);
 	waitActions->addSubAction(statusYWaitAction);
 	waitActions->addSubAction(statusZWaitAction);
+
+	// Return the data recorder to the off state (we need a clean up actions function adding to the AMControl API)
+	waitActions->addSubAction(AMActionSupport::buildControlMoveAction(dataRecorderStatus_, 0));
+	waitActions->addSubAction(AMActionSupport::buildControlWaitAction(dataRecorderStatus_, 0, 2.0, AMControlWaitActionInfo::MatchWithinTolerance));
+	waitActions->addSubAction(AMActionSupport::buildControlMoveAction(systemVelocity_, lastSavedVelocity_));
+	waitActions->addSubAction(AMActionSupport::buildControlWaitAction(systemVelocity_, lastSavedVelocity_, 2.0, AMControlWaitActionInfo::MatchWithinTolerance));
 
 	return waitActions;
 }

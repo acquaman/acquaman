@@ -1,6 +1,8 @@
 #ifndef SGMHEXAPODTRANSFORMEDAXIS_H
 #define SGMHEXAPODTRANSFORMEDAXIS_H
 
+#define HEXAPOD_RECORDER_POINTS_PER_MOVE 125
+
 #include "beamline/AM3DRotatedSystemControl.h"
 /*!
   * A class which represents an interface with the Hexapod used to perform 'regular'
@@ -27,6 +29,8 @@ public:
 	  * \param trajectoryStartControl ~ The PV control which starts a trajectory
 	  * motion of the hexapod.
 	  * \param systemVelocityControl ~ The PV for the system velocity.
+	  * \param dataRecorderRateControl ~ The PV for the sample rate of the recorder.
+	  * \param dataRecorderStatusControl ~ The PV for the data recorder status.
 	  * \param name ~ The name of this axis motor.
 	  * \param units ~ The units of this axis motor.
 	  * \param parent ~ The QObject parent.
@@ -44,6 +48,8 @@ public:
 									   AMControl* globalZAxisStatus,
 									   AMControl* trajectoryStartControl,
 	                                   AMControl* systemVelocityControl,
+	                                   AMControl* dataRecorderRateControl,
+	                                   AMControl* dataRecorderStatusControl,
 									   const QString &name,
 									   const QString &units,
 									   QObject *parent = 0,
@@ -112,9 +118,13 @@ protected:
 
 	AMControl* systemVelocity_;
 
+	AMControl* dataRecorderRate_;
+	AMControl* dataRecorderStatus_;
+
 	double lastStartPoint_;
 	double lastEndPoint_;
 	double lastDeltaTime_;
+	double lastSavedVelocity_;
 };
 
 #endif // SGMHEXAPODTRANSFORMEDAXIS_H

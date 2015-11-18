@@ -27,6 +27,9 @@ SGMHexapod::SGMHexapod(QObject *parent) :
 	systemVelocity_ = new AMPVControl("Hexapod Velocity", "HXPD1611-4-I10-01:velocity:fbk", "HXPD1611-4-I10-01:velocity",QString(), this, 0.001, 2.0);
 	stopAll_ = new AMSinglePVControl("Hexapod Stop", "HXPD1611-4-I10-01:stop", this, 0.5);
 
+	dataRecorderRate_ = new AMPVControl("Hexapod Data Recorder Rate", "HXPD1611-4-I10-01:recorder:rate:hz:fbk", "HXPD1611-4-I10-01:recorder:rate:hz", QString(), this, 0.1, 2);
+	dataRecorderStatus_ = new AMSinglePVControl("Hexapod Data Recorder Status", "HXPD1611-4-I10-01:recorder:active", this, 0.5, 2.0);
+
 	xAxisPrimeControl_ = new SGMHexapodTransformedAxis(AM3DCoordinatedSystemControl::XAxis,
 													   globalXAxisSetpoint,
 													   globalXAxisFeedback,
@@ -39,6 +42,8 @@ SGMHexapod::SGMHexapod(QObject *parent) :
 													   globalZAxisStatus,
 													   trajectoryStart_,
 	                                                   systemVelocity_,
+	                                                   dataRecorderRate_,
+	                                                   dataRecorderStatus_,
 													   "Hexapod X Axis Prime",
 													   "mm",
 													   this);
@@ -55,6 +60,8 @@ SGMHexapod::SGMHexapod(QObject *parent) :
 													   globalZAxisStatus,
 													   trajectoryStart_,
 	                                                   systemVelocity_,
+	                                                   dataRecorderRate_,
+	                                                   dataRecorderStatus_,
 													   "Hexapod Y Axis Prime",
 													   "mm",
 													   this);
@@ -71,6 +78,8 @@ SGMHexapod::SGMHexapod(QObject *parent) :
 													   globalZAxisStatus,
 													   trajectoryStart_,
 	                                                   systemVelocity_,
+	                                                   dataRecorderRate_,
+	                                                   dataRecorderStatus_,
 													   "Hexapod Z Axis Prime",
 													   "mm",
 													   this);
@@ -113,6 +122,9 @@ SGMHexapod::SGMHexapod(QObject *parent) :
 
 	allControls_->addControl(trajectoryStart_);
 	allControls_->addControl(trajectoryReset_);
+
+	allControls_->addControl(dataRecorderRate_);
+	allControls_->addControl(dataRecorderStatus_);
 
 	connect(allControls_, SIGNAL(connected(bool)), this, SIGNAL(connected(bool)));
 }
@@ -174,6 +186,16 @@ AMControl * SGMHexapod::trajectoryReset() const
 	return trajectoryReset_;
 }
 
+AMControl * SGMHexapod::dataRecorderStatus() const
+{
+	return dataRecorderStatus_;
+}
+
+AMControl * SGMHexapod::dataRecorderRate() const
+{
+	return dataRecorderRate_;
+}
+
 void SGMHexapod::rotateSystem(double rX, double rY, double rZ)
 {
 	xAxisPrimeControl_->rotate(rX, rY, rZ);
@@ -195,4 +217,5 @@ void SGMHexapod::resetSystem()
 	yAxisPrimeTrajectoryControl_->resetRotationsToGlobal();
 	zAxisPrimeTrajectoryControl_->resetRotationsToGlobal();
 }
+
 
