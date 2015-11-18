@@ -16,7 +16,7 @@ public:
 	virtual ~SGMSampleChamberVacuumControl();
 
 	/// Returns the sample chamber pressure gauge control.
-	AMReadOnlyPVControl* pressure() const { return control_; }
+	AMControl* pressure() const { return control_; }
 	/// Returns the sample chamber turbo pump (pump #5) running state.
 	AMSinglePVControl* turboPump5Running() const { return turboPump5Running_; }
 	/// Returns the sample chamber turbo pump (pump #6) running state.
@@ -26,7 +26,7 @@ public:
 
 signals:
 	/// Notifier that the pressure gauge control has changed.
-	void pressureChanged(AMReadOnlyPVControl *newControl);
+	void pressureChanged(AMControl *newControl);
 	/// Notifier that the turbo pump (pump #5) running state control has changed.
 	void turboPump5RunningChanged(AMSinglePVControl *newControl);
 	/// Notifier that the turbo pump (pump #6) running state control has changed.
@@ -51,9 +51,9 @@ protected slots:
 	virtual void updateConnected();
 
 	/// Adds a vacuum option.
-	virtual void addVacuumOption(int index, const QString &optionString, double valueMin, double valueMax);
+	virtual bool addVacuumOption(int index, const QString &optionString, double valueMin, double valueMax);
 	/// Removes a vacuum option.
-	virtual void removeVacuumOption(int index);
+	virtual bool removeVacuumOption(int index);
 
 protected:
 	/// The sample chamber turbo pump (pump #5) running state control.

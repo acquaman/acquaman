@@ -1,7 +1,7 @@
 #include "SGMSampleChamberVacuumControl.h"
 
-SGMSampleChamberVacuumControl::SGMSampleChamberVacuumControl(QObject *parent) :
-	AMEnumeratedControl(parent)
+SGMSampleChamberVacuumControl::SGMSampleChamberVacuumControl(const QString &name, QObject *parent) :
+	AMSingleEnumeratedControl(name, "", parent)
 {
 	// Initialize class variables.
 
@@ -89,12 +89,20 @@ void SGMSampleChamberVacuumControl::updateConnected()
 
 bool SGMSampleChamberVacuumControl::addVacuumOption(int index, const QString &optionString, double valueMin, double valueMax)
 {
-	if (addValueOption(index, optionString, index, valueMin, valueMax))
+	bool result = addValueOption(index, optionString, index, valueMin, valueMax);
+
+	if (result)
 		emit vacuumOptionsChanged();
+
+	return result;
 }
 
 bool SGMSampleChamberVacuumControl::removeVacuumOption(int index)
 {
-	if (removeOption(index))
+	bool result = removeOption(index);
+
+	if (result)
 		emit vacuumOptionsChanged();
+
+	return result;
 }

@@ -30,7 +30,8 @@ HEADERS += \
     source/beamline/SGM/energy/SGMExitSlitSupport.h \
     source/ui/SGM/SGMSampleChamberVacuumView.h \
     source/beamline/SGM/SGMSampleChamberVacuumControl.h \
-    source/beamline/SGM/SGMVATValve.h
+    source/beamline/SGM/SGMVATValve.h \
+    source/beamline/SGM/SGMSampleChamberVacuum.h
 
 SOURCES += \
     source/beamline/SGM/SGMMAXvMotor.cpp \
@@ -52,4 +53,5 @@ SOURCES += \
     source/ui/SGM/SGMLaddersView.cpp \
     source/ui/SGM/SGMSampleChamberVacuumView.cpp \
     source/beamline/SGM/SGMSampleChamberVacuumControl.cpp \
-    source/beamline/SGM/SGMVATValve.cpp
+    source/beamline/SGM/SGMVATValve.cpp \
+    source/beamline/SGM/SGMSampleChamberVacuum.cpp

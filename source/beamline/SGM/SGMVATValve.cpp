@@ -23,7 +23,7 @@ bool SGMVATValve::isConnected() const
 {
 	bool connected = (
 				position_->isConnected() &&
-				speed_->isConnected();
+				speed_->isConnected()
 			);
 
 	return connected;

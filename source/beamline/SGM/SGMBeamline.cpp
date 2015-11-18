@@ -176,7 +176,7 @@ SGMXASLadder* SGMBeamline::xasLadder() const
 	return xasLadder_;
 }
 
-AMSinglePVControl* SGMBeamline::vatValve() const
+SGMVATValve* SGMBeamline::vatValve() const
 {
 	return vatValve_;
 }
