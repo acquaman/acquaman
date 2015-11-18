@@ -27,11 +27,14 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 class SGMMAXvMotor;
 class AMMotorGroup;
 class CLSAdvancedScalerChannelDetector;
+class CLSScalerChannelDetector;
+class AMBasicControlDetectorEmulator;
 class CLSAmptekSDD123DetectorNew;
 class SGMEnergyControlSet;
 class SGMHexapod;
-
-class AMDSServerConfiguration;
+class SGMXPSLadder;
+class SGMBypassLadder;
+class SGMXASLadder;
 
 /*!
   * A singleton class which represents the SGM beamline. The beamline class can
@@ -112,11 +115,36 @@ public:
 	  * The Amptek detector
 	  */
 	CLSAmptekSDD123DetectorNew* amptekSDD1() const;
+	CLSAmptekSDD123DetectorNew* amptekSDD2() const;
+	CLSAmptekSDD123DetectorNew* amptekSDD3() const;
+	CLSAmptekSDD123DetectorNew* amptekSDD4() const;
 
 	/*!
 	  * The scaler.
 	  */
 	virtual CLSSIS3820Scaler* scaler() const;
+
+	/*!
+	 * The XPS ladder.
+	 */
+	virtual SGMXPSLadder* xpsLadder() const;
+
+	/*!
+	 * The bypass ladder.
+	 */
+	virtual SGMBypassLadder* bypassLadder() const;
+
+	/*!
+	 * The XAS ladder.
+	 */
+	virtual SGMXASLadder* xasLadder() const;
+
+	/*!
+	  * Configures the beamline components which require an AMDS.
+	  * \param hostIdentifier ~ The ip address and port of the AMDS which controls
+	  * are to be configured for.
+	  */
+	void configAMDSServer(const QString& hostIdentifier);
 public slots:
 
 signals:
@@ -128,16 +156,7 @@ protected slots:
 	  */
 	void onConnectionStateChanged(bool);
 
-	/// helper function to initialize the AcquamanDataServer
-	/// ideally, this should be called in super class when Acquaman Data server is a generalized feature for all BLs using Acquaman
-	void connectAMDSServers();
-
 protected:
-
-	/*!
-	  * Initializes the Acquaman Data Server client app scontroller.
-	  */
-	void setupAMDSClientAppController();
 
 	/*!
 	  * Initializes the beamline controls (energy, exit slit etc.).
@@ -171,7 +190,6 @@ protected:
 	SGMBeamline();
 
 protected:
-	QMap<QString, AMDSServerConfiguration> AMDSServerDefs_;
 
 	// New Energy Controls
 	SGMEnergyControlSet* energyControlSet_;
@@ -193,20 +211,37 @@ protected:
 
 	CLSSIS3820Scaler *scaler_;
 
-	CLSAdvancedScalerChannelDetector *teyDetector_;
-	CLSAdvancedScalerChannelDetector *tfyDetector_;
-	CLSAdvancedScalerChannelDetector *i0Detector_;
-	CLSAdvancedScalerChannelDetector *pdDetector_;
-	CLSAdvancedScalerChannelDetector *filteredPD1Detector_;
-	CLSAdvancedScalerChannelDetector *filteredPD2Detector_;
-	CLSAdvancedScalerChannelDetector *filteredPD3Detector_;
-	CLSAdvancedScalerChannelDetector *filteredPD4Detector_;
-	CLSAdvancedScalerChannelDetector *filteredPD5Detector_;
+	CLSScalerChannelDetector *teyDetector_;
+	CLSScalerChannelDetector *tfyDetector_;
+	CLSScalerChannelDetector *i0Detector_;
+	CLSScalerChannelDetector *pdDetector_;
+
+	CLSScalerChannelDetector *filteredPD1Detector_;
+	CLSScalerChannelDetector *filteredPD2Detector_;
+	CLSScalerChannelDetector *filteredPD3Detector_;
+	CLSScalerChannelDetector *filteredPD4Detector_;
+//	CLSScalerChannelDetector *filteredPD5Detector_;
+
+	CLSScalerChannelDetector *hexapodRedDetector_;
+	CLSScalerChannelDetector *hexapodBlackDetector_;
+	CLSScalerChannelDetector *encoderUpDetector_;
+	CLSScalerChannelDetector *encoderDownDetector_;
 
 	CLSAmptekSDD123DetectorNew* amptekSDD1_;
+	CLSAmptekSDD123DetectorNew* amptekSDD2_;
+	CLSAmptekSDD123DetectorNew* amptekSDD3_;
+	CLSAmptekSDD123DetectorNew* amptekSDD4_;
+
+	AMBasicControlDetectorEmulator *gratingEncoderDetector_;
 
 	bool cachedConnectedState_;
 
+	/// The XPS diagnostic ladder control.
+	SGMXPSLadder *xpsLadder_;
+	/// The bypass diagnostic ladder control.
+	SGMBypassLadder *bypassLadder_;
+	/// The XAS diagnostic ladder control.
+	SGMXASLadder *xasLadder_;
 };
 
 

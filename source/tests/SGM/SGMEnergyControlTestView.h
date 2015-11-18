@@ -11,7 +11,7 @@
 #include "beamline/SGM/energy/SGMUndulatorSupport.h"
 #include "beamline/SGM/energy/SGMGratingSupport.h"
 #include "beamline/SGM/energy/SGMEnergyPosition.h"
-class SGMEnergyControl;
+class SGMEnergyCoordinatorControl;
 /*!
   * A view class for visualizing interactions with the sgm energy control
   */
@@ -42,7 +42,7 @@ protected slots:
 
 	void onStartTrajectoryButtonPushed();
 	// Slots which handle changes in the control, updating the widgets
-	void onControlGratingOptimizationChanged(SGMEnergyPosition::GratingTranslationOptimizationMode optimizationMode);
+	void onControlGratingOptimizationChanged(SGMGratingSupport::GratingTranslationOptimizationMode optimizationMode);
 	void onControlGratingTranslationChanged(double value);
 protected:
 
@@ -54,7 +54,7 @@ protected:
 	/// Helper function which connects the child widgets to the energy control.
 	void setupConnections();
 
-	SGMEnergyControl* energyControl_;
+	SGMEnergyCoordinatorControl* energyCoordinatorControl_;
 
 	AMExtendedControlEditor* energyControlEditor_;
 	QComboBox* undulatorHarmonic_;

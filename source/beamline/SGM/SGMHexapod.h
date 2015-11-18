@@ -10,6 +10,7 @@
   * endstation.
   */
 class AMControl;
+class AMWaveformBinningSinglePVControl;
 class SGMHexapodTransformedAxis;
 class AM3DRotatedSystemControl;
 class SGMHexapod : public QObject
@@ -83,6 +84,52 @@ public:
 	AMControl* trajectoryReset() const;
 
 	/*!
+	  * The control for the active status of the data recorder. NOTE: When active
+	  * the data recorder will cause motions to pause at their final position
+	  * for a noticable period of time before setting their status to MOVE DONE.
+	  */
+	AMControl* dataRecorderStatus() const;
+
+	/*!
+	  * The control for the sample rate (in Hz) which the data recorder samples
+	  * the axis positions at.
+	  */
+	AMControl* dataRecorderRate() const;
+
+	/*!
+	  * The waveform control containing the data recorded for the X axis during
+	  * the last move which the recorder was active for.
+	  * NOTE: The data contained within is for the global, untransformed X Axis.
+	  * See transformVectors() for a way of converting this data to the current
+	  * rotated axes of the hexapod.
+	  */
+	AMWaveformBinningSinglePVControl* xGlobalRecorderControl() const;
+
+	/*!
+	  * The waveform control containing the data recorded for the Y axis during
+	  * the last move which the recorder was active for.
+	  * NOTE: The data contained within is for the global, untransformed Y Axis.
+	  * See transformVectors() for a way of converting this data to the current
+	  * rotated axes of the hexapod.
+	  */
+	AMWaveformBinningSinglePVControl* yGlobalRecorderControl() const;
+
+	/*!
+	  * The waveform control containing the data recorded for the Z axis during
+	  * the last move which the recorder was active for.
+	  * NOTE: The data contained within is for the global, untransformed Z Axis.
+	  * See transformVectors() for a way of converting this data to the current
+	  * rotated axes of the hexapod.
+	  */
+	AMWaveformBinningSinglePVControl* zGlobalRecorderControl() const;
+
+	/*!
+	  * The time data control containing the delta time data recorded during the
+	  * last move which the recorder was active for.
+	  */
+	AMWaveformBinningSinglePVControl* timeRecorderControl() const;
+
+	/*!
 	  * Rotates the coordinate system used by the hexapod by the provided values,
 	  * applied as Euler angles in order rX, rY, rZ.
 	  * \param rX ~ The amount to rotate the system about the X Axis (1st)
@@ -95,6 +142,14 @@ public:
 	  * Resets the system of the hexapod back to the plane of the base plate.
 	  */
 	void resetSystem();
+
+	/*!
+	  * Transforms the provided QVector of 3D Vectors from the global coordinates
+	  * to the current rotated system of the hexapod.
+	  * \param coordinates ~ The vector of coordinates which are to be transformed
+	  * from the global system to the rotated hexapod's prime system.
+	  */
+	QList<QVector3D> transformVectors(const QList<QVector3D>& coordinates);
 signals:
 
 	/*!
@@ -121,6 +176,15 @@ protected:
 
 	AMControl* trajectoryStart_;
 	AMControl* trajectoryReset_;
+
+	AMControl* dataRecorderRate_;
+	AMControl* dataRecorderStatus_;
+
+	AMWaveformBinningSinglePVControl* xGlobalRecorderControl_;
+	AMWaveformBinningSinglePVControl* yGlobalRecorderControl_;
+	AMWaveformBinningSinglePVControl* zGlobalRecorderControl_;
+	AMWaveformBinningSinglePVControl* timeRecorderControl_;
+
 
 	AMControlSet* allControls_;
 

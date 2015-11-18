@@ -1,5 +1,5 @@
 #include "SGMEnergyControlTestView.h"
-#include "beamline/SGM/energy/SGMEnergyControl.h"
+#include "beamline/SGM/energy/SGMEnergyCoordinatorControl.h"
 
 #include <QGridLayout>
 #include <QLabel>
@@ -7,20 +7,20 @@
 SGMEnergyControlTestView::SGMEnergyControlTestView(QWidget *parent) : QWidget(parent)
 {
 	isInitialized_ = false;
-	energyControl_ = new SGMEnergyControl(SGMUndulatorSupport::FirstHarmonic, this);
+	energyCoordinatorControl_ = new SGMEnergyCoordinatorControl(SGMUndulatorSupport::FirstHarmonic, this);
 
 	setupUi();
-	if(energyControl_->isConnected()) {
+	if(energyCoordinatorControl_->isConnected()) {
 		initializeOnConnection();
 	} else {
 
-		connect(energyControl_, SIGNAL(connected(bool)), this, SLOT(initializeOnConnection()));
+		connect(energyCoordinatorControl_, SIGNAL(connected(bool)), this, SLOT(initializeOnConnection()));
 	}
 }
 
 void SGMEnergyControlTestView::initializeOnConnection()
 {
-	if(energyControl_->isConnected() && !isInitialized_) {
+	if(energyCoordinatorControl_->isConnected() && !isInitialized_) {
 
 		isInitialized_ = true;
 		setupData();
@@ -41,37 +41,37 @@ void SGMEnergyControlTestView::onUndulatorHarmonicSelectionChanged(int index)
 		correspondingHarmonic = SGMUndulatorSupport::ThirdHarmonic;
 	}
 
-	energyControl_->setUndulatorHarmonic(correspondingHarmonic);
+	energyCoordinatorControl_->setUndulatorHarmonic(correspondingHarmonic);
 }
 
 void SGMEnergyControlTestView::onUndulatorOffsetValueChanged(double value)
 {
-	energyControl_->setUndulatorOffset(value);
+	energyCoordinatorControl_->setUndulatorOffset(value);
 
 }
 
 void SGMEnergyControlTestView::onUndulatorTrackingCheckBoxChanged(bool isChecked)
 {
-	energyControl_->setUndulatorTracking(isChecked);
+	energyCoordinatorControl_->setUndulatorTracking(isChecked);
 }
 
 void SGMEnergyControlTestView::onGratingOptimizationSelectionChanged(int index)
 {
-	SGMEnergyPosition::GratingTranslationOptimizationMode correspondingMode;
+	SGMGratingSupport::GratingTranslationOptimizationMode correspondingMode;
 
 	switch(index) {
 
 	case 0:
-		correspondingMode = SGMEnergyPosition::OptimizeFlux;
+		correspondingMode = SGMGratingSupport::OptimizeFlux;
 		break;
 	case 1:
-		correspondingMode = SGMEnergyPosition::OptimizeResolution;
+		correspondingMode = SGMGratingSupport::OptimizeResolution;
 		break;
 	default:
-		correspondingMode = SGMEnergyPosition::ManualMode;
+		correspondingMode = SGMGratingSupport::ManualMode;
 	}
 
-	energyControl_->setGratingTranslationOptimizationMode(correspondingMode);
+	energyCoordinatorControl_->setGratingTranslationOptimizationMode(correspondingMode);
 }
 
 void SGMEnergyControlTestView::onGratingTranslationSelectionChanged(int index)
@@ -92,13 +92,13 @@ void SGMEnergyControlTestView::onGratingTranslationSelectionChanged(int index)
 		}
 
 		//qDebug() << "Move grating translation control to" << correspondingGratingTranslationStepValue << "steps";
-		energyControl_->gratingTranslationControl()->move(correspondingGratingTranslationStepValue);
+		energyCoordinatorControl_->gratingTranslationControl()->move(correspondingGratingTranslationStepValue);
 	}
 }
 
 void SGMEnergyControlTestView::onExitSlitTrackingCheckBoxChanged(bool isChecked)
 {
-	energyControl_->setExitSlitPositionTracking(isChecked);
+	energyCoordinatorControl_->setExitSlitPositionTracking(isChecked);
 }
 
 void SGMEnergyControlTestView::onStartTrajectoryButtonPushed()
@@ -108,14 +108,14 @@ void SGMEnergyControlTestView::onStartTrajectoryButtonPushed()
 		double endEnergy = endEnergySpinBox_->value();
 
 		double velocity = qAbs(endEnergy - startEnergy) / timeTakenSpinBox_->value();
-		energyControl_->move(startEnergy, endEnergy, velocity);
+		energyCoordinatorControl_->move(startEnergy, endEnergy, velocity);
 	}
 }
 
-void SGMEnergyControlTestView::onControlGratingOptimizationChanged(SGMEnergyPosition::GratingTranslationOptimizationMode optimizationMode)
+void SGMEnergyControlTestView::onControlGratingOptimizationChanged(SGMGratingSupport::GratingTranslationOptimizationMode optimizationMode)
 {
 
-	gratingTranslationComboBox_->setEnabled(optimizationMode == SGMEnergyPosition::ManualMode);
+	gratingTranslationComboBox_->setEnabled(optimizationMode == SGMGratingSupport::ManualMode);
 }
 
 void SGMEnergyControlTestView::onControlGratingTranslationChanged(double value)
@@ -145,7 +145,7 @@ void SGMEnergyControlTestView::setupUi()
 	QGridLayout* mainLayout = new QGridLayout();
 	setLayout(mainLayout);
 
-	energyControlEditor_ = new AMExtendedControlEditor(energyControl_);
+	energyControlEditor_ = new AMExtendedControlEditor(energyCoordinatorControl_);
 
 	mainLayout->addWidget(energyControlEditor_, 0, 0, 1, 2);
 
@@ -218,7 +218,7 @@ void SGMEnergyControlTestView::setupUi()
 void SGMEnergyControlTestView::setupData()
 {
 	int correspondingHarmonicComboIndex;
-	switch(energyControl_->undulatorHarmonic()) {
+	switch(energyCoordinatorControl_->undulatorHarmonic()) {
 
 	case SGMUndulatorSupport::FirstHarmonic:
 		correspondingHarmonicComboIndex = 0;
@@ -230,16 +230,18 @@ void SGMEnergyControlTestView::setupData()
 	undulatorHarmonic_->setCurrentIndex(correspondingHarmonicComboIndex);
 
 	undulatorOffset_->setRange(DBL_MIN, DBL_MAX);
-	undulatorOffset_->setValue(energyControl_->undulatorOffset());
+	undulatorOffset_->setValue(energyCoordinatorControl_->undulatorOffset());
 
-	undulatorTrackingCheckBox_->setChecked(energyControl_->isUndulatorTracking());
+	undulatorTrackingCheckBox_->setChecked(energyCoordinatorControl_->isUndulatorTracking());
 
 	int correspondingOptimizationComboIndex;
-	switch(energyControl_->gratingTranslationOptimizationMode()) {
-	case SGMEnergyPosition::OptimizeFlux:
+
+	switch(energyCoordinatorControl_->gratingTranslationOptimizationMode()) {
+
+	case SGMGratingSupport::OptimizeFlux:
 		correspondingOptimizationComboIndex = 0;
 		break;
-	case SGMEnergyPosition::OptimizeResolution:
+	case SGMGratingSupport::OptimizeResolution:
 		correspondingOptimizationComboIndex = 1;
 		break;
 	default:
@@ -249,7 +251,7 @@ void SGMEnergyControlTestView::setupData()
 	gratingOptimizationComboBox_->setCurrentIndex(correspondingOptimizationComboIndex);
 
 	int correspondingTranslationComboIndex;
-	switch(SGMGratingSupport::encoderCountToEnum(energyControl_->gratingTranslationControl()->value())) {
+	switch(SGMGratingSupport::encoderCountToEnum(energyCoordinatorControl_->gratingTranslationControl()->value())) {
 	case SGMGratingSupport::LowGrating:
 		correspondingTranslationComboIndex = 0;
 		break;
@@ -261,26 +263,29 @@ void SGMEnergyControlTestView::setupData()
 	}
 
 	gratingTranslationComboBox_->setCurrentIndex(correspondingTranslationComboIndex);
-	gratingTranslationComboBox_->setEnabled(energyControl_->gratingTranslationOptimizationMode() == SGMEnergyPosition::ManualMode);
+	gratingTranslationComboBox_->setEnabled(energyCoordinatorControl_->gratingTranslationOptimizationMode() == SGMGratingSupport::ManualMode);
 
-	exitSlitTrackingCheckBox_->setChecked(energyControl_->isExitSlitPositionTracking());
 
-	gratingAngleValueControlEditor_->setControl(energyControl_->gratingAngleControl());
+	exitSlitTrackingCheckBox_->setChecked(energyCoordinatorControl_->isExitSlitPositionTracking());
+
+	gratingAngleValueControlEditor_->setControl(energyCoordinatorControl_->gratingAngleControl());
 	gratingAngleValueControlEditor_->setPrecision(12);
-	gratingTranslationControlEditor_->setControl(energyControl_->gratingTranslationControl());
+	gratingTranslationControlEditor_->setControl(energyCoordinatorControl_->gratingTranslationControl());
 	gratingTranslationControlEditor_->setPrecision(12);
-	exitSlitValueControlEditor_->setControl(energyControl_->exitSlitPositionControl());
+	exitSlitValueControlEditor_->setControl(energyCoordinatorControl_->exitSlitPositionControl());
 	exitSlitValueControlEditor_->setPrecision(6);
-	undulatorValueControlEditor_->setControl(energyControl_->undulatorPositionControl());
+	undulatorValueControlEditor_->setControl(energyCoordinatorControl_->undulatorPositionControl());
 	undulatorValueControlEditor_->setPrecision(6);
 
 }
 
 void SGMEnergyControlTestView::setupConnections()
 {
-	connect(energyControl_, SIGNAL(gratingTranslationOptimizationModeChanged(SGMEnergyPosition::GratingTranslationOptimizationMode)),
-	        this, SLOT(onControlGratingOptimizationChanged(SGMEnergyPosition::GratingTranslationOptimizationMode)));
-	connect(energyControl_->gratingTranslationControl(), SIGNAL(valueChanged(double)),
+
+	connect(energyCoordinatorControl_, SIGNAL(gratingTranslationOptimizationModeChanged(SGMGratingSupport::GratingTranslationOptimizationMode)),
+	        this, SLOT(onControlGratingOptimizationChanged(SGMGratingSupport::GratingTranslationOptimizationMode)));
+	connect(energyCoordinatorControl_->gratingTranslationControl(), SIGNAL(valueChanged(double)),
+
 	        this, SLOT(onControlGratingTranslationChanged(double)));
 
 

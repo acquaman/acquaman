@@ -32,6 +32,9 @@ class AMDetectorTriggerSource;
 class AMDetectorDwellTimeSource;
 class AMCurrentAmplifier;
 
+class AMDSClientRequest;
+class AMDSClientRelativeCountPlusCountDataRequest;
+
 #include "dataman/info/AMDetectorInfo.h"
 #include "util/AMRange.h"
 #include "actions3/AMListAction3.h"
@@ -52,12 +55,24 @@ class CLSSIS3820Scaler : public QObject
 
 public:
 	/// Constructor.  Takes the baseName of the PV's as parameters.
-	CLSSIS3820Scaler(const QString &baseName, QObject *parent = 0);
+	CLSSIS3820Scaler(const QString &baseName, const QString &amdsBufferName = QString(), QObject *parent = 0);
 	/// Destructor.
 	virtual ~CLSSIS3820Scaler();
 
 	/// Returns whether the scaler is all connected.
 	bool isConnected() const;
+
+	/// Returns the buffer name for this detector
+	QString amdsBufferName() const;
+	/// Configures the server with the given identifier
+	void configAMDSServer(const QString &amdsServerIdentifier);
+	/// Fetches data if an AMDS Server is set up
+	bool retrieveBufferedData(double seconds);
+	/// Returns the last continuous data request
+	AMDSClientRelativeCountPlusCountDataRequest* lastContinuousDataRequest() const;
+	/// Sets the continuous data window for the next AMDSClientDataRequest
+	bool setContinuousDataWindow(double continuousDataWindowSeconds);
+	int amdsPollingBaseTimeMilliseconds() const;
 
 	/// Returns whether the scaler is currently scanning.
 	bool isScanning() const;
@@ -140,6 +155,9 @@ signals:
 	/// Emitted when the scaler channel sr570 sensitivity changes.
 	void sensitivityChanged();
 
+	/// Emitted when an AMDSClientDataRequest is received for the buffer matching this scaler
+	void amdsDataReady();
+
 protected slots:
 	/// Helper slot that handles changes in the scanning status.
 	void onScanningToggleChanged();
@@ -166,6 +184,12 @@ protected slots:
 	void triggerAcquisitionFinished();
 
 	void onDwellTimeSourceSetDwellTime(double dwellSeconds);
+
+	/// ============= SLOTs to handle AMDSClientAppController signals =========
+	/// slot to handle the signal of request data ready
+	void onRequestDataReady(AMDSClientRequest* clientRequest);
+	/// slot to handle the signal of socketEror
+	void onServerError(int errorCode, bool removeServer, const QString &serverIdentifier, const QString &errorMessage);
 
 protected:
 	AMDetectorDefinitions::ReadMode readModeFromSettings();
@@ -208,6 +232,17 @@ protected:
 	bool triggerSourceTriggered_;
 	/// The list of channels we are still waiting to get their monitor before emitting that the scaler acquisition has finished.
 	QList<int> waitingChannels_;
+
+
+	/// the AMDS Amptek Server identifier
+	QString amdsServerIdentifier_;
+	/// The AMDS buffer name for this instance
+	QString amdsBufferName_;
+
+	/// The data returned from the last acquire(AMDetectorDefinitions::ContinuousMode) call
+	AMDSClientRelativeCountPlusCountDataRequest *lastContinuousDataRequest_;
+	double continuousDataWindowSeconds_;
+	int pollingRateMilliSeconds_;
 };
 
 /// This class is an abstraction of an individual channel for the scaler class.
