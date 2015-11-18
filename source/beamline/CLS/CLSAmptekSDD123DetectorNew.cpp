@@ -25,12 +25,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "ui/CLS/CLSAmptekSDD123DetailedDetectorView.h"
 
-
-
+#include "source/appController/AMDSClientAppController.h"
 #include "source/ClientRequest/AMDSClientRequestSupport.h"
 #include "source/DataElement/AMDSEventDataSupport.h"
 #include "source/DataHolder/AMDSDataHolderSupport.h"
-#include "source/appController/AMDSClientAppController.h"
 #include "source/Connection/AMDSServer.h"
 #include "source/ClientRequest/AMDSClientDataRequest.h"
 #include "source/ClientRequest/AMDSClientRelativeCountPlusCountDataRequest.h"
@@ -38,9 +36,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "source/acquaman/AMAgnosticDataAPI.h"
 
 
-CLSAmptekSDD123DetectorNew::CLSAmptekSDD123DetectorNew(const QString &name, const QString &description, const QString &baseName, QObject *parent) :
+CLSAmptekSDD123DetectorNew::CLSAmptekSDD123DetectorNew(const QString &name, const QString &description, const QString &baseName, const QString &amdsBufferName, QObject *parent) :
 	AMXRFDetector(name, description, parent)
 {	
+	amdsBufferName_ = amdsBufferName;
 	baseName_ = baseName;
 
 	units_ = "Counts";
@@ -125,28 +124,31 @@ CLSAmptekSDD123DetectorNew::CLSAmptekSDD123DetectorNew(const QString &name, cons
 	AMDSDataHolderSupport::registerDataHolderClass();
 	AMDSEventDataSupport::registerEventDataObjectClass();
 
-	// FLAGGED FOR REMOVAL: Continuous Data API testing November 9, 2015
-	AMAgnosticDataMessageQEventHandler *amptekTestMessager = new AMAgnosticDataMessageQEventHandler();
-	AMAgnosticDataAPISupport::registerHandler("AmptekTest", amptekTestMessager);
-	amptekTestMessager->addReceiver(this);
-	// END OF FLAG
-
 	lastContinuousDataRequest_ = 0;
 	lastReadMode_ = AMDetectorDefinitions::SingleRead;
 
-	/// ==== initialize the app controller ==============
-	clientAppController_ = new AMDSClientAppController();
-	connect(clientAppController_, SIGNAL(networkSessionOpening()), this, SLOT(onNetworkSessionOpening()));
-	connect(clientAppController_, SIGNAL(networkSessionOpened()), this, SLOT(onNetworkSessionOpened()));
-	connect(clientAppController_, SIGNAL(newServerConnected(QString)), this, SLOT(onNewServerConnected(QString)));
-	connect(clientAppController_, SIGNAL(serverError(int,bool,QString,QString)), this, SLOT(onServerError(int,bool,QString,QString)));
-	connect(clientAppController_, SIGNAL(requestDataReady(AMDSClientRequest*)), this, SLOT(onRequestDataReady(AMDSClientRequest*)));
-
-	clientAppController_->openNetworkSession();
+	continuousDataWindowSeconds_ = 20;
+	pollingRateMilliSeconds_ = 50;
 }
 
 CLSAmptekSDD123DetectorNew::~CLSAmptekSDD123DetectorNew()
 {
+}
+
+QString CLSAmptekSDD123DetectorNew::amdsBufferName() const
+{
+	return amdsBufferName_;
+}
+
+void CLSAmptekSDD123DetectorNew::configAMDSServer(const QString &amptekAMDSServerIdentifier)
+{
+	amptekAMDSServerIdentifier_ = amptekAMDSServerIdentifier;
+
+	AMDSServer *amptekAMDSServer = AMDSClientAppController::clientAppController()->getServerByServerIdentifier(amptekAMDSServerIdentifier);
+	if (amptekAMDSServer) {
+		connect(amptekAMDSServer, SIGNAL(requestDataReady(AMDSClientRequest*)), this, SLOT(onRequestDataReady(AMDSClientRequest*)));
+		connect(AMDSClientAppController::clientAppController(), SIGNAL(serverError(int,bool,QString,QString)), this, SLOT(onServerError(int,bool,QString,QString)));
+	}
 }
 
 QString CLSAmptekSDD123DetectorNew::synchronizedDwellKey() const{
@@ -172,6 +174,16 @@ AMDetectorDwellTimeSource* CLSAmptekSDD123DetectorNew::detectorDwellTimeSource()
 
 AMDSClientDataRequest* CLSAmptekSDD123DetectorNew::lastContinuousData(double seconds) const{
 	return lastContinuousDataRequest_;
+}
+
+bool CLSAmptekSDD123DetectorNew::setContinuousDataWindow(double continuousDataWindowSeconds){
+	continuousDataWindowSeconds_ = continuousDataWindowSeconds;
+	return true;
+}
+
+int CLSAmptekSDD123DetectorNew::amdsPollingBaseTimeMilliseconds() const
+{
+	return pollingRateMilliSeconds_;
 }
 
 #include "actions3/AMActionSupport.h"
@@ -436,37 +448,33 @@ void CLSAmptekSDD123DetectorNew::onHighIndexValueChanged(int index){
 
 
 
-
+#include "source/ClientRequest/AMDSClientIntrospectionRequest.h"
 /// ============= SLOTs to handle AMDSClientAppController signals =========
-void CLSAmptekSDD123DetectorNew::onNetworkSessionOpening()
-{
-}
-
-void CLSAmptekSDD123DetectorNew::onNetworkSessionOpened()
-{
-	clientAppController_->connectToServer("10.52.48.40", 28044);
-}
-
-void CLSAmptekSDD123DetectorNew::onNewServerConnected(const QString &serverIdentifier)
-{
-	qDebug() << "Amptek Successfully Connected to Server";
-	QStringList bufferNames = clientAppController_->getBufferNamesByServer(serverIdentifier);
-	qDebug() << "Buffer Names:";
-	qDebug() << bufferNames;
-}
-
 void CLSAmptekSDD123DetectorNew::onRequestDataReady(AMDSClientRequest* clientRequest)
 {
+	AMDSClientIntrospectionRequest *introspectionRequest = qobject_cast<AMDSClientIntrospectionRequest*>(clientRequest);
+	if(introspectionRequest){
+		qDebug() << "Got an introspection request response";
+
+		qDebug() << "All buffer names: " << introspectionRequest->getAllBufferNames();
+	}
+
 	AMDSClientRelativeCountPlusCountDataRequest *relativeCountPlusCountDataRequst = qobject_cast<AMDSClientRelativeCountPlusCountDataRequest*>(clientRequest);
 	if(relativeCountPlusCountDataRequst){
-		qDebug() << "Received request as relative count plus count";
-		qDebug() << relativeCountPlusCountDataRequst->data().count();
-		lastContinuousDataRequest_ = relativeCountPlusCountDataRequst;
+
+		if(relativeCountPlusCountDataRequst->bufferName() == amdsBufferName_){
+			lastContinuousDataRequest_ = relativeCountPlusCountDataRequst;
+
+			setAcquisitionSucceeded();
+			setReadyForAcquisition();
+		}
 	}
 }
 
 void CLSAmptekSDD123DetectorNew::onServerError(int errorCode, bool removeServer, const QString &serverIdentifier, const QString &errorMessage)
 {
+	Q_UNUSED(errorCode) 	Q_UNUSED(removeServer)	Q_UNUSED(serverIdentifier)	Q_UNUSED(errorMessage)
+
 //	if (serverIdentifier.length() > 0) {
 //		if (removeServer)
 //			activeServerComboBox_->removeItem(activeServerComboBox_->findText(serverIdentifier));
@@ -484,11 +492,20 @@ bool CLSAmptekSDD123DetectorNew::acquireImplementation(AMDetectorDefinitions::Re
 {
 	if(readMode == AMDetectorDefinitions::ContinuousRead){
 		lastReadMode_ = AMDetectorDefinitions::ContinuousRead;
-		AMDSServer * server = clientAppController_->getServerByServerIdentifier("10.52.48.40:28044");
-		if (!server)
+
+		AMDSClientAppController *clientAppController = AMDSClientAppController::clientAppController();
+		AMDSServer *amptekAMDSServer = clientAppController->getServerByServerIdentifier(amptekAMDSServerIdentifier_);
+		if (amptekAMDSServer) {
+			setAcquiring();
+
+			double dataRequestSize = continuousDataWindowSeconds_*1000/((double)pollingRateMilliSeconds_);
+			qDebug() << "Calculated data request of size " << dataRequestSize;
+
+//			return clientAppController->requestClientData(amptekAMDSServer->hostName(), amptekAMDSServer->portNumber(), amdsBufferName_, 400, 400, true, false);
+			return clientAppController->requestClientData(amptekAMDSServer->hostName(), amptekAMDSServer->portNumber(), amdsBufferName_, dataRequestSize, dataRequestSize, true, false);
+		}
+		else
 			return false;
-		QString bufferName = "Amptek SDD 240";
-		clientAppController_->requestClientData(server->hostName(), server->portNumber(), bufferName, 400, 400, true, false);
 	}
 	else{
 		lastReadMode_ = AMDetectorDefinitions::SingleRead;
@@ -519,44 +536,6 @@ int CLSAmptekSDD123DetectorNew::convertEvToBin(double eVValue){
 	return (int)(eVValue / eVPerBin());
 }
 
-// FLAGGED FOR REMOVAL: Continuous Data API testing November 9, 2015
-bool CLSAmptekSDD123DetectorNew::event(QEvent *e){
-	if(e->type() == (QEvent::Type)AMAgnosticDataAPIDefinitions::MessageEvent){
-		AMAgnosticDataAPIMessage message = ((AMAgnositicDataEvent*)e)->message_;
-
-		switch(message.messageType()){
-		case AMAgnosticDataAPIDefinitions::DataAvailable:{
-
-			AMAgnosticDataAPIDataAvailableMessage *dataAvailableMessage = static_cast<AMAgnosticDataAPIDataAvailableMessage*>(&message);
-			qDebug() << "Is there a valid clientDataRequest pointer? " << dataAvailableMessage->detectorDataAsAMDS();
-
-			intptr_t dataRequestPointer = dataAvailableMessage->detectorDataAsAMDS();
-			void *dataRequestVoidPointer = (void*)dataRequestPointer;
-			AMDSClientDataRequest *dataRequest = static_cast<AMDSClientDataRequest*>(dataRequestVoidPointer);
-
-			dataRequest->printData();
-
-			break;}
-		case AMAgnosticDataAPIDefinitions::AxisStarted:
-		case AMAgnosticDataAPIDefinitions::AxisFinished:
-		case AMAgnosticDataAPIDefinitions::AxisValueFinished:
-		case AMAgnosticDataAPIDefinitions::ControlMoved:
-		case AMAgnosticDataAPIDefinitions::InvalidMessage:
-			qDebug() << "Should not be dealing with any of these AMAgnosticDataAPI message types";
-			break;
-		default:
-			qDebug() << "Definitely should not be dealing with any default cases";
-			break;
-		}
-
-		e->accept();
-		return true;
-	}
-	else{
-		return AMXRFDetector::event(e);
-	}
-}
-// END OF FLAG
 
 bool CLSAmptekSDD123DetectorNew::setReadMode(AMDetectorDefinitions::ReadMode readMode){
 	Q_UNUSED(readMode)

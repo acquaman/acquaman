@@ -1,5 +1,5 @@
 #include "SGMEnergyCoordinator.h"
-#include "beamline/SGM/energy/SGMEnergyControl.h"
+#include "beamline/SGM/energy/SGMEnergyCoordinatorControl.h"
 
 #include "beamline/AMControlSet.h"
 #include "beamline/AMPVControl.h"
@@ -64,7 +64,7 @@ void SGMEnergyCoordinator::onPVSetsConnected()
 			correspondingUndulatorHarmonic = SGMUndulatorSupport::ThirdHarmonic;
 		}
 
-		energyControlCoordinator_ = new SGMEnergyControl(correspondingUndulatorHarmonic, this);
+		energyControlCoordinator_ = new SGMEnergyCoordinatorControl(correspondingUndulatorHarmonic, this);
 
 		qDebug() << "Waiting for energy control to be connected...";
 		if(energyControlCoordinator_->isConnected()) {
@@ -161,15 +161,15 @@ void SGMEnergyCoordinator::onEnergyControlConnected(bool isConnected)
 		}
 
 		// Grating translation optimization setpoint
-		SGMEnergyPosition::GratingTranslationOptimizationMode initialOptimizationMode =
+		SGMGratingSupport::GratingTranslationOptimizationMode initialOptimizationMode =
 		        energyControlCoordinator_->gratingTranslationOptimizationMode();
 
 		double initialOptimizationModeValue;
 		switch(initialOptimizationMode) {
-		case SGMEnergyPosition::ManualMode:
+		case SGMGratingSupport::ManualMode:
 			initialOptimizationModeValue = 0;
 			break;
-		case SGMEnergyPosition::OptimizeFlux:
+		case SGMGratingSupport::OptimizeFlux:
 			initialOptimizationModeValue = 1;
 			break;
 		default:
@@ -231,8 +231,8 @@ void SGMEnergyCoordinator::onEnergyControlConnected(bool isConnected)
 		connect(energyControlCoordinator_, SIGNAL(movingChanged(bool)),
 		        this, SLOT(onEnergyControlIsMovingChanged(bool)));
 
-		connect(energyControlCoordinator_, SIGNAL(gratingTranslationOptimizationModeChanged(SGMEnergyPosition::GratingTranslationOptimizationMode)),
-		        this, SLOT(onEnergyControlGratingTranslationOptimizationModeChanged(SGMEnergyPosition::GratingTranslationOptimizationMode)));
+		connect(energyControlCoordinator_, SIGNAL(gratingTranslationOptimizationModeChanged(SGMGratingSupport::GratingTranslationOptimizationMode)),
+			this, SLOT(onEnergyControlGratingTranslationOptimizationModeChanged(SGMGratingSupport::GratingTranslationOptimizationMode)));
 
 		connect(energyControlCoordinator_, SIGNAL(undulatorOffsetChanged(double)),
 		        this, SLOT(onEnergyControlUndulatorOffsetChanged(double)));
@@ -345,18 +345,18 @@ void SGMEnergyCoordinator::onEnergyControlIsMovingChanged(bool isMoving)
 	newControls_->energyStatus()->move(movingValue);
 }
 
-void SGMEnergyCoordinator::onEnergyControlGratingTranslationOptimizationModeChanged(SGMEnergyPosition::GratingTranslationOptimizationMode gratingTranslationOptimizationMode)
+void SGMEnergyCoordinator::onEnergyControlGratingTranslationOptimizationModeChanged(SGMGratingSupport::GratingTranslationOptimizationMode gratingTranslationOptimizationMode)
 {
 	double gratingOptimizationModeValue = 0;
 	switch(gratingTranslationOptimizationMode) {
 
-	case SGMEnergyPosition::ManualMode:
+	case SGMGratingSupport::ManualMode:
 		gratingOptimizationModeValue = 0.0;
 		break;
-	case SGMEnergyPosition::OptimizeFlux:
+	case SGMGratingSupport::OptimizeFlux:
 		gratingOptimizationModeValue = 1.0;
 		break;
-	case SGMEnergyPosition::OptimizeResolution:
+	case SGMGratingSupport::OptimizeResolution:
 		gratingOptimizationModeValue = 2.0;
 		break;
 	}
@@ -587,10 +587,9 @@ void SGMEnergyCoordinator::onEnergyTrajectoryStartPVChanged(double value)
 		double startpoint = newControls_->energyTrajectoryStartpoint()->value();
 		double endpoint = newControls_->energyTrajectoryEndpoint()->value();
 		double time = newControls_->energyTrajectoryTime()->value();
-		double velocity = (endpoint - startpoint) / time;
 
-		if(energyControlCoordinator_->move(startpoint, endpoint, velocity) == AMControl::NoFailure) {
-			qDebug() << "Moving energy from" << startpoint << "to" << endpoint << "at" << velocity << "eV/s";
+		if(energyControlCoordinator_->move(startpoint, endpoint, time) == AMControl::NoFailure) {
+			qDebug() << "Moving energy from" << startpoint << "to" << endpoint << "in" << time << "s";
 		}
 	}
 
@@ -630,7 +629,7 @@ void SGMEnergyCoordinator::onGratingTranslationSetpointPVChanged(double value)
 	qDebug() << "Grating translation setpoint value of" << value << "received";
 	if(gratingTranslationSetpointInitialized_) {
 		qDebug() << "\tIs Initialized";
-		if(energyControlCoordinator_->gratingTranslationOptimizationMode() == SGMEnergyPosition::ManualMode) {
+		if(energyControlCoordinator_->gratingTranslationOptimizationMode() == SGMGratingSupport::ManualMode) {
 			qDebug() << "\tIs in manual mode";
 			SGMGratingSupport::GratingTranslation enumValue = SGMGratingSupport::UnknownGrating;
 
@@ -680,17 +679,17 @@ void SGMEnergyCoordinator::onGratingTranslationStopPVChanged(double)
 void SGMEnergyCoordinator::onGratingTranslationOptimizationModeSetpointPVChanged(double)
 {
 	if(gratingTranslationOptimizationModeSetpointInitialized_) {
-		SGMEnergyPosition::GratingTranslationOptimizationMode optimizationMode;
+		SGMGratingSupport::GratingTranslationOptimizationMode optimizationMode;
 
 		if(newControls_->gratingTranslationOptimizationModeSetpoint()->withinTolerance(0)) {
 
-			optimizationMode = SGMEnergyPosition::ManualMode;
+			optimizationMode = SGMGratingSupport::ManualMode;
 		} else if(newControls_->gratingTranslationOptimizationModeSetpoint()->withinTolerance(1)) {
 
-			optimizationMode = SGMEnergyPosition::OptimizeFlux;
+			optimizationMode = SGMGratingSupport::OptimizeFlux;
 		} else if(newControls_->gratingTranslationOptimizationModeSetpoint()->withinTolerance(2)) {
 
-			optimizationMode = SGMEnergyPosition::OptimizeResolution;
+			optimizationMode = SGMGratingSupport::OptimizeResolution;
 		} else {
 
 			qDebug() << "Unknown grating translation optimization value set - ignoring value";

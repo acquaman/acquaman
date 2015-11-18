@@ -268,6 +268,22 @@ AMDSClientDataRequest* AMDetector::lastContinuousData(double seconds) const{
 	return 0;
 }
 
+bool AMDetector::setContinuousDataWindow(double continuousDataWindowSeconds){
+	Q_UNUSED(continuousDataWindowSeconds)
+
+	return false;
+}
+
+QString AMDetector::amdsBufferName() const
+{
+	return QString();
+}
+
+int AMDetector::amdsPollingBaseTimeMilliseconds() const
+{
+	return -1;
+}
+
 AMAction3* AMDetector::createInitializationActions(){
 	return new AMDetectorInitializeAction(new AMDetectorInitializeActionInfo(toInfo()), this);
 }

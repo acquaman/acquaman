@@ -25,16 +25,26 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define SGMAPPCONTROLLER_WRONG_USER 563321
 
 #include "application/AMAppController.h"
+
 class AMGenericStepScanConfiguration;
 class AMGenericStepScanConfigurationView;
+class AMGenericContinuousScanConfiguration;
+class AMGenericContinuousScanConfigurationView;
 class AMScanConfigurationViewHolder3;
 class CLSAmptekDetailedDetectorView;
+class SGMLaddersView;
+
+/// acquaman data server
+#include "source/appController/AMDSClientAppController.h"
+#include "source/Connection/AMDSServer.h"
+#include "source/DataElement/AMDSConfigurationDef.h"
 /*!
   * A class which acts as the central application for SGM Acquaman. Holds the
   * main window which is displayed to users, as well as performs the application
   * startup procedures.
   */
-class SGMAppController : public AMAppController {
+class SGMAppController : public AMAppController
+{
 	Q_OBJECT
 
 public:
@@ -81,7 +91,18 @@ protected slots:
 	  * Resizes the main window to its minimum size hint
 	  */
 	void resizeToMinimum();
+
+	/// helper function to initialize the AcquamanDataServer
+	/// ideally, this should be called in super class when Acquaman Data server is a generalized feature for all BLs using Acquaman
+	void connectAMDSServers();
+
+	void onAMDSServerConnected(const QString &hostIdentifier);
 protected:
+
+	/*!
+	  * Initializes the Acquaman Data Server client app scontroller.
+	  */
+	void setupAMDSClientAppController();
 
 	/*!
 	  * Handles cases where a scan action has started in the Workflow3 system.
@@ -122,10 +143,27 @@ protected:
 	  */
 	void makeConnections();
 
-	AMGenericStepScanConfiguration* commissioningConfiguration_;
-	AMGenericStepScanConfigurationView* commissioningConfigurationView_;
-	AMScanConfigurationViewHolder3* commissioningConfigurationViewHolder_;
-	CLSAmptekDetailedDetectorView* amptekDetectorView_;
+
+	QMap<QString, AMDSServerConfiguration> AMDSServerDefs_;
+
+	/// Commissioning step scan configuration.
+	AMGenericStepScanConfiguration* commissioningStepConfiguration_;
+	/// Commissioning step scan configuration view.
+	AMGenericStepScanConfigurationView* commissioningStepConfigurationView_;
+	/// Commissioning step scan configuration view holder.
+	AMScanConfigurationViewHolder3* commissioningStepConfigurationViewHolder_;
+
+	/// Commissioning continuous scan configuration.
+	AMGenericContinuousScanConfiguration *commissioningContinuousConfiguration_;
+	/// Commissioning continuous scan configuration view.
+	AMGenericContinuousScanConfigurationView *commissioningContinuousConfigurationView_;
+	/// Commissioning continuous scan configuration view holder.
+	AMScanConfigurationViewHolder3 *commissioningContinuousConfigurationViewHolder_;
+
+	CLSAmptekDetailedDetectorView* amptek1DetectorView_;
+	CLSAmptekDetailedDetectorView* amptek2DetectorView_;
+	CLSAmptekDetailedDetectorView* amptek3DetectorView_;
+	CLSAmptekDetailedDetectorView* amptek4DetectorView_;
 };
 
 #endif // SGMAPPCONTROLLER_H

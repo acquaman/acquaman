@@ -1,6 +1,6 @@
 include ( clsCommon.pri )
 include ( sgmCommon.pri )
-
+include( $$PATH_TO_AM/compositeCommon/AMAcquamanDataServer.pri )
 TARGET = SGMEnergyCoordinator
 
 HEADERS += \

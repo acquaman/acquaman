@@ -1,6 +1,7 @@
 #include "SGMEnergyControlSet.h"
 
 #include "beamline/SGM/energy/SGMEnergyPosition.h"
+#include "beamline/SGM/energy/SGMEnergyPVControl.h"
 #include "beamline/AMPVControl.h"
 #include "beamline/CLS/CLSMAXvMotor.h"
 SGMEnergyControlSet::SGMEnergyControlSet(QObject *parent) :
@@ -9,16 +10,13 @@ SGMEnergyControlSet::SGMEnergyControlSet(QObject *parent) :
 	energyPositionValidator_ = 0;
 
 	QString baseGroupPV = "AM1611-4-I10:energy";
-	addControl(new AMPVwStatusControl("Energy",
-	                                  baseGroupPV + ":eV:fbk",
-	                                  baseGroupPV + ":eV",
-	                                  baseGroupPV + ":status",
-	                                  baseGroupPV + ":stop",
-	                                  this,
-	                                  0.5,
-	                                  2.0,
-	                                  new CLSMAXvControlStatusChecker()));
+	addControl(new SGMEnergyPVControl(this));
 	controlNamed("Energy")->setAttemptMoveWhenWithinTolerance(true);
+
+	addControl(new AMReadOnlyPVControl("Energy Status",
+					   baseGroupPV + ":status",
+					   this));
+	controlNamed("Energy Status")->setTolerance(0.5);
 
 	addControl(new AMSinglePVControl("Energy Trajectory Startpoint",
 	                                 baseGroupPV + ":trajectory:startpoint:eV",
@@ -35,7 +33,7 @@ SGMEnergyControlSet::SGMEnergyControlSet(QObject *parent) :
 	addControl(new AMSinglePVControl("Energy Trajectory Time",
 	                                 baseGroupPV + ":trajectory:time:s",
 	                                 this,
-	                                 0.5,
+	                                 0.1,
 	                                 2));
 
 	addControl(new AMSinglePVControl("Energy Trajectory Start",
@@ -158,6 +156,11 @@ AMControl * SGMEnergyControlSet::energyTrajectoryTime() const
 AMControl * SGMEnergyControlSet::energyTrajectoryStart() const
 {
 	return controlNamed("Energy Trajectory Start");
+}
+
+AMControl * SGMEnergyControlSet::energyStatus() const
+{
+	return controlNamed("Energy Status");
 }
 
 AMControl * SGMEnergyControlSet::gratingAngle() const
@@ -296,17 +299,17 @@ void SGMEnergyControlSet::onGratingTranslationPVValueChanged(double)
 
 void SGMEnergyControlSet::onGratingtranslationOptimizationPVValueChanged(double)
 {
-	SGMEnergyPosition::GratingTranslationOptimizationMode newOptimizationMode;
+	SGMGratingSupport::GratingTranslationOptimizationMode newOptimizationMode;
 
 	if(gratingTranslationOptimization()->withinTolerance(0)) {
 
-		newOptimizationMode = SGMEnergyPosition::ManualMode;
+		newOptimizationMode = SGMGratingSupport::ManualMode;
 	} else if(gratingTranslationOptimization()->withinTolerance(1)) {
 
-		newOptimizationMode = SGMEnergyPosition::OptimizeFlux;
+		newOptimizationMode = SGMGratingSupport::OptimizeFlux;
 	} else if(gratingTranslationOptimization()->withinTolerance(2)) {
 
-		newOptimizationMode = SGMEnergyPosition::OptimizeResolution;
+		newOptimizationMode = SGMGratingSupport::OptimizeResolution;
 	} else {
 
 		return;
@@ -357,6 +360,7 @@ void SGMEnergyControlSet::onExitSlitTrackingPVValueChanged(double)
 {
 	energyPositionValidator_->setExitSlitPositionTracking(!exitSlitPositionTracking()->withinTolerance(0));
 }
+
 
 
 

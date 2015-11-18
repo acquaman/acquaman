@@ -49,7 +49,7 @@ void AMBeamline::releaseBl() {
 	if(instance_) {
 		instance_->deleteLater();
 		instance_ = 0;
-		}
+	}
 
 }
 

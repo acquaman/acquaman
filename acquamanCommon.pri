@@ -437,8 +437,14 @@ HEADERS += \
 	source/ui/AMValidatorIcon.h \
     source/actions3/actions/AMControlCalibrateActionInfo.h \
     source/actions3/actions/AMControlCalibrateAction.h \
+    source/acquaman/AMContinuousScanActionController.h \
+    source/acquaman/AMContinuousScanConfiguration.h \
+    source/ui/acquaman/AMGenericContinuousScanConfigurationView.h \
+    source/acquaman/AMGenericContinuousScanConfiguration.h \
+    source/acquaman/AMGenericContinuousScanController.h \
     source/beamline/AMEnumeratedControl.h \
-    source/beamline/AMSingleEnumeratedControl.h
+    source/beamline/AMSingleEnumeratedControl.h \
+    source/util/AMScalerCountAnalyser.h
 
 FORMS += \
 
@@ -837,8 +843,14 @@ SOURCES += \
 	source/ui/AMValidatorIcon.cpp \
     source/actions3/actions/AMControlCalibrateActionInfo.cpp \
     source/actions3/actions/AMControlCalibrateAction.cpp \
+    source/acquaman/AMContinuousScanActionController.cpp \
+    source/acquaman/AMContinuousScanConfiguration.cpp \
+    source/ui/acquaman/AMGenericContinuousScanConfigurationView.cpp \
+    source/acquaman/AMGenericContinuousScanConfiguration.cpp \
+    source/acquaman/AMGenericContinuousScanController.cpp \
     source/beamline/AMEnumeratedControl.cpp \
-    source/beamline/AMSingleEnumeratedControl.cpp
+    source/beamline/AMSingleEnumeratedControl.cpp \
+    source/util/AMScalerCountAnalyser.cpp
 
 RESOURCES *= source/icons/icons.qrc \
 		source/configurationFiles/configurationFiles.qrc \
@@ -855,4 +867,6 @@ contains(DEFINES, AM_BUILD_REPORTER_ENABLED){
 
 	SOURCES *= source/util/AMRunTimeBuildInfo.cpp
 }
+
+
 

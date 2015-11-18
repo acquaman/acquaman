@@ -2,7 +2,7 @@
 #define SGMHEXAPODVIEW_H
 
 #include <QWidget>
-
+#include <QPushButton>
 class SGMHexapodSystemRotationView;
 class SGMHexapodTrajectoryView;
 class AMMotorGroupObjectView;
@@ -17,6 +17,7 @@ signals:
 
 public slots:
 
+protected slots:
 protected:
 
 	void setupUi();
@@ -24,6 +25,7 @@ protected:
 	SGMHexapod* hexapod_;
 	SGMHexapodTrajectoryView* hexapodTrajectoryView_;
 	SGMHexapodSystemRotationView* hexapodSystemRotationView_;
+
 };
 
 #endif // SGMHEXAPODVIEW_H

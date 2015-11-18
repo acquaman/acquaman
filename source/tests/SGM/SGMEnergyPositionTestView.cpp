@@ -109,16 +109,16 @@ void SGMEnergyPositionTestView::onGratingSelectionModeComboBoxChanged(int index)
 {
 	gratingTranslationComboBox_->setEnabled(index == 2);
 
-	SGMEnergyPosition::GratingTranslationOptimizationMode correspondingOptimizeMode;
+	SGMGratingSupport::GratingTranslationOptimizationMode correspondingOptimizeMode;
 	switch(index) {
 	case 0:
-		correspondingOptimizeMode = SGMEnergyPosition::OptimizeFlux;
+		correspondingOptimizeMode = SGMGratingSupport::OptimizeFlux;
 		break;
 	case 1:
-		correspondingOptimizeMode = SGMEnergyPosition::OptimizeResolution;
+		correspondingOptimizeMode = SGMGratingSupport::OptimizeResolution;
 		break;
 	default:
-		correspondingOptimizeMode = SGMEnergyPosition::ManualMode;
+		correspondingOptimizeMode = SGMGratingSupport::ManualMode;
 		break;
 	}
 

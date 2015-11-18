@@ -3,7 +3,7 @@
 
 #include <QObject>
 #include "beamline/SGM/energy/SGMEnergyPosition.h"
-class SGMEnergyControl;
+class SGMEnergyCoordinatorControl;
 class SGMNewEnergyPVSet;
 class SGMOldEnergyPVSet;
 class SGMEnergyCoordinator : public QObject
@@ -31,7 +31,7 @@ protected slots:
 	void onEnergyControlIsMovingChanged(bool);
 
 	/// Handles the energy control signalling that its grating optimization mode has changed.
-	void onEnergyControlGratingTranslationOptimizationModeChanged(SGMEnergyPosition::GratingTranslationOptimizationMode gratingTranslationOptimizationMode);
+	void onEnergyControlGratingTranslationOptimizationModeChanged(SGMGratingSupport::GratingTranslationOptimizationMode gratingTranslationOptimizationMode);
 
 	/// Handles the energy control signalling that its undulator offset has changed
 	void onEnergyControlUndulatorOffsetChanged(double);
@@ -121,7 +121,7 @@ protected slots:
 	void onExitSlitPositionTrackingPVChanged(double);
 protected:
 
-	SGMEnergyControl* energyControlCoordinator_;
+	SGMEnergyCoordinatorControl* energyControlCoordinator_;
 
 	bool pvsConnectedOnce_;
 	bool energyControlConnectedOnce_;

@@ -14,7 +14,9 @@ HEADERS += \
     source/tests/SGM/SGMEnergyPositionTest.h \
     source/tests/SGM/SGMEnergyControlTestView.h \
     source/tests/SGM/SGMGratingVelocityTests.h \
-    source/tests/SGM/SGMUndulatorVelocityTests.h
+    source/tests/SGM/SGMUndulatorVelocityTests.h \
+    source/tests/SGM/AMScalerAnalysisTest.h \
+    source/tests/SGM/AMScalerTestData.h
 
 SOURCES += \
 	source/application/SGMTests/SGMTestsMain.cpp \
@@ -24,7 +26,13 @@ SOURCES += \
     source/tests/SGM/SGMEnergyPositionTest.cpp \
     source/tests/SGM/SGMEnergyControlTestView.cpp \
     source/tests/SGM/SGMGratingVelocityTests.cpp \
-    source/tests/SGM/SGMUndulatorVelocityTests.cpp
+    source/tests/SGM/SGMUndulatorVelocityTests.cpp \
+    source/tests/SGM/AMScalerAnalysisTest.cpp
+
+
+
+
+
 
 
 

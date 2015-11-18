@@ -2,6 +2,7 @@
 #define SGMGRATINGSUPPORT_H
 
 #include <qglobal.h>
+#include <math.h>
 /*!
   * Namespace containing enumerators and functions relating to the grating translation
   * on the SGM Beamline
@@ -16,6 +17,16 @@ enum GratingTranslation {
 	MediumGrating = 1,
 	HighGrating = 2,
 	UnknownGrating = 3
+};
+
+/*!
+  * Enumerates the different means of automatically selecting a Grating Translation.
+  */
+enum GratingTranslationOptimizationMode {
+
+	ManualMode = 0,         // Stick with the current grating.
+	OptimizeFlux = 1,		// Select grating which produces maximum flux for a given energy.
+	OptimizeResolution = 2	// Select highest grating which will produce reasonable flux at a given energy.
 };
 
 /*!
@@ -163,6 +174,76 @@ inline static bool validEnergy(GratingTranslation translationSelection, double e
 	default:
 		return false;
 	}
+}
+
+inline static SGMGratingSupport::GratingTranslation optimizedGratingTranslation(double requestedEnergy,
+										GratingTranslationOptimizationMode optimizationMode)
+{
+	// The grating which produces the largest flux at a given photon energy.
+	if(optimizationMode == OptimizeFlux) {
+
+		if(requestedEnergy < 700) {
+
+			return LowGrating;
+		} else if(requestedEnergy < 1300) {
+
+			return MediumGrating;
+		} else {
+
+			return HighGrating;
+		}
+	} else {
+
+		if (requestedEnergy > 650) {
+
+			return HighGrating;
+		} else if (requestedEnergy > 450) {
+
+			return MediumGrating;
+		} else {
+
+			return LowGrating;
+		}
+	}
+}
+
+/*!
+  * Helper method used to determine the energy produced by a given grating
+  * translation and angle encoder target.
+  * \param gratingTranslationSelection ~ The grating translation to use in
+  * calculating the produced energy.
+  * \param gratingAngleEncoderTarget ~ The encoder target of the grating angle
+  * to use in calculating the energy produced.
+  */
+inline static double energyFromGrating(SGMGratingSupport::GratingTranslation gratingTranslationSelection,
+				       double gratingAngleEncoderTarget)
+{
+
+	double spacing = gratingSpacing(gratingTranslationSelection);
+	double curveFit = curveFitCorrection(gratingTranslationSelection);
+	double radiusCurvature = radiusCurvatureOffset(gratingTranslationSelection);
+	double angle = includedAngle(gratingTranslationSelection);
+
+	return 1e-9 * 1239.842 / ((2 * spacing * curveFit * gratingAngleEncoderTarget) / radiusCurvature * cos(angle / 2));
+}
+
+/*!
+  * Helper method which calculates the grating angle encoder target required
+  * to produce the provided energy when using the provided grating translation.
+  * \param gratingTranslationSelection ~ The grating translation under which
+  * the energy is required.
+  * \param energy ~ The energy for which the grating angle encoder target is
+  * required.
+  */
+inline static double gratingAngleFromEnergy(SGMGratingSupport::GratingTranslation gratingTranslationSelection,
+					    double energy)
+{
+	double spacing = gratingSpacing(gratingTranslationSelection);
+	double curveFit = curveFitCorrection(gratingTranslationSelection);
+	double radiusCurvature = radiusCurvatureOffset(gratingTranslationSelection);
+	double angle = includedAngle(gratingTranslationSelection);
+
+	return 1e-9 * 1239.842 / ((2 * spacing * curveFit * energy) / radiusCurvature * cos(angle / 2));
 }
 
 }

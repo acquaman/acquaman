@@ -1,5 +1,5 @@
-#ifndef SGMENERGYCONTROL_H
-#define SGMENERGYCONTROL_H
+#ifndef SGMENERGYCOORDINATORCONTROL_H
+#define SGMENERGYCOORDINATORCONTROL_H
 
 #include "beamline/AMPseudoMotorControl.h"
 #include "SGMUndulatorSupport.h"
@@ -15,11 +15,11 @@ class SGMUndulatorControl;
   * A class which presents a standard AMControl interface for performing coordinated
   * motions of the SGM beamline energy components.
   */
-class SGMEnergyControl : public AMPseudoMotorControl
+class SGMEnergyCoordinatorControl : public AMPseudoMotorControl
 {
 	Q_OBJECT
 public:
-	SGMEnergyControl(SGMUndulatorSupport::UndulatorHarmonic startingUndulatorHarmonic,
+	SGMEnergyCoordinatorControl(SGMUndulatorSupport::UndulatorHarmonic startingUndulatorHarmonic,
 	                 QObject* parent = 0);
 
 	/*!
@@ -72,7 +72,7 @@ public:
 	 * The method to use in determining the grating translation to use for an
 	 * energy.
 	 */
-	SGMEnergyPosition::GratingTranslationOptimizationMode gratingTranslationOptimizationMode() const;
+	SGMGratingSupport::GratingTranslationOptimizationMode gratingTranslationOptimizationMode() const;
 
 	/*!
 	 * Whether the exit slit position should update as the energy moves.
@@ -130,7 +130,7 @@ signals:
 	 * \param gratingTranslationOptimizationMode ~ The new grating translation
 	 * optimization mode.
 	 */
-	void gratingTranslationOptimizationModeChanged(SGMEnergyPosition::GratingTranslationOptimizationMode gratingTranslationOptimizationMode);
+	void gratingTranslationOptimizationModeChanged(SGMGratingSupport::GratingTranslationOptimizationMode gratingTranslationOptimizationMode);
 
 	/*!
 	 * Signal indicating that the exit slit tracking state which the control is
@@ -145,10 +145,9 @@ public slots:
 	  * Moves the controls in a coordinated manner in order to arrive at the
 	  * setpoint energy at the target velocity.
 	  * \param finalSetpoint ~ The final position which the energy will move to.
-	  * \param targetVelocity ~ The velocity (in eV/s) which the move will take
-	  * place in.
+	  * \param time ~ The time for the motion to take
 	  */
-	virtual FailureExplanation move(double startSetpoint, double finalSetpoint, double targetVelocity);
+	virtual FailureExplanation move(double startSetpoint, double finalSetpoint, double time);
 
 	/*!
 	 * Sets the undulator harmonic to use in calculating the control positions.
@@ -175,7 +174,7 @@ public slots:
 	 * \param gratingTranslationOptimizationMode ~ The method used in determining
 	 * the grating translation.
 	 */
-	void setGratingTranslationOptimizationMode(SGMEnergyPosition::GratingTranslationOptimizationMode gratingTranslationOptimizationMode);
+	void setGratingTranslationOptimizationMode(SGMGratingSupport::GratingTranslationOptimizationMode gratingTranslationOptimizationMode);
 
 	/*!
 	 * Sets whether the exit slit position should update as the energy moves.
@@ -225,7 +224,7 @@ protected slots:
 	  * grating optimization mode changes.
 	  * \param optimizationMode ~ The new grating optimization mode.
 	  */
-	void onEnergyPositionGratingTranslationOptimizationModeChanged(SGMEnergyPosition::GratingTranslationOptimizationMode optimizationMode);
+	void onEnergyPositionGratingTranslationOptimizationModeChanged(SGMGratingSupport::GratingTranslationOptimizationMode optimizationMode);
 
 protected:
 
@@ -260,4 +259,4 @@ protected:
 	AMControl* exitSlitPositionControl_;
 };
 
-#endif // SGMENERGYCONTROL_H
+#endif // SGMENERGYCOORDINATORCONTROL_H
