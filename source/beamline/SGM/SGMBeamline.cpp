@@ -66,6 +66,8 @@ bool SGMBeamline::isConnected() const
 			ssaManipulatorRot_->isConnected() &&
 			scaler_->isConnected() &&
 			sampleChamberPressure_->isConnected() &&
+			turboPump5Running_->isConnected() &&
+			turboPump6Running_->isConnected() &&
 			xpsLadder_->isConnected() &&
 			bypassLadder_->isConnected() &&
 			xasLadder_->isConnected();
@@ -150,6 +152,16 @@ CLSSIS3820Scaler * SGMBeamline::scaler() const
 AMReadOnlyPVControl* SGMBeamline::sampleChamberPressure() const
 {
 	return sampleChamberPressure_;
+}
+
+AMSinglePVControl* SGMBeamline::turboPump5Running() const
+{
+	return turboPump5Running_;
+}
+
+AMSinglePVControl* SGMBeamline::turboPump6Running() const
+{
+	return turboPump6Running_;
 }
 
 SGMXPSLadder* SGMBeamline::xpsLadder() const
@@ -280,6 +292,12 @@ void SGMBeamline::setupBeamlineComponents()
 
 	sampleChamberPressure_ = new AMReadOnlyPVControl("sampleChamberPressure", "FRG1611-4-I10-01:pressure:fbk", this);
 
+	// Setup the sample chamber turbo pumps.
+
+	turboPump5Running_ = new AMSinglePVControl("turboPump5", "TMP1611-4-I10-05:start", this);
+
+	turboPump6Running_ = new AMSinglePVControl("turboPump6", "TMP1611-4-I10-06:start", this);
+
 	// Set up the diagnostic ladder controls.
 
 	xpsLadder_ = new SGMXPSLadder("XPSLadder", "SMTR16114I1012", this);
@@ -300,6 +318,8 @@ void SGMBeamline::setupBeamlineComponents()
 	connect(xpsLadder_, SIGNAL(connected(bool)), this, SLOT(onConnectionStateChanged(bool)));
 	connect(bypassLadder_, SIGNAL(connected(bool)), this, SLOT(onConnectionStateChanged(bool)));
 	connect(xasLadder_, SIGNAL(connected(bool)), this, SLOT(onConnectionStateChanged(bool)) );
+	connect(turboPump5Running_, SIGNAL(connected(bool)), this, SLOT(onConnectionStateChanged(bool)) );
+	connect(turboPump6Running_, SIGNAL(connected(bool)), this, SLOT(onConnectionStateChanged(bool)) );
 
 	// Ensure that the inital cached connected state is valid, and emit an initial
 	// connected signal:

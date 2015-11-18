@@ -132,6 +132,16 @@ public:
 	AMReadOnlyPVControl* sampleChamberPressure() const;
 
 	/*!
+	 * The sample chamber turbo pump (turbo #5) running status.
+	 */
+	AMSinglePVControl* turboPump5Running() const;
+
+	/*!
+	 * The sample chamber turbo pump (turbo #6) running status.
+	 */
+	AMSinglePVControl* turboPump6Running() const;
+
+	/*!
 	 * The XPS ladder.
 	 */
 	virtual SGMXPSLadder* xpsLadder() const;
@@ -249,6 +259,10 @@ protected:
 
 	/// The sample chamber pressure control.
 	AMReadOnlyPVControl *sampleChamberPressure_;
+	/// The fifth beamline turbo pump running status, located at the sample chamber.
+	AMSinglePVControl *turboPump5Running_;
+	/// The sixth beamline turbo pump running status, located at the sample chamber.
+	AMSinglePVControl *turboPump6Running_;
 
 	/// The XPS diagnostic ladder control.
 	SGMXPSLadder *xpsLadder_;
