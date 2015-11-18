@@ -35,6 +35,7 @@ class SGMHexapod;
 class SGMXPSLadder;
 class SGMBypassLadder;
 class SGMXASLadder;
+class SGMVATValve;
 
 class AMDSServerConfiguration;
 
@@ -157,14 +158,9 @@ public:
 	virtual SGMXASLadder* xasLadder() const;
 
 	/*!
-	 * The VAT valve position.
+	 * The sample chamber VAT valve.
 	 */
-	AMSinglePVControl* vatValvePosition() const;
-
-	/*!
-	 * The VAT valve speed.
-	 */
-	AMSinglePVControl* vatValveSpeed() const;
+	SGMVATValve* vatValve() const;
 
 public slots:
 
@@ -273,10 +269,8 @@ protected:
 	AMSinglePVControl *turboPump5Running_;
 	/// The sixth beamline turbo pump running status, located at the sample chamber.
 	AMSinglePVControl *turboPump6Running_;
-	/// The sample chamber VAT valve position.
-	AMSinglePVControl *vatValvePosition_;
-	/// The sample chamber VAT valve speed.
-	AMSinglePVControl *vatValveSpeed_;
+	/// The sample chamber VAT valve.
+	SGMVATValve *vatValve_;
 
 	/// The XPS diagnostic ladder control.
 	SGMXPSLadder *xpsLadder_;

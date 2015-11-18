@@ -34,6 +34,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/SGM/SGMXPSLadder.h"
 #include "beamline/SGM/SGMBypassLadder.h"
 #include "beamline/SGM/SGMXASLadder.h"
+#include "beamline/SGM/SGMVATValve.h"
 
 /// acquaman data server
 #include "source/appController/AMDSClientAppController.h"
@@ -71,8 +72,7 @@ bool SGMBeamline::isConnected() const
 			xpsLadder_->isConnected() &&
 			bypassLadder_->isConnected() &&
 			xasLadder_->isConnected() &&
-			vatValvePosition_->isConnected() &&
-			vatValveSpeed_->isConnected();
+			vatValve_->isConnected();
 }
 
 AMControl * SGMBeamline::endStationTranslationSetpoint() const
@@ -181,14 +181,9 @@ SGMXASLadder* SGMBeamline::xasLadder() const
 	return xasLadder_;
 }
 
-AMSinglePVControl* SGMBeamline::vatValvePosition() const
+AMSinglePVControl* SGMBeamline::vatValve() const
 {
-	return vatValvePosition_;
-}
-
-AMSinglePVControl* SGMBeamline::vatValveSpeed() const
-{
-	return vatValveSpeed_;
+	return vatValve_;
 }
 
 void SGMBeamline::onConnectionStateChanged(bool)
@@ -311,8 +306,7 @@ void SGMBeamline::setupBeamlineComponents()
 
 	// Setup the sample chamber VAT valve.
 
-	vatValvePosition_ = new AMSinglePVControl("vatValvePosition", "VVR1611-4-I10-11:ctrl:posn", this);
-	vatValveSpeed_ = new AMSinglePVControl("vatValveSpeed", "VVR1611-4-I10-11:valveSpeed", this);
+	vatValve_ = new SGMVATValve("sampleChamberVATValve", this);
 
 	// Set up the diagnostic ladder controls.
 
@@ -336,8 +330,7 @@ void SGMBeamline::setupBeamlineComponents()
 	connect(xasLadder_, SIGNAL(connected(bool)), this, SLOT(onConnectionStateChanged(bool)) );
 	connect(turboPump5Running_, SIGNAL(connected(bool)), this, SLOT(onConnectionStateChanged(bool)) );
 	connect(turboPump6Running_, SIGNAL(connected(bool)), this, SLOT(onConnectionStateChanged(bool)) );
-	connect(vatValvePosition_, SIGNAL(connected(bool)), this, SLOT(onConnectionStateChanged(bool)) );
-	connect(vatValveSpeed_, SIGNAL(connected(bool)), this, SLOT(onConnectionStateChanged(bool)) );
+	connect(vatValve_, SIGNAL(connected(bool)), this, SLOT(onConnectionStateChanged(bool)) );
 
 
 	// Ensure that the inital cached connected state is valid, and emit an initial

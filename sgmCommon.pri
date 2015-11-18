@@ -26,7 +26,10 @@ HEADERS += \
     source/beamline/SGM/SGMBypassLadder.h \
     source/beamline/SGM/SGMXASLadder.h \
 	source/ui/SGM/SGMLaddersView.h \
-    source/beamline/SGM/energy/SGMExitSlitSupport.h
+    source/beamline/SGM/energy/SGMExitSlitSupport.h \
+    source/ui/SGM/SGMSampleChamberVacuumView.h \
+    source/beamline/SGM/SGMSampleChamberVacuumControl.h \
+    source/beamline/SGM/SGMVATValve.h
 
 SOURCES += \
     source/beamline/SGM/SGMMAXvMotor.cpp \
@@ -44,4 +47,7 @@ SOURCES += \
     source/beamline/SGM/SGMLadderControl.cpp \
     source/beamline/SGM/SGMBypassLadder.cpp \
     source/beamline/SGM/SGMXASLadder.cpp \
-    source/ui/SGM/SGMLaddersView.cpp
+    source/ui/SGM/SGMLaddersView.cpp \
+    source/ui/SGM/SGMSampleChamberVacuumView.cpp \
+    source/beamline/SGM/SGMSampleChamberVacuumControl.cpp \
+    source/beamline/SGM/SGMVATValve.cpp
