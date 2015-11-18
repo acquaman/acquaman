@@ -37,7 +37,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/SGM/SGMHexapodView.h"
 #include "ui/SGM/SGMPersistentView.h"
 #include "ui/SGM/SGMEnergyView.h"
+#include "ui/SGM/SGMLaddersView.h"
 #include "util/AMErrorMonitor.h"
+
 #include <stdlib.h> // Used for obtaining username to prevent users other than iain (for dev) or SGM-Upgrade (for commissioning). Remove for deploy.
 
 SGMAppController::SGMAppController(QObject *parent) :
@@ -49,8 +51,7 @@ bool SGMAppController::startup() {
 
 	QString currentUser = getenv("USER");
 
-	if(currentUser != "workmai" && currentUser != "sgm-upgrade" && currentUser != "iain" && currentUser != "hunterd" && currentUser != "chevrid") {
-
+	if(currentUser != "workmai" && currentUser != "sgm-upgrade" && currentUser != "iain" && currentUser != "hunterd" && currentUser != "chevrid" && currentUser != "helfrij") {
 		AMErrorMon::error(this, SGMAPPCONTROLLER_WRONG_USER, "This user account is not permitted to run the SGM Upgrade version of Acquaman.");
 		return false;
 	}
@@ -181,6 +182,11 @@ void SGMAppController::setupUserInterface()
 							  SGMEnergyView::Advanced);
 
 	mw_->addPane(AMMainWindow::buildMainWindowPane("Energy", ":/system-software-update.png", energyView), "Components", "Energy", ":/system-software-update.png");
+
+	SGMLaddersView *laddersView =
+			new SGMLaddersView(SGMBeamline::sgm()->xpsLadder(), SGMBeamline::sgm()->bypassLadder(), SGMBeamline::sgm()->xasLadder());
+
+	mw_->addPane(AMMainWindow::buildMainWindowPane("Diagnostics", ":/system-software-update.png", laddersView), "Components", "Diagnostics", ":/system-software-update.png");
 
 	mw_->insertHeading("Scans", 1);
 

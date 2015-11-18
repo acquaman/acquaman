@@ -32,6 +32,7 @@ class AMGenericContinuousScanConfiguration;
 class AMGenericContinuousScanConfigurationView;
 class AMScanConfigurationViewHolder3;
 class CLSAmptekDetailedDetectorView;
+class SGMLaddersView;
 
 /*!
   * A class which acts as the central application for SGM Acquaman. Holds the

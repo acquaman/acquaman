@@ -31,6 +31,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/SGM/SGMMAXvMotor.h"
 #include "beamline/SGM/SGMHexapod.h"
 #include "beamline/SGM/energy/SGMEnergyControlSet.h"
+#include "beamline/SGM/SGMXPSLadder.h"
+#include "beamline/SGM/SGMBypassLadder.h"
+#include "beamline/SGM/SGMXASLadder.h"
 
 /// acquaman data server
 #include "source/appController/AMDSClientAppController.h"
@@ -61,7 +64,10 @@ bool SGMBeamline::isConnected() const
 			ssaManipulatorY_->isConnected() &&
 			ssaManipulatorZ_->isConnected() &&
 			ssaManipulatorRot_->isConnected() &&
-			scaler_->isConnected();
+			scaler_->isConnected() &&
+			xpsLadder_->isConnected() &&
+			bypassLadder_->isConnected() &&
+			xasLadder_->isConnected();
 }
 
 AMControl * SGMBeamline::endStationTranslationSetpoint() const
@@ -138,6 +144,21 @@ CLSAmptekSDD123DetectorNew * SGMBeamline::amptekSDD4() const
 CLSSIS3820Scaler * SGMBeamline::scaler() const
 {
 	return scaler_;
+}
+
+SGMXPSLadder* SGMBeamline::xpsLadder() const
+{
+	return xpsLadder_;
+}
+
+SGMBypassLadder* SGMBeamline::bypassLadder() const
+{
+	return bypassLadder_;
+}
+
+SGMXASLadder* SGMBeamline::xasLadder() const
+{
+	return xasLadder_;
 }
 
 void SGMBeamline::onConnectionStateChanged(bool)
@@ -249,6 +270,13 @@ void SGMBeamline::setupBeamlineComponents()
 	scaler_->channelAt(9)->setCustomChannelName("FPD4");
 	scaler_->channelAt(10)->setCustomChannelName("FPD5");
 
+	// Set up the diagnostic ladder controls.
+
+	xpsLadder_ = new SGMXPSLadder("XPSLadder", "SMTR16114I1012", this);
+	bypassLadder_ = new SGMBypassLadder("BypassLadder", "SMTR16114I1013", this);
+	xasLadder_ = new SGMXASLadder("XASLadder", "SMTR16114I1014", this);
+
+
 	connect(energyControlSet_, SIGNAL(connected(bool)), this, SLOT(onConnectionStateChanged(bool)));
 	connect(exitSlitGap_ ,SIGNAL(connected(bool)),this, SLOT(onConnectionStateChanged(bool)));
 	connect(endStationTranslationSetpont_, SIGNAL(connected(bool)), this, SLOT(onConnectionStateChanged(bool)));
@@ -258,6 +286,9 @@ void SGMBeamline::setupBeamlineComponents()
 	connect(ssaManipulatorZ_, SIGNAL(connected(bool)), this, SLOT(onConnectionStateChanged(bool)));
 	connect(ssaManipulatorRot_, SIGNAL(connected(bool)), this, SLOT(onConnectionStateChanged(bool)));
 	connect(scaler_, SIGNAL(connectedChanged(bool)), this, SLOT(onConnectionStateChanged(bool)));
+	connect(xpsLadder_, SIGNAL(connected(bool)), this, SLOT(onConnectionStateChanged(bool)));
+	connect(bypassLadder_, SIGNAL(connected(bool)), this, SLOT(onConnectionStateChanged(bool)));
+	connect(xasLadder_, SIGNAL(connected(bool)), this, SLOT(onConnectionStateChanged(bool)) );
 
 	// Ensure that the inital cached connected state is valid, and emit an initial
 	// connected signal:
