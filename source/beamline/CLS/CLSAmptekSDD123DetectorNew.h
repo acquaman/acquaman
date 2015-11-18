@@ -40,10 +40,14 @@ class CLSAmptekSDD123DetectorNew : public AMXRFDetector
 Q_OBJECT
 public:
 	/// Default constructor. Requires the name and base PV of the detector. It builds all the PV's and connects them accordingly.
- 	virtual ~CLSAmptekSDD123DetectorNew();
-	CLSAmptekSDD123DetectorNew(const QString &name, const QString &description, const QString &baseName, QObject *parent = 0);
+	CLSAmptekSDD123DetectorNew(const QString &name, const QString &description, const QString &baseName, const QString &amdsBufferName, QObject *parent = 0);
+	virtual ~CLSAmptekSDD123DetectorNew();
 
+	/// Returns the buffer name for this detector
+	virtual QString amdsBufferName() const;
+	/// Configures the server with the given identifier
 	void configAMDSServer(const QString &amptekAMDSServerIdentifier);
+
 	/// The Ampteks don't explicitly require powering on
 	virtual bool requiresPower() const { return false; }
 
@@ -75,6 +79,8 @@ public:
 
 	/// Implemented to support returning data from the last acquire(AMDetectorDefinitions::ContinuousMode) call
 	virtual AMDSClientDataRequest* lastContinuousData(double seconds) const;
+	virtual bool setContinuousDataWindow(double continuousDataWindowSeconds);
+	virtual int amdsPollingBaseTimeMilliseconds() const;
 
 	/// Creates an action to enable or disable this amptek for in the array.
 	AMAction3* createEnableAction3(bool setEnabled);
@@ -206,13 +212,6 @@ protected slots:
 
 
 	/// ============= SLOTs to handle AMDSClientAppController signals =========
-	/// slot to handle the signal of networkSessionOpening
-//	void onNetworkSessionOpening();
-	/// slot to handle the signal of networkSessionOpened
-//	void onNetworkSessionOpened();
-
-	/// slot to handle the signal of newServerConnected (add the serverIdentifier to the combox and update the ui displays -- buffernames and active connections)
-//	void onNewServerConnected(const QString &serverIdentifier);
 	/// slot to handle the signal of request data ready
 	void onRequestDataReady(AMDSClientRequest* clientRequest);
 	/// slot to handle the signal of socketEror
@@ -230,11 +229,6 @@ protected:
 
 	/// Helper function to convert eV value to bin value using current evPerBin value
 	int convertEvToBin(double eVValue);
-
-	// FLAGGED FOR REMOVAL: Continuous Data API testing November 9, 2015
-	/// TESTING on AMDSClientDataRequest and AMAgnositicDataAPI
-	bool event(QEvent *e);
-	// END OF FLAG
 
 protected:
 	/// Control for the fast counts
@@ -302,11 +296,16 @@ protected:
 
 	/// the AMDS Amptek Server identifier
 	QString amptekAMDSServerIdentifier_;
+	/// The AMDS buffer name for this instance
+	QString amdsBufferName_;
 
 	/// The data returned from the last acquire(AMDetectorDefinitions::ContinuousMode) call
 	AMDSClientRelativeCountPlusCountDataRequest *lastContinuousDataRequest_;
 	/// The read mode type of the last acquire call
 	AMDetectorDefinitions::ReadMode lastReadMode_;
+
+	double continuousDataWindowSeconds_;
+	int pollingRateMilliSeconds_;
 };
 
 #endif // CLSAMPTEKSDD123DETECTORNEW_H

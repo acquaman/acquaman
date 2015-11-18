@@ -130,7 +130,6 @@ void AMControlWaitAction::onControlValueChanged(double newValue)
 
 void AMControlWaitAction::onTimeoutTimerTimedOut()
 {
-    qDebug() << "We timed out and failed";
     cleanup();
     setFailed();
 }
@@ -141,10 +140,10 @@ bool AMControlWaitAction::checkCurrentControlValue()
 {
     const AMControlInfo& setpoint = controlWaitInfo()->controlInfo();
 
-	AMErrorMon::debug(this, AMCONTROLWAITACTION_OUTPUTVALUESDEBUG, QString("%1 Current: %2 New %3")
-					  .arg(control_->name())
-					  .arg(control_->value())
-					  .arg(setpoint.value()));
+//	AMErrorMon::debug(this, AMCONTROLWAITACTION_OUTPUTVALUESDEBUG, QString("%1 Current: %2 New %3")
+//					  .arg(control_->name())
+//					  .arg(control_->value())
+//					  .arg(setpoint.value()));
 
     if (controlWaitInfo()->matchType() == AMControlWaitActionInfo::MatchEqual) {
         if (control_->value() == setpoint.value())

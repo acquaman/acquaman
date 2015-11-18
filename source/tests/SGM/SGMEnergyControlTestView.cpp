@@ -57,18 +57,18 @@ void SGMEnergyControlTestView::onUndulatorTrackingCheckBoxChanged(bool isChecked
 
 void SGMEnergyControlTestView::onGratingOptimizationSelectionChanged(int index)
 {
-	SGMEnergyPosition::GratingTranslationOptimizationMode correspondingMode;
+	SGMGratingSupport::GratingTranslationOptimizationMode correspondingMode;
 
 	switch(index) {
 
 	case 0:
-		correspondingMode = SGMEnergyPosition::OptimizeFlux;
+		correspondingMode = SGMGratingSupport::OptimizeFlux;
 		break;
 	case 1:
-		correspondingMode = SGMEnergyPosition::OptimizeResolution;
+		correspondingMode = SGMGratingSupport::OptimizeResolution;
 		break;
 	default:
-		correspondingMode = SGMEnergyPosition::ManualMode;
+		correspondingMode = SGMGratingSupport::ManualMode;
 	}
 
 	energyControl_->setGratingTranslationOptimizationMode(correspondingMode);
@@ -112,10 +112,10 @@ void SGMEnergyControlTestView::onStartTrajectoryButtonPushed()
 	}
 }
 
-void SGMEnergyControlTestView::onControlGratingOptimizationChanged(SGMEnergyPosition::GratingTranslationOptimizationMode optimizationMode)
+void SGMEnergyControlTestView::onControlGratingOptimizationChanged(SGMGratingSupport::GratingTranslationOptimizationMode optimizationMode)
 {
 
-	gratingTranslationComboBox_->setEnabled(optimizationMode == SGMEnergyPosition::ManualMode);
+	gratingTranslationComboBox_->setEnabled(optimizationMode == SGMGratingSupport::ManualMode);
 }
 
 void SGMEnergyControlTestView::onControlGratingTranslationChanged(double value)
@@ -236,10 +236,10 @@ void SGMEnergyControlTestView::setupData()
 
 	int correspondingOptimizationComboIndex;
 	switch(energyControl_->gratingTranslationOptimizationMode()) {
-	case SGMEnergyPosition::OptimizeFlux:
+	case SGMGratingSupport::OptimizeFlux:
 		correspondingOptimizationComboIndex = 0;
 		break;
-	case SGMEnergyPosition::OptimizeResolution:
+	case SGMGratingSupport::OptimizeResolution:
 		correspondingOptimizationComboIndex = 1;
 		break;
 	default:
@@ -261,7 +261,7 @@ void SGMEnergyControlTestView::setupData()
 	}
 
 	gratingTranslationComboBox_->setCurrentIndex(correspondingTranslationComboIndex);
-	gratingTranslationComboBox_->setEnabled(energyControl_->gratingTranslationOptimizationMode() == SGMEnergyPosition::ManualMode);
+	gratingTranslationComboBox_->setEnabled(energyControl_->gratingTranslationOptimizationMode() == SGMGratingSupport::ManualMode);
 
 	exitSlitTrackingCheckBox_->setChecked(energyControl_->isExitSlitPositionTracking());
 
@@ -278,8 +278,8 @@ void SGMEnergyControlTestView::setupData()
 
 void SGMEnergyControlTestView::setupConnections()
 {
-	connect(energyControl_, SIGNAL(gratingTranslationOptimizationModeChanged(SGMEnergyPosition::GratingTranslationOptimizationMode)),
-	        this, SLOT(onControlGratingOptimizationChanged(SGMEnergyPosition::GratingTranslationOptimizationMode)));
+	connect(energyControl_, SIGNAL(gratingTranslationOptimizationModeChanged(SGMGratingSupport::GratingTranslationOptimizationMode)),
+	        this, SLOT(onControlGratingOptimizationChanged(SGMGratingSupport::GratingTranslationOptimizationMode)));
 	connect(energyControl_->gratingTranslationControl(), SIGNAL(valueChanged(double)),
 	        this, SLOT(onControlGratingTranslationChanged(double)));
 

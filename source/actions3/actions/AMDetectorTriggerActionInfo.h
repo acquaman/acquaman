@@ -48,6 +48,12 @@ public:
 	/// Returns the read mode for this acquisition
 	AMDetectorDefinitions::ReadMode readMode() const { return readMode_; }
 
+	/// Returns the optional continuous window
+	double continousWindowSeconds() const { return continousWindowSeconds_; }
+
+	/// Sets the optional continuous window
+	void setContinuousWindowSeconds(double continousWindowSeconds) { continousWindowSeconds_ = continousWindowSeconds; }
+
 	/// For database storing only
 	AMDetectorInfo* dbReadDetectorInfo() { return &detectorInfo_; }
 	/// For database loading only. This function will never be called since dbReadDetectorInfo() always returns a valid pointer
@@ -59,6 +65,9 @@ protected:
 
 	/// The read mode we want to acquire with
 	AMDetectorDefinitions::ReadMode readMode_;
+
+	/// Optionally the continuous window we want to call for
+	double continousWindowSeconds_;
 };
 
 #endif // AMDETECTORTRIGGERACTIONINFO_H
