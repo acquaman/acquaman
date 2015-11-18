@@ -262,10 +262,9 @@ void AMRegionOfInterestAB::setInputDataSourcesImplementation(const QList<AMDataS
 
 void AMRegionOfInterestAB::reviewState()
 {
-	if (spectrum_ == 0 || !spectrum_->isValid()){
+	if (spectrum_ == 0 || !spectrum_->isValid() || !binningRange_.isValid()){
 
 		setState(AMDataSource::InvalidFlag);
-		return;
 	}
 	else
 		setState(0);

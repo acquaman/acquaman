@@ -224,7 +224,7 @@ void AM3DBinningAB::reviewState()
 
     int s = inputSource_->size(sumAxis_);
 
-    if(sumRangeMin_ >= s || sumRangeMax_ >= s) {
+    if(sumRangeMin_ >= s || sumRangeMax_ >= s || sumRangeMin_ > sumRangeMax_) {
 	setState(AMDataSource::InvalidFlag);
     }
     else
@@ -472,8 +472,8 @@ void AM3DBinningAB::setSumRangeMin(int sumRangeMin)
     cacheUpdateRequired_ = true;
     dirtyIndices_.clear();
     reviewState();
-    emitValuesChanged();
     setModified(true);
+    emitValuesChanged();
 }
 
 void AM3DBinningAB::setSumRangeMax(int sumRangeMax)
@@ -485,8 +485,8 @@ void AM3DBinningAB::setSumRangeMax(int sumRangeMax)
     cacheUpdateRequired_ = true;
     dirtyIndices_.clear();
     reviewState();
-    emitValuesChanged();
     setModified(true);
+    emitValuesChanged();
 }
 
 // Connected to be called when the values of the input data source change
