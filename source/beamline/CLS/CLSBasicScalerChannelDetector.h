@@ -115,7 +115,7 @@ protected:
 	bool cleanupImplementation();
 
 	/// Checks all of the scaler settings to make sure we're ready for an acquisition
-	void checkReadyForAcquisition();
+	virtual void checkReadyForAcquisition();
 
 protected:
 	/// The pointer to the scaler object

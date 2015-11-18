@@ -25,8 +25,8 @@ HEADERS += \
     source/beamline/SGM/SGMLadderControl.h \
     source/beamline/SGM/SGMBypassLadder.h \
     source/beamline/SGM/SGMXASLadder.h \
-    source/ui/SGM/SGMLaddersView.h
-
+	source/ui/SGM/SGMLaddersView.h \
+    source/beamline/SGM/energy/SGMExitSlitSupport.h
 
 SOURCES += \
     source/beamline/SGM/SGMMAXvMotor.cpp \
@@ -45,5 +45,3 @@ SOURCES += \
     source/beamline/SGM/SGMBypassLadder.cpp \
     source/beamline/SGM/SGMXASLadder.cpp \
     source/ui/SGM/SGMLaddersView.cpp
-
-

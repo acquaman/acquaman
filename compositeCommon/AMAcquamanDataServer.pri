@@ -50,7 +50,8 @@ HEADERS *= \
 	$$PATH_TO_AMDS/source/DataHolder/AMDSGenericFlatArrayDataHolder.h \
 	$$PATH_TO_AMDS/source/DataHolder/AMDSScalarDataHolder.h \
 	$$PATH_TO_AMDS/source/DataHolder/AMDSSpectralDataHolder.h \
-	$$PATH_TO_AMDS/source/util/AMDSMetaObjectSupport.h
+	$$PATH_TO_AMDS/source/util/AMDSMetaObjectSupport.h \
+	$$PATH_TO_AMDS/source/util/AMDSRunTimeSupport.h
 
 SOURCES *= \
 	$$PATH_TO_AMDS/source/appController/AMDSAppController.cpp \
@@ -80,4 +81,5 @@ SOURCES *= \
 	$$PATH_TO_AMDS/source/DataHolder/AMDSGenericFlatArrayDataHolder.cpp \
 	$$PATH_TO_AMDS/source/DataHolder/AMDSScalarDataHolder.cpp \
 	$$PATH_TO_AMDS/source/DataHolder/AMDSSpectralDataHolder.cpp \
-	$$PATH_TO_AMDS/source/util/AMDSMetaObjectSupport.cpp
+	$$PATH_TO_AMDS/source/util/AMDSMetaObjectSupport.cpp \
+	$$PATH_TO_AMDS/source/util/AMDSRunTimeSupport.cpp
