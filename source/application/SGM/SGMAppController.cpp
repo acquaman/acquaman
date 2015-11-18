@@ -223,7 +223,7 @@ void SGMAppController::setupUserInterface()
 	commissioningStepConfigurationView_ = new AMGenericStepScanConfigurationView(commissioningStepConfiguration_, SGMBeamline::sgm()->exposedControls(), SGMBeamline::sgm()->exposedDetectors());
 	commissioningStepConfigurationViewHolder_ = new AMScanConfigurationViewHolder3("Commissioning Tool", false, true, commissioningStepConfigurationView_);
 
-	commissioningContinuousConfiguration_ = new AMGenericContinuousScanConfiguration;
+	commissioningContinuousConfiguration_ = new AMGenericContinuousScanConfiguration;	
 	commissioningContinuousConfiguration_->setAutoExportEnabled(false);
 	commissioningContinuousConfiguration_->addDetector(SGMBeamline::sgm()->exposedDetectorByName("TEY")->toInfo());
 	commissioningContinuousConfiguration_->addDetector(SGMBeamline::sgm()->exposedDetectorByName("TFY")->toInfo());
@@ -241,6 +241,11 @@ void SGMAppController::setupUserInterface()
 	commissioningContinuousConfiguration_->addDetector(SGMBeamline::sgm()->exposedDetectorByName("AmptekSDD2")->toInfo());
 	commissioningContinuousConfiguration_->addDetector(SGMBeamline::sgm()->exposedDetectorByName("AmptekSDD3")->toInfo());
 	commissioningContinuousConfiguration_->addDetector(SGMBeamline::sgm()->exposedDetectorByName("AmptekSDD4")->toInfo());
+	commissioningContinuousConfiguration_->setControl(0, SGMBeamline::sgm()->energyControlSet()->energy()->toInfo());
+	commissioningContinuousConfiguration_->scanAxisAt(0)->regionAt(0)->setRegionStart(270);
+	commissioningContinuousConfiguration_->scanAxisAt(0)->regionAt(0)->setRegionEnd(320);
+	commissioningContinuousConfiguration_->scanAxisAt(0)->regionAt(0)->setRegionTime(10);
+	commissioningContinuousConfiguration_->scanAxisAt(0)->regionAt(0)->setRegionStep(0.1);
 	commissioningContinuousConfigurationView_ = new AMGenericContinuousScanConfigurationView(commissioningContinuousConfiguration_, SGMBeamline::sgm()->exposedControls(), SGMBeamline::sgm()->exposedDetectors());
 	commissioningContinuousConfigurationViewHolder_ = new AMScanConfigurationViewHolder3("Continuous Tool", false, true, commissioningContinuousConfigurationView_);
 
