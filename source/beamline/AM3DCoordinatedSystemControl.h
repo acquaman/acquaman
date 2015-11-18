@@ -107,7 +107,7 @@ public:
 	  * \param globalVector ~ A vector in the global coordinate system which will
 	  * be tranformed into the arbitrary transformed system.
 	  */
-	virtual QVector3D globalAxisToPrime(const QVector3D& globalVector) const {return globalVector;}
+	virtual QVector3D globalAxisToPrime(const QVector3D& globalVector) const = 0;
 
 	/*!
 	  * Virtual function which performs the calculation required to transform a
@@ -115,7 +115,7 @@ public:
 	  * \param primeVector ~ A vector in the arbitrary coordinate system which
 	  * will be transformed into the global system.
 	  */
-	virtual QVector3D primeAxisToGlobal(const QVector3D& primeVector) const { return primeVector;}
+	virtual QVector3D primeAxisToGlobal(const QVector3D& primeVector) const = 0;
 signals:
 
 public slots:

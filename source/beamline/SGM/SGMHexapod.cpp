@@ -273,16 +273,16 @@ void SGMHexapod::resetSystem()
 	zAxisPrimeTrajectoryControl_->resetRotationsToGlobal();
 }
 
-QVector<QVector3D> SGMHexapod::transformVectors(const QVector<QVector3D> &coordinates)
+QList<QVector3D> SGMHexapod::transformVectors(const QList<QVector3D> &coordinates)
 {
 	// For this it is safe to assume that all axes are rotated to the same degree
-	QVector<QVector3D> rotatedAxes = QVector<QVector3D>(coordinates.count());
+	QList<QVector3D> rotatedAxes;
 
 	for (int iCurrentVector = 0, count = coordinates.count();
 	     iCurrentVector < count;
 	     ++iCurrentVector) {
 
-		rotatedAxes[iCurrentVector] = xAxisPrimeControl_->globalAxisToPrime(coordinates.at(iCurrentVector));
+		rotatedAxes.append(xAxisPrimeControl_->globalAxisToPrime(coordinates.at(iCurrentVector)));
 	}
 
 	return rotatedAxes;

@@ -149,7 +149,7 @@ public:
 	  * \param coordinates ~ The vector of coordinates which are to be transformed
 	  * from the global system to the rotated hexapod's prime system.
 	  */
-	QVector<QVector3D> transformVectors(const QVector<QVector3D>& coordinates);
+	QList<QVector3D> transformVectors(const QList<QVector3D>& coordinates);
 signals:
 
 	/*!
