@@ -31,7 +31,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <float.h>
 
 #include "dataman/info/AMControlInfo.h"
-#include "source/actions3/AMAction3.h"
+#include "actions3/AMAction3.h"
 /**
  * \defgroup control Beamline Control with AMControl and AMProcessVariable
  @{

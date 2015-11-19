@@ -39,6 +39,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/datastore/AMCDFDataStore.h"
 #include "ui/util/AMMessageBoxWTimeout.h"
 
+#include "source/appController/AMDSClientAppController.h"
+
 AMStepScanActionController::AMStepScanActionController(AMStepScanConfiguration *configuration, QObject *parent)
 	: AMScanActionController(configuration, parent)
 {
@@ -118,6 +120,7 @@ void AMStepScanActionController::buildScanController()
 
 	QFileInfo fullPath(AMUserSettings::defaultRelativePathForScan(QDateTime::currentDateTime()));	// ex: 2010/09/Mon_03_12_24_48_0000   (Relative, and with no extension)
 
+	scan_->addAMDSFilePath(fullPath.filePath());
 	// If using just the basic ascii files.
 	if (scan_->fileFormat() == "amRegionAscii2013"){
 
@@ -159,6 +162,13 @@ void AMStepScanActionController::buildScanController()
 	fileWriterThread_ = new QThread();
 	fileWriter_->moveToThread(fileWriterThread_);
 	fileWriterThread_->start();
+
+	AMDSClientAppController* amdsClientAppController = AMDSClientAppController::clientAppController();
+	amdsClientAppController->setAMDSExportFilePath(scan_->amdsFilePath());
+	connect(this, SIGNAL(started()), amdsClientAppController, SLOT(onScanStarted()));
+	connect(this, SIGNAL(cancelled()), amdsClientAppController, SLOT(onScanStopped()));
+	connect(this, SIGNAL(failed()), amdsClientAppController, SLOT(onScanStopped()));
+	connect(this, SIGNAL(finished()), amdsClientAppController, SLOT(onScanStopped()));
 
 	// Get all the detectors added to the scan.
 	for (int i = 0, size = stepConfiguration_->detectorConfigurations().count(); i < size; i++){

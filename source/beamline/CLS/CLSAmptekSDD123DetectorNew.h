@@ -28,7 +28,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/AMPVControl.h"
 #include "dataman/datasource/AMProcessVariableDataSource.h"
 
-class AMDSClientAppController;
 class AMDSClientRequest;
 class AMDSClientDataRequest;
 class AMDSClientRelativeCountPlusCountDataRequest;

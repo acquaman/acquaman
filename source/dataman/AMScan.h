@@ -26,6 +26,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QObject>
 #include <QMap>
 #include <QMutex>
+#include <QStringBuilder>
 
 #include "dataman/database/AMDbObject.h"
 #include "dataman/datastore/AMDataStore.h"
@@ -824,8 +825,8 @@ public slots:
 	  * raw data.
 	  */
 	void setAdditionalFilePaths(const QStringList& additionalFilePaths) { additionalFilePaths_ = additionalFilePaths; setModified(true); }
-	void addSpectraFilePath(const QString& fullFilePaths) { additionalFilePaths_.append(fullFilePaths + "_spectra.dat"); setModified(true); }
-	void addAMDSFilePath(const QString& fullFilePaths) { additionalFilePaths_.append(fullFilePaths + "_amds.dat"); setModified(true); }
+	void addSpectraFilePath(const QString& fullFilePaths) { additionalFilePaths_.append(fullFilePaths % "_spectra.dat"); setModified(true); }
+	void addAMDSFilePath(const QString& fullFilePaths) { additionalFilePaths_.append(fullFilePaths % "_amds.dat"); setModified(true); }
 
 	/*!
 	  * Stores the scan to the database with an option to generate thumbnails for
