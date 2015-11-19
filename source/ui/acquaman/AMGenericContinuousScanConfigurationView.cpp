@@ -62,6 +62,10 @@ AMGenericContinuousScanConfigurationView::AMGenericContinuousScanConfigurationVi
 	axisStep1_ = createPositionDoubleSpinBox("Step: ", "", configuration_->scanAxes().size() > 0 ? double(configuration_->scanAxisAt(0)->regionAt(0)->regionStep()) : -1.0, 3);
 	axisEnd1_ = createPositionDoubleSpinBox("End: ", "", configuration_->scanAxes().size() > 0 ? double(configuration_->scanAxisAt(0)->regionAt(0)->regionEnd()) : -1.0, 3);
 
+	if(configuration_->scanAxes().count() > 0) {
+		// In cases where the scan axis has already been added we need connect our widgets now
+		onScanAxisAdded(configuration_->scanAxes().at(0));
+	}
 	connect(configuration_, SIGNAL(scanAxisAdded(AMScanAxis*)), this, SLOT(onScanAxisAdded(AMScanAxis*)));
 
 	QHBoxLayout *axis1Layout = new QHBoxLayout;
