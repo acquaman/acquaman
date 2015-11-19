@@ -1,9 +1,10 @@
 #ifndef SGMVATVALVE_H
 #define SGMVATVALVE_H
 
+#include "beamline/SGM/SGMControl.h"
 #include "beamline/AMPVControl.h"
 
-class SGMVATValve : public AMControl
+class SGMVATValve : public SGMControl
 {
 	Q_OBJECT
 
@@ -13,24 +14,12 @@ public:
 	/// Destructor.
 	virtual ~SGMVATValve();
 
-	/// Returns true if this control is connected, false otherwise.
-	virtual bool isConnected() const;
-
 	/// Returns the position.
 	AMSinglePVControl* position() const { return position_; }
 	/// Returns the speed.
 	AMSinglePVControl* speed() const { return speed_; }
 
-protected slots:
-	/// Sets the current connected state.
-	void setConnected(bool isConnected);
-	/// Updates the current connected state.
-	void updateConnected();
-
 protected:
-	/// The current connected state.
-	bool connected_;
-
 	/// The VAT valve position.
 	AMSinglePVControl* position_;
 	/// The VAT valve speed.
