@@ -217,7 +217,10 @@ void SGMAppController::setupUserInterface()
 	mw_->addPane(AMMainWindow::buildMainWindowPane("Diagnostics", ":/system-software-update.png", laddersView), "Components", "Diagnostics", ":/system-software-update.png");
 
 	SGMSampleChamberVacuumView *sampleChamberVacuumView =
-			new SGMSampleChamberVacuumView(SGMBeamline::sgm()->sampleChamb)
+			new SGMSampleChamberVacuumView(SGMBeamline::sgm()->sampleChamberVacuum());
+
+	mw_->addPane(AMMainWindow::buildMainWindowPane("Sample Chamber", ":/system-software-update.png", laddersView), "Components", "Sample Chamber", ":/system-software-update.png");
+
 	mw_->insertHeading("Scans", 1);
 
 	commissioningStepConfiguration_ = new AMGenericStepScanConfiguration;
