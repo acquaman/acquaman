@@ -158,7 +158,8 @@ void SGMAppController::onAMDSServerConnected(const QString &hostIdentifier)
 
 void SGMAppController::setupAMDSClientAppController()
 {
-	AMDSServerDefs_.insert(QString("AmptekServer"), AMDSServerConfiguration(QString("AmptekServer"), QString("10.52.48.40"), 28044));
+//	AMDSServerDefs_.insert(QString("AmptekServer"), AMDSServerConfiguration(QString("AmptekServer"), QString("10.52.48.40"), 28044));
+	AMDSServerDefs_.insert(QString("ScalerServer"), AMDSServerConfiguration(QString("ScalerServer"), QString("10.52.48.1"), 28044));
 
 	// NOTE: it will be better to move this to CLSBeamline, when
 	AMDSClientAppController *AMDSClientController = AMDSClientAppController::clientAppController();
