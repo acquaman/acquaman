@@ -1,15 +1,19 @@
 #ifndef SGMVATVALVE_H
 #define SGMVATVALVE_H
 
-#include "beamline/SGM/SGMControl.h"
+#include "beamline/AMSingleEnumeratedControl.h"
 #include "beamline/AMPVControl.h"
 
-#define SGMVATVALVE_CLOSED_POSITION 58000
-#define SGMVATVALVE_OPEN_POSITION 70000
-#define SGMVATVALVE_MIN_SPEED 1
-#define SGMVATVALVE_MAX_SPEED 1
+#define SGMVATVALVE_CLOSED_MIN 0
+#define SGMVATVALVE_CLOSED_MAX 58000
+#define SGMVATVALVE_CLOSED_SETPOINT 58000
+#define SGMVATVALVE_OPEN_MIN 58001
+#define SGMVATVALVE_OPEN_MAX 80000
+#define SGMVATVALVE_OPEN_SETPOINT 70000
+#define SGMVATVALVE_SPEED_MIN 1
+#define SGMVATVALVE_SPEED_MAX 1
 
-class SGMVATValve : public SGMControl
+class SGMVATValve : public AMSingleEnumeratedControl
 {
 	Q_OBJECT
 
@@ -22,13 +26,8 @@ public:
 	/// Destructor.
 	virtual ~SGMVATValve();
 
-	/// Returns true if this valve control is open, false otherwise.
-	bool isOpen() const;
-	/// Returns true if this valve control is closed, false otherwise.
-	bool isClosed() const;
-
 	/// Returns the position.
-	AMSinglePVControl* position() const { return position_; }
+	AMSinglePVControl* position() const { return qobject_cast<AMSinglePVControl*>(control_); }
 	/// Returns the speed.
 	AMSinglePVControl* speed() const { return speed_; }
 
@@ -36,8 +35,6 @@ public:
 	AMAction3* createMoveAtSpeedAction(double speedSetpoint, double positionSetpoint);
 
 protected:
-	/// The VAT valve position.
-	AMSinglePVControl* position_;
 	/// The VAT valve speed.
 	AMSinglePVControl* speed_;
 };
