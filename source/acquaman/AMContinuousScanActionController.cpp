@@ -120,7 +120,6 @@ void AMContinuousScanActionController::buildScanController()
 	connect(scanAssembler_, SIGNAL(actionTreeGenerated(AMAction3*)), this, SLOT(onScanningActionsGenerated(AMAction3*)));
 
 	AMDSClientAppController* amdsClientAppController = AMDSClientAppController::clientAppController();
-	amdsClientAppController->setAMDSExportFilePath(scan_->amdsFilePath());
 	connect(this, SIGNAL(started()), amdsClientAppController, SLOT(onScanStarted()));
 	connect(this, SIGNAL(cancelled()), amdsClientAppController, SLOT(onScanStopped()));
 	connect(this, SIGNAL(failed()), amdsClientAppController, SLOT(onScanStopped()));

@@ -164,7 +164,6 @@ void AMStepScanActionController::buildScanController()
 	fileWriterThread_->start();
 
 	AMDSClientAppController* amdsClientAppController = AMDSClientAppController::clientAppController();
-	amdsClientAppController->setAMDSExportFilePath(scan_->amdsFilePath());
 	connect(this, SIGNAL(started()), amdsClientAppController, SLOT(onScanStarted()));
 	connect(this, SIGNAL(cancelled()), amdsClientAppController, SLOT(onScanStopped()));
 	connect(this, SIGNAL(failed()), amdsClientAppController, SLOT(onScanStopped()));
