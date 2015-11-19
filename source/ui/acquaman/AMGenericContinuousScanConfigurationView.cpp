@@ -331,7 +331,6 @@ void AMGenericContinuousScanConfigurationView::setDwellTime(const AMNumber &valu
 
 void AMGenericContinuousScanConfigurationView::onScanAxisAdded(AMScanAxis *axis)
 {
-	qDebug() << "\t\tScan Axes Size = " << configuration_->scanAxes().size();
 	if (configuration_->scanAxes().size() == 1){
 
 		connect(axisStart1_, SIGNAL(editingFinished()), this, SLOT(onStart1Changed()));
