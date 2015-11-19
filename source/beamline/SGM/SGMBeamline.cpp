@@ -198,7 +198,8 @@ void SGMBeamline::configAMDSServer(const QString &hostIdentifier)
 		amptekSDD4_->configAMDSServer(hostIdentifier);
 	}
 
-	if(hostIdentifier == "10.52.48.40:28044" && scaler_) {
+	if(hostIdentifier == "10.52.48.4:28044" && scaler_) {
+		qDebug() << "\n\nHost identified for scaler\n\n";
 		scaler_->configAMDSServer(hostIdentifier);
 	}
 }

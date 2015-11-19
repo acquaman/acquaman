@@ -33,6 +33,7 @@ HEADERS *= \
 	$$PATH_TO_AMDS/source/ClientRequest/AMDSClientStartTimeToEndTimeDataRequest.h \
 	$$PATH_TO_AMDS/source/ClientRequest/AMDSClientMiddleTimePlusCountBeforeAndAfterDataRequest.h \
 	$$PATH_TO_AMDS/source/ClientRequest/AMDSClientContinuousDataRequest.h \
+	$$PATH_TO_AMDS/source/ClientRequest/AMDSClientConfigurationRequest.h \
 	$$PATH_TO_AMDS/source/Connection/AMDSPacketStats.h \
 	$$PATH_TO_AMDS/source/Connection/AMDSServer.h \
 	$$PATH_TO_AMDS/source/Connection/AMDSClientTCPSocket.h \
@@ -45,6 +46,7 @@ HEADERS *= \
 	$$PATH_TO_AMDS/source/DataElement/AMDSFlatArray.h \
 	$$PATH_TO_AMDS/source/DataElement/AMDSBufferGroupInfo.h \
 	$$PATH_TO_AMDS/source/DataElement/AMDSDwellStatusData.h \
+	$$PATH_TO_AMDS/source/DataElement/AMDSCommandManager.h \
 	$$PATH_TO_AMDS/source/DataHolder/AMDSDataHolder.h \
 	$$PATH_TO_AMDS/source/DataHolder/AMDSDataHolderSupport.h \
 	$$PATH_TO_AMDS/source/DataHolder/AMDSGenericFlatArrayDataHolder.h \
@@ -66,6 +68,7 @@ SOURCES *= \
 	$$PATH_TO_AMDS/source/ClientRequest/AMDSClientStartTimeToEndTimeDataRequest.cpp \
 	$$PATH_TO_AMDS/source/ClientRequest/AMDSClientMiddleTimePlusCountBeforeAndAfterDataRequest.cpp \
 	$$PATH_TO_AMDS/source/ClientRequest/AMDSClientContinuousDataRequest.cpp \
+	$$PATH_TO_AMDS/source/ClientRequest/AMDSClientConfigurationRequest.cpp \
 	$$PATH_TO_AMDS/source/Connection/AMDSPacketStats.cpp \
 	$$PATH_TO_AMDS/source/Connection/AMDSServer.cpp \
 	$$PATH_TO_AMDS/source/Connection/AMDSClientTCPSocket.cpp \
@@ -76,6 +79,7 @@ SOURCES *= \
 	$$PATH_TO_AMDS/source/DataElement/AMDSFlatArray.cpp \
 	$$PATH_TO_AMDS/source/DataElement/AMDSBufferGroupInfo.cpp \
 	$$PATH_TO_AMDS/source/DataElement/AMDSDwellStatusData.cpp \
+	$$PATH_TO_AMDS/source/DataElement/AMDSCommandManager.cpp \
 	$$PATH_TO_AMDS/source/DataHolder/AMDSDataHolder.cpp \
 	$$PATH_TO_AMDS/source/DataHolder/AMDSDataHolderSupport.cpp \
 	$$PATH_TO_AMDS/source/DataHolder/AMDSGenericFlatArrayDataHolder.cpp \
