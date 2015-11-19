@@ -1,4 +1,6 @@
 #include "SGMVATValve.h"
+#include "actions3/AMListAction3.h"
+#include "actions3/AMActionSupport.h"
 
 SGMVATValve::SGMVATValve(const QString &name, QObject *parent) :
 	SGMControl(name, "", parent)
@@ -14,3 +16,30 @@ SGMVATValve::~SGMVATValve()
 {
 
 }
+
+bool SGMVATValve::isOpen() const
+{
+	double currentPosition = position_->value();
+	bool result = (currentPosition == SGMVATVALVE_OPEN_POSITION);
+
+	return result;
+}
+
+bool SGMVATValve::isClosed() const
+{
+	double currentPosition = position_->value();
+	bool result = (currentPosition == SGMVATVALVE_CLOSED_POSITION);
+
+	return result;
+}
+
+AMAction3* SGMVATValve::createMoveAtSpeedAction(double speedSetpoint, double positionSetpoint)
+{
+	AMListAction3 *moveAction = new AMListAction3(new AMListActionInfo3("Move VAT valve", "Move VAT valve"), AMListAction3::Sequential);
+	moveAction->addSubAction(AMActionSupport::buildControlMoveAction(speed_, speedSetpoint));
+	moveAction->addSubAction(AMActionSupport::buildControlMoveAction(position_, positionSetpoint));
+
+	return moveAction;
+}
+
+
