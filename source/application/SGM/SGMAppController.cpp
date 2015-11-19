@@ -224,7 +224,7 @@ void SGMAppController::setupUserInterface()
 	commissioningStepConfigurationView_ = new AMGenericStepScanConfigurationView(commissioningStepConfiguration_, SGMBeamline::sgm()->exposedControls(), SGMBeamline::sgm()->exposedDetectors());
 	commissioningStepConfigurationViewHolder_ = new AMScanConfigurationViewHolder3("Commissioning Tool", false, true, commissioningStepConfigurationView_);
 
-	commissioningContinuousConfiguration_ = new AMGenericContinuousScanConfiguration;	
+	commissioningContinuousConfiguration_ = new AMGenericContinuousScanConfiguration;
 	commissioningContinuousConfiguration_->setAutoExportEnabled(false);
 	commissioningContinuousConfiguration_->addDetector(SGMBeamline::sgm()->exposedDetectorByName("TEY")->toInfo());
 	commissioningContinuousConfiguration_->addDetector(SGMBeamline::sgm()->exposedDetectorByName("TFY")->toInfo());

@@ -63,7 +63,7 @@ AMGenericContinuousScanConfigurationView::AMGenericContinuousScanConfigurationVi
 	axisEnd1_ = createPositionDoubleSpinBox("End: ", "", configuration_->scanAxes().size() > 0 ? double(configuration_->scanAxisAt(0)->regionAt(0)->regionEnd()) : -1.0, 3);
 
 	if(configuration_->scanAxes().count() > 0) {
-		// In cases where the scan axis has already been added we need to do set ourselves up
+		// In cases where the scan axis has already been added we need connect our widgets now
 		onScanAxisAdded(configuration_->scanAxes().at(0));
 	}
 	connect(configuration_, SIGNAL(scanAxisAdded(AMScanAxis*)), this, SLOT(onScanAxisAdded(AMScanAxis*)));
@@ -331,7 +331,6 @@ void AMGenericContinuousScanConfigurationView::setDwellTime(const AMNumber &valu
 
 void AMGenericContinuousScanConfigurationView::onScanAxisAdded(AMScanAxis *axis)
 {
-	qDebug() << "\t\tScan Axes Size = " << configuration_->scanAxes().size();
 	if (configuration_->scanAxes().size() == 1){
 
 		connect(axisStart1_, SIGNAL(editingFinished()), this, SLOT(onStart1Changed()));
