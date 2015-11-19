@@ -26,6 +26,15 @@ public:
 protected:
 	/// Creates and returns a move action to the given destination.
 	virtual AMAction3* createMoveAction(double indexSetpoint);
+
+	/// Returns a new action that checks that the chamber pressure is not at vacuum.
+	AMAction3* checkPressureNotAtVacuum() { return 0; }
+	/// Returns a new action that checks that the chamber pressure is at vacuum.
+	AMAction3* checkPressureAtVacuum() { return 0; }
+	/// Returns a new action that checks that the chamber pressure is at rough vacuum.
+	AMAction3* checkPressureAtRoughVacuum() { return 0; }
+	/// Returns a new action that checks that the chamber pressure is at high vacuum.
+	AMAction3* checkPressureAtHighVacuum() { return 0; }
 };
 
 #endif // SGMSAMPLECHAMBERVACUUM_H

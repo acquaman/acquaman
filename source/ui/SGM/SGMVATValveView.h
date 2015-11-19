@@ -34,6 +34,8 @@ protected:
 	/// The VAT valve being viewed.
 	SGMVATValve *valve_;
 
+	/// The VAT valve status editor.
+	AMExtendedControlEditor *statusEditor_;
 	/// The VAT valve position editor.
 	AMExtendedControlEditor *positionEditor_;
 	/// The VAT valve speed editor.

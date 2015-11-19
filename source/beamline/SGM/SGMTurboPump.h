@@ -9,6 +9,9 @@ class SGMTurboPump : public SGMControl
 	Q_OBJECT
 
 public:
+	/// Enum describing different running states.
+	enum State { NotRunning = 0, Running = 1 };
+
 	/// Constructor.
 	explicit SGMTurboPump(const QString &deviceName, const QString &baseName, QObject *parent = 0);
 	/// Destructor.
@@ -16,6 +19,9 @@ public:
 
 	/// Returns the running state control.
 	AMSinglePVControl* running() const { return running_; }
+
+	/// Returns true if the turbo is running, false otherwise.
+	bool isRunning() const;
 
 protected:
 	/// The running state control.

@@ -14,3 +14,11 @@ SGMTurboPump::~SGMTurboPump()
 
 }
 
+bool SGMTurboPump::isRunning() const
+{
+	bool result = false;
+
+	if (running_ && running_->isConnected())
+		result = (running_->value() == Running);
+}
+

@@ -21,13 +21,11 @@ SGMVATValve::~SGMVATValve()
 
 }
 
-AMAction3* SGMVATValve::createMoveAtSpeedAction(double speedSetpoint, double positionSetpoint)
+AMAction3* SGMVATValve::createMoveAtSpeedAction(double setpoint, double speed)
 {
 	AMListAction3 *moveAction = new AMListAction3(new AMListActionInfo3("Move VAT valve", "Move VAT valve"), AMListAction3::Sequential);
-	moveAction->addSubAction(AMActionSupport::buildControlMoveAction(speed_, speedSetpoint));
-	moveAction->addSubAction(AMActionSupport::buildControlMoveAction(control_, positionSetpoint));
+	moveAction->addSubAction(AMActionSupport::buildControlMoveAction(speed_, speed));
+	moveAction->addSubAction(AMActionSupport::buildControlMoveAction(this, setpoint));
 
 	return moveAction;
 }
-
-

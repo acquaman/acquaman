@@ -9,6 +9,9 @@ SGMVATValveView::SGMVATValveView(SGMVATValve *valve, QWidget *parent) :
 
 	// Create UI elements.
 
+	statusEditor_ = new AMExtendedControlEditor(0);
+	statusEditor_->setTitle("Status");
+
 	positionEditor_ = new AMExtendedControlEditor(0);
 	positionEditor_->setTitle("Position");
 
@@ -18,6 +21,7 @@ SGMVATValveView::SGMVATValveView(SGMVATValve *valve, QWidget *parent) :
 	// Create and set layouts.
 
 	QHBoxLayout *layout = new QHBoxLayout();
+	layout->addWidget(statusEditor_);
 	layout->addWidget(positionEditor_);
 	layout->addWidget(speedEditor_);
 
@@ -35,6 +39,7 @@ SGMVATValveView::~SGMVATValveView()
 
 void SGMVATValveView::clear()
 {
+	statusEditor_->setControl(0);
 	positionEditor_->setControl(0);
 	speedEditor_->setControl(0);
 }
@@ -42,6 +47,8 @@ void SGMVATValveView::clear()
 void SGMVATValveView::refresh()
 {
 	clear();
+
+	statusEditor_->setControl(valve_);
 
 	if (valve_) {
 		positionEditor_->setControl(valve_->position());
