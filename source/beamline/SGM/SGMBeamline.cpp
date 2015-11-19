@@ -35,6 +35,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/SGM/SGMBypassLadder.h"
 #include "beamline/SGM/SGMXASLadder.h"
 #include "beamline/SGM/SGMVATValve.h"
+#include "beamline/SGM/SGMSampleChamberVacuum.h"
 
 SGMBeamline* SGMBeamline::sgm() {
 
@@ -62,12 +63,13 @@ bool SGMBeamline::isConnected() const
 			ssaManipulatorRot_->isConnected() &&
 			scaler_->isConnected() &&
 			sampleChamberPressure_->isConnected() &&
+			vatValve_->isConnected() &&
 			turboPump5Running_->isConnected() &&
 			turboPump6Running_->isConnected() &&
+			sampleChamberVacuum_->isConnected() &&
 			xpsLadder_->isConnected() &&
 			bypassLadder_->isConnected() &&
-			xasLadder_->isConnected() &&
-			vatValve_->isConnected();
+			xasLadder_->isConnected();
 }
 
 AMControl * SGMBeamline::endStationTranslationSetpoint() const
@@ -151,6 +153,11 @@ AMReadOnlyPVControl* SGMBeamline::sampleChamberPressure() const
 	return sampleChamberPressure_;
 }
 
+SGMVATValve* SGMBeamline::vatValve() const
+{
+	return vatValve_;
+}
+
 AMSinglePVControl* SGMBeamline::turboPump5Running() const
 {
 	return turboPump5Running_;
@@ -159,6 +166,11 @@ AMSinglePVControl* SGMBeamline::turboPump5Running() const
 AMSinglePVControl* SGMBeamline::turboPump6Running() const
 {
 	return turboPump6Running_;
+}
+
+SGMSampleChamberVacuum* SGMBeamline::sampleChamberVacuum() const
+{
+	return sampleChamberVacuum_;
 }
 
 SGMXPSLadder* SGMBeamline::xpsLadder() const
@@ -174,11 +186,6 @@ SGMBypassLadder* SGMBeamline::bypassLadder() const
 SGMXASLadder* SGMBeamline::xasLadder() const
 {
 	return xasLadder_;
-}
-
-SGMVATValve* SGMBeamline::vatValve() const
-{
-	return vatValve_;
 }
 
 void SGMBeamline::configAMDSServer(const QString &hostIdentifier)
@@ -275,14 +282,22 @@ void SGMBeamline::setupBeamlineComponents()
 
 	sampleChamberPressure_ = new AMReadOnlyPVControl("sampleChamberPressure", "FRG1611-4-I10-01:pressure:fbk", this);
 
+	// Setup the sample chamber VAT valve.
+
+	vatValve_ = new SGMVATValve("sampleChamberVATValve", this);
+
 	// Setup the sample chamber turbo pumps.
 
 	turboPump5Running_ = new AMSinglePVControl("turboPump5", "TMP1611-4-I10-05:start", this);
 	turboPump6Running_ = new AMSinglePVControl("turboPump6", "TMP1611-4-I10-06:start", this);
 
-	// Setup the sample chamber VAT valve.
+	// Setup the sample chamber vacuum.
 
-	vatValve_ = new SGMVATValve("sampleChamberVATValve", this);
+	sampleChamberVacuum_ = new SGMSampleChamberVacuum(this);
+	sampleChamberVacuum_->setPressure(sampleChamberPressure_);
+	sampleChamberVacuum_->setVATValve(vatValve_);
+	sampleChamberVacuum_->setTurboPump5Running(turboPump5Running_);
+	sampleChamberVacuum_->setTurboPump6Running(turboPump6Running_);
 
 	// Set up the diagnostic ladder controls.
 

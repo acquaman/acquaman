@@ -36,6 +36,7 @@ class SGMXPSLadder;
 class SGMBypassLadder;
 class SGMXASLadder;
 class SGMVATValve;
+class SGMSampleChamberVacuum;
 
 /*!
   * A singleton class which represents the SGM beamline. The beamline class can
@@ -131,6 +132,11 @@ public:
 	AMReadOnlyPVControl* sampleChamberPressure() const;
 
 	/*!
+	 * The sample chamber VAT valve.
+	 */
+	SGMVATValve* vatValve() const;
+
+	/*!
 	 * The sample chamber turbo pump (turbo #5) running status.
 	 */
 	AMSinglePVControl* turboPump5Running() const;
@@ -139,6 +145,11 @@ public:
 	 * The sample chamber turbo pump (turbo #6) running status.
 	 */
 	AMSinglePVControl* turboPump6Running() const;
+
+	/*!
+	 * The sample chamber vacuum.
+	 */
+	SGMSampleChamberVacuum* sampleChamberVacuum() const;
 
 	/*!
 	 * The XPS ladder.
@@ -154,11 +165,6 @@ public:
 	 * The XAS ladder.
 	 */
 	virtual SGMXASLadder* xasLadder() const;
-
-	/*!
-	 * The sample chamber VAT valve.
-	 */
-	SGMVATValve* vatValve() const;
 
 	/*!
 	  * Configures the beamline components which require an AMDS.
@@ -264,6 +270,8 @@ protected:
 	AMSinglePVControl *turboPump6Running_;
 	/// The sample chamber VAT valve.
 	SGMVATValve *vatValve_;
+	/// The sample chamber vacuum control.
+	SGMSampleChamberVacuum *sampleChamberVacuum_;
 
 	/// The XPS diagnostic ladder control.
 	SGMXPSLadder *xpsLadder_;
