@@ -92,11 +92,11 @@ protected:
 	AMAction3* checkChamberRoughingPumpOn() { return 0; }
 
 	/// Returns a new action that closes the VAT valve, at the given speed. Returns 0 if no valid valve is given.
-	AMAction3* closeVATValve(SGMVATValve *valve, double valveSpeed);
+	AMAction3* closeVATValve(SGMVATValve *valve, double speed);
 	/// Returns a new action that checks that the VAT valve is closed. Returns 0 if no valid valve is given.
 	AMAction3* checkVATValveClosed(SGMVATValve *valve);
 	/// Returns a new action that opens the VAT valve, at the given speed. Returns 0 if no valid valve is given.
-	AMAction3* openVATValve(SGMVATValve *valve, double valveSpeed);
+	AMAction3* openVATValve(SGMVATValve *valve, double speed);
 	/// Returns a new action that checks that the VAT valve is open. Returns 0 if no valid valve is given.
 	AMAction3* checkVATValveOpen(SGMVATValve *valve);
 

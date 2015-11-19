@@ -31,9 +31,6 @@ public:
 	/// Returns the speed.
 	AMSinglePVControl* speed() const { return speed_; }
 
-	/// Creates and returns a new action that sets the speed and moves to the given position.
-	AMAction3* createMoveAtSpeedAction(double setpoint, double speed);
-
 protected:
 	/// The VAT valve speed.
 	AMSinglePVControl* speed_;
