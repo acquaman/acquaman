@@ -37,6 +37,7 @@ class SGMBypassLadder;
 class SGMXASLadder;
 class SGMVATValve;
 class SGMSampleChamberVacuum;
+class SGMTurboPump;
 
 /*!
   * A singleton class which represents the SGM beamline. The beamline class can
@@ -139,12 +140,12 @@ public:
 	/*!
 	 * The sample chamber turbo pump (turbo #5) running status.
 	 */
-	AMSinglePVControl* turboPump5Running() const;
+	SGMTurboPump* turbo5() const;
 
 	/*!
 	 * The sample chamber turbo pump (turbo #6) running status.
 	 */
-	AMSinglePVControl* turboPump6Running() const;
+	SGMTurboPump* turbo6() const;
 
 	/*!
 	 * The sample chamber vacuum.
@@ -264,10 +265,10 @@ protected:
 
 	/// The sample chamber pressure control.
 	AMReadOnlyPVControl *sampleChamberPressure_;
-	/// The fifth beamline turbo pump running status, located at the sample chamber.
-	AMSinglePVControl *turboPump5Running_;
-	/// The sixth beamline turbo pump running status, located at the sample chamber.
-	AMSinglePVControl *turboPump6Running_;
+	/// The fifth beamline turbo pump, located at the sample chamber.
+	SGMTurboPump *turbo5_;
+	/// The sixth beamline turbo pump, located at the sample chamber.
+	SGMTurboPump *turbo6_;
 	/// The sample chamber VAT valve.
 	SGMVATValve *vatValve_;
 	/// The sample chamber vacuum control.

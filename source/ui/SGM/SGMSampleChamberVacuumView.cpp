@@ -70,8 +70,8 @@ void SGMSampleChamberVacuumView::setVacuum(SGMSampleChamberVacuum *newControl)
 		if (vacuum_) {
 			connect( vacuum_, SIGNAL(pressureChanged(AMControl*)), this, SLOT(refreshPressureEditor()) );
 			connect( vacuum_, SIGNAL(vatValveChanged(SGMVATValve*)), this, SLOT(refreshVATValveView()) );
-			connect( vacuum_, SIGNAL(turboPump5RunningChanged(AMSinglePVControl*)), this, SLOT(refreshTurbo5Editor()) );
-			connect( vacuum_, SIGNAL(turboPump6RunningChanged(AMSinglePVControl*)), this, SLOT(refreshTurbo6Editor()) );
+			connect( vacuum_, SIGNAL(turbo5Changed(SGMTurboPump*)), this, SLOT(refreshTurbo5Editor()) );
+			connect( vacuum_, SIGNAL(turbo6Changed(SGMTurboPump*)), this, SLOT(refreshTurbo6Editor()) );
 		}
 
 		refresh();
@@ -106,14 +106,14 @@ void SGMSampleChamberVacuumView::refreshTurbo5Editor()
 {
 	turbo5Editor_->setControl(0);
 
-	if (vacuum_)
-		turbo5Editor_->setControl(vacuum_->turboPump5Running());
+	if (vacuum_ && vacuum_->turbo5())
+		turbo5Editor_->setControl(vacuum_->turbo5()->running());
 }
 
 void SGMSampleChamberVacuumView::refreshTurbo6Editor()
 {
 	turbo6Editor_->setControl(0);
 
-	if (vacuum_)
-		turbo6Editor_->setControl(vacuum_->turboPump6Running());
+	if (vacuum_ && vacuum_->turbo6())
+		turbo6Editor_->setControl(vacuum_->turbo6()->running());
 }

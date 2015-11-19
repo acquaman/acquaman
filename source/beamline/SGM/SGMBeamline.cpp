@@ -36,6 +36,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/SGM/SGMXASLadder.h"
 #include "beamline/SGM/SGMVATValve.h"
 #include "beamline/SGM/SGMSampleChamberVacuum.h"
+#include "beamline/SGM/SGMTurboPump.h"
 
 SGMBeamline* SGMBeamline::sgm() {
 
@@ -64,8 +65,8 @@ bool SGMBeamline::isConnected() const
 			scaler_->isConnected() &&
 			sampleChamberPressure_->isConnected() &&
 			vatValve_->isConnected() &&
-			turboPump5Running_->isConnected() &&
-			turboPump6Running_->isConnected() &&
+			turbo5_->isConnected() &&
+			turbo6_->isConnected() &&
 			sampleChamberVacuum_->isConnected() &&
 			xpsLadder_->isConnected() &&
 			bypassLadder_->isConnected() &&
@@ -158,14 +159,14 @@ SGMVATValve* SGMBeamline::vatValve() const
 	return vatValve_;
 }
 
-AMSinglePVControl* SGMBeamline::turboPump5Running() const
+SGMTurboPump* SGMBeamline::turbo5() const
 {
-	return turboPump5Running_;
+	return turbo5_;
 }
 
-AMSinglePVControl* SGMBeamline::turboPump6Running() const
+SGMTurboPump* SGMBeamline::turbo6() const
 {
-	return turboPump6Running_;
+	return turbo6_;
 }
 
 SGMSampleChamberVacuum* SGMBeamline::sampleChamberVacuum() const
@@ -288,16 +289,16 @@ void SGMBeamline::setupBeamlineComponents()
 
 	// Setup the sample chamber turbo pumps.
 
-	turboPump5Running_ = new AMSinglePVControl("turboPump5", "TMP1611-4-I10-05:start", this);
-	turboPump6Running_ = new AMSinglePVControl("turboPump6", "TMP1611-4-I10-06:start", this);
+	turbo5_ = new SGMTurboPump("turboPump5", "TMP1611-4-I10-05", this);
+	turbo6_ = new SGMTurboPump("turboPump6", "TMP1611-4-I10-06", this);
 
 	// Setup the sample chamber vacuum.
 
 	sampleChamberVacuum_ = new SGMSampleChamberVacuum(this);
 	sampleChamberVacuum_->setPressure(sampleChamberPressure_);
 	sampleChamberVacuum_->setVATValve(vatValve_);
-	sampleChamberVacuum_->setTurboPump5Running(turboPump5Running_);
-	sampleChamberVacuum_->setTurboPump6Running(turboPump6Running_);
+	sampleChamberVacuum_->setTurbo5(turbo5_);
+	sampleChamberVacuum_->setTurbo6(turbo6_);
 
 	// Set up the diagnostic ladder controls.
 
@@ -319,8 +320,8 @@ void SGMBeamline::setupBeamlineComponents()
 	connect(xpsLadder_, SIGNAL(connected(bool)), this, SLOT(onConnectionStateChanged(bool)));
 	connect(bypassLadder_, SIGNAL(connected(bool)), this, SLOT(onConnectionStateChanged(bool)));
 	connect(xasLadder_, SIGNAL(connected(bool)), this, SLOT(onConnectionStateChanged(bool)) );
-	connect(turboPump5Running_, SIGNAL(connected(bool)), this, SLOT(onConnectionStateChanged(bool)) );
-	connect(turboPump6Running_, SIGNAL(connected(bool)), this, SLOT(onConnectionStateChanged(bool)) );
+	connect(turbo5_, SIGNAL(connected(bool)), this, SLOT(onConnectionStateChanged(bool)) );
+	connect(turbo6_, SIGNAL(connected(bool)), this, SLOT(onConnectionStateChanged(bool)) );
 	connect(vatValve_, SIGNAL(connected(bool)), this, SLOT(onConnectionStateChanged(bool)) );
 
 

@@ -5,8 +5,8 @@ SGMSampleChamberVacuumControl::SGMSampleChamberVacuumControl(const QString &name
 {
 	// Initialize class variables.
 
-	turboPump5Running_ = 0;
-	turboPump6Running_ = 0;
+	turbo5_ = 0;
+	turbo6_ = 0;
 	vatValve_ = 0;
 }
 
@@ -21,39 +21,39 @@ void SGMSampleChamberVacuumControl::setPressure(AMReadOnlyPVControl *newControl)
 		emit pressureChanged(control_);
 }
 
-void SGMSampleChamberVacuumControl::setTurboPump5Running(AMSinglePVControl *newControl)
+void SGMSampleChamberVacuumControl::setTurbo5(SGMTurboPump *newControl)
 {
-	if (turboPump5Running_ != newControl) {
+	if (turbo5_ != newControl) {
 
-		if (turboPump5Running_)
-			removeChildControl(turboPump5Running_);
+		if (turbo5_)
+			removeChildControl(turbo5_);
 
-		turboPump5Running_ = newControl;
+		turbo5_ = newControl;
 
-		if (turboPump5Running_)
-			addChildControl(turboPump5Running_);
+		if (turbo5_)
+			addChildControl(turbo5_);
 
 		updateConnected();
 
-		emit turboPump5RunningChanged(turboPump5Running_);
+		emit turbo5Changed(turbo5_);
 	}
 }
 
-void SGMSampleChamberVacuumControl::setTurboPump6Running(AMSinglePVControl *newControl)
+void SGMSampleChamberVacuumControl::setTurbo6(SGMTurboPump *newControl)
 {
-	if (turboPump6Running_ != newControl) {
+	if (turbo6_ != newControl) {
 
-		if (turboPump6Running_)
-			removeChildControl(turboPump6Running_);
+		if (turbo6_)
+			removeChildControl(turbo6_);
 
-		turboPump6Running_ = newControl;
+		turbo6_ = newControl;
 
-		if (turboPump6Running_)
-			addChildControl(turboPump6Running_);
+		if (turbo6_)
+			addChildControl(turbo6_);
 
 		updateConnected();
 
-		emit turboPump6RunningChanged(turboPump6Running_);
+		emit turbo6Changed(turbo6_);
 	}
 }
 
@@ -79,8 +79,8 @@ void SGMSampleChamberVacuumControl::updateConnected()
 {
 	bool isConnected = (
 				AMSingleEnumeratedControl::isConnected() &&
-				turboPump5Running_ && turboPump5Running_->isConnected() &&
-				turboPump6Running_ && turboPump6Running_->isConnected() &&
+				turbo5_ && turbo5_->isConnected() &&
+				turbo6_ && turbo6_->isConnected() &&
 				vatValve_ && vatValve_->isConnected()
 				);
 
