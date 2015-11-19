@@ -193,7 +193,7 @@ void AM2DSummingAB::reviewState()
 
 	int s = inputSource_->size(sumAxis_);
 
-	if(sumRangeMin_ >= s || sumRangeMax_ >= s) {
+	if(sumRangeMin_ >= s || sumRangeMax_ >= s || sumRangeMin_ > sumRangeMax_) {
 		setState(AMDataSource::InvalidFlag);
 	}
 	else

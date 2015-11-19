@@ -38,13 +38,13 @@ protected slots:
 	virtual void updateMoving();
 
 	/// Adds an enum value option. Options added with duplicate indices will overwrite previous options.
-	virtual void addValueOption(int index, const QString &optionString, double optionSetpoint, double optionMin, double optionMax);
+	virtual bool addValueOption(int index, const QString &optionString, double optionSetpoint, double optionMin, double optionMax);
 	/// Adds an enum value option, assumes that the given setpoint is identical to the option min and max values.
-	virtual void addValueOption(int index, const QString &optionString, double optionSetpoint);
+	virtual bool addValueOption(int index, const QString &optionString, double optionSetpoint);
 	/// Removes an enum value option.
-	virtual void removeOption(int index);
+	virtual bool removeOption(int index);
 	/// Clears all value options.
-	virtual void clearOptions();
+	virtual bool clearOptions();
 
 protected:
 	/// Returns a new action that moves the control to the setpoint that corresponds to the given index setpoint.

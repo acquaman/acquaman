@@ -342,7 +342,10 @@ void BioXASMainBeamline::setupExposedControls()
 
 	// XIA filters control.
 
-	addExposedControl(xiaFilters_->filtersControl());
+        addExposedControl(xiaFilters_->filter1());
+        addExposedControl(xiaFilters_->filter2());
+        addExposedControl(xiaFilters_->filter3());
+        addExposedControl(xiaFilters_->filter4());
 
 	// DBHR mirrors controls.
 

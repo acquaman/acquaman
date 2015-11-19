@@ -155,31 +155,47 @@ void BioXASCarbonFilterFarmFilterControl::addFilterOption(const QString &optionS
 
 void BioXASCarbonFilterFarmFilterControl::addFilterOption(int index, const QString &optionString, double filter, int upstreamFilterIndex, int downstreamFilterIndex)
 {
-	if (!hasIndexNamed(optionString)) { // We only want unique-looking options available for this control.
+	if (AMEnumeratedControl::addOption(index, optionString)) {
 		indexFilterMap_.insert(index, filter);
 		indexUpstreamFilterIndexMap_.insert(index, upstreamFilterIndex);
 		indexDownstreamFilterIndexMap_.insert(index, downstreamFilterIndex);
 
-		AMEnumeratedControl::addOption(index, optionString);
+		emit filtersChanged();
 	}
 }
 
-void BioXASCarbonFilterFarmFilterControl::removeOption(int index)
+bool BioXASCarbonFilterFarmFilterControl::removeOption(int index)
 {
-	indexFilterMap_.remove(index);
-	indexUpstreamFilterIndexMap_.remove(index);
-	indexDownstreamFilterIndexMap_.remove(index);
+	bool result = false;
 
-	AMEnumeratedControl::removeOption(index);
+	if (AMEnumeratedControl::removeOption(index)) {
+		indexFilterMap_.remove(index);
+		indexUpstreamFilterIndexMap_.remove(index);
+		indexDownstreamFilterIndexMap_.remove(index);
+
+		emit filtersChanged();
+
+		result = true;
+	}
+
+	return result;
 }
 
-void BioXASCarbonFilterFarmFilterControl::clearOptions()
+bool BioXASCarbonFilterFarmFilterControl::clearOptions()
 {
-	indexFilterMap_.clear();
-	indexUpstreamFilterIndexMap_.clear();
-	indexDownstreamFilterIndexMap_.clear();
+	bool result = false;
 
-	AMEnumeratedControl::clearOptions();
+	if (AMEnumeratedControl::clearOptions()) {
+		indexFilterMap_.clear();
+		indexUpstreamFilterIndexMap_.clear();
+		indexDownstreamFilterIndexMap_.clear();
+
+		emit filtersChanged();
+
+		result = true;
+	}
+
+	return result;
 }
 
 AMAction3* BioXASCarbonFilterFarmFilterControl::createMoveAction(double setpoint)

@@ -24,6 +24,8 @@ public:
 signals:
 	/// Notifier that the position control has changed.
 	void positionChanged(BioXASCarbonFilterFarmActuatorPositionControl *newControl);
+	/// Notifier that the window options have changed.
+	void windowsChanged();
 
 public slots:
 	/// Sets the position control.

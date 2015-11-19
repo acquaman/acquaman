@@ -132,8 +132,10 @@ void CLSSIS3820Scaler::configAMDSServer(const QString &amdsServerIdentifier)
 {
 	amdsServerIdentifier_ = amdsServerIdentifier;
 
+	qDebug() << "Looking for scaler server by identifier " << amdsServerIdentifier;
 	AMDSServer *scalerAMDSServer = AMDSClientAppController::clientAppController()->getServerByServerIdentifier(amdsServerIdentifier_);
 	if (scalerAMDSServer) {
+		qDebug() << "Returned a valid server, connect to it " << scalerAMDSServer->hostName();
 		connect(scalerAMDSServer, SIGNAL(requestDataReady(AMDSClientRequest*)), this, SLOT(onRequestDataReady(AMDSClientRequest*)));
 		connect(AMDSClientAppController::clientAppController(), SIGNAL(serverError(int,bool,QString,QString)), this, SLOT(onServerError(int,bool,QString,QString)));
 	}
@@ -568,11 +570,12 @@ void CLSSIS3820Scaler::onDwellTimeSourceSetDwellTime(double dwellSeconds){
 /// ============= SLOTs to handle AMDSClientAppController signals =========
 void CLSSIS3820Scaler::onRequestDataReady(AMDSClientRequest* clientRequest)
 {
+	qDebug() << "Scaler sees a clientRequest";
 	AMDSClientIntrospectionRequest *introspectionRequest = qobject_cast<AMDSClientIntrospectionRequest*>(clientRequest);
 	if(introspectionRequest){
 		qDebug() << "Got an introspection request response";
 
-		qDebug() << "All buffer names: " << introspectionRequest->getAllBufferNames();
+		qDebug() << "Scaler: All buffer names: " << introspectionRequest->getAllBufferNames();
 	}
 
 	AMDSClientRelativeCountPlusCountDataRequest *relativeCountPlusCountDataRequst = qobject_cast<AMDSClientRelativeCountPlusCountDataRequest*>(clientRequest);

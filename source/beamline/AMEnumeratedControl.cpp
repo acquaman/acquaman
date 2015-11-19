@@ -1,5 +1,6 @@
 #include "AMEnumeratedControl.h"
 #include "actions3/AMActionSupport.h"
+#include "util/AMErrorMonitor.h"
 
 AMEnumeratedControl::AMEnumeratedControl(const QString &name, const QString &units, QObject *parent) :
 	AMPseudoMotorControl(name, units, parent)
@@ -23,12 +24,12 @@ AMEnumeratedControl::~AMEnumeratedControl()
 
 bool AMEnumeratedControl::validValue(double value) const
 {
-	return (value >= 0 && value < enumNames().count());
+	return ( indices_.contains(int(value)) );
 }
 
 bool AMEnumeratedControl::validSetpoint(double value) const
 {
-	return (value >= 0 && value < moveEnumNames().count());
+	return ( indices_.contains(int(value)) );
 }
 
 QList<int> AMEnumeratedControl::indicesNamed(const QString &name) const
@@ -87,8 +88,9 @@ void AMEnumeratedControl::updateValue()
 	setValue(newValue);
 }
 
-void AMEnumeratedControl::addOption(int index, const QString &optionString)
+bool AMEnumeratedControl::addOption(int index, const QString &optionString)
 {
+	bool result = false;
 	bool proceed = false;
 
 	// First check whether we are in a situation where duplicate value options
@@ -109,28 +111,42 @@ void AMEnumeratedControl::addOption(int index, const QString &optionString)
 
 		updateEnumStates();
 
-		emit optionsChanged();
+		result = true;
 	}
+
+	return result;
 }
 
-void AMEnumeratedControl::removeOption(int index)
+bool AMEnumeratedControl::removeOption(int index)
 {
-	indices_.removeOne(index);
-	indexStringMap_.remove(index);
+	bool result = false;
 
-	updateEnumStates();
+	if (indices_.contains(index)) {
+		indices_.removeOne(index);
+		indexStringMap_.remove(index);
 
-	emit optionsChanged();
+		updateEnumStates();
+
+		result = true;
+	}
+
+	return result;
 }
 
-void AMEnumeratedControl::clearOptions()
+bool AMEnumeratedControl::clearOptions()
 {
-	indices_.clear();
-	indexStringMap_.clear();
+	bool result = false;
 
-	updateEnumStates();
+	if (!indices_.isEmpty()) {
+		indices_.clear();
+		indexStringMap_.clear();
 
-	emit optionsChanged();
+		updateEnumStates();
+
+		result = true;
+	}
+
+	return result;
 }
 
 QStringList AMEnumeratedControl::generateEnumStates() const

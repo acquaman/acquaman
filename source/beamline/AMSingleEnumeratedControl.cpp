@@ -93,59 +93,54 @@ void AMSingleEnumeratedControl::updateMoving()
 	setIsMoving(isMoving);
 }
 
-void AMSingleEnumeratedControl::addValueOption(int index, const QString &optionString, double optionSetpoint, double optionMin, double optionMax)
+bool AMSingleEnumeratedControl::addValueOption(int index, const QString &optionString, double optionSetpoint, double optionMin, double optionMax)
 {
-	bool proceed = false;
+	bool result = false;
 
-	// First check whether we are in a situation where duplicate value options
-	// may be an issue.
-
-	if (!hasIndexNamed(optionString))
-		proceed = true;
-	else if (hasIndexNamed(optionString) && allowsDuplicateOptions_)
-		proceed = true;
-
-	// Also, check that the setpoint, min, and max values make sense.
-
-	if (proceed) {
-		if (optionMin <= optionMax && optionSetpoint >= optionMin && optionSetpoint <= optionMax)
-			proceed = true;
-		else
-			proceed = false;
-	}
-
-	// Proceed with adding the option if there aren't any issues.
-
-	if (proceed) {
+	if (AMEnumeratedControl::addOption(index, optionString)) {
 		indexSetpointMap_.insert(index, optionSetpoint);
 		indexMinimumMap_.insert(index, optionMin);
 		indexMaximumMap_.insert(index, optionMax);
 
-		AMEnumeratedControl::addOption(index, optionString);
+		result = true;
 	}
+
+	return result;
 }
 
-void AMSingleEnumeratedControl::addValueOption(int index, const QString &optionString, double optionSetpoint)
+bool AMSingleEnumeratedControl::addValueOption(int index, const QString &optionString, double optionSetpoint)
 {
 	addValueOption(index, optionString, optionSetpoint, optionSetpoint, optionSetpoint);
 }
 
-void AMSingleEnumeratedControl::removeOption(int index)
+bool AMSingleEnumeratedControl::removeOption(int index)
 {
-	indexSetpointMap_.remove(index);
-	indexMinimumMap_.remove(index);
-	indexMaximumMap_.remove(index);
+	bool result = false;
 
-	AMEnumeratedControl::removeOption(index);
+	if (AMEnumeratedControl::removeOption(index)) {
+		indexSetpointMap_.remove(index);
+		indexMinimumMap_.remove(index);
+		indexMaximumMap_.remove(index);
+
+		result = true;
+	}
+
+	return result;
 }
 
-void AMSingleEnumeratedControl::clearOptions()
+bool AMSingleEnumeratedControl::clearOptions()
 {
-	indexSetpointMap_.clear();
-	indexMinimumMap_.clear();
-	indexMaximumMap_.clear();
+	bool result = false;
 
-	AMEnumeratedControl::clearOptions();
+	if (AMEnumeratedControl::clearOptions()) {
+		indexSetpointMap_.clear();
+		indexMinimumMap_.clear();
+		indexMaximumMap_.clear();
+
+		result = true;
+	}
+
+	return result;
 }
 
 int AMSingleEnumeratedControl::currentIndex() const

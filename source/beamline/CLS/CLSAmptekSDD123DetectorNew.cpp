@@ -456,7 +456,7 @@ void CLSAmptekSDD123DetectorNew::onRequestDataReady(AMDSClientRequest* clientReq
 	if(introspectionRequest){
 		qDebug() << "Got an introspection request response";
 
-		qDebug() << "All buffer names: " << introspectionRequest->getAllBufferNames();
+		qDebug() << "Amptek: All buffer names: " << introspectionRequest->getAllBufferNames();
 	}
 
 	AMDSClientRelativeCountPlusCountDataRequest *relativeCountPlusCountDataRequst = qobject_cast<AMDSClientRelativeCountPlusCountDataRequest*>(clientRequest);
