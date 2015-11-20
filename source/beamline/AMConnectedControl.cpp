@@ -1,17 +1,17 @@
-#include "SGMControl.h"
+#include "AMConnectedControl.h"
 
-SGMControl::SGMControl(const QString &name, const QString &units, QObject *parent) :
+AMConnectedControl::AMConnectedControl(const QString &name, const QString &units, QObject *parent) :
 	AMControl(name, units, parent)
 {
 	connected_ = false;
 }
 
-SGMControl::~SGMControl()
+AMConnectedControl::~AMConnectedControl()
 {
 
 }
 
-bool SGMControl::isConnected() const
+bool AMConnectedControl::isConnected() const
 {
 	bool result = false;
 
@@ -33,7 +33,7 @@ bool SGMControl::isConnected() const
 	return result;
 }
 
-void SGMControl::setConnected(bool isConnected)
+void AMConnectedControl::setConnected(bool isConnected)
 {
 	if (connected_ != isConnected) {
 		connected_ = isConnected;
@@ -41,12 +41,12 @@ void SGMControl::setConnected(bool isConnected)
 	}
 }
 
-void SGMControl::updateConnected()
+void AMConnectedControl::updateConnected()
 {
 	setConnected( isConnected() );
 }
 
-void SGMControl::addChildControl(AMControl *control)
+void AMConnectedControl::addChildControl(AMControl *control)
 {
 	if (control) {
 		children_ << control;
@@ -57,7 +57,7 @@ void SGMControl::addChildControl(AMControl *control)
 	}
 }
 
-void SGMControl::removeChildControl(AMControl *control)
+void AMConnectedControl::removeChildControl(AMControl *control)
 {
 	if (control) {
 		disconnect( control, 0, this, 0 );

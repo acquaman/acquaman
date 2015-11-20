@@ -1,17 +1,17 @@
-#ifndef SGMCONTROL_H
-#define SGMCONTROL_H
+#ifndef AMCONNECTEDCONTROL_H
+#define AMCONNECTEDCONTROL_H
 
 #include "beamline/AMControl.h"
 
-class SGMControl : public AMControl
+class AMConnectedControl : public AMControl
 {
 	Q_OBJECT
 
 public:
 	/// Constructor.
-	explicit SGMControl(const QString &name, const QString &units, QObject *parent = 0);
+	explicit AMConnectedControl(const QString &name, const QString &units, QObject *parent = 0);
 	/// Destructor.
-	virtual ~SGMControl();
+	virtual ~AMConnectedControl();
 
 	/// Returns the current connected state, considers the connected state of each child.
 	virtual bool isConnected() const;
@@ -32,4 +32,4 @@ protected:
 	bool connected_;
 };
 
-#endif // SGMCONTROL_H
+#endif // AMCONNECTEDCONTROL_H

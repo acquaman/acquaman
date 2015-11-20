@@ -1,10 +1,10 @@
 #ifndef SGMTURBOPUMP_H
 #define SGMTURBOPUMP_H
 
-#include "beamline/SGM/SGMControl.h"
+#include "beamline/AMConnectedControl.h"
 #include "beamline/AMPVControl.h"
 
-class SGMTurboPump : public SGMControl
+class SGMTurboPump : public AMConnectedControl
 {
 	Q_OBJECT
 

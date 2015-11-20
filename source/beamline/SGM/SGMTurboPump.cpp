@@ -1,7 +1,7 @@
 #include "SGMTurboPump.h"
 
 SGMTurboPump::SGMTurboPump(const QString &deviceName, const QString &baseName, QObject *parent) :
-	SGMControl(deviceName, "", parent)
+	AMConnectedControl(deviceName, "", parent)
 {
 	// Create children.
 
