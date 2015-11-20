@@ -41,10 +41,6 @@ protected slots:
 	void refreshPressureEditor();
 	/// Refreshes the VAT valve view.
 	void refreshVATValveView();
-	/// Refreshes the turbo 5 editor.
-	void refreshTurbo5Editor();
-	/// Refreshes the turbo 6 editor.
-	void refreshTurbo6Editor();
 
 protected:
 	/// The vacuum control being viewed.
@@ -56,10 +52,6 @@ protected:
 	AMExtendedControlEditor *pressureEditor_;
 	/// The VAT valve view.
 	SGMVATValveView *vatValveView_;
-	/// The turbo pump running status editor (pump #5).
-	AMExtendedControlEditor *turbo5Editor_;
-	/// The turbo pump running status editor (pump #6).
-	AMExtendedControlEditor *turbo6Editor_;
 };
 
 #endif // SGMSAMPLECHAMBERVACUUMVIEW_H

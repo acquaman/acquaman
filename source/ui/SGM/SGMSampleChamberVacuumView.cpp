@@ -15,18 +15,12 @@ SGMSampleChamberVacuumView::SGMSampleChamberVacuumView(SGMSampleChamberVacuum *v
 
 	vatValveView_ = new SGMVATValveView(0);
 
-	turbo5Editor_ = new AMExtendedControlEditor(0);
-
-	turbo6Editor_ = new AMExtendedControlEditor(0);
-
 	// Create and set layouts.
 
 	QVBoxLayout *layout = new QVBoxLayout();
 	layout->addWidget(vacuumEditor_);
 	layout->addWidget(pressureEditor_);
 	layout->addWidget(vatValveView_);
-	layout->addWidget(turbo5Editor_);
-	layout->addWidget(turbo6Editor_);
 
 	setLayout(layout);
 
@@ -45,8 +39,6 @@ void SGMSampleChamberVacuumView::clear()
 	vacuumEditor_->setControl(0);
 	pressureEditor_->setControl(0);
 	vatValveView_->setValve(0);
-	turbo5Editor_->setControl(0);
-	turbo6Editor_->setControl(0);
 }
 
 void SGMSampleChamberVacuumView::refresh()
@@ -54,8 +46,6 @@ void SGMSampleChamberVacuumView::refresh()
 	refreshVacuumEditor();
 	refreshPressureEditor();
 	refreshVATValveView();
-	refreshTurbo5Editor();
-	refreshTurbo6Editor();
 }
 
 void SGMSampleChamberVacuumView::setVacuum(SGMSampleChamberVacuum *newControl)
@@ -70,8 +60,6 @@ void SGMSampleChamberVacuumView::setVacuum(SGMSampleChamberVacuum *newControl)
 		if (vacuum_) {
 			connect( vacuum_, SIGNAL(pressureChanged(AMControl*)), this, SLOT(refreshPressureEditor()) );
 			connect( vacuum_, SIGNAL(vatValveChanged(SGMVATValve*)), this, SLOT(refreshVATValveView()) );
-			connect( vacuum_, SIGNAL(turbo5Changed(SGMTurboPump*)), this, SLOT(refreshTurbo5Editor()) );
-			connect( vacuum_, SIGNAL(turbo6Changed(SGMTurboPump*)), this, SLOT(refreshTurbo6Editor()) );
 		}
 
 		refresh();
@@ -100,20 +88,4 @@ void SGMSampleChamberVacuumView::refreshVATValveView()
 
 	if (vacuum_)
 		vatValveView_->setValve(vacuum_->vatValve());
-}
-
-void SGMSampleChamberVacuumView::refreshTurbo5Editor()
-{
-	turbo5Editor_->setControl(0);
-
-	if (vacuum_ && vacuum_->turbo5())
-		turbo5Editor_->setControl(vacuum_->turbo5()->running());
-}
-
-void SGMSampleChamberVacuumView::refreshTurbo6Editor()
-{
-	turbo6Editor_->setControl(0);
-
-	if (vacuum_ && vacuum_->turbo6())
-		turbo6Editor_->setControl(vacuum_->turbo6()->running());
 }

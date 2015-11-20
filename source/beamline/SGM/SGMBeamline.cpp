@@ -295,11 +295,14 @@ void SGMBeamline::setupBeamlineComponents()
 
 	// Setup the sample chamber vacuum.
 
+	AMControlSet *chamberTurbos = new AMControlSet(this);
+	chamberTurbos->addControl(turbo5_);
+	chamberTurbos->addControl(turbo6_);
+
 	sampleChamberVacuum_ = new SGMSampleChamberVacuum(this);
 	sampleChamberVacuum_->setPressure(sampleChamberPressure_);
 	sampleChamberVacuum_->setVATValve(vatValve_);
-	sampleChamberVacuum_->setTurbo5(turbo5_);
-	sampleChamberVacuum_->setTurbo6(turbo6_);
+	sampleChamberVacuum_->setTurbos(chamberTurbos);
 
 	// Set up the diagnostic ladder controls.
 

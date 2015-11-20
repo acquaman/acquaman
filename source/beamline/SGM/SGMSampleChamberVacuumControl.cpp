@@ -7,8 +7,7 @@ SGMSampleChamberVacuumControl::SGMSampleChamberVacuumControl(const QString &name
 {
 	// Initialize class variables.
 
-	turbo5_ = 0;
-	turbo6_ = 0;
+	turbos_ = 0;
 	vatValve_ = 0;
 }
 
@@ -23,39 +22,21 @@ void SGMSampleChamberVacuumControl::setPressure(AMControl *newControl)
 		emit pressureChanged(control_);
 }
 
-void SGMSampleChamberVacuumControl::setTurbo5(SGMTurboPump *newControl)
+void SGMSampleChamberVacuumControl::setTurbos(AMControlSet *newControls)
 {
-	if (turbo5_ != newControl) {
+	if (turbos_ != newControls) {
 
-		if (turbo5_)
-			removeChildControl(turbo5_);
+		if (turbos_)
+			disconnect( turbos_, 0, this, 0 );
 
-		turbo5_ = newControl;
+		turbos_ = newControls;
 
-		if (turbo5_)
-			addChildControl(turbo5_);
+		if (turbos_)
+			connect( turbos_, SIGNAL(connected(bool)), this, SLOT(updateConnected()) );
 
 		updateConnected();
 
-		emit turbo5Changed(turbo5_);
-	}
-}
-
-void SGMSampleChamberVacuumControl::setTurbo6(SGMTurboPump *newControl)
-{
-	if (turbo6_ != newControl) {
-
-		if (turbo6_)
-			removeChildControl(turbo6_);
-
-		turbo6_ = newControl;
-
-		if (turbo6_)
-			addChildControl(turbo6_);
-
-		updateConnected();
-
-		emit turbo6Changed(turbo6_);
+		emit turbosChanged(turbos_);
 	}
 }
 
@@ -81,8 +62,7 @@ void SGMSampleChamberVacuumControl::updateConnected()
 {
 	bool isConnected = (
 				AMSingleEnumeratedControl::isConnected() &&
-				turbo5_ && turbo5_->isConnected() &&
-				turbo6_ && turbo6_->isConnected() &&
+				turbos_ && turbos_->isConnected() &&
 				vatValve_ && vatValve_->isConnected()
 				);
 
@@ -153,10 +133,15 @@ AMAction3* SGMSampleChamberVacuumControl::turnOffChamberTurbos()
 {
 	AMAction3 *result = 0;
 
-	if (turbo5_ && turbo6_) {
+	if (turbos_) {
 		AMListAction3 *changeTurbos = new AMListAction3(new AMListActionInfo3("Turning off chamber turbos", "Turning off chamber turbos"), AMListAction3::Parallel);
-		changeTurbos->addSubAction(turnOffTurbo(turbo5_));
-		changeTurbos->addSubAction(turnOffTurbo(turbo6_));
+
+		for (int turboIndex = 0, turboCount = turbos_->count(); turboIndex < turboCount; turboIndex++) {
+			AMAction3 *changeTurbo = turnOffTurbo(qobject_cast<SGMTurboPump*>(turbos_->at(turboIndex)));
+
+			if (changeTurbo)
+				changeTurbos->addSubAction(changeTurbo);
+		}
 
 		result = changeTurbos;
 	}
@@ -168,10 +153,15 @@ AMAction3* SGMSampleChamberVacuumControl::checkChamberTurbosOff()
 {
 	AMAction3 *result = 0;
 
-	if (turbo5_ && turbo6_) {
-		AMListAction3 *checkTurbos = new AMListAction3(new AMListActionInfo3("Checking chamber turbos are off", "Checking chamber turbos are off"), AMListAction3::Parallel);
-		checkTurbos->addSubAction(checkTurboOff(turbo5_));
-		checkTurbos->addSubAction(checkTurboOff(turbo6_));
+	if (turbos_) {
+		AMListAction3 *checkTurbos = new AMListAction3(new AMListActionInfo3("Turning on chamber turbos", "Turning on chamber turbos"), AMListAction3::Parallel);
+
+		for (int turboIndex = 0, turboCount = turbos_->count(); turboIndex < turboCount; turboIndex++) {
+			AMAction3 *checkTurbo = checkTurboOff(qobject_cast<SGMTurboPump*>(turbos_->at(turboIndex)));
+
+			if (checkTurbo)
+				checkTurbos->addSubAction(checkTurbo);
+		}
 
 		result = checkTurbos;
 	}
@@ -183,10 +173,15 @@ AMAction3* SGMSampleChamberVacuumControl::turnOnChamberTurbos()
 {
 	AMAction3 *result = 0;
 
-	if (turbo5_ && turbo6_) {
-		AMListAction3 *changeTurbos = new AMListAction3(new AMListActionInfo3("Turning off chamber turbos", "Turning off chamber turbos"), AMListAction3::Parallel);
-		changeTurbos->addSubAction(turnOnTurbo(turbo5_));
-		changeTurbos->addSubAction(turnOnTurbo(turbo6_));
+	if (turbos_) {
+		AMListAction3 *changeTurbos = new AMListAction3(new AMListActionInfo3("Turning on chamber turbos", "Turning on chamber turbos"), AMListAction3::Parallel);
+
+		for (int turboIndex = 0, turboCount = turbos_->count(); turboIndex < turboCount; turboIndex++) {
+			AMAction3 *changeTurbo = turnOnTurbo(qobject_cast<SGMTurboPump*>(turbos_->at(turboIndex)));
+
+			if (changeTurbo)
+				changeTurbos->addSubAction(changeTurbo);
+		}
 
 		result = changeTurbos;
 	}
@@ -198,10 +193,15 @@ AMAction3* SGMSampleChamberVacuumControl::checkChamberTurbosOn()
 {
 	AMAction3 *result = 0;
 
-	if (turbo5_ && turbo6_) {
-		AMListAction3 *checkTurbos = new AMListAction3(new AMListActionInfo3("Checking chamber turbos are on", "Checking chamber turbos are on"), AMListAction3::Parallel);
-		checkTurbos->addSubAction(checkTurboOn(turbo5_));
-		checkTurbos->addSubAction(checkTurboOn(turbo6_));
+	if (turbos_) {
+		AMListAction3 *checkTurbos = new AMListAction3(new AMListActionInfo3("Turning on chamber turbos", "Turning on chamber turbos"), AMListAction3::Parallel);
+
+		for (int turboIndex = 0, turboCount = turbos_->count(); turboIndex < turboCount; turboIndex++) {
+			AMAction3 *checkTurbo = checkTurboOn(qobject_cast<SGMTurboPump*>(turbos_->at(turboIndex)));
+
+			if (checkTurbo)
+				checkTurbos->addSubAction(checkTurbo);
+		}
 
 		result = checkTurbos;
 	}
