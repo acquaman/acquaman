@@ -1,7 +1,7 @@
 #include "SGMSampleChamberVacuumMoveActionInfo.h"
 
 SGMSampleChamberVacuumMoveActionInfo::SGMSampleChamberVacuumMoveActionInfo(const AMNumber &setpoint, QObject *parent) :
-	AMActionInfo3(QString(), QString(), QString(), parent)
+	AMListActionInfo3(QString(), QString(), QString(), parent)
 {
 	setpoint_ = setpoint;
 
@@ -10,7 +10,7 @@ SGMSampleChamberVacuumMoveActionInfo::SGMSampleChamberVacuumMoveActionInfo(const
 }
 
 SGMSampleChamberVacuumMoveActionInfo::SGMSampleChamberVacuumMoveActionInfo(const SGMSampleChamberVacuumMoveActionInfo &original) :
-	AMActionInfo3(other)
+	AMListActionInfo3(original)
 {
 	setpoint_ = original.setpoint();
 }

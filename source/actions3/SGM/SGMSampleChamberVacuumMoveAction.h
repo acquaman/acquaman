@@ -5,6 +5,13 @@
 #include "actions3/SGM/SGMSampleChamberVacuumMoveActionInfo.h"
 #include "beamline/SGM/SGMSampleChamberVacuum.h"
 
+#define SGMSAMPLECHAMBERVACUUMMOVEACTION_INVALID_CONTROL 1109239
+#define SGMSAMPLECHAMBERVACUUMMOVEACTION_CONTROL_NOT_CONNECTED 1109240
+#define SGMSAMPLECHAMBERVACUUMMOVEACTION_CONTROL_CANNOT_MOVE 1109241
+#define SGMSAMPLECHAMBERVACUUMMOVEACTION_CONTROL_ALREADY_MOVING 1109242
+#define SGMSAMPLECHAMBERVACUUMMOVEACTION_INVALID_SETPOINT 1109243
+#define SGMSAMPLECHAMBERVACUUMMOVEACTION_CONTROL_SUBACTION_INVALID 1109244
+
 class SGMSampleChamberVacuumMoveAction : public AMListAction3
 {
 	Q_OBJECT
@@ -25,25 +32,15 @@ public:
 	/// Returns whether this action can be skipped, false for this action.
 	virtual bool canSkip() const { return false; }
 
-protected slots:
-	/// Handles setting detector dark current value, time, and state when the dark current measurement action fails.
-	void onActionFailed();
-
 protected:
-	/// Creates and returns a move action to the Vented state.
-	AMAction3* createMoveToVentedAction();
 	/// Creates and returns a move action to the Vented state from a Vacuum state.
 	AMAction3* createMoveToVentedFromVacuumAction();
 
-	/// Creates and returns a move action to the RoughVacuum state.
-	AMAction3* createMoveToRoughVacuumAction();
 	/// Creates and returns a move action to the RoughVacuum state from the Vented state.
 	AMAction3* createMoveToRoughVacuumFromVentedAction();
 	/// Creates and returns a move action to the RoughVacuum state from the HighVacuum state.
 	AMAction3* createMoveToRoughVacuumFromHighVacuumAction();
 
-	/// Creates and returns a move action to the HighVacuum state.
-	AMAction3* createMoveToHighVacuumAction();
 	/// Creates and returns a move action to the HighVacuum state from a Vented state.
 	AMAction3* createMoveToHighVacuumFromVentedAction();
 	/// Creates and returns a move action to the HighVacuum state from a RoughVacuum state.

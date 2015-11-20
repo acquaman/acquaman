@@ -1,10 +1,10 @@
 #ifndef SGMSAMPLECHAMBERVACUUMMOVEACTIONINFO_H
 #define SGMSAMPLECHAMBERVACUUMMOVEACTIONINFO_H
 
-#include "actions3/AMActionInfo3.h"
+#include "actions3/AMListActionInfo3.h"
 #include "dataman/AMNumber.h"
 
-class SGMSampleChamberVacuumMoveActionInfo : public AMActionInfo3
+class SGMSampleChamberVacuumMoveActionInfo : public AMListActionInfo3
 {
 	Q_OBJECT
 
