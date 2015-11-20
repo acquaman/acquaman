@@ -18,6 +18,7 @@
 #include "source/ClientRequest/AMDSClientRelativeCountPlusCountDataRequest.h"
 #include "source/DataHolder/AMDSGenericFlatArrayDataHolder.h"
 #include "source/DataHolder/AMDSSpectralDataHolder.h"
+#include <stdint.h>
 
 #include <QDebug>
 

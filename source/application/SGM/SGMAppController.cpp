@@ -51,7 +51,7 @@ bool SGMAppController::startup() {
 
 	QString currentUser = getenv("USER");
 
-	if(currentUser != "workmai" && currentUser != "sgm-upgrade" && currentUser != "iain" && currentUser != "hunterd" && currentUser != "chevrid" && currentUser != "helfrij") {
+	if(currentUser != "workmai" && currentUser != "sgm-upgrade" && currentUser != "iain" && currentUser != "hunterd" && currentUser != "chevrid" && currentUser != "helfrij" && currentUser != "acquaman") {
 		AMErrorMon::error(this, SGMAPPCONTROLLER_WRONG_USER, "This user account is not permitted to run the SGM Upgrade version of Acquaman.");
 		return false;
 	}
@@ -158,7 +158,7 @@ void SGMAppController::onAMDSServerConnected(const QString &hostIdentifier)
 
 void SGMAppController::setupAMDSClientAppController()
 {
-//	AMDSServerDefs_.insert(QString("AmptekServer"), AMDSServerConfiguration(QString("AmptekServer"), QString("10.52.48.40"), 28044));
+	AMDSServerDefs_.insert(QString("AmptekServer"), AMDSServerConfiguration(QString("AmptekServer"), QString("10.52.48.40"), 28044));
 	AMDSServerDefs_.insert(QString("ScalerServer"), AMDSServerConfiguration(QString("ScalerServer"), QString("10.52.48.1"), 28044));
 
 	// NOTE: it will be better to move this to CLSBeamline, when
