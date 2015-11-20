@@ -6,6 +6,7 @@
 #include "util/TimeEvolutionStripTool/AMTESTServerConfiguration.h"
 
 class AMDSServer;
+class AMDSClientRequest;
 
 #define AMTESTSERVERCONNECTION_CONNECTING_TO_SERVER 324100
 #define AMTESTSERVERCONNECTION_CONNECTED_TO_SERVER 324101
@@ -29,6 +30,11 @@ public:
 	/// Returns whether we should be connected to the server or not.
 	bool connectedToServer() const { return connectedToServer_; }
 
+	/// Convenience getter for the host name.
+	QString hostName() const { return serverConfiguration_.hostName(); }
+	/// Convenience getter for the port number.
+	quint16 portNumber() const { return serverConfiguration_.portNumber(); }
+
 signals:
 	/// Notifier that the server is connecting.
 	void serverConnecting();
@@ -45,9 +51,16 @@ public slots:
 	/// Disconnects from the data server.
 	void disconnectFromServer();
 
+	/// Convenience setter for the host name.
+	void setHostName(const QString &newHostName);
+	/// Convenience setter for the port number.
+	void setPortNumber(quint16 newPortNumber);
+
 protected slots:
 	/// Handles listening to the new server connection signal from the client app controller.
 	void onNewServerConnection(const QString &serverIdentifier);
+	/// Handles the client data requests.
+	void onClientDataRequest(AMDSClientRequest *request);
 	/// Handles the server error.
 	void onServerError(AMDSServer *server, int code, const QString &socketKey, const QString &errorString);
 

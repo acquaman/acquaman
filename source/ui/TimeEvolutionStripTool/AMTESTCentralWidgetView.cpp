@@ -19,10 +19,30 @@ AMTESTCentralWidgetView::AMTESTCentralWidgetView(QWidget *parent)
 	connectionButtonsLayout->addWidget(ampteksButton);
 	connectionButtonsLayout->addWidget(pvsButton);
 
+	setupPlot();
+
 	QVBoxLayout *centralWidgetLayout = new QVBoxLayout;
 	centralWidgetLayout->addLayout(connectionButtonsLayout);
-	centralWidgetLayout->addStretch();
+	centralWidgetLayout->addWidget(plotWidget_);
 
 	setLayout(centralWidgetLayout);
+}
+
+AMTESTCentralWidgetView::~AMTESTCentralWidgetView()
+{
+
+}
+
+void AMTESTCentralWidgetView::setupPlot()
+{
+	plotWidget_ = new MPlotWidget;
+	plotWidget_->enableAntiAliasing(true);
+
+	plot_ = new MPlot;
+	plotWidget_->setPlot(plot_);
+
+	plot_->axisBottom()->setAxisNameFont(QFont("Helvetica", 6));
+	plot_->axisBottom()->setTickLabelFont(QFont("Helvetica", 6));
+	plot_->axisBottom()->setAxisName("Time");
 }
 

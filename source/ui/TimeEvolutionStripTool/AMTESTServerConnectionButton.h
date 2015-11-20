@@ -28,6 +28,9 @@ protected slots:
 	/// Handles when the disconnected singal is emitted.
 	void onDisconnected();
 
+	/// Handles popping up the context menu to bring up the configuration edit view.
+	void onCustomContextMenuRequested(const QPoint &point);
+
 protected:
 	/// Holds the server conection for this button.
 	AMTESTServerConnection *serverConnection_;

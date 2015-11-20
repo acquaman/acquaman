@@ -2,6 +2,9 @@
 
 #include "appController/AMDSClientAppController.h"
 #include "Connection/AMDSServer.h"
+#include "ClientRequest/AMDSClientRequest.h"
+#include "ClientRequest/AMDSClientIntrospectionRequest.h"
+#include "DataElement/AMDSBufferGroupInfo.h"
 
 #include "util/AMErrorMonitor.h"
 
@@ -37,6 +40,16 @@ void AMTESTServerConnection::disconnectFromServer()
 	emit serverDisconnected();
 }
 
+void AMTESTServerConnection::setHostName(const QString &newHostName)
+{
+	serverConfiguration_.setHostName(newHostName);
+}
+
+void AMTESTServerConnection::setPortNumber(quint16 newPortNumber)
+{
+	serverConfiguration_.setPortNumber(newPortNumber);
+}
+
 void AMTESTServerConnection::onNewServerConnection(const QString &serverIdentifier)
 {
 	AMTESTServerConfiguration newConnection(serverIdentifier);
@@ -45,8 +58,31 @@ void AMTESTServerConnection::onNewServerConnection(const QString &serverIdentifi
 
 		AMErrorMon::information(this, AMTESTSERVERCONNECTION_CONNECTED_TO_SERVER, QString("Connected to the %1 server...").arg(name_));
 		AMDSServer *server = AMDSClientAppController::clientAppController()->getServerByServerIdentifier(serverIdentifier);
+		connect(server, SIGNAL(requestDataReady(AMDSClientRequest*)), this, SLOT(onClientDataRequest(AMDSClientRequest*)));
 		connect(server, SIGNAL(AMDSServerError(AMDSServer*,int,QString,QString)), this, SLOT(onServerError(AMDSServer*,int,QString,QString)));
 		emit serverConnected();
+	}
+}
+
+void AMTESTServerConnection::onClientDataRequest(AMDSClientRequest *request)
+{
+	switch(request->requestType()){
+
+	case AMDSClientRequestDefinitions::Introspection:{
+
+		AMDSClientIntrospectionRequest *introspection = qobject_cast<AMDSClientIntrospectionRequest *>(request);
+
+		if (introspection){
+
+			QList<AMDSBufferGroupInfo> bufferGroups = introspection->bufferGroupInfos();
+
+			for (int i = 0, size = bufferGroups.size(); i < size; i++)
+				qDebug() << bufferGroups.at(i).name();
+		}
+		break;
+	}
+	default:
+		break;
 	}
 }
 
