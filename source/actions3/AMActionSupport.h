@@ -28,6 +28,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "actions3/actions/AMControlWaitAction.h"
 #include "actions3/actions/AMChangeToleranceAction.h"
 #include "actions3/actions/AMControlCalibrateAction.h"
+#include "actions3/actions/AMWaitAction.h"
 
 /// This namespace provides some convenience methods for using AMActions.
 namespace AMActionSupport
@@ -85,7 +86,7 @@ namespace AMActionSupport
 		return action;
 	}
 
-	/// Helper method that takes an AMCOntrol and two values (oldValue, newValue), and returna a valid AMControlCalibrateAction. Caller is responsible for memory.
+	/// Helper method that takes an AMControl and two values (oldValue, newValue), and returna a valid AMControlCalibrateAction. Caller is responsible for memory.
 	inline AMAction3 *buildControlCalibrateAction(AMControl *control, double oldValue, double newValue)
 	{
 		AMControlInfo info = control->toInfo();
@@ -93,6 +94,13 @@ namespace AMActionSupport
 		AMControlCalibrateAction *action = new AMControlCalibrateAction(actionInfo, control);
 		return action;
 	}
-}
+
+	/// Helper method that takes a time interval in seconds, and returns a new AMWaitAction. Caller is responsible for memory.
+	inline AMAction3 *buildWaitAction(double timeSeconds)
+	{
+		AMWaitActionInfo *actionInfo = new AMWaitActionInfo(timeSeconds);
+		AMWaitAction *action = new AMWaitAction(actionInfo);
+		return action;
+	}}
 
 #endif // AMACTIONSUPPORT_H
