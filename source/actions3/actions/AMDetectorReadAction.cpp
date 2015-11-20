@@ -24,6 +24,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/AMBeamlineSupport.h"
 #include "util/AMErrorMonitor.h"
 #include "acquaman/AMAgnosticDataAPI.h"
+#include <stdint.h>
 
 AMDetectorReadAction::~AMDetectorReadAction(){}
 

@@ -12,6 +12,7 @@ CONFIG -= mobility
 
 
 include ( acquamanCommon.pri )
+include( $$PATH_TO_AM/compositeCommon/AMAcquamanDataServer.pri )
 
 TARGET = AMPIC887DriverServer	
 
