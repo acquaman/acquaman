@@ -31,25 +31,6 @@ public:
 protected:
 	/// Creates and returns a move action to the given destination.
 	virtual AMAction3* createMoveAction(double indexSetpoint);
-
-	/// Creates and returns a move action to the Vented state.
-	AMAction3* createMoveToVentedAction();
-	/// Creates and returns a move action to the Vented state from a Vacuum state.
-	AMAction3* createMoveToVentedFromVacuumAction();
-
-	/// Creates and returns a move action to the RoughVacuum state.
-	AMAction3* createMoveToRoughVacuumAction();
-	/// Creates and returns a move action to the RoughVacuum state from the Vented state.
-	AMAction3* createMoveToRoughVacuumFromVentedAction();
-	/// Creates and returns a move action to the RoughVacuum state from the HighVacuum state.
-	AMAction3* createMoveToRoughVacuumFromHighVacuumAction();
-
-	/// Creates and returns a move action to the HighVacuum state.
-	AMAction3* createMoveToHighVacuumAction();
-	/// Creates and returns a move action to the HighVacuum state from a Vented state.
-	AMAction3* createMoveToHighVacuumFromVentedAction();
-	/// Creates and returns a move action to the HighVacuum state from a RoughVacuum state.
-	AMAction3* createMoveToHighVacuumFromRoughVacuumAction();
 };
 
 #endif // SGMSAMPLECHAMBERVACUUM_H

@@ -33,7 +33,10 @@ HEADERS += \
     source/beamline/SGM/SGMVATValve.h \
     source/beamline/SGM/SGMSampleChamberVacuum.h \
     source/ui/SGM/SGMVATValveView.h \
-    source/beamline/SGM/SGMTurboPump.h
+    source/beamline/SGM/SGMTurboPump.h \
+    source/actions3/SGM/SGMSampleChamberVacuumMoveActionInfo.h \
+    source/actions3/SGM/SGMSampleChamberVacuumMoveAction.h \
+    source/actions3/SGM/SGMActionSupport.h
 
 SOURCES += \
     source/beamline/SGM/SGMMAXvMotor.cpp \
@@ -58,4 +61,6 @@ SOURCES += \
     source/beamline/SGM/SGMVATValve.cpp \
     source/beamline/SGM/SGMSampleChamberVacuum.cpp \
     source/ui/SGM/SGMVATValveView.cpp \
-    source/beamline/SGM/SGMTurboPump.cpp
+    source/beamline/SGM/SGMTurboPump.cpp \
+    source/actions3/SGM/SGMSampleChamberVacuumMoveActionInfo.cpp \
+    source/actions3/SGM/SGMSampleChamberVacuumMoveAction.cpp

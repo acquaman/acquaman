@@ -1,5 +1,6 @@
 #include "AMPseudoMotorControl.h"
 #include "util/AMErrorMonitor.h"
+#include <QWidget>
 
 AMPseudoMotorControl::AMPseudoMotorControl(const QString &name, const QString &units, QObject *parent, const QString &description) :
 	AMControl(name, units, parent, description)
@@ -208,6 +209,13 @@ AMControl::FailureExplanation AMPseudoMotorControl::move(double setpoint)
 
 	succeededMapper_->setMapping(moveAction, moveAction);
 	connect( moveAction, SIGNAL(succeeded()), succeededMapper_, SLOT(map()) );
+
+	// Create move action view (if implemented).
+
+	QWidget *view = createMoveActionView(moveAction);
+
+	if (view)
+		view->show();
 
 	// Run action.
 

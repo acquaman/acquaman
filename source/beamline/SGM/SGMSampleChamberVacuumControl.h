@@ -55,48 +55,6 @@ protected slots:
 	virtual bool removeVacuumOption(int index);
 
 protected:
-	/// Returns a new action that turns off the given turbo pump. Returns 0 if no valid turbo pump is given.
-	AMAction3* turnOffTurbo(SGMTurboPump *turbo);
-	/// Returns a new action that checks that the given turbo pump is off. Returns 0 if no valid turbo pump is given.
-	AMAction3* checkTurboOff(SGMTurboPump *turbo);
-	/// Returns a new action that turns on the given turbo pump. Returns 0 if no valid turbo pump is given.
-	AMAction3* turnOnTurbo(SGMTurboPump *turbo);
-	/// Returns a new action that checks that the given turbo pump is on. Returns 0 if no valid turbo pump is given.
-	AMAction3* checkTurboOn(SGMTurboPump *turbo);
-
-	/// Returns a new action that turns off the chamber turbo pumps. Returns 0 if turbos are invalid.
-	AMAction3* turnOffChamberTurbos();
-	/// Returns a new action that checks that the chamber turbo pumps are off. Returns 0 if the turbos are invalid.
-	AMAction3* checkChamberTurbosOff();
-	/// Returns a new action that turns on the chamber turbo pumps. Returns 0 if the turbos are invalid.
-	AMAction3* turnOnChamberTurbos();
-	/// Returns a new action that checks that the chamber turbo pumps are on. Returns 0 if the turbos are invlaid.
-	AMAction3* checkChamberTurbosOn();
-
-	/// Returns a new action that turns off the chamber roughing pump. Returns 0 if roughing pump is invalid.
-	AMAction3* turnOffChamberRoughingPump() { return 0; }
-	/// Returns a new action that checks that the chamber roughing pump is off. Returns 0 if roughing pump is invalid.
-	AMAction3* checkChamberRoughingPumpOff() { return 0; }
-	/// Returns a new action that turns on the chamber roughing pump. Returns 0 if no valid turbo pump is given.
-	AMAction3* turnOnChamberRoughingPump() { return 0; }
-	/// Returns a new action that checks that the chamber roughing pump is on. Returns 0 if roughing pump is invalid.
-	AMAction3* checkChamberRoughingPumpOn() { return 0; }
-
-	/// Returns a new action that closes the VAT valve, at the given speed. Returns 0 if no valid valve is given.
-	AMAction3* closeVATValve(double speed);
-	/// Returns a new action that checks that the VAT valve is closed. Returns 0 if no valid valve is given.
-	AMAction3* checkVATValveClosed();
-	/// Returns a new action that opens the VAT valve, at the given speed. Returns 0 if no valid valve is given.
-	AMAction3* openVATValve(double speed);
-	/// Returns a new action that checks that the VAT valve is open. Returns 0 if no valid valve is given.
-	AMAction3* checkVATValveOpen();
-
-	/// Returns a new action that checks that the chamber door is closed. Returns 0 if no valid door control is found.
-	AMAction3* checkDoorClosed() { return 0; }
-	/// Returns a new action that checks that the chamber door is open. Returns 0 if no valid door control found.
-	AMAction3* checkDoorOpen() { return 0; }
-
-protected:
 	/// The sample chamber turbo pumps.
 	AMControlSet *turbos_;
 	/// The sample chamber VAT valve control.
