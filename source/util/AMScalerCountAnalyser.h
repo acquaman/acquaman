@@ -3,30 +3,28 @@
 
 #include <QVector>
 #include <QPair>
+
 /*!
- * A class which identified motion periods within scaler count data. The analyser
- * makes some assumptions about this data:
- *    - When motion stops the counts will fall below the noise threshold.
- *    - Each period of motion will be characterised by a series of consecutive
- *      counts, with no zero count elements within them.
- *    - Two periods of motion will always contain at least one zero count element
- *      between them.
- */
+  * A class which is designed to analyse scaler count data for periods of interest.
+  * Such periods are defined as periods in which the counts changes from a low
+  * amount to a higher amount above some noise threshold.
+  */
 class AMScalerCountAnalyser
 {
 public:
 	/*!
 	* Creates a new instance of a scaler count analyser which
-	* will analyse the passed vector containing scaler counts.
-	* \param scalerCounts ~ The container of scaler counts which will be analysed.
+	* will analyse the passed vector containing scaler data.
+	* \param scalerCounts ~ The container of scaler data which will be analysed.
 	* \param countNoiseThreshold ~ The value below which an element of counts will
 	* be considered not moving.
-	* \param countChangeThreshold ~ The value above which the difference between
-	* two elements will be considered a transition.
+	* \param requiredConsecutivePeriods ~ The number of periods during which the
+	* data has moved below the noise theshold to consider a period of interest
+	* over.
 	*/
-	AMScalerCountAnalyser(const QVector<double>& scalerCounts,
-	                      double countNoiseThreshold,
-	                      double countChangeThreshold);
+	AMScalerCountAnalyser(const QVector<double>& scalerData,
+			      double noiseThreshold,
+			      int requiredConsecutivePeriods);
 
 	/*!
 	  * A string representation of the analysed results
@@ -34,42 +32,33 @@ public:
 	QString toString() const;
 
 	/*!
-	  * A vector containg the motion periods identified by the analyser. Each
+	  * A vector containg the interest periods identified by the analyser. Each
 	  * pair contained has its first element as the start index in the scaler count
-	  * data of a period of motion, and its second element as the end index of the
-	  * same motion. The motions appear in the vector in the order which they occured
-	  * in the originally passed scaler data.
+	  * data of a period of interest, and its second element as the end index of the
+	  * same period. The periods appear in the vector in the order which they occured
+	  * in the scaler data analysed.
 	  */
-	QVector<QPair<int, int> > motionPeriods() const;
+	QList<QPair<int, int> > periodsOfInterest() const;
 protected:
-
-	/*!
-	  * Helper method which performs analyses the count data in order
-	  * to identify tranition points
-	  */
-	void locateTransitions();
 
 	/*!
 	  * Helper method which takes the vector of transition points and makes
 	  * them into periods of motion, with a start and end.
 	  */
-	void locateMotionPeriods();
+	void locatePeriodsOfInterest();
 
-	/// The raw scaler counts
-	QVector<double> scalerCounts_;
+	/// The raw scaler data
+	QVector<double> scalerData_;
 
-	/// The derived points of transition within the counts.
-	QVector<int> transitionIndices_;
+	/// A list of the start and end periods of interest within the scaler data
+	QList< QPair<int, int> > periodsOfInterest_;
 
-	/// A list of the start and end periods of motion within the scaler counts
-	QVector< QPair<int, int> > motionPeriods_;
+	/// The value below which an element of the scaler data is considered noise
+	double noiseThreshold_;
 
-	/// The number of counts below which is considered a non moving state
-	double countNoiseThreshold_;
-
-	/// The threshold which represents the change between two consecutive periods
-	/// of counts which will be considered a transition.
-	double countChangeThreshold_;
+	/// The required number of periods which a change in the data must occur for
+	/// to cease a period.
+	int requiredConsecutivePeriods_;
 };
 
 #endif // AMSCALERCOUNTANALYSER_H
