@@ -4,23 +4,14 @@
 #include <QVBoxLayout>
 
 #include "ui/TimeEvolutionStripTool/AMTESTServerConnectionButton.h"
-#include "util/TimeEvolutionStripTool/AMTESTServerConfiguration.h"
-#include "util/TimeEvolutionStripTool/AMTESTServerConnection.h"
+#include "util/TimeEvolutionStripTool/AMTESTStripTool.h"
 
 AMTESTCentralWidgetView::AMTESTCentralWidgetView(QWidget *parent)
 	: QWidget(parent)
 {
-	AMTESTServerConfiguration scaler("10.52.48.1", 28044);
-	AMTESTServerConfiguration ampteks("10.52.48.40", 28044);
-	AMTESTServerConfiguration pvs("", 0);
-
-	AMTESTServerConnection *scalerConnection = new AMTESTServerConnection("Scaler", scaler);
-	AMTESTServerConnection *ampteksConnection = new AMTESTServerConnection("Ampteks", ampteks);
-	AMTESTServerConnection *pvsConnection = new AMTESTServerConnection("PVs", pvs);
-
-	AMTESTServerConnectionButton *scalerButton = new AMTESTServerConnectionButton(scalerConnection);
-	AMTESTServerConnectionButton *ampteksButton = new AMTESTServerConnectionButton(ampteksConnection);
-	AMTESTServerConnectionButton *pvsButton = new AMTESTServerConnectionButton(pvsConnection);
+	AMTESTServerConnectionButton *scalerButton = new AMTESTServerConnectionButton(AMTESTStripTool::stripTool()->serverConnectionByName("Scaler"));
+	AMTESTServerConnectionButton *ampteksButton = new AMTESTServerConnectionButton(AMTESTStripTool::stripTool()->serverConnectionByName("Ampteks"));
+	AMTESTServerConnectionButton *pvsButton = new AMTESTServerConnectionButton(AMTESTStripTool::stripTool()->serverConnectionByName("PVs"));
 	pvsButton->setDisabled(true);
 
 	QHBoxLayout *connectionButtonsLayout = new QHBoxLayout;

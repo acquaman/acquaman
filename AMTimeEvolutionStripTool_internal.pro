@@ -24,7 +24,8 @@ HEADERS += \
 	source/ui/TimeEvolutionStripTool/AMTESTCentralWidgetView.h \
 	source/util/TimeEvolutionStripTool/AMTESTServerConfiguration.h \
 	source/util/TimeEvolutionStripTool/AMTESTServerConnection.h \
-    source/ui/TimeEvolutionStripTool/AMTESTServerConnectionButton.h
+    source/ui/TimeEvolutionStripTool/AMTESTServerConnectionButton.h \
+    source/util/TimeEvolutionStripTool/AMTESTStripTool.h
 
 SOURCES += \
 	source/application/TimeEvolutionStripTool/AMTESTAppController.cpp \
@@ -34,7 +35,8 @@ SOURCES += \
 	source/ui/TimeEvolutionStripTool/AMTESTCentralWidgetView.cpp \
 	source/util/TimeEvolutionStripTool/AMTESTServerConfiguration.cpp \
 	source/util/TimeEvolutionStripTool/AMTESTServerConnection.cpp \
-    source/ui/TimeEvolutionStripTool/AMTESTServerConnectionButton.cpp
+    source/ui/TimeEvolutionStripTool/AMTESTServerConnectionButton.cpp \
+    source/util/TimeEvolutionStripTool/AMTESTStripTool.cpp
 
 RESOURCES *= \
 	source/icons/icons.qrc

@@ -7,6 +7,8 @@
 
 #include "ui/TimeEvolutionStripTool/AMTESTCentralWidgetView.h"
 #include "ui/TimeEvolutionStripTool/AMTESTMainWindow.h"
+#include "util/TimeEvolutionStripTool/AMTESTStripTool.h"
+
 #include "util/AMErrorMonitor.h"
 
 AMTESTAppController::AMTESTAppController(QObject *parent)
@@ -25,6 +27,9 @@ bool AMTESTAppController::startup()
 {
 	AMErrorMon::information(this, AMTESTAPPCONTROLER_STARTING, "Time Evolution Strip Tool is now starting...");
 
+	// Initialize model.
+	AMTESTStripTool::stripTool();
+
 	registerClasses();
 	initializeDataServer();
 	setupUI();
@@ -41,6 +46,7 @@ bool AMTESTAppController::shutdown()
 	AMErrorMon::information(this, AMTESTAPPCONTROLER_SHUTTING_DOWN, "Time Evolution Strip Tool is now shutting down...");
 
 	AMDSClientAppController::releaseAppController();
+	AMTESTStripTool::releaseStripTool();
 
 	AMErrorMon::information(this, AMTESTAPPCONTROLER_SHUTDOWN, "Time Evolution Strip Tool has shutdown...");
 
