@@ -209,14 +209,14 @@ AMAction3* SGMSampleChamberVacuumControl::checkChamberTurbosOn()
 	return result;
 }
 
-AMAction3* SGMSampleChamberVacuumControl::closeVATValve(SGMVATValve *valve, double speed)
+AMAction3* SGMSampleChamberVacuumControl::closeVATValve(double speed)
 {
 	AMAction3 *result = 0;
 
-	if (valve) {
+	if (vatValve_) {
 		AMListAction3 *closeValve = new AMListAction3(new AMListActionInfo3("Close VAT valve", "Close VAT valve"), AMListAction3::Sequential);
-		closeValve->addSubAction(AMActionSupport::buildControlMoveAction(valve->speed(), speed));
-		closeValve->addSubAction(AMActionSupport::buildControlMoveAction(valve, SGMVATValve::Closed));
+		closeValve->addSubAction(AMActionSupport::buildControlMoveAction(vatValve_->speed(), speed));
+		closeValve->addSubAction(AMActionSupport::buildControlMoveAction(vatValve_, SGMVATValve::Closed));
 
 		result = closeValve;
 	}
@@ -224,24 +224,24 @@ AMAction3* SGMSampleChamberVacuumControl::closeVATValve(SGMVATValve *valve, doub
 	return result;
 }
 
-AMAction3* SGMSampleChamberVacuumControl::checkVATValveClosed(SGMVATValve *valve)
+AMAction3* SGMSampleChamberVacuumControl::checkVATValveClosed()
 {
 	AMAction3 *result = 0;
 
-	if (valve)
-		result = AMActionSupport::buildControlWaitAction(valve, SGMVATValve::Closed, SGMSAMPLECHAMBERVACUUMCONTROL_VATVALVE_TIMEOUT);
+	if (vatValve_)
+		result = AMActionSupport::buildControlWaitAction(vatValve_, SGMVATValve::Closed, SGMSAMPLECHAMBERVACUUMCONTROL_VATVALVE_TIMEOUT);
 
 	return result;
 }
 
-AMAction3* SGMSampleChamberVacuumControl::openVATValve(SGMVATValve *valve, double speed)
+AMAction3* SGMSampleChamberVacuumControl::openVATValve(double speed)
 {
 	AMAction3 *result = 0;
 
-	if (valve) {
+	if (vatValve_) {
 		AMListAction3 *openValve = new AMListAction3(new AMListActionInfo3("Open VAT valve", "Open VAT valve"), AMListAction3::Sequential);
-		openValve->addSubAction(AMActionSupport::buildControlMoveAction(valve->speed(), speed));
-		openValve->addSubAction(AMActionSupport::buildControlMoveAction(valve, SGMVATValve::Open));
+		openValve->addSubAction(AMActionSupport::buildControlMoveAction(vatValve_->speed(), speed));
+		openValve->addSubAction(AMActionSupport::buildControlMoveAction(vatValve_, SGMVATValve::Open));
 
 		result = openValve;
 	}
@@ -249,12 +249,12 @@ AMAction3* SGMSampleChamberVacuumControl::openVATValve(SGMVATValve *valve, doubl
 	return result;
 }
 
-AMAction3* SGMSampleChamberVacuumControl::checkVATValveOpen(SGMVATValve *valve)
+AMAction3* SGMSampleChamberVacuumControl::checkVATValveOpen()
 {
 	AMAction3 *result = 0;
 
-	if (valve)
-		result = AMActionSupport::buildControlWaitAction(valve, SGMVATValve::Open, SGMSAMPLECHAMBERVACUUMCONTROL_VATVALVE_TIMEOUT);
+	if (vatValve_)
+		result = AMActionSupport::buildControlWaitAction(vatValve_, SGMVATValve::Open, SGMSAMPLECHAMBERVACUUMCONTROL_VATVALVE_TIMEOUT);
 
 	return result;
 }

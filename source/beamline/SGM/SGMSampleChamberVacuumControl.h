@@ -7,9 +7,6 @@
 #include "beamline/SGM/SGMTurboPump.h"
 #include "beamline/AMControlSet.h"
 
-#define SGMSAMPLECHAMBERVACUUMCONTROL_VATVALVE_SPEED_MIN 1
-#define SGMSAMPLECHAMBERVACUUMCONTROL_VATVALVE_SPEED_MAX 1
-
 #define SGMSAMPLECHAMBERVACUUMCONTROL_TURBO_TIMEOUT 10
 #define SGMSAMPLECHAMBERVACUUMCONTROL_VATVALVE_TIMEOUT 10
 
@@ -86,13 +83,13 @@ protected:
 	AMAction3* checkChamberRoughingPumpOn() { return 0; }
 
 	/// Returns a new action that closes the VAT valve, at the given speed. Returns 0 if no valid valve is given.
-	AMAction3* closeVATValve(SGMVATValve *valve, double speed);
+	AMAction3* closeVATValve(double speed);
 	/// Returns a new action that checks that the VAT valve is closed. Returns 0 if no valid valve is given.
-	AMAction3* checkVATValveClosed(SGMVATValve *valve);
+	AMAction3* checkVATValveClosed();
 	/// Returns a new action that opens the VAT valve, at the given speed. Returns 0 if no valid valve is given.
-	AMAction3* openVATValve(SGMVATValve *valve, double speed);
+	AMAction3* openVATValve(double speed);
 	/// Returns a new action that checks that the VAT valve is open. Returns 0 if no valid valve is given.
-	AMAction3* checkVATValveOpen(SGMVATValve *valve);
+	AMAction3* checkVATValveOpen();
 
 	/// Returns a new action that checks that the chamber door is closed. Returns 0 if no valid door control is found.
 	AMAction3* checkDoorClosed() { return 0; }
