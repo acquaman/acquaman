@@ -414,7 +414,7 @@ void AMContinuousScanActionController::axisFinished1DHelper()
 				asScalerChannelDetector = qobject_cast<CLSScalerChannelDetector*>(oneDetector);
 				if(!asScalerChannelDetector){
 					dataHolderAsGenericFlatArrayDataHolder = qobject_cast<AMDSLightWeightGenericFlatArrayDataHolder*>(clientDataRequestMap_.value(oneDetector->amdsBufferName())->data().at(x));
-					scan_->rawData()->setValue(insertionIndex_, scan_->rawData()->idOfMeasurement(oneDetector->name()), dataHolderAsGenericFlatArrayDataHolder->dataArray().constVectorDouble().constData());
+					scan_->rawData()->setValue(insertionIndex_, scan_->rawData()->idOfMeasurement(oneDetector->name()), dataHolderAsGenericFlatArrayDataHolder->dataArray().asConstVectorDouble().constData());
 				}
 			}
 
@@ -438,7 +438,7 @@ void AMContinuousScanActionController::axisFinished1DHelper()
 				asScalerChannelDetector = qobject_cast<CLSScalerChannelDetector*>(oneDetector);
 				if(!asScalerChannelDetector){
 					dataHolderAsGenericFlatArrayDataHolder = qobject_cast<AMDSLightWeightGenericFlatArrayDataHolder*>(clientDataRequestMap_.value(oneDetector->amdsBufferName())->data().at(x));
-					scan_->rawData()->setValue(insertionIndex_, scan_->rawData()->idOfMeasurement(oneDetector->name()), dataHolderAsGenericFlatArrayDataHolder->dataArray().constVectorDouble().constData());
+					scan_->rawData()->setValue(insertionIndex_, scan_->rawData()->idOfMeasurement(oneDetector->name()), dataHolderAsGenericFlatArrayDataHolder->dataArray().asConstVectorDouble().constData());
 				}
 			}
 
