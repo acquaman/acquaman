@@ -92,10 +92,10 @@ void CLSAMDSScaler::configAMDSServer(const QString &amdsServerIdentifier)
 {
 	amdsServerIdentifier_ = amdsServerIdentifier;
 
-	qDebug() << "Looking for scaler server by identifier " << amdsServerIdentifier;
+	qDebug() << "Looking for AMDS_SCALER server by identifier " << amdsServerIdentifier;
 	AMDSServer *scalerAMDSServer = AMDSClientAppController::clientAppController()->getServerByServerIdentifier(amdsServerIdentifier_);
 	if (scalerAMDSServer) {
-		qDebug() << "Returned a valid server, connect to it " << scalerAMDSServer->hostName();
+		qDebug() << "AMDS_SCALER Returned a valid server, connect to it " << scalerAMDSServer->hostName();
 		connect(scalerAMDSServer, SIGNAL(requestDataReady(AMDSClientRequest*)), this, SLOT(onRequestDataReady(AMDSClientRequest*)));
 		connect(AMDSClientAppController::clientAppController(), SIGNAL(serverError(int,bool,QString,QString)), this, SLOT(onServerError(int,bool,QString,QString)));
 	}
@@ -105,10 +105,10 @@ bool CLSAMDSScaler::retrieveBufferedData(double seconds)
 {
 	AMDSClientAppController *clientAppController = AMDSClientAppController::clientAppController();
 	AMDSServer *scalerAMDSServer = clientAppController->getServerByServerIdentifier(amdsServerIdentifier_);
-	qDebug() << "Trying to retrieve scaler AMDS data " << amdsBufferName_ << scalerAMDSServer->bufferNames();
+	qDebug() << "Trying to retrieve AMDS_SCALER AMDS data " << amdsBufferName_ << scalerAMDSServer->bufferNames();
 	if (scalerAMDSServer && !amdsBufferName_.isEmpty() && scalerAMDSServer->bufferNames().contains(amdsBufferName_)){
 		double dataRequestSize = continuousDataWindowSeconds_*1000/((double)pollingRateMilliSeconds_);
-		qDebug() << "Scaler calculated data request of size " << dataRequestSize;
+		qDebug() << "AMDS_SCALER calculated data request of size " << dataRequestSize;
 
 		return clientAppController->requestClientData(scalerAMDSServer->hostName(), scalerAMDSServer->portNumber(), amdsBufferName_, dataRequestSize, dataRequestSize, true, false);
 	}
@@ -380,12 +380,12 @@ void CLSAMDSScaler::onDwellTimeSourceSetDwellTime(double dwellSeconds)
 /// ============= SLOTs to handle AMDSClientAppController signals =========
 void CLSAMDSScaler::onRequestDataReady(AMDSClientRequest* clientRequest)
 {
-	qDebug() << "Scaler sees a clientRequest";
+	qDebug() << "AMDS_SCALER sees a clientRequest";
 	AMDSClientIntrospectionRequest *introspectionRequest = qobject_cast<AMDSClientIntrospectionRequest*>(clientRequest);
 	if(introspectionRequest){
 		qDebug() << "Got an introspection request response";
 
-		qDebug() << "Scaler: All buffer names: " << introspectionRequest->getAllBufferNames();
+		qDebug() << "AMDS_SCALER: All buffer names: " << introspectionRequest->getAllBufferNames();
 	}
 
 	AMDSClientRelativeCountPlusCountDataRequest *relativeCountPlusCountDataRequst = qobject_cast<AMDSClientRelativeCountPlusCountDataRequest*>(clientRequest);

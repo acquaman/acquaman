@@ -212,6 +212,7 @@ AMAction3* AMGenericScanActionControllerAssembler::generateActionTreeForStepAxis
 }
 
 #include "beamline/CLS/CLSAdvancedScalerChannelDetector.h"
+#include "beamline/CLS/CLSAMDSScalerChannelDetector.h"
 #include "actions3/actions/AMDetectorTriggerAction.h"
 AMAction3* AMGenericScanActionControllerAssembler::generateActionTreeForContinuousMoveAxis(AMControl *axisControl, AMScanAxis *continuousMoveScanAxis)
 {
@@ -263,7 +264,11 @@ AMAction3* AMGenericScanActionControllerAssembler::generateActionTreeForContinuo
 		QList<AMDetector*> detectorsToConfigure;
 		bool foundOneScaler = false;
 		for(int x = 0, size = detectors_->count(); x < size; x++){
-			CLSScalerChannelDetector *asScalerChannelDetector = qobject_cast<CLSScalerChannelDetector*>(detectors_->at(x));
+
+			// TESTING MOVING FROM CLSScalerChannelDetector to CLSAMDSScalerChannelDetector
+//			CLSScalerChannelDetector *asScalerChannelDetector = qobject_cast<CLSScalerChannelDetector*>(detectors_->at(x));
+
+			CLSAMDSScalerChannelDetector *asScalerChannelDetector = qobject_cast<CLSAMDSScalerChannelDetector*>(detectors_->at(x));
 			if(asScalerChannelDetector && !foundOneScaler){
 				foundOneScaler = true;
 				detectorsToConfigure.append(detectors_->at(x));

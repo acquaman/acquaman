@@ -36,6 +36,7 @@ class SGMXPSLadder;
 class SGMBypassLadder;
 class SGMXASLadder;
 class CLSAMDSScaler;
+class CLSAMDSScalerChannelDetector;
 
 /*!
   * A singleton class which represents the SGM beamline. The beamline class can
@@ -214,6 +215,7 @@ protected:
 	CLSSIS3820Scaler *scaler_;
 	CLSAMDSScaler *amdsScaler_;
 
+	/* TESTING MOVING FROM CLSScalerChannelDetector to CLSAMDSScalerChannelDetector
 	CLSScalerChannelDetector *teyDetector_;
 	CLSScalerChannelDetector *tfyDetector_;
 	CLSScalerChannelDetector *i0Detector_;
@@ -229,6 +231,23 @@ protected:
 	CLSScalerChannelDetector *hexapodBlackDetector_;
 	CLSScalerChannelDetector *encoderUpDetector_;
 	CLSScalerChannelDetector *encoderDownDetector_;
+	*/
+
+	CLSAMDSScalerChannelDetector *teyDetector_;
+	CLSAMDSScalerChannelDetector *tfyDetector_;
+	CLSAMDSScalerChannelDetector *i0Detector_;
+	CLSAMDSScalerChannelDetector *pdDetector_;
+
+	CLSAMDSScalerChannelDetector *filteredPD1Detector_;
+	CLSAMDSScalerChannelDetector *filteredPD2Detector_;
+	CLSAMDSScalerChannelDetector *filteredPD3Detector_;
+	CLSAMDSScalerChannelDetector *filteredPD4Detector_;
+//	CLSAMDSScalerChannelDetector *filteredPD5Detector_;
+
+	CLSAMDSScalerChannelDetector *hexapodRedDetector_;
+	CLSAMDSScalerChannelDetector *hexapodBlackDetector_;
+	CLSAMDSScalerChannelDetector *encoderUpDetector_;
+	CLSAMDSScalerChannelDetector *encoderDownDetector_;
 
 	CLSAmptekSDD123DetectorNew* amptekSDD1_;
 	CLSAmptekSDD123DetectorNew* amptekSDD2_;
