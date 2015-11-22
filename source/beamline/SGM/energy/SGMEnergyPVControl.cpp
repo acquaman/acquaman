@@ -9,12 +9,12 @@
 #include "beamline/SGM/energy/SGMExitSlitSupport.h"
 SGMEnergyPVControl::SGMEnergyPVControl(QObject *parent) :
     AMPVwStatusControl("Energy",
-                       "AM1611-4-I10:energy:eV:fbk",
-                       "AM1611-4-I10:energy:eV",
+		       "AM1611-4-I10:energy:eV:fbk",
+		       "AM1611-4-I10:energy:eV",
                        "AM1611-4-I10:energy:status",
                        "AM1611-4-I10:energy:stop",
-                       parent,
-                       0.5,
+		       parent,
+		       0.5,
                        2.0,
                        new CLSMAXvControlStatusChecker())
 {
