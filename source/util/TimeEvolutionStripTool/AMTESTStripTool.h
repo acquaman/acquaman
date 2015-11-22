@@ -24,6 +24,12 @@ public:
 	/// Returns the server connnection from the provided \param name.  Returns 0 if \param name doesn't exist.
 	AMTESTServerConnection *serverConnectionByName(const QString &name) const;
 
+signals:
+	/// Notifier that one of the connections has new data models.
+	void dataModelsCreated(AMTESTServerConnection *);
+	/// Notifier that data models need to be removed because their connection has been lost or terminated.
+	void dataModelsDeleted(const QStringList &);
+
 protected:
 	/// Protected constructor for singleton.
 	explicit AMTESTStripTool(QObject *parent = 0);

@@ -47,5 +47,11 @@ void AMTESTStripTool::setupServerConnections()
 	serverConnections_.append(new AMTESTServerConnection("Scaler", AMTESTServerConfiguration("10.52.48.1", 28044), this));
 	serverConnections_.append(new AMTESTServerConnection("Ampteks", AMTESTServerConfiguration("10.52.48.40", 28044), this));
 	serverConnections_.append(new AMTESTServerConnection("PVs", AMTESTServerConfiguration("", 0), this));
+
+	foreach (AMTESTServerConnection *connection, serverConnections_){
+
+		connect(connection, SIGNAL(dataModelsCreated(AMTESTServerConnection*)), this, SIGNAL(dataModelsCreated(AMTESTServerConnection*)));
+		connect(connection, SIGNAL(dataModelsDeleted(QStringList)), this, SIGNAL(dataModelsDeleted(QStringList)));
+	}
 }
 

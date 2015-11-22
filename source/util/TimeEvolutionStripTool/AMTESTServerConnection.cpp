@@ -4,7 +4,11 @@
 #include "Connection/AMDSServer.h"
 #include "ClientRequest/AMDSClientRequest.h"
 #include "ClientRequest/AMDSClientIntrospectionRequest.h"
+#include "ClientRequest/AMDSClientContinuousDataRequest.h"
 #include "DataElement/AMDSBufferGroupInfo.h"
+
+#include "util/TimeEvolutionStripTool/AMTESTDataModel.h"
+#include "util/TimeEvolutionStripTool/AMTESTSeriesDataModel.h"
 
 #include "util/AMErrorMonitor.h"
 
@@ -37,6 +41,7 @@ void AMTESTServerConnection::disconnectFromServer()
 	AMErrorMon::information(this, AMTESTSERVERCONNECTION_DISCONNECTING_FROM_SERVER, QString("Disconnecting from the %1 server...").arg(name_));
 	AMDSClientAppController::clientAppController()->disconnectWithServer(serverConfiguration_.serverIdentifier());
 	connectedToServer_ = false;
+	removeAllDataModels();
 	emit serverDisconnected();
 }
 
@@ -74,13 +79,40 @@ void AMTESTServerConnection::onClientDataRequest(AMDSClientRequest *request)
 
 		if (introspection){
 
+			bool isScaler = false;
 			QList<AMDSBufferGroupInfo> bufferGroups = introspection->bufferGroupInfos();
 
-			for (int i = 0, size = bufferGroups.size(); i < size; i++)
-				qDebug() << bufferGroups.at(i).name();
+			for (int i = 0, size = bufferGroups.size(); i < size; i++){
+
+				AMDSBufferGroupInfo info = bufferGroups.at(i);
+
+				if (info.name().contains("Scaler"))
+					isScaler = true;
+			}
+
+			if (isScaler)
+				configureScaler(introspection);
+//			AMDSClientAppController::clientAppController()->requestClientData(serverConfiguration_.hostName(),
+//											  serverConfiguration_.portNumber(),
+//											  bufferGroupNames,
+//											  10);
 		}
+
 		break;
 	}
+
+	case AMDSClientRequestDefinitions::Continuous:{
+
+		AMDSClientContinuousDataRequest *continuous = qobject_cast<AMDSClientContinuousDataRequest *>(request);
+
+		if (continuous){
+
+			qDebug() << "We are in the continuous data request.";
+		}
+
+		break;
+	}
+
 	default:
 		break;
 	}
@@ -95,5 +127,33 @@ void AMTESTServerConnection::onServerError(AMDSServer *server, int code, const Q
 	lastErrorString_ = errorString;
 	AMErrorMon::alert(this, AMTESTSERVERCONNECTION_SERVER_ERROR, QString("%1 had the following error: (%2)").arg(name_).arg(lastErrorString_));
 	emit serverError(lastErrorString_);
+}
+
+void AMTESTServerConnection::configureScaler(AMDSClientIntrospectionRequest *introspectionRequest)
+{
+	// The scaler requires special treament.  But it still creates a list of 1D series data models.
+	int numberOfEnabledElements = introspectionRequest->bufferGroupInfos().first().size(0);
+
+	for (int i = 0; i < numberOfEnabledElements; i++){
+
+		AMTESTSeriesDataModel *seriesData = new AMTESTSeriesDataModel(QString("Channel %1").arg(i+1), this);
+		dataModels_ << seriesData;
+	}
+
+	emit dataModelsCreated(this);
+}
+
+void AMTESTServerConnection::removeAllDataModels()
+{
+	QStringList modelNames;
+
+	foreach (AMTESTDataModel *model, dataModels_){
+
+		modelNames << model->name();
+		model->deleteLater();
+	}
+
+	dataModels_.clear();
+	emit dataModelsDeleted(modelNames);
 }
 

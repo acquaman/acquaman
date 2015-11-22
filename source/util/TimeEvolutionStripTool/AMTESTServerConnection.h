@@ -3,10 +3,14 @@
 
 #include <QObject>
 
+#include <QStringList>
+
 #include "util/TimeEvolutionStripTool/AMTESTServerConfiguration.h"
 
 class AMDSServer;
 class AMDSClientRequest;
+class AMDSClientIntrospectionRequest;
+class AMTESTDataModel;
 
 #define AMTESTSERVERCONNECTION_CONNECTING_TO_SERVER 324100
 #define AMTESTSERVERCONNECTION_CONNECTED_TO_SERVER 324101
@@ -35,6 +39,9 @@ public:
 	/// Convenience getter for the port number.
 	quint16 portNumber() const { return serverConfiguration_.portNumber(); }
 
+	/// Returns the list of data models.
+	QList<AMTESTDataModel *> dataModels() const { return dataModels_; }
+
 signals:
 	/// Notifier that the server is connecting.
 	void serverConnecting();
@@ -44,6 +51,10 @@ signals:
 	void serverDisconnected();
 	/// Notifier that there was an error.  Passes the error string.
 	void serverError(const QString &);
+	/// Notifier that data models have been created.
+	void dataModelsCreated(AMTESTServerConnection *);
+	/// Notifier that the data models have been deleted.  Passes a list of names of models removed.
+	void dataModelsDeleted(const QStringList &);
 
 public slots:
 	/// Attempts to connect to a data server with the provided configuration.
@@ -65,6 +76,11 @@ protected slots:
 	void onServerError(AMDSServer *server, int code, const QString &socketKey, const QString &errorString);
 
 protected:
+	/// Adds connections for the scaler (which is specific at the moment).
+	void configureScaler(AMDSClientIntrospectionRequest *introspectionRequest);
+	/// Removes all the data models after the connection has been lost.
+	void removeAllDataModels();
+
 	/// Holds the human readable name.
 	QString name_;
 	/// Holds the server configuration.
@@ -73,6 +89,8 @@ protected:
 	QString lastErrorString_;
 	/// Holds whether we should be connected or not.
 	bool connectedToServer_;
+	/// Holds the list of data models that can be visualized by the strip tool.
+	QList<AMTESTDataModel *> dataModels_;
 };
 
 #endif // AMTESTSERVERCONNECTION_H

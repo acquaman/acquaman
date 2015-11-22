@@ -3,8 +3,13 @@
 
 #include <QWidget>
 
+#include <QPushButton>
+#include <QDoubleSpinBox>
+
 #include "MPlot/MPlot.h"
 #include "MPlot/MPlotWidget.h"
+
+class AMTESTDataModelListView;
 
 /// This is the central widget for the time evolution strip tool.
 class AMTESTCentralWidgetView : public QWidget
@@ -20,6 +25,14 @@ public:
 signals:
 
 public slots:
+	/// Handles starting up the data models and continuous data requests.
+	void startAcquisition();
+	/// Handles stopping the continuous data request.
+	void stopAcquisition();
+
+protected slots:
+	/// Handles updating the accessibility widgets based on the current state of the server connectivity.
+	void updateWidgetAppearance();
 
 protected:
 	/// Creates a plot for viewing the sources.
@@ -29,6 +42,14 @@ protected:
 	MPlotWidget *plotWidget_;
 	/// Holds the plot.
 	MPlot *plot_;
+	/// Widget that holds all the check boxes for the data models.
+	AMTESTDataModelListView *dataModelListView_;
+	/// Double spin box that holds the update interval for the data server continuous requests.
+	QDoubleSpinBox *timeIntervalSpinBox_;
+	/// The start button.
+	QPushButton *startButton_;
+	/// The stop button.
+	QPushButton *stopButton_;
 };
 
 #endif // AMTESTCENTRALWIDGETVIEW_H
