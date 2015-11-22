@@ -155,15 +155,10 @@ void CLSAMDSScalerChannelDetector::onScalerConnected(bool connected)
 
 void CLSAMDSScalerChannelDetector::onScalerDwellStateChanged(double dwellState)
 {
-//	qDebug() << "Detected the scaler dwell state changed to " << dwellState;
 	if(readMode_ == AMDetectorDefinitions::SingleRead){
-//		qDebug() << "In the singleRead branch";
-		if( fabs(dwellState - 1.0) < 0.1 ){
-//			qDebug() << "Looks like we should setAcquiring";
+		if( fabs(dwellState - 1.0) < 0.1 )
 			setAcquiring();
-		}
 		else if( fabs(dwellState - 0.0) < 0.1 ){
-//			qDebug() << "Looks like we should setAcquisitionSucceeded";
 			setAcquisitionSucceeded();
 			checkReadyForAcquisition();
 		}
