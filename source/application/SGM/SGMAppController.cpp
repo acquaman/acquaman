@@ -39,6 +39,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/SGM/SGMEnergyView.h"
 #include "ui/SGM/SGMLaddersView.h"
 #include "util/AMErrorMonitor.h"
+#include "ui/CLS/CLSAMDSScalerView.h"
 
 #include <stdlib.h> // Used for obtaining username to prevent users other than iain (for dev) or SGM-Upgrade (for commissioning). Remove for deploy.
 
@@ -196,9 +197,12 @@ void SGMAppController::setupUserInterface()
 	CLSSIS3820ScalerView* scalerView =
 			new CLSSIS3820ScalerView(SGMBeamline::sgm()->scaler());
 
+	CLSAMDSScalerView *amdsScalerView = new CLSAMDSScalerView(SGMBeamline::sgm()->amdsScaler());
+
 	mw_->insertHeading("Components", 0);
 
 	mw_->addPane(AMMainWindow::buildMainWindowPane("Scaler", ":/system-software-update.png", scalerView),"Components", "Scaler",  ":/system-software-update.png");
+	mw_->addPane(AMMainWindow::buildMainWindowPane("AMDS Scaler", ":/system-software-update.png", amdsScalerView),"Components", "AMDS Scaler",  ":/system-software-update.png");
 
 	SGMHexapodView* hexapodView =
 			new SGMHexapodView(SGMBeamline::sgm()->hexapod());

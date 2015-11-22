@@ -34,6 +34,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/SGM/SGMXPSLadder.h"
 #include "beamline/SGM/SGMBypassLadder.h"
 #include "beamline/SGM/SGMXASLadder.h"
+#include "beamline/CLS/CLSAMDSScaler.h"
 
 SGMBeamline* SGMBeamline::sgm() {
 
@@ -62,7 +63,8 @@ bool SGMBeamline::isConnected() const
 			scaler_->isConnected() &&
 			xpsLadder_->isConnected() &&
 			bypassLadder_->isConnected() &&
-			xasLadder_->isConnected();
+			xasLadder_->isConnected() &&
+			amdsScaler_->isConnected();
 }
 
 AMControl * SGMBeamline::endStationTranslationSetpoint() const
@@ -139,6 +141,11 @@ CLSAmptekSDD123DetectorNew * SGMBeamline::amptekSDD4() const
 CLSSIS3820Scaler * SGMBeamline::scaler() const
 {
 	return scaler_;
+}
+
+CLSAMDSScaler* SGMBeamline::amdsScaler() const
+{
+	return amdsScaler_;
 }
 
 SGMXPSLadder* SGMBeamline::xpsLadder() const
@@ -218,26 +225,43 @@ void SGMBeamline::setupBeamlineComponents()
 	CLSSR570 *tempSR570;
 
 	scaler_ = new CLSSIS3820Scaler("BL1611-ID-1:mcs",  "Scaler (BL1611-ID-1)", this);
+	amdsScaler_ = new CLSAMDSScaler("BL1611-ID-1:AMDS:scaler", "Scaler (BL1611-ID-1)", this);
 
 	tempSR570 = new CLSSR570("TEY", "Amp1611-4-21", this);
 	scaler_->channelAt(0)->setCurrentAmplifier(tempSR570);
 	scaler_->channelAt(0)->setVoltagRange(AMRange(1.0, 6.5));
 	scaler_->channelAt(0)->setCustomChannelName("TEY");
 
+	amdsScaler_->channelAt(0)->setCurrentAmplifier(tempSR570);
+	amdsScaler_->channelAt(0)->setVoltagRange(AMRange(1.0, 6.5));
+	amdsScaler_->channelAt(0)->setCustomChannelName("TEY");
+
 	tempSR570 = new CLSSR570("I0", "Amp1611-4-22", this);
 	scaler_->channelAt(1)->setCurrentAmplifier(tempSR570);
 	scaler_->channelAt(1)->setVoltagRange(AMRange(1.0, 6.5));
 	scaler_->channelAt(1)->setCustomChannelName("I0");
+
+	amdsScaler_->channelAt(1)->setCurrentAmplifier(tempSR570);
+	amdsScaler_->channelAt(1)->setVoltagRange(AMRange(1.0, 6.5));
+	amdsScaler_->channelAt(1)->setCustomChannelName("I0");
 
 	tempSR570 = new CLSSR570("TFY PD", "Amp1611-4-23", this);
 	scaler_->channelAt(2)->setCurrentAmplifier(tempSR570);
 	scaler_->channelAt(2)->setVoltagRange(AMRange(1.0, 6.5));
 	scaler_->channelAt(2)->setCustomChannelName("TFY PD ");
 
+	amdsScaler_->channelAt(2)->setCurrentAmplifier(tempSR570);
+	amdsScaler_->channelAt(2)->setVoltagRange(AMRange(1.0, 6.5));
+	amdsScaler_->channelAt(2)->setCustomChannelName("TFY PD ");
+
 	tempSR570 = new CLSSR570("PD", "Amp1611-4-24", this);
 	scaler_->channelAt(3)->setCurrentAmplifier(tempSR570);
 	scaler_->channelAt(3)->setVoltagRange(AMRange(1.0, 6.5));
 	scaler_->channelAt(3)->setCustomChannelName("PD");
+
+	amdsScaler_->channelAt(3)->setCurrentAmplifier(tempSR570);
+	amdsScaler_->channelAt(3)->setVoltagRange(AMRange(1.0, 6.5));
+	amdsScaler_->channelAt(3)->setCustomChannelName("PD");
 
 	scaler_->channelAt(4)->setCustomChannelName("UP");
 	scaler_->channelAt(5)->setCustomChannelName("DOWN");
@@ -246,6 +270,14 @@ void SGMBeamline::setupBeamlineComponents()
 	scaler_->channelAt(8)->setCustomChannelName("FPD3");
 	scaler_->channelAt(9)->setCustomChannelName("FPD4");
 	scaler_->channelAt(10)->setCustomChannelName("FPD5");
+
+	amdsScaler_->channelAt(4)->setCustomChannelName("UP");
+	amdsScaler_->channelAt(5)->setCustomChannelName("DOWN");
+	amdsScaler_->channelAt(6)->setCustomChannelName("FPD1");
+	amdsScaler_->channelAt(7)->setCustomChannelName("FPD2");
+	amdsScaler_->channelAt(8)->setCustomChannelName("FPD3");
+	amdsScaler_->channelAt(9)->setCustomChannelName("FPD4");
+	amdsScaler_->channelAt(10)->setCustomChannelName("FPD5");
 
 	// Set up the diagnostic ladder controls.
 
@@ -266,6 +298,7 @@ void SGMBeamline::setupBeamlineComponents()
 	connect(xpsLadder_, SIGNAL(connected(bool)), this, SLOT(onConnectionStateChanged(bool)));
 	connect(bypassLadder_, SIGNAL(connected(bool)), this, SLOT(onConnectionStateChanged(bool)));
 	connect(xasLadder_, SIGNAL(connected(bool)), this, SLOT(onConnectionStateChanged(bool)) );
+	connect(amdsScaler_, SIGNAL(connectedChanged(bool)), this, SLOT(onConnectionStateChanged(bool)));
 
 	// Ensure that the inital cached connected state is valid, and emit an initial
 	// connected signal:

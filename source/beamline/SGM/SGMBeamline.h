@@ -35,6 +35,7 @@ class SGMHexapod;
 class SGMXPSLadder;
 class SGMBypassLadder;
 class SGMXASLadder;
+class CLSAMDSScaler;
 
 /*!
   * A singleton class which represents the SGM beamline. The beamline class can
@@ -124,6 +125,7 @@ public:
 	  */
 	virtual CLSSIS3820Scaler* scaler() const;
 
+	virtual CLSAMDSScaler* amdsScaler() const;
 	/*!
 	 * The XPS ladder.
 	 */
@@ -210,6 +212,7 @@ protected:
 	SGMHexapod* hexapod_;
 
 	CLSSIS3820Scaler *scaler_;
+	CLSAMDSScaler *amdsScaler_;
 
 	CLSScalerChannelDetector *teyDetector_;
 	CLSScalerChannelDetector *tfyDetector_;
