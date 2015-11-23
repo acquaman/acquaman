@@ -10,7 +10,7 @@ class AMTESTSeriesData : public MPlotAbstractSeriesData
 {
 public:
 	/// Constructor.
-	AMTESTSeriesData();
+	AMTESTSeriesData(int dataSize);
 	/// Destructor.
 	virtual ~AMTESTSeriesData();
 
@@ -27,11 +27,16 @@ public:
 	/// Return the number of data points.
 	virtual int count() const;
 
+	/// Adds data to the series.
+	void addData(const QVector<qreal> &data);
+
 protected:
 	/// Holds the x-values for the series data.
 	QVector<qreal> xAxis_;
 	/// Holds the y-values for the series data.
 	AMTESTRingBuffer yAxis_;
+	/// Holds the time step per point (e.g.: 1 for 1 second)
+	qreal timeStep_;
 };
 
 #endif // AMTESTSERIESDATA_H
