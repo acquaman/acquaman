@@ -6,6 +6,7 @@
 #include "ClientRequest/AMDSClientIntrospectionRequest.h"
 #include "ClientRequest/AMDSClientContinuousDataRequest.h"
 #include "DataElement/AMDSBufferGroupInfo.h"
+#include "DataHolder/AMDSScalarDataHolder.h"
 
 #include "util/TimeEvolutionStripTool/AMTESTDataModel.h"
 #include "util/TimeEvolutionStripTool/AMTESTSeriesDataModel.h"
@@ -90,12 +91,9 @@ void AMTESTServerConnection::onClientDataRequest(AMDSClientRequest *request)
 					isScaler = true;
 			}
 
+			// The scaler needs to be handled specifically for the time being.
 			if (isScaler)
 				configureScaler(introspection);
-//			AMDSClientAppController::clientAppController()->requestClientData(serverConfiguration_.hostName(),
-//											  serverConfiguration_.portNumber(),
-//											  bufferGroupNames,
-//											  10);
 		}
 
 		break;
@@ -107,7 +105,10 @@ void AMTESTServerConnection::onClientDataRequest(AMDSClientRequest *request)
 
 		if (continuous){
 
-			qDebug() << "We are in the continuous data request.";
+			bool isScaler = continuous->bufferName().contains("Scaler");
+
+			if (isScaler)
+				retrieveScalerDataFromContinuousRequest(continuous);
 		}
 
 		break;
@@ -136,7 +137,7 @@ void AMTESTServerConnection::configureScaler(AMDSClientIntrospectionRequest *int
 
 	for (int i = 0; i < numberOfEnabledElements; i++){
 
-		AMTESTSeriesDataModel *seriesData = new AMTESTSeriesDataModel(QString("Channel %1").arg(i+1), this);
+		AMTESTSeriesDataModel *seriesData = new AMTESTSeriesDataModel(QString("Channel %1").arg(i+1), 5*60, 1000, this);
 		dataModels_ << seriesData;
 	}
 
@@ -155,5 +156,37 @@ void AMTESTServerConnection::removeAllDataModels()
 
 	dataModels_.clear();
 	emit dataModelsDeleted(modelNames);
+}
+
+void AMTESTServerConnection::retrieveScalerDataFromContinuousRequest(AMDSClientContinuousDataRequest *continuousDataRequest)
+{
+	qDebug() << "Retrieving data holders from continuous request: " << continuousDataRequest->data().size() << continuousDataRequest->startTime() ;
+	int bufferSize = continuousDataRequest->data().size();
+
+	if (bufferSize > 0){
+
+		QList<QVector<qreal> > enabledChannels;
+		AMDSLightWeightScalarDataHolder *scalerDataHolder = qobject_cast<AMDSLightWeightScalarDataHolder*>(continuousDataRequest->data().first());
+
+		if (scalerDataHolder)
+			for (int i = 0, size = scalerDataHolder->dataArray().size(); i < size; i++)
+				enabledChannels << QVector<qreal>(bufferSize, 0);
+
+		for (int i = 0; i < bufferSize; i++){
+
+			AMDSLightWeightScalarDataHolder *scalerDataHolder = qobject_cast<AMDSLightWeightScalarDataHolder*>(continuousDataRequest->data().at(i));
+
+			if (scalerDataHolder){
+
+				QVector<qint32> currentDataHolder = scalerDataHolder->dataArray().constVectorQint32();
+
+				for (int j = 0, dataHolderSize = currentDataHolder.size(); j < dataHolderSize; j++)
+					enabledChannels[j][i] = qreal(currentDataHolder.at(j));
+			}
+		}
+
+		for (int i = 0, size = enabledChannels.size(); i < size; i++)
+			dataModels_.at(i)->addData(enabledChannels.at(i));
+	}
 }
 

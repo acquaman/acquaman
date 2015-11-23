@@ -22,6 +22,9 @@ public:
 	/// Returns the name of the data model.
 	QString name() const { return name_; }
 
+	/// Adds new values to the front of the data vector.  Excess data is discarded.
+	virtual void addData(const QVector<qreal> &newData) = 0;
+
 signals:
 
 public slots:

@@ -10,6 +10,7 @@
 class AMDSServer;
 class AMDSClientRequest;
 class AMDSClientIntrospectionRequest;
+class AMDSClientContinuousDataRequest;
 class AMTESTDataModel;
 
 #define AMTESTSERVERCONNECTION_CONNECTING_TO_SERVER 324100
@@ -33,6 +34,8 @@ public:
 	AMTESTServerConfiguration serverConfiguration() const { return serverConfiguration_; }
 	/// Returns whether we should be connected to the server or not.
 	bool connectedToServer() const { return connectedToServer_; }
+	/// Returns whether the server is active which combines connectedToServer() and whether we have valid data models.
+	bool serverIsActive() const { return connectedToServer() && !dataModels_.isEmpty(); }
 
 	/// Convenience getter for the host name.
 	QString hostName() const { return serverConfiguration_.hostName(); }
@@ -80,6 +83,8 @@ protected:
 	void configureScaler(AMDSClientIntrospectionRequest *introspectionRequest);
 	/// Removes all the data models after the connection has been lost.
 	void removeAllDataModels();
+	/// Goes through the continuous client data request to get the data for the scaler.
+	void retrieveScalerDataFromContinuousRequest(AMDSClientContinuousDataRequest *continuousDataRequest);
 
 	/// Holds the human readable name.
 	QString name_;

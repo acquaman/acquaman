@@ -3,8 +3,12 @@
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 
+#include "appController/AMDSClientAppController.h"
+#include "Connection/AMDSServer.h"
+
 #include "ui/TimeEvolutionStripTool/AMTESTDataModelListView.h"
 #include "ui/TimeEvolutionStripTool/AMTESTServerConnectionButton.h"
+#include "util/TimeEvolutionStripTool/AMTESTServerConnection.h"
 #include "util/TimeEvolutionStripTool/AMTESTStripTool.h"
 
 AMTESTCentralWidgetView::AMTESTCentralWidgetView(QWidget *parent)
@@ -66,6 +70,16 @@ AMTESTCentralWidgetView::~AMTESTCentralWidgetView()
 void AMTESTCentralWidgetView::startAcquisition()
 {
 	dataModelListView_->setEnabled(false);
+
+	QList<AMTESTServerConnection *> serverConnections = AMTESTStripTool::stripTool()->serverConnections();
+	AMDSClientAppController *client = AMDSClientAppController::clientAppController();
+
+	foreach (AMTESTServerConnection *serverConnection, serverConnections)
+		if (serverConnection->serverIsActive())
+			client->requestClientData(serverConnection->serverConfiguration().hostName(),
+						  serverConnection->serverConfiguration().portNumber(),
+						  client->getServerByServerIdentifier(serverConnection->serverConfiguration().serverIdentifier())->bufferNames(),
+						  quint64(timeIntervalSpinBox_->value()*1000));
 }
 
 void AMTESTCentralWidgetView::stopAcquisition()
@@ -79,8 +93,7 @@ void AMTESTCentralWidgetView::updateWidgetAppearance()
 	bool hasConnections = false;
 
 	foreach (AMTESTServerConnection *serverConnection, serverConnections)
-		if (serverConnection->connectedToServer())
-			hasConnections |= !serverConnection->dataModels().isEmpty();
+		hasConnections |= serverConnection->serverIsActive();
 
 	timeIntervalSpinBox_->setEnabled(hasConnections);
 	startButton_->setEnabled(hasConnections);
