@@ -93,11 +93,6 @@ AMNumber CLSBasicCompositeScalerChannelDetector::singleReading() const{
 	return reading(AMnDIndex());
 }
 
-bool CLSBasicCompositeScalerChannelDetector::lastContinuousReading(double *outputValues) const{
-	Q_UNUSED(outputValues);
-	return false;
-}
-
 bool CLSBasicCompositeScalerChannelDetector::setAcquisitionTime(double seconds){
 	if(!isConnected())
 		return false;

@@ -71,7 +71,6 @@ class AMDetectorDwellTimeSource;
   - rank(), size(), axes() There are default implementations, but these are only valid for 0D detectors
 
   - reading0D, reading1D, reading2D There are default implementations, but they are inefficient because they will call reading() repeatedly
-  - lastContinuousReadingImplementation(double*) May be implemented to return the continuous reading. Default implementation returns false. Also, lastContinuousReading() automatically checks canContinuousAcquire() and returns false if the detector doesn't support it.
   - clearImplementation() May be implemented to internally clear the current data if possible. Default implementation returns false. Also, clear() automatically checks canClear() and returns false if the detector doesn't support it.
 
   - createInitializationActions() A default action is created using the initialization functions and signals. If you wish to make a specific action or return a list of actions you may.
@@ -105,6 +104,8 @@ class AMDetectorDwellTimeSource;
 #define AMDETECTOR_NOTIFIED_CLEANUPREQUIRED_UNEXPECTEDLY 470013
 
 #define AMDETECTOR_DEFAULT_TIMEOUT_MS 5000
+
+class AMDSClientDataRequest;
 
 class AMDetector : public QObject
 {
@@ -276,10 +277,14 @@ int outputSize = indexStart.totalPointsTo(indexEnd);
 	/// Convenience call to access the three previous calls from a common interface.
 	bool readingND(const AMnDIndex &startIndex, const AMnDIndex &endIndex, double *outputValues) const;
 
-	// FLESH THIS ONE OUT
-	/// Returns the data from the last continuous reading in the outputValues
-	virtual bool lastContinuousReading(double *outputValues) const;
-	virtual int lastContinuousSize() const;
+	/// If the detector supports the AMDSClientDataRequest, this will return an AMDSClientDataRequest pointer for the specified period of time
+	virtual AMDSClientDataRequest* lastContinuousData(double seconds) const;
+	/// Sets the continuous data window for ContinuousMode reads. This will be how much data is requested on the next trigger/acquire
+	virtual bool setContinuousDataWindow(double continuousDataWindowSeconds);
+	/// Returns the AMDS Buffer Name of this detector if there is one. A null string should be returned if there isn't one.
+	virtual QString amdsBufferName() const;
+	/// If the detector supports AMDS server AND it's a polled detector, this returns the base polling rate. Otherwise returns -1
+	virtual int amdsPollingBaseTimeMilliseconds() const;
 
 	/// Fills the given double pointer with the current detector data in row-major order (first axis varies slowest).  Memory must be preallocated to the size of the detector data.
 	virtual bool data(double *outputValues) const = 0;
@@ -477,8 +482,6 @@ protected:
 	/// This function is called from the CleaningUp (cleanup) state when the implementation should cleanup the detector. Once the detector is cleaned up you must call setCleanedUp(), if clean up has failed you must call setCleanupRequired()
 	virtual bool cleanupImplementation() = 0;
 
-	/// This function is called by lastContinuousReading(). It should place the values in the data pointer and return success/failure if your detector supports continuous reads.
-	virtual bool lastContinuousReadingImplementation(double *outputValues) const;
 	/// This function is called by clear(), it should internally clear the data. If the detector cannot support clearing, then it will fail before calling this function.
 	virtual bool clearImplementation();
 

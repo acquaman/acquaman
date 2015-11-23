@@ -427,13 +427,24 @@ HEADERS += \
     source/ui/dataman/AMScanViewPlotToolView.h \
     source/ui/dataman/AMScanViewPlotSelectedToolsView.h \
     source/dataman/AMScanViewPlotTools.h \
+    source/beamline/AM3DCoordinatedSystemControl.h \
+    source/beamline/AM3DRotatedSystemControl.h \
+    source/util/AMValidator.h \
+	source/util/AMTrapezoidVelocityProfile.h \
     source/ui/acquaman/AMGenericStepScanConfigurationDetectorsView.h \
-    $$PWD/source/analysis/AMAdditionAB.h \
-    $$PWD/source/analysis/AMNormalizationAB.h \
+	source/analysis/AMAdditionAB.h \
+	source/analysis/AMNormalizationAB.h \
+	source/ui/AMValidatorIcon.h \
     source/actions3/actions/AMControlCalibrateActionInfo.h \
     source/actions3/actions/AMControlCalibrateAction.h \
+    source/acquaman/AMContinuousScanActionController.h \
+    source/acquaman/AMContinuousScanConfiguration.h \
+    source/ui/acquaman/AMGenericContinuousScanConfigurationView.h \
+    source/acquaman/AMGenericContinuousScanConfiguration.h \
+    source/acquaman/AMGenericContinuousScanController.h \
     source/beamline/AMEnumeratedControl.h \
-    source/beamline/AMSingleEnumeratedControl.h
+    source/beamline/AMSingleEnumeratedControl.h \
+    source/util/AMScalerCountAnalyser.h
 
 FORMS += \
 
@@ -821,14 +832,25 @@ SOURCES += \
     source/ui/dataman/AMScanViewPlotToolsButtonView.cpp \
     source/ui/dataman/AMScanViewPlotToolView.cpp \
     source/ui/dataman/AMScanViewPlotSelectedToolsView.cpp \
-    source/dataman/AMScanViewPlotTools.cpp \
+	source/dataman/AMScanViewPlotTools.cpp \
+    source/beamline/AM3DCoordinatedSystemControl.cpp \
+    source/beamline/AM3DRotatedSystemControl.cpp \
+    source/util/AMValidator.cpp \
+	source/util/AMTrapezoidVelocityProfile.cpp \
     source/ui/acquaman/AMGenericStepScanConfigurationDetectorsView.cpp \
-    $$PWD/source/analysis/AMAdditionAB.cpp \
-    $$PWD/source/analysis/AMNormalizationAB.cpp \
+	source/analysis/AMAdditionAB.cpp \
+	source/analysis/AMNormalizationAB.cpp \
+	source/ui/AMValidatorIcon.cpp \
     source/actions3/actions/AMControlCalibrateActionInfo.cpp \
     source/actions3/actions/AMControlCalibrateAction.cpp \
+    source/acquaman/AMContinuousScanActionController.cpp \
+    source/acquaman/AMContinuousScanConfiguration.cpp \
+    source/ui/acquaman/AMGenericContinuousScanConfigurationView.cpp \
+    source/acquaman/AMGenericContinuousScanConfiguration.cpp \
+    source/acquaman/AMGenericContinuousScanController.cpp \
     source/beamline/AMEnumeratedControl.cpp \
-    source/beamline/AMSingleEnumeratedControl.cpp
+    source/beamline/AMSingleEnumeratedControl.cpp \
+    source/util/AMScalerCountAnalyser.cpp
 
 RESOURCES *= source/icons/icons.qrc \
 		source/configurationFiles/configurationFiles.qrc \
@@ -845,51 +867,6 @@ contains(DEFINES, AM_BUILD_REPORTER_ENABLED){
 
 	SOURCES *= source/util/AMRunTimeBuildInfo.cpp
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

@@ -69,6 +69,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "acquaman/AMStepScanConfiguration.h"
 #include "acquaman/AMTimedRegionScanConfiguration.h"
 #include "acquaman/AMGenericStepScanConfiguration.h"
+#include "acquaman/AMGenericContinuousScanConfiguration.h"
 
 // Necessary for registering database types:
 ////////////////////////////
@@ -737,6 +738,7 @@ bool AMDatamanAppController::startupRegisterDatabases()
 	success &= AMDbObjectSupport::s()->registerClass<AMStepScanConfiguration>();
 	success &= AMDbObjectSupport::s()->registerClass<AMTimedRegionScanConfiguration>();
 	success &= AMDbObjectSupport::s()->registerClass<AMGenericStepScanConfiguration>();
+	success &= AMDbObjectSupport::s()->registerClass<AMGenericContinuousScanConfiguration>();
 
 	success &= AMDbObjectSupport::s()->registerClass<AMRun>();
 	success &= AMDbObjectSupport::s()->registerClass<AMExperiment>();

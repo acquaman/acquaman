@@ -262,16 +262,26 @@ bool AMDetector::readingND(const AMnDIndex &startIndex, const AMnDIndex &endInde
 	}
 }
 
-bool AMDetector::lastContinuousReading(double *outputValues) const{
-	if(!canContinuousAcquire())
-		return false;
-	return lastContinuousReadingImplementation(outputValues);
+AMDSClientDataRequest* AMDetector::lastContinuousData(double seconds) const{
+	Q_UNUSED(seconds)
+
+	return 0;
 }
 
-int AMDetector::lastContinuousSize() const{
-	if(!canContinuousAcquire())
-		return -1;
-	return 0;
+bool AMDetector::setContinuousDataWindow(double continuousDataWindowSeconds){
+	Q_UNUSED(continuousDataWindowSeconds)
+
+	return false;
+}
+
+QString AMDetector::amdsBufferName() const
+{
+	return QString();
+}
+
+int AMDetector::amdsPollingBaseTimeMilliseconds() const
+{
+	return -1;
 }
 
 AMAction3* AMDetector::createInitializationActions(){
@@ -491,12 +501,6 @@ void AMDetector::setDarkCurrentValidState(bool isValid)
 }
 
 bool AMDetector::cancelAcquisitionImplementation(){
-	return false;
-}
-
-bool AMDetector::lastContinuousReadingImplementation(double *outputValues) const{
-	Q_UNUSED(outputValues)
-
 	return false;
 }
 

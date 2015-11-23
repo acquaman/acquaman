@@ -129,7 +129,6 @@ void CLSAmptekDetailedDetectorView::onDetectorTemperatureChanged(double temperat
 	temperatureLabel_->setText(QString("%1").arg(temperature));
 }
 
-
 CLSAmptekDetectorROIView::CLSAmptekDetectorROIView(CLSAmptekSDD123DetectorNew *detector, QWidget *parent) :
 	QWidget(parent)
 {
@@ -405,3 +404,4 @@ CLSAmptekDetectorConfigurationView::CLSAmptekDetectorConfigurationView(CLSAmptek
 }
 
 CLSAmptekDetectorConfigurationView::~CLSAmptekDetectorConfigurationView(){}
+

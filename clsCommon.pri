@@ -49,7 +49,10 @@ HEADERS *=\
 	source/beamline/CLS/CLSJJSlitBladesControl.h \
 	source/beamline/CLS/CLSStandardsWheel.h \
 	source/ui/CLS/CLSStandardsWheelConfigurationView.h \
-    source/beamline/CLS/CLSSIS3820ScalerModeControl.h
+    source/beamline/CLS/CLSSIS3820ScalerModeControl.h \
+    source/beamline/CLS/CLSAMDSScaler.h \
+    source/ui/CLS/CLSAMDSScalerView.h \
+    source/beamline/CLS/CLSAMDSScalerChannelDetector.h
 
 SOURCES *= \
 	source/actions3/actions/CLSSIS3820ScalerDarkCurrentMeasurementAction.cpp \
@@ -95,7 +98,16 @@ SOURCES *= \
 	source/beamline/CLS/CLSJJSlitBladesControl.cpp \
 	source/beamline/CLS/CLSStandardsWheel.cpp \
 	source/ui/CLS/CLSStandardsWheelConfigurationView.cpp \
-    source/beamline/CLS/CLSSIS3820ScalerModeControl.cpp
+    source/beamline/CLS/CLSSIS3820ScalerModeControl.cpp \
+    source/beamline/CLS/CLSAMDSScaler.cpp \
+    source/ui/CLS/CLSAMDSScalerView.cpp \
+    source/beamline/CLS/CLSAMDSScalerChannelDetector.cpp
+
+
+
+
+
+
 
 
 

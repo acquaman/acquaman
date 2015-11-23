@@ -25,10 +25,21 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "ui/CLS/CLSAmptekSDD123DetailedDetectorView.h"
 
- CLSAmptekSDD123DetectorNew::~CLSAmptekSDD123DetectorNew(){}
-CLSAmptekSDD123DetectorNew::CLSAmptekSDD123DetectorNew(const QString &name, const QString &description, const QString &baseName, QObject *parent) :
+#include "source/appController/AMDSClientAppController.h"
+#include "source/ClientRequest/AMDSClientRequestSupport.h"
+#include "source/DataElement/AMDSEventDataSupport.h"
+#include "source/DataHolder/AMDSDataHolderSupport.h"
+#include "source/Connection/AMDSServer.h"
+#include "source/ClientRequest/AMDSClientDataRequest.h"
+#include "source/ClientRequest/AMDSClientRelativeCountPlusCountDataRequest.h"
+
+#include "source/acquaman/AMAgnosticDataAPI.h"
+
+
+CLSAmptekSDD123DetectorNew::CLSAmptekSDD123DetectorNew(const QString &name, const QString &description, const QString &baseName, const QString &amdsBufferName, QObject *parent) :
 	AMXRFDetector(name, description, parent)
 {	
+	amdsBufferName_ = amdsBufferName;
 	baseName_ = baseName;
 
 	units_ = "Counts";
@@ -106,6 +117,38 @@ CLSAmptekSDD123DetectorNew::CLSAmptekSDD123DetectorNew(const QString &name, cons
 
 	((AM1DProcessVariableDataSource *)rawSpectraSources_.first())->setScale(ai.increment);
 	primarySpectrumDataSource_ = rawSpectraSources_.first();
+
+
+
+	AMDSClientRequestSupport::registerClientRequestClass();
+	AMDSDataHolderSupport::registerDataHolderClass();
+	AMDSEventDataSupport::registerEventDataObjectClass();
+
+	lastContinuousDataRequest_ = 0;
+	lastReadMode_ = AMDetectorDefinitions::SingleRead;
+
+	continuousDataWindowSeconds_ = 20;
+	pollingRateMilliSeconds_ = 50;
+}
+
+CLSAmptekSDD123DetectorNew::~CLSAmptekSDD123DetectorNew()
+{
+}
+
+QString CLSAmptekSDD123DetectorNew::amdsBufferName() const
+{
+	return amdsBufferName_;
+}
+
+void CLSAmptekSDD123DetectorNew::configAMDSServer(const QString &amptekAMDSServerIdentifier)
+{
+	amptekAMDSServerIdentifier_ = amptekAMDSServerIdentifier;
+
+	AMDSServer *amptekAMDSServer = AMDSClientAppController::clientAppController()->getServerByServerIdentifier(amptekAMDSServerIdentifier);
+	if (amptekAMDSServer) {
+		connect(amptekAMDSServer, SIGNAL(requestDataReady(AMDSClientRequest*)), this, SLOT(onRequestDataReady(AMDSClientRequest*)));
+		connect(AMDSClientAppController::clientAppController(), SIGNAL(serverError(int,bool,QString,QString)), this, SLOT(onServerError(int,bool,QString,QString)));
+	}
 }
 
 QString CLSAmptekSDD123DetectorNew::synchronizedDwellKey() const{
@@ -129,10 +172,18 @@ AMDetectorDwellTimeSource* CLSAmptekSDD123DetectorNew::detectorDwellTimeSource()
 	return 0;
 }
 
-bool CLSAmptekSDD123DetectorNew::lastContinuousReading(double *outputValues) const{
-	Q_UNUSED(outputValues)
+AMDSClientDataRequest* CLSAmptekSDD123DetectorNew::lastContinuousData(double seconds) const{
+	return lastContinuousDataRequest_;
+}
 
-	return false;
+bool CLSAmptekSDD123DetectorNew::setContinuousDataWindow(double continuousDataWindowSeconds){
+	continuousDataWindowSeconds_ = continuousDataWindowSeconds;
+	return true;
+}
+
+int CLSAmptekSDD123DetectorNew::amdsPollingBaseTimeMilliseconds() const
+{
+	return pollingRateMilliSeconds_;
 }
 
 #include "actions3/AMActionSupport.h"
@@ -394,6 +445,74 @@ void CLSAmptekSDD123DetectorNew::onHighIndexValueChanged(int index){
 	emit highIndexValueChanged(index);
 }
 
+
+
+
+#include "source/ClientRequest/AMDSClientIntrospectionRequest.h"
+/// ============= SLOTs to handle AMDSClientAppController signals =========
+void CLSAmptekSDD123DetectorNew::onRequestDataReady(AMDSClientRequest* clientRequest)
+{
+	AMDSClientIntrospectionRequest *introspectionRequest = qobject_cast<AMDSClientIntrospectionRequest*>(clientRequest);
+	if(introspectionRequest){
+		qDebug() << "Got an introspection request response";
+
+		qDebug() << "Amptek: All buffer names: " << introspectionRequest->getAllBufferNames();
+	}
+
+	AMDSClientRelativeCountPlusCountDataRequest *relativeCountPlusCountDataRequst = qobject_cast<AMDSClientRelativeCountPlusCountDataRequest*>(clientRequest);
+	if(relativeCountPlusCountDataRequst){
+
+		if(relativeCountPlusCountDataRequst->bufferName() == amdsBufferName_){
+			lastContinuousDataRequest_ = relativeCountPlusCountDataRequst;
+
+			setAcquisitionSucceeded();
+			setReadyForAcquisition();
+		}
+	}
+}
+
+void CLSAmptekSDD123DetectorNew::onServerError(int errorCode, bool removeServer, const QString &serverIdentifier, const QString &errorMessage)
+{
+	Q_UNUSED(errorCode) 	Q_UNUSED(removeServer)	Q_UNUSED(serverIdentifier)	Q_UNUSED(errorMessage)
+
+//	if (serverIdentifier.length() > 0) {
+//		if (removeServer)
+//			activeServerComboBox_->removeItem(activeServerComboBox_->findText(serverIdentifier));
+//		resetActiveContinuousConnection(activeServerComboBox_->currentText());
+//	}
+
+//	if (errorCode != QAbstractSocket::RemoteHostClosedError) {
+//		QString message = QString("%1 (%2): %3").arg(errorCode).arg(serverIdentifier).arg(errorMessage);
+//		QMessageBox::information(this, "AMDS Client Example", message);
+//	}
+}
+
+
+bool CLSAmptekSDD123DetectorNew::acquireImplementation(AMDetectorDefinitions::ReadMode readMode)
+{
+	if(readMode == AMDetectorDefinitions::ContinuousRead){
+		lastReadMode_ = AMDetectorDefinitions::ContinuousRead;
+
+		AMDSClientAppController *clientAppController = AMDSClientAppController::clientAppController();
+		AMDSServer *amptekAMDSServer = clientAppController->getServerByServerIdentifier(amptekAMDSServerIdentifier_);
+		if (amptekAMDSServer) {
+			setAcquiring();
+
+			double dataRequestSize = continuousDataWindowSeconds_*1000/((double)pollingRateMilliSeconds_);
+			qDebug() << "Calculated data request of size " << dataRequestSize;
+
+//			return clientAppController->requestClientData(amptekAMDSServer->hostName(), amptekAMDSServer->portNumber(), amdsBufferName_, 400, 400, true, false);
+			return clientAppController->requestClientData(amptekAMDSServer->hostName(), amptekAMDSServer->portNumber(), amdsBufferName_, dataRequestSize, dataRequestSize, true, false);
+		}
+		else
+			return false;
+	}
+	else{
+		lastReadMode_ = AMDetectorDefinitions::SingleRead;
+		return AMXRFDetector::acquireImplementation(readMode);
+	}
+}
+
 bool CLSAmptekSDD123DetectorNew::isPrivelegedType(const QObject *privelegedCaller) const{
 	const CLSAmptekDetailedDetectorView *detectorViewCaller = qobject_cast<const CLSAmptekDetailedDetectorView*>(privelegedCaller);
 	if(detectorViewCaller)
@@ -416,6 +535,7 @@ int CLSAmptekSDD123DetectorNew::convertEvToBin(double eVValue){
 
 	return (int)(eVValue / eVPerBin());
 }
+
 
 bool CLSAmptekSDD123DetectorNew::setReadMode(AMDetectorDefinitions::ReadMode readMode){
 	Q_UNUSED(readMode)

@@ -102,11 +102,6 @@ AMNumber REIXSXESMCPDetector::singleReading() const{
 	return totalCountsControl_->value();
 }
 
-bool REIXSXESMCPDetector::lastContinuousReading(double *outputValues) const{
-	Q_UNUSED(outputValues)
-	return false;
-}
-
 bool REIXSXESMCPDetector::data(double *outputValues) const
 {
 	QVector<int> intVal = imageControl_->readPV()->lastIntegerValues();

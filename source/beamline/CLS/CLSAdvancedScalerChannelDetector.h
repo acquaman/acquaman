@@ -38,15 +38,24 @@ public:
 	/// Returns SingleRead or ContinuousRead depending on the current mode
 	virtual AMDetectorDefinitions::ReadMode readMode() const { return readMode_; }
 
-	/// Returns true if the last continuous reading was valid and the outputValues are passed back in \c outputValues.
-	virtual bool lastContinuousReading(double *outputValues) const;
-	virtual int lastContinuousSize() const;
-
 	/// Fills the (hopefully) valid pointer to a single double with our current value
 	virtual bool data(double *outputValues) const;
 
+	/// Implemented to support returning data from the last acquire(AMDetectorDefinitions::ContinuousMode) call
+	virtual AMDSClientDataRequest* lastContinuousData(double seconds) const;
+
 	/// Returns boolean indicating that this particular implementation of AMDetector does not support dark current correction.
 	virtual bool canDoDarkCurrentCorrection() const { return false; }
+
+	/// A HACK, NEED TO FIX THIS
+	virtual bool sharesDetectorTriggerSource() const { return false; }
+	/// A HACK, NEED TO FIX THIS
+	virtual AMDetectorTriggerSource* detectorTriggerSource() { return 0; }
+	/// A HACK, NEED TO FIX THIS
+	virtual AMDetectorDwellTimeSource* detectorDwellTimeSource() { return 0; }
+
+	int channelIndex() const { return channelIndex_; }
+	int enabledChannelIndex() const;
 
 public slots:
 	/// Note that this will change the read mode for the entire scaler, not just this channel. The read mode can be changed to either SingleRead or ContinuousRead. Requesting to change to the same readMode returns true and the readModeChanged() signal is immediately emitted
@@ -67,9 +76,12 @@ protected slots:
 
 	void onScalerConnectedConfirmReadMode(bool connected);
 
+	void onScalerAMDSDataReady();
+
 protected:
 	bool acquireImplementation(AMDetectorDefinitions::ReadMode readMode);
 
+	virtual void checkReadyForAcquisition();
 
 protected:
 	AMDetectorDefinitions::ReadMode readMode_;

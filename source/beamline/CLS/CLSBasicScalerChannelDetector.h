@@ -81,9 +81,6 @@ public:
 	/// Returns the channel count
 	virtual AMNumber singleReading() const;
 
-	/// Returns false, because the scaler channels do not support continuous reads (in this class)
-	virtual bool lastContinuousReading(double *outputValues) const;
-
 	/// Fills a (hopefully) valid pointer to a single double with our current value
 	virtual bool data(double *outputValues) const;
 
@@ -118,7 +115,7 @@ protected:
 	bool cleanupImplementation();
 
 	/// Checks all of the scaler settings to make sure we're ready for an acquisition
-	void checkReadyForAcquisition();
+	virtual void checkReadyForAcquisition();
 
 protected:
 	/// The pointer to the scaler object

@@ -28,6 +28,11 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/AMPVControl.h"
 #include "dataman/datasource/AMProcessVariableDataSource.h"
 
+class AMDSClientAppController;
+class AMDSClientRequest;
+class AMDSClientDataRequest;
+class AMDSClientRelativeCountPlusCountDataRequest;
+
 class QSignalMapper;
 
 class CLSAmptekSDD123DetectorNew : public AMXRFDetector
@@ -35,8 +40,13 @@ class CLSAmptekSDD123DetectorNew : public AMXRFDetector
 Q_OBJECT
 public:
 	/// Default constructor. Requires the name and base PV of the detector. It builds all the PV's and connects them accordingly.
- 	virtual ~CLSAmptekSDD123DetectorNew();
-	CLSAmptekSDD123DetectorNew(const QString &name, const QString &description, const QString &baseName, QObject *parent = 0);
+	CLSAmptekSDD123DetectorNew(const QString &name, const QString &description, const QString &baseName, const QString &amdsBufferName, QObject *parent = 0);
+	virtual ~CLSAmptekSDD123DetectorNew();
+
+	/// Returns the buffer name for this detector
+	virtual QString amdsBufferName() const;
+	/// Configures the server with the given identifier
+	void configAMDSServer(const QString &amptekAMDSServerIdentifier);
 
 	/// The Ampteks don't explicitly require powering on
 	virtual bool requiresPower() const { return false; }
@@ -46,8 +56,8 @@ public:
 	/// Clearing is not currently supported for the Amptek detectors
 	virtual bool canClear() const { return false; }
 
-	/// Ampteks are not currently capable of continuous acquisition
-	virtual bool canContinuousAcquire() const { return false; }
+	/// Ampteks are capable of continuous acquisition
+	virtual bool canContinuousAcquire() const { return true; }
 
 	/// The ampteks can be configured to work with synchronized dwell time systems
 	virtual bool supportsSynchronizedDwell() const { return true; }
@@ -63,11 +73,14 @@ public:
 
 	/// Returns RequestRead as the type
 	virtual AMDetectorDefinitions::ReadMethod readMethod() const { return AMDetectorDefinitions::RequestRead; }
-	/// Returns SingleRead as the type
-	virtual AMDetectorDefinitions::ReadMode readMode() const { return AMDetectorDefinitions::SingleRead; }
 
-	/// Returns false, because the Amptek detectors do not support continuous reads
-	virtual bool lastContinuousReading(double *outputValues) const;
+	/// Returns the type of the last acquisition
+	virtual AMDetectorDefinitions::ReadMode readMode() const { return lastReadMode_; }
+
+	/// Implemented to support returning data from the last acquire(AMDetectorDefinitions::ContinuousMode) call
+	virtual AMDSClientDataRequest* lastContinuousData(double seconds) const;
+	virtual bool setContinuousDataWindow(double continuousDataWindowSeconds);
+	virtual int amdsPollingBaseTimeMilliseconds() const;
 
 	/// Creates an action to enable or disable this amptek for in the array.
 	AMAction3* createEnableAction3(bool setEnabled);
@@ -197,7 +210,17 @@ protected slots:
 	/// Handles changes from the low index controls
 	void onHighIndexValueChanged(int index);
 
+
+	/// ============= SLOTs to handle AMDSClientAppController signals =========
+	/// slot to handle the signal of request data ready
+	void onRequestDataReady(AMDSClientRequest* clientRequest);
+	/// slot to handle the signal of socketEror
+	void onServerError(int errorCode, bool removeServer, const QString &serverIdentifier, const QString &errorMessage);
+
 protected:
+	/// Basic initialization implementation for an XRF detector.  Subclass for more specific behaviour.
+	virtual bool acquireImplementation(AMDetectorDefinitions::ReadMode readMode);
+
 	/// Returns true if the QObject type casts to the priveleged type of CLSAmptekDetailedDetectorView or CLSAmptekDetectorConfigurationView
 	bool isPrivelegedType(const QObject *privelegedCaller) const;
 
@@ -269,6 +292,20 @@ protected:
 
 	/// The eV/bin ratio for this detector
 	double eVPerBin_;
+
+
+	/// the AMDS Amptek Server identifier
+	QString amptekAMDSServerIdentifier_;
+	/// The AMDS buffer name for this instance
+	QString amdsBufferName_;
+
+	/// The data returned from the last acquire(AMDetectorDefinitions::ContinuousMode) call
+	AMDSClientRelativeCountPlusCountDataRequest *lastContinuousDataRequest_;
+	/// The read mode type of the last acquire call
+	AMDetectorDefinitions::ReadMode lastReadMode_;
+
+	double continuousDataWindowSeconds_;
+	int pollingRateMilliSeconds_;
 };
 
 #endif // CLSAMPTEKSDD123DETECTORNEW_H

@@ -1,0 +1,21 @@
+# Linux rc script for CLS SR status building display system
+#
+# chkconfig: 345 90 10
+# description: CLS SR status building display system. Must be started after networking and NFS
+#
+
+. /etc/rc.d/init.d/functions
+
+IOCNAME=VIOC1611-446
+INSTALL_DIR=/iocApps/11ID_1_SGM_BL/$IOCNAME/
+TOP=/home/epics/src/R3.14.12/
+T_A=linux-x86_64
+# RUNCMD=
+# RUNAS=control
+RUNSCRIPT=runSGMEnergyCoordinatorStartup
+DAEMON=SGMEnergyCoordinator
+PORTNO=10029
+NETWORK="10.52.48.0/22"
+
+source /iocApps/Common/startup.include
+
