@@ -41,8 +41,6 @@ protected slots:
 	void updateInstructionLabel();
 	/// Updates the remaining time label with the action's current values.
 	void updateRemainingTimeLabel();
-	/// Updates the OK button with the current action.
-	void updateOKButton();
 
 protected:
 	/// The action being viewed.
