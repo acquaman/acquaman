@@ -64,14 +64,14 @@ public:
 	int enabledChannelCount() const;
 
 	/// Returns the individual scaler channel provided by \param index.
-	CLSAMDSScalerChannel* channelAt(int index);
+	CLSAMDSScalerChannel* channelAt(int index) const;
 	/// Returns the list of all the channels.
-	AMOrderedList<CLSAMDSScalerChannel*> channels();
+	AMOrderedList<CLSAMDSScalerChannel*> channels() const;
 
 	/// Returns the trigger source for the scaler.
-	AMDetectorTriggerSource* triggerSource();
+	AMDetectorTriggerSource* triggerSource() const;
 	/// Returns the dwell time source for the scaler
-	AMDetectorDwellTimeSource* dwellTimeSource();
+	AMDetectorDwellTimeSource* dwellTimeSource() const;
 
 	/// Returns the dwell time control.
 	AMControl* dwellTimeControl() const { return dwellTimeControl_; }
