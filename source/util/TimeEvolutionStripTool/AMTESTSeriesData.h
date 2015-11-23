@@ -3,6 +3,8 @@
 
 #include "MPlot/MPlotSeriesData.h"
 
+#include "util/TimeEvolutionStripTool/AMTESTRingBuffer.h"
+
 /// This encapsulates the data to be visualized by the strip tool view.  Internally, it holds a ring buffer for easy handling.
 class AMTESTSeriesData : public MPlotAbstractSeriesData
 {
@@ -29,9 +31,7 @@ protected:
 	/// Holds the x-values for the series data.
 	QVector<qreal> xAxis_;
 	/// Holds the y-values for the series data.
-	QVector<qreal> yAxis_;
-	/// Holds the position of the most recent data.  This is the same as the size() of an array.
-	int dataStartIndex_;
+	AMTESTRingBuffer yAxis_;
 };
 
 #endif // AMTESTSERIESDATA_H

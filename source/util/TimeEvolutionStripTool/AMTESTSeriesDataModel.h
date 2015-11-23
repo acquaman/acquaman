@@ -6,6 +6,7 @@
 #include <QVector>
 
 #include "util/TimeEvolutionStripTool/AMTESTDataModel.h"
+#include "util/TimeEvolutionStripTool/AMTESTRingBuffer.h"
 #include "util/TimeEvolutionStripTool/AMTESTSeriesData.h"
 
 /// Series data model.  Contains the data that can be visualized.
@@ -30,17 +31,10 @@ signals:
 public slots:
 
 protected:
-
-	/// Vector that holds all the data.
-	QVector<qreal> data_;
-	/// Ring buffer start index for the data vector.
-	int dataRingBufferStartIndex_;
+	/// Ring buffer that holds all the data.
+	AMTESTRingBuffer data_;
 	/// Holds the series model for MPlot.
 	AMTESTSeriesData *dataModel_;
-	/// The vector that holds the x-axis.
-	QVector<qreal> xAxis_;
-	/// The vector that holds the y-axis.
-	QVector<qreal> yAxis_;
 };
 
 #endif // AMTESTSERIESDATAMODEL_H

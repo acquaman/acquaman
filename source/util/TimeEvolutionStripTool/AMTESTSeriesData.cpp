@@ -3,7 +3,7 @@
 AMTESTSeriesData::AMTESTSeriesData()
 	: MPlotAbstractSeriesData()
 {
-	dataStartIndex_ = 0;
+
 }
 
 AMTESTSeriesData::~AMTESTSeriesData()
@@ -13,53 +13,25 @@ AMTESTSeriesData::~AMTESTSeriesData()
 
 qreal AMTESTSeriesData::x(unsigned index) const
 {
-	return xAxis_.at(dataStartIndex_+index);
+	return xAxis_.at(index);
 }
 
 void AMTESTSeriesData::xValues(unsigned indexStart, unsigned indexEnd, qreal *outputValues) const
 {
-	int totalSizeRequested = indexEnd-indexStart+1;
-	int totalSize = count();
-
-	if (dataStartIndex_+totalSizeRequested < totalSize){
-
-		memcpy(outputValues, xAxis_.constData()+dataStartIndex_+indexStart, totalSizeRequested*sizeof(qreal));
-	}
-
-	else {
-
-		int sizeToEnd = totalSize-dataStartIndex_;
-		int sizeFromBeginning = totalSizeRequested-sizeToEnd;
-		memcpy(outputValues, xAxis_.constData()+dataStartIndex_+indexStart, sizeToEnd*sizeof(qreal));
-		memcpy(outputValues+sizeToEnd, xAxis_.constData(), sizeFromBeginning*sizeof(qreal));
-	}
+	memcpy(outputValues, xAxis_.constData()+indexStart, (indexEnd-indexStart+1)*sizeof(qreal));
 }
 
 qreal AMTESTSeriesData::y(unsigned index) const
 {
-	return yAxis_.at(dataStartIndex_+index);
+	return yAxis_.value(index);
 }
 
 void AMTESTSeriesData::yValues(unsigned indexStart, unsigned indexEnd, qreal *outputValues) const
 {
-	int totalSizeRequested = indexEnd-indexStart+1;
-	int totalSize = count();
-
-	if (dataStartIndex_+totalSizeRequested < totalSize){
-
-		memcpy(outputValues, xAxis_.constData()+dataStartIndex_+indexStart, totalSizeRequested*sizeof(qreal));
-	}
-
-	else {
-
-		int sizeToEnd = totalSize-dataStartIndex_;
-		int sizeFromBeginning = totalSizeRequested-sizeToEnd;
-		memcpy(outputValues, xAxis_.constData()+dataStartIndex_+indexStart, sizeToEnd*sizeof(qreal));
-		memcpy(outputValues+sizeToEnd, xAxis_.constData(), sizeFromBeginning*sizeof(qreal));
-	}
+	yAxis_.values(indexStart, indexEnd, outputValues);
 }
 
 int AMTESTSeriesData::count() const
 {
-	return xAxis_.size();
+	return yAxis_.size();
 }
