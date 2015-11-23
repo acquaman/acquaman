@@ -29,6 +29,8 @@ public:
 	virtual ~SGMSampleChamberVacuum();
 
 protected:
+	/// Creates and returns a move action view.
+	virtual QWidget* createMoveActionView(AMAction3 *moveAction);
 	/// Creates and returns a move action to the given destination.
 	virtual AMAction3* createMoveAction(double indexSetpoint);
 };
