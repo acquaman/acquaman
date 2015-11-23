@@ -84,11 +84,8 @@ void AMTESTCentralWidgetView::startAcquisition()
 		if (serverConnection->serverIsActive())
 			client->requestClientData(serverConnection->serverConfiguration().hostName(),
 						  serverConnection->serverConfiguration().portNumber(),
-						  client->getServerByServerIdentifier(serverConnection->serverConfiguration().serverIdentifier())->bufferNames(),
-						  quint64(timeIntervalSpinBox_->value()*1000),
-						  false,
-						  false,
-						  serverConnection->name());
+						  client->getBufferNamesByServer(serverConnection->serverConfiguration().serverIdentifier()),
+						  quint64(timeIntervalSpinBox_->value()*1000));
 }
 
 void AMTESTCentralWidgetView::stopAcquisition()
@@ -98,15 +95,21 @@ void AMTESTCentralWidgetView::stopAcquisition()
 	QList<AMTESTServerConnection *> serverConnections = AMTESTStripTool::stripTool()->serverConnections();
 	AMDSClientAppController *client = AMDSClientAppController::clientAppController();
 
-	foreach (AMTESTServerConnection *serverConnection, serverConnections)
-		if (serverConnection->serverIsActive())
+	foreach (AMTESTServerConnection *serverConnection, serverConnections){
+
+		QStringList socketKeys = client->getActiveSocketKeysByServer(serverConnection->serverConfiguration().serverIdentifier());
+
+		if (!socketKeys.isEmpty()){
+
 			client->requestClientData(serverConnection->serverConfiguration().hostName(),
 						  serverConnection->serverConfiguration().portNumber(),
 						  QStringList(),
 						  quint64(timeIntervalSpinBox_->value()*1000),
 						  false,
 						  false,
-						  serverConnection->name());
+						  socketKeys.first());
+		}
+	}
 }
 
 void AMTESTCentralWidgetView::updateWidgetAppearance()
@@ -135,6 +138,7 @@ void AMTESTCentralWidgetView::onDataModelToBeAdded(const QString &name)
 		MPlotSeriesBasic *series = new MPlotSeriesBasic;
 		series->setModel(dataModel->seriesDataModel());
 		series->setDescription(dataModel->name());
+		series->setMarker(MPlotMarkerShape::None);
 		plot_->addItem(series);
 	}
 

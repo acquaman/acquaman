@@ -47,6 +47,8 @@ void AMTESTSeriesData::addData(const QVector<qreal> &data)
 		xAxis_ = QVector<qreal>(seriesSize, 0);
 
 		for (int i = 0; i < seriesSize; i++)
-			xAxis_[i] = -1*i*timeStep_;
+			xAxis_[i] = -1*(seriesSize-i)*timeStep_;
 	}
+
+	emitDataChanged();
 }

@@ -122,10 +122,20 @@ void AMTESTServerConnection::onClientDataRequest(AMDSClientRequest *request)
 
 		if (continuous){
 
+			qDebug() << continuous->bufferName() << continuous->isContinuousMessage() << continuous->isHandShakingMessage();
 			bool isScaler = continuous->bufferName().contains("Scaler");
-			qDebug() << "Grabbing data from" << continuous->bufferName();
+
 			if (isScaler)
 				retrieveScalerDataFromContinuousRequest(continuous);
+
+			AMDSClientAppController *client = AMDSClientAppController::clientAppController();
+			client->requestClientData(serverConfiguration_.hostName(),
+						  serverConfiguration_.portNumber(),
+						  client->getBufferNamesByServer(serverConfiguration_.serverIdentifier()),
+						  1*1000,
+						  false,
+						  false,
+						  client->getActiveSocketKeysByServer(serverConfiguration_.serverIdentifier()).first());
 		}
 
 		break;
@@ -154,7 +164,7 @@ void AMTESTServerConnection::configureScaler(AMDSClientIntrospectionRequest *int
 
 	for (int i = 0; i < numberOfEnabledElements; i++){
 
-		AMTESTSeriesDataModel *seriesData = new AMTESTSeriesDataModel(QString("Channel %1").arg(i+1), 5*60, 1000, this);
+		AMTESTSeriesDataModel *seriesData = new AMTESTSeriesDataModel(QString("Channel %1").arg(i), 5*60, 1000, this);
 		dataModels_ << seriesData;
 	}
 
