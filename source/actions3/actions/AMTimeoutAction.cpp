@@ -6,7 +6,7 @@ AMTimeoutAction::AMTimeoutAction(AMWaitActionInfo *info, QObject *parent):
 
 }
 
-AMTimeoutAction::AMTimeoutAction(const AMInputTimeoutAction &original) :
+AMTimeoutAction::AMTimeoutAction(const AMTimeoutAction &original) :
 	AMWaitAction(original)
 {
 
@@ -19,7 +19,7 @@ AMTimeoutAction::~AMTimeoutAction()
 
 void AMTimeoutAction::proceed()
 {
-	if (state_ == AMAction3::Running)
+	if (state() == AMAction3::Running)
 		setSucceeded();
 }
 

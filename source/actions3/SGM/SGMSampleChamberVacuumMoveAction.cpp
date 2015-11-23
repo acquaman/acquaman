@@ -103,7 +103,7 @@ AMAction3* SGMSampleChamberVacuumMoveAction::createMoveToVentedFromVacuumAction(
 	AMListAction3 *action = new AMListAction3(new AMListActionInfo3("Venting sample chamber", "Venting sample chamber"), AMListAction3::Sequential);
 
 	// First, we would prompt user for action--select gas of choice.
-	// Ignoring for now.
+	action->addSubAction(waitForInput());
 
 	// Next, turn off chamber pumps, if on.
 
@@ -132,7 +132,7 @@ AMAction3* SGMSampleChamberVacuumMoveAction::createMoveToRoughVacuumFromVentedAc
 	action->addSubAction(closeVATValve(SGMSAMPLECHAMBERVACUUM_VATVALVE_SPEED_MAX));
 
 	// Next, prompt user for action--close any open gas lines.
-	// Ignoring for now.
+	action->addSubAction(waitForInput());
 
 	// Next, open the VAT valve.
 
@@ -204,6 +204,11 @@ AMAction3* SGMSampleChamberVacuumMoveAction::createMoveToHighVacuumFromRoughVacu
 	// Return action.
 
 	return action;
+}
+
+AMAction3* SGMSampleChamberVacuumMoveAction::waitForInput()
+{
+	AMAction3* result = AMActionSupport::buildTimeoutAction(SGMSAMPLECHAMBERVACUUMMOVEACTION_INPUT_TIMEOUT);
 }
 
 AMAction3* SGMSampleChamberVacuumMoveAction::closeVATValve(double speed)

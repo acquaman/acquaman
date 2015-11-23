@@ -1,7 +1,6 @@
 #ifndef AMTIMEOUTACTION_H
 #define AMTIMEOUTACTION_H
 
-#include "actions3/actions/AMInputWaitActionInfo.h"
 #include "actions3/actions/AMWaitAction.h"
 
 class AMTimeoutAction : public AMWaitAction

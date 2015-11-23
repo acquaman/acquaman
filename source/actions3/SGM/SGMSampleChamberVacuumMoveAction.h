@@ -5,6 +5,10 @@
 #include "actions3/SGM/SGMSampleChamberVacuumMoveActionInfo.h"
 #include "beamline/SGM/SGMSampleChamberVacuum.h"
 
+#define SGMSAMPLECHAMBERVACUUMMOVEACTION_INPUT_TIMEOUT 30
+
+// Error codes.
+
 #define SGMSAMPLECHAMBERVACUUMMOVEACTION_INVALID_CONTROL 1109239
 #define SGMSAMPLECHAMBERVACUUMMOVEACTION_CONTROL_NOT_CONNECTED 1109240
 #define SGMSAMPLECHAMBERVACUUMMOVEACTION_CONTROL_CANNOT_MOVE 1109241
@@ -45,6 +49,9 @@ protected:
 	AMAction3* createMoveToHighVacuumFromVentedAction();
 	/// Creates and returns a move action to the HighVacuum state from a RoughVacuum state.
 	AMAction3* createMoveToHighVacuumFromRoughVacuumAction();
+
+	/// Returns a new action that waits for the user to indicate they would like to proceed.
+	AMAction3* waitForInput();
 
 	/// Returns a new action that closes the VAT valve, at the given speed. Returns 0 if no valid valve is given.
 	AMAction3* closeVATValve(double speed);
