@@ -4,7 +4,7 @@ AMTESTSeriesDataModel::AMTESTSeriesDataModel(const QString &name, quint32 buffer
 	: AMTESTDataModel(name, parent)
 {
 	data_ = AMTESTRingBuffer(bufferSize*updateRate);
-	dataModel_ = new AMTESTSeriesData(bufferSize);
+	dataModel_ = new AMTESTSeriesData(bufferSize*updateRate);
 }
 
 AMTESTSeriesDataModel::~AMTESTSeriesDataModel()
@@ -15,5 +15,6 @@ AMTESTSeriesDataModel::~AMTESTSeriesDataModel()
 void AMTESTSeriesDataModel::addData(const QVector<qreal> &newData)
 {
 	data_.addValues(newData);
+	dataModel_->addData(newData);
 }
 

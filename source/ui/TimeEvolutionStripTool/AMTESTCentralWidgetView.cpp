@@ -6,8 +6,11 @@
 #include "appController/AMDSClientAppController.h"
 #include "Connection/AMDSServer.h"
 
+#include "MPlot/MPlotSeries.h"
+
 #include "ui/TimeEvolutionStripTool/AMTESTDataModelListView.h"
 #include "ui/TimeEvolutionStripTool/AMTESTServerConnectionButton.h"
+#include "util/TimeEvolutionStripTool/AMTESTDataModel.h"
 #include "util/TimeEvolutionStripTool/AMTESTServerConnection.h"
 #include "util/TimeEvolutionStripTool/AMTESTStripTool.h"
 
@@ -31,6 +34,8 @@ AMTESTCentralWidgetView::AMTESTCentralWidgetView(QWidget *parent)
 	connect(AMTESTStripTool::stripTool(), SIGNAL(dataModelsDeleted(QStringList)), dataModelListView_, SLOT(removeDataModels(QStringList)));
 	connect(AMTESTStripTool::stripTool(), SIGNAL(dataModelsCreated(AMTESTServerConnection*)), this, SLOT(updateWidgetAppearance()));
 	connect(AMTESTStripTool::stripTool(), SIGNAL(dataModelsDeleted(QStringList)), this, SLOT(updateWidgetAppearance()));
+	connect(dataModelListView_, SIGNAL(dataModelToBeAdded(QString)), this, SLOT(onDataModelToBeAdded(QString)));
+	connect(dataModelListView_, SIGNAL(dataModelToBeRemoved(QString)), this, SLOT(onDataModelToBeRemoved(QString)));
 
 	QHBoxLayout *horizontalLayout = new QHBoxLayout;
 	horizontalLayout->addWidget(plotWidget_);
@@ -70,6 +75,7 @@ AMTESTCentralWidgetView::~AMTESTCentralWidgetView()
 void AMTESTCentralWidgetView::startAcquisition()
 {
 	dataModelListView_->setEnabled(false);
+	startButton_->setEnabled(false);
 
 	QList<AMTESTServerConnection *> serverConnections = AMTESTStripTool::stripTool()->serverConnections();
 	AMDSClientAppController *client = AMDSClientAppController::clientAppController();
@@ -79,12 +85,28 @@ void AMTESTCentralWidgetView::startAcquisition()
 			client->requestClientData(serverConnection->serverConfiguration().hostName(),
 						  serverConnection->serverConfiguration().portNumber(),
 						  client->getServerByServerIdentifier(serverConnection->serverConfiguration().serverIdentifier())->bufferNames(),
-						  quint64(timeIntervalSpinBox_->value()*1000));
+						  quint64(timeIntervalSpinBox_->value()*1000),
+						  false,
+						  false,
+						  serverConnection->name());
 }
 
 void AMTESTCentralWidgetView::stopAcquisition()
 {
 	dataModelListView_->setEnabled(true);
+
+	QList<AMTESTServerConnection *> serverConnections = AMTESTStripTool::stripTool()->serverConnections();
+	AMDSClientAppController *client = AMDSClientAppController::clientAppController();
+
+	foreach (AMTESTServerConnection *serverConnection, serverConnections)
+		if (serverConnection->serverIsActive())
+			client->requestClientData(serverConnection->serverConfiguration().hostName(),
+						  serverConnection->serverConfiguration().portNumber(),
+						  QStringList(),
+						  quint64(timeIntervalSpinBox_->value()*1000),
+						  false,
+						  false,
+						  serverConnection->name());
 }
 
 void AMTESTCentralWidgetView::updateWidgetAppearance()
@@ -98,6 +120,37 @@ void AMTESTCentralWidgetView::updateWidgetAppearance()
 	timeIntervalSpinBox_->setEnabled(hasConnections);
 	startButton_->setEnabled(hasConnections);
 	stopButton_->setEnabled(hasConnections);
+}
+
+void AMTESTCentralWidgetView::onDataModelToBeAdded(const QString &name)
+{
+	AMTESTDataModel *dataModel = 0;
+	QList<AMTESTServerConnection *> serverConnections = AMTESTStripTool::stripTool()->serverConnections();
+
+	for (int i = 0, size = serverConnections.size(); i < size && dataModel == 0; i++)
+		dataModel = serverConnections.at(i)->dataModelFromName(name);
+
+	if (dataModel->isSeriesDataModel()){
+
+		MPlotSeriesBasic *series = new MPlotSeriesBasic;
+		series->setModel(dataModel->seriesDataModel());
+		series->setDescription(dataModel->name());
+		plot_->addItem(series);
+	}
+
+	else if (dataModel->isImageDataModel()){
+
+	}
+}
+
+void AMTESTCentralWidgetView::onDataModelToBeRemoved(const QString &name)
+{
+	foreach (MPlotItem *item, plot_->plotItems())
+		if (item->description() == name){
+
+			plot_->removeItem(item);
+			delete item;
+		}
 }
 
 void AMTESTCentralWidgetView::setupPlot()

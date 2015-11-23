@@ -44,6 +44,10 @@ public:
 
 	/// Returns the list of data models.
 	QList<AMTESTDataModel *> dataModels() const { return dataModels_; }
+	/// Returns the data model at the given index.  Returns 0 if index is out of bounds.
+	AMTESTDataModel *dataModelAt(int index) const;
+	/// Returns the data model from the given name.  Returns 0 otherwise.
+	AMTESTDataModel *dataModelFromName(const QString &name) const;
 
 signals:
 	/// Notifier that the server is connecting.

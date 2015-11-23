@@ -8,6 +8,10 @@
 AMTESTDataModelListView::AMTESTDataModelListView(QWidget *parent)
 	: QWidget(parent)
 {
+	dataModelButtonGroup_ = new QButtonGroup(this);
+	dataModelButtonGroup_->setExclusive(false);
+	connect(dataModelButtonGroup_, SIGNAL(buttonClicked(QAbstractButton*)), this, SLOT(onDataModelCheckBoxChecked(QAbstractButton*)));
+
 	QGroupBox *listViewBox = new QGroupBox;
 	listViewBox->setTitle("Available Sources");
 
@@ -32,6 +36,7 @@ void AMTESTDataModelListView::addNewDataModels(AMTESTServerConnection *connectio
 		QCheckBox *dataModelCheckBox = new QCheckBox(dataModel->name());
 		dataModelCheckBoxes_.insert(dataModel->name(), dataModelCheckBox);
 		dataModelLayout_->addWidget(dataModelCheckBox);
+		dataModelButtonGroup_->addButton(dataModelCheckBox);
 	}
 }
 
@@ -42,6 +47,22 @@ void AMTESTDataModelListView::removeDataModels(const QStringList &dataModelNames
 		QCheckBox *dataModelCheckBox = dataModelCheckBoxes_.value(dataModelName);
 		dataModelLayout_->removeWidget(dataModelCheckBox);
 		dataModelCheckBox->deleteLater();
+	}
+}
+
+void AMTESTDataModelListView::onDataModelCheckBoxChecked(QAbstractButton *checkBox)
+{
+	QCheckBox *dataModelCheckBox = qobject_cast<QCheckBox *>(checkBox);
+
+	if (dataModelCheckBox){
+
+		QString dataModelName = dataModelCheckBoxes_.key(dataModelCheckBox);
+
+		if (dataModelCheckBox->isChecked())
+			emit dataModelToBeAdded(dataModelName);
+
+		else
+			emit dataModelToBeRemoved(dataModelName);
 	}
 }
 

@@ -33,6 +33,10 @@ public slots:
 protected slots:
 	/// Handles updating the accessibility widgets based on the current state of the server connectivity.
 	void updateWidgetAppearance();
+	/// Handles adding MPlot items to the plot.
+	void onDataModelToBeAdded(const QString &name);
+	/// Handles removing MPlot items from the plot.
+	void onDataModelToBeRemoved(const QString &name);
 
 protected:
 	/// Creates a plot for viewing the sources.

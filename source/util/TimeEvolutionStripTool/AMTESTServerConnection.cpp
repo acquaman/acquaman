@@ -29,6 +29,23 @@ AMTESTServerConnection::~AMTESTServerConnection()
 
 }
 
+AMTESTDataModel *AMTESTServerConnection::dataModelAt(int index) const
+{
+	if (index >= 0 && index < dataModels_.size())
+		return dataModels_.at(index);
+
+	return 0;
+}
+
+AMTESTDataModel *AMTESTServerConnection::dataModelFromName(const QString &name) const
+{
+	foreach (AMTESTDataModel *dataModel, dataModels_)
+		if (dataModel->name() == name)
+			return dataModel;
+
+	return 0;
+}
+
 void AMTESTServerConnection::connectToServer()
 {
 	AMErrorMon::information(this, AMTESTSERVERCONNECTION_CONNECTING_TO_SERVER, QString("Connecting to the %1 server...").arg(name_));
@@ -106,7 +123,7 @@ void AMTESTServerConnection::onClientDataRequest(AMDSClientRequest *request)
 		if (continuous){
 
 			bool isScaler = continuous->bufferName().contains("Scaler");
-
+			qDebug() << "Grabbing data from" << continuous->bufferName();
 			if (isScaler)
 				retrieveScalerDataFromContinuousRequest(continuous);
 		}
@@ -160,7 +177,6 @@ void AMTESTServerConnection::removeAllDataModels()
 
 void AMTESTServerConnection::retrieveScalerDataFromContinuousRequest(AMDSClientContinuousDataRequest *continuousDataRequest)
 {
-	qDebug() << "Retrieving data holders from continuous request: " << continuousDataRequest->data().size() << continuousDataRequest->startTime() ;
 	int bufferSize = continuousDataRequest->data().size();
 
 	if (bufferSize > 0){

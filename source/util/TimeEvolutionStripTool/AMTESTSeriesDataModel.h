@@ -22,6 +22,8 @@ public:
 
 	/// Returns that this is a series data model.
 	virtual bool isSeriesDataModel() const { return true; }
+	/// Returns the series data model.
+	virtual AMTESTSeriesData *seriesDataModel() const { return dataModel_; }
 
 	/// Adds new values to the front of the data vector.  Old excess data is discarded.
 	virtual void addData(const QVector<qreal> &newData);
