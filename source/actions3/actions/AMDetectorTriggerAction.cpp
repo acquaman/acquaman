@@ -76,7 +76,7 @@ void AMDetectorTriggerAction::startImplementation(){
 	}
 
 
-	if(detector_->detectorTriggerSource()){
+	if(detector_->detectorTriggerSource() && detectorTriggerInfo()->readMode() == AMDetectorDefinitions::SingleRead){
 		triggerSource_ = detector_->detectorTriggerSource();
 		connect(triggerSource_, SIGNAL(triggered(AMDetectorDefinitions::ReadMode)), this, SLOT(onAcquisitionStarted()));
 		connect(triggerSource_, SIGNAL(succeeded()), this, SLOT(onAcquisitionSucceeded()));
