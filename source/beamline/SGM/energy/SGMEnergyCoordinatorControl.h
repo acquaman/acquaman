@@ -254,7 +254,7 @@ protected:
 	/*!
 	  * Creates an action which returns the Energy Coordinator Control back to its defaults.
 	  */
-	virtual AMAction3* setDefaultsAction();
+	virtual AMAction3* createDefaultsAction();
 
 	SGMEnergyPosition* energyPositionController_;
 	SGMUndulatorSupport::UndulatorHarmonic startingUndulatorHarmonic_;

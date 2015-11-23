@@ -136,7 +136,7 @@ double SGMGratingAngleControl::stepsPerEncoderCount() const
 	return stepsPerEncoderCountControl_->value();
 }
 
-AMAction3 * SGMGratingAngleControl::setDefaultsAction() const
+AMAction3 * SGMGratingAngleControl::createDefaultsAction() const
 {
 	AMListAction3* returnAction = new AMListAction3(new AMListActionInfo3("Set Grating Angle Defaults",
 	                                                                      "Set Grating Angle Defaults"),

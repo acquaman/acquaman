@@ -450,12 +450,12 @@ AMAction3 *SGMEnergyCoordinatorControl::createMoveAction(double setpoint)
 		if(!helperEnergyPosition->hasErrors()) {
 
 			// Ensure controls are in their default state for encoder moves
-			AMListAction3* setDefaultsAction = new AMListAction3(new AMListActionInfo3("Setting Defaults",
+			AMListAction3* createDefaultsAction = new AMListAction3(new AMListActionInfo3("Setting Defaults",
 			                                                                           "Setting Defaults"),
 			                                                     AMListAction3::Parallel);
 
-			setDefaultsAction->addSubAction(gratingAngleControl_->setDefaultsAction());
-			setDefaultsAction->addSubAction(undulatorControl_->setDefaultsAction());
+			createDefaultsAction->addSubAction(gratingAngleControl_->createDefaultsAction());
+			createDefaultsAction->addSubAction(undulatorControl_->createDefaultsAction());
 
 			// Create list action to move all components.
 			double gratingTranslationNewValue = SGMGratingSupport::enumToEncoderCount(helperEnergyPosition->gratingTranslation());
@@ -493,7 +493,7 @@ AMAction3 *SGMEnergyCoordinatorControl::createMoveAction(double setpoint)
 			                                                                moveActionName),
 			                                          AMListAction3::Sequential);
 
-			coordinatedMoveAction->addSubAction(setDefaultsAction);
+			coordinatedMoveAction->addSubAction(createDefaultsAction);
 			coordinatedMoveAction->addSubAction(componentMoveAction);
 			coordinatedMoveAction->addSubAction(componentWaitAction);
 
@@ -526,7 +526,7 @@ AMAction3 *SGMEnergyCoordinatorControl::createMoveAction(SGMEnergyTrajectory* en
 				continuousMoveAction = new AMListAction3(new AMListActionInfo3(actionTitle, actionTitle),
 				                                         AMListAction3::Sequential);
 
-				continuousMoveAction->addSubAction(gratingAngleControl_->setDefaultsAction());
+				continuousMoveAction->addSubAction(gratingAngleControl_->createDefaultsAction());
 				// Moving to start position and set exit slit position:
 				AMListAction3* initializationActions = new AMListAction3(new AMListActionInfo3("Setting up movement",
 				                                                                               "Setting up movement"),
@@ -666,9 +666,9 @@ AMAction3 *SGMEnergyCoordinatorControl::createMoveAction(SGMEnergyTrajectory* en
 				continuousMoveAction->addSubAction(trajectoryWait);
 
 				// Put the grating angle & undulator back to their default mode.
-				continuousMoveAction->addSubAction(gratingAngleControl_->setDefaultsAction());
-				continuousMoveAction->addSubAction(undulatorControl_->setDefaultsAction());
-				continuousMoveAction->addSubAction(setDefaultsAction());
+				continuousMoveAction->addSubAction(gratingAngleControl_->createDefaultsAction());
+				continuousMoveAction->addSubAction(undulatorControl_->createDefaultsAction());
+				continuousMoveAction->addSubAction(createDefaultsAction());
 
 
 			} else {
@@ -684,7 +684,7 @@ AMAction3 *SGMEnergyCoordinatorControl::createMoveAction(SGMEnergyTrajectory* en
 	return continuousMoveAction;
 }
 
-AMAction3 * SGMEnergyCoordinatorControl::setDefaultsAction()
+AMAction3 * SGMEnergyCoordinatorControl::createDefaultsAction()
 {
 	return new AMChangeToleranceAction(new AMChangeToleranceActionInfo(toInfo(), SGMENERGYCONTROL_CLOSEDLOOP_TOLERANCE),this);
 }
