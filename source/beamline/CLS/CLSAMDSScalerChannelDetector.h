@@ -41,12 +41,11 @@ public:
 	/// Returns a null string
 	virtual QString synchronizedDwellKey() const;
 
-	/// STARTING TESTING WITH THIS AS FALSE, NEEDS TO BE FIXED IN THE FUTURE
+	/// Scaler channels share scaler as their trigger source
 	virtual bool sharesDetectorTriggerSource() const { return true; }
-//	virtual bool sharesDetectorTriggerSource() const { return false; }
-	/// FOR TESTING, THIS WILL RETURN A NULL POINTER
+	/// Returns the scaler's trigger source
 	virtual AMDetectorTriggerSource* detectorTriggerSource();
-	/// FOR TESTING THIS WILL RETURN A NULL POINTER
+	/// Returns the scaler's dwell time source
 	virtual AMDetectorDwellTimeSource* detectorDwellTimeSource();
 
 	/// Returns RequestRead as the type

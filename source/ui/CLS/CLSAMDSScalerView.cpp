@@ -347,7 +347,6 @@ void CLSAMDSScalerControlsView::setScaler(CLSAMDSScaler *newScaler)
 		scaler_ = newScaler;
 
 		if (scaler_) {
-			connect(scaler_, SIGNAL(startChanged(bool)), this, SLOT(onStartChanged()) );
 			connect(scaler_, SIGNAL(dwellModeChanged(double)), this, SLOT(onDwellModeChanged()));
 			connect(scaler_, SIGNAL(dwellTimeChanged(double)), this, SLOT(onDwellTimeChanged()));
 			connect(scaler_, SIGNAL(dwellStateChanged(double)), this, SLOT(onDwellStateChanged()));
@@ -356,10 +355,6 @@ void CLSAMDSScalerControlsView::setScaler(CLSAMDSScaler *newScaler)
 
 		if(scaler_->isConnected())
 			onScalerConnected(true);
-//		onStartChanged();
-//		onDwellModeChanged();
-//		onDwellTimeChanged();
-//		onDwellStateChanged();
 	}
 }
 
@@ -396,28 +391,6 @@ void CLSAMDSScalerControlsView::setDwellTime()
 		if (secondsDwell != scaler_->dwellTime())
 			scaler_->setDwellTime(secondsDwell);
 	}
-}
-
-void CLSAMDSScalerControlsView::onStartChanged()
-{
-//	if (scaler_ && scaler_->isScanning()) {
-
-//		startButton_->setEnabled(false);
-//		stopButton_->setEnabled(true);
-//		status_->setPixmap(QIcon(":/32x32/greenLEDOn.png").pixmap(25));
-
-//	} else if (scaler_ && !scaler_->isScanning()) {
-
-//		startButton_->setEnabled(true);
-//		stopButton_->setEnabled(false);
-//		status_->setPixmap(QIcon(":/32x32/greenLEDOff.png").pixmap(25));
-
-//	} else {
-
-//		startButton_->setEnabled(false);
-//		stopButton_->setEnabled(false);
-//		status_->setPixmap(QIcon(":/32x32/greenLEDOff.png").pixmap(25));
-//	}
 }
 
 void CLSAMDSScalerControlsView::onDwellModeChanged()
@@ -462,7 +435,6 @@ void CLSAMDSScalerControlsView::onDwellStateChanged()
 
 void CLSAMDSScalerControlsView::onScalerConnected(bool connected)
 {
-	onStartChanged();
 	onDwellModeChanged();
 	onDwellTimeChanged();
 	onDwellStateChanged();

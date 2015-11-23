@@ -182,12 +182,10 @@ bool CLSAMDSScalerChannelDetector::initializeImplementation()
 
 bool CLSAMDSScalerChannelDetector::acquireImplementation(AMDetectorDefinitions::ReadMode readMode)
 {
-	qDebug() << "CLSAMDSScalerChannelDetector asked for acquireImplementation with read mode " << readMode;
 	if(!isConnected())
 		return false;
 
 	if(readMode == AMDetectorDefinitions::ContinuousRead){
-		qDebug() << "ContinuousRead in CLSAMDSScalerChannelDetector";
 		readMode_ = AMDetectorDefinitions::ContinuousRead;
 
 		connect(scaler_, SIGNAL(amdsDataReady()), this, SLOT(onScalerAMDSDataReady()));
@@ -196,9 +194,7 @@ bool CLSAMDSScalerChannelDetector::acquireImplementation(AMDetectorDefinitions::
 		return true;
 	}
 	else if(readMode_ == AMDetectorDefinitions::SingleRead){
-		qDebug() << "Current dwell state is " << scaler_->dwellState();
 		if( fabs(scaler_->dwellState() - 0.0) < 0.1){
-			qDebug() << "Passed test, set started";
 			scaler_->setStarted(true);
 			return true;
 		}

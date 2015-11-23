@@ -161,8 +161,6 @@ protected slots:
 	/// Sets the scaler dwell time, using the view input.
 	void setDwellTime();
 
-	/// Handles updating the start and stop buttons' enabled state and the scanning status LED, in response to the scaler's scanning status changed.
-	void onStartChanged();
 	/// Handles updating the mode choice, in response to the scaler's continous mode status changed.
 	void onDwellModeChanged();
 	/// Handles updating the dwell time, in response to the scaler's change in time.
