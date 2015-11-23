@@ -450,12 +450,12 @@ AMAction3 *SGMEnergyCoordinatorControl::createMoveAction(double setpoint)
 		if(!helperEnergyPosition->hasErrors()) {
 
 			// Ensure controls are in their default state for encoder moves
-			AMListAction3* createDefaultsAction = new AMListAction3(new AMListActionInfo3("Setting Defaults",
+			AMListAction3* setDefaultsAction = new AMListAction3(new AMListActionInfo3("Setting Defaults",
 			                                                                           "Setting Defaults"),
 			                                                     AMListAction3::Parallel);
 
-			createDefaultsAction->addSubAction(gratingAngleControl_->createDefaultsAction());
-			createDefaultsAction->addSubAction(undulatorControl_->createDefaultsAction());
+			setDefaultsAction->addSubAction(gratingAngleControl_->createDefaultsAction());
+			setDefaultsAction->addSubAction(undulatorControl_->createDefaultsAction());
 
 			// Create list action to move all components.
 			double gratingTranslationNewValue = SGMGratingSupport::enumToEncoderCount(helperEnergyPosition->gratingTranslation());
@@ -493,7 +493,7 @@ AMAction3 *SGMEnergyCoordinatorControl::createMoveAction(double setpoint)
 			                                                                moveActionName),
 			                                          AMListAction3::Sequential);
 
-			coordinatedMoveAction->addSubAction(createDefaultsAction);
+			coordinatedMoveAction->addSubAction(setDefaultsAction);
 			coordinatedMoveAction->addSubAction(componentMoveAction);
 			coordinatedMoveAction->addSubAction(componentWaitAction);
 
