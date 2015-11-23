@@ -10,9 +10,8 @@ LIBS *= $$PIC887_LIB
 
 CONFIG -= mobility
 
-
-include ( acquamanCommon.pri )
-include( $$PATH_TO_AM/compositeCommon/AMAcquamanDataServer.pri )
+include ( compositeCommon/AMPVControl.pri )
+include ( compositeCommon/AMControlSet.pri )
 
 TARGET = AMPIC887DriverServer	
 

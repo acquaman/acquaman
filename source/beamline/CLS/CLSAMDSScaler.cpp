@@ -178,19 +178,19 @@ int CLSAMDSScaler::enabledChannelCount() const{
 	return retVal;
 }
 
-CLSAMDSScalerChannel* CLSAMDSScaler::channelAt(int index){
+CLSAMDSScalerChannel* CLSAMDSScaler::channelAt(int index) const{
 	return scalerChannels_.at(index);
 }
 
-AMOrderedList<CLSAMDSScalerChannel*> CLSAMDSScaler::channels(){
+AMOrderedList<CLSAMDSScalerChannel*> CLSAMDSScaler::channels() const{
 	return scalerChannels_;
 }
 
-AMDetectorTriggerSource* CLSAMDSScaler::triggerSource(){
+AMDetectorTriggerSource* CLSAMDSScaler::triggerSource() const{
 	return triggerSource_;
 }
 
-AMDetectorDwellTimeSource* CLSAMDSScaler::dwellTimeSource(){
+AMDetectorDwellTimeSource* CLSAMDSScaler::dwellTimeSource() const{
 	return dwellTimeSource_;
 }
 
@@ -318,7 +318,7 @@ void CLSAMDSScaler::onDwellTimeControlValueChanged(double time)
 		return;
 
 	if(dwellTimeSourceRequested_){
-		dwellTimeSourceRequested_ = true;
+		dwellTimeSourceRequested_ = false;
 		dwellTimeSource_->setSucceeded();
 	}
 

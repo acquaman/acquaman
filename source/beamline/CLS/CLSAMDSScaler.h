@@ -64,14 +64,14 @@ public:
 	int enabledChannelCount() const;
 
 	/// Returns the individual scaler channel provided by \param index.
-	CLSAMDSScalerChannel* channelAt(int index);
+	CLSAMDSScalerChannel* channelAt(int index) const;
 	/// Returns the list of all the channels.
-	AMOrderedList<CLSAMDSScalerChannel*> channels();
+	AMOrderedList<CLSAMDSScalerChannel*> channels() const;
 
 	/// Returns the trigger source for the scaler.
-	AMDetectorTriggerSource* triggerSource();
+	AMDetectorTriggerSource* triggerSource() const;
 	/// Returns the dwell time source for the scaler
-	AMDetectorDwellTimeSource* dwellTimeSource();
+	AMDetectorDwellTimeSource* dwellTimeSource() const;
 
 	/// Returns the dwell time control.
 	AMControl* dwellTimeControl() const { return dwellTimeControl_; }
@@ -232,7 +232,7 @@ public:
 	const AMRange &voltageRange() const { return voltageRange_; }
 
 	/// Returns whether the voltage is within the linear range of the ion chamber.
-	virtual bool withinLinearRange() const { return voltage() <= maximumVoltage() && voltage() >= minimumVoltage(); }
+	virtual bool withinLinearRange() const { return voltageRange_.withinRange(voltage()); }
 	/// Specific helper function that returns whether the voltage is too low.  Returns false if withinLinearRange is true.
 	virtual bool voltageTooLow() const { return !withinLinearRange() && voltage() < minimumVoltage(); }
 	/// Specific helper function that returns whether the voltage is too high.  Returns false if withinLinearRange is true.
