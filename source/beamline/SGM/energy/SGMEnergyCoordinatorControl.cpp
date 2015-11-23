@@ -37,6 +37,7 @@ SGMEnergyCoordinatorControl::SGMEnergyCoordinatorControl(SGMUndulatorSupport::Un
 	                                                  0.1,
 	                                                  2.0,
 	                                                  new AMControlStatusCheckerDefault(1));
+	exitSlitPositionControl_->setAttemptMoveWhenWithinTolerance(true);
 
 	addChildControl(gratingAngleControl_);
 	addChildControl(undulatorControl_);
@@ -45,9 +46,10 @@ SGMEnergyCoordinatorControl::SGMEnergyCoordinatorControl(SGMUndulatorSupport::Un
 	addChildControl(undulatorControl_);
 	addChildControl(exitSlitPositionControl_);
 
+	setAttemptMoveWhenWithinTolerance(true);
 	setMinimumValue(200);
 	setMaximumValue(3000);
-	setTolerance(0.03);
+	setTolerance(SGMENERGYCONTROL_CLOSEDLOOP_TOLERANCE);
 	setDisplayPrecision(5);
 
 }
@@ -684,5 +686,5 @@ AMAction3 *SGMEnergyCoordinatorControl::createMoveAction(SGMEnergyTrajectory* en
 
 AMAction3 * SGMEnergyCoordinatorControl::setDefaultsAction()
 {
-	return new AMChangeToleranceAction(new AMChangeToleranceActionInfo(toInfo, SGMENERGYCONTROL_CLOSEDLOOP_TOLERANCE),this);
+	return new AMChangeToleranceAction(new AMChangeToleranceActionInfo(toInfo(), SGMENERGYCONTROL_CLOSEDLOOP_TOLERANCE),this);
 }
