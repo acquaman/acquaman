@@ -51,7 +51,7 @@ protected:
 	AMAction3* createMoveToHighVacuumFromRoughVacuumAction();
 
 	/// Returns a new action that waits for the user to indicate they would like to proceed.
-	AMAction3* waitForInput();
+	AMAction3* waitForInput(const QString &instruction);
 
 	/// Returns a new action that closes the VAT valve, at the given speed. Returns 0 if no valid valve is given.
 	AMAction3* closeVATValve(double speed);

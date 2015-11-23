@@ -104,10 +104,10 @@ namespace AMActionSupport
 		return action;
 	}
 
-	/// Helper method that takes a time interval in seconds, and returns a new AMTimeoutAction. Caller is responsible for memory.
-	inline AMAction3 *buildTimeoutAction(double timeSeconds)
+	/// Helper method that takes a time interval in seconds and a description of what the action is waiting for, and returns a new AMTimeoutAction. Caller is responsible for memory.
+	inline AMAction3 *buildTimeoutAction(double timeSeconds, const QString &description)
 	{
-		AMWaitActionInfo *actionInfo = new AMWaitActionInfo(timeSeconds);
+		AMTimeoutActionInfo *actionInfo = new AMTimeoutActionInfo(timeSeconds, description);
 		AMTimeoutAction *action = new AMTimeoutAction(actionInfo);
 		return action;
 	}

@@ -1,6 +1,6 @@
 #include "AMTimeoutAction.h"
 
-AMTimeoutAction::AMTimeoutAction(AMWaitActionInfo *info, QObject *parent):
+AMTimeoutAction::AMTimeoutAction(AMTimeoutActionInfo *info, QObject *parent):
 	AMWaitAction(info, parent)
 {
 

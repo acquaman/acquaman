@@ -103,7 +103,8 @@ AMAction3* SGMSampleChamberVacuumMoveAction::createMoveToVentedFromVacuumAction(
 	AMListAction3 *action = new AMListAction3(new AMListActionInfo3("Venting sample chamber", "Venting sample chamber"), AMListAction3::Sequential);
 
 	// First, we would prompt user for action--select gas of choice.
-	action->addSubAction(waitForInput());
+	QString instruction = "Prepare manifold with gas to vent the chamber.";
+	action->addSubAction(waitForInput(instruction));
 
 	// Next, turn off chamber pumps, if on.
 
@@ -132,7 +133,8 @@ AMAction3* SGMSampleChamberVacuumMoveAction::createMoveToRoughVacuumFromVentedAc
 	action->addSubAction(closeVATValve(SGMSAMPLECHAMBERVACUUM_VATVALVE_SPEED_MAX));
 
 	// Next, prompt user for action--close any open gas lines.
-	action->addSubAction(waitForInput());
+	QString instruction = "Close any open gas lines.";
+	action->addSubAction(waitForInput(instruction));
 
 	// Next, open the VAT valve.
 
@@ -206,9 +208,9 @@ AMAction3* SGMSampleChamberVacuumMoveAction::createMoveToHighVacuumFromRoughVacu
 	return action;
 }
 
-AMAction3* SGMSampleChamberVacuumMoveAction::waitForInput()
+AMAction3* SGMSampleChamberVacuumMoveAction::waitForInput(const QString &instruction)
 {
-	AMAction3* result = AMActionSupport::buildTimeoutAction(SGMSAMPLECHAMBERVACUUMMOVEACTION_INPUT_TIMEOUT);
+	AMAction3* result = AMActionSupport::buildTimeoutAction(SGMSAMPLECHAMBERVACUUMMOVEACTION_INPUT_TIMEOUT, instruction);
 }
 
 AMAction3* SGMSampleChamberVacuumMoveAction::closeVATValve(double speed)

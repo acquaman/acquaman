@@ -446,7 +446,8 @@ HEADERS += \
     source/beamline/AMSingleEnumeratedControl.h \
     source/util/AMScalerCountAnalyser.h \
     source/beamline/AMConnectedControl.h \
-    source/actions3/actions/AMTimeoutAction.h
+    source/actions3/actions/AMTimeoutAction.h \
+    source/actions3/actions/AMTimeoutActionInfo.h
 
 FORMS += \
 
@@ -854,7 +855,8 @@ SOURCES += \
     source/beamline/AMSingleEnumeratedControl.cpp \
     source/util/AMScalerCountAnalyser.cpp \
     source/beamline/AMConnectedControl.cpp \
-    source/actions3/actions/AMTimeoutAction.cpp
+    source/actions3/actions/AMTimeoutAction.cpp \
+    source/actions3/actions/AMTimeoutActionInfo.cpp
 
 RESOURCES *= source/icons/icons.qrc \
 		source/configurationFiles/configurationFiles.qrc \
