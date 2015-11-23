@@ -31,7 +31,7 @@ public slots:
 	void refresh();
 
 	/// Sets the action being viewed.
-	void setAction(SGMSampleChamberVacuumMoveAction *action);
+	void setAction(SGMSampleChamberVacuumMoveAction *newAction);
 
 protected:
 	/// The action being viewed.
@@ -67,11 +67,14 @@ public slots:
 	void refresh();
 
 	/// Sets the action being viewed.
-	void setAction(SGMSampleChamberVacuumMoveAction *action);
+	void setAction(SGMSampleChamberVacuumMoveAction *newAction);
 
 protected:
 	/// The action being viewed.
 	SGMSampleChamberVacuumMoveAction *action_;
+
+	/// The LED action view.
+	SGMSampleChamberVacuumMoveActionLEDView *ledView_;
 };
 
 #endif // SGMSAMPLECHAMBERVACUUMMOVEACTIONVIEW_H

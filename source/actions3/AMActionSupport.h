@@ -29,6 +29,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "actions3/actions/AMChangeToleranceAction.h"
 #include "actions3/actions/AMControlCalibrateAction.h"
 #include "actions3/actions/AMWaitAction.h"
+#include "actions3/actions/AMTimeoutAction.h"
 
 /// This namespace provides some convenience methods for using AMActions.
 namespace AMActionSupport
@@ -101,6 +102,15 @@ namespace AMActionSupport
 		AMWaitActionInfo *actionInfo = new AMWaitActionInfo(timeSeconds);
 		AMWaitAction *action = new AMWaitAction(actionInfo);
 		return action;
-	}}
+	}
+
+	/// Helper method that takes a time interval in seconds, and returns a new AMTimeoutAction. Caller is responsible for memory.
+	inline AMAction3 *buildTimeoutAction(double timeSeconds)
+	{
+		AMWaitActionInfo *actionInfo = new AMWaitActionInfo(timeSeconds);
+		AMTimeoutAction *action = new AMTimeoutAction(actionInfo);
+		return action;
+	}
+}
 
 #endif // AMACTIONSUPPORT_H
