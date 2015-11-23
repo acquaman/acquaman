@@ -124,7 +124,6 @@ public:
 	/*!
 	  * The scaler.
 	  */
-	virtual CLSSIS3820Scaler* scaler() const;
 
 	virtual CLSAMDSScaler* amdsScaler() const;
 	/*!
@@ -212,26 +211,7 @@ protected:
 
 	SGMHexapod* hexapod_;
 
-	CLSSIS3820Scaler *scaler_;
 	CLSAMDSScaler *amdsScaler_;
-
-	/* TESTING MOVING FROM CLSScalerChannelDetector to CLSAMDSScalerChannelDetector
-	CLSScalerChannelDetector *teyDetector_;
-	CLSScalerChannelDetector *tfyDetector_;
-	CLSScalerChannelDetector *i0Detector_;
-	CLSScalerChannelDetector *pdDetector_;
-
-	CLSScalerChannelDetector *filteredPD1Detector_;
-	CLSScalerChannelDetector *filteredPD2Detector_;
-	CLSScalerChannelDetector *filteredPD3Detector_;
-	CLSScalerChannelDetector *filteredPD4Detector_;
-//	CLSScalerChannelDetector *filteredPD5Detector_;
-
-	CLSScalerChannelDetector *hexapodRedDetector_;
-	CLSScalerChannelDetector *hexapodBlackDetector_;
-	CLSScalerChannelDetector *encoderUpDetector_;
-	CLSScalerChannelDetector *encoderDownDetector_;
-	*/
 
 	CLSAMDSScalerChannelDetector *teyDetector_;
 	CLSAMDSScalerChannelDetector *tfyDetector_;

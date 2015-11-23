@@ -194,14 +194,10 @@ void SGMAppController::setupUserInterface()
 
 	mw_->addRightWidget(persistentView);
 
-	CLSSIS3820ScalerView* scalerView =
-			new CLSSIS3820ScalerView(SGMBeamline::sgm()->scaler());
-
 	CLSAMDSScalerView *amdsScalerView = new CLSAMDSScalerView(SGMBeamline::sgm()->amdsScaler());
 
 	mw_->insertHeading("Components", 0);
 
-	mw_->addPane(AMMainWindow::buildMainWindowPane("Scaler", ":/system-software-update.png", scalerView),"Components", "Scaler",  ":/system-software-update.png");
 	mw_->addPane(AMMainWindow::buildMainWindowPane("AMDS Scaler", ":/system-software-update.png", amdsScalerView),"Components", "AMDS Scaler",  ":/system-software-update.png");
 
 	SGMHexapodView* hexapodView =

@@ -24,6 +24,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "beamline/CLS/CLSBasicScalerChannelDetector.h"
 
+/*
 class CLSScalerChannelDetector : public AMDetector
 {
 Q_OBJECT
@@ -136,6 +137,7 @@ protected:
 	/// The channel index
 	int channelIndex_;
 };
+*/
 
 class CLSAdvancedScalerChannelDetector : public CLSBasicScalerChannelDetector
 {

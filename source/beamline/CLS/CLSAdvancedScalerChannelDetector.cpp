@@ -24,6 +24,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/CLS/CLSSIS3820Scaler.h"
 
 #include "source/ClientRequest/AMDSClientRelativeCountPlusCountDataRequest.h"
+/*
 
 
 CLSScalerChannelDetector::CLSScalerChannelDetector(const QString &name, const QString &description, CLSSIS3820Scaler *scaler, int channelIndex, QObject *parent) :
@@ -231,7 +232,7 @@ void CLSScalerChannelDetector::checkReadyForAcquisition()
 		if(!isReadyForAcquisition())
 			setReadyForAcquisition();
 }
-
+*/
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
