@@ -34,6 +34,7 @@ CLSAMDSScaler::CLSAMDSScaler(const QString &baseName, const QString &amdsBufferN
 	triggerSource_ = new AMDetectorTriggerSource(QString("%1TriggerSource").arg(baseName), this);
 	connect(triggerSource_, SIGNAL(triggered(AMDetectorDefinitions::ReadMode)), this, SLOT(onTriggerSourceTriggered(AMDetectorDefinitions::ReadMode)));
 
+	dwellTimeSourceRequested_ = false;
 	dwellTimeSource_ = new AMDetectorDwellTimeSource(QString("%1DwellTimeSource").arg(baseName), this);
 	connect(dwellTimeSource_, SIGNAL(setDwellTime(double)), this, SLOT(onDwellTimeSourceSetDwellTime(double)));
 
@@ -316,8 +317,12 @@ void CLSAMDSScaler::onDwellTimeControlValueChanged(double time)
 	if (!isConnected())
 		return;
 
+	if(dwellTimeSourceRequested_){
+		dwellTimeSourceRequested_ = true;
+		dwellTimeSource_->setSucceeded();
+	}
+
 	emit dwellTimeChanged(time);
-	dwellTimeSource_->setSucceeded();
 }
 
 void CLSAMDSScaler::onDwellStateControlValueChanged(double state)
@@ -362,44 +367,23 @@ void CLSAMDSScaler::onTriggerSourceTriggered(AMDetectorDefinitions::ReadMode rea
 	else if(readMode == AMDetectorDefinitions::ContinuousRead){
 		// Need to work with the AMDS server to do this
 	}
-
-
-	//figure this out
-
-
-//	if(!isConnected() || isScanning())
-//		return;
-
-//	readModeForTriggerSource_ = readMode;
-
-//	if(isContinuous()){
-//		if(readModeForTriggerSource_ == readModeFromSettings())
-//			connect(this, SIGNAL(continuousChanged(bool)), this, SLOT(triggerScalerAcquisition(bool)));
-//		else
-//			connect(this, SIGNAL(continuousChanged(bool)), this, SLOT(ensureCorrectReadModeForTriggerSource()));
-//		setContinuous(false);
-//	}
-//	else if(readModeForTriggerSource_ != readModeFromSettings())
-//		ensureCorrectReadModeForTriggerSource();
-//	else
-//		triggerScalerAcquisition(isContinuous());
 }
 
 void CLSAMDSScaler::onDwellTimeSourceSetDwellTime(double dwellSeconds)
 {
-	//figure this out
+	if(!isConnected())
+		return;
 
+	if(fabs(dwellState() - 1.0) < 0.1)
+		return;
 
-//	if(!isConnected() || isScanning()){
-
-//		AMErrorMon::alert(this, CLSAMDSScaler_NOT_CONNECTED_OR_IS_SCANNING, QString("Scaler is either not connected (%1) or is scanning (%2) with a requested dwell time %3.\n").arg(!isConnected()).arg(isScanning()).arg(dwellSeconds));
-//		return;
-//	}
-
-//	if(!(fabs(dwellSeconds - dwellTime()) < dwellTimeTolerance()))
-//		setDwellTime(dwellSeconds);
-//	else
-//		dwellTimeSource_->setSucceeded();
+	if(!(fabs(dwellSeconds - dwellTime()) < dwellTimeTolerance()))
+	{
+		dwellTimeSourceRequested_ = true;
+		setDwellTime(dwellSeconds);
+	}
+	else
+		dwellTimeSource_->setSucceeded();
 }
 
 #include "source/ClientRequest/AMDSClientIntrospectionRequest.h"

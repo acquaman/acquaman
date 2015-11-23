@@ -172,6 +172,7 @@ protected:
 
 	/// The common dwell time source for this system. Detector implementations can return this as a common means for triggering and comparing shared triggers.
 	AMDetectorDwellTimeSource *dwellTimeSource_;
+	bool dwellTimeSourceRequested_;
 
 
 	/// the AMDS Amptek Server identifier
