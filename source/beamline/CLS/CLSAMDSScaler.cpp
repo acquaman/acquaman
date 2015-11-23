@@ -30,6 +30,7 @@ CLSAMDSScaler::CLSAMDSScaler(const QString &baseName, const QString &amdsBufferN
 {
 	connectedOnce_ = false;
 
+	triggerSourceTriggered_ = false;
 	triggerSource_ = new AMDetectorTriggerSource(QString("%1TriggerSource").arg(baseName), this);
 	connect(triggerSource_, SIGNAL(triggered(AMDetectorDefinitions::ReadMode)), this, SLOT(onTriggerSourceTriggered(AMDetectorDefinitions::ReadMode)));
 
@@ -324,6 +325,10 @@ void CLSAMDSScaler::onDwellStateControlValueChanged(double state)
 	if(!isConnected())
 		return;
 
+	if(triggerSourceTriggered_ && readModeForTriggerSource_ == AMDetectorDefinitions::SingleRead){
+		triggerSourceTriggered_ = false;
+		triggerSource_->setSucceeded();
+	}
 	emit dwellStateChanged(state);
 }
 
@@ -338,6 +343,27 @@ void CLSAMDSScaler::onConnectedChanged(){
 
 void CLSAMDSScaler::onTriggerSourceTriggered(AMDetectorDefinitions::ReadMode readMode)
 {
+	if(!isConnected())
+		return;
+
+	if(readMode == AMDetectorDefinitions::SingleRead){
+		if(fabs(dwellState() - 1.0) < 0.1)
+			return;
+		else if(fabs(dwellMode() - 1.0) < 0.1){
+			// We're in the "continuous mode on the PVs, but we should be able to fix this to get to the right state
+			return;
+		}
+
+		readModeForTriggerSource_ = readMode;
+		triggerSourceTriggered_ = true;
+		setStarted(true);
+		return;
+	}
+	else if(readMode == AMDetectorDefinitions::ContinuousRead){
+		// Need to work with the AMDS server to do this
+	}
+
+
 	//figure this out
 
 

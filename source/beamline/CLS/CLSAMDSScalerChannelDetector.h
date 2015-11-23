@@ -42,8 +42,8 @@ public:
 	virtual QString synchronizedDwellKey() const;
 
 	/// STARTING TESTING WITH THIS AS FALSE, NEEDS TO BE FIXED IN THE FUTURE
-//	virtual bool sharesDetectorTriggerSource() const { return true; }
-	virtual bool sharesDetectorTriggerSource() const { return false; }
+	virtual bool sharesDetectorTriggerSource() const { return true; }
+//	virtual bool sharesDetectorTriggerSource() const { return false; }
 	/// FOR TESTING, THIS WILL RETURN A NULL POINTER
 	virtual AMDetectorTriggerSource* detectorTriggerSource();
 	/// FOR TESTING THIS WILL RETURN A NULL POINTER

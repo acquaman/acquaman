@@ -44,7 +44,8 @@ QString CLSAMDSScalerChannelDetector::synchronizedDwellKey() const
 
 AMDetectorTriggerSource* CLSAMDSScalerChannelDetector::detectorTriggerSource()
 {
-	return 0;
+//	return 0;
+	return scaler_->triggerSource();
 }
 
 AMDetectorDwellTimeSource* CLSAMDSScalerChannelDetector::detectorDwellTimeSource()

@@ -167,6 +167,7 @@ protected:
 
 	/// The common trigger source for this system. Detector implementations can return this as a common means for triggering and comparing shared triggers.
 	AMDetectorTriggerSource *triggerSource_;
+	bool triggerSourceTriggered_;
 	AMDetectorDefinitions::ReadMode readModeForTriggerSource_;
 
 	/// The common dwell time source for this system. Detector implementations can return this as a common means for triggering and comparing shared triggers.
