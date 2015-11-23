@@ -318,7 +318,7 @@ void CLSAMDSScaler::onDwellTimeControlValueChanged(double time)
 		return;
 
 	if(dwellTimeSourceRequested_){
-		dwellTimeSourceRequested_ = true;
+		dwellTimeSourceRequested_ = false;
 		dwellTimeSource_->setSucceeded();
 	}
 
