@@ -5,8 +5,10 @@
 #include "SGMUndulatorSupport.h"
 #include "SGMEnergyPosition.h"
 
-#define SGMENERGYCONTROL_INVALID_STATE				851142
+#define SGMENERGYCONTROL_INVALID_STATE			851142
 #define SGMENERGYCONTROL_ZERO_ENERGY_VELOCITY		851143
+#define SGMENERGYCONTROL_CLOSEDLOOP_TOLERANCE		0.03
+#define SGMENERGYCONTROL_COORDINATED_TOLERANCE		3
 
 class SGMEnergyTrajectory;
 class SGMGratingAngleControl;
@@ -248,6 +250,11 @@ protected:
 	 * \param energyTrajectory ~ The energy trajectory for the move action.
 	 */
 	virtual AMAction3* createMoveAction(SGMEnergyTrajectory* energyTrajectory);
+
+	/*!
+	  * Creates an action which returns the Energy Coordinator Control back to its defaults.
+	  */
+	virtual AMAction3* setDefaultsAction();
 
 	SGMEnergyPosition* energyPositionController_;
 	SGMUndulatorSupport::UndulatorHarmonic startingUndulatorHarmonic_;

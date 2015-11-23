@@ -13,8 +13,8 @@ SGMEnergyPVControl::SGMEnergyPVControl(QObject *parent) :
                        "AM1611-4-I10:energy:eV",
                        "AM1611-4-I10:energy:status",
                        "AM1611-4-I10:energy:stop",
-                       parent,
-                       0.5,
+		       parent,
+		       0.03,
                        2.0,
                        new CLSMAXvControlStatusChecker())
 {

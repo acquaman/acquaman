@@ -3,6 +3,7 @@
 #include "beamline/CLS/CLSMAXvMotor.h"
 #include "actions3/AMListAction3.h"
 #include "actions3/AMActionSupport.h"
+#include "actions3/actions/AMChangeToleranceAction.h"
 #include "SGMGratingTranslationStepControl.h"
 #include "util/AMErrorMonitor.h"
 #include "SGMEnergyTrajectory.h"
@@ -46,7 +47,7 @@ SGMEnergyCoordinatorControl::SGMEnergyCoordinatorControl(SGMUndulatorSupport::Un
 
 	setMinimumValue(200);
 	setMaximumValue(3000);
-	setTolerance(1.5);
+	setTolerance(0.03);
 	setDisplayPrecision(5);
 
 }
@@ -249,6 +250,7 @@ AMControl::FailureExplanation SGMEnergyCoordinatorControl::move(double startSetp
 	connect( moveAction, SIGNAL(succeeded()), succeededMapper_, SLOT(map()) );
 
 	// Run action.
+
 
 	moveAction->start();
 
@@ -551,7 +553,7 @@ AMAction3 *SGMEnergyCoordinatorControl::createMoveAction(SGMEnergyTrajectory* en
 
 				continuousMoveAction->addSubAction(AMActionSupport::buildControlWaitAction(this, startSetpoint, 60, AMControlWaitActionInfo::MatchWithinTolerance));
 
-				// Set motion properties (velocities, accelerations etc)
+				// Set motion properties (velocities, accelerations, coordinated tolerance etc)
 				AMListAction3* setMotionPropertiesAction = new AMListAction3(new AMListActionInfo3("Set motion properties",
 				                                                                                   "Set motion properties"),
 				                                                             AMListAction3::Parallel);
@@ -580,6 +582,9 @@ AMAction3 *SGMEnergyCoordinatorControl::createMoveAction(SGMEnergyTrajectory* en
 					                                                                                undulatorStepVelocity));
 				}
 				continuousMoveAction->addSubAction(setMotionPropertiesAction);
+
+				AMChangeToleranceAction* continuousToleranceSet = new AMChangeToleranceAction(new AMChangeToleranceActionInfo(toInfo(), SGMENERGYCONTROL_COORDINATED_TOLERANCE), this);
+				continuousMoveAction->addSubAction(continuousToleranceSet);
 
 				// Wait for motion properties to take
 				AMListAction3* waitForMotionPropertiesAction = new AMListAction3(new AMListActionInfo3("Wait for motion properties",
@@ -661,6 +666,7 @@ AMAction3 *SGMEnergyCoordinatorControl::createMoveAction(SGMEnergyTrajectory* en
 				// Put the grating angle & undulator back to their default mode.
 				continuousMoveAction->addSubAction(gratingAngleControl_->setDefaultsAction());
 				continuousMoveAction->addSubAction(undulatorControl_->setDefaultsAction());
+				continuousMoveAction->addSubAction(setDefaultsAction());
 
 
 			} else {
@@ -674,4 +680,9 @@ AMAction3 *SGMEnergyCoordinatorControl::createMoveAction(SGMEnergyTrajectory* en
 	}
 
 	return continuousMoveAction;
+}
+
+AMAction3 * SGMEnergyCoordinatorControl::setDefaultsAction()
+{
+	return new AMChangeToleranceAction(new AMChangeToleranceActionInfo(toInfo, SGMENERGYCONTROL_CLOSEDLOOP_TOLERANCE),this);
 }
