@@ -169,6 +169,7 @@ AMControl::FailureExplanation AMPseudoMotorControl::move(double setpoint)
 	}
 
 	// Update the setpoint.
+
 	setSetpoint(setpoint);
 
 	// If the new setpoint is within tolerance, no need to proceed with move.

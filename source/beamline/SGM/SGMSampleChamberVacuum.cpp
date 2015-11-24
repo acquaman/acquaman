@@ -21,8 +21,8 @@ AMAction3* SGMSampleChamberVacuum::createMoveAction(double indexSetpoint)
 	return SGMActionSupport::buildSampleChamberVacuumMoveAction(indexSetpoint);
 }
 
-QWidget* SGMSampleChamberVacuum::createMoveActionView(AMAction3 *moveAction)
+QWidget *SGMSampleChamberVacuum::createMoveActionView(AMAction3 *moveAction)
 {
-	Q_UNUSED(moveAction)
-	return 0;
+	SGMSampleChamberVacuumMoveAction *vacuumMoveAction = qobject_cast<SGMSampleChamberVacuumMoveAction*>(moveAction);
+	return new SGMSampleChamberVacuumMoveActionView(vacuumMoveAction);
 }

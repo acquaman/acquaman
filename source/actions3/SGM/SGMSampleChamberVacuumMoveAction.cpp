@@ -1,5 +1,7 @@
 #include "SGMSampleChamberVacuumMoveAction.h"
 #include "beamline/SGM/SGMBeamline.h"
+#include "beamline/SGM/SGMTurboPump.h"
+#include "beamline/SGM/SGMSampleChamberVacuum.h"
 #include "actions3/AMActionSupport.h"
 #include "util/AMErrorMonitor.h"
 
@@ -210,7 +212,7 @@ AMAction3* SGMSampleChamberVacuumMoveAction::createMoveToHighVacuumFromRoughVacu
 
 AMAction3* SGMSampleChamberVacuumMoveAction::waitForInput(const QString &instruction)
 {
-	AMAction3* result = AMActionSupport::buildTimeoutAction(SGMSAMPLECHAMBERVACUUMMOVEACTION_INPUT_TIMEOUT, instruction);
+	return AMActionSupport::buildTimeoutAction(SGMSAMPLECHAMBERVACUUMMOVEACTION_INPUT_TIMEOUT, instruction);
 }
 
 AMAction3* SGMSampleChamberVacuumMoveAction::closeVATValve(double speed)

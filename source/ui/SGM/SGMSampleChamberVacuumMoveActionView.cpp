@@ -1,4 +1,5 @@
 #include "SGMSampleChamberVacuumMoveActionView.h"
+#include "actions3/SGM/SGMSampleChamberVacuumMoveAction.h"
 
 SGMSampleChamberVacuumMoveSubActionView::SGMSampleChamberVacuumMoveSubActionView(AMAction3 *action, QWidget *parent) :
 	QWidget(parent)

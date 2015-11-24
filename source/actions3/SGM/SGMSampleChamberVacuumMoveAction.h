@@ -3,7 +3,6 @@
 
 #include "actions3/AMListAction3.h"
 #include "actions3/SGM/SGMSampleChamberVacuumMoveActionInfo.h"
-#include "beamline/SGM/SGMSampleChamberVacuum.h"
 
 #define SGMSAMPLECHAMBERVACUUMMOVEACTION_INPUT_TIMEOUT 30
 
@@ -15,6 +14,9 @@
 #define SGMSAMPLECHAMBERVACUUMMOVEACTION_CONTROL_ALREADY_MOVING 1109242
 #define SGMSAMPLECHAMBERVACUUMMOVEACTION_INVALID_SETPOINT 1109243
 #define SGMSAMPLECHAMBERVACUUMMOVEACTION_CONTROL_SUBACTION_INVALID 1109244
+
+class SGMTurboPump;
+class SGMSampleChamberVacuum;
 
 class SGMSampleChamberVacuumMoveAction : public AMListAction3
 {

@@ -5,8 +5,9 @@
 #include <QLayout>
 #include <QLabel>
 
-#include "actions3/SGM/SGMSampleChamberVacuumMoveAction.h"
 #include "ui/actions3/AMTimeoutActionView.h"
+
+class SGMSampleChamberVacuumMoveAction;
 
 class SGMSampleChamberVacuumMoveSubActionView : public QWidget
 {

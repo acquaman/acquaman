@@ -2,6 +2,7 @@
 #define SGMSAMPLECHAMBERVACUUM_H
 
 #include "beamline/SGM/SGMSampleChamberVacuumControl.h"
+#include "ui/SGM/SGMSampleChamberVacuumMoveActionView.h"
 
 #define SGMSAMPLECHAMBERVACUUM_VENTED_MIN 760.0
 #define SGMSAMPLECHAMBERVACUUM_VENTED_MAX 1000.0 // Has to be larger than any value we would encounter.
@@ -29,10 +30,10 @@ public:
 	virtual ~SGMSampleChamberVacuum();
 
 protected:
-	/// Creates and returns a move action view.
-	virtual QWidget* createMoveActionView(AMAction3 *moveAction);
 	/// Creates and returns a move action to the given destination.
 	virtual AMAction3* createMoveAction(double indexSetpoint);
+	/// Creates and returns a move action view.
+	virtual QWidget* createMoveActionView(AMAction3 *moveAction);
 };
 
 #endif // SGMSAMPLECHAMBERVACUUM_H
