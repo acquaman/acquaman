@@ -10,17 +10,25 @@ BioXASXIAFiltersView::BioXASXIAFiltersView(BioXASXIAFilters *filters, QWidget *p
 
 	// Create UI elements.
 
-	filtersControlEditor_ = new AMExtendedControlEditor(0);
-
 	editor1_ = new AMExtendedControlEditor(0);
+	editor1_->setTitle("Filter 1");
+	editor1_->setNoUnitsBox(true);
+
 	editor2_ = new AMExtendedControlEditor(0);
+	editor2_->setTitle("Filter 2");
+	editor2_->setNoUnitsBox(true);
+
 	editor3_ = new AMExtendedControlEditor(0);
+	editor3_->setTitle("Filter 3");
+	editor3_->setNoUnitsBox(true);
+
 	editor4_ = new AMExtendedControlEditor(0);
+	editor4_->setTitle("Filter 4");
+	editor4_->setNoUnitsBox(true);
 
 	// Create and set layout.
 
 	QVBoxLayout *layout = new QVBoxLayout();
-	layout->addWidget(filtersControlEditor_);
 	layout->addWidget(editor1_);
 	layout->addWidget(editor2_);
 	layout->addWidget(editor3_);
@@ -46,8 +54,6 @@ void BioXASXIAFiltersView::setFilters(BioXASXIAFilters *newFilters)
 
 			// Clear UI elements.
 
-			filtersControlEditor_->setControl(0);
-
 			editor1_->setControl(0);
 			editor2_->setControl(0);
 			editor3_->setControl(0);
@@ -59,8 +65,6 @@ void BioXASXIAFiltersView::setFilters(BioXASXIAFilters *newFilters)
 		if (filters_) {
 
 			// Update UI elements.
-
-			filtersControlEditor_->setControl(filters_->filtersControl());
 
 			editor1_->setControl(filters_->filter1());
 			editor2_->setControl(filters_->filter2());

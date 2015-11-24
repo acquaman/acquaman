@@ -350,6 +350,13 @@ AMScanViewSingleSpectrumView::AMScanViewSingleSpectrumView(QWidget *parent)
 {
 	addMultipleSpectra_ = false;
 
+	QFont newFont = font();
+	newFont.setPointSize(18);
+	newFont.setBold(true);
+
+	title_ = new QLabel;
+	title_->setFont(newFont);
+
 	x_.resize(0);
 	sourceButtons_ = new QButtonGroup;
 	sourceButtons_->setExclusive(false);
@@ -367,9 +374,9 @@ AMScanViewSingleSpectrumView::AMScanViewSingleSpectrumView(QWidget *parent)
 	tableView_ = new AMSelectablePeriodicTableView(table_);
 	tableView_->buildPeriodicTableView();
 
-	QVBoxLayout *layout = new QVBoxLayout;
-	layout->addWidget(plot_);
-	layout->addWidget(tableView_, 0, Qt::AlignCenter);
+	QVBoxLayout *plotLayout = new QVBoxLayout;
+	plotLayout->addWidget(plot_);
+	plotLayout->addWidget(tableView_, 0, Qt::AlignCenter);
 
 	sourceButtonsLayout_ = new QVBoxLayout;
 	sourceButtonsLayout_->addWidget(new QLabel("Available Spectra"), 0, Qt::AlignLeft);
@@ -395,22 +402,31 @@ AMScanViewSingleSpectrumView::AMScanViewSingleSpectrumView(QWidget *parent)
 	exportButton_->setEnabled(false);
 	connect(exportButton_, SIGNAL(clicked()), this, SLOT(onExportClicked()));
 
-	QVBoxLayout *rightLayout = new QVBoxLayout;
-	rightLayout->addLayout(sourceButtonsLayout_);
-	rightLayout->addStretch();
-	rightLayout->addWidget(new QLabel("Left Axis Scale"));
-	rightLayout->addWidget(logEnableButton_);
-	rightLayout->addWidget(new QLabel("Min. Energy"));
-	rightLayout->addWidget(minimum_);
-	rightLayout->addWidget(new QLabel("Max. Energy"));
-	rightLayout->addWidget(maximum_);
-	rightLayout->addWidget(exportButton_);
+	QVBoxLayout *sourcesLayout = new QVBoxLayout;
+	sourcesLayout->addLayout(sourceButtonsLayout_);
+	sourcesLayout->addStretch();
+	sourcesLayout->addWidget(new QLabel("Left Axis Scale"));
+	sourcesLayout->addWidget(logEnableButton_);
+	sourcesLayout->addWidget(new QLabel("Min. Energy"));
+	sourcesLayout->addWidget(minimum_);
+	sourcesLayout->addWidget(new QLabel("Max. Energy"));
+	sourcesLayout->addWidget(maximum_);
+	sourcesLayout->addWidget(exportButton_);
 
-	QHBoxLayout *fullLayout = new QHBoxLayout;
-	fullLayout->addLayout(layout);
-	fullLayout->addLayout(rightLayout);
+	QHBoxLayout *plotAndSourcesLayout = new QHBoxLayout;
+	plotAndSourcesLayout->addLayout(plotLayout);
+	plotAndSourcesLayout->addLayout(sourcesLayout);
 
-	setLayout(fullLayout);
+	QVBoxLayout *layout = new QVBoxLayout;
+	layout->addWidget(title_, 0, Qt::AlignLeft);
+	layout->addLayout(plotAndSourcesLayout);
+
+	setLayout(layout);
+}
+
+void AMScanViewSingleSpectrumView::setTitle(const QString &title)
+{
+	title_->setText(title);
 }
 
 void AMScanViewSingleSpectrumView::setupPlot()

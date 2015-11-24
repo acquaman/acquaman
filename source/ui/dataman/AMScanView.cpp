@@ -501,6 +501,7 @@ void AMScanView::onScanAdded(AMScan *scan)
 
 	// Apply changes to views.
 
+	spectrumView_->setTitle(QString("%1 #%2").arg(scan->name()).arg(scan->number()));
 	spectrumView_->setDataSources(sources);
 
 	setUnitsFromScan(scan);

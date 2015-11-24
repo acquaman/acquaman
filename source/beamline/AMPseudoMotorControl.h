@@ -100,7 +100,7 @@ protected slots:
 	/// Updates the current value.
 	virtual void updateValue() = 0;
 	/// Updates the moving state.
-	virtual void updateMoving() = 0;
+	virtual void updateMoving() { return; }
 	/// Updates the minimum value.
 	virtual void updateMinimumValue() { return; }
 	/// Updates the maximum value.

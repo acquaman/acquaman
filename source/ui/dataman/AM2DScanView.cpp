@@ -436,6 +436,7 @@ void AM2DScanView::onScanAdded(AMScan *scan)
 			sources.append(source);
 
 	exclusive2DScanBar_->setShowSpectraEnabled(!sources.isEmpty());
+	spectrumView_->setTitle(QString("%1 #%2").arg(scan->name()).arg(scan->number()));
 	spectrumView_->setDataSources(sources);
 }
 

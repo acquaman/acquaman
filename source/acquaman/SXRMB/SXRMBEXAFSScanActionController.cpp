@@ -18,7 +18,7 @@ SXRMBEXAFSScanActionController::SXRMBEXAFSScanActionController(SXRMBEXAFSScanCon
 	configuration_ = configuration;
 
 	scan_ = new AMXASScan();
-	scan_->setFileFormat("amRegionAscii2013");
+	scan_->setFileFormat("amCDFv1");
 	scan_->setScanConfiguration(configuration);
 	scan_->setIndexType("fileSystem");
 	scan_->rawData()->addScanAxis(AMAxisInfo("eV", 0, "Incident Energy", "eV"));
@@ -217,12 +217,25 @@ void SXRMBEXAFSScanActionController::buildScanControllerImplementation()
 	}
 
 	if (configuration_->endstation() == SXRMB::AmbiantWithGasChamber || configuration_->endstation() == SXRMB::AmbiantWithoutGasChamber){
+		AMDataSource *transmissionSource = scan_->dataSourceAt(scan_->indexOfDataSource("TransmissionDetector"));
 
 		AM1DExpressionAB* transmission = new AM1DExpressionAB("transmission");
 		transmission->setDescription("Transmission");
-		transmission->setInputDataSources(QList<AMDataSource *>() << scan_->dataSourceAt(scan_->indexOfDataSource("TransmissionDetector")) << i0Sources);
+		transmission->setInputDataSources(QList<AMDataSource *>() << transmissionSource << i0Sources);
 		transmission->setExpression(QString("ln(I0Detector/TransmissionDetector)"));
 		scan_->addAnalyzedDataSource(transmission, true, false);
+	}
+
+	if (configuration_->endstation() == SXRMB::SolidState) {
+		AMDetector* teyDetector = SXRMBBeamline::sxrmb()->teyDetector();
+		AMDataSource *spectraSource = scan_->dataSourceAt(scan_->indexOfDataSource("TEYDetector"));
+
+		AM1DNormalizationAB *normalizedTEY = new AM1DNormalizationAB(QString("norm_%1").arg(teyDetector->name()));
+		normalizedTEY->setDataName(teyDetector->name());
+		normalizedTEY->setNormalizationName(i0Sources.first()->name());
+		normalizedTEY->setInputDataSources(QList<AMDataSource *>() << spectraSource << i0Sources);
+
+		scan_->addAnalyzedDataSource(normalizedTEY, true, false);
 	}
 }
 

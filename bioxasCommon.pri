@@ -24,10 +24,8 @@ HEADERS += \
 	source/acquaman/BioXAS/BioXASScanConfigurationDbObject.h \
 	source/acquaman/BioXAS/BioXASScanConfiguration.h \
 	source/beamline/BioXAS/BioXASCarbonFilterFarm.h \
-	source/beamline/BioXAS/BioXASCarbonFilterFarmActuatorControl.h \
 	source/beamline/BioXAS/BioXASXIAFilters.h \
 	source/ui/BioXAS/BioXASXIAFiltersView.h \
-	source/ui/BioXAS/BioXASCarbonFilterFarmView.h \
 	source/beamline/BioXAS/BioXASBeamline.h \
 	source/beamline/BioXAS/BioXASMonochromator.h \
 	source/beamline/BioXAS/BioXASM2Mirror.h \
@@ -35,7 +33,6 @@ HEADERS += \
 	source/beamline/BioXAS/BioXASEndstationTable.h \
 	source/beamline/BioXAS/BioXASM1Mirror.h \
 	source/beamline/BioXAS/BioXASBeamlineComponent.h \
-	source/beamline/BioXAS/BioXASCarbonFilterFarmControl.h \
 	source/ui/BioXAS/BioXASBeamlineBeamView.h \
 	source/beamline/BioXAS/BioXASMirrorMotor.h \
 	source/beamline/BioXAS/BioXASMirror.h \
@@ -62,9 +59,9 @@ HEADERS += \
 	source/beamline/BioXAS/BioXASShutterControl.h \
 	source/ui/BioXAS/BioXASEndstationTableView.h \
 	source/ui/BioXAS/BioXAS32ElementGeDetectorView.h \
-    source/beamline/BioXAS/BioXASXIAFiltersControl.h \
     source/beamline/BioXAS/BioXASDBHRMirrors.h \
 	source/ui/BioXAS/BioXASDBHRMirrorsView.h \
+    source/beamline/BioXAS/BioXASCarbonFilterFarmActuatorWindowControl.h \
     source/beamline/BioXAS/BioXASBeamlineUtilities.h \
     source/beamline/BioXAS/BioXASCryostatStage.h \
     source/ui/BioXAS/BioXASXASScanConfigurationRegionsEditor.h \
@@ -78,7 +75,18 @@ HEADERS += \
     source/ui/BioXAS/BioXASFilterFlipperFilterView.h \
     source/ui/BioXAS/BioXASFilterFlipperConfigurationView.h \
     source/beamline/BioXAS/BioXASFilterFlipperSlide.h \
-    source/ui/BioXAS/BioXASFilterFlipperSlideView.h
+	source/ui/BioXAS/BioXASFilterFlipperSlideView.h \
+    source/beamline/BioXAS/BioXASCarbonFilterFarmActuatorPositionControl.h \
+    source/beamline/BioXAS/BioXASCarbonFilterFarmActuatorControl.h \
+    source/beamline/BioXAS/BioXASCarbonFilterFarmActuatorFilterControl.h \
+    source/beamline/BioXAS/BioXASCarbonFilterFarmControl.h \
+    source/beamline/BioXAS/BioXASCarbonFilterFarmFilterControl.h \
+    source/ui/BioXAS/BioXASCarbonFilterFarmActuatorControlView.h \
+    source/ui/BioXAS/BioXASCarbonFilterFarmControlView.h \
+    source/beamline/BioXAS/BioXASCarbonFilterFarmActuator.h \
+    source/beamline/BioXAS/BioXASXIAFiltersActuatorControl.h \
+    source/beamline/BioXAS/BioXASXIAFiltersActuator.h \
+    source/beamline/AMExclusiveStatesEnumeratedControl.h
 
 SOURCES += \
 	source/acquaman/BioXAS/BioXASXRFScanConfiguration.cpp \
@@ -98,10 +106,8 @@ SOURCES += \
 	source/acquaman/BioXAS/BioXASScanConfigurationDbObject.cpp \
 	source/acquaman/BioXAS/BioXASScanConfiguration.cpp \
 	source/beamline/BioXAS/BioXASCarbonFilterFarm.cpp \
-	source/beamline/BioXAS/BioXASCarbonFilterFarmActuatorControl.cpp \
 	source/beamline/BioXAS/BioXASXIAFilters.cpp \
 	source/ui/BioXAS/BioXASXIAFiltersView.cpp \
-	source/ui/BioXAS/BioXASCarbonFilterFarmView.cpp \
 	source/beamline/BioXAS/BioXASBeamline.cpp \
 	source/beamline/BioXAS/BioXASMonochromator.cpp \
 	source/beamline/BioXAS/BioXASM2Mirror.cpp \
@@ -109,7 +115,6 @@ SOURCES += \
 	source/beamline/BioXAS/BioXASEndstationTable.cpp \
 	source/beamline/BioXAS/BioXASM1Mirror.cpp \
 	source/beamline/BioXAS/BioXASBeamlineComponent.cpp \
-	source/beamline/BioXAS/BioXASCarbonFilterFarmControl.cpp \
 	source/ui/BioXAS/BioXASBeamlineBeamView.cpp \
 	source/beamline/BioXAS/BioXASMirrorMotor.cpp \
 	source/beamline/BioXAS/BioXASMirror.cpp \
@@ -135,9 +140,9 @@ SOURCES += \
 	source/beamline/BioXAS/BioXASShutterControl.cpp \
 	source/ui/BioXAS/BioXASEndstationTableView.cpp \
 	source/ui/BioXAS/BioXAS32ElementGeDetectorView.cpp \
-	source/beamline/BioXAS/BioXASXIAFiltersControl.cpp \
     source/beamline/BioXAS/BioXASDBHRMirrors.cpp \
 	source/ui/BioXAS/BioXASDBHRMirrorsView.cpp \
+    source/beamline/BioXAS/BioXASCarbonFilterFarmActuatorWindowControl.cpp \
     source/beamline/BioXAS/BioXASBeamlineUtilities.cpp \
     source/beamline/BioXAS/BioXASCryostatStage.cpp \
     source/ui/BioXAS/BioXASXASScanConfigurationRegionsEditor.cpp \
@@ -151,7 +156,39 @@ SOURCES += \
     source/ui/BioXAS/BioXASFilterFlipperFilterView.cpp \
     source/ui/BioXAS/BioXASFilterFlipperConfigurationView.cpp \
     source/beamline/BioXAS/BioXASFilterFlipperSlide.cpp \
-    source/ui/BioXAS/BioXASFilterFlipperSlideView.cpp
+	source/ui/BioXAS/BioXASFilterFlipperSlideView.cpp \
+    source/beamline/BioXAS/BioXASCarbonFilterFarmActuatorPositionControl.cpp \
+    source/beamline/BioXAS/BioXASCarbonFilterFarmActuatorControl.cpp \
+    source/beamline/BioXAS/BioXASCarbonFilterFarmActuatorFilterControl.cpp \
+    source/beamline/BioXAS/BioXASCarbonFilterFarmControl.cpp \
+    source/beamline/BioXAS/BioXASCarbonFilterFarmFilterControl.cpp \
+    source/ui/BioXAS/BioXASCarbonFilterFarmActuatorControlView.cpp \
+    source/ui/BioXAS/BioXASCarbonFilterFarmControlView.cpp \
+    source/beamline/BioXAS/BioXASCarbonFilterFarmActuator.cpp \
+    source/beamline/BioXAS/BioXASXIAFiltersActuatorControl.cpp \
+    source/beamline/BioXAS/BioXASXIAFiltersActuator.cpp \
+    source/beamline/AMExclusiveStatesEnumeratedControl.cpp
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+>>>>>>> master
 
 
 
