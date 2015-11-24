@@ -220,7 +220,7 @@ void SGMAppController::setupUserInterface()
 	SGMSampleChamberVacuumView *sampleChamberVacuumView =
 			new SGMSampleChamberVacuumView(SGMBeamline::sgm()->sampleChamberVacuum());
 
-	mw_->addPane(AMMainWindow::buildMainWindowPane("Sample Chamber", ":/system-software-update.png", laddersView), "Components", "Sample Chamber", ":/system-software-update.png");
+	mw_->addPane(AMMainWindow::buildMainWindowPane("Sample Chamber", ":/system-software-update.png", sampleChamberVacuumView), "Components", "Sample Chamber", ":/system-software-update.png");
 
 	mw_->insertHeading("Scans", 1);
 
