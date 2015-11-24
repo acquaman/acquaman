@@ -41,6 +41,8 @@ protected slots:
 protected:
 	/// Creates a plot for viewing the sources.
 	void setupPlot();
+	/// Helper method for having different colors to lines.
+	QColor nextColor() const;
 
 	/// Holds the plot widget.
 	MPlotWidget *plotWidget_;

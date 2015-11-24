@@ -7,6 +7,7 @@
 #include "Connection/AMDSServer.h"
 
 #include "MPlot/MPlotSeries.h"
+#include "MPlot/MPlotTools.h"
 
 #include "ui/TimeEvolutionStripTool/AMTESTDataModelListView.h"
 #include "ui/TimeEvolutionStripTool/AMTESTServerConnectionButton.h"
@@ -124,6 +125,7 @@ void AMTESTCentralWidgetView::onDataModelToBeAdded(const QString &name)
 		series->setModel(dataModel->seriesDataModel());
 		series->setDescription(dataModel->name());
 		series->setMarker(MPlotMarkerShape::None);
+		series->setLinePen(QPen(nextColor()));
 		plot_->addItem(series);
 	}
 
@@ -153,5 +155,27 @@ void AMTESTCentralWidgetView::setupPlot()
 	plot_->axisBottom()->setAxisNameFont(QFont("Helvetica", 6));
 	plot_->axisBottom()->setTickLabelFont(QFont("Helvetica", 6));
 	plot_->axisBottom()->setAxisName("Time");
+
+	MPlotDragZoomerTool *dragZoomTool = new MPlotDragZoomerTool;
+	plot_->addTool(dragZoomTool);
+}
+
+QColor AMTESTCentralWidgetView::nextColor() const
+{
+	static int i = 0;
+
+	switch(i++ % 11) {
+	case 0: return QColor(255, 0, 128);
+	case 1: return QColor(0, 128, 255);
+	case 2: return QColor(128, 255, 0);
+	case 3: return QColor(255, 128, 0);
+	case 4: return QColor(128, 0, 255);
+	case 5: return QColor(0, 0, 255);
+	case 6: return QColor(0, 128, 0);
+	case 7: return QColor(255, 0, 0);
+	case 8: return QColor(0, 64, 128);
+	case 9: return QColor(128, 64, 0);
+	case 10: default: return QColor(128, 0, 64);
+	}
 }
 
